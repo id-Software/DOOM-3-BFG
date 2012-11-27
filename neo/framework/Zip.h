@@ -28,7 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef	__ZIP_H__
 #define	__ZIP_H__
 
-#include "zlib/zlib.h"
+#include "../libs/zlib/zlib.h"
 
 /*
 ================================================================================================

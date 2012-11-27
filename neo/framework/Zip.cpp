@@ -39,7 +39,7 @@ Contains external code for building ZipFiles.
 #include "Unzip.h"
 
 #undef STDC
-#include "zlib/zutil.h"
+#include "../libs/zlib/zutil.h"
 
 /* zip.c -- IO on .zip files using zlib
    Version 1.01e, February 12th, 2005
