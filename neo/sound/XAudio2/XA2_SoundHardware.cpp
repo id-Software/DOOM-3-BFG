@@ -69,6 +69,14 @@ void listDevices_f( const idCmdArgs & args ) {
 		return;
 	}
 
+// RB: not available on Windows 8 SDK
+#if (_WIN32_WINNT >= 0x0602 /*_WIN32_WINNT_WIN8*/)
+	
+	// FIXME
+	
+	idLib::Warning( "No audio devices found" );
+	return;
+#else
 	UINT32 deviceCount = 0;
 	if ( pXAudio2->GetDeviceCount( &deviceCount ) != S_OK || deviceCount == 0 ) {
 		idLib::Warning( "No audio devices found" );
@@ -157,6 +165,8 @@ void listDevices_f( const idCmdArgs & args ) {
 			idLib::Printf( ", and %s\n", roles[roles.Num() - 1] );
 		}
 	}
+#endif
+// RB end
 }
 
 /*
@@ -169,13 +179,18 @@ void idSoundHardware_XAudio2::Init() {
 	cmdSystem->AddCommand( "listDevices", listDevices_f, 0, "Lists the connected sound devices", NULL );
 
 	DWORD xAudioCreateFlags = 0;
-#ifdef _DEBUG
+
+// RB: not available on Windows 8 SDK
+#if (_WIN32_WINNT < 0x0602 /*_WIN32_WINNT_WIN8*/) && defined(_DEBUG)
 	xAudioCreateFlags |= XAUDIO2_DEBUG_ENGINE;
 #endif
+// RB end
 
 	XAUDIO2_PROCESSOR xAudioProcessor = XAUDIO2_DEFAULT_PROCESSOR;
 
-	if ( FAILED( XAudio2Create( &pXAudio2, xAudioCreateFlags, xAudioProcessor ) ) ) {
+// RB: not available on Windows 8 SDK
+	if ( FAILED( XAudio2Create( &pXAudio2, xAudioCreateFlags, xAudioProcessor ) ) ){
+#if (_WIN32_WINNT < 0x0602 /*_WIN32_WINNT_WIN8*/) && defined(_DEBUG)
 		if ( xAudioCreateFlags & XAUDIO2_DEBUG_ENGINE ) {
 			// in case the debug engine isn't installed
 			xAudioCreateFlags &= ~XAUDIO2_DEBUG_ENGINE;
@@ -183,7 +198,10 @@ void idSoundHardware_XAudio2::Init() {
 				idLib::FatalError( "Failed to create XAudio2 engine.  Try installing the latest DirectX." );
 				return;
 			}
-		} else {
+		} else 
+#endif
+// RB end
+		{
 			idLib::FatalError( "Failed to create XAudio2 engine.  Try installing the latest DirectX." );
 			return;
 		}
@@ -199,8 +217,19 @@ void idSoundHardware_XAudio2::Init() {
 	pXAudio2->RegisterForCallbacks( &soundEngineCallback );
 	soundEngineCallback.hardware = this;
 
+// RB: not available on Windows 8 SDK
+#if (_WIN32_WINNT >= 0x0602 /*_WIN32_WINNT_WIN8*/)
+	
+	// FIXME
+	
+	idLib::Warning( "No audio devices found" );
+	pXAudio2->Release();
+	pXAudio2 = NULL;
+	return;
+#else
 	UINT32 deviceCount = 0;
-	if ( pXAudio2->GetDeviceCount( &deviceCount ) != S_OK || deviceCount == 0 ) {
+	if ( pXAudio2->GetDeviceCount( &deviceCount ) != S_OK || deviceCount == 0 )
+	{
 		idLib::Warning( "No audio devices found" );
 		pXAudio2->Release();
 		pXAudio2 = NULL;
@@ -325,6 +354,8 @@ void idSoundHardware_XAudio2::Init() {
 	for ( int i = 0; i < voices.Num(); i++ ) {
 		freeVoices[i] = &voices[i];
 	}
+#endif // #if (_WIN32_WINNT < 0x0602 /*_WIN32_WINNT_WIN8*/)
+// RB end
 }
 
 /*

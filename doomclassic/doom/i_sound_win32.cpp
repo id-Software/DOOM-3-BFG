@@ -654,7 +654,9 @@ I_InitSoundChannel
 void I_InitSoundChannel( int channel, int numOutputChannels_ ) {
 	activeSound_t	*soundchannel = &activeSounds[ channel ];
 
-	X3DAUDIO_VECTOR ZeroVector = { 0.0f, 0.0f, 0.0f };
+	// RB: fixed non-aggregates cannot be initialized with initializer list
+	X3DAUDIO_VECTOR ZeroVector( 0.0f, 0.0f, 0.0f );
+	// RB end
 
 	// Set up emitter parameters
 	soundchannel->m_Emitter.OrientFront.x         = 0.0f;
@@ -718,7 +720,9 @@ void I_InitSound() {
 	if (S_initialized == 0) {
 		int i;
 
-		X3DAUDIO_VECTOR ZeroVector = { 0.0f, 0.0f, 0.0f };
+		// RB: non-aggregates cannot be initialized with initializer list
+		X3DAUDIO_VECTOR ZeroVector( 0.0f, 0.0f, 0.0f );
+		// RB end
 
 		// Set up listener parameters
 		doom_Listener.OrientFront.x        = 0.0f;
@@ -813,7 +817,11 @@ void I_InitMusic(void)
 		voiceFormat.wBitsPerSample = MIDI_FORMAT_BYTES * 8;
 		voiceFormat.cbSize = 0;
 
+// RB: XAUDIO2_VOICE_MUSIC not available on Windows 8 SDK
+#if (_WIN32_WINNT < 0x0602 /*_WIN32_WINNT_WIN8*/)
 		soundSystemLocal.hardware.GetIXAudio2()->CreateSourceVoice( &pMusicSourceVoice, (WAVEFORMATEX *)&voiceFormat, XAUDIO2_VOICE_MUSIC );
+#endif
+// RB end
 
 		Music_initialized = true;
 	}

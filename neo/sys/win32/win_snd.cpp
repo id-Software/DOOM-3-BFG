@@ -28,8 +28,11 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "../../idlib/precompiled.h"
 
-// DirectX SDK
+// RB: <DxErr.h> not available on Windows 8 SDK
+#if (_WIN32_WINNT < 0x0602 /*_WIN32_WINNT_WIN8*/)
 #include <DxErr.h>
+#endif
+// RB end
 
 #include <ks.h>
 #include <ksmedia.h>
