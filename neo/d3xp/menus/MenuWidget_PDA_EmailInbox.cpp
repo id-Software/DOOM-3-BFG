@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -36,18 +36,20 @@ static const int MAX_EMAIL_ITEMS = 7;
 idMenuWidget_PDA_EmailInbox::Initialize
 ========================
 */
-void idMenuWidget_PDA_EmailInbox::Initialize( idMenuHandler * data ) {
+void idMenuWidget_PDA_EmailInbox::Initialize( idMenuHandler* data )
+{
 
-	idMenuWidget_ScrollBar * scrollbar = new (TAG_SWF) idMenuWidget_ScrollBar();
+	idMenuWidget_ScrollBar* scrollbar = new( TAG_SWF ) idMenuWidget_ScrollBar();
 	scrollbar->SetSpritePath( GetSpritePath(), "info", "scrollbar" );
 	scrollbar->Initialize( data );
-
-	emailList = new (TAG_SWF) idMenuWidget_DynamicList();
+	
+	emailList = new( TAG_SWF ) idMenuWidget_DynamicList();
 	emailList->SetSpritePath( GetSpritePath(), "info", "options" );
 	emailList->SetNumVisibleOptions( MAX_EMAIL_ITEMS );
 	emailList->SetWrappingAllowed( true );
-	while ( emailList->GetChildren().Num() < MAX_EMAIL_ITEMS ) {
-		idMenuWidget_Button * const buttonWidget = new (TAG_SWF) idMenuWidget_Button();
+	while( emailList->GetChildren().Num() < MAX_EMAIL_ITEMS )
+	{
+		idMenuWidget_Button* const buttonWidget = new( TAG_SWF ) idMenuWidget_Button();
 		buttonWidget->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_PDA_SELECT_EMAIL, emailList->GetChildren().Num() );
 		buttonWidget->AddEventAction( WIDGET_EVENT_FOCUS_ON ).Set( WIDGET_ACTION_REFRESH );
 		buttonWidget->Initialize( data );
@@ -56,7 +58,7 @@ void idMenuWidget_PDA_EmailInbox::Initialize( idMenuHandler * data ) {
 	}
 	emailList->Initialize( data );
 	emailList->AddChild( scrollbar );
-
+	
 	AddChild( emailList );
 }
 
@@ -65,68 +67,85 @@ void idMenuWidget_PDA_EmailInbox::Initialize( idMenuHandler * data ) {
 idMenuWidget_PDA_EmailInbox::Update
 ========================
 */
-void idMenuWidget_PDA_EmailInbox::Update() {
+void idMenuWidget_PDA_EmailInbox::Update()
+{
 
-	if ( GetSWFObject() == NULL ) {
+	if( GetSWFObject() == NULL )
+	{
 		return;
 	}
-
-	idSWFScriptObject & root = GetSWFObject()->GetRootObject();
-	if ( !BindSprite( root ) || GetSprite() == NULL ) {
+	
+	idSWFScriptObject& root = GetSWFObject()->GetRootObject();
+	if( !BindSprite( root ) || GetSprite() == NULL )
+	{
 		return;
 	}
-
-	idPlayer * player = gameLocal.GetLocalPlayer();
-	if ( player == NULL ) {
+	
+	idPlayer* player = gameLocal.GetLocalPlayer();
+	if( player == NULL )
+	{
 		return;
 	}
-
-	if ( pdaIndex > player->GetInventory().pdas.Num() ) {
+	
+	if( pdaIndex > player->GetInventory().pdas.Num() )
+	{
 		return;
 	}
-
-	const idDeclPDA * pda = player->GetInventory().pdas[ pdaIndex ];
-
-	idSWFScriptObject * dataObj = GetSprite()->GetScriptObject()->GetNestedObj( "info" );
-	if ( dataObj != NULL && pda != NULL ) {
-
-		idSWFTextInstance * txtOwner = dataObj->GetNestedText( "heading", "txtOwner" );
-		if ( txtOwner != NULL ) {
+	
+	const idDeclPDA* pda = player->GetInventory().pdas[ pdaIndex ];
+	
+	idSWFScriptObject* dataObj = GetSprite()->GetScriptObject()->GetNestedObj( "info" );
+	if( dataObj != NULL && pda != NULL )
+	{
+	
+		idSWFTextInstance* txtOwner = dataObj->GetNestedText( "heading", "txtOwner" );
+		if( txtOwner != NULL )
+		{
 			idStr ownerText = idLocalization::GetString( "#str_01474" );
-			ownerText.Append( ": ");
-
-			if ( pdaIndex == 0 ) {
-				ownerText.Append( session->GetLocalUserName(0) );
-			} else {
+			ownerText.Append( ": " );
+			
+			if( pdaIndex == 0 )
+			{
+				ownerText.Append( session->GetLocalUserName( 0 ) );
+			}
+			else
+			{
 				ownerText.Append( pda->GetFullName() );
 			}
 			txtOwner->SetText( ownerText.c_str() );
-
-			if ( pdaIndex == 0 ) {
+			
+			if( pdaIndex == 0 )
+			{
 				txtOwner->SetIgnoreColor( false );
-			} else {
+			}
+			else
+			{
 				txtOwner->SetIgnoreColor( false );
 				txtOwner->SetText( pda->GetFullName() );
 			}
-
+			
 		}
-
-		if ( emailList != NULL ) {
-			const idDeclEmail *email = NULL;
+		
+		if( emailList != NULL )
+		{
+			const idDeclEmail* email = NULL;
 			emailInfo.Clear();
-			for ( int index = 0; index < pda->GetNumEmails(); ++index ) {
+			for( int index = 0; index < pda->GetNumEmails(); ++index )
+			{
 				idList< idStr > emailData;
-				email = pda->GetEmailByIndex( index );						
-				if ( email != NULL ) {
+				email = pda->GetEmailByIndex( index );
+				if( email != NULL )
+				{
 					emailData.Append( email->GetFrom() );
 					emailData.Append( email->GetSubject() );
 					emailData.Append( email->GetDate() );
 				}
 				emailInfo.Append( emailData );
 			}
-
+			
 			emailList->SetListData( emailInfo );
-			if ( emailList->BindSprite( root ) ) {
+			if( emailList->BindSprite( root ) )
+			{
 				emailList->Update();
 			}
 		}
@@ -138,36 +157,45 @@ void idMenuWidget_PDA_EmailInbox::Update() {
 idMenuWidget_PDA_EmailInbox::ObserveEvent
 ========================
 */
-void idMenuWidget_PDA_EmailInbox::ObserveEvent( const idMenuWidget & widget, const idWidgetEvent & event ) {
-	const idMenuWidget_Button * const button = dynamic_cast< const idMenuWidget_Button * >( &widget );
-	if ( button == NULL ) {
+void idMenuWidget_PDA_EmailInbox::ObserveEvent( const idMenuWidget& widget, const idWidgetEvent& event )
+{
+	const idMenuWidget_Button* const button = dynamic_cast< const idMenuWidget_Button* >( &widget );
+	if( button == NULL )
+	{
 		return;
 	}
-
-	const idMenuWidget * const listWidget = button->GetParent();
-
-	if ( listWidget == NULL ) {
+	
+	const idMenuWidget* const listWidget = button->GetParent();
+	
+	if( listWidget == NULL )
+	{
 		return;
 	}
-
-	switch ( event.type ) {
-		case WIDGET_EVENT_FOCUS_ON: {
-			const idMenuWidget_DynamicList * const list = dynamic_cast< const idMenuWidget_DynamicList * const >( listWidget );
+	
+	switch( event.type )
+	{
+		case WIDGET_EVENT_FOCUS_ON:
+		{
+			const idMenuWidget_DynamicList* const list = dynamic_cast< const idMenuWidget_DynamicList* const >( listWidget );
 			int oldIndex = pdaIndex;
-			if ( list != NULL ) {
+			if( list != NULL )
+			{
 				pdaIndex = list->GetViewIndex();
 				Update();
 			}
-			if ( emailList != NULL && oldIndex != pdaIndex ) {
+			if( emailList != NULL && oldIndex != pdaIndex )
+			{
 				emailList->SetFocusIndex( 0 );
 				emailList->SetViewIndex( 0 );
 				emailList->SetViewOffset( 0 );
-			}			
+			}
 			break;
-									}
-		case WIDGET_EVENT_FOCUS_OFF: {
+		}
+		case WIDGET_EVENT_FOCUS_OFF:
+		{
 			Update();
-			if ( emailList != NULL ) {
+			if( emailList != NULL )
+			{
 				emailList->SetFocusIndex( 0 );
 				emailList->SetViewIndex( 0 );
 				emailList->SetViewOffset( 0 );

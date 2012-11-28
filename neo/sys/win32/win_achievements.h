@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -30,20 +30,21 @@ If you have questions concerning this license or the applicable additional terms
 
 /*
 ================================================
-idAchievementSystemWin 
+idAchievementSystemWin
 ================================================
 */
-class idAchievementSystemWin : public idAchievementSystem {
+class idAchievementSystemWin : public idAchievementSystem
+{
 public:
-			idAchievementSystemWin();
-
+	idAchievementSystemWin();
+	
 	bool	IsInitialized();
-	void	AchievementUnlock( idLocalUser * user, const int achievementID );
-	void	AchievementLock( idLocalUser * user, const int achievementID );
-	void	AchievementLockAll( idLocalUser * user, const int maxId );
+	void	AchievementUnlock( idLocalUser* user, const int achievementID );
+	void	AchievementLock( idLocalUser* user, const int achievementID );
+	void	AchievementLockAll( idLocalUser* user, const int maxId );
 	void	Pump();
-	bool	GetAchievementDescription( idLocalUser * user, const int id, achievementDescription_t & data ) const;
-	bool	GetAchievementState( idLocalUser * user, idArray< bool, idAchievementSystem::MAX_ACHIEVEMENTS > & achievements ) const;
+	bool	GetAchievementDescription( idLocalUser* user, const int id, achievementDescription_t& data ) const;
+	bool	GetAchievementState( idLocalUser* user, idArray< bool, idAchievementSystem::MAX_ACHIEVEMENTS >& achievements ) const;
 };
 
 #endif // __WIN_ACHIEVEMENTS_H__

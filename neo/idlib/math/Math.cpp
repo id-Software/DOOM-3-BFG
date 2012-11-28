@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "../precompiled.h"
 
-const int SMALLEST_NON_DENORMAL					= 1<<IEEE_FLT_MANTISSA_BITS;
+const int SMALLEST_NON_DENORMAL					= 1 << IEEE_FLT_MANTISSA_BITS;
 const int NAN_VALUE								= 0x7f800000;
 
 const float	idMath::PI				= 3.14159265358979323846f;
@@ -49,7 +49,7 @@ const float	idMath::M_SEC2MS		= 1000.0f;
 const float	idMath::M_MS2SEC		= 0.001f;
 const float	idMath::INFINITY		= 1e30f;
 const float idMath::FLT_EPSILON		= 1.192092896e-07f;
-const float idMath::FLT_SMALLEST_NON_DENORMAL	= * reinterpret_cast< const float * >( & SMALLEST_NON_DENORMAL );	// 1.1754944e-038f
+const float idMath::FLT_SMALLEST_NON_DENORMAL	= * reinterpret_cast< const float* >( & SMALLEST_NON_DENORMAL );	// 1.1754944e-038f
 
 const __m128 idMath::SIMD_SP_zero				= { 0.0f, 0.0f, 0.0f, 0.0f };
 const __m128 idMath::SIMD_SP_255				= { 255.0f, 255.0f, 255.0f, 255.0f };
@@ -70,17 +70,19 @@ dword		idMath::iSqrt[SQRT_TABLE_SIZE];		// inverse square root lookup table
 idMath::Init
 ===============
 */
-void idMath::Init() {
-    union _flint fi, fo;
-
-    for ( int i = 0; i < SQRT_TABLE_SIZE; i++ ) {
-        fi.i	 = ((EXP_BIAS-1) << EXP_POS) | (i << LOOKUP_POS);
-        fo.f	 = (float)( 1.0 / sqrt( fi.f ) );
-        iSqrt[i] = ((dword)(((fo.i + (1<<(SEED_POS-2))) >> SEED_POS) & 0xFF))<<SEED_POS;
-    }
-    
-	iSqrt[SQRT_TABLE_SIZE / 2] = ((dword)(0xFF))<<(SEED_POS); 
-
+void idMath::Init()
+{
+	union _flint fi, fo;
+	
+	for( int i = 0; i < SQRT_TABLE_SIZE; i++ )
+	{
+		fi.i	 = ( ( EXP_BIAS - 1 ) << EXP_POS ) | ( i << LOOKUP_POS );
+		fo.f	 = ( float )( 1.0 / sqrt( fi.f ) );
+		iSqrt[i] = ( ( dword )( ( ( fo.i + ( 1 << ( SEED_POS - 2 ) ) ) >> SEED_POS ) & 0xFF ) ) << SEED_POS;
+	}
+	
+	iSqrt[SQRT_TABLE_SIZE / 2] = ( ( dword )( 0xFF ) ) << ( SEED_POS );
+	
 	initialized = true;
 }
 
@@ -89,34 +91,44 @@ void idMath::Init() {
 idMath::FloatToBits
 ================
 */
-int idMath::FloatToBits( float f, int exponentBits, int mantissaBits ) {
+int idMath::FloatToBits( float f, int exponentBits, int mantissaBits )
+{
 	int i, sign, exponent, mantissa, value;
-
+	
 	assert( exponentBits >= 2 && exponentBits <= 8 );
 	assert( mantissaBits >= 2 && mantissaBits <= 23 );
-
+	
 	int maxBits = ( ( ( 1 << ( exponentBits - 1 ) ) - 1 ) << mantissaBits ) | ( ( 1 << mantissaBits ) - 1 );
-	int minBits = ( ( ( 1 <<   exponentBits       ) - 2 ) << mantissaBits ) | 1;
-
+	int minBits = ( ( ( 1 <<   exponentBits ) - 2 ) << mantissaBits ) | 1;
+	
 	float max = BitsToFloat( maxBits, exponentBits, mantissaBits );
 	float min = BitsToFloat( minBits, exponentBits, mantissaBits );
-
-	if ( f >= 0.0f ) {
-		if ( f >= max ) {
+	
+	if( f >= 0.0f )
+	{
+		if( f >= max )
+		{
 			return maxBits;
-		} else if ( f <= min ) {
+		}
+		else if( f <= min )
+		{
 			return minBits;
 		}
-	} else {
-		if ( f <= -max ) {
+	}
+	else
+	{
+		if( f <= -max )
+		{
 			return ( maxBits | ( 1 << ( exponentBits + mantissaBits ) ) );
-		} else if ( f >= -min ) {
+		}
+		else if( f >= -min )
+		{
 			return ( minBits | ( 1 << ( exponentBits + mantissaBits ) ) );
 		}
 	}
-
+	
 	exponentBits--;
-	i = *reinterpret_cast<int *>(&f);
+	i = *reinterpret_cast<int*>( &f );
 	sign = ( i >> IEEE_FLT_SIGN_BIT ) & 1;
 	exponent = ( ( i >> IEEE_FLT_MANTISSA_BITS ) & ( ( 1 << IEEE_FLT_EXPONENT_BITS ) - 1 ) ) - IEEE_FLT_EXPONENT_BIAS;
 	mantissa = i & ( ( 1 << IEEE_FLT_MANTISSA_BITS ) - 1 );
@@ -131,17 +143,18 @@ int idMath::FloatToBits( float f, int exponentBits, int mantissaBits ) {
 idMath::BitsToFloat
 ================
 */
-float idMath::BitsToFloat( int i, int exponentBits, int mantissaBits ) {
+float idMath::BitsToFloat( int i, int exponentBits, int mantissaBits )
+{
 	static int exponentSign[2] = { 1, -1 };
 	int sign, exponent, mantissa, value;
-
+	
 	assert( exponentBits >= 2 && exponentBits <= 8 );
 	assert( mantissaBits >= 2 && mantissaBits <= 23 );
-
+	
 	exponentBits--;
 	sign = i >> ( 1 + exponentBits + mantissaBits );
 	exponent = ( ( i >> mantissaBits ) & ( ( 1 << exponentBits ) - 1 ) ) * exponentSign[( i >> ( exponentBits + mantissaBits ) ) & 1];
 	mantissa = ( i & ( ( 1 << mantissaBits ) - 1 ) ) << ( IEEE_FLT_MANTISSA_BITS - mantissaBits );
 	value = sign << IEEE_FLT_SIGN_BIT | ( exponent + IEEE_FLT_EXPONENT_BIAS ) << IEEE_FLT_MANTISSA_BITS | mantissa;
-	return *reinterpret_cast<float *>(&value);
+	return *reinterpret_cast<float*>( &value );
 }

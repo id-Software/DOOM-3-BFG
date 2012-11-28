@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -34,37 +34,48 @@ If you have questions concerning this license or the applicable additional terms
 idMenuWidget_LobbyList::Update
 ========================
 */
-void idMenuWidget_LobbyList::Update() {
+void idMenuWidget_LobbyList::Update()
+{
 
-	if ( GetSWFObject() == NULL ) {
+	if( GetSWFObject() == NULL )
+	{
 		return;
 	}
-
-	idSWFScriptObject & root = GetSWFObject()->GetRootObject();
-
-	if ( !BindSprite( root ) ) {
+	
+	idSWFScriptObject& root = GetSWFObject()->GetRootObject();
+	
+	if( !BindSprite( root ) )
+	{
 		return;
 	}
-
-	for ( int i = 0; i < headings.Num(); ++i ) {
-		idSWFTextInstance * txtHeading = GetSprite()->GetScriptObject()->GetNestedText( va( "heading%d", i ) );
-		if ( txtHeading != NULL ) {
+	
+	for( int i = 0; i < headings.Num(); ++i )
+	{
+		idSWFTextInstance* txtHeading = GetSprite()->GetScriptObject()->GetNestedText( va( "heading%d", i ) );
+		if( txtHeading != NULL )
+		{
 			txtHeading->SetText( headings[i] );
 			txtHeading->SetStrokeInfo( true, 0.75f, 1.75f );
 		}
 	}
-
-	for ( int optionIndex = 0; optionIndex < GetNumVisibleOptions(); ++optionIndex ) {		
+	
+	for( int optionIndex = 0; optionIndex < GetNumVisibleOptions(); ++optionIndex )
+	{
 		bool shown = false;
-		if ( optionIndex < GetChildren().Num() ) {
-			idMenuWidget & child = GetChildByIndex( optionIndex );
+		if( optionIndex < GetChildren().Num() )
+		{
+			idMenuWidget& child = GetChildByIndex( optionIndex );
 			child.SetSpritePath( GetSpritePath(), va( "item%d", optionIndex ) );
-			if ( child.BindSprite( root ) ) {
+			if( child.BindSprite( root ) )
+			{
 				shown = PrepareListElement( child, optionIndex );
-				if ( shown ) {
+				if( shown )
+				{
 					child.GetSprite()->SetVisible( true );
 					child.Update();
-				} else {
+				}
+				else
+				{
 					child.GetSprite()->SetVisible( false );
 				}
 			}
@@ -77,19 +88,22 @@ void idMenuWidget_LobbyList::Update() {
 idMenuWidget_LobbyList::PrepareListElement
 ========================
 */
-bool idMenuWidget_LobbyList::PrepareListElement( idMenuWidget & widget, const int childIndex ) {
+bool idMenuWidget_LobbyList::PrepareListElement( idMenuWidget& widget, const int childIndex )
+{
 
-	idMenuWidget_LobbyButton * const button = dynamic_cast< idMenuWidget_LobbyButton * >( &widget );
-	if ( button == NULL ) {
+	idMenuWidget_LobbyButton* const button = dynamic_cast< idMenuWidget_LobbyButton* >( &widget );
+	if( button == NULL )
+	{
 		return false;
 	}
-
-	if ( !button->IsValid() ) {
+	
+	if( !button->IsValid() )
+	{
 		return false;
 	}
-
+	
 	return true;
-
+	
 }
 
 /*
@@ -97,9 +111,11 @@ bool idMenuWidget_LobbyList::PrepareListElement( idMenuWidget & widget, const in
 idMenuWidget_LobbyList::SetHeadingInfo
 ========================
 */
-void idMenuWidget_LobbyList::SetHeadingInfo( idList< idStr > & list ) {
+void idMenuWidget_LobbyList::SetHeadingInfo( idList< idStr >& list )
+{
 	headings.Clear();
-	for ( int index = 0; index < list.Num(); ++index ) {
+	for( int index = 0; index < list.Num(); ++index )
+	{
 		headings.Append( list[ index ] );
 	}
 }
@@ -109,18 +125,21 @@ void idMenuWidget_LobbyList::SetHeadingInfo( idList< idStr > & list ) {
 idMenuWidget_LobbyList::SetEntryData
 ========================
 */
-void idMenuWidget_LobbyList::SetEntryData( int index, idStr name, voiceStateDisplay_t voiceState ) {
+void idMenuWidget_LobbyList::SetEntryData( int index, idStr name, voiceStateDisplay_t voiceState )
+{
 
-	if ( GetChildren().Num() == 0 || index >= GetChildren().Num() ) {
+	if( GetChildren().Num() == 0 || index >= GetChildren().Num() )
+	{
 		return;
 	}
-
-	idMenuWidget & child = GetChildByIndex( index );
-	idMenuWidget_LobbyButton * const button = dynamic_cast< idMenuWidget_LobbyButton * >( &child );
-
-	if ( button == NULL ) {
+	
+	idMenuWidget& child = GetChildByIndex( index );
+	idMenuWidget_LobbyButton* const button = dynamic_cast< idMenuWidget_LobbyButton* >( &child );
+	
+	if( button == NULL )
+	{
 		return;
 	}
-
+	
 	button->SetButtonInfo( name, voiceState );
 }

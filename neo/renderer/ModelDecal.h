@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -59,74 +59,77 @@ static const int MAX_DECAL_INDEXES			= ( MAX_DECAL_VERTS - 2 ) * 3;
 
 compile_time_assert( CONST_ISPOWEROFTWO( MAX_DECALS ) );
 // the max indices must be a multiple of 2 for copying indices to write-combined memory
-compile_time_assert( ( ( MAX_DECAL_INDEXES * sizeof( triIndex_t ) ) & 15 ) == 0 );
+compile_time_assert( ( ( MAX_DECAL_INDEXES* sizeof( triIndex_t ) ) & 15 ) == 0 );
 
-struct decalProjectionParms_t {
+struct decalProjectionParms_t
+{
 	idPlane					boundingPlanes[NUM_DECAL_BOUNDING_PLANES];
 	idPlane					fadePlanes[2];
 	idPlane					textureAxis[2];
 	idVec3					projectionOrigin;
 	idBounds				projectionBounds;
-	const idMaterial *		material;
+	const idMaterial* 		material;
 	float					fadeDepth;
 	int						startTime;
 	bool					parallel;
 	bool					force;
 };
 
-ALIGNTYPE16 struct decal_t {
+ALIGNTYPE16 struct decal_t
+{
 	ALIGNTYPE16 idDrawVert	verts[MAX_DECAL_VERTS];
 	ALIGNTYPE16 triIndex_t	indexes[MAX_DECAL_INDEXES];
 	float					vertDepthFade[MAX_DECAL_VERTS];
 	int						numVerts;
 	int						numIndexes;
 	int						startTime;
-	const idMaterial *		material;
+	const idMaterial* 		material;
 };
 
-class idRenderModelDecal {
+class idRenderModelDecal
+{
 public:
-								idRenderModelDecal();
-								~idRenderModelDecal();
-
-								// Creates decal projection parameters.
-	static bool					CreateProjectionParms( decalProjectionParms_t &parms, const idFixedWinding &winding, const idVec3 &projectionOrigin, const bool parallel, const float fadeDepth, const idMaterial *material, const int startTime );
-
-								// Transform the projection parameters from global space to local.
-	static void					GlobalProjectionParmsToLocal( decalProjectionParms_t &localParms, const decalProjectionParms_t &globalParms, const idVec3 &origin, const idMat3 &axis );
-
-								// clear the model for reuse
+	idRenderModelDecal();
+	~idRenderModelDecal();
+	
+	// Creates decal projection parameters.
+	static bool					CreateProjectionParms( decalProjectionParms_t& parms, const idFixedWinding& winding, const idVec3& projectionOrigin, const bool parallel, const float fadeDepth, const idMaterial* material, const int startTime );
+	
+	// Transform the projection parameters from global space to local.
+	static void					GlobalProjectionParmsToLocal( decalProjectionParms_t& localParms, const decalProjectionParms_t& globalParms, const idVec3& origin, const idMat3& axis );
+	
+	// clear the model for reuse
 	void						ReUse();
-
-								// Save the parameters for the renderer front-end to actually create the decal.
-	void						AddDeferredDecal( const decalProjectionParms_t & localParms );
-
-								// Creates a decal on the given model.
-	void						CreateDeferredDecals( const idRenderModel *model );
-
-								// Remove decals that are completely faded away.
+	
+	// Save the parameters for the renderer front-end to actually create the decal.
+	void						AddDeferredDecal( const decalProjectionParms_t& localParms );
+	
+	// Creates a decal on the given model.
+	void						CreateDeferredDecals( const idRenderModel* model );
+	
+	// Remove decals that are completely faded away.
 	void						RemoveFadedDecals( int time );
-
+	
 	unsigned int				GetNumDecalDrawSurfs();
-	struct drawSurf_t *			CreateDecalDrawSurf( const struct viewEntity_t *space, unsigned int index );
-
-	void						ReadFromDemoFile( class idDemoFile *f );
-	void						WriteToDemoFile( class idDemoFile *f ) const;
-
+	struct drawSurf_t* 			CreateDecalDrawSurf( const struct viewEntity_t* space, unsigned int index );
+	
+	void						ReadFromDemoFile( class idDemoFile* f );
+	void						WriteToDemoFile( class idDemoFile* f ) const;
+	
 private:
 	decal_t						decals[MAX_DECALS];
 	unsigned int				firstDecal;
 	unsigned int				nextDecal;
-
+	
 	decalProjectionParms_t		deferredDecals[MAX_DEFERRED_DECALS];
 	unsigned int				firstDeferredDecal;
 	unsigned int				nextDeferredDecal;
-
-	const idMaterial *			decalMaterials[MAX_DECALS];
+	
+	const idMaterial* 			decalMaterials[MAX_DECALS];
 	unsigned int				numDecalMaterials;
-
-	void						CreateDecalFromWinding( const idWinding &w, const idMaterial *decalMaterial, const idPlane fadePlanes[2], float fadeDepth, int startTime );
-	void						CreateDecal( const idRenderModel *model, const decalProjectionParms_t &localParms );
+	
+	void						CreateDecalFromWinding( const idWinding& w, const idMaterial* decalMaterial, const idPlane fadePlanes[2], float fadeDepth, int startTime );
+	void						CreateDecal( const idRenderModel* model, const decalProjectionParms_t& localParms );
 };
 
 #endif /* !__MODELDECAL_H__ */

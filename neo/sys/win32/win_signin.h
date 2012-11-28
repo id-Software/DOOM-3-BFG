@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -32,28 +32,38 @@ If you have questions concerning this license or the applicable additional terms
 
 /*
 ================================================
-idSignInManagerWin 
+idSignInManagerWin
 ================================================
 */
-class idSignInManagerWin : public idSignInManagerBase {
+class idSignInManagerWin : public idSignInManagerBase
+{
 public:
 
-			idSignInManagerWin() : dlcVersionChecked( false ) {}
+	idSignInManagerWin() : dlcVersionChecked( false ) {}
 	virtual ~idSignInManagerWin() {}
-
+	
 	//==========================================================================================
 	// idSignInManagerBase interface
 	//==========================================================================================
 	virtual void					Pump();
 	virtual void					Shutdown();
-	virtual int						GetNumLocalUsers() const { return localUsers.Num(); }
-	virtual idLocalUser *			GetLocalUserByIndex( int index ) { return &localUsers[index]; }
-	virtual const idLocalUser *		GetLocalUserByIndex( int index ) const { return &localUsers[index]; }
+	virtual int						GetNumLocalUsers() const
+	{
+		return localUsers.Num();
+	}
+	virtual idLocalUser* 			GetLocalUserByIndex( int index )
+	{
+		return &localUsers[index];
+	}
+	virtual const idLocalUser* 		GetLocalUserByIndex( int index ) const
+	{
+		return &localUsers[index];
+	}
 	virtual void					RemoveLocalUserByIndex( int index );
 	virtual void					RegisterLocalUser( int inputDevice );		// Register a local user to the passed in controller
-
-	bool							CreateNewUser( winUserState_t & state );
-
+	
+	bool							CreateNewUser( winUserState_t& state );
+	
 private:
 	idStaticList< idLocalUserWin, MAX_INPUT_DEVICES >	localUsers;
 	bool												dlcVersionChecked;

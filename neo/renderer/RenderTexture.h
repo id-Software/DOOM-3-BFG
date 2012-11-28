@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -44,28 +44,41 @@ idRenderTexture holds both the color and depth images that are made
 resident on the video hardware.
 ================================================
 */
-class idRenderTexture {
+class idRenderTexture
+{
 public:
-							idRenderTexture();
-							~idRenderTexture();
-
-	ID_INLINE int			GetWidth() const { return ( colorImage != NULL ) ? colorImage->GetUploadWidth() : depthImage->GetUploadWidth(); }
-	ID_INLINE int			GetHeight() const { return ( colorImage != NULL ) ? colorImage->GetUploadHeight() : depthImage->GetUploadHeight(); }
-
-	ID_INLINE idImage *		GetColorImage() const { return colorImage; }
-	ID_INLINE idImage *		GetDepthImage() const { return depthImage; }
-
-
+	idRenderTexture();
+	~idRenderTexture();
+	
+	ID_INLINE int			GetWidth() const
+	{
+		return ( colorImage != NULL ) ? colorImage->GetUploadWidth() : depthImage->GetUploadWidth();
+	}
+	ID_INLINE int			GetHeight() const
+	{
+		return ( colorImage != NULL ) ? colorImage->GetUploadHeight() : depthImage->GetUploadHeight();
+	}
+	
+	ID_INLINE idImage* 		GetColorImage() const
+	{
+		return colorImage;
+	}
+	ID_INLINE idImage* 		GetDepthImage() const
+	{
+		return depthImage;
+	}
+	
+	
 	void					Resize( int width, int height );
-
+	
 	void					MakeCurrent( int level = 0, int side = 0 );
-
+	
 private:
-	idImage *			colorImage;
-	idImage *			depthImage;
+	idImage* 			colorImage;
+	idImage* 			depthImage;
 	int					targetWidth;
 	int					targetHeight;
-
+	
 };
 
 #endif //!__RENDERTEXTURE_H__

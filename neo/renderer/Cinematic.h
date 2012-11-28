@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -41,7 +41,8 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 // cinematic states
-typedef enum {
+typedef enum
+{
 	FMV_IDLE,
 	FMV_PLAY,			// play
 	FMV_EOF,			// all other conditions, i.e. stop/EOF/abort
@@ -54,7 +55,8 @@ typedef enum {
 class idImage;
 
 // a cinematic stream generates an image buffer, which the caller will upload to a texture
-typedef struct {
+typedef struct
+{
 	int					imageWidth;
 	int					imageHeight;	// will be a power of 2
 	idImage*			imageY;
@@ -63,41 +65,42 @@ typedef struct {
 	int					status;
 } cinData_t;
 
-class idCinematic {
+class idCinematic
+{
 public:
 	// initialize cinematic play back data
 	static void			InitCinematic( void );
-
+	
 	// shutdown cinematic play back data
 	static void			ShutdownCinematic( void );
-
+	
 	// allocates and returns a private subclass that implements the methods
 	// This should be used instead of new
-	static idCinematic	*Alloc();
-
+	static idCinematic*	Alloc();
+	
 	// frees all allocated memory
 	virtual				~idCinematic();
-
+	
 	// returns false if it failed to load
-	virtual bool		InitFromFile( const char *qpath, bool looping );
-
+	virtual bool		InitFromFile( const char* qpath, bool looping );
+	
 	// returns the length of the animation in milliseconds
 	virtual int			AnimationLength();
-
+	
 	// the pointers in cinData_t will remain valid until the next UpdateForTime() call
 	virtual cinData_t	ImageForTime( int milliseconds );
-
+	
 	// closes the file and frees all allocated memory
 	virtual void		Close();
-
+	
 	// sets the cinematic to start at that time (can be in the past)
-	virtual void		ResetTime(int time);
-
+	virtual void		ResetTime( int time );
+	
 	// gets the time the cinematic started
 	virtual int			GetStartTime();
-
+	
 	virtual void		ExportToTGA( bool skipExisting = true );
-
+	
 	virtual float		GetFrameRate() const;
 };
 
@@ -109,16 +112,20 @@ public:
 ===============================================
 */
 
-class idSndWindow : public idCinematic {
+class idSndWindow : public idCinematic
+{
 public:
-	
-						idSndWindow() { showWaveform = false; }
-						~idSndWindow() {}
 
-	bool				InitFromFile( const char *qpath, bool looping );
+	idSndWindow()
+	{
+		showWaveform = false;
+	}
+	~idSndWindow() {}
+	
+	bool				InitFromFile( const char* qpath, bool looping );
 	cinData_t			ImageForTime( int milliseconds );
 	int					AnimationLength();
-
+	
 private:
 	bool				showWaveform;
 };

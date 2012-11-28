@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -70,7 +70,8 @@ static const int OCCLUSION_QUERY_TOO_OLD				= -1;
 
 #define USE_CORE_PROFILE
 
-struct wrapperContext_t {
+struct wrapperContext_t
+{
 };
 
 
@@ -79,7 +80,8 @@ struct wrapperContext_t {
 wrapperConfig_t
 ================================================
 */
-struct wrapperConfig_t {
+struct wrapperConfig_t
+{
 	// rendering options and settings
 	bool			disableStateCaching;
 	bool			lazyBindPrograms;
@@ -104,7 +106,8 @@ struct wrapperConfig_t {
 wrapperStats_t
 ================================================
 */
-struct wrapperStats_t {
+struct wrapperStats_t
+{
 	int				c_queriesIssued;
 	int				c_queriesPassed;
 	int				c_queriesWaitTime;
@@ -123,17 +126,17 @@ struct wrapperStats_t {
 ================================================================================================
 */
 
-void			GL_SetWrapperContext( const wrapperContext_t & context );
-void			GL_SetWrapperConfig( const wrapperConfig_t & config );
+void			GL_SetWrapperContext( const wrapperContext_t& context );
+void			GL_SetWrapperConfig( const wrapperConfig_t& config );
 
 void			GL_SetTimeDelta( uint64 delta );	// delta from GPU to CPU microseconds
 void			GL_StartFrame( int frame );			// inserts a timing mark for the start of the GPU frame
 void			GL_EndFrame();						// inserts a timing mark for the end of the GPU frame
 void			GL_WaitForEndFrame();				// wait for the GPU to reach the last end frame marker
-void			GL_GetLastFrameTime( uint64 & startGPUTimeMicroSec, uint64 & endGPUTimeMicroSec );	// GPU time between GL_StartFrame() and GL_EndFrame()
-void			GL_StartDepthPass( const idScreenRect & rect );
+void			GL_GetLastFrameTime( uint64& startGPUTimeMicroSec, uint64& endGPUTimeMicroSec );	// GPU time between GL_StartFrame() and GL_EndFrame()
+void			GL_StartDepthPass( const idScreenRect& rect );
 void			GL_FinishDepthPass();
-void			GL_GetDepthPassRect( idScreenRect & rect );
+void			GL_GetDepthPassRect( idScreenRect& rect );
 
 void			GL_SetDefaultState();
 void			GL_State( uint64 stateVector, bool forceGlState = false );
@@ -142,14 +145,28 @@ uint64			GL_GetCurrentStateMinusStencil();
 void			GL_Cull( int cullType );
 void			GL_Scissor( int x /* left*/, int y /* bottom */, int w, int h );
 void			GL_Viewport( int x /* left */, int y /* bottom */, int w, int h );
-ID_INLINE void	GL_Scissor( const idScreenRect & rect ) { GL_Scissor( rect.x1, rect.y1, rect.x2 - rect.x1 + 1, rect.y2 - rect.y1 + 1 ); }
-ID_INLINE void	GL_Viewport( const idScreenRect & rect ) { GL_Viewport( rect.x1, rect.y1, rect.x2 - rect.x1 + 1, rect.y2 - rect.y1 + 1 ); }
-ID_INLINE void	GL_ViewportAndScissor( int x, int y, int w, int h ) { GL_Viewport( x, y, w, h ); GL_Scissor( x, y, w, h ); }
-ID_INLINE void	GL_ViewportAndScissor( const idScreenRect& rect ) { GL_Viewport( rect ); GL_Scissor( rect ); }
+ID_INLINE void	GL_Scissor( const idScreenRect& rect )
+{
+	GL_Scissor( rect.x1, rect.y1, rect.x2 - rect.x1 + 1, rect.y2 - rect.y1 + 1 );
+}
+ID_INLINE void	GL_Viewport( const idScreenRect& rect )
+{
+	GL_Viewport( rect.x1, rect.y1, rect.x2 - rect.x1 + 1, rect.y2 - rect.y1 + 1 );
+}
+ID_INLINE void	GL_ViewportAndScissor( int x, int y, int w, int h )
+{
+	GL_Viewport( x, y, w, h );
+	GL_Scissor( x, y, w, h );
+}
+ID_INLINE void	GL_ViewportAndScissor( const idScreenRect& rect )
+{
+	GL_Viewport( rect );
+	GL_Scissor( rect );
+}
 void			GL_Clear( bool color, bool depth, bool stencil, byte stencilValue, float r, float g, float b, float a );
 void			GL_PolygonOffset( float scale, float bias );
 void			GL_DepthBoundsTest( const float zmin, const float zmax );
-void			GL_Color( float * color );
+void			GL_Color( float* color );
 void			GL_Color( float r, float g, float b );
 void			GL_Color( float r, float g, float b, float a );
 void			GL_SelectTexture( int unit );

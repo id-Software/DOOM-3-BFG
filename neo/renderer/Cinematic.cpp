@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -41,7 +41,8 @@ extern idCVar s_noSound;
 idCinematic::InitCinematic
 ==============
 */
-void idCinematic::InitCinematic( void ) {
+void idCinematic::InitCinematic( void )
+{
 }
 
 /*
@@ -49,7 +50,8 @@ void idCinematic::InitCinematic( void ) {
 idCinematic::ShutdownCinematic
 ==============
 */
-void idCinematic::ShutdownCinematic( void ) {
+void idCinematic::ShutdownCinematic( void )
+{
 }
 
 /*
@@ -57,7 +59,8 @@ void idCinematic::ShutdownCinematic( void ) {
 idCinematic::Alloc
 ==============
 */
-idCinematic * idCinematic::Alloc() {
+idCinematic* idCinematic::Alloc()
+{
 	return new idCinematic;
 }
 
@@ -66,7 +69,8 @@ idCinematic * idCinematic::Alloc() {
 idCinematic::~idCinematic
 ==============
 */
-idCinematic::~idCinematic( ) {
+idCinematic::~idCinematic( )
+{
 	Close();
 }
 
@@ -75,7 +79,8 @@ idCinematic::~idCinematic( ) {
 idCinematic::InitFromFile
 ==============
 */
-bool idCinematic::InitFromFile( const char *qpath, bool looping ) {
+bool idCinematic::InitFromFile( const char* qpath, bool looping )
+{
 	return false;
 }
 
@@ -84,7 +89,8 @@ bool idCinematic::InitFromFile( const char *qpath, bool looping ) {
 idCinematic::AnimationLength
 ==============
 */
-int idCinematic::AnimationLength() {
+int idCinematic::AnimationLength()
+{
 	return 0;
 }
 
@@ -93,7 +99,8 @@ int idCinematic::AnimationLength() {
 idCinematic::GetStartTime
 ==============
 */
-int idCinematic::GetStartTime() {
+int idCinematic::GetStartTime()
+{
 	return -1;
 }
 
@@ -102,7 +109,8 @@ int idCinematic::GetStartTime() {
 idCinematic::ResetTime
 ==============
 */
-void idCinematic::ResetTime(int milliseconds) {
+void idCinematic::ResetTime( int milliseconds )
+{
 }
 
 /*
@@ -110,7 +118,8 @@ void idCinematic::ResetTime(int milliseconds) {
 idCinematic::ImageForTime
 ==============
 */
-cinData_t idCinematic::ImageForTime( int milliseconds ) {
+cinData_t idCinematic::ImageForTime( int milliseconds )
+{
 	cinData_t c;
 	memset( &c, 0, sizeof( c ) );
 	return c;
@@ -121,7 +130,8 @@ cinData_t idCinematic::ImageForTime( int milliseconds ) {
 idCinematic::ExportToTGA
 ==============
 */
-void idCinematic::ExportToTGA( bool skipExisting ) {
+void idCinematic::ExportToTGA( bool skipExisting )
+{
 }
 
 /*
@@ -129,7 +139,8 @@ void idCinematic::ExportToTGA( bool skipExisting ) {
 idCinematic::GetFrameRate
 ==============
 */
-float idCinematic::GetFrameRate() const {
+float idCinematic::GetFrameRate() const
+{
 	return 30.0f;
 }
 
@@ -138,7 +149,8 @@ float idCinematic::GetFrameRate() const {
 idCinematic::Close
 ==============
 */
-void idCinematic::Close() {
+void idCinematic::Close()
+{
 }
 
 /*
@@ -146,13 +158,17 @@ void idCinematic::Close() {
 idSndWindow::InitFromFile
 ==============
 */
-bool idSndWindow::InitFromFile( const char *qpath, bool looping ) {
+bool idSndWindow::InitFromFile( const char* qpath, bool looping )
+{
 	idStr fname = qpath;
-
+	
 	fname.ToLower();
-	if ( !fname.Icmp( "waveform" ) ) {
+	if( !fname.Icmp( "waveform" ) )
+	{
 		showWaveform = true;
-	} else {
+	}
+	else
+	{
 		showWaveform = false;
 	}
 	return true;
@@ -163,7 +179,8 @@ bool idSndWindow::InitFromFile( const char *qpath, bool looping ) {
 idSndWindow::ImageForTime
 ==============
 */
-cinData_t idSndWindow::ImageForTime( int milliseconds ) {
+cinData_t idSndWindow::ImageForTime( int milliseconds )
+{
 	return soundSystem->ImageForTime( milliseconds, showWaveform );
 }
 
@@ -172,6 +189,7 @@ cinData_t idSndWindow::ImageForTime( int milliseconds ) {
 idSndWindow::AnimationLength
 ==============
 */
-int idSndWindow::AnimationLength() {
+int idSndWindow::AnimationLength()
+{
 	return -1;
 }

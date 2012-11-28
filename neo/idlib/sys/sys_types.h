@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -74,25 +74,40 @@ assert_sizeof( uint64,	8 );
 #define MIN_UNSIGNED_TYPE( x )	0
 
 template< typename _type_ >
-bool IsSignedType( const _type_ t ) {
+bool IsSignedType( const _type_ t )
+{
 	return _type_( -1 ) < 0;
 }
 
-template<class T> T	Max( T x, T y ) { return ( x > y ) ? x : y; }
-template<class T> T	Min( T x, T y ) { return ( x < y ) ? x : y; }
+template<class T> T	Max( T x, T y )
+{
+	return ( x > y ) ? x : y;
+}
+template<class T> T	Min( T x, T y )
+{
+	return ( x < y ) ? x : y;
+}
 
 
 class idFile;
 
-struct idNullPtr {
+struct idNullPtr
+{
 	// one pointer member initialized to zero so you can pass NULL as a vararg
-	void *value; idNullPtr() : value( 0 ) { }
-
+	void* value;
+	idNullPtr() : value( 0 ) { }
+	
 	// implicit conversion to all pointer types
-	template<typename T1> operator T1 * () const { return 0; }
-
+	template<typename T1> operator T1* () const
+	{
+		return 0;
+	}
+	
 	// implicit conversion to all pointer to member types
-	template<typename T1, typename T2> operator T1 T2::* () const { return 0; }
+	template<typename T1, typename T2> operator T1 T2::* () const
+	{
+		return 0;
+	}
 };
 
 //#undef NULL
@@ -104,7 +119,7 @@ struct idNullPtr {
 
 // C99 Standard
 #ifndef nullptr
-		#define nullptr	idNullPtr()		
+#define nullptr	idNullPtr()
 #endif
 
 #ifndef BIT
@@ -138,8 +153,9 @@ typedef unsigned int triIndex_t;
 #endif
 
 // if writing to write-combined memroy, always write indexes as pairs for 32 bit writes
-ID_INLINE void WriteIndexPair( triIndex_t * dest, const triIndex_t a, const triIndex_t b ) {
-	*(unsigned *)dest = (unsigned)a | ( (unsigned)b<<16 );
+ID_INLINE void WriteIndexPair( triIndex_t* dest, const triIndex_t a, const triIndex_t b )
+{
+	*( unsigned* )dest = ( unsigned )a | ( ( unsigned )b << 16 );
 }
 
 #if defined(_DEBUG) || defined(_lint)

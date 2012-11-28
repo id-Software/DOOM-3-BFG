@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -37,49 +37,57 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-typedef enum {
+typedef enum
+{
 	DS_FINISHED,
 	DS_RENDER,
 	DS_SOUND,
 	DS_VERSION
 } demoSystem_t;
 
-class idDemoFile : public idFile {
+class idDemoFile : public idFile
+{
 public:
-					idDemoFile();
-					~idDemoFile();
-
-	const char *	GetName() { return (f?f->GetName():""); }
-	const char *	GetFullPath() { return (f?f->GetFullPath():""); }
-
-	void			SetLog( bool b, const char *p );
-	void			Log( const char *p );
-	bool			OpenForReading( const char *fileName );
-	bool			OpenForWriting( const char *fileName );
+	idDemoFile();
+	~idDemoFile();
+	
+	const char* 	GetName()
+	{
+		return ( f ? f->GetName() : "" );
+	}
+	const char* 	GetFullPath()
+	{
+		return ( f ? f->GetFullPath() : "" );
+	}
+	
+	void			SetLog( bool b, const char* p );
+	void			Log( const char* p );
+	bool			OpenForReading( const char* fileName );
+	bool			OpenForWriting( const char* fileName );
 	void			Close();
-
-	const char *	ReadHashString();
-	void			WriteHashString( const char *str );
-
-	void			ReadDict( idDict &dict );
-	void			WriteDict( const idDict &dict );
-
-	int				Read( void *buffer, int len );
-	int				Write( const void *buffer, int len );
-
+	
+	const char* 	ReadHashString();
+	void			WriteHashString( const char* str );
+	
+	void			ReadDict( idDict& dict );
+	void			WriteDict( const idDict& dict );
+	
+	int				Read( void* buffer, int len );
+	int				Write( const void* buffer, int len );
+	
 private:
-	static idCompressor *AllocCompressor( int type );
-
+	static idCompressor* AllocCompressor( int type );
+	
 	bool			writing;
-	byte *			fileImage;
-	idFile *		f;
-	idCompressor *	compressor;
-
+	byte* 			fileImage;
+	idFile* 		f;
+	idCompressor* 	compressor;
+	
 	idList<idStr*>	demoStrings;
-	idFile *		fLog;
+	idFile* 		fLog;
 	bool			log;
 	idStr			logStr;
-
+	
 	static idCVar	com_logDemos;
 	static idCVar	com_compressDemos;
 	static idCVar	com_preloadDemos;

@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@ Getting assert() to work as we want on all platforms and code analysis tools can
 ================================================================================================
 */
 
-bool AssertFailed( const char *file, int line, const char *expression );
+bool AssertFailed( const char* file, int line, const char* expression );
 
 // tell PC-Lint that assert failed won't return, which means it can assume the conditions
 // are true for subsequent analysis.
@@ -64,7 +64,7 @@ bool AssertFailed( const char *file, int line, const char *expression );
 
 //====================== assert in release mode =======================
 
-#define idassert( x )	{ (( void )0); } 
+#define idassert( x )	{ (( void )0); }
 
 #undef assert
 

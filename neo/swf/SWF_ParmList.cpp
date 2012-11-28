@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -29,57 +29,75 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "../idlib/precompiled.h"
 
-void idSWFParmList::Append( const idSWFScriptVar & other ) {
-	idSWFScriptVar * var = Alloc();
-	if ( var != NULL ) {
+void idSWFParmList::Append( const idSWFScriptVar& other )
+{
+	idSWFScriptVar* var = Alloc();
+	if( var != NULL )
+	{
 		*var = other;
 	}
 }
-void idSWFParmList::Append( idSWFScriptObject * o ) {
-	idSWFScriptVar * var = Alloc();
-	if ( var != NULL ) {
+void idSWFParmList::Append( idSWFScriptObject* o )
+{
+	idSWFScriptVar* var = Alloc();
+	if( var != NULL )
+	{
 		var->SetObject( o );
 	}
 }
-void idSWFParmList::Append( idSWFScriptFunction * f ) {
-	idSWFScriptVar * var = Alloc();
-	if ( var != NULL ) {
+void idSWFParmList::Append( idSWFScriptFunction* f )
+{
+	idSWFScriptVar* var = Alloc();
+	if( var != NULL )
+	{
 		var->SetFunction( f );
 	}
 }
-void idSWFParmList::Append( const char * s ) {
-	idSWFScriptVar * var = Alloc();
-	if ( var != NULL ) {
+void idSWFParmList::Append( const char* s )
+{
+	idSWFScriptVar* var = Alloc();
+	if( var != NULL )
+	{
 		var->SetString( s );
 	}
 }
-void idSWFParmList::Append( const idStr & s ) {
-	idSWFScriptVar * var = Alloc();
-	if ( var != NULL ) {
+void idSWFParmList::Append( const idStr& s )
+{
+	idSWFScriptVar* var = Alloc();
+	if( var != NULL )
+	{
 		var->SetString( s );
 	}
 }
-void idSWFParmList::Append( idSWFScriptString * s ) {
-	idSWFScriptVar * var = Alloc();
-	if ( var != NULL ) {
+void idSWFParmList::Append( idSWFScriptString* s )
+{
+	idSWFScriptVar* var = Alloc();
+	if( var != NULL )
+	{
 		var->SetString( s );
 	}
 }
-void idSWFParmList::Append( const float f ) {
-	idSWFScriptVar * var = Alloc();
-	if ( var != NULL ) {
+void idSWFParmList::Append( const float f )
+{
+	idSWFScriptVar* var = Alloc();
+	if( var != NULL )
+	{
 		var->SetFloat( f );
 	}
 }
-void idSWFParmList::Append( const int32 i ) {
-	idSWFScriptVar * var = Alloc();
-	if ( var != NULL ) {
+void idSWFParmList::Append( const int32 i )
+{
+	idSWFScriptVar* var = Alloc();
+	if( var != NULL )
+	{
 		var->SetInteger( i );
 	}
 }
-void idSWFParmList::Append( const bool b ) {
-	idSWFScriptVar * var = Alloc();
-	if ( var != NULL ) {
+void idSWFParmList::Append( const bool b )
+{
+	idSWFScriptVar* var = Alloc();
+	if( var != NULL )
+	{
 		var->SetBool( b );
 	}
 }

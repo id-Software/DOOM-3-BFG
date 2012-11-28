@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -40,7 +40,8 @@ extern idCVar achievements_Verbose;
 idAchievementSystemWin::idAchievementSystemWin
 ========================
 */
-idAchievementSystemWin::idAchievementSystemWin() {
+idAchievementSystemWin::idAchievementSystemWin()
+{
 }
 
 /*
@@ -48,7 +49,8 @@ idAchievementSystemWin::idAchievementSystemWin() {
 idAchievementSystemWin::IsInitialized
 ========================
 */
-bool idAchievementSystemWin::IsInitialized() {
+bool idAchievementSystemWin::IsInitialized()
+{
 	return false;
 }
 
@@ -57,7 +59,8 @@ bool idAchievementSystemWin::IsInitialized() {
 idAchievementSystemWin::AchievementUnlock
 ================================
 */
-void idAchievementSystemWin::AchievementUnlock( idLocalUser * user, int achievementID ) {
+void idAchievementSystemWin::AchievementUnlock( idLocalUser* user, int achievementID )
+{
 }
 
 /*
@@ -65,7 +68,8 @@ void idAchievementSystemWin::AchievementUnlock( idLocalUser * user, int achievem
 idAchievementSystemWin::AchievementLock
 ========================
 */
-void idAchievementSystemWin::AchievementLock( idLocalUser * user, const int achievementID ) {
+void idAchievementSystemWin::AchievementLock( idLocalUser* user, const int achievementID )
+{
 }
 
 /*
@@ -73,7 +77,8 @@ void idAchievementSystemWin::AchievementLock( idLocalUser * user, const int achi
 idAchievementSystemWin::AchievementLockAll
 ========================
 */
-void idAchievementSystemWin::AchievementLockAll( idLocalUser * user, const int maxId ) {
+void idAchievementSystemWin::AchievementLockAll( idLocalUser* user, const int maxId )
+{
 }
 
 /*
@@ -81,7 +86,8 @@ void idAchievementSystemWin::AchievementLockAll( idLocalUser * user, const int m
 idAchievementSystemWin::GetAchievementDescription
 ========================
 */
-bool idAchievementSystemWin::GetAchievementDescription( idLocalUser * user, const int achievementID, achievementDescription_t & data ) const {
+bool idAchievementSystemWin::GetAchievementDescription( idLocalUser* user, const int achievementID, achievementDescription_t& data ) const
+{
 	return false;
 }
 
@@ -90,7 +96,8 @@ bool idAchievementSystemWin::GetAchievementDescription( idLocalUser * user, cons
 idAchievementSystemWin::GetAchievementState
 ========================
 */
-bool idAchievementSystemWin::GetAchievementState( idLocalUser * user, idArray< bool, idAchievementSystem::MAX_ACHIEVEMENTS > & achievements ) const {
+bool idAchievementSystemWin::GetAchievementState( idLocalUser* user, idArray< bool, idAchievementSystem::MAX_ACHIEVEMENTS >& achievements ) const
+{
 	return false;
 }
 
@@ -99,5 +106,6 @@ bool idAchievementSystemWin::GetAchievementState( idLocalUser * user, idArray< b
 idAchievementSystemWin::Pump
 ================================
 */
-void idAchievementSystemWin::Pump() {
+void idAchievementSystemWin::Pump()
+{
 }

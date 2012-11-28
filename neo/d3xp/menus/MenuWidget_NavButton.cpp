@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -34,53 +34,61 @@ If you have questions concerning this license or the applicable additional terms
 idMenuWidget_NavButton::Update
 ========================
 */
-void idMenuWidget_NavButton::Update() {
+void idMenuWidget_NavButton::Update()
+{
 
-	if ( GetSprite() == NULL ) {
+	if( GetSprite() == NULL )
+	{
 		return;
 	}
-
-	if ( btnLabel.IsEmpty() ) {
+	
+	if( btnLabel.IsEmpty() )
+	{
 		GetSprite()->SetVisible( false );
 		return;
 	}
-
+	
 	GetSprite()->SetVisible( true );
-
-	idSWFScriptObject * const spriteObject = GetSprite()->GetScriptObject();
-	idSWFTextInstance * const text = spriteObject->GetNestedText( "txtVal" );
-	if ( text != NULL ) {
+	
+	idSWFScriptObject* const spriteObject = GetSprite()->GetScriptObject();
+	idSWFTextInstance* const text = spriteObject->GetNestedText( "txtVal" );
+	if( text != NULL )
+	{
 		text->SetText( btnLabel.c_str() );
 		text->SetStrokeInfo( true, 0.7f, 1.25f );
 	}
-
+	
 	GetSprite()->SetXPos( xPos );
-
-	if ( navState == NAV_WIDGET_SELECTED ) {
-		idSWFSpriteInstance * backing = GetSprite()->GetScriptObject()->GetNestedSprite( "backing" );
-		if ( backing != NULL && text != NULL  ) {
+	
+	if( navState == NAV_WIDGET_SELECTED )
+	{
+		idSWFSpriteInstance* backing = GetSprite()->GetScriptObject()->GetNestedSprite( "backing" );
+		if( backing != NULL && text != NULL )
+		{
 			backing->SetXPos( text->GetTextLength() + 53.0f );
 		}
 	}
-
+	
 	//
 	// events
 	//
-
-	idSWFScriptObject * textObj = spriteObject->GetNestedObj( "txtVal" );
-
-	if ( textObj != NULL ) {
-
-		textObj->Set( "onPress", new ( TAG_SWF ) WrapWidgetSWFEvent( this, WIDGET_EVENT_PRESS, 0 ) );
-		textObj->Set( "onRelease", new ( TAG_SWF ) WrapWidgetSWFEvent( this, WIDGET_EVENT_RELEASE, 0 ) );
-
-		idSWFScriptObject * hitBox = spriteObject->GetObject( "hitBox" );
-		if ( hitBox == NULL ) {
+	
+	idSWFScriptObject* textObj = spriteObject->GetNestedObj( "txtVal" );
+	
+	if( textObj != NULL )
+	{
+	
+		textObj->Set( "onPress", new( TAG_SWF ) WrapWidgetSWFEvent( this, WIDGET_EVENT_PRESS, 0 ) );
+		textObj->Set( "onRelease", new( TAG_SWF ) WrapWidgetSWFEvent( this, WIDGET_EVENT_RELEASE, 0 ) );
+		
+		idSWFScriptObject* hitBox = spriteObject->GetObject( "hitBox" );
+		if( hitBox == NULL )
+		{
 			hitBox = textObj;
 		}
-
-		hitBox->Set( "onRollOver", new ( TAG_SWF ) WrapWidgetSWFEvent( this, WIDGET_EVENT_ROLL_OVER, 0 ) );
-		hitBox->Set( "onRollOut", new ( TAG_SWF ) WrapWidgetSWFEvent( this, WIDGET_EVENT_ROLL_OUT, 0 ) );
+		
+		hitBox->Set( "onRollOver", new( TAG_SWF ) WrapWidgetSWFEvent( this, WIDGET_EVENT_ROLL_OVER, 0 ) );
+		hitBox->Set( "onRollOut", new( TAG_SWF ) WrapWidgetSWFEvent( this, WIDGET_EVENT_ROLL_OUT, 0 ) );
 	}
 }
 
@@ -89,20 +97,26 @@ void idMenuWidget_NavButton::Update() {
 idMenuWidget_NavButton::ExecuteEvent
 ========================
 */
-bool idMenuWidget_NavButton::ExecuteEvent( const idWidgetEvent & event ) {
-	
-	bool handled = false;
+bool idMenuWidget_NavButton::ExecuteEvent( const idWidgetEvent& event )
+{
 
+	bool handled = false;
+	
 	//// do nothing at all if it's disabled
-	if ( GetState() != WIDGET_STATE_DISABLED ) {
-		switch ( event.type ) {
-			case WIDGET_EVENT_PRESS: {
+	if( GetState() != WIDGET_STATE_DISABLED )
+	{
+		switch( event.type )
+		{
+			case WIDGET_EVENT_PRESS:
+			{
 				//AnimateToState( ANIM_STATE_DOWN );
 				handled = true;
 				break;
 			}
-			case WIDGET_EVENT_ROLL_OVER: {
-				if ( GetMenuData() ) {
+			case WIDGET_EVENT_ROLL_OVER:
+			{
+				if( GetMenuData() )
+				{
 					GetMenuData()->PlaySound( GUI_SOUND_ROLL_OVER );
 				}
 				handled = true;
@@ -110,9 +124,9 @@ bool idMenuWidget_NavButton::ExecuteEvent( const idWidgetEvent & event ) {
 			}
 		}
 	}
-
+	
 	idMenuWidget::ExecuteEvent( event );
-
+	
 	return handled;
 }
 
@@ -125,59 +139,68 @@ bool idMenuWidget_NavButton::ExecuteEvent( const idWidgetEvent & event ) {
 idMenuWidget_NavButton::Update
 ========================
 */
-void idMenuWidget_MenuButton::Update() {
+void idMenuWidget_MenuButton::Update()
+{
 
-	if ( GetSprite() == NULL ) {
+	if( GetSprite() == NULL )
+	{
 		return;
 	}
-
-	if ( btnLabel.IsEmpty() ) {
+	
+	if( btnLabel.IsEmpty() )
+	{
 		GetSprite()->SetVisible( false );
 		return;
 	}
-
+	
 	GetSprite()->SetVisible( true );
-
-	idSWFScriptObject * const spriteObject = GetSprite()->GetScriptObject();
-	idSWFTextInstance * const text = spriteObject->GetNestedText( "txtVal" );
-	if ( text != NULL ) {
+	
+	idSWFScriptObject* const spriteObject = GetSprite()->GetScriptObject();
+	idSWFTextInstance* const text = spriteObject->GetNestedText( "txtVal" );
+	if( text != NULL )
+	{
 		text->SetText( btnLabel.c_str() );
 		text->SetStrokeInfo( true, 0.7f, 1.25f );
-
-		idSWFSpriteInstance * selBar = spriteObject->GetNestedSprite( "sel", "bar" );
-		idSWFSpriteInstance * hoverBar =spriteObject->GetNestedSprite( "hover", "bar" );
-
-		if ( selBar != NULL ) {
+		
+		idSWFSpriteInstance* selBar = spriteObject->GetNestedSprite( "sel", "bar" );
+		idSWFSpriteInstance* hoverBar = spriteObject->GetNestedSprite( "hover", "bar" );
+		
+		if( selBar != NULL )
+		{
 			selBar->SetXPos( text->GetTextLength() / 2.0f );
 			selBar->SetScale( 100.0f * ( text->GetTextLength() / 300.0f ), 100.0f );
 		}
-
-		if ( hoverBar != NULL ) {
+		
+		if( hoverBar != NULL )
+		{
 			hoverBar->SetXPos( text->GetTextLength() / 2.0f );
-			hoverBar->SetScale( 100.0f * (  text->GetTextLength() / 352.0f ), 100.0f );
+			hoverBar->SetScale( 100.0f * ( text->GetTextLength() / 352.0f ), 100.0f );
 		}
-
-		idSWFSpriteInstance * hitBox =spriteObject->GetNestedSprite( "hitBox" );
-		if ( hitBox != NULL ) {
+		
+		idSWFSpriteInstance* hitBox = spriteObject->GetNestedSprite( "hitBox" );
+		if( hitBox != NULL )
+		{
 			hitBox->SetScale( 100.0f * ( text->GetTextLength() / 235 ), 100.0f );
 		}
 	}
-
+	
 	GetSprite()->SetXPos( xPos );
 	
-	idSWFScriptObject * textObj = spriteObject->GetNestedObj( "txtVal" );
-
-	if ( textObj != NULL ) {
-
-		textObj->Set( "onPress", new ( TAG_SWF ) WrapWidgetSWFEvent( this, WIDGET_EVENT_PRESS, 0 ) );
-		textObj->Set( "onRelease", new ( TAG_SWF ) WrapWidgetSWFEvent( this, WIDGET_EVENT_RELEASE, 0 ) );
-
-		idSWFScriptObject * hitBox = spriteObject->GetObject( "hitBox" );
-		if ( hitBox == NULL ) {
+	idSWFScriptObject* textObj = spriteObject->GetNestedObj( "txtVal" );
+	
+	if( textObj != NULL )
+	{
+	
+		textObj->Set( "onPress", new( TAG_SWF ) WrapWidgetSWFEvent( this, WIDGET_EVENT_PRESS, 0 ) );
+		textObj->Set( "onRelease", new( TAG_SWF ) WrapWidgetSWFEvent( this, WIDGET_EVENT_RELEASE, 0 ) );
+		
+		idSWFScriptObject* hitBox = spriteObject->GetObject( "hitBox" );
+		if( hitBox == NULL )
+		{
 			hitBox = textObj;
 		}
-
-		hitBox->Set( "onRollOver", new ( TAG_SWF ) WrapWidgetSWFEvent( this, WIDGET_EVENT_ROLL_OVER, 0 ) );
-		hitBox->Set( "onRollOut", new ( TAG_SWF ) WrapWidgetSWFEvent( this, WIDGET_EVENT_ROLL_OUT, 0 ) );
+		
+		hitBox->Set( "onRollOver", new( TAG_SWF ) WrapWidgetSWFEvent( this, WIDGET_EVENT_ROLL_OVER, 0 ) );
+		hitBox->Set( "onRollOut", new( TAG_SWF ) WrapWidgetSWFEvent( this, WIDGET_EVENT_ROLL_OUT, 0 ) );
 	}
 }

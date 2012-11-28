@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -51,8 +51,9 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-typedef struct singleSmoke_s {
-	struct singleSmoke_s	 *	next;
+typedef struct singleSmoke_s
+{
+	struct singleSmoke_s* 		next;
 	int							privateStartTime;	// start time for this particular particle
 	int							index;				// particle index in system, 0 <= index < stage->totalParticles
 	idRandom					random;
@@ -61,43 +62,45 @@ typedef struct singleSmoke_s {
 	int							timeGroup;
 } singleSmoke_t;
 
-typedef struct {
-	const idParticleStage *		stage;
-	singleSmoke_t *				smokes;
+typedef struct
+{
+	const idParticleStage* 		stage;
+	singleSmoke_t* 				smokes;
 } activeSmokeStage_t;
 
 
-class idSmokeParticles {
+class idSmokeParticles
+{
 public:
-								idSmokeParticles();
-
+	idSmokeParticles();
+	
 	// creats an entity covering the entire world that will call back each rendering
 	void						Init();
 	void						Shutdown();
-
+	
 	// spits out a particle, returning false if the system will not emit any more particles in the future
-	bool						EmitSmoke( const idDeclParticle *smoke, const int startTime, const float diversity,
-											const idVec3 &origin, const idMat3 &axis, int timeGroup /*_D3XP*/ );
-
+	bool						EmitSmoke( const idDeclParticle* smoke, const int startTime, const float diversity,
+										   const idVec3& origin, const idMat3& axis, int timeGroup /*_D3XP*/ );
+										   
 	// free old smokes
 	void						FreeSmokes();
-
+	
 private:
 	bool						initialized;
-
+	
 	renderEntity_t				renderEntity;			// used to present a model to the renderer
 	int							renderEntityHandle;		// handle to static renderer model
-
+	
 	static const int			MAX_SMOKE_PARTICLES = 10000;
 	singleSmoke_t				smokes[MAX_SMOKE_PARTICLES];
-
+	
 	idList<activeSmokeStage_t, TAG_PARTICLE>	activeStages;
-	singleSmoke_t *				freeSmokes;
+	singleSmoke_t* 				freeSmokes;
 	int							numActiveSmokes;
 	int							currentParticleTime;	// don't need to recalculate if == view time
-
-	bool						UpdateRenderEntity( renderEntity_s *renderEntity, const renderView_t *renderView );
-	static bool					ModelCallback( renderEntity_s *renderEntity, const renderView_t *renderView );
+	
+	bool						UpdateRenderEntity( renderEntity_s* renderEntity, const renderView_t* renderView );
+	static bool					ModelCallback( renderEntity_s* renderEntity, const renderView_t* renderView );
 };
 
 #endif /* !__SMOKEPARTICLES_H__ */
