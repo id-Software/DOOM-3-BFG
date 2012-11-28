@@ -655,7 +655,11 @@ void I_InitSoundChannel( int channel, int numOutputChannels_ ) {
 	activeSound_t	*soundchannel = &activeSounds[ channel ];
 
 	// RB: fixed non-aggregates cannot be initialized with initializer list
+#if (_WIN32_WINNT >= 0x0602 /*_WIN32_WINNT_WIN8*/)
 	X3DAUDIO_VECTOR ZeroVector( 0.0f, 0.0f, 0.0f );
+#else
+	X3DAUDIO_VECTOR ZeroVector = { 0.0f, 0.0f, 0.0f };
+#endif
 	// RB end
 
 	// Set up emitter parameters
@@ -721,7 +725,11 @@ void I_InitSound() {
 		int i;
 
 		// RB: non-aggregates cannot be initialized with initializer list
+#if (_WIN32_WINNT >= 0x0602 /*_WIN32_WINNT_WIN8*/)
 		X3DAUDIO_VECTOR ZeroVector( 0.0f, 0.0f, 0.0f );
+#else
+		X3DAUDIO_VECTOR ZeroVector = { 0.0f, 0.0f, 0.0f };
+#endif
 		// RB end
 
 		// Set up listener parameters

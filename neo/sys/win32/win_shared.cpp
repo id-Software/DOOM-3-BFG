@@ -41,11 +41,19 @@ If you have questions concerning this license or the applicable additional terms
 #undef StrCmpN
 #undef StrCmpNI
 #undef StrCmpI
-#include <atlbase.h>
+
 
 #include <comdef.h>
 #include <comutil.h>
 #include <Wbemidl.h>
+
+// RB: no <atlbase.h> with Visual C++ 2010 Express
+#if defined(USE_MFC_TOOLS)
+#include <atlbase.h>
+#else
+#include "win_nanoafx.h"
+#endif
+// RB end
 
 #pragma comment (lib, "wbemuuid.lib")
 

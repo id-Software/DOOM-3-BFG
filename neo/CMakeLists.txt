@@ -879,6 +879,7 @@ if(MSVC)
 			dxguid
 			#dxerr
 			Xinput
+			xaudio2.lib
 			)
 		add_definitions(-DUSE_XINPUT)
 	else()
@@ -888,18 +889,6 @@ if(MSVC)
 	endif()
 	
 	if(USE_MFC_TOOLS)
-		# find_package(MFC REQUIRED)
-		# if(MFC_FOUND)
-			# include_directories(${MFC_INCLUDE_DIR})
-			# link_directories(${MFC_LIBRARY_DIR})
-		# endif()
-		
-		# find_package(ATL REQUIRED)
-		# if(ATL_FOUND)
-			# include_directories(${ATL_INCLUDE_DIR})
-			# link_directories(${ATL_LIBRARY_DIR})
-			# add_definitions(-DUSE_MFC6_WITH_ATL7)
-		# endif()
 		
 		include_directories(libs/atlmfc/include)
 		if(CMAKE_CL_64)
@@ -957,6 +946,5 @@ if(MSVC)
 		iphlpapi
 		winmm
 		wsock32.lib
-		xaudio2.lib
 		)
 endif()
