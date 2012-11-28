@@ -23,7 +23,7 @@ Code to load and unload GUS-compatible instrument patches.
 
 */
 
-#include "../../neo/idlib/precompiled.h"
+#include "../../idlib/precompiled.h"
 
 #include <stdio.h>
 #include <string.h>

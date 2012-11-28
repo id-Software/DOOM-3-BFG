@@ -21,7 +21,7 @@ common.c
 
 */
 
-#include "../../neo/idlib/precompiled.h"
+#include "../../idlib/precompiled.h"
 
 #include <stdio.h>
 #include <stdlib.h>

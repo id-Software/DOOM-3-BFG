@@ -593,8 +593,8 @@ list(REMOVE_ITEM DOOMCLASSIC_SOURCES ../doomclassic/doom/i_net_xbox.cpp)
 list(REMOVE_ITEM DOOMCLASSIC_SOURCES ../doomclassic/doom/i_video_ps3.cpp)
 list(REMOVE_ITEM DOOMCLASSIC_SOURCES ../doomclassic/doom/i_video_xbox.cpp)
 
-file(GLOB TIMIDITY_INCLUDES ../doomclassic/timidity/*.h)
-file(GLOB TIMIDITY_SOURCES ../doomclassic/timidity/*.cpp)
+file(GLOB TIMIDITY_INCLUDES libs/timidity/*.h)
+file(GLOB TIMIDITY_SOURCES libs/timidity/*.cpp)
 
 file(GLOB_RECURSE WIN32_INCLUDES sys/win32/*.h)
 file(GLOB_RECURSE WIN32_SOURCES sys/win32/*.cpp)
@@ -724,8 +724,8 @@ source_group("sys" FILES ${SYS_SOURCES})
 source_group("doomclassic" FILES ${DOOMCLASSIC_INCLUDES})
 source_group("doomclassic" FILES ${DOOMCLASSIC_SOURCES})
 
-source_group("timidity" FILES ${TIMIDITY_INCLUDES})
-source_group("timidity" FILES ${TIMIDITY_SOURCES})
+source_group("libs\\timidity" FILES ${TIMIDITY_INCLUDES})
+source_group("libs\\timidity" FILES ${TIMIDITY_SOURCES})
 
 
 source_group("game-d3xp" FILES ${GAMED3XP_INCLUDES})
