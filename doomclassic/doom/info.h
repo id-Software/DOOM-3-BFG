@@ -1169,7 +1169,9 @@ typedef struct
 } state_t;
 
 extern const state_t	tempStates[NUMSTATES];
-extern const char * const sprnames[NUMSPRITES];
+// RB: sprnames must be NULL-terminated
+extern const char * const sprnames[NUMSPRITES + 1];
+// RB end
 
 typedef enum {
     MT_PLAYER,
