@@ -343,7 +343,7 @@ void* idVertexBuffer::MapBuffer( bufferMapType_t mapType ) const
 		{
 			buffer = ( byte* )buffer + GetOffset();
 		}
-		assert( IsWriteCombined( buffer ) );
+		// assert( IsWriteCombined( buffer ) ); // commented out because it spams the console
 	}
 	else
 	{
@@ -619,7 +619,7 @@ void* idIndexBuffer::MapBuffer( bufferMapType_t mapType ) const
 		{
 			buffer = ( byte* )buffer + GetOffset();
 		}
-		assert( IsWriteCombined( buffer ) );
+		// assert( IsWriteCombined( buffer ) ); // commented out because it spams the console
 	}
 	else
 	{
