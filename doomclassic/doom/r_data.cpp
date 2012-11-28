@@ -568,6 +568,7 @@ void R_InitSpriteLumps (void)
 //
 void R_InitColormaps (void)
 {
+#if 0
     int	lump, length;
     
     // Load in the light tables, 
@@ -576,7 +577,14 @@ void R_InitColormaps (void)
     length = W_LumpLength (lump) + 255; 
     ::g->colormaps = (lighttable_t*)DoomLib::Z_Malloc (length, PU_STATIC, 0); 
     ::g->colormaps = (byte *)( ((int)::g->colormaps + 255)&~0xff); 
-    W_ReadLump (lump,::g->colormaps); 
+    W_ReadLump (lump,::g->colormaps);
+#else
+    // NOTE(jsd): It's rather pointless to allocate memory for this identity lookup table, but it's easy.
+    ::g->colormaps = (lighttable_t*)DoomLib::Z_Malloc (256 * NUMCOLORMAPS * sizeof(lighttable_t), PU_STATIC, 0);
+    for (int c = 0; c < NUMCOLORMAPS; ++c)
+        for (int i = 0; i < 256; ++i)
+            ::g->colormaps[c * 256 + i] = c * 256 + i;
+#endif
 }
 
 

@@ -164,8 +164,8 @@ V_CopyRect
   int		desty,
   int		destscrn ) 
 { 
-    byte*	src;
-    byte*	dest; 
+    colormapindex_t*	src;
+    colormapindex_t*	dest; 
 	 
 #ifdef RANGECHECK 
     if (srcx<0
@@ -181,7 +181,7 @@ V_CopyRect
 	I_Error ("Bad V_CopyRect");
     }
 #endif 
-    V_MarkRect (destx, desty, width, height); 
+    V_MarkRect (destx, desty, width, height);
 
 	// SMF - rewritten for scaling
 	srcx *= GLOBAL_IMAGE_SCALER;
@@ -191,16 +191,16 @@ V_CopyRect
 	width *= GLOBAL_IMAGE_SCALER;
 	height *= GLOBAL_IMAGE_SCALER;
 
-	src = ::g->screens[srcscrn] + srcy * SCREENWIDTH + srcx; 
-	dest = ::g->screens[destscrn] + desty * SCREENWIDTH + destx; 
+	src = ::g->screens[srcscrn] + srcy * SCREENWIDTH + srcx;
+	dest = ::g->screens[destscrn] + desty * SCREENWIDTH + destx;
 
-	for ( ; height>0 ; height--) { 
-		memcpy(dest, src, width); 
-		src += SCREENWIDTH; 
-		dest += SCREENWIDTH; 
-	} 
-} 
- 
+	for ( ; height>0 ; height--) {
+		memcpy(dest, src, width * sizeof(colormapindex_t));
+		src += SCREENWIDTH;
+		dest += SCREENWIDTH;
+	}
+}
+
 
 //
 // V_DrawPatch
@@ -433,10 +433,10 @@ V_DrawBlock
   int		scrn,
   int		width,
   int		height,
-  byte*		src ) 
+  colormapindex_t*		src ) 
 { 
-    byte*	dest; 
-	 
+    colormapindex_t*	dest; 
+
 #ifdef RANGECHECK 
     if (x<0
 	||x+width >SCREENWIDTH
@@ -447,16 +447,16 @@ V_DrawBlock
 	I_Error ("Bad V_DrawBlock");
     }
 #endif 
- 
+
     V_MarkRect (x, y, width, height); 
- 
+
     dest = ::g->screens[scrn] + y*SCREENWIDTH+x; 
 
-    while (height--) 
-    { 
-	memcpy(dest, src, width); 
-	src += width; 
-	dest += SCREENWIDTH; 
+    while (height--)
+    {
+	    memcpy(dest, src, width * sizeof(colormapindex_t));
+	    src += width; 
+	    dest += SCREENWIDTH; 
     } 
 } 
  
@@ -473,10 +473,10 @@ V_GetBlock
   int		scrn,
   int		width,
   int		height,
-  byte*		dest ) 
+  colormapindex_t*		dest ) 
 { 
-    byte*	src; 
-	 
+    colormapindex_t*	src; 
+
 #ifdef RANGECHECK 
     if (x<0
 	||x+width >SCREENWIDTH
@@ -487,14 +487,14 @@ V_GetBlock
 	I_Error ("Bad V_DrawBlock");
     }
 #endif 
- 
+
     src = ::g->screens[scrn] + y*SCREENWIDTH+x; 
 
-    while (height--) 
-    { 
-	memcpy(dest, src, width); 
-	src += SCREENWIDTH; 
-	dest += width; 
+    while (height--)
+    {
+	    memcpy(dest, src, width * sizeof(colormapindex_t)); 
+	    src += SCREENWIDTH; 
+	    dest += width; 
     } 
 } 
 
@@ -507,11 +507,11 @@ V_GetBlock
 void V_Init (void) 
 { 
     int		i;
-    byte*	base;
+    colormapindex_t*    base;
 
     // stick these in low dos memory on PCs
 
-    base = (byte*)DoomLib::Z_Malloc(SCREENWIDTH*SCREENHEIGHT*4, PU_STATIC, 0);
+    base = (colormapindex_t *)DoomLib::Z_Malloc(SCREENWIDTH*SCREENHEIGHT*sizeof(colormapindex_t)*4, PU_STATIC, 0);
 
     for (i=0 ; i<4 ; i++)
 		::g->screens[i] = base + i*SCREENWIDTH*SCREENHEIGHT;

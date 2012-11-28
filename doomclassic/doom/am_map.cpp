@@ -713,7 +713,7 @@ void AM_Ticker (void)
 //
 void AM_clearFB(int color)
 {
-	memset(::g->fb, color, ::g->f_w*::g->f_h);
+	memset(::g->fb, color, ::g->f_w*::g->f_h * sizeof(colormapindex_t));
 }
 
 

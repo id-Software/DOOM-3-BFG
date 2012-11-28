@@ -1274,8 +1274,8 @@ void ST_Init (void)
 {
 	::g->veryfirsttime = 0;
 	ST_loadData();
-	::g->screens[4] = (byte *) DoomLib::Z_Malloc( SCREENWIDTH * SCREENHEIGHT /*ST_WIDTH*ST_HEIGHT*/, PU_STATIC, 0);
-	memset( ::g->screens[4], 0, SCREENWIDTH * SCREENHEIGHT );
+	::g->screens[4] = (colormapindex_t *) DoomLib::Z_Malloc( SCREENWIDTH * SCREENHEIGHT * sizeof(colormapindex_t) /*ST_WIDTH*ST_HEIGHT*/, PU_STATIC, 0);
+	memset( ::g->screens[4], 0, SCREENWIDTH * SCREENHEIGHT * sizeof(colormapindex_t) );
 }
 
 

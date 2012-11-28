@@ -270,7 +270,7 @@ void localCalculateAchievements(bool epComplete)
 
 void WI_slamBackground(void)
 {
-    memcpy(::g->screens[0], ::g->screens[1], SCREENWIDTH * SCREENHEIGHT);
+    memcpy(::g->screens[0], ::g->screens[1], SCREENWIDTH * SCREENHEIGHT * sizeof(colormapindex_t));
     V_MarkRect (0, 0, SCREENWIDTH, SCREENHEIGHT);
 }
 

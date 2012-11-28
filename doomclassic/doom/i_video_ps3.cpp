@@ -144,9 +144,9 @@ void I_FinishUpdate (void)
 //
 // I_ReadScreen
 //
-void I_ReadScreen (byte* scr)
+void I_ReadScreen (colormapindex_t* scr)
 {
-    memcpy(scr, ::g->screens[0], SCREENWIDTH*SCREENHEIGHT);
+    memcpy(scr, ::g->screens[0], SCREENWIDTH*SCREENHEIGHT * sizeof(colormapindex_t));
 }
 
 inline unsigned int I_PackColor( unsigned int a, unsigned int r, unsigned int g, unsigned int b ) {
@@ -165,19 +165,31 @@ inline unsigned int I_PackColor( unsigned int a, unsigned int r, unsigned int g,
 //
 void I_SetPalette (byte* palette)
 {
-
 	int i;
+    int scale;
 
-	// set the X colormap entries
-	for (i=0 ; i<256 ; i++)
-	{
-		int r,b,g;
-		r = gammatable[::g->usegamma][*palette++];
-		g = gammatable[::g->usegamma][*palette++];
-		b = gammatable[::g->usegamma][*palette++];
-		::g->XColorMap[i] = I_PackColor(0xff, r, g, b);
-	}
+    for (int c = 0; c < NUMCOLORMAPS; ++c)
+    {
+        // Find the darkening scale for this colormap:
+        scale = (256 - (256 / NUMCOLORMAPS) * c);
 
+	    // set the X colormap entries
+	    for (i = 0; i < 256; ++i)
+	    {
+		    int r,b,g;
+
+		    r = palette[i*3+0];
+		    g = palette[i*3+1];
+		    b = palette[i*3+2];
+
+            // Darken the color to black according to light level [0..(NUMCOLORMAPS-1)] where 0 is full bright and (NUMCOLORMAPS-1) is full dark:
+            r = gammatable[::g->usegamma][(r * scale) / 256];
+            g = gammatable[::g->usegamma][(g * scale) / 256];
+            b = gammatable[::g->usegamma][(b * scale) / 256];
+
+		    ::g->XColorMap[c * 256 + i] = I_PackColor(0xff, r, g, b);
+	    }
+    }
 }
 
 void I_InitGraphics()

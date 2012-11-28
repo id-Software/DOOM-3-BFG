@@ -74,11 +74,12 @@ wipe_initMelt
   int	height,
   int	ticks )
 {
+#if 0
     int i, r;
     
     // copy start screen to main screen
-    memcpy(::g->wipe_scr, ::g->wipe_scr_start, width*height);
-    
+    memcpy(::g->wipe_scr, ::g->wipe_scr_start, width*height*sizeof(colormapindex_t));
+
     // makes this wipe faster (in theory)
     // to have stuff in column-major format
     wipe_shittyColMajorXform((short*)::g->wipe_scr_start, width/2, height);
@@ -101,11 +102,16 @@ wipe_initMelt
 		else if (::g->wipe_y[i] == -16)
 			::g->wipe_y[i] = -15;
 	}
-
     return 0;
+#else
+    // copy end screen:
+    memcpy(::g->wipe_scr, ::g->wipe_scr_end, width*height*sizeof(colormapindex_t));
+    return 0;
+#endif
 }
 
 int wipe_doMelt( int width, int height, int ticks ) {
+#if 0
 	int		i;
 	int		j;
 	int		dy;
@@ -161,6 +167,9 @@ int wipe_doMelt( int width, int height, int ticks ) {
 	}
 
 	return done;
+#else
+    return true;
+#endif
 }
 
 int
@@ -169,8 +178,10 @@ wipe_exitMelt
   int	height,
   int	ticks )
 {
+#if 0
     Z_Free(::g->wipe_y);
 	::g->wipe_y = NULL;
+#endif
     return 0;
 }
 
