@@ -565,6 +565,7 @@ fixed_t*	spritewidth;
 fixed_t*	spriteoffset;
 fixed_t*	spritetopoffset;
 lighttable_t	*colormaps;
+byte	*stored_colormaps;
 int		flatmemory;
 int		texturememory;
 int		spritememory;

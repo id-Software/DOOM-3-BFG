@@ -230,7 +230,9 @@ If you have questions concerning this license or the applicable additional terms
 #define MAX_ADJOINING_SECTORS    	20
 // p_spec.defs end // 
 //  p_user.defs begin // 
-#define INVERSECOLORMAP		32
+
+// CHANGE(jsd): Was 32 for COLORMAP index
+#define INVERSECOLORMAP		(NUMCOLORMAPS)
 
 // DHM - NERVE :: MAXBOB reduced 25%
 //#define MAXBOB	0x100000
