@@ -841,8 +841,7 @@ void R_SetupFrame (player_t* player)
 	if (player->fixedcolormap)
 	{
 		::g->fixedcolormap =
-			::g->colormaps
-			+ player->fixedcolormap*256*sizeof(lighttable_t);
+			::g->colormaps + player->fixedcolormap*256;
 
 		::g->walllights = ::g->scalelightfixed;
 

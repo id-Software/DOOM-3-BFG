@@ -778,8 +778,3 @@ void R_PrecacheLevel (void)
 	}
     }
 }
-
-
-
-
-
