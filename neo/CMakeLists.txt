@@ -16,8 +16,27 @@ option(MONOLITH
 if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
 	add_definitions(-pipe)
 	add_definitions(-Wall)
+	add_definitions(-mmmx -msse -msse2)
+	if(WIN32)
+		find_package(DirectX REQUIRED)
+		include_directories(libs/mingw-hacks)
+		include_directories(${DirectX_INCLUDE_DIR})
+		add_definitions(-DUSE_XINPUT)
+	endif()	
 	
-	#set(CMAKE_C_FLAGS_DEBUG "-D_DEBUG")
+	set(CMAKE_C_FLAGS_DEBUG "-g -D_DEBUG -O1")
+	set(CMAKE_C_FLAGS_DEBUGALL "-g -ggdb -D_DEBUG")
+	set(CMAKE_C_FLAGS_PROFILE "-g -ggdb -D_DEBUG -O1 -fno-omit-frame-pointer")
+	set(CMAKE_C_FLAGS_RELEASE "-O3 -ffast-math -fno-unsafe-math-optimizations -fomit-frame-pointer")
+	set(CMAKE_C_FLAGS_RELWITHDEBINFO "-g -O3 -ffast-math -fno-unsafe-math-optimizations -fomit-frame-pointer")
+	set(CMAKE_C_FLAGS_MINSIZEREL "-Os -ffast-math -fno-unsafe-math-optimizations -fomit-frame-pointer")
+
+	set(CMAKE_CXX_FLAGS_DEBUG ${CMAKE_C_FLAGS_DEBUG})
+	set(CMAKE_CXX_FLAGS_DEBUGALL ${CMAKE_C_FLAGS_DEBUGALL})
+	set(CMAKE_CXX_FLAGS_PROFILE ${CMAKE_C_FLAGS_PROFILE})
+	set(CMAKE_CXX_FLAGS_RELEASE ${CMAKE_C_FLAGS_RELEASE})
+	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO ${CMAKE_C_FLAGS_RELWITHDEBINFO})
+	set(CMAKE_CXX_FLAGS_MINSIZEREL ${CMAKE_C_FLAGS_MINSIZEREL})
 
 elseif(MSVC)
 	
@@ -939,6 +958,23 @@ if(MSVC)
 	#			   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/libs/curl/lib
     #               COMMENT "Compiling libcURL")
 		
+	add_dependencies(RBDoom3 idlib)
+	target_link_libraries(RBDoom3
+		idlib
+		${DirectX_LIBRARIES}
+		#libcurl 
+		#openal32 
+		opengl32
+		glu32
+		dbghelp
+		#eaxguid
+		iphlpapi
+		winmm
+		wsock32.lib
+		)
+else()
+	add_executable(RBDoom3 WIN32 ${RBDOOM3_SOURCES})
+
 	add_dependencies(RBDoom3 idlib)
 	target_link_libraries(RBDoom3
 		idlib
