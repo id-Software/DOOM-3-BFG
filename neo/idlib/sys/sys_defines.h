@@ -42,9 +42,20 @@ If you have questions concerning this license or the applicable additional terms
 #define	BUILD_STRING					"win-" CPUSTRING
 #define BUILD_OS_ID						0
 
+#ifdef _MSC_VER
 #define ALIGN16( x )					__declspec(align(16)) x
 #define ALIGNTYPE16						__declspec(align(16))
 #define ALIGNTYPE128					__declspec(align(128))
+#else
+// DG: mingw/GCC (and probably clang) support
+#define ALIGN16( x )					x __attribute__ ((aligned (16)))
+// FIXME: change ALIGNTYPE* ?
+#define ALIGNTYPE16
+#define ALIGNTYPE128
+// DG end
+#endif
+
+
 #define FORMAT_PRINTF( x )
 
 #define PATHSEPARATOR_STR				"\\"
@@ -52,8 +63,13 @@ If you have questions concerning this license or the applicable additional terms
 #define NEWLINE							"\r\n"
 
 #define ID_INLINE						inline
+#ifdef _MSC_VER
 #define ID_FORCE_INLINE					__forceinline
-
+#else
+// DG: this should at least work with GCC/MinGW, probably with clang as well..
+#define ID_FORCE_INLINE					inline // TODO: always_inline?
+// DG end
+#endif
 // lint complains that extern used with definition is a hazard, but it
 // has the benefit (?) of making it illegal to take the address of the function
 #ifdef _lint
@@ -61,7 +77,13 @@ If you have questions concerning this license or the applicable additional terms
 #define ID_FORCE_INLINE_EXTERN			__forceinline
 #else
 #define ID_INLINE_EXTERN				extern inline
+#ifdef _MSC_VER
 #define ID_FORCE_INLINE_EXTERN			extern __forceinline
+#else
+// DG: GCC/MinGW, probably clang
+#define ID_FORCE_INLINE_EXTERN			extern inline // TODO: always_inline ?
+// DG end
+#endif
 #endif
 
 // we should never rely on this define in our code. this is here so dodgy external libraries don't get confused
@@ -108,6 +130,7 @@ bulk of the codebase, so it is the best place for analyze pragmas.
 ================================================================================================
 */
 
+#ifdef _MSC_VER
 // disable some /analyze warnings here
 #pragma warning( disable: 6255 )	// warning C6255: _alloca indicates failure by raising a stack overflow exception. Consider using _malloca instead. (Note: _malloca requires _freea.)
 #pragma warning( disable: 6262 )	// warning C6262: Function uses '36924' bytes of stack: exceeds /analyze:stacksize'32768'. Consider moving some data to heap
@@ -128,7 +151,16 @@ bulk of the codebase, so it is the best place for analyze pragmas.
 // checking format strings catches a LOT of errors
 #include <CodeAnalysis\SourceAnnotations.h>
 #define	VERIFY_FORMAT_STRING	[SA_FormatString(Style="printf")]
+// DG: alternative for GCC with attribute (NOOP for MSVC)
+#define ATTRIBUTE_PRINTF(STRIDX, FIRSTARGIDX)
 
+#elif defined(__GNUC__) // FIXME: what about clang?
+#define	VERIFY_FORMAT_STRING
+// STRIDX: index of format string in function arguments (first arg == 1)
+// FIRSTARGIDX: index of first argument for the format string
+#define ATTRIBUTE_PRINTF(STRIDX, FIRSTARGIDX) __attribute__ ((format (printf, STRIDX, FIRSTARGIDX)))
+// DG end
+#endif // _MSC_VER
 
 // We need to inform the compiler that Error() and FatalError() will
 // never return, so any conditions that leeds to them being called are

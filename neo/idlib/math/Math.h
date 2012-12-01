@@ -263,7 +263,8 @@ IsValid
 ========================
 */
 template<>
-ID_INLINE_EXTERN bool IsValid( const float& f )  	// these parameter must be a reference for the function to be considered a specialization
+ID_INLINE
+bool IsValid( const float& f )  	// these parameter must be a reference for the function to be considered a specialization
 {
 	return !( IEEE_FLT_IS_NAN( f ) || IEEE_FLT_IS_INF( f ) || IEEE_FLT_IS_IND( f ) || IEEE_FLT_IS_DENORMAL( f ) );
 }
@@ -274,7 +275,8 @@ IsNAN
 ========================
 */
 template<>
-ID_INLINE_EXTERN bool IsNAN( const float& f )  	// these parameter must be a reference for the function to be considered a specialization
+ID_INLINE
+bool IsNAN( const float& f )  	// these parameter must be a reference for the function to be considered a specialization
 {
 	if( IEEE_FLT_IS_NAN( f ) || IEEE_FLT_IS_INF( f ) || IEEE_FLT_IS_IND( f ) )
 	{
@@ -291,7 +293,8 @@ Returns true if any scalar is greater than the range or less than the negative r
 ========================
 */
 template<class type>
-ID_INLINE_EXTERN bool IsInRange( const type& v, const float range )
+ID_INLINE
+bool IsInRange( const type& v, const float range )
 {
 	for( int i = 0; i < v.GetDimension(); i++ )
 	{
@@ -683,6 +686,7 @@ idMath::SinCos
 */
 ID_INLINE void idMath::SinCos( float a, float& s, float& c )
 {
+#if defined(_MSC_VER) && defined(_M_IX86)
 	_asm
 	{
 		fld		a
@@ -692,6 +696,12 @@ ID_INLINE void idMath::SinCos( float a, float& s, float& c )
 		fstp	dword ptr [ecx]
 		fstp	dword ptr [edx]
 	}
+#else
+	// DG: non-MSVC version
+	s = sinf(a);
+	c = cosf(a);
+	// DG end
+#endif
 }
 
 /*
@@ -1500,13 +1510,15 @@ ID_INLINE int idMath::FloatHash( const float* array, const int numFloats )
 }
 
 template< typename T >
-ID_INLINE_EXTERN T Lerp( const T from, const T to, float f )
+ID_INLINE
+T Lerp( const T from, const T to, float f )
 {
 	return from + ( ( to - from ) * f );
 }
 
 template<>
-ID_INLINE_EXTERN int Lerp( const int from, const int to, float f )
+ID_INLINE
+int Lerp( const int from, const int to, float f )
 {
 	return idMath::Ftoi( ( float ) from + ( ( ( float ) to - ( float ) from ) * f ) );
 }

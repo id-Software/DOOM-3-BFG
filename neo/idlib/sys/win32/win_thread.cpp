@@ -35,6 +35,11 @@ If you have questions concerning this license or the applicable additional terms
 
 #define MS_VC_EXCEPTION 0x406D1388
 
+#ifndef STACK_SIZE_PARAM_IS_A_RESERVATION
+// MinGW doesn't seem to have this
+#define STACK_SIZE_PARAM_IS_A_RESERVATION 0x00010000
+#endif
+
 typedef struct tagTHREADNAME_INFO
 {
 	DWORD dwType;		// Must be 0x1000.
@@ -42,19 +47,31 @@ typedef struct tagTHREADNAME_INFO
 	DWORD dwThreadID;	// Thread ID (-1=caller thread).
 	DWORD dwFlags;		// Reserved for future use, must be zero.
 } THREADNAME_INFO;
+
 /*
 ========================
 Sys_SetThreadName
+
+caedes: This should be seen as a helper-function for Sys_CreateThread() only.
+        (re)setting the name of a running thread seems like a bad idea and
+        currently (fresh d3 bfg source) isn't done anyway.
+        Furthermore SDL doesn't support it
+
 ========================
 */
-void Sys_SetThreadName( DWORD threadID, const char* name )
+static void Sys_SetThreadName( DWORD threadID, const char* name )
 {
+#ifdef _MSC_VER
+	// this ugly mess is the official way to set a thread name on windows..
+	// see http://msdn.microsoft.com/en-us/library/xcb2z8hs.aspx
+
+
 	THREADNAME_INFO info;
 	info.dwType = 0x1000;
 	info.szName = name;
 	info.dwThreadID = threadID;
 	info.dwFlags = 0;
-	
+
 	__try
 	{
 		RaiseException( MS_VC_EXCEPTION, 0, sizeof( info ) / sizeof( DWORD ), ( const ULONG_PTR* )&info );
@@ -64,16 +81,7 @@ void Sys_SetThreadName( DWORD threadID, const char* name )
 	{
 		info.dwFlags = 0;
 	}
-}
-
-/*
-========================
-Sys_SetCurrentThreadName
-========================
-*/
-void Sys_SetCurrentThreadName( const char* name )
-{
-	Sys_SetThreadName( GetCurrentThreadId(), name );
+#endif
 }
 
 /*
@@ -113,6 +121,7 @@ uintptr_t Sys_CreateThread( xthread_t function, void* parms, xthreadPriority pri
 		idLib::common->FatalError( "CreateThread error: %i", GetLastError() );
 		return ( uintptr_t )0;
 	}
+	// TODO: when writing the SDL backend, just use this name when creating the thread
 	Sys_SetThreadName( threadId, name );
 	if( priority == THREAD_HIGHEST )
 	{
@@ -314,7 +323,13 @@ Sys_InterlockedIncrement
 */
 interlockedInt_t Sys_InterlockedIncrement( interlockedInt_t& value )
 {
+	// TODO: SDL_AtomicIncRef
+#ifdef InterlockedIncrementAcquire
+	// googling suggests that some experimental mingw code supports this too..
 	return InterlockedIncrementAcquire( & value );
+#elif defined(__GNUC__)
+	return __sync_add_and_fetch( &value, 1 );
+#endif
 }
 
 /*
@@ -324,7 +339,12 @@ Sys_InterlockedDecrement
 */
 interlockedInt_t Sys_InterlockedDecrement( interlockedInt_t& value )
 {
+	// TODO: SDL_AtomicDecRef
+#ifdef InterlockedDecrementRelease
 	return InterlockedDecrementRelease( & value );
+#elif defined(__GNUC__)
+	return __sync_sub_and_fetch( &value, 1 );
+#endif
 }
 
 /*

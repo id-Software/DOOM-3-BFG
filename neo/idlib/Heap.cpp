@@ -34,7 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 //	memory allocation all in one place
 //
 //===============================================================
-
+#include <malloc.h>
 #undef new
 
 /*
@@ -49,7 +49,16 @@ void* Mem_Alloc16( const int size, const memTag_t tag )
 		return NULL;
 	}
 	const int paddedSize = ( size + 15 ) & ~15;
+#ifdef _WIN32
+	// this should work with MSVC and mingw, as long as __MSVCRT_VERSION__ >= 0x0700
 	return _aligned_malloc( paddedSize, 16 );
+#else // not _WIN32
+	// DG: the POSIX solution for linux etc
+	void* ret;
+	posix_memalign( &ret, 16, paddedSize );
+	return ret;
+	// DG end
+#endif // _WIN32
 }
 
 /*
@@ -63,7 +72,14 @@ void Mem_Free16( void* ptr )
 	{
 		return;
 	}
+#ifdef _WIN32
 	_aligned_free( ptr );
+#else // not _WIN32
+	// DG: Linux/POSIX compatibility
+	// can use normal free() for aligned memory
+	free( ptr );
+	// DG end
+#endif // _WIN32
 }
 
 /*

@@ -28,6 +28,10 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "ParallelJobList_JobHeaders.h"
 
+#ifdef _WIN32
+#include <windows.h> // for DebugBreak
+#endif
+
 /*
 ================================================================================================
 
@@ -43,7 +47,19 @@ bool SpursEmulationAssertFailed( const char* filename, int line, const char* exp
 	static bool halt = true;
 	if( halt )
 	{
+#ifdef _WIN32
+#ifdef _MSC_VER
 		__debugbreak();
+#else
+		// DG: mingw support
+		DebugBreak();
+#endif
+#else // not _WIN32
+		// DG: POSIX support
+		raise(SIGTRAP);
+		// DG: end
+#endif // _WIN32
+
 	}
 	return true;
 }

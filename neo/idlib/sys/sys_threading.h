@@ -45,9 +45,14 @@ typedef LONG					interlockedInt_t;
 // _ReadWriteBarrier() does not translate to any instructions but keeps the compiler
 // from reordering read and write instructions across the barrier.
 // MemoryBarrier() inserts and CPU instruction that keeps the CPU from reordering reads and writes.
+#if defined(_MSC_VER)
 #pragma intrinsic(_ReadWriteBarrier)
 #define SYS_MEMORYBARRIER		_ReadWriteBarrier(); MemoryBarrier()
-
+#elif defined(__GNUC__) // FIXME: what about clang?
+// according to http://en.wikipedia.org/wiki/Memory_ordering the following should be equivalent to the stuff above..
+//#ifdef __sync_syncronize
+#define SYS_MEMORYBARRIER		asm volatile("" ::: "memory");__sync_synchronize()
+#endif
 
 
 

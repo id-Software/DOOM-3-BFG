@@ -398,7 +398,7 @@ public:
 	static const int	INVALID_POSITION = -1;
 };
 
-char* 					va( VERIFY_FORMAT_STRING const char* fmt, ... );
+char* 					va( VERIFY_FORMAT_STRING const char* fmt, ... ) ATTRIBUTE_PRINTF(1, 2);
 
 /*
 ================================================================================================

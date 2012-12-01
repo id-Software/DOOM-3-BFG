@@ -53,12 +53,29 @@ If you have questions concerning this license or the applicable additional terms
 #define DIRECTINPUT_VERSION  0x0800			// was 0x0700 with the old mssdk
 #define DIRECTSOUND_VERSION  0x0800
 
+#ifdef _MSC_VER
 #include <dsound.h>
+#else 
+// DG: MinGW is incompatible with the original dsound.h because it contains MSVC specific annotations
+#include <wine-dsound.h>
+#endif
+
+
+
 #include <dinput.h>
 
 #endif /* !GAME_DLL */
 #endif /* !_D3SDK */
 
+// DG: intrinsics for GCC
+#if defined(__GNUC__) && defined(__SSE2__)
+#include <emmintrin.h>
+
+// TODO: else: alternative implementations?
+#endif
+// DG end
+
+#ifdef _MSC_VER
 #include <intrin.h>			// needed for intrinsics like _mm_setzero_si28
 
 #pragma warning(disable : 4100)				// unreferenced formal parameter
@@ -66,10 +83,12 @@ If you have questions concerning this license or the applicable additional terms
 #pragma warning(disable : 4244)				// conversion to smaller type, possible loss of data
 #pragma warning(disable : 4714)				// function marked as __forceinline not inlined
 #pragma warning(disable : 4996)				// unsafe string operations
+#endif // _MSC_VER
 
 #include <malloc.h>							// no malloc.h on mac or unix
 #include <windows.h>						// for qgl.h
 #undef FindText								// fix namespace pollution
+
 
 /*
 ================================================================================================
