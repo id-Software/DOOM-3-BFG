@@ -60,6 +60,13 @@ If you have questions concerning this license or the applicable additional terms
 #else 
 // DG: MinGW is incompatible with the original dsound.h because it contains MSVC specific annotations
 #include <wine-dsound.h>
+
+// RB: was missing in MinGW/include/winuser.h
+#ifndef MAPVK_VSC_TO_VK_EX
+#define MAPVK_VSC_TO_VK_EX 3
+#endif
+// RB end
+
 #endif
 
 

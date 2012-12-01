@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2012 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -2681,7 +2682,9 @@ void idFileSystemLocal::CreateCRCsForResourceFileList( const idFileList& list )
 		std::auto_ptr<idFile> crcOutputFile( fileSystem->OpenFileWrite( crcFilename, "fs_basepath" ) );
 		if( crcOutputFile.get() == NULL )
 		{
-			idLib::Printf( "Error writing CRC file %s.\n", crcFilename );
+			// RB: fixed potential crash because of "cannot pass objects of non-trivially-copyable type 'class idStr' through '...'"
+			idLib::Printf( "Error writing CRC file %s.\n", crcFilename.c_str() );
+			// RB end
 			continue;
 		}
 		
