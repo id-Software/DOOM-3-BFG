@@ -292,7 +292,7 @@ ID_INLINE swfRect_t::swfRect_t() :
 
 ID_INLINE swfMatrix_t::swfMatrix_t() :
 	xx( 1.0f ), yy( 1.0f ),
-	yx( 0.0f ), xy( 0.0f ),
+	xy( 0.0f ), yx( 0.0f ),
 	tx( 0.0f ), ty( 0.0f )
 {
 }
@@ -400,10 +400,10 @@ ID_INLINE swfColorXform_t swfColorXform_t::Multiply( const swfColorXform_t& a ) 
 
 ID_INLINE swfDisplayEntry_t::swfDisplayEntry_t() :
 	characterID( 0 ),
-	ratio( 0.0f ),
 	depth( 0 ),
 	clipDepth( 0 ),
 	blendMode( 0 ),
+	ratio( 0.0f ),
 	spriteInstance( NULL ),
 	textInstance( NULL )
 {

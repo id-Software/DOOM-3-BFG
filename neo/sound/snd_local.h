@@ -534,8 +534,8 @@ public:
 	//-------------------------
 	
 	idSoundSystemLocal() :
-		soundTime( 0 ),
 		currentSoundWorld( NULL ),
+		soundTime( 0 ),
 		muted( false ),
 		musicMuted( false ),
 		needsRestart( false )

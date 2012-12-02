@@ -142,8 +142,8 @@ struct actionRepeater_t
 		widget( NULL ),
 		numRepetitions( 0 ),
 		nextRepeatTime( 0 ),
-		screenIndex( -1 ),
 		repeatDelay( DEFAULT_REPEAT_TIME ),
+		screenIndex( -1 ),
 		isActive( false )
 	{
 	}
@@ -343,21 +343,22 @@ public:
 		smallFrameShowing( false ),
 		largeFrameShowing( false ),
 		bgShowing( true ),
-		nextPeerUpdateMs( 0 ),
-		inGame( false ),
 		waitForBinding( false ),
 		waitBind( NULL ),
-		newGameType( 0 ),
 		menuBar( NULL ),
 		pacifier( NULL ),
+		timeRemaining( 0 ),
+		nextPeerUpdateMs( 0 ),
+		newGameType( 0 ),
+		inGame( false ),
 		showingIntro( false ),
+		continueWaitForEnumerate( false ),
+		gameComplete( false ),
 		introGui( NULL ),
+		typeSoundShader( NULL ),
 		doom3Intro( NULL ),
 		roeIntro( NULL ),
 		lmIntro( NULL ),
-		typeSoundShader( NULL ),
-		continueWaitForEnumerate( false ),
-		gameComplete( false ),
 		marsRotation( NULL )
 	{
 	}

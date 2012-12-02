@@ -73,6 +73,9 @@ enum utf8Encoding_t
 #define StrCmpNI		use_idStr_Icmpn
 
 #define stricmp			idStr::Icmp		// use_idStr_Icmp
+
+#undef strcasecmp // DG: redefining this without undefining it causes tons of compiler warnings
+
 #define _stricmp		use_idStr_Icmp
 #define strcasecmp		use_idStr_Icmp
 #define strnicmp		use_idStr_Icmpn

@@ -3092,7 +3092,7 @@ const char* idWeapon::GetAmmoPickupNameForNum( ammo_t ammonum )
 	
 	const char* name = GetAmmoNameForNum( ammonum );
 	
-	if( name != NULL && *name != NULL )
+	if( name != NULL && *name != '\0' )
 	{
 		num = ammoDict->GetNumKeyVals();
 		for( i = 0; i < num; i++ )

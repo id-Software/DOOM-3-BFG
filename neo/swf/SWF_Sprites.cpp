@@ -34,8 +34,8 @@ idSWFSprite::idSWFSprite
 ========================
 */
 idSWFSprite::idSWFSprite( idSWF* _swf ) :
-	frameCount( 0 ),
 	swf( _swf ),
+	frameCount( 0 ),
 	commandBuffer( NULL )
 {
 }

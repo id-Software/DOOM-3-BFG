@@ -33,7 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 #define __QGL_H__
 
 
-#include <gl/gl.h>
+#include <GL/gl.h>
 
 
 #ifndef APIENTRY

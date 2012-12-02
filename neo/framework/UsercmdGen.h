@@ -87,10 +87,10 @@ public:
 		clientGameMilliseconds( 0 ),
 		serverGameMilliseconds( 0 ),
 		fireCount( 0 ),
-		mx(),
-		my(),
 		impulse(),
 		impulseSequence(),
+		mx(),
+		my(),
 		pos( 0.0f, 0.0f, 0.0f ),
 		speedSquared( 0.0f )
 	{

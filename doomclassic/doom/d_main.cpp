@@ -73,7 +73,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "d_main.h"
 
-//#include "../idLib/precompiled.h"
+//#include "../idlib/precompiled.h"
 //#include "../Main/PlayerProfile.h"
 //#include "../Main/PSN/PS3_Session.h"
 #include "d3xp/Game_local.h"

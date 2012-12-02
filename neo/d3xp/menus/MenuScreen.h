@@ -486,9 +486,9 @@ class idMenuScreen_Shell_Singleplayer : public idMenuScreen
 {
 public:
 	idMenuScreen_Shell_Singleplayer() :
+		canContinue( false ),
 		options( NULL ),
-		btnBack( NULL ),
-		canContinue( false )
+		btnBack( NULL )
 	{
 	}
 	virtual void				Initialize( idMenuHandler* data );
@@ -645,9 +645,9 @@ class idMenuScreen_Shell_Difficulty : public idMenuScreen
 {
 public:
 	idMenuScreen_Shell_Difficulty() :
+		nightmareUnlocked( false ),
 		options( NULL ),
-		btnBack( NULL ),
-		nightmareUnlocked( false )
+		btnBack( NULL )
 	{
 	}
 	virtual void				Initialize( idMenuHandler* data );
@@ -658,7 +658,7 @@ public:
 private:
 	bool						nightmareUnlocked;
 	idMenuWidget_DynamicList* 	options;
-	idMenuWidget_Button*			btnBack;
+	idMenuWidget_Button*		btnBack;
 };
 
 //*
@@ -746,14 +746,15 @@ public:
 	idMenuScreen_Shell_Leaderboards() :
 		options( NULL ),
 		btnBack( NULL ),
-		refreshLeaderboard( false ),
-		refreshWhenMasterIsOnline( false ),
-		lbIndex( 0 ),
 		btnPrev( NULL ),
 		btnNext( NULL ),
-		lbHeading( NULL ),
 		btnPageDwn( NULL ),
-		btnPageUp( NULL )
+		btnPageUp( NULL ),
+		lbCache( NULL ),
+		lbHeading( NULL ),
+		lbIndex( 0 ),
+		refreshLeaderboard( false ),
+		refreshWhenMasterIsOnline( false )
 	{
 	}
 	
@@ -811,10 +812,10 @@ class idMenuScreen_Shell_Bindings : public idMenuScreen
 public:
 	idMenuScreen_Shell_Bindings() :
 		options( NULL ),
-		btnBack( NULL ),
-		blinder( NULL ),
 		restoreDefault( NULL ),
+		blinder( NULL ),
 		txtBlinder( NULL ),
+		btnBack( NULL ),
 		bindingsChanged( false )
 	{
 	}
@@ -839,7 +840,7 @@ protected:
 	idMenuWidget_Button* 		restoreDefault;
 	idSWFSpriteInstance* 		blinder;
 	idSWFSpriteInstance* 		txtBlinder;
-	idMenuWidget_Button*			btnBack;
+	idMenuWidget_Button*		btnBack;
 	bool						bindingsChanged;
 };
 
@@ -922,9 +923,9 @@ class idMenuScreen_Shell_Load : public idMenuScreen
 public:
 	idMenuScreen_Shell_Load() :
 		options( NULL ),
+		saveInfo( NULL ),
 		btnBack( NULL ),
-		btnDelete( NULL ),
-		saveInfo( NULL )
+		btnDelete( NULL )
 	{
 	}
 	virtual void				Initialize( idMenuHandler* data );
@@ -959,10 +960,10 @@ class idMenuScreen_Shell_Save : public idMenuScreen
 {
 public:
 	idMenuScreen_Shell_Save() :
-		options( NULL ),
 		btnBack( NULL ),
-		btnDelete( NULL ),
-		saveInfo( NULL )
+		options( NULL ),
+		saveInfo( NULL ),
+		btnDelete( NULL )
 	{
 	}
 	virtual void				Initialize( idMenuHandler* data );
@@ -981,10 +982,10 @@ public:
 	
 private:
 	idMenuWidget_Button*			btnBack;
-	idMenuWidget_DynamicList* 	options;
-	idMenuWidget_Shell_SaveInfo* saveInfo;
-	idMenuWidget_Button* 		btnDelete;
-	saveGameDetailsList_t		sortedSaves;
+	idMenuWidget_DynamicList* 		options;
+	idMenuWidget_Shell_SaveInfo* 	saveInfo;
+	idMenuWidget_Button* 			btnDelete;
+	saveGameDetailsList_t			sortedSaves;
 };
 
 //*
@@ -1318,8 +1319,8 @@ public:
 	};
 	
 	idMenuScreen_Shell_ControllerLayout() :
-		btnBack( NULL ),
-		options( NULL )
+		options( NULL ),
+		btnBack( NULL )
 	{
 	}
 	virtual void				Initialize( idMenuHandler* data );
@@ -1491,12 +1492,12 @@ class idMenuScreen_Shell_PartyLobby : public idMenuScreen
 {
 public:
 	idMenuScreen_Shell_PartyLobby() :
-		options( NULL ),
-		lobby( NULL ),
 		isHost( false ),
 		isPeer( false ),
-		btnBack( NULL ),
-		inParty( false )
+		inParty( false ),
+		options( NULL ),
+		lobby( NULL ),
+		btnBack( NULL )
 	{
 	}
 	
@@ -1531,14 +1532,14 @@ class idMenuScreen_Shell_GameLobby : public idMenuScreen
 {
 public:
 	idMenuScreen_Shell_GameLobby() :
+		longCountdown( 0 ),
+		longCountRemaining( 0 ),
+		shortCountdown( 0 ),
+		isHost( false ),
+		isPeer( false ),
+		privateGameLobby( true ),
 		options( NULL ),
 		lobby( NULL ),
-		longCountdown( 0 ),
-		shortCountdown( 0 ),
-		longCountRemaining( 0 ),
-		isPeer( false ),
-		isHost( false ),
-		privateGameLobby( true ),
 		btnBack( NULL )
 	{
 	}
@@ -1579,61 +1580,62 @@ public:
 	idMenuScreen_HUD() :
 		weaponInfo( NULL ),
 		playerInfo( NULL ),
-		audioLog( NULL ),
-		communication( NULL ),
-		oxygen( NULL ),
 		stamina( NULL ),
 		weaponName( NULL ),
-		weaponImg( NULL ),
 		weaponPills( NULL ),
-		locationName( NULL ),
 		downloadPda( NULL ),
 		downloadVideo( NULL ),
-		newPDA( NULL ),
-		newVideo( NULL ),
-		objective( NULL ),
-		objectiveComplete( NULL ),
 		tipInfo( NULL ),
+		mpChat( NULL ),
+		mpWeapons( NULL ),
 		healthBorder( NULL ),
 		healthPulse( NULL ),
 		armorFrame( NULL ),
 		security( NULL ),
-		securityText( NULL ),
 		newPDADownload( NULL ),
-		newPDAHeading( NULL ),
-		newPDAName( NULL ),
 		newVideoDownload( NULL ),
+		newPDA( NULL ),
+		newVideo( NULL ),
+		audioLog( NULL ),
+		communication( NULL ),
+		oxygen( NULL ),
+		objective( NULL ),
+		objectiveComplete( NULL ),
+		ammoInfo( NULL ),
+		weaponImg( NULL ),
+		newWeapon( NULL ),
+		pickupInfo( NULL ),
+		talkCursor( NULL ),
+		combatCursor( NULL ),
+		grabberCursor( NULL ),
+		bsInfo( NULL ),
+		soulcubeInfo( NULL ),
+		newItem( NULL ),
+		respawnMessage( NULL ),
+		flashlight( NULL ),
+		mpChatObject( NULL ),
+		mpConnection( NULL ),
+		mpInfo( NULL ),
+		mpHitInfo( NULL ),
+		locationName( NULL ),
+		securityText( NULL ),
+		newPDAName( NULL ),
+		newPDAHeading( NULL ),
 		newVideoHeading( NULL ),
+		mpMessage( NULL ),
+		mpTime( NULL ),
 		audioLogPrevTime( 0 ),
 		commPrevTime( 0 ),
 		oxygenComm( false ),
 		inVaccuum( false ),
-		ammoInfo( NULL ),
-		newWeapon( NULL ),
-		pickupInfo( NULL ),
+		objScreenshot( NULL ),
 		cursorState( CURSOR_NONE ),
 		cursorInCombat( 0 ),
 		cursorTalking( 0 ),
 		cursorItem( 0 ),
 		cursorGrabber( 0 ),
 		cursorNone( 0 ),
-		talkCursor( NULL ),
-		combatCursor( NULL ),
-		grabberCursor( NULL ),
-		bsInfo( NULL ),
-		soulcubeInfo( NULL ),
-		mpInfo( NULL ),
-		mpHitInfo( NULL ),
-		mpTime( NULL ),
-		mpMessage( NULL ),
-		mpChat( NULL ),
-		mpWeapons( NULL ),
-		newItem( NULL ),
-		respawnMessage( NULL ),
-		flashlight( NULL ),
-		mpChatObject( NULL ),
-		showSoulCubeInfoOnLoad( false ),
-		mpConnection( NULL )
+		showSoulCubeInfoOnLoad( false )
 	{
 	}
 	

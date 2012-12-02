@@ -184,7 +184,7 @@ idSWFScriptFunction_Script is a script function that's implemented in action scr
 class idSWFScriptFunction_Script : public idSWFScriptFunction
 {
 public:
-	idSWFScriptFunction_Script() : refCount( 1 ), flags( 0 ), prototype( NULL ), data( NULL ), length( 0 ), defaultSprite( NULL )
+	idSWFScriptFunction_Script() : refCount( 1 ), flags( 0 ), data( NULL ), length( 0 ), prototype( NULL ), defaultSprite( NULL )
 	{
 		registers.SetNum( 4 );
 	}

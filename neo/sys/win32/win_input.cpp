@@ -683,6 +683,7 @@ int Sys_PollMouseInputEvents( int mouseEvents[MAX_MOUSE_EVENTS][2] )
 		}
 		else
 		{
+			// DG: FIXME: mingw doesn't like using the (rather ugly) DIMOFS_* macros in switch/case..
 			switch( polled_didod[i].dwOfs )
 			{
 				case DIMOFS_X:

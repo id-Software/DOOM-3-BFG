@@ -84,7 +84,7 @@ idSerializer
 class idSerializer
 {
 public:
-	idSerializer( idBitMsg& msg_, bool writing_ ) : msg( &msg_ ), writing( writing_ )
+	idSerializer( idBitMsg& msg_, bool writing_ ) : writing( writing_ ), msg( &msg_ )
 #ifdef SERIALIZE_SANITYCHECK
 		, magic( 0 )
 #endif

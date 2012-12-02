@@ -814,8 +814,8 @@ class idMenuWidget_ServerButton : public idMenuWidget_Button
 public:
 
 	idMenuWidget_ServerButton() :
-		players( 0 ),
 		index( 0 ),
+		players( 0 ),
 		maxPlayers( 0 ),
 		joinable( false ),
 		validMap( false )
@@ -1037,9 +1037,9 @@ public:
 		numVisibleOptions( 0 ),
 		viewIndex( 0 ),
 		moveToIndex( 0 ),
-		scrollLeft( false ),
+		moveDiff( 0 ),
 		fastScroll( false ),
-		moveDiff( 0 )
+		scrollLeft( false )
 	{
 	}
 	
@@ -1516,9 +1516,9 @@ class idMenuWidget_PDA_EmailInbox: public idMenuWidget
 {
 public:
 	idMenuWidget_PDA_EmailInbox() :
-		pdaIndex( 0 ),
 		emailList( NULL ),
-		scrollbar( NULL )
+		scrollbar( NULL ),
+		pdaIndex( 0 )
 	{
 	}
 	virtual void	Update();

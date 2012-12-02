@@ -21,6 +21,9 @@
 #ifndef __DSOUND_INCLUDED__
 #define __DSOUND_INCLUDED__
 
+// DG: this is redefined here all the time..
+#undef INTERFACE // FIXME: use pragma push/pop_macro instead?
+
 #ifndef DIRECTSOUND_VERSION
 #define DIRECTSOUND_VERSION 0x0900
 #endif

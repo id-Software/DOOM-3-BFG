@@ -166,7 +166,7 @@ public:
 		return *this;
 	}
 	// for std::sort, sort newer (larger date) towards start of list
-	bool	operator<( const idSaveGameDetails& other )
+	bool	operator<( const idSaveGameDetails& other ) const
 	{
 		return date > other.date;
 	}

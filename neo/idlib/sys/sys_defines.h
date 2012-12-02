@@ -86,6 +86,14 @@ If you have questions concerning this license or the applicable additional terms
 #endif
 #endif
 
+// DG: #pragma hdrstop is only available on MSVC, so make sure it doesn't cause compiler warnings on other compilers..
+#ifdef _MSC_VER
+// afaik __pragma is a MSVC specific alternative to #pragma that can be used in macros
+#define ID_HDRSTOP __pragma(hdrstop)
+#else
+#define ID_HDRSTOP
+#endif // DG end
+
 // we should never rely on this define in our code. this is here so dodgy external libraries don't get confused
 #ifndef WIN32
 #define WIN32

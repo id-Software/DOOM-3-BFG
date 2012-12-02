@@ -8477,7 +8477,7 @@ void idPlayer::RunPhysics_RemoteClientCorrection()
 		const float serverSpeedSquared = physicsObj.GetLinearVelocity().LengthSqr();
 		const float clientSpeedSquared = usercmd.speedSquared;
 		
-		if( std::abs( serverSpeedSquared - clientSpeedSquared ) > pm_clientAuthoritative_minSpeedSquared.GetFloat() )
+		if( fabsf( serverSpeedSquared - clientSpeedSquared ) > pm_clientAuthoritative_minSpeedSquared.GetFloat() )
 		{
 			idVec3 normalizedVelocity = physicsObj.GetLinearVelocity();
 			

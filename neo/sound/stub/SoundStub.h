@@ -37,14 +37,47 @@ If you have questions concerning this license or the applicable additional terms
  *  cleaner and may be feasible)
  */
 
-#include "../SoundVoice.h"
-#include "idlib/precompiled.h" // TIME_T
-
 #ifndef SOUNDSTUB_H_
 #define SOUNDSTUB_H_
 
+#include "idlib/precompiled.h" // TIME_T
+#include "../WaveFile.h"
+
 class idSoundVoice : public idSoundVoice_Base
 {
+public:
+	void					Create( const idSoundSample* leadinSample, const idSoundSample* loopingSample ) {}
+
+	// Start playing at a particular point in the buffer.  Does an Update() too
+	void					Start( int offsetMS, int ssFlags ){}
+
+	// Stop playing.
+	void					Stop(){}
+
+	// Stop consuming buffers
+	void					Pause(){}
+	// Start consuming buffers again
+	void					UnPause(){}
+
+	// Sends new position/volume/pitch information to the hardware
+	bool					Update()
+	{ return false; }
+
+	// returns the RMS levels of the most recently processed block of audio, SSF_FLICKER must have been passed to Start
+	float					GetAmplitude()
+	{ return 0.0f; }
+
+	// returns true if we can re-use this voice
+	bool					CompatibleFormat( idSoundSample* s )
+	{ return false; }
+
+	uint32					GetSampleRate() const
+	{
+		return 0;
+	}
+
+	// callback function
+	void					OnBufferStart( idSoundSample* sample, int bufferNumber ) {}
 };
 
 class idSoundHardware
@@ -80,6 +113,8 @@ class idSoundSample
 {
 public:
 	idSoundSample();
+
+	~idSoundSample(); // destructor should be public so lists of  soundsamples can be destroyed etc
 
 	// Loads and initializes the resource based on the name.
 	virtual void	 LoadResource();
@@ -177,7 +212,6 @@ protected:
 	friend class idSoundHardware_XAudio2;
 	friend class idSoundVoice_XAudio2;
 */
-	~idSoundSample();
 
 	bool			LoadWav( const idStr& name );
 	bool			LoadAmplitude( const idStr& name );
