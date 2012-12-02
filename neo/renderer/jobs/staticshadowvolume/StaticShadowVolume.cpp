@@ -28,6 +28,10 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "StaticShadowVolume_local.h"
 
+#ifdef _WIN32 // DG: malloc.h needed for _alloca16
+#include <malloc.h>
+#endif
+
 /*
 ===================
 StaticShadowVolumeJob
