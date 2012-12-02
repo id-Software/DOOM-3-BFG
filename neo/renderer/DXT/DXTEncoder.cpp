@@ -1110,6 +1110,7 @@ NormalDistanceDXT1
 */
 int NormalDistanceDXT1( const int* vector, const int* normalized )
 {
+#if defined(_MSC_VER) && defined(_M_IX86)
 	int result;
 	__asm
 	{
@@ -1150,6 +1151,11 @@ int NormalDistanceDXT1( const int* vector, const int* normalized )
 		movd		result, xmm0
 	}
 	return result;
+#else // not _MSC_VERSION && defined(_M_IX86)
+	// DG: alternative implementation for non-MSVC builds
+	return 0; // FIXME: implementation!!
+	// DG end
+#endif // _MSC_VERSION && defined(_M_IX86)
 }
 
 /*
@@ -1159,6 +1165,7 @@ NormalDistanceDXT5
 */
 int NormalDistanceDXT5( const int* vector, const int* normalized )
 {
+#ifdef _MSC_VER && defined(_M_IX86)
 	int result;
 	__asm
 	{
@@ -1209,6 +1216,11 @@ int NormalDistanceDXT5( const int* vector, const int* normalized )
 		movd		result, xmm0
 	}
 	return result;
+#else // not _MSC_VER && defined(_M_IX86)
+	// DG: alternative implementation for non-MSVC builds
+	return 0; // FIXME: implementation!!
+	// DG end
+#endif // _MSC_VER && defined(_M_IX86)
 }
 
 /*
