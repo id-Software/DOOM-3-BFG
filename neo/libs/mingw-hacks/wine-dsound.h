@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA
  */
 
-// caedes: this is needed to compile with MinGW, as the original header uses MSVC specific stuff
+// DG: this is needed to compile with MinGW, as the original header uses MSVC specific stuff
  
 #ifndef __DSOUND_INCLUDED__
 #define __DSOUND_INCLUDED__
@@ -29,7 +29,7 @@
 #include <objbase.h>
 #include <float.h>
 
-// caedes: the following block is from https://fedorahosted.org/fldigi/attachment/wiki/misc/Attachments/mingw-dsound.patch
+// DG: the following block is from https://fedorahosted.org/fldigi/attachment/wiki/misc/Attachments/mingw-dsound.patch
 #ifdef UNICODE
 #define WINELIB_NAME_AW(func) func##W
 #else
