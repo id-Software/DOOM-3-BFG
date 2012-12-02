@@ -19,7 +19,7 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
 	add_definitions(-mmmx -msse -msse2)
 	if(WIN32)
 		# require msvcr70.dll or newer for _aligned_malloc etc
-		# I think it is from Visual C++ .NET 2002, so it should be available on any modern system.
+		# I think it is from Visual C++ .NET 2002, so it should be available on any remotely modern system.
 		add_definitions(-D__MSVCRT_VERSION__=0x0700)
 		
 		find_package(DirectX REQUIRED)
@@ -360,6 +360,12 @@ set(XAUDIO2_SOURCES
 	sound/XAudio2/XA2_SoundHardware.cpp
 	sound/XAudio2/XA2_SoundSample.cpp
 	sound/XAudio2/XA2_SoundVoice.cpp)
+
+set(STUBAUDIO_INCLUDES
+	sound/stub/SoundStub.h)
+
+set(STUBAUDIO_SOURCES
+	sound/stub/SoundSample.cpp)
 	
 set(OGGVORBIS_INCLUDES
 	libs/oggvorbis/ogg/ogg.h
@@ -738,6 +744,9 @@ source_group("sound" FILES ${SOUND_SOURCES})
 source_group("sound\\XAudio2" FILES ${XAUDIO2_INCLUDES})
 source_group("sound\\XAudio2" FILES ${XAUDIO2_SOURCES})
 
+source_group("sound\\stub" FILES ${STUBAUDIO_INCLUDES})
+source_group("sound\\stub" FILES ${STUBAUDIO_SOURCES})
+
 source_group("libs\\oggvorbis" FILES ${OGGVORBIS_INCLUDES})
 source_group("libs\\oggvorbis" FILES ${OGGVORBIS_SOURCES})
 
@@ -977,6 +986,17 @@ if(MSVC)
 		wsock32.lib
 		)
 else()
+	list(APPEND RBDOOM3_SOURCES
+		${SYS_INCLUDES} ${SYS_SOURCES}
+		${STUBAUDIO_INCLUDES} ${STUBAUDIO_SOURCES})
+	
+	# TODO: if WIN32
+	list(APPEND RBDOOM3_SOURCES
+		${WIN32_INCLUDES} ${WIN32_SOURCES} ${WIN32_RESOURCES})
+		
+
+	list(REMOVE_DUPLICATES RBDOOM3_SOURCES)
+	
 	add_executable(RBDoom3 WIN32 ${RBDOOM3_SOURCES})
 
 	add_dependencies(RBDoom3 idlib)

@@ -92,6 +92,7 @@ typedef enum
 
 #include "SoundVoice.h"
 
+#ifdef _MSC_VER // DG: stub out xaudio for MinGW etc
 
 #define OPERATION_SET 1
 
@@ -115,7 +116,10 @@ typedef enum
 #include "XAudio2/XA2_SoundVoice.h"
 #include "XAudio2/XA2_SoundHardware.h"
 
-
+#else // not _MSC_VER => MinGW, GCC, ...
+// just a stub for now
+#include "stub/SoundStub.h"
+#endif // _MSC_VER ; DG end
 
 //------------------------
 // Listener data
@@ -441,7 +445,7 @@ public:
 	virtual void			InitStreamBuffers();
 	virtual void			FreeStreamBuffers();
 	
-	virtual void* 			GetIXAudio2() const;
+	virtual void* 			GetIXAudio2() const; // FIXME: stupid name; get rid of this? not sure if it's really needed..
 	
 	// for the sound level meter window
 	virtual cinData_t		ImageForTime( const int milliseconds, const bool waveform );
@@ -485,8 +489,19 @@ public:
 			sample( NULL ),
 			bufferNumber( 0 )
 		{ }
+
+#ifdef _MSC_VER // XAudio backend
+		// DG: because the inheritance is kinda strange (idSoundVoice is derived
+		// from idSoundVoice_XAudio2), casting the latter to the former isn't possible
+		// so we need this ugly #ifdef ..
 		idSoundVoice_XAudio2* 	voice;
 		idSoundSample_XAudio2* sample;
+#else // not _MSC_VER
+		// from stub or something..
+		idSoundVoice* 	voice;
+		idSoundSample* sample;
+#endif // _MSC_VER ; DG end
+
 		int bufferNumber;
 	};
 	
