@@ -26,6 +26,9 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+// DG: only build this for MSVC. ugly hack, I can't get cmake to delete this file from the list..
+#ifdef _MSC_VER
+
 #include "Precompiled.h"
 #include "globaldata.h"
 
@@ -57,8 +60,10 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "sound/snd_local.h"
 
+#ifdef _MSC_VER // DG: xaudio can only be used with MSVC
 #include <xaudio2.h>
 #include <x3daudio.h>
+#endif // DG end
 
 #pragma warning ( disable : 4244 )
 
@@ -75,7 +80,10 @@ If you have questions concerning this license or the applicable additional terms
 #define MIDI_FORMAT_BYTES	2
 #endif
 
+#ifdef _MSC_VER // DG: xaudio can only be used with MSVC
 IXAudio2SourceVoice*	pMusicSourceVoice;
+#endif
+
 MidiSong*				doomMusic;
 byte*					musicBuffer;
 int						totalBufferSize;
@@ -132,10 +140,12 @@ float			g_EmitterAzimuths [] = { 0.f };
 static int		numOutputChannels = 0;
 static bool		soundHardwareInitialized = false;
 
-
+// DG: xaudio can only be used with MSVC
+#ifdef _MSC_VER
 X3DAUDIO_HANDLE					X3DAudioInstance;
 
 X3DAUDIO_LISTENER				doom_Listener;
+#endif
 
 //float							localSoundVolumeEntries[] = { 0.f, 0.f, 0.9f, 0.5f, 0.f, 0.f };
 float							localSoundVolumeEntries[] = { 0.8f, 0.8f, 0.8f, 0.8f, 0.8f, 0.8f, 0.8f, 0.8f, 0.8f, 0.8f, 0.8f };
@@ -1098,3 +1108,5 @@ int I_RegisterSong(void* data, int length)
 	return 0;
 }
 
+#endif // _MSC_VER
+// DG end

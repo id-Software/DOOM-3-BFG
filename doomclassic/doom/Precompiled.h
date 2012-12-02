@@ -67,3 +67,14 @@ typedef unsigned int dword;
 
 #define MAXWIDTH			1120
 #define MAXHEIGHT			832
+
+// DG: provide MAXINT seems to be available on MSVC but not MinGW,
+// so use the standard defines from limits.h
+#ifndef MAXINT
+#define MAXINT INT_MAX
+#endif
+
+#ifndef MININT
+#define MININT INT_MIN
+#endif
+// DG end

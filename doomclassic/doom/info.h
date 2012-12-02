@@ -1160,9 +1160,17 @@ typedef struct
   // for these actionf_p2s. So, let's make it not a scalar!
   // The second value of the struct will be initalized to 0.
  // struct {
-	  actionf_p2			action;
+	 // actionf_p2			action; // <- this was left
 	//  int					filler;
  // };
+#ifdef _MSC_VER
+  actionf_p2			action;
+#else
+  struct {
+    actionf_p2			action;
+    //  int					filler;
+  };
+#endif
 
   statenum_t			nextstate;
   long			misc1, misc2;
