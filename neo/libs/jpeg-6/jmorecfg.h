@@ -150,8 +150,8 @@ typedef unsigned int UINT16;
 #endif /* HAVE_UNSIGNED_SHORT */
 
 #ifndef __MWERKS__
-#ifndef _BASETSD_H_
-typedef long INT32;
+#if !defined(_BASETSD_H_) && !defined(_BASETSD_H)
+typedef int INT32;
 #endif
 #endif
 

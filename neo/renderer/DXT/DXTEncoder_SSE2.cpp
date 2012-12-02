@@ -55,7 +55,7 @@ Contains the DxtEncoder implementation for SSE2.
 typedef uint16	word;
 typedef uint32	dword;
 
-ALIGN16( static __m128i SIMD_SSE2_zero ) = { 0, 0, 0, 0 };
+ALIGN16( static __m128i SIMD_SSE2_zero ) = _mm_set_epi32(0, 0, 0, 0);
 ALIGN16( static dword SIMD_SSE2_dword_byte_mask[4] ) = { 0x000000FF, 0x000000FF, 0x000000FF, 0x000000FF };
 ALIGN16( static dword SIMD_SSE2_dword_word_mask[4] ) = { 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x0000FFFF };
 ALIGN16( static dword SIMD_SSE2_dword_red_mask[4] )   = { 0x000000FF, 0x000000FF, 0x000000FF, 0x000000FF };

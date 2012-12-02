@@ -31,6 +31,9 @@ If you have questions concerning this license or the applicable additional terms
 #include "../../../idlib/sys/sys_intrinsics.h"
 #include "../../../idlib/geometry/DrawVert_intrinsics.h"
 
+#ifdef _WIN32
+#include <malloc.h> // DG: _alloca16 needs that
+#endif
 
 static const __m128i vector_int_neg_one		= _mm_set_epi32( -1, -1, -1, -1 );
 
@@ -39,7 +42,7 @@ static const __m128i vector_int_neg_one		= _mm_set_epi32( -1, -1, -1, -1 );
 TriangleFacing_SSE2
 =====================
 */
-static __forceinline __m128i TriangleFacing_SSE2(	const __m128& vert0X, const __m128& vert0Y, const __m128& vert0Z,
+static ID_FORCE_INLINE __m128i TriangleFacing_SSE2(	const __m128& vert0X, const __m128& vert0Y, const __m128& vert0Z,
 		const __m128& vert1X, const __m128& vert1Y, const __m128& vert1Z,
 		const __m128& vert2X, const __m128& vert2Y, const __m128& vert2Z,
 		const __m128& lightOriginX, const __m128& lightOriginY, const __m128& lightOriginZ )
@@ -68,7 +71,7 @@ TriangleCulled
 The clip space of the 'lightProject' is assumed to be in the range [0, 1].
 =====================
 */
-static __forceinline __m128i TriangleCulled_SSE2(	const __m128& vert0X, const __m128& vert0Y, const __m128& vert0Z,
+static ID_FORCE_INLINE __m128i TriangleCulled_SSE2(	const __m128& vert0X, const __m128& vert0Y, const __m128& vert0Z,
 		const __m128& vert1X, const __m128& vert1Y, const __m128& vert1Z,
 		const __m128& vert2X, const __m128& vert2Y, const __m128& vert2Z,
 		const __m128& lightProjectX, const __m128& lightProjectY, const __m128& lightProjectZ, const __m128& lightProjectW )
