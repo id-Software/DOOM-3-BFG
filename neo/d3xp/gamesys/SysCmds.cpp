@@ -32,8 +32,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "../Game_local.h"
 
-#include "TypeInfo.h"
-
 /*
 ==================
 Cmd_GetFloatArg
