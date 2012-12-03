@@ -65,6 +65,12 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef MAPVK_VSC_TO_VK_EX
 #define MAPVK_VSC_TO_VK_EX 3
 #endif
+
+// RB: no available with MinGW
+#ifndef __analysis_assume
+#define __analysis_assume( x )
+#endif
+
 // RB end
 
 #endif
