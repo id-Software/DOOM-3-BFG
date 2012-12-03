@@ -40,6 +40,8 @@ If you have questions concerning this license or the applicable additional terms
 ================================================================================================
 */
 
+// RB: windows specific stuff should only be set on Windows
+#if defined(_WIN32)
 
 #define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS	// prevent auto literal to string conversion
 
@@ -66,11 +68,16 @@ If you have questions concerning this license or the applicable additional terms
 #define MAPVK_VSC_TO_VK_EX 3
 #endif
 
-// RB: no available with MinGW
+// RB begin
+#if defined(__MINGW32__)
+//#include <sal.h> 	// RB: missing __analysis_assume
+// including <sal.h> breaks some STL crap ...
+
 #ifndef __analysis_assume
 #define __analysis_assume( x )
 #endif
 
+#endif
 // RB end
 
 #endif
@@ -99,6 +106,9 @@ If you have questions concerning this license or the applicable additional terms
 #pragma warning(disable : 4714)				// function marked as __forceinline not inlined
 #pragma warning(disable : 4996)				// unsafe string operations
 #endif // _MSC_VER
+
+#endif // #if defined(_WIN32)
+// RB end
 
 #include <malloc.h>							// no malloc.h on mac or unix
 #include <windows.h>						// for qgl.h

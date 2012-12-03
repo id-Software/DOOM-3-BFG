@@ -29,7 +29,9 @@ If you have questions concerning this license or the applicable additional terms
 #include "../../idlib/precompiled.h"
 
 // RB: <DxErr.h> not available on Windows 8 SDK
-#if (_WIN32_WINNT < 0x0602 /*_WIN32_WINNT_WIN8*/)
+#if defined(__MINGW32__)
+#include <sal.h>
+#elif (_WIN32_WINNT < 0x0602 /*_WIN32_WINNT_WIN8*/)
 #include <DxErr.h>
 #endif
 // RB end

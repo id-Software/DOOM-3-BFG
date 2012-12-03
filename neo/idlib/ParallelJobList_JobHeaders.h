@@ -44,6 +44,22 @@ If you have questions concerning this license or the applicable additional terms
 #include <math.h>
 #include <string.h>
 
+// RB begin
+#if defined(__MINGW32__)
+//#include <sal.h> 	// RB: missing __analysis_assume
+
+#ifndef __analysis_assume
+#define __analysis_assume( x )
+#endif
+
+#include <malloc.h> // DG: _alloca16 needs that
+
+// RB: added <stdint.h> for missing uintptr_t with MinGW
+#include <stdint.h>
+
+#endif
+// RB end
+
 #include <basetsd.h>				// for UINT_PTR
 #ifdef _MSC_VER
 #include <intrin.h>

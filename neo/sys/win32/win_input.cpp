@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2012 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -683,34 +684,37 @@ int Sys_PollMouseInputEvents( int mouseEvents[MAX_MOUSE_EVENTS][2] )
 		}
 		else
 		{
-			// DG: FIXME: mingw doesn't like using the (rather ugly) DIMOFS_* macros in switch/case..
-			switch( polled_didod[i].dwOfs )
+			// RB: replaced switch enum for MinGW
+			int diaction = polled_didod[i].dwOfs;
+
+			if( diaction == DIMOFS_X )
 			{
-				case DIMOFS_X:
-					mouseEvents[i][0] = M_DELTAX;
-					mouseEvents[i][1] = polled_didod[i].dwData;
-					Sys_QueEvent( SE_MOUSE, polled_didod[i].dwData, 0, 0, NULL, 0 );
-					break;
-				case DIMOFS_Y:
-					mouseEvents[i][0] = M_DELTAY;
-					mouseEvents[i][1] = polled_didod[i].dwData;
-					Sys_QueEvent( SE_MOUSE, 0, polled_didod[i].dwData, 0, NULL, 0 );
-					break;
-				case DIMOFS_Z:
-					mouseEvents[i][0] = M_DELTAZ;
-					mouseEvents[i][1] = ( int )polled_didod[i].dwData / WHEEL_DELTA;
-					{
-						const int value = ( int )polled_didod[i].dwData / WHEEL_DELTA;
-						const int key = value < 0 ? K_MWHEELDOWN : K_MWHEELUP;
-						const int iterations = abs( value );
-						for( int i = 0; i < iterations; i++ )
-						{
-							Sys_QueEvent( SE_KEY, key, true, 0, NULL, 0 );
-							Sys_QueEvent( SE_KEY, key, false, 0, NULL, 0 );
-						}
-					}
-					break;
+				mouseEvents[i][0] = M_DELTAX;
+				mouseEvents[i][1] = polled_didod[i].dwData;
+				Sys_QueEvent( SE_MOUSE, polled_didod[i].dwData, 0, 0, NULL, 0 );
 			}
+			else if( diaction == DIMOFS_Y )
+			{
+				mouseEvents[i][0] = M_DELTAY;
+				mouseEvents[i][1] = polled_didod[i].dwData;
+				Sys_QueEvent( SE_MOUSE, 0, polled_didod[i].dwData, 0, NULL, 0 );
+			}
+			else if( diaction == DIMOFS_Z )
+			{
+				mouseEvents[i][0] = M_DELTAZ;
+				mouseEvents[i][1] = ( int )polled_didod[i].dwData / WHEEL_DELTA;
+				{
+					const int value = ( int )polled_didod[i].dwData / WHEEL_DELTA;
+					const int key = value < 0 ? K_MWHEELDOWN : K_MWHEELUP;
+					const int iterations = abs( value );
+					for( int i = 0; i < iterations; i++ )
+					{
+						Sys_QueEvent( SE_KEY, key, true, 0, NULL, 0 );
+						Sys_QueEvent( SE_KEY, key, false, 0, NULL, 0 );
+					}
+				}
+			}
+			// RB end
 		}
 	}
 	

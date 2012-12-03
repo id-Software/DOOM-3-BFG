@@ -882,6 +882,20 @@ void DumpAllDisplayDevices()
 	common->Printf( "\n" );
 }
 
+// RB: moved out of R_GetModeListForDisplay
+class idSort_VidMode : public idSort_Quick< vidMode_t, idSort_VidMode >
+{
+public:
+	int Compare( const vidMode_t& a, const vidMode_t& b ) const
+	{
+		int wd = a.width - b.width;
+		int hd = a.height - b.height;
+		int fd = a.displayHz - b.displayHz;
+		return ( hd != 0 ) ? hd : ( wd != 0 ) ? wd : fd;
+	}
+};
+// RB end
+
 /*
 ====================
 R_GetModeListForDisplay
@@ -979,21 +993,9 @@ bool R_GetModeListForDisplay( const int requestedDisplayNum, idList<vidMode_t>& 
 			mode.displayHz = devmode.dmDisplayFrequency;
 			modeList.AddUnique( mode );
 		}
+
 		if( modeList.Num() > 0 )
 		{
-		
-			class idSort_VidMode : public idSort_Quick< vidMode_t, idSort_VidMode >
-			{
-			public:
-				int Compare( const vidMode_t& a, const vidMode_t& b ) const
-				{
-					int wd = a.width - b.width;
-					int hd = a.height - b.height;
-					int fd = a.displayHz - b.displayHz;
-					return ( hd != 0 ) ? hd : ( wd != 0 ) ? wd : fd;
-				}
-			};
-			
 			// sort with lowest resolution first
 			modeList.SortWithTemplate( idSort_VidMode() );
 			

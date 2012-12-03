@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2012 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -25,6 +26,12 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
+
+// RB: missing __analysis_assume
+#if defined(__MINGW32__)
+#include <sal.h>
+#endif
+// RB end
 
 #include "ParallelJobList_JobHeaders.h"
 

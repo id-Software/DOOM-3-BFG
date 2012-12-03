@@ -632,7 +632,28 @@ file(GLOB TIMIDITY_INCLUDES libs/timidity/*.h)
 file(GLOB TIMIDITY_SOURCES libs/timidity/*.cpp)
 
 file(GLOB_RECURSE WIN32_INCLUDES sys/win32/*.h)
-file(GLOB_RECURSE WIN32_SOURCES sys/win32/*.cpp)
+#file(GLOB_RECURSE WIN32_SOURCES sys/win32/*.cpp)
+
+set(WIN32_SOURCES
+	sys/win32/win_achievements.cpp
+	sys/win32/win_glimp.cpp
+	sys/win32/win_input.cpp
+	sys/win32/win_localuser.cpp
+	sys/win32/win_main.cpp
+	sys/win32/win_net.cpp
+	sys/win32/win_qgl.cpp
+	sys/win32/win_savegame.cpp
+	sys/win32/win_session_local.cpp
+	sys/win32/win_shared.cpp
+	sys/win32/win_signin.cpp
+	sys/win32/win_snd.cpp
+	sys/win32/win_syscon.cpp
+	sys/win32/win_taskkeyhook.cpp
+	sys/win32/win_wndproc.cpp)
+	
+if(MSVC)
+	list(APPEND WIN32_SOURCES sys/win32/win_cpu.cpp)
+endif()
 
 set(WIN32_RESOURCES
 	# sys/win32/rc/res/BEVEL.BMP
@@ -986,11 +1007,18 @@ if(MSVC)
 		wsock32.lib
 		)
 else()
+
+	include_directories(libs/sdl/include)
+	link_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs/sdl2/libmingw32)
+
 	list(APPEND RBDOOM3_SOURCES
 		${SYS_INCLUDES} ${SYS_SOURCES}
 		${STUBAUDIO_INCLUDES} ${STUBAUDIO_SOURCES})
 	
 	# TODO: if WIN32
+	#list(REMOVE_ITEM WIN32_SOURCES sys/win32/win_cpu.cpp)
+	list(APPEND WIN32_SOURCES sys/sdl/sdl_cpu.cpp)
+	
 	list(APPEND RBDOOM3_SOURCES
 		${WIN32_INCLUDES} ${WIN32_SOURCES} ${WIN32_RESOURCES})
 		
@@ -1012,5 +1040,6 @@ else()
 		iphlpapi
 		winmm
 		wsock32.lib
+		SDL2
 		)
 endif()

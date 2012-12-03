@@ -31,9 +31,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "../../../idlib/sys/sys_intrinsics.h"
 #include "../../../idlib/geometry/DrawVert_intrinsics.h"
 
-#ifdef _WIN32
-#include <malloc.h> // DG: _alloca16 needs that
-#endif
 
 static const __m128i vector_int_neg_one		= _mm_set_epi32( -1, -1, -1, -1 );
 
