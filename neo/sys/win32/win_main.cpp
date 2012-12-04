@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 2012 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
 
@@ -530,7 +531,15 @@ const char *Sys_DefaultSavePath() {
 		SHGetKnownFolderPath_t SHGetKnownFolderPath = (SHGetKnownFolderPath_t)GetProcAddress( hShell, "SHGetKnownFolderPath" );
 		if ( SHGetKnownFolderPath ) {
 			wchar_t * path;
-			if ( SUCCEEDED( SHGetKnownFolderPath( FOLDERID_SavedGames_IdTech5, CSIDL_FLAG_CREATE | CSIDL_FLAG_PER_USER_INIT, 0, &path ) ) ) {
+
+			// RB FIXME?
+#if defined(__MINGW32__)
+			if ( SUCCEEDED( SHGetKnownFolderPath( FOLDERID_SavedGames_IdTech5, CSIDL_FLAG_CREATE, 0, &path ) ) )
+#else
+			if ( SUCCEEDED( SHGetKnownFolderPath( FOLDERID_SavedGames_IdTech5, CSIDL_FLAG_CREATE | CSIDL_FLAG_PER_USER_INIT, 0, &path ) ) )
+#endif
+			// RB end
+			{
 				if ( wcstombs( savePath, path, MAX_PATH ) > MAX_PATH ) {
 					savePath[0] = 0;
 				}
@@ -540,8 +549,15 @@ const char *Sys_DefaultSavePath() {
 		FreeLibrary( hShell );
 	}
 
-	if ( savePath[0] == 0 ) {
+	if ( savePath[0] == 0 )
+	{
+		// RB: looks like a bug in the shlobj.h
+#if defined(__MINGW32__)
+		SHGetFolderPath( NULL, CSIDL_PERSONAL | CSIDL_FLAG_CREATE, NULL, 1, savePath );
+#else
 		SHGetFolderPath( NULL, CSIDL_PERSONAL | CSIDL_FLAG_CREATE, NULL, SHGFP_TYPE_CURRENT, savePath );
+#endif
+		// RB end
 		strcat( savePath, "\\My Games" );
 	}
 
@@ -857,7 +873,8 @@ Sys_DLL_GetProcAddress
 =====================
 */
 void *Sys_DLL_GetProcAddress( int dllHandle, const char *procName ) {
-	return GetProcAddress( (HINSTANCE)dllHandle, procName ); 
+	// RB: added missing cast
+	return ( void* ) GetProcAddress( (HINSTANCE)dllHandle, procName );
 }
 
 /*
@@ -1343,6 +1360,9 @@ void EmailCrashReport( LPSTR messageText ) {
 	}
 }
 
+// RB: disabled unused FPU exception debugging
+#if !defined(__MINGW32__)
+
 int Sys_FPU_PrintStateFlags( char *ptr, int ctrl, int stat, int tags, int inof, int inse, int opof, int opse );
 
 /*
@@ -1415,6 +1435,8 @@ EXCEPTION_DISPOSITION __cdecl _except_handler( struct _EXCEPTION_RECORD *Excepti
     // Tell the OS to restart the faulting instruction
     return ExceptionContinueExecution;
 }
+#endif
+// RB end
 
 #define TEST_FPU_EXCEPTIONS	/*	FPU_EXCEPTION_INVALID_OPERATION |		*/	\
 							/*	FPU_EXCEPTION_DENORMALIZED_OPERAND |	*/	\

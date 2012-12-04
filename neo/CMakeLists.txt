@@ -1008,7 +1008,7 @@ if(MSVC)
 		)
 else()
 
-	include_directories(libs/sdl/include)
+	include_directories(libs/sdl2/include)
 	link_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs/sdl2/libmingw32)
 
 	list(APPEND RBDOOM3_SOURCES

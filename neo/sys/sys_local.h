@@ -54,11 +54,6 @@ public:
 	
 	virtual void			FPU_EnableExceptions( int exceptions );
 	
-	virtual void			GetCallStack( address_t* callStack, const int callStackSize );
-	virtual const char* 	GetCallStackStr( const address_t* callStack, const int callStackSize );
-	virtual const char* 	GetCallStackCurStr( int depth );
-	virtual void			ShutdownSymbols();
-	
 	virtual bool			LockMemory( void* ptr, int bytes );
 	virtual bool			UnlockMemory( void* ptr, int bytes );
 	

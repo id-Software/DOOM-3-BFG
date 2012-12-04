@@ -106,26 +106,6 @@ bool idSysLocal::UnlockMemory( void* ptr, int bytes )
 	return Sys_UnlockMemory( ptr, bytes );
 }
 
-void idSysLocal::GetCallStack( address_t* callStack, const int callStackSize )
-{
-	Sys_GetCallStack( callStack, callStackSize );
-}
-
-const char* idSysLocal::GetCallStackStr( const address_t* callStack, const int callStackSize )
-{
-	return Sys_GetCallStackStr( callStack, callStackSize );
-}
-
-const char* idSysLocal::GetCallStackCurStr( int depth )
-{
-	return Sys_GetCallStackCurStr( depth );
-}
-
-void idSysLocal::ShutdownSymbols()
-{
-	Sys_ShutdownSymbols();
-}
-
 int idSysLocal::DLL_Load( const char* dllName )
 {
 	return Sys_DLL_Load( dllName );

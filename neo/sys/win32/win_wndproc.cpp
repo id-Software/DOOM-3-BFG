@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2012 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -57,7 +58,13 @@ static void WIN_DisableAltTab()
 	{
 		BOOL old;
 		
+	// RB begin
+#if defined(__MINGW32__)
+		SystemParametersInfo( SPI_GETSCREENSAVEACTIVE, 1, &old, 0 );
+#else
 		SystemParametersInfo( SPI_SCREENSAVERRUNNING, 1, &old, 0 );
+#endif
+	// RB end
 	}
 	s_alttab_disabled = true;
 }
@@ -76,7 +83,13 @@ static void WIN_EnableAltTab()
 	{
 		BOOL old;
 		
-		SystemParametersInfo( SPI_SCREENSAVERRUNNING, 0, &old, 0 );
+		// RB begin
+#if defined(__MINGW32__)
+		SystemParametersInfo( SPI_GETSCREENSAVEACTIVE, 1, &old, 0 );
+#else
+		SystemParametersInfo( SPI_SCREENSAVERRUNNING, 1, &old, 0 );
+#endif
+		// RB end
 	}
 	
 	s_alttab_disabled = false;
@@ -459,6 +472,10 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 		}
 		case WM_XBUTTONDOWN:
 		{
+			// RB begin
+#if defined(__MINGW32__)
+			Sys_QueEvent( SE_KEY, K_MOUSE4, 1, 0, NULL, 0 );
+#else
 			int button = GET_XBUTTON_WPARAM( wParam );
 			if( button == 1 )
 			{
@@ -468,10 +485,16 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 			{
 				Sys_QueEvent( SE_KEY, K_MOUSE5, 1, 0, NULL, 0 );
 			}
+#endif
+			// RB end
 			return 0;
 		}
 		case WM_XBUTTONUP:
 		{
+			// RB begin
+#if defined(__MINGW32__)
+			Sys_QueEvent( SE_KEY, K_MOUSE4, 0, 0, NULL, 0 );
+#else
 			int button = GET_XBUTTON_WPARAM( wParam );
 			if( button == 1 )
 			{
@@ -481,6 +504,8 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 			{
 				Sys_QueEvent( SE_KEY, K_MOUSE5, 0, 0, NULL, 0 );
 			}
+#endif
+			// RB end
 			return 0;
 		}
 		case WM_MOUSEWHEEL:
