@@ -993,7 +993,7 @@ bool R_GetModeListForDisplay( const int requestedDisplayNum, idList<vidMode_t>& 
 			mode.displayHz = devmode.dmDisplayFrequency;
 			modeList.AddUnique( mode );
 		}
-
+		
 		if( modeList.Num() > 0 )
 		{
 			// sort with lowest resolution first

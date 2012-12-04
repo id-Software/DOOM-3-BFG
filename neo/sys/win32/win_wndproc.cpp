@@ -58,13 +58,13 @@ static void WIN_DisableAltTab()
 	{
 		BOOL old;
 		
-	// RB begin
+		// RB begin
 #if defined(__MINGW32__)
 		SystemParametersInfo( SPI_GETSCREENSAVEACTIVE, 1, &old, 0 );
 #else
 		SystemParametersInfo( SPI_SCREENSAVERRUNNING, 1, &old, 0 );
 #endif
-	// RB end
+		// RB end
 	}
 	s_alttab_disabled = true;
 }

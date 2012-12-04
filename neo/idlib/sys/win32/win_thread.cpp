@@ -64,14 +64,14 @@ static void Sys_SetThreadName( DWORD threadID, const char* name )
 #ifdef _MSC_VER
 	// this ugly mess is the official way to set a thread name on windows..
 	// see http://msdn.microsoft.com/en-us/library/xcb2z8hs.aspx
-
-
+	
+	
 	THREADNAME_INFO info;
 	info.dwType = 0x1000;
 	info.szName = name;
 	info.dwThreadID = threadID;
 	info.dwFlags = 0;
-
+	
 	__try
 	{
 		RaiseException( MS_VC_EXCEPTION, 0, sizeof( info ) / sizeof( DWORD ), ( const ULONG_PTR* )&info );

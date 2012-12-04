@@ -686,7 +686,7 @@ int Sys_PollMouseInputEvents( int mouseEvents[MAX_MOUSE_EVENTS][2] )
 		{
 			// RB: replaced switch enum for MinGW
 			int diaction = polled_didod[i].dwOfs;
-
+			
 			if( diaction == DIMOFS_X )
 			{
 				mouseEvents[i][0] = M_DELTAX;

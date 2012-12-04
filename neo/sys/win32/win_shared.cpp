@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -68,7 +68,8 @@ If you have questions concerning this license or the applicable additional terms
 Sys_Milliseconds
 ================
 */
-int Sys_Milliseconds() {
+int Sys_Milliseconds()
+{
 	static DWORD sys_timeBase = timeGetTime();
 	return timeGetTime() - sys_timeBase;
 }
@@ -78,15 +79,17 @@ int Sys_Milliseconds() {
 Sys_Microseconds
 ========================
 */
-uint64 Sys_Microseconds() {
+uint64 Sys_Microseconds()
+{
 	static uint64 ticksPerMicrosecondTimes1024 = 0;
-
-	if ( ticksPerMicrosecondTimes1024 == 0 ) {
-		ticksPerMicrosecondTimes1024 = ( (uint64)Sys_ClockTicksPerSecond() << 10 ) / 1000000;
+	
+	if( ticksPerMicrosecondTimes1024 == 0 )
+	{
+		ticksPerMicrosecondTimes1024 = ( ( uint64 )Sys_ClockTicksPerSecond() << 10 ) / 1000000;
 		assert( ticksPerMicrosecondTimes1024 > 0 );
 	}
-
-	return ((uint64)( (int64)Sys_GetClockTicks() << 10 )) / ticksPerMicrosecondTimes1024;
+	
+	return ( ( uint64 )( ( int64 )Sys_GetClockTicks() << 10 ) ) / ticksPerMicrosecondTimes1024;
 }
 
 /*
@@ -96,10 +99,11 @@ Sys_GetSystemRam
 	returns amount of physical memory in MB
 ================
 */
-int Sys_GetSystemRam() {
+int Sys_GetSystemRam()
+{
 	MEMORYSTATUSEX statex;
-	statex.dwLength = sizeof ( statex );
-	GlobalMemoryStatusEx (&statex);
+	statex.dwLength = sizeof( statex );
+	GlobalMemoryStatusEx( &statex );
 	int physRam = statex.ullTotalPhys / ( 1024 * 1024 );
 	// HACK: For some reason, ullTotalPhys is sometimes off by a meg or two, so we round up to the nearest 16 megs
 	physRam = ( physRam + 8 ) & ~15;
@@ -113,13 +117,15 @@ Sys_GetDriveFreeSpace
 returns in megabytes
 ================
 */
-int Sys_GetDriveFreeSpace( const char *path ) {
+int Sys_GetDriveFreeSpace( const char* path )
+{
 	DWORDLONG lpFreeBytesAvailable;
 	DWORDLONG lpTotalNumberOfBytes;
 	DWORDLONG lpTotalNumberOfFreeBytes;
 	int ret = 26;
 	//FIXME: see why this is failing on some machines
-	if ( ::GetDiskFreeSpaceEx( path, (PULARGE_INTEGER)&lpFreeBytesAvailable, (PULARGE_INTEGER)&lpTotalNumberOfBytes, (PULARGE_INTEGER)&lpTotalNumberOfFreeBytes ) ) {
+	if( ::GetDiskFreeSpaceEx( path, ( PULARGE_INTEGER )&lpFreeBytesAvailable, ( PULARGE_INTEGER )&lpTotalNumberOfBytes, ( PULARGE_INTEGER )&lpTotalNumberOfFreeBytes ) )
+	{
 		ret = ( double )( lpFreeBytesAvailable ) / ( 1024.0 * 1024.0 );
 	}
 	return ret;
@@ -130,13 +136,15 @@ int Sys_GetDriveFreeSpace( const char *path ) {
 Sys_GetDriveFreeSpaceInBytes
 ========================
 */
-int64 Sys_GetDriveFreeSpaceInBytes( const char * path ) {
+int64 Sys_GetDriveFreeSpaceInBytes( const char* path )
+{
 	DWORDLONG lpFreeBytesAvailable;
 	DWORDLONG lpTotalNumberOfBytes;
 	DWORDLONG lpTotalNumberOfFreeBytes;
 	int64 ret = 1;
 	//FIXME: see why this is failing on some machines
-	if ( ::GetDiskFreeSpaceEx( path, (PULARGE_INTEGER)&lpFreeBytesAvailable, (PULARGE_INTEGER)&lpTotalNumberOfBytes, (PULARGE_INTEGER)&lpTotalNumberOfFreeBytes ) ) {
+	if( ::GetDiskFreeSpaceEx( path, ( PULARGE_INTEGER )&lpFreeBytesAvailable, ( PULARGE_INTEGER )&lpTotalNumberOfBytes, ( PULARGE_INTEGER )&lpTotalNumberOfFreeBytes ) )
+	{
 		ret = lpFreeBytesAvailable;
 	}
 	return ret;
@@ -148,57 +156,65 @@ Sys_GetVideoRam
 returns in megabytes
 ================
 */
-int Sys_GetVideoRam() {
+int Sys_GetVideoRam()
+{
 	unsigned int retSize = 64;
-
+	
 	// RB begin
 #if !defined(__MINGW32__)
 	CComPtr<IWbemLocator> spLoc = NULL;
-	HRESULT hr = CoCreateInstance( CLSID_WbemLocator, 0, CLSCTX_SERVER, IID_IWbemLocator, ( LPVOID * ) &spLoc );
-	if ( hr != S_OK || spLoc == NULL ) {
+	HRESULT hr = CoCreateInstance( CLSID_WbemLocator, 0, CLSCTX_SERVER, IID_IWbemLocator, ( LPVOID* ) &spLoc );
+	if( hr != S_OK || spLoc == NULL )
+	{
 		return retSize;
 	}
-
+	
 	CComBSTR bstrNamespace( _T( "\\\\.\\root\\CIMV2" ) );
 	CComPtr<IWbemServices> spServices;
-
+	
 	// Connect to CIM
 	hr = spLoc->ConnectServer( bstrNamespace, NULL, NULL, 0, NULL, 0, 0, &spServices );
-	if ( hr != WBEM_S_NO_ERROR ) {
+	if( hr != WBEM_S_NO_ERROR )
+	{
 		return retSize;
 	}
-
-	// Switch the security level to IMPERSONATE so that provider will grant access to system-level objects.  
+	
+	// Switch the security level to IMPERSONATE so that provider will grant access to system-level objects.
 	hr = CoSetProxyBlanket( spServices, RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE, NULL, RPC_C_AUTHN_LEVEL_CALL, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE );
-	if ( hr != S_OK ) {
+	if( hr != S_OK )
+	{
 		return retSize;
 	}
-
+	
 	// Get the vid controller
 	CComPtr<IEnumWbemClassObject> spEnumInst = NULL;
-	hr = spServices->CreateInstanceEnum( CComBSTR( "Win32_VideoController" ), WBEM_FLAG_SHALLOW, NULL, &spEnumInst ); 
-	if ( hr != WBEM_S_NO_ERROR || spEnumInst == NULL ) {
+	hr = spServices->CreateInstanceEnum( CComBSTR( "Win32_VideoController" ), WBEM_FLAG_SHALLOW, NULL, &spEnumInst );
+	if( hr != WBEM_S_NO_ERROR || spEnumInst == NULL )
+	{
 		return retSize;
 	}
-
+	
 	ULONG uNumOfInstances = 0;
 	CComPtr<IWbemClassObject> spInstance = NULL;
 	hr = spEnumInst->Next( 10000, 1, &spInstance, &uNumOfInstances );
-
-	if ( hr == S_OK && spInstance ) {
+	
+	if( hr == S_OK && spInstance )
+	{
 		// Get properties from the object
 		CComVariant varSize;
 		hr = spInstance->Get( CComBSTR( _T( "AdapterRAM" ) ), 0, &varSize, 0, 0 );
-		if ( hr == S_OK ) {
+		if( hr == S_OK )
+		{
 			retSize = varSize.intVal / ( 1024 * 1024 );
-			if ( retSize == 0 ) {
+			if( retSize == 0 )
+			{
 				retSize = 64;
 			}
 		}
 	}
 #endif
 	// RB end
-
+	
 	return retSize;
 }
 
@@ -210,37 +226,38 @@ Sys_GetCurrentMemoryStatus
 	all values are in kB except the memoryload
 ================
 */
-void Sys_GetCurrentMemoryStatus( sysMemoryStats_t &stats ) {
+void Sys_GetCurrentMemoryStatus( sysMemoryStats_t& stats )
+{
 	MEMORYSTATUSEX statex = {};
 	unsigned __int64 work;
-
+	
 	statex.dwLength = sizeof( statex );
 	GlobalMemoryStatusEx( &statex );
-
+	
 	memset( &stats, 0, sizeof( stats ) );
-
+	
 	stats.memoryLoad = statex.dwMemoryLoad;
-
+	
 	work = statex.ullTotalPhys >> 20;
-	stats.totalPhysical = *(int*)&work;
-
+	stats.totalPhysical = *( int* )&work;
+	
 	work = statex.ullAvailPhys >> 20;
-	stats.availPhysical = *(int*)&work;
-
+	stats.availPhysical = *( int* )&work;
+	
 	work = statex.ullAvailPageFile >> 20;
-	stats.availPageFile = *(int*)&work;
-
+	stats.availPageFile = *( int* )&work;
+	
 	work = statex.ullTotalPageFile >> 20;
-	stats.totalPageFile = *(int*)&work;
-
+	stats.totalPageFile = *( int* )&work;
+	
 	work = statex.ullTotalVirtual >> 20;
-	stats.totalVirtual = *(int*)&work;
-
+	stats.totalVirtual = *( int* )&work;
+	
 	work = statex.ullAvailVirtual >> 20;
-	stats.availVirtual = *(int*)&work;
-
+	stats.availVirtual = *( int* )&work;
+	
 	work = statex.ullAvailExtendedVirtual >> 20;
-	stats.availExtendedVirtual = *(int*)&work;
+	stats.availExtendedVirtual = *( int* )&work;
 }
 
 /*
@@ -248,8 +265,9 @@ void Sys_GetCurrentMemoryStatus( sysMemoryStats_t &stats ) {
 Sys_LockMemory
 ================
 */
-bool Sys_LockMemory( void *ptr, int bytes ) {
-	return ( VirtualLock( ptr, (SIZE_T)bytes ) != FALSE );
+bool Sys_LockMemory( void* ptr, int bytes )
+{
+	return ( VirtualLock( ptr, ( SIZE_T )bytes ) != FALSE );
 }
 
 /*
@@ -257,8 +275,9 @@ bool Sys_LockMemory( void *ptr, int bytes ) {
 Sys_UnlockMemory
 ================
 */
-bool Sys_UnlockMemory( void *ptr, int bytes ) {
-	return ( VirtualUnlock( ptr, (SIZE_T)bytes ) != FALSE );
+bool Sys_UnlockMemory( void* ptr, int bytes )
+{
+	return ( VirtualUnlock( ptr, ( SIZE_T )bytes ) != FALSE );
 }
 
 /*
@@ -266,7 +285,8 @@ bool Sys_UnlockMemory( void *ptr, int bytes ) {
 Sys_SetPhysicalWorkMemory
 ================
 */
-void Sys_SetPhysicalWorkMemory( int minBytes, int maxBytes ) {
+void Sys_SetPhysicalWorkMemory( int minBytes, int maxBytes )
+{
 	::SetProcessWorkingSetSize( GetCurrentProcess(), minBytes, maxBytes );
 }
 
@@ -275,19 +295,22 @@ void Sys_SetPhysicalWorkMemory( int minBytes, int maxBytes ) {
 Sys_GetCurrentUser
 ================
 */
-char *Sys_GetCurrentUser() {
+char* Sys_GetCurrentUser()
+{
 	static char s_userName[1024];
 	unsigned long size = sizeof( s_userName );
-
-
-	if ( !GetUserName( s_userName, &size ) ) {
+	
+	
+	if( !GetUserName( s_userName, &size ) )
+	{
 		strcpy( s_userName, "player" );
 	}
-
-	if ( !s_userName[0] ) {
+	
+	if( !s_userName[0] )
+	{
 		strcpy( s_userName, "player" );
 	}
-
+	
 	return s_userName;
-}	
+}
 

@@ -59,7 +59,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #ifdef _MSC_VER
 #include <dsound.h>
-#else 
+#else
 // DG: MinGW is incompatible with the original dsound.h because it contains MSVC specific annotations
 #include <wine-dsound.h>
 

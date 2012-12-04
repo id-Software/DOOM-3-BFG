@@ -93,7 +93,7 @@ bool AssertFailed( const char* file, int line, const char* expression )
 #endif
 #else // not _WIN32
 		// DG: POSIX support
-		raise(SIGTRAP);
+		raise( SIGTRAP );
 		// DG: end
 #endif // _WIN32
 	}

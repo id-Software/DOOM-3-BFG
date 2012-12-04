@@ -63,10 +63,10 @@ bool SpursEmulationAssertFailed( const char* filename, int line, const char* exp
 #endif
 #else // not _WIN32
 		// DG: POSIX support
-		raise(SIGTRAP);
+		raise( SIGTRAP );
 		// DG: end
 #endif // _WIN32
-
+		
 	}
 	return true;
 }

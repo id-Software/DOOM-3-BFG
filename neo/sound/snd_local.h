@@ -489,7 +489,7 @@ public:
 			sample( NULL ),
 			bufferNumber( 0 )
 		{ }
-
+		
 #ifdef _MSC_VER // XAudio backend
 		// DG: because the inheritance is kinda strange (idSoundVoice is derived
 		// from idSoundVoice_XAudio2), casting the latter to the former isn't possible
@@ -501,7 +501,7 @@ public:
 		idSoundVoice* 	voice;
 		idSoundSample* sample;
 #endif // _MSC_VER ; DG end
-
+		
 		int bufferNumber;
 	};
 	
