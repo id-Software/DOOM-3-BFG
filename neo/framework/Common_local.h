@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2012 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -270,11 +271,15 @@ public:
 		showShellRequested = true;
 	}
 	
+	// RB begin
+#if defined(USE_DOOMCLASSIC)
 	virtual currentGame_t		GetCurrentGame() const
 	{
 		return currentGame;
 	}
 	virtual void				SwitchToGame( currentGame_t newGame );
+#endif
+	// RB end
 	
 public:
 	void	Draw();			// called by gameThread
@@ -516,6 +521,8 @@ private:
 	
 	bool				showShellRequested;
 	
+	// RB begin
+#if defined(USE_DOOMCLASSIC)
 	currentGame_t		currentGame;
 	currentGame_t		idealCurrentGame;		// Defer game switching so that bad things don't happen in the middle of the frame.
 	const idMaterial* 	doomClassicMaterial;
@@ -526,6 +533,8 @@ private:
 	static const int			DOOMCLASSIC_IMAGE_SIZE_IN_BYTES = DOOMCLASSIC_RENDERWIDTH* DOOMCLASSIC_RENDERHEIGHT* DOOMCLASSIC_BYTES_PER_PIXEL;
 	
 	idArray< byte, DOOMCLASSIC_IMAGE_SIZE_IN_BYTES >	doomClassicImageData;
+#endif
+	// RB end
 	
 private:
 	void	InitCommands();
@@ -596,6 +605,8 @@ private:
 	
 	void	ScrubSaveGameFileName( idStr& saveFileName ) const;
 	
+	// RB begin
+#if defined(USE_DOOMCLASSIC)
 	// Doom classic support
 	void	RunDoomClassicFrame();
 	void	RenderDoomClassic();
@@ -604,6 +615,8 @@ private:
 		return GetCurrentGame() != DOOM3_BFG;
 	}
 	void	PerformGameSwitch();
+#endif
+	// RB end
 };
 
 extern idCommonLocal commonLocal;

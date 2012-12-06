@@ -456,7 +456,8 @@ idFileHandle idFileSystemLocal::OpenOSFile( const char* fileName, fsMode_t mode 
 {
 	idFileHandle fp;
 	
-	
+	// RB begin
+#if defined(_WIN32)
 	DWORD dwAccess = 0;
 	DWORD dwShare = 0;
 	DWORD dwCreate = 0;
@@ -489,6 +490,84 @@ idFileHandle idFileSystemLocal::OpenOSFile( const char* fileName, fsMode_t mode 
 	{
 		return NULL;
 	}
+#else
+
+#ifndef __MWERKS__
+#ifndef WIN32
+	// some systems will let you fopen a directory
+	struct stat buf;
+	if( stat( fileName, &buf ) != -1 && !S_ISREG( buf.st_mode ) )
+	{
+		return NULL;
+	}
+#endif
+#endif
+
+	if( mode == FS_WRITE )
+	{
+		fp = fopen( fileName, "wb" );
+	}
+	else if( mode == FS_READ )
+	{
+		fp = fopen( fileName, "rb" );
+	}
+	else if( mode == FS_APPEND )
+	{
+		fp = fopen( fileName, "ab" );
+	}
+
+	if( !fp )//&& fs_caseSensitiveOS.GetBool() )
+	{
+		// RB: really any proper OS other than Windows should have a case sensitive filesystem
+		idStr fpath, entry;
+		idStrList list;
+
+		fpath = fileName;
+		fpath.StripFilename();
+		fpath.StripTrailing( PATHSEPARATOR_CHAR );
+		if( ListOSFiles( fpath, NULL, list ) == -1 )
+		{
+			return NULL;
+		}
+
+		for( int i = 0; i < list.Num(); i++ )
+		{
+			entry = fpath + PATHSEPARATOR_CHAR + list[i];
+			if( !entry.Icmp( fileName ) )
+			{
+				if( mode == FS_WRITE )
+				{
+					fp = fopen( entry, "wb" );
+				}
+				else if( mode == FS_READ )
+				{
+					fp = fopen( entry, "rb" );
+				}
+				else if( mode == FS_APPEND )
+				{
+					fp = fopen( entry, "ab" );
+				}
+
+				if( fp )
+				{
+					if( fs_debug.GetInteger() )
+					{
+						common->Printf( "idFileSystemLocal::OpenFileRead: changed %s to %s\n", fileName, entry.c_str() );
+					}
+					break;
+				}
+				else
+				{
+					// not supposed to happen if ListOSFiles is doing it's job correctly
+					common->Warning( "idFileSystemLocal::OpenFileRead: fs_caseSensitiveOS 1 could not open %s", entry.c_str() );
+				}
+			}
+		}
+	}
+
+#endif
+	// RB end
+
 	return fp;
 }
 
@@ -499,7 +578,13 @@ idFileSystemLocal::CloseOSFile
 */
 void idFileSystemLocal::CloseOSFile( idFileHandle o )
 {
+	// RB begin
+#if defined(_WIN32)
 	::CloseHandle( o );
+#else
+	fclose( o );
+#endif
+	// RB end
 }
 
 /*
@@ -509,7 +594,21 @@ idFileSystemLocal::DirectFileLength
 */
 int idFileSystemLocal::DirectFileLength( idFileHandle o )
 {
+	// RB begin
+#if defined(_WIN32)
 	return GetFileSize( o, NULL );
+#else
+	int		pos;
+	int		end;
+
+	pos = ftell( o );
+	fseek( o, 0, SEEK_END );
+	end = ftell( o );
+	fseek( o, pos, SEEK_SET );
+
+	return end;
+#endif
+	// RB end
 }
 
 /*
@@ -1774,11 +1873,25 @@ void idFileSystemLocal::RemoveFile( const char* relativePath )
 	if( fs_basepath.GetString()[0] )
 	{
 		OSPath = BuildOSPath( fs_basepath.GetString(), gameFolder, relativePath );
+
+		// RB begin
+#if defined(_WIN32)
 		::DeleteFile( OSPath );
+#else
+		remove( OSPath );
+#endif
+		// RB end
 	}
 	
 	OSPath = BuildOSPath( fs_savepath.GetString(), gameFolder, relativePath );
+
+	// RB begin
+#if defined(_WIN32)
 	::DeleteFile( OSPath );
+#else
+	remove( OSPath );
+#endif
+	// RB end
 }
 
 /*
@@ -2007,6 +2120,8 @@ bool idFileSystemLocal::RenameFile( const char* relativePath, const char* newNam
 	idStr oldOSPath = BuildOSPath( path, gameFolder, relativePath );
 	idStr newOSPath = BuildOSPath( path, gameFolder, newName );
 	
+	// RB begin
+#if defined(_WIN32)
 	// this gives atomic-delete-on-rename, like POSIX rename()
 	// There is a MoveFileTransacted() on vista and above, not sure if that means there
 	// is a race condition inside MoveFileEx...
@@ -2017,6 +2132,17 @@ bool idFileSystemLocal::RenameFile( const char* relativePath, const char* newNam
 		const int err = GetLastError();
 		idLib::Warning( "RenameFile( %s, %s ) error %i", newOSPath.c_str(), oldOSPath.c_str(), err );
 	}
+#else
+	const bool success = ( rename( oldOSPath.c_str(), newOSPath.c_str() ) == 0 );
+
+	if( !success )
+	{
+		const int err = errno;
+		idLib::Warning( "rename( %s, %s ) error %s", newOSPath.c_str(), oldOSPath.c_str(), strerror( errno ) );
+	}
+#endif
+	// RB end
+
 	return success;
 }
 

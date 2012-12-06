@@ -28,12 +28,12 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
 		add_definitions(-DUSE_XINPUT)
 	endif()	
 	
-	set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -D_DEBUG -O1 -Wno-unknown-pragmas -fno-strict-aliasing -Wno-unused-variable -Wno-unused-but-set-variable -Wno-switch")
-	#set(CMAKE_C_FLAGS_DEBUGALL "${CMAKE_C_FLAGS_DEBUGALL} -g -ggdb -D_DEBUG -Wno-unknown-pragmas -fno-strict-aliasing -Wno-unused-variable -Wno-unused-but-set-variable -Wno-switch")
+	set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -D_DEBUG -O1 -Wno-pragmas -fno-strict-aliasing -Wno-unused-variable -Wno-unused-but-set-variable -Wno-switch")
+	#set(CMAKE_C_FLAGS_DEBUGALL "${CMAKE_C_FLAGS_DEBUGALL} -g -ggdb -D_DEBUG -Wno-pragmas -fno-strict-aliasing -Wno-unused-variable -Wno-unused-but-set-variable -Wno-switch")
 	#set(CMAKE_C_FLAGS_PROFILE "${CMAKE_C_FLAGS_PROFILE} -g -ggdb -D_DEBUG -O1 -fno-omit-frame-pointer -Wunknown-pragmas -fno-strict-aliasing  -Wno-unused-variable -Wno-unused-but-set-variable -Wno-switch")
-	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3 -ffast-math -fno-unsafe-math-optimizations -fomit-frame-pointer -Wno-unknown-pragmas -fno-strict-aliasing  -Wno-unused-variable -Wno-unused-but-set-variable -Wno-switch")
-	set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} -g -O3 -ffast-math -fno-unsafe-math-optimizations -fomit-frame-pointer -Wno-unknown-pragmas -fno-strict-aliasing  -Wno-unused-variable -Wno-unused-but-set-variable -Wno-switch")
-	set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -Os -ffast-math -fno-unsafe-math-optimizations -fomit-frame-pointer -Wno-unknown-pragmas -fno-strict-aliasing -Wno-unused-variable -Wno-unused-but-set-variable -Wno-switch")
+	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3 -ffast-math -fno-unsafe-math-optimizations -fomit-frame-pointer -Wno-pragmas -fno-strict-aliasing  -Wno-unused-variable -Wno-unused-but-set-variable -Wno-switch")
+	set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} -g -O3 -ffast-math -fno-unsafe-math-optimizations -fomit-frame-pointer -Wno-pragmas -fno-strict-aliasing  -Wno-unused-variable -Wno-unused-but-set-variable -Wno-switch")
+	set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -Os -ffast-math -fno-unsafe-math-optimizations -fomit-frame-pointer -Wno-pragmas -fno-strict-aliasing -Wno-unused-variable -Wno-unused-but-set-variable -Wno-switch")
 	
 	set(CMAKE_CXX_FLAGS_DEBUG ${CMAKE_C_FLAGS_DEBUG})
 	#set(CMAKE_CXX_FLAGS_DEBUGALL ${CMAKE_C_FLAGS_DEBUGALL})
@@ -888,9 +888,6 @@ set(RBDOOM3_SOURCES
 			${UI_INCLUDES} ${UI_SOURCES}
 			${SWF_INCLUDES} ${SWF_SOURCES}
 			
-			${DOOMCLASSIC_INCLUDES} ${DOOMCLASSIC_SOURCES}
-			${TIMIDITY_INCLUDES} ${TIMIDITY_SOURCES}
-			
 			#${COMPILER_INCLUDES}
 			#${COMPILER_AAS_INCLUDES} ${COMPILER_AAS_SOURCES}
 			#${COMPILER_DMAP_INCLUDES} ${COMPILER_DMAP_SOURCES}
@@ -930,6 +927,8 @@ include_directories(
 #			${CMAKE_CURRENT_SOURCE_DIR}/libs/openal/lib)
 
 if(MSVC)
+
+	add_definitions(-DUSE_DOOMCLASSIC)
 
 	if(MSVC_VERSION EQUAL 1700)
 		set(DirectX_LIBRARIES
@@ -977,6 +976,9 @@ if(MSVC)
 	endif()
 	
 	list(APPEND RBDOOM3_SOURCES
+		${DOOMCLASSIC_INCLUDES} ${DOOMCLASSIC_SOURCES}
+		${TIMIDITY_INCLUDES} ${TIMIDITY_SOURCES}
+		
 		${SYS_INCLUDES} ${SYS_SOURCES}
 		${XAUDIO2_INCLUDES} ${XAUDIO2_SOURCES}
 		${WIN32_INCLUDES} ${WIN32_SOURCES} ${WIN32_RESOURCES})
@@ -1008,38 +1010,58 @@ if(MSVC)
 		)
 else()
 
-	include_directories(libs/sdl2/include)
-	link_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs/sdl2/libmingw32)
-
 	list(APPEND RBDOOM3_SOURCES
 		${SYS_INCLUDES} ${SYS_SOURCES}
 		${STUBAUDIO_INCLUDES} ${STUBAUDIO_SOURCES})
 	
-	# TODO: if WIN32
-	#list(REMOVE_ITEM WIN32_SOURCES sys/win32/win_cpu.cpp)
-	list(APPEND WIN32_SOURCES sys/sdl/sdl_cpu.cpp)
+	if(WIN32)
+		add_definitions(-DUSE_DOOMCLASSIC)
 	
-	list(APPEND RBDOOM3_SOURCES
-		${WIN32_INCLUDES} ${WIN32_SOURCES} ${WIN32_RESOURCES})
-		
+		list(APPEND RBDOOM3_SOURCES
+			${DOOMCLASSIC_INCLUDES} ${DOOMCLASSIC_SOURCES}
+			${TIMIDITY_INCLUDES} ${TIMIDITY_SOURCES}
+			${WIN32_INCLUDES} ${WIN32_SOURCES} ${WIN32_RESOURCES})  
+	
+		#list(REMOVE_ITEM WIN32_SOURCES sys/win32/win_cpu.cpp)
+		list(APPEND WIN32_SOURCES sys/sdl/sdl_cpu.cpp)
+	endif()
 
 	list(REMOVE_DUPLICATES RBDOOM3_SOURCES)
 	
 	add_executable(RBDoom3 WIN32 ${RBDOOM3_SOURCES})
 
 	add_dependencies(RBDoom3 idlib)
-	target_link_libraries(RBDoom3
-		idlib
-		${DirectX_LIBRARIES}
-		#libcurl 
-		#openal32 
-		opengl32
-		glu32
-		dbghelp
-		#eaxguid
-		iphlpapi
-		winmm
-		wsock32.lib
-		SDL2
-		)
+	
+	if(MINGW)
+		include_directories(libs/sdl2/include)
+		
+		link_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs/sdl2/libmingw32)
+	endif()
+	
+	if(WIN32)
+	
+		target_link_libraries(RBDoom3
+			idlib
+			${DirectX_LIBRARIES}
+			#libcurl 
+			#openal32 
+			opengl32
+			glu32
+			dbghelp
+			#eaxguid
+			iphlpapi
+			winmm
+			wsock32.lib
+			SDL2
+			)
+	  
+	endif()
+	
+	if(UNIX)
+		target_link_libraries(RBDoom3
+			idlib
+			GL
+			)
+	endif()
+	
 endif()

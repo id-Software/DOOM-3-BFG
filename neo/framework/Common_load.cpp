@@ -1008,10 +1008,14 @@ bool idCommonLocal::LoadGame( const char* saveName )
 		return false;
 	}
 	
+	// RB begin
+#if defined(USE_DOOMCLASSIC)
 	if( GetCurrentGame() != DOOM3_BFG )
 	{
 		return false;
 	}
+#endif
+	// RB end
 	
 	if( session->GetSignInManager().GetMasterLocalUser() == NULL )
 	{

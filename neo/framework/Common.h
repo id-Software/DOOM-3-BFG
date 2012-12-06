@@ -178,12 +178,16 @@ struct mpMap_t
 
 static const int	MAX_LOGGED_STATS = 60 * 120;		// log every half second
 
+// RB begin
+#if defined(USE_DOOMCLASSIC)
 enum currentGame_t
 {
 	DOOM_CLASSIC,
 	DOOM2_CLASSIC,
 	DOOM3_BFG
 };
+#endif
+// RB end
 
 class idCommon
 {
@@ -329,8 +333,12 @@ public:
 	
 	virtual void				QueueShowShell() = 0;		// Will activate the shell on the next frame.
 	
+	// RB begin
+#if defined(USE_DOOMCLASSIC)
 	virtual currentGame_t		GetCurrentGame() const = 0;
 	virtual void				SwitchToGame( currentGame_t newGame ) = 0;
+#endif
+	// RB end
 };
 
 extern idCommon* 		common;

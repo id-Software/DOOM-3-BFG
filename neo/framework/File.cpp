@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2012 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -1296,7 +1297,13 @@ idFile_Permanent::~idFile_Permanent()
 {
 	if( o )
 	{
+		// RB begin
+#if defined(_WIN32)
 		CloseHandle( o );
+#else
+		fclose( o );
+#endif
+		// RB end
 	}
 }
 
@@ -1332,12 +1339,20 @@ int idFile_Permanent::Read( void* buffer, int len )
 	while( remaining )
 	{
 		block = remaining;
+
+		// RB begin
+#if defined(_WIN32)
 		DWORD bytesRead;
 		if( !ReadFile( o, buf, block, &bytesRead, NULL ) )
 		{
 			idLib::Warning( "idFile_Permanent::Read failed with %d from %s", GetLastError(), name.c_str() );
 		}
 		read = bytesRead;
+#else
+		read = fread( buf, 1, block, o );
+#endif
+		// RB end
+
 		if( read == 0 )
 		{
 			// we might have been trying to read from a CD, which
@@ -1395,9 +1410,17 @@ int idFile_Permanent::Write( const void* buffer, int len )
 	while( remaining )
 	{
 		block = remaining;
+
+		// RB begin
+#if defined(_WIN32)
 		DWORD bytesWritten;
 		WriteFile( o, buf, block, &bytesWritten, NULL );
 		written = bytesWritten;
+#else
+		written = fwrite( buf, 1, block, o );
+#endif
+		// RB end
+
 		if( written == 0 )
 		{
 			if( !tries )
@@ -1435,7 +1458,13 @@ idFile_Permanent::ForceFlush
 */
 void idFile_Permanent::ForceFlush()
 {
+	// RB begin
+#if defined(_WIN32)
 	FlushFileBuffers( o );
+#else
+	setvbuf( o, NULL, _IONBF, 0 );
+#endif
+	// RB end
 }
 
 /*
@@ -1445,7 +1474,13 @@ idFile_Permanent::Flush
 */
 void idFile_Permanent::Flush()
 {
+	// RB begin
+#if defined(_WIN32)
 	FlushFileBuffers( o );
+#else
+	fflush( o );
+#endif
+	// RB end
 }
 
 /*
@@ -1455,7 +1490,13 @@ idFile_Permanent::Tell
 */
 int idFile_Permanent::Tell() const
 {
+	// RB begin
+#if defined(_WIN32)
 	return SetFilePointer( o, 0, NULL, FILE_CURRENT );
+#else
+	return ftell( o );
+#endif
+	// RB end
 }
 
 /*
@@ -1488,6 +1529,8 @@ idFile_Permanent::Seek
 */
 int idFile_Permanent::Seek( long offset, fsOrigin_t origin )
 {
+	// RB begin
+#if defined(_WIN32)
 	int retVal = INVALID_SET_FILE_POINTER;
 	switch( origin )
 	{
@@ -1502,6 +1545,37 @@ int idFile_Permanent::Seek( long offset, fsOrigin_t origin )
 			break;
 	}
 	return ( retVal == INVALID_SET_FILE_POINTER ) ? -1 : 0;
+#else
+	int _origin;
+
+	switch( origin )
+	{
+		case FS_SEEK_CUR:
+		{
+			_origin = SEEK_CUR;
+			break;
+		}
+		case FS_SEEK_END:
+		{
+			_origin = SEEK_END;
+			break;
+		}
+		case FS_SEEK_SET:
+		{
+			_origin = SEEK_SET;
+			break;
+		}
+		default:
+		{
+			_origin = SEEK_CUR;
+			common->FatalError( "idFile_Permanent::Seek: bad origin for %s\n", name.c_str() );
+			break;
+		}
+	}
+
+	return fseek( o, offset, _origin );
+#endif
+	// RB end
 }
 
 #if 1

@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2012 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -32,8 +33,13 @@ If you have questions concerning this license or the applicable additional terms
 #include "Common_local.h"
 #include "../renderer/Image.h"
 #include "../renderer/ImageOpts.h"
+
+// RB begin
+#if defined(USE_DOOMCLASSIC)
 #include "../../doomclassic/doom/doomlib.h"
 #include "../../doomclassic/doom/globaldata.h"
+#endif
+// RB end
 
 /*
 
@@ -135,7 +141,13 @@ int idGameThread::Run()
 	// we should have consumed all of our usercmds
 	if( userCmdMgr )
 	{
+		// RB begin
+#if defined(USE_DOOMCLASSIC)
 		if( userCmdMgr->HasUserCmdForPlayer( game->GetLocalClientNum() ) && common->GetCurrentGame() == DOOM3_BFG )
+#else
+		if( userCmdMgr->HasUserCmdForPlayer( game->GetLocalClientNum() ) )
+#endif
+		// RB end
 		{
 			idLib::Printf( "idGameThread::Run: didn't consume all usercmds\n" );
 		}
@@ -241,6 +253,8 @@ void idCommonLocal::Draw()
 	{
 		loadGUI->Render( renderSystem, Sys_Milliseconds() );
 	}
+	// RB begin
+#if defined(USE_DOOMCLASSIC)
 	else if( currentGame == DOOM_CLASSIC || currentGame == DOOM2_CLASSIC )
 	{
 		const float sysWidth = renderSystem->GetWidth() * renderSystem->GetPixelAspect();
@@ -265,6 +279,8 @@ void idCommonLocal::Draw()
 		renderSystem->SetColor4( 1, 1, 1, 1 );
 		renderSystem->DrawStretchPic( barWidth, barHeight, SCREEN_WIDTH - barWidth * 2.0f, SCREEN_HEIGHT - barHeight * 2.0f, 0, 0, 1, 1, doomClassicMaterial );
 	}
+#endif
+	// RB end
 	else if( game && game->Shell_IsActive() )
 	{
 		bool gameDraw = game->Draw( game->GetLocalClientNum() );
@@ -440,9 +456,13 @@ void idCommonLocal::Frame()
 			com_forceGenericSIMD.ClearModified();
 		}
 		
+		// RB begin
+#if defined(USE_DOOMCLASSIC)
 		// Do the actual switch between Doom 3 and the classics here so
 		// that things don't get confused in the middle of the frame.
 		PerformGameSwitch();
+#endif
+		// RB end
 		
 		// pump all the events
 		Sys_GenerateEvents();
@@ -461,7 +481,14 @@ void idCommonLocal::Frame()
 		
 		// if the console or another gui is down, we don't need to hold the mouse cursor
 		bool chatting = false;
+
+		// RB begin
+#if defined(USE_DOOMCLASSIC)
 		if( console->Active() || Dialog().IsDialogActive() || session->IsSystemUIShowing() || ( game && game->InhibitControls() && !IsPlayingDoomClassic() ) )
+#else
+		if( console->Active() || Dialog().IsDialogActive() || session->IsSystemUIShowing() || ( game && game->InhibitControls() ) )
+#endif
+		// RB end
 		{
 			Sys_GrabMouseCursor( false );
 			usercmdGen->InhibitUsercmd( INHIBIT_SESSION, true );
@@ -473,7 +500,13 @@ void idCommonLocal::Frame()
 			usercmdGen->InhibitUsercmd( INHIBIT_SESSION, false );
 		}
 		
+		// RB begin
+#if defined(USE_DOOMCLASSIC)
 		const bool pauseGame = ( !mapSpawned || ( !IsMultiplayer() && ( Dialog().IsDialogPausing() || session->IsSystemUIShowing() || ( game && game->Shell_IsActive() ) ) ) ) && !IsPlayingDoomClassic();
+#else
+		const bool pauseGame = ( !mapSpawned || ( !IsMultiplayer() && ( Dialog().IsDialogPausing() || session->IsSystemUIShowing() || ( game && game->Shell_IsActive() ) ) ) );
+#endif
+		// RB end
 		
 		// save the screenshot and audio from the last draw if needed
 		if( aviCaptureMode )
@@ -705,11 +738,15 @@ void idCommonLocal::Frame()
 			userCmdMgr.PutUserCmdForPlayer( game->GetLocalClientNum(), newCmd );
 		}
 		
+		// RB begin
+#if defined(USE_DOOMCLASSIC)
 		// If we're in Doom or Doom 2, run tics and upload the new texture.
 		if( ( GetCurrentGame() == DOOM_CLASSIC || GetCurrentGame() == DOOM2_CLASSIC ) && !( Dialog().IsDialogPausing() || session->IsSystemUIShowing() ) )
 		{
 			RunDoomClassicFrame();
 		}
+#endif
+		// RB end
 		
 		// start the game / draw command generation thread going in the background
 		gameReturn_t ret = gameThread.RunGameAndDraw( numGameFrames, userCmdMgr, IsClient(), gameFrame - numGameFrames );
@@ -805,6 +842,9 @@ void idCommonLocal::Frame()
 	}
 }
 
+// RB begin
+#if defined(USE_DOOMCLASSIC)
+
 /*
 =================
 idCommonLocal::RunDoomClassicFrame
@@ -855,3 +895,7 @@ void idCommonLocal::RunDoomClassicFrame()
 	renderSystem->UploadImage( "_doomClassic", doomClassicImageData.Ptr(), DOOMCLASSIC_RENDERWIDTH, DOOMCLASSIC_RENDERHEIGHT );
 	doomTics++;
 }
+
+#endif
+// RB end
+
