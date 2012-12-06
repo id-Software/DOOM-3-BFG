@@ -60,7 +60,6 @@ If you have questions concerning this license or the applicable additional terms
 #endif
 // RB end
 
-#include <basetsd.h>				// for UINT_PTR
 #ifdef _MSC_VER
 #include <intrin.h>
 #pragma warning( disable : 4100 )	// unreferenced formal parameter

@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2012 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -31,11 +32,13 @@ If you have questions concerning this license or the applicable additional terms
 /*
 ================================================================================================
 
-	PC Windows
+	Non-portable system services.
 
 ================================================================================================
 */
 
+// Win32
+#if defined(WIN32) || defined(_WIN32)
 
 #define	CPUSTRING						"x86"
 
@@ -99,6 +102,49 @@ If you have questions concerning this license or the applicable additional terms
 #define WIN32
 #endif
 
+
+#elif defined(__linux__)
+
+#if defined(__i386__)
+#define	CPUSTRING						"x86"
+#elif defined(__x86_64__)
+#define CPUSTRING						"x86_86"
+#endif
+
+#define	BUILD_STRING					"linux-" CPUSTRING
+#define BUILD_OS_ID						2
+
+// DG: mingw/GCC (and probably clang) support
+#define ALIGN16( x )					x __attribute__ ((aligned (16)))
+// FIXME: change ALIGNTYPE* ?
+#define ALIGNTYPE16
+#define ALIGNTYPE128
+// DG end
+
+
+#define FORMAT_PRINTF( x )
+
+#define PATHSEPARATOR_STR				"/"
+#define PATHSEPARATOR_CHAR				'/'
+#define NEWLINE							"\n"
+
+#define ID_INLINE						inline
+
+// DG: this should at least work with GCC/MinGW, probably with clang as well..
+#define ID_FORCE_INLINE					inline // TODO: always_inline?
+// DG end
+
+#define ID_INLINE_EXTERN				extern inline
+
+// DG: GCC/MinGW, probably clang
+#define ID_FORCE_INLINE_EXTERN			extern inline // TODO: always_inline ?
+// DG end
+
+#define ID_HDRSTOP
+
+#endif
+// RB end
+
 /*
 ================================================================================================
 
@@ -109,8 +155,10 @@ Defines and macros usable in all code
 
 #define ALIGN( x, a ) ( ( ( x ) + ((a)-1) ) & ~((a)-1) )
 
-#define _alloca16( x )					((void *)ALIGN( (UINT_PTR)_alloca( ALIGN( x, 16 ) + 16 ), 16 ) )
-#define _alloca128( x )					((void *)ALIGN( (UINT_PTR)_alloca( ALIGN( x, 128 ) + 128 ), 128 ) )
+// RB: changed UINT_PTR to uintptr_t
+#define _alloca16( x )					((void *)ALIGN( (uintptr_t)_alloca( ALIGN( x, 16 ) + 16 ), 16 ) )
+#define _alloca128( x )					((void *)ALIGN( (uintptr_t)_alloca( ALIGN( x, 128 ) + 128 ), 128 ) )
+// RB end
 
 #define likely( x )	( x )
 #define unlikely( x )	( x )

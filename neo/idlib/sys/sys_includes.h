@@ -107,11 +107,12 @@ If you have questions concerning this license or the applicable additional terms
 #pragma warning(disable : 4996)				// unsafe string operations
 #endif // _MSC_VER
 
+#include <windows.h>						// for qgl.h
+
 #endif // #if defined(_WIN32)
 // RB end
 
 #include <malloc.h>							// no malloc.h on mac or unix
-#include <windows.h>						// for qgl.h
 #undef FindText								// fix namespace pollution
 
 
