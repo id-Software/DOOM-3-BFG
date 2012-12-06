@@ -127,14 +127,15 @@ idCommonLocal::idCommonLocal() :
 	lastPacifierSessionTime( 0 ),
 	lastPacifierGuiTime( 0 ),
 	lastPacifierDialogState( false ),
-	showShellRequested( false ),
+	showShellRequested( false )
 	// RB begin
 #if defined(USE_DOOMCLASSIC)
+	,
 	currentGame( DOOM3_BFG ),
 	idealCurrentGame( DOOM3_BFG ),
 	doomClassicMaterial( NULL )
 #endif
-/	// RB end
+	// RB end
 {
 
 	snapCurrent.localTime = -1;
