@@ -82,7 +82,13 @@ bool AssertFailed( const char* file, int line, const char* expression )
 	
 	idLib::Warning( "ASSERTION FAILED! %s(%d): '%s'", file, line, expression );
 	
+// RB begin
+#ifdef _WIN32
 	if( IsDebuggerPresent() || com_assertOutOfDebugger.GetBool() )
+#else
+	if( com_assertOutOfDebugger.GetBool() )
+#endif
+// RB end
 	{
 #ifdef _WIN32
 #ifdef _MSC_VERS

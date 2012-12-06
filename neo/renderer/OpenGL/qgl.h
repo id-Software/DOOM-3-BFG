@@ -513,6 +513,8 @@ extern  void ( APIENTRY* qglVertexPointer )( GLint size, GLenum type, GLsizei st
 extern  void ( APIENTRY* qglViewport )( GLint x, GLint y, GLsizei width, GLsizei height );
 
 
+// RB begin
+#if defined(_WIN32)
 extern  int ( WINAPI* qwglChoosePixelFormat )( HDC, CONST PIXELFORMATDESCRIPTOR* );
 extern  int ( WINAPI* qwglDescribePixelFormat )( HDC, int, UINT, LPPIXELFORMATDESCRIPTOR );
 extern  int ( WINAPI* qwglGetPixelFormat )( HDC );
@@ -541,7 +543,8 @@ extern int ( WINAPI* qwglGetLayerPaletteEntries )( HDC, int, int, int,
 		COLORREF* );
 extern BOOL ( WINAPI* qwglRealizeLayerPalette )( HDC, int, BOOL );
 extern BOOL ( WINAPI* qwglSwapLayerBuffers )( HDC, UINT );
-
+#endif
+// RB end
 
 
 #endif	// hardlinlk vs dlopen

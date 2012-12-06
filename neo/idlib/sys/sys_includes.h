@@ -109,6 +109,11 @@ If you have questions concerning this license or the applicable additional terms
 
 #include <windows.h>						// for qgl.h
 
+#elif defined(__linux__)
+
+#include <signal.h>
+#include <pthread.h>
+
 #endif // #if defined(_WIN32)
 // RB end
 

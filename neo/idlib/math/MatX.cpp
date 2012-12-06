@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2012 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -36,7 +37,9 @@ If you have questions concerning this license or the applicable additional terms
 //===============================================================
 
 float	idMatX::temp[MATX_MAX_TEMP + 4];
-float* 	idMatX::tempPtr = ( float* )( ( ( int ) idMatX::temp + 15 ) & ~15 );
+// RB: changed int to intptr_t
+float* 	idMatX::tempPtr = ( float* )( ( ( intptr_t ) idMatX::temp + 15 ) & ~15 );
+// RB end
 int		idMatX::tempIndex = 0;
 
 

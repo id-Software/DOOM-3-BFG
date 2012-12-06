@@ -2251,9 +2251,18 @@ int idStr::vsnPrintf( char* dest, int size, const char* fmt, va_list argptr )
 {
 	int ret;
 	
+// RB begin
+#ifdef _WIN32
 #undef _vsnprintf
 	ret = _vsnprintf( dest, size - 1, fmt, argptr );
 #define _vsnprintf	use_idStr_vsnPrintf
+#else
+#undef vsnprintf
+	ret = vsnprintf( dest, size, fmt, argptr );
+#define vsnprintf	use_idStr_vsnPrintf
+#endif
+// RB end
+
 	dest[size - 1] = '\0';
 	if( ret < 0 || ret >= size )
 	{

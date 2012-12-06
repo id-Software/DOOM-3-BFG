@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2012 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -79,7 +80,10 @@ Assumes the source and destination have the same memory alignment.
 static void Multiply_SIMD( float* dst, const float* src0, const float* src1, const int count )
 {
 	int i = 0;
-	for( ; ( ( unsigned int )dst & 0xF ) != 0 && i < count; i++ )
+
+	// RB: changed unsigned int to uintptr_t
+	for( ; ( ( uintptr_t )dst & 0xF ) != 0 && i < count; i++ )
+	// RB end
 	{
 		dst[i] = src0[i] * src1[i];
 	}
@@ -116,7 +120,10 @@ Assumes the source and destination have the same memory alignment.
 static void MultiplyAdd_SIMD( float* dst, const float constant, const float* src, const int count )
 {
 	int i = 0;
-	for( ; ( ( unsigned int )dst & 0xF ) != 0 && i < count; i++ )
+
+	// RB: changed unsigned int to uintptr_t
+	for( ; ( ( uintptr_t )dst & 0xF ) != 0 && i < count; i++ )
+	// RB end
 	{
 		dst[i] += constant * src[i];
 	}

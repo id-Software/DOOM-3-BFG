@@ -114,6 +114,8 @@ If you have questions concerning this license or the applicable additional terms
 #define	BUILD_STRING					"linux-" CPUSTRING
 #define BUILD_OS_ID						2
 
+#define _alloca							alloca
+
 // DG: mingw/GCC (and probably clang) support
 #define ALIGN16( x )					x __attribute__ ((aligned (16)))
 // FIXME: change ALIGNTYPE* ?
@@ -221,7 +223,16 @@ bulk of the codebase, so it is the best place for analyze pragmas.
 // We need to inform the compiler that Error() and FatalError() will
 // never return, so any conditions that leeds to them being called are
 // guaranteed to be false in the following code
+
+// RB begin
+#if defined(_MSC_VER)
 #define NO_RETURN __declspec(noreturn)
+#elif defined(__GNUC__)
+#define NO_RETURN __attribute__((noreturn))
+#else
+#define NO_RETURN
+#endif
+// RB end
 
 
 // I don't want to disable "warning C6031: Return value ignored" from /analyze

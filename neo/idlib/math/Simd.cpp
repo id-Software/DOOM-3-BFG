@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 2012 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
 
@@ -1238,7 +1239,11 @@ idSIMD::Test_f
 */
 void idSIMD::Test_f( const idCmdArgs &args ) {
 
+	// RB begin
+#if defined(_WIN32)
 	SetThreadPriority( GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL );
+#endif
+	// RB end
 
 	p_simd = processor;
 	p_generic = generic;
@@ -1291,5 +1296,9 @@ void idSIMD::Test_f( const idCmdArgs &args ) {
 	p_simd = NULL;
 	p_generic = NULL;
 
+	// RB begin
+#if defined(_WIN32)
 	SetThreadPriority( GetCurrentThread(), THREAD_PRIORITY_NORMAL );
+#endif
+	// RB end
 }

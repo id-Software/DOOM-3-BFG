@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2012 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -499,7 +500,10 @@ void VPCALL idSIMD_SSE::ConvertJointQuatsToJointMats( idJointMat* jointMats, con
 {
 	assert( sizeof( idJointQuat ) == JOINTQUAT_SIZE );
 	assert( sizeof( idJointMat ) == JOINTMAT_SIZE );
-	assert( ( int )( &( ( idJointQuat* )0 )->t ) == ( int )( &( ( idJointQuat* )0 )->q ) + ( int )sizeof( ( ( idJointQuat* )0 )->q ) );
+
+	// RB: changed int to intptr_t
+	assert( ( intptr_t )( &( ( idJointQuat* )0 )->t ) == ( intptr_t )( &( ( idJointQuat* )0 )->q ) + ( intptr_t )sizeof( ( ( idJointQuat* )0 )->q ) );
+	// RB end
 	
 	const float* jointQuatPtr = ( float* )jointQuats;
 	float* jointMatPtr = ( float* )jointMats;
@@ -635,8 +639,11 @@ void VPCALL idSIMD_SSE::ConvertJointMatsToJointQuats( idJointQuat* jointQuats, c
 
 	assert( sizeof( idJointQuat ) == JOINTQUAT_SIZE );
 	assert( sizeof( idJointMat ) == JOINTMAT_SIZE );
-	assert( ( int )( &( ( idJointQuat* )0 )->t ) == ( int )( &( ( idJointQuat* )0 )->q ) + ( int )sizeof( ( ( idJointQuat* )0 )->q ) );
 	
+	// RB: changed int to intptr_t
+	assert( ( intptr_t )( &( ( idJointQuat* )0 )->t ) == ( intptr_t )( &( ( idJointQuat* )0 )->q ) + ( intptr_t )sizeof( ( ( idJointQuat* )0 )->q ) );
+	// RB end
+
 	const __m128 vector_float_zero		= _mm_setzero_ps();
 	const __m128 vector_float_one		= { 1.0f, 1.0f, 1.0f, 1.0f };
 	const __m128 vector_float_not		= __m128c( _mm_set_epi32( -1, -1, -1, -1 ) );
