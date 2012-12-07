@@ -143,6 +143,8 @@ If you have questions concerning this license or the applicable additional terms
 // DG end
 
 #define ID_HDRSTOP
+#define CALLBACK
+#define __cdecl
 
 #endif
 // RB end

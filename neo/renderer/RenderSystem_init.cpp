@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2012 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -31,8 +32,13 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "tr_local.h"
 
+// RB begin
+#if defined(_WIN32)
+
 // Vista OpenGL wrapper check
 #include "../sys/win32/win_local.h"
+#endif
+// RB end
 
 // DeviceContext bypasses RenderSystem to work directly with this
 idGuiModel* tr_guiModel;
@@ -195,7 +201,9 @@ idCVar stereoRender_deGhost( "stereoRender_deGhost", "0.05", CVAR_FLOAT | CVAR_A
 
 // GL_ARB_multitexture
 PFNGLACTIVETEXTUREPROC					qglActiveTextureARB;
-PFNGLCLIENTACTIVETEXTUREPROC			qglClientActiveTextureARB;
+// RB: deprecated
+//PFNGLCLIENTACTIVETEXTUREPROC			qglClientActiveTextureARB;
+// RB end
 
 // GL_EXT_direct_state_access
 PFNGLBINDMULTITEXTUREEXTPROC			qglBindMultiTextureEXT;
@@ -319,7 +327,9 @@ void APIENTRY glBindMultiTextureEXT( GLenum texunit, GLenum target, GLuint textu
 R_CheckExtension
 =================
 */
-bool R_CheckExtension( char* name )
+// RB begin
+static bool R_CheckExtension( const char* name )
+// RB end
 {
 	if( !strstr( glConfig.extensions_string, name ) )
 	{
@@ -343,8 +353,15 @@ static void CALLBACK DebugCallback( unsigned int source, unsigned int type,
 									unsigned int id, unsigned int severity, int length, const char* message, void* userParam )
 {
 	// it probably isn't safe to do an idLib::Printf at this point
+
+	// RB begin
+#if defined(_WIN32)
 	OutputDebugString( message );
 	OutputDebugString( "\n" );
+#else
+	printf( "%s\n", message );
+#endif
+	// RB end
 }
 
 /*
@@ -379,7 +396,9 @@ static void R_CheckPortableExtensions()
 	if( glConfig.multitextureAvailable )
 	{
 		qglActiveTextureARB = ( void( APIENTRY* )( GLenum ) )GLimp_ExtensionPointer( "glActiveTextureARB" );
-		qglClientActiveTextureARB = ( void( APIENTRY* )( GLenum ) )GLimp_ExtensionPointer( "glClientActiveTextureARB" );
+		// RB: deprecated
+		//qglClientActiveTextureARB = ( void( APIENTRY* )( GLenum ) )GLimp_ExtensionPointer( "glClientActiveTextureARB" );
+		// RB end
 	}
 	
 	// GL_EXT_direct_state_access
@@ -919,6 +938,8 @@ void R_InitOpenGL()
 	// Reset our gamma
 	R_SetColorMappings();
 	
+	// RB begin
+#if defined(_WIN32)
 	static bool glCheck = false;
 	if( !glCheck && win32.osversion.dwMajorVersion == 6 )
 	{
@@ -943,6 +964,8 @@ void R_InitOpenGL()
 			}
 		}
 	}
+#endif
+	// RB end
 }
 
 /*
@@ -1849,6 +1872,8 @@ void GfxInfo_f( const idCmdArgs& args )
 	
 	common->Printf( "-------\n" );
 	
+	// RB begin
+#if defined(_WIN32)
 	// WGL_EXT_swap_interval
 	typedef BOOL ( WINAPI * PFNWGLSWAPINTERVALEXTPROC )( int interval );
 	extern	PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT;
@@ -1861,6 +1886,8 @@ void GfxInfo_f( const idCmdArgs& args )
 	{
 		common->Printf( "swapInterval not forced\n" );
 	}
+#endif
+	// RB end
 	
 	if( glConfig.stereoPixelFormatAvailable && glConfig.isStereoPixelFormat )
 	{
