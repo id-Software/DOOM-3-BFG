@@ -28,6 +28,10 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
 		add_definitions(-DUSE_XINPUT)
 	endif()	
 	
+	#if(NOT ANDROID)
+		add_definitions(-DUSE_EXCEPTIONS)
+	#endif()
+	
 	set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -D_DEBUG -O1 -Wno-pragmas -fno-strict-aliasing -Wno-unused-variable -Wno-unused-but-set-variable -Wno-switch")
 	#set(CMAKE_C_FLAGS_DEBUGALL "${CMAKE_C_FLAGS_DEBUGALL} -g -ggdb -D_DEBUG -Wno-pragmas -fno-strict-aliasing -Wno-unused-variable -Wno-unused-but-set-variable -Wno-switch")
 	#set(CMAKE_C_FLAGS_PROFILE "${CMAKE_C_FLAGS_PROFILE} -g -ggdb -D_DEBUG -O1 -fno-omit-frame-pointer -Wunknown-pragmas -fno-strict-aliasing  -Wno-unused-variable -Wno-unused-but-set-variable -Wno-switch")

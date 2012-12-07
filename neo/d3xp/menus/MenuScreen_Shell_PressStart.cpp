@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2012 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -270,11 +271,15 @@ bool idMenuScreen_Shell_PressStart::HandleAction( idWidgetAction& action, const 
 				}
 			}
 			
+			// RB begin
+#if defined(USE_DOOMCLASSIC)
 			if( itemList->GetMoveToIndex() == 0 )
 			{
 				common->SwitchToGame( DOOM_CLASSIC );
 			}
-			else if( itemList->GetMoveToIndex() == 1 )
+			else
+#endif
+			if( itemList->GetMoveToIndex() == 1 )
 			{
 				if( session->GetSignInManager().GetMasterLocalUser() == NULL )
 				{
@@ -286,10 +291,13 @@ bool idMenuScreen_Shell_PressStart::HandleAction( idWidgetAction& action, const 
 					menuData->SetNextScreen( SHELL_AREA_ROOT, MENU_TRANSITION_SIMPLE );
 				}
 			}
+#if defined(USE_DOOMCLASSIC)
 			else if( itemList->GetMoveToIndex() == 2 )
 			{
 				common->SwitchToGame( DOOM2_CLASSIC );
 			}
+#endif
+			// RB end
 			
 			return true;
 		}

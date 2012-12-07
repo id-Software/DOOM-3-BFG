@@ -337,7 +337,10 @@ void idItem::Spawn()
 		{
 			gameLocal.Error( "Item couldn't find owner '%s'", giveTo.c_str() );
 		}
-		PostEventMS( &EV_Touch, 0, ent, NULL );
+
+		// RB: 64 bit fixes, changed NULL to 0
+		PostEventMS( &EV_Touch, 0, ent, 0 );
+		// RB end
 	}
 	
 	// idItemTeam does not rotate and bob

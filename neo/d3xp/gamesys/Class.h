@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2012 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -59,7 +60,9 @@ class idEventArg
 {
 public:
 	int			type;
-	int			value;
+	// RB: 64 bit fix, changed int to intptr_t
+	intptr_t	value;
+	// RB end
 	
 	idEventArg()
 	{
@@ -76,31 +79,33 @@ public:
 		type = D_EVENT_FLOAT;
 		value = *reinterpret_cast<int*>( &data );
 	};
+	// RB: 64 bit fixes, changed int to intptr_t
 	idEventArg( idVec3& data )
 	{
 		type = D_EVENT_VECTOR;
-		value = reinterpret_cast<int>( &data );
+		value = reinterpret_cast<intptr_t>( &data );
 	};
 	idEventArg( const idStr& data )
 	{
 		type = D_EVENT_STRING;
-		value = reinterpret_cast<int>( data.c_str() );
+		value = reinterpret_cast<intptr_t>( data.c_str() );
 	};
 	idEventArg( const char* data )
 	{
 		type = D_EVENT_STRING;
-		value = reinterpret_cast<int>( data );
+		value = reinterpret_cast<intptr_t>( data );
 	};
 	idEventArg( const class idEntity* data )
 	{
 		type = D_EVENT_ENTITY;
-		value = reinterpret_cast<int>( data );
+		value = reinterpret_cast<intptr_t>( data );
 	};
 	idEventArg( const struct trace_s* data )
 	{
 		type = D_EVENT_TRACE;
-		value = reinterpret_cast<int>( data );
+		value = reinterpret_cast<intptr_t>( data );
 	};
+	// RB end
 };
 
 class idAllocError : public idException
@@ -142,6 +147,8 @@ proper superclass is indicated or the run-time type information will be
 incorrect.  Use this on concrete classes only.
 ================
 */
+// RB: made exceptions optional
+#if defined(USE_EXCEPTIONS)
 #define CLASS_DECLARATION( nameofsuperclass, nameofclass )											\
 	idTypeInfo nameofclass::Type( #nameofclass, #nameofsuperclass,									\
 		( idEventFunc<idClass> * )nameofclass::eventCallbacks,	nameofclass::CreateInstance, ( void ( idClass::* )() )&nameofclass::Spawn,	\
@@ -160,6 +167,22 @@ incorrect.  Use this on concrete classes only.
 		return &( nameofclass::Type );																\
 	}																								\
 idEventFunc<nameofclass> nameofclass::eventCallbacks[] = {
+#else
+#define CLASS_DECLARATION( nameofsuperclass, nameofclass )											\
+	idTypeInfo nameofclass::Type( #nameofclass, #nameofsuperclass,									\
+		( idEventFunc<idClass> * )nameofclass::eventCallbacks,	nameofclass::CreateInstance, ( void ( idClass::* )() )&nameofclass::Spawn,	\
+		( void ( idClass::* )( idSaveGame * ) const )&nameofclass::Save, ( void ( idClass::* )( idRestoreGame * ) )&nameofclass::Restore );	\
+	idClass *nameofclass::CreateInstance() {													\
+			nameofclass *ptr = new nameofclass;														\
+			ptr->FindUninitializedMemory();															\
+			return ptr;																				\
+	}																								\
+	idTypeInfo *nameofclass::GetType() const {												\
+		return &( nameofclass::Type );																\
+	}																								\
+idEventFunc<nameofclass> nameofclass::eventCallbacks[] = {
+#endif
+// RB end
 
 /*
 ================
@@ -258,7 +281,9 @@ public:
 	bool						ProcessEvent( const idEventDef* ev, idEventArg arg1, idEventArg arg2, idEventArg arg3, idEventArg arg4, idEventArg arg5, idEventArg arg6, idEventArg arg7 );
 	bool						ProcessEvent( const idEventDef* ev, idEventArg arg1, idEventArg arg2, idEventArg arg3, idEventArg arg4, idEventArg arg5, idEventArg arg6, idEventArg arg7, idEventArg arg8 );
 	
-	bool						ProcessEventArgPtr( const idEventDef* ev, int* data );
+	// RB: 64 bit fix, changed int to intptr_t
+	bool						ProcessEventArgPtr( const idEventDef* ev, intptr_t* data );
+	// RB end
 	void						CancelEvents( const idEventDef* ev );
 	
 	void						Event_Remove();
@@ -269,6 +294,9 @@ public:
 	static idTypeInfo* 			GetClass( const char* name );
 	static void					DisplayInfo_f( const idCmdArgs& args );
 	static void					ListClasses_f( const idCmdArgs& args );
+	// RB begin
+	static void					ExportScriptEvents_f( const idCmdArgs& args );
+	// RB end
 	static idClass* 			CreateInstance( const char* name );
 	static int					GetNumTypes()
 	{

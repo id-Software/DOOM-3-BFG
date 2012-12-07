@@ -109,7 +109,9 @@ typedef enum
 typedef struct
 {
 	wexpOpType_t opType;
-	int	a, b, c, d;
+	// RB: 64 bit fixes, changed int to intptr_t
+	intptr_t	a, b, c, d;
+	// RB end
 } wexpOp_t;
 
 struct idRegEntry

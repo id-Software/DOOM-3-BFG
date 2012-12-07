@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2012 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -98,15 +99,21 @@ idEventDef::idEventDef( const char* command, const char* formatspec, char return
 		{
 			case D_EVENT_FLOAT :
 				bits |= 1 << i;
-				argsize += sizeof( float );
+				// RB: 64 bit fix, changed sizeof( float ) to sizeof( intptr_t )
+				argsize += sizeof( intptr_t );
+				// RB end
 				break;
 				
 			case D_EVENT_INTEGER :
-				argsize += sizeof( int );
+				// RB: 64 bit fix, changed sizeof( int ) to sizeof( intptr_t )
+				argsize += sizeof( intptr_t );
+				// RB end
 				break;
 				
 			case D_EVENT_VECTOR :
-				argsize += sizeof( idVec3 );
+				// RB: 64 bit fix, changed sizeof( idVec3 ) to E_EVENT_SIZEOF_VEC
+				argsize += E_EVENT_SIZEOF_VEC;
+				// RB end
 				break;
 				
 			case D_EVENT_STRING :
@@ -114,11 +121,15 @@ idEventDef::idEventDef( const char* command, const char* formatspec, char return
 				break;
 				
 			case D_EVENT_ENTITY :
-				argsize += sizeof( idEntityPtr<idEntity> );
+				// RB: 64 bit fix, sizeof( idEntityPtr<idEntity> ) to sizeof( intptr_t )
+				argsize += sizeof( intptr_t );
+				// RB end
 				break;
 				
 			case D_EVENT_ENTITY_NULL :
-				argsize += sizeof( idEntityPtr<idEntity> );
+				// RB: 64 bit fix, sizeof( idEntityPtr<idEntity> ) to sizeof( intptr_t )
+				argsize += sizeof( intptr_t );
+				// RB end
 				break;
 				
 			case D_EVENT_TRACE :
@@ -366,8 +377,10 @@ idEvent* idEvent::Alloc( const idEventDef* evdef, int numargs, va_list args )
 idEvent::CopyArgs
 ================
 */
-void idEvent::CopyArgs( const idEventDef* evdef, int numargs, va_list args, int data[ D_EVENT_MAXARGS ] )
+// RB: 64 bit fixes, changed int to intptr_t
+void idEvent::CopyArgs( const idEventDef* evdef, int numargs, va_list args, intptr_t data[ D_EVENT_MAXARGS ] )
 {
+// RB end
 	int			i;
 	const char*	format;
 	idEventArg*	arg;
@@ -552,7 +565,9 @@ void idEvent::ServiceEvents()
 {
 	idEvent*		event;
 	int			num;
-	int			args[ D_EVENT_MAXARGS ];
+	// RB: 64 bit fixes, changed int to intptr_t
+	intptr_t	args[ D_EVENT_MAXARGS ];
+	// RB end
 	int			offset;
 	int			i;
 	int			numargs;
@@ -663,8 +678,10 @@ idEvent::ServiceFastEvents
 void idEvent::ServiceFastEvents()
 {
 	idEvent*	event;
-	int		num;
-	int			args[ D_EVENT_MAXARGS ];
+	int			num;
+	// RB: 64 bit fixes, changed int to intptr_t
+	intptr_t	args[ D_EVENT_MAXARGS ];
+	// RB end
 	int			offset;
 	int			i;
 	int			numargs;
@@ -838,6 +855,9 @@ void idEvent::Save( idSaveGame* savefile )
 	byte* dataPtr;
 	bool validTrace;
 	const char*	format;
+	// RB: for missing D_EVENT_STRING
+	idStr s;
+	// RB end
 	
 	savefile->WriteInt( EventQueue.Num() );
 	
@@ -857,18 +877,40 @@ void idEvent::Save( idSaveGame* savefile )
 			{
 				case D_EVENT_FLOAT :
 					savefile->WriteFloat( *reinterpret_cast<float*>( dataPtr ) );
-					size += sizeof( float );
+					// RB: 64 bit fix, changed sizeof( float ) to sizeof( intptr_t )
+					size += sizeof( intptr_t );
+					// RB end
 					break;
 				case D_EVENT_INTEGER :
+					// RB: 64 bit fix, changed sizeof( int ) to sizeof( intptr_t )
+					savefile->WriteInt( *reinterpret_cast<int*>( dataPtr ) );
+					size += sizeof( intptr_t );
+					break;
+					// RB end
 				case D_EVENT_ENTITY :
 				case D_EVENT_ENTITY_NULL :
-					savefile->WriteInt( *reinterpret_cast<int*>( dataPtr ) );
-					size += sizeof( int );
+					// RB: 64 bit fix, changed alignment to sizeof( intptr_t )
+					reinterpret_cast< idEntityPtr<idEntity> * >( dataPtr )->Save( savefile );
+					size += sizeof( intptr_t );
+					// RB end
 					break;
 				case D_EVENT_VECTOR :
 					savefile->WriteVec3( *reinterpret_cast<idVec3*>( dataPtr ) );
-					size += sizeof( idVec3 );
+					// RB: 64 bit fix, changed sizeof( int ) to E_EVENT_SIZEOF_VEC
+					size += E_EVENT_SIZEOF_VEC;
+					// RB end
 					break;
+#if 1
+					// RB: added missing D_EVENT_STRING case
+				case D_EVENT_STRING :
+					s.Clear();
+					s.Append( reinterpret_cast<char*>( dataPtr ) );
+					savefile->WriteString( s );
+					//size += s.Length();
+					size += MAX_STRING_LEN;
+					break;
+					// RB end
+#endif
 				case D_EVENT_TRACE :
 					validTrace = *reinterpret_cast<bool*>( dataPtr );
 					savefile->WriteBool( validTrace );
@@ -924,6 +966,9 @@ void idEvent::Restore( idRestoreGame* savefile )
 	byte* dataPtr;
 	idEvent*	event;
 	const char*	format;
+	// RB: for missing D_EVENT_STRING
+	idStr s;
+	// RB end
 	
 	savefile->ReadInt( num );
 	
@@ -964,7 +1009,9 @@ void idEvent::Restore( idRestoreGame* savefile )
 		savefile->ReadInt( argsize );
 		if( argsize != ( int )event->eventdef->GetArgSize() )
 		{
-			savefile->Error( "idEvent::Restore: arg size (%d) doesn't match saved arg size(%d) on event '%s'", event->eventdef->GetArgSize(), argsize, event->eventdef->GetName() );
+			// RB: fixed wrong formatting
+			savefile->Error( "idEvent::Restore: arg size (%zd) doesn't match saved arg size(%zd) on event '%s'", event->eventdef->GetArgSize(), argsize, event->eventdef->GetName() );
+			// RB end
 		}
 		if( argsize )
 		{
@@ -978,18 +1025,40 @@ void idEvent::Restore( idRestoreGame* savefile )
 				{
 					case D_EVENT_FLOAT :
 						savefile->ReadFloat( *reinterpret_cast<float*>( dataPtr ) );
-						size += sizeof( float );
+						// RB: 64 bit fix, changed sizeof( float ) to sizeof( intptr_t )
+						size += sizeof( intptr_t );
+						// RB end
 						break;
 					case D_EVENT_INTEGER :
+						// RB: 64 bit fix
+						savefile->ReadInt( *reinterpret_cast<int*>( dataPtr ) );
+						size += sizeof( intptr_t );
+						break;
+						// RB end
 					case D_EVENT_ENTITY :
 					case D_EVENT_ENTITY_NULL :
-						savefile->ReadInt( *reinterpret_cast<int*>( dataPtr ) );
-						size += sizeof( int );
+						// RB: 64 bit fix, changed alignment to sizeof( intptr_t )
+						reinterpret_cast<idEntityPtr<idEntity> *>( dataPtr )->Restore( savefile );
+						size += sizeof( intptr_t );
+						// RB end
 						break;
 					case D_EVENT_VECTOR :
 						savefile->ReadVec3( *reinterpret_cast<idVec3*>( dataPtr ) );
-						size += sizeof( idVec3 );
+						// RB: 64 bit fix, changed sizeof( int ) to E_EVENT_SIZEOF_VEC
+						size += E_EVENT_SIZEOF_VEC;
+						// RB end
 						break;
+#if 1
+						// RB: added missing D_EVENT_STRING case
+					case D_EVENT_STRING :
+						savefile->ReadString( s );
+						//idStr::Copynz(reinterpret_cast<char *>( dataPtr ), s, s.Length() );
+						//size += s.Length();
+						idStr::Copynz( reinterpret_cast<char*>( dataPtr ), s, MAX_STRING_LEN );
+						size += MAX_STRING_LEN;
+						break;
+						// RB end
+#endif
 					case D_EVENT_TRACE :
 						savefile->ReadBool( *reinterpret_cast<bool*>( dataPtr ) );
 						size += sizeof( bool );
@@ -1132,6 +1201,8 @@ CreateEventCallbackHandler
 */
 void CreateEventCallbackHandler()
 {
+	int num;
+	int count;
 	int i, j, k;
 	char argString[ D_EVENT_MAXARGS + 1 ];
 	idStr string1;
@@ -1140,7 +1211,7 @@ void CreateEventCallbackHandler()
 	
 	file = fileSystem->OpenFileWrite( "Callbacks.cpp" );
 	
-	file->Printf( "/*\n================================================================================================\nCONFIDENTIAL AND PROPRIETARY INFORMATION/NOT FOR DISCLOSURE WITHOUT WRITTEN PERMISSION \nCopyright 1999-2012 id Software LLC, a ZeniMax Media company. All Rights Reserved. \n================================================================================================\n*/\n\n" );
+	file->Printf( "// generated file - see CREATE_EVENT_CODE\n\n" );
 	
 	for( i = 1; i <= D_EVENT_MAXARGS; i++ )
 	{
@@ -1167,8 +1238,10 @@ void CreateEventCallbackHandler()
 				}
 				else
 				{
-					string1 += "void *";
-					string2 += va( "(void *)data[ %d ]", k );
+					// RB: 64 bit fix, changed int to intptr_t
+					string1 += "const intptr_t";
+					// RB end
+					string2 += va( "data[ %d ]", k );
 				}
 				
 				if( k < i - 1 )

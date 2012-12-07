@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2012 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -39,16 +40,20 @@ If you have questions concerning this license or the applicable additional terms
 #define TOP_PRIORITY		7
 
 bool idCompiler::punctuationValid[ 256 ];
-char* idCompiler::punctuation[] =
+// RB begin
+const char* idCompiler::punctuation[] =
 {
+// RB end
 	"+=", "-=", "*=", "/=", "%=", "&=", "|=", "++", "--",
 	"&&", "||", "<=", ">=", "==", "!=", "::", ";",  ",",
 	"~",  "!",  "*",  "/",  "%",  "(",   ")",  "-", "+",
 	"=",  "[",  "]",  ".",  "<",  ">" ,  "&",  "|", ":",  NULL
 };
 
-opcode_t idCompiler::opcodes[] =
+// RB: added const
+const opcode_t idCompiler::opcodes[] =
 {
+// RB end
 	{ "<RETURN>", "RETURN", -1, false, &def_void, &def_void, &def_void },
 	
 	{ "++", "UINC_F", 1, true, &def_float, &def_void, &def_void },
@@ -211,12 +216,15 @@ idCompiler::idCompiler()
 */
 idCompiler::idCompiler()
 {
-	char**	ptr;
+	// RB begin
+	const char**	ptr;
+	// RB end
 	int		id;
 	
 	// make sure we have the right # of opcodes in the table
 	assert( ( sizeof( opcodes ) / sizeof( opcodes[ 0 ] ) ) == ( NUM_OPCODES + 1 ) );
 	
+	eof	= true;
 	parserPtr = &parser;
 	
 	callthread			= false;
@@ -259,7 +267,11 @@ void idCompiler::Error( const char* message, ... ) const
 	vsprintf( string, message, argptr );
 	va_end( argptr );
 	
+#if defined(USE_EXCEPTIONS)
 	throw idCompileError( string );
+#else
+	parserPtr->Error( "%s", string );
+#endif
 }
 
 /*
@@ -380,6 +392,7 @@ ID_INLINE float idCompiler::Divide( float numerator, float denominator )
 	if( denominator == 0 )
 	{
 		Error( "Divide by zero" );
+		return 0;
 	}
 	
 	return numerator / denominator;
@@ -805,8 +818,10 @@ Emits an opcode to push the variable onto the stack.
 */
 bool idCompiler::EmitPush( idVarDef* expression, const idTypeDef* funcArg )
 {
-	opcode_t* op;
-	opcode_t* out;
+	// RB: added const
+	const opcode_t* op;
+	const opcode_t* out;
+	// RB end
 	
 	out = NULL;
 	for( op = &opcodes[ OP_PUSH_F ]; op->name && !strcmp( op->name, "<PUSH>" ); op++ )
@@ -1458,7 +1473,9 @@ idVarDef* idCompiler::LookupDef( const char* name, const idVarDef* baseobj )
 	idVarDef*	field;
 	etype_t		type_b;
 	etype_t		type_c;
-	opcode_t*	op;
+	// RB: added const
+	const opcode_t*	op;
+	// RB end
 	
 	// check if we're accessing a field
 	if( baseobj && ( baseobj->Type() == ev_object ) )
@@ -1810,8 +1827,10 @@ idCompiler::GetExpression
 */
 idVarDef* idCompiler::GetExpression( int priority )
 {
-	opcode_t*		op;
-	opcode_t*		oldop;
+	// RB: added const
+	const opcode_t*	op;
+	const opcode_t*	oldop;
+	// RB end
 	idVarDef*		e;
 	idVarDef*		e2;
 	const idVarDef*	oldtype;
@@ -2083,7 +2102,9 @@ void idCompiler::ParseReturnStatement()
 	idVarDef*	e;
 	etype_t 	type_a;
 	etype_t 	type_b;
-	opcode_t*	op;
+	// RB: added const
+	const opcode_t*	op;
+	// RB end
 	
 	if( CheckToken( ";" ) )
 	{
@@ -3193,7 +3214,9 @@ void idCompiler::CompileFile( const char* text, const char* filename, bool toCon
 	token.line = 1;
 	
 	error = false;
+#if defined(USE_EXCEPTIONS)
 	try
+#endif
 	{
 		// read first token
 		NextToken();
@@ -3203,7 +3226,7 @@ void idCompiler::CompileFile( const char* text, const char* filename, bool toCon
 			ParseNamespace( &def_namespace );
 		}
 	}
-	
+#if defined(USE_EXCEPTIONS)
 	catch( idCompileError& err )
 	{
 		idStr error;
@@ -3222,6 +3245,13 @@ void idCompiler::CompileFile( const char* text, const char* filename, bool toCon
 		
 		throw idCompileError( error );
 	}
+#else
+	// FIXME check for errors
+	if( error )
+	{
+		common->Printf( "Error: idCompiler::CompileFile: file %s, line %d: unknown error\n", gameLocal.program.GetFilename( currentFileNumber ), currentLineNumber );
+	}
+#endif
 	
 	parser.FreeSource();
 	
