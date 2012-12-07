@@ -302,7 +302,9 @@ void idGrabber::StartDrag( idEntity* grabEnt, int id )
 	}
 	else if( grabEnt->IsType( idMoveableItem::Type ) )
 	{
-		grabEnt->PostEventMS( &EV_Touch, 250, thePlayer, NULL );
+		// RB: 64 bit fixes, changed NULL to 0
+		grabEnt->PostEventMS( &EV_Touch, 250, thePlayer, 0 );
+		// RB end
 	}
 	
 	// Get the current physics object to manipulate

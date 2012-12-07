@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2012 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -30,7 +31,10 @@ If you have questions concerning this license or the applicable additional terms
 #define __SCRIPT_INTERPRETER_H__
 
 #define MAX_STACK_DEPTH 	64
-#define LOCALSTACK_SIZE 	6144
+
+// RB: doubled local stack size
+#define LOCALSTACK_SIZE 	(6144 * 2)
+// RB end
 
 typedef struct prstack_s
 {
@@ -62,7 +66,13 @@ private:
 	
 	void				PopParms( int numParms );
 	void				PushString( const char* string );
-	void				Push( int value );
+	// RB begin
+	// RB: 64 bit fix, changed int to intptr_t
+	void				Push( intptr_t value );
+	
+	// RB: added PushVector for new E_EVENT_SIZEOF_VEC
+	void				PushVector( const idVec3& vector );
+	// RB end
 	const char*			FloatToString( float value );
 	void				AppendString( idVarDef* def, const char* from );
 	void				SetString( idVarDef* def, const char* from );
@@ -139,15 +149,35 @@ ID_INLINE void idInterpreter::PopParms( int numParms )
 idInterpreter::Push
 ====================
 */
-ID_INLINE void idInterpreter::Push( int value )
+// RB: 64 bit fix, changed int to intptr_t
+ID_INLINE void idInterpreter::Push( intptr_t value )
 {
-	if( localstackUsed + sizeof( int ) > LOCALSTACK_SIZE )
+	if( localstackUsed + sizeof( intptr_t ) > LOCALSTACK_SIZE )
 	{
 		Error( "Push: locals stack overflow\n" );
 	}
-	*( int* )&localstack[ localstackUsed ]	= value;
-	localstackUsed += sizeof( int );
+	*( intptr_t* )&localstack[ localstackUsed ] = value;
+	localstackUsed += sizeof( intptr_t );
 }
+// RB end
+
+// RB begin
+/*
+====================
+idInterpreter::PushVector
+====================
+*/
+ID_INLINE void idInterpreter::PushVector( const idVec3& vector )
+{
+	if( localstackUsed + E_EVENT_SIZEOF_VEC > LOCALSTACK_SIZE )
+	{
+		Error( "Push: locals stack overflow\n" );
+	}
+	*( idVec3* )&localstack[ localstackUsed ] = vector;
+	localstackUsed += E_EVENT_SIZEOF_VEC;
+}
+// RB end
+
 
 /*
 ====================
@@ -252,42 +282,6 @@ ID_INLINE varEval_t idInterpreter::GetVariable( idVarDef* def )
 	{
 		return def->value;
 	}
-}
-
-/*
-================
-idInterpreter::GetEntity
-================
-*/
-ID_INLINE idEntity* idInterpreter::GetEntity( int entnum ) const
-{
-	assert( entnum <= MAX_GENTITIES );
-	if( ( entnum > 0 ) && ( entnum <= MAX_GENTITIES ) )
-	{
-		return gameLocal.entities[ entnum - 1 ];
-	}
-	return NULL;
-}
-
-/*
-================
-idInterpreter::GetScriptObject
-================
-*/
-ID_INLINE idScriptObject* idInterpreter::GetScriptObject( int entnum ) const
-{
-	idEntity* ent;
-	
-	assert( entnum <= MAX_GENTITIES );
-	if( ( entnum > 0 ) && ( entnum <= MAX_GENTITIES ) )
-	{
-		ent = gameLocal.entities[ entnum - 1 ];
-		if( ent && ent->scriptObject.data )
-		{
-			return &ent->scriptObject;
-		}
-	}
-	return NULL;
 }
 
 /*

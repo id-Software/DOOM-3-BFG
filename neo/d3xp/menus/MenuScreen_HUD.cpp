@@ -2273,7 +2273,10 @@ void idMenuScreen_HUD::UpdateChattingHud( idPlayer* player )
 		{
 			mpChatObject->StopFrame( 1 );
 			gui->ForceInhibitControl( false );
-			gui->SetGlobal( "focusWindow", NULL );
+
+			// RB: 64 bit fixes, changed NULL to 0
+			gui->SetGlobal( "focusWindow", 0 );
+			// RB end
 		}
 	}
 	else

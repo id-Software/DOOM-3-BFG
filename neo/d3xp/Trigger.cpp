@@ -1531,12 +1531,15 @@ void idTrigger_Flag::Event_Touch( idEntity* other, trace_t* trace )
 			case 0 :
 				flag->PostEventMS( eventFlag, 0 );
 				break;
+
+				// RB: 64 bit fixes, changed NULL to 0
 			case 1 :
-				flag->PostEventMS( eventFlag, 0, NULL );
+				flag->PostEventMS( eventFlag, 0, 0 );
 				break;
 			case 2 :
-				flag->PostEventMS( eventFlag, 0, NULL, NULL );
+				flag->PostEventMS( eventFlag, 0, 0, 0 );
 				break;
+				// RB end
 		}
 		
 		/*

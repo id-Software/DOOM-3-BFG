@@ -2835,7 +2835,7 @@ int lwResolvePolySurfaces( lwPolygonList* polygon, lwTagList* tlist,
 						   lwSurface** surf, int* nsurfs )
 {
 	lwSurface** s, *st;
-	int i, index;
+	int i;
 	
 	if( tlist->count == 0 ) return 1;
 	
@@ -2855,10 +2855,13 @@ int lwResolvePolySurfaces( lwPolygonList* polygon, lwTagList* tlist,
 			st = st->next;
 		}
 	}
-	
+	// RB: 64 bit fixes
+	uintptr_t index;
 	for( i = 0; i < polygon->count; i++ )
 	{
-		index = ( int ) polygon->pol[ i ].surf;
+		index = ( uintptr_t ) polygon->pol[ i ].surf;
+		// RB end
+
 		if( index < 0 || index > tlist->count ) return 0;
 		if( !s[ index ] )
 		{

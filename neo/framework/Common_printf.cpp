@@ -175,9 +175,17 @@ void idCommonLocal::VPrintf( const char* fmt, va_list args )
 		}
 	}
 #endif
+
+
 	if( !idLib::IsMainThread() )
 	{
+		// RB: printf should be thread-safe on Linux
+#if defined(_WIN32)
 		OutputDebugString( msg );
+#else
+		printf( msg );
+#endif
+		// RB end
 		return;
 	}
 	
@@ -448,7 +456,9 @@ void idCommonLocal::DumpWarnings()
 		
 		fileSystem->CloseFile( warningFile );
 		
-#ifndef ID_DEBUG
+	// RB begin
+#if defined(_WIN32) && !defined(_DEBUG)
+	// RB end
 		idStr	osPath;
 		osPath = fileSystem->RelativePathToOSPath( "warnings.txt", "fs_savepath" );
 		WinExec( va( "Notepad.exe %s", osPath.c_str() ), SW_SHOW );

@@ -79,7 +79,11 @@ void R_ToggleSmpFrame()
 	frameData = &smpFrameData[smpFrame % NUM_FRAME_DATA];
 	
 	// reset the memory allocation
-	const unsigned int bytesNeededForAlignment = FRAME_ALLOC_ALIGNMENT - ( ( unsigned int )frameData->frameMemory & ( FRAME_ALLOC_ALIGNMENT - 1 ) );
+
+	// RB: 64 bit fixes, changed unsigned int to uintptr_t
+	const uintptr_t bytesNeededForAlignment = FRAME_ALLOC_ALIGNMENT - ( ( uintptr_t )frameData->frameMemory & ( FRAME_ALLOC_ALIGNMENT - 1 ) );
+	// RB end
+
 	frameData->frameMemoryAllocated.SetValue( bytesNeededForAlignment );
 	frameData->frameMemoryUsed.SetValue( 0 );
 	

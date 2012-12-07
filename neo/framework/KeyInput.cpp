@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2012 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -369,6 +370,8 @@ idKeyInput::LocalizedKeyName
 */
 const char* idKeyInput::LocalizedKeyName( keyNum_t keynum )
 {
+	// RB: FIXME
+#if defined(_WIN32)
 	if( keynum < K_JOY1 )
 	{
 		// On the PC, we want to turn the scan code in to a key label that matches the currently selected keyboard layout
@@ -400,6 +403,10 @@ const char* idKeyInput::LocalizedKeyName( keyNum_t keynum )
 		}
 	}
 	return "????";
+#else
+	return KeyNumToString( keynum );
+#endif
+	// RB end
 }
 
 /*

@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2012 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -808,7 +809,9 @@ void idInterpreter::CallEvent( const function_t* func, int argsize )
 	varEval_t			var;
 	int 				pos;
 	int 				start;
-	int					data[ D_EVENT_MAXARGS ];
+	// RB: 64 bit fixes, changed int to intptr_t
+	intptr_t			data[ D_EVENT_MAXARGS ];
+	// RB end
 	const idEventDef*	evdef;
 	const char*			format;
 	
@@ -874,7 +877,10 @@ void idInterpreter::CallEvent( const function_t* func, int argsize )
 		{
 			case D_EVENT_INTEGER :
 				var.intPtr = ( int* )&localstack[ start + pos ];
-				data[ i ] = int( *var.floatPtr );
+				// RB: fixed data alignment
+				//data[ i ] = int( *var.floatPtr );
+				( *( int* )&data[ i ] ) = int( *var.floatPtr );
+				// RB end
 				break;
 				
 			case D_EVENT_FLOAT :
@@ -999,7 +1005,9 @@ void idInterpreter::CallSysEvent( const function_t* func, int argsize )
 	varEval_t			source;
 	int 				pos;
 	int 				start;
-	int					data[ D_EVENT_MAXARGS ];
+	// RB: 64 bit fixes, changed int to intptr_t
+	intptr_t			data[ D_EVENT_MAXARGS ];
+	// RB end
 	const idEventDef*	evdef;
 	const char*			format;
 	
@@ -2043,9 +2051,14 @@ bool idInterpreter::Execute()
 				
 			case OP_PUSH_V:
 				var_a = GetVariable( st->a );
-				Push( *reinterpret_cast<int*>( &var_a.vectorPtr->x ) );
-				Push( *reinterpret_cast<int*>( &var_a.vectorPtr->y ) );
-				Push( *reinterpret_cast<int*>( &var_a.vectorPtr->z ) );
+				// RB: 64 bit fix, changed individual pushes with PushVector
+				/*
+				Push( *reinterpret_cast<int *>( &var_a.vectorPtr->x ) );
+				Push( *reinterpret_cast<int *>( &var_a.vectorPtr->y ) );
+				Push( *reinterpret_cast<int *>( &var_a.vectorPtr->z ) );
+				*/
+				PushVector( *var_a.vectorPtr );
+				// RB end
 				break;
 				
 			case OP_PUSH_OBJ:
@@ -2068,3 +2081,41 @@ bool idInterpreter::Execute()
 	
 	return threadDying;
 }
+
+// RB: moved from Script_Interpreter.h to avoid include problems with the script debugger
+/*
+================
+idInterpreter::GetEntity
+================
+*/
+idEntity* idInterpreter::GetEntity( int entnum ) const
+{
+	assert( entnum <= MAX_GENTITIES );
+	if( ( entnum > 0 ) && ( entnum <= MAX_GENTITIES ) )
+	{
+		return gameLocal.entities[ entnum - 1 ];
+	}
+	return NULL;
+}
+
+/*
+================
+idInterpreter::GetScriptObject
+================
+*/
+idScriptObject* idInterpreter::GetScriptObject( int entnum ) const
+{
+	idEntity* ent;
+	
+	assert( entnum <= MAX_GENTITIES );
+	if( ( entnum > 0 ) && ( entnum <= MAX_GENTITIES ) )
+	{
+		ent = gameLocal.entities[ entnum - 1 ];
+		if( ent && ent->scriptObject.data )
+		{
+			return &ent->scriptObject;
+		}
+	}
+	return NULL;
+}
+// RB end

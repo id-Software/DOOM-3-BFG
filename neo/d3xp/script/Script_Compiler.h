@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2012 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -32,8 +33,10 @@ const char* const RESULT_STRING = "<RESULT>";
 
 typedef struct opcode_s
 {
-	char*		name;
-	char*		opname;
+	// RB begin
+	const char*	name;
+	const char*	opname;
+	// RB end
 	int			priority;
 	bool		rightAssociative;
 	idVarDef*	type_a;
@@ -200,7 +203,9 @@ class idCompiler
 {
 private:
 	static bool		punctuationValid[ 256 ];
-	static char*		punctuation[];
+	// RB begin
+	static const char*		punctuation[];
+	// RB end
 	
 	idParser		parser;
 	idParser*		parserPtr;
@@ -272,7 +277,9 @@ private:
 	void			ParseNamespace( idVarDef* newScope );
 	
 public :
-	static opcode_t	opcodes[];
+	// RB: added const
+	static const opcode_t	opcodes[];
+	// RB end
 	
 	idCompiler();
 	void			CompileFile( const char* text, const char* filename, bool console );

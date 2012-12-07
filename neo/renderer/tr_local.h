@@ -645,9 +645,12 @@ struct glstate_t
 	int					faceCulling;
 	
 	vertexLayoutType_t	vertexLayout;
-	unsigned int		currentVertexBuffer;
-	unsigned int		currentIndexBuffer;
 	
+	// RB: 64 bit fixes, changed unsigned int to uintptr_t
+	uintptr_t			currentVertexBuffer;
+	uintptr_t			currentIndexBuffer;
+	// RB end
+
 	float				polyOfsScale;
 	float				polyOfsBias;
 	

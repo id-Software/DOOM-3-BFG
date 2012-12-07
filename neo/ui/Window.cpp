@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2012 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -2027,47 +2028,58 @@ idWindow::GetWinVarOffset
 */
 int idWindow::GetWinVarOffset( idWinVar* wv, drawWin_t* owner )
 {
+	// RB: 64 bit fixes, changed oldschool offsets using ptrdiff_t
 	int ret = -1;
 	
 	if( wv == &rect )
 	{
-		ret = ( int ) & ( ( idWindow* ) 0 )->rect;
+		//ret = (intptr_t)&( ( idWindow * ) 0 )->rect;
+		//ret = offsetof( idWindow, rect );
+		ret = ( ptrdiff_t )&rect - ( ptrdiff_t )this;
 	}
 	
 	if( wv == &backColor )
 	{
-		ret = ( int ) & ( ( idWindow* ) 0 )->backColor;
+		//ret = (int)&( ( idWindow * ) 0 )->backColor;
+		ret = ( ptrdiff_t )&backColor - ( ptrdiff_t )this;
 	}
 	
 	if( wv == &matColor )
 	{
-		ret = ( int ) & ( ( idWindow* ) 0 )->matColor;
+		//ret = (int)&( ( idWindow * ) 0 )->matColor;
+		ret = ( ptrdiff_t )&matColor - ( ptrdiff_t )this;
 	}
 	
 	if( wv == &foreColor )
 	{
-		ret = ( int ) & ( ( idWindow* ) 0 )->foreColor;
+		//ret = (int)&( ( idWindow * ) 0 )->foreColor;
+		ret = ( ptrdiff_t )&foreColor - ( ptrdiff_t )this;
 	}
 	
 	if( wv == &hoverColor )
 	{
-		ret = ( int ) & ( ( idWindow* ) 0 )->hoverColor;
+		//ret = (int)&( ( idWindow * ) 0 )->hoverColor;
+		ret = ( ptrdiff_t )&hoverColor - ( ptrdiff_t )this;
 	}
 	
 	if( wv == &borderColor )
 	{
-		ret = ( int ) & ( ( idWindow* ) 0 )->borderColor;
+		//ret = (int)&( ( idWindow * ) 0 )->borderColor;
+		ret = ( ptrdiff_t )&borderColor - ( ptrdiff_t )this;
 	}
 	
 	if( wv == &textScale )
 	{
-		ret = ( int ) & ( ( idWindow* ) 0 )->textScale;
+		//ret = (int)&( ( idWindow * ) 0 )->textScale;
+		ret = ( ptrdiff_t )&textScale - ( ptrdiff_t )this;
 	}
 	
 	if( wv == &rotate )
 	{
-		ret = ( int ) & ( ( idWindow* ) 0 )->rotate;
+		//ret = (int)&( ( idWindow * ) 0 )->rotate;
+		ret = ( ptrdiff_t )&rotate - ( ptrdiff_t )this;
 	}
+	// RB end
 	
 	if( ret != -1 )
 	{
@@ -3183,7 +3195,9 @@ Returns a register index
 int idWindow::ParseTerm( idTokenParser* src,	idWinVar* var, int component )
 {
 	idToken token;
-	int		a, b;
+	// RB: 64 bit fixes, changed int to intptr_t
+	intptr_t		a, b;
+	// RB end
 	
 	src->ReadToken( &token );
 	
@@ -3234,7 +3248,10 @@ int idWindow::ParseTerm( idTokenParser* src,	idWinVar* var, int component )
 	}
 	if( var )
 	{
-		a = ( int )var;
+		// RB: 64 bit fixes, changed int to intptr_t
+		a = ( intptr_t )var;
+		// RB end
+		
 		//assert(dynamic_cast<idWinVec4*>(var));
 		var->Init( token, this );
 		b = component;
@@ -3281,7 +3298,9 @@ int idWindow::ParseTerm( idTokenParser* src,	idWinVar* var, int component )
 		// ugly but used for post parsing to fixup named vars
 		char* p = new( TAG_OLD_UI ) char[token.Length() + 1];
 		strcpy( p, token );
-		a = ( int )p;
+		// RB: 64 bit fixes, changed int to intptr_t
+		a = ( intptr_t )p;
+		// RB: 64 bit fixes, changed int to intptr_t
 		b = -2;
 		return EmitOp( a, b, WOP_TYPE_VAR );
 	}
@@ -4305,68 +4324,70 @@ void idWindow::FixupTransitions()
 		transitions[i].data = NULL;
 		if( dw != NULL && ( dw->win != NULL || dw->simp != NULL ) )
 		{
+		        // RB: 64 bit fixes, changed oldschool offsets using ptrdiff_t
 			if( dw->win != NULL )
 			{
-				if( transitions[i].offset == ( int ) & ( ( idWindow* ) 0 )->rect )
+				if( transitions[i].offset == ( ptrdiff_t )&rect - ( ptrdiff_t )this )
 				{
 					transitions[i].data = &dw->win->rect;
 				}
-				else if( transitions[i].offset == ( int ) & ( ( idWindow* ) 0 )->backColor )
+				else if( transitions[i].offset == ( ptrdiff_t )&backColor - ( ptrdiff_t )this )
 				{
 					transitions[i].data = &dw->win->backColor;
 				}
-				else if( transitions[i].offset == ( int ) & ( ( idWindow* ) 0 )->matColor )
+				else if( transitions[i].offset == ( ptrdiff_t )&matColor - ( ptrdiff_t )this )
 				{
 					transitions[i].data = &dw->win->matColor;
 				}
-				else if( transitions[i].offset == ( int ) & ( ( idWindow* ) 0 )->foreColor )
+				else if( transitions[i].offset == ( ptrdiff_t )&foreColor - ( ptrdiff_t )this )
 				{
 					transitions[i].data = &dw->win->foreColor;
 				}
-				else if( transitions[i].offset == ( int ) & ( ( idWindow* ) 0 )->borderColor )
+				else if( transitions[i].offset == ( ptrdiff_t )&borderColor - ( ptrdiff_t )this )
 				{
 					transitions[i].data = &dw->win->borderColor;
 				}
-				else if( transitions[i].offset == ( int ) & ( ( idWindow* ) 0 )->textScale )
+				else if( transitions[i].offset == ( ptrdiff_t )&textScale - ( ptrdiff_t )this )
 				{
 					transitions[i].data = &dw->win->textScale;
 				}
-				else if( transitions[i].offset == ( int ) & ( ( idWindow* ) 0 )->rotate )
+				else if( transitions[i].offset == ( ptrdiff_t )&rotate - ( ptrdiff_t )this )
 				{
 					transitions[i].data = &dw->win->rotate;
 				}
 			}
 			else
 			{
-				if( transitions[i].offset == ( int ) & ( ( idSimpleWindow* ) 0 )->rect )
+				if( transitions[i].offset == ( ptrdiff_t )&rect - ( ptrdiff_t )this )
 				{
 					transitions[i].data = &dw->simp->rect;
 				}
-				else if( transitions[i].offset == ( int ) & ( ( idSimpleWindow* ) 0 )->backColor )
+				else if( transitions[i].offset == ( ptrdiff_t )&backColor - ( ptrdiff_t )this )
 				{
 					transitions[i].data = &dw->simp->backColor;
 				}
-				else if( transitions[i].offset == ( int ) & ( ( idSimpleWindow* ) 0 )->matColor )
+				else if( transitions[i].offset == ( ptrdiff_t )&matColor - ( ptrdiff_t )this )
 				{
 					transitions[i].data = &dw->simp->matColor;
 				}
-				else if( transitions[i].offset == ( int ) & ( ( idSimpleWindow* ) 0 )->foreColor )
+				else if( transitions[i].offset == ( ptrdiff_t )&foreColor - ( ptrdiff_t )this )
 				{
 					transitions[i].data = &dw->simp->foreColor;
 				}
-				else if( transitions[i].offset == ( int ) & ( ( idSimpleWindow* ) 0 )->borderColor )
+				else if( transitions[i].offset == ( ptrdiff_t )&borderColor - ( ptrdiff_t )this )
 				{
 					transitions[i].data = &dw->simp->borderColor;
 				}
-				else if( transitions[i].offset == ( int ) & ( ( idSimpleWindow* ) 0 )->textScale )
+				else if( transitions[i].offset == ( ptrdiff_t )&textScale - ( ptrdiff_t )this )
 				{
 					transitions[i].data = &dw->simp->textScale;
 				}
-				else if( transitions[i].offset == ( int ) & ( ( idSimpleWindow* ) 0 )->rotate )
+				else if( transitions[i].offset == ( ptrdiff_t )&rotate - ( ptrdiff_t )this )
 				{
 					transitions[i].data = &dw->simp->rotate;
 				}
 			}
+			// RB end
 		}
 		if( transitions[i].data == NULL )
 		{
@@ -4434,7 +4455,9 @@ void idWindow::FixupParms()
 			const char* p = ( const char* )( ops[i].a );
 			idWinVar* var = GetWinVarByName( p, true );
 			delete []p;
-			ops[i].a = ( int )var;
+			// RB: 64 bit fix, changed int to intptr_t
+			ops[i].a = ( intptr_t )var;
+			// RB end
 			ops[i].b = -1;
 		}
 	}

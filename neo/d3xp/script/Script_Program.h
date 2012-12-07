@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2012 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -542,6 +543,13 @@ public:
 	idTypeDef*									AllocType( etype_t etype, idVarDef* edef, const char* ename, int esize, idTypeDef* aux );
 	idTypeDef*									GetType( idTypeDef& type, bool allocate );
 	idTypeDef*									FindType( const char* name );
+	
+	// RB begin
+private:
+	byte*										ReserveDefMemory( int size );
+	idVarDef*									AllocVarDef( idTypeDef* type, const char* name, idVarDef* scope );
+public:
+	// RB end
 	
 	idVarDef*									AllocDef( idTypeDef* type, const char* name, idVarDef* scope, bool constant );
 	idVarDef*									GetDef( const idTypeDef* type, const char* name, const idVarDef* scope ) const;
