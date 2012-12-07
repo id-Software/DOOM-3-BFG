@@ -686,7 +686,10 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 				{
 					assert( tri->staticModelWithJoints == NULL );
 					R_DeriveTangents( tri );
-					assert( false );	// this should no longer be hit
+
+					// RB: this was hit by parametric particle models ..
+					//assert( false );	// this should no longer be hit
+					// RB end
 				}
 				tri->ambientCache = vertexCache.AllocVertex( tri->verts, ALIGN( tri->numVerts * sizeof( idDrawVert ), VERTEX_CACHE_ALIGN ) );
 			}

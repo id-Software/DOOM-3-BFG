@@ -91,7 +91,7 @@ bool AssertFailed( const char* file, int line, const char* expression )
 // RB end
 	{
 #ifdef _WIN32
-#ifdef _MSC_VERS
+#ifdef _MSC_VER
 		__debugbreak();
 #else
 		// DG: mingw support
