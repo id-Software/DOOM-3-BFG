@@ -198,7 +198,7 @@ void idMenuWidget_CommandBar::Update()
 				// RB: 64 bit fixes, changed NULL to 0
 				buttonSprite->GetScriptObject()->Set( "onPress", 0 );
 				// RB end
-
+				
 				// bind the main action - need to use all caps here because shortcuts are stored that way
 				shortcutName = buttonName;
 				shortcutName.ToUpper();

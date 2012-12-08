@@ -84,29 +84,29 @@ public:
 	{
 		tlsIndex = TlsAlloc();
 	}
-
+	
 	idSysThreadLocalStorage( const ptrdiff_t& val )
 	{
 		tlsIndex = TlsAlloc();
 		TlsSetValue( tlsIndex, ( LPVOID )val );
 	}
-
+	
 	~idSysThreadLocalStorage()
 	{
 		TlsFree( tlsIndex );
 	}
-
+	
 	operator ptrdiff_t()
 	{
 		return ( ptrdiff_t )TlsGetValue( tlsIndex );
 	}
-
+	
 	const ptrdiff_t& operator = ( const ptrdiff_t& val )
 	{
 		TlsSetValue( tlsIndex, ( LPVOID )val );
 		return val;
 	}
-
+	
 	DWORD	tlsIndex;
 };
 #else

@@ -500,7 +500,7 @@ void VPCALL idSIMD_SSE::ConvertJointQuatsToJointMats( idJointMat* jointMats, con
 {
 	assert( sizeof( idJointQuat ) == JOINTQUAT_SIZE );
 	assert( sizeof( idJointMat ) == JOINTMAT_SIZE );
-
+	
 	// RB: changed int to intptr_t
 	assert( ( intptr_t )( &( ( idJointQuat* )0 )->t ) == ( intptr_t )( &( ( idJointQuat* )0 )->q ) + ( intptr_t )sizeof( ( ( idJointQuat* )0 )->q ) );
 	// RB end
@@ -643,7 +643,7 @@ void VPCALL idSIMD_SSE::ConvertJointMatsToJointQuats( idJointQuat* jointQuats, c
 	// RB: changed int to intptr_t
 	assert( ( intptr_t )( &( ( idJointQuat* )0 )->t ) == ( intptr_t )( &( ( idJointQuat* )0 )->q ) + ( intptr_t )sizeof( ( ( idJointQuat* )0 )->q ) );
 	// RB end
-
+	
 	const __m128 vector_float_zero		= _mm_setzero_ps();
 	const __m128 vector_float_one		= { 1.0f, 1.0f, 1.0f, 1.0f };
 	const __m128 vector_float_not		= __m128c( _mm_set_epi32( -1, -1, -1, -1 ) );

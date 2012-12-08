@@ -488,7 +488,7 @@ void idImage::AllocImage()
 				// As of 2011-10-6 using NVIDIA hardware and drivers we have to allocate the memory with HeapAlloc
 				// with the exact size otherwise large image allocation (for instance for physical page textures)
 				// may fail on Vista 32-bit.
-
+				
 				// RB begin
 #if defined(_WIN32)
 				void* data = HeapAlloc( GetProcessHeap(), 0, compressedSize );

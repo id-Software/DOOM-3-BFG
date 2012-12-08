@@ -795,11 +795,11 @@ ID_INLINE void idMatX::SetDataCacheLines( int rows, int columns, float* data, bo
 	{
 		Mem_Free( mat );
 	}
-
+	
 	// RB: changed UINT_PTR to uintptr_t
 	assert( ( ( ( uintptr_t ) data ) & 127 ) == 0 ); // data must be 128 byte aligned
 	// RB end
-
+	
 	mat = data;
 	alloced = -1;
 	numRows = rows;

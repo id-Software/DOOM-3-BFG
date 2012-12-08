@@ -353,7 +353,7 @@ static void CALLBACK DebugCallback( unsigned int source, unsigned int type,
 									unsigned int id, unsigned int severity, int length, const char* message, void* userParam )
 {
 	// it probably isn't safe to do an idLib::Printf at this point
-
+	
 	// RB begin
 #if defined(_WIN32)
 	OutputDebugString( message );

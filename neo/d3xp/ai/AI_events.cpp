@@ -2750,7 +2750,7 @@ void idAI::Event_ThrowMoveable()
 	if( moveable )
 	{
 		moveable->Unbind();
-
+		
 		// RB: 64 bit fixes, changed NULL to 0
 		moveable->PostEventMS( &EV_SetOwner, 200, 0 );
 		// RB end
@@ -2778,7 +2778,7 @@ void idAI::Event_ThrowAF()
 	if( af )
 	{
 		af->Unbind();
-
+		
 		// RB: 64 bit fixes, changed NULL to 0
 		af->PostEventMS( &EV_SetOwner, 200, 0 );
 		// RB end

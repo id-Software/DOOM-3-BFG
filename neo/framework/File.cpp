@@ -1339,7 +1339,7 @@ int idFile_Permanent::Read( void* buffer, int len )
 	while( remaining )
 	{
 		block = remaining;
-
+		
 		// RB begin
 #if defined(_WIN32)
 		DWORD bytesRead;
@@ -1352,7 +1352,7 @@ int idFile_Permanent::Read( void* buffer, int len )
 		read = fread( buf, 1, block, o );
 #endif
 		// RB end
-
+		
 		if( read == 0 )
 		{
 			// we might have been trying to read from a CD, which
@@ -1410,7 +1410,7 @@ int idFile_Permanent::Write( const void* buffer, int len )
 	while( remaining )
 	{
 		block = remaining;
-
+		
 		// RB begin
 #if defined(_WIN32)
 		DWORD bytesWritten;
@@ -1420,7 +1420,7 @@ int idFile_Permanent::Write( const void* buffer, int len )
 		written = fwrite( buf, 1, block, o );
 #endif
 		// RB end
-
+		
 		if( written == 0 )
 		{
 			if( !tries )
@@ -1547,7 +1547,7 @@ int idFile_Permanent::Seek( long offset, fsOrigin_t origin )
 	return ( retVal == INVALID_SET_FILE_POINTER ) ? -1 : 0;
 #else
 	int _origin;
-
+	
 	switch( origin )
 	{
 		case FS_SEEK_CUR:
@@ -1572,7 +1572,7 @@ int idFile_Permanent::Seek( long offset, fsOrigin_t origin )
 			break;
 		}
 	}
-
+	
 	return fseek( o, offset, _origin );
 #endif
 	// RB end

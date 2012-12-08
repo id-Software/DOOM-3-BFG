@@ -243,7 +243,7 @@ void idVertexBuffer::FreeBufferObject()
 	
 	// RB: 64 bit fixes, changed GLuint to GLintptrARB
 	GLintptrARB bufferObject = reinterpret_cast< GLintptrARB >( apiObject );
-	qglDeleteBuffersARB( 1, (const unsigned int*) & bufferObject );
+	qglDeleteBuffersARB( 1, ( const unsigned int* ) & bufferObject );
 	// RB end
 	
 	ClearWithoutFreeing();
@@ -311,7 +311,7 @@ void idVertexBuffer::Update( const void* data, int updateSize ) const
 	// RB: 64 bit fixes, changed GLuint to GLintptrARB
 	GLintptrARB bufferObject = reinterpret_cast< GLintptrARB >( apiObject );
 	// RB end
-
+	
 	qglBindBufferARB( GL_ARRAY_BUFFER_ARB, bufferObject );
 	qglBufferSubDataARB( GL_ARRAY_BUFFER_ARB, GetOffset(), ( GLsizeiptrARB )numBytes, data );
 	/*
@@ -336,7 +336,7 @@ void* idVertexBuffer::MapBuffer( bufferMapType_t mapType ) const
 	// RB: 64 bit fixes, changed GLuint to GLintptrARB
 	GLintptrARB bufferObject = reinterpret_cast< GLintptrARB >( apiObject );
 	// RB end
-
+	
 	qglBindBufferARB( GL_ARRAY_BUFFER_ARB, bufferObject );
 	if( mapType == BM_READ )
 	{
@@ -384,7 +384,7 @@ void idVertexBuffer::UnmapBuffer() const
 	// RB: 64 bit fixes, changed GLuint to GLintptrARB
 	GLintptrARB bufferObject = reinterpret_cast< GLintptrARB >( apiObject );
 	// RB end
-
+	
 	qglBindBufferARB( GL_ARRAY_BUFFER_ARB, bufferObject );
 	if( !qglUnmapBufferARB( GL_ARRAY_BUFFER_ARB ) )
 	{
@@ -597,7 +597,7 @@ void idIndexBuffer::Update( const void* data, int updateSize ) const
 	// RB: 64 bit fixes, changed GLuint to GLintptrARB
 	GLintptrARB bufferObject = reinterpret_cast< GLintptrARB >( apiObject );
 	// RB end
-
+	
 	qglBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, bufferObject );
 	qglBufferSubDataARB( GL_ELEMENT_ARRAY_BUFFER_ARB, GetOffset(), ( GLsizeiptrARB )numBytes, data );
 	/*
@@ -623,7 +623,7 @@ void* idIndexBuffer::MapBuffer( bufferMapType_t mapType ) const
 	// RB: 64 bit fixes, changed GLuint to GLintptrARB
 	GLintptrARB bufferObject = reinterpret_cast< GLintptrARB >( apiObject );
 	// RB end
-
+	
 	qglBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, bufferObject );
 	if( mapType == BM_READ )
 	{
@@ -671,7 +671,7 @@ void idIndexBuffer::UnmapBuffer() const
 	// RB: 64 bit fixes, changed GLuint to GLintptrARB
 	GLintptrARB bufferObject = reinterpret_cast< GLintptrARB >( apiObject );
 	// RB end
-
+	
 	qglBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, bufferObject );
 	if( !qglUnmapBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB ) )
 	{
@@ -797,9 +797,9 @@ void idJointBuffer::FreeBufferObject()
 	
 	// RB: 64 bit fixes, changed GLuint to GLintptrARB
 	GLintptrARB buffer = reinterpret_cast< GLintptrARB >( apiObject );
-
+	
 	qglBindBufferARB( GL_UNIFORM_BUFFER, 0 );
-	qglDeleteBuffersARB( 1, (const GLuint*)& buffer );
+	qglDeleteBuffersARB( 1, ( const GLuint* )& buffer );
 	// RB end
 	
 	ClearWithoutFreeing();
@@ -868,7 +868,7 @@ void idJointBuffer::Update( const float* joints, int numUpdateJoints ) const
 	// RB: 64 bit fixes, changed GLuint to GLintptrARB
 	qglBindBufferARB( GL_UNIFORM_BUFFER, reinterpret_cast< GLintptrARB >( apiObject ) );
 	// RB end
-
+	
 	qglBufferSubDataARB( GL_UNIFORM_BUFFER, GetOffset(), ( GLsizeiptrARB )numBytes, joints );
 }
 
@@ -890,7 +890,7 @@ float* idJointBuffer::MapBuffer( bufferMapType_t mapType ) const
 	// RB: 64 bit fixes, changed GLuint to GLintptrARB
 	qglBindBufferARB( GL_UNIFORM_BUFFER, reinterpret_cast< GLintptrARB >( apiObject ) );
 	// RB end
-
+	
 	numBytes = numBytes;
 	assert( GetOffset() == 0 );
 	//buffer = qglMapBufferARB( GL_UNIFORM_BUFFER, GL_WRITE_ONLY_ARB );
@@ -922,7 +922,7 @@ void idJointBuffer::UnmapBuffer() const
 	// RB: 64 bit fixes, changed GLuint to GLintptrARB
 	qglBindBufferARB( GL_UNIFORM_BUFFER, reinterpret_cast< GLintptrARB >( apiObject ) );
 	// RB end
-
+	
 	if( !qglUnmapBufferARB( GL_UNIFORM_BUFFER ) )
 	{
 		idLib::Printf( "idJointBuffer::UnmapBuffer failed\n" );

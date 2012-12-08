@@ -686,7 +686,7 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 				{
 					assert( tri->staticModelWithJoints == NULL );
 					R_DeriveTangents( tri );
-
+					
 					// RB: this was hit by parametric particle models ..
 					//assert( false );	// this should no longer be hit
 					// RB end

@@ -80,10 +80,10 @@ Assumes the source and destination have the same memory alignment.
 static void Multiply_SIMD( float* dst, const float* src0, const float* src1, const int count )
 {
 	int i = 0;
-
+	
 	// RB: changed unsigned int to uintptr_t
 	for( ; ( ( uintptr_t )dst & 0xF ) != 0 && i < count; i++ )
-	// RB end
+		// RB end
 	{
 		dst[i] = src0[i] * src1[i];
 	}
@@ -120,10 +120,10 @@ Assumes the source and destination have the same memory alignment.
 static void MultiplyAdd_SIMD( float* dst, const float constant, const float* src, const int count )
 {
 	int i = 0;
-
+	
 	// RB: changed unsigned int to uintptr_t
 	for( ; ( ( uintptr_t )dst & 0xF ) != 0 && i < count; i++ )
-	// RB end
+		// RB end
 	{
 		dst[i] += constant * src[i];
 	}

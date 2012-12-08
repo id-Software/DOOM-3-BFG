@@ -2861,7 +2861,7 @@ int lwResolvePolySurfaces( lwPolygonList* polygon, lwTagList* tlist,
 	{
 		index = ( uintptr_t ) polygon->pol[ i ].surf;
 		// RB end
-
+		
 		if( index < 0 || index > tlist->count ) return 0;
 		if( !s[ index ] )
 		{

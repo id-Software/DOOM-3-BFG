@@ -736,7 +736,7 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 		// RB: 64 bit fixes, changed int64 to GLuint64EXT
 		GLuint64EXT drawingTimeNanoseconds = 0;
 		// RB end
-
+		
 		if( tr.timerQueryId != 0 )
 		{
 			qglGetQueryObjectui64vEXT( tr.timerQueryId, GL_QUERY_RESULT, &drawingTimeNanoseconds );

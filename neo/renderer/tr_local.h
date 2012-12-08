@@ -650,7 +650,7 @@ struct glstate_t
 	uintptr_t			currentVertexBuffer;
 	uintptr_t			currentIndexBuffer;
 	// RB end
-
+	
 	float				polyOfsScale;
 	float				polyOfsBias;
 	

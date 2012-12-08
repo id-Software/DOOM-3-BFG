@@ -193,7 +193,7 @@ public:
 	void		RestorePersistentData( const idDict& spawnArgs );
 	
 	static void LocalUser_CompleteAchievement( achievement_t id );
-
+	
 	// RB begin
 #if defined(USE_DOOMCLASSIC)
 	static void	CheckDoomClassicsAchievements( int killcount, int itemcount, int secretcount, int skill, int mission, int map, int episode, int totalkills, int totalitems, int totalsecret );

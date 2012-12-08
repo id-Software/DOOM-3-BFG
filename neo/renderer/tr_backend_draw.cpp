@@ -205,7 +205,7 @@ void RB_DrawElementsWithCounters( const drawSurf_t* surf )
 		// RB: 64 bit fixes, changed GLuint to GLintptrARB
 		const GLintptrARB ubo = reinterpret_cast< GLintptrARB >( jointBuffer.GetAPIObject() );
 		// RB end
-
+		
 		qglBindBufferRange( GL_UNIFORM_BUFFER, 0, ubo, jointBuffer.GetOffset(), jointBuffer.GetNumJoints() * sizeof( idJointMat ) );
 	}
 	

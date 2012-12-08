@@ -1496,7 +1496,7 @@ bool idZipBuilder::GetFileTime( const idStr& filename, unsigned long* dostime ) 
 	}
 #endif
 	// RB end
-
+	
 	return false;
 }
 

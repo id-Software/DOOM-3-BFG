@@ -279,23 +279,23 @@ bool idMenuScreen_Shell_PressStart::HandleAction( idWidgetAction& action, const 
 			}
 			else
 #endif
-			if( itemList->GetMoveToIndex() == 1 )
-			{
-				if( session->GetSignInManager().GetMasterLocalUser() == NULL )
+				if( itemList->GetMoveToIndex() == 1 )
 				{
-					const int device = event.parms[ 0 ].ToInteger();
-					session->GetSignInManager().RegisterLocalUser( device );
+					if( session->GetSignInManager().GetMasterLocalUser() == NULL )
+					{
+						const int device = event.parms[ 0 ].ToInteger();
+						session->GetSignInManager().RegisterLocalUser( device );
+					}
+					else
+					{
+						menuData->SetNextScreen( SHELL_AREA_ROOT, MENU_TRANSITION_SIMPLE );
+					}
 				}
-				else
-				{
-					menuData->SetNextScreen( SHELL_AREA_ROOT, MENU_TRANSITION_SIMPLE );
-				}
-			}
 #if defined(USE_DOOMCLASSIC)
-			else if( itemList->GetMoveToIndex() == 2 )
-			{
-				common->SwitchToGame( DOOM2_CLASSIC );
-			}
+				else if( itemList->GetMoveToIndex() == 2 )
+				{
+					common->SwitchToGame( DOOM2_CLASSIC );
+				}
 #endif
 			// RB end
 			

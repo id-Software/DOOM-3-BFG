@@ -4324,7 +4324,7 @@ void idWindow::FixupTransitions()
 		transitions[i].data = NULL;
 		if( dw != NULL && ( dw->win != NULL || dw->simp != NULL ) )
 		{
-		        // RB: 64 bit fixes, changed oldschool offsets using ptrdiff_t
+			// RB: 64 bit fixes, changed oldschool offsets using ptrdiff_t
 			if( dw->win != NULL )
 			{
 				if( transitions[i].offset == ( ptrdiff_t )&rect - ( ptrdiff_t )this )

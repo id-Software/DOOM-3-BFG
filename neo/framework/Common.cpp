@@ -258,7 +258,7 @@ void idCommonLocal::ParseCommandLine( int argc, const char* const* argv )
 		if( idStr::Icmp( argv[ i ], "+connect_lobby" ) == 0 )
 		{
 			// Handle Steam bootable invites.
-
+			
 			// RB begin
 #if defined(_WIN32)
 			session->HandleBootableInvite( _atoi64( argv[ i + 1 ] ) );
@@ -1690,7 +1690,7 @@ bool idCommonLocal::ProcessEvent( const sysEvent_t* event )
 	
 	// RB begin
 #if defined(USE_DOOMCLASSIC)
-
+	
 	// Let Doom classic run events.
 	if( IsPlayingDoomClassic() )
 	{

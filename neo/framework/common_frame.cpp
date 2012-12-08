@@ -147,7 +147,7 @@ int idGameThread::Run()
 #else
 		if( userCmdMgr->HasUserCmdForPlayer( game->GetLocalClientNum() ) )
 #endif
-		// RB end
+			// RB end
 		{
 			idLib::Printf( "idGameThread::Run: didn't consume all usercmds\n" );
 		}
@@ -481,14 +481,14 @@ void idCommonLocal::Frame()
 		
 		// if the console or another gui is down, we don't need to hold the mouse cursor
 		bool chatting = false;
-
+		
 		// RB begin
 #if defined(USE_DOOMCLASSIC)
 		if( console->Active() || Dialog().IsDialogActive() || session->IsSystemUIShowing() || ( game && game->InhibitControls() && !IsPlayingDoomClassic() ) )
 #else
 		if( console->Active() || Dialog().IsDialogActive() || session->IsSystemUIShowing() || ( game && game->InhibitControls() ) )
 #endif
-		// RB end
+			// RB end
 		{
 			Sys_GrabMouseCursor( false );
 			usercmdGen->InhibitUsercmd( INHIBIT_SESSION, true );

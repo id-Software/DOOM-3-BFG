@@ -491,7 +491,7 @@ idFileHandle idFileSystemLocal::OpenOSFile( const char* fileName, fsMode_t mode 
 		return NULL;
 	}
 #else
-
+	
 #ifndef __MWERKS__
 #ifndef WIN32
 	// some systems will let you fopen a directory
@@ -502,7 +502,7 @@ idFileHandle idFileSystemLocal::OpenOSFile( const char* fileName, fsMode_t mode 
 	}
 #endif
 #endif
-
+	
 	if( mode == FS_WRITE )
 	{
 		fp = fopen( fileName, "wb" );
@@ -515,13 +515,13 @@ idFileHandle idFileSystemLocal::OpenOSFile( const char* fileName, fsMode_t mode 
 	{
 		fp = fopen( fileName, "ab" );
 	}
-
+	
 	if( !fp )//&& fs_caseSensitiveOS.GetBool() )
 	{
 		// RB: really any proper OS other than Windows should have a case sensitive filesystem
 		idStr fpath, entry;
 		idStrList list;
-
+	
 		fpath = fileName;
 		fpath.StripFilename();
 		fpath.StripTrailing( PATHSEPARATOR_CHAR );
@@ -529,7 +529,7 @@ idFileHandle idFileSystemLocal::OpenOSFile( const char* fileName, fsMode_t mode 
 		{
 			return NULL;
 		}
-
+	
 		for( int i = 0; i < list.Num(); i++ )
 		{
 			entry = fpath + PATHSEPARATOR_CHAR + list[i];
@@ -547,7 +547,7 @@ idFileHandle idFileSystemLocal::OpenOSFile( const char* fileName, fsMode_t mode 
 				{
 					fp = fopen( entry, "ab" );
 				}
-
+	
 				if( fp )
 				{
 					if( fs_debug.GetInteger() )
@@ -564,10 +564,10 @@ idFileHandle idFileSystemLocal::OpenOSFile( const char* fileName, fsMode_t mode 
 			}
 		}
 	}
-
+	
 #endif
 	// RB end
-
+	
 	return fp;
 }
 
@@ -600,12 +600,12 @@ int idFileSystemLocal::DirectFileLength( idFileHandle o )
 #else
 	int		pos;
 	int		end;
-
+	
 	pos = ftell( o );
 	fseek( o, 0, SEEK_END );
 	end = ftell( o );
 	fseek( o, pos, SEEK_SET );
-
+	
 	return end;
 #endif
 	// RB end
@@ -1873,7 +1873,7 @@ void idFileSystemLocal::RemoveFile( const char* relativePath )
 	if( fs_basepath.GetString()[0] )
 	{
 		OSPath = BuildOSPath( fs_basepath.GetString(), gameFolder, relativePath );
-
+		
 		// RB begin
 #if defined(_WIN32)
 		::DeleteFile( OSPath );
@@ -1884,7 +1884,7 @@ void idFileSystemLocal::RemoveFile( const char* relativePath )
 	}
 	
 	OSPath = BuildOSPath( fs_savepath.GetString(), gameFolder, relativePath );
-
+	
 	// RB begin
 #if defined(_WIN32)
 	::DeleteFile( OSPath );
@@ -2134,7 +2134,7 @@ bool idFileSystemLocal::RenameFile( const char* relativePath, const char* newNam
 	}
 #else
 	const bool success = ( rename( oldOSPath.c_str(), newOSPath.c_str() ) == 0 );
-
+	
 	if( !success )
 	{
 		const int err = errno;
@@ -2142,7 +2142,7 @@ bool idFileSystemLocal::RenameFile( const char* relativePath, const char* newNam
 	}
 #endif
 	// RB end
-
+	
 	return success;
 }
 

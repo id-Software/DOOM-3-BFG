@@ -190,7 +190,7 @@ vertCacheHandle_t idVertexCache::ActuallyAlloc( geoBufferSet_t& vcs, const void*
 	// RB: changed UINT_PTR to uintptr_t
 	assert( ( ( ( uintptr_t )( data ) ) & 15 ) == 0 );
 	// RB end
-
+	
 	assert( ( bytes & 15 ) == 0 );
 	
 	// thread safe interlocked adds
