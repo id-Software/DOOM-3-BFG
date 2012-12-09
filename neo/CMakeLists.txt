@@ -731,6 +731,14 @@ set(WIN32_RESOURCES
 #	list(APPEND WIN32_RESOURCES sys/win32/rc/doom_nomfc.rc)
 #endif()
 
+
+file(GLOB POSIX_INCLUDES sys/posix/*.h)
+file(GLOB POSIX_SOURCES sys/posix/*.cpp)
+
+file(GLOB SDL_INCLUDES sys/sdl/*.h)
+file(GLOB SDL_SOURCES sys/sdl/*.cpp)
+
+
 source_group("aas" FILES ${AAS_INCLUDES})
 source_group("aas" FILES ${AAS_SOURCES})
 
@@ -818,6 +826,13 @@ source_group("game-d3xp\\script" FILES ${GAMED3XP_SCRIPT_SOURCES})
 source_group("sys\\win32" FILES ${WIN32_INCLUDES})
 source_group("sys\\win32" FILES ${WIN32_SOURCES})
 source_group("sys\\win32\\Resources" FILES ${WIN32_RESOURCES})
+
+source_group("sys\\posix" FILES ${POSIX_INCLUDES})
+source_group("sys\\posix" FILES ${POSIX_SOURCES})
+
+source_group("sys\\sdl" FILES ${SDL_INCLUDES})
+source_group("sys\\sdl" FILES ${SDL_SOURCES})
+
 
 source_group("tools\\compilers" FILES ${COMPILER_INCLUDES})
 
@@ -1029,6 +1044,17 @@ else()
 		#list(REMOVE_ITEM WIN32_SOURCES sys/win32/win_cpu.cpp)
 		list(APPEND WIN32_SOURCES sys/sdl/sdl_cpu.cpp)
 	endif()
+	
+	if(UNIX)
+	
+		find_package(SDL REQUIRED)
+		include_directories(${SDL_INCLUDE_DIR})
+		set(SDLx_LIBRARY ${SDL_LIBRARY})
+	
+		list(APPEND RBDOOM3_SOURCES
+			${POSIX_INCLUDES} ${POSIX_SOURCES}
+			${SDL_INCLUDES} ${SDL_SOURCES})
+	endif()
 
 	list(REMOVE_DUPLICATES RBDOOM3_SOURCES)
 	
@@ -1061,10 +1087,12 @@ else()
 	  
 	endif()
 	
-	if(UNIX)
+	if(UNIX)	
 		target_link_libraries(RBDoom3
 			idlib
 			GL
+			pthread
+			${SDLx_LIBRARY}
 			)
 	endif()
 	

@@ -190,15 +190,20 @@ uintptr_t			Sys_CreateThread( xthread_t function, void* parms, xthreadPriority p
 									  const char* name, core_t core, int stackSize = DEFAULT_THREAD_STACK_SIZE,
 									  bool suspended = false );
 
-void				Sys_WaitForThread( uintptr_t threadHandle );
+// RB begin
+// removed unused Sys_WaitForThread
 void				Sys_DestroyThread( uintptr_t threadHandle );
 void				Sys_SetCurrentThreadName( const char* name );
 
+// use alternative pthread implementation in idSysSignal
+#if defined(_WIN32)
 void				Sys_SignalCreate( signalHandle_t& handle, bool manualReset );
 void				Sys_SignalDestroy( signalHandle_t& handle );
 void				Sys_SignalRaise( signalHandle_t& handle );
 void				Sys_SignalClear( signalHandle_t& handle );
 bool				Sys_SignalWait( signalHandle_t& handle, int timeout );
+#endif
+// RB end
 
 void				Sys_MutexCreate( mutexHandle_t& handle );
 void				Sys_MutexDestroy( mutexHandle_t& handle );
