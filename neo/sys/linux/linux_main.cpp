@@ -318,6 +318,7 @@ void Sys_CPUCount( int& numLogicalCPUCores, int& numPhysicalCPUCores, int& numCP
 	
 	int		fd, len, pos, end;
 	char	buf[ 4096 ];
+	char	number[100];
 	
 	if( init )
 	{
@@ -344,8 +345,11 @@ void Sys_CPUCount( int& numLogicalCPUCores, int& numPhysicalCPUCores, int& numCP
 				end = strchr( buf + pos, '\n' ) - buf;
 				if( pos < len && end < len )
 				{
-					buf[end] = '\0';
-					int processor = atoi( buf + pos );
+					idStr::Copynz( number, buf + pos, sizeof( number ) );
+					assert( ( end - pos ) > 0 && ( end - pos ) < sizeof( number ) );
+					number[ end - pos ] = '\0';
+					
+					int processor = atoi( number );
 					
 					if( ( processor + 1 ) > s_numPhysicalCPUCores )
 					{
@@ -358,15 +362,17 @@ void Sys_CPUCount( int& numLogicalCPUCores, int& numPhysicalCPUCores, int& numCP
 					break;
 				}
 			}
-			
-			if( !idStr::Cmpn( buf + pos, "core id", 7 ) )
+			else if( !idStr::Cmpn( buf + pos, "core id", 7 ) )
 			{
 				pos = strchr( buf + pos, ':' ) - buf + 2;
 				end = strchr( buf + pos, '\n' ) - buf;
 				if( pos < len && end < len )
 				{
-					buf[end] = '\0';
-					int coreId = atoi( buf + pos );
+					idStr::Copynz( number, buf + pos, sizeof( number ) );
+					assert( ( end - pos ) > 0 && ( end - pos ) < sizeof( number ) );
+					number[ end - pos ] = '\0';
+					
+					int coreId = atoi( number );
 					
 					if( ( coreId + 1 ) > s_numLogicalCPUCores )
 					{
