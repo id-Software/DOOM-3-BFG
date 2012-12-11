@@ -50,6 +50,9 @@ static SDL_Surface* window = NULL;
 #define SDL_WINDOW_FULLSCREEN SDL_FULLSCREEN
 #endif
 
+bool QGL_Init( const char* dllname );
+void QGL_Shutdown();
+
 /*
 ===================
 GLimp_Init
@@ -59,7 +62,11 @@ bool GLimp_Init( glimpParms_t parms )
 {
 	common->Printf( "Initializing OpenGL subsystem\n" );
 	
-	assert( SDL_WasInit( SDL_INIT_VIDEO ) );
+	if( !SDL_WasInit( SDL_INIT_VIDEO ) )
+	{
+		if( SDL_Init( SDL_INIT_VIDEO ) )
+			common->Error( "Error while initializing SDL: %s", SDL_GetError() );
+	}
 	
 	Uint32 flags = SDL_WINDOW_OPENGL;
 	
@@ -133,6 +140,7 @@ bool GLimp_Init( glimpParms_t parms )
 		if( tcolorbits == 24 )
 			channelcolorbits = 8;
 			
+#if 1
 		SDL_GL_SetAttribute( SDL_GL_RED_SIZE, channelcolorbits );
 		SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, channelcolorbits );
 		SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, channelcolorbits );
@@ -149,6 +157,7 @@ bool GLimp_Init( glimpParms_t parms )
 		
 		SDL_GL_SetAttribute( SDL_GL_MULTISAMPLEBUFFERS, parms.multiSamples ? 1 : 0 );
 		SDL_GL_SetAttribute( SDL_GL_MULTISAMPLESAMPLES, parms.multiSamples );
+#endif
 		
 #if SDL_VERSION_ATLEAST(2, 0, 0)
 		window = SDL_CreateWindow( GAME_NAME,
@@ -215,6 +224,8 @@ bool GLimp_Init( glimpParms_t parms )
 		return false;
 	}
 	
+	QGL_Init( "nodriverlib" );
+	
 	return true;
 }
 
@@ -251,6 +262,8 @@ void GLimp_Shutdown()
 		window = NULL;
 	}
 #endif
+	
+	QGL_Shutdown();
 }
 
 /*
