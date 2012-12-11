@@ -1043,7 +1043,7 @@ idStr::FileNameHash
 int idStr::FileNameHash() const
 {
 	int		i;
-	long	hash;
+	int		hash; // DG: use int instead of long for 64bit compatibility
 	char	letter;
 	
 	hash = 0;
@@ -1059,7 +1059,7 @@ int idStr::FileNameHash() const
 		{
 			letter = '/';
 		}
-		hash += ( long )( letter ) * ( i + 119 );
+		hash += ( long )( letter ) * ( i + 119 ); // DG: use int instead of long for 64bit compatibility
 		i++;
 	}
 	hash &= ( FILE_HASH_SIZE - 1 );

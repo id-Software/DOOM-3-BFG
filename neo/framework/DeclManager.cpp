@@ -286,7 +286,7 @@ typedef struct huffmanNode_s
 
 typedef struct huffmanCode_s
 {
-	unsigned long			bits[8];
+	unsigned int			bits[8]; // DG: use int instead of long for 64bit compatibility
 	int						numBits;
 } huffmanCode_t;
 
