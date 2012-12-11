@@ -1053,7 +1053,8 @@ else()
 	
 		list(APPEND RBDOOM3_SOURCES
 			${POSIX_INCLUDES} ${POSIX_SOURCES}
-			${SDL_INCLUDES} ${SDL_SOURCES})
+			${SDL_INCLUDES} ${SDL_SOURCES}
+			sys/linux/linux_main.cpp)
 	endif()
 
 	list(REMOVE_DUPLICATES RBDOOM3_SOURCES)

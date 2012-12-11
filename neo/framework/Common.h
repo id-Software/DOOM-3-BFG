@@ -320,8 +320,6 @@ public:
 	
 	virtual int					GetGameFrame() = 0;
 	
-	virtual void				LaunchExternalTitle( int titleIndex, int device, const lobbyConnectInfo_t* const connectInfo ) = 0;
-	
 	virtual void				InitializeMPMapsModes() = 0;
 	virtual const idStrList& 			GetModeList() const = 0;
 	virtual const idStrList& 			GetModeDisplayList() const = 0;

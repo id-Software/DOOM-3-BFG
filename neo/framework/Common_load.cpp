@@ -48,60 +48,7 @@ extern idCVar g_demoMode;
 // This is for the dirty hack to get a dialog to show up before we capture the screen for autorender.
 const int NumScreenUpdatesToShowDialog = 25;
 
-/*
-================
-idCommonLocal::LaunchExternalTitle
 
-Launches an external title  ( Doom 1, or 2 ) based on title index.
-for PS3, a device number is sent in, for the game to register as a local
-user by default, when title initializes.
-================
-*/
-void idCommonLocal::LaunchExternalTitle( int titleIndex, int device, const lobbyConnectInfo_t* const connectInfo )
-{
-
-	idStr deviceString( device );
-	
-	// We want to pass in the current executable, so that the launching title knows which title to return to.
-	// as of right now, this feature is TBD.
-	const char* currentExecutablePath = "ImNotSureYet";
-	idStr launchingExecutablePath;
-	
-	idCmdArgs cmdArgs;
-	cmdArgs.AppendArg( currentExecutablePath );
-	
-	if( titleIndex == LAUNCH_TITLE_DOOM )
-	{
-		launchingExecutablePath.Format( "%s%s", Sys_DefaultBasePath(), LAUNCH_TITLE_DOOM_EXECUTABLE );
-		cmdArgs.AppendArg( "d1bfg" );
-	}
-	else if( titleIndex == LAUNCH_TITLE_DOOM2 )
-	{
-		launchingExecutablePath.Format( "%s%s", Sys_DefaultBasePath(), LAUNCH_TITLE_DOOM2_EXECUTABLE );
-		cmdArgs.AppendArg( "d2bfg" );
-		
-	}
-	else
-	{
-	
-		idLib::Warning( "Unhandled Launch Title %d \n", titleIndex );
-	}
-	
-	cmdArgs.AppendArg( deviceString.c_str() );
-	
-	// Add an argument so that the new process knows whether or not to read exitspawn data.
-	if( connectInfo != NULL )
-	{
-		cmdArgs.AppendArg( "exitspawnInvite" );
-	}
-	
-	// Add arguments so that the new process will know which command line to invoke to relaunch this process
-	// if necessary.
-	
-	const int launchDataSize = ( connectInfo == NULL ) ? 0 : sizeof( *connectInfo );
-	
-	Sys_Launch( launchingExecutablePath.c_str() , cmdArgs, const_cast< lobbyConnectInfo_t* const >( connectInfo ), launchDataSize );
-}
 
 /*
 ================

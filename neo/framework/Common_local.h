@@ -244,10 +244,6 @@ public:
 		return gameFrame;
 	}
 	
-	virtual void				LaunchExternalTitle( int titleIndex,
-			int device,
-			const lobbyConnectInfo_t* const connectInfo );  // For handling invitations. NULL if no invitation used.
-			
 	virtual void				InitializeMPMapsModes();
 	virtual const idStrList& 			GetModeList() const
 	{

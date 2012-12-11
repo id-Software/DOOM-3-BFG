@@ -3150,10 +3150,13 @@ void RB_DrawView( const void* data, const int stereoEye )
 	// skip render context sets the wgl context to NULL,
 	// which should factor out the API cost, under the assumption
 	// that all gl calls just return if the context isn't valid
-	if( r_skipRenderContext.GetBool() && backEnd.viewDef->viewEntitys )
-	{
-		GLimp_DeactivateContext();
-	}
+	
+	// RB: not really needed
+	//if( r_skipRenderContext.GetBool() && backEnd.viewDef->viewEntitys )
+	//{
+	//	GLimp_DeactivateContext();
+	//}
+	// RB end
 	
 	backEnd.pc.c_surfaces += backEnd.viewDef->numDrawSurfs;
 	
@@ -3165,11 +3168,13 @@ void RB_DrawView( const void* data, const int stereoEye )
 	RB_MotionBlur();
 	
 	// restore the context for 2D drawing if we were stubbing it out
-	if( r_skipRenderContext.GetBool() && backEnd.viewDef->viewEntitys )
-	{
-		GLimp_ActivateContext();
-		GL_SetDefaultState();
-	}
+	// RB: not really needed
+	//if( r_skipRenderContext.GetBool() && backEnd.viewDef->viewEntitys )
+	//{
+	//	GLimp_ActivateContext();
+	//	GL_SetDefaultState();
+	//}
+	// RB end
 	
 	// optionally draw a box colored based on the eye number
 	if( r_drawEyeColor.GetBool() )

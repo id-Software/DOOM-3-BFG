@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2012 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -519,9 +520,12 @@ bool			Sys_UnlockMemory( void* ptr, int bytes );
 void			Sys_SetPhysicalWorkMemory( int minBytes, int maxBytes );
 
 // DLL loading, the path should be a fully qualified OS path to the DLL file to be loaded
-int				Sys_DLL_Load( const char* dllName );
-void* 			Sys_DLL_GetProcAddress( int dllHandle, const char* procName );
-void			Sys_DLL_Unload( int dllHandle );
+
+// RB: 64 bit fixes, changed int to intptr_t
+intptr_t		Sys_DLL_Load( const char* dllName );
+void* 			Sys_DLL_GetProcAddress( intptr_t dllHandle, const char* procName );
+void			Sys_DLL_Unload( intptr_t dllHandle );
+// RB end
 
 // event generation
 void			Sys_GenerateEvents();

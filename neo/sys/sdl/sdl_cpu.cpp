@@ -49,6 +49,7 @@ If you have questions concerning this license or the applicable additional terms
 Sys_GetClockTicks
 ================
 */
+#if defined(_WIN32)
 double Sys_GetClockTicks()
 {
 	// RB begin
@@ -85,12 +86,14 @@ double Sys_GetClockTicks()
 #endif
 	// RB end
 }
+#endif
 
 /*
 ================
 Sys_ClockTicksPerSecond
 ================
 */
+#if defined(_WIN32)
 double Sys_ClockTicksPerSecond()
 {
 	static double ticks = 0;
@@ -136,6 +139,7 @@ double Sys_ClockTicksPerSecond()
 #endif
 	return ticks;
 }
+#endif
 
 
 /*
@@ -157,12 +161,14 @@ numPhysicalCPUCores	- the total number of cores per package
 numCPUPackages		- the total number of packages (physical processors)
 ========================
 */
+#if defined(_WIN32)
 void Sys_CPUCount( int& numLogicalCPUCores, int& numPhysicalCPUCores, int& numCPUPackages )
 {
 	numPhysicalCPUCores = 1;
 	numLogicalCPUCores = SDL_GetCPUCount();
 	numCPUPackages = 1;
 }
+#endif
 
 /*
 ================
@@ -201,10 +207,12 @@ cpuid_t Sys_GetCPUId()
 	}
 	
 	// check for Streaming SIMD Extensions 3 aka Prescott's New Instructions
+#if 0 //SDL_VERSION_ATLEAST(2,0,0)
 	if( SDL_HasSSE3() )
 	{
 		flags |= CPUID_SSE3;
 	}
+#endif
 	
 	/*
 	// check for Hyper-Threading Technology

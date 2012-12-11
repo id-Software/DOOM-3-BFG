@@ -61,11 +61,13 @@ uintptr_t Sys_CreateThread( xthread_t function, void* parms, xthreadPriority pri
 	pthread_attr_destroy( &attr );
 	
 	// RB: TODO pthread_setname_np is different on Linux, MacOSX and other systems
+#if 0
 	if( pthread_setname_np( handle, name ) != 0 )
 	{
 		idLib::common->FatalError( "ERROR: pthread_setname_np %s failed\n", name );
 		return ( uintptr_t )0;
 	}
+#endif
 	
 	/*
 	TODO RB: support thread priorities?

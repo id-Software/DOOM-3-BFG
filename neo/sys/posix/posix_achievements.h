@@ -3,7 +3,6 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2012 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -26,45 +25,26 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
+#ifndef __POSIX_ACHIEVEMENTS_H__
+#define __POSIX_ACHIEVEMENTS_H__
 
 /*
-===============================================================================
-
-	Definitions for information that is related to a licensee's game name and location.
-
-===============================================================================
+================================================
+idAchievementSystemWin
+================================================
 */
+class idAchievementSystemWin : public idAchievementSystem
+{
+public:
+	idAchievementSystemWin();
+	
+	bool	IsInitialized();
+	void	AchievementUnlock( idLocalUser* user, const int achievementID );
+	void	AchievementLock( idLocalUser* user, const int achievementID );
+	void	AchievementLockAll( idLocalUser* user, const int maxId );
+	void	Pump();
+	bool	GetAchievementDescription( idLocalUser* user, const int id, achievementDescription_t& data ) const;
+	bool	GetAchievementState( idLocalUser* user, idArray< bool, idAchievementSystem::MAX_ACHIEVEMENTS >& achievements ) const;
+};
 
-#define GAME_NAME						"DOOM 3: BFG Edition"		// appears on window titles and errors
-#define SAVE_PATH						"\\id Software\\DOOM 3 BFG"
-
-#define ENGINE_VERSION					"RBD3BFG 1"	// printed in console
-
-#define	BASE_GAMEDIR					"base"
-
-#define CONFIG_FILE						"D3BFGConfig.cfg"
-
-// see ASYNC_PROTOCOL_VERSION
-// use a different major for each game
-#define ASYNC_PROTOCOL_MAJOR			1
-
-// <= Doom v1.1: 1. no DS_VERSION token ( default )
-// Doom v1.2:  2
-// Doom 3 BFG: 3
-#define RENDERDEMO_VERSION				3
-
-// win32 info
-#define WIN32_CONSOLE_CLASS				"D3BFG_WinConsole"
-#define	WIN32_WINDOW_CLASS_NAME			"D3BFG"
-#define	WIN32_FAKE_WINDOW_CLASS_NAME	"D3BFG_WGL_FAKE"
-
-// RB begin
-// Linux info
-#ifdef ID_DEMO_BUILD
-#define LINUX_DEFAULT_PATH				"/usr/local/games/rbdoom3-bfg-demo"
-#else
-#define LINUX_DEFAULT_PATH				"/usr/local/games/rbdoom3-bfg"
-#endif
-// RB end
-
-
+#endif // __POSIX_ACHIEVEMENTS_H__

@@ -46,10 +46,9 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "../../idlib/precompiled.h"
 
-idPort clientPort, serverPort;
+idUDP clientPort, serverPort;
 
 idCVar net_ip( "net_ip", "localhost", CVAR_SYSTEM, "local IP address" );
-idCVar net_port( "net_port", "", CVAR_SYSTEM | CVAR_INTEGER, "local IP port number" );
 
 typedef struct
 {
@@ -541,11 +540,46 @@ static int IPSocket( const char* net_interface, int port, netadr_t* bound_to = N
 }
 
 /*
+========================
+Sys_GetLocalIPCount
+========================
+*/
+int	Sys_GetLocalIPCount()
+{
+	return num_interfaces;
+}
+
+/*
+========================
+Sys_GetLocalIP
+========================
+*/
+const char* Sys_GetLocalIP( int i )
+{
+	if( ( i < 0 ) || ( i >= num_interfaces ) )
+	{
+		return NULL;
+	}
+	
+	static char s[64];
+	
+	unsigned char bytes[4];
+	bytes[0] = netint[i].ip & 0xFF;
+	bytes[1] = ( netint[i].ip >> 8 ) & 0xFF;
+	bytes[2] = ( netint[i].ip >> 16 ) & 0xFF;
+	bytes[3] = ( netint[i].ip >> 24 ) & 0xFF;
+	
+	idStr::snPrintf( s, sizeof( s ), "%d.%d.%d.%d", bytes[0], bytes[1], bytes[2], bytes[3] );
+	
+	return s;
+}
+
+/*
 ==================
-idPort::idPort
+idUDP::idUDP
 ==================
 */
-idPort::idPort()
+idUDP::idUDP()
 {
 	netSocket = 0;
 	memset( &bound_to, 0, sizeof( bound_to ) );
@@ -553,20 +587,20 @@ idPort::idPort()
 
 /*
 ==================
-idPort::~idPort
+idUDP::~idUDP
 ==================
 */
-idPort::~idPort()
+idUDP::~idUDP()
 {
 	Close();
 }
 
 /*
 ==================
-idPort::Close
+idUDP::Close
 ==================
 */
-void idPort::Close()
+void idUDP::Close()
 {
 	if( netSocket )
 	{
@@ -578,10 +612,10 @@ void idPort::Close()
 
 /*
 ==================
-idPort::GetPacket
+idUDP::GetPacket
 ==================
 */
-bool idPort::GetPacket( netadr_t& net_from, void* data, int& size, int maxSize )
+bool idUDP::GetPacket( netadr_t& net_from, void* data, int& size, int maxSize )
 {
 	int ret;
 	struct sockaddr_in from;
@@ -602,7 +636,7 @@ bool idPort::GetPacket( netadr_t& net_from, void* data, int& size, int maxSize )
 			// those commonly happen, don't verbose
 			return false;
 		}
-		common->DPrintf( "idPort::GetPacket recvfrom(): %s\n", strerror( errno ) );
+		common->DPrintf( "idUDP::GetPacket recvfrom(): %s\n", strerror( errno ) );
 		return false;
 	}
 	
@@ -615,10 +649,10 @@ bool idPort::GetPacket( netadr_t& net_from, void* data, int& size, int maxSize )
 
 /*
 ==================
-idPort::GetPacketBlocking
+idUDP::GetPacketBlocking
 ==================
 */
-bool idPort::GetPacketBlocking( netadr_t& net_from, void* data, int& size, int maxSize, int timeout )
+bool idUDP::GetPacketBlocking( netadr_t& net_from, void* data, int& size, int maxSize, int timeout )
 {
 	fd_set				set;
 	struct timeval		tv;
@@ -644,12 +678,12 @@ bool idPort::GetPacketBlocking( netadr_t& net_from, void* data, int& size, int m
 	{
 		if( errno == EINTR )
 		{
-			common->DPrintf( "idPort::GetPacketBlocking: select EINTR\n" );
+			common->DPrintf( "idUDP::GetPacketBlocking: select EINTR\n" );
 			return false;
 		}
 		else
 		{
-			common->Error( "idPort::GetPacketBlocking: select failed: %s\n", strerror( errno ) );
+			common->Error( "idUDP::GetPacketBlocking: select failed: %s\n", strerror( errno ) );
 		}
 	}
 	
@@ -665,7 +699,7 @@ bool idPort::GetPacketBlocking( netadr_t& net_from, void* data, int& size, int m
 	if( ret == -1 )
 	{
 		// there should be no blocking errors once select declares things are good
-		common->DPrintf( "idPort::GetPacketBlocking: %s\n", strerror( errno ) );
+		common->DPrintf( "idUDP::GetPacketBlocking: %s\n", strerror( errno ) );
 		return false;
 	}
 	assert( ret < maxSize );
@@ -676,17 +710,17 @@ bool idPort::GetPacketBlocking( netadr_t& net_from, void* data, int& size, int m
 
 /*
 ==================
-idPort::SendPacket
+idUDP::SendPacket
 ==================
 */
-void idPort::SendPacket( const netadr_t to, const void* data, int size )
+void idUDP::SendPacket( const netadr_t to, const void* data, int size )
 {
 	int ret;
 	struct sockaddr_in addr;
 	
 	if( to.type == NA_BAD )
 	{
-		common->Warning( "idPort::SendPacket: bad address type NA_BAD - ignored" );
+		common->Warning( "idUDP::SendPacket: bad address type NA_BAD - ignored" );
 		return;
 	}
 	
@@ -700,16 +734,16 @@ void idPort::SendPacket( const netadr_t to, const void* data, int size )
 	ret = sendto( netSocket, data, size, 0, ( struct sockaddr* ) &addr, sizeof( addr ) );
 	if( ret == -1 )
 	{
-		common->Printf( "idPort::SendPacket ERROR: to %s: %s\n", Sys_NetAdrToString( to ), strerror( errno ) );
+		common->Printf( "idUDP::SendPacket ERROR: to %s: %s\n", Sys_NetAdrToString( to ), strerror( errno ) );
 	}
 }
 
 /*
 ==================
-idPort::InitForPort
+idUDP::InitForPort
 ==================
 */
-bool idPort::InitForPort( int portNumber )
+bool idUDP::InitForPort( int portNumber )
 {
 	netSocket = IPSocket( net_ip.GetString(), portNumber, &bound_to );
 	if( netSocket <= 0 )
@@ -721,209 +755,4 @@ bool idPort::InitForPort( int portNumber )
 	return true;
 }
 
-//=============================================================================
 
-/*
-==================
-idTCP::idTCP
-==================
-*/
-idTCP::idTCP()
-{
-	fd = 0;
-	memset( &address, 0, sizeof( address ) );
-}
-
-/*
-==================
-idTCP::~idTCP
-==================
-*/
-idTCP::~idTCP()
-{
-	Close();
-}
-
-/*
-==================
-idTCP::Init
-==================
-*/
-bool idTCP::Init( const char* host, short port )
-{
-	struct sockaddr_in sadr;
-	if( !Sys_StringToNetAdr( host, &address, true ) )
-	{
-		common->Printf( "Couldn't resolve server name \"%s\"\n", host );
-		return false;
-	}
-	address.type = NA_IP;
-	if( !address.port )
-	{
-		address.port = port;
-	}
-	common->Printf( "\"%s\" resolved to %i.%i.%i.%i:%i\n", host,
-					address.ip[0], address.ip[1], address.ip[2], address.ip[3],  address.port );
-	NetadrToSockadr( &address, &sadr );
-	
-	if( fd )
-	{
-		common->Warning( "idTCP::Init: already initialized?\n" );
-	}
-	
-	if( ( fd = socket( PF_INET, SOCK_STREAM, 0 ) ) == -1 )
-	{
-		fd = 0;
-		common->Printf( "ERROR: idTCP::Init: socket: %s\n", strerror( errno ) );
-		return false;
-	}
-	
-	if( connect( fd, ( const sockaddr* )&sadr, sizeof( sadr ) ) == -1 )
-	{
-		common->Printf( "ERROR: idTCP::Init: connect: %s\n", strerror( errno ) );
-		close( fd );
-		fd = 0;
-		return false;
-	}
-	
-	int status;
-	if( ( status = fcntl( fd, F_GETFL, 0 ) ) != -1 )
-	{
-		status |= O_NONBLOCK; /* POSIX */
-		status = fcntl( fd, F_SETFL, status );
-	}
-	if( status == -1 )
-	{
-		common->Printf( "ERROR: idTCP::Init: fcntl / O_NONBLOCK: %s\n", strerror( errno ) );
-		close( fd );
-		fd = 0;
-		return false;
-	}
-	
-	common->DPrintf( "Opened TCP connection\n" );
-	return true;
-}
-
-/*
-==================
-idTCP::Close
-==================
-*/
-void idTCP::Close()
-{
-	if( fd )
-	{
-		close( fd );
-	}
-	fd = 0;
-}
-
-/*
-==================
-idTCP::Read
-==================
-*/
-int idTCP::Read( void* data, int size )
-{
-	int nbytes;
-	
-	if( !fd )
-	{
-		common->Printf( "idTCP::Read: not initialized\n" );
-		return -1;
-	}
-	
-#if defined(_GNU_SOURCE)
-	// handle EINTR interrupted system call with TEMP_FAILURE_RETRY -  this is probably GNU libc specific
-	if( ( nbytes = TEMP_FAILURE_RETRY( read( fd, data, size ) ) ) == -1 )
-	{
-#else
-	do
-	{
-		nbytes = read( fd, data, size );
-	}
-	while( nbytes == -1 && errno == EINTR );
-	if( nbytes == -1 )
-	{
-#endif
-		if( errno == EAGAIN )
-		{
-			return 0;
-		}
-		common->Printf( "ERROR: idTCP::Read: %s\n", strerror( errno ) );
-		Close();
-		return -1;
-	}
-	
-	// a successful read of 0 bytes indicates remote has closed the connection
-	if( nbytes == 0 )
-	{
-		common->DPrintf( "idTCP::Read: read 0 bytes - assume connection closed\n" );
-		return -1;
-	}
-	
-	return nbytes;
-}
-
-/*
-==================
-idTCP::Write
-==================
-*/
-
-static void got_SIGPIPE( int signum )
-{
-	common->Printf( "idTCP: SIGPIPE\n" );
-}
-
-int	idTCP::Write( void* data, int size )
-{
-	int nbytes;
-	
-	if( !fd )
-	{
-		common->Printf( "idTCP::Write: not initialized\n" );
-		return -1;
-	}
-	
-	struct sigaction bak_action;
-	struct sigaction action;
-	
-	action.sa_handler = got_SIGPIPE;
-	sigemptyset( &action.sa_mask );
-	action.sa_flags = 0;
-	
-	if( sigaction( SIGPIPE, &action, &bak_action ) != 0 )
-	{
-		common->Printf( "ERROR: idTCP::Write: failed to set temporary SIGPIPE handler\n" );
-		Close();
-		return -1;
-	}
-	
-#if defined(_GNU_SOURCE)
-	// handle EINTR interrupted system call with TEMP_FAILURE_RETRY -  this is probably GNU libc specific
-	if( ( nbytes = TEMP_FAILURE_RETRY( write( fd, data, size ) ) ) == -1 )
-	{
-#else
-	do
-	{
-		nbytes = write( fd, data, size );
-	}
-	while( nbytes == -1 && errno == EINTR );
-	if( nbytes == -1 )
-	{
-#endif
-		common->Printf( "ERROR: idTCP::Write: %s\n", strerror( errno ) );
-		Close();
-		return -1;
-	}
-	
-	if( sigaction( SIGPIPE, &bak_action, NULL ) != 0 )
-	{
-		common->Printf( "ERROR: idTCP::Write: failed to reset SIGPIPE handler\n" );
-		Close();
-		return -1;
-	}
-	
-	return nbytes;
-}

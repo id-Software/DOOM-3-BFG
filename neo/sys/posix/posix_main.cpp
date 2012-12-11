@@ -3,6 +3,7 @@
 
 Doom 3 GPL Source Code
 Copyright (C) 1999-2011 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2012 Robert Beckebans
 
 This file is part of the Doom 3 GPL Source Code (?Doom 3 Source Code?).
 
@@ -46,6 +47,8 @@ If you have questions concerning this license or the applicable additional terms
 #if defined(__ANDROID__)
 #include <android/log.h>
 #endif
+
+#include <sys/statvfs.h>
 // RB end
 
 #include "posix_public.h"
@@ -95,10 +98,12 @@ void Posix_Exit( int ret )
 	}
 	// at this point, too late to catch signals
 	Posix_ClearSigs();
-	if( asyncThread.threadHandle )
-	{
-		Sys_DestroyThread( asyncThread );
-	}
+	
+	//if( asyncThread.threadHandle )
+	//{
+	//	Sys_DestroyThread( asyncThread );
+	//}
+	
 	// process spawning. it's best when it happens after everything has shut down
 	if( exit_spawn[0] )
 	{
@@ -233,6 +238,26 @@ int Sys_Milliseconds()
 #endif
 }
 
+// RB: added for BFG
+
+/*
+================
+Sys_Microseconds
+================
+*/
+uint64 Sys_Microseconds()
+{
+	static uint64 ticksPerMicrosecondTimes1024 = 0;
+	
+	if( ticksPerMicrosecondTimes1024 == 0 )
+	{
+		ticksPerMicrosecondTimes1024 = ( ( uint64 )Sys_ClockTicksPerSecond() << 10 ) / 1000000;
+		assert( ticksPerMicrosecondTimes1024 > 0 );
+	}
+	
+	return ( ( uint64 )( ( int64 )Sys_GetClockTicks() << 10 ) ) / ticksPerMicrosecondTimes1024;
+}
+
 /*
 ================
 Sys_Mkdir
@@ -242,6 +267,51 @@ void Sys_Mkdir( const char* path )
 {
 	mkdir( path, 0777 );
 }
+
+/*
+================
+Sys_Rmdir
+================
+*/
+bool Sys_Rmdir( const char* path )
+{
+	return ( rmdir( path ) == 0 );
+}
+
+/*
+========================
+Sys_IsFileWritable
+========================
+*/
+bool Sys_IsFileWritable( const char* path )
+{
+	struct stat st;
+	if( stat( path, &st ) == -1 )
+	{
+		return true;
+	}
+	
+	return ( st.st_mode & S_IWRITE ) != 0;
+}
+
+/*
+========================
+Sys_IsFolder
+========================
+*/
+sysFolder_t	 Sys_IsFolder( const char* path )
+{
+	struct stat buffer;
+	
+	if( stat( path, &buffer ) < 0 )
+	{
+		return FOLDER_ERROR;
+	}
+	
+	return ( buffer.st_mode & S_IFDIR ) != 0 ? FOLDER_YES : FOLDER_NO;
+}
+
+// RB end
 
 /*
 ================
@@ -319,12 +389,13 @@ int Sys_ListFiles( const char* directory, const char* extension, idStrList& list
 EVENT LOOP
 ============================================================================
 */
-
+/*
 #define	MAX_QUED_EVENTS		256
 #define	MASK_QUED_EVENTS	( MAX_QUED_EVENTS - 1 )
 
 static sysEvent_t eventQue[MAX_QUED_EVENTS];
 static int eventHead, eventTail;
+*/
 
 /*
 ================
@@ -333,11 +404,12 @@ Posix_QueEvent
 ptr should either be null, or point to a block of data that can be freed later
 ================
 */
+/*
 void Posix_QueEvent( sysEventType_t type, int value, int value2,
 					 int ptrLength, void* ptr )
 {
 	sysEvent_t* ev;
-	
+
 	ev = &eventQue[eventHead & MASK_QUED_EVENTS];
 	if( eventHead - eventTail >= MAX_QUED_EVENTS )
 	{
@@ -351,29 +423,31 @@ void Posix_QueEvent( sysEventType_t type, int value, int value2,
 		}
 		eventTail++;
 	}
-	
+
 	eventHead++;
-	
+
 	ev->evType = type;
 	ev->evValue = value;
 	ev->evValue2 = value2;
 	ev->evPtrLength = ptrLength;
 	ev->evPtr = ptr;
-	
+
 #if 0
 	common->Printf( "Event %d: %d %d\n", ev->evType, ev->evValue, ev->evValue2 );
 #endif
 }
+*/
 
 /*
 ================
 Sys_GetEvent
 ================
 */
+/*
 sysEvent_t Sys_GetEvent()
 {
 	static sysEvent_t ev;
-	
+
 	// return if we have data
 	if( eventHead > eventTail )
 	{
@@ -382,19 +456,22 @@ sysEvent_t Sys_GetEvent()
 	}
 	// return the empty event with the current time
 	memset( &ev, 0, sizeof( ev ) );
-	
+
 	return ev;
 }
+*/
 
 /*
 ================
 Sys_ClearEvents
 ================
 */
+/*
 void Sys_ClearEvents()
 {
 	eventHead = eventTail = 0;
 }
+*/
 
 /*
 ================
@@ -516,7 +593,7 @@ const char* Sys_DefaultCDPath()
 	return "";
 }
 
-long Sys_FileTimeStamp( FILE* fp )
+ID_TIME_T Sys_FileTimeStamp( idFileHandle fp )
 {
 	struct stat st;
 	fstat( fileno( fp ), &st );
@@ -567,6 +644,7 @@ void Sys_FlushCacheMemory( void* base, int bytes )
 //  Sys_Printf("Sys_FlushCacheMemory stub\n");
 }
 
+/*
 bool Sys_FPU_StackIsEmpty()
 {
 	return true;
@@ -584,6 +662,7 @@ const char* Sys_FPU_GetState()
 void Sys_FPU_SetPrecision( int precision )
 {
 }
+*/
 
 /*
 ================
@@ -615,17 +694,58 @@ void Sys_SetPhysicalWorkMemory( int minBytes, int maxBytes )
 	common->DPrintf( "TODO: Sys_SetPhysicalWorkMemory\n" );
 }
 
+// RB begin
+
 /*
-===========
+================
 Sys_GetDriveFreeSpace
-return in MegaBytes
-===========
+returns in megabytes
+================
 */
 int Sys_GetDriveFreeSpace( const char* path )
 {
-	common->DPrintf( "TODO: Sys_GetDriveFreeSpace\n" );
-	return 1000 * 1024;
+	int ret = 26;
+	
+	struct statvfs st;
+	
+	if( statvfs( path, &st ) == 0 )
+	{
+		unsigned long blocksize = st.f_bsize;
+		unsigned long freeblocks = st.f_bfree;
+		
+		unsigned long free = blocksize * freeblocks;
+		
+		ret = ( double )( free ) / ( 1024.0 * 1024.0 );
+	}
+	
+	return ret;
 }
+
+/*
+========================
+Sys_GetDriveFreeSpaceInBytes
+========================
+*/
+int64 Sys_GetDriveFreeSpaceInBytes( const char* path )
+{
+	int64 ret = 1;
+	
+	struct statvfs st;
+	
+	if( statvfs( path, &st ) == 0 )
+	{
+		unsigned long blocksize = st.f_bsize;
+		unsigned long freeblocks = st.f_bfree;
+		
+		unsigned long free = blocksize * freeblocks;
+		
+		ret = free;
+	}
+	
+	return ret;
+}
+
+// RB end
 
 /*
 ================
@@ -645,12 +765,15 @@ Posix_EarlyInit
 */
 void Posix_EarlyInit()
 {
-	memset( &asyncThread, 0, sizeof( asyncThread ) );
+	//memset( &asyncThread, 0, sizeof( asyncThread ) );
+	
 	exit_spawn[0] = '\0';
 	Posix_InitSigs();
+	
 	// set the base time
 	Sys_Milliseconds();
-	Posix_InitPThreads();
+	
+	//Posix_InitPThreads();
 }
 
 /*
@@ -664,10 +787,12 @@ void Posix_LateInit()
 	com_pid.SetInteger( getpid() );
 	common->Printf( "pid: %d\n", com_pid.GetInteger() );
 	common->Printf( "%d MB System Memory\n", Sys_GetSystemRam() );
-#ifndef ID_DEDICATED
-	common->Printf( "%d MB Video Memory\n", Sys_GetVideoRam() );
-#endif
-	Posix_StartAsyncThread( );
+	
+//#ifndef ID_DEDICATED
+	//common->Printf( "%d MB Video Memory\n", Sys_GetVideoRam() );
+//#endif
+
+	//Posix_StartAsyncThread( );
 }
 
 /*
@@ -826,7 +951,7 @@ void tty_Show()
 			
 			// RB begin
 #if defined(__ANDROID__)
-			//__android_log_print(ANDROID_LOG_DEBUG, "Techyon_DEBUG", "%s", buf);
+			//__android_log_print(ANDROID_LOG_DEBUG, "RBDoom3_DEBUG", "%s", buf);
 #endif
 			// RB end
 			
@@ -1164,6 +1289,7 @@ called during frame loops, pacifier updates etc.
 this is only for console input polling and misc mouse grab tasks
 the actual mouse and keyboard input is in the Sys_Poll logic
 */
+/*
 void Sys_GenerateEvents()
 {
 	char* s;
@@ -1171,13 +1297,14 @@ void Sys_GenerateEvents()
 	{
 		char* b;
 		int len;
-		
+
 		len = strlen( s ) + 1;
 		b = ( char* )Mem_Alloc( len );
 		strcpy( b, s );
 		Posix_QueEvent( SE_CONSOLE, 0, 0, len, b );
 	}
 }
+*/
 
 /*
 ===============
@@ -1196,7 +1323,7 @@ void Sys_DebugPrintf( const char* fmt, ... )
 	va_end( argptr );
 	msg[sizeof( msg ) - 1] = '\0';
 	
-	__android_log_print( ANDROID_LOG_DEBUG, "Techyon_Debug", msg );
+	__android_log_print( ANDROID_LOG_DEBUG, "RBDoom3_Debug", msg );
 #else
 	va_list argptr;
 	
@@ -1211,7 +1338,7 @@ void Sys_DebugPrintf( const char* fmt, ... )
 void Sys_DebugVPrintf( const char* fmt, va_list arg )
 {
 #if defined(__ANDROID__)
-	__android_log_vprint( ANDROID_LOG_DEBUG, "Techyon_Debug", fmt, arg );
+	__android_log_vprint( ANDROID_LOG_DEBUG, "RBDoom3_Debug", fmt, arg );
 #else
 	tty_Hide();
 	vprintf( fmt, arg );
@@ -1230,7 +1357,7 @@ void Sys_Printf( const char* fmt, ... )
 	va_end( argptr );
 	msg[sizeof( msg ) - 1] = '\0';
 	
-	__android_log_print( ANDROID_LOG_DEBUG, "Techyon", msg );
+	__android_log_print( ANDROID_LOG_DEBUG, "RBDoom3", msg );
 #else
 	va_list argptr;
 	
@@ -1245,7 +1372,7 @@ void Sys_Printf( const char* fmt, ... )
 void Sys_VPrintf( const char* fmt, va_list arg )
 {
 #if defined(__ANDROID__)
-	__android_log_vprint( ANDROID_LOG_DEBUG, "Techyon", fmt, arg );
+	__android_log_vprint( ANDROID_LOG_DEBUG, "RBDoom3", fmt, arg );
 #else
 	tty_Hide();
 	vprintf( fmt, arg );
@@ -1272,8 +1399,12 @@ void Sys_Error( const char* error, ... )
 }
 
 /*
-===============
-Sys_FreeOpenAL
-===============
+================
+Sys_SetLanguageFromSystem
+================
 */
-void Sys_FreeOpenAL() { }
+extern idCVar sys_lang;
+void Sys_SetLanguageFromSystem()
+{
+	sys_lang.SetString( Sys_DefaultLanguage() );
+}

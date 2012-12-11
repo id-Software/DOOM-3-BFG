@@ -57,5 +57,7 @@ void		Posix_Shutdown();
 void		Sys_FPE_handler( int signum, siginfo_t* info, void* context );
 void		Sys_DoStartProcess( const char* exeName, bool dofork = true ); // if not forking, current process gets replaced
 
+char*		Posix_ConsoleInput();
+
 #endif
 

@@ -3,6 +3,8 @@
 
 Doom 3 GPL Source Code
 Copyright (C) 1999-2011 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2012 dhewg (dhewm3)
+Copyright (C) 2012 Robert Beckebans
 
 This file is part of the Doom 3 GPL Source Code ("Doom 3 Source Code").
 
@@ -28,15 +30,10 @@ If you have questions concerning this license or the applicable additional terms
 
 #include <SDL.h>
 
-#include "sys/platform.h"
-#include "idlib/containers/List.h"
-#include "idlib/Heap.h"
-#include "framework/Common.h"
-#include "framework/KeyInput.h"
-#include "renderer/RenderSystem.h"
+#include "../../idlib/precompiled.h"
 #include "renderer/tr_local.h"
-
-#include "sys/sys_public.h"
+#include "sdl_local.h"
+#include "../posix/posix_public.h"
 
 #if !SDL_VERSION_ATLEAST(2, 0, 0)
 #define SDL_Keycode SDLKey
@@ -115,8 +112,8 @@ static byte mapkey( SDL_Keycode key )
 		
 	switch( key )
 	{
-		case SDLK_APPLICATION:
-			return K_COMMAND;
+			//case SDLK_APPLICATION:
+			//	return K_COMMAND;
 		case SDLK_CAPSLOCK:
 			return K_CAPSLOCK;
 		case SDLK_SCROLLLOCK:
@@ -137,18 +134,21 @@ static byte mapkey( SDL_Keycode key )
 			return K_LWIN;
 		case SDLK_RGUI:
 			return K_RWIN;
-		case SDLK_MENU:
-			return K_MENU;
+			//case SDLK_MENU:
+			//	return K_MENU;
 			
 		case SDLK_LALT:
+			return K_LALT;
 		case SDLK_RALT:
-			return K_ALT;
+			return K_RALT;
 		case SDLK_RCTRL:
+			return K_RCTRL;
 		case SDLK_LCTRL:
-			return K_CTRL;
+			return K_LCTRL;
 		case SDLK_RSHIFT:
+			return K_RSHIFT;
 		case SDLK_LSHIFT:
-			return K_SHIFT;
+			return K_LSHIFT;
 		case SDLK_INSERT:
 			return K_INS;
 		case SDLK_DELETE:
@@ -195,29 +195,29 @@ static byte mapkey( SDL_Keycode key )
 			return K_F15;
 			
 		case SDLK_KP_7:
-			return K_KP_HOME;
+			return K_KP_7;
 		case SDLK_KP_8:
-			return K_KP_UPARROW;
+			return K_KP_8;
 		case SDLK_KP_9:
-			return K_KP_PGUP;
+			return K_KP_9;
 		case SDLK_KP_4:
-			return K_KP_LEFTARROW;
+			return K_KP_4;
 		case SDLK_KP_5:
 			return K_KP_5;
 		case SDLK_KP_6:
-			return K_KP_RIGHTARROW;
+			return K_KP_6;
 		case SDLK_KP_1:
-			return K_KP_END;
+			return K_KP_1;
 		case SDLK_KP_2:
-			return K_KP_DOWNARROW;
+			return K_KP_2;
 		case SDLK_KP_3:
-			return K_KP_PGDN;
+			return K_KP_3;
 		case SDLK_KP_ENTER:
 			return K_KP_ENTER;
 		case SDLK_KP_0:
-			return K_KP_INS;
+			return K_KP_0;
 		case SDLK_KP_PERIOD:
-			return K_KP_DEL;
+			return K_KP_DOT;
 		case SDLK_KP_DIVIDE:
 			return K_KP_SLASH;
 			// K_SUPERSCRIPT_TWO;
@@ -227,7 +227,7 @@ static byte mapkey( SDL_Keycode key )
 		case SDLK_KP_PLUS:
 			return K_KP_PLUS;
 		case SDLK_NUMLOCKCLEAR:
-			return K_KP_NUMLOCK;
+			return K_NUMLOCK;
 		case SDLK_KP_MULTIPLY:
 			return K_KP_STAR;
 		case SDLK_KP_EQUALS:
@@ -259,9 +259,9 @@ static byte mapkey( SDL_Keycode key )
 			// K_AUX16;
 			
 		case SDLK_PRINTSCREEN:
-			return K_PRINT_SCR;
+			return K_PRINTSCREEN;
 		case SDLK_MODE:
-			return K_RIGHT_ALT;
+			return K_RALT;
 	}
 	
 	return 0;
@@ -273,7 +273,7 @@ static void PushConsoleEvent( const char* s )
 	size_t len;
 	
 	len = strlen( s ) + 1;
-	b = ( char* )Mem_Alloc( len );
+	b = ( char* )Mem_Alloc( len, TAG_EVENTS );
 	strcpy( b, s );
 	
 	SDL_Event event;
@@ -673,8 +673,8 @@ void Sys_ClearEvents()
 	while( SDL_PollEvent( &ev ) )
 		;
 		
-	kbd_polls.SetNum( 0, false );
-	mouse_polls.SetNum( 0, false );
+	kbd_polls.SetNum( 0 );
+	mouse_polls.SetNum( 0 );
 }
 
 /*
@@ -684,7 +684,7 @@ Sys_GenerateEvents
 */
 void Sys_GenerateEvents()
 {
-	char* s = Sys_ConsoleInput();
+	char* s = Posix_ConsoleInput();
 	
 	if( s )
 		PushConsoleEvent( s );
@@ -724,7 +724,7 @@ Sys_EndKeyboardInputEvents
 */
 void Sys_EndKeyboardInputEvents()
 {
-	kbd_polls.SetNum( 0, false );
+	kbd_polls.SetNum( 0 );
 }
 
 /*
@@ -732,32 +732,55 @@ void Sys_EndKeyboardInputEvents()
 Sys_PollMouseInputEvents
 ================
 */
-int Sys_PollMouseInputEvents()
+int Sys_PollMouseInputEvents( int mouseEvents[MAX_MOUSE_EVENTS][2] )
 {
-	return mouse_polls.Num();
-}
-
-/*
-================
-Sys_ReturnMouseInputEvent
-================
-*/
-int	Sys_ReturnMouseInputEvent( const int n, int& action, int& value )
-{
-	if( n >= mouse_polls.Num() )
-		return 0;
+	int numEvents = mouse_polls.Num();
+	
+	if( numEvents > MAX_MOUSE_EVENTS )
+	{
+		numEvents = MAX_MOUSE_EVENTS;
+	}
+	
+	for( int i = 0; i < numEvents; i++ )
+	{
+		const mouse_poll_t& mp = mouse_polls[i];
 		
-	action = mouse_polls[n].action;
-	value = mouse_polls[n].value;
-	return 1;
+		mouseEvents[i][0] = mp.action;
+		mouseEvents[i][1] = mp.value;
+	}
+	
+	mouse_polls.SetNum( 0 );
+	
+	return numEvents;
 }
 
-/*
-================
-Sys_EndMouseInputEvents
-================
-*/
-void Sys_EndMouseInputEvents()
+
+//=====================================================================================
+//	Joystick Input Handling
+//=====================================================================================
+
+void Sys_SetRumble( int device, int low, int hi )
 {
-	mouse_polls.SetNum( 0, false );
+	// TODO;
 }
+
+int Sys_PollJoystickInputEvents( int deviceNum )
+{
+	// TODO;
+	return 0;
+}
+
+
+int Sys_ReturnJoystickInputEvent( const int n, int& action, int& value )
+{
+	// TODO;
+	return 0;
+}
+
+
+void Sys_EndJoystickInputEvents()
+{
+}
+
+
+

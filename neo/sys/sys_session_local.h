@@ -30,8 +30,15 @@ If you have questions concerning this license or the applicable additional terms
 #undef private
 #undef protected
 
+// RB begin
+#if defined(_WIN32)
 #include "win32/win_achievements.h"
 #include "win32/win_signin.h"
+#else
+#include "posix/posix_achievements.h"
+#include "posix/posix_signin.h"
+#endif
+// RB end
 
 #include "sys_lobby_backend.h"
 #include "sys_lobby.h"

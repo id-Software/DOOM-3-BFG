@@ -3,6 +3,8 @@
 
 Doom 3 GPL Source Code
 Copyright (C) 1999-2011 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2012 dhewg (dhewm3)
+Copyright (C) 2012 Robert Beckebans
 
 This file is part of the Doom 3 GPL Source Code ("Doom 3 Source Code").
 
@@ -29,10 +31,10 @@ If you have questions concerning this license or the applicable additional terms
 #include <SDL.h>
 #include <SDL_syswm.h>
 
-#include "sys/platform.h"
-#include "framework/Licensee.h"
+#include "../../idlib/precompiled.h"
 
 #include "renderer/tr_local.h"
+#include "sdl_local.h"
 
 idCVar in_nograb( "in_nograb", "0", CVAR_SYSTEM | CVAR_NOCHEAT, "prevents input grabbing" );
 idCVar r_waylandcompat( "r_waylandcompat", "0", CVAR_SYSTEM | CVAR_NOCHEAT | CVAR_ARCHIVE, "wayland compatible framebuffer" );
@@ -165,7 +167,9 @@ bool GLimp_Init( glimpParms_t parms )
 		if( SDL_GL_SetSwapInterval( r_swapInterval.GetInteger() ) < 0 )
 			common->Warning( "SDL_GL_SWAP_CONTROL not supported" );
 			
-		SDL_GetWindowSize( window, &glConfig.vidWidth, &glConfig.vidHeight );
+		// RB begin
+		SDL_GetWindowSize( window, &glConfig.nativeScreenWidth, &glConfig.nativeScreenHeight );
+		// RB end
 		
 		glConfig.isFullscreen = ( SDL_GetWindowFlags( window ) & SDL_WINDOW_FULLSCREEN ) == SDL_WINDOW_FULLSCREEN;
 #else
@@ -182,8 +186,8 @@ bool GLimp_Init( glimpParms_t parms )
 			continue;
 		}
 		
-		glConfig.vidWidth = window->w;
-		glConfig.vidHeight = window->h;
+		glConfig.nativeScreenWidth = window->w;
+		glConfig.nativeScreenHeight = window->h;
 		
 		glConfig.isFullscreen = ( window->flags & SDL_FULLSCREEN ) == SDL_FULLSCREEN;
 #endif
@@ -196,6 +200,11 @@ bool GLimp_Init( glimpParms_t parms )
 		glConfig.stencilBits = tstencilbits;
 		
 		glConfig.displayFrequency = 0;
+		
+		// RB begin
+		glConfig.isStereoPixelFormat = parms.stereo;
+		glConfig.multisamples = parms.multiSamples;
+		// RB end
 		
 		break;
 	}
@@ -280,26 +289,6 @@ void GLimp_SetGamma( unsigned short red[256], unsigned short green[256], unsigne
 }
 
 /*
-=================
-GLimp_ActivateContext
-=================
-*/
-void GLimp_ActivateContext()
-{
-	common->DPrintf( "TODO: GLimp_ActivateContext\n" );
-}
-
-/*
-=================
-GLimp_DeactivateContext
-=================
-*/
-void GLimp_DeactivateContext()
-{
-	common->DPrintf( "TODO: GLimp_DeactivateContext\n" );
-}
-
-/*
 ===================
 GLimp_ExtensionPointer
 ===================
@@ -338,4 +327,78 @@ void GLimp_GrabInput( int flags )
 	SDL_ShowCursor( flags & GRAB_HIDECURSOR ? SDL_DISABLE : SDL_ENABLE );
 	SDL_WM_GrabInput( grab ? SDL_GRAB_ON : SDL_GRAB_OFF );
 #endif
+}
+
+/*
+====================
+DumpAllDisplayDevices
+====================
+*/
+void DumpAllDisplayDevices()
+{
+	common->DPrintf( "TODO: DumpAllDisplayDevices\n" );
+}
+
+
+
+class idSort_VidMode : public idSort_Quick< vidMode_t, idSort_VidMode >
+{
+public:
+	int Compare( const vidMode_t& a, const vidMode_t& b ) const
+	{
+		int wd = a.width - b.width;
+		int hd = a.height - b.height;
+		int fd = a.displayHz - b.displayHz;
+		return ( hd != 0 ) ? hd : ( wd != 0 ) ? wd : fd;
+	}
+};
+
+/*
+====================
+R_GetModeListForDisplay
+====================
+*/
+bool R_GetModeListForDisplay( const int requestedDisplayNum, idList<vidMode_t>& modeList )
+{
+	modeList.Clear();
+	
+	bool	verbose = false;
+	
+	const SDL_VideoInfo* videoInfo = SDL_GetVideoInfo();
+	
+	SDL_Rect** modes = SDL_ListModes( videoInfo->vfmt, SDL_OPENGL | SDL_FULLSCREEN );
+	
+	if( !modes )
+	{
+		common->Warning( "Can't get list of available modes\n" );
+		return false;
+	}
+	
+	if( modes == ( SDL_Rect** ) - 1 )
+	{
+		common->Printf( "Display supports any resolution\n" );
+		return false;					// can set any resolution
+	}
+	
+	int numModes;
+	for( numModes = 0; modes[numModes]; numModes++ );
+	
+	if( numModes > 1 )
+	{
+		for( int i = 0; i < numModes; i++ )
+		{
+			vidMode_t mode;
+			mode.width =  modes[i]->w;
+			mode.height =  modes[i]->h;
+			mode.displayHz = 60; // FIXME;
+			modeList.AddUnique( mode );
+		}
+		
+		// sort with lowest resolution first
+		modeList.SortWithTemplate( idSort_VidMode() );
+		
+		return true;
+	}
+	
+	return false;
 }

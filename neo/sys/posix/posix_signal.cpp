@@ -112,10 +112,6 @@ static void sig_handler( int signum, siginfo_t* info, void* context )
 	// NOTE: see sigaction man page, could verbose the whole siginfo_t and print human readable si_code
 	Sys_Printf( "signal caught: %s\nsi_code %d\n", strsignal( signum ), info->si_code );
 	
-#ifndef ID_BT_STUB
-	Sys_Printf( "callstack:\n%s", Sys_GetCallStackCurStr( 30 ) );
-#endif
-	
 	if( fatalError[ 0 ] )
 	{
 		Sys_Printf( "Was in fatal error shutdown: %s\n", fatalError );
