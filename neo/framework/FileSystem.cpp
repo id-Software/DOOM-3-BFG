@@ -633,7 +633,13 @@ void idFileSystemLocal::CreateOSPath( const char* OSPath )
 	}
 	
 	idStrStatic< MAX_OSPATH > path( OSPath );
+	
+	// RB begin
+#if defined(_WIN32)
 	path.SlashesToBackSlashes();
+#endif
+	// RB end
+	
 	for( ofs = &path[ 1 ]; *ofs ; ofs++ )
 	{
 		if( *ofs == PATHSEPARATOR_CHAR )
