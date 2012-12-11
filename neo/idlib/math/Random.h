@@ -108,10 +108,11 @@ ID_INLINE float idRandom::CRandomFloat()
 class idRandom2
 {
 public:
-	idRandom2( unsigned long seed = 0 );
+	// DG: use int instead of long for 64bit compatibility in this whole class
+	idRandom2( unsigned int seed = 0 );
 	
-	void					SetSeed( unsigned long seed );
-	unsigned long			GetSeed() const;
+	void					SetSeed( unsigned int seed );
+	unsigned int			GetSeed() const;
 	
 	int						RandomInt();			// random integer in the range [0, MAX_RAND]
 	int						RandomInt( int max );		// random integer in the range [0, max]
@@ -121,23 +122,23 @@ public:
 	static const int		MAX_RAND = 0x7fff;
 	
 private:
-	unsigned long			seed;
+	unsigned int			seed;
 	
-	static const unsigned long	IEEE_ONE = 0x3f800000;
-	static const unsigned long	IEEE_MASK = 0x007fffff;
+	static const unsigned int	IEEE_ONE = 0x3f800000;
+	static const unsigned int	IEEE_MASK = 0x007fffff;
 };
 
-ID_INLINE idRandom2::idRandom2( unsigned long seed )
+ID_INLINE idRandom2::idRandom2( unsigned int seed )
 {
 	this->seed = seed;
 }
 
-ID_INLINE void idRandom2::SetSeed( unsigned long seed )
+ID_INLINE void idRandom2::SetSeed( unsigned int seed )
 {
 	this->seed = seed;
 }
 
-ID_INLINE unsigned long idRandom2::GetSeed() const
+ID_INLINE unsigned int idRandom2::GetSeed() const
 {
 	return seed;
 }
@@ -159,7 +160,7 @@ ID_INLINE int idRandom2::RandomInt( int max )
 
 ID_INLINE float idRandom2::RandomFloat()
 {
-	unsigned long i;
+	unsigned int i;
 	seed = 1664525L * seed + 1013904223L;
 	i = idRandom2::IEEE_ONE | ( seed & idRandom2::IEEE_MASK );
 	return ( ( *( float* )&i ) - 1.0f );
@@ -167,10 +168,11 @@ ID_INLINE float idRandom2::RandomFloat()
 
 ID_INLINE float idRandom2::CRandomFloat()
 {
-	unsigned long i;
+	unsigned int i;
 	seed = 1664525L * seed + 1013904223L;
 	i = idRandom2::IEEE_ONE | ( seed & idRandom2::IEEE_MASK );
 	return ( 2.0f * ( *( float* )&i ) - 3.0f );
 }
+// DG end
 
 #endif /* !__MATH_RANDOM_H__ */

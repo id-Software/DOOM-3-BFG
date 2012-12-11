@@ -4592,7 +4592,7 @@ void idSessionLocal::ListServersCommon()
 	idBitMsg msg( buffer, sizeof( buffer ) );
 	
 	// Add the current version info to the query
-	const unsigned long localChecksum = NetGetVersionChecksum();
+	const unsigned int localChecksum = NetGetVersionChecksum(); // DG: use int instead of long for 64bit compatibility
 	
 	NET_VERBOSE_PRINT( "ListServers: Hash checksum: %i, broadcasting to: %s\n", localChecksum, address.ToString() );
 	
@@ -4614,8 +4614,10 @@ void idSessionLocal::HandleDedicatedServerQueryRequest( lobbyAddress_t& remoteAd
 	
 	bool canJoin = true;
 	
-	const unsigned long localChecksum = NetGetVersionChecksum();
-	const unsigned long remoteChecksum = msg.ReadLong();
+	// DG: use int instead of long for 64bit compatibility
+	const unsigned int localChecksum = NetGetVersionChecksum();
+	const unsigned int remoteChecksum = msg.ReadLong();
+	// DG end
 	
 	if( remoteChecksum != localChecksum )
 	{

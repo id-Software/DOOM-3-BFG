@@ -312,7 +312,9 @@ idClass::FindUninitializedMemory
 void idClass::FindUninitializedMemory()
 {
 #ifdef ID_DEBUG_UNINITIALIZED_MEMORY
-	unsigned long* ptr = ( ( unsigned long* )this ) - 1;
+	// DG: use int instead of long for 64bit compatibility
+	unsigned int* ptr = ( ( unsigned int* )this ) - 1;
+	// DG end
 	int size = *ptr;
 	assert( ( size & 3 ) == 0 );
 	size >>= 2;

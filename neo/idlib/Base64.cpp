@@ -44,7 +44,7 @@ static const char sixtet_to_base64[] =
 void idBase64::Encode( const byte* from, int size )
 {
 	int i, j;
-	unsigned long w;
+	unsigned int w; // DG: use int instead of long for 64bit compatibility
 	byte* to;
 	
 	EnsureAlloced( 4 * ( size + 3 ) / 3 + 2 ); // ratio and padding + trailing \0
@@ -101,7 +101,7 @@ idBase64::Decode
 */
 int idBase64::Decode( byte* to ) const
 {
-	unsigned long w;
+	unsigned int w; // DG: use int instead of long for 64bit compatibility
 	int i, j;
 	size_t n;
 	static char base64_to_sixtet[256];

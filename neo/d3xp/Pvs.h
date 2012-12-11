@@ -104,9 +104,9 @@ private:
 	mutable pvsCurrent_t currentPVS[MAX_CURRENT_PVS];
 	// used to create PVS
 	int					portalVisBytes;
-	int					portalVisLongs;
+	int					portalVisLongs; // DG: Note: these are really ints now..
 	int					areaVisBytes;
-	int					areaVisLongs;
+	int					areaVisLongs;   // DG: Note: these are really ints now..
 	struct pvsPortal_s* pvsPortals;
 	struct pvsArea_s* 	pvsAreas;
 	

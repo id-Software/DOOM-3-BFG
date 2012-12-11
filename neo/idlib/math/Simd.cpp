@@ -124,7 +124,7 @@ void idSIMD::Shutdown() {
 
 idSIMDProcessor *p_simd;
 idSIMDProcessor *p_generic;
-long baseClocks = 0;
+int baseClocks = 0; // DG: use int instead of long for 64bit compatibility
 
 #if defined(_MSC_VER) && defined(_M_IX86)
 #define TIME_TYPE int

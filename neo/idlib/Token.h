@@ -99,7 +99,9 @@ public:
 	void			NumberValue();				// calculate values for a TT_NUMBER
 	
 private:
-	unsigned long	intvalue;							// integer value
+	// DG: use int instead of long for 64bit compatibility
+	unsigned int	intvalue;							// integer value
+	// DG end
 	double			floatvalue;							// floating point value
 	const char* 	whiteSpaceStart_p;					// start of white space before token, only used by idLexer
 	const char* 	whiteSpaceEnd_p;					// end of white space before token, only used by idLexer
