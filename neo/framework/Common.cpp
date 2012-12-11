@@ -121,9 +121,9 @@ idCommonLocal::idCommonLocal
 idCommonLocal::idCommonLocal() :
 	readSnapshotIndex( 0 ),
 	writeSnapshotIndex( 0 ),
+	optimalPCTBuffer( 0.5f ),
 	optimalTimeBuffered( 0.0f ),
 	optimalTimeBufferedWindow( 0.0f ),
-	optimalPCTBuffer( 0.5f ),
 	lastPacifierSessionTime( 0 ),
 	lastPacifierGuiTime( 0 ),
 	lastPacifierDialogState( false ),

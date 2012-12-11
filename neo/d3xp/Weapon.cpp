@@ -4630,7 +4630,7 @@ void idWeapon::Event_Melee()
 						const char* decal;
 						// project decal
 						decal = weaponDef->dict.GetString( "mtr_strike" );
-						if( decal != NULL && *decal != NULL )
+						if( decal != NULL && *decal != '\0' )
 						{
 							gameLocal.ProjectDecal( tr.c.point, -tr.c.normal, 8.0f, true, 6.0, decal );
 						}

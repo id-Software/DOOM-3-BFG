@@ -881,7 +881,7 @@ bool idDict::ReadFromIniFile( idFile* f )
 	{
 		return false;
 	}
-	buffer[length - 1] = NULL;	// Since the .ini files are not null terminated, make sure we mark where the end of the .ini file is in our read buffer
+	buffer[length - 1] = '\0';	// Since the .ini files are not null terminated, make sure we mark where the end of the .ini file is in our read buffer
 	
 	idLexer parser( LEXFL_NOFATALERRORS | LEXFL_ALLOWPATHNAMES /*| LEXFL_ONLYSTRINGS */ );
 	idStr name = f->GetName();

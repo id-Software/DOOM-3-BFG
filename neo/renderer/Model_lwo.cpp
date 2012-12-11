@@ -2311,7 +2311,7 @@ int lwGetPolygons5( idFile* fp, int cksize, lwPolygonList* plist, int ptoffset )
 			bp += 2;
 		}
 		j -= 1;
-		pp->surf = ( lwSurface* ) j;
+		pp->surf = ( lwSurface* ) j; // DG: FIXME: cast int to pointer?!
 		
 		pp++;
 		pv += nv;
@@ -3054,7 +3054,7 @@ int lwGetPolygonTags( idFile* fp, int cksize, lwTagList* tlist, lwPolygonList* p
 		switch( type )
 		{
 			case ID_SURF:
-				plist->pol[ i ].surf = ( lwSurface* ) j;
+				plist->pol[ i ].surf = ( lwSurface* ) j; // DG: FIXME: cast int to pointer?!
 				break;
 			case ID_PART:
 				plist->pol[ i ].part = j;

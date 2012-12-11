@@ -1298,7 +1298,7 @@ void idExplodingBarrel::Killed( idEntity* inflictor, idEntity* attacker, int dam
 	physicsObj.SetContents( 0 );
 	
 	const char* splash = spawnArgs.GetString( "def_splash_damage", "damage_explosion" );
-	if( splash != NULL && *splash != NULL )
+	if( splash != NULL && *splash != '\0' )
 	{
 		gameLocal.RadiusDamage( GetPhysics()->GetOrigin(), this, attacker, this, this, splash );
 	}
@@ -1451,7 +1451,7 @@ void idExplodingBarrel::Event_Respawn()
 		}
 	}
 	const char* temp = spawnArgs.GetString( "model" );
-	if( temp != NULL && *temp != NULL )
+	if( temp != NULL && *temp != '\0' )
 	{
 		SetModel( temp );
 	}

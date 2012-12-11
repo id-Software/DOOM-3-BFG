@@ -37,7 +37,7 @@ If you have questions concerning this license or the applicable additional terms
 #include <io.h>
 #include <conio.h>
 #include <mapi.h>
-#include <shellAPI.h>
+#include <shellapi.h>
 #include <shlobj.h>
 
 #ifndef __MRC__

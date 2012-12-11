@@ -123,7 +123,7 @@ void idMenuScreen_PDA_Inventory::ShowScreen( const mainMenuTransition_t transiti
 		{
 		
 			const char* weap = GetWeaponName( j );
-			if( weap == NULL || *weap == NULL )
+			if( weap == NULL || *weap == '\0' )
 			{
 				continue;
 			}
@@ -226,7 +226,7 @@ void idMenuScreen_PDA_Inventory::Update()
 	{
 	
 		const char* weap = GetWeaponName( j );
-		if( weap == NULL || *weap == NULL )
+		if( weap == NULL || *weap == '\0' )
 		{
 			continue;
 		}
@@ -313,7 +313,7 @@ void idMenuScreen_PDA_Inventory::EquipWeapon()
 	{
 	
 		const char* weap = GetWeaponName( j );
-		if( weap == NULL || *weap == NULL )
+		if( weap == NULL || *weap == '\0' )
 		{
 			continue;
 		}

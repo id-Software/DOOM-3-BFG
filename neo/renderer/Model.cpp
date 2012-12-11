@@ -1299,7 +1299,7 @@ bool idRenderModelStatic::ConvertASEToModelSurfaces( const struct aseModel_s* as
 		// completely ignore any explict normals on surfaces with a renderbump command
 		// which will guarantee the best contours and least vertexes.
 		const char* rb = im1->GetRenderBump();
-		if( rb != NULL && rb[0] != NULL )
+		if( rb != NULL && rb[0] != '\0' )
 		{
 			normalsParsed = false;
 		}
@@ -2303,7 +2303,7 @@ bool idRenderModelStatic::ConvertMAToModelSurfaces( const struct maModel_s* ma )
 		// completely ignore any explict normals on surfaces with a renderbump command
 		// which will guarantee the best contours and least vertexes.
 		const char* rb = im1->GetRenderBump();
-		if( rb != NULL && rb[0] != NULL )
+		if( rb != NULL && rb[0] != '\0' )
 		{
 			normalsParsed = false;
 		}

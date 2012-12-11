@@ -2226,7 +2226,7 @@ void idFuncSplat::Event_Splat()
 	for( int i = 0; i < count; i++ )
 	{
 		splat = spawnArgs.RandomPrefix( "mtr_splat", gameLocal.random );
-		if( splat != NULL && *splat != NULL )
+		if( splat != NULL && *splat != '\0' )
 		{
 			float size = spawnArgs.GetFloat( "splatSize", "128" );
 			float dist = spawnArgs.GetFloat( "splatDistance", "128" );
@@ -3512,7 +3512,7 @@ void idFuncRadioChatter::Event_Activate( idEntity* activator )
 	}
 	
 	const char* sound = spawnArgs.GetString( "snd_radiochatter", "" );
-	if( sound != NULL && *sound != NULL )
+	if( sound != NULL && *sound != '\0' )
 	{
 		const idSoundShader* shader = declManager->FindSound( sound );
 		int length = 0;

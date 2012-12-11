@@ -756,7 +756,7 @@ void idLight::BecomeBroken( idEntity* activator )
 	
 	// if the light has a sound, either start the alternate (broken) sound, or stop the sound
 	const char* parm = spawnArgs.GetString( "snd_broken" );
-	if( refSound.shader || ( parm != NULL && *parm != NULL ) )
+	if( refSound.shader || ( parm != NULL && *parm != '\0' ) )
 	{
 		StopSound( SND_CHANNEL_ANY, false );
 		const idSoundShader* alternate = refSound.shader ? refSound.shader->GetAltSound() : declManager->FindSound( parm );
@@ -768,7 +768,7 @@ void idLight::BecomeBroken( idEntity* activator )
 	}
 	
 	parm = spawnArgs.GetString( "mtr_broken" );
-	if( parm != NULL && *parm != NULL )
+	if( parm != NULL && *parm != '\0' )
 	{
 		SetShader( parm );
 	}

@@ -942,7 +942,7 @@ void idProjectile::Fizzle()
 	
 	// fizzle FX
 	const char* psystem = spawnArgs.GetString( "smoke_fuse" );
-	if( psystem != NULL && *psystem != NULL )
+	if( psystem != NULL && *psystem != '\0' )
 	{
 //FIXME:SMOKE		gameLocal.particles->SpawnParticles( GetPhysics()->GetOrigin(), vec3_origin, psystem );
 	}
@@ -1114,7 +1114,7 @@ void idProjectile::Explode( const trace_t& collision, idEntity* ignore )
 	}
 	
 	int surfaceType = collision.c.material != NULL ? collision.c.material->GetSurfaceType() : SURFTYPE_METAL;
-	if( !( fxname != NULL && *fxname != NULL ) )
+	if( !( fxname != NULL && *fxname != '\0' ) )
 	{
 		if( ( surfaceType == SURFTYPE_NONE ) || ( surfaceType == SURFTYPE_METAL ) || ( surfaceType == SURFTYPE_STONE ) )
 		{
@@ -2328,7 +2328,7 @@ void idBFGProjectile::Spawn()
 	memset( &secondModel, 0, sizeof( secondModel ) );
 	secondModelDefHandle = -1;
 	const char* temp = spawnArgs.GetString( "model_two" );
-	if( temp != NULL && *temp != NULL )
+	if( temp != NULL && *temp != '\0' )
 	{
 		secondModel.hModel = renderModelManager->FindModel( temp );
 		secondModel.bounds = secondModel.hModel->Bounds( &secondModel );
@@ -2551,7 +2551,7 @@ void idBFGProjectile::Launch( const idVec3& start, const idVec3& dir, const idVe
 	memset( &secondModel, 0, sizeof( secondModel ) );
 	secondModelDefHandle = -1;
 	const char* temp = spawnArgs.GetString( "model_two" );
-	if( temp != NULL && *temp != NULL )
+	if( temp != NULL && *temp != '\0' )
 	{
 		secondModel.hModel = renderModelManager->FindModel( temp );
 		secondModel.bounds = secondModel.hModel->Bounds( &secondModel );

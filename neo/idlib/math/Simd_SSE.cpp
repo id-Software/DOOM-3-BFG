@@ -41,7 +41,9 @@ If you have questions concerning this license or the applicable additional terms
 
 #include <xmmintrin.h>
 
+#ifndef M_PI // DG: this is already defined in math.h
 #define M_PI	3.14159265358979323846f
+#endif
 
 /*
 ============

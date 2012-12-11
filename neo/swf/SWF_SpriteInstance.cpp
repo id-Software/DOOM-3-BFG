@@ -36,13 +36,15 @@ idSWFSpriteInstance::idSWFSpriteInstance
 ========================
 */
 idSWFSpriteInstance::idSWFSpriteInstance() :
-	sprite( NULL ),
-	parent( NULL ),
-	depth( 0 ),
 	isPlaying( true ),
 	isVisible( true ),
 	childrenRunning( true ),
+	firstRun( false ),
 	currentFrame( 0 ),
+	frameCount( 0 ),
+	sprite( NULL ),
+	parent( NULL ),
+	depth( 0 ),
 	itemIndex( 0 ),
 	materialOverride( NULL ),
 	materialWidth( 0 ),
@@ -52,7 +54,6 @@ idSWFSpriteInstance::idSWFSpriteInstance() :
 	moveToXScale( 1.0f ),
 	moveToYScale( 1.0f ),
 	moveToSpeed( 1.0f ),
-	firstRun( false ),
 	stereoDepth( 0 )
 {
 }
