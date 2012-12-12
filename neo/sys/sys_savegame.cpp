@@ -248,7 +248,7 @@ void idSaveGameDetails::Clear()
 	descriptors.Clear();
 	damaged = false;
 	date = 0;
-	slotName[0] = NULL;
+	slotName[0] = '\0';
 }
 
 /*
@@ -409,7 +409,7 @@ idSaveGameProcessor
 idSaveGameProcessor::idSaveGameProcessor
 ========================
 */
-idSaveGameProcessor::idSaveGameProcessor() : working( false ), init( false )
+idSaveGameProcessor::idSaveGameProcessor() : init( false ), working( false )
 {
 }
 
@@ -685,7 +685,7 @@ idSaveGameManager::RetrySave
 */
 void idSaveGameManager::RetrySave()
 {
-	if( DeviceSelectorWaitingOnSaveRetry() && !common->Dialog().HasDialogMsg( GDM_WARNING_FOR_NEW_DEVICE_ABOUT_TO_LOSE_PROGRESS, false ) )
+	if( DeviceSelectorWaitingOnSaveRetry() && !common->Dialog().HasDialogMsg( GDM_WARNING_FOR_NEW_DEVICE_ABOUT_TO_LOSE_PROGRESS, NULL ) )
 	{
 		cmdSystem->AppendCommandText( "savegame autosave\n" );
 	}

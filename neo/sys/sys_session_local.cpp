@@ -4392,8 +4392,8 @@ idNetSessionPort::idNetSessionPort
 ========================
 */
 idNetSessionPort::idNetSessionPort() :
-	forcePacketDropPrev( 0.0f ),
-	forcePacketDropCurr( 0.0f )
+	forcePacketDropCurr( 0.0f ),
+	forcePacketDropPrev( 0.0f )
 {
 }
 

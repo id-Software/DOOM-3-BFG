@@ -221,7 +221,7 @@ const char* idEditWindow::HandleEvent( const sysEvent_t* event, bool* updateVisu
 	{
 		// need to call this to allow proper focus and capturing on embedded children
 		const char* ret = idWindow::HandleEvent( event, updateVisuals );
-		if( ret != NULL && *ret != NULL )
+		if( ret != NULL && *ret != '\0' )
 		{
 			return ret;
 		}

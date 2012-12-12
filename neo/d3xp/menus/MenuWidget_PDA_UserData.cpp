@@ -133,7 +133,7 @@ void idMenuWidget_PDA_UserData::Update()
 		if( txtClearance != NULL )
 		{
 			const char* security = pda->GetSecurity();
-			if( *security == NULL )
+			if( *security == '\0' )
 			{
 				txtClearance->SetText( idLocalization::GetString( "#str_00066" ) );
 			}

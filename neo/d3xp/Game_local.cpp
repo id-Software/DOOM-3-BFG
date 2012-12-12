@@ -73,7 +73,7 @@ idCVar net_usercmd_timing_debug( "net_usercmd_timing_debug", "0", CVAR_BOOL, "Pr
 
 
 // List of all defs used by the player that will stay on the fast timeline
-static char* fastEntityList[] =
+static const char* fastEntityList[] =
 {
 	"player_doommarine",
 	"weapon_chainsaw",
@@ -744,7 +744,7 @@ void idGameLocal::SetPersistentPlayerInfo( int clientNum, const idDict& playerIn
 idGameLocal::Printf
 ============
 */
-void idGameLocal::Printf( const char* fmt, ... ) const
+void idGameLocal::Printf( const char* fmt, ... ) const // DG: FIXME: printf-annotation
 {
 	va_list		argptr;
 	char		text[MAX_STRING_CHARS];

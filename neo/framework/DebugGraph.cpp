@@ -42,11 +42,11 @@ idDebugGraph::idDebugGraph
 idDebugGraph::idDebugGraph( int numItems ) :
 	bgColor( 0.0f, 0.0f, 0.0f, 0.5f ),
 	fontColor( 1.0f, 1.0f, 1.0f, 1.0f ),
-	enable( true ),
 	mode( GRAPH_FILL ),
 	sideways( false ),
 	border( 0.0f ),
-	position( 100.0f, 100.0f, 100.0f, 100.0f )
+	position( 100.0f, 100.0f, 100.0f, 100.0f ),
+	enable( true )
 {
 
 	Init( numItems );

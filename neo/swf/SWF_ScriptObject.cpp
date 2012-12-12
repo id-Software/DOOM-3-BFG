@@ -64,7 +64,7 @@ idSWFScriptObject::swfNamedVar_t& idSWFScriptObject::swfNamedVar_t::operator=( c
 idSWFScriptObject::idSWFScriptObject
 ========================
 */
-idSWFScriptObject::idSWFScriptObject() : prototype( NULL ), refCount( 1 ), noAutoDelete( false ), objectType( SWF_OBJECT_OBJECT )
+idSWFScriptObject::idSWFScriptObject() : refCount( 1 ), noAutoDelete( false ), prototype( NULL ), objectType( SWF_OBJECT_OBJECT )
 {
 	data.sprite = NULL;
 	data.text = NULL;

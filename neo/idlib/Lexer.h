@@ -130,7 +130,7 @@ typedef enum
 // punctuation
 typedef struct punctuation_s
 {
-	char* p;						// punctuation character(s)
+	const char* p;						// punctuation character(s)
 	int n;							// punctuation id
 } punctuation_t;
 

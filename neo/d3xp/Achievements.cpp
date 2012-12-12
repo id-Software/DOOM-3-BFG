@@ -109,8 +109,8 @@ idAchievementManager::idAchievementManager
 ========================
 */
 idAchievementManager::idAchievementManager() :
-	lastImpKilledTime( 0 ),
 	lastPlayerKilledTime( 0 ),
+	lastImpKilledTime( 0 ),
 	playerTookDamage( false )
 {
 	counts.Zero();

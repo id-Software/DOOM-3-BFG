@@ -587,7 +587,7 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 		{
 			continue;
 		}
-		if( tri->numIndexes == NULL )
+		if( tri->numIndexes == 0 )
 		{
 			continue;		// happens for particles
 		}

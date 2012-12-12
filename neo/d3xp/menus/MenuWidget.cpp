@@ -36,15 +36,15 @@ idMenuWidget::idMenuWidget
 ========================
 */
 idMenuWidget::idMenuWidget() :
+	handlerIsParent( false ),
+	menuData( NULL ),
+	swfObj( NULL ),
 	boundSprite( NULL ),
 	parent( NULL ),
 	dataSource( NULL ),
 	dataSourceFieldIndex( 0 ),
 	focusIndex( 0 ),
 	widgetState( WIDGET_STATE_NORMAL ),
-	menuData( NULL ),
-	swfObj( NULL ),
-	handlerIsParent( false ),
 	refCount( 0 ),
 	noAutoFree( false )
 {

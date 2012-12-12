@@ -412,7 +412,7 @@ void idEntity::UpdateChangeableSpawnArgs( const idDict* source )
 	}
 	cameraTarget = NULL;
 	target = source->GetString( "cameraTarget" );
-	if( target != NULL && target[0] != NULL )
+	if( target != NULL && target[0] != '\0' )
 	{
 		// update the camera taget
 		PostEventMS( &EV_UpdateCameraTarget, 0 );
@@ -560,7 +560,7 @@ void idEntity::Spawn()
 	
 	cameraTarget = NULL;
 	temp = spawnArgs.GetString( "cameraTarget" );
-	if( temp != NULL && temp[0] != NULL )
+	if( temp != NULL && temp[0] != '\0' )
 	{
 		// update the camera taget
 		PostEventMS( &EV_UpdateCameraTarget, 0 );
@@ -624,7 +624,7 @@ void idEntity::Spawn()
 	SetAxis( axis );
 	
 	temp = spawnArgs.GetString( "model" );
-	if( temp != NULL && *temp != NULL )
+	if( temp != NULL && *temp != '\0' )
 	{
 		SetModel( temp );
 	}
