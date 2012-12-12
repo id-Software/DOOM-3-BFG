@@ -47,7 +47,7 @@ typedef LONG					interlockedInt_t;
 #else
 typedef pthread_mutex_t			mutexHandle_t;
 typedef pthread_cond_t			signalHandle_t;
-typedef unsigned long			interlockedInt_t;
+typedef int						interlockedInt_t;
 #endif
 // RB end
 
