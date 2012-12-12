@@ -97,12 +97,13 @@ struct netVersion_s
 NetGetVersionChecksum
 ========================
 */
-unsigned long NetGetVersionChecksum()
+// RB: 64 bit fixes, changed long to int
+unsigned int NetGetVersionChecksum()
 {
 #if 0
 	return idStr( com_version.GetString() ).Hash();
 #else
-	unsigned long ret = 0;
+	unsigned int ret = 0;
 	
 	CRC32_InitChecksum( ret );
 	CRC32_UpdateChecksum( ret, netVersion.string, idStr::Length( netVersion.string ) );
@@ -113,6 +114,7 @@ unsigned long NetGetVersionChecksum()
 	return ret;
 #endif
 }
+// RB end
 
 /*
 ========================

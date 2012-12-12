@@ -1659,8 +1659,8 @@ void R_MakeAmbientMap_f( const idCmdArgs& args )
 	viewDef_t	primary;
 	int			downSample;
 	const char*	extensions[6] =  { "_px.tga", "_nx.tga", "_py.tga", "_ny.tga",
-							   "_pz.tga", "_nz.tga"
-						   };
+								   "_pz.tga", "_nz.tga"
+								 };
 	int			outSize;
 	byte*		buffers[6];
 	int			width = 0, height = 0;

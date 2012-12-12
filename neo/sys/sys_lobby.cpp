@@ -53,7 +53,9 @@ idCVar net_ignoreConnects( "net_ignoreConnects", "0", CVAR_INTEGER, "Test as if 
 
 idCVar net_skipGoodbye( "net_skipGoodbye", "0", CVAR_BOOL, "" );
 
-extern unsigned long NetGetVersionChecksum();
+// RB: 64 bit fixes, changed long to int
+extern unsigned int NetGetVersionChecksum();
+// RB end
 
 /*
 ========================

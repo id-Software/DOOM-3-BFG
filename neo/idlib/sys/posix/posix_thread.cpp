@@ -156,15 +156,15 @@ void Sys_Yield()
 idSysSignal::idSysSignal( bool manualReset )
 {
 	pthread_mutexattr_t attr;
-
+	
 	//pthread_mutexattr_init( &attr );
 	pthread_mutexattr_settype( &attr, PTHREAD_MUTEX_ERRORCHECK );
 	pthread_mutexattr_settype( &attr, PTHREAD_MUTEX_DEFAULT );
 	pthread_mutex_init( &mutex, &attr );
 	pthread_mutexattr_destroy( &attr );
-
+	
 	pthread_cond_init( &cond, NULL );
-
+	
 	signaled = false;
 	waiting = false;
 }
@@ -177,7 +177,7 @@ idSysSignal::~idSysSignal()
 void idSysSignal::Raise()
 {
 	pthread_mutex_lock( &mutex );
-
+	
 	if( waiting )
 	{
 		pthread_cond_signal( &cond );
@@ -187,16 +187,16 @@ void idSysSignal::Raise()
 		// emulate Windows behaviour: if no thread is waiting, leave the signal on so next wait keeps going
 		signaled = true;
 	}
-
+	
 	pthread_mutex_unlock( &mutex );
 }
 
 void idSysSignal::Clear()
 {
 	pthread_mutex_lock( &mutex );
-
+	
 	signaled = false;
-
+	
 	pthread_mutex_unlock( &mutex );
 }
 
@@ -206,29 +206,29 @@ void idSysSignal::Clear()
 bool idSysSignal::Wait( int timeout )
 {
 	pthread_mutex_lock( &mutex );
-
+	
 	//DWORD result = WaitForSingleObject( handle, timeout == idSysSignal::WAIT_INFINITE ? INFINITE : timeout );
 	//assert( result == WAIT_OBJECT_0 || ( timeout != idSysSignal::WAIT_INFINITE && result == WAIT_TIMEOUT ) );
 	//return ( result == WAIT_OBJECT_0 );
-
+	
 	int result = 0;
-
+	
 	/*
 	Return Value
-
+	
 	Except in the case of [ETIMEDOUT], all these error checks shall act as if they were performed immediately at the beginning of processing for the function and shall cause an error return, in effect, prior to modifying the state of the mutex specified by mutex or the condition variable specified by cond.
-
+	
 	Upon successful completion, a value of zero shall be returned; otherwise, an error number shall be returned to indicate the error.
-
+	
 	Errors
-
+	
 	The pthread_cond_timedwait() function shall fail if:
-
+	
 	ETIMEDOUT
 		The time specified by abstime to pthread_cond_timedwait() has passed.
-
+	
 	The pthread_cond_timedwait() and pthread_cond_wait() functions may fail if:
-
+	
 	EINVAL
 		The value specified by cond, mutex, or abstime is invalid.
 	EINVAL
@@ -236,7 +236,7 @@ bool idSysSignal::Wait( int timeout )
 	EPERM
 		The mutex was not owned by the current thread at the time of the call.
 	 */
-
+	
 	assert( !waiting );	// WaitForEvent from multiple threads? that wouldn't be good
 	if( signaled )
 	{
@@ -253,26 +253,26 @@ bool idSysSignal::Wait( int timeout )
 		if( timeout == WAIT_INFINITE )
 		{
 			result = pthread_cond_wait( &cond, &mutex );
-
+		
 			assert( result == 0 );
 		}
 		else
 		{
 			timespec ts;
 			clock_gettime( CLOCK_REALTIME, &ts );
-
+		
 			ts.tv_nsec += ( timeout * 1000000 );
-
+		
 			result = pthread_cond_timedwait( &cond, &mutex, &ts );
-
+		
 			assert( result == 0 || ( timeout != idSysSignal::WAIT_INFINITE && result == ETIMEDOUT ) );
 		}
 #endif
 		waiting = false;
 	}
-
+	
 	pthread_mutex_unlock( &mutex );
-
+	
 	return ( result == 0 );
 }
 /*
