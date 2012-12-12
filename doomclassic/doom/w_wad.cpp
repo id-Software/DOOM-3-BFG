@@ -49,7 +49,10 @@ If you have questions concerning this license or the applicable additional terms
 #endif
 #include "w_wad.h"
 
-
+//Uncensor red crosses on Medikits, Stimpacks, and Beserk 
+//in Doom 3 BFG Edition's Doom 1 and Doom 2
+#include "redcross.h"
+int lumpnum_media0 = -1, lumpnum_stima0 = -1, lumpnum_pstra0 = -1;
 
 //
 // GLOBALS
@@ -278,7 +281,17 @@ void W_InitMultipleFiles (const char** filenames)
 
 		// will be realloced as lumps are added
 		lumpinfo = NULL;
-
+		
+		// Do the first file (the main WAD) seperately, so only it is affected.
+	    // Find its medikit, stimpack, and beserk lumps so they can be fixed.
+		if (*filenames) {
+			W_AddFile (*filenames);
+			filenames++;
+			lumpnum_media0 = W_CheckNumForName("MEDIA0");
+			lumpnum_stima0 = W_CheckNumForName("STIMA0");
+			lumpnum_pstra0 = W_CheckNumForName("PSTRA0");
+		}
+		// Other wads are handled like normal
 		for ( ; *filenames ; filenames++)
 		{
 			W_AddFile (*filenames);
@@ -414,6 +427,14 @@ int W_LumpLength (int lump)
     if (lump >= numlumps)
 		I_Error ("W_LumpLength: %i >= numlumps",lump);
 
+	// Hardcoded medikit, stimpack, and beserk lumps have hardcoded lengths.
+	if (lump==lumpnum_media0) { //MEDIA0 Medipack
+		return lump_media0_len;
+	} else if (lump==lumpnum_stima0) { //STIMA0 stimpack
+		return lump_stima0_len;
+	} else if (lump==lumpnum_pstra0) { //PSTRA0 beserk
+		return lump_pstra0_len;
+	}
     return lumpinfo[lump].size;
 }
 
@@ -435,6 +456,19 @@ W_ReadLump
 	
     if (lump >= numlumps)
 		I_Error ("W_ReadLump: %i >= numlumps",lump);
+
+	// Use hardcoded replacements for medikit, stimpack, and beserk lumps
+	// to restore the red crosses. This only affects the main wad.
+	if (lump==lumpnum_media0) { //MEDIA0 Medikit
+		memcpy(dest, lump_media0, lump_media0_len);
+		return;
+	} else if (lump==lumpnum_stima0) { //STIMA0 stimpack
+		memcpy(dest, lump_stima0, lump_stima0_len);
+		return;
+	} else if (lump==lumpnum_pstra0) { //PSTRA0 beserk
+		memcpy(dest, lump_pstra0, lump_pstra0_len);
+		return;
+	}
 
     l = lumpinfo+lump;
 	

@@ -123,6 +123,7 @@
     <ClInclude Include="doom\p_setup.h" />
     <ClInclude Include="doom\p_spec.h" />
     <ClInclude Include="doom\p_tick.h" />
+    <ClInclude Include="doom\redcross.h" />
     <ClInclude Include="doom\r_bsp.h" />
     <ClInclude Include="doom\r_data.h" />
     <ClInclude Include="doom\r_defs.h" />
