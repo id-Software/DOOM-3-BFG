@@ -81,7 +81,7 @@ namespace DoomLib
 		"1: Entryway", "2: Underhalls", "3: The Gantlet", "4: The Focus", "5: The Waste Tunnels", "6: The Crusher", "7: Dead Simple", "8: Tricks and Traps", "9: The Pit", "10: Refueling Base", 
 		"11: Circle of Death", "12: The Factory", "13: Downtown", "14: The Inmost Dens", "15: Industrial Zone", "16: Suburbs", "17: Tenements", "18: The Courtyard", "19: The Citadel", "20: Gotcha!", 
 		"21: Nirvana", "22: The Catacombs", "23: Barrels O' Fun", "24: The Chasm", "25: Bloodfalls", "26: The Abandoned Mines", "27: Monster Condo", "28: The Spirit World", "29: The Living End",
-		"30: Icon of Sin", "31: IDKFA", "32: Keen"
+		"30: Icon of Sin", "31: IDKFA", "32: Keen", "33: Betray"
 	};
 
 	static const char * TNT_MapNames[] = {

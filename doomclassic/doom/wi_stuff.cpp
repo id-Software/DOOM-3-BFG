@@ -1538,7 +1538,7 @@ void WI_loadData(void)
 
 	if (::g->gamemode == commercial)
 	{
-		::g->NUMCMAPS = 32;
+		::g->NUMCMAPS = 33; //Doom 3 BFG Edition's Doom 2 WAD includes MAP33 Betray
 		::g->lnames = (patch_t **) DoomLib::Z_Malloc(sizeof(patch_t*) * ::g->NUMCMAPS, PU_LEVEL_SHARED, 0);
 		for (i=0 ; i < ::g->NUMCMAPS ; i++)
 		{								

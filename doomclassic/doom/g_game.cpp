@@ -1210,6 +1210,7 @@ void G_DoCompleted (void)
 			if ( ::g->gamemission == doom2 ) {
 				switch(::g->gamemap)
 				{
+					case  2: ::g->wminfo.next = 32; break; //Fix Doom 3 BFG Edition, MAP02 secret exit to MAP33 Betray
 					case 15: ::g->wminfo.next = 30; break;
 					case 31: ::g->wminfo.next = 31; break;
 				}
@@ -1225,6 +1226,7 @@ void G_DoCompleted (void)
 				{
 					case 31:
 					case 32: ::g->wminfo.next = 15; break;
+					case 33: ::g->wminfo.next =  2; break; //Fix Doom 3 BFG Edition, MAP33 Betray exit back to MAP03
 					default: ::g->wminfo.next = ::g->gamemap;
 				}
 			}
