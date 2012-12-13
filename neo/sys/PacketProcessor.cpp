@@ -28,6 +28,17 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma hdrstop
 #include "../idlib/precompiled.h"
+#include "PacketProcessor.h"
+
+// DG: workaround for GCC bug
+const int idPacketProcessor::RETURN_TYPE_NONE = 0;
+const int idPacketProcessor::RETURN_TYPE_OOB = 1;
+const int idPacketProcessor::RETURN_TYPE_INBAND = 2;
+
+const int idPacketProcessor::FRAGMENT_START = 0;
+const int idPacketProcessor::FRAGMENT_MIDDLE = 1;
+const int idPacketProcessor::FRAGMENT_END = 2;
+// DG end
 
 idCVar net_maxRate( "net_maxRate", "50", CVAR_INTEGER, "max send rate in kilobytes per second" );
 
