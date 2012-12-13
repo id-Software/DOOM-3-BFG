@@ -81,10 +81,13 @@ elseif(MSVC)
 					-D_CRT_SECURE_NO_DEPRECATE
 					-D_CRT_NONSTDC_NO_DEPRECATE
 					-D_CRT_SECURE_NO_WARNINGS
-					-D_USE_32BIT_TIME_T
 					-D_MBCS
 					#-DUSE_OPENAL
 					-DUSE_EXCEPTIONS)
+					
+	if(NOT CMAKE_CL_64)
+		add_definitions(-D_USE_32BIT_TIME_T)
+	endif()
 					
 	if(USE_MFC_TOOLS)
 		add_definitions(-D_AFXDLL)
