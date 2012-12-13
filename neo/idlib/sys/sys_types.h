@@ -40,7 +40,7 @@ typedef unsigned char		byte;		// 8 bits
 typedef unsigned short		word;		// 16 bits
 typedef unsigned int		dword;		// 32 bits
 typedef unsigned int		uint;
-typedef unsigned long		ulong;
+// typedef unsigned long		ulong; // DG: long should be avoided.
 
 typedef signed char			int8;
 typedef unsigned char		uint8;

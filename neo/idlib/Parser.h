@@ -232,9 +232,11 @@ private:
 	int				Directive_ifndef();
 	int				Directive_else();
 	int				Directive_endif();
-	int				EvaluateTokens( idToken* tokens, signed long int* intvalue, double* floatvalue, int integer );
-	int				Evaluate( signed long int* intvalue, double* floatvalue, int integer );
-	int				DollarEvaluate( signed long int* intvalue, double* floatvalue, int integer );
+	// DG: use int instead of long for 64bit compatibility
+	int				EvaluateTokens( idToken* tokens, signed int* intvalue, double* floatvalue, int integer );
+	int				Evaluate( signed int* intvalue, double* floatvalue, int integer );
+	int				DollarEvaluate( signed int* intvalue, double* floatvalue, int integer );
+	// DG end
 	int				Directive_define();
 	int				Directive_elif();
 	int				Directive_if();

@@ -426,7 +426,7 @@ struct sysMemoryStats_t
 	int availExtendedVirtual;
 };
 
-typedef unsigned long address_t;
+// typedef unsigned long address_t; // DG: this isn't even used
 
 void			Sys_Init();
 void			Sys_Shutdown();
