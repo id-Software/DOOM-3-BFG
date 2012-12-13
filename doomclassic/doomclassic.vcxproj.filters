@@ -410,5 +410,8 @@
     <ClInclude Include="doom\redcross.h">
       <Filter>Doom</Filter>
     </ClInclude>
+    <ClInclude Include="doom\wolflump.h">
+      <Filter>Doom</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

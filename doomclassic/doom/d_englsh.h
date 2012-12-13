@@ -219,8 +219,8 @@ If you have questions concerning this license or the applicable additional terms
 #define HUSTR_29	"level 29: the living end"
 #define HUSTR_30	"level 30: icon of sin"
 
-#define HUSTR_31	"level 31: idkfa"
-#define HUSTR_32	"level 32: keen"
+#define HUSTR_31	"level 31: wolfenstein"
+#define HUSTR_32	"level 32: grosse"
 #define HUSTR_33	"level 33: betray"
 
 #define PHUSTR_1	"level 1: congo"
