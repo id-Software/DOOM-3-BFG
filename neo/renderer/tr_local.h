@@ -1052,6 +1052,10 @@ struct glimpParms_t
 	int			multiSamples;
 };
 
+// DG: R_GetModeListForDisplay is called before GLimp_Init(), but SDL needs SDL_Init() first.
+// So add PreInit for platforms that need it, others can just stub it.
+void		GLimp_PreInit();
+
 bool		GLimp_Init( glimpParms_t parms );
 // If the desired mode can't be set satisfactorily, false will be returned.
 // If succesful, sets glConfig.nativeScreenWidth, glConfig.nativeScreenHeight, and glConfig.pixelAspect

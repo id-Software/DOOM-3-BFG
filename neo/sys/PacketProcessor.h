@@ -36,10 +36,11 @@ idPacketProcessor
 class idPacketProcessor
 {
 public:
-	static const int RETURN_TYPE_NONE			= 0;
-	static const int RETURN_TYPE_OOB			= 1;
-	static const int RETURN_TYPE_INBAND			= 2;
-	
+	// DG: workaround for GCC bug (can't link when compiling with -O0): put definitions in PacketProcessor.cpp
+	static const int RETURN_TYPE_NONE; //			= 0;
+	static const int RETURN_TYPE_OOB; //			= 1;
+	static const int RETURN_TYPE_INBAND; //			= 2;
+	// DG end
 	typedef uint16				sessionId_t;
 	
 	static const int NUM_LOBBY_TYPE_BITS		= 2;
@@ -229,10 +230,13 @@ private:
 	static const int PACKET_TYPE_RELIABLE_ACK   = 2;	// Header type used to piggy-back on top of msgs to ack reliable msg's
 	static const int PACKET_TYPE_FRAGMENTED		= 3;	// The msg is fragmented, fragment type stored in the userData portion of header
 	
+
 	// PACKET_TYPE_FRAGMENTED userData values
-	static const int FRAGMENT_START				= 0;
-	static const int FRAGMENT_MIDDLE			= 1;
-	static const int FRAGMENT_END				= 2;
+	// DG: workaround for GCC bug (can't link when compiling with -O0): put definitions in PacketProcessor.cpp
+	static const int FRAGMENT_START; //				= 0;
+	static const int FRAGMENT_MIDDLE; //			= 1;
+	static const int FRAGMENT_END;	//			= 2;
+	// DG end
 	
 	class idOuterPacketHeader
 	{

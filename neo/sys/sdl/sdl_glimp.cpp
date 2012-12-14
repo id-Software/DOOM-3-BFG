@@ -55,6 +55,25 @@ void QGL_Shutdown();
 
 /*
 ===================
+GLimp_PreInit
+
+ R_GetModeListForDisplay is called before GLimp_Init(), but SDL needs SDL_Init() first.
+ So do that in GLimp_PreInit()
+ Calling that function more than once doesn't make a difference
+===================
+*/
+void GLimp_PreInit() // DG: added this function for SDL compatibility
+{
+	if( !SDL_WasInit( SDL_INIT_VIDEO ) )
+	{
+		if( SDL_Init( SDL_INIT_VIDEO ) )
+			common->Error( "Error while initializing SDL: %s", SDL_GetError() );
+	}
+}
+
+
+/*
+===================
 GLimp_Init
 ===================
 */
@@ -62,11 +81,7 @@ bool GLimp_Init( glimpParms_t parms )
 {
 	common->Printf( "Initializing OpenGL subsystem\n" );
 	
-	if( !SDL_WasInit( SDL_INIT_VIDEO ) )
-	{
-		if( SDL_Init( SDL_INIT_VIDEO ) )
-			common->Error( "Error while initializing SDL: %s", SDL_GetError() );
-	}
+	GLimp_PreInit(); // DG: make sure SDL is initialized
 	
 	Uint32 flags = SDL_WINDOW_OPENGL;
 	
@@ -376,8 +391,13 @@ bool R_GetModeListForDisplay( const int requestedDisplayNum, idList<vidMode_t>& 
 	modeList.Clear();
 	
 	bool	verbose = false;
-	
+
 	const SDL_VideoInfo* videoInfo = SDL_GetVideoInfo();
+	if( videoInfo == NULL )
+	{
+		// DG: yes, this can actually fail, e.g. if SDL_Init( SDL_INIT_VIDEO ) wasn't called
+		common->Error( "Can't get Video Info!\n" );
+	}
 	
 	SDL_Rect** modes = SDL_ListModes( videoInfo->vfmt, SDL_OPENGL | SDL_FULLSCREEN );
 	
