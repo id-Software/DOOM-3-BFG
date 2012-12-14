@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2012 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -1027,6 +1028,22 @@ struct vidMode_t
 	int width;
 	int height;
 	int displayHz;
+	
+	// RB begin
+	vidMode_t()
+	{
+		width = 640;
+		height = 480;
+		displayHz = 60;
+	}
+	
+	vidMode_t( int widht, int height, int displayHz )
+	{
+		this->width = width;
+		this->height = height;
+		this->displayHz = displayHz;
+	}
+	// RB end
 	
 	bool operator==( const vidMode_t& a )
 	{

@@ -9,6 +9,9 @@ option(USE_MFC_TOOLS
 option(MONOLITH
 		"Embed game logic into main executable" ON)
 		
+option(SDL2
+		"Use SDL2 instead of SDL1.2" OFF)
+		
 #option(STANDALONE
 #		"Skip Doom 3 base/ folder" ON)
 
@@ -1050,9 +1053,15 @@ else()
 	
 	if(UNIX)
 	
-		find_package(SDL REQUIRED)
-		include_directories(${SDL_INCLUDE_DIR})
-		set(SDLx_LIBRARY ${SDL_LIBRARY})
+		if(SDL2)
+			find_package(SDL2 REQUIRED)
+			include_directories(${SDL2_INCLUDE_DIR})
+			set(SDLx_LIBRARY ${SDL2_LIBRARY})
+		else()
+			find_package(SDL REQUIRED)
+			include_directories(${SDL_INCLUDE_DIR})
+			set(SDLx_LIBRARY ${SDL_LIBRARY})
+		endif()
 	
 		list(APPEND RBDOOM3_SOURCES
 			${POSIX_INCLUDES} ${POSIX_SOURCES}

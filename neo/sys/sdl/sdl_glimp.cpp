@@ -37,7 +37,13 @@ If you have questions concerning this license or the applicable additional terms
 #include "sdl_local.h"
 
 idCVar in_nograb( "in_nograb", "0", CVAR_SYSTEM | CVAR_NOCHEAT, "prevents input grabbing" );
+
+// RB: FIXME this shit. We need the OpenGL alpha channel for advanced rendering effects
 idCVar r_waylandcompat( "r_waylandcompat", "0", CVAR_SYSTEM | CVAR_NOCHEAT | CVAR_ARCHIVE, "wayland compatible framebuffer" );
+
+// RB: only relevant if using SDL 2.0
+idCVar r_useOpenGL32( "r_useOpenGL32", "1", CVAR_INTEGER, "0 = OpenGL 2.0, 1 = OpenGL 3.2 compatibility profile, 2 = OpenGL 3.2 core profile", 0, 2 );
+// RB end
 
 static bool grabbed = false;
 
@@ -155,7 +161,6 @@ bool GLimp_Init( glimpParms_t parms )
 		if( tcolorbits == 24 )
 			channelcolorbits = 8;
 			
-#if 1
 		SDL_GL_SetAttribute( SDL_GL_RED_SIZE, channelcolorbits );
 		SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, channelcolorbits );
 		SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, channelcolorbits );
@@ -172,9 +177,22 @@ bool GLimp_Init( glimpParms_t parms )
 		
 		SDL_GL_SetAttribute( SDL_GL_MULTISAMPLEBUFFERS, parms.multiSamples ? 1 : 0 );
 		SDL_GL_SetAttribute( SDL_GL_MULTISAMPLESAMPLES, parms.multiSamples );
-#endif
 		
 #if SDL_VERSION_ATLEAST(2, 0, 0)
+		
+		// RB begin
+		if( r_useOpenGL32.GetInteger() > 0 )
+		{
+			SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 3 );
+			SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 2 );
+		}
+		
+		if( r_useOpenGL32.GetInteger() > 1 )
+		{
+			SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE );
+		}
+		// RB end
+		
 		window = SDL_CreateWindow( GAME_NAME,
 								   SDL_WINDOWPOS_UNDEFINED,
 								   SDL_WINDOWPOS_UNDEFINED,
@@ -251,7 +269,7 @@ GLimp_SetScreenParms
 */
 bool GLimp_SetScreenParms( glimpParms_t parms )
 {
-	common->DPrintf( "TODO: GLimp_ActivateContext\n" );
+	common->DPrintf( "TODO: GLimp_SetScreenParms\n" );
 	return true;
 }
 
@@ -381,6 +399,33 @@ public:
 	}
 };
 
+// RB: resolutions supported by XreaL
+static void FillStaticVidModes( idList<vidMode_t>& modeList )
+{
+	modeList.AddUnique( vidMode_t( 320,   240, 60 ) );
+	modeList.AddUnique( vidMode_t( 400,   300, 60 ) );
+	modeList.AddUnique( vidMode_t( 512,   384, 60 ) );
+	modeList.AddUnique( vidMode_t( 640,   480, 60 ) );
+	modeList.AddUnique( vidMode_t( 800,   600, 60 ) );
+	modeList.AddUnique( vidMode_t( 960,   720, 60 ) );
+	modeList.AddUnique( vidMode_t( 1024,  768, 60 ) );
+	modeList.AddUnique( vidMode_t( 1152,  864, 60 ) );
+	modeList.AddUnique( vidMode_t( 1280,  720, 60 ) );
+	modeList.AddUnique( vidMode_t( 1280,  768, 60 ) );
+	modeList.AddUnique( vidMode_t( 1280,  800, 60 ) );
+	modeList.AddUnique( vidMode_t( 1280, 1024, 60 ) );
+	modeList.AddUnique( vidMode_t( 1360,  768, 60 ) );
+	modeList.AddUnique( vidMode_t( 1440,  900, 60 ) );
+	modeList.AddUnique( vidMode_t( 1680, 1050, 60 ) );
+	modeList.AddUnique( vidMode_t( 1600, 1200, 60 ) );
+	modeList.AddUnique( vidMode_t( 1920, 1080, 60 ) );
+	modeList.AddUnique( vidMode_t( 1920, 1200, 60 ) );
+	modeList.AddUnique( vidMode_t( 2048, 1536, 60 ) );
+	modeList.AddUnique( vidMode_t( 2560, 1600, 60 ) );
+	
+	modeList.SortWithTemplate( idSort_VidMode() );
+}
+
 /*
 ====================
 R_GetModeListForDisplay
@@ -390,13 +435,22 @@ bool R_GetModeListForDisplay( const int requestedDisplayNum, idList<vidMode_t>& 
 {
 	modeList.Clear();
 	
+#if SDL_VERSION_ATLEAST(2, 0, 0)
+	// RB: TODO didn't find SDL_ListModes API
+	FillStaticVidModes( modeList );
+	return true;
+	
+#else
+	
 	bool	verbose = false;
 	
 	const SDL_VideoInfo* videoInfo = SDL_GetVideoInfo();
 	if( videoInfo == NULL )
 	{
 		// DG: yes, this can actually fail, e.g. if SDL_Init( SDL_INIT_VIDEO ) wasn't called
-		common->Error( "Can't get Video Info!\n" );
+		common->Warning( "Can't get Video Info!\n" );
+		FillStaticVidModes( modeList );
+		return true;
 	}
 	
 	SDL_Rect** modes = SDL_ListModes( videoInfo->vfmt, SDL_OPENGL | SDL_FULLSCREEN );
@@ -404,13 +458,15 @@ bool R_GetModeListForDisplay( const int requestedDisplayNum, idList<vidMode_t>& 
 	if( !modes )
 	{
 		common->Warning( "Can't get list of available modes\n" );
-		return false;
+		FillStaticVidModes( modeList );
+		return true;
 	}
 	
 	if( modes == ( SDL_Rect** ) - 1 )
 	{
 		common->Printf( "Display supports any resolution\n" );
-		return false;					// can set any resolution
+		FillStaticVidModes( modeList );
+		return true;
 	}
 	
 	int numModes;
@@ -426,12 +482,13 @@ bool R_GetModeListForDisplay( const int requestedDisplayNum, idList<vidMode_t>& 
 			mode.displayHz = 60; // FIXME;
 			modeList.AddUnique( mode );
 		}
-		
+	
 		// sort with lowest resolution first
 		modeList.SortWithTemplate( idSort_VidMode() );
-		
+	
 		return true;
 	}
 	
 	return false;
+#endif
 }
