@@ -155,37 +155,49 @@ void Sys_Yield()
 
 idSysSignal::idSysSignal( bool manualReset )
 {
+#if 0
 	pthread_mutexattr_t attr;
 	
-	//pthread_mutexattr_init( &attr );
+	pthread_mutexattr_init( &attr );
 	pthread_mutexattr_settype( &attr, PTHREAD_MUTEX_ERRORCHECK );
-	pthread_mutexattr_settype( &attr, PTHREAD_MUTEX_DEFAULT );
+	//pthread_mutexattr_settype( &attr, PTHREAD_MUTEX_DEFAULT );
 	pthread_mutex_init( &mutex, &attr );
 	pthread_mutexattr_destroy( &attr );
+#else
+	pthread_mutex_init( &mutex, NULL );
+#endif
 	
 	pthread_cond_init( &cond, NULL );
 	
 	signaled = false;
+	signalCounter = 0;
 	waiting = false;
+	this->manualReset = manualReset;
 }
 
 idSysSignal::~idSysSignal()
 {
 	pthread_cond_destroy( &cond );
+	pthread_mutex_destroy( &mutex );
 }
 
 void idSysSignal::Raise()
 {
 	pthread_mutex_lock( &mutex );
 	
-	if( waiting )
+	//if( waiting )
 	{
-		pthread_cond_signal( &cond );
+		//pthread_cond_signal( &cond );
+		//pthread_cond_broadcast( &cond );
 	}
-	else
+	//else
+	if( !signaled )
 	{
 		// emulate Windows behaviour: if no thread is waiting, leave the signal on so next wait keeps going
 		signaled = true;
+		signalCounter++;
+		
+		pthread_cond_signal( &cond );
 	}
 	
 	pthread_mutex_unlock( &mutex );
@@ -237,6 +249,7 @@ bool idSysSignal::Wait( int timeout )
 		The mutex was not owned by the current thread at the time of the call.
 	 */
 	
+#if 0
 	assert( !waiting );	// WaitForEvent from multiple threads? that wouldn't be good
 	if( signaled )
 	{
@@ -245,30 +258,39 @@ bool idSysSignal::Wait( int timeout )
 		result = 0;
 	}
 	else
-	{
-		waiting = true;
-#if 0
-		result = pthread_cond_wait( &cond, &mutex );
-#else
-		if( timeout == WAIT_INFINITE )
-		{
-			result = pthread_cond_wait( &cond, &mutex );
-		
-			assert( result == 0 );
-		}
-		else
-		{
-			timespec ts;
-			clock_gettime( CLOCK_REALTIME, &ts );
-		
-			ts.tv_nsec += ( timeout * 1000000 );
-		
-			result = pthread_cond_timedwait( &cond, &mutex, &ts );
-		
-			assert( result == 0 || ( timeout != idSysSignal::WAIT_INFINITE && result == ETIMEDOUT ) );
-		}
 #endif
-		waiting = false;
+	{
+		while( !signaled )
+		{
+			waiting = true;
+#if 0
+			result = pthread_cond_wait( &cond, &mutex );
+#else
+			if( timeout == WAIT_INFINITE )
+			{
+				result = pthread_cond_wait( &cond, &mutex );
+			
+				assert( result == 0 );
+			}
+			else
+			{
+				timespec ts;
+				clock_gettime( CLOCK_REALTIME, &ts );
+			
+				ts.tv_nsec += ( timeout * 1000000 );
+			
+				result = pthread_cond_timedwait( &cond, &mutex, &ts );
+			
+				assert( result == 0 || ( timeout != idSysSignal::WAIT_INFINITE && result == ETIMEDOUT ) );
+			}
+#endif
+			waiting = false;
+		}
+		
+		if( !manualReset )
+		{
+			signaled = false;
+		}
 	}
 	
 	pthread_mutex_unlock( &mutex );
