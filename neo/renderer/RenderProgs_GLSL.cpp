@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2012 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -1044,14 +1045,18 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, idL
 	idStr outFileHLSL;
 	idStr outFileGLSL;
 	idStr outFileUniforms;
-	inFile.Format( "renderprogs\\%s", name );
+	
+	// RB: replaced backslashes
+	inFile.Format( "renderprogs/%s", name );
 	inFile.StripFileExtension();
-	outFileHLSL.Format( "renderprogs\\glsl\\%s", name );
+	outFileHLSL.Format( "renderprogs/hlsl/%s", name );
 	outFileHLSL.StripFileExtension();
-	outFileGLSL.Format( "renderprogs\\glsl\\%s", name );
+	outFileGLSL.Format( "renderprogs/glsl/%s", name );
 	outFileGLSL.StripFileExtension();
-	outFileUniforms.Format( "renderprogs\\glsl\\%s", name );
+	outFileUniforms.Format( "renderprogs/glsl/%s", name );
 	outFileUniforms.StripFileExtension();
+	// RB end
+	
 	if( target == GL_FRAGMENT_SHADER )
 	{
 		inFile += ".pixel";
