@@ -307,7 +307,9 @@ idCVar  idFileSystemLocal::fs_game_base( "fs_game_base", "", CVAR_SYSTEM | CVAR_
 
 idCVar	fs_basepath( "fs_basepath", "", CVAR_SYSTEM | CVAR_INIT, "" );
 idCVar	fs_savepath( "fs_savepath", "", CVAR_SYSTEM | CVAR_INIT, "" );
-idCVar	fs_resourceLoadPriority( "fs_resourceLoadPriority", "1", CVAR_SYSTEM , "if 1, open requests will be honored from resource files first; if 0, the resource files are checked after normal search paths" );
+// RB: defaulted fs_resourceLoadPriority to 0 for better modding
+idCVar	fs_resourceLoadPriority( "fs_resourceLoadPriority", "0", CVAR_SYSTEM , "if 1, open requests will be honored from resource files first; if 0, the resource files are checked after normal search paths" );
+// RB end
 idCVar	fs_enableBackgroundCaching( "fs_enableBackgroundCaching", "1", CVAR_SYSTEM , "if 1 allow the 360 to precache game files in the background" );
 
 idFileSystemLocal	fileSystemLocal;
@@ -1955,18 +1957,6 @@ int idFileSystemLocal::ReadFile( const char* relativePath, void** buffer, ID_TIM
 		*buffer = NULL;
 	}
 	
-	if( buffer == NULL && timestamp != NULL && resourceFiles.Num() > 0 )
-	{
-		static idResourceCacheEntry rc;
-		int size = 0;
-		if( GetResourceCacheEntry( relativePath, rc ) )
-		{
-			*timestamp = 0;
-			size = rc.length;
-		}
-		return size;
-	}
-	
 	buf = NULL;	// quiet compiler warning
 	
 	// if this is a .cfg file and we are playing back a journal, read
@@ -2012,10 +2002,25 @@ int idFileSystemLocal::ReadFile( const char* relativePath, void** buffer, ID_TIM
 	f = OpenFileRead( relativePath, ( buffer != NULL ) );
 	if( f == NULL )
 	{
+		// RB: moved here
+		if( buffer == NULL && timestamp != NULL && resourceFiles.Num() > 0 )
+		{
+			static idResourceCacheEntry rc;
+			int size = 0;
+			if( GetResourceCacheEntry( relativePath, rc ) )
+			{
+				*timestamp = 0;
+				size = rc.length;
+			}
+			return size;
+		}
+		// RB end
+		
 		if( buffer )
 		{
 			*buffer = NULL;
 		}
+		
 		return -1;
 	}
 	len = f->Length();
