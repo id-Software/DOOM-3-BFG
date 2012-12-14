@@ -585,7 +585,9 @@ Sys_ListFiles
 int Sys_ListFiles( const char *directory, const char *extension, idStrList &list ) {
 	idStr		search;
 	struct _finddata_t findinfo;
-	int			findhandle;
+	// RB: 64 bit fixes, changed int to intptr_t
+	intptr_t	findhandle;
+	// RB end
 	int			flag;
 
 	if ( !extension) {
@@ -862,7 +864,9 @@ DLL Loading
 Sys_DLL_Load
 =====================
 */
-int Sys_DLL_Load( const char *dllName ) {
+// RB: 64 bit fixes, changed int to intptr_t
+intptr_t Sys_DLL_Load( const char *dllName )
+{
 	HINSTANCE libHandle = LoadLibrary( dllName );
 	return (int)libHandle;
 }
@@ -872,7 +876,8 @@ int Sys_DLL_Load( const char *dllName ) {
 Sys_DLL_GetProcAddress
 =====================
 */
-void *Sys_DLL_GetProcAddress( int dllHandle, const char *procName ) {
+void *Sys_DLL_GetProcAddress( intptr_t dllHandle, const char *procName )
+{
 	// RB: added missing cast
 	return ( void* ) GetProcAddress( (HINSTANCE)dllHandle, procName );
 }
@@ -882,11 +887,15 @@ void *Sys_DLL_GetProcAddress( int dllHandle, const char *procName ) {
 Sys_DLL_Unload
 =====================
 */
-void Sys_DLL_Unload( int dllHandle ) {
-	if ( !dllHandle ) {
+void Sys_DLL_Unload( intptr_t dllHandle )
+{
+	if( !dllHandle )
+	{
 		return;
 	}
-	if ( FreeLibrary( (HINSTANCE)dllHandle ) == 0 ) {
+	
+	if( FreeLibrary( (HINSTANCE)dllHandle ) == 0 )
+	{
 		int lastError = GetLastError();
 		LPVOID lpMsgBuf;
 		FormatMessage(
@@ -898,9 +907,11 @@ void Sys_DLL_Unload( int dllHandle ) {
 			0,
 			NULL 
 		);
+
 		Sys_Error( "Sys_DLL_Unload: FreeLibrary failed - %s (%d)", lpMsgBuf, lastError );
 	}
 }
+// RB end
 
 /*
 ========================================================================
@@ -1361,7 +1372,7 @@ void EmailCrashReport( LPSTR messageText ) {
 }
 
 // RB: disabled unused FPU exception debugging
-#if !defined(__MINGW32__)
+#if !defined(__MINGW32__) && !defined(_WIN64)
 
 int Sys_FPU_PrintStateFlags( char *ptr, int ctrl, int stat, int tags, int inof, int inse, int opof, int opse );
 
