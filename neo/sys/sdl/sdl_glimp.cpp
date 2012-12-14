@@ -391,7 +391,7 @@ bool R_GetModeListForDisplay( const int requestedDisplayNum, idList<vidMode_t>& 
 	modeList.Clear();
 	
 	bool	verbose = false;
-
+	
 	const SDL_VideoInfo* videoInfo = SDL_GetVideoInfo();
 	if( videoInfo == NULL )
 	{

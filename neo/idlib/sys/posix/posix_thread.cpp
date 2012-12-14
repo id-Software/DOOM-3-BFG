@@ -61,7 +61,9 @@ uintptr_t Sys_CreateThread( xthread_t function, void* parms, xthreadPriority pri
 	pthread_attr_destroy( &attr );
 	
 	// RB: TODO pthread_setname_np is different on Linux, MacOSX and other systems
-#if 0
+#if 1
+	pthread_setname_np( handle, name );
+#else
 	if( pthread_setname_np( handle, name ) != 0 )
 	{
 		idLib::common->FatalError( "ERROR: pthread_setname_np %s failed\n", name );
@@ -197,7 +199,8 @@ void idSysSignal::Raise()
 		signaled = true;
 		signalCounter++;
 		
-		pthread_cond_signal( &cond );
+		//pthread_cond_signal( &cond );
+		pthread_cond_broadcast( &cond );
 	}
 	
 	pthread_mutex_unlock( &mutex );
@@ -260,7 +263,9 @@ bool idSysSignal::Wait( int timeout )
 	else
 #endif
 	{
-		while( !signaled )
+		int signalValue = signalCounter;
+		
+		while( !signaled && signalValue == signalCounter )
 		{
 			waiting = true;
 #if 0

@@ -873,7 +873,7 @@ void R_InitOpenGL()
 	// DG: make sure SDL has setup video so getting supported modes in R_SetNewMode() works
 	GLimp_PreInit();
 	// DG end
-
+	
 	R_SetNewMode( true );
 	
 	

@@ -230,7 +230,7 @@ private:
 	static const int PACKET_TYPE_RELIABLE_ACK   = 2;	// Header type used to piggy-back on top of msgs to ack reliable msg's
 	static const int PACKET_TYPE_FRAGMENTED		= 3;	// The msg is fragmented, fragment type stored in the userData portion of header
 	
-
+	
 	// PACKET_TYPE_FRAGMENTED userData values
 	// DG: workaround for GCC bug (can't link when compiling with -O0): put definitions in PacketProcessor.cpp
 	static const int FRAGMENT_START; //				= 0;

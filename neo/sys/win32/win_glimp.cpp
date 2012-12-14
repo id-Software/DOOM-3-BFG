@@ -1253,7 +1253,8 @@ static bool GLW_ChangeDislaySettingsIfNeeded( glimpParms_t parms )
 	return false;
 }
 
-void GLimp_PreInit() {
+void GLimp_PreInit()
+{
 	// DG: not needed on this platform, so just do nothing
 }
 
