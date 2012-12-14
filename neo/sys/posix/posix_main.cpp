@@ -247,6 +247,7 @@ Sys_Microseconds
 */
 uint64 Sys_Microseconds()
 {
+#if 1
 	static uint64 ticksPerMicrosecondTimes1024 = 0;
 	
 	if( ticksPerMicrosecondTimes1024 == 0 )
@@ -256,6 +257,16 @@ uint64 Sys_Microseconds()
 	}
 	
 	return ( ( uint64 )( ( int64 )Sys_GetClockTicks() << 10 ) ) / ticksPerMicrosecondTimes1024;
+#else
+	uint64 curtime;
+	struct timespec ts;
+	
+	clock_gettime( CLOCK_MONOTONIC, &ts );
+	
+	curtime = ts.tv_sec * 1000000 + ts.tv_nsec / 1000;
+	
+	return curtime;
+#endif
 }
 
 /*

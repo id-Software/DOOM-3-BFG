@@ -154,7 +154,9 @@ private:
 	pthread_mutex_t	mutex;
 	pthread_cond_t	cond;
 	bool			signaled;
+	int				signalCounter;
 	bool			waiting;
+	bool			manualReset;
 
 	idSysSignal( const idSysSignal& s ) {}
 	void				operator=( const idSysSignal& s ) {}

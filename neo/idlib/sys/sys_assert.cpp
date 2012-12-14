@@ -86,7 +86,7 @@ bool AssertFailed( const char* file, int line, const char* expression )
 #ifdef _WIN32
 	if( IsDebuggerPresent() || com_assertOutOfDebugger.GetBool() )
 #else
-	if( com_assertOutOfDebugger.GetBool() )
+	//if( com_assertOutOfDebugger.GetBool() )
 #endif
 // RB end
 	{
