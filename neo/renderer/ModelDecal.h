@@ -75,16 +75,25 @@ struct decalProjectionParms_t
 	bool					force;
 };
 
+// RB begin
+#if defined(_WIN32)
 ALIGNTYPE16 struct decal_t
-{
-	ALIGNTYPE16 idDrawVert	verts[MAX_DECAL_VERTS];
-	ALIGNTYPE16 triIndex_t	indexes[MAX_DECAL_INDEXES];
-	float					vertDepthFade[MAX_DECAL_VERTS];
-	int						numVerts;
-	int						numIndexes;
-	int						startTime;
-	const idMaterial* 		material;
-};
+#endif
+		struct decal_t
+	{
+		ALIGNTYPE16 idDrawVert	verts[MAX_DECAL_VERTS];
+		ALIGNTYPE16 triIndex_t	indexes[MAX_DECAL_INDEXES];
+		float					vertDepthFade[MAX_DECAL_VERTS];
+		int						numVerts;
+		int						numIndexes;
+		int						startTime;
+		const idMaterial* 		material;
+	}
+#if !defined(_WIN32)
+ALIGNTYPE16
+#endif
+// RB end
+;
 
 class idRenderModelDecal
 {

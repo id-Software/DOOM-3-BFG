@@ -116,13 +116,9 @@ If you have questions concerning this license or the applicable additional terms
 
 #define _alloca							alloca
 
-// DG: mingw/GCC (and probably clang) support
 #define ALIGN16( x )					x __attribute__ ((aligned (16)))
-// FIXME: change ALIGNTYPE* ?
-#define ALIGNTYPE16
-#define ALIGNTYPE128
-// DG end
-
+#define ALIGNTYPE16						__attribute__ ((aligned (16)))
+#define ALIGNTYPE128					__attribute__ ((aligned (128)))
 
 #define FORMAT_PRINTF( x )
 
