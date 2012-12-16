@@ -248,8 +248,9 @@ public:
 	idStr* GetStrPtrByName( const char* _name );
 	
 	virtual idWinVar* GetWinVarByName( const char* _name, bool winLookup = false, drawWin_t** owner = NULL );
-	
-	int  GetWinVarOffset( idWinVar* wv, drawWin_t* dw );
+	// DG: the return value is a pointer, so use intptr_t
+	intptr_t GetWinVarOffset( idWinVar* wv, drawWin_t* dw );
+	// DG end
 	float GetMaxCharHeight();
 	float GetMaxCharWidth();
 	void SetFont();
@@ -326,7 +327,9 @@ public:
 	bool RunScript( int n );
 	bool RunScriptList( idGuiScriptList* src );
 	void SetRegs( const char* key, const char* val );
-	int ParseExpression( idTokenParser* src, idWinVar* var = NULL, int component = 0 );
+	// DG: component and the return value are really pointers, so use intptr_t
+	intptr_t ParseExpression( idTokenParser* src, idWinVar* var = NULL, intptr_t component = 0 );
+	// DG end
 	int ExpressionConstant( float f );
 	idRegisterList* RegList()
 	{
@@ -385,10 +388,12 @@ protected:
 	
 	int ExpressionTemporary();
 	wexpOp_t* ExpressionOp();
-	int EmitOp( int a, int b, wexpOpType_t opType, wexpOp_t** opp = NULL );
-	int ParseEmitOp( idTokenParser* src, int a, wexpOpType_t opType, int priority, wexpOp_t** opp = NULL );
-	int ParseTerm( idTokenParser* src, idWinVar* var = NULL, int component = 0 );
-	int ParseExpressionPriority( idTokenParser* src, int priority, idWinVar* var = NULL, int component = 0 );
+	// DG: a, b, component and the return values are really pointers, so use intptr_t
+	intptr_t EmitOp( intptr_t a, intptr_t b, wexpOpType_t opType, wexpOp_t** opp = NULL );
+	intptr_t ParseEmitOp( idTokenParser* src, intptr_t a, wexpOpType_t opType, int priority, wexpOp_t** opp = NULL );
+	intptr_t ParseTerm( idTokenParser* src, idWinVar* var = NULL, intptr_t component = 0 );
+	intptr_t ParseExpressionPriority( idTokenParser* src, int priority, idWinVar* var = NULL, intptr_t component = 0 );
+	// DG end
 	void EvaluateRegisters( float* registers );
 	void SaveExpressionParseState();
 	void RestoreExpressionParseState();
