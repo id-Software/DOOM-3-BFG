@@ -97,41 +97,204 @@ struct mouse_poll_t
 static idList<kbd_poll_t> kbd_polls;
 static idList<mouse_poll_t> mouse_polls;
 
-static byte mapkey( SDL_Keycode key )
+// RB begin
+static int SDL_KeyToDoom3Key( SDL_Keycode key, bool& isChar )
 {
-	switch( key )
+	isChar = false;
+	
+	if( key >= SDLK_SPACE && key < SDLK_DELETE )
 	{
-		case SDLK_BACKSPACE:
-			return K_BACKSPACE;
-		case SDLK_PAUSE:
-			return K_PAUSE;
+		isChar = true;
+		//return key;// & 0xff;
 	}
 	
-	if( key <= SDLK_z )
-		return key & 0xff;
-		
 	switch( key )
 	{
+		case SDLK_ESCAPE:
+			return K_ESCAPE;
+			
+		case SDLK_SPACE:
+			return K_SPACE;
+			
+			//case SDLK_EXCLAIM:
+			/*
+			SDLK_QUOTEDBL:
+			SDLK_HASH:
+			SDLK_DOLLAR:
+			SDLK_AMPERSAND:
+			SDLK_QUOTE		= 39,
+			SDLK_LEFTPAREN		= 40,
+			SDLK_RIGHTPAREN		= 41,
+			SDLK_ASTERISK		= 42,
+			SDLK_PLUS		= 43,
+			SDLK_COMMA		= 44,
+			SDLK_MINUS		= 45,
+			SDLK_PERIOD		= 46,
+			SDLK_SLASH		= 47,
+			*/
+		case SDLK_0:
+			return K_0;
+			
+		case SDLK_1:
+			return K_1;
+			
+		case SDLK_2:
+			return K_2;
+			
+		case SDLK_3:
+			return K_3;
+			
+		case SDLK_4:
+			return K_4;
+			
+		case SDLK_5:
+			return K_5;
+			
+		case SDLK_6:
+			return K_6;
+			
+		case SDLK_7:
+			return K_7;
+			
+		case SDLK_8:
+			return K_8;
+			
+		case SDLK_9:
+			return K_9;
+			/*
+			SDLK_COLON		= 58,
+			SDLK_SEMICOLON		= 59,
+			SDLK_LESS		= 60,
+			SDLK_EQUALS		= 61,
+			SDLK_GREATER		= 62,
+			SDLK_QUESTION		= 63,
+			SDLK_AT			= 64,
+			*/
+			/*
+			   Skip uppercase letters
+			 */
+			/*
+			SDLK_LEFTBRACKET	= 91,
+			SDLK_BACKSLASH		= 92,
+			SDLK_RIGHTBRACKET	= 93,
+			SDLK_CARET		= 94,
+			SDLK_UNDERSCORE		= 95,
+			SDLK_BACKQUOTE		= 96,
+			*/
+			
+		case SDLK_a:
+			return K_A;
+			
+		case SDLK_b:
+			return K_B;
+			
+		case SDLK_c:
+			return K_C;
+			
+		case SDLK_d:
+			return K_D;
+			
+		case SDLK_e:
+			return K_E;
+			
+		case SDLK_f:
+			return K_F;
+			
+		case SDLK_g:
+			return K_G;
+			
+		case SDLK_h:
+			return K_H;
+			
+		case SDLK_i:
+			return K_I;
+			
+		case SDLK_j:
+			return K_J;
+			
+		case SDLK_k:
+			return K_K;
+			
+		case SDLK_l:
+			return K_L;
+			
+		case SDLK_m:
+			return K_M;
+			
+		case SDLK_n:
+			return K_N;
+			
+		case SDLK_o:
+			return K_O;
+			
+		case SDLK_p:
+			return K_P;
+			
+		case SDLK_q:
+			return K_Q;
+			
+		case SDLK_r:
+			return K_R;
+			
+		case SDLK_s:
+			return K_S;
+			
+		case SDLK_t:
+			return K_T;
+			
+		case SDLK_u:
+			return K_U;
+			
+		case SDLK_v:
+			return K_V;
+			
+		case SDLK_w:
+			return K_W;
+			
+		case SDLK_x:
+			return K_X;
+			
+		case SDLK_y:
+			return K_Y;
+			
+		case SDLK_z:
+			return K_Z;
+			
+		case SDLK_RETURN:
+			return K_ENTER;
+			
+		case SDLK_BACKSPACE:
+			return K_BACKSPACE;
+			
+		case SDLK_PAUSE:
+			return K_PAUSE;
+			
 			//case SDLK_APPLICATION:
 			//	return K_COMMAND;
 		case SDLK_CAPSLOCK:
 			return K_CAPSLOCK;
+			
 		case SDLK_SCROLLLOCK:
 			return K_SCROLL;
+			
 		case SDLK_POWER:
 			return K_POWER;
 			
 		case SDLK_UP:
 			return K_UPARROW;
+			
 		case SDLK_DOWN:
 			return K_DOWNARROW;
+			
 		case SDLK_LEFT:
 			return K_LEFTARROW;
+			
 		case SDLK_RIGHT:
 			return K_RIGHTARROW;
 			
 		case SDLK_LGUI:
 			return K_LWIN;
+			
 		case SDLK_RGUI:
 			return K_RWIN;
 			//case SDLK_MENU:
@@ -139,97 +302,139 @@ static byte mapkey( SDL_Keycode key )
 			
 		case SDLK_LALT:
 			return K_LALT;
+			
 		case SDLK_RALT:
 			return K_RALT;
+			
 		case SDLK_RCTRL:
 			return K_RCTRL;
+			
 		case SDLK_LCTRL:
 			return K_LCTRL;
+			
 		case SDLK_RSHIFT:
 			return K_RSHIFT;
+			
 		case SDLK_LSHIFT:
 			return K_LSHIFT;
+			
 		case SDLK_INSERT:
 			return K_INS;
+			
 		case SDLK_DELETE:
 			return K_DEL;
+			
 		case SDLK_PAGEDOWN:
 			return K_PGDN;
+			
 		case SDLK_PAGEUP:
 			return K_PGUP;
+			
 		case SDLK_HOME:
 			return K_HOME;
+			
 		case SDLK_END:
 			return K_END;
 			
 		case SDLK_F1:
 			return K_F1;
+			
 		case SDLK_F2:
 			return K_F2;
+			
 		case SDLK_F3:
 			return K_F3;
+			
 		case SDLK_F4:
 			return K_F4;
+			
 		case SDLK_F5:
 			return K_F5;
+			
 		case SDLK_F6:
 			return K_F6;
+			
 		case SDLK_F7:
 			return K_F7;
+			
 		case SDLK_F8:
 			return K_F8;
+			
 		case SDLK_F9:
 			return K_F9;
+			
 		case SDLK_F10:
 			return K_F10;
+			
 		case SDLK_F11:
 			return K_F11;
+			
 		case SDLK_F12:
 			return K_F12;
 			// K_INVERTED_EXCLAMATION;
+			
 		case SDLK_F13:
 			return K_F13;
+			
 		case SDLK_F14:
 			return K_F14;
+			
 		case SDLK_F15:
 			return K_F15;
 			
 		case SDLK_KP_7:
 			return K_KP_7;
+			
 		case SDLK_KP_8:
 			return K_KP_8;
+			
 		case SDLK_KP_9:
 			return K_KP_9;
+			
 		case SDLK_KP_4:
 			return K_KP_4;
+			
 		case SDLK_KP_5:
 			return K_KP_5;
+			
 		case SDLK_KP_6:
 			return K_KP_6;
+			
 		case SDLK_KP_1:
 			return K_KP_1;
+			
 		case SDLK_KP_2:
 			return K_KP_2;
+			
 		case SDLK_KP_3:
 			return K_KP_3;
+			
 		case SDLK_KP_ENTER:
 			return K_KP_ENTER;
+			
 		case SDLK_KP_0:
 			return K_KP_0;
+			
 		case SDLK_KP_PERIOD:
 			return K_KP_DOT;
+			
 		case SDLK_KP_DIVIDE:
 			return K_KP_SLASH;
 			// K_SUPERSCRIPT_TWO;
+			
 		case SDLK_KP_MINUS:
 			return K_KP_MINUS;
 			// K_ACUTE_ACCENT;
+			
 		case SDLK_KP_PLUS:
 			return K_KP_PLUS;
+			
 		case SDLK_NUMLOCKCLEAR:
 			return K_NUMLOCK;
+			
 		case SDLK_KP_MULTIPLY:
 			return K_KP_STAR;
+			
 		case SDLK_KP_EQUALS:
 			return K_KP_EQUALS;
 			
@@ -260,12 +465,14 @@ static byte mapkey( SDL_Keycode key )
 			
 		case SDLK_PRINTSCREEN:
 			return K_PRINTSCREEN;
+			
 		case SDLK_MODE:
 			return K_RALT;
 	}
 	
 	return 0;
 }
+// RB end
 
 static void PushConsoleEvent( const char* s )
 {
@@ -416,7 +623,7 @@ sysEvent_t Sys_GetEvent()
 {
 	SDL_Event ev;
 	sysEvent_t res = { };
-	byte key;
+	int key;
 	
 	static const sysEvent_t res_none = { SE_NONE, 0, 0, 0, NULL };
 	
@@ -520,9 +727,12 @@ sysEvent_t Sys_GetEvent()
 				
 				// fall through
 			case SDL_KEYUP:
-				key = mapkey( ev.key.keysym.sym );
+			{
+				bool isChar;
 				
-				if( !key )
+				key = SDL_KeyToDoom3Key( ev.key.keysym.sym, isChar );
+				
+				if( key == 0 )
 				{
 					unsigned char c;
 					
@@ -553,12 +763,15 @@ sysEvent_t Sys_GetEvent()
 				if( key == K_BACKSPACE && ev.key.state == SDL_PRESSED )
 					c = key;
 #else
-				if( ev.key.state == SDL_PRESSED && ( ev.key.keysym.unicode & 0xff00 ) == 0 )
+				if( ev.key.state == SDL_PRESSED && isChar && ( ev.key.keysym.unicode & 0xff00 ) == 0 )
+				{
 					c = ev.key.keysym.unicode & 0xff;
+				}
 #endif
 					
 				return res;
-				
+			}
+			
 #if SDL_VERSION_ATLEAST(2, 0, 0)
 			case SDL_TEXTINPUT:
 				if( ev.text.text && *ev.text.text )

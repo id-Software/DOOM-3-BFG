@@ -3582,8 +3582,13 @@ cm_model_t* idCollisionModelManagerLocal::LoadBinaryModelFromFile( idFile* file,
 	// assert( model->nodeBlocks != NULL && model->nodeBlocks->next == NULL && model->nodeBlocks->nextNode == NULL );
 	assert( model->brushRefBlocks == NULL || ( model->brushRefBlocks->next == NULL && model->brushRefBlocks->nextRef == NULL ) );
 	assert( model->polygonRefBlocks == NULL || ( model->polygonRefBlocks->next == NULL && model->polygonRefBlocks->nextRef == NULL ) );
+	
+	// RB: FIXME
+#if !defined(__x86_64__) && !defined(_WIN64)
 	assert( model->polygonBlock->bytesRemaining == 0 );
 	assert( model->brushBlock->bytesRemaining == 0 );
+#endif
+	// RB end
 	
 	model->usedMemory = model->numVertices * sizeof( cm_vertex_t ) +
 						model->numEdges * sizeof( cm_edge_t ) +
