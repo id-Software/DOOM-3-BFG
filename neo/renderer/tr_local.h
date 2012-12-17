@@ -1113,8 +1113,6 @@ void		GLimp_DeactivateContext();
 // being immediate returns, which lets us guage how much time is
 // being spent inside OpenGL.
 
-void		GLimp_EnableLogging( bool enable );
-
 
 /*
 ============================================================

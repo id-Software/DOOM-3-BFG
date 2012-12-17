@@ -130,12 +130,12 @@ void idRenderSystemLocal::RenderCommandBuffers( const emptyCommand_t* const cmdH
 		{
 			if( tr.timerQueryId == 0 )
 			{
-				qglGenQueriesARB( 1, & tr.timerQueryId );
+				glGenQueriesARB( 1, & tr.timerQueryId );
 			}
-			qglBeginQueryARB( GL_TIME_ELAPSED_EXT, tr.timerQueryId );
+			glBeginQueryARB( GL_TIME_ELAPSED_EXT, tr.timerQueryId );
 			RB_ExecuteBackEndCommands( cmdHead );
-			qglEndQueryARB( GL_TIME_ELAPSED_EXT );
-			qglFlush();
+			glEndQueryARB( GL_TIME_ELAPSED_EXT );
+			glFlush();
 		}
 		else
 		{
@@ -267,11 +267,11 @@ static void R_CheckCvars()
 		{
 			if( r_useSeamlessCubeMap.GetBool() )
 			{
-				qglEnable( GL_TEXTURE_CUBE_MAP_SEAMLESS );
+				glEnable( GL_TEXTURE_CUBE_MAP_SEAMLESS );
 			}
 			else
 			{
-				qglDisable( GL_TEXTURE_CUBE_MAP_SEAMLESS );
+				glDisable( GL_TEXTURE_CUBE_MAP_SEAMLESS );
 			}
 		}
 	}
@@ -284,30 +284,26 @@ static void R_CheckCvars()
 		{
 			if( r_useSRGB.GetBool() )
 			{
-				qglEnable( GL_FRAMEBUFFER_SRGB );
+				glEnable( GL_FRAMEBUFFER_SRGB );
 			}
 			else
 			{
-				qglDisable( GL_FRAMEBUFFER_SRGB );
+				glDisable( GL_FRAMEBUFFER_SRGB );
 			}
 		}
 	}
-	
 	
 	if( r_multiSamples.IsModified() )
 	{
 		if( r_multiSamples.GetInteger() > 0 )
 		{
-			qglEnable( GL_MULTISAMPLE_ARB );
+			glEnable( GL_MULTISAMPLE_ARB );
 		}
 		else
 		{
-			qglDisable( GL_MULTISAMPLE_ARB );
+			glDisable( GL_MULTISAMPLE_ARB );
 		}
 	}
-	
-	// check for changes to logging state
-	GLimp_EnableLogging( r_logFile.GetInteger() != 0 );
 }
 
 /*
@@ -739,7 +735,7 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 		
 		if( tr.timerQueryId != 0 )
 		{
-			qglGetQueryObjectui64vEXT( tr.timerQueryId, GL_QUERY_RESULT, &drawingTimeNanoseconds );
+			glGetQueryObjectui64vEXT( tr.timerQueryId, GL_QUERY_RESULT, &drawingTimeNanoseconds );
 		}
 		if( gpuMicroSec != NULL )
 		{
@@ -1060,13 +1056,13 @@ void idRenderSystemLocal::CaptureRenderToFile( const char* fileName, bool fixAlp
 	guiModel->Clear();
 	RenderCommandBuffers( frameData->cmdHead );
 	
-	qglReadBuffer( GL_BACK );
+	glReadBuffer( GL_BACK );
 	
 	// include extra space for OpenGL padding to word boundaries
 	int	c = ( rc.GetWidth() + 3 ) * rc.GetHeight();
 	byte* data = ( byte* )R_StaticAlloc( c * 3 );
 	
-	qglReadPixels( rc.x1, rc.y1, rc.GetWidth(), rc.GetHeight(), GL_RGB, GL_UNSIGNED_BYTE, data );
+	glReadPixels( rc.x1, rc.y1, rc.GetWidth(), rc.GetHeight(), GL_RGB, GL_UNSIGNED_BYTE, data );
 	
 	byte* data2 = ( byte* )R_StaticAlloc( c * 4 );
 	

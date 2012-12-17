@@ -119,7 +119,7 @@ void PC_BeginNamedEvent( const char* szName, ... )
 	{
 		return;	// only get top level timing information
 	}
-	if( !qglGetQueryObjectui64vEXT )
+	if( !glGetQueryObjectui64vEXT )
 	{
 		return;
 	}
@@ -127,10 +127,10 @@ void PC_BeginNamedEvent( const char* szName, ... )
 	GL_CheckErrors();
 	if( timeQueryIds[0] == 0 )
 	{
-		qglGenQueriesARB( MAX_PIX_EVENTS, timeQueryIds );
+		glGenQueriesARB( MAX_PIX_EVENTS, timeQueryIds );
 	}
-	qglFinish();
-	qglBeginQueryARB( GL_TIME_ELAPSED_EXT, timeQueryIds[numPixEvents] );
+	glFinish();
+	glBeginQueryARB( GL_TIME_ELAPSED_EXT, timeQueryIds[numPixEvents] );
 	GL_CheckErrors();
 	
 	pixEvent_t* ev = &pixEvents[numPixEvents++];
@@ -160,7 +160,7 @@ void PC_EndNamedEvent()
 		// only do timing on top level events
 		return;
 	}
-	if( !qglGetQueryObjectui64vEXT )
+	if( !glGetQueryObjectui64vEXT )
 	{
 		return;
 	}
@@ -169,7 +169,7 @@ void PC_EndNamedEvent()
 	ev->cpuTime = Sys_Microseconds() - ev->cpuTime;
 	
 	GL_CheckErrors();
-	qglEndQueryARB( GL_TIME_ELAPSED_EXT );
+	glEndQueryARB( GL_TIME_ELAPSED_EXT );
 	GL_CheckErrors();
 #endif
 }
@@ -196,7 +196,7 @@ void PC_EndFrame()
 		pixEvent_t* ev = &pixEvents[i];
 		
 		int64 gpuTime = 0;
-		qglGetQueryObjectui64vEXT( timeQueryIds[i], GL_QUERY_RESULT, ( GLuint64EXT* )&gpuTime );
+		glGetQueryObjectui64vEXT( timeQueryIds[i], GL_QUERY_RESULT, ( GLuint64EXT* )&gpuTime );
 		ev->gpuTime = gpuTime;
 		
 		idLib::Printf( "%2d: %1.2f (GPU) %1.3f (CPU) = %s\n", i, ev->gpuTime / 1000000.0f, ev->cpuTime / 1000.0f, ev->name );

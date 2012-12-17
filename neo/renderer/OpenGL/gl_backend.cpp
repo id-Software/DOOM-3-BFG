@@ -72,14 +72,14 @@ static void RB_DrawFlickerBox()
 	}
 	if( tr.frameCount & 1 )
 	{
-		qglClearColor( 1, 0, 0, 1 );
+		glClearColor( 1, 0, 0, 1 );
 	}
 	else
 	{
-		qglClearColor( 0, 1, 0, 1 );
+		glClearColor( 0, 1, 0, 1 );
 	}
-	qglScissor( 0, 0, 256, 256 );
-	qglClear( GL_COLOR_BUFFER_BIT );
+	glScissor( 0, 0, 256, 256 );
+	glClear( GL_COLOR_BUFFER_BIT );
 }
 
 /*
@@ -158,16 +158,16 @@ const void GL_BlockingSwapBuffers()
 	{
 		swapIndex ^= 1;
 		
-		if( qglIsSync( renderSync[swapIndex] ) )
+		if( glIsSync( renderSync[swapIndex] ) )
 		{
-			qglDeleteSync( renderSync[swapIndex] );
+			glDeleteSync( renderSync[swapIndex] );
 		}
 		// draw something tiny to ensure the sync is after the swap
 		const int start = Sys_Milliseconds();
-		qglScissor( 0, 0, 1, 1 );
-		qglEnable( GL_SCISSOR_TEST );
-		qglClear( GL_COLOR_BUFFER_BIT );
-		renderSync[swapIndex] = qglFenceSync( GL_SYNC_GPU_COMMANDS_COMPLETE, 0 );
+		glScissor( 0, 0, 1, 1 );
+		glEnable( GL_SCISSOR_TEST );
+		glClear( GL_COLOR_BUFFER_BIT );
+		renderSync[swapIndex] = glFenceSync( GL_SYNC_GPU_COMMANDS_COMPLETE, 0 );
 		const int end = Sys_Milliseconds();
 		if( r_showSwapBuffers.GetBool() && end - start > 1 )
 		{
@@ -184,11 +184,11 @@ const void GL_BlockingSwapBuffers()
 			syncToWaitOn = renderSync[!swapIndex];
 		}
 		
-		if( qglIsSync( syncToWaitOn ) )
+		if( glIsSync( syncToWaitOn ) )
 		{
 			for( GLenum r = GL_TIMEOUT_EXPIRED; r == GL_TIMEOUT_EXPIRED; )
 			{
-				r = qglClientWaitSync( syncToWaitOn, GL_SYNC_FLUSH_COMMANDS_BIT, 1000 * 1000 );
+				r = glClientWaitSync( syncToWaitOn, GL_SYNC_FLUSH_COMMANDS_BIT, 1000 * 1000 );
 			}
 		}
 	}
@@ -243,7 +243,7 @@ void RB_StereoRenderExecuteBackEndCommands( const emptyCommand_t* const allCmds 
 	// To allow stereo deghost processing, the views have to be copied to separate
 	// textures anyway, so there isn't any benefit to rendering to BACK_RIGHT for
 	// that eye.
-	qglDrawBuffer( GL_BACK_LEFT );
+	glDrawBuffer( GL_BACK_LEFT );
 	
 	// create the stereoRenderImage if we haven't already
 	static idImage* stereoRenderImages[2];
@@ -440,8 +440,8 @@ void RB_StereoRenderExecuteBackEndCommands( const emptyCommand_t* const allCmds 
 				
 				GL_SelectTexture( 0 );
 				stereoRenderImages[0]->Bind();
-				qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER );
-				qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER );
+				glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER );
+				glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER );
 				RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
 				
 				idVec4	color2( stereoRender_warpCenterX.GetFloat(), stereoRender_warpCenterY.GetFloat(), stereoRender_warpParmZ.GetFloat(), stereoRender_warpParmW.GetFloat() );
@@ -455,8 +455,8 @@ void RB_StereoRenderExecuteBackEndCommands( const emptyCommand_t* const allCmds 
 				
 				GL_SelectTexture( 0 );
 				stereoRenderImages[1]->Bind();
-				qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER );
-				qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER );
+				glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER );
+				glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER );
 				RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
 				break;
 			}
@@ -498,25 +498,25 @@ void RB_StereoRenderExecuteBackEndCommands( const emptyCommand_t* const allCmds 
 			// every other scanline
 			GL_SelectTexture( 0 );
 			stereoRenderImages[0]->Bind();
-			qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
-			qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+			glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+			glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
 			
 			GL_SelectTexture( 1 );
 			stereoRenderImages[1]->Bind();
-			qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
-			qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+			glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+			glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
 			
 			GL_ViewportAndScissor( 0, 0, renderSystem->GetWidth(), renderSystem->GetHeight() * 2 );
 			renderProgManager.BindShader_StereoInterlace();
 			RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
 			
 			GL_SelectTexture( 0 );
-			qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-			qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+			glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+			glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 			
 			GL_SelectTexture( 1 );
-			qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-			qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+			glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+			glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 			
 			break;
 	}
@@ -525,7 +525,7 @@ void RB_StereoRenderExecuteBackEndCommands( const emptyCommand_t* const allCmds 
 	RB_DrawFlickerBox();
 	
 	// make sure the drawing is actually started
-	qglFlush();
+	glFlush();
 	
 	// we may choose to sync to the swapbuffers before the next frame
 	
@@ -574,7 +574,7 @@ void RB_ExecuteBackEndCommands( const emptyCommand_t* cmds )
 	// If we have a stereo pixel format, this will draw to both
 	// the back left and back right buffers, which will have a
 	// performance penalty.
-	qglDrawBuffer( GL_BACK );
+	glDrawBuffer( GL_BACK );
 	
 	for( ; cmds != NULL; cmds = ( const emptyCommand_t* )cmds->next )
 	{
@@ -613,9 +613,9 @@ void RB_ExecuteBackEndCommands( const emptyCommand_t* cmds )
 	RB_DrawFlickerBox();
 	
 	// Fix for the steam overlay not showing up while in game without Shell/Debug/Console/Menu also rendering
-	qglColorMask( 1, 1, 1, 1 );
+	glColorMask( 1, 1, 1, 1 );
 	
-	qglFlush();
+	glFlush();
 	
 	// stop rendering on this thread
 	uint64 backEndFinishTime = Sys_Microseconds();

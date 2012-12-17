@@ -107,7 +107,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma warning(disable : 4996)				// unsafe string operations
 #endif // _MSC_VER
 
-#include <windows.h>						// for qgl.h
+#include <windows.h>						// for gl.h
 
 #elif defined(__linux__)
 

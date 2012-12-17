@@ -71,35 +71,35 @@ void GL_Cull( int cullType )
 	
 	if( cullType == CT_TWO_SIDED )
 	{
-		qglDisable( GL_CULL_FACE );
+		glDisable( GL_CULL_FACE );
 	}
 	else
 	{
 		if( backEnd.glState.faceCulling == CT_TWO_SIDED )
 		{
-			qglEnable( GL_CULL_FACE );
+			glEnable( GL_CULL_FACE );
 		}
 		
 		if( cullType == CT_BACK_SIDED )
 		{
 			if( backEnd.viewDef->isMirror )
 			{
-				qglCullFace( GL_FRONT );
+				glCullFace( GL_FRONT );
 			}
 			else
 			{
-				qglCullFace( GL_BACK );
+				glCullFace( GL_BACK );
 			}
 		}
 		else
 		{
 			if( backEnd.viewDef->isMirror )
 			{
-				qglCullFace( GL_BACK );
+				glCullFace( GL_BACK );
 			}
 			else
 			{
-				qglCullFace( GL_FRONT );
+				glCullFace( GL_FRONT );
 			}
 		}
 	}
@@ -114,7 +114,7 @@ GL_Scissor
 */
 void GL_Scissor( int x /* left*/, int y /* bottom */, int w, int h )
 {
-	qglScissor( x, y, w, h );
+	glScissor( x, y, w, h );
 }
 
 /*
@@ -124,7 +124,7 @@ GL_Viewport
 */
 void GL_Viewport( int x /* left */, int y /* bottom */, int w, int h )
 {
-	qglViewport( x, y, w, h );
+	glViewport( x, y, w, h );
 }
 
 /*
@@ -138,7 +138,7 @@ void GL_PolygonOffset( float scale, float bias )
 	backEnd.glState.polyOfsBias = bias;
 	if( backEnd.glState.glStateBits & GLS_POLYGON_OFFSET )
 	{
-		qglPolygonOffset( scale, bias );
+		glPolygonOffset( scale, bias );
 	}
 }
 
@@ -156,12 +156,12 @@ void GL_DepthBoundsTest( const float zmin, const float zmax )
 	
 	if( zmin == 0.0f && zmax == 0.0f )
 	{
-		qglDisable( GL_DEPTH_BOUNDS_TEST_EXT );
+		glDisable( GL_DEPTH_BOUNDS_TEST_EXT );
 	}
 	else
 	{
-		qglEnable( GL_DEPTH_BOUNDS_TEST_EXT );
-		qglDepthBoundsEXT( zmin, zmax );
+		glEnable( GL_DEPTH_BOUNDS_TEST_EXT );
+		glDepthBoundsEXT( zmin, zmax );
 	}
 }
 
@@ -242,7 +242,7 @@ void GL_Clear( bool color, bool depth, bool stencil, byte stencilValue, float r,
 	int clearFlags = 0;
 	if( color )
 	{
-		qglClearColor( r, g, b, a );
+		glClearColor( r, g, b, a );
 		clearFlags |= GL_COLOR_BUFFER_BIT;
 	}
 	if( depth )
@@ -251,10 +251,10 @@ void GL_Clear( bool color, bool depth, bool stencil, byte stencilValue, float r,
 	}
 	if( stencil )
 	{
-		qglClearStencil( stencilValue );
+		glClearStencil( stencilValue );
 		clearFlags |= GL_STENCIL_BUFFER_BIT;
 	}
-	qglClear( clearFlags );
+	glClear( clearFlags );
 }
 
 /*
@@ -269,39 +269,39 @@ void GL_SetDefaultState()
 {
 	RENDERLOG_PRINTF( "--- GL_SetDefaultState ---\n" );
 	
-	qglClearDepth( 1.0f );
+	glClearDepth( 1.0f );
 	
 	// make sure our GL state vector is set correctly
 	memset( &backEnd.glState, 0, sizeof( backEnd.glState ) );
 	GL_State( 0, true );
 	
 	// These are changed by GL_Cull
-	qglCullFace( GL_FRONT_AND_BACK );
-	qglEnable( GL_CULL_FACE );
+	glCullFace( GL_FRONT_AND_BACK );
+	glEnable( GL_CULL_FACE );
 	
 	// These are changed by GL_State
-	qglColorMask( GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE );
-	qglBlendFunc( GL_ONE, GL_ZERO );
-	qglDepthMask( GL_TRUE );
-	qglDepthFunc( GL_LESS );
-	qglDisable( GL_STENCIL_TEST );
-	qglDisable( GL_POLYGON_OFFSET_FILL );
-	qglDisable( GL_POLYGON_OFFSET_LINE );
-	qglPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+	glColorMask( GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE );
+	glBlendFunc( GL_ONE, GL_ZERO );
+	glDepthMask( GL_TRUE );
+	glDepthFunc( GL_LESS );
+	glDisable( GL_STENCIL_TEST );
+	glDisable( GL_POLYGON_OFFSET_FILL );
+	glDisable( GL_POLYGON_OFFSET_LINE );
+	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 	
 	// These should never be changed
 	// DG: deprecated in opengl 3.2 and not needed because we don't do fixed function pipeline
-	// qglShadeModel( GL_SMOOTH );
+	// glShadeModel( GL_SMOOTH );
 	// DG end
-	qglEnable( GL_DEPTH_TEST );
-	qglEnable( GL_BLEND );
-	qglEnable( GL_SCISSOR_TEST );
-	qglDrawBuffer( GL_BACK );
-	qglReadBuffer( GL_BACK );
+	glEnable( GL_DEPTH_TEST );
+	glEnable( GL_BLEND );
+	glEnable( GL_SCISSOR_TEST );
+	glDrawBuffer( GL_BACK );
+	glReadBuffer( GL_BACK );
 	
 	if( r_useScissor.GetBool() )
 	{
-		qglScissor( 0, 0, renderSystem->GetWidth(), renderSystem->GetHeight() );
+		glScissor( 0, 0, renderSystem->GetWidth(), renderSystem->GetHeight() );
 	}
 }
 
@@ -335,16 +335,16 @@ void GL_State( uint64 stateBits, bool forceGlState )
 		switch( stateBits & GLS_DEPTHFUNC_BITS )
 		{
 			case GLS_DEPTHFUNC_EQUAL:
-				qglDepthFunc( GL_EQUAL );
+				glDepthFunc( GL_EQUAL );
 				break;
 			case GLS_DEPTHFUNC_ALWAYS:
-				qglDepthFunc( GL_ALWAYS );
+				glDepthFunc( GL_ALWAYS );
 				break;
 			case GLS_DEPTHFUNC_LESS:
-				qglDepthFunc( GL_LEQUAL );
+				glDepthFunc( GL_LEQUAL );
 				break;
 			case GLS_DEPTHFUNC_GREATER:
-				qglDepthFunc( GL_GEQUAL );
+				glDepthFunc( GL_GEQUAL );
 				break;
 		}
 	}
@@ -422,12 +422,12 @@ void GL_State( uint64 stateBits, bool forceGlState )
 		// Only actually update GL's blend func if blending is enabled.
 		if( srcFactor == GL_ONE && dstFactor == GL_ZERO )
 		{
-			qglDisable( GL_BLEND );
+			glDisable( GL_BLEND );
 		}
 		else
 		{
-			qglEnable( GL_BLEND );
-			qglBlendFunc( srcFactor, dstFactor );
+			glEnable( GL_BLEND );
+			glBlendFunc( srcFactor, dstFactor );
 		}
 	}
 	
@@ -438,11 +438,11 @@ void GL_State( uint64 stateBits, bool forceGlState )
 	{
 		if( stateBits & GLS_DEPTHMASK )
 		{
-			qglDepthMask( GL_FALSE );
+			glDepthMask( GL_FALSE );
 		}
 		else
 		{
-			qglDepthMask( GL_TRUE );
+			glDepthMask( GL_TRUE );
 		}
 	}
 	
@@ -455,7 +455,7 @@ void GL_State( uint64 stateBits, bool forceGlState )
 		GLboolean g = ( stateBits & GLS_GREENMASK ) ? GL_FALSE : GL_TRUE;
 		GLboolean b = ( stateBits & GLS_BLUEMASK ) ? GL_FALSE : GL_TRUE;
 		GLboolean a = ( stateBits & GLS_ALPHAMASK ) ? GL_FALSE : GL_TRUE;
-		qglColorMask( r, g, b, a );
+		glColorMask( r, g, b, a );
 	}
 	
 	//
@@ -465,11 +465,11 @@ void GL_State( uint64 stateBits, bool forceGlState )
 	{
 		if( stateBits & GLS_POLYMODE_LINE )
 		{
-			qglPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+			glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 		}
 		else
 		{
-			qglPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+			glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 		}
 	}
 	
@@ -480,14 +480,14 @@ void GL_State( uint64 stateBits, bool forceGlState )
 	{
 		if( stateBits & GLS_POLYGON_OFFSET )
 		{
-			qglPolygonOffset( backEnd.glState.polyOfsScale, backEnd.glState.polyOfsBias );
-			qglEnable( GL_POLYGON_OFFSET_FILL );
-			qglEnable( GL_POLYGON_OFFSET_LINE );
+			glPolygonOffset( backEnd.glState.polyOfsScale, backEnd.glState.polyOfsBias );
+			glEnable( GL_POLYGON_OFFSET_FILL );
+			glEnable( GL_POLYGON_OFFSET_LINE );
 		}
 		else
 		{
-			qglDisable( GL_POLYGON_OFFSET_FILL );
-			qglDisable( GL_POLYGON_OFFSET_LINE );
+			glDisable( GL_POLYGON_OFFSET_FILL );
+			glDisable( GL_POLYGON_OFFSET_LINE );
 		}
 	}
 	
@@ -499,7 +499,7 @@ void GL_State( uint64 stateBits, bool forceGlState )
 	{
 		if( ( stateBits & GLS_ALPHATEST_FUNC_BITS ) != 0 )
 		{
-			qglEnable( GL_ALPHA_TEST );
+			glEnable( GL_ALPHA_TEST );
 			
 			GLenum func = GL_ALWAYS;
 			switch( stateBits & GLS_ALPHATEST_FUNC_BITS )
@@ -517,11 +517,11 @@ void GL_State( uint64 stateBits, bool forceGlState )
 					assert( false );
 			}
 			GLclampf ref = ( ( stateBits & GLS_ALPHATEST_FUNC_REF_BITS ) >> GLS_ALPHATEST_FUNC_REF_SHIFT ) / ( float )0xFF;
-			qglAlphaFunc( func, ref );
+			glAlphaFunc( func, ref );
 		}
 		else
 		{
-			qglDisable( GL_ALPHA_TEST );
+			glDisable( GL_ALPHA_TEST );
 		}
 	}
 #endif
@@ -533,11 +533,11 @@ void GL_State( uint64 stateBits, bool forceGlState )
 	{
 		if( ( stateBits & ( GLS_STENCIL_FUNC_BITS | GLS_STENCIL_OP_BITS ) ) != 0 )
 		{
-			qglEnable( GL_STENCIL_TEST );
+			glEnable( GL_STENCIL_TEST );
 		}
 		else
 		{
-			qglDisable( GL_STENCIL_TEST );
+			glDisable( GL_STENCIL_TEST );
 		}
 	}
 	if( diff & ( GLS_STENCIL_FUNC_BITS | GLS_STENCIL_FUNC_REF_BITS | GLS_STENCIL_FUNC_MASK_BITS ) )
@@ -573,7 +573,7 @@ void GL_State( uint64 stateBits, bool forceGlState )
 				func = GL_ALWAYS;
 				break;
 		}
-		qglStencilFunc( func, ref, mask );
+		glStencilFunc( func, ref, mask );
 	}
 	if( diff & ( GLS_STENCIL_OP_FAIL_BITS | GLS_STENCIL_OP_ZFAIL_BITS | GLS_STENCIL_OP_PASS_BITS ) )
 	{
@@ -662,7 +662,7 @@ void GL_State( uint64 stateBits, bool forceGlState )
 				pass = GL_DECR_WRAP;
 				break;
 		}
-		qglStencilOp( sFail, zFail, pass );
+		glStencilOp( sFail, zFail, pass );
 	}
 	
 	backEnd.glState.glStateBits = stateBits;

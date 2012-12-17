@@ -651,7 +651,6 @@ set(WIN32_SOURCES
 	sys/win32/win_localuser.cpp
 	sys/win32/win_main.cpp
 	sys/win32/win_net.cpp
-	sys/win32/win_qgl.cpp
 	sys/win32/win_savegame.cpp
 	sys/win32/win_session_local.cpp
 	sys/win32/win_shared.cpp
@@ -906,7 +905,7 @@ set(RBDOOM3_SOURCES
 			${JPEG_INCLUDES} ${JPEG_SOURCES}
 			#${PNG_INCLUDES} ${PNG_SOURCES}
 			${ZLIB_INCLUDES} ${ZLIB_SOURCES}
-			#${GLEW_INCLUDES} ${GLEW_SOURCES}
+			${GLEW_INCLUDES} ${GLEW_SOURCES}
 			#${FREETYPE_SOURCES}
 			${SOUND_INCLUDES} ${SOUND_SOURCES}
 			#${OGGVORBIS_INCLUDES} ${OGGVORBIS_SOURCES}
@@ -921,7 +920,7 @@ set(RBDOOM3_SOURCES
 			)
 
 add_definitions(-D__DOOM__
-				#-DGLEW_STATIC
+				-DGLEW_STATIC
 				#-DBUILD_FREETYPE
 				#-DFT2_BUILD_LIBRARY
 				)
@@ -943,7 +942,7 @@ include_directories(
 			.
 			#libs/curl/include
 			#libs/openal/include
-			#libs/glew/include
+			libs/glew/include
 			#libs/freetype/include
 			libs/zlib)
 			

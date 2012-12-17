@@ -1168,21 +1168,21 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, idL
 	}
 	
 	// create and compile the shader
-	const GLuint shader = qglCreateShader( target );
+	const GLuint shader = glCreateShader( target );
 	if( shader )
 	{
 		const char* source[1] = { programGLSL.c_str() };
 		
-		qglShaderSource( shader, 1, source, NULL );
-		qglCompileShader( shader );
+		glShaderSource( shader, 1, source, NULL );
+		glCompileShader( shader );
 		
 		int infologLength = 0;
-		qglGetShaderiv( shader, GL_INFO_LOG_LENGTH, &infologLength );
+		glGetShaderiv( shader, GL_INFO_LOG_LENGTH, &infologLength );
 		if( infologLength > 1 )
 		{
 			idTempArray<char> infoLog( infologLength );
 			int charsWritten = 0;
-			qglGetShaderInfoLog( shader, infologLength, &charsWritten, infoLog.Ptr() );
+			glGetShaderInfoLog( shader, infologLength, &charsWritten, infoLog.Ptr() );
 			
 			// catch the strings the ATI and Intel drivers output on success
 			if( strstr( infoLog.Ptr(), "successfully compiled to run on hardware" ) != NULL ||
@@ -1217,10 +1217,10 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, idL
 		}
 		
 		GLint compiled = GL_FALSE;
-		qglGetShaderiv( shader, GL_COMPILE_STATUS, &compiled );
+		glGetShaderiv( shader, GL_COMPILE_STATUS, &compiled );
 		if( compiled == GL_FALSE )
 		{
-			qglDeleteShader( shader );
+			glDeleteShader( shader );
 			return INVALID_PROGID;
 		}
 	}
@@ -1303,7 +1303,7 @@ void idRenderProgManager::CommitUniforms()
 				{
 					localVectors[i] = glslUniforms[vertexUniforms[i]];
 				}
-				qglUniform4fv( prog.vertexUniformArray, vertexUniforms.Num(), localVectors->ToFloatPtr() );
+				glUniform4fv( prog.vertexUniformArray, vertexUniforms.Num(), localVectors->ToFloatPtr() );
 			}
 		}
 		
@@ -1316,7 +1316,7 @@ void idRenderProgManager::CommitUniforms()
 				{
 					localVectors[i] = glslUniforms[fragmentUniforms[i]];
 				}
-				qglUniform4fv( prog.fragmentUniformArray, fragmentUniforms.Num(), localVectors->ToFloatPtr() );
+				glUniform4fv( prog.fragmentUniformArray, fragmentUniforms.Num(), localVectors->ToFloatPtr() );
 			}
 		}
 	}
@@ -1325,7 +1325,7 @@ void idRenderProgManager::CommitUniforms()
 		for( int i = 0; i < prog.uniformLocations.Num(); i++ )
 		{
 			const glslUniformLocation_t& uniformLocation = prog.uniformLocations[i];
-			qglUniform4fv( uniformLocation.uniformIndex, 1, glslUniforms[uniformLocation.parmIndex].ToFloatPtr() );
+			glUniform4fv( uniformLocation.uniformIndex, 1, glslUniforms[uniformLocation.parmIndex].ToFloatPtr() );
 		}
 	}
 }
@@ -1356,18 +1356,18 @@ void idRenderProgManager::LoadGLSLProgram( const int programIndex, const int ver
 	GLuint vertexProgID = ( vertexShaderIndex != -1 ) ? vertexShaders[ vertexShaderIndex ].progId : INVALID_PROGID;
 	GLuint fragmentProgID = ( fragmentShaderIndex != -1 ) ? fragmentShaders[ fragmentShaderIndex ].progId : INVALID_PROGID;
 	
-	const GLuint program = qglCreateProgram();
+	const GLuint program = glCreateProgram();
 	if( program )
 	{
 	
 		if( vertexProgID != INVALID_PROGID )
 		{
-			qglAttachShader( program, vertexProgID );
+			glAttachShader( program, vertexProgID );
 		}
 		
 		if( fragmentProgID != INVALID_PROGID )
 		{
-			qglAttachShader( program, fragmentProgID );
+			glAttachShader( program, fragmentProgID );
 		}
 		
 		// bind vertex attribute locations
@@ -1375,19 +1375,19 @@ void idRenderProgManager::LoadGLSLProgram( const int programIndex, const int ver
 		{
 			if( ( attribsPC[i].flags & AT_VS_IN ) != 0 )
 			{
-				qglBindAttribLocation( program, attribsPC[i].bind, attribsPC[i].glsl );
+				glBindAttribLocation( program, attribsPC[i].bind, attribsPC[i].glsl );
 			}
 		}
 		
-		qglLinkProgram( program );
+		glLinkProgram( program );
 		
 		int infologLength = 0;
-		qglGetProgramiv( program, GL_INFO_LOG_LENGTH, &infologLength );
+		glGetProgramiv( program, GL_INFO_LOG_LENGTH, &infologLength );
 		if( infologLength > 1 )
 		{
 			char* infoLog = ( char* )malloc( infologLength );
 			int charsWritten = 0;
-			qglGetProgramInfoLog( program, infologLength, &charsWritten, infoLog );
+			glGetProgramInfoLog( program, infologLength, &charsWritten, infoLog );
 			
 			// catch the strings the ATI and Intel drivers output on success
 			if( strstr( infoLog, "Vertex shader(s) linked, fragment shader(s) linked." ) != NULL || strstr( infoLog, "No errors." ) != NULL )
@@ -1408,10 +1408,10 @@ void idRenderProgManager::LoadGLSLProgram( const int programIndex, const int ver
 	}
 	
 	int linked = GL_FALSE;
-	qglGetProgramiv( program, GL_LINK_STATUS, &linked );
+	glGetProgramiv( program, GL_LINK_STATUS, &linked );
 	if( linked == GL_FALSE )
 	{
-		qglDeleteProgram( program );
+		glDeleteProgram( program );
 		idLib::Error( "While linking GLSL program %d with vertexShader %s and fragmentShader %s\n",
 					  programIndex,
 					  ( vertexShaderIndex >= 0 ) ? vertexShaders[vertexShaderIndex].name.c_str() : "<Invalid>",
@@ -1421,8 +1421,8 @@ void idRenderProgManager::LoadGLSLProgram( const int programIndex, const int ver
 	
 	if( r_useUniformArrays.GetBool() )
 	{
-		prog.vertexUniformArray = qglGetUniformLocation( program, VERTEX_UNIFORM_ARRAY_NAME );
-		prog.fragmentUniformArray = qglGetUniformLocation( program, FRAGMENT_UNIFORM_ARRAY_NAME );
+		prog.vertexUniformArray = glGetUniformLocation( program, VERTEX_UNIFORM_ARRAY_NAME );
+		prog.fragmentUniformArray = glGetUniformLocation( program, FRAGMENT_UNIFORM_ARRAY_NAME );
 		
 		assert( prog.vertexUniformArray != -1 || vertexShaderIndex < 0 || vertexShaders[vertexShaderIndex].uniforms.Num() == 0 );
 		assert( prog.fragmentUniformArray != -1 || fragmentShaderIndex < 0 || fragmentShaders[fragmentShaderIndex].uniforms.Num() == 0 );
@@ -1434,7 +1434,7 @@ void idRenderProgManager::LoadGLSLProgram( const int programIndex, const int ver
 		for( int i = 0; i < RENDERPARM_TOTAL; i++ )
 		{
 			const char* parmName = GetGLSLParmName( i );
-			GLint loc = qglGetUniformLocation( program, parmName );
+			GLint loc = glGetUniformLocation( program, parmName );
 			if( loc != -1 )
 			{
 				glslUniformLocation_t uniformLocation;
@@ -1448,7 +1448,7 @@ void idRenderProgManager::LoadGLSLProgram( const int programIndex, const int ver
 		for( int i = 0; i < MAX_GLSL_USER_PARMS; i++ )
 		{
 			const char* parmName = GetGLSLParmName( RENDERPARM_USER + i );
-			GLint loc = qglGetUniformLocation( program, parmName );
+			GLint loc = glGetUniformLocation( program, parmName );
 			if( loc != -1 )
 			{
 				glslUniformLocation_t uniformLocation;
@@ -1463,20 +1463,20 @@ void idRenderProgManager::LoadGLSLProgram( const int programIndex, const int ver
 	}
 	
 	// get the uniform buffer binding for skinning joint matrices
-	GLint blockIndex = qglGetUniformBlockIndex( program, "matrices_ubo" );
+	GLint blockIndex = glGetUniformBlockIndex( program, "matrices_ubo" );
 	if( blockIndex != -1 )
 	{
-		qglUniformBlockBinding( program, blockIndex, 0 );
+		glUniformBlockBinding( program, blockIndex, 0 );
 	}
 	
 	// set the texture unit locations once for the render program. We only need to do this once since we only link the program once
-	qglUseProgram( program );
+	glUseProgram( program );
 	for( int i = 0; i < MAX_PROG_TEXTURE_PARMS; ++i )
 	{
-		GLint loc = qglGetUniformLocation( program, va( "samp%d", i ) );
+		GLint loc = glGetUniformLocation( program, va( "samp%d", i ) );
 		if( loc != -1 )
 		{
-			qglUniform1i( loc, i );
+			glUniform1i( loc, i );
 		}
 	}
 	
