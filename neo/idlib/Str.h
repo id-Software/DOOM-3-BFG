@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2012 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -535,7 +536,9 @@ ID_INLINE idStr::idStr( const char* text )
 	
 	if( text )
 	{
-		l = strlen( text );
+		// RB: 64 bit fixes,  conversion from 'size_t' to 'int', possible loss of data
+		l = ( int )strlen( text );
+		// RB end
 		EnsureAlloced( l + 1 );
 		strcpy( data, text );
 		len = l;
@@ -546,7 +549,9 @@ ID_INLINE idStr::idStr( const char* text, int start, int end )
 {
 	Construct();
 	int i;
-	int l = strlen( text );
+	// RB: 64 bit fixes,  conversion from 'size_t' to 'int', possible loss of data
+	int l = ( int )strlen( text );
+	// RB end
 	
 	if( end > l )
 	{
@@ -851,7 +856,9 @@ ID_INLINE int idStr::Cmpn( const char* text, int n ) const
 ID_INLINE int idStr::CmpPrefix( const char* text ) const
 {
 	assert( text );
-	return idStr::Cmpn( data, text, strlen( text ) );
+	// RB: 64 bit fixes,  conversion from 'size_t' to 'int', possible loss of data
+	return idStr::Cmpn( data, text, ( int )strlen( text ) );
+	// RB end
 }
 
 ID_INLINE int idStr::Icmp( const char* text ) const
@@ -869,7 +876,9 @@ ID_INLINE int idStr::Icmpn( const char* text, int n ) const
 ID_INLINE int idStr::IcmpPrefix( const char* text ) const
 {
 	assert( text );
-	return idStr::Icmpn( data, text, strlen( text ) );
+	// RB: 64 bit fixes,  conversion from 'size_t' to 'int', possible loss of data
+	return idStr::Icmpn( data, text, ( int )strlen( text ) );
+	// RB end
 }
 
 ID_INLINE int idStr::IcmpNoColor( const char* text ) const
@@ -893,7 +902,9 @@ ID_INLINE int idStr::IcmpnPath( const char* text, int n ) const
 ID_INLINE int idStr::IcmpPrefixPath( const char* text ) const
 {
 	assert( text );
-	return idStr::IcmpnPath( data, text, strlen( text ) );
+	// RB: 64 bit fixes,  conversion from 'size_t' to 'int', possible loss of data
+	return idStr::IcmpnPath( data, text, ( int )strlen( text ) );
+	// RB end
 }
 
 ID_INLINE int idStr::Length() const
@@ -967,7 +978,9 @@ ID_INLINE void idStr::Append( const char* text )
 	
 	if( text )
 	{
-		newLen = len + strlen( text );
+		// RB: 64 bit fixes,  conversion from 'size_t' to 'int', possible loss of data
+		newLen = len + ( int )strlen( text );
+		// RB end
 		EnsureAlloced( newLen + 1 );
 		for( i = 0; text[ i ]; i++ )
 		{
@@ -1032,7 +1045,9 @@ ID_INLINE void idStr::Insert( const char* text, int index )
 		index = len;
 	}
 	
-	l = strlen( text );
+	// RB: 64 bit fixes,  conversion from 'size_t' to 'int', possible loss of data
+	l = ( int )strlen( text );
+	// RB end
 	EnsureAlloced( len + l + 1 );
 	for( i = len; i >= index; i-- )
 	{

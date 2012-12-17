@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2012 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -78,17 +79,18 @@ struct decalProjectionParms_t
 // RB begin
 #if defined(_WIN32)
 ALIGNTYPE16 struct decal_t
+#else
+struct decal_t
 #endif
-		struct decal_t
-	{
-		ALIGNTYPE16 idDrawVert	verts[MAX_DECAL_VERTS];
-		ALIGNTYPE16 triIndex_t	indexes[MAX_DECAL_INDEXES];
-		float					vertDepthFade[MAX_DECAL_VERTS];
-		int						numVerts;
-		int						numIndexes;
-		int						startTime;
-		const idMaterial* 		material;
-	}
+{
+	ALIGNTYPE16 idDrawVert	verts[MAX_DECAL_VERTS];
+	ALIGNTYPE16 triIndex_t	indexes[MAX_DECAL_INDEXES];
+	float					vertDepthFade[MAX_DECAL_VERTS];
+	int						numVerts;
+	int						numIndexes;
+	int						startTime;
+	const idMaterial* 		material;
+}
 #if !defined(_WIN32)
 ALIGNTYPE16
 #endif

@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2012 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -184,7 +185,9 @@ void idStr::operator=( const char* text )
 		return;
 	}
 	
-	l = strlen( text );
+	// RB: 64 bit fixes,  conversion from 'size_t' to 'int', possible loss of data
+	l = ( int )strlen( text );
+	// RB end
 	EnsureAlloced( l + 1, false );
 	strcpy( data, text );
 	len = l;
@@ -203,7 +206,9 @@ int idStr::FindChar( const char* str, const char c, int start, int end )
 	
 	if( end == -1 )
 	{
-		end = strlen( str ) - 1;
+		// RB: 64 bit fixes,  conversion from 'size_t' to 'int', possible loss of data
+		end = ( int )strlen( str ) - 1;
+		// RB end
 	}
 	for( i = start; i <= end; i++ )
 	{
@@ -226,11 +231,14 @@ int idStr::FindText( const char* str, const char* text, bool casesensitive, int 
 {
 	int l, i, j;
 	
+	// RB: 64 bit fixes,  conversion from 'size_t' to 'int', possible loss of data
 	if( end == -1 )
 	{
-		end = strlen( str );
+		end = ( int )strlen( str );
 	}
-	l = end - strlen( text );
+	l = end - ( int )strlen( text );
+	// RB end
+	
 	for( i = start; i <= l; i++ )
 	{
 		if( casesensitive )
@@ -776,7 +784,9 @@ void idStr::StripLeading( const char* string )
 {
 	int l;
 	
-	l = strlen( string );
+	// RB: 64 bit fixes,  conversion from 'size_t' to 'int', possible loss of data
+	l = ( int )strlen( string );
+	// RB end
 	if( l > 0 )
 	{
 		while( !Cmpn( string, l ) )
@@ -796,7 +806,9 @@ bool idStr::StripLeadingOnce( const char* string )
 {
 	int l;
 	
-	l = strlen( string );
+	// RB: 64 bit fixes,  conversion from 'size_t' to 'int', possible loss of data
+	l = ( int )strlen( string );
+	// RB end
 	if( ( l > 0 ) && !Cmpn( string, l ) )
 	{
 		memmove( data, data + l, len - l + 1 );
@@ -831,7 +843,9 @@ void idStr::StripTrailing( const char* string )
 {
 	int l;
 	
-	l = strlen( string );
+	// RB: 64 bit fixes,  conversion from 'size_t' to 'int', possible loss of data
+	l = ( int )strlen( string );
+	// RB end
 	if( l > 0 )
 	{
 		while( ( len >= l ) && !Cmpn( string, data + len - l, l ) )
@@ -851,7 +865,9 @@ bool idStr::StripTrailingOnce( const char* string )
 {
 	int l;
 	
-	l = strlen( string );
+	// RB: 64 bit fixes,  conversion from 'size_t' to 'int', possible loss of data
+	l = ( int )strlen( string );
+	// RB end
 	if( ( l > 0 ) && ( len >= l ) && !Cmpn( string, data + len - l, l ) )
 	{
 		len -= l;
@@ -887,8 +903,10 @@ idStr::Replace
 */
 bool idStr::Replace( const char* old, const char* nw )
 {
-	int oldLen = strlen( old );
-	int newLen = strlen( nw );
+	// RB: 64 bit fixes,  conversion from 'size_t' to 'int', possible loss of data
+	int oldLen = ( int )strlen( old );
+	int newLen = ( int )strlen( nw );
+	// RB end
 	
 	// Work out how big the new string will be
 	int count = 0;
@@ -924,7 +942,9 @@ bool idStr::Replace( const char* old, const char* nw )
 			}
 		}
 		data[j] = 0;
-		len = strlen( data );
+		// RB: 64 bit fixes,  conversion from 'size_t' to 'int', possible loss of data
+		len = ( int )strlen( data );
+		// RB end
 		return true;
 	}
 	return false;
@@ -1218,7 +1238,9 @@ void idStr::AppendPath( const char* text )
 	if( text && text[i] )
 	{
 		pos = len;
-		EnsureAlloced( len + strlen( text ) + 2 );
+		// RB: 64 bit fixes,  conversion from 'size_t' to 'int', possible loss of data
+		EnsureAlloced( len + ( int )strlen( text ) + 2 );
+		// RB end
 		
 		if( pos )
 		{
@@ -1898,7 +1920,9 @@ void idStr::Append( char* dest, int size, const char* src )
 {
 	int		l1;
 	
-	l1 = strlen( dest );
+	// RB: 64 bit fixes,  conversion from 'size_t' to 'int', possible loss of data
+	l1 = ( int )strlen( dest );
+	// RB end
 	if( l1 >= size )
 	{
 		idLib::common->Error( "idStr::Append: already overflowed" );

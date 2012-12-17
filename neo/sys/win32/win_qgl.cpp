@@ -1508,7 +1508,9 @@ void QGL_Shutdown( void )
 	qglScalef                    = NULL;
 	qglScissor                   = NULL;
 	qglSelectBuffer              = NULL;
-	qglShadeModel                = NULL;
+	// RB: deprecated
+	//qglShadeModel                = NULL;
+	// RB end
 	qglStencilFunc               = NULL;
 	qglStencilMask               = NULL;
 	qglStencilOp                 = NULL;

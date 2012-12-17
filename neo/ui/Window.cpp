@@ -3127,7 +3127,8 @@ idWindow::EmitOp
 */
 // DG: a, b and the return value are really pointers, so use intptr_t
 intptr_t idWindow::EmitOp( intptr_t a, intptr_t b, wexpOpType_t opType, wexpOp_t** opp )
-{ // DG end
+{
+	// DG end
 	wexpOp_t* op;
 	/*
 		// optimize away identity operations
@@ -3197,7 +3198,8 @@ Returns a register index
 */
 // DG: component and the return value are really pointers, so use intptr_t
 intptr_t idWindow::ParseTerm( idTokenParser* src,	idWinVar* var, intptr_t component )
-{ // DG end
+{
+	// DG end
 	idToken token;
 	// RB: 64 bit fixes, changed int to intptr_t
 	intptr_t		a, b;
@@ -3425,7 +3427,8 @@ Returns a register index
 */
 // DG: component and the return value are really pointers, so use intptr_t
 intptr_t idWindow::ParseExpression( idTokenParser* src, idWinVar* var, intptr_t component )
-{ // DG end
+{
+	// DG end
 	return ParseExpressionPriority( src, TOP_PRIORITY, var );
 }
 

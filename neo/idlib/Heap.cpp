@@ -3,6 +3,8 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2012 Robert Beckebans
+Copyright (C) 2012 Daniel Gibson
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -42,7 +44,9 @@ If you have questions concerning this license or the applicable additional terms
 Mem_Alloc16
 ==================
 */
-void* Mem_Alloc16( const int size, const memTag_t tag )
+// RB: 64 bit fixes, changed int to size_t
+void* Mem_Alloc16( const size_t size, const memTag_t tag )
+// RB end
 {
 	if( !size )
 	{
@@ -87,7 +91,7 @@ void Mem_Free16( void* ptr )
 Mem_ClearedAlloc
 ==================
 */
-void* Mem_ClearedAlloc( const int size, const memTag_t tag )
+void* Mem_ClearedAlloc( const size_t size, const memTag_t tag )
 {
 	void* mem = Mem_Alloc( size, tag );
 	SIMDProcessor->Memset( mem, 0, size );

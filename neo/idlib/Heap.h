@@ -49,11 +49,11 @@ static const int MAX_TAGS = 256;
 
 
 
-
-void* 		Mem_Alloc16( const int size, const memTag_t tag );
+// RB: 64 bit fixes, changed int to size_t
+void* 		Mem_Alloc16( const size_t size, const memTag_t tag );
 void		Mem_Free16( void* ptr );
 
-ID_INLINE void* 	Mem_Alloc( const int size, const memTag_t tag )
+ID_INLINE void* 	Mem_Alloc( const size_t size, const memTag_t tag )
 {
 	return Mem_Alloc16( size, tag );
 }
@@ -62,8 +62,9 @@ ID_INLINE void		Mem_Free( void* ptr )
 	Mem_Free16( ptr );
 }
 
-void* 		Mem_ClearedAlloc( const int size, const memTag_t tag );
+void* 		Mem_ClearedAlloc( const size_t size, const memTag_t tag );
 char* 		Mem_CopyString( const char* in );
+// RB end
 
 ID_INLINE void* operator new( size_t s )
 {

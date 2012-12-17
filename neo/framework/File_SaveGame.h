@@ -156,7 +156,9 @@ public:
 	// this file is strictly streaming, you can't seek at all
 	virtual int				Length() const
 	{
-		return compressedLength;
+		// RB: 64 bit fix, we don't need support for files bigger than 2 GB
+		return ( int ) compressedLength;
+		// RB end
 	}
 	virtual void			SetLength( size_t len )
 	{
