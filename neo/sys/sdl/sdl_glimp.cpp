@@ -267,6 +267,10 @@ bool GLimp_Init( glimpParms_t parms )
 	
 	QGL_Init( "nodriverlib" );
 	
+	// DG: disable cursor, we have two cursors in menu (because mouse isn't grabbed in menu)
+	SDL_ShowCursor( SDL_DISABLE );
+	// DG end
+	
 	return true;
 }
 
@@ -374,11 +378,13 @@ void GLimp_GrabInput( int flags )
 	}
 	
 #if SDL_VERSION_ATLEAST(2, 0, 0)
-	SDL_ShowCursor( flags & GRAB_HIDECURSOR ? SDL_DISABLE : SDL_ENABLE );
-	SDL_SetRelativeMouseMode( flags & GRAB_HIDECURSOR ? SDL_TRUE : SDL_FALSE );
+	// DG: disabling the cursor is now done once in GLimp_Init() because it should always be disabled
+	
+	// DG: check for GRAB_ENABLE instead of GRAB_HIDECURSOR because we always wanna hide it
+	SDL_SetRelativeMouseMode( flags & GRAB_ENABLE ? SDL_TRUE : SDL_FALSE );
 	SDL_SetWindowGrab( window, grab ? SDL_TRUE : SDL_FALSE );
 #else
-	SDL_ShowCursor( flags & GRAB_HIDECURSOR ? SDL_DISABLE : SDL_ENABLE );
+	// DG end
 	SDL_WM_GrabInput( grab ? SDL_GRAB_ON : SDL_GRAB_OFF );
 #endif
 }
