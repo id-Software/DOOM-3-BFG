@@ -279,7 +279,9 @@ If you have questions concerning this license or the applicable additional terms
 #define qglScalef glScalef
 #define qglScissor glScissor
 #define qglSelectBuffer glSelectBuffer
-#define qglShadeModel glShadeModel
+// DG: deprecated in opengl 3.2 and not needed because we don't do fixed function pipeline
+// #define qglShadeModel glShadeModel
+// DG: deprecated in opengl 3.2 and not needed because we don't do fixed function pipeline
 #define qglStencilFunc glStencilFunc
 #define qglStencilMask glStencilMask
 #define qglStencilOp glStencilOp

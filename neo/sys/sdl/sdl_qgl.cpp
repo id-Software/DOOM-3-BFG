@@ -1507,7 +1507,9 @@ void QGL_Shutdown( void )
 	qglScalef                    = NULL;
 	qglScissor                   = NULL;
 	qglSelectBuffer              = NULL;
-	qglShadeModel                = NULL;
+	// DG: deprecated in opengl 3.2 and not needed because we don't do fixed function pipeline
+	// qglShadeModel                = NULL;
+	// DG end
 	qglStencilFunc               = NULL;
 	qglStencilMask               = NULL;
 	qglStencilOp                 = NULL;
@@ -1902,7 +1904,9 @@ bool QGL_Init( const char* dllname )
 	qglScalef                    = 	dllScalef                    = glScalef;
 	qglScissor                   = 	dllScissor                   = glScissor;
 	qglSelectBuffer              = 	dllSelectBuffer              = glSelectBuffer;
-	qglShadeModel                = 	dllShadeModel                = glShadeModel;
+	// DG: deprecated in opengl 3.2 and not needed because we don't do fixed function pipeline
+	// qglShadeModel                = 	dllShadeModel                = glShadeModel;
+	// DG end
 	qglStencilFunc               = 	dllStencilFunc               = glStencilFunc;
 	qglStencilMask               = 	dllStencilMask               = glStencilMask;
 	qglStencilOp                 = 	dllStencilOp                 = glStencilOp;

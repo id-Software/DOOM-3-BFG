@@ -325,7 +325,9 @@ void ( APIENTRY* qglScaled )( GLdouble x, GLdouble y, GLdouble z );
 void ( APIENTRY* qglScalef )( GLfloat x, GLfloat y, GLfloat z );
 void ( APIENTRY* qglScissor )( GLint x, GLint y, GLsizei width, GLsizei height );
 void ( APIENTRY* qglSelectBuffer )( GLsizei size, GLuint* buffer );
-void ( APIENTRY* qglShadeModel )( GLenum mode );
+// DG: deprecated in opengl 3.2 and not needed because we don't do fixed function pipeline
+// void ( APIENTRY* qglShadeModel )( GLenum mode );
+// DG end
 void ( APIENTRY* qglStencilFunc )( GLenum func, GLint ref, GLuint mask );
 void ( APIENTRY* qglStencilMask )( GLuint mask );
 void ( APIENTRY* qglStencilOp )( GLenum fail, GLenum zfail, GLenum zpass );
@@ -664,7 +666,9 @@ static void ( APIENTRY* dllScaled )( GLdouble x, GLdouble y, GLdouble z );
 static void ( APIENTRY* dllScalef )( GLfloat x, GLfloat y, GLfloat z );
 static void ( APIENTRY* dllScissor )( GLint x, GLint y, GLsizei width, GLsizei height );
 static void ( APIENTRY* dllSelectBuffer )( GLsizei size, GLuint* buffer );
-static void ( APIENTRY* dllShadeModel )( GLenum mode );
+// DG: deprecated in opengl 3.2 and not needed because we don't do fixed function pipeline
+// static void ( APIENTRY* dllShadeModel )( GLenum mode );
+// DG end
 static void ( APIENTRY* dllStencilFunc )( GLenum func, GLint ref, GLuint mask );
 static void ( APIENTRY* dllStencilMask )( GLuint mask );
 static void ( APIENTRY* dllStencilOp )( GLenum fail, GLenum zfail, GLenum zpass );
@@ -1895,7 +1899,9 @@ bool QGL_Init( const char* dllname )
 	qglScalef                    = 	dllScalef                    = glScalef;
 	qglScissor                   = 	dllScissor                   = glScissor;
 	qglSelectBuffer              = 	dllSelectBuffer              = glSelectBuffer;
-	qglShadeModel                = 	dllShadeModel                = glShadeModel;
+// DG: deprecated in opengl 3.2 and not needed because we don't do fixed function pipeline
+//	qglShadeModel                = 	dllShadeModel                = glShadeModel;
+// DG end
 	qglStencilFunc               = 	dllStencilFunc               = glStencilFunc;
 	qglStencilMask               = 	dllStencilMask               = glStencilMask;
 	qglStencilOp                 = 	dllStencilOp                 = glStencilOp;

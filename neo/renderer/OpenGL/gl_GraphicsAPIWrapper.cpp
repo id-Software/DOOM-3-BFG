@@ -290,7 +290,9 @@ void GL_SetDefaultState()
 	qglPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
 	
 	// These should never be changed
-	qglShadeModel( GL_SMOOTH );
+	// DG: deprecated in opengl 3.2 and not needed because we don't do fixed function pipeline
+	// qglShadeModel( GL_SMOOTH );
+	// DG end
 	qglEnable( GL_DEPTH_TEST );
 	qglEnable( GL_BLEND );
 	qglEnable( GL_SCISSOR_TEST );
