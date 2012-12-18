@@ -457,9 +457,9 @@ bool R_GetModeListForDisplay( const int requestedDisplayNum, idList<vidMode_t>& 
 		// requested invalid displaynum
 		return false;
 	}
-	
+
 	int numModes = SDL_GetNumDisplayModes( requestedDisplayNum );
-	if( numModes > 1 )
+	if( numModes > 0 )
 	{
 		for( int i = 0; i < numModes; i++ )
 		{
@@ -480,24 +480,21 @@ bool R_GetModeListForDisplay( const int requestedDisplayNum, idList<vidMode_t>& 
 		
 		if( modeList.Num() < 1 )
 		{
-			common->Warning( "Couldn't get information for a single video mode, using default ones..!\n" );
+			common->Warning( "Couldn't get a single video mode for display %i, using default ones..!\n", requestedDisplayNum );
 			FillStaticVidModes( modeList );
 		}
 		
 		// sort with lowest resolution first
 		modeList.SortWithTemplate( idSort_VidMode() );
-		
-		return true;
 	}
 	else
 	{
-		common->Warning( "Can't get Video Info!\n" );
+		common->Warning( "Can't get Video Info, using default modes...\n" );
 		if( numModes < 0 )
 		{
 			common->Warning( "Reason was: %s\n", SDL_GetError() );
 		}
 		FillStaticVidModes( modeList );
-		return true;
 	}
 	
 	return true;
@@ -513,13 +510,11 @@ bool R_GetModeListForDisplay( const int requestedDisplayNum, idList<vidMode_t>& 
 	}
 	// DG end
 	
-	bool	verbose = false;
-	
 	const SDL_VideoInfo* videoInfo = SDL_GetVideoInfo();
 	if( videoInfo == NULL )
 	{
 		// DG: yes, this can actually fail, e.g. if SDL_Init( SDL_INIT_VIDEO ) wasn't called
-		common->Warning( "Can't get Video Info!\n" );
+		common->Warning( "Can't get Video Info, using default modes...\n" );
 		FillStaticVidModes( modeList );
 		return true;
 	}
@@ -528,7 +523,7 @@ bool R_GetModeListForDisplay( const int requestedDisplayNum, idList<vidMode_t>& 
 	
 	if( !modes )
 	{
-		common->Warning( "Can't get list of available modes\n" );
+		common->Warning( "Can't get list of available modes, using default ones...\n" );
 		FillStaticVidModes( modeList );
 		return true;
 	}
