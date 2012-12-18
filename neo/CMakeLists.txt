@@ -1104,6 +1104,8 @@ else()
 			idlib
 			GL
 			pthread
+			dl
+			rt
 			${SDLx_LIBRARY}
 			)
 	endif()

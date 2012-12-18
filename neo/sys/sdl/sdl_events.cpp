@@ -607,10 +607,16 @@ void Sys_GrabMouseCursor( bool grabIt )
 	int flags;
 	
 	if( grabIt )
-		flags = GRAB_ENABLE | GRAB_HIDECURSOR | GRAB_SETSTATE;
+	{
+		// DG: disabling the cursor is now done once in GLimp_Init() because it should always be disabled
+		flags = GRAB_ENABLE | GRAB_SETSTATE;
+		// DG end
+	}
 	else
+	{
 		flags = GRAB_SETSTATE;
-		
+	}
+	
 	GLimp_GrabInput( flags );
 }
 
@@ -678,8 +684,9 @@ sysEvent_t Sys_GetEvent()
 							newmod |= KMOD_CAPS;
 							
 						SDL_SetModState( ( SDL_Keymod )newmod );
-						
-						GLimp_GrabInput( GRAB_ENABLE | GRAB_REENABLE | GRAB_HIDECURSOR );
+						// DG: disabling the cursor is now done once in GLimp_Init() because it should always be disabled
+						GLimp_GrabInput( GRAB_ENABLE | GRAB_REENABLE );
+						// DG end
 						break;
 					}
 					
@@ -786,9 +793,21 @@ sysEvent_t Sys_GetEvent()
 #endif
 				
 			case SDL_MOUSEMOTION:
-				res.evType = SE_MOUSE;
-				res.evValue = ev.motion.xrel;
-				res.evValue2 = ev.motion.yrel;
+				// DG: return event with absolute mouse-coordinates when in menu
+				// to fix cursor problems in windowed mode
+				if( game && game->Shell_IsActive() )
+				{
+					res.evType = SE_MOUSE_ABSOLUTE;
+					res.evValue = ev.motion.x;
+					res.evValue2 = ev.motion.y;
+				}
+				else     // this is the old, default behavior
+				{
+					res.evType = SE_MOUSE;
+					res.evValue = ev.motion.xrel;
+					res.evValue2 = ev.motion.yrel;
+				}
+				// DG end
 				
 				mouse_polls.Append( mouse_poll_t( M_DELTAX, ev.motion.xrel ) );
 				mouse_polls.Append( mouse_poll_t( M_DELTAY, ev.motion.yrel ) );
