@@ -1,10 +1,9 @@
 
-____________________________                        _____________________________________ 
-\______   \______   \______ \   ____   ____   _____ \_____  \______   \_   _____/  _____/ 
- |       _/|    |  _/|    |  \ /  _ \ /  _ \ /     \  _(__  <|    |  _/|    __)/   \  ___ 
- |    |   \|    |   \|    `   (  <_> |  <_> )  Y Y  \/       \    |   \|     \ \    \_\  \
- |____|_  /|______  /_______  /\____/ \____/|__|_|  /______  /______  /\___  /  \______  /
-        \/        \/        \/                    \/       \/       \/     \/         
+    ____   ____   ____                           _____  ____   ______ ______
+   / __ \ / __ ) / __ \ ____   ____   ____ ___  |__  / / __ ) / ____// ____/
+  / /_/ // __  |/ / / // __ \ / __ \ / __ `__ \  /_ < / __  |/ /_   / / __  
+ / _, _// /_/ // /_/ // /_/ // /_/ // / / / / /___/ // /_/ // __/  / /_/ /  
+/_/ |_|/_____//_____/ \____/ \____//_/ /_/ /_//____//_____//_/     \____/   
 _________________________________________
 
 
@@ -150,14 +149,14 @@ _________________________
  
 	On Debian or Ubuntu:
 
-		> apt-get install libsdl1.2-dev cmake
+		> apt-get install cmake libsdl1.2-dev
 	
 	On Fedora
 
-		> yum install SDL-devel cmake
+		> yum install cmake SDL-devel
 
 
-3. Generate the Makefiles using Premake:
+3. Generate the Makefiles using CMake:
 
 	> cd neo/
 	> ./cmake-eclipse-linux-profile.sh
@@ -191,7 +190,9 @@ ___________________________________________________
 __________________________________________
 
 	* Sound engine does not work on Linux
+	* Doomclassic is not supported on Linux (yet)
 	* There are some issues with the binary format loaders/writers on 64 bit platforms
+	* The intel open source drivers to not support OpenGL 3.2 yet
 
 
 ___________________________________________________
