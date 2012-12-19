@@ -45,11 +45,7 @@ This file contains the following sections:
 	
 	11) BUG REPORTS
 	
-	12) FUTURE PLAN
-	
-	13) CONTRIBUTIONS
-	
-	14) DONATIONS
+	12) CODE LICENSE EXCEPTIONS
 
 
 
@@ -230,7 +226,7 @@ NOTE: We cannot help you with OS-specific issues like configuring OpenGL correct
 	
 ____________________________________________________________________________________
 
-12) Code License Exceptions - The parts that are not covered by the GPL:
+12) CODE LICENSE EXCEPTIONS - The parts that are not covered by the GPL:
 _______________________________________________________________________
 
 
