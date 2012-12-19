@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
-project(RBDoom3)
+project(RBDoom3BFG)
 
 option(USE_MFC_TOOLS
 		"Compile the built-in MFC based tools" OFF)
@@ -1011,16 +1011,16 @@ if(MSVC)
 
 	list(REMOVE_DUPLICATES RBDOOM3_SOURCES)
 	
-	add_executable(RBDoom3 WIN32 ${RBDOOM3_SOURCES})
+	add_executable(RBDoom3BFG WIN32 ${RBDOOM3_SOURCES})
 		
-	#add_custom_command(TARGET RBDoom3
+	#add_custom_command(TARGET RBDoom3BFG
     #               PRE_BUILD
 	#			   COMMAND nmake ARGS /f Makefile.vc6 CFG=release
 	#			   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/libs/curl/lib
     #               COMMENT "Compiling libcURL")
 		
-	add_dependencies(RBDoom3 idlib)
-	target_link_libraries(RBDoom3
+	add_dependencies(RBDoom3BFG idlib)
+	target_link_libraries(RBDoom3BFG
 		idlib
 		${DirectX_LIBRARIES}
 		#libcurl 
@@ -1071,9 +1071,9 @@ else()
 
 	list(REMOVE_DUPLICATES RBDOOM3_SOURCES)
 	
-	add_executable(RBDoom3 WIN32 ${RBDOOM3_SOURCES})
+	add_executable(RBDoom3BFG WIN32 ${RBDOOM3_SOURCES})
 
-	add_dependencies(RBDoom3 idlib)
+	add_dependencies(RBDoom3BFG idlib)
 	
 	if(MINGW)
 		include_directories(libs/sdl2/include)
@@ -1083,7 +1083,7 @@ else()
 	
 	if(WIN32)
 	
-		target_link_libraries(RBDoom3
+		target_link_libraries(RBDoom3BFG
 			idlib
 			${DirectX_LIBRARIES}
 			#libcurl 
@@ -1101,7 +1101,7 @@ else()
 	endif()
 	
 	if(UNIX)	
-		target_link_libraries(RBDoom3
+		target_link_libraries(RBDoom3BFG
 			idlib
 			GL
 			pthread

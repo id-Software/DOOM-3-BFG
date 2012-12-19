@@ -457,7 +457,7 @@ bool R_GetModeListForDisplay( const int requestedDisplayNum, idList<vidMode_t>& 
 		// requested invalid displaynum
 		return false;
 	}
-
+	
 	int numModes = SDL_GetNumDisplayModes( requestedDisplayNum );
 	if( numModes > 0 )
 	{
