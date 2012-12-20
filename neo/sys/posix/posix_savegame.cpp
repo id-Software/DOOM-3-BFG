@@ -136,6 +136,8 @@ int idSaveGameThread::Save()
 		}
 	}
 	
+	// RB: disabled savegame and profile storage checks, because it fails sometimes without any clear reason
+	/*
 	// Inform user about size required if necessary
 	if( requiredSizeBytes > 0 && !callback->cancelled )
 	{
@@ -147,7 +149,7 @@ int idSaveGameThread::Save()
 			directory += "\\";	// so it doesn't think the last part is a file and ignores in the directory creation
 			fileSystem->CreateOSPath( directory );  // we can't actually check FileExists in production builds, so just try to create it
 			user->StorageSizeAvailable( requiredSizeBytes, callback->requiredSpaceInBytes );
-			
+	
 			if( callback->requiredSpaceInBytes > 0 )
 			{
 				callback->errorCode = SAVEGAME_E_INSUFFICIENT_ROOM;
@@ -156,6 +158,8 @@ int idSaveGameThread::Save()
 			}
 		}
 	}
+	*/
+	// RB end
 	
 	// Delete all previous files if needed
 	// ALL THE FILES RIGHT NOW----  could use pattern later...
