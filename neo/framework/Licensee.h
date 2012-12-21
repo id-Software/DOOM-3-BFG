@@ -36,9 +36,12 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #define GAME_NAME						"DOOM 3: BFG Edition"		// appears on window titles and errors
-#define SAVE_PATH						"\\id Software\\DOOM 3 BFG"
+
+// RB: changed home folder so we don't break the savegame of the original game
+#define SAVE_PATH						"\\id Software\\RBDOOM 3 BFG"
 
 #define ENGINE_VERSION					"RBD3BFG 1"	// printed in console
+// RB end
 
 #define	BASE_GAMEDIR					"base"
 
@@ -60,11 +63,7 @@ If you have questions concerning this license or the applicable additional terms
 
 // RB begin
 // Linux info
-#ifdef ID_DEMO_BUILD
-#define LINUX_DEFAULT_PATH				"/usr/local/games/rbdoom3-bfg-demo"
-#else
 #define LINUX_DEFAULT_PATH				"/usr/local/games/rbdoom3-bfg"
-#endif
 // RB end
 
 
