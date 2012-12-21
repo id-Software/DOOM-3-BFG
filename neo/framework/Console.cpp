@@ -642,6 +642,11 @@ void idConsoleLocal::KeyDownEvent( int key )
 		{
 			consoleField.SetBuffer( hist );
 		}
+		else // DG: if no more lines are in the history, show a blank line again
+		{
+			consoleField.Clear();
+		} // DG end
+		
 		return;
 	}
 	
