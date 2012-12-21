@@ -269,6 +269,11 @@ static int SDL_KeyToDoom3Key( SDL_Keycode key, bool& isChar )
 		case SDLK_PAUSE:
 			return K_PAUSE;
 			
+			// DG: add tab key support
+		case SDLK_TAB:
+			return K_TAB;
+			// DG end
+			
 			//case SDLK_APPLICATION:
 			//	return K_COMMAND;
 		case SDLK_CAPSLOCK:
@@ -737,26 +742,35 @@ sysEvent_t Sys_GetEvent()
 			{
 				bool isChar;
 				
-				key = SDL_KeyToDoom3Key( ev.key.keysym.sym, isChar );
-				
-				if( key == 0 )
+				// DG: special case for SDL_SCANCODE_GRAVE - the console key under Esc
+				if( ev.key.keysym.scancode == SDL_SCANCODE_GRAVE )
 				{
-					unsigned char c;
+					key = K_GRAVE;
+					c = K_BACKSPACE; // bad hack to get empty console inputline..
+				} // DG end, the original code is in the else case
+				else
+				{
+					key = SDL_KeyToDoom3Key( ev.key.keysym.sym, isChar );
 					
-					// check if its an unmapped console key
-					if( ev.key.keysym.unicode == ( c = Sys_GetConsoleKey( false ) ) )
+					if( key == 0 )
 					{
-						key = c;
-					}
-					else if( ev.key.keysym.unicode == ( c = Sys_GetConsoleKey( true ) ) )
-					{
-						key = c;
-					}
-					else
-					{
-						if( ev.type == SDL_KEYDOWN )
-							common->Warning( "unmapped SDL key %d (0x%x)", ev.key.keysym.sym, ev.key.keysym.unicode );
-						return res_none;
+						unsigned char c;
+						
+						// check if its an unmapped console key
+						if( ev.key.keysym.unicode == ( c = Sys_GetConsoleKey( false ) ) )
+						{
+							key = c;
+						}
+						else if( ev.key.keysym.unicode == ( c = Sys_GetConsoleKey( true ) ) )
+						{
+							key = c;
+						}
+						else
+						{
+							if( ev.type == SDL_KEYDOWN )
+								common->Warning( "unmapped SDL key %d (0x%x)", ev.key.keysym.sym, ev.key.keysym.unicode );
+							return res_none;
+						}
 					}
 				}
 				
