@@ -687,6 +687,19 @@ sysEvent_t Sys_GetEvent()
 		
 		return res;
 	}
+	
+	// DG: fake a "mousewheel not pressed anymore" event for SDL2
+	// so scrolling in menus stops after one step
+	static int mwheelRel = 0;
+	if( mwheelRel )
+	{
+		res.evType = SE_KEY;
+		res.evValue = mwheelRel;
+		res.evValue2 = 0; // "not pressed anymore"
+		mwheelRel = 0;
+		return res;
+	}
+	// DG end
 #endif
 	
 	static byte c = 0;
@@ -871,6 +884,10 @@ sysEvent_t Sys_GetEvent()
 					res.evValue = K_MWHEELDOWN;
 					mouse_polls.Append( mouse_poll_t( M_DELTAZ, -1 ) );
 				}
+				
+				// DG: remember mousewheel direction to issue a "not pressed anymore" event
+				mwheelRel = res.evValue;
+				// DG end
 				
 				res.evValue2 = 1;
 				
