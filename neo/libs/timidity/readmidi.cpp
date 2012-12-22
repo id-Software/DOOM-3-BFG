@@ -19,7 +19,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 */
 
-#include "../../idlib/precompiled.h"
+#include "precompiled.h"
 
 #include <stdio.h>
 #include <stdlib.h>

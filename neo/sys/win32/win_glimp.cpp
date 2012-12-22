@@ -41,7 +41,7 @@ If you have questions concerning this license or the applicable additional terms
 ** related functions that are relevant ONLY to win_glimp.c
 */
 #pragma hdrstop
-#include "../../idlib/precompiled.h"
+#include "precompiled.h"
 
 #include "win_local.h"
 #include "rc/doom_resource.h"

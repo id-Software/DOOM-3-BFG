@@ -26,7 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 #pragma hdrstop
-#include "../idlib/precompiled.h"
+#include "precompiled.h"
 #include "sys_lobby.h"
 
 extern idCVar net_connectTimeoutInSeconds;

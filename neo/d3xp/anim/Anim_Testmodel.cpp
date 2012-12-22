@@ -49,7 +49,7 @@ move around it to view it from different angles.
 */
 
 #pragma hdrstop
-#include "../../idlib/precompiled.h"
+#include "precompiled.h"
 
 
 #include "../Game_local.h"

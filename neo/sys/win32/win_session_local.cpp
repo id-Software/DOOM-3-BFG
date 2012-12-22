@@ -14,7 +14,7 @@ Contains the windows implementation of the network session
 */
 
 #pragma hdrstop
-#include "../../idlib/precompiled.h"
+#include "precompiled.h"
 #include "../../framework/Common_local.h"
 #include "../sys_session_local.h"
 #include "../sys_stats.h"

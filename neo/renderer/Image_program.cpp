@@ -51,7 +51,7 @@ Manager
 */
 
 #pragma hdrstop
-#include "../idlib/precompiled.h"
+#include "precompiled.h"
 
 
 // tr_imageprogram.c

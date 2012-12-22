@@ -21,7 +21,7 @@ common.c
 
 */
 
-#include "../../idlib/precompiled.h"
+#include "precompiled.h"
 
 #include <stdio.h>
 #include <stdlib.h>

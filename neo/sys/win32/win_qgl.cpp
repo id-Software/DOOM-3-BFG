@@ -36,7 +36,7 @@ If you have questions concerning this license or the applicable additional terms
 ** QGL_Shutdown() - unloads libraries, NULLs function pointers
 */
 #pragma hdrstop
-#include "../../idlib/precompiled.h"
+#include "precompiled.h"
 
 #include <float.h>
 #include "win_local.h"

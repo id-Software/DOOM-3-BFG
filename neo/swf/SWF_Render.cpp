@@ -26,7 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 #pragma hdrstop
-#include "../idlib/precompiled.h"
+#include "precompiled.h"
 #include "../renderer/tr_local.h"
 
 idCVar swf_timescale( "swf_timescale", "1", CVAR_FLOAT, "timescale for swf files" );
