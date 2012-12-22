@@ -35,6 +35,8 @@ if(MSVC)
         PROPERTIES
         COMPILE_FLAGS "/Ycprecompiled.h"
         )
+else()
+	include_directories(.)
 endif()
 	
 add_library(idlib ${ID_SOURCES} ${ID_INCLUDES})
