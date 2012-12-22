@@ -1513,7 +1513,7 @@ void FullscreenFX_DoubleVision::HighQuality()
 		color.z = 0.0f;
 	}
 	
-	if( !common->IsMultiplayer() && gameLocal.fast.time < player->inventory.powerupEndTime[ HELLTIME ] || gameLocal.fast.time < player->inventory.powerupEndTime[ INVULNERABILITY ] )
+	if( ( !common->IsMultiplayer() && gameLocal.fast.time < player->inventory.powerupEndTime[ HELLTIME ] ) || gameLocal.fast.time < player->inventory.powerupEndTime[ INVULNERABILITY ] )
 	{
 		color.y = 0.0f;
 		color.z = 0.0f;

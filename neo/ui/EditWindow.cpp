@@ -117,7 +117,7 @@ void idEditWindow::CommonInit()
 	sizeBias = 0;
 	lastTextLength = 0;
 	forceScroll = false;
-	password = NULL;
+	password = false; // DG: this is a bool, so use false, not NULL
 	cvar = NULL;
 	liveUpdate = true;
 	readonly = false;

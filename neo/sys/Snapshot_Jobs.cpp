@@ -332,7 +332,13 @@ void LZWJobInternal( lzwParm_t* parm, unsigned int dmaTag )
 	
 	dmaTag = dmaTag;
 	
+#ifdef __GNUC__
+	// DG: remove ALIGN16 for GCC/clang, as they can't use it here and clang gets an error
+	idLZWCompressor lzwCompressor( parm->ioData->lzwData );
+	// DG end
+#else
 	ALIGN16( idLZWCompressor lzwCompressor( parm->ioData->lzwData ) );
+#endif
 	
 	if( parm->fragmented )
 	{

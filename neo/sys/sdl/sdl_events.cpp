@@ -741,6 +741,8 @@ sysEvent_t Sys_GetEvent()
 					case SDL_WINDOWEVENT_FOCUS_LOST:
 						GLimp_GrabInput( 0 );
 						break;
+						
+						// TODO: SDL_WINDOWEVENT_RESIZED
 				}
 				
 				return res_none;

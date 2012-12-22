@@ -3215,7 +3215,9 @@ bool idFileSystemLocal::GetResourceCacheEntry( const char* fileName, idResourceC
 	{
 		// os path, convert to relative? scripts can pass in an OS path
 		//idLib::Printf( "RESOURCE: os path passed %s\n", fileName );
-		return NULL;
+		// DG: this should return a bool, i.e. false, not NULL
+		return false;
+		// DG end
 	}
 	else
 	{
@@ -3269,7 +3271,8 @@ idFile* idFileSystemLocal::GetResourceFile( const char* fileName, bool memFile )
 			idLib::Printf( "RES: loading file %s\n", rc.filename.c_str() );
 		}
 		idFile_InnerResource* file = new idFile_InnerResource( rc.filename, resourceFiles[ rc.containerIndex ]->resourceFile, rc.offset, rc.length );
-		if( file != NULL && ( memFile || rc.length <= resourceBufferAvailable ) || rc.length < 8 * 1024 * 1024 )
+		// DG: add parenthesis to make sure this block is only entered when file != NULL - bug found by clang.
+		if( file != NULL && ( ( memFile || rc.length <= resourceBufferAvailable ) || rc.length < 8 * 1024 * 1024 ) )
 		{
 			byte* buf = NULL;
 			if( rc.length < resourceBufferAvailable )

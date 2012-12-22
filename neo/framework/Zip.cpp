@@ -819,11 +819,11 @@ int zipOpenNewFileInZip3( zipFile file, const char* filename, const zip_fileinfo
 	{
 		zi->ci.flag |= 2;
 	}
-	if( ( level == 2 ) )
+	if( level == 2 ) // DG: remove unnecessary parenthesis
 	{
 		zi->ci.flag |= 4;
 	}
-	if( ( level == 1 ) )
+	if( level == 1 ) // DG: remove unnecessary parenthesis
 	{
 		zi->ci.flag |= 6;
 	}
