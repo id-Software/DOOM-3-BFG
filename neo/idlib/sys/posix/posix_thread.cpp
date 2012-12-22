@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../../precompiled.h"
 
 
-//#include <SDL_thread.h>
+//#define DEBUG_THREADS
 
 typedef void* ( *pthread_function_t )( void* );
 
@@ -61,9 +61,7 @@ uintptr_t Sys_CreateThread( xthread_t function, void* parms, xthreadPriority pri
 	pthread_attr_destroy( &attr );
 	
 	// RB: TODO pthread_setname_np is different on Linux, MacOSX and other systems
-#if 1
-	pthread_setname_np( handle, name );
-#else
+#if defined(DEBUG_THREADS)
 	if( pthread_setname_np( handle, name ) != 0 )
 	{
 		idLib::common->FatalError( "ERROR: pthread_setname_np %s failed\n", name );
@@ -122,7 +120,10 @@ void Sys_DestroyThread( uintptr_t threadHandle )
 	
 	char	name[128];
 	name[0] = '\0';
+	
+#if defined(DEBUG_THREADS)
 	pthread_getname_np( threadHandle, name, sizeof( name ) );
+#endif
 	
 #if 0 //!defined(__ANDROID__)
 	if( pthread_cancel( ( pthread_t )threadHandle ) != 0 )
