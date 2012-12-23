@@ -349,7 +349,8 @@ idCommonLocal::UpdateScreen
 This is an out-of-sequence screen update, not the normal game rendering
 ===============
 */
-void idCommonLocal::UpdateScreen( bool captureToImage )
+// DG: added possibility to *not* release mouse in UpdateScreen(), it fucks up the view angle for screenshots
+void idCommonLocal::UpdateScreen( bool captureToImage, bool releaseMouse )
 {
 	if( insideUpdateScreen )
 	{
@@ -361,7 +362,9 @@ void idCommonLocal::UpdateScreen( bool captureToImage )
 	gameThread.WaitForThread();
 	
 	// release the mouse capture back to the desktop
-	Sys_GrabMouseCursor( false );
+	if( releaseMouse )
+		Sys_GrabMouseCursor( false );
+	// DG end
 	
 	// build all the draw commands without running a new game tic
 	Draw();
