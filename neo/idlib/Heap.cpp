@@ -52,7 +52,7 @@ void* Mem_Alloc16( const size_t size, const memTag_t tag )
 	{
 		return NULL;
 	}
-	const int paddedSize = ( size + 15 ) & ~15;
+	const size_t paddedSize = ( size + 15 ) & ~15;
 #ifdef _WIN32
 	// this should work with MSVC and mingw, as long as __MSVCRT_VERSION__ >= 0x0700
 	return _aligned_malloc( paddedSize, 16 );
