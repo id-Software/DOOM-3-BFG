@@ -359,9 +359,12 @@ int Sys_ListFiles( const char* directory, const char* extension, idStrList& list
 	
 	debug = cvarSystem->GetCVarBool( "fs_debug" );
 	
-	if( !extension )
+	// DG: handle "*" as special case that matches everything
+	// FIXME: handle * properly as a wildcase somewhere in the string?
+	if( !extension || ( extension[0] == '*' && extension[1] == '\0' ) )
 		extension = "";
-		
+	// DG end
+	
 	// passing a slash as extension will find directories
 	if( extension[0] == '/' && extension[1] == 0 )
 	{
@@ -380,20 +383,42 @@ int Sys_ListFiles( const char* directory, const char* extension, idStrList& list
 		return -1;
 	}
 	
-	while( ( d = readdir( fdir ) ) != NULL )
+	// DG: use readdir_r instead of readdir for thread safety
+	// the following lines are from the readdir_r manpage.. fscking ugly.
+	int nameMax = pathconf( directory, _PC_NAME_MAX );
+	if( nameMax == -1 )
+		nameMax = 255;
+	int direntLen = offsetof( struct dirent, d_name ) + nameMax + 1;
+	
+	struct dirent* entry = ( struct dirent* )Mem_Alloc( direntLen, TAG_CRAP );
+	
+	if( entry == NULL )
 	{
+		common->Warning( "Sys_ListFiles: Mem_Alloc for entry failed!" );
+		closedir( fdir );
+		return 0;
+	}
+	
+	int extLen = idStr::Length( extension );
+	
+	while( readdir_r( fdir, entry, &d ) == 0 && d != NULL )
+	{
+		// DG end
 		idStr::snPrintf( search, sizeof( search ), "%s/%s", directory, d->d_name );
 		if( stat( search, &st ) == -1 )
 			continue;
 		if( !dironly )
 		{
-			idStr look( search );
-			idStr ext;
-			look.ExtractFileExtension( ext );
-			if( extension[0] != '\0' && ext.Icmp( &extension[1] ) != 0 )
-			{
+			// DG: the original code didn't work because d3 bfg abuses the extension
+			// to match whole filenames in the savegame-code, not just file extensions...
+			// the extension must be the last chars of the filename
+			// so start matching at startPos = strlen(d->d_name) - strlen(extension)
+			int startPos = idStr::Length( d->d_name ) - extLen;
+			// of course the extension can't match if it's longer than the filename, i.e. startPos < 0
+			if( startPos < 0 || idStr::FindText( d->d_name, extension, true, startPos ) < 0 )
 				continue;
-			}
+				
+			// DG end
 		}
 		if( ( dironly && !( st.st_mode & S_IFDIR ) ) ||
 				( !dironly && ( st.st_mode & S_IFDIR ) ) )
@@ -403,6 +428,7 @@ int Sys_ListFiles( const char* directory, const char* extension, idStrList& list
 	}
 	
 	closedir( fdir );
+	Mem_Free( entry );
 	
 	if( debug )
 	{
