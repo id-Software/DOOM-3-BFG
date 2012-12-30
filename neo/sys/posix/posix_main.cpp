@@ -656,6 +656,8 @@ ID_TIME_T Sys_FileTimeStamp( idFileHandle fp )
 
 void Sys_Sleep( int msec )
 {
+#if 0 // DG: I don't really care, this spams the console (and on windows this case isn't handled either)
+	// Furthermore, there are several Sys_Sleep( 10 ) calls throughout the code
 	if( msec < 20 )
 	{
 		static int last = 0;
@@ -668,7 +670,7 @@ void Sys_Sleep( int msec )
 		// ignore that sleep call, keep going
 		return;
 	}
-	
+#endif // DG end
 	// use nanosleep? keep sleeping if signal interrupt?
 	
 	// RB begin
