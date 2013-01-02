@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -110,11 +111,17 @@ typedef enum
 #if (_WIN32_WINNT < 0x0602 /*_WIN32_WINNT_WIN8*/)
 #include <xma2defs.h>
 #endif
-// RB end
 
+#if defined(USE_OPENAL)
+#include "OpenAL/AL_SoundSample.h"
+#include "OpenAL/AL_SoundVoice.h"
+#include "OpenAL/AL_SoundHardware.h"
+#else
 #include "XAudio2/XA2_SoundSample.h"
 #include "XAudio2/XA2_SoundVoice.h"
 #include "XAudio2/XA2_SoundHardware.h"
+#endif
+// RB end
 
 #else // not _MSC_VER => MinGW, GCC, ...
 // just a stub for now
@@ -490,7 +497,10 @@ public:
 			bufferNumber( 0 )
 		{ }
 		
-#ifdef _MSC_VER // XAudio backend
+#if defined(USE_OPENAL)
+		idSoundVoice_OpenAL* 	voice;
+		idSoundSample_OpenAL*	sample;
+#elif defined(_MSC_VER) // XAudio backend
 		// DG: because the inheritance is kinda strange (idSoundVoice is derived
 		// from idSoundVoice_XAudio2), casting the latter to the former isn't possible
 		// so we need this ugly #ifdef ..

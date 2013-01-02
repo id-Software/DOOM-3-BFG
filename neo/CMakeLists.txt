@@ -12,8 +12,8 @@ option(MONOLITH
 option(SDL2
 		"Use SDL2 instead of SDL1.2" OFF)
 		
-#option(STANDALONE
-#		"Skip Doom 3 base/ folder" ON)
+option(OPENAL
+		"Use OpenAL soft instead of XAudio2" ON)
 
 
 if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
@@ -382,6 +382,16 @@ set(XAUDIO2_SOURCES
 	sound/XAudio2/XA2_SoundHardware.cpp
 	sound/XAudio2/XA2_SoundSample.cpp
 	sound/XAudio2/XA2_SoundVoice.cpp)
+	
+set(OPENAL_INCLUDES
+	sound/OpenAL/AL_SoundHardware.h
+	sound/OpenAL/AL_SoundSample.h
+	sound/OpenAL/AL_SoundVoice.h)
+	
+set(OPENAL_SOURCES
+	sound/OpenAL/AL_SoundHardware.cpp
+	sound/OpenAL/AL_SoundSample.cpp
+	sound/OpenAL/AL_SoundVoice.cpp)
 
 set(STUBAUDIO_INCLUDES
 	sound/stub/SoundStub.h)
@@ -798,6 +808,9 @@ source_group("sound" FILES ${SOUND_SOURCES})
 source_group("sound\\XAudio2" FILES ${XAUDIO2_INCLUDES})
 source_group("sound\\XAudio2" FILES ${XAUDIO2_SOURCES})
 
+source_group("sound\\OpenAL" FILES ${OPENAL_INCLUDES})
+source_group("sound\\OpenAL" FILES ${OPENAL_SOURCES})
+
 source_group("sound\\stub" FILES ${STUBAUDIO_INCLUDES})
 source_group("sound\\stub" FILES ${STUBAUDIO_SOURCES})
 
@@ -1003,8 +1016,6 @@ include_directories(
 
 if(MSVC)
 
-	add_definitions(-DUSE_DOOMCLASSIC)
-
 	if(MSVC_VERSION EQUAL 1700)
 		set(DirectX_LIBRARIES
 			dinput8
@@ -1014,11 +1025,41 @@ if(MSVC)
 			Xinput
 			xaudio2.lib
 			)
-		add_definitions(-DUSE_XINPUT)
+		
+		if(NOT OPENAL)
+			list(APPEND DirectX_LIBRARIES xaudio2.lib)
+		endif()
+		
 	else()
 		find_package(DirectX REQUIRED)
 		include_directories(${DirectX_INCLUDE_DIR})
-		add_definitions(-DUSE_XINPUT)
+	endif()
+	
+	if(OPENAL)
+		add_definitions(-DUSE_OPENAL)
+	
+		include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs/openal-soft/include)
+		
+		if(CMAKE_CL_64)
+			link_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs/openal-soft/lib/win64)
+		else()
+			link_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs/openal-soft/lib/win32)
+		endif()
+		
+		list(APPEND RBDOOM3_INCLUDES ${OPENAL_INCLUDES})
+		list(APPEND RBDOOM3_SOURCES ${OPENAL_SOURCES})
+	else()
+		add_definitions(-DUSE_DOOMCLASSIC)
+	
+		list(APPEND RBDOOM3_INCLUDES
+			${XAUDIO2_INCLUDES}
+			${DOOMCLASSIC_INCLUDES}
+			${TIMIDITY_INCLUDES})
+			
+		list(APPEND RBDOOM3_SOURCES
+			${XAUDIO2_SOURCES}
+			${DOOMCLASSIC_SOURCES}
+			${TIMIDITY_SOURCES})
 	endif()
 	
 	if(USE_MFC_TOOLS)
@@ -1026,9 +1067,9 @@ if(MSVC)
 		include_directories(libs/atlmfc/include)
 		if(CMAKE_CL_64)
 			link_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs/atlmfc/lib/amd64)
-		else(CMAKE_CL_64)
+		else()
 			link_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs/atlmfc/lib)
-		endif(CMAKE_CL_64)
+		endif()
 		
 		add_definitions(-DUSE_MFC_TOOLS)
 		
@@ -1051,19 +1092,11 @@ if(MSVC)
 	endif()
 	
 	list(APPEND RBDOOM3_INLCUDES
-		${DOOMCLASSIC_INCLUDES}
-		${TIMIDITY_INCLUDES}
-		
 		${SYS_INCLUDES} 
-		${XAUDIO2_INCLUDES}
 		${WIN32_INCLUDES})
 		
 	list(APPEND RBDOOM3_SOURCES
-		${DOOMCLASSIC_SOURCES}
-		${TIMIDITY_SOURCES}
-		
 		${SYS_SOURCES}
-		${XAUDIO2_SOURCES}
 		${WIN32_SOURCES})
 
 	list(REMOVE_DUPLICATES RBDOOM3_SOURCES)
@@ -1122,13 +1155,13 @@ if(MSVC)
 		)
 		
 	#CMAKE_BINARY_DIR
-	# if(CMAKE_CL_64)
-		# install(TARGETS RBDoom3BFG
-            # RUNTIME DESTINATION ../bin/win64)
-	# else()
-		# install(TARGETS RBDoom3BFG
-            # RUNTIME DESTINATION ../bin/win32)
-	# endif()
+	if(CMAKE_CL_64)
+		install(TARGETS RBDoom3BFG
+			RUNTIME DESTINATION ../bin/win64)
+	else()
+		install(TARGETS RBDoom3BFG
+			RUNTIME DESTINATION ../bin/win32)
+	endif()
 	
 else()
 
