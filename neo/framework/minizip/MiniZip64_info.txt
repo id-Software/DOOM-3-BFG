@@ -1,7 +1,7 @@
 NOTE from Daniel Gibson:
 
-These are parts of MiniZip (the unzip-parts), taken from zlib-1.2.7/contrib/minizip/
-and adjusted for doom3 by making small adjustments foor doom3 (doom3-specific allocator)
+These are parts of MiniZip, taken from zlib-1.2.7/contrib/minizip/
+and adjusted for doom3 by making small adjustments for doom3 (doom3-specific allocator)
 and adding a function (unzReOpen()) from the original Doom3 GPL release by id Software 
 that used MiniZip 0.15beta. It was adjusted by Daniel Gibson for MiniZip 1.1
  Copyright (C) 1999-2011 id Software LLC, a ZeniMax Media company.
