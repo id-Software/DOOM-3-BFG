@@ -123,8 +123,8 @@ file(GLOB AAS_SOURCES aas/*.cpp)
 file(GLOB_RECURSE CM_INCLUDES cm/*.h)
 file(GLOB_RECURSE CM_SOURCES cm/*.cpp)
 
-file(GLOB FRAMEWORK_INCLUDES framework/*.h framework/minizip/*.h)
-file(GLOB FRAMEWORK_SOURCES framework/*.cpp framework/minizip/*.c framework/minizip/*.cpp)
+file(GLOB FRAMEWORK_INCLUDES framework/*.h)
+file(GLOB FRAMEWORK_SOURCES framework/*.cpp)
 
 file(GLOB FRAMEWORK_ASYNC_INCLUDES framework/async/*.h)
 file(GLOB FRAMEWORK_ASYNC_SOURCES framework/async/*.cpp)
@@ -303,6 +303,9 @@ file(GLOB PNG_SOURCES libs/png/*.c)
 
 file(GLOB ZLIB_INCLUDES libs/zlib/*.h)
 file(GLOB ZLIB_SOURCES libs/zlib/*.c)
+
+file(GLOB MINIZIP_INCLUDES libs/zlib/minizip/*.h)
+file(GLOB MINIZIP_SOURCES libs/zlib/minizip/*.c libs/zlib/minizip/*.cpp)
 	
 set(GLEW_INCLUDES
 	libs/glew/include/GL/glew.h)
@@ -781,6 +784,9 @@ source_group("libs\\png" FILES ${PNG_SOURCES})
 source_group("libs\\zlib" FILES ${ZLIB_INCLUDES})
 source_group("libs\\zlib" FILES ${ZLIB_SOURCES})
 
+source_group("libs\\zlib\\minizip" FILES ${MINIZIP_INCLUDES})
+source_group("libs\\zlib\\minizip" FILES ${MINIZIP_SOURCES})
+
 source_group("libs\\glew" FILES ${GLEW_INCLUDES})
 source_group("libs\\glew" FILES ${GLEW_SOURCES})
 
@@ -915,6 +921,7 @@ set(RBDOOM3_INCLUDES
 			${JPEG_INCLUDES}
 			#${PNG_INCLUDES}
 			${ZLIB_INCLUDES}
+			${MINIZIP_INCLUDES}
 			#${GLEW_INCLUDES}
 			#${FREETYPE_SOURCES}
 			${SOUND_INCLUDES}
@@ -939,6 +946,7 @@ set(RBDOOM3_SOURCES
 			${JPEG_SOURCES}
 			#${PNG_SOURCES}
 			${ZLIB_SOURCES}
+			${MINIZIP_SOURCES}
 			#${GLEW_SOURCES}
 			#${FREETYPE_SOURCES}
 			${SOUND_SOURCES}
@@ -1062,7 +1070,7 @@ if(MSVC)
 	
 	set(RBDOOM3_PRECOMPILED_SOURCES ${RBDOOM3_SOURCES})
 	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${TIMIDITY_SOURCES} ${JPEG_SOURCES} ${ZLIB_SOURCES})
-	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/framework/minizip/ioapi.c)
+	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/libs/zlib/minizip/ioapi.c)
 	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/DXT/DXTDecoder.cpp)
 	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/DXT/DXTEncoder.cpp)
 	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/DXT/DXTEncoder_SSE2.cpp)
@@ -1075,7 +1083,7 @@ if(MSVC)
 	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/../doomclassic/doom/i_sound_win32.cpp)
 	
 	foreach( src_file ${RBDOOM3_PRECOMPILED_SOURCES} )
-		message(STATUS "/Yuprecompiled.h for ${src_file}")
+		#message(STATUS "/Yuprecompiled.h for ${src_file}")
         set_source_files_properties(
             ${src_file}
             PROPERTIES

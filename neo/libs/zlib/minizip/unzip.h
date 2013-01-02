@@ -51,7 +51,7 @@ extern "C" {
 #endif
 
 #ifndef _ZLIB_H
-#include "../../libs/zlib/zlib.h"
+#include "../zlib.h"
 #endif
 
 #include "ioapi.h"
