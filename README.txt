@@ -270,7 +270,7 @@ zlib library
 ---------------------------------------------------------------------------
 neo/libs/zlib/*
 
-Copyright (C) 1995-2005 Jean-loup Gailly and Mark Adler
+Copyright (C) 1995-2012 Jean-loup Gailly and Mark Adler
 
 This software is provided 'as-is', without any express or implied
 warranty.  In no event will the authors be held liable for any damages
