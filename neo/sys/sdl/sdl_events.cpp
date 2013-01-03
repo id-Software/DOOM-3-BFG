@@ -5,6 +5,7 @@ Doom 3 GPL Source Code
 Copyright (C) 1999-2011 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2012 dhewg (dhewm3)
 Copyright (C) 2012 Robert Beckebans
+Copyright (C) 2013 Daniel Gibson
 
 This file is part of the Doom 3 GPL Source Code ("Doom 3 Source Code").
 
@@ -28,9 +29,10 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include "../../idlib/precompiled.h"
+
 #include <SDL.h>
 
-#include "../../idlib/precompiled.h"
 #include "renderer/tr_local.h"
 #include "sdl_local.h"
 #include "../posix/posix_public.h"
@@ -57,6 +59,13 @@ If you have questions concerning this license or the applicable additional terms
 #define SDL_SCANCODE_GRAVE 49 // in SDL2 this is 53.. but according to two different systems and keyboards this works for SDL1
 // DG end
 #endif
+
+// DG: those are needed for moving/resizing windows
+extern idCVar r_windowX;
+extern idCVar r_windowY;
+extern idCVar r_windowWidth;
+extern idCVar r_windowHeight;
+// DG end
 
 const char* kbdNames[] =
 {
@@ -742,7 +751,28 @@ sysEvent_t Sys_GetEvent()
 						GLimp_GrabInput( 0 );
 						break;
 						
-						// TODO: SDL_WINDOWEVENT_RESIZED
+						// DG: handle resizing and moving of window
+					case SDL_WINDOWEVENT_RESIZED:
+					{
+						int w = ev.window.data1;
+						int h = ev.window.data2;
+						r_windowWidth.SetInteger( w );
+						r_windowHeight.SetInteger( h );
+						
+						glConfig.nativeScreenWidth = w;
+						glConfig.nativeScreenHeight = h;
+						break;
+					}
+					
+					case SDL_WINDOWEVENT_MOVED:
+					{
+						int x = ev.window.data1;
+						int y = ev.window.data2;
+						r_windowX.SetInteger( x );
+						r_windowY.SetInteger( y );
+						break;
+					}
+					// DG end
 				}
 				
 				return res_none;
@@ -777,7 +807,16 @@ sysEvent_t Sys_GetEvent()
 			case SDL_KEYDOWN:
 				if( ev.key.keysym.sym == SDLK_RETURN && ( ev.key.keysym.mod & KMOD_ALT ) > 0 )
 				{
-					cvarSystem->SetCVarBool( "r_fullscreen", !renderSystem->IsFullScreen() );
+					// DG: go to fullscreen on current display, instead of always first display
+					int fullscreen = 0;
+					if( ! renderSystem->IsFullScreen() )
+					{
+						// this will be handled as "fullscreen on current window"
+						// r_fullscreen 1 means "fullscreen on first window" in d3 bfg
+						fullscreen = -2;
+					}
+					cvarSystem->SetCVarInteger( "r_fullscreen", fullscreen );
+					// DG end
 					PushConsoleEvent( "vid_restart" );
 					return res_none;
 				}
