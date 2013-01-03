@@ -101,6 +101,7 @@ typedef enum
 
 #include <AL/al.h>
 #include <AL/alc.h>
+#include <AL/alext.h>
 
 #include "OpenAL/AL_SoundSample.h"
 #include "OpenAL/AL_SoundVoice.h"

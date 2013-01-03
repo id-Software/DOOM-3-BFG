@@ -73,14 +73,16 @@ idSoundVoice_OpenAL::idSoundVoice_OpenAL
 ========================
 */
 idSoundVoice_OpenAL::idSoundVoice_OpenAL()
-	:	openalSource( 0 ),
-		leadinSample( NULL ),
-		loopingSample( NULL ),
-		formatTag( 0 ),
-		numChannels( 0 ),
-		sampleRate( 0 ),
-		paused( true ),
-		hasVUMeter( false )
+	:
+	triggered( false ),
+	openalSource( 0 ),
+	leadinSample( NULL ),
+	loopingSample( NULL ),
+	formatTag( 0 ),
+	numChannels( 0 ),
+	sampleRate( 0 ),
+	paused( true ),
+	hasVUMeter( false )
 {
 
 }
@@ -125,6 +127,8 @@ void idSoundVoice_OpenAL::Create( const idSoundSample* leadinSample_, const idSo
 		return;
 	}
 	
+	triggered = true;
+	
 	leadinSample = ( idSoundSample_OpenAL* )leadinSample_;
 	loopingSample = ( idSoundSample_OpenAL* )loopingSample_;
 	
@@ -152,6 +156,27 @@ void idSoundVoice_OpenAL::Create( const idSoundSample* leadinSample_, const idSo
 		
 		alSourcef( openalSource, AL_ROLLOFF_FACTOR, 0.0f );
 		
+		// handle streaming sounds (decode on the fly) both single shot AND looping
+		//if( triggered )
+		{
+			alSourcei( openalSource, AL_BUFFER, 0 );
+			alDeleteBuffers( 3, &lastopenalStreamingBuffer[0] );
+			lastopenalStreamingBuffer[0] = openalStreamingBuffer[0];
+			lastopenalStreamingBuffer[1] = openalStreamingBuffer[1];
+			lastopenalStreamingBuffer[2] = openalStreamingBuffer[2];
+			
+			alGenBuffers( 3, &openalStreamingBuffer[0] );
+			/*
+			if( soundSystemLocal.alEAXSetBufferMode )
+			{
+				soundSystemLocal.alEAXSetBufferMode( 3, &chan->openalStreamingBuffer[0], alGetEnumValue( ID_ALCHAR "AL_STORAGE_ACCESSIBLE" ) );
+			}
+			*/
+			openalStreamingBuffer[0];
+			openalStreamingBuffer[1];
+			openalStreamingBuffer[2];
+		}
+		
 		if( s_debugHardware.GetBool() )
 		{
 			if( loopingSample == NULL || loopingSample == leadinSample )
@@ -173,7 +198,9 @@ void idSoundVoice_OpenAL::Create( const idSoundSample* leadinSample_, const idSo
 	alSource3f( openalSource, AL_POSITION, 0.0f, 0.0f, 0.0f );
 	
 	// RB: FIXME 0.0f ?
-	alSourcef( openalSource, AL_GAIN, 1.0f );
+	alSourcef( openalSource, AL_GAIN, 0.0f );
+	
+	//OnBufferStart( leadinSample, 0 );
 }
 
 /*
@@ -331,6 +358,73 @@ int idSoundVoice_OpenAL::SubmitBuffer( idSoundSample_OpenAL* sample, int bufferN
 	bufferContext->bufferNumber = bufferNumber;
 	
 	// TODO openal stream
+	
+	ALint finishedbuffers;
+	
+	if( !triggered )
+	{
+		alGetSourcei( openalSource, AL_BUFFERS_PROCESSED, &finishedbuffers );
+		alSourceUnqueueBuffers( openalSource, finishedbuffers, &openalStreamingBuffer[0] );
+		if( finishedbuffers == 3 )
+		{
+			triggered = true;
+		}
+	}
+	else
+	{
+		finishedbuffers = 3;
+	}
+	
+	ALenum format;
+	
+	if( sample->format.basic.formatTag == idWaveFile::FORMAT_PCM )
+	{
+		format = sample->NumChannels() == 1 ? AL_FORMAT_MONO_IMA4 : AL_FORMAT_STEREO_IMA4;
+	}
+	else
+	{
+		format = sample->NumChannels() == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
+	}
+	
+	for( int j = 0; j < finishedbuffers && j < 1; j++ )
+	{
+		/*
+		chan->GatherChannelSamples( chan->openalStreamingOffset * sample->objectInfo.nChannels, MIXBUFFER_SAMPLES * sample->objectInfo.nChannels, alignedInputSamples );
+		for( int i = 0; i < ( MIXBUFFER_SAMPLES * sample->objectInfo.nChannels ); i++ )
+		{
+			if( alignedInputSamples[i] < -32768.0f )
+				( ( short* )alignedInputSamples )[i] = -32768;
+			else if( alignedInputSamples[i] > 32767.0f )
+				( ( short* )alignedInputSamples )[i] = 32767;
+			else
+				( ( short* )alignedInputSamples )[i] = idMath::FtoiFast( alignedInputSamples[i] );
+		}
+		*/
+		
+		//alBufferData( buffers[0], sample->NumChannels() == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16, sample->buffers[bufferNumber].buffer, sample->buffers[bufferNumber].bufferSize, sample->SampleRate() /*44100*/ );
+		
+		
+		
+		
+		alBufferData( openalStreamingBuffer[j], format, sample->buffers[bufferNumber].buffer, sample->buffers[bufferNumber].bufferSize, sample->SampleRate() /*44100*/ );
+		//openalStreamingOffset += MIXBUFFER_SAMPLES;
+	}
+	
+	if( finishedbuffers > 0 )
+	{
+		//alSourceQueueBuffers( openalSource, finishedbuffers, &buffers[0] );
+		alSourceQueueBuffers( openalSource, 1, &openalStreamingBuffer[0] );
+		
+		if( bufferNumber == 0 )
+		{
+			alSourcePlay( openalSource );
+			triggered = false;
+		}
+		
+		return sample->buffers[bufferNumber].bufferSize;
+	}
+	
+	// should never happen
 	return 0;
 	
 	/*
@@ -501,6 +595,30 @@ void idSoundVoice_OpenAL::Stop()
 		
 		alSourceStop( openalSource );
 		alSourcei( openalSource, AL_BUFFER, 0 );
+		
+		if( openalStreamingBuffer[0] && openalStreamingBuffer[1] && openalStreamingBuffer[2] )
+		{
+			alGetError();
+			alDeleteBuffers( 3, &openalStreamingBuffer[0] );
+			if( alGetError() == AL_NO_ERROR )
+			{
+				openalStreamingBuffer[0] = openalStreamingBuffer[1] = openalStreamingBuffer[2] = 0;
+			}
+		}
+		
+		if( lastopenalStreamingBuffer[0] && lastopenalStreamingBuffer[1] && lastopenalStreamingBuffer[2] )
+		{
+			alGetError();
+			alDeleteBuffers( 3, &lastopenalStreamingBuffer[0] );
+			if( alGetError() == AL_NO_ERROR )
+			{
+				lastopenalStreamingBuffer[0] = lastopenalStreamingBuffer[1] = lastopenalStreamingBuffer[2] = 0;
+			}
+		}
+		
+		openalStreamingOffset = 0;
+		//openalStreamingBuffer[0] = openalStreamingBuffer[1] = openalStreamingBuffer[2] = 0;
+		//lastopenalStreamingBuffer[0] = lastopenalStreamingBuffer[1] = lastopenalStreamingBuffer[2] = 0;
 		
 		//pSourceVoice->Stop( 0, OPERATION_SET );
 		paused = true;

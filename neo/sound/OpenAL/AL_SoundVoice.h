@@ -42,6 +42,20 @@ public:
 	idSoundVoice_OpenAL();
 	~idSoundVoice_OpenAL();
 	
+	void					SetPosition( const idVec3& p )
+	{
+		idSoundVoice_Base::SetPosition( p );
+		
+		alSource3f( openalSource, AL_POSITION, -p.y, p.z, -p.x );
+	}
+	
+	void					SetGain( float gain )
+	{
+		idSoundVoice_Base::SetGain( gain );
+		
+		alSourcef( openalSource, AL_GAIN, ( gain ) < ( 1.0f ) ? ( gain ) : ( 1.0f ) );
+	}
+	
 	void					Create( const idSoundSample* leadinSample, const idSoundSample* loopingSample );
 	
 	// Start playing at a particular point in the buffer.  Does an Update() too
@@ -95,7 +109,11 @@ private:
 	void					SetSampleRate( uint32 newSampleRate, uint32 operationSet );
 	
 	//IXAudio2SourceVoice* 	pSourceVoice;
+	bool					triggered;
 	ALuint					openalSource;
+	ALuint					openalStreamingOffset;
+	ALuint					openalStreamingBuffer[3];
+	ALuint					lastopenalStreamingBuffer[3];
 	
 	idSoundSample_OpenAL*	leadinSample;
 	idSoundSample_OpenAL*	loopingSample;

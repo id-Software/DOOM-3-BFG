@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -43,14 +44,18 @@ public:
 	
 	void		CalculateSurround( int srcChannels, float pLevelMatrix[ MAX_CHANNELS_PER_VOICE* MAX_CHANNELS_PER_VOICE ], float scale );
 	
-	void		SetPosition( const idVec3& p )
+	// RB begin
+	virtual void	SetPosition( const idVec3& p )
 	{
 		position = p;
 	}
-	void		SetGain( float g )
+	
+	virtual void	SetGain( float g )
 	{
 		gain = g;
 	}
+	// RB end
+	
 	void		SetCenterChannel( float c )
 	{
 		centerChannel = c;

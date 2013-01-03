@@ -222,6 +222,7 @@ void idSoundHardware_OpenAL::Init()
 	common->Printf( "OpenAL vendor: %s\n", alGetString( AL_VENDOR ) );
 	common->Printf( "OpenAL renderer: %s\n", alGetString( AL_RENDERER ) );
 	common->Printf( "OpenAL version: %s\n", alGetString( AL_VERSION ) );
+	common->Printf( "OpenAL extensions: %s\n", alGetString( AL_EXTENSIONS ) );
 	
 	//pMasterVoice->SetVolume( DBtoLinear( s_volume_dB.GetFloat() ) );
 	

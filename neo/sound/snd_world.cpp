@@ -372,8 +372,10 @@ void idSoundWorldLocal::Update()
 			const bool canMute = channel->CanMute();
 			if( canMute && channel->volumeDB <= DB_SILENCE )
 			{
+#if !defined(USE_OPENAL)
 				channel->Mute();
 				continue;
+#endif
 			}
 			
 			// Calculate the sort key.
