@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -51,6 +52,7 @@ public:
 	
 	// Stop consuming buffers
 	void					Pause();
+	
 	// Start consuming buffers again
 	void					UnPause();
 	
@@ -92,9 +94,11 @@ private:
 	// Adjust the voice frequency based on the new sample rate for the buffer
 	void					SetSampleRate( uint32 newSampleRate, uint32 operationSet );
 	
-	IXAudio2SourceVoice* 	pSourceVoice;
-	idSoundSample_OpenAL* leadinSample;
-	idSoundSample_OpenAL* loopingSample;
+	//IXAudio2SourceVoice* 	pSourceVoice;
+	ALuint					openalSource;
+	
+	idSoundSample_OpenAL*	leadinSample;
+	idSoundSample_OpenAL*	loopingSample;
 	
 	// These are the fields from the sample format that matter to us for voice reuse
 	uint16					formatTag;

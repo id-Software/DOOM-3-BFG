@@ -97,6 +97,16 @@ typedef enum
 
 #define OPERATION_SET 1
 
+#if defined(USE_OPENAL)
+
+#include <AL/al.h>
+#include <AL/alc.h>
+
+#include "OpenAL/AL_SoundSample.h"
+#include "OpenAL/AL_SoundVoice.h"
+#include "OpenAL/AL_SoundHardware.h"
+#else
+
 // RB: not available on Windows 8 SDK
 #if (_WIN32_WINNT < 0x0602 /*_WIN32_WINNT_WIN8*/)
 #include <dxsdkver.h>
@@ -112,11 +122,6 @@ typedef enum
 #include <xma2defs.h>
 #endif
 
-#if defined(USE_OPENAL)
-#include "OpenAL/AL_SoundSample.h"
-#include "OpenAL/AL_SoundVoice.h"
-#include "OpenAL/AL_SoundHardware.h"
-#else
 #include "XAudio2/XA2_SoundSample.h"
 #include "XAudio2/XA2_SoundVoice.h"
 #include "XAudio2/XA2_SoundHardware.h"

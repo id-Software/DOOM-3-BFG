@@ -1048,6 +1048,9 @@ if(MSVC)
 		
 		list(APPEND RBDOOM3_INCLUDES ${OPENAL_INCLUDES})
 		list(APPEND RBDOOM3_SOURCES ${OPENAL_SOURCES})
+		
+		set(OpenAL_LIBRARIES
+			OpenAL32)
 	else()
 		add_definitions(-DUSE_DOOMCLASSIC)
 	
@@ -1152,6 +1155,7 @@ if(MSVC)
 		iphlpapi
 		winmm
 		wsock32.lib
+		${OpenAL_LIBRARIES}
 		)
 		
 	#CMAKE_BINARY_DIR

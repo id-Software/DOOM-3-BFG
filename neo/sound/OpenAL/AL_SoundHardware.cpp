@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2012 Robert Beckebans
+Copyright (C) 2013 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -45,15 +45,14 @@ idSoundHardware_OpenAL::idSoundHardware_OpenAL
 */
 idSoundHardware_OpenAL::idSoundHardware_OpenAL()
 {
-	pXAudio2 = NULL;
-	pMasterVoice = NULL;
-	pSubmixVoice = NULL;
+	openalDevice = NULL;
+	openalContext = NULL;
 	
-	vuMeterRMS = NULL;
-	vuMeterPeak = NULL;
+	//vuMeterRMS = NULL;
+	//vuMeterPeak = NULL;
 	
-	outputChannels = 0;
-	channelMask = 0;
+	//outputChannels = 0;
+	//channelMask = 0;
 	
 	voices.SetNum( 0 );
 	zombieVoices.SetNum( 0 );
@@ -64,19 +63,8 @@ idSoundHardware_OpenAL::idSoundHardware_OpenAL()
 
 void listDevices_f( const idCmdArgs& args )
 {
-
-	IXAudio2* pXAudio2 = soundSystemLocal.hardware.GetIXAudio2();
-	
-	if( pXAudio2 == NULL )
-	{
-		idLib::Warning( "No xaudio object" );
-		return;
-	}
-	
-// RB: not available on Windows 8 SDK
-#if (_WIN32_WINNT >= 0x0602 /*_WIN32_WINNT_WIN8*/)
-
-	// FIXME
+#if 1
+	// TODO
 	
 	idLib::Warning( "No audio devices found" );
 	return;
@@ -211,139 +199,46 @@ idSoundHardware_OpenAL::Init
 */
 void idSoundHardware_OpenAL::Init()
 {
-
 	cmdSystem->AddCommand( "listDevices", listDevices_f, 0, "Lists the connected sound devices", NULL );
 	
-	DWORD xAudioCreateFlags = 0;
+	common->Printf( "Setup OpenAL device and context... " );
 	
-// RB: not available on Windows 8 SDK
-#if (_WIN32_WINNT < 0x0602 /*_WIN32_WINNT_WIN8*/) && defined(_DEBUG)
-	xAudioCreateFlags |= XAUDIO2_DEBUG_ENGINE;
-#endif
-// RB end
-
-	XAUDIO2_PROCESSOR xAudioProcessor = XAUDIO2_DEFAULT_PROCESSOR;
-	
-// RB: not available on Windows 8 SDK
-	if( FAILED( XAudio2Create( &pXAudio2, xAudioCreateFlags, xAudioProcessor ) ) )
+	openalDevice = alcOpenDevice( NULL );
+	if( openalDevice == NULL )
 	{
-#if (_WIN32_WINNT < 0x0602 /*_WIN32_WINNT_WIN8*/) && defined(_DEBUG)
-		if( xAudioCreateFlags & XAUDIO2_DEBUG_ENGINE )
-		{
-			// in case the debug engine isn't installed
-			xAudioCreateFlags &= ~XAUDIO2_DEBUG_ENGINE;
-			if( FAILED( XAudio2Create( &pXAudio2, xAudioCreateFlags, xAudioProcessor ) ) )
-			{
-				idLib::FatalError( "Failed to create XAudio2 engine.  Try installing the latest DirectX." );
-				return;
-			}
-		}
-		else
-#endif
-// RB end
-		{
-			idLib::FatalError( "Failed to create XAudio2 engine.  Try installing the latest DirectX." );
-			return;
-		}
-	}
-#ifdef _DEBUG
-	XAUDIO2_DEBUG_CONFIGURATION debugConfiguration = { 0 };
-	debugConfiguration.TraceMask = XAUDIO2_LOG_WARNINGS;
-	debugConfiguration.BreakMask = XAUDIO2_LOG_ERRORS;
-	pXAudio2->SetDebugConfiguration( &debugConfiguration );
-#endif
-	
-	// Register the sound engine callback
-	pXAudio2->RegisterForCallbacks( &soundEngineCallback );
-	soundEngineCallback.hardware = this;
-	
-// RB: not available on Windows 8 SDK
-#if (_WIN32_WINNT >= 0x0602 /*_WIN32_WINNT_WIN8*/)
-
-	// FIXME
-	
-	idLib::Warning( "No audio devices found" );
-	pXAudio2->Release();
-	pXAudio2 = NULL;
-	return;
-#else
-	UINT32 deviceCount = 0;
-	if( pXAudio2->GetDeviceCount( &deviceCount ) != S_OK || deviceCount == 0 )
-	{
-		idLib::Warning( "No audio devices found" );
-		pXAudio2->Release();
-		pXAudio2 = NULL;
+		common->FatalError( "idSoundHardware_OpenAL::Init: alcOpenDevice() failed\n" );
 		return;
 	}
 	
-	idCmdArgs args;
-	listDevices_f( args );
-	
-	int preferredDevice = s_device.GetInteger();
-	if( preferredDevice < 0 || preferredDevice >= ( int )deviceCount )
+	openalContext = alcCreateContext( openalDevice, NULL );
+	if( alcMakeContextCurrent( openalContext ) == 0 )
 	{
-		int preferredChannels = 0;
-		for( unsigned int i = 0; i < deviceCount; i++ )
-		{
-			XAUDIO2_DEVICE_DETAILS deviceDetails;
-			if( pXAudio2->GetDeviceDetails( i, &deviceDetails ) != S_OK )
-			{
-				continue;
-			}
-	
-			if( deviceDetails.Role & DefaultGameDevice )
-			{
-				// if we find a device the user marked as their preferred 'game' device, then always use that
-				preferredDevice = i;
-				preferredChannels = deviceDetails.OutputFormat.Format.nChannels;
-				break;
-			}
-	
-			if( deviceDetails.OutputFormat.Format.nChannels > preferredChannels )
-			{
-				preferredDevice = i;
-				preferredChannels = deviceDetails.OutputFormat.Format.nChannels;
-			}
-		}
-	}
-	
-	idLib::Printf( "Using device %d\n", preferredDevice );
-	
-	XAUDIO2_DEVICE_DETAILS deviceDetails;
-	if( pXAudio2->GetDeviceDetails( preferredDevice, &deviceDetails ) != S_OK )
-	{
-		// One way this could happen is if a device is removed between the loop and this line of code
-		// Highly unlikely but possible
-		idLib::Warning( "Failed to get device details" );
-		pXAudio2->Release();
-		pXAudio2 = NULL;
+		common->FatalError( "idSoundHardware_OpenAL::Init: alcMakeContextCurrent( %p) failed\n", openalContext );
 		return;
 	}
 	
-	DWORD outputSampleRate = 44100; // Max( (DWORD)XAUDIO2FX_REVERB_MIN_FRAMERATE, Min( (DWORD)XAUDIO2FX_REVERB_MAX_FRAMERATE, deviceDetails.OutputFormat.Format.nSamplesPerSec ) );
+	common->Printf( "Done.\n" );
 	
-	if( FAILED( pXAudio2->CreateMasteringVoice( &pMasterVoice, XAUDIO2_DEFAULT_CHANNELS, outputSampleRate, 0, preferredDevice, NULL ) ) )
-	{
-		idLib::Warning( "Failed to create master voice" );
-		pXAudio2->Release();
-		pXAudio2 = NULL;
-		return;
-	}
-	pMasterVoice->SetVolume( DBtoLinear( s_volume_dB.GetFloat() ) );
+	common->Printf( "OpenAL vendor: %s\n", alGetString( AL_VENDOR ) );
+	common->Printf( "OpenAL renderer: %s\n", alGetString( AL_RENDERER ) );
+	common->Printf( "OpenAL version: %s\n", alGetString( AL_VERSION ) );
 	
-	outputChannels = deviceDetails.OutputFormat.Format.nChannels;
-	channelMask = deviceDetails.OutputFormat.dwChannelMask;
+	//pMasterVoice->SetVolume( DBtoLinear( s_volume_dB.GetFloat() ) );
 	
-	idSoundVoice::InitSurround( outputChannels, channelMask );
+	//outputChannels = deviceDetails.OutputFormat.Format.nChannels;
+	//channelMask = deviceDetails.OutputFormat.dwChannelMask;
+	
+	//idSoundVoice::InitSurround( outputChannels, channelMask );
 	
 	// ---------------------
 	// Initialize the Doom classic sound system.
 	// ---------------------
-	I_InitSoundHardware( outputChannels, channelMask );
+	//I_InitSoundHardware( outputChannels, channelMask );
 	
 	// ---------------------
 	// Create VU Meter Effect
 	// ---------------------
+	/*
 	IUnknown* vuMeter = NULL;
 	XAudio2CreateVolumeMeter( &vuMeter, 0 );
 	
@@ -359,11 +254,13 @@ void idSoundHardware_OpenAL::Init()
 	pMasterVoice->SetEffectChain( &chain );
 	
 	vuMeter->Release();
+	*/
 	
 	// ---------------------
 	// Create VU Meter Graph
 	// ---------------------
 	
+	/*
 	vuMeterRMS = console->CreateGraph( outputChannels );
 	vuMeterPeak = console->CreateGraph( outputChannels );
 	vuMeterRMS->Enable( false );
@@ -388,16 +285,9 @@ void idSoundHardware_OpenAL::Init()
 		vuMeterRMS->SetLabel( i, channelNames[ ci ] );
 		i++;
 	}
+	*/
 	
-	// ---------------------
-	// Create submix buffer
-	// ---------------------
-	if( FAILED( pXAudio2->CreateSubmixVoice( &pSubmixVoice, 1, outputSampleRate, 0, 0, NULL, NULL ) ) )
-	{
-		idLib::FatalError( "Failed to create submix voice" );
-	}
-	
-	// XAudio doesn't really impose a maximum number of voices
+	// OpenAL doesn't really impose a maximum number of sources
 	voices.SetNum( voices.Max() );
 	freeVoices.SetNum( voices.Max() );
 	zombieVoices.SetNum( 0 );
@@ -405,8 +295,6 @@ void idSoundHardware_OpenAL::Init()
 	{
 		freeVoices[i] = &voices[i];
 	}
-#endif // #if (_WIN32_WINNT < 0x0602 /*_WIN32_WINNT_WIN8*/)
-// RB end
 }
 
 /*
@@ -424,37 +312,21 @@ void idSoundHardware_OpenAL::Shutdown()
 	freeVoices.Clear();
 	zombieVoices.Clear();
 	
+	alcMakeContextCurrent( NULL );
+	
+	alcDestroyContext( openalContext );
+	openalContext = NULL;
+	
+	alcCloseDevice( openalDevice );
+	openalDevice = NULL;
+	
+	
 	// ---------------------
 	// Shutdown the Doom classic sound system.
 	// ---------------------
 	//I_ShutdownSoundHardware();
 	
-	if( pXAudio2 != NULL )
-	{
-		// Unregister the sound engine callback
-		pXAudio2->UnregisterForCallbacks( &soundEngineCallback );
-	}
-	
-	if( pSubmixVoice != NULL )
-	{
-		pSubmixVoice->DestroyVoice();
-		pSubmixVoice = NULL;
-	}
-	if( pMasterVoice != NULL )
-	{
-		// release the vu meter effect
-		pMasterVoice->SetEffectChain( NULL );
-		pMasterVoice->DestroyVoice();
-		pMasterVoice = NULL;
-	}
-	if( pXAudio2 != NULL )
-	{
-		XAUDIO2_PERFORMANCE_DATA perfData;
-		pXAudio2->GetPerformanceData( &perfData );
-		idLib::Printf( "Final pXAudio2 performanceData: Voices: %d/%d CPU: %.2f%% Mem: %dkb\n", perfData.ActiveSourceVoiceCount, perfData.TotalSourceVoiceCount, perfData.AudioCyclesSinceLastQuery / ( float )perfData.TotalCyclesSinceLastQuery, perfData.MemoryUsageInBytes / 1024 );
-		pXAudio2->Release();
-		pXAudio2 = NULL;
-	}
+	/*
 	if( vuMeterRMS != NULL )
 	{
 		console->DestroyGraph( vuMeterRMS );
@@ -465,6 +337,7 @@ void idSoundHardware_OpenAL::Shutdown()
 		console->DestroyGraph( vuMeterPeak );
 		vuMeterPeak = NULL;
 	}
+	*/
 }
 
 /*
@@ -533,7 +406,7 @@ idSoundHardware_OpenAL::Update
 */
 void idSoundHardware_OpenAL::Update()
 {
-	if( pXAudio2 == NULL )
+	if( openalDevice == NULL )
 	{
 		int nowTime = Sys_Milliseconds();
 		if( lastResetTime + 1000 < nowTime )
@@ -543,16 +416,15 @@ void idSoundHardware_OpenAL::Update()
 		}
 		return;
 	}
+	
 	if( soundSystem->IsMuted() )
 	{
-		pMasterVoice->SetVolume( 0.0f, OPERATION_SET );
+		alListenerf( AL_GAIN, 0.0f );
 	}
 	else
 	{
-		pMasterVoice->SetVolume( DBtoLinear( s_volume_dB.GetFloat() ), OPERATION_SET );
+		alListenerf( AL_GAIN, DBtoLinear( s_volume_dB.GetFloat() ) );
 	}
-	
-	pXAudio2->CommitChanges( XAUDIO2_COMMIT_ALL );
 	
 	// IXAudio2SourceVoice::Stop() has been called for every sound on the
 	// zombie list, but it is documented as asyncronous, so we have to wait
@@ -573,13 +445,16 @@ void idSoundHardware_OpenAL::Update()
 		}
 	}
 	
+	/*
 	if( s_showPerfData.GetBool() )
 	{
 		XAUDIO2_PERFORMANCE_DATA perfData;
 		pXAudio2->GetPerformanceData( &perfData );
 		idLib::Printf( "Voices: %d/%d CPU: %.2f%% Mem: %dkb\n", perfData.ActiveSourceVoiceCount, perfData.TotalSourceVoiceCount, perfData.AudioCyclesSinceLastQuery / ( float )perfData.TotalCyclesSinceLastQuery, perfData.MemoryUsageInBytes / 1024 );
 	}
+	*/
 	
+	/*
 	if( vuMeterRMS == NULL )
 	{
 		// Init probably hasn't been called yet
@@ -642,6 +517,7 @@ void idSoundHardware_OpenAL::Update()
 			vuMeterPeakTimes[i] = currentTime + s_meterTopTime.GetInteger();
 		}
 	}
+	*/
 }
 
 
@@ -656,7 +532,9 @@ idSoundEngineCallback
 idSoundEngineCallback::OnCriticalError
 ========================
 */
+/*
 void idSoundEngineCallback::OnCriticalError( HRESULT Error )
 {
 	soundSystemLocal.SetNeedsRestart();
 }
+*/

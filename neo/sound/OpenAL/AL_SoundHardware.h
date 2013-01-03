@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2012 Robert Beckebans
+Copyright (C) 2013 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -39,22 +39,24 @@ class idSoundHardware_OpenAL;
 idSoundEngineCallback
 ================================================
 */
+/*
 class idSoundEngineCallback : public IXAudio2EngineCallback
 {
 public:
 	idSoundHardware_OpenAL* hardware;
-	
+
 private:
 	// Called by XAudio2 just before an audio processing pass begins.
 	STDMETHOD_( void, OnProcessingPassStart )( THIS ) {}
-	
+
 	// Called just after an audio processing pass ends.
 	STDMETHOD_( void, OnProcessingPassEnd )( THIS ) {}
-	
+
 	// Called in the event of a critical system error which requires XAudio2
 	// to be closed down and restarted.  The error code is given in Error.
 	STDMETHOD_( void, OnCriticalError )( THIS_ HRESULT Error );
 };
+*/
 
 /*
 ================================================
@@ -76,10 +78,12 @@ public:
 	void			FreeVoice( idSoundVoice* voice );
 	
 	// video playback needs this
+	/*
 	IXAudio2* 		GetIXAudio2() const
 	{
 		return pXAudio2;
 	};
+	*/
 	
 	int				GetNumZombieVoices() const
 	{
@@ -95,19 +99,25 @@ protected:
 	friend class idSoundVoice_OpenAL;
 	
 private:
+	/*
 	IXAudio2* pXAudio2;
 	IXAudio2MasteringVoice* pMasterVoice;
 	IXAudio2SubmixVoice* pSubmixVoice;
 	
 	idSoundEngineCallback	soundEngineCallback;
+	*/
+	
+	ALCdevice*			openalDevice;
+	ALCcontext*			openalContext;
+	
 	int					lastResetTime;
 	
-	int					outputChannels;
-	int					channelMask;
+	//int				outputChannels;
+	//int				channelMask;
 	
-	idDebugGraph* 		vuMeterRMS;
-	idDebugGraph* 		vuMeterPeak;
-	int					vuMeterPeakTimes[ 8 ];
+	//idDebugGraph* 	vuMeterRMS;
+	//idDebugGraph* 	vuMeterPeak;
+	//int				vuMeterPeakTimes[ 8 ];
 	
 	// Can't stop and start a voice on the same frame, so we have to double this to handle the worst case scenario of stopping all voices and starting a full new set
 	idStaticList<idSoundVoice_OpenAL, MAX_HARDWARE_VOICES* 2 > voices;

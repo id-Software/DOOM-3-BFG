@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -389,7 +390,13 @@ idSoundSystemLocal::GetIXAudio2
 */
 void* idSoundSystemLocal::GetIXAudio2() const
 {
+	// RB begin
+#if defined(USE_OPENAL)
+	return NULL;
+#else
 	return ( void* )hardware.GetIXAudio2();
+#endif
+	// RB end
 }
 
 /*

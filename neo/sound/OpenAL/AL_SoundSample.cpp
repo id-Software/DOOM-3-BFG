@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -455,7 +456,7 @@ void idSoundSample_OpenAL::MakeDefault()
 	format.basic.formatTag = idWaveFile::FORMAT_PCM;
 	format.basic.numChannels = 1;
 	format.basic.bitsPerSample = 16;
-	format.basic.samplesPerSec = XAUDIO2_MIN_SAMPLE_RATE;
+	format.basic.samplesPerSec = 1000; //XAUDIO2_MIN_SAMPLE_RATE;
 	format.basic.blockSize = format.basic.numChannels * format.basic.bitsPerSample / 8;
 	format.basic.avgBytesPerSec = format.basic.samplesPerSec * format.basic.blockSize;
 	
