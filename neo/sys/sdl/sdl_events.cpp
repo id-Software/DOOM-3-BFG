@@ -741,14 +741,18 @@ sysEvent_t Sys_GetEvent()
 							newmod |= KMOD_CAPS;
 							
 						SDL_SetModState( ( SDL_Keymod )newmod );
-						// DG: disabling the cursor is now done once in GLimp_Init() because it should always be disabled
-						GLimp_GrabInput( GRAB_ENABLE | GRAB_REENABLE );
+						
+						// DG: un-pause the game when focus is gained, that also re-grabs the input
+						//     disabling the cursor is now done once in GLimp_Init() because it should always be disabled
+						cvarSystem->SetCVarBool( "com_pause", false );
 						// DG end
 						break;
 					}
 					
 					case SDL_WINDOWEVENT_FOCUS_LOST:
-						GLimp_GrabInput( 0 );
+						// DG: pause the game when focus is lost, that also un-grabs the input
+						cvarSystem->SetCVarBool( "com_pause", true );
+						// DG end
 						break;
 						
 						// DG: handle resizing and moving of window
@@ -779,11 +783,13 @@ sysEvent_t Sys_GetEvent()
 #else
 			case SDL_ACTIVEEVENT:
 			{
-				int flags = 0;
+				// DG: (un-)pause the game when focus is gained, that also (un-)grabs the input
+				bool pause = true;
 			
 				if( ev.active.gain )
 				{
-					flags = GRAB_ENABLE | GRAB_REENABLE | GRAB_HIDECURSOR;
+			
+					pause = false;
 			
 					// unset modifier, in case alt-tab was used to leave window and ALT is still set
 					// as that can cause fullscreen-toggling when pressing enter...
@@ -795,7 +801,7 @@ sysEvent_t Sys_GetEvent()
 					SDL_SetModState( ( SDLMod )newmod );
 				}
 			
-				GLimp_GrabInput( flags );
+				cvarSystem->SetCVarBool( "com_pause", pause );
 			}
 			
 			return res_none;
