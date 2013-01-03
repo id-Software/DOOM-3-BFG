@@ -837,6 +837,16 @@ sysEvent_t Sys_GetEvent()
 					return res_none;
 				}
 				
+				// DG: ctrl-g to un-grab mouse - yeah, left ctrl shoots, then just use right ctrl :)
+				if( ev.key.keysym.sym == SDLK_g && ( ev.key.keysym.mod & KMOD_CTRL ) > 0 )
+				{
+					bool grab = cvarSystem->GetCVarBool( "in_nograb" );
+					grab = !grab;
+					cvarSystem->SetCVarBool( "in_nograb", grab );
+					return res_none;
+				}
+				// DG end
+				
 				// fall through
 			case SDL_KEYUP:
 			{
