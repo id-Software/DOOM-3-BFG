@@ -346,6 +346,7 @@ int idSoundVoice_OpenAL::SubmitBuffer( idSoundSample_OpenAL* sample, int bufferN
 		return 0;
 	}
 	
+#if 0
 	idSoundSystemLocal::bufferContext_t* bufferContext = soundSystemLocal.ObtainStreamBufferContext();
 	if( bufferContext == NULL )
 	{
@@ -356,6 +357,7 @@ int idSoundVoice_OpenAL::SubmitBuffer( idSoundSample_OpenAL* sample, int bufferN
 	bufferContext->voice = this;
 	bufferContext->sample = sample;
 	bufferContext->bufferNumber = bufferNumber;
+#endif
 	
 	// TODO openal stream
 	
@@ -379,12 +381,22 @@ int idSoundVoice_OpenAL::SubmitBuffer( idSoundSample_OpenAL* sample, int bufferN
 	
 	if( sample->format.basic.formatTag == idWaveFile::FORMAT_PCM )
 	{
-		format = sample->NumChannels() == 1 ? AL_FORMAT_MONO_IMA4 : AL_FORMAT_STEREO_IMA4;
+		format = sample->NumChannels() == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
+	}
+	else if( sample->format.basic.formatTag == idWaveFile::FORMAT_ADPCM )
+	{
+		format = sample->NumChannels() == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
+	}
+	else if( sample->format.basic.formatTag == idWaveFile::FORMAT_XMA2 )
+	{
+		format = sample->NumChannels() == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
 	}
 	else
 	{
 		format = sample->NumChannels() == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
 	}
+	
+	int rate = sample->SampleRate(); /*44100*/
 	
 	for( int j = 0; j < finishedbuffers && j < 1; j++ )
 	{
@@ -406,7 +418,7 @@ int idSoundVoice_OpenAL::SubmitBuffer( idSoundSample_OpenAL* sample, int bufferN
 		
 		
 		
-		alBufferData( openalStreamingBuffer[j], format, sample->buffers[bufferNumber].buffer, sample->buffers[bufferNumber].bufferSize, sample->SampleRate() /*44100*/ );
+		alBufferData( openalStreamingBuffer[j], format, sample->buffers[bufferNumber].buffer, sample->buffers[bufferNumber].bufferSize, rate );
 		//openalStreamingOffset += MIXBUFFER_SAMPLES;
 	}
 	
