@@ -802,8 +802,24 @@ sysEvent_t Sys_GetEvent()
 			
 			case SDL_VIDEOEXPOSE:
 				return res_none;
-#endif
 				
+				// DG: handle resizing and moving of window
+			case SDL_VIDEORESIZE:
+			{
+				int w = ev.resize.w;
+				int h = ev.resize.h;
+				r_windowWidth.SetInteger( w );
+				r_windowHeight.SetInteger( h );
+			
+				glConfig.nativeScreenWidth = w;
+				glConfig.nativeScreenHeight = h;
+				// for some reason this needs a vid_restart in SDL1 but not SDL2 so GLimp_SetScreenParms() is called
+				PushConsoleEvent( "vid_restart" );
+				return res_none;
+			}
+			// DG end
+#endif
+			
 			case SDL_KEYDOWN:
 				if( ev.key.keysym.sym == SDLK_RETURN && ( ev.key.keysym.mod & KMOD_ALT ) > 0 )
 				{

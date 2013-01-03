@@ -55,6 +55,7 @@ static SDL_GLContext context = NULL;
 static SDL_Surface* window = NULL;
 #define SDL_WINDOW_OPENGL SDL_OPENGL
 #define SDL_WINDOW_FULLSCREEN SDL_FULLSCREEN
+#define SDL_WINDOW_RESIZABLE SDL_RESIZABLE
 #endif
 
 bool QGL_Init( const char* dllname );
@@ -307,7 +308,7 @@ bool GLimp_Init( glimpParms_t parms )
 */
 
 #if SDL_VERSION_ATLEAST(2, 0, 0)
-// SDL1 doesn't support multiple displays
+// SDL1 doesn't support multiple displays, so the source is much shorter and doesn't need seperate functions
 // makes sure the window will be full-screened on the right display and returns the SDL display index
 static int ScreenParmsHandleDisplayIndex( glimpParms_t parms )
 {
@@ -346,11 +347,9 @@ static int ScreenParmsHandleDisplayIndex( glimpParms_t parms )
 	}
 	return displayIdx;
 }
-#endif // SDL_VERSION_ATLEAST(2, 0, 0)
 
 static bool SetScreenParmsFullscreen( glimpParms_t parms )
 {
-#if SDL_VERSION_ATLEAST(2, 0, 0)
 	SDL_DisplayMode m = {0};
 	int displayIdx = ScreenParmsHandleDisplayIndex( parms );
 	if( displayIdx < 0 )
@@ -381,15 +380,11 @@ static bool SetScreenParmsFullscreen( glimpParms_t parms )
 			return false;
 		}
 	}
-#else // ! SDL_VERSION_ATLEAST(2, 0, 0) => SDL1.2
-	// TODO: SDL1.2 fullscreen handling
-#endif // SDL_VERSION_ATLEAST(2, 0, 0)
 	return true;
 }
 
 static bool SetScreenParmsWindowed( glimpParms_t parms )
 {
-#if SDL_VERSION_ATLEAST(2, 0, 0)
 	SDL_SetWindowSize( window, parms.width, parms.height );
 	SDL_SetWindowPosition( window, parms.x, parms.y );
 	
@@ -402,11 +397,9 @@ static bool SetScreenParmsWindowed( glimpParms_t parms )
 			return false;
 		}
 	}
-#else // SDL 1.2
-	// TODO: SDL1.2 windowed handling
-#endif
 	return true;
 }
+#endif // SDL_VERSION_ATLEAST(2, 0, 0)
 
 /*
 ===================
@@ -431,6 +424,33 @@ bool GLimp_SetScreenParms( glimpParms_t parms )
 		common->Warning( "GLimp_SetScreenParms: fullScreen -1 (borderless window for multiple displays) currently unsupported!" );
 		return false;
 	}
+#else // SDL 1.2 - so much shorter, but doesn't handle multiple displays
+	SDL_Surface* s = SDL_GetVideoSurface();
+	if( s == NULL )
+	{
+		common->Warning( "GLimp_SetScreenParms: Couldn't get video information, reason: %s", SDL_GetError() );
+		return false;
+	}
+	
+	
+	int bitsperpixel = 24;
+	if( s->format )
+		bitsperpixel = s->format->BitsPerPixel;
+	
+	Uint32 flags = s->flags;
+	
+	if( parms.fullScreen )
+		flags |= SDL_FULLSCREEN;
+	else
+		flags &= ~SDL_FULLSCREEN;
+	
+	s = SDL_SetVideoMode( parms.width, parms.height, bitsperpixel, flags );
+	if( s == NULL )
+	{
+		common->Warning( "GLimp_SetScreenParms: Couldn't set video information, reason: %s", SDL_GetError() );
+		return false;
+	}
+#endif // SDL_VERSION_ATLEAST(2, 0, 0)
 	
 	// Note: the following stuff would also work with SDL1.2
 	SDL_GL_SetAttribute( SDL_GL_STEREO, parms.stereo ? 1 : 0 );
@@ -444,9 +464,6 @@ bool GLimp_SetScreenParms( glimpParms_t parms )
 	glConfig.nativeScreenHeight = parms.height;
 	glConfig.displayFrequency = parms.displayHz;
 	glConfig.multisamples = parms.multiSamples;
-#else // SDL 1.2
-	common->Printf( "TODO: Implement GLimp_SetScreenParms() for SDL1.2\n" );
-#endif
 	
 	return true;
 }
