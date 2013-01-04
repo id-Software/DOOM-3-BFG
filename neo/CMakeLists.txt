@@ -13,7 +13,7 @@ option(SDL2
 		"Use SDL2 instead of SDL1.2" OFF)
 		
 option(OPENAL
-		"Use OpenAL soft instead of XAudio2" ON)
+		"Use OpenAL soft instead of XAudio2" OFF)
 
 if(MSVC)
 	#message(STATUS CMAKE_ROOT: ${CMAKE_ROOT})
@@ -93,15 +93,41 @@ elseif(MSVC)
 	# Omit Frame Pointers
 	# "/Oy",
 	
-	set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /D _DEBUG /MP /MTd")
-	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /MP /Oi /Oy /MT")
-	set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} /MP /Oi /MTd")
-	set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} /MP /Oi /Oy /MT")
+	# if(MSVC_VERSION EQUAL 1700)
+		# #message(STATUS "$ENV{LIBPATH}")
+		
+		# find_path(Windows_winmd_DIR NAMES Windows.winmd
+			# HINTS
+			# C:/Program Files (x86)/Windows Kits/8.0/References/CommonConfiguration/Neutral
+			# PATH_SUFFIXES "Neutral")
+			
+		# message(STATUS "${Windows_winmd_DIR}")
+		
+		# #set(WINRT_OPTIONS "/ZW /D USE_WINRT /AI \"C:\Program Files (x86)\Windows Kits\8.0\References\CommonConfiguration\Neutral\"")
+		# #set(WINRT_OPTIONS "/ZW /D USE_WINRT /AI \"$ENV{LIBPATH}\" ")
+		# set(WINRT_OPTIONS "/ZW /D USE_WINRT")
 	
-	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MP /MTd")
-	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MP /Oi /Oy /MT")
-	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /MP /MTd")
-	set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} /MP /Oi /Oy /MT")
+		# set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /D _DEBUG /MP ${WINRT_OPTIONS}")
+		# set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /MP /Oi /Oy ${WINRT_OPTIONS}")
+		# set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} /MP /Oi ${WINRT_OPTIONS}")
+		# set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} /MP /Oi /Oy ${WINRT_OPTIONS}")
+		
+		# set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MP ${WINRT_OPTIONS}")
+		# set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MP /Oi /Oy ${WINRT_OPTIONS}")
+		# set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /MP ${WINRT_OPTIONS}")
+		# set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} /MP /Oi /Oy ${WINRT_OPTIONS}")
+	# else()
+		set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /D _DEBUG /MP /MTd")
+		set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} /MP /Oi /Oy /MT")
+		set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} /MP /Oi /MTd")
+		set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} /MP /Oi /Oy /MT")
+		
+		set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MP /MTd")
+		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MP /Oi /Oy /MT")
+		set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /MP /MTd")
+		set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} /MP /Oi /Oy /MT")
+	# endif()
+	
 
 	add_definitions(-DWIN32 
 					-D_WINDOWS
@@ -1031,24 +1057,24 @@ include_directories(
 
 if(MSVC)
 
-	if(MSVC_VERSION EQUAL 1700)
-		set(DirectX_LIBRARIES
-			dinput8
-			dsound
-			dxguid
-			#dxerr
-			Xinput
-			xaudio2.lib
-			)
+	# if(MSVC_VERSION EQUAL 1700)
+		# set(DirectX_LIBRARIES
+			# dinput8
+			# dsound
+			# dxguid
+			# #dxerr
+			# Xinput
+			# xaudio2.lib
+			# )
 		
-		if(NOT OPENAL)
-			list(APPEND DirectX_LIBRARIES xaudio2.lib)
-		endif()
+		# if(NOT OPENAL)
+			# list(APPEND DirectX_LIBRARIES xaudio2.lib)
+		# endif()
 		
-	else()
+	# else()
 		find_package(DirectX REQUIRED)
 		include_directories(${DirectX_INCLUDE_DIR})
-	endif()
+	#endif()
 	
 	if(OPENAL)
 		add_definitions(-DUSE_OPENAL)

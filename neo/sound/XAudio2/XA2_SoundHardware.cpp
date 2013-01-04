@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2012 Robert Beckebans
+Copyright (C) 2013 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -74,7 +74,7 @@ void listDevices_f( const idCmdArgs& args )
 	}
 	
 // RB: not available on Windows 8 SDK
-#if (_WIN32_WINNT >= 0x0602 /*_WIN32_WINNT_WIN8*/)
+#if defined(USE_WINRT) //(_WIN32_WINNT >= 0x0602 /*_WIN32_WINNT_WIN8*/)
 
 	// FIXME
 	
@@ -217,7 +217,7 @@ void idSoundHardware_XAudio2::Init()
 	DWORD xAudioCreateFlags = 0;
 	
 // RB: not available on Windows 8 SDK
-#if (_WIN32_WINNT < 0x0602 /*_WIN32_WINNT_WIN8*/) && defined(_DEBUG)
+#if !defined(USE_WINRT) && defined(_DEBUG) // (_WIN32_WINNT < 0x0602 /*_WIN32_WINNT_WIN8*/) && defined(_DEBUG)
 	xAudioCreateFlags |= XAUDIO2_DEBUG_ENGINE;
 #endif
 // RB end
@@ -227,7 +227,7 @@ void idSoundHardware_XAudio2::Init()
 // RB: not available on Windows 8 SDK
 	if( FAILED( XAudio2Create( &pXAudio2, xAudioCreateFlags, xAudioProcessor ) ) )
 	{
-#if (_WIN32_WINNT < 0x0602 /*_WIN32_WINNT_WIN8*/) && defined(_DEBUG)
+#if !defined(USE_WINRT) && defined(_DEBUG) // (_WIN32_WINNT < 0x0602 /*_WIN32_WINNT_WIN8*/) && defined(_DEBUG)
 		if( xAudioCreateFlags & XAUDIO2_DEBUG_ENGINE )
 		{
 			// in case the debug engine isn't installed
@@ -258,7 +258,7 @@ void idSoundHardware_XAudio2::Init()
 	soundEngineCallback.hardware = this;
 	
 // RB: not available on Windows 8 SDK
-#if (_WIN32_WINNT >= 0x0602 /*_WIN32_WINNT_WIN8*/)
+#if defined(USE_WINRT) //(_WIN32_WINNT >= 0x0602 /*_WIN32_WINNT_WIN8*/)
 
 	// FIXME
 	
