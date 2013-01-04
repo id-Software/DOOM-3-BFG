@@ -79,6 +79,8 @@ idSoundSample_OpenAL::idSoundSample_OpenAL()
 	playLength = 0;
 	
 	lastPlayedTime = 0;
+	
+	openalBuffer = 0;
 }
 
 /*
@@ -257,6 +259,30 @@ void idSoundSample_OpenAL::LoadResource()
 					}
 				}
 			}
+			
+			// build OpenAL buffer
+			alGetError();
+			alGenBuffers( 1, &openalBuffer );
+			
+			if( alGetError() != AL_NO_ERROR )
+			{
+				common->Error( "idSoundSample_OpenAL::MakeDefault: error generating OpenAL hardware buffer" );
+			}
+			
+			if( alIsBuffer( openalBuffer ) )
+			{
+				alGetError();
+				
+				// RB: TODO decode idWaveFile::FORMAT_ADPCM to idWaveFile::FORMAT_PCM
+				// and build one big OpenAL buffer using the alBufferSubData extension
+				
+				alBufferData( openalBuffer, GetOpenALBufferFormat(), buffers[0].buffer, buffers[0].bufferSize, format.basic.samplesPerSec );
+				if( alGetError() != AL_NO_ERROR )
+				{
+					common->Error( "idSoundSample_OpenAL::MakeDefault: error loading data into OpenAL hardware buffer" );
+				}
+			}
+			
 			return;
 		}
 	}
@@ -487,6 +513,25 @@ void idSoundSample_OpenAL::MakeDefault()
 	
 	playBegin = 0;
 	playLength = DEFAULT_NUM_SAMPLES;
+	
+	
+	alGetError();
+	alGenBuffers( 1, &openalBuffer );
+	
+	if( alGetError() != AL_NO_ERROR )
+	{
+		common->Error( "idSoundSample_OpenAL::MakeDefault: error generating OpenAL hardware buffer" );
+	}
+	
+	if( alIsBuffer( openalBuffer ) )
+	{
+		alGetError();
+		alBufferData( openalBuffer, GetOpenALBufferFormat(), defaultBuffer, totalBufferSize, format.basic.samplesPerSec );
+		if( alGetError() != AL_NO_ERROR )
+		{
+			common->Error( "idSoundSample_OpenAL::MakeDefault: error loading data into OpenAL hardware buffer" );
+		}
+	}
 }
 
 /*
@@ -515,6 +560,20 @@ void idSoundSample_OpenAL::FreeData()
 	totalBufferSize = 0;
 	playBegin = 0;
 	playLength = 0;
+	
+	if( alIsBuffer( openalBuffer ) )
+	{
+		alGetError();
+		alDeleteBuffers( 1, &openalBuffer );
+		if( alGetError() != AL_NO_ERROR )
+		{
+			common->Error( "idSoundSample_OpenAL::FreeData: error unloading data from OpenAL hardware buffer" );
+		}
+		else
+		{
+			openalBuffer = 0;
+		}
+	}
 }
 
 /*
@@ -557,3 +616,30 @@ float idSoundSample_OpenAL::GetAmplitude( int timeMS ) const
 	}
 	return ( float )amplitude[index] / 255.0f;
 }
+
+
+ALenum idSoundSample_OpenAL::GetOpenALBufferFormat() const
+{
+	ALenum alFormat;
+	
+	if( format.basic.formatTag == idWaveFile::FORMAT_PCM )
+	{
+		alFormat = NumChannels() == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
+	}
+	else if( format.basic.formatTag == idWaveFile::FORMAT_ADPCM )
+	{
+		alFormat = NumChannels() == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
+		//alFormat = NumChannels() == 1 ? AL_FORMAT_IMA_ADPCM_MONO16_EXT : AL_FORMAT_IMA_ADPCM_STEREO16_EXT;
+	}
+	else if( format.basic.formatTag == idWaveFile::FORMAT_XMA2 )
+	{
+		alFormat = NumChannels() == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
+	}
+	else
+	{
+		alFormat = NumChannels() == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
+	}
+	
+	return alFormat;
+}
+

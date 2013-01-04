@@ -15,6 +15,21 @@ option(SDL2
 option(OPENAL
 		"Use OpenAL soft instead of XAudio2" ON)
 
+if(MSVC)
+	#message(STATUS CMAKE_ROOT: ${CMAKE_ROOT})
+	
+	#if(CMAKE_CL_64)
+	#	SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/../bin/win64)
+	#else()
+	#	SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/../bin/win32)
+	#endif()
+	
+	#message(STATUS EXECUTABLE_OUTPUT_PATH: ${EXECUTABLE_OUTPUT_PATH})
+	#message(STATUS PROJECT_BINARY_DIR: ${PROJECT_BINARY_DIR})
+	#message(STATUS CMAKE_BINARY_DIR: ${CMAKE_BINARY_DIR})
+else()
+	message(STATUS CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE})
+endif()
 
 if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
 	add_definitions(-pipe)
@@ -1051,6 +1066,13 @@ if(MSVC)
 		
 		set(OpenAL_LIBRARIES
 			OpenAL32)
+			
+		if(CMAKE_CL_64)
+			install(FILES libs/openal-soft/lib/win64/OpenAL64.dll DESTINATION .)
+		else()
+			install(FILES libs/openal-soft/lib/win32/OpenAL32.dll DESTINATION .)
+			install(FILES libs/openal-soft/lib/win32/OpenAL32.pdb DESTINATION .)
+		endif()
 	else()
 		add_definitions(-DUSE_DOOMCLASSIC)
 	
@@ -1161,10 +1183,10 @@ if(MSVC)
 	#CMAKE_BINARY_DIR
 	if(CMAKE_CL_64)
 		install(TARGETS RBDoom3BFG
-			RUNTIME DESTINATION ../bin/win64)
+			RUNTIME DESTINATION .)
 	else()
 		install(TARGETS RBDoom3BFG
-			RUNTIME DESTINATION ../bin/win32)
+			RUNTIME DESTINATION .)
 	endif()
 	
 else()

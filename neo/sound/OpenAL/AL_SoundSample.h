@@ -130,6 +130,8 @@ public:
 	
 	float			GetAmplitude( int timeMS ) const;
 	
+	ALenum			GetOpenALBufferFormat() const;
+	
 protected:
 	friend class idSoundHardware_OpenAL;
 	friend class idSoundVoice_OpenAL;
@@ -162,6 +164,9 @@ protected:
 	
 	int				totalBufferSize;	// total size of all the buffers
 	idList<sampleBuffer_t, TAG_AUDIO> buffers;
+	
+	// OpenAL buffer that contains all buffers
+	ALuint			openalBuffer;
 	
 	int				playBegin;
 	int				playLength;
