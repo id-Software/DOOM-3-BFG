@@ -1170,8 +1170,7 @@ if(MSVC)
 else()
 
 	list(APPEND RBDOOM3_SOURCES
-		${SYS_INCLUDES} ${SYS_SOURCES}
-		${STUBAUDIO_INCLUDES} ${STUBAUDIO_SOURCES})
+		${SYS_INCLUDES} ${SYS_SOURCES})
 	
 	if(WIN32)
 		add_definitions(-DUSE_DOOMCLASSIC)
@@ -1201,11 +1200,31 @@ else()
 			${POSIX_INCLUDES} ${POSIX_SOURCES}
 			${SDL_INCLUDES} ${SDL_SOURCES}
 			sys/linux/linux_main.cpp)
+			
+		if(OPENAL)
+			find_package(OpenAL REQUIRED)
+			add_definitions(-DUSE_OPENAL)
+
+			#include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs/openal-soft/include)
+			
+			#if(CMAKE_CL_64)
+			#	link_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs/openal-soft/lib/win64)
+			#else()
+			#	link_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs/openal-soft/lib/win32)
+			#endif()
+			
+			list(APPEND RBDOOM3_INCLUDES ${OPENAL_INCLUDES})
+			list(APPEND RBDOOM3_SOURCES ${OPENAL_SOURCES})
+		else()
+			list(APPEND RBDOOM3_INCLUDES ${STUBAUDIO_INCLUDES})
+			list(APPEND RBDOOM3_SOURCES ${STUBAUDIO_SOURCES})
+		endif()
+			
 	endif()
 
 	list(REMOVE_DUPLICATES RBDOOM3_SOURCES)
 	
-	add_executable(RBDoom3BFG WIN32 ${RBDOOM3_SOURCES})
+	add_executable(RBDoom3BFG WIN32 ${RBDOOM3_INCLUDES} ${RBDOOM3_SOURCES})
 
 	add_dependencies(RBDoom3BFG idlib)
 	
@@ -1242,6 +1261,7 @@ else()
 			dl
 			rt
 			${SDLx_LIBRARY}
+			${OPENAL_LIBRARY}
 			)
 	endif()
 	

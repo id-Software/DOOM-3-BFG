@@ -93,10 +93,6 @@ typedef enum
 
 #include "SoundVoice.h"
 
-#ifdef _MSC_VER // DG: stub out xaudio for MinGW etc
-
-#define OPERATION_SET 1
-
 #if defined(USE_OPENAL)
 
 #include <AL/al.h>
@@ -106,7 +102,10 @@ typedef enum
 #include "OpenAL/AL_SoundSample.h"
 #include "OpenAL/AL_SoundVoice.h"
 #include "OpenAL/AL_SoundHardware.h"
-#else
+
+#elif defined(_MSC_VER) // DG: stub out xaudio for MinGW etc
+
+#define OPERATION_SET 1
 
 // RB: not available on Windows 8 SDK
 #if (_WIN32_WINNT < 0x0602 /*_WIN32_WINNT_WIN8*/)
@@ -122,12 +121,11 @@ typedef enum
 #if (_WIN32_WINNT < 0x0602 /*_WIN32_WINNT_WIN8*/)
 #include <xma2defs.h>
 #endif
+// RB end
 
 #include "XAudio2/XA2_SoundSample.h"
 #include "XAudio2/XA2_SoundVoice.h"
 #include "XAudio2/XA2_SoundHardware.h"
-#endif
-// RB end
 
 #else // not _MSC_VER => MinGW, GCC, ...
 // just a stub for now
