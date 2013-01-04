@@ -31,7 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 // RB: <DxErr.h> not available on Windows 8 SDK
 #if defined(__MINGW32__)
 #include <sal.h>
-#elif (_WIN32_WINNT < 0x0602 /*_WIN32_WINNT_WIN8*/)
+#elif !defined(USE_WINRT) // (_WIN32_WINNT < 0x0602 /*_WIN32_WINNT_WIN8*/)
 #include <DxErr.h>
 #endif
 // RB end

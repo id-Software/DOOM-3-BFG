@@ -109,7 +109,7 @@ typedef enum
 #else
 
 // RB: not available on Windows 8 SDK
-#if (_WIN32_WINNT < 0x0602 /*_WIN32_WINNT_WIN8*/)
+#if !defined(USE_WINRT) // (_WIN32_WINNT < 0x0602 /*_WIN32_WINNT_WIN8*/)
 #include <dxsdkver.h>
 #endif
 // RB end
@@ -119,7 +119,7 @@ typedef enum
 #include <X3DAudio.h>
 
 // RB: not available on Windows 8 SDK
-#if (_WIN32_WINNT < 0x0602 /*_WIN32_WINNT_WIN8*/)
+#if !defined(USE_WINRT) // (_WIN32_WINNT < 0x0602 /*_WIN32_WINNT_WIN8*/)
 #include <xma2defs.h>
 #endif
 
