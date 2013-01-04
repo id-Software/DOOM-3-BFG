@@ -150,6 +150,7 @@ idSoundSample_OpenAL::LoadGeneratedSound
 */
 bool idSoundSample_OpenAL::LoadGeneratedSample( const idStr& filename )
 {
+#if 1
 	idFileLocal fileIn( fileSystem->OpenFileReadMemory( filename ) );
 	if( fileIn != NULL )
 	{
@@ -178,6 +179,8 @@ bool idSoundSample_OpenAL::LoadGeneratedSample( const idStr& filename )
 		}
 		return true;
 	}
+#endif
+	
 	return false;
 }
 /*
@@ -447,7 +450,7 @@ void idSoundSample_OpenAL::MakeDefault()
 {
 	FreeData();
 	
-	static const int DEFAULT_NUM_SAMPLES = 256;
+	static const int DEFAULT_NUM_SAMPLES = 4096;
 	
 	timestamp = FILE_NOT_FOUND_TIMESTAMP;
 	loaded = true;
@@ -456,19 +459,24 @@ void idSoundSample_OpenAL::MakeDefault()
 	format.basic.formatTag = idWaveFile::FORMAT_PCM;
 	format.basic.numChannels = 1;
 	format.basic.bitsPerSample = 16;
-	format.basic.samplesPerSec = 1000; //XAUDIO2_MIN_SAMPLE_RATE;
+	format.basic.samplesPerSec = 22050; //44100; //XAUDIO2_MIN_SAMPLE_RATE;
 	format.basic.blockSize = format.basic.numChannels * format.basic.bitsPerSample / 8;
 	format.basic.avgBytesPerSec = format.basic.samplesPerSec * format.basic.blockSize;
 	
 	assert( format.basic.blockSize == 2 );
 	
-	totalBufferSize = DEFAULT_NUM_SAMPLES * 2;
+	totalBufferSize = DEFAULT_NUM_SAMPLES * 2;// * sizeof( short );
 	
 	short* defaultBuffer = ( short* )AllocBuffer( totalBufferSize, GetName() );
 	for( int i = 0; i < DEFAULT_NUM_SAMPLES; i += 2 )
 	{
-		defaultBuffer[i + 0] = SHRT_MIN;
-		defaultBuffer[i + 1] = SHRT_MAX;
+		float v = sin( idMath::PI * 2 * i / 64 );
+		int sample = v * 0x4000;
+		defaultBuffer[i + 0] = sample;
+		defaultBuffer[i + 1] = sample;
+		
+		//defaultBuffer[i + 0] = SHRT_MIN;
+		//defaultBuffer[i + 1] = SHRT_MAX;
 	}
 	
 	buffers.SetNum( 1 );
