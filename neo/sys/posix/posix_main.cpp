@@ -42,6 +42,7 @@ If you have questions concerning this license or the applicable additional terms
 #include <termios.h>
 #include <signal.h>
 #include <fcntl.h>
+#include <fnmatch.h>
 
 // RB begin
 #if defined(__ANDROID__)
@@ -358,21 +359,23 @@ int Sys_ListFiles( const char* directory, const char* extension, idStrList& list
 	list.Clear();
 	
 	debug = cvarSystem->GetCVarBool( "fs_debug" );
-	
-	// DG: handle "*" as special case that matches everything
-	// FIXME: handle * properly as a wildcase somewhere in the string?
-	if( !extension || ( extension[0] == '*' && extension[1] == '\0' ) )
-		extension = "";
-	// DG end
+	// DG: we use fnmatch for shell-style pattern matching
+	// so the pattern should at least contain "*" to match everything,
+	// the extension will be added behind that (if !dironly)
+	idStr pattern( "*" );
 	
 	// passing a slash as extension will find directories
 	if( extension[0] == '/' && extension[1] == 0 )
 	{
-		extension = "";
 		dironly = true;
 	}
+	else
+	{
+		// so we have *<extension>, the same as in the windows code basically
+		pattern += extension;
+	}
+	// DG end
 	
-	// search
 	// NOTE: case sensitivity of directory path can screw us up here
 	if( ( fdir = opendir( directory ) ) == NULL )
 	{
@@ -399,8 +402,6 @@ int Sys_ListFiles( const char* directory, const char* extension, idStrList& list
 		return 0;
 	}
 	
-	int extLen = idStr::Length( extension );
-	
 	while( readdir_r( fdir, entry, &d ) == 0 && d != NULL )
 	{
 		// DG end
@@ -410,14 +411,11 @@ int Sys_ListFiles( const char* directory, const char* extension, idStrList& list
 		if( !dironly )
 		{
 			// DG: the original code didn't work because d3 bfg abuses the extension
-			// to match whole filenames in the savegame-code, not just file extensions...
-			// the extension must be the last chars of the filename
-			// so start matching at startPos = strlen(d->d_name) - strlen(extension)
-			int startPos = idStr::Length( d->d_name ) - extLen;
-			// of course the extension can't match if it's longer than the filename, i.e. startPos < 0
-			if( startPos < 0 || idStr::FindText( d->d_name, extension, true, startPos ) < 0 )
+			// to match whole filenames and patterns in the savegame-code, not just file extensions...
+			// so just use fnmatch() which supports matching shell wildcard patterns ("*.foo" etc)
+			// if we should ever need case insensitivity, use FNM_CASEFOLD as third flag
+			if( fnmatch( pattern.c_str(), d->d_name, 0 ) != 0 )
 				continue;
-				
 			// DG end
 		}
 		if( ( dironly && !( st.st_mode & S_IFDIR ) ) ||
