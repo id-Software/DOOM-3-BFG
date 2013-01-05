@@ -5,6 +5,7 @@ Doom 3 GPL Source Code
 Copyright (C) 1999-2011 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2012 dhewg (dhewm3)
 Copyright (C) 2012 Robert Beckebans
+Copyright (C) 2013 Daniel Gibson
 
 This file is part of the Doom 3 GPL Source Code ("Doom 3 Source Code").
 
@@ -28,9 +29,10 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include "../../idlib/precompiled.h"
+
 #include <SDL.h>
 
-#include "../../idlib/precompiled.h"
 #include "renderer/tr_local.h"
 #include "sdl_local.h"
 #include "../posix/posix_public.h"
@@ -57,6 +59,13 @@ If you have questions concerning this license or the applicable additional terms
 #define SDL_SCANCODE_GRAVE 49 // in SDL2 this is 53.. but according to two different systems and keyboards this works for SDL1
 // DG end
 #endif
+
+// DG: those are needed for moving/resizing windows
+extern idCVar r_windowX;
+extern idCVar r_windowY;
+extern idCVar r_windowWidth;
+extern idCVar r_windowHeight;
+// DG end
 
 const char* kbdNames[] =
 {
@@ -732,28 +741,55 @@ sysEvent_t Sys_GetEvent()
 							newmod |= KMOD_CAPS;
 							
 						SDL_SetModState( ( SDL_Keymod )newmod );
-						// DG: disabling the cursor is now done once in GLimp_Init() because it should always be disabled
-						GLimp_GrabInput( GRAB_ENABLE | GRAB_REENABLE );
+						
+						// DG: un-pause the game when focus is gained, that also re-grabs the input
+						//     disabling the cursor is now done once in GLimp_Init() because it should always be disabled
+						cvarSystem->SetCVarBool( "com_pause", false );
 						// DG end
 						break;
 					}
 					
 					case SDL_WINDOWEVENT_FOCUS_LOST:
-						GLimp_GrabInput( 0 );
+						// DG: pause the game when focus is lost, that also un-grabs the input
+						cvarSystem->SetCVarBool( "com_pause", true );
+						// DG end
 						break;
 						
-						// TODO: SDL_WINDOWEVENT_RESIZED
+						// DG: handle resizing and moving of window
+					case SDL_WINDOWEVENT_RESIZED:
+					{
+						int w = ev.window.data1;
+						int h = ev.window.data2;
+						r_windowWidth.SetInteger( w );
+						r_windowHeight.SetInteger( h );
+						
+						glConfig.nativeScreenWidth = w;
+						glConfig.nativeScreenHeight = h;
+						break;
+					}
+					
+					case SDL_WINDOWEVENT_MOVED:
+					{
+						int x = ev.window.data1;
+						int y = ev.window.data2;
+						r_windowX.SetInteger( x );
+						r_windowY.SetInteger( y );
+						break;
+					}
+					// DG end
 				}
 				
 				return res_none;
 #else
 			case SDL_ACTIVEEVENT:
 			{
-				int flags = 0;
+				// DG: (un-)pause the game when focus is gained, that also (un-)grabs the input
+				bool pause = true;
 			
 				if( ev.active.gain )
 				{
-					flags = GRAB_ENABLE | GRAB_REENABLE | GRAB_HIDECURSOR;
+			
+					pause = false;
 			
 					// unset modifier, in case alt-tab was used to leave window and ALT is still set
 					// as that can cause fullscreen-toggling when pressing enter...
@@ -765,22 +801,57 @@ sysEvent_t Sys_GetEvent()
 					SDL_SetModState( ( SDLMod )newmod );
 				}
 			
-				GLimp_GrabInput( flags );
+				cvarSystem->SetCVarBool( "com_pause", pause );
 			}
 			
 			return res_none;
 			
 			case SDL_VIDEOEXPOSE:
 				return res_none;
-#endif
 				
+				// DG: handle resizing and moving of window
+			case SDL_VIDEORESIZE:
+			{
+				int w = ev.resize.w;
+				int h = ev.resize.h;
+				r_windowWidth.SetInteger( w );
+				r_windowHeight.SetInteger( h );
+			
+				glConfig.nativeScreenWidth = w;
+				glConfig.nativeScreenHeight = h;
+				// for some reason this needs a vid_restart in SDL1 but not SDL2 so GLimp_SetScreenParms() is called
+				PushConsoleEvent( "vid_restart" );
+				return res_none;
+			}
+			// DG end
+#endif
+			
 			case SDL_KEYDOWN:
 				if( ev.key.keysym.sym == SDLK_RETURN && ( ev.key.keysym.mod & KMOD_ALT ) > 0 )
 				{
-					cvarSystem->SetCVarBool( "r_fullscreen", !renderSystem->IsFullScreen() );
+					// DG: go to fullscreen on current display, instead of always first display
+					int fullscreen = 0;
+					if( ! renderSystem->IsFullScreen() )
+					{
+						// this will be handled as "fullscreen on current window"
+						// r_fullscreen 1 means "fullscreen on first window" in d3 bfg
+						fullscreen = -2;
+					}
+					cvarSystem->SetCVarInteger( "r_fullscreen", fullscreen );
+					// DG end
 					PushConsoleEvent( "vid_restart" );
 					return res_none;
 				}
+				
+				// DG: ctrl-g to un-grab mouse - yeah, left ctrl shoots, then just use right ctrl :)
+				if( ev.key.keysym.sym == SDLK_g && ( ev.key.keysym.mod & KMOD_CTRL ) > 0 )
+				{
+					bool grab = cvarSystem->GetCVarBool( "in_nograb" );
+					grab = !grab;
+					cvarSystem->SetCVarBool( "in_nograb", grab );
+					return res_none;
+				}
+				// DG end
 				
 				// fall through
 			case SDL_KEYUP:

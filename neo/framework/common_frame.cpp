@@ -438,6 +438,8 @@ void idCommonLocal::ProcessGameReturn( const gameReturn_t& ret )
 
 extern idCVar com_forceGenericSIMD;
 
+extern idCVar com_pause;
+
 /*
 =================
 idCommonLocal::Frame
@@ -485,13 +487,16 @@ void idCommonLocal::Frame()
 		// if the console or another gui is down, we don't need to hold the mouse cursor
 		bool chatting = false;
 		
+		// DG: Add pause from com_pause cvar
 		// RB begin
 #if defined(USE_DOOMCLASSIC)
-		if( console->Active() || Dialog().IsDialogActive() || session->IsSystemUIShowing() || ( game && game->InhibitControls() && !IsPlayingDoomClassic() ) )
+		if( console->Active() || Dialog().IsDialogActive() || session->IsSystemUIShowing()
+				|| ( game && game->InhibitControls() && !IsPlayingDoomClassic() ) )
 #else
-		if( console->Active() || Dialog().IsDialogActive() || session->IsSystemUIShowing() || ( game && game->InhibitControls() ) )
+		if( com_pause.GetInteger() || console->Active() || Dialog().IsDialogActive() || session->IsSystemUIShowing()
+				|| ( game && game->InhibitControls() ) )
 #endif
-			// RB end
+			// RB end, DG end
 		{
 			Sys_GrabMouseCursor( false );
 			usercmdGen->InhibitUsercmd( INHIBIT_SESSION, true );
@@ -505,9 +510,16 @@ void idCommonLocal::Frame()
 		
 		// RB begin
 #if defined(USE_DOOMCLASSIC)
-		const bool pauseGame = ( !mapSpawned || ( !IsMultiplayer() && ( Dialog().IsDialogPausing() || session->IsSystemUIShowing() || ( game && game->Shell_IsActive() ) ) ) ) && !IsPlayingDoomClassic();
+		const bool pauseGame = ( !mapSpawned
+								 || ( !IsMultiplayer()
+									  && ( Dialog().IsDialogPausing() || session->IsSystemUIShowing()
+										   || ( game && game->Shell_IsActive() ) || com_pause.GetInteger() ) ) )
+							   && !IsPlayingDoomClassic();
 #else
-		const bool pauseGame = ( !mapSpawned || ( !IsMultiplayer() && ( Dialog().IsDialogPausing() || session->IsSystemUIShowing() || ( game && game->Shell_IsActive() ) ) ) );
+		const bool pauseGame = ( !mapSpawned
+								 || ( !IsMultiplayer()
+									  && ( Dialog().IsDialogPausing() || session->IsSystemUIShowing()
+										   || ( game && game->Shell_IsActive() ) || com_pause.GetInteger() ) ) );
 #endif
 		// RB end
 		

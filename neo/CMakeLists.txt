@@ -51,7 +51,7 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
 	#endif()
 	
 	# the warnings are used for every profile anyway, so put them in a variable
-	set(my_warn_flags "-Wno-pragmas -fno-strict-aliasing -Wno-unused-variable -Wno-unused-but-set-variable -Wno-switch -Wno-unused-value")
+	set(my_warn_flags "-Wno-pragmas -Wno-unused-variable -Wno-unused-but-set-variable -Wno-switch -Wno-unused-value -Winvalid-pch")
 	
 	if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
 		# append clang-specific settings for warnings (the second one make sure clang doesn't complain
@@ -1272,9 +1272,72 @@ else()
 
 	list(REMOVE_DUPLICATES RBDOOM3_SOURCES)
 	
-	add_executable(RBDoom3BFG WIN32 ${RBDOOM3_INCLUDES} ${RBDOOM3_SOURCES})
+	set(RBDOOM3_PRECOMPILED_SOURCES ${RBDOOM3_SOURCES})
+	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${TIMIDITY_SOURCES} ${JPEG_SOURCES} ${ZLIB_SOURCES})
+	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/libs/zlib/minizip/ioapi.c)
+	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/DXT/DXTDecoder.cpp)
+	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/DXT/DXTEncoder.cpp)
+	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/DXT/DXTEncoder_SSE2.cpp)
+	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/jobs/dynamicshadowvolume/DynamicShadowVolume.cpp)
+	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/jobs/prelightshadowvolume/PreLightShadowVolume.cpp)
+	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/jobs/staticshadowvolume/StaticShadowVolume.cpp)
+	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/jobs/ShadowShared.cpp)
+	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/RenderLog.cpp)
+#	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/../doomclassic/doom/i_sound_stub.cpp)
 
-	add_dependencies(RBDoom3BFG idlib)
+	foreach( src_file ${RBDOOM3_PRECOMPILED_SOURCES} )
+		#message(STATUS "-include precompiled.h for ${src_file}")
+		set_source_files_properties(
+			${src_file}
+			PROPERTIES
+			COMPILE_FLAGS "-include ${CMAKE_CURRENT_SOURCE_DIR}/idlib/precompiled.h"
+			)
+	endforeach()
+
+	# precompiled magic for GCC/clang, adapted from https://gist.github.com/573926
+	STRING(TOUPPER "CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE}" _flags_var_name)
+	SET(_compiler_FLAGS ${${_flags_var_name}})
+	GET_DIRECTORY_PROPERTY(_directory_flags INCLUDE_DIRECTORIES)
+	FOREACH(item ${_directory_flags})
+		LIST(APPEND _compiler_FLAGS " -I${item}")
+	ENDFOREACH(item)
+
+	GET_DIRECTORY_PROPERTY(_directory_flags DEFINITIONS)
+	LIST(APPEND _compiler_FLAGS ${_directory_flags})
+	SEPARATE_ARGUMENTS(_compiler_FLAGS)
+	
+	# we need to recreate the precompiled header for RBDoom3BFG 
+	# (i.e. can't use the one created for idlib before)
+	# because some definitions (e.g. -D__IDLIB__ -D__DOOM_DLL__) differ
+	add_custom_target(precomp_header_rbdoom3bfg ALL
+	                  COMMAND ${CMAKE_CXX_COMPILER} ${_compiler_FLAGS} -x c++-header idlib/precompiled.h -o idlib/precompiled.h.gch
+	                  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+	                  COMMENT "Creating idlib/precompiled.h.gch for RBDoom3BFG"
+	                  )
+	
+	if(WIN32)
+		set(remove_command "del")
+	else()
+		set(remove_command "rm")
+	endif()
+	# it's ugly enough that the precompiled header binary needs to be in the 
+	# source directory (instead of the build directory), so let's at least
+	# delete it after build.
+	add_custom_target(rm_precomp_header ALL
+	                  COMMAND ${remove_command} "idlib/precompiled.h.gch"
+	                  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+	                  COMMENT "remove idlib/precompiled.h.gch"
+	                  )
+	
+	# make sure this is run after creating idlib
+	add_dependencies(precomp_header_rbdoom3bfg idlib)
+	
+
+	# make sure precompiled header is created before executable is compiled
+	add_dependencies(RBDoom3BFG precomp_header_rbdoom3bfg)
+	
+	# make sure precompiled header is deleted after executable is compiled
+	add_dependencies(rm_precomp_header RBDoom3BFG)
 	
 	if(MINGW)
 		include_directories(libs/sdl2/include)

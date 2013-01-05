@@ -86,6 +86,10 @@ idCVar preload_CommonAssets( "preload_CommonAssets", "1", CVAR_SYSTEM | CVAR_BOO
 
 idCVar net_inviteOnly( "net_inviteOnly", "1", CVAR_BOOL | CVAR_ARCHIVE, "whether or not the private server you create allows friends to join or invite only" );
 
+// DG: add cvar for pause
+idCVar com_pause( "com_pause", "0", CVAR_BOOL | CVAR_SYSTEM , "set to 1 to pause game, to 0 to unpause again" );
+// DG end
+
 extern idCVar g_demoMode;
 
 idCVar com_engineHz( "com_engineHz", "60", CVAR_FLOAT | CVAR_ARCHIVE, "Frames per second the engine runs at", 10.0f, 1024.0f );
