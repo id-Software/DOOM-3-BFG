@@ -163,12 +163,15 @@ protected:
 	struct MS_ADPCM_decodeState_t
 	{
 		uint8 hPredictor;
+		int16 coef1;
+		int16 coef2;
+		
 		uint16 iDelta;
 		int16 iSamp1;
 		int16 iSamp2;
 	};
 	
-	int32			MS_ADPCM_nibble( MS_ADPCM_decodeState_t* state, int8 nybble, int16* coeff );
+	int32			MS_ADPCM_nibble( MS_ADPCM_decodeState_t* state, int8 nybble );
 	int				MS_ADPCM_decode( uint8** audio_buf, uint32* audio_len );
 	
 	struct sampleBuffer_t

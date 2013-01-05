@@ -1008,7 +1008,7 @@ ALenum idSoundSample_OpenAL::GetOpenALBufferFormat() const
 	return alFormat;
 }
 
-int32 idSoundSample_OpenAL::MS_ADPCM_nibble( MS_ADPCM_decodeState_t* state, int8 nybble, int16* coeff )
+int32 idSoundSample_OpenAL::MS_ADPCM_nibble( MS_ADPCM_decodeState_t* state, int8 nybble )
 {
 	const int32 max_audioval = ( ( 1 << ( 16 - 1 ) ) - 1 );
 	const int32 min_audioval = -( 1 << ( 16 - 1 ) );
@@ -1017,10 +1017,11 @@ int32 idSoundSample_OpenAL::MS_ADPCM_nibble( MS_ADPCM_decodeState_t* state, int8
 		230, 230, 230, 230, 307, 409, 512, 614,
 		768, 614, 512, 409, 307, 230, 230, 230
 	};
+	
 	int32 new_sample, delta;
 	
-	new_sample = ( ( state->iSamp1 * coeff[0] ) +
-				   ( state->iSamp2 * coeff[1] ) ) / 256;
+	new_sample = ( ( state->iSamp1 * state->coef1 ) +
+				   ( state->iSamp2 * state->coef2 ) ) / 256;
 				   
 	if( nybble & 0x08 )
 	{
@@ -1055,24 +1056,19 @@ int32 idSoundSample_OpenAL::MS_ADPCM_nibble( MS_ADPCM_decodeState_t* state, int8
 
 int idSoundSample_OpenAL::MS_ADPCM_decode( uint8** audio_buf, uint32* audio_len )
 {
-	static MS_ADPCM_decodeState_t state[2];
+	static MS_ADPCM_decodeState_t	states[2];
+	MS_ADPCM_decodeState_t*			state[2];
+	
 	uint8* freeable, *encoded, *decoded;
 	int32 encoded_len, samplesleft;
 	int8 nybble;
-	bool stereo;
-	int16* coeff[2];
+	int8 stereo;
 	int32 new_sample;
 	
 	// Allocate the proper sized output buffer
 	encoded_len = *audio_len;
 	encoded = *audio_buf;
 	freeable = *audio_buf;
-	
-	/*
-	*audio_len = ( encoded_len / MS_ADPCM_state.wavefmt.blockalign ) *
-				 MS_ADPCM_state.wSamplesPerBlock *
-				 MS_ADPCM_state.wavefmt.channels * sizeof( int16 );
-	*/
 	
 	*audio_len = ( encoded_len / format.basic.blockSize ) * format.extra.adpcm.samplesPerBlock * format.basic.numChannels * sizeof( int16 );
 	
@@ -1084,65 +1080,79 @@ int idSoundSample_OpenAL::MS_ADPCM_decode( uint8** audio_buf, uint32* audio_len 
 	}
 	decoded = *audio_buf;
 	
+	assert( format.basic.numChannels == 1 || format.basic.numChannels == 2 );
+	
 	// Get ready... Go!
-	stereo = ( format.basic.numChannels == 2 );
-	//state[0] = &MS_ADPCM_state.state[0];
-	//state[1] = &MS_ADPCM_state.state[stereo];
+	stereo = ( format.basic.numChannels == 2 ) ? 1 : 0;
+	state[0] = &states[0];
+	state[1] = &states[stereo];
 	
 	while( encoded_len >= format.basic.blockSize )
 	{
 		// Grab the initial information for this block
-		state[0].hPredictor = *encoded++;
+		state[0]->hPredictor = *encoded++;
+		
+		assert( state[0]->hPredictor < format.extra.adpcm.numCoef );
+		state[0]->hPredictor = idMath::ClampInt( 0, 6, state[0]->hPredictor );
+		
+		state[0]->coef1 = format.extra.adpcm.aCoef[state[0]->hPredictor].coef1;
+		state[0]->coef2 = format.extra.adpcm.aCoef[state[0]->hPredictor].coef2;
+		
 		if( stereo )
 		{
-			state[1].hPredictor = *encoded++;
+			state[1]->hPredictor = *encoded++;
+			
+			assert( state[1]->hPredictor < format.extra.adpcm.numCoef );
+			state[1]->hPredictor = idMath::ClampInt( 0, 6, state[1]->hPredictor );
+			
+			state[1]->coef1 = format.extra.adpcm.aCoef[state[1]->hPredictor].coef1;
+			state[1]->coef2 = format.extra.adpcm.aCoef[state[1]->hPredictor].coef2;
 		}
 		
-		state[0].iDelta = ( ( encoded[1] << 8 ) | encoded[0] );
+		state[0]->iDelta = ( ( encoded[1] << 8 ) | encoded[0] );
 		encoded += sizeof( int16 );
 		if( stereo )
 		{
-			state[1].iDelta = ( ( encoded[1] << 8 ) | encoded[0] );
-			encoded += sizeof( int16 );
-		}
-		state[0].iSamp1 = ( ( encoded[1] << 8 ) | encoded[0] );
-		encoded += sizeof( int16 );
-		if( stereo )
-		{
-			state[1].iSamp1 = ( ( encoded[1] << 8 ) | encoded[0] );
-			encoded += sizeof( int16 );
-		}
-		state[0].iSamp2 = ( ( encoded[1] << 8 ) | encoded[0] );
-		encoded += sizeof( int16 );
-		if( stereo )
-		{
-			state[1].iSamp2 = ( ( encoded[1] << 8 ) | encoded[0] );
+			state[1]->iDelta = ( ( encoded[1] << 8 ) | encoded[0] );
 			encoded += sizeof( int16 );
 		}
 		
-		assert( state[0].hPredictor < format.extra.adpcm.numCoef );
-		assert( state[1].hPredictor < format.extra.adpcm.numCoef );
+		state[0]->iSamp1 = ( ( encoded[1] << 8 ) | encoded[0] );
+		encoded += sizeof( int16 );
+		if( stereo )
+		{
+			state[1]->iSamp1 = ( ( encoded[1] << 8 ) | encoded[0] );
+			encoded += sizeof( int16 );
+		}
 		
-		coeff[0] = &format.extra.adpcm.aCoef[state[0].hPredictor].coef1;
-		coeff[1] = &format.extra.adpcm.aCoef[state[1].hPredictor].coef2;
+		state[0]->iSamp2 = ( ( encoded[1] << 8 ) | encoded[0] );
+		encoded += sizeof( int16 );
+		if( stereo )
+		{
+			state[1]->iSamp2 = ( ( encoded[1] << 8 ) | encoded[0] );
+			encoded += sizeof( int16 );
+		}
+		
+		
 		
 		// Store the two initial samples we start with
-		decoded[0] = state[0].iSamp2 & 0xFF;
-		decoded[1] = state[0].iSamp2 >> 8;
+		decoded[0] = state[0]->iSamp2 & 0xFF;
+		decoded[1] = ( state[0]->iSamp2 >> 8 ) & 0xFF;
 		decoded += 2;
 		if( stereo )
 		{
-			decoded[0] = state[1].iSamp2 & 0xFF;
-			decoded[1] = state[1].iSamp2 >> 8;
+			decoded[0] = state[1]->iSamp2 & 0xFF;
+			decoded[1] = ( state[1]->iSamp2 >> 8 ) & 0xFF;
 			decoded += 2;
 		}
-		decoded[0] = state[0].iSamp1 & 0xFF;
-		decoded[1] = state[0].iSamp1 >> 8;
+		
+		decoded[0] = state[0]->iSamp1 & 0xFF;
+		decoded[1] = ( state[0]->iSamp1 >> 8 ) & 0xFF;
 		decoded += 2;
 		if( stereo )
 		{
-			decoded[0] = state[1].iSamp1 & 0xFF;
-			decoded[1] = state[1].iSamp1 >> 8;
+			decoded[0] = state[1]->iSamp1 & 0xFF;
+			decoded[1] = ( state[1]->iSamp1 >> 8 ) & 0xFF;
 			decoded += 2;
 		}
 		
@@ -1152,17 +1162,17 @@ int idSoundSample_OpenAL::MS_ADPCM_decode( uint8** audio_buf, uint32* audio_len 
 		while( samplesleft > 0 )
 		{
 			nybble = ( *encoded ) >> 4;
-			new_sample = MS_ADPCM_nibble( &state[0], nybble, coeff[0] );
+			new_sample = MS_ADPCM_nibble( state[0], nybble );
+			
 			decoded[0] = new_sample & 0xFF;
-			new_sample >>= 8;
-			decoded[1] = new_sample & 0xFF;
+			decoded[1] = ( new_sample >> 8 ) & 0xFF;
 			decoded += 2;
 			
 			nybble = ( *encoded ) & 0x0F;
-			new_sample = MS_ADPCM_nibble( &state[1], nybble, coeff[1] );
+			new_sample = MS_ADPCM_nibble( state[1], nybble );
+			
 			decoded[0] = new_sample & 0xFF;
-			new_sample >>= 8;
-			decoded[1] = new_sample & 0xFF;
+			decoded[1] = ( new_sample >> 8 ) & 0xFF;
 			decoded += 2;
 			
 			++encoded;
