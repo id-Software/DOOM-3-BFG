@@ -1332,7 +1332,8 @@ else()
 	# make sure this is run after creating idlib
 	add_dependencies(precomp_header_rbdoom3bfg idlib)
 	
-
+	add_executable(RBDoom3BFG WIN32 ${RBDOOM3_SOURCES})
+	
 	# make sure precompiled header is created before executable is compiled
 	add_dependencies(RBDoom3BFG precomp_header_rbdoom3bfg)
 	
