@@ -456,7 +456,9 @@ idSessionLocalWin::IsSystemUIShowing
 */
 bool idSessionLocalWin::IsSystemUIShowing() const
 {
-	return !win32.activeApp || isSysUIShowing; // If the user alt+tabs away, treat it the same as bringing up the steam overlay
+	// DG: wtf, !win32.activeApp doesn't belong here, this is totally confusing and hacky.
+	// pause (when losing focus or invoking explicitly) is now handled properly by com_pause
+	return isSysUIShowing;
 }
 
 /*

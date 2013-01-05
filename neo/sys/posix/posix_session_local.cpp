@@ -456,10 +456,9 @@ idSessionLocalWin::IsSystemUIShowing
 */
 bool idSessionLocalWin::IsSystemUIShowing() const
 {
-	// RB: TODO track SDL_ACTIVEENT
+	// DG: pausing here when window is out of focus like originally done on windows is hacky
+	// it's done with com_pause now.
 	return isSysUIShowing;
-	
-	//return !win32.activeApp || isSysUIShowing; // If the user alt+tabs away, treat it the same as bringing up the steam overlay
 }
 
 /*
