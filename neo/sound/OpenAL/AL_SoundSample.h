@@ -130,7 +130,23 @@ public:
 	
 	float			GetAmplitude( int timeMS ) const;
 	
+	const char*		OpenALSoftChannelsName( ALenum chans ) const;
+	
+	const char*		OpenALSoftTypeName( ALenum type ) const;
+	
+	ALsizei			FramesToBytes( ALsizei size, ALenum channels, ALenum type ) const;
+	ALsizei			BytesToFrames( ALsizei size, ALenum channels, ALenum type ) const;
+	
+	/* Retrieves a compatible buffer format given the channel configuration and
+	 * sample type. If an alIsBufferFormatSupportedSOFT-compatible function is
+	 * provided, it will be called to find the closest-matching format from
+	 * AL_SOFT_buffer_samples. Returns AL_NONE (0) if no supported format can be
+	 * found. */
+	ALenum			GetOpenALSoftFormat( ALenum channels, ALenum type ) const;
+	
 	ALenum			GetOpenALBufferFormat() const;
+	
+	void			CreateOpenALBuffer();
 	
 protected:
 	friend class idSoundHardware_OpenAL;
@@ -143,6 +159,17 @@ protected:
 	void			WriteAllSamples( const idStr& sampleName );
 	bool			LoadGeneratedSample( const idStr& name );
 	void			WriteGeneratedSample( idFile* fileOut );
+	
+	struct MS_ADPCM_decodeState_t
+	{
+		uint8 hPredictor;
+		uint16 iDelta;
+		int16 iSamp1;
+		int16 iSamp2;
+	};
+	
+	int32			MS_ADPCM_nibble( MS_ADPCM_decodeState_t* state, int8 nybble, int16* coeff );
+	int				MS_ADPCM_decode( uint8** audio_buf, uint32* audio_len );
 	
 	struct sampleBuffer_t
 	{

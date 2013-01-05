@@ -95,6 +95,8 @@ typedef enum
 
 #if defined(USE_OPENAL)
 
+#define AL_ALEXT_PROTOTYPES
+
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <AL/alext.h>

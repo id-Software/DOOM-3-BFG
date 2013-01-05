@@ -31,7 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../snd_local.h"
 
 idCVar s_skipHardwareSets( "s_skipHardwareSets", "0", CVAR_BOOL, "Do all calculation, but skip XA2 calls" );
-idCVar s_debugHardware( "s_debugHardware", "1", CVAR_BOOL, "Print a message any time a hardware voice changes" );
+idCVar s_debugHardware( "s_debugHardware", "0", CVAR_BOOL, "Print a message any time a hardware voice changes" );
 
 // The whole system runs at this sample rate
 static int SYSTEM_SAMPLE_RATE = 44100;
@@ -170,10 +170,11 @@ void idSoundVoice_OpenAL::Create( const idSoundSample* leadinSample_, const idSo
 			*/
 		}
 		else
-		
-			// handle streaming sounds (decode on the fly) both single shot AND looping
-			//if( triggered )
 		{
+			//if( triggered )
+			
+			// handle streaming sounds (decode on the fly) both single shot AND looping
+			
 			alSourcei( openalSource, AL_BUFFER, 0 );
 			alDeleteBuffers( 3, &lastopenalStreamingBuffer[0] );
 			lastopenalStreamingBuffer[0] = openalStreamingBuffer[0];
@@ -213,7 +214,7 @@ void idSoundVoice_OpenAL::Create( const idSoundSample* leadinSample_, const idSo
 	alSource3f( openalSource, AL_POSITION, 0.0f, 0.0f, 0.0f );
 	
 	// RB: FIXME 0.0f ?
-	alSourcef( openalSource, AL_GAIN, 0.0f );
+	alSourcef( openalSource, AL_GAIN, 1.0f );
 	
 	//OnBufferStart( leadinSample, 0 );
 }

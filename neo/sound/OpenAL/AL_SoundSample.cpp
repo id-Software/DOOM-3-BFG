@@ -4,6 +4,8 @@
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2013 Robert Beckebans
+Copyright (C) 1997-2012 Sam Lantinga <slouken@libsdl.org>  (MS ADPCM decoder)
+Copyright (c) 2011 Chris Robinson <chris.kcat@gmail.com> (OpenAL helpers)
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -260,28 +262,8 @@ void idSoundSample_OpenAL::LoadResource()
 				}
 			}
 			
-			// build OpenAL buffer
-			alGetError();
-			alGenBuffers( 1, &openalBuffer );
-			
-			if( alGetError() != AL_NO_ERROR )
-			{
-				common->Error( "idSoundSample_OpenAL::MakeDefault: error generating OpenAL hardware buffer" );
-			}
-			
-			if( alIsBuffer( openalBuffer ) )
-			{
-				alGetError();
-				
-				// RB: TODO decode idWaveFile::FORMAT_ADPCM to idWaveFile::FORMAT_PCM
-				// and build one big OpenAL buffer using the alBufferSubData extension
-				
-				alBufferData( openalBuffer, GetOpenALBufferFormat(), buffers[0].buffer, buffers[0].bufferSize, format.basic.samplesPerSec );
-				if( alGetError() != AL_NO_ERROR )
-				{
-					common->Error( "idSoundSample_OpenAL::MakeDefault: error loading data into OpenAL hardware buffer" );
-				}
-			}
+			// upload PCM data to OpenAL
+			CreateOpenALBuffer();
 			
 			return;
 		}
@@ -293,6 +275,88 @@ void idSoundSample_OpenAL::LoadResource()
 		MakeDefault();
 	}
 	return;
+}
+
+void idSoundSample_OpenAL::CreateOpenALBuffer()
+{
+	// build OpenAL buffer
+	alGetError();
+	alGenBuffers( 1, &openalBuffer );
+	
+	if( alGetError() != AL_NO_ERROR )
+	{
+		common->Error( "idSoundSample_OpenAL::CreateOpenALBuffer: error generating OpenAL hardware buffer" );
+	}
+	
+	if( alIsBuffer( openalBuffer ) )
+	{
+		alGetError();
+		
+		// RB: TODO decode idWaveFile::FORMAT_ADPCM to idWaveFile::FORMAT_PCM
+		// and build one big OpenAL buffer using the alBufferSubData extension
+		
+		void* buffer = NULL;
+		uint32 bufferSize = 0;
+		
+		if( format.basic.formatTag == idWaveFile::FORMAT_ADPCM )
+		{
+			buffer = buffers[0].buffer;
+			bufferSize = buffers[0].bufferSize;
+			
+			if( MS_ADPCM_decode( ( uint8** ) &buffer, &bufferSize ) < 0 )
+			{
+				common->Error( "idSoundSample_OpenAL::CreateOpenALBuffer: could not decode ADPCM '%s' to 16 bit format", GetName() );
+			}
+			
+			buffers[0].buffer = buffer;
+			buffers[0].bufferSize = bufferSize;
+			
+			totalBufferSize = bufferSize;
+		}
+		else if( format.basic.formatTag == idWaveFile::FORMAT_XMA2 )
+		{
+			common->Error( "idSoundSample_OpenAL::CreateOpenALBuffer: could not decode XMA2 '%s' to 16 bit format", GetName() );
+		}
+		else if( format.basic.formatTag == idWaveFile::FORMAT_EXTENSIBLE )
+		{
+			common->Error( "idSoundSample_OpenAL::CreateOpenALBuffer: could not decode extensible WAV format '%s' to 16 bit format", GetName() );
+		}
+		else
+		{
+			// TODO concatenate buffers
+			
+			assert( buffers.Num() == 1 );
+			
+			buffer = buffers[0].buffer;
+			bufferSize = buffers[0].bufferSize;
+		}
+		
+#if 0
+		if( alIsExtensionPresent( "AL_SOFT_buffer_samples" ) )
+		{
+			ALenum type = AL_SHORT_SOFT;
+			
+			if( format.basic.bitsPerSample != 16 )
+			{
+				//common->Error( "idSoundSample_OpenAL::LoadResource: '%s' not a 16 bit format", GetName() );
+			}
+			
+			ALenum channels = NumChannels() == 1 ? AL_MONO_SOFT : AL_STEREO_SOFT;
+			ALenum alFormat = GetOpenALSoftFormat( channels, type );
+			
+			alBufferSamplesSOFT( openalBuffer, format.basic.samplesPerSec, alFormat, BytesToFrames( bufferSize, channels, type ), channels, type, buffer );
+		}
+		else
+#endif
+		{
+			alBufferData( openalBuffer, GetOpenALBufferFormat(), buffer, bufferSize, format.basic.samplesPerSec );
+		}
+		
+		if( alGetError() != AL_NO_ERROR )
+		{
+			common->Error( "idSoundSample_OpenAL::CreateOpenALBuffer: error loading data into OpenAL hardware buffer" );
+		}
+	}
 }
 
 /*
@@ -618,28 +682,498 @@ float idSoundSample_OpenAL::GetAmplitude( int timeMS ) const
 }
 
 
+const char* idSoundSample_OpenAL::OpenALSoftChannelsName( ALenum chans ) const
+{
+	switch( chans )
+	{
+		case AL_MONO_SOFT:
+			return "Mono";
+		case AL_STEREO_SOFT:
+			return "Stereo";
+		case AL_REAR_SOFT:
+			return "Rear";
+		case AL_QUAD_SOFT:
+			return "Quadraphonic";
+		case AL_5POINT1_SOFT:
+			return "5.1 Surround";
+		case AL_6POINT1_SOFT:
+			return "6.1 Surround";
+		case AL_7POINT1_SOFT:
+			return "7.1 Surround";
+	}
+	
+	return "Unknown Channels";
+}
+
+const char* idSoundSample_OpenAL::OpenALSoftTypeName( ALenum type ) const
+{
+	switch( type )
+	{
+		case AL_BYTE_SOFT:
+			return "S8";
+		case AL_UNSIGNED_BYTE_SOFT:
+			return "U8";
+		case AL_SHORT_SOFT:
+			return "S16";
+		case AL_UNSIGNED_SHORT_SOFT:
+			return "U16";
+		case AL_INT_SOFT:
+			return "S32";
+		case AL_UNSIGNED_INT_SOFT:
+			return "U32";
+		case AL_FLOAT_SOFT:
+			return "Float32";
+		case AL_DOUBLE_SOFT:
+			return "Float64";
+	}
+	
+	return "Unknown Type";
+}
+
+ALsizei idSoundSample_OpenAL::FramesToBytes( ALsizei size, ALenum channels, ALenum type ) const
+{
+	switch( channels )
+	{
+		case AL_MONO_SOFT:
+			size *= 1;
+			break;
+		case AL_STEREO_SOFT:
+			size *= 2;
+			break;
+		case AL_REAR_SOFT:
+			size *= 2;
+			break;
+		case AL_QUAD_SOFT:
+			size *= 4;
+			break;
+		case AL_5POINT1_SOFT:
+			size *= 6;
+			break;
+		case AL_6POINT1_SOFT:
+			size *= 7;
+			break;
+		case AL_7POINT1_SOFT:
+			size *= 8;
+			break;
+	}
+	
+	switch( type )
+	{
+		case AL_BYTE_SOFT:
+			size *= sizeof( ALbyte );
+			break;
+		case AL_UNSIGNED_BYTE_SOFT:
+			size *= sizeof( ALubyte );
+			break;
+		case AL_SHORT_SOFT:
+			size *= sizeof( ALshort );
+			break;
+		case AL_UNSIGNED_SHORT_SOFT:
+			size *= sizeof( ALushort );
+			break;
+		case AL_INT_SOFT:
+			size *= sizeof( ALint );
+			break;
+		case AL_UNSIGNED_INT_SOFT:
+			size *= sizeof( ALuint );
+			break;
+		case AL_FLOAT_SOFT:
+			size *= sizeof( ALfloat );
+			break;
+		case AL_DOUBLE_SOFT:
+			size *= sizeof( ALdouble );
+			break;
+	}
+	
+	return size;
+}
+
+ALsizei idSoundSample_OpenAL::BytesToFrames( ALsizei size, ALenum channels, ALenum type ) const
+{
+	return size / FramesToBytes( 1, channels, type );
+}
+
+ALenum idSoundSample_OpenAL::GetOpenALSoftFormat( ALenum channels, ALenum type ) const
+{
+	ALenum format = AL_NONE;
+	
+	/* If using AL_SOFT_buffer_samples, try looking through its formats */
+	if( alIsExtensionPresent( "AL_SOFT_buffer_samples" ) )
+	{
+		/* AL_SOFT_buffer_samples is more lenient with matching formats. The
+		 * specified sample type does not need to match the returned format,
+		 * but it is nice to try to get something close. */
+		if( type == AL_UNSIGNED_BYTE_SOFT || type == AL_BYTE_SOFT )
+		{
+			if( channels == AL_MONO_SOFT ) format = AL_MONO8_SOFT;
+			else if( channels == AL_STEREO_SOFT ) format = AL_STEREO8_SOFT;
+			else if( channels == AL_QUAD_SOFT ) format = AL_QUAD8_SOFT;
+			else if( channels == AL_5POINT1_SOFT ) format = AL_5POINT1_8_SOFT;
+			else if( channels == AL_6POINT1_SOFT ) format = AL_6POINT1_8_SOFT;
+			else if( channels == AL_7POINT1_SOFT ) format = AL_7POINT1_8_SOFT;
+		}
+		else if( type == AL_UNSIGNED_SHORT_SOFT || type == AL_SHORT_SOFT )
+		{
+			if( channels == AL_MONO_SOFT ) format = AL_MONO16_SOFT;
+			else if( channels == AL_STEREO_SOFT ) format = AL_STEREO16_SOFT;
+			else if( channels == AL_QUAD_SOFT ) format = AL_QUAD16_SOFT;
+			else if( channels == AL_5POINT1_SOFT ) format = AL_5POINT1_16_SOFT;
+			else if( channels == AL_6POINT1_SOFT ) format = AL_6POINT1_16_SOFT;
+			else if( channels == AL_7POINT1_SOFT ) format = AL_7POINT1_16_SOFT;
+		}
+		else if( type == AL_UNSIGNED_BYTE3_SOFT || type == AL_BYTE3_SOFT ||
+				 type == AL_UNSIGNED_INT_SOFT || type == AL_INT_SOFT ||
+				 type == AL_FLOAT_SOFT || type == AL_DOUBLE_SOFT )
+		{
+			if( channels == AL_MONO_SOFT ) format = AL_MONO32F_SOFT;
+			else if( channels == AL_STEREO_SOFT ) format = AL_STEREO32F_SOFT;
+			else if( channels == AL_QUAD_SOFT ) format = AL_QUAD32F_SOFT;
+			else if( channels == AL_5POINT1_SOFT ) format = AL_5POINT1_32F_SOFT;
+			else if( channels == AL_6POINT1_SOFT ) format = AL_6POINT1_32F_SOFT;
+			else if( channels == AL_7POINT1_SOFT ) format = AL_7POINT1_32F_SOFT;
+		}
+		
+		if( format != AL_NONE && !alIsBufferFormatSupportedSOFT( format ) )
+			format = AL_NONE;
+			
+		/* A matching format was not found or supported. Try 32-bit float. */
+		if( format == AL_NONE )
+		{
+			if( channels == AL_MONO_SOFT ) format = AL_MONO32F_SOFT;
+			else if( channels == AL_STEREO_SOFT ) format = AL_STEREO32F_SOFT;
+			else if( channels == AL_QUAD_SOFT ) format = AL_QUAD32F_SOFT;
+			else if( channels == AL_5POINT1_SOFT ) format = AL_5POINT1_32F_SOFT;
+			else if( channels == AL_6POINT1_SOFT ) format = AL_6POINT1_32F_SOFT;
+			else if( channels == AL_7POINT1_SOFT ) format = AL_7POINT1_32F_SOFT;
+			
+			if( format != AL_NONE && !alIsBufferFormatSupportedSOFT( format ) )
+				format = AL_NONE;
+		}
+		/* 32-bit float not supported. Try 16-bit int. */
+		if( format == AL_NONE )
+		{
+			if( channels == AL_MONO_SOFT ) format = AL_MONO16_SOFT;
+			else if( channels == AL_STEREO_SOFT ) format = AL_STEREO16_SOFT;
+			else if( channels == AL_QUAD_SOFT ) format = AL_QUAD16_SOFT;
+			else if( channels == AL_5POINT1_SOFT ) format = AL_5POINT1_16_SOFT;
+			else if( channels == AL_6POINT1_SOFT ) format = AL_6POINT1_16_SOFT;
+			else if( channels == AL_7POINT1_SOFT ) format = AL_7POINT1_16_SOFT;
+			
+			if( format != AL_NONE && !alIsBufferFormatSupportedSOFT( format ) )
+				format = AL_NONE;
+		}
+		/* 16-bit int not supported. Try 8-bit int. */
+		if( format == AL_NONE )
+		{
+			if( channels == AL_MONO_SOFT ) format = AL_MONO8_SOFT;
+			else if( channels == AL_STEREO_SOFT ) format = AL_STEREO8_SOFT;
+			else if( channels == AL_QUAD_SOFT ) format = AL_QUAD8_SOFT;
+			else if( channels == AL_5POINT1_SOFT ) format = AL_5POINT1_8_SOFT;
+			else if( channels == AL_6POINT1_SOFT ) format = AL_6POINT1_8_SOFT;
+			else if( channels == AL_7POINT1_SOFT ) format = AL_7POINT1_8_SOFT;
+			
+			if( format != AL_NONE && !alIsBufferFormatSupportedSOFT( format ) )
+				format = AL_NONE;
+		}
+		
+		return format;
+	}
+	
+	/* We use the AL_EXT_MCFORMATS extension to provide output of Quad, 5.1,
+	 * and 7.1 channel configs, AL_EXT_FLOAT32 for 32-bit float samples, and
+	 * AL_EXT_DOUBLE for 64-bit float samples. */
+	if( type == AL_UNSIGNED_BYTE_SOFT )
+	{
+		if( channels == AL_MONO_SOFT )
+			format = AL_FORMAT_MONO8;
+		else if( channels == AL_STEREO_SOFT )
+			format = AL_FORMAT_STEREO8;
+		else if( alIsExtensionPresent( "AL_EXT_MCFORMATS" ) )
+		{
+			if( channels == AL_QUAD_SOFT )
+				format = alGetEnumValue( "AL_FORMAT_QUAD8" );
+			else if( channels == AL_5POINT1_SOFT )
+				format = alGetEnumValue( "AL_FORMAT_51CHN8" );
+			else if( channels == AL_6POINT1_SOFT )
+				format = alGetEnumValue( "AL_FORMAT_61CHN8" );
+			else if( channels == AL_7POINT1_SOFT )
+				format = alGetEnumValue( "AL_FORMAT_71CHN8" );
+		}
+	}
+	else if( type == AL_SHORT_SOFT )
+	{
+		if( channels == AL_MONO_SOFT )
+			format = AL_FORMAT_MONO16;
+		else if( channels == AL_STEREO_SOFT )
+			format = AL_FORMAT_STEREO16;
+		else if( alIsExtensionPresent( "AL_EXT_MCFORMATS" ) )
+		{
+			if( channels == AL_QUAD_SOFT )
+				format = alGetEnumValue( "AL_FORMAT_QUAD16" );
+			else if( channels == AL_5POINT1_SOFT )
+				format = alGetEnumValue( "AL_FORMAT_51CHN16" );
+			else if( channels == AL_6POINT1_SOFT )
+				format = alGetEnumValue( "AL_FORMAT_61CHN16" );
+			else if( channels == AL_7POINT1_SOFT )
+				format = alGetEnumValue( "AL_FORMAT_71CHN16" );
+		}
+	}
+	else if( type == AL_FLOAT_SOFT && alIsExtensionPresent( "AL_EXT_FLOAT32" ) )
+	{
+		if( channels == AL_MONO_SOFT )
+			format = alGetEnumValue( "AL_FORMAT_MONO_FLOAT32" );
+		else if( channels == AL_STEREO_SOFT )
+			format = alGetEnumValue( "AL_FORMAT_STEREO_FLOAT32" );
+		else if( alIsExtensionPresent( "AL_EXT_MCFORMATS" ) )
+		{
+			if( channels == AL_QUAD_SOFT )
+				format = alGetEnumValue( "AL_FORMAT_QUAD32" );
+			else if( channels == AL_5POINT1_SOFT )
+				format = alGetEnumValue( "AL_FORMAT_51CHN32" );
+			else if( channels == AL_6POINT1_SOFT )
+				format = alGetEnumValue( "AL_FORMAT_61CHN32" );
+			else if( channels == AL_7POINT1_SOFT )
+				format = alGetEnumValue( "AL_FORMAT_71CHN32" );
+		}
+	}
+	else if( type == AL_DOUBLE_SOFT && alIsExtensionPresent( "AL_EXT_DOUBLE" ) )
+	{
+		if( channels == AL_MONO_SOFT )
+			format = alGetEnumValue( "AL_FORMAT_MONO_DOUBLE" );
+		else if( channels == AL_STEREO_SOFT )
+			format = alGetEnumValue( "AL_FORMAT_STEREO_DOUBLE" );
+	}
+	
+	/* NOTE: It seems OSX returns -1 from alGetEnumValue for unknown enums, as
+	 * opposed to 0. Correct it. */
+	if( format == -1 )
+		format = 0;
+		
+	return format;
+}
+
 ALenum idSoundSample_OpenAL::GetOpenALBufferFormat() const
 {
 	ALenum alFormat;
 	
-	if( format.basic.formatTag == idWaveFile::FORMAT_PCM )
+#if 0
+	if( alIsExtensionPresent( "AL_SOFT_buffer_samples" ) )
 	{
-		alFormat = NumChannels() == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
-	}
-	else if( format.basic.formatTag == idWaveFile::FORMAT_ADPCM )
-	{
-		alFormat = NumChannels() == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
-		//alFormat = NumChannels() == 1 ? AL_FORMAT_IMA_ADPCM_MONO16_EXT : AL_FORMAT_IMA_ADPCM_STEREO16_EXT;
-	}
-	else if( format.basic.formatTag == idWaveFile::FORMAT_XMA2 )
-	{
-		alFormat = NumChannels() == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
+		if( format.basic.formatTag == idWaveFile::FORMAT_PCM )
+		{
+			alFormat = NumChannels() == 1 ? AL_MONO16_SOFT : AL_STEREO16_SOFT;
+		}
+		else if( format.basic.formatTag == idWaveFile::FORMAT_ADPCM )
+		{
+			alFormat = NumChannels() == 1 ? AL_MONO8_SOFT : AL_STEREO8_SOFT;
+			//alFormat = NumChannels() == 1 ? AL_MONO16_SOFT : AL_STEREO16_SOFT;
+		}
+		else if( format.basic.formatTag == idWaveFile::FORMAT_XMA2 )
+		{
+			alFormat = NumChannels() == 1 ? AL_MONO16_SOFT : AL_STEREO16_SOFT;
+		}
+		else
+		{
+			alFormat = NumChannels() == 1 ? AL_MONO16_SOFT : AL_STEREO16_SOFT;
+		}
+		
+		if( !alIsBufferFormatSupportedSOFT( alFormat ) )
+		{
+			alFormat = NumChannels() == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
+		}
 	}
 	else
+#endif
 	{
-		alFormat = NumChannels() == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
+		if( format.basic.formatTag == idWaveFile::FORMAT_PCM )
+		{
+			alFormat = NumChannels() == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
+		}
+		else if( format.basic.formatTag == idWaveFile::FORMAT_ADPCM )
+		{
+			//alFormat = NumChannels() == 1 ? AL_FORMAT_MONO8 : AL_FORMAT_STEREO8;
+			alFormat = NumChannels() == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
+			//alFormat = NumChannels() == 1 ? AL_FORMAT_MONO_IMA4 : AL_FORMAT_STEREO_IMA4;
+		}
+		else if( format.basic.formatTag == idWaveFile::FORMAT_XMA2 )
+		{
+			alFormat = NumChannels() == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
+		}
+		else
+		{
+			alFormat = NumChannels() == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
+		}
 	}
 	
 	return alFormat;
+}
+
+int32 idSoundSample_OpenAL::MS_ADPCM_nibble( MS_ADPCM_decodeState_t* state, int8 nybble, int16* coeff )
+{
+	const int32 max_audioval = ( ( 1 << ( 16 - 1 ) ) - 1 );
+	const int32 min_audioval = -( 1 << ( 16 - 1 ) );
+	const int32 adaptive[] =
+	{
+		230, 230, 230, 230, 307, 409, 512, 614,
+		768, 614, 512, 409, 307, 230, 230, 230
+	};
+	int32 new_sample, delta;
+	
+	new_sample = ( ( state->iSamp1 * coeff[0] ) +
+				   ( state->iSamp2 * coeff[1] ) ) / 256;
+				   
+	if( nybble & 0x08 )
+	{
+		new_sample += state->iDelta * ( nybble - 0x10 );
+	}
+	else
+	{
+		new_sample += state->iDelta * nybble;
+	}
+	
+	if( new_sample < min_audioval )
+	{
+		new_sample = min_audioval;
+	}
+	else if( new_sample > max_audioval )
+	{
+		new_sample = max_audioval;
+	}
+	
+	delta = ( ( int32 ) state->iDelta * adaptive[nybble] ) / 256;
+	if( delta < 16 )
+	{
+		delta = 16;
+	}
+	
+	state->iDelta = ( uint16 ) delta;
+	state->iSamp2 = state->iSamp1;
+	state->iSamp1 = ( int16 ) new_sample;
+	
+	return ( new_sample );
+}
+
+int idSoundSample_OpenAL::MS_ADPCM_decode( uint8** audio_buf, uint32* audio_len )
+{
+	static MS_ADPCM_decodeState_t state[2];
+	uint8* freeable, *encoded, *decoded;
+	int32 encoded_len, samplesleft;
+	int8 nybble;
+	bool stereo;
+	int16* coeff[2];
+	int32 new_sample;
+	
+	// Allocate the proper sized output buffer
+	encoded_len = *audio_len;
+	encoded = *audio_buf;
+	freeable = *audio_buf;
+	
+	/*
+	*audio_len = ( encoded_len / MS_ADPCM_state.wavefmt.blockalign ) *
+				 MS_ADPCM_state.wSamplesPerBlock *
+				 MS_ADPCM_state.wavefmt.channels * sizeof( int16 );
+	*/
+	
+	*audio_len = ( encoded_len / format.basic.blockSize ) * format.extra.adpcm.samplesPerBlock * format.basic.numChannels * sizeof( int16 );
+	
+	*audio_buf = ( uint8* ) Mem_Alloc( *audio_len, TAG_AUDIO );
+	if( *audio_buf == NULL )
+	{
+		//SDL_Error( SDL_ENOMEM );
+		return ( -1 );
+	}
+	decoded = *audio_buf;
+	
+	// Get ready... Go!
+	stereo = ( format.basic.numChannels == 2 );
+	//state[0] = &MS_ADPCM_state.state[0];
+	//state[1] = &MS_ADPCM_state.state[stereo];
+	
+	while( encoded_len >= format.basic.blockSize )
+	{
+		// Grab the initial information for this block
+		state[0].hPredictor = *encoded++;
+		if( stereo )
+		{
+			state[1].hPredictor = *encoded++;
+		}
+		
+		state[0].iDelta = ( ( encoded[1] << 8 ) | encoded[0] );
+		encoded += sizeof( int16 );
+		if( stereo )
+		{
+			state[1].iDelta = ( ( encoded[1] << 8 ) | encoded[0] );
+			encoded += sizeof( int16 );
+		}
+		state[0].iSamp1 = ( ( encoded[1] << 8 ) | encoded[0] );
+		encoded += sizeof( int16 );
+		if( stereo )
+		{
+			state[1].iSamp1 = ( ( encoded[1] << 8 ) | encoded[0] );
+			encoded += sizeof( int16 );
+		}
+		state[0].iSamp2 = ( ( encoded[1] << 8 ) | encoded[0] );
+		encoded += sizeof( int16 );
+		if( stereo )
+		{
+			state[1].iSamp2 = ( ( encoded[1] << 8 ) | encoded[0] );
+			encoded += sizeof( int16 );
+		}
+		
+		assert( state[0].hPredictor < format.extra.adpcm.numCoef );
+		assert( state[1].hPredictor < format.extra.adpcm.numCoef );
+		
+		coeff[0] = &format.extra.adpcm.aCoef[state[0].hPredictor].coef1;
+		coeff[1] = &format.extra.adpcm.aCoef[state[1].hPredictor].coef2;
+		
+		// Store the two initial samples we start with
+		decoded[0] = state[0].iSamp2 & 0xFF;
+		decoded[1] = state[0].iSamp2 >> 8;
+		decoded += 2;
+		if( stereo )
+		{
+			decoded[0] = state[1].iSamp2 & 0xFF;
+			decoded[1] = state[1].iSamp2 >> 8;
+			decoded += 2;
+		}
+		decoded[0] = state[0].iSamp1 & 0xFF;
+		decoded[1] = state[0].iSamp1 >> 8;
+		decoded += 2;
+		if( stereo )
+		{
+			decoded[0] = state[1].iSamp1 & 0xFF;
+			decoded[1] = state[1].iSamp1 >> 8;
+			decoded += 2;
+		}
+		
+		// Decode and store the other samples in this block
+		samplesleft = ( format.extra.adpcm.samplesPerBlock - 2 ) * format.basic.numChannels;
+		
+		while( samplesleft > 0 )
+		{
+			nybble = ( *encoded ) >> 4;
+			new_sample = MS_ADPCM_nibble( &state[0], nybble, coeff[0] );
+			decoded[0] = new_sample & 0xFF;
+			new_sample >>= 8;
+			decoded[1] = new_sample & 0xFF;
+			decoded += 2;
+			
+			nybble = ( *encoded ) & 0x0F;
+			new_sample = MS_ADPCM_nibble( &state[1], nybble, coeff[1] );
+			decoded[0] = new_sample & 0xFF;
+			new_sample >>= 8;
+			decoded[1] = new_sample & 0xFF;
+			decoded += 2;
+			
+			++encoded;
+			samplesleft -= 2;
+		}
+		
+		encoded_len -= format.basic.blockSize;
+	}
+	
+	Mem_Free( freeable );
+	
+	return 0;
 }
 
