@@ -34,17 +34,19 @@ This file contains the following sections:
 
 	6) COMPILING ON GNU/LINUX
 	
-	7) CHANGES
+	7) GETTING THE GAMEDATA, RUNNING THE GAME
 	
-	8) FEATURES
+	8) CHANGES
 	
-	9) CONSOLE VARIABLES
+	9) FEATURES
 	
-	10) KNOWN ISSUES
+	10) CONSOLE VARIABLES
 	
-	11) BUG REPORTS
+	11) KNOWN ISSUES
 	
-	12) CODE LICENSE EXCEPTIONS
+	12) BUG REPORTS
+	
+	13) CODE LICENSE EXCEPTIONS
 
 
 
@@ -124,6 +126,9 @@ This project's GitHub.net Git repository can be checked out through Git with the
 
 	> git clone https://github.com/RobertBeckebans/RBDOOM-3-BFG.git
 
+If you don't want to use git, you can download the source as a zip file at
+	https://github.com/RobertBeckebans/RBDOOM-3-BFG/archive/master.zip
+
 
 
 ___________________________________________________________________
@@ -154,6 +159,14 @@ _________________________
 	On Fedora
 
 		> yum install cmake SDL-devel openal-devel
+	
+	Instead of SDL1.2 development files you can also use SDL2, but so far it 
+	seems like no distributions has packages for it yet, so you may have to 
+	compile and install SDL2 yourself. 
+	(There may be inofficial repositories like Ubuntu PPAs)
+	
+	SDL2 has better input support (especially in the console) and better 
+	support for multiple displays (especially in fullscreen mode).
 
 
 3. Generate the Makefiles using CMake:
@@ -166,10 +179,52 @@ _________________________
 	> cd ../build
 	> make
 
+___________________________________________________
+
+7) GETTING THE GAMEDATA, RUNNING THE GAME
+__________________________________________
+
+To play the game, you need the game data from a legal copy of the game, which 
+unfortunately requires Steam for Windows - Steam for Linux or OSX won't do, because
+(at least currently) the Doom3 BFG game is only installable on Steam for Windows.
+Even the DVD version of Doom3 BFG only contains encrytped data that is decoded
+by Steam on install.
+
+Fortunately, you can run Steam in Wine to install Doom3 BFG and afterwards copy the 
+game data somewhere else to use it with native executables.
+Winetricks ( http://winetricks.org/ ) makes installing Windows Steam on Linux really easy.
+
+Anyway:
+
+1. Install Doom3 BFG in Steam (Windows version), make sure it's getting 
+   updated/patched.
+
+2. Create your own doom3bfg directory, e.g. /path/to/Doom3BFG/
+
+3. Copy the game-data's base dir from Steam to that directory 
+   (e.g. /path/to/Doom3BFG/), it's in
+	/your/path/to/Steam/steamapps/common/DOOM 3 BFG Edition/base/
+
+4. Copy your RBDoom3BFG executable that you created in 5) or 6) to your own 
+   doom3bfg directory (/path/to/Doom3BFG).
+   
+   Your own doom3bfg directory now should look like:
+	/path/to/Doom3BFG/
+	 ->	RBDoom3BFG (or RBDoom3BFG.exe on Windows)
+	 ->	base/
+		 ->	classicmusic/
+		 ->	_common.crc
+		 ->	(etc)
+
+5. Run the game by executing the RBDoom3BFG executable.
+
+6. Enjoy
+
+7. If you run into bugs, please report them, see 12)
 
 ___________________________________________________
 
-7) CHANGES
+8) CHANGES
 __________________________________________
 
 	* Flexible build system using CMake
@@ -179,7 +234,14 @@ __________________________________________
 
 ___________________________________________________
 
-9) CONSOLE VARIABLES
+9) FEATURES
+__________________________________________
+
+// TODO
+
+___________________________________________________
+
+10) CONSOLE VARIABLES
 __________________________________________
 
 // TODO
@@ -187,7 +249,7 @@ __________________________________________
 
 ___________________________________________________
 
-10) KNOWN ISSUES
+11) KNOWN ISSUES
 __________________________________________
 
 	* Doomclassic is not supported on Linux (yet)
@@ -197,7 +259,7 @@ __________________________________________
 
 ___________________________________________________
 
-11) BUG REPORTS
+12) BUG REPORTS
 __________________________________________
 
 RBDoom3BFG is not perfect, it is not bug free as every other software.
@@ -227,7 +289,7 @@ NOTE: We cannot help you with OS-specific issues like configuring OpenGL correct
 	
 ____________________________________________________________________________________
 
-12) CODE LICENSE EXCEPTIONS - The parts that are not covered by the GPL:
+13) CODE LICENSE EXCEPTIONS - The parts that are not covered by the GPL:
 _______________________________________________________________________
 
 
