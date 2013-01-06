@@ -37,35 +37,7 @@ idCVar s_debugHardware( "s_debugHardware", "0", CVAR_BOOL, "Print a message any 
 static int SYSTEM_SAMPLE_RATE = 44100;
 static float ONE_OVER_SYSTEM_SAMPLE_RATE = 1.0f / SYSTEM_SAMPLE_RATE;
 
-/*
-========================
-idStreamingVoiceContext
-========================
-*/
-/*
-class idStreamingVoiceContext : public IXAudio2VoiceCallback
-{
-public:
-	STDMETHOD_( void, OnVoiceProcessingPassStart )( UINT32 BytesRequired ) {}
-	STDMETHOD_( void, OnVoiceProcessingPassEnd )() {}
-	STDMETHOD_( void, OnStreamEnd )() {}
-	STDMETHOD_( void, OnBufferStart )( void* pContext )
-	{
-		idSoundSystemLocal::bufferContext_t* bufferContext = ( idSoundSystemLocal::bufferContext_t* ) pContext;
-		bufferContext->voice->OnBufferStart( bufferContext->sample, bufferContext->bufferNumber );
-	}
-	STDMETHOD_( void, OnLoopEnd )( void* ) {}
-	STDMETHOD_( void, OnVoiceError )( void*, HRESULT hr )
-	{
-		idLib::Warning( "OnVoiceError( %d )", hr );
-	}
-	STDMETHOD_( void, OnBufferEnd )( void* pContext )
-	{
-		idSoundSystemLocal::bufferContext_t* bufferContext = ( idSoundSystemLocal::bufferContext_t* ) pContext;
-		soundSystemLocal.ReleaseStreamBufferContext( bufferContext );
-	}
-} streamContext;
-*/
+
 
 /*
 ========================
@@ -236,6 +208,32 @@ void idSoundVoice_OpenAL::DestroyInternal()
 		
 		alDeleteSources( 1, &openalSource );
 		openalSource = 0;
+		
+		alSourcei( openalSource, AL_BUFFER, 0 );
+		
+		if( openalStreamingBuffer[0] && openalStreamingBuffer[1] && openalStreamingBuffer[2] )
+		{
+			CheckALErrors();
+			
+			alDeleteBuffers( 3, &openalStreamingBuffer[0] );
+			if( CheckALErrors() == AL_NO_ERROR )
+			{
+				openalStreamingBuffer[0] = openalStreamingBuffer[1] = openalStreamingBuffer[2] = 0;
+			}
+		}
+		
+		if( lastopenalStreamingBuffer[0] && lastopenalStreamingBuffer[1] && lastopenalStreamingBuffer[2] )
+		{
+			CheckALErrors();
+			
+			alDeleteBuffers( 3, &lastopenalStreamingBuffer[0] );
+			if( CheckALErrors() == AL_NO_ERROR )
+			{
+				lastopenalStreamingBuffer[0] = lastopenalStreamingBuffer[1] = lastopenalStreamingBuffer[2] = 0;
+			}
+		}
+		
+		openalStreamingOffset = 0;
 		
 		hasVUMeter = false;
 	}
@@ -564,32 +562,6 @@ void idSoundVoice_OpenAL::FlushSourceBuffers()
 	if( alIsSource( openalSource ) )
 	{
 		//pSourceVoice->FlushSourceBuffers();
-		
-		alSourcei( openalSource, AL_BUFFER, 0 );
-		
-		if( openalStreamingBuffer[0] && openalStreamingBuffer[1] && openalStreamingBuffer[2] )
-		{
-			CheckALErrors();
-			
-			alDeleteBuffers( 3, &openalStreamingBuffer[0] );
-			if( CheckALErrors() == AL_NO_ERROR )
-			{
-				openalStreamingBuffer[0] = openalStreamingBuffer[1] = openalStreamingBuffer[2] = 0;
-			}
-		}
-		
-		if( lastopenalStreamingBuffer[0] && lastopenalStreamingBuffer[1] && lastopenalStreamingBuffer[2] )
-		{
-			CheckALErrors();
-			
-			alDeleteBuffers( 3, &lastopenalStreamingBuffer[0] );
-			if( CheckALErrors() == AL_NO_ERROR )
-			{
-				lastopenalStreamingBuffer[0] = lastopenalStreamingBuffer[1] = lastopenalStreamingBuffer[2] = 0;
-			}
-		}
-		
-		openalStreamingOffset = 0;
 	}
 }
 

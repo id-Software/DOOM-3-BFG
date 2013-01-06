@@ -39,6 +39,7 @@ idCVar s_device( "s_device", "-1", CVAR_INTEGER | CVAR_ARCHIVE, "Which audio dev
 idCVar s_showPerfData( "s_showPerfData", "0", CVAR_BOOL, "Show XAudio2 Performance data" );
 extern idCVar s_volume_dB;
 
+
 /*
 ========================
 idSoundHardware_OpenAL::idSoundHardware_OpenAL
@@ -486,20 +487,3 @@ void idSoundHardware_OpenAL::Update()
 }
 
 
-/*
-================================================
-idSoundEngineCallback
-================================================
-*/
-
-/*
-========================
-idSoundEngineCallback::OnCriticalError
-========================
-*/
-/*
-void idSoundEngineCallback::OnCriticalError( HRESULT Error )
-{
-	soundSystemLocal.SetNeedsRestart();
-}
-*/
