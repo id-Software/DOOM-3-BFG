@@ -77,13 +77,11 @@ public:
 	idSoundVoice* 	AllocateVoice( const idSoundSample* leadinSample, const idSoundSample* loopingSample );
 	void			FreeVoice( idSoundVoice* voice );
 	
-	// video playback needs this
-	/*
-	IXAudio2* 		GetIXAudio2() const
+	// listDevices needs this
+	ALCdevice* 		GetOpenALDevice() const
 	{
-		return pXAudio2;
+		return openalDevice;
 	};
-	*/
 	
 	int				GetNumZombieVoices() const
 	{
@@ -93,6 +91,11 @@ public:
 	{
 		return freeVoices.Num();
 	}
+	
+	// OpenAL info
+	static void		PrintDeviceList( const char* list );
+	static void		PrintALCInfo( ALCdevice* device );
+	static void		PrintALInfo();
 	
 protected:
 	friend class idSoundSample_OpenAL;

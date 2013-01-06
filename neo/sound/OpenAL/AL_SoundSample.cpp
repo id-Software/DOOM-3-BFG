@@ -280,17 +280,17 @@ void idSoundSample_OpenAL::LoadResource()
 void idSoundSample_OpenAL::CreateOpenALBuffer()
 {
 	// build OpenAL buffer
-	alGetError();
+	CheckALErrors();
 	alGenBuffers( 1, &openalBuffer );
 	
-	if( alGetError() != AL_NO_ERROR )
+	if( CheckALErrors() != AL_NO_ERROR )
 	{
 		common->Error( "idSoundSample_OpenAL::CreateOpenALBuffer: error generating OpenAL hardware buffer" );
 	}
 	
 	if( alIsBuffer( openalBuffer ) )
 	{
-		alGetError();
+		CheckALErrors();
 		
 		// RB: TODO decode idWaveFile::FORMAT_ADPCM to idWaveFile::FORMAT_PCM
 		// and build one big OpenAL buffer using the alBufferSubData extension
@@ -352,7 +352,7 @@ void idSoundSample_OpenAL::CreateOpenALBuffer()
 			alBufferData( openalBuffer, GetOpenALBufferFormat(), buffer, bufferSize, format.basic.samplesPerSec );
 		}
 		
-		if( alGetError() != AL_NO_ERROR )
+		if( CheckALErrors() != AL_NO_ERROR )
 		{
 			common->Error( "idSoundSample_OpenAL::CreateOpenALBuffer: error loading data into OpenAL hardware buffer" );
 		}
@@ -579,19 +579,19 @@ void idSoundSample_OpenAL::MakeDefault()
 	playLength = DEFAULT_NUM_SAMPLES;
 	
 	
-	alGetError();
+	CheckALErrors();
 	alGenBuffers( 1, &openalBuffer );
 	
-	if( alGetError() != AL_NO_ERROR )
+	if( CheckALErrors() != AL_NO_ERROR )
 	{
 		common->Error( "idSoundSample_OpenAL::MakeDefault: error generating OpenAL hardware buffer" );
 	}
 	
 	if( alIsBuffer( openalBuffer ) )
 	{
-		alGetError();
+		CheckALErrors();
 		alBufferData( openalBuffer, GetOpenALBufferFormat(), defaultBuffer, totalBufferSize, format.basic.samplesPerSec );
-		if( alGetError() != AL_NO_ERROR )
+		if( CheckALErrors() != AL_NO_ERROR )
 		{
 			common->Error( "idSoundSample_OpenAL::MakeDefault: error loading data into OpenAL hardware buffer" );
 		}
@@ -627,9 +627,10 @@ void idSoundSample_OpenAL::FreeData()
 	
 	if( alIsBuffer( openalBuffer ) )
 	{
-		alGetError();
+		CheckALErrors();
+		
 		alDeleteBuffers( 1, &openalBuffer );
-		if( alGetError() != AL_NO_ERROR )
+		if( CheckALErrors() != AL_NO_ERROR )
 		{
 			common->Error( "idSoundSample_OpenAL::FreeData: error unloading data from OpenAL hardware buffer" );
 		}

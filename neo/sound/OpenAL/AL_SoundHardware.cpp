@@ -4,6 +4,7 @@
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2013 Robert Beckebans
+Copyright (c) 2010 by Chris Robinson <chris.kcat@gmail.com> (OpenAL Info Utility)
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -61,135 +62,98 @@ idSoundHardware_OpenAL::idSoundHardware_OpenAL()
 	lastResetTime = 0;
 }
 
+void idSoundHardware_OpenAL::PrintDeviceList( const char* list )
+{
+	if( !list || *list == '\0' )
+	{
+		idLib::Printf( "    !!! none !!!\n" );
+	}
+	else
+	{
+		do
+		{
+			idLib::Printf( "    %s\n", list );
+			list += strlen( list ) + 1;
+		}
+		while( *list != '\0' );
+	}
+}
+
+void idSoundHardware_OpenAL::PrintALCInfo( ALCdevice* device )
+{
+	ALCint major, minor;
+	
+	if( device )
+	{
+		const ALCchar* devname = NULL;
+		idLib::Printf( "\n" );
+		if( alcIsExtensionPresent( device, "ALC_ENUMERATE_ALL_EXT" ) != AL_FALSE )
+		{
+			devname = alcGetString( device, ALC_ALL_DEVICES_SPECIFIER );
+		}
+		
+		if( CheckALCErrors( device ) != ALC_NO_ERROR || !devname )
+		{
+			devname = alcGetString( device, ALC_DEVICE_SPECIFIER );
+		}
+		
+		idLib::Printf( "** Info for device \"%s\" **\n", devname );
+	}
+	alcGetIntegerv( device, ALC_MAJOR_VERSION, 1, &major );
+	alcGetIntegerv( device, ALC_MINOR_VERSION, 1, &minor );
+	
+	if( CheckALCErrors( device ) == ALC_NO_ERROR )
+		idLib::Printf( "ALC version: %d.%d\n", major, minor );
+		
+	if( device )
+	{
+		idLib::Printf( "OpenAL extensions: %s", alGetString( AL_EXTENSIONS ) );
+		
+		//idLib::Printf("ALC extensions:");
+		//printList(alcGetString(device, ALC_EXTENSIONS), ' ');
+		CheckALCErrors( device );
+	}
+}
+
+void idSoundHardware_OpenAL::PrintALInfo()
+{
+	idLib::Printf( "OpenAL vendor string: %s\n", alGetString( AL_VENDOR ) );
+	idLib::Printf( "OpenAL renderer string: %s\n", alGetString( AL_RENDERER ) );
+	idLib::Printf( "OpenAL version string: %s\n", alGetString( AL_VERSION ) );
+	idLib::Printf( "OpenAL extensions: %s", alGetString( AL_EXTENSIONS ) );
+	//PrintList(alGetString(AL_EXTENSIONS), ' ');
+	CheckALErrors();
+}
+
 void listDevices_f( const idCmdArgs& args )
 {
-#if 1
-	// TODO
-	
-	idLib::Warning( "No audio devices found" );
-	return;
-#else
-	UINT32 deviceCount = 0;
-	if( pXAudio2->GetDeviceCount( &deviceCount ) != S_OK || deviceCount == 0 )
+	idLib::Printf( "Available playback devices:\n" );
+	if( alcIsExtensionPresent( NULL, "ALC_ENUMERATE_ALL_EXT" ) != AL_FALSE )
 	{
-		idLib::Warning( "No audio devices found" );
-		return;
+		idSoundHardware_OpenAL::PrintDeviceList( alcGetString( NULL, ALC_ALL_DEVICES_SPECIFIER ) );
+	}
+	else
+	{
+		idSoundHardware_OpenAL::PrintDeviceList( alcGetString( NULL, ALC_DEVICE_SPECIFIER ) );
 	}
 	
-	for( unsigned int i = 0; i < deviceCount; i++ )
+	//idLib::Printf("Available capture devices:\n");
+	//printDeviceList(alcGetString(NULL, ALC_CAPTURE_DEVICE_SPECIFIER));
+	
+	if( alcIsExtensionPresent( NULL, "ALC_ENUMERATE_ALL_EXT" ) != AL_FALSE )
 	{
-		XAUDIO2_DEVICE_DETAILS deviceDetails;
-		if( pXAudio2->GetDeviceDetails( i, &deviceDetails ) != S_OK )
-		{
-			continue;
-		}
-		idStaticList< const char*, 5 > roles;
-		if( deviceDetails.Role & DefaultConsoleDevice )
-		{
-			roles.Append( "Console Device" );
-		}
-		if( deviceDetails.Role & DefaultMultimediaDevice )
-		{
-			roles.Append( "Multimedia Device" );
-		}
-		if( deviceDetails.Role & DefaultCommunicationsDevice )
-		{
-			roles.Append( "Communications Device" );
-		}
-		if( deviceDetails.Role & DefaultGameDevice )
-		{
-			roles.Append( "Game Device" );
-		}
-		idStaticList< const char*, 11 > channelNames;
-		if( deviceDetails.OutputFormat.dwChannelMask & SPEAKER_FRONT_LEFT )
-		{
-			channelNames.Append( "Front Left" );
-		}
-		if( deviceDetails.OutputFormat.dwChannelMask & SPEAKER_FRONT_RIGHT )
-		{
-			channelNames.Append( "Front Right" );
-		}
-		if( deviceDetails.OutputFormat.dwChannelMask & SPEAKER_FRONT_CENTER )
-		{
-			channelNames.Append( "Front Center" );
-		}
-		if( deviceDetails.OutputFormat.dwChannelMask & SPEAKER_LOW_FREQUENCY )
-		{
-			channelNames.Append( "Low Frequency" );
-		}
-		if( deviceDetails.OutputFormat.dwChannelMask & SPEAKER_BACK_LEFT )
-		{
-			channelNames.Append( "Back Left" );
-		}
-		if( deviceDetails.OutputFormat.dwChannelMask & SPEAKER_BACK_RIGHT )
-		{
-			channelNames.Append( "Back Right" );
-		}
-		if( deviceDetails.OutputFormat.dwChannelMask & SPEAKER_FRONT_LEFT_OF_CENTER )
-		{
-			channelNames.Append( "Front Left of Center" );
-		}
-		if( deviceDetails.OutputFormat.dwChannelMask & SPEAKER_FRONT_RIGHT_OF_CENTER )
-		{
-			channelNames.Append( "Front Right of Center" );
-		}
-		if( deviceDetails.OutputFormat.dwChannelMask & SPEAKER_BACK_CENTER )
-		{
-			channelNames.Append( "Back Center" );
-		}
-		if( deviceDetails.OutputFormat.dwChannelMask & SPEAKER_SIDE_LEFT )
-		{
-			channelNames.Append( "Side Left" );
-		}
-		if( deviceDetails.OutputFormat.dwChannelMask & SPEAKER_SIDE_RIGHT )
-		{
-			channelNames.Append( "Side Right" );
-		}
-		char mbcsDisplayName[ 256 ];
-		wcstombs( mbcsDisplayName, deviceDetails.DisplayName, sizeof( mbcsDisplayName ) );
-		idLib::Printf( "%3d: %s\n", i, mbcsDisplayName );
-		idLib::Printf( "     %d channels, %d Hz\n", deviceDetails.OutputFormat.Format.nChannels, deviceDetails.OutputFormat.Format.nSamplesPerSec );
-		if( channelNames.Num() != deviceDetails.OutputFormat.Format.nChannels )
-		{
-			idLib::Printf( S_COLOR_YELLOW "WARNING: " S_COLOR_RED "Mismatch between # of channels and channel mask\n" );
-		}
-		if( channelNames.Num() == 1 )
-		{
-			idLib::Printf( "     %s\n", channelNames[0] );
-		}
-		else if( channelNames.Num() == 2 )
-		{
-			idLib::Printf( "     %s and %s\n", channelNames[0], channelNames[1] );
-		}
-		else if( channelNames.Num() > 2 )
-		{
-			idLib::Printf( "     %s", channelNames[0] );
-			for( int i = 1; i < channelNames.Num() - 1; i++ )
-			{
-				idLib::Printf( ", %s", channelNames[i] );
-			}
-			idLib::Printf( ", and %s\n", channelNames[channelNames.Num() - 1] );
-		}
-		if( roles.Num() == 1 )
-		{
-			idLib::Printf( "     Default %s\n", roles[0] );
-		}
-		else if( roles.Num() == 2 )
-		{
-			idLib::Printf( "     Default %s and %s\n", roles[0], roles[1] );
-		}
-		else if( roles.Num() > 2 )
-		{
-			idLib::Printf( "     Default %s", roles[0] );
-			for( int i = 1; i < roles.Num() - 1; i++ )
-			{
-				idLib::Printf( ", %s", roles[i] );
-			}
-			idLib::Printf( ", and %s\n", roles[roles.Num() - 1] );
-		}
+		idLib::Printf( "Default playback device: %s\n", alcGetString( NULL, ALC_DEFAULT_ALL_DEVICES_SPECIFIER ) );
 	}
-#endif
-// RB end
+	else
+	{
+		idLib::Printf( "Default playback device: %s\n",  alcGetString( NULL, ALC_DEFAULT_DEVICE_SPECIFIER ) );
+	}
+	
+	//idLib::Printf("Default capture device: %s\n", alcGetString(NULL, ALC_CAPTURE_DEFAULT_DEVICE_SPECIFIER));
+	
+	idSoundHardware_OpenAL::PrintALCInfo( NULL );
+	
+	idSoundHardware_OpenAL::PrintALCInfo( ( ALCdevice* )soundSystem->GetOpenALDevice() );
 }
 
 /*

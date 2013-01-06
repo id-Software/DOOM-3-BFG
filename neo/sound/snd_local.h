@@ -105,6 +105,28 @@ typedef enum
 #include "OpenAL/AL_SoundVoice.h"
 #include "OpenAL/AL_SoundHardware.h"
 
+ID_INLINE_EXTERN ALenum CheckALErrors_( const char* filename, int line )
+{
+	ALenum err = alGetError();
+	if( err != AL_NO_ERROR )
+	{
+		idLib::Printf( "OpenAL Error: %s (0x%x), @ %s %d\n", alGetString( err ), err, filename, line );
+	}
+	return err;
+}
+#define CheckALErrors() CheckALErrors_(__FILE__, __LINE__)
+
+ID_INLINE_EXTERN ALCenum CheckALCErrors_( ALCdevice* device, const char* filename, int linenum )
+{
+	ALCenum err = alcGetError( device );
+	if( err != ALC_NO_ERROR )
+	{
+		idLib::Printf( "ALC Error: %s (0x%x), @ %s %d\n", alcGetString( device, err ), err, filename, linenum );
+	}
+	return err;
+}
+#define CheckALCErrors(x) CheckALCErrors_((x), __FILE__, __LINE__)
+
 #elif defined(_MSC_VER) // DG: stub out xaudio for MinGW etc
 
 #define OPERATION_SET 1
@@ -459,6 +481,10 @@ public:
 	virtual void			FreeStreamBuffers();
 	
 	virtual void* 			GetIXAudio2() const; // FIXME: stupid name; get rid of this? not sure if it's really needed..
+	
+	// RB begin
+	virtual void*			GetOpenALDevice() const;
+	// RB end
 	
 	// for the sound level meter window
 	virtual cinData_t		ImageForTime( const int milliseconds, const bool waveform );

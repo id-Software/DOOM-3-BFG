@@ -401,6 +401,22 @@ void* idSoundSystemLocal::GetIXAudio2() const
 
 /*
 ========================
+idSoundSystemLocal::GetOpenALDevice
+========================
+*/
+// RB begin
+void* idSoundSystemLocal::GetOpenALDevice() const
+{
+#if defined(USE_OPENAL)
+	return ( void* )hardware.GetOpenALDevice();
+#else
+	return ( void* )hardware.GetIXAudio2();
+#endif
+}
+// RB end
+
+/*
+========================
 idSoundSystemLocal::SoundTime
 ========================
 */

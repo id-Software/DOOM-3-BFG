@@ -145,9 +145,10 @@ void idSoundVoice_OpenAL::Create( const idSoundSample* leadinSample_, const idSo
 		
 		//soundSystemLocal.hardware.pXAudio2->CreateSourceVoice( &pSourceVoice, ( const WAVEFORMATEX* )&leadinSample->format, XAUDIO2_VOICE_USEFILTER, 4.0f, &streamContext );
 		
-		alGetError();
+		CheckALErrors();
+		
 		alGenSources( 1, &openalSource );
-		if( alGetError() != AL_NO_ERROR )
+		if( CheckALErrors() != AL_NO_ERROR )
 			//if( pSourceVoice == NULL )
 		{
 			// If this hits, then we are most likely passing an invalid sample format, which should have been caught by the loader (and the sample defaulted)
@@ -568,9 +569,10 @@ void idSoundVoice_OpenAL::FlushSourceBuffers()
 		
 		if( openalStreamingBuffer[0] && openalStreamingBuffer[1] && openalStreamingBuffer[2] )
 		{
-			alGetError();
+			CheckALErrors();
+			
 			alDeleteBuffers( 3, &openalStreamingBuffer[0] );
-			if( alGetError() == AL_NO_ERROR )
+			if( CheckALErrors() == AL_NO_ERROR )
 			{
 				openalStreamingBuffer[0] = openalStreamingBuffer[1] = openalStreamingBuffer[2] = 0;
 			}
@@ -578,9 +580,10 @@ void idSoundVoice_OpenAL::FlushSourceBuffers()
 		
 		if( lastopenalStreamingBuffer[0] && lastopenalStreamingBuffer[1] && lastopenalStreamingBuffer[2] )
 		{
-			alGetError();
+			CheckALErrors();
+			
 			alDeleteBuffers( 3, &lastopenalStreamingBuffer[0] );
-			if( alGetError() == AL_NO_ERROR )
+			if( CheckALErrors() == AL_NO_ERROR )
 			{
 				lastopenalStreamingBuffer[0] = lastopenalStreamingBuffer[1] = lastopenalStreamingBuffer[2] = 0;
 			}
@@ -654,7 +657,7 @@ void idSoundVoice_OpenAL::Stop()
 		}
 		
 		alSourceStop( openalSource );
-		//alSourcei( openalSource, AL_BUFFER, 0 );
+		alSourcei( openalSource, AL_BUFFER, 0 );
 		
 		//pSourceVoice->Stop( 0, OPERATION_SET );
 		paused = true;
