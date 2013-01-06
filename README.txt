@@ -149,11 +149,11 @@ _________________________
  
 	On Debian or Ubuntu:
 
-		> apt-get install cmake libsdl1.2-dev
+		> apt-get install cmake libsdl1.2-dev libopenal-dev
 	
 	On Fedora
 
-		> yum install cmake SDL-devel
+		> yum install cmake SDL-devel openal-devel
 
 
 3. Generate the Makefiles using CMake:
@@ -172,9 +172,10 @@ ___________________________________________________
 7) CHANGES
 __________________________________________
 
-// TODO
-See CHANGELOG.txt for full list of all changes.
-
+	* Flexible build system using CMake
+	* Linux support (32 and 64 bit)
+	* New OpenAL Soft sound backend primarily developed for Linux but works on Windows as well
+	* Win64 support
 
 ___________________________________________________
 
@@ -189,7 +190,6 @@ ___________________________________________________
 10) KNOWN ISSUES
 __________________________________________
 
-	* Sound engine does not work on Linux
 	* Doomclassic is not supported on Linux (yet)
 	* There are some issues with the binary format loaders/writers on 64 bit platforms
 	* The intel open source drivers to not support OpenGL 3.2 yet
