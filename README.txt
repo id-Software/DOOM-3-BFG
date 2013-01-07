@@ -1,4 +1,3 @@
-
     ____   ____   ____                           _____  ____   ______ ______
    / __ \ / __ ) / __ \ ____   ____   ____ ___  |__  / / __ ) / ____// ____/
   / /_/ // __  |/ / / // __ \ / __ \ / __ `__ \  /_ < / __  |/ /_   / / __  
@@ -169,12 +168,12 @@ _________________________
 	support for multiple displays (especially in fullscreen mode).
 
 
-3. Generate the Makefiles using CMake:
+2. Generate the Makefiles using CMake:
 
 	> cd neo/
 	> ./cmake-eclipse-linux-profile.sh
 	
-4. Compile RBDoom3BFG targets with
+3. Compile RBDoom3BFG targets with
 
 	> cd ../build
 	> make
