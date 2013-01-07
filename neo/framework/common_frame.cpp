@@ -490,7 +490,7 @@ void idCommonLocal::Frame()
 		// DG: Add pause from com_pause cvar
 		// RB begin
 #if defined(USE_DOOMCLASSIC)
-		if( console->Active() || Dialog().IsDialogActive() || session->IsSystemUIShowing()
+		if( com_pause.GetInteger() || console->Active() || Dialog().IsDialogActive() || session->IsSystemUIShowing()
 				|| ( game && game->InhibitControls() && !IsPlayingDoomClassic() ) )
 #else
 		if( com_pause.GetInteger() || console->Active() || Dialog().IsDialogActive() || session->IsSystemUIShowing()
