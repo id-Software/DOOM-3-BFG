@@ -292,14 +292,13 @@ void idSoundSample_OpenAL::CreateOpenALBuffer()
 	{
 		CheckALErrors();
 		
-		// RB: TODO decode idWaveFile::FORMAT_ADPCM to idWaveFile::FORMAT_PCM
-		// and build one big OpenAL buffer using the alBufferSubData extension
-		
 		void* buffer = NULL;
 		uint32 bufferSize = 0;
 		
 		if( format.basic.formatTag == idWaveFile::FORMAT_ADPCM )
 		{
+			// RB: decode idWaveFile::FORMAT_ADPCM to idWaveFile::FORMAT_PCM
+			
 			buffer = buffers[0].buffer;
 			bufferSize = buffers[0].bufferSize;
 			
@@ -315,10 +314,12 @@ void idSoundSample_OpenAL::CreateOpenALBuffer()
 		}
 		else if( format.basic.formatTag == idWaveFile::FORMAT_XMA2 )
 		{
+			// RB: not used in the PC version of the BFG edition
 			common->Error( "idSoundSample_OpenAL::CreateOpenALBuffer: could not decode XMA2 '%s' to 16 bit format", GetName() );
 		}
 		else if( format.basic.formatTag == idWaveFile::FORMAT_EXTENSIBLE )
 		{
+			// RB: not used in the PC version of the BFG edition
 			common->Error( "idSoundSample_OpenAL::CreateOpenALBuffer: could not decode extensible WAV format '%s' to 16 bit format", GetName() );
 		}
 		else
@@ -331,7 +332,7 @@ void idSoundSample_OpenAL::CreateOpenALBuffer()
 			bufferSize = buffers[0].bufferSize;
 		}
 		
-#if 0
+#if 0 //#if defined(AL_SOFT_buffer_samples)
 		if( alIsExtensionPresent( "AL_SOFT_buffer_samples" ) )
 		{
 			ALenum type = AL_SHORT_SOFT;
@@ -683,6 +684,7 @@ float idSoundSample_OpenAL::GetAmplitude( int timeMS ) const
 }
 
 
+#if 0 //defined(AL_SOFT_buffer_samples)
 const char* idSoundSample_OpenAL::OpenALSoftChannelsName( ALenum chans ) const
 {
 	switch( chans )
@@ -952,58 +954,29 @@ ALenum idSoundSample_OpenAL::GetOpenALSoftFormat( ALenum channels, ALenum type )
 		
 	return format;
 }
+#endif // #if defined(AL_SOFT_buffer_samples)
 
 ALenum idSoundSample_OpenAL::GetOpenALBufferFormat() const
 {
 	ALenum alFormat;
 	
-#if 0
-	if( alIsExtensionPresent( "AL_SOFT_buffer_samples" ) )
+	if( format.basic.formatTag == idWaveFile::FORMAT_PCM )
 	{
-		if( format.basic.formatTag == idWaveFile::FORMAT_PCM )
-		{
-			alFormat = NumChannels() == 1 ? AL_MONO16_SOFT : AL_STEREO16_SOFT;
-		}
-		else if( format.basic.formatTag == idWaveFile::FORMAT_ADPCM )
-		{
-			alFormat = NumChannels() == 1 ? AL_MONO8_SOFT : AL_STEREO8_SOFT;
-			//alFormat = NumChannels() == 1 ? AL_MONO16_SOFT : AL_STEREO16_SOFT;
-		}
-		else if( format.basic.formatTag == idWaveFile::FORMAT_XMA2 )
-		{
-			alFormat = NumChannels() == 1 ? AL_MONO16_SOFT : AL_STEREO16_SOFT;
-		}
-		else
-		{
-			alFormat = NumChannels() == 1 ? AL_MONO16_SOFT : AL_STEREO16_SOFT;
-		}
-		
-		if( !alIsBufferFormatSupportedSOFT( alFormat ) )
-		{
-			alFormat = NumChannels() == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
-		}
+		alFormat = NumChannels() == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
+	}
+	else if( format.basic.formatTag == idWaveFile::FORMAT_ADPCM )
+	{
+		//alFormat = NumChannels() == 1 ? AL_FORMAT_MONO8 : AL_FORMAT_STEREO8;
+		alFormat = NumChannels() == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
+		//alFormat = NumChannels() == 1 ? AL_FORMAT_MONO_IMA4 : AL_FORMAT_STEREO_IMA4;
+	}
+	else if( format.basic.formatTag == idWaveFile::FORMAT_XMA2 )
+	{
+		alFormat = NumChannels() == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
 	}
 	else
-#endif
 	{
-		if( format.basic.formatTag == idWaveFile::FORMAT_PCM )
-		{
-			alFormat = NumChannels() == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
-		}
-		else if( format.basic.formatTag == idWaveFile::FORMAT_ADPCM )
-		{
-			//alFormat = NumChannels() == 1 ? AL_FORMAT_MONO8 : AL_FORMAT_STEREO8;
-			alFormat = NumChannels() == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
-			//alFormat = NumChannels() == 1 ? AL_FORMAT_MONO_IMA4 : AL_FORMAT_STEREO_IMA4;
-		}
-		else if( format.basic.formatTag == idWaveFile::FORMAT_XMA2 )
-		{
-			alFormat = NumChannels() == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
-		}
-		else
-		{
-			alFormat = NumChannels() == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
-		}
+		alFormat = NumChannels() == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
 	}
 	
 	return alFormat;

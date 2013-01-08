@@ -130,6 +130,7 @@ public:
 	
 	float			GetAmplitude( int timeMS ) const;
 	
+#if 0 //defined(AL_SOFT_buffer_samples)
 	const char*		OpenALSoftChannelsName( ALenum chans ) const;
 	
 	const char*		OpenALSoftTypeName( ALenum type ) const;
@@ -143,6 +144,7 @@ public:
 	 * AL_SOFT_buffer_samples. Returns AL_NONE (0) if no supported format can be
 	 * found. */
 	ALenum			GetOpenALSoftFormat( ALenum channels, ALenum type ) const;
+#endif
 	
 	ALenum			GetOpenALBufferFormat() const;
 	
