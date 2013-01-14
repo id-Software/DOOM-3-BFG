@@ -27,7 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#include "../idlib/precompiled.h"
+#include "precompiled.h"
 #pragma hdrstop
 
 #include "Unzip.h"
@@ -1775,7 +1775,13 @@ idFile_InZip::Tell
 */
 int idFile_InZip::Tell() const
 {
-	return unztell( z );
+	// DG: make sure the value fits into an int
+	// it's a long after all, and there'S also unztell64 that returns ZPOS64_T
+	// OTOH idFile in general seems to assume file-length <= INT_MAX so it may be ok..
+	z_off_t ret = unztell( z );
+	assert( ret <= INT_MAX );
+	return ret;
+	// DG end
 }
 
 /*
@@ -1818,16 +1824,19 @@ int idFile_InZip::Seek( long offset, fsOrigin_t origin )
 		{
 			offset = fileSize - offset;
 		}
+		// FALLTHROUGH
 		case FS_SEEK_SET:
 		{
 			// set the file position in the zip file (also sets the current file info)
-			unzSetCurrentFileInfoPosition( z, zipFilePos );
+			// DG use standard unzip.h function instead of custom one (not needed anymore with minizip 1.1)
+			unzSetOffset64( z, zipFilePos );
 			unzOpenCurrentFile( z );
 			if( offset <= 0 )
 			{
 				return 0;
 			}
 		}
+		// FALLTHROUGH
 		case FS_SEEK_CUR:
 		{
 			buf = ( char* ) _alloca16( ZIP_SEEK_BUF_SIZE );

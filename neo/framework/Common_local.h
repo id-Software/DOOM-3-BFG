@@ -148,7 +148,9 @@ public:
 	virtual void				Quit();
 	virtual bool				IsInitialized() const;
 	virtual void				Frame();
-	virtual void				UpdateScreen( bool captureToImage );
+	// DG: added possibility to *not* release mouse in UpdateScreen(), it fucks up the view angle for screenshots
+	virtual void				UpdateScreen( bool captureToImage, bool releaseMouse = true );
+	// DG end
 	virtual void				UpdateLevelLoadPacifier();
 	virtual void				StartupVariable( const char* match );
 	virtual void				WriteConfigToFile( const char* filename );

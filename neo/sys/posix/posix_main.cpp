@@ -42,6 +42,7 @@ If you have questions concerning this license or the applicable additional terms
 #include <termios.h>
 #include <signal.h>
 #include <fcntl.h>
+#include <fnmatch.h>
 
 // RB begin
 #if defined(__ANDROID__)
@@ -358,18 +359,23 @@ int Sys_ListFiles( const char* directory, const char* extension, idStrList& list
 	list.Clear();
 	
 	debug = cvarSystem->GetCVarBool( "fs_debug" );
+	// DG: we use fnmatch for shell-style pattern matching
+	// so the pattern should at least contain "*" to match everything,
+	// the extension will be added behind that (if !dironly)
+	idStr pattern( "*" );
 	
-	if( !extension )
-		extension = "";
-		
 	// passing a slash as extension will find directories
 	if( extension[0] == '/' && extension[1] == 0 )
 	{
-		extension = "";
 		dironly = true;
 	}
+	else
+	{
+		// so we have *<extension>, the same as in the windows code basically
+		pattern += extension;
+	}
+	// DG end
 	
-	// search
 	// NOTE: case sensitivity of directory path can screw us up here
 	if( ( fdir = opendir( directory ) ) == NULL )
 	{
@@ -380,20 +386,37 @@ int Sys_ListFiles( const char* directory, const char* extension, idStrList& list
 		return -1;
 	}
 	
-	while( ( d = readdir( fdir ) ) != NULL )
+	// DG: use readdir_r instead of readdir for thread safety
+	// the following lines are from the readdir_r manpage.. fscking ugly.
+	int nameMax = pathconf( directory, _PC_NAME_MAX );
+	if( nameMax == -1 )
+		nameMax = 255;
+	int direntLen = offsetof( struct dirent, d_name ) + nameMax + 1;
+	
+	struct dirent* entry = ( struct dirent* )Mem_Alloc( direntLen, TAG_CRAP );
+	
+	if( entry == NULL )
 	{
+		common->Warning( "Sys_ListFiles: Mem_Alloc for entry failed!" );
+		closedir( fdir );
+		return 0;
+	}
+	
+	while( readdir_r( fdir, entry, &d ) == 0 && d != NULL )
+	{
+		// DG end
 		idStr::snPrintf( search, sizeof( search ), "%s/%s", directory, d->d_name );
 		if( stat( search, &st ) == -1 )
 			continue;
 		if( !dironly )
 		{
-			idStr look( search );
-			idStr ext;
-			look.ExtractFileExtension( ext );
-			if( extension[0] != '\0' && ext.Icmp( &extension[1] ) != 0 )
-			{
+			// DG: the original code didn't work because d3 bfg abuses the extension
+			// to match whole filenames and patterns in the savegame-code, not just file extensions...
+			// so just use fnmatch() which supports matching shell wildcard patterns ("*.foo" etc)
+			// if we should ever need case insensitivity, use FNM_CASEFOLD as third flag
+			if( fnmatch( pattern.c_str(), d->d_name, 0 ) != 0 )
 				continue;
-			}
+			// DG end
 		}
 		if( ( dironly && !( st.st_mode & S_IFDIR ) ) ||
 				( !dironly && ( st.st_mode & S_IFDIR ) ) )
@@ -403,6 +426,7 @@ int Sys_ListFiles( const char* directory, const char* extension, idStrList& list
 	}
 	
 	closedir( fdir );
+	Mem_Free( entry );
 	
 	if( debug )
 	{
@@ -630,6 +654,8 @@ ID_TIME_T Sys_FileTimeStamp( idFileHandle fp )
 
 void Sys_Sleep( int msec )
 {
+#if 0 // DG: I don't really care, this spams the console (and on windows this case isn't handled either)
+	// Furthermore, there are several Sys_Sleep( 10 ) calls throughout the code
 	if( msec < 20 )
 	{
 		static int last = 0;
@@ -642,7 +668,7 @@ void Sys_Sleep( int msec )
 		// ignore that sleep call, keep going
 		return;
 	}
-	
+#endif // DG end
 	// use nanosleep? keep sleeping if signal interrupt?
 	
 	// RB begin

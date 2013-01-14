@@ -27,7 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
-#include "../../idlib/precompiled.h"
+#include "precompiled.h"
 
 
 #include "../Game_local.h"
@@ -952,7 +952,8 @@ void idAI::Event_CanBecomeSolid()
 			continue;
 		}
 		
-		if( spawnClearMoveables && hit->IsType( idMoveable::Type ) || hit->IsType( idBarrel::Type ) || hit->IsType( idExplodingBarrel::Type ) )
+		// DG: add parenthesis to make precedence obvious and to appease compiler
+		if( ( spawnClearMoveables && hit->IsType( idMoveable::Type ) ) || hit->IsType( idBarrel::Type ) || hit->IsType( idExplodingBarrel::Type ) )
 		{
 			idVec3 push;
 			push = hit->GetPhysics()->GetOrigin() - GetPhysics()->GetOrigin();

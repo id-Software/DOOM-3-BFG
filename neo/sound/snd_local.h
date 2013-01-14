@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -92,12 +93,46 @@ typedef enum
 
 #include "SoundVoice.h"
 
-#ifdef _MSC_VER // DG: stub out xaudio for MinGW etc
+#if defined(USE_OPENAL)
+
+//#define AL_ALEXT_PROTOTYPES
+
+#include <AL/al.h>
+#include <AL/alc.h>
+#include <AL/alext.h>
+
+#include "OpenAL/AL_SoundSample.h"
+#include "OpenAL/AL_SoundVoice.h"
+#include "OpenAL/AL_SoundHardware.h"
+
+ID_INLINE_EXTERN ALenum CheckALErrors_( const char* filename, int line )
+{
+	ALenum err = alGetError();
+	if( err != AL_NO_ERROR )
+	{
+		idLib::Printf( "OpenAL Error: %s (0x%x), @ %s %d\n", alGetString( err ), err, filename, line );
+	}
+	return err;
+}
+#define CheckALErrors() CheckALErrors_(__FILE__, __LINE__)
+
+ID_INLINE_EXTERN ALCenum CheckALCErrors_( ALCdevice* device, const char* filename, int linenum )
+{
+	ALCenum err = alcGetError( device );
+	if( err != ALC_NO_ERROR )
+	{
+		idLib::Printf( "ALC Error: %s (0x%x), @ %s %d\n", alcGetString( device, err ), err, filename, linenum );
+	}
+	return err;
+}
+#define CheckALCErrors(x) CheckALCErrors_((x), __FILE__, __LINE__)
+
+#elif defined(_MSC_VER) // DG: stub out xaudio for MinGW etc
 
 #define OPERATION_SET 1
 
 // RB: not available on Windows 8 SDK
-#if (_WIN32_WINNT < 0x0602 /*_WIN32_WINNT_WIN8*/)
+#if !defined(USE_WINRT) // (_WIN32_WINNT < 0x0602 /*_WIN32_WINNT_WIN8*/)
 #include <dxsdkver.h>
 #endif
 // RB end
@@ -107,7 +142,7 @@ typedef enum
 #include <X3DAudio.h>
 
 // RB: not available on Windows 8 SDK
-#if (_WIN32_WINNT < 0x0602 /*_WIN32_WINNT_WIN8*/)
+#if !defined(USE_WINRT) // (_WIN32_WINNT < 0x0602 /*_WIN32_WINNT_WIN8*/)
 #include <xma2defs.h>
 #endif
 // RB end
@@ -447,6 +482,10 @@ public:
 	
 	virtual void* 			GetIXAudio2() const; // FIXME: stupid name; get rid of this? not sure if it's really needed..
 	
+	// RB begin
+	virtual void*			GetOpenALDevice() const;
+	// RB end
+	
 	// for the sound level meter window
 	virtual cinData_t		ImageForTime( const int milliseconds, const bool waveform );
 	
@@ -490,7 +529,10 @@ public:
 			bufferNumber( 0 )
 		{ }
 		
-#ifdef _MSC_VER // XAudio backend
+#if defined(USE_OPENAL)
+		idSoundVoice_OpenAL* 	voice;
+		idSoundSample_OpenAL*	sample;
+#elif defined(_MSC_VER) // XAudio backend
 		// DG: because the inheritance is kinda strange (idSoundVoice is derived
 		// from idSoundVoice_XAudio2), casting the latter to the former isn't possible
 		// so we need this ugly #ifdef ..

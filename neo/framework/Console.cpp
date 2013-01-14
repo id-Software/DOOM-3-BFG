@@ -27,7 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
-#include "../idlib/precompiled.h"
+#include "precompiled.h"
 #include "ConsoleHistory.h"
 #include "../renderer/ResolutionScale.h"
 #include "Common_local.h"
@@ -642,6 +642,11 @@ void idConsoleLocal::KeyDownEvent( int key )
 		{
 			consoleField.SetBuffer( hist );
 		}
+		else // DG: if no more lines are in the history, show a blank line again
+		{
+			consoleField.Clear();
+		} // DG end
+		
 		return;
 	}
 	

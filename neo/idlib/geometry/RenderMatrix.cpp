@@ -103,7 +103,7 @@ static const __m128 vector_float_mask3						= __m128c( _mm_set1_epi32( 1 << 3 ) 
 static const __m128 vector_float_mask4						= __m128c( _mm_set1_epi32( 1 << 4 ) );
 static const __m128 vector_float_mask5						= __m128c( _mm_set1_epi32( 1 << 5 ) );
 static const __m128 vector_float_sign_bit					= __m128c( _mm_set1_epi32( IEEE_FLT_SIGN_MASK ) );
-static const __m128 vector_float_abs_mask					= __m128c( _mm_set1_epi32( ~IEEE_FLT_SIGN_MASK ) );
+static const __m128 vector_float_abs_mask					= __m128c( _mm_set1_epi32( ~( int )IEEE_FLT_SIGN_MASK ) );
 static const __m128 vector_float_keep_last					= __m128c( _mm_set_epi32( -1, 0, 0, 0 ) );
 static const __m128 vector_float_inverse_epsilon			= { RENDER_MATRIX_INVERSE_EPSILON, RENDER_MATRIX_INVERSE_EPSILON, RENDER_MATRIX_INVERSE_EPSILON, RENDER_MATRIX_INVERSE_EPSILON };
 static const __m128 vector_float_smallest_non_denorm		= { 1.1754944e-038f, 1.1754944e-038f, 1.1754944e-038f, 1.1754944e-038f };
@@ -916,7 +916,7 @@ idRenderMatrix::Inverse
 
 inverse( M ) = ( 1 / determinant( M ) ) * transpose( cofactor( M ) )
 
-This code is based on the code written by Cédric Lallain, published on "Cell Performance"
+This code is based on the code written by Cï¿½dric Lallain, published on "Cell Performance"
 (by Mike Acton) and released under the BSD 3-Clause ("BSD New" or "BSD Simplified") license.
 https://code.google.com/p/cellperformance-snippets/
 

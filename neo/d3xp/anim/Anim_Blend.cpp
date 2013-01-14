@@ -27,7 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
-#include "../../idlib/precompiled.h"
+#include "precompiled.h"
 
 
 #include "../Game_local.h"
@@ -5490,18 +5490,20 @@ bool idAnimator::GetJointLocalTransform( jointHandle_t jointHandle, int currentT
 	// FIXME: overkill
 	CreateFrame( currentTime, false );
 	
-	if( jointHandle > 0 )
-	{
-		idJointMat m = joints[ jointHandle ];
-		m /= joints[ modelJoints[ jointHandle ].parentNum ];
-		offset = m.ToVec3();
-		axis = m.ToMat3();
-	}
-	else
+	// RB: long neck GCC compiler bug workaround from dhewm3 ...
+	if( jointHandle == 0 )
 	{
 		offset = joints[ jointHandle ].ToVec3();
 		axis = joints[ jointHandle ].ToMat3();
+		
+		return true;
 	}
+	
+	idJointMat m = joints[ jointHandle ];
+	m /= joints[ modelJoints[ jointHandle ].parentNum ];
+	offset = m.ToVec3();
+	axis = m.ToMat3();
+	// RB end
 	
 	return true;
 }

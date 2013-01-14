@@ -27,7 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#include "../idlib/precompiled.h"
+#include "precompiled.h"
 #pragma hdrstop
 
 #include "Common_local.h"
@@ -85,6 +85,10 @@ idCVar com_japaneseCensorship( "com_japaneseCensorship", "0", CVAR_NOCHEAT, "Ena
 idCVar preload_CommonAssets( "preload_CommonAssets", "1", CVAR_SYSTEM | CVAR_BOOL, "preload common assets" );
 
 idCVar net_inviteOnly( "net_inviteOnly", "1", CVAR_BOOL | CVAR_ARCHIVE, "whether or not the private server you create allows friends to join or invite only" );
+
+// DG: add cvar for pause
+idCVar com_pause( "com_pause", "0", CVAR_BOOL | CVAR_SYSTEM , "set to 1 to pause game, to 0 to unpause again" );
+// DG end
 
 extern idCVar g_demoMode;
 
@@ -586,8 +590,11 @@ CONSOLE_COMMAND( crash, "causes a crash", NULL )
 		commonLocal.Printf( "crash may only be used in developer mode\n" );
 		return;
 	}
-	
+#ifdef __GNUC__
+	__builtin_trap();
+#else
 	* ( int* ) 0 = 0x12345678;
+#endif
 }
 
 /*
@@ -634,7 +641,10 @@ idCommonLocal::CheckStartupStorageRequirements
 */
 void idCommonLocal::CheckStartupStorageRequirements()
 {
+	// RB: disabled savegame and profile storage checks, because it fails sometimes without any clear reason
+#if 0
 	int64 availableSpace = 0;
+	
 	// ------------------------------------------------------------------------
 	// Savegame and Profile required storage
 	// ------------------------------------------------------------------------
@@ -711,7 +721,8 @@ void idCommonLocal::CheckStartupStorageRequirements()
 		
 		common->Dialog().AddDynamicDialog( GDM_INSUFFICENT_STORAGE_SPACE, callbacks, optionText, true, msg );
 	}
-	
+#endif
+	// RB end
 	
 	session->GetAchievementSystem().Start();
 }

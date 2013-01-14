@@ -214,9 +214,11 @@ public:
 	// Called repeatedly as the foreground thread for rendering and game logic.
 	virtual void				Frame() = 0;
 	
+	// DG: added possibility to *not* release mouse in UpdateScreen(), it fucks up the view angle for screenshots
 	// Redraws the screen, handling games, guis, console, etc
 	// in a modal manner outside the normal frame loop
-	virtual void				UpdateScreen( bool captureToImage ) = 0;
+	virtual void				UpdateScreen( bool captureToImage, bool releaseMouse = true ) = 0;
+	// DG end
 	
 	virtual void				UpdateLevelLoadPacifier() = 0;
 	

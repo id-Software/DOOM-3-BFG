@@ -27,7 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#include "../idlib/precompiled.h"
+#include "precompiled.h"
 #pragma hdrstop
 
 #include "Common_local.h"
@@ -349,7 +349,8 @@ idCommonLocal::UpdateScreen
 This is an out-of-sequence screen update, not the normal game rendering
 ===============
 */
-void idCommonLocal::UpdateScreen( bool captureToImage )
+// DG: added possibility to *not* release mouse in UpdateScreen(), it fucks up the view angle for screenshots
+void idCommonLocal::UpdateScreen( bool captureToImage, bool releaseMouse )
 {
 	if( insideUpdateScreen )
 	{
@@ -361,7 +362,9 @@ void idCommonLocal::UpdateScreen( bool captureToImage )
 	gameThread.WaitForThread();
 	
 	// release the mouse capture back to the desktop
-	Sys_GrabMouseCursor( false );
+	if( releaseMouse )
+		Sys_GrabMouseCursor( false );
+	// DG end
 	
 	// build all the draw commands without running a new game tic
 	Draw();
@@ -435,6 +438,8 @@ void idCommonLocal::ProcessGameReturn( const gameReturn_t& ret )
 
 extern idCVar com_forceGenericSIMD;
 
+extern idCVar com_pause;
+
 /*
 =================
 idCommonLocal::Frame
@@ -482,13 +487,16 @@ void idCommonLocal::Frame()
 		// if the console or another gui is down, we don't need to hold the mouse cursor
 		bool chatting = false;
 		
+		// DG: Add pause from com_pause cvar
 		// RB begin
 #if defined(USE_DOOMCLASSIC)
-		if( console->Active() || Dialog().IsDialogActive() || session->IsSystemUIShowing() || ( game && game->InhibitControls() && !IsPlayingDoomClassic() ) )
+		if( com_pause.GetInteger() || console->Active() || Dialog().IsDialogActive() || session->IsSystemUIShowing()
+				|| ( game && game->InhibitControls() && !IsPlayingDoomClassic() ) )
 #else
-		if( console->Active() || Dialog().IsDialogActive() || session->IsSystemUIShowing() || ( game && game->InhibitControls() ) )
+		if( com_pause.GetInteger() || console->Active() || Dialog().IsDialogActive() || session->IsSystemUIShowing()
+				|| ( game && game->InhibitControls() ) )
 #endif
-			// RB end
+			// RB end, DG end
 		{
 			Sys_GrabMouseCursor( false );
 			usercmdGen->InhibitUsercmd( INHIBIT_SESSION, true );
@@ -502,9 +510,16 @@ void idCommonLocal::Frame()
 		
 		// RB begin
 #if defined(USE_DOOMCLASSIC)
-		const bool pauseGame = ( !mapSpawned || ( !IsMultiplayer() && ( Dialog().IsDialogPausing() || session->IsSystemUIShowing() || ( game && game->Shell_IsActive() ) ) ) ) && !IsPlayingDoomClassic();
+		const bool pauseGame = ( !mapSpawned
+								 || ( !IsMultiplayer()
+									  && ( Dialog().IsDialogPausing() || session->IsSystemUIShowing()
+										   || ( game && game->Shell_IsActive() ) || com_pause.GetInteger() ) ) )
+							   && !IsPlayingDoomClassic();
 #else
-		const bool pauseGame = ( !mapSpawned || ( !IsMultiplayer() && ( Dialog().IsDialogPausing() || session->IsSystemUIShowing() || ( game && game->Shell_IsActive() ) ) ) );
+		const bool pauseGame = ( !mapSpawned
+								 || ( !IsMultiplayer()
+									  && ( Dialog().IsDialogPausing() || session->IsSystemUIShowing()
+										   || ( game && game->Shell_IsActive() ) || com_pause.GetInteger() ) ) );
 #endif
 		// RB end
 		

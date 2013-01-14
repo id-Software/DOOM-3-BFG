@@ -33,6 +33,6 @@ If you have questions concerning this license or the applicable additional terms
 Contains the DxtEncoder and DxtDecoder declarations.
 ================================================================================================
 */
-#include "../../idlib/precompiled.h"
+#include "precompiled.h"
 
 #endif // !__DXTCODEC_LOCAL_H__

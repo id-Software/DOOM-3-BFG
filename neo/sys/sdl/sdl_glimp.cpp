@@ -5,6 +5,7 @@ Doom 3 GPL Source Code
 Copyright (C) 1999-2011 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2012 dhewg (dhewm3)
 Copyright (C) 2012 Robert Beckebans
+Copyright (C) 2013 Daniel Gibson
 
 This file is part of the Doom 3 GPL Source Code ("Doom 3 Source Code").
 
@@ -54,6 +55,7 @@ static SDL_GLContext context = NULL;
 static SDL_Surface* window = NULL;
 #define SDL_WINDOW_OPENGL SDL_OPENGL
 #define SDL_WINDOW_FULLSCREEN SDL_FULLSCREEN
+#define SDL_WINDOW_RESIZABLE SDL_RESIZABLE
 #endif
 
 bool QGL_Init( const char* dllname );
@@ -89,7 +91,9 @@ bool GLimp_Init( glimpParms_t parms )
 	
 	GLimp_PreInit(); // DG: make sure SDL is initialized
 	
-	Uint32 flags = SDL_WINDOW_OPENGL;
+	// DG: make window resizable
+	Uint32 flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
+	// DG end
 	
 	if( parms.fullScreen )
 		flags |= SDL_WINDOW_FULLSCREEN;
@@ -198,10 +202,34 @@ bool GLimp_Init( glimpParms_t parms )
 		}
 		// RB end
 		
+		// DG: set display num for fullscreen
+		int windowPos = SDL_WINDOWPOS_UNDEFINED;
+		if( parms.fullScreen > 0 )
+		{
+			if( parms.fullScreen > SDL_GetNumVideoDisplays() )
+			{
+				common->Warning( "Couldn't set display to num %i because we only have %i displays",
+								 parms.fullScreen, SDL_GetNumVideoDisplays() );
+			}
+			else
+			{
+				// -1 because SDL starts counting displays at 0, while parms.fullScreen starts at 1
+				windowPos = SDL_WINDOWPOS_UNDEFINED_DISPLAY( ( parms.fullScreen - 1 ) );
+			}
+		}
+		// TODO: if parms.fullScreen == -1 there should be a borderless window spanning multiple displays
+		/*
+		 * NOTE that this implicitly handles parms.fullScreen == -2 (from r_fullscreen -2) meaning
+		 * "do fullscreen, but I don't care on what monitor", at least on my box it's the monitor with
+		 * the mouse cursor.
+		 */
+		
+		
 		window = SDL_CreateWindow( GAME_NAME,
-								   SDL_WINDOWPOS_UNDEFINED,
-								   SDL_WINDOWPOS_UNDEFINED,
+								   windowPos,
+								   windowPos,
 								   parms.width, parms.height, flags );
+		// DG end
 		context = SDL_GL_CreateContext( window );
 		
 		if( !window )
@@ -273,6 +301,105 @@ bool GLimp_Init( glimpParms_t parms )
 	
 	return true;
 }
+/*
+===================
+ Helper functions for GLimp_SetScreenParms()
+===================
+*/
+
+#if SDL_VERSION_ATLEAST(2, 0, 0)
+// SDL1 doesn't support multiple displays, so the source is much shorter and doesn't need seperate functions
+// makes sure the window will be full-screened on the right display and returns the SDL display index
+static int ScreenParmsHandleDisplayIndex( glimpParms_t parms )
+{
+	int displayIdx;
+	if( parms.fullScreen > 0 )
+	{
+		displayIdx = parms.fullScreen - 1; // first display for SDL is 0, in parms it's 1
+	}
+	else // -2 == use current display
+	{
+		displayIdx = SDL_GetWindowDisplay( window );
+		if( displayIdx < 0 ) // for some reason the display for the window couldn't be detected
+			displayIdx = 0;
+	}
+	
+	if( parms.fullScreen > SDL_GetNumVideoDisplays() )
+	{
+		common->Warning( "Can't set fullscreen mode to display number %i, because SDL2 only knows about %i displays!",
+						 parms.fullScreen, SDL_GetNumVideoDisplays() );
+		return -1;
+	}
+	
+	if( parms.fullScreen != glConfig.isFullscreen )
+	{
+		// we have to switch to another display
+		if( glConfig.isFullscreen )
+		{
+			// if we're already in fullscreen mode but want to switch to another monitor
+			// we have to go to windowed mode first to move the window.. SDL-oddity.
+			SDL_SetWindowFullscreen( window, SDL_FALSE );
+		}
+		// select display ; SDL_WINDOWPOS_UNDEFINED_DISPLAY() doesn't work.
+		int x = SDL_WINDOWPOS_CENTERED_DISPLAY( displayIdx );
+		// move window to the center of selected display
+		SDL_SetWindowPosition( window, x, x );
+	}
+	return displayIdx;
+}
+
+static bool SetScreenParmsFullscreen( glimpParms_t parms )
+{
+	SDL_DisplayMode m = {0};
+	int displayIdx = ScreenParmsHandleDisplayIndex( parms );
+	if( displayIdx < 0 )
+		return false;
+		
+	// get current mode of display the window should be full-screened on
+	SDL_GetCurrentDisplayMode( displayIdx, &m );
+	
+	// change settings in that display mode according to parms
+	// FIXME: check if refreshrate, width and height are supported?
+	// m.refresh_rate = parms.displayHz;
+	m.w = parms.width;
+	m.h = parms.height;
+	
+	// set that displaymode
+	if( SDL_SetWindowDisplayMode( window, &m ) < 0 )
+	{
+		common->Warning( "Couldn't set window mode for fullscreen, reason: %s", SDL_GetError() );
+		return false;
+	}
+	
+	// if we're currently not in fullscreen mode, we need to switch to fullscreen
+	if( !( SDL_GetWindowFlags( window ) & SDL_WINDOW_FULLSCREEN ) )
+	{
+		if( SDL_SetWindowFullscreen( window, SDL_TRUE ) < 0 )
+		{
+			common->Warning( "Couldn't switch to fullscreen mode, reason: %s!", SDL_GetError() );
+			return false;
+		}
+	}
+	return true;
+}
+
+static bool SetScreenParmsWindowed( glimpParms_t parms )
+{
+	SDL_SetWindowSize( window, parms.width, parms.height );
+	SDL_SetWindowPosition( window, parms.x, parms.y );
+	
+	// if we're currently in fullscreen mode, we need to disable that
+	if( SDL_GetWindowFlags( window ) & SDL_WINDOW_FULLSCREEN )
+	{
+		if( SDL_SetWindowFullscreen( window, SDL_FALSE ) < 0 )
+		{
+			common->Warning( "Couldn't switch to windowed mode, reason: %s!", SDL_GetError() );
+			return false;
+		}
+	}
+	return true;
+}
+#endif // SDL_VERSION_ATLEAST(2, 0, 0)
 
 /*
 ===================
@@ -281,7 +408,63 @@ GLimp_SetScreenParms
 */
 bool GLimp_SetScreenParms( glimpParms_t parms )
 {
-	common->DPrintf( "TODO: GLimp_SetScreenParms\n" );
+#if SDL_VERSION_ATLEAST(2, 0, 0)
+	if( parms.fullScreen > 0 || parms.fullScreen == -2 )
+	{
+		if( !SetScreenParmsFullscreen( parms ) )
+			return false;
+	}
+	else if( parms.fullScreen == 0 ) // windowed mode
+	{
+		if( !SetScreenParmsWindowed( parms ) )
+			return false;
+	}
+	else
+	{
+		common->Warning( "GLimp_SetScreenParms: fullScreen -1 (borderless window for multiple displays) currently unsupported!" );
+		return false;
+	}
+#else // SDL 1.2 - so much shorter, but doesn't handle multiple displays
+	SDL_Surface* s = SDL_GetVideoSurface();
+	if( s == NULL )
+	{
+		common->Warning( "GLimp_SetScreenParms: Couldn't get video information, reason: %s", SDL_GetError() );
+		return false;
+	}
+	
+	
+	int bitsperpixel = 24;
+	if( s->format )
+		bitsperpixel = s->format->BitsPerPixel;
+	
+	Uint32 flags = s->flags;
+	
+	if( parms.fullScreen )
+		flags |= SDL_FULLSCREEN;
+	else
+		flags &= ~SDL_FULLSCREEN;
+	
+	s = SDL_SetVideoMode( parms.width, parms.height, bitsperpixel, flags );
+	if( s == NULL )
+	{
+		common->Warning( "GLimp_SetScreenParms: Couldn't set video information, reason: %s", SDL_GetError() );
+		return false;
+	}
+#endif // SDL_VERSION_ATLEAST(2, 0, 0)
+	
+	// Note: the following stuff would also work with SDL1.2
+	SDL_GL_SetAttribute( SDL_GL_STEREO, parms.stereo ? 1 : 0 );
+	
+	SDL_GL_SetAttribute( SDL_GL_MULTISAMPLEBUFFERS, parms.multiSamples ? 1 : 0 );
+	SDL_GL_SetAttribute( SDL_GL_MULTISAMPLESAMPLES, parms.multiSamples );
+	
+	glConfig.isFullscreen = parms.fullScreen;
+	glConfig.isStereoPixelFormat = parms.stereo;
+	glConfig.nativeScreenWidth = parms.width;
+	glConfig.nativeScreenHeight = parms.height;
+	glConfig.displayFrequency = parms.displayHz;
+	glConfig.multisamples = parms.multiSamples;
+	
 	return true;
 }
 
@@ -459,7 +642,7 @@ bool R_GetModeListForDisplay( const int requestedDisplayNum, idList<vidMode_t>& 
 	}
 	
 	int numModes = SDL_GetNumDisplayModes( requestedDisplayNum );
-	if( numModes > 1 )
+	if( numModes > 0 )
 	{
 		for( int i = 0; i < numModes; i++ )
 		{
@@ -480,24 +663,21 @@ bool R_GetModeListForDisplay( const int requestedDisplayNum, idList<vidMode_t>& 
 		
 		if( modeList.Num() < 1 )
 		{
-			common->Warning( "Couldn't get information for a single video mode, using default ones..!\n" );
+			common->Warning( "Couldn't get a single video mode for display %i, using default ones..!\n", requestedDisplayNum );
 			FillStaticVidModes( modeList );
 		}
 		
 		// sort with lowest resolution first
 		modeList.SortWithTemplate( idSort_VidMode() );
-		
-		return true;
 	}
 	else
 	{
-		common->Warning( "Can't get Video Info!\n" );
+		common->Warning( "Can't get Video Info, using default modes...\n" );
 		if( numModes < 0 )
 		{
 			common->Warning( "Reason was: %s\n", SDL_GetError() );
 		}
 		FillStaticVidModes( modeList );
-		return true;
 	}
 	
 	return true;
@@ -513,13 +693,11 @@ bool R_GetModeListForDisplay( const int requestedDisplayNum, idList<vidMode_t>& 
 	}
 	// DG end
 	
-	bool	verbose = false;
-	
 	const SDL_VideoInfo* videoInfo = SDL_GetVideoInfo();
 	if( videoInfo == NULL )
 	{
 		// DG: yes, this can actually fail, e.g. if SDL_Init( SDL_INIT_VIDEO ) wasn't called
-		common->Warning( "Can't get Video Info!\n" );
+		common->Warning( "Can't get Video Info, using default modes...\n" );
 		FillStaticVidModes( modeList );
 		return true;
 	}
@@ -528,7 +706,7 @@ bool R_GetModeListForDisplay( const int requestedDisplayNum, idList<vidMode_t>& 
 	
 	if( !modes )
 	{
-		common->Warning( "Can't get list of available modes\n" );
+		common->Warning( "Can't get list of available modes, using default ones...\n" );
 		FillStaticVidModes( modeList );
 		return true;
 	}

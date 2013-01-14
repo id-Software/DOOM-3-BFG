@@ -27,7 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
-#include "../idlib/precompiled.h"
+#include "precompiled.h"
 
 #include "tr_local.h"
 
@@ -178,7 +178,13 @@ void RB_DrawElementsWithCounters( const drawSurf_t* surf )
 	
 	if( surf->jointCache )
 	{
-		if( !verify( renderProgManager.ShaderUsesJoints() ) )
+		// DG: this happens all the time in the erebus1 map with blendlight.vfp,
+		// so don't call assert (through verify) here until it's fixed (if fixable)
+		// else the game crashes on linux when using debug builds
+		// FIXME: fix this properly if possible?
+		//if( !verify( renderProgManager.ShaderUsesJoints() ) )
+		if( ! renderProgManager.ShaderUsesJoints() )
+			// DG end
 		{
 			return;
 		}

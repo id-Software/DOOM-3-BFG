@@ -28,7 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
-#include "../idlib/precompiled.h"
+#include "precompiled.h"
 
 #include "DeviceContext.h"
 #include "Window.h"
@@ -2464,7 +2464,9 @@ bool idWindow::ParseRegEntry( const char* name, idTokenParser* src )
 	work = name;
 	work.ToLower();
 	
-	idWinVar* var = GetWinVarByName( work, NULL );
+	// DG: second argument is a bool, so use false, not NULL
+	idWinVar* var = GetWinVarByName( work, false );
+	// DG end
 	if( var )
 	{
 		for( int i = 0; i < NumRegisterVars; i++ )

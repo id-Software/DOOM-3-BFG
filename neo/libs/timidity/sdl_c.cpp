@@ -21,7 +21,7 @@ sdl_c.c
 Minimal control mode -- no interaction, just stores messages.
 */
 
-#include "../../idlib/precompiled.h"
+#include "precompiled.h"
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -5,6 +5,7 @@ Doom 3 GPL Source Code
 Copyright (C) 1999-2011 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2012 dhewg (dhewm3)
 Copyright (C) 2012 Robert Beckebans
+Copyright (C) 2013 Daniel Gibson
 
 This file is part of the Doom 3 GPL Source Code ("Doom 3 Source Code").
 
@@ -28,9 +29,10 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include "../../idlib/precompiled.h"
+
 #include <SDL.h>
 
-#include "../../idlib/precompiled.h"
 #include "renderer/tr_local.h"
 #include "sdl_local.h"
 #include "../posix/posix_public.h"
@@ -53,7 +55,17 @@ If you have questions concerning this license or the applicable additional terms
 #define SDLK_KP_9 SDLK_KP9
 #define SDLK_NUMLOCKCLEAR SDLK_NUMLOCK
 #define SDLK_PRINTSCREEN SDLK_PRINT
+// DG: SDL1 doesn't seem to have defines for scancodes.. add the (only) one we need
+#define SDL_SCANCODE_GRAVE 49 // in SDL2 this is 53.. but according to two different systems and keyboards this works for SDL1
+// DG end
 #endif
+
+// DG: those are needed for moving/resizing windows
+extern idCVar r_windowX;
+extern idCVar r_windowY;
+extern idCVar r_windowWidth;
+extern idCVar r_windowHeight;
+// DG end
 
 const char* kbdNames[] =
 {
@@ -161,6 +173,33 @@ static int SDL_KeyToDoom3Key( SDL_Keycode key, bool& isChar )
 			
 		case SDLK_9:
 			return K_9;
+			
+			// DG: add some missing keys..
+		case SDLK_UNDERSCORE:
+			return K_UNDERLINE;
+			
+		case SDLK_MINUS:
+			return K_MINUS;
+			
+		case SDLK_COMMA:
+			return K_COMMA;
+			
+		case SDLK_COLON:
+			return K_COLON;
+			
+		case SDLK_SEMICOLON:
+			return K_SEMICOLON;
+			
+		case SDLK_PERIOD:
+			return K_PERIOD;
+			
+		case SDLK_AT:
+			return K_AT;
+			
+		case SDLK_EQUALS:
+			return K_EQUALS;
+			// DG end
+			
 			/*
 			SDLK_COLON		= 58,
 			SDLK_SEMICOLON		= 59,
@@ -268,6 +307,11 @@ static int SDL_KeyToDoom3Key( SDL_Keycode key, bool& isChar )
 			
 		case SDLK_PAUSE:
 			return K_PAUSE;
+			
+			// DG: add tab key support
+		case SDLK_TAB:
+			return K_TAB;
+			// DG end
 			
 			//case SDLK_APPLICATION:
 			//	return K_COMMAND;
@@ -652,6 +696,19 @@ sysEvent_t Sys_GetEvent()
 		
 		return res;
 	}
+	
+	// DG: fake a "mousewheel not pressed anymore" event for SDL2
+	// so scrolling in menus stops after one step
+	static int mwheelRel = 0;
+	if( mwheelRel )
+	{
+		res.evType = SE_KEY;
+		res.evValue = mwheelRel;
+		res.evValue2 = 0; // "not pressed anymore"
+		mwheelRel = 0;
+		return res;
+	}
+	// DG end
 #endif
 	
 	static byte c = 0;
@@ -684,26 +741,55 @@ sysEvent_t Sys_GetEvent()
 							newmod |= KMOD_CAPS;
 							
 						SDL_SetModState( ( SDL_Keymod )newmod );
-						// DG: disabling the cursor is now done once in GLimp_Init() because it should always be disabled
-						GLimp_GrabInput( GRAB_ENABLE | GRAB_REENABLE );
+						
+						// DG: un-pause the game when focus is gained, that also re-grabs the input
+						//     disabling the cursor is now done once in GLimp_Init() because it should always be disabled
+						cvarSystem->SetCVarBool( "com_pause", false );
 						// DG end
 						break;
 					}
 					
 					case SDL_WINDOWEVENT_FOCUS_LOST:
-						GLimp_GrabInput( 0 );
+						// DG: pause the game when focus is lost, that also un-grabs the input
+						cvarSystem->SetCVarBool( "com_pause", true );
+						// DG end
 						break;
+						
+						// DG: handle resizing and moving of window
+					case SDL_WINDOWEVENT_RESIZED:
+					{
+						int w = ev.window.data1;
+						int h = ev.window.data2;
+						r_windowWidth.SetInteger( w );
+						r_windowHeight.SetInteger( h );
+						
+						glConfig.nativeScreenWidth = w;
+						glConfig.nativeScreenHeight = h;
+						break;
+					}
+					
+					case SDL_WINDOWEVENT_MOVED:
+					{
+						int x = ev.window.data1;
+						int y = ev.window.data2;
+						r_windowX.SetInteger( x );
+						r_windowY.SetInteger( y );
+						break;
+					}
+					// DG end
 				}
 				
 				return res_none;
 #else
 			case SDL_ACTIVEEVENT:
 			{
-				int flags = 0;
+				// DG: (un-)pause the game when focus is gained, that also (un-)grabs the input
+				bool pause = true;
 			
 				if( ev.active.gain )
 				{
-					flags = GRAB_ENABLE | GRAB_REENABLE | GRAB_HIDECURSOR;
+			
+					pause = false;
 			
 					// unset modifier, in case alt-tab was used to leave window and ALT is still set
 					// as that can cause fullscreen-toggling when pressing enter...
@@ -715,48 +801,92 @@ sysEvent_t Sys_GetEvent()
 					SDL_SetModState( ( SDLMod )newmod );
 				}
 			
-				GLimp_GrabInput( flags );
+				cvarSystem->SetCVarBool( "com_pause", pause );
 			}
 			
 			return res_none;
 			
 			case SDL_VIDEOEXPOSE:
 				return res_none;
-#endif
 				
+				// DG: handle resizing and moving of window
+			case SDL_VIDEORESIZE:
+			{
+				int w = ev.resize.w;
+				int h = ev.resize.h;
+				r_windowWidth.SetInteger( w );
+				r_windowHeight.SetInteger( h );
+			
+				glConfig.nativeScreenWidth = w;
+				glConfig.nativeScreenHeight = h;
+				// for some reason this needs a vid_restart in SDL1 but not SDL2 so GLimp_SetScreenParms() is called
+				PushConsoleEvent( "vid_restart" );
+				return res_none;
+			}
+			// DG end
+#endif
+			
 			case SDL_KEYDOWN:
 				if( ev.key.keysym.sym == SDLK_RETURN && ( ev.key.keysym.mod & KMOD_ALT ) > 0 )
 				{
-					cvarSystem->SetCVarBool( "r_fullscreen", !renderSystem->IsFullScreen() );
+					// DG: go to fullscreen on current display, instead of always first display
+					int fullscreen = 0;
+					if( ! renderSystem->IsFullScreen() )
+					{
+						// this will be handled as "fullscreen on current window"
+						// r_fullscreen 1 means "fullscreen on first window" in d3 bfg
+						fullscreen = -2;
+					}
+					cvarSystem->SetCVarInteger( "r_fullscreen", fullscreen );
+					// DG end
 					PushConsoleEvent( "vid_restart" );
 					return res_none;
 				}
+				
+				// DG: ctrl-g to un-grab mouse - yeah, left ctrl shoots, then just use right ctrl :)
+				if( ev.key.keysym.sym == SDLK_g && ( ev.key.keysym.mod & KMOD_CTRL ) > 0 )
+				{
+					bool grab = cvarSystem->GetCVarBool( "in_nograb" );
+					grab = !grab;
+					cvarSystem->SetCVarBool( "in_nograb", grab );
+					return res_none;
+				}
+				// DG end
 				
 				// fall through
 			case SDL_KEYUP:
 			{
 				bool isChar;
 				
-				key = SDL_KeyToDoom3Key( ev.key.keysym.sym, isChar );
-				
-				if( key == 0 )
+				// DG: special case for SDL_SCANCODE_GRAVE - the console key under Esc
+				if( ev.key.keysym.scancode == SDL_SCANCODE_GRAVE )
 				{
-					unsigned char c;
+					key = K_GRAVE;
+					c = K_BACKSPACE; // bad hack to get empty console inputline..
+				} // DG end, the original code is in the else case
+				else
+				{
+					key = SDL_KeyToDoom3Key( ev.key.keysym.sym, isChar );
 					
-					// check if its an unmapped console key
-					if( ev.key.keysym.unicode == ( c = Sys_GetConsoleKey( false ) ) )
+					if( key == 0 )
 					{
-						key = c;
-					}
-					else if( ev.key.keysym.unicode == ( c = Sys_GetConsoleKey( true ) ) )
-					{
-						key = c;
-					}
-					else
-					{
-						if( ev.type == SDL_KEYDOWN )
-							common->Warning( "unmapped SDL key %d (0x%x)", ev.key.keysym.sym, ev.key.keysym.unicode );
-						return res_none;
+						unsigned char c;
+						
+						// check if its an unmapped console key
+						if( ev.key.keysym.unicode == ( c = Sys_GetConsoleKey( false ) ) )
+						{
+							key = c;
+						}
+						else if( ev.key.keysym.unicode == ( c = Sys_GetConsoleKey( true ) ) )
+						{
+							key = c;
+						}
+						else
+						{
+							if( ev.type == SDL_KEYDOWN )
+								common->Warning( "unmapped SDL key %d (0x%x) scancode %d", ev.key.keysym.sym, ev.key.keysym.unicode, ev.key.keysym.scancode );
+							return res_none;
+						}
 					}
 				}
 				
@@ -766,16 +896,15 @@ sysEvent_t Sys_GetEvent()
 				
 				kbd_polls.Append( kbd_poll_t( key, ev.key.state == SDL_PRESSED ) );
 				
-#if SDL_VERSION_ATLEAST(2, 0, 0)
 				if( key == K_BACKSPACE && ev.key.state == SDL_PRESSED )
 					c = key;
-#else
+#if ! SDL_VERSION_ATLEAST(2, 0, 0)
 				if( ev.key.state == SDL_PRESSED && isChar && ( ev.key.keysym.unicode & 0xff00 ) == 0 )
 				{
 					c = ev.key.keysym.unicode & 0xff;
 				}
 #endif
-					
+				
 				return res;
 			}
 			
@@ -828,6 +957,10 @@ sysEvent_t Sys_GetEvent()
 					res.evValue = K_MWHEELDOWN;
 					mouse_polls.Append( mouse_poll_t( M_DELTAZ, -1 ) );
 				}
+				
+				// DG: remember mousewheel direction to issue a "not pressed anymore" event
+				mwheelRel = res.evValue;
+				// DG end
 				
 				res.evValue2 = 1;
 				

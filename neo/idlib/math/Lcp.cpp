@@ -27,7 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 #pragma hdrstop
-#include "../precompiled.h"
+#include "precompiled.h"
 
 // this file is full of intentional case fall throughs
 //lint -e616
@@ -56,7 +56,10 @@ ALIGN16( const __m128 SIMD_SP_LCP_DELTA_FORCE_EPSILON )			= { LCP_DELTA_FORCE_EP
 ALIGN16( const __m128 SIMD_SP_LCP_BOUND_EPSILON )				= { LCP_BOUND_EPSILON, LCP_BOUND_EPSILON, LCP_BOUND_EPSILON, LCP_BOUND_EPSILON };
 ALIGN16( const __m128 SIMD_SP_neg_LCP_BOUND_EPSILON )			= { -LCP_BOUND_EPSILON, -LCP_BOUND_EPSILON, -LCP_BOUND_EPSILON, -LCP_BOUND_EPSILON };
 ALIGN16( const unsigned int SIMD_SP_signBit[4] )				= { IEEE_FLT_SIGN_MASK, IEEE_FLT_SIGN_MASK, IEEE_FLT_SIGN_MASK, IEEE_FLT_SIGN_MASK };
-ALIGN16( const unsigned int SIMD_SP_absMask[4] )				= { ~IEEE_FLT_SIGN_MASK, ~IEEE_FLT_SIGN_MASK, ~IEEE_FLT_SIGN_MASK, ~IEEE_FLT_SIGN_MASK };
+// DG: cast IEEE_FLT_SIGN_MASK to uint before interting it, as uint and not long values are expected here
+#define INV_IEEE_FLT_SIGN_MASK (~((unsigned int)IEEE_FLT_SIGN_MASK))
+ALIGN16( const unsigned int SIMD_SP_absMask[4] )				= { INV_IEEE_FLT_SIGN_MASK, INV_IEEE_FLT_SIGN_MASK, INV_IEEE_FLT_SIGN_MASK, INV_IEEE_FLT_SIGN_MASK };
+// DG end
 ALIGN16( const unsigned int SIMD_SP_indexedStartMask[4][4] )	= { { 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF }, { 0, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF }, { 0, 0, 0xFFFFFFFF, 0xFFFFFFFF }, { 0, 0, 0, 0xFFFFFFFF } };
 ALIGN16( const unsigned int SIMD_SP_indexedEndMask[4][4] )		= { { 0, 0, 0, 0 }, { 0xFFFFFFFF, 0, 0, 0 }, { 0xFFFFFFFF, 0xFFFFFFFF, 0, 0 }, { 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0 } };
 ALIGN16( const unsigned int SIMD_SP_clearLast1[4] )				= { 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0 };

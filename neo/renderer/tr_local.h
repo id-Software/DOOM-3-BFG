@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __TR_LOCAL_H__
 #define __TR_LOCAL_H__
 
-#include "../idlib/precompiled.h"
+#include "precompiled.h"
 
 #include "GLState.h"
 #include "ScreenRect.h"
@@ -1037,12 +1037,8 @@ struct vidMode_t
 		displayHz = 60;
 	}
 	
-	vidMode_t( int widht, int height, int displayHz )
-	{
-		this->width = width;
-		this->height = height;
-		this->displayHz = displayHz;
-	}
+	vidMode_t( int width, int height, int displayHz ) :
+		width( width ), height( height ), displayHz( displayHz ) {}
 	// RB end
 	
 	bool operator==( const vidMode_t& a )

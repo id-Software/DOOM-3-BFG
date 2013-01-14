@@ -26,7 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 #pragma hdrstop
-#include "../idlib/precompiled.h"
+#include "precompiled.h"
 
 #include "snd_local.h"
 
@@ -372,8 +372,10 @@ void idSoundWorldLocal::Update()
 			const bool canMute = channel->CanMute();
 			if( canMute && channel->volumeDB <= DB_SILENCE )
 			{
+#if !defined(USE_OPENAL)
 				channel->Mute();
 				continue;
+#endif
 			}
 			
 			// Calculate the sort key.

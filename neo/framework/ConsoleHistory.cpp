@@ -26,7 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 #pragma hdrstop
-#include "../idlib/precompiled.h"
+#include "precompiled.h"
 #include "ConsoleHistory.h"
 
 idConsoleHistory consoleHistory;
@@ -131,6 +131,9 @@ idStr idConsoleHistory::RetrieveFromHistory( bool backward )
 	{
 		if( downPoint >= numHistory )
 		{
+			// DG: without this you'll get the last-but-one command when pressing UP
+			upPoint = downPoint - 1;
+			// DG end
 			return idStr( "" );
 		}
 		returnLine = downPoint;

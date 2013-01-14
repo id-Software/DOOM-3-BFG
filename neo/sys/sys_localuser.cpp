@@ -26,7 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 #pragma hdrstop
-#include "../idlib/precompiled.h"
+#include "precompiled.h"
 
 extern idCVar fs_savepath;
 
@@ -89,18 +89,22 @@ void idLocalUser::ResetStorageDevice()
 idLocalUser::StorageSizeAvailable
 ========================
 */
+// RB: disabled savegame and profile storage checks, because it fails sometimes without any clear reason
+/*
 bool idLocalUser::StorageSizeAvailable( uint64 minSizeInBytes, int64& neededBytes )
 {
 	int64 size = Sys_GetDriveFreeSpaceInBytes( fs_savepath.GetString() );
-	
+
 	neededBytes = minSizeInBytes - size;
 	if( neededBytes < 0 )
 	{
 		neededBytes = 0;
 	}
-	
+
 	return neededBytes == 0;
 }
+*/
+// RB end
 
 /*
 ========================

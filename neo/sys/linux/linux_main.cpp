@@ -54,11 +54,8 @@ static idStr	savepath;
  */
 const char* Sys_DefaultSavePath()
 {
-#if defined( ID_DEMO_BUILD )
-	sprintf( savepath, "%s/.rbdoom3-demo", getenv( "HOME" ) );
-#else
-	sprintf( savepath, "%s/.rbdoom3", getenv( "HOME" ) );
-#endif
+	sprintf( savepath, "%s/.rbdoom3bfg", getenv( "HOME" ) );
+	
 	return savepath.c_str();
 }
 /*

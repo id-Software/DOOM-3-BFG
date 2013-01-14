@@ -125,7 +125,10 @@ public:
 	// Storage related
 	virtual bool				IsStorageDeviceAvailable() const;					// Only false if the player has chosen to play without a storage device, only possible on 360, if available, everything needs to check for available space
 	virtual void				ResetStorageDevice();
-	virtual bool				StorageSizeAvailable( uint64 minSizeInBytes, int64& neededBytes );
+	
+	// RB: disabled savegame and profile storage checks, because it fails sometimes without any clear reason
+	//virtual bool				StorageSizeAvailable( uint64 minSizeInBytes, int64& neededBytes );
+	// RB end
 	
 	// These set stats within the profile as a enum/value pair
 	virtual void				SetStatInt( int stat, int value );

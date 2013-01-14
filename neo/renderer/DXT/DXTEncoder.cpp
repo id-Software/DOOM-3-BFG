@@ -3735,7 +3735,9 @@ void idDxtEncoder::EmitColorAlphaIndices( const byte* colorBlock, const byte* mi
 		unsigned int b2 = d1 > d0;
 		unsigned int b3 = c3 < 128;
 		
-		result |= ( ( ( b0 & b1 | b3 ) << 1 ) | ( b2 ^ b1 | b3 ) ) << ( i << 1 );
+		// DG: add some parenthesis to appease (often rightly) warning compiler
+		result |= ( ( ( ( b0 & b1 ) | b3 ) << 1 ) | ( ( b2 ^ b1 ) | b3 ) ) << ( i << 1 );
+		// DG end
 	}
 	
 	EmitUInt( result );

@@ -27,7 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
-#include "../idlib/precompiled.h"
+#include "precompiled.h"
 
 #include "tr_local.h"
 
@@ -218,6 +218,11 @@ void idGuiModel::EmitToCurrentView( float modelMatrix[16], bool depthHack )
 	EmitSurfaces( modelMatrix, modelViewMatrix, depthHack, false /* stereoDepthSort */, true /* link as entity */ );
 }
 
+// DG: move function declaration here (=> out of EmitFullScreen() method) because it confused clang
+// (and possibly other compilers that just didn't complain and silently made it a float variable
+// initialized to something, probably 0.0f)
+float GetScreenSeparationForGuis();
+// DG end
 
 /*
 ================
@@ -243,7 +248,6 @@ void idGuiModel::EmitFullScreen()
 	bool stereoEnabled = ( renderSystem->GetStereo3DMode() != STEREO3D_OFF );
 	if( stereoEnabled )
 	{
-		float	GetScreenSeparationForGuis();
 		const float screenSeparation = GetScreenSeparationForGuis();
 		
 		// this will be negated on the alternate eyes, both rendered each frame

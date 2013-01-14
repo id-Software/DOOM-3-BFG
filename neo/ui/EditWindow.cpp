@@ -27,7 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
-#include "../idlib/precompiled.h"
+#include "precompiled.h"
 
 #include "DeviceContext.h"
 #include "Window.h"
@@ -117,7 +117,7 @@ void idEditWindow::CommonInit()
 	sizeBias = 0;
 	lastTextLength = 0;
 	forceScroll = false;
-	password = NULL;
+	password = false; // DG: this is a bool, so use false, not NULL
 	cvar = NULL;
 	liveUpdate = true;
 	readonly = false;
