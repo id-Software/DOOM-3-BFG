@@ -149,6 +149,9 @@ If you have questions concerning this license or the applicable additional terms
 // RB: added <stdint.h> for missing uintptr_t with MinGW
 #include <stdint.h>
 // RB end
+// Yamagi: <stddef.h> for ptrdiff_t on FreeBSD
+#include <stddef.h>
+// Yamagi end
 
 //-----------------------------------------------------
 
