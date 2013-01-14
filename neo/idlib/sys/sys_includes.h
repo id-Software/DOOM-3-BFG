@@ -109,7 +109,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include <windows.h>						// for qgl.h
 
-#elif defined(__linux__)
+#elif defined(__linux__) || defined(__FreeBSD__)
 
 #include <signal.h>
 #include <pthread.h>

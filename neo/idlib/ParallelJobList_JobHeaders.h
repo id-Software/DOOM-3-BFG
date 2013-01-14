@@ -60,8 +60,12 @@ If you have questions concerning this license or the applicable additional terms
 #elif defined(__linux__)
 #include <malloc.h> // DG: _alloca16 needs that
 #include <signal.h>
-#endif
 // RB end
+// Yamagi begin
+#elif defined(__FreeBSD__)
+#include <signal.h>
+#endif
+// Yamagi end
 
 #ifdef _MSC_VER
 #include <intrin.h>
