@@ -1369,7 +1369,7 @@ else()
 	  
 	endif()
 	
-	if(UNIX)	
+	IF("${CMAKE_SYSTEM}" MATCHES "Linux")
 		target_link_libraries(RBDoom3BFG
 			idlib
 			GL
@@ -1380,5 +1380,16 @@ else()
 			${OPENAL_LIBRARY}
 			)
 	endif()
-	
+
+	IF("${CMAKE_SYSTEM}" MATCHES "FreeBSD")
+		target_link_libraries(RBDoom3BFG
+			idlib
+			GL
+			pthread
+			rt
+			${SDLx_LIBRARY}
+			${OPENAL_LIBRARY}
+			)
+	endif()
+    
 endif()
