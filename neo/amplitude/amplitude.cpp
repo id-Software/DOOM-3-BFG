@@ -27,7 +27,6 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include <stdio.h>
-#include <malloc.h>
 #include <string.h>
 #include <math.h>
 #include <stdlib.h>

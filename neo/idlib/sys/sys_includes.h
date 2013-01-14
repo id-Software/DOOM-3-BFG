@@ -117,7 +117,7 @@ If you have questions concerning this license or the applicable additional terms
 #endif // #if defined(_WIN32)
 // RB end
 
-#include <malloc.h>							// no malloc.h on mac or unix
+#include <stdlib.h>							// no malloc.h on mac or unix
 #undef FindText								// fix namespace pollution
 
 
