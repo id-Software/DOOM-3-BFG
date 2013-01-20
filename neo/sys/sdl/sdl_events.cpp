@@ -853,6 +853,16 @@ sysEvent_t Sys_GetEvent()
 				}
 				// DG end
 				
+#if ! SDL_VERSION_ATLEAST(2, 0, 0)
+				// DG: only do this for key-down, don't care about isChar from SDL_KeyToDoom3Key.
+				//     if unicode is not 0 and is translatable to ASCII it should work..
+				if( ev.key.state == SDL_PRESSED && ( ev.key.keysym.unicode & 0xff80 ) == 0 )
+				{
+					c = ev.key.keysym.unicode & 0x7f;
+				}
+				// DG end
+#endif
+				
 				// fall through
 			case SDL_KEYUP:
 			{
@@ -883,7 +893,7 @@ sysEvent_t Sys_GetEvent()
 						}
 						else
 						{
-							if( ev.type == SDL_KEYDOWN )
+							if( ev.type == SDL_KEYDOWN ) // FIXME: don't complain if this was an ASCII char and the console is open?
 								common->Warning( "unmapped SDL key %d (0x%x) scancode %d", ev.key.keysym.sym, ev.key.keysym.unicode, ev.key.keysym.scancode );
 							return res_none;
 						}
@@ -898,13 +908,7 @@ sysEvent_t Sys_GetEvent()
 				
 				if( key == K_BACKSPACE && ev.key.state == SDL_PRESSED )
 					c = key;
-#if ! SDL_VERSION_ATLEAST(2, 0, 0)
-				if( ev.key.state == SDL_PRESSED && isChar && ( ev.key.keysym.unicode & 0xff00 ) == 0 )
-				{
-					c = ev.key.keysym.unicode & 0xff;
-				}
-#endif
-				
+					
 				return res;
 			}
 			
