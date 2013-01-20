@@ -290,7 +290,7 @@ const char * Sys_GetCmdLine() {
 Sys_ReLaunch
 ========================
 */
-void Sys_ReLaunch( void * data, const unsigned int dataSize ) {
+void Sys_ReLaunch() {
 	TCHAR				szPathOrig[MAX_PRINT_MSG];
 	STARTUPINFO			si;
 	PROCESS_INFORMATION	pi;
@@ -298,7 +298,17 @@ void Sys_ReLaunch( void * data, const unsigned int dataSize ) {
 	ZeroMemory( &si, sizeof(si) );
 	si.cb = sizeof(si);
 
-	strcpy( szPathOrig, va( "\"%s\" %s", Sys_EXEPath(), (const char *)data ) );
+	// DG: we don't have function arguments in Sys_ReLaunch() anymore, everyone only passed
+	//     the command-line +" +set com_skipIntroVideos 1" anyway and it was painful on POSIX systems
+	//     so let's just add it here.
+	idStr cmdLine = Sys_GetCmdLine();
+	if( cmdLine.Find( "com_skipIntroVideos" ) < 0 )
+	{
+		cmdLine.Append( " +set com_skipIntroVideos 1" );
+	}
+
+	strcpy( szPathOrig, va( "\"%s\" %s", Sys_EXEPath(), cmdLine.c_str() ) );
+	// DG end
 
 	CloseHandle( hProcessMutex );
 
