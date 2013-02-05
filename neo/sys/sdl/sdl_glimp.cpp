@@ -319,7 +319,7 @@ static int ScreenParmsHandleDisplayIndex( glimpParms_t parms )
 	}
 	else // -2 == use current display
 	{
-		displayIdx = SDL_GetWindowDisplay( window );
+		displayIdx = SDL_GetWindowDisplayIndex( window );
 		if( displayIdx < 0 ) // for some reason the display for the window couldn't be detected
 			displayIdx = 0;
 	}
