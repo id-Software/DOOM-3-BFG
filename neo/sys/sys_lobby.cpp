@@ -339,6 +339,7 @@ void idLobby::Shutdown( bool retainMigrationInfo, bool skipGoodbye )
 idLobby::HandlePacket
 ========================
 */
+// FIXME: remoteAddress const?
 void idLobby::HandlePacket( lobbyAddress_t& remoteAddress, idBitMsg fragMsg, idPacketProcessor::sessionId_t sessionID )
 {
 	SCOPED_PROFILE_EVENT( "HandlePacket" );
@@ -1857,7 +1858,7 @@ int idLobby::HandleInitialPeerConnection( idBitMsg& msg, const lobbyAddress_t& p
 	
 	if( !IsHost() )
 	{
-		NET_VERBOSE_PRINT( "NET: Got connectionless hello from peer %s on session, and we are not a host\n", peerAddress.ToString() );
+		NET_VERBOSE_PRINT( "NET: Got connectionless hello from peer %s (num %i) on session, and we are not a host\n", peerAddress.ToString(), peerNum );
 		SendGoodbye( peerAddress );
 		return -1;
 	}

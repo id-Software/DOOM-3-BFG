@@ -103,10 +103,12 @@ void idLobbyBackendDirect::JoinFromConnectInfo( const lobbyConnectInfo_t& connec
 	{
 		Sys_StringToNetAdr( "localhost", &address, true );
 		address.port = net_port.GetInteger();
+		NET_VERBOSE_PRINT( "NET: idLobbyBackendDirect::JoinFromConnectInfo(): canJoinLocalHost\n" );
 	}
 	else
 	{
 		address = connectInfo.netAddr;
+		NET_VERBOSE_PRINT( "NET: idLobbyBackendDirect::JoinFromConnectInfo(): %s\n", Sys_NetAdrToString( address ) );
 	}
 	
 	state		= STATE_READY;
@@ -176,7 +178,7 @@ lobbyConnectInfo_t idLobbyBackendDirect::GetConnectInfo()
 	if( IsHost() )
 	{
 		// If we are the host, give them our ip address
-		const char* ip = Sys_GetLocalIP( 0 );
+		const char* ip = Sys_GetLocalIP( 0 ); // XXX: ohweiha.
 		Sys_StringToNetAdr( ip, &address, false );
 		address.port = net_port.GetInteger();
 	}

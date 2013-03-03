@@ -1128,6 +1128,7 @@ bool idSessionLocal::State_Create_And_Move_To_Game_Lobby()
 		
 		// Now that we've created our game lobby, send our own party users to it
 		// NOTE - We pass in false to wait on party members since we are the host, and we know they can connect to us
+		// TODO: special handling of ourselves here?
 		GetPartyLobby().SendMembersToLobby( GetGameLobby(), false );
 		return true;
 	}
@@ -1591,7 +1592,7 @@ idSession::~idSession()
 	dedicatedServerSearch = NULL;
 }
 
-idCVar net_verbose( "net_verbose", "0", CVAR_BOOL, "Print a bunch of message about the network session" );
+idCVar net_verbose( "net_verbose", "0", CVAR_BOOL | CVAR_NOCHEAT, "Print a bunch of message about the network session" );
 idCVar net_verboseResource( "net_verboseResource", "0", CVAR_BOOL, "Prints a bunch of message about network resources" );
 idCVar net_verboseReliable( "net_verboseReliable", "0", CVAR_BOOL, "Prints the more spammy messages about reliable network msgs" );
 idCVar si_splitscreen( "si_splitscreen", "0", CVAR_INTEGER, "force splitscreen" );

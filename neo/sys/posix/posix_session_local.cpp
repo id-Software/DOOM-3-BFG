@@ -402,7 +402,7 @@ void idSessionLocalWin::Connect_f( const idCmdArgs& args )
 	lobbyConnectInfo_t connectInfo;
 	
 	Sys_StringToNetAdr( args.Argv( 1 ), &connectInfo.netAddr, true );
-	connectInfo.netAddr.port = net_port.GetInteger();
+	connectInfo.netAddr.port = net_port.GetInteger(); // FIXME: really? what if it was specified in the connect cmd?
 	
 	ConnectAndMoveToLobby( GetPartyLobby(), connectInfo, false );
 }
@@ -600,6 +600,7 @@ idSessionLocalWin::EnsurePort
 */
 void idSessionLocalWin::EnsurePort()
 {
+	// XXX: fucked up?
 	// Init the port using reqular windows sockets
 	if( port.IsOpen() )
 	{

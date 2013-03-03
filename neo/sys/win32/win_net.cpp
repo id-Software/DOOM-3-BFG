@@ -61,7 +61,7 @@ idCVar net_socksPort( "net_socksPort", "1080", CVAR_ARCHIVE | CVAR_INTEGER, "" )
 idCVar net_socksUsername( "net_socksUsername", "", CVAR_ARCHIVE, "" );
 idCVar net_socksPassword( "net_socksPassword", "", CVAR_ARCHIVE, "" );
 
-idCVar net_ip( "net_ip", "localhost", 0, "local IP address" );
+idCVar net_ip( "net_ip", "localhost", CVAR_NOCHEAT, "local IP address" );
 
 static struct sockaddr_in	socksRelayAddr;
 
@@ -684,7 +684,9 @@ bool Net_GetUDPPacket( int netSocket, netadr_t& net_from, char* data, int& size,
 		idLib::Printf( buf );
 		return false;
 	}
-	
+#if 0
+	// DG: ip_socket is never initialized, so this is dead code
+	// - and if netSocket is 0 (so this would be true) recvfrom above will already fail
 	if( static_cast<unsigned int>( netSocket ) == ip_socket )
 	{
 		memset( from.sin_zero, 0, sizeof( from.sin_zero ) );
@@ -706,8 +708,12 @@ bool Net_GetUDPPacket( int netSocket, netadr_t& net_from, char* data, int& size,
 	}
 	else
 	{
+#endif // 0
+	
 		Net_SockadrToNetadr( &from, &net_from );
+#if 0
 	}
+#endif
 	
 	if( ret > maxSize )
 	{
@@ -1177,3 +1183,4 @@ void idUDP::SendPacket( const netadr_t to, const void* data, int size )
 	
 	Net_SendUDPPacket( netSocket, size, data, to );
 }
+
