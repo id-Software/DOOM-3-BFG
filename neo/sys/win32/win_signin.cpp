@@ -39,6 +39,11 @@ idCVar win_isInParty( "win_isInParty", "0", CVAR_BOOL, "debugging cvar for platf
 idCVar win_partyCount( "win_partyCount", "0", CVAR_INTEGER, "debugginc var for platform party count" );
 #endif
 
+// DG: D3BFG got the username from steam, in the GPL release it just uses the hostname.
+//     this adds a name to set a player name
+idCVar ui_name( "ui_name", "", CVAR_ARCHIVE, "player name - leave empty for default name (system's hostname)" );
+// DG end
+
 /*
 ========================
 idSignInManagerWin::Shutdown
@@ -104,10 +109,16 @@ void idSignInManagerWin::RegisterLocalUser( int inputDevice )
 	}
 	
 	static char machineName[128];
-	DWORD len = 128;
-	::GetComputerName( machineName, &len );
+	// DG: support for ui_name
+	const char* nameSource = ui_name.GetString();
 	
-	const char* nameSource = machineName;
+	if( idStr::Length( nameSource ) == 0 )
+	{
+		DWORD len = 128;
+		::GetComputerName( machineName, &len );
+		nameSource = machineName;
+	}
+	// DG end
 	
 	idStr name( nameSource );
 	int nameLength = name.Length();

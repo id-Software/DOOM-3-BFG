@@ -41,6 +41,11 @@ idCVar win_isInParty( "win_isInParty", "0", CVAR_BOOL, "debugging cvar for platf
 idCVar win_partyCount( "win_partyCount", "0", CVAR_INTEGER, "debugginc var for platform party count" );
 #endif
 
+// DG: D3BFG got the username from steam, in the GPL release it just uses the hostname.
+//     this adds a name to set a player name
+idCVar ui_name( "ui_name", "", CVAR_ARCHIVE, "player name - leave empty for default name (system's hostname)" );
+// DG end
+
 /*
 ========================
 idSignInManagerWin::Shutdown
@@ -106,9 +111,16 @@ void idSignInManagerWin::RegisterLocalUser( int inputDevice )
 	}
 	
 	static char machineName[128];
-	gethostname( machineName, sizeof( machineName ) );
+	// DG: support for ui_name
+	const char* nameSource = ui_name.GetString();
 	
-	const char* nameSource = machineName;
+	if( idStr::Length( nameSource ) == 0 )
+	{
+		// ui_name was empty => default to hostname
+		gethostname( machineName, sizeof( machineName ) );
+		nameSource = machineName;
+	}
+	// DG end
 	
 	idStr name( nameSource );
 	int nameLength = name.Length();
@@ -123,6 +135,8 @@ void idSignInManagerWin::RegisterLocalUser( int inputDevice )
 			name.AppendUTF8Char( c );
 		}
 	}
+	
+	idLib::Printf( "Added local user: %s\n", name.c_str() );
 	
 	idLocalUserWin& localUser = *localUsers.Alloc();
 	
