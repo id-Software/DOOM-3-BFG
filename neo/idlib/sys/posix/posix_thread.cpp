@@ -266,9 +266,11 @@ bool idSysSignal::Wait( int timeout )
 			{
 				timespec ts;
 				clock_gettime( CLOCK_REALTIME, &ts );
-				
-				ts.tv_nsec += ( timeout * 1000000 );
-				
+				// DG: handle timeouts > 1s better
+				int64 t = timeout * 1000000;
+				ts.tv_nsec += t % 1000000000;
+				ts.tv_sec  += t / 1000000000;
+				// DG end
 				result = pthread_cond_timedwait( &cond, &mutex, &ts );
 				
 				assert( result == 0 || ( timeout != idSysSignal::WAIT_INFINITE && result == ETIMEDOUT ) );

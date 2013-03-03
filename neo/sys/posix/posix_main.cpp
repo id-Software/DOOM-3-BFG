@@ -182,6 +182,14 @@ Sys_Milliseconds
    timeval:tv_sec is an int:
    assuming this wraps every 0x7fffffff - ~68 years since the Epoch (1970) - we're safe till 2038
    using unsigned long data type to work right with Sys_XTimeToSysTime */
+
+#ifdef CLOCK_MONOTONIC_RAW
+// use RAW monotonic clock if available (=> not subject to NTP etc)
+#define D3_CLOCK_TO_USE CLOCK_MONOTONIC_RAW
+#else
+#define D3_CLOCK_TO_USE CLOCK_MONOTONIC
+#endif
+
 // RB: changed long to int
 unsigned int sys_timeBase = 0;
 // RB end
@@ -192,23 +200,12 @@ unsigned int sys_timeBase = 0;
 */
 int Sys_Milliseconds()
 {
-	// RB: clock_gettime should be a good replacement on Android
-	// because gettimeofday() seemed to cause a 64 bit emulation and performance penalty
-#if defined(__ANDROID__)
-#if 0
+	// DG: use clock_gettime on all platforms
+#if 1
 	int curtime;
 	struct timespec ts;
 	
-	clock_gettime( CLOCK_MONOTONIC, &ts );
-	
-	curtime = ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
-	
-	return curtime;
-#else
-	int curtime;
-	struct timespec ts;
-	
-	clock_gettime( CLOCK_MONOTONIC, &ts );
+	clock_gettime( D3_CLOCK_TO_USE, &ts );
 	
 	if( !sys_timeBase )
 	{
@@ -219,24 +216,25 @@ int Sys_Milliseconds()
 	curtime = ( ts.tv_sec - sys_timeBase ) * 1000 + ts.tv_nsec / 1000000;
 	
 	return curtime;
-#endif
-// RB end
 #else
+	// gettimeofday() implementation
 	int curtime;
 	struct timeval tp;
-
+	
 	gettimeofday( &tp, NULL );
-
+	
 	if( !sys_timeBase )
 	{
 		sys_timeBase = tp.tv_sec;
 		return tp.tv_usec / 1000;
 	}
-
+	
 	curtime = ( tp.tv_sec - sys_timeBase ) * 1000 + tp.tv_usec / 1000;
-
+	
 	return curtime;
+	* /
 #endif
+	// DG end
 }
 
 // RB: added for BFG
@@ -270,15 +268,15 @@ uint64 Sys_Microseconds()
 	
 	return curtime;
 #else
-	int curtime;
+	uint64 curtime;
 	struct timespec ts;
 	
-	clock_gettime( CLOCK_MONOTONIC, &ts );
+	clock_gettime( D3_CLOCK_TO_USE, &ts );
 	
 	if( !sys_microTimeBase )
 	{
 		sys_microTimeBase = ts.tv_sec;
-		return ts.tv_nsec / 1000000;
+		return ts.tv_nsec / 1000;
 	}
 	
 	curtime = ( ts.tv_sec - sys_microTimeBase ) * 1000000 + ts.tv_nsec / 1000;
