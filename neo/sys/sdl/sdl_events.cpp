@@ -880,16 +880,13 @@ sysEvent_t Sys_GetEvent()
 					
 					if( key == 0 )
 					{
-						unsigned char c;
-						
+					
+						unsigned char uc = ev.key.keysym.unicode & 0xff;
 						// check if its an unmapped console key
-						if( ev.key.keysym.unicode == ( c = Sys_GetConsoleKey( false ) ) )
+						if( uc == Sys_GetConsoleKey( false ) || uc == Sys_GetConsoleKey( true ) )
 						{
-							key = c;
-						}
-						else if( ev.key.keysym.unicode == ( c = Sys_GetConsoleKey( true ) ) )
-						{
-							key = c;
+							key = K_GRAVE;
+							c = K_BACKSPACE; // bad hack to get empty console inputline..
 						}
 						else
 						{
