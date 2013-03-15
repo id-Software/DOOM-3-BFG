@@ -1576,7 +1576,7 @@ void idLobby::SendConnectionRequest()
 	// Add the current version info to the handshake
 	const unsigned int localChecksum = NetGetVersionChecksum(); // DG: use int instead of long for 64bit compatibility
 	
-	NET_VERBOSE_PRINT( "NET: version = %i\n", localChecksum );
+	NET_VERBOSE_PRINT( "NET: version = %u\n", localChecksum );
 	
 	msg.WriteLong( localChecksum );
 	msg.WriteUShort( peers[host].sessionID );
@@ -1761,7 +1761,7 @@ bool idLobby::CheckVersion( idBitMsg& msg, lobbyAddress_t peerAddress )
 	{
 		const unsigned int localChecksum = NetGetVersionChecksum(); // DG: use int instead of long for 64bit compatibility
 		
-		NET_VERBOSE_PRINT( "NET: Comparing handshake version - localChecksum = %i, remoteChecksum = %i\n", localChecksum, remoteChecksum );
+		NET_VERBOSE_PRINT( "NET: Comparing handshake version - localChecksum = %u, remoteChecksum = %u\n", localChecksum, remoteChecksum );
 		return ( remoteChecksum == localChecksum );
 	}
 	return true;

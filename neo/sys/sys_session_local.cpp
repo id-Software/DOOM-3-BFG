@@ -110,7 +110,7 @@ unsigned int NetGetVersionChecksum()
 	CRC32_FinishChecksum( ret );
 	
 	NET_VERBOSE_PRINT( "NetGetVersionChecksum - string   : %s\n", netVersion.string );
-	NET_VERBOSE_PRINT( "NetGetVersionChecksum - checksum : %i\n", ret );
+	NET_VERBOSE_PRINT( "NetGetVersionChecksum - checksum : %u\n", ret );
 	return ret;
 #endif
 }
@@ -4593,7 +4593,7 @@ void idSessionLocal::ListServersCommon()
 	// Add the current version info to the query
 	const unsigned int localChecksum = NetGetVersionChecksum(); // DG: use int instead of long for 64bit compatibility
 	
-	NET_VERBOSE_PRINT( "ListServers: Hash checksum: %i, broadcasting to: %s\n", localChecksum, address.ToString() );
+	NET_VERBOSE_PRINT( "ListServers: Hash checksum: %u, broadcasting to: %s\n", localChecksum, address.ToString() );
 	
 	msg.WriteLong( localChecksum );
 	
