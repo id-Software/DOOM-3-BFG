@@ -388,7 +388,7 @@ void idSessionLocalWin::Connect_f( const idCmdArgs& args )
 {
 	if( args.Argc() < 2 )
 	{
-		idLib::Printf( "Usage: Connect to IP.  Use with net_port. \n" );
+		idLib::Printf( "Usage: Connect to IP. Use IP:Port to specify port (e.g. 10.0.0.1:1234) \n" );
 		return;
 	}
 	
@@ -402,7 +402,10 @@ void idSessionLocalWin::Connect_f( const idCmdArgs& args )
 	lobbyConnectInfo_t connectInfo;
 	
 	Sys_StringToNetAdr( args.Argv( 1 ), &connectInfo.netAddr, true );
-	connectInfo.netAddr.port = net_port.GetInteger(); // FIXME: really? what if it was specified in the connect cmd?
+	if( connectInfo.netAddr.port == 0 )
+	{
+		connectInfo.netAddr.port = 27015;
+	}
 	
 	ConnectAndMoveToLobby( GetPartyLobby(), connectInfo, false );
 }
@@ -600,8 +603,7 @@ idSessionLocalWin::EnsurePort
 */
 void idSessionLocalWin::EnsurePort()
 {
-	// XXX: fucked up?
-	// Init the port using reqular windows sockets
+	// Init the port using reqular sockets
 	if( port.IsOpen() )
 	{
 		return;		// Already initialized
@@ -609,6 +611,7 @@ void idSessionLocalWin::EnsurePort()
 	
 	if( port.InitPort( net_port.GetInteger(), false ) )
 	{
+		// TODO: what about canJoinLocalHost when running two instances with different net_port values?
 		canJoinLocalHost = false;
 	}
 	else
