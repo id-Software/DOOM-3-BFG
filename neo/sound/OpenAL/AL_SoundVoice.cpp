@@ -130,7 +130,7 @@ void idSoundVoice_OpenAL::Create( const idSoundSample* leadinSample_, const idSo
 		alSourcef( openalSource, AL_ROLLOFF_FACTOR, 0.0f );
 		
 		//if( ( loopingSample == NULL && leadinSample->openalBuffer != 0 ) || ( loopingSample != NULL && soundShader->entries[0]->hardwareBuffer ) )
-		if( leadinSample->openalBuffer != NULL )
+		if( leadinSample->openalBuffer != 0 )
 		{
 			alSourcei( openalSource, AL_BUFFER, 0 );
 			
