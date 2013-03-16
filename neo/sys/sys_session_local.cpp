@@ -1128,7 +1128,6 @@ bool idSessionLocal::State_Create_And_Move_To_Game_Lobby()
 		
 		// Now that we've created our game lobby, send our own party users to it
 		// NOTE - We pass in false to wait on party members since we are the host, and we know they can connect to us
-		// TODO: special handling of ourselves here?
 		GetPartyLobby().SendMembersToLobby( GetGameLobby(), false );
 		return true;
 	}
