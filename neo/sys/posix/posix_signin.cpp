@@ -31,9 +31,9 @@ If you have questions concerning this license or the applicable additional terms
 #include "../../framework/PlayerProfile.h"
 #include "../sys_session_local.h"
 #include "posix_signin.h"
-
+#ifndef _WIN32
 #include <unistd.h>
-
+#endif
 #ifdef _DEBUG
 idCVar win_userPersistent( "win_userPersistent", "1", CVAR_BOOL, "debugging cvar for profile persistence status" );
 idCVar win_userOnline( "win_userOnline", "1", CVAR_BOOL, "debugging cvar for profile online status" );
@@ -117,7 +117,12 @@ void idSignInManagerWin::RegisterLocalUser( int inputDevice )
 	if( idStr::Length( nameSource ) == 0 )
 	{
 		// ui_name was empty => default to hostname
+#ifdef _WIN32
+		DWORD len = 128;
+		::GetComputerName( machineName, &len );
+#else
 		gethostname( machineName, sizeof( machineName ) );
+#endif
 		nameSource = machineName;
 	}
 	// DG end
