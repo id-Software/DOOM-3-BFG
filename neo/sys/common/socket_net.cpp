@@ -36,10 +36,10 @@ Note that other POSIX systems may need some small changes, e.g. in Sys_InitNetwo
 ================================================================================================
 */
 
-#ifdef _WIN32
-
 #pragma hdrstop
 #include "precompiled.h"
+
+#ifdef _WIN32
 
 #include <iptypes.h>
 #include <iphlpapi.h>
@@ -68,7 +68,6 @@ Note that other POSIX systems may need some small changes, e.g. in Sys_InitNetwo
 #include <ifaddrs.h>
 #endif
 
-#include "../../idlib/precompiled.h"
 #endif // _WIN32
 
 /*
@@ -88,9 +87,11 @@ real POSIX sockets away..
 #define D3_NET_ECONNRESET    WSAECONNRESET
 #define D3_NET_EADDRNOTAVAIL WSAEADDRNOTAVAIL
 
+typedef ULONG in_addr_t;
+typedef int socklen_t;
+
 static WSADATA	winsockdata;
 static bool	winsockInitialized = false;
-static bool usingSocks = false;
 
 #else // ! _WIN32
 
@@ -440,7 +441,7 @@ int NET_IPSocket( const char* bind_ip, int port, netadr_t* bound_to )
 	
 	// make it broadcast capable
 	int i = 1;
-	if( setsockopt( newsocket, SOL_SOCKET, SO_BROADCAST, ( void* )&i, sizeof( i ) ) == SOCKET_ERROR )
+	if( setsockopt( newsocket, SOL_SOCKET, SO_BROADCAST, ( char* )&i, sizeof( i ) ) == SOCKET_ERROR )
 	{
 		idLib::Printf( "WARNING: UDP_OpenSocket: setsockopt SO_BROADCAST: %s\n", NET_ErrorString() );
 		closesocket( newsocket );
@@ -732,7 +733,7 @@ bool Net_WaitForData( int netSocket, int timeout )
 Net_GetUDPPacket
 ========================
 */
-bool Net_GetUDPPacket( int netSocket, netadr_t& net_from, void* data, int& size, int maxSize )
+bool Net_GetUDPPacket( int netSocket, netadr_t& net_from, char* data, int& size, int maxSize )
 {
 	int 			ret;
 	sockaddr_in		from;
@@ -1356,7 +1357,7 @@ idUDP::GetPacket
 bool idUDP::GetPacket( netadr_t& from, void* data, int& size, int maxSize )
 {
 	// DG: this fake while(1) loop pissed me off so I replaced it.. no functional change.
-	if( ! Net_GetUDPPacket( netSocket, from, data, size, maxSize ) )
+	if( ! Net_GetUDPPacket( netSocket, from, ( char* )data, size, maxSize ) )
 	{
 		return false;
 	}

@@ -28,7 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "precompiled.h"
 
-#include "win_achievements.h"
+#include "achievements.h"
 #include "../sys_session_local.h"
 
 extern idCVar achievements_Verbose;
