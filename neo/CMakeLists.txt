@@ -712,16 +712,11 @@ file(GLOB_RECURSE WIN32_INCLUDES sys/win32/*.h)
 #file(GLOB_RECURSE WIN32_SOURCES sys/win32/*.cpp)
 
 set(WIN32_SOURCES
-	sys/win32/win_achievements.cpp
 	sys/win32/win_glimp.cpp
 	sys/win32/win_input.cpp
-	sys/win32/win_localuser.cpp
 	sys/win32/win_main.cpp
 	sys/win32/win_qgl.cpp
-	sys/win32/win_savegame.cpp
-	sys/win32/win_session_local.cpp
 	sys/win32/win_shared.cpp
-	sys/win32/win_signin.cpp
 	sys/win32/win_snd.cpp
 	sys/win32/win_syscon.cpp
 	sys/win32/win_taskkeyhook.cpp
