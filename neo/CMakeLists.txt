@@ -717,7 +717,6 @@ set(WIN32_SOURCES
 	sys/win32/win_input.cpp
 	sys/win32/win_localuser.cpp
 	sys/win32/win_main.cpp
-	sys/win32/win_net.cpp
 	sys/win32/win_qgl.cpp
 	sys/win32/win_savegame.cpp
 	sys/win32/win_session_local.cpp
@@ -807,6 +806,9 @@ set(WIN32_RESOURCES
 
 file(GLOB POSIX_INCLUDES sys/posix/*.h)
 file(GLOB POSIX_SOURCES sys/posix/*.cpp)
+
+file(GLOB COMMON_INCLUDES sys/common/*.h)
+file(GLOB COMMON_SOURCES sys/common/*.cpp)
 
 file(GLOB SDL_INCLUDES sys/sdl/*.h)
 file(GLOB SDL_SOURCES sys/sdl/*.cpp)
@@ -909,6 +911,9 @@ source_group("sys\\win32\\Resources" FILES ${WIN32_RESOURCES})
 source_group("sys\\posix" FILES ${POSIX_INCLUDES})
 source_group("sys\\posix" FILES ${POSIX_SOURCES})
 
+source_group("sys\\common" FILES ${COMMON_INCLUDES})
+source_group("sys\\common" FILES ${COMMON_SOURCES})
+
 source_group("sys\\sdl" FILES ${SDL_INCLUDES})
 source_group("sys\\sdl" FILES ${SDL_SOURCES})
 
@@ -986,6 +991,7 @@ set(RBDOOM3_INCLUDES
 			#${OGGVORBIS_INCLUDES}
 			${UI_INCLUDES}
 			${SWF_INCLUDES}
+			${COMMON_INCLUDES}
 			
 			#${COMPILER_INCLUDES}
 			#${COMPILER_AAS_INCLUDES} ${COMPILER_AAS_SOURCES}
@@ -1011,6 +1017,7 @@ set(RBDOOM3_SOURCES
 			#${OGGVORBIS_INCLUDES} ${OGGVORBIS_SOURCES}
 			${UI_SOURCES}
 			${SWF_SOURCES}
+			${COMMON_SOURCES}
 			
 			#${COMPILER_AAS_SOURCES}
 			#${COMPILER_DMAP_SOURCES}
