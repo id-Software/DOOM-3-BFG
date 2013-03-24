@@ -1197,6 +1197,10 @@ void idRenderWorldLocal::ShowPortals()
 				GL_Color( 0, 1, 0 );
 			}
 			
+			// RB begin
+			renderProgManager.CommitUniforms();
+			// RB end
+			
 			qglBegin( GL_LINE_LOOP );
 			for( j = 0; j < w->GetNumPoints(); j++ )
 			{

@@ -86,6 +86,9 @@ void idRenderProgManager::Init()
 	{
 		{ BUILTIN_GUI, "gui.vfp" },
 		{ BUILTIN_COLOR, "color.vfp" },
+		// RB begin
+		{ BUILTIN_VERTEXCOLOR, "vertex_color.vfp" },
+		// RB end
 		{ BUILTIN_SIMPLESHADE, "simpleshade.vfp" },
 		{ BUILTIN_TEXTURED, "texture.vfp" },
 		{ BUILTIN_TEXTURE_VERTEXCOLOR, "texture_color.vfp" },

@@ -153,58 +153,79 @@ public:
 	{
 		BindShader_Builtin( BUILTIN_GUI );
 	}
+	
 	void	BindShader_Color( )
 	{
 		BindShader_Builtin( BUILTIN_COLOR );
 	}
+	
+	// RB begin
+	void	BindShader_VertexColor( )
+	{
+		BindShader_Builtin( BUILTIN_VERTEXCOLOR );
+	}
+	// RB end
+	
 	void	BindShader_Texture( )
 	{
 		BindShader_Builtin( BUILTIN_TEXTURED );
 	}
+	
 	void	BindShader_TextureVertexColor()
 	{
 		BindShader_Builtin( BUILTIN_TEXTURE_VERTEXCOLOR );
 	};
+	
 	void	BindShader_TextureVertexColorSkinned()
 	{
 		BindShader_Builtin( BUILTIN_TEXTURE_VERTEXCOLOR_SKINNED );
 	};
+	
 	void	BindShader_TextureTexGenVertexColor()
 	{
 		BindShader_Builtin( BUILTIN_TEXTURE_TEXGEN_VERTEXCOLOR );
 	};
+	
 	void	BindShader_Interaction()
 	{
 		BindShader_Builtin( BUILTIN_INTERACTION );
 	}
+	
 	void	BindShader_InteractionSkinned()
 	{
 		BindShader_Builtin( BUILTIN_INTERACTION_SKINNED );
 	}
+	
 	void	BindShader_InteractionAmbient()
 	{
 		BindShader_Builtin( BUILTIN_INTERACTION_AMBIENT );
 	}
+	
 	void	BindShader_InteractionAmbientSkinned()
 	{
 		BindShader_Builtin( BUILTIN_INTERACTION_AMBIENT_SKINNED );
 	}
+	
 	void	BindShader_SimpleShade()
 	{
 		BindShader_Builtin( BUILTIN_SIMPLESHADE );
 	}
+	
 	void	BindShader_Environment()
 	{
 		BindShader_Builtin( BUILTIN_ENVIRONMENT );
 	}
+	
 	void	BindShader_EnvironmentSkinned()
 	{
 		BindShader_Builtin( BUILTIN_ENVIRONMENT_SKINNED );
 	}
+	
 	void	BindShader_BumpyEnvironment()
 	{
 		BindShader_Builtin( BUILTIN_BUMPY_ENVIRONMENT );
 	}
+	
 	void	BindShader_BumpyEnvironmentSkinned()
 	{
 		BindShader_Builtin( BUILTIN_BUMPY_ENVIRONMENT_SKINNED );
@@ -214,22 +235,27 @@ public:
 	{
 		BindShader_Builtin( BUILTIN_DEPTH );
 	}
+	
 	void	BindShader_DepthSkinned()
 	{
 		BindShader_Builtin( BUILTIN_DEPTH_SKINNED );
 	}
+	
 	void	BindShader_Shadow()
 	{
 		BindShader( builtinShaders[BUILTIN_SHADOW], -1 );
 	}
+	
 	void	BindShader_ShadowSkinned()
 	{
 		BindShader( builtinShaders[BUILTIN_SHADOW_SKINNED], -1 );
 	}
+	
 	void	BindShader_ShadowDebug()
 	{
 		BindShader_Builtin( BUILTIN_SHADOW_DEBUG );
 	}
+	
 	void	BindShader_ShadowDebugSkinned()
 	{
 		BindShader_Builtin( BUILTIN_SHADOW_DEBUG_SKINNED );
@@ -239,50 +265,62 @@ public:
 	{
 		BindShader_Builtin( BUILTIN_BLENDLIGHT );
 	}
+	
 	void	BindShader_Fog()
 	{
 		BindShader_Builtin( BUILTIN_FOG );
 	}
+	
 	void	BindShader_FogSkinned()
 	{
 		BindShader_Builtin( BUILTIN_FOG_SKINNED );
 	}
+	
 	void	BindShader_SkyBox()
 	{
 		BindShader_Builtin( BUILTIN_SKYBOX );
 	}
+	
 	void	BindShader_WobbleSky()
 	{
 		BindShader_Builtin( BUILTIN_WOBBLESKY );
 	}
+	
 	void	BindShader_StereoDeGhost()
 	{
 		BindShader_Builtin( BUILTIN_STEREO_DEGHOST );
 	}
+	
 	void	BindShader_StereoWarp()
 	{
 		BindShader_Builtin( BUILTIN_STEREO_WARP );
 	}
+	
 	void	BindShader_StereoInterlace()
 	{
 		BindShader_Builtin( BUILTIN_STEREO_INTERLACE );
 	}
+	
 	void	BindShader_PostProcess()
 	{
 		BindShader_Builtin( BUILTIN_POSTPROCESS );
 	}
+	
 	void	BindShader_ZCullReconstruct()
 	{
 		BindShader_Builtin( BUILTIN_ZCULL_RECONSTRUCT );
 	}
+	
 	void	BindShader_Bink()
 	{
 		BindShader_Builtin( BUILTIN_BINK );
 	}
+	
 	void	BindShader_BinkGUI()
 	{
 		BindShader_Builtin( BUILTIN_BINK_GUI );
 	}
+	
 	void	BindShader_MotionBlur()
 	{
 		BindShader_Builtin( BUILTIN_MOTION_BLUR );
@@ -325,6 +363,9 @@ protected:
 	{
 		BUILTIN_GUI,
 		BUILTIN_COLOR,
+		// RB begin
+		BUILTIN_VERTEXCOLOR,
+		// RB end
 		BUILTIN_SIMPLESHADE,
 		BUILTIN_TEXTURED,
 		BUILTIN_TEXTURE_VERTEXCOLOR,
