@@ -45,8 +45,19 @@ typedef CRITICAL_SECTION		mutexHandle_t;
 typedef HANDLE					signalHandle_t;
 typedef LONG					interlockedInt_t;
 #else
+
+struct signalHandle_t
+{
+	// DG: all this stuff is needed to emulate Window's Event API
+	//     (CreateEvent(), SetEvent(), WaitForSingleObject(), ...)
+	pthread_cond_t cond;
+	pthread_mutex_t mutex;
+	int waiting; // number of threads waiting for a signal
+	bool manualReset;
+	bool signaled; // is it signaled right now?
+};
+
 typedef pthread_mutex_t			mutexHandle_t;
-typedef pthread_cond_t			signalHandle_t;
 typedef int						interlockedInt_t;
 #endif
 // RB end
@@ -195,15 +206,11 @@ uintptr_t			Sys_CreateThread( xthread_t function, void* parms, xthreadPriority p
 void				Sys_DestroyThread( uintptr_t threadHandle );
 void				Sys_SetCurrentThreadName( const char* name );
 
-// use alternative pthread implementation in idSysSignal
-#if defined(_WIN32)
 void				Sys_SignalCreate( signalHandle_t& handle, bool manualReset );
 void				Sys_SignalDestroy( signalHandle_t& handle );
 void				Sys_SignalRaise( signalHandle_t& handle );
 void				Sys_SignalClear( signalHandle_t& handle );
 bool				Sys_SignalWait( signalHandle_t& handle, int timeout );
-#endif
-// RB end
 
 void				Sys_MutexCreate( mutexHandle_t& handle );
 void				Sys_MutexDestroy( mutexHandle_t& handle );
