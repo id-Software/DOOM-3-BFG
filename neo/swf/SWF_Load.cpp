@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -33,6 +34,10 @@ If you have questions concerning this license or the applicable additional terms
 
 #define BSWF_VERSION 16		// bumped to 16 for storing atlas image dimensions for unbuffered loads
 #define BSWF_MAGIC ( ( 'B' << 24 ) | ( 'S' << 16 ) | ( 'W' << 8 ) | BSWF_VERSION )
+
+// RB begin
+#define XSWF_VERSION 16
+// RB end
 
 /*
 ===================
@@ -529,6 +534,7 @@ void idSWF::WriteBinary( const char* bfilename )
 	}
 }
 
+<<<<<<< HEAD
 /*
 ===================
 idSWF::FileAttributes
@@ -559,3 +565,447 @@ void idSWF::SetBackgroundColor( idSWFBitStream& bitstream )
 {
 	bitstream.Seek( 4 ); // int
 }
+=======
+
+// RB begin
+
+/*
+===================
+idSWF::WriteXML
+===================
+*/
+void idSWF::WriteXML( const char* filename )
+{
+	idFileLocal file( fileSystem->OpenFileWrite( filename, "fs_basepath" ) );
+	if( file == NULL )
+	{
+		return;
+	}
+	
+	file->WriteFloatString( "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" );
+	file->WriteFloatString( "<XSWF version=\"%i\" timestamp=\"%i\" frameWidth=\"%f\" frameHeight=\"%f\" frameRate=\"%i\">\n", XSWF_VERSION, timestamp, frameWidth, frameHeight, frameRate );
+	
+	//file->WriteBig( BSWF_MAGIC );
+	//file->WriteBig( timestamp );
+	
+	
+	//file->WriteBig( frameWidth );
+	//file->WriteBig( frameHeight );
+	//file->WriteBig( frameRate );
+	
+	mainsprite->WriteXML( file );
+	
+	file->WriteFloatString( "\t<Dictionary>\n" );
+	for( int i = 0; i < dictionary.Num(); i++ )
+	{
+		const idSWFDictionaryEntry& entry = dictionary[i];
+		
+		//file->WriteFloatString( "\t<DictionaryEntry type=\"%s\">\n", idSWF::GetDictTypeName( dictionary[i].type ) );
+		switch( dictionary[i].type )
+		{
+			case SWF_DICT_IMAGE:
+			{
+				file->WriteFloatString( "\t\t<Image material=\"" );
+				if( dictionary[i].material )
+				{
+					file->WriteFloatString( "%s\"", dictionary[i].material->GetName() );
+				}
+				else
+				{
+					file->WriteFloatString( ".\"" );
+				}
+				
+				file->WriteFloatString( " width=\"%i\" height=\"%i\" atlasOffsetX=\"%i\" atlasOffsetY=\"%i\">\n",
+										entry.imageSize[0], entry.imageSize[1], entry.imageAtlasOffset[0], entry.imageAtlasOffset[1] );
+										
+				file->WriteFloatString( "\t\t\t<ChannelScale x=\"%f\" y=\"%f\" z=\"%f\" w=\"%f\"/>\n", entry.channelScale.x, entry.channelScale.y, entry.channelScale.z, entry.channelScale.w );
+				
+				file->WriteFloatString( "\t\t</Image>\n" );
+				//for( int j = 0 ; j < 2 ; j++ )
+				//{
+				//	file->WriteBig( dictionary[i].imageSize[j] );
+				//	file->WriteBig( dictionary[i].imageAtlasOffset[j] );
+				//}
+				
+				//for( int j = 0 ; j < 4 ; j++ )
+				//{
+				//	file->WriteBig( dictionary[i].channelScale[j] );
+				//}
+				break;
+			}
+			
+			case SWF_DICT_MORPH:
+			case SWF_DICT_SHAPE:
+			{
+				idSWFShape* shape = dictionary[i].shape;
+				
+				file->WriteFloatString( "\t\t<Shape>\n" );
+				
+				float x = shape->startBounds.tl.y;
+				float y = shape->startBounds.tl.x;
+				float width = fabs( shape->startBounds.br.y - shape->startBounds.tl.y );
+				float height = fabs( shape->startBounds.br.x - shape->startBounds.tl.x );
+				
+				file->WriteFloatString( "\t\t\t<StartBounds x=\"%f\" y=\"%f\" width=\"%f\" height=\"%f\" />\n", x, y, width, height );
+				
+				x = shape->endBounds.tl.y;
+				y = shape->endBounds.tl.x;
+				width = fabs( shape->endBounds.br.y - shape->endBounds.tl.y );
+				height = fabs( shape->endBounds.br.x - shape->endBounds.tl.x );
+				
+				file->WriteFloatString( "\t\t\t<EndBounds x=\"%f\" y=\"%f\" width=\"%f\" height=\"%f\" />\n", x, y, width, height );
+				
+				for( int d = 0; d < shape->fillDraws.Num(); d++ )
+				{
+					file->WriteFloatString( "\t\t\t<DrawFill>\n" );
+					
+					idSWFShapeDrawFill& fillDraw = shape->fillDraws[d];
+					
+					file->WriteFloatString( "\t\t\t\t<FillStyle type=" );
+					
+					// 0 = solid, 1 = gradient, 4 = bitmap
+					if( fillDraw.style.type == 0 )
+					{
+						file->WriteFloatString( "\"solid\"" );
+					}
+					else if( fillDraw.style.type == 1 )
+					{
+						file->WriteFloatString( "\"gradient\"" );
+					}
+					else if( fillDraw.style.type == 4 )
+					{
+						file->WriteFloatString( "\"bitmap\"" );
+					}
+					else
+					{
+						file->WriteFloatString( "\"%i\"", fillDraw.style.type );
+					}
+					
+					// 0 = linear, 2 = radial, 3 = focal; 0 = repeat, 1 = clamp, 2 = near repeat, 3 = near clamp
+					file->WriteFloatString( " subType=" );
+					if( fillDraw.style.subType == 0 )
+					{
+						file->WriteFloatString( "\"linear\"" );
+					}
+					else if( fillDraw.style.subType == 1 )
+					{
+						file->WriteFloatString( "\"radial\"" );
+					}
+					else if( fillDraw.style.subType == 2 )
+					{
+						file->WriteFloatString( "\"focal\"" );
+					}
+					else if( fillDraw.style.subType == 3 )
+					{
+						file->WriteFloatString( "\"near clamp\"" );
+					}
+					else
+					{
+						file->WriteFloatString( "\"%i\"", fillDraw.style.subType );
+					}
+					
+					if( fillDraw.style.type == 1 && fillDraw.style.subType == 3 )
+					{
+						file->WriteFloatString( " focalPoint=\"%f\"", fillDraw.style.focalPoint );
+					}
+					
+					if( fillDraw.style.type == 4 )
+					{
+						file->WriteFloatString( " bitmapID=\"%i\"", fillDraw.style.bitmapID );
+					}
+					
+					file->WriteFloatString( ">\n", fillDraw.style.subType );
+					
+					if( fillDraw.style.type == 0 )
+					{
+						idVec4 color = fillDraw.style.startColor.ToVec4();
+						file->WriteFloatString( "\t\t\t\t\t<StartColor r=\"%f\" g=\"%f\" b=\"%f\" a=\"%f\"/>\n",
+												color.x, color.y, color.z, color.w );
+												
+						color = fillDraw.style.endColor.ToVec4();
+						file->WriteFloatString( "\t\t\t\t\t<EndColor r=\"%f\" g=\"%f\" b=\"%f\" a=\"%f\"/>\n",
+												color.x, color.y, color.z, color.w );
+					}
+					
+					if( fillDraw.style.type > 0 )
+					{
+						swfMatrix_t m = fillDraw.style.startMatrix;
+						file->WriteFloatString( "\t\t\t\t\t<StartMatrix>%f %f %f %f %f %f</StartMatrix>\n",
+												m.xx, m.yy, m.xy, m.yx, m.tx, m.ty );
+												
+						m = fillDraw.style.endMatrix;
+						file->WriteFloatString( "\t\t\t\t\t<EndMatrix>%f %f %f %f %f %f</EndMatrix>\n",
+												m.xx, m.yy, m.xy, m.yx, m.tx, m.ty );
+					}
+					
+					for( int g = 0; g < fillDraw.style.gradient.numGradients; g++ )
+					{
+						swfGradientRecord_t gr = fillDraw.style.gradient.gradientRecords[g];
+						
+						file->WriteFloatString( "\t\t\t\t\t<GradientRecord startRatio=\"%i\" endRatio=\"%i\">\n", gr.startRatio, gr.endRatio );
+						
+						idVec4 color = gr.startColor.ToVec4();
+						file->WriteFloatString( "\t\t\t\t\t\t<StartColor r=\"%f\" g=\"%f\" b=\"%f\" a=\"%f\"/>\n",
+												color.x, color.y, color.z, color.w );
+												
+						color = gr.endColor.ToVec4();
+						file->WriteFloatString( "\t\t\t\t\t\t<EndColor r=\"%f\" g=\"%f\" b=\"%f\" a=\"%f\"/>\n",
+												color.x, color.y, color.z, color.w );
+					}
+					
+					file->WriteFloatString( "\t\t\t\t</FillStyle>\n" );
+					
+					/*file->WriteBig( fillDraw.startVerts.Num() );
+					file->WriteBigArray( fillDraw.startVerts.Ptr(), fillDraw.startVerts.Num() );
+					file->WriteBig( fillDraw.endVerts.Num() );
+					file->WriteBigArray( fillDraw.endVerts.Ptr(), fillDraw.endVerts.Num() );
+					file->WriteBig( fillDraw.indices.Num() );
+					file->WriteBigArray( fillDraw.indices.Ptr(), fillDraw.indices.Num() );*/
+					
+					//file->WriteBigArray( fillDraw.startVerts.Ptr(), fillDraw.startVerts.Num() );
+					for( int v = 0; v < fillDraw.startVerts.Num(); v++ )
+					{
+						const idVec2& vert = fillDraw.startVerts[v];
+						
+						file->WriteFloatString( "\t\t\t\t<StartVertex x=\"%f\" y=\"%f\"/>\n", vert.x, vert.y );
+					}
+					
+					for( int v = 0; v < fillDraw.endVerts.Num(); v++ )
+					{
+						const idVec2& vert = fillDraw.endVerts[v];
+						
+						file->WriteFloatString( "\t\t\t\t<EndVertex x=\"%f\" y=\"%f\"/>\n",	vert.x, vert.y );
+					}
+					
+					file->WriteFloatString( "\t\t\t\t<Indices num=\"%i\">", fillDraw.indices.Num() );
+					for( int v = 0; v < fillDraw.indices.Num(); v++ )
+					{
+						const uint16& vert = fillDraw.indices[v];
+						
+						file->WriteFloatString( "%i ", vert );
+					}
+					file->WriteFloatString( "</Indices>\n" );
+					
+					file->WriteFloatString( "\t\t\t</DrawFill>\n" );
+				}
+				
+				// TODO line draws
+				
+				/*
+				file->WriteBig( shape->startBounds.tl );
+				file->WriteBig( shape->startBounds.br );
+				file->WriteBig( shape->endBounds.tl );
+				file->WriteBig( shape->endBounds.br );
+				file->WriteBig( shape->fillDraws.Num() );
+				
+				for( int d = 0; d < shape->fillDraws.Num(); d++ )
+				{
+					idSWFShapeDrawFill& fillDraw = shape->fillDraws[d];
+					file->WriteBig( fillDraw.style.type );
+					file->WriteBig( fillDraw.style.subType );
+					file->Write( &fillDraw.style.startColor, 4 );
+					file->Write( &fillDraw.style.endColor, 4 );
+					file->WriteBigArray( ( float* )&fillDraw.style.startMatrix, 6 );
+					file->WriteBigArray( ( float* )&fillDraw.style.endMatrix, 6 );
+					file->WriteBig( fillDraw.style.gradient.numGradients );
+					for( int g = 0; g < fillDraw.style.gradient.numGradients; g++ )
+					{
+						file->WriteBig( fillDraw.style.gradient.gradientRecords[g].startRatio );
+						file->WriteBig( fillDraw.style.gradient.gradientRecords[g].endRatio );
+						file->Write( &fillDraw.style.gradient.gradientRecords[g].startColor, 4 );
+						file->Write( &fillDraw.style.gradient.gradientRecords[g].endColor, 4 );
+					}
+					file->WriteBig( fillDraw.style.focalPoint );
+					file->WriteBig( fillDraw.style.bitmapID );
+					file->WriteBig( fillDraw.startVerts.Num() );
+					file->WriteBigArray( fillDraw.startVerts.Ptr(), fillDraw.startVerts.Num() );
+					file->WriteBig( fillDraw.endVerts.Num() );
+					file->WriteBigArray( fillDraw.endVerts.Ptr(), fillDraw.endVerts.Num() );
+					file->WriteBig( fillDraw.indices.Num() );
+					file->WriteBigArray( fillDraw.indices.Ptr(), fillDraw.indices.Num() );
+				}
+				file->WriteBig( shape->lineDraws.Num() );
+				for( int d = 0; d < shape->lineDraws.Num(); d++ )
+				{
+					idSWFShapeDrawLine& lineDraw = shape->lineDraws[d];
+					file->WriteBig( lineDraw.style.startWidth );
+					file->WriteBig( lineDraw.style.endWidth );
+					file->Write( &lineDraw.style.startColor, 4 );
+					file->Write( &lineDraw.style.endColor, 4 );
+					file->WriteBig( lineDraw.startVerts.Num() );
+					file->WriteBigArray( lineDraw.startVerts.Ptr(), lineDraw.startVerts.Num() );
+					file->WriteBig( lineDraw.endVerts.Num() );
+					file->WriteBigArray( lineDraw.endVerts.Ptr(), lineDraw.endVerts.Num() );
+					file->WriteBig( lineDraw.indices.Num() );
+					file->WriteBigArray( lineDraw.indices.Ptr(), lineDraw.indices.Num() );
+				}
+				*/
+				
+				file->WriteFloatString( "\t\t</Shape>\n" );
+				break;
+			}
+		}
+		
+		//file->WriteFloatString( "\t</DictionaryEntry>\n" );
+	}
+	
+	file->WriteFloatString( "\t</Dictionary>" );
+	
+#if 0
+	file->WriteBig( dictionary.Num() );
+	for( int i = 0; i < dictionary.Num(); i++ )
+	{
+		file->WriteBig( dictionary[i].type );
+		switch( dictionary[i].type )
+		{
+			case SWF_DICT_IMAGE:
+			{
+				if( dictionary[i].material )
+				{
+					file->WriteString( dictionary[i].material->GetName() );
+				}
+				else
+				{
+					file->WriteString( "." );
+				}
+				for( int j = 0 ; j < 2 ; j++ )
+				{
+					file->WriteBig( dictionary[i].imageSize[j] );
+					file->WriteBig( dictionary[i].imageAtlasOffset[j] );
+				}
+				for( int j = 0 ; j < 4 ; j++ )
+				{
+					file->WriteBig( dictionary[i].channelScale[j] );
+				}
+				break;
+			}
+			case SWF_DICT_MORPH:
+			case SWF_DICT_SHAPE:
+			{
+				idSWFShape* shape = dictionary[i].shape;
+				file->WriteBig( shape->startBounds.tl );
+				file->WriteBig( shape->startBounds.br );
+				file->WriteBig( shape->endBounds.tl );
+				file->WriteBig( shape->endBounds.br );
+				file->WriteBig( shape->fillDraws.Num() );
+				for( int d = 0; d < shape->fillDraws.Num(); d++ )
+				{
+					idSWFShapeDrawFill& fillDraw = shape->fillDraws[d];
+					file->WriteBig( fillDraw.style.type );
+					file->WriteBig( fillDraw.style.subType );
+					file->Write( &fillDraw.style.startColor, 4 );
+					file->Write( &fillDraw.style.endColor, 4 );
+					file->WriteBigArray( ( float* )&fillDraw.style.startMatrix, 6 );
+					file->WriteBigArray( ( float* )&fillDraw.style.endMatrix, 6 );
+					file->WriteBig( fillDraw.style.gradient.numGradients );
+					for( int g = 0; g < fillDraw.style.gradient.numGradients; g++ )
+					{
+						file->WriteBig( fillDraw.style.gradient.gradientRecords[g].startRatio );
+						file->WriteBig( fillDraw.style.gradient.gradientRecords[g].endRatio );
+						file->Write( &fillDraw.style.gradient.gradientRecords[g].startColor, 4 );
+						file->Write( &fillDraw.style.gradient.gradientRecords[g].endColor, 4 );
+					}
+					file->WriteBig( fillDraw.style.focalPoint );
+					file->WriteBig( fillDraw.style.bitmapID );
+					file->WriteBig( fillDraw.startVerts.Num() );
+					file->WriteBigArray( fillDraw.startVerts.Ptr(), fillDraw.startVerts.Num() );
+					file->WriteBig( fillDraw.endVerts.Num() );
+					file->WriteBigArray( fillDraw.endVerts.Ptr(), fillDraw.endVerts.Num() );
+					file->WriteBig( fillDraw.indices.Num() );
+					file->WriteBigArray( fillDraw.indices.Ptr(), fillDraw.indices.Num() );
+				}
+				file->WriteBig( shape->lineDraws.Num() );
+				for( int d = 0; d < shape->lineDraws.Num(); d++ )
+				{
+					idSWFShapeDrawLine& lineDraw = shape->lineDraws[d];
+					file->WriteBig( lineDraw.style.startWidth );
+					file->WriteBig( lineDraw.style.endWidth );
+					file->Write( &lineDraw.style.startColor, 4 );
+					file->Write( &lineDraw.style.endColor, 4 );
+					file->WriteBig( lineDraw.startVerts.Num() );
+					file->WriteBigArray( lineDraw.startVerts.Ptr(), lineDraw.startVerts.Num() );
+					file->WriteBig( lineDraw.endVerts.Num() );
+					file->WriteBigArray( lineDraw.endVerts.Ptr(), lineDraw.endVerts.Num() );
+					file->WriteBig( lineDraw.indices.Num() );
+					file->WriteBigArray( lineDraw.indices.Ptr(), lineDraw.indices.Num() );
+				}
+				break;
+			}
+			case SWF_DICT_SPRITE:
+			{
+				dictionary[i].sprite->Write( file );
+				break;
+			}
+			case SWF_DICT_FONT:
+			{
+				idSWFFont* font = dictionary[i].font;
+				file->WriteString( font->fontID->GetName() );
+				file->WriteBig( font->ascent );
+				file->WriteBig( font->descent );
+				file->WriteBig( font->leading );
+				file->WriteBig( font->glyphs.Num() );
+				for( int g = 0; g < font->glyphs.Num(); g++ )
+				{
+					file->WriteBig( font->glyphs[g].code );
+					file->WriteBig( font->glyphs[g].advance );
+					file->WriteBig( font->glyphs[g].verts.Num() );
+					file->WriteBigArray( font->glyphs[g].verts.Ptr(), font->glyphs[g].verts.Num() );
+					file->WriteBig( font->glyphs[g].indices.Num() );
+					file->WriteBigArray( font->glyphs[g].indices.Ptr(), font->glyphs[g].indices.Num() );
+				}
+				break;
+			}
+			case SWF_DICT_TEXT:
+			{
+				idSWFText* text = dictionary[i].text;
+				file->WriteBig( text->bounds.tl );
+				file->WriteBig( text->bounds.br );
+				file->WriteBigArray( ( float* )&text->matrix, 6 );
+				file->WriteBig( text->textRecords.Num() );
+				for( int t = 0; t < text->textRecords.Num(); t++ )
+				{
+					idSWFTextRecord& textRecord = text->textRecords[t];
+					file->WriteBig( textRecord.fontID );
+					file->Write( &textRecord.color, 4 );
+					file->WriteBig( textRecord.xOffset );
+					file->WriteBig( textRecord.yOffset );
+					file->WriteBig( textRecord.textHeight );
+					file->WriteBig( textRecord.firstGlyph );
+					file->WriteBig( textRecord.numGlyphs );
+				}
+				file->WriteBig( text->glyphs.Num() );
+				for( int g = 0; g < text->glyphs.Num(); g++ )
+				{
+					file->WriteBig( text->glyphs[g].index );
+					file->WriteBig( text->glyphs[g].advance );
+				}
+				break;
+			}
+			case SWF_DICT_EDITTEXT:
+			{
+				idSWFEditText* edittext = dictionary[i].edittext;
+				file->WriteBig( edittext->bounds.tl );
+				file->WriteBig( edittext->bounds.br );
+				file->WriteBig( edittext->flags );
+				file->WriteBig( edittext->fontID );
+				file->WriteBig( edittext->fontHeight );
+				file->Write( &edittext->color, 4 );
+				file->WriteBig( edittext->maxLength );
+				file->WriteBig( edittext->align );
+				file->WriteBig( edittext->leftMargin );
+				file->WriteBig( edittext->rightMargin );
+				file->WriteBig( edittext->indent );
+				file->WriteBig( edittext->leading );
+				file->WriteString( edittext->variable );
+				file->WriteString( edittext->initialText );
+				break;
+			}
+		}
+	}
+#endif
+	
+	file->WriteFloatString( "</XSWF>\n" );
+}
+
+// RB end
+>>>>>>> c4098bc... XML Flash part 1

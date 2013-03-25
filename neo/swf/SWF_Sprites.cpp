@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -287,3 +288,55 @@ void idSWFSprite::Write( idFile* f )
 		f->WriteBig( doInitActions[i].Length() );
 	}
 }
+
+
+// RB begin
+/*
+========================
+idSWFSprite::WriteXML
+========================
+*/
+void idSWFSprite::WriteXML( idFile* f )
+{
+	f->WriteFloatString( "\t<Sprite frameCount=\"%i\" frameOffsets=\"%i\">\n", frameCount, frameOffsets.Num() );
+	
+	f->WriteFloatString( "\t\t<frameOffsets>" );
+	for( int i = 0; i < frameOffsets.Num(); i++ )
+	{
+		f->WriteFloatString( "%i ", frameOffsets[i] );
+	}
+	f->WriteFloatString( "</frameOffsets>\n" );
+	
+	//f->WriteFloatString( "\t\t<frameLabels num=\"%i\">", frameLabels.Num() );
+	for( int i = 0; i < frameLabels.Num(); i++ )
+	{
+		f->WriteFloatString( "\t\t<FrameLabel frameNum=\"%i\" frameLabel=\"%s\"/>\n", frameLabels[i].frameNum, frameLabels[i].frameLabel );
+	}
+	
+	
+	idBase64 base64;
+	
+	for( int i = 0; i < commands.Num(); i++ )
+	{
+		base64.Encode( commands[i].stream.Ptr(), commands[i].stream.Length() );
+		//base64.Decode( src );
+		
+		//f->WriteFloatString( "\t\t<Command tag=\"%s\" streamLength=\"%i\">%s</Command>\n", idSWF::GetTagName( commands[i].tag ), src.Length(), src.c_str() );
+		
+		f->WriteFloatString( "\t\t<Command tag=\"%s\" streamLength=\"%i\">%s</Command>\n", idSWF::GetTagName( commands[i].tag ), commands[i].stream.Length(), base64.c_str() );
+		
+		//f->WriteFloatString( "\t\t<Command tag=\"%s\" streamLength=\"%i\">%s</Command>\n", idSWF::GetTagName( commands[i].tag ), commands[i].stream.Length(), commands[i].stream.Ptr() );
+	}
+	
+	for( int i = 0; i < doInitActions.Num(); i++ )
+	{
+		base64.Encode( doInitActions[i].Ptr(), doInitActions[i].Length() );
+		
+		f->WriteFloatString( "\t\t<DoInitAction streamLength=\"%i\">%s</DoInitAction>\n", doInitActions[i].Length(), base64.c_str() );
+		
+		//f->WriteFloatString( "\t\t<DoInitAction streamLength=\"%i\">%s</DoInitAction>\n", doInitActions[i].Length(), doInitActions[i].Ptr() );
+	}
+	
+	f->WriteFloatString( "\t</Sprite>\n" );
+}
+// RB end

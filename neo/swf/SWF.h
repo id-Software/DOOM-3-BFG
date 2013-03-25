@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -389,9 +390,16 @@ private:
 	bool			LoadSWF( const char* fullpath );
 	bool			LoadBinary( const char* bfilename, ID_TIME_T sourceTime );
 	void			WriteBinary( const char* bfilename );
+<<<<<<< HEAD
 	void			FileAttributes( idSWFBitStream& bitstream );
 	void			Metadata( idSWFBitStream& bitstream );
 	void			SetBackgroundColor( idSWFBitStream& bitstream );
+=======
+	// RB begin
+	void			LoadXML( const char* filename );
+	void			WriteXML( const char* filename );
+	// RB end
+>>>>>>> c4098bc... XML Flash part 1
 	
 	//----------------------------------
 	// SWF_Shapes.cpp
@@ -495,6 +503,9 @@ public:
 	//----------------------------------
 	// SWF_Names.cpp
 	//----------------------------------
+	// RB begin
+	static const char* GetDictTypeName( swfDictType_t type );
+	// RB end
 	static const char* GetTagName( swfTag_t tag );
 	static const char* GetActionName( swfAction_t action );
 	

@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -32,6 +33,9 @@ If you have questions concerning this license or the applicable additional terms
 #pragma warning(disable: 4355) // 'this' : used in base member initializer list
 
 idCVar swf_loadBinary( "swf_loadBinary", "1", CVAR_INTEGER, "used to set whether to load binary swf from generated" );
+// RB begin
+idCVar swf_exportXML( "swf_exportXML", "1", CVAR_INTEGER, "" );
+// RB end
 
 int idSWF::mouseX = -1;
 int idSWF::mouseY = -1;
@@ -143,6 +147,18 @@ idSWF::idSWF( const char* filename_, idSoundWorld* soundWorld_ )
 	{
 		LoadSWF( filename );
 	}
+	
+	// RB begin
+	if( swf_exportXML.GetBool() )
+	{
+		idStr xmlFileName = "generated/";
+		xmlFileName += filename;
+		xmlFileName.SetFileExtension( ".xml" );
+		
+		WriteXML( xmlFileName );
+	}
+	// RB end
+	
 	idStr atlasFileName = binaryFileName;
 	atlasFileName.SetFileExtension( ".tga" );
 	atlasMaterial = declManager->FindMaterial( atlasFileName );
