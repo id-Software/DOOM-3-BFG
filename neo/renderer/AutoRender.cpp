@@ -91,8 +91,9 @@ void idAutoRender::StartBackgroundAutoSwaps( autoRenderIconType_t iconType )
 	// it is getting purged before our our first frame has been rendered.
 	globalImages->UnbindAll();
 	
-	
-	StartThread( "BackgroundAutoSwaps", CORE_0B, THREAD_NORMAL, AUTO_RENDER_STACK_SIZE );
+	// DG: set name to "BGAutoSwaps" because Linux has a 16char (incl. \0) namelimit for threads
+	StartThread( "BGAutoSwaps", CORE_0B, THREAD_NORMAL, AUTO_RENDER_STACK_SIZE );
+	// DG end
 }
 
 /*
