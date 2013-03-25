@@ -850,6 +850,7 @@ void idSWF::WriteXML( const char* filename )
 					file->WriteFloatString( "\t\t\t</Glyph>\n" );
 #endif
 				}
+				file->WriteFloatString( "\t\t</Font>\n" );
 				break;
 			}
 			
@@ -857,14 +858,14 @@ void idSWF::WriteXML( const char* filename )
 			{
 				const idSWFText* text = dictionary[i].text;
 				
-				file->WriteFloatString( "\t\t\t<Text>\n" );
+				file->WriteFloatString( "\t\t<Text>\n" );
 				
 				float x = text->bounds.tl.y;
 				float y = text->bounds.tl.x;
 				float width = fabs( text->bounds.br.y - text->bounds.tl.y );
 				float height = fabs( text->bounds.br.x - text->bounds.tl.x );
 				
-				file->WriteFloatString( "\t\t\t\t<Bounds x=\"%f\" y=\"%f\" width=\"%f\" height=\"%f\" />\n", x, y, width, height );
+				file->WriteFloatString( "\t\t\t<Bounds x=\"%f\" y=\"%f\" width=\"%f\" height=\"%f\" />\n", x, y, width, height );
 				
 				//file->WriteBig( text->bounds.tl );
 				//file->WriteBig( text->bounds.br );
@@ -872,7 +873,7 @@ void idSWF::WriteXML( const char* filename )
 				//file->WriteBigArray( ( float* )&text->matrix, 6 );
 				
 				swfMatrix_t m = text->matrix;
-				file->WriteFloatString( "\t\t\t\t<Matrix>%f %f %f %f %f %f</Matrix>\n",
+				file->WriteFloatString( "\t\t\t<Matrix>%f %f %f %f %f %f</Matrix>\n",
 										m.xx, m.yy, m.xy, m.yx, m.tx, m.ty );
 										
 				//file->WriteBig( text->textRecords.Num() );
@@ -911,6 +912,8 @@ void idSWF::WriteXML( const char* filename )
 					file->WriteBig( text->glyphs[g].advance );
 				}
 				*/
+				
+				file->WriteFloatString( "\t\t</Text>\n" );
 				break;
 			}
 			
@@ -918,7 +921,7 @@ void idSWF::WriteXML( const char* filename )
 			{
 				const idSWFEditText* et = dictionary[i].edittext;
 				
-				file->WriteFloatString( "\t\t\t<Text flags=\"%i\" fontID=\"%i\" fontHeight=\"%i\" maxLength=\"%i\" align=\"%s\" leftMargin=\"%i\" rightMargin=\"%i\" indent=\"%i\" leading=\"%i\" variable=\"%s\" initialText=\"%s\">\n",
+				file->WriteFloatString( "\t\t<EditText flags=\"%i\" fontID=\"%i\" fontHeight=\"%i\" maxLength=\"%i\" align=\"%s\" leftMargin=\"%i\" rightMargin=\"%i\" indent=\"%i\" leading=\"%i\" variable=\"%s\" initialText=\"%s\">\n",
 										et->flags, et->fontID, et->fontHeight, et->maxLength, idSWF::GetEditTextAlignName( et->align ),
 										et->leftMargin, et->rightMargin, et->indent, et->leading,
 										et->variable.c_str(), et->initialText.c_str() );
@@ -928,13 +931,13 @@ void idSWF::WriteXML( const char* filename )
 				float width = fabs( et->bounds.br.y - et->bounds.tl.y );
 				float height = fabs( et->bounds.br.x - et->bounds.tl.x );
 				
-				file->WriteFloatString( "\t\t\t\t<Bounds x=\"%f\" y=\"%f\" width=\"%f\" height=\"%f\" />\n", x, y, width, height );
+				file->WriteFloatString( "\t\t\t<Bounds x=\"%f\" y=\"%f\" width=\"%f\" height=\"%f\" />\n", x, y, width, height );
 				
 				idVec4 color = et->color.ToVec4();
-				file->WriteFloatString( "\t\t\t\t<Color r=\"%f\" g=\"%f\" b=\"%f\" a=\"%f\"/>\n",
+				file->WriteFloatString( "\t\t\t<Color r=\"%f\" g=\"%f\" b=\"%f\" a=\"%f\"/>\n",
 										color.x, color.y, color.z, color.w );
 										
-				file->WriteFloatString( "\t\t\t</Text>\n" );
+				file->WriteFloatString( "\t\t</EditText>\n" );
 				
 				//file->WriteBig( et->bounds.tl );
 				//file->WriteBig( et->bounds.br );
