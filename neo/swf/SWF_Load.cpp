@@ -585,14 +585,6 @@ void idSWF::WriteXML( const char* filename )
 	file->WriteFloatString( "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" );
 	file->WriteFloatString( "<XSWF version=\"%i\" timestamp=\"%i\" frameWidth=\"%f\" frameHeight=\"%f\" frameRate=\"%i\">\n", XSWF_VERSION, timestamp, frameWidth, frameHeight, frameRate );
 	
-	//file->WriteBig( BSWF_MAGIC );
-	//file->WriteBig( timestamp );
-	
-	
-	//file->WriteBig( frameWidth );
-	//file->WriteBig( frameHeight );
-	//file->WriteBig( frameRate );
-	
 	mainsprite->WriteXML( file );
 	
 	file->WriteFloatString( "\t<Dictionary>\n" );
@@ -621,16 +613,6 @@ void idSWF::WriteXML( const char* filename )
 				file->WriteFloatString( "\t\t\t<ChannelScale x=\"%f\" y=\"%f\" z=\"%f\" w=\"%f\"/>\n", entry.channelScale.x, entry.channelScale.y, entry.channelScale.z, entry.channelScale.w );
 				
 				file->WriteFloatString( "\t\t</Image>\n" );
-				//for( int j = 0 ; j < 2 ; j++ )
-				//{
-				//	file->WriteBig( dictionary[i].imageSize[j] );
-				//	file->WriteBig( dictionary[i].imageAtlasOffset[j] );
-				//}
-				
-				//for( int j = 0 ; j < 4 ; j++ )
-				//{
-				//	file->WriteBig( dictionary[i].channelScale[j] );
-				//}
 				break;
 			}
 			
@@ -654,6 +636,8 @@ void idSWF::WriteXML( const char* filename )
 				height = fabs( shape->endBounds.br.x - shape->endBounds.tl.x );
 				
 				file->WriteFloatString( "\t\t\t<EndBounds x=\"%f\" y=\"%f\" width=\"%f\" height=\"%f\" />\n", x, y, width, height );
+				
+				// export fill draws
 				
 				for( int d = 0; d < shape->fillDraws.Num(); d++ )
 				{
@@ -755,14 +739,6 @@ void idSWF::WriteXML( const char* filename )
 					
 					file->WriteFloatString( "\t\t\t\t</FillStyle>\n" );
 					
-					/*file->WriteBig( fillDraw.startVerts.Num() );
-					file->WriteBigArray( fillDraw.startVerts.Ptr(), fillDraw.startVerts.Num() );
-					file->WriteBig( fillDraw.endVerts.Num() );
-					file->WriteBigArray( fillDraw.endVerts.Ptr(), fillDraw.endVerts.Num() );
-					file->WriteBig( fillDraw.indices.Num() );
-					file->WriteBigArray( fillDraw.indices.Ptr(), fillDraw.indices.Num() );*/
-					
-					//file->WriteBigArray( fillDraw.startVerts.Ptr(), fillDraw.startVerts.Num() );
 					for( int v = 0; v < fillDraw.startVerts.Num(); v++ )
 					{
 						const idVec2& vert = fillDraw.startVerts[v];
@@ -789,59 +765,57 @@ void idSWF::WriteXML( const char* filename )
 					file->WriteFloatString( "\t\t\t</DrawFill>\n" );
 				}
 				
-				// TODO line draws
+				// export line draws
 				
-				/*
-				file->WriteBig( shape->startBounds.tl );
-				file->WriteBig( shape->startBounds.br );
-				file->WriteBig( shape->endBounds.tl );
-				file->WriteBig( shape->endBounds.br );
-				file->WriteBig( shape->fillDraws.Num() );
-				
-				for( int d = 0; d < shape->fillDraws.Num(); d++ )
-				{
-					idSWFShapeDrawFill& fillDraw = shape->fillDraws[d];
-					file->WriteBig( fillDraw.style.type );
-					file->WriteBig( fillDraw.style.subType );
-					file->Write( &fillDraw.style.startColor, 4 );
-					file->Write( &fillDraw.style.endColor, 4 );
-					file->WriteBigArray( ( float* )&fillDraw.style.startMatrix, 6 );
-					file->WriteBigArray( ( float* )&fillDraw.style.endMatrix, 6 );
-					file->WriteBig( fillDraw.style.gradient.numGradients );
-					for( int g = 0; g < fillDraw.style.gradient.numGradients; g++ )
-					{
-						file->WriteBig( fillDraw.style.gradient.gradientRecords[g].startRatio );
-						file->WriteBig( fillDraw.style.gradient.gradientRecords[g].endRatio );
-						file->Write( &fillDraw.style.gradient.gradientRecords[g].startColor, 4 );
-						file->Write( &fillDraw.style.gradient.gradientRecords[g].endColor, 4 );
-					}
-					file->WriteBig( fillDraw.style.focalPoint );
-					file->WriteBig( fillDraw.style.bitmapID );
-					file->WriteBig( fillDraw.startVerts.Num() );
-					file->WriteBigArray( fillDraw.startVerts.Ptr(), fillDraw.startVerts.Num() );
-					file->WriteBig( fillDraw.endVerts.Num() );
-					file->WriteBigArray( fillDraw.endVerts.Ptr(), fillDraw.endVerts.Num() );
-					file->WriteBig( fillDraw.indices.Num() );
-					file->WriteBigArray( fillDraw.indices.Ptr(), fillDraw.indices.Num() );
-				}
-				file->WriteBig( shape->lineDraws.Num() );
 				for( int d = 0; d < shape->lineDraws.Num(); d++ )
 				{
-					idSWFShapeDrawLine& lineDraw = shape->lineDraws[d];
-					file->WriteBig( lineDraw.style.startWidth );
-					file->WriteBig( lineDraw.style.endWidth );
-					file->Write( &lineDraw.style.startColor, 4 );
-					file->Write( &lineDraw.style.endColor, 4 );
-					file->WriteBig( lineDraw.startVerts.Num() );
-					file->WriteBigArray( lineDraw.startVerts.Ptr(), lineDraw.startVerts.Num() );
-					file->WriteBig( lineDraw.endVerts.Num() );
-					file->WriteBigArray( lineDraw.endVerts.Ptr(), lineDraw.endVerts.Num() );
-					file->WriteBig( lineDraw.indices.Num() );
-					file->WriteBigArray( lineDraw.indices.Ptr(), lineDraw.indices.Num() );
+					const idSWFShapeDrawLine& lineDraw = shape->lineDraws[d];
+					
+					file->WriteFloatString( "\t\t\t<LineDraw>\n" );
+					
+					file->WriteFloatString( "\t\t\t\t<LineStyle startWidth=\"%i\" endWidth=\"%i\">\n", lineDraw.style.startWidth, lineDraw.style.endWidth );
+					
+					idVec4 color = lineDraw.style.startColor.ToVec4();
+					file->WriteFloatString( "\t\t\t\t\t<StartColor r=\"%f\" g=\"%f\" b=\"%f\" a=\"%f\"/>\n",
+											color.x, color.y, color.z, color.w );
+											
+					color = lineDraw.style.endColor.ToVec4();
+					file->WriteFloatString( "\t\t\t\t\t<EndColor r=\"%f\" g=\"%f\" b=\"%f\" a=\"%f\"/>\n",
+											color.x, color.y, color.z, color.w );
+											
+					file->WriteFloatString( "\t\t\t\t</LineStyle>\n" );
+					
+					for( int v = 0; v < lineDraw.startVerts.Num(); v++ )
+					{
+						const idVec2& vert = lineDraw.startVerts[v];
+						
+						file->WriteFloatString( "\t\t\t\t<StartVertex x=\"%f\" y=\"%f\"/>\n", vert.x, vert.y );
+					}
+					
+					for( int v = 0; v < lineDraw.endVerts.Num(); v++ )
+					{
+						const idVec2& vert = lineDraw.endVerts[v];
+						
+						file->WriteFloatString( "\t\t\t\t<EndVertex x=\"%f\" y=\"%f\"/>\n",	vert.x, vert.y );
+					}
+					
+					file->WriteFloatString( "\t\t\t\t<Indices num=\"%i\">", lineDraw.indices.Num() );
+					for( int v = 0; v < lineDraw.indices.Num(); v++ )
+					{
+						const uint16& vert = lineDraw.indices[v];
+						
+						file->WriteFloatString( "%i ", vert );
+					}
+					file->WriteFloatString( "</Indices>\n" );
 				}
-				*/
 				
 				file->WriteFloatString( "\t\t</Shape>\n" );
+				break;
+			}
+			
+			case SWF_DICT_SPRITE:
+			{
+				dictionary[i].sprite->Write( file );
 				break;
 			}
 		}
@@ -849,7 +823,7 @@ void idSWF::WriteXML( const char* filename )
 		//file->WriteFloatString( "\t</DictionaryEntry>\n" );
 	}
 	
-	file->WriteFloatString( "\t</Dictionary>" );
+	file->WriteFloatString( "\t</Dictionary>\n" );
 	
 #if 0
 	file->WriteBig( dictionary.Num() );
