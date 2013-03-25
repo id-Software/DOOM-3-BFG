@@ -505,6 +505,7 @@ public:
 	//----------------------------------
 	// RB begin
 	static const char* GetDictTypeName( swfDictType_t type );
+	static const char* GetEditTextAlignName( swfEditTextAlign_t align );
 	// RB end
 	static const char* GetTagName( swfTag_t tag );
 	static const char* GetActionName( swfAction_t action );

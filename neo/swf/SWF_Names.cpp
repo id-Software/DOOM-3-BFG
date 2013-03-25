@@ -30,11 +30,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 
 // RB begin
-/*
-========================
-idSWF::GetDictTypeName
-========================
-*/
 const char* idSWF::GetDictTypeName( swfDictType_t type )
 {
 #define SWF_DICT_NAME( x ) case SWF_DICT_##x: return #x;
@@ -48,6 +43,20 @@ const char* idSWF::GetDictTypeName( swfDictType_t type )
 			SWF_DICT_NAME( FONT );
 			SWF_DICT_NAME( TEXT );
 			SWF_DICT_NAME( EDITTEXT );
+		default:
+			return "????";
+	}
+}
+
+const char* idSWF::GetEditTextAlignName( swfEditTextAlign_t align )
+{
+#define SWF_ET_ALIGN_NAME( x ) case SWF_ET_ALIGN_##x: return #x;
+	switch( align )
+	{
+			SWF_ET_ALIGN_NAME( LEFT );
+			SWF_ET_ALIGN_NAME( RIGHT );
+			SWF_ET_ALIGN_NAME( CENTER );
+			SWF_ET_ALIGN_NAME( JUSTIFY );
 		default:
 			return "????";
 	}

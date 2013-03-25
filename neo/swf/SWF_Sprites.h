@@ -48,7 +48,7 @@ public:
 	void	Write( idFile* f );
 	
 	// RB begin
-	void	WriteXML( idFile* f );
+	void	WriteXML( idFile* f, const char* indentPrefix = "" );
 	// RB end
 	
 	class idSWF* GetSWF()

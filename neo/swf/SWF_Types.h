@@ -158,6 +158,7 @@ public:
 	idSWFFontGlyph();
 	uint16 code;
 	int16 advance;
+	// RB: verts and indices are not used by the renderer
 	idList< idVec2, TAG_SWF > verts;
 	idList< uint16, TAG_SWF > indices;
 };

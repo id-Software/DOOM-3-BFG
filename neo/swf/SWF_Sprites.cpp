@@ -296,11 +296,11 @@ void idSWFSprite::Write( idFile* f )
 idSWFSprite::WriteXML
 ========================
 */
-void idSWFSprite::WriteXML( idFile* f )
+void idSWFSprite::WriteXML( idFile* f, const char* indentPrefix )
 {
-	f->WriteFloatString( "\t<Sprite frameCount=\"%i\" frameOffsets=\"%i\">\n", frameCount, frameOffsets.Num() );
+	f->WriteFloatString( "%s<Sprite frameCount=\"%i\" frameOffsets=\"%i\">\n", indentPrefix, frameCount, frameOffsets.Num() );
 	
-	f->WriteFloatString( "\t\t<frameOffsets>" );
+	f->WriteFloatString( "%s\t<frameOffsets>", indentPrefix );
 	for( int i = 0; i < frameOffsets.Num(); i++ )
 	{
 		f->WriteFloatString( "%i ", frameOffsets[i] );
@@ -310,7 +310,7 @@ void idSWFSprite::WriteXML( idFile* f )
 	//f->WriteFloatString( "\t\t<frameLabels num=\"%i\">", frameLabels.Num() );
 	for( int i = 0; i < frameLabels.Num(); i++ )
 	{
-		f->WriteFloatString( "\t\t<FrameLabel frameNum=\"%i\" frameLabel=\"%s\"/>\n", frameLabels[i].frameNum, frameLabels[i].frameLabel );
+		f->WriteFloatString( "%s\t<FrameLabel frameNum=\"%i\" frameLabel=\"%i\"/>\n", indentPrefix, frameLabels[i].frameNum, frameLabels[i].frameLabel );
 	}
 	
 	
@@ -321,22 +321,22 @@ void idSWFSprite::WriteXML( idFile* f )
 		base64.Encode( commands[i].stream.Ptr(), commands[i].stream.Length() );
 		//base64.Decode( src );
 		
-		//f->WriteFloatString( "\t\t<Command tag=\"%s\" streamLength=\"%i\">%s</Command>\n", idSWF::GetTagName( commands[i].tag ), src.Length(), src.c_str() );
+		//f->WriteFloatString( "%s\t<Command tag=\"%s\" streamLength=\"%i\">%s</Command>\n", indentPrefix, idSWF::GetTagName( commands[i].tag ), src.Length(), src.c_str() );
 		
-		f->WriteFloatString( "\t\t<Command tag=\"%s\" streamLength=\"%i\">%s</Command>\n", idSWF::GetTagName( commands[i].tag ), commands[i].stream.Length(), base64.c_str() );
+		f->WriteFloatString( "%s\t<Command tag=\"%s\" streamLength=\"%i\">%s</Command>\n", indentPrefix, idSWF::GetTagName( commands[i].tag ), commands[i].stream.Length(), base64.c_str() );
 		
-		//f->WriteFloatString( "\t\t<Command tag=\"%s\" streamLength=\"%i\">%s</Command>\n", idSWF::GetTagName( commands[i].tag ), commands[i].stream.Length(), commands[i].stream.Ptr() );
+		//f->WriteFloatString( "%s\t<Command tag=\"%s\" streamLength=\"%i\">%s</Command>\n", indentPrefix, idSWF::GetTagName( commands[i].tag ), commands[i].stream.Length(), commands[i].stream.Ptr() );
 	}
 	
 	for( int i = 0; i < doInitActions.Num(); i++ )
 	{
 		base64.Encode( doInitActions[i].Ptr(), doInitActions[i].Length() );
 		
-		f->WriteFloatString( "\t\t<DoInitAction streamLength=\"%i\">%s</DoInitAction>\n", doInitActions[i].Length(), base64.c_str() );
+		f->WriteFloatString( "%s\t<DoInitAction streamLength=\"%i\">%s</DoInitAction>\n", indentPrefix, doInitActions[i].Length(), base64.c_str() );
 		
-		//f->WriteFloatString( "\t\t<DoInitAction streamLength=\"%i\">%s</DoInitAction>\n", doInitActions[i].Length(), doInitActions[i].Ptr() );
+		//f->WriteFloatString( "%s\t<DoInitAction streamLength=\"%i\">%s</DoInitAction>\n", indentPrefix, doInitActions[i].Length(), doInitActions[i].Ptr() );
 	}
 	
-	f->WriteFloatString( "\t</Sprite>\n" );
+	f->WriteFloatString( "%s</Sprite>\n", indentPrefix );
 }
 // RB end

@@ -585,7 +585,7 @@ void idSWF::WriteXML( const char* filename )
 	file->WriteFloatString( "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" );
 	file->WriteFloatString( "<XSWF version=\"%i\" timestamp=\"%i\" frameWidth=\"%f\" frameHeight=\"%f\" frameRate=\"%i\">\n", XSWF_VERSION, timestamp, frameWidth, frameHeight, frameRate );
 	
-	mainsprite->WriteXML( file );
+	mainsprite->WriteXML( file, "\t" );
 	
 	file->WriteFloatString( "\t<Dictionary>\n" );
 	for( int i = 0; i < dictionary.Num(); i++ )
@@ -815,7 +815,141 @@ void idSWF::WriteXML( const char* filename )
 			
 			case SWF_DICT_SPRITE:
 			{
-				dictionary[i].sprite->Write( file );
+				dictionary[i].sprite->WriteXML( file, "\t\t" );
+				break;
+			}
+			
+			case SWF_DICT_FONT:
+			{
+				const idSWFFont* font = dictionary[i].font;
+				
+				file->WriteFloatString( "\t\t<Font name=\"%s\" ascent=\"%i\" descent=\"%i\" leading=\"%i\" glyphsNum=\"%i\">\n",
+										font->fontID->GetName(), font->ascent, font->descent, font->leading, font->glyphs.Num() );
+										
+				for( int g = 0; g < font->glyphs.Num(); g++ )
+				{
+					file->WriteFloatString( "\t\t\t<Glyph code=\"%i\" advance=\"%i\"/>\n", font->glyphs[g].code, font->glyphs[g].advance );
+					
+#if 0
+					for( int v = 0; v < font->glyphs[g].verts.Num(); v++ )
+					{
+						const idVec2& vert = font->glyphs[g].verts[v];
+						
+						file->WriteFloatString( "\t\t\t\t<Vertex x=\"%f\" y=\"%f\"/>\n", vert.x, vert.y );
+					}
+					
+					file->WriteFloatString( "\t\t\t\t<Indices num=\"%i\">", font->glyphs[g].indices.Num() );
+					for( int v = 0; v < font->glyphs[g].indices.Num(); v++ )
+					{
+						const uint16& vert = font->glyphs[g].indices[v];
+						
+						file->WriteFloatString( "%i ", vert );
+					}
+					file->WriteFloatString( "</Indices>\n" );
+					
+					file->WriteFloatString( "\t\t\t</Glyph>\n" );
+#endif
+				}
+				break;
+			}
+			
+			case SWF_DICT_TEXT:
+			{
+				const idSWFText* text = dictionary[i].text;
+				
+				file->WriteFloatString( "\t\t\t<Text>\n" );
+				
+				float x = text->bounds.tl.y;
+				float y = text->bounds.tl.x;
+				float width = fabs( text->bounds.br.y - text->bounds.tl.y );
+				float height = fabs( text->bounds.br.x - text->bounds.tl.x );
+				
+				file->WriteFloatString( "\t\t\t\t<Bounds x=\"%f\" y=\"%f\" width=\"%f\" height=\"%f\" />\n", x, y, width, height );
+				
+				//file->WriteBig( text->bounds.tl );
+				//file->WriteBig( text->bounds.br );
+				
+				//file->WriteBigArray( ( float* )&text->matrix, 6 );
+				
+				swfMatrix_t m = text->matrix;
+				file->WriteFloatString( "\t\t\t\t<Matrix>%f %f %f %f %f %f</Matrix>\n",
+										m.xx, m.yy, m.xy, m.yx, m.tx, m.ty );
+										
+				//file->WriteBig( text->textRecords.Num() );
+				for( int t = 0; t < text->textRecords.Num(); t++ )
+				{
+					const idSWFTextRecord& textRecord = text->textRecords[t];
+					
+					file->WriteFloatString( "\t\t\t\t<Record fontID=\"%i\" xOffet=\"%i\" yOffset=\"%i\" textHeight=\"%f\" firstGlyph=\"%i\" numGlyphs=\"%i\">\n",
+											textRecord.fontID, textRecord.xOffset, textRecord.yOffset, textRecord.textHeight, textRecord.firstGlyph, textRecord.numGlyphs );
+											
+					idVec4 color = textRecord.color.ToVec4();
+					file->WriteFloatString( "\t\t\t\t\t<Color r=\"%f\" g=\"%f\" b=\"%f\" a=\"%f\"/>\n",
+											color.x, color.y, color.z, color.w );
+											
+					file->WriteFloatString( "\t\t\t\t</Record>\n" );
+					
+					/*file->WriteBig( textRecord.fontID );
+					file->Write( &textRecord.color, 4 );
+					file->WriteBig( textRecord.xOffset );
+					file->WriteBig( textRecord.yOffset );
+					file->WriteBig( textRecord.textHeight );
+					file->WriteBig( textRecord.firstGlyph );
+					file->WriteBig( textRecord.numGlyphs );*/
+				}
+				
+				for( int g = 0; g < text->glyphs.Num(); g++ )
+				{
+					file->WriteFloatString( "\t\t\t\t<Glyph index=\"%i\" advance=\"%i\">\n", text->glyphs[g].index, text->glyphs[g].advance );
+				}
+				
+				/*
+				file->WriteBig( text->glyphs.Num() );
+				for( int g = 0; g < text->glyphs.Num(); g++ )
+				{
+					file->WriteBig( text->glyphs[g].index );
+					file->WriteBig( text->glyphs[g].advance );
+				}
+				*/
+				break;
+			}
+			
+			case SWF_DICT_EDITTEXT:
+			{
+				const idSWFEditText* et = dictionary[i].edittext;
+				
+				file->WriteFloatString( "\t\t\t<Text flags=\"%i\" fontID=\"%i\" fontHeight=\"%i\" maxLength=\"%i\" align=\"%s\" leftMargin=\"%i\" rightMargin=\"%i\" indent=\"%i\" leading=\"%i\" variable=\"%s\" initialText=\"%s\">\n",
+										et->flags, et->fontID, et->fontHeight, et->maxLength, idSWF::GetEditTextAlignName( et->align ),
+										et->leftMargin, et->rightMargin, et->indent, et->leading,
+										et->variable.c_str(), et->initialText.c_str() );
+										
+				float x = et->bounds.tl.y;
+				float y = et->bounds.tl.x;
+				float width = fabs( et->bounds.br.y - et->bounds.tl.y );
+				float height = fabs( et->bounds.br.x - et->bounds.tl.x );
+				
+				file->WriteFloatString( "\t\t\t\t<Bounds x=\"%f\" y=\"%f\" width=\"%f\" height=\"%f\" />\n", x, y, width, height );
+				
+				idVec4 color = et->color.ToVec4();
+				file->WriteFloatString( "\t\t\t\t<Color r=\"%f\" g=\"%f\" b=\"%f\" a=\"%f\"/>\n",
+										color.x, color.y, color.z, color.w );
+										
+				file->WriteFloatString( "\t\t\t</Text>\n" );
+				
+				//file->WriteBig( et->bounds.tl );
+				//file->WriteBig( et->bounds.br );
+				//file->WriteBig( et->flags );
+				//file->WriteBig( et->fontID );
+				//file->WriteBig( et->fontHeight );
+				//file->Write( &et->color, 4 );
+				//file->WriteBig( et->maxLength );
+				//file->WriteBig( et->align );
+				//file->WriteBig( et->leftMargin );
+				//file->WriteBig( et->rightMargin );
+				//file->WriteBig( et->indent );
+				//file->WriteBig( et->leading );
+				//file->WriteString( et->variable );
+				//file->WriteString( et->initialText );
 				break;
 			}
 		}
@@ -824,159 +958,6 @@ void idSWF::WriteXML( const char* filename )
 	}
 	
 	file->WriteFloatString( "\t</Dictionary>\n" );
-	
-#if 0
-	file->WriteBig( dictionary.Num() );
-	for( int i = 0; i < dictionary.Num(); i++ )
-	{
-		file->WriteBig( dictionary[i].type );
-		switch( dictionary[i].type )
-		{
-			case SWF_DICT_IMAGE:
-			{
-				if( dictionary[i].material )
-				{
-					file->WriteString( dictionary[i].material->GetName() );
-				}
-				else
-				{
-					file->WriteString( "." );
-				}
-				for( int j = 0 ; j < 2 ; j++ )
-				{
-					file->WriteBig( dictionary[i].imageSize[j] );
-					file->WriteBig( dictionary[i].imageAtlasOffset[j] );
-				}
-				for( int j = 0 ; j < 4 ; j++ )
-				{
-					file->WriteBig( dictionary[i].channelScale[j] );
-				}
-				break;
-			}
-			case SWF_DICT_MORPH:
-			case SWF_DICT_SHAPE:
-			{
-				idSWFShape* shape = dictionary[i].shape;
-				file->WriteBig( shape->startBounds.tl );
-				file->WriteBig( shape->startBounds.br );
-				file->WriteBig( shape->endBounds.tl );
-				file->WriteBig( shape->endBounds.br );
-				file->WriteBig( shape->fillDraws.Num() );
-				for( int d = 0; d < shape->fillDraws.Num(); d++ )
-				{
-					idSWFShapeDrawFill& fillDraw = shape->fillDraws[d];
-					file->WriteBig( fillDraw.style.type );
-					file->WriteBig( fillDraw.style.subType );
-					file->Write( &fillDraw.style.startColor, 4 );
-					file->Write( &fillDraw.style.endColor, 4 );
-					file->WriteBigArray( ( float* )&fillDraw.style.startMatrix, 6 );
-					file->WriteBigArray( ( float* )&fillDraw.style.endMatrix, 6 );
-					file->WriteBig( fillDraw.style.gradient.numGradients );
-					for( int g = 0; g < fillDraw.style.gradient.numGradients; g++ )
-					{
-						file->WriteBig( fillDraw.style.gradient.gradientRecords[g].startRatio );
-						file->WriteBig( fillDraw.style.gradient.gradientRecords[g].endRatio );
-						file->Write( &fillDraw.style.gradient.gradientRecords[g].startColor, 4 );
-						file->Write( &fillDraw.style.gradient.gradientRecords[g].endColor, 4 );
-					}
-					file->WriteBig( fillDraw.style.focalPoint );
-					file->WriteBig( fillDraw.style.bitmapID );
-					file->WriteBig( fillDraw.startVerts.Num() );
-					file->WriteBigArray( fillDraw.startVerts.Ptr(), fillDraw.startVerts.Num() );
-					file->WriteBig( fillDraw.endVerts.Num() );
-					file->WriteBigArray( fillDraw.endVerts.Ptr(), fillDraw.endVerts.Num() );
-					file->WriteBig( fillDraw.indices.Num() );
-					file->WriteBigArray( fillDraw.indices.Ptr(), fillDraw.indices.Num() );
-				}
-				file->WriteBig( shape->lineDraws.Num() );
-				for( int d = 0; d < shape->lineDraws.Num(); d++ )
-				{
-					idSWFShapeDrawLine& lineDraw = shape->lineDraws[d];
-					file->WriteBig( lineDraw.style.startWidth );
-					file->WriteBig( lineDraw.style.endWidth );
-					file->Write( &lineDraw.style.startColor, 4 );
-					file->Write( &lineDraw.style.endColor, 4 );
-					file->WriteBig( lineDraw.startVerts.Num() );
-					file->WriteBigArray( lineDraw.startVerts.Ptr(), lineDraw.startVerts.Num() );
-					file->WriteBig( lineDraw.endVerts.Num() );
-					file->WriteBigArray( lineDraw.endVerts.Ptr(), lineDraw.endVerts.Num() );
-					file->WriteBig( lineDraw.indices.Num() );
-					file->WriteBigArray( lineDraw.indices.Ptr(), lineDraw.indices.Num() );
-				}
-				break;
-			}
-			case SWF_DICT_SPRITE:
-			{
-				dictionary[i].sprite->Write( file );
-				break;
-			}
-			case SWF_DICT_FONT:
-			{
-				idSWFFont* font = dictionary[i].font;
-				file->WriteString( font->fontID->GetName() );
-				file->WriteBig( font->ascent );
-				file->WriteBig( font->descent );
-				file->WriteBig( font->leading );
-				file->WriteBig( font->glyphs.Num() );
-				for( int g = 0; g < font->glyphs.Num(); g++ )
-				{
-					file->WriteBig( font->glyphs[g].code );
-					file->WriteBig( font->glyphs[g].advance );
-					file->WriteBig( font->glyphs[g].verts.Num() );
-					file->WriteBigArray( font->glyphs[g].verts.Ptr(), font->glyphs[g].verts.Num() );
-					file->WriteBig( font->glyphs[g].indices.Num() );
-					file->WriteBigArray( font->glyphs[g].indices.Ptr(), font->glyphs[g].indices.Num() );
-				}
-				break;
-			}
-			case SWF_DICT_TEXT:
-			{
-				idSWFText* text = dictionary[i].text;
-				file->WriteBig( text->bounds.tl );
-				file->WriteBig( text->bounds.br );
-				file->WriteBigArray( ( float* )&text->matrix, 6 );
-				file->WriteBig( text->textRecords.Num() );
-				for( int t = 0; t < text->textRecords.Num(); t++ )
-				{
-					idSWFTextRecord& textRecord = text->textRecords[t];
-					file->WriteBig( textRecord.fontID );
-					file->Write( &textRecord.color, 4 );
-					file->WriteBig( textRecord.xOffset );
-					file->WriteBig( textRecord.yOffset );
-					file->WriteBig( textRecord.textHeight );
-					file->WriteBig( textRecord.firstGlyph );
-					file->WriteBig( textRecord.numGlyphs );
-				}
-				file->WriteBig( text->glyphs.Num() );
-				for( int g = 0; g < text->glyphs.Num(); g++ )
-				{
-					file->WriteBig( text->glyphs[g].index );
-					file->WriteBig( text->glyphs[g].advance );
-				}
-				break;
-			}
-			case SWF_DICT_EDITTEXT:
-			{
-				idSWFEditText* edittext = dictionary[i].edittext;
-				file->WriteBig( edittext->bounds.tl );
-				file->WriteBig( edittext->bounds.br );
-				file->WriteBig( edittext->flags );
-				file->WriteBig( edittext->fontID );
-				file->WriteBig( edittext->fontHeight );
-				file->Write( &edittext->color, 4 );
-				file->WriteBig( edittext->maxLength );
-				file->WriteBig( edittext->align );
-				file->WriteBig( edittext->leftMargin );
-				file->WriteBig( edittext->rightMargin );
-				file->WriteBig( edittext->indent );
-				file->WriteBig( edittext->leading );
-				file->WriteString( edittext->variable );
-				file->WriteString( edittext->initialText );
-				break;
-			}
-		}
-	}
-#endif
 	
 	file->WriteFloatString( "</XSWF>\n" );
 }
