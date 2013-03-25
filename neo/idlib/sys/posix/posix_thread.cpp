@@ -34,6 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 #include <pthread_ng.h> // for pthread_set_name_np
 #endif
 
+// DG: Note: On Linux you need at least (e)glibc 2.12 to be able to set the threadname
 //#define DEBUG_THREADS
 
 typedef void* ( *pthread_function_t )( void* );
@@ -49,11 +50,19 @@ caedes: This should be seen as a helper-function for Sys_CreateThread() only.
 
 ========================
 */
+#ifdef DEBUG_THREADS
 static int Sys_SetThreadName( pthread_t handle, const char* name )
 {
 	int ret = 0;
 #ifdef __linux__
+	// NOTE: linux only supports threadnames up to 16chars *including* terminating NULL
+	// http://man7.org/linux/man-pages/man3/pthread_setname_np.3.html
+	// on my machine a longer name (eg "JobListProcessor_0") caused an ENOENT error (instead of ERANGE)
+	assert( strlen( name ) < 16 );
+	
 	ret = pthread_setname_np( handle, name );
+	if( ret != 0 )
+		idLib::common->Printf( "Setting threadname \"%s\" failed, reason: %s (%i)\n", name, strerror( errno ), errno );
 	// pthread_getname_np(pthread_t, char*, size_t)
 #elif defined(__FreeBSD__)
 	// according to http://www.freebsd.org/cgi/man.cgi?query=pthread_set_name_np&sektion=3
@@ -69,10 +78,14 @@ static int Sys_SetThreadName( pthread_t handle, const char* name )
 	
 		// so we'd have to wrap the xthread_t function in Sys_CreateThread and set the name in the wrapping function...
 	*/
+	
 	return ret;
 }
 
 // TODO: Sys_GetThreadName() ?
+#endif // DEBUG_THREADS
+
+
 
 /*
 ========================
@@ -103,7 +116,7 @@ uintptr_t Sys_CreateThread( xthread_t function, void* parms, xthreadPriority pri
 #if defined(DEBUG_THREADS)
 	if( Sys_SetThreadName( handle, name ) != 0 )
 	{
-		idLib::common->FatalError( "ERROR: pthread_setname_np %s failed\n", name );
+		idLib::common->Warning( "Warning: pthread_setname_np %s failed\n", name );
 		return ( uintptr_t )0;
 	}
 #endif
