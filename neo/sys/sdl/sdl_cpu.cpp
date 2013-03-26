@@ -26,12 +26,19 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
-#include <SDL_cpuinfo.h>
 
 #pragma hdrstop
 #include "../../idlib/precompiled.h"
 
-//#include "win_local.h"
+// DG: SDL_*.h somehow needs the following functions, so #undef those silly
+//     "don't use" #defines from Str.h
+#undef strcasecmp
+#undef strncmp
+#undef vsnprintf
+// DG end
+
+#include <SDL_cpuinfo.h>
+
 
 #pragma warning(disable:4740)	// warning C4740: flow in or out of inline asm code suppresses global optimization
 #pragma warning(disable:4731)	// warning C4731: 'XXX' : frame pointer register 'ebx' modified by inline assembly code

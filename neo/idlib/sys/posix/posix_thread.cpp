@@ -4,6 +4,7 @@
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2012 Robert Beckebans
+Copyright (C) 2013 Daniel Gibson
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -29,10 +30,62 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "../../precompiled.h"
 
+#ifdef __FreeBSD__
+#include <pthread_ng.h> // for pthread_set_name_np
+#endif
 
+// DG: Note: On Linux you need at least (e)glibc 2.12 to be able to set the threadname
 //#define DEBUG_THREADS
 
 typedef void* ( *pthread_function_t )( void* );
+
+/*
+========================
+Sys_SetThreadName
+
+caedes: This should be seen as a helper-function for Sys_CreateThread() only.
+        (re)setting the name of a running thread seems like a bad idea and
+        currently (fresh d3 bfg source) isn't done anyway.
+        Furthermore SDL doesn't support it
+
+========================
+*/
+#ifdef DEBUG_THREADS
+static int Sys_SetThreadName( pthread_t handle, const char* name )
+{
+	int ret = 0;
+#ifdef __linux__
+	// NOTE: linux only supports threadnames up to 16chars *including* terminating NULL
+	// http://man7.org/linux/man-pages/man3/pthread_setname_np.3.html
+	// on my machine a longer name (eg "JobListProcessor_0") caused an ENOENT error (instead of ERANGE)
+	assert( strlen( name ) < 16 );
+	
+	ret = pthread_setname_np( handle, name );
+	if( ret != 0 )
+		idLib::common->Printf( "Setting threadname \"%s\" failed, reason: %s (%i)\n", name, strerror( errno ), errno );
+	// pthread_getname_np(pthread_t, char*, size_t)
+#elif defined(__FreeBSD__)
+	// according to http://www.freebsd.org/cgi/man.cgi?query=pthread_set_name_np&sektion=3
+	// the interface is void pthread_set_name_np(pthread_t tid, const char *name);
+	pthread_set_name_np( handle, name ); // doesn't return anything
+	// seems like there is no get_name equivalent
+#endif
+	/* TODO: OSX:
+		// according to http://stackoverflow.com/a/7989973
+		// this needs to be called in the thread to be named!
+		ret = pthread_setname_np(name);
+		// int pthread_getname_np(pthread_t, char*, size_t);
+	
+		// so we'd have to wrap the xthread_t function in Sys_CreateThread and set the name in the wrapping function...
+	*/
+	
+	return ret;
+}
+
+// TODO: Sys_GetThreadName() ?
+#endif // DEBUG_THREADS
+
+
 
 /*
 ========================
@@ -60,11 +113,10 @@ uintptr_t Sys_CreateThread( xthread_t function, void* parms, xthreadPriority pri
 	}
 	pthread_attr_destroy( &attr );
 	
-	// RB: TODO pthread_setname_np is different on Linux, MacOSX and other systems
 #if defined(DEBUG_THREADS)
-	if( pthread_setname_np( handle, name ) != 0 )
+	if( Sys_SetThreadName( handle, name ) != 0 )
 	{
-		idLib::common->FatalError( "ERROR: pthread_setname_np %s failed\n", name );
+		idLib::common->Warning( "Warning: pthread_setname_np %s failed\n", name );
 		return ( uintptr_t )0;
 	}
 #endif
@@ -104,7 +156,7 @@ Sys_GetCurrentThreadID
 uintptr_t Sys_GetCurrentThreadID()
 {
 	/*
-	 * This cast is save because pthread_self()
+	 * This cast is safe because pthread_self()
 	 * returns a pointer and uintptr_t is
 	 * designed to hold a pointer. The compiler
 	 * is just too stupid to know. :)
@@ -163,8 +215,23 @@ void Sys_Yield()
 ================================================================================================
 */
 
-idSysSignal::idSysSignal( bool manualReset )
+/*
+========================
+Sys_SignalCreate
+========================
+*/
+void Sys_SignalCreate( signalHandle_t& handle, bool manualReset )
 {
+	// handle = CreateEvent( NULL, manualReset, FALSE, NULL );
+	
+	handle.manualReset = manualReset;
+	// if this is true, the signal is only set to nonsignaled when Clear() is called,
+	// else it's "auto-reset" and the state is set to !signaled after a single waiting
+	// thread has been released
+	
+	// the inital state is always "not signaled"
+	handle.signaled = false;
+	handle.waiting = 0;
 #if 0
 	pthread_mutexattr_t attr;
 	
@@ -174,121 +241,138 @@ idSysSignal::idSysSignal( bool manualReset )
 	pthread_mutex_init( &mutex, &attr );
 	pthread_mutexattr_destroy( &attr );
 #else
-	pthread_mutex_init( &mutex, NULL );
+	pthread_mutex_init( &handle.mutex, NULL );
 #endif
 	
-	pthread_cond_init( &cond, NULL );
+	pthread_cond_init( &handle.cond, NULL );
 	
-	signaled = false;
-	signalCounter = 0;
-	waiting = false;
-	this->manualReset = manualReset;
 }
 
-idSysSignal::~idSysSignal()
+/*
+========================
+Sys_SignalDestroy
+========================
+*/
+void Sys_SignalDestroy( signalHandle_t& handle )
 {
-	pthread_cond_destroy( &cond );
-	pthread_mutex_destroy( &mutex );
+	// CloseHandle( handle );
+	handle.signaled = false;
+	handle.waiting = 0;
+	pthread_mutex_destroy( &handle.mutex );
+	pthread_cond_destroy( &handle.cond );
 }
 
-void idSysSignal::Raise()
+/*
+========================
+Sys_SignalRaise
+========================
+*/
+void Sys_SignalRaise( signalHandle_t& handle )
 {
-	pthread_mutex_lock( &mutex );
+	// SetEvent( handle );
+	pthread_mutex_lock( &handle.mutex );
 	
-	//if( waiting )
+	if( handle.manualReset )
 	{
-		//pthread_cond_signal( &cond );
-		//pthread_cond_broadcast( &cond );
-	}
-	//else
-	if( !signaled )
-	{
-		// emulate Windows behaviour: if no thread is waiting, leave the signal on so next wait keeps going
-		signaled = true;
-		signalCounter++;
-		
-		pthread_cond_signal( &cond );
-		//pthread_cond_broadcast( &cond );
-	}
-	
-	pthread_mutex_unlock( &mutex );
-}
-
-void idSysSignal::Clear()
-{
-	pthread_mutex_lock( &mutex );
-	
-	signaled = false;
-	
-	pthread_mutex_unlock( &mutex );
-}
-
-// Wait returns true if the object is in a signalled state and
-// returns false if the wait timed out. Wait also clears the signalled
-// state when the signalled state is reached within the time out period.
-bool idSysSignal::Wait( int timeout )
-{
-	pthread_mutex_lock( &mutex );
-	
-	int result = 0;
-	
-#if 1
-	assert( !waiting );	// WaitForEvent from multiple threads? that wouldn't be good
-	
-	if( signaled )
-	{
-		if( !manualReset )
-		{
-			// emulate Windows behaviour: signal has been raised already. clear and keep going
-			signaled = false;
-			result = 0;
-		}
+		// signaled until reset
+		handle.signaled = true;
+		// wake *all* threads waiting on this cond
+		pthread_cond_broadcast( &handle.cond );
 	}
 	else
-#endif
 	{
-	
-#if 0
-	
-		int signalValue = signalCounter;
-		//while( !signaled && signalValue == signalCounter )
-#endif
+		// automode: signaled until first thread is released
+		if( handle.waiting > 0 )
 		{
-			waiting = true;
-			
-			if( timeout == WAIT_INFINITE )
-			{
-				result = pthread_cond_wait( &cond, &mutex );
-				
-				assert( result == 0 );
-			}
-			else
-			{
-				timespec ts;
-				clock_gettime( CLOCK_REALTIME, &ts );
-				// DG: handle timeouts > 1s better
-				int64 t = timeout * 1000000;
-				ts.tv_nsec += t % 1000000000;
-				ts.tv_sec  += t / 1000000000;
-				// DG end
-				result = pthread_cond_timedwait( &cond, &mutex, &ts );
-				
-				assert( result == 0 || ( timeout != idSysSignal::WAIT_INFINITE && result == ETIMEDOUT ) );
-			}
-			
-			waiting = false;
+			// there are waiting threads => release one
+			pthread_cond_signal( &handle.cond );
 		}
-		
-		if( !manualReset )
+		else
 		{
-			signaled = false;
+			// no waiting threads, save signal
+			handle.signaled = true;
+			// while the MSDN documentation is a bit unspecific about what happens
+			// when SetEvent() is called n times without a wait inbetween
+			// (will only one wait be successful afterwards or n waits?)
+			// it seems like the signaled state is a flag, not a counter.
+			// http://stackoverflow.com/a/13703585 claims the same.
 		}
 	}
 	
-	pthread_mutex_unlock( &mutex );
-	
-	return ( result == 0 );
+	pthread_mutex_unlock( &handle.mutex );
 }
+
+/*
+========================
+Sys_SignalClear
+========================
+*/
+void Sys_SignalClear( signalHandle_t& handle )
+{
+	// ResetEvent( handle );
+	pthread_mutex_lock( &handle.mutex );
+	
+	// TODO: probably signaled could be atomically changed?
+	handle.signaled = false;
+	
+	pthread_mutex_unlock( &handle.mutex );
+}
+
+
+/*
+========================
+Sys_SignalWait
+========================
+*/
+bool Sys_SignalWait( signalHandle_t& handle, int timeout )
+{
+	//DWORD result = WaitForSingleObject( handle, timeout == idSysSignal::WAIT_INFINITE ? INFINITE : timeout );
+	//assert( result == WAIT_OBJECT_0 || ( timeout != idSysSignal::WAIT_INFINITE && result == WAIT_TIMEOUT ) );
+	//return ( result == WAIT_OBJECT_0 );
+	
+	int status;
+	pthread_mutex_lock( &handle.mutex );
+	
+	if( handle.signaled ) // there is a signal that hasn't been used yet
+	{
+		if( ! handle.manualReset ) // for auto-mode only one thread may be released - this one.
+			handle.signaled = false;
+			
+		status = 0; // success!
+	}
+	else // we'll have to wait for a signal
+	{
+		++handle.waiting;
+		if( timeout == idSysSignal::WAIT_INFINITE )
+		{
+			status = pthread_cond_wait( &handle.cond, &handle.mutex );
+		}
+		else
+		{
+			timespec ts;
+			clock_gettime( CLOCK_REALTIME, &ts );
+			// DG: handle timeouts > 1s better
+			ts.tv_nsec += ( timeout % 1000 ) * 1000000; // millisec to nanosec
+			ts.tv_sec  += timeout / 1000;
+			if( ts.tv_nsec >= 1000000000 ) // nanoseconds are more than one second
+			{
+				ts.tv_nsec -= 1000000000; // remove one second in nanoseconds
+				ts.tv_sec += 1; // add one second to seconds
+			}
+			// DG end
+			status = pthread_cond_timedwait( &handle.cond, &handle.mutex, &ts );
+		}
+		--handle.waiting;
+	}
+	
+	pthread_mutex_unlock( &handle.mutex );
+	
+	assert( status == 0 || ( timeout != idSysSignal::WAIT_INFINITE && status == ETIMEDOUT ) );
+	
+	return ( status == 0 );
+	
+}
+
 /*
 ================================================================================================
 

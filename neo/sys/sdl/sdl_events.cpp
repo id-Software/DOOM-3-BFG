@@ -31,6 +31,13 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "../../idlib/precompiled.h"
 
+// DG: SDL.h somehow needs the following functions, so #undef those silly
+//     "don't use" #defines from Str.h
+#undef strncmp
+#undef strcasecmp
+#undef vsnprintf
+// DG end
+
 #include <SDL.h>
 
 #include "renderer/tr_local.h"
