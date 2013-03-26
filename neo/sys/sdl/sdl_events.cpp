@@ -72,7 +72,7 @@ const char* kbdNames[] =
 	"english", "french", "german", "italian", "spanish", "turkish", "norwegian", NULL
 };
 
-idCVar in_kbd( "in_kbd", "english", CVAR_SYSTEM | CVAR_ARCHIVE | CVAR_NOCHEAT, "keyboard layout", kbdNames, idCmdSystem::ArgCompletion_String<kbdNames> );
+idCVar in_keyboard( "in_keyboard", "english", CVAR_SYSTEM | CVAR_ARCHIVE | CVAR_NOCHEAT, "keyboard layout", kbdNames, idCmdSystem::ArgCompletion_String<kbdNames> );
 
 struct kbd_poll_t
 {
@@ -552,7 +552,7 @@ void Sys_InitInput()
 	SDL_EnableKeyRepeat( SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL );
 #endif
 	
-	in_kbd.SetModified();
+	in_keyboard.SetModified();
 }
 
 /*
@@ -587,9 +587,9 @@ unsigned char Sys_GetConsoleKey( bool shifted )
 {
 	static unsigned char keys[2] = { '`', '~' };
 	
-	if( in_kbd.IsModified() )
+	if( in_keyboard.IsModified() )
 	{
-		idStr lang = in_kbd.GetString();
+		idStr lang = in_keyboard.GetString();
 		
 		if( lang.Length() )
 		{
@@ -625,7 +625,7 @@ unsigned char Sys_GetConsoleKey( bool shifted )
 			}
 		}
 		
-		in_kbd.ClearModified();
+		in_keyboard.ClearModified();
 	}
 	
 	return shifted ? keys[1] : keys[0];
