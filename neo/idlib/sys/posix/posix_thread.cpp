@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2012 Robert Beckebans
+Copyright (C) 2012-2013 Robert Beckebans
 Copyright (C) 2013 Daniel Gibson
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
@@ -94,8 +94,6 @@ Sys_Createthread
 */
 uintptr_t Sys_CreateThread( xthread_t function, void* parms, xthreadPriority priority, const char* name, core_t core, int stackSize, bool suspended )
 {
-	//Sys_EnterCriticalSection();
-	
 	pthread_attr_t attr;
 	pthread_attr_init( &attr );
 	
@@ -111,7 +109,6 @@ uintptr_t Sys_CreateThread( xthread_t function, void* parms, xthreadPriority pri
 		idLib::common->FatalError( "ERROR: pthread_create %s failed\n", name );
 		return ( uintptr_t )0;
 	}
-	pthread_attr_destroy( &attr );
 	
 #if defined(DEBUG_THREADS)
 	if( Sys_SetThreadName( handle, name ) != 0 )
@@ -121,26 +118,76 @@ uintptr_t Sys_CreateThread( xthread_t function, void* parms, xthreadPriority pri
 	}
 #endif
 	
-	/*
-	TODO RB: support thread priorities?
+	pthread_attr_destroy( &attr );
+	
+	
+#if 0
+	// RB: realtime policies require root privileges
+	
+	// all Linux threads have one of the following scheduling policies:
+	
+	// SCHED_OTHER or SCHED_NORMAL: the default policy,  priority: [-20..0..19], default 0
+	
+	// SCHED_FIFO: first in/first out realtime policy
+	
+	// SCHED_RR: round-robin realtime policy
+	
+	// SCHED_BATCH: similar to SCHED_OTHER, but with a throughput orientation
+	
+	// SCHED_IDLE: lower priority than SCHED_OTHER
+	
+	int schedulePolicy = SCHED_OTHER;
+	struct sched_param scheduleParam;
+	
+	int error = pthread_getschedparam( handle, &schedulePolicy, &scheduleParam );
+	if( error != 0 )
+	{
+		idLib::common->FatalError( "ERROR: pthread_getschedparam %s failed: %s\n", name, strerror( error ) );
+		return ( uintptr_t )0;
+	}
+	
+	schedulePolicy = SCHED_FIFO;
+	
+	int minPriority = sched_get_priority_min( schedulePolicy );
+	int maxPriority = sched_get_priority_max( schedulePolicy );
 	
 	if( priority == THREAD_HIGHEST )
 	{
-		SetThreadPriority( ( HANDLE )handle, THREAD_PRIORITY_HIGHEST );		//  we better sleep enough to do this
+		//  we better sleep enough to do this
+		scheduleParam.__sched_priority = maxPriority;
 	}
 	else if( priority == THREAD_ABOVE_NORMAL )
 	{
-		SetThreadPriority( ( HANDLE )handle, THREAD_PRIORITY_ABOVE_NORMAL );
+		scheduleParam.__sched_priority = Lerp( minPriority, maxPriority, 0.75f );
+	}
+	else if( priority == THREAD_NORMAL )
+	{
+		scheduleParam.__sched_priority = Lerp( minPriority, maxPriority, 0.5f );
 	}
 	else if( priority == THREAD_BELOW_NORMAL )
 	{
-		SetThreadPriority( ( HANDLE )handle, THREAD_PRIORITY_BELOW_NORMAL );
+		scheduleParam.__sched_priority = Lerp( minPriority, maxPriority, 0.25f );
 	}
 	else if( priority == THREAD_LOWEST )
 	{
-		SetThreadPriority( ( HANDLE )handle, THREAD_PRIORITY_LOWEST );
+		scheduleParam.__sched_priority = minPriority;
 	}
-	*/
+	
+	// set new priority
+	error = pthread_setschedparam( handle, schedulePolicy, &scheduleParam );
+	if( error != 0 )
+	{
+		idLib::common->FatalError( "ERROR: pthread_setschedparam( name = %s, policy = %i, priority = %i ) failed: %s\n", name, schedulePolicy, scheduleParam.__sched_priority, strerror( error ) );
+		return ( uintptr_t )0;
+	}
+	
+	pthread_getschedparam( handle, &schedulePolicy, &scheduleParam );
+	if( error != 0 )
+	{
+		idLib::common->FatalError( "ERROR: pthread_getschedparam %s failed: %s\n", name, strerror( error ) );
+		return ( uintptr_t )0;
+	}
+#endif
 	
 	// Under Linux, we don't set the thread affinity and let the OS deal with scheduling
 	
