@@ -28,6 +28,26 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __SWF_SPRITEINSTANCE_H__
 #define __SWF_SPRITEINSTANCE_H__
 
+// RB: moved here
+#define PlaceFlagHasClipActions		BIT( 7 )
+#define PlaceFlagHasClipDepth		BIT( 6 )
+#define PlaceFlagHasName			BIT( 5 )
+#define PlaceFlagHasRatio			BIT( 4 )
+#define PlaceFlagHasColorTransform	BIT( 3 )
+#define PlaceFlagHasMatrix			BIT( 2 )
+#define PlaceFlagHasCharacter		BIT( 1 )
+#define PlaceFlagMove				BIT( 0 )
+
+#define PlaceFlagPad0				BIT( 7 )
+#define PlaceFlagPad1				BIT( 6 )
+#define PlaceFlagPad2				BIT( 5 )
+#define PlaceFlagHasImage			BIT( 4 )
+#define PlaceFlagHasClassName		BIT( 3 )
+#define PlaceFlagCacheAsBitmap		BIT( 2 )
+#define PlaceFlagHasBlendMode		BIT( 1 )
+#define PlaceFlagHasFilterList		BIT( 0 )
+// RB end
+
 /*
 ================================================
 There can be multiple instances of a single sprite running

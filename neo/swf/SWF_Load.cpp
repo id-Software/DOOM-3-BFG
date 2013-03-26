@@ -597,7 +597,7 @@ void idSWF::WriteXML( const char* filename )
 		{
 			case SWF_DICT_IMAGE:
 			{
-				file->WriteFloatString( "\t\t<Image material=\"" );
+				file->WriteFloatString( "\t\t<Image characterID=\"%i\" material=\"", i );
 				if( dictionary[i].material )
 				{
 					file->WriteFloatString( "%s\"", dictionary[i].material->GetName() );
@@ -621,7 +621,7 @@ void idSWF::WriteXML( const char* filename )
 			{
 				idSWFShape* shape = dictionary[i].shape;
 				
-				file->WriteFloatString( "\t\t<Shape>\n" );
+				file->WriteFloatString( "\t\t<Shape characterID=\"%i\">\n", i );
 				
 				float x = shape->startBounds.tl.y;
 				float y = shape->startBounds.tl.x;
@@ -815,7 +815,7 @@ void idSWF::WriteXML( const char* filename )
 			
 			case SWF_DICT_SPRITE:
 			{
-				dictionary[i].sprite->WriteXML( file, "\t\t" );
+				dictionary[i].sprite->WriteXML( file, "\t\t", i );
 				break;
 			}
 			
@@ -823,8 +823,8 @@ void idSWF::WriteXML( const char* filename )
 			{
 				const idSWFFont* font = dictionary[i].font;
 				
-				file->WriteFloatString( "\t\t<Font name=\"%s\" ascent=\"%i\" descent=\"%i\" leading=\"%i\" glyphsNum=\"%i\">\n",
-										font->fontID->GetName(), font->ascent, font->descent, font->leading, font->glyphs.Num() );
+				file->WriteFloatString( "\t\t<Font characterID=\"%i\" name=\"%s\" ascent=\"%i\" descent=\"%i\" leading=\"%i\" glyphsNum=\"%i\">\n",
+										i, font->fontID->GetName(), font->ascent, font->descent, font->leading, font->glyphs.Num() );
 										
 				for( int g = 0; g < font->glyphs.Num(); g++ )
 				{
@@ -858,7 +858,7 @@ void idSWF::WriteXML( const char* filename )
 			{
 				const idSWFText* text = dictionary[i].text;
 				
-				file->WriteFloatString( "\t\t<Text>\n" );
+				file->WriteFloatString( "\t\t<Text characterID=\"%i\">\n", i );
 				
 				float x = text->bounds.tl.y;
 				float y = text->bounds.tl.x;
@@ -921,7 +921,8 @@ void idSWF::WriteXML( const char* filename )
 			{
 				const idSWFEditText* et = dictionary[i].edittext;
 				
-				file->WriteFloatString( "\t\t<EditText flags=\"%i\" fontID=\"%i\" fontHeight=\"%i\" maxLength=\"%i\" align=\"%s\" leftMargin=\"%i\" rightMargin=\"%i\" indent=\"%i\" leading=\"%i\" variable=\"%s\" initialText=\"%s\">\n",
+				file->WriteFloatString( "\t\t<EditText characterID=\"%i\" flags=\"%i\" fontID=\"%i\" fontHeight=\"%i\" maxLength=\"%i\" align=\"%s\" leftMargin=\"%i\" rightMargin=\"%i\" indent=\"%i\" leading=\"%i\" variable=\"%s\" initialText=\"%s\">\n",
+										i,
 										et->flags, et->fontID, et->fontHeight, et->maxLength, idSWF::GetEditTextAlignName( et->align ),
 										et->leftMargin, et->rightMargin, et->indent, et->leading,
 										et->variable.c_str(), et->initialText.c_str() );

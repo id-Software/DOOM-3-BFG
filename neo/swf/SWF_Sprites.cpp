@@ -296,9 +296,16 @@ void idSWFSprite::Write( idFile* f )
 idSWFSprite::WriteXML
 ========================
 */
-void idSWFSprite::WriteXML( idFile* f, const char* indentPrefix )
+void idSWFSprite::WriteXML( idFile* f, const char* indentPrefix, int characterID )
 {
-	f->WriteFloatString( "%s<Sprite frameCount=\"%i\" frameOffsets=\"%i\">\n", indentPrefix, frameCount, frameOffsets.Num() );
+	if( characterID >= 0 )
+	{
+		f->WriteFloatString( "%s<Sprite characterID=\"%i\" frameCount=\"%i\" frameOffsets=\"%i\">\n", indentPrefix, characterID, frameCount, frameOffsets.Num() );
+	}
+	else
+	{
+		f->WriteFloatString( "%s<Sprite frameCount=\"%i\" frameOffsets=\"%i\">\n", indentPrefix, frameCount, frameOffsets.Num() );
+	}
 	
 	f->WriteFloatString( "%s\t<frameOffsets>", indentPrefix );
 	for( int i = 0; i < frameOffsets.Num(); i++ )
@@ -318,14 +325,40 @@ void idSWFSprite::WriteXML( idFile* f, const char* indentPrefix )
 	
 	for( int i = 0; i < commands.Num(); i++ )
 	{
-		base64.Encode( commands[i].stream.Ptr(), commands[i].stream.Length() );
+		idSWFSprite::swfSpriteCommand_t& command = commands[i];
+		
+		base64.Encode( command.stream.Ptr(), command.stream.Length() );
 		//base64.Decode( src );
 		
 		//f->WriteFloatString( "%s\t<Command tag=\"%s\" streamLength=\"%i\">%s</Command>\n", indentPrefix, idSWF::GetTagName( commands[i].tag ), src.Length(), src.c_str() );
 		
-		f->WriteFloatString( "%s\t<Command tag=\"%s\" streamLength=\"%i\">%s</Command>\n", indentPrefix, idSWF::GetTagName( commands[i].tag ), commands[i].stream.Length(), base64.c_str() );
+		//f->WriteFloatString( "%s\t<Command tag=\"%s\" streamLength=\"%i\">%s</Command>\n", indentPrefix, idSWF::GetTagName( commands[i].tag ), commands[i].stream.Length(), base64.c_str() );
+		
+		f->WriteFloatString( "%s\t<Command tag=\"%s\" streamLength=\"%i\">\n", indentPrefix, idSWF::GetTagName( command.tag ), command.stream.Length(), base64.c_str() );
+		f->WriteFloatString( "%s\t\t<Stream>%s</Stream>\n", indentPrefix, base64.c_str() );
 		
 		//f->WriteFloatString( "%s\t<Command tag=\"%s\" streamLength=\"%i\">%s</Command>\n", indentPrefix, idSWF::GetTagName( commands[i].tag ), commands[i].stream.Length(), commands[i].stream.Ptr() );
+		
+		command.stream.Rewind();
+		switch( command.tag )
+		{
+				//case Tag_PlaceObject2:
+				//	WriteXML_PlaceObject2( command.stream, indentPrefix );
+				//	break;
+				
+#define HANDLE_SWF_TAG( x ) case Tag_##x: WriteXML_##x( f, command.stream, indentPrefix ); break;
+				HANDLE_SWF_TAG( PlaceObject2 );
+				//HANDLE_SWF_TAG( PlaceObject3 );
+				//HANDLE_SWF_TAG( RemoveObject2 );
+				//HANDLE_SWF_TAG( StartSound );
+				//HANDLE_SWF_TAG( DoAction );
+#undef HANDLE_SWF_TAG
+			default:
+				break;
+				//idLib::Printf( "Export Sprite: Unhandled tag %s\n", idSWF::GetTagName( command.tag ) );
+		}
+		
+		f->WriteFloatString( "%s\t</Command>\n", indentPrefix );
 	}
 	
 	for( int i = 0; i < doInitActions.Num(); i++ )
@@ -339,4 +372,84 @@ void idSWFSprite::WriteXML( idFile* f, const char* indentPrefix )
 	
 	f->WriteFloatString( "%s</Sprite>\n", indentPrefix );
 }
+<<<<<<< HEAD
 // RB end
+=======
+
+void idSWFSprite::WriteXML_PlaceObject2( idFile* file, idSWFBitStream& bitstream, const char* indentPrefix )
+{
+	uint64 flags = bitstream.ReadU8();
+	int depth = bitstream.ReadU16();
+	
+	file->WriteFloatString( "%s\t\t<PlaceObject2 flags=\"%i\" depth=\"%i\"", indentPrefix, flags, depth );
+	
+	int characterID = -1;
+	if( ( flags & PlaceFlagHasCharacter ) != 0 )
+	{
+		characterID = bitstream.ReadU16();
+		file->WriteFloatString( " characterID=\"%i\"", characterID );
+	}
+	
+	file->WriteFloatString( ">\n" );
+	
+	if( ( flags & PlaceFlagHasMatrix ) != 0 )
+	{
+		swfMatrix_t m;
+		
+		bitstream.ReadMatrix( m );
+		
+		file->WriteFloatString( "%s\t\t\t<StartMatrix>%f %f %f %f %f %f</StartMatrix>\n", indentPrefix, m.xx, m.yy, m.xy, m.yx, m.tx, m.ty );
+	}
+	
+	if( ( flags & PlaceFlagHasColorTransform ) != 0 )
+	{
+		swfColorXform_t cxf;
+		bitstream.ReadColorXFormRGBA( cxf );
+		
+		idVec4 color = cxf.mul;
+		file->WriteFloatString( "%s\t\t\t<MulColor r=\"%f\" g=\"%f\" b=\"%f\" a=\"%f\"/>\n", indentPrefix, color.x, color.y, color.z, color.w );
+		
+		color = cxf.add;
+		file->WriteFloatString( "%s\t\t\t<AddColor r=\"%f\" g=\"%f\" b=\"%f\" a=\"%f\"/>\n", indentPrefix, color.x, color.y, color.z, color.w );
+	}
+	
+	if( ( flags & PlaceFlagHasRatio ) != 0 )
+	{
+		float ratio = bitstream.ReadU16() * ( 1.0f / 65535.0f );
+		
+		file->WriteFloatString( "%s\t\t\t<Ratio>%f</Ratio>\n", indentPrefix, ratio );
+	}
+	
+	if( ( flags & PlaceFlagHasName ) != 0 )
+	{
+		idStr name = bitstream.ReadString();
+		
+		file->WriteFloatString( "%s\t\t\t<Name>%s</Name>\n", indentPrefix, name.c_str() );
+		
+		/*if( display->spriteInstance )
+		{
+			display->spriteInstance->name = name;
+			scriptObject->Set( name, display->spriteInstance->GetScriptObject() );
+		}
+		else if( display->textInstance )
+		{
+			scriptObject->Set( name, display->textInstance->GetScriptObject() );
+		}*/
+	}
+	
+	if( ( flags & PlaceFlagHasClipDepth ) != 0 )
+	{
+		uint16 clipDepth = bitstream.ReadU16();
+		file->WriteFloatString( "%s\t\t\t<ClipDepth>%i</ClipDepth>\n", indentPrefix, clipDepth );
+	}
+	
+	if( ( flags & PlaceFlagHasClipActions ) != 0 )
+	{
+		// FIXME: clip actions
+	}
+	
+	file->WriteFloatString( "%s\t\t</PlaceObject2>\n", indentPrefix, flags, depth );
+}
+
+// RB end
+>>>>>>> 2f86bde... Extended Shape-Command exports
