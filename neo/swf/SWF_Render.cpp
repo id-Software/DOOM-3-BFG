@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -35,6 +36,13 @@ idCVar swf_stopat( "swf_stopat", "0", CVAR_FLOAT, "stop at a specific frame" );
 idCVar swf_titleSafe( "swf_titleSafe", "0.005", CVAR_FLOAT, "space between UI elements and screen edge", 0.0f, 0.075f );
 
 idCVar swf_forceAlpha( "swf_forceAlpha", "0", CVAR_FLOAT, "force an alpha value on all elements, useful to show invisible animating elements", 0.0f, 1.0f );
+
+// RB begin
+idCVar swf_skipSolids( "swf_skipSolids", "0", CVAR_BOOL, "" );
+idCVar swf_skipGradients( "swf_skipGradients", "0", CVAR_BOOL, "" );
+idCVar swf_skipLineDraws( "swf_skipLineDraws", "0", CVAR_BOOL, "" );
+idCVar swf_skipBitmaps( "swf_skipBitmaps", "0", CVAR_BOOL, "" );
+// RB end
 
 extern idCVar swf_textStrokeSize;
 extern idCVar swf_textStrokeSizeGlyphSpacer;
@@ -650,11 +658,25 @@ void idSWF::RenderShape( idRenderSystem* gui, const idSWFShape* shape, const swf
 		}
 		else if( fill.style.type == 0 )
 		{
+			// RB begin
+			if( swf_skipSolids.GetBool() )
+			{
+				continue;
+			}
+			// RB end
+			
 			material = guiSolid;
 			color.mul = fill.style.startColor.ToVec4();
 		}
 		else if( fill.style.type == 4 && fill.style.bitmapID != 65535 )
 		{
+			// RB begin
+			if( swf_skipBitmaps.GetBool() )
+			{
+				continue;
+			}
+			// RB end
+			
 			// everything in a single image atlas
 			idSWFDictionaryEntry* entry = &dictionary[ fill.style.bitmapID ];
 			material = atlasMaterial;
@@ -674,6 +696,13 @@ void idSWF::RenderShape( idRenderSystem* gui, const idSWFShape* shape, const swf
 		}
 		else
 		{
+			// RB begin
+			if( fill.style.type == 1 && swf_skipGradients.GetBool() )
+			{
+				continue;
+			}
+			// RB end
+			
 			material = guiSolid;
 		}
 		color = color.Multiply( renderState.cxf );
@@ -755,48 +784,53 @@ void idSWF::RenderShape( idRenderSystem* gui, const idSWFShape* shape, const swf
 		WriteDrawVerts16( & verts[fill.startVerts.Num() & ~3], tempVerts, fill.startVerts.Num() & 3 );
 	}
 	
-	for( int i = 0; i < shape->lineDraws.Num(); i++ )
+	// RB begin
+	if( !swf_skipLineDraws.GetBool() )
 	{
-		const idSWFShapeDrawLine& line = shape->lineDraws[i];
-		swfColorXform_t color;
-		color.mul = line.style.startColor.ToVec4();
-		color = color.Multiply( renderState.cxf );
-		if( swf_forceAlpha.GetFloat() > 0.0f )
+		for( int i = 0; i < shape->lineDraws.Num(); i++ )
 		{
-			color.mul.w = swf_forceAlpha.GetFloat();
-			color.add.w = 0.0f;
-		}
-		if( ( color.mul.w + color.add.w ) <= ALPHA_EPSILON )
-		{
-			continue;
-		}
-		uint32 packedColorM = LittleLong( PackColor( color.mul ) );
-		uint32 packedColorA = LittleLong( PackColor( ( color.add * 0.5f ) + idVec4( 0.5f ) ) ); // Compress from -1..1 to 0..1
-		
-		gui->SetGLState( GLStateForRenderState( renderState ) | GLS_POLYMODE_LINE );
-		
-		idDrawVert* verts = gui->AllocTris( line.startVerts.Num(), line.indices.Ptr(), line.indices.Num(), white, renderState.stereoDepth );
-		if( verts == NULL )
-		{
-			continue;
-		}
-		
-		for( int j = 0; j < line.startVerts.Num(); j++ )
-		{
-			const idVec2& xy = line.startVerts[j];
+			const idSWFShapeDrawLine& line = shape->lineDraws[i];
+			swfColorXform_t color;
+			color.mul = line.style.startColor.ToVec4();
+			color = color.Multiply( renderState.cxf );
+			if( swf_forceAlpha.GetFloat() > 0.0f )
+			{
+				color.mul.w = swf_forceAlpha.GetFloat();
+				color.add.w = 0.0f;
+			}
+			if( ( color.mul.w + color.add.w ) <= ALPHA_EPSILON )
+			{
+				continue;
+			}
+			uint32 packedColorM = LittleLong( PackColor( color.mul ) );
+			uint32 packedColorA = LittleLong( PackColor( ( color.add * 0.5f ) + idVec4( 0.5f ) ) ); // Compress from -1..1 to 0..1
 			
-			ALIGNTYPE16 idDrawVert tempVert;
+			gui->SetGLState( GLStateForRenderState( renderState ) | GLS_POLYMODE_LINE );
 			
-			tempVert.Clear();
-			tempVert.xyz.ToVec2() = renderState.matrix.Transform( xy ).Scale( scaleToVirtual );
-			tempVert.xyz.z = 0.0f;
-			tempVert.SetTexCoord( 0.0f, 0.0f );
-			tempVert.SetNativeOrderColor( packedColorM );
-			tempVert.SetNativeOrderColor2( packedColorA );
+			idDrawVert* verts = gui->AllocTris( line.startVerts.Num(), line.indices.Ptr(), line.indices.Num(), white, renderState.stereoDepth );
+			if( verts == NULL )
+			{
+				continue;
+			}
 			
-			WriteDrawVerts16( & verts[j], & tempVert, 1 );
+			for( int j = 0; j < line.startVerts.Num(); j++ )
+			{
+				const idVec2& xy = line.startVerts[j];
+				
+				ALIGNTYPE16 idDrawVert tempVert;
+				
+				tempVert.Clear();
+				tempVert.xyz.ToVec2() = renderState.matrix.Transform( xy ).Scale( scaleToVirtual );
+				tempVert.xyz.z = 0.0f;
+				tempVert.SetTexCoord( 0.0f, 0.0f );
+				tempVert.SetNativeOrderColor( packedColorM );
+				tempVert.SetNativeOrderColor2( packedColorA );
+				
+				WriteDrawVerts16( & verts[j], & tempVert, 1 );
+			}
 		}
 	}
+	// RB end
 }
 
 /*

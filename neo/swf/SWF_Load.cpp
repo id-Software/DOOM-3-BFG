@@ -641,9 +641,14 @@ void idSWF::WriteXML( const char* filename )
 				
 				for( int d = 0; d < shape->fillDraws.Num(); d++ )
 				{
-					file->WriteFloatString( "\t\t\t<DrawFill>\n" );
-					
 					idSWFShapeDrawFill& fillDraw = shape->fillDraws[d];
+					
+					if( fillDraw.style.type != 4 )
+					{
+						continue;
+					}
+					
+					file->WriteFloatString( "\t\t\t<DrawFill>\n" );
 					
 					file->WriteFloatString( "\t\t\t\t<FillStyle type=" );
 					
@@ -698,7 +703,7 @@ void idSWF::WriteXML( const char* filename )
 						file->WriteFloatString( " bitmapID=\"%i\"", fillDraw.style.bitmapID );
 					}
 					
-					file->WriteFloatString( ">\n", fillDraw.style.subType );
+					file->WriteFloatString( ">\n" );
 					
 					if( fillDraw.style.type == 0 )
 					{
@@ -766,7 +771,7 @@ void idSWF::WriteXML( const char* filename )
 				}
 				
 				// export line draws
-				
+#if 0
 				for( int d = 0; d < shape->lineDraws.Num(); d++ )
 				{
 					const idSWFShapeDrawLine& lineDraw = shape->lineDraws[d];
@@ -808,6 +813,7 @@ void idSWF::WriteXML( const char* filename )
 					}
 					file->WriteFloatString( "</Indices>\n" );
 				}
+#endif
 				
 				file->WriteFloatString( "\t\t</Shape>\n" );
 				break;
