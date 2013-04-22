@@ -1069,45 +1069,26 @@ struct glimpParms_t
 // So add PreInit for platforms that need it, others can just stub it.
 void		GLimp_PreInit();
 
-bool		GLimp_Init( glimpParms_t parms );
 // If the desired mode can't be set satisfactorily, false will be returned.
 // If succesful, sets glConfig.nativeScreenWidth, glConfig.nativeScreenHeight, and glConfig.pixelAspect
-
 // The renderer will then reset the glimpParms to "safe mode" of 640x480
 // fullscreen and try again.  If that also fails, the error will be fatal.
+bool		GLimp_Init( glimpParms_t parms );
 
-bool		GLimp_SetScreenParms( glimpParms_t parms );
 // will set up gl up with the new parms
+bool		GLimp_SetScreenParms( glimpParms_t parms );
 
-void		GLimp_Shutdown();
 // Destroys the rendering context, closes the window, resets the resolution,
 // and resets the gamma ramps.
+void		GLimp_Shutdown();
 
-void		GLimp_SetGamma( unsigned short red[256],
-							unsigned short green[256],
-							unsigned short blue[256] );
 // Sets the hardware gamma ramps for gamma and brightness adjustment.
 // These are now taken as 16 bit values, so we can take full advantage
 // of dacs with >8 bits of precision
+void		GLimp_SetGamma( unsigned short red[256],
+							unsigned short green[256],
+							unsigned short blue[256] );
 
-
-bool		GLimp_SpawnRenderThread( void ( *function )() );
-// Returns false if the system only has a single processor
-
-void* 		GLimp_BackEndSleep();
-void		GLimp_FrontEndSleep();
-void		GLimp_WakeBackEnd( void* data );
-// these functions implement the dual processor syncronization
-
-void		GLimp_ActivateContext();
-void		GLimp_DeactivateContext();
-// These are used for managing SMP handoffs of the OpenGL context
-// between threads, and as a performance tunining aid.  Setting
-// 'r_skipRenderContext 1' will call GLimp_DeactivateContext() before
-// the 3D rendering code, and GLimp_ActivateContext() afterwards.  On
-// most OpenGL implementations, this will result in all OpenGL calls
-// being immediate returns, which lets us guage how much time is
-// being spent inside OpenGL.
 
 
 /*

@@ -36,7 +36,7 @@ If you have questions concerning this license or the applicable additional terms
 //	memory allocation all in one place
 //
 //===============================================================
-#include <malloc.h>
+#include <stdlib.h>
 #undef new
 
 /*

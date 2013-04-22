@@ -103,7 +103,7 @@ If you have questions concerning this license or the applicable additional terms
 #endif
 
 
-#elif defined(__linux__)
+#elif defined(__linux__) || defined(__FreeBSD__)
 
 #if defined(__i386__)
 #define	CPUSTRING						"x86"
@@ -111,8 +111,13 @@ If you have questions concerning this license or the applicable additional terms
 #define CPUSTRING						"x86_86"
 #endif
 
+#ifdef __FreeBSD__
+#define	BUILD_STRING					"freebsd-" CPUSTRING
+#define BUILD_OS_ID						3
+#else
 #define	BUILD_STRING					"linux-" CPUSTRING
 #define BUILD_OS_ID						2
+#endif
 
 #define _alloca							alloca
 

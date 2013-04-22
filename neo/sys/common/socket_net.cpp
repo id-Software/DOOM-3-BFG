@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013 Daniel Gibson (changes for POSIX)
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -25,28 +26,90 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
-#pragma hdrstop
-#include "precompiled.h"
+
 
 /*
 ================================================================================================
-Contains the NetworkSystem implementation specific to Win32.
+Contains the NetworkSystem implementation for SOCKET APIs, currently POSIX Systems (Linux, FreeBSD,
+OSX, ...) and Winsock (Windows...) are supported.
+Note that other POSIX systems may need some small changes, e.g. in Sys_InitNetworking()
 ================================================================================================
 */
 
+#pragma hdrstop
+#include "precompiled.h"
+
+#ifdef _WIN32
+
 #include <iptypes.h>
 #include <iphlpapi.h>
-
-static WSADATA	winsockdata;
-static bool	winsockInitialized = false;
-static bool usingSocks = false;
-
-//lint -e569	ioctl macros trigger this
-
 // force these libs to be included, so users of idLib don't need to add them to every project
 #pragma comment(lib, "iphlpapi.lib" )
 #pragma comment(lib, "wsock32.lib" )
 
+#else // ! _WIN32
+
+#include <signal.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/socket.h>
+#include <sys/time.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <sys/param.h>
+#include <sys/ioctl.h>
+#include <sys/uio.h>
+#include <errno.h>
+#include <sys/select.h>
+#include <net/if.h>
+#if defined(MACOS_X) || defined(__FreeBSD__)
+#include <ifaddrs.h>
+#endif
+
+#endif // _WIN32
+
+/*
+================================================================================================
+
+Some #defines and platform specific things etc to abstract differences between Winsocks and
+real POSIX sockets away..
+
+================================================================================================
+*/
+
+#ifdef _WIN32
+
+#define Net_GetLastError WSAGetLastError
+
+#define D3_NET_EWOULDBLOCK   WSAEWOULDBLOCK
+#define D3_NET_ECONNRESET    WSAECONNRESET
+#define D3_NET_EADDRNOTAVAIL WSAEADDRNOTAVAIL
+
+typedef ULONG in_addr_t;
+typedef int socklen_t;
+
+static WSADATA	winsockdata;
+static bool	winsockInitialized = false;
+
+#else // ! _WIN32
+
+static int Net_GetLastError()
+{
+	return errno;
+}
+
+#define D3_NET_EWOULDBLOCK   EWOULDBLOCK
+#define D3_NET_ECONNRESET    ECONNRESET
+#define D3_NET_EADDRNOTAVAIL EADDRNOTAVAIL
+
+typedef int SOCKET;
+#define closesocket(x) close(x)
+#define SOCKET_ERROR -1
+#define INVALID_SOCKET -1
+
+#endif // _WIN32
 
 /*
 ================================================================================================
@@ -61,18 +124,23 @@ idCVar net_socksPort( "net_socksPort", "1080", CVAR_ARCHIVE | CVAR_INTEGER, "" )
 idCVar net_socksUsername( "net_socksUsername", "", CVAR_ARCHIVE, "" );
 idCVar net_socksPassword( "net_socksPassword", "", CVAR_ARCHIVE, "" );
 
-idCVar net_ip( "net_ip", "localhost", 0, "local IP address" );
+idCVar net_ip( "net_ip", "localhost", CVAR_NOCHEAT, "local IP address" );
 
 static struct sockaddr_in	socksRelayAddr;
 
-static SOCKET	ip_socket;
-static SOCKET	socks_socket;
+// static SOCKET	ip_socket; FIXME: what was this about?
+
+static bool usingSocks = false;
+static SOCKET	socks_socket = 0;
 static char		socksBuf[4096];
 
 typedef struct
 {
-	unsigned long ip;
-	unsigned long mask;
+	// RB: 64 bit fixes, changed long to int
+	// FIXME: IPv6?
+	unsigned int ip;
+	unsigned int mask;
+	// RB end
 	char addr[16];
 } net_interface;
 
@@ -95,9 +163,10 @@ NET_ErrorString
 */
 const char* NET_ErrorString()
 {
-	int		code;
-	
-	code = WSAGetLastError();
+#ifndef _WIN32
+	return strerror( errno );
+#else // _WIN32
+	int code = WSAGetLastError();
 	switch( code )
 	{
 		case WSAEINTR:
@@ -191,6 +260,7 @@ const char* NET_ErrorString()
 		default:
 			return "NO ERROR";
 	}
+#endif // _WIN32
 }
 
 /*
@@ -210,7 +280,7 @@ void Net_NetadrToSockadr( const netadr_t* a, sockaddr_in* s )
 	else if( a->type == NA_IP || a->type == NA_LOOPBACK )
 	{
 		s->sin_family = AF_INET;
-		s->sin_addr.s_addr = *( int* )a->ip;
+		s->sin_addr.s_addr = *( ( in_addr_t* ) &a->ip );
 	}
 	
 	s->sin_port = htons( ( short )a->port );
@@ -221,16 +291,21 @@ void Net_NetadrToSockadr( const netadr_t* a, sockaddr_in* s )
 Net_SockadrToNetadr
 ========================
 */
+#define LOOPBACK_NET    0x7F000000 // 127.0.0.0
+#define LOOPBACK_PREFIX 0xFF000000 // /8 or 255.0.0.0
 void Net_SockadrToNetadr( sockaddr_in* s, netadr_t* a )
 {
-	unsigned int ip;
+	in_addr_t ip;
 	if( s->sin_family == AF_INET )
 	{
 		ip = s->sin_addr.s_addr;
-		*( unsigned int* )a->ip = ip;
-		a->port = htons( s->sin_port );
+		*( in_addr_t* )&a->ip = ip;
+		a->port = ntohs( s->sin_port );
 		// we store in network order, that loopback test is host order..
 		ip = ntohl( ip );
+		// DG: just comparing ip with INADDR_LOOPBACK is lame,
+		//     because all of 127.0.0.0/8 is loopback.
+		// if( ( ip & LOOPBACK_PREFIX ) == LOOPBACK_NET )
 		if( ip == INADDR_LOOPBACK )
 		{
 			a->type = NA_LOOPBACK;
@@ -260,11 +335,14 @@ static bool Net_ExtractPort( const char* src, char* buf, int bufsize, int* port 
 		return false;
 	}
 	*p = '\0';
-	*port = strtol( p + 1, NULL, 10 );
-	if( errno == ERANGE )
+	
+	long lport = strtol( p + 1, NULL, 10 );
+	if( lport == 0 || lport == LONG_MIN || lport == LONG_MAX )
 	{
+		*port = 0;
 		return false;
 	}
+	*port = lport;
 	return true;
 }
 
@@ -275,6 +353,12 @@ Net_StringToSockaddr
 */
 static bool Net_StringToSockaddr( const char* s, sockaddr_in* sadr, bool doDNSResolve )
 {
+	/* NOTE: the doDNSResolve argument is ignored for two reasons:
+	 * 1. domains can start with numbers nowadays so the old heuristic to find out if it's
+	 *    an IP (check if the first char is a digit) isn't reliable
+	 * 2. gethostbyname() works fine for IPs and doesn't do a lookup if the passed string
+	 *    is an IP
+	 */
 	struct hostent*	h;
 	char buf[256];
 	int port;
@@ -284,44 +368,19 @@ static bool Net_StringToSockaddr( const char* s, sockaddr_in* sadr, bool doDNSRe
 	sadr->sin_family = AF_INET;
 	sadr->sin_port = 0;
 	
-	if( s[0] >= '0' && s[0] <= '9' )
+	// try to remove the port first, otherwise the DNS gets confused into multiple timeouts
+	// failed or not failed, buf is expected to contain the appropriate host to resolve
+	if( Net_ExtractPort( s, buf, sizeof( buf ), &port ) )
 	{
-		unsigned long ret = inet_addr( s );
-		if( ret != INADDR_NONE )
-		{
-			*( int* )&sadr->sin_addr = ret;
-		}
-		else
-		{
-			// check for port
-			if( !Net_ExtractPort( s, buf, sizeof( buf ), &port ) )
-			{
-				return false;
-			}
-			ret = inet_addr( buf );
-			if( ret == INADDR_NONE )
-			{
-				return false;
-			}
-			*( int* )&sadr->sin_addr = ret;
-			sadr->sin_port = htons( port );
-		}
+		sadr->sin_port = htons( port );
 	}
-	else if( doDNSResolve )
+	// buf contains the host, even if Net_ExtractPort returned false
+	h = gethostbyname( buf );
+	if( h == NULL )
 	{
-		// try to remove the port first, otherwise the DNS gets confused into multiple timeouts
-		// failed or not failed, buf is expected to contain the appropriate host to resolve
-		if( Net_ExtractPort( s, buf, sizeof( buf ), &port ) )
-		{
-			sadr->sin_port = htons( port );
-		}
-		h = gethostbyname( buf );
-		if( h == 0 )
-		{
-			return false;
-		}
-		*( int* )&sadr->sin_addr = *( int* )h->h_addr_list[0];
+		return false;
 	}
+	sadr->sin_addr.s_addr = *( in_addr_t* ) h->h_addr_list[0];
 	
 	return true;
 }
@@ -331,19 +390,16 @@ static bool Net_StringToSockaddr( const char* s, sockaddr_in* sadr, bool doDNSRe
 NET_IPSocket
 ========================
 */
-int NET_IPSocket( const char* net_interface, int port, netadr_t* bound_to )
+int NET_IPSocket( const char* bind_ip, int port, netadr_t* bound_to )
 {
 	SOCKET				newsocket;
 	sockaddr_in			address;
-	unsigned long		_true = 1;
-	int					i = 1;
-	int					err;
 	
 	if( port != PORT_ANY )
 	{
-		if( net_interface )
+		if( bind_ip )
 		{
-			idLib::Printf( "Opening IP socket: %s:%i\n", net_interface, port );
+			idLib::Printf( "Opening IP socket: %s:%i\n", bind_ip, port );
 		}
 		else
 		{
@@ -353,23 +409,38 @@ int NET_IPSocket( const char* net_interface, int port, netadr_t* bound_to )
 	
 	if( ( newsocket = socket( AF_INET, SOCK_DGRAM, IPPROTO_UDP ) ) == INVALID_SOCKET )
 	{
-		err = WSAGetLastError();
-		if( err != WSAEAFNOSUPPORT )
-		{
-			idLib::Printf( "WARNING: UDP_OpenSocket: socket: %s\n", NET_ErrorString() );
-		}
+		idLib::Printf( "WARNING: UDP_OpenSocket: socket: %s\n", NET_ErrorString() );
 		return 0;
 	}
 	
 	// make it non-blocking
+#ifdef _WIN32 // which has no fcntl()
+	unsigned long	_true = 1;
 	if( ioctlsocket( newsocket, FIONBIO, &_true ) == SOCKET_ERROR )
 	{
 		idLib::Printf( "WARNING: UDP_OpenSocket: ioctl FIONBIO: %s\n", NET_ErrorString() );
 		closesocket( newsocket );
 		return 0;
 	}
+#else
+	int flags = fcntl( newsocket, F_GETFL, 0 );
+	if( flags < 0 )
+	{
+		idLib::Printf( "WARNING: UDP_OpenSocket: fcntl F_GETFL: %s\n", NET_ErrorString() );
+		closesocket( newsocket );
+		return 0;
+	}
+	flags |= O_NONBLOCK;
+	if( fcntl( newsocket, F_SETFL, flags ) < 0 )
+	{
+		idLib::Printf( "WARNING: UDP_OpenSocket: fcntl F_SETFL with O_NONBLOCK: %s\n", NET_ErrorString() );
+		closesocket( newsocket );
+		return 0;
+	}
+#endif
 	
 	// make it broadcast capable
+	int i = 1;
 	if( setsockopt( newsocket, SOL_SOCKET, SO_BROADCAST, ( char* )&i, sizeof( i ) ) == SOCKET_ERROR )
 	{
 		idLib::Printf( "WARNING: UDP_OpenSocket: setsockopt SO_BROADCAST: %s\n", NET_ErrorString() );
@@ -377,13 +448,13 @@ int NET_IPSocket( const char* net_interface, int port, netadr_t* bound_to )
 		return 0;
 	}
 	
-	if( !net_interface || !net_interface[0] || !idStr::Icmp( net_interface, "localhost" ) )
+	if( !bind_ip || !bind_ip[0] || !idStr::Icmp( bind_ip, "localhost" ) )
 	{
 		address.sin_addr.s_addr = INADDR_ANY;
 	}
 	else
 	{
-		Net_StringToSockaddr( net_interface, &address, true );
+		Net_StringToSockaddr( bind_ip, &address, true );
 	}
 	
 	if( port == PORT_ANY )
@@ -408,8 +479,13 @@ int NET_IPSocket( const char* net_interface, int port, netadr_t* bound_to )
 	// ( this used to be in idUDP::InitForPort )
 	if( bound_to )
 	{
-		int len = sizeof( address );
-		getsockname( newsocket, ( sockaddr* )&address, &len );
+		socklen_t len = sizeof( address );
+		if( getsockname( newsocket, ( struct sockaddr* )&address, &len ) == SOCKET_ERROR )
+		{
+			common->Printf( "ERROR: IPSocket: getsockname: %s\n", NET_ErrorString() );
+			closesocket( newsocket );
+			return 0;
+		}
 		Net_SockadrToNetadr( &address, bound_to );
 	}
 	
@@ -451,7 +527,7 @@ void NET_OpenSocks( int port )
 		return;
 	}
 	address.sin_family = AF_INET;
-	address.sin_addr.s_addr = *( int* )h->h_addr_list[0];
+	address.sin_addr.s_addr = *( in_addr_t* )h->h_addr_list[0];
 	address.sin_port = htons( ( short )net_socksPort.GetInteger() );
 	
 	if( connect( socks_socket, ( sockaddr* )&address, sizeof( address ) ) == SOCKET_ERROR )
@@ -630,16 +706,16 @@ bool Net_WaitForData( int netSocket, int timeout )
 	}
 	
 	FD_ZERO( &set );
-	FD_SET( static_cast<unsigned int>( netSocket ), &set );
+	FD_SET( netSocket, &set ); // TODO: winsocks may want an unsigned int for netSocket?
 	
-	tv.tv_sec = 0;
-	tv.tv_usec = timeout * 1000;
+	tv.tv_sec = timeout / 1000;
+	tv.tv_usec = ( timeout % 1000 ) * 1000;
 	
 	ret = select( netSocket + 1, &set, NULL, NULL, &tv );
 	
 	if( ret == -1 )
 	{
-		idLib::Printf( "Net_WaitForData select(): %s\n", strerror( errno ) );
+		idLib::Printf( "Net_WaitForData select(): %s\n", NET_ErrorString() );
 		return false;
 	}
 	
@@ -661,7 +737,7 @@ bool Net_GetUDPPacket( int netSocket, netadr_t& net_from, char* data, int& size,
 {
 	int 			ret;
 	sockaddr_in		from;
-	int				fromlen;
+	socklen_t		fromlen;
 	int				err;
 	
 	if( !netSocket )
@@ -673,18 +749,20 @@ bool Net_GetUDPPacket( int netSocket, netadr_t& net_from, char* data, int& size,
 	ret = recvfrom( netSocket, data, maxSize, 0, ( sockaddr* )&from, &fromlen );
 	if( ret == SOCKET_ERROR )
 	{
-		err = WSAGetLastError();
+		err = Net_GetLastError();
 		
-		if( err == WSAEWOULDBLOCK || err == WSAECONNRESET )
+		if( err == D3_NET_EWOULDBLOCK || err == D3_NET_ECONNRESET )
 		{
 			return false;
 		}
-		char	buf[1024];
-		sprintf( buf, "Net_GetUDPPacket: %s\n", NET_ErrorString() );
-		idLib::Printf( buf );
+		
+		idLib::Printf( "Net_GetUDPPacket: %s\n", NET_ErrorString() );
 		return false;
 	}
-	
+#if 0
+	// TODO: WTF was this about?
+	// DG: ip_socket is never initialized, so this is dead code
+	// - and if netSocket is 0 (so this would be true) recvfrom above will already fail
 	if( static_cast<unsigned int>( netSocket ) == ip_socket )
 	{
 		memset( from.sin_zero, 0, sizeof( from.sin_zero ) );
@@ -706,14 +784,16 @@ bool Net_GetUDPPacket( int netSocket, netadr_t& net_from, char* data, int& size,
 	}
 	else
 	{
+#endif // 0
+	
 		Net_SockadrToNetadr( &from, &net_from );
+#if 0 // this is ugly, but else astyle is confused
 	}
+#endif
 	
 	if( ret > maxSize )
 	{
-		char	buf[1024];
-		sprintf( buf, "Net_GetUDPPacket: oversize packet from %s\n", Sys_NetAdrToString( net_from ) );
-		idLib::Printf( buf );
+		idLib::Printf( "Net_GetUDPPacket: oversize packet from %s\n", Sys_NetAdrToString( net_from ) );
 		return false;
 	}
 	
@@ -756,18 +836,23 @@ void Net_SendUDPPacket( int netSocket, int length, const void* data, const netad
 	}
 	if( ret == SOCKET_ERROR )
 	{
-		int err = WSAGetLastError();
-		
+		int err = Net_GetLastError();
 		// some PPP links do not allow broadcasts and return an error
-		if( ( err == WSAEADDRNOTAVAIL ) && ( to.type == NA_BROADCAST ) )
+		if( ( err == D3_NET_EADDRNOTAVAIL ) && ( to.type == NA_BROADCAST ) )
 		{
 			return;
 		}
 		
-		// NOTE: WSAEWOULDBLOCK used to be silently ignored,
+		// NOTE: EWOULDBLOCK used to be silently ignored,
 		// but that means the packet will be dropped so I don't feel it's a good thing to ignore
 		idLib::Printf( "UDP sendto error - packet dropped: %s\n", NET_ErrorString() );
 	}
+}
+
+static void ip_to_addr( const char ip[4], char* addr )
+{
+	idStr::snPrintf( addr, 16, "%d.%d.%d.%d", ( unsigned char )ip[0], ( unsigned char )ip[1],
+					 ( unsigned char )ip[2], ( unsigned char )ip[3] );
 }
 
 /*
@@ -777,13 +862,15 @@ Sys_InitNetworking
 */
 void Sys_InitNetworking()
 {
-	int		r;
+
+	bool foundloopback = false;
 	
+#if defined(_WIN32) // DG: add win32 stuff here for socket networking code unification..
 	if( winsockInitialized )
 	{
 		return;
 	}
-	r = WSAStartup( MAKEWORD( 1, 1 ), &winsockdata );
+	int r = WSAStartup( MAKEWORD( 1, 1 ), &winsockdata );
 	if( r )
 	{
 		idLib::Printf( "WARNING: Winsock initialization failed, returned %d\n", r );
@@ -798,7 +885,6 @@ void Sys_InitNetworking()
 	DWORD dwRetVal = 0;
 	PIP_ADDR_STRING pIPAddrString;
 	ULONG ulOutBufLen;
-	bool foundloopback;
 	
 	num_interfaces = 0;
 	foundloopback = false;
@@ -866,7 +952,153 @@ void Sys_InitNetworking()
 			pAdapter = pAdapter->Next;
 		}
 	}
+	free( pAdapterInfo );
+	
+#elif defined(MACOS_X) || defined(__FreeBSD__)
+	// haven't been able to clearly pinpoint which standards or RFCs define SIOCGIFCONF, SIOCGIFADDR, SIOCGIFNETMASK ioctls
+	// it seems fairly widespread, in Linux kernel ioctl, and in BSD .. so let's assume it's always available on our targets
+	
+	unsigned int ip, mask;
+	struct ifaddrs* ifap, *ifp;
+	
+	num_interfaces = 0;
+	
+	if( getifaddrs( &ifap ) < 0 )
+	{
+		common->FatalError( "InitNetworking: SIOCGIFCONF error - %s\n", strerror( errno ) );
+		return;
+	}
+	
+	for( ifp = ifap; ifp; ifp = ifp->ifa_next )
+	{
+		if( ifp->ifa_addr->sa_family != AF_INET )
+			continue;
+	
+		if( !( ifp->ifa_flags & IFF_UP ) )
+			continue;
+	
+		if( !ifp->ifa_addr )
+			continue;
+	
+		if( !ifp->ifa_netmask )
+			continue;
+	
+		// RB: 64 bit fixes, changed long to int
+		ip = ntohl( *( unsigned int* )&ifp->ifa_addr->sa_data[2] );
+		mask = ntohl( *( unsigned int* )&ifp->ifa_netmask->sa_data[2] );
+		// RB end
+	
+		if( ip == INADDR_LOOPBACK )
+		{
+			foundloopback = true;
+			common->Printf( "loopback\n" );
+		}
+		else
+		{
+			common->Printf( "%d.%d.%d.%d",
+							( unsigned char )ifp->ifa_addr->sa_data[2],
+							( unsigned char )ifp->ifa_addr->sa_data[3],
+							( unsigned char )ifp->ifa_addr->sa_data[4],
+							( unsigned char )ifp->ifa_addr->sa_data[5] );
+			common->Printf( "/%d.%d.%d.%d\n",
+							( unsigned char )ifp->ifa_netmask->sa_data[2],
+							( unsigned char )ifp->ifa_netmask->sa_data[3],
+							( unsigned char )ifp->ifa_netmask->sa_data[4],
+							( unsigned char )ifp->ifa_netmask->sa_data[5] );
+		}
+		netint[ num_interfaces ].ip = ip;
+		netint[ num_interfaces ].mask = mask;
+		// DG: set netint addr
+		ip_to_addr( &ifp->ifa_addr->sa_data[2], netint[ num_interfaces ].addr );
+		// DG end
+		num_interfaces++;
+	}
+#else // not _WIN32, OSX or FreeBSD
+	int		s;
+	char	buf[ MAX_INTERFACES * sizeof( ifreq ) ];
+	ifconf	ifc;
+	ifreq*	ifr;
+	int		ifindex;
+	unsigned int ip, mask;
+	
+	num_interfaces = 0;
+	
+	s = socket( AF_INET, SOCK_DGRAM, 0 );
+	ifc.ifc_len = MAX_INTERFACES * sizeof( ifreq );
+	ifc.ifc_buf = buf;
+	if( ioctl( s, SIOCGIFCONF, &ifc ) < 0 )
+	{
+		common->FatalError( "InitNetworking: SIOCGIFCONF error - %s\n", strerror( errno ) );
+		return;
+	}
+	ifindex = 0;
+	while( ifindex < ifc.ifc_len )
+	{
+		common->Printf( "found interface %s - ", ifc.ifc_buf + ifindex );
+		// find the type - ignore interfaces for which we can find we can't get IP and mask ( not configured )
+		ifr = ( ifreq* )( ifc.ifc_buf + ifindex );
+		if( ioctl( s, SIOCGIFADDR, ifr ) < 0 )
+		{
+			common->Printf( "SIOCGIFADDR failed: %s\n", strerror( errno ) );
+		}
+		else
+		{
+			if( ifr->ifr_addr.sa_family != AF_INET )
+			{
+				common->Printf( "not AF_INET\n" );
+			}
+			else
+			{
+				// RB: 64 bit fixes, changed long to int
+				ip = ntohl( *( unsigned int* )&ifr->ifr_addr.sa_data[2] );
+				// RB end
+				if( ip == INADDR_LOOPBACK )
+				{
+					foundloopback = true;
+					common->Printf( "loopback\n" );
+				}
+				else
+				{
+					common->Printf( "%d.%d.%d.%d",
+									( unsigned char )ifr->ifr_addr.sa_data[2],
+									( unsigned char )ifr->ifr_addr.sa_data[3],
+									( unsigned char )ifr->ifr_addr.sa_data[4],
+									( unsigned char )ifr->ifr_addr.sa_data[5] );
+				}
+	
+				// DG: set netint address before getting the mask
+				ip_to_addr( &ifr->ifr_addr.sa_data[2], netint[ num_interfaces ].addr );
+				// DG end
+	
+				if( ioctl( s, SIOCGIFNETMASK, ifr ) < 0 )
+				{
+					common->Printf( " SIOCGIFNETMASK failed: %s\n", strerror( errno ) );
+				}
+				else
+				{
+					// RB: 64 bit fixes, changed long to int
+					mask = ntohl( *( unsigned int* )&ifr->ifr_addr.sa_data[2] );
+					// RB end
+					if( ip != INADDR_LOOPBACK )
+					{
+						common->Printf( "/%d.%d.%d.%d\n",
+										( unsigned char )ifr->ifr_addr.sa_data[2],
+										( unsigned char )ifr->ifr_addr.sa_data[3],
+										( unsigned char )ifr->ifr_addr.sa_data[4],
+										( unsigned char )ifr->ifr_addr.sa_data[5] );
+					}
+					netint[ num_interfaces ].ip = ip;
+					netint[ num_interfaces ].mask = mask;
+					num_interfaces++;
+				}
+			}
+		}
+		ifindex += sizeof( ifreq );
+	}
+#endif // all those operating systems..
+	
 	// for some retarded reason, win32 doesn't count loopback as an adapter...
+	// and because I'm extra-cautious I add this check on real operating systems as well :)
 	if( !foundloopback && num_interfaces < MAX_INTERFACES )
 	{
 		idLib::Printf( "Sys_InitNetworking: adding loopback interface\n" );
@@ -874,7 +1106,6 @@ void Sys_InitNetworking()
 		netint[num_interfaces].mask = ntohl( inet_addr( "255.0.0.0" ) );
 		num_interfaces++;
 	}
-	free( pAdapterInfo );
 }
 
 /*
@@ -884,12 +1115,16 @@ Sys_ShutdownNetworking
 */
 void Sys_ShutdownNetworking()
 {
+#ifdef _WIN32
 	if( !winsockInitialized )
 	{
 		return;
 	}
 	WSACleanup();
 	winsockInitialized = false;
+#endif
+	if( usingSocks )
+		closesocket( socks_socket );
 }
 
 /*
@@ -917,27 +1152,24 @@ Sys_NetAdrToString
 */
 const char* Sys_NetAdrToString( const netadr_t a )
 {
+	// DG: FIXME: those static buffers look fishy - I would feel better if they were
+	//            at least thread-local - so /maybe/ use ID_TLS here?
+	//            or maybe return an idStr and change calling code accordingly
 	static int index = 0;
 	static char buf[ 4 ][ 64 ];	// flip/flop
 	char* s;
 	
 	s = buf[index];
 	index = ( index + 1 ) & 3;
-	
-	if( a.type == NA_LOOPBACK )
-	{
-		if( a.port )
-		{
-			idStr::snPrintf( s, 64, "localhost:%i", a.port );
-		}
-		else
-		{
-			idStr::snPrintf( s, 64, "localhost" );
-		}
-	}
-	else if( a.type == NA_IP )
-	{
+	if( a.type == NA_IP || a.type == NA_LOOPBACK )
 		idStr::snPrintf( s, 64, "%i.%i.%i.%i:%i", a.ip[0], a.ip[1], a.ip[2], a.ip[3], a.port );
+	else if( a.type == NA_BROADCAST )
+		idStr::snPrintf( s, 64, "BROADCAST" );
+	else if( a.type == NA_BAD )
+		idStr::snPrintf( s, 64, "BAD_IP" );
+	else
+	{
+		idStr::snPrintf( s, 64, "WTF_UNKNOWN_IP_TYPE_%i", a.type );
 	}
 	return s;
 }
@@ -959,12 +1191,19 @@ bool Sys_IsLANAddress( const netadr_t adr )
 		return false;
 	}
 	
+	// NOTE: this function won't work reliably for addresses on the local net
+	// that are connected through a router (i.e. no IP from that net is on any interface)
+	// However, I don't expect most people to have such setups at home and the code
+	// would get a lot more complex and less portable.
+	// Furthermore, this function isn't even used currently
 	if( num_interfaces )
 	{
 		int i;
-		unsigned long* p_ip;
-		unsigned long ip;
-		p_ip = ( unsigned long* )&adr.ip[0];
+		// DG: for 64bit compatibility, make these longs ints.
+		unsigned int* p_ip;
+		unsigned int ip;
+		p_ip = ( unsigned int* )&adr.ip[0];
+		// DG end
 		ip = ntohl( *p_ip );
 		
 		for( i = 0; i < num_interfaces; i++ )
@@ -994,6 +1233,7 @@ bool Sys_CompareNetAdrBase( const netadr_t a, const netadr_t b )
 	
 	if( a.type == NA_LOOPBACK )
 	{
+		// DG: wtf is this comparison about, the comment above says "without the port"
 		if( a.port == b.port )
 		{
 			return true;
@@ -1080,7 +1320,10 @@ idUDP::InitForPort
 */
 bool idUDP::InitForPort( int portNumber )
 {
-	netSocket = NET_IPSocket( net_ip.GetString(), portNumber, &bound_to );
+	// DG: don't specify an IP to bind for (and certainly not net_ip)
+	// => it'll listen on all addresses (0.0.0.0 / INADDR_ANY)
+	netSocket = NET_IPSocket( NULL, portNumber, &bound_to );
+	// DG end
 	if( netSocket <= 0 )
 	{
 		netSocket = 0;
@@ -1113,24 +1356,17 @@ idUDP::GetPacket
 */
 bool idUDP::GetPacket( netadr_t& from, void* data, int& size, int maxSize )
 {
-	bool ret;
-	
-	while( 1 )
+	// DG: this fake while(1) loop pissed me off so I replaced it.. no functional change.
+	if( ! Net_GetUDPPacket( netSocket, from, ( char* )data, size, maxSize ) )
 	{
-	
-		ret = Net_GetUDPPacket( netSocket, from, ( char* )data, size, maxSize );
-		if( !ret )
-		{
-			break;
-		}
-		
-		packetsRead++;
-		bytesRead += size;
-		
-		break;
+		return false;
 	}
 	
-	return ret;
+	packetsRead++;
+	bytesRead += size;
+	
+	return true;
+	// DG end
 }
 
 /*
@@ -1177,3 +1413,4 @@ void idUDP::SendPacket( const netadr_t to, const void* data, int size )
 	
 	Net_SendUDPPacket( netSocket, size, data, to );
 }
+

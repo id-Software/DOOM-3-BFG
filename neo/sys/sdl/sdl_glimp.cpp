@@ -29,10 +29,17 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include "../../idlib/precompiled.h"
+
+// DG: SDL.h somehow needs the following functions, so #undef those silly
+//     "don't use" #defines from Str.h
+#undef strncmp
+#undef strcasecmp
+#undef vsnprintf
+// DG end
+
 #include <SDL.h>
 #include <SDL_syswm.h>
-
-#include "../../idlib/precompiled.h"
 
 #include "renderer/tr_local.h"
 #include "sdl_local.h"
@@ -319,7 +326,7 @@ static int ScreenParmsHandleDisplayIndex( glimpParms_t parms )
 	}
 	else // -2 == use current display
 	{
-		displayIdx = SDL_GetWindowDisplay( window );
+		displayIdx = SDL_GetWindowDisplayIndex( window );
 		if( displayIdx < 0 ) // for some reason the display for the window couldn't be detected
 			displayIdx = 0;
 	}

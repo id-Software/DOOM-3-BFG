@@ -28,7 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __POSIX_SIGNIN_H__
 #define __POSIX_SIGNIN_H__
 
-#include "posix_localuser.h"
+#include "localuser.h"
 
 /*
 ================================================

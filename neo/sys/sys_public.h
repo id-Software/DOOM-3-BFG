@@ -432,7 +432,9 @@ void			Sys_Init();
 void			Sys_Shutdown();
 void			Sys_Error( const char* error, ... );
 const char* 	Sys_GetCmdLine();
-void			Sys_ReLaunch( void* launchData, unsigned int launchDataSize );
+// DG: Sys_ReLaunch() doesn't need any options (and the old way is painful for POSIX systems)
+void			Sys_ReLaunch();
+// DG end
 void			Sys_Launch( const char* path, idCmdArgs& args,  void* launchData, unsigned int launchDataSize );
 void			Sys_SetLanguageFromSystem();
 const char* 	Sys_DefaultLanguage();

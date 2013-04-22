@@ -15,14 +15,15 @@ Contains the windows implementation of the network session
 
 #pragma hdrstop
 #include "precompiled.h"
+
 #include "../../framework/Common_local.h"
 #include "../sys_session_local.h"
 #include "../sys_stats.h"
 #include "../sys_savegame.h"
 #include "../sys_lobby_backend_direct.h"
 #include "../sys_voicechat.h"
-#include "win_achievements.h"
-#include "win_local.h"
+#include "achievements.h"
+//#include "win_local.h"
 
 /*
 ========================
@@ -388,7 +389,7 @@ void idSessionLocalWin::Connect_f( const idCmdArgs& args )
 {
 	if( args.Argc() < 2 )
 	{
-		idLib::Printf( "Usage: Connect to IP.  Use with net_port. \n" );
+		idLib::Printf( "Usage: Connect to IP. Use IP:Port to specify port (e.g. 10.0.0.1:1234) \n" );
 		return;
 	}
 	
@@ -402,7 +403,13 @@ void idSessionLocalWin::Connect_f( const idCmdArgs& args )
 	lobbyConnectInfo_t connectInfo;
 	
 	Sys_StringToNetAdr( args.Argv( 1 ), &connectInfo.netAddr, true );
-	connectInfo.netAddr.port = net_port.GetInteger();
+	// DG: don't use net_port to select port to connect to
+	//     the port can be specified in the command, else the default port is used
+	if( connectInfo.netAddr.port == 0 )
+	{
+		connectInfo.netAddr.port = 27015;
+	}
+	// DG end
 	
 	ConnectAndMoveToLobby( GetPartyLobby(), connectInfo, false );
 }
@@ -456,8 +463,8 @@ idSessionLocalWin::IsSystemUIShowing
 */
 bool idSessionLocalWin::IsSystemUIShowing() const
 {
-	// DG: wtf, !win32.activeApp doesn't belong here, this is totally confusing and hacky.
-	// pause (when losing focus or invoking explicitly) is now handled properly by com_pause
+	// DG: pausing here when window is out of focus like originally done on windows is hacky
+	// it's done with com_pause now.
 	return isSysUIShowing;
 }
 
@@ -600,7 +607,7 @@ idSessionLocalWin::EnsurePort
 */
 void idSessionLocalWin::EnsurePort()
 {
-	// Init the port using reqular windows sockets
+	// Init the port using reqular sockets
 	if( port.IsOpen() )
 	{
 		return;		// Already initialized
@@ -608,6 +615,7 @@ void idSessionLocalWin::EnsurePort()
 	
 	if( port.InitPort( net_port.GetInteger(), false ) )
 	{
+		// TODO: what about canJoinLocalHost when running two instances with different net_port values?
 		canJoinLocalHost = false;
 	}
 	else

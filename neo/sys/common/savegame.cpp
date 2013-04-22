@@ -38,6 +38,11 @@ extern idCVar savegame_error;
 
 #define SAVEGAME_SENTINAL				0x12358932
 
+// RB begin
+#ifndef _WIN32 // DG: unify win32 and posix savegames
+#define ERROR_SUCCESS	0
+#endif
+// RB end
 /*
 ========================
 void Sys_ExecuteSavegameCommandAsync
@@ -176,7 +181,11 @@ int idSaveGameThread::Save()
 		idFile* outputFile = fileSystem->OpenFileWrite( tempFileName, "fs_savePath" );
 		if( outputFile == NULL )
 		{
+#ifdef _WIN32 // DG: unify windows and posix savegames => replace GetLastError with strerror(errno)
 			idLib::Warning( "[%s]: Couldn't open file for writing, %s. Error = %08x", __FUNCTION__, tempFileName.c_str(), GetLastError() );
+#else
+			idLib::Warning( "[%s]: Couldn't open file for writing, %s. Error = %s", __FUNCTION__, tempFileName.c_str(), strerror( errno ) );
+#endif // DG end
 			file->error = true;
 			callback->errorCode = SAVEGAME_E_UNKNOWN;
 			ret = -1;
@@ -194,7 +203,11 @@ int idSaveGameThread::Save()
 			{
 				if( ( size_t )outputFile->Write( block.data, block.bytes ) != block.bytes )
 				{
+#ifdef _WIN32 // DG: unify windows and posix savegames => replace GetLastError with strerror(errno)
 					idLib::Warning( "[%s]: Write failed. Error = %08x", __FUNCTION__, GetLastError() );
+#else
+					idLib::Warning( "[%s]: Write failed. Error = %s", __FUNCTION__, strerror( errno ) );
+#endif // DG end
 					file->error = true;
 					callback->errorCode = SAVEGAME_E_INSUFFICIENT_ROOM;
 					ret = -1;
@@ -214,7 +227,11 @@ int idSaveGameThread::Save()
 					size_t size = outputFile->WriteBig( checksum );
 					if( size != sizeof( checksum ) )
 					{
+#ifdef _WIN32 // DG: unify windows and posix savegames => replace GetLastError with strerror(errno)
 						idLib::Warning( "[%s]: Write failed. Error = %08x", __FUNCTION__, GetLastError() );
+#else
+						idLib::Warning( "[%s]: Write failed. Error = %s", __FUNCTION__, strerror( errno ) );
+#endif // DG end
 						file->error = true;
 						callback->errorCode = SAVEGAME_E_INSUFFICIENT_ROOM;
 						ret = -1;
@@ -225,7 +242,11 @@ int idSaveGameThread::Save()
 			size_t size = outputFile->Write( file->GetDataPtr(), file->Length() );
 			if( size != ( size_t )file->Length() )
 			{
+#ifdef _WIN32 // DG: unify windows and posix savegames => replace GetLastError with strerror(errno)
 				idLib::Warning( "[%s]: Write failed. Error = %08x", __FUNCTION__, GetLastError() );
+#else
+				idLib::Warning( "[%s]: Write failed. Error = %s", __FUNCTION__, strerror( errno ) );
+#endif // DG end
 				file->error = true;
 				callback->errorCode = SAVEGAME_E_INSUFFICIENT_ROOM;
 				ret = -1;
@@ -473,7 +494,7 @@ int idSaveGameThread::Enumerate()
 						ret = -1;
 					}
 				}
-				
+#ifdef _WIN32 // DG: unification of win32 and posix savagame code
 				// Use the date from the directory
 				WIN32_FILE_ATTRIBUTE_DATA attrData;
 				BOOL attrRet = GetFileAttributesEx( file->GetFullPath(), GetFileExInfoStandard, &attrData );
@@ -500,6 +521,11 @@ int idSaveGameThread::Enumerate()
 					itime.QuadPart /= second;
 					details->date = itime.QuadPart;
 				}
+#else
+				// DG: just use the idFile object's timestamp - the windows code gets file attributes and
+				//  other complicated stuff like that.. I'm wonderin what that was good for.. this seems to work.
+				details->date = file->Timestamp();
+#endif // DG end
 			}
 			else
 			{

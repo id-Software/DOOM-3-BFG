@@ -109,7 +109,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include <windows.h>						// for gl.h
 
-#elif defined(__linux__)
+#elif defined(__linux__) || defined(__FreeBSD__)
 
 #include <signal.h>
 #include <pthread.h>
@@ -117,7 +117,7 @@ If you have questions concerning this license or the applicable additional terms
 #endif // #if defined(_WIN32)
 // RB end
 
-#include <malloc.h>							// no malloc.h on mac or unix
+#include <stdlib.h>							// no malloc.h on mac or unix
 #undef FindText								// fix namespace pollution
 
 
@@ -149,6 +149,9 @@ If you have questions concerning this license or the applicable additional terms
 // RB: added <stdint.h> for missing uintptr_t with MinGW
 #include <stdint.h>
 // RB end
+// Yamagi: <stddef.h> for ptrdiff_t on FreeBSD
+#include <stddef.h>
+// Yamagi end
 
 //-----------------------------------------------------
 

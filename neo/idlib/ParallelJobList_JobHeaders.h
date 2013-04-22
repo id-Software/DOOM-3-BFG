@@ -51,17 +51,21 @@ If you have questions concerning this license or the applicable additional terms
 // RB begin
 #if defined(__MINGW32__)
 //#include <sal.h> 	// RB: missing __analysis_assume
+#include <malloc.h> // DG: _alloca16 needs that
 
 #ifndef __analysis_assume
 #define __analysis_assume( x )
 #endif
 
-#include <malloc.h> // DG: _alloca16 needs that
-
 #elif defined(__linux__)
+#include <malloc.h> // DG: _alloca16 needs that
+#include <signal.h>
+// RB end
+// Yamagi begin
+#elif defined(__FreeBSD__)
 #include <signal.h>
 #endif
-// RB end
+// Yamagi end
 
 #ifdef _MSC_VER
 #include <intrin.h>

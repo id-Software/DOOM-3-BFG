@@ -31,6 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "sys_lobby_backend_direct.h"
 
 extern idCVar net_port;
+extern idCVar net_ip;
 
 extern idLobbyToSessionCB* lobbyToSessionCB;
 
@@ -101,12 +102,15 @@ void idLobbyBackendDirect::JoinFromConnectInfo( const lobbyConnectInfo_t& connec
 {
 	if( lobbyToSessionCB->CanJoinLocalHost() )
 	{
+		// TODO: "CanJoinLocalHost" == *must* join LocalHost ?!
 		Sys_StringToNetAdr( "localhost", &address, true );
 		address.port = net_port.GetInteger();
+		NET_VERBOSE_PRINT( "NET: idLobbyBackendDirect::JoinFromConnectInfo(): canJoinLocalHost\n" );
 	}
 	else
 	{
 		address = connectInfo.netAddr;
+		NET_VERBOSE_PRINT( "NET: idLobbyBackendDirect::JoinFromConnectInfo(): %s\n", Sys_NetAdrToString( address ) );
 	}
 	
 	state		= STATE_READY;
@@ -176,7 +180,16 @@ lobbyConnectInfo_t idLobbyBackendDirect::GetConnectInfo()
 	if( IsHost() )
 	{
 		// If we are the host, give them our ip address
-		const char* ip = Sys_GetLocalIP( 0 );
+		// DG: always using the first IP doesn't work, because on linux that's 127.0.0.1
+		// and even if not, this causes trouble with NAT.
+		// So either use net_ip or, if it's not set ("localhost"), use 0.0.0.0 which is
+		// a special case the client will treat as "just use the IP I used for the lobby"
+		// (which is the right behavior for the Direct backend, I guess).
+		// the client special case is in idLobby::HandleReliableMsg
+		const char* ip = net_ip.GetString();
+		if( ip == NULL || idStr::Length( ip ) == 0 || idStr::Icmp( ip, "localhost" ) == 0 )
+			ip = "0.0.0.0";
+		// DG end
 		Sys_StringToNetAdr( ip, &address, false );
 		address.port = net_port.GetInteger();
 	}

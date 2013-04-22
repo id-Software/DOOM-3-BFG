@@ -91,6 +91,7 @@ typedef enum
 	CVAR_GUI				= BIT( 6 ),	// gui variable
 	CVAR_GAME				= BIT( 7 ),	// game variable
 	CVAR_TOOL				= BIT( 8 ),	// tool variable
+	// original doom3 used to have CVAR_USERINFO ("sent to servers, available to menu") here
 	CVAR_SERVERINFO			= BIT( 10 ),	// sent from servers, available to menu
 	CVAR_NETWORKSYNC		= BIT( 11 ),	// cvar is synced from the server to clients
 	CVAR_STATIC				= BIT( 12 ),	// statically declared, not user created

@@ -31,6 +31,13 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "../../idlib/precompiled.h"
 
+// DG: SDL.h somehow needs the following functions, so #undef those silly
+//     "don't use" #defines from Str.h
+#undef strncmp
+#undef strcasecmp
+#undef vsnprintf
+// DG end
+
 #include <SDL.h>
 
 #include "renderer/tr_local.h"
@@ -72,7 +79,7 @@ const char* kbdNames[] =
 	"english", "french", "german", "italian", "spanish", "turkish", "norwegian", NULL
 };
 
-idCVar in_kbd( "in_kbd", "english", CVAR_SYSTEM | CVAR_ARCHIVE | CVAR_NOCHEAT, "keyboard layout", kbdNames, idCmdSystem::ArgCompletion_String<kbdNames> );
+idCVar in_keyboard( "in_keyboard", "english", CVAR_SYSTEM | CVAR_ARCHIVE | CVAR_NOCHEAT, "keyboard layout", kbdNames, idCmdSystem::ArgCompletion_String<kbdNames> );
 
 struct kbd_poll_t
 {
@@ -552,7 +559,7 @@ void Sys_InitInput()
 	SDL_EnableKeyRepeat( SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL );
 #endif
 	
-	in_kbd.SetModified();
+	in_keyboard.SetModified();
 }
 
 /*
@@ -587,9 +594,9 @@ unsigned char Sys_GetConsoleKey( bool shifted )
 {
 	static unsigned char keys[2] = { '`', '~' };
 	
-	if( in_kbd.IsModified() )
+	if( in_keyboard.IsModified() )
 	{
-		idStr lang = in_kbd.GetString();
+		idStr lang = in_keyboard.GetString();
 		
 		if( lang.Length() )
 		{
@@ -625,7 +632,7 @@ unsigned char Sys_GetConsoleKey( bool shifted )
 			}
 		}
 		
-		in_kbd.ClearModified();
+		in_keyboard.ClearModified();
 	}
 	
 	return shifted ? keys[1] : keys[0];
@@ -853,6 +860,16 @@ sysEvent_t Sys_GetEvent()
 				}
 				// DG end
 				
+#if ! SDL_VERSION_ATLEAST(2, 0, 0)
+				// DG: only do this for key-down, don't care about isChar from SDL_KeyToDoom3Key.
+				//     if unicode is not 0 and is translatable to ASCII it should work..
+				if( ev.key.state == SDL_PRESSED && ( ev.key.keysym.unicode & 0xff80 ) == 0 )
+				{
+					c = ev.key.keysym.unicode & 0x7f;
+				}
+				// DG end
+#endif
+				
 				// fall through
 			case SDL_KEYUP:
 			{
@@ -870,20 +887,17 @@ sysEvent_t Sys_GetEvent()
 					
 					if( key == 0 )
 					{
-						unsigned char c;
-						
+					
+						unsigned char uc = ev.key.keysym.unicode & 0xff;
 						// check if its an unmapped console key
-						if( ev.key.keysym.unicode == ( c = Sys_GetConsoleKey( false ) ) )
+						if( uc == Sys_GetConsoleKey( false ) || uc == Sys_GetConsoleKey( true ) )
 						{
-							key = c;
-						}
-						else if( ev.key.keysym.unicode == ( c = Sys_GetConsoleKey( true ) ) )
-						{
-							key = c;
+							key = K_GRAVE;
+							c = K_BACKSPACE; // bad hack to get empty console inputline..
 						}
 						else
 						{
-							if( ev.type == SDL_KEYDOWN )
+							if( ev.type == SDL_KEYDOWN ) // FIXME: don't complain if this was an ASCII char and the console is open?
 								common->Warning( "unmapped SDL key %d (0x%x) scancode %d", ev.key.keysym.sym, ev.key.keysym.unicode, ev.key.keysym.scancode );
 							return res_none;
 						}
@@ -898,13 +912,7 @@ sysEvent_t Sys_GetEvent()
 				
 				if( key == K_BACKSPACE && ev.key.state == SDL_PRESSED )
 					c = key;
-#if ! SDL_VERSION_ATLEAST(2, 0, 0)
-				if( ev.key.state == SDL_PRESSED && isChar && ( ev.key.keysym.unicode & 0xff00 ) == 0 )
-				{
-					c = ev.key.keysym.unicode & 0xff;
-				}
-#endif
-				
+					
 				return res;
 			}
 			

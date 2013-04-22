@@ -28,16 +28,24 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma hdrstop
 #include "precompiled.h"
+
 #include "../../framework/PlayerProfile.h"
 #include "../sys_session_local.h"
-#include "win_signin.h"
-
+#include "signin.h"
+#ifndef _WIN32
+#include <unistd.h>
+#endif
 #ifdef _DEBUG
 idCVar win_userPersistent( "win_userPersistent", "1", CVAR_BOOL, "debugging cvar for profile persistence status" );
 idCVar win_userOnline( "win_userOnline", "1", CVAR_BOOL, "debugging cvar for profile online status" );
 idCVar win_isInParty( "win_isInParty", "0", CVAR_BOOL, "debugging cvar for platform party status" );
 idCVar win_partyCount( "win_partyCount", "0", CVAR_INTEGER, "debugginc var for platform party count" );
 #endif
+
+// DG: D3BFG got the username from steam, in the GPL release it just uses the hostname.
+//     this adds a name to set a player name
+idCVar ui_name( "ui_name", "", CVAR_ARCHIVE, "player name - leave empty for default name (system's hostname)" );
+// DG end
 
 /*
 ========================
@@ -104,10 +112,21 @@ void idSignInManagerWin::RegisterLocalUser( int inputDevice )
 	}
 	
 	static char machineName[128];
-	DWORD len = 128;
-	::GetComputerName( machineName, &len );
+	// DG: support for ui_name
+	const char* nameSource = ui_name.GetString();
 	
-	const char* nameSource = machineName;
+	if( idStr::Length( nameSource ) == 0 )
+	{
+		// ui_name was empty => default to hostname
+#ifdef _WIN32
+		DWORD len = 128;
+		::GetComputerName( machineName, &len );
+#else
+		gethostname( machineName, sizeof( machineName ) );
+#endif
+		nameSource = machineName;
+	}
+	// DG end
 	
 	idStr name( nameSource );
 	int nameLength = name.Length();
@@ -122,6 +141,8 @@ void idSignInManagerWin::RegisterLocalUser( int inputDevice )
 			name.AppendUTF8Char( c );
 		}
 	}
+	
+	idLib::Printf( "Added local user: %s\n", name.c_str() );
 	
 	idLocalUserWin& localUser = *localUsers.Alloc();
 	

@@ -183,7 +183,7 @@ void idCommonLocal::VPrintf( const char* fmt, va_list args )
 #if defined(_WIN32)
 		OutputDebugString( msg );
 #else
-		printf( msg );
+		printf( "%s", msg );
 #endif
 		// RB end
 		return;

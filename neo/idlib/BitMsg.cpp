@@ -374,6 +374,7 @@ int idBitMsg::ReadBits( int numBits ) const
 		}
 		fraction = readData[readCount - 1];
 		fraction >>= readBit;
+		// this doesn't really do anything: the bits set to 0 here are already shifted to 0
 		fraction &= ( 1 << get ) - 1;
 		value |= fraction << valueBits;
 		

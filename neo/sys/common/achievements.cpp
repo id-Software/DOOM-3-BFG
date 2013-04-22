@@ -25,107 +25,87 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
-
 #pragma hdrstop
-#include "../../idlib/precompiled.h"
-#include "posix_localuser.h"
+#include "precompiled.h"
 
-extern idCVar win_userPersistent;
-extern idCVar win_userOnline;
-extern idCVar win_isInParty;
-extern idCVar win_partyCount;
+#include "achievements.h"
+#include "../sys_session_local.h"
+
+extern idCVar achievements_Verbose;
+
+#define STEAM_ACHIEVEMENT_PREFIX		"ach_"
 
 /*
 ========================
-idLocalUserWin::Init
+idAchievementSystemWin::idAchievementSystemWin
 ========================
 */
-void idLocalUserWin::Init( int inputDevice_, const char* gamertag_, int numLocalUsers )
+idAchievementSystemWin::idAchievementSystemWin()
 {
-	if( numLocalUsers == 1 )     // Check for 1, since this is now incremented before we get in here
-	{
-		// This is the master user
-		gamertag = gamertag_;
-	}
-	else
-	{
-		// On steam, we need to generate a name based off the master user for split-screen users.
-		// We use the number of users on the system to generate the name rather than the device
-		// number so that it is always consistently "username (2)" for the second player.
-		gamertag.Format( "%s (%i)", gamertag_, numLocalUsers );
-	}
-	
-	inputDevice = inputDevice_;
 }
 
 /*
 ========================
-idLocalUserWin::IsProfileReady
+idAchievementSystemWin::IsInitialized
 ========================
 */
-bool idLocalUserWin::IsProfileReady() const
+bool idAchievementSystemWin::IsInitialized()
 {
-#ifdef _DEBUG
-	return win_userPersistent.GetBool();
-#else
-	return true;
-#endif
-}
-
-/*
-========================
-idLocalUserWin::IsOnline
-========================
-*/
-bool idLocalUserWin::IsOnline() const
-{
-#ifdef _DEBUG
-	return win_userOnline.GetBool();
-#else
-	return true;
-#endif
-}
-
-/*
-========================
-idLocalUserWin::IsInParty
-========================
-*/
-bool idLocalUserWin::IsInParty() const
-{
-#ifdef _DEBUG
-	return win_isInParty.GetBool();
-#else
 	return false;
-#endif
+}
+
+/*
+================================
+idAchievementSystemWin::AchievementUnlock
+================================
+*/
+void idAchievementSystemWin::AchievementUnlock( idLocalUser* user, int achievementID )
+{
 }
 
 /*
 ========================
-idLocalUserWin::GetPartyCount
+idAchievementSystemWin::AchievementLock
 ========================
 */
-int idLocalUserWin::GetPartyCount() const
+void idAchievementSystemWin::AchievementLock( idLocalUser* user, const int achievementID )
 {
-	// TODO: Implement
-#ifdef _DEBUG
-	return win_partyCount.GetInteger();
-#else
-	return 0;
-#endif
 }
 
 /*
 ========================
-idLocalUserWin::VerifyUserState
+idAchievementSystemWin::AchievementLockAll
 ========================
 */
-bool idLocalUserWin::VerifyUserState( winUserState_t& state )
+void idAchievementSystemWin::AchievementLockAll( idLocalUser* user, const int maxId )
 {
+}
 
-	if( state.inputDevice != inputDevice )
-	{
-		return false;
-	}
-	return true;
+/*
+========================
+idAchievementSystemWin::GetAchievementDescription
+========================
+*/
+bool idAchievementSystemWin::GetAchievementDescription( idLocalUser* user, const int achievementID, achievementDescription_t& data ) const
+{
+	return false;
+}
+
+/*
+========================
+idAchievementSystemWin::GetAchievementState
+========================
+*/
+bool idAchievementSystemWin::GetAchievementState( idLocalUser* user, idArray< bool, idAchievementSystem::MAX_ACHIEVEMENTS >& achievements ) const
+{
+	return false;
+}
+
+/*
+================================
+idAchievementSystemWin::Pump
+================================
+*/
+void idAchievementSystemWin::Pump()
+{
 }

@@ -712,16 +712,10 @@ file(GLOB_RECURSE WIN32_INCLUDES sys/win32/*.h)
 #file(GLOB_RECURSE WIN32_SOURCES sys/win32/*.cpp)
 
 set(WIN32_SOURCES
-	sys/win32/win_achievements.cpp
 	sys/win32/win_glimp.cpp
 	sys/win32/win_input.cpp
-	sys/win32/win_localuser.cpp
 	sys/win32/win_main.cpp
-	sys/win32/win_net.cpp
-	sys/win32/win_savegame.cpp
-	sys/win32/win_session_local.cpp
 	sys/win32/win_shared.cpp
-	sys/win32/win_signin.cpp
 	sys/win32/win_snd.cpp
 	sys/win32/win_syscon.cpp
 	sys/win32/win_taskkeyhook.cpp
@@ -806,6 +800,9 @@ set(WIN32_RESOURCES
 
 file(GLOB POSIX_INCLUDES sys/posix/*.h)
 file(GLOB POSIX_SOURCES sys/posix/*.cpp)
+
+file(GLOB COMMON_INCLUDES sys/common/*.h)
+file(GLOB COMMON_SOURCES sys/common/*.cpp)
 
 file(GLOB SDL_INCLUDES sys/sdl/*.h)
 file(GLOB SDL_SOURCES sys/sdl/*.cpp)
@@ -908,6 +905,9 @@ source_group("sys\\win32\\Resources" FILES ${WIN32_RESOURCES})
 source_group("sys\\posix" FILES ${POSIX_INCLUDES})
 source_group("sys\\posix" FILES ${POSIX_SOURCES})
 
+source_group("sys\\common" FILES ${COMMON_INCLUDES})
+source_group("sys\\common" FILES ${COMMON_SOURCES})
+
 source_group("sys\\sdl" FILES ${SDL_INCLUDES})
 source_group("sys\\sdl" FILES ${SDL_SOURCES})
 
@@ -985,6 +985,7 @@ set(RBDOOM3_INCLUDES
 			#${OGGVORBIS_INCLUDES}
 			${UI_INCLUDES}
 			${SWF_INCLUDES}
+			${COMMON_INCLUDES}
 			
 			#${COMPILER_INCLUDES}
 			#${COMPILER_AAS_INCLUDES} ${COMPILER_AAS_SOURCES}
@@ -1010,6 +1011,7 @@ set(RBDOOM3_SOURCES
 			#${OGGVORBIS_INCLUDES} ${OGGVORBIS_SOURCES}
 			${UI_SOURCES}
 			${SWF_SOURCES}
+			${COMMON_SOURCES}
 			
 			#${COMPILER_AAS_SOURCES}
 			#${COMPILER_DMAP_SOURCES}
@@ -1368,7 +1370,7 @@ else()
 	  
 	endif()
 	
-	if(UNIX)	
+	IF("${CMAKE_SYSTEM}" MATCHES "Linux")
 		target_link_libraries(RBDoom3BFG
 			idlib
 			GL
@@ -1379,5 +1381,16 @@ else()
 			${OPENAL_LIBRARY}
 			)
 	endif()
-	
+
+	IF("${CMAKE_SYSTEM}" MATCHES "FreeBSD")
+		target_link_libraries(RBDoom3BFG
+			idlib
+			GL
+			pthread
+			rt
+			${SDLx_LIBRARY}
+			${OPENAL_LIBRARY}
+			)
+	endif()
+    
 endif()

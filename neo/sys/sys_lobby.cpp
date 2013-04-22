@@ -339,6 +339,7 @@ void idLobby::Shutdown( bool retainMigrationInfo, bool skipGoodbye )
 idLobby::HandlePacket
 ========================
 */
+// TODO: remoteAddress const?
 void idLobby::HandlePacket( lobbyAddress_t& remoteAddress, idBitMsg fragMsg, idPacketProcessor::sessionId_t sessionID )
 {
 	SCOPED_PROFILE_EVENT( "HandlePacket" );
@@ -589,7 +590,7 @@ void idLobby::HandlePacket( lobbyAddress_t& remoteAddress, idBitMsg fragMsg, idP
 			idBitMsg reliableMsg( reliableData, reliableSize );
 			reliableMsg.SetSize( reliableSize );
 			
-			HandleReliableMsg( peerNum, reliableMsg );
+			HandleReliableMsg( peerNum, reliableMsg, &remoteAddress );
 		}
 		
 		if( peerNum == -1 || !peers[ peerNum ].IsConnected() )
@@ -1575,7 +1576,7 @@ void idLobby::SendConnectionRequest()
 	// Add the current version info to the handshake
 	const unsigned int localChecksum = NetGetVersionChecksum(); // DG: use int instead of long for 64bit compatibility
 	
-	NET_VERBOSE_PRINT( "NET: version = %i\n", localChecksum );
+	NET_VERBOSE_PRINT( "NET: version = %u\n", localChecksum );
 	
 	msg.WriteLong( localChecksum );
 	msg.WriteUShort( peers[host].sessionID );
@@ -1760,7 +1761,7 @@ bool idLobby::CheckVersion( idBitMsg& msg, lobbyAddress_t peerAddress )
 	{
 		const unsigned int localChecksum = NetGetVersionChecksum(); // DG: use int instead of long for 64bit compatibility
 		
-		NET_VERBOSE_PRINT( "NET: Comparing handshake version - localChecksum = %i, remoteChecksum = %i\n", localChecksum, remoteChecksum );
+		NET_VERBOSE_PRINT( "NET: Comparing handshake version - localChecksum = %u, remoteChecksum = %u\n", localChecksum, remoteChecksum );
 		return ( remoteChecksum == localChecksum );
 	}
 	return true;
@@ -1857,7 +1858,7 @@ int idLobby::HandleInitialPeerConnection( idBitMsg& msg, const lobbyAddress_t& p
 	
 	if( !IsHost() )
 	{
-		NET_VERBOSE_PRINT( "NET: Got connectionless hello from peer %s on session, and we are not a host\n", peerAddress.ToString() );
+		NET_VERBOSE_PRINT( "NET: Got connectionless hello from peer %s (num %i) on session, and we are not a host\n", peerAddress.ToString(), peerNum );
 		SendGoodbye( peerAddress );
 		return -1;
 	}
@@ -2765,13 +2766,13 @@ const char* idLobby::GetPeerName( int peerNum ) const
 idLobby::HandleReliableMsg
 ========================
 */
-void idLobby::HandleReliableMsg( int p, idBitMsg& msg )
+void idLobby::HandleReliableMsg( int p, idBitMsg& msg, const lobbyAddress_t* remoteAddress /* = NULL */ )
 {
 	peer_t& peer = peers[p];
 	
 	int reliableType = msg.ReadByte();
 	
-	//idLib::Printf(" Received reliable msg: %i \n", reliableType );
+	NET_VERBOSE_PRINT( " Received reliable msg: %i \n", reliableType );
 	
 	const lobbyType_t actingGameStateLobbyType = GetActingGameStateLobbyType();
 	
@@ -3021,7 +3022,16 @@ void idLobby::HandleReliableMsg( int p, idBitMsg& msg )
 		
 		// Get connection info
 		lobbyConnectInfo_t connectInfo;
+		
 		connectInfo.ReadFromMsg( msg );
+		
+		// DG: if connectInfo.ip = 0.0.0.0 just use remoteAddress
+		//     i.e. the IP used to connect to the lobby
+		if( remoteAddress && *( ( int* )connectInfo.netAddr.ip ) == 0 )
+		{
+			connectInfo.netAddr = remoteAddress->netAddr;
+		}
+		// DG end
 		
 		const lobbyType_t	destLobbyType	= ( lobbyType_t )msg.ReadByte();
 		const bool			waitForMembers	= msg.ReadBool();

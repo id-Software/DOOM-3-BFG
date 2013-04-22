@@ -219,12 +219,10 @@ void idMenuScreen_Shell_Stereoscopics::HideScreen( const mainMenuTransition_t tr
 				common->Dialog().ClearDialog( msg );
 				if( restart )
 				{
-					idStr cmdLine = Sys_GetCmdLine();
-					if( cmdLine.Find( "com_skipIntroVideos" ) < 0 )
-					{
-						cmdLine.Append( " +set com_skipIntroVideos 1" );
-					}
-					Sys_ReLaunch( ( void* )cmdLine.c_str(), cmdLine.Length() );
+					// DG: Sys_ReLaunch() doesn't need any options anymore
+					//     (the old way would have been unnecessarily painful on POSIX systems)
+					Sys_ReLaunch();
+					// DG end
 				}
 				return idSWFScriptVar();
 			}

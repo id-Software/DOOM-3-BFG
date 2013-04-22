@@ -132,16 +132,6 @@ typedef struct
 	LPDIRECTINPUTDEVICE8	g_pKeyboard;
 	idJoystickWin32			g_Joystick;
 	
-	HANDLE			renderCommandsEvent;
-	HANDLE			renderCompletedEvent;
-	HANDLE			renderActiveEvent;
-	HANDLE			renderThreadHandle;
-	unsigned long	renderThreadId;
-	void	( *glimpRenderThread )();
-	void*			smpData;
-	int				wglErrors;
-	// SMP acceleration vars
-	
 } Win32Vars_t;
 
 extern Win32Vars_t	win32;

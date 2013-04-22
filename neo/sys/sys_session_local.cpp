@@ -58,7 +58,7 @@ idCVar net_testPartyMemberConnectFail( "net_testPartyMemberConnectFail", "-1", C
 //FIXME: this could use a better name.
 idCVar net_offlineTransitionThreshold( "net_offlineTransitionThreshold", "1000", CVAR_INTEGER, "Time, in milliseconds, to wait before kicking back to the main menu when a profile losses backend connection during an online game" );
 
-idCVar net_port( "net_port", "27015", CVAR_INTEGER, "host port number" ); // Port to host when using dedicated servers, port to broadcast on when looking for a dedicated server to connect to
+idCVar net_port( "net_port", "27015", CVAR_INTEGER | CVAR_NOCHEAT, "host port number" ); // Port to host when using dedicated servers, port to broadcast on when looking for a dedicated server to connect to
 idCVar net_headlessServer( "net_headlessServer", "0", CVAR_BOOL, "toggle to automatically host a game and allow peer[0] to control menus" );
 
 const char* idSessionLocal::stateToString[ NUM_STATES ] =
@@ -110,7 +110,7 @@ unsigned int NetGetVersionChecksum()
 	CRC32_FinishChecksum( ret );
 	
 	NET_VERBOSE_PRINT( "NetGetVersionChecksum - string   : %s\n", netVersion.string );
-	NET_VERBOSE_PRINT( "NetGetVersionChecksum - checksum : %i\n", ret );
+	NET_VERBOSE_PRINT( "NetGetVersionChecksum - checksum : %u\n", ret );
 	return ret;
 #endif
 }
@@ -1591,7 +1591,7 @@ idSession::~idSession()
 	dedicatedServerSearch = NULL;
 }
 
-idCVar net_verbose( "net_verbose", "0", CVAR_BOOL, "Print a bunch of message about the network session" );
+idCVar net_verbose( "net_verbose", "0", CVAR_BOOL | CVAR_NOCHEAT, "Print a bunch of message about the network session" );
 idCVar net_verboseResource( "net_verboseResource", "0", CVAR_BOOL, "Prints a bunch of message about network resources" );
 idCVar net_verboseReliable( "net_verboseReliable", "0", CVAR_BOOL, "Prints the more spammy messages about reliable network msgs" );
 idCVar si_splitscreen( "si_splitscreen", "0", CVAR_INTEGER, "force splitscreen" );
@@ -4592,7 +4592,7 @@ void idSessionLocal::ListServersCommon()
 	// Add the current version info to the query
 	const unsigned int localChecksum = NetGetVersionChecksum(); // DG: use int instead of long for 64bit compatibility
 	
-	NET_VERBOSE_PRINT( "ListServers: Hash checksum: %i, broadcasting to: %s\n", localChecksum, address.ToString() );
+	NET_VERBOSE_PRINT( "ListServers: Hash checksum: %u, broadcasting to: %s\n", localChecksum, address.ToString() );
 	
 	msg.WriteLong( localChecksum );
 	

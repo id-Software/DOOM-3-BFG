@@ -34,7 +34,9 @@ If you have questions concerning this license or the applicable additional terms
 
 idCVar r_skipStripDeadCode( "r_skipStripDeadCode", "0", CVAR_BOOL, "Skip stripping dead code" );
 idCVar r_useUniformArrays( "r_useUniformArrays", "1", CVAR_BOOL, "" );
-
+// DG: the AMD drivers output a lot of useless warnings which are fscking annoying, added this CVar to suppress them
+idCVar r_displayGLSLCompilerMessages( "r_displayGLSLCompilerMessages", "1", CVAR_BOOL | CVAR_ARCHIVE, "Show info messages the GPU driver outputs when compiling the shaders" );
+// DG end
 
 #define VERTEX_UNIFORM_ARRAY_NAME				"_va_"
 #define FRAGMENT_UNIFORM_ARRAY_NAME				"_fa_"
@@ -1190,7 +1192,7 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, idL
 			{
 				//idLib::Printf( "%s program %s from %s compiled to run on hardware\n", typeName, GetName(), GetFileName() );
 			}
-			else
+			else if( r_displayGLSLCompilerMessages.GetBool() ) // DG:  check for the CVar I added above
 			{
 				idLib::Printf( "While compiling %s program %s\n", ( target == GL_FRAGMENT_SHADER ) ? "fragment" : "vertex" , inFile.c_str() );
 				
