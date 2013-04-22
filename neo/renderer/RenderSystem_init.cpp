@@ -386,7 +386,7 @@ static void R_CheckPortableExtensions()
 	glConfig.occlusionQueryAvailable = GLEW_ARB_occlusion_query != 0;
 	
 	// GL_ARB_timer_query
-	glConfig.timerQueryAvailable = GLEW_ARB_timer_query != 0 || GLEW_EXT_timer_query != 0;
+	glConfig.timerQueryAvailable = ( GLEW_ARB_timer_query != 0 || GLEW_EXT_timer_query != 0 ) && ( glConfig.vendor != VENDOR_INTEL || r_skipIntelWorkarounds.GetBool() );
 	
 	// GL_ARB_debug_output
 	glConfig.debugOutputAvailable = GLEW_ARB_debug_output != 0;

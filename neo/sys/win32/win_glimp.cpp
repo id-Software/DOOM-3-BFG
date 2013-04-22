@@ -1346,6 +1346,7 @@ bool GLimp_Init( glimpParms_t parms )
 	}
 	
 	// RB begin
+	/*
 	GLenum glewResult = glewInit();
 	if( GLEW_OK != glewResult )
 	{
@@ -1356,10 +1357,11 @@ bool GLimp_Init( glimpParms_t parms )
 	{
 		common->Printf( "Using GLEW %s\n", glewGetString( GLEW_VERSION ) );
 	}
+	*/
 	// RB end
 	
 	// wglSwapinterval, etc
-	GLW_CheckWGLExtensions( win32.hDC );
+	//GLW_CheckWGLExtensions( win32.hDC );
 	
 	return true;
 }
