@@ -585,8 +585,6 @@ void idSWF::WriteXML( const char* filename )
 	file->WriteFloatString( "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" );
 	file->WriteFloatString( "<XSWF version=\"%i\" timestamp=\"%i\" frameWidth=\"%f\" frameHeight=\"%f\" frameRate=\"%i\">\n", XSWF_VERSION, timestamp, frameWidth, frameHeight, frameRate );
 	
-	mainsprite->WriteXML( file, "\t" );
-	
 	file->WriteFloatString( "\t<Dictionary>\n" );
 	for( int i = 0; i < dictionary.Num(); i++ )
 	{
@@ -968,6 +966,8 @@ void idSWF::WriteXML( const char* filename )
 	}
 	
 	file->WriteFloatString( "\t</Dictionary>\n" );
+	
+	mainsprite->WriteXML( file, "\t" );
 	
 	file->WriteFloatString( "</XSWF>\n" );
 }

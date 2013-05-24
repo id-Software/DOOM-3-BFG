@@ -317,7 +317,7 @@ void idSWFSprite::WriteXML( idFile* f, const char* indentPrefix, int characterID
 	//f->WriteFloatString( "\t\t<frameLabels num=\"%i\">", frameLabels.Num() );
 	for( int i = 0; i < frameLabels.Num(); i++ )
 	{
-		f->WriteFloatString( "%s\t<FrameLabel frameNum=\"%i\" frameLabel=\"%i\"/>\n", indentPrefix, frameLabels[i].frameNum, frameLabels[i].frameLabel );
+		f->WriteFloatString( "%s\t<FrameLabel frameNum=\"%i\" frameLabel=\"%s\"/>\n", indentPrefix, frameLabels[i].frameNum, frameLabels[i].frameLabel.c_str() );
 	}
 	
 	
@@ -448,7 +448,7 @@ void idSWFSprite::WriteXML_PlaceObject2( idFile* file, idSWFBitStream& bitstream
 		// FIXME: clip actions
 	}
 	
-	file->WriteFloatString( "%s\t\t</PlaceObject2>\n", indentPrefix, flags, depth );
+	file->WriteFloatString( "%s\t\t</PlaceObject2>\n", indentPrefix );
 }
 
 // RB end
