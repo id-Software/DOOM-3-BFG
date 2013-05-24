@@ -409,7 +409,6 @@ protected:
 		BindShader( builtinShaders[i], builtinShaders[i] );
 	}
 	
-	GLuint	LoadShader( GLenum target, const char* name, const char* startToken );
 	bool	CompileGLSL( GLenum target, const char* name );
 	GLuint	LoadGLSLShader( GLenum target, const char* name, idList<int>& uniforms );
 	void	LoadGLSLProgram( const int programIndex, const int vertexShaderIndex, const int fragmentShaderIndex );

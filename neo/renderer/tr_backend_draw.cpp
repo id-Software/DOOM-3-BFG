@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -181,9 +182,11 @@ void RB_DrawElementsWithCounters( const drawSurf_t* surf )
 		// DG: this happens all the time in the erebus1 map with blendlight.vfp,
 		// so don't call assert (through verify) here until it's fixed (if fixable)
 		// else the game crashes on linux when using debug builds
+		
 		// FIXME: fix this properly if possible?
+		// RB: yes but it would require an additional blend light skinned shader
 		//if( !verify( renderProgManager.ShaderUsesJoints() ) )
-		if( ! renderProgManager.ShaderUsesJoints() )
+		if( !renderProgManager.ShaderUsesJoints() )
 			// DG end
 		{
 			return;
@@ -2271,7 +2274,10 @@ static int RB_DrawShaderPasses( const drawSurf_t* const* const drawSurfs, const 
 				
 				GL_State( stageGLState );
 				
-				renderProgManager.BindShader( newStage->glslProgram, newStage->glslProgram );
+				// RB: CRITICAL BUGFIX: changed newStage->glslProgram to vertexProgram and fragmentProgram
+				// otherwise it will result in an out of bounds crash in RB_DrawElementsWithCounters
+				renderProgManager.BindShader( newStage->vertexProgram, newStage->fragmentProgram );
+				// RB end
 				
 				for( int j = 0; j < newStage->numVertexParms; j++ )
 				{

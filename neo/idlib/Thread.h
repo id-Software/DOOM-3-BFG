@@ -93,8 +93,6 @@ that a thread can wait on for it to be raised.  It's used to indicate data is av
 a thread has reached a specific point.
 ================================================
 */
-// RB begin
-#if defined(_WIN32)
 class idSysSignal
 {
 public:
@@ -132,36 +130,6 @@ private:
 	idSysSignal( const idSysSignal& s ) {}
 	void				operator=( const idSysSignal& s ) {}
 };
-#else
-class idSysSignal
-{
-public:
-	static const int	WAIT_INFINITE = -1;
-
-	idSysSignal( bool manualReset = false );
-	~idSysSignal();
-
-	void	Raise();
-
-	void	Clear();
-
-	// Wait returns true if the object is in a signalled state and
-	// returns false if the wait timed out. Wait also clears the signalled
-	// state when the signalled state is reached within the time out period.
-	bool	Wait( int timeout = WAIT_INFINITE );
-
-private:
-	pthread_mutex_t	mutex;
-	pthread_cond_t	cond;
-	bool			signaled;
-	int				signalCounter;
-	bool			waiting;
-	bool			manualReset;
-
-	idSysSignal( const idSysSignal& s ) {}
-	void				operator=( const idSysSignal& s ) {}
-};
-#endif
 
 /*
 ================================================

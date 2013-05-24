@@ -411,7 +411,10 @@ bool idFile_SaveGamePipelined::OpenForWriting( const char* const filename, bool 
 	{
 		compressThread = new( TAG_IDFILE ) idSGFcompressThread();
 		compressThread->sgf = this;
-		compressThread->StartWorkerThread( "SGF_CompressThread", CORE_2B, THREAD_NORMAL );
+		// DG: change threadname from "SGF_CompressThread" to "SGF_Compress", because Linux
+		// has a 15 (+ \0) char limit for threadnames. also, "thread" in a threadname is redundant
+		compressThread->StartWorkerThread( "SGF_Compress", CORE_2B, THREAD_NORMAL );
+		// DG end
 	}
 	if( nativeFile != NULL && sgf_threads.GetInteger() >= 2 )
 	{
@@ -468,7 +471,10 @@ bool idFile_SaveGamePipelined::OpenForWriting( idFile* file )
 	{
 		compressThread = new( TAG_IDFILE ) idSGFcompressThread();
 		compressThread->sgf = this;
-		compressThread->StartWorkerThread( "SGF_CompressThread", CORE_2B, THREAD_NORMAL );
+		// DG: change threadname from "SGF_CompressThread" to "SGF_Compress", because Linux
+		// has a 15 (+ \0) char limit for threadnames. also, "thread" in a threadname is redundant
+		compressThread->StartWorkerThread( "SGF_Compress", CORE_2B, THREAD_NORMAL );
+		// DG end
 	}
 	if( nativeFile != NULL && sgf_threads.GetInteger() >= 2 )
 	{
@@ -810,7 +816,10 @@ bool idFile_SaveGamePipelined::OpenForReading( const char* const filename, bool 
 	{
 		decompressThread = new( TAG_IDFILE ) idSGFdecompressThread();
 		decompressThread->sgf = this;
-		decompressThread->StartWorkerThread( "SGF_DecompressThread", CORE_2B, THREAD_NORMAL );
+		// DG: change threadname from "SGF_DecompressThread" to "SGF_Decompress", because Linux
+		// has a 15 (+ \0) char limit for threadnames. also, "thread" in a threadname is redundant
+		decompressThread->StartWorkerThread( "SGF_Decompress", CORE_2B, THREAD_NORMAL );
+		// DG end
 	}
 	if( nativeFile != NULL && sgf_threads.GetInteger() >= 2 )
 	{
@@ -857,7 +866,10 @@ bool idFile_SaveGamePipelined::OpenForReading( idFile* file )
 	{
 		decompressThread = new( TAG_IDFILE ) idSGFdecompressThread();
 		decompressThread->sgf = this;
-		decompressThread->StartWorkerThread( "SGF_DecompressThread", CORE_1B, THREAD_NORMAL );
+		// DG: change threadname from "SGF_DecompressThread" to "SGF_Decompress", because Linux
+		// has a 15 (+ \0) char limit for threadnames. also, "thread" in a threadname is redundant
+		decompressThread->StartWorkerThread( "SGF_Decompress", CORE_1B, THREAD_NORMAL );
+		// DG end
 	}
 	if( nativeFile != NULL && sgf_threads.GetInteger() >= 2 )
 	{

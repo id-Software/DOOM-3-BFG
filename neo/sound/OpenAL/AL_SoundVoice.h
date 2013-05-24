@@ -56,6 +56,13 @@ public:
 		alSourcef( openalSource, AL_GAIN, ( gain ) < ( 1.0f ) ? ( gain ) : ( 1.0f ) );
 	}
 	
+	void		SetPitch( float p )
+	{
+		idSoundVoice_Base::SetPitch( p );
+		
+		alSourcef( openalSource, AL_PITCH, p );
+	}
+	
 	void					Create( const idSoundSample* leadinSample, const idSoundSample* loopingSample );
 	
 	// Start playing at a particular point in the buffer.  Does an Update() too
