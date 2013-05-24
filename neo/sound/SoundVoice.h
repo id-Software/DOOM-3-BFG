@@ -54,16 +54,18 @@ public:
 	{
 		gain = g;
 	}
+	
+	virtual void	SetPitch( float p )
+	{
+		pitch = p;
+	}
 	// RB end
 	
 	void		SetCenterChannel( float c )
 	{
 		centerChannel = c;
 	}
-	void		SetPitch( float p )
-	{
-		pitch = p;
-	}
+	
 	void		SetInnerRadius( float r )
 	{
 		innerRadius = r;
