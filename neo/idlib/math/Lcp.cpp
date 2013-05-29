@@ -44,6 +44,7 @@ const float LCP_DELTA_FORCE_EPSILON		= 1e-9f;
 #define IGNORE_UNSATISFIABLE_VARIABLES
 
 
+#if defined( ID_WIN_X86_SSE_ASM ) || defined( ID_WIN_X86_SSE_INTRIN )
 
 ALIGN16( const __m128 SIMD_SP_zero )							= { 0.0f, 0.0f, 0.0f, 0.0f };
 ALIGN16( const __m128 SIMD_SP_one )								= { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -67,6 +68,8 @@ ALIGN16( const unsigned int SIMD_DW_four[4] )					= { 4, 4, 4, 4 };
 ALIGN16( const unsigned int SIMD_DW_index[4] )					= { 0, 1, 2, 3 };
 ALIGN16( const int SIMD_DW_not3[4] )							= { ~3, ~3, ~3, ~3 };
 
+#endif
+
 /*
 ========================
 Multiply_SIMD
@@ -82,6 +85,7 @@ static void Multiply_SIMD( float * dst, const float * src0, const float * src1, 
 		dst[i] = src0[i] * src1[i];
 	}
 
+#ifdef ID_WIN_X86_SSE_INTRIN
 
 	for ( ; i + 4 <= count; i += 4 ) {
 		assert_16_byte_aligned( &dst[i] );
@@ -94,6 +98,20 @@ static void Multiply_SIMD( float * dst, const float * src0, const float * src1, 
 		_mm_store_ps( dst + i, s0 );
 	}
 
+#else
+
+	for ( ; i + 4 <= count; i += 4 ) {
+		assert_16_byte_aligned( &dst[i] );
+		assert_16_byte_aligned( &src0[i] );
+		assert_16_byte_aligned( &src1[i] );
+
+		dst[i+0] = src0[i+0] * src1[i+0];
+		dst[i+1] = src0[i+1] * src1[i+1];
+		dst[i+2] = src0[i+2] * src1[i+2];
+		dst[i+3] = src0[i+3] * src1[i+3];
+	}
+
+#endif
 
 	for ( ; i < count; i++ ) {
 		dst[i] = src0[i] * src1[i];
@@ -115,6 +133,7 @@ static void MultiplyAdd_SIMD( float * dst, const float constant, const float * s
 		dst[i] += constant * src[i];
 	}
 
+#ifdef ID_WIN_X86_SSE_INTRIN
 
 	__m128 c = _mm_load1_ps( & constant );
 	for ( ; i + 4 <= count; i += 4 ) {
@@ -127,6 +146,19 @@ static void MultiplyAdd_SIMD( float * dst, const float constant, const float * s
 		_mm_store_ps( dst + i, s );
 	}
 
+#else
+
+	for ( ; i + 4 <= count; i += 4 ) {
+		assert_16_byte_aligned( &src[i] );
+		assert_16_byte_aligned( &dst[i] );
+
+		dst[i+0] += constant * src[i+0];
+		dst[i+1] += constant * src[i+1];
+		dst[i+2] += constant * src[i+2];
+		dst[i+3] += constant * src[i+3];
+	}
+
+#endif
 
 	for ( ; i < count; i++ ) {
 		dst[i] += constant * src[i];
@@ -144,7 +176,7 @@ static float DotProduct_SIMD( const float * src0, const float * src1, const int 
 	assert_16_byte_aligned( src0 );
 	assert_16_byte_aligned( src1 );
 
-#ifndef _lint
+#ifdef ID_WIN_X86_SSE_INTRIN
 
 	__m128 sum = (__m128 &) SIMD_SP_zero;
 	int i = 0;
@@ -266,7 +298,7 @@ static void LowerTriangularSolve_SIMD( const idMatX & L, float * x, const float 
 
 	int i = skip;
 
-#ifndef _lint
+#ifdef ID_WIN_X86_SSE_INTRIN
 
 	// work up to a multiple of 4 rows
 	for ( ; ( i & 3 ) != 0 && i < n; i++ ) {
@@ -520,7 +552,7 @@ static void LowerTriangularSolveTranspose_SIMD( const idMatX & L, float * x, con
 	const float * lptr = L.ToFloatPtr() + m * nc + m - 4;
 	float * xptr = x + m;
 
-#ifndef _lint
+#ifdef ID_WIN_X86_SSE2_INTRIN
 
 	// process 4 rows at a time
 	for ( int i = m; i >= 4; i -= 4 ) {
@@ -850,7 +882,7 @@ static bool LDLT_Factor_SIMD( idMatX & mat, idVecX & invDiag, const int n ) {
 		mptr[j*nc+3] = ( mptr[j*nc+3] - v[0] * mptr[j*nc+0] - v[1] * mptr[j*nc+1] - v[2] * mptr[j*nc+2] ) * d;
 	}
 
-#ifndef _lint
+#ifdef ID_WIN_X86_SSE2_INTRIN
 
 	__m128 vzero = _mm_setzero_ps();
 	for ( int i = 4; i < n; i += 4 ) {
@@ -1210,6 +1242,7 @@ static void GetMaxStep_SIMD( const float * f, const float * a, const float * del
 							const float * lo, const float * hi, const int * side, int numUnbounded, int numClamped,
 							int d, float dir, float & maxStep, int & limit, int & limitSide ) {
 
+#ifdef ID_WIN_X86_SSE2_INTRIN
 
 	__m128 vMaxStep;
 	__m128i vLimit;
@@ -1332,6 +1365,65 @@ static void GetMaxStep_SIMD( const float * f, const float * a, const float * del
 	_mm_store_ss( & maxStep, vMaxStep );
 	limit = _mm_cvtsi128_si32( vLimit );
 	limitSide = _mm_cvtsi128_si32( vLimitSide );
+
+#else
+
+	// default to a full step for the current variable
+	{
+		float negAccel = -a[d];
+		float deltaAccel = delta_a[d];
+		int m0 = ( fabs( deltaAccel ) > LCP_DELTA_ACCEL_EPSILON );
+		float step = negAccel / ( m0 ? deltaAccel : 1.0f );
+		maxStep = m0 ? step : 0.0f;
+		limit = d;
+		limitSide = 0;
+	}
+
+	// test the current variable
+	{
+		float deltaForce = dir;
+		float forceLimit = ( deltaForce < 0.0f ) ? lo[d] : hi[d];
+		float step = ( forceLimit - f[d] ) / deltaForce;
+		int setSide = ( deltaForce < 0.0f ) ? -1 : 1;
+		int m0 = ( fabs( deltaForce ) > LCP_DELTA_FORCE_EPSILON );
+		int m1 = ( fabs( forceLimit ) != idMath::INFINITY );
+		int m2 = ( step < maxStep );
+		int m3 = ( m0 & m1 & m2 );
+		maxStep = m3 ? step : maxStep;
+		limit = m3 ? d : limit;
+		limitSide = m3 ? setSide : limitSide;
+	}
+
+	// test the clamped bounded variables
+	for ( int i = numUnbounded; i < numClamped; i++ ) {
+		float deltaForce = delta_f[i];
+		float forceLimit = ( deltaForce < 0.0f ) ? lo[i] : hi[i];
+		int m0 = ( fabs( deltaForce ) > LCP_DELTA_FORCE_EPSILON );
+		float step = ( forceLimit - f[i] ) / ( m0 ? deltaForce : 1.0f );
+		int setSide = ( deltaForce < 0.0f ) ? -1 : 1;
+		int m1 = ( fabs( forceLimit ) != idMath::INFINITY );
+		int m2 = ( step < maxStep );
+		int m3 = ( m0 & m1 & m2 );
+		maxStep = m3 ? step : maxStep;
+		limit = m3 ? i : limit;
+		limitSide = m3 ? setSide : limitSide;
+	}
+
+	// test the not clamped bounded variables
+	for ( int i = numClamped; i < d; i++ ) {
+		float negAccel = -a[i];
+		float deltaAccel = delta_a[i];
+		int m0 = ( side[i] * deltaAccel > LCP_DELTA_ACCEL_EPSILON );
+		float step = negAccel / ( m0 ? deltaAccel : 1.0f );
+		int m1 = ( lo[i] < -LCP_BOUND_EPSILON || hi[i] > LCP_BOUND_EPSILON );
+		int m2 = ( step < maxStep );
+		int m3 = ( m0 & m1 & m2 );
+		maxStep = m3 ? step : maxStep;
+		limit = m3 ? i : limit;
+		limitSide = m3 ? 0 : limitSide;
+	}
+
+#endif
 }
 
 /*

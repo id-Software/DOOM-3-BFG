@@ -52,6 +52,7 @@ idDxtEncoder::NV4XHardwareBugFix
 ========================
 */
 void idDxtEncoder::NV4XHardwareBugFix( byte *minColor, byte *maxColor ) const {
+#ifdef ID_WIN_X86_ASM
 	int minq = ( ( minColor[0] << 16 ) | ( minColor[1] << 8 ) | minColor[2] ) & 0x00F8FCF8;
 	int maxq = ( ( maxColor[0] << 16 ) | ( maxColor[1] << 8 ) | maxColor[2] ) & 0x00F8FCF8;
 	int mask = -( minq > maxq ) & 0x00FFFFFF;
@@ -62,6 +63,13 @@ void idDxtEncoder::NV4XHardwareBugFix( byte *minColor, byte *maxColor ) const {
 	min ^= max;
 	*(int *)minColor = min;
 	*(int *)maxColor = max;
+#else
+	if ( ColorTo565( minColor ) > ColorTo565( maxColor ) ) {
+		SwapValues( minColor[0], maxColor[0] );
+		SwapValues( minColor[1], maxColor[1] );
+		SwapValues( minColor[2], maxColor[2] );
+	}
+#endif
 }
 
 /*
@@ -950,6 +958,7 @@ int idDxtEncoder::GetMinMaxNormalYHQ( const byte *colorBlock, byte *minColor, by
 	return bestError;
 }
 
+#if defined( ID_WIN_X86_ASM )
 ALIGN16( static float SIMD_SSE2_float_scale[4] ) = { 2.0f / 255.0f, 2.0f / 255.0f, 2.0f / 255.0f, 2.0f / 255.0f };
 ALIGN16( static float SIMD_SSE2_float_descale[4] ) = { 255.0f / 2.0f, 255.0f / 2.0f, 255.0f / 2.0f, 255.0f / 2.0f };
 ALIGN16( static float SIMD_SSE2_float_zero[4] ) = { 0.0f, 0.0f, 0.0f, 0.0f };
@@ -961,6 +970,7 @@ ALIGN16( static float SIMD_SP_rsqrt_c1[4] ) = { -0.5f, -0.5f, -0.5f, -0.5f };
 ALIGN16( static dword SIMD_SSE2_dword_maskFirstThree[4] ) = { 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0x00000000 };
 ALIGN16( static dword SIMD_SSE2_dword_maskWords[4] ) = { 0x0000FFFF, 0x0000FFFF, 0x0000FFFF, 0x00000000 };
 #define R_SHUFFLE_PS( x, y, z, w )	(( (w) & 3 ) << 6 | ( (z) & 3 ) << 4 | ( (y) & 3 ) << 2 | ( (x) & 3 ))
+#endif
 
 /*
 ========================
@@ -968,6 +978,7 @@ NormalDistanceDXT1
 ========================
 */
 int NormalDistanceDXT1( const int *vector, const int *normalized ) {
+#if defined( ID_WIN_X86_ASM )
 	int result;
 	__asm {
 		mov			esi, vector
@@ -1007,6 +1018,24 @@ int NormalDistanceDXT1( const int *vector, const int *normalized ) {
 		movd		result, xmm0
 	}
 	return result;
+#else
+	float floatNormal[3];
+	byte intNormal[4];
+	floatNormal[0] = vector[0] * ( 2.0f / 255.0f ) - 1.0f;
+	floatNormal[1] = vector[1] * ( 2.0f / 255.0f ) - 1.0f;
+	floatNormal[2] = vector[2] * ( 2.0f / 255.0f ) - 1.0f;
+	float rcplen = idMath::InvSqrt( floatNormal[0] * floatNormal[0] + floatNormal[1] * floatNormal[1] + floatNormal[2] * floatNormal[2] );
+	floatNormal[0] *= rcplen;
+	floatNormal[1] *= rcplen;
+	floatNormal[2] *= rcplen;
+	intNormal[0] = idMath::Ftob( ( floatNormal[0] + 1.0f ) * ( 255.0f / 2.0f ) + 0.5f );
+	intNormal[1] = idMath::Ftob( ( floatNormal[1] + 1.0f ) * ( 255.0f / 2.0f ) + 0.5f );
+	intNormal[2] = idMath::Ftob( ( floatNormal[2] + 1.0f ) * ( 255.0f / 2.0f ) + 0.5f );
+	int result =	( ( intNormal[ 0 ] - normalized[ 0 ] ) * ( intNormal[ 0 ] - normalized[ 0 ] ) ) +
+					( ( intNormal[ 1 ] - normalized[ 1 ] ) * ( intNormal[ 1 ] - normalized[ 1 ] ) ) +
+					( ( intNormal[ 2 ] - normalized[ 2 ] ) * ( intNormal[ 2 ] - normalized[ 2 ] ) );
+	return result;
+#endif
 }
 
 /*
@@ -1015,6 +1044,7 @@ NormalDistanceDXT5
 ========================
 */
 int NormalDistanceDXT5( const int *vector, const int *normalized ) {
+#if defined( ID_WIN_X86_ASM )
 	int result;
 	__asm {
 		mov			esi, vector
@@ -1064,6 +1094,33 @@ int NormalDistanceDXT5( const int *vector, const int *normalized ) {
 		movd		result, xmm0
 	}
 	return result;
+#else
+#if 0	// object-space
+	const int c0 = 0;
+	const int c1 = 1;
+	const int c2 = 3;
+#else
+	const int c0 = 1;
+	const int c1 = 2;
+	const int c2 = 3;
+#endif
+	float floatNormal[3];
+	byte intNormal[4];
+	floatNormal[0] = vector[c0] / 255.0f * 2.0f - 1.0f;
+	floatNormal[1] = vector[c1] / 255.0f * 2.0f - 1.0f;
+	floatNormal[2] = vector[c2] / 255.0f * 2.0f - 1.0f;
+	float rcplen = idMath::InvSqrt( floatNormal[0] * floatNormal[0] + floatNormal[1] * floatNormal[1] + floatNormal[2] * floatNormal[2] );
+	floatNormal[0] *= rcplen;
+	floatNormal[1] *= rcplen;
+	floatNormal[2] *= rcplen;
+	intNormal[c0] = idMath::Ftob( ( floatNormal[0] + 1.0f ) / 2.0f * 255.0f + 0.5f );
+	intNormal[c1] = idMath::Ftob( ( floatNormal[1] + 1.0f ) / 2.0f * 255.0f + 0.5f );
+	intNormal[c2] = idMath::Ftob( ( floatNormal[2] + 1.0f ) / 2.0f * 255.0f + 0.5f );
+	int result =	( ( intNormal[ c0 ] - normalized[ c0 ] ) * ( intNormal[ c0 ] - normalized[ c0 ] ) ) +
+					( ( intNormal[ c1 ] - normalized[ c1 ] ) * ( intNormal[ c1 ] - normalized[ c1 ] ) ) +
+					( ( intNormal[ c2 ] - normalized[ c2 ] ) * ( intNormal[ c2 ] - normalized[ c2 ] ) );
+	return result;
+#endif
 }
 
 /*

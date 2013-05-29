@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __DRAWVERT_INTRINSICS_H__
 #define __DRAWVERT_INTRINSICS_H__
 
+#ifdef ID_WIN_X86_SSE2_INTRIN
 
 static const __m128i vector_int_f32_sign_mask					= _mm_set1_epi32( 1U << IEEE_FLT_SIGN_BIT );
 static const __m128i vector_int_f32_exponent_mask				= _mm_set1_epi32( ( ( 1U << IEEE_FLT_EXPONENT_BITS ) - 1 ) << IEEE_FLT_MANTISSA_BITS );
@@ -50,12 +51,14 @@ static const __m128 vector_float_last_one						= {   0.0f,	  0.0f,   0.0f,   1.0
 static const __m128 vector_float_1_over_255						= { 1.0f / 255.0f, 1.0f / 255.0f, 1.0f / 255.0f, 1.0f / 255.0f };
 static const __m128 vector_float_1_over_4						= { 1.0f / 4.0f, 1.0f / 4.0f, 1.0f / 4.0f, 1.0f / 4.0f };
 
+#endif
 
 /*
 ====================
 FastF32toF16
 ====================
 */
+#ifdef ID_WIN_X86_SSE2_INTRIN
 
 ID_INLINE_EXTERN __m128i FastF32toF16( __m128i f32_bits ) {
 	__m128i f16_sign     = _mm_srli_epi32( _mm_and_si128( f32_bits, vector_int_f32_sign_mask     ), f32_to_f16_sign_shift );
@@ -77,6 +80,7 @@ ID_INLINE_EXTERN __m128i FastF32toF16( __m128i f32_bits ) {
 	return _mm_packs_epi32( flt16, flt16 );
 }
 
+#endif
 
 ID_INLINE_EXTERN halfFloat_t Scalar_FastF32toF16( float f32 ) {
 	const int f32_sign_mask				= 1U << IEEE_FLT_SIGN_BIT;
@@ -115,6 +119,7 @@ ID_INLINE_EXTERN halfFloat_t Scalar_FastF32toF16( float f32 ) {
 LoadSkinnedDrawVertPosition
 ====================
 */
+#ifdef ID_WIN_X86_SSE2_INTRIN
 
 ID_INLINE_EXTERN __m128 LoadSkinnedDrawVertPosition( const idDrawVert & base, const idJointMat * joints ) {
 	const idJointMat & j0 = joints[base.color[0]];
@@ -176,6 +181,7 @@ ID_INLINE_EXTERN __m128 LoadSkinnedDrawVertPosition( const idDrawVert & base, co
 	return r0;
 }
 
+#endif
 
 ID_INLINE_EXTERN idVec3 Scalar_LoadSkinnedDrawVertPosition( const idDrawVert & vert, const idJointMat * joints ) {
 	const idJointMat & j0 = joints[vert.color[0]];

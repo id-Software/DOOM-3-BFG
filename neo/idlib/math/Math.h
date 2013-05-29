@@ -419,6 +419,7 @@ public:
 	static const float			FLT_EPSILON;				// smallest positive number such that 1.0+FLT_EPSILON != 1.0
 	static const float			FLT_SMALLEST_NON_DENORMAL;	// smallest non-denormal 32-bit floating point value
 
+#if defined( ID_WIN_X86_SSE_INTRIN )
 	static const __m128				SIMD_SP_zero;
 	static const __m128				SIMD_SP_255;
 	static const __m128				SIMD_SP_min_char;
@@ -429,6 +430,7 @@ public:
 	static const __m128				SIMD_SP_tiny;
 	static const __m128				SIMD_SP_rsqrt_c0;
 	static const __m128				SIMD_SP_rsqrt_c1;
+#endif
 
 private:
 	enum {
@@ -460,9 +462,15 @@ idMath::InvSqrt
 ========================
 */
 ID_INLINE float idMath::InvSqrt( float x ) {
+#ifdef ID_WIN_X86_SSE_INTRIN
 
 	return ( x > FLT_SMALLEST_NON_DENORMAL ) ? sqrtf( 1.0f / x ) : INFINITY;
 
+#else
+
+	return ( x > FLT_SMALLEST_NON_DENORMAL ) ? sqrtf( 1.0f / x ) : INFINITY;
+
+#endif
 }
 
 /*
@@ -471,9 +479,15 @@ idMath::InvSqrt16
 ========================
 */
 ID_INLINE float idMath::InvSqrt16( float x ) {
+#ifdef ID_WIN_X86_SSE_INTRIN
 
 	return ( x > FLT_SMALLEST_NON_DENORMAL ) ? sqrtf( 1.0f / x ) : INFINITY;
 
+#else
+
+	return ( x > FLT_SMALLEST_NON_DENORMAL ) ? sqrtf( 1.0f / x ) : INFINITY;
+
+#endif
 }
 
 /*
@@ -482,7 +496,11 @@ idMath::Sqrt
 ========================
 */
 ID_INLINE float idMath::Sqrt( float x ) {
+#ifdef ID_WIN_X86_SSE_INTRIN
 	return ( x >= 0.0f ) ?  x * InvSqrt( x ) : 0.0f;
+#else
+	return ( x >= 0.0f ) ? sqrtf( x ) : 0.0f;
+#endif
 }
 
 /*
@@ -491,7 +509,11 @@ idMath::Sqrt16
 ========================
 */
 ID_INLINE float idMath::Sqrt16( float x ) {
+#ifdef ID_WIN_X86_SSE_INTRIN
 	return ( x >= 0.0f ) ?  x * InvSqrt16( x ) : 0.0f;
+#else
+	return ( x >= 0.0f ) ? sqrtf( x ) : 0.0f;
+#endif
 }
 
 /*
@@ -601,6 +623,7 @@ idMath::SinCos
 ========================
 */
 ID_INLINE void idMath::SinCos( float a, float &s, float &c ) {
+#if defined( ID_WIN_X86_ASM )
 	_asm {
 		fld		a
 		fsincos
@@ -609,6 +632,10 @@ ID_INLINE void idMath::SinCos( float a, float &s, float &c ) {
 		fstp	dword ptr [ecx]
 		fstp	dword ptr [edx]
 	}
+#else
+	s = sinf( a );
+	c = cosf( a );
+#endif
 }
 
 /*
@@ -1128,11 +1155,24 @@ idMath::Ftoi
 ========================
 */
 ID_INLINE int idMath::Ftoi( float f ) {
+#ifdef ID_WIN_X86_SSE_INTRIN
 	// If a converted result is larger than the maximum signed doubleword integer,
 	// the floating-point invalid exception is raised, and if this exception is masked,
 	// the indefinite integer value (80000000H) is returned.
 	__m128 x = _mm_load_ss( &f );
 	return _mm_cvttss_si32( x );
+#elif 0 // round chop (C/C++ standard)
+	int i, s, e, m, shift;
+	i = *reinterpret_cast<int *>(&f);
+	s = i >> IEEE_FLT_SIGN_BIT;
+	e = ( ( i >> IEEE_FLT_MANTISSA_BITS ) & ( ( 1 << IEEE_FLT_EXPONENT_BITS ) - 1 ) ) - IEEE_FLT_EXPONENT_BIAS;
+	m = ( i & ( ( 1 << IEEE_FLT_MANTISSA_BITS ) - 1 ) ) | ( 1 << IEEE_FLT_MANTISSA_BITS );
+	shift = e - IEEE_FLT_MANTISSA_BITS;
+	return ( ( ( ( m >> -shift ) | ( m << shift ) ) & ~( e >> INT32_SIGN_BIT ) ) ^ s ) - s;
+#else
+	// If a converted result is larger than the maximum signed doubleword integer the result is undefined.
+	return C_FLOAT_TO_INT( f );
+#endif
 }
 
 /*
@@ -1141,10 +1181,21 @@ idMath::Ftoi8
 ========================
 */
 ID_INLINE char idMath::Ftoi8( float f ) {
+#ifdef ID_WIN_X86_SSE_INTRIN
 	__m128 x = _mm_load_ss( &f );
 	x = _mm_max_ss( x, SIMD_SP_min_char );
 	x = _mm_min_ss( x, SIMD_SP_max_char );
 	return static_cast<char>( _mm_cvttss_si32( x ) );
+#else
+	// The converted result is clamped to the range [-128,127].
+	int i = C_FLOAT_TO_INT( f );
+	if ( i < -128 ) {
+		return -128;
+	} else if ( i > 127 ) {
+		return 127;
+	}
+	return static_cast<char>( i );
+#endif
 }
 
 /*
@@ -1153,10 +1204,21 @@ idMath::Ftoi16
 ========================
 */
 ID_INLINE short idMath::Ftoi16( float f ) {
+#ifdef ID_WIN_X86_SSE_INTRIN
 	__m128 x = _mm_load_ss( &f );
 	x = _mm_max_ss( x, SIMD_SP_min_short );
 	x = _mm_min_ss( x, SIMD_SP_max_short );
 	return static_cast<short>( _mm_cvttss_si32( x ) );
+#else
+	// The converted result is clamped to the range [-32768,32767].
+	int i = C_FLOAT_TO_INT( f );
+	if ( i < -32768 ) {
+		return -32768;
+	} else if ( i > 32767 ) {
+		return 32767;
+	}
+	return static_cast<short>( i );
+#endif
 }
 
 /*
@@ -1183,12 +1245,23 @@ idMath::Ftob
 ========================
 */
 ID_INLINE byte idMath::Ftob( float f ) {
+#ifdef ID_WIN_X86_SSE_INTRIN
 	// If a converted result is negative the value (0) is returned and if the
 	// converted result is larger than the maximum byte the value (255) is returned.
 	__m128 x = _mm_load_ss( &f );
 	x = _mm_max_ss( x, SIMD_SP_zero );
 	x = _mm_min_ss( x, SIMD_SP_255 );
 	return static_cast<byte>( _mm_cvttss_si32( x ) );
+#else
+	// The converted result is clamped to the range [0,255].
+	int i = C_FLOAT_TO_INT( f );
+	if ( i < 0 ) {
+		return 0;
+	} else if ( i > 255 ) {
+		return 255;
+	}
+	return static_cast<byte>( i );
+#endif
 }
 
 /*

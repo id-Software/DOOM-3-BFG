@@ -274,6 +274,7 @@ static void R_DecalPointCullStatic( byte * cullBits, const idPlane * planes, con
 	assert_16_byte_aligned( cullBits );
 	assert_16_byte_aligned( verts );
 
+#ifdef ID_WIN_X86_SSE2_INTRIN
 
 	idODSStreamedArray< idDrawVert, 16, SBT_DOUBLE, 4 > vertsODS( verts, numVerts );
 
@@ -376,6 +377,37 @@ static void R_DecalPointCullStatic( byte * cullBits, const idPlane * planes, con
 		}
 	}
 
+#else
+
+	idODSStreamedArray< idDrawVert, 16, SBT_DOUBLE, 1 > vertsODS( verts, numVerts );
+
+	for ( int i = 0; i < numVerts; ) {
+
+		const int nextNumVerts = vertsODS.FetchNextBatch() - 1;
+
+		for ( ; i <= nextNumVerts; i++ ) {
+			const idVec3 & v = vertsODS[i].xyz;
+
+			const float d0 = planes[0].Distance( v );
+			const float d1 = planes[1].Distance( v );
+			const float d2 = planes[2].Distance( v );
+			const float d3 = planes[3].Distance( v );
+			const float d4 = planes[4].Distance( v );
+			const float d5 = planes[5].Distance( v );
+
+			byte bits;
+			bits  = IEEE_FLT_SIGNBITNOTSET( d0 ) << 0;
+			bits |= IEEE_FLT_SIGNBITNOTSET( d1 ) << 1;
+			bits |= IEEE_FLT_SIGNBITNOTSET( d2 ) << 2;
+			bits |= IEEE_FLT_SIGNBITNOTSET( d3 ) << 3;
+			bits |= IEEE_FLT_SIGNBITNOTSET( d4 ) << 4;
+			bits |= IEEE_FLT_SIGNBITNOTSET( d5 ) << 5;
+
+			cullBits[i] = bits;
+		}
+	}
+
+#endif
 }
 
 /*
@@ -573,6 +605,7 @@ static void R_CopyDecalSurface( idDrawVert * verts, int numVerts, triIndex_t * i
 	assert( ( ( decal->numIndexes * sizeof( triIndex_t ) ) & 15 ) == 0 );
 	assert_16_byte_aligned( fadeColor );
 
+#ifdef ID_WIN_X86_SSE2_INTRIN
 
 	const __m128i vector_int_num_verts = _mm_shuffle_epi32( _mm_cvtsi32_si128( numVerts ), 0 );
 	const __m128i vector_short_num_verts = _mm_packs_epi32( vector_int_num_verts, vector_int_num_verts );
@@ -612,6 +645,25 @@ static void R_CopyDecalSurface( idDrawVert * verts, int numVerts, triIndex_t * i
 
 	_mm_sfence();
 
+#else
+
+	// copy vertices and apply depth/time based fading
+	for ( int i = 0; i < decal->numVerts; i++ ) {
+		// NOTE: bad out-of-order write-combined write, SIMD code does the right thing
+		verts[numVerts + i] = decal->verts[i];
+		for ( int j = 0; j < 4; j++ ) {
+			verts[numVerts + i].color[j] = idMath::Ftob( fadeColor[j] * decal->vertDepthFade[i] );
+		}
+	}
+
+	// copy indices
+	assert( ( decal->numIndexes & 1 ) == 0 );
+	for ( int i = 0; i < decal->numIndexes; i += 2 ) {
+		assert( decal->indexes[i + 0] < decal->numVerts && decal->indexes[i + 1] < decal->numVerts );
+		WriteIndexPair( &indexes[numIndexes + i], numVerts + decal->indexes[i + 0], numVerts + decal->indexes[i + 1] );
+	}
+
+#endif
 }
 
 /*

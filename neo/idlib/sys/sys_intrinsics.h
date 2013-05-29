@@ -56,6 +56,8 @@ ID_INLINE_EXTERN float __frndz( float x )						{	return (float)( (int)( x ) ); }
 ================================================================================================
 */
 
+#ifdef ID_WIN_X86_SSE2_INTRIN
+
 // The code below assumes that a cache line is 64 bytes.
 // We specify the cache line size as 128 here to make the code consistent with the consoles.
 #define CACHE_LINE_SIZE						128
@@ -83,6 +85,24 @@ ID_FORCE_INLINE void FlushCacheLine( const void * ptr, int offset ) {
 	_mm_clflush( bytePtr +  0 );
 	_mm_clflush( bytePtr + 64 );
 }
+
+/*
+================================================
+	Other
+================================================
+*/
+#else
+
+#define CACHE_LINE_SIZE						128
+
+ID_INLINE void Prefetch( const void * ptr, int offset ) {}
+ID_INLINE void ZeroCacheLine( void * ptr, int offset ) {
+	byte * bytePtr = (byte *)( ( ( (UINT_PTR) ( ptr ) ) + ( offset ) ) & ~( CACHE_LINE_SIZE - 1 ) );
+	memset( bytePtr, 0, CACHE_LINE_SIZE );
+}
+ID_INLINE void FlushCacheLine( const void * ptr, int offset ) {}
+
+#endif
 
 /*
 ================================================

@@ -34,6 +34,7 @@ Contains the DxtEncoder implementation for SSE2.
 #include "DXTCodec_local.h"
 #include "DXTCodec.h"
 
+#if defined( ID_WIN_X86_SSE2_INTRIN ) || ( ( defined( ID_WIN_X86_ASM ) || defined( ID_MAC_X86_ASM ) ) )
 
 //#define TEST_COMPRESSION
 #ifdef TEST_COMPRESSION
@@ -142,10 +143,30 @@ paramO:	colorBlock	- 4*4 output tile, 4 bytes per pixel
 ========================
 */
 ID_INLINE void idDxtEncoder::ExtractBlock_SSE2( const byte * inPtr, int width, byte * colorBlock ) const {
+#if ( defined( ID_WIN_X86_ASM ) || defined( ID_MAC_X86_ASM ) )
+	__asm {
+		mov			esi, inPtr
+		mov			edi, colorBlock
+		mov			eax, width
+		shl			eax, 2
+		movdqa		xmm0, xmmword ptr [esi]
+		movdqa		xmmword ptr [edi+ 0], xmm0
+		movdqa		xmm1, xmmword ptr [esi+eax]			// + 4 * width
+		movdqa		xmmword ptr [edi+16], xmm1
+		movdqa		xmm2, xmmword ptr [esi+eax*2]		// + 8 * width
+		add			esi, eax
+		movdqa		xmmword ptr [edi+32], xmm2
+		movdqa		xmm3, xmmword ptr [esi+eax*2]		// + 12 * width
+		movdqa		xmmword ptr [edi+48], xmm3
+	}
+#elif defined ( ID_WIN_X86_SSE2_INTRIN )
 	*((__m128i *)(&colorBlock[ 0])) = _mm_load_si128( (__m128i *)( inPtr + width * 4 * 0 ) );
 	*((__m128i *)(&colorBlock[16])) = _mm_load_si128( (__m128i *)( inPtr + width * 4 * 1 ) );
 	*((__m128i *)(&colorBlock[32])) = _mm_load_si128( (__m128i *)( inPtr + width * 4 * 2 ) );
 	*((__m128i *)(&colorBlock[48])) = _mm_load_si128( (__m128i *)( inPtr + width * 4 * 3 ) );
+#else
+	assert( false );
+#endif
 }
 
 /*
@@ -160,6 +181,31 @@ paramO:	maxColor	- Max 4 byte output color
 ========================
 */
 ID_INLINE void idDxtEncoder::GetMinMaxBBox_SSE2( const byte * colorBlock, byte * minColor, byte * maxColor ) const {
+#if ( defined( ID_WIN_X86_ASM ) || defined( ID_MAC_X86_ASM ) )
+	__asm {
+		mov			eax, colorBlock
+		mov			esi, minColor
+		mov			edi, maxColor
+		movdqa		xmm0, xmmword ptr [eax+ 0]
+		movdqa		xmm1, xmmword ptr [eax+ 0]
+		pminub		xmm0, xmmword ptr [eax+16]
+		pmaxub		xmm1, xmmword ptr [eax+16]
+		pminub		xmm0, xmmword ptr [eax+32]
+		pmaxub		xmm1, xmmword ptr [eax+32]
+		pminub		xmm0, xmmword ptr [eax+48]
+		pmaxub		xmm1, xmmword ptr [eax+48]
+		pshufd		xmm3, xmm0, R_SHUFFLE_D( 2, 3, 2, 3 )
+		pshufd		xmm4, xmm1, R_SHUFFLE_D( 2, 3, 2, 3 )
+		pminub		xmm0, xmm3
+		pmaxub		xmm1, xmm4
+		pshuflw		xmm6, xmm0, R_SHUFFLE_D( 2, 3, 2, 3 )
+		pshuflw		xmm7, xmm1, R_SHUFFLE_D( 2, 3, 2, 3 )
+		pminub		xmm0, xmm6
+		pmaxub		xmm1, xmm7
+		movd		dword ptr [esi], xmm0
+		movd		dword ptr [edi], xmm1
+	}
+#elif defined ( ID_WIN_X86_SSE2_INTRIN )
 	__m128i block0 = *((__m128i *)(&colorBlock[ 0]));
 	__m128i block1 = *((__m128i *)(&colorBlock[16]));
 	__m128i block2 = *((__m128i *)(&colorBlock[32]));
@@ -187,6 +233,9 @@ ID_INLINE void idDxtEncoder::GetMinMaxBBox_SSE2( const byte * colorBlock, byte *
 
 	*((int *)maxColor) = _mm_cvtsi128_si32( max6 );
 	*((int *)minColor) = _mm_cvtsi128_si32( min6 );
+#else
+	assert( false );
+#endif
 }
 
 /*
@@ -195,6 +244,25 @@ idDxtEncoder::InsetColorsBBox_SSE2
 ========================
 */
 ID_INLINE void idDxtEncoder::InsetColorsBBox_SSE2( byte * minColor, byte * maxColor ) const {
+#if ( defined( ID_WIN_X86_ASM ) || defined( ID_MAC_X86_ASM ) )
+	__asm {
+		mov			esi, minColor
+		mov			edi, maxColor
+		movd		xmm0, dword ptr [esi]
+		movd		xmm1, dword ptr [edi]
+		punpcklbw	xmm0, SIMD_SSE2_byte_0
+		punpcklbw	xmm1, SIMD_SSE2_byte_0
+		movdqa		xmm2, xmm1
+		psubw		xmm2, xmm0
+		pmulhw		xmm2, SIMD_SSE2_word_insetShift
+		paddw		xmm0, xmm2
+		psubw		xmm1, xmm2
+		packuswb	xmm0, xmm0
+		packuswb	xmm1, xmm1
+		movd		dword ptr [esi], xmm0
+		movd		dword ptr [edi], xmm1
+	}
+#elif defined ( ID_WIN_X86_SSE2_INTRIN )
 	__m128i min = _mm_cvtsi32_si128( *(int *)minColor );
 	__m128i max = _mm_cvtsi32_si128( *(int *)maxColor );
 
@@ -213,6 +281,9 @@ ID_INLINE void idDxtEncoder::InsetColorsBBox_SSE2( byte * minColor, byte * maxCo
 
 	*((int *)minColor) = _mm_cvtsi128_si32( xmm0 );
 	*((int *)maxColor) = _mm_cvtsi128_si32( xmm1 );
+#else
+	assert( false );
+#endif
 }
 
 /*
@@ -226,6 +297,165 @@ return: 4 byte color index block
 ========================
 */
 void idDxtEncoder::EmitColorIndices_SSE2( const byte * colorBlock, const byte * minColor_, const byte * maxColor_ ) {
+#if ( defined( ID_WIN_X86_ASM ) || defined( ID_MAC_X86_ASM ) )
+	ALIGN16( byte color0[16] );
+	ALIGN16( byte color1[16] );
+	ALIGN16( byte color2[16] );
+	ALIGN16( byte color3[16] );
+	ALIGN16( byte result[16] );
+	byte *outPtr = outData;
+
+	__asm {
+		mov			esi, maxColor_
+		mov			edi, minColor_
+		pxor		xmm7, xmm7
+		movdqa		result, xmm7
+
+		movd		xmm0, dword ptr [esi]
+		pand		xmm0, SIMD_SSE2_byte_colorMask
+		punpcklbw	xmm0, xmm7
+		pshuflw		xmm4, xmm0, R_SHUFFLE_D( 0, 3, 2, 3 )
+		pshuflw		xmm5, xmm0, R_SHUFFLE_D( 3, 1, 3, 3 )
+		psrlw		xmm4, 5
+		psrlw		xmm5, 6
+		por			xmm0, xmm4
+		por			xmm0, xmm5
+
+		movd		xmm1, dword ptr [edi]
+		pand		xmm1, SIMD_SSE2_byte_colorMask
+		punpcklbw	xmm1, xmm7
+		pshuflw		xmm4, xmm1, R_SHUFFLE_D( 0, 3, 2, 3 )
+		pshuflw		xmm5, xmm1, R_SHUFFLE_D( 3, 1, 3, 3 )
+		psrlw		xmm4, 5
+		psrlw		xmm5, 6
+		por			xmm1, xmm4
+		por			xmm1, xmm5
+
+		movdqa		xmm2, xmm0
+		packuswb	xmm2, xmm7
+		pshufd		xmm2, xmm2, R_SHUFFLE_D( 0, 1, 0, 1 )
+		movdqa		color0, xmm2
+
+		movdqa		xmm6, xmm0
+		paddw		xmm6, xmm0
+		paddw		xmm6, xmm1
+		pmulhw		xmm6, SIMD_SSE2_word_div_by_3	// * ( ( 1 << 16 ) / 3 + 1 ) ) >> 16
+		packuswb	xmm6, xmm7
+		pshufd		xmm6, xmm6, R_SHUFFLE_D( 0, 1, 0, 1 )
+		movdqa		color2, xmm6
+
+		movdqa		xmm3, xmm1
+		packuswb	xmm3, xmm7
+		pshufd		xmm3, xmm3, R_SHUFFLE_D( 0, 1, 0, 1 )
+		movdqa		color1, xmm3
+
+		paddw		xmm1, xmm1
+		paddw		xmm0, xmm1
+		pmulhw		xmm0, SIMD_SSE2_word_div_by_3	// * ( ( 1 << 16 ) / 3 + 1 ) ) >> 16
+		packuswb	xmm0, xmm7
+		pshufd		xmm0, xmm0, R_SHUFFLE_D( 0, 1, 0, 1 )
+		movdqa		color3, xmm0
+
+		mov			eax, 32
+		mov			esi, colorBlock
+
+	loop1:			// iterates 2 times
+		movq		xmm3, qword ptr [esi+eax+0]
+		pshufd		xmm3, xmm3, R_SHUFFLE_D( 0, 2, 1, 3 )		// punpckldq	xmm4, SIMD_SSE2_dword_0
+		movq		xmm5, qword ptr [esi+eax+8]
+		pshufd		xmm5, xmm5, R_SHUFFLE_D( 0, 2, 1, 3 )		// punpckldq	xmm5, SIMD_SSE2_dword_0
+
+		movdqa		xmm0, xmm3
+		movdqa		xmm6, xmm5
+		psadbw		xmm0, color0
+		psadbw		xmm6, color0
+		packssdw	xmm0, xmm6
+		movdqa		xmm1, xmm3
+		movdqa		xmm6, xmm5
+		psadbw		xmm1, color1
+		psadbw		xmm6, color1
+		packssdw	xmm1, xmm6
+		movdqa		xmm2, xmm3
+		movdqa		xmm6, xmm5
+		psadbw		xmm2, color2
+		psadbw		xmm6, color2
+		packssdw	xmm2, xmm6
+		psadbw		xmm3, color3
+		psadbw		xmm5, color3
+		packssdw	xmm3, xmm5
+
+		movq		xmm4, qword ptr [esi+eax+16]
+		pshufd		xmm4, xmm4, R_SHUFFLE_D( 0, 2, 1, 3 )
+		movq		xmm5, qword ptr [esi+eax+24]
+		pshufd		xmm5, xmm5, R_SHUFFLE_D( 0, 2, 1, 3 )
+
+		movdqa		xmm6, xmm4
+		movdqa		xmm7, xmm5
+		psadbw		xmm6, color0
+		psadbw		xmm7, color0
+		packssdw	xmm6, xmm7
+		packssdw	xmm0, xmm6				// d1
+		movdqa		xmm6, xmm4
+		movdqa		xmm7, xmm5
+		psadbw		xmm6, color1
+		psadbw		xmm7, color1
+		packssdw	xmm6, xmm7
+		packssdw	xmm1, xmm6				// d1
+		movdqa		xmm6, xmm4
+		movdqa		xmm7, xmm5
+		psadbw		xmm6, color2
+		psadbw		xmm7, color2
+		packssdw	xmm6, xmm7
+		packssdw	xmm2, xmm6				// d2
+		psadbw		xmm4, color3
+		psadbw		xmm5, color3
+		packssdw	xmm4, xmm5
+		packssdw	xmm3, xmm4				// d3
+
+		movdqa		xmm7, result
+		pslld		xmm7, 16
+
+		movdqa		xmm4, xmm0
+		movdqa		xmm5, xmm1
+		pcmpgtw		xmm0, xmm3				// b0
+		pcmpgtw		xmm1, xmm2				// b1
+		pcmpgtw		xmm4, xmm2				// b2
+		pcmpgtw		xmm5, xmm3				// b3
+		pcmpgtw		xmm2, xmm3				// b4
+		pand		xmm4, xmm1				// x0
+		pand		xmm5, xmm0				// x1
+		pand		xmm2, xmm0				// x2
+		por			xmm4, xmm5
+		pand		xmm2, SIMD_SSE2_word_1
+		pand		xmm4, SIMD_SSE2_word_2
+		por			xmm2, xmm4
+
+		pshufd		xmm5, xmm2, R_SHUFFLE_D( 2, 3, 0, 1 )
+		punpcklwd	xmm2, SIMD_SSE2_word_0
+		punpcklwd	xmm5, SIMD_SSE2_word_0
+		pslld		xmm5, 8
+		por			xmm7, xmm5
+		por			xmm7, xmm2
+		movdqa		result, xmm7
+
+		sub			eax, 32
+		jge			loop1
+
+		mov			esi, outPtr
+		pshufd		xmm4, xmm7, R_SHUFFLE_D( 1, 2, 3, 0 )
+		pshufd		xmm5, xmm7, R_SHUFFLE_D( 2, 3, 0, 1 )
+		pshufd		xmm6, xmm7, R_SHUFFLE_D( 3, 0, 1, 2 )
+		pslld		xmm4, 2
+		pslld		xmm5, 4
+		pslld		xmm6, 6
+		por			xmm7, xmm4
+		por			xmm7, xmm5
+		por			xmm7, xmm6
+		movd		dword ptr [esi], xmm7
+	}
+
+	outData += 4;
+#elif defined ( ID_WIN_X86_SSE2_INTRIN )
 	__m128c zero = SIMD_SSE2_zero;
 	__m128c result = SIMD_SSE2_zero;
 	__m128c color0, color1, color2, color3;
@@ -359,6 +589,9 @@ void idDxtEncoder::EmitColorIndices_SSE2( const byte * colorBlock, const byte * 
 
 	unsigned int out = _mm_cvtsi128_si32( temp7 );
 	EmitUInt( out );
+#else
+	assert( false );
+#endif
 }
 
 /*
@@ -372,6 +605,162 @@ return: 4 byte color index block
 ========================
 */
 void idDxtEncoder::EmitColorAlphaIndices_SSE2( const byte *colorBlock, const byte *minColor_, const byte *maxColor_ ) {
+#if ( defined( ID_WIN_X86_ASM ) || defined( ID_MAC_X86_ASM ) )
+	ALIGN16( byte color0[16] );
+	ALIGN16( byte color1[16] );
+	ALIGN16( byte color2[16] );
+	ALIGN16( byte color3[16] );
+	ALIGN16( byte result[16] );
+	byte *outPtr = outData;
+
+	__asm {
+		mov			esi, maxColor_
+		mov			edi, minColor_
+		pxor		xmm7, xmm7
+		movdqa		result, xmm7
+
+		movd		xmm0, dword ptr [esi]
+		pand		xmm0, SIMD_SSE2_byte_colorMask
+		punpcklbw	xmm0, xmm7
+		pshuflw		xmm4, xmm0, R_SHUFFLE_D( 0, 3, 2, 3 )
+		pshuflw		xmm5, xmm0, R_SHUFFLE_D( 3, 1, 3, 3 )
+		psrlw		xmm4, 5
+		psrlw		xmm5, 6
+		por			xmm0, xmm4
+		por			xmm0, xmm5
+
+		movd		xmm1, dword ptr [edi]
+		pand		xmm1, SIMD_SSE2_byte_colorMask
+		punpcklbw	xmm1, xmm7
+		pshuflw		xmm4, xmm1, R_SHUFFLE_D( 0, 3, 2, 3 )
+		pshuflw		xmm5, xmm1, R_SHUFFLE_D( 3, 1, 3, 3 )
+		psrlw		xmm4, 5
+		psrlw		xmm5, 6
+		por			xmm1, xmm4
+		por			xmm1, xmm5
+
+		movdqa		xmm2, xmm0
+		packuswb	xmm2, xmm7
+		pshufd		xmm2, xmm2, R_SHUFFLE_D( 0, 1, 0, 1 )
+		movdqa		color0, xmm2
+
+		movdqa		xmm6, xmm0
+		paddw		xmm6, xmm1
+		psrlw		xmm6, 1
+		packuswb	xmm6, xmm7
+		pshufd		xmm6, xmm6, R_SHUFFLE_D( 0, 1, 0, 1 )
+		movdqa		color2, xmm6
+
+		movdqa		xmm3, xmm1
+		packuswb	xmm3, xmm7
+		pshufd		xmm3, xmm3, R_SHUFFLE_D( 0, 1, 0, 1 )
+		movdqa		color1, xmm3
+
+		movdqa		color3, xmm7
+
+		mov			eax, 32
+		mov			esi, colorBlock
+
+	loop1:			// iterates 2 times
+		movq		xmm3, qword ptr [esi+eax+0]
+		pshufd		xmm3, xmm3, R_SHUFFLE_D( 0, 2, 1, 3 )
+		movq		xmm5, qword ptr [esi+eax+8]
+		pshufd		xmm5, xmm5, R_SHUFFLE_D( 0, 2, 1, 3 )
+
+		movdqa		xmm0, xmm3
+		movdqa		xmm6, xmm5
+		psadbw		xmm0, color0
+		psadbw		xmm6, color0
+		packssdw	xmm0, xmm6
+		movdqa		xmm1, xmm3
+		movdqa		xmm6, xmm5
+		psadbw		xmm1, color1
+		psadbw		xmm6, color1
+		packssdw	xmm1, xmm6
+		movdqa		xmm2, xmm3
+		movdqa		xmm6, xmm5
+		psadbw		xmm2, color2
+		psadbw		xmm6, color2
+		packssdw	xmm2, xmm6
+
+		shufps		xmm3, xmm5, R_SHUFFLE_D( 0, 2, 0, 2 )
+		psrld		xmm3, 24
+		packssdw	xmm3, xmm3
+
+		movq		xmm4, qword ptr [esi+eax+16]
+		pshufd		xmm4, xmm4, R_SHUFFLE_D( 0, 2, 1, 3 )
+		movq		xmm5, qword ptr [esi+eax+24]
+		pshufd		xmm5, xmm5, R_SHUFFLE_D( 0, 2, 1, 3 )
+
+		movdqa		xmm6, xmm4
+		movdqa		xmm7, xmm5
+		psadbw		xmm6, color0
+		psadbw		xmm7, color0
+		packssdw	xmm6, xmm7
+		packssdw	xmm0, xmm6					// d1
+		movdqa		xmm6, xmm4
+		movdqa		xmm7, xmm5
+		psadbw		xmm6, color1
+		psadbw		xmm7, color1
+		packssdw	xmm6, xmm7
+		packssdw	xmm1, xmm6					// d1
+		movdqa		xmm6, xmm4
+		movdqa		xmm7, xmm5
+		psadbw		xmm6, color2
+		psadbw		xmm7, color2
+		packssdw	xmm6, xmm7
+		packssdw	xmm2, xmm6					// d2
+
+		shufps		xmm4, xmm5, R_SHUFFLE_D( 0, 2, 0, 2 )
+		psrld		xmm4, 24
+		packssdw	xmm4, xmm4
+
+		punpcklqdq	xmm3, xmm4					// c3
+
+		movdqa		xmm7, result
+		pslld		xmm7, 16
+
+		movdqa		xmm4, xmm2
+		pcmpgtw		xmm2, xmm0					// b0
+		pcmpgtw		xmm4, xmm1					// b1
+		pcmpgtw		xmm1, xmm0					// b2
+		pmaxsw		xmm3, SIMD_SSE2_word_127	// b3
+		pcmpeqw		xmm3, SIMD_SSE2_word_127
+
+		pand		xmm2, xmm4
+		por			xmm2, xmm3					// b0 & b1 | b3
+		pxor		xmm1, xmm4
+		por			xmm1, xmm3					// b2 ^ b1 | b3
+		pand		xmm2, SIMD_SSE2_word_2
+		pand		xmm1, SIMD_SSE2_word_1
+		por			xmm2, xmm1
+
+		pshufd		xmm5, xmm2, R_SHUFFLE_D( 2, 3, 0, 1 )
+		punpcklwd	xmm2, SIMD_SSE2_word_0
+		punpcklwd	xmm5, SIMD_SSE2_word_0
+		pslld		xmm5, 8
+		por			xmm7, xmm5
+		por			xmm7, xmm2
+		movdqa		result, xmm7
+
+		sub			eax, 32
+		jge			loop1
+
+		mov			esi, outPtr
+		pshufd		xmm4, xmm7, R_SHUFFLE_D( 1, 2, 3, 0 )
+		pshufd		xmm5, xmm7, R_SHUFFLE_D( 2, 3, 0, 1 )
+		pshufd		xmm6, xmm7, R_SHUFFLE_D( 3, 0, 1, 2 )
+		pslld		xmm4, 2
+		pslld		xmm5, 4
+		pslld		xmm6, 6
+		por			xmm7, xmm4
+		por			xmm7, xmm5
+		por			xmm7, xmm6
+		movd		dword ptr [esi], xmm7
+	}
+
+	outData += 4;
+#elif defined ( ID_WIN_X86_SSE2_INTRIN )
 	__m128c zero = SIMD_SSE2_zero;
 	__m128c result = SIMD_SSE2_zero;
 	__m128c color0, color1, color2;
@@ -508,6 +897,9 @@ void idDxtEncoder::EmitColorAlphaIndices_SSE2( const byte *colorBlock, const byt
 
 	unsigned int out = _mm_cvtsi128_si32( temp7 );
 	EmitUInt( out );
+#else
+	assert( false );
+#endif
 }
 
 /*
@@ -521,6 +913,147 @@ return: 4 byte color index block
 ========================
 */
 void idDxtEncoder::EmitCoCgIndices_SSE2( const byte *colorBlock, const byte *minColor_, const byte *maxColor_ ) {
+#if ( defined( ID_WIN_X86_ASM ) || defined( ID_MAC_X86_ASM ) )
+	ALIGN16( byte color0[16] );
+	ALIGN16( byte color1[16] );
+	ALIGN16( byte color2[16] );
+	ALIGN16( byte color3[16] );
+	ALIGN16( byte result[16] );
+	byte *outPtr = outData;
+
+	__asm {
+		mov			esi, maxColor_
+		mov			edi, minColor_
+		pxor		xmm7, xmm7
+		movdqa		result, xmm7
+
+		movd		xmm0, dword ptr [esi]
+		pand		xmm0, SIMD_SSE2_byte_colorMask2
+		pshufd		xmm0, xmm0, R_SHUFFLE_D( 0, 1, 0, 1 )
+		movdqa		color0, xmm0
+
+		movd		xmm1, dword ptr [edi]
+		pand		xmm1, SIMD_SSE2_byte_colorMask2
+		pshufd		xmm1, xmm1, R_SHUFFLE_D( 0, 1, 0, 1 )
+		movdqa		color1, xmm1
+
+		punpcklbw	xmm0, xmm7
+		punpcklbw	xmm1, xmm7
+
+		movdqa		xmm6, xmm1
+		paddw		xmm1, xmm0
+		paddw		xmm0, xmm1
+		pmulhw		xmm0, SIMD_SSE2_word_div_by_3	// * ( ( 1 << 16 ) / 3 + 1 ) ) >> 16
+		packuswb	xmm0, xmm7
+		pshufd		xmm0, xmm0, R_SHUFFLE_D( 0, 1, 0, 1 )
+		movdqa		color2, xmm0
+
+		paddw		xmm1, xmm6
+		pmulhw		xmm1, SIMD_SSE2_word_div_by_3	// * ( ( 1 << 16 ) / 3 + 1 ) ) >> 16
+		packuswb	xmm1, xmm7
+		pshufd		xmm1, xmm1, R_SHUFFLE_D( 0, 1, 0, 1 )
+		movdqa		color3, xmm1
+
+		mov			eax, 32
+		mov			esi, colorBlock
+
+	loop1:			// iterates 2 times
+		movq		xmm3, qword ptr [esi+eax+0]
+		pshufd		xmm3, xmm3, R_SHUFFLE_D( 0, 2, 1, 3 )		// punpckldq	xmm4, SIMD_SSE2_dword_0
+		movq		xmm5, qword ptr [esi+eax+8]
+		pshufd		xmm5, xmm5, R_SHUFFLE_D( 0, 2, 1, 3 )		// punpckldq	xmm5, SIMD_SSE2_dword_0
+
+		movdqa		xmm0, xmm3
+		movdqa		xmm6, xmm5
+		psadbw		xmm0, color0
+		psadbw		xmm6, color0
+		packssdw	xmm0, xmm6
+		movdqa		xmm1, xmm3
+		movdqa		xmm6, xmm5
+		psadbw		xmm1, color1
+		psadbw		xmm6, color1
+		packssdw	xmm1, xmm6
+		movdqa		xmm2, xmm3
+		movdqa		xmm6, xmm5
+		psadbw		xmm2, color2
+		psadbw		xmm6, color2
+		packssdw	xmm2, xmm6
+		psadbw		xmm3, color3
+		psadbw		xmm5, color3
+		packssdw	xmm3, xmm5
+
+		movq		xmm4, qword ptr [esi+eax+16]
+		pshufd		xmm4, xmm4, R_SHUFFLE_D( 0, 2, 1, 3 )
+		movq		xmm5, qword ptr [esi+eax+24]
+		pshufd		xmm5, xmm5, R_SHUFFLE_D( 0, 2, 1, 3 )
+
+		movdqa		xmm6, xmm4
+		movdqa		xmm7, xmm5
+		psadbw		xmm6, color0
+		psadbw		xmm7, color0
+		packssdw	xmm6, xmm7
+		packssdw	xmm0, xmm6				// d1
+		movdqa		xmm6, xmm4
+		movdqa		xmm7, xmm5
+		psadbw		xmm6, color1
+		psadbw		xmm7, color1
+		packssdw	xmm6, xmm7
+		packssdw	xmm1, xmm6				// d1
+		movdqa		xmm6, xmm4
+		movdqa		xmm7, xmm5
+		psadbw		xmm6, color2
+		psadbw		xmm7, color2
+		packssdw	xmm6, xmm7
+		packssdw	xmm2, xmm6				// d2
+		psadbw		xmm4, color3
+		psadbw		xmm5, color3
+		packssdw	xmm4, xmm5
+		packssdw	xmm3, xmm4				// d3
+
+		movdqa		xmm7, result
+		pslld		xmm7, 16
+
+		movdqa		xmm4, xmm0
+		movdqa		xmm5, xmm1
+		pcmpgtw		xmm0, xmm3				// b0
+		pcmpgtw		xmm1, xmm2				// b1
+		pcmpgtw		xmm4, xmm2				// b2
+		pcmpgtw		xmm5, xmm3				// b3
+		pcmpgtw		xmm2, xmm3				// b4
+		pand		xmm4, xmm1				// x0
+		pand		xmm5, xmm0				// x1
+		pand		xmm2, xmm0				// x2
+		por			xmm4, xmm5
+		pand		xmm2, SIMD_SSE2_word_1
+		pand		xmm4, SIMD_SSE2_word_2
+		por			xmm2, xmm4
+
+		pshufd		xmm5, xmm2, R_SHUFFLE_D( 2, 3, 0, 1 )
+		punpcklwd	xmm2, SIMD_SSE2_word_0
+		punpcklwd	xmm5, SIMD_SSE2_word_0
+		pslld		xmm5, 8
+		por			xmm7, xmm5
+		por			xmm7, xmm2
+		movdqa		result, xmm7
+
+		sub			eax, 32
+		jge			loop1
+
+		mov			esi, outPtr
+		pshufd		xmm4, xmm7, R_SHUFFLE_D( 1, 2, 3, 0 )
+		pshufd		xmm5, xmm7, R_SHUFFLE_D( 2, 3, 0, 1 )
+		pshufd		xmm6, xmm7, R_SHUFFLE_D( 3, 0, 1, 2 )
+		pslld		xmm4, 2
+		pslld		xmm5, 4
+		pslld		xmm6, 6
+		por			xmm7, xmm4
+		por			xmm7, xmm5
+		por			xmm7, xmm6
+		movd		dword ptr [esi], xmm7
+	}
+
+	outData += 4;
+#elif defined ( ID_WIN_X86_SSE2_INTRIN )
 	__m128c zero = SIMD_SSE2_zero;
 	__m128c result = SIMD_SSE2_zero;
 	__m128c color0, color1, color2, color3;
@@ -640,6 +1173,9 @@ void idDxtEncoder::EmitCoCgIndices_SSE2( const byte *colorBlock, const byte *min
 
 	unsigned int out = _mm_cvtsi128_si32( temp7 );
 	EmitUInt( out );
+#else
+	assert( false );
+#endif
 }
 
 /*
@@ -652,6 +1188,144 @@ paramO:	maxAlpha	- Max alpha found
 ========================
 */
 void idDxtEncoder::EmitAlphaIndices_SSE2( const byte *block, const int minAlpha_, const int maxAlpha_ ) {
+#if ( defined( ID_WIN_X86_ASM ) || defined( ID_MAC_X86_ASM ) )
+	assert( maxAlpha_ >= minAlpha_ );
+
+	byte *outPtr = outData;
+
+	__asm {
+		mov			esi, block
+		movdqa		xmm0, xmmword ptr [esi+	0]
+		movdqa		xmm5, xmmword ptr [esi+16]
+		movdqa		xmm6, xmmword ptr [esi+32]
+		movdqa		xmm4, xmmword ptr [esi+48]
+
+		psrld		xmm0, 24
+		psrld		xmm5, 24
+		psrld		xmm6, 24
+		psrld		xmm4, 24
+
+		packuswb	xmm0, xmm5
+		packuswb	xmm6, xmm4
+
+		//---------------------
+
+		// ab0 = (  7 * maxAlpha +  7 * minAlpha + ALPHA_RANGE ) / 14
+		// ab3 = (  9 * maxAlpha +  5 * minAlpha + ALPHA_RANGE ) / 14
+		// ab2 = ( 11 * maxAlpha +  3 * minAlpha + ALPHA_RANGE ) / 14
+		// ab1 = ( 13 * maxAlpha +  1 * minAlpha + ALPHA_RANGE ) / 14
+
+		// ab4 = (  7 * maxAlpha +  7 * minAlpha + ALPHA_RANGE ) / 14
+		// ab5 = (  5 * maxAlpha +  9 * minAlpha + ALPHA_RANGE ) / 14
+		// ab6 = (  3 * maxAlpha + 11 * minAlpha + ALPHA_RANGE ) / 14
+		// ab7 = (  1 * maxAlpha + 13 * minAlpha + ALPHA_RANGE ) / 14
+
+		movd		xmm5, maxAlpha_
+		pshuflw		xmm5, xmm5,	R_SHUFFLE_D( 0,	0, 0, 0	)
+		pshufd		xmm5, xmm5,	R_SHUFFLE_D( 0,	0, 0, 0	)
+		movdqa		xmm7, xmm5
+
+		movd		xmm2, minAlpha_
+		pshuflw		xmm2, xmm2,	R_SHUFFLE_D( 0,	0, 0, 0	)
+		pshufd		xmm2, xmm2,	R_SHUFFLE_D( 0,	0, 0, 0	)
+		movdqa		xmm3, xmm2
+
+		pmullw		xmm5, SIMD_SSE2_word_scale_7_9_11_13
+		pmullw		xmm7, SIMD_SSE2_word_scale_7_5_3_1
+		pmullw		xmm2, SIMD_SSE2_word_scale_7_5_3_1
+		pmullw		xmm3, SIMD_SSE2_word_scale_7_9_11_13
+
+		paddw		xmm5, xmm2
+		paddw		xmm7, xmm3
+
+		paddw		xmm5, SIMD_SSE2_word_7
+		paddw		xmm7, SIMD_SSE2_word_7
+
+		pmulhw		xmm5, SIMD_SSE2_word_div_by_14			// * ( ( 1 << 16 ) / 14	+ 1	) )	>> 16
+		pmulhw		xmm7, SIMD_SSE2_word_div_by_14			// * ( ( 1 << 16 ) / 14	+ 1	) )	>> 16
+
+		pshufd		xmm1, xmm5,	R_SHUFFLE_D( 3, 3, 3, 3	)
+		pshufd		xmm2, xmm5,	R_SHUFFLE_D( 2, 2, 2, 2	)
+		pshufd		xmm3, xmm5,	R_SHUFFLE_D( 1, 1, 1, 1	)
+		packuswb	xmm1, xmm1								// ab1
+		packuswb	xmm2, xmm2								// ab2
+		packuswb	xmm3, xmm3								// ab3
+
+		packuswb	xmm0, xmm6								// alpha block
+
+		pshufd		xmm4, xmm7,	R_SHUFFLE_D( 0,	0, 0, 0	)
+		pshufd		xmm5, xmm7,	R_SHUFFLE_D( 1,	1, 1, 1	)
+		pshufd		xmm6, xmm7,	R_SHUFFLE_D( 2,	2, 2, 2	)
+		pshufd		xmm7, xmm7,	R_SHUFFLE_D( 3,	3, 3, 3	)
+		packuswb	xmm4, xmm4								// ab4
+		packuswb	xmm5, xmm5								// ab5
+		packuswb	xmm6, xmm6								// ab6
+		packuswb	xmm7, xmm7								// ab7
+
+		pmaxub		xmm1, xmm0
+		pmaxub		xmm2, xmm0
+		pmaxub		xmm3, xmm0
+		pcmpeqb		xmm1, xmm0
+		pcmpeqb		xmm2, xmm0
+		pcmpeqb		xmm3, xmm0
+		pmaxub		xmm4, xmm0
+		pmaxub		xmm5, xmm0
+		pmaxub		xmm6, xmm0
+		pmaxub		xmm7, xmm0
+		pcmpeqb		xmm4, xmm0
+		pcmpeqb		xmm5, xmm0
+		pcmpeqb		xmm6, xmm0
+		pcmpeqb		xmm7, xmm0
+		movdqa		xmm0, SIMD_SSE2_byte_8
+		paddsb		xmm0, xmm1
+		paddsb		xmm2, xmm3
+		paddsb		xmm4, xmm5
+		paddsb		xmm6, xmm7
+		paddsb		xmm0, xmm2
+		paddsb		xmm4, xmm6
+		paddsb		xmm0, xmm4
+		pand		xmm0, SIMD_SSE2_byte_7
+		movdqa		xmm1, SIMD_SSE2_byte_2
+		pcmpgtb		xmm1, xmm0
+		pand		xmm1, SIMD_SSE2_byte_1
+		pxor		xmm0, xmm1
+		movdqa		xmm1, xmm0
+		movdqa		xmm2, xmm0
+		movdqa		xmm3, xmm0
+		movdqa		xmm4, xmm0
+		movdqa		xmm5, xmm0
+		movdqa		xmm6, xmm0
+		movdqa		xmm7, xmm0
+		psrlq		xmm1,  8- 3
+		psrlq		xmm2, 16- 6
+		psrlq		xmm3, 24- 9
+		psrlq		xmm4, 32-12
+		psrlq		xmm5, 40-15
+		psrlq		xmm6, 48-18
+		psrlq		xmm7, 56-21
+		pand		xmm0, SIMD_SSE2_dword_alpha_bit_mask0
+		pand		xmm1, SIMD_SSE2_dword_alpha_bit_mask1
+		pand		xmm2, SIMD_SSE2_dword_alpha_bit_mask2
+		pand		xmm3, SIMD_SSE2_dword_alpha_bit_mask3
+		pand		xmm4, SIMD_SSE2_dword_alpha_bit_mask4
+		pand		xmm5, SIMD_SSE2_dword_alpha_bit_mask5
+		pand		xmm6, SIMD_SSE2_dword_alpha_bit_mask6
+		pand		xmm7, SIMD_SSE2_dword_alpha_bit_mask7
+		por			xmm0, xmm1
+		por			xmm2, xmm3
+		por			xmm4, xmm5
+		por			xmm6, xmm7
+		por			xmm0, xmm2
+		por			xmm4, xmm6
+		por			xmm0, xmm4
+		mov			esi, outPtr
+		movd		[esi+0], xmm0
+		pshufd		xmm1, xmm0, R_SHUFFLE_D( 2, 3, 0, 1 )
+		movd		[esi+3], xmm1
+	}
+
+	outData += 6;
+#elif defined ( ID_WIN_X86_SSE2_INTRIN )
 	__m128i block0 = *((__m128i *)(&block[ 0]));
 	__m128i block1 = *((__m128i *)(&block[16]));
 	__m128i block2 = *((__m128i *)(&block[32]));
@@ -777,6 +1451,9 @@ void idDxtEncoder::EmitAlphaIndices_SSE2( const byte *block, const int minAlpha_
 	out = _mm_cvtsi128_si32( temp1 );
 	EmitUInt( out );
 	outData--;
+#else
+	assert( false );
+#endif
 }
 
 /*
@@ -785,6 +1462,151 @@ idDxtEncoder::EmitAlphaIndices_SSE2
 ========================
 */
 void idDxtEncoder::EmitAlphaIndices_SSE2( const byte *block, const int channelBitOffset, const int minAlpha_, const int maxAlpha_ ) {
+#if ( defined( ID_WIN_X86_ASM ) || defined( ID_MAC_X86_ASM ) )
+	assert( maxAlpha_ >= minAlpha_ );
+
+	byte *outPtr = outData;
+
+	__asm {
+		movd		xmm7, channelBitOffset
+
+		mov			esi, block
+		movdqa		xmm0, xmmword ptr [esi+	0]
+		movdqa		xmm5, xmmword ptr [esi+16]
+		movdqa		xmm6, xmmword ptr [esi+32]
+		movdqa		xmm4, xmmword ptr [esi+48]
+
+		psrld		xmm0, xmm7
+		psrld		xmm5, xmm7
+		psrld		xmm6, xmm7
+		psrld		xmm4, xmm7
+
+		pand		xmm0, SIMD_SSE2_dword_byte_mask
+		pand		xmm5, SIMD_SSE2_dword_byte_mask
+		pand		xmm6, SIMD_SSE2_dword_byte_mask
+		pand		xmm4, SIMD_SSE2_dword_byte_mask
+
+		packuswb	xmm0, xmm5
+		packuswb	xmm6, xmm4
+
+		//---------------------
+
+		// ab0 = (  7 * maxAlpha +  7 * minAlpha + ALPHA_RANGE ) / 14
+		// ab3 = (  9 * maxAlpha +  5 * minAlpha + ALPHA_RANGE ) / 14
+		// ab2 = ( 11 * maxAlpha +  3 * minAlpha + ALPHA_RANGE ) / 14
+		// ab1 = ( 13 * maxAlpha +  1 * minAlpha + ALPHA_RANGE ) / 14
+
+		// ab4 = (  7 * maxAlpha +  7 * minAlpha + ALPHA_RANGE ) / 14
+		// ab5 = (  5 * maxAlpha +  9 * minAlpha + ALPHA_RANGE ) / 14
+		// ab6 = (  3 * maxAlpha + 11 * minAlpha + ALPHA_RANGE ) / 14
+		// ab7 = (  1 * maxAlpha + 13 * minAlpha + ALPHA_RANGE ) / 14
+
+		movd		xmm5, maxAlpha_
+		pshuflw		xmm5, xmm5,	R_SHUFFLE_D( 0,	0, 0, 0	)
+		pshufd		xmm5, xmm5,	R_SHUFFLE_D( 0,	0, 0, 0	)
+		movdqa		xmm7, xmm5
+
+		movd		xmm2, minAlpha_
+		pshuflw		xmm2, xmm2,	R_SHUFFLE_D( 0,	0, 0, 0	)
+		pshufd		xmm2, xmm2,	R_SHUFFLE_D( 0,	0, 0, 0	)
+		movdqa		xmm3, xmm2
+
+		pmullw		xmm5, SIMD_SSE2_word_scale_7_9_11_13
+		pmullw		xmm7, SIMD_SSE2_word_scale_7_5_3_1
+		pmullw		xmm2, SIMD_SSE2_word_scale_7_5_3_1
+		pmullw		xmm3, SIMD_SSE2_word_scale_7_9_11_13
+
+		paddw		xmm5, xmm2
+		paddw		xmm7, xmm3
+
+		paddw		xmm5, SIMD_SSE2_word_7
+		paddw		xmm7, SIMD_SSE2_word_7
+
+		pmulhw		xmm5, SIMD_SSE2_word_div_by_14			// * ( ( 1 << 16 ) / 14	+ 1	) )	>> 16
+		pmulhw		xmm7, SIMD_SSE2_word_div_by_14			// * ( ( 1 << 16 ) / 14	+ 1	) )	>> 16
+
+		pshufd		xmm1, xmm5,	R_SHUFFLE_D( 3, 3, 3, 3	)
+		pshufd		xmm2, xmm5,	R_SHUFFLE_D( 2, 2, 2, 2	)
+		pshufd		xmm3, xmm5,	R_SHUFFLE_D( 1, 1, 1, 1	)
+		packuswb	xmm1, xmm1								// ab1
+		packuswb	xmm2, xmm2								// ab2
+		packuswb	xmm3, xmm3								// ab3
+
+		packuswb	xmm0, xmm6								// alpha block
+
+		pshufd		xmm4, xmm7,	R_SHUFFLE_D( 0,	0, 0, 0	)
+		pshufd		xmm5, xmm7,	R_SHUFFLE_D( 1,	1, 1, 1	)
+		pshufd		xmm6, xmm7,	R_SHUFFLE_D( 2,	2, 2, 2	)
+		pshufd		xmm7, xmm7,	R_SHUFFLE_D( 3,	3, 3, 3	)
+		packuswb	xmm4, xmm4								// ab4
+		packuswb	xmm5, xmm5								// ab5
+		packuswb	xmm6, xmm6								// ab6
+		packuswb	xmm7, xmm7								// ab7
+
+		pmaxub		xmm1, xmm0
+		pmaxub		xmm2, xmm0
+		pmaxub		xmm3, xmm0
+		pcmpeqb		xmm1, xmm0
+		pcmpeqb		xmm2, xmm0
+		pcmpeqb		xmm3, xmm0
+		pmaxub		xmm4, xmm0
+		pmaxub		xmm5, xmm0
+		pmaxub		xmm6, xmm0
+		pmaxub		xmm7, xmm0
+		pcmpeqb		xmm4, xmm0
+		pcmpeqb		xmm5, xmm0
+		pcmpeqb		xmm6, xmm0
+		pcmpeqb		xmm7, xmm0
+		movdqa		xmm0, SIMD_SSE2_byte_8
+		paddsb		xmm0, xmm1
+		paddsb		xmm2, xmm3
+		paddsb		xmm4, xmm5
+		paddsb		xmm6, xmm7
+		paddsb		xmm0, xmm2
+		paddsb		xmm4, xmm6
+		paddsb		xmm0, xmm4
+		pand		xmm0, SIMD_SSE2_byte_7
+		movdqa		xmm1, SIMD_SSE2_byte_2
+		pcmpgtb		xmm1, xmm0
+		pand		xmm1, SIMD_SSE2_byte_1
+		pxor		xmm0, xmm1
+		movdqa		xmm1, xmm0
+		movdqa		xmm2, xmm0
+		movdqa		xmm3, xmm0
+		movdqa		xmm4, xmm0
+		movdqa		xmm5, xmm0
+		movdqa		xmm6, xmm0
+		movdqa		xmm7, xmm0
+		psrlq		xmm1,  8- 3
+		psrlq		xmm2, 16- 6
+		psrlq		xmm3, 24- 9
+		psrlq		xmm4, 32-12
+		psrlq		xmm5, 40-15
+		psrlq		xmm6, 48-18
+		psrlq		xmm7, 56-21
+		pand		xmm0, SIMD_SSE2_dword_alpha_bit_mask0
+		pand		xmm1, SIMD_SSE2_dword_alpha_bit_mask1
+		pand		xmm2, SIMD_SSE2_dword_alpha_bit_mask2
+		pand		xmm3, SIMD_SSE2_dword_alpha_bit_mask3
+		pand		xmm4, SIMD_SSE2_dword_alpha_bit_mask4
+		pand		xmm5, SIMD_SSE2_dword_alpha_bit_mask5
+		pand		xmm6, SIMD_SSE2_dword_alpha_bit_mask6
+		pand		xmm7, SIMD_SSE2_dword_alpha_bit_mask7
+		por			xmm0, xmm1
+		por			xmm2, xmm3
+		por			xmm4, xmm5
+		por			xmm6, xmm7
+		por			xmm0, xmm2
+		por			xmm4, xmm6
+		por			xmm0, xmm4
+		mov			esi, outPtr
+		movd		[esi+0], xmm0
+		pshufd		xmm1, xmm0, R_SHUFFLE_D( 2, 3, 0, 1 )
+		movd		[esi+3], xmm1
+	}
+
+	outData += 6;
+#elif defined ( ID_WIN_X86_SSE2_INTRIN )
 	__m128i block0 = *((__m128i *)(&block[ 0]));
 	__m128i block1 = *((__m128i *)(&block[16]));
 	__m128i block2 = *((__m128i *)(&block[32]));
@@ -917,6 +1739,9 @@ void idDxtEncoder::EmitAlphaIndices_SSE2( const byte *block, const int channelBi
 	out = _mm_cvtsi128_si32( temp1 );
 	EmitUInt( out );
 	outData--;
+#else
+	assert( false );
+#endif
 }
 
 /*
@@ -1102,6 +1927,108 @@ idDxtEncoder::ScaleYCoCg_SSE2
 ========================
 */
 ID_INLINE void idDxtEncoder::ScaleYCoCg_SSE2( byte *colorBlock, byte *minColor, byte *maxColor ) const {
+#if ( defined( ID_WIN_X86_ASM ) || defined( ID_MAC_X86_ASM ) )
+	__asm {
+		mov			esi, colorBlock
+		mov			edx, minColor
+		mov			ecx, maxColor
+
+		movd		xmm0, dword ptr [edx]
+		movd		xmm1, dword ptr [ecx]
+
+		punpcklbw	xmm0, SIMD_SSE2_byte_0
+		punpcklbw	xmm1, SIMD_SSE2_byte_0
+
+		movdqa		xmm6, SIMD_SSE2_word_center_128
+		movdqa		xmm7, SIMD_SSE2_word_center_128
+
+		psubw		xmm6, xmm0
+		psubw		xmm7, xmm1
+
+		psubw		xmm0, SIMD_SSE2_word_center_128
+		psubw		xmm1, SIMD_SSE2_word_center_128
+
+		pmaxsw		xmm6, xmm0
+		pmaxsw		xmm7, xmm1
+
+		pmaxsw		xmm6, xmm7
+		pshuflw		xmm7, xmm6, R_SHUFFLE_D( 1, 0, 1, 0 )
+		pmaxsw		xmm6, xmm7
+		pshufd		xmm6, xmm6, R_SHUFFLE_D( 0, 0, 0, 0 )
+
+		movdqa		xmm7, xmm6
+		pcmpgtw		xmm6, SIMD_SSE2_word_63				// mask0
+		pcmpgtw		xmm7, SIMD_SSE2_word_31				// mask1
+
+		pandn		xmm7, SIMD_SSE2_byte_2
+		por			xmm7, SIMD_SSE2_byte_1
+		pandn		xmm6, xmm7
+		movdqa		xmm3, xmm6
+		movdqa		xmm7, xmm6
+		pxor		xmm7, SIMD_SSE2_byte_not
+		por			xmm7, SIMD_SSE2_byte_scale_mask0	// 0xFF, 0xFF, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00
+		paddw		xmm6, SIMD_SSE2_byte_1
+		pand		xmm6, SIMD_SSE2_byte_scale_mask1	// 0x00, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, 0xFF
+		por			xmm6, SIMD_SSE2_byte_scale_mask2	// 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00
+
+		movd		xmm4, dword ptr [edx]
+		movd		xmm5, dword ptr [ecx]
+
+		pand		xmm4, SIMD_SSE2_byte_scale_mask3	// 0x00, 0x00, 0x00, 0x00, 0xFF, 0x00, 0xFF, 0xFF
+		pand		xmm5, SIMD_SSE2_byte_scale_mask3
+
+		pslld		xmm3, 3
+		pand		xmm3, SIMD_SSE2_byte_scale_mask4	// 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0x00, 0x00
+
+		por			xmm4, xmm3
+		por			xmm5, xmm3
+
+		paddb		xmm4, SIMD_SSE2_byte_minus_128_0
+		paddb		xmm5, SIMD_SSE2_byte_minus_128_0
+
+		pmullw		xmm4, xmm6
+		pmullw		xmm5, xmm6
+
+		pand		xmm4, xmm7
+		pand		xmm5, xmm7
+
+		psubb		xmm4, SIMD_SSE2_byte_minus_128_0
+		psubb		xmm5, SIMD_SSE2_byte_minus_128_0
+
+		movd		dword ptr [edx], xmm4
+		movd		dword ptr [ecx], xmm5
+
+		movdqa		xmm0, xmmword ptr [esi+ 0*4]
+		movdqa		xmm1, xmmword ptr [esi+ 4*4]
+		movdqa		xmm2, xmmword ptr [esi+ 8*4]
+		movdqa		xmm3, xmmword ptr [esi+12*4]
+
+		paddb		xmm0, SIMD_SSE2_byte_minus_128_0
+		paddb		xmm1, SIMD_SSE2_byte_minus_128_0
+		paddb		xmm2, SIMD_SSE2_byte_minus_128_0
+		paddb		xmm3, SIMD_SSE2_byte_minus_128_0
+
+		pmullw		xmm0, xmm6
+		pmullw		xmm1, xmm6
+		pmullw		xmm2, xmm6
+		pmullw		xmm3, xmm6
+
+		pand		xmm0, xmm7
+		pand		xmm1, xmm7
+		pand		xmm2, xmm7
+		pand		xmm3, xmm7
+
+		psubb		xmm0, SIMD_SSE2_byte_minus_128_0
+		psubb		xmm1, SIMD_SSE2_byte_minus_128_0
+		psubb		xmm2, SIMD_SSE2_byte_minus_128_0
+		psubb		xmm3, SIMD_SSE2_byte_minus_128_0
+
+		movdqa		xmmword ptr [esi+ 0*4], xmm0
+		movdqa		xmmword ptr [esi+ 4*4], xmm1
+		movdqa		xmmword ptr [esi+ 8*4], xmm2
+		movdqa		xmmword ptr [esi+12*4], xmm3
+	}
+#elif defined ( ID_WIN_X86_SSE2_INTRIN )
 	__m128i block0 = *((__m128i *)(&colorBlock[ 0]));
 	__m128i block1 = *((__m128i *)(&colorBlock[16]));
 	__m128i block2 = *((__m128i *)(&colorBlock[32]));
@@ -1189,6 +2116,9 @@ ID_INLINE void idDxtEncoder::ScaleYCoCg_SSE2( byte *colorBlock, byte *minColor, 
 	*((__m128i *)(&colorBlock[16])) = _mm_sub_epi8( temp1, (const __m128i &)SIMD_SSE2_byte_minus_128_0 );
 	*((__m128i *)(&colorBlock[32])) = _mm_sub_epi8( temp2, (const __m128i &)SIMD_SSE2_byte_minus_128_0 );
 	*((__m128i *)(&colorBlock[48])) = _mm_sub_epi8( temp3, (const __m128i &)SIMD_SSE2_byte_minus_128_0 );
+#else
+	assert( false );
+#endif
 }
 
 /*
@@ -1197,6 +2127,40 @@ idDxtEncoder::InsetYCoCgBBox_SSE2
 ========================
 */
 ID_INLINE void idDxtEncoder::InsetYCoCgBBox_SSE2( byte *minColor, byte *maxColor ) const {
+#if ( defined( ID_WIN_X86_ASM ) || defined( ID_MAC_X86_ASM ) )
+	__asm {
+		mov			esi, minColor
+		mov			edi, maxColor
+		movd		xmm0, dword ptr [esi]
+		movd		xmm1, dword ptr [edi]
+		punpcklbw	xmm0, SIMD_SSE2_byte_0
+		punpcklbw	xmm1, SIMD_SSE2_byte_0
+		movdqa		xmm2, xmm1
+		psubw		xmm2, xmm0
+		psubw		xmm2, SIMD_SSE2_word_insetYCoCgRound
+		pand		xmm2, SIMD_SSE2_word_insetYCoCgMask
+		pmullw		xmm0, SIMD_SSE2_word_insetYCoCgShiftUp
+		pmullw		xmm1, SIMD_SSE2_word_insetYCoCgShiftUp
+		paddw		xmm0, xmm2
+		psubw		xmm1, xmm2
+		pmulhw		xmm0, SIMD_SSE2_word_insetYCoCgShiftDown
+		pmulhw		xmm1, SIMD_SSE2_word_insetYCoCgShiftDown
+		pmaxsw		xmm0, SIMD_SSE2_word_0
+		pmaxsw		xmm1, SIMD_SSE2_word_0
+		pand		xmm0, SIMD_SSE2_word_insetYCoCgQuantMask
+		pand		xmm1, SIMD_SSE2_word_insetYCoCgQuantMask
+		movdqa		xmm2, xmm0
+		movdqa		xmm3, xmm1
+		pmulhw		xmm2, SIMD_SSE2_word_insetYCoCgRep
+		pmulhw		xmm3, SIMD_SSE2_word_insetYCoCgRep
+		por			xmm0, xmm2
+		por			xmm1, xmm3
+		packuswb	xmm0, xmm0
+		packuswb	xmm1, xmm1
+		movd		dword ptr [esi], xmm0
+		movd		dword ptr [edi], xmm1
+	}
+#elif defined ( ID_WIN_X86_SSE2_INTRIN )
 	__m128c temp0, temp1, temp2, temp3, temp4, temp5, temp6, temp7;
 
 	temp0 = _mm_cvtsi32_si128( *(int *)minColor );
@@ -1227,6 +2191,9 @@ ID_INLINE void idDxtEncoder::InsetYCoCgBBox_SSE2( byte *minColor, byte *maxColor
 
 	*(int *)minColor = _mm_cvtsi128_si32( temp0 );
 	*(int *)maxColor = _mm_cvtsi128_si32( temp1 );
+#else
+	assert( false );
+#endif
 }
 
 /*
@@ -1240,6 +2207,80 @@ return: diagonal to use
 ========================
 */
 ID_INLINE void idDxtEncoder::SelectYCoCgDiagonal_SSE2( const byte *colorBlock, byte *minColor, byte *maxColor ) const {
+#if ( defined( ID_WIN_X86_ASM ) || defined( ID_MAC_X86_ASM ) )
+	__asm {
+		mov			esi, colorBlock
+		mov			edx, minColor
+		mov			ecx, maxColor
+
+		movdqa		xmm0, xmmword ptr [esi+	0]
+		movdqa		xmm1, xmmword ptr [esi+16]
+		movdqa		xmm2, xmmword ptr [esi+32]
+		movdqa		xmm3, xmmword ptr [esi+48]
+
+		pand		xmm0, SIMD_SSE2_dword_word_mask
+		pand		xmm1, SIMD_SSE2_dword_word_mask
+		pand		xmm2, SIMD_SSE2_dword_word_mask
+		pand		xmm3, SIMD_SSE2_dword_word_mask
+
+		pslldq		xmm1, 2
+		pslldq		xmm3, 2
+		por			xmm0, xmm1
+		por			xmm2, xmm3
+
+		movd		xmm1, dword ptr [edx]					// minColor
+		movd		xmm3, dword ptr [ecx]					// maxColor
+
+		movdqa		xmm6, xmm1
+		movdqa		xmm7, xmm3
+
+		pavgb		xmm1, xmm3
+		pshuflw		xmm1, xmm1, R_SHUFFLE_D( 0, 0, 0, 0 )
+		pshufd		xmm1, xmm1, R_SHUFFLE_D( 0, 0, 0, 0 )
+		movdqa		xmm3, xmm1
+
+		pmaxub		xmm1, xmm0
+		pmaxub		xmm3, xmm2
+		pcmpeqb		xmm1, xmm0
+		pcmpeqb		xmm3, xmm2
+
+		movdqa		xmm0, xmm1
+		movdqa		xmm2, xmm3
+		psrldq		xmm0, 1
+		psrldq		xmm2, 1
+
+		pxor		xmm0, xmm1
+		pxor		xmm2, xmm3
+		pand		xmm0, SIMD_SSE2_word_1
+		pand		xmm2, SIMD_SSE2_word_1
+
+		paddw		xmm0, xmm2
+		psadbw		xmm0, SIMD_SSE2_byte_0
+		pshufd		xmm1, xmm0, R_SHUFFLE_D( 2, 3, 0, 1 )
+
+#ifdef NVIDIA_7X_HARDWARE_BUG_FIX
+		paddw		xmm1, xmm0								// side
+		pcmpgtw		xmm1, SIMD_SSE2_word_8					// mask = -( side > 8 )
+		pand		xmm1, SIMD_SSE2_byte_diagonalMask
+		movdqa		xmm0, xmm6
+		pcmpeqb		xmm0, xmm7								// mask &= -( minColor[0] != maxColor[0] )
+		pslldq		xmm0, 1
+		pandn		xmm0, xmm1
+#else
+		paddw		xmm0, xmm1								// side
+		pcmpgtw		xmm0, SIMD_SSE2_word_8					// mask = -( side > 8 )
+		pand		xmm0, SIMD_SSE2_byte_diagonalMask
+#endif
+
+		pxor		xmm6, xmm7
+		pand		xmm0, xmm6
+		pxor		xmm7, xmm0
+		pxor		xmm6, xmm7
+
+		movd		dword ptr [edx], xmm6
+		movd		dword ptr [ecx], xmm7
+	}
+#elif defined ( ID_WIN_X86_SSE2_INTRIN )
 	__m128i block0 = *((__m128i *)(&colorBlock[ 0]));
 	__m128i block1 = *((__m128i *)(&colorBlock[16]));
 	__m128i block2 = *((__m128i *)(&colorBlock[32]));
@@ -1300,6 +2341,9 @@ ID_INLINE void idDxtEncoder::SelectYCoCgDiagonal_SSE2( const byte *colorBlock, b
 
 	*(int *)minColor = _mm_cvtsi128_si32( temp6 );
 	*(int *)maxColor = _mm_cvtsi128_si32( temp7 );
+#else
+	assert( false );
+#endif
 }
 
 /*
@@ -1376,6 +2420,113 @@ paramO:	maxGreen	- Maximal normal Y found
 ========================
 */
 void idDxtEncoder::EmitGreenIndices_SSE2( const byte *block, const int channelBitOffset, const int minGreen, const int maxGreen ) {
+#if ( defined( ID_WIN_X86_ASM ) || defined( ID_MAC_X86_ASM ) )
+	assert( maxGreen >= minGreen );
+
+	byte *outPtr = outData;
+
+	__asm {
+		movd		xmm7, channelBitOffset
+
+		mov			esi, block
+		movdqa		xmm0, xmmword ptr [esi+	0]
+		movdqa		xmm5, xmmword ptr [esi+16]
+		movdqa		xmm6, xmmword ptr [esi+32]
+		movdqa		xmm4, xmmword ptr [esi+48]
+
+		psrld		xmm0, xmm7
+		psrld		xmm5, xmm7
+		psrld		xmm6, xmm7
+		psrld		xmm4, xmm7
+
+		pand		xmm0, SIMD_SSE2_dword_byte_mask
+		pand		xmm5, SIMD_SSE2_dword_byte_mask
+		pand		xmm6, SIMD_SSE2_dword_byte_mask
+		pand		xmm4, SIMD_SSE2_dword_byte_mask
+
+		packuswb	xmm0, xmm5
+		packuswb	xmm6, xmm4
+
+		//---------------------
+
+		movd		xmm2, maxGreen
+		pshuflw		xmm2, xmm2, R_SHUFFLE_D( 0, 0, 0, 0 )
+
+		movd		xmm3, minGreen
+		pshuflw		xmm3, xmm3, R_SHUFFLE_D( 0, 0, 0, 0 )
+
+		pmullw		xmm2, SIMD_SSE2_word_scale_5_3_1
+		pmullw		xmm3, SIMD_SSE2_word_scale_1_3_5
+		paddw		xmm2, SIMD_SSE2_word_3
+		paddw		xmm3, xmm2
+		pmulhw		xmm3, SIMD_SSE2_word_div_by_6
+
+		pshuflw		xmm1, xmm3, R_SHUFFLE_D( 0, 0, 0, 0 )
+		pshuflw		xmm2, xmm3, R_SHUFFLE_D( 1, 1, 1, 1 )
+		pshuflw		xmm3, xmm3, R_SHUFFLE_D( 2, 2, 2, 2 )
+
+		pshufd		xmm1, xmm1, R_SHUFFLE_D( 0, 0, 0, 0 )
+		pshufd		xmm2, xmm2, R_SHUFFLE_D( 0, 0, 0, 0 )
+		pshufd		xmm3, xmm3, R_SHUFFLE_D( 0, 0, 0, 0 )
+
+		packuswb	xmm1, xmm1
+		packuswb	xmm2, xmm2
+		packuswb	xmm3, xmm3
+
+		packuswb	xmm0, xmm6
+
+		pmaxub		xmm1, xmm0
+		pmaxub		xmm2, xmm0
+		pmaxub		xmm3, xmm0
+		pcmpeqb		xmm1, xmm0
+		pcmpeqb		xmm2, xmm0
+		pcmpeqb		xmm3, xmm0
+		movdqa		xmm0, SIMD_SSE2_byte_4
+		paddsb		xmm0, xmm1
+		paddsb		xmm2, xmm3
+		paddsb		xmm0, xmm2
+		pand		xmm0, SIMD_SSE2_byte_3
+		movdqa		xmm4, SIMD_SSE2_byte_2
+		pcmpgtb		xmm4, xmm0
+		pand		xmm4, SIMD_SSE2_byte_1
+		pxor		xmm0, xmm4
+		movdqa		xmm4, xmm0
+		movdqa		xmm5, xmm0
+		movdqa		xmm6, xmm0
+		movdqa		xmm7, xmm0
+		psrlq		xmm4,  8- 2
+		psrlq		xmm5, 16- 4
+		psrlq		xmm6, 24- 6
+		psrlq		xmm7, 32- 8
+		pand		xmm4, SIMD_SSE2_dword_color_bit_mask1
+		pand		xmm5, SIMD_SSE2_dword_color_bit_mask2
+		pand		xmm6, SIMD_SSE2_dword_color_bit_mask3
+		pand		xmm7, SIMD_SSE2_dword_color_bit_mask4
+		por			xmm5, xmm4
+		por			xmm7, xmm6
+		por			xmm7, xmm5
+		movdqa		xmm4, xmm0
+		movdqa		xmm5, xmm0
+		movdqa		xmm6, xmm0
+		psrlq		xmm4, 40-10
+		psrlq		xmm5, 48-12
+		psrlq		xmm6, 56-14
+		pand		xmm0, SIMD_SSE2_dword_color_bit_mask0
+		pand		xmm4, SIMD_SSE2_dword_color_bit_mask5
+		pand		xmm5, SIMD_SSE2_dword_color_bit_mask6
+		pand		xmm6, SIMD_SSE2_dword_color_bit_mask7
+		por			xmm4, xmm5
+		por			xmm0, xmm6
+		por			xmm7, xmm4
+		por			xmm7, xmm0
+		mov			esi, outPtr
+		pshufd		xmm7, xmm7, R_SHUFFLE_D( 0, 2, 1, 3 )
+		pshuflw		xmm7, xmm7, R_SHUFFLE_D( 0, 2, 1, 3 )
+		movd		[esi], xmm7
+	}
+
+	outData += 4;
+#elif defined ( ID_WIN_X86_SSE2_INTRIN )
 	__m128i block0 = *((__m128i *)(&block[ 0]));
 	__m128i block1 = *((__m128i *)(&block[16]));
 	__m128i block2 = *((__m128i *)(&block[32]));
@@ -1472,6 +2623,9 @@ void idDxtEncoder::EmitGreenIndices_SSE2( const byte *block, const int channelBi
 
 	int result = _mm_cvtsi128_si32( temp7 );
 	EmitUInt( result );
+#else
+	assert( false );
+#endif
 }
 
 /*
@@ -1480,6 +2634,46 @@ idDxtEncoder::InsetNormalsBBoxDXT5_SSE2
 ========================
 */
 void idDxtEncoder::InsetNormalsBBoxDXT5_SSE2( byte *minNormal, byte *maxNormal ) const {
+#if ( defined( ID_WIN_X86_ASM ) || defined( ID_MAC_X86_ASM ) )
+	__asm {
+        mov         esi, minNormal
+        mov         edi, maxNormal
+        movd        xmm0, dword ptr [esi]							// xmm0 = minNormal
+        movd        xmm1, dword ptr [edi]							// xmm1 = maxNormal
+        punpcklbw   xmm0, SIMD_SSE2_byte_0
+        punpcklbw   xmm1, SIMD_SSE2_byte_0
+        movdqa      xmm2, xmm1
+        psubw       xmm2, xmm0
+        psubw       xmm2, SIMD_SSE2_word_insetNormalDXT5Round
+        pand        xmm2, SIMD_SSE2_word_insetNormalDXT5Mask		// xmm2 = inset (1 & 3)
+
+        pmullw      xmm0, SIMD_SSE2_word_insetNormalDXT5ShiftUp
+        pmullw      xmm1, SIMD_SSE2_word_insetNormalDXT5ShiftUp
+		paddw		xmm0, xmm2
+		psubw		xmm1, xmm2
+		pmulhw      xmm0, SIMD_SSE2_word_insetNormalDXT5ShiftDown	// xmm0 = mini
+        pmulhw      xmm1, SIMD_SSE2_word_insetNormalDXT5ShiftDown	// xmm1 = maxi
+
+		// mini and maxi must be >= 0 and <= 255
+        pmaxsw      xmm0, SIMD_SSE2_word_0
+        pmaxsw      xmm1, SIMD_SSE2_word_0
+        pminsw      xmm0, SIMD_SSE2_word_255
+        pminsw      xmm1, SIMD_SSE2_word_255
+
+        movdqa      xmm2, xmm0
+        movdqa      xmm3, xmm1
+        pand        xmm0, SIMD_SSE2_word_insetNormalDXT5QuantMask
+        pand        xmm1, SIMD_SSE2_word_insetNormalDXT5QuantMask
+        pmulhw      xmm2, SIMD_SSE2_word_insetNormalDXT5Rep
+        pmulhw      xmm3, SIMD_SSE2_word_insetNormalDXT5Rep
+        por         xmm0, xmm2
+        por         xmm1, xmm3
+        packuswb    xmm0, xmm0
+        packuswb    xmm1, xmm1
+        movd        dword ptr [esi], xmm0
+        movd        dword ptr [edi], xmm1
+    }
+#elif defined ( ID_WIN_X86_SSE2_INTRIN )
 	__m128i temp0, temp1, temp2, temp3;
 
 	temp0 = _mm_cvtsi32_si128( *(int *)minNormal );
@@ -1516,6 +2710,9 @@ void idDxtEncoder::InsetNormalsBBoxDXT5_SSE2( byte *minNormal, byte *maxNormal )
 
 	*(int *)minNormal = _mm_cvtsi128_si32( temp0 );
 	*(int *)maxNormal = _mm_cvtsi128_si32( temp1 );
+#else
+	assert( false );
+#endif
 }
 
 /*
@@ -1578,3 +2775,4 @@ void idDxtEncoder::CompressNormalMapDXT5Fast_SSE2( const byte *inBuf, byte *outB
 #endif
 }
 
+#endif

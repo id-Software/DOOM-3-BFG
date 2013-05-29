@@ -31,11 +31,64 @@ If you have questions concerning this license or the applicable additional terms
 /*
 ================================================================================================
 
+	Platform Specific ID_ Defines
+
+	The ID_ defines are the only platform defines we should be using.
+
+================================================================================================
+*/
+
+#undef ID_PC
+#undef ID_PC_WIN
+#undef ID_PC_WIN64
+#undef ID_CONSOLE
+#undef ID_WIN32
+#undef ID_LITTLE_ENDIAN
+
+#if defined(_WIN32)
+	// _WIN32 always defined
+	// _WIN64 also defined for x64 target
+/*
+	#if !defined( _MANAGED )
+		#if !defined( _WIN64 )
+			#define ID_WIN_X86_ASM
+			#define ID_WIN_X86_MMX_ASM
+			#define ID_WIN_X86_MMX_INTRIN
+			#define ID_WIN_X86_SSE_ASM
+			#define ID_WIN_X86_SSE_INTRIN
+			#define ID_WIN_X86_SSE2_ASM
+			#define ID_WIN_X86_SSE2_INTRIN
+			// the 32 bit build is now as close to the console builds as possible
+			#define ID_CONSOLE
+		#else
+			#define ID_PC_WIN64
+			#define ID_WIN_X86_MMX_INTRIN
+			#define ID_WIN_X86_SSE_INTRIN
+			#define ID_WIN_X86_SSE2_INTRIN
+			#define ID_WIN_X86_SSE3_INTRIN
+		#endif
+	#endif
+*/
+
+	#define ID_PC
+	#define ID_PC_WIN
+	#define ID_WIN32
+	#define ID_LITTLE_ENDIAN
+#else
+#error Unknown Platform
+#endif
+
+#define ID_OPENGL
+
+/*
+================================================================================================
+
 	PC Windows
 
 ================================================================================================
 */
 
+#ifdef ID_PC_WIN
 
 #define	CPUSTRING						"x86"
 
@@ -67,6 +120,8 @@ If you have questions concerning this license or the applicable additional terms
 // we should never rely on this define in our code. this is here so dodgy external libraries don't get confused
 #ifndef WIN32
 	#define WIN32
+#endif
+
 #endif
 
 /*
@@ -108,6 +163,8 @@ bulk of the codebase, so it is the best place for analyze pragmas.
 ================================================================================================
 */
 
+#if defined( ID_WIN32 )
+
 // disable some /analyze warnings here
 #pragma warning( disable: 6255 )	// warning C6255: _alloca indicates failure by raising a stack overflow exception. Consider using _malloca instead. (Note: _malloca requires _freea.)
 #pragma warning( disable: 6262 )	// warning C6262: Function uses '36924' bytes of stack: exceeds /analyze:stacksize'32768'. Consider moving some data to heap
@@ -135,6 +192,7 @@ bulk of the codebase, so it is the best place for analyze pragmas.
 // guaranteed to be false in the following code
 #define NO_RETURN __declspec(noreturn)
 
+#endif
 
 // I don't want to disable "warning C6031: Return value ignored" from /analyze
 // but there are several cases with sprintf where we pre-initialized the variables

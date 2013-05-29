@@ -31,6 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../../../idlib/sys/sys_intrinsics.h"
 #include "../../../idlib/geometry/DrawVert_intrinsics.h"
 
+#ifdef ID_WIN_X86_SSE2_INTRIN
 
 static const __m128i vector_int_neg_one		= _mm_set_epi32( -1, -1, -1, -1 );
 
@@ -126,6 +127,69 @@ static __forceinline __m128i TriangleCulled_SSE2(	const __m128 & vert0X, const _
 	return _mm_castps_si128( _mm_cmpeq_ps( b0, zero ) );
 }
 
+#else
+
+/*
+=====================
+TriangleFacing
+
+Returns 255 if the triangle is facing the light origin, otherwise returns 0.
+=====================
+*/
+static byte TriangleFacing_Generic( const idVec3 & v1, const idVec3 & v2, const idVec3 & v3, const idVec3 & lightOrigin ) {
+	const float sx = v2.x - v1.x;
+	const float sy = v2.y - v1.y;
+	const float sz = v2.z - v1.z;
+
+	const float tx = v3.x - v1.x;
+	const float ty = v3.y - v1.y;
+	const float tz = v3.z - v1.z;
+
+	const float normalX = ty * sz - tz * sy;
+	const float normalY = tz * sx - tx * sz;
+	const float normalZ = tx * sy - ty * sx;
+	const float normalW = normalX * v1.x + normalY * v1.y + normalZ * v1.z;
+
+	const float d = lightOrigin.x * normalX + lightOrigin.y * normalY + lightOrigin.z * normalZ - normalW;
+	return ( d > 0.0f ) ? 255 : 0;
+}
+
+/*
+=====================
+TriangleCulled
+
+Returns 255 if the triangle is culled to the light projection matrix, otherwise returns 0.
+The clip space of the 'lightProject' is assumed to be in the range [0, 1].
+=====================
+*/
+static byte TriangleCulled_Generic( const idVec3 & v1, const idVec3 & v2, const idVec3 & v3, const idRenderMatrix & lightProject ) {
+	// transform the triangle
+	idVec4 c[3];
+	for ( int i = 0; i < 4; i++ ) {
+		c[0][i] = v1[0] * lightProject[i][0] + v1[1] * lightProject[i][1] + v1[2] * lightProject[i][2] + lightProject[i][3];
+		c[1][i] = v2[0] * lightProject[i][0] + v2[1] * lightProject[i][1] + v2[2] * lightProject[i][2] + lightProject[i][3];
+		c[2][i] = v3[0] * lightProject[i][0] + v3[1] * lightProject[i][1] + v3[2] * lightProject[i][2] + lightProject[i][3];
+	}
+
+	// calculate the culled bits
+	int bits = 0;
+	for ( int i = 0; i < 3; i++ ) {
+		const float minW = 0.0f;
+		const float maxW = c[i][3];
+
+		if ( c[i][0] > minW ) { bits |= ( 1 << 0 ); }
+		if ( c[i][0] < maxW ) { bits |= ( 1 << 1 ); }
+		if ( c[i][1] > minW ) { bits |= ( 1 << 2 ); }
+		if ( c[i][1] < maxW ) { bits |= ( 1 << 3 ); }
+		if ( c[i][2] > minW ) { bits |= ( 1 << 4 ); }
+		if ( c[i][2] < maxW ) { bits |= ( 1 << 5 ); }
+	}
+
+	// if any bits weren't set, the triangle is completely off one side of the frustum
+	return ( bits != 63 ) ? 255 : 0;
+}
+
+#endif
 
 /*
 =====================
@@ -155,6 +219,7 @@ static int CalculateTriangleFacingCulledStatic( byte * __restrict facing, byte *
 	const idVec3 lineDir = lineDelta * lineLengthRcp;
 	const float lineLength = lineLengthSqr * lineLengthRcp;
 
+#ifdef ID_WIN_X86_SSE2_INTRIN
 
 	idODSStreamedIndexedArray< idDrawVert, triIndex_t, 32, SBT_QUAD, 4 * 3 > indexedVertsODS( verts, numVerts, indexes, numIndexes );
 
@@ -261,6 +326,55 @@ static int CalculateTriangleFacingCulledStatic( byte * __restrict facing, byte *
 
 	return _mm_cvtsi128_si32( numFrontFacing );
 
+#else
+
+	idODSStreamedIndexedArray< idDrawVert, triIndex_t, 32, SBT_QUAD, 1 > indexedVertsODS( verts, numVerts, indexes, numIndexes );
+
+	const byte cullShadowTrianglesToLightMask = cullShadowTrianglesToLight ? 255 : 0;
+
+	int numFrontFacing = 0;
+
+	for ( int i = 0, j = 0; i < numIndexes; ) {
+
+		const int batchStart = i;
+		const int batchEnd = indexedVertsODS.FetchNextBatch();
+		const int indexStart = j;
+
+		for ( ; i <= batchEnd - 3; i += 3, j++ ) {
+			const idVec3 & v1 = indexedVertsODS[i + 0].xyz;
+			const idVec3 & v2 = indexedVertsODS[i + 1].xyz;
+			const idVec3 & v3 = indexedVertsODS[i + 2].xyz;
+
+			const byte triangleCulled = TriangleCulled_Generic( v1, v2, v3, lightProject );
+
+			byte triangleFacing = TriangleFacing_Generic( v1, v2, v3, lightOrigin );
+
+			// optionally make triangles that are outside the light frustum facing so they do not contribute to the shadow volume
+			triangleFacing |= ( triangleCulled & cullShadowTrianglesToLightMask );
+
+			culled[j] = triangleCulled;
+			facing[j] = triangleFacing;
+
+			// count the number of facing triangles
+			numFrontFacing += ( triangleFacing & 1 );
+		}
+
+		if ( insideShadowVolume != NULL ) {
+			for ( int k = batchStart, n = indexStart; k <= batchEnd - 3; k += 3, n++ ) {
+				if ( !facing[n] ) {
+					if ( R_LineIntersectsTriangleExpandedWithSphere( lineStart, lineEnd, lineDir, lineLength, radius, indexedVertsODS[k + 2].xyz, indexedVertsODS[k + 1].xyz, indexedVertsODS[k + 0].xyz ) ) {
+						*insideShadowVolume = true;
+						insideShadowVolume = NULL;
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	return numFrontFacing;
+
+#endif
 }
 
 /*
@@ -291,6 +405,7 @@ static int CalculateTriangleFacingCulledSkinned( byte * __restrict facing, byte 
 	const idVec3 lineDir = lineDelta * lineLengthRcp;
 	const float lineLength = lineLengthSqr * lineLengthRcp;
 
+#ifdef ID_WIN_X86_SSE2_INTRIN
 
 	idODSStreamedArray< idDrawVert, 32, SBT_DOUBLE, 1 > vertsODS( verts, numVerts );
 
@@ -428,6 +543,74 @@ static int CalculateTriangleFacingCulledSkinned( byte * __restrict facing, byte 
 
 	return _mm_cvtsi128_si32( numFrontFacing );
 
+#else
+
+	idODSStreamedArray< idDrawVert, 32, SBT_DOUBLE, 1 > vertsODS( verts, numVerts );
+
+	for ( int i = 0; i < numVerts; ) {
+
+		const int nextNumVerts = vertsODS.FetchNextBatch() - 1;
+
+		for ( ; i <= nextNumVerts; i++ ) {
+			tempVerts[i].ToVec3() = Scalar_LoadSkinnedDrawVertPosition( vertsODS[i], joints );
+			tempVerts[i].w = 1.0f;
+		}
+	}
+
+	idODSStreamedArray< triIndex_t, 256, SBT_QUAD, 1 > indexesODS( indexes, numIndexes );
+
+	const byte cullShadowTrianglesToLightMask = cullShadowTrianglesToLight ? 255 : 0;
+
+	int numFrontFacing = 0;
+
+	for ( int i = 0, j = 0; i < numIndexes; ) {
+
+		const int batchStart = i;
+		const int batchEnd = indexesODS.FetchNextBatch();
+		const int indexStart = j;
+
+		for ( ; i <= batchEnd - 3; i += 3, j++ ) {
+			const int i0 = indexesODS[i + 0];
+			const int i1 = indexesODS[i + 1];
+			const int i2 = indexesODS[i + 2];
+
+			const idVec3 & v1 = tempVerts[i0].ToVec3();
+			const idVec3 & v2 = tempVerts[i1].ToVec3();
+			const idVec3 & v3 = tempVerts[i2].ToVec3();
+
+			const byte triangleCulled = TriangleCulled_Generic( v1, v2, v3, lightProject );
+
+			byte triangleFacing = TriangleFacing_Generic( v1, v2, v3, lightOrigin );
+
+			// optionally make triangles that are outside the light frustum facing so they do not contribute to the shadow volume
+			triangleFacing |= ( triangleCulled & cullShadowTrianglesToLightMask );
+
+			culled[j] = triangleCulled;
+			facing[j] = triangleFacing;
+
+			// count the number of facing triangles
+			numFrontFacing += ( triangleFacing & 1 );
+		}
+
+		if ( insideShadowVolume != NULL ) {
+			for ( int k = batchStart, n = indexStart; k <= batchEnd - 3; k += 3, n++ ) {
+				if ( !facing[n] ) {
+					const int i0 = indexesODS[k + 0];
+					const int i1 = indexesODS[k + 1];
+					const int i2 = indexesODS[k + 2];
+					if ( R_LineIntersectsTriangleExpandedWithSphere( lineStart, lineEnd, lineDir, lineLength, radius, tempVerts[i2].ToVec3(), tempVerts[i1].ToVec3(), tempVerts[i0].ToVec3() ) ) {
+						*insideShadowVolume = true;
+						insideShadowVolume = NULL;
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	return numFrontFacing;
+
+#endif
 }
 
 /*
@@ -440,6 +623,7 @@ static void StreamOut( void * dst, const void * src, int numBytes ) {
 	assert_16_byte_aligned( dst );
 	assert_16_byte_aligned( src );
 
+#ifdef ID_WIN_X86_SSE2_INTRIN
 	int i = 0;
 	for ( ; i + 128 <= numBytes; i += 128 ) {
 		__m128i d0 = _mm_load_si128( (const __m128i *)( (byte *)src + i + 0*16 ) );
@@ -463,6 +647,9 @@ static void StreamOut( void * dst, const void * src, int numBytes ) {
 		__m128i d = _mm_load_si128( (__m128i *)( (byte *)src + i ) );
 		_mm_stream_si128( (__m128i *)( (byte *)dst + i ), d );
 	}
+#else
+	memcpy( dst, src, numBytes );
+#endif
 }
 
 /*
@@ -671,7 +858,9 @@ static void R_CreateShadowVolumeTriangles( triIndex_t *__restrict shadowIndices,
 
 	numShadowIndexesTotal = numShadowIndices;
 
+#if defined( ID_WIN_X86_SSE2_INTRIN )
 	_mm_sfence();
+#endif
 
 #else	// NOTE: this code will not work on the SPU because it tries to write directly to the destination
 
@@ -844,7 +1033,9 @@ void R_CreateLightTriangles( triIndex_t * __restrict lightIndices, triIndex_t * 
 
 	numLightIndicesTotal = numLightIndices;
 
+#if defined( ID_WIN_X86_SSE2_INTRIN )
 	_mm_sfence();
+#endif
 
 #else	// NOTE: this code will not work on the SPU because it tries to write directly to the destination
 
