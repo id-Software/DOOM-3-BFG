@@ -46,7 +46,10 @@ NOTE: due to the temporary memory pool idMatX cannot be used by multiple threads
 #define MATX_CLEAREND()		int s = numRows * numColumns; while( s < ( ( s + 3 ) & ~3 ) ) { mat[s++] = 0.0f; }
 #define MATX_ALLOCA( n )	( (float *) _alloca16( MATX_QUAD( n ) ) )
 #define MATX_ALLOCA_CACHE_LINES( n )	( (float *) _alloca128( ( ( n ) * sizeof( float ) + CACHE_LINE_SIZE - 1 ) & ~ ( CACHE_LINE_SIZE - 1 ) ) )
+
+#if defined(USE_INTRINSICS)
 #define MATX_SIMD
+#endif
 
 class idMatX
 {

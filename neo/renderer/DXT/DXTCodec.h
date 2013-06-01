@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -305,7 +306,11 @@ idDxtEncoder::CompressImageDXT1Fast
 */
 ID_INLINE void idDxtEncoder::CompressImageDXT1Fast( const byte* inBuf, byte* outBuf, int width, int height )
 {
+#if defined(USE_INTRINSICS)
 	CompressImageDXT1Fast_SSE2( inBuf, outBuf, width, height );
+#else
+	CompressImageDXT1Fast_Generic( inBuf, outBuf, width, height );
+#endif
 }
 
 /*
@@ -315,7 +320,11 @@ idDxtEncoder::CompressImageDXT1AlphaFast
 */
 ID_INLINE void idDxtEncoder::CompressImageDXT1AlphaFast( const byte* inBuf, byte* outBuf, int width, int height )
 {
+#if defined(USE_INTRINSICS)
 	CompressImageDXT1AlphaFast_SSE2( inBuf, outBuf, width, height );
+#else
+	CompressImageDXT1AlphaFast_Generic( inBuf, outBuf, width, height );
+#endif
 }
 
 /*
@@ -325,7 +334,11 @@ idDxtEncoder::CompressImageDXT5Fast
 */
 ID_INLINE void idDxtEncoder::CompressImageDXT5Fast( const byte* inBuf, byte* outBuf, int width, int height )
 {
+#if defined(USE_INTRINSICS)
 	CompressImageDXT5Fast_SSE2( inBuf, outBuf, width, height );
+#else
+	CompressImageDXT5Fast_Generic( inBuf, outBuf, width, height );
+#endif
 }
 
 /*
@@ -345,7 +358,11 @@ idDxtEncoder::CompressYCoCgDXT5Fast
 */
 ID_INLINE void idDxtEncoder::CompressYCoCgDXT5Fast( const byte* inBuf, byte* outBuf, int width, int height )
 {
+#if defined(USE_INTRINSICS)
 	CompressYCoCgDXT5Fast_SSE2( inBuf, outBuf, width, height );
+#else
+	CompressYCoCgDXT5Fast_Generic( inBuf, outBuf, width, height );
+#endif
 }
 
 /*
@@ -365,7 +382,11 @@ idDxtEncoder::CompressNormalMapDXT5Fast
 */
 ID_INLINE void idDxtEncoder::CompressNormalMapDXT5Fast( const byte* inBuf, byte* outBuf, int width, int height )
 {
+#if defined(USE_INTRINSICS)
 	CompressNormalMapDXT5Fast_SSE2( inBuf, outBuf, width, height );
+#else
+	CompressNormalMapDXT5Fast_Generic( inBuf, outBuf, width, height );
+#endif
 }
 
 /*

@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -37,6 +38,8 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
+#if defined(USE_INTRINSICS)
+
 class idSIMD_SSE : public idSIMD_Generic
 {
 public:
@@ -49,5 +52,7 @@ public:
 	virtual void VPCALL TransformJoints( idJointMat* jointMats, const int* parents, const int firstJoint, const int lastJoint );
 	virtual void VPCALL UntransformJoints( idJointMat* jointMats, const int* parents, const int firstJoint, const int lastJoint );
 };
+
+#endif
 
 #endif /* !__MATH_SIMD_SSE_H__ */

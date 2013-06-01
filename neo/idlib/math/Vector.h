@@ -516,6 +516,11 @@ ID_INLINE idVec3 operator*( const float a, const idVec3 b )
 	return idVec3( b.x * a, b.y * a, b.z * a );
 }
 
+ID_INLINE idVec3 operator/( const float a, const idVec3 b )
+{
+	return idVec3( a / b.x, a / b.y, a / b.z );
+}
+
 ID_INLINE idVec3 idVec3::operator+( const idVec3& a ) const
 {
 	return idVec3( x + a.x, y + a.y, z + a.z );

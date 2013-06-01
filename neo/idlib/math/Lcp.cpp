@@ -44,8 +44,11 @@ const float LCP_DELTA_FORCE_EPSILON		= 1e-9f;
 
 #define IGNORE_UNSATISFIABLE_VARIABLES
 
+#if defined(USE_INTRINSICS)
+#define LCP_SIMD
+#endif
 
-
+#if defined(LCP_SIMD)
 ALIGN16( const __m128 SIMD_SP_zero )							= { 0.0f, 0.0f, 0.0f, 0.0f };
 ALIGN16( const __m128 SIMD_SP_one )								= { 1.0f, 1.0f, 1.0f, 1.0f };
 ALIGN16( const __m128 SIMD_SP_two )								= { 2.0f, 2.0f, 2.0f, 2.0f };
@@ -70,7 +73,7 @@ ALIGN16( const unsigned int SIMD_DW_one[4] )					= { 1, 1, 1, 1 };
 ALIGN16( const unsigned int SIMD_DW_four[4] )					= { 4, 4, 4, 4 };
 ALIGN16( const unsigned int SIMD_DW_index[4] )					= { 0, 1, 2, 3 };
 ALIGN16( const int SIMD_DW_not3[4] )							= { ~3, ~3, ~3, ~3 };
-
+#endif // #if defined(LCP_SIMD)
 /*
 ========================
 Multiply_SIMD
@@ -91,6 +94,7 @@ static void Multiply_SIMD( float* dst, const float* src0, const float* src1, con
 		dst[i] = src0[i] * src1[i];
 	}
 	
+#if defined(LCP_SIMD)
 	
 	for( ; i + 4 <= count; i += 4 )
 	{
@@ -104,6 +108,21 @@ static void Multiply_SIMD( float* dst, const float* src0, const float* src1, con
 		_mm_store_ps( dst + i, s0 );
 	}
 	
+#else
+	
+	for( ; i + 4 <= count; i += 4 )
+	{
+		assert_16_byte_aligned( &dst[i] );
+		assert_16_byte_aligned( &src0[i] );
+		assert_16_byte_aligned( &src1[i] );
+	
+		dst[i + 0] = src0[i + 0] * src1[i + 0];
+		dst[i + 1] = src0[i + 1] * src1[i + 1];
+		dst[i + 2] = src0[i + 2] * src1[i + 2];
+		dst[i + 3] = src0[i + 3] * src1[i + 3];
+	}
+	
+#endif
 	
 	for( ; i < count; i++ )
 	{
@@ -124,6 +143,7 @@ static void MultiplyAdd_SIMD( float* dst, const float constant, const float* src
 {
 	int i = 0;
 	
+	
 	// RB: changed unsigned int to uintptr_t
 	for( ; ( ( uintptr_t )dst & 0xF ) != 0 && i < count; i++ )
 		// RB end
@@ -131,6 +151,7 @@ static void MultiplyAdd_SIMD( float* dst, const float constant, const float* src
 		dst[i] += constant * src[i];
 	}
 	
+#if defined(LCP_SIMD)
 	
 	__m128 c = _mm_load1_ps( & constant );
 	for( ; i + 4 <= count; i += 4 )
@@ -144,6 +165,20 @@ static void MultiplyAdd_SIMD( float* dst, const float constant, const float* src
 		_mm_store_ps( dst + i, s );
 	}
 	
+#else
+	
+	for( ; i + 4 <= count; i += 4 )
+	{
+		assert_16_byte_aligned( &src[i] );
+		assert_16_byte_aligned( &dst[i] );
+	
+		dst[i + 0] += constant * src[i + 0];
+		dst[i + 1] += constant * src[i + 1];
+		dst[i + 2] += constant * src[i + 2];
+		dst[i + 3] += constant * src[i + 3];
+	}
+	
+#endif
 	
 	for( ; i < count; i++ )
 	{
@@ -163,7 +198,7 @@ static float DotProduct_SIMD( const float* src0, const float* src1, const int co
 	assert_16_byte_aligned( src0 );
 	assert_16_byte_aligned( src1 );
 	
-#ifndef _lint
+#if defined(LCP_SIMD)
 	
 	__m128 sum = ( __m128& ) SIMD_SP_zero;
 	int i = 0;
@@ -328,7 +363,7 @@ static void LowerTriangularSolve_SIMD( const idMatX& L, float* x, const float* b
 	
 	int i = skip;
 	
-#ifndef _lint
+#if defined(LCP_SIMD)
 	
 	// work up to a multiple of 4 rows
 	for( ; ( i & 3 ) != 0 && i < n; i++ )
@@ -601,7 +636,7 @@ static void LowerTriangularSolveTranspose_SIMD( const idMatX& L, float* x, const
 	const float* lptr = L.ToFloatPtr() + m * nc + m - 4;
 	float* xptr = x + m;
 	
-#ifndef _lint
+#if defined(LCP_SIMD)
 	
 	// process 4 rows at a time
 	for( int i = m; i >= 4; i -= 4 )
@@ -982,7 +1017,7 @@ static bool LDLT_Factor_SIMD( idMatX& mat, idVecX& invDiag, const int n )
 		mptr[j * nc + 3] = ( mptr[j * nc + 3] - v[0] * mptr[j * nc + 0] - v[1] * mptr[j * nc + 1] - v[2] * mptr[j * nc + 2] ) * d;
 	}
 	
-#ifndef _lint
+#if defined(LCP_SIMD)
 	
 	__m128 vzero = _mm_setzero_ps();
 	for( int i = 4; i < n; i += 4 )
@@ -1360,7 +1395,7 @@ static void GetMaxStep_SIMD( const float* f, const float* a, const float* delta_
 							 int d, float dir, float& maxStep, int& limit, int& limitSide )
 {
 
-
+#if defined(LCP_SIMD)
 	__m128 vMaxStep;
 	__m128i vLimit;
 	__m128i vLimitSide;
@@ -1484,6 +1519,117 @@ static void GetMaxStep_SIMD( const float* f, const float* a, const float* delta_
 	_mm_store_ss( & maxStep, vMaxStep );
 	limit = _mm_cvtsi128_si32( vLimit );
 	limitSide = _mm_cvtsi128_si32( vLimitSide );
+#else
+	int i;
+	float s;
+	
+	// default to a full step for the current variable
+	if( idMath::Fabs( delta_a[d] ) > LCP_DELTA_ACCEL_EPSILON )
+	{
+		maxStep = -a[d] / delta_a[d];
+	}
+	else
+	{
+		maxStep = 0.0f;
+	}
+	limit = d;
+	limitSide = 0;
+	
+	// test the current variable
+	if( dir < 0.0f )
+	{
+		if( lo[d] != -idMath::INFINITY )
+		{
+			s = ( lo[d] - f[d] ) / dir;
+			if( s < maxStep )
+			{
+				maxStep = s;
+				limitSide = -1;
+			}
+		}
+	}
+	else
+	{
+		if( hi[d] != idMath::INFINITY )
+		{
+			s = ( hi[d] - f[d] ) / dir;
+			if( s < maxStep )
+			{
+				maxStep = s;
+				limitSide = 1;
+			}
+		}
+	}
+	
+	// test the clamped bounded variables
+	for( i = numUnbounded; i < numClamped; i++ )
+	{
+		if( delta_f[i] < -LCP_DELTA_FORCE_EPSILON )
+		{
+			// if there is a low boundary
+			if( lo[i] != -idMath::INFINITY )
+			{
+				s = ( lo[i] - f[i] ) / delta_f[i];
+				if( s < maxStep )
+				{
+					maxStep = s;
+					limit = i;
+					limitSide = -1;
+				}
+			}
+		}
+		else if( delta_f[i] > LCP_DELTA_FORCE_EPSILON )
+		{
+			// if there is a high boundary
+			if( hi[i] != idMath::INFINITY )
+			{
+				s = ( hi[i] - f[i] ) / delta_f[i];
+				if( s < maxStep )
+				{
+					maxStep = s;
+					limit = i;
+					limitSide = 1;
+				}
+			}
+		}
+	}
+	
+	// test the not clamped bounded variables
+	for( i = numClamped; i < d; i++ )
+	{
+		if( side[i] == -1 )
+		{
+			if( delta_a[i] >= -LCP_DELTA_ACCEL_EPSILON )
+			{
+				continue;
+			}
+		}
+		else if( side[i] == 1 )
+		{
+			if( delta_a[i] <= LCP_DELTA_ACCEL_EPSILON )
+			{
+				continue;
+			}
+		}
+		else
+		{
+			continue;
+		}
+		// ignore variables for which the force is not allowed to take any substantial value
+		if( lo[i] >= -LCP_BOUND_EPSILON && hi[i] <= LCP_BOUND_EPSILON )
+		{
+			continue;
+		}
+		s = -a[i] / delta_a[i];
+		if( s < maxStep )
+		{
+			maxStep = s;
+			limit = i;
+			limitSide = 0;
+		}
+	}
+	
+#endif
 }
 
 /*

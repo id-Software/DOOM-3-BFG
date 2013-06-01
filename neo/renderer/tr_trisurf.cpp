@@ -1722,10 +1722,12 @@ void R_TestDegenerateTextureSpace( srfTriangles_t* tri )
 		const idDrawVert& b = tri->verts[tri->indexes[i + 1]];
 		const idDrawVert& c = tri->verts[tri->indexes[i + 2]];
 		
-		if( a.st == b.st || b.st == c.st || c.st == a.st )
+		// RB: compare texcoords instead of pointers
+		if( a.GetTexCoord() == b.GetTexCoord() || b.GetTexCoord() == c.GetTexCoord() || c.GetTexCoord() == a.GetTexCoord() )
 		{
 			c_degenerate++;
 		}
+		// RB end
 	}
 	
 	if( c_degenerate )
