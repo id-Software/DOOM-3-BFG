@@ -220,31 +220,49 @@ static float DotProduct_SIMD( const float* src0, const float* src1, const int co
 	
 #else
 	
+	// RB: the old loop caused completely broken rigid body physics and NaN errors
+#if 1
 	float s0 = 0.0f;
 	float s1 = 0.0f;
 	float s2 = 0.0f;
 	float s3 = 0.0f;
+	
 	int i = 0;
-	for( ; i < count - 3; i += 4 )
+	for( ; i + 4 <= count; i += 4 )
 	{
-		s0 += src0[i + 4] * src1[i + 4];
-		s1 += src0[i + 5] * src1[i + 5];
-		s2 += src0[i + 6] * src1[i + 6];
-		s3 += src0[i + 7] * src1[i + 7];
+		s0 += src0[i + 0] * src1[i + 0];
+		s1 += src0[i + 1] * src1[i + 1];
+		s2 += src0[i + 2] * src1[i + 2];
+		s3 += src0[i + 3] * src1[i + 3];
 	}
+	
 	switch( count - i )
 	{
 			NODEFAULT;
+	
+		case 4:
+			s3 += src0[i + 3] * src1[i + 3];
 		case 3:
-			s0 += src0[i + 2] * src1[i + 2];
+			s2 += src0[i + 2] * src1[i + 2];
 		case 2:
 			s1 += src0[i + 1] * src1[i + 1];
 		case 1:
-			s2 += src0[i + 0] * src1[i + 0];
+			s0 += src0[i + 0] * src1[i + 0];
 		case 0:
 			break;
 	}
 	return s0 + s1 + s2 + s3;
+#else
+	
+	float s = 0;
+	for( int i = 0; i < count; i++ )
+	{
+		s += src0[i] * src1[i];
+	}
+	
+	return s;
+#endif
+	// RB end
 	
 #endif
 }
@@ -1519,114 +1537,64 @@ static void GetMaxStep_SIMD( const float* f, const float* a, const float* delta_
 	_mm_store_ss( & maxStep, vMaxStep );
 	limit = _mm_cvtsi128_si32( vLimit );
 	limitSide = _mm_cvtsi128_si32( vLimitSide );
+	
 #else
-	int i;
-	float s;
 	
 	// default to a full step for the current variable
-	if( idMath::Fabs( delta_a[d] ) > LCP_DELTA_ACCEL_EPSILON )
 	{
-		maxStep = -a[d] / delta_a[d];
+		float negAccel = -a[d];
+		float deltaAccel = delta_a[d];
+		int m0 = ( fabs( deltaAccel ) > LCP_DELTA_ACCEL_EPSILON );
+		float step = negAccel / ( m0 ? deltaAccel : 1.0f );
+		maxStep = m0 ? step : 0.0f;
+		limit = d;
+		limitSide = 0;
 	}
-	else
-	{
-		maxStep = 0.0f;
-	}
-	limit = d;
-	limitSide = 0;
 	
 	// test the current variable
-	if( dir < 0.0f )
 	{
-		if( lo[d] != -idMath::INFINITY )
-		{
-			s = ( lo[d] - f[d] ) / dir;
-			if( s < maxStep )
-			{
-				maxStep = s;
-				limitSide = -1;
-			}
-		}
-	}
-	else
-	{
-		if( hi[d] != idMath::INFINITY )
-		{
-			s = ( hi[d] - f[d] ) / dir;
-			if( s < maxStep )
-			{
-				maxStep = s;
-				limitSide = 1;
-			}
-		}
+		float deltaForce = dir;
+		float forceLimit = ( deltaForce < 0.0f ) ? lo[d] : hi[d];
+		float step = ( forceLimit - f[d] ) / deltaForce;
+		int setSide = ( deltaForce < 0.0f ) ? -1 : 1;
+		int m0 = ( fabs( deltaForce ) > LCP_DELTA_FORCE_EPSILON );
+		int m1 = ( fabs( forceLimit ) != idMath::INFINITY );
+		int m2 = ( step < maxStep );
+		int m3 = ( m0 & m1 & m2 );
+		maxStep = m3 ? step : maxStep;
+		limit = m3 ? d : limit;
+		limitSide = m3 ? setSide : limitSide;
 	}
 	
 	// test the clamped bounded variables
-	for( i = numUnbounded; i < numClamped; i++ )
+	for( int i = numUnbounded; i < numClamped; i++ )
 	{
-		if( delta_f[i] < -LCP_DELTA_FORCE_EPSILON )
-		{
-			// if there is a low boundary
-			if( lo[i] != -idMath::INFINITY )
-			{
-				s = ( lo[i] - f[i] ) / delta_f[i];
-				if( s < maxStep )
-				{
-					maxStep = s;
-					limit = i;
-					limitSide = -1;
-				}
-			}
-		}
-		else if( delta_f[i] > LCP_DELTA_FORCE_EPSILON )
-		{
-			// if there is a high boundary
-			if( hi[i] != idMath::INFINITY )
-			{
-				s = ( hi[i] - f[i] ) / delta_f[i];
-				if( s < maxStep )
-				{
-					maxStep = s;
-					limit = i;
-					limitSide = 1;
-				}
-			}
-		}
+		float deltaForce = delta_f[i];
+		float forceLimit = ( deltaForce < 0.0f ) ? lo[i] : hi[i];
+		int m0 = ( fabs( deltaForce ) > LCP_DELTA_FORCE_EPSILON );
+		float step = ( forceLimit - f[i] ) / ( m0 ? deltaForce : 1.0f );
+		int setSide = ( deltaForce < 0.0f ) ? -1 : 1;
+		int m1 = ( fabs( forceLimit ) != idMath::INFINITY );
+		int m2 = ( step < maxStep );
+		int m3 = ( m0 & m1 & m2 );
+		maxStep = m3 ? step : maxStep;
+		limit = m3 ? i : limit;
+		limitSide = m3 ? setSide : limitSide;
 	}
 	
 	// test the not clamped bounded variables
-	for( i = numClamped; i < d; i++ )
+	for( int i = numClamped; i < d; i++ )
 	{
-		if( side[i] == -1 )
-		{
-			if( delta_a[i] >= -LCP_DELTA_ACCEL_EPSILON )
-			{
-				continue;
-			}
-		}
-		else if( side[i] == 1 )
-		{
-			if( delta_a[i] <= LCP_DELTA_ACCEL_EPSILON )
-			{
-				continue;
-			}
-		}
-		else
-		{
-			continue;
-		}
-		// ignore variables for which the force is not allowed to take any substantial value
-		if( lo[i] >= -LCP_BOUND_EPSILON && hi[i] <= LCP_BOUND_EPSILON )
-		{
-			continue;
-		}
-		s = -a[i] / delta_a[i];
-		if( s < maxStep )
-		{
-			maxStep = s;
-			limit = i;
-			limitSide = 0;
-		}
+		float negAccel = -a[i];
+		float deltaAccel = delta_a[i];
+		int m0 = ( side[i] * deltaAccel > LCP_DELTA_ACCEL_EPSILON );
+		float step = negAccel / ( m0 ? deltaAccel : 1.0f );
+		int m1 = ( lo[i] < -LCP_BOUND_EPSILON || hi[i] > LCP_BOUND_EPSILON );
+		int m2 = ( step < maxStep );
+		int m3 = ( m0 & m1 & m2 );
+		maxStep = m3 ? step : maxStep;
+		limit = m3 ? i : limit;
+		limitSide = m3 ? 0 : limitSide;
 	}
 	
 #endif
