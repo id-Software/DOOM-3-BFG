@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -113,11 +114,20 @@ ID_INLINE halfFloat_t F32toF16( float a )
 
 class idDrawVert
 {
+	friend class idSwap;
+	friend class idShadowVertSkinned;
+	friend class idRenderModelStatic;
+	
+	friend void TransformVertsAndTangents( idDrawVert* targetVerts, const int numVerts, const idDrawVert* baseVerts, const idJointMat* joints );
+	
 public:
 	idVec3				xyz;			// 12 bytes
+private:
+	// RB: don't let the old tools code mess with these values
 	halfFloat_t			st[2];			// 4 bytes
 	byte				normal[4];		// 4 bytes
 	byte				tangent[4];		// 4 bytes -- [3] is texture polarity sign
+public:
 	byte				color[4];		// 4 bytes
 	byte				color2[4];		// 4 bytes -- weights for skinning
 	
@@ -187,9 +197,14 @@ public:
 #define DRAWVERT_COLOR_OFFSET		(6*4)
 #define DRAWVERT_COLOR2_OFFSET		(7*4)
 
+// RB begin
+assert_sizeof( idDrawVert, DRAWVERT_SIZE );
+#if 0
 assert_offsetof( idDrawVert, xyz,		DRAWVERT_XYZ_OFFSET );
 assert_offsetof( idDrawVert, normal,	DRAWVERT_NORMAL_OFFSET );
 assert_offsetof( idDrawVert, tangent,	DRAWVERT_TANGENT_OFFSET );
+#endif
+// RB end
 
 /*
 ========================
@@ -202,6 +217,7 @@ ID_INLINE void VertexFloatToByte( const float& x, const float& y, const float& z
 {
 	assert_4_byte_aligned( bval );	// for __stvebx
 	
+#if defined(USE_INTRINSICS)
 	
 	const __m128 vector_float_one			= { 1.0f, 1.0f, 1.0f, 1.0f };
 	const __m128 vector_float_half			= { 0.5f, 0.5f, 0.5f, 0.5f };
@@ -218,6 +234,13 @@ ID_INLINE void VertexFloatToByte( const float& x, const float& y, const float& z
 	bval[1] = ( byte )_mm_extract_epi16( xyz16, 1 );
 	bval[2] = ( byte )_mm_extract_epi16( xyz16, 2 );
 	
+#else
+	
+	bval[0] = VERTEX_FLOAT_TO_BYTE( x );
+	bval[1] = VERTEX_FLOAT_TO_BYTE( y );
+	bval[2] = VERTEX_FLOAT_TO_BYTE( z );
+	
+#endif
 }
 
 /*
@@ -655,6 +678,7 @@ ID_INLINE void WriteDrawVerts16( idDrawVert* destVerts, const idDrawVert* localV
 	assert_16_byte_aligned( destVerts );
 	assert_16_byte_aligned( localVerts );
 	
+#if defined(USE_INTRINSICS)
 	
 	for( int i = 0; i < numVerts; i++ )
 	{
@@ -664,6 +688,11 @@ ID_INLINE void WriteDrawVerts16( idDrawVert* destVerts, const idDrawVert* localV
 		_mm_stream_si128( ( __m128i* )( ( byte* )( destVerts + i ) + 16 ), v1 );
 	}
 	
+#else
+	
+	memcpy( destVerts, localVerts, numVerts * sizeof( idDrawVert ) );
+	
+#endif
 }
 
 /*

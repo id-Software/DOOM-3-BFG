@@ -38,6 +38,7 @@ If you have questions concerning this license or the applicable additional terms
 //                                                        E
 //===============================================================
 
+#if defined(USE_INTRINSICS)
 
 #include <xmmintrin.h>
 
@@ -972,4 +973,6 @@ void VPCALL idSIMD_SSE::UntransformJoints( idJointMat* jointMats, const int* par
 		_mm_store_ps( childMatrix + 8, pmc );
 	}
 }
+
+#endif // #if defined(USE_INTRINSICS)
 

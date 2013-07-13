@@ -92,7 +92,7 @@ SIMD constants
 ================================================================================================
 */
 
-
+#if defined(USE_INTRINSICS)
 static const __m128i vector_int_1							= _mm_set1_epi32( 1 );
 static const __m128i vector_int_4							= _mm_set1_epi32( 4 );
 static const __m128i vector_int_0123						= _mm_set_epi32( 3, 2, 1, 0 );
@@ -116,6 +116,7 @@ static const __m128 vector_float_one						= { 1.0f, 1.0f, 1.0f, 1.0f };
 static const __m128 vector_float_pos_one					= { +1.0f, +1.0f, +1.0f, +1.0f };
 static const __m128 vector_float_neg_one					= { -1.0f, -1.0f, -1.0f, -1.0f };
 static const __m128 vector_float_last_one					= { 0.0f, 0.0f, 0.0f, 1.0f };
+#endif
 
 
 /*
@@ -527,6 +528,8 @@ static const struct silhouetteVertices_t
 	{ { 0, 0, 0, 0, 0, 0, 0 }, 0 }, // 111111 = 63 invalid
 };
 
+
+
 /*
 ========================
 GetBoxFrontBits
@@ -540,7 +543,7 @@ front bits:
   bit 5 = pos-Z is front facing
 ========================
 */
-
+#if defined(USE_INTRINSICS)
 static int GetBoxFrontBits_SSE2( const __m128& b0, const __m128& b1, const __m128& viewOrigin )
 {
 	const __m128 dir0 = _mm_sub_ps( viewOrigin, b0 );
@@ -552,6 +555,23 @@ static int GetBoxFrontBits_SSE2( const __m128& b0, const __m128& b1, const __m12
 	return frontBits;
 }
 
+#else
+
+static int GetBoxFrontBits_Generic( const idBounds& bounds, const idVec3& viewOrigin )
+{
+	idVec3 dir0 = viewOrigin - bounds[0];
+	idVec3 dir1 = bounds[1] - viewOrigin;
+	int frontBits = 0;
+	frontBits |= IEEE_FLT_SIGNBITSET( dir0.x ) << 0;
+	frontBits |= IEEE_FLT_SIGNBITSET( dir0.y ) << 1;
+	frontBits |= IEEE_FLT_SIGNBITSET( dir0.z ) << 2;
+	frontBits |= IEEE_FLT_SIGNBITSET( dir1.x ) << 3;
+	frontBits |= IEEE_FLT_SIGNBITSET( dir1.y ) << 4;
+	frontBits |= IEEE_FLT_SIGNBITSET( dir1.z ) << 5;
+	return frontBits;
+}
+
+#endif
 
 /*
 ================================================================================================
@@ -739,7 +759,7 @@ void idRenderMatrix::OffsetScaleForBounds( const idRenderMatrix& src, const idBo
 {
 	assert( &src != &out );
 	
-	
+#if defined(USE_INTRINSICS)
 	__m128 b0 = _mm_loadu_bounds_0( bounds );
 	__m128 b1 = _mm_loadu_bounds_1( bounds );
 	
@@ -785,6 +805,32 @@ void idRenderMatrix::OffsetScaleForBounds( const idRenderMatrix& src, const idBo
 	_mm_storeu_ps( out.m + 2 * 4, a2 );
 	_mm_storeu_ps( out.m + 3 * 4, a3 );
 	
+#else
+	
+	const idVec3 offset = ( bounds[1] + bounds[0] ) * 0.5f;
+	const idVec3 scale = ( bounds[1] - bounds[0] ) * 0.5f;
+	
+	out[0][0] = src[0][0] * scale[0];
+	out[0][1] = src[0][1] * scale[1];
+	out[0][2] = src[0][2] * scale[2];
+	out[0][3] = src[0][3] + src[0][0] * offset[0] + src[0][1] * offset[1] + src[0][2] * offset[2];
+	
+	out[1][0] = src[1][0] * scale[0];
+	out[1][1] = src[1][1] * scale[1];
+	out[1][2] = src[1][2] * scale[2];
+	out[1][3] = src[1][3] + src[1][0] * offset[0] + src[1][1] * offset[1] + src[1][2] * offset[2];
+	
+	out[2][0] = src[2][0] * scale[0];
+	out[2][1] = src[2][1] * scale[1];
+	out[2][2] = src[2][2] * scale[2];
+	out[2][3] = src[2][3] + src[2][0] * offset[0] + src[2][1] * offset[1] + src[2][2] * offset[2];
+	
+	out[3][0] = src[3][0] * scale[0];
+	out[3][1] = src[3][1] * scale[1];
+	out[3][2] = src[3][2] * scale[2];
+	out[3][3] = src[3][3] + src[3][0] * offset[0] + src[3][1] * offset[1] + src[3][2] * offset[2];
+	
+#endif
 }
 
 /*
@@ -799,7 +845,7 @@ void idRenderMatrix::InverseOffsetScaleForBounds( const idRenderMatrix& src, con
 {
 	assert( &src != &out );
 	
-	
+#if defined(USE_INTRINSICS)
 	__m128 b0 = _mm_loadu_bounds_0( bounds );
 	__m128 b1 = _mm_loadu_bounds_1( bounds );
 	
@@ -830,6 +876,32 @@ void idRenderMatrix::InverseOffsetScaleForBounds( const idRenderMatrix& src, con
 	_mm_storeu_ps( out.m + 2 * 4, a2 );
 	_mm_storeu_ps( out.m + 3 * 4, a3 );
 	
+#else
+	
+	const idVec3 offset = -0.5f * ( bounds[1] + bounds[0] );
+	const idVec3 scale = 2.0f / ( bounds[1] - bounds[0] );
+	
+	out[0][0] = scale[0] * src[0][0];
+	out[0][1] = scale[0] * src[0][1];
+	out[0][2] = scale[0] * src[0][2];
+	out[0][3] = scale[0] * ( src[0][3] + offset[0] );
+	
+	out[1][0] = scale[1] * src[1][0];
+	out[1][1] = scale[1] * src[1][1];
+	out[1][2] = scale[1] * src[1][2];
+	out[1][3] = scale[1] * ( src[1][3] + offset[1] );
+	
+	out[2][0] = scale[2] * src[2][0];
+	out[2][1] = scale[2] * src[2][1];
+	out[2][2] = scale[2] * src[2][2];
+	out[2][3] = scale[2] * ( src[2][3] + offset[2] );
+	
+	out[3][0] = src[3][0];
+	out[3][1] = src[3][1];
+	out[3][2] = src[3][2];
+	out[3][3] = src[3][3];
+	
+#endif
 }
 
 /*
@@ -841,7 +913,7 @@ void idRenderMatrix::Transpose( const idRenderMatrix& src, idRenderMatrix& out )
 {
 	assert( &src != &out );
 	
-	
+#if defined(USE_INTRINSICS)
 	const __m128 a0 = _mm_loadu_ps( src.m + 0 * 4 );
 	const __m128 a1 = _mm_loadu_ps( src.m + 1 * 4 );
 	const __m128 a2 = _mm_loadu_ps( src.m + 2 * 4 );
@@ -862,6 +934,24 @@ void idRenderMatrix::Transpose( const idRenderMatrix& src, idRenderMatrix& out )
 	_mm_storeu_ps( out.m + 2 * 4, t2 );
 	_mm_storeu_ps( out.m + 3 * 4, t3 );
 	
+#else
+	out.m[ 0] = src.m[ 0];
+	out.m[ 1] = src.m[ 4];
+	out.m[ 2] = src.m[ 8];
+	out.m[ 3] = src.m[12];
+	out.m[ 4] = src.m[ 1];
+	out.m[ 5] = src.m[ 5];
+	out.m[ 6] = src.m[ 9];
+	out.m[ 7] = src.m[13];
+	out.m[ 8] = src.m[ 2];
+	out.m[ 9] = src.m[ 6];
+	out.m[10] = src.m[10];
+	out.m[11] = src.m[14];
+	out.m[12] = src.m[ 3];
+	out.m[13] = src.m[ 7];
+	out.m[14] = src.m[11];
+	out.m[15] = src.m[15];
+#endif
 }
 
 /*
@@ -871,8 +961,7 @@ idRenderMatrix::Multiply
 */
 void idRenderMatrix::Multiply( const idRenderMatrix& a, const idRenderMatrix& b, idRenderMatrix& out )
 {
-
-
+#if defined(USE_INTRINSICS)
 	__m128 a0 = _mm_loadu_ps( a.m + 0 * 4 );
 	__m128 a1 = _mm_loadu_ps( a.m + 1 * 4 );
 	__m128 a2 = _mm_loadu_ps( a.m + 2 * 4 );
@@ -908,6 +997,41 @@ void idRenderMatrix::Multiply( const idRenderMatrix& a, const idRenderMatrix& b,
 	_mm_storeu_ps( out.m + 2 * 4, t2 );
 	_mm_storeu_ps( out.m + 3 * 4, t3 );
 	
+#else
+	
+	/*
+	for ( int i = 0 ; i < 4 ; i++ ) {
+		for ( int j = 0 ; j < 4 ; j++ ) {
+			out.m[ i * 4 + j ] =
+				a.m[ i * 4 + 0 ] * b.m[ 0 * 4 + j ] +
+				a.m[ i * 4 + 1 ] * b.m[ 1 * 4 + j ] +
+				a.m[ i * 4 + 2 ] * b.m[ 2 * 4 + j ] +
+				a.m[ i * 4 + 3 ] * b.m[ 3 * 4 + j ];
+		}
+	}
+	*/
+	
+	out.m[0 * 4 + 0] = a.m[0 * 4 + 0] * b.m[0 * 4 + 0] + a.m[0 * 4 + 1] * b.m[1 * 4 + 0] + a.m[0 * 4 + 2] * b.m[2 * 4 + 0] + a.m[0 * 4 + 3] * b.m[3 * 4 + 0];
+	out.m[0 * 4 + 1] = a.m[0 * 4 + 0] * b.m[0 * 4 + 1] + a.m[0 * 4 + 1] * b.m[1 * 4 + 1] + a.m[0 * 4 + 2] * b.m[2 * 4 + 1] + a.m[0 * 4 + 3] * b.m[3 * 4 + 1];
+	out.m[0 * 4 + 2] = a.m[0 * 4 + 0] * b.m[0 * 4 + 2] + a.m[0 * 4 + 1] * b.m[1 * 4 + 2] + a.m[0 * 4 + 2] * b.m[2 * 4 + 2] + a.m[0 * 4 + 3] * b.m[3 * 4 + 2];
+	out.m[0 * 4 + 3] = a.m[0 * 4 + 0] * b.m[0 * 4 + 3] + a.m[0 * 4 + 1] * b.m[1 * 4 + 3] + a.m[0 * 4 + 2] * b.m[2 * 4 + 3] + a.m[0 * 4 + 3] * b.m[3 * 4 + 3];
+	
+	out.m[1 * 4 + 0] = a.m[1 * 4 + 0] * b.m[0 * 4 + 0] + a.m[1 * 4 + 1] * b.m[1 * 4 + 0] + a.m[1 * 4 + 2] * b.m[2 * 4 + 0] + a.m[1 * 4 + 3] * b.m[3 * 4 + 0];
+	out.m[1 * 4 + 1] = a.m[1 * 4 + 0] * b.m[0 * 4 + 1] + a.m[1 * 4 + 1] * b.m[1 * 4 + 1] + a.m[1 * 4 + 2] * b.m[2 * 4 + 1] + a.m[1 * 4 + 3] * b.m[3 * 4 + 1];
+	out.m[1 * 4 + 2] = a.m[1 * 4 + 0] * b.m[0 * 4 + 2] + a.m[1 * 4 + 1] * b.m[1 * 4 + 2] + a.m[1 * 4 + 2] * b.m[2 * 4 + 2] + a.m[1 * 4 + 3] * b.m[3 * 4 + 2];
+	out.m[1 * 4 + 3] = a.m[1 * 4 + 0] * b.m[0 * 4 + 3] + a.m[1 * 4 + 1] * b.m[1 * 4 + 3] + a.m[1 * 4 + 2] * b.m[2 * 4 + 3] + a.m[1 * 4 + 3] * b.m[3 * 4 + 3];
+	
+	out.m[2 * 4 + 0] = a.m[2 * 4 + 0] * b.m[0 * 4 + 0] + a.m[2 * 4 + 1] * b.m[1 * 4 + 0] + a.m[2 * 4 + 2] * b.m[2 * 4 + 0] + a.m[2 * 4 + 3] * b.m[3 * 4 + 0];
+	out.m[2 * 4 + 1] = a.m[2 * 4 + 0] * b.m[0 * 4 + 1] + a.m[2 * 4 + 1] * b.m[1 * 4 + 1] + a.m[2 * 4 + 2] * b.m[2 * 4 + 1] + a.m[2 * 4 + 3] * b.m[3 * 4 + 1];
+	out.m[2 * 4 + 2] = a.m[2 * 4 + 0] * b.m[0 * 4 + 2] + a.m[2 * 4 + 1] * b.m[1 * 4 + 2] + a.m[2 * 4 + 2] * b.m[2 * 4 + 2] + a.m[2 * 4 + 3] * b.m[3 * 4 + 2];
+	out.m[2 * 4 + 3] = a.m[2 * 4 + 0] * b.m[0 * 4 + 3] + a.m[2 * 4 + 1] * b.m[1 * 4 + 3] + a.m[2 * 4 + 2] * b.m[2 * 4 + 3] + a.m[2 * 4 + 3] * b.m[3 * 4 + 3];
+	
+	out.m[3 * 4 + 0] = a.m[3 * 4 + 0] * b.m[0 * 4 + 0] + a.m[3 * 4 + 1] * b.m[1 * 4 + 0] + a.m[3 * 4 + 2] * b.m[2 * 4 + 0] + a.m[3 * 4 + 3] * b.m[3 * 4 + 0];
+	out.m[3 * 4 + 1] = a.m[3 * 4 + 0] * b.m[0 * 4 + 1] + a.m[3 * 4 + 1] * b.m[1 * 4 + 1] + a.m[3 * 4 + 2] * b.m[2 * 4 + 1] + a.m[3 * 4 + 3] * b.m[3 * 4 + 1];
+	out.m[3 * 4 + 2] = a.m[3 * 4 + 0] * b.m[0 * 4 + 2] + a.m[3 * 4 + 1] * b.m[1 * 4 + 2] + a.m[3 * 4 + 2] * b.m[2 * 4 + 2] + a.m[3 * 4 + 3] * b.m[3 * 4 + 2];
+	out.m[3 * 4 + 3] = a.m[3 * 4 + 0] * b.m[0 * 4 + 3] + a.m[3 * 4 + 1] * b.m[1 * 4 + 3] + a.m[3 * 4 + 2] * b.m[2 * 4 + 3] + a.m[3 * 4 + 3] * b.m[3 * 4 + 3];
+	
+#endif
 }
 
 /*
@@ -916,7 +1040,7 @@ idRenderMatrix::Inverse
 
 inverse( M ) = ( 1 / determinant( M ) ) * transpose( cofactor( M ) )
 
-This code is based on the code written by Cï¿½dric Lallain, published on "Cell Performance"
+This code is based on the code written by Cédric Lallain, published on "Cell Performance"
 (by Mike Acton) and released under the BSD 3-Clause ("BSD New" or "BSD Simplified") license.
 https://code.google.com/p/cellperformance-snippets/
 
@@ -927,7 +1051,7 @@ can get really, really small.
 */
 bool idRenderMatrix::Inverse( const idRenderMatrix& src, idRenderMatrix& out )
 {
-
+#if defined(USE_INTRINSICS)
 
 	const __m128 r0 = _mm_loadu_ps( src.m + 0 * 4 );
 	const __m128 r1 = _mm_loadu_ps( src.m + 1 * 4 );
@@ -1033,6 +1157,88 @@ bool idRenderMatrix::Inverse( const idRenderMatrix& src, idRenderMatrix& out )
 	_mm_storeu_ps( out.m + 2 * 4, _mm_mul_ps( adjoint_r2, rcpDet ) );
 	_mm_storeu_ps( out.m + 3 * 4, _mm_mul_ps( adjoint_r3, rcpDet ) );
 	
+#else
+	
+	const int FRL = 4;
+	
+	// 84+4+16 = 104 multiplications
+	//			   1 division
+	
+	// 2x2 sub-determinants required to calculate 4x4 determinant
+	const float det2_01_01 = src.m[0 * FRL + 0] * src.m[1 * FRL + 1] - src.m[0 * FRL + 1] * src.m[1 * FRL + 0];
+	const float det2_01_02 = src.m[0 * FRL + 0] * src.m[1 * FRL + 2] - src.m[0 * FRL + 2] * src.m[1 * FRL + 0];
+	const float det2_01_03 = src.m[0 * FRL + 0] * src.m[1 * FRL + 3] - src.m[0 * FRL + 3] * src.m[1 * FRL + 0];
+	const float det2_01_12 = src.m[0 * FRL + 1] * src.m[1 * FRL + 2] - src.m[0 * FRL + 2] * src.m[1 * FRL + 1];
+	const float det2_01_13 = src.m[0 * FRL + 1] * src.m[1 * FRL + 3] - src.m[0 * FRL + 3] * src.m[1 * FRL + 1];
+	const float det2_01_23 = src.m[0 * FRL + 2] * src.m[1 * FRL + 3] - src.m[0 * FRL + 3] * src.m[1 * FRL + 2];
+	
+	// 3x3 sub-determinants required to calculate 4x4 determinant
+	const float det3_201_012 = src.m[2 * FRL + 0] * det2_01_12 - src.m[2 * FRL + 1] * det2_01_02 + src.m[2 * FRL + 2] * det2_01_01;
+	const float det3_201_013 = src.m[2 * FRL + 0] * det2_01_13 - src.m[2 * FRL + 1] * det2_01_03 + src.m[2 * FRL + 3] * det2_01_01;
+	const float det3_201_023 = src.m[2 * FRL + 0] * det2_01_23 - src.m[2 * FRL + 2] * det2_01_03 + src.m[2 * FRL + 3] * det2_01_02;
+	const float det3_201_123 = src.m[2 * FRL + 1] * det2_01_23 - src.m[2 * FRL + 2] * det2_01_13 + src.m[2 * FRL + 3] * det2_01_12;
+	
+	const float det = ( - det3_201_123 * src.m[3 * FRL + 0] + det3_201_023 * src.m[3 * FRL + 1] - det3_201_013 * src.m[3 * FRL + 2] + det3_201_012 * src.m[3 * FRL + 3] );
+	
+	if( idMath::Fabs( det ) < RENDER_MATRIX_INVERSE_EPSILON )
+	{
+		return false;
+	}
+	
+	const float rcpDet = 1.0f / det;
+	
+	// remaining 2x2 sub-determinants
+	const float det2_03_01 = src.m[0 * FRL + 0] * src.m[3 * FRL + 1] - src.m[0 * FRL + 1] * src.m[3 * FRL + 0];
+	const float det2_03_02 = src.m[0 * FRL + 0] * src.m[3 * FRL + 2] - src.m[0 * FRL + 2] * src.m[3 * FRL + 0];
+	const float det2_03_03 = src.m[0 * FRL + 0] * src.m[3 * FRL + 3] - src.m[0 * FRL + 3] * src.m[3 * FRL + 0];
+	const float det2_03_12 = src.m[0 * FRL + 1] * src.m[3 * FRL + 2] - src.m[0 * FRL + 2] * src.m[3 * FRL + 1];
+	const float det2_03_13 = src.m[0 * FRL + 1] * src.m[3 * FRL + 3] - src.m[0 * FRL + 3] * src.m[3 * FRL + 1];
+	const float det2_03_23 = src.m[0 * FRL + 2] * src.m[3 * FRL + 3] - src.m[0 * FRL + 3] * src.m[3 * FRL + 2];
+	
+	const float det2_13_01 = src.m[1 * FRL + 0] * src.m[3 * FRL + 1] - src.m[1 * FRL + 1] * src.m[3 * FRL + 0];
+	const float det2_13_02 = src.m[1 * FRL + 0] * src.m[3 * FRL + 2] - src.m[1 * FRL + 2] * src.m[3 * FRL + 0];
+	const float det2_13_03 = src.m[1 * FRL + 0] * src.m[3 * FRL + 3] - src.m[1 * FRL + 3] * src.m[3 * FRL + 0];
+	const float det2_13_12 = src.m[1 * FRL + 1] * src.m[3 * FRL + 2] - src.m[1 * FRL + 2] * src.m[3 * FRL + 1];
+	const float det2_13_13 = src.m[1 * FRL + 1] * src.m[3 * FRL + 3] - src.m[1 * FRL + 3] * src.m[3 * FRL + 1];
+	const float det2_13_23 = src.m[1 * FRL + 2] * src.m[3 * FRL + 3] - src.m[1 * FRL + 3] * src.m[3 * FRL + 2];
+	
+	// remaining 3x3 sub-determinants
+	const float det3_203_012 = src.m[2 * FRL + 0] * det2_03_12 - src.m[2 * FRL + 1] * det2_03_02 + src.m[2 * FRL + 2] * det2_03_01;
+	const float det3_203_013 = src.m[2 * FRL + 0] * det2_03_13 - src.m[2 * FRL + 1] * det2_03_03 + src.m[2 * FRL + 3] * det2_03_01;
+	const float det3_203_023 = src.m[2 * FRL + 0] * det2_03_23 - src.m[2 * FRL + 2] * det2_03_03 + src.m[2 * FRL + 3] * det2_03_02;
+	const float det3_203_123 = src.m[2 * FRL + 1] * det2_03_23 - src.m[2 * FRL + 2] * det2_03_13 + src.m[2 * FRL + 3] * det2_03_12;
+	
+	const float det3_213_012 = src.m[2 * FRL + 0] * det2_13_12 - src.m[2 * FRL + 1] * det2_13_02 + src.m[2 * FRL + 2] * det2_13_01;
+	const float det3_213_013 = src.m[2 * FRL + 0] * det2_13_13 - src.m[2 * FRL + 1] * det2_13_03 + src.m[2 * FRL + 3] * det2_13_01;
+	const float det3_213_023 = src.m[2 * FRL + 0] * det2_13_23 - src.m[2 * FRL + 2] * det2_13_03 + src.m[2 * FRL + 3] * det2_13_02;
+	const float det3_213_123 = src.m[2 * FRL + 1] * det2_13_23 - src.m[2 * FRL + 2] * det2_13_13 + src.m[2 * FRL + 3] * det2_13_12;
+	
+	const float det3_301_012 = src.m[3 * FRL + 0] * det2_01_12 - src.m[3 * FRL + 1] * det2_01_02 + src.m[3 * FRL + 2] * det2_01_01;
+	const float det3_301_013 = src.m[3 * FRL + 0] * det2_01_13 - src.m[3 * FRL + 1] * det2_01_03 + src.m[3 * FRL + 3] * det2_01_01;
+	const float det3_301_023 = src.m[3 * FRL + 0] * det2_01_23 - src.m[3 * FRL + 2] * det2_01_03 + src.m[3 * FRL + 3] * det2_01_02;
+	const float det3_301_123 = src.m[3 * FRL + 1] * det2_01_23 - src.m[3 * FRL + 2] * det2_01_13 + src.m[3 * FRL + 3] * det2_01_12;
+	
+	out.m[0 * FRL + 0] = - det3_213_123 * rcpDet;
+	out.m[1 * FRL + 0] = + det3_213_023 * rcpDet;
+	out.m[2 * FRL + 0] = - det3_213_013 * rcpDet;
+	out.m[3 * FRL + 0] = + det3_213_012 * rcpDet;
+	
+	out.m[0 * FRL + 1] = + det3_203_123 * rcpDet;
+	out.m[1 * FRL + 1] = - det3_203_023 * rcpDet;
+	out.m[2 * FRL + 1] = + det3_203_013 * rcpDet;
+	out.m[3 * FRL + 1] = - det3_203_012 * rcpDet;
+	
+	out.m[0 * FRL + 2] = + det3_301_123 * rcpDet;
+	out.m[1 * FRL + 2] = - det3_301_023 * rcpDet;
+	out.m[2 * FRL + 2] = + det3_301_013 * rcpDet;
+	out.m[3 * FRL + 2] = - det3_301_012 * rcpDet;
+	
+	out.m[0 * FRL + 3] = - det3_201_123 * rcpDet;
+	out.m[1 * FRL + 3] = + det3_201_023 * rcpDet;
+	out.m[2 * FRL + 3] = - det3_201_013 * rcpDet;
+	out.m[3 * FRL + 3] = + det3_201_012 * rcpDet;
+	
+#endif
 	
 	return true;
 }
@@ -1159,10 +1365,9 @@ bool idRenderMatrix::InverseByDoubles( const idRenderMatrix& src, idRenderMatrix
 DeterminantIsNegative
 ========================
 */
-
+#if defined(USE_INTRINSICS)
 void DeterminantIsNegative( bool& negativeDeterminant, const __m128& r0, const __m128& r1, const __m128& r2, const __m128& r3 )
 {
-
 	const __m128 r1u1 = _mm_perm_ps( r1, _MM_SHUFFLE( 2, 1, 0, 3 ) );
 	const __m128 r1u2 = _mm_perm_ps( r1, _MM_SHUFFLE( 1, 0, 3, 2 ) );
 	const __m128 r1u3 = _mm_perm_ps( r1, _MM_SHUFFLE( 0, 3, 2, 1 ) );
@@ -1204,6 +1409,31 @@ void DeterminantIsNegative( bool& negativeDeterminant, const __m128& r0, const _
 	negativeDeterminant	= _mm_movemask_ps( result ) & 1;
 }
 
+#else
+
+void DeterminantIsNegative( bool& negativeDeterminant, const float* row0, const float* row1, const float* row2, const float* row3 )
+{
+
+	// 2x2 sub-determinants required to calculate 4x4 determinant
+	const float det2_01_01 = row0[0] * row1[1] - row0[1] * row1[0];
+	const float det2_01_02 = row0[0] * row1[2] - row0[2] * row1[0];
+	const float det2_01_03 = row0[0] * row1[3] - row0[3] * row1[0];
+	const float det2_01_12 = row0[1] * row1[2] - row0[2] * row1[1];
+	const float det2_01_13 = row0[1] * row1[3] - row0[3] * row1[1];
+	const float det2_01_23 = row0[2] * row1[3] - row0[3] * row1[2];
+
+	// 3x3 sub-determinants required to calculate 4x4 determinant
+	const float det3_201_012 = row2[0] * det2_01_12 - row2[1] * det2_01_02 + row2[2] * det2_01_01;
+	const float det3_201_013 = row2[0] * det2_01_13 - row2[1] * det2_01_03 + row2[3] * det2_01_01;
+	const float det3_201_023 = row2[0] * det2_01_23 - row2[2] * det2_01_03 + row2[3] * det2_01_02;
+	const float det3_201_123 = row2[1] * det2_01_23 - row2[2] * det2_01_13 + row2[3] * det2_01_12;
+
+	const float det = ( - det3_201_123 * row3[0] + det3_201_023 * row3[1] - det3_201_013 * row3[2] + det3_201_012 * row3[3] );
+
+	negativeDeterminant = ( det < 0.0f );
+}
+
+#endif
 
 /*
 ========================
@@ -1217,7 +1447,7 @@ void idRenderMatrix::CopyMatrix( const idRenderMatrix& matrix, idVec4& row0, idV
 	assert_16_byte_aligned( row2.ToFloatPtr() );
 	assert_16_byte_aligned( row3.ToFloatPtr() );
 	
-	
+#if defined(USE_INTRINSICS)
 	const __m128 r0 = _mm_loadu_ps( matrix.m + 0 * 4 );
 	const __m128 r1 = _mm_loadu_ps( matrix.m + 1 * 4 );
 	const __m128 r2 = _mm_loadu_ps( matrix.m + 2 * 4 );
@@ -1227,7 +1457,24 @@ void idRenderMatrix::CopyMatrix( const idRenderMatrix& matrix, idVec4& row0, idV
 	_mm_store_ps( row1.ToFloatPtr(), r1 );
 	_mm_store_ps( row2.ToFloatPtr(), r2 );
 	_mm_store_ps( row3.ToFloatPtr(), r3 );
-	
+#else
+	row0[ 0] = matrix.m[ 0];
+	row0[1] = matrix.m[ 1];
+	row0[2] = matrix.m[ 2];
+	row0[3] = matrix.m[ 3];
+	row1[ 0] = matrix.m[ 4];
+	row1[1] = matrix.m[ 5];
+	row1[2] = matrix.m[ 6];
+	row1[3] = matrix.m[ 7];
+	row2[ 0] = matrix.m[ 8];
+	row2[1] = matrix.m[ 9];
+	row2[2] = matrix.m[10];
+	row2[3] = matrix.m[11];
+	row3[ 0] = matrix.m[12];
+	row3[1] = matrix.m[13];
+	row3[2] = matrix.m[14];
+	row3[3] = matrix.m[15];
+#endif
 }
 
 /*
@@ -1242,7 +1489,7 @@ void idRenderMatrix::SetMVP( const idRenderMatrix& mvp, idVec4& row0, idVec4& ro
 	assert_16_byte_aligned( row2.ToFloatPtr() );
 	assert_16_byte_aligned( row3.ToFloatPtr() );
 	
-	
+#if defined(USE_INTRINSICS)
 	const __m128 r0 = _mm_loadu_ps( mvp.m + 0 * 4 );
 	const __m128 r1 = _mm_loadu_ps( mvp.m + 1 * 4 );
 	const __m128 r2 = _mm_loadu_ps( mvp.m + 2 * 4 );
@@ -1254,7 +1501,27 @@ void idRenderMatrix::SetMVP( const idRenderMatrix& mvp, idVec4& row0, idVec4& ro
 	_mm_store_ps( row3.ToFloatPtr(), r3 );
 	
 	DeterminantIsNegative( negativeDeterminant, r0, r1, r2, r3 );
+#else
+	row0[0] = mvp.m[ 0];
+	row0[1] = mvp.m[ 1];
+	row0[2] = mvp.m[ 2];
+	row0[3] = mvp.m[ 3];
+	row1[0] = mvp.m[ 4];
+	row1[1] = mvp.m[ 5];
+	row1[2] = mvp.m[ 6];
+	row1[3] = mvp.m[ 7];
+	row2[0] = mvp.m[ 8];
+	row2[1] = mvp.m[ 9];
+	row2[2] = mvp.m[10];
+	row2[3] = mvp.m[11];
+	row3[0] = mvp.m[12];
+	row3[1] = mvp.m[13];
+	row3[2] = mvp.m[14];
+	row3[3] = mvp.m[15];
 	
+	DeterminantIsNegative( negativeDeterminant, mvp[0], mvp[1], mvp[2], mvp[3] );
+	
+#endif
 }
 
 /*
@@ -1269,6 +1536,7 @@ void idRenderMatrix::SetMVPForBounds( const idRenderMatrix& mvp, const idBounds&
 	assert_16_byte_aligned( row2.ToFloatPtr() );
 	assert_16_byte_aligned( row3.ToFloatPtr() );
 	
+#if defined(USE_INTRINSICS)
 	
 	__m128 b0 = _mm_loadu_bounds_0( bounds );
 	__m128 b1 = _mm_loadu_bounds_1( bounds );
@@ -1317,6 +1585,34 @@ void idRenderMatrix::SetMVPForBounds( const idRenderMatrix& mvp, const idBounds&
 	
 	DeterminantIsNegative( negativeDeterminant, r0, r1, r2, r3 );
 	
+#else
+	
+	const idVec3 offset = ( bounds[1] + bounds[0] ) * 0.5f;
+	const idVec3 scale = ( bounds[1] - bounds[0] ) * 0.5f;
+	
+	row0[0] = mvp[0][0] * scale[0];
+	row0[1] = mvp[0][1] * scale[1];
+	row0[2] = mvp[0][2] * scale[2];
+	row0[3] = mvp[0][3] + mvp[0][0] * offset[0] + mvp[0][1] * offset[1] + mvp[0][2] * offset[2];
+	
+	row1[0] = mvp[1][0] * scale[0];
+	row1[1] = mvp[1][1] * scale[1];
+	row1[2] = mvp[1][2] * scale[2];
+	row1[3] = mvp[1][3] + mvp[1][0] * offset[0] + mvp[1][1] * offset[1] + mvp[1][2] * offset[2];
+	
+	row2[0] = mvp[2][0] * scale[0];
+	row2[1] = mvp[2][1] * scale[1];
+	row2[2] = mvp[2][2] * scale[2];
+	row2[3] = mvp[2][3] + mvp[2][0] * offset[0] + mvp[2][1] * offset[1] + mvp[2][2] * offset[2];
+	
+	row3[0] = mvp[3][0] * scale[0];
+	row3[1] = mvp[3][1] * scale[1];
+	row3[2] = mvp[3][2] * scale[2];
+	row3[3] = mvp[3][3] + mvp[3][0] * offset[0] + mvp[3][1] * offset[1] + mvp[3][2] * offset[2];
+	
+	DeterminantIsNegative( negativeDeterminant, row0.ToFloatPtr(), row1.ToFloatPtr(), row2.ToFloatPtr(), row3.ToFloatPtr() );
+	
+#endif
 }
 
 /*
@@ -1331,6 +1627,7 @@ void idRenderMatrix::SetMVPForInverseProject( const idRenderMatrix& mvp, const i
 	assert_16_byte_aligned( row2.ToFloatPtr() );
 	assert_16_byte_aligned( row3.ToFloatPtr() );
 	
+#if defined(USE_INTRINSICS)
 	
 	__m128 r0 = _mm_loadu_ps( mvp.m + 0 * 4 );
 	__m128 r1 = _mm_loadu_ps( mvp.m + 1 * 4 );
@@ -1369,6 +1666,31 @@ void idRenderMatrix::SetMVPForInverseProject( const idRenderMatrix& mvp, const i
 	
 	DeterminantIsNegative( negativeDeterminant, t0, t1, t2, t3 );
 	
+#else
+	
+	row0[0] = mvp.m[0 * 4 + 0] * inverseProject.m[0 * 4 + 0] + mvp.m[0 * 4 + 1] * inverseProject.m[1 * 4 + 0] + mvp.m[0 * 4 + 2] * inverseProject.m[2 * 4 + 0] + mvp.m[0 * 4 + 3] * inverseProject.m[3 * 4 + 0];
+	row0[1] = mvp.m[0 * 4 + 0] * inverseProject.m[0 * 4 + 1] + mvp.m[0 * 4 + 1] * inverseProject.m[1 * 4 + 1] + mvp.m[0 * 4 + 2] * inverseProject.m[2 * 4 + 1] + mvp.m[0 * 4 + 3] * inverseProject.m[3 * 4 + 1];
+	row0[2] = mvp.m[0 * 4 + 0] * inverseProject.m[0 * 4 + 2] + mvp.m[0 * 4 + 1] * inverseProject.m[1 * 4 + 2] + mvp.m[0 * 4 + 2] * inverseProject.m[2 * 4 + 2] + mvp.m[0 * 4 + 3] * inverseProject.m[3 * 4 + 2];
+	row0[3] = mvp.m[0 * 4 + 0] * inverseProject.m[0 * 4 + 3] + mvp.m[0 * 4 + 1] * inverseProject.m[1 * 4 + 3] + mvp.m[0 * 4 + 2] * inverseProject.m[2 * 4 + 3] + mvp.m[0 * 4 + 3] * inverseProject.m[3 * 4 + 3];
+	
+	row1[0] = mvp.m[1 * 4 + 0] * inverseProject.m[0 * 4 + 0] + mvp.m[1 * 4 + 1] * inverseProject.m[1 * 4 + 0] + mvp.m[1 * 4 + 2] * inverseProject.m[2 * 4 + 0] + mvp.m[1 * 4 + 3] * inverseProject.m[3 * 4 + 0];
+	row1[1] = mvp.m[1 * 4 + 0] * inverseProject.m[0 * 4 + 1] + mvp.m[1 * 4 + 1] * inverseProject.m[1 * 4 + 1] + mvp.m[1 * 4 + 2] * inverseProject.m[2 * 4 + 1] + mvp.m[1 * 4 + 3] * inverseProject.m[3 * 4 + 1];
+	row1[2] = mvp.m[1 * 4 + 0] * inverseProject.m[0 * 4 + 2] + mvp.m[1 * 4 + 1] * inverseProject.m[1 * 4 + 2] + mvp.m[1 * 4 + 2] * inverseProject.m[2 * 4 + 2] + mvp.m[1 * 4 + 3] * inverseProject.m[3 * 4 + 2];
+	row1[3] = mvp.m[1 * 4 + 0] * inverseProject.m[0 * 4 + 3] + mvp.m[1 * 4 + 1] * inverseProject.m[1 * 4 + 3] + mvp.m[1 * 4 + 2] * inverseProject.m[2 * 4 + 3] + mvp.m[1 * 4 + 3] * inverseProject.m[3 * 4 + 3];
+	
+	row2[0] = mvp.m[2 * 4 + 0] * inverseProject.m[0 * 4 + 0] + mvp.m[2 * 4 + 1] * inverseProject.m[1 * 4 + 0] + mvp.m[2 * 4 + 2] * inverseProject.m[2 * 4 + 0] + mvp.m[2 * 4 + 3] * inverseProject.m[3 * 4 + 0];
+	row2[1] = mvp.m[2 * 4 + 0] * inverseProject.m[0 * 4 + 1] + mvp.m[2 * 4 + 1] * inverseProject.m[1 * 4 + 1] + mvp.m[2 * 4 + 2] * inverseProject.m[2 * 4 + 1] + mvp.m[2 * 4 + 3] * inverseProject.m[3 * 4 + 1];
+	row2[2] = mvp.m[2 * 4 + 0] * inverseProject.m[0 * 4 + 2] + mvp.m[2 * 4 + 1] * inverseProject.m[1 * 4 + 2] + mvp.m[2 * 4 + 2] * inverseProject.m[2 * 4 + 2] + mvp.m[2 * 4 + 3] * inverseProject.m[3 * 4 + 2];
+	row2[3] = mvp.m[2 * 4 + 0] * inverseProject.m[0 * 4 + 3] + mvp.m[2 * 4 + 1] * inverseProject.m[1 * 4 + 3] + mvp.m[2 * 4 + 2] * inverseProject.m[2 * 4 + 3] + mvp.m[2 * 4 + 3] * inverseProject.m[3 * 4 + 3];
+	
+	row3[0] = mvp.m[3 * 4 + 0] * inverseProject.m[0 * 4 + 0] + mvp.m[3 * 4 + 1] * inverseProject.m[1 * 4 + 0] + mvp.m[3 * 4 + 2] * inverseProject.m[2 * 4 + 0] + mvp.m[3 * 4 + 3] * inverseProject.m[3 * 4 + 0];
+	row3[1] = mvp.m[3 * 4 + 0] * inverseProject.m[0 * 4 + 1] + mvp.m[3 * 4 + 1] * inverseProject.m[1 * 4 + 1] + mvp.m[3 * 4 + 2] * inverseProject.m[2 * 4 + 1] + mvp.m[3 * 4 + 3] * inverseProject.m[3 * 4 + 1];
+	row3[2] = mvp.m[3 * 4 + 0] * inverseProject.m[0 * 4 + 2] + mvp.m[3 * 4 + 1] * inverseProject.m[1 * 4 + 2] + mvp.m[3 * 4 + 2] * inverseProject.m[2 * 4 + 2] + mvp.m[3 * 4 + 3] * inverseProject.m[3 * 4 + 2];
+	row3[3] = mvp.m[3 * 4 + 0] * inverseProject.m[0 * 4 + 3] + mvp.m[3 * 4 + 1] * inverseProject.m[1 * 4 + 3] + mvp.m[3 * 4 + 2] * inverseProject.m[2 * 4 + 3] + mvp.m[3 * 4 + 3] * inverseProject.m[3 * 4 + 3];
+	
+	DeterminantIsNegative( negativeDeterminant, row0.ToFloatPtr(), row1.ToFloatPtr(), row2.ToFloatPtr(), row3.ToFloatPtr() );
+	
+#endif
 }
 
 /*
@@ -1449,8 +1771,7 @@ frustum plane, but only while also being behind another one.
 */
 bool idRenderMatrix::CullBoundsToMVPbits( const idRenderMatrix& mvp, const idBounds& bounds, byte* outBits, bool zeroToOne )
 {
-
-
+#if defined(USE_INTRINSICS)
 	__m128 mvp0 = _mm_loadu_ps( mvp[0] );
 	__m128 mvp1 = _mm_loadu_ps( mvp[1] );
 	__m128 mvp2 = _mm_loadu_ps( mvp[2] );
@@ -1549,6 +1870,70 @@ bool idRenderMatrix::CullBoundsToMVPbits( const idRenderMatrix& mvp, const idBou
 	
 	return ( bits != 63 );
 	
+#else
+	
+	int bits = 0;
+	
+	idVec3 v;
+	for( int x = 0; x < 2; x++ )
+	{
+		v[0] = bounds[x][0];
+		for( int y = 0; y < 2; y++ )
+		{
+			v[1] = bounds[y][1];
+			for( int z = 0; z < 2; z++ )
+			{
+				v[2] = bounds[z][2];
+	
+				idVec4 c;
+				for( int i = 0; i < 4; i++ )
+				{
+					c[i] = v[0] * mvp[i][0] + v[1] * mvp[i][1] + v[2] * mvp[i][2] + mvp[i][3];
+				}
+	
+				const float minW = zeroToOne ? 0.0f : -c[3];
+				const float maxW = c[3];
+#if defined( CLIP_SPACE_D3D )	// the D3D clip space Z is in the range [0,1] so always compare Z vs zero whether 'zeroToOne' is true or false
+				const float minZ = 0.0f;
+#else
+				const float minZ = minW;
+#endif
+	
+				if( c[0] > minW )
+				{
+					bits |= ( 1 << 0 );
+				}
+				if( c[0] < maxW )
+				{
+					bits |= ( 1 << 1 );
+				}
+				if( c[1] > minW )
+				{
+					bits |= ( 1 << 2 );
+				}
+				if( c[1] < maxW )
+				{
+					bits |= ( 1 << 3 );
+				}
+				if( c[2] > minZ )
+				{
+					bits |= ( 1 << 4 );    // NOTE: using minZ
+				}
+				if( c[2] < maxW )
+				{
+					bits |= ( 1 << 5 );
+				}
+			}
+		}
+	}
+	
+	// store out a bit set for each side where the bounds is outside the clip space
+	*outBits = ( byte )( bits ^ 63 );
+	
+	// if any bits weren't set, the bounds is completely off one side of the frustum
+	return ( bits != 63 );
+	
+#endif
 }
 
 /*
@@ -1572,6 +1957,7 @@ bool idRenderMatrix::CullExtrudedBoundsToMVPbits( const idRenderMatrix& mvp, con
 {
 	assert( idMath::Fabs( extrudeDirection * clipPlane.Normal() ) >= idMath::FLT_SMALLEST_NON_DENORMAL );
 	
+#if defined(USE_INTRINSICS)
 	
 	__m128 mvp0 = _mm_loadu_ps( mvp[0] );
 	__m128 mvp1 = _mm_loadu_ps( mvp[1] );
@@ -1789,6 +2175,88 @@ bool idRenderMatrix::CullExtrudedBoundsToMVPbits( const idRenderMatrix& mvp, con
 	
 	return ( bits != 63 );
 	
+#else
+	
+	int bits = 0;
+	
+	float closing = extrudeDirection * clipPlane.Normal();
+	float invClosing = -1.0f / closing;
+	
+	idVec3 v;
+	for( int x = 0; x < 2; x++ )
+	{
+		v[0] = bounds[x][0];
+		for( int y = 0; y < 2; y++ )
+		{
+			v[1] = bounds[y][1];
+			for( int z = 0; z < 2; z++ )
+			{
+				v[2] = bounds[z][2];
+	
+				for( int extrude = 0; extrude <= 1; extrude++ )
+				{
+	
+					idVec3 test;
+					if( extrude )
+					{
+						const float extrudeDist = clipPlane.Distance( v ) * invClosing;
+						test = v + extrudeDirection * extrudeDist;
+					}
+					else
+					{
+						test = v;
+					}
+	
+					idVec4 c;
+					for( int i = 0; i < 4; i++ )
+					{
+						c[i] = test[0] * mvp[i][0] + test[1] * mvp[i][1] + test[2] * mvp[i][2] + mvp[i][3];
+					}
+	
+					const float minW = zeroToOne ? 0.0f : -c[3];
+					const float maxW = c[3];
+#if defined( CLIP_SPACE_D3D )	// the D3D clip space Z is in the range [0,1] so always compare Z vs zero whether 'zeroToOne' is true or false
+					const float minZ = 0.0f;
+#else
+					const float minZ = minW;
+#endif
+	
+					if( c[0] > minW )
+					{
+						bits |= ( 1 << 0 );
+					}
+					if( c[0] < maxW )
+					{
+						bits |= ( 1 << 1 );
+					}
+					if( c[1] > minW )
+					{
+						bits |= ( 1 << 2 );
+					}
+					if( c[1] < maxW )
+					{
+						bits |= ( 1 << 3 );
+					}
+					if( c[2] > minZ )
+					{
+						bits |= ( 1 << 4 );    // NOTE: using minZ
+					}
+					if( c[2] < maxW )
+					{
+						bits |= ( 1 << 5 );
+					}
+				}
+			}
+		}
+	}
+	
+	// store out a bit set for each side where the bounds is outside the clip space
+	*outBits = ( byte )( bits ^ 63 );
+	
+	// if any bits weren't set, the bounds is completely off one side of the frustum
+	return ( bits != 63 );
+	
+#endif
 }
 
 /*
@@ -1807,6 +2275,7 @@ is W=0 clipped.
 */
 void idRenderMatrix::ProjectedBounds( idBounds& projected, const idRenderMatrix& mvp, const idBounds& bounds, bool windowSpace )
 {
+#if defined(USE_INTRINSICS)
 
 	__m128 mvp0 = _mm_loadu_ps( mvp[0] );
 	__m128 mvp1 = _mm_loadu_ps( mvp[1] );
@@ -1940,6 +2409,84 @@ void idRenderMatrix::ProjectedBounds( idBounds& projected, const idRenderMatrix&
 	_mm_store_ss( & projected[1].y, maxY );
 	_mm_store_ss( & projected[1].z, maxZ );
 	
+#else
+	
+	for( int i = 0; i < 3; i++ )
+	{
+		projected[0][i] = RENDER_MATRIX_INFINITY;
+		projected[1][i] = - RENDER_MATRIX_INFINITY;
+	}
+	
+	idVec3 v;
+	for( int x = 0; x < 2; x++ )
+	{
+		v[0] = bounds[x][0];
+		for( int y = 0; y < 2; y++ )
+		{
+			v[1] = bounds[y][1];
+			for( int z = 0; z < 2; z++ )
+			{
+				v[2] = bounds[z][2];
+	
+				float tx = v[0] * mvp[0][0] + v[1] * mvp[0][1] + v[2] * mvp[0][2] + mvp[0][3];
+				float ty = v[0] * mvp[1][0] + v[1] * mvp[1][1] + v[2] * mvp[1][2] + mvp[1][3];
+				float tz = v[0] * mvp[2][0] + v[1] * mvp[2][1] + v[2] * mvp[2][2] + mvp[2][3];
+				float tw = v[0] * mvp[3][0] + v[1] * mvp[3][1] + v[2] * mvp[3][2] + mvp[3][3];
+	
+				if( tw <= idMath::FLT_SMALLEST_NON_DENORMAL )
+				{
+					projected[0][0] = -RENDER_MATRIX_INFINITY;
+					projected[0][1] = -RENDER_MATRIX_INFINITY;
+					projected[0][2] = -RENDER_MATRIX_INFINITY;
+					projected[1][0] = RENDER_MATRIX_INFINITY;
+					projected[1][1] = RENDER_MATRIX_INFINITY;
+					// NOTE: projected[1][1] is still valid
+					continue;
+				}
+	
+				float rw = 1.0f / tw;
+	
+				tx = tx * rw;
+				ty = ty * rw;
+				tz = tz * rw;
+	
+				projected[0][0] = Min( projected[0][0], tx );
+				projected[0][1] = Min( projected[0][1], ty );
+				projected[0][2] = Min( projected[0][2], tz );
+	
+				projected[1][0] = Max( projected[1][0], tx );
+				projected[1][1] = Max( projected[1][1], ty );
+				projected[1][2] = Max( projected[1][2], tz );
+			}
+		}
+	}
+	
+	if( windowSpace )
+	{
+		// convert to window coords
+		projected[0][0] = projected[0][0] * 0.5f + 0.5f;
+		projected[1][0] = projected[1][0] * 0.5f + 0.5f;
+	
+		projected[0][1] = projected[0][1] * 0.5f + 0.5f;
+		projected[1][1] = projected[1][1] * 0.5f + 0.5f;
+	
+#if !defined( CLIP_SPACE_D3D )	// the D3D clip space Z is already in the range [0,1]
+		projected[0][2] = projected[0][2] * 0.5f + 0.5f;
+		projected[1][2] = projected[1][2] * 0.5f + 0.5f;
+#endif
+	
+		// clamp to [0, 1] range
+		projected[0][0] = idMath::ClampFloat( 0.0f, 1.0f, projected[0][0] );
+		projected[1][0] = idMath::ClampFloat( 0.0f, 1.0f, projected[1][0] );
+	
+		projected[0][1] = idMath::ClampFloat( 0.0f, 1.0f, projected[0][1] );
+		projected[1][1] = idMath::ClampFloat( 0.0f, 1.0f, projected[1][1] );
+	
+		projected[0][2] = idMath::ClampFloat( 0.0f, 1.0f, projected[0][2] );
+		projected[1][2] = idMath::ClampFloat( 0.0f, 1.0f, projected[1][2] );
+	}
+	
+#endif
 }
 
 /*
@@ -1976,6 +2523,7 @@ void idRenderMatrix::ProjectedNearClippedBounds( idBounds& projected, const idRe
 		    - X +
 	*/
 	
+#if defined(USE_INTRINSICS)
 	
 	const __m128 mvp0 = _mm_loadu_ps( mvp[0] );
 	const __m128 mvp1 = _mm_loadu_ps( mvp[1] );
@@ -2238,6 +2786,320 @@ void idRenderMatrix::ProjectedNearClippedBounds( idBounds& projected, const idRe
 	_mm_store_ss( & projected[1].y, maxY );
 	_mm_store_ss( & projected[1].z, maxZ );
 	
+#elif 1
+	
+	{
+		const idVec3 points[8] =
+		{
+			idVec3( bounds[0][0], bounds[0][1], bounds[0][2] ),
+			idVec3( bounds[1][0], bounds[0][1], bounds[0][2] ),
+			idVec3( bounds[1][0], bounds[1][1], bounds[0][2] ),
+			idVec3( bounds[0][0], bounds[1][1], bounds[0][2] ),
+			idVec3( bounds[0][0], bounds[0][1], bounds[1][2] ),
+			idVec3( bounds[1][0], bounds[0][1], bounds[1][2] ),
+			idVec3( bounds[1][0], bounds[1][1], bounds[1][2] ),
+			idVec3( bounds[0][0], bounds[1][1], bounds[1][2] )
+		};
+	
+		idVec4 projectedPoints[8];
+		for( int i = 0; i < 8; i++ )
+		{
+			const idVec3& v = points[i];
+			projectedPoints[i].x = v[0] * mvp[0][0] + v[1] * mvp[0][1] + v[2] * mvp[0][2] + mvp[0][3];
+			projectedPoints[i].y = v[0] * mvp[1][0] + v[1] * mvp[1][1] + v[2] * mvp[1][2] + mvp[1][3];
+			projectedPoints[i].z = v[0] * mvp[2][0] + v[1] * mvp[2][1] + v[2] * mvp[2][2] + mvp[2][3];
+			projectedPoints[i].w = v[0] * mvp[3][0] + v[1] * mvp[3][1] + v[2] * mvp[3][2] + mvp[3][3];
+		}
+	
+		const idVec4& p0 = projectedPoints[0];
+		const idVec4& p1 = projectedPoints[1];
+		const idVec4& p2 = projectedPoints[2];
+		const idVec4& p3 = projectedPoints[3];
+		const idVec4& p4 = projectedPoints[4];
+		const idVec4& p5 = projectedPoints[5];
+		const idVec4& p6 = projectedPoints[6];
+		const idVec4& p7 = projectedPoints[7];
+	
+#if defined( CLIP_SPACE_D3D )	// the D3D near plane is at Z=0 instead of Z=-1
+		const float d0 = p0.z;
+		const float d1 = p1.z;
+		const float d2 = p2.z;
+		const float d3 = p3.z;
+		const float d4 = p4.z;
+		const float d5 = p5.z;
+		const float d6 = p6.z;
+		const float d7 = p7.z;
+#else
+		const float d0 = p0.z + p0.w;
+		const float d1 = p1.z + p1.w;
+		const float d2 = p2.z + p2.w;
+		const float d3 = p3.z + p3.w;
+		const float d4 = p4.z + p4.w;
+		const float d5 = p5.z + p5.w;
+		const float d6 = p6.z + p6.w;
+		const float d7 = p7.z + p7.w;
+#endif
+	
+		const float deltaA = d0 - d1;
+		const float deltaB = d1 - d2;
+		const float deltaC = d2 - d3;
+		const float deltaD = d3 - d0;
+	
+		const float deltaE = d4 - d5;
+		const float deltaF = d5 - d6;
+		const float deltaG = d6 - d7;
+		const float deltaH = d7 - d4;
+	
+		const float deltaI = d0 - d4;
+		const float deltaJ = d1 - d5;
+		const float deltaK = d2 - d6;
+		const float deltaL = d3 - d7;
+	
+		const float fractionA = ( fabs( deltaA ) > idMath::FLT_SMALLEST_NON_DENORMAL ) ? ( d0 / deltaA ) : 0.0f;
+		const float fractionB = ( fabs( deltaB ) > idMath::FLT_SMALLEST_NON_DENORMAL ) ? ( d1 / deltaB ) : 0.0f;
+		const float fractionC = ( fabs( deltaC ) > idMath::FLT_SMALLEST_NON_DENORMAL ) ? ( d2 / deltaC ) : 0.0f;
+		const float fractionD = ( fabs( deltaD ) > idMath::FLT_SMALLEST_NON_DENORMAL ) ? ( d3 / deltaD ) : 0.0f;
+	
+		const float fractionE = ( fabs( deltaE ) > idMath::FLT_SMALLEST_NON_DENORMAL ) ? ( d4 / deltaE ) : 0.0f;
+		const float fractionF = ( fabs( deltaF ) > idMath::FLT_SMALLEST_NON_DENORMAL ) ? ( d5 / deltaF ) : 0.0f;
+		const float fractionG = ( fabs( deltaG ) > idMath::FLT_SMALLEST_NON_DENORMAL ) ? ( d6 / deltaG ) : 0.0f;
+		const float fractionH = ( fabs( deltaH ) > idMath::FLT_SMALLEST_NON_DENORMAL ) ? ( d7 / deltaH ) : 0.0f;
+	
+		const float fractionI = ( fabs( deltaI ) > idMath::FLT_SMALLEST_NON_DENORMAL ) ? ( d0 / deltaI ) : 0.0f;
+		const float fractionJ = ( fabs( deltaJ ) > idMath::FLT_SMALLEST_NON_DENORMAL ) ? ( d1 / deltaJ ) : 0.0f;
+		const float fractionK = ( fabs( deltaK ) > idMath::FLT_SMALLEST_NON_DENORMAL ) ? ( d2 / deltaK ) : 0.0f;
+		const float fractionL = ( fabs( deltaL ) > idMath::FLT_SMALLEST_NON_DENORMAL ) ? ( d3 / deltaL ) : 0.0f;
+	
+		const bool clipA = ( fractionA > 0.0f && fractionA < 1.0f );
+		const bool clipB = ( fractionB > 0.0f && fractionB < 1.0f );
+		const bool clipC = ( fractionC > 0.0f && fractionC < 1.0f );
+		const bool clipD = ( fractionD > 0.0f && fractionD < 1.0f );
+	
+		const bool clipE = ( fractionE > 0.0f && fractionE < 1.0f );
+		const bool clipF = ( fractionF > 0.0f && fractionF < 1.0f );
+		const bool clipG = ( fractionG > 0.0f && fractionG < 1.0f );
+		const bool clipH = ( fractionH > 0.0f && fractionH < 1.0f );
+	
+		const bool clipI = ( fractionI > 0.0f && fractionI < 1.0f );
+		const bool clipJ = ( fractionJ > 0.0f && fractionJ < 1.0f );
+		const bool clipK = ( fractionK > 0.0f && fractionK < 1.0f );
+		const bool clipL = ( fractionL > 0.0f && fractionL < 1.0f );
+	
+		const idVec4 intersectionA = p0 + fractionA * ( p1 - p0 );
+		const idVec4 intersectionB = p1 + fractionB * ( p2 - p1 );
+		const idVec4 intersectionC = p2 + fractionC * ( p3 - p2 );
+		const idVec4 intersectionD = p3 + fractionD * ( p0 - p3 );
+	
+		const idVec4 intersectionE = p4 + fractionE * ( p5 - p4 );
+		const idVec4 intersectionF = p5 + fractionF * ( p6 - p5 );
+		const idVec4 intersectionG = p6 + fractionG * ( p7 - p6 );
+		const idVec4 intersectionH = p7 + fractionH * ( p4 - p7 );
+	
+		const idVec4 intersectionI = p0 + fractionI * ( p4 - p0 );
+		const idVec4 intersectionJ = p1 + fractionJ * ( p5 - p1 );
+		const idVec4 intersectionK = p2 + fractionK * ( p6 - p2 );
+		const idVec4 intersectionL = p3 + fractionL * ( p7 - p3 );
+	
+		idVec4 edgeVerts[24];
+	
+		edgeVerts[ 0] = ( clipA && d0 < 0.0f ) ? intersectionA : p0;
+		edgeVerts[ 2] = ( clipB && d1 < 0.0f ) ? intersectionB : p1;
+		edgeVerts[ 4] = ( clipC && d2 < 0.0f ) ? intersectionC : p2;
+		edgeVerts[ 6] = ( clipD && d3 < 0.0f ) ? intersectionD : p3;
+	
+		edgeVerts[ 1] = ( clipA && d1 < 0.0f ) ? intersectionA : p1;
+		edgeVerts[ 3] = ( clipB && d2 < 0.0f ) ? intersectionB : p2;
+		edgeVerts[ 5] = ( clipC && d3 < 0.0f ) ? intersectionC : p3;
+		edgeVerts[ 7] = ( clipD && d0 < 0.0f ) ? intersectionD : p0;
+	
+		edgeVerts[ 8] = ( clipE && d4 < 0.0f ) ? intersectionE : p4;
+		edgeVerts[10] = ( clipF && d5 < 0.0f ) ? intersectionF : p5;
+		edgeVerts[12] = ( clipG && d6 < 0.0f ) ? intersectionG : p6;
+		edgeVerts[14] = ( clipH && d7 < 0.0f ) ? intersectionH : p7;
+	
+		edgeVerts[ 9] = ( clipE && d5 < 0.0f ) ? intersectionE : p5;
+		edgeVerts[11] = ( clipF && d6 < 0.0f ) ? intersectionF : p6;
+		edgeVerts[13] = ( clipG && d7 < 0.0f ) ? intersectionG : p7;
+		edgeVerts[15] = ( clipH && d4 < 0.0f ) ? intersectionH : p4;
+	
+		edgeVerts[16] = ( clipI && d0 < 0.0f ) ? intersectionI : p0;
+		edgeVerts[18] = ( clipJ && d1 < 0.0f ) ? intersectionJ : p1;
+		edgeVerts[20] = ( clipK && d2 < 0.0f ) ? intersectionK : p2;
+		edgeVerts[22] = ( clipL && d3 < 0.0f ) ? intersectionL : p3;
+	
+		edgeVerts[17] = ( clipI && d4 < 0.0f ) ? intersectionI : p4;
+		edgeVerts[19] = ( clipJ && d5 < 0.0f ) ? intersectionJ : p5;
+		edgeVerts[21] = ( clipK && d6 < 0.0f ) ? intersectionK : p6;
+		edgeVerts[23] = ( clipL && d7 < 0.0f ) ? intersectionL : p7;
+	
+		idBounds projBnds;
+		for( int i = 0; i < 3; i++ )
+		{
+			projBnds[0][i] = RENDER_MATRIX_INFINITY;
+			projBnds[1][i] = - RENDER_MATRIX_INFINITY;
+		}
+	
+		for( int i = 0; i < 24; i++ )
+		{
+			const idVec4& v = edgeVerts[i];
+	
+			if( v.w <= idMath::FLT_SMALLEST_NON_DENORMAL )
+			{
+				continue;
+			}
+	
+			const float rw = 1.0f / v.w;
+	
+			const float px = v.x * rw;
+			const float py = v.y * rw;
+			const float pz = v.z * rw;
+	
+			projBnds[0][0] = Min( projBnds[0][0], px );
+			projBnds[0][1] = Min( projBnds[0][1], py );
+			projBnds[0][2] = Min( projBnds[0][2], pz );
+	
+			projBnds[1][0] = Max( projBnds[1][0], px );
+			projBnds[1][1] = Max( projBnds[1][1], py );
+			projBnds[1][2] = Max( projBnds[1][2], pz );
+		}
+	
+		if( windowSpace )
+		{
+			// convert to window coords
+			projBnds[0][0] = projBnds[0][0] * 0.5f + 0.5f;
+			projBnds[1][0] = projBnds[1][0] * 0.5f + 0.5f;
+	
+			projBnds[0][1] = projBnds[0][1] * 0.5f + 0.5f;
+			projBnds[1][1] = projBnds[1][1] * 0.5f + 0.5f;
+	
+#if !defined( CLIP_SPACE_D3D )	// the D3D clip space Z is already in the range [0,1]
+			projBnds[0][2] = projBnds[0][2] * 0.5f + 0.5f;
+			projBnds[1][2] = projBnds[1][2] * 0.5f + 0.5f;
+#endif
+	
+			// clamp to [0, 1] range
+			projBnds[0][0] = idMath::ClampFloat( 0.0f, 1.0f, projBnds[0][0] );
+			projBnds[1][0] = idMath::ClampFloat( 0.0f, 1.0f, projBnds[1][0] );
+	
+			projBnds[0][1] = idMath::ClampFloat( 0.0f, 1.0f, projBnds[0][1] );
+			projBnds[1][1] = idMath::ClampFloat( 0.0f, 1.0f, projBnds[1][1] );
+	
+			projBnds[0][2] = idMath::ClampFloat( 0.0f, 1.0f, projBnds[0][2] );
+			projBnds[1][2] = idMath::ClampFloat( 0.0f, 1.0f, projBnds[1][2] );
+		}
+	
+		assert( projected[0].Compare( projBnds[0], 0.01f ) );
+		assert( projected[1].Compare( projBnds[1], 0.01f ) );
+	}
+	
+#else
+	
+	const idVec3 points[8] =
+	{
+		idVec3( bounds[0][0], bounds[0][1], bounds[0][2] ),
+		idVec3( bounds[1][0], bounds[0][1], bounds[0][2] ),
+		idVec3( bounds[1][0], bounds[1][1], bounds[0][2] ),
+		idVec3( bounds[0][0], bounds[1][1], bounds[0][2] ),
+		idVec3( bounds[0][0], bounds[0][1], bounds[1][2] ),
+		idVec3( bounds[1][0], bounds[0][1], bounds[1][2] ),
+		idVec3( bounds[1][0], bounds[1][1], bounds[1][2] ),
+		idVec3( bounds[0][0], bounds[1][1], bounds[1][2] )
+	};
+	
+	idVec4 projectedPoints[8];
+	for( int i = 0; i < 8; i++ )
+	{
+		const idVec3& v = points[i];
+		projectedPoints[i].x = v[0] * mvp[0][0] + v[1] * mvp[0][1] + v[2] * mvp[0][2] + mvp[0][3];
+		projectedPoints[i].y = v[0] * mvp[1][0] + v[1] * mvp[1][1] + v[2] * mvp[1][2] + mvp[1][3];
+		projectedPoints[i].z = v[0] * mvp[2][0] + v[1] * mvp[2][1] + v[2] * mvp[2][2] + mvp[2][3];
+		projectedPoints[i].w = v[0] * mvp[3][0] + v[1] * mvp[3][1] + v[2] * mvp[3][2] + mvp[3][3];
+	}
+	
+	idVec4 edgeVerts[24];
+	for( int i = 0; i < 3; i++ )
+	{
+		int offset0 = ( i & 1 ) * 4;
+		int offset1 = ( i & 1 ) * 4 + ( i & 2 ) * 2;
+		int offset3 = ~( i >> 1 ) & 1;
+		for( int j = 0; j < 4; j++ )
+		{
+			const idVec4 p0 = projectedPoints[offset0 + ( ( j + 0 ) & 3 )];
+			const idVec4 p1 = projectedPoints[offset1 + ( ( j + offset3 ) & 3 )];
+	
+#if defined( CLIP_SPACE_D3D )	// the D3D near plane is at Z=0 instead of Z=-1
+			const float d0 = p0.z;
+			const float d1 = p1.z;
+#else
+			const float d0 = p0.z + p0.w;
+			const float d1 = p1.z + p1.w;
+#endif
+			const float delta = d0 - d1;
+			const float fraction = idMath::Fabs( delta ) > idMath::FLT_SMALLEST_NON_DENORMAL ? ( d0 / delta ) : 1.0f;
+			const bool clip = ( fraction > 0.0f && fraction < 1.0f );
+			const idVec4 intersection = p0 + fraction * ( p1 - p0 );
+	
+			edgeVerts[i * 8 + j * 2 + 0] = ( clip && d0 < 0.0f ) ? intersection : p0;
+			edgeVerts[i * 8 + j * 2 + 1] = ( clip && d1 < 0.0f ) ? intersection : p1;
+		}
+	}
+	
+	for( int i = 0; i < 3; i++ )
+	{
+		projected[0][i] = RENDER_MATRIX_INFINITY;
+		projected[1][i] = - RENDER_MATRIX_INFINITY;
+	}
+	
+	for( int i = 0; i < 24; i++ )
+	{
+		const idVec4& v = edgeVerts[i];
+	
+		if( v.w <= idMath::FLT_SMALLEST_NON_DENORMAL )
+		{
+			continue;
+		}
+	
+		const float rw = 1.0f / v.w;
+	
+		const float px = v.x * rw;
+		const float py = v.y * rw;
+		const float pz = v.z * rw;
+	
+		projected[0][0] = Min( projected[0][0], px );
+		projected[0][1] = Min( projected[0][1], py );
+		projected[0][2] = Min( projected[0][2], pz );
+	
+		projected[1][0] = Max( projected[1][0], px );
+		projected[1][1] = Max( projected[1][1], py );
+		projected[1][2] = Max( projected[1][2], pz );
+	}
+	
+	if( windowSpace )
+	{
+		// convert to window coords
+		projected[0][0] = projected[0][0] * 0.5f + 0.5f;
+		projected[1][0] = projected[1][0] * 0.5f + 0.5f;
+	
+		projected[0][1] = projected[0][1] * 0.5f + 0.5f;
+		projected[1][1] = projected[1][1] * 0.5f + 0.5f;
+	
+#if !defined( CLIP_SPACE_D3D )	// the D3D clip space Z is already in the range [0,1]
+		projected[0][2] = projected[0][2] * 0.5f + 0.5f;
+		projected[1][2] = projected[1][2] * 0.5f + 0.5f;
+#endif
+	
+		// clamp to [0, 1] range
+		projected[0][0] = idMath::ClampFloat( 0.0f, 1.0f, projected[0][0] );
+		projected[1][0] = idMath::ClampFloat( 0.0f, 1.0f, projected[1][0] );
+	
+		projected[0][1] = idMath::ClampFloat( 0.0f, 1.0f, projected[0][1] );
+		projected[1][1] = idMath::ClampFloat( 0.0f, 1.0f, projected[1][1] );
+	
+		projected[0][2] = idMath::ClampFloat( 0.0f, 1.0f, projected[0][2] );
+		projected[1][2] = idMath::ClampFloat( 0.0f, 1.0f, projected[1][2] );
+	}
+	
+#endif
 }
 
 #if 0
@@ -2300,6 +3162,7 @@ ClipHomogeneousPolygonToSide
 Clips a polygon with homogeneous coordinates to the axis aligned plane[axis] = sign * offset.
 ========================
 */
+#if defined(USE_INTRINSICS)
 static void ClipHomogeneousPolygonToSide_SSE2( idVec4* __restrict newPoints, idVec4* __restrict points, int& numPoints,
 		const int axis, const __m128& sign, const __m128& offset )
 {
@@ -2446,6 +3309,97 @@ static int ClipHomogeneousPolygonToUnitCube_SSE2( idVec4* points, int numPoints 
 	return numPoints;
 }
 
+#else
+
+/*
+========================
+ClipHomogeneousLineToSide
+
+Clips a line with homogeneous coordinates to the axis aligned plane[axis] = side.
+========================
+*/
+static idVec4 ClipHomogeneousLineToSide( const idVec4& p0, const idVec4& p1, int axis, float side )
+{
+	const float d0 = p0.w * side - p0[axis];
+	const float d1 = p1.w * side - p1[axis];
+	const float delta = d0 - d1;
+	const float f = idMath::Fabs( delta ) > idMath::FLT_SMALLEST_NON_DENORMAL ? ( d0 / delta ) : 1.0f;
+	const float c = idMath::ClampFloat( 0.0f, 1.0f, f );
+	return p0 + c * ( p1 - p0 );
+}
+
+/*
+========================
+ClipHomogeneousPolygonToSide
+
+Clips a polygon with homogeneous coordinates to the axis aligned plane[axis] = sign * offset.
+========================
+*/
+static int ClipHomogeneousPolygonToSide_Generic( idVec4* __restrict newPoints, idVec4* __restrict points, int numPoints, int axis, float sign, float offset )
+{
+	assert( newPoints != points );
+
+	assert( numPoints < 16 );
+	int sides[16];
+
+	const float side = sign * offset;
+
+	// calculate the plane side for each original point and calculate all potential new points
+	for( int i = 0; i < numPoints; i++ )
+	{
+		int j = ( i + 1 ) & ( ( i + 1 - numPoints ) >> 31 );
+		sides[i] = sign * points[i][axis] < offset * points[i].w;
+		newPoints[i * 2 + 0] = points[i];
+		newPoints[i * 2 + 1] = ClipHomogeneousLineToSide( points[i], points[j], axis, side );
+	};
+
+	// repeat the first side at the end to avoid having to wrap around
+	sides[numPoints] = sides[0];
+
+	// compact the array of points
+	int numNewPoints = 0;
+	for( int i = 0; i < numPoints; i++ )
+	{
+		if( sides[i + 0] != 0 )
+		{
+			newPoints[numNewPoints++] = newPoints[i * 2 + 0];
+		}
+		if( ( sides[i + 0] ^ sides[i + 1] ) != 0 )
+		{
+			newPoints[numNewPoints++] = newPoints[i * 2 + 1];
+		}
+	}
+
+	assert( numNewPoints <= 16 );
+	return numNewPoints;
+}
+
+/*
+========================
+ClipHomogeneousPolygonToUnitCube
+
+Clips a polygon with homogeneous coordinates to all six axis aligned unit cube planes.
+========================
+*/
+static int ClipHomogeneousPolygonToUnitCube_Generic( idVec4* points, int numPoints )
+{
+	assert( numPoints < 16 - 6 );
+	ALIGNTYPE16 idVec4 newPoints[2 * 16];	// the C clip code temporarily doubles the points
+
+#if defined( CLIP_SPACE_D3D )	// the D3D near plane is at Z=0 instead of Z=-1
+	numPoints = ClipHomogeneousPolygonToSide_Generic( newPoints, points, numPoints, 2, -1.0f, 0.0f );	// near
+#else
+	numPoints = ClipHomogeneousPolygonToSide_Generic( newPoints, points, numPoints, 2, -1.0f, 1.0f );	// near
+#endif
+	numPoints = ClipHomogeneousPolygonToSide_Generic( points, newPoints, numPoints, 2, +1.0f, 1.0f );	// far
+	numPoints = ClipHomogeneousPolygonToSide_Generic( newPoints, points, numPoints, 1, -1.0f, 1.0f );	// bottom
+	numPoints = ClipHomogeneousPolygonToSide_Generic( points, newPoints, numPoints, 1, +1.0f, 1.0f );	// top
+	numPoints = ClipHomogeneousPolygonToSide_Generic( newPoints, points, numPoints, 0, -1.0f, 1.0f );	// left
+	numPoints = ClipHomogeneousPolygonToSide_Generic( points, newPoints, numPoints, 0, +1.0f, 1.0f );	// right
+	return numPoints;
+}
+
+#endif
 
 /*
 ========================
@@ -2465,6 +3419,7 @@ the given bounds in which case the projected bounds should be set to fully cover
 */
 void idRenderMatrix::ProjectedFullyClippedBounds( idBounds& projected, const idRenderMatrix& mvp, const idBounds& bounds, bool windowSpace )
 {
+#if defined(USE_INTRINSICS)
 
 	const __m128 mvp0 = _mm_loadu_ps( mvp[0] );
 	const __m128 mvp1 = _mm_loadu_ps( mvp[1] );
@@ -2619,6 +3574,102 @@ void idRenderMatrix::ProjectedFullyClippedBounds( idBounds& projected, const idR
 	_mm_store_ss( & projected[1].y, maxY );
 	_mm_store_ss( & projected[1].z, maxZ );
 	
+#else
+	
+	const idVec3 points[8] =
+	{
+		idVec3( bounds[0][0], bounds[0][1], bounds[0][2] ),
+		idVec3( bounds[1][0], bounds[0][1], bounds[0][2] ),
+		idVec3( bounds[1][0], bounds[1][1], bounds[0][2] ),
+		idVec3( bounds[0][0], bounds[1][1], bounds[0][2] ),
+		idVec3( bounds[0][0], bounds[0][1], bounds[1][2] ),
+		idVec3( bounds[1][0], bounds[0][1], bounds[1][2] ),
+		idVec3( bounds[1][0], bounds[1][1], bounds[1][2] ),
+		idVec3( bounds[0][0], bounds[1][1], bounds[1][2] )
+	};
+	
+	idVec4 projectedPoints[8];
+	for( int i = 0; i < 8; i++ )
+	{
+		const idVec3& v = points[i];
+		projectedPoints[i].x = v[0] * mvp[0][0] + v[1] * mvp[0][1] + v[2] * mvp[0][2] + mvp[0][3];
+		projectedPoints[i].y = v[0] * mvp[1][0] + v[1] * mvp[1][1] + v[2] * mvp[1][2] + mvp[1][3];
+		projectedPoints[i].z = v[0] * mvp[2][0] + v[1] * mvp[2][1] + v[2] * mvp[2][2] + mvp[2][3];
+		projectedPoints[i].w = v[0] * mvp[3][0] + v[1] * mvp[3][1] + v[2] * mvp[3][2] + mvp[3][3];
+	}
+	
+	idVec4 clippedPoints[6 * 16];
+	int numClippedPoints = 0;
+	for( int i = 0; i < 6; i++ )
+	{
+		clippedPoints[numClippedPoints + 0] = projectedPoints[boxPolygonVertices[i][0]];
+		clippedPoints[numClippedPoints + 1] = projectedPoints[boxPolygonVertices[i][1]];
+		clippedPoints[numClippedPoints + 2] = projectedPoints[boxPolygonVertices[i][2]];
+		clippedPoints[numClippedPoints + 3] = projectedPoints[boxPolygonVertices[i][3]];
+		numClippedPoints += ClipHomogeneousPolygonToUnitCube_Generic( &clippedPoints[numClippedPoints], 4 );
+	}
+	
+	// test if the center of the near clip plane is inside the given bounding box
+	const idVec3 localNearClipCenter = LocalNearClipCenterFromMVP( mvp );
+	const bool inside = bounds.Expand( RENDER_MATRIX_PROJECTION_EPSILON ).ContainsPoint( localNearClipCenter );
+	
+	for( int i = 0; i < 3; i++ )
+	{
+		projected[0][i] = RENDER_MATRIX_INFINITY;
+		projected[1][i] = - RENDER_MATRIX_INFINITY;
+	}
+	if( inside )
+	{
+		projected[0][2] = -1.0f;
+	}
+	
+	for( int i = 0; i < numClippedPoints; i++ )
+	{
+		const idVec4& c = clippedPoints[i];
+	
+		assert( c.w > idMath::FLT_SMALLEST_NON_DENORMAL );
+	
+		const float rw = 1.0f / c.w;
+	
+		const float px = c.x * rw;
+		const float py = c.y * rw;
+		const float pz = c.z * rw;
+	
+		projected[0][0] = Min( projected[0][0], px );
+		projected[0][1] = Min( projected[0][1], py );
+		projected[0][2] = Min( projected[0][2], pz );
+	
+		projected[1][0] = Max( projected[1][0], px );
+		projected[1][1] = Max( projected[1][1], py );
+		projected[1][2] = Max( projected[1][2], pz );
+	}
+	
+	if( windowSpace )
+	{
+		// convert to window coords
+		projected[0][0] = projected[0][0] * 0.5f + 0.5f;
+		projected[1][0] = projected[1][0] * 0.5f + 0.5f;
+	
+		projected[0][1] = projected[0][1] * 0.5f + 0.5f;
+		projected[1][1] = projected[1][1] * 0.5f + 0.5f;
+	
+#if !defined( CLIP_SPACE_D3D )	// the D3D clip space Z is already in the range [0,1]
+		projected[0][2] = projected[0][2] * 0.5f + 0.5f;
+		projected[1][2] = projected[1][2] * 0.5f + 0.5f;
+#endif
+	
+		// clamp to [0, 1] range
+		projected[0][0] = idMath::ClampFloat( 0.0f, 1.0f, projected[0][0] );
+		projected[1][0] = idMath::ClampFloat( 0.0f, 1.0f, projected[1][0] );
+	
+		projected[0][1] = idMath::ClampFloat( 0.0f, 1.0f, projected[0][1] );
+		projected[1][1] = idMath::ClampFloat( 0.0f, 1.0f, projected[1][1] );
+	
+		projected[0][2] = idMath::ClampFloat( 0.0f, 1.0f, projected[0][2] );
+		projected[1][2] = idMath::ClampFloat( 0.0f, 1.0f, projected[1][2] );
+	}
+	
+#endif
 }
 
 /*
@@ -2633,6 +3684,7 @@ The given bounding box is not clipped to the MVP so the depth bounds may not be 
 */
 void idRenderMatrix::DepthBoundsForBounds( float& min, float& max, const idRenderMatrix& mvp, const idBounds& bounds, bool windowSpace )
 {
+#if defined(USE_INTRINSICS)
 
 	__m128 mvp2 = _mm_loadu_ps( mvp[2] );
 	__m128 mvp3 = _mm_loadu_ps( mvp[3] );
@@ -2700,6 +3752,53 @@ void idRenderMatrix::DepthBoundsForBounds( float& min, float& max, const idRende
 	_mm_store_ss( & min, minv );
 	_mm_store_ss( & max, maxv );
 	
+#else
+	
+	float localMin = RENDER_MATRIX_INFINITY;
+	float localMax = - RENDER_MATRIX_INFINITY;
+	
+	idVec3 v;
+	for( int x = 0; x < 2; x++ )
+	{
+		v[0] = bounds[x][0];
+		for( int y = 0; y < 2; y++ )
+		{
+			v[1] = bounds[y][1];
+			for( int z = 0; z < 2; z++ )
+			{
+				v[2] = bounds[z][2];
+	
+				float tz = v[0] * mvp[2][0] + v[1] * mvp[2][1] + v[2] * mvp[2][2] + mvp[2][3];
+				float tw = v[0] * mvp[3][0] + v[1] * mvp[3][1] + v[2] * mvp[3][2] + mvp[3][3];
+	
+				if( tw > idMath::FLT_SMALLEST_NON_DENORMAL )
+				{
+					tz = tz / tw;
+				}
+				else
+				{
+					tz = -RENDER_MATRIX_INFINITY;
+				}
+	
+				localMin = Min( localMin, tz );
+				localMax = Max( localMax, tz );
+			}
+		}
+	}
+	
+	if( windowSpace )
+	{
+		// convert to window coords
+#if !defined( CLIP_SPACE_D3D )	// the D3D clip space Z is already in the range [0,1]
+		min = localMin * 0.5f + 0.5f;
+		max = localMax * 0.5f + 0.5f;
+#endif
+		// clamp to the [0, 1] range
+		min = Max( min, 0.0f );
+		max = Min( max, 1.0f );
+	}
+	
+#endif
 }
 
 /*
@@ -2717,6 +3816,7 @@ void idRenderMatrix::DepthBoundsForExtrudedBounds( float& min, float& max, const
 {
 	assert( idMath::Fabs( extrudeDirection * clipPlane.Normal() ) >= idMath::FLT_SMALLEST_NON_DENORMAL );
 	
+#if defined(USE_INTRINSICS)
 	
 	__m128 mvp2 = _mm_loadu_ps( mvp[2] );
 	__m128 mvp3 = _mm_loadu_ps( mvp[3] );
@@ -2872,6 +3972,71 @@ void idRenderMatrix::DepthBoundsForExtrudedBounds( float& min, float& max, const
 	_mm_store_ss( & min, minv );
 	_mm_store_ss( & max, maxv );
 	
+#else
+	
+	const float closing = extrudeDirection * clipPlane.Normal();
+	const float invClosing = -1.0f / closing;
+	
+	float localMin = RENDER_MATRIX_INFINITY;
+	float localMax = - RENDER_MATRIX_INFINITY;
+	
+	idVec3 v;
+	for( int x = 0; x < 2; x++ )
+	{
+		v[0] = bounds[x][0];
+		for( int y = 0; y < 2; y++ )
+		{
+			v[1] = bounds[y][1];
+			for( int z = 0; z < 2; z++ )
+			{
+				v[2] = bounds[z][2];
+	
+				for( int extrude = 0; extrude <= 1; extrude++ )
+				{
+	
+					idVec3 test;
+					if( extrude )
+					{
+						float extrudeDist = clipPlane.Distance( v ) * invClosing;
+						test = v + extrudeDirection * extrudeDist;
+					}
+					else
+					{
+						test = v;
+					}
+	
+					float tz = test[0] * mvp[2][0] + test[1] * mvp[2][1] + test[2] * mvp[2][2] + mvp[2][3];
+					float tw = test[0] * mvp[3][0] + test[1] * mvp[3][1] + test[2] * mvp[3][2] + mvp[3][3];
+	
+					if( tw > idMath::FLT_SMALLEST_NON_DENORMAL )
+					{
+						tz = tz / tw;
+					}
+					else
+					{
+						tz = -RENDER_MATRIX_INFINITY;
+					}
+	
+					localMin = Min( localMin, tz );
+					localMax = Max( localMax, tz );
+				}
+			}
+		}
+	}
+	
+	if( windowSpace )
+	{
+		// convert to window coords
+#if !defined( CLIP_SPACE_D3D )	// the D3D clip space Z is already in the range [0,1]
+		min = localMin * 0.5f + 0.5f;
+		max = localMax * 0.5f + 0.5f;
+#endif
+		// clamp to the [0, 1] range
+		min = Max( min, 0.0f );
+		max = Min( max, 1.0f );
+	}
+	
+#endif
 }
 
 /*
@@ -2932,6 +4097,7 @@ testing if the center of the far clipping plane is contained inside the shadow v
 */
 void idRenderMatrix::DepthBoundsForShadowBounds( float& min, float& max, const idRenderMatrix& mvp, const idBounds& bounds, const idVec3& localLightOrigin, bool windowSpace )
 {
+#if defined(USE_INTRINSICS)
 
 	const __m128 mvp0 = _mm_loadu_ps( mvp[0] );
 	const __m128 mvp1 = _mm_loadu_ps( mvp[1] );
@@ -3112,6 +4278,116 @@ void idRenderMatrix::DepthBoundsForShadowBounds( float& min, float& max, const i
 	_mm_store_ss( & min, minZ );
 	_mm_store_ss( & max, maxZ );
 	
+#else
+	
+	const idVec3 points[8] =
+	{
+		idVec3( bounds[0][0], bounds[0][1], bounds[0][2] ),
+		idVec3( bounds[1][0], bounds[0][1], bounds[0][2] ),
+		idVec3( bounds[1][0], bounds[1][1], bounds[0][2] ),
+		idVec3( bounds[0][0], bounds[1][1], bounds[0][2] ),
+		idVec3( bounds[0][0], bounds[0][1], bounds[1][2] ),
+		idVec3( bounds[1][0], bounds[0][1], bounds[1][2] ),
+		idVec3( bounds[1][0], bounds[1][1], bounds[1][2] ),
+		idVec3( bounds[0][0], bounds[1][1], bounds[1][2] )
+	};
+	
+	// calculate the front facing polygon bits
+	int frontBits = GetBoxFrontBits_Generic( bounds, localLightOrigin );
+	
+	// bounding box corners
+	ALIGNTYPE16 idVec4 projectedNearPoints[8];
+	for( int i = 0; i < 8; i++ )
+	{
+		const idVec3& v = points[i];
+		projectedNearPoints[i].x = v[0] * mvp[0][0] + v[1] * mvp[0][1] + v[2] * mvp[0][2] + mvp[0][3];
+		projectedNearPoints[i].y = v[0] * mvp[1][0] + v[1] * mvp[1][1] + v[2] * mvp[1][2] + mvp[1][3];
+		projectedNearPoints[i].z = v[0] * mvp[2][0] + v[1] * mvp[2][1] + v[2] * mvp[2][2] + mvp[2][3];
+		projectedNearPoints[i].w = v[0] * mvp[3][0] + v[1] * mvp[3][1] + v[2] * mvp[3][2] + mvp[3][3];
+	}
+	
+	// bounding box corners projected to infinity from the light position
+	ALIGNTYPE16 idVec4 projectedFarPoints[8];
+	for( int i = 0; i < 8; i++ )
+	{
+		const idVec3 v = points[i] - localLightOrigin;
+		projectedFarPoints[i].x = v[0] * mvp[0][0] + v[1] * mvp[0][1] + v[2] * mvp[0][2];
+		projectedFarPoints[i].y = v[0] * mvp[1][0] + v[1] * mvp[1][1] + v[2] * mvp[1][2];
+		projectedFarPoints[i].z = v[0] * mvp[2][0] + v[1] * mvp[2][1] + v[2] * mvp[2][2];
+		projectedFarPoints[i].w = v[0] * mvp[3][0] + v[1] * mvp[3][1] + v[2] * mvp[3][2];
+	}
+	
+	ALIGNTYPE16 idVec4 clippedPoints[( 6 + 12 ) * 16];
+	int numClippedPoints = 0;
+	
+	// clip the front facing bounding box polygons at the near cap
+	const frontPolygons_t& frontPolygons = boxFrontPolygonsForFrontBits[frontBits];
+	for( int i = 0; i < frontPolygons.count; i++ )
+	{
+		const int polygon = frontPolygons.indices[i];
+		clippedPoints[numClippedPoints + 0] = projectedNearPoints[boxPolygonVertices[polygon][0]];
+		clippedPoints[numClippedPoints + 1] = projectedNearPoints[boxPolygonVertices[polygon][1]];
+		clippedPoints[numClippedPoints + 2] = projectedNearPoints[boxPolygonVertices[polygon][2]];
+		clippedPoints[numClippedPoints + 3] = projectedNearPoints[boxPolygonVertices[polygon][3]];
+		numClippedPoints += ClipHomogeneousPolygonToUnitCube_Generic( &clippedPoints[numClippedPoints], 4 );
+	}
+	
+	// clip the front facing bounding box polygons projected to the far cap
+	for( int i = 0; i < frontPolygons.count; i++ )
+	{
+		const int polygon = frontPolygons.indices[i];
+		clippedPoints[numClippedPoints + 0] = projectedFarPoints[boxPolygonVertices[polygon][0]];
+		clippedPoints[numClippedPoints + 1] = projectedFarPoints[boxPolygonVertices[polygon][1]];
+		clippedPoints[numClippedPoints + 2] = projectedFarPoints[boxPolygonVertices[polygon][2]];
+		clippedPoints[numClippedPoints + 3] = projectedFarPoints[boxPolygonVertices[polygon][3]];
+		numClippedPoints += ClipHomogeneousPolygonToUnitCube_Generic( &clippedPoints[numClippedPoints], 4 );
+	}
+	
+	// clip the silhouette edge polygons that stretch to infinity
+	const silhouetteEdges_t& silhouetteEdges = boxSilhouetteEdgesForFrontBits[frontBits];
+	for( int i = 0; i < silhouetteEdges.count; i++ )
+	{
+		const int edge = silhouetteEdges.indices[i];
+		clippedPoints[numClippedPoints + 0] = projectedNearPoints[boxEdgeVertices[edge][0]];
+		clippedPoints[numClippedPoints + 1] = projectedNearPoints[boxEdgeVertices[edge][1]];
+		clippedPoints[numClippedPoints + 2] = projectedFarPoints[boxEdgeVertices[edge][1]];
+		clippedPoints[numClippedPoints + 3] = projectedFarPoints[boxEdgeVertices[edge][0]];
+		numClippedPoints += ClipHomogeneousPolygonToUnitCube_Generic( &clippedPoints[numClippedPoints], 4 );
+	}
+	
+	// test if the center of the near clip plane is inside the infinite shadow volume
+	const idVec3 localNearClipCenter = LocalNearClipCenterFromMVP( mvp );
+	const bool inside = PointInsideInfiniteShadow( bounds, localLightOrigin, localNearClipCenter, RENDER_MATRIX_PROJECTION_EPSILON );
+	
+	min = inside ? -1.0f : RENDER_MATRIX_INFINITY;
+	max = - RENDER_MATRIX_INFINITY;
+	
+	for( int i = 0; i < numClippedPoints; i++ )
+	{
+		const idVec4& c = clippedPoints[i];
+	
+		assert( c.w > idMath::FLT_SMALLEST_NON_DENORMAL );
+	
+		const float rw = 1.0f / c.w;
+		const float pz = c.z * rw;
+	
+		min = Min( min, pz );
+		max = Max( max, pz );
+	}
+	
+	if( windowSpace )
+	{
+		// convert to window coords
+#if !defined( CLIP_SPACE_D3D )	// the D3D clip space Z is already in the range [0,1]
+		min = min * 0.5f + 0.5f;
+		max = max * 0.5f + 0.5f;
+#endif
+		// clamp to [0, 1] range
+		min = idMath::ClampFloat( 0.0f, 1.0f, min );
+		max = idMath::ClampFloat( 0.0f, 1.0f, max );
+	}
+	
+#endif
 }
 
 /*
@@ -3212,6 +4488,7 @@ void idRenderMatrix::GetFrustumCorners( frustumCorners_t& corners, const idRende
 {
 	assert_16_byte_aligned( &corners );
 	
+#if defined(USE_INTRINSICS)
 	
 	__m128 mvp0 = _mm_loadu_ps( frustumTransform[0] );
 	__m128 mvp1 = _mm_loadu_ps( frustumTransform[1] );
@@ -3284,6 +4561,36 @@ void idRenderMatrix::GetFrustumCorners( frustumCorners_t& corners, const idRende
 	_mm_store_ps( corners.z + 0, z0 );
 	_mm_store_ps( corners.z + 4, z1 );
 	
+#else
+	
+	idVec3 v;
+	for( int x = 0; x < 2; x++ )
+	{
+		v[0] = frustumBounds[x][0];
+		for( int y = 0; y < 2; y++ )
+		{
+			v[1] = frustumBounds[y][1];
+			for( int z = 0; z < 2; z++ )
+			{
+				v[2] = frustumBounds[z][2];
+	
+				float tx = v[0] * frustumTransform[0][0] + v[1] * frustumTransform[0][1] + v[2] * frustumTransform[0][2] + frustumTransform[0][3];
+				float ty = v[0] * frustumTransform[1][0] + v[1] * frustumTransform[1][1] + v[2] * frustumTransform[1][2] + frustumTransform[1][3];
+				float tz = v[0] * frustumTransform[2][0] + v[1] * frustumTransform[2][1] + v[2] * frustumTransform[2][2] + frustumTransform[2][3];
+				float tw = v[0] * frustumTransform[3][0] + v[1] * frustumTransform[3][1] + v[2] * frustumTransform[3][2] + frustumTransform[3][3];
+	
+				assert( tw > idMath::FLT_SMALLEST_NON_DENORMAL );
+	
+				float rw = 1.0f / tw;
+	
+				corners.x[( z << 2 ) | ( y << 1 ) | ( x << 0 )] = tx * rw;
+				corners.y[( z << 2 ) | ( y << 1 ) | ( x << 0 )] = ty * rw;
+				corners.z[( z << 2 ) | ( y << 1 ) | ( x << 0 )] = tz * rw;
+			}
+		}
+	}
+	
+#endif
 }
 
 /*
@@ -3295,6 +4602,7 @@ frustumCull_t idRenderMatrix::CullFrustumCornersToPlane( const frustumCorners_t&
 {
 	assert_16_byte_aligned( &corners );
 	
+#if defined(USE_INTRINSICS)
 	
 	__m128 vp = _mm_loadu_ps( plane.ToFloatPtr() );
 	
@@ -3326,4 +4634,34 @@ frustumCull_t idRenderMatrix::CullFrustumCornersToPlane( const frustumCorners_t&
 	
 	return ( frustumCull_t )( front | ( back << 1 ) );
 	
+#else
+	
+	bool front = false;
+	bool back = false;
+	for( int i = 0; i < 8; i++ )
+	{
+		const float d = corners.x[i] * plane[0] + corners.y[i] * plane[1] + corners.z[i] * plane[2] + plane[3];
+		if( d >= 0.0f )
+		{
+			front = true;
+		}
+		else if( d <= 0.0f )
+		{
+			back = true;
+		}
+		if( back && front )
+		{
+			return FRUSTUM_CULL_CROSS;
+		}
+	}
+	if( front )
+	{
+		return FRUSTUM_CULL_FRONT;
+	}
+	else
+	{
+		return FRUSTUM_CULL_BACK;
+	}
+	
+#endif
 }
