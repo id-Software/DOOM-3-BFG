@@ -50,6 +50,9 @@ public:
 	// RB begin
 	void	WriteXML( idFile* f, const char* indentPrefix = "", int characterID = -1 );
 	void	WriteXML_PlaceObject2( idFile* f, idSWFBitStream& bitstream, const char* indentPrefix = "" );
+	void	WriteXML_PlaceObject3( idFile* f, idSWFBitStream& bitstream, const char* indentPrefix = "" );
+	void	WriteXML_RemoveObject2( idFile* f, idSWFBitStream& bitstream, const char* indentPrefix = "" );
+	void	WriteXML_DoAction( idFile* f, idSWFBitStream& bitstream, const char* indentPrefix = "" );
 	// RB end
 	
 	class idSWF* GetSWF()
