@@ -321,6 +321,7 @@ void idSWFSprite::WriteXML( idFile* f, const char* indentPrefix, int characterID
 	}
 	
 	
+#if 1
 	idBase64 base64;
 	
 	for( int i = 0; i < commands.Num(); i++ )
@@ -366,6 +367,7 @@ void idSWFSprite::WriteXML( idFile* f, const char* indentPrefix, int characterID
 		
 		//f->WriteFloatString( "%s\t<DoInitAction streamLength=\"%i\">%s</DoInitAction>\n", indentPrefix, doInitActions[i].Length(), doInitActions[i].Ptr() );
 	}
+#endif
 	
 	f->WriteFloatString( "%s</Sprite>\n", indentPrefix );
 }
