@@ -357,20 +357,21 @@ DebugCallback
 For ARB_debug_output
 ========================
 */
+// RB: added const to userParam
 static void CALLBACK DebugCallback( unsigned int source, unsigned int type,
-									unsigned int id, unsigned int severity, int length, const char* message, void* userParam )
+									unsigned int id, unsigned int severity, int length, const char* message, const void* userParam )
 {
 	// it probably isn't safe to do an idLib::Printf at this point
 	
-	// RB begin
+	// RB: printf should be thread safe on Linux
 #if defined(_WIN32)
 	OutputDebugString( message );
 	OutputDebugString( "\n" );
 #else
 	printf( "%s\n", message );
 #endif
-	// RB end
 }
+// RB end
 
 /*
 ==================
