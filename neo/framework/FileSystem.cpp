@@ -2996,36 +2996,6 @@ void idFileSystemLocal::SetupGameDirectories( const char* gameName )
 	}
 }
 
-
-const char* cachedStartupFiles[] =
-{
-	"game:\\base\\video\\loadvideo.bik"
-};
-const int numStartupFiles = sizeof( cachedStartupFiles ) / sizeof( cachedStartupFiles[ 0 ] );
-
-const char* cachedNormalFiles[] =
-{
-	"game:\\base\\_sound_xenon_en.resources",	// these will fail silently on the files that are not on disc
-	"game:\\base\\_sound_xenon_fr.resources",
-	"game:\\base\\_sound_xenon_jp.resources",
-	"game:\\base\\_sound_xenon_sp.resources",
-	"game:\\base\\_sound_xenon_it.resources",
-	"game:\\base\\_sound_xenon_gr.resources",
-	"game:\\base\\_sound_xenon.resources",
-	"game:\\base\\_common.resources",
-	"game:\\base\\_ordered.resources",
-	"game:\\base\\video\\mars_rotation.bik"		// cache this to save the consumer from hearing SEEK.. SEEK... SEEK.. SEEK  SEEEK while at the main menu
-};
-const int numNormalFiles = sizeof( cachedNormalFiles ) / sizeof( cachedNormalFiles[ 0 ] );
-
-const char* dontCacheFiles[] =
-{
-	"game:\\base\\maps\\*.*",	// these will fail silently on the files that are not on disc
-	"game:\\base\\video\\*.*",
-	"game:\\base\\sound\\*.*",
-};
-const int numDontCacheFiles = sizeof( dontCacheFiles ) / sizeof( dontCacheFiles[ 0 ] );
-
 /*
 ================
 idFileSystemLocal::InitPrecache
