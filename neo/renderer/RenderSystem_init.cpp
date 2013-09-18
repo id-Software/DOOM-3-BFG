@@ -787,7 +787,7 @@ void R_SetNewMode( const bool fullInit )
 			}
 			else
 			{
-				if( r_vidMode.GetInteger() > modeList.Num() )
+				if( r_vidMode.GetInteger() >= modeList.Num() )
 				{
 					idLib::Printf( "r_vidMode reset from %i to 0.\n", r_vidMode.GetInteger() );
 					r_vidMode.SetInteger( 0 );
