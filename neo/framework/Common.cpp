@@ -858,22 +858,22 @@ void idCommonLocal::RenderSplash()
 	const float sysAspect = sysWidth / sysHeight;
 	const float splashAspect = 16.0f / 9.0f;
 	const float adjustment = sysAspect / splashAspect;
-	const float barHeight = ( adjustment >= 1.0f ) ? 0.0f : ( 1.0f - adjustment ) * ( float )SCREEN_HEIGHT * 0.25f;
-	const float barWidth = ( adjustment <= 1.0f ) ? 0.0f : ( adjustment - 1.0f ) * ( float )SCREEN_WIDTH * 0.25f;
+	const float barHeight = ( adjustment >= 1.0f ) ? 0.0f : ( 1.0f - adjustment ) * ( float )renderSystem->GetVirtualHeight() * 0.25f;
+	const float barWidth = ( adjustment <= 1.0f ) ? 0.0f : ( adjustment - 1.0f ) * ( float )renderSystem->GetVirtualWidth() * 0.25f;
 	if( barHeight > 0.0f )
 	{
 		renderSystem->SetColor( colorBlack );
-		renderSystem->DrawStretchPic( 0, 0, SCREEN_WIDTH, barHeight, 0, 0, 1, 1, whiteMaterial );
-		renderSystem->DrawStretchPic( 0, SCREEN_HEIGHT - barHeight, SCREEN_WIDTH, barHeight, 0, 0, 1, 1, whiteMaterial );
+		renderSystem->DrawStretchPic( 0, 0, renderSystem->GetVirtualWidth(), barHeight, 0, 0, 1, 1, whiteMaterial );
+		renderSystem->DrawStretchPic( 0, renderSystem->GetVirtualHeight() - barHeight, renderSystem->GetVirtualWidth(), barHeight, 0, 0, 1, 1, whiteMaterial );
 	}
 	if( barWidth > 0.0f )
 	{
 		renderSystem->SetColor( colorBlack );
-		renderSystem->DrawStretchPic( 0, 0, barWidth, SCREEN_HEIGHT, 0, 0, 1, 1, whiteMaterial );
-		renderSystem->DrawStretchPic( SCREEN_WIDTH - barWidth, 0, barWidth, SCREEN_HEIGHT, 0, 0, 1, 1, whiteMaterial );
+		renderSystem->DrawStretchPic( 0, 0, barWidth, renderSystem->GetVirtualHeight(), 0, 0, 1, 1, whiteMaterial );
+		renderSystem->DrawStretchPic( renderSystem->GetVirtualWidth() - barWidth, 0, barWidth, renderSystem->GetVirtualHeight(), 0, 0, 1, 1, whiteMaterial );
 	}
 	renderSystem->SetColor4( 1, 1, 1, 1 );
-	renderSystem->DrawStretchPic( barWidth, barHeight, SCREEN_WIDTH - barWidth * 2.0f, SCREEN_HEIGHT - barHeight * 2.0f, 0, 0, 1, 1, splashScreen );
+	renderSystem->DrawStretchPic( barWidth, barHeight, renderSystem->GetVirtualWidth() - barWidth * 2.0f, renderSystem->GetVirtualHeight() - barHeight * 2.0f, 0, 0, 1, 1, splashScreen );
 	
 	const emptyCommand_t* cmd = renderSystem->SwapCommandBuffers( &time_frontend, &time_backend, &time_shadows, &time_gpu );
 	renderSystem->RenderCommandBuffers( cmd );
@@ -890,8 +890,8 @@ void idCommonLocal::RenderBink( const char* path )
 	const float sysHeight = renderSystem->GetHeight();
 	const float sysAspect = sysWidth / sysHeight;
 	const float movieAspect = ( 16.0f / 9.0f );
-	const float imageWidth = SCREEN_WIDTH * movieAspect / sysAspect;
-	const float chop = 0.5f * ( SCREEN_WIDTH - imageWidth );
+	const float imageWidth = renderSystem->GetVirtualWidth() * movieAspect / sysAspect;
+	const float chop = 0.5f * ( renderSystem->GetVirtualWidth() - imageWidth );
 	
 	idStr materialText;
 	materialText.Format( "{ translucent { videoMap %s } }", path );
@@ -902,7 +902,7 @@ void idCommonLocal::RenderBink( const char* path )
 	
 	while( Sys_Milliseconds() <= material->GetCinematicStartTime() + material->CinematicLength() )
 	{
-		renderSystem->DrawStretchPic( chop, 0, imageWidth, SCREEN_HEIGHT, 0, 0, 1, 1, material );
+		renderSystem->DrawStretchPic( chop, 0, imageWidth, renderSystem->GetVirtualHeight(), 0, 0, 1, 1, material );
 		const emptyCommand_t* cmd = renderSystem->SwapCommandBuffers( &time_frontend, &time_backend, &time_shadows, &time_gpu );
 		renderSystem->RenderCommandBuffers( cmd );
 		Sys_GenerateEvents();

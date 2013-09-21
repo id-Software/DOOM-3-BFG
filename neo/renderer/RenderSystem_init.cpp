@@ -206,6 +206,7 @@ idCVar stereoRender_enable( "stereoRender_enable", "0", CVAR_INTEGER | CVAR_ARCH
 idCVar stereoRender_swapEyes( "stereoRender_swapEyes", "0", CVAR_BOOL | CVAR_ARCHIVE, "reverse eye adjustments" );
 idCVar stereoRender_deGhost( "stereoRender_deGhost", "0.05", CVAR_FLOAT | CVAR_ARCHIVE, "subtract from opposite eye to reduce ghosting" );
 
+idCVar r_useVirtualScreenResolution( "r_useVirtualScreenResolution", "1", CVAR_RENDERER | CVAR_BOOL | CVAR_ARCHIVE, "do 2D rendering at 640x480 and stretch to the current resolution" );
 
 // GL_ARB_multitexture
 PFNGLACTIVETEXTUREPROC					qglActiveTextureARB;
@@ -2749,6 +2750,34 @@ int idRenderSystemLocal::GetHeight() const
 	if( glConfig.stereo3Dmode == STEREO3D_INTERLACED || glConfig.stereo3Dmode == STEREO3D_TOP_AND_BOTTOM_COMPRESSED )
 	{
 		return glConfig.nativeScreenHeight >> 1;
+	}
+	return glConfig.nativeScreenHeight;
+}
+
+/*
+========================
+idRenderSystemLocal::GetVirtualWidth
+========================
+*/
+int idRenderSystemLocal::GetVirtualWidth() const
+{
+	if( r_useVirtualScreenResolution.GetBool() )
+	{
+		return SCREEN_WIDTH;
+	}
+	return glConfig.nativeScreenWidth;
+}
+
+/*
+========================
+idRenderSystemLocal::GetVirtualHeight
+========================
+*/
+int idRenderSystemLocal::GetVirtualHeight() const
+{
+	if( r_useVirtualScreenResolution.GetBool() )
+	{
+		return SCREEN_HEIGHT;
 	}
 	return glConfig.nativeScreenHeight;
 }
