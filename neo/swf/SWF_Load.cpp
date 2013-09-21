@@ -152,7 +152,7 @@ bool idSWF::LoadBinary( const char* bfilename, ID_TIME_T sourceTime )
 	f->ReadBig( magic );
 	f->ReadBig( btimestamp );
 	
-	if( magic != BSWF_MAGIC || ( !fileSystem->InProductionMode() && sourceTime != btimestamp ) )
+	if( magic != BSWF_MAGIC || ( com_productionMode.GetInteger() == 0 && sourceTime != FILE_NOT_FOUND_TIMESTAMP && sourceTime != btimestamp ) )
 	{
 		delete f;
 		return false;
