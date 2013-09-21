@@ -891,7 +891,7 @@ sysEvent_t Sys_GetEvent()
 						// SDL2 has no ev.key.keysym.unicode anymore.. but the scancode should work well enough for console
 						if( ev.type == SDL_KEYDOWN ) // FIXME: don't complain if this was an ASCII char and the console is open?
 							common->Warning( "unmapped SDL key %d scancode %d", ev.key.keysym.sym, ev.key.keysym.scancode );
-
+							
 						return res_none;
 #else
 						unsigned char uc = ev.key.keysym.unicode & 0xff;

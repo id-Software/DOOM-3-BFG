@@ -626,7 +626,7 @@ static void R_CheckPortableExtensions()
 		
 		if( r_debugContext.GetInteger() >= 1 )
 		{
-			qglDebugMessageCallbackARB( (GLDEBUGPROCARB)DebugCallback, NULL );
+			qglDebugMessageCallbackARB( ( GLDEBUGPROCARB )DebugCallback, NULL );
 		}
 		if( r_debugContext.GetInteger() >= 2 )
 		{
