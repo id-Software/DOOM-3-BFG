@@ -526,3 +526,34 @@ void idSWF::WriteBinary( const char* bfilename )
 		}
 	}
 }
+
+/*
+===================
+idSWF::FileAttributes
+Extra data that won't fit in a SWF header
+===================
+*/
+void idSWF::FileAttributes( idSWFBitStream& bitstream )
+{
+	bitstream.Seek( 5 ); // 5 booleans
+}
+
+/*
+===================
+idSWF::Metadata
+===================
+*/
+void idSWF::Metadata( idSWFBitStream& bitstream )
+{
+	bitstream.ReadString(); // XML string
+}
+
+/*
+===================
+idSWF::SetBackgroundColor
+===================
+*/
+void idSWF::SetBackgroundColor( idSWFBitStream& bitstream )
+{
+	bitstream.Seek( 4 ); // int
+}

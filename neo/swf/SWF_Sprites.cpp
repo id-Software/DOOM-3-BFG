@@ -105,6 +105,9 @@ void idSWFSprite::Load( idSWFBitStream& bitstream, bool parseDictionary )
 			switch( tag )
 			{
 #define HANDLE_SWF_TAG( x ) case Tag_##x: swf->x( tagStream ); break;
+					HANDLE_SWF_TAG( FileAttributes );
+					HANDLE_SWF_TAG( Metadata );
+					HANDLE_SWF_TAG( SetBackgroundColor );
 					HANDLE_SWF_TAG( JPEGTables );
 					HANDLE_SWF_TAG( DefineBits );
 					HANDLE_SWF_TAG( DefineBitsJPEG2 );

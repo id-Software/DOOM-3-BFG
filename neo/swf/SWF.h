@@ -389,6 +389,9 @@ private:
 	bool			LoadSWF( const char* fullpath );
 	bool			LoadBinary( const char* bfilename, ID_TIME_T sourceTime );
 	void			WriteBinary( const char* bfilename );
+	void			FileAttributes( idSWFBitStream& bitstream );
+	void			Metadata( idSWFBitStream& bitstream );
+	void			SetBackgroundColor( idSWFBitStream& bitstream );
 	
 	//----------------------------------
 	// SWF_Shapes.cpp
