@@ -1357,8 +1357,8 @@ void FullscreenFX_Warp::HighQuality()
 	interp = 0.7 * ( 1 - interp ) + 0.3 * ( interp );
 	
 	// draw the warps
-	center.x = 320;
-	center.y = 240;
+	center.x = renderSystem->GetVirtualWidth() / 2.0f;
+	center.y = renderSystem->GetVirtualHeight() / 2.0f;
 	radius = 200;
 	
 	for( float i = 0; i < 360; i += STEP )
