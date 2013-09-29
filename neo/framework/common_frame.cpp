@@ -853,7 +853,24 @@ void idCommonLocal::Frame()
 	}
 	catch( idException& )
 	{
-		return;			// an ERP_DROP was thrown
+		// an ERP_DROP was thrown
+#if defined(USE_DOOMCLASSIC)
+		if( currentGame == DOOM_CLASSIC || currentGame == DOOM2_CLASSIC )
+		{
+			return;
+		}
+#endif
+		
+		// kill loading gui
+		delete loadGUI;
+		loadGUI = NULL;
+		
+		// drop back to main menu
+		LeaveGame();
+		
+		// force the console open to show error messages
+		console->Open();
+		return;
 	}
 }
 

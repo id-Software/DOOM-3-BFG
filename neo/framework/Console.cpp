@@ -57,6 +57,7 @@ public:
 	virtual	bool		ProcessEvent( const sysEvent_t* event, bool forceAccept );
 	virtual	bool		Active();
 	virtual	void		ClearNotifyLines();
+	virtual void		Open();
 	virtual	void		Close();
 	virtual	void		Print( const char* text );
 	virtual	void		Draw( bool forceFullScreen );
@@ -422,6 +423,22 @@ void	idConsoleLocal::ClearNotifyLines()
 	{
 		times[i] = 0;
 	}
+}
+
+/*
+================
+idConsoleLocal::Open
+================
+*/
+void	idConsoleLocal::Open()
+{
+	if( keyCatching )
+		return; // already open
+		
+	consoleField.ClearAutoComplete();
+	consoleField.Clear();
+	keyCatching = true;
+	SetDisplayFraction( 0.5f );
 }
 
 /*
