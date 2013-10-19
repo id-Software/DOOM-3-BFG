@@ -1050,13 +1050,13 @@ HandleCommonErrors
 */
 bool HandleCommonErrors( const idSaveLoadParms& parms )
 {
+	common->Dialog().ShowSaveIndicator( false );
+
 	if( parms.GetError() == SAVEGAME_E_NONE )
 	{
 		return true;
 	}
-	
-	common->Dialog().ShowSaveIndicator( false );
-	
+
 	if( parms.GetError() & SAVEGAME_E_CORRUPTED )
 	{
 		// This one might need to be handled by the game
