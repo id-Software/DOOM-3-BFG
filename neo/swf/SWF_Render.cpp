@@ -140,7 +140,7 @@ void idSWF::Render( idRenderSystem* gui, int time, bool isSplitscreen )
 	
 	renderBorder = renderState.matrix.tx / scale;
 	
-	scaleToVirtual.Set( ( float )SCREEN_WIDTH / sysWidth, ( float )SCREEN_HEIGHT / sysHeight );
+	scaleToVirtual.Set( ( float )renderSystem->GetVirtualWidth() / sysWidth, ( float )renderSystem->GetVirtualHeight() / sysHeight );
 	
 	RenderSprite( gui, mainspriteInstance, renderState, time, isSplitscreen );
 	

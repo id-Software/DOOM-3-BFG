@@ -167,12 +167,7 @@ const int BIGCHAR_HEIGHT		= 16;
 const int SCREEN_WIDTH			= 640;
 const int SCREEN_HEIGHT			= 480;
 
-const int TITLESAFE_LEFT		= 32;
-const int TITLESAFE_RIGHT		= 608;
-const int TITLESAFE_TOP			= 24;
-const int TITLESAFE_BOTTOM		= 456;
-const int TITLESAFE_WIDTH		= TITLESAFE_RIGHT - TITLESAFE_LEFT;
-const int TITLESAFE_HEIGHT		= TITLESAFE_BOTTOM - TITLESAFE_TOP;
+extern idCVar r_useVirtualScreenResolution;
 
 class idRenderWorld;
 
@@ -201,6 +196,8 @@ public:
 	virtual bool			IsFullScreen() const = 0;
 	virtual int				GetWidth() const = 0;
 	virtual int				GetHeight() const = 0;
+	virtual int				GetVirtualWidth() const = 0;
+	virtual int				GetVirtualHeight() const = 0;
 	
 	// return w/h of a single pixel. This will be 1.0 for normal cases.
 	// A side-by-side stereo 3D frame will have a pixel aspect of 0.5.

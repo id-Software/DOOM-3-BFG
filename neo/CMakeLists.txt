@@ -174,7 +174,7 @@ file(GLOB FRAMEWORK_SOURCES framework/*.cpp)
 file(GLOB FRAMEWORK_ASYNC_INCLUDES framework/async/*.h)
 file(GLOB FRAMEWORK_ASYNC_SOURCES framework/async/*.cpp)
 
-file(GLOB_RECURSE RENDERER_INCLUDES renderer/*.h)
+file(GLOB RENDERER_INCLUDES renderer/*.h)
 	# renderer/AutoRender.h
 	# renderer/AutoRenderBink.h
 	# renderer/BinaryImage.h
@@ -214,7 +214,7 @@ file(GLOB_RECURSE RENDERER_INCLUDES renderer/*.h)
 	# renderer/VertexCache.h)
 
 
-file(GLOB_RECURSE RENDERER_SOURCES renderer/*.cpp)
+file(GLOB RENDERER_SOURCES renderer/*.cpp)
 	# renderer/AutoRender.cpp
 	# renderer/Cinematic.cpp
 	# renderer/Framebuffer.cpp
@@ -275,7 +275,21 @@ file(GLOB_RECURSE RENDERER_SOURCES renderer/*.cpp)
 	# renderer/tr_trace.cpp
 	# renderer/tr_trisurf.cpp
 	# renderer/tr_turboshadow.cpp)
-
+	
+file(GLOB RENDERER_COLOR_INCLUDES renderer/Color/*.h)
+file(GLOB RENDERER_COLOR_SOURCES renderer/Color/*.cpp)
+file(GLOB RENDERER_DXT_INCLUDES renderer/DXT/*.h)
+file(GLOB RENDERER_DXT_SOURCES renderer/DXT/*.cpp)
+file(GLOB RENDERER_JOBS_INCLUDES renderer/jobs/*.h)
+file(GLOB RENDERER_JOBS_SOURCES renderer/jobs/*.cpp)
+file(GLOB RENDERER_JOBS_DYNAMICSHADOWVOLUME_INCLUDES renderer/jobs/dynamicshadowvolume/*.h)
+file(GLOB RENDERER_JOBS_DYNAMICSHADOWVOLUME_SOURCES renderer/jobs/dynamicshadowvolume/*.cpp)
+file(GLOB RENDERER_JOBS_PRELIGHTSHADOWVOLUME_INCLUDES renderer/jobs/prelightshadowvolume/*.h)
+file(GLOB RENDERER_JOBS_PRELIGHTSHADOWVOLUME_SOURCES renderer/jobs/prelightshadowvolume/*.cpp)
+file(GLOB RENDERER_JOBS_STATICSHADOWVOLUME_INCLUDES renderer/jobs/staticshadowvolume/*.h)
+file(GLOB RENDERER_JOBS_STATICSHADOWVOLUME_SOURCES renderer/jobs/staticshadowvolume/*.cpp)
+file(GLOB RENDERER_OPENGL_INCLUDES renderer/OpenGL/*.h)
+file(GLOB RENDERER_OPENGL_SOURCES renderer/OpenGL/*.cpp)
 
 file(GLOB IRRXML_INCLUDES libs/irrxml/src/*.h)
 file(GLOB IRRXML_SOURCES libs/irrxml/src/*.cpp)
@@ -824,6 +838,27 @@ source_group("framework\\async" FILES ${FRAMEWORK_ASYNC_SOURCES})
 source_group("renderer" FILES ${RENDERER_INCLUDES})
 source_group("renderer" FILES ${RENDERER_SOURCES})
 
+source_group("renderer\\Color" FILES ${RENDERER_COLOR_INCLUDES})
+source_group("renderer\\Color" FILES ${RENDERER_COLOR_SOURCES})
+
+source_group("renderer\\DXT" FILES ${RENDERER_DXT_INCLUDES})
+source_group("renderer\\DXT" FILES ${RENDERER_DXT_SOURCES})
+
+source_group("renderer\\jobs" FILES ${RENDERER_JOBS_INCLUDES})
+source_group("renderer\\jobs" FILES ${RENDERER_JOBS_SOURCES})
+
+source_group("renderer\\jobs\\dynamicshadowvolume" FILES ${RENDERER_JOBS_DYNAMICSHADOWVOLUME_INCLUDES})
+source_group("renderer\\jobs\\dynamicshadowvolume" FILES ${RENDERER_JOBS_DYNAMICSHADOWVOLUME_SOURCES})
+
+source_group("renderer\\jobs\\prelightshadowvolume" FILES ${RENDERER_JOBS_PRELIGHTSHADOWVOLUME_INCLUDES})
+source_group("renderer\\jobs\\prelightshadowvolume" FILES ${RENDERER_JOBS_PRELIGHTSHADOWVOLUME_SOURCES})
+
+source_group("renderer\\jobs\\staticshadowvolume" FILES ${RENDERER_JOBS_STATICSHADOWVOLUME_INCLUDES})
+source_group("renderer\\jobs\\staticshadowvolume" FILES ${RENDERER_JOBS_STATICSHADOWVOLUME_SOURCES})
+
+source_group("renderer\\OpenGL" FILES ${RENDERER_OPENGL_INCLUDES})
+source_group("renderer\\OpenGL" FILES ${RENDERER_OPENGL_SOURCES})
+
 source_group("libs\\irrxml" FILES ${IRRXML_INCLUDES})
 source_group("libs\\irrxml" FILES ${IRRXML_SOURCES})
 
@@ -975,6 +1010,13 @@ set(RBDOOM3_INCLUDES
 			${FRAMEWORK_INCLUDES}
 			${FRAMEWORK_ASYNC_INCLUDES}
 			${RENDERER_INCLUDES}
+			${RENDERER_COLOR_INCLUDES}
+			${RENDERER_DXT_INCLUDES}
+			${RENDERER_JOBS_INCLUDES}
+			${RENDERER_JOBS_DYNAMICSHADOWVOLUME_INCLUDES}
+			${RENDERER_JOBS_PRELIGHTSHADOWVOLUME_INCLUDES}
+			${RENDERER_JOBS_STATICSHADOWVOLUME_INCLUDES}
+			${RENDERER_OPENGL_INCLUDES}
 			#${IRRXML_INCLUDES}
 			${JPEG_INCLUDES}
 			#${PNG_INCLUDES}
@@ -1001,6 +1043,13 @@ set(RBDOOM3_SOURCES
 			${FRAMEWORK_SOURCES}
 			${FRAMEWORK_ASYNC_SOURCES} 
 			${RENDERER_SOURCES}
+			${RENDERER_COLOR_SOURCES}
+			${RENDERER_DXT_SOURCES}
+			${RENDERER_JOBS_SOURCES}
+			${RENDERER_JOBS_DYNAMICSHADOWVOLUME_SOURCES}
+			${RENDERER_JOBS_PRELIGHTSHADOWVOLUME_SOURCES}
+			${RENDERER_JOBS_STATICSHADOWVOLUME_SOURCES}
+			${RENDERER_OPENGL_SOURCES}
 			#${IRRXML_SOURCES}
 			${JPEG_SOURCES}
 			#${PNG_SOURCES}
@@ -1148,7 +1197,7 @@ if(MSVC)
 			${EDITOR_SOUND_INCLUDES} ${EDITOR_SOUND_SOURCES})
 	endif()
 	
-	list(APPEND RBDOOM3_INLCUDES
+	list(APPEND RBDOOM3_INCLUDES
 		${SYS_INCLUDES} 
 		${WIN32_INCLUDES})
 		

@@ -206,6 +206,7 @@ idCVar stereoRender_enable( "stereoRender_enable", "0", CVAR_INTEGER | CVAR_ARCH
 idCVar stereoRender_swapEyes( "stereoRender_swapEyes", "0", CVAR_BOOL | CVAR_ARCHIVE, "reverse eye adjustments" );
 idCVar stereoRender_deGhost( "stereoRender_deGhost", "0.05", CVAR_FLOAT | CVAR_ARCHIVE, "subtract from opposite eye to reduce ghosting" );
 
+idCVar r_useVirtualScreenResolution( "r_useVirtualScreenResolution", "1", CVAR_RENDERER | CVAR_BOOL | CVAR_ARCHIVE, "do 2D rendering at 640x480 and stretch to the current resolution" );
 
 // GL_ARB_multitexture
 PFNGLACTIVETEXTUREPROC					qglActiveTextureARB;
@@ -357,20 +358,21 @@ DebugCallback
 For ARB_debug_output
 ========================
 */
+// RB: added const to userParam
 static void CALLBACK DebugCallback( unsigned int source, unsigned int type,
-									unsigned int id, unsigned int severity, int length, const char* message, void* userParam )
+									unsigned int id, unsigned int severity, int length, const char* message, const void* userParam )
 {
 	// it probably isn't safe to do an idLib::Printf at this point
 	
-	// RB begin
+	// RB: printf should be thread safe on Linux
 #if defined(_WIN32)
 	OutputDebugString( message );
 	OutputDebugString( "\n" );
 #else
 	printf( "%s\n", message );
 #endif
-	// RB end
 }
+// RB end
 
 /*
 ==================
@@ -625,7 +627,7 @@ static void R_CheckPortableExtensions()
 		
 		if( r_debugContext.GetInteger() >= 1 )
 		{
-			qglDebugMessageCallbackARB( DebugCallback, NULL );
+			qglDebugMessageCallbackARB( ( GLDEBUGPROCARB )DebugCallback, NULL );
 		}
 		if( r_debugContext.GetInteger() >= 2 )
 		{
@@ -786,7 +788,7 @@ void R_SetNewMode( const bool fullInit )
 			}
 			else
 			{
-				if( r_vidMode.GetInteger() > modeList.Num() )
+				if( r_vidMode.GetInteger() >= modeList.Num() )
 				{
 					idLib::Printf( "r_vidMode reset from %i to 0.\n", r_vidMode.GetInteger() );
 					r_vidMode.SetInteger( 0 );
@@ -2748,6 +2750,34 @@ int idRenderSystemLocal::GetHeight() const
 	if( glConfig.stereo3Dmode == STEREO3D_INTERLACED || glConfig.stereo3Dmode == STEREO3D_TOP_AND_BOTTOM_COMPRESSED )
 	{
 		return glConfig.nativeScreenHeight >> 1;
+	}
+	return glConfig.nativeScreenHeight;
+}
+
+/*
+========================
+idRenderSystemLocal::GetVirtualWidth
+========================
+*/
+int idRenderSystemLocal::GetVirtualWidth() const
+{
+	if( r_useVirtualScreenResolution.GetBool() )
+	{
+		return SCREEN_WIDTH;
+	}
+	return glConfig.nativeScreenWidth;
+}
+
+/*
+========================
+idRenderSystemLocal::GetVirtualHeight
+========================
+*/
+int idRenderSystemLocal::GetVirtualHeight() const
+{
+	if( r_useVirtualScreenResolution.GetBool() )
+	{
+		return SCREEN_HEIGHT;
 	}
 	return glConfig.nativeScreenHeight;
 }
