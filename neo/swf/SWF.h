@@ -387,15 +387,22 @@ private:
 	friend class idSWFSprite;
 	friend class idSWFSpriteInstance;
 	
+	// RB begin
 	bool			LoadSWF( const char* fullpath );
+	void			WriteSWF( const char* filename );
+	
 	bool			LoadBinary( const char* bfilename, ID_TIME_T sourceTime );
 	void			WriteBinary( const char* bfilename );
+<<<<<<< HEAD
 <<<<<<< HEAD
 	void			FileAttributes( idSWFBitStream& bitstream );
 	void			Metadata( idSWFBitStream& bitstream );
 	void			SetBackgroundColor( idSWFBitStream& bitstream );
 =======
 	// RB begin
+=======
+	
+>>>>>>> 534d415... SWF export
 	void			LoadXML( const char* filename );
 	void			WriteXML( const char* filename );
 	// RB end
