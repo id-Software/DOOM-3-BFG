@@ -1299,7 +1299,10 @@ else()
 			set(SDLx_LIBRARY ${SDL_LIBRARY})
 		endif()
 	
+		add_definitions(-DUSE_DOOMCLASSIC)
+
 		list(APPEND RBDOOM3_SOURCES
+			${DOOMCLASSIC_INCLUDES} ${DOOMCLASSIC_SOURCES}
 			${POSIX_INCLUDES} ${POSIX_SOURCES}
 			${SDL_INCLUDES} ${SDL_SOURCES}
 			sys/linux/linux_main.cpp)
