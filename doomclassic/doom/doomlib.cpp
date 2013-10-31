@@ -141,9 +141,9 @@ namespace DoomLib
 
 	Globals *globaldata[4];
 
-	RecvFunc Recv;
-	SendFunc Send;
-	SendRemoteFunc SendRemote;
+	//RecvFunc Recv;
+	//SendFunc Send;
+	//SendRemoteFunc SendRemote;
 
 
 	bool							Active = true;
@@ -419,12 +419,14 @@ void DoomLib::SetPlayer( int id )
 	}
 }
 
+#if 0
 void DoomLib::SetNetworking( RecvFunc rf, SendFunc sf, SendRemoteFunc sendRemote )
 {
 	Recv = rf;
 	Send = sf;
 	SendRemote = sendRemote;
 }
+#endif
 
 int DoomLib::GetPlayer() 
 { 
@@ -544,7 +546,7 @@ void DoomLib::SendNetwork() {
 	if ( !globalNetworking ) {
 		return;
 	}
-	DoomLib::SendRemote();	
+	//DoomLib::SendRemote();
 }
 
 void DoomLib::RunSound() {
