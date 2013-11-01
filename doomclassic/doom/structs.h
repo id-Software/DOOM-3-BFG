@@ -348,7 +348,10 @@ typedef struct
     int			masked;	
     short		width;
     short		height;
-    void		**columndirectory;	// OBSOLETE
+
+    // FR: Replaced obsolete void **columndirectory with int
+    // for 64-bit compatibility
+    int			columndirectory;	// OBSOLETE
     short		patchcount;
     mappatch_t	patches[1];
 } maptexture_t;
