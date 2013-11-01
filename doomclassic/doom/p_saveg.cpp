@@ -104,7 +104,7 @@ void P_UnArchivePlayers (void)
 	    if (::g->players[i]. psprites[j].state)
 	    {
 		::g->players[i]. psprites[j].state 
-		    = &::g->states[ (int)::g->players[i].psprites[j].state ];
+		    = &::g->states[ (intptr_t)::g->players[i].psprites[j].state ];
 	    }
 	}
     }
@@ -622,14 +622,14 @@ void P_UnArchiveThinkers (void)
 			mobj = (mobj_t*)DoomLib::Z_Malloc(sizeof(*mobj), PU_LEVEL, NULL);
 			memcpy (mobj, ::g->save_p, sizeof(*mobj));
 			::g->save_p += sizeof(*mobj);
-			mobj->state = &::g->states[(int)mobj->state];
+			mobj->state = &::g->states[(intptr_t)mobj->state];
 
 			mobj->target = NULL;
 			mobj->tracer = NULL;
 
 			if (mobj->player)
 			{
-				mobj->player = &::g->players[(int)mobj->player-1];
+				mobj->player = &::g->players[(intptr_t)mobj->player-1];
 				mobj->player->mo = mobj;
 			}
 
@@ -693,7 +693,7 @@ void P_UnArchiveThinkers (void)
 			ceiling = (ceiling_t*)DoomLib::Z_Malloc(sizeof(*ceiling), PU_LEVEL, NULL);
 			memcpy (ceiling, ::g->save_p, sizeof(*ceiling));
 			::g->save_p += sizeof(*ceiling);
-			ceiling->sector = &::g->sectors[(int)ceiling->sector];
+			ceiling->sector = &::g->sectors[(intptr_t)ceiling->sector];
 			ceiling->sector->specialdata = ceiling;
 
 			if (ceiling->thinker.function.acp1)
@@ -708,7 +708,7 @@ void P_UnArchiveThinkers (void)
 			door = (vldoor_t*)DoomLib::Z_Malloc(sizeof(*door), PU_LEVEL, NULL);
 			memcpy (door, ::g->save_p, sizeof(*door));
 			::g->save_p += sizeof(*door);
-			door->sector = &::g->sectors[(int)door->sector];
+			door->sector = &::g->sectors[(intptr_t)door->sector];
 			door->sector->specialdata = door;
 			door->thinker.function.acp1 = (actionf_p1)T_VerticalDoor;
 			P_AddThinker (&door->thinker);
@@ -719,7 +719,7 @@ void P_UnArchiveThinkers (void)
 			floor = (floormove_t*)DoomLib::Z_Malloc (sizeof(*floor), PU_LEVEL, NULL);
 			memcpy (floor, ::g->save_p, sizeof(*floor));
 			::g->save_p += sizeof(*floor);
-			floor->sector = &::g->sectors[(int)floor->sector];
+			floor->sector = &::g->sectors[(intptr_t)floor->sector];
 			floor->sector->specialdata = floor;
 			floor->thinker.function.acp1 = (actionf_p1)T_MoveFloor;
 			P_AddThinker (&floor->thinker);
@@ -730,7 +730,7 @@ void P_UnArchiveThinkers (void)
 			plat = (plat_t*)DoomLib::Z_Malloc (sizeof(*plat), PU_LEVEL, NULL);
 			memcpy (plat, ::g->save_p, sizeof(*plat));
 			::g->save_p += sizeof(*plat);
-			plat->sector = &::g->sectors[(int)plat->sector];
+			plat->sector = &::g->sectors[(intptr_t)plat->sector];
 			plat->sector->specialdata = plat;
 
 			if (plat->thinker.function.acp1)
@@ -745,7 +745,7 @@ void P_UnArchiveThinkers (void)
 			fire = (fireflicker_t*)DoomLib::Z_Malloc (sizeof(*fire), PU_LEVEL, NULL);
 			memcpy (fire, ::g->save_p, sizeof(*fire));
 			::g->save_p += sizeof(*fire);
-			fire->sector = &::g->sectors[(int)fire->sector];
+			fire->sector = &::g->sectors[(intptr_t)fire->sector];
 			fire->thinker.function.acp1 = (actionf_p1)T_FireFlicker;
 			P_AddThinker (&fire->thinker);
 			break;
@@ -755,7 +755,7 @@ void P_UnArchiveThinkers (void)
 			flash = (lightflash_t*)DoomLib::Z_Malloc (sizeof(*flash), PU_LEVEL, NULL);
 			memcpy (flash, ::g->save_p, sizeof(*flash));
 			::g->save_p += sizeof(*flash);
-			flash->sector = &::g->sectors[(int)flash->sector];
+			flash->sector = &::g->sectors[(intptr_t)flash->sector];
 			flash->thinker.function.acp1 = (actionf_p1)T_LightFlash;
 			P_AddThinker (&flash->thinker);
 			break;
@@ -765,7 +765,7 @@ void P_UnArchiveThinkers (void)
 			strobe = (strobe_t*)DoomLib::Z_Malloc (sizeof(*strobe), PU_LEVEL, NULL);
 			memcpy (strobe, ::g->save_p, sizeof(*strobe));
 			::g->save_p += sizeof(*strobe);
-			strobe->sector = &::g->sectors[(int)strobe->sector];
+			strobe->sector = &::g->sectors[(intptr_t)strobe->sector];
 			strobe->thinker.function.acp1 = (actionf_p1)T_StrobeFlash;
 			P_AddThinker (&strobe->thinker);
 			break;
@@ -775,7 +775,7 @@ void P_UnArchiveThinkers (void)
 			glow = (glow_t*)DoomLib::Z_Malloc (sizeof(*glow), PU_LEVEL, NULL);
 			memcpy (glow, ::g->save_p, sizeof(*glow));
 			::g->save_p += sizeof(*glow);
-			glow->sector = &::g->sectors[(int)glow->sector];
+			glow->sector = &::g->sectors[(intptr_t)glow->sector];
 			glow->thinker.function.acp1 = (actionf_p1)T_Glow;
 			P_AddThinker (&glow->thinker);
 			break;
@@ -949,7 +949,7 @@ void P_UnArchiveSpecials (void)
 	    ceiling = (ceiling_t*)DoomLib::Z_Malloc(sizeof(*ceiling), PU_LEVEL, NULL);
 	    memcpy (ceiling, ::g->save_p, sizeof(*ceiling));
 	    ::g->save_p += sizeof(*ceiling);
-	    ceiling->sector = &::g->sectors[(int)ceiling->sector];
+	    ceiling->sector = &::g->sectors[(intptr_t)ceiling->sector];
 	    ceiling->sector->specialdata = ceiling;
 
 	    if (ceiling->thinker.function.acp1)
@@ -964,7 +964,7 @@ void P_UnArchiveSpecials (void)
 	    door = (vldoor_t*)DoomLib::Z_Malloc(sizeof(*door), PU_LEVEL, NULL);
 	    memcpy (door, ::g->save_p, sizeof(*door));
 	    ::g->save_p += sizeof(*door);
-	    door->sector = &::g->sectors[(int)door->sector];
+	    door->sector = &::g->sectors[(intptr_t)door->sector];
 	    door->sector->specialdata = door;
 	    door->thinker.function.acp1 = (actionf_p1)T_VerticalDoor;
 	    P_AddThinker (&door->thinker);
@@ -975,7 +975,7 @@ void P_UnArchiveSpecials (void)
 	    floor = (floormove_t*)DoomLib::Z_Malloc (sizeof(*floor), PU_LEVEL, NULL);
 	    memcpy (floor, ::g->save_p, sizeof(*floor));
 	    ::g->save_p += sizeof(*floor);
-	    floor->sector = &::g->sectors[(int)floor->sector];
+	    floor->sector = &::g->sectors[(intptr_t)floor->sector];
 	    floor->sector->specialdata = floor;
 	    floor->thinker.function.acp1 = (actionf_p1)T_MoveFloor;
 	    P_AddThinker (&floor->thinker);
@@ -986,7 +986,7 @@ void P_UnArchiveSpecials (void)
 	    plat = (plat_t*)DoomLib::Z_Malloc (sizeof(*plat), PU_LEVEL, NULL);
 	    memcpy (plat, ::g->save_p, sizeof(*plat));
 	    ::g->save_p += sizeof(*plat);
-	    plat->sector = &::g->sectors[(int)plat->sector];
+	    plat->sector = &::g->sectors[(intptr_t)plat->sector];
 	    plat->sector->specialdata = plat;
 
 	    if (plat->thinker.function.acp1)
@@ -1001,7 +1001,7 @@ void P_UnArchiveSpecials (void)
 	    flash = (lightflash_t*)DoomLib::Z_Malloc (sizeof(*flash), PU_LEVEL, NULL);
 	    memcpy (flash, ::g->save_p, sizeof(*flash));
 	    ::g->save_p += sizeof(*flash);
-	    flash->sector = &::g->sectors[(int)flash->sector];
+	    flash->sector = &::g->sectors[(intptr_t)flash->sector];
 	    flash->thinker.function.acp1 = (actionf_p1)T_LightFlash;
 	    P_AddThinker (&flash->thinker);
 	    break;
@@ -1011,7 +1011,7 @@ void P_UnArchiveSpecials (void)
 	    strobe = (strobe_t*)DoomLib::Z_Malloc (sizeof(*strobe), PU_LEVEL, NULL);
 	    memcpy (strobe, ::g->save_p, sizeof(*strobe));
 	    ::g->save_p += sizeof(*strobe);
-	    strobe->sector = &::g->sectors[(int)strobe->sector];
+	    strobe->sector = &::g->sectors[(intptr_t)strobe->sector];
 	    strobe->thinker.function.acp1 = (actionf_p1)T_StrobeFlash;
 	    P_AddThinker (&strobe->thinker);
 	    break;
@@ -1021,7 +1021,7 @@ void P_UnArchiveSpecials (void)
 	    glow = (glow_t*)DoomLib::Z_Malloc (sizeof(*glow), PU_LEVEL, NULL);
 	    memcpy (glow, ::g->save_p, sizeof(*glow));
 	    ::g->save_p += sizeof(*glow);
-	    glow->sector = &::g->sectors[(int)glow->sector];
+	    glow->sector = &::g->sectors[(intptr_t)glow->sector];
 	    glow->thinker.function.acp1 = (actionf_p1)T_Glow;
 	    P_AddThinker (&glow->thinker);
 	    break;
