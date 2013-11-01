@@ -239,7 +239,7 @@ extern void D_RunFrame( bool );
 extern void I_ShutdownSound();
 extern void I_ShutdownMusic();
 extern void I_ShutdownGraphics();
-extern void I_ProcessSoundEvents( void );
+//extern void I_ProcessSoundEvents( void );
 
 
 void DoomLib::InitGlobals( void *ptr /* = NULL */ )
@@ -551,6 +551,6 @@ void DoomLib::SendNetwork() {
 
 void DoomLib::RunSound() {
 
-	I_ProcessSoundEvents();
+	//I_ProcessSoundEvents();
 }
 
