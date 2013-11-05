@@ -64,6 +64,7 @@ int I_GetSfxLumpNum (sfxinfo_t* sfxinfo )
 	return W_GetNumForName(namebuf);
 }
 
+void I_ProcessSoundEvents( void ){}
 
 // Starts a sound in a particular sound channel.
 int I_StartSound( int id, mobj_t *origin, mobj_t *listener_origin, int vol, int pitch, int priority )
