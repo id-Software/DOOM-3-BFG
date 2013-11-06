@@ -32,6 +32,9 @@ If you have questions concerning this license or the applicable additional terms
 #include "SWF_Enums.h"
 #include "SWF_Types.h"
 #include "SWF_Bitstream.h"
+// RB begin
+#include "SWF_File.h"
+// RB end
 #include "SWF_ScriptVar.h"
 #include "SWF_Sprites.h"
 #include "SWF_ScriptObject.h"

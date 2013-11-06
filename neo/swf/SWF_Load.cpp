@@ -146,9 +146,9 @@ idSWF::WriteSWF
 RB: bring .bswf back to .swf
 ===================
 */
-void idSWF::WriteSWF( const char* fullpath )
+void idSWF::WriteSWF( const char* filename )
 {
-	idFileLocal file( fileSystem->OpenFileWrite( filename, "fs_basepath" ) );
+	idFile_SWF file( fileSystem->OpenFileWrite( filename, "fs_basepath" ) );
 	if( file == NULL )
 	{
 		return;
@@ -158,41 +158,35 @@ void idSWF::WriteSWF( const char* fullpath )
 	header.W = 'W';
 	header.S = 'S';
 	header.version = 9;
-	header.compression == 'F';
+	header.compression = 'F';
 	
-	file->Write( &header, sizeof( header ) );
+	file.Write( &header, sizeof( header ) );
 	
 	
 	// TODO
-	/*
+	
 	swfRect_t frameSize;
-	bitstream.ReadRect( frameSize );
+	frameSize.br.x = frameWidth;
+	frameSize.br.y = frameHeight;
 	
-	if( !frameSize.tl.Compare( vec2_zero ) )
-	{
-		idLib::Warning( "Invalid frameSize top left" );
-		Mem_Free( fileData );
-		return false;
-	}
+	file.WriteRect( frameSize );
 	
-	frameWidth = frameSize.br.x;
-	frameHeight = frameSize.br.y;
-	frameRate = bitstream.ReadU16();
+	file.WriteU16( frameRate );
 	
 	// parse everything
-	mainsprite->Load( bitstream, true );
+	//mainsprite->Load( bitstream, true );
 	
 	// now that all images have been loaded, write out the combined image
-	idStr atlasFileName = "generated/";
-	atlasFileName += fullpath;
-	atlasFileName.SetFileExtension( ".tga" );
+	//idStr atlasFileName = "generated/";
+	//atlasFileName += fullpath;
+	//atlasFileName.SetFileExtension( ".tga" );
 	
-	WriteSwfImageAtlas( atlasFileName );
+	//WriteSwfImageAtlas( atlasFileName );
 	
-	Mem_Free( fileData );
-	*/
+	//Mem_Free( fileData );
 	
 	// add Tag_End
+	file.WriteU16( Tag_End );
 	
 	// go back and write filesize into header
 	uint32 fileSize = file->Length();

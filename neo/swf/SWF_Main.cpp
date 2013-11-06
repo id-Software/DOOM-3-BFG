@@ -35,6 +35,7 @@ If you have questions concerning this license or the applicable additional terms
 
 idCVar swf_loadBinary( "swf_loadBinary", "1", CVAR_INTEGER, "used to set whether to load binary swf from generated" );
 // RB begin
+idCVar swf_exportSWF( "swf_exportSWF", "1", CVAR_INTEGER, "" );
 idCVar swf_exportXML( "swf_exportXML", "1", CVAR_INTEGER, "" );
 idCVar swf_exportAtlas( "swf_exportAtlas", "1", CVAR_INTEGER, "" );
 // RB end
@@ -44,6 +45,40 @@ int idSWF::mouseY = -1;
 bool idSWF::isMouseInClientArea = false;
 
 extern idCVar in_useJoystick;
+
+// RB begin
+int swfRect_t::BitCount() const
+{
+	int c = 0;
+	
+	int num = idMath::BitCount( ( int ) tl.x );
+	if( num > c )
+	{
+		c = num;
+	}
+	
+	num = idMath::BitCount( ( int ) tl.y );
+	if( num > c )
+	{
+		c = num;
+	}
+	
+	num = idMath::BitCount( ( int ) br.x );
+	if( num > c )
+	{
+		c = num;
+	}
+	
+	num = idMath::BitCount( ( int ) br.y );
+	if( num > c )
+	{
+		c = num;
+	}
+	
+	return c;
+}
+
+// RB end
 
 /*
 ===================
@@ -158,6 +193,15 @@ idSWF::idSWF( const char* filename_, idSoundWorld* soundWorld_ )
 		xmlFileName.SetFileExtension( ".xml" );
 		
 		WriteXML( xmlFileName );
+	}
+	
+	if( swf_exportSWF.GetBool() )
+	{
+		idStr swfFileName = "generated/";
+		swfFileName += filename;
+		swfFileName.SetFileExtension( ".swf" );
+		
+		WriteSWF( swfFileName );
 	}
 	
 	idStr atlasFileName = binaryFileName;

@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -41,6 +42,11 @@ ID_INLINE float SWFFIXED8( int fixed )
 	return fixed * ( 1.0f / 256.0f );
 }
 
+ID_INLINE int PIXEL2SWFTWIP( float pixel )
+{
+	return ( int )( pixel * 20 );
+}
+
 struct swfHeader_t
 {
 	byte compression;
@@ -54,6 +60,10 @@ struct swfRect_t
 	swfRect_t();
 	idVec2 tl;
 	idVec2 br;
+	
+	// RB begin
+	int			BitCount() const;
+	// RB end
 };
 struct swfMatrix_t
 {
