@@ -195,20 +195,15 @@ idSWF::idSWF( const char* filename_, idSoundWorld* soundWorld_ )
 		WriteXML( xmlFileName );
 	}
 	
-	if( swf_exportSWF.GetBool() )
-	{
-		idStr swfFileName = "generated/";
-		swfFileName += filename;
-		swfFileName.SetFileExtension( ".swf" );
-		
-		WriteSWF( swfFileName );
-	}
-	
 	idStr atlasFileName = binaryFileName;
 	atlasFileName.SetFileExtension( ".tga" );
 	atlasMaterial = declManager->FindMaterial( atlasFileName );
 	
-	if( swf_exportAtlas.GetBool() )
+	byte* atlasExportImageRGBA = NULL;
+	int atlasExportImageWidth = 0;
+	int atlasExportImageHeight = 0;
+	
+	if( swf_exportAtlas.GetBool() || swf_exportSWF.GetBool() )
 	{
 		idStrStatic< MAX_OSPATH > generatedName = atlasFileName;
 		generatedName.StripFileExtension();
@@ -306,8 +301,30 @@ idSWF::idSWF( const char* filename_, idSoundWorld* soundWorld_ )
 			atlasFileNameExport.SetFileExtension( ".png" );
 			
 			R_WritePNG( atlasFileNameExport, rgba.Ptr(), 4, img.width, img.height, true, "fs_basepath" );
+			
+			if( swf_exportSWF.GetBool() )
+			{
+				atlasExportImageWidth = img.width;
+				atlasExportImageHeight = img.height;
+				atlasExportImageRGBA = ( byte* ) Mem_Alloc( rgba.Size(), TAG_TEMP );
+				memcpy( atlasExportImageRGBA, rgba.Ptr(), rgba.Size() );
+			}
 		}
+	}
+	
+	if( swf_exportSWF.GetBool() )
+	{
+		idStr swfFileName = "generated/";
+		swfFileName += filename;
+		swfFileName.SetFileExtension( ".swf" );
 		
+		WriteSWF( swfFileName );
+	}
+	
+	if( atlasExportImageRGBA != NULL )
+	{
+		Mem_Free( atlasExportImageRGBA );
+		atlasExportImageRGBA = NULL;
 	}
 	// RB end
 	
