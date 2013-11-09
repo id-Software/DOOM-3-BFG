@@ -58,7 +58,9 @@ public:
 	{
 		if( bitPos > 0 )
 		{
+			bitPos = 0;
 			WriteByte( NBits );
+			NBits = 0;
 		}
 	}
 	
@@ -72,9 +74,13 @@ public:
 	void			WriteUBits( int value, int numBits );
 	void			WriteSBits( int value, int numBits );
 	
+	void			WriteU8( uint8 value );
 	void			WriteU16( uint16 value );
+	void			WriteU32( uint32 value );
 	
 	void			WriteRect( const swfRect_t& rect );
+	
+	void			WriteTagHeader( swfTag_t tag, int32 tagLength );
 	
 private:
 

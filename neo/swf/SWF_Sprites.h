@@ -53,6 +53,11 @@ public:
 	void	WriteXML_PlaceObject3( idFile* f, idSWFBitStream& bitstream, const char* indentPrefix = "" );
 	void	WriteXML_RemoveObject2( idFile* f, idSWFBitStream& bitstream, const char* indentPrefix = "" );
 	void	WriteXML_DoAction( idFile* f, idSWFBitStream& bitstream, const char* indentPrefix = "" );
+	
+	uint16	GetFrameCount()
+	{
+		return frameCount;
+	}
 	// RB end
 	
 	class idSWF* GetSWF()

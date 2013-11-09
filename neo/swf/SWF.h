@@ -392,7 +392,7 @@ private:
 	
 	// RB begin
 	bool			LoadSWF( const char* fullpath );
-	void			WriteSWF( const char* filename );
+	void			WriteSWF( const char* filename, const byte* atlasImageRGBA, int atlasImageWidth, int atlasImageHeight );
 	
 	bool			LoadBinary( const char* bfilename, ID_TIME_T sourceTime );
 	void			WriteBinary( const char* bfilename );
@@ -508,6 +508,9 @@ private:
 	// SWF_Zlib.cpp
 	//----------------------------------
 	bool			Inflate( const byte* input, int inputSize, byte* output, int outputSize );
+	// RB begin
+	bool			Deflate( const byte* input, int inputSize, byte* output, int& outputSize );
+	// RB end
 	
 public:
 	//----------------------------------

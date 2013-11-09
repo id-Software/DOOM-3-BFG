@@ -88,6 +88,13 @@ void idFile_SWF::WriteSBits( int value, int numBits )
 	WriteUBits( value, numBits );
 }
 
+void idFile_SWF::WriteU8( uint8 value )
+{
+	ByteAlign();
+	
+	WriteByte( value );
+}
+
 void idFile_SWF::WriteU16( uint16 value )
 {
 	ByteAlign();
@@ -96,11 +103,18 @@ void idFile_SWF::WriteU16( uint16 value )
 	WriteByte( value >> 8 );
 }
 
+void idFile_SWF::WriteU32( uint32 value )
+{
+	ByteAlign();
+	
+	WriteByte( value & 0xFF );
+	WriteByte( ( value >> 8 ) & 0xFF );
+	WriteByte( ( value >> 16 ) & 0xFF );
+	WriteByte( ( value >> 24 ) & 0xFF );
+}
+
 void idFile_SWF::WriteRect( const swfRect_t& rect )
 {
-	uint64 regCurrentBit = 0;
-	uint64 regCurrentByte = 0;
-	
 	int nBits = rect.BitCount();
 	
 	int tl_x = PIXEL2SWFTWIP( rect.tl.x );
@@ -113,6 +127,23 @@ void idFile_SWF::WriteRect( const swfRect_t& rect )
 	WriteSBits( br_x, nBits );
 	WriteSBits( tl_y, nBits );
 	WriteSBits( br_y, nBits );
+}
+
+void idFile_SWF::WriteTagHeader( swfTag_t tag, int32 tagLength )
+{
+	uint16 tagIDLength = ( ( int ) tag << 6 );
+	
+	if( tagLength < 0x3F )
+	{
+		tagIDLength += tagLength;
+		WriteU16( tagIDLength );
+	}
+	else
+	{
+		tagIDLength += 0x3F;
+		WriteU16( tagIDLength );
+		WriteU32( tagLength );
+	}
 }
 
 

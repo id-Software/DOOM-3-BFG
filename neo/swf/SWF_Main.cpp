@@ -318,7 +318,7 @@ idSWF::idSWF( const char* filename_, idSoundWorld* soundWorld_ )
 		swfFileName += filename;
 		swfFileName.SetFileExtension( ".swf" );
 		
-		WriteSWF( swfFileName );
+		WriteSWF( swfFileName, atlasExportImageRGBA, atlasExportImageWidth, atlasExportImageHeight );
 	}
 	
 	if( atlasExportImageRGBA != NULL )

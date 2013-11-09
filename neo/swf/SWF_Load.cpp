@@ -146,7 +146,7 @@ idSWF::WriteSWF
 RB: bring .bswf back to .swf
 ===================
 */
-void idSWF::WriteSWF( const char* filename )
+void idSWF::WriteSWF( const char* filename, const byte* atlasImageRGBA, int atlasImageWidth, int atlasImageHeight )
 {
 	idFile_SWF file( fileSystem->OpenFileWrite( filename, "fs_basepath" ) );
 	if( file == NULL )
@@ -154,6 +154,7 @@ void idSWF::WriteSWF( const char* filename )
 		return;
 	}
 	
+	/*
 	swfHeader_t header;
 	header.W = 'W';
 	header.S = 'S';
@@ -161,6 +162,15 @@ void idSWF::WriteSWF( const char* filename )
 	header.compression = 'F';
 	
 	file.Write( &header, sizeof( header ) );
+	*/
+	
+	
+	file.WriteU8( 'F' );
+	file.WriteU8( 'W' );
+	file.WriteU8( 'S' );
+	file.WriteU8( 9 );
+	file.WriteU32( 0 );
+	
 	
 	
 	// TODO
@@ -169,9 +179,93 @@ void idSWF::WriteSWF( const char* filename )
 	frameSize.br.x = frameWidth;
 	frameSize.br.y = frameHeight;
 	
+	int fileSize1 = file->Length();
+	
 	file.WriteRect( frameSize );
 	
+	int fileSize2 = file->Length();
+	
 	file.WriteU16( frameRate );
+	
+	file.WriteU16( mainsprite->GetFrameCount() );
+	
+	// write FileAttributes tag required for Flash Version >= 8
+	file.WriteTagHeader( Tag_FileAttributes, 4 );
+	
+	file.WriteUBits( 0, 1 );				// Reserved, must be 0
+	file.WriteUBits( 0, 1 );				// UseDirectBlit
+	file.WriteUBits( 0, 1 );				// UseGPU
+	file.WriteUBits( 0, 1 );				// HasMetadata
+	
+	file.WriteUBits( 0, 1 );				// ActionScript3
+	file.WriteUBits( 0, 1 );				// Reserved, must be 0
+	file.WriteUBits( 0, 1 );				// UseNetwork
+	
+	file.WriteUBits( 0, 24 );				// Reserved, must be 0
+	
+	file.ByteAlign();
+	
+#if 1
+	for( int i = 0; i < dictionary.Num(); i++ )
+	{
+		const idSWFDictionaryEntry& entry = dictionary[i];
+		
+		//file->WriteFloatString( "\t<DictionaryEntry type=\"%s\">\n", idSWF::GetDictTypeName( dictionary[i].type ) );
+		switch( dictionary[i].type )
+		{
+			case SWF_DICT_IMAGE:
+			{
+				int width = atlasImageWidth;
+				int height = atlasImageHeight;
+				
+				// RB: add some extra space for zlib
+				idTempArray<byte> bitmapData( width * height * 4 * 1.02 + 12 );
+				uint32 colorDataSize = width * height * 4; //bitstream.Length() - bitstream.Tell();
+				int compressedDataSize = bitmapData.Size();
+				if( !Deflate( atlasImageRGBA, colorDataSize, ( byte* )bitmapData.Ptr(), compressedDataSize ) )
+				{
+					idLib::Warning( "DefineBitsLossless: Failed to deflate bitmap data" );
+					//return;
+				}
+				
+				int tagLength = ( 2 + 1 + 2 + 2 ) + compressedDataSize;
+				
+				file.WriteTagHeader( Tag_DefineBitsLossless, tagLength );
+				
+				file.WriteU16( i );						// characterID
+				file.WriteU8( 5 );						// format
+				file.WriteU16( entry.imageSize[0] );	// width
+				file.WriteU16( entry.imageSize[1] );	// height
+				
+				
+				
+				
+				
+				file->Write( bitmapData.Ptr(), compressedDataSize );
+				
+				//file->WriteFloatString( "\t\t<Image characterID=\"%i\" material=\"", i );
+				/*
+				if( dictionary[i].material )
+				{
+					file->WriteFloatString( "%s\"", dictionary[i].material->GetName() );
+				}
+				else
+				{
+					file->WriteFloatString( ".\"" );
+				}
+				
+				file->WriteFloatString( " width=\"%i\" height=\"%i\" atlasOffsetX=\"%i\" atlasOffsetY=\"%i\">\n",
+										entry.imageSize[0], entry.imageSize[1], entry.imageAtlasOffset[0], entry.imageAtlasOffset[1] );
+				
+				file->WriteFloatString( "\t\t\t<ChannelScale x=\"%f\" y=\"%f\" z=\"%f\" w=\"%f\"/>\n", entry.channelScale.x, entry.channelScale.y, entry.channelScale.z, entry.channelScale.w );
+				
+				file->WriteFloatString( "\t\t</Image>\n" );
+				*/
+				break;
+			}
+		}
+	}
+#endif
 	
 	// parse everything
 	//mainsprite->Load( bitstream, true );
@@ -186,13 +280,14 @@ void idSWF::WriteSWF( const char* filename )
 	//Mem_Free( fileData );
 	
 	// add Tag_End
-	file.WriteU16( Tag_End );
+	file.WriteTagHeader( Tag_End, 0 );
 	
 	// go back and write filesize into header
 	uint32 fileSize = file->Length();
 	
-	file->Seek( offsetof( swfHeader_t, fileLength ), FS_SEEK_SET );
-	file->WriteBig( fileSize );
+	uint32 headerFileLengthOfs = offsetof( swfHeader_t, fileLength );
+	file->Seek( headerFileLengthOfs, FS_SEEK_SET );
+	file.WriteU32( fileSize );
 }
 
 /*
