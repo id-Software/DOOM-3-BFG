@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "precompiled.h"
 #include "../renderer/Font.h"
+#include "../renderer/Image.h"
 
 #pragma warning(disable: 4355) // 'this' : used in base member initializer list
 
@@ -139,22 +140,15 @@ bool idSWF::LoadSWF( const char* fullpath )
 	return true;
 }
 
-/*
-===================
-idSWF::WriteSWF
-
-RB: bring .bswf back to .swf
-===================
-*/
-void idSWF::WriteSWF( const char* filename, const byte* atlasImageRGBA, int atlasImageWidth, int atlasImageHeight )
+// RB: write new .swf with only the information we care about
+void idSWF::WriteSWF( const char* swfFilename, const byte* atlasImageRGBA, int atlasImageWidth, int atlasImageHeight )
 {
-	idFile_SWF file( fileSystem->OpenFileWrite( filename, "fs_basepath" ) );
+	idFile_SWF file( fileSystem->OpenFileWrite( swfFilename, "fs_basepath" ) );
 	if( file == NULL )
 	{
 		return;
 	}
 	
-	/*
 	swfHeader_t header;
 	header.W = 'W';
 	header.S = 'S';
@@ -162,34 +156,22 @@ void idSWF::WriteSWF( const char* filename, const byte* atlasImageRGBA, int atla
 	header.compression = 'F';
 	
 	file.Write( &header, sizeof( header ) );
-	*/
-	
-	
-	file.WriteU8( 'F' );
-	file.WriteU8( 'W' );
-	file.WriteU8( 'S' );
-	file.WriteU8( 9 );
-	file.WriteU32( 0 );
-	
-	
-	
-	// TODO
 	
 	swfRect_t frameSize;
 	frameSize.br.x = frameWidth;
 	frameSize.br.y = frameHeight;
 	
-	int fileSize1 = file->Length();
+	//int fileSize1 = file->Length();
 	
 	file.WriteRect( frameSize );
 	
-	int fileSize2 = file->Length();
+	//int fileSize2 = file->Length();
 	
 	file.WriteU16( frameRate );
 	
 	file.WriteU16( mainsprite->GetFrameCount() );
 	
-	// write FileAttributes tag required for Flash Version >= 8
+	// write FileAttributes tag required for Flash version >= 8
 	file.WriteTagHeader( Tag_FileAttributes, 4 );
 	
 	file.WriteUBits( 0, 1 );				// Reserved, must be 0
@@ -205,7 +187,6 @@ void idSWF::WriteSWF( const char* filename, const byte* atlasImageRGBA, int atla
 	
 	file.ByteAlign();
 	
-#if 1
 	for( int i = 0; i < dictionary.Num(); i++ )
 	{
 		const idSWFDictionaryEntry& entry = dictionary[i];
@@ -215,14 +196,51 @@ void idSWF::WriteSWF( const char* filename, const byte* atlasImageRGBA, int atla
 		{
 			case SWF_DICT_IMAGE:
 			{
-				int width = atlasImageWidth;
-				int height = atlasImageHeight;
+				int width = entry.imageSize[0];
+				int height = entry.imageSize[1];
+				
+				uint32 colorDataSize = width * height * 4;
+				idTempArray<byte> colorData( colorDataSize );
+				
+				idTempArray<byte> pngData( colorDataSize );
+				
+				for( int h = 0; h < height; h++ )
+				{
+					for( int w = 0; w < width; w++ )
+					{
+						int atlasPixelOfs = ( entry.imageAtlasOffset[0] + w + ( ( entry.imageAtlasOffset[1] + h ) * atlasImageWidth ) ) * 4;
+						
+						//atlasPixelOfs = idMath::ClampInt( atlasPixelOfs
+						
+						const byte* atlasPixel = atlasImageRGBA + atlasPixelOfs;
+						
+						byte* pixel = &colorData[( w + ( h * width ) ) * 4];
+						
+						pixel[0] = atlasPixel[3];
+						pixel[1] = atlasPixel[0];
+						pixel[2] = atlasPixel[1];
+						pixel[3] = atlasPixel[2];
+						
+						pixel = &pngData[( w + ( h * width ) ) * 4];
+						pixel[0] = atlasPixel[0];
+						pixel[1] = atlasPixel[1];
+						pixel[2] = atlasPixel[2];
+						pixel[3] = atlasPixel[3];
+					}
+				}
+				
+				idStr imageExportFileName;
+				idStr filenameWithoutExt = filename;
+				filenameWithoutExt.StripFileExtension();
+				sprintf( imageExportFileName, "generated/%s/image_characterid_%i.png", filenameWithoutExt.c_str(), i );
+				
+				R_WritePNG( imageExportFileName.c_str(), pngData.Ptr(), 4, width, height, true, "fs_basepath" );
 				
 				// RB: add some extra space for zlib
-				idTempArray<byte> bitmapData( width * height * 4 * 1.02 + 12 );
-				uint32 colorDataSize = width * height * 4; //bitstream.Length() - bitstream.Tell();
-				int compressedDataSize = bitmapData.Size();
-				if( !Deflate( atlasImageRGBA, colorDataSize, ( byte* )bitmapData.Ptr(), compressedDataSize ) )
+				idTempArray<byte> compressedData( width * height * 4 * 1.02 + 12 );
+				int compressedDataSize = compressedData.Size();
+				
+				if( !Deflate( colorData.Ptr(), colorDataSize, ( byte* )compressedData.Ptr(), compressedDataSize ) )
 				{
 					idLib::Warning( "DefineBitsLossless: Failed to deflate bitmap data" );
 					//return;
@@ -230,18 +248,13 @@ void idSWF::WriteSWF( const char* filename, const byte* atlasImageRGBA, int atla
 				
 				int tagLength = ( 2 + 1 + 2 + 2 ) + compressedDataSize;
 				
-				file.WriteTagHeader( Tag_DefineBitsLossless, tagLength );
+				file.WriteTagHeader( Tag_DefineBitsLossless2, tagLength );
 				
 				file.WriteU16( i );						// characterID
 				file.WriteU8( 5 );						// format
-				file.WriteU16( entry.imageSize[0] );	// width
-				file.WriteU16( entry.imageSize[1] );	// height
-				
-				
-				
-				
-				
-				file->Write( bitmapData.Ptr(), compressedDataSize );
+				file.WriteU16( width );					// width
+				file.WriteU16( height );				// height
+				file->Write( compressedData.Ptr(), compressedDataSize );
 				
 				//file->WriteFloatString( "\t\t<Image characterID=\"%i\" material=\"", i );
 				/*
@@ -265,19 +278,9 @@ void idSWF::WriteSWF( const char* filename, const byte* atlasImageRGBA, int atla
 			}
 		}
 	}
-#endif
 	
 	// parse everything
 	//mainsprite->Load( bitstream, true );
-	
-	// now that all images have been loaded, write out the combined image
-	//idStr atlasFileName = "generated/";
-	//atlasFileName += fullpath;
-	//atlasFileName.SetFileExtension( ".tga" );
-	
-	//WriteSwfImageAtlas( atlasFileName );
-	
-	//Mem_Free( fileData );
 	
 	// add Tag_End
 	file.WriteTagHeader( Tag_End, 0 );
@@ -285,10 +288,10 @@ void idSWF::WriteSWF( const char* filename, const byte* atlasImageRGBA, int atla
 	// go back and write filesize into header
 	uint32 fileSize = file->Length();
 	
-	uint32 headerFileLengthOfs = offsetof( swfHeader_t, fileLength );
-	file->Seek( headerFileLengthOfs, FS_SEEK_SET );
+	file->Seek( offsetof( swfHeader_t, fileLength ), FS_SEEK_SET );
 	file.WriteU32( fileSize );
 }
+// RB end
 
 /*
 ===================

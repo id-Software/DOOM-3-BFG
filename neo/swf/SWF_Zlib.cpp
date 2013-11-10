@@ -85,7 +85,7 @@ bool idSWF::Deflate( const byte* input, int inputSize, byte* output, int& output
 	stream.zalloc = local_swf_alloc_t::zalloc;
 	stream.zfree = local_swf_alloc_t::zfree;
 	
-	int err = deflateInit( &stream, Z_NO_COMPRESSION );
+	int err = deflateInit( &stream, Z_DEFAULT_COMPRESSION );
 	if( err != Z_OK )
 		return false;
 		
