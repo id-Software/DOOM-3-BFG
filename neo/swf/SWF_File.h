@@ -80,6 +80,7 @@ public:
 	
 	void			WriteRect( const swfRect_t& rect );
 	
+	static int32	GetTagHeaderSize( swfTag_t tag, int32 tagLength );
 	void			WriteTagHeader( swfTag_t tag, int32 tagLength );
 	
 private:

@@ -276,11 +276,16 @@ void idSWF::WriteSWF( const char* swfFilename, const byte* atlasImageRGBA, int a
 				*/
 				break;
 			}
+			
+			case SWF_DICT_SPRITE:
+			{
+				dictionary[i].sprite->WriteSWF( file, i );
+				break;
+			}
 		}
 	}
 	
-	// parse everything
-	//mainsprite->Load( bitstream, true );
+	mainsprite->WriteSWF( file, dictionary.Num() );
 	
 	// add Tag_End
 	file.WriteTagHeader( Tag_End, 0 );

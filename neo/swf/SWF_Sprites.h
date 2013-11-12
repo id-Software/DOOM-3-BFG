@@ -54,6 +54,8 @@ public:
 	void	WriteXML_RemoveObject2( idFile* f, idSWFBitStream& bitstream, const char* indentPrefix = "" );
 	void	WriteXML_DoAction( idFile* f, idSWFBitStream& bitstream, const char* indentPrefix = "" );
 	
+	void	WriteSWF( idFile_SWF& f, int characterID = -1 );
+	
 	uint16	GetFrameCount()
 	{
 		return frameCount;

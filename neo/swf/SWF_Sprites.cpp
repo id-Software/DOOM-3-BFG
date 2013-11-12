@@ -546,7 +546,7 @@ void idSWFSprite::WriteXML_RemoveObject2( idFile* file, idSWFBitStream& bitstrea
 {
 	int depth = bitstream.ReadU16();
 	
-	file->WriteFloatString( "%s\t<RemoveObject2 depth=\"%i\"/>", indentPrefix, depth );
+	file->WriteFloatString( "%s\t<RemoveObject2 depth=\"%i\"/>\n", indentPrefix, depth );
 }
 
 void idSWFSprite::WriteXML_DoAction( idFile* file, idSWFBitStream& bitstream, const char* indentPrefix )
@@ -556,6 +556,81 @@ void idSWFSprite::WriteXML_DoAction( idFile* file, idSWFBitStream& bitstream, co
 	base64.Encode( bitstream.Ptr(), bitstream.Length() );
 	
 	file->WriteFloatString( "%s\t<DoAction streamLength=\"%i\">%s</DoAction>\n", indentPrefix, bitstream.Length(), base64.c_str() );
+}
+
+
+void idSWFSprite::WriteSWF( idFile_SWF& f, int characterID )
+{
+	int tagLength = 4;
+	
+	for( int i = 0; i < doInitActions.Num(); i++ )
+	{
+		tagLength += idFile_SWF::GetTagHeaderSize( Tag_DoInitAction, doInitActions[i].Length() );
+		tagLength += doInitActions[i].Length();
+	}
+	
+	for( int i = 0; i < commands.Num(); i++ )
+	{
+		idSWFSprite::swfSpriteCommand_t& command = commands[i];
+		
+		switch( command.tag )
+		{
+			case Tag_PlaceObject2:
+				//case Tag_PlaceObject3:
+				//case Tag_RemoveObject2:
+				//case Tag_DoAction:
+				tagLength += idFile_SWF::GetTagHeaderSize( command.tag, command.stream.Length() );
+				tagLength += command.stream.Length();
+				break;
+				
+			default:
+				break;
+				//idLib::Printf( "Export Sprite: Unhandled tag %s\n", idSWF::GetTagName( command.tag ) );
+		}
+	}
+	
+	f.WriteTagHeader( Tag_DefineSprite, tagLength );
+	
+	f.WriteU16( characterID );
+	f.WriteU16( frameCount );
+	
+	
+	/*
+	for( int i = 0; i < frameLabels.Num(); i++ )
+	{
+		f->WriteFloatString( "%s\t<FrameLabel frameNum=\"%i\" frameLabel=\"%s\"/>\n", indentPrefix, frameLabels[i].frameNum, frameLabels[i].frameLabel.c_str() );
+	}
+	*/
+	
+	for( int i = 0; i < doInitActions.Num(); i++ )
+	{
+		f.WriteTagHeader( Tag_DoInitAction, doInitActions[i].Length() );
+		f.Write( doInitActions[i].Ptr(), doInitActions[i].Length() );
+	}
+	
+	for( int i = 0; i < commands.Num(); i++ )
+	{
+		idSWFSprite::swfSpriteCommand_t& command = commands[i];
+		
+		command.stream.Rewind();
+		switch( command.tag )
+		{
+			case Tag_PlaceObject2:
+				//case Tag_PlaceObject3:
+				//case Tag_RemoveObject2:
+				//case Tag_DoAction:
+				f.WriteTagHeader( command.tag, command.stream.Length() );
+				f.Write( command.stream.Ptr(), command.stream.Length() );
+				break;
+				
+			default:
+				break;
+				//idLib::Printf( "Export Sprite: Unhandled tag %s\n", idSWF::GetTagName( command.tag ) );
+		}
+		
+	}
+	
+	f.WriteTagHeader( Tag_End, 0 );
 }
 
 // RB end

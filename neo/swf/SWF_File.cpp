@@ -146,4 +146,16 @@ void idFile_SWF::WriteTagHeader( swfTag_t tag, int32 tagLength )
 	}
 }
 
+int32 idFile_SWF::GetTagHeaderSize( swfTag_t tag, int32 tagLength )
+{
+	int32 size = 2;
+	
+	if( tagLength >= 0x3F )
+	{
+		size = 6;
+	}
+	
+	return size;
+}
+
 
