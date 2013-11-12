@@ -44,15 +44,69 @@ idFile_SWF::~idFile_SWF()
 
 
 
-//uint idFile_SWF::GetNumBits( int64 value, bool isSigned )
-//{
-//	//return idMath::BitCount(
-//}
-
-uint idFile_SWF::GetNumBitsInt( const int value )
+int idFile_SWF::BitCountS( const int value )
 {
-	return idMath::BitCount( value );
+	//int nBits = idMath::BitCount( value );
+	
+	
+	int count = 0;
+	
+	int v = value;
+	while( v > 0 )
+	{
+		if( ( v & 1 ) == 1 )
+		{
+			// lower bit is set
+			count++;
+		}
+		
+		// shift bits, remove lower bit
+		v >>= 1;
+	}
+	
+	return count;
 }
+
+int idFile_SWF::BitCountU( const int value )
+{
+	int nBits = idMath::BitCount( value );
+	
+	return nBits;
+}
+
+int idFile_SWF::BitCountFloat( const float value )
+{
+	int value2 = ( int ) value;
+	
+	int nBits = BitCountS( value2 );
+	
+	return nBits;
+}
+
+int idFile_SWF::EnlargeBitCountS( const int value, int numBits )
+{
+	int n = BitCountS( value );
+	if( n > numBits )
+	{
+		numBits = n;
+	}
+	
+	return numBits;
+}
+
+int idFile_SWF::EnlargeBitCountU( const int value, int numBits )
+{
+	int n = BitCountU( value );
+	if( n > numBits )
+	{
+		numBits = n;
+	}
+	
+	return numBits;
+}
+
+
+
 
 int	idFile_SWF::Write( const void* buffer, int len )
 {
@@ -117,10 +171,10 @@ void idFile_SWF::WriteRect( const swfRect_t& rect )
 {
 	int nBits = rect.BitCount();
 	
-	int tl_x = PIXEL2SWFTWIP( rect.tl.x );
-	int br_x = PIXEL2SWFTWIP( rect.br.x );
-	int tl_y = PIXEL2SWFTWIP( rect.tl.y );
-	int br_y = PIXEL2SWFTWIP( rect.br.y );
+	int tl_x = FLOAT2SWFTWIP( rect.tl.x );
+	int br_x = FLOAT2SWFTWIP( rect.br.x );
+	int tl_y = FLOAT2SWFTWIP( rect.tl.y );
+	int br_y = FLOAT2SWFTWIP( rect.br.y );
 	
 	WriteUBits( nBits, 5 );
 	WriteSBits( tl_x, nBits );
@@ -128,6 +182,76 @@ void idFile_SWF::WriteRect( const swfRect_t& rect )
 	WriteSBits( tl_y, nBits );
 	WriteSBits( br_y, nBits );
 }
+
+void idFile_SWF::WriteMatrix( const swfMatrix_t& matrix )
+{
+	//ByteAlign();
+	
+	bool hasScale = ( matrix.xx != 1.0f || matrix.yy != 1.0f );
+	WriteUBits( hasScale ? 1 : 0, 1 );
+	
+	if( hasScale )
+	{
+		int nBits = 0;
+		
+		int xx = FLOAT2SWFFIXED16( matrix.xx );
+		int yy = FLOAT2SWFFIXED16( matrix.yy );
+		
+		nBits = EnlargeBitCountS( xx, nBits );
+		nBits = EnlargeBitCountS( yy, nBits );
+		
+		WriteUBits( 5, nBits );
+		WriteSBits( xx, nBits );
+		WriteSBits( yy, nBits );
+	}
+	
+	bool hasRotate = ( matrix.yx != 0 && matrix.xy != 0 );
+	WriteUBits( hasRotate ? 1 : 0, 1 );
+	
+	if( hasRotate )
+	{
+		int nBits = 0;
+		
+		int yx = FLOAT2SWFFIXED16( matrix.yx );
+		int xy = FLOAT2SWFFIXED16( matrix.xy );
+		
+		nBits = EnlargeBitCountS( yx, nBits );
+		nBits = EnlargeBitCountS( xy, nBits );
+		
+		WriteUBits( 5, nBits );
+		WriteSBits( yx, nBits );
+		WriteSBits( xy, nBits );
+	}
+	
+	int nBits = 0;
+	int tx = FLOAT2SWFTWIP( matrix.tx );
+	int ty = FLOAT2SWFTWIP( matrix.ty );
+	
+	nBits = EnlargeBitCountS( tx, nBits );
+	nBits = EnlargeBitCountS( ty, nBits );
+	
+	WriteUBits( 5, nBits );
+	WriteSBits( tx, nBits );
+	WriteSBits( ty, nBits );
+	
+	ByteAlign();
+}
+
+void idFile_SWF::WriteColorRGB( const swfColorRGB_t& color )
+{
+	WriteByte( color.r );
+	WriteByte( color.g );
+	WriteByte( color.b );
+}
+
+void idFile_SWF::WriteColorRGBA( const swfColorRGBA_t& color )
+{
+	WriteByte( color.r );
+	WriteByte( color.g );
+	WriteByte( color.b );
+	WriteByte( color.a );
+}
+
 
 void idFile_SWF::WriteTagHeader( swfTag_t tag, int32 tagLength )
 {

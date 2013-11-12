@@ -561,6 +561,10 @@ void idSWFSprite::WriteXML_DoAction( idFile* file, idSWFBitStream& bitstream, co
 
 void idSWFSprite::WriteSWF( idFile_SWF& f, int characterID )
 {
+	// TODO frameLabels
+	
+	// TODO Tag_ShowFrames
+	
 	int tagLength = 4;
 	
 	for( int i = 0; i < doInitActions.Num(); i++ )
@@ -576,16 +580,16 @@ void idSWFSprite::WriteSWF( idFile_SWF& f, int characterID )
 		switch( command.tag )
 		{
 			case Tag_PlaceObject2:
-				//case Tag_PlaceObject3:
-				//case Tag_RemoveObject2:
-				//case Tag_DoAction:
+			case Tag_PlaceObject3:
+			case Tag_RemoveObject2:
+			case Tag_DoAction:
 				tagLength += idFile_SWF::GetTagHeaderSize( command.tag, command.stream.Length() );
 				tagLength += command.stream.Length();
 				break;
 				
 			default:
-				break;
 				//idLib::Printf( "Export Sprite: Unhandled tag %s\n", idSWF::GetTagName( command.tag ) );
+				break;
 		}
 	}
 	
@@ -593,6 +597,7 @@ void idSWFSprite::WriteSWF( idFile_SWF& f, int characterID )
 	
 	f.WriteU16( characterID );
 	f.WriteU16( frameCount );
+	
 	
 	
 	/*
@@ -616,16 +621,16 @@ void idSWFSprite::WriteSWF( idFile_SWF& f, int characterID )
 		switch( command.tag )
 		{
 			case Tag_PlaceObject2:
-				//case Tag_PlaceObject3:
-				//case Tag_RemoveObject2:
-				//case Tag_DoAction:
+			case Tag_PlaceObject3:
+			case Tag_RemoveObject2:
+			case Tag_DoAction:
 				f.WriteTagHeader( command.tag, command.stream.Length() );
 				f.Write( command.stream.Ptr(), command.stream.Length() );
 				break;
 				
 			default:
-				break;
 				//idLib::Printf( "Export Sprite: Unhandled tag %s\n", idSWF::GetTagName( command.tag ) );
+				break;
 		}
 		
 	}

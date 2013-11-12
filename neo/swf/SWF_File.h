@@ -65,9 +65,12 @@ public:
 	}
 	
 	
-	uint			GetNumBits( int64 value, bool isSigned );
-	uint			GetNumBitsInt( const int value );
-	uint			GetNumBitsFloat( const int value );
+	static int		BitCountS( const int value );
+	static int		BitCountU( const int value );
+	static int		BitCountFloat( const float value );
+	
+	static int		EnlargeBitCountS( const int value, int numBits );
+	static int		EnlargeBitCountU( const int value, int numBits );
 	
 	virtual int		Write( const void* buffer, int len );
 	
@@ -79,6 +82,9 @@ public:
 	void			WriteU32( uint32 value );
 	
 	void			WriteRect( const swfRect_t& rect );
+	void			WriteMatrix( const swfMatrix_t& matrix );
+	void			WriteColorRGB( const swfColorRGB_t& color );
+	void			WriteColorRGBA( const swfColorRGBA_t& color );
 	
 	static int32	GetTagHeaderSize( swfTag_t tag, int32 tagLength );
 	void			WriteTagHeader( swfTag_t tag, int32 tagLength );

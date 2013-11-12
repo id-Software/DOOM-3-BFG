@@ -42,10 +42,17 @@ ID_INLINE float SWFFIXED8( int fixed )
 	return fixed * ( 1.0f / 256.0f );
 }
 
-ID_INLINE int PIXEL2SWFTWIP( float pixel )
+// RB begin
+ID_INLINE int FLOAT2SWFTWIP( float value )
 {
-	return ( int )( pixel * 20 );
+	return ( int )( value * 20 );
 }
+
+ID_INLINE int FLOAT2SWFFIXED16( float value )
+{
+	return ( int )( value * 65536 );
+}
+// RB end
 
 struct swfHeader_t
 {

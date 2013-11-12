@@ -191,7 +191,6 @@ void idSWF::WriteSWF( const char* swfFilename, const byte* atlasImageRGBA, int a
 	{
 		const idSWFDictionaryEntry& entry = dictionary[i];
 		
-		//file->WriteFloatString( "\t<DictionaryEntry type=\"%s\">\n", idSWF::GetDictTypeName( dictionary[i].type ) );
 		switch( dictionary[i].type )
 		{
 			case SWF_DICT_IMAGE:
@@ -255,37 +254,128 @@ void idSWF::WriteSWF( const char* swfFilename, const byte* atlasImageRGBA, int a
 				file.WriteU16( width );					// width
 				file.WriteU16( height );				// height
 				file->Write( compressedData.Ptr(), compressedDataSize );
-				
-				//file->WriteFloatString( "\t\t<Image characterID=\"%i\" material=\"", i );
-				/*
-				if( dictionary[i].material )
-				{
-					file->WriteFloatString( "%s\"", dictionary[i].material->GetName() );
-				}
-				else
-				{
-					file->WriteFloatString( ".\"" );
-				}
-				
-				file->WriteFloatString( " width=\"%i\" height=\"%i\" atlasOffsetX=\"%i\" atlasOffsetY=\"%i\">\n",
-										entry.imageSize[0], entry.imageSize[1], entry.imageAtlasOffset[0], entry.imageAtlasOffset[1] );
-				
-				file->WriteFloatString( "\t\t\t<ChannelScale x=\"%f\" y=\"%f\" z=\"%f\" w=\"%f\"/>\n", entry.channelScale.x, entry.channelScale.y, entry.channelScale.z, entry.channelScale.w );
-				
-				file->WriteFloatString( "\t\t</Image>\n" );
-				*/
 				break;
 			}
 			
+#if 1
+			case SWF_DICT_SHAPE:
+			{
+				idSWFShape* shape = dictionary[i].shape;
+				
+				
+				
+				int numFillDraws = 0;
+				for( int d = 0; d < shape->fillDraws.Num(); d++ )
+				{
+					idSWFShapeDrawFill& fillDraw = shape->fillDraws[d];
+					
+					if( fillDraw.style.type == 0 )
+					{
+						numFillDraws++;
+					}
+				}
+				
+				if( numFillDraws == 0 )
+				{
+					continue;
+				}
+				
+				idFile_Memory* tagMem = new idFile_Memory( "shapeTag" );
+				idFile_SWF tag( tagMem );
+				
+				tag.WriteU16( i );						// characterID
+				tag.WriteRect( shape->startBounds );
+				
+				tag.WriteU8( 0xFF );
+				tag.WriteU16( numFillDraws );
+				
+				for( int d = 0; d < shape->fillDraws.Num(); d++ )
+				{
+					idSWFShapeDrawFill& fillDraw = shape->fillDraws[d];
+					
+					
+					if( fillDraw.style.type == 0 )
+					{
+						tag.WriteColorRGBA( fillDraw.style.startColor );
+					}
+					/*
+					else
+					
+					if( fillDraw.style.type == 4 )
+					{
+						//uint8 styleType = ( ( int ) fillDraw.style.type << 4 );
+						tag.WriteU8( 0x40 );
+					
+						// bitmap
+						tag.WriteU16( fillDraw.style.bitmapID );
+						tag.WriteMatrix( fillDraw.style.startMatrix );
+					}
+					*/
+					
+					// type: 0 = solid, 1 = gradient, 4 = bitmap
+					//if( fillDraw.style.type == 0 )
+					
+					//file->WriteBig( fillDraw.style.type );
+					//file->WriteBig( fillDraw.style.subType );
+					//file->Write( &fillDraw.style.startColor, 4 );
+					//file->Write( &fillDraw.style.endColor, 4 );
+					/*file->WriteBigArray( ( float* )&fillDraw.style.startMatrix, 6 );
+					file->WriteBigArray( ( float* )&fillDraw.style.endMatrix, 6 );
+					file->WriteBig( fillDraw.style.gradient.numGradients );
+					for( int g = 0; g < fillDraw.style.gradient.numGradients; g++ )
+					{
+						file->WriteBig( fillDraw.style.gradient.gradientRecords[g].startRatio );
+						file->WriteBig( fillDraw.style.gradient.gradientRecords[g].endRatio );
+						file->Write( &fillDraw.style.gradient.gradientRecords[g].startColor, 4 );
+						file->Write( &fillDraw.style.gradient.gradientRecords[g].endColor, 4 );
+					}
+					file->WriteBig( fillDraw.style.focalPoint );
+					file->WriteBig( fillDraw.style.bitmapID );
+					file->WriteBig( fillDraw.startVerts.Num() );
+					file->WriteBigArray( fillDraw.startVerts.Ptr(), fillDraw.startVerts.Num() );
+					file->WriteBig( fillDraw.endVerts.Num() );
+					file->WriteBigArray( fillDraw.endVerts.Ptr(), fillDraw.endVerts.Num() );
+					file->WriteBig( fillDraw.indices.Num() );
+					file->WriteBigArray( fillDraw.indices.Ptr(), fillDraw.indices.Num() );*/
+				}
+				
+				// TODO
+				tag.WriteU8( 0xFF );
+				tag.WriteU16( 0 );
+				
+				/*
+				file->WriteBig( shape->lineDraws.Num() );
+				for( int d = 0; d < shape->lineDraws.Num(); d++ )
+				{
+					idSWFShapeDrawLine& lineDraw = shape->lineDraws[d];
+					file->WriteBig( lineDraw.style.startWidth );
+					file->WriteBig( lineDraw.style.endWidth );
+					file->Write( &lineDraw.style.startColor, 4 );
+					file->Write( &lineDraw.style.endColor, 4 );
+					file->WriteBig( lineDraw.startVerts.Num() );
+					file->WriteBigArray( lineDraw.startVerts.Ptr(), lineDraw.startVerts.Num() );
+					file->WriteBig( lineDraw.endVerts.Num() );
+					file->WriteBigArray( lineDraw.endVerts.Ptr(), lineDraw.endVerts.Num() );
+					file->WriteBig( lineDraw.indices.Num() );
+					file->WriteBigArray( lineDraw.indices.Ptr(), lineDraw.indices.Num() );
+				}
+				*/
+				
+				file.WriteTagHeader( Tag_DefineShape3, tag->Length() );
+				file.Write( tagMem->GetDataPtr(), tagMem->Length() );
+				break;
+			}
+#endif
+			
 			case SWF_DICT_SPRITE:
 			{
-				dictionary[i].sprite->WriteSWF( file, i );
+				//dictionary[i].sprite->WriteSWF( file, i );
 				break;
 			}
 		}
 	}
 	
-	mainsprite->WriteSWF( file, dictionary.Num() );
+	//mainsprite->WriteSWF( file, dictionary.Num() );
 	
 	// add Tag_End
 	file.WriteTagHeader( Tag_End, 0 );
@@ -800,10 +890,12 @@ void idSWF::WriteXML( const char* filename )
 				{
 					idSWFShapeDrawFill& fillDraw = shape->fillDraws[d];
 					
+					/*
 					if( fillDraw.style.type != 4 )
 					{
 						continue;
 					}
+					*/
 					
 					file->WriteFloatString( "\t\t\t<DrawFill>\n" );
 					
