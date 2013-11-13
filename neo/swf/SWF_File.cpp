@@ -46,11 +46,11 @@ idFile_SWF::~idFile_SWF()
 
 int idFile_SWF::BitCountS( const int value )
 {
-	//int nBits = idMath::BitCount( value );
-	
-	
 	int count = 0;
 	
+#if 1
+	count = idMath::BitCount( value );
+#else
 	int v = value;
 	while( v > 0 )
 	{
@@ -59,10 +59,11 @@ int idFile_SWF::BitCountS( const int value )
 			// lower bit is set
 			count++;
 		}
-		
+	
 		// shift bits, remove lower bit
 		v >>= 1;
 	}
+#endif
 	
 	return count;
 }
@@ -110,6 +111,8 @@ int idFile_SWF::EnlargeBitCountU( const int value, int numBits )
 
 int	idFile_SWF::Write( const void* buffer, int len )
 {
+	ByteAlign();
+	
 	return file->Write( buffer, len );
 }
 
@@ -169,18 +172,25 @@ void idFile_SWF::WriteU32( uint32 value )
 
 void idFile_SWF::WriteRect( const swfRect_t& rect )
 {
-	int nBits = rect.BitCount();
-	
 	int tl_x = FLOAT2SWFTWIP( rect.tl.x );
 	int br_x = FLOAT2SWFTWIP( rect.br.x );
 	int tl_y = FLOAT2SWFTWIP( rect.tl.y );
 	int br_y = FLOAT2SWFTWIP( rect.br.y );
+	
+	int nBits = 0;
+	
+	nBits = EnlargeBitCountS( tl_x, nBits );
+	nBits = EnlargeBitCountS( br_x, nBits );
+	nBits = EnlargeBitCountS( tl_y, nBits );
+	nBits = EnlargeBitCountS( br_y, nBits );
 	
 	WriteUBits( nBits, 5 );
 	WriteSBits( tl_x, nBits );
 	WriteSBits( br_x, nBits );
 	WriteSBits( tl_y, nBits );
 	WriteSBits( br_y, nBits );
+	
+	ByteAlign();
 }
 
 void idFile_SWF::WriteMatrix( const swfMatrix_t& matrix )
@@ -239,6 +249,8 @@ void idFile_SWF::WriteMatrix( const swfMatrix_t& matrix )
 
 void idFile_SWF::WriteColorRGB( const swfColorRGB_t& color )
 {
+	ByteAlign();
+	
 	WriteByte( color.r );
 	WriteByte( color.g );
 	WriteByte( color.b );
@@ -246,6 +258,8 @@ void idFile_SWF::WriteColorRGB( const swfColorRGB_t& color )
 
 void idFile_SWF::WriteColorRGBA( const swfColorRGBA_t& color )
 {
+	ByteAlign();
+	
 	WriteByte( color.r );
 	WriteByte( color.g );
 	WriteByte( color.b );

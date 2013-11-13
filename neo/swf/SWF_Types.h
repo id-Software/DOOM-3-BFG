@@ -67,10 +67,6 @@ struct swfRect_t
 	swfRect_t();
 	idVec2 tl;
 	idVec2 br;
-	
-	// RB begin
-	int			BitCount() const;
-	// RB end
 };
 struct swfMatrix_t
 {

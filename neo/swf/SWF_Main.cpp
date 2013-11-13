@@ -46,20 +46,7 @@ bool idSWF::isMouseInClientArea = false;
 
 extern idCVar in_useJoystick;
 
-// RB begin
-int swfRect_t::BitCount() const
-{
-	int num = 0;
-	
-	num = idFile_SWF::EnlargeBitCountS( FLOAT2SWFTWIP( tl.x ), num );
-	num = idFile_SWF::EnlargeBitCountS( FLOAT2SWFTWIP( tl.y ), num );
-	num = idFile_SWF::EnlargeBitCountS( FLOAT2SWFTWIP( br.x ), num );
-	num = idFile_SWF::EnlargeBitCountS( FLOAT2SWFTWIP( br.x ), num );
-	
-	return num;
-}
 
-// RB end
 
 /*
 ===================

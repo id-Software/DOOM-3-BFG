@@ -269,7 +269,7 @@ void idSWF::WriteSWF( const char* swfFilename, const byte* atlasImageRGBA, int a
 				{
 					idSWFShapeDrawFill& fillDraw = shape->fillDraws[d];
 					
-					if( fillDraw.style.type == 0 )
+					if( fillDraw.style.type == 0 /* || fillDraw.style.type == 4 */ )
 					{
 						numFillDraws++;
 					}
@@ -286,8 +286,15 @@ void idSWF::WriteSWF( const char* swfFilename, const byte* atlasImageRGBA, int a
 				tag.WriteU16( i );						// characterID
 				tag.WriteRect( shape->startBounds );
 				
-				tag.WriteU8( 0xFF );
-				tag.WriteU16( numFillDraws );
+				if( numFillDraws >= 0xFF )
+				{
+					tag.WriteU8( 0xFF );
+					tag.WriteU16( numFillDraws );
+				}
+				else
+				{
+					tag.WriteU8( numFillDraws );
+				}
 				
 				for( int d = 0; d < shape->fillDraws.Num(); d++ )
 				{
@@ -296,21 +303,22 @@ void idSWF::WriteSWF( const char* swfFilename, const byte* atlasImageRGBA, int a
 					
 					if( fillDraw.style.type == 0 )
 					{
+						// solid
+						tag.WriteU8( 0x00 );
 						tag.WriteColorRGBA( fillDraw.style.startColor );
 					}
 					/*
 					else
-					
-					if( fillDraw.style.type == 4 )
+						if( fillDraw.style.type == 4 )
 					{
-						//uint8 styleType = ( ( int ) fillDraw.style.type << 4 );
+						// bitmap
 						tag.WriteU8( 0x40 );
 					
-						// bitmap
 						tag.WriteU16( fillDraw.style.bitmapID );
 						tag.WriteMatrix( fillDraw.style.startMatrix );
 					}
 					*/
+					
 					
 					// type: 0 = solid, 1 = gradient, 4 = bitmap
 					//if( fillDraw.style.type == 0 )
@@ -340,8 +348,8 @@ void idSWF::WriteSWF( const char* swfFilename, const byte* atlasImageRGBA, int a
 				}
 				
 				// TODO
-				tag.WriteU8( 0xFF );
-				tag.WriteU16( 0 );
+				tag.WriteU8( 0 ); // no lines
+				tag.WriteU8( 1 ); // no shapes
 				
 				/*
 				file->WriteBig( shape->lineDraws.Num() );
@@ -361,7 +369,7 @@ void idSWF::WriteSWF( const char* swfFilename, const byte* atlasImageRGBA, int a
 				}
 				*/
 				
-				file.WriteTagHeader( Tag_DefineShape3, tag->Length() );
+				file.WriteTagHeader( Tag_DefineShape3, tagMem->Length() );
 				file.Write( tagMem->GetDataPtr(), tagMem->Length() );
 				break;
 			}
