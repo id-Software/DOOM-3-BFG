@@ -26,9 +26,6 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-// DG: only build this for MSVC. ugly hack, I can't get cmake to delete this file from the list..
-#ifdef _MSC_VER
-
 #include "Precompiled.h"
 #include "globaldata.h"
 
@@ -1107,6 +1104,3 @@ int I_RegisterSong(void* data, int length)
 	// does nothing
 	return 0;
 }
-
-#endif // _MSC_VER
-// DG end
