@@ -69,9 +69,6 @@ If you have questions concerning this license or the applicable additional terms
 #define MIDI_FORMAT		AUDIO_U8
 #define MIDI_FORMAT_BYTES	1
 
-#define OPENAL_SCALE		0.008f
-
-
 ALuint		alMusicSourceVoice;
 ALuint		alMusicBuffer;
 
@@ -118,6 +115,11 @@ typedef struct {
 // in split screen we only process the loudest sound of each type per frame
 soundEvent_t soundEvents[128];
 extern int PLAYERCOUNT;
+
+// Source voice settings for all sound effects
+const ALfloat		SFX_MAX_DISTANCE = 1200.f;
+const ALfloat		SFX_REFERENCE_DISTANCE = 100.f;
+const ALfloat		SFX_ROLLOFF_FACTOR = 0.2f;
 
 // Real volumes
 const float		GLOBAL_VOLUME_MULTIPLIER = 0.5f;
@@ -323,8 +325,8 @@ int I_StartSound2 ( int id, int player, mobj_t *origin, mobj_t *listener_origin,
 			sound->localSound = true;
 		} else {
 			sound->localSound = false;
-			x = OPENAL_SCALE * (ALfloat)(origin->x >> FRACBITS);
-			z = OPENAL_SCALE * (ALfloat)(origin->y >> FRACBITS);
+			x = (ALfloat)(origin->x >> FRACBITS);
+			z = (ALfloat)(origin->y >> FRACBITS);
 		}
 	} else {
 		sound->localSound = true;
@@ -479,10 +481,9 @@ void I_UpdateSound( void )
 		doom_Listener.OrientFront.x = (float)(fx) / 65535.f;
 		doom_Listener.OrientFront.y = 0.f;
 		doom_Listener.OrientFront.z = (float)(fz) / 65535.f;
-		
-		doom_Listener.Position.x = OPENAL_SCALE * (float)(playerObj->x >> FRACBITS);
+		doom_Listener.Position.x = (float)(playerObj->x >> FRACBITS);
 		doom_Listener.Position.y = 0.f;
-		doom_Listener.Position.z = OPENAL_SCALE * (float)(playerObj->y >> FRACBITS);
+		doom_Listener.Position.z = (float)(playerObj->y >> FRACBITS);
 	} else {
 		doom_Listener.OrientFront.x = 0.f;
 		doom_Listener.OrientFront.y = 0.f;
@@ -493,9 +494,9 @@ void I_UpdateSound( void )
 		doom_Listener.Position.z = 0.f;
 	}
 	
-	ALfloat listenerOrientation[] = { doom_Listener.OrientTop.x, doom_Listener.OrientTop.y,
-		doom_Listener.OrientTop.z, doom_Listener.OrientFront.x, doom_Listener.OrientFront.y,
-		doom_Listener.OrientFront.z };
+	ALfloat listenerOrientation[] = { doom_Listener.OrientFront.x, doom_Listener.OrientFront.y,
+		doom_Listener.OrientFront.z, doom_Listener.OrientTop.x, doom_Listener.OrientTop.y,
+		doom_Listener.OrientTop.z };
 	alListenerfv( AL_ORIENTATION, listenerOrientation );
 	alListener3f( AL_POSITION, doom_Listener.Position.x, doom_Listener.Position.y, doom_Listener.Position.z );
 	
@@ -516,9 +517,9 @@ void I_UpdateSound( void )
 				alSource3f( sound->alSourceVoice, AL_POSITION, doom_Listener.Position.x,
 						doom_Listener.Position.y, doom_Listener.Position.z );
 			} else {
-				ALfloat x = OPENAL_SCALE * (ALfloat)(sound->originator->x >> FRACBITS);
+				ALfloat x = (ALfloat)(sound->originator->x >> FRACBITS);
 				ALfloat y = 0.f;
-				ALfloat z = OPENAL_SCALE * (ALfloat)(sound->originator->y >> FRACBITS);
+				ALfloat z = (ALfloat)(sound->originator->y >> FRACBITS);
 				
 				alSource3f( sound->alSourceVoice, AL_POSITION, x, y, z );
 			}
@@ -645,6 +646,9 @@ void I_InitSoundChannel( int channel, int numOutputChannels_ )
 	
 	alSource3f( soundchannel->alSourceVoice, AL_VELOCITY, 0.f, 0.f, 0.f );
 	alSourcef( soundchannel->alSourceVoice, AL_LOOPING, AL_FALSE );
+	alSourcef( soundchannel->alSourceVoice, AL_MAX_DISTANCE, SFX_MAX_DISTANCE );
+	alSourcef( soundchannel->alSourceVoice, AL_REFERENCE_DISTANCE, SFX_REFERENCE_DISTANCE );
+	alSourcef( soundchannel->alSourceVoice, AL_ROLLOFF_FACTOR, SFX_ROLLOFF_FACTOR );
 }
 
 /*
@@ -661,7 +665,7 @@ void I_InitSound()
 		doom_Listener.OrientFront.z	= 1.f;
 		
 		doom_Listener.OrientTop.x	= 0.f;
-		doom_Listener.OrientTop.y	= 1.f;
+		doom_Listener.OrientTop.y	= -1.f;
 		doom_Listener.OrientTop.z	= 0.f;
 		
 		doom_Listener.Position.x	= 0.f;
