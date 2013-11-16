@@ -42,7 +42,7 @@ If you have questions concerning this license or the applicable additional terms
 // in the program's command line arguments.
 // Returns the argument number (1 to argc-1)
 // or 0 if not present
-int M_CheckParm (char *check)
+int M_CheckParm (const char *check)
 {
     int		i;
 

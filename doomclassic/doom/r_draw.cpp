@@ -434,7 +434,7 @@ void R_InitTranslationTables (void)
 	int		i;
 
 	::g->translationtables = (byte*)DoomLib::Z_Malloc (256*3+255, PU_STATIC, 0);
-	::g->translationtables = (byte *)(( (int)::g->translationtables + 255 )& ~255);
+	::g->translationtables = (byte *)(( (intptr_t)::g->translationtables + 255 )& ~255);
 
 	// translate just the 16 green colors
 	for (i=0 ; i<256 ; i++)

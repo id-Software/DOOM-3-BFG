@@ -30,9 +30,6 @@ If you have questions concerning this license or the applicable additional terms
 // DG: this is a stub implementing the classic doom sound interface so we don't need XAudio to compile
 // (that doesn't work with MinGW and is only available on Windows)
 
-// DG: only build this for MSVC. ugly hack, I can't get cmake to delete this file from the list..
-#ifndef _MSC_VER
-
 #include "Precompiled.h"
 #include "i_sound.h"
 #include "w_wad.h"
@@ -64,6 +61,7 @@ int I_GetSfxLumpNum (sfxinfo_t* sfxinfo )
 	return W_GetNumForName(namebuf);
 }
 
+void I_ProcessSoundEvents( void ){}
 
 // Starts a sound in a particular sound channel.
 int I_StartSound( int id, mobj_t *origin, mobj_t *listener_origin, int vol, int pitch, int priority )
@@ -117,5 +115,3 @@ void I_UnRegisterSong(int handle){}
 
 // Update Music (XMP), check for notifications
 void I_UpdateMusic(void){}
-
-#endif // _MSC_VER not defined ; DG end

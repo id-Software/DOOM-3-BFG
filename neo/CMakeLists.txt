@@ -709,15 +709,17 @@ file(GLOB EDITOR_SCRIPT_SOURCES tools/script/*.cpp)
 
 file(GLOB EDITOR_SOUND_INCLUDES tools/sound/*.h)
 file(GLOB EDITOR_SOUND_SOURCES tools/sound/*.cpp)
-	
 
 file(GLOB DOOMCLASSIC_INCLUDES ../doomclassic/doom/*.h)
 file(GLOB DOOMCLASSIC_SOURCES ../doomclassic/doom/*.cpp)
 
-list(REMOVE_ITEM DOOMCLASSIC_SOURCES ../doomclassic/doom/i_net_ps3.cpp)
-list(REMOVE_ITEM DOOMCLASSIC_SOURCES ../doomclassic/doom/i_net_xbox.cpp)
-list(REMOVE_ITEM DOOMCLASSIC_SOURCES ../doomclassic/doom/i_video_ps3.cpp)
-list(REMOVE_ITEM DOOMCLASSIC_SOURCES ../doomclassic/doom/i_video_xbox.cpp)
+set(DOOMCLASSIC_STUBAUDIO_SOURCES ../doomclassic/doom/i_sound_stub.cpp)
+set(DOOMCLASSIC_OPENAL_SOURCES ../doomclassic/doom/i_sound_openal.cpp)
+set(DOOMCLASSIC_XAUDIO2_SOURCES ../doomclassic/doom/i_sound_win32.cpp)
+
+list(REMOVE_ITEM DOOMCLASSIC_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/../doomclassic/doom/i_sound_stub.cpp)
+list(REMOVE_ITEM DOOMCLASSIC_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/../doomclassic/doom/i_sound_openal.cpp)
+list(REMOVE_ITEM DOOMCLASSIC_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/../doomclassic/doom/i_sound_win32.cpp)
 
 file(GLOB TIMIDITY_INCLUDES libs/timidity/*.h)
 file(GLOB TIMIDITY_SOURCES libs/timidity/*.cpp)
@@ -906,6 +908,10 @@ source_group("sys" FILES ${SYS_SOURCES})
 source_group("doomclassic" FILES ${DOOMCLASSIC_INCLUDES})
 source_group("doomclassic" FILES ${DOOMCLASSIC_SOURCES})
 
+source_group("doomclassic" FILES ${DOOMCLASSIC_STUBAUDIO_SOURCES})
+source_group("doomclassic" FILES ${DOOMCLASSIC_OPENAL_SOURCES})
+source_group("doomclassic" FILES ${DOOMCLASSIC_XAUDIO2_SOURCES})
+
 source_group("libs\\timidity" FILES ${TIMIDITY_INCLUDES})
 source_group("libs\\timidity" FILES ${TIMIDITY_SOURCES})
 
@@ -1029,6 +1035,8 @@ set(RBDOOM3_INCLUDES
 			${UI_INCLUDES}
 			${SWF_INCLUDES}
 			${COMMON_INCLUDES}
+			${DOOMCLASSIC_INCLUDES}
+			${TIMIDITY_INCLUDES}
 			
 			#${COMPILER_INCLUDES}
 			#${COMPILER_AAS_INCLUDES} ${COMPILER_AAS_SOURCES}
@@ -1062,12 +1070,16 @@ set(RBDOOM3_SOURCES
 			${UI_SOURCES}
 			${SWF_SOURCES}
 			${COMMON_SOURCES}
+			${DOOMCLASSIC_SOURCES}
+			${TIMIDITY_SOURCES}
 			
 			#${COMPILER_AAS_SOURCES}
 			#${COMPILER_DMAP_SOURCES}
 			#${COMPILER_RENDERBUMP_SOURCES}
 			#${COMPILER_ROQVQ_SOURCES}
 			)
+
+add_definitions(-DUSE_DOOMCLASSIC)
 
 add_definitions(-D__DOOM__
 				#-DGLEW_STATIC
@@ -1143,7 +1155,9 @@ if(MSVC)
 		endif()
 		
 		list(APPEND RBDOOM3_INCLUDES ${OPENAL_INCLUDES})
-		list(APPEND RBDOOM3_SOURCES ${OPENAL_SOURCES})
+		list(APPEND RBDOOM3_SOURCES
+			${OPENAL_SOURCES}
+			${DOOMCLASSIC_OPENAL_SOURCES})
 		
 		set(OpenAL_LIBRARIES
 			OpenAL32)
@@ -1155,17 +1169,10 @@ if(MSVC)
 			install(FILES libs/openal-soft/lib/win32/OpenAL32.pdb DESTINATION .)
 		endif()
 	else()
-		add_definitions(-DUSE_DOOMCLASSIC)
-	
-		list(APPEND RBDOOM3_INCLUDES
-			${XAUDIO2_INCLUDES}
-			${DOOMCLASSIC_INCLUDES}
-			${TIMIDITY_INCLUDES})
-			
+		list(APPEND RBDOOM3_INCLUDES ${XAUDIO2_INCLUDES})
 		list(APPEND RBDOOM3_SOURCES
 			${XAUDIO2_SOURCES}
-			${DOOMCLASSIC_SOURCES}
-			${TIMIDITY_SOURCES})
+			${DOOMCLASSIC_XAUDIO2_SOURCES})
 	endif()
 	
 	if(USE_MFC_TOOLS)
@@ -1218,8 +1225,6 @@ if(MSVC)
 	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/jobs/staticshadowvolume/StaticShadowVolume.cpp)
 	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/jobs/ShadowShared.cpp)
 	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/RenderLog.cpp)
-	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/../doomclassic/doom/i_sound_stub.cpp)
-	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/../doomclassic/doom/i_sound_win32.cpp)
 	
 	foreach( src_file ${RBDOOM3_PRECOMPILED_SOURCES} )
 		#message(STATUS "/Yuprecompiled.h for ${src_file}")
@@ -1276,12 +1281,9 @@ else()
 		${SYS_INCLUDES} ${SYS_SOURCES})
 	
 	if(WIN32)
-		add_definitions(-DUSE_DOOMCLASSIC)
-	
 		list(APPEND RBDOOM3_SOURCES
-			${DOOMCLASSIC_INCLUDES} ${DOOMCLASSIC_SOURCES}
-			${TIMIDITY_INCLUDES} ${TIMIDITY_SOURCES}
-			${WIN32_INCLUDES} ${WIN32_SOURCES} ${WIN32_RESOURCES})  
+			${WIN32_INCLUDES} ${WIN32_SOURCES} ${WIN32_RESOURCES}
+			${DOOMCLASSIC_STUBAUDIO_SOURCES})
 	
 		#list(REMOVE_ITEM WIN32_SOURCES sys/win32/win_cpu.cpp)
 		list(APPEND WIN32_SOURCES sys/sdl/sdl_cpu.cpp)
@@ -1317,10 +1319,14 @@ else()
 			#endif()
 			
 			list(APPEND RBDOOM3_INCLUDES ${OPENAL_INCLUDES})
-			list(APPEND RBDOOM3_SOURCES ${OPENAL_SOURCES})
+			list(APPEND RBDOOM3_SOURCES
+				${OPENAL_SOURCES}
+				${DOOMCLASSIC_OPENAL_SOURCES})
 		else()
 			list(APPEND RBDOOM3_INCLUDES ${STUBAUDIO_INCLUDES})
-			list(APPEND RBDOOM3_SOURCES ${STUBAUDIO_SOURCES})
+			list(APPEND RBDOOM3_SOURCES
+				${STUBAUDIO_SOURCES}
+				${DOOMCLASSIC_STUBAUDIO_SOURCES})
 		endif()
 			
 	endif()
@@ -1338,7 +1344,6 @@ else()
 	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/jobs/staticshadowvolume/StaticShadowVolume.cpp)
 	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/jobs/ShadowShared.cpp)
 	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/RenderLog.cpp)
-#	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/../doomclassic/doom/i_sound_stub.cpp)
 
 	foreach( src_file ${RBDOOM3_PRECOMPILED_SOURCES} )
 		#message(STATUS "-include precompiled.h for ${src_file}")

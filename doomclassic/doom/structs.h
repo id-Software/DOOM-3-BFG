@@ -53,7 +53,7 @@ typedef struct
 //  f_finale.structs begin // 
 typedef struct
 {
-    char		*name;
+    const char		*name;
     mobjtype_t	type;
 } castinfo_t;
 // f_finale.structs end // 
@@ -212,7 +212,7 @@ typedef enum
 //  m_misc.structs begin // 
 struct default_t
 {
-    char*	name;
+    const char*	name;
 	union {
 		int *			location;
 		const char * *	charLocation;
@@ -232,13 +232,13 @@ struct default_t
 		untranslated( 0 ) {
 	}
 
-	default_t( char * name_, int * location_, int defaultvalue_ ) :
+	default_t( const char * name_, int * location_, int defaultvalue_ ) :
 		name( name_ ),
 		location( location_ ),
 		defaultvalue( defaultvalue_ ) {
 	}
 
-	default_t( char * name_, const char * * charLocation_, const char * charDefault_ ) :
+	default_t( const char * name_, const char * * charLocation_, const char * charDefault_ ) :
 		name( name_ ),
 		charLocation( charLocation_ ),
 		charDefault( charDefault_ ) {
@@ -348,7 +348,10 @@ typedef struct
     int			masked;	
     short		width;
     short		height;
-    void		**columndirectory;	// OBSOLETE
+
+    // FR: Replaced obsolete void **columndirectory with int
+    // for 64-bit compatibility
+    int			columndirectory;	// OBSOLETE
     short		patchcount;
     mappatch_t	patches[1];
 } maptexture_t;

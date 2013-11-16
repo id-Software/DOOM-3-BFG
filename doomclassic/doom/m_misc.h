@@ -34,7 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 //
 // MISC
 //
-boolean
+bool
 M_WriteFile
 ( char const*	name,
   void*		source,

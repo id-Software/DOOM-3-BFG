@@ -54,9 +54,9 @@ extern void Real_Tim_Free( void *pt );
 
 typedef struct {
 	int rate, encoding;
-	char *id_name;
+	const char *id_name;
 	FILE* fp;
-	char *file_name;
+	const char *file_name;
 
 	int (*open_output)(void); /* 0=success, 1=warning, -1=fatal error */
 	void (*close_output)(void);
