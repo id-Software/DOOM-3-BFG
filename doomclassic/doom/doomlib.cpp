@@ -498,7 +498,7 @@ int DoomLib::PlayerIndexToRemoteNode( int index ) {
 	return indexMap[::g->consoleplayer][index];
 }
 
-void I_Error (char *error, ...);
+void I_Error (const char *error, ...);
 extern bool useTech5Packets;
 
 void DoomLib::PollNetwork() {

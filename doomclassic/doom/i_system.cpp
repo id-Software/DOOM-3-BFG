@@ -126,7 +126,7 @@ void I_EndRead(void)
 // I_Error
 //
 extern bool debugOutput;
-void I_Printf(char* msg, ...)
+void I_Printf(const char* msg, ...)
 {
 	char pmsg[1024];
     va_list	argptr;
@@ -143,7 +143,7 @@ void I_Printf(char* msg, ...)
 }
 
 
-void I_PrintfE(char* msg, ...)
+void I_PrintfE(const char* msg, ...)
 {
 	char pmsg[1024];
     va_list	argptr;
@@ -160,7 +160,7 @@ void I_PrintfE(char* msg, ...)
 	}
 }
 
-void I_Error(char *error, ...)
+void I_Error(const char *error, ...)
 {
 	const int ERROR_MSG_SIZE = 1024;
 	char error_msg[ERROR_MSG_SIZE];

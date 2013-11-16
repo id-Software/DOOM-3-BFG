@@ -27,18 +27,20 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include "Precompiled.h"
-#include "globaldata.h"
-
-// Data.
-#include "sounds.h"
-#include "m_fixed.h"
 
 #ifdef __GNUG__
 #pragma implementation "info.h"
 #endif
 #include "info.h"
 
+#include "globaldata.h"
+
+// Data.
+#include "sounds.h"
+#include "m_fixed.h"
+
 #include "p_mobj.h"
+
 
 // RB: sprnames must be NULL-terminated
 const char * const sprnames[NUMSPRITES + 1] = {

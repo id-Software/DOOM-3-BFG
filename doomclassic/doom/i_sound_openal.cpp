@@ -149,7 +149,7 @@ getsfx
 // This function loads the sound data from the WAD lump,
 // for single sound.
 //
-void* getsfx ( char* sfxname, int* len )
+void* getsfx ( const char* sfxname, int* len )
 {
 	unsigned char*      sfx;
 	unsigned char*	    sfxmem;

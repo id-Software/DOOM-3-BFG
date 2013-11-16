@@ -97,16 +97,17 @@ void	(*netsend) (void);
 //
 int UDPsocket (void)
 {
-	int	s;
+	//int	s;
 
 	// allocate a socket
 	//s = socket (AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-	if ( !IsValidSocket( s ) ) {
-		int err = GetLastSocketError();
-		I_Error( "can't create socket, error %d", err );
-	}
+	//if ( !IsValidSocket( s ) ) {
+	//	int err = GetLastSocketError();
+	//	I_Error( "can't create socket, error %d", err );
+	//}
 
-	return s;
+	//return s;
+	return 0;
 }
 
 //
@@ -265,15 +266,15 @@ void I_ShutdownNetwork( void ) {
 
 void I_NetCmd (void)
 {
-	if (::g->doomcom.command == CMD_SEND)
-	{
-		netsend ();
-	}
-	else if (::g->doomcom.command == CMD_GET)
-	{
-		netget ();
-	}
-	else
-		I_Error ("Bad net cmd: %i\n",::g->doomcom.command); 
+	//if (::g->doomcom.command == CMD_SEND)
+	//{
+	//	netsend ();
+	//}
+	//else if (::g->doomcom.command == CMD_GET)
+	//{
+	//	netget ();
+	//}
+	//else
+	//	I_Error ("Bad net cmd: %i\n",::g->doomcom.command);
 }
 
