@@ -51,7 +51,7 @@ static void ctl_reset(void);
 static int ctl_open(int using_stdin, int using_stdout);
 static void ctl_close(void);
 static int ctl_read(int *valp);
-static int cmsg(int type, int verbosity_level, char *fmt, ...);
+static int cmsg(int type, int verbosity_level, const char *fmt, ...);
 
 #ifdef _DEBUG
 #define safeOutputDebug(x) printf( "%s", x )
@@ -92,7 +92,7 @@ static int ctl_read(int *valp)
 }
 extern void SendDebugMsg(const char*);
 extern bool debugOutput;
-static int cmsg(int type, int verbosity_level, char *fmt, ...)
+static int cmsg(int type, int verbosity_level, const char *fmt, ...)
 {
 #ifdef _DEBUG
 	va_list ap;

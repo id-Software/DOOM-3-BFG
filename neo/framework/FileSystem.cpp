@@ -307,9 +307,7 @@ idCVar  idFileSystemLocal::fs_game_base( "fs_game_base", "", CVAR_SYSTEM | CVAR_
 
 idCVar	fs_basepath( "fs_basepath", "", CVAR_SYSTEM | CVAR_INIT, "" );
 idCVar	fs_savepath( "fs_savepath", "", CVAR_SYSTEM | CVAR_INIT, "" );
-// RB: defaulted fs_resourceLoadPriority to 0 for better modding
-idCVar	fs_resourceLoadPriority( "fs_resourceLoadPriority", "0", CVAR_SYSTEM , "if 1, open requests will be honored from resource files first; if 0, the resource files are checked after normal search paths" );
-// RB end
+idCVar	fs_resourceLoadPriority( "fs_resourceLoadPriority", "1", CVAR_SYSTEM , "if 1, open requests will be honored from resource files first; if 0, the resource files are checked after normal search paths" );
 idCVar	fs_enableBackgroundCaching( "fs_enableBackgroundCaching", "1", CVAR_SYSTEM , "if 1 allow the 360 to precache game files in the background" );
 
 idFileSystemLocal	fileSystemLocal;
@@ -2989,36 +2987,6 @@ void idFileSystemLocal::SetupGameDirectories( const char* gameName )
 		AddGameDirectory( fs_savepath.GetString(), gameName );
 	}
 }
-
-
-const char* cachedStartupFiles[] =
-{
-	"game:\\base\\video\\loadvideo.bik"
-};
-const int numStartupFiles = sizeof( cachedStartupFiles ) / sizeof( cachedStartupFiles[ 0 ] );
-
-const char* cachedNormalFiles[] =
-{
-	"game:\\base\\_sound_xenon_en.resources",	// these will fail silently on the files that are not on disc
-	"game:\\base\\_sound_xenon_fr.resources",
-	"game:\\base\\_sound_xenon_jp.resources",
-	"game:\\base\\_sound_xenon_sp.resources",
-	"game:\\base\\_sound_xenon_it.resources",
-	"game:\\base\\_sound_xenon_gr.resources",
-	"game:\\base\\_sound_xenon.resources",
-	"game:\\base\\_common.resources",
-	"game:\\base\\_ordered.resources",
-	"game:\\base\\video\\mars_rotation.bik"		// cache this to save the consumer from hearing SEEK.. SEEK... SEEK.. SEEK  SEEEK while at the main menu
-};
-const int numNormalFiles = sizeof( cachedNormalFiles ) / sizeof( cachedNormalFiles[ 0 ] );
-
-const char* dontCacheFiles[] =
-{
-	"game:\\base\\maps\\*.*",	// these will fail silently on the files that are not on disc
-	"game:\\base\\video\\*.*",
-	"game:\\base\\sound\\*.*",
-};
-const int numDontCacheFiles = sizeof( dontCacheFiles ) / sizeof( dontCacheFiles[ 0 ] );
 
 /*
 ================

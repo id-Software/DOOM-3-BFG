@@ -183,11 +183,11 @@ void M_SetupNextMenu(menu_t *menudef);
 void M_DrawThermo(int x,int y,int thermWidth,int thermDot);
 void M_DrawEmptyCell(menu_t *menu,int item);
 void M_DrawSelCell(menu_t *menu,int item);
-void M_WriteText(int x, int y, char *string);
-int  M_StringWidth(char *string);
-int  M_StringHeight(char *string);
+void M_WriteText(int x, int y, const char *string);
+int  M_StringWidth(const char *string);
+int  M_StringHeight(const char *string);
 void M_StartControlPanel(void);
-void M_StartMessage(char *string,messageRoutine_t routine,qboolean input);
+void M_StartMessage(const char *string,messageRoutine_t routine,qboolean input);
 void M_StopMessage(void);
 void M_ClearMenus (void);
 
@@ -1051,13 +1051,13 @@ M_DrawSelCell
 
 void
 M_StartMessage
-( char*		string,
+( const char*	string,
  messageRoutine_t routine,
  qboolean	input )
 {
 	::g->messageLastMenuActive = ::g->menuactive;
 	::g->messageToPrint = 1;
-	::g->messageString = string;
+	::g->messageString = (char *)string;
 	::g->messageRoutine = (messageRoutine_t)routine;
 	::g->messageNeedsInput = input;
 	::g->menuactive = true;
@@ -1077,7 +1077,7 @@ void M_StopMessage(void)
 //
 // Find string width from ::g->hu_font chars
 //
-int M_StringWidth(char* string)
+int M_StringWidth(const char* string)
 {
 	unsigned int             i;
 	int             w = 0;
@@ -1100,7 +1100,7 @@ int M_StringWidth(char* string)
 //
 //      Find string height from ::g->hu_font chars
 //
-int M_StringHeight(char* string)
+int M_StringHeight(const char* string)
 {
 	unsigned int             i;
 	int             h;
@@ -1122,10 +1122,10 @@ void
 M_WriteText
 ( int		x,
  int		y,
- char*		string)
+ const char*	string)
 {
 	int		w;
-	char*	ch;
+	const char*	ch;
 	int		c;
 	int		cx;
 	int		cy;

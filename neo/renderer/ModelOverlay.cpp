@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -111,7 +112,7 @@ static void R_OverlayPointCullStatic( byte* cullBits, halfFloat_t* texCoordS, ha
 	assert_16_byte_aligned( texCoordT );
 	assert_16_byte_aligned( verts );
 	
-	
+#if defined(USE_INTRINSICS)
 	idODSStreamedArray< idDrawVert, 16, SBT_DOUBLE, 4 > vertsODS( verts, numVerts );
 	
 	const __m128 vector_float_zero	= { 0.0f, 0.0f, 0.0f, 0.0f };
@@ -187,6 +188,41 @@ static void R_OverlayPointCullStatic( byte* cullBits, halfFloat_t* texCoordS, ha
 		}
 	}
 	
+#else
+	
+	idODSStreamedArray< idDrawVert, 16, SBT_DOUBLE, 1 > vertsODS( verts, numVerts );
+	
+	for( int i = 0; i < numVerts; )
+	{
+	
+		const int nextNumVerts = vertsODS.FetchNextBatch() - 1;
+	
+		for( ; i <= nextNumVerts; i++ )
+		{
+			const idVec3& v = vertsODS[i].xyz;
+	
+			const float d0 = planes[0].Distance( v );
+			const float d1 = planes[1].Distance( v );
+			const float d2 = 1.0f - d0;
+			const float d3 = 1.0f - d1;
+	
+			halfFloat_t s = Scalar_FastF32toF16( d0 );
+			halfFloat_t t = Scalar_FastF32toF16( d1 );
+	
+			texCoordS[i] = s;
+			texCoordT[i] = t;
+	
+			byte bits;
+			bits  = IEEE_FLT_SIGNBITSET( d0 ) << 0;
+			bits |= IEEE_FLT_SIGNBITSET( d1 ) << 1;
+			bits |= IEEE_FLT_SIGNBITSET( d2 ) << 2;
+			bits |= IEEE_FLT_SIGNBITSET( d3 ) << 3;
+	
+			cullBits[i] = bits;
+		}
+	}
+	
+#endif
 }
 
 /*
@@ -201,7 +237,7 @@ static void R_OverlayPointCullSkinned( byte* cullBits, halfFloat_t* texCoordS, h
 	assert_16_byte_aligned( texCoordT );
 	assert_16_byte_aligned( verts );
 	
-	
+#if defined(USE_INTRINSICS)
 	idODSStreamedArray< idDrawVert, 16, SBT_DOUBLE, 4 > vertsODS( verts, numVerts );
 	
 	const __m128 vector_float_zero	= { 0.0f, 0.0f, 0.0f, 0.0f };
@@ -277,6 +313,41 @@ static void R_OverlayPointCullSkinned( byte* cullBits, halfFloat_t* texCoordS, h
 		}
 	}
 	
+#else
+	
+	idODSStreamedArray< idDrawVert, 16, SBT_DOUBLE, 1 > vertsODS( verts, numVerts );
+	
+	for( int i = 0; i < numVerts; )
+	{
+	
+		const int nextNumVerts = vertsODS.FetchNextBatch() - 1;
+	
+		for( ; i <= nextNumVerts; i++ )
+		{
+			const idVec3 transformed = Scalar_LoadSkinnedDrawVertPosition( vertsODS[i], joints );
+	
+			const float d0 = planes[0].Distance( transformed );
+			const float d1 = planes[1].Distance( transformed );
+			const float d2 = 1.0f - d0;
+			const float d3 = 1.0f - d1;
+	
+			halfFloat_t s = Scalar_FastF32toF16( d0 );
+			halfFloat_t t = Scalar_FastF32toF16( d1 );
+	
+			texCoordS[i] = s;
+			texCoordT[i] = t;
+	
+			byte bits;
+			bits  = IEEE_FLT_SIGNBITSET( d0 ) << 0;
+			bits |= IEEE_FLT_SIGNBITSET( d1 ) << 1;
+			bits |= IEEE_FLT_SIGNBITSET( d2 ) << 2;
+			bits |= IEEE_FLT_SIGNBITSET( d3 ) << 3;
+	
+			cullBits[i] = bits;
+		}
+	}
+	
+#endif
 }
 
 /*
@@ -486,6 +557,7 @@ static void R_CopyOverlaySurface( idDrawVert* verts, int numVerts, triIndex_t* i
 	assert( ( ( overlay->numVerts * sizeof( idDrawVert ) ) & 15 ) == 0 );
 	assert( ( ( overlay->numIndexes * sizeof( triIndex_t ) ) & 15 ) == 0 );
 	
+#if defined(USE_INTRINSICS)
 	
 	const __m128i vector_int_clear_last = _mm_set_epi32( 0, -1, -1, -1 );
 	const __m128i vector_int_num_verts = _mm_shuffle_epi32( _mm_cvtsi32_si128( numVerts ), 0 );
@@ -524,6 +596,30 @@ static void R_CopyOverlaySurface( idDrawVert* verts, int numVerts, triIndex_t* i
 	
 	_mm_sfence();
 	
+#else
+	
+	// copy vertices
+	for( int i = 0; i < overlay->numVerts; i++ )
+	{
+		const overlayVertex_t& overlayVert = overlay->verts[i];
+	
+		// NOTE: bad out-of-order write-combined write, SIMD code does the right thing
+		verts[numVerts + i] = sourceVerts[overlayVert.vertexNum];
+	
+		// RB begin
+		verts[numVerts + i].SetTexCoordS( overlayVert.st[0] );
+		verts[numVerts + i].SetTexCoordT( overlayVert.st[1] );
+		// RB end
+	}
+	
+	// copy indexes
+	for( int i = 0; i < overlay->numIndexes; i += 2 )
+	{
+		assert( overlay->indexes[i + 0] < overlay->numVerts && overlay->indexes[i + 1] < overlay->numVerts );
+		WriteIndexPair( &indexes[numIndexes + i], numVerts + overlay->indexes[i + 0], numVerts + overlay->indexes[i + 1] );
+	}
+	
+#endif
 }
 
 /*

@@ -152,7 +152,7 @@ bool idSWF::LoadBinary( const char* bfilename, ID_TIME_T sourceTime )
 	f->ReadBig( magic );
 	f->ReadBig( btimestamp );
 	
-	if( magic != BSWF_MAGIC || ( !fileSystem->InProductionMode() && sourceTime != btimestamp ) )
+	if( magic != BSWF_MAGIC || ( com_productionMode.GetInteger() == 0 && sourceTime != FILE_NOT_FOUND_TIMESTAMP && sourceTime != btimestamp ) )
 	{
 		delete f;
 		return false;
@@ -525,4 +525,35 @@ void idSWF::WriteBinary( const char* bfilename )
 			}
 		}
 	}
+}
+
+/*
+===================
+idSWF::FileAttributes
+Extra data that won't fit in a SWF header
+===================
+*/
+void idSWF::FileAttributes( idSWFBitStream& bitstream )
+{
+	bitstream.Seek( 5 ); // 5 booleans
+}
+
+/*
+===================
+idSWF::Metadata
+===================
+*/
+void idSWF::Metadata( idSWFBitStream& bitstream )
+{
+	bitstream.ReadString(); // XML string
+}
+
+/*
+===================
+idSWF::SetBackgroundColor
+===================
+*/
+void idSWF::SetBackgroundColor( idSWFBitStream& bitstream )
+{
+	bitstream.Seek( 4 ); // int
 }

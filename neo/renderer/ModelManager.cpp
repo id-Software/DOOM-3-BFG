@@ -378,9 +378,14 @@ idRenderModel* idRenderModelManagerLocal::GetModel( const char* _modelName, bool
 			{
 				model->InitFromFile( canonical );
 				
-				idFileLocal outputFile( fileSystem->OpenFileWrite( generatedFileName, "fs_basepath" ) );
-				idLib::Printf( "Writing %s\n", generatedFileName.c_str() );
-				model->WriteBinaryModel( outputFile );
+				// RB: default models shouldn't be cached as binary models
+				if( !model->IsDefaultModel() )
+				{
+					idFileLocal outputFile( fileSystem->OpenFileWrite( generatedFileName, "fs_basepath" ) );
+					idLib::Printf( "Writing %s\n", generatedFileName.c_str() );
+					model->WriteBinaryModel( outputFile );
+				}
+				// RB end
 			} /* else {
 				idLib::Printf( "loaded binary model %s from file %s\n", model->Name(), generatedFileName.c_str() );
 			} */

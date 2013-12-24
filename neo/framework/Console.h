@@ -76,6 +76,9 @@ public:
 	// clear the timers on any recent prints that are displayed in the notify lines
 	virtual void	ClearNotifyLines() = 0;
 	
+	// force console open
+	virtual void	Open() = 0;
+	
 	// some console commands, like timeDemo, will force the console closed before they start
 	virtual void	Close() = 0;
 	

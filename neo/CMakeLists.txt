@@ -174,7 +174,7 @@ file(GLOB FRAMEWORK_SOURCES framework/*.cpp)
 file(GLOB FRAMEWORK_ASYNC_INCLUDES framework/async/*.h)
 file(GLOB FRAMEWORK_ASYNC_SOURCES framework/async/*.cpp)
 
-file(GLOB_RECURSE RENDERER_INCLUDES renderer/*.h)
+file(GLOB RENDERER_INCLUDES renderer/*.h)
 	# renderer/AutoRender.h
 	# renderer/AutoRenderBink.h
 	# renderer/BinaryImage.h
@@ -214,7 +214,7 @@ file(GLOB_RECURSE RENDERER_INCLUDES renderer/*.h)
 	# renderer/VertexCache.h)
 
 
-file(GLOB_RECURSE RENDERER_SOURCES renderer/*.cpp)
+file(GLOB RENDERER_SOURCES renderer/*.cpp)
 	# renderer/AutoRender.cpp
 	# renderer/Cinematic.cpp
 	# renderer/Framebuffer.cpp
@@ -275,7 +275,21 @@ file(GLOB_RECURSE RENDERER_SOURCES renderer/*.cpp)
 	# renderer/tr_trace.cpp
 	# renderer/tr_trisurf.cpp
 	# renderer/tr_turboshadow.cpp)
-
+	
+file(GLOB RENDERER_COLOR_INCLUDES renderer/Color/*.h)
+file(GLOB RENDERER_COLOR_SOURCES renderer/Color/*.cpp)
+file(GLOB RENDERER_DXT_INCLUDES renderer/DXT/*.h)
+file(GLOB RENDERER_DXT_SOURCES renderer/DXT/*.cpp)
+file(GLOB RENDERER_JOBS_INCLUDES renderer/jobs/*.h)
+file(GLOB RENDERER_JOBS_SOURCES renderer/jobs/*.cpp)
+file(GLOB RENDERER_JOBS_DYNAMICSHADOWVOLUME_INCLUDES renderer/jobs/dynamicshadowvolume/*.h)
+file(GLOB RENDERER_JOBS_DYNAMICSHADOWVOLUME_SOURCES renderer/jobs/dynamicshadowvolume/*.cpp)
+file(GLOB RENDERER_JOBS_PRELIGHTSHADOWVOLUME_INCLUDES renderer/jobs/prelightshadowvolume/*.h)
+file(GLOB RENDERER_JOBS_PRELIGHTSHADOWVOLUME_SOURCES renderer/jobs/prelightshadowvolume/*.cpp)
+file(GLOB RENDERER_JOBS_STATICSHADOWVOLUME_INCLUDES renderer/jobs/staticshadowvolume/*.h)
+file(GLOB RENDERER_JOBS_STATICSHADOWVOLUME_SOURCES renderer/jobs/staticshadowvolume/*.cpp)
+file(GLOB RENDERER_OPENGL_INCLUDES renderer/OpenGL/*.h)
+file(GLOB RENDERER_OPENGL_SOURCES renderer/OpenGL/*.cpp)
 
 file(GLOB IRRXML_INCLUDES libs/irrxml/src/*.h)
 file(GLOB IRRXML_SOURCES libs/irrxml/src/*.cpp)
@@ -695,15 +709,17 @@ file(GLOB EDITOR_SCRIPT_SOURCES tools/script/*.cpp)
 
 file(GLOB EDITOR_SOUND_INCLUDES tools/sound/*.h)
 file(GLOB EDITOR_SOUND_SOURCES tools/sound/*.cpp)
-	
 
 file(GLOB DOOMCLASSIC_INCLUDES ../doomclassic/doom/*.h)
 file(GLOB DOOMCLASSIC_SOURCES ../doomclassic/doom/*.cpp)
 
-list(REMOVE_ITEM DOOMCLASSIC_SOURCES ../doomclassic/doom/i_net_ps3.cpp)
-list(REMOVE_ITEM DOOMCLASSIC_SOURCES ../doomclassic/doom/i_net_xbox.cpp)
-list(REMOVE_ITEM DOOMCLASSIC_SOURCES ../doomclassic/doom/i_video_ps3.cpp)
-list(REMOVE_ITEM DOOMCLASSIC_SOURCES ../doomclassic/doom/i_video_xbox.cpp)
+set(DOOMCLASSIC_STUBAUDIO_SOURCES ../doomclassic/doom/i_sound_stub.cpp)
+set(DOOMCLASSIC_OPENAL_SOURCES ../doomclassic/doom/i_sound_openal.cpp)
+set(DOOMCLASSIC_XAUDIO2_SOURCES ../doomclassic/doom/i_sound_win32.cpp)
+
+list(REMOVE_ITEM DOOMCLASSIC_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/../doomclassic/doom/i_sound_stub.cpp)
+list(REMOVE_ITEM DOOMCLASSIC_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/../doomclassic/doom/i_sound_openal.cpp)
+list(REMOVE_ITEM DOOMCLASSIC_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/../doomclassic/doom/i_sound_win32.cpp)
 
 file(GLOB TIMIDITY_INCLUDES libs/timidity/*.h)
 file(GLOB TIMIDITY_SOURCES libs/timidity/*.cpp)
@@ -823,6 +839,27 @@ source_group("framework\\async" FILES ${FRAMEWORK_ASYNC_SOURCES})
 source_group("renderer" FILES ${RENDERER_INCLUDES})
 source_group("renderer" FILES ${RENDERER_SOURCES})
 
+source_group("renderer\\Color" FILES ${RENDERER_COLOR_INCLUDES})
+source_group("renderer\\Color" FILES ${RENDERER_COLOR_SOURCES})
+
+source_group("renderer\\DXT" FILES ${RENDERER_DXT_INCLUDES})
+source_group("renderer\\DXT" FILES ${RENDERER_DXT_SOURCES})
+
+source_group("renderer\\jobs" FILES ${RENDERER_JOBS_INCLUDES})
+source_group("renderer\\jobs" FILES ${RENDERER_JOBS_SOURCES})
+
+source_group("renderer\\jobs\\dynamicshadowvolume" FILES ${RENDERER_JOBS_DYNAMICSHADOWVOLUME_INCLUDES})
+source_group("renderer\\jobs\\dynamicshadowvolume" FILES ${RENDERER_JOBS_DYNAMICSHADOWVOLUME_SOURCES})
+
+source_group("renderer\\jobs\\prelightshadowvolume" FILES ${RENDERER_JOBS_PRELIGHTSHADOWVOLUME_INCLUDES})
+source_group("renderer\\jobs\\prelightshadowvolume" FILES ${RENDERER_JOBS_PRELIGHTSHADOWVOLUME_SOURCES})
+
+source_group("renderer\\jobs\\staticshadowvolume" FILES ${RENDERER_JOBS_STATICSHADOWVOLUME_INCLUDES})
+source_group("renderer\\jobs\\staticshadowvolume" FILES ${RENDERER_JOBS_STATICSHADOWVOLUME_SOURCES})
+
+source_group("renderer\\OpenGL" FILES ${RENDERER_OPENGL_INCLUDES})
+source_group("renderer\\OpenGL" FILES ${RENDERER_OPENGL_SOURCES})
+
 source_group("libs\\irrxml" FILES ${IRRXML_INCLUDES})
 source_group("libs\\irrxml" FILES ${IRRXML_SOURCES})
 
@@ -869,6 +906,10 @@ source_group("sys" FILES ${SYS_SOURCES})
 
 source_group("doomclassic" FILES ${DOOMCLASSIC_INCLUDES})
 source_group("doomclassic" FILES ${DOOMCLASSIC_SOURCES})
+
+source_group("doomclassic" FILES ${DOOMCLASSIC_STUBAUDIO_SOURCES})
+source_group("doomclassic" FILES ${DOOMCLASSIC_OPENAL_SOURCES})
+source_group("doomclassic" FILES ${DOOMCLASSIC_XAUDIO2_SOURCES})
 
 source_group("libs\\timidity" FILES ${TIMIDITY_INCLUDES})
 source_group("libs\\timidity" FILES ${TIMIDITY_SOURCES})
@@ -974,6 +1015,13 @@ set(RBDOOM3_INCLUDES
 			${FRAMEWORK_INCLUDES}
 			${FRAMEWORK_ASYNC_INCLUDES}
 			${RENDERER_INCLUDES}
+			${RENDERER_COLOR_INCLUDES}
+			${RENDERER_DXT_INCLUDES}
+			${RENDERER_JOBS_INCLUDES}
+			${RENDERER_JOBS_DYNAMICSHADOWVOLUME_INCLUDES}
+			${RENDERER_JOBS_PRELIGHTSHADOWVOLUME_INCLUDES}
+			${RENDERER_JOBS_STATICSHADOWVOLUME_INCLUDES}
+			${RENDERER_OPENGL_INCLUDES}
 			#${IRRXML_INCLUDES}
 			${JPEG_INCLUDES}
 			#${PNG_INCLUDES}
@@ -986,6 +1034,8 @@ set(RBDOOM3_INCLUDES
 			${UI_INCLUDES}
 			${SWF_INCLUDES}
 			${COMMON_INCLUDES}
+			${DOOMCLASSIC_INCLUDES}
+			${TIMIDITY_INCLUDES}
 			
 			#${COMPILER_INCLUDES}
 			#${COMPILER_AAS_INCLUDES} ${COMPILER_AAS_SOURCES}
@@ -1000,6 +1050,13 @@ set(RBDOOM3_SOURCES
 			${FRAMEWORK_SOURCES}
 			${FRAMEWORK_ASYNC_SOURCES} 
 			${RENDERER_SOURCES}
+			${RENDERER_COLOR_SOURCES}
+			${RENDERER_DXT_SOURCES}
+			${RENDERER_JOBS_SOURCES}
+			${RENDERER_JOBS_DYNAMICSHADOWVOLUME_SOURCES}
+			${RENDERER_JOBS_PRELIGHTSHADOWVOLUME_SOURCES}
+			${RENDERER_JOBS_STATICSHADOWVOLUME_SOURCES}
+			${RENDERER_OPENGL_SOURCES}
 			#${IRRXML_SOURCES}
 			${JPEG_SOURCES}
 			#${PNG_SOURCES}
@@ -1012,12 +1069,16 @@ set(RBDOOM3_SOURCES
 			${UI_SOURCES}
 			${SWF_SOURCES}
 			${COMMON_SOURCES}
+			${DOOMCLASSIC_SOURCES}
+			${TIMIDITY_SOURCES}
 			
 			#${COMPILER_AAS_SOURCES}
 			#${COMPILER_DMAP_SOURCES}
 			#${COMPILER_RENDERBUMP_SOURCES}
 			#${COMPILER_ROQVQ_SOURCES}
 			)
+
+add_definitions(-DUSE_DOOMCLASSIC)
 
 add_definitions(-D__DOOM__
 				-DGLEW_STATIC
@@ -1093,7 +1154,9 @@ if(MSVC)
 		endif()
 		
 		list(APPEND RBDOOM3_INCLUDES ${OPENAL_INCLUDES})
-		list(APPEND RBDOOM3_SOURCES ${OPENAL_SOURCES})
+		list(APPEND RBDOOM3_SOURCES
+			${OPENAL_SOURCES}
+			${DOOMCLASSIC_OPENAL_SOURCES})
 		
 		set(OpenAL_LIBRARIES
 			OpenAL32)
@@ -1105,17 +1168,10 @@ if(MSVC)
 			install(FILES libs/openal-soft/lib/win32/OpenAL32.pdb DESTINATION .)
 		endif()
 	else()
-		add_definitions(-DUSE_DOOMCLASSIC)
-	
-		list(APPEND RBDOOM3_INCLUDES
-			${XAUDIO2_INCLUDES}
-			${DOOMCLASSIC_INCLUDES}
-			${TIMIDITY_INCLUDES})
-			
+		list(APPEND RBDOOM3_INCLUDES ${XAUDIO2_INCLUDES})
 		list(APPEND RBDOOM3_SOURCES
 			${XAUDIO2_SOURCES}
-			${DOOMCLASSIC_SOURCES}
-			${TIMIDITY_SOURCES})
+			${DOOMCLASSIC_XAUDIO2_SOURCES})
 	endif()
 	
 	if(USE_MFC_TOOLS)
@@ -1147,7 +1203,7 @@ if(MSVC)
 			${EDITOR_SOUND_INCLUDES} ${EDITOR_SOUND_SOURCES})
 	endif()
 	
-	list(APPEND RBDOOM3_INLCUDES
+	list(APPEND RBDOOM3_INCLUDES
 		${SYS_INCLUDES} 
 		${WIN32_INCLUDES})
 		
@@ -1168,8 +1224,6 @@ if(MSVC)
 	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/jobs/staticshadowvolume/StaticShadowVolume.cpp)
 	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/jobs/ShadowShared.cpp)
 	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/RenderLog.cpp)
-	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/../doomclassic/doom/i_sound_stub.cpp)
-	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/../doomclassic/doom/i_sound_win32.cpp)
 	
 	foreach( src_file ${RBDOOM3_PRECOMPILED_SOURCES} )
 		#message(STATUS "/Yuprecompiled.h for ${src_file}")
@@ -1226,12 +1280,9 @@ else()
 		${SYS_INCLUDES} ${SYS_SOURCES})
 	
 	if(WIN32)
-		add_definitions(-DUSE_DOOMCLASSIC)
-	
 		list(APPEND RBDOOM3_SOURCES
-			${DOOMCLASSIC_INCLUDES} ${DOOMCLASSIC_SOURCES}
-			${TIMIDITY_INCLUDES} ${TIMIDITY_SOURCES}
-			${WIN32_INCLUDES} ${WIN32_SOURCES} ${WIN32_RESOURCES})  
+			${WIN32_INCLUDES} ${WIN32_SOURCES} ${WIN32_RESOURCES}
+			${DOOMCLASSIC_STUBAUDIO_SOURCES})
 	
 		#list(REMOVE_ITEM WIN32_SOURCES sys/win32/win_cpu.cpp)
 		list(APPEND WIN32_SOURCES sys/sdl/sdl_cpu.cpp)
@@ -1267,10 +1318,14 @@ else()
 			#endif()
 			
 			list(APPEND RBDOOM3_INCLUDES ${OPENAL_INCLUDES})
-			list(APPEND RBDOOM3_SOURCES ${OPENAL_SOURCES})
+			list(APPEND RBDOOM3_SOURCES
+				${OPENAL_SOURCES}
+				${DOOMCLASSIC_OPENAL_SOURCES})
 		else()
 			list(APPEND RBDOOM3_INCLUDES ${STUBAUDIO_INCLUDES})
-			list(APPEND RBDOOM3_SOURCES ${STUBAUDIO_SOURCES})
+			list(APPEND RBDOOM3_SOURCES
+				${STUBAUDIO_SOURCES}
+				${DOOMCLASSIC_STUBAUDIO_SOURCES})
 		endif()
 			
 	endif()
@@ -1288,7 +1343,6 @@ else()
 	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/jobs/staticshadowvolume/StaticShadowVolume.cpp)
 	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/jobs/ShadowShared.cpp)
 	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/RenderLog.cpp)
-#	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/../doomclassic/doom/i_sound_stub.cpp)
 
 	foreach( src_file ${RBDOOM3_PRECOMPILED_SOURCES} )
 		#message(STATUS "-include precompiled.h for ${src_file}")

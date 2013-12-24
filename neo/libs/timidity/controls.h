@@ -58,14 +58,14 @@ song if we're less than a second into this one. */
 #define VERB_DEBUG_SILLY	4
 
 typedef struct {
-	char *id_name, id_character;
+	const char *id_name, id_character;
 	int verbosity, trace_playing, opened;
 
 	int (*open)(int using_stdin, int using_stdout);
 	void (*pass_playing_list)(int number_of_files, char *list_of_files[]);
 	void (*close)(void);
 	int (*read)(int *valp);
-	int (*cmsg)(int type, int verbosity_level, char *fmt, ...);
+	int (*cmsg)(int type, int verbosity_level, const char *fmt, ...);
 
 	void (*refresh)(void);
 	void (*reset)(void);

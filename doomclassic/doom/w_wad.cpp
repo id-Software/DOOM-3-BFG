@@ -27,6 +27,12 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include "Precompiled.h"
+
+#ifdef __GNUG__
+#pragma implementation "w_wad.h"
+#endif
+#include "w_wad.h"
+
 #include "globaldata.h"
 
 
@@ -43,12 +49,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "z_zone.h"
 
 #include "idlib/precompiled.h"
-
-#ifdef __GNUG__
-#pragma implementation "w_wad.h"
-#endif
-#include "w_wad.h"
-
 
 
 //

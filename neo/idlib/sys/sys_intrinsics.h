@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -28,8 +29,11 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __SYS_INTRIINSICS_H__
 #define __SYS_INTRIINSICS_H__
 
-#include <emmintrin.h>
+#define USE_INTRINSICS
 
+#if defined(USE_INTRINSICS)
+#include <emmintrin.h>
+#endif
 /*
 ================================================================================================
 
@@ -91,6 +95,7 @@ ID_INLINE_EXTERN float __frndz( float x )
 ================================================================================================
 */
 
+#if defined(USE_INTRINSICS)
 // The code below assumes that a cache line is 64 bytes.
 // We specify the cache line size as 128 here to make the code consistent with the consoles.
 #define CACHE_LINE_SIZE						128
@@ -121,6 +126,26 @@ ID_FORCE_INLINE void FlushCacheLine( const void* ptr, int offset )
 	_mm_clflush( bytePtr +  0 );
 	_mm_clflush( bytePtr + 64 );
 }
+
+/*
+================================================
+#endif
+	Other
+================================================
+*/
+#else
+
+#define CACHE_LINE_SIZE						128
+
+ID_INLINE void Prefetch( const void* ptr, int offset ) {}
+ID_INLINE void ZeroCacheLine( void* ptr, int offset )
+{
+	byte* bytePtr = ( byte* )( ( ( ( uintptr_t )( ptr ) ) + ( offset ) ) & ~( CACHE_LINE_SIZE - 1 ) );
+	memset( bytePtr, 0, CACHE_LINE_SIZE );
+}
+ID_INLINE void FlushCacheLine( const void* ptr, int offset ) {}
+
+#endif
 
 /*
 ================================================
@@ -168,6 +193,8 @@ ID_INLINE_EXTERN int CACHE_LINE_CLEAR_OVERFLOW_COUNT( int size )
 ================================================================================================
 */
 
+#if defined(USE_INTRINSICS)
+
 /*
 ================================================
 	PC Windows
@@ -193,6 +220,7 @@ ID_INLINE_EXTERN int CACHE_LINE_CLEAR_OVERFLOW_COUNT( int size )
 #define DECLSPEC_INTRINTYPE
 #endif
 // DG end
+
 
 // make the intrinsics "type unsafe"
 typedef union DECLSPEC_INTRINTYPE _CRT_ALIGN( 16 ) __m128c
@@ -274,5 +302,7 @@ ID_FORCE_INLINE_EXTERN __m128 _mm_div16_ps( __m128 x, __m128 y )
 #define _mm_loadu_bounds_0( bounds )		_mm_perm_ps( _mm_loadh_pi( _mm_load_ss( & bounds[0].x ), (__m64 *) & bounds[0].y ), _MM_SHUFFLE( 1, 3, 2, 0 ) )
 // load idBounds::GetMaxs()
 #define _mm_loadu_bounds_1( bounds )		_mm_perm_ps( _mm_loadh_pi( _mm_load_ss( & bounds[1].x ), (__m64 *) & bounds[1].y ), _MM_SHUFFLE( 1, 3, 2, 0 ) )
+
+#endif // #if defined(USE_INTRINSICS)
 
 #endif	// !__SYS_INTRIINSICS_H__

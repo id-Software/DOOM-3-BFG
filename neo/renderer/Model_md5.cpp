@@ -32,10 +32,10 @@ If you have questions concerning this license or the applicable additional terms
 #include "tr_local.h"
 #include "Model_local.h"
 
-
+#if defined(USE_INTRINSICS)
 static const __m128 vector_float_posInfinity		= { idMath::INFINITY, idMath::INFINITY, idMath::INFINITY, idMath::INFINITY };
 static const __m128 vector_float_negInfinity		= { -idMath::INFINITY, -idMath::INFINITY, -idMath::INFINITY, -idMath::INFINITY };
-
+#endif
 
 static const char* MD5_SnapshotName = "_MD5_Snapshot_";
 
@@ -561,6 +561,7 @@ idMD5Mesh::CalculateBounds
 */
 void idMD5Mesh::CalculateBounds( const idJointMat* entJoints, idBounds& bounds ) const
 {
+#if defined(USE_INTRINSICS)
 
 	__m128 minX = vector_float_posInfinity;
 	__m128 minY = vector_float_posInfinity;
@@ -595,6 +596,17 @@ void idMD5Mesh::CalculateBounds( const idJointMat* entJoints, idBounds& bounds )
 	_mm_store_ss( bounds.ToFloatPtr() + 4, _mm_splat_ps( maxY, 3 ) );
 	_mm_store_ss( bounds.ToFloatPtr() + 5, _mm_splat_ps( maxZ, 3 ) );
 	
+#else
+	
+	bounds.Clear();
+	for( int i = 0; i < numMeshJoints; i++ )
+	{
+		const idJointMat& joint = entJoints[meshJoints[i]];
+		bounds.AddPoint( joint.GetTranslation() );
+	}
+	bounds.ExpandSelf( maxJointVertDist );
+	
+#endif
 }
 
 /*
@@ -1220,6 +1232,7 @@ static void TransformJoints( idJointMat* __restrict outJoints, const int numJoin
 	assert_16_byte_aligned( inFloats1 );
 	assert_16_byte_aligned( inFloats2 );
 	
+#if defined(USE_INTRINSICS)
 	
 	const __m128 mask_keep_last = __m128c( _mm_set_epi32( 0xFFFFFFFF, 0x00000000, 0x00000000, 0x00000000 ) );
 	
@@ -1296,6 +1309,14 @@ static void TransformJoints( idJointMat* __restrict outJoints, const int numJoin
 		_mm_store_ps( outFloats + 1 * 12 + 8, ri1 );
 	}
 	
+#else
+	
+	for( int i = 0; i < numJoints; i++ )
+	{
+		idJointMat::Multiply( outJoints[i], inJoints1[i], inJoints2[i] );
+	}
+	
+#endif
 }
 
 /*

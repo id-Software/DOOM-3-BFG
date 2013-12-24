@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -64,6 +65,18 @@ void idMenuScreen_Shell_Credits::SetupCreditList()
 	
 	
 	creditList.Clear();
+	creditList.Append( creditInfo_t( 3,	"RBDOOM 3 BFG EDITION"	) );
+	creditList.Append( creditInfo_t() );
+	creditList.Append( creditInfo_t( 1,	"Lead Programmer"	) );
+	creditList.Append( creditInfo_t( 0,	"Robert Beckebans - Major part of the Linux port"	) );
+	creditList.Append( creditInfo_t() );
+	creditList.Append( creditInfo_t( 1,	"Additional Programming"	) );
+	creditList.Append( creditInfo_t( 0,	"Daniel Gibson - Tons of code cleanups, netcode++"	) );
+	creditList.Append( creditInfo_t( 0,	"Jonathan Young - Bugfixes, misc improvements" ) );
+	creditList.Append( creditInfo_t() );
+	creditList.Append( creditInfo_t( 0,	"For more see the GitHub stats ;)" ) );
+	creditList.Append( creditInfo_t() );
+	creditList.Append( creditInfo_t() );
 	creditList.Append( creditInfo_t( 3,	"DOOM 3 BFG EDITION"	) );
 	creditList.Append( creditInfo_t() );
 	creditList.Append( creditInfo_t( 2,	"DEVELOPMENT TEAM"	) );
