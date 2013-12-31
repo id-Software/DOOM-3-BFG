@@ -207,7 +207,7 @@ const char* idLexer::GetPunctuationFromId( int id )
 			return idLexer::punctuations[i].p;
 		}
 	}
-	return "unkown punctuation";
+	return "unknown punctuation";
 }
 
 /*
@@ -755,7 +755,7 @@ int idLexer::ReadName( idToken* token )
 			( c >= 'A' && c <= 'Z' ) ||
 			( c >= '0' && c <= '9' ) ||
 			c == '_' ||
-			// if treating all tokens as strings, don't parse '-' as a seperate token
+			// if treating all tokens as strings, don't parse '-' as a separate token
 			( ( idLexer::flags & LEXFL_ONLYSTRINGS ) && ( c == '-' ) ) ||
 			// if special path name characters are allowed
 			( ( idLexer::flags & LEXFL_ALLOWPATHNAMES ) && ( c == '/' || c == '\\' || c == ':' || c == '.' ) ) );

@@ -315,7 +315,7 @@ bool GLimp_Init( glimpParms_t parms )
 */
 
 #if SDL_VERSION_ATLEAST(2, 0, 0)
-// SDL1 doesn't support multiple displays, so the source is much shorter and doesn't need seperate functions
+// SDL1 doesn't support multiple displays, so the source is much shorter and doesn't need separate functions
 // makes sure the window will be full-screened on the right display and returns the SDL display index
 static int ScreenParmsHandleDisplayIndex( glimpParms_t parms )
 {
