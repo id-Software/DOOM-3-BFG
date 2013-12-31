@@ -452,7 +452,7 @@ bool idZipBuilder::CreateZipFileFromFiles( const idList< idFile_Memory* >& srcFi
 	// do not allow overwrite as this should be a tempfile attempt to check the file out
 	if( !Sys_IsFileWritable( zipFileName ) )
 	{
-		idLib::PrintfIf( zip_verbosity.GetBool(), "File %s not writeable, cannot proceed.\n", zipFileName.c_str() );
+		idLib::PrintfIf( zip_verbosity.GetBool(), "File %s not writable, cannot proceed.\n", zipFileName.c_str() );
 		return false;
 	}
 	
@@ -549,7 +549,7 @@ zipFile idZipBuilder::CreateZipFile( const char* name )
 	// do not allow overwrite as this should be a tempfile attempt to check the file out
 	if( !Sys_IsFileWritable( name ) )
 	{
-		idLib::PrintfIf( zip_verbosity.GetBool(), "File %s not writeable, cannot proceed.\n", name );
+		idLib::PrintfIf( zip_verbosity.GetBool(), "File %s not writable, cannot proceed.\n", name );
 		return NULL;
 	}
 	
