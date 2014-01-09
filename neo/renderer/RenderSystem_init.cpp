@@ -396,7 +396,7 @@ static void R_CheckPortableExtensions()
 	{
 		if( r_debugContext.GetInteger() >= 1 )
 		{
-			glDebugMessageCallbackARB( DebugCallback, NULL );
+			glDebugMessageCallbackARB( ( GLDEBUGPROCARB ) DebugCallback, NULL );
 		}
 		if( r_debugContext.GetInteger() >= 2 )
 		{
