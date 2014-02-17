@@ -2311,7 +2311,7 @@ int lwGetPolygons5( idFile* fp, int cksize, lwPolygonList* plist, int ptoffset )
 			bp += 2;
 		}
 		j -= 1;
-		pp->surf = ( lwSurface* ) j; // DG: FIXME: cast int to pointer?!
+		pp->surf.index = j;
 		
 		pp++;
 		pv += nv;
@@ -2855,12 +2855,11 @@ int lwResolvePolySurfaces( lwPolygonList* polygon, lwTagList* tlist,
 			st = st->next;
 		}
 	}
-	// RB: 64 bit fixes
-	uintptr_t index;
+
+	intptr_t index;
 	for( i = 0; i < polygon->count; i++ )
 	{
-		index = ( uintptr_t ) polygon->pol[ i ].surf;
-		// RB end
+		index = polygon->pol[ i ].surf.index;
 		
 		if( index < 0 || index > tlist->count ) return 0;
 		if( !s[ index ] )
@@ -2873,7 +2872,7 @@ int lwResolvePolySurfaces( lwPolygonList* polygon, lwTagList* tlist,
 			lwListAdd( ( void** )surf, s[ index ] );
 			*nsurfs = *nsurfs + 1;
 		}
-		polygon->pol[ i ].surf = s[ index ];
+		polygon->pol[ i ].surf.ptr = s[ index ];
 	}
 	
 	Mem_Free( s );
@@ -2908,7 +2907,7 @@ void lwGetVertNormals( lwPointList* point, lwPolygonList* polygon )
 			for( k = 0; k < 3; k++ )
 				polygon->pol[ j ].v[ n ].norm[ k ] = polygon->pol[ j ].norm[ k ];
 				
-			if( polygon->pol[ j ].surf->smooth <= 0 ) continue;
+			if( polygon->pol[ j ].surf.ptr->smooth <= 0 ) continue;
 			
 			p = polygon->pol[ j ].v[ n ].index;
 			
@@ -2920,7 +2919,7 @@ void lwGetVertNormals( lwPointList* point, lwPolygonList* polygon )
 				if( polygon->pol[ j ].smoothgrp != polygon->pol[ h ].smoothgrp )
 					continue;
 				a = vecangle( polygon->pol[ j ].norm, polygon->pol[ h ].norm );
-				if( a > polygon->pol[ j ].surf->smooth ) continue;
+				if( a > polygon->pol[ j ].surf.ptr->smooth ) continue;
 				
 				for( k = 0; k < 3; k++ )
 					polygon->pol[ j ].v[ n ].norm[ k ] += polygon->pol[ h ].norm[ k ];
@@ -3054,7 +3053,7 @@ int lwGetPolygonTags( idFile* fp, int cksize, lwTagList* tlist, lwPolygonList* p
 		switch( type )
 		{
 			case ID_SURF:
-				plist->pol[ i ].surf = ( lwSurface* ) j; // DG: FIXME: cast int to pointer?!
+				plist->pol[ i ].surf.index = j;
 				break;
 			case ID_PART:
 				plist->pol[ i ].part = j;
