@@ -53,8 +53,8 @@ idSoundVoice_OpenAL::idSoundVoice_OpenAL()
 	formatTag( 0 ),
 	numChannels( 0 ),
 	sampleRate( 0 ),
-	paused( true ),
-	hasVUMeter( false )
+	hasVUMeter( false ),
+	paused( true )
 {
 
 }
