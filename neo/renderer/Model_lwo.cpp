@@ -2855,7 +2855,7 @@ int lwResolvePolySurfaces( lwPolygonList* polygon, lwTagList* tlist,
 			st = st->next;
 		}
 	}
-
+	
 	intptr_t index;
 	for( i = 0; i < polygon->count; i++ )
 	{

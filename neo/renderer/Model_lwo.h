@@ -532,7 +532,8 @@ typedef struct st_lwPolVert
 
 typedef struct st_lwPolygon
 {
-	union {
+	union
+	{
 		intptr_t   index;
 		lwSurface* ptr;
 	}              surf;
