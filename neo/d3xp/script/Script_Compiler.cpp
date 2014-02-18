@@ -1252,7 +1252,7 @@ idVarDef* idCompiler::EmitFunctionParms( int op, idVarDef* func, int startarg, i
 	{
 		EmitOpcode( op, object, VirtualFunctionConstant( func ) );
 		
-		// need arg size seperate since script object may be NULL
+		// need arg size separate since script object may be NULL
 		statement_t& statement = gameLocal.program.GetStatement( gameLocal.program.NumStatements() - 1 );
 		statement.c = SizeConstant( func->value.functionPtr->parmTotal );
 	}

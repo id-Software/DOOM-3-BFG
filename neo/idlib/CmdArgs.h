@@ -67,7 +67,7 @@ public:
 	
 	// Takes a null terminated string and breaks the string up into arg tokens.
 	// Does not need to be /n terminated.
-	// Set keepAsStrings to true to only seperate tokens from whitespace and comments, ignoring punctuation
+	// Set keepAsStrings to true to only separate tokens from whitespace and comments, ignoring punctuation
 	void					TokenizeString( const char* text, bool keepAsStrings );
 	
 	void					AppendArg( const char* text );

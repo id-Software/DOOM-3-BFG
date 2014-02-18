@@ -476,7 +476,7 @@ typedef struct statement_s
 idProgram
 
 Handles compiling and storage of script data.  Multiple idProgram objects
-would represent seperate programs with no knowledge of each other.  Scripts
+would represent separate programs with no knowledge of each other.  Scripts
 meant to access shared data and functions should all be compiled by a
 single idProgram.
 
