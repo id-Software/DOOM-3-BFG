@@ -213,15 +213,18 @@ bulk of the codebase, so it is the best place for analyze pragmas.
 #include <CodeAnalysis\SourceAnnotations.h>
 #define	VERIFY_FORMAT_STRING	[SA_FormatString(Style="printf")]
 // DG: alternative for GCC with attribute (NOOP for MSVC)
-#define ATTRIBUTE_PRINTF(STRIDX, FIRSTARGIDX)
+#define ID_STATIC_ATTRIBUTE_PRINTF(STRIDX, FIRSTARGIDX)
 
-#elif defined(__GNUC__) // FIXME: what about clang?
+#else
 #define	VERIFY_FORMAT_STRING
 // STRIDX: index of format string in function arguments (first arg == 1)
 // FIRSTARGIDX: index of first argument for the format string
-#define ATTRIBUTE_PRINTF(STRIDX, FIRSTARGIDX) __attribute__ ((format (printf, STRIDX, FIRSTARGIDX)))
+#define ID_STATIC_ATTRIBUTE_PRINTF(STRIDX, FIRSTARGIDX) __attribute__ ((format (printf, STRIDX, FIRSTARGIDX)))
 // DG end
 #endif // _MSC_VER
+
+// This needs to be handled so shift by 1
+#define ID_INSTANCE_ATTRIBUTE_PRINTF(STRIDX, FIRSTARGIDX) ID_STATIC_ATTRIBUTE_PRINTF((STRIDX+1),(FIRSTARGIDX+1))
 
 // We need to inform the compiler that Error() and FatalError() will
 // never return, so any conditions that leeds to them being called are
