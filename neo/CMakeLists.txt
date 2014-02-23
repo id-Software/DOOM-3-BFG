@@ -57,7 +57,7 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
 	#endif()
 	
 	# the warnings are used for every profile anyway, so put them in a variable
-	set(my_warn_flags "-Wno-pragmas -Wno-unused-variable -Wno-unused-but-set-variable -Wno-switch -Wno-unused-value -Winvalid-pch")
+	set(my_warn_flags "-Wno-pragmas -Wno-unused-variable -Wno-unused-but-set-variable -Wno-switch -Wno-unused-value -Winvalid-pch -Wno-multichar")
 	
 	if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
 		# append clang-specific settings for warnings (the second one make sure clang doesn't complain
