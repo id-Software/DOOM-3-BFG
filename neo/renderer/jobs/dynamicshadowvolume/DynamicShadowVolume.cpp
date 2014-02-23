@@ -251,7 +251,7 @@ static int CalculateTriangleFacingCulledStatic( byte* __restrict facing, byte* _
 	
 #if defined(USE_INTRINSICS)
 	
-	idODSStreamedIndexedArray< idDrawVert, triIndex_t, 32, SBT_QUAD, 4* 3 > indexedVertsODS( verts, numVerts, indexes, numIndexes );
+	idODSStreamedIndexedArray< idDrawVert, triIndex_t, 32, SBT_QUAD, 4 * 3 > indexedVertsODS( verts, numVerts, indexes, numIndexes );
 	
 	const __m128 lightOriginX = _mm_splat_ps( _mm_load_ss( &lightOrigin.x ), 0 );
 	const __m128 lightOriginY = _mm_splat_ps( _mm_load_ss( &lightOrigin.y ), 0 );
@@ -465,7 +465,7 @@ static int CalculateTriangleFacingCulledSkinned( byte* __restrict facing, byte* 
 		}
 	}
 	
-	idODSStreamedArray< triIndex_t, 256, SBT_QUAD, 4* 3 > indexesODS( indexes, numIndexes );
+	idODSStreamedArray< triIndex_t, 256, SBT_QUAD, 4 * 3 > indexesODS( indexes, numIndexes );
 	
 	const __m128 lightOriginX = _mm_splat_ps( _mm_load_ss( &lightOrigin.x ), 0 );
 	const __m128 lightOriginY = _mm_splat_ps( _mm_load_ss( &lightOrigin.y ), 0 );
@@ -973,10 +973,10 @@ static void R_CreateShadowVolumeTriangles( triIndex_t* __restrict shadowIndices,
 				WriteIndexPair( shadowIndexPtr + 4, v1 ^ f1, v2 ^  1 );
 #else
 				shadowIndexPtr[0] == v1;
-				shadowIndexPtr[1] == v2 ^ f1;
-				shadowIndexPtr[2] == v2 ^ f2;
-				shadowIndexPtr[3] == v1 ^ f2;
-				shadowIndexPtr[4] == v1 ^ f1;
+				shadowIndexPtr[1] == v2^ f1;
+				shadowIndexPtr[2] == v2^ f2;
+				shadowIndexPtr[3] == v1^ f2;
+				shadowIndexPtr[4] == v1^ f1;
 				shadowIndexPtr[5] == v2 ^ 1;
 #endif
 				shadowIndexPtr += 6;

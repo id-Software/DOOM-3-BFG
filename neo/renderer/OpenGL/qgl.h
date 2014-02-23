@@ -57,8 +57,8 @@ typedef void ( *GLExtension_t )( void );
 extern "C" {
 #endif
 
-	GLExtension_t GLimp_ExtensionPointer( const char* name );
-	
+GLExtension_t GLimp_ExtensionPointer( const char* name );
+
 #ifdef __cplusplus
 }
 #endif
@@ -290,7 +290,7 @@ extern  void ( APIENTRY* qglGetMaterialiv )( GLenum face, GLenum pname, GLint* p
 extern  void ( APIENTRY* qglGetPixelMapfv )( GLenum map, GLfloat* values );
 extern  void ( APIENTRY* qglGetPixelMapuiv )( GLenum map, GLuint* values );
 extern  void ( APIENTRY* qglGetPixelMapusv )( GLenum map, GLushort* values );
-extern  void ( APIENTRY* qglGetPointerv )( GLenum pname, GLvoid* *params );
+extern  void ( APIENTRY* qglGetPointerv )( GLenum pname, GLvoid** params );
 extern  void ( APIENTRY* qglGetPolygonStipple )( GLubyte* mask );
 extern  const GLubyte* ( APIENTRY* qglGetString )( GLenum name );
 extern  void ( APIENTRY* qglGetTexEnvfv )( GLenum target, GLenum pname, GLfloat* params );

@@ -156,8 +156,8 @@ public:
 	int ExpectAnyToken( idToken* token );
 	void SetMarker() {}
 	void UnreadToken( const idToken* token );
-	void Error( VERIFY_FORMAT_STRING const char* str, ... ) ID_INSTANCE_ATTRIBUTE_PRINTF(1, 2);
-	void Warning( VERIFY_FORMAT_STRING const char* str, ... ) ID_INSTANCE_ATTRIBUTE_PRINTF(1, 2);
+	void Error( VERIFY_FORMAT_STRING const char* str, ... ) ID_INSTANCE_ATTRIBUTE_PRINTF( 1, 2 );
+	void Warning( VERIFY_FORMAT_STRING const char* str, ... ) ID_INSTANCE_ATTRIBUTE_PRINTF( 1, 2 );
 	int ParseInt();
 	bool ParseBool();
 	float ParseFloat( bool* errorFlag = NULL );

@@ -247,7 +247,7 @@ static idEvent EventPool[ MAX_EVENTS ];
 
 bool idEvent::initialized = false;
 
-idDynamicBlockAlloc<byte, 16* 1024, 256>	idEvent::eventDataAllocator;
+idDynamicBlockAlloc<byte, 16 * 1024, 256>	idEvent::eventDataAllocator;
 
 /*
 ================
