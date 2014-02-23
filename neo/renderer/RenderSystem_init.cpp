@@ -385,7 +385,7 @@ static void R_CheckPortableExtensions()
 	const char* badVideoCard = idLocalization::GetString( "#str_06780" );
 	if( glConfig.glVersion < 2.0f )
 	{
-		idLib::FatalError( badVideoCard );
+		idLib::FatalError( "%s", badVideoCard );
 	}
 	
 	if( idStr::Icmpn( glConfig.renderer_string, "ATI ", 4 ) == 0 || idStr::Icmpn( glConfig.renderer_string, "AMD ", 4 ) == 0 )

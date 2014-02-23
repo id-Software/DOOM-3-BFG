@@ -1074,7 +1074,7 @@ void idCommonLocal::Init( int argc, const char* const* argv, const char* cmdline
 		// clear warning buffer
 		ClearWarnings( GAME_NAME " initialization" );
 		
-		idLib::Printf( va( "Command line: %s\n", cmdline ) );
+		idLib::Printf( "Command line: %s\n", cmdline );
 		//::MessageBox( NULL, cmdline, "blah", MB_OK );
 		// parse command line options
 		idCmdArgs args;

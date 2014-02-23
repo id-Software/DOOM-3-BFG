@@ -38,6 +38,8 @@ endif()
 if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
 	add_definitions(-pipe)
 	#add_definitions(-Wall)
+	add_definitions(-Werror=format-security)
+	add_definitions(-Werror=format)
 	add_definitions(-mmmx -msse -msse2)
 	if(WIN32)
 		# require msvcr70.dll or newer for _aligned_malloc etc

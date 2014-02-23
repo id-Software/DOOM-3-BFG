@@ -113,7 +113,7 @@ int FS_WriteFloatString( char* buf, const char* fmt, va_list argPtr )
 						index += sprintf( buf + index, format.c_str(), str );
 						break;
 					case '%':
-						index += sprintf( buf + index, format.c_str() ); //-V618
+						index += sprintf( buf + index, "%s", format.c_str() );
 						break;
 					default:
 						common->Error( "FS_WriteFloatString: invalid format %s", format.c_str() );
@@ -844,7 +844,7 @@ int idFile_Memory::Write( const void* buffer, int len )
 	{
 		if( maxSize != 0 )
 		{
-			common->Error( "idFile_Memory::Write: exceeded maximum size %d", maxSize );
+			common->Error( "idFile_Memory::Write: exceeded maximum size %lu", maxSize );
 			return 0;
 		}
 		int extra = granularity * ( 1 + alloc / granularity );
@@ -930,7 +930,7 @@ void idFile_Memory::PreAllocate( size_t len )
 	{
 		if( maxSize != 0 )
 		{
-			idLib::Error( "idFile_Memory::SetLength: exceeded maximum size %d", maxSize );
+			idLib::Error( "idFile_Memory::SetLength: exceeded maximum size %lu", maxSize );
 		}
 		char* newPtr = ( char* )Mem_Alloc( len, TAG_IDFILE );
 		if( allocated > 0 )
@@ -1116,7 +1116,7 @@ void idFile_Memory::TruncateData( size_t len )
 {
 	if( len > allocated )
 	{
-		idLib::Error( "idFile_Memory::TruncateData: len (%d) exceeded allocated size (%d)", len, allocated );
+		idLib::Error( "idFile_Memory::TruncateData: len (%lu) exceeded allocated size (%lu)", len, allocated );
 	}
 	else
 	{
