@@ -1,0 +1,106 @@
+EXPORTS
+    ff_float_to_int16_a_sse2 DATA
+    ff_float_to_int16_u_sse2 DATA
+    ff_float_to_int32_a_sse2 DATA
+    ff_float_to_int32_u_sse2 DATA
+    ff_int16_to_float_a_sse2 DATA
+    ff_int16_to_float_u_sse2 DATA
+    ff_int16_to_int32_a_mmx DATA
+    ff_int16_to_int32_a_sse2 DATA
+    ff_int16_to_int32_u_mmx DATA
+    ff_int16_to_int32_u_sse2 DATA
+    ff_int32_to_float_a_avx DATA
+    ff_int32_to_float_a_sse2 DATA
+    ff_int32_to_float_u_avx DATA
+    ff_int32_to_float_u_sse2 DATA
+    ff_int32_to_int16_a_mmx DATA
+    ff_int32_to_int16_a_sse2 DATA
+    ff_int32_to_int16_u_mmx DATA
+    ff_int32_to_int16_u_sse2 DATA
+    ff_log2_tab DATA
+    ff_mix_1_1_a_float_avx DATA
+    ff_mix_1_1_a_float_sse DATA
+    ff_mix_1_1_a_int16_mmx DATA
+    ff_mix_1_1_a_int16_sse2 DATA
+    ff_mix_1_1_u_float_avx DATA
+    ff_mix_1_1_u_float_sse DATA
+    ff_mix_1_1_u_int16_mmx DATA
+    ff_mix_1_1_u_int16_sse2 DATA
+    ff_mix_2_1_a_float_avx DATA
+    ff_mix_2_1_a_float_sse DATA
+    ff_mix_2_1_a_int16_mmx DATA
+    ff_mix_2_1_a_int16_sse2 DATA
+    ff_mix_2_1_u_float_avx DATA
+    ff_mix_2_1_u_float_sse DATA
+    ff_mix_2_1_u_int16_mmx DATA
+    ff_mix_2_1_u_int16_sse2 DATA
+    ff_pack_2ch_float_to_int16_a_sse2 DATA
+    ff_pack_2ch_float_to_int16_u_sse2 DATA
+    ff_pack_2ch_float_to_int32_a_sse2 DATA
+    ff_pack_2ch_float_to_int32_u_sse2 DATA
+    ff_pack_2ch_int16_to_float_a_sse2 DATA
+    ff_pack_2ch_int16_to_float_u_sse2 DATA
+    ff_pack_2ch_int16_to_int16_a_sse2 DATA
+    ff_pack_2ch_int16_to_int16_u_sse2 DATA
+    ff_pack_2ch_int16_to_int32_a_sse2 DATA
+    ff_pack_2ch_int16_to_int32_u_sse2 DATA
+    ff_pack_2ch_int32_to_float_a_sse2 DATA
+    ff_pack_2ch_int32_to_float_u_sse2 DATA
+    ff_pack_2ch_int32_to_int16_a_sse2 DATA
+    ff_pack_2ch_int32_to_int16_u_sse2 DATA
+    ff_pack_2ch_int32_to_int32_a_sse2 DATA
+    ff_pack_2ch_int32_to_int32_u_sse2 DATA
+    ff_pack_6ch_float_to_float_a_avx DATA
+    ff_pack_6ch_float_to_float_a_mmx DATA
+    ff_pack_6ch_float_to_float_a_sse4 DATA
+    ff_pack_6ch_float_to_float_u_avx DATA
+    ff_pack_6ch_float_to_float_u_mmx DATA
+    ff_pack_6ch_float_to_float_u_sse4 DATA
+    ff_pack_6ch_float_to_int32_a_avx DATA
+    ff_pack_6ch_float_to_int32_a_sse4 DATA
+    ff_pack_6ch_float_to_int32_u_avx DATA
+    ff_pack_6ch_float_to_int32_u_sse4 DATA
+    ff_pack_6ch_int32_to_float_a_avx DATA
+    ff_pack_6ch_int32_to_float_a_sse4 DATA
+    ff_pack_6ch_int32_to_float_u_avx DATA
+    ff_pack_6ch_int32_to_float_u_sse4 DATA
+    ff_resample_int16_rounder DATA
+    ff_unpack_2ch_float_to_int16_a_sse2 DATA
+    ff_unpack_2ch_float_to_int16_u_sse2 DATA
+    ff_unpack_2ch_float_to_int32_a_sse2 DATA
+    ff_unpack_2ch_float_to_int32_u_sse2 DATA
+    ff_unpack_2ch_int16_to_float_a_sse2 DATA
+    ff_unpack_2ch_int16_to_float_a_ssse3 DATA
+    ff_unpack_2ch_int16_to_float_u_sse2 DATA
+    ff_unpack_2ch_int16_to_float_u_ssse3 DATA
+    ff_unpack_2ch_int16_to_int16_a_sse2 DATA
+    ff_unpack_2ch_int16_to_int16_a_ssse3 DATA
+    ff_unpack_2ch_int16_to_int16_u_sse2 DATA
+    ff_unpack_2ch_int16_to_int16_u_ssse3 DATA
+    ff_unpack_2ch_int16_to_int32_a_sse2 DATA
+    ff_unpack_2ch_int16_to_int32_a_ssse3 DATA
+    ff_unpack_2ch_int16_to_int32_u_sse2 DATA
+    ff_unpack_2ch_int16_to_int32_u_ssse3 DATA
+    ff_unpack_2ch_int32_to_float_a_sse2 DATA
+    ff_unpack_2ch_int32_to_float_u_sse2 DATA
+    ff_unpack_2ch_int32_to_int16_a_sse2 DATA
+    ff_unpack_2ch_int32_to_int16_u_sse2 DATA
+    ff_unpack_2ch_int32_to_int32_a_sse2 DATA
+    ff_unpack_2ch_int32_to_int32_u_sse2 DATA
+    swr_alloc
+    swr_alloc_set_opts
+    swr_convert
+    swr_drop_output
+    swr_free
+    swr_get_class
+    swr_get_delay
+    swr_init
+    swr_inject_silence
+    swr_is_initialized
+    swr_next_pts
+    swr_set_channel_mapping
+    swr_set_compensation
+    swr_set_matrix
+    swresample_configuration
+    swresample_license
+    swresample_version
