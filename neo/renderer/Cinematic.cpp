@@ -47,17 +47,21 @@ extern idCVar s_noSound;
 #define CIN_silent	8
 #define CIN_shader	16
 
-//Carl: ffmpg for bink video files
+// Carl: ffmpg for bink video files
 extern "C"
 {
+
+//#ifdef WIN32
 #ifndef INT64_C
 #define INT64_C(c) (c ## LL)
 #define UINT64_C(c) (c ## ULL)
 #endif
 #include <inttypes.h>
-#include <avcodec.h>
-#include <avformat.h>
-#include <swscale.h>
+//#endif
+
+#include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
+#include <libswscale/swscale.h>
 }
 
 #if 0
@@ -417,8 +421,15 @@ idCinematicLocal::~idCinematicLocal()
 	qStatus[1] = NULL;
 	
 	// Carl: ffmpeg for bink and other video files:
+
+    // RB: TODO double check this. It seems we have different versions of ffmpeg on Kubuntu 13.10 and the win32 development files
+#if defined(_WIN32) || defined(_WIN64)
 	avcodec_free_frame( &frame );
 	avcodec_free_frame( &frame2 );
+#else
+    av_freep( &frame );
+    av_freep( &frame2 );
+#endif
 	avformat_free_context( fmt_ctx );
 	if( img_convert_ctx )
 		sws_freeContext( img_convert_ctx );
