@@ -15,6 +15,9 @@ option(SDL2
 option(OPENAL
 		"Use OpenAL soft instead of XAudio2" OFF)
 
+option(FFMPEG
+		"Use FMPEG to render Bink videos" ON)
+
 if(UNIX)
 	set(OPENAL TRUE)
 endif()
@@ -132,6 +135,13 @@ elseif(MSVC)
 		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MP /Oi /Oy /MT")
 		set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /MP /MTd")
 		set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} /MP /Oi /Oy /MT")
+		
+		# RB: without /SAFESEH:NO we can't link against ffmpeg libs and VS2013 or we have to build our own
+		# libs for newer compilers
+		set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} /SAFESEH:NO")
+		set(CMAKE_EXE_LINKER_FLAGS_MINSIZEREL "${CMAKE_EXE_LINKER_FLAGS_MINSIZEREL} /SAFESEH:NO")
+		set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /SAFESEH:NO")
+		set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO} /SAFESEH:NO")
 	# endif()
 	
 
@@ -1177,6 +1187,33 @@ if(MSVC)
 			${DOOMCLASSIC_XAUDIO2_SOURCES})
 	endif()
 	
+	if(FFMPEG)
+		if(CMAKE_CL_64)
+			include_directories(libs/ffmpeg-win64/include)
+			include_directories(libs/ffmpeg-win64/include/libswscale)
+			include_directories(libs/ffmpeg-win64/include/libavformat)
+			include_directories(libs/ffmpeg-win64/include/libavdevice)
+			include_directories(libs/ffmpeg-win64/include/libavcodec)
+			
+			link_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs/ffmpeg-win64/lib)
+		else()
+			include_directories(libs/ffmpeg-win32/include)
+			include_directories(libs/ffmpeg-win32/include/libswscale)
+			include_directories(libs/ffmpeg-win32/include/libavformat)
+			include_directories(libs/ffmpeg-win32/include/libavdevice)
+			include_directories(libs/ffmpeg-win32/include/libavcodec)
+			
+			link_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs/ffmpeg-win32/lib)
+			
+			set(FFmpeg_LIBRARIES
+				avcodec
+				avformat
+				avutil
+				swscale)
+		endif()
+		
+	endif()
+	
 	if(USE_MFC_TOOLS)
 		
 		include_directories(libs/atlmfc/include)
@@ -1266,6 +1303,7 @@ if(MSVC)
 		winmm
 		wsock32.lib
 		${OpenAL_LIBRARIES}
+		${FFmpeg_LIBRARIES}
 		)
 		
 	#CMAKE_BINARY_DIR
@@ -1282,17 +1320,13 @@ else()
 	list(APPEND RBDOOM3_SOURCES
 		${SYS_INCLUDES} ${SYS_SOURCES})
 	
-	if(WIN32)
-		list(APPEND RBDOOM3_SOURCES
-			${WIN32_INCLUDES} ${WIN32_SOURCES} ${WIN32_RESOURCES}
-			${DOOMCLASSIC_STUBAUDIO_SOURCES})
-	
-		#list(REMOVE_ITEM WIN32_SOURCES sys/win32/win_cpu.cpp)
-		list(APPEND WIN32_SOURCES sys/sdl/sdl_cpu.cpp)
-	endif()
-	
 	if(UNIX)
-	
+		if(FFMPEG)
+			find_package(FFMPEG)
+			include_directories(${FFMPEG_INCLUDE_DIR})
+			link_directories(${FFMPEG_LIBRARIES_DIRS})
+		endif()
+
 		if(SDL2)
 			find_package(SDL2 REQUIRED)
 			include_directories(${SDL2_INCLUDE_DIR})
@@ -1402,31 +1436,6 @@ else()
 	# make sure precompiled header is deleted after executable is compiled
 	add_dependencies(rm_precomp_header RBDoom3BFG)
 	
-	if(MINGW)
-		include_directories(libs/sdl2/include)
-		
-		link_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs/sdl2/libmingw32)
-	endif()
-	
-	if(WIN32)
-	
-		target_link_libraries(RBDoom3BFG
-			idlib
-			${DirectX_LIBRARIES}
-			#libcurl 
-			#openal32 
-			opengl32
-			glu32
-			dbghelp
-			#eaxguid
-			iphlpapi
-			winmm
-			wsock32.lib
-			SDL2
-			)
-	  
-	endif()
-	
 	IF("${CMAKE_SYSTEM}" MATCHES "Linux")
 		target_link_libraries(RBDoom3BFG
 			idlib
@@ -1436,6 +1445,7 @@ else()
 			rt
 			${SDLx_LIBRARY}
 			${OPENAL_LIBRARY}
+			${FFMPEG_LIBRARIES}
 			)
 	endif()
 
@@ -1447,6 +1457,7 @@ else()
 			rt
 			${SDLx_LIBRARY}
 			${OPENAL_LIBRARY}
+			${FFMPEG_LIBRARIES}
 			)
 	endif()
     

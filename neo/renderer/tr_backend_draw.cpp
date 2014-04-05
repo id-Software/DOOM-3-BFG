@@ -4,6 +4,7 @@
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2013 Robert Beckebans
+Copyright (C) 2014 Carl Kenner
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -407,6 +408,14 @@ static void RB_BindVariableStageImage( const textureStage_t* texture, const floa
 			cin.imageCr->Bind();
 			GL_SelectTexture( 2 );
 			cin.imageCb->Bind();
+			
+		}
+		else if( cin.image != NULL )
+		{
+			//Carl: A single RGB image works better with the FFMPEG BINK codec.
+			GL_SelectTexture( 0 );
+			cin.image->Bind();
+			renderProgManager.BindShader_TextureVertexColor();
 		}
 		else
 		{
