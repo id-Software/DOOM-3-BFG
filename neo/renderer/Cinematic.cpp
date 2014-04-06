@@ -375,7 +375,7 @@ idCinematicLocal::idCinematicLocal()
 #if defined(USE_FFMPEG)
 	// Carl: ffmpeg stuff, for bink and normal video files:
 	isRoQ = false;
-	fmt_ctx = avformat_alloc_context();
+//	fmt_ctx = avformat_alloc_context();
 	frame = avcodec_alloc_frame();
 	frame2 = avcodec_alloc_frame();
 	dec_ctx = NULL;
@@ -461,11 +461,6 @@ bool idCinematicLocal::InitFromFFMPEGFile( const char* qpath, bool amilooping )
 	CIN_HEIGHT = DEFAULT_CIN_HEIGHT;
 	CIN_WIDTH  =  DEFAULT_CIN_WIDTH;
 	idStr fullpath = fileSystem->RelativePathToOSPath( qpath, "fs_basepath" );
-	
-	if( !fmt_ctx )
-	{
-		return false;
-	}
 	
 	if( ( ret = avformat_open_input( &fmt_ctx, fullpath, NULL, NULL ) ) < 0 )
 	{
@@ -561,7 +556,7 @@ bool idCinematicLocal::InitFromFile( const char* qpath, bool amilooping )
 	Close();
 	
 	inMemory = 0;
-	animationLength = 15000; //Carl: We can't tell how long an RoQ file is, so say it's 15 seconds
+	animationLength = 100000;
 	
 	// Carl: if no folder is specified, look in the video folder
 	if( strstr( qpath, "/" ) == NULL && strstr( qpath, "\\" ) == NULL )
@@ -596,6 +591,7 @@ bool idCinematicLocal::InitFromFile( const char* qpath, bool amilooping )
 		idLib::Warning( "New filename: '%s'\n", fileName.c_str() );
 		return InitFromFFMPEGFile( fileName.c_str(), amilooping );
 #else
+		animationLength = 0;
 		return false;
 #endif
 	}
@@ -719,6 +715,12 @@ cinData_t idCinematicLocal::ImageForTime( int thisTime )
 //	if ( r_skipROQ.GetBool() ) {
 	if( r_skipDynamicTextures.GetBool() )
 	{
+		return cinData;
+	}
+	
+	if( !iFile )
+	{
+		// RB: neither .bik or .roq found
 		return cinData;
 	}
 	

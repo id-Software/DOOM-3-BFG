@@ -1188,6 +1188,8 @@ if(MSVC)
 	endif()
 	
 	if(FFMPEG)
+		add_definitions(-DUSE_FFMPEG)
+	
 		if(CMAKE_CL_64)
 			include_directories(libs/ffmpeg-win64/include)
 			include_directories(libs/ffmpeg-win64/include/libswscale)
@@ -1322,7 +1324,9 @@ else()
 	
 	if(UNIX)
 		if(FFMPEG)
-			find_package(FFMPEG)
+			find_package(FFMPEG REQUIRED)
+			add_definitions(-DUSE_FFMPEG)
+			
 			include_directories(${FFMPEG_INCLUDE_DIR})
 			link_directories(${FFMPEG_LIBRARIES_DIRS})
 		endif()
