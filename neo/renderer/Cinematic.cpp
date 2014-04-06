@@ -47,6 +47,7 @@ extern idCVar s_noSound;
 #define CIN_silent	8
 #define CIN_shader	16
 
+#if defined(USE_FFMPEG)
 // Carl: ffmpg for bink video files
 extern "C"
 {
@@ -63,14 +64,6 @@ extern "C"
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
 }
-
-#if 0
-#pragma comment(lib, "..\\libs\\ffmpeg-win32\\lib\\avcodec.lib")
-#pragma comment(lib, "..\\libs\\ffmpeg-win32\\lib\\avformat.lib")
-#pragma comment(lib, "..\\libs\\ffmpeg-win32\\lib\\avutil.lib")
-#pragma comment(lib, "..\\libs\\ffmpeg-win32\\lib\\swscale.lib")
-
-HMODULE avcodec_dll = NULL, avformat_dll = NULL;
 #endif
 
 class idCinematicLocal : public idCinematic
@@ -80,14 +73,14 @@ public:
 	virtual					~idCinematicLocal();
 	
 	virtual bool			InitFromFile( const char* qpath, bool looping );
-	virtual bool			InitFromFFMPEGFile( const char* qpath, bool looping );
 	virtual cinData_t		ImageForTime( int milliseconds );
-	virtual cinData_t		ImageForTimeFFMPEG( int milliseconds );
 	virtual int				AnimationLength();
 	virtual void			Close();
 	virtual void			ResetTime( int time );
 	
 private:
+
+#if defined(USE_FFMPEG)
 	int						video_stream_index;
 	AVFormatContext*		fmt_ctx;
 	AVFrame*				frame;
@@ -97,11 +90,13 @@ private:
 	SwsContext*				img_convert_ctx;
 	bool					hasFrame;
 	long					FramePos;
+	
+	cinData_t				ImageForTimeFFMPEG( int milliseconds );
+	bool					InitFromFFMPEGFile( const char* qpath, bool looping );
+	void					FFMPEGReset();
+#endif
 	idImage*				img;
 	bool					isRoQ;
-	
-	void					FFMPEGReset();
-	
 	
 	// RB: 64 bit fixes, changed long to int
 	size_t					mcomp[256];
@@ -211,10 +206,12 @@ idCinematicLocal::InitCinematic
 // RB: 64 bit fixes, changed long to int
 void idCinematic::InitCinematic()
 {
+#if defined(USE_FFMPEG)
 	// Carl: ffmpeg for Bink and regular video files
 	common->Warning( "Loading FFMPEG...\n" );
 	avcodec_register_all();
 	av_register_all();
+#endif
 	
 	// Carl: Doom 3 ROQ:
 	float t_ub, t_vr, t_ug, t_vg;
@@ -375,6 +372,7 @@ idCinematicLocal::idCinematicLocal()
 	qStatus[0] = ( byte** )Mem_Alloc( 32768 * sizeof( byte* ), TAG_CINEMATIC );
 	qStatus[1] = ( byte** )Mem_Alloc( 32768 * sizeof( byte* ), TAG_CINEMATIC );
 	
+#if defined(USE_FFMPEG)
 	// Carl: ffmpeg stuff, for bink and normal video files:
 	isRoQ = false;
 	fmt_ctx = avformat_alloc_context();
@@ -384,12 +382,13 @@ idCinematicLocal::idCinematicLocal()
 	fmt_ctx = NULL;
 	video_stream_index = -1;
 	img_convert_ctx = NULL;
+	hasFrame = false;
+#endif
 	
 	// Carl: Original Doom 3 RoQ files:
 	image = NULL;
 	status = FMV_EOF;
 	buf = NULL;
-	hasFrame = false;
 	iFile = NULL;
 	img = globalImages->AllocStandaloneImage( "_cinematic" );
 	if( img != NULL )
@@ -420,19 +419,29 @@ idCinematicLocal::~idCinematicLocal()
 	Mem_Free( qStatus[1] );
 	qStatus[1] = NULL;
 	
+#if defined(USE_FFMPEG)
 	// Carl: ffmpeg for bink and other video files:
-
-    // RB: TODO double check this. It seems we have different versions of ffmpeg on Kubuntu 13.10 and the win32 development files
+	
+	// RB: TODO double check this. It seems we have different versions of ffmpeg on Kubuntu 13.10 and the win32 development files
 #if defined(_WIN32) || defined(_WIN64)
 	avcodec_free_frame( &frame );
 	avcodec_free_frame( &frame2 );
 #else
-    av_freep( &frame );
-    av_freep( &frame2 );
+	av_freep( &frame );
+	av_freep( &frame2 );
 #endif
-	avformat_free_context( fmt_ctx );
+	
+	if( fmt_ctx )
+	{
+		avformat_free_context( fmt_ctx );
+	}
+	
 	if( img_convert_ctx )
+	{
 		sws_freeContext( img_convert_ctx );
+	}
+#endif
+	
 	delete img;
 	img = NULL;
 }
@@ -442,6 +451,7 @@ idCinematicLocal::~idCinematicLocal()
 idCinematicLocal::InitFromFFMPEGFile
 ==============
 */
+#if defined(USE_FFMPEG)
 bool idCinematicLocal::InitFromFFMPEGFile( const char* qpath, bool amilooping )
 {
 	int ret;
@@ -450,7 +460,12 @@ bool idCinematicLocal::InitFromFFMPEGFile( const char* qpath, bool amilooping )
 	isRoQ = false;
 	CIN_HEIGHT = DEFAULT_CIN_HEIGHT;
 	CIN_WIDTH  =  DEFAULT_CIN_WIDTH;
-	idStr fullpath = fileSystem->RelativePathToOSPath( qpath, "fs_basepath" ); //Carl: //todo: check this!
+	idStr fullpath = fileSystem->RelativePathToOSPath( qpath, "fs_basepath" );
+	
+	if( !fmt_ctx )
+	{
+		return false;
+	}
 	
 	if( ( ret = avformat_open_input( &fmt_ctx, fullpath, NULL, NULL ) ) < 0 )
 	{
@@ -516,13 +531,14 @@ bool idCinematicLocal::InitFromFFMPEGFile( const char* qpath, bool amilooping )
 	status = ( looping ) ? FMV_PLAY : FMV_IDLE;
 	return true;
 }
-
+#endif
 
 /*
 ==============
 idCinematicLocal::FFMPEGReset
 ==============
 */
+#if defined(USE_FFMPEG)
 void idCinematicLocal::FFMPEGReset()
 {
 	startTime = 0;
@@ -530,6 +546,7 @@ void idCinematicLocal::FFMPEGReset()
 	av_seek_frame( fmt_ctx, video_stream_index, 0, 0 );
 	status = FMV_LOOPED;
 }
+#endif
 
 
 /*
@@ -569,13 +586,18 @@ bool idCinematicLocal::InitFromFile( const char* qpath, bool amilooping )
 	// Carl: If the RoQ file doesn't exist, try using ffmpeg instead:
 	if( !iFile )
 	{
+#if defined(USE_FFMPEG)
 		idLib::Warning( "Original Doom 3 RoQ Cinematic not found: '%s'\n", fileName.c_str() );
 		idStr temp = fileName.StripFileExtension() + ".bik";
 		animationLength = 0;
+		hasFrame = false;
 		RoQShutdown();
 		fileName = temp;
 		idLib::Warning( "New filename: '%s'\n", fileName.c_str() );
 		return InitFromFFMPEGFile( fileName.c_str(), amilooping );
+#else
+		return false;
+#endif
 	}
 	// Carl: The rest of this function is for original Doom 3 RoQ files:
 	isRoQ = true;
@@ -588,7 +610,6 @@ bool idCinematicLocal::InitFromFile( const char* qpath, bool amilooping )
 	samplesPerPixel = 4;
 	startTime = 0;	//Sys_Milliseconds();
 	buf = NULL;
-	hasFrame = false;
 	
 	iFile->Read( file, 16 );
 	
@@ -627,8 +648,12 @@ void idCinematicLocal::Close()
 		buf = NULL;
 		status = FMV_EOF;
 	}
-	hasFrame = false;
+	
 	RoQShutdown();
+	
+#if defined(USE_FFMPEG)
+	hasFrame = false;
+	
 	if( !isRoQ )
 	{
 		if( img_convert_ctx )
@@ -639,6 +664,7 @@ void idCinematicLocal::Close()
 		avformat_close_input( &fmt_ctx );
 		status = FMV_EOF;
 	}
+#endif
 }
 
 /*
@@ -669,11 +695,13 @@ idCinematicLocal::ImageForTime
 */
 cinData_t idCinematicLocal::ImageForTime( int thisTime )
 {
-	//Carl: Handle BFG format BINK videos separately
+#if defined(USE_FFMPEG)
+	// Carl: Handle BFG format BINK videos separately
 	if( !isRoQ )
 		return ImageForTimeFFMPEG( thisTime );
+#endif
 		
-	//Carl: Handle original Doom 3 RoQ video files
+	// Carl: Handle original Doom 3 RoQ video files
 	cinData_t	cinData;
 	
 	if( thisTime == 0 )
@@ -784,6 +812,7 @@ cinData_t idCinematicLocal::ImageForTime( int thisTime )
 idCinematicLocal::ImageForTimeFFMPEG
 ==============
 */
+#if defined(USE_FFMPEG)
 cinData_t idCinematicLocal::ImageForTimeFFMPEG( int thisTime )
 {
 	cinData_t	cinData;
@@ -873,6 +902,7 @@ cinData_t idCinematicLocal::ImageForTimeFFMPEG( int thisTime )
 	cinData.image = img;
 	return cinData;
 }
+#endif
 
 /*
 ==============
