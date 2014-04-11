@@ -653,11 +653,21 @@ void idCinematicLocal::Close()
 	if( !isRoQ )
 	{
 		if( img_convert_ctx )
+		{
 			sws_freeContext( img_convert_ctx );
+		}
+		
 		img_convert_ctx = NULL;
+		
 		if( dec_ctx )
+		{
 			avcodec_close( dec_ctx );
-		avformat_close_input( &fmt_ctx );
+		}
+		
+		if( fmt_ctx )
+		{
+			avformat_close_input( &fmt_ctx );
+		}
 		status = FMV_EOF;
 	}
 #endif
