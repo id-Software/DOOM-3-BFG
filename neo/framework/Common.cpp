@@ -1929,3 +1929,16 @@ CONSOLE_COMMAND( testSIMD, "test SIMD code", NULL )
 {
 	idSIMD::Test_f( args );
 }
+
+// RB begin
+CONSOLE_COMMAND( testFormattingSizes, "test printf format security", 0 )
+{
+#ifdef _MSC_VER
+	common->Printf( " sizeof( int32 ): %Iu bytes\n", sizeof( int32 ) );
+	common->Printf( " sizeof( int64 ): %Iu bytes\n", sizeof( int64 ) );
+#else
+	common->Printf( " sizeof( int32 ): %zu bytes\n", sizeof( int32 ) );
+	common->Printf( " sizeof( int64 ): %zu bytes\n", sizeof( int64 ) );
+#endif
+}
+// RB end

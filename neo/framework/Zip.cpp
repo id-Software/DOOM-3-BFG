@@ -504,7 +504,13 @@ bool idZipBuilder::CreateZipFileFromFiles( const idList< idFile_Memory* >& srcFi
 					errcode = zipWriteInFileInZip( zf, buffer.Ptr(), ( unsigned int )bytesRead );
 					if( errcode != ZIP_OK )
 					{
-						idLib::Warning( "Error writing to zipfile (%lu bytes)!", bytesRead );
+// RB begin
+#ifdef _MSC_VER
+						idLib::Warning( "Error writing to zipfile (%Iu bytes)!", bytesRead );
+#else
+						idLib::Warning( "Error writing to zipfile (%zu bytes)!", bytesRead );
+#endif
+// RB end
 						continue;
 					}
 				}
@@ -612,7 +618,13 @@ bool idZipBuilder::AddFile( zipFile zf, idFile_Memory* src, bool deleteFile )
 				errcode = zipWriteInFileInZip( zf, buffer.Ptr(), ( unsigned int )bytesRead );
 				if( errcode != ZIP_OK )
 				{
-					idLib::Warning( "Error writing to zipfile (%lu bytes)!", bytesRead );
+// RB begin
+#ifdef _MSC_VER
+					idLib::Warning( "Error writing to zipfile (%Iu bytes)!", bytesRead );
+#else
+					idLib::Warning( "Error writing to zipfile (%zu bytes)!", bytesRead );
+#endif
+// RB end
 					continue;
 				}
 			}
