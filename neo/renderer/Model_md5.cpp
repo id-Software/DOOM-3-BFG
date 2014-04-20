@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013-2014 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -526,7 +527,9 @@ void idMD5Mesh::UpdateSurface( const struct renderEntity_s* ent, const idJointMa
 	tri->indexCache = deformInfo->staticIndexCache;
 	
 	tri->numVerts = deformInfo->numOutputVerts;
-	if( r_useGPUSkinning.GetBool() )
+	
+	// RB: added check wether GPU skinning is available at all
+	if( r_useGPUSkinning.GetBool() && glConfig.gpuSkinningAvailable )
 	{
 		if( tri->verts != NULL && tri->verts != deformInfo->verts )
 		{

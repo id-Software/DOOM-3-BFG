@@ -390,6 +390,20 @@ static HGLRC CreateOpenGLContextOnDC( const HDC hdc, const bool debugContext )
 		if( m_hrc != NULL )
 		{
 			idLib::Printf( "created OpenGL %d.%d context\n", glMajorVersion, glMinorVersion );
+			
+			if( useOpenGL32 == 2 )
+			{
+				glConfig.driverType = GLDRV_OPENGL32_CORE_PROFILE;
+			}
+			else if( useOpenGL32 == 1 )
+			{
+				glConfig.driverType = GLDRV_OPENGL32_COMPATIBILITY_PROFILE;
+			}
+			else
+			{
+				glConfig.driverType = GLDRV_OPENGL3X;
+			}
+			
 			break;
 		}
 		
