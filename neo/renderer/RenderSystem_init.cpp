@@ -401,6 +401,15 @@ static void R_CheckPortableExtensions()
 		glConfig.vendor = VENDOR_INTEL;
 	}
 	
+	// RB: HACK for testing: Mesa support
+#if defined(__linux__) //!defined(_WIN32) && !defined(__ANDROID__)
+	//if( glConfig.vendor == VENDOR_INTEL )
+	{
+		glConfig.driverType = GLDRV_OPENGL_MESA;
+	}
+#endif
+	// RB end
+	
 	// GL_ARB_multitexture
 	glConfig.multitextureAvailable = R_CheckExtension( "GL_ARB_multitexture" );
 	if( glConfig.multitextureAvailable )

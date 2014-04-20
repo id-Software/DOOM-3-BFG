@@ -90,7 +90,7 @@ void idRenderProgManager::Init()
 	{
 		{ BUILTIN_GUI, "gui.vfp", false },
 		{ BUILTIN_COLOR, "color.vfp", false },
-		{ BUILTIN_SIMPLESHADE, "simpleshade.vfp", false },
+//		{ BUILTIN_SIMPLESHADE, "simpleshade.vfp", false },
 		{ BUILTIN_TEXTURED, "texture.vfp", false },
 		{ BUILTIN_TEXTURE_VERTEXCOLOR, "texture_color.vfp", false },
 		{ BUILTIN_TEXTURE_VERTEXCOLOR_SKINNED, "texture_color_skinned.vfp", true },
@@ -117,11 +117,11 @@ void idRenderProgManager::Init()
 		{ BUILTIN_POSTPROCESS, "postprocess.vfp", false },
 		{ BUILTIN_STEREO_DEGHOST, "stereoDeGhost.vfp", false },
 		{ BUILTIN_STEREO_WARP, "stereoWarp.vfp", false },
-		{ BUILTIN_ZCULL_RECONSTRUCT, "zcullReconstruct.vfp", false },
+//		{ BUILTIN_ZCULL_RECONSTRUCT, "zcullReconstruct.vfp", false },
 		{ BUILTIN_BINK, "bink.vfp", false },
 		{ BUILTIN_BINK_GUI, "bink_gui.vfp", false },
 		{ BUILTIN_STEREO_INTERLACE, "stereoInterlace.vfp", false },
-		{ BUILTIN_MOTION_BLUR, "motionBlur.vfp", false },
+//		{ BUILTIN_MOTION_BLUR, "motionBlur.vfp", false },
 		{ BUILTIN_SHADOW, "shadow.vfp", false },
 		{ BUILTIN_SHADOW_SKINNED, "shadow_skinned.vfp", true },
 	};
