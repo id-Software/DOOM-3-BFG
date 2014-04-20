@@ -1984,7 +1984,7 @@ void GfxInfo_f( const idCmdArgs& args )
 	}
 	else
 	{
-		common->Printf( S_COLOR_GREEN "GPU skeletal animation not available (slower CPU path active)\n" );
+		common->Printf( S_COLOR_RED "GPU skeletal animation not available (slower CPU path active)\n" );
 	}
 }
 
