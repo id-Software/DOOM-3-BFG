@@ -401,13 +401,11 @@ static void R_CheckPortableExtensions()
 		glConfig.vendor = VENDOR_INTEL;
 	}
 	
-	// RB: HACK for testing: Mesa support
-#if defined(__linux__) //!defined(_WIN32) && !defined(__ANDROID__)
-	//if( glConfig.vendor == VENDOR_INTEL )
+	// RB: Mesa support
+	if( idStr::Icmpn( glConfig.renderer_string, "Mesa", 4 ) == 0 || idStr::Icmpn( glConfig.renderer_string, "X.org", 4 ) == 0 )
 	{
 		glConfig.driverType = GLDRV_OPENGL_MESA;
 	}
-#endif
 	// RB end
 	
 	// GL_ARB_multitexture
@@ -617,7 +615,7 @@ static void R_CheckPortableExtensions()
 	}
 	
 	// GL_ARB_timer_query
-	glConfig.timerQueryAvailable = R_CheckExtension( "GL_ARB_timer_query" ) || R_CheckExtension( "GL_EXT_timer_query" );
+	glConfig.timerQueryAvailable = ( R_CheckExtension( "GL_ARB_timer_query" ) || R_CheckExtension( "GL_EXT_timer_query" ) ) && glConfig.driverType != GLDRV_OPENGL_MESA;
 	if( glConfig.timerQueryAvailable )
 	{
 		qglGetQueryObjectui64vEXT = ( PFNGLGETQUERYOBJECTUI64VEXTPROC )GLimp_ExtensionPointer( "glGetQueryObjectui64vARB" );
