@@ -6,9 +6,9 @@
 _________________________________________
 
 
-RBDoom3BFG Readme - https://github.com/RobertBeckebans/RBDOOM-3-BFG
+RBDOOM-3-BFG Readme - https://github.com/RobertBeckebans/RBDOOM-3-BFG
 
-Thank you for downloading RBDoom3BFG.
+Thank you for downloading RBDOOM-3-BFG.
 
 
 
@@ -94,7 +94,7 @@ any other Steam features.
 
 Bink:
 -----
-The Doom 3 BFG Edition GPL Source Code release does not include functionality for rendering Bink Videos.
+The RBDoom3BFG Edition GPL Source Code release includes functionality for rendering Bink Videos through FFmpeg.
 
 
 Back End Rendering of Stencil Shadows:
@@ -141,6 +141,10 @@ __________________________________________________________
 
 3. Use the VC10 solution to compile what you need:
 	RBDOOM-3-BFG/build/RBDoom3BFG.sln
+	
+4. Download ffmpeg-20140405-git-ec8789a-win32-shared.7z from ffmpeg.zeranoe.com/builds/win32/devel
+
+5. Extract the DLLs to your current build directory under RBDOOM-3-BFG/build/
 
 
 __________________________________
@@ -153,10 +157,12 @@ _________________________
  
 	On Debian or Ubuntu:
 
-		> apt-get install cmake libsdl1.2-dev libopenal-dev
+		> apt-get install cmake libsdl1.2-dev libopenal-dev libavcodec-dev libavformat-dev libavutil-dev libswscale-dev
 	
 	On Fedora
 
+		// TODO add ffmpeg libs for bink videos
+		
 		> yum install cmake SDL-devel openal-devel
 	
 	Instead of SDL1.2 development files you can also use SDL2, but so far it 
@@ -173,7 +179,7 @@ _________________________
 	> cd neo/
 	> ./cmake-eclipse-linux-profile.sh
 	
-3. Compile RBDoom3BFG targets with
+3. Compile RBDOOM-3-BFG targets with
 
 	> cd ../build
 	> make
@@ -185,8 +191,8 @@ __________________________________________
 
 To play the game, you need the game data from a legal copy of the game, which 
 unfortunately requires Steam for Windows - Steam for Linux or OSX won't do, because
-(at least currently) the Doom3 BFG game is only installable on Steam for Windows.
-Even the DVD version of Doom3 BFG only contains encrytped data that is decoded
+(at least currently) the Doom 3 BFG game is only installable on Steam for Windows.
+Even the DVD version of Doom 3 BFG only contains encrytped data that is decoded
 by Steam on install.
 
 Fortunately, you can run Steam in Wine to install Doom3 BFG and afterwards copy the 
@@ -195,21 +201,29 @@ Winetricks ( http://winetricks.org/ ) makes installing Windows Steam on Linux re
 
 Anyway:
 
-1. Install Doom3 BFG in Steam (Windows version), make sure it's getting 
+1. Install Doom 3 BFG in Steam (Windows version), make sure it's getting 
    updated/patched.
 
-2. Create your own doom3bfg directory, e.g. /path/to/Doom3BFG/
+2. Create your own Doom 3 BFG directory, e.g. /path/to/Doom3BFG/
 
 3. Copy the game-data's base dir from Steam to that directory 
    (e.g. /path/to/Doom3BFG/), it's in
 	/your/path/to/Steam/steamapps/common/DOOM 3 BFG Edition/base/
 
-4. Copy your RBDoom3BFG executable that you created in 5) or 6) to your own 
-   doom3bfg directory (/path/to/Doom3BFG).
+4. Copy your RBDoom3BFG executable that you created in 5) or 6) and the FFmpeg DLLs to your own 
+   Doom 3 BFG directory (/path/to/Doom3BFG).
    
-   Your own doom3bfg directory now should look like:
+   Your own Doom 3 BFG directory now should look like:
 	/path/to/Doom3BFG/
 	 ->	RBDoom3BFG (or RBDoom3BFG.exe on Windows)
+	 -> avcodec-55.dll
+	 -> avdevice-55.dll
+	 -> avfilter-4.dll
+	 -> avformat-55.dll
+	 -> avutil-52.dll
+	 -> postproc-52.dll
+	 -> swresample-0.dll
+	 -> swscale-2.dll
 	 ->	base/
 		 ->	classicmusic/
 		 ->	_common.crc
@@ -261,7 +275,7 @@ ___________________________________________________
 12) BUG REPORTS
 __________________________________________
 
-RBDoom3BFG is not perfect, it is not bug free as every other software.
+RBDOOM-3-BFG is not perfect, it is not bug free as every other software.
 For fixing as much problems as possible we need as much bug reports as possible.
 We cannot fix anything if we do not know about the problems.
 

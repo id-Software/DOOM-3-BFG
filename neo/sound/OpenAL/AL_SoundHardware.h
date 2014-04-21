@@ -100,9 +100,9 @@ private:
 	//int				vuMeterPeakTimes[ 8 ];
 	
 	// Can't stop and start a voice on the same frame, so we have to double this to handle the worst case scenario of stopping all voices and starting a full new set
-	idStaticList<idSoundVoice_OpenAL, MAX_HARDWARE_VOICES* 2 > voices;
-	idStaticList<idSoundVoice_OpenAL*, MAX_HARDWARE_VOICES* 2 > zombieVoices;
-	idStaticList<idSoundVoice_OpenAL*, MAX_HARDWARE_VOICES* 2 > freeVoices;
+	idStaticList<idSoundVoice_OpenAL, MAX_HARDWARE_VOICES * 2 > voices;
+	idStaticList<idSoundVoice_OpenAL*, MAX_HARDWARE_VOICES * 2 > zombieVoices;
+	idStaticList<idSoundVoice_OpenAL*, MAX_HARDWARE_VOICES * 2 > freeVoices;
 };
 
 /*

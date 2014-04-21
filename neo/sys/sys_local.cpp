@@ -167,7 +167,8 @@ const char* Sys_TimeStampToStr( ID_TIME_T timeStamp )
 	tm*	time = localtime( &ts );
 	if( time == NULL )
 	{
-		return "??/??/???? ??:??";
+		// String separated to prevent detection of trigraphs
+		return "??" "/" "??" "/" "???? ??:??";
 	}
 	
 	idStr out;

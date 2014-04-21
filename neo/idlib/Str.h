@@ -402,7 +402,7 @@ public:
 	static const int	INVALID_POSITION = -1;
 };
 
-char* 					va( VERIFY_FORMAT_STRING const char* fmt, ... ) ATTRIBUTE_PRINTF( 1, 2 );
+char* 					va( VERIFY_FORMAT_STRING const char* fmt, ... ) ID_STATIC_ATTRIBUTE_PRINTF( 1, 2 );
 
 /*
 ================================================================================================

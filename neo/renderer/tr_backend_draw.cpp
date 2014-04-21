@@ -4,6 +4,7 @@
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2013 Robert Beckebans
+Copyright (C) 2014 Carl Kenner
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -257,6 +258,10 @@ void RB_DrawElementsWithCounters( const drawSurf_t* surf )
 							  vertOffset / sizeof( idDrawVert ) );
 							  
 							  
+	// RB: added stats
+	backEnd.pc.c_drawElements++;
+	backEnd.pc.c_drawIndexes += surf->numIndexes;
+	// RB end
 }
 
 /*
@@ -407,6 +412,14 @@ static void RB_BindVariableStageImage( const textureStage_t* texture, const floa
 			cin.imageCr->Bind();
 			GL_SelectTexture( 2 );
 			cin.imageCb->Bind();
+			
+		}
+		else if( cin.image != NULL )
+		{
+			//Carl: A single RGB image works better with the FFMPEG BINK codec.
+			GL_SelectTexture( 0 );
+			cin.image->Bind();
+			renderProgManager.BindShader_TextureVertexColor();
 		}
 		else
 		{
@@ -1196,7 +1209,7 @@ static void RB_RenderInteractions( const drawSurf_t* surfList, const viewLight_t
 	// of benefit to trying to sort by materials.
 	//---------------------------------
 	static const int MAX_INTERACTIONS_PER_LIGHT = 1024;
-	static const int MAX_COMPLEX_INTERACTIONS_PER_LIGHT = 128;
+	static const int MAX_COMPLEX_INTERACTIONS_PER_LIGHT = 256;
 	idStaticList< const drawSurf_t*, MAX_INTERACTIONS_PER_LIGHT > allSurfaces;
 	idStaticList< const drawSurf_t*, MAX_COMPLEX_INTERACTIONS_PER_LIGHT > complexSurfaces;
 	for( const drawSurf_t* walk = surfList; walk != NULL; walk = walk->nextOnLight )
@@ -1804,6 +1817,11 @@ static void RB_StencilShadowPass( const drawSurf_t* drawSurfs, const viewLight_t
 			glDrawElementsBaseVertex( GL_TRIANGLES, r_singleTriangle.GetBool() ? 3 : drawSurf->numIndexes, GL_INDEX_TYPE, ( triIndex_t* )indexOffset, vertOffset / sizeof( idShadowVert ) );
 		}
 		
+		// RB: added stats
+		backEnd.pc.c_shadowElements++;
+		backEnd.pc.c_shadowIndexes += drawSurf->numIndexes;
+		// RB end
+		
 		if( !renderZPass && r_useStencilShadowPreload.GetBool() )
 		{
 			// render again with Z-pass
@@ -1818,6 +1836,11 @@ static void RB_StencilShadowPass( const drawSurf_t* drawSurfs, const viewLight_t
 			{
 				glDrawElementsBaseVertex( GL_TRIANGLES, r_singleTriangle.GetBool() ? 3 : drawSurf->numIndexes, GL_INDEX_TYPE, ( triIndex_t* )indexOffset, vertOffset / sizeof( idShadowVert ) );
 			}
+			
+			// RB: added stats
+			backEnd.pc.c_shadowElements++;
+			backEnd.pc.c_shadowIndexes += drawSurf->numIndexes;
+			// RB end
 		}
 	}
 	
@@ -2257,6 +2280,7 @@ static int RB_DrawShaderPasses( const drawSurf_t* const* const drawSurfs, const 
 				continue;
 			}
 			
+			
 			// see if we are a new-style stage
 			newShaderStage_t* newStage = pStage->newStage;
 			if( newStage != NULL )
@@ -2276,7 +2300,7 @@ static int RB_DrawShaderPasses( const drawSurf_t* const* const drawSurfs, const 
 				
 				// RB: CRITICAL BUGFIX: changed newStage->glslProgram to vertexProgram and fragmentProgram
 				// otherwise it will result in an out of bounds crash in RB_DrawElementsWithCounters
-				renderProgManager.BindShader( newStage->vertexProgram, newStage->fragmentProgram );
+				renderProgManager.BindShader( newStage->glslProgram, newStage->vertexProgram, newStage->fragmentProgram, false );
 				// RB end
 				
 				for( int j = 0; j < newStage->numVertexParms; j++ )

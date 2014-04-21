@@ -328,7 +328,7 @@ void RB_ShowOverdraw()
 {
 	const idMaterial* 	material;
 	int					i;
-	drawSurf_t * *		drawSurfs;
+	drawSurf_t** 		drawSurfs;
 	const drawSurf_t* 	surf;
 	int					numDrawSurfs;
 	viewLight_t* 		vLight;

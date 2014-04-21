@@ -335,7 +335,7 @@ void idVertexCache::BeginBackEnd()
 	
 	if( r_showVertexCache.GetBool() )
 	{
-		idLib::Printf( "%08d: %d allocations, %dkB vertex, %dkB index, %kB joint : %dkB vertex, %dkB index, %kB joint\n",
+		idLib::Printf( "%08d: %d allocations, %dkB vertex, %dkB index, %ikB joint : %dkB vertex, %dkB index, %ikB joint\n",
 					   currentFrame, frameData[listNum].allocations,
 					   frameData[listNum].vertexMemUsed.GetValue() / 1024,
 					   frameData[listNum].indexMemUsed.GetValue() / 1024,

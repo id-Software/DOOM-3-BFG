@@ -452,7 +452,7 @@ bool idZipBuilder::CreateZipFileFromFiles( const idList< idFile_Memory* >& srcFi
 	// do not allow overwrite as this should be a tempfile attempt to check the file out
 	if( !Sys_IsFileWritable( zipFileName ) )
 	{
-		idLib::PrintfIf( zip_verbosity.GetBool(), "File %s not writeable, cannot proceed.\n", zipFileName.c_str() );
+		idLib::PrintfIf( zip_verbosity.GetBool(), "File %s not writable, cannot proceed.\n", zipFileName.c_str() );
 		return false;
 	}
 	
@@ -504,7 +504,13 @@ bool idZipBuilder::CreateZipFileFromFiles( const idList< idFile_Memory* >& srcFi
 					errcode = zipWriteInFileInZip( zf, buffer.Ptr(), ( unsigned int )bytesRead );
 					if( errcode != ZIP_OK )
 					{
-						idLib::Warning( "Error writing to zipfile (%i bytes)!", bytesRead );
+// RB begin
+#ifdef _MSC_VER
+						idLib::Warning( "Error writing to zipfile (%Iu bytes)!", bytesRead );
+#else
+						idLib::Warning( "Error writing to zipfile (%zu bytes)!", bytesRead );
+#endif
+// RB end
 						continue;
 					}
 				}
@@ -549,7 +555,7 @@ zipFile idZipBuilder::CreateZipFile( const char* name )
 	// do not allow overwrite as this should be a tempfile attempt to check the file out
 	if( !Sys_IsFileWritable( name ) )
 	{
-		idLib::PrintfIf( zip_verbosity.GetBool(), "File %s not writeable, cannot proceed.\n", name );
+		idLib::PrintfIf( zip_verbosity.GetBool(), "File %s not writable, cannot proceed.\n", name );
 		return NULL;
 	}
 	
@@ -612,7 +618,13 @@ bool idZipBuilder::AddFile( zipFile zf, idFile_Memory* src, bool deleteFile )
 				errcode = zipWriteInFileInZip( zf, buffer.Ptr(), ( unsigned int )bytesRead );
 				if( errcode != ZIP_OK )
 				{
-					idLib::Warning( "Error writing to zipfile (%i bytes)!", bytesRead );
+// RB begin
+#ifdef _MSC_VER
+					idLib::Warning( "Error writing to zipfile (%Iu bytes)!", bytesRead );
+#else
+					idLib::Warning( "Error writing to zipfile (%zu bytes)!", bytesRead );
+#endif
+// RB end
 					continue;
 				}
 			}

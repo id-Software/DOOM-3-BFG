@@ -1799,7 +1799,7 @@ bool idRenderModelStatic::ConvertLWOToModelSurfaces( const struct st_lwObject* l
 		{
 			lwPolygon* poly = &layer->polygon.pol[j];
 			
-			if( poly->surf != lwoSurf )
+			if( poly->surf.ptr != lwoSurf )
 			{
 				continue;
 			}
@@ -2070,7 +2070,7 @@ struct aseModel_s* idRenderModelStatic::ConvertLWOToASE( const struct st_lwObjec
 		{
 			lwPolygon* poly = &layer->polygon.pol[j];
 			
-			if( poly->surf != surf )
+			if( poly->surf.ptr != surf )
 			{
 				continue;
 			}

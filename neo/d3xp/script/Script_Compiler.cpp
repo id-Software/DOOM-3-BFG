@@ -566,19 +566,19 @@ idVarDef* idCompiler::OptimizeOpcode( const opcode_t* op, idVarDef* var_a, idVar
 			type = &type_vector;
 			break;
 		case OP_MUL_F:
-			c._float = *var_a->value.floatPtr * *var_b->value.floatPtr;
+			c._float = *var_a->value.floatPtr** var_b->value.floatPtr;
 			type = &type_float;
 			break;
 		case OP_MUL_V:
-			c._float = *var_a->value.vectorPtr * *var_b->value.vectorPtr;
+			c._float = *var_a->value.vectorPtr** var_b->value.vectorPtr;
 			type = &type_float;
 			break;
 		case OP_MUL_FV:
-			vec_c = *var_b->value.vectorPtr * *var_a->value.floatPtr;
+			vec_c = *var_b->value.vectorPtr** var_a->value.floatPtr;
 			type = &type_vector;
 			break;
 		case OP_MUL_VF:
-			vec_c = *var_a->value.vectorPtr * *var_b->value.floatPtr;
+			vec_c = *var_a->value.vectorPtr** var_b->value.floatPtr;
 			type = &type_vector;
 			break;
 		case OP_DIV_F:
@@ -678,7 +678,7 @@ idVarDef* idCompiler::OptimizeOpcode( const opcode_t* op, idVarDef* var_a, idVar
 			type = &type_float;
 			break;
 		case OP_UMUL_F:
-			c._float = *var_b->value.floatPtr * *var_a->value.floatPtr;
+			c._float = *var_b->value.floatPtr** var_a->value.floatPtr;
 			type = &type_float;
 			break;
 		case OP_UDIV_F:
@@ -1252,7 +1252,7 @@ idVarDef* idCompiler::EmitFunctionParms( int op, idVarDef* func, int startarg, i
 	{
 		EmitOpcode( op, object, VirtualFunctionConstant( func ) );
 		
-		// need arg size seperate since script object may be NULL
+		// need arg size separate since script object may be NULL
 		statement_t& statement = gameLocal.program.GetStatement( gameLocal.program.NumStatements() - 1 );
 		statement.c = SizeConstant( func->value.functionPtr->parmTotal );
 	}

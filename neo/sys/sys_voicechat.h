@@ -139,8 +139,8 @@ protected:
 	void	RemoveMachine( int machineIndex, int lobbyType );
 	void	UpdateRegisteredTalkers();
 	
-	idStaticList< talker_t, MAX_PLAYERS* 2 >			talkers;			// * 2 to account for handling both session types
-	idStaticList< remoteMachine_t, MAX_PLAYERS* 2 >	remoteMachines;		// * 2 to account for handling both session types
+	idStaticList< talker_t, MAX_PLAYERS * 2 >			talkers;			// * 2 to account for handling both session types
+	idStaticList< remoteMachine_t, MAX_PLAYERS * 2 >	remoteMachines;		// * 2 to account for handling both session types
 	
 	int						activeLobbyType;
 	int						activeGroupIndex;

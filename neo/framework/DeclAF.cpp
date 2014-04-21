@@ -1025,7 +1025,7 @@ bool idDeclAF::ParseBody( idLexer& src )
 			}
 			else
 			{
-				src.Error( "unkown model type %s", token.c_str() );
+				src.Error( "unknown model type %s", token.c_str() );
 				return false;
 			}
 		}

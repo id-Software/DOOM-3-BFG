@@ -194,6 +194,8 @@ bool GLimp_Init( glimpParms_t parms )
 		// RB begin
 		if( r_useOpenGL32.GetInteger() > 0 )
 		{
+			glConfig.driverType = GLDRV_OPENGL32_COMPATIBILITY_PROFILE;
+			
 			SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, 3 );
 			SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 2 );
 			
@@ -205,6 +207,8 @@ bool GLimp_Init( glimpParms_t parms )
 		
 		if( r_useOpenGL32.GetInteger() > 1 )
 		{
+			glConfig.driverType = GLDRV_OPENGL32_CORE_PROFILE;
+			
 			SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE );
 		}
 		// RB end
@@ -255,6 +259,8 @@ bool GLimp_Init( glimpParms_t parms )
 		
 		glConfig.isFullscreen = ( SDL_GetWindowFlags( window ) & SDL_WINDOW_FULLSCREEN ) == SDL_WINDOW_FULLSCREEN;
 #else
+		glConfig.driverType = GLDRV_OPENGL3X;
+		
 		SDL_WM_SetCaption( GAME_NAME, GAME_NAME );
 		
 		if( SDL_GL_SetAttribute( SDL_GL_SWAP_CONTROL, r_swapInterval.GetInteger() ) < 0 )
@@ -315,7 +321,7 @@ bool GLimp_Init( glimpParms_t parms )
 */
 
 #if SDL_VERSION_ATLEAST(2, 0, 0)
-// SDL1 doesn't support multiple displays, so the source is much shorter and doesn't need seperate functions
+// SDL1 doesn't support multiple displays, so the source is much shorter and doesn't need separate functions
 // makes sure the window will be full-screened on the right display and returns the SDL display index
 static int ScreenParmsHandleDisplayIndex( glimpParms_t parms )
 {

@@ -173,7 +173,16 @@ void			GL_SelectTexture( int unit );
 
 void			GL_Flush();		// flush the GPU command buffer
 void			GL_Finish();	// wait for the GPU to have executed all commands
-void			GL_CheckErrors();
+
+
+// RB begin
+bool			GL_CheckErrors_( const char* filename, int line );
+#if 1 // !defined(RETAIL)
+#define         GL_CheckErrors()	GL_CheckErrors_(__FILE__, __LINE__)
+#else
+#define         GL_CheckErrors()	false
+#endif
+// RB end
 
 wrapperStats_t	GL_GetCurrentStats();
 void			GL_ClearStats();

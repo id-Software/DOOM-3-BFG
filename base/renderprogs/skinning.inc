@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 2013 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
 
@@ -27,6 +28,9 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 float4 modelPosition = vertex.position;
+
+// RB: no GPU skinning with ES 2.0
+#if defined(USE_GPU_SKINNING)
 BRANCH if ( rpEnableSkinning.x > 0.0 ) {
 	//--------------------------------------------------------------
 	// GPU transformation of the normal / binormal / bitangent
@@ -64,6 +68,8 @@ BRANCH if ( rpEnableSkinning.x > 0.0 ) {
 	modelPosition.z = dot4( matZ, vertex.position );
 	modelPosition.w = 1.0;
 }
+#endif
+// RB end
 
 result.position.x = dot4( modelPosition, rpMVPmatrixX );
 result.position.y = dot4( modelPosition, rpMVPmatrixY );

@@ -188,7 +188,7 @@ void ( APIENTRY* qglGetMaterialiv )( GLenum face, GLenum pname, GLint* params );
 void ( APIENTRY* qglGetPixelMapfv )( GLenum map, GLfloat* values );
 void ( APIENTRY* qglGetPixelMapuiv )( GLenum map, GLuint* values );
 void ( APIENTRY* qglGetPixelMapusv )( GLenum map, GLushort* values );
-void ( APIENTRY* qglGetPointerv )( GLenum pname, GLvoid* *params );
+void ( APIENTRY* qglGetPointerv )( GLenum pname, GLvoid** params );
 void ( APIENTRY* qglGetPolygonStipple )( GLubyte* mask );
 const GLubyte* ( APIENTRY* qglGetString )( GLenum name );
 void ( APIENTRY* qglGetTexEnvfv )( GLenum target, GLenum pname, GLfloat* params );
@@ -527,7 +527,7 @@ static void ( APIENTRY* dllGetMaterialiv )( GLenum face, GLenum pname, GLint* pa
 static void ( APIENTRY* dllGetPixelMapfv )( GLenum map, GLfloat* values );
 static void ( APIENTRY* dllGetPixelMapuiv )( GLenum map, GLuint* values );
 static void ( APIENTRY* dllGetPixelMapusv )( GLenum map, GLushort* values );
-static void ( APIENTRY* dllGetPointerv )( GLenum pname, GLvoid* *params );
+static void ( APIENTRY* dllGetPointerv )( GLenum pname, GLvoid** params );
 static void ( APIENTRY* dllGetPolygonStipple )( GLubyte* mask );
 const GLubyte* ( APIENTRY* dllGetString )( GLenum name );
 static void ( APIENTRY* dllGetTexEnvfv )( GLenum target, GLenum pname, GLfloat* params );

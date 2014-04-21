@@ -940,11 +940,17 @@ void ZLIB_INTERNAL _tr_flush_block(s, buf, stored_len, last)
         /* Determine the best encoding. Compute the block lengths in bytes. */
         opt_lenb = (s->opt_len+3+7)>>3;
         static_lenb = (s->static_len+3+7)>>3;
-
-        Tracev((stderr, "\nopt %lu(%lu) stat %lu(%lu) stored %lu lit %u ",
+// RB begin
+#ifdef _MSC_VER
+		Tracev((stderr, "\nopt %Iu(%Iu) stat %Iu(%Iu) stored %Iu lit %u ",
                 opt_lenb, s->opt_len, static_lenb, s->static_len, stored_len,
                 s->last_lit));
-
+#else
+        Tracev((stderr, "\nopt %zu(%zu) stat %zu(%zu) stored %zu lit %u ",
+                opt_lenb, s->opt_len, static_lenb, s->static_len, stored_len,
+                s->last_lit));
+#endif
+// RB end
         if (static_lenb <= opt_lenb) opt_lenb = static_lenb;
 
     } else {
@@ -997,8 +1003,16 @@ void ZLIB_INTERNAL _tr_flush_block(s, buf, stored_len, last)
         s->compressed_len += 7;  /* align on byte boundary */
 #endif
     }
-    Tracev((stderr,"\ncomprlen %lu(%lu) ", s->compressed_len>>3,
+
+// RB begin
+#ifdef _MSC_VER
+    Tracev((stderr,"\ncomprlen %Iu(%Iu) ", s->compressed_len>>3,
            s->compressed_len-7*last));
+#else
+	Tracev((stderr,"\ncomprlen %zu(%zu) ", s->compressed_len>>3,
+           s->compressed_len-7*last));
+#endif
+// RB end
 }
 
 /* ===========================================================================

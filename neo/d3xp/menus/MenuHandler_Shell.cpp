@@ -1452,12 +1452,12 @@ void idMenuHandler_Shell::ShowDoomIntro()
 		
 		int numTextFields = NUM_DOOM_INTRO_LINES;
 		idStr textEntries[NUM_DOOM_INTRO_LINES] = { va( "%s %s", idLocalization::GetString( "#str_04052" ), idLocalization::GetString( "#str_04053" ) ),
-				va( "%s %s", idLocalization::GetString( "#str_04054" ), idLocalization::GetString( "#str_04055" ) ),
-				idLocalization::GetString( "#str_03012" ),
-				idLocalization::GetString( "#str_04056" ),
-				idLocalization::GetString( "#str_04057" ),
-				va( "%s %s", idLocalization::GetString( "#str_04058" ), idLocalization::GetString( "#str_04059" ) ),
-				va( "%s %s", idLocalization::GetString( "#str_04060" ), idLocalization::GetString( "#str_04061" ) )
+													va( "%s %s", idLocalization::GetString( "#str_04054" ), idLocalization::GetString( "#str_04055" ) ),
+													idLocalization::GetString( "#str_03012" ),
+													idLocalization::GetString( "#str_04056" ),
+													idLocalization::GetString( "#str_04057" ),
+													va( "%s %s", idLocalization::GetString( "#str_04058" ), idLocalization::GetString( "#str_04059" ) ),
+													va( "%s %s", idLocalization::GetString( "#str_04060" ), idLocalization::GetString( "#str_04061" ) )
 												  };
 												  
 		for( int i = 0; i < numTextFields; ++i )

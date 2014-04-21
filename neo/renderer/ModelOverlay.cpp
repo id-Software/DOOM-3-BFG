@@ -418,7 +418,8 @@ void idRenderModelOverlay::CreateOverlay( const idRenderModel* model, const idPl
 			continue;
 		}
 		
-		if( tri->staticModelWithJoints != NULL && r_useGPUSkinning.GetBool() )
+		// RB: added check wether GPU skinning is available at all
+		if( tri->staticModelWithJoints != NULL && r_useGPUSkinning.GetBool() && glConfig.gpuSkinningAvailable )
 		{
 			R_OverlayPointCullSkinned( cullBits.Ptr(), texCoordS.Ptr(), texCoordT.Ptr(), localTextureAxis, tri->verts, tri->numVerts, tri->staticModelWithJoints->jointsInverted );
 		}
@@ -426,6 +427,7 @@ void idRenderModelOverlay::CreateOverlay( const idRenderModel* model, const idPl
 		{
 			R_OverlayPointCullStatic( cullBits.Ptr(), texCoordS.Ptr(), texCoordT.Ptr(), localTextureAxis, tri->verts, tri->numVerts );
 		}
+		// RB end
 		
 		// start streaming the indexes
 		idODSStreamedArray< triIndex_t, 256, SBT_QUAD, 3 > indexesODS( tri->indexes, tri->numIndexes );
@@ -607,8 +609,7 @@ static void R_CopyOverlaySurface( idDrawVert* verts, int numVerts, triIndex_t* i
 		verts[numVerts + i] = sourceVerts[overlayVert.vertexNum];
 	
 		// RB begin
-		verts[numVerts + i].SetTexCoordS( overlayVert.st[0] );
-		verts[numVerts + i].SetTexCoordT( overlayVert.st[1] );
+		verts[numVerts + i].SetTexCoordNative( overlayVert.st[0], overlayVert.st[1] );
 		// RB end
 	}
 	

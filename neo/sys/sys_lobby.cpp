@@ -4048,9 +4048,9 @@ void idLobby::HandleBandwidhTestValue( int p, idBitMsg& msg )
 	
 	idLib::Printf( "^3Finished Bandwidth test %s: \n", GetPeerName( p ) );
 	idLib::Printf( "  Total time: %dms\n", totalTime );
-	idLib::Printf( "  %sNum good packets: %d  (%.2f%)\n", ( failedSeq ? "^1" : "^2" ), totalGoodSeq, pctPackets );
-	idLib::Printf( "  %sTotal received bytes: %d  (%.2f%)\n", ( failedByte ? "^1" : "^2" ), totalReceivedBytes, bytesPct );
-	idLib::Printf( "  %sEffective downstream: %.2fkbs (host: %.2fkbs) -> %.2f%\n\n", ( failedRate ? "^1" : "^2" ), peerKBS, outgoingKBS, pctKBS );
+	idLib::Printf( "  %sNum good packets: %d  (%.2f%%)\n", ( failedSeq ? "^1" : "^2" ), totalGoodSeq, pctPackets );
+	idLib::Printf( "  %sTotal received bytes: %d  (%.2f%%)\n", ( failedByte ? "^1" : "^2" ), totalReceivedBytes, bytesPct );
+	idLib::Printf( "  %sEffective downstream: %.2fkbs (host: %.2fkbs) -> %.2f%%\n\n", ( failedRate ? "^1" : "^2" ), peerKBS, outgoingKBS, pctKBS );
 	
 	// If shittConnection(totalTime, totalGoodSeq/totalSeq, totalReceivedBytes/totalSentBytes)
 	//	throttle this user:

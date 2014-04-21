@@ -79,7 +79,7 @@ public:
 	static bool				IsStringId( const char* str );
 	
 private:
-	idDynamicBlockAlloc< char, 100* 1024, 16 > blockAlloc;
+	idDynamicBlockAlloc< char, 100 * 1024, 16 > blockAlloc;
 	idList< idLangKeyValue >	keyVals;
 	idHashIndex keyIndex;
 	

@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2012 Robert Beckebans
+Copyright (C) 2012-2014 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -278,7 +278,7 @@ static void R_CheckPortableExtensions()
 	const char* badVideoCard = idLocalization::GetString( "#str_06780" );
 	if( glConfig.glVersion < 2.0f )
 	{
-		idLib::FatalError( badVideoCard );
+		idLib::FatalError( "%s", badVideoCard );
 	}
 	
 	if( idStr::Icmpn( glConfig.renderer_string, "ATI ", 4 ) == 0 || idStr::Icmpn( glConfig.renderer_string, "AMD ", 4 ) == 0 )
@@ -293,6 +293,13 @@ static void R_CheckPortableExtensions()
 	{
 		glConfig.vendor = VENDOR_INTEL;
 	}
+	
+	// RB: Mesa support
+	if( idStr::Icmpn( glConfig.renderer_string, "Mesa", 4 ) == 0 || idStr::Icmpn( glConfig.renderer_string, "X.org", 4 ) == 0 )
+	{
+		glConfig.driverType = GLDRV_OPENGL_MESA;
+	}
+	// RB end
 	
 	// GL_ARB_multitexture
 	glConfig.multitextureAvailable = GLEW_ARB_multitexture != 0;
@@ -371,6 +378,8 @@ static void R_CheckPortableExtensions()
 			glConfig.uniformBufferOffsetAlignment = 256;
 		}
 	}
+	// RB: make GPU skinning optional for weak OpenGL drivers
+	glConfig.gpuSkinningAvailable = glConfig.uniformBufferAvailable && ( glConfig.driverType == GLDRV_OPENGL3X || glConfig.driverType == GLDRV_OPENGL32_CORE_PROFILE || glConfig.driverType == GLDRV_OPENGL32_COMPATIBILITY_PROFILE );
 	
 	// ATI_separate_stencil / OpenGL 2.0 separate stencil
 	glConfig.twoSidedStencilAvailable = ( glConfig.glVersion >= 2.0f ) || GLEW_ATI_separate_stencil != 0;
@@ -388,7 +397,7 @@ static void R_CheckPortableExtensions()
 	glConfig.occlusionQueryAvailable = GLEW_ARB_occlusion_query != 0;
 	
 	// GL_ARB_timer_query
-	glConfig.timerQueryAvailable = ( GLEW_ARB_timer_query != 0 || GLEW_EXT_timer_query != 0 ) && ( glConfig.vendor != VENDOR_INTEL || r_skipIntelWorkarounds.GetBool() );
+	glConfig.timerQueryAvailable = ( GLEW_ARB_timer_query != 0 || GLEW_EXT_timer_query != 0 ) && ( glConfig.vendor != VENDOR_INTEL || r_skipIntelWorkarounds.GetBool() ) && glConfig.driverType != GLDRV_OPENGL_MESA;
 	
 	// GL_ARB_debug_output
 	glConfig.debugOutputAvailable = GLEW_ARB_debug_output != 0;
@@ -756,20 +765,29 @@ void R_InitOpenGL()
 GL_CheckErrors
 ==================
 */
-void GL_CheckErrors()
+// RB: added filename, line parms
+bool GL_CheckErrors_( const char* filename, int line )
 {
 	int		err;
 	char	s[64];
 	int		i;
 	
+	if( r_ignoreGLErrors.GetBool() )
+	{
+		return false;
+	}
+	
 	// check for up to 10 errors pending
+	bool error = false;
 	for( i = 0 ; i < 10 ; i++ )
 	{
 		err = glGetError();
 		if( err == GL_NO_ERROR )
 		{
-			return;
+			break;
 		}
+		
+		error = true;
 		switch( err )
 		{
 			case GL_INVALID_ENUM:
@@ -781,12 +799,14 @@ void GL_CheckErrors()
 			case GL_INVALID_OPERATION:
 				strcpy( s, "GL_INVALID_OPERATION" );
 				break;
+#if !defined(USE_GLES2) && !defined(USE_GLES3)
 			case GL_STACK_OVERFLOW:
 				strcpy( s, "GL_STACK_OVERFLOW" );
 				break;
 			case GL_STACK_UNDERFLOW:
 				strcpy( s, "GL_STACK_UNDERFLOW" );
 				break;
+#endif
 			case GL_OUT_OF_MEMORY:
 				strcpy( s, "GL_OUT_OF_MEMORY" );
 				break;
@@ -795,12 +815,12 @@ void GL_CheckErrors()
 				break;
 		}
 		
-		if( !r_ignoreGLErrors.GetBool() )
-		{
-			common->Printf( "GL_CheckErrors: %s\n", s );
-		}
+		common->Printf( "caught OpenGL error: %s in file %s line %i\n", s, filename, line );
 	}
+	
+	return error;
 }
+// RB end
 
 /*
 =====================
@@ -1639,8 +1659,8 @@ void GfxInfo_f( const idCmdArgs& args )
 	common->Printf( "GL_MAX_TEXTURE_IMAGE_UNITS_ARB: %d\n", glConfig.maxTextureImageUnits );
 	
 	// print all the display adapters, monitors, and video modes
-	void DumpAllDisplayDevices();
-	DumpAllDisplayDevices();
+	//void DumpAllDisplayDevices();
+	//DumpAllDisplayDevices();
 	
 	common->Printf( "\nPIXELFORMAT: color(%d-bits) Z(%d-bit) stencil(%d-bits)\n", glConfig.colorBits, glConfig.depthBits, glConfig.stencilBits );
 	common->Printf( "MODE: %d, %d x %d %s hz:", r_vidMode.GetInteger(), renderSystem->GetWidth(), renderSystem->GetHeight(), fsstrings[r_fullscreen.GetBool()] );
@@ -1656,7 +1676,7 @@ void GfxInfo_f( const idCmdArgs& args )
 	common->Printf( "-------\n" );
 	
 	// RB begin
-#if defined(_WIN32)
+#if defined(_WIN32) && !defined(USE_GLES2)
 	// WGL_EXT_swap_interval
 	typedef BOOL ( WINAPI * PFNWGLSWAPINTERVALEXTPROC )( int interval );
 	extern	PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT;
@@ -1725,6 +1745,15 @@ void GfxInfo_f( const idCmdArgs& args )
 		common->Printf( "screen size manually forced to %5.1f cm width (%4.1f\" diagonal)\n",
 						renderSystem->GetPhysicalScreenWidthInCentimeters(), renderSystem->GetPhysicalScreenWidthInCentimeters() / 2.54f
 						* sqrt( ( float )( 16 * 16 + 9 * 9 ) ) / 16.0f );
+	}
+	
+	if( glConfig.gpuSkinningAvailable )
+	{
+		common->Printf( S_COLOR_GREEN "GPU skeletal animation available\n" );
+	}
+	else
+	{
+		common->Printf( S_COLOR_RED "GPU skeletal animation not available (slower CPU path active)\n" );
 	}
 }
 

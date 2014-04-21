@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013-2014 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -147,12 +148,15 @@ public:
 	int		FindVertexShader( const char* name );
 	int		FindFragmentShader( const char* name );
 	
-	void	BindShader( int vIndex, int fIndex );
+	// RB: added progIndex to handle many custom renderprogs
+	void	BindShader( int progIndex, int vIndex, int fIndex, bool builtin );
+	// RB end
 	
 	void	BindShader_GUI( )
 	{
 		BindShader_Builtin( BUILTIN_GUI );
 	}
+	
 	void	BindShader_Color( )
 	{
 		BindShader_Builtin( BUILTIN_COLOR );
@@ -161,14 +165,17 @@ public:
 	{
 		BindShader_Builtin( BUILTIN_TEXTURED );
 	}
+	
 	void	BindShader_TextureVertexColor()
 	{
 		BindShader_Builtin( BUILTIN_TEXTURE_VERTEXCOLOR );
 	};
+	
 	void	BindShader_TextureVertexColorSkinned()
 	{
 		BindShader_Builtin( BUILTIN_TEXTURE_VERTEXCOLOR_SKINNED );
 	};
+	
 	void	BindShader_TextureTexGenVertexColor()
 	{
 		BindShader_Builtin( BUILTIN_TEXTURE_TEXGEN_VERTEXCOLOR );
@@ -177,14 +184,17 @@ public:
 	{
 		BindShader_Builtin( BUILTIN_INTERACTION );
 	}
+	
 	void	BindShader_InteractionSkinned()
 	{
 		BindShader_Builtin( BUILTIN_INTERACTION_SKINNED );
 	}
+	
 	void	BindShader_InteractionAmbient()
 	{
 		BindShader_Builtin( BUILTIN_INTERACTION_AMBIENT );
 	}
+	
 	void	BindShader_InteractionAmbientSkinned()
 	{
 		BindShader_Builtin( BUILTIN_INTERACTION_AMBIENT_SKINNED );
@@ -197,14 +207,17 @@ public:
 	{
 		BindShader_Builtin( BUILTIN_ENVIRONMENT );
 	}
+	
 	void	BindShader_EnvironmentSkinned()
 	{
 		BindShader_Builtin( BUILTIN_ENVIRONMENT_SKINNED );
 	}
+	
 	void	BindShader_BumpyEnvironment()
 	{
 		BindShader_Builtin( BUILTIN_BUMPY_ENVIRONMENT );
 	}
+	
 	void	BindShader_BumpyEnvironmentSkinned()
 	{
 		BindShader_Builtin( BUILTIN_BUMPY_ENVIRONMENT_SKINNED );
@@ -214,22 +227,31 @@ public:
 	{
 		BindShader_Builtin( BUILTIN_DEPTH );
 	}
+	
 	void	BindShader_DepthSkinned()
 	{
 		BindShader_Builtin( BUILTIN_DEPTH_SKINNED );
 	}
+	
 	void	BindShader_Shadow()
 	{
-		BindShader( builtinShaders[BUILTIN_SHADOW], -1 );
+		// RB begin
+		BindShader( -1, builtinShaders[BUILTIN_SHADOW], -1, true );
+		// RB end
 	}
+	
 	void	BindShader_ShadowSkinned()
 	{
-		BindShader( builtinShaders[BUILTIN_SHADOW_SKINNED], -1 );
+		// RB begin
+		BindShader( -1, builtinShaders[BUILTIN_SHADOW_SKINNED], -1, true );
+		// RB end
 	}
+	
 	void	BindShader_ShadowDebug()
 	{
 		BindShader_Builtin( BUILTIN_SHADOW_DEBUG );
 	}
+	
 	void	BindShader_ShadowDebugSkinned()
 	{
 		BindShader_Builtin( BUILTIN_SHADOW_DEBUG_SKINNED );
@@ -243,42 +265,54 @@ public:
 	{
 		BindShader_Builtin( BUILTIN_FOG );
 	}
+	
 	void	BindShader_FogSkinned()
 	{
 		BindShader_Builtin( BUILTIN_FOG_SKINNED );
 	}
+	
 	void	BindShader_SkyBox()
 	{
 		BindShader_Builtin( BUILTIN_SKYBOX );
 	}
+	
 	void	BindShader_WobbleSky()
 	{
 		BindShader_Builtin( BUILTIN_WOBBLESKY );
 	}
+	
 	void	BindShader_StereoDeGhost()
 	{
 		BindShader_Builtin( BUILTIN_STEREO_DEGHOST );
 	}
+	
 	void	BindShader_StereoWarp()
 	{
 		BindShader_Builtin( BUILTIN_STEREO_WARP );
 	}
+	
 	void	BindShader_StereoInterlace()
 	{
 		BindShader_Builtin( BUILTIN_STEREO_INTERLACE );
 	}
+	
 	void	BindShader_PostProcess()
 	{
 		BindShader_Builtin( BUILTIN_POSTPROCESS );
 	}
+	
+#if 0
 	void	BindShader_ZCullReconstruct()
 	{
 		BindShader_Builtin( BUILTIN_ZCULL_RECONSTRUCT );
 	}
+#endif
+	
 	void	BindShader_Bink()
 	{
 		BindShader_Builtin( BUILTIN_BINK );
 	}
+	
 	void	BindShader_BinkGUI()
 	{
 		BindShader_Builtin( BUILTIN_BINK_GUI );
@@ -301,6 +335,10 @@ public:
 	
 	// unbind the currently bound render program
 	void	Unbind();
+	
+	// RB begin
+	bool	IsShaderBound() const;
+	// RB end
 	
 	// this should only be called via the reload shader console command
 	void	LoadAllShaders();
@@ -365,7 +403,7 @@ protected:
 	int builtinShaders[MAX_BUILTINS];
 	void BindShader_Builtin( int i )
 	{
-		BindShader( builtinShaders[i], builtinShaders[i] );
+		BindShader( -1, builtinShaders[i], builtinShaders[i], true );
 	}
 	
 	bool	CompileGLSL( GLenum target, const char* name );

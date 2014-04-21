@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 2013 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
 
@@ -158,6 +159,14 @@ float rand( float2 co ) {
     return frac( sin( dot( co.xy, float2( 12.9898, 78.233 ) ) ) * 43758.5453 );
 }
 
+// RB begin
+#ifndef PI
+#define PI	3.14159265358979323846
+#endif
+
+#define DEG2RAD( a )				( ( a ) * PI / 180.0f )
+#define RAD2DEG( a )				( ( a ) * 180.0f / PI )
+// RB end
 
 #define _half2( x )		half2( x )
 #define _half3( x )		half3( x )
