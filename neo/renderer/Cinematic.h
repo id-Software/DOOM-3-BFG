@@ -89,6 +89,10 @@ public:
 	// returns the length of the animation in milliseconds
 	virtual int			AnimationLength();
 	
+	// RB: let us know wether this video went EOF or is still active
+	virtual bool        IsPlaying() const;
+	// RB end
+	
 	// the pointers in cinData_t will remain valid until the next UpdateForTime() call
 	virtual cinData_t	ImageForTime( int milliseconds );
 	

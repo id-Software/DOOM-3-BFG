@@ -75,6 +75,9 @@ public:
 	virtual bool			InitFromFile( const char* qpath, bool looping );
 	virtual cinData_t		ImageForTime( int milliseconds );
 	virtual int				AnimationLength();
+	// RB begin
+	bool                    IsPlaying() const;
+	// RB end
 	virtual void			Close();
 	virtual void			ResetTime( int time );
 	
@@ -89,7 +92,7 @@ private:
 	AVCodecContext*			dec_ctx;
 	SwsContext*				img_convert_ctx;
 	bool					hasFrame;
-	long					FramePos;
+	long					framePos;
 	
 	cinData_t				ImageForTimeFFMPEG( int milliseconds );
 	bool					InitFromFFMPEGFile( const char* qpath, bool looping );
@@ -359,6 +362,13 @@ void idCinematic::Close()
 {
 }
 
+// RB begin
+bool idCinematic::IsPlaying() const
+{
+	return false;
+}
+// RB end
+
 
 //===========================================
 
@@ -511,19 +521,25 @@ bool idCinematicLocal::InitFromFFMPEGFile( const char* qpath, bool amilooping )
 	float durationSec = static_cast<double>( fmt_ctx->streams[video_stream_index]->duration ) * static_cast<double>( ticksPerFrame ) / static_cast<double>( avr.den );
 	animationLength = durationSec * 1000;
 	frameRate = av_q2d( fmt_ctx->streams[video_stream_index]->r_frame_rate );
-	startTime = 0;
 	buf = NULL;
 	hasFrame = false;
-	FramePos = -1;
+	framePos = -1;
 	common->Warning( "%dx%d, %f FPS, %f sec", CIN_WIDTH, CIN_HEIGHT, frameRate, durationSec );
 	image = ( byte* )Mem_Alloc( CIN_WIDTH * CIN_HEIGHT * 4 * 2, TAG_CINEMATIC );
 	avpicture_fill( ( AVPicture* )frame2, image, PIX_FMT_BGR32, CIN_WIDTH, CIN_HEIGHT );
 	if( img_convert_ctx )
+	{
 		sws_freeContext( img_convert_ctx );
+	}
 	img_convert_ctx = sws_getContext( dec_ctx->width, dec_ctx->height, dec_ctx->pix_fmt, CIN_WIDTH, CIN_HEIGHT, PIX_FMT_BGR32, SWS_BICUBIC, NULL, NULL, NULL );
 	status = FMV_PLAY;
+	
+	startTime = 0;
 	ImageForTime( 0 );
 	status = ( looping ) ? FMV_PLAY : FMV_IDLE;
+	
+	//startTime = Sys_Milliseconds();
+	
 	return true;
 }
 #endif
@@ -536,10 +552,19 @@ idCinematicLocal::FFMPEGReset
 #if defined(USE_FFMPEG)
 void idCinematicLocal::FFMPEGReset()
 {
-	startTime = 0;
-	FramePos = -1;
-	av_seek_frame( fmt_ctx, video_stream_index, 0, 0 );
-	status = FMV_LOOPED;
+	// RB: don't reset startTime here because that breaks video replays in the PDAs
+	//startTime = 0;
+	
+	framePos = -1;
+	
+	if( av_seek_frame( fmt_ctx, video_stream_index, 0, 0 ) >= 0 )
+	{
+		status = FMV_LOOPED;
+	}
+	else
+	{
+		status = FMV_EOF;
+	}
 }
 #endif
 
@@ -682,6 +707,13 @@ int idCinematicLocal::AnimationLength()
 {
 	return animationLength;
 }
+
+// RB begin
+bool idCinematicLocal::IsPlaying() const
+{
+	return ( status == FMV_PLAY );
+}
+// RB end
 
 /*
 ==============
@@ -840,6 +872,12 @@ cinData_t idCinematicLocal::ImageForTimeFFMPEG( int thisTime )
 		return cinData;
 	}
 	
+	if( !fmt_ctx )
+	{
+		// RB: .bik requested but not found
+		return cinData;
+	}
+	
 	if( ( !hasFrame ) || startTime == -1 )
 	{
 		if( startTime == -1 )
@@ -849,10 +887,18 @@ cinData_t idCinematicLocal::ImageForTimeFFMPEG( int thisTime )
 		startTime = thisTime;
 	}
 	
-	long DesiredFrame = ( ( thisTime - startTime ) * frameRate ) / 1000;
-	if( DesiredFrame < 0 ) DesiredFrame = 0;
-	if( DesiredFrame < FramePos ) FFMPEGReset();
-	if( hasFrame && DesiredFrame == FramePos )
+	long desiredFrame = ( ( thisTime - startTime ) * frameRate ) / 1000;
+	if( desiredFrame < 0 )
+	{
+		desiredFrame = 0;
+	}
+	
+	if( desiredFrame < framePos )
+	{
+		FFMPEGReset();
+	}
+	
+	if( hasFrame && desiredFrame == framePos )
 	{
 		cinData.imageWidth = CIN_WIDTH;
 		cinData.imageHeight = CIN_HEIGHT;
@@ -862,22 +908,23 @@ cinData_t idCinematicLocal::ImageForTimeFFMPEG( int thisTime )
 	}
 	
 	AVPacket packet;
-	while( FramePos < DesiredFrame )
+	while( framePos < desiredFrame )
 	{
 		int frameFinished = 0;
-		//Do a single frame by getting packets until we have a full frame
+		
+		// Do a single frame by getting packets until we have a full frame
 		while( !frameFinished )
 		{
-			//if we got to the end or failed
+			// if we got to the end or failed
 			if( av_read_frame( fmt_ctx, &packet ) < 0 )
 			{
-				//can't read any more, set to EOF
+				// can't read any more, set to EOF
 				status = FMV_EOF;
 				if( looping )
 				{
-					DesiredFrame = 0;
+					desiredFrame = 0;
 					FFMPEGReset();
-					FramePos = -1;
+					framePos = -1;
 					startTime = thisTime;
 					if( av_read_frame( fmt_ctx, &packet ) < 0 )
 					{
@@ -901,8 +948,10 @@ cinData_t idCinematicLocal::ImageForTimeFFMPEG( int thisTime )
 			// Free the packet that was allocated by av_read_frame
 			av_free_packet( &packet );
 		}
-		FramePos++;
+		
+		framePos++;
 	}
+	
 	// We have reached the desired frame
 	// Convert the image from its native format to RGB
 	sws_scale( img_convert_ctx, frame->data, frame->linesize, 0, dec_ctx->height, frame2->data, frame2->linesize );
@@ -912,6 +961,7 @@ cinData_t idCinematicLocal::ImageForTimeFFMPEG( int thisTime )
 	img->UploadScratch( image, CIN_WIDTH, CIN_HEIGHT );
 	hasFrame = true;
 	cinData.image = img;
+	
 	return cinData;
 }
 #endif
