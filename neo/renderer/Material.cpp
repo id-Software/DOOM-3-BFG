@@ -3157,6 +3157,18 @@ int idMaterial::GetCinematicStartTime() const
 	return -1;
 }
 
+// RB: added because we can't rely on the FFmpeg feedback how long a video really is
+bool idMaterial::CinematicIsPlaying() const
+{
+	if( !stages || !stages[0].texture.cinematic )
+	{
+		return 0;
+	}
+	
+	return stages[0].texture.cinematic->IsPlaying();
+}
+// RB end
+
 /*
 ==================
 idMaterial::CheckForConstantRegisters
