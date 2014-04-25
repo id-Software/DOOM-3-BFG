@@ -48,6 +48,8 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "../sys/sys_savegame.h"
 
+#include "../portability/inttypes.h"
+
 #if defined( _DEBUG )
 #define BUILD_DEBUG "-debug"
 #else
@@ -1933,12 +1935,7 @@ CONSOLE_COMMAND( testSIMD, "test SIMD code", NULL )
 // RB begin
 CONSOLE_COMMAND( testFormattingSizes, "test printf format security", 0 )
 {
-#ifdef _MSC_VER
-	common->Printf( " sizeof( int32 ): %Iu bytes\n", sizeof( int32 ) );
-	common->Printf( " sizeof( int64 ): %Iu bytes\n", sizeof( int64 ) );
-#else
-	common->Printf( " sizeof( int32 ): %zu bytes\n", sizeof( int32 ) );
-	common->Printf( " sizeof( int64 ): %zu bytes\n", sizeof( int64 ) );
-#endif
+	common->Printf( " sizeof( int32 ): %" PRIuSIZE " bytes\n", sizeof( int32 ) );
+	common->Printf( " sizeof( int64 ): %" PRIuSIZE " bytes\n", sizeof( int64 ) );
 }
 // RB end
