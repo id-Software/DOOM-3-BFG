@@ -257,3 +257,22 @@ extern volatile int ignoredReturnValue;
 #define MIN_UNSIGNED_TYPE( x )	0
 
 #endif
+
+
+/*
+ * Macros for format conversion specifications for integer arguments of type
+ * size_t or ssize_t.
+ */
+#ifdef _MSV_VER
+
+#define PRIiSIZE "Ii"
+#define PRIuSIZE "Iu"
+#define PRIxSIZE "Ix"
+
+#else // ifdef _MSV_VER
+
+#define PRIiSIZE "zi"
+#define PRIuSIZE "zu"
+#define PRIxSIZE "zx"
+
+#endif // ifdef _MSV_VER
