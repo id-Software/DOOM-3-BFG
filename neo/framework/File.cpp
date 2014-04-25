@@ -31,7 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 
 #include "Unzip.h"
-#include "../portability/inttypes.h"
+#include "idlib/sys/sys_defines.h"
 
 /*
 =================

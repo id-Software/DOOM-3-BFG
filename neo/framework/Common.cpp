@@ -48,7 +48,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "../sys/sys_savegame.h"
 
-#include "../portability/inttypes.h"
+#include "idlib/sys/sys_defines.h"
 
 #if defined( _DEBUG )
 #define BUILD_DEBUG "-debug"

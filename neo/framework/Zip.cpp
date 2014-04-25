@@ -36,7 +36,7 @@ Contains external code for building ZipFiles.
 */
 
 #include "Zip.h"
-#include "../portability/inttypes.h"
+#include "idlib/sys/sys_defines.h"
 
 // #undef STDC
 
