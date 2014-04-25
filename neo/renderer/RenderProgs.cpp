@@ -381,7 +381,7 @@ void idRenderProgManager::BindShader( int progIndex, int vIndex, int fIndex, boo
 		{
 			currentRenderProgram = vIndex;
 			RENDERLOG_PRINTF( "Binding GLSL Program %s\n", glslPrograms[vIndex].name.c_str() );
-			qglUseProgram( glslPrograms[vIndex].progId );
+			glUseProgram( glslPrograms[vIndex].progId );
 		}
 	}
 	else
@@ -406,7 +406,7 @@ void idRenderProgManager::BindShader( int progIndex, int vIndex, int fIndex, boo
 		{
 			currentRenderProgram = progIndex;
 			RENDERLOG_PRINTF( "Binding GLSL Program %s\n", glslPrograms[progIndex].name.c_str() );
-			qglUseProgram( glslPrograms[progIndex].progId );
+			glUseProgram( glslPrograms[progIndex].progId );
 		}
 	}
 }

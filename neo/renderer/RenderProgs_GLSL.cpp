@@ -1776,10 +1776,10 @@ void idRenderProgManager::LoadGLSLProgram( const int programIndex, const int ver
 	if( glConfig.gpuSkinningAvailable )
 	{
 		// get the uniform buffer binding for skinning joint matrices
-		GLint blockIndex = qglGetUniformBlockIndex( program, "matrices_ubo" );
+		GLint blockIndex = glGetUniformBlockIndex( program, "matrices_ubo" );
 		if( blockIndex != -1 )
 		{
-			qglUniformBlockBinding( program, blockIndex, 0 );
+			glUniformBlockBinding( program, blockIndex, 0 );
 		}
 	}
 	// RB end
