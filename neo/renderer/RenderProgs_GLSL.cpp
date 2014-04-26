@@ -31,6 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 
 #include "tr_local.h"
+#include "RenderProgs_embedded.h"
 
 idCVar r_skipStripDeadCode( "r_skipStripDeadCode", "0", CVAR_BOOL, "Skip stripping dead code" );
 idCVar r_useUniformArrays( "r_useUniformArrays", "1", CVAR_BOOL, "" );
@@ -315,6 +316,137 @@ static const char* GLSLParmNames[] =
 	"rpAlphaTest"
 };
 
+// RB: added embedded Cg shader resources
+static const char* FindEmbeddedSourceShader( const char* name )
+{
+	const char* embeddedSource = NULL;
+	for( int i = 0 ; cg_renderprogs[i].name ; i++ )
+	{
+		if( !idStr::Icmp( cg_renderprogs[i].name, name ) )
+		{
+			embeddedSource = cg_renderprogs[i].shaderText;
+			break;
+		}
+	}
+	
+	return embeddedSource;
+}
+
+class idParser_EmbeddedGLSL : public idParser
+{
+public:
+	idParser_EmbeddedGLSL( int flags ) : idParser( flags )
+	{
+	}
+	
+private:
+	int		Directive_include()
+	{
+		idLexer* script;
+		idToken token;
+		idStr path;
+		
+		if( !idParser::ReadSourceToken( &token ) )
+		{
+			idParser::Error( "#include without file name" );
+			return false;
+		}
+		
+		if( token.linesCrossed > 0 )
+		{
+			idParser::Error( "#include without file name" );
+			return false;
+		}
+		
+		if( token.type == TT_STRING )
+		{
+			script = new idLexer;
+			
+			// try relative to the current file
+			path = scriptstack->GetFileName();
+			path.StripFilename();
+			path += "/";
+			path += token;
+			
+			//if( !script->LoadFile( path, OSPath ) )
+			const char* embeddedSource = FindEmbeddedSourceShader( path );
+			if( embeddedSource == NULL )
+			{
+				// try absolute path
+				path = token;
+				embeddedSource = FindEmbeddedSourceShader( path );
+				if( embeddedSource == NULL )
+				{
+					// try from the include path
+					path = includepath + token;
+					embeddedSource = FindEmbeddedSourceShader( path );
+				}
+			}
+			
+			if( embeddedSource == NULL || !script->LoadMemory( embeddedSource, strlen( embeddedSource ), path ) )
+			{
+				delete script;
+				script = NULL;
+			}
+		}
+		else if( token.type == TT_PUNCTUATION && token == "<" )
+		{
+			path = idParser::includepath;
+			while( idParser::ReadSourceToken( &token ) )
+			{
+				if( token.linesCrossed > 0 )
+				{
+					idParser::UnreadSourceToken( &token );
+					break;
+				}
+				if( token.type == TT_PUNCTUATION && token == ">" )
+				{
+					break;
+				}
+				path += token;
+			}
+			if( token != ">" )
+			{
+				idParser::Warning( "#include missing trailing >" );
+			}
+			if( !path.Length() )
+			{
+				idParser::Error( "#include without file name between < >" );
+				return false;
+			}
+			if( idParser::flags & LEXFL_NOBASEINCLUDES )
+			{
+				return true;
+			}
+			script = new idLexer;
+			
+			const char* embeddedSource = FindEmbeddedSourceShader( includepath + path );
+			
+			if( embeddedSource == NULL || !script->LoadMemory( embeddedSource, strlen( embeddedSource ), path ) )
+			{
+				delete script;
+				script = NULL;
+			}
+		}
+		else
+		{
+			idParser::Error( "#include without file name" );
+			return false;
+		}
+		
+		if( !script )
+		{
+			idParser::Error( "file '%s' not found", path.c_str() );
+			return false;
+		}
+		script->SetFlags( idParser::flags );
+		script->SetPunctuations( idParser::punctuations );
+		idParser::PushScript( script );
+		return true;
+	}
+};
+// RB end
+
 /*
 ========================
 StripDeadCode
@@ -328,7 +460,7 @@ idStr StripDeadCode( const idStr& in, const char* name )
 	}
 	
 	//idLexer src( LEXFL_NOFATALERRORS );
-	idParser src( LEXFL_NOFATALERRORS );
+	idParser_EmbeddedGLSL src( LEXFL_NOFATALERRORS );
 	src.LoadMemory( in.c_str(), in.Length(), name );
 	src.AddDefine( "PC" );
 	
@@ -1365,7 +1497,6 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, idL
 	
 	outFileGLSL.StripFileExtension();
 	outFileUniforms.StripFileExtension();
-	// RB end
 	
 	if( target == GL_FRAGMENT_SHADER )
 	{
@@ -1392,21 +1523,31 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, idL
 	// if the glsl file doesn't exist or we have a newer HLSL file we need to recreate the glsl file.
 	idStr programGLSL;
 	idStr programUniforms;
-	if( ( glslFileLength <= 0 ) || ( hlslTimeStamp > glslTimeStamp ) || r_alwaysExportGLSL.GetBool() )
+	if( ( glslFileLength <= 0 ) || ( hlslTimeStamp != FILE_NOT_FOUND_TIMESTAMP && hlslTimeStamp > glslTimeStamp ) || r_alwaysExportGLSL.GetBool() )
 	{
+		const char* hlslFileBuffer = NULL;
+		int len = 0;
+		
 		if( hlslFileLength <= 0 )
 		{
 			// hlsl file doesn't even exist bail out
-			return false;
+			hlslFileBuffer = FindEmbeddedSourceShader( inFile.c_str() );
+			if( hlslFileBuffer == NULL )
+			{
+				return false;
+			}
+			len = strlen( hlslFileBuffer );
+		}
+		else
+		{
+			len = fileSystem->ReadFile( inFile.c_str(), ( void** ) &hlslFileBuffer );
 		}
 		
-		void* hlslFileBuffer = NULL;
-		int len = fileSystem->ReadFile( inFile.c_str(), &hlslFileBuffer );
 		if( len <= 0 )
 		{
 			return false;
 		}
-		idStr hlslCode( ( const char* ) hlslFileBuffer );
+		idStr hlslCode( hlslFileBuffer );
 		idStr programHLSL = StripDeadCode( hlslCode, inFile );
 		programGLSL = ConvertCG2GLSL( programHLSL, inFile, target == GL_VERTEX_SHADER, programUniforms );
 		

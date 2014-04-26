@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2014 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -185,7 +186,9 @@ public:
 	// set the base folder to load files from
 	static void		SetBaseFolder( const char* path );
 	
-private:
+// RB: made protected to have custom #include behaviours for embedded resources
+protected:
+// RB end
 	int				loaded;						// set when a source file is loaded from file or memory
 	idStr			filename;					// file name of the script
 	idStr			includepath;				// path to include files
@@ -202,7 +205,6 @@ private:
 	
 	static define_t* globaldefines;				// list with global defines added to every source loaded
 	
-private:
 	void			PushIndent( int type, int skip );
 	void			PopIndent( int* type, int* skip );
 	void			PushScript( idLexer* script );
@@ -225,7 +227,9 @@ private:
 	static define_t* FindDefine( define_t* defines, const char* name );
 	static define_t* DefineFromString( const char* string );
 	define_t* 		CopyFirstDefine();
-	int				Directive_include();
+	// RB: allow override
+	virtual int		Directive_include();
+	// RB end
 	int				Directive_undef();
 	int				Directive_if_def( int type );
 	int				Directive_ifdef();
