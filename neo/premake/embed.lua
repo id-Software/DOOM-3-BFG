@@ -95,7 +95,7 @@ local function writefilesimple( out, filename, contents )
 		out:write( "\t\t\"" .. line .. "\\n\"\n" )
     end
 
-	out:write( "\t\t\0\n\t},\n\t\n" )
+	out:write( "\t\t\n\t},\n\t\n" )
 	
 end
 
