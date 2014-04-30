@@ -165,8 +165,16 @@ _________________________
 		
 		> yum install cmake SDL-devel openal-devel
 	
+	On openSUSE (tested in 13.1)
+	
+		> zypper in openal-soft-devel cmake libSDL-devel libffmpeg1-devel
+	
+	For SDL 2 replace "libSDL-devel" with "libSDL2-devel".
+	"libffmpeg1-devel" requires the PackMan repository. If you don't have that repo, and don't want to add it, remove the "libffmpeg1-devel" option and compile without ffmpeg support.
+	If you have the repo and compiles with ffmpeg support, make sure you download "libffmpeg1-devel", and not "libffmpeg-devel".
+	
 	Instead of SDL1.2 development files you can also use SDL2, but so far it 
-	seems like no distributions has packages for it yet, so you may have to 
+	seems like no distributions except openSUSE has packages for it yet, so you may have to 
 	compile and install SDL2 yourself. 
 	(There may be inofficial repositories like Ubuntu PPAs)
 	
