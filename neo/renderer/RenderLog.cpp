@@ -382,7 +382,7 @@ void idRenderLog::OpenBlock( const char* label )
 	//if( logFile != NULL )
 	if( r_logFile.GetInteger() != 0 )
 	{
-		LogOpenBlock( RENDER_LOG_INDENT_MAIN_BLOCK, label, NULL );
+        LogOpenBlock( RENDER_LOG_INDENT_MAIN_BLOCK, "%s", label );
 	}
 }
 
@@ -451,7 +451,7 @@ void idRenderLog::Printf( const char* fmt, ... )
 idRenderLog::LogOpenBlock
 ========================
 */
-void idRenderLog::LogOpenBlock( renderLogIndentLabel_t label, const char* fmt, va_list args )
+void idRenderLog::LogOpenBlock( renderLogIndentLabel_t label, const char* fmt, ... )
 {
 	uint64 now = Sys_Microseconds();
 	

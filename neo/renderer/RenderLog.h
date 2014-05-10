@@ -125,7 +125,7 @@ public:
 	logStats_t				logStats[MAX_LOG_LEVELS];
 	int						logLevel;
 	
-	void					LogOpenBlock( renderLogIndentLabel_t label, const char* fmt, va_list args );
+    void					LogOpenBlock( renderLogIndentLabel_t label, const char* fmt, ... );
 	void					LogCloseBlock( renderLogIndentLabel_t label );
 };
 
