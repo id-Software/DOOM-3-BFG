@@ -382,7 +382,7 @@ void idRenderLog::OpenBlock( const char* label )
 	//if( logFile != NULL )
 	if( r_logFile.GetInteger() != 0 )
 	{
-        LogOpenBlock( RENDER_LOG_INDENT_MAIN_BLOCK, "%s", label );
+		LogOpenBlock( RENDER_LOG_INDENT_MAIN_BLOCK, "%s", label );
 	}
 }
 

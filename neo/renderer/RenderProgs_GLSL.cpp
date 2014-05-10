@@ -392,31 +392,34 @@ public:
 	}
 	
 private:
-	int		Directive_include()
+	int		Directive_include( idToken* token )
 	{
-		if( idParser::Directive_include() )
+		if( idParser::Directive_include( token ) )
 		{
 			// RB: try local shaders in base/renderprogs/ first
 			return true;
 		}
 		
 		idLexer* script;
-		idToken token;
+		
 		idStr path;
 		
+		/*
+		token was already parsed
 		if( !idParser::ReadSourceToken( &token ) )
 		{
 			idParser::Error( "#include without file name" );
 			return false;
 		}
+		*/
 		
-		if( token.linesCrossed > 0 )
+		if( token->linesCrossed > 0 )
 		{
 			idParser::Error( "#include without file name" );
 			return false;
 		}
 		
-		if( token.type == TT_STRING )
+		if( token->type == TT_STRING )
 		{
 			script = new idLexer;
 			
@@ -424,19 +427,19 @@ private:
 			path = scriptstack->GetFileName();
 			path.StripFilename();
 			path += "/";
-			path += token;
+			path += *token;
 			
 			//if( !script->LoadFile( path, OSPath ) )
 			const char* embeddedSource = FindEmbeddedSourceShader( path );
 			if( embeddedSource == NULL )
 			{
 				// try absolute path
-				path = token;
+				path = *token;
 				embeddedSource = FindEmbeddedSourceShader( path );
 				if( embeddedSource == NULL )
 				{
 					// try from the include path
-					path = includepath + token;
+					path = includepath + *token;
 					embeddedSource = FindEmbeddedSourceShader( path );
 				}
 			}
@@ -447,23 +450,23 @@ private:
 				script = NULL;
 			}
 		}
-		else if( token.type == TT_PUNCTUATION && token == "<" )
+		else if( token->type == TT_PUNCTUATION && *token == "<" )
 		{
 			path = idParser::includepath;
-			while( idParser::ReadSourceToken( &token ) )
+			while( idParser::ReadSourceToken( token ) )
 			{
-				if( token.linesCrossed > 0 )
+				if( token->linesCrossed > 0 )
 				{
-					idParser::UnreadSourceToken( &token );
+					idParser::UnreadSourceToken( token );
 					break;
 				}
-				if( token.type == TT_PUNCTUATION && token == ">" )
+				if( token->type == TT_PUNCTUATION && *token == ">" )
 				{
 					break;
 				}
-				path += token;
+				path += *token;
 			}
-			if( token != ">" )
+			if( *token != ">" )
 			{
 				idParser::Warning( "#include missing trailing >" );
 			}

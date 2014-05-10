@@ -1092,38 +1092,38 @@ int idParser::ReadLine( idToken* token )
 idParser::Directive_include
 ================
 */
-int idParser::Directive_include()
+// RB: added token as parameter
+int idParser::Directive_include( idToken* token )
 {
 	idLexer* script;
-	idToken token;
 	idStr path;
 	
-	if( !idParser::ReadSourceToken( &token ) )
+	if( !idParser::ReadSourceToken( token ) )
 	{
 		idParser::Error( "#include without file name" );
 		return false;
 	}
-	if( token.linesCrossed > 0 )
+	if( token->linesCrossed > 0 )
 	{
 		idParser::Error( "#include without file name" );
 		return false;
 	}
-	if( token.type == TT_STRING )
+	if( token->type == TT_STRING )
 	{
 		script = new( TAG_IDLIB_PARSER ) idLexer;
 		// try relative to the current file
 		path = scriptstack->GetFileName();
 		path.StripFilename();
 		path += "/";
-		path += token;
+		path += *token;
 		if( !script->LoadFile( path, OSPath ) )
 		{
 			// try absolute path
-			path = token;
+			path = *token;
 			if( !script->LoadFile( path, OSPath ) )
 			{
 				// try from the include path
-				path = includepath + token;
+				path = includepath + *token;
 				if( !script->LoadFile( path, OSPath ) )
 				{
 					delete script;
@@ -1132,23 +1132,23 @@ int idParser::Directive_include()
 			}
 		}
 	}
-	else if( token.type == TT_PUNCTUATION && token == "<" )
+	else if( token->type == TT_PUNCTUATION && *token == "<" )
 	{
 		path = idParser::includepath;
-		while( idParser::ReadSourceToken( &token ) )
+		while( idParser::ReadSourceToken( token ) )
 		{
-			if( token.linesCrossed > 0 )
+			if( token->linesCrossed > 0 )
 			{
-				idParser::UnreadSourceToken( &token );
+				idParser::UnreadSourceToken( token );
 				break;
 			}
-			if( token.type == TT_PUNCTUATION && token == ">" )
+			if( token->type == TT_PUNCTUATION && *token == ">" )
 			{
 				break;
 			}
-			path += token;
+			path += *token;
 		}
-		if( token != ">" )
+		if( *token != ">" )
 		{
 			idParser::Warning( "#include missing trailing >" );
 		}
@@ -1183,6 +1183,7 @@ int idParser::Directive_include()
 	idParser::PushScript( script );
 	return true;
 }
+// RB end
 
 /*
 ================
@@ -2599,7 +2600,8 @@ int idParser::ReadDirective()
 			if( token == "include" )
 			{
 				// RB lets override for embedded shaders
-				return Directive_include();
+				idToken filename;
+				return Directive_include( &filename );
 				// RB end
 			}
 			else if( token == "define" )
