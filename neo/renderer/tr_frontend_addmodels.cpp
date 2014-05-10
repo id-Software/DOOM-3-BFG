@@ -685,6 +685,7 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 			{
 				tri->indexCache = vertexCache.AllocIndex( tri->indexes, ALIGN( tri->numIndexes * sizeof( triIndex_t ), INDEX_CACHE_ALIGN ) );
 			}
+			
 			if( !vertexCache.CacheIsCurrent( tri->ambientCache ) )
 			{
 				// we are going to use it for drawing, so make sure we have the tangents and normals
@@ -925,7 +926,7 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 			}
 			
 			// if the static shadow does not have any shadows
-			if( surfInter != NULL && surfInter->numShadowIndexes == 0 )
+			if( surfInter != NULL && surfInter->numShadowIndexes == 0 && !r_useShadowMapping.GetBool() )
 			{
 				continue;
 			}
@@ -941,6 +942,82 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 			{
 				continue;
 			}
+			
+			// RB begin
+			if( r_useShadowMapping.GetBool() )
+			{
+				//if( addInteractions && surfaceDirectlyVisible && shader->ReceivesLighting() )
+				{
+					// static interactions can commonly find that no triangles from a surface
+					// contact the light, even when the total model does
+					if( surfInter == NULL || surfInter->lightTrisIndexCache > 0 )
+					{
+						// create a drawSurf for this interaction
+						drawSurf_t* shadowDrawSurf = ( drawSurf_t* )R_FrameAlloc( sizeof( *shadowDrawSurf ), FRAME_ALLOC_DRAW_SURFACE );
+						
+						if( surfInter != NULL )
+						{
+							// optimized static interaction
+							shadowDrawSurf->numIndexes = surfInter->numLightTrisIndexes;
+							shadowDrawSurf->indexCache = surfInter->lightTrisIndexCache;
+						}
+						else
+						{
+							// make sure we have an ambient cache and all necessary normals / tangents
+							if( !vertexCache.CacheIsCurrent( tri->indexCache ) )
+							{
+								tri->indexCache = vertexCache.AllocIndex( tri->indexes, ALIGN( tri->numIndexes * sizeof( triIndex_t ), INDEX_CACHE_ALIGN ) );
+							}
+							
+							// throw the entire source surface at it without any per-triangle culling
+							shadowDrawSurf->numIndexes = tri->numIndexes;
+							shadowDrawSurf->indexCache = tri->indexCache;
+						}
+						
+						if( !vertexCache.CacheIsCurrent( tri->ambientCache ) )
+						{
+							// we are going to use it for drawing, so make sure we have the tangents and normals
+							if( shader->ReceivesLighting() && !tri->tangentsCalculated )
+							{
+								assert( tri->staticModelWithJoints == NULL );
+								R_DeriveTangents( tri );
+								
+								// RB: this was hit by parametric particle models ..
+								//assert( false );	// this should no longer be hit
+								// RB end
+							}
+							tri->ambientCache = vertexCache.AllocVertex( tri->verts, ALIGN( tri->numVerts * sizeof( idDrawVert ), VERTEX_CACHE_ALIGN ) );
+						}
+						
+						shadowDrawSurf->ambientCache = tri->ambientCache;
+						shadowDrawSurf->shadowCache = 0;
+						shadowDrawSurf->frontEndGeo = tri;
+						shadowDrawSurf->space = vEntity;
+						shadowDrawSurf->material = shader;
+						shadowDrawSurf->extraGLState = 0;
+						shadowDrawSurf->scissorRect = vLight->scissorRect; // interactionScissor;
+						shadowDrawSurf->sort = 0.0f;
+						shadowDrawSurf->renderZFail = 0;
+						//shadowDrawSurf->shaderRegisters = baseDrawSurf->shaderRegisters;
+						
+						R_SetupDrawSurfJoints( shadowDrawSurf, tri, shader );
+						
+						// determine which linked list to add the shadow surface to
+						
+						//shadowDrawSurf->linkChain = shader->TestMaterialFlag( MF_NOSELFSHADOW ) ? &vLight->localShadows : &vLight->globalShadows;
+						
+						shadowDrawSurf->linkChain = &vLight->globalShadows;
+						shadowDrawSurf->nextOnLight = vEntity->drawSurfs;
+						
+						vEntity->drawSurfs = shadowDrawSurf;
+						
+					}
+				}
+				
+				
+				continue;
+			}
+			// RB end
 			
 			if( lightDef->parms.prelightModel && lightDef->lightHasMoved == false &&
 					entityDef->parms.hModel->IsStaticWorldModel() && !r_skipPrelightShadows.GetBool() )

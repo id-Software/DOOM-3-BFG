@@ -663,12 +663,17 @@ void idInteraction::UnlinkAndFree()
 {
 	// clear the table pointer
 	idRenderWorldLocal* renderWorld = this->lightDef->world;
-	int index = this->lightDef->index * renderWorld->interactionTableWidth + this->entityDef->index;
-	if( renderWorld->interactionTable[index] != this && renderWorld->interactionTable[index] != INTERACTION_EMPTY )
+	// RB: added check for NULL
+	if( renderWorld->interactionTable != NULL )
 	{
-		common->Error( "idInteraction::UnlinkAndFree: interactionTable wasn't set" );
+		int index = this->lightDef->index * renderWorld->interactionTableWidth + this->entityDef->index;
+		if( renderWorld->interactionTable[index] != this && renderWorld->interactionTable[index] != INTERACTION_EMPTY )
+		{
+			common->Error( "idInteraction::UnlinkAndFree: interactionTable wasn't set" );
+		}
+		renderWorld->interactionTable[index] = NULL;
 	}
-	renderWorld->interactionTable[index] = NULL;
+	// RB end
 	
 	Unlink();
 	

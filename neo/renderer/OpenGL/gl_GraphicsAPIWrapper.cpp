@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013-2014 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -198,6 +199,7 @@ void GL_GetDepthPassRect( idScreenRect& rect )
 GL_Color
 ====================
 */
+/*
 void GL_Color( float* color )
 {
 	if( color == NULL )
@@ -206,6 +208,19 @@ void GL_Color( float* color )
 	}
 	GL_Color( color[0], color[1], color[2], color[3] );
 }
+*/
+
+// RB begin
+void GL_Color( const idVec3& color )
+{
+	GL_Color( color[0], color[1], color[2], 1.0f );
+}
+
+void GL_Color( const idVec4& color )
+{
+	GL_Color( color[0], color[1], color[2], color[3] );
+}
+// RB end
 
 /*
 ====================
@@ -274,6 +289,10 @@ void GL_SetDefaultState()
 	// make sure our GL state vector is set correctly
 	memset( &backEnd.glState, 0, sizeof( backEnd.glState ) );
 	GL_State( 0, true );
+	
+	// RB begin
+	Framebuffer::BindNull();
+	// RB end
 	
 	// These are changed by GL_Cull
 	glCullFace( GL_FRONT_AND_BACK );

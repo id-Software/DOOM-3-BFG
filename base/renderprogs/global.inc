@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
-Copyright (C) 2013 Robert Beckebans
+Copyright (C) 2013-2014 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
 
@@ -97,6 +97,20 @@ uniform float4 rpOverbright				:	register(c50);
 uniform float4 rpEnableSkinning			:	register(c51);
 uniform float4 rpAlphaTest				:	register(c52);
 
+// RB begin
+uniform float4 rpAmbientColor			:	register(c53);
+uniform float4 rpGlobalLightOrigin		:	register(c54);
+uniform float4 rpJitterTexScale			:	register(c55);
+uniform float4 rpJitterTexOffset		:	register(c56);
+uniform float4 rpCascadeDistances		:	register(c57);
+
+#if defined( USE_UNIFORM_ARRAYS )
+uniform float4 rpShadowMatrices			:	register(c58);
+#else
+uniform float4 rpShadowMatrices[6*4]	:	register(c59);
+#endif
+// RB end
+
 static float dot2( float2 a, float2 b ) { return dot( a, b ); }
 static float dot3( float3 a, float3 b ) { return dot( a, b ); }
 static float dot3( float3 a, float4 b ) { return dot( a, b.xyz ); }
@@ -179,7 +193,6 @@ float rand( float2 co ) {
 static float4 idtex2Dproj( sampler2D samp, float4 texCoords ) { return tex2Dproj( samp, texCoords.xyw ); }
 static float4 swizzleColor( float4 c ) { return c; }
 static float2 vposToScreenPosTexCoord( float2 vpos ) { return vpos.xy * rpWindowCoord.xy; }
-
 
 #define BRANCH
 #define IFANY

@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013-2014 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -33,7 +34,10 @@ enum textureType_t
 {
 	TT_DISABLED,
 	TT_2D,
-	TT_CUBIC
+	TT_CUBIC,
+	// RB begin
+	TT_2D_ARRAY
+	// RB end
 };
 
 /*
@@ -89,6 +93,11 @@ enum textureFormat_t
 	FMT_X16,			// 16 bpp
 	FMT_Y16_X16,		// 32 bpp
 	FMT_RGB565,			// 16 bpp
+	
+	// RB: don't change above for legacy .bimage compatibility
+	FMT_ETC1_RGB8_OES,	// 4 bpp
+	FMT_SHADOW_ARRAY,	// 32 bpp * 6
+	// RB end
 };
 
 int BitsForFormat( textureFormat_t format );
@@ -103,7 +112,11 @@ enum textureColor_t
 	CFM_DEFAULT,			// RGBA
 	CFM_NORMAL_DXT5,		// XY format and use the fast DXT5 compressor
 	CFM_YCOCG_DXT5,			// convert RGBA to CoCg_Y format
-	CFM_GREEN_ALPHA			// Copy the alpha channel to green
+	CFM_GREEN_ALPHA,		// Copy the alpha channel to green
+	
+	// RB: don't change above for legacy .bimage compatibility
+	CFM_YCOCG_RGBA8,
+	// RB end
 };
 
 /*

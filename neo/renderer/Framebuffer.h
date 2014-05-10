@@ -2,7 +2,7 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2014 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -25,60 +25,66 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
-#ifndef __RENDERTEXTURE_H__
-#define __RENDERTEXTURE_H__
 
-/*
-================================================================================================
+#ifndef __FRAMEBUFFER_H__
+#define __FRAMEBUFFER_H__
 
-	Render Texture
-
-================================================================================================
-*/
-
-#define CELL_GCM_INVALID_PITCH		64
-
-/*
-================================================
-idRenderTexture holds both the color and depth images that are made
-resident on the video hardware.
-================================================
-*/
-class idRenderTexture
+class Framebuffer
 {
 public:
-	idRenderTexture();
-	~idRenderTexture();
+
+	Framebuffer( const char* name, int width, int height );
 	
-	ID_INLINE int			GetWidth() const
+	static void				Init();
+	static void				Shutdown();
+	
+	// deletes OpenGL object but leaves structure intact for reloading
+	void					PurgeFramebuffer();
+	
+	void					Bind();
+	static void				BindNull();
+	
+	void					AddColorBuffer( int format, int index );
+	void					AddDepthBuffer( int format );
+	
+	void					AttachImage2D( int target, const idImage* image, int index );
+	void					AttachImage3D( const idImage* image );
+	void					AttachImageDepth( const idImage* image );
+	void					AttachImageDepthLayer( const idImage* image, int layer );
+	
+	// check for OpenGL errors
+	void					Check();
+	uint32_t				GetFramebuffer() const
 	{
-		return ( colorImage != NULL ) ? colorImage->GetUploadWidth() : depthImage->GetUploadWidth();
+		return frameBuffer;
 	}
-	ID_INLINE int			GetHeight() const
-	{
-		return ( colorImage != NULL ) ? colorImage->GetUploadHeight() : depthImage->GetUploadHeight();
-	}
-	
-	ID_INLINE idImage* 		GetColorImage() const
-	{
-		return colorImage;
-	}
-	ID_INLINE idImage* 		GetDepthImage() const
-	{
-		return depthImage;
-	}
-	
-	
-	void					Resize( int width, int height );
-	
-	void					MakeCurrent( int level = 0, int side = 0 );
 	
 private:
-	idImage* 			colorImage;
-	idImage* 			depthImage;
-	int					targetWidth;
-	int					targetHeight;
+	idStr					fboName;
 	
+	// FBO object
+	uint32_t				frameBuffer;
+	
+	uint32_t				colorBuffers[16];
+	int						colorFormat;
+	
+	uint32_t				depthBuffer;
+	int						depthFormat;
+	
+	uint32_t				stencilBuffer;
+	int						stencilFormat;
+	
+	int						width;
+	int						height;
+	
+	static idList<Framebuffer*>	framebuffers;
 };
 
-#endif //!__RENDERTEXTURE_H__
+struct globalFramebuffers_t
+{
+	Framebuffer*				shadowFBO;
+};
+extern globalFramebuffers_t globalFramebuffers;
+
+
+#endif // __FRAMEBUFFER_H__

@@ -83,47 +83,67 @@ void idRenderProgManager::Init()
 	// RB: added checks for GPU skinning
 	struct builtinShaders_t
 	{
-		int index;
+		int			index;
 		const char* name;
-		bool requireGPUSkinningSupport;
+		const char* nameOutSuffix;
+		uint32		shaderFeatures;
+		bool		requireGPUSkinningSupport;
 	} builtins[] =
 	{
-		{ BUILTIN_GUI, "gui.vfp", false },
-		{ BUILTIN_COLOR, "color.vfp", false },
-//		{ BUILTIN_SIMPLESHADE, "simpleshade.vfp", false },
-		{ BUILTIN_TEXTURED, "texture.vfp", false },
-		{ BUILTIN_TEXTURE_VERTEXCOLOR, "texture_color.vfp", false },
-		{ BUILTIN_TEXTURE_VERTEXCOLOR_SKINNED, "texture_color_skinned.vfp", true },
-		{ BUILTIN_TEXTURE_TEXGEN_VERTEXCOLOR, "texture_color_texgen.vfp", false },
-		{ BUILTIN_INTERACTION, "interaction.vfp", false },
-		{ BUILTIN_INTERACTION_SKINNED, "interaction_skinned.vfp", true },
-		{ BUILTIN_INTERACTION_AMBIENT, "interactionAmbient.vfp", false },
-		{ BUILTIN_INTERACTION_AMBIENT_SKINNED, "interactionAmbient_skinned.vfp", true },
-		{ BUILTIN_ENVIRONMENT, "environment.vfp", false },
-		{ BUILTIN_ENVIRONMENT_SKINNED, "environment_skinned.vfp", true },
-		{ BUILTIN_BUMPY_ENVIRONMENT, "bumpyEnvironment.vfp", false },
-		{ BUILTIN_BUMPY_ENVIRONMENT_SKINNED, "bumpyEnvironment_skinned.vfp", true },
+		{ BUILTIN_GUI, "gui.vfp", 0, false },
+		{ BUILTIN_COLOR, "color.vfp", 0, false },
+		// RB begin
+		{ BUILTIN_COLOR_SKINNED, "color", "_skinned", BIT( USE_GPU_SKINNING ), true },
+		{ BUILTIN_VERTEX_COLOR, "vertex_color.vfp", "", 0, false },
+		// RB end
+//		{ BUILTIN_SIMPLESHADE, "simpleshade.vfp", 0, false },
+		{ BUILTIN_TEXTURED, "texture.vfp", 0, false },
+		{ BUILTIN_TEXTURE_VERTEXCOLOR, "texture_color.vfp", 0, false },
+		{ BUILTIN_TEXTURE_VERTEXCOLOR_SKINNED, "texture_color_skinned.vfp", 0, true },
+		{ BUILTIN_TEXTURE_TEXGEN_VERTEXCOLOR, "texture_color_texgen.vfp", 0, false },
+		// RB begin
+		{ BUILTIN_INTERACTION, "interaction.vfp", "", 0, false },
+		{ BUILTIN_INTERACTION_SKINNED, "interaction", "_skinned", BIT( USE_GPU_SKINNING ), true },
+		{ BUILTIN_INTERACTION_AMBIENT, "interactionAmbient.vfp", 0, false },
+		{ BUILTIN_INTERACTION_AMBIENT_SKINNED, "interactionAmbient_skinned.vfp", 0, true },
+		{ BUILTIN_INTERACTION_SHADOW_MAPPING_SPOT, "interactionSM", "_spot", 0, false },
+		{ BUILTIN_INTERACTION_SHADOW_MAPPING_SPOT_SKINNED, "interactionSM", "_spot_skinned", BIT( USE_GPU_SKINNING ), true },
+		{ BUILTIN_INTERACTION_SHADOW_MAPPING_POINT, "interactionSM", "_point", BIT( LIGHT_POINT ), false },
+		{ BUILTIN_INTERACTION_SHADOW_MAPPING_POINT_SKINNED, "interactionSM", "_point_skinned", BIT( USE_GPU_SKINNING ) | BIT( LIGHT_POINT ), true },
+		{ BUILTIN_INTERACTION_SHADOW_MAPPING_PARALLEL, "interactionSM", "_parallel", BIT( LIGHT_PARALLEL ), false },
+		{ BUILTIN_INTERACTION_SHADOW_MAPPING_PARALLEL_SKINNED, "interactionSM", "_parallel_skinned", BIT( USE_GPU_SKINNING ) | BIT( LIGHT_PARALLEL ), true },
+		// RB end
+		{ BUILTIN_ENVIRONMENT, "environment.vfp", 0, false },
+		{ BUILTIN_ENVIRONMENT_SKINNED, "environment_skinned.vfp", 0, true },
+		{ BUILTIN_BUMPY_ENVIRONMENT, "bumpyenvironment.vfp", 0, false },
+		{ BUILTIN_BUMPY_ENVIRONMENT_SKINNED, "bumpyenvironment_skinned.vfp", 0, true },
 		
-		{ BUILTIN_DEPTH, "depth.vfp", false },
-		{ BUILTIN_DEPTH_SKINNED, "depth_skinned.vfp", true },
-		{ BUILTIN_SHADOW_DEBUG, "shadowDebug.vfp", false },
-		{ BUILTIN_SHADOW_DEBUG_SKINNED, "shadowDebug_skinned.vfp", true },
+		{ BUILTIN_DEPTH, "depth.vfp", 0, false },
+		{ BUILTIN_DEPTH_SKINNED, "depth_skinned.vfp", 0, true },
 		
-		{ BUILTIN_BLENDLIGHT, "blendlight.vfp", false },
-		{ BUILTIN_FOG, "fog.vfp", false },
-		{ BUILTIN_FOG_SKINNED, "fog_skinned.vfp", true },
-		{ BUILTIN_SKYBOX, "skybox.vfp", false },
-		{ BUILTIN_WOBBLESKY, "wobblesky.vfp", false },
-		{ BUILTIN_POSTPROCESS, "postprocess.vfp", false },
-		{ BUILTIN_STEREO_DEGHOST, "stereoDeGhost.vfp", false },
-		{ BUILTIN_STEREO_WARP, "stereoWarp.vfp", false },
-//		{ BUILTIN_ZCULL_RECONSTRUCT, "zcullReconstruct.vfp", false },
-		{ BUILTIN_BINK, "bink.vfp", false },
-		{ BUILTIN_BINK_GUI, "bink_gui.vfp", false },
-		{ BUILTIN_STEREO_INTERLACE, "stereoInterlace.vfp", false },
-//		{ BUILTIN_MOTION_BLUR, "motionBlur.vfp", false },
-		{ BUILTIN_SHADOW, "shadow.vfp", false },
-		{ BUILTIN_SHADOW_SKINNED, "shadow_skinned.vfp", true },
+		{ BUILTIN_SHADOW, "shadow.vfp", 0, false },
+		{ BUILTIN_SHADOW_SKINNED, "shadow_skinned.vfp", 0, true },
+		
+		{ BUILTIN_SHADOW_DEBUG, "shadowDebug.vfp", 0, false },
+		{ BUILTIN_SHADOW_DEBUG_SKINNED, "shadowDebug_skinned.vfp", 0, true },
+		
+		{ BUILTIN_BLENDLIGHT, "blendlight.vfp", 0, false },
+		{ BUILTIN_FOG, "fog.vfp", 0, false },
+		{ BUILTIN_FOG_SKINNED, "fog_skinned.vfp", 0, true },
+		{ BUILTIN_SKYBOX, "skybox.vfp", 0, false },
+		{ BUILTIN_WOBBLESKY, "wobblesky.vfp", 0, false },
+		{ BUILTIN_POSTPROCESS, "postprocess.vfp", 0, false },
+		{ BUILTIN_STEREO_DEGHOST, "stereoDeGhost.vfp", 0, false },
+		{ BUILTIN_STEREO_WARP, "stereoWarp.vfp", 0, false },
+//		{ BUILTIN_ZCULL_RECONSTRUCT, "zcullReconstruct.vfp", 0, false },
+		{ BUILTIN_BINK, "bink.vfp", 0, false },
+		{ BUILTIN_BINK_GUI, "bink_gui.vfp", 0, false },
+		{ BUILTIN_STEREO_INTERLACE, "stereoInterlace.vfp", 0, false },
+		{ BUILTIN_MOTION_BLUR, "motionBlur.vfp", 0, false },
+		
+		// RB begin
+		{ BUILTIN_DEBUG_SHADOWMAP, "debug_shadowmap.vfp", "", 0, false },
+		// RB end
 	};
 	int numBuiltins = sizeof( builtins ) / sizeof( builtins[0] );
 	vertexShaders.SetNum( numBuiltins );
@@ -133,7 +153,15 @@ void idRenderProgManager::Init()
 	for( int i = 0; i < numBuiltins; i++ )
 	{
 		vertexShaders[i].name = builtins[i].name;
+		vertexShaders[i].nameOutSuffix = builtins[i].nameOutSuffix;
+		vertexShaders[i].shaderFeatures = builtins[i].shaderFeatures;
+		vertexShaders[i].builtin = true;
+		
 		fragmentShaders[i].name = builtins[i].name;
+		fragmentShaders[i].nameOutSuffix = builtins[i].nameOutSuffix;
+		fragmentShaders[i].shaderFeatures = builtins[i].shaderFeatures;
+		fragmentShaders[i].builtin = true;
+		
 		builtinShaders[builtins[i].index] = i;
 		
 		if( builtins[i].requireGPUSkinningSupport && !glConfig.gpuSkinningAvailable )
@@ -197,6 +225,11 @@ void idRenderProgManager::Init()
 		vertexShaders[builtinShaders[BUILTIN_SHADOW_SKINNED]].usesJoints = true;
 		vertexShaders[builtinShaders[BUILTIN_SHADOW_DEBUG_SKINNED]].usesJoints = true;
 		vertexShaders[builtinShaders[BUILTIN_FOG_SKINNED]].usesJoints = true;
+		// RB begin
+		vertexShaders[builtinShaders[BUILTIN_INTERACTION_SHADOW_MAPPING_SPOT_SKINNED]].usesJoints = true;
+		vertexShaders[builtinShaders[BUILTIN_INTERACTION_SHADOW_MAPPING_POINT_SKINNED]].usesJoints = true;
+		vertexShaders[builtinShaders[BUILTIN_INTERACTION_SHADOW_MAPPING_PARALLEL_SKINNED]].usesJoints = true;
+		// RB end
 	}
 	
 	cmdSystem->AddCommand( "reloadShaders", R_ReloadShaders, CMD_FL_RENDERER, "reloads shaders" );
@@ -220,6 +253,12 @@ void idRenderProgManager::LoadAllShaders()
 	
 	for( int i = 0; i < glslPrograms.Num(); ++i )
 	{
+		if( glslPrograms[i].vertexShaderIndex == -1 || glslPrograms[i].fragmentShaderIndex == -1 )
+		{
+			// RB: skip reloading because we didn't load it initially
+			continue;
+		}
+		
 		LoadGLSLProgram( i, glslPrograms[i].vertexShaderIndex, glslPrograms[i].fragmentShaderIndex );
 	}
 }
@@ -341,7 +380,9 @@ void idRenderProgManager::LoadVertexShader( int index )
 	{
 		return; // Already loaded
 	}
-	vertexShaders[index].progId = ( GLuint ) LoadGLSLShader( GL_VERTEX_SHADER, vertexShaders[index].name, vertexShaders[index].uniforms );
+	
+	vertexShader_t& vs = vertexShaders[index];
+	vertexShaders[index].progId = ( GLuint ) LoadGLSLShader( GL_VERTEX_SHADER, vs.name, vs.nameOutSuffix, vs.shaderFeatures, vs.builtin, vs.uniforms );
 }
 
 /*
@@ -355,7 +396,9 @@ void idRenderProgManager::LoadFragmentShader( int index )
 	{
 		return; // Already loaded
 	}
-	fragmentShaders[index].progId = ( GLuint ) LoadGLSLShader( GL_FRAGMENT_SHADER, fragmentShaders[index].name, fragmentShaders[index].uniforms );
+	
+	fragmentShader_t& fs = fragmentShaders[index];
+	fragmentShaders[index].progId = ( GLuint ) LoadGLSLShader( GL_FRAGMENT_SHADER, fs.name, fs.nameOutSuffix, fs.shaderFeatures, fs.builtin, fs.uniforms );
 }
 
 /*

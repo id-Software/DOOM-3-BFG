@@ -194,7 +194,7 @@ bool R_PreciseCullSurface( const drawSurf_t* drawSurf, idBounds& ndcBounds )
 		
 		for( int j = 0; j < 4; j++ )
 		{
-			if( !w.ClipInPlace( -tr.viewDef->frustum[j], 0.1f ) )
+			if( !w.ClipInPlace( -tr.viewDef->frustums[FRUSTUM_PRIMARY][j], 0.1f ) )
 			{
 				break;
 			}

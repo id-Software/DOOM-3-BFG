@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 2013-2014 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
 
@@ -26,7 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#include "global.inc"
+#include "renderprogs/global.inc"
 
 uniform sampler2D	samp0 : register(s0); // texture 1 is the per-surface bump map
 uniform sampler2D	samp1 : register(s1); // texture 2 is the light falloff texture
@@ -64,15 +65,28 @@ void main( PS_IN fragment, out PS_OUT result ) {
 	localNormal.xy = bumpMap.wy - 0.5;
 	localNormal.z = sqrt( abs( dot( localNormal.xy, localNormal.xy ) - 0.25 ) );
 	localNormal = normalize( localNormal );
+	
+	// RB: http://developer.valvesoftware.com/wiki/Half_Lambert
+	float halfLdotN = dot3( localNormal, lightVector ) * 0.5 + 0.5;
+	halfLdotN *= halfLdotN;
+	
+	// traditional very dark Lambert light model used in Doom 3
+	//float ldotN = clamp( dot3( localNormal, lightVector ), 0.0, 1.0 );
+	float ldotN = dot3( localNormal, lightVector );
 
 	const half specularPower = 10.0f;
 	half hDotN = dot3( normalize( fragment.texcoord6.xyz ), localNormal );
-	half3 specularContribution = _half3( pow( hDotN, specularPower ) );
+	// RB: added abs
+	half3 specularContribution = _half3( pow( abs( hDotN ), specularPower ) );
 
 	half3 diffuseColor = diffuseMap * rpDiffuseModifier.xyz;
 	half3 specularColor = specMap.xyz * specularContribution * rpSpecularModifier.xyz;
-	half3 lightColor = dot3( lightVector, localNormal ) * lightProj.xyz * lightFalloff.xyz;
+	half3 lightColor = lightProj.xyz * lightFalloff.xyz;
+	
+	half rim =  1.0f - saturate( hDotN );
+	half rimPower = 16.0f;
+	half3 rimColor = diffuseColor * lightProj.xyz * lightFalloff.xyz * 1.0f * pow( rim, rimPower ) * fragment.color.rgb;// * halfLdotN;
 
-	result.color.xyz = ( diffuseColor + specularColor ) * lightColor * fragment.color.xyz;
+	result.color.xyz = ( diffuseColor + specularColor ) * halfLdotN * lightColor * fragment.color.rgb;// + rimColor;
 	result.color.w = 1.0;
 }

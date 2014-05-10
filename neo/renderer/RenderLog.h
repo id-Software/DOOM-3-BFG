@@ -111,8 +111,8 @@ public:
 	int						indentLevel;
 	const char* 			lastLabel;
 	renderLogMainBlock_t	lastMainBlock;
-	idFile*					logFile;
-	
+//	idFile*					logFile;
+
 	struct logStats_t
 	{
 		uint64	startTiming;
@@ -136,7 +136,8 @@ idRenderLog::Indent
 */
 ID_INLINE void idRenderLog::Indent( renderLogIndentLabel_t label )
 {
-	if( logFile != NULL )
+	//if( logFile != NULL )
+	if( r_logFile.GetInteger() != 0 )
 	{
 		indentLabel[indentLevel] = label;
 		indentLevel++;
@@ -155,7 +156,8 @@ idRenderLog::Outdent
 */
 ID_INLINE void idRenderLog::Outdent( renderLogIndentLabel_t label )
 {
-	if( logFile != NULL && indentLevel > 0 )
+	//if( logFile != NULL && indentLevel > 0 )
+	if( r_logFile.GetInteger() != 0 && indentLevel > 0 )
 	{
 		indentLevel--;
 		assert( indentLabel[indentLevel] == label );	// indent and outdent out of sync ?

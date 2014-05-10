@@ -235,15 +235,18 @@ const char* prefixes[] =
 	
 	"sampler1DShadow",		// GLSL
 	"sampler2DShadow",		// GLSL
+	"sampler2DArrayShadow",	// GLSL
 	"sampler3DShadow",		// GLSL
 	"samplerCubeShadow",	// GLSL
+	
+	"sampler2DArray",		// GLSL"
 	
 	"sampler2DMS",			// GLSL
 };
 static const int numPrefixes = sizeof( prefixes ) / sizeof( prefixes[0] );
 
 // For GLSL we need to have the names for the renderparms so we can look up their run time indices within the renderprograms
-static const char* GLSLParmNames[] =
+static const char* GLSLParmNames[RENDERPARM_TOTAL] =
 {
 	"rpScreenCorrectionFactor",
 	"rpWindowCoord",
@@ -313,8 +316,57 @@ static const char* GLSLParmNames[] =
 	
 	"rpOverbright",
 	"rpEnableSkinning",
-	"rpAlphaTest"
+	"rpAlphaTest",
+	
+	// RB begin
+	"rpAmbientColor",
+	
+	"rpGlobalLightOrigin",
+	"rpJitterTexScale",
+	"rpJitterTexOffset",
+	"rpCascadeDistances",
+	
+	"rpShadowMatrices",
+	"rpShadowMatrix0Y",
+	"rpShadowMatrix0Z",
+	"rpShadowMatrix0W",
+	
+	"rpShadowMatrix1X",
+	"rpShadowMatrix1Y",
+	"rpShadowMatrix1Z",
+	"rpShadowMatrix1W",
+	
+	"rpShadowMatrix2X",
+	"rpShadowMatrix2Y",
+	"rpShadowMatrix2Z",
+	"rpShadowMatrix2W",
+	
+	"rpShadowMatrix3X",
+	"rpShadowMatrix3Y",
+	"rpShadowMatrix3Z",
+	"rpShadowMatrix3W",
+	
+	"rpShadowMatrix4X",
+	"rpShadowMatrix4Y",
+	"rpShadowMatrix4Z",
+	"rpShadowMatrix4W",
+	
+	"rpShadowMatrix5X",
+	"rpShadowMatrix5Y",
+	"rpShadowMatrix5Z",
+	"rpShadowMatrix5W",
+	// RB end
 };
+
+// RB begin
+const char* idRenderProgManager::GLSLMacroNames[MAX_SHADER_MACRO_NAMES] =
+{
+	"USE_GPU_SKINNING",
+	"LIGHT_POINT",
+	"LIGHT_PARALLEL",
+};
+// RB end
+
 
 // RB: added embedded Cg shader resources
 static const char* FindEmbeddedSourceShader( const char* name )
@@ -342,6 +394,12 @@ public:
 private:
 	int		Directive_include()
 	{
+		if( idParser::Directive_include() )
+		{
+			// RB: try local shaders in base/renderprogs/ first
+			return true;
+		}
+		
 		idLexer* script;
 		idToken token;
 		idStr path;
@@ -452,7 +510,7 @@ private:
 StripDeadCode
 ========================
 */
-idStr StripDeadCode( const idStr& in, const char* name )
+idStr StripDeadCode( const idStr& in, const char* name, const idStrList& compileMacros, bool builtin )
 {
 	if( r_skipStripDeadCode.GetBool() )
 	{
@@ -464,6 +522,11 @@ idStr StripDeadCode( const idStr& in, const char* name )
 	src.LoadMemory( in.c_str(), in.Length(), name );
 	src.AddDefine( "PC" );
 	
+	for( int i = 0; i < compileMacros.Num(); i++ )
+	{
+		src.AddDefine( compileMacros[i] );
+	}
+	
 	switch( glConfig.driverType )
 	{
 		case GLDRV_OPENGL_ES2:
@@ -472,9 +535,14 @@ idStr StripDeadCode( const idStr& in, const char* name )
 			break;
 	}
 	
-	if( glConfig.gpuSkinningAvailable )
+	if( !builtin && glConfig.gpuSkinningAvailable )
 	{
 		src.AddDefine( "USE_GPU_SKINNING" );
+	}
+	
+	if( r_useUniformArrays.GetBool() )
+	{
+		src.AddDefine( "USE_UNIFORM_ARRAYS" );
 	}
 	
 	idList< idCGBlock > blocks;
@@ -1056,12 +1124,13 @@ idStr ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, i
 	idToken token;
 	while( src.ReadToken( &token ) )
 	{
-	
 		// check for uniforms
-		while( token == "uniform" && src.CheckTokenString( "float4" ) )
+		
+		// RB: added special case for matrix arrays
+		while( token == "uniform" && ( src.CheckTokenString( "float4" ) || src.CheckTokenString( "float4x4" ) ) )
 		{
 			src.ReadToken( &token );
-			uniformList.Append( token );
+			idStr uniform = token;
 			
 			// strip ': register()' from uniforms
 			if( src.CheckTokenString( ":" ) )
@@ -1072,8 +1141,25 @@ idStr ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, i
 				}
 			}
 			
-			src.ReadToken( & token );
+			
+			if( src.PeekTokenString( "[" ) )
+			{
+				while( src.ReadToken( &token ) )
+				{
+					uniform += token;
+					
+					if( token == "]" )
+					{
+						break;
+					}
+				}
+			}
+			
+			uniformList.Append( uniform );
+			
+			src.ReadToken( &token );
 		}
+		// RB end
 		
 		// convert the in/out structs
 		if( token == "struct" )
@@ -1283,7 +1369,38 @@ idStr ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, i
 				if( token == uniformList[i] )
 				{
 					program += ( token.linesCrossed > 0 ) ? newline : ( token.WhiteSpaceBeforeToken() > 0 ? " " : "" );
-					program += va( "%s[%d /* %s */]", uniformArrayName, i, uniformList[i].c_str() );
+					
+					// RB: for some unknown reasons has the Nvidia driver problems with regular uniforms when using glUniform4fv
+					// so we need these uniform arrays
+					// I added special check rpShadowMatrices so we can still index the uniforms from the shader
+					
+					if( idStr::Cmp( uniformList[i].c_str(), "rpShadowMatrices" ) == 0 )
+					{
+						program += va( "%s[/* %s */ %d + ", uniformArrayName, uniformList[i].c_str(), i );
+						
+						if( src.ExpectTokenString( "[" ) )
+						{
+							idStr uniformIndexing;
+							
+							while( src.ReadToken( &token ) )
+							{
+								if( token == "]" )
+								{
+									break;
+								}
+								
+								uniformIndexing += token;
+								uniformIndexing += " ";
+							}
+							
+							program += uniformIndexing + "]";
+						}
+					}
+					else
+					{
+						program += va( "%s[%d /* %s */]", uniformArrayName, i, uniformList[i].c_str() );
+					}
+					// RB end
 					isUniform = true;
 					break;
 				}
@@ -1432,7 +1549,16 @@ idStr ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, i
 	{
 		if( r_useUniformArrays.GetBool() )
 		{
-			out += va( "\nuniform vec4 %s[%d];\n", uniformArrayName, uniformList.Num() );
+			int extraSize = 0;
+			for( int i = 0; i < uniformList.Num(); i++ )
+			{
+				if( idStr::Cmp( uniformList[i].c_str(), "rpShadowMatrices" ) == 0 )
+				{
+					extraSize += ( 6 * 4 );
+				}
+			}
+			
+			out += va( "\nuniform vec4 %s[%d];\n", uniformArrayName, uniformList.Num() + extraSize );
 		}
 		else
 		{
@@ -1463,7 +1589,7 @@ idStr ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, i
 idRenderProgManager::LoadGLSLShader
 ================================================================================================
 */
-GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, idList<int>& uniforms )
+GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, const char* nameOutSuffix, uint32 shaderFeatures, bool builtin, idList<int>& uniforms )
 {
 
 	idStr inFile;
@@ -1474,7 +1600,7 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, idL
 	// RB: replaced backslashes
 	inFile.Format( "renderprogs/%s", name );
 	inFile.StripFileExtension();
-	outFileHLSL.Format( "renderprogs/hlsl/%s", name );
+	outFileHLSL.Format( "renderprogs/hlsl/%s%s", name, nameOutSuffix );
 	outFileHLSL.StripFileExtension();
 	
 	switch( glConfig.driverType )
@@ -1483,15 +1609,15 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, idL
 		case GLDRV_OPENGL_ES3:
 		case GLDRV_OPENGL_MESA:
 		{
-			outFileGLSL.Format( "renderprogs/glsles-1.0/%s", name );
-			outFileUniforms.Format( "renderprogs/glsles-1.0/%s", name );
+			outFileGLSL.Format( "renderprogs/glsles-1_0/%s%s", name, nameOutSuffix );
+			outFileUniforms.Format( "renderprogs/glsles-1_0/%s%s", name, nameOutSuffix );
 			break;
 		}
 		
 		default:
 		{
-			outFileGLSL.Format( "renderprogs/glsl-1.50/%s", name );
-			outFileUniforms.Format( "renderprogs/glsl-1.50/%s", name );
+			outFileGLSL.Format( "renderprogs/glsl-1_50/%s%s", name, nameOutSuffix );
+			outFileUniforms.Format( "renderprogs/glsl-1_50/%s%s", name, nameOutSuffix );
 		}
 	}
 	
@@ -1547,8 +1673,19 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, idL
 		{
 			return false;
 		}
+		
+		idStrList compileMacros;
+		for( int j = 0; j < MAX_SHADER_MACRO_NAMES; j++ )
+		{
+			if( BIT( j ) & shaderFeatures )
+			{
+				const char* macroName = GetGLSLMacroName( ( shaderFeature_t ) j );
+				compileMacros.Append( idStr( macroName ) );
+			}
+		}
+		
 		idStr hlslCode( hlslFileBuffer );
-		idStr programHLSL = StripDeadCode( hlslCode, inFile );
+		idStr programHLSL = StripDeadCode( hlslCode, inFile, compileMacros, builtin );
 		programGLSL = ConvertCG2GLSL( programHLSL, inFile, target == GL_VERTEX_SHADER, programUniforms );
 		
 		fileSystem->WriteFile( outFileHLSL, programHLSL.c_str(), programHLSL.Length(), "fs_basepath" );
@@ -1718,6 +1855,15 @@ const char* idRenderProgManager::GetGLSLParmName( int rp ) const
 	return GLSLParmNames[ rp ];
 }
 
+// RB begin
+const char* idRenderProgManager::GetGLSLMacroName( shaderFeature_t sf ) const
+{
+	assert( sf < MAX_SHADER_MACRO_NAMES );
+	
+	return GLSLMacroNames[ sf ];
+}
+// RB end
+
 /*
 ================================================================================================
 idRenderProgManager::SetUniformValue
@@ -1741,6 +1887,8 @@ void idRenderProgManager::CommitUniforms()
 	const int progID = GetGLSLCurrentProgram();
 	const glslProgram_t& prog = glslPrograms[progID];
 	
+	//GL_CheckErrors();
+	
 	if( r_useUniformArrays.GetBool() )
 	{
 		ALIGNTYPE16 idVec4 localVectors[RENDERPARM_USER + MAX_GLSL_USER_PARMS];
@@ -1750,11 +1898,26 @@ void idRenderProgManager::CommitUniforms()
 			const idList<int>& vertexUniforms = vertexShaders[prog.vertexShaderIndex].uniforms;
 			if( prog.vertexUniformArray != -1 && vertexUniforms.Num() > 0 )
 			{
+				int totalUniforms = 0;
 				for( int i = 0; i < vertexUniforms.Num(); i++ )
 				{
-					localVectors[i] = glslUniforms[vertexUniforms[i]];
+					// RB: HACK rpShadowMatrices[6 * 4]
+					if( vertexUniforms[i] == RENDERPARM_SHADOW_MATRIX_0_X )
+					{
+						for( int j = 0; j < ( 6 * 4 ); j++ )
+						{
+							localVectors[i + j] = glslUniforms[vertexUniforms[i] + j];
+							totalUniforms++;
+						}
+						
+					}
+					else
+					{
+						localVectors[i] = glslUniforms[vertexUniforms[i]];
+						totalUniforms++;
+					}
 				}
-				glUniform4fv( prog.vertexUniformArray, vertexUniforms.Num(), localVectors->ToFloatPtr() );
+				glUniform4fv( prog.vertexUniformArray, totalUniforms, localVectors->ToFloatPtr() );
 			}
 		}
 		
@@ -1763,11 +1926,26 @@ void idRenderProgManager::CommitUniforms()
 			const idList<int>& fragmentUniforms = fragmentShaders[prog.fragmentShaderIndex].uniforms;
 			if( prog.fragmentUniformArray != -1 && fragmentUniforms.Num() > 0 )
 			{
+				int totalUniforms = 0;
 				for( int i = 0; i < fragmentUniforms.Num(); i++ )
 				{
-					localVectors[i] = glslUniforms[fragmentUniforms[i]];
+					// RB: HACK rpShadowMatrices[6 * 4]
+					if( fragmentUniforms[i] == RENDERPARM_SHADOW_MATRIX_0_X )
+					{
+						for( int j = 0; j < ( 6 * 4 ); j++ )
+						{
+							localVectors[i + j] = glslUniforms[fragmentUniforms[i] + j];
+							totalUniforms++;
+						}
+						
+					}
+					else
+					{
+						localVectors[i] = glslUniforms[fragmentUniforms[i]];
+						totalUniforms++;
+					}
 				}
-				glUniform4fv( prog.fragmentUniformArray, fragmentUniforms.Num(), localVectors->ToFloatPtr() );
+				glUniform4fv( prog.fragmentUniformArray, totalUniforms, localVectors->ToFloatPtr() );
 			}
 		}
 	}
@@ -1776,9 +1954,31 @@ void idRenderProgManager::CommitUniforms()
 		for( int i = 0; i < prog.uniformLocations.Num(); i++ )
 		{
 			const glslUniformLocation_t& uniformLocation = prog.uniformLocations[i];
-			glUniform4fv( uniformLocation.uniformIndex, 1, glslUniforms[uniformLocation.parmIndex].ToFloatPtr() );
+			
+			// RB: HACK rpShadowMatrices[6 * 4]
+			if( uniformLocation.parmIndex == RENDERPARM_SHADOW_MATRIX_0_X )
+			{
+				glUniform4fv( uniformLocation.uniformIndex, 6 * 4, glslUniforms[uniformLocation.parmIndex].ToFloatPtr() );
+			}
+			else
+			{
+				glUniform4fv( uniformLocation.uniformIndex, 1, glslUniforms[uniformLocation.parmIndex].ToFloatPtr() );
+				
+#if 1
+				if( GL_CheckErrors() )
+				{
+					const char* parmName = GetGLSLParmName( uniformLocation.parmIndex );
+					const char* value = glslUniforms[uniformLocation.parmIndex].ToString();
+					
+					idLib::Printf( "glUniform4fv( %i = %s, value = %s ) failed for %s\n", uniformLocation.parmIndex, parmName, value, prog.name.c_str() );
+				}
+#endif
+			}
+			// RB end
 		}
 	}
+	
+	//GL_CheckErrors();
 }
 
 class idSort_QuickUniforms : public idSort_Quick< glslUniformLocation_t, idSort_QuickUniforms >
@@ -1927,12 +2127,36 @@ void idRenderProgManager::LoadGLSLProgram( const int programIndex, const int ver
 	
 	// set the texture unit locations once for the render program. We only need to do this once since we only link the program once
 	glUseProgram( program );
+	int numSamplerUniforms = 0;
 	for( int i = 0; i < MAX_PROG_TEXTURE_PARMS; ++i )
 	{
 		GLint loc = glGetUniformLocation( program, va( "samp%d", i ) );
 		if( loc != -1 )
 		{
 			glUniform1i( loc, i );
+			numSamplerUniforms++;
+		}
+	}
+	
+	// RB: make sure that we collected all uniforms we are interested in
+	if( !r_useUniformArrays.GetBool() )
+	{
+		int numActiveUniforms;
+		glGetProgramiv( program, GL_ACTIVE_UNIFORMS, &numActiveUniforms );
+		GL_CheckErrors();
+		
+		if( ( numActiveUniforms - numSamplerUniforms ) != prog.uniformLocations.Num() )
+		{
+			int				size;
+			GLenum			type;
+			char            uniformName[1000];
+			
+			for( int i = 0; i < numActiveUniforms; i++ )
+			{
+				glGetActiveUniform( program, i, sizeof( uniformName ), NULL, &size, &type, uniformName );
+				
+				idLib::Printf( "active uniform: '%s'\n", uniformName );
+			}
 		}
 	}
 	

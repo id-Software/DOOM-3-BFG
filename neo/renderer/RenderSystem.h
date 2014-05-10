@@ -150,6 +150,12 @@ struct glconfig_t
 	bool				gremedyStringMarkerAvailable;
 	bool				vertexHalfFloatAvailable;
 	
+	bool				framebufferObjectAvailable;
+	int					maxRenderbufferSize;
+	int					maxColorAttachments;
+//	bool				framebufferPackedDepthStencilAvailable;
+	bool				framebufferBlitAvailable;
+	
 	// only true with uniform buffer support and an OpenGL driver that supports GLSL >= 1.50
 	bool				gpuSkinningAvailable;
 	// RB end

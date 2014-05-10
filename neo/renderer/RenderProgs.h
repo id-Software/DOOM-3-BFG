@@ -115,6 +115,45 @@ enum renderParm_t
 	RENDERPARM_ENABLE_SKINNING,
 	RENDERPARM_ALPHA_TEST,
 	
+	// RB begin
+	RENDERPARM_AMBIENT_COLOR,
+	
+	RENDERPARM_GLOBALLIGHTORIGIN,
+	RENDERPARM_JITTERTEXSCALE,
+	RENDERPARM_JITTERTEXOFFSET,
+	RENDERPARM_CASCADEDISTANCES,
+	
+	RENDERPARM_SHADOW_MATRIX_0_X,	// rpShadowMatrices[6 * 4]
+	RENDERPARM_SHADOW_MATRIX_0_Y,
+	RENDERPARM_SHADOW_MATRIX_0_Z,
+	RENDERPARM_SHADOW_MATRIX_0_W,
+	
+	RENDERPARM_SHADOW_MATRIX_1_X,
+	RENDERPARM_SHADOW_MATRIX_1_Y,
+	RENDERPARM_SHADOW_MATRIX_1_Z,
+	RENDERPARM_SHADOW_MATRIX_1_W,
+	
+	RENDERPARM_SHADOW_MATRIX_2_X,
+	RENDERPARM_SHADOW_MATRIX_2_Y,
+	RENDERPARM_SHADOW_MATRIX_2_Z,
+	RENDERPARM_SHADOW_MATRIX_2_W,
+	
+	RENDERPARM_SHADOW_MATRIX_3_X,
+	RENDERPARM_SHADOW_MATRIX_3_Y,
+	RENDERPARM_SHADOW_MATRIX_3_Z,
+	RENDERPARM_SHADOW_MATRIX_3_W,
+	
+	RENDERPARM_SHADOW_MATRIX_4_X,
+	RENDERPARM_SHADOW_MATRIX_4_Y,
+	RENDERPARM_SHADOW_MATRIX_4_Z,
+	RENDERPARM_SHADOW_MATRIX_4_W,
+	
+	RENDERPARM_SHADOW_MATRIX_5_X,
+	RENDERPARM_SHADOW_MATRIX_5_Y,
+	RENDERPARM_SHADOW_MATRIX_5_Z,
+	RENDERPARM_SHADOW_MATRIX_5_W,
+	// RB end
+	
 	RENDERPARM_TOTAL,
 	RENDERPARM_USER = 128,
 };
@@ -161,6 +200,19 @@ public:
 	{
 		BindShader_Builtin( BUILTIN_COLOR );
 	}
+	
+	// RB begin
+	void	BindShader_ColorSkinned( )
+	{
+		BindShader_Builtin( BUILTIN_COLOR_SKINNED );
+	}
+	
+	void	BindShader_VertexColor( )
+	{
+		BindShader_Builtin( BUILTIN_VERTEX_COLOR );
+	}
+	// RB end
+	
 	void	BindShader_Texture( )
 	{
 		BindShader_Builtin( BUILTIN_TEXTURED );
@@ -199,6 +251,39 @@ public:
 	{
 		BindShader_Builtin( BUILTIN_INTERACTION_AMBIENT_SKINNED );
 	}
+	
+	// RB begin
+	void	BindShader_Interaction_ShadowMapping_Spot()
+	{
+		BindShader_Builtin( BUILTIN_INTERACTION_SHADOW_MAPPING_SPOT );
+	}
+	
+	void	BindShader_Interaction_ShadowMapping_Spot_Skinned()
+	{
+		BindShader_Builtin( BUILTIN_INTERACTION_SHADOW_MAPPING_SPOT_SKINNED );
+	}
+	
+	void	BindShader_Interaction_ShadowMapping_Point()
+	{
+		BindShader_Builtin( BUILTIN_INTERACTION_SHADOW_MAPPING_POINT );
+	}
+	
+	void	BindShader_Interaction_ShadowMapping_Point_Skinned()
+	{
+		BindShader_Builtin( BUILTIN_INTERACTION_SHADOW_MAPPING_POINT_SKINNED );
+	}
+	
+	void	BindShader_Interaction_ShadowMapping_Parallel()
+	{
+		BindShader_Builtin( BUILTIN_INTERACTION_SHADOW_MAPPING_PARALLEL );
+	}
+	
+	void	BindShader_Interaction_ShadowMapping_Parallel_Skinned()
+	{
+		BindShader_Builtin( BUILTIN_INTERACTION_SHADOW_MAPPING_PARALLEL_SKINNED );
+	}
+	// RB end
+	
 	void	BindShader_SimpleShade()
 	{
 		BindShader_Builtin( BUILTIN_SIMPLESHADE );
@@ -235,15 +320,19 @@ public:
 	
 	void	BindShader_Shadow()
 	{
-		// RB begin
-		BindShader( -1, builtinShaders[BUILTIN_SHADOW], -1, true );
+		// RB: no FFP fragment rendering anymore
+		//BindShader( -1, builtinShaders[BUILTIN_SHADOW], -1, true );
+		
+		BindShader_Builtin( BUILTIN_SHADOW );
 		// RB end
 	}
 	
 	void	BindShader_ShadowSkinned()
 	{
-		// RB begin
-		BindShader( -1, builtinShaders[BUILTIN_SHADOW_SKINNED], -1, true );
+		// RB: no FFP fragment rendering anymore
+		//BindShader( -1, builtinShaders[BUILTIN_SHADOW_SKINNED], -1, true );
+		
+		BindShader_Builtin( BUILTIN_SHADOW_SKINNED );
 		// RB end
 	}
 	
@@ -322,27 +411,33 @@ public:
 		BindShader_Builtin( BUILTIN_MOTION_BLUR );
 	}
 	
+	void	BindShader_DebugShadowMap()
+	{
+		BindShader_Builtin( BUILTIN_DEBUG_SHADOWMAP );
+	}
+	// RB end
+	
 	// the joints buffer should only be bound for vertex programs that use joints
-	bool	ShaderUsesJoints() const
+	bool		ShaderUsesJoints() const
 	{
 		return vertexShaders[currentVertexShader].usesJoints;
 	}
 	// the rpEnableSkinning render parm should only be set for vertex programs that use it
-	bool	ShaderHasOptionalSkinning() const
+	bool		ShaderHasOptionalSkinning() const
 	{
 		return vertexShaders[currentVertexShader].optionalSkinning;
 	}
 	
 	// unbind the currently bound render program
-	void	Unbind();
+	void		Unbind();
 	
 	// RB begin
-	bool	IsShaderBound() const;
+	bool		IsShaderBound() const;
 	// RB end
 	
 	// this should only be called via the reload shader console command
-	void	LoadAllShaders();
-	void	KillAllShaders();
+	void		LoadAllShaders();
+	void		KillAllShaders();
 	
 	static const int	MAX_GLSL_USER_PARMS = 8;
 	const char*	GetGLSLParmName( int rp ) const;
@@ -363,6 +458,10 @@ protected:
 	{
 		BUILTIN_GUI,
 		BUILTIN_COLOR,
+		// RB begin
+		BUILTIN_COLOR_SKINNED,
+		BUILTIN_VERTEX_COLOR,
+		// RB end
 		BUILTIN_SIMPLESHADE,
 		BUILTIN_TEXTURED,
 		BUILTIN_TEXTURE_VERTEXCOLOR,
@@ -372,6 +471,14 @@ protected:
 		BUILTIN_INTERACTION_SKINNED,
 		BUILTIN_INTERACTION_AMBIENT,
 		BUILTIN_INTERACTION_AMBIENT_SKINNED,
+		// RB begin
+		BUILTIN_INTERACTION_SHADOW_MAPPING_SPOT,
+		BUILTIN_INTERACTION_SHADOW_MAPPING_SPOT_SKINNED,
+		BUILTIN_INTERACTION_SHADOW_MAPPING_POINT,
+		BUILTIN_INTERACTION_SHADOW_MAPPING_POINT_SKINNED,
+		BUILTIN_INTERACTION_SHADOW_MAPPING_PARALLEL,
+		BUILTIN_INTERACTION_SHADOW_MAPPING_PARALLEL_SKINNED,
+		// RB end
 		BUILTIN_ENVIRONMENT,
 		BUILTIN_ENVIRONMENT_SKINNED,
 		BUILTIN_BUMPY_ENVIRONMENT,
@@ -398,6 +505,8 @@ protected:
 		BUILTIN_STEREO_INTERLACE,
 		BUILTIN_MOTION_BLUR,
 		
+		BUILTIN_DEBUG_SHADOWMAP,
+		
 		MAX_BUILTINS
 	};
 	int builtinShaders[MAX_BUILTINS];
@@ -406,26 +515,44 @@ protected:
 		BindShader( -1, builtinShaders[i], builtinShaders[i], true );
 	}
 	
+	enum shaderFeature_t
+	{
+		USE_GPU_SKINNING,
+		LIGHT_POINT,
+		LIGHT_PARALLEL,
+		
+		MAX_SHADER_MACRO_NAMES,
+	};
+	
+	static const char* GLSLMacroNames[MAX_SHADER_MACRO_NAMES];
+	const char*	GetGLSLMacroName( shaderFeature_t sf ) const;
+	
 	bool	CompileGLSL( GLenum target, const char* name );
-	GLuint	LoadGLSLShader( GLenum target, const char* name, idList<int>& uniforms );
+	GLuint	LoadGLSLShader( GLenum target, const char* name, const char* nameOutSuffix, uint32 shaderFeatures, bool builtin, idList<int>& uniforms );
 	void	LoadGLSLProgram( const int programIndex, const int vertexShaderIndex, const int fragmentShaderIndex );
 	
 	static const GLuint INVALID_PROGID = 0xFFFFFFFF;
 	
 	struct vertexShader_t
 	{
-		vertexShader_t() : progId( INVALID_PROGID ), usesJoints( false ), optionalSkinning( false ) {}
+		vertexShader_t() : progId( INVALID_PROGID ), usesJoints( false ), optionalSkinning( false ), shaderFeatures( 0 ), builtin( false ) {}
 		idStr		name;
+		idStr		nameOutSuffix;
 		GLuint		progId;
 		bool		usesJoints;
 		bool		optionalSkinning;
+		uint32		shaderFeatures;		// RB: Cg compile macros
+		bool		builtin;			// RB: part of the core shaders built into the executable
 		idList<int>	uniforms;
 	};
 	struct fragmentShader_t
 	{
-		fragmentShader_t() : progId( INVALID_PROGID ) {}
+		fragmentShader_t() : progId( INVALID_PROGID ), shaderFeatures( 0 ), builtin( false ) {}
 		idStr		name;
+		idStr		nameOutSuffix;
 		GLuint		progId;
+		uint32		shaderFeatures;
+		bool		builtin;
 		idList<int>	uniforms;
 	};
 	
@@ -445,14 +572,14 @@ protected:
 		idList<glslUniformLocation_t> uniformLocations;
 	};
 	int	currentRenderProgram;
-	idList<glslProgram_t, TAG_RENDER> glslPrograms;
+	idList<glslProgram_t> glslPrograms;
 	idStaticList < idVec4, RENDERPARM_USER + MAX_GLSL_USER_PARMS > glslUniforms;
 	
 	
 	int				currentVertexShader;
 	int				currentFragmentShader;
-	idList<vertexShader_t, TAG_RENDER> vertexShaders;
-	idList<fragmentShader_t, TAG_RENDER> fragmentShaders;
+	idList<vertexShader_t > vertexShaders;
+	idList<fragmentShader_t > fragmentShaders;
 };
 
 extern idRenderProgManager renderProgManager;

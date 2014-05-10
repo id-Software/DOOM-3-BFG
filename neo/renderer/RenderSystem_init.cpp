@@ -186,6 +186,9 @@ idCVar r_showTangentSpace( "r_showTangentSpace", "0", CVAR_RENDERER | CVAR_INTEG
 idCVar r_showDominantTri( "r_showDominantTri", "0", CVAR_RENDERER | CVAR_BOOL, "draw lines from vertexes to center of dominant triangles" );
 idCVar r_showTextureVectors( "r_showTextureVectors", "0", CVAR_RENDERER | CVAR_FLOAT, " if > 0 draw each triangles texture (tangent) vectors" );
 idCVar r_showOverDraw( "r_showOverDraw", "0", CVAR_RENDERER | CVAR_INTEGER, "1 = geometry overdraw, 2 = light interaction overdraw, 3 = geometry and light interaction overdraw", 0, 3, idCmdSystem::ArgCompletion_Integer<0, 3> );
+// RB begin
+idCVar r_showShadowMaps( "r_showShadowMaps", "0", CVAR_RENDERER | CVAR_BOOL, "" );
+// RB end
 
 idCVar r_useEntityCallbacks( "r_useEntityCallbacks", "1", CVAR_RENDERER | CVAR_BOOL, "if 0, issue the callback immediately at update time, rather than defering" );
 
@@ -207,6 +210,19 @@ idCVar stereoRender_swapEyes( "stereoRender_swapEyes", "0", CVAR_BOOL | CVAR_ARC
 idCVar stereoRender_deGhost( "stereoRender_deGhost", "0.05", CVAR_FLOAT | CVAR_ARCHIVE, "subtract from opposite eye to reduce ghosting" );
 
 idCVar r_useVirtualScreenResolution( "r_useVirtualScreenResolution", "1", CVAR_RENDERER | CVAR_BOOL | CVAR_ARCHIVE, "do 2D rendering at 640x480 and stretch to the current resolution" );
+
+// RB: shadow mapping parameters
+idCVar r_useShadowMapping( "r_useShadowMapping", "1", CVAR_RENDERER | CVAR_BOOL, "use shadow mapping instead of stencil shadows" );
+idCVar r_shadowMapFrustumFOV( "r_shadowMapFrustumFOV", "92", CVAR_RENDERER | CVAR_FLOAT, "oversize FOV for point light side matching" );
+idCVar r_shadowMapSingleSide( "r_shadowMapSingleSide", "-1", CVAR_RENDERER | CVAR_INTEGER, "only draw a single side (0-5) of point lights" );
+idCVar r_shadowMapImageSize( "r_shadowMapImageSize", "1024", CVAR_RENDERER | CVAR_INTEGER, "", 128, 2048 );
+idCVar r_shadowMapJitterScale( "r_shadowMapJitterScale", "0.006", CVAR_RENDERER | CVAR_FLOAT, "scale factor for jitter offset" );
+idCVar r_shadowMapBiasScale( "r_shadowMapBiasScale", "0.0001", CVAR_RENDERER | CVAR_FLOAT, "scale factor for jitter bias" );
+idCVar r_shadowMapSamples( "r_shadowMapSamples", "16", CVAR_RENDERER | CVAR_INTEGER, "0, 1, 4, or 16" );
+idCVar r_shadowMapSplits( "r_shadowMapSplits", "3", CVAR_RENDERER | CVAR_INTEGER, "number of splits for cascaded shadow mapping with parallel lights", 0, 4 );
+idCVar r_shadowMapSplitWeight( "r_shadowMapSplitWeight", "0.9", CVAR_RENDERER | CVAR_FLOAT, "" );
+// RB end
+
 
 /*
 ========================
@@ -263,8 +279,25 @@ static void CALLBACK DebugCallback( unsigned int source, unsigned int type,
 #else
 	printf( "%s\n", message );
 #endif
+	// RB end
 }
-// RB end
+
+/*
+=================
+R_CheckExtension
+=================
+*/
+bool R_CheckExtension( char* name )
+{
+	if( !strstr( glConfig.extensions_string, name ) )
+	{
+		common->Printf( "X..%s not found\n", name );
+		return false;
+	}
+	
+	common->Printf( "...using %s\n", name );
+	return true;
+}
 
 /*
 ==================
@@ -295,7 +328,7 @@ static void R_CheckPortableExtensions()
 	}
 	
 	// RB: Mesa support
-	if( idStr::Icmpn( glConfig.renderer_string, "Mesa", 4 ) == 0 || idStr::Icmpn( glConfig.renderer_string, "X.org", 5 ) == 0 )
+	if( idStr::Icmpn( glConfig.renderer_string, "Mesa", 4 ) == 0 || idStr::Icmpn( glConfig.renderer_string, "X.org", 4 ) == 0 )
 	{
 		glConfig.driverType = GLDRV_OPENGL_MESA;
 	}
@@ -361,8 +394,8 @@ static void R_CheckPortableExtensions()
 	glConfig.fragmentProgramAvailable = GLEW_ARB_fragment_program != 0;
 	if( glConfig.fragmentProgramAvailable )
 	{
-		glGetIntegerv( GL_MAX_TEXTURE_COORDS_ARB, ( GLint* )&glConfig.maxTextureCoords );
-		glGetIntegerv( GL_MAX_TEXTURE_IMAGE_UNITS_ARB, ( GLint* )&glConfig.maxTextureImageUnits );
+		glGetIntegerv( GL_MAX_TEXTURE_COORDS, ( GLint* )&glConfig.maxTextureCoords );
+		glGetIntegerv( GL_MAX_TEXTURE_IMAGE_UNITS, ( GLint* )&glConfig.maxTextureImageUnits );
 	}
 	
 	// GLSL, core in OpenGL > 2.0
@@ -398,6 +431,42 @@ static void R_CheckPortableExtensions()
 	
 	// GL_ARB_timer_query
 	glConfig.timerQueryAvailable = ( GLEW_ARB_timer_query != 0 || GLEW_EXT_timer_query != 0 ) && ( glConfig.vendor != VENDOR_INTEL || r_skipIntelWorkarounds.GetBool() ) && glConfig.driverType != GLDRV_OPENGL_MESA;
+	
+	// GREMEDY_string_marker
+	glConfig.gremedyStringMarkerAvailable = GLEW_GREMEDY_string_marker != 0;
+	if( glConfig.gremedyStringMarkerAvailable )
+	{
+		common->Printf( "...using %s\n", "GL_GREMEDY_string_marker" );
+	}
+	else
+	{
+		common->Printf( "X..%s not found\n", "GL_GREMEDY_string_marker" );
+	}
+	
+	// GL_EXT_framebuffer_object
+	glConfig.framebufferObjectAvailable = GLEW_EXT_framebuffer_object != 0;
+	if( glConfig.framebufferObjectAvailable )
+	{
+		glGetIntegerv( GL_MAX_RENDERBUFFER_SIZE, &glConfig.maxRenderbufferSize );
+		glGetIntegerv( GL_MAX_COLOR_ATTACHMENTS, &glConfig.maxColorAttachments );
+		
+		common->Printf( "...using %s\n", "GL_EXT_framebuffer_object" );
+	}
+	else
+	{
+		common->Printf( "X..%s not found\n", "GL_EXT_framebuffer_object" );
+	}
+	
+	// GL_EXT_framebuffer_blit
+	glConfig.framebufferBlitAvailable = GLEW_EXT_framebuffer_blit != 0;
+	if( glConfig.framebufferBlitAvailable )
+	{
+		common->Printf( "...using %s\n", "GL_EXT_framebuffer_blit" );
+	}
+	else
+	{
+		common->Printf( "X..%s not found\n", "GL_EXT_framebuffer_object" );
+	}
 	
 	// GL_ARB_debug_output
 	glConfig.debugOutputAvailable = GLEW_ARB_debug_output != 0;
@@ -2255,6 +2324,10 @@ void idRenderSystemLocal::Init()
 	guiModel->Clear();
 	tr_guiModel = guiModel;	// for DeviceContext fast path
 	
+	// RB begin
+	Framebuffer::Init();
+	// RB end
+	
 	globalImages->Init();
 	
 	idCinematic::InitCinematic( );
@@ -2317,6 +2390,10 @@ void idRenderSystemLocal::Shutdown()
 	idCinematic::ShutdownCinematic( );
 	
 	globalImages->Shutdown();
+	
+	// RB begin
+	Framebuffer::Shutdown();
+	// RB end
 	
 	// free frame memory
 	R_ShutdownFrameData();

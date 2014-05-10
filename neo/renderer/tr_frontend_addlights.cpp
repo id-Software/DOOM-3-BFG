@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013-2014 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -174,6 +175,7 @@ static void R_AddSingleLight( viewLight_t* vLight )
 				break;
 			}
 		}
+		
 		if( lightStageNum == lightShader->GetNumStages() )
 		{
 			// we went through all the stages and didn't find one that adds anything
@@ -183,6 +185,7 @@ static void R_AddSingleLight( viewLight_t* vLight )
 			return;
 		}
 	}
+	
 	
 	//--------------------------------------------
 	// copy data used by backend
@@ -206,6 +209,13 @@ static void R_AddSingleLight( viewLight_t* vLight )
 	
 	// copy the matrix for deforming the 'zeroOneCubeModel' to exactly cover the light volume in world space
 	vLight->inverseBaseLightProject = light->inverseBaseLightProject;
+	
+	// RB begin
+	vLight->baseLightProject = light->baseLightProject;
+	vLight->pointLight = light->parms.pointLight;
+	vLight->parallel = light->parms.parallel;
+	vLight->lightCenter = light->parms.lightCenter;
+	// RB end
 	
 	vLight->falloffImage = light->falloffImage;
 	vLight->lightShader = light->lightShader;
@@ -420,7 +430,7 @@ static void R_AddSingleLight( viewLight_t* vLight )
 	//--------------------------------------------
 	// add the prelight shadows for the static world geometry
 	//--------------------------------------------
-	if( light->parms.prelightModel != NULL )
+	if( light->parms.prelightModel != NULL && !r_useShadowMapping.GetBool() )
 	{
 		srfTriangles_t* tri = light->parms.prelightModel->Surface( 0 )->geometry;
 		

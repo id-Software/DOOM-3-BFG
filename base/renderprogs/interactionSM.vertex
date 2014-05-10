@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 2014 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
 
@@ -26,9 +27,11 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#include "global.inc"
+#include "renderprogs/global.inc"
 
+#if defined( USE_GPU_SKINNING )
 uniform matrices_ubo { float4 matrices[408]; };
+#endif
 
 struct VS_IN {
 	float4 position : POSITION;
@@ -48,6 +51,9 @@ struct VS_OUT {
 	float4 texcoord4	: TEXCOORD4;
 	float4 texcoord5	: TEXCOORD5;
 	float4 texcoord6	: TEXCOORD6;
+	float4 texcoord7	: TEXCOORD7;
+	float4 texcoord8	: TEXCOORD8;
+	float4 texcoord9	: TEXCOORD9;
 	float4 color		: COLOR0;
 };
 
@@ -55,10 +61,11 @@ void main( VS_IN vertex, out VS_OUT result ) {
 
 	float4 vNormal = vertex.normal * 2.0 - 1.0;
 	float4 vTangent = vertex.tangent * 2.0 - 1.0;
-	float3 vBinormal = cross( vNormal.xyz, vTangent.xyz ) * vTangent.w;
+	float3 vBitangent = cross( vNormal.xyz, vTangent.xyz ) * vTangent.w;
 
+#if defined( USE_GPU_SKINNING )
 	//--------------------------------------------------------------
-	// GPU transformation of the normal / binormal / bitangent
+	// GPU transformation of the normal / tangent / bitangent
 	//
 	// multiplying with 255.1 give us the same result and is faster than floor( w * 255 + 0.5 )
 	//--------------------------------------------------------------
@@ -100,17 +107,24 @@ void main( VS_IN vertex, out VS_OUT result ) {
 	tangent.z = dot3( matZ, vTangent );
 	tangent = normalize( tangent );
 
-	float3 binormal;
-	binormal.x = dot3( matX, vBinormal );
-	binormal.y = dot3( matY, vBinormal );
-	binormal.z = dot3( matZ, vBinormal );
-	binormal = normalize( binormal );
+	float3 bitangent;
+	bitangent.x = dot3( matX, vBitangent );
+	bitangent.y = dot3( matY, vBitangent );
+	bitangent.z = dot3( matZ, vBitangent );
+	bitangent = normalize( bitangent );
 
 	float4 modelPosition;
 	modelPosition.x = dot4( matX, vertex.position );
 	modelPosition.y = dot4( matY, vertex.position );
 	modelPosition.z = dot4( matZ, vertex.position );
 	modelPosition.w = 1.0;
+
+#else
+	float4 modelPosition = vertex.position;
+	float3 normal = vNormal.xyz;
+	float3 tangent = vTangent.xyz;
+	float3 bitangent = vBitangent.xyz;
+#endif
 
 	result.position.x = dot4( modelPosition, rpMVPmatrixX );
 	result.position.y = dot4( modelPosition, rpMVPmatrixY );
@@ -119,15 +133,15 @@ void main( VS_IN vertex, out VS_OUT result ) {
 
 	float4 defaultTexCoord = float4( 0.0f, 0.5f, 0.0f, 1.0f );
 
-	//calculate vector to light in R0
-	float4 toLight = rpLocalLightOrigin - modelPosition;
+	//calculate vector to light
+	float4 toLightLocal = rpLocalLightOrigin - modelPosition;
 
 	//--------------------------------------------------------------
 
 	//result.texcoord0 is the direction to the light in tangent space
-	result.texcoord0.x = dot3( tangent, toLight );
-	result.texcoord0.y = dot3( binormal, toLight );
-	result.texcoord0.z = dot3( normal, toLight );
+	result.texcoord0.x = dot3( tangent, toLightLocal );
+	result.texcoord0.y = dot3( bitangent, toLightLocal );
+	result.texcoord0.z = dot3( normal, toLightLocal );
 	result.texcoord0.w = 1.0f;
 
 	//textures 1 takes the base coordinates by the texture matrix
@@ -158,28 +172,50 @@ void main( VS_IN vertex, out VS_OUT result ) {
 	//# texture 6's texcoords will be the halfangle in texture space
 
 	//# calculate normalized vector to light in R0
-	toLight = normalize( toLight );
+	toLightLocal = normalize( toLightLocal );
 
 	//# calculate normalized vector to viewer in R1
 	float4 toView = normalize( rpLocalViewOrigin - modelPosition );
 	
 	//# add together to become the half angle vector in object space (non-normalized)
-	float4 halfAngleVector = toLight + toView;
+	float4 halfAngleVector = toLightLocal + toView;
 
 	//# put into texture space
 	result.texcoord6.x = dot3( tangent, halfAngleVector );
-	result.texcoord6.y = dot3( binormal, halfAngleVector );
+	result.texcoord6.y = dot3( bitangent, halfAngleVector );
 	result.texcoord6.z = dot3( normal, halfAngleVector );
 	result.texcoord6.w = 1.0f;
+	
+	result.texcoord7 = modelPosition;
+	
+	float4 worldPosition;
+	worldPosition.x = dot4( modelPosition, rpModelMatrixX );
+	worldPosition.y = dot4( modelPosition, rpModelMatrixY );
+	worldPosition.z = dot4( modelPosition, rpModelMatrixZ );
+	worldPosition.w = dot4( modelPosition, rpModelMatrixW );
+	
+	float4 toLightGlobal = rpGlobalLightOrigin - worldPosition;
+	
+	result.texcoord8 = toLightGlobal;
+	
+	float4 viewPosition;
+	viewPosition.x = dot4( modelPosition, rpModelViewMatrixX );
+	viewPosition.y = dot4( modelPosition, rpModelViewMatrixY );
+	viewPosition.z = dot4( modelPosition, rpModelViewMatrixZ );
+	viewPosition.w = dot4( modelPosition, rpModelViewMatrixW );
+	
+	result.texcoord9 = viewPosition;
 
+#if defined( USE_GPU_SKINNING )
 	// for joint transformation of the tangent space, we use color and
 	// color2 for weighting information, so hopefully there aren't any
 	// effects that need vertex color...
 	result.color = float4( 1.0f, 1.0f, 1.0f, 1.0f );
-
+#else
 	//# generate the vertex color, which can be 1.0, color, or 1.0 - color
 	//# for 1.0 : env[16] = 0, env[17] = 1
 	//# for color : env[16] = 1, env[17] = 0
 	//# for 1.0-color : env[16] = -1, env[17] = 1	
-	// result.color = ( swizzleColor( vertex.color ) * rpVertexColorModulate ) + rpVertexColorAdd;
+	result.color = ( swizzleColor( vertex.color ) * rpVertexColorModulate ) + rpVertexColorAdd;
+#endif
 }
