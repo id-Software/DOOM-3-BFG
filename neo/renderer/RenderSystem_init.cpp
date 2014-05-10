@@ -1207,22 +1207,21 @@ Downsample is the number of steps to mipmap the image before saving it
 If ref == NULL, common->UpdateScreen will be used
 ==================
 */
+// RB: changed .tga to .png
 void idRenderSystemLocal::TakeScreenshot( int width, int height, const char* fileName, int blends, renderView_t* ref )
 {
 	byte*		buffer;
-	int			i, j, c, temp;
+	int			i, j;
 	
 	takingScreenshot = true;
 	
-	const int pix = width * height;
-	const int bufferSize = pix * 3 + 18;
+	int	pix = width * height;
 	
-	buffer = ( byte* )R_StaticAlloc( bufferSize );
-	memset( buffer, 0, bufferSize );
+	buffer = ( byte* )R_StaticAlloc( pix * 3 );
 	
 	if( blends <= 1 )
 	{
-		R_ReadTiledPixels( width, height, buffer + 18, ref );
+		R_ReadTiledPixels( width, height, buffer, ref );
 	}
 	else
 	{
@@ -1234,42 +1233,25 @@ void idRenderSystemLocal::TakeScreenshot( int width, int height, const char* fil
 		
 		for( i = 0 ; i < blends ; i++ )
 		{
-			R_ReadTiledPixels( width, height, buffer + 18, ref );
+			R_ReadTiledPixels( width, height, buffer, ref );
 			
 			for( j = 0 ; j < pix * 3 ; j++ )
 			{
-				shortBuffer[j] += buffer[18 + j];
+				shortBuffer[j] += buffer[j];
 			}
 		}
 		
 		// divide back to bytes
 		for( i = 0 ; i < pix * 3 ; i++ )
 		{
-			buffer[18 + i] = shortBuffer[i] / blends;
+			buffer[i] = shortBuffer[i] / blends;
 		}
 		
 		R_StaticFree( shortBuffer );
 		r_jitter.SetBool( false );
 	}
 	
-	// fill in the header (this is vertically flipped, which glReadPixels emits)
-	buffer[2] = 2;		// uncompressed type
-	buffer[12] = width & 255;
-	buffer[13] = width >> 8;
-	buffer[14] = height & 255;
-	buffer[15] = height >> 8;
-	buffer[16] = 24;	// pixel size
-	
-	// swap rgb to bgr
-	c = 18 + width * height * 3;
-	for( i = 18 ; i < c ; i += 3 )
-	{
-		temp = buffer[i];
-		buffer[i] = buffer[i + 2];
-		buffer[i + 2] = temp;
-	}
-	
-	fileSystem->WriteFile( fileName, buffer, c );
+	R_WritePNG( fileName, buffer, 3, width, height, false );
 	
 	R_StaticFree( buffer );
 	
@@ -1288,8 +1270,6 @@ thousands of shots
 */
 void R_ScreenshotFilename( int& lastNumber, const char* base, idStr& fileName )
 {
-	int	a, b, c, d, e;
-	
 	bool restrict = cvarSystem->GetCVarBool( "fs_restrict" );
 	cvarSystem->SetCVarBool( "fs_restrict", false );
 	
@@ -1300,7 +1280,11 @@ void R_ScreenshotFilename( int& lastNumber, const char* base, idStr& fileName )
 	}
 	for( ; lastNumber < 99999 ; lastNumber++ )
 	{
+	
+		// RB: added date to screenshot name
+#if 0
 		int	frac = lastNumber;
+		int	a, b, c, d, e;
 		
 		a = frac / 10000;
 		frac -= a * 10000;
@@ -1312,7 +1296,16 @@ void R_ScreenshotFilename( int& lastNumber, const char* base, idStr& fileName )
 		frac -= d * 10;
 		e = frac;
 		
-		sprintf( fileName, "%s%i%i%i%i%i.tga", base, a, b, c, d, e );
+		sprintf( fileName, "%s%i%i%i%i%i.png", base, a, b, c, d, e );
+#else
+		time_t aclock;
+		time( &aclock );
+		struct tm* t = localtime( &aclock );
+		
+		sprintf( fileName, "%s%s-%04d%02d%02d-%02d%02d%02d-%03d.png", base, "rbdoom-3-bfg",
+				 1900 + t->tm_year, 1 + t->tm_mon, t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec, lastNumber );
+#endif
+		// RB end
 		if( lastNumber == 99999 )
 		{
 			break;
@@ -1353,7 +1346,7 @@ void R_ScreenShot_f( const idCmdArgs& args )
 			width = renderSystem->GetWidth();
 			height = renderSystem->GetHeight();
 			blends = 1;
-			R_ScreenshotFilename( lastNumber, "screenshots/shot", checkname );
+			R_ScreenshotFilename( lastNumber, "screenshots/", checkname );
 			break;
 		case 2:
 			width = renderSystem->GetWidth();
@@ -1365,7 +1358,7 @@ void R_ScreenShot_f( const idCmdArgs& args )
 			width = atoi( args.Argv( 1 ) );
 			height = atoi( args.Argv( 2 ) );
 			blends = 1;
-			R_ScreenshotFilename( lastNumber, "screenshots/shot", checkname );
+			R_ScreenshotFilename( lastNumber, "screenshots/", checkname );
 			break;
 		case 4:
 			width = atoi( args.Argv( 1 ) );
@@ -1379,7 +1372,7 @@ void R_ScreenShot_f( const idCmdArgs& args )
 			{
 				blends = MAX_BLENDS;
 			}
-			R_ScreenshotFilename( lastNumber, "screenshots/shot", checkname );
+			R_ScreenshotFilename( lastNumber, "screenshots/", checkname );
 			break;
 		default:
 			common->Printf( "usage: screenshot\n       screenshot <filename>\n       screenshot <width> <height>\n       screenshot <width> <height> <blends>\n" );
