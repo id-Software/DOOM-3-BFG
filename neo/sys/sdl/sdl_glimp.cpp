@@ -65,9 +65,6 @@ static SDL_Surface* window = NULL;
 #define SDL_WINDOW_RESIZABLE SDL_RESIZABLE
 #endif
 
-bool QGL_Init( const char* dllname );
-void QGL_Shutdown();
-
 /*
 ===================
 GLimp_PreInit
@@ -306,7 +303,24 @@ bool GLimp_Init( glimpParms_t parms )
 		return false;
 	}
 	
-	QGL_Init( "nodriverlib" );
+	// RB: use glewExperimental to avoid issues with OpenGL 3.x core profiles
+#if SDL_VERSION_ATLEAST(2, 0, 0)
+	if( r_useOpenGL32.GetInteger() > 1 )
+	{
+		glewExperimental = GL_TRUE;
+	}
+#endif
+	
+	GLenum glewResult = glewInit();
+	if( GLEW_OK != glewResult )
+	{
+		// glewInit failed, something is seriously wrong
+		common->Printf( "^3GLimp_Init() - GLEW could not load OpenGL subsystem: %s", glewGetErrorString( glewResult ) );
+	}
+	else
+	{
+		common->Printf( "Using GLEW %s\n", glewGetString( GLEW_VERSION ) );
+	}
 	
 	// DG: disable cursor, we have two cursors in menu (because mouse isn't grabbed in menu)
 	SDL_ShowCursor( SDL_DISABLE );
@@ -503,8 +517,6 @@ void GLimp_Shutdown()
 		window = NULL;
 	}
 #endif
-	
-	QGL_Shutdown();
 }
 
 /*
@@ -547,12 +559,13 @@ void GLimp_SetGamma( unsigned short red[256], unsigned short green[256], unsigne
 GLimp_ExtensionPointer
 ===================
 */
-GLExtension_t GLimp_ExtensionPointer( const char* name )
-{
-	assert( SDL_WasInit( SDL_INIT_VIDEO ) );
-	
-	return ( GLExtension_t )SDL_GL_GetProcAddress( name );
+/*
+GLExtension_t GLimp_ExtensionPointer(const char *name) {
+	assert(SDL_WasInit(SDL_INIT_VIDEO));
+
+	return (GLExtension_t)SDL_GL_GetProcAddress(name);
 }
+*/
 
 void GLimp_GrabInput( int flags )
 {
