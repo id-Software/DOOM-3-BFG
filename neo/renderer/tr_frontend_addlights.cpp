@@ -221,6 +221,8 @@ static void R_AddSingleLight( viewLight_t* vLight )
 	vLight->lightShader = light->lightShader;
 	vLight->shaderRegisters = lightRegs;
 	
+	const bool lightCastsShadows = light->LightCastsShadows();
+	
 	if( r_useLightScissors.GetInteger() != 0 )
 	{
 		// Calculate the matrix that projects the zero-to-one cube to exactly cover the
@@ -262,6 +264,77 @@ static void R_AddSingleLight( viewLight_t* vLight )
 		vLight->scissorRect.Intersect( lightScissorRect );
 		vLight->scissorRect.zmin = projected[0][2];
 		vLight->scissorRect.zmax = projected[1][2];
+		
+		// RB: calculate shadow LOD similar to Q3A .md3 LOD code
+		vLight->shadowLOD = -1;
+		
+		if( r_useShadowMapping.GetBool() && lightCastsShadows )
+		{
+			float           flod, lodscale;
+			float           projectedRadius;
+			int             lod;
+			int             numLods;
+			
+			numLods = 5;
+			
+			// compute projected bounding sphere
+			// and use that as a criteria for selecting LOD
+			idVec3 center = projected.GetCenter();
+			projectedRadius = projected.GetRadius( center );
+			if( projectedRadius > 1.0f )
+			{
+				projectedRadius = 1.0f;
+			}
+			
+			if( projectedRadius != 0 )
+			{
+				lodscale = r_shadowMapLodScale.GetFloat();
+				
+				if( lodscale > 20 )
+					lodscale = 20;
+					
+				flod = 1.0f - projectedRadius * lodscale;
+			}
+			else
+			{
+				// object intersects near view plane, e.g. view weapon
+				flod = 0;
+			}
+			
+			flod *= numLods;
+			lod = idMath::Ftoi( flod );
+			
+			if( lod < 0 )
+			{
+				lod = 0;
+			}
+			else if( lod >= numLods )
+			{
+				//lod = numLods - 1;
+			}
+			
+			lod += r_shadowMapLodBias.GetInteger();
+			
+			if( lod < 0 )
+			{
+				lod = 0;
+			}
+			
+			if( lod >= numLods )
+			{
+				// don't draw any shadow
+				lod = -1;
+				
+				//lod = numLods - 1;
+			}
+			
+			// never give ultra quality for point lights
+			if( lod == 0 && light->parms.pointLight )
+				lod = 1;
+				
+			vLight->shadowLOD = lod;
+		}
+		// RB end
 	}
 	
 	// this one stays on the list
@@ -277,7 +350,6 @@ static void R_AddSingleLight( viewLight_t* vLight )
 	// this bool array will be set true whenever the entity will visibly interact with the light
 	vLight->entityInteractionState = ( byte* )R_ClearedFrameAlloc( light->world->entityDefs.Num() * sizeof( vLight->entityInteractionState[0] ), FRAME_ALLOC_INTERACTION_STATE );
 	
-	const bool lightCastsShadows = light->LightCastsShadows();
 	idInteraction** const interactionTableRow = light->world->interactionTable + light->index * light->world->interactionTableWidth;
 	
 	for( areaReference_t* lref = light->references; lref != NULL; lref = lref->ownerNext )

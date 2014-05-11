@@ -36,6 +36,8 @@ If you have questions concerning this license or the applicable additional terms
 idCVar r_showCenterOfProjection( "r_showCenterOfProjection", "0", CVAR_RENDERER | CVAR_BOOL, "Draw a cross to show the center of projection" );
 idCVar r_showLines( "r_showLines", "0", CVAR_RENDERER | CVAR_INTEGER, "1 = draw alternate horizontal lines, 2 = draw alternate vertical lines" );
 
+
+
 #define MAX_DEBUG_LINES			16384
 
 typedef struct debugLine_s
@@ -1809,10 +1811,6 @@ static void RB_ShowLights()
 	
 	GL_State( GLS_DEFAULT );
 	
-	// we use the 'vLight->invProjectMVPMatrix'
-//	glMatrixMode( GL_PROJECTION );
-//	glLoadIdentity();
-
 	globalImages->BindNull();
 	
 	renderProgManager.BindShader_Color();
@@ -1867,13 +1865,106 @@ static void RB_ShowLights()
 	}
 	
 	common->Printf( " = %i total\n", count );
-	
-	// set back the default projection matrix
-	glMatrixMode( GL_PROJECTION );
-	glLoadMatrixf( backEnd.viewDef->projectionMatrix );
-	glMatrixMode( GL_MODELVIEW );
-	glLoadIdentity();
 }
+
+// RB begin
+static void RB_ShowShadowMapLODs()
+{
+	if( !r_showShadowMapLODs.GetInteger() )
+	{
+		return;
+	}
+	
+	GL_State( GLS_DEFAULT );
+	
+	globalImages->BindNull();
+	
+	renderProgManager.BindShader_Color();
+	
+	GL_Cull( CT_TWO_SIDED );
+	
+	common->Printf( "volumes: " );	// FIXME: not in back end!
+	
+	int count = 0;
+	for( viewLight_t* vLight = backEnd.viewDef->viewLights; vLight != NULL; vLight = vLight->next )
+	{
+#if 0
+		const idMaterial* lightShader = vLight->lightShader;
+		
+		if( lightShader->IsFogLight() )
+		{
+			continue;
+		}
+		
+		if( lightShader->IsBlendLight() )
+		{
+			continue;
+		}
+#endif
+		
+		count++;
+		
+		// depth buffered planes
+		if( r_showShadowMapLODs.GetInteger() >= 1 )
+		{
+			GL_State( GLS_DEPTHFUNC_ALWAYS | GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA | GLS_DEPTHMASK );
+			
+			idVec4 c;
+			if( vLight->shadowLOD == 0 )
+			{
+				c = colorRed;
+			}
+			else if( vLight->shadowLOD == 1 )
+			{
+				c = colorGreen;
+			}
+			else if( vLight->shadowLOD == 2 )
+			{
+				c = colorBlue;
+			}
+			else if( vLight->shadowLOD == 3 )
+			{
+				c = colorYellow;
+			}
+			else if( vLight->shadowLOD == 4 )
+			{
+				c = colorMagenta;
+			}
+			else if( vLight->shadowLOD == 5 )
+			{
+				c = colorCyan;
+			}
+			else
+			{
+				c = colorMdGrey;
+			}
+			
+			c[3] = 0.25f;
+			GL_Color( c );
+			
+			idRenderMatrix invProjectMVPMatrix;
+			idRenderMatrix::Multiply( backEnd.viewDef->worldSpace.mvp, vLight->inverseBaseLightProject, invProjectMVPMatrix );
+			RB_SetMVP( invProjectMVPMatrix );
+			RB_DrawElementsWithCounters( &backEnd.zeroOneCubeSurface );
+		}
+		
+		// non-hidden lines
+		if( r_showShadowMapLODs.GetInteger() >= 2 )
+		{
+			GL_State( GLS_DEPTHFUNC_ALWAYS | GLS_POLYMODE_LINE | GLS_DEPTHMASK );
+			GL_Color( 1.0f, 1.0f, 1.0f );
+			idRenderMatrix invProjectMVPMatrix;
+			idRenderMatrix::Multiply( backEnd.viewDef->worldSpace.mvp, vLight->inverseBaseLightProject, invProjectMVPMatrix );
+			RB_SetMVP( invProjectMVPMatrix );
+			RB_DrawElementsWithCounters( &backEnd.zeroOneCubeSurface );
+		}
+		
+		common->Printf( "%i ", vLight->lightDef->index );
+	}
+	
+	common->Printf( " = %i total\n", count );
+}
+// RB end
 
 /*
 =====================
@@ -3119,6 +3210,7 @@ void RB_RenderDebugTools( drawSurf_t** drawSurfs, int numDrawSurfs )
 	RB_ShowViewEntitys( backEnd.viewDef->viewEntitys );
 	RB_ShowLights();
 	// RB begin
+	RB_ShowShadowMapLODs();
 	RB_ShowShadowMaps();
 	// RB end
 	
