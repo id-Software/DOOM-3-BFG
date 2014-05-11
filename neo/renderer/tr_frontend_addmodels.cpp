@@ -41,6 +41,9 @@ idCVar r_useShadowPreciseInsideTest( "r_useShadowPreciseInsideTest", "1", CVAR_R
 idCVar r_cullDynamicShadowTriangles( "r_cullDynamicShadowTriangles", "1", CVAR_RENDERER | CVAR_BOOL, "cull occluder triangles that are outside the light frustum so they do not contribute to the dynamic shadow volume" );
 idCVar r_cullDynamicLightTriangles( "r_cullDynamicLightTriangles", "1", CVAR_RENDERER | CVAR_BOOL, "cull surface triangles that are outside the light frustum so they do not get rendered for interactions" );
 idCVar r_forceShadowCaps( "r_forceShadowCaps", "0", CVAR_RENDERER | CVAR_BOOL, "0 = skip rendering shadow caps if view is outside shadow volume, 1 = always render shadow caps" );
+// RB begin
+idCVar r_forceShadowMapsOnAlphaTestedSurfaces( "r_forceShadowMapsOnAlphaTestedSurfaces", "1", CVAR_RENDERER | CVAR_BOOL, "0 = same shadowing as with stencil shadows, 1 = ignore noshadows for alpha tested materials" );
+// RB end
 
 static const float CHECK_BOUNDS_EPSILON = 1.0f;
 
@@ -912,7 +915,7 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 			// surface shadows
 			//--------------------------
 			
-			if( !shader->SurfaceCastsShadow() )
+			if( !shader->SurfaceCastsShadow() && !( r_useShadowMapping.GetBool() && r_forceShadowMapsOnAlphaTestedSurfaces.GetBool() && shader->Coverage() == MC_PERFORATED ) )
 			{
 				continue;
 			}
@@ -999,6 +1002,11 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 						shadowDrawSurf->sort = 0.0f;
 						shadowDrawSurf->renderZFail = 0;
 						//shadowDrawSurf->shaderRegisters = baseDrawSurf->shaderRegisters;
+						
+						if( shader->Coverage() == MC_PERFORATED )
+						{
+							R_SetupDrawSurfShader( shadowDrawSurf, shader, renderEntity );
+						}
 						
 						R_SetupDrawSurfJoints( shadowDrawSurf, tri, shader );
 						
