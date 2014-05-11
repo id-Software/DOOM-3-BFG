@@ -9468,15 +9468,75 @@ static GLboolean _glewInit_GL_WIN_swap_hint (GLEW_CONTEXT_ARG_DEF_INIT)
 
 /* ------------------------------------------------------------------------- */
 
+// RB: use this instead of glGetString(GL_EXTENSIONS) for OpenGL >= 3.0
+static const GLubyte* _glewGetExtensions(void) {
+    static int s_init = 0;
+    static GLubyte s_array[16384];
+    static const GLubyte* s_ret = 0;
+
+    if (s_init == 0) {
+        PFNGLGETSTRINGIPROC localGetStringi = 0;
+
+        s_init = 1;
+
+        localGetStringi = (PFNGLGETSTRINGIPROC)glewGetProcAddress((const GLubyte*)"glGetStringi");
+
+        if (localGetStringi) {
+            GLint num_extensions = 0;
+            GLint extension_idx = 0;
+            GLuint arr_idx = 0;
+
+            glGetIntegerv(GL_NUM_EXTENSIONS, &num_extensions);
+
+            for ( ; extension_idx < num_extensions; ++extension_idx) {
+                const GLubyte* extension = localGetStringi(GL_EXTENSIONS, extension_idx);
+
+                if (!extension) {
+                    return 0;
+                }
+
+                while (arr_idx < sizeof(s_array) && *extension != '\0') {
+                    s_array[arr_idx++] = *extension++;
+                }
+
+                if (arr_idx < sizeof(s_array)) {
+                    s_array[arr_idx++] = ' ';
+                }
+            }
+
+            if (arr_idx < sizeof(s_array)) {
+                s_array[arr_idx++] = '\0';
+                s_ret = s_array;
+            }
+        } else {
+            s_ret = glGetString(GL_EXTENSIONS);
+        }
+    }
+
+    return s_ret;
+}
+// RB end
+
 GLboolean GLEWAPIENTRY glewGetExtension (const char* name)
 {    
-  const GLubyte* start;
-  const GLubyte* end;
-  start = (const GLubyte*)glGetString(GL_EXTENSIONS);
-  if (start == 0)
-    return GL_FALSE;
-  end = start + _glewStrLen(start);
-  return _glewSearchExtension(name, start, end);
+	const GLubyte* start;
+	const GLubyte* end;
+	start = (const GLubyte*)glGetString(GL_EXTENSIONS);
+	// RB begin
+	if( start == 0 )
+	{
+		// clear previously generated error
+		glGetError();
+
+		start = _glewGetExtensions();
+		if( start == 0 )
+		{
+			return GL_FALSE;
+		}
+	}
+	// RB end
+	end = start + _glewStrLen(start);
+	return _glewSearchExtension(name, start, end);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -9531,10 +9591,22 @@ GLenum GLEWAPIENTRY glewContextInit (GLEW_CONTEXT_ARG_DEF_LIST)
     CONST_CAST(GLEW_VERSION_1_1)   = GLEW_VERSION_1_2   == GL_TRUE || ( major == 1 && minor >= 1 ) ? GL_TRUE : GL_FALSE;
   }
 
-  /* query opengl extensions string */
-  extStart = glGetString(GL_EXTENSIONS);
-  if (extStart == 0)
-    extStart = (const GLubyte*)"";
+	/* query opengl extensions string */
+	// RB begin
+	extStart = glGetString(GL_EXTENSIONS);
+	if( extStart == 0 )
+	{
+		// clear previously generated error
+		glGetError();
+
+		extStart = _glewGetExtensions();
+		if( extStart == 0 )
+		{
+			extStart = (const GLubyte*)"";
+		}
+	}
+	// RB end
+    
   extEnd = extStart + _glewStrLen(extStart);
 
   /* initialize extensions */

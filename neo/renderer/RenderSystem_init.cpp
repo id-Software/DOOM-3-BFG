@@ -328,7 +328,7 @@ static void R_CheckPortableExtensions()
 	}
 	
 	// RB: Mesa support
-	//if( idStr::Icmpn( glConfig.renderer_string, "Mesa", 4 ) == 0 || idStr::Icmpn( glConfig.renderer_string, "X.org", 4 ) == 0 )
+	if( idStr::Icmpn( glConfig.renderer_string, "Mesa", 4 ) == 0 || idStr::Icmpn( glConfig.renderer_string, "X.org", 4 ) == 0 )
 	{
 		glConfig.driverType = GLDRV_OPENGL_MESA;
 	}

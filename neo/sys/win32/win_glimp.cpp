@@ -1352,8 +1352,7 @@ bool GLimp_Init( glimpParms_t parms )
 		glConfig.physicalScreenWidthInCentimeters = 0.1f * mmWide;
 	}
 	
-	// RB begin
-	/*
+	// RB: we probably have a new OpenGL 3.2 core context so reinitialize GLEW
 	GLenum glewResult = glewInit();
 	if( GLEW_OK != glewResult )
 	{
@@ -1364,7 +1363,6 @@ bool GLimp_Init( glimpParms_t parms )
 	{
 		common->Printf( "Using GLEW %s\n", glewGetString( GLEW_VERSION ) );
 	}
-	*/
 	// RB end
 	
 	// wglSwapinterval, etc
