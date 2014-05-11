@@ -766,9 +766,10 @@ void R_InitOpenGL()
 	
 	float glVersion = atof( glConfig.version_string );
 	float glslVersion = atof( glConfig.shading_language_string );
-	idLib::Printf( "OpenGL Version: %3.1f\n", glVersion );
-	idLib::Printf( "OpenGL Vendor : %s\n", glConfig.vendor_string );
-	idLib::Printf( "OpenGL GLSL   : %3.1f\n", glslVersion );
+	idLib::Printf( "OpenGL Version  : %3.1f\n", glVersion );
+	idLib::Printf( "OpenGL Vendor   : %s\n", glConfig.vendor_string );
+	idLib::Printf( "OpenGL Renderer : %s\n", glConfig.renderer_string );
+	idLib::Printf( "OpenGL GLSL     : %3.1f\n", glslVersion );
 	
 	// OpenGL driver constants
 	GLint temp;

@@ -192,7 +192,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	shadowTexcoord.xyz /= shadowTexcoord.w;
 	shadowTexcoord.z = shadowTexcoord.z * 0.9991;
 	//shadowTexcoord.z = shadowTexcoord.z - bias;
-	shadowTexcoord.w = shadowIndex;
+	shadowTexcoord.w = float(shadowIndex);
 
 #if 0
 	result.color.xyz = float3( shadowTexcoord.z, shadowTexcoord.z, shadowTexcoord.z );
@@ -238,7 +238,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	
 	float shadow = 0.0;
 	
-	float stepSize = 1.0 / 16;
+	float stepSize = 1.0 / 16.0;
 	
 	float4 jitterTC = ( fragment.position * rpScreenCorrectionFactor ) + rpJitterTexOffset;
 	for( int i = 0; i < 16; i++ )
@@ -250,7 +250,7 @@ void main( PS_IN fragment, out PS_OUT result )
 		jitterTC.x += stepSize;
 	}
 	
-	shadow *= ( 1.0 / 16 );
+	shadow *= ( 1.0 / 16.0 );
 #else	
 	float shadow = texture( samp5, shadowTexcoord.xywz );
 #endif

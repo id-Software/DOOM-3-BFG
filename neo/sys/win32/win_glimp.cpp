@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013-2014 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -47,21 +48,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "rc/doom_resource.h"
 #include "../../renderer/tr_local.h"
 
-/*
-// WGL_ARB_extensions_string
-PFNWGLGETEXTENSIONSSTRINGARBPROC		wglGetExtensionsStringARB;
 
-// WGL_EXT_swap_interval
-PFNWGLSWAPINTERVALEXTPROC				wglSwapIntervalEXT;
-
-// WGL_ARB_pixel_format
-PFNWGLGETPIXELFORMATATTRIBIVARBPROC		wglGetPixelFormatAttribivARB;
-PFNWGLGETPIXELFORMATATTRIBFVARBPROC		wglGetPixelFormatAttribfvARB;
-PFNWGLCHOOSEPIXELFORMATARBPROC			wglChoosePixelFormatARB;
-
-// WGL_ARB_create_context
-PFNWGLCREATECONTEXTATTRIBSARBPROC		wglCreateContextAttribsARB;
-*/
 
 
 idCVar r_useOpenGL32( "r_useOpenGL32", "1", CVAR_INTEGER, "0 = OpenGL 2.0, 1 = OpenGL 3.2 compatibility profile, 2 = OpenGL 3.2 core profile", 0, 2 );
@@ -359,6 +346,13 @@ static HGLRC CreateOpenGLContextOnDC( const HDC hdc, const bool debugContext )
 {
 	int useOpenGL32 = r_useOpenGL32.GetInteger();
 	HGLRC m_hrc = NULL;
+	
+	// RB: for GLintercept 1.2.0 or otherwise we can't diff the framebuffers using the XML log
+	if( !WGLEW_ARB_create_context || useOpenGL32 == 0 )
+	{
+		return wglCreateContext( hdc );
+	}
+	// RB end
 	
 	for( int i = 0; i < 2; i++ )
 	{
@@ -1279,7 +1273,6 @@ parameters and try again.
 */
 bool GLimp_Init( glimpParms_t parms )
 {
-	const char*	driverName;
 	HDC		hDC;
 	
 	cmdSystem->AddCommand( "testSwapBuffers", GLimp_TestSwapBuffers, CMD_FL_SYSTEM, "Times swapbuffer options" );
