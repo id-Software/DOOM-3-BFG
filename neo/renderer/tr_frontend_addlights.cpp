@@ -302,13 +302,15 @@ static void R_AddSingleLight( viewLight_t* vLight )
 			}
 			
 			flod *= numLods;
+			
+			if( flod < 0 )
+			{
+				flod = 0;
+			}
+			
 			lod = idMath::Ftoi( flod );
 			
-			if( lod < 0 )
-			{
-				lod = 0;
-			}
-			else if( lod >= numLods )
+			if( lod >= numLods )
 			{
 				//lod = numLods - 1;
 			}
@@ -329,7 +331,7 @@ static void R_AddSingleLight( viewLight_t* vLight )
 			}
 			
 			// never give ultra quality for point lights
-			if( lod == 0 && light->parms.pointLight )
+			if( lod == 0 && light->parms.pointLight && !light->parms.parallel )
 			{
 				lod = 1;
 			}
