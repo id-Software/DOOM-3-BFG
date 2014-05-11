@@ -303,14 +303,6 @@ bool GLimp_Init( glimpParms_t parms )
 		return false;
 	}
 	
-	// RB: use glewExperimental to avoid issues with OpenGL 3.x core profiles
-#if SDL_VERSION_ATLEAST(2, 0, 0)
-	if( r_useOpenGL32.GetInteger() > 1 )
-	{
-		glewExperimental = GL_TRUE;
-	}
-#endif
-	
 	GLenum glewResult = glewInit();
 	if( GLEW_OK != glewResult )
 	{
