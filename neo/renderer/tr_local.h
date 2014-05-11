@@ -1065,6 +1065,9 @@ extern idCVar r_shadowMapSplits;
 extern idCVar r_shadowMapSplitWeight;
 extern idCVar r_shadowMapLodScale;
 extern idCVar r_shadowMapLodBias;
+extern idCVar r_shadowMapPolygonFactor;
+extern idCVar r_shadowMapPolygonOffset;
+extern idCVar r_shadowMapOccluderFacing;
 // RB end
 
 /*

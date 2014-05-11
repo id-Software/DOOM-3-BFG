@@ -266,7 +266,7 @@ static void R_AddSingleLight( viewLight_t* vLight )
 		vLight->scissorRect.zmax = projected[1][2];
 		
 		// RB: calculate shadow LOD similar to Q3A .md3 LOD code
-		vLight->shadowLOD = -1;
+		vLight->shadowLOD = 0;
 		
 		if( r_useShadowMapping.GetBool() && lightCastsShadows )
 		{
@@ -275,7 +275,7 @@ static void R_AddSingleLight( viewLight_t* vLight )
 			int             lod;
 			int             numLods;
 			
-			numLods = 5;
+			numLods = MAX_SHADOWMAP_RESOLUTIONS;
 			
 			// compute projected bounding sphere
 			// and use that as a criteria for selecting LOD
@@ -323,15 +323,17 @@ static void R_AddSingleLight( viewLight_t* vLight )
 			if( lod >= numLods )
 			{
 				// don't draw any shadow
-				lod = -1;
+				//lod = -1;
 				
-				//lod = numLods - 1;
+				lod = numLods - 1;
 			}
 			
 			// never give ultra quality for point lights
 			if( lod == 0 && light->parms.pointLight )
+			{
 				lod = 1;
-				
+			}
+			
 			vLight->shadowLOD = lod;
 		}
 		// RB end

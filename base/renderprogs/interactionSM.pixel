@@ -185,13 +185,13 @@ void main( PS_IN fragment, out PS_OUT result )
 	shadowTexcoord.z = dot4( modelPosition, shadowMatrixZ );
 	shadowTexcoord.w = dot4( modelPosition, shadowMatrixW );
 	
-	//float bias = 0.001 * tan( acos( ldotN ) );
-	//bias = clamp( bias, 0, 0.001 );
+	//float bias = 0.005 * tan( acos( ldotN ) );
+	//bias = clamp( bias, 0, 0.01 );
 	float bias = 0.001;
 	
 	shadowTexcoord.xyz /= shadowTexcoord.w;
-	shadowTexcoord.z = shadowTexcoord.z * 0.9991;
-	//shadowTexcoord.z = shadowTexcoord.z - bias;
+	//shadowTexcoord.z = shadowTexcoord.z * 0.9991;
+	shadowTexcoord.z = shadowTexcoord.z - bias;
 	shadowTexcoord.w = float(shadowIndex);
 
 #if 0

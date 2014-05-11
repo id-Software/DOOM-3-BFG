@@ -77,9 +77,14 @@ void Framebuffer::Init()
 	int width, height;
 	width = height = r_shadowMapImageSize.GetInteger();
 	
-	globalFramebuffers.shadowFBO = new Framebuffer( "_shadowMap" , width, height );
-	globalFramebuffers.shadowFBO->Bind();
-	glDrawBuffers( 0, NULL );
+	for( int i = 0; i < MAX_SHADOWMAP_RESOLUTIONS; i++ )
+	{
+		width = height = shadowMapResolutions[i];
+		
+		globalFramebuffers.shadowFBO[i] = new Framebuffer( "_shadowMap" , width, height );
+		globalFramebuffers.shadowFBO[i]->Bind();
+		glDrawBuffers( 0, NULL );
+	}
 //	globalFramebuffers.shadowFBO->AddColorBuffer( GL_RGBA8, 0 );
 //	globalFramebuffers.shadowFBO->AddDepthBuffer( GL_DEPTH_COMPONENT24 );
 //	globalFramebuffers.shadowFBO->Check();

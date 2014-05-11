@@ -29,6 +29,13 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __FRAMEBUFFER_H__
 #define __FRAMEBUFFER_H__
 
+static const int MAX_SHADOWMAP_RESOLUTIONS = 5;
+#if 1
+static	int shadowMapResolutions[MAX_SHADOWMAP_RESOLUTIONS] = { 2048, 1024, 512, 512, 256 };
+#else
+static	int shadowMapResolutions[MAX_SHADOWMAP_RESOLUTIONS] = { 1024, 1024, 1024, 1024, 1024 };
+#endif
+
 class Framebuffer
 {
 public:
@@ -82,7 +89,7 @@ private:
 
 struct globalFramebuffers_t
 {
-	Framebuffer*				shadowFBO;
+	Framebuffer*				shadowFBO[MAX_SHADOWMAP_RESOLUTIONS];
 };
 extern globalFramebuffers_t globalFramebuffers;
 

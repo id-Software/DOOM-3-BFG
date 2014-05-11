@@ -1888,19 +1888,10 @@ static void RB_ShowShadowMapLODs()
 	int count = 0;
 	for( viewLight_t* vLight = backEnd.viewDef->viewLights; vLight != NULL; vLight = vLight->next )
 	{
-#if 0
-		const idMaterial* lightShader = vLight->lightShader;
-		
-		if( lightShader->IsFogLight() )
+		if( !vLight->lightDef->LightCastsShadows() )
 		{
 			continue;
 		}
-		
-		if( lightShader->IsBlendLight() )
-		{
-			continue;
-		}
-#endif
 		
 		count++;
 		
@@ -2925,7 +2916,7 @@ void RB_ShowShadowMaps()
 	if( !r_showShadowMaps.GetBool() )
 		return;
 		
-	image = globalImages->shadowImage;
+	image = globalImages->shadowImage[0];
 	if( !image )
 	{
 		return;

@@ -1346,7 +1346,7 @@ static void RB_RenderInteractions( const drawSurf_t* surfList, const viewLight_t
 		{
 			// texture 5 will be the shadow maps array
 			GL_SelectTexture( INTERACTION_TEXUNIT_SHADOWMAPS );
-			globalImages->shadowImage->Bind();
+			globalImages->shadowImage[vLight->shadowLOD]->Bind();
 			
 			// texture 6 will be the jitter texture for soft shadowing
 			GL_SelectTexture( INTERACTION_TEXUNIT_JITTER );
@@ -2237,18 +2237,28 @@ static void RB_ShadowMapPass( const drawSurf_t* drawSurfs, const viewLight_t* vL
 	
 	uint64 glState = 0;
 	
-	//GL_PolygonOffset( r_shadowPolygonFactor.GetFloat(), -r_shadowPolygonOffset.GetFloat() );
-	
-	
 	// the actual stencil func will be set in the draw code, but we need to make sure it isn't
 	// disabled here, and that the value will get reset for the interactions without looking
 	// like a no-change-required
-	//GL_State( glState | GLS_POLYGON_OFFSET );
+	GL_State( glState | GLS_POLYGON_OFFSET );
 	
-	GL_State( GLS_DEFAULT );
-	
-	// Two Sided Stencil reduces two draw calls to one for slightly faster shadows
-	GL_Cull( CT_TWO_SIDED );
+	switch( r_shadowMapOccluderFacing.GetInteger() )
+	{
+		case 0:
+			GL_Cull( CT_FRONT_SIDED );
+			GL_PolygonOffset( r_shadowMapPolygonFactor.GetFloat(), r_shadowMapPolygonOffset.GetFloat() );
+			break;
+			
+		case 1:
+			GL_Cull( CT_BACK_SIDED );
+			GL_PolygonOffset( -r_shadowMapPolygonFactor.GetFloat(), -r_shadowMapPolygonOffset.GetFloat() );
+			break;
+			
+		default:
+			GL_Cull( CT_TWO_SIDED );
+			GL_PolygonOffset( r_shadowMapPolygonFactor.GetFloat(), r_shadowMapPolygonOffset.GetFloat() );
+			break;
+	}
 	
 	idRenderMatrix lightProjectionRenderMatrix;
 	idRenderMatrix lightViewRenderMatrix;
@@ -2546,20 +2556,20 @@ static void RB_ShadowMapPass( const drawSurf_t* drawSurfs, const viewLight_t* vL
 	
 	
 	
-	globalFramebuffers.shadowFBO->Bind();
+	globalFramebuffers.shadowFBO[vLight->shadowLOD]->Bind();
 	
 	if( side < 0 )
 	{
-		globalFramebuffers.shadowFBO->AttachImageDepthLayer( globalImages->shadowImage, 0 );
+		globalFramebuffers.shadowFBO[vLight->shadowLOD]->AttachImageDepthLayer( globalImages->shadowImage[vLight->shadowLOD], 0 );
 	}
 	else
 	{
-		globalFramebuffers.shadowFBO->AttachImageDepthLayer( globalImages->shadowImage, side );
+		globalFramebuffers.shadowFBO[vLight->shadowLOD]->AttachImageDepthLayer( globalImages->shadowImage[vLight->shadowLOD], side );
 	}
 	
-	globalFramebuffers.shadowFBO->Check();
+	globalFramebuffers.shadowFBO[vLight->shadowLOD]->Check();
 	
-	GL_ViewportAndScissor( 0, 0, r_shadowMapImageSize.GetInteger(), r_shadowMapImageSize.GetInteger() );
+	GL_ViewportAndScissor( 0, 0, shadowMapResolutions[vLight->shadowLOD], shadowMapResolutions[vLight->shadowLOD] );
 	
 	glClear( GL_DEPTH_BUFFER_BIT );
 	
