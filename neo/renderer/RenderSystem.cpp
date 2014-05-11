@@ -304,6 +304,20 @@ static void R_CheckCvars()
 			glDisable( GL_MULTISAMPLE_ARB );
 		}
 	}
+	
+	// RB: turn off shadow mapping for OpenGL drivers that are too slow
+	switch( glConfig.driverType )
+	{
+		case GLDRV_OPENGL_ES2:
+		case GLDRV_OPENGL_ES3:
+		case GLDRV_OPENGL_MESA:
+			r_useShadowMapping.SetBool( false );
+			break;
+			
+		default:
+			break;
+	}
+	// RB end
 }
 
 /*
