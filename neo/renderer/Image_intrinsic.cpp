@@ -586,11 +586,11 @@ void idImageManager::CreateIntrinsicImages()
 	ImageFromFunction( "_quadratic", R_QuadraticImage );
 	
 	// RB begin
-	shadowImage[0] = ImageFromFunction( va( "_shadowMapArray%i", shadowMapResolutions[0] ), R_CreateShadowMapImage_Res0 );
-	shadowImage[1] = ImageFromFunction( va( "_shadowMapArray%i", shadowMapResolutions[1] ), R_CreateShadowMapImage_Res1 );
-	shadowImage[2] = ImageFromFunction( va( "_shadowMapArray%i", shadowMapResolutions[2] ), R_CreateShadowMapImage_Res2 );
-	shadowImage[3] = ImageFromFunction( va( "_shadowMapArray%i", shadowMapResolutions[3] ), R_CreateShadowMapImage_Res3 );
-	shadowImage[4] = ImageFromFunction( va( "_shadowMapArray%i", shadowMapResolutions[4] ), R_CreateShadowMapImage_Res4 );
+	shadowImage[0] = ImageFromFunction( va( "_shadowMapArray0_%i", shadowMapResolutions[0] ), R_CreateShadowMapImage_Res0 );
+	shadowImage[1] = ImageFromFunction( va( "_shadowMapArray1_%i", shadowMapResolutions[1] ), R_CreateShadowMapImage_Res1 );
+	shadowImage[2] = ImageFromFunction( va( "_shadowMapArray2_%i", shadowMapResolutions[2] ), R_CreateShadowMapImage_Res2 );
+	shadowImage[3] = ImageFromFunction( va( "_shadowMapArray3_%i", shadowMapResolutions[3] ), R_CreateShadowMapImage_Res3 );
+	shadowImage[4] = ImageFromFunction( va( "_shadowMapArray4_%i", shadowMapResolutions[4] ), R_CreateShadowMapImage_Res4 );
 	
 	jitterImage1 = globalImages->ImageFromFunction( "_jitter1", R_CreateJitterImage1 );
 	jitterImage4 = globalImages->ImageFromFunction( "_jitter4", R_CreateJitterImage4 );
