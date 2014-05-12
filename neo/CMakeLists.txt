@@ -1205,13 +1205,13 @@ if(MSVC)
 			include_directories(libs/ffmpeg-win32/include/libavcodec)
 			
 			link_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs/ffmpeg-win32/lib)
-			
-			set(FFmpeg_LIBRARIES
+		endif()
+		
+		set(FFmpeg_LIBRARIES
 				avcodec
 				avformat
 				avutil
 				swscale)
-		endif()
 		
 	endif()
 	
