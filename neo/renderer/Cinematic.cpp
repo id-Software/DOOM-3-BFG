@@ -211,7 +211,7 @@ void idCinematic::InitCinematic()
 {
 #if defined(USE_FFMPEG)
 	// Carl: ffmpeg for Bink and regular video files
-	common->Warning( "Loading FFMPEG...\n" );
+	//common->Warning( "Loading FFMPEG...\n" );
 	avcodec_register_all();
 	av_register_all();
 #endif
@@ -498,7 +498,6 @@ bool idCinematicLocal::InitFromFFMPEGFile( const char* qpath, bool amilooping )
 		return false;
 	}
 	
-	common->Warning( "Loaded FFMPEG file: '%s', looping=%d\n", qpath, looping );
 	CIN_WIDTH = dec_ctx->width;
 	CIN_HEIGHT = dec_ctx->height;
 	/** Calculate Duration in seconds
@@ -524,7 +523,7 @@ bool idCinematicLocal::InitFromFFMPEGFile( const char* qpath, bool amilooping )
 	buf = NULL;
 	hasFrame = false;
 	framePos = -1;
-	common->Warning( "%dx%d, %f FPS, %f sec", CIN_WIDTH, CIN_HEIGHT, frameRate, durationSec );
+	common->Printf( "Loaded FFMPEG file: '%s', looping=%d%dx%d, %f FPS, %f sec\n", qpath, looping, CIN_WIDTH, CIN_HEIGHT, frameRate, durationSec );
 	image = ( byte* )Mem_Alloc( CIN_WIDTH * CIN_HEIGHT * 4 * 2, TAG_CINEMATIC );
 	avpicture_fill( ( AVPicture* )frame2, image, PIX_FMT_BGR32, CIN_WIDTH, CIN_HEIGHT );
 	if( img_convert_ctx )
@@ -607,13 +606,13 @@ bool idCinematicLocal::InitFromFile( const char* qpath, bool amilooping )
 	if( !iFile )
 	{
 #if defined(USE_FFMPEG)
-		idLib::Warning( "Original Doom 3 RoQ Cinematic not found: '%s'\n", fileName.c_str() );
+		//idLib::Warning( "Original Doom 3 RoQ Cinematic not found: '%s'\n", fileName.c_str() );
 		idStr temp = fileName.StripFileExtension() + ".bik";
 		animationLength = 0;
 		hasFrame = false;
 		RoQShutdown();
 		fileName = temp;
-		idLib::Warning( "New filename: '%s'\n", fileName.c_str() );
+		//idLib::Warning( "New filename: '%s'\n", fileName.c_str() );
 		return InitFromFFMPEGFile( fileName.c_str(), amilooping );
 #else
 		animationLength = 0;
