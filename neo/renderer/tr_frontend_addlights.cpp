@@ -330,8 +330,8 @@ static void R_AddSingleLight( viewLight_t* vLight )
 				lod = numLods - 1;
 			}
 			
-			// never give ultra quality for point lights
-			if( lod == 0 && light->parms.pointLight && !light->parms.parallel )
+			// 2048^2 ultra quality is only for cascaded shadow mapping with sun lights
+			if( lod == 0 && !light->parms.parallel )
 			{
 				lod = 1;
 			}
