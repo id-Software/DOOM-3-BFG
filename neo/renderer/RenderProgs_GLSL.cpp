@@ -392,9 +392,9 @@ public:
 	}
 	
 private:
-	int		Directive_include( idToken* token )
+	int		Directive_include( idToken* token, bool supressWarning )
 	{
-		if( idParser::Directive_include( token ) )
+		if( idParser::Directive_include( token, true ) )
 		{
 			// RB: try local shaders in base/renderprogs/ first
 			return true;

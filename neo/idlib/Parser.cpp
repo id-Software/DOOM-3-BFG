@@ -1093,7 +1093,7 @@ idParser::Directive_include
 ================
 */
 // RB: added token as parameter
-int idParser::Directive_include( idToken* token )
+int idParser::Directive_include( idToken* token, bool supressWarning )
 {
 	idLexer* script;
 	idStr path;
@@ -1173,9 +1173,13 @@ int idParser::Directive_include( idToken* token )
 		idParser::Error( "#include without file name" );
 		return false;
 	}
+	
 	if( !script )
 	{
-		idParser::Error( "file '%s' not found", path.c_str() );
+		if( !supressWarning )
+		{
+			idParser::Error( "file '%s' not found", path.c_str() );
+		}
 		return false;
 	}
 	script->SetFlags( idParser::flags );
