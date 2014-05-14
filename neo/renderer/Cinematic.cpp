@@ -470,7 +470,34 @@ bool idCinematicLocal::InitFromFFMPEGFile( const char* qpath, bool amilooping )
 	isRoQ = false;
 	CIN_HEIGHT = DEFAULT_CIN_HEIGHT;
 	CIN_WIDTH  =  DEFAULT_CIN_WIDTH;
-	idStr fullpath = fileSystem->RelativePathToOSPath( qpath, "fs_basepath" );
+	
+	idStr fullpath;
+	idFile* testFile = fileSystem->OpenFileRead( qpath );
+	if( testFile )
+	{
+		fullpath = testFile->GetFullPath();
+		fileSystem->CloseFile( testFile );
+	}
+	// RB: case sensitivity HACK for Linux
+	else if( idStr::Cmpn( qpath, "sound/vo", 8 ) == 0 )
+	{
+		idStr newPath( qpath );
+		newPath.Replace( "sound/vo", "sound/VO" );
+		
+		testFile = fileSystem->OpenFileRead( qpath );
+		if( testFile )
+		{
+			fullpath = testFile->GetFullPath();
+			fileSystem->CloseFile( testFile );
+		}
+		else
+		{
+			common->Warning( "idCinematic: Cannot open FFMPEG video file: '%s', %d\n", qpath, looping );
+			return false;
+		}
+	}
+	
+	//idStr fullpath = fileSystem->RelativePathToOSPath( qpath, "fs_basepath" );
 	
 	if( ( ret = avformat_open_input( &fmt_ctx, fullpath, NULL, NULL ) ) < 0 )
 	{
