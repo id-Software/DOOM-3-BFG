@@ -1277,8 +1277,8 @@ static void RB_RenderInteractions( const drawSurf_t* surfList, const viewLight_t
 		float screenCorrectionParm[4];
 		screenCorrectionParm[0] = 1.0f / ( JITTER_SIZE * r_shadowMapSamples.GetInteger() ) ;
 		screenCorrectionParm[1] = 1.0f / JITTER_SIZE;
-		screenCorrectionParm[2] = 0.0f;
-		screenCorrectionParm[3] = 1.0f;
+		screenCorrectionParm[2] = 1.0f / shadowMapResolutions[vLight->shadowLOD];
+		screenCorrectionParm[3] = r_shadowMapSamples.GetInteger();
 		SetFragmentParm( RENDERPARM_SCREENCORRECTIONFACTOR, screenCorrectionParm ); // rpScreenCorrectionFactor
 		
 		float jitterTexScale[4];
