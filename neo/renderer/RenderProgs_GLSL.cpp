@@ -534,7 +534,7 @@ idStr StripDeadCode( const idStr& in, const char* name, const idStrList& compile
 	{
 		case GLDRV_OPENGL_ES2:
 		case GLDRV_OPENGL_ES3:
-			src.AddDefine( "GLES2" );
+			//src.AddDefine( "GLES2" );
 			break;
 	}
 	
@@ -546,6 +546,11 @@ idStr StripDeadCode( const idStr& in, const char* name, const idStrList& compile
 	if( r_useUniformArrays.GetBool() )
 	{
 		src.AddDefine( "USE_UNIFORM_ARRAYS" );
+	}
+	
+	if( r_useHalfLambertLighting.GetBool() )
+	{
+		src.AddDefine( "USE_HALF_LAMBERT" );
 	}
 	
 	idList< idCGBlock > blocks;

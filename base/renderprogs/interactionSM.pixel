@@ -73,7 +73,7 @@ void main( PS_IN fragment, out PS_OUT result )
 
 	half3 localNormal;
 	// RB begin
-#if defined(GLES2)
+#if defined(USE_NORMAL_FMT_RGB8)
 	localNormal.xy = bumpMap.rg - 0.5;
 #else
 	localNormal.xy = bumpMap.wy - 0.5;
@@ -82,13 +82,19 @@ void main( PS_IN fragment, out PS_OUT result )
 	localNormal.z = sqrt( abs( dot( localNormal.xy, localNormal.xy ) - 0.25 ) );
 	localNormal = normalize( localNormal );
 	
-	// RB: http://developer.valvesoftware.com/wiki/Half_Lambert
-	float halfLdotN = dot3( localNormal, lightVector ) * 0.5 + 0.5;
-	halfLdotN *= halfLdotN;
-	
 	// traditional very dark Lambert light model used in Doom 3
-	float ldotN = dot3( localNormal, lightVector );
+	half ldotN = dot3( localNormal, lightVector );
 
+#if defined(USE_HALF_LAMBERT)
+	// RB: http://developer.valvesoftware.com/wiki/Half_Lambert
+	half halfLdotN = dot3( localNormal, lightVector ) * 0.5 + 0.5;
+	halfLdotN *= halfLdotN;
+
+	half lambert = halfLdotN;
+#else
+	half lambert = ldotN;
+#endif
+	
 	const half specularPower = 10.0f;
 	half hDotN = dot3( normalize( fragment.texcoord6.xyz ), localNormal );
 	// RB: added abs
@@ -228,6 +234,6 @@ void main( PS_IN fragment, out PS_OUT result )
 	float shadow = texture( samp5, shadowTexcoord.xywz );
 #endif
 
-	result.color.xyz = ( diffuseColor + specularColor ) * halfLdotN * lightColor * fragment.color.rgb * shadow;// + rimColor;
+	result.color.xyz = ( diffuseColor + specularColor ) * lambert * lightColor * fragment.color.rgb * shadow;// + rimColor;
 	result.color.w = 1.0;
 }
