@@ -2653,14 +2653,14 @@ static void RB_ShadowMapPass( const drawSurf_t* drawSurfs, const viewLight_t* vL
 		uint64 surfGLState = 0;
 		
 		// set polygon offset if necessary
-		if( shader->TestMaterialFlag( MF_POLYGONOFFSET ) )
+		if( shader && shader->TestMaterialFlag( MF_POLYGONOFFSET ) )
 		{
 			surfGLState |= GLS_POLYGON_OFFSET;
 			GL_PolygonOffset( r_offsetFactor.GetFloat(), r_offsetUnits.GetFloat() * shader->GetPolygonOffset() );
 		}
 		
 #if 1
-		if( shader->Coverage() == MC_PERFORATED )
+		if( shader && shader->Coverage() == MC_PERFORATED )
 		{
 			// perforated surfaces may have multiple alpha tested stages
 			for( int stage = 0; stage < shader->GetNumStages(); stage++ )

@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2014 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -1361,6 +1362,9 @@ public:
 			SYSTEM_FIELD_VSYNC,
 			SYSTEM_FIELD_ANTIALIASING,
 			SYSTEM_FIELD_MOTIONBLUR,
+			// RB begin
+			SYSTEM_FIELD_SHADOWMAPPING,
+			// RB end
 			SYSTEM_FIELD_LODBIAS,
 			SYSTEM_FIELD_BRIGHTNESS,
 			SYSTEM_FIELD_VOLUME,
@@ -1393,6 +1397,9 @@ public:
 		int originalVsync;
 		float originalBrightness;
 		float originalVolume;
+		// RB begin
+		int originalShadowMapping;
+		// RB end
 		
 		idList<vidMode_t>			modeList;
 	};

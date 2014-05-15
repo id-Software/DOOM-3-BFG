@@ -484,7 +484,7 @@ bool idCinematicLocal::InitFromFFMPEGFile( const char* qpath, bool amilooping )
 		idStr newPath( qpath );
 		newPath.Replace( "sound/vo", "sound/VO" );
 		
-        testFile = fileSystem->OpenFileRead( newPath );
+		testFile = fileSystem->OpenFileRead( newPath );
 		if( testFile )
 		{
 			fullpath = testFile->GetFullPath();
