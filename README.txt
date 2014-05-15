@@ -285,7 +285,9 @@ ___________________________________________________
 9) CONSOLE VARIABLES
 __________________________________________
 
-r_useShadowMapping 1 - Use soft shadow mapping instead of hard stencil shadows
+r_useShadowMapping	0: Use oldschool hard stencil shadows
+					1: Use soft shadow mapping medium quality
+					2: Use soft shadow mapping high quality
 
 
 ___________________________________________________

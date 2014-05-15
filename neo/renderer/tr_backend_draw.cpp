@@ -1273,17 +1273,28 @@ static void RB_RenderInteractions( const drawSurf_t* surfList, const viewLight_t
 	{
 		const static int JITTER_SIZE = 128;
 		
+		// default high quality
+		float jitterSampleScale = 1.0f;
+		float shadowMapSamples = 16.0f;
+		
+		if( r_useShadowMapping.GetInteger() == 1 )
+		{
+			// medium quality
+			jitterSampleScale = 0.5f;
+			shadowMapSamples = 4.0f;
+		}
+		
 		// screen power of two correction factor
 		float screenCorrectionParm[4];
-		screenCorrectionParm[0] = 1.0f / ( JITTER_SIZE * r_shadowMapSamples.GetInteger() ) ;
+		screenCorrectionParm[0] = 1.0f / ( JITTER_SIZE * shadowMapSamples ) ;
 		screenCorrectionParm[1] = 1.0f / JITTER_SIZE;
 		screenCorrectionParm[2] = 1.0f / shadowMapResolutions[vLight->shadowLOD];
-		screenCorrectionParm[3] = r_shadowMapSamples.GetInteger();
+		screenCorrectionParm[3] = shadowMapSamples;
 		SetFragmentParm( RENDERPARM_SCREENCORRECTIONFACTOR, screenCorrectionParm ); // rpScreenCorrectionFactor
 		
 		float jitterTexScale[4];
-		jitterTexScale[0] = r_shadowMapJitterScale.GetFloat() * 1.0f;	// TODO shadow buffer size fraction shadowMapSize / maxShadowMapSize
-		jitterTexScale[1] = r_shadowMapJitterScale.GetFloat() * 1.0f;
+		jitterTexScale[0] = r_shadowMapJitterScale.GetFloat() * jitterSampleScale;	// TODO shadow buffer size fraction shadowMapSize / maxShadowMapSize
+		jitterTexScale[1] = r_shadowMapJitterScale.GetFloat() * jitterSampleScale;
 		jitterTexScale[2] = -r_shadowMapBiasScale.GetFloat();
 		jitterTexScale[3] = 0.0f;
 		SetFragmentParm( RENDERPARM_JITTERTEXSCALE, jitterTexScale ); // rpJitterTexScale
@@ -1350,17 +1361,15 @@ static void RB_RenderInteractions( const drawSurf_t* surfList, const viewLight_t
 			
 			// texture 6 will be the jitter texture for soft shadowing
 			GL_SelectTexture( INTERACTION_TEXUNIT_JITTER );
-			if( r_shadowMapSamples.GetInteger() == 16 )
+			if( r_useShadowMapping.GetInteger() == 1 )
 			{
-				globalImages->jitterImage16->Bind();
-			}
-			else if( r_shadowMapSamples.GetInteger() == 4 )
-			{
+				// medium quality
 				globalImages->jitterImage4->Bind();
 			}
 			else
 			{
-				globalImages->jitterImage1->Bind();
+				// high quality
+				globalImages->jitterImage16->Bind();
 			}
 		}
 		

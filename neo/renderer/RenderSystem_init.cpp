@@ -218,13 +218,12 @@ idCVar stereoRender_deGhost( "stereoRender_deGhost", "0.05", CVAR_FLOAT | CVAR_A
 idCVar r_useVirtualScreenResolution( "r_useVirtualScreenResolution", "1", CVAR_RENDERER | CVAR_BOOL | CVAR_ARCHIVE, "do 2D rendering at 640x480 and stretch to the current resolution" );
 
 // RB: shadow mapping parameters
-idCVar r_useShadowMapping( "r_useShadowMapping", "1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "use shadow mapping instead of stencil shadows" );
+idCVar r_useShadowMapping( "r_useShadowMapping", "1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "0 = stencil shadows, 1 = medium quality soft shadow mapping, 2 = high quality soft shadow mapping" );
 idCVar r_shadowMapFrustumFOV( "r_shadowMapFrustumFOV", "92", CVAR_RENDERER | CVAR_FLOAT, "oversize FOV for point light side matching" );
 idCVar r_shadowMapSingleSide( "r_shadowMapSingleSide", "-1", CVAR_RENDERER | CVAR_INTEGER, "only draw a single side (0-5) of point lights" );
 idCVar r_shadowMapImageSize( "r_shadowMapImageSize", "1024", CVAR_RENDERER | CVAR_INTEGER, "", 128, 2048 );
 idCVar r_shadowMapJitterScale( "r_shadowMapJitterScale", "0.006", CVAR_RENDERER | CVAR_FLOAT, "scale factor for jitter offset" );
 idCVar r_shadowMapBiasScale( "r_shadowMapBiasScale", "0.0001", CVAR_RENDERER | CVAR_FLOAT, "scale factor for jitter bias" );
-idCVar r_shadowMapSamples( "r_shadowMapSamples", "16", CVAR_RENDERER | CVAR_INTEGER, "0, 1, 4, or 16" );
 idCVar r_shadowMapSplits( "r_shadowMapSplits", "3", CVAR_RENDERER | CVAR_INTEGER, "number of splits for cascaded shadow mapping with parallel lights", 0, 4 );
 idCVar r_shadowMapSplitWeight( "r_shadowMapSplitWeight", "0.9", CVAR_RENDERER | CVAR_FLOAT, "" );
 idCVar r_shadowMapLodScale( "r_shadowMapLodScale", "1.4", CVAR_RENDERER | CVAR_FLOAT, "" );
