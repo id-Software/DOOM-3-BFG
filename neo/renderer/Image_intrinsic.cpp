@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013-2014 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -449,6 +450,123 @@ void R_QuadraticImage( idImage* image )
 	image->GenerateImage( ( byte* )data, QUADRATIC_WIDTH, QUADRATIC_HEIGHT, TF_DEFAULT, TR_CLAMP, TD_LOOKUP_TABLE_RGB1 );
 }
 
+// RB begin
+static void R_CreateShadowMapImage_Res0( idImage* image )
+{
+	int size = shadowMapResolutions[0];
+	image->GenerateShadowArray( size, size, TF_LINEAR, TR_CLAMP_TO_ZERO_ALPHA, TD_SHADOW_ARRAY );
+}
+
+static void R_CreateShadowMapImage_Res1( idImage* image )
+{
+	int size = shadowMapResolutions[1];
+	image->GenerateShadowArray( size, size, TF_LINEAR, TR_CLAMP_TO_ZERO_ALPHA, TD_SHADOW_ARRAY );
+}
+
+static void R_CreateShadowMapImage_Res2( idImage* image )
+{
+	int size = shadowMapResolutions[2];
+	image->GenerateShadowArray( size, size, TF_LINEAR, TR_CLAMP_TO_ZERO_ALPHA, TD_SHADOW_ARRAY );
+}
+
+static void R_CreateShadowMapImage_Res3( idImage* image )
+{
+	int size = shadowMapResolutions[3];
+	image->GenerateShadowArray( size, size, TF_LINEAR, TR_CLAMP_TO_ZERO_ALPHA, TD_SHADOW_ARRAY );
+}
+
+static void R_CreateShadowMapImage_Res4( idImage* image )
+{
+	int size = shadowMapResolutions[4];
+	image->GenerateShadowArray( size, size, TF_LINEAR, TR_CLAMP_TO_ZERO_ALPHA, TD_SHADOW_ARRAY );
+}
+
+const static int JITTER_SIZE = 128;
+static void R_CreateJitterImage16( idImage* image )
+{
+	static byte	data[JITTER_SIZE][JITTER_SIZE * 16][4];
+	
+	for( int i = 0 ; i < JITTER_SIZE ; i++ )
+	{
+		for( int s = 0 ; s < 16 ; s++ )
+		{
+			int sOfs = 64 * ( s & 3 );
+			int tOfs = 64 * ( ( s >> 2 ) & 3 );
+			
+			for( int j = 0 ; j < JITTER_SIZE ; j++ )
+			{
+				data[i][s * JITTER_SIZE + j][0] = ( rand() & 63 ) | sOfs;
+				data[i][s * JITTER_SIZE + j][1] = ( rand() & 63 ) | tOfs;
+				data[i][s * JITTER_SIZE + j][2] = rand();
+				data[i][s * JITTER_SIZE + j][3] = 0;
+			}
+		}
+	}
+	
+	image->GenerateImage( ( byte* )data, JITTER_SIZE * 16, JITTER_SIZE, TF_NEAREST, TR_REPEAT, TD_LOOKUP_TABLE_RGBA );
+}
+
+static void R_CreateJitterImage4( idImage* image )
+{
+	byte	data[JITTER_SIZE][JITTER_SIZE * 4][4];
+	
+	for( int i = 0 ; i < JITTER_SIZE ; i++ )
+	{
+		for( int s = 0 ; s < 4 ; s++ )
+		{
+			int sOfs = 128 * ( s & 1 );
+			int tOfs = 128 * ( ( s >> 1 ) & 1 );
+			
+			for( int j = 0 ; j < JITTER_SIZE ; j++ )
+			{
+				data[i][s * JITTER_SIZE + j][0] = ( rand() & 127 ) | sOfs;
+				data[i][s * JITTER_SIZE + j][1] = ( rand() & 127 ) | tOfs;
+				data[i][s * JITTER_SIZE + j][2] = rand();
+				data[i][s * JITTER_SIZE + j][3] = 0;
+			}
+		}
+	}
+	
+	image->GenerateImage( ( byte* )data, JITTER_SIZE * 4, JITTER_SIZE, TF_NEAREST, TR_REPEAT, TD_LOOKUP_TABLE_RGBA );
+}
+
+static void R_CreateJitterImage1( idImage* image )
+{
+	byte	data[JITTER_SIZE][JITTER_SIZE][4];
+	
+	for( int i = 0 ; i < JITTER_SIZE ; i++ )
+	{
+		for( int j = 0 ; j < JITTER_SIZE ; j++ )
+		{
+			data[i][j][0] = rand();
+			data[i][j][1] = rand();
+			data[i][j][2] = rand();
+			data[i][j][3] = 0;
+		}
+	}
+	
+	image->GenerateImage( ( byte* )data, JITTER_SIZE, JITTER_SIZE, TF_NEAREST, TR_REPEAT, TD_LOOKUP_TABLE_RGBA );
+}
+
+static void R_CreateRandom256Image( idImage* image )
+{
+	byte	data[256][256][4];
+	
+	for( int i = 0 ; i < 256 ; i++ )
+	{
+		for( int j = 0 ; j < 256 ; j++ )
+		{
+			data[i][j][0] = rand();
+			data[i][j][1] = rand();
+			data[i][j][2] = rand();
+			data[i][j][3] = rand();
+		}
+	}
+	
+	image->GenerateImage( ( byte* )data, 256, 256, TF_NEAREST, TR_REPEAT, TD_LOOKUP_TABLE_RGBA );
+}
+// RB end
+
 /*
 ================
 idImageManager::CreateIntrinsicImages
@@ -466,6 +584,20 @@ void idImageManager::CreateIntrinsicImages()
 	fogEnterImage = ImageFromFunction( "_fogEnter", R_FogEnterImage );
 	noFalloffImage = ImageFromFunction( "_noFalloff", R_CreateNoFalloffImage );
 	ImageFromFunction( "_quadratic", R_QuadraticImage );
+	
+	// RB begin
+	shadowImage[0] = ImageFromFunction( va( "_shadowMapArray0_%i", shadowMapResolutions[0] ), R_CreateShadowMapImage_Res0 );
+	shadowImage[1] = ImageFromFunction( va( "_shadowMapArray1_%i", shadowMapResolutions[1] ), R_CreateShadowMapImage_Res1 );
+	shadowImage[2] = ImageFromFunction( va( "_shadowMapArray2_%i", shadowMapResolutions[2] ), R_CreateShadowMapImage_Res2 );
+	shadowImage[3] = ImageFromFunction( va( "_shadowMapArray3_%i", shadowMapResolutions[3] ), R_CreateShadowMapImage_Res3 );
+	shadowImage[4] = ImageFromFunction( va( "_shadowMapArray4_%i", shadowMapResolutions[4] ), R_CreateShadowMapImage_Res4 );
+	
+	jitterImage1 = globalImages->ImageFromFunction( "_jitter1", R_CreateJitterImage1 );
+	jitterImage4 = globalImages->ImageFromFunction( "_jitter4", R_CreateJitterImage4 );
+	jitterImage16 = globalImages->ImageFromFunction( "_jitter16", R_CreateJitterImage16 );
+	
+	randomImage256 = globalImages->ImageFromFunction( "_random256", R_CreateRandom256Image );
+	// RB end
 	
 	// scratchImage is used for screen wipes/doublevision etc..
 	scratchImage = ImageFromFunction( "_scratch", R_RGBA8Image );

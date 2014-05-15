@@ -1085,7 +1085,7 @@ bool HandleCommonErrors( const idSaveLoadParms& parms )
 	}
 	else if( parms.GetError() & SAVEGAME_E_INVALID_FILENAME )
 	{
-		idLib::Warning( va( "Invalid savegame filename [%s]!", parms.directory.c_str() ) );
+		idLib::Warning( "Invalid savegame filename [%s]!", parms.directory.c_str() );
 		return true;
 	}
 	else if( parms.GetError() & SAVEGAME_E_DLC_NOT_FOUND )

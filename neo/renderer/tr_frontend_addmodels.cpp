@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013-2014 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -40,6 +41,9 @@ idCVar r_useShadowPreciseInsideTest( "r_useShadowPreciseInsideTest", "1", CVAR_R
 idCVar r_cullDynamicShadowTriangles( "r_cullDynamicShadowTriangles", "1", CVAR_RENDERER | CVAR_BOOL, "cull occluder triangles that are outside the light frustum so they do not contribute to the dynamic shadow volume" );
 idCVar r_cullDynamicLightTriangles( "r_cullDynamicLightTriangles", "1", CVAR_RENDERER | CVAR_BOOL, "cull surface triangles that are outside the light frustum so they do not get rendered for interactions" );
 idCVar r_forceShadowCaps( "r_forceShadowCaps", "0", CVAR_RENDERER | CVAR_BOOL, "0 = skip rendering shadow caps if view is outside shadow volume, 1 = always render shadow caps" );
+// RB begin
+idCVar r_forceShadowMapsOnAlphaTestedSurfaces( "r_forceShadowMapsOnAlphaTestedSurfaces", "1", CVAR_RENDERER | CVAR_BOOL, "0 = same shadowing as with stencil shadows, 1 = ignore noshadows for alpha tested materials" );
+// RB end
 
 static const float CHECK_BOUNDS_EPSILON = 1.0f;
 
@@ -328,11 +332,13 @@ R_SetupDrawSurfJoints
 */
 void R_SetupDrawSurfJoints( drawSurf_t* drawSurf, const srfTriangles_t* tri, const idMaterial* shader )
 {
-	if( tri->staticModelWithJoints == NULL || !r_useGPUSkinning.GetBool() )
+	// RB: added check wether GPU skinning is available at all
+	if( tri->staticModelWithJoints == NULL || !r_useGPUSkinning.GetBool() || !glConfig.gpuSkinningAvailable )
 	{
 		drawSurf->jointCache = 0;
 		return;
 	}
+	// RB end
 	
 	idRenderModelStatic* model = tri->staticModelWithJoints;
 	assert( model->jointsInverted != NULL );
@@ -666,7 +672,10 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 		// If the entire model wasn't visible, there is no need to check the
 		// individual surfaces.
 		const bool surfaceDirectlyVisible = modelIsVisible && !idRenderMatrix::CullBoundsToMVP( vEntity->mvp, tri->bounds );
-		const bool gpuSkinned = ( tri->staticModelWithJoints != NULL && r_useGPUSkinning.GetBool() );
+		
+		// RB: added check wether GPU skinning is available at all
+		const bool gpuSkinned = ( tri->staticModelWithJoints != NULL && r_useGPUSkinning.GetBool() && glConfig.gpuSkinningAvailable );
+		// RB end
 		
 		//--------------------------
 		// base drawing surface
@@ -679,6 +688,7 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 			{
 				tri->indexCache = vertexCache.AllocIndex( tri->indexes, ALIGN( tri->numIndexes * sizeof( triIndex_t ), INDEX_CACHE_ALIGN ) );
 			}
+			
 			if( !vertexCache.CacheIsCurrent( tri->ambientCache ) )
 			{
 				// we are going to use it for drawing, so make sure we have the tangents and normals
@@ -905,7 +915,7 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 			// surface shadows
 			//--------------------------
 			
-			if( !shader->SurfaceCastsShadow() )
+			if( !shader->SurfaceCastsShadow() && !( r_useShadowMapping.GetBool() && r_forceShadowMapsOnAlphaTestedSurfaces.GetBool() && shader->Coverage() == MC_PERFORATED ) )
 			{
 				continue;
 			}
@@ -919,7 +929,7 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 			}
 			
 			// if the static shadow does not have any shadows
-			if( surfInter != NULL && surfInter->numShadowIndexes == 0 )
+			if( surfInter != NULL && surfInter->numShadowIndexes == 0 && !r_useShadowMapping.GetBool() )
 			{
 				continue;
 			}
@@ -935,6 +945,87 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 			{
 				continue;
 			}
+			
+			// RB begin
+			if( r_useShadowMapping.GetBool() )
+			{
+				//if( addInteractions && surfaceDirectlyVisible && shader->ReceivesLighting() )
+				{
+					// static interactions can commonly find that no triangles from a surface
+					// contact the light, even when the total model does
+					if( surfInter == NULL || surfInter->lightTrisIndexCache > 0 )
+					{
+						// create a drawSurf for this interaction
+						drawSurf_t* shadowDrawSurf = ( drawSurf_t* )R_FrameAlloc( sizeof( *shadowDrawSurf ), FRAME_ALLOC_DRAW_SURFACE );
+						
+						if( surfInter != NULL )
+						{
+							// optimized static interaction
+							shadowDrawSurf->numIndexes = surfInter->numLightTrisIndexes;
+							shadowDrawSurf->indexCache = surfInter->lightTrisIndexCache;
+						}
+						else
+						{
+							// make sure we have an ambient cache and all necessary normals / tangents
+							if( !vertexCache.CacheIsCurrent( tri->indexCache ) )
+							{
+								tri->indexCache = vertexCache.AllocIndex( tri->indexes, ALIGN( tri->numIndexes * sizeof( triIndex_t ), INDEX_CACHE_ALIGN ) );
+							}
+							
+							// throw the entire source surface at it without any per-triangle culling
+							shadowDrawSurf->numIndexes = tri->numIndexes;
+							shadowDrawSurf->indexCache = tri->indexCache;
+						}
+						
+						if( !vertexCache.CacheIsCurrent( tri->ambientCache ) )
+						{
+							// we are going to use it for drawing, so make sure we have the tangents and normals
+							if( shader->ReceivesLighting() && !tri->tangentsCalculated )
+							{
+								assert( tri->staticModelWithJoints == NULL );
+								R_DeriveTangents( tri );
+								
+								// RB: this was hit by parametric particle models ..
+								//assert( false );	// this should no longer be hit
+								// RB end
+							}
+							tri->ambientCache = vertexCache.AllocVertex( tri->verts, ALIGN( tri->numVerts * sizeof( idDrawVert ), VERTEX_CACHE_ALIGN ) );
+						}
+						
+						shadowDrawSurf->ambientCache = tri->ambientCache;
+						shadowDrawSurf->shadowCache = 0;
+						shadowDrawSurf->frontEndGeo = tri;
+						shadowDrawSurf->space = vEntity;
+						shadowDrawSurf->material = shader;
+						shadowDrawSurf->extraGLState = 0;
+						shadowDrawSurf->scissorRect = vLight->scissorRect; // interactionScissor;
+						shadowDrawSurf->sort = 0.0f;
+						shadowDrawSurf->renderZFail = 0;
+						//shadowDrawSurf->shaderRegisters = baseDrawSurf->shaderRegisters;
+						
+						if( shader->Coverage() == MC_PERFORATED )
+						{
+							R_SetupDrawSurfShader( shadowDrawSurf, shader, renderEntity );
+						}
+						
+						R_SetupDrawSurfJoints( shadowDrawSurf, tri, shader );
+						
+						// determine which linked list to add the shadow surface to
+						
+						//shadowDrawSurf->linkChain = shader->TestMaterialFlag( MF_NOSELFSHADOW ) ? &vLight->localShadows : &vLight->globalShadows;
+						
+						shadowDrawSurf->linkChain = &vLight->globalShadows;
+						shadowDrawSurf->nextOnLight = vEntity->drawSurfs;
+						
+						vEntity->drawSurfs = shadowDrawSurf;
+						
+					}
+				}
+				
+				
+				continue;
+			}
+			// RB end
 			
 			if( lightDef->parms.prelightModel && lightDef->lightHasMoved == false &&
 					entityDef->parms.hModel->IsStaticWorldModel() && !r_skipPrelightShadows.GetBool() )

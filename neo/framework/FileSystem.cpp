@@ -726,10 +726,14 @@ void idFileSystemLocal::UnloadMapResources( const char* name )
 		return;
 	}
 	
+	// RB: don't
+	/*
 	if( resourceFiles.Num() > 0 )
 	{
 		RemoveMapResourceFile( va( "%s.resources", name ) );
 	}
+	*/
+	// RB end
 }
 
 /*
@@ -2654,9 +2658,14 @@ idFileSystemLocal::Path_f
 void idFileSystemLocal::Path_f( const idCmdArgs& args )
 {
 	common->Printf( "Current search path:\n" );
-	for( int i = 0; i < fileSystemLocal.searchPaths.Num(); i++ )
+	for( int sp = fileSystemLocal.searchPaths.Num() - 1; sp >= 0; sp-- )
 	{
-		common->Printf( "%s/%s\n", fileSystemLocal.searchPaths[i].path.c_str(), fileSystemLocal.searchPaths[i].gamedir.c_str() );
+		common->Printf( "%s/%s\n", fileSystemLocal.searchPaths[sp].path.c_str(), fileSystemLocal.searchPaths[sp].gamedir.c_str() );
+	}
+	
+	for( int i = 0; i < fileSystemLocal.resourceFiles.Num(); i++ )
+	{
+		common->Printf( "%s\n", fileSystemLocal.resourceFiles[i]->GetFileName() );
 	}
 }
 
@@ -2840,6 +2849,14 @@ idFileSystemLocal::AddResourceFile
 */
 int idFileSystemLocal::AddResourceFile( const char* resourceFileName )
 {
+	// RB: check if it was already added
+	int idx = FindResourceFile( resourceFileName );
+	if( idx != -1 )
+	{
+		return idx;
+	}
+	// RB end
+	
 	idStrStatic< MAX_OSPATH > resourceFile = va( "maps/%s", resourceFileName );
 	idResourceContainer* rc = new idResourceContainer();
 	if( rc->Init( resourceFile, resourceFiles.Num() ) )
@@ -2944,27 +2961,46 @@ void idFileSystemLocal::AddGameDirectory( const char* path, const char* dir )
 	search.path = path;
 	search.gamedir = dir;
 	
-	idStr pakfile = BuildOSPath( path, dir, "" );
-	pakfile[ pakfile.Length() - 1 ] = 0;	// strip the trailing slash
-	
-	idStrList pakfiles;
-	ListOSFiles( pakfile, ".resources", pakfiles );
-	pakfiles.SortWithTemplate( idSort_PathStr() );
-	if( pakfiles.Num() > 0 )
+	// RB: add all maps/*.resources
+	idStr pakfile;
+	for( int i = 0; i < 2; i++ )
 	{
-		// resource files present, ignore pak files
-		for( int i = 0; i < pakfiles.Num(); i++ )
+		if( i == 1 )
 		{
-			pakfile = pakfiles[i]; //BuildOSPath( path, dir, pakfiles[i] );
-			idResourceContainer* rc = new idResourceContainer();
-			if( rc->Init( pakfile, resourceFiles.Num() ) )
+			pakfile = BuildOSPath( path, dir, "maps" );
+		}
+		else
+		{
+			pakfile = BuildOSPath( path, dir, "" );
+			pakfile[ pakfile.Length() - 1 ] = 0;	// strip the trailing slash
+		}
+		
+		idStrList pakfiles;
+		ListOSFiles( pakfile, ".resources", pakfiles );
+		pakfiles.SortWithTemplate( idSort_PathStr() );
+		if( pakfiles.Num() > 0 )
+		{
+			// resource files present, ignore pak files
+			for( int j = 0; j < pakfiles.Num(); j++ )
 			{
-				resourceFiles.Append( rc );
-				common->Printf( "Loaded resource file %s\n", pakfile.c_str() );
-				//com_productionMode.SetInteger( 2 );
+				pakfile = pakfiles[j]; //BuildOSPath( path, dir, pakfiles[i] );
+				
+				if( i == 1 )
+				{
+					pakfile.Insert( "maps/", 0 );
+				}
+				
+				idResourceContainer* rc = new idResourceContainer();
+				if( rc->Init( pakfile, resourceFiles.Num() ) )
+				{
+					resourceFiles.Append( rc );
+					common->Printf( "Loaded resource file %s\n", pakfile.c_str() );
+					//com_productionMode.SetInteger( 2 );
+				}
 			}
 		}
 	}
+	// RB end
 }
 
 /*

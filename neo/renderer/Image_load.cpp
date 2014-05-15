@@ -60,6 +60,8 @@ int BitsForFormat( textureFormat_t format )
 			return 4;
 		case FMT_DXT5:
 			return 8;
+		case FMT_SHADOW_ARRAY:
+			return ( 32 * 6 );
 		case FMT_DEPTH:
 			return 32;
 		case FMT_X16:
@@ -93,6 +95,11 @@ ID_INLINE void idImage::DeriveOpts()
 			case TD_DEPTH:
 				opts.format = FMT_DEPTH;
 				break;
+				
+			case TD_SHADOW_ARRAY:
+				opts.format = FMT_SHADOW_ARRAY;
+				break;
+				
 			case TD_DIFFUSE:
 				// TD_DIFFUSE gets only set to when its a diffuse texture for an interaction
 				opts.gammaMips = true;
@@ -266,6 +273,47 @@ void idImage::GenerateCubeImage( const byte* pic[6], int size, textureFilter_t f
 	}
 }
 
+// RB begin
+void idImage::GenerateShadowArray( int width, int height, textureFilter_t filterParm, textureRepeat_t repeatParm, textureUsage_t usageParm )
+{
+	PurgeImage();
+	
+	filter = filterParm;
+	repeat = repeatParm;
+	usage = usageParm;
+	cubeFiles = CF_2D_ARRAY;
+	
+	opts.textureType = TT_2D_ARRAY;
+	opts.width = width;
+	opts.height = height;
+	opts.numLevels = 0;
+	DeriveOpts();
+	
+	// if we don't have a rendering context, just return after we
+	// have filled in the parms.  We must have the values set, or
+	// an image match from a shader before the render starts would miss
+	// the generated texture
+	if( !R_IsInitialized() )
+	{
+		return;
+	}
+	
+	//idBinaryImage im( GetName() );
+	//im.Load2DFromMemory( width, height, pic, opts.numLevels, opts.format, opts.colorFormat, opts.gammaMips );
+	
+	AllocImage();
+	
+	/*
+	for( int i = 0; i < im.NumImages(); i++ )
+	{
+		const bimageImage_t& img = im.GetImageHeader( i );
+		const byte* data = im.GetImageData( i );
+		SubImageUpload( img.level, 0, 0, img.destZ, img.width, img.height, data );
+	}
+	*/
+}
+// RB end
+
 /*
 ===============
 GetGeneratedName
@@ -323,7 +371,13 @@ void idImage::ActuallyLoadImage( bool fromBackEnd )
 	}
 	else
 	{
-		if( cubeFiles != CF_2D )
+		// RB begin
+		if( cubeFiles == CF_2D_ARRAY )
+		{
+			opts.textureType = TT_2D_ARRAY;
+		}
+		// RB end
+		else if( cubeFiles != CF_2D )
 		{
 			opts.textureType = TT_CUBIC;
 			repeat = TR_CLAMP;
@@ -517,7 +571,18 @@ void idImage::Bind()
 		if( tmu->current2DMap != texnum )
 		{
 			tmu->current2DMap = texnum;
-			qglBindMultiTextureEXT( GL_TEXTURE0_ARB + texUnit, GL_TEXTURE_2D, texnum );
+			
+			// RB begin
+			if( glConfig.directStateAccess )
+			{
+				glBindMultiTextureEXT( GL_TEXTURE0 + texUnit, GL_TEXTURE_2D, texnum );
+			}
+			else
+			{
+				glActiveTexture( GL_TEXTURE0 + texUnit );
+				glBindTexture( GL_TEXTURE_2D, texnum );
+			}
+			// RB end
 		}
 	}
 	else if( opts.textureType == TT_CUBIC )
@@ -525,7 +590,41 @@ void idImage::Bind()
 		if( tmu->currentCubeMap != texnum )
 		{
 			tmu->currentCubeMap = texnum;
-			qglBindMultiTextureEXT( GL_TEXTURE0_ARB + texUnit, GL_TEXTURE_CUBE_MAP_EXT, texnum );
+			
+			// RB begin
+#if !defined(USE_GLES2) && !defined(USE_GLES3)
+			if( glConfig.directStateAccess )
+			{
+				glBindMultiTextureEXT( GL_TEXTURE0 + texUnit, GL_TEXTURE_CUBE_MAP, texnum );
+			}
+			else
+#endif
+			{
+				glActiveTexture( GL_TEXTURE0 + texUnit );
+				glBindTexture( GL_TEXTURE_CUBE_MAP, texnum );
+			}
+			// RB end
+		}
+	}
+	else if( opts.textureType == TT_2D_ARRAY )
+	{
+		if( tmu->current2DArray != texnum )
+		{
+			tmu->current2DArray = texnum;
+			
+			// RB begin
+#if !defined(USE_GLES2) && !defined(USE_GLES3)
+			if( glConfig.directStateAccess )
+			{
+				glBindMultiTextureEXT( GL_TEXTURE0 + texUnit, GL_TEXTURE_2D_ARRAY, texnum );
+			}
+			else
+#endif
+			{
+				glActiveTexture( GL_TEXTURE0 + texUnit );
+				glBindTexture( GL_TEXTURE_2D_ARRAY, texnum );
+			}
+			// RB end
 		}
 	}
 	
@@ -552,22 +651,20 @@ CopyFramebuffer
 */
 void idImage::CopyFramebuffer( int x, int y, int imageWidth, int imageHeight )
 {
-
-
-	qglBindTexture( ( opts.textureType == TT_CUBIC ) ? GL_TEXTURE_CUBE_MAP_EXT : GL_TEXTURE_2D, texnum );
+	glBindTexture( ( opts.textureType == TT_CUBIC ) ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, texnum );
 	
-	qglReadBuffer( GL_BACK );
+	glReadBuffer( GL_BACK );
 	
 	opts.width = imageWidth;
 	opts.height = imageHeight;
-	qglCopyTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA8, x, y, imageWidth, imageHeight, 0 );
+	glCopyTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA8, x, y, imageWidth, imageHeight, 0 );
 	
 	// these shouldn't be necessary if the image was initialized properly
-	qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-	qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 	
-	qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
-	qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
 	
 	backEnd.pc.c_copyFrameBuffer++;
 }
@@ -579,11 +676,11 @@ CopyDepthbuffer
 */
 void idImage::CopyDepthbuffer( int x, int y, int imageWidth, int imageHeight )
 {
-	qglBindTexture( ( opts.textureType == TT_CUBIC ) ? GL_TEXTURE_CUBE_MAP_EXT : GL_TEXTURE_2D, texnum );
+	glBindTexture( ( opts.textureType == TT_CUBIC ) ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, texnum );
 	
 	opts.width = imageWidth;
 	opts.height = imageHeight;
-	qglCopyTexImage2D( GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, x, y, imageWidth, imageHeight, 0 );
+	glCopyTexImage2D( GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, x, y, imageWidth, imageHeight, 0 );
 	
 	backEnd.pc.c_copyFrameBuffer++;
 }
@@ -814,6 +911,6 @@ void idImage::SetSamplerState( textureFilter_t tf, textureRepeat_t tr )
 	}
 	filter = tf;
 	repeat = tr;
-	qglBindTexture( ( opts.textureType == TT_CUBIC ) ? GL_TEXTURE_CUBE_MAP_EXT : GL_TEXTURE_2D, texnum );
+	glBindTexture( ( opts.textureType == TT_CUBIC ) ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, texnum );
 	SetTexParameters();
 }

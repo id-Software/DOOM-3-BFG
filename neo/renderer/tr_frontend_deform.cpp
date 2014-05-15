@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2014 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -84,7 +85,9 @@ static drawSurf_t* R_AutospriteDeform( drawSurf_t* surf )
 		return NULL;
 	}
 	
-	const idJointMat* joints = ( srcTri->staticModelWithJoints != NULL && r_useGPUSkinning.GetBool() ) ? srcTri->staticModelWithJoints->jointsInverted : NULL;
+	// RB: added check wether GPU skinning is available at all
+	const idJointMat* joints = ( srcTri->staticModelWithJoints != NULL && r_useGPUSkinning.GetBool() && glConfig.gpuSkinningAvailable ) ? srcTri->staticModelWithJoints->jointsInverted : NULL;
+	// RB end
 	
 	idVec3 leftDir;
 	idVec3 upDir;
@@ -179,7 +182,9 @@ static drawSurf_t* R_TubeDeform( drawSurf_t* surf )
 		common->Error( "R_TubeDeform: autosprite had odd index count" );
 	}
 	
-	const idJointMat* joints = ( srcTri->staticModelWithJoints != NULL && r_useGPUSkinning.GetBool() ) ? srcTri->staticModelWithJoints->jointsInverted : NULL;
+	// RB: added check wether GPU skinning is available at all
+	const idJointMat* joints = ( srcTri->staticModelWithJoints != NULL && r_useGPUSkinning.GetBool() && glConfig.gpuSkinningAvailable ) ? srcTri->staticModelWithJoints->jointsInverted : NULL;
+	// RB end
 	
 	// we need the view direction to project the minor axis of the tube
 	// as the view changes
@@ -649,7 +654,9 @@ static void AddTriangleToIsland_r( const srfTriangles_t* tri, int triangleNum, b
 	island->tris[island->numTris] = triangleNum;
 	island->numTris++;
 	
-	const idJointMat* joints = ( tri->staticModelWithJoints != NULL && r_useGPUSkinning.GetBool() ) ? tri->staticModelWithJoints->jointsInverted : NULL;
+	// RB: added check wether GPU skinning is available at all
+	const idJointMat* joints = ( tri->staticModelWithJoints != NULL && r_useGPUSkinning.GetBool() && glConfig.gpuSkinningAvailable ) ? tri->staticModelWithJoints->jointsInverted : NULL;
+	// RB end
 	
 	// recurse into all neighbors
 	const int a = tri->indexes[triangleNum * 3 + 0];
@@ -737,7 +744,9 @@ static drawSurf_t* R_EyeballDeform( drawSurf_t* surf )
 		return NULL;
 	}
 	
-	const idJointMat* joints = ( srcTri->staticModelWithJoints != NULL && r_useGPUSkinning.GetBool() ) ? srcTri->staticModelWithJoints->jointsInverted : NULL;
+	// RB: added check wether GPU skinning is available at all
+	const idJointMat* joints = ( srcTri->staticModelWithJoints != NULL && r_useGPUSkinning.GetBool() && glConfig.gpuSkinningAvailable ) ? srcTri->staticModelWithJoints->jointsInverted : NULL;
+	// RB end
 	
 	// the srfTriangles_t are in frame memory and will be automatically disposed of
 	srfTriangles_t* newTri = ( srfTriangles_t* )R_ClearedFrameAlloc( sizeof( *newTri ), FRAME_ALLOC_SURFACE_TRIANGLES );
@@ -868,7 +877,9 @@ static drawSurf_t* R_ParticleDeform( drawSurf_t* surf, bool useArea )
 	float totalArea = 0.0f;
 	float* sourceTriAreas = NULL;
 	
-	const idJointMat* joints = ( ( srcTri->staticModelWithJoints != NULL ) && r_useGPUSkinning.GetBool() ) ? srcTri->staticModelWithJoints->jointsInverted : NULL;
+	// RB: added check wether GPU skinning is available at all
+	const idJointMat* joints = ( ( srcTri->staticModelWithJoints != NULL ) && r_useGPUSkinning.GetBool() && glConfig.gpuSkinningAvailable ) ? srcTri->staticModelWithJoints->jointsInverted : NULL;
+	// RB end
 	
 	if( useArea )
 	{

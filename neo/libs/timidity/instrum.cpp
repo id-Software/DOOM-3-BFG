@@ -194,10 +194,10 @@ static Instrument *load_instrument(char *name, int percussion,
 	idFile * fp;
 	uint8_t tmp[1024];
 	int i,j,noluck=0;
-	char *path;
+	const char *path;
 	char filename[1024];
 #ifdef PATCH_EXT_LIST
-	static char *patch_ext[] = PATCH_EXT_LIST;
+	static const char *patch_ext[] = PATCH_EXT_LIST;
 #endif
 
 	if (!name) return 0;

@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2014 Carl Kenner
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -62,6 +63,7 @@ typedef struct
 	idImage*			imageY;
 	idImage*			imageCr;
 	idImage*			imageCb;
+	idImage*			image;
 	int					status;
 } cinData_t;
 
@@ -86,6 +88,10 @@ public:
 	
 	// returns the length of the animation in milliseconds
 	virtual int			AnimationLength();
+	
+	// RB: let us know wether this video went EOF or is still active
+	virtual bool        IsPlaying() const;
+	// RB end
 	
 	// the pointers in cinData_t will remain valid until the next UpdateForTime() call
 	virtual cinData_t	ImageForTime( int milliseconds );

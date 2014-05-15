@@ -110,6 +110,16 @@ void idMenuScreen_Shell_SystemOptions::Initialize( idMenuHandler* data )
 	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, idMenuDataSource_SystemSettings::SYSTEM_FIELD_MOTIONBLUR );
 	options->AddChild( control );
 	
+	// RB begin
+	control = new( TAG_SWF ) idMenuWidget_ControlButton();
+	control->SetOptionType( OPTION_SLIDER_TEXT );
+	control->SetLabel( "Soft Shadows" );
+	control->SetDataSource( &systemData, idMenuDataSource_SystemSettings::SYSTEM_FIELD_SHADOWMAPPING );
+	control->SetupEvents( DEFAULT_REPEAT_TIME, options->GetChildren().Num() );
+	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, idMenuDataSource_SystemSettings::SYSTEM_FIELD_SHADOWMAPPING );
+	options->AddChild( control );
+	// RB end
+	
 	control = new( TAG_SWF ) idMenuWidget_ControlButton();
 	control->SetOptionType( OPTION_SLIDER_BAR );
 	control->SetLabel( "#str_swf_lodbias" );
@@ -384,6 +394,9 @@ void idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::LoadData
 	originalVsync = r_swapInterval.GetInteger();
 	originalBrightness = r_lightScale.GetFloat();
 	originalVolume = s_volume_dB.GetFloat();
+	// RB begin
+	originalShadowMapping = r_useShadowMapping.GetInteger();
+	// RB end
 	
 	const int fullscreen = r_fullscreen.GetInteger();
 	if( fullscreen > 0 )
@@ -498,6 +511,15 @@ void idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::AdjustFi
 			r_motionBlur.SetInteger( AdjustOption( r_motionBlur.GetInteger(), values, numValues, adjustAmount ) );
 			break;
 		}
+		// RB begin
+		case SYSTEM_FIELD_SHADOWMAPPING:
+		{
+			static const int numValues = 2;
+			static const int values[numValues] = { 0, 1 };
+			r_useShadowMapping.SetInteger( AdjustOption( r_useShadowMapping.GetInteger(), values, numValues, adjustAmount ) );
+			break;
+		}
+		// RB end
 		case SYSTEM_FIELD_LODBIAS:
 		{
 			const float percent = LinearAdjust( r_lodBias.GetFloat(), -1.0f, 1.0f, 0.0f, 100.0f );
@@ -583,6 +605,17 @@ idSWFScriptVar idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings
 				return "#str_swf_disabled";
 			}
 			return va( "%dx", idMath::IPow( 2, r_motionBlur.GetInteger() ) );
+			// RB begin
+		case SYSTEM_FIELD_SHADOWMAPPING:
+			if( r_useShadowMapping.GetInteger() == 1 )
+			{
+				return "#str_swf_enabled";
+			}
+			else
+			{
+				return "#str_swf_disabled";
+			}
+			// RB end
 		case SYSTEM_FIELD_LODBIAS:
 			return LinearAdjust( r_lodBias.GetFloat(), -1.0f, 1.0f, 0.0f, 100.0f );
 		case SYSTEM_FIELD_BRIGHTNESS:
@@ -626,5 +659,11 @@ bool idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::IsDataCh
 	{
 		return true;
 	}
+	// RB begin
+	if( originalShadowMapping != r_useShadowMapping.GetInteger() )
+	{
+		return true;
+	}
+	// RB end
 	return false;
 }

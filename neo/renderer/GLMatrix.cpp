@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2014 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -481,3 +482,95 @@ void R_SetupProjectionMatrix( viewDef_t* viewDef )
 		viewDef->projectionMatrix[1 * 4 + 3] = -viewDef->projectionMatrix[1 * 4 + 3];
 	}
 }
+
+
+// RB: standard OpenGL projection matrix
+void R_SetupProjectionMatrix2( const viewDef_t* viewDef, const float zNear, const float zFar, float projectionMatrix[16] )
+{
+	float ymax = zNear * tan( viewDef->renderView.fov_y * idMath::PI / 360.0f );
+	float ymin = -ymax;
+	
+	float xmax = zNear * tan( viewDef->renderView.fov_x * idMath::PI / 360.0f );
+	float xmin = -xmax;
+	
+	const float width = xmax - xmin;
+	const float height = ymax - ymin;
+	
+	const int viewWidth = viewDef->viewport.x2 - viewDef->viewport.x1 + 1;
+	const int viewHeight = viewDef->viewport.y2 - viewDef->viewport.y1 + 1;
+	
+	float jitterx, jittery;
+	jitterx = 0.0f;
+	jittery = 0.0f;
+	jitterx = jitterx * width / viewWidth;
+	jitterx += r_centerX.GetFloat();
+	jitterx += viewDef->renderView.stereoScreenSeparation;
+	xmin += jitterx * width;
+	xmax += jitterx * width;
+	
+	jittery = jittery * height / viewHeight;
+	jittery += r_centerY.GetFloat();
+	ymin += jittery * height;
+	ymax += jittery * height;
+	
+	float depth = zFar - zNear;
+	
+	projectionMatrix[0 * 4 + 0] = 2.0f * zNear / width;
+	projectionMatrix[1 * 4 + 0] = 0.0f;
+	projectionMatrix[2 * 4 + 0] = ( xmax + xmin ) / width;	// normally 0
+	projectionMatrix[3 * 4 + 0] = 0.0f;
+	
+	projectionMatrix[0 * 4 + 1] = 0.0f;
+	projectionMatrix[1 * 4 + 1] = 2.0f * zNear / height;
+	projectionMatrix[2 * 4 + 1] = ( ymax + ymin ) / height;	// normally 0
+	projectionMatrix[3 * 4 + 1] = 0.0f;
+	
+	projectionMatrix[0 * 4 + 2] = 0.0f;
+	projectionMatrix[1 * 4 + 2] = 0.0f;
+	projectionMatrix[2 * 4 + 2] =  -( zFar + zNear ) / depth;		// -0.999f; // adjust value to prevent imprecision issues
+	projectionMatrix[3 * 4 + 2] = -2 * zFar * zNear / depth;	// -2.0f * zNear;
+	
+	projectionMatrix[0 * 4 + 3] = 0.0f;
+	projectionMatrix[1 * 4 + 3] = 0.0f;
+	projectionMatrix[2 * 4 + 3] = -1.0f;
+	projectionMatrix[3 * 4 + 3] = 0.0f;
+	
+	if( viewDef->renderView.flipProjection )
+	{
+		projectionMatrix[1 * 4 + 1] = -viewDef->projectionMatrix[1 * 4 + 1];
+		projectionMatrix[1 * 4 + 3] = -viewDef->projectionMatrix[1 * 4 + 3];
+	}
+}
+
+
+void R_MatrixFullInverse( const float a[16], float r[16] )
+{
+	idMat4	am;
+	
+	for( int i = 0 ; i < 4 ; i++ )
+	{
+		for( int j = 0 ; j < 4 ; j++ )
+		{
+			am[i][j] = a[j * 4 + i];
+		}
+	}
+	
+//	idVec4 test( 100, 100, 100, 1 );
+//	idVec4	transformed, inverted;
+//	transformed = test * am;
+
+	if( !am.InverseSelf() )
+	{
+		common->Error( "Invert failed" );
+	}
+//	inverted = transformed * am;
+
+	for( int i = 0 ; i < 4 ; i++ )
+	{
+		for( int j = 0 ; j < 4 ; j++ )
+		{
+			r[j * 4 + i] = am[i][j];
+		}
+	}
+}
+// RB end

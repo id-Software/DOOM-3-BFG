@@ -335,7 +335,7 @@ void idVertexCache::BeginBackEnd()
 	
 	if( r_showVertexCache.GetBool() )
 	{
-		idLib::Printf( "%08d: %d allocations, %dkB vertex, %dkB index, %kB joint : %dkB vertex, %dkB index, %kB joint\n",
+		idLib::Printf( "%08d: %d allocations, %dkB vertex, %dkB index, %ikB joint : %dkB vertex, %dkB index, %ikB joint\n",
 					   currentFrame, frameData[listNum].allocations,
 					   frameData[listNum].vertexMemUsed.GetValue() / 1024,
 					   frameData[listNum].indexMemUsed.GetValue() / 1024,
@@ -373,8 +373,8 @@ void idVertexCache::BeginBackEnd()
 	
 #if 0
 	const int startBind = Sys_Milliseconds();
-	qglBindBufferARB( GL_ARRAY_BUFFER_ARB, ( GLuint )frameData[drawListNum].vertexBuffer.GetAPIObject() );
-	qglBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, ( GLuint )frameData[drawListNum].indexBuffer.GetAPIObject() );
+	glBindBufferARB( GL_ARRAY_BUFFER_ARB, ( GLuint )frameData[drawListNum].vertexBuffer.GetAPIObject() );
+	glBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, ( GLuint )frameData[drawListNum].indexBuffer.GetAPIObject() );
 	const int endBind = Sys_Milliseconds();
 	if( endBind - startBind > 1 )
 	{

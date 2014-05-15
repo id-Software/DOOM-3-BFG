@@ -1563,7 +1563,7 @@ bool idSessionLocal::State_Game_State_Lobby_Peer()
 			
 			idBitMsg msg( buffer, sizeof( buffer ) );
 			
-			// Write match paramaters to the game state host, and tell him to start
+			// Write match parameters to the game state host, and tell him to start
 			GetGameLobby().parms.Write( msg );
 			
 			// Tell the game state lobby host we are ready

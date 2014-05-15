@@ -6,9 +6,9 @@
 _________________________________________
 
 
-RBDoom3BFG Readme - https://github.com/RobertBeckebans/RBDOOM-3-BFG
+RBDOOM-3-BFG Readme - https://github.com/RobertBeckebans/RBDOOM-3-BFG
 
-Thank you for downloading RBDoom3BFG.
+Thank you for downloading RBDOOM-3-BFG.
 
 
 
@@ -33,19 +33,17 @@ This file contains the following sections:
 
 	6) COMPILING ON GNU/LINUX
 	
-	7) GETTING THE GAMEDATA, RUNNING THE GAME
+	7) INSTALLATION, GETTING THE GAMEDATA, RUNNING THE GAME
 	
 	8) CHANGES
 	
-	9) FEATURES
+	9) CONSOLE VARIABLES
 	
-	10) CONSOLE VARIABLES
+	10) KNOWN ISSUES
 	
-	11) KNOWN ISSUES
+	11) BUG REPORTS
 	
-	12) BUG REPORTS
-	
-	13) CODE LICENSE EXCEPTIONS
+	12) CODE LICENSE EXCEPTIONS
 
 
 
@@ -94,7 +92,7 @@ any other Steam features.
 
 Bink:
 -----
-The Doom 3 BFG Edition GPL Source Code release does not include functionality for rendering Bink Videos.
+The RBDoom3BFG Edition GPL Source Code release includes functionality for rendering Bink Videos through FFmpeg.
 
 
 Back End Rendering of Stencil Shadows:
@@ -141,6 +139,10 @@ __________________________________________________________
 
 3. Use the VC10 solution to compile what you need:
 	RBDOOM-3-BFG/build/RBDoom3BFG.sln
+	
+4. Download ffmpeg-20140405-git-ec8789a-win32-shared.7z from ffmpeg.zeranoe.com/builds/win32/devel
+
+5. Extract the DLLs to your current build directory under RBDOOM-3-BFG/build/
 
 
 __________________________________
@@ -153,16 +155,23 @@ _________________________
  
 	On Debian or Ubuntu:
 
-		> apt-get install cmake libsdl1.2-dev libopenal-dev
+		> apt-get install cmake libsdl1.2-dev libopenal-dev libavcodec-dev libavformat-dev libavutil-dev libswscale-dev
 	
 	On Fedora
 
+		// TODO add ffmpeg libs for bink videos
+		
 		> yum install cmake SDL-devel openal-devel
 	
-	Instead of SDL1.2 development files you can also use SDL2, but so far it 
-	seems like no distributions has packages for it yet, so you may have to 
-	compile and install SDL2 yourself. 
-	(There may be inofficial repositories like Ubuntu PPAs)
+	On openSUSE (tested in 13.1)
+	
+		> zypper in openal-soft-devel cmake libSDL-devel libffmpeg1-devel
+	
+		For SDL 2 replace "libSDL-devel" with "libSDL2-devel".
+		"libffmpeg1-devel" requires the PackMan repository. If you don't have that repo, and don't want to add it, remove the "libffmpeg1-devel" option and compile without ffmpeg support.
+		If you have the repo and compiles with ffmpeg support, make sure you download "libffmpeg1-devel", and not "libffmpeg-devel".
+	
+	Instead of SDL1.2 development files you can also use SDL2. Install SDL 2.0 and add to the cmake parameters -DSDL2=ON
 	
 	SDL2 has better input support (especially in the console) and better 
 	support for multiple displays (especially in fullscreen mode).
@@ -173,20 +182,29 @@ _________________________
 	> cd neo/
 	> ./cmake-eclipse-linux-profile.sh
 	
-3. Compile RBDoom3BFG targets with
+3. Compile RBDOOM-3-BFG targets with
 
 	> cd ../build
 	> make
 
 ___________________________________________________
 
-7) GETTING THE GAMEDATA, RUNNING THE GAME
+7) INSTALLATION, GETTING THE GAMEDATA, RUNNING THE GAME
 __________________________________________
+
+
+If you use the prebuilt Win32 binaries then simply extract them to your
+C:\Program Files (x86)\Steam\SteamApps\common\Doom 3 BFG Edition\ directory and run RBDoom3BFG.exe.
+
+
+
+
+The following instructions are primarily intented for Linux users and all hackers on other operating systems.
 
 To play the game, you need the game data from a legal copy of the game, which 
 unfortunately requires Steam for Windows - Steam for Linux or OSX won't do, because
-(at least currently) the Doom3 BFG game is only installable on Steam for Windows.
-Even the DVD version of Doom3 BFG only contains encrytped data that is decoded
+(at least currently) the Doom 3 BFG game is only installable on Steam for Windows.
+Even the DVD version of Doom 3 BFG only contains encrytped data that is decoded
 by Steam on install.
 
 Fortunately, you can run Steam in Wine to install Doom3 BFG and afterwards copy the 
@@ -195,21 +213,29 @@ Winetricks ( http://winetricks.org/ ) makes installing Windows Steam on Linux re
 
 Anyway:
 
-1. Install Doom3 BFG in Steam (Windows version), make sure it's getting 
+1. Install Doom 3 BFG in Steam (Windows version), make sure it's getting 
    updated/patched.
 
-2. Create your own doom3bfg directory, e.g. /path/to/Doom3BFG/
+2. Create your own Doom 3 BFG directory, e.g. /path/to/Doom3BFG/
 
 3. Copy the game-data's base dir from Steam to that directory 
    (e.g. /path/to/Doom3BFG/), it's in
 	/your/path/to/Steam/steamapps/common/DOOM 3 BFG Edition/base/
 
-4. Copy your RBDoom3BFG executable that you created in 5) or 6) to your own 
-   doom3bfg directory (/path/to/Doom3BFG).
+4. Copy your RBDoom3BFG executable that you created in 5) or 6) and the FFmpeg DLLs to your own 
+   Doom 3 BFG directory (/path/to/Doom3BFG).
    
-   Your own doom3bfg directory now should look like:
+   Your own Doom 3 BFG directory now should look like:
 	/path/to/Doom3BFG/
 	 ->	RBDoom3BFG (or RBDoom3BFG.exe on Windows)
+	 -> avcodec-55.dll
+	 -> avdevice-55.dll
+	 -> avfilter-4.dll
+	 -> avformat-55.dll
+	 -> avutil-52.dll
+	 -> postproc-52.dll
+	 -> swresample-0.dll
+	 -> swscale-2.dll
 	 ->	base/
 		 ->	classicmusic/
 		 ->	_common.crc
@@ -219,49 +245,63 @@ Anyway:
 
 6. Enjoy
 
-7. If you run into bugs, please report them, see 12)
+7. If you run into bugs, please report them, see 11)
 
 ___________________________________________________
 
 8) CHANGES
 __________________________________________
 
-	* Flexible build system using CMake
-	* Linux support (32 and 64 bit)
-	* New OpenAL Soft sound backend primarily developed for Linux but works on Windows as well
-	* Win64 support
+- Flexible build system using CMake
 
-___________________________________________________
+- Linux support (32 and 64 bit)
 
-9) FEATURES
-__________________________________________
+- New OpenAL Soft sound backend primarily developed for Linux but works on Windows as well
 
-// TODO
+- Win64 support
 
-___________________________________________________
+- Implemented soft shadows using PCF hardware shadow mapping
 
-10) CONSOLE VARIABLES
-__________________________________________
+	The implementation uses sampler2DArrayShadow and PCF which usually
+	requires Direct3D 10.1 however it is in the OpenGL 3.2 core so it should
+	be widely supported.
+	All 3 light types are supported which means parallel lights (sun) use
+	scene independent cascaded shadow mapping.
+	The implementation is very fast with single taps (400 fps average per
+	scene on a GTX 660 ti OC) however I defaulted it to 16 taps so the shadows look
+	really good which should you give stable 100 fps on todays hardware.
 
-// TODO
+	The shadow filtering algorithm is based on Carmack's research which was
+	released in the original Doom 3 GPL release draw_exp.cpp.
 
-
-___________________________________________________
-
-11) KNOWN ISSUES
-__________________________________________
-
-	* Doomclassic is not supported on Linux (yet)
-	* There are some issues with the binary format loaders/writers on 64 bit platforms
-	* The intel open source drivers to not support OpenGL 3.2 yet
+- Changed light interaction shaders to use Half-Lambert lighting like in Half-Life 2 to 
+	make the game less dark. https://developer.valvesoftware.com/wiki/Half_Lambert
 
 
 ___________________________________________________
 
-12) BUG REPORTS
+9) CONSOLE VARIABLES
 __________________________________________
 
-RBDoom3BFG is not perfect, it is not bug free as every other software.
+r_useShadowMapping 1 - Use soft shadow mapping instead of hard stencil shadows
+
+
+___________________________________________________
+
+10) KNOWN ISSUES
+__________________________________________
+
+Doom 3 wasn't designed to work with shadow maps so:
+
+- Some lights cause shadow acne with shadow mapping
+- Some shadows might almost disappear due to the shadow filtering
+
+___________________________________________________
+
+11) BUG REPORTS
+__________________________________________
+
+RBDOOM-3-BFG is not perfect, it is not bug free as every other software.
 For fixing as much problems as possible we need as much bug reports as possible.
 We cannot fix anything if we do not know about the problems.
 
@@ -288,7 +328,7 @@ NOTE: We cannot help you with OS-specific issues like configuring OpenGL correct
 	
 ____________________________________________________________________________________
 
-13) CODE LICENSE EXCEPTIONS - The parts that are not covered by the GPL:
+12) CODE LICENSE EXCEPTIONS - The parts that are not covered by the GPL:
 _______________________________________________________________________
 
 

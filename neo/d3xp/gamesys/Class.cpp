@@ -1041,7 +1041,7 @@ bool idClass::ProcessEventArgPtr( const idEventDef* ev, intptr_t* data )
 #if !CPU_EASYARGS
 
 	/*
-	on ppc architecture, floats are passed in a seperate set of registers
+	on ppc architecture, floats are passed in a separate set of registers
 	the function prototypes must have matching float declaration
 	
 	http://developer.apple.com/documentation/DeveloperTools/Conceptual/MachORuntime/2rt_powerpc_abi/chapter_9_section_5.html

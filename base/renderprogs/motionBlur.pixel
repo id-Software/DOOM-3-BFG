@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 2014 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
 
@@ -76,11 +77,11 @@ void main( PS_IN fragment, out PS_OUT result ) {
 	float2 delta = ( fragment.texcoord0 - prevTexCoord );
 
 	float3 sum = float3( 0.0 );
-	float goodSamples = 0;
+	float goodSamples = 0.0;
 	float samples = rpOverbright.x;
 
-	for ( float i = 0 ; i < samples ; i = i + 1 ) {
-		float2 pos = fragment.texcoord0 + delta * ( ( i / ( samples - 1 ) ) - 0.5 );
+	for ( float i = 0.0 ; i < samples ; i = i + 1.0 ) {
+		float2 pos = fragment.texcoord0 + delta * ( ( i / ( samples - 1.0 ) ) - 0.5 );
 		float4 color = tex2D( samp0, pos );
 		// only take the values that are not part of the weapon
 		sum += color.xyz * color.w;

@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2012 Robert Beckebans
+Copyright (C) 2012-2014 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -36,8 +36,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "ScreenRect.h"
 #include "ImageOpts.h"
 #include "Image.h"
-#include "RenderTexture.h"
 #include "Font.h"
+#include "Framebuffer.h"
 
 // everything that is needed by the backend needs
 // to be double buffered to allow it to run in
@@ -318,6 +318,13 @@ struct viewLight_t
 	idVec3					globalLightOrigin;			// global light origin used by backend
 	idPlane					lightProject[4];			// light project used by backend
 	idPlane					fogPlane;					// fog plane for backend fog volume rendering
+	// RB: added for shadow mapping
+	idRenderMatrix			baseLightProject;			// global xyz1 to projected light strq
+	bool					pointLight;					// otherwise a projection light (should probably invert the sense of this, because points are way more common)
+	bool					parallel;					// lightCenter gives the direction to the light at infinity
+	idVec3					lightCenter;				// offset the lighting direction for shading and
+	int						shadowLOD;					// level of detail for shadowmap selection
+	// RB end
 	idRenderMatrix			inverseBaseLightProject;	// the matrix for deforming the 'zeroOneCubeModel' to exactly cover the light volume in world space
 	const idMaterial* 		lightShader;				// light shader used by backend
 	const float*				shaderRegisters;			// shader registers used by backend
@@ -377,6 +384,33 @@ struct viewEntity_t
 
 const int	MAX_CLIP_PLANES	= 1;				// we may expand this to six for some subview issues
 
+// RB: added multiple subfrustums for cascaded shadow mapping
+enum frustumPlanes_t
+{
+	FRUSTUM_PLANE_LEFT,
+	FRUSTUM_PLANE_RIGHT,
+	FRUSTUM_PLANE_BOTTOM,
+	FRUSTUM_PLANE_TOP,
+	FRUSTUM_PLANE_NEAR,
+	FRUSTUM_PLANE_FAR,
+	FRUSTUM_PLANES = 6,
+	FRUSTUM_CLIPALL = 1 | 2 | 4 | 8 | 16 | 32
+};
+
+enum
+{
+	FRUSTUM_PRIMARY,
+	FRUSTUM_CASCADE1,
+	FRUSTUM_CASCADE2,
+	FRUSTUM_CASCADE3,
+	FRUSTUM_CASCADE4,
+	FRUSTUM_CASCADE5,
+	MAX_FRUSTUMS,
+};
+
+typedef idPlane frustum_t[FRUSTUM_PLANES];
+// RB end
+
 // viewDefs are allocated on the frame temporary stack memory
 struct viewDef_t
 {
@@ -432,7 +466,11 @@ struct viewDef_t
 	// of 2D rendering, which we can optimize in certain ways.  A 2D view will
 	// not have any viewEntities
 	
-	idPlane				frustum[6];				// positive sides face outward, [4] is the front clip plane
+	// RB begin
+	frustum_t			frustums[MAX_FRUSTUMS];					// positive sides face outward, [4] is the front clip plane
+	float				frustumSplitDistances[MAX_FRUSTUMS];
+	idRenderMatrix		frustumMVPs[MAX_FRUSTUMS];
+	// RB end
 	
 	int					areaNum;				// -1 = not in a valid area
 	
@@ -623,6 +661,7 @@ struct performanceCounters_t
 struct tmu_t
 {
 	unsigned int	current2DMap;
+	unsigned int	current2DArray;
 	unsigned int	currentCubeMap;
 };
 
@@ -650,6 +689,8 @@ struct glstate_t
 	// RB: 64 bit fixes, changed unsigned int to uintptr_t
 	uintptr_t			currentVertexBuffer;
 	uintptr_t			currentIndexBuffer;
+	
+	Framebuffer*		currentFramebuffer;
 	// RB end
 	
 	float				polyOfsScale;
@@ -691,6 +732,11 @@ struct backEndState_t
 	bool				currentRenderCopied;	// true if any material has already referenced _currentRender
 	
 	idRenderMatrix		prevMVP[2];				// world MVP from previous frame for motion blur, per-eye
+	
+	// RB begin
+	idRenderMatrix		shadowV[6];				// shadow depth view matrix
+	idRenderMatrix		shadowP[6];				// shadow depth projection matrix
+	// RB end
 	
 	// surfaces used for code-based drawing
 	drawSurf_t			unitSquareSurface;
@@ -910,6 +956,10 @@ extern idCVar r_useEntityCallbacks;			// if 0, issue the callback immediately at
 extern idCVar r_lightAllBackFaces;			// light all the back faces, even when they would be shadowed
 extern idCVar r_useLightDepthBounds;		// use depth bounds test on lights to reduce both shadow and interaction fill
 extern idCVar r_useShadowDepthBounds;		// use depth bounds test on individual shadows to reduce shadow fill
+// RB begin
+extern idCVar r_useShadowMapping;			// use shadow mapping instead of stencil shadows
+extern idCVar r_useHalfLambertLighting;		// use Half-Lambert lighting instead of classic Lambert
+// RB end
 
 extern idCVar r_skipStaticInteractions;		// skip interactions created at level load
 extern idCVar r_skipDynamicInteractions;	// skip interactions created after level load
@@ -972,6 +1022,10 @@ extern idCVar r_showPrimitives;				// report vertex/index/draw counts
 extern idCVar r_showPortals;				// draw portal outlines in color based on passed / not passed
 extern idCVar r_showSkel;					// draw the skeleton when model animates
 extern idCVar r_showOverDraw;				// show overdraw
+// RB begin
+extern idCVar r_showShadowMaps;
+extern idCVar r_showShadowMapLODs;
+// RB end
 extern idCVar r_jointNameScale;				// size of joint names when r_showskel is set to 1
 extern idCVar r_jointNameOffset;			// offset of joint names when r_showskel is set to 1
 
@@ -1000,6 +1054,22 @@ extern idCVar r_debugRenderToTexture;
 extern idCVar stereoRender_deGhost;			// subtract from opposite eye to reduce ghosting
 
 extern idCVar r_useGPUSkinning;
+
+// RB begin
+extern idCVar r_shadowMapFrustumFOV;
+extern idCVar r_shadowMapSingleSide;
+extern idCVar r_shadowMapImageSize;
+extern idCVar r_shadowMapJitterScale;
+extern idCVar r_shadowMapBiasScale;
+extern idCVar r_shadowMapSamples;
+extern idCVar r_shadowMapSplits;
+extern idCVar r_shadowMapSplitWeight;
+extern idCVar r_shadowMapLodScale;
+extern idCVar r_shadowMapLodBias;
+extern idCVar r_shadowMapPolygonFactor;
+extern idCVar r_shadowMapPolygonOffset;
+extern idCVar r_shadowMapOccluderFacing;
+// RB end
 
 /*
 ====================================================================
@@ -1092,8 +1162,6 @@ void		GLimp_SetGamma( unsigned short red[256],
 							unsigned short blue[256] );
 
 
-void		GLimp_EnableLogging( bool enable );
-
 
 /*
 ============================================================
@@ -1111,6 +1179,14 @@ void R_FreeEntityDefDecals( idRenderEntityLocal* def );
 void R_FreeEntityDefOverlay( idRenderEntityLocal* def );
 void R_FreeEntityDefFadedDecals( idRenderEntityLocal* def, int time );
 
+// RB: for dmap
+void R_DeriveLightData( idRenderLightLocal* light );
+
+// Called by the editor and dmap to operate on light volumes
+void R_RenderLightFrustum( const renderLight_t& renderLight, idPlane lightFrustum[6] );
+
+srfTriangles_t* R_PolytopeSurface( int numPlanes, const idPlane* planes, idWinding** windings );
+// RB end
 void R_CreateLightRefs( idRenderLightLocal* light );
 void R_FreeLightDefDerivedData( idRenderLightLocal* light );
 
@@ -1354,6 +1430,7 @@ TR_BACKEND_DRAW
 ============================================================
 */
 
+void RB_SetMVP( const idRenderMatrix& mvp );
 void RB_DrawElementsWithCounters( const drawSurf_t* surf );
 void RB_DrawViewInternal( const viewDef_t* viewDef, const int stereoEye );
 void RB_DrawView( const void* data, const int stereoEye );
@@ -1389,8 +1466,8 @@ void RB_ShutdownDebugTools();
 
 #include "ResolutionScale.h"
 #include "RenderLog.h"
-#include "AutoRender.h"
-#include "AutoRenderBink.h"
+//#include "AutoRender.h"
+//#include "AutoRenderBink.h"
 #include "jobs/ShadowShared.h"
 #include "jobs/prelightshadowvolume/PreLightShadowVolume.h"
 #include "jobs/staticshadowvolume/StaticShadowVolume.h"

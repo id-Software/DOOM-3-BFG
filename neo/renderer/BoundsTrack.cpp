@@ -112,10 +112,12 @@ struct shortBounds_t
 		// the maxs are stored negated
 		for( int i = 0 ; i < 3 ; i++ )
 		{
+			// RB: replaced std::min, max
 			int minv = floor( set[0][i] );
-			b[0][i] = std::max( -32768, minv );
+			b[0][i] = Max( -32768, minv );
 			int maxv = -ceil( set[1][i] );
-			b[1][i] = std::min( 32767, maxv );
+			b[1][i] = Min( 32767, maxv );
+			// RB end
 		}
 		b[0][3] = b[1][3] = 0;
 	}
@@ -218,7 +220,9 @@ void idBoundsTrack::ClearAll()
 void	idBoundsTrack::SetIndex( const int index, const idBounds& bounds )
 {
 	assert( ( unsigned )index < MAX_BOUNDS_TRACK_INDEXES );
-	maxIndex = std::max( maxIndex, index + 1 );
+	// RB: replaced std::max
+	maxIndex = Max( maxIndex, index + 1 );
+	// RB end
 	boundsList[index].SetFromReferenceBounds( bounds );
 }
 
@@ -289,7 +293,7 @@ void	idBoundsTrack::Test()
 		FindBoundsIntersectionsSimSIMD( shortTestBounds, boundsList, maxIndex, intersectedIndexes2 );
 	}
 	const int64 stop = Sys_Microseconds();
-	idLib::Printf( "%i microseconds for 40 itterations\n", stop - start );
+	idLib::Printf( "%lli microseconds for 40 itterations\n", stop - start );
 }
 
 

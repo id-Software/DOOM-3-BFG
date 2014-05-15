@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2012 Robert Beckebans
+Copyright (C) 2013-2014 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -31,12 +31,18 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 
 #include "tr_local.h"
+#include "RenderProgs_embedded.h"
 
 idCVar r_skipStripDeadCode( "r_skipStripDeadCode", "0", CVAR_BOOL, "Skip stripping dead code" );
 idCVar r_useUniformArrays( "r_useUniformArrays", "1", CVAR_BOOL, "" );
+
 // DG: the AMD drivers output a lot of useless warnings which are fscking annoying, added this CVar to suppress them
 idCVar r_displayGLSLCompilerMessages( "r_displayGLSLCompilerMessages", "1", CVAR_BOOL | CVAR_ARCHIVE, "Show info messages the GPU driver outputs when compiling the shaders" );
 // DG end
+
+// RB begin
+idCVar r_alwaysExportGLSL( "r_alwaysExportGLSL", "1", CVAR_BOOL, "" );
+// RB end
 
 #define VERTEX_UNIFORM_ARRAY_NAME				"_va_"
 #define FRAGMENT_UNIFORM_ARRAY_NAME				"_fa_"
@@ -45,6 +51,11 @@ static const int AT_VS_IN  = BIT( 1 );
 static const int AT_VS_OUT = BIT( 2 );
 static const int AT_PS_IN  = BIT( 3 );
 static const int AT_PS_OUT = BIT( 4 );
+// RB begin
+static const int AT_VS_OUT_RESERVED = BIT( 5 );
+static const int AT_PS_IN_RESERVED	= BIT( 6 );
+static const int AT_PS_OUT_RESERVED = BIT( 7 );
+// RB end
 
 struct idCGBlock
 {
@@ -106,7 +117,7 @@ attribInfo_t attribsPC[] =
 	{ "float4",		"color2",		"COLOR1",		"in_Color2",			PC_ATTRIB_INDEX_COLOR2,			AT_VS_IN,		VERTEX_MASK_COLOR2 },
 	
 	// pre-defined vertex program output
-	{ "float4",		"position",		"POSITION",		"gl_Position",			0,	AT_VS_OUT,		0 },
+	{ "float4",		"position",		"POSITION",		"gl_Position",			0,	AT_VS_OUT | AT_VS_OUT_RESERVED,		0 },
 	{ "float",		"clip0",		"CLP0",			"gl_ClipDistance[0]",	0,	AT_VS_OUT,		0 },
 	{ "float",		"clip1",		"CLP1",			"gl_ClipDistance[1]",	0,	AT_VS_OUT,		0 },
 	{ "float",		"clip2",		"CLP2",			"gl_ClipDistance[2]",	0,	AT_VS_OUT,		0 },
@@ -115,32 +126,38 @@ attribInfo_t attribsPC[] =
 	{ "float",		"clip5",		"CLP5",			"gl_ClipDistance[5]",	0,	AT_VS_OUT,		0 },
 	
 	// pre-defined fragment program input
-	{ "float4",		"position",		"WPOS",			"gl_FragCoord",			0,	AT_PS_IN,		0 },
-	{ "half4",		"hposition",	"WPOS",			"gl_FragCoord",			0,	AT_PS_IN,		0 },
-	{ "float",		"facing",		"FACE",			"gl_FrontFacing",		0,	AT_PS_IN,		0 },
+	{ "float4",		"position",		"WPOS",			"gl_FragCoord",			0,	AT_PS_IN | AT_PS_IN_RESERVED,		0 },
+	{ "half4",		"hposition",	"WPOS",			"gl_FragCoord",			0,	AT_PS_IN | AT_PS_IN_RESERVED,		0 },
+	{ "float",		"facing",		"FACE",			"gl_FrontFacing",		0,	AT_PS_IN | AT_PS_IN_RESERVED,		0 },
 	
 	// fragment program output
-	{ "float4",		"color",		"COLOR",		"gl_FragColor",		0,	AT_PS_OUT,		0 }, // GLSL version 1.2 doesn't allow for custom color name mappings
-	{ "half4",		"hcolor",		"COLOR",		"gl_FragColor",		0,	AT_PS_OUT,		0 },
-	{ "float4",		"color0",		"COLOR0",		"gl_FragColor",		0,	AT_PS_OUT,		0 },
-	{ "float4",		"color1",		"COLOR1",		"gl_FragColor",		1,	AT_PS_OUT,		0 },
-	{ "float4",		"color2",		"COLOR2",		"gl_FragColor",		2,	AT_PS_OUT,		0 },
-	{ "float4",		"color3",		"COLOR3",		"gl_FragColor",		3,	AT_PS_OUT,		0 },
-	{ "float",		"depth",		"DEPTH",		"gl_FragDepth",		4,	AT_PS_OUT,		0 },
+	{ "float4",		"color",		"COLOR",		"fo_FragColor",		0,	AT_PS_OUT /*| AT_PS_OUT_RESERVED*/,		0 }, // GLSL version 1.2 doesn't allow for custom color name mappings
+	{ "half4",		"hcolor",		"COLOR",		"fo_FragColor",		0,	AT_PS_OUT /*| AT_PS_OUT_RESERVED*/,		0 },
+	{ "float4",		"color0",		"COLOR0",		"fo_FragColor",		0,	AT_PS_OUT /*| AT_PS_OUT_RESERVED*/,		0 },
+	{ "float4",		"color1",		"COLOR1",		"fo_FragColor",		1,	AT_PS_OUT /*| AT_PS_OUT_RESERVED*/,		0 },
+	{ "float4",		"color2",		"COLOR2",		"fo_FragColor",		2,	AT_PS_OUT /*| AT_PS_OUT_RESERVED*/,		0 },
+	{ "float4",		"color3",		"COLOR3",		"fo_FragColor",		3,	AT_PS_OUT /*| AT_PS_OUT_RESERVED*/,		0 },
+	{ "float",		"depth",		"DEPTH",		"gl_FragDepth",		4,	AT_PS_OUT | AT_PS_OUT_RESERVED,		0 },
 	
 	// vertex to fragment program pass through
-	{ "float4",		"color",		"COLOR",		"gl_FrontColor",			0,	AT_VS_OUT,	0 },
-	{ "float4",		"color0",		"COLOR0",		"gl_FrontColor",			0,	AT_VS_OUT,	0 },
-	{ "float4",		"color1",		"COLOR1",		"gl_FrontSecondaryColor",	0,	AT_VS_OUT,	0 },
+#if 0 //defined(USE_GLES2)
+	{ "float4",		"color",		"COLOR",		"vofi_FrontColor",			0,	AT_VS_OUT | AT_VS_OUT_RESERVED,	0 },
+	{ "float4",		"color0",		"COLOR0",		"vofi_Color",				0,	AT_VS_OUT | AT_VS_OUT_RESERVED,	0 },
+	{ "float4",		"color1",		"COLOR1",		"vofi_FrontSecondaryColor",	0,	AT_VS_OUT | AT_VS_OUT_RESERVED,	0 },
+#else
+	{ "float4",		"color",		"COLOR",		"vofi_Color",				0,	AT_VS_OUT,	0 },
+	{ "float4",		"color0",		"COLOR0",		"vofi_Color",				0,	AT_VS_OUT,	0 },
+	{ "float4",		"color1",		"COLOR1",		"vofi_SecondaryColor",		0,	AT_VS_OUT,	0 },
+#endif
 	
 	
-	{ "float4",		"color",		"COLOR",		"gl_Color",				0,	AT_PS_IN,	0 },
-	{ "float4",		"color0",		"COLOR0",		"gl_Color",				0,	AT_PS_IN,	0 },
-	{ "float4",		"color1",		"COLOR1",		"gl_SecondaryColor",	0,	AT_PS_IN,	0 },
+	{ "float4",		"color",		"COLOR",		"vofi_Color",				0,	AT_PS_IN,	0 },
+	{ "float4",		"color0",		"COLOR0",		"vofi_Color",				0,	AT_PS_IN,	0 },
+	{ "float4",		"color1",		"COLOR1",		"vofi_SecondaryColor",		0,	AT_PS_IN,	0 },
 	
-	{ "half4",		"hcolor",		"COLOR",		"gl_Color",				0,	AT_PS_IN,		0 },
-	{ "half4",		"hcolor0",		"COLOR0",		"gl_Color",				0,	AT_PS_IN,		0 },
-	{ "half4",		"hcolor1",		"COLOR1",		"gl_SecondaryColor",	0,	AT_PS_IN,		0 },
+	{ "half4",		"hcolor",		"COLOR",		"vofi_Color",				0,	AT_PS_IN,		0 },
+	{ "half4",		"hcolor0",		"COLOR0",		"vofi_Color",				0,	AT_PS_IN,		0 },
+	{ "half4",		"hcolor1",		"COLOR1",		"vofi_SecondaryColor",		0,	AT_PS_IN,		0 },
 	
 	{ "float4",		"texcoord0",	"TEXCOORD0_centroid",	"vofi_TexCoord0",	0,	AT_PS_IN,	0 },
 	{ "float4",		"texcoord1",	"TEXCOORD1_centroid",	"vofi_TexCoord1",	0,	AT_PS_IN,	0 },
@@ -218,15 +235,18 @@ const char* prefixes[] =
 	
 	"sampler1DShadow",		// GLSL
 	"sampler2DShadow",		// GLSL
+	"sampler2DArrayShadow",	// GLSL
 	"sampler3DShadow",		// GLSL
 	"samplerCubeShadow",	// GLSL
+	
+	"sampler2DArray",		// GLSL"
 	
 	"sampler2DMS",			// GLSL
 };
 static const int numPrefixes = sizeof( prefixes ) / sizeof( prefixes[0] );
 
 // For GLSL we need to have the names for the renderparms so we can look up their run time indices within the renderprograms
-static const char* GLSLParmNames[] =
+static const char* GLSLParmNames[RENDERPARM_TOTAL] =
 {
 	"rpScreenCorrectionFactor",
 	"rpWindowCoord",
@@ -296,15 +316,204 @@ static const char* GLSLParmNames[] =
 	
 	"rpOverbright",
 	"rpEnableSkinning",
-	"rpAlphaTest"
+	"rpAlphaTest",
+	
+	// RB begin
+	"rpAmbientColor",
+	
+	"rpGlobalLightOrigin",
+	"rpJitterTexScale",
+	"rpJitterTexOffset",
+	"rpCascadeDistances",
+	
+	"rpShadowMatrices",
+	"rpShadowMatrix0Y",
+	"rpShadowMatrix0Z",
+	"rpShadowMatrix0W",
+	
+	"rpShadowMatrix1X",
+	"rpShadowMatrix1Y",
+	"rpShadowMatrix1Z",
+	"rpShadowMatrix1W",
+	
+	"rpShadowMatrix2X",
+	"rpShadowMatrix2Y",
+	"rpShadowMatrix2Z",
+	"rpShadowMatrix2W",
+	
+	"rpShadowMatrix3X",
+	"rpShadowMatrix3Y",
+	"rpShadowMatrix3Z",
+	"rpShadowMatrix3W",
+	
+	"rpShadowMatrix4X",
+	"rpShadowMatrix4Y",
+	"rpShadowMatrix4Z",
+	"rpShadowMatrix4W",
+	
+	"rpShadowMatrix5X",
+	"rpShadowMatrix5Y",
+	"rpShadowMatrix5Z",
+	"rpShadowMatrix5W",
+	// RB end
 };
+
+// RB begin
+const char* idRenderProgManager::GLSLMacroNames[MAX_SHADER_MACRO_NAMES] =
+{
+	"USE_GPU_SKINNING",
+	"LIGHT_POINT",
+	"LIGHT_PARALLEL",
+};
+// RB end
+
+
+// RB: added embedded Cg shader resources
+static const char* FindEmbeddedSourceShader( const char* name )
+{
+	const char* embeddedSource = NULL;
+	for( int i = 0 ; cg_renderprogs[i].name ; i++ )
+	{
+		if( !idStr::Icmp( cg_renderprogs[i].name, name ) )
+		{
+			embeddedSource = cg_renderprogs[i].shaderText;
+			break;
+		}
+	}
+	
+	return embeddedSource;
+}
+
+class idParser_EmbeddedGLSL : public idParser
+{
+public:
+	idParser_EmbeddedGLSL( int flags ) : idParser( flags )
+	{
+	}
+	
+private:
+	int		Directive_include( idToken* token, bool supressWarning )
+	{
+		if( idParser::Directive_include( token, true ) )
+		{
+			// RB: try local shaders in base/renderprogs/ first
+			return true;
+		}
+		
+		idLexer* script;
+		
+		idStr path;
+		
+		/*
+		token was already parsed
+		if( !idParser::ReadSourceToken( &token ) )
+		{
+			idParser::Error( "#include without file name" );
+			return false;
+		}
+		*/
+		
+		if( token->linesCrossed > 0 )
+		{
+			idParser::Error( "#include without file name" );
+			return false;
+		}
+		
+		if( token->type == TT_STRING )
+		{
+			script = new idLexer;
+			
+			// try relative to the current file
+			path = scriptstack->GetFileName();
+			path.StripFilename();
+			path += "/";
+			path += *token;
+			
+			//if( !script->LoadFile( path, OSPath ) )
+			const char* embeddedSource = FindEmbeddedSourceShader( path );
+			if( embeddedSource == NULL )
+			{
+				// try absolute path
+				path = *token;
+				embeddedSource = FindEmbeddedSourceShader( path );
+				if( embeddedSource == NULL )
+				{
+					// try from the include path
+					path = includepath + *token;
+					embeddedSource = FindEmbeddedSourceShader( path );
+				}
+			}
+			
+			if( embeddedSource == NULL || !script->LoadMemory( embeddedSource, strlen( embeddedSource ), path ) )
+			{
+				delete script;
+				script = NULL;
+			}
+		}
+		else if( token->type == TT_PUNCTUATION && *token == "<" )
+		{
+			path = idParser::includepath;
+			while( idParser::ReadSourceToken( token ) )
+			{
+				if( token->linesCrossed > 0 )
+				{
+					idParser::UnreadSourceToken( token );
+					break;
+				}
+				if( token->type == TT_PUNCTUATION && *token == ">" )
+				{
+					break;
+				}
+				path += *token;
+			}
+			if( *token != ">" )
+			{
+				idParser::Warning( "#include missing trailing >" );
+			}
+			if( !path.Length() )
+			{
+				idParser::Error( "#include without file name between < >" );
+				return false;
+			}
+			if( idParser::flags & LEXFL_NOBASEINCLUDES )
+			{
+				return true;
+			}
+			script = new idLexer;
+			
+			const char* embeddedSource = FindEmbeddedSourceShader( includepath + path );
+			
+			if( embeddedSource == NULL || !script->LoadMemory( embeddedSource, strlen( embeddedSource ), path ) )
+			{
+				delete script;
+				script = NULL;
+			}
+		}
+		else
+		{
+			idParser::Error( "#include without file name" );
+			return false;
+		}
+		
+		if( !script )
+		{
+			idParser::Error( "file '%s' not found", path.c_str() );
+			return false;
+		}
+		script->SetFlags( idParser::flags );
+		script->SetPunctuations( idParser::punctuations );
+		idParser::PushScript( script );
+		return true;
+	}
+};
+// RB end
 
 /*
 ========================
 StripDeadCode
 ========================
 */
-idStr StripDeadCode( const idStr& in, const char* name )
+idStr StripDeadCode( const idStr& in, const char* name, const idStrList& compileMacros, bool builtin )
 {
 	if( r_skipStripDeadCode.GetBool() )
 	{
@@ -312,11 +521,39 @@ idStr StripDeadCode( const idStr& in, const char* name )
 	}
 	
 	//idLexer src( LEXFL_NOFATALERRORS );
-	idParser src( LEXFL_NOFATALERRORS );
+	idParser_EmbeddedGLSL src( LEXFL_NOFATALERRORS );
 	src.LoadMemory( in.c_str(), in.Length(), name );
 	src.AddDefine( "PC" );
 	
-	idList< idCGBlock, TAG_RENDERPROG > blocks;
+	for( int i = 0; i < compileMacros.Num(); i++ )
+	{
+		src.AddDefine( compileMacros[i] );
+	}
+	
+	switch( glConfig.driverType )
+	{
+		case GLDRV_OPENGL_ES2:
+		case GLDRV_OPENGL_ES3:
+			//src.AddDefine( "GLES2" );
+			break;
+	}
+	
+	if( !builtin && glConfig.gpuSkinningAvailable )
+	{
+		src.AddDefine( "USE_GPU_SKINNING" );
+	}
+	
+	if( r_useUniformArrays.GetBool() )
+	{
+		src.AddDefine( "USE_UNIFORM_ARRAYS" );
+	}
+	
+	if( r_useHalfLambertLighting.GetBool() )
+	{
+		src.AddDefine( "USE_HALF_LAMBERT" );
+	}
+	
+	idList< idCGBlock > blocks;
 	
 	blocks.SetNum( 100 );
 	
@@ -555,7 +792,69 @@ struct typeConversion_t
 	{ NULL, NULL }
 };
 
-const char* vertexInsert =
+// RB begin
+#if defined(USE_GLES2)
+const char* vertexInsert_GLSL_ES_1_0 =
+{
+	"#version 100\n"
+	"#define GLES2\n"
+	"#define PC\n"
+	"precision mediump float;\n"
+	"\n"
+	"float saturate( float v ) { return clamp( v, 0.0, 1.0 ); }\n"
+	"vec2 saturate( vec2 v ) { return clamp( v, 0.0, 1.0 ); }\n"
+	"vec3 saturate( vec3 v ) { return clamp( v, 0.0, 1.0 ); }\n"
+	"vec4 saturate( vec4 v ) { return clamp( v, 0.0, 1.0 ); }\n"
+	//"vec4 tex2Dlod( sampler2D sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.xy, texcoord.w ); }\n"
+	"\n"
+};
+#else
+const char* vertexInsert_GLSL_ES_1_0 =
+{
+	"#version 100\n"
+
+#if !defined(USE_MESA)
+	"#define GLES2\n"
+#endif
+
+	"#define PC\n"
+
+#if 1 //defined(__ANDROID__)
+	"precision mediump float;\n"
+#else
+	"precision highp float;\n"
+#endif
+
+#if defined(USE_GPU_SKINNING) && !defined(__ANDROID__)
+	"#extension GL_ARB_gpu_shader5 : enable\n"
+#endif
+	"\n"
+	"float saturate( float v ) { return clamp( v, 0.0, 1.0 ); }\n"
+	"vec2 saturate( vec2 v ) { return clamp( v, 0.0, 1.0 ); }\n"
+	"vec3 saturate( vec3 v ) { return clamp( v, 0.0, 1.0 ); }\n"
+	"vec4 saturate( vec4 v ) { return clamp( v, 0.0, 1.0 ); }\n"
+	//"vec4 tex2Dlod( sampler2D sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.xy, texcoord.w ); }\n"
+	"\n"
+};
+#endif // #if defined(USE_GLES2)
+
+const char* vertexInsert_GLSL_ES_3_00 =
+{
+	"#version 300 es\n"
+	"#define PC\n"
+	"precision mediump float;\n"
+	
+	//"#extension GL_ARB_gpu_shader5 : enable\n"
+	"\n"
+	"float saturate( float v ) { return clamp( v, 0.0, 1.0 ); }\n"
+	"vec2 saturate( vec2 v ) { return clamp( v, 0.0, 1.0 ); }\n"
+	"vec3 saturate( vec3 v ) { return clamp( v, 0.0, 1.0 ); }\n"
+	"vec4 saturate( vec4 v ) { return clamp( v, 0.0, 1.0 ); }\n"
+	//"vec4 tex2Dlod( sampler2D sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.xy, texcoord.w ); }\n"
+	"\n"
+};
+
+const char* vertexInsert_GLSL_1_50 =
 {
 	"#version 150\n"
 	"#define PC\n"
@@ -568,7 +867,147 @@ const char* vertexInsert =
 	"\n"
 };
 
-const char* fragmentInsert =
+
+#if defined(USE_GLES2)
+const char* fragmentInsert_GLSL_ES_1_0 =
+{
+	"#version 100\n"
+	"#define GLES2\n"
+	"#define PC\n"
+	"precision mediump float;\n"
+	"#extension GL_OES_standard_derivatives : enable\n"
+	"\n"
+	"void clip( float v ) { if ( v < 0.0 ) { discard; } }\n"
+	"void clip( vec2 v ) { if ( any( lessThan( v, vec2( 0.0 ) ) ) ) { discard; } }\n"
+	"void clip( vec3 v ) { if ( any( lessThan( v, vec3( 0.0 ) ) ) ) { discard; } }\n"
+	"void clip( vec4 v ) { if ( any( lessThan( v, vec4( 0.0 ) ) ) ) { discard; } }\n"
+	"\n"
+	"float saturate( float v ) { return clamp( v, 0.0, 1.0 ); }\n"
+	"vec2 saturate( vec2 v ) { return clamp( v, 0.0, 1.0 ); }\n"
+	"vec3 saturate( vec3 v ) { return clamp( v, 0.0, 1.0 ); }\n"
+	"vec4 saturate( vec4 v ) { return clamp( v, 0.0, 1.0 ); }\n"
+	"\n"
+	"vec4 tex2D( sampler2D sampler, vec2 texcoord ) { return texture2D( sampler, texcoord.xy ); }\n"
+	//"vec4 tex2D( sampler2DShadow sampler, vec3 texcoord ) { return vec4( texture( sampler, texcoord.xyz ) ); }\n"
+	"\n"
+	//"vec4 tex2D( sampler2D sampler, vec2 texcoord, vec2 dx, vec2 dy ) { return textureGrad( sampler, texcoord.xy, dx, dy ); }\n"
+	//"vec4 tex2D( sampler2DShadow sampler, vec3 texcoord, vec2 dx, vec2 dy ) { return vec4( textureGrad( sampler, texcoord.xyz, dx, dy ) ); }\n"
+	//"\n"
+	"vec4 texCUBE( samplerCube sampler, vec3 texcoord ) { return textureCube( sampler, texcoord.xyz ); }\n"
+	//"vec4 texCUBE( samplerCubeShadow sampler, vec4 texcoord ) { return vec4( textureCube( sampler, texcoord.xyzw ) ); }\n"
+	"\n"
+	//"vec4 tex1Dproj( sampler1D sampler, vec2 texcoord ) { return textureProj( sampler, texcoord ); }\n"
+	"vec4 tex2Dproj( sampler2D sampler, vec3 texcoord ) { return texture2DProj( sampler, texcoord ); }\n"
+	//"vec4 tex3Dproj( sampler3D sampler, vec4 texcoord ) { return textureProj( sampler, texcoord ); }\n"
+	"\n"
+	//"vec4 tex1Dbias( sampler1D sampler, vec4 texcoord ) { return texture( sampler, texcoord.x, texcoord.w ); }\n"
+	//"vec4 tex2Dbias( sampler2D sampler, vec4 texcoord ) { return texture( sampler, texcoord.xy, texcoord.w ); }\n"
+	//"vec4 tex3Dbias( sampler3D sampler, vec4 texcoord ) { return texture( sampler, texcoord.xyz, texcoord.w ); }\n"
+	//"vec4 texCUBEbias( samplerCube sampler, vec4 texcoord ) { return texture( sampler, texcoord.xyz, texcoord.w ); }\n"
+	//"\n"
+	//"vec4 tex1Dlod( sampler1D sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.x, texcoord.w ); }\n"
+	//"vec4 tex2Dlod( sampler2D sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.xy, texcoord.w ); }\n"
+	//"vec4 tex3Dlod( sampler3D sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.xyz, texcoord.w ); }\n"
+	//"vec4 texCUBElod( samplerCube sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.xyz, texcoord.w ); }\n"
+	//"\n"
+};
+#else
+const char* fragmentInsert_GLSL_ES_1_0 =
+{
+	"#version 100\n"
+
+#if !defined(USE_MESA)
+	"#define GLES2\n"
+#endif
+
+	"#define PC\n"
+
+#if 1 //defined(__ANDROID__)
+	"precision mediump float;\n"
+	//"#extension GL_OES_standard_derivatives : enable\n"
+#else
+	"precision highp float;\n"
+#endif
+	"\n"
+	"void clip( float v ) { if ( v < 0.0 ) { discard; } }\n"
+	"void clip( vec2 v ) { if ( any( lessThan( v, vec2( 0.0 ) ) ) ) { discard; } }\n"
+	"void clip( vec3 v ) { if ( any( lessThan( v, vec3( 0.0 ) ) ) ) { discard; } }\n"
+	"void clip( vec4 v ) { if ( any( lessThan( v, vec4( 0.0 ) ) ) ) { discard; } }\n"
+	"\n"
+	"float saturate( float v ) { return clamp( v, 0.0, 1.0 ); }\n"
+	"vec2 saturate( vec2 v ) { return clamp( v, 0.0, 1.0 ); }\n"
+	"vec3 saturate( vec3 v ) { return clamp( v, 0.0, 1.0 ); }\n"
+	"vec4 saturate( vec4 v ) { return clamp( v, 0.0, 1.0 ); }\n"
+	"\n"
+	"vec4 tex2D( sampler2D sampler, vec2 texcoord ) { return texture2D( sampler, texcoord.xy ); }\n"
+	//"vec4 tex2D( sampler2DShadow sampler, vec3 texcoord ) { return vec4( texture( sampler, texcoord.xyz ) ); }\n"
+	"\n"
+	//"vec4 tex2D( sampler2D sampler, vec2 texcoord, vec2 dx, vec2 dy ) { return textureGrad( sampler, texcoord.xy, dx, dy ); }\n"
+	//"vec4 tex2D( sampler2DShadow sampler, vec3 texcoord, vec2 dx, vec2 dy ) { return vec4( textureGrad( sampler, texcoord.xyz, dx, dy ) ); }\n"
+	//"\n"
+	"vec4 texCUBE( samplerCube sampler, vec3 texcoord ) { return textureCube( sampler, texcoord.xyz ); }\n"
+	//"vec4 texCUBE( samplerCubeShadow sampler, vec4 texcoord ) { return vec4( textureCube( sampler, texcoord.xyzw ) ); }\n"
+	"\n"
+	//"vec4 tex1Dproj( sampler1D sampler, vec2 texcoord ) { return textureProj( sampler, texcoord ); }\n"
+	"vec4 tex2Dproj( sampler2D sampler, vec3 texcoord ) { return texture2DProj( sampler, texcoord ); }\n"
+	//"vec4 tex3Dproj( sampler3D sampler, vec4 texcoord ) { return textureProj( sampler, texcoord ); }\n"
+	"\n"
+	//"vec4 tex1Dbias( sampler1D sampler, vec4 texcoord ) { return texture( sampler, texcoord.x, texcoord.w ); }\n"
+	//"vec4 tex2Dbias( sampler2D sampler, vec4 texcoord ) { return texture( sampler, texcoord.xy, texcoord.w ); }\n"
+	//"vec4 tex3Dbias( sampler3D sampler, vec4 texcoord ) { return texture( sampler, texcoord.xyz, texcoord.w ); }\n"
+	//"vec4 texCUBEbias( samplerCube sampler, vec4 texcoord ) { return texture( sampler, texcoord.xyz, texcoord.w ); }\n"
+	//"\n"
+	//"vec4 tex1Dlod( sampler1D sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.x, texcoord.w ); }\n"
+	//"vec4 tex2Dlod( sampler2D sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.xy, texcoord.w ); }\n"
+	//"vec4 tex3Dlod( sampler3D sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.xyz, texcoord.w ); }\n"
+	//"vec4 texCUBElod( samplerCube sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.xyz, texcoord.w ); }\n"
+	//"\n"
+};
+#endif // #if defined(USE_GLES2)
+
+
+const char* fragmentInsert_GLSL_ES_3_00 =
+{
+	"#version 300 es\n"
+	"#define PC\n"
+	"precision mediump float;\n"
+	"\n"
+	"void clip( float v ) { if ( v < 0.0 ) { discard; } }\n"
+	"void clip( vec2 v ) { if ( any( lessThan( v, vec2( 0.0 ) ) ) ) { discard; } }\n"
+	"void clip( vec3 v ) { if ( any( lessThan( v, vec3( 0.0 ) ) ) ) { discard; } }\n"
+	"void clip( vec4 v ) { if ( any( lessThan( v, vec4( 0.0 ) ) ) ) { discard; } }\n"
+	"\n"
+	"float saturate( float v ) { return clamp( v, 0.0, 1.0 ); }\n"
+	"vec2 saturate( vec2 v ) { return clamp( v, 0.0, 1.0 ); }\n"
+	"vec3 saturate( vec3 v ) { return clamp( v, 0.0, 1.0 ); }\n"
+	"vec4 saturate( vec4 v ) { return clamp( v, 0.0, 1.0 ); }\n"
+	"\n"
+	"vec4 tex2D( sampler2D sampler, vec2 texcoord ) { return texture( sampler, texcoord.xy ); }\n"
+	"vec4 tex2D( sampler2DShadow sampler, vec3 texcoord ) { return vec4( texture( sampler, texcoord.xyz ) ); }\n"
+	"\n"
+	"vec4 tex2D( sampler2D sampler, vec2 texcoord, vec2 dx, vec2 dy ) { return textureGrad( sampler, texcoord.xy, dx, dy ); }\n"
+	"vec4 tex2D( sampler2DShadow sampler, vec3 texcoord, vec2 dx, vec2 dy ) { return vec4( textureGrad( sampler, texcoord.xyz, dx, dy ) ); }\n"
+	"\n"
+	"vec4 texCUBE( samplerCube sampler, vec3 texcoord ) { return texture( sampler, texcoord.xyz ); }\n"
+	"vec4 texCUBE( samplerCubeShadow sampler, vec4 texcoord ) { return vec4( texture( sampler, texcoord.xyzw ) ); }\n"
+	"\n"
+	//"vec4 tex1Dproj( sampler1D sampler, vec2 texcoord ) { return textureProj( sampler, texcoord ); }\n"
+	"vec4 tex2Dproj( sampler2D sampler, vec3 texcoord ) { return textureProj( sampler, texcoord ); }\n"
+	"vec4 tex3Dproj( sampler3D sampler, vec4 texcoord ) { return textureProj( sampler, texcoord ); }\n"
+	"\n"
+	//"vec4 tex1Dbias( sampler1D sampler, vec4 texcoord ) { return texture( sampler, texcoord.x, texcoord.w ); }\n"
+	"vec4 tex2Dbias( sampler2D sampler, vec4 texcoord ) { return texture( sampler, texcoord.xy, texcoord.w ); }\n"
+	"vec4 tex3Dbias( sampler3D sampler, vec4 texcoord ) { return texture( sampler, texcoord.xyz, texcoord.w ); }\n"
+	"vec4 texCUBEbias( samplerCube sampler, vec4 texcoord ) { return texture( sampler, texcoord.xyz, texcoord.w ); }\n"
+	"\n"
+	//"vec4 tex1Dlod( sampler1D sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.x, texcoord.w ); }\n"
+	"vec4 tex2Dlod( sampler2D sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.xy, texcoord.w ); }\n"
+	"vec4 tex3Dlod( sampler3D sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.xyz, texcoord.w ); }\n"
+	"vec4 texCUBElod( samplerCube sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.xyz, texcoord.w ); }\n"
+	"\n"
+};
+
+const char* fragmentInsert_GLSL_1_50 =
 {
 	"#version 150\n"
 	"#define PC\n"
@@ -607,6 +1046,7 @@ const char* fragmentInsert =
 	"vec4 texCUBElod( samplerCube sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.xyz, texcoord.w ); }\n"
 	"\n"
 };
+// RB end
 
 struct builtinConversion_t
 {
@@ -636,7 +1076,7 @@ struct inOutVariable_t
 ParseInOutStruct
 ========================
 */
-void ParseInOutStruct( idLexer& src, int attribType, idList< inOutVariable_t >& inOutVars )
+void ParseInOutStruct( idLexer& src, int attribType, int attribIgnoreType, idList< inOutVariable_t >& inOutVars )
 {
 	src.ExpectTokenString( "{" );
 	
@@ -694,6 +1134,32 @@ void ParseInOutStruct( idLexer& src, int attribType, idList< inOutVariable_t >& 
 			}
 		}
 		
+		// RB: ignore reserved builtin gl_ uniforms
+		switch( glConfig.driverType )
+		{
+				//case GLDRV_OPENGL32_CORE_PROFILE:
+				//case GLDRV_OPENGL_ES2:
+				//case GLDRV_OPENGL_ES3:
+				//case GLDRV_OPENGL_MESA:
+			default:
+			{
+				for( int i = 0; attribsPC[i].semantic != NULL; i++ )
+				{
+					if( var.nameGLSL.Cmp( attribsPC[i].glsl ) == 0 )
+					{
+						if( ( attribsPC[i].flags & attribIgnoreType ) != 0 )
+						{
+							var.declareInOut = false;
+							break;
+						}
+					}
+				}
+				
+				break;
+			}
+		}
+		// RB end
+		
 		inOutVars.Append( var );
 	}
 	
@@ -724,12 +1190,13 @@ idStr ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, i
 	idToken token;
 	while( src.ReadToken( &token ) )
 	{
-	
 		// check for uniforms
-		while( token == "uniform" && src.CheckTokenString( "float4" ) )
+		
+		// RB: added special case for matrix arrays
+		while( token == "uniform" && ( src.CheckTokenString( "float4" ) || src.CheckTokenString( "float4x4" ) ) )
 		{
 			src.ReadToken( &token );
-			uniformList.Append( token );
+			idStr uniform = token;
 			
 			// strip ': register()' from uniforms
 			if( src.CheckTokenString( ":" ) )
@@ -740,47 +1207,116 @@ idStr ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, i
 				}
 			}
 			
-			src.ReadToken( & token );
+			
+			if( src.PeekTokenString( "[" ) )
+			{
+				while( src.ReadToken( &token ) )
+				{
+					uniform += token;
+					
+					if( token == "]" )
+					{
+						break;
+					}
+				}
+			}
+			
+			uniformList.Append( uniform );
+			
+			src.ReadToken( &token );
 		}
+		// RB end
 		
 		// convert the in/out structs
 		if( token == "struct" )
 		{
 			if( src.CheckTokenString( "VS_IN" ) )
 			{
-				ParseInOutStruct( src, AT_VS_IN, varsIn );
+				ParseInOutStruct( src, AT_VS_IN, 0, varsIn );
 				program += "\n\n";
 				for( int i = 0; i < varsIn.Num(); i++ )
 				{
 					if( varsIn[i].declareInOut )
 					{
-						program += "in " + varsIn[i].type + " " + varsIn[i].nameGLSL + ";\n";
+						// RB begin
+						switch( glConfig.driverType )
+						{
+							case GLDRV_OPENGL_ES2:
+							case GLDRV_OPENGL_ES3:
+								//case GLDRV_OPENGL_MESA:
+							{
+								program += "attribute " + varsIn[i].type + " " + varsIn[i].nameGLSL + ";\n";
+								break;
+							}
+							
+							default:
+							{
+								program += "in " + varsIn[i].type + " " + varsIn[i].nameGLSL + ";\n";
+								break;
+							}
+						}
+						// RB end
 					}
 				}
 				continue;
 			}
 			else if( src.CheckTokenString( "VS_OUT" ) )
 			{
-				ParseInOutStruct( src, AT_VS_OUT, varsOut );
+				// RB begin
+				ParseInOutStruct( src, AT_VS_OUT, AT_VS_OUT_RESERVED, varsOut );
+				// RB end
+				
 				program += "\n";
 				for( int i = 0; i < varsOut.Num(); i++ )
 				{
 					if( varsOut[i].declareInOut )
 					{
-						program += "out " + varsOut[i].type + " " + varsOut[i].nameGLSL + ";\n";
+						// RB begin
+						switch( glConfig.driverType )
+						{
+							case GLDRV_OPENGL_ES2:
+							case GLDRV_OPENGL_ES3:
+								//case GLDRV_OPENGL_MESA:
+							{
+								program += "varying " + varsOut[i].type + " " + varsOut[i].nameGLSL + ";\n";
+								break;
+							}
+							
+							default:
+							{
+								program += "out " + varsOut[i].type + " " + varsOut[i].nameGLSL + ";\n";
+								break;
+							}
+						}
+						// RB end
 					}
 				}
 				continue;
 			}
 			else if( src.CheckTokenString( "PS_IN" ) )
 			{
-				ParseInOutStruct( src, AT_PS_IN, varsIn );
+				ParseInOutStruct( src, AT_PS_IN, AT_PS_IN_RESERVED, varsIn );
 				program += "\n\n";
 				for( int i = 0; i < varsIn.Num(); i++ )
 				{
 					if( varsIn[i].declareInOut )
 					{
-						program += "in " + varsIn[i].type + " " + varsIn[i].nameGLSL + ";\n";
+						// RB begin
+						switch( glConfig.driverType )
+						{
+							case GLDRV_OPENGL_ES2:
+							case GLDRV_OPENGL_ES3:
+								//case GLDRV_OPENGL_MESA:
+							{
+								program += "varying " + varsIn[i].type + " " + varsIn[i].nameGLSL + ";\n";
+								break;
+							}
+							
+							default:
+								program += "in " + varsIn[i].type + " " + varsIn[i].nameGLSL + ";\n";
+								break;
+						}
+						// RB end
 					}
 				}
 				inOutVariable_t var;
@@ -792,7 +1328,10 @@ idStr ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, i
 			}
 			else if( src.CheckTokenString( "PS_OUT" ) )
 			{
-				ParseInOutStruct( src, AT_PS_OUT, varsOut );
+				// RB begin
+				ParseInOutStruct( src, AT_PS_OUT, AT_PS_OUT_RESERVED, varsOut );
+				// RB end
+				
 				program += "\n";
 				for( int i = 0; i < varsOut.Num(); i++ )
 				{
@@ -896,7 +1435,38 @@ idStr ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, i
 				if( token == uniformList[i] )
 				{
 					program += ( token.linesCrossed > 0 ) ? newline : ( token.WhiteSpaceBeforeToken() > 0 ? " " : "" );
-					program += va( "%s[%d /* %s */]", uniformArrayName, i, uniformList[i].c_str() );
+					
+					// RB: for some unknown reasons has the Nvidia driver problems with regular uniforms when using glUniform4fv
+					// so we need these uniform arrays
+					// I added special check rpShadowMatrices so we can still index the uniforms from the shader
+					
+					if( idStr::Cmp( uniformList[i].c_str(), "rpShadowMatrices" ) == 0 )
+					{
+						program += va( "%s[/* %s */ %d + ", uniformArrayName, uniformList[i].c_str(), i );
+						
+						if( src.ExpectTokenString( "[" ) )
+						{
+							idStr uniformIndexing;
+							
+							while( src.ReadToken( &token ) )
+							{
+								if( token == "]" )
+								{
+									break;
+								}
+								
+								uniformIndexing += token;
+								uniformIndexing += " ";
+							}
+							
+							program += uniformIndexing + "]";
+						}
+					}
+					else
+					{
+						program += va( "%s[%d /* %s */]", uniformArrayName, i, uniformList[i].c_str() );
+					}
+					// RB end
 					isUniform = true;
 					break;
 				}
@@ -994,22 +1564,79 @@ idStr ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, i
 	
 	idStr out;
 	
+	// RB: changed to allow multiple versions of GLSL
 	if( isVertexProgram )
 	{
-		out.ReAllocate( idStr::Length( vertexInsert ) + in.Length() * 2, false );
-		out += vertexInsert;
+		switch( glConfig.driverType )
+		{
+			case GLDRV_OPENGL_ES2:
+			case GLDRV_OPENGL_ES3:
+			{
+				out.ReAllocate( idStr::Length( vertexInsert_GLSL_ES_1_0 ) + in.Length() * 2, false );
+				out += vertexInsert_GLSL_ES_1_0;
+				break;
+			}
+			
+			case GLDRV_OPENGL_MESA:
+			{
+				out.ReAllocate( idStr::Length( vertexInsert_GLSL_ES_3_00 ) + in.Length() * 2, false );
+				out += vertexInsert_GLSL_ES_3_00;
+				break;
+			}
+			
+			default:
+			{
+				out.ReAllocate( idStr::Length( vertexInsert_GLSL_1_50 ) + in.Length() * 2, false );
+				out += vertexInsert_GLSL_1_50;
+				break;
+			}
+		}
+		
+		
 	}
 	else
 	{
-		out.ReAllocate( idStr::Length( fragmentInsert ) + in.Length() * 2, false );
-		out += fragmentInsert;
+		switch( glConfig.driverType )
+		{
+			case GLDRV_OPENGL_ES2:
+			case GLDRV_OPENGL_ES3:
+			{
+				out.ReAllocate( idStr::Length( fragmentInsert_GLSL_ES_1_0 ) + in.Length() * 2, false );
+				out += fragmentInsert_GLSL_ES_1_0;
+				break;
+			}
+			
+			case GLDRV_OPENGL_MESA:
+			{
+				out.ReAllocate( idStr::Length( fragmentInsert_GLSL_ES_3_00 ) + in.Length() * 2, false );
+				out += fragmentInsert_GLSL_ES_3_00;
+				break;
+			}
+			
+			default:
+			{
+				out.ReAllocate( idStr::Length( fragmentInsert_GLSL_1_50 ) + in.Length() * 2, false );
+				out += fragmentInsert_GLSL_1_50;
+				break;
+			}
+		}
 	}
+	// RB end
 	
 	if( uniformList.Num() > 0 )
 	{
 		if( r_useUniformArrays.GetBool() )
 		{
-			out += va( "\nuniform vec4 %s[%d];\n", uniformArrayName, uniformList.Num() );
+			int extraSize = 0;
+			for( int i = 0; i < uniformList.Num(); i++ )
+			{
+				if( idStr::Cmp( uniformList[i].c_str(), "rpShadowMatrices" ) == 0 )
+				{
+					extraSize += ( 6 * 4 );
+				}
+			}
+			
+			out += va( "\nuniform vec4 %s[%d];\n", uniformArrayName, uniformList.Num() + extraSize );
 		}
 		else
 		{
@@ -1040,7 +1667,7 @@ idStr ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, i
 idRenderProgManager::LoadGLSLShader
 ================================================================================================
 */
-GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, idList<int>& uniforms )
+GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, const char* nameOutSuffix, uint32 shaderFeatures, bool builtin, idList<int>& uniforms )
 {
 
 	idStr inFile;
@@ -1051,13 +1678,35 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, idL
 	// RB: replaced backslashes
 	inFile.Format( "renderprogs/%s", name );
 	inFile.StripFileExtension();
-	outFileHLSL.Format( "renderprogs/hlsl/%s", name );
+	outFileHLSL.Format( "renderprogs/hlsl/%s%s", name, nameOutSuffix );
 	outFileHLSL.StripFileExtension();
-	outFileGLSL.Format( "renderprogs/glsl/%s", name );
+	
+	switch( glConfig.driverType )
+	{
+		case GLDRV_OPENGL_ES2:
+		case GLDRV_OPENGL_ES3:
+		{
+			outFileGLSL.Format( "renderprogs/glsles-1_0/%s%s", name, nameOutSuffix );
+			outFileUniforms.Format( "renderprogs/glsles-1_0/%s%s", name, nameOutSuffix );
+			break;
+		}
+		
+		case GLDRV_OPENGL_MESA:
+		{
+			outFileGLSL.Format( "renderprogs/glsles-3_00/%s%s", name, nameOutSuffix );
+			outFileUniforms.Format( "renderprogs/glsles-3_00/%s%s", name, nameOutSuffix );
+			break;
+		}
+		
+		default:
+		{
+			outFileGLSL.Format( "renderprogs/glsl-1_50/%s%s", name, nameOutSuffix );
+			outFileUniforms.Format( "renderprogs/glsl-1_50/%s%s", name, nameOutSuffix );
+		}
+	}
+	
 	outFileGLSL.StripFileExtension();
-	outFileUniforms.Format( "renderprogs/glsl/%s", name );
 	outFileUniforms.StripFileExtension();
-	// RB end
 	
 	if( target == GL_FRAGMENT_SHADER )
 	{
@@ -1084,22 +1733,43 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, idL
 	// if the glsl file doesn't exist or we have a newer HLSL file we need to recreate the glsl file.
 	idStr programGLSL;
 	idStr programUniforms;
-	if( ( glslFileLength <= 0 ) || ( hlslTimeStamp > glslTimeStamp ) )
+	if( ( glslFileLength <= 0 ) || ( hlslTimeStamp != FILE_NOT_FOUND_TIMESTAMP && hlslTimeStamp > glslTimeStamp ) || r_alwaysExportGLSL.GetBool() )
 	{
+		const char* hlslFileBuffer = NULL;
+		int len = 0;
+		
 		if( hlslFileLength <= 0 )
 		{
 			// hlsl file doesn't even exist bail out
-			return false;
+			hlslFileBuffer = FindEmbeddedSourceShader( inFile.c_str() );
+			if( hlslFileBuffer == NULL )
+			{
+				return false;
+			}
+			len = strlen( hlslFileBuffer );
+		}
+		else
+		{
+			len = fileSystem->ReadFile( inFile.c_str(), ( void** ) &hlslFileBuffer );
 		}
 		
-		void* hlslFileBuffer = NULL;
-		int len = fileSystem->ReadFile( inFile.c_str(), &hlslFileBuffer );
 		if( len <= 0 )
 		{
 			return false;
 		}
-		idStr hlslCode( ( const char* ) hlslFileBuffer );
-		idStr programHLSL = StripDeadCode( hlslCode, inFile );
+		
+		idStrList compileMacros;
+		for( int j = 0; j < MAX_SHADER_MACRO_NAMES; j++ )
+		{
+			if( BIT( j ) & shaderFeatures )
+			{
+				const char* macroName = GetGLSLMacroName( ( shaderFeature_t ) j );
+				compileMacros.Append( idStr( macroName ) );
+			}
+		}
+		
+		idStr hlslCode( hlslFileBuffer );
+		idStr programHLSL = StripDeadCode( hlslCode, inFile, compileMacros, builtin );
 		programGLSL = ConvertCG2GLSL( programHLSL, inFile, target == GL_VERTEX_SHADER, programUniforms );
 		
 		fileSystem->WriteFile( outFileHLSL, programHLSL.c_str(), programHLSL.Length(), "fs_basepath" );
@@ -1170,21 +1840,21 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, idL
 	}
 	
 	// create and compile the shader
-	const GLuint shader = qglCreateShader( target );
+	const GLuint shader = glCreateShader( target );
 	if( shader )
 	{
 		const char* source[1] = { programGLSL.c_str() };
 		
-		qglShaderSource( shader, 1, source, NULL );
-		qglCompileShader( shader );
+		glShaderSource( shader, 1, source, NULL );
+		glCompileShader( shader );
 		
 		int infologLength = 0;
-		qglGetShaderiv( shader, GL_INFO_LOG_LENGTH, &infologLength );
+		glGetShaderiv( shader, GL_INFO_LOG_LENGTH, &infologLength );
 		if( infologLength > 1 )
 		{
 			idTempArray<char> infoLog( infologLength );
 			int charsWritten = 0;
-			qglGetShaderInfoLog( shader, infologLength, &charsWritten, infoLog.Ptr() );
+			glGetShaderInfoLog( shader, infologLength, &charsWritten, infoLog.Ptr() );
 			
 			// catch the strings the ATI and Intel drivers output on success
 			if( strstr( infoLog.Ptr(), "successfully compiled to run on hardware" ) != NULL ||
@@ -1219,10 +1889,10 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, idL
 		}
 		
 		GLint compiled = GL_FALSE;
-		qglGetShaderiv( shader, GL_COMPILE_STATUS, &compiled );
+		glGetShaderiv( shader, GL_COMPILE_STATUS, &compiled );
 		if( compiled == GL_FALSE )
 		{
-			qglDeleteShader( shader );
+			glDeleteShader( shader );
 			return INVALID_PROGID;
 		}
 	}
@@ -1269,6 +1939,15 @@ const char* idRenderProgManager::GetGLSLParmName( int rp ) const
 	return GLSLParmNames[ rp ];
 }
 
+// RB begin
+const char* idRenderProgManager::GetGLSLMacroName( shaderFeature_t sf ) const
+{
+	assert( sf < MAX_SHADER_MACRO_NAMES );
+	
+	return GLSLMacroNames[ sf ];
+}
+// RB end
+
 /*
 ================================================================================================
 idRenderProgManager::SetUniformValue
@@ -1292,6 +1971,8 @@ void idRenderProgManager::CommitUniforms()
 	const int progID = GetGLSLCurrentProgram();
 	const glslProgram_t& prog = glslPrograms[progID];
 	
+	//GL_CheckErrors();
+	
 	if( r_useUniformArrays.GetBool() )
 	{
 		ALIGNTYPE16 idVec4 localVectors[RENDERPARM_USER + MAX_GLSL_USER_PARMS];
@@ -1301,11 +1982,26 @@ void idRenderProgManager::CommitUniforms()
 			const idList<int>& vertexUniforms = vertexShaders[prog.vertexShaderIndex].uniforms;
 			if( prog.vertexUniformArray != -1 && vertexUniforms.Num() > 0 )
 			{
+				int totalUniforms = 0;
 				for( int i = 0; i < vertexUniforms.Num(); i++ )
 				{
-					localVectors[i] = glslUniforms[vertexUniforms[i]];
+					// RB: HACK rpShadowMatrices[6 * 4]
+					if( vertexUniforms[i] == RENDERPARM_SHADOW_MATRIX_0_X )
+					{
+						for( int j = 0; j < ( 6 * 4 ); j++ )
+						{
+							localVectors[i + j] = glslUniforms[vertexUniforms[i] + j];
+							totalUniforms++;
+						}
+						
+					}
+					else
+					{
+						localVectors[i] = glslUniforms[vertexUniforms[i]];
+						totalUniforms++;
+					}
 				}
-				qglUniform4fv( prog.vertexUniformArray, vertexUniforms.Num(), localVectors->ToFloatPtr() );
+				glUniform4fv( prog.vertexUniformArray, totalUniforms, localVectors->ToFloatPtr() );
 			}
 		}
 		
@@ -1314,11 +2010,26 @@ void idRenderProgManager::CommitUniforms()
 			const idList<int>& fragmentUniforms = fragmentShaders[prog.fragmentShaderIndex].uniforms;
 			if( prog.fragmentUniformArray != -1 && fragmentUniforms.Num() > 0 )
 			{
+				int totalUniforms = 0;
 				for( int i = 0; i < fragmentUniforms.Num(); i++ )
 				{
-					localVectors[i] = glslUniforms[fragmentUniforms[i]];
+					// RB: HACK rpShadowMatrices[6 * 4]
+					if( fragmentUniforms[i] == RENDERPARM_SHADOW_MATRIX_0_X )
+					{
+						for( int j = 0; j < ( 6 * 4 ); j++ )
+						{
+							localVectors[i + j] = glslUniforms[fragmentUniforms[i] + j];
+							totalUniforms++;
+						}
+						
+					}
+					else
+					{
+						localVectors[i] = glslUniforms[fragmentUniforms[i]];
+						totalUniforms++;
+					}
 				}
-				qglUniform4fv( prog.fragmentUniformArray, fragmentUniforms.Num(), localVectors->ToFloatPtr() );
+				glUniform4fv( prog.fragmentUniformArray, totalUniforms, localVectors->ToFloatPtr() );
 			}
 		}
 	}
@@ -1327,9 +2038,31 @@ void idRenderProgManager::CommitUniforms()
 		for( int i = 0; i < prog.uniformLocations.Num(); i++ )
 		{
 			const glslUniformLocation_t& uniformLocation = prog.uniformLocations[i];
-			qglUniform4fv( uniformLocation.uniformIndex, 1, glslUniforms[uniformLocation.parmIndex].ToFloatPtr() );
+			
+			// RB: HACK rpShadowMatrices[6 * 4]
+			if( uniformLocation.parmIndex == RENDERPARM_SHADOW_MATRIX_0_X )
+			{
+				glUniform4fv( uniformLocation.uniformIndex, 6 * 4, glslUniforms[uniformLocation.parmIndex].ToFloatPtr() );
+			}
+			else
+			{
+				glUniform4fv( uniformLocation.uniformIndex, 1, glslUniforms[uniformLocation.parmIndex].ToFloatPtr() );
+				
+#if 1
+				if( GL_CheckErrors() )
+				{
+					const char* parmName = GetGLSLParmName( uniformLocation.parmIndex );
+					const char* value = glslUniforms[uniformLocation.parmIndex].ToString();
+					
+					idLib::Printf( "glUniform4fv( %i = %s, value = %s ) failed for %s\n", uniformLocation.parmIndex, parmName, value, prog.name.c_str() );
+				}
+#endif
+			}
+			// RB end
 		}
 	}
+	
+	//GL_CheckErrors();
 }
 
 class idSort_QuickUniforms : public idSort_Quick< glslUniformLocation_t, idSort_QuickUniforms >
@@ -1358,18 +2091,18 @@ void idRenderProgManager::LoadGLSLProgram( const int programIndex, const int ver
 	GLuint vertexProgID = ( vertexShaderIndex != -1 ) ? vertexShaders[ vertexShaderIndex ].progId : INVALID_PROGID;
 	GLuint fragmentProgID = ( fragmentShaderIndex != -1 ) ? fragmentShaders[ fragmentShaderIndex ].progId : INVALID_PROGID;
 	
-	const GLuint program = qglCreateProgram();
+	const GLuint program = glCreateProgram();
 	if( program )
 	{
 	
 		if( vertexProgID != INVALID_PROGID )
 		{
-			qglAttachShader( program, vertexProgID );
+			glAttachShader( program, vertexProgID );
 		}
 		
 		if( fragmentProgID != INVALID_PROGID )
 		{
-			qglAttachShader( program, fragmentProgID );
+			glAttachShader( program, fragmentProgID );
 		}
 		
 		// bind vertex attribute locations
@@ -1377,19 +2110,19 @@ void idRenderProgManager::LoadGLSLProgram( const int programIndex, const int ver
 		{
 			if( ( attribsPC[i].flags & AT_VS_IN ) != 0 )
 			{
-				qglBindAttribLocation( program, attribsPC[i].bind, attribsPC[i].glsl );
+				glBindAttribLocation( program, attribsPC[i].bind, attribsPC[i].glsl );
 			}
 		}
 		
-		qglLinkProgram( program );
+		glLinkProgram( program );
 		
 		int infologLength = 0;
-		qglGetProgramiv( program, GL_INFO_LOG_LENGTH, &infologLength );
+		glGetProgramiv( program, GL_INFO_LOG_LENGTH, &infologLength );
 		if( infologLength > 1 )
 		{
 			char* infoLog = ( char* )malloc( infologLength );
 			int charsWritten = 0;
-			qglGetProgramInfoLog( program, infologLength, &charsWritten, infoLog );
+			glGetProgramInfoLog( program, infologLength, &charsWritten, infoLog );
 			
 			// catch the strings the ATI and Intel drivers output on success
 			if( strstr( infoLog, "Vertex shader(s) linked, fragment shader(s) linked." ) != NULL || strstr( infoLog, "No errors." ) != NULL )
@@ -1410,10 +2143,10 @@ void idRenderProgManager::LoadGLSLProgram( const int programIndex, const int ver
 	}
 	
 	int linked = GL_FALSE;
-	qglGetProgramiv( program, GL_LINK_STATUS, &linked );
+	glGetProgramiv( program, GL_LINK_STATUS, &linked );
 	if( linked == GL_FALSE )
 	{
-		qglDeleteProgram( program );
+		glDeleteProgram( program );
 		idLib::Error( "While linking GLSL program %d with vertexShader %s and fragmentShader %s\n",
 					  programIndex,
 					  ( vertexShaderIndex >= 0 ) ? vertexShaders[vertexShaderIndex].name.c_str() : "<Invalid>",
@@ -1423,8 +2156,8 @@ void idRenderProgManager::LoadGLSLProgram( const int programIndex, const int ver
 	
 	if( r_useUniformArrays.GetBool() )
 	{
-		prog.vertexUniformArray = qglGetUniformLocation( program, VERTEX_UNIFORM_ARRAY_NAME );
-		prog.fragmentUniformArray = qglGetUniformLocation( program, FRAGMENT_UNIFORM_ARRAY_NAME );
+		prog.vertexUniformArray = glGetUniformLocation( program, VERTEX_UNIFORM_ARRAY_NAME );
+		prog.fragmentUniformArray = glGetUniformLocation( program, FRAGMENT_UNIFORM_ARRAY_NAME );
 		
 		assert( prog.vertexUniformArray != -1 || vertexShaderIndex < 0 || vertexShaders[vertexShaderIndex].uniforms.Num() == 0 );
 		assert( prog.fragmentUniformArray != -1 || fragmentShaderIndex < 0 || fragmentShaders[fragmentShaderIndex].uniforms.Num() == 0 );
@@ -1436,7 +2169,7 @@ void idRenderProgManager::LoadGLSLProgram( const int programIndex, const int ver
 		for( int i = 0; i < RENDERPARM_TOTAL; i++ )
 		{
 			const char* parmName = GetGLSLParmName( i );
-			GLint loc = qglGetUniformLocation( program, parmName );
+			GLint loc = glGetUniformLocation( program, parmName );
 			if( loc != -1 )
 			{
 				glslUniformLocation_t uniformLocation;
@@ -1450,7 +2183,7 @@ void idRenderProgManager::LoadGLSLProgram( const int programIndex, const int ver
 		for( int i = 0; i < MAX_GLSL_USER_PARMS; i++ )
 		{
 			const char* parmName = GetGLSLParmName( RENDERPARM_USER + i );
-			GLint loc = qglGetUniformLocation( program, parmName );
+			GLint loc = glGetUniformLocation( program, parmName );
 			if( loc != -1 )
 			{
 				glslUniformLocation_t uniformLocation;
@@ -1464,21 +2197,50 @@ void idRenderProgManager::LoadGLSLProgram( const int programIndex, const int ver
 		prog.uniformLocations.SortWithTemplate( idSort_QuickUniforms() );
 	}
 	
-	// get the uniform buffer binding for skinning joint matrices
-	GLint blockIndex = qglGetUniformBlockIndex( program, "matrices_ubo" );
-	if( blockIndex != -1 )
+	// RB: only load joint uniform buffers if available
+	if( glConfig.gpuSkinningAvailable )
 	{
-		qglUniformBlockBinding( program, blockIndex, 0 );
+		// get the uniform buffer binding for skinning joint matrices
+		GLint blockIndex = glGetUniformBlockIndex( program, "matrices_ubo" );
+		if( blockIndex != -1 )
+		{
+			glUniformBlockBinding( program, blockIndex, 0 );
+		}
 	}
+	// RB end
 	
 	// set the texture unit locations once for the render program. We only need to do this once since we only link the program once
-	qglUseProgram( program );
+	glUseProgram( program );
+	int numSamplerUniforms = 0;
 	for( int i = 0; i < MAX_PROG_TEXTURE_PARMS; ++i )
 	{
-		GLint loc = qglGetUniformLocation( program, va( "samp%d", i ) );
+		GLint loc = glGetUniformLocation( program, va( "samp%d", i ) );
 		if( loc != -1 )
 		{
-			qglUniform1i( loc, i );
+			glUniform1i( loc, i );
+			numSamplerUniforms++;
+		}
+	}
+	
+	// RB: make sure that we collected all uniforms we are interested in
+	if( !r_useUniformArrays.GetBool() )
+	{
+		int numActiveUniforms;
+		glGetProgramiv( program, GL_ACTIVE_UNIFORMS, &numActiveUniforms );
+		GL_CheckErrors();
+		
+		if( ( numActiveUniforms - numSamplerUniforms ) != prog.uniformLocations.Num() )
+		{
+			int				size;
+			GLenum			type;
+			char            uniformName[1000];
+			
+			for( int i = 0; i < numActiveUniforms; i++ )
+			{
+				glGetActiveUniform( program, i, sizeof( uniformName ), NULL, &size, &type, uniformName );
+				
+				idLib::Printf( "active uniform: '%s'\n", uniformName );
+			}
 		}
 	}
 	

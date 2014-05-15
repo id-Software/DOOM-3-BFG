@@ -677,7 +677,7 @@ void idSWFSpriteInstance::PlayFrame( const idSWFParmList& parms )
 	}
 	else
 	{
-		idLib::Warning( "gotoAndPlay: expected 1 paramater" );
+		idLib::Warning( "gotoAndPlay: expected 1 parameter" );
 	}
 }
 
@@ -702,7 +702,7 @@ void idSWFSpriteInstance::StopFrame( const idSWFParmList& parms )
 	}
 	else
 	{
-		idLib::Warning( "gotoAndStop: expected 1 paramater" );
+		idLib::Warning( "gotoAndStop: expected 1 parameter" );
 	}
 }
 
@@ -1161,7 +1161,7 @@ SWF_SPRITE_FUNCTION_DEFINE( gotoAndPlay )
 	}
 	else
 	{
-		idLib::Warning( "gotoAndPlay: expected 1 paramater" );
+		idLib::Warning( "gotoAndPlay: expected 1 parameter" );
 	}
 	return idSWFScriptVar();
 }
@@ -1185,7 +1185,7 @@ SWF_SPRITE_FUNCTION_DEFINE( gotoAndStop )
 	}
 	else
 	{
-		idLib::Warning( "gotoAndStop: expected 1 paramater" );
+		idLib::Warning( "gotoAndStop: expected 1 parameter" );
 	}
 	return idSWFScriptVar();
 }

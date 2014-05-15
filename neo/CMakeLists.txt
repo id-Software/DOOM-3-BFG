@@ -15,6 +15,9 @@ option(SDL2
 option(OPENAL
 		"Use OpenAL soft instead of XAudio2" OFF)
 
+option(FFMPEG
+		"Use FMPEG to render Bink videos" ON)
+
 if(UNIX)
 	set(OPENAL TRUE)
 endif()
@@ -38,6 +41,8 @@ endif()
 if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
 	add_definitions(-pipe)
 	#add_definitions(-Wall)
+	add_definitions(-Werror=format-security)
+	add_definitions(-Werror=format)
 	add_definitions(-mmmx -msse -msse2)
 	if(WIN32)
 		# require msvcr70.dll or newer for _aligned_malloc etc
@@ -55,12 +60,12 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
 	#endif()
 	
 	# the warnings are used for every profile anyway, so put them in a variable
-	set(my_warn_flags "-Wno-pragmas -Wno-unused-variable -Wno-unused-but-set-variable -Wno-switch -Wno-unused-value -Winvalid-pch")
+	set(my_warn_flags "-Wno-pragmas -Wno-unused-variable -Wno-unused-but-set-variable -Wno-switch -Wno-unused-value -Winvalid-pch -Wno-multichar")
 	
 	if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
 		# append clang-specific settings for warnings (the second one make sure clang doesn't complain
 		# about unknown -W flags, like -Wno-unused-but-set-variable)
-		set(my_warn_flags "${my_warn_flags} -Wno-local-type-template-args -Wno-unknown-warning-option")
+		set(my_warn_flags "${my_warn_flags} -Wno-local-type-template-args -Wno-unknown-warning-option -Wno-inline-new-delete")
 	endif()
 	
 	set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -D_DEBUG -O0 -ggdb -fno-strict-aliasing ${my_warn_flags}")
@@ -130,6 +135,13 @@ elseif(MSVC)
 		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MP /Oi /Oy /MT")
 		set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /MP /MTd")
 		set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} /MP /Oi /Oy /MT")
+		
+		# RB: without /SAFESEH:NO we can't link against ffmpeg libs and VS2013 or we have to build our own
+		# libs for newer compilers
+		set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} /SAFESEH:NO")
+		set(CMAKE_EXE_LINKER_FLAGS_MINSIZEREL "${CMAKE_EXE_LINKER_FLAGS_MINSIZEREL} /SAFESEH:NO")
+		set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /SAFESEH:NO")
+		set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO} /SAFESEH:NO")
 	# endif()
 	
 
@@ -709,15 +721,17 @@ file(GLOB EDITOR_SCRIPT_SOURCES tools/script/*.cpp)
 
 file(GLOB EDITOR_SOUND_INCLUDES tools/sound/*.h)
 file(GLOB EDITOR_SOUND_SOURCES tools/sound/*.cpp)
-	
 
 file(GLOB DOOMCLASSIC_INCLUDES ../doomclassic/doom/*.h)
 file(GLOB DOOMCLASSIC_SOURCES ../doomclassic/doom/*.cpp)
 
-list(REMOVE_ITEM DOOMCLASSIC_SOURCES ../doomclassic/doom/i_net_ps3.cpp)
-list(REMOVE_ITEM DOOMCLASSIC_SOURCES ../doomclassic/doom/i_net_xbox.cpp)
-list(REMOVE_ITEM DOOMCLASSIC_SOURCES ../doomclassic/doom/i_video_ps3.cpp)
-list(REMOVE_ITEM DOOMCLASSIC_SOURCES ../doomclassic/doom/i_video_xbox.cpp)
+set(DOOMCLASSIC_STUBAUDIO_SOURCES ../doomclassic/doom/i_sound_stub.cpp)
+set(DOOMCLASSIC_OPENAL_SOURCES ../doomclassic/doom/i_sound_openal.cpp)
+set(DOOMCLASSIC_XAUDIO2_SOURCES ../doomclassic/doom/i_sound_win32.cpp)
+
+list(REMOVE_ITEM DOOMCLASSIC_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/../doomclassic/doom/i_sound_stub.cpp)
+list(REMOVE_ITEM DOOMCLASSIC_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/../doomclassic/doom/i_sound_openal.cpp)
+list(REMOVE_ITEM DOOMCLASSIC_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/../doomclassic/doom/i_sound_win32.cpp)
 
 file(GLOB TIMIDITY_INCLUDES libs/timidity/*.h)
 file(GLOB TIMIDITY_SOURCES libs/timidity/*.cpp)
@@ -729,7 +743,6 @@ set(WIN32_SOURCES
 	sys/win32/win_glimp.cpp
 	sys/win32/win_input.cpp
 	sys/win32/win_main.cpp
-	sys/win32/win_qgl.cpp
 	sys/win32/win_shared.cpp
 	sys/win32/win_snd.cpp
 	sys/win32/win_syscon.cpp
@@ -906,6 +919,10 @@ source_group("sys" FILES ${SYS_SOURCES})
 source_group("doomclassic" FILES ${DOOMCLASSIC_INCLUDES})
 source_group("doomclassic" FILES ${DOOMCLASSIC_SOURCES})
 
+source_group("doomclassic" FILES ${DOOMCLASSIC_STUBAUDIO_SOURCES})
+source_group("doomclassic" FILES ${DOOMCLASSIC_OPENAL_SOURCES})
+source_group("doomclassic" FILES ${DOOMCLASSIC_XAUDIO2_SOURCES})
+
 source_group("libs\\timidity" FILES ${TIMIDITY_INCLUDES})
 source_group("libs\\timidity" FILES ${TIMIDITY_SOURCES})
 
@@ -1019,16 +1036,18 @@ set(RBDOOM3_INCLUDES
 			${RENDERER_OPENGL_INCLUDES}
 			#${IRRXML_INCLUDES}
 			${JPEG_INCLUDES}
-			#${PNG_INCLUDES}
+			${PNG_INCLUDES}
 			${ZLIB_INCLUDES}
 			${MINIZIP_INCLUDES}
-			#${GLEW_INCLUDES}
+			${GLEW_INCLUDES}
 			#${FREETYPE_SOURCES}
 			${SOUND_INCLUDES}
 			#${OGGVORBIS_INCLUDES}
 			${UI_INCLUDES}
 			${SWF_INCLUDES}
 			${COMMON_INCLUDES}
+			${DOOMCLASSIC_INCLUDES}
+			${TIMIDITY_INCLUDES}
 			
 			#${COMPILER_INCLUDES}
 			#${COMPILER_AAS_INCLUDES} ${COMPILER_AAS_SOURCES}
@@ -1052,16 +1071,18 @@ set(RBDOOM3_SOURCES
 			${RENDERER_OPENGL_SOURCES}
 			#${IRRXML_SOURCES}
 			${JPEG_SOURCES}
-			#${PNG_SOURCES}
+			${PNG_SOURCES}
 			${ZLIB_SOURCES}
 			${MINIZIP_SOURCES}
-			#${GLEW_SOURCES}
+			${GLEW_SOURCES}
 			#${FREETYPE_SOURCES}
 			${SOUND_SOURCES}
 			#${OGGVORBIS_INCLUDES} ${OGGVORBIS_SOURCES}
 			${UI_SOURCES}
 			${SWF_SOURCES}
 			${COMMON_SOURCES}
+			${DOOMCLASSIC_SOURCES}
+			${TIMIDITY_SOURCES}
 			
 			#${COMPILER_AAS_SOURCES}
 			#${COMPILER_DMAP_SOURCES}
@@ -1069,8 +1090,10 @@ set(RBDOOM3_SOURCES
 			#${COMPILER_ROQVQ_SOURCES}
 			)
 
+add_definitions(-DUSE_DOOMCLASSIC)
+
 add_definitions(-D__DOOM__
-				#-DGLEW_STATIC
+				-DGLEW_STATIC
 				#-DBUILD_FREETYPE
 				#-DFT2_BUILD_LIBRARY
 				)
@@ -1102,7 +1125,7 @@ include_directories(
 			idlib
 			#libs/curl/include
 			#libs/openal/include
-			#libs/glew/include
+			libs/glew/include
 			#libs/freetype/include
 			libs/zlib)
 			
@@ -1143,7 +1166,9 @@ if(MSVC)
 		endif()
 		
 		list(APPEND RBDOOM3_INCLUDES ${OPENAL_INCLUDES})
-		list(APPEND RBDOOM3_SOURCES ${OPENAL_SOURCES})
+		list(APPEND RBDOOM3_SOURCES
+			${OPENAL_SOURCES}
+			${DOOMCLASSIC_OPENAL_SOURCES})
 		
 		set(OpenAL_LIBRARIES
 			OpenAL32)
@@ -1155,17 +1180,39 @@ if(MSVC)
 			install(FILES libs/openal-soft/lib/win32/OpenAL32.pdb DESTINATION .)
 		endif()
 	else()
-		add_definitions(-DUSE_DOOMCLASSIC)
-	
-		list(APPEND RBDOOM3_INCLUDES
-			${XAUDIO2_INCLUDES}
-			${DOOMCLASSIC_INCLUDES}
-			${TIMIDITY_INCLUDES})
-			
+		list(APPEND RBDOOM3_INCLUDES ${XAUDIO2_INCLUDES})
 		list(APPEND RBDOOM3_SOURCES
 			${XAUDIO2_SOURCES}
-			${DOOMCLASSIC_SOURCES}
-			${TIMIDITY_SOURCES})
+			${DOOMCLASSIC_XAUDIO2_SOURCES})
+	endif()
+	
+	if(FFMPEG)
+		add_definitions(-DUSE_FFMPEG)
+	
+		if(CMAKE_CL_64)
+			include_directories(libs/ffmpeg-win64/include)
+			include_directories(libs/ffmpeg-win64/include/libswscale)
+			include_directories(libs/ffmpeg-win64/include/libavformat)
+			include_directories(libs/ffmpeg-win64/include/libavdevice)
+			include_directories(libs/ffmpeg-win64/include/libavcodec)
+			
+			link_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs/ffmpeg-win64/lib)
+		else()
+			include_directories(libs/ffmpeg-win32/include)
+			include_directories(libs/ffmpeg-win32/include/libswscale)
+			include_directories(libs/ffmpeg-win32/include/libavformat)
+			include_directories(libs/ffmpeg-win32/include/libavdevice)
+			include_directories(libs/ffmpeg-win32/include/libavcodec)
+			
+			link_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs/ffmpeg-win32/lib)
+		endif()
+		
+		set(FFmpeg_LIBRARIES
+				avcodec
+				avformat
+				avutil
+				swscale)
+		
 	endif()
 	
 	if(USE_MFC_TOOLS)
@@ -1208,7 +1255,7 @@ if(MSVC)
 	list(REMOVE_DUPLICATES RBDOOM3_SOURCES)
 	
 	set(RBDOOM3_PRECOMPILED_SOURCES ${RBDOOM3_SOURCES})
-	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${TIMIDITY_SOURCES} ${JPEG_SOURCES} ${ZLIB_SOURCES})
+	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${TIMIDITY_SOURCES} ${JPEG_SOURCES} ${PNG_SOURCES} ${ZLIB_SOURCES} ${GLEW_SOURCES})
 	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/libs/zlib/minizip/ioapi.c)
 	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/DXT/DXTDecoder.cpp)
 	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/DXT/DXTEncoder.cpp)
@@ -1218,8 +1265,6 @@ if(MSVC)
 	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/jobs/staticshadowvolume/StaticShadowVolume.cpp)
 	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/jobs/ShadowShared.cpp)
 	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/RenderLog.cpp)
-	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/../doomclassic/doom/i_sound_stub.cpp)
-	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/../doomclassic/doom/i_sound_win32.cpp)
 	
 	foreach( src_file ${RBDOOM3_PRECOMPILED_SOURCES} )
 		#message(STATUS "/Yuprecompiled.h for ${src_file}")
@@ -1259,6 +1304,7 @@ if(MSVC)
 		winmm
 		wsock32.lib
 		${OpenAL_LIBRARIES}
+		${FFmpeg_LIBRARIES}
 		)
 		
 	#CMAKE_BINARY_DIR
@@ -1275,20 +1321,15 @@ else()
 	list(APPEND RBDOOM3_SOURCES
 		${SYS_INCLUDES} ${SYS_SOURCES})
 	
-	if(WIN32)
-		add_definitions(-DUSE_DOOMCLASSIC)
-	
-		list(APPEND RBDOOM3_SOURCES
-			${DOOMCLASSIC_INCLUDES} ${DOOMCLASSIC_SOURCES}
-			${TIMIDITY_INCLUDES} ${TIMIDITY_SOURCES}
-			${WIN32_INCLUDES} ${WIN32_SOURCES} ${WIN32_RESOURCES})  
-	
-		#list(REMOVE_ITEM WIN32_SOURCES sys/win32/win_cpu.cpp)
-		list(APPEND WIN32_SOURCES sys/sdl/sdl_cpu.cpp)
-	endif()
-	
 	if(UNIX)
-	
+		if(FFMPEG)
+			find_package(FFMPEG REQUIRED)
+			add_definitions(-DUSE_FFMPEG)
+			
+			include_directories(${FFMPEG_INCLUDE_DIR})
+			link_directories(${FFMPEG_LIBRARIES_DIRS})
+		endif()
+
 		if(SDL2)
 			find_package(SDL2 REQUIRED)
 			include_directories(${SDL2_INCLUDE_DIR})
@@ -1317,10 +1358,14 @@ else()
 			#endif()
 			
 			list(APPEND RBDOOM3_INCLUDES ${OPENAL_INCLUDES})
-			list(APPEND RBDOOM3_SOURCES ${OPENAL_SOURCES})
+			list(APPEND RBDOOM3_SOURCES
+				${OPENAL_SOURCES}
+				${DOOMCLASSIC_OPENAL_SOURCES})
 		else()
 			list(APPEND RBDOOM3_INCLUDES ${STUBAUDIO_INCLUDES})
-			list(APPEND RBDOOM3_SOURCES ${STUBAUDIO_SOURCES})
+			list(APPEND RBDOOM3_SOURCES
+				${STUBAUDIO_SOURCES}
+				${DOOMCLASSIC_STUBAUDIO_SOURCES})
 		endif()
 			
 	endif()
@@ -1328,7 +1373,7 @@ else()
 	list(REMOVE_DUPLICATES RBDOOM3_SOURCES)
 	
 	set(RBDOOM3_PRECOMPILED_SOURCES ${RBDOOM3_SOURCES})
-	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${TIMIDITY_SOURCES} ${JPEG_SOURCES} ${ZLIB_SOURCES})
+	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${TIMIDITY_SOURCES} ${JPEG_SOURCES} ${PNG_SOURCES} ${ZLIB_SOURCES} ${GLEW_SOURCES})
 	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/libs/zlib/minizip/ioapi.c)
 	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/DXT/DXTDecoder.cpp)
 	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/DXT/DXTEncoder.cpp)
@@ -1338,7 +1383,6 @@ else()
 	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/jobs/staticshadowvolume/StaticShadowVolume.cpp)
 	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/jobs/ShadowShared.cpp)
 	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/RenderLog.cpp)
-#	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/../doomclassic/doom/i_sound_stub.cpp)
 
 	foreach( src_file ${RBDOOM3_PRECOMPILED_SOURCES} )
 		#message(STATUS "-include precompiled.h for ${src_file}")
@@ -1395,31 +1439,6 @@ else()
 	# make sure precompiled header is deleted after executable is compiled
 	add_dependencies(rm_precomp_header RBDoom3BFG)
 	
-	if(MINGW)
-		include_directories(libs/sdl2/include)
-		
-		link_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs/sdl2/libmingw32)
-	endif()
-	
-	if(WIN32)
-	
-		target_link_libraries(RBDoom3BFG
-			idlib
-			${DirectX_LIBRARIES}
-			#libcurl 
-			#openal32 
-			opengl32
-			glu32
-			dbghelp
-			#eaxguid
-			iphlpapi
-			winmm
-			wsock32.lib
-			SDL2
-			)
-	  
-	endif()
-	
 	IF("${CMAKE_SYSTEM}" MATCHES "Linux")
 		target_link_libraries(RBDoom3BFG
 			idlib
@@ -1429,6 +1448,7 @@ else()
 			rt
 			${SDLx_LIBRARY}
 			${OPENAL_LIBRARY}
+			${FFMPEG_LIBRARIES}
 			)
 	endif()
 
@@ -1440,6 +1460,7 @@ else()
 			rt
 			${SDLx_LIBRARY}
 			${OPENAL_LIBRARY}
+			${FFMPEG_LIBRARIES}
 			)
 	endif()
     

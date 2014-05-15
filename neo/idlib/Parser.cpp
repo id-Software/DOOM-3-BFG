@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2014 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -1091,38 +1092,38 @@ int idParser::ReadLine( idToken* token )
 idParser::Directive_include
 ================
 */
-int idParser::Directive_include()
+// RB: added token as parameter
+int idParser::Directive_include( idToken* token, bool supressWarning )
 {
 	idLexer* script;
-	idToken token;
 	idStr path;
 	
-	if( !idParser::ReadSourceToken( &token ) )
+	if( !idParser::ReadSourceToken( token ) )
 	{
 		idParser::Error( "#include without file name" );
 		return false;
 	}
-	if( token.linesCrossed > 0 )
+	if( token->linesCrossed > 0 )
 	{
 		idParser::Error( "#include without file name" );
 		return false;
 	}
-	if( token.type == TT_STRING )
+	if( token->type == TT_STRING )
 	{
 		script = new( TAG_IDLIB_PARSER ) idLexer;
 		// try relative to the current file
 		path = scriptstack->GetFileName();
 		path.StripFilename();
 		path += "/";
-		path += token;
+		path += *token;
 		if( !script->LoadFile( path, OSPath ) )
 		{
 			// try absolute path
-			path = token;
+			path = *token;
 			if( !script->LoadFile( path, OSPath ) )
 			{
 				// try from the include path
-				path = includepath + token;
+				path = includepath + *token;
 				if( !script->LoadFile( path, OSPath ) )
 				{
 					delete script;
@@ -1131,23 +1132,23 @@ int idParser::Directive_include()
 			}
 		}
 	}
-	else if( token.type == TT_PUNCTUATION && token == "<" )
+	else if( token->type == TT_PUNCTUATION && *token == "<" )
 	{
 		path = idParser::includepath;
-		while( idParser::ReadSourceToken( &token ) )
+		while( idParser::ReadSourceToken( token ) )
 		{
-			if( token.linesCrossed > 0 )
+			if( token->linesCrossed > 0 )
 			{
-				idParser::UnreadSourceToken( &token );
+				idParser::UnreadSourceToken( token );
 				break;
 			}
-			if( token.type == TT_PUNCTUATION && token == ">" )
+			if( token->type == TT_PUNCTUATION && *token == ">" )
 			{
 				break;
 			}
-			path += token;
+			path += *token;
 		}
-		if( token != ">" )
+		if( *token != ">" )
 		{
 			idParser::Warning( "#include missing trailing >" );
 		}
@@ -1172,9 +1173,13 @@ int idParser::Directive_include()
 		idParser::Error( "#include without file name" );
 		return false;
 	}
+	
 	if( !script )
 	{
-		idParser::Error( "file '%s' not found", path.c_str() );
+		if( !supressWarning )
+		{
+			idParser::Error( "file '%s' not found", path.c_str() );
+		}
 		return false;
 	}
 	script->SetFlags( idParser::flags );
@@ -1182,6 +1187,7 @@ int idParser::Directive_include()
 	idParser::PushScript( script );
 	return true;
 }
+// RB end
 
 /*
 ================
@@ -2597,7 +2603,10 @@ int idParser::ReadDirective()
 		{
 			if( token == "include" )
 			{
-				return idParser::Directive_include();
+				// RB lets override for embedded shaders
+				idToken filename;
+				return Directive_include( &filename );
+				// RB end
 			}
 			else if( token == "define" )
 			{
@@ -3720,7 +3729,7 @@ const char* idParser::GetPunctuationFromId( int id )
 			return idParser::punctuations[i].p;
 		}
 	}
-	return "unkown punctuation";
+	return "unknown punctuation";
 }
 
 /*

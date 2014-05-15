@@ -1274,28 +1274,28 @@ bool idInterpreter::Execute()
 				var_a = GetVariable( st->a );
 				var_b = GetVariable( st->b );
 				var_c = GetVariable( st->c );
-				*var_c.floatPtr = *var_a.floatPtr * *var_b.floatPtr;
+				*var_c.floatPtr = *var_a.floatPtr** var_b.floatPtr;
 				break;
 				
 			case OP_MUL_V:
 				var_a = GetVariable( st->a );
 				var_b = GetVariable( st->b );
 				var_c = GetVariable( st->c );
-				*var_c.floatPtr = *var_a.vectorPtr * *var_b.vectorPtr;
+				*var_c.floatPtr = *var_a.vectorPtr** var_b.vectorPtr;
 				break;
 				
 			case OP_MUL_FV:
 				var_a = GetVariable( st->a );
 				var_b = GetVariable( st->b );
 				var_c = GetVariable( st->c );
-				*var_c.vectorPtr = *var_a.floatPtr * *var_b.vectorPtr;
+				*var_c.vectorPtr = *var_a.floatPtr** var_b.vectorPtr;
 				break;
 				
 			case OP_MUL_VF:
 				var_a = GetVariable( st->a );
 				var_b = GetVariable( st->b );
 				var_c = GetVariable( st->c );
-				*var_c.vectorPtr = *var_a.vectorPtr * *var_b.floatPtr;
+				*var_c.vectorPtr = *var_a.vectorPtr** var_b.floatPtr;
 				break;
 				
 			case OP_DIV_F:

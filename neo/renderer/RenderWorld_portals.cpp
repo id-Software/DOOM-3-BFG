@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013-2014 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -798,7 +799,7 @@ void idRenderWorldLocal::FindViewLightsAndEntities()
 			portalStack_t ps;
 			for( int i = 0; i < 5; i++ )
 			{
-				ps.portalPlanes[i] = tr.viewDef->frustum[i];
+				ps.portalPlanes[i] = tr.viewDef->frustums[FRUSTUM_PRIMARY][i];
 			}
 			ps.numPortalPlanes = 5;
 			ps.rect = tr.viewDef->scissor;
@@ -811,7 +812,7 @@ void idRenderWorldLocal::FindViewLightsAndEntities()
 		// note that the center of projection for flowing through portals may
 		// be a different point than initialViewAreaOrigin for subviews that
 		// may have the viewOrigin in a solid/invalid area
-		FlowViewThroughPortals( tr.viewDef->renderView.vieworg, 5, tr.viewDef->frustum );
+		FlowViewThroughPortals( tr.viewDef->renderView.vieworg, 5, tr.viewDef->frustums[FRUSTUM_PRIMARY] );
 	}
 }
 
@@ -1201,12 +1202,12 @@ void idRenderWorldLocal::ShowPortals()
 			renderProgManager.CommitUniforms();
 			// RB end
 			
-			qglBegin( GL_LINE_LOOP );
+			glBegin( GL_LINE_LOOP );
 			for( j = 0; j < w->GetNumPoints(); j++ )
 			{
-				qglVertex3fv( ( *w )[j].ToFloatPtr() );
+				glVertex3fv( ( *w )[j].ToFloatPtr() );
 			}
-			qglEnd();
+			glEnd();
 		}
 	}
 }

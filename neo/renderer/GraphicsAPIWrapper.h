@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -166,14 +167,27 @@ ID_INLINE void	GL_ViewportAndScissor( const idScreenRect& rect )
 void			GL_Clear( bool color, bool depth, bool stencil, byte stencilValue, float r, float g, float b, float a );
 void			GL_PolygonOffset( float scale, float bias );
 void			GL_DepthBoundsTest( const float zmin, const float zmax );
-void			GL_Color( float* color );
+//void			GL_Color( float* color );
+// RB begin
+void			GL_Color( const idVec3& color );
+void			GL_Color( const idVec4& color );
+// RB end
 void			GL_Color( float r, float g, float b );
 void			GL_Color( float r, float g, float b, float a );
 void			GL_SelectTexture( int unit );
 
 void			GL_Flush();		// flush the GPU command buffer
 void			GL_Finish();	// wait for the GPU to have executed all commands
-void			GL_CheckErrors();
+
+
+// RB begin
+bool			GL_CheckErrors_( const char* filename, int line );
+#if 1 // !defined(RETAIL)
+#define         GL_CheckErrors()	GL_CheckErrors_(__FILE__, __LINE__)
+#else
+#define         GL_CheckErrors()	false
+#endif
+// RB end
 
 wrapperStats_t	GL_GetCurrentStats();
 void			GL_ClearStats();

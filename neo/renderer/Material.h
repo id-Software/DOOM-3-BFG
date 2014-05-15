@@ -739,6 +739,10 @@ public:
 	
 	void				UpdateCinematic( int time ) const;
 	
+	// RB: added because we can't rely on the FFmpeg feedback how long a video really is
+	bool                CinematicIsPlaying() const;
+	// RB end
+	
 	//------------------------------------------------------------------
 	
 	// gets an image for the editor to use

@@ -3482,7 +3482,7 @@ void idAFConstraint_Contact::ApplyFriction( float invTimeStep )
 		return;
 	}
 	
-	// seperate friction per contact is silly but it's fast and often looks close enough
+	// separate friction per contact is silly but it's fast and often looks close enough
 	if( af_useImpulseFriction.GetBool() )
 	{
 	
@@ -7872,7 +7872,7 @@ void idPhysics_AF::BuildTrees()
 		
 		if( trees.Num() > 1 )
 		{
-			gameLocal.Warning( "Articulated figure has multiple seperate tree structures for entity '%s' type '%s'.",
+			gameLocal.Warning( "Articulated figure has multiple separate tree structures for entity '%s' type '%s'.",
 							   self->name.c_str(), self->GetType()->classname );
 		}
 		

@@ -3,7 +3,8 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013 Robert Beckebans
+Copyright (C) 2013-2014 Robert Beckebans
+Copyright (C) 2014 Carl Kenner
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -31,6 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 
 #include "tr_local.h"
+#include "Framebuffer.h"
 
 idCVar r_drawEyeColor( "r_drawEyeColor", "0", CVAR_RENDERER | CVAR_BOOL, "Draw a colored box, red = left eye, blue = right eye, grey = non-stereo" );
 idCVar r_motionBlur( "r_motionBlur", "0", CVAR_RENDERER | CVAR_INTEGER | CVAR_ARCHIVE, "1 - 5, log2 of the number of motion blur samples" );
@@ -215,7 +217,7 @@ void RB_DrawElementsWithCounters( const drawSurf_t* surf )
 		const GLintptrARB ubo = reinterpret_cast< GLintptrARB >( jointBuffer.GetAPIObject() );
 		// RB end
 		
-		qglBindBufferRange( GL_UNIFORM_BUFFER, 0, ubo, jointBuffer.GetOffset(), jointBuffer.GetNumJoints() * sizeof( idJointMat ) );
+		glBindBufferRange( GL_UNIFORM_BUFFER, 0, ubo, jointBuffer.GetOffset(), jointBuffer.GetNumJoints() * sizeof( idJointMat ) );
 	}
 	
 	renderProgManager.CommitUniforms();
@@ -223,40 +225,44 @@ void RB_DrawElementsWithCounters( const drawSurf_t* surf )
 	// RB: 64 bit fixes, changed GLuint to GLintptrARB
 	if( backEnd.glState.currentIndexBuffer != ( GLintptrARB )indexBuffer->GetAPIObject() || !r_useStateCaching.GetBool() )
 	{
-		qglBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, ( GLintptrARB )indexBuffer->GetAPIObject() );
+		glBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, ( GLintptrARB )indexBuffer->GetAPIObject() );
 		backEnd.glState.currentIndexBuffer = ( GLintptrARB )indexBuffer->GetAPIObject();
 	}
 	
 	if( ( backEnd.glState.vertexLayout != LAYOUT_DRAW_VERT ) || ( backEnd.glState.currentVertexBuffer != ( GLintptrARB )vertexBuffer->GetAPIObject() ) || !r_useStateCaching.GetBool() )
 	{
-		qglBindBufferARB( GL_ARRAY_BUFFER_ARB, ( GLintptrARB )vertexBuffer->GetAPIObject() );
+		glBindBufferARB( GL_ARRAY_BUFFER_ARB, ( GLintptrARB )vertexBuffer->GetAPIObject() );
 		backEnd.glState.currentVertexBuffer = ( GLintptrARB )vertexBuffer->GetAPIObject();
 		
-		qglEnableVertexAttribArrayARB( PC_ATTRIB_INDEX_VERTEX );
-		qglEnableVertexAttribArrayARB( PC_ATTRIB_INDEX_NORMAL );
-		qglEnableVertexAttribArrayARB( PC_ATTRIB_INDEX_COLOR );
-		qglEnableVertexAttribArrayARB( PC_ATTRIB_INDEX_COLOR2 );
-		qglEnableVertexAttribArrayARB( PC_ATTRIB_INDEX_ST );
-		qglEnableVertexAttribArrayARB( PC_ATTRIB_INDEX_TANGENT );
+		glEnableVertexAttribArrayARB( PC_ATTRIB_INDEX_VERTEX );
+		glEnableVertexAttribArrayARB( PC_ATTRIB_INDEX_NORMAL );
+		glEnableVertexAttribArrayARB( PC_ATTRIB_INDEX_COLOR );
+		glEnableVertexAttribArrayARB( PC_ATTRIB_INDEX_COLOR2 );
+		glEnableVertexAttribArrayARB( PC_ATTRIB_INDEX_ST );
+		glEnableVertexAttribArrayARB( PC_ATTRIB_INDEX_TANGENT );
 		
-		qglVertexAttribPointerARB( PC_ATTRIB_INDEX_VERTEX, 3, GL_FLOAT, GL_FALSE, sizeof( idDrawVert ), ( void* )( DRAWVERT_XYZ_OFFSET ) );
-		qglVertexAttribPointerARB( PC_ATTRIB_INDEX_NORMAL, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), ( void* )( DRAWVERT_NORMAL_OFFSET ) );
-		qglVertexAttribPointerARB( PC_ATTRIB_INDEX_COLOR, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), ( void* )( DRAWVERT_COLOR_OFFSET ) );
-		qglVertexAttribPointerARB( PC_ATTRIB_INDEX_COLOR2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), ( void* )( DRAWVERT_COLOR2_OFFSET ) );
-		qglVertexAttribPointerARB( PC_ATTRIB_INDEX_ST, 2, GL_HALF_FLOAT, GL_TRUE, sizeof( idDrawVert ), ( void* )( DRAWVERT_ST_OFFSET ) );
-		qglVertexAttribPointerARB( PC_ATTRIB_INDEX_TANGENT, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), ( void* )( DRAWVERT_TANGENT_OFFSET ) );
+		glVertexAttribPointerARB( PC_ATTRIB_INDEX_VERTEX, 3, GL_FLOAT, GL_FALSE, sizeof( idDrawVert ), ( void* )( DRAWVERT_XYZ_OFFSET ) );
+		glVertexAttribPointerARB( PC_ATTRIB_INDEX_NORMAL, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), ( void* )( DRAWVERT_NORMAL_OFFSET ) );
+		glVertexAttribPointerARB( PC_ATTRIB_INDEX_COLOR, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), ( void* )( DRAWVERT_COLOR_OFFSET ) );
+		glVertexAttribPointerARB( PC_ATTRIB_INDEX_COLOR2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), ( void* )( DRAWVERT_COLOR2_OFFSET ) );
+		glVertexAttribPointerARB( PC_ATTRIB_INDEX_ST, 2, GL_HALF_FLOAT, GL_TRUE, sizeof( idDrawVert ), ( void* )( DRAWVERT_ST_OFFSET ) );
+		glVertexAttribPointerARB( PC_ATTRIB_INDEX_TANGENT, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), ( void* )( DRAWVERT_TANGENT_OFFSET ) );
 		
 		backEnd.glState.vertexLayout = LAYOUT_DRAW_VERT;
 	}
 	// RB end
 	
-	qglDrawElementsBaseVertex( GL_TRIANGLES,
-							   r_singleTriangle.GetBool() ? 3 : surf->numIndexes,
-							   GL_INDEX_TYPE,
-							   ( triIndex_t* )indexOffset,
-							   vertOffset / sizeof( idDrawVert ) );
-							   
-							   
+	glDrawElementsBaseVertex( GL_TRIANGLES,
+							  r_singleTriangle.GetBool() ? 3 : surf->numIndexes,
+							  GL_INDEX_TYPE,
+							  ( triIndex_t* )indexOffset,
+							  vertOffset / sizeof( idDrawVert ) );
+							  
+							  
+	// RB: added stats
+	backEnd.pc.c_drawElements++;
+	backEnd.pc.c_drawIndexes += surf->numIndexes;
+	// RB end
 }
 
 /*
@@ -407,6 +413,14 @@ static void RB_BindVariableStageImage( const textureStage_t* texture, const floa
 			cin.imageCr->Bind();
 			GL_SelectTexture( 2 );
 			cin.imageCb->Bind();
+			
+		}
+		else if( cin.image != NULL )
+		{
+			//Carl: A single RGB image works better with the FFMPEG BINK codec.
+			GL_SelectTexture( 0 );
+			cin.image->Bind();
+			renderProgManager.BindShader_TextureVertexColor();
 		}
 		else
 		{
@@ -633,6 +647,24 @@ static void RB_FinishStageTexturing( const shaderStage_t* pStage, const drawSurf
 	}
 }
 
+// RB: moved this up because we need to call this several times for shadow mapping
+static void RB_ResetViewportAndScissorToDefaultCamera( const viewDef_t* viewDef )
+{
+	// set the window clipping
+	GL_Viewport( viewDef->viewport.x1,
+				 viewDef->viewport.y1,
+				 viewDef->viewport.x2 + 1 - viewDef->viewport.x1,
+				 viewDef->viewport.y2 + 1 - viewDef->viewport.y1 );
+				 
+	// the scissor may be smaller than the viewport for subviews
+	GL_Scissor( backEnd.viewDef->viewport.x1 + viewDef->scissor.x1,
+				backEnd.viewDef->viewport.y1 + viewDef->scissor.y1,
+				viewDef->scissor.x2 + 1 - viewDef->scissor.x1,
+				viewDef->scissor.y2 + 1 - viewDef->scissor.y1 );
+	backEnd.currentScissor = viewDef->scissor;
+}
+// RB end
+
 /*
 =========================================================================================
 
@@ -697,7 +729,7 @@ static void RB_FillDepthBufferGeneric( const drawSurf_t* const* drawSurfs, int n
 		}
 		
 		// subviews will just down-modulate the color buffer
-		float color[4];
+		idVec4 color;
 		if( shader->GetSort() == SS_SUBVIEW )
 		{
 			surfGLState |= GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO | GLS_DEPTHFUNC_LESS;
@@ -988,6 +1020,8 @@ const int INTERACTION_TEXUNIT_FALLOFF		= 1;
 const int INTERACTION_TEXUNIT_PROJECTION	= 2;
 const int INTERACTION_TEXUNIT_DIFFUSE		= 3;
 const int INTERACTION_TEXUNIT_SPECULAR		= 4;
+const int INTERACTION_TEXUNIT_SHADOWMAPS	= 5;
+const int INTERACTION_TEXUNIT_JITTER		= 6;
 
 /*
 ==================
@@ -1196,7 +1230,7 @@ static void RB_RenderInteractions( const drawSurf_t* surfList, const viewLight_t
 	// of benefit to trying to sort by materials.
 	//---------------------------------
 	static const int MAX_INTERACTIONS_PER_LIGHT = 1024;
-	static const int MAX_COMPLEX_INTERACTIONS_PER_LIGHT = 128;
+	static const int MAX_COMPLEX_INTERACTIONS_PER_LIGHT = 256;
 	idStaticList< const drawSurf_t*, MAX_INTERACTIONS_PER_LIGHT > allSurfaces;
 	idStaticList< const drawSurf_t*, MAX_COMPLEX_INTERACTIONS_PER_LIGHT > complexSurfaces;
 	for( const drawSurf_t* walk = surfList; walk != NULL; walk = walk->nextOnLight )
@@ -1234,6 +1268,46 @@ static void RB_RenderInteractions( const drawSurf_t* surfList, const viewLight_t
 	
 	bool lightDepthBoundsDisabled = false;
 	
+	// RB begin
+	if( r_useShadowMapping.GetBool() )
+	{
+		const static int JITTER_SIZE = 128;
+		
+		// screen power of two correction factor
+		float screenCorrectionParm[4];
+		screenCorrectionParm[0] = 1.0f / ( JITTER_SIZE * r_shadowMapSamples.GetInteger() ) ;
+		screenCorrectionParm[1] = 1.0f / JITTER_SIZE;
+		screenCorrectionParm[2] = 1.0f / shadowMapResolutions[vLight->shadowLOD];
+		screenCorrectionParm[3] = r_shadowMapSamples.GetInteger();
+		SetFragmentParm( RENDERPARM_SCREENCORRECTIONFACTOR, screenCorrectionParm ); // rpScreenCorrectionFactor
+		
+		float jitterTexScale[4];
+		jitterTexScale[0] = r_shadowMapJitterScale.GetFloat() * 1.0f;	// TODO shadow buffer size fraction shadowMapSize / maxShadowMapSize
+		jitterTexScale[1] = r_shadowMapJitterScale.GetFloat() * 1.0f;
+		jitterTexScale[2] = -r_shadowMapBiasScale.GetFloat();
+		jitterTexScale[3] = 0.0f;
+		SetFragmentParm( RENDERPARM_JITTERTEXSCALE, jitterTexScale ); // rpJitterTexScale
+		
+		float jitterTexOffset[4];
+		jitterTexOffset[0] = ( rand() & 255 ) / 255.0;
+		jitterTexOffset[1] = ( rand() & 255 ) / 255.0;
+		jitterTexOffset[2] = 0.0f;
+		jitterTexOffset[3] = 0.0f;
+		SetFragmentParm( RENDERPARM_JITTERTEXOFFSET, jitterTexOffset ); // rpJitterTexOffset
+		
+		if( vLight->parallel )
+		{
+			float cascadeDistances[4];
+			cascadeDistances[0] = backEnd.viewDef->frustumSplitDistances[0];
+			cascadeDistances[1] = backEnd.viewDef->frustumSplitDistances[1];
+			cascadeDistances[2] = backEnd.viewDef->frustumSplitDistances[2];
+			cascadeDistances[3] = backEnd.viewDef->frustumSplitDistances[3];
+			SetFragmentParm( RENDERPARM_CASCADEDISTANCES, cascadeDistances ); // rpCascadeDistances
+		}
+		
+	}
+	// RB end
+	
 	for( int lightStageNum = 0; lightStageNum < lightShader->GetNumStages(); lightStageNum++ )
 	{
 		const shaderStage_t*	lightStage = lightShader->GetStage( lightStageNum );
@@ -1268,6 +1342,28 @@ static void RB_RenderInteractions( const drawSurf_t* surfList, const viewLight_t
 		GL_SelectTexture( INTERACTION_TEXUNIT_PROJECTION );
 		lightStage->texture.image->Bind();
 		
+		if( r_useShadowMapping.GetBool() )
+		{
+			// texture 5 will be the shadow maps array
+			GL_SelectTexture( INTERACTION_TEXUNIT_SHADOWMAPS );
+			globalImages->shadowImage[vLight->shadowLOD]->Bind();
+			
+			// texture 6 will be the jitter texture for soft shadowing
+			GL_SelectTexture( INTERACTION_TEXUNIT_JITTER );
+			if( r_shadowMapSamples.GetInteger() == 16 )
+			{
+				globalImages->jitterImage16->Bind();
+			}
+			else if( r_shadowMapSamples.GetInteger() == 4 )
+			{
+				globalImages->jitterImage4->Bind();
+			}
+			else
+			{
+				globalImages->jitterImage1->Bind();
+			}
+		}
+		
 		// force the light textures to not use anisotropic filtering, which is wasted on them
 		// all of the texture sampler parms should be constant for all interactions, only
 		// the actual texture image bindings will change
@@ -1300,13 +1396,54 @@ static void RB_RenderInteractions( const drawSurf_t* surfList, const viewLight_t
 			}
 			else
 			{
-				if( surf->jointCache )
+				if( r_useShadowMapping.GetBool() && vLight->globalShadows )
 				{
-					renderProgManager.BindShader_InteractionSkinned();
+					// RB: we have shadow mapping enabled and shadow maps so do a shadow compare
+					
+					if( vLight->parallel )
+					{
+						if( surf->jointCache )
+						{
+							renderProgManager.BindShader_Interaction_ShadowMapping_Parallel_Skinned();
+						}
+						else
+						{
+							renderProgManager.BindShader_Interaction_ShadowMapping_Parallel();
+						}
+					}
+					else if( vLight->pointLight )
+					{
+						if( surf->jointCache )
+						{
+							renderProgManager.BindShader_Interaction_ShadowMapping_Point_Skinned();
+						}
+						else
+						{
+							renderProgManager.BindShader_Interaction_ShadowMapping_Point();
+						}
+					}
+					else
+					{
+						if( surf->jointCache )
+						{
+							renderProgManager.BindShader_Interaction_ShadowMapping_Spot_Skinned();
+						}
+						else
+						{
+							renderProgManager.BindShader_Interaction_ShadowMapping_Spot();
+						}
+					}
 				}
 				else
 				{
-					renderProgManager.BindShader_Interaction();
+					if( surf->jointCache )
+					{
+						renderProgManager.BindShader_InteractionSkinned();
+					}
+					else
+					{
+						renderProgManager.BindShader_Interaction();
+					}
 				}
 			}
 			
@@ -1344,6 +1481,21 @@ static void RB_RenderInteractions( const drawSurf_t* surfList, const viewLight_t
 				// model-view-projection
 				RB_SetMVP( surf->space->mvp );
 				
+				// RB begin
+				idRenderMatrix modelMatrix;
+				idRenderMatrix::Transpose( *( idRenderMatrix* )surf->space->modelMatrix, modelMatrix );
+				
+				SetVertexParms( RENDERPARM_MODELMATRIX_X, modelMatrix[0], 4 );
+				
+				// for determining the shadow mapping cascades
+				idRenderMatrix modelViewMatrix, tmp;
+				idRenderMatrix::Transpose( *( idRenderMatrix* )surf->space->modelViewMatrix, modelViewMatrix );
+				SetVertexParms( RENDERPARM_MODELVIEWMATRIX_X, modelViewMatrix[0], 4 );
+				
+				idVec4 globalLightOrigin( vLight->globalLightOrigin.x, vLight->globalLightOrigin.y, vLight->globalLightOrigin.z, 1.0f );
+				SetVertexParm( RENDERPARM_GLOBALLIGHTORIGIN, globalLightOrigin.ToFloatPtr() );
+				// RB end
+				
 				// tranform the light/view origin into model local space
 				idVec4 localLightOrigin( 0.0f );
 				idVec4 localViewOrigin( 1.0f );
@@ -1372,6 +1524,57 @@ static void RB_RenderInteractions( const drawSurf_t* surfList, const viewLight_t
 				SetVertexParm( RENDERPARM_LIGHTPROJECTION_T, lightProjection[1].ToFloatPtr() );
 				SetVertexParm( RENDERPARM_LIGHTPROJECTION_Q, lightProjection[2].ToFloatPtr() );
 				SetVertexParm( RENDERPARM_LIGHTFALLOFF_S, lightProjection[3].ToFloatPtr() );
+				
+				// RB begin
+				if( r_useShadowMapping.GetBool() )
+				{
+					if( vLight->parallel )
+					{
+						for( int i = 0; i < ( r_shadowMapSplits.GetInteger() + 1 ); i++ )
+						{
+							idRenderMatrix modelToShadowMatrix;
+							idRenderMatrix::Multiply( backEnd.shadowV[i], modelMatrix, modelToShadowMatrix );
+							
+							idRenderMatrix shadowClipMVP;
+							idRenderMatrix::Multiply( backEnd.shadowP[i], modelToShadowMatrix, shadowClipMVP );
+							
+							idRenderMatrix shadowWindowMVP;
+							idRenderMatrix::Multiply( renderMatrix_clipSpaceToWindowSpace, shadowClipMVP, shadowWindowMVP );
+							
+							SetVertexParms( ( renderParm_t )( RENDERPARM_SHADOW_MATRIX_0_X + i * 4 ), shadowWindowMVP[0], 4 );
+						}
+					}
+					else if( vLight->pointLight )
+					{
+						for( int i = 0; i < 6; i++ )
+						{
+							idRenderMatrix modelToShadowMatrix;
+							idRenderMatrix::Multiply( backEnd.shadowV[i], modelMatrix, modelToShadowMatrix );
+							
+							idRenderMatrix shadowClipMVP;
+							idRenderMatrix::Multiply( backEnd.shadowP[i], modelToShadowMatrix, shadowClipMVP );
+							
+							idRenderMatrix shadowWindowMVP;
+							idRenderMatrix::Multiply( renderMatrix_clipSpaceToWindowSpace, shadowClipMVP, shadowWindowMVP );
+							
+							SetVertexParms( ( renderParm_t )( RENDERPARM_SHADOW_MATRIX_0_X + i * 4 ), shadowWindowMVP[0], 4 );
+						}
+					}
+					else
+					{
+						// spot light
+						
+						idRenderMatrix modelToShadowMatrix;
+						idRenderMatrix::Multiply( backEnd.shadowV[0], modelMatrix, modelToShadowMatrix );
+						
+						idRenderMatrix shadowClipMVP;
+						idRenderMatrix::Multiply( backEnd.shadowP[0], modelToShadowMatrix, shadowClipMVP );
+						
+						SetVertexParms( ( renderParm_t )( RENDERPARM_SHADOW_MATRIX_0_X ), shadowClipMVP[0], 4 );
+						
+					}
+				}
+				// RB end
 			}
 			
 			// check for the fast path
@@ -1674,14 +1877,14 @@ static void RB_StencilShadowPass( const drawSurf_t* drawSurfs, const viewLight_t
 		if( renderZPass )
 		{
 			// Z-pass
-			qglStencilOpSeparate( GL_FRONT, GL_KEEP, GL_KEEP, GL_INCR );
-			qglStencilOpSeparate( GL_BACK, GL_KEEP, GL_KEEP, GL_DECR );
+			glStencilOpSeparate( GL_FRONT, GL_KEEP, GL_KEEP, GL_INCR );
+			glStencilOpSeparate( GL_BACK, GL_KEEP, GL_KEEP, GL_DECR );
 		}
 		else if( r_useStencilShadowPreload.GetBool() )
 		{
 			// preload + Z-pass
-			qglStencilOpSeparate( GL_FRONT, GL_KEEP, GL_DECR, GL_DECR );
-			qglStencilOpSeparate( GL_BACK, GL_KEEP, GL_INCR, GL_INCR );
+			glStencilOpSeparate( GL_FRONT, GL_KEEP, GL_DECR, GL_DECR );
+			glStencilOpSeparate( GL_BACK, GL_KEEP, GL_INCR, GL_INCR );
 		}
 		else
 		{
@@ -1732,7 +1935,7 @@ static void RB_StencilShadowPass( const drawSurf_t* drawSurfs, const viewLight_t
 		// RB: 64 bit fixes, changed GLuint to GLintptrARB
 		if( backEnd.glState.currentIndexBuffer != ( GLintptrARB )indexBuffer->GetAPIObject() || !r_useStateCaching.GetBool() )
 		{
-			qglBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, ( GLintptrARB )indexBuffer->GetAPIObject() );
+			glBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, ( GLintptrARB )indexBuffer->GetAPIObject() );
 			backEnd.glState.currentIndexBuffer = ( GLintptrARB )indexBuffer->GetAPIObject();
 		}
 		
@@ -1749,23 +1952,23 @@ static void RB_StencilShadowPass( const drawSurf_t* drawSurfs, const viewLight_t
 			assert( ( jointBuffer.GetOffset() & ( glConfig.uniformBufferOffsetAlignment - 1 ) ) == 0 );
 			
 			const GLintptrARB ubo = reinterpret_cast< GLintptrARB >( jointBuffer.GetAPIObject() );
-			qglBindBufferRange( GL_UNIFORM_BUFFER, 0, ubo, jointBuffer.GetOffset(), jointBuffer.GetNumJoints() * sizeof( idJointMat ) );
+			glBindBufferRange( GL_UNIFORM_BUFFER, 0, ubo, jointBuffer.GetOffset(), jointBuffer.GetNumJoints() * sizeof( idJointMat ) );
 			
 			if( ( backEnd.glState.vertexLayout != LAYOUT_DRAW_SHADOW_VERT_SKINNED ) || ( backEnd.glState.currentVertexBuffer != ( GLintptrARB )vertexBuffer->GetAPIObject() ) || !r_useStateCaching.GetBool() )
 			{
-				qglBindBufferARB( GL_ARRAY_BUFFER_ARB, ( GLintptrARB )vertexBuffer->GetAPIObject() );
+				glBindBufferARB( GL_ARRAY_BUFFER_ARB, ( GLintptrARB )vertexBuffer->GetAPIObject() );
 				backEnd.glState.currentVertexBuffer = ( GLintptrARB )vertexBuffer->GetAPIObject();
 				
-				qglEnableVertexAttribArrayARB( PC_ATTRIB_INDEX_VERTEX );
-				qglDisableVertexAttribArrayARB( PC_ATTRIB_INDEX_NORMAL );
-				qglEnableVertexAttribArrayARB( PC_ATTRIB_INDEX_COLOR );
-				qglEnableVertexAttribArrayARB( PC_ATTRIB_INDEX_COLOR2 );
-				qglDisableVertexAttribArrayARB( PC_ATTRIB_INDEX_ST );
-				qglDisableVertexAttribArrayARB( PC_ATTRIB_INDEX_TANGENT );
+				glEnableVertexAttribArrayARB( PC_ATTRIB_INDEX_VERTEX );
+				glDisableVertexAttribArrayARB( PC_ATTRIB_INDEX_NORMAL );
+				glEnableVertexAttribArrayARB( PC_ATTRIB_INDEX_COLOR );
+				glEnableVertexAttribArrayARB( PC_ATTRIB_INDEX_COLOR2 );
+				glDisableVertexAttribArrayARB( PC_ATTRIB_INDEX_ST );
+				glDisableVertexAttribArrayARB( PC_ATTRIB_INDEX_TANGENT );
 				
-				qglVertexAttribPointerARB( PC_ATTRIB_INDEX_VERTEX, 4, GL_FLOAT, GL_FALSE, sizeof( idShadowVertSkinned ), ( void* )( SHADOWVERTSKINNED_XYZW_OFFSET ) );
-				qglVertexAttribPointerARB( PC_ATTRIB_INDEX_COLOR, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idShadowVertSkinned ), ( void* )( SHADOWVERTSKINNED_COLOR_OFFSET ) );
-				qglVertexAttribPointerARB( PC_ATTRIB_INDEX_COLOR2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idShadowVertSkinned ), ( void* )( SHADOWVERTSKINNED_COLOR2_OFFSET ) );
+				glVertexAttribPointerARB( PC_ATTRIB_INDEX_VERTEX, 4, GL_FLOAT, GL_FALSE, sizeof( idShadowVertSkinned ), ( void* )( SHADOWVERTSKINNED_XYZW_OFFSET ) );
+				glVertexAttribPointerARB( PC_ATTRIB_INDEX_COLOR, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idShadowVertSkinned ), ( void* )( SHADOWVERTSKINNED_COLOR_OFFSET ) );
+				glVertexAttribPointerARB( PC_ATTRIB_INDEX_COLOR2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idShadowVertSkinned ), ( void* )( SHADOWVERTSKINNED_COLOR2_OFFSET ) );
 				
 				backEnd.glState.vertexLayout = LAYOUT_DRAW_SHADOW_VERT_SKINNED;
 			}
@@ -1776,17 +1979,17 @@ static void RB_StencilShadowPass( const drawSurf_t* drawSurfs, const viewLight_t
 		
 			if( ( backEnd.glState.vertexLayout != LAYOUT_DRAW_SHADOW_VERT ) || ( backEnd.glState.currentVertexBuffer != ( GLintptrARB )vertexBuffer->GetAPIObject() ) || !r_useStateCaching.GetBool() )
 			{
-				qglBindBufferARB( GL_ARRAY_BUFFER_ARB, ( GLintptrARB )vertexBuffer->GetAPIObject() );
+				glBindBufferARB( GL_ARRAY_BUFFER_ARB, ( GLintptrARB )vertexBuffer->GetAPIObject() );
 				backEnd.glState.currentVertexBuffer = ( GLintptrARB )vertexBuffer->GetAPIObject();
 				
-				qglEnableVertexAttribArrayARB( PC_ATTRIB_INDEX_VERTEX );
-				qglDisableVertexAttribArrayARB( PC_ATTRIB_INDEX_NORMAL );
-				qglDisableVertexAttribArrayARB( PC_ATTRIB_INDEX_COLOR );
-				qglDisableVertexAttribArrayARB( PC_ATTRIB_INDEX_COLOR2 );
-				qglDisableVertexAttribArrayARB( PC_ATTRIB_INDEX_ST );
-				qglDisableVertexAttribArrayARB( PC_ATTRIB_INDEX_TANGENT );
+				glEnableVertexAttribArrayARB( PC_ATTRIB_INDEX_VERTEX );
+				glDisableVertexAttribArrayARB( PC_ATTRIB_INDEX_NORMAL );
+				glDisableVertexAttribArrayARB( PC_ATTRIB_INDEX_COLOR );
+				glDisableVertexAttribArrayARB( PC_ATTRIB_INDEX_COLOR2 );
+				glDisableVertexAttribArrayARB( PC_ATTRIB_INDEX_ST );
+				glDisableVertexAttribArrayARB( PC_ATTRIB_INDEX_TANGENT );
 				
-				qglVertexAttribPointerARB( PC_ATTRIB_INDEX_VERTEX, 4, GL_FLOAT, GL_FALSE, sizeof( idShadowVert ), ( void* )( SHADOWVERT_XYZW_OFFSET ) );
+				glVertexAttribPointerARB( PC_ATTRIB_INDEX_VERTEX, 4, GL_FLOAT, GL_FALSE, sizeof( idShadowVert ), ( void* )( SHADOWVERT_XYZW_OFFSET ) );
 				
 				backEnd.glState.vertexLayout = LAYOUT_DRAW_SHADOW_VERT;
 			}
@@ -1797,27 +2000,37 @@ static void RB_StencilShadowPass( const drawSurf_t* drawSurfs, const viewLight_t
 		
 		if( drawSurf->jointCache )
 		{
-			qglDrawElementsBaseVertex( GL_TRIANGLES, r_singleTriangle.GetBool() ? 3 : drawSurf->numIndexes, GL_INDEX_TYPE, ( triIndex_t* )indexOffset, vertOffset / sizeof( idShadowVertSkinned ) );
+			glDrawElementsBaseVertex( GL_TRIANGLES, r_singleTriangle.GetBool() ? 3 : drawSurf->numIndexes, GL_INDEX_TYPE, ( triIndex_t* )indexOffset, vertOffset / sizeof( idShadowVertSkinned ) );
 		}
 		else
 		{
-			qglDrawElementsBaseVertex( GL_TRIANGLES, r_singleTriangle.GetBool() ? 3 : drawSurf->numIndexes, GL_INDEX_TYPE, ( triIndex_t* )indexOffset, vertOffset / sizeof( idShadowVert ) );
+			glDrawElementsBaseVertex( GL_TRIANGLES, r_singleTriangle.GetBool() ? 3 : drawSurf->numIndexes, GL_INDEX_TYPE, ( triIndex_t* )indexOffset, vertOffset / sizeof( idShadowVert ) );
 		}
+		
+		// RB: added stats
+		backEnd.pc.c_shadowElements++;
+		backEnd.pc.c_shadowIndexes += drawSurf->numIndexes;
+		// RB end
 		
 		if( !renderZPass && r_useStencilShadowPreload.GetBool() )
 		{
 			// render again with Z-pass
-			qglStencilOpSeparate( GL_FRONT, GL_KEEP, GL_KEEP, GL_INCR );
-			qglStencilOpSeparate( GL_BACK, GL_KEEP, GL_KEEP, GL_DECR );
+			glStencilOpSeparate( GL_FRONT, GL_KEEP, GL_KEEP, GL_INCR );
+			glStencilOpSeparate( GL_BACK, GL_KEEP, GL_KEEP, GL_DECR );
 			
 			if( drawSurf->jointCache )
 			{
-				qglDrawElementsBaseVertex( GL_TRIANGLES, r_singleTriangle.GetBool() ? 3 : drawSurf->numIndexes, GL_INDEX_TYPE, ( triIndex_t* )indexOffset, vertOffset / sizeof( idShadowVertSkinned ) );
+				glDrawElementsBaseVertex( GL_TRIANGLES, r_singleTriangle.GetBool() ? 3 : drawSurf->numIndexes, GL_INDEX_TYPE, ( triIndex_t* )indexOffset, vertOffset / sizeof( idShadowVertSkinned ) );
 			}
 			else
 			{
-				qglDrawElementsBaseVertex( GL_TRIANGLES, r_singleTriangle.GetBool() ? 3 : drawSurf->numIndexes, GL_INDEX_TYPE, ( triIndex_t* )indexOffset, vertOffset / sizeof( idShadowVert ) );
+				glDrawElementsBaseVertex( GL_TRIANGLES, r_singleTriangle.GetBool() ? 3 : drawSurf->numIndexes, GL_INDEX_TYPE, ( triIndex_t* )indexOffset, vertOffset / sizeof( idShadowVert ) );
 			}
+			
+			// RB: added stats
+			backEnd.pc.c_shadowElements++;
+			backEnd.pc.c_shadowIndexes += drawSurf->numIndexes;
+			// RB end
 		}
 	}
 	
@@ -1882,8 +2095,8 @@ static void RB_StencilSelectLight( const viewLight_t* vLight )
 	RB_SetMVP( invProjectMVPMatrix );
 	
 	// two-sided stencil test
-	qglStencilOpSeparate( GL_FRONT, GL_KEEP, GL_REPLACE, GL_ZERO );
-	qglStencilOpSeparate( GL_BACK, GL_KEEP, GL_ZERO, GL_REPLACE );
+	glStencilOpSeparate( GL_FRONT, GL_KEEP, GL_REPLACE, GL_ZERO );
+	glStencilOpSeparate( GL_BACK, GL_KEEP, GL_ZERO, GL_REPLACE );
 	
 	RB_DrawElementsWithCounters( &backEnd.zeroOneCubeSurface );
 	
@@ -1903,6 +2116,667 @@ static void RB_StencilSelectLight( const viewLight_t* vLight )
 /*
 ==============================================================================================
 
+SHADOW MAPS RENDERING
+
+==============================================================================================
+*/
+
+/*
+same as D3DXMatrixOrthoOffCenterRH
+
+http://msdn.microsoft.com/en-us/library/bb205348(VS.85).aspx
+*/
+static void MatrixOrthogonalProjectionRH( float m[16], float left, float right, float bottom, float top, float zNear, float zFar )
+{
+	m[0] = 2 / ( right - left );
+	m[4] = 0;
+	m[8] = 0;
+	m[12] = ( left + right ) / ( left - right );
+	m[1] = 0;
+	m[5] = 2 / ( top - bottom );
+	m[9] = 0;
+	m[13] = ( top + bottom ) / ( bottom - top );
+	m[2] = 0;
+	m[6] = 0;
+	m[10] = 1 / ( zNear - zFar );
+	m[14] = zNear / ( zNear - zFar );
+	m[3] = 0;
+	m[7] = 0;
+	m[11] = 0;
+	m[15] = 1;
+}
+
+void MatrixCrop( float m[16], const idVec3 mins, const idVec3 maxs )
+{
+	float			scaleX, scaleY, scaleZ;
+	float			offsetX, offsetY, offsetZ;
+	
+	scaleX = 2.0f / ( maxs[0] - mins[0] );
+	scaleY = 2.0f / ( maxs[1] - mins[1] );
+	
+	offsetX = -0.5f * ( maxs[0] + mins[0] ) * scaleX;
+	offsetY = -0.5f * ( maxs[1] + mins[1] ) * scaleY;
+	
+	scaleZ = 1.0f / ( maxs[2] - mins[2] );
+	offsetZ = -mins[2] * scaleZ;
+	
+	m[ 0] = scaleX;
+	m[ 4] = 0;
+	m[ 8] = 0;
+	m[12] = offsetX;
+	m[ 1] = 0;
+	m[ 5] = scaleY;
+	m[ 9] = 0;
+	m[13] = offsetY;
+	m[ 2] = 0;
+	m[ 6] = 0;
+	m[10] = scaleZ;
+	m[14] = offsetZ;
+	m[ 3] = 0;
+	m[ 7] = 0;
+	m[11] = 0;
+	m[15] = 1;
+}
+
+void MatrixLookAtRH( float m[16], const idVec3& eye, const idVec3& dir, const idVec3& up )
+{
+	idVec3 dirN;
+	idVec3 upN;
+	idVec3 sideN;
+	
+	sideN = dir.Cross( up );
+	sideN.Normalize();
+	
+	upN = sideN.Cross( dir );
+	upN.Normalize();
+	
+	dirN = dir;
+	dirN.Normalize();
+	
+	m[ 0] = sideN[0];
+	m[ 4] = sideN[1];
+	m[ 8] = sideN[2];
+	m[12] = -( sideN * eye );
+	m[ 1] = upN[0];
+	m[ 5] = upN[1];
+	m[ 9] = upN[2];
+	m[13] = -( upN * eye );
+	m[ 2] = -dirN[0];
+	m[ 6] = -dirN[1];
+	m[10] = -dirN[2];
+	m[14] = ( dirN * eye );
+	m[ 3] = 0;
+	m[ 7] = 0;
+	m[11] = 0;
+	m[15] = 1;
+}
+
+/*
+=====================
+RB_ShadowMapPass
+=====================
+*/
+static void RB_ShadowMapPass( const drawSurf_t* drawSurfs, const viewLight_t* vLight, int side )
+{
+	if( r_skipShadows.GetBool() )
+	{
+		return;
+	}
+	
+	if( drawSurfs == NULL )
+	{
+		return;
+	}
+	
+	RENDERLOG_PRINTF( "---------- RB_ShadowMapPass( side = %i ) ----------\n", side );
+	
+	renderProgManager.BindShader_Depth();
+	
+	GL_SelectTexture( 0 );
+	globalImages->BindNull();
+	
+	uint64 glState = 0;
+	
+	// the actual stencil func will be set in the draw code, but we need to make sure it isn't
+	// disabled here, and that the value will get reset for the interactions without looking
+	// like a no-change-required
+	GL_State( glState | GLS_POLYGON_OFFSET );
+	
+	switch( r_shadowMapOccluderFacing.GetInteger() )
+	{
+		case 0:
+			GL_Cull( CT_FRONT_SIDED );
+			GL_PolygonOffset( r_shadowMapPolygonFactor.GetFloat(), r_shadowMapPolygonOffset.GetFloat() );
+			break;
+			
+		case 1:
+			GL_Cull( CT_BACK_SIDED );
+			GL_PolygonOffset( -r_shadowMapPolygonFactor.GetFloat(), -r_shadowMapPolygonOffset.GetFloat() );
+			break;
+			
+		default:
+			GL_Cull( CT_TWO_SIDED );
+			GL_PolygonOffset( r_shadowMapPolygonFactor.GetFloat(), r_shadowMapPolygonOffset.GetFloat() );
+			break;
+	}
+	
+	idRenderMatrix lightProjectionRenderMatrix;
+	idRenderMatrix lightViewRenderMatrix;
+	
+	
+	if( vLight->parallel && side >= 0 )
+	{
+		assert( side >= 0 && side < 6 );
+		
+		// original light direction is from surface to light origin
+		idVec3 lightDir = -vLight->lightCenter;
+		if( lightDir.Normalize() == 0.0f )
+		{
+			lightDir[2] = -1.0f;
+		}
+		
+		idMat3 rotation = lightDir.ToMat3();
+		//idAngles angles = lightDir.ToAngles();
+		//idMat3 rotation = angles.ToMat3();
+		
+		const idVec3 viewDir = backEnd.viewDef->renderView.viewaxis[0];
+		const idVec3 viewPos = backEnd.viewDef->renderView.vieworg;
+		
+#if 1
+		idRenderMatrix::CreateViewMatrix( backEnd.viewDef->renderView.vieworg, rotation, lightViewRenderMatrix );
+#else
+		float lightViewMatrix[16];
+		MatrixLookAtRH( lightViewMatrix, viewPos, lightDir, viewDir );
+		idRenderMatrix::Transpose( *( idRenderMatrix* )lightViewMatrix, lightViewRenderMatrix );
+#endif
+		
+		idBounds lightBounds;
+		lightBounds.Clear();
+		
+		ALIGNTYPE16 frustumCorners_t corners;
+		idRenderMatrix::GetFrustumCorners( corners, vLight->inverseBaseLightProject, bounds_zeroOneCube );
+		
+		idVec4 point, transf;
+		for( int j = 0; j < 8; j++ )
+		{
+			point[0] = corners.x[j];
+			point[1] = corners.y[j];
+			point[2] = corners.z[j];
+			point[3] = 1;
+			
+			lightViewRenderMatrix.TransformPoint( point, transf );
+			transf[0] /= transf[3];
+			transf[1] /= transf[3];
+			transf[2] /= transf[3];
+			
+			lightBounds.AddPoint( transf.ToVec3() );
+		}
+		
+		float lightProjectionMatrix[16];
+		MatrixOrthogonalProjectionRH( lightProjectionMatrix, lightBounds[0][0], lightBounds[1][0], lightBounds[0][1], lightBounds[1][1], -lightBounds[1][2], -lightBounds[0][2] );
+		idRenderMatrix::Transpose( *( idRenderMatrix* )lightProjectionMatrix, lightProjectionRenderMatrix );
+		
+		
+		// 	'frustumMVP' goes from global space -> camera local space -> camera projective space
+		// invert the MVP projection so we can deform zero-to-one cubes into the frustum pyramid shape and calculate global bounds
+		
+		idRenderMatrix splitFrustumInverse;
+		if( !idRenderMatrix::Inverse( backEnd.viewDef->frustumMVPs[FRUSTUM_CASCADE1 + side], splitFrustumInverse ) )
+		{
+			idLib::Warning( "splitFrustumMVP invert failed" );
+		}
+		
+		// splitFrustumCorners in global space
+		ALIGNTYPE16 frustumCorners_t splitFrustumCorners;
+		idRenderMatrix::GetFrustumCorners( splitFrustumCorners, splitFrustumInverse, bounds_unitCube );
+		
+#if 0
+		idBounds splitFrustumBounds;
+		splitFrustumBounds.Clear();
+		for( int j = 0; j < 8; j++ )
+		{
+			point[0] = splitFrustumCorners.x[j];
+			point[1] = splitFrustumCorners.y[j];
+			point[2] = splitFrustumCorners.z[j];
+			
+			splitFrustumBounds.AddPoint( point.ToVec3() );
+		}
+		
+		idVec3 center = splitFrustumBounds.GetCenter();
+		float radius = splitFrustumBounds.GetRadius( center );
+		
+		//ALIGNTYPE16 frustumCorners_t splitFrustumCorners;
+		splitFrustumBounds[0] = idVec3( -radius, -radius, -radius );
+		splitFrustumBounds[1] = idVec3( radius, radius, radius );
+		splitFrustumBounds.TranslateSelf( viewPos );
+		idVec3 splitFrustumCorners2[8];
+		splitFrustumBounds.ToPoints( splitFrustumCorners2 );
+		
+		for( int j = 0; j < 8; j++ )
+		{
+			splitFrustumCorners.x[j] = splitFrustumCorners2[j].x;
+			splitFrustumCorners.y[j] = splitFrustumCorners2[j].y;
+			splitFrustumCorners.z[j] = splitFrustumCorners2[j].z;
+		}
+#endif
+		
+		
+		idRenderMatrix lightViewProjectionRenderMatrix;
+		idRenderMatrix::Multiply( lightProjectionRenderMatrix, lightViewRenderMatrix, lightViewProjectionRenderMatrix );
+		
+		// find the bounding box of the current split in the light's clip space
+		idBounds cropBounds;
+		cropBounds.Clear();
+		for( int j = 0; j < 8; j++ )
+		{
+			point[0] = splitFrustumCorners.x[j];
+			point[1] = splitFrustumCorners.y[j];
+			point[2] = splitFrustumCorners.z[j];
+			point[3] = 1;
+			
+			lightViewRenderMatrix.TransformPoint( point, transf );
+			transf[0] /= transf[3];
+			transf[1] /= transf[3];
+			transf[2] /= transf[3];
+			
+			cropBounds.AddPoint( transf.ToVec3() );
+		}
+		
+		// don't let the frustum AABB be bigger than the light AABB
+		if( cropBounds[0][0] < lightBounds[0][0] )
+		{
+			cropBounds[0][0] = lightBounds[0][0];
+		}
+		
+		if( cropBounds[0][1] < lightBounds[0][1] )
+		{
+			cropBounds[0][1] = lightBounds[0][1];
+		}
+		
+		if( cropBounds[1][0] > lightBounds[1][0] )
+		{
+			cropBounds[1][0] = lightBounds[1][0];
+		}
+		
+		if( cropBounds[1][1] > lightBounds[1][1] )
+		{
+			cropBounds[1][1] = lightBounds[1][1];
+		}
+		
+		cropBounds[0][2] = lightBounds[0][2];
+		cropBounds[1][2] = lightBounds[1][2];
+		
+		//float cropMatrix[16];
+		//MatrixCrop(cropMatrix, cropBounds[0], cropBounds[1]);
+		
+		//idRenderMatrix cropRenderMatrix;
+		//idRenderMatrix::Transpose( *( idRenderMatrix* )cropMatrix, cropRenderMatrix );
+		
+		//idRenderMatrix tmp = lightProjectionRenderMatrix;
+		//idRenderMatrix::Multiply( cropRenderMatrix, tmp, lightProjectionRenderMatrix );
+		
+		MatrixOrthogonalProjectionRH( lightProjectionMatrix, cropBounds[0][0], cropBounds[1][0], cropBounds[0][1], cropBounds[1][1], -cropBounds[1][2], -cropBounds[0][2] );
+		idRenderMatrix::Transpose( *( idRenderMatrix* )lightProjectionMatrix, lightProjectionRenderMatrix );
+		
+		backEnd.shadowV[side] = lightViewRenderMatrix;
+		backEnd.shadowP[side] = lightProjectionRenderMatrix;
+	}
+	else if( vLight->pointLight && side >= 0 )
+	{
+		assert( side >= 0 && side < 6 );
+		
+		// FIXME OPTIMIZE no memset
+		
+		float	viewMatrix[16];
+		
+		idVec3	vec;
+		idVec3	origin = vLight->globalLightOrigin;
+		
+		// side of a point light
+		memset( viewMatrix, 0, sizeof( viewMatrix ) );
+		switch( side )
+		{
+			case 0:
+				viewMatrix[0] = 1;
+				viewMatrix[9] = 1;
+				viewMatrix[6] = -1;
+				break;
+			case 1:
+				viewMatrix[0] = -1;
+				viewMatrix[9] = -1;
+				viewMatrix[6] = -1;
+				break;
+			case 2:
+				viewMatrix[4] = 1;
+				viewMatrix[1] = -1;
+				viewMatrix[10] = 1;
+				break;
+			case 3:
+				viewMatrix[4] = -1;
+				viewMatrix[1] = -1;
+				viewMatrix[10] = -1;
+				break;
+			case 4:
+				viewMatrix[8] = 1;
+				viewMatrix[1] = -1;
+				viewMatrix[6] = -1;
+				break;
+			case 5:
+				viewMatrix[8] = -1;
+				viewMatrix[1] = 1;
+				viewMatrix[6] = -1;
+				break;
+		}
+		
+		viewMatrix[12] = -origin[0] * viewMatrix[0] + -origin[1] * viewMatrix[4] + -origin[2] * viewMatrix[8];
+		viewMatrix[13] = -origin[0] * viewMatrix[1] + -origin[1] * viewMatrix[5] + -origin[2] * viewMatrix[9];
+		viewMatrix[14] = -origin[0] * viewMatrix[2] + -origin[1] * viewMatrix[6] + -origin[2] * viewMatrix[10];
+		
+		viewMatrix[3] = 0;
+		viewMatrix[7] = 0;
+		viewMatrix[11] = 0;
+		viewMatrix[15] = 1;
+		
+		// from world space to light origin, looking down the X axis
+		float	unflippedLightViewMatrix[16];
+		
+		// from world space to OpenGL view space, looking down the negative Z axis
+		float	lightViewMatrix[16];
+		
+		static float	s_flipMatrix[16] =
+		{
+			// convert from our coordinate system (looking down X)
+			// to OpenGL's coordinate system (looking down -Z)
+			0, 0, -1, 0,
+			-1, 0, 0, 0,
+			0, 1, 0, 0,
+			0, 0, 0, 1
+		};
+		
+		memcpy( unflippedLightViewMatrix, viewMatrix, sizeof( unflippedLightViewMatrix ) );
+		R_MatrixMultiply( viewMatrix, s_flipMatrix, lightViewMatrix );
+		
+		idRenderMatrix::Transpose( *( idRenderMatrix* )lightViewMatrix, lightViewRenderMatrix );
+		
+		
+		
+		
+		// set up 90 degree projection matrix
+		const float zNear = 4;
+		const float	fov = r_shadowMapFrustumFOV.GetFloat();
+		
+		float ymax = zNear * tan( fov * idMath::PI / 360.0f );
+		float ymin = -ymax;
+		
+		float xmax = zNear * tan( fov * idMath::PI / 360.0f );
+		float xmin = -xmax;
+		
+		const float width = xmax - xmin;
+		const float height = ymax - ymin;
+		
+		// from OpenGL view space to OpenGL NDC ( -1 : 1 in XYZ )
+		float lightProjectionMatrix[16];
+		
+		lightProjectionMatrix[0 * 4 + 0] = 2.0f * zNear / width;
+		lightProjectionMatrix[1 * 4 + 0] = 0.0f;
+		lightProjectionMatrix[2 * 4 + 0] = ( xmax + xmin ) / width;	// normally 0
+		lightProjectionMatrix[3 * 4 + 0] = 0.0f;
+		
+		lightProjectionMatrix[0 * 4 + 1] = 0.0f;
+		lightProjectionMatrix[1 * 4 + 1] = 2.0f * zNear / height;
+		lightProjectionMatrix[2 * 4 + 1] = ( ymax + ymin ) / height;	// normally 0
+		lightProjectionMatrix[3 * 4 + 1] = 0.0f;
+		
+		// this is the far-plane-at-infinity formulation, and
+		// crunches the Z range slightly so w=0 vertexes do not
+		// rasterize right at the wraparound point
+		lightProjectionMatrix[0 * 4 + 2] = 0.0f;
+		lightProjectionMatrix[1 * 4 + 2] = 0.0f;
+		lightProjectionMatrix[2 * 4 + 2] = -0.999f; // adjust value to prevent imprecision issues
+		lightProjectionMatrix[3 * 4 + 2] = -2.0f * zNear;
+		
+		lightProjectionMatrix[0 * 4 + 3] = 0.0f;
+		lightProjectionMatrix[1 * 4 + 3] = 0.0f;
+		lightProjectionMatrix[2 * 4 + 3] = -1.0f;
+		lightProjectionMatrix[3 * 4 + 3] = 0.0f;
+		
+		idRenderMatrix::Transpose( *( idRenderMatrix* )lightProjectionMatrix, lightProjectionRenderMatrix );
+		
+		backEnd.shadowV[side] = lightViewRenderMatrix;
+		backEnd.shadowP[side] = lightProjectionRenderMatrix;
+	}
+	else
+	{
+		lightViewRenderMatrix.Identity();
+		lightProjectionRenderMatrix = vLight->baseLightProject;
+		
+		backEnd.shadowV[0] = lightViewRenderMatrix;
+		backEnd.shadowP[0] = lightProjectionRenderMatrix;
+	}
+	
+	
+	
+	globalFramebuffers.shadowFBO[vLight->shadowLOD]->Bind();
+	
+	if( side < 0 )
+	{
+		globalFramebuffers.shadowFBO[vLight->shadowLOD]->AttachImageDepthLayer( globalImages->shadowImage[vLight->shadowLOD], 0 );
+	}
+	else
+	{
+		globalFramebuffers.shadowFBO[vLight->shadowLOD]->AttachImageDepthLayer( globalImages->shadowImage[vLight->shadowLOD], side );
+	}
+	
+	globalFramebuffers.shadowFBO[vLight->shadowLOD]->Check();
+	
+	GL_ViewportAndScissor( 0, 0, shadowMapResolutions[vLight->shadowLOD], shadowMapResolutions[vLight->shadowLOD] );
+	
+	glClear( GL_DEPTH_BUFFER_BIT );
+	
+	// process the chain of shadows with the current rendering state
+	backEnd.currentSpace = NULL;
+	
+	for( const drawSurf_t* drawSurf = drawSurfs; drawSurf != NULL; drawSurf = drawSurf->nextOnLight )
+	{
+	
+#if 1
+		// make sure the shadow occluder geometry is done
+		if( drawSurf->shadowVolumeState != SHADOWVOLUME_DONE )
+		{
+			assert( drawSurf->shadowVolumeState == SHADOWVOLUME_UNFINISHED || drawSurf->shadowVolumeState == SHADOWVOLUME_DONE );
+			
+			uint64 start = Sys_Microseconds();
+			while( drawSurf->shadowVolumeState == SHADOWVOLUME_UNFINISHED )
+			{
+				Sys_Yield();
+			}
+			uint64 end = Sys_Microseconds();
+			
+			backEnd.pc.shadowMicroSec += end - start;
+		}
+#endif
+		
+		if( drawSurf->numIndexes == 0 )
+		{
+			continue;	// a job may have created an empty shadow geometry
+		}
+		
+		if( drawSurf->space != backEnd.currentSpace )
+		{
+			idRenderMatrix modelRenderMatrix;
+			idRenderMatrix::Transpose( *( idRenderMatrix* )drawSurf->space->modelMatrix, modelRenderMatrix );
+			
+			idRenderMatrix modelToLightRenderMatrix;
+			idRenderMatrix::Multiply( lightViewRenderMatrix, modelRenderMatrix, modelToLightRenderMatrix );
+			
+			idRenderMatrix clipMVP;
+			idRenderMatrix::Multiply( lightProjectionRenderMatrix, modelToLightRenderMatrix, clipMVP );
+			
+			if( vLight->parallel )
+			{
+				idRenderMatrix MVP;
+				idRenderMatrix::Multiply( renderMatrix_clipSpaceToWindowSpace, clipMVP, MVP );
+				
+				RB_SetMVP( clipMVP );
+			}
+			else if( side < 0 )
+			{
+				// from OpenGL view space to OpenGL NDC ( -1 : 1 in XYZ )
+				idRenderMatrix MVP;
+				idRenderMatrix::Multiply( renderMatrix_windowSpaceToClipSpace, clipMVP, MVP );
+				
+				RB_SetMVP( MVP );
+			}
+			else
+			{
+				RB_SetMVP( clipMVP );
+			}
+			
+			// set the local light position to allow the vertex program to project the shadow volume end cap to infinity
+			/*
+			idVec4 localLight( 0.0f );
+			R_GlobalPointToLocal( drawSurf->space->modelMatrix, vLight->globalLightOrigin, localLight.ToVec3() );
+			SetVertexParm( RENDERPARM_LOCALLIGHTORIGIN, localLight.ToFloatPtr() );
+			*/
+			
+			backEnd.currentSpace = drawSurf->space;
+		}
+		
+		bool didDraw = false;
+		
+		const idMaterial* shader = drawSurf->material;
+		
+		// get the expressions for conditionals / color / texcoords
+		const float* regs = drawSurf->shaderRegisters;
+		idVec4 color( 0, 0, 0, 1 );
+		
+		uint64 surfGLState = 0;
+		
+		// set polygon offset if necessary
+		if( shader && shader->TestMaterialFlag( MF_POLYGONOFFSET ) )
+		{
+			surfGLState |= GLS_POLYGON_OFFSET;
+			GL_PolygonOffset( r_offsetFactor.GetFloat(), r_offsetUnits.GetFloat() * shader->GetPolygonOffset() );
+		}
+		
+#if 1
+		if( shader && shader->Coverage() == MC_PERFORATED )
+		{
+			// perforated surfaces may have multiple alpha tested stages
+			for( int stage = 0; stage < shader->GetNumStages(); stage++ )
+			{
+				const shaderStage_t* pStage = shader->GetStage( stage );
+				
+				if( !pStage->hasAlphaTest )
+				{
+					continue;
+				}
+				
+				// check the stage enable condition
+				if( regs[ pStage->conditionRegister ] == 0 )
+				{
+					continue;
+				}
+				
+				// if we at least tried to draw an alpha tested stage,
+				// we won't draw the opaque surface
+				didDraw = true;
+				
+				// set the alpha modulate
+				color[3] = regs[ pStage->color.registers[3] ];
+				
+				// skip the entire stage if alpha would be black
+				if( color[3] <= 0.0f )
+				{
+					continue;
+				}
+				
+				uint64 stageGLState = surfGLState;
+				
+				// set privatePolygonOffset if necessary
+				if( pStage->privatePolygonOffset )
+				{
+					GL_PolygonOffset( r_offsetFactor.GetFloat(), r_offsetUnits.GetFloat() * pStage->privatePolygonOffset );
+					stageGLState |= GLS_POLYGON_OFFSET;
+				}
+				
+				GL_Color( color );
+				
+#ifdef USE_CORE_PROFILE
+				GL_State( stageGLState );
+				idVec4 alphaTestValue( regs[ pStage->alphaTestRegister ] );
+				SetFragmentParm( RENDERPARM_ALPHA_TEST, alphaTestValue.ToFloatPtr() );
+#else
+				GL_State( stageGLState | GLS_ALPHATEST_FUNC_GREATER | GLS_ALPHATEST_MAKE_REF( idMath::Ftob( 255.0f * regs[ pStage->alphaTestRegister ] ) ) );
+#endif
+				
+				if( drawSurf->jointCache )
+				{
+					renderProgManager.BindShader_TextureVertexColorSkinned();
+				}
+				else
+				{
+					renderProgManager.BindShader_TextureVertexColor();
+				}
+				
+				RB_SetVertexColorParms( SVC_IGNORE );
+				
+				// bind the texture
+				GL_SelectTexture( 0 );
+				pStage->texture.image->Bind();
+				
+				// set texture matrix and texGens
+				RB_PrepareStageTexturing( pStage, drawSurf );
+				
+				// must render with less-equal for Z-Cull to work properly
+				assert( ( GL_GetCurrentState() & GLS_DEPTHFUNC_BITS ) == GLS_DEPTHFUNC_LESS );
+				
+				// draw it
+				RB_DrawElementsWithCounters( drawSurf );
+				
+				// clean up
+				RB_FinishStageTexturing( pStage, drawSurf );
+				
+				// unset privatePolygonOffset if necessary
+				if( pStage->privatePolygonOffset )
+				{
+					GL_PolygonOffset( r_offsetFactor.GetFloat(), r_offsetUnits.GetFloat() * shader->GetPolygonOffset() );
+				}
+			}
+		}
+#endif
+		
+		if( !didDraw )
+		{
+			if( drawSurf->jointCache )
+			{
+				renderProgManager.BindShader_DepthSkinned();
+			}
+			else
+			{
+				renderProgManager.BindShader_Depth();
+			}
+			
+			RB_DrawElementsWithCounters( drawSurf );
+		}
+	}
+	
+	// cleanup the shadow specific rendering state
+	
+	Framebuffer::BindNull();
+	renderProgManager.Unbind();
+	
+	GL_State( GLS_DEFAULT );
+	GL_Cull( CT_FRONT_SIDED );
+	
+#ifdef USE_CORE_PROFILE
+	SetFragmentParm( RENDERPARM_ALPHA_TEST, vec4_zero.ToFloatPtr() );
+#endif
+}
+
+/*
+==============================================================================================
+
 DRAW INTERACTIONS
 
 ==============================================================================================
@@ -1912,7 +2786,7 @@ DRAW INTERACTIONS
 RB_DrawInteractions
 ==================
 */
-static void RB_DrawInteractions()
+static void RB_DrawInteractions( const viewDef_t* viewDef )
 {
 	if( r_skipInteractions.GetBool() )
 	{
@@ -1925,7 +2799,7 @@ static void RB_DrawInteractions()
 	GL_SelectTexture( 0 );
 	
 	
-	const bool useLightDepthBounds = r_useLightDepthBounds.GetBool();
+	const bool useLightDepthBounds = r_useLightDepthBounds.GetBool() && !r_useShadowMapping.GetBool();
 	
 	//
 	// for each light, perform shadowing and adding
@@ -1956,70 +2830,124 @@ static void RB_DrawInteractions()
 			GL_DepthBoundsTest( vLight->scissorRect.zmin, vLight->scissorRect.zmax );
 		}
 		
-		// only need to clear the stencil buffer and perform stencil testing if there are shadows
-		const bool performStencilTest = ( vLight->globalShadows != NULL || vLight->localShadows != NULL );
-		
-		// mirror flips the sense of the stencil select, and I don't want to risk accidentally breaking it
-		// in the normal case, so simply disable the stencil select in the mirror case
-		const bool useLightStencilSelect = ( r_useLightStencilSelect.GetBool() && backEnd.viewDef->isMirror == false );
-		
-		if( performStencilTest )
+		// RB: shadow mapping
+		if( r_useShadowMapping.GetBool() )
 		{
-			if( useLightStencilSelect )
+			int	side, sideStop;
+			
+			if( vLight->parallel )
 			{
-				// write a stencil mask for the visible light bounds to hi-stencil
-				RB_StencilSelectLight( vLight );
+				side = 0;
+				sideStop = r_shadowMapSplits.GetInteger() + 1;
+			}
+			else if( vLight->pointLight )
+			{
+				if( r_shadowMapSingleSide.GetInteger() != -1 )
+				{
+					side = r_shadowMapSingleSide.GetInteger();
+					sideStop = side + 1;
+				}
+				else
+				{
+					side = 0;
+					sideStop = 6;
+				}
 			}
 			else
 			{
-				// always clear whole S-Cull tiles
-				idScreenRect rect;
-				rect.x1 = ( vLight->scissorRect.x1 +  0 ) & ~15;
-				rect.y1 = ( vLight->scissorRect.y1 +  0 ) & ~15;
-				rect.x2 = ( vLight->scissorRect.x2 + 15 ) & ~15;
-				rect.y2 = ( vLight->scissorRect.y2 + 15 ) & ~15;
-				
-				if( !backEnd.currentScissor.Equals( rect ) && r_useScissor.GetBool() )
-				{
-					GL_Scissor( backEnd.viewDef->viewport.x1 + rect.x1,
-								backEnd.viewDef->viewport.y1 + rect.y1,
-								rect.x2 + 1 - rect.x1,
-								rect.y2 + 1 - rect.y1 );
-					backEnd.currentScissor = rect;
-				}
-				GL_State( GLS_DEFAULT );	// make sure stencil mask passes for the clear
-				GL_Clear( false, false, true, STENCIL_SHADOW_TEST_VALUE, 0.0f, 0.0f, 0.0f, 0.0f );
+				side = -1;
+				sideStop = 0;
+			}
+			
+			for( ; side < sideStop ; side++ )
+			{
+				RB_ShadowMapPass( vLight->globalShadows, vLight, side );
+			}
+			
+			// go back from light view to default camera view
+			RB_ResetViewportAndScissorToDefaultCamera( viewDef );
+			
+			if( vLight->localInteractions != NULL )
+			{
+				renderLog.OpenBlock( "Local Light Interactions" );
+				RB_RenderInteractions( vLight->localInteractions, vLight, GLS_DEPTHFUNC_EQUAL, false, useLightDepthBounds );
+				renderLog.CloseBlock();
+			}
+			
+			if( vLight->globalInteractions != NULL )
+			{
+				renderLog.OpenBlock( "Global Light Interactions" );
+				RB_RenderInteractions( vLight->globalInteractions, vLight, GLS_DEPTHFUNC_EQUAL, false, useLightDepthBounds );
+				renderLog.CloseBlock();
 			}
 		}
-		
-		if( vLight->globalShadows != NULL )
+		else
 		{
-			renderLog.OpenBlock( "Global Light Shadows" );
-			RB_StencilShadowPass( vLight->globalShadows, vLight );
-			renderLog.CloseBlock();
+			// only need to clear the stencil buffer and perform stencil testing if there are shadows
+			const bool performStencilTest = ( vLight->globalShadows != NULL || vLight->localShadows != NULL ) && !r_useShadowMapping.GetBool();
+			
+			// mirror flips the sense of the stencil select, and I don't want to risk accidentally breaking it
+			// in the normal case, so simply disable the stencil select in the mirror case
+			const bool useLightStencilSelect = ( r_useLightStencilSelect.GetBool() && backEnd.viewDef->isMirror == false );
+			
+			if( performStencilTest )
+			{
+				if( useLightStencilSelect )
+				{
+					// write a stencil mask for the visible light bounds to hi-stencil
+					RB_StencilSelectLight( vLight );
+				}
+				else
+				{
+					// always clear whole S-Cull tiles
+					idScreenRect rect;
+					rect.x1 = ( vLight->scissorRect.x1 +  0 ) & ~15;
+					rect.y1 = ( vLight->scissorRect.y1 +  0 ) & ~15;
+					rect.x2 = ( vLight->scissorRect.x2 + 15 ) & ~15;
+					rect.y2 = ( vLight->scissorRect.y2 + 15 ) & ~15;
+					
+					if( !backEnd.currentScissor.Equals( rect ) && r_useScissor.GetBool() )
+					{
+						GL_Scissor( backEnd.viewDef->viewport.x1 + rect.x1,
+									backEnd.viewDef->viewport.y1 + rect.y1,
+									rect.x2 + 1 - rect.x1,
+									rect.y2 + 1 - rect.y1 );
+						backEnd.currentScissor = rect;
+					}
+					GL_State( GLS_DEFAULT );	// make sure stencil mask passes for the clear
+					GL_Clear( false, false, true, STENCIL_SHADOW_TEST_VALUE, 0.0f, 0.0f, 0.0f, 0.0f );
+				}
+			}
+			
+			if( vLight->globalShadows != NULL )
+			{
+				renderLog.OpenBlock( "Global Light Shadows" );
+				RB_StencilShadowPass( vLight->globalShadows, vLight );
+				renderLog.CloseBlock();
+			}
+			
+			if( vLight->localInteractions != NULL )
+			{
+				renderLog.OpenBlock( "Local Light Interactions" );
+				RB_RenderInteractions( vLight->localInteractions, vLight, GLS_DEPTHFUNC_EQUAL, performStencilTest, useLightDepthBounds );
+				renderLog.CloseBlock();
+			}
+			
+			if( vLight->localShadows != NULL )
+			{
+				renderLog.OpenBlock( "Local Light Shadows" );
+				RB_StencilShadowPass( vLight->localShadows, vLight );
+				renderLog.CloseBlock();
+			}
+			
+			if( vLight->globalInteractions != NULL )
+			{
+				renderLog.OpenBlock( "Global Light Interactions" );
+				RB_RenderInteractions( vLight->globalInteractions, vLight, GLS_DEPTHFUNC_EQUAL, performStencilTest, useLightDepthBounds );
+				renderLog.CloseBlock();
+			}
 		}
-		
-		if( vLight->localInteractions != NULL )
-		{
-			renderLog.OpenBlock( "Local Light Interactions" );
-			RB_RenderInteractions( vLight->localInteractions, vLight, GLS_DEPTHFUNC_EQUAL, performStencilTest, useLightDepthBounds );
-			renderLog.CloseBlock();
-		}
-		
-		if( vLight->localShadows != NULL )
-		{
-			renderLog.OpenBlock( "Local Light Shadows" );
-			RB_StencilShadowPass( vLight->localShadows, vLight );
-			renderLog.CloseBlock();
-		}
-		
-		if( vLight->globalInteractions != NULL )
-		{
-			renderLog.OpenBlock( "Global Light Interactions" );
-			RB_RenderInteractions( vLight->globalInteractions, vLight, GLS_DEPTHFUNC_EQUAL, performStencilTest, useLightDepthBounds );
-			renderLog.CloseBlock();
-		}
-		
+		// RB end
 		
 		if( vLight->translucentInteractions != NULL && !r_skipTranslucent.GetBool() )
 		{
@@ -2257,6 +3185,7 @@ static int RB_DrawShaderPasses( const drawSurf_t* const* const drawSurfs, const 
 				continue;
 			}
 			
+			
 			// see if we are a new-style stage
 			newShaderStage_t* newStage = pStage->newStage;
 			if( newStage != NULL )
@@ -2276,7 +3205,7 @@ static int RB_DrawShaderPasses( const drawSurf_t* const* const drawSurfs, const 
 				
 				// RB: CRITICAL BUGFIX: changed newStage->glslProgram to vertexProgram and fragmentProgram
 				// otherwise it will result in an out of bounds crash in RB_DrawElementsWithCounters
-				renderProgManager.BindShader( newStage->vertexProgram, newStage->fragmentProgram );
+				renderProgManager.BindShader( newStage->glslProgram, newStage->vertexProgram, newStage->fragmentProgram, false );
 				// RB end
 				
 				for( int j = 0; j < newStage->numVertexParms; j++ )
@@ -2342,7 +3271,7 @@ static int RB_DrawShaderPasses( const drawSurf_t* const* const drawSurfs, const 
 			//--------------------------
 			
 			// set the color
-			float color[4];
+			idVec4 color;
 			color[0] = regs[ pStage->color.registers[0] ];
 			color[1] = regs[ pStage->color.registers[1] ];
 			color[2] = regs[ pStage->color.registers[2] ];
@@ -2578,7 +3507,7 @@ static void RB_BlendLight( const drawSurf_t* drawSurfs, const drawSurf_t* drawSu
 		}
 		
 		// get the modulate values from the light, including alpha, unlike normal lights
-		float lightColor[4];
+		idVec4 lightColor;
 		lightColor[0] = regs[ stage->color.registers[0] ];
 		lightColor[1] = regs[ stage->color.registers[1] ];
 		lightColor[2] = regs[ stage->color.registers[2] ];
@@ -2691,7 +3620,7 @@ static void RB_FogPass( const drawSurf_t* drawSurfs,  const drawSurf_t* drawSurf
 	// assume fog shaders have only a single stage
 	const shaderStage_t* stage = lightShader->GetStage( 0 );
 	
-	float lightColor[4];
+	idVec4 lightColor;
 	lightColor[0] = regs[ stage->color.registers[0] ];
 	lightColor[1] = regs[ stage->color.registers[1] ];
 	lightColor[2] = regs[ stage->color.registers[2] ];
@@ -2854,19 +3783,7 @@ void RB_DrawViewInternal( const viewDef_t* viewDef, const int stereoEye )
 	//
 	// clear the z buffer, set the projection matrix, etc
 	//-------------------------------------------------
-	
-	// set the window clipping
-	GL_Viewport( viewDef->viewport.x1,
-				 viewDef->viewport.y1,
-				 viewDef->viewport.x2 + 1 - viewDef->viewport.x1,
-				 viewDef->viewport.y2 + 1 - viewDef->viewport.y1 );
-				 
-	// the scissor may be smaller than the viewport for subviews
-	GL_Scissor( backEnd.viewDef->viewport.x1 + viewDef->scissor.x1,
-				backEnd.viewDef->viewport.y1 + viewDef->scissor.y1,
-				viewDef->scissor.x2 + 1 - viewDef->scissor.x1,
-				viewDef->scissor.y2 + 1 - viewDef->scissor.y1 );
-	backEnd.currentScissor = viewDef->scissor;
+	RB_ResetViewportAndScissorToDefaultCamera( viewDef );
 	
 	backEnd.glState.faceCulling = -1;		// force face culling to set next time
 	
@@ -2882,7 +3799,7 @@ void RB_DrawViewInternal( const viewDef_t* viewDef, const int stereoEye )
 	
 #ifdef USE_CORE_PROFILE
 	// bind one global Vertex Array Object (VAO)
-	qglBindVertexArray( glConfig.global_vao );
+	glBindVertexArray( glConfig.global_vao );
 #endif
 	
 	//------------------------------------
@@ -2926,7 +3843,7 @@ void RB_DrawViewInternal( const viewDef_t* viewDef, const int stereoEye )
 	//-------------------------------------------------
 	// main light renderer
 	//-------------------------------------------------
-	RB_DrawInteractions();
+	RB_DrawInteractions( viewDef );
 	
 	//-------------------------------------------------
 	// now draw any non-light dependent shading passes
@@ -3042,9 +3959,9 @@ void RB_MotionBlur()
 	
 	// clear the alpha buffer and draw only the hands + weapon into it so
 	// we can avoid blurring them
-	qglClearColor( 0, 0, 0, 1 );
+	glClearColor( 0, 0, 0, 1 );
 	GL_State( GLS_COLORMASK | GLS_DEPTHMASK );
-	qglClear( GL_COLOR_BUFFER_BIT );
+	glClear( GL_COLOR_BUFFER_BIT );
 	GL_Color( 0, 0, 0, 0 );
 	GL_SelectTexture( 0 );
 	globalImages->blackImage->Bind();

@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013-2014 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -174,6 +175,7 @@ static void R_AddSingleLight( viewLight_t* vLight )
 				break;
 			}
 		}
+		
 		if( lightStageNum == lightShader->GetNumStages() )
 		{
 			// we went through all the stages and didn't find one that adds anything
@@ -183,6 +185,7 @@ static void R_AddSingleLight( viewLight_t* vLight )
 			return;
 		}
 	}
+	
 	
 	//--------------------------------------------
 	// copy data used by backend
@@ -207,9 +210,18 @@ static void R_AddSingleLight( viewLight_t* vLight )
 	// copy the matrix for deforming the 'zeroOneCubeModel' to exactly cover the light volume in world space
 	vLight->inverseBaseLightProject = light->inverseBaseLightProject;
 	
+	// RB begin
+	vLight->baseLightProject = light->baseLightProject;
+	vLight->pointLight = light->parms.pointLight;
+	vLight->parallel = light->parms.parallel;
+	vLight->lightCenter = light->parms.lightCenter;
+	// RB end
+	
 	vLight->falloffImage = light->falloffImage;
 	vLight->lightShader = light->lightShader;
 	vLight->shaderRegisters = lightRegs;
+	
+	const bool lightCastsShadows = light->LightCastsShadows();
 	
 	if( r_useLightScissors.GetInteger() != 0 )
 	{
@@ -252,6 +264,81 @@ static void R_AddSingleLight( viewLight_t* vLight )
 		vLight->scissorRect.Intersect( lightScissorRect );
 		vLight->scissorRect.zmin = projected[0][2];
 		vLight->scissorRect.zmax = projected[1][2];
+		
+		// RB: calculate shadow LOD similar to Q3A .md3 LOD code
+		vLight->shadowLOD = 0;
+		
+		if( r_useShadowMapping.GetBool() && lightCastsShadows )
+		{
+			float           flod, lodscale;
+			float           projectedRadius;
+			int             lod;
+			int             numLods;
+			
+			numLods = MAX_SHADOWMAP_RESOLUTIONS;
+			
+			// compute projected bounding sphere
+			// and use that as a criteria for selecting LOD
+			idVec3 center = projected.GetCenter();
+			projectedRadius = projected.GetRadius( center );
+			if( projectedRadius > 1.0f )
+			{
+				projectedRadius = 1.0f;
+			}
+			
+			if( projectedRadius != 0 )
+			{
+				lodscale = r_shadowMapLodScale.GetFloat();
+				
+				if( lodscale > 20 )
+					lodscale = 20;
+					
+				flod = 1.0f - projectedRadius * lodscale;
+			}
+			else
+			{
+				// object intersects near view plane, e.g. view weapon
+				flod = 0;
+			}
+			
+			flod *= numLods;
+			
+			if( flod < 0 )
+			{
+				flod = 0;
+			}
+			
+			lod = idMath::Ftoi( flod );
+			
+			if( lod >= numLods )
+			{
+				//lod = numLods - 1;
+			}
+			
+			lod += r_shadowMapLodBias.GetInteger();
+			
+			if( lod < 0 )
+			{
+				lod = 0;
+			}
+			
+			if( lod >= numLods )
+			{
+				// don't draw any shadow
+				//lod = -1;
+				
+				lod = numLods - 1;
+			}
+			
+			// 2048^2 ultra quality is only for cascaded shadow mapping with sun lights
+			if( lod == 0 && !light->parms.parallel )
+			{
+				lod = 1;
+			}
+			
+			vLight->shadowLOD = lod;
+		}
+		// RB end
 	}
 	
 	// this one stays on the list
@@ -267,8 +354,7 @@ static void R_AddSingleLight( viewLight_t* vLight )
 	// this bool array will be set true whenever the entity will visibly interact with the light
 	vLight->entityInteractionState = ( byte* )R_ClearedFrameAlloc( light->world->entityDefs.Num() * sizeof( vLight->entityInteractionState[0] ), FRAME_ALLOC_INTERACTION_STATE );
 	
-	const bool lightCastsShadows = light->LightCastsShadows();
-	idInteraction * * const interactionTableRow = light->world->interactionTable + light->index * light->world->interactionTableWidth;
+	idInteraction** const interactionTableRow = light->world->interactionTable + light->index * light->world->interactionTableWidth;
 	
 	for( areaReference_t* lref = light->references; lref != NULL; lref = lref->ownerNext )
 	{
@@ -420,7 +506,7 @@ static void R_AddSingleLight( viewLight_t* vLight )
 	//--------------------------------------------
 	// add the prelight shadows for the static world geometry
 	//--------------------------------------------
-	if( light->parms.prelightModel != NULL )
+	if( light->parms.prelightModel != NULL && !r_useShadowMapping.GetBool() )
 	{
 		srfTriangles_t* tri = light->parms.prelightModel->Surface( 0 )->geometry;
 		
