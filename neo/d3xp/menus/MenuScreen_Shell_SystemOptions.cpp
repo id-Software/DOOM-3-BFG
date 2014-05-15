@@ -118,15 +118,15 @@ void idMenuScreen_Shell_SystemOptions::Initialize( idMenuHandler* data )
 	control->SetupEvents( DEFAULT_REPEAT_TIME, options->GetChildren().Num() );
 	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, idMenuDataSource_SystemSettings::SYSTEM_FIELD_SHADOWMAPPING );
 	options->AddChild( control );
-	// RB end
 	
-	control = new( TAG_SWF ) idMenuWidget_ControlButton();
+	/*control = new( TAG_SWF ) idMenuWidget_ControlButton();
 	control->SetOptionType( OPTION_SLIDER_BAR );
 	control->SetLabel( "#str_swf_lodbias" );
 	control->SetDataSource( &systemData, idMenuDataSource_SystemSettings::SYSTEM_FIELD_LODBIAS );
 	control->SetupEvents( DEFAULT_REPEAT_TIME, options->GetChildren().Num() );
 	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, idMenuDataSource_SystemSettings::SYSTEM_FIELD_LODBIAS );
-	options->AddChild( control );
+	options->AddChild( control );*/
+	// RB end
 	
 	control = new( TAG_SWF ) idMenuWidget_ControlButton();
 	control->SetOptionType( OPTION_SLIDER_BAR );
@@ -519,15 +519,15 @@ void idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::AdjustFi
 			r_useShadowMapping.SetInteger( AdjustOption( r_useShadowMapping.GetInteger(), values, numValues, adjustAmount ) );
 			break;
 		}
-		// RB end
-		case SYSTEM_FIELD_LODBIAS:
+		/*case SYSTEM_FIELD_LODBIAS:
 		{
 			const float percent = LinearAdjust( r_lodBias.GetFloat(), -1.0f, 1.0f, 0.0f, 100.0f );
 			const float adjusted = percent + ( float )adjustAmount * 5.0f;
 			const float clamped = idMath::ClampFloat( 0.0f, 100.0f, adjusted );
 			r_lodBias.SetFloat( LinearAdjust( clamped, 0.0f, 100.0f, -1.0f, 1.0f ) );
 			break;
-		}
+		}*/
+		// RB end
 		case SYSTEM_FIELD_BRIGHTNESS:
 		{
 			const float percent = LinearAdjust( r_lightScale.GetFloat(), 2.0f, 4.0f, 0.0f, 100.0f );
@@ -615,9 +615,9 @@ idSWFScriptVar idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings
 			{
 				return "#str_swf_disabled";
 			}
+			//case SYSTEM_FIELD_LODBIAS:
+			//	return LinearAdjust( r_lodBias.GetFloat(), -1.0f, 1.0f, 0.0f, 100.0f );
 			// RB end
-		case SYSTEM_FIELD_LODBIAS:
-			return LinearAdjust( r_lodBias.GetFloat(), -1.0f, 1.0f, 0.0f, 100.0f );
 		case SYSTEM_FIELD_BRIGHTNESS:
 			return LinearAdjust( r_lightScale.GetFloat(), 2.0f, 4.0f, 0.0f, 100.0f );
 		case SYSTEM_FIELD_VOLUME:

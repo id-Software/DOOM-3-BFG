@@ -130,19 +130,21 @@ If you don't want to use git, you can download the source as a zip file at
 
 ___________________________________________________________________
 
-5) COMPILING ON WIN32 WITH VISUAL C++ 2010 EXPRESS EDITION
+5) COMPILING ON WIN32 WITH VISUAL C++ 2013 EXPRESS EDITION
 __________________________________________________________
 
-1. Download and install the Visual C++ 2010 Express Edition.
+1. Download and install the Visual C++ 2013 Express Edition.
 
-2. Generate the VC10 projects using CMake by doubleclicking a matching configuration .bat file in the neo/ folder.
+2. Download and install the latest CMake.
 
-3. Use the VC10 solution to compile what you need:
+3. Generate the VC13 projects using CMake by doubleclicking a matching configuration .bat file in the neo/ folder.
+
+4. Use the VC13 solution to compile what you need:
 	RBDOOM-3-BFG/build/RBDoom3BFG.sln
 	
-4. Download ffmpeg-20140405-git-ec8789a-win32-shared.7z from ffmpeg.zeranoe.com/builds/win32/devel
+5. Download ffmpeg-20140405-git-ec8789a-win32-shared.7z from ffmpeg.zeranoe.com/builds/win32/shared
 
-5. Extract the DLLs to your current build directory under RBDOOM-3-BFG/build/
+6. Extract the FFmpeg DLLs to your current build directory under RBDOOM-3-BFG/build/
 
 
 __________________________________
