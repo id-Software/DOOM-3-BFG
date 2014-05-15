@@ -409,7 +409,10 @@ void idSWFSprite::WriteXML_PlaceObject2( idFile* file, idSWFBitStream& bitstream
 		file->WriteFloatString( "%s\t\t<MulColor r=\"%f\" g=\"%f\" b=\"%f\" a=\"%f\"/>\n", indentPrefix, color.x, color.y, color.z, color.w );
 		
 		color = cxf.add;
-		file->WriteFloatString( "%s\t\t<AddColor r=\"%f\" g=\"%f\" b=\"%f\" a=\"%f\"/>\n", indentPrefix, color.x, color.y, color.z, color.w );
+		if( color != vec4_origin )
+		{
+			file->WriteFloatString( "%s\t\t<AddColor r=\"%f\" g=\"%f\" b=\"%f\" a=\"%f\"/>\n", indentPrefix, color.x, color.y, color.z, color.w );
+		}
 	}
 	
 	if( ( flags & PlaceFlagHasRatio ) != 0 )
@@ -486,7 +489,10 @@ void idSWFSprite::WriteXML_PlaceObject3( idFile* file, idSWFBitStream& bitstream
 		file->WriteFloatString( "%s\t\t<MulColor r=\"%f\" g=\"%f\" b=\"%f\" a=\"%f\"/>\n", indentPrefix, color.x, color.y, color.z, color.w );
 		
 		color = cxf.add;
-		file->WriteFloatString( "%s\t\t<AddColor r=\"%f\" g=\"%f\" b=\"%f\" a=\"%f\"/>\n", indentPrefix, color.x, color.y, color.z, color.w );
+		if( color != vec4_origin )
+		{
+			file->WriteFloatString( "%s\t\t<AddColor r=\"%f\" g=\"%f\" b=\"%f\" a=\"%f\"/>\n", indentPrefix, color.x, color.y, color.z, color.w );
+		}
 	}
 	
 	if( ( flags1 & PlaceFlagHasRatio ) != 0 )

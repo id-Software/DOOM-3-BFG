@@ -262,8 +262,6 @@ void idSWF::WriteSWF( const char* swfFilename, const byte* atlasImageRGBA, int a
 			{
 				idSWFShape* shape = dictionary[i].shape;
 				
-				
-				
 				int numFillDraws = 0;
 				for( int d = 0; d < shape->fillDraws.Num(); d++ )
 				{
@@ -833,6 +831,8 @@ idSWF::WriteXML
 */
 void idSWF::WriteXML( const char* filename )
 {
+	const bool exportBitmapShapesOnly = false;
+
 	idFileLocal file( fileSystem->OpenFileWrite( filename, "fs_basepath" ) );
 	if( file == NULL )
 	{
@@ -898,12 +898,10 @@ void idSWF::WriteXML( const char* filename )
 				{
 					idSWFShapeDrawFill& fillDraw = shape->fillDraws[d];
 					
-					/*
-					if( fillDraw.style.type != 4 )
+					if( exportBitmapShapesOnly && fillDraw.style.type != 4 )
 					{
 						continue;
 					}
-					*/
 					
 					file->WriteFloatString( "\t\t\t<DrawFill>\n" );
 					
@@ -979,9 +977,12 @@ void idSWF::WriteXML( const char* filename )
 						file->WriteFloatString( "\t\t\t\t\t<StartMatrix>%f %f %f %f %f %f</StartMatrix>\n",
 												m.xx, m.yy, m.xy, m.yx, m.tx, m.ty );
 												
-						m = fillDraw.style.endMatrix;
-						file->WriteFloatString( "\t\t\t\t\t<EndMatrix>%f %f %f %f %f %f</EndMatrix>\n",
-												m.xx, m.yy, m.xy, m.yx, m.tx, m.ty );
+						if( fillDraw.style.startMatrix != fillDraw.style.endMatrix )
+						{
+							m = fillDraw.style.endMatrix;
+							file->WriteFloatString( "\t\t\t\t\t<EndMatrix>%f %f %f %f %f %f</EndMatrix>\n",
+													m.xx, m.yy, m.xy, m.yx, m.tx, m.ty );
+						}
 					}
 					
 					for( int g = 0; g < fillDraw.style.gradient.numGradients; g++ )
@@ -994,9 +995,12 @@ void idSWF::WriteXML( const char* filename )
 						file->WriteFloatString( "\t\t\t\t\t\t<StartColor r=\"%f\" g=\"%f\" b=\"%f\" a=\"%f\"/>\n",
 												color.x, color.y, color.z, color.w );
 												
-						color = gr.endColor.ToVec4();
-						file->WriteFloatString( "\t\t\t\t\t\t<EndColor r=\"%f\" g=\"%f\" b=\"%f\" a=\"%f\"/>\n",
-												color.x, color.y, color.z, color.w );
+						idVec4 endColor = gr.endColor.ToVec4();
+						if( color != endColor )
+						{
+							file->WriteFloatString( "\t\t\t\t\t\t<EndColor r=\"%f\" g=\"%f\" b=\"%f\" a=\"%f\"/>\n",
+												color.x, color.y, color.z, endColor.w );
+						}
 					}
 					
 					file->WriteFloatString( "\t\t\t\t</FillStyle>\n" );
@@ -1028,7 +1032,7 @@ void idSWF::WriteXML( const char* filename )
 				}
 				
 				// export line draws
-#if 0
+#if 1
 				for( int d = 0; d < shape->lineDraws.Num(); d++ )
 				{
 					const idSWFShapeDrawLine& lineDraw = shape->lineDraws[d];
@@ -1041,9 +1045,12 @@ void idSWF::WriteXML( const char* filename )
 					file->WriteFloatString( "\t\t\t\t\t<StartColor r=\"%f\" g=\"%f\" b=\"%f\" a=\"%f\"/>\n",
 											color.x, color.y, color.z, color.w );
 											
-					color = lineDraw.style.endColor.ToVec4();
-					file->WriteFloatString( "\t\t\t\t\t<EndColor r=\"%f\" g=\"%f\" b=\"%f\" a=\"%f\"/>\n",
-											color.x, color.y, color.z, color.w );
+					idVec4 endColor = lineDraw.style.endColor.ToVec4();
+					if( color != endColor )
+					{
+						file->WriteFloatString( "\t\t\t\t\t<EndColor r=\"%f\" g=\"%f\" b=\"%f\" a=\"%f\"/>\n",
+											endColor.x, endColor.y, endColor.z, endColor.w );
+					}
 											
 					file->WriteFloatString( "\t\t\t\t</LineStyle>\n" );
 					
@@ -1089,6 +1096,7 @@ void idSWF::WriteXML( const char* filename )
 				file->WriteFloatString( "\t\t<Font characterID=\"%i\" name=\"%s\" ascent=\"%i\" descent=\"%i\" leading=\"%i\" glyphsNum=\"%i\">\n",
 										i, font->fontID->GetName(), font->ascent, font->descent, font->leading, font->glyphs.Num() );
 										
+#if 0
 				for( int g = 0; g < font->glyphs.Num(); g++ )
 				{
 					file->WriteFloatString( "\t\t\t<Glyph code=\"%i\" advance=\"%i\"/>\n", font->glyphs[g].code, font->glyphs[g].advance );
@@ -1113,6 +1121,7 @@ void idSWF::WriteXML( const char* filename )
 					file->WriteFloatString( "\t\t\t</Glyph>\n" );
 #endif
 				}
+#endif
 				file->WriteFloatString( "\t\t</Font>\n" );
 				break;
 			}

@@ -35,9 +35,9 @@ If you have questions concerning this license or the applicable additional terms
 
 idCVar swf_loadBinary( "swf_loadBinary", "1", CVAR_INTEGER, "used to set whether to load binary swf from generated" );
 // RB begin
-idCVar swf_exportSWF( "swf_exportSWF", "1", CVAR_INTEGER, "" );
+idCVar swf_exportAtlas( "swf_exportAtlas", "0", CVAR_INTEGER, "" );
+idCVar swf_exportSWF( "swf_exportSWF", "0", CVAR_INTEGER, "" );
 idCVar swf_exportXML( "swf_exportXML", "1", CVAR_INTEGER, "" );
-idCVar swf_exportAtlas( "swf_exportAtlas", "1", CVAR_INTEGER, "" );
 // RB end
 
 int idSWF::mouseX = -1;
