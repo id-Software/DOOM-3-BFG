@@ -272,14 +272,14 @@ void main( PS_IN fragment, out PS_OUT result )
 	float stepSize = 1.0 / numSamples;
 	
 	float4 jitterTC = ( fragment.position * rpScreenCorrectionFactor ) + rpJitterTexOffset;
-	float4 random = tex2D( samp6, jitterTC.xy ) * PI;// * rpJitterTexScale;
+	float4 random = tex2D( samp6, jitterTC.xy ) * PI;
 	//float4 random = fragment.position;
 	
 	float2 rot;
 	rot.x = cos( random.x );
 	rot.y = sin( random.x );
 	
-	float shadowTexelSize = rpScreenCorrectionFactor.z * 3.0;
+	float shadowTexelSize = rpScreenCorrectionFactor.z * rpJitterTexScale;
     for( int i = 0; i < numSamples; i++ )
     {
         float2 jitter = poissonDisk[i];

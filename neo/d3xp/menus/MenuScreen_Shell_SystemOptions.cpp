@@ -514,8 +514,8 @@ void idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::AdjustFi
 		// RB begin
 		case SYSTEM_FIELD_SHADOWMAPPING:
 		{
-			static const int numValues = 3;
-			static const int values[numValues] = { 0, 1, 2 };
+			static const int numValues = 2;
+			static const int values[numValues] = { 0, 1 };
 			r_useShadowMapping.SetInteger( AdjustOption( r_useShadowMapping.GetInteger(), values, numValues, adjustAmount ) );
 			break;
 		}
@@ -609,11 +609,7 @@ idSWFScriptVar idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings
 		case SYSTEM_FIELD_SHADOWMAPPING:
 			if( r_useShadowMapping.GetInteger() == 1 )
 			{
-				return "Medium";
-			}
-			else if( r_useShadowMapping.GetInteger() == 2 )
-			{
-				return "High";
+				return "#str_swf_enabled";
 			}
 			else
 			{

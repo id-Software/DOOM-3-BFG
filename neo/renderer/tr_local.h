@@ -1062,6 +1062,7 @@ extern idCVar r_shadowMapImageSize;
 extern idCVar r_shadowMapJitterScale;
 extern idCVar r_shadowMapBiasScale;
 extern idCVar r_shadowMapRandomizeJitter;
+extern idCVar r_shadowMapSamples;
 extern idCVar r_shadowMapSplits;
 extern idCVar r_shadowMapSplitWeight;
 extern idCVar r_shadowMapLodScale;

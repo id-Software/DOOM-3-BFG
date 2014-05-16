@@ -1275,14 +1275,7 @@ static void RB_RenderInteractions( const drawSurf_t* surfList, const viewLight_t
 		
 		// default high quality
 		float jitterSampleScale = 1.0f;
-		float shadowMapSamples = 16.0f;
-		
-		if( r_useShadowMapping.GetInteger() == 1 )
-		{
-			// medium quality
-			jitterSampleScale = 0.8f;
-			shadowMapSamples = 1.0f;
-		}
+		float shadowMapSamples = r_shadowMapSamples.GetInteger();
 		
 		// screen power of two correction factor
 		float screenCorrectionParm[4];
@@ -1369,15 +1362,17 @@ static void RB_RenderInteractions( const drawSurf_t* surfList, const viewLight_t
 			
 			// texture 6 will be the jitter texture for soft shadowing
 			GL_SelectTexture( INTERACTION_TEXUNIT_JITTER );
-			if( r_useShadowMapping.GetInteger() == 1 )
+			if( r_shadowMapSamples.GetInteger() == 16 )
 			{
-				// medium quality
+				globalImages->jitterImage16->Bind();
+			}
+			else if( r_shadowMapSamples.GetInteger() == 4 )
+			{
 				globalImages->jitterImage1->Bind();
 			}
 			else
 			{
-				// high quality
-				globalImages->jitterImage16->Bind();
+				globalImages->jitterImage1->Bind();
 			}
 		}
 		

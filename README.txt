@@ -273,9 +273,6 @@ __________________________________________
 	scene on a GTX 660 ti OC) however I defaulted it to 16 taps so the shadows look
 	really good which should give you stable 100 fps on todays hardware (2014).
 
-	The shadow filtering algorithm is based on Carmack's research which was
-	released in the original Doom 3 GPL release draw_exp.cpp.
-
 - Changed light interaction shaders to use Half-Lambert lighting like in Half-Life 2 to 
 	make the game less dark. https://developer.valvesoftware.com/wiki/Half_Lambert
 
@@ -285,9 +282,7 @@ ___________________________________________________
 9) CONSOLE VARIABLES
 __________________________________________
 
-r_useShadowMapping	0: Use oldschool hard stencil shadows
-					1: Use soft shadow mapping medium quality
-					2: Use soft shadow mapping high quality
+r_useShadowMapping 1 - Use soft shadow mapping instead of hard stencil shadows
 
 
 ___________________________________________________
