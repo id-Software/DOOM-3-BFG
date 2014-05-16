@@ -271,7 +271,7 @@ __________________________________________
 	scene independent cascaded shadow mapping.
 	The implementation is very fast with single taps (400 fps average per
 	scene on a GTX 660 ti OC) however I defaulted it to 16 taps so the shadows look
-	really good which should you give stable 100 fps on todays hardware.
+	really good which should give you stable 100 fps on todays hardware (2014).
 
 	The shadow filtering algorithm is based on Carmack's research which was
 	released in the original Doom 3 GPL release draw_exp.cpp.
