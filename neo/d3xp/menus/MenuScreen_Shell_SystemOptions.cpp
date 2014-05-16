@@ -499,8 +499,10 @@ void idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::AdjustFi
 		}
 		case SYSTEM_FIELD_ANTIALIASING:
 		{
-			static const int numValues = 5;
-			static const int values[numValues] = { 0, 2, 4, 8, 16 };
+			// RB: disabled 16x MSAA
+			static const int numValues = 4;
+			static const int values[numValues] = { 0, 2, 4, 8 };
+			// RB end
 			r_multiSamples.SetInteger( AdjustOption( r_multiSamples.GetInteger(), values, numValues, adjustAmount ) );
 			break;
 		}
