@@ -1280,8 +1280,8 @@ static void RB_RenderInteractions( const drawSurf_t* surfList, const viewLight_t
 		if( r_useShadowMapping.GetInteger() == 1 )
 		{
 			// medium quality
-			jitterSampleScale = 0.5f;
-			shadowMapSamples = 4.0f;
+			jitterSampleScale = 0.8f;
+			shadowMapSamples = 1.0f;
 		}
 		
 		// screen power of two correction factor
@@ -1300,8 +1300,16 @@ static void RB_RenderInteractions( const drawSurf_t* surfList, const viewLight_t
 		SetFragmentParm( RENDERPARM_JITTERTEXSCALE, jitterTexScale ); // rpJitterTexScale
 		
 		float jitterTexOffset[4];
-		jitterTexOffset[0] = ( rand() & 255 ) / 255.0;
-		jitterTexOffset[1] = ( rand() & 255 ) / 255.0;
+		if( r_shadowMapRandomizeJitter.GetBool() )
+		{
+			jitterTexOffset[0] = ( rand() & 255 ) / 255.0;
+			jitterTexOffset[1] = ( rand() & 255 ) / 255.0;
+		}
+		else
+		{
+			jitterTexOffset[0] = 0;
+			jitterTexOffset[1] = 0;
+		}
 		jitterTexOffset[2] = 0.0f;
 		jitterTexOffset[3] = 0.0f;
 		SetFragmentParm( RENDERPARM_JITTERTEXOFFSET, jitterTexOffset ); // rpJitterTexOffset
@@ -1364,7 +1372,7 @@ static void RB_RenderInteractions( const drawSurf_t* surfList, const viewLight_t
 			if( r_useShadowMapping.GetInteger() == 1 )
 			{
 				// medium quality
-				globalImages->jitterImage4->Bind();
+				globalImages->jitterImage1->Bind();
 			}
 			else
 			{

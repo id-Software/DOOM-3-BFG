@@ -208,7 +208,7 @@ void main( PS_IN fragment, out PS_OUT result )
 
 	// multiple taps
 	
-#if 1
+#if 0
 	float4 base = shadowTexcoord;
 	
 	base.xy += rpJitterTexScale.xy * -0.5;
@@ -231,7 +231,70 @@ void main( PS_IN fragment, out PS_OUT result )
 	
 	shadow *= stepSize;
 #else
-	float shadow = texture( samp5, shadowTexcoord.xywz );
+	
+	
+	const float2 poissonDisk[12] = float2[](
+	float2(0.6111618, 0.1050905),
+	float2(0.1088336, 0.1127091),
+	float2(0.3030421, -0.6292974),
+	float2(0.4090526, 0.6716492),
+	float2(-0.1608387, -0.3867823),
+	float2(0.7685862, -0.6118501),
+	float2(-0.1935026, -0.856501),
+	float2(-0.4028573, 0.07754025),
+	float2(-0.6411021, -0.4748057),
+	float2(-0.1314865, 0.8404058),
+	float2(-0.7005203, 0.4596822),
+	float2(-0.9713828, -0.06329931) );
+	
+	// const float2 poissonDisk[16] = float2[](
+        // float2( -0.94201624, -0.39906216 ),
+		// float2( 0.94558609, -0.76890725 ),
+		// float2( -0.094184101, -0.92938870 ),
+		// float2( 0.34495938, 0.29387760 ),
+		// float2( -0.91588581, 0.45771432 ),
+		// float2( -0.81544232, -0.87912464 ),
+		// float2( -0.38277543, 0.27676845 ),
+		// float2( 0.97484398, 0.75648379 ),
+		// float2( 0.44323325, -0.97511554 ),
+		// float2( 0.53742981, -0.47373420 ),
+		// float2( -0.26496911, -0.41893023 ),
+		// float2( 0.79197514, 0.19090188 ),
+		// float2( -0.24188840, 0.99706507 ),
+		// float2( -0.81409955, 0.91437590 ),
+		// float2( 0.19984126, 0.78641367 ),
+		// float2( 0.14383161, -0.14100790 ) 
+    // );
+	
+	float shadow = 0.0;
+	
+	int numSamples = 12; //int(rpScreenCorrectionFactor.w);
+	float stepSize = 1.0 / numSamples;
+	
+	float4 jitterTC = ( fragment.position * rpScreenCorrectionFactor ) + rpJitterTexOffset;
+	float4 random = tex2D( samp6, jitterTC.xy ) * PI;// * rpJitterTexScale;
+	//float4 random = fragment.position;
+	
+	float2 rot;
+	rot.x = cos( random.x );
+	rot.y = sin( random.x );
+	
+	float shadowTexelSize = rpScreenCorrectionFactor.z * 3.0;
+    for( int i = 0; i < numSamples; i++ )
+    {
+        float2 jitter = poissonDisk[i];
+		float2 jitterRotated;
+		jitterRotated.x = jitter.x * rot.x - jitter.y * rot.y;
+		jitterRotated.y = jitter.x * rot.y + jitter.y * rot.x;
+        
+		float4 shadowTexcoordJittered = float4( shadowTexcoord.xy + jitterRotated * shadowTexelSize, shadowTexcoord.z, shadowTexcoord.w );
+       
+        shadow += texture( samp5, shadowTexcoordJittered.xywz);
+    }
+
+   shadow *= stepSize;
+
+	//float shadow = texture( samp5, shadowTexcoord.xywz );
 #endif
 
 	result.color.xyz = ( diffuseColor + specularColor ) * lambert * lightColor * fragment.color.rgb * shadow;// + rimColor;
