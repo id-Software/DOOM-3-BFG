@@ -4435,7 +4435,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	rot.x = cos( random.x );\n"
 		"	rot.y = sin( random.x );\n"
 		"	\n"
-		"	float shadowTexelSize = rpScreenCorrectionFactor.z * rpJitterTexScale;\n"
+		"	float shadowTexelSize = rpScreenCorrectionFactor.z * rpJitterTexScale.x;\n"
 		"    for( int i = 0; i < 12; i++ )\n"
 		"    {\n"
 		"        float2 jitter = poissonDisk[i];\n"
