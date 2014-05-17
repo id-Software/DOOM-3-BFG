@@ -258,11 +258,13 @@ __________________________________________
 
 - Linux support (32 and 64 bit)
 
-- New OpenAL Soft sound backend primarily developed for Linux but works on Windows as well
-
 - Win64 support
 
-- Implemented soft shadows using PCF hardware shadow mapping
+- OpenAL Soft sound backend primarily developed for Linux but works on Windows as well
+
+- Bink video support through FFmpeg
+
+- Soft shadows using PCF hardware shadow mapping
 
 	The implementation uses sampler2DArrayShadow and PCF which usually
 	requires Direct3D 10.1 however it is in the OpenGL 3.2 core so it should
