@@ -188,6 +188,10 @@ bool GLimp_Init( glimpParms_t parms )
 		
 #if SDL_VERSION_ATLEAST(2, 0, 0)
 		
+		#ifdef __APPLE__
+			r_useOpenGL32.SetInteger( 2 ); // only core profile is supported on OS X
+		#endif
+
 		// RB begin
 		if( r_useOpenGL32.GetInteger() > 0 )
 		{
@@ -209,7 +213,7 @@ bool GLimp_Init( glimpParms_t parms )
 			SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE );
 		}
 		// RB end
-		
+		    
 		// DG: set display num for fullscreen
 		int windowPos = SDL_WINDOWPOS_UNDEFINED;
 		if( parms.fullScreen > 0 )
@@ -238,6 +242,7 @@ bool GLimp_Init( glimpParms_t parms )
 								   windowPos,
 								   parms.width, parms.height, flags );
 		// DG end
+
 		context = SDL_GL_CreateContext( window );
 		
 		if( !window )
@@ -302,6 +307,10 @@ bool GLimp_Init( glimpParms_t parms )
 		common->Printf( "No usable GL mode found: %s", SDL_GetError() );
 		return false;
 	}
+
+	#ifdef __APPLE__
+		glewExperimental = GL_TRUE;
+	#endif
 	
 	GLenum glewResult = glewInit();
 	if( GLEW_OK != glewResult )
@@ -313,7 +322,7 @@ bool GLimp_Init( glimpParms_t parms )
 	{
 		common->Printf( "Using GLEW %s\n", glewGetString( GLEW_VERSION ) );
 	}
-	
+
 	// DG: disable cursor, we have two cursors in menu (because mouse isn't grabbed in menu)
 	SDL_ShowCursor( SDL_DISABLE );
 	// DG end

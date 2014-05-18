@@ -97,9 +97,14 @@ typedef enum
 
 //#define AL_ALEXT_PROTOTYPES
 
-#include <AL/al.h>
-#include <AL/alc.h>
-#include <AL/alext.h>
+#ifdef __APPLE__
+	#include <OpenAL/al.h>
+	#include <OpenAL/alc.h>
+#else
+	#include <AL/al.h>
+	#include <AL/alc.h>
+	#include <AL/alext.h>
+#endif
 
 #include "OpenAL/AL_SoundSample.h"
 #include "OpenAL/AL_SoundVoice.h"

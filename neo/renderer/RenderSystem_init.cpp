@@ -538,7 +538,7 @@ static void R_CheckPortableExtensions()
 	// GL_ARB_vertex_program / GL_ARB_fragment_program
 	if( !glConfig.fragmentProgramAvailable )
 	{
-		idLib::Error( "GL_ARB_fragment_program not available" );
+		idLib::Warning( "GL_ARB_fragment_program not available" );
 	}
 	// GLSL
 	if( !glConfig.glslAvailable )

@@ -43,7 +43,6 @@ If you have questions concerning this license or the applicable additional terms
 #define	CPUSTRING						"x86"
 
 #define	BUILD_STRING					"win-" CPUSTRING
-#define BUILD_OS_ID						0
 
 #ifdef _MSC_VER
 #define ALIGN16( x )					__declspec(align(16)) x
@@ -103,7 +102,7 @@ If you have questions concerning this license or the applicable additional terms
 #endif
 
 
-#elif defined(__linux__) || defined(__FreeBSD__)
+#else // not WIN32
 
 #if defined(__i386__)
 #define	CPUSTRING						"x86"
@@ -113,10 +112,12 @@ If you have questions concerning this license or the applicable additional terms
 
 #ifdef __FreeBSD__
 #define	BUILD_STRING					"freebsd-" CPUSTRING
-#define BUILD_OS_ID						3
-#else
+#elif __linux__
 #define	BUILD_STRING					"linux-" CPUSTRING
-#define BUILD_OS_ID						2
+#elif __APPLE__
+#define BUILD_STRING					"osx-" CPUSTRING
+#else // unknown OS
+#define BUILD_STRING					"unknown-" CPUSTRING
 #endif
 
 #define _alloca							alloca

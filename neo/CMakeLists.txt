@@ -1321,6 +1321,9 @@ else()
 	list(APPEND RBDOOM3_SOURCES
 		${SYS_INCLUDES} ${SYS_SOURCES})
 	
+	find_package(OpenGL REQUIRED)
+	include_directories(${OPENGL_INCLUDE_DIRS})
+
 	if(UNIX)
 		if(FFMPEG)
 			find_package(FFMPEG REQUIRED)
@@ -1439,25 +1442,22 @@ else()
 	# make sure precompiled header is deleted after executable is compiled
 	add_dependencies(rm_precomp_header RBDoom3BFG)
 	
-	IF("${CMAKE_SYSTEM}" MATCHES "Linux")
-		target_link_libraries(RBDoom3BFG
-			idlib
-			GL
-			pthread
-			dl
-			rt
-			${SDLx_LIBRARY}
-			${OPENAL_LIBRARY}
-			${FFMPEG_LIBRARIES}
-			)
-	endif()
 
-	IF("${CMAKE_SYSTEM}" MATCHES "FreeBSD")
+	IF(NOT "${CMAKE_SYSTEM}" MATCHES "Darwin")
+		set(RT_LIBRARY rt)
+	ENDIF()
+
+	IF(NOT "${CMAKE_SYSTEM}" MATCHES "FreeBSD")
+		set(DL_LIBRARY dl)
+	ENDIF()
+
+	IF(NOT WIN32)
 		target_link_libraries(RBDoom3BFG
 			idlib
-			GL
+			${OPENGL_LIBRARIES}
 			pthread
-			rt
+			${DL_LIBRARY}
+			${RT_LIBRARY}
 			${SDLx_LIBRARY}
 			${OPENAL_LIBRARY}
 			${FFMPEG_LIBRARIES}

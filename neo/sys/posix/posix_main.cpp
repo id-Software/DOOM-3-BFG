@@ -49,6 +49,11 @@ If you have questions concerning this license or the applicable additional terms
 #include <android/log.h>
 #endif
 
+#if defined(__APPLE__)
+#include <mach/clock.h>
+#include <mach/mach.h>
+#endif
+
 #include <sys/statvfs.h>
 // RB end
 
@@ -205,7 +210,17 @@ int Sys_Milliseconds()
 	int curtime;
 	struct timespec ts;
 	
-	clock_gettime( D3_CLOCK_TO_USE, &ts );
+	#ifdef __APPLE__
+		clock_serv_t cclock;
+		mach_timespec_t mts;
+		host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
+		clock_get_time(cclock, &mts);
+		mach_port_deallocate(mach_task_self(), cclock);
+		ts.tv_sec = mts.tv_sec;
+		ts.tv_nsec = mts.tv_nsec;
+	#else
+		clock_gettime( D3_CLOCK_TO_USE, &ts );
+	#endif
 	
 	if( !sys_timeBase )
 	{
@@ -270,8 +285,18 @@ uint64 Sys_Microseconds()
 #else
 	uint64 curtime;
 	struct timespec ts;
-	
-	clock_gettime( D3_CLOCK_TO_USE, &ts );
+
+	#ifdef __APPLE__
+		clock_serv_t cclock;
+		mach_timespec_t mts;
+		host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
+		clock_get_time(cclock, &mts);
+		mach_port_deallocate(mach_task_self(), cclock);
+		ts.tv_sec = mts.tv_sec;
+		ts.tv_nsec = mts.tv_nsec;
+	#else
+		clock_gettime( D3_CLOCK_TO_USE, &ts );
+	#endif
 	
 	if( !sys_microTimeBase )
 	{

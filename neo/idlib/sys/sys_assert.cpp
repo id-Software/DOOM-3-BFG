@@ -28,6 +28,10 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "precompiled.h"
 
+#ifndef _WIN32
+#include <signal.h> // for raise()
+#endif
+
 /*
 ================================================================================================
 Contains the AssertMacro implementation.

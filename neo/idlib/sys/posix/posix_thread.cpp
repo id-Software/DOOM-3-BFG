@@ -30,6 +30,15 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "../../precompiled.h"
 
+#ifndef _WIN32
+#include <sched.h>
+#endif
+
+#ifdef __APPLE__
+#include <mach/clock.h>
+#include <mach/mach.h>
+#endif
+
 #ifdef __FreeBSD__
 #include <pthread_np.h> // for pthread_set_name_np
 #endif
@@ -265,7 +274,7 @@ Sys_Yield
 */
 void Sys_Yield()
 {
-	pthread_yield();
+	sched_yield(); // pthread_yield();
 }
 
 /*
@@ -411,7 +420,17 @@ bool Sys_SignalWait( signalHandle_t& handle, int timeout )
 		else
 		{
 			timespec ts;
-			clock_gettime( CLOCK_REALTIME, &ts );
+			#ifdef __APPLE__
+				clock_serv_t cclock;
+				mach_timespec_t mts;
+				host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
+				clock_get_time(cclock, &mts);
+				mach_port_deallocate(mach_task_self(), cclock);
+				ts.tv_sec = mts.tv_sec;
+				ts.tv_nsec = mts.tv_nsec;
+			#else
+				clock_gettime( CLOCK_REALTIME, &ts );
+			#endif
 			// DG: handle timeouts > 1s better
 			ts.tv_nsec += ( timeout % 1000 ) * 1000000; // millisec to nanosec
 			ts.tv_sec  += timeout / 1000;
