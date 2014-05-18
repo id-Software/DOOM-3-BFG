@@ -1368,7 +1368,7 @@ static void RB_RenderInteractions( const drawSurf_t* surfList, const viewLight_t
 			}
 			else if( r_shadowMapSamples.GetInteger() == 4 )
 			{
-				globalImages->jitterImage1->Bind();
+				globalImages->jitterImage4->Bind();
 			}
 			else
 			{

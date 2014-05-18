@@ -337,7 +337,6 @@ void idImage::SetTexParameters()
 		//glTexParameteri( target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
 		glTexParameteri( target, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE );
 		glTexParameteri( target, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL );
-		//glTexParameteri( target, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY );
 	}
 }
 

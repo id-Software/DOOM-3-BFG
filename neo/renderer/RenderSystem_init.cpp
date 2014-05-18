@@ -2395,7 +2395,7 @@ void idRenderSystemLocal::Shutdown()
 	
 	renderModelManager->Shutdown();
 	
-	idCinematic::ShutdownCinematic( );
+	idCinematic::ShutdownCinematic();
 	
 	globalImages->Shutdown();
 	

@@ -2048,7 +2048,7 @@ void idRenderProgManager::CommitUniforms()
 			{
 				glUniform4fv( uniformLocation.uniformIndex, 1, glslUniforms[uniformLocation.parmIndex].ToFloatPtr() );
 				
-#if 1
+#if 0
 				if( GL_CheckErrors() )
 				{
 					const char* parmName = GetGLSLParmName( uniformLocation.parmIndex );

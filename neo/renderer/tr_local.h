@@ -1467,8 +1467,6 @@ void RB_ShutdownDebugTools();
 
 #include "ResolutionScale.h"
 #include "RenderLog.h"
-//#include "AutoRender.h"
-//#include "AutoRenderBink.h"
 #include "jobs/ShadowShared.h"
 #include "jobs/prelightshadowvolume/PreLightShadowVolume.h"
 #include "jobs/staticshadowvolume/StaticShadowVolume.h"
