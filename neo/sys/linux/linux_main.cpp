@@ -427,6 +427,8 @@ returns in megabytes
 */
 int Sys_GetSystemRam()
 {	
+	int		mb;
+
 	#if defined(__APPLE__)
 		int mib[2];
 		mib[0] = CTL_HW;
@@ -435,14 +437,15 @@ int Sys_GetSystemRam()
 		size_t len = sizeof( size );
 		if ( sysctl( mib, 2, &size, &len, NULL, 0 ) == 0 )
 		{
-			return size;
+			mb = size  / ( 1024 * 1024 );
+			mb = ( mb + 8 ) & ~15;
+			return mb;
 		}
 
 		common->Printf( "GetSystemRam: sysctl HW_MEMSIZE failed\n" );
 		return 512;
 	#else
 		long	count, page_size;
-		int		mb;
 
 		count = sysconf( _SC_PHYS_PAGES );
 		if( count == -1 )
