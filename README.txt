@@ -260,6 +260,8 @@ __________________________________________
 
 - Win64 support
 
+- OS X support
+
 - OpenAL Soft sound backend primarily developed for Linux but works on Windows as well
 
 - Bink video support through FFmpeg

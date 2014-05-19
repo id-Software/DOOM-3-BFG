@@ -102,7 +102,7 @@ If you have questions concerning this license or the applicable additional terms
 #endif
 
 
-#else // not WIN32
+#elif defined(__linux__) || defined(__FreeBSD__) || defined(__APPLE__)
 
 #if defined(__i386__)
 #define	CPUSTRING						"x86"
@@ -110,14 +110,12 @@ If you have questions concerning this license or the applicable additional terms
 #define CPUSTRING						"x86_86"
 #endif
 
-#ifdef __FreeBSD__
+#if defined(__FreeBSD__)
 #define	BUILD_STRING					"freebsd-" CPUSTRING
-#elif __linux__
+#elif defined(__linux__)
 #define	BUILD_STRING					"linux-" CPUSTRING
-#elif __APPLE__
+#elif defined(__APPLE__)
 #define BUILD_STRING					"osx-" CPUSTRING
-#else // unknown OS
-#define BUILD_STRING					"unknown-" CPUSTRING
 #endif
 
 #define _alloca							alloca
