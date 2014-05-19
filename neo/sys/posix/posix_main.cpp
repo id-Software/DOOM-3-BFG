@@ -51,6 +51,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #if defined(__APPLE__)
 #include <mach/clock.h>
+#include <mach/clock_types.h>
 #include <mach/mach.h>
 #endif
 
@@ -195,6 +196,32 @@ Sys_Milliseconds
 #define D3_CLOCK_TO_USE CLOCK_MONOTONIC
 #endif
 
+#ifdef __APPLE__
+// OS X doesn't have clock_gettime()
+// always gets monotonic time
+int clock_gettime(int /*clk_id*/, struct timespec *tp)
+{
+	clock_serv_t clock_ref;
+	mach_timespec_t tm;
+	host_name_port_t self = mach_host_self();
+	memset(&tm, 0, sizeof(tm));
+	if (KERN_SUCCESS != host_get_clock_service(self, SYSTEM_CLOCK, &clock_ref))
+	{
+		return -1;
+	}
+	if (KERN_SUCCESS != clock_get_time(clock_ref, &tm))
+	{
+		mach_port_deallocate(mach_task_self(), self);
+		return -1;
+	}
+	mach_port_deallocate(mach_task_self(), self);
+	mach_port_deallocate(mach_task_self(), clock_ref);
+	tp->tv_sec = tm.tv_sec;
+	tp->tv_nsec = tm.tv_nsec;
+	return 0;
+}
+#endif // __APPLE__
+
 // RB: changed long to int
 unsigned int sys_timeBase = 0;
 // RB end
@@ -210,17 +237,7 @@ int Sys_Milliseconds()
 	int curtime;
 	struct timespec ts;
 	
-	#ifdef __APPLE__
-		clock_serv_t cclock;
-		mach_timespec_t mts;
-		host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
-		clock_get_time(cclock, &mts);
-		mach_port_deallocate(mach_task_self(), cclock);
-		ts.tv_sec = mts.tv_sec;
-		ts.tv_nsec = mts.tv_nsec;
-	#else
-		clock_gettime( D3_CLOCK_TO_USE, &ts );
-	#endif
+	clock_gettime( D3_CLOCK_TO_USE, &ts );
 	
 	if( !sys_timeBase )
 	{
@@ -286,17 +303,7 @@ uint64 Sys_Microseconds()
 	uint64 curtime;
 	struct timespec ts;
 
-	#ifdef __APPLE__
-		clock_serv_t cclock;
-		mach_timespec_t mts;
-		host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
-		clock_get_time(cclock, &mts);
-		mach_port_deallocate(mach_task_self(), cclock);
-		ts.tv_sec = mts.tv_sec;
-		ts.tv_nsec = mts.tv_nsec;
-	#else
-		clock_gettime( D3_CLOCK_TO_USE, &ts );
-	#endif
+	clock_gettime( D3_CLOCK_TO_USE, &ts );
 	
 	if( !sys_microTimeBase )
 	{

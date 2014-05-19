@@ -46,8 +46,6 @@ static int cmdargc = 0;
 // DG end
 
 #if defined(__APPLE__)
-#include <mach/clock.h>
-#include <mach/mach.h>
 #include <sys/sysctl.h>
 #endif
 
@@ -223,17 +221,8 @@ double Sys_GetClockTicks()
 // RB begin
 	struct timespec now;
 
-	#ifdef __APPLE__
-		clock_serv_t cclock;
-		mach_timespec_t mts;
-		host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
-		clock_get_time(cclock, &mts);
-		mach_port_deallocate(mach_task_self(), cclock);
-		now.tv_sec = mts.tv_sec;
-		now.tv_nsec = mts.tv_nsec;
-	#else
-		clock_gettime( CLOCK_MONOTONIC, &now );
-	#endif
+	clock_gettime( CLOCK_MONOTONIC, &now );
+
 	return now.tv_sec * 1000000000LL + now.tv_nsec;
 // RB end
 #endif
