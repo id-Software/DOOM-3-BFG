@@ -198,26 +198,47 @@ Sys_Milliseconds
 
 #ifdef __APPLE__
 // OS X doesn't have clock_gettime()
-// always gets monotonic time
-int clock_gettime(int /*clk_id*/, struct timespec *tp)
+int clock_gettime(clk_id_t clock, struct timespec *tp)
 {
-	clock_serv_t clock_ref;
-	mach_timespec_t tm;
-	host_name_port_t self = mach_host_self();
-	memset(&tm, 0, sizeof(tm));
-	if (KERN_SUCCESS != host_get_clock_service(self, SYSTEM_CLOCK, &clock_ref))
+	switch(clock)
 	{
-		return -1;
+		case CLOCK_MONOTONIC_RAW:
+		case CLOCK_MONOTONIC:
+		{
+			clock_serv_t clock_ref;
+			mach_timespec_t tm;
+			host_name_port_t self = mach_host_self();
+			memset(&tm, 0, sizeof(tm));
+			if (KERN_SUCCESS != host_get_clock_service(self, SYSTEM_CLOCK, &clock_ref))
+			{
+				mach_port_deallocate(mach_task_self(), self);
+				return -1;
+			}
+			if (KERN_SUCCESS != clock_get_time(clock_ref, &tm))
+			{
+				mach_port_deallocate(mach_task_self(), self);
+				return -1;
+			}
+			mach_port_deallocate(mach_task_self(), self);
+			mach_port_deallocate(mach_task_self(), clock_ref);
+			tp->tv_sec = tm.tv_sec;
+			tp->tv_nsec = tm.tv_nsec;
+			break;
+		}
+
+		case CLOCK_REALTIME:
+		default:
+		{
+			struct timeval now;
+			if (KERN_SUCCESS != gettimeofday(&now, NULL))
+			{
+				return -1;
+			}
+			tp->tv_sec  = now.tv_sec;
+			tp->tv_nsec = now.tv_usec * 1000;
+			break;
+		}
 	}
-	if (KERN_SUCCESS != clock_get_time(clock_ref, &tm))
-	{
-		mach_port_deallocate(mach_task_self(), self);
-		return -1;
-	}
-	mach_port_deallocate(mach_task_self(), self);
-	mach_port_deallocate(mach_task_self(), clock_ref);
-	tp->tv_sec = tm.tv_sec;
-	tp->tv_nsec = tm.tv_nsec;
 	return 0;
 }
 #endif // __APPLE__
