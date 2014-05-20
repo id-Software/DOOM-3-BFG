@@ -935,7 +935,7 @@ sysEvent_t Sys_GetEvent()
 				
 				return res_none;
 #endif
-
+				
 			case SDL_MOUSEMOTION:
 				// DG: return event with absolute mouse-coordinates when in menu
 				// to fix cursor problems in windowed mode
@@ -955,7 +955,7 @@ sysEvent_t Sys_GetEvent()
 				
 				mouse_polls.Append( mouse_poll_t( M_DELTAX, ev.motion.xrel ) );
 				mouse_polls.Append( mouse_poll_t( M_DELTAY, ev.motion.yrel ) );
-
+				
 				return res;
 				
 #if SDL_VERSION_ATLEAST(2, 0, 0)
@@ -963,7 +963,7 @@ sysEvent_t Sys_GetEvent()
 			case SDL_FINGERUP:
 			case SDL_FINGERMOTION:
 				return res_none; // Avoid 'unknown event' spam when testing with touchpad
-
+				
 			case SDL_MOUSEWHEEL:
 				res.evType = SE_KEY;
 				

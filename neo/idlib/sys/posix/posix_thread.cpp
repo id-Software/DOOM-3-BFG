@@ -419,7 +419,7 @@ bool Sys_SignalWait( signalHandle_t& handle, int timeout )
 		else
 		{
 			timespec ts;
-
+			
 			clock_gettime( CLOCK_REALTIME, &ts );
 			
 			// DG: handle timeouts > 1s better
