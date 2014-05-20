@@ -29,7 +29,7 @@ This file contains the following sections:
 	
 	4) GETTING THE SOURCE CODE
 
-	5) COMPILING ON WIN32 WITH VISUAL C++ 2010 EXPRESS EDITION
+	5) COMPILING ON WIN32 WITH VISUAL C++ 2013 EXPRESS EDITION
 
 	6) COMPILING ON GNU/LINUX
 	
@@ -135,16 +135,19 @@ __________________________________________________________
 
 1. Download and install the Visual C++ 2013 Express Edition.
 
-2. Download and install the latest CMake.
+2. Download the DirectX SDK (June 2010) here:
+	http://www.microsoft.com/en-us/download/details.aspx?id=6812
 
-3. Generate the VC13 projects using CMake by doubleclicking a matching configuration .bat file in the neo/ folder.
+3. Download and install the latest CMake.
 
-4. Use the VC13 solution to compile what you need:
+4. Generate the VC13 projects using CMake by doubleclicking a matching configuration .bat file in the neo/ folder.
+
+5. Use the VC13 solution to compile what you need:
 	RBDOOM-3-BFG/build/RBDoom3BFG.sln
 	
-5. Download ffmpeg-20140405-git-ec8789a-win32-shared.7z from ffmpeg.zeranoe.com/builds/win32/shared
+6. Download ffmpeg-20140405-git-ec8789a-win32-shared.7z from ffmpeg.zeranoe.com/builds/win32/shared
 
-6. Extract the FFmpeg DLLs to your current build directory under RBDOOM-3-BFG/build/
+7. Extract the FFmpeg DLLs to your current build directory under RBDOOM-3-BFG/build/
 
 
 __________________________________
