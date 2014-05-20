@@ -30,6 +30,14 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "../../precompiled.h"
 
+#ifndef _WIN32
+#include <sched.h>
+#endif
+
+#ifdef __APPLE__
+#include "../../../sys/posix/posix_public.h"
+#endif
+
 #ifdef __FreeBSD__
 #include <pthread_np.h> // for pthread_set_name_np
 #endif
@@ -265,7 +273,7 @@ Sys_Yield
 */
 void Sys_Yield()
 {
-	pthread_yield();
+	sched_yield(); // pthread_yield();
 }
 
 /*
@@ -411,7 +419,9 @@ bool Sys_SignalWait( signalHandle_t& handle, int timeout )
 		else
 		{
 			timespec ts;
+
 			clock_gettime( CLOCK_REALTIME, &ts );
+			
 			// DG: handle timeouts > 1s better
 			ts.tv_nsec += ( timeout % 1000 ) * 1000000; // millisec to nanosec
 			ts.tv_sec  += timeout / 1000;

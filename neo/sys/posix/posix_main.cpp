@@ -49,6 +49,12 @@ If you have questions concerning this license or the applicable additional terms
 #include <android/log.h>
 #endif
 
+#if defined(__APPLE__)
+#include <mach/clock.h>
+#include <mach/clock_types.h>
+#include <mach/mach.h>
+#endif
+
 #include <sys/statvfs.h>
 // RB end
 
@@ -190,6 +196,53 @@ Sys_Milliseconds
 #define D3_CLOCK_TO_USE CLOCK_MONOTONIC
 #endif
 
+#ifdef __APPLE__
+// OS X doesn't have clock_gettime()
+int clock_gettime(clk_id_t clock, struct timespec *tp)
+{
+	switch(clock)
+	{
+		case CLOCK_MONOTONIC_RAW:
+		case CLOCK_MONOTONIC:
+		{
+			clock_serv_t clock_ref;
+			mach_timespec_t tm;
+			host_name_port_t self = mach_host_self();
+			memset(&tm, 0, sizeof(tm));
+			if (KERN_SUCCESS != host_get_clock_service(self, SYSTEM_CLOCK, &clock_ref))
+			{
+				mach_port_deallocate(mach_task_self(), self);
+				return -1;
+			}
+			if (KERN_SUCCESS != clock_get_time(clock_ref, &tm))
+			{
+				mach_port_deallocate(mach_task_self(), self);
+				return -1;
+			}
+			mach_port_deallocate(mach_task_self(), self);
+			mach_port_deallocate(mach_task_self(), clock_ref);
+			tp->tv_sec = tm.tv_sec;
+			tp->tv_nsec = tm.tv_nsec;
+			break;
+		}
+
+		case CLOCK_REALTIME:
+		default:
+		{
+			struct timeval now;
+			if (KERN_SUCCESS != gettimeofday(&now, NULL))
+			{
+				return -1;
+			}
+			tp->tv_sec  = now.tv_sec;
+			tp->tv_nsec = now.tv_usec * 1000;
+			break;
+		}
+	}
+	return 0;
+}
+#endif // __APPLE__
+
 // RB: changed long to int
 unsigned int sys_timeBase = 0;
 // RB end
@@ -270,7 +323,7 @@ uint64 Sys_Microseconds()
 #else
 	uint64 curtime;
 	struct timespec ts;
-	
+
 	clock_gettime( D3_CLOCK_TO_USE, &ts );
 	
 	if( !sys_microTimeBase )

@@ -46,6 +46,8 @@ typedef HANDLE					signalHandle_t;
 typedef LONG					interlockedInt_t;
 #else
 
+#include <pthread.h>
+
 struct signalHandle_t
 {
 	// DG: all this stuff is needed to emulate Window's Event API
