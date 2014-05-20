@@ -273,7 +273,11 @@ Sys_Yield
 */
 void Sys_Yield()
 {
-	sched_yield(); // pthread_yield();
+#if defined(__ANDROID__) || defined(__APPLE__)
+	sched_yield();
+#else
+	pthread_yield();
+#endif
 }
 
 /*
