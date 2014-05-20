@@ -498,7 +498,7 @@ void idCommonLocal::Frame()
 #endif
 			// RB end, DG end
 		{
-			// RB: only release the mouse when opening a PDA or menu
+			// RB: don't release the mouse when opening a PDA or menu
 			if( console->Active() )
 			{
 				Sys_GrabMouseCursor( false );
