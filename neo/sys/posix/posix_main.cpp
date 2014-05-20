@@ -1349,7 +1349,7 @@ char* Posix_ConsoleInput()
 	{
 		// disabled on OSX. works fine from a terminal, but launching from Finder is causing trouble
 		// I'm pretty sure it could be re-enabled if needed, and just handling the Finder failure case right (TTimo)
-#ifndef MACOS_X
+#ifndef __APPLE__
 		// no terminal support - read only complete lines
 		int				len;
 		fd_set			fdset;
