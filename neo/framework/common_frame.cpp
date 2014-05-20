@@ -498,7 +498,11 @@ void idCommonLocal::Frame()
 #endif
 			// RB end, DG end
 		{
-			Sys_GrabMouseCursor( false );
+			// RB: only release the mouse when opening a PDA or menu
+			if( console->Active() )
+			{
+				Sys_GrabMouseCursor( false );
+			}
 			usercmdGen->InhibitUsercmd( INHIBIT_SESSION, true );
 			chatting = true;
 		}
