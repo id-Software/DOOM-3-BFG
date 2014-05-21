@@ -86,6 +86,22 @@ static int set_exit = 0;
 static char exit_spawn[ 1024 ];
 
 /*
+ ==============
+ Sys_DefaultSavePath
+ ==============
+ */
+const char* Sys_DefaultSavePath()
+{
+#ifdef __APPLE__
+	sprintf( savepath, "%s/Library/Application Support/rbdoom3bfg", getenv( "HOME" ) );
+#else
+	sprintf( savepath, "%s/.rbdoom3bfg", getenv( "HOME" ) );
+#endif
+	
+	return savepath.c_str();
+}
+
+/*
 ================
 Posix_Exit
 ================

@@ -827,7 +827,7 @@ set(WIN32_RESOURCES
 
 
 file(GLOB POSIX_INCLUDES sys/posix/*.h)
-file(GLOB POSIX_SOURCES sys/posix/*.cpp sys/posix/*.mm)
+file(GLOB POSIX_SOURCES sys/posix/*.cpp)
 
 file(GLOB COMMON_INCLUDES sys/common/*.h)
 file(GLOB COMMON_SOURCES sys/common/*.cpp)
@@ -1346,7 +1346,7 @@ else()
 		if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 			list(REMOVE_ITEM POSIX_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/sys/posix/platform_linux.cpp)
 		else()
-			list(REMOVE_ITEM POSIX_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/sys/posix/platform_osx.mm)
+			list(REMOVE_ITEM POSIX_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/sys/posix/platform_osx.cpp)
 		endif()
 
 		list(APPEND RBDOOM3_SOURCES

@@ -26,10 +26,9 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
-#include "../../idlib/precompiled.h"
+//#include "../../idlib/precompiled.h"
 #include "../posix/posix_public.h"
-#include "../sys_local.h"
-//#include "local.h"
+//#include "../sys_local.h"
 
 #include <pthread.h>
 #include <errno.h>
@@ -38,16 +37,18 @@ If you have questions concerning this license or the applicable additional terms
 #include <sys/types.h>
 #include <fcntl.h>
 
+#include <sys/sysctl.h>
+#include <mach/clock.h>
+#include <mach/clock_types.h>
+#include <mach/mach.h>
+#include <mach-o/dyld.h>
+
 // DG: needed for Sys_ReLaunch()
 #include <dirent.h>
 
 static const char** cmdargv = NULL;
 static int cmdargc = 0;
 // DG end
-
-#ifdef ID_MCHECK
-#include <mcheck.h>
-#endif
 
 /*
 ==============
@@ -56,21 +57,15 @@ Sys_EXEPath
 */
 const char* Sys_EXEPath()
 {
-	static char	buf[ 1024 ];
-	idStr		linkpath;
-	int			len;
+	static char path[1024];
+	uint32_t size = sizeof( path );
 	
-	buf[ 0 ] = '\0';
-	sprintf( linkpath, "/proc/%d/exe", getpid() );
-	len = readlink( linkpath.c_str(), buf, sizeof( buf ) );
-	if( len == -1 )
+	if( _NSGetExecutablePath( path, &size ) != 0 )
 	{
-		Sys_Printf( "couldn't stat exe path link %s\n", linkpath.c_str() );
-		// RB: fixed array subscript is below array bounds
-		buf[ 0 ] = '\0';
-		// RB end
+		Sys_Printf( "buffer too small to store exe path, need size %u\n", size );
+		path[0] = '\0';
 	}
-	return buf;
+	return path;
 }
 
 /*
@@ -102,57 +97,28 @@ double Sys_ClockTicksPerSecond()
 {
 	static bool		init = false;
 	static double	ret;
-	
-	int		fd, len, pos, end;
-	char	buf[ 4096 ];
+	size_t len = sizeof( ret );
+	int status;
 	
 	if( init )
 	{
 		return ret;
 	}
 	
-	fd = open( "/proc/cpuinfo", O_RDONLY );
-	if( fd == -1 )
+	status = sysctlbyname( "hw.cpufrequency", &ret, &len, NULL, 0 );
+	
+	if( status == -1 )
 	{
-		common->Printf( "couldn't read /proc/cpuinfo\n" );
+		common->Printf( "couldn't read systclbyname\n" );
 		ret = MeasureClockTicks();
 		init = true;
 		common->Printf( "measured CPU frequency: %g MHz\n", ret / 1000000.0 );
 		return ret;
 	}
-	len = read( fd, buf, 4096 );
-	close( fd );
-	pos = 0;
-	while( pos < len )
-	{
-		if( !idStr::Cmpn( buf + pos, "cpu MHz", 7 ) )
-		{
-			pos = strchr( buf + pos, ':' ) - buf + 2;
-			end = strchr( buf + pos, '\n' ) - buf;
-			if( pos < len && end < len )
-			{
-				buf[end] = '\0';
-				ret = atof( buf + pos );
-			}
-			else
-			{
-				common->Printf( "failed parsing /proc/cpuinfo\n" );
-				ret = MeasureClockTicks();
-				init = true;
-				common->Printf( "measured CPU frequency: %g MHz\n", ret / 1000000.0 );
-				return ret;
-			}
-			common->Printf( "/proc/cpuinfo CPU frequency: %g MHz\n", ret );
-			ret *= 1000000;
-			init = true;
-			return ret;
-		}
-		pos = strchr( buf + pos, '\n' ) - buf + 1;
-	}
-	common->Printf( "failed parsing /proc/cpuinfo\n" );
-	ret = MeasureClockTicks();
+	
+	common->Printf( "CPU frequency: %g MHz\n", ret / 1000000.0 );
 	init = true;
-	common->Printf( "measured CPU frequency: %g MHz\n", ret / 1000000.0 );
+	
 	return ret;
 }
 
@@ -169,15 +135,12 @@ numCPUPackages		- the total number of packages (physical processors)
 void Sys_CPUCount( int& numLogicalCPUCores, int& numPhysicalCPUCores, int& numCPUPackages )
 {
 	static bool		init = false;
-	static double	ret;
 	
 	static int		s_numLogicalCPUCores;
 	static int		s_numPhysicalCPUCores;
 	static int		s_numCPUPackages;
 	
-	int		fd, len, pos, end;
-	char	buf[ 4096 ];
-	char	number[100];
+	size_t len = sizeof( s_numPhysicalCPUCores );
 	
 	if( init )
 	{
@@ -190,67 +153,12 @@ void Sys_CPUCount( int& numLogicalCPUCores, int& numPhysicalCPUCores, int& numCP
 	s_numLogicalCPUCores = 1;
 	s_numCPUPackages = 1;
 	
-	fd = open( "/proc/cpuinfo", O_RDONLY );
-	if( fd != -1 )
-	{
-		len = read( fd, buf, 4096 );
-		close( fd );
-		pos = 0;
-		while( pos < len )
-		{
-			if( !idStr::Cmpn( buf + pos, "processor", 9 ) )
-			{
-				pos = strchr( buf + pos, ':' ) - buf + 2;
-				end = strchr( buf + pos, '\n' ) - buf;
-				if( pos < len && end < len )
-				{
-					idStr::Copynz( number, buf + pos, sizeof( number ) );
-					assert( ( end - pos ) > 0 && ( end - pos ) < sizeof( number ) );
-					number[ end - pos ] = '\0';
-					
-					int processor = atoi( number );
-					
-					if( ( processor + 1 ) > s_numPhysicalCPUCores )
-					{
-						s_numPhysicalCPUCores = processor + 1;
-					}
-				}
-				else
-				{
-					common->Printf( "failed parsing /proc/cpuinfo\n" );
-					break;
-				}
-			}
-			else if( !idStr::Cmpn( buf + pos, "core id", 7 ) )
-			{
-				pos = strchr( buf + pos, ':' ) - buf + 2;
-				end = strchr( buf + pos, '\n' ) - buf;
-				if( pos < len && end < len )
-				{
-					idStr::Copynz( number, buf + pos, sizeof( number ) );
-					assert( ( end - pos ) > 0 && ( end - pos ) < sizeof( number ) );
-					number[ end - pos ] = '\0';
-					
-					int coreId = atoi( number );
-					
-					if( ( coreId + 1 ) > s_numLogicalCPUCores )
-					{
-						s_numLogicalCPUCores = coreId + 1;
-					}
-				}
-				else
-				{
-					common->Printf( "failed parsing /proc/cpuinfo\n" );
-					break;
-				}
-			}
-			
-			pos = strchr( buf + pos, '\n' ) - buf + 1;
-		}
-	}
 	
-	common->Printf( "/proc/cpuinfo CPU processors: %d\n", s_numPhysicalCPUCores );
-	common->Printf( "/proc/cpuinfo CPU logical cores: %d\n", s_numLogicalCPUCores );
+	sysctlbyname( "hw.physicalcpu", &s_numPhysicalCPUCores, &len, NULL, 0 );
+	sysctlbyname( "hw.logicalcpu", &s_numLogicalCPUCores, &len, NULL, 0 );
+	
+	common->Printf( "CPU processors: %d\n", s_numPhysicalCPUCores );
+	common->Printf( "CPU logical cores: %d\n", s_numLogicalCPUCores );
 	
 	numPhysicalCPUCores = s_numPhysicalCPUCores;
 	numLogicalCPUCores = s_numLogicalCPUCores;
@@ -266,26 +174,23 @@ returns in megabytes
 */
 int Sys_GetSystemRam()
 {
-	int		mb;
-	long	count, page_size;
+	int		mb, mib[2];
 	
-	count = sysconf( _SC_PHYS_PAGES );
-	if( count == -1 )
+	mib[0] = CTL_HW;
+	mib[1] = HW_MEMSIZE;
+	int64_t size = 0;
+	size_t len = sizeof( size );
+	if( sysctl( mib, 2, &size, &len, NULL, 0 ) == 0 )
 	{
-		common->Printf( "GetSystemRam: sysconf _SC_PHYS_PAGES failed\n" );
-		return 512;
+		mb = size  / ( 1024 * 1024 );
+		mb = ( mb + 8 ) & ~15;
+		return mb;
 	}
-	page_size = sysconf( _SC_PAGE_SIZE );
-	if( page_size == -1 )
-	{
-		common->Printf( "GetSystemRam: sysconf _SC_PAGE_SIZE failed\n" );
-		return 512;
-	}
-	mb = ( int )( ( double )count * ( double )page_size / ( 1024 * 1024 ) );
-	// round to the nearest 16Mb
-	mb = ( mb + 8 ) & ~15;
-	return mb;
+	
+	common->Printf( "GetSystemRam: sysctl HW_MEMSIZE failed\n" );
+	return 512;
 }
+
 
 /*
 ==================
@@ -420,33 +325,6 @@ void Sys_FPU_SetFTZ( bool enable )
 #endif
 
 /*
-===============
-mem consistency stuff
-===============
-*/
-
-#ifdef ID_MCHECK
-
-const char* mcheckstrings[] =
-{
-	"MCHECK_DISABLED",
-	"MCHECK_OK",
-	"MCHECK_FREE",	// block freed twice
-	"MCHECK_HEAD",	// memory before the block was clobbered
-	"MCHECK_TAIL"	// memory after the block was clobbered
-};
-
-void abrt_func( mcheck_status status )
-{
-	Sys_Printf( "memory consistency failure: %s\n", mcheckstrings[ status + 1 ] );
-	Posix_SetExit( EXIT_FAILURE );
-	common->Quit();
-}
-
-#endif
-
-
-/*
 ========================
 Sys_GetCmdLine
 ========================
@@ -538,6 +416,51 @@ void Sys_ReLaunch()
 	// DG end
 }
 
+// OS X doesn't have clock_gettime()
+int clock_gettime( clk_id_t clock, struct timespec* tp )
+{
+	switch( clock )
+	{
+		case CLOCK_MONOTONIC_RAW:
+		case CLOCK_MONOTONIC:
+		{
+			clock_serv_t clock_ref;
+			mach_timespec_t tm;
+			host_name_port_t self = mach_host_self();
+			memset( &tm, 0, sizeof( tm ) );
+			if( KERN_SUCCESS != host_get_clock_service( self, SYSTEM_CLOCK, &clock_ref ) )
+			{
+				mach_port_deallocate( mach_task_self(), self );
+				return -1;
+			}
+			if( KERN_SUCCESS != clock_get_time( clock_ref, &tm ) )
+			{
+				mach_port_deallocate( mach_task_self(), self );
+				return -1;
+			}
+			mach_port_deallocate( mach_task_self(), self );
+			mach_port_deallocate( mach_task_self(), clock_ref );
+			tp->tv_sec = tm.tv_sec;
+			tp->tv_nsec = tm.tv_nsec;
+			break;
+		}
+		
+		case CLOCK_REALTIME:
+		default:
+		{
+			struct timeval now;
+			if( KERN_SUCCESS != gettimeofday( &now, NULL ) )
+			{
+				return -1;
+			}
+			tp->tv_sec  = now.tv_sec;
+			tp->tv_nsec = now.tv_usec * 1000;
+			break;
+		}
+	}
+	return 0;
+}
+
 /*
 ===============
 main
@@ -549,11 +472,6 @@ int main( int argc, const char** argv )
 	cmdargc = argc;
 	cmdargv = argv;
 	// DG end
-#ifdef ID_MCHECK
-	// must have -lmcheck linkage
-	mcheck( abrt_func );
-	Sys_Printf( "memory consistency checking enabled\n" );
-#endif
 	
 	Posix_EarlyInit( );
 	
