@@ -827,7 +827,7 @@ set(WIN32_RESOURCES
 
 
 file(GLOB POSIX_INCLUDES sys/posix/*.h)
-file(GLOB POSIX_SOURCES sys/posix/*.cpp)
+file(GLOB POSIX_SOURCES sys/posix/*.cpp sys/posix/*.mm)
 
 file(GLOB COMMON_INCLUDES sys/common/*.h)
 file(GLOB COMMON_SOURCES sys/common/*.cpp)
@@ -1342,11 +1342,16 @@ else()
 			include_directories(${SDL_INCLUDE_DIR})
 			set(SDLx_LIBRARY ${SDL_LIBRARY})
 		endif()
-	
+
+		if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+			list(REMOVE_ITEM POSIX_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/sys/posix/platform_linux.cpp)
+		else()
+			list(REMOVE_ITEM POSIX_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/sys/posix/platform_osx.mm)
+		endif()
+
 		list(APPEND RBDOOM3_SOURCES
 			${POSIX_INCLUDES} ${POSIX_SOURCES}
-			${SDL_INCLUDES} ${SDL_SOURCES}
-			sys/linux/linux_main.cpp)
+			${SDL_INCLUDES} ${SDL_SOURCES})
 			
 		if(OPENAL)
 			find_package(OpenAL REQUIRED)
@@ -1443,15 +1448,15 @@ else()
 	add_dependencies(rm_precomp_header RBDoom3BFG)
 	
 
-	IF(NOT "${CMAKE_SYSTEM}" MATCHES "Darwin")
-		set(RT_LIBRARY rt)
-	ENDIF()
+	if(NOT WIN32)
+		if(NOT "${CMAKE_SYSTEM}" MATCHES "Darwin")
+			set(RT_LIBRARY rt)
+		endif()
 
-	IF(NOT "${CMAKE_SYSTEM}" MATCHES "FreeBSD")
-		set(DL_LIBRARY dl)
-	ENDIF()
+		if(NOT "${CMAKE_SYSTEM}" MATCHES "FreeBSD")
+			set(DL_LIBRARY dl)
+		endif()
 
-	IF(NOT WIN32)
 		target_link_libraries(RBDoom3BFG
 			idlib
 			${OPENGL_LIBRARIES}
