@@ -49,6 +49,7 @@ If you have questions concerning this license or the applicable additional terms
 #include <android/log.h>
 #endif
 
+#include "SDL2/SDL.h"
 #include <sys/statvfs.h>
 // RB end
 
@@ -93,7 +94,12 @@ static char exit_spawn[ 1024 ];
 const char* Sys_DefaultSavePath()
 {
 #ifdef __APPLE__
-	sprintf( savepath, "%s/Library/Application Support/rbdoom3bfg", getenv( "HOME" ) );
+	char* base_path = SDL_GetPrefPath( "", "rbdoom3bfg" );
+	if( base_path )
+	{
+		savepath = SDL_strdup( base_path );
+		SDL_free( base_path );
+	}
 #else
 	sprintf( savepath, "%s/.rbdoom3bfg", getenv( "HOME" ) );
 #endif
