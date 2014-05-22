@@ -49,7 +49,10 @@ If you have questions concerning this license or the applicable additional terms
 #include <android/log.h>
 #endif
 
-#include "SDL2/SDL.h"
+#if defined(__APPLE__)
+#include <SDL2/SDL.h>
+#endif
+
 #include <sys/statvfs.h>
 // RB end
 
@@ -93,8 +96,8 @@ static char exit_spawn[ 1024 ];
  */
 const char* Sys_DefaultSavePath()
 {
-#ifdef __APPLE__
-	char* base_path = SDL_GetPrefPath( "", "rbdoom3bfg" );
+#if defined(__APPLE__)
+	char* base_path = SDL_GetPrefPath( "", "RBDOOM-3-BFG" );
 	if( base_path )
 	{
 		savepath = SDL_strdup( base_path );
