@@ -59,6 +59,8 @@ void		Sys_DoStartProcess( const char* exeName, bool dofork = true ); // if not f
 
 char*		Posix_ConsoleInput();
 
+double 		MeasureClockTicks();
+
 #ifdef __APPLE__
 enum clk_id_t { CLOCK_REALTIME, CLOCK_MONOTONIC, CLOCK_MONOTONIC_RAW };
 int clock_gettime( clk_id_t clock, struct timespec* tp );

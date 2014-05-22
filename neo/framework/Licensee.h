@@ -62,8 +62,12 @@ If you have questions concerning this license or the applicable additional terms
 #define	WIN32_FAKE_WINDOW_CLASS_NAME	"D3BFG_WGL_FAKE"
 
 // RB begin
-// Linux info
-#define LINUX_DEFAULT_PATH				"/usr/local/games/rbdoom3-bfg"
+// Default base path (used only if none could be found)
+#ifdef __APPLE__
+#define DEFAULT_BASEPATH				"/Applications/rbdoom3-bfg.app/Contents/Resources"
+#else
+#define DEFAULT_BASEPATH				"/usr/local/games/rbdoom3-bfg"
+#endif
 // RB end
 
 
