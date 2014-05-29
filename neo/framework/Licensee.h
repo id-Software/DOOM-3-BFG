@@ -66,7 +66,7 @@ If you have questions concerning this license or the applicable additional terms
 #ifdef __APPLE__
 #define DEFAULT_BASEPATH				"/Applications/RBDOOM-3-BFG.app/Contents/Resources"
 #else
-#define DEFAULT_BASEPATH				"/usr/local/games/rbdoom-3-bfg"
+#define DEFAULT_BASEPATH				"/usr/share/games/doom3bfg"
 #endif
 // RB end
 
