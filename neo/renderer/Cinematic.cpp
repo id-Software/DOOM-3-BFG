@@ -386,8 +386,13 @@ idCinematicLocal::idCinematicLocal()
 	// Carl: ffmpeg stuff, for bink and normal video files:
 	isRoQ = false;
 //	fmt_ctx = avformat_alloc_context();
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(55,28,1)
+	frame = av_frame_alloc();
+	frame2 = av_frame_alloc();
+#else
 	frame = avcodec_alloc_frame();
 	frame2 = avcodec_alloc_frame();
+#endif // LIBAVCODEC_VERSION_INT
 	dec_ctx = NULL;
 	fmt_ctx = NULL;
 	video_stream_index = -1;
