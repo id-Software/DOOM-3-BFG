@@ -4424,7 +4424,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	float shadow = 0.0;\n"
 		"	\n"
 		"	// RB: casting a float to int and using it as index can really kill the performance ...\n"
-		"	int numSamples = 12; //int(rpScreenCorrectionFactor.w);\n"
+		"	float numSamples = 12.0; //int(rpScreenCorrectionFactor.w);\n"
 		"	float stepSize = 1.0 / numSamples;\n"
 		"	\n"
 		"	float4 jitterTC = ( fragment.position * rpScreenCorrectionFactor ) + rpJitterTexOffset;\n"
