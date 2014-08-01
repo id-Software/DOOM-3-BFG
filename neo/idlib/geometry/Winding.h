@@ -87,6 +87,7 @@ public:
 	void			RemovePoint( int point );
 	void			InsertPoint( const idVec5& point, int spot );
 	bool			InsertPointIfOnEdge( const idVec5& point, const idPlane& plane, const float epsilon = ON_EPSILON );
+	bool			InsertPointIfOnEdge( const idVec3& point, const idPlane& plane, const float epsilon = ON_EPSILON );
 	// add a winding to the convex hull
 	void			AddToConvexHull( const idWinding* winding, const idVec3& normal, const float epsilon = ON_EPSILON );
 	// add a point to the convex hull

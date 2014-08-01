@@ -115,18 +115,17 @@ ID_INLINE bool EndTraceRecording()
 typedef enum
 {
 	EDITOR_NONE					= 0,
-	EDITOR_RADIANT				= BIT( 1 ),
-	EDITOR_GUI					= BIT( 2 ),
-	EDITOR_DEBUGGER				= BIT( 3 ),
-	EDITOR_SCRIPT				= BIT( 4 ),
-	EDITOR_LIGHT				= BIT( 5 ),
-	EDITOR_SOUND				= BIT( 6 ),
-	EDITOR_DECL					= BIT( 7 ),
-	EDITOR_AF					= BIT( 8 ),
-	EDITOR_PARTICLE				= BIT( 9 ),
-	EDITOR_PDA					= BIT( 10 ),
-	EDITOR_AAS					= BIT( 11 ),
-	EDITOR_MATERIAL				= BIT( 12 )
+	EDITOR_GUI					= BIT( 1 ),
+	EDITOR_DEBUGGER				= BIT( 2 ),
+	EDITOR_SCRIPT				= BIT( 3 ),
+	EDITOR_LIGHT				= BIT( 4 ),
+	EDITOR_SOUND				= BIT( 5 ),
+	EDITOR_DECL					= BIT( 6 ),
+	EDITOR_AF					= BIT( 7 ),
+	EDITOR_PARTICLE				= BIT( 8 ),
+	EDITOR_PDA					= BIT( 9 ),
+	EDITOR_AAS					= BIT( 10 ),
+	EDITOR_MATERIAL				= BIT( 11 )
 } toolFlag_t;
 
 #define STRTABLE_ID				"#str_"
