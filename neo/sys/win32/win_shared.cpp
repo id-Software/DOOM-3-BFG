@@ -94,25 +94,6 @@ uint64 Sys_Microseconds()
 
 /*
 ================
-Sys_GetSystemRam
-
-	returns amount of physical memory in MB
-================
-*/
-int Sys_GetSystemRam()
-{
-	MEMORYSTATUSEX statex;
-	statex.dwLength = sizeof( statex );
-	GlobalMemoryStatusEx( &statex );
-	int physRam = statex.ullTotalPhys / ( 1024 * 1024 );
-	// HACK: For some reason, ullTotalPhys is sometimes off by a meg or two, so we round up to the nearest 16 megs
-	physRam = ( physRam + 8 ) & ~15;
-	return physRam;
-}
-
-
-/*
-================
 Sys_GetDriveFreeSpace
 returns in megabytes
 ================
@@ -148,74 +129,6 @@ int64 Sys_GetDriveFreeSpaceInBytes( const char* path )
 		ret = lpFreeBytesAvailable;
 	}
 	return ret;
-}
-
-/*
-================
-Sys_GetVideoRam
-returns in megabytes
-================
-*/
-int Sys_GetVideoRam()
-{
-	unsigned int retSize = 64;
-	
-	// RB begin
-#if !defined(__MINGW32__)
-	CComPtr<IWbemLocator> spLoc = NULL;
-	HRESULT hr = CoCreateInstance( CLSID_WbemLocator, 0, CLSCTX_SERVER, IID_IWbemLocator, ( LPVOID* ) &spLoc );
-	if( hr != S_OK || spLoc == NULL )
-	{
-		return retSize;
-	}
-	
-	CComBSTR bstrNamespace( _T( "\\\\.\\root\\CIMV2" ) );
-	CComPtr<IWbemServices> spServices;
-	
-	// Connect to CIM
-	hr = spLoc->ConnectServer( bstrNamespace, NULL, NULL, 0, NULL, 0, 0, &spServices );
-	if( hr != WBEM_S_NO_ERROR )
-	{
-		return retSize;
-	}
-	
-	// Switch the security level to IMPERSONATE so that provider will grant access to system-level objects.
-	hr = CoSetProxyBlanket( spServices, RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE, NULL, RPC_C_AUTHN_LEVEL_CALL, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE );
-	if( hr != S_OK )
-	{
-		return retSize;
-	}
-	
-	// Get the vid controller
-	CComPtr<IEnumWbemClassObject> spEnumInst = NULL;
-	hr = spServices->CreateInstanceEnum( CComBSTR( "Win32_VideoController" ), WBEM_FLAG_SHALLOW, NULL, &spEnumInst );
-	if( hr != WBEM_S_NO_ERROR || spEnumInst == NULL )
-	{
-		return retSize;
-	}
-	
-	ULONG uNumOfInstances = 0;
-	CComPtr<IWbemClassObject> spInstance = NULL;
-	hr = spEnumInst->Next( 10000, 1, &spInstance, &uNumOfInstances );
-	
-	if( hr == S_OK && spInstance )
-	{
-		// Get properties from the object
-		CComVariant varSize;
-		hr = spInstance->Get( CComBSTR( _T( "AdapterRAM" ) ), 0, &varSize, 0, 0 );
-		if( hr == S_OK )
-		{
-			retSize = varSize.intVal / ( 1024 * 1024 );
-			if( retSize == 0 )
-			{
-				retSize = 64;
-			}
-		}
-	}
-#endif
-	// RB end
-	
-	return retSize;
 }
 
 /*
