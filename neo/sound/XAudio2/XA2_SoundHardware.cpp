@@ -29,7 +29,9 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "precompiled.h"
 #include "../snd_local.h"
+#if defined(USE_DOOMCLASSIC)
 #include "../../../doomclassic/doom/i_sound.h"
+#endif
 
 idCVar s_showLevelMeter( "s_showLevelMeter", "0", CVAR_BOOL | CVAR_ARCHIVE, "Show VU meter" );
 idCVar s_meterTopTime( "s_meterTopTime", "1000", CVAR_INTEGER | CVAR_ARCHIVE, "How long (in milliseconds) peaks are displayed on the VU meter" );
@@ -336,10 +338,12 @@ void idSoundHardware_XAudio2::Init()
 	
 	idSoundVoice::InitSurround( outputChannels, channelMask );
 	
+#if defined(USE_DOOMCLASSIC)
 	// ---------------------
 	// Initialize the Doom classic sound system.
 	// ---------------------
 	I_InitSoundHardware( outputChannels, channelMask );
+#endif
 	
 	// ---------------------
 	// Create VU Meter Effect
@@ -424,10 +428,12 @@ void idSoundHardware_XAudio2::Shutdown()
 	freeVoices.Clear();
 	zombieVoices.Clear();
 	
+#if defined(USE_DOOMCLASSIC)
 	// ---------------------
 	// Shutdown the Doom classic sound system.
 	// ---------------------
 	I_ShutdownSoundHardware();
+#endif
 	
 	if( pXAudio2 != NULL )
 	{
