@@ -71,7 +71,7 @@ void main( PS_IN fragment, out PS_OUT result ) {
 
 	half3 diffuseColor = diffuseMap * rpDiffuseModifier.xyz;
 	half3 specularColor = specMap.xyz * specularContribution * rpSpecularModifier.xyz;
-	half3 lightColor = dot3( lightVector, localNormal ) * lightProj.xyz * lightFalloff.xyz;
+	half3 lightColor = lightProj.xyz * lightFalloff.xyz; // ambient fix
 
 	result.color.xyz = ( diffuseColor + specularColor ) * lightColor * fragment.color.xyz;
 	result.color.w = 1.0;
