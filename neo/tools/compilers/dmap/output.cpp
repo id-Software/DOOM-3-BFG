@@ -189,17 +189,19 @@ static bool MatchVert( const idDrawVert* a, const idDrawVert* b )
 		return false;
 	}
 	
+	// RB begin
 	// if the normal is 0 (smoothed normals), consider it a match
-	if( a->GetNormal() == idVec3( 0, 0, 0 ) || b->GetNormal() == idVec3( 0, 0, 0 ) )
+	if( a->GetNormal().Length() == 0 && b->GetNormal().Length() == 0 )
 	{
 		return true;
 	}
 	
 	// otherwise do a dot-product cosine check
-	if( a->GetNormal() * b->GetNormal() < COSINE_EPSILON )
+	if( ( a->GetNormal() * b->GetNormal() ) < COSINE_EPSILON )
 	{
 		return false;
 	}
+	// RB end
 	
 	return true;
 }

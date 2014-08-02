@@ -194,8 +194,10 @@ typedef struct tree_s
 typedef struct
 {
 	idRenderLightLocal	def;
-	char		name[MAX_QPATH];		// for naming the shadow volume surface and interactions
-	srfTriangles_t*	shadowTris;
+	char				name[MAX_QPATH];		// for naming the shadow volume surface and interactions
+	srfTriangles_t*		shadowTris;
+	
+	idPlane				frustumPlanes[6];		// RB: should be calculated after R_DeriveLightData()
 } mapLight_t;
 
 #define	MAX_GROUP_LIGHTS	16
@@ -398,6 +400,8 @@ bspface_t*	MakeStructuralBspFaceList( primitive_t* list );
 bspface_t*	MakeVisibleBspFaceList( primitive_t* list );
 tree_t*		FaceBSP( bspface_t* list );
 
+node_t*		NodeForPoint( node_t* node, const idVec3& origin );
+
 //=============================================================================
 
 // surface.cpp
@@ -422,7 +426,7 @@ void	FixGlobalTjunctions( uEntity_t* e );
 
 //=============================================================================
 
-// optimize.cpp -- trianlge mesh reoptimization
+// optimize.cpp -- triangle mesh reoptimization
 
 // the shadow volume optimizer call internal optimizer routines, normal triangles
 // will just be done by OptimizeEntity()

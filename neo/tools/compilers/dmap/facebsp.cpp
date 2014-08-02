@@ -38,7 +38,7 @@ extern	int	c_nodes;
 
 void RemovePortalFromNode( uPortal_t* portal, node_t* l );
 
-node_t* NodeForPoint( node_t* node, idVec3 origin )
+node_t* NodeForPoint( node_t* node, const idVec3& origin )
 {
 	float	d;
 	

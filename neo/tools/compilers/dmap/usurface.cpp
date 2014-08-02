@@ -127,14 +127,20 @@ static void TexVecForTri( textureVectors_t* texVec, mapTri_t* tri )
 	d0[0] = b->xyz[0] - a->xyz[0];
 	d0[1] = b->xyz[1] - a->xyz[1];
 	d0[2] = b->xyz[2] - a->xyz[2];
-	d0[3] = b->GetTexCoordS() - a->GetTexCoordS();
-	d0[4] = b->GetTexCoordT() - a->GetTexCoordT();
+	
+	// RB begin
+	const idVec2 aST = a->GetTexCoord();
+	const idVec2 bST = b->GetTexCoord();
+	d0[3] = bST.x - aST.x;
+	d0[4] = bST.y - aST.y;
 	
 	d1[0] = c->xyz[0] - a->xyz[0];
 	d1[1] = c->xyz[1] - a->xyz[1];
 	d1[2] = c->xyz[2] - a->xyz[2];
-	d1[3] = c->GetTexCoordS() - a->GetTexCoordS();
-	d1[4] = c->GetTexCoordT() - a->GetTexCoordT();
+	
+	const idVec2 cST = c->GetTexCoord();
+	d1[3] = cST.x - aST.x;
+	d1[4] = cST.y - aST.y;
 	
 	area = d0[3] * d1[4] - d0[4] * d1[3];
 	inva = 1.0 / area;
@@ -144,14 +150,15 @@ static void TexVecForTri( textureVectors_t* texVec, mapTri_t* tri )
 	temp[2] = ( d0[2] * d1[4] - d0[4] * d1[2] ) * inva;
 	temp.Normalize();
 	texVec->v[0].ToVec3() = temp;
-	texVec->v[0][3] = tri->v[0].xyz * texVec->v[0].ToVec3() - tri->v[0].GetTexCoordS();
+	texVec->v[0][3] = tri->v[0].xyz * texVec->v[0].ToVec3() - tri->v[0].GetTexCoord().x;
 	
 	temp[0] = ( d0[3] * d1[0] - d0[0] * d1[3] ) * inva;
 	temp[1] = ( d0[3] * d1[1] - d0[1] * d1[3] ) * inva;
 	temp[2] = ( d0[3] * d1[2] - d0[2] * d1[3] ) * inva;
 	temp.Normalize();
 	texVec->v[1].ToVec3() = temp;
-	texVec->v[1][3] = tri->v[0].xyz * texVec->v[0].ToVec3() - tri->v[0].GetTexCoordT();
+	texVec->v[1][3] = tri->v[0].xyz * texVec->v[0].ToVec3() - tri->v[0].GetTexCoord().y;
+	// RB end
 }
 
 
@@ -825,9 +832,10 @@ static void ClipTriByLight( const mapLight_t* light, const mapTri_t* tri,
 		oldInside = inside;
 		if( oldInside )
 		{
-//			oldInside->Split( light->def.frustum[i], 0, &outside[i], &inside );
-			//		delete oldInside;
-			assert( !oldInside );
+			// RB begin
+			oldInside->Split( light->frustumPlanes[i], 0, &outside[i], &inside );
+			delete oldInside;
+			// RB end
 		}
 		else
 		{
@@ -1058,6 +1066,7 @@ void Prelight( uEntity_t* e )
 		end = Sys_Milliseconds();
 		common->Printf( "%5.1f seconds for CarveGroupsByLight\n", ( end - start ) / 1000.0 );
 	}
+	
 }
 
 

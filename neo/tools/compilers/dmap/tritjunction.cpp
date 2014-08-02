@@ -378,18 +378,24 @@ static mapTri_t* FixTriangleAgainstHashVert( const mapTri_t* a, const hashVert_t
 		split.xyz = *v;
 		frac = d / len;
 		
-		idVec2 st;
-		st.x = v1->GetTexCoordS() + frac * ( v2->GetTexCoordS() - v1->GetTexCoordS() );
-		st.y = v1->GetTexCoordT() + frac * ( v2->GetTexCoordT() - v1->GetTexCoordT() );
-		split.SetTexCoord( st );
+		// RB begin
+		const idVec2 v1ST = v1->GetTexCoord();
+		const idVec2 v2ST = v2->GetTexCoord();
+		
+		split.SetTexCoord(	v1ST.x + frac * ( v2ST.x - v1ST.x ),
+							v1ST.y + frac * ( v2ST.y - v1ST.y ) );
+							
 		idVec3 splitNormal;
 		idVec3 v1Normal = v1->GetNormal();
 		idVec3 v2Normal = v2->GetNormal();
+		
 		splitNormal[0] = v1Normal[0] + frac * ( v2Normal[0] - v1Normal[0] );
 		splitNormal[1] = v1Normal[1] + frac * ( v2Normal[1] - v1Normal[1] );
 		splitNormal[2] = v1Normal[2] + frac * ( v2Normal[2] - v1Normal[2] );
 		splitNormal.Normalize();
+		
 		split.SetNormal( splitNormal );
+		// RB end
 		
 		// split the tri
 		new1 = CopyMapTri( a );
@@ -405,7 +411,7 @@ static mapTri_t* FixTriangleAgainstHashVert( const mapTri_t* a, const hashVert_t
 		plane1.FromPoints( new1->hashVert[0]->v, new1->hashVert[1]->v, new1->hashVert[2]->v );
 		plane2.FromPoints( new2->hashVert[0]->v, new2->hashVert[1]->v, new2->hashVert[2]->v );
 		
-		d = plane1.ToVec4() * plane2.ToVec4();
+		d = plane1.Normal() * plane2.Normal();
 		
 		// if the two split triangle's normals don't face the same way,
 		// it should not be split

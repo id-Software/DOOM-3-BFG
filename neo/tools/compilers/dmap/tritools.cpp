@@ -307,19 +307,23 @@ void		TriVertsFromOriginal( mapTri_t* tri, const mapTri_t* original )
 		c = idWinding::TriangleArea( tri->v[i].xyz, original->v[0].xyz, original->v[1].xyz ) / denom;
 		
 		// regenerate the interpolated values
-		tri->v[i].SetTexCoordS( a * original->v[0].GetTexCoordS()
-								+ b * original->v[1].GetTexCoordS() + c * original->v[2].GetTexCoordS() );
-		tri->v[i].SetTexCoordT( a * original->v[0].GetTexCoordT()
-								+ b * original->v[1].GetTexCoordT() + c * original->v[2].GetTexCoordT() );
+		
+		// RB begin
+		const idVec2 aST = original->v[0].GetTexCoord();
+		const idVec2 bST = original->v[1].GetTexCoord();
+		const idVec2 cST = original->v[2].GetTexCoord();
+		
+		tri->v[i].SetTexCoord(	a * aST.x + b * bST.x + c * cST.x,
+								a * aST.y + b * bST.y + c * cST.y );
 								
-		idVec3 normal = tri->v[i].GetNormal();
+		idVec3 tempNormal;
 		for( j = 0 ; j < 3 ; j++ )
 		{
-			normal[j] = a * original->v[0].GetNormal()[j]
-						+ b * original->v[1].GetNormal()[j] + c * original->v[2].GetNormal()[j];
+			tempNormal[j] = a * original->v[0].GetNormal()[j] + b * original->v[1].GetNormal()[j] + c * original->v[2].GetNormal()[j];
 		}
-		normal.Normalize();
-		tri->v[i].SetNormal( normal );
+		tempNormal.Normalize();
+		tri->v[i].SetNormal( tempNormal );
+		// RB end
 	}
 }
 
