@@ -26,7 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#include "global.inc"
+#include "renderprogs/global.inc"
 #define FXAA_GREEN_AS_LUMA 1
 #define FXAA_EARLY_EXIT 0
 #include "Fxaa3_11.h"
