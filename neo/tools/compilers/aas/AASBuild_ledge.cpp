@@ -44,7 +44,7 @@ If you have questions concerning this license or the applicable additional terms
 idLedge::idLedge
 ============
 */
-idLedge::idLedge( void )
+idLedge::idLedge()
 {
 }
 

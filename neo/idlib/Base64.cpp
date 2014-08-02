@@ -89,7 +89,7 @@ returns the minimum size in bytes of the target buffer for decoding
 4 base64 digits <-> 3 bytes
 ============
 */
-int idBase64::DecodeLength( void ) const
+int idBase64::DecodeLength() const
 {
 	return 3 * len / 4;
 }

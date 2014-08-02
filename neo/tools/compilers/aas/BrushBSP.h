@@ -55,17 +55,17 @@ class idBrushBSPPortal
 	friend class idBrushBSPNode;
 	
 public:
-	idBrushBSPPortal( void );
-	~idBrushBSPPortal( void );
+	idBrushBSPPortal();
+	~idBrushBSPPortal();
 	void					AddToNodes( idBrushBSPNode* front, idBrushBSPNode* back );
 	void					RemoveFromNode( idBrushBSPNode* l );
-	void					Flip( void );
+	void					Flip();
 	int						Split( const idPlane& splitPlane, idBrushBSPPortal** front, idBrushBSPPortal** back );
-	idWinding* 				GetWinding( void ) const
+	idWinding* 				GetWinding() const
 	{
 		return winding;
 	}
-	const idPlane& 			GetPlane( void ) const
+	const idPlane& 			GetPlane() const
 	{
 		return plane;
 	}
@@ -73,11 +73,11 @@ public:
 	{
 		faceNum = num;
 	}
-	int						GetFaceNum( void ) const
+	int						GetFaceNum() const
 	{
 		return faceNum;
 	}
-	int						GetFlags( void ) const
+	int						GetFlags() const
 	{
 		return flags;
 	}
@@ -125,15 +125,15 @@ class idBrushBSPNode
 	friend class idBrushBSPPortal;
 	
 public:
-	idBrushBSPNode( void );
-	~idBrushBSPNode( void );
-	void					SetContentsFromBrushes( void );
-	idBounds				GetPortalBounds( void );
+	idBrushBSPNode();
+	~idBrushBSPNode();
+	void					SetContentsFromBrushes();
+	idBounds				GetPortalBounds();
 	idBrushBSPNode* 		GetChild( int index ) const
 	{
 		return children[index];
 	}
-	idBrushBSPNode* 		GetParent( void ) const
+	idBrushBSPNode* 		GetParent() const
 	{
 		return parent;
 	}
@@ -141,15 +141,15 @@ public:
 	{
 		this->contents = contents;
 	}
-	int						GetContents( void ) const
+	int						GetContents() const
 	{
 		return contents;
 	}
-	const idPlane& 			GetPlane( void ) const
+	const idPlane& 			GetPlane() const
 	{
 		return plane;
 	}
-	idBrushBSPPortal* 		GetPortals( void ) const
+	idBrushBSPPortal* 		GetPortals() const
 	{
 		return portals;
 	}
@@ -157,11 +157,11 @@ public:
 	{
 		areaNum = num;
 	}
-	int						GetAreaNum( void ) const
+	int						GetAreaNum() const
 	{
 		return areaNum;
 	}
-	int						GetFlags( void ) const
+	int						GetFlags() const
 	{
 		return flags;
 	}
@@ -173,7 +173,7 @@ public:
 	{
 		flags &= ~flag;
 	}
-	bool					TestLeafNode( void );
+	bool					TestLeafNode();
 	// remove the flag from nodes found by flooding through portals to nodes with the flag set
 	void					RemoveFlagFlood( int flag );
 	// recurse down the tree and remove the flag from all visited nodes
@@ -210,8 +210,8 @@ class idBrushBSP
 {
 
 public:
-	idBrushBSP( void );
-	~idBrushBSP( void );
+	idBrushBSP();
+	~idBrushBSP();
 	// build a bsp tree from a set of brushes
 	void					Build( idBrushList brushList, int skipContents,
 								   bool ( *ChopAllowed )( idBrush* b1, idBrush* b2 ),
@@ -219,7 +219,7 @@ public:
 	// remove splits in subspaces with the given contents
 	void					PruneTree( int contents );
 	// portalize the bsp tree
-	void					Portalize( void );
+	void					Portalize();
 	// remove subspaces outside the map not reachable by entities
 	bool					RemoveOutside( const idMapFile* mapFile, int contents, const idStrList& classNames );
 	// write file with a trace going through a leak
@@ -234,12 +234,12 @@ public:
 	// write a map file with a brush for every leaf node that has the given contents
 	void					WriteBrushMap( const idStr& fileName, const idStr& ext, int contents );
 	// bounds for the whole tree
-	const idBounds& 		GetTreeBounds( void ) const
+	const idBounds& 		GetTreeBounds() const
 	{
 		return treeBounds;
 	}
 	// root node of the tree
-	idBrushBSPNode* 		GetRootNode( void ) const
+	idBrushBSPNode* 		GetRootNode() const
 	{
 		return root;
 	}
@@ -269,7 +269,7 @@ private:
 private:
 	void					RemoveMultipleLeafNodeReferences_r( idBrushBSPNode* node );
 	void					Free_r( idBrushBSPNode* node );
-	void					IncreaseNumSplits( void );
+	void					IncreaseNumSplits();
 	bool					IsValidSplitter( const idBrushSide* side );
 	int						BrushSplitterStats( const idBrush* brush, int planeNum, const idPlaneSet& planeList, bool* testedPlanes, struct splitterStats_s& stats );
 	int						FindSplitter( idBrushBSPNode* node, const idPlaneSet& planeList, bool* testedPlanes, struct splitterStats_s& bestStats );
@@ -278,7 +278,7 @@ private:
 	idBrushBSPNode* 		ProcessGridCell( idBrushBSPNode* node, int skipContents );
 	void					BuildGrid_r( idList<idBrushBSPNode*>& gridCells, idBrushBSPNode* node );
 	void					PruneTree_r( idBrushBSPNode* node, int contents );
-	void					MakeOutsidePortals( void );
+	void					MakeOutsidePortals();
 	idWinding* 				BaseWindingForNode( idBrushBSPNode* node );
 	void					MakeNodePortal( idBrushBSPNode* node );
 	void					SplitNodePortals( idBrushBSPNode* node );
@@ -288,7 +288,7 @@ private:
 	bool					FloodFromEntities( const idMapFile* mapFile, int contents, const idStrList& classNames );
 	void					RemoveOutside_r( idBrushBSPNode* node, int contents );
 	void					SetPortalPlanes_r( idBrushBSPNode* node, idPlaneSet& planeList );
-	void					SetPortalPlanes( void );
+	void					SetPortalPlanes();
 	void					MergePortals_r( idBrushBSPNode* node, int skipContents );
 	void					MergeLeafNodePortals( idBrushBSPNode* node, int skipContents );
 	void					UpdateTreeAfterMerge_r( idBrushBSPNode* node, const idBounds& bounds, idBrushBSPNode* oldNode, idBrushBSPNode* newNode );

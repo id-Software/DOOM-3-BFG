@@ -52,7 +52,7 @@ int aas_vertexShift;
 idAASBuild::SetupHash
 ================
 */
-void idAASBuild::SetupHash( void )
+void idAASBuild::SetupHash()
 {
 	aas_vertexHash = new idHashIndex( VERTEX_HASH_SIZE, 1024 );
 	aas_edgeHash = new idHashIndex( EDGE_HASH_SIZE, 1024 );
@@ -63,7 +63,7 @@ void idAASBuild::SetupHash( void )
 idAASBuild::ShutdownHash
 ================
 */
-void idAASBuild::ShutdownHash( void )
+void idAASBuild::ShutdownHash()
 {
 	delete aas_vertexHash;
 	delete aas_edgeHash;

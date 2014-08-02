@@ -1684,7 +1684,7 @@ void idCommonLocal::BusyWait()
 idCommonLocal::InitCommands
 ===============
 */
-void idCommonLocal::InitCommands( void )
+void idCommonLocal::InitCommands()
 {
 	// compilers
 	cmdSystem->AddCommand( "dmap", Dmap_f, CMD_FL_TOOL, "compiles a map", idCmdSystem::ArgCompletion_MapName );

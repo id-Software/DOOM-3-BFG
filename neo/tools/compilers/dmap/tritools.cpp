@@ -42,7 +42,7 @@ If you have questions concerning this license or the applicable additional terms
 AllocTri
 ===============
 */
-mapTri_t*	AllocTri( void )
+mapTri_t*	AllocTri()
 {
 	mapTri_t*	tri;
 	

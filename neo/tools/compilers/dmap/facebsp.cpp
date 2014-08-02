@@ -163,7 +163,7 @@ void PrintTree_r( node_t* node, int depth )
 AllocBspFace
 ================
 */
-bspface_t*	AllocBspFace( void )
+bspface_t*	AllocBspFace()
 {
 	bspface_t*	f;
 	

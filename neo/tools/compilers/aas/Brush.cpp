@@ -74,7 +74,7 @@ void DisplayRealTimeString( char* string, ... )
 idBrushSide::idBrushSide
 ============
 */
-idBrushSide::idBrushSide( void )
+idBrushSide::idBrushSide()
 {
 	flags = 0;
 	planeNum = -1;
@@ -99,7 +99,7 @@ idBrushSide::idBrushSide( const idPlane& plane, int planeNum )
 idBrushSide::~idBrushSide
 ============
 */
-idBrushSide::~idBrushSide( void )
+idBrushSide::~idBrushSide()
 {
 	if( winding )
 	{
@@ -112,7 +112,7 @@ idBrushSide::~idBrushSide( void )
 idBrushSide::Copy
 ============
 */
-idBrushSide* idBrushSide::Copy( void ) const
+idBrushSide* idBrushSide::Copy() const
 {
 	idBrushSide* side;
 	
@@ -184,7 +184,7 @@ int idBrushSide::Split( const idPlane& splitPlane, idBrushSide** front, idBrushS
 idBrush::idBrush
 ============
 */
-idBrush::idBrush( void )
+idBrush::idBrush()
 {
 	contents = flags = 0;
 	bounds.Clear();
@@ -198,7 +198,7 @@ idBrush::idBrush( void )
 idBrush::~idBrush
 ============
 */
-idBrush::~idBrush( void )
+idBrush::~idBrush()
 {
 	for( int i = 0; i < sides.Num(); i++ )
 	{
@@ -211,7 +211,7 @@ idBrush::~idBrush( void )
 idBrush::RemoveSidesWithoutWinding
 ============
 */
-bool idBrush::RemoveSidesWithoutWinding( void )
+bool idBrush::RemoveSidesWithoutWinding()
 {
 	int i;
 	
@@ -235,7 +235,7 @@ bool idBrush::RemoveSidesWithoutWinding( void )
 idBrush::CreateWindings
 ============
 */
-bool idBrush::CreateWindings( void )
+bool idBrush::CreateWindings()
 {
 	int i, j;
 	idBrushSide* side;
@@ -489,7 +489,7 @@ void idBrush::Transform( const idVec3& origin, const idMat3& axis )
 idBrush::GetVolume
 ============
 */
-float idBrush::GetVolume( void ) const
+float idBrush::GetVolume() const
 {
 	int i;
 	idWinding* w;
@@ -942,7 +942,7 @@ idBrush::AddBevelsForAxialBox
 */
 #define BRUSH_BEVEL_EPSILON		0.1f
 
-void idBrush::AddBevelsForAxialBox( void )
+void idBrush::AddBevelsForAxialBox()
 {
 	int axis, dir, i, j, k, l, order;
 	idBrushSide* side, *newSide;
@@ -1158,7 +1158,7 @@ void idBrush::ExpandForAxialBox( const idBounds& bounds )
 idBrush::Copy
 ============
 */
-idBrush* idBrush::Copy( void ) const
+idBrush* idBrush::Copy() const
 {
 	int i;
 	idBrush* b;
@@ -1188,7 +1188,7 @@ idBrush* idBrush::Copy( void ) const
 idBrushList::idBrushList
 ============
 */
-idBrushList::idBrushList( void )
+idBrushList::idBrushList()
 {
 	numBrushes = numBrushSides = 0;
 	head = tail = NULL;
@@ -1199,7 +1199,7 @@ idBrushList::idBrushList( void )
 idBrushList::~idBrushList
 ============
 */
-idBrushList::~idBrushList( void )
+idBrushList::~idBrushList()
 {
 }
 
@@ -1208,7 +1208,7 @@ idBrushList::~idBrushList( void )
 idBrushList::GetBounds
 ============
 */
-idBounds idBrushList::GetBounds( void ) const
+idBounds idBrushList::GetBounds() const
 {
 	idBounds bounds;
 	idBrush* b;
@@ -1387,7 +1387,7 @@ void idBrushList::Delete( idBrush* brush )
 idBrushList::Copy
 ============
 */
-idBrushList* idBrushList::Copy( void ) const
+idBrushList* idBrushList::Copy() const
 {
 	idBrush* brush;
 	idBrushList* list;
@@ -1406,7 +1406,7 @@ idBrushList* idBrushList::Copy( void ) const
 idBrushList::Free
 ============
 */
-void idBrushList::Free( void )
+void idBrushList::Free()
 {
 	idBrush* brush, *next;
 	
@@ -1787,7 +1787,7 @@ idBrushMap::idBrushMap( const idStr& fileName, const idStr& ext )
 idBrushMap::~idBrushMap
 ============
 */
-idBrushMap::~idBrushMap( void )
+idBrushMap::~idBrushMap()
 {
 	if( !fp )
 	{

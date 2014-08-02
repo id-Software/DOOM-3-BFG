@@ -260,7 +260,7 @@ void I_InitNetwork (void)
 }
 
 // DHM - Nerve
-void I_ShutdownNetwork( void ) {
+void I_ShutdownNetwork() {
 	
 }
 

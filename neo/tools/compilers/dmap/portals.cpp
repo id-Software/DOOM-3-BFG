@@ -44,7 +44,7 @@ int		c_peak_portals;
 AllocPortal
 ===========
 */
-uPortal_t*	AllocPortal( void )
+uPortal_t*	AllocPortal()
 {
 	uPortal_t*	p;
 	

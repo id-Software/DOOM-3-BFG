@@ -211,7 +211,7 @@ void DoomInterface::Shutdown() {
 	lastTicRun = 0;
 }
 
-qboolean G_CheckDemoStatus( void );
+qboolean G_CheckDemoStatus();
 
 void DoomInterface::QuitCurrentGame() {
 	for ( int i = 0; i < numplayers; i++ ) {

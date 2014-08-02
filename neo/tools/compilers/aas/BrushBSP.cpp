@@ -55,7 +55,7 @@ If you have questions concerning this license or the applicable additional terms
 idBrushBSPPortal::idBrushBSPPortal
 ============
 */
-idBrushBSPPortal::idBrushBSPPortal( void )
+idBrushBSPPortal::idBrushBSPPortal()
 {
 	planeNum = -1;
 	winding = NULL;
@@ -70,7 +70,7 @@ idBrushBSPPortal::idBrushBSPPortal( void )
 idBrushBSPPortal::~idBrushBSPPortal
 ============
 */
-idBrushBSPPortal::~idBrushBSPPortal( void )
+idBrushBSPPortal::~idBrushBSPPortal()
 {
 	if( winding )
 	{
@@ -160,7 +160,7 @@ void idBrushBSPPortal::RemoveFromNode( idBrushBSPNode* l )
 idBrushBSPPortal::Flip
 ============
 */
-void idBrushBSPPortal::Flip( void )
+void idBrushBSPPortal::Flip()
 {
 	idBrushBSPNode* frontNode, *backNode;
 	
@@ -236,7 +236,7 @@ int idBrushBSPPortal::Split( const idPlane& splitPlane, idBrushBSPPortal** front
 idBrushBSPNode::idBrushBSPNode
 ============
 */
-idBrushBSPNode::idBrushBSPNode( void )
+idBrushBSPNode::idBrushBSPNode()
 {
 	brushList.Clear();
 	contents = 0;
@@ -253,7 +253,7 @@ idBrushBSPNode::idBrushBSPNode( void )
 idBrushBSPNode::~idBrushBSPNode
 ============
 */
-idBrushBSPNode::~idBrushBSPNode( void )
+idBrushBSPNode::~idBrushBSPNode()
 {
 	idBrushBSPPortal* p;
 	
@@ -282,7 +282,7 @@ idBrushBSPNode::~idBrushBSPNode( void )
 idBrushBSPNode::SetContentsFromBrushes
 ============
 */
-void idBrushBSPNode::SetContentsFromBrushes( void )
+void idBrushBSPNode::SetContentsFromBrushes()
 {
 	idBrush* brush;
 	
@@ -298,7 +298,7 @@ void idBrushBSPNode::SetContentsFromBrushes( void )
 idBrushBSPNode::GetPortalBounds
 ============
 */
-idBounds idBrushBSPNode::GetPortalBounds( void )
+idBounds idBrushBSPNode::GetPortalBounds()
 {
 	int s, i;
 	idBrushBSPPortal* p;
@@ -322,7 +322,7 @@ idBounds idBrushBSPNode::GetPortalBounds( void )
 idBrushBSPNode::TestLeafNode
 ============
 */
-bool idBrushBSPNode::TestLeafNode( void )
+bool idBrushBSPNode::TestLeafNode()
 {
 	int s, n;
 	float d;
@@ -567,7 +567,7 @@ void idBrushBSPNode::RemoveFlagRecurseFlood( int flag )
 idBrushBSP::idBrushBSP
 ============
 */
-idBrushBSP::idBrushBSP( void )
+idBrushBSP::idBrushBSP()
 {
 	root = outside = NULL;
 	numSplits = numPrunedSplits = 0;
@@ -580,7 +580,7 @@ idBrushBSP::idBrushBSP( void )
 idBrushBSP::~idBrushBSP
 ============
 */
-idBrushBSP::~idBrushBSP( void )
+idBrushBSP::~idBrushBSP()
 {
 
 	RemoveMultipleLeafNodeReferences_r( root );
@@ -1468,7 +1468,7 @@ void idBrushBSP::MakeTreePortals_r( idBrushBSPNode* node )
 idBrushBSP::MakeOutsidePortals
 ============
 */
-void idBrushBSP::MakeOutsidePortals( void )
+void idBrushBSP::MakeOutsidePortals()
 {
 	int i, j, n;
 	idBounds bounds;
@@ -1531,7 +1531,7 @@ void idBrushBSP::MakeOutsidePortals( void )
 idBrushBSP::Portalize
 ============
 */
-void idBrushBSP::Portalize( void )
+void idBrushBSP::Portalize()
 {
 	common->Printf( "[Portalize BSP]\n" );
 	common->Printf( "%6d nodes\n", ( numSplits - numPrunedSplits ) * 2 + 1 );
@@ -1871,7 +1871,7 @@ idBrushBSP::SetPortalPlanes
   give all portals a plane number
 ============
 */
-void idBrushBSP::SetPortalPlanes( void )
+void idBrushBSP::SetPortalPlanes()
 {
 	SetPortalPlanes_r( root, portalPlanes );
 }

@@ -187,7 +187,7 @@ bool idAASCluster::FloodClusterAreas_r( int areaNum, int clusterNum )
 idAASCluster::RemoveAreaClusterNumbers
 ================
 */
-void idAASCluster::RemoveAreaClusterNumbers( void )
+void idAASCluster::RemoveAreaClusterNumbers()
 {
 	int i;
 	
@@ -296,7 +296,7 @@ void idAASCluster::NumberClusterAreas( int clusterNum )
 idAASCluster::FindClusters
 ================
 */
-bool idAASCluster::FindClusters( void )
+bool idAASCluster::FindClusters()
 {
 	int i, clusterNum;
 	aasCluster_t cluster;
@@ -350,7 +350,7 @@ bool idAASCluster::FindClusters( void )
 idAASCluster::CreatePortals
 ================
 */
-void idAASCluster::CreatePortals( void )
+void idAASCluster::CreatePortals()
 {
 	int i;
 	aasPortal_t portal;
@@ -373,7 +373,7 @@ void idAASCluster::CreatePortals( void )
 idAASCluster::TestPortals
 ================
 */
-bool idAASCluster::TestPortals( void )
+bool idAASCluster::TestPortals()
 {
 	int i;
 	aasPortal_t* portal, *portal2;
@@ -480,7 +480,7 @@ bool idAASCluster::TestPortals( void )
 idAASCluster::RemoveInvalidPortals
 ================
 */
-void idAASCluster::RemoveInvalidPortals( void )
+void idAASCluster::RemoveInvalidPortals()
 {
 	int i, j, k, face1Num, face2Num, otherAreaNum, numOpenAreas, numInvalidPortals;
 	aasFace_t* face1, *face2;

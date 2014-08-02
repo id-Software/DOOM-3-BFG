@@ -236,7 +236,7 @@ public:
 	void                    Spawn();
 	virtual bool			Pickup( idPlayer* player );
 	virtual bool			ClientReceiveEvent( int event, int time, const idBitMsg& msg );
-	virtual void			Think( void );
+	virtual void			Think();
 	
 	void					Drop( bool death = false );	// was the drop caused by death of carrier?
 	void					Return( idPlayer* player = NULL );

@@ -320,7 +320,7 @@ void WriteBspBrushMap( const char* name, uBrush_t* list );
 void FilterBrushesIntoTree( uEntity_t* e );
 
 void SplitBrush( uBrush_t* brush, int planenum, uBrush_t** front, uBrush_t** back );
-node_t* AllocNode( void );
+node_t* AllocNode();
 
 
 //=============================================================================
@@ -329,22 +329,22 @@ node_t* AllocNode( void );
 
 bool 		LoadDMapFile( const char* filename );
 void		FreeOptimizeGroupList( optimizeGroup_t* groups );
-void		FreeDMapFile( void );
+void		FreeDMapFile();
 
 //=============================================================================
 
 // draw.cpp -- draw debug views either directly, or through glserv.exe
 
-void Draw_ClearWindow( void );
+void Draw_ClearWindow();
 void DrawWinding( const idWinding* w );
 void DrawAuxWinding( const idWinding* w );
 
 void DrawLine( idVec3 v1, idVec3 v2, int color );
 
-void GLS_BeginScene( void );
+void GLS_BeginScene();
 void GLS_Winding( const idWinding* w, int code );
 void GLS_Triangle( const mapTri_t* tri, int code );
-void GLS_EndScene( void );
+void GLS_EndScene();
 
 
 
@@ -386,7 +386,7 @@ void LeakFile( tree_t* tree );
 
 // facebsp.cpp
 
-tree_t* AllocTree( void );
+tree_t* AllocTree();
 
 void FreeTree( tree_t* tree );
 
@@ -414,7 +414,7 @@ void	Prelight( uEntity_t* e );
 
 struct hashVert_s*	GetHashVert( idVec3& v );
 void	HashTriangles( optimizeGroup_t* groupList );
-void	FreeTJunctionHash( void );
+void	FreeTJunctionHash();
 int		CountGroupListTris( const optimizeGroup_t* groupList );
 void	FixEntityTjunctions( uEntity_t* e );
 void	FixAreaGroupsTjunctions( optimizeGroup_t* groupList );
@@ -473,7 +473,7 @@ void	OptimizeGroupList( optimizeGroup_t* groupList );
 
 // tritools.cpp
 
-mapTri_t*	AllocTri( void );
+mapTri_t*	AllocTri();
 void		FreeTri( mapTri_t* tri );
 int			CountTriList( const mapTri_t* list );
 mapTri_t*	MergeTriLists( mapTri_t* a, mapTri_t* b );
@@ -496,7 +496,7 @@ void		ClipTriList( const mapTri_t* list, const idPlane& plane, float epsilon, ma
 // output.cpp
 
 srfTriangles_t*	ShareMapTriVerts( const mapTri_t* tris );
-void WriteOutputFile( void );
+void WriteOutputFile();
 
 //=============================================================================
 

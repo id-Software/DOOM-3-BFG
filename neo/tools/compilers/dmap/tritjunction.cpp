@@ -290,7 +290,7 @@ The optimizer may add some more crossing verts
 after t junction processing
 =================
 */
-void FreeTJunctionHash( void )
+void FreeTJunctionHash()
 {
 	int			i, j, k;
 	hashVert_t*	hv, *next;

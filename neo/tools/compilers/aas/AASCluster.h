@@ -51,13 +51,13 @@ private:
 private:
 	bool					UpdatePortal( int areaNum, int clusterNum );
 	bool					FloodClusterAreas_r( int areaNum, int clusterNum );
-	void					RemoveAreaClusterNumbers( void );
+	void					RemoveAreaClusterNumbers();
 	void					NumberClusterAreas( int clusterNum );
-	bool					FindClusters( void );
-	void					CreatePortals( void );
-	bool					TestPortals( void );
-	void					ReportEfficiency( void );
-	void					RemoveInvalidPortals( void );
+	bool					FindClusters();
+	void					CreatePortals();
+	bool					TestPortals();
+	void					ReportEfficiency();
+	void					RemoveInvalidPortals();
 };
 
 #endif /* !__AASCLUSTER_H__ */

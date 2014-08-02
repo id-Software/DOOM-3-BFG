@@ -116,7 +116,7 @@ bool ProcessModel( uEntity_t* e, bool floodFill )
 ProcessModels
 ============
 */
-bool ProcessModels( void )
+bool ProcessModels()
 {
 	bool	oldVerbose;
 	uEntity_t*	entity;
@@ -158,7 +158,7 @@ bool ProcessModels( void )
 DmapHelp
 ============
 */
-void DmapHelp( void )
+void DmapHelp()
 {
 	common->Printf(
 	
@@ -176,7 +176,7 @@ void DmapHelp( void )
 ResetDmapGlobals
 ============
 */
-void ResetDmapGlobals( void )
+void ResetDmapGlobals()
 {
 	dmapGlobals.mapFileBase[0] = '\0';
 	dmapGlobals.dmapFile = NULL;
