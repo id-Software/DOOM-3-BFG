@@ -4453,6 +4453,14 @@ cmHandle_t idCollisionModelManagerLocal::LoadModel( const char* modelName )
 	
 	ID_TIME_T sourceTimeStamp = fileSystem->GetTimestamp( modelName );
 	
+	if( models == NULL )
+	{
+		// raynorpat: best clear this if there are no models ( hit by dmap )
+		maxModels = MAX_SUBMODELS;
+		numModels = 0;
+		models = ( cm_model_t** ) Mem_ClearedAlloc( ( maxModels + 1 ) * sizeof( cm_model_t* ), TAG_COLLISION );
+	}
+	
 	models[ numModels ] = LoadBinaryModel( generatedFileName, sourceTimeStamp );
 	if( models[ numModels ] != NULL )
 	{

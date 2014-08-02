@@ -132,6 +132,9 @@ const int MAX_EXPRESSION_REGISTERS = 4096;
 #include "../sys/sys_session.h"
 #include "../sys/sys_achievements.h"
 
+// tools
+#include "../tools/compilers/compiler_public.h"
+
 //-----------------------------------------------------
 
 #ifndef _D3SDK

@@ -498,12 +498,6 @@ void			Sys_FPU_SetFTZ( bool enable );
 // sets Denormals-Are-Zero mode (only available when CPUID_DAZ is set)
 void			Sys_FPU_SetDAZ( bool enable );
 
-// returns amount of system ram
-int				Sys_GetSystemRam();
-
-// returns amount of video ram
-int				Sys_GetVideoRam();
-
 // returns amount of drive space in path
 int				Sys_GetDriveFreeSpace( const char* path );
 

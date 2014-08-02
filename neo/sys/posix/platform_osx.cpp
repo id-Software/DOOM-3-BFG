@@ -167,32 +167,6 @@ void Sys_CPUCount( int& numLogicalCPUCores, int& numPhysicalCPUCores, int& numCP
 // RB end
 
 /*
-================
-Sys_GetSystemRam
-returns in megabytes
-================
-*/
-int Sys_GetSystemRam()
-{
-	int		mb, mib[2];
-	
-	mib[0] = CTL_HW;
-	mib[1] = HW_MEMSIZE;
-	int64_t size = 0;
-	size_t len = sizeof( size );
-	if( sysctl( mib, 2, &size, &len, NULL, 0 ) == 0 )
-	{
-		mb = size  / ( 1024 * 1024 );
-		mb = ( mb + 8 ) & ~15;
-		return mb;
-	}
-	
-	common->Printf( "GetSystemRam: sysctl HW_MEMSIZE failed\n" );
-	return 512;
-}
-
-
-/*
 ==================
 Sys_DoStartProcess
 if we don't fork, this function never returns

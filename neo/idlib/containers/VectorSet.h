@@ -94,7 +94,7 @@ ID_INLINE void idVectorSet<type, dimension>::Init( const type& mins, const type&
 	float boxSize;
 	
 	idList<type>::AssureSize( initialSize );
-	idList<type>::SetNum( 0, false );
+	idList<type>::SetNum( 0 );
 	
 	hash.Clear( idMath::IPow( boxHashSize, dimension ), initialSize );
 	

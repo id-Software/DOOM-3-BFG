@@ -1400,6 +1400,69 @@ bool idWinding::InsertPointIfOnEdge( const idVec5& point, const idPlane& plane, 
 
 /*
 =============
+idWinding::InsertPointIfOnEdge
+=============
+*/
+bool idWinding::InsertPointIfOnEdge( const idVec3& point, const idPlane& plane, const float epsilon )
+{
+	int i;
+	float dist, dot;
+	idVec3 normal;
+	
+	// point may not be too far from the winding plane
+	if( idMath::Fabs( plane.Distance( point ) ) > epsilon )
+	{
+		return false;
+	}
+	
+	for( i = 0; i < numPoints; i++ )
+	{
+	
+		// create plane through edge orthogonal to winding plane
+		normal = ( p[( i + 1 ) % numPoints].ToVec3() - p[i].ToVec3() ).Cross( plane.Normal() );
+		normal.Normalize();
+		dist = normal * p[i].ToVec3();
+		
+		if( idMath::Fabs( normal * point - dist ) > epsilon )
+		{
+			continue;
+		}
+		
+		normal = plane.Normal().Cross( normal );
+		dot = normal * point;
+		
+		dist = dot - normal * p[i].ToVec3();
+		
+		if( dist < epsilon )
+		{
+			// if the winding already has the point
+			if( dist > -epsilon )
+			{
+				return false;
+			}
+			continue;
+		}
+		
+		dist = dot - normal * p[( i + 1 ) % numPoints].ToVec3();
+		
+		if( dist > -epsilon )
+		{
+			// if the winding already has the point
+			if( dist < epsilon )
+			{
+				return false;
+			}
+			continue;
+		}
+		
+		InsertPoint( idVec5( point.x, point.y, point.z, 0, 0 ), i + 1 );
+		return true;
+	}
+	return false;
+}
+
+/*
+=============
 idWinding::IsTiny
 =============
 */

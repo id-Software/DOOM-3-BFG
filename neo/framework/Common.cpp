@@ -1336,6 +1336,9 @@ void idCommonLocal::Init( int argc, const char* const* argv, const char* cmdline
 		// startup the script debugger
 		// DebuggerServerInit();
 		
+		// Init tool commands
+		InitCommands();
+		
 		// load the game dll
 		LoadGameDLL();
 		
@@ -1673,6 +1676,21 @@ void idCommonLocal::BusyWait()
 	
 	session->UpdateSignInManager();
 	session->Pump();
+}
+
+
+/*
+===============
+idCommonLocal::InitCommands
+===============
+*/
+void idCommonLocal::InitCommands( void )
+{
+	// compilers
+	cmdSystem->AddCommand( "dmap", Dmap_f, CMD_FL_TOOL, "compiles a map", idCmdSystem::ArgCompletion_MapName );
+	cmdSystem->AddCommand( "runAAS", RunAAS_f, CMD_FL_TOOL, "compiles an AAS file for a map", idCmdSystem::ArgCompletion_MapName );
+	cmdSystem->AddCommand( "runAASDir", RunAASDir_f, CMD_FL_TOOL, "compiles AAS files for all maps in a folder", idCmdSystem::ArgCompletion_MapName );
+	cmdSystem->AddCommand( "runReach", RunReach_f, CMD_FL_TOOL, "calculates reachability for an AAS file", idCmdSystem::ArgCompletion_MapName );
 }
 
 /*
