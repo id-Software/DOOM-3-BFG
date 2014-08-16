@@ -1444,6 +1444,90 @@ void R_StencilShot()
 	fileSystem->WriteFile( "screenshots/stencilShot.tga", buffer.Ptr(), c, "fs_savepath" );
 }
 
+/*
+==================
+R_EnvShot_f
+
+envshot <basename>
+
+Saves out env/<basename>_ft.tga, etc
+==================
+*/
+void R_EnvShot_f( const idCmdArgs &args ) {
+	idStr		fullname;
+	const char	*baseName;
+	int			i;
+	idMat3		axis[6];
+	renderView_t	ref;
+	viewDef_t	primary;
+	int			blends;
+	const char	*extensions[6] =  { "_px.tga", "_nx.tga", "_py.tga", "_ny.tga",
+		"_pz.tga", "_nz.tga" };
+	int			size;
+
+	if ( args.Argc() != 2 && args.Argc() != 3 && args.Argc() != 4 ) {
+		common->Printf( "USAGE: envshot <basename> [size] [blends]\n" );
+		return;
+	}
+	baseName = args.Argv( 1 );
+
+	blends = 1;
+	if ( args.Argc() == 4 ) {
+		size = atoi( args.Argv( 2 ) );
+		blends = atoi( args.Argv( 3 ) );
+	} else if ( args.Argc() == 3 ) {
+		size = atoi( args.Argv( 2 ) );
+		blends = 1;
+	} else {
+		size = 256;
+		blends = 1;
+	}
+
+	if ( !tr.primaryView ) {
+		common->Printf( "No primary view.\n" );
+		return;
+	}
+
+	primary = *tr.primaryView;
+
+	memset( &axis, 0, sizeof( axis ) );
+	axis[0][0][0] = 1;
+	axis[0][1][2] = 1;
+	axis[0][2][1] = 1;
+
+	axis[1][0][0] = -1;
+	axis[1][1][2] = -1;
+	axis[1][2][1] = 1;
+
+	axis[2][0][1] = 1;
+	axis[2][1][0] = -1;
+	axis[2][2][2] = -1;
+
+	axis[3][0][1] = -1;
+	axis[3][1][0] = -1;
+	axis[3][2][2] = 1;
+
+	axis[4][0][2] = 1;
+	axis[4][1][0] = -1;
+	axis[4][2][1] = 1;
+
+	axis[5][0][2] = -1;
+	axis[5][1][0] = 1;
+	axis[5][2][1] = 1;
+
+	for ( i = 0 ; i < 6 ; i++ ) {
+		ref = primary.renderView;
+		//ref.x = ref.y = 0;
+		ref.fov_x = ref.fov_y = 90;
+		//ref.width = glConfig.vidWidth;
+		//ref.height = glConfig.vidHeight;
+		ref.viewaxis = axis[i];
+		sprintf( fullname, "env/%s%s", baseName, extensions[i] );
+		tr.TakeScreenshot( size, size, fullname, blends, &ref );
+	}
+
+	common->Printf( "Wrote %s, etc\n", fullname.c_str() );
+}
 
 //============================================================================
 
@@ -2039,6 +2123,7 @@ void R_InitCommands()
 	cmdSystem->AddCommand( "listGuis", R_ListGuis_f, CMD_FL_RENDERER, "lists guis" );
 	cmdSystem->AddCommand( "touchGui", R_TouchGui_f, CMD_FL_RENDERER, "touches a gui" );
 	cmdSystem->AddCommand( "screenshot", R_ScreenShot_f, CMD_FL_RENDERER, "takes a screenshot" );
+    cmdSystem->AddCommand( "envshot", R_EnvShot_f, CMD_FL_RENDERER, "takes an environment shot" );
 	cmdSystem->AddCommand( "makeAmbientMap", R_MakeAmbientMap_f, CMD_FL_RENDERER | CMD_FL_CHEAT, "makes an ambient map" );
 	cmdSystem->AddCommand( "gfxInfo", GfxInfo_f, CMD_FL_RENDERER, "show graphics info" );
 	cmdSystem->AddCommand( "modulateLights", R_ModulateLights_f, CMD_FL_RENDERER | CMD_FL_CHEAT, "modifies shader parms on all lights" );
