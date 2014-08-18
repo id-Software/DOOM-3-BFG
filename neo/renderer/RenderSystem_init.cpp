@@ -1461,9 +1461,13 @@ void R_EnvShot_f( const idCmdArgs &args ) {
 	renderView_t	ref;
 	viewDef_t	primary;
 	int			blends;
-	const char	*extensions[6] =  { "_px.tga", "_nx.tga", "_py.tga", "_ny.tga",
-		"_pz.tga", "_nz.tga" };
+	const char	*extensions[6] =  { "_px.png", "_nx.png", "_py.png", "_ny.png",
+		"_pz.png", "_nz.png" };
 	int			size;
+    int         res_w, res_h;
+    
+    res_w = renderSystem->GetWidth();
+    res_h = renderSystem->GetHeight();
 
 	if ( args.Argc() != 2 && args.Argc() != 3 && args.Argc() != 4 ) {
 		common->Printf( "USAGE: envshot <basename> [size] [blends]\n" );
@@ -1515,6 +1519,14 @@ void R_EnvShot_f( const idCmdArgs &args ) {
 	axis[5][1][0] = 1;
 	axis[5][2][1] = 1;
 
+    // let's gain the "size" resolution
+    // FIXME that's a hack!!
+    if ( ( res_w != size ) || ( res_h != size ) ) {
+        cvarSystem->SetCVarInteger( "r_windowWidth", size );
+        cvarSystem->SetCVarInteger( "r_windowHeight", size );
+        R_SetNewMode( false ); // the same as "vid_restart"
+    }
+
 	for ( i = 0 ; i < 6 ; i++ ) {
 		ref = primary.renderView;
 		//ref.x = ref.y = 0;
@@ -1526,7 +1538,12 @@ void R_EnvShot_f( const idCmdArgs &args ) {
 		tr.TakeScreenshot( size, size, fullname, blends, &ref );
 	}
 
-	common->Printf( "Wrote %s, etc\n", fullname.c_str() );
+    // restore the original resolution
+    cvarSystem->SetCVarInteger( "r_windowWidth", res_w );
+    cvarSystem->SetCVarInteger( "r_windowHeight", res_h );
+    R_SetNewMode( false ); // the same as "vid_restart"
+
+    common->Printf( "Wrote %s, etc\n", fullname.c_str() );
 }
 
 //============================================================================
