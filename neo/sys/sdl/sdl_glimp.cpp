@@ -39,7 +39,6 @@ If you have questions concerning this license or the applicable additional terms
 // DG end
 
 #include <SDL.h>
-#include <SDL_syswm.h>
 
 #include "renderer/tr_local.h"
 #include "sdl_local.h"
