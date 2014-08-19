@@ -69,6 +69,13 @@ typedef enum
 	CF_2D_ARRAY		// not a cube map but not a single 2d texture either
 } cubeFiles_t;
 
+enum fileType_t
+{
+    TGA,
+    PNG,
+    JPG
+};
+
 #include "ImageOpts.h"
 #include "BinaryImage.h"
 

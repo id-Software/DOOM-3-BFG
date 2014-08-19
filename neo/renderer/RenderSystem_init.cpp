@@ -1223,20 +1223,34 @@ If ref == NULL, common->UpdateScreen will be used
 ==================
 */
 // RB: changed .tga to .png
-void idRenderSystemLocal::TakeScreenshot( int width, int height, const char* fileName, int blends, renderView_t* ref )
+void idRenderSystemLocal::TakeScreenshot( int width, int height, const char* fileName, int blends, renderView_t* ref, int exten )
 {
 	byte*		buffer;
-	int			i, j;
-	
+	int			i, j, c, temp;
+    const char	*formatName[3] =  { ".tga", ".png", ".jpg" };
+    idStr finalFileName;
+
+    sprintf( finalFileName, "%s%s", fileName, formatName[exten] );
+    
 	takingScreenshot = true;
-	
-	int	pix = width * height;
-	
-	buffer = ( byte* )R_StaticAlloc( pix * 3 );
+
+    int pix = width * height;
+    const int bufferSize = pix * 3 + 18;
+
+    if ( exten == PNG ) {
+        buffer = ( byte* )R_StaticAlloc( pix * 3 );
+    } else if ( exten == TGA ) {        
+        buffer = (byte *)R_StaticAlloc( bufferSize );
+        memset( buffer, 0, bufferSize );
+    }	
 	
 	if( blends <= 1 )
 	{
-		R_ReadTiledPixels( width, height, buffer, ref );
+        if ( exten == PNG ) {
+		    R_ReadTiledPixels( width, height, buffer, ref );
+        } else if ( exten == TGA ) {
+            R_ReadTiledPixels( width, height, buffer + 18, ref );
+        }
 	}
 	else
 	{
@@ -1248,25 +1262,57 @@ void idRenderSystemLocal::TakeScreenshot( int width, int height, const char* fil
 		
 		for( i = 0 ; i < blends ; i++ )
 		{
-			R_ReadTiledPixels( width, height, buffer, ref );
+			if ( exten == PNG ) {
+		        R_ReadTiledPixels( width, height, buffer, ref );
+            } else if ( exten == TGA ) {
+                R_ReadTiledPixels( width, height, buffer + 18, ref );
+            }
 			
 			for( j = 0 ; j < pix * 3 ; j++ )
 			{
-				shortBuffer[j] += buffer[j];
+                if ( exten == PNG ) {
+		            shortBuffer[j] += buffer[j];
+                } else if ( exten == TGA ) {
+				    shortBuffer[j] += buffer[18 + j];
+                }
 			}
 		}
 		
 		// divide back to bytes
 		for( i = 0 ; i < pix * 3 ; i++ )
 		{
-			buffer[i] = shortBuffer[i] / blends;
+            if ( exten == PNG ) {
+                buffer[i] = shortBuffer[i] / blends;
+            } else if ( exten == TGA ) {
+                buffer[18 + i] = shortBuffer[i] / blends;
+            }
 		}
 		
 		R_StaticFree( shortBuffer );
 		r_jitter.SetBool( false );
 	}
-	
-	R_WritePNG( fileName, buffer, 3, width, height, false );
+	if ( exten == PNG ) {
+	    R_WritePNG( finalFileName, buffer, 3, width, height, false );
+    } else {
+        // fill in the header (this is vertically flipped, which qglReadPixels emits)
+        buffer[2] = 2;	// uncompressed type
+        buffer[12] = width & 255;
+        buffer[13] = width >> 8;
+        buffer[14] = height & 255;
+        buffer[15] = height >> 8;
+        buffer[16] = 24;	// pixel size
+        
+        // swap rgb to bgr
+        c = 18 + width * height * 3;
+        
+        for (i=18 ; i<c ; i+=3) {
+            temp = buffer[i];
+            buffer[i] = buffer[i+2];
+            buffer[i+2] = temp;
+        }
+        
+        fileSystem->WriteFile( finalFileName, buffer, c );
+    }
 	
 	R_StaticFree( buffer );
 	
@@ -1317,7 +1363,7 @@ void R_ScreenshotFilename( int& lastNumber, const char* base, idStr& fileName )
 		time( &aclock );
 		struct tm* t = localtime( &aclock );
 		
-		sprintf( fileName, "%s%s-%04d%02d%02d-%02d%02d%02d-%03d.png", base, "rbdoom-3-bfg",
+		sprintf( fileName, "%s%s-%04d%02d%02d-%02d%02d%02d-%03d", base, "rbdoom-3-bfg",
 				 1900 + t->tm_year, 1 + t->tm_mon, t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec, lastNumber );
 #endif
 		// RB end
@@ -1397,7 +1443,7 @@ void R_ScreenShot_f( const idCmdArgs& args )
 	// put the console away
 	console->Close();
 	
-	tr.TakeScreenshot( width, height, checkname, blends, NULL );
+	tr.TakeScreenshot( width, height, checkname, blends, NULL, PNG );
 	
 	common->Printf( "Wrote %s\n", checkname.c_str() );
 }
@@ -1461,8 +1507,7 @@ void R_EnvShot_f( const idCmdArgs &args ) {
 	renderView_t	ref;
 	viewDef_t	primary;
 	int			blends;
-	const char	*extensions[6] =  { "_px.png", "_nx.png", "_py.png", "_ny.png",
-		"_pz.png", "_nz.png" };
+	const char	*extensions[6] =  { "_px", "_nx", "_py", "_ny", "_pz", "_nz" };
 	int			size;
     int         res_w, res_h;
     
@@ -1519,23 +1564,22 @@ void R_EnvShot_f( const idCmdArgs &args ) {
 	axis[5][1][0] = 1;
 	axis[5][2][1] = 1;
 
-    // let's gain the "size" resolution
-    // FIXME that's a hack!!
+    // let's get the game window to a "size" resolution
     if ( ( res_w != size ) || ( res_h != size ) ) {
         cvarSystem->SetCVarInteger( "r_windowWidth", size );
         cvarSystem->SetCVarInteger( "r_windowHeight", size );
         R_SetNewMode( false ); // the same as "vid_restart"
-    }
+    } // FIXME that's a hack!!
 
 	for ( i = 0 ; i < 6 ; i++ ) {
 		ref = primary.renderView;
-		//ref.x = ref.y = 0;
+		//ref.x = ref.y = 0; // this no longer serves any purpose
 		ref.fov_x = ref.fov_y = 90;
-		//ref.width = glConfig.vidWidth;
+		//ref.width = glConfig.vidWidth; // this no longer serves any purpose
 		//ref.height = glConfig.vidHeight;
 		ref.viewaxis = axis[i];
 		sprintf( fullname, "env/%s%s", baseName, extensions[i] );
-		tr.TakeScreenshot( size, size, fullname, blends, &ref );
+		tr.TakeScreenshot( size, size, fullname, blends, &ref, TGA );
 	}
 
     // restore the original resolution
