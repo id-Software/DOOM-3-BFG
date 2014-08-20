@@ -1503,13 +1503,13 @@ void R_EnvShot_f( const idCmdArgs &args ) {
 	idStr		fullname;
 	const char	*baseName;
 	int			i;
-	idMat3		axis[6];
+	idMat3		axis[7], oldAxis;
 	renderView_t	ref;
 	viewDef_t	primary;
 	int			blends;
-	const char	*extensions[6] =  { "_px", "_nx", "_py", "_ny", "_pz", "_nz" };
+	const char	*extensions[7] =  { "_wrong", "_nx", "_py", "_ny", "_pz", "_nz", "_px" };
 	int			size;
-    int         res_w, res_h;
+    int         res_w, res_h, old_fov_x, old_fov_y;
     
     res_w = renderSystem->GetWidth();
     res_h = renderSystem->GetHeight();
@@ -1540,8 +1540,8 @@ void R_EnvShot_f( const idCmdArgs &args ) {
 	primary = *tr.primaryView;
 
 	memset( &axis, 0, sizeof( axis ) );
-	axis[0][0][0] = 1;
-	axis[0][1][2] = 1;
+	axis[0][0][0] = 1; // this one gets ignored as it always come out wrong.
+	axis[0][1][2] = 1; // and so we repeat this axis as the last one.
 	axis[0][2][1] = 1;
 
 	axis[1][0][0] = -1;
@@ -1564,6 +1564,10 @@ void R_EnvShot_f( const idCmdArgs &args ) {
 	axis[5][1][0] = 1;
 	axis[5][2][1] = 1;
 
+    axis[6][0][0] = 1; // this is the repetition of the first axis
+	axis[6][1][2] = 1;
+	axis[6][2][1] = 1;
+
     // let's get the game window to a "size" resolution
     if ( ( res_w != size ) || ( res_h != size ) ) {
         cvarSystem->SetCVarInteger( "r_windowWidth", size );
@@ -1571,23 +1575,33 @@ void R_EnvShot_f( const idCmdArgs &args ) {
         R_SetNewMode( false ); // the same as "vid_restart"
     } // FIXME that's a hack!!
 
-	for ( i = 0 ; i < 6 ; i++ ) {
-		ref = primary.renderView;
-		//ref.x = ref.y = 0; // this no longer serves any purpose
+    for ( i = 0 ; i < 7 ; i++ ) {
+
+        ref = primary.renderView;            
+        
+        if ( i == 0 ) {
+            // so we return to that axis and fov after the fact.
+            oldAxis = ref.viewaxis; 
+            old_fov_x = ref.fov_x;
+            old_fov_y = ref.fov_y;
+        }
+        
 		ref.fov_x = ref.fov_y = 90;
-		//ref.width = glConfig.vidWidth; // this no longer serves any purpose
-		//ref.height = glConfig.vidHeight;
 		ref.viewaxis = axis[i];
 		sprintf( fullname, "env/%s%s", baseName, extensions[i] );
+        
 		tr.TakeScreenshot( size, size, fullname, blends, &ref, TGA );
 	}
 
-    // restore the original resolution
+    // restore the original resolution, axis and fov
+    ref.viewaxis = oldAxis;
+    ref.fov_x = old_fov_x;
+    ref.fov_y = old_fov_y;
     cvarSystem->SetCVarInteger( "r_windowWidth", res_w );
     cvarSystem->SetCVarInteger( "r_windowHeight", res_h );
     R_SetNewMode( false ); // the same as "vid_restart"
 
-    common->Printf( "Wrote %s, etc\n", fullname.c_str() );
+    common->Printf( "Wrote a env set with the name %s\n", baseName );
 }
 
 //============================================================================
@@ -1821,6 +1835,153 @@ void R_MakeAmbientMap_f( const idCmdArgs& args )
 		}
 	}
 	
+	for( i = 0 ; i < 6 ; i++ )
+	{
+		if( buffers[i] )
+		{
+			Mem_Free( buffers[i] );
+		}
+	}
+}
+
+/*
+==================
+R_MakeSkyboxMap_f
+
+R_MakeSkyboxMap_f <basename> [size]
+
+Saves out env/<basename>_amb_ft.tga, etc
+==================
+*/
+void R_MakeSkyboxMap_f( const idCmdArgs& args )
+{
+	idStr fullname;
+	const char*	baseName;
+	int			i;
+	renderView_t	ref;
+	viewDef_t	primary;
+	const char* envDirections[6] = { "_nx", "_py", "_ny", "_pz", "_nz", "_px" };
+    const char* skyDirections[6] = { "_forward", "_back", "_left", "_right", "_up", "_down" };
+    const char* ext = ".tga";
+	int			outSize;
+	byte*		buffers[6];
+	int			width = 0, height = 0;
+	
+	if( args.Argc() != 2 && args.Argc() != 3 )
+	{
+		common->Printf( "USAGE: envToSky <basename> [size]\n" );
+		return;
+	}
+    
+	baseName = args.Argv( 1 );
+    
+	if( args.Argc() == 3 )
+	{
+		outSize = atoi( args.Argv( 2 ) );
+	}
+	else
+	{
+		outSize = 32;
+	}
+	
+	memset( &cubeAxis, 0, sizeof( cubeAxis ) );
+	cubeAxis[0][0][0] = 1;
+	cubeAxis[0][1][2] = 1;
+	cubeAxis[0][2][1] = 1;
+	
+	cubeAxis[1][0][0] = -1;
+	cubeAxis[1][1][2] = -1;
+	cubeAxis[1][2][1] = 1;
+	
+	cubeAxis[2][0][1] = 1;
+	cubeAxis[2][1][0] = -1;
+	cubeAxis[2][2][2] = -1;
+	
+	cubeAxis[3][0][1] = -1;
+	cubeAxis[3][1][0] = -1;
+	cubeAxis[3][2][2] = 1;
+	
+	cubeAxis[4][0][2] = 1;
+	cubeAxis[4][1][0] = -1;
+	cubeAxis[4][2][1] = 1;
+	
+	cubeAxis[5][0][2] = -1;
+	cubeAxis[5][1][0] = 1;
+	cubeAxis[5][2][1] = 1;
+	
+	// read all of the images
+	for( i = 0 ; i < 6 ; i++ )
+	{
+		sprintf( fullname, "env/%s%s%s", baseName, envDirections[i], ext );
+		common->Printf( "loading %s\n", fullname.c_str() );
+		const bool captureToImage = false;
+		common->UpdateScreen( captureToImage );
+		R_LoadImage( fullname, &buffers[i], &width, &height, NULL, true );
+		if( !buffers[i] )
+		{
+			common->Printf( "failed.\n" );
+			for( i-- ; i >= 0 ; i-- )
+			{
+				Mem_Free( buffers[i] );
+			}
+			return;
+		}
+    }
+
+    byte* outBuffer = ( byte* )_alloca( outSize * outSize * 4 );
+
+    for( i = 0 ; i < 6 ; i++ ){
+        for( int x = 0 ; x < outSize ; x++ ){
+		    for( int y = 0 ; y < outSize ; y++ ){
+			    idVec3	dir;
+			    float   total[3];
+
+                dir = cubeAxis[i][0] + -( -1 + 2.0 * x / ( outSize - 1 ) ) * cubeAxis[i][1] + -( -1 + 2.0 * y / ( outSize - 1 ) ) * cubeAxis[i][2];
+				dir.Normalize();
+                
+			    total[0] = total[1] = total[2] = 0;
+				
+			    //float	limit = map ? 0.95 : 0.25;		// small for specular, almost hemisphere for ambient
+                
+                for( int s = 0 ; s < samples ; s++ ){
+				    // pick a random direction vector that is inside the unit sphere but not behind dir,
+				    // which is a robust way to evenly sample a hemisphere
+				    idVec3	test;
+				    while( 1 ){
+					    for( int j = 0 ; j < 3 ; j++ ){
+						    test[j] = -1 + 2 * ( rand() & 0x7fff ) / ( float )0x7fff;
+					    }
+                        if( test.Length() > 1.0 ){ continue; }
+						test.Normalize();
+					    if( test * dir > limit ){ break; } // don't do a complete hemisphere
+                    }
+                    byte result[4];
+                    
+                    R_SampleCubeMap( test, width, buffers, result );
+                    total[0] += result[0];
+                    total[1] += result[1];
+                    total[2] += result[2];
+                }
+                outBuffer[( y * outSize + x ) * 4 + 0] = total[0] / samples;
+                outBuffer[( y * outSize + x ) * 4 + 1] = total[1] / samples;
+                outBuffer[( y * outSize + x ) * 4 + 2] = total[2] / samples;
+                outBuffer[( y * outSize + x ) * 4 + 3] = 255;
+                /*
+                outBuffer[( y * outSize + x ) * 4 + 0] = dir[0];
+                outBuffer[( y * outSize + x ) * 4 + 1] = dir[1];
+                outBuffer[( y * outSize + x ) * 4 + 2] = dir[2];
+                outBuffer[( y * outSize + x ) * 4 + 3] = 255;
+                */
+            }
+        }
+        sprintf( fullname, "env/skybox/%s/%s%s%s", baseName, baseName, skyDirections[i], ext );
+	    common->Printf( "writing %s\n", fullname.c_str() );
+	    const bool captureToImage2 = false;
+	    common->UpdateScreen( captureToImage2 );
+	    R_WriteTGA( fullname, outBuffer, outSize, outSize );
+        //R_WriteTGA( fullname, buffers[i], outSize, outSize );
+	}
+	    
 	for( i = 0 ; i < 6 ; i++ )
 	{
 		if( buffers[i] )
@@ -2186,6 +2347,7 @@ void R_InitCommands()
 	cmdSystem->AddCommand( "screenshot", R_ScreenShot_f, CMD_FL_RENDERER, "takes a screenshot" );
     cmdSystem->AddCommand( "envshot", R_EnvShot_f, CMD_FL_RENDERER, "takes an environment shot" );
 	cmdSystem->AddCommand( "makeAmbientMap", R_MakeAmbientMap_f, CMD_FL_RENDERER | CMD_FL_CHEAT, "makes an ambient map" );
+    cmdSystem->AddCommand( "envToSky", R_MakeSkyboxMap_f, CMD_FL_RENDERER | CMD_FL_CHEAT, "makes sky box textures from environment textures" );
 	cmdSystem->AddCommand( "gfxInfo", GfxInfo_f, CMD_FL_RENDERER, "show graphics info" );
 	cmdSystem->AddCommand( "modulateLights", R_ModulateLights_f, CMD_FL_RENDERER | CMD_FL_CHEAT, "modifies shader parms on all lights" );
 	cmdSystem->AddCommand( "testImage", R_TestImage_f, CMD_FL_RENDERER | CMD_FL_CHEAT, "displays the given image centered on screen", idCmdSystem::ArgCompletion_ImageName );
