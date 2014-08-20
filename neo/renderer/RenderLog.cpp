@@ -128,10 +128,10 @@ void PC_BeginNamedEvent( const char* szName, ... )
 	GL_CheckErrors();
 	if( timeQueryIds[0] == 0 )
 	{
-		glGenQueriesARB( MAX_PIX_EVENTS, timeQueryIds );
+		glGenQueries( MAX_PIX_EVENTS, timeQueryIds );
 	}
 	glFinish();
-	glBeginQueryARB( GL_TIME_ELAPSED_EXT, timeQueryIds[numPixEvents] );
+	glBeginQuery( GL_TIME_ELAPSED_EXT, timeQueryIds[numPixEvents] );
 	GL_CheckErrors();
 	
 	pixEvent_t* ev = &pixEvents[numPixEvents++];
@@ -170,7 +170,7 @@ void PC_EndNamedEvent()
 	ev->cpuTime = Sys_Microseconds() - ev->cpuTime;
 	
 	GL_CheckErrors();
-	glEndQueryARB( GL_TIME_ELAPSED_EXT );
+	glEndQuery( GL_TIME_ELAPSED_EXT );
 	GL_CheckErrors();
 #endif
 }
