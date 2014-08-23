@@ -237,6 +237,10 @@ idCVar r_shadowMapPolygonOffset( "r_shadowMapPolygonOffset", "3000", CVAR_RENDER
 idCVar r_shadowMapOccluderFacing( "r_shadowMapOccluderFacing", "2", CVAR_RENDERER | CVAR_INTEGER, "0 = front faces, 1 = back faces, 2 = twosided" );
 // RB end
 
+const char* fileExten [3] = { "tga", "png", "jpg" };
+const char* envDirection[6] = { "_nx", "_py", "_ny", "_pz", "_nz", "_px" };
+const char* skyDirection[6] = { "_forward", "_back", "_left", "_right", "_up", "_down" };
+
 
 /*
 ========================
@@ -1844,142 +1848,54 @@ void R_MakeAmbientMap_f( const idCmdArgs& args )
 	}
 }
 
-/*
-==================
-R_MakeSkyboxMap_f
-
-R_MakeSkyboxMap_f <basename> [size]
-
-Saves out env/<basename>_amb_ft.tga, etc
-==================
-*/
-void R_MakeSkyboxMap_f( const idCmdArgs& args )
+void R_TransformCubemap( const char* orgDirection[6], const char* orgDir, const char* destDirection[6], const char* destDir, const char* baseName )
 {
-	idStr fullname;
-	const char*	baseName;
+    idStr fullname;
 	int			i;
-	renderView_t	ref;
-	viewDef_t	primary;
-	const char* envDirections[6] = { "_nx", "_py", "_ny", "_pz", "_nz", "_px" };
-    const char* skyDirections[6] = { "_forward", "_back", "_left", "_right", "_up", "_down" };
-    const char* ext = ".tga";
+	const char* ext = ".tga";
+    bool        errorInOriginalImages = false;
 	int			outSize;
 	byte*		buffers[6];
-	int			width = 0, height = 0;
+	int			width = 0, height = 0;	
 	
-	if( args.Argc() != 2 && args.Argc() != 3 )
-	{
-		common->Printf( "USAGE: envToSky <basename> [size]\n" );
-		return;
-	}
-    
-	baseName = args.Argv( 1 );
-    
-	if( args.Argc() == 3 )
-	{
-		outSize = atoi( args.Argv( 2 ) );
-	}
-	else
-	{
-		outSize = 32;
-	}
-	
-	memset( &cubeAxis, 0, sizeof( cubeAxis ) );
-	cubeAxis[0][0][0] = 1;
-	cubeAxis[0][1][2] = 1;
-	cubeAxis[0][2][1] = 1;
-	
-	cubeAxis[1][0][0] = -1;
-	cubeAxis[1][1][2] = -1;
-	cubeAxis[1][2][1] = 1;
-	
-	cubeAxis[2][0][1] = 1;
-	cubeAxis[2][1][0] = -1;
-	cubeAxis[2][2][2] = -1;
-	
-	cubeAxis[3][0][1] = -1;
-	cubeAxis[3][1][0] = -1;
-	cubeAxis[3][2][2] = 1;
-	
-	cubeAxis[4][0][2] = 1;
-	cubeAxis[4][1][0] = -1;
-	cubeAxis[4][2][1] = 1;
-	
-	cubeAxis[5][0][2] = -1;
-	cubeAxis[5][1][0] = 1;
-	cubeAxis[5][2][1] = 1;
-	
-	// read all of the images
 	for( i = 0 ; i < 6 ; i++ )
 	{
-		sprintf( fullname, "env/%s%s%s", baseName, envDirections[i], ext );
+        // read every image images
+		sprintf( fullname, "%s/%s%s.%s", orgDir, baseName, orgDirection[i], fileExten [TGA] );
 		common->Printf( "loading %s\n", fullname.c_str() );
 		const bool captureToImage = false;
 		common->UpdateScreen( captureToImage );
 		R_LoadImage( fullname, &buffers[i], &width, &height, NULL, true );
-		if( !buffers[i] )
+        
+        //check if the buffer is troublesome
+		if ( !buffers[i] )
 		{
 			common->Printf( "failed.\n" );
-			for( i-- ; i >= 0 ; i-- )
-			{
-				Mem_Free( buffers[i] );
-			}
-			return;
-		}
-    }
-
-    byte* outBuffer = ( byte* )_alloca( outSize * outSize * 4 );
-
-    for( i = 0 ; i < 6 ; i++ ){
-        for( int x = 0 ; x < outSize ; x++ ){
-		    for( int y = 0 ; y < outSize ; y++ ){
-			    idVec3	dir;
-			    float   total[3];
-
-                dir = cubeAxis[i][0] + -( -1 + 2.0 * x / ( outSize - 1 ) ) * cubeAxis[i][1] + -( -1 + 2.0 * y / ( outSize - 1 ) ) * cubeAxis[i][2];
-				dir.Normalize();
-                
-			    total[0] = total[1] = total[2] = 0;
-				
-			    //float	limit = map ? 0.95 : 0.25;		// small for specular, almost hemisphere for ambient
-                
-                for( int s = 0 ; s < samples ; s++ ){
-				    // pick a random direction vector that is inside the unit sphere but not behind dir,
-				    // which is a robust way to evenly sample a hemisphere
-				    idVec3	test;
-				    while( 1 ){
-					    for( int j = 0 ; j < 3 ; j++ ){
-						    test[j] = -1 + 2 * ( rand() & 0x7fff ) / ( float )0x7fff;
-					    }
-                        if( test.Length() > 1.0 ){ continue; }
-						test.Normalize();
-					    if( test * dir > limit ){ break; } // don't do a complete hemisphere
-                    }
-                    byte result[4];
-                    
-                    R_SampleCubeMap( test, width, buffers, result );
-                    total[0] += result[0];
-                    total[1] += result[1];
-                    total[2] += result[2];
-                }
-                outBuffer[( y * outSize + x ) * 4 + 0] = total[0] / samples;
-                outBuffer[( y * outSize + x ) * 4 + 1] = total[1] / samples;
-                outBuffer[( y * outSize + x ) * 4 + 2] = total[2] / samples;
-                outBuffer[( y * outSize + x ) * 4 + 3] = 255;
-                /*
-                outBuffer[( y * outSize + x ) * 4 + 0] = dir[0];
-                outBuffer[( y * outSize + x ) * 4 + 1] = dir[1];
-                outBuffer[( y * outSize + x ) * 4 + 2] = dir[2];
-                outBuffer[( y * outSize + x ) * 4 + 3] = 255;
-                */
-            }
+			errorInOriginalImages = true;
+		} else if ( width != height ) {
+            common->Printf( "wrong size pal!\n\n\nget your shit together and set the size according to your images!\n\n\ninept programmers are inept!\n" );
+            errorInOriginalImages = true; // yeah, but don't just choke on a joke!
+        } else {
+            errorInOriginalImages = false;
         }
-        sprintf( fullname, "env/skybox/%s/%s%s%s", baseName, baseName, skyDirections[i], ext );
+
+        if ( errorInOriginalImages ) {
+            errorInOriginalImages = false;
+            for( i-- ; i >= 0 ; i-- ) {
+				Mem_Free( buffers[i] ); // clean up every buffer from this stage down
+			}
+            
+			return;
+        }
+
+        // apply rotations and flips
+        R_ApplyCubeMapTransforms( i, buffers[i], width );
+            
+        //save the images with the appropiate skybox naming convention
+        sprintf( fullname, "%s/%s/%s%s.%s", destDir, baseName, baseName, destDirection[i], fileExten [TGA] );
 	    common->Printf( "writing %s\n", fullname.c_str() );
-	    const bool captureToImage2 = false;
-	    common->UpdateScreen( captureToImage2 );
-	    R_WriteTGA( fullname, outBuffer, outSize, outSize );
-        //R_WriteTGA( fullname, buffers[i], outSize, outSize );
+	    common->UpdateScreen( false );
+        R_WriteTGA( fullname, buffers[i], width, width );
 	}
 	    
 	for( i = 0 ; i < 6 ; i++ )
@@ -1989,6 +1905,47 @@ void R_MakeSkyboxMap_f( const idCmdArgs& args )
 			Mem_Free( buffers[i] );
 		}
 	}
+}
+
+/*
+==================
+R_TransformEnvToSkybox_f
+
+R_TransformEnvToSkybox_f <basename>
+
+transforms env textures (of the type px, py, pz, nx, ny, nz)
+to skybox textures ( forward, back, left, right, up, down)
+==================
+*/
+void R_TransformEnvToSkybox_f( const idCmdArgs& args ){
+
+    if( args.Argc() != 2 ) {
+        common->Printf( "USAGE: envToSky <basename>\n" );
+		return;
+	}
+    
+    R_TransformCubemap( envDirection, "env", skyDirection, "skybox", args.Argv( 1 ) );
+}
+
+/*
+==================
+R_TransformSkyboxToEnv_f
+
+R_TransformSkyboxToEnv_f <basename>
+
+transforms skybox textures ( forward, back, left, right, up, down)
+to env textures (of the type px, py, pz, nx, ny, nz)
+==================
+*/
+
+void R_TransformSkyboxToEnv_f ( const idCmdArgs& args ){
+    
+    if( args.Argc() != 2 ) {
+        common->Printf( "USAGE: skyToEnv <basename>\n" );
+		return;
+	}
+    
+    R_TransformCubemap( skyDirection, "skybox", envDirection, "env", args.Argv( 1 ) );
 }
 
 //============================================================================
@@ -2347,7 +2304,8 @@ void R_InitCommands()
 	cmdSystem->AddCommand( "screenshot", R_ScreenShot_f, CMD_FL_RENDERER, "takes a screenshot" );
     cmdSystem->AddCommand( "envshot", R_EnvShot_f, CMD_FL_RENDERER, "takes an environment shot" );
 	cmdSystem->AddCommand( "makeAmbientMap", R_MakeAmbientMap_f, CMD_FL_RENDERER | CMD_FL_CHEAT, "makes an ambient map" );
-    cmdSystem->AddCommand( "envToSky", R_MakeSkyboxMap_f, CMD_FL_RENDERER | CMD_FL_CHEAT, "makes sky box textures from environment textures" );
+    cmdSystem->AddCommand( "envToSky", R_TransformEnvToSkybox_f, CMD_FL_RENDERER | CMD_FL_CHEAT, "transforms environment textures to sky box textures" );
+    cmdSystem->AddCommand( "skyToEnv", R_TransformSkyboxToEnv_f, CMD_FL_RENDERER | CMD_FL_CHEAT, "transforms sky box textures to environment textures" );
 	cmdSystem->AddCommand( "gfxInfo", GfxInfo_f, CMD_FL_RENDERER, "show graphics info" );
 	cmdSystem->AddCommand( "modulateLights", R_ModulateLights_f, CMD_FL_RENDERER | CMD_FL_CHEAT, "modifies shader parms on all lights" );
 	cmdSystem->AddCommand( "testImage", R_TestImage_f, CMD_FL_RENDERER | CMD_FL_CHEAT, "displays the given image centered on screen", idCmdSystem::ArgCompletion_ImageName );
