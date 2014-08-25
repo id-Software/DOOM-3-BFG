@@ -530,7 +530,8 @@ void idCommonLocal::Frame()
 		// save the screenshot and audio from the last draw if needed
 		if( aviCaptureMode )
 		{
-			idStr name = va( "demos/%s/%s_%05i", aviDemoShortName.c_str(), aviDemoShortName.c_str(), aviDemoFrameCount++ );
+			idStr name;
+			name.Format( "demos/%s/%s_%05i", aviDemoShortName.c_str(), aviDemoShortName.c_str(), aviDemoFrameCount++ );
 			renderSystem->TakeScreenshot( com_aviDemoWidth.GetInteger(), com_aviDemoHeight.GetInteger(), name, com_aviDemoSamples.GetInteger(), NULL, TGA );
 			
 			// remove any printed lines at the top before taking the screenshot

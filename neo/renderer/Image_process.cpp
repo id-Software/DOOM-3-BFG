@@ -538,7 +538,7 @@ void R_RotatePic( byte* data, int width )
 	{
 		for( j = 0 ; j < width ; j++ )
 		{
-            // apparently rotates the picture and then it flips the picture horitzontally
+			// apparently rotates the picture and then it flips the picture horitzontally
 			*( temp + i * width + j ) = *( ( int* )data + j * width + i );
 		}
 	}
@@ -548,19 +548,25 @@ void R_RotatePic( byte* data, int width )
 	R_StaticFree( temp );
 }
 
-// transforms in both ways, the images from a cube map, 
+// transforms in both ways, the images from a cube map,
 // in both the Env map and the Skybox map systems.
-void R_ApplyCubeMapTransforms ( int iter, byte* data, int size ) {
-    if ( ( iter == 1 ) || ( iter == 2 ) ) {
-        R_VerticalFlip( data, size, size );
-    }        
-    if ( ( iter == 0 ) || ( iter == 1 ) || ( iter == 4 ) || ( iter == 5 ) ) {
-        R_RotatePic( data, size ); // apparently not only rotates but also flips horitzontally
-    }
-    if ( iter == 1 ) {
-        R_VerticalFlip( data, size, size );
-    } else if ( iter == 3 ) { // that's so just for having less lines
-        R_HorizontalFlip( data, size, size );
-    }
+void R_ApplyCubeMapTransforms( int iter, byte* data, int size )
+{
+	if( ( iter == 1 ) || ( iter == 2 ) )
+	{
+		R_VerticalFlip( data, size, size );
+	}
+	if( ( iter == 0 ) || ( iter == 1 ) || ( iter == 4 ) || ( iter == 5 ) )
+	{
+		R_RotatePic( data, size ); // apparently not only rotates but also flips horitzontally
+	}
+	if( iter == 1 )
+	{
+		R_VerticalFlip( data, size, size );
+	}
+	else if( iter == 3 )      // that's so just for having less lines
+	{
+		R_HorizontalFlip( data, size, size );
+	}
 }
 

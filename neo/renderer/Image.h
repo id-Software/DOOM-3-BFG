@@ -69,11 +69,11 @@ typedef enum
 	CF_2D_ARRAY		// not a cube map but not a single 2d texture either
 } cubeFiles_t;
 
-enum fileType_t
+enum imageFileType_t
 {
-    TGA,
-    PNG,
-    JPG
+	TGA,
+	PNG,
+	JPG
 };
 
 #include "ImageOpts.h"
@@ -201,7 +201,7 @@ public:
 	}
 	
 	static void			GetGeneratedName( idStr& _name, const textureUsage_t& _usage, const cubeFiles_t& _cube );
-
+	
 private:
 	friend class idImageManager;
 	
