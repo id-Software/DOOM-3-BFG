@@ -237,6 +237,10 @@ idCVar r_shadowMapPolygonOffset( "r_shadowMapPolygonOffset", "3000", CVAR_RENDER
 idCVar r_shadowMapOccluderFacing( "r_shadowMapOccluderFacing", "2", CVAR_RENDERER | CVAR_INTEGER, "0 = front faces, 1 = back faces, 2 = twosided" );
 // RB end
 
+const char* fileExten[3] = { "tga", "png", "jpg" };
+const char* envDirection[6] = { "_nx", "_py", "_ny", "_pz", "_nz", "_px" };
+const char* skyDirection[6] = { "_forward", "_back", "_left", "_right", "_up", "_down" };
+
 
 /*
 ========================
@@ -1223,20 +1227,39 @@ If ref == NULL, common->UpdateScreen will be used
 ==================
 */
 // RB: changed .tga to .png
-void idRenderSystemLocal::TakeScreenshot( int width, int height, const char* fileName, int blends, renderView_t* ref )
+void idRenderSystemLocal::TakeScreenshot( int width, int height, const char* fileName, int blends, renderView_t* ref, int exten )
 {
 	byte*		buffer;
-	int			i, j;
+	int			i, j, c, temp;
+	idStr finalFileName;
+	
+	finalFileName.Format( "%s.%s", fileName, fileExten[exten] );
 	
 	takingScreenshot = true;
 	
-	int	pix = width * height;
+	int pix = width * height;
+	const int bufferSize = pix * 3 + 18;
 	
-	buffer = ( byte* )R_StaticAlloc( pix * 3 );
+	if( exten == PNG )
+	{
+		buffer = ( byte* )R_StaticAlloc( pix * 3 );
+	}
+	else if( exten == TGA )
+	{
+		buffer = ( byte* )R_StaticAlloc( bufferSize );
+		memset( buffer, 0, bufferSize );
+	}
 	
 	if( blends <= 1 )
 	{
-		R_ReadTiledPixels( width, height, buffer, ref );
+		if( exten == PNG )
+		{
+			R_ReadTiledPixels( width, height, buffer, ref );
+		}
+		else if( exten == TGA )
+		{
+			R_ReadTiledPixels( width, height, buffer + 18, ref );
+		}
 	}
 	else
 	{
@@ -1248,25 +1271,70 @@ void idRenderSystemLocal::TakeScreenshot( int width, int height, const char* fil
 		
 		for( i = 0 ; i < blends ; i++ )
 		{
-			R_ReadTiledPixels( width, height, buffer, ref );
+			if( exten == PNG )
+			{
+				R_ReadTiledPixels( width, height, buffer, ref );
+			}
+			else if( exten == TGA )
+			{
+				R_ReadTiledPixels( width, height, buffer + 18, ref );
+			}
 			
 			for( j = 0 ; j < pix * 3 ; j++ )
 			{
-				shortBuffer[j] += buffer[j];
+				if( exten == PNG )
+				{
+					shortBuffer[j] += buffer[j];
+				}
+				else if( exten == TGA )
+				{
+					shortBuffer[j] += buffer[18 + j];
+				}
 			}
 		}
 		
 		// divide back to bytes
 		for( i = 0 ; i < pix * 3 ; i++ )
 		{
-			buffer[i] = shortBuffer[i] / blends;
+			if( exten == PNG )
+			{
+				buffer[i] = shortBuffer[i] / blends;
+			}
+			else if( exten == TGA )
+			{
+				buffer[18 + i] = shortBuffer[i] / blends;
+			}
 		}
 		
 		R_StaticFree( shortBuffer );
 		r_jitter.SetBool( false );
 	}
-	
-	R_WritePNG( fileName, buffer, 3, width, height, false );
+	if( exten == PNG )
+	{
+		R_WritePNG( finalFileName, buffer, 3, width, height, false );
+	}
+	else
+	{
+		// fill in the header (this is vertically flipped, which qglReadPixels emits)
+		buffer[2] = 2;	// uncompressed type
+		buffer[12] = width & 255;
+		buffer[13] = width >> 8;
+		buffer[14] = height & 255;
+		buffer[15] = height >> 8;
+		buffer[16] = 24;	// pixel size
+		
+		// swap rgb to bgr
+		c = 18 + width * height * 3;
+		
+		for( i = 18 ; i < c ; i += 3 )
+		{
+			temp = buffer[i];
+			buffer[i] = buffer[i + 2];
+			buffer[i + 2] = temp;
+		}
+		
+		fileSystem->WriteFile( finalFileName, buffer, c );
+	}
 	
 	R_StaticFree( buffer );
 	
@@ -1317,7 +1385,7 @@ void R_ScreenshotFilename( int& lastNumber, const char* base, idStr& fileName )
 		time( &aclock );
 		struct tm* t = localtime( &aclock );
 		
-		sprintf( fileName, "%s%s-%04d%02d%02d-%02d%02d%02d-%03d.png", base, "rbdoom-3-bfg",
+		sprintf( fileName, "%s%s-%04d%02d%02d-%02d%02d%02d-%03d", base, "rbdoom-3-bfg",
 				 1900 + t->tm_year, 1 + t->tm_mon, t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec, lastNumber );
 #endif
 		// RB end
@@ -1397,7 +1465,7 @@ void R_ScreenShot_f( const idCmdArgs& args )
 	// put the console away
 	console->Close();
 	
-	tr.TakeScreenshot( width, height, checkname, blends, NULL );
+	tr.TakeScreenshot( width, height, checkname, blends, NULL, PNG );
 	
 	common->Printf( "Wrote %s\n", checkname.c_str() );
 }
@@ -1444,6 +1512,137 @@ void R_StencilShot()
 	fileSystem->WriteFile( "screenshots/stencilShot.tga", buffer.Ptr(), c, "fs_savepath" );
 }
 
+/*
+==================
+R_EnvShot_f
+
+envshot <basename>
+
+Saves out env/<basename>_ft.tga, etc
+==================
+*/
+void R_EnvShot_f( const idCmdArgs& args )
+{
+	idStr		fullname;
+	const char*	baseName;
+	int			i;
+	idMat3		axis[7], oldAxis;
+	renderView_t	ref;
+	viewDef_t	primary;
+	int			blends;
+	const char*  extension;
+	int			size;
+	int         res_w, res_h, old_fov_x, old_fov_y;
+	
+	res_w = renderSystem->GetWidth();
+	res_h = renderSystem->GetHeight();
+	
+	if( args.Argc() != 2 && args.Argc() != 3 && args.Argc() != 4 )
+	{
+		common->Printf( "USAGE: envshot <basename> [size] [blends]\n" );
+		return;
+	}
+	baseName = args.Argv( 1 );
+	
+	blends = 1;
+	if( args.Argc() == 4 )
+	{
+		size = atoi( args.Argv( 2 ) );
+		blends = atoi( args.Argv( 3 ) );
+	}
+	else if( args.Argc() == 3 )
+	{
+		size = atoi( args.Argv( 2 ) );
+		blends = 1;
+	}
+	else
+	{
+		size = 256;
+		blends = 1;
+	}
+	
+	if( !tr.primaryView )
+	{
+		common->Printf( "No primary view.\n" );
+		return;
+	}
+	
+	primary = *tr.primaryView;
+	
+	memset( &axis, 0, sizeof( axis ) );
+	axis[0][0][0] = 1; // this one gets ignored as it always come out wrong.
+	axis[0][1][2] = 1; // and so we repeat this axis as the last one.
+	axis[0][2][1] = 1;
+	
+	axis[1][0][0] = -1;
+	axis[1][1][2] = -1;
+	axis[1][2][1] = 1;
+	
+	axis[2][0][1] = 1;
+	axis[2][1][0] = -1;
+	axis[2][2][2] = -1;
+	
+	axis[3][0][1] = -1;
+	axis[3][1][0] = -1;
+	axis[3][2][2] = 1;
+	
+	axis[4][0][2] = 1;
+	axis[4][1][0] = -1;
+	axis[4][2][1] = 1;
+	
+	axis[5][0][2] = -1;
+	axis[5][1][0] = 1;
+	axis[5][2][1] = 1;
+	
+	axis[6][0][0] = 1; // this is the repetition of the first axis
+	axis[6][1][2] = 1;
+	axis[6][2][1] = 1;
+	
+	// let's get the game window to a "size" resolution
+	if( ( res_w != size ) || ( res_h != size ) )
+	{
+		cvarSystem->SetCVarInteger( "r_windowWidth", size );
+		cvarSystem->SetCVarInteger( "r_windowHeight", size );
+		R_SetNewMode( false ); // the same as "vid_restart"
+	} // FIXME that's a hack!!
+	
+	for( i = 0 ; i < 7 ; i++ )
+	{
+	
+		ref = primary.renderView;
+		
+		if( i == 0 )
+		{
+			// so we return to that axis and fov after the fact.
+			oldAxis = ref.viewaxis;
+			old_fov_x = ref.fov_x;
+			old_fov_y = ref.fov_y;
+			//this is part of the hack
+			extension = "_wrong";
+		}
+		else
+		{
+			// this keeps being part of the hack
+			extension = envDirection[ i - 1 ]; //yes, indeed, this is totally part of the hack!
+		}
+		
+		ref.fov_x = ref.fov_y = 90;
+		ref.viewaxis = axis[i];
+		fullname.Format( "env/%s%s", baseName, extension );
+		
+		tr.TakeScreenshot( size, size, fullname, blends, &ref, TGA );
+	}
+	
+	// restore the original resolution, axis and fov
+	ref.viewaxis = oldAxis;
+	ref.fov_x = old_fov_x;
+	ref.fov_y = old_fov_y;
+	cvarSystem->SetCVarInteger( "r_windowWidth", res_w );
+	cvarSystem->SetCVarInteger( "r_windowHeight", res_h );
+	R_SetNewMode( false ); // the same as "vid_restart"
+	
+	common->Printf( "Wrote a env set with the name %s\n", baseName );
+}
 
 //============================================================================
 
@@ -1536,9 +1735,6 @@ void R_MakeAmbientMap_f( const idCmdArgs& args )
 	renderView_t	ref;
 	viewDef_t	primary;
 	int			downSample;
-	const char*	extensions[6] =  { "_px.tga", "_nx.tga", "_py.tga", "_ny.tga",
-								   "_pz.tga", "_nz.tga"
-								 };
 	int			outSize;
 	byte*		buffers[6];
 	int			width = 0, height = 0;
@@ -1588,7 +1784,7 @@ void R_MakeAmbientMap_f( const idCmdArgs& args )
 	// read all of the images
 	for( i = 0 ; i < 6 ; i++ )
 	{
-		sprintf( fullname, "env/%s%s", baseName, extensions[i] );
+		fullname.Format( "env/%s%s.%s", baseName, envDirection[i], fileExten[TGA] );
 		common->Printf( "loading %s\n", fullname.c_str() );
 		const bool captureToImage = false;
 		common->UpdateScreen( captureToImage );
@@ -1663,11 +1859,11 @@ void R_MakeAmbientMap_f( const idCmdArgs& args )
 			
 			if( map == 0 )
 			{
-				sprintf( fullname, "env/%s_amb%s", baseName, extensions[i] );
+				fullname.Format( "env/%s_amb%s.%s", baseName, envDirection[i], fileExten[TGA] );
 			}
 			else
 			{
-				sprintf( fullname, "env/%s_spec%s", baseName, extensions[i] );
+				fullname.Format( "env/%s_spec%s.%s", baseName, envDirection[i], fileExten[TGA] );
 			}
 			common->Printf( "writing %s\n", fullname.c_str() );
 			const bool captureToImage = false;
@@ -1683,6 +1879,115 @@ void R_MakeAmbientMap_f( const idCmdArgs& args )
 			Mem_Free( buffers[i] );
 		}
 	}
+}
+
+void R_TransformCubemap( const char* orgDirection[6], const char* orgDir, const char* destDirection[6], const char* destDir, const char* baseName )
+{
+	idStr fullname;
+	int			i;
+	bool        errorInOriginalImages = false;
+	int			outSize;
+	byte*		buffers[6];
+	int			width = 0, height = 0;
+	
+	for( i = 0 ; i < 6 ; i++ )
+	{
+		// read every image images
+		fullname.Format( "%s/%s%s.%s", orgDir, baseName, orgDirection[i], fileExten [TGA] );
+		common->Printf( "loading %s\n", fullname.c_str() );
+		const bool captureToImage = false;
+		common->UpdateScreen( captureToImage );
+		R_LoadImage( fullname, &buffers[i], &width, &height, NULL, true );
+		
+		//check if the buffer is troublesome
+		if( !buffers[i] )
+		{
+			common->Printf( "failed.\n" );
+			errorInOriginalImages = true;
+		}
+		else if( width != height )
+		{
+			common->Printf( "wrong size pal!\n\n\nget your shit together and set the size according to your images!\n\n\ninept programmers are inept!\n" );
+			errorInOriginalImages = true; // yeah, but don't just choke on a joke!
+		}
+		else
+		{
+			errorInOriginalImages = false;
+		}
+		
+		if( errorInOriginalImages )
+		{
+			errorInOriginalImages = false;
+			for( i-- ; i >= 0 ; i-- )
+			{
+				Mem_Free( buffers[i] ); // clean up every buffer from this stage down
+			}
+			
+			return;
+		}
+		
+		// apply rotations and flips
+		R_ApplyCubeMapTransforms( i, buffers[i], width );
+		
+		//save the images with the appropiate skybox naming convention
+		fullname.Format( "%s/%s/%s%s.%s", destDir, baseName, baseName, destDirection[i], fileExten [TGA] );
+		common->Printf( "writing %s\n", fullname.c_str() );
+		common->UpdateScreen( false );
+		R_WriteTGA( fullname, buffers[i], width, width );
+	}
+	
+	for( i = 0 ; i < 6 ; i++ )
+	{
+		if( buffers[i] )
+		{
+			Mem_Free( buffers[i] );
+		}
+	}
+}
+
+/*
+==================
+R_TransformEnvToSkybox_f
+
+R_TransformEnvToSkybox_f <basename>
+
+transforms env textures (of the type px, py, pz, nx, ny, nz)
+to skybox textures ( forward, back, left, right, up, down)
+==================
+*/
+void R_TransformEnvToSkybox_f( const idCmdArgs& args )
+{
+
+	if( args.Argc() != 2 )
+	{
+		common->Printf( "USAGE: envToSky <basename>\n" );
+		return;
+	}
+	
+	R_TransformCubemap( envDirection, "env", skyDirection, "skybox", args.Argv( 1 ) );
+}
+
+/*
+==================
+R_TransformSkyboxToEnv_f
+
+R_TransformSkyboxToEnv_f <basename>
+
+transforms skybox textures ( forward, back, left, right, up, down)
+to env textures (of the type px, py, pz, nx, ny, nz)
+==================
+*/
+
+void R_TransformSkyboxToEnv_f( const idCmdArgs& args )
+{
+
+	if( args.Argc() != 2 )
+	{
+		common->Printf( "USAGE: skyToEnv <basename>\n" );
+		return;
+	}
+	
+	R_TransformCubemap( skyDirection, "skybox", envDirection, "env", args.Argv( 1 ) );
 }
 
 //============================================================================
@@ -2039,7 +2344,10 @@ void R_InitCommands()
 	cmdSystem->AddCommand( "listGuis", R_ListGuis_f, CMD_FL_RENDERER, "lists guis" );
 	cmdSystem->AddCommand( "touchGui", R_TouchGui_f, CMD_FL_RENDERER, "touches a gui" );
 	cmdSystem->AddCommand( "screenshot", R_ScreenShot_f, CMD_FL_RENDERER, "takes a screenshot" );
+	cmdSystem->AddCommand( "envshot", R_EnvShot_f, CMD_FL_RENDERER, "takes an environment shot" );
 	cmdSystem->AddCommand( "makeAmbientMap", R_MakeAmbientMap_f, CMD_FL_RENDERER | CMD_FL_CHEAT, "makes an ambient map" );
+	cmdSystem->AddCommand( "envToSky", R_TransformEnvToSkybox_f, CMD_FL_RENDERER | CMD_FL_CHEAT, "transforms environment textures to sky box textures" );
+	cmdSystem->AddCommand( "skyToEnv", R_TransformSkyboxToEnv_f, CMD_FL_RENDERER | CMD_FL_CHEAT, "transforms sky box textures to environment textures" );
 	cmdSystem->AddCommand( "gfxInfo", GfxInfo_f, CMD_FL_RENDERER, "show graphics info" );
 	cmdSystem->AddCommand( "modulateLights", R_ModulateLights_f, CMD_FL_RENDERER | CMD_FL_CHEAT, "modifies shader parms on all lights" );
 	cmdSystem->AddCommand( "testImage", R_TestImage_f, CMD_FL_RENDERER | CMD_FL_CHEAT, "displays the given image centered on screen", idCmdSystem::ArgCompletion_ImageName );
