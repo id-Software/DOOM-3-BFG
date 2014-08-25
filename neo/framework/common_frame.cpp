@@ -31,7 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 
 #include "Common_local.h"
-#include "../renderer/Image.h"
+#include "../renderer/Image.h" // now I did it!
 #include "../renderer/ImageOpts.h"
 
 // RB begin
