@@ -31,11 +31,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "../sys/sys_session.h"
 
-// FIXME this might not be true if the game runs at 120 fps...
-const int USERCMD_HZ			= 60;			// 60 frames per second
-const int USERCMD_MSEC			= 1000 / USERCMD_HZ;
-
-
 /*
 ===============================================================================
 

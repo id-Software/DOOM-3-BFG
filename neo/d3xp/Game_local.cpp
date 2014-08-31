@@ -2564,7 +2564,9 @@ void idGameLocal::RunFrame( idUserCmdMgr& cmdMgr, gameReturn_t& ret )
 			player->Think();
 		}
 	}
-	else do
+	else
+	{
+		do
 		{
 			// update the game time
 			framenum++;
@@ -2760,8 +2762,10 @@ void idGameLocal::RunFrame( idUserCmdMgr& cmdMgr, gameReturn_t& ret )
 			}
 		}
 		while( ( inCinematic || ( time < cinematicStopTime ) ) && skipCinematic );
-	// i think this loop always play all that content until we skip the cinematic,
-	// when then we keep until the end of the function.
+		
+		// i think this loop always play all that content until we skip the cinematic,
+		// when then we keep until the end of the function
+	}
 	
 	//ret.syncNextGameFrame = skipCinematic; // this is form dhewm3 but it seems it's no longer useful
 	if( skipCinematic )
@@ -4859,7 +4863,7 @@ void idGameLocal::SetCamera( idCamera* cam )
 	else
 	{
 		inCinematic = false;
-		cinematicStopTime = time + msec;
+		cinematicStopTime = time + 1;
 		
 		// restore r_znear
 		cvarSystem->SetCVarFloat( "r_znear", 3.0f );
