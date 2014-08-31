@@ -234,6 +234,9 @@ void idGameLocal::Clear()
 	smokeParticles = NULL;
 	editEntities = NULL;
 	entityHash.Clear( 1024, MAX_GENTITIES );
+	cinematicSkipTime = 0;
+	cinematicStopTime = 0;
+	cinematicMaxSkipTime = 0;
 	inCinematic = false;
 	framenum = 0;
 	previousTime = 0;
@@ -253,6 +256,7 @@ void idGameLocal::Clear()
 	playerPVS.h = ( unsigned int ) - 1;
 	playerConnectedAreas.h = ( unsigned int ) - 1;
 	gamestate = GAMESTATE_UNINITIALIZED;
+	skipCinematic = false;
 	influenceActive = false;
 	
 	realClientTime = 0;
@@ -587,7 +591,11 @@ void idGameLocal::SaveGame( idFile* f, idFile* strings )
 	
 	// FIXME: save smoke particles
 	
+	savegame.WriteInt( cinematicSkipTime );
+	savegame.WriteInt( cinematicStopTime );
+	savegame.WriteInt( cinematicMaxSkipTime );
 	savegame.WriteBool( inCinematic );
+	savegame.WriteBool( skipCinematic );
 	
 	savegame.WriteInt( gameType );
 	
@@ -1034,6 +1042,10 @@ void idGameLocal::LoadMap( const char* mapName, int randseed )
 	spawnArgs.Clear();
 	
 	inCinematic = false;
+	skipCinematic = false;
+	cinematicSkipTime = 0;
+	cinematicStopTime = 0;
+	cinematicMaxSkipTime = 0;
 	
 	clip.Init();
 	
@@ -1442,7 +1454,11 @@ bool idGameLocal::InitFromSaveGame( const char* mapName, idRenderWorld* renderWo
 	
 	// FIXME: save smoke particles
 	
+	savegame.ReadInt( cinematicSkipTime );
+	savegame.ReadInt( cinematicStopTime );
+	savegame.ReadInt( cinematicMaxSkipTime );
 	savegame.ReadBool( inCinematic );
+	savegame.ReadBool( skipCinematic );
 	
 	savegame.ReadInt( ( int& )gameType );
 	
@@ -2548,185 +2564,210 @@ void idGameLocal::RunFrame( idUserCmdMgr& cmdMgr, gameReturn_t& ret )
 			player->Think();
 		}
 	}
-	else
-	{
-		// update the game time
-		framenum++;
-		fast.previousTime = FRAME_TO_MSEC( framenum - 1 );
-		fast.time = FRAME_TO_MSEC( framenum );
-		fast.realClientTime = fast.time;
-		SetServerGameTimeMs( fast.time );
-		
-		ComputeSlowScale();
-		
-		slow.previousTime = slow.time;
-		slow.time += idMath::Ftoi( ( fast.time - fast.previousTime ) * slowmoScale );
-		slow.realClientTime = slow.time;
-		
-		SelectTimeGroup( false );
-		
+	else do
+		{
+			// update the game time
+			framenum++;
+			fast.previousTime = FRAME_TO_MSEC( framenum - 1 );
+			fast.time = FRAME_TO_MSEC( framenum );
+			fast.realClientTime = fast.time;
+			SetServerGameTimeMs( fast.time );
+			
+			ComputeSlowScale();
+			
+			slow.previousTime = slow.time;
+			slow.time += idMath::Ftoi( ( fast.time - fast.previousTime ) * slowmoScale );
+			slow.realClientTime = slow.time;
+			
+			SelectTimeGroup( false );
+			
 #ifdef GAME_DLL
-		// allow changing SIMD usage on the fly
-		if( com_forceGenericSIMD.IsModified() )
-		{
-			idSIMD::InitProcessor( "game", com_forceGenericSIMD.GetBool() );
-		}
+			// allow changing SIMD usage on the fly
+			if( com_forceGenericSIMD.IsModified() )
+			{
+				idSIMD::InitProcessor( "game", com_forceGenericSIMD.GetBool() );
+			}
 #endif
-		
-		// make sure the random number counter is used each frame so random events
-		// are influenced by the player's actions
-		random.RandomInt();
-		
-		if( player )
-		{
-			// update the renderview so that any gui videos play from the right frame
-			view = player->GetRenderView();
-			if( view )
+			
+			// make sure the random number counter is used each frame so random events
+			// are influenced by the player's actions
+			random.RandomInt();
+			
+			if( player )
 			{
-				gameRenderWorld->SetRenderView( view );
-			}
-		}
-		
-		// clear any debug lines from a previous frame
-		gameRenderWorld->DebugClearLines( time );
-		
-		// clear any debug polygons from a previous frame
-		gameRenderWorld->DebugClearPolygons( time );
-		
-		// free old smoke particles
-		smokeParticles->FreeSmokes();
-		
-		// process events on the server
-		ServerProcessEntityNetworkEventQueue();
-		
-		// update our gravity vector if needed.
-		UpdateGravity();
-		
-		// create a merged pvs for all players
-		SetupPlayerPVS();
-		
-		// sort the active entity list
-		SortActiveEntityList();
-		
-		timer_think.Clear();
-		timer_think.Start();
-		
-		// let entities think
-		if( g_timeentities.GetFloat() )
-		{
-			num = 0;
-			for( ent = activeEntities.Next(); ent != NULL; ent = ent->activeNode.Next() )
-			{
-				if( g_cinematic.GetBool() && inCinematic && !ent->cinematic )
+				// update the renderview so that any gui videos play from the right frame
+				view = player->GetRenderView();
+				if( view )
 				{
-					ent->GetPhysics()->UpdateTime( time );
-					continue;
+					gameRenderWorld->SetRenderView( view );
 				}
-				timer_singlethink.Clear();
-				timer_singlethink.Start();
-				RunEntityThink( *ent, cmdMgr );
-				timer_singlethink.Stop();
-				ms = timer_singlethink.Milliseconds();
-				if( ms >= g_timeentities.GetFloat() )
-				{
-					Printf( "%d: entity '%s': %.1f ms\n", time, ent->name.c_str(), ms );
-				}
-				num++;
 			}
-		}
-		else
-		{
-			if( inCinematic )
+			
+			// clear any debug lines from a previous frame
+			gameRenderWorld->DebugClearLines( time );
+			
+			// clear any debug polygons from a previous frame
+			gameRenderWorld->DebugClearPolygons( time );
+			
+			// free old smoke particles
+			smokeParticles->FreeSmokes();
+			
+			// process events on the server
+			ServerProcessEntityNetworkEventQueue();
+			
+			// update our gravity vector if needed.
+			UpdateGravity();
+			
+			// create a merged pvs for all players
+			SetupPlayerPVS();
+			
+			// sort the active entity list
+			SortActiveEntityList();
+			
+			timer_think.Clear();
+			timer_think.Start();
+			
+			// let entities think
+			if( g_timeentities.GetFloat() )
 			{
 				num = 0;
 				for( ent = activeEntities.Next(); ent != NULL; ent = ent->activeNode.Next() )
 				{
-					if( g_cinematic.GetBool() && !ent->cinematic )
+					if( g_cinematic.GetBool() && inCinematic && !ent->cinematic )
 					{
 						ent->GetPhysics()->UpdateTime( time );
 						continue;
 					}
+					timer_singlethink.Clear();
+					timer_singlethink.Start();
 					RunEntityThink( *ent, cmdMgr );
+					timer_singlethink.Stop();
+					ms = timer_singlethink.Milliseconds();
+					if( ms >= g_timeentities.GetFloat() )
+					{
+						Printf( "%d: entity '%s': %.1f ms\n", time, ent->name.c_str(), ms );
+					}
 					num++;
 				}
 			}
 			else
 			{
-				num = 0;
-				for( ent = activeEntities.Next(); ent != NULL; ent = ent->activeNode.Next() )
+				if( inCinematic )
 				{
-					if( ent->timeGroup != TIME_GROUP1 )
+					num = 0;
+					for( ent = activeEntities.Next(); ent != NULL; ent = ent->activeNode.Next() )
 					{
-						continue;
+						if( g_cinematic.GetBool() && !ent->cinematic )
+						{
+							ent->GetPhysics()->UpdateTime( time );
+							continue;
+						}
+						RunEntityThink( *ent, cmdMgr );
+						num++;
 					}
-					RunEntityThink( *ent, cmdMgr );
-					num++;
 				}
-			}
-		}
-		
-		RunTimeGroup2( cmdMgr );
-		
-		// Run catch-up for any client projectiles.
-		// This is done after the main think so that all projectiles will be up-to-date
-		// when snapshots are created.
-		//if ( common->IsMultiplayer() ) {
-		//while ( SimulateProjectiles() ) {
-		//clientGame.gameLibEffects.Update( clientGame.GetGameMs(), clientGame.GetGameMsPerFrame(), clientGame.GetServerGameTime() );
-		//}
-		//}
-		
-		
-		// remove any entities that have stopped thinking
-		if( numEntitiesToDeactivate )
-		{
-			idEntity* next_ent;
-			int c = 0;
-			for( ent = activeEntities.Next(); ent != NULL; ent = next_ent )
-			{
-				next_ent = ent->activeNode.Next();
-				if( !ent->thinkFlags )
+				else
 				{
-					ent->activeNode.Remove();
-					c++;
+					num = 0;
+					for( ent = activeEntities.Next(); ent != NULL; ent = ent->activeNode.Next() )
+					{
+						if( ent->timeGroup != TIME_GROUP1 )
+						{
+							continue;
+						}
+						RunEntityThink( *ent, cmdMgr );
+						num++;
+					}
 				}
 			}
-			//assert( numEntitiesToDeactivate == c );
-			numEntitiesToDeactivate = 0;
+			
+			RunTimeGroup2( cmdMgr );
+			
+			// Run catch-up for any client projectiles.
+			// This is done after the main think so that all projectiles will be up-to-date
+			// when snapshots are created.
+			//if ( common->IsMultiplayer() ) {
+			//while ( SimulateProjectiles() ) {
+			//clientGame.gameLibEffects.Update( clientGame.GetGameMs(), clientGame.GetGameMsPerFrame(), clientGame.GetServerGameTime() );
+			//}
+			//}
+			
+			
+			// remove any entities that have stopped thinking
+			if( numEntitiesToDeactivate )
+			{
+				idEntity* next_ent;
+				int c = 0;
+				for( ent = activeEntities.Next(); ent != NULL; ent = next_ent )
+				{
+					next_ent = ent->activeNode.Next();
+					if( !ent->thinkFlags )
+					{
+						ent->activeNode.Remove();
+						c++;
+					}
+				}
+				//assert( numEntitiesToDeactivate == c );
+				numEntitiesToDeactivate = 0;
+			}
+			
+			timer_think.Stop();
+			timer_events.Clear();
+			timer_events.Start();
+			
+			// service any pending events
+			idEvent::ServiceEvents();
+			
+			// service pending fast events
+			SelectTimeGroup( true );
+			idEvent::ServiceFastEvents();
+			SelectTimeGroup( false );
+			
+			timer_events.Stop();
+			
+			// free the player pvs
+			FreePlayerPVS();
+			
+			// do multiplayer related stuff
+			if( common->IsMultiplayer() )
+			{
+				mpGame.Run();
+			}
+			
+			// display how long it took to calculate the current game frame
+			if( g_frametime.GetBool() )
+			{
+				Printf( "game %d: all:%.1f th:%.1f ev:%.1f %d ents \n",
+						time, timer_think.Milliseconds() + timer_events.Milliseconds(),
+						timer_think.Milliseconds(), timer_events.Milliseconds(), num );
+			}
+			
+			BuildReturnValue( ret );
+			
+			// see if a target_sessionCommand has forced a changelevel
+			if( sessionCommand.Length() )
+			{
+				strncpy( ret.sessionCommand, sessionCommand, sizeof( ret.sessionCommand ) );
+				break;
+			}
+			
+			// make sure we don't loop forever when skipping a cinematic
+			if( skipCinematic && ( time > cinematicMaxSkipTime ) )
+			{
+				Warning( "Exceeded maximum cinematic skip length.  Cinematic may be looping infinitely." );
+				skipCinematic = false;
+				break;
+			}
 		}
-		
-		timer_think.Stop();
-		timer_events.Clear();
-		timer_events.Start();
-		
-		// service any pending events
-		idEvent::ServiceEvents();
-		
-		// service pending fast events
-		SelectTimeGroup( true );
-		idEvent::ServiceFastEvents();
-		SelectTimeGroup( false );
-		
-		timer_events.Stop();
-		
-		// free the player pvs
-		FreePlayerPVS();
-		
-		// do multiplayer related stuff
-		if( common->IsMultiplayer() )
-		{
-			mpGame.Run();
-		}
-		
-		// display how long it took to calculate the current game frame
-		if( g_frametime.GetBool() )
-		{
-			Printf( "game %d: all:%.1f th:%.1f ev:%.1f %d ents \n",
-					time, timer_think.Milliseconds() + timer_events.Milliseconds(),
-					timer_think.Milliseconds(), timer_events.Milliseconds(), num );
-		}
-		
-		BuildReturnValue( ret );
+		while( ( inCinematic || ( time < cinematicStopTime ) ) && skipCinematic );
+	// i think this loop always play all that content until we skip the cinematic,
+	// when then we keep until the end of the function.
+	
+	//ret.syncNextGameFrame = skipCinematic; // this is form dhewm3 but it seems it's no longer useful
+	if( skipCinematic )
+	{
+		soundSystem->SetMute( false );
+		skipCinematic = false;
 	}
 	
 	// show any debug info for this frame
@@ -4747,6 +4788,20 @@ void idGameLocal::SetCamera( idCamera* cam )
 	{
 		inCinematic = true;
 		
+		if( skipCinematic && camera->spawnArgs.GetBool( "disconnect" ) )
+		{
+			camera->spawnArgs.SetBool( "disconnect", false );
+			cvarSystem->SetCVarFloat( "r_znear", 3.0f );
+			cmdSystem->BufferCommandText( CMD_EXEC_APPEND, "disconnect\n" );
+			skipCinematic = false;
+			return;
+		}
+		
+		if( time > cinematicStopTime )
+		{
+			cinematicSkipTime = time + CINEMATIC_SKIP_DELAY;
+		}
+		
 		// set r_znear so that transitioning into/out of the player's head doesn't clip through the view
 		cvarSystem->SetCVarFloat( "r_znear", 1.0f );
 		
@@ -4804,6 +4859,7 @@ void idGameLocal::SetCamera( idCamera* cam )
 	else
 	{
 		inCinematic = false;
+		cinematicStopTime = time + msec;
 		
 		// restore r_znear
 		cvarSystem->SetCVarFloat( "r_znear", 3.0f );
@@ -4830,6 +4886,58 @@ idCamera* idGameLocal::GetCamera() const
 	return camera;
 }
 
+/*
+=============
+idGameLocal::SkipCinematic
+=============
+*/
+bool idGameLocal::SkipCinematic( void )
+{
+	if( camera )
+	{
+		if( camera->spawnArgs.GetBool( "disconnect" ) )
+		{
+			camera->spawnArgs.SetBool( "disconnect", false );
+			cvarSystem->SetCVarFloat( "r_znear", 3.0f );
+			cmdSystem->BufferCommandText( CMD_EXEC_APPEND, "disconnect\n" );
+			skipCinematic = false;
+			return false;
+		}
+		
+		if( camera->spawnArgs.GetBool( "instantSkip" ) )
+		{
+			camera->Stop();
+			return false;
+		}
+	}
+	
+	soundSystem->SetMute( true );
+	if( !skipCinematic )
+	{
+		skipCinematic = true;
+		cinematicMaxSkipTime = gameLocal.time + SEC2MS( g_cinematicMaxSkipTime.GetFloat() );
+	}
+	
+	return true;
+}
+/*
+=============
+idGameLocal::SkipCinematicScene
+=============
+*/
+bool idGameLocal::SkipCinematicScene()
+{
+	return SkipCinematic();
+}
+/*
+=============
+idGameLocal::CheckInCinematic
+=============
+*/
+bool idGameLocal::CheckInCinematic()
+{
+	return inCinematic;
+}
 /*
 ======================
 idGameLocal::SpreadLocations

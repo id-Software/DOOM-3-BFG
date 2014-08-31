@@ -5169,6 +5169,11 @@ bool idAnimator::CreateFrame( int currentTime, bool force )
 	
 	static idCVar		r_showSkel( "r_showSkel", "0", CVAR_RENDERER | CVAR_INTEGER, "", 0, 2, idCmdSystem::ArgCompletion_Integer<0, 2> );
 	
+	if( gameLocal.inCinematic && gameLocal.skipCinematic )
+	{
+		return false;
+	}
+	
 	if( !modelDef || !modelDef->ModelHandle() )
 	{
 		return false;
