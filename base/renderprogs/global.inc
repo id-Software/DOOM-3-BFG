@@ -180,6 +180,8 @@ float rand( float2 co ) {
 
 #define DEG2RAD( a )				( ( a ) * PI / 180.0f )
 #define RAD2DEG( a )				( ( a ) * 180.0f / PI )
+
+static const half4 LUMINANCE_VECTOR = half4( 0.2125, 0.7154, 0.0721, 0.0 );
 // RB end
 
 #define _half2( x )		half2( x )

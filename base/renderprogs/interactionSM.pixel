@@ -28,6 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include "renderprogs/global.inc"
+#include "renderprogs/BRDF.inc"
 
 uniform sampler2D				samp0 : register(s0); // texture 1 is the per-surface bump map
 uniform sampler2D				samp1 : register(s1); // texture 2 is the light falloff texture
@@ -35,7 +36,7 @@ uniform sampler2D				samp2 : register(s2); // texture 3 is the light projection 
 uniform sampler2D				samp3 : register(s3); // texture 4 is the per-surface diffuse map
 uniform sampler2D				samp4 : register(s4); // texture 5 is the per-surface specular map
 uniform sampler2DArrayShadow	samp5 : register(s5); // texture 6 is the shadowmap array
-uniform sampler2D				samp6 : register(s6); // texture 7 is the jitter texture
+uniform sampler2D				samp6 : register(s6); // texture 7 is the jitter texture 
 
 
 
@@ -69,6 +70,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	half4 specMap =			tex2D( samp4, fragment.texcoord5.xy );
 
 	half3 lightVector = normalize( fragment.texcoord0.xyz );
+	half3 viewVector = normalize( fragment.texcoord6.xyz );
 	half3 diffuseMap = ConvertYCoCgToRGB( YCoCG );
 
 	half3 localNormal;
@@ -83,7 +85,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	localNormal = normalize( localNormal );
 	
 	// traditional very dark Lambert light model used in Doom 3
-	half ldotN = dot3( localNormal, lightVector );
+	half ldotN = saturate( dot3( localNormal, lightVector ) );
 
 #if defined(USE_HALF_LAMBERT)
 	// RB: http://developer.valvesoftware.com/wiki/Half_Lambert
@@ -94,20 +96,8 @@ void main( PS_IN fragment, out PS_OUT result )
 #else
 	half lambert = ldotN;
 #endif
-	
-	const half specularPower = 10.0f;
-	half hDotN = dot3( normalize( fragment.texcoord6.xyz ), localNormal );
-	// RB: added abs
-	half3 specularContribution = _half3( pow( abs( hDotN ), specularPower ) );
 
-	half3 diffuseColor = diffuseMap * rpDiffuseModifier.xyz;
-	half3 specularColor = specMap.xyz * specularContribution * rpSpecularModifier.xyz;
-	half3 lightColor = lightProj.xyz * lightFalloff.xyz;
-	
-	half rim =  1.0f - saturate( hDotN );
-	half rimPower = 16.0f;
-	half3 rimColor = diffuseColor * lightProj.xyz * lightFalloff.xyz * 1.0f * pow( rim, rimPower ) * fragment.color.rgb;// * halfLdotN;
-	
+
 	//
 	// shadow mapping
 	//
@@ -278,6 +268,133 @@ void main( PS_IN fragment, out PS_OUT result )
 	//float shadow = texture( samp5, shadowTexcoord.xywz );
 #endif
 
+
+	half3 halfAngleVector = normalize( lightVector + viewVector );
+	half hdotN = saturate( dot3( halfAngleVector, localNormal ) );
+
+#if 1
+	/* 
+	Physically based shading
+	
+	Lambert diffuse BRDF combined with Cook-Torrance microfacet specular BRDF
+	
+							D( h ) * F( v, h ) * G( l, v, h )
+	f( l, v ) = diffuse + ---------------------------------
+								4 * ( n * l ) ( n * v )
+	*/
+	
+	// RB: compensate r_lightScale 3 and the division of Pi
+	lambert *= 1.3;
+	
+	const half3 goldColor = half3( 1.00, 0.71, 0.29 );
+								
+	//const half3 baseColor = goldColor;
+	const half3 baseColor = diffuseMap;
+	
+	const half metallic = 0.0;
+	
+	// rpDiffuseModifier contains light color
+	half3 lightColor = lightProj.xyz * lightFalloff.xyz * rpDiffuseModifier.xyz;
+	
+	half vdotN = saturate( dot3( viewVector, localNormal ) );
+	half vdotH = saturate( dot3( viewVector, halfAngleVector ) );
+	
+	// the vast majority of real-world materials (anything not metal or gems) have F(0°) values in a very narrow range (~0.02 - 0.06)
+		
+	// HACK calculate roughness from D3 gloss maps
+	// converting from linear to sRGB space give pretty results
+	const half glossiness = clamp( pow( dot( LUMINANCE_VECTOR.rgb, specMap.rgb ) * 0.4, 1.0 / 2.2 ) * 1.0, 0.0, 0.98 );
+	
+	const half roughness = 1.0 - glossiness;
+	
+	// compensate r_lightScale 3 * 2
+	half3 reflectColor = specMap.rgb * rpSpecularModifier.rgb * 0.5;
+	
+	// alpha modifications by Disney - s2012_pbs_disney_brdf_notes_v2.pdf
+	const half alpha = roughness * roughness;
+	
+	// reduce roughness range from [0 .. 1] to [0.5 .. 1]
+	const half alphaG = pow( 0.5 + roughness * 0.5, 2.0 );
+	
+	//half3 D = _half3( pow( abs( hdotN ), 10.0f ) );
+	half3 D = _half3( Distribution_GGX( hdotN, alpha ) );
+	//half3 D = _half3( Distribution_GGX_1886( hdotN, alpha ) ); 
+	half3 G = _half3( Visibility_Schlick( ldotN, vdotN, alpha ) );
+	//half3 G = _half3( Visibility_SmithGGX( ldotN, vdotN, alpha ) );
+	half3 F = Fresnel_Schlick( reflectColor, vdotH );
+	
+	// horizon
+	float horizon = 1.0 - ldotN;
+	horizon *= horizon;
+	horizon *= horizon;
+	half3 specLightColor = lightColor.rgb - lightColor.rgb * horizon;
+	
+	float3 specularColor = saturate( D * G * ( F * ( specLightColor.rgb * lambert ) ) );	
+
+	//specularColor = EnvironmentBRDFApprox( roughness, vdotN, specularColor.rgb );// * 0.45;
+	
+	
+#if 0
+	result.color = float4( _half3( F ), 1.0 );
+	return;
+#endif
+	
+	// see http://seblagarde.wordpress.com/2012/01/08/pi-or-not-to-pi-in-game-lighting-equation/
+	lambert /= PI;
+	
+	//half3 diffuseColor = mix( diffuseMap, F0, metal ) * rpDiffuseModifier.xyz;
+	half3 diffuseColor = baseColor * rpDiffuseModifier.xyz;
+	diffuseColor *= lightColor * lambert;
+	
+	
+	
+	/*
+	maintain energy conservation
+	
+	Energy conservation is a restriction on the reflection model
+	that requires that the total amount of reflected light
+	cannot be more than the incoming light.
+		
+	http://www.rorydriscoll.com/2009/01/25/energy-conservation-in-games/
+	
+		Cdiff + Cspec <= 1
+	*/
+	//diffuseColor.rgb *= ( half3( 1.0 ) - specularColor.rgb );
+	
+		
+#if 0 //defined(USE_METALNESS)
+	//specularColor *= ( 0.96 * metallic ) * diffuseColor + half( 0.04 );
+	diffuseColor.rgb *= ( 1.0 - metallic );
+	
+	//diffuseColor.rgb = mix( diffuseColor, specularColor, metallic );
+#endif
+	
+	// apply r_lightScale overbright for both diffuse and specular
+	result.color.xyz = ( diffuseColor + specularColor ) * fragment.color.rgb * shadow;// + rimColor;
+	result.color.w = 1.0;
+	
+#else
+	
+	/*
+	OLD Blinn Phong
+	*/
+
+	const half specularPower = 10.0f;
+	
+	// RB: added abs
+	half3 specularContribution = _half3( pow( abs( hdotN ), specularPower ) );
+
+	half3 diffuseColor = diffuseMap * rpDiffuseModifier.xyz;
+	half3 specularColor = specMap.xyz * specularContribution * rpSpecularModifier.xyz;
+	half3 lightColor = lightProj.xyz * lightFalloff.xyz;
+	
+	/*
+	half rim =  1.0f - saturate( hdotN );
+	half rimPower = 16.0f;
+	half3 rimColor = diffuseColor * lightProj.xyz * lightFalloff.xyz * 1.0f * pow( rim, rimPower ) * fragment.color.rgb;// * halfLdotN;
+	*/
+
 	result.color.xyz = ( diffuseColor + specularColor ) * lambert * lightColor * fragment.color.rgb * shadow;// + rimColor;
 	result.color.w = 1.0;
+#endif
 }
