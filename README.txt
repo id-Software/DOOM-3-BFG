@@ -102,6 +102,20 @@ The Doom 3 BFG Edition GPL Source Code release does not include functionality en
 of stencil shadows via the "depth fail" method, a functionality commonly known as "Carmack's Reverse".
 
 
+Mods:
+-----
+
+The Doom 3 BFG Edition GPL Source Code release allow mod editing, in order for it to accept any change in your
+mod directory, you should first specify your mod directory adding the following command to the launcher:
+
+"+set fs_game modDirectoryName"
+
+as well as force the content of your mod directory over the content of the game with the following command:
+
+"+set fs_resourceLoadPriority 0"
+
+so it would end up looking like: RBDoom3BFG +set fs_resourceLoadPriority 0 +set fs_game mymod
+
 
 _______________________________
 
