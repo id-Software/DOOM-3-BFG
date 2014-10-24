@@ -551,7 +551,7 @@ bool idCinematicLocal::InitFromFFMPEGFile( const char* qpath, bool amilooping )
 	int ticksPerFrame = dec_ctx->ticks_per_frame;
 	float durationSec = static_cast<double>( fmt_ctx->streams[video_stream_index]->duration ) * static_cast<double>( ticksPerFrame ) / static_cast<double>( avr.den );
 	animationLength = durationSec * 1000;
-	frameRate = av_q2d( fmt_ctx->streams[video_stream_index]->r_frame_rate );
+	frameRate = av_q2d( fmt_ctx->streams[video_stream_index]->avg_frame_rate );
 	buf = NULL;
 	hasFrame = false;
 	framePos = -1;
