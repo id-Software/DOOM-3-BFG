@@ -1272,19 +1272,21 @@ if(MSVC)
 	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/jobs/staticshadowvolume/StaticShadowVolume.cpp)
 	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/jobs/ShadowShared.cpp)
 	list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/RenderLog.cpp)
+        list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/framework/precompiled.cpp)
+
 	
-	foreach( src_file ${RBDOOM3_PRECOMPILED_SOURCES} )
-		#message(STATUS "/Yuprecompiled.h for ${src_file}")
         set_source_files_properties(
-            ${src_file}
+            ${RBDOOM3_PRECOMPILED_SOURCES}
             PROPERTIES
             COMPILE_FLAGS "/Yuprecompiled.h"
+            OBJECT_DEPENDS "precompiled.pch"
+
             )
-    endforeach()
 	
 	set_source_files_properties(framework/precompiled.cpp
         PROPERTIES
         COMPILE_FLAGS "/Ycprecompiled.h"
+        OBJECT_OUTPUTS "precompiled.pch"
         )
 	
 	list(APPEND RBDOOM3_SOURCES ${WIN32_RESOURCES})
