@@ -365,7 +365,6 @@ void idSoundHardware_XAudio2::Init()
 
             channelMask = (unsigned int)win8_channelMask;
             idLib::Printf( "Using device %s\n", vAudioDevices.at(0).name );
-
         }
         else {
             idLib::Warning("Failed to create master voice");

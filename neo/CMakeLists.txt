@@ -158,9 +158,12 @@ elseif(MSVC)
 					-D_CRT_NONSTDC_NO_DEPRECATE
 					-D_CRT_SECURE_NO_WARNINGS
                                         -D_MBCS
-                                        -DUSE_WINRT
-					#-DUSE_OPENAL
+                                       #-DUSE_OPENAL
 					-DUSE_EXCEPTIONS)
+        ## Check for Version ##
+        if( ${CMAKE_SYSTEM_VERSION} EQUAL 6.2 ) # Windows 8
+                add_definitions(-DUSE_WINRT)
+        endif()
 					
 	if(NOT CMAKE_CL_64)
 		add_definitions(-D_USE_32BIT_TIME_T)
