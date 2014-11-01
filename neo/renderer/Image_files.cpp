@@ -617,7 +617,7 @@ PNG LOADING
 
 extern "C"
 {
-#include "../libs/png/png.h"
+#include <png.h>
 
 
 	static void png_Error( png_structp pngPtr, png_const_charp msg )

@@ -24,6 +24,9 @@ option(ONATIVE
 option(USE_SYSTEM_ZLIB
                 "Use the system zlib instead of the bundled one" OFF)
 
+option(USE_SYSTEM_LIBPNG
+                "Use the system libpng instead of the bundled one" OFF)
+
 if(UNIX)
 	set(OPENAL TRUE)
 endif()
@@ -193,6 +196,18 @@ else (ZLIB_FOUND)
     include_directories("libs/zlib")
     set(ZLIB_LIBRARY "" )
 endif (ZLIB_FOUND)
+
+if(USE_SYSTEM_LIBPNG)
+find_package(PNG REQUIRED)
+endif (USE_SYSTEM_LIBPNG)
+
+if (PNG_FOUND)
+    include_directories(${PNG_INCLUDE_DIRS})
+    set(PNG_LIBRARY ${PNG_LIBRARIES})
+else (PNG_FOUND)
+    include_directories("libs/png")
+    set(PNG_LIBRARY "" )
+endif (PNG_FOUND)
 
 add_subdirectory(idlib)
 
@@ -391,8 +406,13 @@ set(JPEG_SOURCES
 	libs/jpeg-6/jquant2.cpp
 	libs/jpeg-6/jutils.cpp)
 
-file(GLOB PNG_INCLUDES libs/png/*.h)
-file(GLOB PNG_SOURCES libs/png/*.c)
+if (NOT PNG_FOUND)
+    file(GLOB PNG_INCLUDES libs/png/*.h)
+    file(GLOB PNG_SOURCES libs/png/*.c)
+else (NOT PNG_FOUND)
+    set(PNG_INCLUDES "")
+    set(PNG_SOURCES "")
+endif (NOT PNG_FOUND)
 
 if (NOT ZLIB_FOUND)
 file(GLOB ZLIB_INCLUDES libs/zlib/*.h)
@@ -1334,6 +1354,7 @@ if(MSVC)
 		${OpenAL_LIBRARIES}
 		${FFmpeg_LIBRARIES}
         ${ZLIB_LIBRARY}
+        ${PNG_LIBRARY}
 		)
 		
 	#CMAKE_BINARY_DIR
@@ -1496,6 +1517,7 @@ else()
 			${OPENAL_LIBRARY}
 			${FFMPEG_LIBRARIES}
             ${ZLIB_LIBRARY}
+            ${PNG_LIBRARY}
 			)
 	endif()
     
