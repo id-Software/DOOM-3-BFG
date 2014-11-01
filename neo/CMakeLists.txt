@@ -27,6 +27,9 @@ option(USE_SYSTEM_ZLIB
 option(USE_SYSTEM_LIBPNG
                 "Use the system libpng instead of the bundled one" OFF)
 
+option(USE_SYSTEM_LIBJPEG
+                "Use the system libjpeg instead of the bundled one" OFF)
+
 if(UNIX)
 	set(OPENAL TRUE)
 endif()
@@ -209,6 +212,20 @@ else (PNG_FOUND)
     set(PNG_LIBRARY "" )
 endif (PNG_FOUND)
 
+
+if(USE_SYSTEM_LIBJPEG)
+find_package(JPEG REQUIRED)
+endif(USE_SYSTEM_LIBJPEG)
+
+if (JPEG_FOUND)
+    include_directories(${JPEG_INCLUDE_DIRS})
+    set(JPEG_LIBRARY ${JPEG_LIBRARIES})
+    add_definitions(-DUSE_NEWER_JPEG)
+else (JPEG_FOUND)
+    include_directories("libs/jpeg-6")
+    set(JPEG_LIBRARY "" )
+endif (JPEG_FOUND)
+
 add_subdirectory(idlib)
 
 file(GLOB AAS_INCLUDES aas/*.h)
@@ -342,69 +359,74 @@ file(GLOB RENDERER_OPENGL_SOURCES renderer/OpenGL/*.cpp)
 
 file(GLOB IRRXML_INCLUDES libs/irrxml/src/*.h)
 file(GLOB IRRXML_SOURCES libs/irrxml/src/*.cpp)
-	
-set(JPEG_INCLUDES
-	libs/jpeg-6/jchuff.h
-	libs/jpeg-6/jconfig.h
-	libs/jpeg-6/jdct.h
-	libs/jpeg-6/jdhuff.h
-	libs/jpeg-6/jerror.h
-	libs/jpeg-6/jinclude.h
-	libs/jpeg-6/jmemsys.h
-	libs/jpeg-6/jmorecfg.h
-	libs/jpeg-6/jpegint.h
-	libs/jpeg-6/jpeglib.h
-	libs/jpeg-6/jversion.h)
-	
-set(JPEG_SOURCES
-	libs/jpeg-6/jcapimin.cpp
-	libs/jpeg-6/jcapistd.cpp
-	libs/jpeg-6/jccoefct.cpp
-	libs/jpeg-6/jccolor.cpp
-	libs/jpeg-6/jcdctmgr.cpp
-	libs/jpeg-6/jchuff.cpp
-	libs/jpeg-6/jcinit.cpp
-	libs/jpeg-6/jcmainct.cpp
-	libs/jpeg-6/jcmarker.cpp
-	libs/jpeg-6/jcmaster.cpp
-	libs/jpeg-6/jcomapi.cpp
-	libs/jpeg-6/jcparam.cpp
-	libs/jpeg-6/jcphuff.cpp
-	libs/jpeg-6/jcprepct.cpp
-	libs/jpeg-6/jcsample.cpp
-	libs/jpeg-6/jctrans.cpp
-	libs/jpeg-6/jdapimin.cpp
-	libs/jpeg-6/jdapistd.cpp
-	libs/jpeg-6/jdatadst.cpp
-	libs/jpeg-6/jdatasrc.cpp
-	libs/jpeg-6/jdcoefct.cpp
-	libs/jpeg-6/jdcolor.cpp
-	libs/jpeg-6/jddctmgr.cpp
-	libs/jpeg-6/jdhuff.cpp
-	libs/jpeg-6/jdinput.cpp
-	libs/jpeg-6/jdmainct.cpp
-	libs/jpeg-6/jdmarker.cpp
-	libs/jpeg-6/jdmaster.cpp
-	libs/jpeg-6/jdmerge.cpp
-	libs/jpeg-6/jdphuff.cpp
-	libs/jpeg-6/jdpostct.cpp
-	libs/jpeg-6/jdsample.cpp
-	libs/jpeg-6/jdtrans.cpp
-	libs/jpeg-6/jerror.cpp
-	libs/jpeg-6/jfdctflt.cpp
-	libs/jpeg-6/jfdctfst.cpp
-	libs/jpeg-6/jfdctint.cpp
-	libs/jpeg-6/jidctflt.cpp
-	libs/jpeg-6/jidctfst.cpp
-	libs/jpeg-6/jidctint.cpp
-	libs/jpeg-6/jidctred.cpp
-	#libs/jpeg-6/jload.cpp
-	libs/jpeg-6/jmemmgr.cpp
-	libs/jpeg-6/jmemnobs.cpp
-	#libs/jpeg-6/jpegtran.cpp
-	libs/jpeg-6/jquant1.cpp
-	libs/jpeg-6/jquant2.cpp
-	libs/jpeg-6/jutils.cpp)
+
+if (NOT JPEG_FOUND)
+    set(JPEG_INCLUDES
+        libs/jpeg-6/jchuff.h
+        libs/jpeg-6/jconfig.h
+        libs/jpeg-6/jdct.h
+        libs/jpeg-6/jdhuff.h
+        libs/jpeg-6/jerror.h
+        libs/jpeg-6/jinclude.h
+        libs/jpeg-6/jmemsys.h
+        libs/jpeg-6/jmorecfg.h
+        libs/jpeg-6/jpegint.h
+        libs/jpeg-6/jpeglib.h
+        libs/jpeg-6/jversion.h)
+
+    set(JPEG_SOURCES
+        libs/jpeg-6/jcapimin.cpp
+        libs/jpeg-6/jcapistd.cpp
+        libs/jpeg-6/jccoefct.cpp
+        libs/jpeg-6/jccolor.cpp
+        libs/jpeg-6/jcdctmgr.cpp
+        libs/jpeg-6/jchuff.cpp
+        libs/jpeg-6/jcinit.cpp
+        libs/jpeg-6/jcmainct.cpp
+        libs/jpeg-6/jcmarker.cpp
+        libs/jpeg-6/jcmaster.cpp
+        libs/jpeg-6/jcomapi.cpp
+        libs/jpeg-6/jcparam.cpp
+        libs/jpeg-6/jcphuff.cpp
+        libs/jpeg-6/jcprepct.cpp
+        libs/jpeg-6/jcsample.cpp
+        libs/jpeg-6/jctrans.cpp
+        libs/jpeg-6/jdapimin.cpp
+        libs/jpeg-6/jdapistd.cpp
+        libs/jpeg-6/jdatadst.cpp
+        libs/jpeg-6/jdatasrc.cpp
+        libs/jpeg-6/jdcoefct.cpp
+        libs/jpeg-6/jdcolor.cpp
+        libs/jpeg-6/jddctmgr.cpp
+        libs/jpeg-6/jdhuff.cpp
+        libs/jpeg-6/jdinput.cpp
+        libs/jpeg-6/jdmainct.cpp
+        libs/jpeg-6/jdmarker.cpp
+        libs/jpeg-6/jdmaster.cpp
+        libs/jpeg-6/jdmerge.cpp
+        libs/jpeg-6/jdphuff.cpp
+        libs/jpeg-6/jdpostct.cpp
+        libs/jpeg-6/jdsample.cpp
+        libs/jpeg-6/jdtrans.cpp
+        libs/jpeg-6/jerror.cpp
+        libs/jpeg-6/jfdctflt.cpp
+        libs/jpeg-6/jfdctfst.cpp
+        libs/jpeg-6/jfdctint.cpp
+        libs/jpeg-6/jidctflt.cpp
+        libs/jpeg-6/jidctfst.cpp
+        libs/jpeg-6/jidctint.cpp
+        libs/jpeg-6/jidctred.cpp
+        #libs/jpeg-6/jload.cpp
+        libs/jpeg-6/jmemmgr.cpp
+        libs/jpeg-6/jmemnobs.cpp
+        #libs/jpeg-6/jpegtran.cpp
+        libs/jpeg-6/jquant1.cpp
+        libs/jpeg-6/jquant2.cpp
+        libs/jpeg-6/jutils.cpp)
+else (NOT JPEG_FOUND)
+   set(JPEG_INCLUDES "")
+   set(JPEG_SOURCES "")
+endif (NOT JPEG_FOUND)
 
 if (NOT PNG_FOUND)
     file(GLOB PNG_INCLUDES libs/png/*.h)
@@ -1355,6 +1377,7 @@ if(MSVC)
 		${FFmpeg_LIBRARIES}
         ${ZLIB_LIBRARY}
         ${PNG_LIBRARY}
+        ${JPEG_LIBRARY}
 		)
 		
 	#CMAKE_BINARY_DIR
@@ -1518,6 +1541,7 @@ else()
 			${FFMPEG_LIBRARIES}
             ${ZLIB_LIBRARY}
             ${PNG_LIBRARY}
+            ${JPEG_LIBRARY}
 			)
 	endif()
     

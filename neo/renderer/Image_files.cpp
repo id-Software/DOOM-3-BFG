@@ -49,7 +49,8 @@ void R_LoadImage( const char *name, byte **pic, int *width, int *height, bool ma
  * You may also wish to include "jerror.h".
  */
 
-#include "../libs/jpeg-6/jpeglib.h"
+#include <jpeglib.h>
+#include <jerror.h>
 
 // hooks from jpeg lib to our system
 
@@ -453,7 +454,8 @@ static void LoadJPG( const char* filename, unsigned char** pic, int* width, int*
 	unsigned char* out;
 	byte*	fbuffer;
 	byte*  bbuf;
-	
+	int     len;
+
 	/* In this example we want to open the input file before doing anything else,
 	 * so that the setjmp() error recovery below can assume the file is open.
 	 * VERY IMPORTANT: use "b" option to fopen() if you are on a machine that
@@ -467,7 +469,6 @@ static void LoadJPG( const char* filename, unsigned char** pic, int* width, int*
 		*pic = NULL;		// until proven otherwise
 	}
 	{
-		int		len;
 		idFile* f;
 		
 		f = fileSystem->OpenFileRead( filename );
@@ -505,8 +506,11 @@ static void LoadJPG( const char* filename, unsigned char** pic, int* width, int*
 	
 	/* Step 2: specify data source (eg, a file) */
 	
-	jpeg_stdio_src( &cinfo, fbuffer );
-	
+#ifdef USE_NEWER_JPEG
+	jpeg_mem_src( &cinfo, fbuffer, len );
+#else
+        jpeg_stdio_src( &cinfo, fbuffer );
+#endif
 	/* Step 3: read file parameters with jpeg_read_header() */
 	
 	jpeg_read_header( &cinfo, true );
