@@ -353,7 +353,14 @@ static void R_CheckPortableExtensions()
 	// RB end
 	
 	// GL_ARB_multitexture
-	glConfig.multitextureAvailable = GLEW_ARB_multitexture != 0;
+	if( glConfig.driverType == GLDRV_OPENGL32_COMPATIBILITY_PROFILE || glConfig.driverType == GLDRV_OPENGL32_CORE_PROFILE || glConfig.driverType == GLDRV_OPENGL_MESA )
+	{
+		glConfig.multitextureAvailable = true;
+	}
+	else
+	{
+		glConfig.multitextureAvailable = GLEW_ARB_multitexture != 0;
+	}
 	
 	// GL_EXT_direct_state_access
 	glConfig.directStateAccess = GLEW_EXT_direct_state_access != 0;
