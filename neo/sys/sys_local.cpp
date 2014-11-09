@@ -295,5 +295,73 @@ const char* Sys_DefaultLanguage()
 		return ID_LANG_ENGLISH;
 	}
 	
-	return ID_LANG_ENGLISH;
+	idStr fileName;
+	
+	//D3XP: Instead of just loading a single lang file for each language
+	//we are going to load all files that begin with the language name
+	//similar to the way pak files work. So you can place english001.lang
+	//to add new strings to the english language dictionary
+	idFileList* langFiles;
+	langFiles = fileSystem->ListFilesTree( "strings", ".lang", true );
+	
+	idStrList langList = langFiles->GetList();
+	
+	// Loop through the list and filter
+	idStrList currentLangList = langList;
+	
+	idStr temp;
+	for( int i = 0; i < currentLangList.Num(); i++ )
+	{
+		temp = currentLangList[i];
+		temp = temp.Right( temp.Length() - strlen( "strings/" ) );
+		temp = temp.Left( temp.Length() - strlen( ".lang" ) );
+		currentLangList[i] = temp;
+	}
+	
+	if( currentLangList.Num() <= 0 )
+	{
+		// call it English if no lang files exist
+		sys_lang.SetString( ID_LANG_ENGLISH );
+	}
+	else if( currentLangList.Num() == 1 )
+	{
+		sys_lang.SetString( currentLangList[0] );
+	}
+	else
+	{
+		if( currentLangList.Find( ID_LANG_JAPANESE ) )
+		{
+			sys_lang.SetString( ID_LANG_JAPANESE );
+		}
+		else if( currentLangList.Find( ID_LANG_ENGLISH ) )
+		{
+			sys_lang.SetString( ID_LANG_ENGLISH );
+		}
+		else if( currentLangList.Find( ID_LANG_FRENCH ) )
+		{
+			sys_lang.SetString( ID_LANG_FRENCH );
+		}
+		else if( currentLangList.Find( ID_LANG_GERMAN ) )
+		{
+			sys_lang.SetString( ID_LANG_GERMAN );
+		}
+		else if( currentLangList.Find( ID_LANG_ITALIAN ) )
+		{
+			sys_lang.SetString( ID_LANG_GERMAN );
+		}
+		else if( currentLangList.Find( ID_LANG_SPANISH ) )
+		{
+			sys_lang.SetString( ID_LANG_GERMAN );
+		}
+		else
+		{
+			sys_lang.SetString( currentLangList[0] );
+		}
+	}
+	
+	fileSystem->FreeFileList( langFiles );
+	
+	return sys_lang.GetString();// ID_LANG_ENGLISH;
+	
+	
 }
