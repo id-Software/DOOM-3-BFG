@@ -53,8 +53,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "w_wad.h"
 #include "d_main.h"
 #include "doomdef.h"
-#include "../timidity/timidity.h"
-#include "../timidity/controls.h"
+#include "libs/timidity/timidity.h"
+#include "libs/timidity/controls.h"
 
 #include "sound/snd_local.h"
 
