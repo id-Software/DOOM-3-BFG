@@ -145,13 +145,14 @@ ID_INLINE_EXTERN ALCenum CheckALCErrors_( ALCdevice* device, const char* filenam
 #include <string>
 #include <vector>
 
-DEFINE_PROPERTYKEY(PKEY_AudioEndpoint_Path, 0x9c119480, 0xddc2, 0x4954, 0xa1, 0x50, 0x5b, 0xd2, 0x40, 0xd4, 0x54, 0xad, 1);
+DEFINE_PROPERTYKEY( PKEY_AudioEndpoint_Path, 0x9c119480, 0xddc2, 0x4954, 0xa1, 0x50, 0x5b, 0xd2, 0x40, 0xd4, 0x54, 0xad, 1 );
 
 #pragma comment(lib,"xaudio2.lib")
 
-struct AudioDevice {
-   std::wstring name;
-   std::wstring id;
+struct AudioDevice
+{
+	std::wstring name;
+	std::wstring id;
 };
 #else
 #include <dxsdkver.h>

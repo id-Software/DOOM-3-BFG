@@ -455,7 +455,7 @@ static void LoadJPG( const char* filename, unsigned char** pic, int* width, int*
 	byte*	fbuffer;
 	byte*  bbuf;
 	int     len;
-
+	
 	/* In this example we want to open the input file before doing anything else,
 	 * so that the setjmp() error recovery below can assume the file is open.
 	 * VERY IMPORTANT: use "b" option to fopen() if you are on a machine that
@@ -509,7 +509,7 @@ static void LoadJPG( const char* filename, unsigned char** pic, int* width, int*
 #ifdef USE_NEWER_JPEG
 	jpeg_mem_src( &cinfo, fbuffer, len );
 #else
-        jpeg_stdio_src( &cinfo, fbuffer );
+	jpeg_stdio_src( &cinfo, fbuffer );
 #endif
 	/* Step 3: read file parameters with jpeg_read_header() */
 	
