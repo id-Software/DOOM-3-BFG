@@ -30,6 +30,9 @@ option(USE_SYSTEM_LIBPNG
 option(USE_SYSTEM_LIBJPEG
                 "Use the system libjpeg instead of the bundled one" OFF)
 
+option(USE_SYSTEM_LIBGLEW
+                "Use the system libglew instead of the bundled one" OFF)
+
 if(UNIX)
 	set(OPENAL TRUE)
 endif()
@@ -229,6 +232,19 @@ else (JPEG_FOUND)
     include_directories("libs/jpeg-6")
     set(JPEG_LIBRARY "" )
 endif (JPEG_FOUND)
+
+if (USE_SYSTEM_LIBGLEW)
+find_package(GLEW)
+endif(USE_SYSTEM_LIBGLEW)
+
+if (GLEW_FOUND)
+    include_directories(${GLEW_INCLUDE_DIRS})
+    set(GLEW_LIBRARY ${GLEW_LIBRARIES})
+else (GLEW_FOUND)
+    include_directories("libs/glew/include")
+    set(GLEW_LIBRARY "" )
+    add_definitions(-DGLEW_STATIC)
+endif (GLEW_FOUND)
 
 add_subdirectory(idlib)
 
@@ -452,17 +468,19 @@ endif (NOT ZLIB_FOUND)
 file(GLOB MINIZIP_INCLUDES libs/zlib/minizip/*.h)
 file(GLOB MINIZIP_SOURCES libs/zlib/minizip/*.c libs/zlib/minizip/*.cpp)
 	
-set(GLEW_INCLUDES
-	libs/glew/include/GL/glew.h)
-	
-if(WIN32)
-	set(GLEW_INCLUDES ${GLEW_INCLUDES} libs/glew/include/GL/wglew.h)
-else()
-	set(GLEW_INCLUDES ${GLEW_INCLUDES} libs/glew/include/GL/glxew.h)
-endif()
-	
-set(GLEW_SOURCES
-	libs/glew/src/glew.c)
+if (NOT GLEW_FOUND)
+    set(GLEW_INCLUDES libs/glew/include/GL/glew.h)
+    set(GLEW_SOURCES libs/glew/src/glew.c)
+
+    if(WIN32)
+        set(GLEW_INCLUDES ${GLEW_INCLUDES} libs/glew/include/GL/wglew.h)
+    else(WIN32)
+        set(GLEW_INCLUDES ${GLEW_INCLUDES} libs/glew/include/GL/glxew.h)
+    endif(WIN32)
+else (NOT GLEW_FOUND)
+    set(GLEW_INCLUDES "")
+    set(GLEW_SOURCES "")
+endif (NOT GLEW_FOUND)
 	
 set(FREETYPE_SOURCES
 	libs/freetype/src/autofit/autofit.c
@@ -1167,7 +1185,6 @@ set(RBDOOM3_SOURCES
 add_definitions(-DUSE_DOOMCLASSIC)
 
 add_definitions(-D__DOOM__
-				-DGLEW_STATIC
 				#-DBUILD_FREETYPE
 				#-DFT2_BUILD_LIBRARY
 				)
@@ -1199,7 +1216,6 @@ include_directories(
 			idlib
 			#libs/curl/include
 			#libs/openal/include
-			libs/glew/include
 			#libs/freetype/include
             )
 			
@@ -1384,6 +1400,7 @@ if(MSVC)
         ${ZLIB_LIBRARY}
         ${PNG_LIBRARY}
         ${JPEG_LIBRARY}
+        ${GLEW_LIBRARY}
 		)
 		
 	#CMAKE_BINARY_DIR
@@ -1548,6 +1565,7 @@ else()
             ${ZLIB_LIBRARY}
             ${PNG_LIBRARY}
             ${JPEG_LIBRARY}
+            ${GLEW_LIBRARY}
 			)
 	endif()
     
