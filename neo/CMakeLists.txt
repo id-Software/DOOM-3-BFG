@@ -21,7 +21,7 @@ option(FFMPEG
 option(ONATIVE
 		"Optimize for the host CPU" OFF)
 		
-option(FORRT
+option(WINRT
 		"Build for Windows RT" OFF)
 		
 option(USE_SYSTEM_ZLIB
@@ -176,7 +176,7 @@ elseif(MSVC)
                                        #-DUSE_OPENAL
 					-DUSE_EXCEPTIONS)
         ## Check for Version ##
-        if( FORRT ) # Windows RT
+        if( WINRT ) # Windows RT
                 add_definitions(-DUSE_WINRT)
         endif()
 					
