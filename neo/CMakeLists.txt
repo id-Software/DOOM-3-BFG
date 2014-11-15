@@ -20,7 +20,10 @@ option(FFMPEG
 
 option(ONATIVE
 		"Optimize for the host CPU" OFF)
-
+		
+option(FORRT
+		"Build for Windows RT" OFF)
+		
 option(USE_SYSTEM_ZLIB
                 "Use the system zlib instead of the bundled one" OFF)
 
@@ -173,7 +176,7 @@ elseif(MSVC)
                                        #-DUSE_OPENAL
 					-DUSE_EXCEPTIONS)
         ## Check for Version ##
-        if( ${CMAKE_SYSTEM_VERSION} EQUAL 6.2 ) # Windows 8
+        if( FORRT ) # Windows RT
                 add_definitions(-DUSE_WINRT)
         endif()
 					
