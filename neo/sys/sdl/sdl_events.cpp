@@ -120,11 +120,11 @@ struct joystick_poll_t
 {
 	int action;
 	int value;
-
+	
 	joystick_poll_t()
 	{
 	}
-
+	
 	joystick_poll_t( int a, int v )
 	{
 		action = a;
@@ -132,7 +132,7 @@ struct joystick_poll_t
 	}
 };
 static idList<joystick_poll_t> joystick_polls;
-SDL_Joystick *joy = NULL;
+SDL_Joystick* joy = NULL;
 int SDL_joystick_has_hat = 0;
 
 // RB begin
@@ -571,7 +571,7 @@ Sys_InitInput
 void Sys_InitInput()
 {
 	int numJoysticks, i;
-
+	
 	kbd_polls.SetGranularity( 64 );
 	mouse_polls.SetGranularity( 64 );
 	
@@ -580,50 +580,56 @@ void Sys_InitInput()
 	SDL_EnableKeyRepeat( SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL );
 #endif
 	in_keyboard.SetModified();
-
+	
 	// WM0110: Initialise SDL Joystick
 	common->Printf( "Sys_InitInput: Joystick subsystem init\n" );
-	if( SDL_Init(SDL_INIT_JOYSTICK) ) {
-		common->Printf( "Sys_InitInput: Joystic Init ERROR!\n");
+	if( SDL_Init( SDL_INIT_JOYSTICK ) )
+	{
+		common->Printf( "Sys_InitInput: Joystic Init ERROR!\n" );
 	}
-
+	
 	numJoysticks = SDL_NumJoysticks();
-	common->Printf( "Sys_InitInput: Joystic - Found %i joysticks\n", numJoysticks);
+	common->Printf( "Sys_InitInput: Joystic - Found %i joysticks\n", numJoysticks );
 #if !SDL_VERSION_ATLEAST(2, 0, 0)
-	for(i=0; i<numJoysticks; i++)
-		common->Printf(" Joystick %i name '%s'\n", i, SDL_JoystickName(i));
+	for( i = 0; i < numJoysticks; i++ )
+		common->Printf( " Joystick %i name '%s'\n", i, SDL_JoystickName( i ) );
 #endif
-
+		
 	// Open first available joystick and use it
-	if(SDL_NumJoysticks() > 0) {
-		joy = SDL_JoystickOpen(0);
-
-		if(joy) {
+	if( SDL_NumJoysticks() > 0 )
+	{
+		joy = SDL_JoystickOpen( 0 );
+		
+		if( joy )
+		{
 			int num_hats;
-
-			num_hats = SDL_JoystickNumHats(joy);
-			common->Printf("Opened Joystick number 0\n");
+			
+			num_hats = SDL_JoystickNumHats( joy );
+			common->Printf( "Opened Joystick number 0\n" );
 #if SDL_VERSION_ATLEAST(2, 0, 0)
-			common->Printf("Name: %s\n", SDL_JoystickName(joy));
+			common->Printf( "Name: %s\n", SDL_JoystickName( joy ) );
 #else
-			common->Printf("Name: %s\n", SDL_JoystickName(0));
+			common->Printf( "Name: %s\n", SDL_JoystickName( 0 ) );
 #endif
-			common->Printf("Number of Axes: %d\n", SDL_JoystickNumAxes(joy));
-			common->Printf("Number of Buttons: %d\n", SDL_JoystickNumButtons(joy));
-			common->Printf("Number of Hats: %d\n", num_hats);
-			common->Printf("Number of Balls: %d\n", SDL_JoystickNumBalls(joy));
-
+			common->Printf( "Number of Axes: %d\n", SDL_JoystickNumAxes( joy ) );
+			common->Printf( "Number of Buttons: %d\n", SDL_JoystickNumButtons( joy ) );
+			common->Printf( "Number of Hats: %d\n", num_hats );
+			common->Printf( "Number of Balls: %d\n", SDL_JoystickNumBalls( joy ) );
+			
 			SDL_joystick_has_hat = 0;
-			if(num_hats) {
+			if( num_hats )
+			{
 				SDL_joystick_has_hat = 1;
 			}
 		}
-		else {
+		else
+		{
 			joy = NULL;
-			common->Printf("Couldn't open Joystick 0\n");
+			common->Printf( "Couldn't open Joystick 0\n" );
 		}
 	}
-	else {
+	else
+	{
 		joy = NULL;
 	}
 	// WM0110
@@ -639,13 +645,16 @@ void Sys_ShutdownInput()
 	kbd_polls.Clear();
 	mouse_polls.Clear();
 	joystick_polls.Clear();
-
+	
 	// Close any opened SDL Joystic
-	if(joy) {
-		common->Printf("Sys_ShutdownInput: closing SDL joystick.\n");
-		SDL_JoystickClose(joy);
-	} else {
-		common->Printf("Sys_ShutdownInput: SDL joystick not initialized. Nothing to close.\n");
+	if( joy )
+	{
+		common->Printf( "Sys_ShutdownInput: closing SDL joystick.\n" );
+		SDL_JoystickClose( joy );
+	}
+	else
+	{
+		common->Printf( "Sys_ShutdownInput: SDL joystick not initialized. Nothing to close.\n" );
 	}
 }
 
@@ -758,10 +767,10 @@ sysEvent_t Sys_GetEvent()
 	sysEvent_t res = { };
 	int key;
 	static const sysEvent_t res_none = { SE_NONE, 0, 0, 0, NULL };
-
+	
 	// WM0110: previous state of joystick hat
 	static int previous_hat_state = SDL_HAT_CENTERED;
-
+	
 #if SDL_VERSION_ATLEAST(2, 0, 0)
 	static char* s = NULL;
 	static size_t s_pos = 0;
@@ -948,7 +957,7 @@ sysEvent_t Sys_GetEvent()
 				// DG end
 #endif
 				
-			// fall through
+				// fall through
 			case SDL_KEYUP:
 			{
 				bool isChar;
@@ -1068,7 +1077,7 @@ sysEvent_t Sys_GetEvent()
 			case SDL_MOUSEBUTTONDOWN:
 			case SDL_MOUSEBUTTONUP:
 				res.evType = SE_KEY;
-
+				
 				switch( ev.button.button )
 				{
 					case SDL_BUTTON_LEFT:
@@ -1100,13 +1109,13 @@ sysEvent_t Sys_GetEvent()
 				res.evValue2 = ev.button.state == SDL_PRESSED ? 1 : 0;
 				
 				return res;
-
-			// WM0110
-			// NOTE: it seems that the key bindings for the GUI and for the game are
-			// totally independant. I think the event returned by this function seems to work
-			// on the GUI and the event returned by Sys_ReturnJoystickInputEvent() works on
-			// the game.
-			// Also, remember that joystick keys must be binded to actions in order to work!
+				
+				// WM0110
+				// NOTE: it seems that the key bindings for the GUI and for the game are
+				// totally independant. I think the event returned by this function seems to work
+				// on the GUI and the event returned by Sys_ReturnJoystickInputEvent() works on
+				// the game.
+				// Also, remember that joystick keys must be binded to actions in order to work!
 			case SDL_JOYBUTTONDOWN:
 			case SDL_JOYBUTTONUP:
 				// sys_public.h: evValue is an axis number and evValue2 is the current state (-127 to 127)
@@ -1118,243 +1127,267 @@ sysEvent_t Sys_GetEvent()
 						res.evValue = K_JOY1;
 						joystick_polls.Append( joystick_poll_t( J_ACTION1, ev.jbutton.state == SDL_PRESSED ? 1 : 0 ) );
 						break;
-
+						
 					case 1:
 						res.evValue = K_JOY2;
 						joystick_polls.Append( joystick_poll_t( J_ACTION2, ev.jbutton.state == SDL_PRESSED ? 1 : 0 ) );
 						break;
-
+						
 					case 2:
 						res.evValue = K_JOY3;
 						joystick_polls.Append( joystick_poll_t( J_ACTION3, ev.jbutton.state == SDL_PRESSED ? 1 : 0 ) );
 						break;
-
+						
 					case 3:
 						res.evValue = K_JOY4;
 						joystick_polls.Append( joystick_poll_t( J_ACTION4, ev.jbutton.state == SDL_PRESSED ? 1 : 0 ) );
 						break;
-
+						
 					case 4:
 						res.evValue = K_JOY5;
 						joystick_polls.Append( joystick_poll_t( J_ACTION5, ev.jbutton.state == SDL_PRESSED ? 1 : 0 ) );
 						break;
-
+						
 					case 5:
 						res.evValue = K_JOY6;
 						joystick_polls.Append( joystick_poll_t( J_ACTION6, ev.jbutton.state == SDL_PRESSED ? 1 : 0 ) );
 						break;
-
+						
 					case 6:
 						res.evValue = K_JOY7;
 						joystick_polls.Append( joystick_poll_t( J_ACTION7, ev.jbutton.state == SDL_PRESSED ? 1 : 0 ) );
 						break;
-
+						
 					case 7:
 						res.evValue = K_JOY8;
 						joystick_polls.Append( joystick_poll_t( J_ACTION8, ev.jbutton.state == SDL_PRESSED ? 1 : 0 ) );
 						break;
-
+						
 					case 8:
 						res.evValue = K_JOY9;
 						joystick_polls.Append( joystick_poll_t( J_ACTION9, ev.jbutton.state == SDL_PRESSED ? 1 : 0 ) );
 						break;
-
+						
 					case 9:
 						res.evValue = K_JOY10;
 						joystick_polls.Append( joystick_poll_t( J_ACTION10, ev.jbutton.state == SDL_PRESSED ? 1 : 0 ) );
 						break;
-
+						
 					case 10:
 						res.evValue = K_JOY11;
 						joystick_polls.Append( joystick_poll_t( J_ACTION11, ev.jbutton.state == SDL_PRESSED ? 1 : 0 ) );
 						break;
-
-					// D-PAD left (XBox 360 wireless)
+						
+						// D-PAD left (XBox 360 wireless)
 					case 11:
 						// If joystick has a hat, then use the hat as D-PAD. If not, D-PAD is mapped
 						// to buttons.
-						if(SDL_joystick_has_hat) {
+						if( SDL_joystick_has_hat )
+						{
 							res.evValue = K_JOY12;
 							joystick_polls.Append( joystick_poll_t( J_ACTION12, ev.jbutton.state == SDL_PRESSED ? 1 : 0 ) );
-						} else {
+						}
+						else
+						{
 							res.evValue = K_JOY_DPAD_LEFT;
 							joystick_polls.Append( joystick_poll_t( J_DPAD_LEFT, ev.jbutton.state == SDL_PRESSED ? 1 : 0 ) );
 						}
 						break;
-
-					// D-PAD right
+						
+						// D-PAD right
 					case 12:
-						if(SDL_joystick_has_hat) {
+						if( SDL_joystick_has_hat )
+						{
 							res.evValue = K_JOY13;
 							joystick_polls.Append( joystick_poll_t( J_ACTION13, ev.jbutton.state == SDL_PRESSED ? 1 : 0 ) );
-						} else {
+						}
+						else
+						{
 							res.evValue = K_JOY_DPAD_RIGHT;
 							joystick_polls.Append( joystick_poll_t( J_DPAD_RIGHT, ev.jbutton.state == SDL_PRESSED ? 1 : 0 ) );
 						}
 						break;
-
-					// D-PAD up
+						
+						// D-PAD up
 					case 13:
-						if(SDL_joystick_has_hat) {
+						if( SDL_joystick_has_hat )
+						{
 							res.evValue = K_JOY14;
 							joystick_polls.Append( joystick_poll_t( J_ACTION14, ev.jbutton.state == SDL_PRESSED ? 1 : 0 ) );
-						} else {
+						}
+						else
+						{
 							res.evValue = K_JOY_DPAD_UP;
 							joystick_polls.Append( joystick_poll_t( J_DPAD_UP, ev.jbutton.state == SDL_PRESSED ? 1 : 0 ) );
 						}
 						break;
-
-					// D-PAD down
+						
+						// D-PAD down
 					case 14:
-						if(SDL_joystick_has_hat) {
+						if( SDL_joystick_has_hat )
+						{
 							res.evValue = K_JOY15;
 							joystick_polls.Append( joystick_poll_t( J_ACTION15, ev.jbutton.state == SDL_PRESSED ? 1 : 0 ) );
-						} else {
+						}
+						else
+						{
 							res.evValue = K_JOY_DPAD_DOWN;
 							joystick_polls.Append( joystick_poll_t( J_DPAD_DOWN, ev.jbutton.state == SDL_PRESSED ? 1 : 0 ) );
 						}
 						break;
-
+						
 					default:
 						common->Warning( "Sys_GetEvent(): Unknown joystick button number %i\n", ev.jbutton.button );
 						return res_none;
 				}
 				res.evValue2 = ev.jbutton.state == SDL_PRESSED ? 1 : 0;
-
+				
 				return res;
-
+				
 			case SDL_JOYHATMOTION:
 				// If this is not the first hat, ignore this event.
-				if(ev.jhat.which != 0)
+				if( ev.jhat.which != 0 )
 					return res_none;
-
+					
 				res.evType = SE_KEY;
-				if(ev.jhat.value & SDL_HAT_UP) {
+				if( ev.jhat.value & SDL_HAT_UP )
+				{
 					res.evValue = K_JOY_DPAD_UP;
 					joystick_polls.Append( joystick_poll_t( J_DPAD_UP, 1 ) );
 					res.evValue2 = 1;
 					previous_hat_state = J_DPAD_UP;
 				}
-				else if (ev.jhat.value & SDL_HAT_DOWN) {
+				else if( ev.jhat.value & SDL_HAT_DOWN )
+				{
 					res.evValue = K_JOY_DPAD_DOWN;
 					joystick_polls.Append( joystick_poll_t( J_DPAD_DOWN, 1 ) );
 					res.evValue2 = 1;
 					previous_hat_state = J_DPAD_DOWN;
 				}
-				else if (ev.jhat.value & SDL_HAT_RIGHT) {
+				else if( ev.jhat.value & SDL_HAT_RIGHT )
+				{
 					res.evValue = K_JOY_DPAD_RIGHT;
 					joystick_polls.Append( joystick_poll_t( J_DPAD_RIGHT, 1 ) );
 					res.evValue2 = 1;
 					previous_hat_state = J_DPAD_RIGHT;
 				}
-				else if (ev.jhat.value & SDL_HAT_LEFT) {
+				else if( ev.jhat.value & SDL_HAT_LEFT )
+				{
 					res.evValue = K_JOY_DPAD_LEFT;
 					joystick_polls.Append( joystick_poll_t( J_DPAD_LEFT, 1 ) );
 					res.evValue2 = 1;
 					previous_hat_state = J_DPAD_LEFT;
 				}
 				// SDL_HAT_CENTERED is defined as 0
-				else if (ev.jhat.value == SDL_HAT_CENTERED) {
+				else if( ev.jhat.value == SDL_HAT_CENTERED )
+				{
 					// We need to know the previous state to know which event to send.
-					if(previous_hat_state == J_DPAD_UP) {
+					if( previous_hat_state == J_DPAD_UP )
+					{
 						res.evValue = K_JOY_DPAD_UP;
 						joystick_polls.Append( joystick_poll_t( J_DPAD_UP, 0 ) );
 						res.evValue2 = 0;
 					}
-					else if(previous_hat_state == J_DPAD_DOWN) {
+					else if( previous_hat_state == J_DPAD_DOWN )
+					{
 						res.evValue = K_JOY_DPAD_DOWN;
 						joystick_polls.Append( joystick_poll_t( J_DPAD_DOWN, 0 ) );
 						res.evValue2 = 0;
 					}
-					else if(previous_hat_state == J_DPAD_RIGHT) {
+					else if( previous_hat_state == J_DPAD_RIGHT )
+					{
 						res.evValue = K_JOY_DPAD_RIGHT;
 						joystick_polls.Append( joystick_poll_t( J_DPAD_RIGHT, 0 ) );
 						res.evValue2 = 0;
 					}
-					else if(previous_hat_state == J_DPAD_LEFT) {
+					else if( previous_hat_state == J_DPAD_LEFT )
+					{
 						res.evValue = K_JOY_DPAD_LEFT;
 						joystick_polls.Append( joystick_poll_t( J_DPAD_LEFT, 0 ) );
 						res.evValue2 = 0;
 					}
-					else if(previous_hat_state == SDL_HAT_CENTERED) {
+					else if( previous_hat_state == SDL_HAT_CENTERED )
+					{
 						common->Warning( "Sys_GetEvent(): SDL_JOYHATMOTION: previous state SDL_HAT_CENTERED repeated!\n" );
 						return res_none;
 					}
-					else {
+					else
+					{
 						common->Warning( "Sys_GetEvent(): SDL_JOYHATMOTION: unknown previous hat state %i\n", previous_hat_state );
 						return res_none;
 					}
-
+					
 					previous_hat_state = SDL_HAT_CENTERED;
 				}
-				else {
+				else
+				{
 					common->Warning( "Sys_GetEvent(): Unknown SDL_JOYHATMOTION value %i\n", ev.jhat.value );
 					return res_none;
 				}
-
+				
 				return res;
-
+				
 			case SDL_JOYAXISMOTION:
 				res.evType = SE_JOYSTICK;
 				// SDL joystick range is: -32768 to 32767, which is what is expected
 				// in void idUsercmdGenLocal::Joystick( int deviceNum ).
 				switch( ev.jaxis.axis )
 				{
-					int trigger_value;
-
-					// LEFT trigger
+						int trigger_value;
+						
+						// LEFT trigger
 					case 2:
 						// Convert TRIGGER value from space (-32768, 32767) to (0, 32767)
-						trigger_value = (ev.jaxis.value + 32768) / 2;
+						trigger_value = ( ev.jaxis.value + 32768 ) / 2;
 						// common->Printf("Sys_GetEvent: LEFT trigger value = %i / converted value = %i\n", ev.jaxis.value, trigger_value);
 						res.evValue = J_AXIS_LEFT_TRIG;
 						joystick_polls.Append( joystick_poll_t( J_AXIS_LEFT_TRIG, trigger_value ) );
 						break;
-
-					// Right trigger
+						
+						// Right trigger
 					case 5:
-						trigger_value = (ev.jaxis.value + 32768) / 2;
+						trigger_value = ( ev.jaxis.value + 32768 ) / 2;
 						// common->Printf("Sys_GetEvent: RIGHT trigger value = %i / converted value = %i\n", ev.jaxis.value, trigger_value);
 						res.evValue = J_AXIS_RIGHT_TRIG;
 						joystick_polls.Append( joystick_poll_t( J_AXIS_RIGHT_TRIG, trigger_value ) );
 						break;
-
-					// LEFT X
+						
+						// LEFT X
 					case 0:
 						res.evValue = J_AXIS_LEFT_X;
 						joystick_polls.Append( joystick_poll_t( J_AXIS_LEFT_X, ev.jaxis.value ) );
 						break;
-
-					// LEFT Y
+						
+						// LEFT Y
 					case 1:
 						res.evValue = J_AXIS_LEFT_Y;
 						joystick_polls.Append( joystick_poll_t( J_AXIS_LEFT_Y, ev.jaxis.value ) );
 						break;
-
-					// RIGHT X
+						
+						// RIGHT X
 					case 3:
 						res.evValue = J_AXIS_RIGHT_X;
 						joystick_polls.Append( joystick_poll_t( J_AXIS_RIGHT_X, ev.jaxis.value ) );
 						break;
-
+						
 						// RIGHT Y
 					case 4:
 						res.evValue = J_AXIS_RIGHT_Y;
 						joystick_polls.Append( joystick_poll_t( J_AXIS_RIGHT_Y, ev.jaxis.value ) );
 						break;
-
+						
 					default:
 						common->Warning( "Sys_GetEvent(): Unknown joystick axis number %i\n", ev.jaxis.axis );
 						return res_none;
 				}
-
+				
 				return res;
-			// WM0110
-
+				// WM0110
+				
 			case SDL_QUIT:
 				PushConsoleEvent( "quit" );
 				return res_none;
-
+				
 			case SDL_USEREVENT:
 				switch( ev.user.code )
 				{
@@ -1363,18 +1396,18 @@ sysEvent_t Sys_GetEvent()
 						res.evPtrLength = ( intptr_t )ev.user.data1;
 						res.evPtr = ev.user.data2;
 						return res;
-
+						
 					default:
 						common->Warning( "Sys_GetEvent: unknown SDL_USEREVENT %u", ev.user.code );
 						return res_none;
 				}
-
+				
 			default:
 				common->Warning( "Sys_GetEvent: unknown SDL event %u", ev.type );
 				return res_none;
 		}
 	}
-
+	
 	return res_none;
 }
 
@@ -1485,7 +1518,7 @@ void Sys_SetRumble( int device, int low, int hi )
 int Sys_PollJoystickInputEvents( int deviceNum )
 {
 	int numEvents = joystick_polls.Num();
-
+	
 	return numEvents;
 }
 
@@ -1501,7 +1534,7 @@ int Sys_ReturnJoystickInputEvent( const int n, int& action, int& value )
 	const joystick_poll_t& mp = joystick_polls[n];
 	action = mp.action;
 	value = mp.value;
-
+	
 	return 1;
 }
 

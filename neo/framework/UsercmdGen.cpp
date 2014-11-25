@@ -1423,7 +1423,7 @@ idUsercmdGenLocal::Joystick
 void idUsercmdGenLocal::Joystick( int deviceNum )
 {
 	int numEvents = Sys_PollJoystickInputEvents( deviceNum );
-
+	
 //	if(numEvents) {
 //		common->Printf("idUsercmdGenLocal::Joystick: numEvents = %i\n", numEvents);
 //	}
