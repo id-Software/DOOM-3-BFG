@@ -27,3 +27,11 @@ base/sound/
 base/strings/
 base/video/
 base/wads/
+
+GPATH
+GRTAGS
+GSYMS
+GTAGS
+HTML/
+neo/.kdev4
+neo/neo.kdev4

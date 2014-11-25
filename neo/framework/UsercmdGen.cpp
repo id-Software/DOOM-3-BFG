@@ -1423,7 +1423,11 @@ idUsercmdGenLocal::Joystick
 void idUsercmdGenLocal::Joystick( int deviceNum )
 {
 	int numEvents = Sys_PollJoystickInputEvents( deviceNum );
-	
+
+//	if(numEvents) {
+//		common->Printf("idUsercmdGenLocal::Joystick: numEvents = %i\n", numEvents);
+//	}
+
 	// Study each of the buffer elements and process them.
 	for( int i = 0; i < numEvents; i++ )
 	{
@@ -1431,6 +1435,8 @@ void idUsercmdGenLocal::Joystick( int deviceNum )
 		int value;
 		if( Sys_ReturnJoystickInputEvent( i, action, value ) )
 		{
+//		common->Printf("idUsercmdGenLocal::Joystick: i = %i / action = %i / value = %i\n", i, action, value);
+
 			if( action >= J_ACTION1 && action <= J_ACTION_MAX )
 			{
 				int joyButton = K_JOY1 + ( action - J_ACTION1 );
