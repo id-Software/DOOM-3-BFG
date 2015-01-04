@@ -272,17 +272,20 @@ enum keyNum_t
 	K_KP_3,
 	K_KP_0,
 	K_KP_DOT,
+	K_OEM_102		= 0x56, // from dinput: < > | on UK/German keyboards
 	K_F11			= 0x57,
 	K_F12			= 0x58,
 	K_F13			= 0x64,
 	K_F14			= 0x65,
 	K_F15			= 0x66,
 	K_KANA			= 0x70,
+	K_ABNT_C1		= 0x7E, // from dinput: ? on Portugese (Brazilian) keyboards
 	K_CONVERT		= 0x79,
 	K_NOCONVERT		= 0x7B,
 	K_YEN			= 0x7D,
 	K_KP_EQUALS		= 0x8D,
-	K_CIRCUMFLEX	= 0x90,
+	K_CIRCUMFLEX	= 0x90, // this is circumflex on japanese keyboards, ..
+	K_PREVTRACK		= 0x90, // from dinput: .. but also "Previous Track"
 	K_AT			= 0x91,
 	K_COLON			= 0x92,
 	K_UNDERLINE		= 0x93,
@@ -290,11 +293,21 @@ enum keyNum_t
 	K_STOP			= 0x95,
 	K_AX			= 0x96,
 	K_UNLABELED		= 0x97,
+	K_NEXTTRACK		= 0x99, // from dinput
 	K_KP_ENTER		= 0x9C,
 	K_RCTRL			= 0x9D,
+	// some more from dinput:
+	K_MUTE          = 0xA0,
+	K_CALCULATOR    = 0xA1,
+	K_PLAYPAUSE     = 0xA2,
+	K_MEDIASTOP     = 0xA4,
+	K_VOLUMEDOWN    = 0xAE,
+	K_VOLUMEUP      = 0xB0,
+	K_WEBHOME       = 0xB2,
+
 	K_KP_COMMA		= 0xB3,
 	K_KP_SLASH		= 0xB5,
-	K_PRINTSCREEN	= 0xB7,
+	K_PRINTSCREEN	= 0xB7, // aka SysRq
 	K_RALT			= 0xB8,
 	K_PAUSE			= 0xC5,
 	K_HOME			= 0xC7,
@@ -313,6 +326,18 @@ enum keyNum_t
 	K_POWER			= 0xDE,
 	K_SLEEP			= 0xDF,
 	
+	// DG: dinput has some more buttons, let's support them as well
+	K_WAKE			= 0xE3,
+	K_WEBSEARCH		= 0xE5,
+	K_WEBFAVORITES	= 0xE6,
+	K_WEBREFRESH	= 0xE7,
+	K_WEBSTOP		= 0xE8,
+	K_WEBFORWARD	= 0xE9,
+	K_WEBBACK		= 0xEA,
+	K_MYCOMPUTER	= 0xEB,
+	K_MAIL			= 0xEC,
+	K_MEDIASELECT	= 0xED,
+
 	//------------------------
 	// K_JOY codes must be contiguous, too
 	//------------------------
