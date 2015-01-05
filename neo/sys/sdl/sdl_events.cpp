@@ -135,7 +135,35 @@ static idList<joystick_poll_t> joystick_polls;
 SDL_Joystick* joy = NULL;
 int SDL_joystick_has_hat = 0;
 
-// RB begin
+
+#if SDL_VERSION_ATLEAST(2, 0, 0)
+
+#include "sdl2_scancode_mappings.h"
+
+static int SDLScanCodeToKeyNum(SDL_Scancode sc)
+{
+	int idx = int(sc);
+	assert(idx >= 0 && idx < SDL_NUM_SCANCODES);
+
+	return scanCodeToKeyNum[idx];
+}
+
+static SDL_Scancode KeyNumToSDLScanCode(int keyNum)
+{
+	if(keyNum < K_JOY1)
+	{
+		for(int i=0; i<SDL_NUM_SCANCODES; ++i)
+		{
+			if(scanCodeToKeyNum[i] == keyNum)
+			{
+				return SDL_Scancode(i);
+			}
+		}
+	}
+	return SDL_SCANCODE_UNKNOWN;
+}
+
+#else // SDL1.2
 static int SDL_KeyToDoom3Key( SDL_Keycode key, bool& isChar )
 {
 	isChar = false;
@@ -542,7 +570,7 @@ static int SDL_KeyToDoom3Key( SDL_Keycode key, bool& isChar )
 	
 	return 0;
 }
-// RB end
+#endif // SDL2
 
 static void PushConsoleEvent( const char* s )
 {
@@ -766,11 +794,13 @@ sysEvent_t Sys_GetEvent()
 	SDL_Event ev;
 	sysEvent_t res = { };
 	int key;
-	static const sysEvent_t res_none = { SE_NONE, 0, 0, 0, NULL };
 	
+	// when this is returned, it's assumed that there are no more events!
+	static const sysEvent_t no_more_events = { SE_NONE, 0, 0, 0, NULL };
+
 	// WM0110: previous state of joystick hat
-	static int previous_hat_state = SDL_HAT_CENTERED;
-	
+	static int previous_hat_state = SDL_HAT_CENTERED;	
+
 #if SDL_VERSION_ATLEAST(2, 0, 0)
 	static char str[SDL_TEXTINPUTEVENT_TEXT_SIZE] = {0};
 	static size_t str_pos = 0;
@@ -816,7 +846,8 @@ sysEvent_t Sys_GetEvent()
 		return res;
 	}
 	
-	if( SDL_PollEvent( &ev ) )
+	// loop until there is an event we care about (will return then) or no more events
+	while( SDL_PollEvent( &ev ) )
 	{
 		switch( ev.type )
 		{
@@ -872,7 +903,7 @@ sysEvent_t Sys_GetEvent()
 					// DG end
 				}
 				
-				return res_none;
+				continue; // handle next event
 #else
 			case SDL_ACTIVEEVENT:
 			{
@@ -897,10 +928,10 @@ sysEvent_t Sys_GetEvent()
 				cvarSystem->SetCVarBool( "com_pause", pause );
 			}
 			
-			return res_none;
+			continue; // handle next event
 			
 			case SDL_VIDEOEXPOSE:
-				return res_none;
+				continue; // handle next event
 				
 				// DG: handle resizing and moving of window
 			case SDL_VIDEORESIZE:
@@ -914,7 +945,7 @@ sysEvent_t Sys_GetEvent()
 				glConfig.nativeScreenHeight = h;
 				// for some reason this needs a vid_restart in SDL1 but not SDL2 so GLimp_SetScreenParms() is called
 				PushConsoleEvent( "vid_restart" );
-				return res_none;
+				continue; // handle next event
 			}
 			// DG end
 #endif
@@ -933,7 +964,7 @@ sysEvent_t Sys_GetEvent()
 					cvarSystem->SetCVarInteger( "r_fullscreen", fullscreen );
 					// DG end
 					PushConsoleEvent( "vid_restart" );
-					return res_none;
+					continue; // handle next event
 				}
 				
 				// DG: ctrl-g to un-grab mouse - yeah, left ctrl shoots, then just use right ctrl :)
@@ -942,7 +973,7 @@ sysEvent_t Sys_GetEvent()
 					bool grab = cvarSystem->GetCVarBool( "in_nograb" );
 					grab = !grab;
 					cvarSystem->SetCVarBool( "in_nograb", grab );
-					return res_none;
+					continue; // handle next event
 				}
 				// DG end
 				
@@ -951,6 +982,7 @@ sysEvent_t Sys_GetEvent()
 				//     if unicode is not 0 and is translatable to ASCII it should work..
 				if( ev.key.state == SDL_PRESSED && ( ev.key.keysym.unicode & 0xff80 ) == 0 )
 				{
+					// FIXME: can we support utf32?
 					c = ev.key.keysym.unicode & 0x7f;
 				}
 				// DG end
@@ -969,17 +1001,22 @@ sysEvent_t Sys_GetEvent()
 				} // DG end, the original code is in the else case
 				else
 				{
-					key = SDL_KeyToDoom3Key( ev.key.keysym.sym, isChar );
+#if SDL_VERSION_ATLEAST(2, 0, 0)
+					key = SDLScanCodeToKeyNum(ev.key.keysym.scancode);
 					
 					if( key == 0 )
 					{
-#if SDL_VERSION_ATLEAST(2, 0, 0)
 						// SDL2 has no ev.key.keysym.unicode anymore.. but the scancode should work well enough for console
 						if( ev.type == SDL_KEYDOWN ) // FIXME: don't complain if this was an ASCII char and the console is open?
 							common->Warning( "unmapped SDL key %d scancode %d", ev.key.keysym.sym, ev.key.keysym.scancode );
 							
-						return res_none;
+						continue; // just handle next event
+					}
 #else
+					key = SDL_KeyToDoom3Key( ev.key.keysym.sym, isChar );
+
+					if( key == 0 )
+					{
 						unsigned char uc = ev.key.keysym.unicode & 0xff;
 						// check if its an unmapped console key
 						if( uc == Sys_GetConsoleKey( false ) || uc == Sys_GetConsoleKey( true ) )
@@ -989,12 +1026,24 @@ sysEvent_t Sys_GetEvent()
 						}
 						else
 						{
+							if(c)
+							{
+								res.evType = SE_CHAR;
+								res.evValue = c;
+
+								c = 0;
+
+								return res;
+							}
+
 							if( ev.type == SDL_KEYDOWN ) // FIXME: don't complain if this was an ASCII char and the console is open?
 								common->Warning( "unmapped SDL key %d (0x%x) scancode %d", ev.key.keysym.sym, ev.key.keysym.unicode, ev.key.keysym.scancode );
-							return res_none;
+							
+							
+							continue; // just handle next event
 						}
-#endif
 					}
+#endif
 				}
 				
 				res.evType = SE_KEY;
@@ -1013,13 +1062,19 @@ sysEvent_t Sys_GetEvent()
 			case SDL_TEXTINPUT:
 				if( ev.text.text[0] != '\0' )
 				{
-					if( !ev.text.text[1] )
-						c = *ev.text.text;
-					else
-						idStr::Copynz( str, ev.text.text, sizeof( str ) );
+					// FIXME: all this really only works for ascii.. convert to unicode etc
+					if( ev.text.text[1] )
+					{
+						// more than 1 char => handle the next chars later
+						idStr::Copynz( str, ev.text.text+1, sizeof( str ) );
+					}
+					// return an event with the first/only char
+					res.evType = SE_CHAR;
+					res.evValue = ev.text.text[0];
+					return res;
 				}
 				
-				return res_none;
+				continue; // just handle next event
 #endif
 				
 			case SDL_MOUSEMOTION:
@@ -1048,7 +1103,7 @@ sysEvent_t Sys_GetEvent()
 			case SDL_FINGERDOWN:
 			case SDL_FINGERUP:
 			case SDL_FINGERMOTION:
-				return res_none; // Avoid 'unknown event' spam when testing with touchpad
+				continue; // Avoid 'unknown event' spam when testing with touchpad by skipping this
 				
 			case SDL_MOUSEWHEEL:
 				res.evType = SE_KEY;
@@ -1105,6 +1160,7 @@ sysEvent_t Sys_GetEvent()
 						break;
 #endif
 				}
+				
 				res.evValue2 = ev.button.state == SDL_PRESSED ? 1 : 0;
 				
 				return res;
@@ -1237,7 +1293,7 @@ sysEvent_t Sys_GetEvent()
 						
 					default:
 						common->Warning( "Sys_GetEvent(): Unknown joystick button number %i\n", ev.jbutton.button );
-						return res_none;
+						continue; // just try next event
 				}
 				res.evValue2 = ev.jbutton.state == SDL_PRESSED ? 1 : 0;
 				
@@ -1246,7 +1302,7 @@ sysEvent_t Sys_GetEvent()
 			case SDL_JOYHATMOTION:
 				// If this is not the first hat, ignore this event.
 				if( ev.jhat.which != 0 )
-					return res_none;
+					continue; // just try next event
 					
 				res.evType = SE_KEY;
 				if( ev.jhat.value & SDL_HAT_UP )
@@ -1308,12 +1364,12 @@ sysEvent_t Sys_GetEvent()
 					else if( previous_hat_state == SDL_HAT_CENTERED )
 					{
 						common->Warning( "Sys_GetEvent(): SDL_JOYHATMOTION: previous state SDL_HAT_CENTERED repeated!\n" );
-						return res_none;
+						continue; // just try next event
 					}
 					else
 					{
 						common->Warning( "Sys_GetEvent(): SDL_JOYHATMOTION: unknown previous hat state %i\n", previous_hat_state );
-						return res_none;
+						continue; // just try next event
 					}
 					
 					previous_hat_state = SDL_HAT_CENTERED;
@@ -1321,7 +1377,7 @@ sysEvent_t Sys_GetEvent()
 				else
 				{
 					common->Warning( "Sys_GetEvent(): Unknown SDL_JOYHATMOTION value %i\n", ev.jhat.value );
-					return res_none;
+					continue; // just try next event
 				}
 				
 				return res;
@@ -1377,7 +1433,7 @@ sysEvent_t Sys_GetEvent()
 						
 					default:
 						common->Warning( "Sys_GetEvent(): Unknown joystick axis number %i\n", ev.jaxis.axis );
-						return res_none;
+						continue; // just try next event
 				}
 				
 				return res;
@@ -1385,7 +1441,7 @@ sysEvent_t Sys_GetEvent()
 				
 			case SDL_QUIT:
 				PushConsoleEvent( "quit" );
-				return res_none;
+				return no_more_events; // don't handle next event, just quit.
 				
 			case SDL_USEREVENT:
 				switch( ev.user.code )
@@ -1395,19 +1451,17 @@ sysEvent_t Sys_GetEvent()
 						res.evPtrLength = ( intptr_t )ev.user.data1;
 						res.evPtr = ev.user.data2;
 						return res;
-						
 					default:
-						common->Warning( "Sys_GetEvent: unknown SDL_USEREVENT %u", ev.user.code );
-						return res_none;
+						common->Warning( "unknown user event %u", ev.user.code );
 				}
-				
+				continue; // just handle next event
 			default:
-				common->Warning( "Sys_GetEvent: unknown SDL event %u", ev.type );
-				return res_none;
+				common->Warning( "unknown event %u", ev.type );
+				continue; // just handle next event
 		}
 	}
 	
-	return res_none;
+	return no_more_events;
 }
 
 /*
@@ -1501,6 +1555,24 @@ int Sys_PollMouseInputEvents( int mouseEvents[MAX_MOUSE_EVENTS][2] )
 	mouse_polls.SetNum( 0 );
 	
 	return numEvents;
+}
+
+const char* Sys_GetKeyName( keyNum_t keynum )
+{
+	// unfortunately, in SDL1.2 there is no way to get the keycode for a scancode, so this doesn't work there.
+	// so this is SDL2-only.
+#if SDL_VERSION_ATLEAST(2, 0, 0)
+
+	SDL_Scancode scancode = KeyNumToSDLScanCode( ( int )keynum );
+	SDL_Keycode keycode = SDL_GetKeyFromScancode( scancode );
+
+	const char* ret = SDL_GetKeyName(keycode);
+	if(ret != NULL && ret[0] != '\0')
+	{
+		return ret;
+	}
+#endif
+	return NULL;
 }
 
 

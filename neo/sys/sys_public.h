@@ -101,7 +101,7 @@ enum sysEventType_t
 {
 	SE_NONE,				// evTime is still valid
 	SE_KEY,					// evValue is a key code, evValue2 is the down flag
-	SE_CHAR,				// evValue is an ascii char
+	SE_CHAR,				// evValue is an ascii char FIXME: not really ascii, supports umlauts...
 	SE_MOUSE,				// evValue and evValue2 are reletive signed x / y moves
 	SE_MOUSE_ABSOLUTE,		// evValue and evValue2 are absolute coordinates in the window's client area.
 	SE_MOUSE_LEAVE,			// evValue and evValue2 are meaninless, this indicates the mouse has left the client area.
@@ -562,6 +562,13 @@ void			Sys_ShutdownInput();
 int				Sys_PollKeyboardInputEvents();
 int				Sys_ReturnKeyboardInputEvent( const int n, int& ch, bool& state );
 void			Sys_EndKeyboardInputEvents();
+
+// DG: currently this is only used by idKeyInput::LocalizedKeyName() for !windows
+#ifndef _WIN32
+// return a human readable name for the key in the current keyboard layout (keynum is a directinput scancode)
+const char*		Sys_GetKeyName( keyNum_t keynum );
+#endif
+// DG end
 
 // mouse input polling
 static const int MAX_MOUSE_EVENTS = 256;
