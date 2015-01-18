@@ -208,7 +208,7 @@ ID_INLINE idHashTableT<_key_, _value_>::idHashTableT( const int tableSize )
 	
 	this->tableSize = tableSize;
 	
-	heads = new( TAG_IDLIB_HASH ) hashnode_t *[ tableSize ];
+	heads = new( TAG_IDLIB_HASH ) hashnode_t* [ tableSize ];
 	memset( heads, 0, sizeof( hashnode_t* ) * tableSize );
 	
 	numEntries = 0;
@@ -575,7 +575,7 @@ ID_INLINE void idHashTableT<_key_, _value_>::Copy( const idHashTableT& other )
 	assert( other.tableSize > 0 );
 	
 	tableSize		= other.tableSize;
-	heads			= new( TAG_IDLIB_HASH ) hashnode_t *[ tableSize ];
+	heads			= new( TAG_IDLIB_HASH ) hashnode_t* [ tableSize ];
 	numEntries		= other.numEntries;
 	tableSizeMask	= other.tableSizeMask;
 	

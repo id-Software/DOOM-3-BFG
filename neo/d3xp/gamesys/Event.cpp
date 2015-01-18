@@ -886,7 +886,7 @@ void idEvent::Save( idSaveGame* savefile )
 					savefile->WriteInt( *reinterpret_cast<int*>( dataPtr ) );
 					size += sizeof( intptr_t );
 					break;
-					// RB end
+				// RB end
 				case D_EVENT_ENTITY :
 				case D_EVENT_ENTITY_NULL :
 					// RB: 64 bit fix, changed alignment to sizeof( intptr_t )
@@ -901,7 +901,7 @@ void idEvent::Save( idSaveGame* savefile )
 					// RB end
 					break;
 #if 1
-					// RB: added missing D_EVENT_STRING case
+				// RB: added missing D_EVENT_STRING case
 				case D_EVENT_STRING :
 					s.Clear();
 					s.Append( reinterpret_cast<char*>( dataPtr ) );
@@ -1034,7 +1034,7 @@ void idEvent::Restore( idRestoreGame* savefile )
 						savefile->ReadInt( *reinterpret_cast<int*>( dataPtr ) );
 						size += sizeof( intptr_t );
 						break;
-						// RB end
+					// RB end
 					case D_EVENT_ENTITY :
 					case D_EVENT_ENTITY_NULL :
 						// RB: 64 bit fix, changed alignment to sizeof( intptr_t )
@@ -1049,7 +1049,7 @@ void idEvent::Restore( idRestoreGame* savefile )
 						// RB end
 						break;
 #if 1
-						// RB: added missing D_EVENT_STRING case
+					// RB: added missing D_EVENT_STRING case
 					case D_EVENT_STRING :
 						savefile->ReadString( s );
 						//idStr::Copynz(reinterpret_cast<char *>( dataPtr ), s, s.Length() );

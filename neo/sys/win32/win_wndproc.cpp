@@ -319,7 +319,7 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 				cmdSystem->BufferCommandText( CMD_EXEC_APPEND, "vid_restart\n" );
 				return 0;
 			}
-			// fall through for other keys
+		// fall through for other keys
 		case WM_KEYDOWN:
 			key = ( ( lParam >> 16 ) & 0xFF ) | ( ( ( lParam >> 24 ) & 1 ) << 7 );
 			if( key == K_LCTRL || key == K_LALT || key == K_RCTRL || key == K_RALT )

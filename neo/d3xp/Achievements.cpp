@@ -633,6 +633,6 @@ CONSOLE_COMMAND( AchievementsList, "Lists achievements and status", NULL )
 		achievementDescription_t data;
 		bool descriptionValid = session->GetAchievementSystem().GetAchievementDescription( user, i, data );
 		
-idLib::Printf( "%02d: %2d/%2d | %12.12s | %12.12s | %s%s\n", i, count, achievementInfo[i].required, pInfo, sInfo, descriptionValid ? data.hidden ? "(hidden) " : "" : "(unknown) ", descriptionValid ? data.name : "" );
+		idLib::Printf( "%02d: %2d/%2d | %12.12s | %12.12s | %s%s\n", i, count, achievementInfo[i].required, pInfo, sInfo, descriptionValid ? data.hidden ? "(hidden) " : "" : "(unknown) ", descriptionValid ? data.name : "" );
 	}
 }

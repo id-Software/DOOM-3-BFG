@@ -1532,7 +1532,7 @@ void idTrigger_Flag::Event_Touch( idEntity* other, trace_t* trace )
 				flag->PostEventMS( eventFlag, 0 );
 				break;
 				
-				// RB: 64 bit fixes, changed NULL to 0
+			// RB: 64 bit fixes, changed NULL to 0
 			case 1 :
 				flag->PostEventMS( eventFlag, 0, 0 );
 				break;

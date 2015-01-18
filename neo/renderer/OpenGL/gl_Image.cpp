@@ -170,11 +170,11 @@ void idImage::SetTexParameters()
 		case TT_CUBIC:
 			target = GL_TEXTURE_CUBE_MAP;
 			break;
-			// RB begin
+		// RB begin
 		case TT_2D_ARRAY:
 			target = GL_TEXTURE_2D_ARRAY;
 			break;
-			// RB end
+		// RB end
 		default:
 			idLib::FatalError( "%s: bad texture type %d", GetName(), opts.textureType );
 			return;

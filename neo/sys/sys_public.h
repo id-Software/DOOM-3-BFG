@@ -304,7 +304,7 @@ enum keyNum_t
 	K_VOLUMEDOWN    = 0xAE,
 	K_VOLUMEUP      = 0xB0,
 	K_WEBHOME       = 0xB2,
-
+	
 	K_KP_COMMA		= 0xB3,
 	K_KP_SLASH		= 0xB5,
 	K_PRINTSCREEN	= 0xB7, // aka SysRq
@@ -337,7 +337,7 @@ enum keyNum_t
 	K_MYCOMPUTER	= 0xEB,
 	K_MAIL			= 0xEC,
 	K_MEDIASELECT	= 0xED,
-
+	
 	//------------------------
 	// K_JOY codes must be contiguous, too
 	//------------------------

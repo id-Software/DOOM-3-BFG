@@ -177,26 +177,26 @@ static LONG WINAPI ConWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 			s_wcd.hbrErrorBackground = CreateSolidBrush( RGB( 0x80, 0x80, 0x80 ) );
 			SetTimer( hWnd, 1, 1000, NULL );
 			break;
-			/*
-					case WM_ERASEBKGND:
-						HGDIOBJ oldObject;
-						HDC hdcScaled;
-						hdcScaled = CreateCompatibleDC( ( HDC ) wParam );
-						assert( hdcScaled != 0 );
-						if ( hdcScaled ) {
-							oldObject = SelectObject( ( HDC ) hdcScaled, s_wcd.hbmLogo );
-							assert( oldObject != 0 );
-							if ( oldObject )
-							{
-								StretchBlt( ( HDC ) wParam, 0, 0, s_wcd.windowWidth, s_wcd.windowHeight,
-									hdcScaled, 0, 0, 512, 384,
-									SRCCOPY );
-							}
-							DeleteDC( hdcScaled );
-							hdcScaled = 0;
+		/*
+				case WM_ERASEBKGND:
+					HGDIOBJ oldObject;
+					HDC hdcScaled;
+					hdcScaled = CreateCompatibleDC( ( HDC ) wParam );
+					assert( hdcScaled != 0 );
+					if ( hdcScaled ) {
+						oldObject = SelectObject( ( HDC ) hdcScaled, s_wcd.hbmLogo );
+						assert( oldObject != 0 );
+						if ( oldObject )
+						{
+							StretchBlt( ( HDC ) wParam, 0, 0, s_wcd.windowWidth, s_wcd.windowHeight,
+								hdcScaled, 0, 0, 512, 384,
+								SRCCOPY );
 						}
-						return 1;
-			*/
+						DeleteDC( hdcScaled );
+						hdcScaled = 0;
+					}
+					return 1;
+		*/
 		case WM_TIMER:
 			if( wParam == 1 )
 			{

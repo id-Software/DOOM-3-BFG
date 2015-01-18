@@ -5317,7 +5317,7 @@ idEntity* idGameLocal::SelectInitialSpawnPoint( idPlayer* player )
 			}
 			
 			// sort the list
-			qsort( ( void* )teamSpawnSpots[ team ].Ptr(), teamSpawnSpots[ team ].Num(), sizeof( spawnSpot_t ), ( int (* )( const void*, const void* ) )sortSpawnPoints );
+			qsort( ( void* )teamSpawnSpots[ team ].Ptr(), teamSpawnSpots[ team ].Num(), sizeof( spawnSpot_t ), ( int ( * )( const void*, const void* ) )sortSpawnPoints );
 			
 			// choose a random one in the top half
 			which = random.RandomInt( teamSpawnSpots[ team ].Num() / 2 );
@@ -5350,7 +5350,7 @@ idEntity* idGameLocal::SelectInitialSpawnPoint( idPlayer* player )
 		}
 		
 		// sort the list
-		qsort( ( void* )spawnSpots.Ptr(), spawnSpots.Num(), sizeof( spawnSpot_t ), ( int (* )( const void*, const void* ) )sortSpawnPoints );
+		qsort( ( void* )spawnSpots.Ptr(), spawnSpots.Num(), sizeof( spawnSpot_t ), ( int ( * )( const void*, const void* ) )sortSpawnPoints );
 		
 		// choose a random one in the top half
 		which = random.RandomInt( spawnSpots.Num() / 2 );
