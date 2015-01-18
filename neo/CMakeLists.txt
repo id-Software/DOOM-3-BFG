@@ -10,7 +10,7 @@ option(MONOLITH
 		"Embed game logic into main executable" ON)
 		
 option(SDL2
-		"Use SDL2 instead of SDL1.2" OFF)
+		"Use SDL2 instead of SDL1.2" ON)
 		
 option(OPENAL
 		"Use OpenAL soft instead of XAudio2" OFF)
