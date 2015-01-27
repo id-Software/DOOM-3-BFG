@@ -170,7 +170,7 @@ static void ConvertUTF8toUTF32(const char* utf8str, int32* utf32buf)
 
 	if( cd == SDL_iconv_t(-1) )
 	{
-		const char* toFormat = "UTF-32LE"; // TODO: what does CEGUI expect on big endian machines?
+		const char* toFormat = "UTF-32LE"; // TODO: what does d3bfg expect on big endian machines?
 		cd = SDL_iconv_open(toFormat, "UTF-8");
 		if( cd == SDL_iconv_t(-1) )
 		{
@@ -917,6 +917,11 @@ sysEvent_t Sys_GetEvent()
 						cvarSystem->SetCVarBool( "com_pause", true );
 						// DG end
 						break;
+
+					case SDL_WINDOWEVENT_LEAVE:
+						// mouse has left the window
+						res.evType = SE_MOUSE_LEAVE;
+						return res;
 						
 					// DG: handle resizing and moving of window
 					case SDL_WINDOWEVENT_RESIZED:
@@ -939,7 +944,6 @@ sysEvent_t Sys_GetEvent()
 						r_windowY.SetInteger( y );
 						break;
 					}
-						// DG end
 				}
 				
 				continue; // handle next event
@@ -965,6 +969,14 @@ sysEvent_t Sys_GetEvent()
 				}
 			
 				cvarSystem->SetCVarBool( "com_pause", pause );
+
+				if( ev.active.state == SDL_APPMOUSEFOCUS && !ev.active.gain )
+				{
+					// the mouse has left the window.
+					res.evType = SE_MOUSE_LEAVE;
+					return res;
+				}
+
 			}
 			
 			continue; // handle next event
@@ -982,6 +994,7 @@ sysEvent_t Sys_GetEvent()
 			
 				glConfig.nativeScreenWidth = w;
 				glConfig.nativeScreenHeight = h;
+
 				// for some reason this needs a vid_restart in SDL1 but not SDL2 so GLimp_SetScreenParms() is called
 				PushConsoleEvent( "vid_restart" );
 				continue; // handle next event
