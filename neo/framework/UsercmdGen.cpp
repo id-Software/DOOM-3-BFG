@@ -1360,6 +1360,16 @@ void idUsercmdGenLocal::Mouse()
 			case M_ACTION6:
 			case M_ACTION7:
 			case M_ACTION8:
+
+			// DG: support some more mouse buttons
+			case M_ACTION9:
+			case M_ACTION10:
+			case M_ACTION11:
+			case M_ACTION12:
+			case M_ACTION13:
+			case M_ACTION14:
+			case M_ACTION15:
+			case M_ACTION16: // DG end
 				mouseButton = K_MOUSE1 + ( action - M_ACTION1 );
 				mouseDown = ( value != 0 );
 				Key( mouseButton, mouseDown );

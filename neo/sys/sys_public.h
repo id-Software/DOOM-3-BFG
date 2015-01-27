@@ -119,6 +119,16 @@ enum sys_mEvents
 	M_ACTION6,
 	M_ACTION7,
 	M_ACTION8,
+	// DG: support some more mouse buttons
+	M_ACTION9,
+	M_ACTION10,
+	M_ACTION11,
+	M_ACTION12,
+	M_ACTION13,
+	M_ACTION14,
+	M_ACTION15,
+	M_ACTION16,
+	// DG end
 	M_DELTAX,
 	M_DELTAY,
 	M_DELTAZ,
@@ -390,6 +400,17 @@ enum keyNum_t
 	K_MOUSE7,
 	K_MOUSE8,
 	
+	// DG: add some more mouse buttons
+	K_MOUSE9,
+	K_MOUSE10,
+	K_MOUSE11,
+	K_MOUSE12,
+	K_MOUSE13,
+	K_MOUSE14,
+	K_MOUSE15,
+	K_MOUSE16,
+	// DG end
+
 	K_MWHEELDOWN,
 	K_MWHEELUP,
 	
