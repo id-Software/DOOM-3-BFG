@@ -101,11 +101,11 @@ enum sysEventType_t
 {
 	SE_NONE,				// evTime is still valid
 	SE_KEY,					// evValue is a key code, evValue2 is the down flag
-	SE_CHAR,				// evValue is an ascii char FIXME: not really ascii, supports umlauts...
-	SE_MOUSE,				// evValue and evValue2 are reletive signed x / y moves
+	SE_CHAR,				// evValue is an Unicode UTF-32 char (or non-surrogate UTF-16)
+	SE_MOUSE,				// evValue and evValue2 are relative signed x / y moves
 	SE_MOUSE_ABSOLUTE,		// evValue and evValue2 are absolute coordinates in the window's client area.
 	SE_MOUSE_LEAVE,			// evValue and evValue2 are meaninless, this indicates the mouse has left the client area.
-	SE_JOYSTICK,		// evValue is an axis number and evValue2 is the current state (-127 to 127)
+	SE_JOYSTICK,			// evValue is an axis number and evValue2 is the current state (-127 to 127)
 	SE_CONSOLE				// evPtr is a char*, from typing something at a non-game console
 };
 
