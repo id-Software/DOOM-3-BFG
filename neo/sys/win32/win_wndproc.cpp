@@ -338,6 +338,7 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 				key = K_NUMLOCK;
 			}
 			Sys_QueEvent( SE_KEY, key, true, 0, NULL, 0 );
+
 			break;
 			
 		case WM_SYSKEYUP:
@@ -359,8 +360,20 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 			break;
 			
 		case WM_CHAR:
+			// DG: make sure it's an utf-16 non-surrogate character (and thus a valid utf-32 character as well)
+			// TODO: will there ever be two messages with surrogate characters that should be combined?
+			//       (probably not, some people claim it's actually UCS-2, not UTF-16)
+			if( wParam < 0xD800 || wParam > 0xDFFF )
+			{
+				Sys_QueEvent( SE_CHAR, wParam, 0, 0, NULL, 0 );
+			}
+			break;
+
+		// DG: support utf-32 input via WM_UNICHAR
+		case WM_UNICHAR:
 			Sys_QueEvent( SE_CHAR, wParam, 0, 0, NULL, 0 );
 			break;
+		// DG end
 			
 		case WM_NCLBUTTONDOWN:
 //			win32.movingWindow = true;

@@ -204,6 +204,17 @@ keyname_t keynames[] =
 	NAMEKEY( MOUSE7, "#str_07060" ),
 	NAMEKEY( MOUSE8, "#str_07061" ),
 	
+	// DG: some more mouse buttons
+	NAMEKEY2( MOUSE9 ),
+	NAMEKEY2( MOUSE10 ),
+	NAMEKEY2( MOUSE11 ),
+	NAMEKEY2( MOUSE12 ),
+	NAMEKEY2( MOUSE13 ),
+	NAMEKEY2( MOUSE14 ),
+	NAMEKEY2( MOUSE15 ),
+	NAMEKEY2( MOUSE16 ),
+	// DG end
+
 	NAMEKEY( MWHEELDOWN, "#str_07132" ),
 	NAMEKEY( MWHEELUP, "#str_07131" ),
 	

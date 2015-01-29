@@ -163,6 +163,42 @@ static SDL_Scancode KeyNumToSDLScanCode( int keyNum )
 	return SDL_SCANCODE_UNKNOWN;
 }
 
+// both strings are expected to have at most SDL_TEXTINPUTEVENT_TEXT_SIZE chars/ints (including terminating null)
+static void ConvertUTF8toUTF32(const char* utf8str, int32* utf32buf)
+{
+	static SDL_iconv_t cd = SDL_iconv_t(-1);
+
+	if( cd == SDL_iconv_t(-1) )
+	{
+		const char* toFormat = "UTF-32LE"; // TODO: what does d3bfg expect on big endian machines?
+		cd = SDL_iconv_open(toFormat, "UTF-8");
+		if( cd == SDL_iconv_t(-1) )
+		{
+			common->Warning("Couldn't initialize SDL_iconv for UTF-8 to UTF-32!"); // TODO: or error?
+			return;
+		}
+	}
+
+	size_t len = strlen(utf8str);
+
+	size_t inbytesleft = len;
+	size_t outbytesleft = 4 * SDL_TEXTINPUTEVENT_TEXT_SIZE; // *4 because utf-32 needs 4x as much space as utf-8
+	char* outbuf = (char*)utf32buf;
+	size_t n = SDL_iconv(cd, &utf8str, &inbytesleft, &outbuf, &outbytesleft);
+
+	if( n == size_t(-1) ) // some error occured during iconv
+	{
+		common->Warning("Converting UTF-8 string \"%s\" from SDL_TEXTINPUT to UTF-32 failed!", utf8str);
+
+		// clear utf32-buffer, just to be sure there's no garbage..
+		memset(utf32buf, 0, SDL_TEXTINPUTEVENT_TEXT_SIZE*sizeof(int32));
+	}
+
+	// reset cd so it can be used again
+	SDL_iconv(cd, NULL, &inbytesleft, NULL, &outbytesleft);
+
+}
+
 #else // SDL1.2
 static int SDL_KeyToDoom3Key( SDL_Keycode key, bool& isChar )
 {
@@ -791,8 +827,9 @@ Sys_GetEvent
 */
 sysEvent_t Sys_GetEvent()
 {
-	SDL_Event ev;
 	sysEvent_t res = { };
+
+	SDL_Event ev;
 	int key;
 	
 	// when this is returned, it's assumed that there are no more events!
@@ -802,24 +839,26 @@ sysEvent_t Sys_GetEvent()
 	static int previous_hat_state = SDL_HAT_CENTERED;
 	
 #if SDL_VERSION_ATLEAST(2, 0, 0)
-	static char str[SDL_TEXTINPUTEVENT_TEXT_SIZE] = {0};
-	static size_t str_pos = 0;
-	
-	if( str_pos != 0 )
+	// utf-32 version of the textinput event
+	static int32 uniStr[SDL_TEXTINPUTEVENT_TEXT_SIZE] = {0};
+	static size_t uniStrPos = 0;
+
+	if(uniStr[0] != 0)
 	{
 		res.evType = SE_CHAR;
-		res.evValue = str[str_pos];
-		
-		++str_pos;
-		if( !str[str_pos] )
+		res.evValue = uniStr[uniStrPos];
+
+		++uniStrPos;
+
+		if( !uniStr[uniStrPos] || uniStrPos == SDL_TEXTINPUTEVENT_TEXT_SIZE )
 		{
-			memset( str, 0, sizeof( str ) );
-			str_pos = 0;
+			memset(uniStr, 0, sizeof(uniStr));
+			uniStrPos = 0;
 		}
-		
+
 		return res;
 	}
-	
+
 	// DG: fake a "mousewheel not pressed anymore" event for SDL2
 	// so scrolling in menus stops after one step
 	static int mwheelRel = 0;
@@ -832,20 +871,20 @@ sysEvent_t Sys_GetEvent()
 		return res;
 	}
 	// DG end
-#endif
+#endif // SDL2
 	
-	static byte c = 0;
+	static int32 uniChar = 0;
 	
-	if( c )
+	if(uniChar)
 	{
 		res.evType = SE_CHAR;
-		res.evValue = c;
-		
-		c = 0;
-		
+		res.evValue = uniChar;
+
+		uniChar = 0;
+
 		return res;
 	}
-	
+
 	// loop until there is an event we care about (will return then) or no more events
 	while( SDL_PollEvent( &ev ) )
 	{
@@ -878,6 +917,11 @@ sysEvent_t Sys_GetEvent()
 						cvarSystem->SetCVarBool( "com_pause", true );
 						// DG end
 						break;
+
+					case SDL_WINDOWEVENT_LEAVE:
+						// mouse has left the window
+						res.evType = SE_MOUSE_LEAVE;
+						return res;
 						
 					// DG: handle resizing and moving of window
 					case SDL_WINDOWEVENT_RESIZED:
@@ -900,11 +944,10 @@ sysEvent_t Sys_GetEvent()
 						r_windowY.SetInteger( y );
 						break;
 					}
-						// DG end
 				}
 				
 				continue; // handle next event
-#else
+#else // SDL 1.2
 			case SDL_ACTIVEEVENT:
 			{
 				// DG: (un-)pause the game when focus is gained, that also (un-)grabs the input
@@ -926,6 +969,14 @@ sysEvent_t Sys_GetEvent()
 				}
 			
 				cvarSystem->SetCVarBool( "com_pause", pause );
+
+				if( ev.active.state == SDL_APPMOUSEFOCUS && !ev.active.gain )
+				{
+					// the mouse has left the window.
+					res.evType = SE_MOUSE_LEAVE;
+					return res;
+				}
+
 			}
 			
 			continue; // handle next event
@@ -943,12 +994,13 @@ sysEvent_t Sys_GetEvent()
 			
 				glConfig.nativeScreenWidth = w;
 				glConfig.nativeScreenHeight = h;
+
 				// for some reason this needs a vid_restart in SDL1 but not SDL2 so GLimp_SetScreenParms() is called
 				PushConsoleEvent( "vid_restart" );
 				continue; // handle next event
 			}
-				// DG end
-#endif
+			// DG end
+#endif // SDL1.2
 			
 			case SDL_KEYDOWN:
 				if( ev.key.keysym.sym == SDLK_RETURN && ( ev.key.keysym.mod & KMOD_ALT ) > 0 )
@@ -979,14 +1031,13 @@ sysEvent_t Sys_GetEvent()
 				
 #if ! SDL_VERSION_ATLEAST(2, 0, 0)
 				// DG: only do this for key-down, don't care about isChar from SDL_KeyToDoom3Key.
-				//     if unicode is not 0 and is translatable to ASCII it should work..
-				if( ev.key.state == SDL_PRESSED && ( ev.key.keysym.unicode & 0xff80 ) == 0 )
+				//     if unicode is not 0  it should work..
+				if( ev.key.state == SDL_PRESSED )
 				{
-					// FIXME: can we support utf32?
-					c = ev.key.keysym.unicode & 0x7f;
+					uniChar = ev.key.keysym.unicode; // for SE_CHAR
 				}
 				// DG end
-#endif
+#endif // SDL 1.2
 				
 			// fall through
 			case SDL_KEYUP:
@@ -997,7 +1048,7 @@ sysEvent_t Sys_GetEvent()
 				if( ev.key.keysym.scancode == SDL_SCANCODE_GRAVE )
 				{
 					key = K_GRAVE;
-					c = K_BACKSPACE; // bad hack to get empty console inputline..
+					uniChar = K_BACKSPACE; // bad hack to get empty console inputline..
 				} // DG end, the original code is in the else case
 				else
 				{
@@ -1012,7 +1063,7 @@ sysEvent_t Sys_GetEvent()
 							
 						continue; // just handle next event
 					}
-#else
+#else // SDL1.2
 					key = SDL_KeyToDoom3Key( ev.key.keysym.sym, isChar );
 					
 					if( key == 0 )
@@ -1022,28 +1073,27 @@ sysEvent_t Sys_GetEvent()
 						if( uc == Sys_GetConsoleKey( false ) || uc == Sys_GetConsoleKey( true ) )
 						{
 							key = K_GRAVE;
-							c = K_BACKSPACE; // bad hack to get empty console inputline..
+							uniChar = K_BACKSPACE; // bad hack to get empty console inputline..
 						}
 						else
 						{
-							if( c )
+							if(uniChar)
 							{
 								res.evType = SE_CHAR;
-								res.evValue = c;
-					
-								c = 0;
-					
+								res.evValue = uniChar;
+								
+								uniChar = 0;
+								
 								return res;
 							}
 					
 							if( ev.type == SDL_KEYDOWN ) // FIXME: don't complain if this was an ASCII char and the console is open?
 								common->Warning( "unmapped SDL key %d (0x%x) scancode %d", ev.key.keysym.sym, ev.key.keysym.unicode, ev.key.keysym.scancode );
-					
-					
+							
 							continue; // just handle next event
 						}
 					}
-#endif
+#endif // SDL 1.2
 				}
 				
 				res.evType = SE_KEY;
@@ -1053,7 +1103,7 @@ sysEvent_t Sys_GetEvent()
 				kbd_polls.Append( kbd_poll_t( key, ev.key.state == SDL_PRESSED ) );
 				
 				if( key == K_BACKSPACE && ev.key.state == SDL_PRESSED )
-					c = key;
+					uniChar = key;
 					
 				return res;
 			}
@@ -1062,20 +1112,26 @@ sysEvent_t Sys_GetEvent()
 			case SDL_TEXTINPUT:
 				if( ev.text.text[0] != '\0' )
 				{
-					// FIXME: all this really only works for ascii.. convert to unicode etc
-					if( ev.text.text[1] )
-					{
-						// more than 1 char => handle the next chars later
-						idStr::Copynz( str, ev.text.text + 1, sizeof( str ) );
-					}
+					// fill uniStr array for SE_CHAR events
+					ConvertUTF8toUTF32(ev.text.text, uniStr);
+					
 					// return an event with the first/only char
 					res.evType = SE_CHAR;
-					res.evValue = ev.text.text[0];
+					res.evValue = uniStr[0];
+					
+					uniStrPos = 1;
+					
+					if( uniStr[1] == 0)
+					{
+						// it's just this one character, clear uniStr
+						uniStr[0] = 0;
+						uniStrPos = 0;
+					}
 					return res;
 				}
 				
 				continue; // just handle next event
-#endif
+#endif // SDL2
 				
 			case SDL_MOUSEMOTION:
 				// DG: return event with absolute mouse-coordinates when in menu
@@ -1108,25 +1164,16 @@ sysEvent_t Sys_GetEvent()
 			case SDL_MOUSEWHEEL:
 				res.evType = SE_KEY;
 				
-				if( ev.wheel.y > 0 )
-				{
-					res.evValue = K_MWHEELUP;
-					mouse_polls.Append( mouse_poll_t( M_DELTAZ, 1 ) );
-				}
-				else
-				{
-					res.evValue = K_MWHEELDOWN;
-					mouse_polls.Append( mouse_poll_t( M_DELTAZ, -1 ) );
-				}
-				
-				// DG: remember mousewheel direction to issue a "not pressed anymore" event
+				res.evValue = (ev.wheel.y > 0) ? K_MWHEELUP : K_MWHEELDOWN;
+				mouse_polls.Append( mouse_poll_t( M_DELTAZ, ev.wheel.y ) );
+
+				res.evValue2 = 1; // for "pressed"
+
+				// remember mousewheel direction to issue a "not pressed anymore" event
 				mwheelRel = res.evValue;
-				// DG end
-				
-				res.evValue2 = 1;
 				
 				return res;
-#endif
+#endif // SDL2
 				
 			case SDL_MOUSEBUTTONDOWN:
 			case SDL_MOUSEBUTTONUP:
@@ -1158,7 +1205,20 @@ sysEvent_t Sys_GetEvent()
 						if( ev.button.state == SDL_PRESSED )
 							mouse_polls.Append( mouse_poll_t( M_DELTAZ, -1 ) );
 						break;
-#endif
+#endif // SDL1.2
+
+					default:
+						// handle X1 button and above
+						if( ev.button.button <= 16 ) // d3bfg doesn't support more than 16 mouse buttons
+						{
+							int buttonIndex = ev.button.button - SDL_BUTTON_LEFT;
+							res.evValue = K_MOUSE1 + buttonIndex;
+							mouse_polls.Append( mouse_poll_t( M_ACTION1 + buttonIndex, ev.button.state == SDL_PRESSED ? 1 : 0 ) );
+						}
+						else // unsupported mouse button
+						{
+							continue; // just ignore
+						}
 				}
 				
 				res.evValue2 = ev.button.state == SDL_PRESSED ? 1 : 0;
@@ -1441,7 +1501,8 @@ sysEvent_t Sys_GetEvent()
 			
 			case SDL_QUIT:
 				PushConsoleEvent( "quit" );
-				return no_more_events; // don't handle next event, just quit.
+				res = no_more_events; // don't handle next event, just quit.
+				return res;
 				
 			case SDL_USEREVENT:
 				switch( ev.user.code )
@@ -1461,7 +1522,8 @@ sysEvent_t Sys_GetEvent()
 		}
 	}
 	
-	return no_more_events;
+	res = no_more_events;
+	return res;
 }
 
 /*
