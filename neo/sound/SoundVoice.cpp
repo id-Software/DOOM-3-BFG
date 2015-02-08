@@ -168,7 +168,7 @@ void idSoundVoice_Base::InitSurround( int outputChannels, int channelMask )
 idSoundVoice_Base::CalculateSurround
 ========================
 */
-void idSoundVoice_Base::CalculateSurround( int srcChannels, float pLevelMatrix[ MAX_CHANNELS_PER_VOICE* MAX_CHANNELS_PER_VOICE ], float scale )
+void idSoundVoice_Base::CalculateSurround( int srcChannels, float pLevelMatrix[ MAX_CHANNELS_PER_VOICE * MAX_CHANNELS_PER_VOICE ], float scale )
 {
 	// Hack for mono
 	if( dstChannels == 1 )

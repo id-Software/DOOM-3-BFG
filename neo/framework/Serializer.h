@@ -49,7 +49,7 @@ If you have questions concerning this license or the applicable additional terms
 		}										\
 	}											\
 }												\
- 
+
 #define SERIALIZE_VECX( ser, var )				\
 {												\
 	int size = var.GetSize();					\
@@ -61,14 +61,14 @@ If you have questions concerning this license or the applicable additional terms
 		ser.Serialize( var[x] );				\
 	}											\
 }												\
- 
+
 #define SERIALIZE_JOINT( ser, var )				\
 {												\
 	uint16 jointIndex = ( var == NULL_JOINT_INDEX ) ? 65535 : var;	\
 	ser.Serialize( jointIndex );					\
 	var = ( jointIndex == 65535 ) ? NULL_JOINT_INDEX : (jointIndex_t)jointIndex; \
 }												\
- 
+
 //#define ENABLE_SERIALIZE_CHECKPOINTS
 //#define SERIALIZE_SANITYCHECK
 //#define SERIALIZE_NO_QUANT

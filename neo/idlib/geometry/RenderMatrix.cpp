@@ -1431,15 +1431,15 @@ void DeterminantIsNegative( bool& negativeDeterminant, const float* row0, const 
 	const float det2_01_12 = row0[1] * row1[2] - row0[2] * row1[1];
 	const float det2_01_13 = row0[1] * row1[3] - row0[3] * row1[1];
 	const float det2_01_23 = row0[2] * row1[3] - row0[3] * row1[2];
-
+	
 	// 3x3 sub-determinants required to calculate 4x4 determinant
 	const float det3_201_012 = row2[0] * det2_01_12 - row2[1] * det2_01_02 + row2[2] * det2_01_01;
 	const float det3_201_013 = row2[0] * det2_01_13 - row2[1] * det2_01_03 + row2[3] * det2_01_01;
 	const float det3_201_023 = row2[0] * det2_01_23 - row2[2] * det2_01_03 + row2[3] * det2_01_02;
 	const float det3_201_123 = row2[1] * det2_01_23 - row2[2] * det2_01_13 + row2[3] * det2_01_12;
-
+	
 	const float det = ( - det3_201_123 * row3[0] + det3_201_023 * row3[1] - det3_201_013 * row3[2] + det3_201_012 * row3[3] );
-
+	
 	negativeDeterminant = ( det < 0.0f );
 }
 
@@ -3348,12 +3348,12 @@ Clips a polygon with homogeneous coordinates to the axis aligned plane[axis] = s
 static int ClipHomogeneousPolygonToSide_Generic( idVec4* __restrict newPoints, idVec4* __restrict points, int numPoints, int axis, float sign, float offset )
 {
 	assert( newPoints != points );
-
+	
 	assert( numPoints < 16 );
 	int sides[16];
-
+	
 	const float side = sign * offset;
-
+	
 	// calculate the plane side for each original point and calculate all potential new points
 	for( int i = 0; i < numPoints; i++ )
 	{
@@ -3362,10 +3362,10 @@ static int ClipHomogeneousPolygonToSide_Generic( idVec4* __restrict newPoints, i
 		newPoints[i * 2 + 0] = points[i];
 		newPoints[i * 2 + 1] = ClipHomogeneousLineToSide( points[i], points[j], axis, side );
 	};
-
+	
 	// repeat the first side at the end to avoid having to wrap around
 	sides[numPoints] = sides[0];
-
+	
 	// compact the array of points
 	int numNewPoints = 0;
 	for( int i = 0; i < numPoints; i++ )
@@ -3379,7 +3379,7 @@ static int ClipHomogeneousPolygonToSide_Generic( idVec4* __restrict newPoints, i
 			newPoints[numNewPoints++] = newPoints[i * 2 + 1];
 		}
 	}
-
+	
 	assert( numNewPoints <= 16 );
 	return numNewPoints;
 }
@@ -3395,7 +3395,7 @@ static int ClipHomogeneousPolygonToUnitCube_Generic( idVec4* points, int numPoin
 {
 	assert( numPoints < 16 - 6 );
 	ALIGNTYPE16 idVec4 newPoints[2 * 16];	// the C clip code temporarily doubles the points
-
+	
 #if defined( CLIP_SPACE_D3D )	// the D3D near plane is at Z=0 instead of Z=-1
 	numPoints = ClipHomogeneousPolygonToSide_Generic( newPoints, points, numPoints, 2, -1.0f, 0.0f );	// near
 #else
