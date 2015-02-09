@@ -338,7 +338,7 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 				key = K_NUMLOCK;
 			}
 			Sys_QueEvent( SE_KEY, key, true, 0, NULL, 0 );
-
+			
 			break;
 			
 		case WM_SYSKEYUP:
@@ -368,13 +368,13 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 				Sys_QueEvent( SE_CHAR, wParam, 0, 0, NULL, 0 );
 			}
 			break;
-
+			
 		// DG: support utf-32 input via WM_UNICHAR
 		case WM_UNICHAR:
 			Sys_QueEvent( SE_CHAR, wParam, 0, 0, NULL, 0 );
 			break;
 		// DG end
-			
+		
 		case WM_NCLBUTTONDOWN:
 //			win32.movingWindow = true;
 			break;

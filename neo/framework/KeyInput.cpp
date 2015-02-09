@@ -214,7 +214,7 @@ keyname_t keynames[] =
 	NAMEKEY2( MOUSE15 ),
 	NAMEKEY2( MOUSE16 ),
 	// DG end
-
+	
 	NAMEKEY( MWHEELDOWN, "#str_07132" ),
 	NAMEKEY( MWHEELUP, "#str_07131" ),
 	

@@ -46,8 +46,8 @@ public:
 	
 	idHashNodeT( const _key_ & key, const _value_ & value, idHashNodeT* next )
 		:	key( key ),
-			value( value ),
-			next( next )
+		  value( value ),
+		  next( next )
 	{
 	}
 	
@@ -88,8 +88,8 @@ class idHashNodeT< idStr, _value_ >
 public:
 	idHashNodeT( const idStr& key, const _value_ & value, idHashNodeT* next )
 		:	key( key ),
-			value( value ),
-			next( next )
+		  value( value ),
+		  next( next )
 	{
 	}
 	
@@ -123,8 +123,8 @@ class idHashNodeT< const char*, _value_ >
 public:
 	idHashNodeT( const char* const& key, const _value_ & value, idHashNodeT* next )
 		:	key( key ),
-			value( value ),
-			next( next )
+		  value( value ),
+		  next( next )
 	{
 	}
 	

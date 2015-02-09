@@ -410,7 +410,7 @@ enum keyNum_t
 	K_MOUSE15,
 	K_MOUSE16,
 	// DG end
-
+	
 	K_MWHEELDOWN,
 	K_MWHEELUP,
 	

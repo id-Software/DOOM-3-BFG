@@ -71,13 +71,13 @@ idSoundVoice_XAudio2::idSoundVoice_XAudio2
 */
 idSoundVoice_XAudio2::idSoundVoice_XAudio2()
 	:	pSourceVoice( NULL ),
-		leadinSample( NULL ),
-		loopingSample( NULL ),
-		formatTag( 0 ),
-		numChannels( 0 ),
-		sampleRate( 0 ),
-		paused( true ),
-		hasVUMeter( false )
+	  leadinSample( NULL ),
+	  loopingSample( NULL ),
+	  formatTag( 0 ),
+	  numChannels( 0 ),
+	  sampleRate( 0 ),
+	  paused( true ),
+	  hasVUMeter( false )
 {
 
 }
