@@ -97,9 +97,14 @@ typedef enum
 
 //#define AL_ALEXT_PROTOTYPES
 
+#ifdef __APPLE__
+#include <OpenAL/al.h>
+#include <OpenAL/alc.h>
+#else
 #include <AL/al.h>
 #include <AL/alc.h>
 #include <AL/alext.h>
+#endif
 
 #include "OpenAL/AL_SoundSample.h"
 #include "OpenAL/AL_SoundVoice.h"
@@ -132,7 +137,24 @@ ID_INLINE_EXTERN ALCenum CheckALCErrors_( ALCdevice* device, const char* filenam
 #define OPERATION_SET 1
 
 // RB: not available on Windows 8 SDK
-#if !defined(USE_WINRT) // (_WIN32_WINNT < 0x0602 /*_WIN32_WINNT_WIN8*/)
+#if defined(USE_WINRT) // (_WIN32_WINNT < 0x0602 /*_WIN32_WINNT_WIN8*/)
+#include <mmdeviceapi.h>
+#include <initguid.h> // For the pkey defines to be properly instantiated.
+#include <propkeydef.h>
+#include "functiondiscoverykeys_devpkey.h"
+#include <string>
+#include <vector>
+
+DEFINE_PROPERTYKEY( PKEY_AudioEndpoint_Path, 0x9c119480, 0xddc2, 0x4954, 0xa1, 0x50, 0x5b, 0xd2, 0x40, 0xd4, 0x54, 0xad, 1 );
+
+#pragma comment(lib,"xaudio2.lib")
+
+struct AudioDevice
+{
+	std::wstring name;
+	std::wstring id;
+};
+#else
 #include <dxsdkver.h>
 #endif
 // RB end

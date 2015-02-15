@@ -812,19 +812,19 @@ const char* vertexInsert_GLSL_ES_1_0 =
 const char* vertexInsert_GLSL_ES_1_0 =
 {
 	"#version 100\n"
-
+	
 #if !defined(USE_MESA)
 	"#define GLES2\n"
 #endif
-
+	
 	"#define PC\n"
-
+	
 #if 1 //defined(__ANDROID__)
 	"precision mediump float;\n"
 #else
 	"precision highp float;\n"
 #endif
-
+	
 #if defined(USE_GPU_SKINNING) && !defined(__ANDROID__)
 	"#extension GL_ARB_gpu_shader5 : enable\n"
 #endif
@@ -915,13 +915,13 @@ const char* fragmentInsert_GLSL_ES_1_0 =
 const char* fragmentInsert_GLSL_ES_1_0 =
 {
 	"#version 100\n"
-
+	
 #if !defined(USE_MESA)
 	"#define GLES2\n"
 #endif
-
+	
 	"#define PC\n"
-
+	
 #if 1 //defined(__ANDROID__)
 	"precision mediump float;\n"
 	//"#extension GL_OES_standard_derivatives : enable\n"
@@ -1137,10 +1137,10 @@ void ParseInOutStruct( idLexer& src, int attribType, int attribIgnoreType, idLis
 		// RB: ignore reserved builtin gl_ uniforms
 		switch( glConfig.driverType )
 		{
-				//case GLDRV_OPENGL32_CORE_PROFILE:
-				//case GLDRV_OPENGL_ES2:
-				//case GLDRV_OPENGL_ES3:
-				//case GLDRV_OPENGL_MESA:
+			//case GLDRV_OPENGL32_CORE_PROFILE:
+			//case GLDRV_OPENGL_ES2:
+			//case GLDRV_OPENGL_ES3:
+			//case GLDRV_OPENGL_MESA:
 			default:
 			{
 				for( int i = 0; attribsPC[i].semantic != NULL; i++ )
@@ -1772,11 +1772,11 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, con
 		idStr programHLSL = StripDeadCode( hlslCode, inFile, compileMacros, builtin );
 		programGLSL = ConvertCG2GLSL( programHLSL, inFile, target == GL_VERTEX_SHADER, programUniforms );
 		
-		fileSystem->WriteFile( outFileHLSL, programHLSL.c_str(), programHLSL.Length(), "fs_basepath" );
-		fileSystem->WriteFile( outFileGLSL, programGLSL.c_str(), programGLSL.Length(), "fs_basepath" );
+		fileSystem->WriteFile( outFileHLSL, programHLSL.c_str(), programHLSL.Length(), "fs_savepath" );
+		fileSystem->WriteFile( outFileGLSL, programGLSL.c_str(), programGLSL.Length(), "fs_savepath" );
 		if( r_useUniformArrays.GetBool() )
 		{
-			fileSystem->WriteFile( outFileUniforms, programUniforms.c_str(), programUniforms.Length(), "fs_basepath" );
+			fileSystem->WriteFile( outFileUniforms, programUniforms.c_str(), programUniforms.Length(), "fs_savepath" );
 		}
 	}
 	else
@@ -2048,7 +2048,7 @@ void idRenderProgManager::CommitUniforms()
 			{
 				glUniform4fv( uniformLocation.uniformIndex, 1, glslUniforms[uniformLocation.parmIndex].ToFloatPtr() );
 				
-#if 1
+#if 0
 				if( GL_CheckErrors() )
 				{
 					const char* parmName = GetGLSLParmName( uniformLocation.parmIndex );

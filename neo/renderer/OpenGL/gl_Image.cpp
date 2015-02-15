@@ -59,8 +59,7 @@ void idImage::SubImageUpload( int mipLevel, int x, int y, int z, int width, int 
 		
 		int padW = ( opts.width + 3 ) & ~3;
 		int padH = ( opts.height + 3 ) & ~3;
-		( void )padH;
-		( void )padW;
+		
 		assert( x + width <= padW && y + height <= padH );
 		// upload the non-aligned value, OpenGL understands that there
 		// will be padding
@@ -112,7 +111,7 @@ void idImage::SubImageUpload( int mipLevel, int x, int y, int z, int width, int 
 #endif
 	if( IsCompressed() )
 	{
-		glCompressedTexSubImage2DARB( uploadTarget, mipLevel, x, y, width, height, internalFormat, compressedSize, pic );
+		glCompressedTexSubImage2D( uploadTarget, mipLevel, x, y, width, height, internalFormat, compressedSize, pic );
 	}
 	else
 	{
@@ -171,11 +170,11 @@ void idImage::SetTexParameters()
 		case TT_CUBIC:
 			target = GL_TEXTURE_CUBE_MAP;
 			break;
-			// RB begin
+		// RB begin
 		case TT_2D_ARRAY:
 			target = GL_TEXTURE_2D_ARRAY;
 			break;
-			// RB end
+		// RB end
 		default:
 			idLib::FatalError( "%s: bad texture type %d", GetName(), opts.textureType );
 			return;
@@ -289,11 +288,16 @@ void idImage::SetTexParameters()
 			glTexParameterf( target, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1 );
 		}
 	}
+	
+	// RB: disabled use of unreliable extension that can make the game look worse
+	/*
 	if( glConfig.textureLODBiasAvailable && ( usage != TD_FONT ) )
 	{
 		// use a blurring LOD bias in combination with high anisotropy to fix our aliasing grate textures...
-		glTexParameterf( target, GL_TEXTURE_LOD_BIAS_EXT, r_lodBias.GetFloat() );
+		glTexParameterf( target, GL_TEXTURE_LOD_BIAS_EXT, 0.5 ); //r_lodBias.GetFloat() );
 	}
+	*/
+	// RB end
 	
 	// set the wrap/clamp modes
 	switch( repeat )
@@ -332,7 +336,6 @@ void idImage::SetTexParameters()
 		//glTexParameteri( target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
 		glTexParameteri( target, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE );
 		glTexParameteri( target, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL );
-		//glTexParameteri( target, GL_DEPTH_TEXTURE_MODE, GL_INTENSITY );
 	}
 }
 

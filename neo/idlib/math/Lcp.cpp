@@ -2254,7 +2254,7 @@ bool idLCP_Square::Solve( const idMatX& o_m, idVecX& o_x, const idVecX& o_b, con
 {
 
 	// true when the matrix rows are 16 byte padded
-	padded = ( ( o_m.GetNumRows() + 3 )&~3 ) == o_m.GetNumColumns();
+	padded = ( ( o_m.GetNumRows() + 3 ) & ~3 ) == o_m.GetNumColumns();
 	
 	assert( padded || o_m.GetNumRows() == o_m.GetNumColumns() );
 	assert( o_x.GetSize() == o_m.GetNumRows() );
@@ -3034,7 +3034,7 @@ bool idLCP_Symmetric::Solve( const idMatX& o_m, idVecX& o_x, const idVecX& o_b, 
 {
 
 	// true when the matrix rows are 16 byte padded
-	padded = ( ( o_m.GetNumRows() + 3 )&~3 ) == o_m.GetNumColumns();
+	padded = ( ( o_m.GetNumRows() + 3 ) & ~3 ) == o_m.GetNumColumns();
 	
 	assert( padded || o_m.GetNumRows() == o_m.GetNumColumns() );
 	assert( o_x.GetSize() == o_m.GetNumRows() );

@@ -26,7 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#include "global.inc"
+#include "renderprogs/global.inc"
 
 struct PS_IN {
 	float4 position		: VPOS;

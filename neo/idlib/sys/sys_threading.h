@@ -46,6 +46,8 @@ typedef HANDLE					signalHandle_t;
 typedef LONG					interlockedInt_t;
 #else
 
+#include <pthread.h>
+
 struct signalHandle_t
 {
 	// DG: all this stuff is needed to emulate Window's Event API
@@ -128,29 +130,29 @@ public:
 	{
 		pthread_key_create( &key, NULL );
 	}
-
+	
 	idSysThreadLocalStorage( const ptrdiff_t& val )
 	{
 		pthread_key_create( &key, NULL );
 		pthread_setspecific( key, ( const void* ) val );
 	}
-
+	
 	~idSysThreadLocalStorage()
 	{
 		pthread_key_delete( key );
 	}
-
+	
 	operator ptrdiff_t()
 	{
 		return ( ptrdiff_t )pthread_getspecific( key );
 	}
-
+	
 	const ptrdiff_t& operator = ( const ptrdiff_t& val )
 	{
 		pthread_setspecific( key, ( const void* ) val );
 		return val;
 	}
-
+	
 	pthread_key_t	key;
 };
 #endif

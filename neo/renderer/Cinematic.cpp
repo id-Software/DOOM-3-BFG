@@ -36,7 +36,7 @@ extern idCVar s_noSound;
 
 #define JPEG_INTERNALS
 //extern "C" {
-#include "../libs/jpeg-6/jpeglib.h"
+#include <jpeglib.h>
 //}
 
 #include "tr_local.h"
@@ -57,7 +57,7 @@ extern "C"
 #define INT64_C(c) (c ## LL)
 #define UINT64_C(c) (c ## ULL)
 #endif
-#include <inttypes.h>
+//#include <inttypes.h>
 //#endif
 
 #include <libavcodec/avcodec.h>
@@ -386,8 +386,13 @@ idCinematicLocal::idCinematicLocal()
 	// Carl: ffmpeg stuff, for bink and normal video files:
 	isRoQ = false;
 //	fmt_ctx = avformat_alloc_context();
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(55,28,1)
+	frame = av_frame_alloc();
+	frame2 = av_frame_alloc();
+#else
 	frame = avcodec_alloc_frame();
 	frame2 = avcodec_alloc_frame();
+#endif // LIBAVCODEC_VERSION_INT
 	dec_ctx = NULL;
 	fmt_ctx = NULL;
 	video_stream_index = -1;
@@ -546,7 +551,7 @@ bool idCinematicLocal::InitFromFFMPEGFile( const char* qpath, bool amilooping )
 	int ticksPerFrame = dec_ctx->ticks_per_frame;
 	float durationSec = static_cast<double>( fmt_ctx->streams[video_stream_index]->duration ) * static_cast<double>( ticksPerFrame ) / static_cast<double>( avr.den );
 	animationLength = durationSec * 1000;
-	frameRate = av_q2d( fmt_ctx->streams[video_stream_index]->r_frame_rate );
+	frameRate = av_q2d( fmt_ctx->streams[video_stream_index]->avg_frame_rate );
 	buf = NULL;
 	hasFrame = false;
 	framePos = -1;
@@ -2041,8 +2046,12 @@ struct jpeg_error_mgr jerr;
  * the front of the buffer rather than discarding it.
  */
 
-
-METHODDEF boolean fill_input_buffer( j_decompress_ptr cinfo )
+#ifdef USE_NEWER_JPEG
+METHODDEF( boolean )
+#else
+METHODDEF boolean
+#endif
+fill_input_buffer( j_decompress_ptr cinfo )
 {
 	my_src_ptr src = ( my_src_ptr ) cinfo->src;
 	int nbytes;
@@ -2073,8 +2082,12 @@ METHODDEF boolean fill_input_buffer( j_decompress_ptr cinfo )
  * before any data is actually read.
  */
 
-
-METHODDEF void init_source( j_decompress_ptr cinfo )
+#ifdef USE_NEWER_JPEG
+METHODDEF( void )
+#else
+METHODDEF void
+#endif
+init_source( j_decompress_ptr cinfo )
 {
 	my_src_ptr src = ( my_src_ptr ) cinfo->src;
 	
@@ -2097,7 +2110,11 @@ METHODDEF void init_source( j_decompress_ptr cinfo )
  * buffer is the application writer's problem.
  */
 
+#ifdef USE_NEWER_JPEG
+METHODDEF( void )
+#else
 METHODDEF void
+#endif
 skip_input_data( j_decompress_ptr cinfo, long num_bytes )
 {
 	my_src_ptr src = ( my_src_ptr ) cinfo->src;
@@ -2133,14 +2150,22 @@ skip_input_data( j_decompress_ptr cinfo, long num_bytes )
  * for error exit.
  */
 
+#ifdef USE_NEWER_JPEG
+METHODDEF( void )
+#else
 METHODDEF void
+#endif
 term_source( j_decompress_ptr cinfo )
 {
 	cinfo = cinfo;
 	/* no work necessary here */
 }
 
+#ifdef USE_NEWER_JPEG
+GLOBAL( void )
+#else
 GLOBAL void
+#endif
 jpeg_memory_src( j_decompress_ptr cinfo, byte* infile, int size )
 {
 	my_src_ptr src;

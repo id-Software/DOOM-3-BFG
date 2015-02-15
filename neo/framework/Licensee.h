@@ -40,7 +40,7 @@ If you have questions concerning this license or the applicable additional terms
 // RB: changed home folder so we don't break the savegame of the original game
 #define SAVE_PATH						"\\id Software\\RBDOOM 3 BFG"
 
-#define ENGINE_VERSION					"RBDOOM 3 BFG 1.0.1"	// printed in console
+#define ENGINE_VERSION					"RBDOOM 3 BFG 1.0.3"	// printed in console
 // RB end
 
 #define	BASE_GAMEDIR					"base"
@@ -62,8 +62,12 @@ If you have questions concerning this license or the applicable additional terms
 #define	WIN32_FAKE_WINDOW_CLASS_NAME	"D3BFG_WGL_FAKE"
 
 // RB begin
-// Linux info
-#define LINUX_DEFAULT_PATH				"/usr/local/games/rbdoom3-bfg"
+// Default base path (used only if none could be found)
+#ifdef __APPLE__
+#define DEFAULT_BASEPATH				"/Applications/RBDOOM-3-BFG.app/Contents/Resources"
+#else
+#define DEFAULT_BASEPATH				"/usr/share/games/doom3bfg"
+#endif
 // RB end
 
 

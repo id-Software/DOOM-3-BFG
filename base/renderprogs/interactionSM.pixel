@@ -208,7 +208,7 @@ void main( PS_IN fragment, out PS_OUT result )
 
 	// multiple taps
 	
-#if 1
+#if 0
 	float4 base = shadowTexcoord;
 	
 	base.xy += rpJitterTexScale.xy * -0.5;
@@ -231,7 +231,51 @@ void main( PS_IN fragment, out PS_OUT result )
 	
 	shadow *= stepSize;
 #else
-	float shadow = texture( samp5, shadowTexcoord.xywz );
+	
+	const float2 poissonDisk[12] = float2[](
+	float2(0.6111618, 0.1050905),
+	float2(0.1088336, 0.1127091),
+	float2(0.3030421, -0.6292974),
+	float2(0.4090526, 0.6716492),
+	float2(-0.1608387, -0.3867823),
+	float2(0.7685862, -0.6118501),
+	float2(-0.1935026, -0.856501),
+	float2(-0.4028573, 0.07754025),
+	float2(-0.6411021, -0.4748057),
+	float2(-0.1314865, 0.8404058),
+	float2(-0.7005203, 0.4596822),
+	float2(-0.9713828, -0.06329931) );
+	
+	float shadow = 0.0;
+	
+	// RB: casting a float to int and using it as index can really kill the performance ...
+	float numSamples = 12.0; //int(rpScreenCorrectionFactor.w);
+	float stepSize = 1.0 / numSamples;
+	
+	float4 jitterTC = ( fragment.position * rpScreenCorrectionFactor ) + rpJitterTexOffset;
+	float4 random = tex2D( samp6, jitterTC.xy ) * PI;
+	//float4 random = fragment.position;
+	
+	float2 rot;
+	rot.x = cos( random.x );
+	rot.y = sin( random.x );
+	
+	float shadowTexelSize = rpScreenCorrectionFactor.z * rpJitterTexScale.x;
+    for( int i = 0; i < 12; i++ )
+    {
+        float2 jitter = poissonDisk[i];
+		float2 jitterRotated;
+		jitterRotated.x = jitter.x * rot.x - jitter.y * rot.y;
+		jitterRotated.y = jitter.x * rot.y + jitter.y * rot.x;
+        
+		float4 shadowTexcoordJittered = float4( shadowTexcoord.xy + jitterRotated * shadowTexelSize, shadowTexcoord.z, shadowTexcoord.w );
+       
+        shadow += texture( samp5, shadowTexcoordJittered.xywz);
+    }
+
+   shadow *= stepSize;
+
+	//float shadow = texture( samp5, shadowTexcoord.xywz );
 #endif
 
 	result.color.xyz = ( diffuseColor + specularColor ) * lambert * lightColor * fragment.color.rgb * shadow;// + rimColor;

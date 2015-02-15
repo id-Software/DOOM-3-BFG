@@ -183,6 +183,8 @@ public:
 	virtual void				Shell_UpdateClientCountdown( int countdown ) = 0;
 	virtual void				Shell_UpdateLeaderboard( const idLeaderboardCallback* callback ) = 0;
 	virtual void				Shell_SetGameComplete() = 0;
+	virtual bool                SkipCinematicScene() = 0;
+	virtual bool                CheckInCinematic() = 0;
 };
 
 extern idGame* 					game;

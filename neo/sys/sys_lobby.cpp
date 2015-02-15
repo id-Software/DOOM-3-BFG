@@ -2454,14 +2454,14 @@ idPacketProcessor::sessionId_t idLobby::IncrementSessionID( idPacketProcessor::s
 		idLib::Printf( "NET: "#msgType", not from "#sessionType_" host: %s\n", peer.address.ToString() );	\
 		return;															\
 	}																	\
- 
+
 #define VERIFY_FROM_CONNECTING_HOST( p, sessionType_, msgType )			\
 	VERIFY_CONNECTING_PEER( p, sessionType_, msgType );					\
 	if ( p != host ) {													\
 		idLib::Printf( "NET: "#msgType", not from "#sessionType_" host: %s\n", peer.address.ToString() );	\
 		return;															\
 	}																	\
- 
+
 /*
 ========================
 idLobby::HandleHelloAck

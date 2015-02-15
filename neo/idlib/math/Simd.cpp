@@ -30,6 +30,10 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "precompiled.h"
 
+#ifdef __APPLE__
+#include <mach/mach_time.h>
+#endif
+
 #include "Simd_Generic.h"
 #include "Simd_SSE.h"
 
@@ -167,7 +171,7 @@ long saved_ebx = 0;
 	__asm xor eax, eax						\
 	__asm cpuid
 
-#elif MACOS_X // DG: versions for OSX and others from dhewm3
+#elif defined(__APPLE__) // DG: versions for OSX and others from dhewm3
 
 double ticksPerNanosecond;
 
@@ -179,7 +183,7 @@ double ticksPerNanosecond;
 #define StopRecordTime( end )				\
 	end = mach_absolute_time();
 
-#else // not _MSC_VER and _M_IX86 or MACOS_X
+#else // not _MSC_VER and _M_IX86 or __APPLE__
 // FIXME: meaningful values/functions here for Linux?
 #define TIME_TYPE int
 

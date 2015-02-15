@@ -146,16 +146,16 @@ static byte TriangleFacing_Generic( const idVec3& v1, const idVec3& v2, const id
 	const float sx = v2.x - v1.x;
 	const float sy = v2.y - v1.y;
 	const float sz = v2.z - v1.z;
-
+	
 	const float tx = v3.x - v1.x;
 	const float ty = v3.y - v1.y;
 	const float tz = v3.z - v1.z;
-
+	
 	const float normalX = ty * sz - tz * sy;
 	const float normalY = tz * sx - tx * sz;
 	const float normalZ = tx * sy - ty * sx;
 	const float normalW = normalX * v1.x + normalY * v1.y + normalZ * v1.z;
-
+	
 	const float d = lightOrigin.x * normalX + lightOrigin.y * normalY + lightOrigin.z * normalZ - normalW;
 	return ( d > 0.0f ) ? 255 : 0;
 }
@@ -178,14 +178,14 @@ static byte TriangleCulled_Generic( const idVec3& v1, const idVec3& v2, const id
 		c[1][i] = v2[0] * lightProject[i][0] + v2[1] * lightProject[i][1] + v2[2] * lightProject[i][2] + lightProject[i][3];
 		c[2][i] = v3[0] * lightProject[i][0] + v3[1] * lightProject[i][1] + v3[2] * lightProject[i][2] + lightProject[i][3];
 	}
-
+	
 	// calculate the culled bits
 	int bits = 0;
 	for( int i = 0; i < 3; i++ )
 	{
 		const float minW = 0.0f;
 		const float maxW = c[i][3];
-
+		
 		if( c[i][0] > minW )
 		{
 			bits |= ( 1 << 0 );
@@ -211,7 +211,7 @@ static byte TriangleCulled_Generic( const idVec3& v1, const idVec3& v2, const id
 			bits |= ( 1 << 5 );
 		}
 	}
-
+	
 	// if any bits weren't set, the triangle is completely off one side of the frustum
 	return ( bits != 63 ) ? 255 : 0;
 }

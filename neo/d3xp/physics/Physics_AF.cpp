@@ -5748,7 +5748,7 @@ void idPhysics_AF::AuxiliaryForces( float timeStep )
 	}
 	
 	// NOTE: the rows are 16 byte padded
-	jmk.SetData( numAuxConstraints, ( ( numAuxConstraints + 3 )&~3 ), MATX_ALLOCA( numAuxConstraints * ( ( numAuxConstraints + 3 )&~3 ) ) );
+	jmk.SetData( numAuxConstraints, ( ( numAuxConstraints + 3 ) & ~3 ), MATX_ALLOCA( numAuxConstraints * ( ( numAuxConstraints + 3 ) & ~3 ) ) );
 	tmp.SetData( 6, VECX_ALLOCA( 6 ) );
 	
 	// create constraint matrix for auxiliary constraints using a mass matrix adjusted for the primary constraints

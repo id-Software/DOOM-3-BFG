@@ -86,7 +86,7 @@ void    W_ReadLump (int lump, void *dest);
 void*	W_CacheLumpNum (int lump, int tag);
 void*	W_CacheLumpName (const char* name, int tag);
 
-void	W_Shutdown( void );
+void	W_Shutdown();
 
 
 #endif

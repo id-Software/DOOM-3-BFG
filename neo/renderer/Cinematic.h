@@ -71,10 +71,10 @@ class idCinematic
 {
 public:
 	// initialize cinematic play back data
-	static void			InitCinematic( void );
+	static void			InitCinematic();
 	
 	// shutdown cinematic play back data
-	static void			ShutdownCinematic( void );
+	static void			ShutdownCinematic();
 	
 	// allocates and returns a private subclass that implements the methods
 	// This should be used instead of new

@@ -1336,6 +1336,9 @@ void idCommonLocal::Init( int argc, const char* const* argv, const char* cmdline
 		// startup the script debugger
 		// DebuggerServerInit();
 		
+		// Init tool commands
+		InitCommands();
+		
 		// load the game dll
 		LoadGameDLL();
 		
@@ -1675,6 +1678,21 @@ void idCommonLocal::BusyWait()
 	session->Pump();
 }
 
+
+/*
+===============
+idCommonLocal::InitCommands
+===============
+*/
+void idCommonLocal::InitCommands()
+{
+	// compilers
+	cmdSystem->AddCommand( "dmap", Dmap_f, CMD_FL_TOOL, "compiles a map", idCmdSystem::ArgCompletion_MapName );
+	cmdSystem->AddCommand( "runAAS", RunAAS_f, CMD_FL_TOOL, "compiles an AAS file for a map", idCmdSystem::ArgCompletion_MapName );
+	cmdSystem->AddCommand( "runAASDir", RunAASDir_f, CMD_FL_TOOL, "compiles AAS files for all maps in a folder", idCmdSystem::ArgCompletion_MapName );
+	cmdSystem->AddCommand( "runReach", RunReach_f, CMD_FL_TOOL, "calculates reachability for an AAS file", idCmdSystem::ArgCompletion_MapName );
+}
+
 /*
 ===============
 idCommonLocal::WaitForSessionState
@@ -1744,31 +1762,38 @@ bool idCommonLocal::ProcessEvent( const sysEvent_t* event )
 	{
 		if( event->evType == SE_KEY && event->evValue2 == 1 && ( event->evValue == K_ESCAPE || event->evValue == K_JOY9 ) )
 		{
-			if( !game->Shell_IsActive() )
+			if( game->CheckInCinematic() == true )
 			{
-			
-				// menus / etc
-				if( MenuEvent( event ) )
-				{
-					return true;
-				}
-				
-				console->Close();
-				
-				StartMenu();
-				return true;
+				game->SkipCinematicScene();
 			}
 			else
 			{
-				console->Close();
-				
-				// menus / etc
-				if( MenuEvent( event ) )
+				if( !game->Shell_IsActive() )
 				{
+				
+					// menus / etc
+					if( MenuEvent( event ) )
+					{
+						return true;
+					}
+					
+					console->Close();
+					
+					StartMenu();
 					return true;
 				}
-				
-				game->Shell_ClosePause();
+				else
+				{
+					console->Close();
+					
+					// menus / etc
+					if( MenuEvent( event ) )
+					{
+						return true;
+					}
+					
+					game->Shell_ClosePause();
+				}
 			}
 		}
 	}

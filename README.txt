@@ -29,7 +29,7 @@ This file contains the following sections:
 	
 	4) GETTING THE SOURCE CODE
 
-	5) COMPILING ON WIN32 WITH VISUAL C++ 2010 EXPRESS EDITION
+	5) COMPILING ON WIN32 WITH VISUAL C++ 2013 EXPRESS EDITION
 
 	6) COMPILING ON GNU/LINUX
 	
@@ -102,6 +102,20 @@ The Doom 3 BFG Edition GPL Source Code release does not include functionality en
 of stencil shadows via the "depth fail" method, a functionality commonly known as "Carmack's Reverse".
 
 
+Mods:
+-----
+
+The Doom 3 BFG Edition GPL Source Code release allow mod editing, in order for it to accept any change in your
+mod directory, you should first specify your mod directory adding the following command to the launcher:
+
+"+set fs_game modDirectoryName"
+
+as well as force the content of your mod directory over the content of the game with the following command:
+
+"+set fs_resourceLoadPriority 0"
+
+so it would end up looking like: RBDoom3BFG +set fs_resourceLoadPriority 0 +set fs_game mymod
+
 
 _______________________________
 
@@ -130,19 +144,24 @@ If you don't want to use git, you can download the source as a zip file at
 
 ___________________________________________________________________
 
-5) COMPILING ON WIN32 WITH VISUAL C++ 2010 EXPRESS EDITION
+5) COMPILING ON WIN32 WITH VISUAL C++ 2013 EXPRESS EDITION
 __________________________________________________________
 
-1. Download and install the Visual C++ 2010 Express Edition.
+1. Download and install the Visual C++ 2013 Express Edition.
 
-2. Generate the VC10 projects using CMake by doubleclicking a matching configuration .bat file in the neo/ folder.
+2. Download the DirectX SDK (June 2010) here:
+	http://www.microsoft.com/en-us/download/details.aspx?id=6812
 
-3. Use the VC10 solution to compile what you need:
+3. Download and install the latest CMake.
+
+4. Generate the VC13 projects using CMake by doubleclicking a matching configuration .bat file in the neo/ folder.
+
+5. Use the VC13 solution to compile what you need:
 	RBDOOM-3-BFG/build/RBDoom3BFG.sln
 	
-4. Download ffmpeg-20140405-git-ec8789a-win32-shared.7z from ffmpeg.zeranoe.com/builds/win32/devel
+6. Download ffmpeg-20140405-git-ec8789a-win32-shared.7z from ffmpeg.zeranoe.com/builds/win32/shared
 
-5. Extract the DLLs to your current build directory under RBDOOM-3-BFG/build/
+7. Extract the FFmpeg DLLs to your current build directory under RBDOOM-3-BFG/build/
 
 
 __________________________________
@@ -155,7 +174,7 @@ _________________________
  
 	On Debian or Ubuntu:
 
-		> apt-get install cmake libsdl1.2-dev libopenal-dev libavcodec-dev libavformat-dev libavutil-dev libswscale-dev
+		> apt-get install cmake libsdl2-dev libopenal-dev libavcodec-dev libavformat-dev libavutil-dev libswscale-dev
 	
 	On Fedora
 
@@ -171,7 +190,7 @@ _________________________
 		"libffmpeg1-devel" requires the PackMan repository. If you don't have that repo, and don't want to add it, remove the "libffmpeg1-devel" option and compile without ffmpeg support.
 		If you have the repo and compiles with ffmpeg support, make sure you download "libffmpeg1-devel", and not "libffmpeg-devel".
 	
-	Instead of SDL1.2 development files you can also use SDL2. Install SDL 2.0 and add to the cmake parameters -DSDL2=ON
+	Instead of SDL2 development files you can also use SDL1.2. Install SDL 1.2 and add to the cmake parameters -DSDL2=OFF
 	
 	SDL2 has better input support (especially in the console) and better 
 	support for multiple displays (especially in fullscreen mode).
@@ -256,11 +275,15 @@ __________________________________________
 
 - Linux support (32 and 64 bit)
 
-- New OpenAL Soft sound backend primarily developed for Linux but works on Windows as well
-
 - Win64 support
 
-- Implemented soft shadows using PCF hardware shadow mapping
+- OS X support
+
+- OpenAL Soft sound backend primarily developed for Linux but works on Windows as well
+
+- Bink video support through FFmpeg
+
+- Soft shadows using PCF hardware shadow mapping
 
 	The implementation uses sampler2DArrayShadow and PCF which usually
 	requires Direct3D 10.1 however it is in the OpenGL 3.2 core so it should
@@ -269,10 +292,7 @@ __________________________________________
 	scene independent cascaded shadow mapping.
 	The implementation is very fast with single taps (400 fps average per
 	scene on a GTX 660 ti OC) however I defaulted it to 16 taps so the shadows look
-	really good which should you give stable 100 fps on todays hardware.
-
-	The shadow filtering algorithm is based on Carmack's research which was
-	released in the original Doom 3 GPL release draw_exp.cpp.
+	really good which should give you stable 100 fps on todays hardware (2014).
 
 - Changed light interaction shaders to use Half-Lambert lighting like in Half-Life 2 to 
 	make the game less dark. https://developer.valvesoftware.com/wiki/Half_Lambert

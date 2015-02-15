@@ -145,7 +145,7 @@ void idPVS::CreatePVSData()
 	memset( pvsAreas, 0, numAreas * sizeof( *pvsAreas ) );
 	
 	cp = 0;
-	portalPtrs = new( TAG_PVS ) pvsPortal_t*[numPortals];
+	portalPtrs = new( TAG_PVS ) pvsPortal_t* [numPortals];
 	
 	for( i = 0; i < numAreas; i++ )
 	{
@@ -929,7 +929,7 @@ void idPVS::Init()
 	connectedAreas = new( TAG_PVS ) bool[numAreas];
 	areaQueue = new( TAG_PVS ) int[numAreas];
 	
-	areaVisBytes = ( ( ( numAreas + 31 )&~31 ) >> 3 );
+	areaVisBytes = ( ( ( numAreas + 31 ) & ~31 ) >> 3 );
 	// RB: 64 bit fixes, changed long to int
 	areaVisLongs = areaVisBytes / sizeof( int );
 	// RB end
@@ -939,7 +939,7 @@ void idPVS::Init()
 	
 	numPortals = GetPortalCount();
 	
-	portalVisBytes = ( ( ( numPortals + 31 )&~31 ) >> 3 );
+	portalVisBytes = ( ( ( numPortals + 31 ) & ~31 ) >> 3 );
 	// RB: 64 bit fixes, changed long to int
 	portalVisLongs = portalVisBytes / sizeof( int );
 	// RB end

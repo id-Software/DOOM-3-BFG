@@ -169,6 +169,30 @@ keyname_t keynames[] =
 	NAMEKEY2( POWER ),
 	NAMEKEY2( SLEEP ),
 	
+	// DG: adding names for keys from cegui/directinput I added in enum keyNum_t in sys_public.h
+	//     (they're really valid directinput scancodes, they just haven't been handled before in d3bfg)
+	NAMEKEY2( OEM_102 ),
+	NAMEKEY2( ABNT_C1 ),
+	NAMEKEY2( NEXTTRACK ),
+	NAMEKEY2( MUTE ),
+	NAMEKEY2( CALCULATOR ),
+	NAMEKEY2( PLAYPAUSE ),
+	NAMEKEY2( MEDIASTOP ),
+	NAMEKEY2( VOLUMEDOWN ),
+	NAMEKEY2( VOLUMEUP ),
+	NAMEKEY2( WEBHOME ),
+	NAMEKEY2( WAKE ),
+	NAMEKEY2( WEBSEARCH ),
+	NAMEKEY2( WEBFAVORITES ),
+	NAMEKEY2( WEBREFRESH ),
+	NAMEKEY2( WEBSTOP ),
+	NAMEKEY2( WEBFORWARD ),
+	NAMEKEY2( WEBBACK ),
+	NAMEKEY2( MYCOMPUTER ),
+	NAMEKEY2( MAIL ),
+	NAMEKEY2( MEDIASELECT ),
+	// DG end
+	
 	// --
 	
 	NAMEKEY( MOUSE1, "#str_07054" ),
@@ -179,6 +203,17 @@ keyname_t keynames[] =
 	NAMEKEY( MOUSE6, "#str_07059" ),
 	NAMEKEY( MOUSE7, "#str_07060" ),
 	NAMEKEY( MOUSE8, "#str_07061" ),
+	
+	// DG: some more mouse buttons
+	NAMEKEY2( MOUSE9 ),
+	NAMEKEY2( MOUSE10 ),
+	NAMEKEY2( MOUSE11 ),
+	NAMEKEY2( MOUSE12 ),
+	NAMEKEY2( MOUSE13 ),
+	NAMEKEY2( MOUSE14 ),
+	NAMEKEY2( MOUSE15 ),
+	NAMEKEY2( MOUSE16 ),
+	// DG end
 	
 	NAMEKEY( MWHEELDOWN, "#str_07132" ),
 	NAMEKEY( MWHEELUP, "#str_07131" ),
@@ -370,8 +405,9 @@ idKeyInput::LocalizedKeyName
 */
 const char* idKeyInput::LocalizedKeyName( keyNum_t keynum )
 {
-	// RB: FIXME
+	// RB
 #if defined(_WIN32)
+	// DG TODO: move this into a win32 Sys_GetKeyName()
 	if( keynum < K_JOY1 )
 	{
 		// On the PC, we want to turn the scan code in to a key label that matches the currently selected keyboard layout
@@ -393,6 +429,20 @@ const char* idKeyInput::LocalizedKeyName( keyNum_t keynum )
 			return bindStr;
 		}
 	}
+#else // DG: for !Windows I introduced Sys_GetKeyName() to get key label for current keyboard layout
+	
+	const char* ret = nullptr;
+	
+	if( keynum < K_JOY1 ) // only for keyboard keys, not joystick or mouse
+	{
+		ret = Sys_GetKeyName( keynum );
+	}
+	
+	if( ret != NULL )
+	{
+		return ret;
+	}
+#endif
 	
 	// check for a key string
 	for( keyname_t* kn = keynames; kn->name; kn++ )
@@ -403,10 +453,7 @@ const char* idKeyInput::LocalizedKeyName( keyNum_t keynum )
 		}
 	}
 	return "????";
-#else
-	return KeyNumToString( keynum );
-#endif
-	// RB end
+	// RB/DG end
 }
 
 /*

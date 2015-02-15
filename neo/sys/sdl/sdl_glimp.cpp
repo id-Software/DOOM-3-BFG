@@ -4,7 +4,7 @@
 Doom 3 GPL Source Code
 Copyright (C) 1999-2011 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2012 dhewg (dhewm3)
-Copyright (C) 2012 Robert Beckebans
+Copyright (C) 2012-2014 Robert Beckebans
 Copyright (C) 2013 Daniel Gibson
 
 This file is part of the Doom 3 GPL Source Code ("Doom 3 Source Code").
@@ -39,7 +39,6 @@ If you have questions concerning this license or the applicable additional terms
 // DG end
 
 #include <SDL.h>
-#include <SDL_syswm.h>
 
 #include "renderer/tr_local.h"
 #include "sdl_local.h"
@@ -50,7 +49,15 @@ idCVar in_nograb( "in_nograb", "0", CVAR_SYSTEM | CVAR_NOCHEAT, "prevents input 
 idCVar r_waylandcompat( "r_waylandcompat", "0", CVAR_SYSTEM | CVAR_NOCHEAT | CVAR_ARCHIVE, "wayland compatible framebuffer" );
 
 // RB: only relevant if using SDL 2.0
-idCVar r_useOpenGL32( "r_useOpenGL32", "1", CVAR_INTEGER, "0 = OpenGL 2.0, 1 = OpenGL 3.2 compatibility profile, 2 = OpenGL 3.2 core profile", 0, 2 );
+#if defined(__APPLE__)
+// only core profile is supported on OS X
+idCVar r_useOpenGL32( "r_useOpenGL32", "2", CVAR_INTEGER, "0 = OpenGL 3.x, 1 = OpenGL 3.2 compatibility profile, 2 = OpenGL 3.2 core profile", 0, 2 );
+#elif defined(__linux__)
+// Linux open source drivers suck
+idCVar r_useOpenGL32( "r_useOpenGL32", "0", CVAR_INTEGER, "0 = OpenGL 3.x, 1 = OpenGL 3.2 compatibility profile, 2 = OpenGL 3.2 core profile", 0, 2 );
+#else
+idCVar r_useOpenGL32( "r_useOpenGL32", "1", CVAR_INTEGER, "0 = OpenGL 3.x, 1 = OpenGL 3.2 compatibility profile, 2 = OpenGL 3.2 core profile", 0, 2 );
+#endif
 // RB end
 
 static bool grabbed = false;
@@ -238,6 +245,7 @@ bool GLimp_Init( glimpParms_t parms )
 								   windowPos,
 								   parms.width, parms.height, flags );
 		// DG end
+		
 		context = SDL_GL_CreateContext( window );
 		
 		if( !window )
@@ -302,6 +310,10 @@ bool GLimp_Init( glimpParms_t parms )
 		common->Printf( "No usable GL mode found: %s", SDL_GetError() );
 		return false;
 	}
+	
+#ifdef __APPLE__
+	glewExperimental = GL_TRUE;
+#endif
 	
 	GLenum glewResult = glewInit();
 	if( GLEW_OK != glewResult )

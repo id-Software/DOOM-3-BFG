@@ -436,11 +436,13 @@ void idPlayerProfile::ExecConfig( bool save, bool forceDefault )
 	
 	if( leftyFlip )
 	{
-		cmdSystem->AppendCommandText( "exec joy_lefty.cfg" );
+		cmdSystem->AppendCommandText( "exec joy_lefty.cfg\n" );
+		cmdSystem->AppendCommandText( "exec joy_360_0.cfg\n" );
 	}
 	else
 	{
-		cmdSystem->AppendCommandText( "exec joy_righty.cfg" );
+		cmdSystem->AppendCommandText( "exec joy_righty.cfg\n" );
+		cmdSystem->AppendCommandText( "exec joy_360_0.cfg\n" );
 	}
 	
 	cmdSystem->ExecuteCommandBuffer();

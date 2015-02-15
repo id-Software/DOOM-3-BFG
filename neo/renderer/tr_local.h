@@ -814,7 +814,7 @@ public:
 	virtual const emptyCommand_t* 	SwapCommandBuffers_FinishCommandBuffers();
 	
 	virtual void			RenderCommandBuffers( const emptyCommand_t* commandBuffers );
-	virtual void			TakeScreenshot( int width, int height, const char* fileName, int downSample, renderView_t* ref );
+	virtual void			TakeScreenshot( int width, int height, const char* fileName, int downSample, renderView_t* ref, int exten );
 	virtual void			CropRenderSize( int width, int height );
 	virtual void			CaptureRenderToImage( const char* imageName, bool clearColorAfterCopy = false );
 	virtual void			CaptureRenderToFile( const char* fileName, bool fixAlpha );
@@ -1061,6 +1061,7 @@ extern idCVar r_shadowMapSingleSide;
 extern idCVar r_shadowMapImageSize;
 extern idCVar r_shadowMapJitterScale;
 extern idCVar r_shadowMapBiasScale;
+extern idCVar r_shadowMapRandomizeJitter;
 extern idCVar r_shadowMapSamples;
 extern idCVar r_shadowMapSplits;
 extern idCVar r_shadowMapSplitWeight;
@@ -1466,8 +1467,6 @@ void RB_ShutdownDebugTools();
 
 #include "ResolutionScale.h"
 #include "RenderLog.h"
-//#include "AutoRender.h"
-//#include "AutoRenderBink.h"
 #include "jobs/ShadowShared.h"
 #include "jobs/prelightshadowvolume/PreLightShadowVolume.h"
 #include "jobs/staticshadowvolume/StaticShadowVolume.h"

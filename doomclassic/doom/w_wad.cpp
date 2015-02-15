@@ -308,7 +308,7 @@ void W_InitMultipleFiles (const char** filenames)
 }
 
 
-void W_Shutdown( void ) {
+void W_Shutdown() {
 /*
 	for (int i = 0 ; i < MAXWADFILES ; i++) {
 		if ( ::g->wadFileHandles[i] ) {

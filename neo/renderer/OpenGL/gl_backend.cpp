@@ -460,8 +460,8 @@ void RB_StereoRenderExecuteBackEndCommands( const emptyCommand_t* const allCmds 
 				RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
 				break;
 			}
-			// a non-warped side-by-side-uncompressed (dual input cable) is rendered
-			// just like STEREO3D_SIDE_BY_SIDE_COMPRESSED, so fall through.
+		// a non-warped side-by-side-uncompressed (dual input cable) is rendered
+		// just like STEREO3D_SIDE_BY_SIDE_COMPRESSED, so fall through.
 		case STEREO3D_SIDE_BY_SIDE_COMPRESSED:
 			GL_SelectTexture( 0 );
 			stereoRenderImages[0]->Bind();

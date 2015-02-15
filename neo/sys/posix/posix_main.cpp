@@ -49,6 +49,10 @@ If you have questions concerning this license or the applicable additional terms
 #include <android/log.h>
 #endif
 
+#if defined(__APPLE__)
+#include <SDL2/SDL.h>
+#endif
+
 #include <sys/statvfs.h>
 // RB end
 
@@ -56,6 +60,9 @@ If you have questions concerning this license or the applicable additional terms
 
 #define					MAX_OSPATH 256
 #define					COMMAND_HISTORY 64
+
+static idStr			basepath;
+static idStr			savepath;
 
 static int				input_hide = 0;
 
@@ -65,7 +72,7 @@ static char				input_ret[256];
 static idStr			history[ COMMAND_HISTORY ];	// cycle buffer
 static int				history_count = 0;			// buffer fill up
 static int				history_start = 0;			// current history start
-static int				history_current = 0;			// goes back in history
+static int				history_current = 0;		// goes back in history
 idEditField				history_backup;				// the base edit line
 
 // terminal support
@@ -81,6 +88,27 @@ idCVar com_pid( "com_pid", "0", CVAR_INTEGER | CVAR_INIT | CVAR_SYSTEM, "process
 
 static int set_exit = 0;
 static char exit_spawn[ 1024 ];
+
+/*
+ ==============
+ Sys_DefaultSavePath
+ ==============
+ */
+const char* Sys_DefaultSavePath()
+{
+#if defined(__APPLE__)
+	char* base_path = SDL_GetPrefPath( "", "RBDOOM-3-BFG" );
+	if( base_path )
+	{
+		savepath = SDL_strdup( base_path );
+		SDL_free( base_path );
+	}
+#else
+	sprintf( savepath, "%s/.rbdoom3bfg", getenv( "HOME" ) );
+#endif
+	
+	return savepath.c_str();
+}
 
 /*
 ================
@@ -171,6 +199,85 @@ Sys_Quit
 void Sys_Quit()
 {
 	Posix_Exit( EXIT_SUCCESS );
+}
+
+/*
+===============
+Sys_Shutdown
+===============
+*/
+void Sys_Shutdown()
+{
+	basepath.Clear();
+	savepath.Clear();
+	Posix_Shutdown();
+}
+
+/*
+===============
+Sys_FPU_EnableExceptions
+===============
+*/
+//void Sys_FPU_EnableExceptions( int exceptions )
+//{
+//}
+
+/*
+===============
+Sys_FPE_handler
+===============
+*/
+void Sys_FPE_handler( int signum, siginfo_t* info, void* context )
+{
+	assert( signum == SIGFPE );
+	Sys_Printf( "FPE\n" );
+}
+
+/*
+===============
+Sys_GetClockticks
+===============
+*/
+double Sys_GetClockTicks()
+{
+#if defined( __i386__ )
+	unsigned long lo, hi;
+	
+	__asm__ __volatile__(
+		"push %%ebx\n"			\
+		"xor %%eax,%%eax\n"		\
+		"cpuid\n"					\
+		"rdtsc\n"					\
+		"mov %%eax,%0\n"			\
+		"mov %%edx,%1\n"			\
+		"pop %%ebx\n"
+		: "=r"( lo ), "=r"( hi ) );
+	return ( double ) lo + ( double ) 0xFFFFFFFF * hi;
+#else
+//#error unsupported CPU
+// RB begin
+	struct timespec now;
+	
+	clock_gettime( CLOCK_MONOTONIC, &now );
+	
+	return now.tv_sec * 1000000000LL + now.tv_nsec;
+// RB end
+#endif
+}
+
+/*
+===============
+MeasureClockTicks
+===============
+*/
+double MeasureClockTicks()
+{
+	double t0, t1;
+	
+	t0 = Sys_GetClockTicks( );
+	Sys_Sleep( 1000 );
+	t1 = Sys_GetClockTicks( );
+	return t1 - t0;
 }
 
 /*
@@ -283,6 +390,56 @@ uint64 Sys_Microseconds()
 	
 	return curtime;
 #endif
+}
+
+/*
+================
+Sys_DefaultBasePath
+
+Get the default base path
+- binary image path
+- current directory
+- hardcoded
+Try to be intelligent: if there is no BASE_GAMEDIR, try the next path
+================
+*/
+const char* Sys_DefaultBasePath()
+{
+	struct stat st;
+	idStr testbase;
+	basepath = Sys_EXEPath();
+	if( basepath.Length() )
+	{
+		basepath.StripFilename();
+		testbase = basepath;
+		testbase += "/";
+		testbase += BASE_GAMEDIR;
+		if( stat( testbase.c_str(), &st ) != -1 && S_ISDIR( st.st_mode ) )
+		{
+			return basepath.c_str();
+		}
+		else
+		{
+			common->Printf( "no '%s' directory in exe path %s, skipping\n", BASE_GAMEDIR, basepath.c_str() );
+		}
+	}
+	if( basepath != Posix_Cwd() )
+	{
+		basepath = Posix_Cwd();
+		testbase = basepath;
+		testbase += "/";
+		testbase += BASE_GAMEDIR;
+		if( stat( testbase.c_str(), &st ) != -1 && S_ISDIR( st.st_mode ) )
+		{
+			return basepath.c_str();
+		}
+		else
+		{
+			common->Printf( "no '%s' directory in cwd path %s, skipping\n", BASE_GAMEDIR, basepath.c_str() );
+		}
+	}
+	common->Printf( "WARNING: using hardcoded default base path %s\n", DEFAULT_BASEPATH );
+	return DEFAULT_BASEPATH;
 }
 
 /*
@@ -838,8 +995,8 @@ void Posix_LateInit()
 	Posix_InitConsoleInput();
 	com_pid.SetInteger( getpid() );
 	common->Printf( "pid: %d\n", com_pid.GetInteger() );
-	common->Printf( "%d MB System Memory\n", Sys_GetSystemRam() );
-	
+//	common->Printf( "%d MB System Memory\n", Sys_GetSystemRam() );
+
 //#ifndef ID_DEDICATED
 	//common->Printf( "%d MB Video Memory\n", Sys_GetVideoRam() );
 //#endif
@@ -1296,7 +1453,7 @@ char* Posix_ConsoleInput()
 	{
 		// disabled on OSX. works fine from a terminal, but launching from Finder is causing trouble
 		// I'm pretty sure it could be re-enabled if needed, and just handling the Finder failure case right (TTimo)
-#ifndef MACOS_X
+#ifndef __APPLE__
 		// no terminal support - read only complete lines
 		int				len;
 		fd_set			fdset;
@@ -1460,3 +1617,57 @@ void Sys_SetLanguageFromSystem()
 {
 	sys_lang.SetString( Sys_DefaultLanguage() );
 }
+
+/*
+=================
+Sys_OpenURL
+=================
+*/
+void idSysLocal::OpenURL( const char* url, bool quit )
+{
+	const char*	script_path;
+	idFile*		script_file;
+	char		cmdline[ 1024 ];
+	
+	static bool	quit_spamguard = false;
+	
+	if( quit_spamguard )
+	{
+		common->DPrintf( "Sys_OpenURL: already in a doexit sequence, ignoring %s\n", url );
+		return;
+	}
+	
+	common->Printf( "Open URL: %s\n", url );
+	// opening an URL on *nix can mean a lot of things ..
+	// just spawn a script instead of deciding for the user :-)
+	
+	// look in the savepath first, then in the basepath
+	script_path = fileSystem->BuildOSPath( cvarSystem->GetCVarString( "fs_savepath" ), "", "openurl.sh" );
+	script_file = fileSystem->OpenExplicitFileRead( script_path );
+	if( !script_file )
+	{
+		script_path = fileSystem->BuildOSPath( cvarSystem->GetCVarString( "fs_basepath" ), "", "openurl.sh" );
+		script_file = fileSystem->OpenExplicitFileRead( script_path );
+	}
+	if( !script_file )
+	{
+		common->Printf( "Can't find URL script 'openurl.sh' in either savepath or basepath\n" );
+		common->Printf( "OpenURL '%s' failed\n", url );
+		return;
+	}
+	fileSystem->CloseFile( script_file );
+	
+	// if we are going to quit, only accept a single URL before quitting and spawning the script
+	if( quit )
+	{
+		quit_spamguard = true;
+	}
+	
+	common->Printf( "URL script: %s\n", script_path );
+	
+	// StartProcess is going to execute a system() call with that - hence the &
+	idStr::snPrintf( cmdline, 1024, "%s '%s' &",  script_path, url );
+	sys->StartProcess( cmdline, quit );
+}
+
+

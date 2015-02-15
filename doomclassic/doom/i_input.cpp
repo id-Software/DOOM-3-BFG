@@ -53,7 +53,7 @@ extern int PLAYERCOUNT;
 
 #define NUM_BUTTONS 4
 
-static bool Cheat_God( void ) {
+static bool Cheat_God() {
 	if( PLAYERCOUNT != 1 || ::g->netgame ) {
 		return false;
 	}
@@ -72,7 +72,7 @@ static bool Cheat_God( void ) {
 }
 
 #include "g_game.h"
-static bool Cheat_NextLevel( void ) {
+static bool Cheat_NextLevel() {
 	if( PLAYERCOUNT != 1 || ::g->netgame ) {
 		return false;
 	}
@@ -81,7 +81,7 @@ static bool Cheat_NextLevel( void ) {
 	return true;
 }
 
-static bool Cheat_GiveAll( void ) {
+static bool Cheat_GiveAll() {
 	if( PLAYERCOUNT != 1 || ::g->netgame ) {
 		return false;
 	}
@@ -103,7 +103,7 @@ static bool Cheat_GiveAll( void ) {
 	return true;
 }
 
-static bool Cheat_GiveAmmo( void ) {
+static bool Cheat_GiveAmmo() {
 	if( PLAYERCOUNT != 1 || ::g->netgame ) {
 		return false;
 	}
@@ -121,7 +121,7 @@ static bool Cheat_GiveAmmo( void ) {
 	return true;
 }
 
-static bool Cheat_Choppers( void ) {
+static bool Cheat_Choppers() {
 	if( PLAYERCOUNT != 1 || ::g->netgame ) {
 		return false;
 	}
@@ -143,7 +143,7 @@ static void TogglePowerUp( int i ) {
 	::g->plyr->message = STSTR_BEHOLDX;
 }
 
-static bool Cheat_GiveInvul( void ) {
+static bool Cheat_GiveInvul() {
 	if( PLAYERCOUNT != 1 || ::g->netgame ) {
 		return false;
 	}
@@ -152,7 +152,7 @@ static bool Cheat_GiveInvul( void ) {
 	return true;
 }
 
-static bool Cheat_GiveBerserk( void ) {
+static bool Cheat_GiveBerserk() {
 	if( PLAYERCOUNT != 1 || ::g->netgame ) {
 		return false;
 	}
@@ -161,7 +161,7 @@ static bool Cheat_GiveBerserk( void ) {
 	return true;
 }
 
-static bool Cheat_GiveBlur( void ) {
+static bool Cheat_GiveBlur() {
 	if( PLAYERCOUNT != 1 || ::g->netgame ) {
 		return false;
 	}
@@ -170,7 +170,7 @@ static bool Cheat_GiveBlur( void ) {
 	return true;
 }
 
-static bool Cheat_GiveRad( void ) {
+static bool Cheat_GiveRad() {
 	if( PLAYERCOUNT != 1 || ::g->netgame ) {
 		return false;
 	}
@@ -179,7 +179,7 @@ static bool Cheat_GiveRad( void ) {
 	return true;
 }
 
-static bool Cheat_GiveMap( void ) {
+static bool Cheat_GiveMap() {
 	if( PLAYERCOUNT != 1 || ::g->netgame ) {
 		return false;
 	}
@@ -188,7 +188,7 @@ static bool Cheat_GiveMap( void ) {
 	return true;
 }
 
-static bool Cheat_GiveLight( void ) {
+static bool Cheat_GiveLight() {
 	if( PLAYERCOUNT != 1 || ::g->netgame ) {
 		return false;
 	}
@@ -231,7 +231,7 @@ static cheatcode_t codes[] = {
 const static int numberOfCodes = sizeof(codes) / sizeof(codes[0]);
 
 
-void BeginTrackingCheat( void ) {
+void BeginTrackingCheat() {
 #if ALLOW_CHEATS
 	tracking = true;
 	currentCheatLength = 0;
@@ -239,7 +239,7 @@ void BeginTrackingCheat( void ) {
 #endif
 }
 
-void EndTrackingCheat( void ) {
+void EndTrackingCheat() {
 #if ALLOW_CHEATS
 	tracking = false;
 #endif
@@ -282,7 +282,7 @@ void I_InitInput(void)
 {
 }
 
-void I_ShutdownInput( void ) 
+void I_ShutdownInput() 
 {
 }
 
@@ -463,7 +463,7 @@ int I_ReturnJoystickInputEvent( const int n, event_t* e) {
 	return 0;
 }
 
-void I_EndJoystickInputEvents( void ) {
+void I_EndJoystickInputEvents() {
 	int i;
 	for(i = 0; i < 18; i++)
 	{

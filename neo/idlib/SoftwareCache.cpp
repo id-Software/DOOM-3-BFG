@@ -37,6 +37,8 @@ If you have questions concerning this license or the applicable additional terms
 
 #ifdef _WIN32
 #include <windows.h> // for DebugBreak
+#else // POSIX for raise()
+#include <signal.h>
 #endif
 
 /*

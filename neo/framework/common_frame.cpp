@@ -31,7 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 
 #include "Common_local.h"
-#include "../renderer/Image.h"
+#include "../renderer/Image.h" // now I did it!
 #include "../renderer/ImageOpts.h"
 
 // RB begin
@@ -498,7 +498,11 @@ void idCommonLocal::Frame()
 #endif
 			// RB end, DG end
 		{
-			Sys_GrabMouseCursor( false );
+			// RB: don't release the mouse when opening a PDA or menu
+			if( console->Active() )
+			{
+				Sys_GrabMouseCursor( false );
+			}
 			usercmdGen->InhibitUsercmd( INHIBIT_SESSION, true );
 			chatting = true;
 		}
@@ -526,14 +530,15 @@ void idCommonLocal::Frame()
 		// save the screenshot and audio from the last draw if needed
 		if( aviCaptureMode )
 		{
-			idStr name = va( "demos/%s/%s_%05i.tga", aviDemoShortName.c_str(), aviDemoShortName.c_str(), aviDemoFrameCount++ );
-			renderSystem->TakeScreenshot( com_aviDemoWidth.GetInteger(), com_aviDemoHeight.GetInteger(), name, com_aviDemoSamples.GetInteger(), NULL );
+			idStr name;
+			name.Format( "demos/%s/%s_%05i", aviDemoShortName.c_str(), aviDemoShortName.c_str(), aviDemoFrameCount++ );
+			renderSystem->TakeScreenshot( com_aviDemoWidth.GetInteger(), com_aviDemoHeight.GetInteger(), name, com_aviDemoSamples.GetInteger(), NULL, TGA );
 			
 			// remove any printed lines at the top before taking the screenshot
 			console->ClearNotifyLines();
 			
 			// this will call Draw, possibly multiple times if com_aviDemoSamples is > 1
-			renderSystem->TakeScreenshot( com_aviDemoWidth.GetInteger(), com_aviDemoHeight.GetInteger(), name, com_aviDemoSamples.GetInteger(), NULL );
+			renderSystem->TakeScreenshot( com_aviDemoWidth.GetInteger(), com_aviDemoHeight.GetInteger(), name, com_aviDemoSamples.GetInteger(), NULL, TGA );
 		}
 		
 		//--------------------------------------------

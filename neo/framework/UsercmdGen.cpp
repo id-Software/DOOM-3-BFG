@@ -861,9 +861,9 @@ Draws axis and threshold / range rings into an RGBA image
 void	DrawJoypadTexture(
 	const int	size,
 	byte	image[],
-
+	
 	const idVec2 raw,
-
+	
 	const float threshold,
 	const float range,
 	const transferFunction_t shape,
@@ -1360,6 +1360,16 @@ void idUsercmdGenLocal::Mouse()
 			case M_ACTION6:
 			case M_ACTION7:
 			case M_ACTION8:
+			
+			// DG: support some more mouse buttons
+			case M_ACTION9:
+			case M_ACTION10:
+			case M_ACTION11:
+			case M_ACTION12:
+			case M_ACTION13:
+			case M_ACTION14:
+			case M_ACTION15:
+			case M_ACTION16: // DG end
 				mouseButton = K_MOUSE1 + ( action - M_ACTION1 );
 				mouseDown = ( value != 0 );
 				Key( mouseButton, mouseDown );
@@ -1424,6 +1434,10 @@ void idUsercmdGenLocal::Joystick( int deviceNum )
 {
 	int numEvents = Sys_PollJoystickInputEvents( deviceNum );
 	
+//	if(numEvents) {
+//		common->Printf("idUsercmdGenLocal::Joystick: numEvents = %i\n", numEvents);
+//	}
+
 	// Study each of the buffer elements and process them.
 	for( int i = 0; i < numEvents; i++ )
 	{
@@ -1431,6 +1445,8 @@ void idUsercmdGenLocal::Joystick( int deviceNum )
 		int value;
 		if( Sys_ReturnJoystickInputEvent( i, action, value ) )
 		{
+//		common->Printf("idUsercmdGenLocal::Joystick: i = %i / action = %i / value = %i\n", i, action, value);
+
 			if( action >= J_ACTION1 && action <= J_ACTION_MAX )
 			{
 				int joyButton = K_JOY1 + ( action - J_ACTION1 );

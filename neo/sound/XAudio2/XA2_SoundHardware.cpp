@@ -29,7 +29,9 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "precompiled.h"
 #include "../snd_local.h"
+#if defined(USE_DOOMCLASSIC)
 #include "../../../doomclassic/doom/i_sound.h"
+#endif
 
 idCVar s_showLevelMeter( "s_showLevelMeter", "0", CVAR_BOOL | CVAR_ARCHIVE, "Show VU meter" );
 idCVar s_meterTopTime( "s_meterTopTime", "1000", CVAR_INTEGER | CVAR_ARCHIVE, "How long (in milliseconds) peaks are displayed on the VU meter" );
@@ -256,18 +258,135 @@ void idSoundHardware_XAudio2::Init()
 	// Register the sound engine callback
 	pXAudio2->RegisterForCallbacks( &soundEngineCallback );
 	soundEngineCallback.hardware = this;
-	
-// RB: not available on Windows 8 SDK
-#if defined(USE_WINRT) //(_WIN32_WINNT >= 0x0602 /*_WIN32_WINNT_WIN8*/)
-
-	// FIXME
-	
-	idLib::Warning( "No audio devices found" );
-	pXAudio2->Release();
-	pXAudio2 = NULL;
-	return;
-#else
 	UINT32 deviceCount = 0;
+	DWORD outputSampleRate = 44100; // Max( (DWORD)XAUDIO2FX_REVERB_MIN_FRAMERATE, Min( (DWORD)XAUDIO2FX_REVERB_MAX_FRAMERATE, deviceDetails.OutputFormat.Format.nSamplesPerSec ) );
+	
+	// RB: not available on Windows 8 SDK
+#if defined(USE_WINRT) //(_WIN32_WINNT >= 0x0602 /*_WIN32_WINNT_WIN8*/)
+	
+	IMMDeviceEnumerator*     immDevEnum       = nullptr;
+	IMMDeviceCollection*     immDevCollection = nullptr;
+	IMMDevice*               immDev           = nullptr;
+	std::vector<AudioDevice> vAudioDevices;
+	
+	HRESULT hResult = CoCreateInstance(
+						  __uuidof( MMDeviceEnumerator ), NULL,
+						  CLSCTX_ALL, __uuidof( IMMDeviceEnumerator ), ( void** ) &immDevEnum );
+						  
+	if( FAILED( hResult ) )
+	{
+		idLib::Warning( "Failed to get audio enumerator" );
+		pXAudio2->Release();
+		pXAudio2 = NULL;
+		return;
+	}
+	
+	hResult = immDevEnum->EnumAudioEndpoints( eRender, DEVICE_STATE_ACTIVE, &immDevCollection );
+	if( FAILED( hResult ) )
+	{
+		idLib::Warning( "Failed to get audio endpoints" );
+		pXAudio2->Release();
+		pXAudio2 = NULL;
+		return;
+	}
+	
+	hResult = immDevCollection->GetCount( &deviceCount );
+	if( FAILED( hResult ) )
+	{
+		idLib::Warning( "No audio devices found" );
+		pXAudio2->Release();
+		pXAudio2 = NULL;
+		return;
+	}
+	
+	for( UINT i = 0; i < deviceCount; i++ )
+	{
+		IPropertyStore* propStore = nullptr;
+		PROPVARIANT     varName;
+		PROPVARIANT     varId;
+		
+		PropVariantInit( &varId );
+		PropVariantInit( &varName );
+		
+		hResult = immDevCollection->Item( i, &immDev );
+		if( SUCCEEDED( hResult ) )
+		{
+			hResult = immDev->OpenPropertyStore( STGM_READ, &propStore );
+		}
+		if( SUCCEEDED( hResult ) )
+		{
+			hResult = propStore->GetValue( PKEY_AudioEndpoint_Path, &varId );
+		}
+		
+		if( SUCCEEDED( hResult ) )
+		{
+			hResult = propStore->GetValue( PKEY_Device_FriendlyName, &varName );
+		}
+		
+		if( SUCCEEDED( hResult ) )
+		{
+			assert( varId.vt == VT_LPWSTR );
+			assert( varName.vt == VT_LPWSTR );
+			
+			// Now save somewhere the device display name & id
+			AudioDevice ad;
+			ad.name = varName.pwszVal;
+			ad.id   = varId.pwszVal;
+			
+			vAudioDevices.push_back( ad );
+		}
+		
+		PropVariantClear( &varName );
+		PropVariantClear( &varId );
+		
+		if( propStore != nullptr )
+		{
+			propStore->Release();
+		}
+		
+		if( immDev != nullptr )
+		{
+			immDev->Release();
+		}
+	}
+	
+	
+	immDevCollection->Release();
+	immDevEnum->Release();
+	
+	int preferredDevice = s_device.GetInteger();
+	if( !vAudioDevices.empty() )
+	{
+		if( SUCCEEDED( pXAudio2->CreateMasteringVoice( &pMasterVoice,
+					   XAUDIO2_DEFAULT_CHANNELS,
+					   outputSampleRate,
+					   0,
+					   vAudioDevices.at( 0 ).id.c_str(),
+					   NULL,
+					   AudioCategory_GameEffects ) ) )
+		{
+			XAUDIO2_VOICE_DETAILS deviceDetails;
+			pMasterVoice->GetVoiceDetails( &deviceDetails );
+			
+			pMasterVoice->SetVolume( DBtoLinear( s_volume_dB.GetFloat() ) );
+			
+			outputChannels = deviceDetails.InputChannels;
+			DWORD win8_channelMask;
+			pMasterVoice->GetChannelMask( &win8_channelMask );
+			
+			channelMask = ( unsigned int )win8_channelMask;
+			idLib::Printf( "Using device %s\n", vAudioDevices.at( 0 ).name );
+		}
+		else
+		{
+			idLib::Warning( "Failed to create master voice" );
+			pXAudio2->Release();
+			pXAudio2 = NULL;
+			return;
+		}
+	}
+	
+#else
 	if( pXAudio2->GetDeviceCount( &deviceCount ) != S_OK || deviceCount == 0 )
 	{
 		idLib::Warning( "No audio devices found" );
@@ -320,7 +439,6 @@ void idSoundHardware_XAudio2::Init()
 		return;
 	}
 	
-	DWORD outputSampleRate = 44100; // Max( (DWORD)XAUDIO2FX_REVERB_MIN_FRAMERATE, Min( (DWORD)XAUDIO2FX_REVERB_MAX_FRAMERATE, deviceDetails.OutputFormat.Format.nSamplesPerSec ) );
 	
 	if( FAILED( pXAudio2->CreateMasteringVoice( &pMasterVoice, XAUDIO2_DEFAULT_CHANNELS, outputSampleRate, 0, preferredDevice, NULL ) ) )
 	{
@@ -334,12 +452,16 @@ void idSoundHardware_XAudio2::Init()
 	outputChannels = deviceDetails.OutputFormat.Format.nChannels;
 	channelMask = deviceDetails.OutputFormat.dwChannelMask;
 	
+#endif // #if (_WIN32_WINNT < 0x0602 /*_WIN32_WINNT_WIN8*/)
+	
 	idSoundVoice::InitSurround( outputChannels, channelMask );
 	
+#if defined(USE_DOOMCLASSIC)
 	// ---------------------
 	// Initialize the Doom classic sound system.
 	// ---------------------
 	I_InitSoundHardware( outputChannels, channelMask );
+#endif
 	
 	// ---------------------
 	// Create VU Meter Effect
@@ -405,7 +527,6 @@ void idSoundHardware_XAudio2::Init()
 	{
 		freeVoices[i] = &voices[i];
 	}
-#endif // #if (_WIN32_WINNT < 0x0602 /*_WIN32_WINNT_WIN8*/)
 // RB end
 }
 
@@ -424,10 +545,12 @@ void idSoundHardware_XAudio2::Shutdown()
 	freeVoices.Clear();
 	zombieVoices.Clear();
 	
+#if defined(USE_DOOMCLASSIC)
 	// ---------------------
 	// Shutdown the Doom classic sound system.
 	// ---------------------
 	I_ShutdownSoundHardware();
+#endif
 	
 	if( pXAudio2 != NULL )
 	{

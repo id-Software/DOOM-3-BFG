@@ -69,6 +69,13 @@ typedef enum
 	CF_2D_ARRAY		// not a cube map but not a single 2d texture either
 } cubeFiles_t;
 
+enum imageFileType_t
+{
+	TGA,
+	PNG,
+	JPG
+};
+
 #include "ImageOpts.h"
 #include "BinaryImage.h"
 
@@ -390,6 +397,7 @@ void R_BlendOverTexture( byte* data, int pixelCount, const byte blend[4] );
 void R_HorizontalFlip( byte* data, int width, int height );
 void R_VerticalFlip( byte* data, int width, int height );
 void R_RotatePic( byte* data, int width );
+void R_ApplyCubeMapTransforms( int i, byte* data, int size );
 
 /*
 ====================================================================

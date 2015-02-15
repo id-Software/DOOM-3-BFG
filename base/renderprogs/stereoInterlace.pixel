@@ -26,7 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#include "global.inc"
+#include "renderprogs/global.inc"
 
 uniform sampler2D samp0 : register(s0);
 uniform sampler2D samp1 : register(s1);

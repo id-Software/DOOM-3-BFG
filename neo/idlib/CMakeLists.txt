@@ -84,23 +84,21 @@ list(REMOVE_ITEM ID_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/geometry/Ren
 list(REMOVE_ITEM ID_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/SoftwareCache.cpp)
 
 if(MSVC)
-	
-	#set_target_properties(idlib PROPERTIES COMPILE_FLAGS "/Yuprecompiled.h")
-	
-	foreach( src_file ${ID_PRECOMPILED_SOURCES} )
-		#message(STATUS "/Yuprecompiled.h for ${src_file}")
-        set_source_files_properties(
-            ${src_file}
-            PROPERTIES
-            COMPILE_FLAGS "/Yuprecompiled.h"
-            )
-    endforeach()
-	
-	set_source_files_properties(precompiled.cpp
+    list(REMOVE_ITEM ID_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/precompiled.cpp)
+
+    #set_target_properties(idlib PROPERTIES COMPILE_FLAGS "/Yuprecompiled.h")
+    set_source_files_properties(precompiled.cpp
         PROPERTIES
         COMPILE_FLAGS "/Ycprecompiled.h"
+        OBJECT_OUTPUTS "precompiled.pch"
         )
-        
+        set_source_files_properties(
+            ${ID_PRECOMPILED_SOURCES}
+            PROPERTIES
+            COMPILE_FLAGS "/Yuprecompiled.h"
+            OBJECT_DEPENDS "precompiled.pch"
+            )
+
     add_library(idlib ${ID_SOURCES_ALL} ${ID_INCLUDES_ALL})
 else()
 	foreach( src_file ${ID_PRECOMPILED_SOURCES} )

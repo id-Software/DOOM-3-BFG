@@ -4515,11 +4515,11 @@ void idPlayer::ClearPowerup( int i )
 				StopSound( SND_CHANNEL_DEMONIC, false );
 			}
 		}
-		/*case HASTE: {
-			if(common->IsMultiplayer()) {
-				StopSound( SND_CHANNEL_DEMONIC, false );
-			}
-		}*/
+			/*case HASTE: {
+				if(common->IsMultiplayer()) {
+					StopSound( SND_CHANNEL_DEMONIC, false );
+				}
+			}*/
 	}
 }
 

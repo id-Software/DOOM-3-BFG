@@ -381,7 +381,7 @@ int I_StartSound2 ( int id, int player, mobj_t *origin, mobj_t *listener_origin,
 I_ProcessSoundEvents
 ======================
 */
-void I_ProcessSoundEvents( void ) {
+void I_ProcessSoundEvents() {
 	for( int i = 0; i < 128; i++ ) {
 		if( soundEvents[i].pitch ) {
 			I_StartSound2( i, soundEvents[i].player, soundEvents[i].originator, soundEvents[i].listener, soundEvents[i].pitch, soundEvents[i].priority );
@@ -490,7 +490,7 @@ I_UpdateSound
 */
 // Update Listener Position and go through all the
 // channels and update speaker volumes for 3D sound.
-void I_UpdateSound( void ) {
+void I_UpdateSound() {
 	if ( !soundHardwareInitialized ) {
 		return;
 	}
@@ -989,7 +989,7 @@ void I_PlaySong( const char *songname, int looping)
 I_UpdateMusic
 ======================
 */
-void I_UpdateMusic( void ) {
+void I_UpdateMusic() {
 	if ( !Music_initialized ) {
 		return;
 	}

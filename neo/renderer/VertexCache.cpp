@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013-2014 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -34,7 +35,7 @@ If you have questions concerning this license or the applicable additional terms
 idVertexCache vertexCache;
 
 idCVar r_showVertexCache( "r_showVertexCache", "0", CVAR_RENDERER | CVAR_BOOL, "Print stats about the vertex cache every frame" );
-idCVar r_showVertexCacheTimings( "r_showVertexCache", "0", CVAR_RENDERER | CVAR_BOOL, "Print stats about the vertex cache every frame" );
+idCVar r_showVertexCacheTimings( "r_showVertexCacheTimings", "0", CVAR_RENDERER | CVAR_BOOL, "Print stats about the vertex cache every frame" );
 
 
 /*
@@ -373,8 +374,8 @@ void idVertexCache::BeginBackEnd()
 	
 #if 0
 	const int startBind = Sys_Milliseconds();
-	glBindBufferARB( GL_ARRAY_BUFFER_ARB, ( GLuint )frameData[drawListNum].vertexBuffer.GetAPIObject() );
-	glBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, ( GLuint )frameData[drawListNum].indexBuffer.GetAPIObject() );
+	glBindBuffer( GL_ARRAY_BUFFER, ( GLuint )frameData[drawListNum].vertexBuffer.GetAPIObject() );
+	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ( GLuint )frameData[drawListNum].indexBuffer.GetAPIObject() );
 	const int endBind = Sys_Milliseconds();
 	if( endBind - startBind > 1 )
 	{
