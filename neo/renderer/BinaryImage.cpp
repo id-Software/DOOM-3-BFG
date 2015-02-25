@@ -446,7 +446,7 @@ idBinaryImage::LoadFromGeneratedFile
 Load the preprocessed image from the generated folder.
 ==========================
 */
-bool idBinaryImage::LoadFromGeneratedFile( idFile* bFile, ID_TIME_T sourceFileTime )
+bool idBinaryImage::LoadFromGeneratedFile( idFile* bFile, ID_TIME_T sourceTimeStamp )
 {
 	if( bFile->Read( &fileData, sizeof( fileData ) ) <= 0 )
 	{
@@ -466,10 +466,13 @@ bool idBinaryImage::LoadFromGeneratedFile( idFile* bFile, ID_TIME_T sourceFileTi
 	{
 		return false;
 	}
-	if( fileData.sourceFileTime != sourceFileTime && sourceFileTime != 0 && com_productionMode.GetInteger() == 0 )
+	
+	// RB: source might be from .resources, so we ignore the time stamp and assume a release build
+	if( !fileSystem->InProductionMode() && ( sourceTimeStamp != FILE_NOT_FOUND_TIMESTAMP ) && ( sourceTimeStamp != 0 ) && ( sourceTimeStamp != fileData.sourceFileTime ) )
 	{
 		return false;
 	}
+	// RB end
 	
 	int numImages = fileData.numLevels;
 	if( fileData.textureType == TT_CUBIC )

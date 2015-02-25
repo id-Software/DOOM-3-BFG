@@ -169,10 +169,10 @@ public:
 	virtual void			EnableBackgroundCache( bool enable );
 	virtual void			BeginLevelLoad( const char* name, char* _blockBuffer, int _blockBufferSize );
 	virtual void			EndLevelLoad();
-	virtual bool			InProductionMode()
-	{
-		return ( resourceFiles.Num() > 0 ) | ( com_productionMode.GetInteger() != 0 );
-	}
+	
+	// RB begin
+	virtual bool			InProductionMode();
+	// RB end
 	virtual bool			UsingResourceFiles()
 	{
 		return resourceFiles.Num() > 0;
@@ -782,6 +782,15 @@ void idFileSystemLocal::EndLevelLoad()
 	resourceBufferSize = 0;
 	
 }
+
+// RB begin
+bool idFileSystemLocal::InProductionMode()
+{
+	//return fs_resourceLoadPriority.GetBool() && ( resourceFiles.Num() > 0 ) || ( com_productionMode.GetInteger() != 0 );
+	
+	return ( com_productionMode.GetInteger() != 0 );
+}
+// RB end
 
 bool FileExistsInAllManifests( const char* filename, idList< idFileManifest >& manifests )
 {

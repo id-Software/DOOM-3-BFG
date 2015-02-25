@@ -32,6 +32,10 @@ _______________________________
 
 - Added back dmap and aas compilers (mapping tools)
 
+- Cinematic sequences can be skipped
+
+- Localization support for other languages than English
+
 
 
 _______________________________________
