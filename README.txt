@@ -43,7 +43,9 @@ This file contains the following sections:
 	
 	11) BUG REPORTS
 	
-	12) CODE LICENSE EXCEPTIONS
+	12) GAME MODIFICATIONS
+	
+	13) CODE LICENSE EXCEPTIONS
 
 
 
@@ -101,20 +103,6 @@ Back End Rendering of Stencil Shadows:
 The Doom 3 BFG Edition GPL Source Code release does not include functionality enabling rendering
 of stencil shadows via the "depth fail" method, a functionality commonly known as "Carmack's Reverse".
 
-
-Mods:
------
-
-The Doom 3 BFG Edition GPL Source Code release allow mod editing, in order for it to accept any change in your
-mod directory, you should first specify your mod directory adding the following command to the launcher:
-
-"+set fs_game modDirectoryName"
-
-as well as force the content of your mod directory over the content of the game with the following command:
-
-"+set fs_resourceLoadPriority 0"
-
-so it would end up looking like: RBDoom3BFG +set fs_resourceLoadPriority 0 +set fs_game mymod
 
 
 _______________________________
@@ -346,11 +334,29 @@ If you want to report an issue with the game, you should make sure that your rep
 NOTE: We cannot help you with OS-specific issues like configuring OpenGL correctly, configuring ALSA or configuring the network.
 	
 
+___________________________________________________
+
+12) GAME MODIFCATIONS
+__________________________________________
 	
+The Doom 3 BFG Edition GPL Source Code release allows mod editing, in order for it to accept any change in your
+mod directory, you should first specify your mod directory adding the following command to the launcher:
+
+"+set fs_game modDirectoryName"
+
+as well as force the content of your mod directory over the content of the game with the following command:
+
+"+set fs_resourceLoadPriority 0"
+
+so it would end up looking like: RBDoom3BFG +set fs_resourceLoadPriority 0 +set fs_game modDirectoryName
+
+
+IMPORTANT: RBDOOM-3-BFG does not support old Doom 3 modiciations that include sourcecode modifications in binary form (.dll)
+You can fork RBDOOM-3-BFG and create a new renamed binary that includes all required C++ game code modifications.
 	
 ____________________________________________________________________________________
 
-12) CODE LICENSE EXCEPTIONS - The parts that are not covered by the GPL:
+13) CODE LICENSE EXCEPTIONS - The parts that are not covered by the GPL:
 _______________________________________________________________________
 
 

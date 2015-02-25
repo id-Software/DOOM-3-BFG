@@ -36,6 +36,8 @@ _______________________________
 
 - Localization support for other languages than English
 
+- Improved modding support through loading of custom models and animations (see section 12 MODIFICATIONS in the README)
+
 
 
 _______________________________________
