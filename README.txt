@@ -35,7 +35,7 @@ This file contains the following sections:
 	
 	7) INSTALLATION, GETTING THE GAMEDATA, RUNNING THE GAME
 	
-	8) CHANGES
+	8) OVERALL CHANGES
 	
 	9) CONSOLE VARIABLES
 	
@@ -268,7 +268,7 @@ Anyway:
 
 ___________________________________________________
 
-8) CHANGES
+8) OVERALL CHANGES
 __________________________________________
 
 - Flexible build system using CMake
@@ -283,6 +283,8 @@ __________________________________________
 
 - Bink video support through FFmpeg
 
+- PNG image support
+
 - Soft shadows using PCF hardware shadow mapping
 
 	The implementation uses sampler2DArrayShadow and PCF which usually
@@ -291,7 +293,7 @@ __________________________________________
 	All 3 light types are supported which means parallel lights (sun) use
 	scene independent cascaded shadow mapping.
 	The implementation is very fast with single taps (400 fps average per
-	scene on a GTX 660 ti OC) however I defaulted it to 16 taps so the shadows look
+	scene on a GTX 660 ti OC) however I defaulted it to 12 taps using a Poisson disc algorithm so the shadows look
 	really good which should give you stable 100 fps on todays hardware (2014).
 
 - Changed light interaction shaders to use Half-Lambert lighting like in Half-Life 2 to 
