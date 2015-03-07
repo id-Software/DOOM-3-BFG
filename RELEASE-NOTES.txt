@@ -14,8 +14,7 @@ Thank you for downloading RBDOOM-3-BFG.
 
 _______________________________________
 
-TBD - RBDOOM-3-BFG 1.0.3
-
+7 March 2015 - RBDOOM-3-BFG 1.0.3
 _______________________________
 
 - SDL 2 is the default for Linux
