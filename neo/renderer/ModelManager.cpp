@@ -301,11 +301,15 @@ idRenderModel* idRenderModelManagerLocal::GetModel( const char* _modelName, bool
 				idStr generatedFileName = "generated/rendermodels/";
 				generatedFileName.AppendPath( canonical );
 				generatedFileName.SetFileExtension( va( "b%s", extension.c_str() ) );
+				
+				// Get the timestamp on the original file, if it's newer than what is stored in binary model, regenerate it
+				ID_TIME_T sourceTimeStamp = fileSystem->GetTimestamp( canonical );
+				
 				if( model->SupportsBinaryModel() && r_binaryLoadRenderModels.GetBool() )
 				{
 					idFileLocal file( fileSystem->OpenFileReadMemory( generatedFileName ) );
 					model->PurgeModel();
-					if( !model->LoadBinaryModel( file, 0 ) )
+					if( !model->LoadBinaryModel( file, sourceTimeStamp ) )
 					{
 						model->LoadModel();
 					}

@@ -1,0 +1,97 @@
+    ____   ____   ____                           _____  ____   ______ ______
+   / __ \ / __ ) / __ \ ____   ____   ____ ___  |__  / / __ ) / ____// ____/
+  / /_/ // __  |/ / / // __ \ / __ \ / __ `__ \  /_ < / __  |/ /_   / / __  
+ / _, _// /_/ // /_/ // /_/ // /_/ // / / / / /___/ // /_/ // __/  / /_/ /  
+/_/ |_|/_____//_____/ \____/ \____//_/ /_/ /_//____//_____//_/     \____/   
+_________________________________________
+
+
+RBDOOM-3-BFG Release Notes - https://github.com/RobertBeckebans/RBDOOM-3-BFG
+
+Thank you for downloading RBDOOM-3-BFG.
+
+
+
+_______________________________________
+
+7 March 2015 - RBDOOM-3-BFG 1.0.3
+_______________________________
+
+- SDL 2 is the default for Linux
+
+- CMake options like -DUSE_SYSTEM_LIBJPEG to aid Linux distribution package maintainers
+
+- SDL gamepad support and other SDL input improvements like support for more mouse buttons
+
+- Mac OS X support (experimental)
+
+- XAudio 2, Windows 8 SDK fixes
+
+- Better Mesa support (not including advanced shadow mapping)
+
+- Added back dmap and aas compilers (mapping tools)
+
+- Cinematic sequences can be skipped
+
+- Localization support for other languages than English
+
+- Improved modding support through loading of custom models and animations (see section 12 MODIFICATIONS in the README)
+
+
+
+_______________________________________
+
+17 May 2014 - RBDOOM-3-BFG 1.0.2
+
+RBDOOM-3-BFG-1.0.2-ATI-hotfix1-win32-20140517-git-952907f.7z
+_______________________________
+
+This release doubles the shadow mapping performance and allows the game to be played at solid 120 fps in 1080p with a Nvidia GTX 660 Ti.
+It also adds a graphics option to enable/disable shadow mapping and fixes a few problems with FFmpeg playing Bink videos.
+
+
+
+_______________________________________
+
+11 May 2014 - RBDOOM-3-BFG 1.0.1
+
+RBDOOM-3-BFG-win32-20140511-git-f950769.7z
+_______________________________
+
+This release improves the performance drastically and adds shadow mapping support for translucent surfaces like grates.
+
+
+_______________________________________
+
+10 May 2014 - RBDOOM-3-BFG 1.0
+
+RBDOOM-3-BFG-win32-20140510-git-14f87fe.7z
+_______________________________
+
+- Added soft shadow mapping
+
+- Added PNG image support
+
+- Replaced QGL with GLEW
+
+- base/renderprogs/ can be baked into the executable using Premake/Lua
+
+- Replaced Visual Studio solution with CMake
+
+- Linux port using SDL/SDL2 and OpenAL
+
+- 64 bit support for Windows and Linux
+
+- Sourcecode cleanup using Artistic Style 2.03 C++ beautifier and by fixing tons of warnings using Clang compiler
+
+- Fast compile times using precompiled header support
+
+- Tons of renderer bugfixes and Cg -> GLSL converter that supports ES 2.00, ES 3.30 additional to GLSL 1.50
+
+- Netcode fixes to allow multiplayer sessions to friends with +connect <ip of friend> (manual port forwarding required)
+
+
+
+
+
+

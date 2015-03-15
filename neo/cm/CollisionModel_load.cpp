@@ -3436,10 +3436,14 @@ cm_model_t* idCollisionModelManagerLocal::LoadBinaryModelFromFile( idFile* file,
 	}
 	ID_TIME_T storedTimeStamp = FILE_NOT_FOUND_TIMESTAMP;
 	file->ReadBig( storedTimeStamp );
-	if( !fileSystem->InProductionMode() && storedTimeStamp != sourceTimeStamp )
+	
+	// RB: source might be from .resources, so we ignore the time stamp and assume a release build
+	if( !fileSystem->InProductionMode() && ( sourceTimeStamp != FILE_NOT_FOUND_TIMESTAMP ) && ( sourceTimeStamp != 0 ) && ( sourceTimeStamp != storedTimeStamp ) )
 	{
 		return NULL;
 	}
+	// RB end
+	
 	cm_model_t* model = AllocModel();
 	file->ReadString( model->name );
 	file->ReadBig( model->bounds );

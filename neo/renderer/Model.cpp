@@ -366,10 +366,12 @@ bool idRenderModelStatic::LoadBinaryModel( idFile* file, const ID_TIME_T sourceT
 	
 	file->ReadBig( timeStamp );
 	
-	if( !fileSystem->InProductionMode() && sourceTimeStamp != timeStamp )
+	// RB: source might be from .resources, so we ignore the time stamp and assume a release build
+	if( !fileSystem->InProductionMode() && ( sourceTimeStamp != FILE_NOT_FOUND_TIMESTAMP ) && ( sourceTimeStamp != 0 ) && ( sourceTimeStamp != timeStamp ) )
 	{
 		return false;
 	}
+	// RB end
 	
 	common->UpdateLevelLoadPacifier();
 	
