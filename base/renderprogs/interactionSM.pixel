@@ -196,8 +196,8 @@ void main( PS_IN fragment, out PS_OUT result )
 	float bias = 0.001;
 	
 	shadowTexcoord.xyz /= shadowTexcoord.w;
-	//shadowTexcoord.z = shadowTexcoord.z * 0.9991;
-	shadowTexcoord.z = shadowTexcoord.z - bias;
+	shadowTexcoord.z = shadowTexcoord.z * 0.9995;
+	//shadowTexcoord.z = shadowTexcoord.z - bias;
 	shadowTexcoord.w = float(shadowIndex);
 
 #if 0
