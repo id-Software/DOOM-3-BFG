@@ -180,6 +180,24 @@ float rand( float2 co ) {
 
 #define DEG2RAD( a )				( ( a ) * PI / 180.0f )
 #define RAD2DEG( a )				( ( a ) * 180.0f / PI )
+
+half3 sRGBToLinearRGB( half3 rgb )
+{
+#if defined(USE_SRGB)
+	return pow( rgb, half3( 2.2 ) );
+#else
+	return rgb;
+#endif
+}
+
+half4 sRGBAToLinearRGBA( half4 rgba )
+{
+#if defined(USE_SRGB)
+	return pow( rgba, half4( 2.2 ) );
+#else
+	return rgba;
+#endif
+}
 // RB end
 
 #define _half2( x )		half2( x )

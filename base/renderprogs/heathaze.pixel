@@ -54,5 +54,5 @@ void main( PS_IN fragment, out PS_OUT result ) {
 	screenTexCoord = saturate( screenTexCoord );
 
 	// load the screen render
-	result.color = tex2D( samp0, screenTexCoord.xy );
+	result.color = sRGBAToLinearRGBA( tex2D( samp0, screenTexCoord.xy ) );
 }
