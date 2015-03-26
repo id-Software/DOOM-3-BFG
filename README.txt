@@ -218,11 +218,10 @@ Fortunately, you can run Steam in Wine to install Doom3 BFG and afterwards copy 
 game data somewhere else to use it with native executables.
 Winetricks ( http://winetricks.org/ ) makes installing Windows Steam on Linux really easy.
 
-If using the Linux version of Steam, you can open the console (launch steam with -console or
-try steam://open/console in a web browser) and enter the following:
+If using the Linux version of Steam, you can open the console (launch steam with -console or try steam://open/console in a web browser) and enter the following:
 	download_depot 208200 208202
 This will download the base game files to a path similar to (the path cannot be configured):
-	~/.steam/root/ubuntu12_32/steamapps/common/app_208200/depot_208202/
+	~/.steam/root/ubuntu12_32/steamapps/content/app_208200/depot_208202/
 Steam will not provide feedback on the download progress so you will have to watch the folder.
 You will also have to run download_depot for your language:
 	download_depot 208200 <language depot>
