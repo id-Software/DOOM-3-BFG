@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013-2015 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -3007,6 +3008,23 @@ static void CM_EstimateVertsAndEdges( const idMapEntity* mapEnt, int* numVerts, 
 			*numEdges += ( static_cast<const idMapBrush*>( mapPrim )->GetNumSides() - 2 ) * 3;
 			continue;
 		}
+		// RB begin
+		if( mapPrim->GetType() == idMapPrimitive::TYPE_MESH )
+		{
+			const MapPolygonMesh* mesh = static_cast<const MapPolygonMesh*>( mapPrim );
+			
+			// assume cylinder with a polygon with (numSides - 2) edges ontop and on the bottom
+			*numVerts += mesh->GetNumVertices();
+			
+			for( int i = 0; i < mesh->GetNumPolygons(); i++ )
+			{
+				const MapPolygon* poly = mesh->GetFace( i );
+				
+				*numEdges += ( poly->GetIndexes().Num() - 2 ) * 3;
+			}
+			continue;
+		}
+		// RB end
 	}
 }
 
@@ -3158,6 +3176,45 @@ void idCollisionModelManagerLocal::ConvertBrush( cm_model_t* model, const idMapB
 	}
 	AddBrushToNode( model, model->node, brush );
 }
+
+// RB begin
+void idCollisionModelManagerLocal::ConvertMesh( cm_model_t* model, const MapPolygonMesh* mesh, int primitiveNum )
+{
+	const idList<idDrawVert>& verts = mesh->GetDrawVerts();
+	
+	int numVerts = 0;
+	
+	idFixedWinding w;
+	for( int i = 0; i < mesh->GetNumPolygons(); i++ )
+	{
+		MapPolygon* poly = mesh->GetFace( i );
+		
+		const idMaterial* material = declManager->FindMaterial( poly->GetMaterial() );
+		
+		const idList<int>& indexes = poly->GetIndexes();
+		
+		w.SetNumPoints( indexes.Num() );
+		
+		//for( int j = indexes.Num() -1; j >= 0; j-- )
+		
+		for( int j = 0; j < indexes.Num(); j++ )
+		{
+			int index = indexes[j];
+			
+			// reverse order
+			w[ indexes.Num() - 1 - j ] = verts[index].xyz;
+		}
+		
+		if( w.GetNumPoints() )
+		{
+			idPlane plane;
+			w.GetPlane( plane );
+			
+			PolygonFromWinding( model, &w, -plane, material, primitiveNum );
+		}
+	}
+}
+// RB end
 
 /*
 ================
@@ -3959,6 +4016,9 @@ cm_model_t* idCollisionModelManagerLocal::CollisionModelForMapEntity( const idMa
 	model->isConvex = false;
 	
 	// convert brushes
+	bool hasMeshes = false;
+	
+	bounds.Clear();
 	for( i = 0; i < mapEnt->GetNumPrimitives(); i++ )
 	{
 		idMapPrimitive*	mapPrim;
@@ -3969,10 +4029,24 @@ cm_model_t* idCollisionModelManagerLocal::CollisionModelForMapEntity( const idMa
 			ConvertBrush( model, static_cast<idMapBrush*>( mapPrim ), i );
 			continue;
 		}
+		
+		// RB: support new map format
+		if( mapPrim->GetType() == idMapPrimitive::TYPE_MESH )
+		{
+			idBounds primBounds;
+			
+			static_cast<MapPolygonMesh*>( mapPrim )->GetBounds( primBounds );
+			
+			bounds.AddBounds( primBounds );
+			
+			hasMeshes = true;
+			continue;
+		}
 	}
 	
 	// create an axial bsp tree for the model if it has more than just a bunch brushes
 	brushCount = CM_CountNodeBrushes( model->node );
+	
 	if( brushCount > 4 )
 	{
 		model->node = CreateAxialBSPTree( model, model->node );
@@ -3983,14 +4057,17 @@ cm_model_t* idCollisionModelManagerLocal::CollisionModelForMapEntity( const idMa
 	}
 	
 	// get bounds for hash
-	if( brushCount )
+	if( !hasMeshes )
 	{
-		CM_GetNodeBounds( &bounds, model->node );
-	}
-	else
-	{
-		bounds[0].Set( -256, -256, -256 );
-		bounds[1].Set( 256, 256, 256 );
+		if( brushCount )
+		{
+			CM_GetNodeBounds( &bounds, model->node );
+		}
+		else
+		{
+			bounds[0].Set( -256, -256, -256 );
+			bounds[1].Set( 256, 256, 256 );
+		}
 	}
 	
 	// different models do not share edges and vertices with each other, so clear the hash
@@ -4012,6 +4089,20 @@ cm_model_t* idCollisionModelManagerLocal::CollisionModelForMapEntity( const idMa
 			ConvertBrushSides( model, static_cast<idMapBrush*>( mapPrim ), i );
 			continue;
 		}
+		
+		// RB: support new map format
+		if( mapPrim->GetType() == idMapPrimitive::TYPE_MESH )
+		{
+			ConvertMesh( model, static_cast<MapPolygonMesh*>( mapPrim ), i );
+			hasMeshes = true;
+			continue;
+		}
+	}
+	
+	// RB: always create axial BSP tree for mesh based entities
+	if( hasMeshes )
+	{
+		model->node = CreateAxialBSPTree( model, model->node );
 	}
 	
 	FinishModel( model );
