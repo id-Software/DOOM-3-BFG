@@ -3,6 +3,7 @@
 
 Doom 3 GPL Source Code
 Copyright (C) 1999-2011 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2015 Robert Beckebans
 
 This file is part of the Doom 3 GPL Source Code (?Doom 3 Source Code?).
 
@@ -440,6 +441,8 @@ void ClipTriIntoTree_r( idWinding* w, mapTri_t* originalTri, uEntity_t* e, node_
 	
 	if( node->planenum != PLANENUM_LEAF )
 	{
+		//common->Printf( "ClipTriIntoTree_r: splitting triangle with splitplane %i\n", node->nodeNumber );
+		
 		w->Split( dmapGlobals.mapPlanes[ node->planenum ], ON_EPSILON, &front, &back );
 		delete w;
 		
@@ -448,6 +451,8 @@ void ClipTriIntoTree_r( idWinding* w, mapTri_t* originalTri, uEntity_t* e, node_
 		
 		return;
 	}
+	
+	//common->Printf( "ClipTriIntoTree_r: leaf area = %i, opaque = %i, occupied = %i\n", node->area, node->occupied );
 	
 	// if opaque leaf, don't add
 	if( !node->opaque && node->area >= 0 )
@@ -470,6 +475,8 @@ void ClipTriIntoTree_r( idWinding* w, mapTri_t* originalTri, uEntity_t* e, node_
 	delete w;
 	return;
 }
+
+
 
 
 
@@ -604,6 +611,8 @@ static void PutWindingIntoAreas_r( uEntity_t* e, const idWinding* w, side_t* sid
 		return;
 	}
 	
+	//common->Printf( "PutWindingIntoAreas_r: leaf area = %i, opaque = %i\n", node->area, (int) node->opaque );
+	
 	// if opaque leaf, don't add
 	if( node->area >= 0 && !node->opaque )
 	{
@@ -676,7 +685,6 @@ void AddMapTriToAreas( mapTri_t* tri, uEntity_t* e )
 /*
 =====================
 PutPrimitivesInAreas
-
 =====================
 */
 void PutPrimitivesInAreas( uEntity_t* e )
@@ -706,6 +714,20 @@ void PutPrimitivesInAreas( uEntity_t* e )
 			{
 				AddMapTriToAreas( tri, e );
 			}
+			
+			// RB: add new polygon mesh
+			for( tri = prim->bsptris ; tri ; tri = tri->next )
+			{
+#if 1
+				// FIXME reverse vertex order for drawing
+				idDrawVert tmp = tri->v[0];
+				tri->v[0] = tri->v[2];
+				tri->v[2] = tmp;
+#endif
+				
+				AddMapTriToAreas( tri, e );
+			}
+			// RB end
 			continue;
 		}
 		
@@ -795,6 +817,100 @@ void PutPrimitivesInAreas( uEntity_t* e )
 		}
 	}
 }
+
+//============================================================================
+
+
+// RB begin
+int FilterMeshesIntoTree_r( idWinding* w, mapTri_t* originalTri, node_t* node )
+{
+	idWinding*		front, *back;
+	int				c;
+	
+	if( !w )
+	{
+		return 0;
+	}
+	
+	if( node->planenum == PLANENUM_LEAF )
+	{
+		// add it to the leaf list
+		if( originalTri->material->GetContentFlags() & CONTENTS_AREAPORTAL )
+		{
+			mapTri_t* list = CopyMapTri( originalTri );
+			list->next = NULL;
+			
+			node->areaPortalTris = MergeTriLists( node->areaPortalTris, list );
+		}
+		
+		const MapPolygonMesh* mapMesh = originalTri->originalMapMesh;
+		
+		// classify the leaf by the structural brush
+		if( mapMesh->IsOpaque() )
+		{
+			node->opaque = true;
+		}
+		
+		delete w;
+		return 1;
+	}
+	
+	// split it by the node plane
+	w->Split( dmapGlobals.mapPlanes[ node->planenum ], ON_EPSILON, &front, &back );
+	delete w;
+	
+	c = 0;
+	c += FilterMeshesIntoTree_r( front, originalTri, node->children[0] );
+	c += FilterMeshesIntoTree_r( back, originalTri, node->children[1] );
+	
+	return c;
+}
+
+
+/*
+=====================
+FilterMeshesIntoTree
+
+Mark the leafs as opaque and areaportals and put mesh
+fragments in each leaf so portal surfaces can be matched
+to materials
+=====================
+*/
+void FilterMeshesIntoTree( uEntity_t* e )
+{
+	uBrush_t*		b;
+	primitive_t*	prim;
+	mapTri_t*		tri;
+	int				r;
+	int				c_unique, c_clusters;
+	
+	common->Printf( "----- FilterMeshesIntoTree -----\n" );
+	
+	c_unique = 0;
+	c_clusters = 0;
+	for( prim = e->primitives ; prim ; prim = prim->next )
+	{
+		b = prim->brush;
+		
+		if( !b )
+		{
+			// add BSP triangles
+			for( tri = prim->bsptris ; tri ; tri = tri->next )
+			{
+				idWinding* w = WindingForTri( tri );
+				
+				c_unique++;
+				r = FilterMeshesIntoTree_r( w, tri, e->tree->headnode );
+				c_clusters += r;
+			}
+			continue;
+		}
+	}
+	
+	common->Printf( "%5i total BSP triangles\n", c_unique );
+	common->Printf( "%5i cluster references\n", c_clusters );
+}
+// RB end
 
 //============================================================================
 

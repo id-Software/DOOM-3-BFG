@@ -3,6 +3,7 @@
 
 Doom 3 GPL Source Code
 Copyright (C) 1999-2011 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2015 Robert Beckebans
 
 This file is part of the Doom 3 GPL Source Code (?Doom 3 Source Code?).
 
@@ -40,13 +41,12 @@ void RemovePortalFromNode( uPortal_t* portal, node_t* l );
 
 node_t* NodeForPoint( node_t* node, const idVec3& origin )
 {
-	float	d;
-	
 	while( node->planenum != PLANENUM_LEAF )
 	{
 		idPlane& plane = dmapGlobals.mapPlanes[node->planenum];
-		d = plane.Distance( origin );
-		if( d >= 0 )
+		
+		int side = plane.Side( origin, 0.1F );
+		if( side == SIDE_FRONT || side == SIDE_ON )
 		{
 			node = node->children[0];
 		}
@@ -473,19 +473,64 @@ bspface_t*	MakeStructuralBspFaceList( primitive_t* list )
 	side_t*		s;
 	idWinding*	w;
 	bspface_t*	f, *flist;
+	mapTri_t*	tri;
 	
 	flist = NULL;
 	for( ; list ; list = list->next )
 	{
+		// RB: support polygons instead of brushes
+		tri = list->bsptris;
+		if( tri )
+		{
+			for( ; tri ; tri = tri->next )
+			{
+				// HACK
+				MapPolygonMesh* mapMesh = ( MapPolygonMesh* ) tri->originalMapMesh;
+				
+				// don't create BSP faces for the nodraw helpers touching the area portals
+				if( mapMesh->IsAreaportal() && !( tri->material->GetContentFlags() & CONTENTS_AREAPORTAL ) )
+				{
+					continue;
+				}
+				
+				// FIXME: triangles as portals, should be merged back to quad
+				f = AllocBspFace();
+				if( tri->material->GetContentFlags() & CONTENTS_AREAPORTAL )
+				{
+					f->portal = true;
+				}
+				
+				//w = new idWinding( 3 );
+				//w->SetNumPoints( 3 );
+				//( *w )[0] = idVec5( tri->v[0].xyz, tri->v[0].GetTexCoord() );
+				//( *w )[1] = idVec5( tri->v[1].xyz, tri->v[1].GetTexCoord() );
+				//( *w )[2] = idVec5( tri->v[2].xyz, tri->v[2].GetTexCoord() );
+				
+				w = WindingForTri( tri );
+				//w->ReverseSelf();
+				f->w = w;
+				
+				f->planenum = tri->planeNum & ~1;
+				//f->planenum = ( tri->planeNum ^ 1 ) & ~1;
+				f->next = flist;
+				flist = f;
+			}
+			
+			continue;
+		}
+		// RB end
+		
 		b = list->brush;
 		if( !b )
 		{
 			continue;
 		}
+		
 		if( !b->opaque && !( b->contents & CONTENTS_AREAPORTAL ) )
 		{
 			continue;
 		}
+		
 		for( i = 0 ; i < b->numsides ; i++ )
 		{
 			s = &b->sides[i];
@@ -518,6 +563,7 @@ bspface_t*	MakeStructuralBspFaceList( primitive_t* list )
 MakeVisibleBspFaceList
 =================
 */
+/*
 bspface_t*	MakeVisibleBspFaceList( primitive_t* list )
 {
 	uBrush_t*	b;
@@ -525,7 +571,7 @@ bspface_t*	MakeVisibleBspFaceList( primitive_t* list )
 	side_t*		s;
 	idWinding*	w;
 	bspface_t*	f, *flist;
-	
+
 	flist = NULL;
 	for( ; list ; list = list->next )
 	{
@@ -557,7 +603,8 @@ bspface_t*	MakeVisibleBspFaceList( primitive_t* list )
 			flist = f;
 		}
 	}
-	
+
 	return flist;
 }
+*/
 

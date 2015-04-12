@@ -3,6 +3,7 @@
 
 Doom 3 GPL Source Code
 Copyright (C) 1999-2011 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013-2015 Robert Beckebans
 
 This file is part of the Doom 3 GPL Source Code (?Doom 3 Source Code?).
 
@@ -212,6 +213,49 @@ static uBrush_t* FinishBrush()
 }
 
 /*
+================
+AdjustEntityForOrigin
+================
+*/
+/*
+static void AdjustEntityForOrigin( uEntity_t* ent )
+{
+	primitive_t*	prim;
+	uBrush_t*	b;
+	int			i;
+	side_t*		s;
+
+	for( prim = ent->primitives ; prim ; prim = prim->next )
+	{
+		b = prim->brush;
+		if( !b )
+		{
+			continue;
+		}
+		for( i = 0; i < b->numsides; i++ )
+		{
+			idPlane plane;
+
+			s = &b->sides[i];
+
+			plane = dmapGlobals.mapPlanes[s->planenum];
+			plane[3] += plane.Normal() * ent->origin;
+
+			s->planenum = FindFloatPlane( plane );
+
+			s->texVec.v[0][3] += DotProduct( ent->origin, s->texVec.v[0] );
+			s->texVec.v[1][3] += DotProduct( ent->origin, s->texVec.v[1] );
+
+			// remove any integral shift
+			s->texVec.v[0][3] -= floor( s->texVec.v[0][3] );
+			s->texVec.v[1][3] -= floor( s->texVec.v[1][3] );
+		}
+		CreateBrushWindings( b );
+	}
+}
+*/
+
+/*
 =================
 RemoveDuplicateBrushPlanes
 
@@ -398,6 +442,80 @@ static void ParsePatch( const idMapPatch* patch, int primitiveNum )
 	delete cp;
 }
 
+
+// RB begin
+static int ParsePolygonMesh( const MapPolygonMesh* mesh, int primitiveNum, int numPolygons )
+{
+	primitive_t* prim = ( primitive_t* )Mem_Alloc( sizeof( *prim ), TAG_TOOLS );
+	memset( prim, 0, sizeof( *prim ) );
+	prim->next = uEntity->primitives;
+	uEntity->primitives = prim;
+	
+	const idList<idDrawVert>& verts = mesh->GetDrawVerts();
+	
+	for( int i = 0; i < mesh->GetNumPolygons(); i++ )
+	{
+		MapPolygon* poly = mesh->GetFace( i );
+		
+		const idMaterial* mat = declManager->FindMaterial( poly->GetMaterial() );
+		
+		const idList<int>& indexes = poly->GetIndexes();
+		
+		//idList<int> unique;
+		//for( int j = 0; j < indexes.Num(); j++ )
+		//{
+		//	unique.AddUnique( indexes[j] );
+		//}
+		
+		// FIXME: avoid triangulization and use polygons
+		
+		// TODO use WindingToTriList instead ?
+		
+		for( int j = 1; j < indexes.Num() - 1; j++ )
+			//for( int j = indexes.Num() -2; j >= 1; j-- )
+		{
+			mapTri_t* tri = AllocTri();
+			
+#if 1
+			tri->v[0] = verts[ indexes[ j + 1] ];
+			tri->v[1] = verts[ indexes[ j + 0] ];
+			tri->v[2] = verts[ indexes[ 0 ] ];
+#else
+			tri->v[2] = verts[ indexes[ j + 1] ];
+			tri->v[1] = verts[ indexes[ j + 0] ];
+			tri->v[0] = verts[ indexes[ 0 ] ];
+#endif
+			
+			idPlane plane;
+			plane.FromPoints( tri->v[0].xyz, tri->v[1].xyz, tri->v[2].xyz );
+			
+			bool fixedDegeneracies = false;
+			tri->planeNum = FindFloatPlane( plane, &fixedDegeneracies );
+			
+			tri->polygonId = numPolygons + i;
+			
+			tri->material = mat;
+			tri->next = prim->bsptris;
+			prim->bsptris = tri;
+			
+			tri->originalMapMesh = mesh;
+			
+			// set merge groups if needed, to prevent multiple sides from being
+			// merged into a single surface in the case of gui shaders, mirrors, and autosprites
+			if( mat->IsDiscrete() )
+			{
+				for( tri = prim->bsptris ; tri ; tri = tri->next )
+				{
+					tri->mergeGroup = ( void* )mesh;
+				}
+			}
+		}
+	}
+	
+	return mesh->GetNumPolygons();
+}
+// RB end
+
 /*
 ================
 ProcessMapEntity
@@ -412,6 +530,8 @@ static bool	ProcessMapEntity( idMapEntity* mapEnt )
 	uEntity->mapEntity = mapEnt;
 	dmapGlobals.num_entities++;
 	
+	int numPolygons = 0;
+	
 	for( entityPrimitive = 0; entityPrimitive < mapEnt->GetNumPrimitives(); entityPrimitive++ )
 	{
 		prim = mapEnt->GetPrimitive( entityPrimitive );
@@ -424,6 +544,12 @@ static bool	ProcessMapEntity( idMapEntity* mapEnt )
 		{
 			ParsePatch( static_cast<idMapPatch*>( prim ), entityPrimitive );
 		}
+		// RB begin
+		else if( prim->GetType() == idMapPrimitive::TYPE_MESH )
+		{
+			numPolygons += ParsePolygonMesh( static_cast<MapPolygonMesh*>( prim ), entityPrimitive, numPolygons );
+		}
+		// RB end
 	}
 	
 	// never put an origin on the world, even if the editor left one there
@@ -440,7 +566,6 @@ static bool	ProcessMapEntity( idMapEntity* mapEnt )
 /*
 ==============
 CreateMapLight
-
 ==============
 */
 static void CreateMapLight( const idMapEntity* mapEnt )
@@ -590,6 +715,19 @@ bool LoadDMapFile( const char* filename )
 		{
 			triSurfs++;
 		}
+		// RB begin
+		else if( prim->bsptris )
+		{
+			for( mapTri_t* tri = prim->bsptris ; tri ; tri = tri->next )
+			{
+				mapBounds.AddPoint( tri->v[0].xyz );
+				mapBounds.AddPoint( tri->v[1].xyz );
+				mapBounds.AddPoint( tri->v[2].xyz );
+			}
+			
+			triSurfs++;
+		}
+		// RB end
 	}
 	
 	common->Printf( "%5i total world brushes\n", brushes );
@@ -647,14 +785,22 @@ void FreeDMapFile()
 		for( prim = ent->primitives ; prim ; prim = nextPrim )
 		{
 			nextPrim = prim->next;
+			
 			if( prim->brush )
 			{
 				FreeBrush( prim->brush );
 			}
+			
 			if( prim->tris )
 			{
 				FreeTriList( prim->tris );
 			}
+			
+			if( prim->bsptris )
+			{
+				FreeTriList( prim->bsptris );
+			}
+			
 			Mem_Free( prim );
 		}
 		
