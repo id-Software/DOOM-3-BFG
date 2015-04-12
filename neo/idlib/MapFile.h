@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2015 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -44,7 +45,10 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 const int OLD_MAP_VERSION					= 1;
-const int CURRENT_MAP_VERSION				= 2;
+// RB: added new map format
+const int DOOM3_MAP_VERSION					= 2;
+const int CURRENT_MAP_VERSION				= 3;
+// RB end
 const int DEFAULT_CURVE_SUBDIVISION			= 4;
 const float DEFAULT_CURVE_MAX_ERROR			= 4.0f;
 const float DEFAULT_CURVE_MAX_ERROR_CD		= 24.0f;
@@ -55,7 +59,9 @@ const float DEFAULT_CURVE_MAX_LENGTH_CD		= -1.0f;
 class idMapPrimitive
 {
 public:
-	enum { TYPE_INVALID = -1, TYPE_BRUSH, TYPE_PATCH };
+	// RB: new mesh primitive to work with Blender Ngons
+	enum { TYPE_INVALID = -1, TYPE_BRUSH, TYPE_PATCH, TYPE_MESH };
+	// RB end
 	
 	idDict					epairs;
 	
@@ -232,6 +238,141 @@ ID_INLINE idMapPatch::idMapPatch( int maxPatchWidth, int maxPatchHeight )
 }
 
 
+// RB begin
+class MapPolygon
+{
+	friend class MapPolygonMesh;
+	
+public:
+	MapPolygon();
+	MapPolygon( int numIndexes );
+	~MapPolygon() { }
+	
+	const char* 			GetMaterial() const
+	{
+		return material;
+	}
+	
+	void					SetMaterial( const char* p )
+	{
+		material = p;
+	}
+	
+	void					AddIndex( int index )
+	{
+		indexes.Append( index );
+	}
+	
+	void					SetIndexes( const idTempArray<int>& _indexes )
+	{
+		indexes.Resize( _indexes.Num() );
+		
+		for( unsigned int i = 0; i < _indexes.Num(); i++ )
+		{
+			indexes[i] = _indexes[i];
+		}
+	}
+	
+	const idList<int>&		GetIndexes() const
+	{
+		return indexes;
+	}
+	
+	
+protected:
+	idStr					material;
+	idList<int>				indexes;		// [3..n] references to vertices for each face
+};
+
+ID_INLINE MapPolygon::MapPolygon()
+{
+}
+
+ID_INLINE MapPolygon::MapPolygon( int numIndexes )
+{
+	indexes.AssureSize( 3 );
+}
+
+
+class MapPolygonMesh : public idMapPrimitive
+{
+public:
+	MapPolygonMesh();
+	~MapPolygonMesh()
+	{
+		//verts.DeleteContents();
+		polygons.DeleteContents( true );
+	}
+	
+	void					ConvertFromBrush( const idMapBrush* brush, int entityNum, int primitiveNum );
+	void					ConvertFromPatch( const idMapPatch* patch, int entityNum, int primitiveNum );
+	
+	static MapPolygonMesh*	Parse( idLexer& src, const idVec3& origin, float version = CURRENT_MAP_VERSION );
+	bool					Write( idFile* fp, int primitiveNum, const idVec3& origin ) const;
+	
+	
+	
+	int						GetNumVertices() const
+	{
+		return verts.Num();
+	}
+	
+	int						AddVertex( const idDrawVert& v )
+	{
+		return verts.Append( v );
+	}
+	
+	
+	int						GetNumPolygons() const
+	{
+		return polygons.Num();
+	}
+	
+	int						AddPolygon( MapPolygon* face )
+	{
+		return polygons.Append( face );
+	}
+	
+	MapPolygon* 			GetFace( int i ) const
+	{
+		return polygons[i];
+	}
+	
+	unsigned int			GetGeometryCRC() const;
+	
+	const idList<idDrawVert>&	GetDrawVerts() const
+	{
+		return verts;
+	}
+	
+	bool					IsOpaque() const
+	{
+		return opaque;
+	}
+	
+	bool					IsAreaportal() const;
+	
+	void					GetBounds( idBounds& bounds ) const;
+	
+private:
+	void					SetContents();
+	
+protected:
+
+	idList<idDrawVert>		verts;			// vertices can be shared between polygons
+	idList<MapPolygon*>		polygons;
+	
+	// derived data after parsing
+	
+	// material surface flags
+	int						contents;
+	bool					opaque;
+};
+// RB end
+
+
+
+
 class idMapEntity
 {
 	friend class			idMapFile;
@@ -285,6 +426,11 @@ public:
 	// load a .map file
 	bool					Parse( const char* filename, bool ignoreRegion = false, bool osPath = false );
 	bool					Write( const char* fileName, const char* ext, bool fromBasePath = true );
+	
+	// RB begin
+	bool					ConvertToPolygonMeshFormat();
+	// RB end
+	
 	// get the number of entities in the map
 	int						GetNumEntities() const
 	{
