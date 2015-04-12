@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013-2015 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -127,7 +128,8 @@ ID_INLINE void idImage::DeriveOpts()
 				opts.gammaMips = true;
 				break;
 			case TD_LIGHT:
-				opts.format = FMT_RGB565;
+				// RB: don't destroy lighting
+				opts.format = FMT_RGBA8; //FMT_RGB565;
 				opts.gammaMips = true;
 				break;
 			case TD_LOOKUP_TABLE_MONO:

@@ -119,6 +119,58 @@ static float dot3( float4 a, float4 b ) { return dot( a.xyz, b.xyz ); }
 static float dot4( float4 a, float4 b ) { return dot( a, b ); }
 static float dot4( float2 a, float4 b ) { return dot( float4( a, 0, 1 ), b ); }
 
+// RB begin
+#ifndef PI
+#define PI	3.14159265358979323846
+#endif
+
+#define DEG2RAD( a )				( ( a ) * PI / 180.0f )
+#define RAD2DEG( a )				( ( a ) * 180.0f / PI )
+
+// ----------------------
+// sRGB <-> Linear RGB Color Conversion
+// ----------------------
+
+half3 sRGBToLinearRGB( half3 rgb )
+{
+#if defined(USE_SRGB)
+	return pow( rgb, half3( 2.2 ) );
+#else
+	return rgb;
+#endif
+}
+
+half4 sRGBAToLinearRGBA( half4 rgba )
+{
+#if defined(USE_SRGB)
+	return pow( rgba, half4( 2.2 ) );
+#else
+	return rgba;
+#endif
+}
+
+half3 LinearRGBToSRGB( half3 rgb )
+{
+#if defined(USE_SRGB)
+	return pow( rgb, half3( 1.0 ) / half3( 2.2 ) );
+#else
+	return rgb;
+#endif
+}
+
+half4 LinearRGBToSRGB( half4 rgba )
+{
+#if defined(USE_SRGB)
+	rgba.rgb = pow( rgba.rgb, half3( 1.0 ) / half3( 2.2 ) );
+	return rgba; //pow( rgba, half4( 1.0 ) / half4( 2.2 ) );
+#else
+	return rgba;
+#endif
+}
+
+
+// RB end
+
 // ----------------------
 // YCoCg Color Conversion
 // ----------------------
@@ -173,33 +225,6 @@ float rand( float2 co ) {
     return frac( sin( dot( co.xy, float2( 12.9898, 78.233 ) ) ) * 43758.5453 );
 }
 
-// RB begin
-#ifndef PI
-#define PI	3.14159265358979323846
-#endif
-
-#define DEG2RAD( a )				( ( a ) * PI / 180.0f )
-#define RAD2DEG( a )				( ( a ) * 180.0f / PI )
-
-half3 sRGBToLinearRGB( half3 rgb )
-{
-#if defined(USE_SRGB)
-	return pow( rgb, half3( 2.2 ) );
-#else
-	return rgb;
-#endif
-}
-
-half4 sRGBAToLinearRGBA( half4 rgba )
-{
-#if defined(USE_SRGB)
-	return pow( rgba, half4( 2.2 ) );
-#else
-	return rgba;
-#endif
-}
-// RB end
-
 #define _half2( x )		half2( x )
 #define _half3( x )		half3( x )
 #define _half4( x )		half4( x )
@@ -209,7 +234,10 @@ half4 sRGBAToLinearRGBA( half4 rgba )
 
 #define VPOS WPOS
 static float4 idtex2Dproj( sampler2D samp, float4 texCoords ) { return tex2Dproj( samp, texCoords.xyw ); }
-static float4 swizzleColor( float4 c ) { return c; }
+static float4 swizzleColor( float4 c )
+{ 
+	return sRGBAToLinearRGBA( c ); 
+}
 static float2 vposToScreenPosTexCoord( float2 vpos ) { return vpos.xy * rpWindowCoord.xy; }
 
 #define BRANCH
