@@ -36,7 +36,7 @@ If you have questions concerning this license or the applicable additional terms
 idCVar swf_loadBinary( "swf_loadBinary", "1", CVAR_INTEGER, "used to set whether to load binary swf from generated" );
 // RB begin
 idCVar swf_exportAtlas( "swf_exportAtlas", "0", CVAR_INTEGER, "" );
-idCVar swf_exportSWF( "swf_exportSWF", "0", CVAR_INTEGER, "" );
+idCVar swf_exportSWF( "swf_exportSWF", "1", CVAR_INTEGER, "" );
 idCVar swf_exportXML( "swf_exportXML", "1", CVAR_INTEGER, "" );
 // RB end
 
@@ -156,7 +156,7 @@ idSWF::idSWF( const char* filename_, idSoundWorld* soundWorld_ )
 	// RB begin
 	if( swf_exportXML.GetBool() )
 	{
-		idStr xmlFileName = "generated/";
+		idStr xmlFileName = "exported/";
 		xmlFileName += filename;
 		xmlFileName.SetFileExtension( ".xml" );
 		
@@ -266,6 +266,7 @@ idSWF::idSWF( const char* filename_, idSoundWorld* soundWorld_ )
 			}
 			
 			idStr atlasFileNameExport = atlasFileName;
+			atlasFileNameExport.Replace( "generated/", "exported/" );
 			atlasFileNameExport.SetFileExtension( ".png" );
 			
 			R_WritePNG( atlasFileNameExport, rgba.Ptr(), 4, img.width, img.height, true, "fs_basepath" );
@@ -282,7 +283,7 @@ idSWF::idSWF( const char* filename_, idSoundWorld* soundWorld_ )
 	
 	if( swf_exportSWF.GetBool() )
 	{
-		idStr swfFileName = "generated/";
+		idStr swfFileName = "exported/";
 		swfFileName += filename;
 		swfFileName.SetFileExtension( ".swf" );
 		

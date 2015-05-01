@@ -231,7 +231,7 @@ void idSWF::WriteSWF( const char* swfFilename, const byte* atlasImageRGBA, int a
 				idStr imageExportFileName;
 				idStr filenameWithoutExt = filename;
 				filenameWithoutExt.StripFileExtension();
-				sprintf( imageExportFileName, "generated/%s/image_characterid_%i.png", filenameWithoutExt.c_str(), i );
+				sprintf( imageExportFileName, "exported/%s/image_characterid_%i.png", filenameWithoutExt.c_str(), i );
 				
 				R_WritePNG( imageExportFileName.c_str(), pngData.Ptr(), 4, width, height, true, "fs_basepath" );
 				
@@ -832,7 +832,7 @@ idSWF::WriteXML
 void idSWF::WriteXML( const char* filename )
 {
 	const bool exportBitmapShapesOnly = false;
-
+	
 	idFileLocal file( fileSystem->OpenFileWrite( filename, "fs_basepath" ) );
 	if( file == NULL )
 	{
@@ -999,7 +999,7 @@ void idSWF::WriteXML( const char* filename )
 						if( color != endColor )
 						{
 							file->WriteFloatString( "\t\t\t\t\t\t<EndColor r=\"%f\" g=\"%f\" b=\"%f\" a=\"%f\"/>\n",
-												color.x, color.y, color.z, endColor.w );
+													color.x, color.y, color.z, endColor.w );
 						}
 					}
 					
@@ -1049,9 +1049,9 @@ void idSWF::WriteXML( const char* filename )
 					if( color != endColor )
 					{
 						file->WriteFloatString( "\t\t\t\t\t<EndColor r=\"%f\" g=\"%f\" b=\"%f\" a=\"%f\"/>\n",
-											endColor.x, endColor.y, endColor.z, endColor.w );
+												endColor.x, endColor.y, endColor.z, endColor.w );
 					}
-											
+					
 					file->WriteFloatString( "\t\t\t\t</LineStyle>\n" );
 					
 					for( int v = 0; v < lineDraw.startVerts.Num(); v++ )
