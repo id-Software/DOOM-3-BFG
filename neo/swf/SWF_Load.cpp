@@ -257,7 +257,7 @@ void idSWF::WriteSWF( const char* swfFilename, const byte* atlasImageRGBA, int a
 				break;
 			}
 			
-#if 1
+#if 0
 			case SWF_DICT_SHAPE:
 			{
 				idSWFShape* shape = dictionary[i].shape;
@@ -375,13 +375,13 @@ void idSWF::WriteSWF( const char* swfFilename, const byte* atlasImageRGBA, int a
 			
 			case SWF_DICT_SPRITE:
 			{
-				//dictionary[i].sprite->WriteSWF( file, i );
+				dictionary[i].sprite->WriteSWF( file, i );
 				break;
 			}
 		}
 	}
 	
-	//mainsprite->WriteSWF( file, dictionary.Num() );
+	mainsprite->WriteSWF( file, dictionary.Num() );
 	
 	// add Tag_End
 	file.WriteTagHeader( Tag_End, 0 );

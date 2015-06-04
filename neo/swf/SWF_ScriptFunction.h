@@ -252,8 +252,13 @@ public:
 	
 	virtual idSWFScriptVar	Call( idSWFScriptObject* thisObject, const idSWFParmList& parms );
 	
+	// RB begin
+	idStr CallToScript( idSWFScriptObject* thisObject, const idSWFParmList& parms );
+	
 private:
 	idSWFScriptVar Run( idSWFScriptObject* thisObject, idSWFStack& stack, idSWFBitStream& bitstream );
+	idStr ExportToScript( idSWFScriptObject* thisObject, idSWFStack& stack, idSWFBitStream& bitstream );
+	// RB end
 	
 private:
 	int					refCount;

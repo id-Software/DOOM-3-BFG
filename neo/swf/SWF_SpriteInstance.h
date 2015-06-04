@@ -304,4 +304,6 @@ public:
 	//SWF_NATIVE_VAR_DECLARE( onLoad );
 };
 
+extern idSWFScriptObject_SpriteInstancePrototype spriteInstanceScriptObjectPrototype;
+
 #endif

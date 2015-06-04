@@ -561,7 +561,27 @@ void idSWFSprite::WriteXML_DoAction( idFile* file, idSWFBitStream& bitstream, co
 	
 	base64.Encode( bitstream.Ptr(), bitstream.Length() );
 	
-	file->WriteFloatString( "%s\t<DoAction streamLength=\"%i\">%s</DoAction>\n", indentPrefix, bitstream.Length(), base64.c_str() );
+	idSWFScriptObject* scriptObject = idSWFScriptObject::Alloc();
+	scriptObject->SetPrototype( &spriteInstanceScriptObjectPrototype );
+//	scriptObject->SetSprite( this );
+
+	idSWFScriptFunction_Script* actionScript = idSWFScriptFunction_Script::Alloc();
+	
+	idList<idSWFScriptObject*, TAG_SWF> scope;
+	//scope.Append( swf->globals );
+	scope.Append( scriptObject );
+	actionScript->SetScope( scope );
+//	actionScript->SetDefaultSprite( this );
+
+	actionScript->SetData( bitstream.Ptr(), bitstream.Length() );
+	idStr scriptText = actionScript->CallToScript( scriptObject, idSWFParmList() );
+	
+	//file->WriteFloatString( "%s\t<DoAction streamLength=\"%i\">%s</DoAction>\n", indentPrefix, bitstream.Length(), base64.c_str() );
+	
+	file->WriteFloatString( "%s\t<DoAction streamLength=\"%i\">\n%s\t\t%s\n%s\t</DoAction>\n", indentPrefix, bitstream.Length(), indentPrefix, scriptText.c_str(), indentPrefix );
+	
+	delete actionScript;
+	delete scriptObject;
 }
 
 
@@ -641,7 +661,7 @@ void idSWFSprite::WriteSWF( idFile_SWF& f, int characterID )
 		
 	}
 	
-	f.WriteTagHeader( Tag_End, 0 );
+	//f.WriteTagHeader( Tag_End, 0 );
 }
 
 // RB end
