@@ -1085,7 +1085,7 @@ void idSWF::WriteXML( const char* filename )
 			
 			case SWF_DICT_SPRITE:
 			{
-				dictionary[i].sprite->WriteXML( file, "\t\t", i );
+				dictionary[i].sprite->WriteXML( file, i, "\t\t" );
 				break;
 			}
 			
@@ -1235,7 +1235,7 @@ void idSWF::WriteXML( const char* filename )
 	
 	file->WriteFloatString( "\t</Dictionary>\n" );
 	
-	mainsprite->WriteXML( file, "\t" );
+	mainsprite->WriteXML( file, dictionary.Num(), "\t" );
 	
 	file->WriteFloatString( "</XSWF>\n" );
 }

@@ -296,7 +296,7 @@ void idSWFSprite::Write( idFile* f )
 idSWFSprite::WriteXML
 ========================
 */
-void idSWFSprite::WriteXML( idFile* f, const char* indentPrefix, int characterID )
+void idSWFSprite::WriteXML( idFile* f, int characterID, const char* indentPrefix )
 {
 	if( characterID >= 0 )
 	{
@@ -344,7 +344,7 @@ void idSWFSprite::WriteXML( idFile* f, const char* indentPrefix, int characterID
 				//	WriteXML_PlaceObject2( command.stream, indentPrefix );
 				//	break;
 				
-#define HANDLE_SWF_TAG( x ) case Tag_##x: WriteXML_##x( f, command.stream, indentPrefix ); break;
+#define HANDLE_SWF_TAG( x ) case Tag_##x: WriteXML_##x( f, command.stream, characterID, i, indentPrefix ); break;
 				HANDLE_SWF_TAG( PlaceObject2 );
 				HANDLE_SWF_TAG( PlaceObject3 );
 				HANDLE_SWF_TAG( RemoveObject2 );
@@ -375,7 +375,7 @@ void idSWFSprite::WriteXML( idFile* f, const char* indentPrefix, int characterID
 // RB end
 =======
 
-void idSWFSprite::WriteXML_PlaceObject2( idFile* file, idSWFBitStream& bitstream, const char* indentPrefix )
+void idSWFSprite::WriteXML_PlaceObject2( idFile* file, idSWFBitStream& bitstream, int sourceCharacterID, int commandID, const char* indentPrefix )
 {
 	uint64 flags = bitstream.ReadU8();
 	int depth = bitstream.ReadU16();
@@ -454,7 +454,7 @@ void idSWFSprite::WriteXML_PlaceObject2( idFile* file, idSWFBitStream& bitstream
 }
 
 
-void idSWFSprite::WriteXML_PlaceObject3( idFile* file, idSWFBitStream& bitstream, const char* indentPrefix )
+void idSWFSprite::WriteXML_PlaceObject3( idFile* file, idSWFBitStream& bitstream, int sourceCharacterID, int commandID, const char* indentPrefix )
 {
 	uint64 flags1 = bitstream.ReadU8();
 	uint64 flags2 = bitstream.ReadU8();
@@ -548,14 +548,14 @@ void idSWFSprite::WriteXML_PlaceObject3( idFile* file, idSWFBitStream& bitstream
 	file->WriteFloatString( "%s\t</PlaceObject3>\n", indentPrefix );
 }
 
-void idSWFSprite::WriteXML_RemoveObject2( idFile* file, idSWFBitStream& bitstream, const char* indentPrefix )
+void idSWFSprite::WriteXML_RemoveObject2( idFile* file, idSWFBitStream& bitstream, int sourceCharacterID, int commandID, const char* indentPrefix )
 {
 	int depth = bitstream.ReadU16();
 	
 	file->WriteFloatString( "%s\t<RemoveObject2 depth=\"%i\"/>\n", indentPrefix, depth );
 }
 
-void idSWFSprite::WriteXML_DoAction( idFile* file, idSWFBitStream& bitstream, const char* indentPrefix )
+void idSWFSprite::WriteXML_DoAction( idFile* file, idSWFBitStream& bitstream, int characterID, int commandID, const char* indentPrefix )
 {
 	idBase64 base64;
 	
@@ -574,11 +574,11 @@ void idSWFSprite::WriteXML_DoAction( idFile* file, idSWFBitStream& bitstream, co
 //	actionScript->SetDefaultSprite( this );
 
 	actionScript->SetData( bitstream.Ptr(), bitstream.Length() );
-	idStr scriptText = actionScript->CallToScript( scriptObject, idSWFParmList() );
+	idStr scriptText = actionScript->CallToScript( scriptObject, idSWFParmList(), file->GetName(), characterID, commandID );
 	
 	//file->WriteFloatString( "%s\t<DoAction streamLength=\"%i\">%s</DoAction>\n", indentPrefix, bitstream.Length(), base64.c_str() );
 	
-	file->WriteFloatString( "%s\t<DoAction streamLength=\"%i\">\n%s\t\t%s\n%s\t</DoAction>\n", indentPrefix, bitstream.Length(), indentPrefix, scriptText.c_str(), indentPrefix );
+	file->WriteFloatString( "%s\t<DoAction streamLength=\"%i\">\n%s%s\t</DoAction>\n", indentPrefix, bitstream.Length(), scriptText.c_str(), indentPrefix );
 	
 	delete actionScript;
 	delete scriptObject;

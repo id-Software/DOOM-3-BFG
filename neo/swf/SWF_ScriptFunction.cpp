@@ -266,7 +266,7 @@ idSWFScriptVar idSWFScriptFunction_Script::Call( idSWFScriptObject* thisObject, 
 }
 
 // RB begin
-idStr idSWFScriptFunction_Script::CallToScript( idSWFScriptObject* thisObject, const idSWFParmList& parms )
+idStr idSWFScriptFunction_Script::CallToScript( idSWFScriptObject* thisObject, const idSWFParmList& parms, const char* filename, int characterID, int actionID )
 {
 	idSWFBitStream bitstream( data, length, false );
 	
@@ -396,7 +396,7 @@ idStr idSWFScriptFunction_Script::CallToScript( idSWFScriptObject* thisObject, c
 	scope.Append( locals );
 	locals->AddRef();
 	
-	idStr retVal = ExportToScript( thisObject, stack, bitstream );
+	idStr retVal = ExportToScript( thisObject, stack, bitstream, filename, characterID, actionID );
 	
 	assert( scope.Num() == scopeSize + 1 );
 	for( int i = scopeSize; i < scope.Num(); i++ )
@@ -1723,7 +1723,68 @@ idSWFScriptVar idSWFScriptFunction_Script::Run( idSWFScriptObject* thisObject, i
 }
 
 // RB begin
-idStr idSWFScriptFunction_Script::ExportToScript( idSWFScriptObject* thisObject, idSWFStack& stack, idSWFBitStream& bitstream )
+idStr idSWFScriptFunction_Script::UpdateIndent( int indentLevel ) const
+{
+	idStr indent;
+	for( int i = 0; i < indentLevel; i++ )
+	{
+		indent += '\t';
+	}
+	
+	return indent;
+}
+
+void idSWFScriptFunction_Script::AddLine( const idStr& line )
+{
+	ActionBlock& block = currentBlock->blocks.Alloc();
+	block.parent = currentBlock;
+	block.line = line;
+}
+
+void idSWFScriptFunction_Script::AddBlock( const idStr& line )
+{
+	ActionBlock& block = currentBlock->blocks.Alloc();
+	block.parent = currentBlock;
+	
+	block.line = line;
+	currentBlock = &block;
+}
+
+void idSWFScriptFunction_Script::QuitCurrentBlock()
+{
+	if( currentBlock->parent != NULL )
+	{
+		currentBlock = currentBlock->parent;
+	}
+}
+
+idStr idSWFScriptFunction_Script::BuildActionCode( const idList<ActionBlock>& blocks, int level )
+{
+	idStr ret;
+	
+	idStr prefix = UpdateIndent( level );
+	
+	for( int i = 0; i < blocks.Num(); i++ )
+	{
+		const ActionBlock& block = blocks[i];
+		
+		if( !block.line.IsEmpty() )
+		{
+			ret += prefix + block.line + "\n";
+		}
+		
+		if( block.blocks.Num() )
+		{
+			ret += BuildActionCode( block.blocks, ++level );
+			
+			ret += prefix + "end\n";
+		}
+	}
+	
+	return ret;
+}
+
+idStr idSWFScriptFunction_Script::ExportToScript( idSWFScriptObject* thisObject, idSWFStack& stack, idSWFBitStream& bitstream, const char* filename, int characterID, int actionID )
 {
 	static int callstackLevel = -1;
 	idSWFSpriteInstance* thisSprite = thisObject->GetSprite();
@@ -1736,9 +1797,14 @@ idStr idSWFScriptFunction_Script::ExportToScript( idSWFScriptObject* thisObject,
 	
 	callstackLevel++;
 	
-	idStr actionScript;
+//	idStr actionScript;
+
+	actionBlocks.Clear();
+	currentBlock = &actionBlocks.Alloc();
+	currentBlock->line = va( "function sprite%i_action%i()", characterID, actionID );
 	
-	//idStr line;
+	//int indentLevel = 0;
+	//idStr indent;
 	
 	while( bitstream.Tell() < bitstream.Length() )
 	{
@@ -1754,9 +1820,11 @@ idStr idSWFScriptFunction_Script::ExportToScript( idSWFScriptObject* thisObject,
 			// stack[0] is always 0 so don't read it
 			//if( swf_debug.GetInteger() >= 4 )
 			{
+				//idLib::Printf( "%s.Sprite%i script:\n%s\n", filename, characterID, actionScript.c_str() );
+				
 				for( int i = stack.Num() - 1; i >= 0 ; i-- )
 				{
-					idLib::Printf( "  %c: %s (%s)\n", ( char )( 64 + stack.Num() - i ), stack[i].ToString().c_str(), stack[i].TypeOf() );
+					idLib::Printf( "%s.Sprite%i  %c: %s (%s)\n", filename, characterID, ( char )( 64 + stack.Num() - i ), stack[i].ToString().c_str(), stack[i].TypeOf() );
 				}
 				
 #if 0
@@ -1770,45 +1838,33 @@ idStr idSWFScriptFunction_Script::ExportToScript( idSWFScriptObject* thisObject,
 #endif
 			}
 			
-			idLib::Printf( "SWF%d: code %s\n", callstackLevel, GetSwfActionName( code ) );
+			idLib::Printf( "%s.Sprite%i SWF%d: code %s\n", filename, characterID, callstackLevel, GetSwfActionName( code ) );
 		}
 		
 		switch( code )
 		{
 			case Action_Return:
 				callstackLevel--;
-				actionScript += "return " + stack.A().ToString() + "\n";
-				return actionScript;
+				AddLine( "return " + stack.A().ToString() );
+				goto finish;
 			case Action_End:
+			
+				QuitCurrentBlock();
+				//actionScript += indent + "end\n";
+				
 				callstackLevel--;
-				return actionScript;
+				goto finish;
 			case Action_NextFrame:
-				//if( verify( currentTarget != NULL ) )
-				//{
-				//	currentTarget->NextFrame();
-				//}
-				actionScript += "nextFrame();\n";
+				AddLine( "nextFrame()" );
 				break;
 			case Action_PrevFrame:
-				//if( verify( currentTarget != NULL ) )
-				//{
-				//	currentTarget->PrevFrame();
-				//}
-				actionScript += "prevFrame();\n";
+				AddLine( "prevFrame()" );
 				break;
 			case Action_Play:
-				//if( verify( currentTarget != NULL ) )
-				//{
-				//	currentTarget->Play();
-				//}
-				actionScript += "play();\n";
+				AddLine( "play()" );
 				break;
 			case Action_Stop:
-				//if( verify( currentTarget != NULL ) )
-				//{
-				//	currentTarget->Stop();
-				//}
-				actionScript += "stop();\n";
+				AddLine( "stop()" );
 				break;
 			case Action_ToggleQuality:
 				break;
@@ -1819,33 +1875,19 @@ idStr idSWFScriptFunction_Script::ExportToScript( idSWFScriptObject* thisObject,
 				assert( recordLength == 2 );
 				int frameNum = bitstream.ReadU16() + 1;
 				
-				actionScript += va( "gotoAndPlay( %i );\n", frameNum );
+				AddLine( va( "gotoAndPlay( %i )", frameNum ) );
 				break;
 			}
 			case Action_SetTarget:
 			{
 				const char* targetName = ( const char* )bitstream.ReadData( recordLength );
-				if( verify( thisSprite != NULL ) )
-				{
-					currentTarget = thisSprite->ResolveTarget( targetName );
-				}
-				else if( swf_debug.GetInteger() > 0 )
-				{
-					idLib::Printf( "SWF: no target movie clip for setTarget %s\n", targetName );
-				}
+				AddLine( va( "setTarget( \"%s\" )", targetName ) );
 				break;
 			}
 			case Action_GoToLabel:
 			{
 				const char* targetName = ( const char* )bitstream.ReadData( recordLength );
-				if( verify( currentTarget != NULL ) )
-				{
-					currentTarget->RunTo( currentTarget->FindFrame( targetName ) );
-				}
-				else if( swf_debug.GetInteger() > 0 )
-				{
-					idLib::Printf( "SWF: no target movie clip for runTo %s\n", targetName );
-				}
+				AddLine( va( "gotoLabel( \"%s\" )", targetName ) );
 				break;
 			}
 			case Action_Push:
@@ -1891,75 +1933,83 @@ idStr idSWFScriptFunction_Script::ExportToScript( idSWFScriptObject* thisObject,
 				break;
 			}
 			case Action_Pop:
-			
-				if( stack.A().IsString() )
+			{
+				if( stack.A().IsString() || stack.A().IsResult() )
 				{
-					actionScript += stack.A().ToString() + ";\n";
+					AddLine( stack.A().ToString() );
 					//line.Empty();
+				}
+				
+				if( stack.A().IsNumeric() )
+				{
+					QuitCurrentBlock();
+					
+					//*block += indent + "end\n";
 				}
 				
 				stack.Pop( 1 );
 				break;
+			}
 			case Action_Add:
 				//stack.B().SetFloat( stack.B().ToFloat() + stack.A().ToFloat() );
-				stack.B().SetString( va( "%s + %s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+				stack.B().SetResult( va( "%s + %s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
 				stack.Pop( 1 );
 				break;
 			case Action_Subtract:
 				//stack.B().SetFloat( stack.B().ToFloat() - stack.A().ToFloat() );
-				stack.B().SetString( va( "%s - %s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+				stack.B().SetResult( va( "%s - %s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
 				stack.Pop( 1 );
 				break;
 			case Action_Multiply:
 				//stack.B().SetFloat( stack.B().ToFloat() * stack.A().ToFloat() );
-				stack.B().SetString( va( "%s * %s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+				stack.B().SetResult( va( "%s * %s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
 				stack.Pop( 1 );
 				break;
 			case Action_Divide:
 				//stack.B().SetFloat( stack.B().ToFloat() / stack.A().ToFloat() );
-				stack.B().SetString( va( "%s == %s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+				stack.B().SetResult( va( "%s == %s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
 				stack.Pop( 1 );
 				break;
 			case Action_Equals:
 				//stack.B().SetBool( stack.B().ToFloat() == stack.A().ToFloat() );
-				stack.B().SetString( va( "%s == %s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+				stack.B().SetResult( va( "%s == %s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
 				stack.Pop( 1 );
 				break;
 			case Action_Less:
 				//stack.B().SetBool( stack.B().ToFloat() < stack.A().ToFloat() );
-				stack.B().SetString( va( "%s < %s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+				stack.B().SetResult( va( "%s < %s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
 				stack.Pop( 1 );
 				break;
 			case Action_And:
 				//stack.B().SetBool( stack.B().ToBool() && stack.A().ToBool() );
-				stack.B().SetString( va( "%s && %s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+				stack.B().SetResult( va( "%s && %s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
 				stack.Pop( 1 );
 				break;
 			case Action_Or:
 				//stack.B().SetBool( stack.B().ToBool() || stack.A().ToBool() );
-				stack.B().SetString( va( "%s || %s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+				stack.B().SetResult( va( "%s || %s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
 				stack.Pop( 1 );
 				break;
 			case Action_Not:
 				//stack.A().SetBool( !stack.A().ToBool() );
-				stack.A().SetString( va( "!( %s )", stack.A().ToString().c_str() ) );
+				stack.A().SetResult( va( "!( %s )", stack.A().ToString().c_str() ) );
 				break;
 			case Action_StringEquals:
 				//stack.B().SetBool( stack.B().ToString() == stack.A().ToString() );
-				stack.B().SetString( va( "%s == %s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+				stack.B().SetResult( va( "%s == %s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
 				stack.Pop( 1 );
 				break;
 			case Action_StringLength:
 				//stack.A().SetInteger( stack.A().ToString().Length() );
-				stack.A().SetString( va( "%s:len()", stack.A().ToString().c_str() ) );
+				stack.A().SetResult( va( "%s:len()", stack.A().ToString().c_str() ) );
 				break;
 			case Action_StringAdd:
 				//stack.B().SetString( stack.B().ToString() + stack.A().ToString() );
-				stack.B().SetString( stack.B().ToString() + stack.A().ToString() );
+				stack.B().SetResult( stack.B().ToString() + stack.A().ToString() );
 				stack.Pop( 1 );
 				break;
 			case Action_StringExtract:
-				stack.C().SetString( stack.C().ToString().Mid( stack.B().ToInteger(), stack.A().ToInteger() ) );
+				stack.C().SetResult( stack.C().ToString().Mid( stack.B().ToInteger(), stack.A().ToInteger() ) );
 				stack.Pop( 2 );
 				break;
 			case Action_StringLess:
@@ -1980,20 +2030,22 @@ idStr idSWFScriptFunction_Script::ExportToScript( idSWFScriptObject* thisObject,
 				stack.A().SetString( va( "%c", stack.A().ToInteger() ) );
 				break;
 			case Action_Jump:
-				bitstream.Seek( bitstream.ReadS16() );
+				// RB: do not jump and continue translating to Lua or ActionScript
+				bitstream.ReadS16();
 				
-				actionScript += "\n--FIXME Action_Jump not implemented";
-				return actionScript;
+				//bitstream.Seek( bitstream.ReadS16() );
+				
+				QuitCurrentBlock();
 				break;
 			case Action_If:
 			{
-				actionScript += va( "if( %s )\n{\n", stack.A().ToString().c_str() ) ;
+				AddBlock( va( "if( %s ) then\n", stack.A().ToString().c_str() ) );
 				
 				int16 offset = bitstream.ReadS16();
-				if( stack.A().ToBool() )
-				{
-					bitstream.Seek( offset );
-				}
+				//if( stack.A().ToBool() )
+				//{
+				//	bitstream.Seek( offset );
+				//}
 				stack.Pop( 1 );
 				break;
 			}
@@ -2026,6 +2078,7 @@ idStr idSWFScriptFunction_Script::ExportToScript( idSWFScriptObject* thisObject,
 			case Action_SetVariable:
 			{
 				idStr variableName = stack.B().ToString();
+				/*
 				bool found = false;
 				for( int i = scope.Num() - 1; i >= 0; i-- )
 				{
@@ -2040,6 +2093,17 @@ idStr idSWFScriptFunction_Script::ExportToScript( idSWFScriptObject* thisObject,
 				{
 					thisObject->Set( variableName, stack.A() );
 				}
+				*/
+				if( stack.A().IsString() )
+				{
+					AddLine( va( "%s = \"%s\"\n", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+					
+				}
+				else
+				{
+					AddLine( va( "%s = %s\n", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+				}
+				
 				stack.Pop( 2 );
 				break;
 			}
@@ -2053,6 +2117,7 @@ idStr idSWFScriptFunction_Script::ExportToScript( idSWFScriptObject* thisObject,
 					frameNum += bitstream.ReadU16();
 				}
 				
+				/*
 				if( verify( thisSprite != NULL ) )
 				{
 					if( stack.A().IsString() )
@@ -2084,6 +2149,18 @@ idStr idSWFScriptFunction_Script::ExportToScript( idSWFScriptObject* thisObject,
 						idLib::Printf( "SWF: no target movie clip for gotoAndStop\n" );
 					}
 				}
+				*/
+				
+				if( ( flags & 1 ) != 0 )
+				{
+					AddLine( va( "gotoAndPlay( %i )", frameNum ) );
+				}
+				else
+				{
+					AddLine( va( "gotoAndStop( %i )", frameNum ) );
+				}
+				AddLine( va( "gotoAndPlay( %i )", frameNum ) );
+				
 				stack.Pop( 1 );
 				break;
 			}
@@ -2116,7 +2193,14 @@ idStr idSWFScriptFunction_Script::ExportToScript( idSWFScriptObject* thisObject,
 				break;
 			}
 			case Action_Trace:
-				idLib::PrintfIf( swf_debug.GetInteger() > 0, "SWF Trace: %s\n", stack.A().ToString().c_str() );
+				if( stack.A().IsString() )
+				{
+					AddLine( va( "trace( \"%s\" )\n", stack.A().ToString().c_str() ) );
+				}
+				else
+				{
+					AddLine( va( "trace( %s )\n", stack.A().ToString().c_str() ) );
+				}
 				stack.Pop( 1 );
 				break;
 			case Action_GetTime:
@@ -2173,7 +2257,7 @@ idStr idSWFScriptFunction_Script::ExportToScript( idSWFScriptObject* thisObject,
 				{
 					idLib::PrintfIf( swf_debug.GetInteger() > 0, "SWF: unknown function %s\n", functionName.c_str() );
 					
-					stack.Alloc().SetString( line );
+					stack.Alloc().SetResult( line );
 				}
 				
 				break;
@@ -2233,7 +2317,7 @@ idStr idSWFScriptFunction_Script::ExportToScript( idSWFScriptObject* thisObject,
 				}
 				else
 				{
-					stack.Alloc().SetString( line );
+					stack.Alloc().SetResult( line );
 				}
 				
 				//line.Empty();
@@ -2258,15 +2342,46 @@ idStr idSWFScriptFunction_Script::ExportToScript( idSWFScriptObject* thisObject,
 				newFunction->SetConstants( constants );
 				newFunction->SetDefaultSprite( defaultSprite );
 				
+				idStr line;
+				if( functionName.IsEmpty() )
+				{
+					line = "function( ";
+				}
+				else
+				{
+					line = va( "function %( ", functionName.c_str() );
+				}
+				
 				uint16 numParms = bitstream.ReadU16();
 				newFunction->AllocParameters( numParms );
 				for( int i = 0; i < numParms; i++ )
 				{
-					newFunction->SetParameter( i, 0, bitstream.ReadString() );
+					const char* parm = bitstream.ReadString();
+					
+					if( stack.A().IsString() )
+					{
+						line += va( "\"%s\"%s", parm, ( i < ( numParms - 1 ) ) ? ", " : " " );
+					}
+					else
+					{
+						line += va( "%s%s", parm, ( i < ( numParms - 1 ) ) ? ", " : " " );
+					}
+					
+					newFunction->SetParameter( i, 0, parm );
 				}
+				
+				line += ")";
+				
 				uint16 codeSize = bitstream.ReadU16();
 				newFunction->SetData( bitstream.ReadData( codeSize ), codeSize );
 				
+				if( functionName.IsEmpty() )
+				{
+					stack.Alloc().SetResult( line );
+				}
+				AddBlock( line );
+				
+				/*
 				if( functionName.IsEmpty() )
 				{
 					stack.Alloc().SetFunction( newFunction );
@@ -2275,6 +2390,7 @@ idStr idSWFScriptFunction_Script::ExportToScript( idSWFScriptObject* thisObject,
 				{
 					thisObject->Set( functionName, idSWFScriptVar( newFunction ) );
 				}
+				*/
 				newFunction->Release();
 				break;
 			}
@@ -2302,6 +2418,16 @@ idStr idSWFScriptFunction_Script::ExportToScript( idSWFScriptObject* thisObject,
 				newFunction->AllocRegisters( numRegs );
 				newFunction->SetFlags( flags );
 				
+				idStr line;
+				if( functionName.IsEmpty() )
+				{
+					line = "function( ";
+				}
+				else
+				{
+					line = va( "function %( ", functionName.c_str() );
+				}
+				
 				for( int i = 0; i < numParms; i++ )
 				{
 					uint8 reg = bitstream.ReadU8();
@@ -2312,11 +2438,29 @@ idStr idSWFScriptFunction_Script::ExportToScript( idSWFScriptObject* thisObject,
 						reg = 0;
 					}
 					newFunction->SetParameter( i, reg, name );
+					
+					if( stack.A().IsString() )
+					{
+						line += va( "\"%s\"%s", name, ( i < ( numParms - 1 ) ) ? ", " : " " );
+					}
+					else
+					{
+						line += va( "%s%s", name, ( i < ( numParms - 1 ) ) ? ", " : " " );
+					}
 				}
+				
+				line += ")";
+				
+				if( functionName.IsEmpty() )
+				{
+					stack.Alloc().SetResult( line );
+				}
+				AddBlock( line );
 				
 				uint16 codeSize = bitstream.ReadU16();
 				newFunction->SetData( bitstream.ReadData( codeSize ), codeSize );
 				
+				/*
 				if( functionName.IsEmpty() )
 				{
 					stack.Alloc().SetFunction( newFunction );
@@ -2325,6 +2469,8 @@ idStr idSWFScriptFunction_Script::ExportToScript( idSWFScriptObject* thisObject,
 				{
 					thisObject->Set( functionName, idSWFScriptVar( newFunction ) );
 				}
+				*/
+				
 				newFunction->Release();
 				break;
 			}
@@ -2378,7 +2524,7 @@ idStr idSWFScriptFunction_Script::ExportToScript( idSWFScriptObject* thisObject,
 			case Action_Equals2:
 			{
 				//stack.B().SetBool( stack.A().AbstractEquals( stack.B() ) );
-				stack.B().SetString( va( "%s == %s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+				stack.B().SetResult( va( "%s == %s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
 				
 				stack.Pop( 1 );
 				break;
@@ -2386,7 +2532,7 @@ idStr idSWFScriptFunction_Script::ExportToScript( idSWFScriptObject* thisObject,
 			case Action_StrictEquals:
 			{
 				//stack.B().SetBool( stack.A().StrictEquals( stack.B() ) );
-				stack.B().SetString( va( "%s == %s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+				stack.B().SetResult( va( "%s == %s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
 				
 				stack.Pop( 1 );
 				break;
@@ -2471,7 +2617,20 @@ idStr idSWFScriptFunction_Script::ExportToScript( idSWFScriptObject* thisObject,
 				//actionScript += line;
 				//line.Empty();
 				
-				stack.B().SetString( va( "%s.%s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+				idStr& member = stack.A().ToString();
+				//if( stack.A().IsString() )
+				//{
+				//	stack.B().SetResult( va( "%s[\"%s\"]", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+				//}
+				//else
+				if( member.Find( ' ' ) > 0 || member.Find( '\"' ) > 0 )
+				{
+					stack.B().SetResult( va( "%s[%s]", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+				}
+				else
+				{
+					stack.B().SetResult( va( "%s.%s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+				}
 				
 				stack.Pop( 1 );
 				break;
@@ -2489,7 +2648,15 @@ idStr idSWFScriptFunction_Script::ExportToScript( idSWFScriptObject* thisObject,
 					//}
 					//else
 					
-					actionScript += va( "%s.%s = %s;\n", stack.C().ToString().c_str(), stack.B().ToString().c_str(), stack.A().ToString().c_str() );
+					if( stack.A().IsString() )
+					{
+						AddLine( va( "%s.%s = \"%s\"\n", stack.C().ToString().c_str(), stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+						
+					}
+					else
+					{
+						AddLine( va( "%s.%s = %s\n", stack.C().ToString().c_str(), stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+					}
 				}
 				stack.Pop( 3 );
 				break;
@@ -2652,49 +2819,75 @@ idStr idSWFScriptFunction_Script::ExportToScript( idSWFScriptObject* thisObject,
 				break;
 			}
 			case Action_ToNumber:
-				stack.A().SetFloat( stack.A().ToFloat() );
-				break;
-			case Action_ToString:
-				stack.A().SetString( stack.A().ToString() );
-				break;
-			case Action_TypeOf:
-				stack.A().SetString( stack.A().TypeOf() );
-				break;
-			case Action_Add2:
-			{
-				if( stack.A().IsString() || stack.B().IsString() )
+				if( stack.A().IsString() )
 				{
-					stack.B().SetString( stack.B().ToString() + stack.A().ToString() );
+					stack.A().SetResult( va( "tonumber( \"%s\" )", stack.A().ToString().c_str() ) );
 				}
 				else
 				{
-					stack.B().SetFloat( stack.B().ToFloat() + stack.A().ToFloat() );
+					stack.A().SetResult( va( "tonumber( %s )", stack.A().ToString().c_str() ) );
+				}
+				break;
+			case Action_ToString:
+				stack.A().SetResult( va( "tostring( %s )", stack.A().ToString().c_str() ) );
+				break;
+			case Action_TypeOf:
+				if( stack.A().IsString() )
+				{
+					stack.A().SetResult( va( "type( \"%s\" )", stack.A().ToString().c_str() ) );
+				}
+				else
+				{
+					stack.A().SetResult( va( "type( %s )", stack.A().ToString().c_str() ) );
+				}
+				break;
+			case Action_Add2:
+			{
+				if( stack.B().IsString() && stack.A().IsString() )
+				{
+					stack.B().SetResult( va( "\"%s\" .. \"%s\"", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+				}
+				else if( stack.B().IsString() && !stack.A().IsString() )
+				{
+					stack.B().SetResult( va( "\"%s\" + %s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+				}
+				else if( !stack.B().IsString() && stack.A().IsString() )
+				{
+					stack.B().SetResult( va( "%s + \"%s\"", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+				}
+				else
+				{
+					stack.B().SetResult( va( "%s + %s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
 				}
 				stack.Pop( 1 );
 				break;
 			}
 			case Action_Less2:
 			{
+				/*
 				if( stack.A().IsString() && stack.B().IsString() )
 				{
-					stack.B().SetBool( stack.B().ToString() < stack.A().ToString() );
+					stack.B().SetString( va( "%s < %s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
 				}
 				else
+				*/
 				{
-					stack.B().SetBool( stack.B().ToFloat() < stack.A().ToFloat() );
+					stack.B().SetResult( va( "%s < %s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
 				}
 				stack.Pop( 1 );
 				break;
 			}
 			case Action_Greater:
 			{
+				/*
 				if( stack.A().IsString() && stack.B().IsString() )
 				{
 					stack.B().SetBool( stack.B().ToString() > stack.A().ToString() );
 				}
 				else
+				*/
 				{
-					stack.B().SetBool( stack.B().ToFloat() > stack.A().ToFloat() );
+					stack.B().SetResult( va( "%s > %s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
 				}
 				stack.Pop( 1 );
 				break;
@@ -2739,11 +2932,21 @@ idStr idSWFScriptFunction_Script::ExportToScript( idSWFScriptObject* thisObject,
 				stack.Pop( 1 );
 				break;
 			case Action_Decrement:
-				stack.A().SetFloat( stack.A().ToFloat() - 1.0f );
+			{
+				//stack.A().SetFloat( stack.A().ToFloat() - 1.0f );
+				
+				const char* a = stack.A().ToString().c_str();
+				stack.A().SetResult( va( "%s - 1", a ) );
 				break;
+			}
 			case Action_Increment:
-				stack.A().SetFloat( stack.A().ToFloat() + 1.0f );
+			{
+				//stack.A().SetFloat( stack.A().ToFloat() + 1.0f );
+				
+				const char* a = stack.A().ToString().c_str();
+				stack.A().SetResult( va( "%s + 1", a ) );
 				break;
+			}
 			case Action_PushDuplicate:
 			{
 				idSWFScriptVar dup = stack.A();
@@ -2766,12 +2969,25 @@ idStr idSWFScriptFunction_Script::ExportToScript( idSWFScriptObject* thisObject,
 			case Action_DefineLocal:
 			{
 				scope[scope.Num() - 1]->Set( stack.B().ToString(), stack.A() );
+				
+				if( stack.A().IsString() )
+				{
+					AddLine( va( "local %s = \"%s\"\n", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+				}
+				else
+				{
+					AddLine( va( "local %s = %s\n", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+				}
+				
 				stack.Pop( 2 );
 				break;
 			}
 			case Action_DefineLocal2:
 			{
 				scope[scope.Num() - 1]->Set( stack.A().ToString(), idSWFScriptVar() );
+				
+				AddLine( va( "local %s = {}\n", stack.A().ToString().c_str() ) );
+				
 				stack.Pop( 1 );
 				break;
 			}
@@ -2806,12 +3022,19 @@ idStr idSWFScriptFunction_Script::ExportToScript( idSWFScriptObject* thisObject,
 				// We have to abort here because the rest of the script is basically meaningless now
 				assert( false );
 				callstackLevel--;
-				return actionScript;
+				goto finish;
 		}
 	}
 	callstackLevel--;
+	
+finish:
+	idStr actionScript = BuildActionCode( actionBlocks, 0 );
+	
+	idLib::Printf( "%s.Sprite%i script:\n%s\n", filename, characterID, actionScript.c_str() );
+	
 	return actionScript;
 }
+// RB end
 
 /*
 ========================

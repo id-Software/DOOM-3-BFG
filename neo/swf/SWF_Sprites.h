@@ -48,13 +48,13 @@ public:
 	void	Write( idFile* f );
 	
 	// RB begin
-	void	WriteXML( idFile* f, const char* indentPrefix = "", int characterID = -1 );
-	void	WriteXML_PlaceObject2( idFile* f, idSWFBitStream& bitstream, const char* indentPrefix = "" );
-	void	WriteXML_PlaceObject3( idFile* f, idSWFBitStream& bitstream, const char* indentPrefix = "" );
-	void	WriteXML_RemoveObject2( idFile* f, idSWFBitStream& bitstream, const char* indentPrefix = "" );
-	void	WriteXML_DoAction( idFile* f, idSWFBitStream& bitstream, const char* indentPrefix = "" );
+	void	WriteXML( idFile* f, int characterID, const char* indentPrefix = "" );
+	void	WriteXML_PlaceObject2( idFile* f, idSWFBitStream& bitstream, int characterID, int commandID, const char* indentPrefix = "" );
+	void	WriteXML_PlaceObject3( idFile* f, idSWFBitStream& bitstream, int characterID, int commandID, const char* indentPrefix = "" );
+	void	WriteXML_RemoveObject2( idFile* f, idSWFBitStream& bitstream, int characterID, int commandID, const char* indentPrefix = "" );
+	void	WriteXML_DoAction( idFile* f, idSWFBitStream& bitstream, int characterID, int commandID, const char* indentPrefix = "" );
 	
-	void	WriteSWF( idFile_SWF& f, int characterID = -1 );
+	void	WriteSWF( idFile_SWF& f, int characterID );
 	
 	uint16	GetFrameCount()
 	{
