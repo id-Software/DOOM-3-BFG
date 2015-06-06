@@ -868,7 +868,7 @@ void idSWF::WriteJSON( const char* filename )
 					idStr filenameWithoutExt = filename;
 					filenameWithoutExt.StripFileExtension();
 					
-					file->WriteFloatString( "\t\t\t\"imagefile\": \"exported/%s/image_characterid_%i.png\",\n", filenameWithoutExt.c_str(), i );
+					file->WriteFloatString( "\t\t\t\"imagefile\": \"%s/image_characterid_%i.png\",\n", filenameWithoutExt.c_str(), i );
 				}
 				
 				file->WriteFloatString( "\t\t\t\"width\": %i, \"height\": %i, \"atlasOffsetX\": %i, \"atlasOffsetY\": %i,\n",
@@ -1013,7 +1013,7 @@ void idSWF::WriteJSON( const char* filename )
 						file->WriteFloatString( "\t\t\t\t\t\t],\n" );
 					}
 					
-					file->WriteFloatString( "\t\t\t\t\t},\n" );
+					file->WriteFloatString( "\n\t\t\t\t\t},\n" );
 					
 					file->WriteFloatString( "\t\t\t\t\t\"startVerts\":\n\t\t\t\t\t[\n" );
 					for( int v = 0; v < fillDraw.startVerts.Num(); v++ )
@@ -1103,7 +1103,7 @@ void idSWF::WriteJSON( const char* filename )
 			
 			case SWF_DICT_SPRITE:
 			{
-				dictionary[i].sprite->WriteXML( file, i, "\t\t" );
+				dictionary[i].sprite->WriteJSON( file, i );
 				break;
 			}
 			
@@ -1256,11 +1256,9 @@ void idSWF::WriteJSON( const char* filename )
 	
 	file->WriteFloatString( "\t],\n" );
 	
-	file->WriteFloatString( "\t\"mainsprite\": {\n" );
-	mainsprite->WriteXML( file, dictionary.Num(), "\t" );
-	file->WriteFloatString( "}\n" );
-	
-	file->WriteFloatString( "</XSWF>\n" );
+	file->WriteFloatString( "\t\"mainsprite\":\n\t{\n" );
+	mainsprite->WriteJSON( file, dictionary.Num() );
+	file->WriteFloatString( "\t}\n}\n" );
 }
 
 // RB end

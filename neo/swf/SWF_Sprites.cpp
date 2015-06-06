@@ -291,39 +291,38 @@ void idSWFSprite::Write( idFile* f )
 
 
 // RB begin
-/*
-========================
-idSWFSprite::WriteXML
-========================
-*/
-void idSWFSprite::WriteXML( idFile* f, int characterID, const char* indentPrefix )
+void idSWFSprite::WriteJSON( idFile* f, int characterID )
 {
-	if( characterID >= 0 )
-	{
-		f->WriteFloatString( "%s<Sprite characterID=\"%i\" frameCount=\"%i\" frameOffsets=\"%i\">\n", indentPrefix, characterID, frameCount, frameOffsets.Num() );
-	}
-	else
-	{
-		f->WriteFloatString( "%s<Sprite frameCount=\"%i\" frameOffsets=\"%i\">\n", indentPrefix, frameCount, frameOffsets.Num() );
-	}
+	f->WriteFloatString( "\t\t\t\"frameCount\": %i,\n", frameCount );
 	
-	f->WriteFloatString( "%s\t<frameOffsets>", indentPrefix );
-	for( int i = 0; i < frameOffsets.Num(); i++ )
+	//f->WriteFloatString( "\t\t\t\"frameOffsets\": %i,\n", frameOffsets.Num() );
+	
+	if( frameOffsets.Num() )
 	{
-		f->WriteFloatString( "%i ", frameOffsets[i] );
+		f->WriteFloatString( "\t\t\t\"frameOffsets\": [ " );
+		for( int i = 0; i < frameOffsets.Num(); i++ )
+		{
+			f->WriteFloatString( "%i%s", frameOffsets[i], ( i == frameOffsets.Num() - 1 ) ? "" : ", " );
+		}
+		f->WriteFloatString( " ],\n" );
 	}
-	f->WriteFloatString( "</frameOffsets>\n" );
 	
 	//f->WriteFloatString( "\t\t<frameLabels num=\"%i\">", frameLabels.Num() );
-	for( int i = 0; i < frameLabels.Num(); i++ )
+	if( frameLabels.Num() )
 	{
-		f->WriteFloatString( "%s\t<FrameLabel frameNum=\"%i\" frameLabel=\"%s\"/>\n", indentPrefix, frameLabels[i].frameNum, frameLabels[i].frameLabel.c_str() );
+		f->WriteFloatString( "\t\t\t\"frameLabels\":\n\t\t\t[\n" );
+		for( int i = 0; i < frameLabels.Num(); i++ )
+		{
+			f->WriteFloatString( "\t\t\t\t\"label\": { \"frameNum\": %i, \"frameLabel\": \"%s\" }%s\n", frameLabels[i].frameNum, frameLabels[i].frameLabel.c_str(), ( i == frameLabels.Num() - 1 ) ? "" : ", " );
+		}
+		f->WriteFloatString( "\t\t\t],\n" );
 	}
 	
 	
-#if 0
+#if 1
 	idBase64 base64;
 	
+	f->WriteFloatString( "\t\t\t\"commands\":\n\t\t\t[\n" );
 	for( int i = 0; i < commands.Num(); i++ )
 	{
 		idSWFSprite::swfSpriteCommand_t& command = commands[i];
@@ -344,7 +343,7 @@ void idSWFSprite::WriteXML( idFile* f, int characterID, const char* indentPrefix
 				//	WriteXML_PlaceObject2( command.stream, indentPrefix );
 				//	break;
 				
-#define HANDLE_SWF_TAG( x ) case Tag_##x: WriteXML_##x( f, command.stream, characterID, i, indentPrefix ); break;
+#define HANDLE_SWF_TAG( x ) case Tag_##x: WriteJSON_##x( f, command.stream, characterID, i ); break;
 				HANDLE_SWF_TAG( PlaceObject2 );
 				HANDLE_SWF_TAG( PlaceObject3 );
 				HANDLE_SWF_TAG( RemoveObject2 );
@@ -355,41 +354,41 @@ void idSWFSprite::WriteXML( idFile* f, int characterID, const char* indentPrefix
 				break;
 				//idLib::Printf( "Export Sprite: Unhandled tag %s\n", idSWF::GetTagName( command.tag ) );
 		}
-		
-		//f->WriteFloatString( "%s\t</Command>\n", indentPrefix );
 	}
+	f->WriteFloatString( "\n\t\t\t]\n" );
 	
-	for( int i = 0; i < doInitActions.Num(); i++ )
+	if( doInitActions.Num() )
 	{
-		base64.Encode( doInitActions[i].Ptr(), doInitActions[i].Length() );
-		
-		f->WriteFloatString( "%s\t<DoInitAction streamLength=\"%i\">%s</DoInitAction>\n", indentPrefix, doInitActions[i].Length(), base64.c_str() );
-		
-		//f->WriteFloatString( "%s\t<DoInitAction streamLength=\"%i\">%s</DoInitAction>\n", indentPrefix, doInitActions[i].Length(), doInitActions[i].Ptr() );
+		f->WriteFloatString( ",\n\t\t\t\"doInitActions\":\t\t\t[\n" );
+		for( int i = 0; i < doInitActions.Num(); i++ )
+		{
+			base64.Encode( doInitActions[i].Ptr(), doInitActions[i].Length() );
+			
+			f->WriteFloatString( "\t\t\t\"DoInitAction\": { \"streamLength\": %i, \"stream\": \"%s\" }%s\n", doInitActions[i].Length(), base64.c_str(), ( i == doInitActions.Num() - 1 ) ? "" : ", " );
+		}
+		f->WriteFloatString( "\t\t\t]" );
 	}
 #endif
-	
-	f->WriteFloatString( "%s</Sprite>\n", indentPrefix );
 }
 <<<<<<< HEAD
 // RB end
 =======
 
-void idSWFSprite::WriteXML_PlaceObject2( idFile* file, idSWFBitStream& bitstream, int sourceCharacterID, int commandID, const char* indentPrefix )
+void idSWFSprite::WriteJSON_PlaceObject2( idFile* file, idSWFBitStream& bitstream, int sourceCharacterID, int commandID, const char* indentPrefix )
 {
 	uint64 flags = bitstream.ReadU8();
 	int depth = bitstream.ReadU16();
 	
-	file->WriteFloatString( "%s\t<PlaceObject2 flags=\"%i\" depth=\"%i\"", indentPrefix, flags, depth );
+	file->WriteFloatString( "%s\t\t\t\t{\n", ( commandID != 0 ) ? ",\n" : "" );
+	file->WriteFloatString( "\t\t\t\t\t\"type\": \"Tag_PlaceObject2\",\n" );
+	file->WriteFloatString( "\t\t\t\t\t\"flags\": %i, \"depth\": %i ", flags, depth );
 	
 	int characterID = -1;
 	if( ( flags & PlaceFlagHasCharacter ) != 0 )
 	{
 		characterID = bitstream.ReadU16();
-		file->WriteFloatString( " characterID=\"%i\"", characterID );
+		file->WriteFloatString( ",\n\t\t\t\t\t\"characterID\": %i", characterID );
 	}
-	
-	file->WriteFloatString( ">\n" );
 	
 	if( ( flags & PlaceFlagHasMatrix ) != 0 )
 	{
@@ -397,7 +396,7 @@ void idSWFSprite::WriteXML_PlaceObject2( idFile* file, idSWFBitStream& bitstream
 		
 		bitstream.ReadMatrix( m );
 		
-		file->WriteFloatString( "%s\t\t<StartMatrix>%f %f %f %f %f %f</StartMatrix>\n", indentPrefix, m.xx, m.yy, m.xy, m.yx, m.tx, m.ty );
+		file->WriteFloatString( ",\n\t\t\t\t\t\"startMatrix\": [ %f, %f, %f, %f, %f, %f ]", m.xx, m.yy, m.xy, m.yx, m.tx, m.ty );
 	}
 	
 	if( ( flags & PlaceFlagHasColorTransform ) != 0 )
@@ -406,12 +405,12 @@ void idSWFSprite::WriteXML_PlaceObject2( idFile* file, idSWFBitStream& bitstream
 		bitstream.ReadColorXFormRGBA( cxf );
 		
 		idVec4 color = cxf.mul;
-		file->WriteFloatString( "%s\t\t<MulColor r=\"%f\" g=\"%f\" b=\"%f\" a=\"%f\"/>\n", indentPrefix, color.x, color.y, color.z, color.w );
+		file->WriteFloatString( ",\n\t\t\t\t\t\"mulColor\": [ %f, %f, %f, %f ]", color.x, color.y, color.z, color.w );
 		
 		color = cxf.add;
 		if( color != vec4_origin )
 		{
-			file->WriteFloatString( "%s\t\t<AddColor r=\"%f\" g=\"%f\" b=\"%f\" a=\"%f\"/>\n", indentPrefix, color.x, color.y, color.z, color.w );
+			file->WriteFloatString( ",\n\t\t\t\t\t\"addColor\": [%f %f %f %f ]", color.x, color.y, color.z, color.w );
 		}
 	}
 	
@@ -419,14 +418,14 @@ void idSWFSprite::WriteXML_PlaceObject2( idFile* file, idSWFBitStream& bitstream
 	{
 		float ratio = bitstream.ReadU16() * ( 1.0f / 65535.0f );
 		
-		file->WriteFloatString( "%s\t\t<Ratio>%f</Ratio>\n", indentPrefix, ratio );
+		file->WriteFloatString( ",\n\t\t\t\t\t\"ratio\": %f", ratio );
 	}
 	
 	if( ( flags & PlaceFlagHasName ) != 0 )
 	{
 		idStr name = bitstream.ReadString();
 		
-		file->WriteFloatString( "%s\t\t<Name>%s</Name>\n", indentPrefix, name.c_str() );
+		file->WriteFloatString( ",\n\t\t\t\t\t\"name\": \"%s\"", name.c_str() );
 		
 		/*if( display->spriteInstance )
 		{
@@ -442,7 +441,7 @@ void idSWFSprite::WriteXML_PlaceObject2( idFile* file, idSWFBitStream& bitstream
 	if( ( flags & PlaceFlagHasClipDepth ) != 0 )
 	{
 		uint16 clipDepth = bitstream.ReadU16();
-		file->WriteFloatString( "%s\t\t<ClipDepth>%i</ClipDepth>\n", indentPrefix, clipDepth );
+		file->WriteFloatString( ",\n\t\t\t\t\t\"clipDepth\": %i", clipDepth );
 	}
 	
 	if( ( flags & PlaceFlagHasClipActions ) != 0 )
@@ -450,11 +449,11 @@ void idSWFSprite::WriteXML_PlaceObject2( idFile* file, idSWFBitStream& bitstream
 		// FIXME: clip actions
 	}
 	
-	file->WriteFloatString( "%s\t</PlaceObject2>\n", indentPrefix );
+	file->WriteFloatString( "\n\t\t\t\t}" );
 }
 
 
-void idSWFSprite::WriteXML_PlaceObject3( idFile* file, idSWFBitStream& bitstream, int sourceCharacterID, int commandID, const char* indentPrefix )
+void idSWFSprite::WriteJSON_PlaceObject3( idFile* file, idSWFBitStream& bitstream, int sourceCharacterID, int commandID, const char* indentPrefix )
 {
 	uint64 flags1 = bitstream.ReadU8();
 	uint64 flags2 = bitstream.ReadU8();
@@ -548,19 +547,22 @@ void idSWFSprite::WriteXML_PlaceObject3( idFile* file, idSWFBitStream& bitstream
 	file->WriteFloatString( "%s\t</PlaceObject3>\n", indentPrefix );
 }
 
-void idSWFSprite::WriteXML_RemoveObject2( idFile* file, idSWFBitStream& bitstream, int sourceCharacterID, int commandID, const char* indentPrefix )
+void idSWFSprite::WriteJSON_RemoveObject2( idFile* file, idSWFBitStream& bitstream, int sourceCharacterID, int commandID, const char* indentPrefix )
 {
 	int depth = bitstream.ReadU16();
 	
-	file->WriteFloatString( "%s\t<RemoveObject2 depth=\"%i\"/>\n", indentPrefix, depth );
+	file->WriteFloatString( "%s\t\t\t\t{\t\"type\": \"Tag_RemoveObject2\", \"depth\": %i }", ( commandID != 0 ) ? ",\n" : "", depth );
 }
 
-void idSWFSprite::WriteXML_DoAction( idFile* file, idSWFBitStream& bitstream, int characterID, int commandID, const char* indentPrefix )
+void idSWFSprite::WriteJSON_DoAction( idFile* file, idSWFBitStream& bitstream, int characterID, int commandID, const char* indentPrefix )
 {
 	idBase64 base64;
 	
 	base64.Encode( bitstream.Ptr(), bitstream.Length() );
 	
+	file->WriteFloatString( "%s\t\t\t\t{\t\"type\": \"Tag_DoAction\", \"streamLength\": %i, \"stream\": \"%s\" }", ( commandID != 0 ) ? ",\n" : "", bitstream.Length(), base64.c_str() );
+	
+#if 0
 	idSWFScriptObject* scriptObject = idSWFScriptObject::Alloc();
 	scriptObject->SetPrototype( &spriteInstanceScriptObjectPrototype );
 //	scriptObject->SetSprite( this );
@@ -578,10 +580,13 @@ void idSWFSprite::WriteXML_DoAction( idFile* file, idSWFBitStream& bitstream, in
 	
 	//file->WriteFloatString( "%s\t<DoAction streamLength=\"%i\">%s</DoAction>\n", indentPrefix, bitstream.Length(), base64.c_str() );
 	
-	file->WriteFloatString( "%s\t<DoAction streamLength=\"%i\">\n%s%s\t</DoAction>\n", indentPrefix, bitstream.Length(), scriptText.c_str(), indentPrefix );
-	
 	delete actionScript;
 	delete scriptObject;
+#endif
+	
+	
+	
+	
 }
 
 

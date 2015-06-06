@@ -48,11 +48,11 @@ public:
 	void	Write( idFile* f );
 	
 	// RB begin
-	void	WriteXML( idFile* f, int characterID, const char* indentPrefix = "" );
-	void	WriteXML_PlaceObject2( idFile* f, idSWFBitStream& bitstream, int characterID, int commandID, const char* indentPrefix = "" );
-	void	WriteXML_PlaceObject3( idFile* f, idSWFBitStream& bitstream, int characterID, int commandID, const char* indentPrefix = "" );
-	void	WriteXML_RemoveObject2( idFile* f, idSWFBitStream& bitstream, int characterID, int commandID, const char* indentPrefix = "" );
-	void	WriteXML_DoAction( idFile* f, idSWFBitStream& bitstream, int characterID, int commandID, const char* indentPrefix = "" );
+	void	WriteJSON( idFile* f, int characterID );
+	void	WriteJSON_PlaceObject2( idFile* f, idSWFBitStream& bitstream, int characterID, int commandID, const char* indentPrefix = "" );
+	void	WriteJSON_PlaceObject3( idFile* f, idSWFBitStream& bitstream, int characterID, int commandID, const char* indentPrefix = "" );
+	void	WriteJSON_RemoveObject2( idFile* f, idSWFBitStream& bitstream, int characterID, int commandID, const char* indentPrefix = "" );
+	void	WriteJSON_DoAction( idFile* f, idSWFBitStream& bitstream, int characterID, int commandID, const char* indentPrefix = "" );
 	
 	void	WriteSWF( idFile_SWF& f, int characterID );
 	
