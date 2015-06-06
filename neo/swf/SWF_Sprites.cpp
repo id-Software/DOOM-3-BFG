@@ -321,7 +321,7 @@ void idSWFSprite::WriteXML( idFile* f, int characterID, const char* indentPrefix
 	}
 	
 	
-#if 1
+#if 0
 	idBase64 base64;
 	
 	for( int i = 0; i < commands.Num(); i++ )

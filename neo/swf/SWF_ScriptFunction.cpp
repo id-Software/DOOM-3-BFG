@@ -2117,40 +2117,6 @@ idStr idSWFScriptFunction_Script::ExportToScript( idSWFScriptObject* thisObject,
 					frameNum += bitstream.ReadU16();
 				}
 				
-				/*
-				if( verify( thisSprite != NULL ) )
-				{
-					if( stack.A().IsString() )
-					{
-						frameNum += thisSprite->FindFrame( stack.A().ToString() );
-					}
-					else
-					{
-						frameNum += ( uint32 )stack.A().ToInteger();
-					}
-					if( ( flags & 1 ) != 0 )
-					{
-						thisSprite->Play();
-					}
-					else
-					{
-						thisSprite->Stop();
-					}
-					thisSprite->RunTo( frameNum );
-				}
-				else if( swf_debug.GetInteger() > 0 )
-				{
-					if( ( flags & 1 ) != 0 )
-					{
-						idLib::Printf( "SWF: no target movie clip for gotoAndPlay\n" );
-					}
-					else
-					{
-						idLib::Printf( "SWF: no target movie clip for gotoAndStop\n" );
-					}
-				}
-				*/
-				
 				if( ( flags & 1 ) != 0 )
 				{
 					AddLine( va( "gotoAndPlay( %i )", frameNum ) );

@@ -826,10 +826,10 @@ void idSWF::SetBackgroundColor( idSWFBitStream& bitstream )
 
 /*
 ===================
-idSWF::WriteXML
+idSWF::WriteJSON
 ===================
 */
-void idSWF::WriteXML( const char* filename )
+void idSWF::WriteJSON( const char* filename )
 {
 	const bool exportBitmapShapesOnly = false;
 	
@@ -839,60 +839,67 @@ void idSWF::WriteXML( const char* filename )
 		return;
 	}
 	
-	file->WriteFloatString( "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" );
-	file->WriteFloatString( "<XSWF version=\"%i\" timestamp=\"%i\" frameWidth=\"%f\" frameHeight=\"%f\" frameRate=\"%i\">\n", XSWF_VERSION, timestamp, frameWidth, frameHeight, frameRate );
+	//file->WriteFloatString( "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" );
+	file->WriteFloatString( "{\n \t\"version\": %i,\n \t\"timestamp\": %i,\n \t\"frameWidth\": %f,\n \t\"frameHeight\": %f,\n \t\"frameRate\": %i,\n", XSWF_VERSION, timestamp, frameWidth, frameHeight, frameRate );
 	
-	file->WriteFloatString( "\t<Dictionary>\n" );
+	file->WriteFloatString( "\t\"dict\":\n\t[\n" );
 	for( int i = 0; i < dictionary.Num(); i++ )
 	{
 		const idSWFDictionaryEntry& entry = dictionary[i];
 		
-		//file->WriteFloatString( "\t<DictionaryEntry type=\"%s\">\n", idSWF::GetDictTypeName( dictionary[i].type ) );
+		if( dictionary[i].type != SWF_DICT_NULL )
+		{
+			file->WriteFloatString( "\t\t{\n" );
+			
+			file->WriteFloatString( "\t\t\t\"type\": \"%s\",\n", idSWF::GetDictTypeName( dictionary[i].type ) );
+			file->WriteFloatString( "\t\t\t\"characterID\": %i,\n", i );
+		}
+		
 		switch( dictionary[i].type )
 		{
 			case SWF_DICT_IMAGE:
 			{
-				file->WriteFloatString( "\t\t<Image characterID=\"%i\" material=\"", i );
 				if( dictionary[i].material )
 				{
-					file->WriteFloatString( "%s\"", dictionary[i].material->GetName() );
+					file->WriteFloatString( "\t\t\t\"material\": \"%s\"", dictionary[i].material->GetName() );
 				}
 				else
 				{
-					file->WriteFloatString( ".\"" );
+					idStr filenameWithoutExt = filename;
+					filenameWithoutExt.StripFileExtension();
+					
+					file->WriteFloatString( "\t\t\t\"imagefile\": \"exported/%s/image_characterid_%i.png\",\n", filenameWithoutExt.c_str(), i );
 				}
 				
-				file->WriteFloatString( " width=\"%i\" height=\"%i\" atlasOffsetX=\"%i\" atlasOffsetY=\"%i\">\n",
+				file->WriteFloatString( "\t\t\t\"width\": %i, \"height\": %i, \"atlasOffsetX\": %i, \"atlasOffsetY\": %i,\n",
 										entry.imageSize[0], entry.imageSize[1], entry.imageAtlasOffset[0], entry.imageAtlasOffset[1] );
 										
-				file->WriteFloatString( "\t\t\t<ChannelScale x=\"%f\" y=\"%f\" z=\"%f\" w=\"%f\"/>\n", entry.channelScale.x, entry.channelScale.y, entry.channelScale.z, entry.channelScale.w );
-				
-				file->WriteFloatString( "\t\t</Image>\n" );
+				file->WriteFloatString( "\t\t\t\"channelScale\": { \"x\": %f, \"y\": %f, \"z\": %f, \"w\": %f }\n", entry.channelScale.x, entry.channelScale.y, entry.channelScale.z, entry.channelScale.w );
 				break;
 			}
 			
+#if 1
 			case SWF_DICT_MORPH:
 			case SWF_DICT_SHAPE:
 			{
 				idSWFShape* shape = dictionary[i].shape;
-				
-				file->WriteFloatString( "\t\t<Shape characterID=\"%i\">\n", i );
 				
 				float x = shape->startBounds.tl.y;
 				float y = shape->startBounds.tl.x;
 				float width = fabs( shape->startBounds.br.y - shape->startBounds.tl.y );
 				float height = fabs( shape->startBounds.br.x - shape->startBounds.tl.x );
 				
-				file->WriteFloatString( "\t\t\t<StartBounds x=\"%f\" y=\"%f\" width=\"%f\" height=\"%f\" />\n", x, y, width, height );
+				file->WriteFloatString( "\t\t\t\"startBounds\": { \"x\": %f, \"y\": %f, \"width\": %f, \"height\": %f },\n", x, y, width, height );
 				
 				x = shape->endBounds.tl.y;
 				y = shape->endBounds.tl.x;
 				width = fabs( shape->endBounds.br.y - shape->endBounds.tl.y );
 				height = fabs( shape->endBounds.br.x - shape->endBounds.tl.x );
 				
-				file->WriteFloatString( "\t\t\t<EndBounds x=\"%f\" y=\"%f\" width=\"%f\" height=\"%f\" />\n", x, y, width, height );
+				file->WriteFloatString( "\t\t\t\"endBounds\": { \"x\": %f, \"y\": %f, \"width\": %f, \"height\": %f },\n", x, y, width, height );
 				
 				// export fill draws
+				file->WriteFloatString( "\t\t\t\"fillDraws\":\n\t\t\t[\n" );
 				
 				for( int d = 0; d < shape->fillDraws.Num(); d++ )
 				{
@@ -903,9 +910,9 @@ void idSWF::WriteXML( const char* filename )
 						continue;
 					}
 					
-					file->WriteFloatString( "\t\t\t<DrawFill>\n" );
+					file->WriteFloatString( "\t\t\t\t{\n" );
 					
-					file->WriteFloatString( "\t\t\t\t<FillStyle type=" );
+					file->WriteFloatString( "\t\t\t\t\t\"style\":\n\t\t\t\t\t{\n\t\t\t\t\t\t\"type\": " );
 					
 					// 0 = solid, 1 = gradient, 4 = bitmap
 					if( fillDraw.style.type == 0 )
@@ -926,7 +933,7 @@ void idSWF::WriteXML( const char* filename )
 					}
 					
 					// 0 = linear, 2 = radial, 3 = focal; 0 = repeat, 1 = clamp, 2 = near repeat, 3 = near clamp
-					file->WriteFloatString( " subType=" );
+					file->WriteFloatString( ",\n\t\t\t\t\t\t\"subType\": " );
 					if( fillDraw.style.subType == 0 )
 					{
 						file->WriteFloatString( "\"linear\"" );
@@ -950,89 +957,101 @@ void idSWF::WriteXML( const char* filename )
 					
 					if( fillDraw.style.type == 1 && fillDraw.style.subType == 3 )
 					{
-						file->WriteFloatString( " focalPoint=\"%f\"", fillDraw.style.focalPoint );
+						file->WriteFloatString( ",\n\t\t\t\t\t\t\"focalPoint\": %f", fillDraw.style.focalPoint );
 					}
 					
 					if( fillDraw.style.type == 4 )
 					{
-						file->WriteFloatString( " bitmapID=\"%i\"", fillDraw.style.bitmapID );
+						file->WriteFloatString( ",\n\t\t\t\t\t\t\"bitmapID\": %i", fillDraw.style.bitmapID );
 					}
-					
-					file->WriteFloatString( ">\n" );
 					
 					if( fillDraw.style.type == 0 )
 					{
 						idVec4 color = fillDraw.style.startColor.ToVec4();
-						file->WriteFloatString( "\t\t\t\t\t<StartColor r=\"%f\" g=\"%f\" b=\"%f\" a=\"%f\"/>\n",
-												color.x, color.y, color.z, color.w );
-												
+						file->WriteFloatString( ",\n\t\t\t\t\t\t\"startColor\": [ %f, %f, %f, %f ]", color.x, color.y, color.z, color.w );
+						
 						color = fillDraw.style.endColor.ToVec4();
-						file->WriteFloatString( "\t\t\t\t\t<EndColor r=\"%f\" g=\"%f\" b=\"%f\" a=\"%f\"/>\n",
-												color.x, color.y, color.z, color.w );
+						file->WriteFloatString( ",\n\t\t\t\t\t\t\"endColor\": [ %f, %f, %f, %f ],\n", color.x, color.y, color.z, color.w );
 					}
 					
 					if( fillDraw.style.type > 0 )
 					{
 						swfMatrix_t m = fillDraw.style.startMatrix;
-						file->WriteFloatString( "\t\t\t\t\t<StartMatrix>%f %f %f %f %f %f</StartMatrix>\n",
-												m.xx, m.yy, m.xy, m.yx, m.tx, m.ty );
-												
+						file->WriteFloatString( ",\n\t\t\t\t\t\t\"startMatrix\": [ %f, %f, %f, %f, %f, %f ]", m.xx, m.yy, m.xy, m.yx, m.tx, m.ty );
+						
 						if( fillDraw.style.startMatrix != fillDraw.style.endMatrix )
 						{
 							m = fillDraw.style.endMatrix;
-							file->WriteFloatString( "\t\t\t\t\t<EndMatrix>%f %f %f %f %f %f</EndMatrix>\n",
-													m.xx, m.yy, m.xy, m.yx, m.tx, m.ty );
+							file->WriteFloatString( ",\n\t\t\t\t\t\t\"endMatrix\": [ %f, %f, %f, %f, %f, %f ],\n", m.xx, m.yy, m.xy, m.yx, m.tx, m.ty );
 						}
 					}
 					
-					for( int g = 0; g < fillDraw.style.gradient.numGradients; g++ )
+					if( fillDraw.style.gradient.numGradients )
 					{
-						swfGradientRecord_t gr = fillDraw.style.gradient.gradientRecords[g];
+						file->WriteFloatString( "\t\t\t\t\t\"gradients\":\n\t\t\t\t\t[\n" );
 						
-						file->WriteFloatString( "\t\t\t\t\t<GradientRecord startRatio=\"%i\" endRatio=\"%i\">\n", gr.startRatio, gr.endRatio );
-						
-						idVec4 color = gr.startColor.ToVec4();
-						file->WriteFloatString( "\t\t\t\t\t\t<StartColor r=\"%f\" g=\"%f\" b=\"%f\" a=\"%f\"/>\n",
-												color.x, color.y, color.z, color.w );
-												
-						idVec4 endColor = gr.endColor.ToVec4();
-						if( color != endColor )
+						for( int g = 0; g < fillDraw.style.gradient.numGradients; g++ )
 						{
-							file->WriteFloatString( "\t\t\t\t\t\t<EndColor r=\"%f\" g=\"%f\" b=\"%f\" a=\"%f\"/>\n",
-													color.x, color.y, color.z, endColor.w );
+							swfGradientRecord_t gr = fillDraw.style.gradient.gradientRecords[g];
+							
+							file->WriteFloatString( "\t\t\t\t\t<GradientRecord startRatio=\"%i\" endRatio=\"%i\">\n", gr.startRatio, gr.endRatio );
+							
+							idVec4 color = gr.startColor.ToVec4();
+							file->WriteFloatString( "\t\t\t\t\t\t<StartColor r=\"%f\" g=\"%f\" b=\"%f\" a=\"%f\"/>\n",
+													color.x, color.y, color.z, color.w );
+													
+							idVec4 endColor = gr.endColor.ToVec4();
+							if( color != endColor )
+							{
+								file->WriteFloatString( "\t\t\t\t\t\t<EndColor r=\"%f\" g=\"%f\" b=\"%f\" a=\"%f\"/>\n",
+														color.x, color.y, color.z, endColor.w );
+							}
+							
+							file->WriteFloatString( "\t\t\t\t\t\t}%s\n", ( g == ( fillDraw.style.gradient.numGradients - 1 ) ) ? "" : "," );
 						}
+						
+						file->WriteFloatString( "\t\t\t\t\t\t],\n" );
 					}
 					
-					file->WriteFloatString( "\t\t\t\t</FillStyle>\n" );
+					file->WriteFloatString( "\t\t\t\t\t},\n" );
 					
+					file->WriteFloatString( "\t\t\t\t\t\"startVerts\":\n\t\t\t\t\t[\n" );
 					for( int v = 0; v < fillDraw.startVerts.Num(); v++ )
 					{
 						const idVec2& vert = fillDraw.startVerts[v];
 						
-						file->WriteFloatString( "\t\t\t\t<StartVertex x=\"%f\" y=\"%f\"/>\n", vert.x, vert.y );
+						file->WriteFloatString( "\t\t\t\t\t\t{ \"v\": [ %f, %f ] }%s\n", vert.x, vert.y, ( v == ( fillDraw.startVerts.Num() - 1 ) ) ? "" : "," );
 					}
+					file->WriteFloatString( "\t\t\t\t\t],\n" );
 					
-					for( int v = 0; v < fillDraw.endVerts.Num(); v++ )
+					if( fillDraw.endVerts.Num() )
 					{
-						const idVec2& vert = fillDraw.endVerts[v];
-						
-						file->WriteFloatString( "\t\t\t\t<EndVertex x=\"%f\" y=\"%f\"/>\n",	vert.x, vert.y );
+						file->WriteFloatString( "\t\t\t\t\t\"endVerts\":\n\t\t\t\t\t[\n" );
+						for( int v = 0; v < fillDraw.endVerts.Num(); v++ )
+						{
+							const idVec2& vert = fillDraw.endVerts[v];
+							
+							file->WriteFloatString( "\t\t\t\t\t\t{ \"v\": [ %f, %f ] }%s\n", vert.x, vert.y, ( v == ( fillDraw.endVerts.Num() - 1 ) ) ? "" : "," );
+						}
+						file->WriteFloatString( "\t\t\t\t\t],\n" );
 					}
 					
-					file->WriteFloatString( "\t\t\t\t<Indices num=\"%i\">", fillDraw.indices.Num() );
+					file->WriteFloatString( "\t\t\t\t\t\"indices\": [ " );
 					for( int v = 0; v < fillDraw.indices.Num(); v++ )
 					{
 						const uint16& vert = fillDraw.indices[v];
 						
-						file->WriteFloatString( "%i ", vert );
+						file->WriteFloatString( "%i%s", vert, ( v == fillDraw.indices.Num() - 1 ) ? "" : ", " );
 					}
-					file->WriteFloatString( "</Indices>\n" );
+					file->WriteFloatString( "]\n" );
 					
-					file->WriteFloatString( "\t\t\t</DrawFill>\n" );
+					file->WriteFloatString( "\t\t\t\t}%s\n", ( d == ( shape->fillDraws.Num() - 1 ) ) ? "" : "," );
 				}
 				
+				file->WriteFloatString( "\t\t\t]\n" );
+				
 				// export line draws
-#if 1
+#if 0
 				for( int d = 0; d < shape->lineDraws.Num(); d++ )
 				{
 					const idSWFShapeDrawLine& lineDraw = shape->lineDraws[d];
@@ -1078,10 +1097,9 @@ void idSWF::WriteXML( const char* filename )
 					file->WriteFloatString( "</Indices>\n" );
 				}
 #endif
-				
-				file->WriteFloatString( "\t\t</Shape>\n" );
 				break;
 			}
+#endif
 			
 			case SWF_DICT_SPRITE:
 			{
@@ -1230,12 +1248,17 @@ void idSWF::WriteXML( const char* filename )
 			}
 		}
 		
-		//file->WriteFloatString( "\t</DictionaryEntry>\n" );
+		if( dictionary[i].type != SWF_DICT_NULL )
+		{
+			file->WriteFloatString( "\t\t}%s\n", ( i == ( dictionary.Num() - 1 ) ) ? "" : "," );
+		}
 	}
 	
-	file->WriteFloatString( "\t</Dictionary>\n" );
+	file->WriteFloatString( "\t],\n" );
 	
+	file->WriteFloatString( "\t\"mainsprite\": {\n" );
 	mainsprite->WriteXML( file, dictionary.Num(), "\t" );
+	file->WriteFloatString( "}\n" );
 	
 	file->WriteFloatString( "</XSWF>\n" );
 }

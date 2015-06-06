@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013 Robert Beckebans
+Copyright (C) 2013-2015 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -156,11 +156,11 @@ idSWF::idSWF( const char* filename_, idSoundWorld* soundWorld_ )
 	// RB begin
 	if( swf_exportXML.GetBool() )
 	{
-		idStr xmlFileName = "exported/";
-		xmlFileName += filename;
-		xmlFileName.SetFileExtension( ".xml" );
+		idStr jsonFileName = "exported/";
+		jsonFileName += filename;
+		jsonFileName.SetFileExtension( ".json" );
 		
-		WriteXML( xmlFileName );
+		WriteJSON( jsonFileName );
 	}
 	
 	idStr atlasFileName = binaryFileName;
