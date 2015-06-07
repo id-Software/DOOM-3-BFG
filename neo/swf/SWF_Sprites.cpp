@@ -409,7 +409,7 @@ void idSWFSprite::WriteJSON_PlaceObject2( idFile* file, idSWFBitStream& bitstrea
 		color = cxf.add;
 		if( color != vec4_origin )
 		{
-			file->WriteFloatString( ",\n\t\t\t\t\t\"addColor\": [%f %f %f %f ]", color.x, color.y, color.z, color.w );
+			file->WriteFloatString( ",\n\t\t\t\t\t\"addColor\": [ %f, %f, %f, %f ]", color.x, color.y, color.z, color.w );
 		}
 	}
 	
@@ -488,7 +488,7 @@ void idSWFSprite::WriteJSON_PlaceObject3( idFile* file, idSWFBitStream& bitstrea
 		color = cxf.add;
 		if( color != vec4_origin )
 		{
-			file->WriteFloatString( ",\n\t\t\t\t\t\"addColor\": [%f %f %f %f ]", color.x, color.y, color.z, color.w );
+			file->WriteFloatString( ",\n\t\t\t\t\t\"addColor\": [ %f, %f, %f, %f ]", color.x, color.y, color.z, color.w );
 		}
 	}
 	

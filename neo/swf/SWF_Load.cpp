@@ -900,6 +900,11 @@ void idSWF::WriteJSON( const char* filename )
 				
 				// export fill draws
 				file->WriteFloatString( "\t\t\t\"fillDraws\":\n\t\t\t[\n" );
+
+				if( shape->fillDraws.Num() > 1 )
+				{
+					idLib::Printf( S_COLOR_YELLOW "WARNING: " S_COLOR_RED "%s.Shape%i has %i fill draws\n", filename, i, shape->fillDraws.Num() );
+				}
 				
 				for( int d = 0; d < shape->fillDraws.Num(); d++ )
 				{
@@ -1013,37 +1018,52 @@ void idSWF::WriteJSON( const char* filename )
 						file->WriteFloatString( "\t\t\t\t\t\t],\n" );
 					}
 					
-					file->WriteFloatString( "\n\t\t\t\t\t},\n" );
+					file->WriteFloatString( "\n\t\t\t\t\t}" );
 					
-					file->WriteFloatString( "\t\t\t\t\t\"startVerts\":\n\t\t\t\t\t[\n" );
-					for( int v = 0; v < fillDraw.startVerts.Num(); v++ )
+					if( fillDraw.startVerts.Num() )
 					{
-						const idVec2& vert = fillDraw.startVerts[v];
+						file->WriteFloatString( ",\n\t\t\t\t\t\"startVerts\":\n\t\t\t\t\t[\n" );
+						for( int v = 0; v < fillDraw.startVerts.Num(); v++ )
+						{
+							const idVec2& vert = fillDraw.startVerts[v];
 						
-						file->WriteFloatString( "\t\t\t\t\t\t{ \"v\": [ %f, %f ] }%s\n", vert.x, vert.y, ( v == ( fillDraw.startVerts.Num() - 1 ) ) ? "" : "," );
+							file->WriteFloatString( "\t\t\t\t\t\t{ \"v\": [ %f, %f ] }%s\n", vert.x, vert.y, ( v == ( fillDraw.startVerts.Num() - 1 ) ) ? "" : "," );
+						}
+						file->WriteFloatString( "\t\t\t\t\t]" );
 					}
-					file->WriteFloatString( "\t\t\t\t\t],\n" );
 					
 					if( fillDraw.endVerts.Num() )
 					{
-						file->WriteFloatString( "\t\t\t\t\t\"endVerts\":\n\t\t\t\t\t[\n" );
+						file->WriteFloatString( ",\n\t\t\t\t\t\"endVerts\":\n\t\t\t\t\t[\n" );
 						for( int v = 0; v < fillDraw.endVerts.Num(); v++ )
 						{
 							const idVec2& vert = fillDraw.endVerts[v];
 							
 							file->WriteFloatString( "\t\t\t\t\t\t{ \"v\": [ %f, %f ] }%s\n", vert.x, vert.y, ( v == ( fillDraw.endVerts.Num() - 1 ) ) ? "" : "," );
 						}
-						file->WriteFloatString( "\t\t\t\t\t],\n" );
+						file->WriteFloatString( "\t\t\t\t\t]" );
 					}
 					
-					file->WriteFloatString( "\t\t\t\t\t\"indices\": [ " );
-					for( int v = 0; v < fillDraw.indices.Num(); v++ )
+					if( fillDraw.indices.Num() )
 					{
-						const uint16& vert = fillDraw.indices[v];
+						file->WriteFloatString( ",\n\t\t\t\t\t\"indices\": [ " );
+#if 0
+						for( int v = 0; v < fillDraw.indices.Num(); v++ )
+						{
+							const uint16& vert = fillDraw.indices[v];
 						
-						file->WriteFloatString( "%i%s", vert, ( v == fillDraw.indices.Num() - 1 ) ? "" : ", " );
+							file->WriteFloatString( "%i%s", vert, ( v == fillDraw.indices.Num() - 1 ) ? "" : ", " );
+						}
+#else
+						for( int v = fillDraw.indices.Num() - 1; v >= 0; v-- )
+						{
+							const uint16& vert = fillDraw.indices[v];
+						
+							file->WriteFloatString( "%i%s", vert, ( v == 0 ) ? "" : ", " );
+						}
+#endif
+						file->WriteFloatString( "]\n" );
 					}
-					file->WriteFloatString( "]\n" );
 					
 					file->WriteFloatString( "\t\t\t\t}%s\n", ( d == ( shape->fillDraws.Num() - 1 ) ) ? "" : "," );
 				}
