@@ -884,17 +884,17 @@ void idSWF::WriteJSON( const char* filename )
 			{
 				idSWFShape* shape = dictionary[i].shape;
 				
-				float x = shape->startBounds.tl.y;
-				float y = shape->startBounds.tl.x;
-				float width = fabs( shape->startBounds.br.y - shape->startBounds.tl.y );
-				float height = fabs( shape->startBounds.br.x - shape->startBounds.tl.x );
+				float x = shape->startBounds.tl.x;
+				float y = shape->startBounds.tl.y;
+				float width = fabs( shape->startBounds.br.x - shape->startBounds.tl.x );
+				float height = fabs( shape->startBounds.br.y - shape->startBounds.tl.y );
 				
 				file->WriteFloatString( "\t\t\t\"startBounds\": { \"x\": %f, \"y\": %f, \"width\": %f, \"height\": %f },\n", x, y, width, height );
 				
-				x = shape->endBounds.tl.y;
-				y = shape->endBounds.tl.x;
-				width = fabs( shape->endBounds.br.y - shape->endBounds.tl.y );
-				height = fabs( shape->endBounds.br.x - shape->endBounds.tl.x );
+				x = shape->endBounds.tl.x;
+				y = shape->endBounds.tl.y;
+				width = fabs( shape->endBounds.br.x - shape->endBounds.tl.x );
+				height = fabs( shape->endBounds.br.y - shape->endBounds.tl.y );
 				
 				file->WriteFloatString( "\t\t\t\"endBounds\": { \"x\": %f, \"y\": %f, \"width\": %f, \"height\": %f },\n", x, y, width, height );
 				
@@ -1217,10 +1217,10 @@ void idSWF::WriteJSON( const char* filename )
 										et->leftMargin, et->rightMargin, et->indent, et->leading,
 										et->variable.c_str(), initialText.c_str() );
 										
-				float x = et->bounds.tl.y;
-				float y = et->bounds.tl.x;
-				float width = fabs( et->bounds.br.y - et->bounds.tl.y );
-				float height = fabs( et->bounds.br.x - et->bounds.tl.x );
+				float x = et->bounds.tl.x;
+				float y = et->bounds.tl.y;
+				float width = fabs( et->bounds.br.x - et->bounds.tl.x );
+				float height = fabs( et->bounds.br.y - et->bounds.tl.y );
 				
 				file->WriteFloatString( "\t\t\t\"bounds\": { \"x\": %f, \"y\": %f, \"width\": %f, \"height\": %f },\n", x, y, width, height );
 				
