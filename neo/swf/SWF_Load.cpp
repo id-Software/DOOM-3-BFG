@@ -971,7 +971,7 @@ void idSWF::WriteJSON( const char* filename )
 						file->WriteFloatString( ",\n\t\t\t\t\t\t\"startColor\": [ %f, %f, %f, %f ]", color.x, color.y, color.z, color.w );
 						
 						color = fillDraw.style.endColor.ToVec4();
-						file->WriteFloatString( ",\n\t\t\t\t\t\t\"endColor\": [ %f, %f, %f, %f ],\n", color.x, color.y, color.z, color.w );
+						file->WriteFloatString( ",\n\t\t\t\t\t\t\"endColor\": [ %f, %f, %f, %f ]\n", color.x, color.y, color.z, color.w );
 					}
 					
 					if( fillDraw.style.type > 0 )
@@ -1111,8 +1111,8 @@ void idSWF::WriteJSON( const char* filename )
 			{
 				const idSWFFont* font = dictionary[i].font;
 				
-				file->WriteFloatString( "\t\t<Font characterID=\"%i\" name=\"%s\" ascent=\"%i\" descent=\"%i\" leading=\"%i\" glyphsNum=\"%i\">\n",
-										i, font->fontID->GetName(), font->ascent, font->descent, font->leading, font->glyphs.Num() );
+				file->WriteFloatString( "\t\t\t\"name\": \"%s\", \"ascent\": %i, \"descent\": %i, \"leading\": %i, \"glyphsNum\": %i\n",
+										font->fontID->GetName(), font->ascent, font->descent, font->leading, font->glyphs.Num() );
 										
 #if 0
 				for( int g = 0; g < font->glyphs.Num(); g++ )
@@ -1140,7 +1140,6 @@ void idSWF::WriteJSON( const char* filename )
 #endif
 				}
 #endif
-				file->WriteFloatString( "\t\t</Font>\n" );
 				break;
 			}
 			
@@ -1211,24 +1210,22 @@ void idSWF::WriteJSON( const char* filename )
 			{
 				const idSWFEditText* et = dictionary[i].edittext;
 				
-				file->WriteFloatString( "\t\t<EditText characterID=\"%i\" flags=\"%i\" fontID=\"%i\" fontHeight=\"%i\" maxLength=\"%i\" align=\"%s\" leftMargin=\"%i\" rightMargin=\"%i\" indent=\"%i\" leading=\"%i\" variable=\"%s\" initialText=\"%s\">\n",
-										i,
+				idStr initialText = idStr::CStyleQuote( et->initialText.c_str() );
+				
+				file->WriteFloatString( "\t\t\t\"flags\": %i, \"fontID\": %i, \"fontHeight\": %i, \"maxLength\": %i, \"align\": \"%s\", \"leftMargin\": %i, \"rightMargin\": %i, \"indent\": %i, \"leading\": %i, \"variable\": \"%s\", \"initialText\": %s,\n",
 										et->flags, et->fontID, et->fontHeight, et->maxLength, idSWF::GetEditTextAlignName( et->align ),
 										et->leftMargin, et->rightMargin, et->indent, et->leading,
-										et->variable.c_str(), et->initialText.c_str() );
+										et->variable.c_str(), initialText.c_str() );
 										
 				float x = et->bounds.tl.y;
 				float y = et->bounds.tl.x;
 				float width = fabs( et->bounds.br.y - et->bounds.tl.y );
 				float height = fabs( et->bounds.br.x - et->bounds.tl.x );
 				
-				file->WriteFloatString( "\t\t\t<Bounds x=\"%f\" y=\"%f\" width=\"%f\" height=\"%f\" />\n", x, y, width, height );
+				file->WriteFloatString( "\t\t\t\"bounds\": { \"x\": %f, \"y\": %f, \"width\": %f, \"height\": %f },\n", x, y, width, height );
 				
 				idVec4 color = et->color.ToVec4();
-				file->WriteFloatString( "\t\t\t<Color r=\"%f\" g=\"%f\" b=\"%f\" a=\"%f\"/>\n",
-										color.x, color.y, color.z, color.w );
-										
-				file->WriteFloatString( "\t\t</EditText>\n" );
+				file->WriteFloatString( "\t\t\t\"color\": [ %f, %f, %f, %f ]\n", color.x, color.y, color.z, color.w );
 				
 				//file->WriteBig( et->bounds.tl );
 				//file->WriteBig( et->bounds.br );

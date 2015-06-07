@@ -313,7 +313,7 @@ void idSWFSprite::WriteJSON( idFile* f, int characterID )
 		f->WriteFloatString( "\t\t\t\"frameLabels\":\n\t\t\t[\n" );
 		for( int i = 0; i < frameLabels.Num(); i++ )
 		{
-			f->WriteFloatString( "\t\t\t\t\"label\": { \"frameNum\": %i, \"frameLabel\": \"%s\" }%s\n", frameLabels[i].frameNum, frameLabels[i].frameLabel.c_str(), ( i == frameLabels.Num() - 1 ) ? "" : ", " );
+			f->WriteFloatString( "\t\t\t\t{ \"frameNum\": %i, \"frameLabel\": \"%s\" }%s\n", frameLabels[i].frameNum, frameLabels[i].frameLabel.c_str(), ( i == frameLabels.Num() - 1 ) ? "" : ", " );
 		}
 		f->WriteFloatString( "\t\t\t],\n" );
 	}
@@ -376,21 +376,20 @@ void idSWFSprite::WriteJSON( idFile* f, int characterID )
 
 void idSWFSprite::WriteJSON_PlaceObject2( idFile* file, idSWFBitStream& bitstream, int sourceCharacterID, int commandID, const char* indentPrefix )
 {
-	uint64 flags = bitstream.ReadU8();
+	uint64 flags1 = bitstream.ReadU8();
 	int depth = bitstream.ReadU16();
 	
 	file->WriteFloatString( "%s\t\t\t\t{\n", ( commandID != 0 ) ? ",\n" : "" );
 	file->WriteFloatString( "\t\t\t\t\t\"type\": \"Tag_PlaceObject2\",\n" );
-	file->WriteFloatString( "\t\t\t\t\t\"flags\": %i, \"depth\": %i ", flags, depth );
+	file->WriteFloatString( "\t\t\t\t\t\"flags\": %i, \"depth\": %i", flags1, depth );
 	
-	int characterID = -1;
-	if( ( flags & PlaceFlagHasCharacter ) != 0 )
+	if( ( flags1 & PlaceFlagHasCharacter ) != 0 )
 	{
-		characterID = bitstream.ReadU16();
+		int characterID = bitstream.ReadU16();
 		file->WriteFloatString( ",\n\t\t\t\t\t\"characterID\": %i", characterID );
 	}
 	
-	if( ( flags & PlaceFlagHasMatrix ) != 0 )
+	if( ( flags1 & PlaceFlagHasMatrix ) != 0 )
 	{
 		swfMatrix_t m;
 		
@@ -399,7 +398,7 @@ void idSWFSprite::WriteJSON_PlaceObject2( idFile* file, idSWFBitStream& bitstrea
 		file->WriteFloatString( ",\n\t\t\t\t\t\"startMatrix\": [ %f, %f, %f, %f, %f, %f ]", m.xx, m.yy, m.xy, m.yx, m.tx, m.ty );
 	}
 	
-	if( ( flags & PlaceFlagHasColorTransform ) != 0 )
+	if( ( flags1 & PlaceFlagHasColorTransform ) != 0 )
 	{
 		swfColorXform_t cxf;
 		bitstream.ReadColorXFormRGBA( cxf );
@@ -414,14 +413,14 @@ void idSWFSprite::WriteJSON_PlaceObject2( idFile* file, idSWFBitStream& bitstrea
 		}
 	}
 	
-	if( ( flags & PlaceFlagHasRatio ) != 0 )
+	if( ( flags1 & PlaceFlagHasRatio ) != 0 )
 	{
 		float ratio = bitstream.ReadU16() * ( 1.0f / 65535.0f );
 		
 		file->WriteFloatString( ",\n\t\t\t\t\t\"ratio\": %f", ratio );
 	}
 	
-	if( ( flags & PlaceFlagHasName ) != 0 )
+	if( ( flags1 & PlaceFlagHasName ) != 0 )
 	{
 		idStr name = bitstream.ReadString();
 		
@@ -438,13 +437,13 @@ void idSWFSprite::WriteJSON_PlaceObject2( idFile* file, idSWFBitStream& bitstrea
 		}*/
 	}
 	
-	if( ( flags & PlaceFlagHasClipDepth ) != 0 )
+	if( ( flags1 & PlaceFlagHasClipDepth ) != 0 )
 	{
 		uint16 clipDepth = bitstream.ReadU16();
 		file->WriteFloatString( ",\n\t\t\t\t\t\"clipDepth\": %i", clipDepth );
 	}
 	
-	if( ( flags & PlaceFlagHasClipActions ) != 0 )
+	if( ( flags1 & PlaceFlagHasClipActions ) != 0 )
 	{
 		// FIXME: clip actions
 	}
@@ -459,16 +458,15 @@ void idSWFSprite::WriteJSON_PlaceObject3( idFile* file, idSWFBitStream& bitstrea
 	uint64 flags2 = bitstream.ReadU8();
 	int depth = bitstream.ReadU16();
 	
-	file->WriteFloatString( "%s\t<PlaceObject3 flags1=\"%i\" flags2=\"%i\" depth=\"%i\"", indentPrefix, flags1, flags2, depth );
+	file->WriteFloatString( "%s\t\t\t\t{\n", ( commandID != 0 ) ? ",\n" : "" );
+	file->WriteFloatString( "\t\t\t\t\t\"type\": \"Tag_PlaceObject3\",\n" );
+	file->WriteFloatString( "\t\t\t\t\t\"flags1\": %i, \"flags2\": %i, \"depth\": %i", flags1, flags2, depth );
 	
-	int characterID = -1;
 	if( ( flags1 & PlaceFlagHasCharacter ) != 0 )
 	{
-		characterID = bitstream.ReadU16();
-		file->WriteFloatString( " characterID=\"%i\"", characterID );
+		int characterID = bitstream.ReadU16();
+		file->WriteFloatString( ",\n\t\t\t\t\t\"characterID\": %i", characterID );
 	}
-	
-	file->WriteFloatString( ">\n" );
 	
 	if( ( flags1 & PlaceFlagHasMatrix ) != 0 )
 	{
@@ -476,7 +474,7 @@ void idSWFSprite::WriteJSON_PlaceObject3( idFile* file, idSWFBitStream& bitstrea
 		
 		bitstream.ReadMatrix( m );
 		
-		file->WriteFloatString( "%s\t\t<StartMatrix>%f %f %f %f %f %f</StartMatrix>\n", indentPrefix, m.xx, m.yy, m.xy, m.yx, m.tx, m.ty );
+		file->WriteFloatString( ",\n\t\t\t\t\t\"startMatrix\": [ %f, %f, %f, %f, %f, %f ]", m.xx, m.yy, m.xy, m.yx, m.tx, m.ty );
 	}
 	
 	if( ( flags1 & PlaceFlagHasColorTransform ) != 0 )
@@ -485,12 +483,12 @@ void idSWFSprite::WriteJSON_PlaceObject3( idFile* file, idSWFBitStream& bitstrea
 		bitstream.ReadColorXFormRGBA( cxf );
 		
 		idVec4 color = cxf.mul;
-		file->WriteFloatString( "%s\t\t<MulColor r=\"%f\" g=\"%f\" b=\"%f\" a=\"%f\"/>\n", indentPrefix, color.x, color.y, color.z, color.w );
+		file->WriteFloatString( ",\n\t\t\t\t\t\"mulColor\": [ %f, %f, %f, %f ]", color.x, color.y, color.z, color.w );
 		
 		color = cxf.add;
 		if( color != vec4_origin )
 		{
-			file->WriteFloatString( "%s\t\t<AddColor r=\"%f\" g=\"%f\" b=\"%f\" a=\"%f\"/>\n", indentPrefix, color.x, color.y, color.z, color.w );
+			file->WriteFloatString( ",\n\t\t\t\t\t\"addColor\": [%f %f %f %f ]", color.x, color.y, color.z, color.w );
 		}
 	}
 	
@@ -498,14 +496,14 @@ void idSWFSprite::WriteJSON_PlaceObject3( idFile* file, idSWFBitStream& bitstrea
 	{
 		float ratio = bitstream.ReadU16() * ( 1.0f / 65535.0f );
 		
-		file->WriteFloatString( "%s\t\t<Ratio>%f</Ratio>\n", indentPrefix, ratio );
+		file->WriteFloatString( ",\n\t\t\t\t\t\"ratio\": %f", ratio );
 	}
 	
 	if( ( flags1 & PlaceFlagHasName ) != 0 )
 	{
 		idStr name = bitstream.ReadString();
 		
-		file->WriteFloatString( "%s\t\t<Name>%s</Name>\n", indentPrefix, name.c_str() );
+		file->WriteFloatString( ",\n\t\t\t\t\t\"name\": \"%s\"", name.c_str() );
 		
 		/*if( display->spriteInstance )
 		{
@@ -521,7 +519,7 @@ void idSWFSprite::WriteJSON_PlaceObject3( idFile* file, idSWFBitStream& bitstrea
 	if( ( flags1 & PlaceFlagHasClipDepth ) != 0 )
 	{
 		uint16 clipDepth = bitstream.ReadU16();
-		file->WriteFloatString( "%s\t\t<ClipDepth>%i</ClipDepth>\n", indentPrefix, clipDepth );
+		file->WriteFloatString( ",\n\t\t\t\t\t\"clipDepth\": %i", clipDepth );
 	}
 	
 	if( ( flags2 & PlaceFlagHasFilterList ) != 0 )
@@ -529,14 +527,14 @@ void idSWFSprite::WriteJSON_PlaceObject3( idFile* file, idSWFBitStream& bitstrea
 		// we don't support filters and because the filter list is variable length we
 		// can't support anything after the filter list either (blend modes and clip actions)
 		//idLib::Warning( "PlaceObject3: has filters" );
-		file->WriteFloatString( "%s\t\t<!-- WARNING: PlaceObject 3 has filters -->\n", indentPrefix );
+		file->WriteFloatString( ",\n\t\t\t\t\t\"hasFilterList\": true" );
 		return;
 	}
 	
 	if( ( flags2 & PlaceFlagHasBlendMode ) != 0 )
 	{
 		uint8 blendMode = bitstream.ReadU8();
-		file->WriteFloatString( "%s\t\t<BlendMode>%i</BlendMode>\n", indentPrefix, blendMode );
+		file->WriteFloatString( ",\n\t\t\t\t\t\"blendMode\": %i", blendMode );
 	}
 	
 	if( ( flags1 & PlaceFlagHasClipActions ) != 0 )
@@ -544,7 +542,7 @@ void idSWFSprite::WriteJSON_PlaceObject3( idFile* file, idSWFBitStream& bitstrea
 		// FIXME: clip actions
 	}
 	
-	file->WriteFloatString( "%s\t</PlaceObject3>\n", indentPrefix );
+	file->WriteFloatString( "\n\t\t\t\t}" );
 }
 
 void idSWFSprite::WriteJSON_RemoveObject2( idFile* file, idSWFBitStream& bitstream, int sourceCharacterID, int commandID, const char* indentPrefix )
