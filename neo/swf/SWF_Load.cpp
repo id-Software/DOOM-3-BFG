@@ -889,6 +889,7 @@ void idSWF::WriteJSON( const char* filename )
 				float width = fabs( shape->startBounds.br.x - shape->startBounds.tl.x );
 				float height = fabs( shape->startBounds.br.y - shape->startBounds.tl.y );
 				
+				//file->WriteFloatString( "\t\t\t\"imageSize\": { \"width\": %f, \"height\": %f },\n", dictionary[i].imageSize[0], dictionary[i].imageSize[1] );
 				file->WriteFloatString( "\t\t\t\"startBounds\": { \"x\": %f, \"y\": %f, \"width\": %f, \"height\": %f },\n", x, y, width, height );
 				
 				x = shape->endBounds.tl.x;
@@ -1047,7 +1048,7 @@ void idSWF::WriteJSON( const char* filename )
 					if( fillDraw.indices.Num() )
 					{
 						file->WriteFloatString( ",\n\t\t\t\t\t\"indices\": [ " );
-#if 0
+#if 1
 						for( int v = 0; v < fillDraw.indices.Num(); v++ )
 						{
 							const uint16& vert = fillDraw.indices[v];
