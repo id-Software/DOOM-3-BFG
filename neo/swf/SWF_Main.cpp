@@ -68,6 +68,9 @@ idSWF::idSWF( const char* filename_, idSoundWorld* soundWorld_ )
 	guiCursor_hand = declManager->FindMaterial( "ui/assets/guicursor_hand" );
 	white = declManager->FindMaterial( "_white" );
 	
+	// RB:
+	debugFont = renderSystem->RegisterFont( "Arial Narrow" );
+	
 	tooltipButtonImage.Append( keyButtonImages_t( "<JOY1>", "guis/assets/hud/controller/xb360/a", "guis/assets/hud/controller/ps3/cross", 37, 37, 0 ) );
 	tooltipButtonImage.Append( keyButtonImages_t( "<JOY2>", "guis/assets/hud/controller/xb360/b", "guis/assets/hud/controller/ps3/circle", 37, 37, 0 ) );
 	tooltipButtonImage.Append( keyButtonImages_t( "<JOY3>", "guis/assets/hud/controller/xb360/x", "guis/assets/hud/controller/ps3/square", 37, 37, 0 ) );

@@ -900,7 +900,7 @@ void idSWF::WriteJSON( const char* filename )
 				
 				// export fill draws
 				file->WriteFloatString( "\t\t\t\"fillDraws\":\n\t\t\t[\n" );
-
+				
 				if( shape->fillDraws.Num() > 1 )
 				{
 					idLib::Printf( S_COLOR_YELLOW "WARNING: " S_COLOR_RED "%s.Shape%i has %i fill draws\n", filename, i, shape->fillDraws.Num() );
@@ -1026,7 +1026,7 @@ void idSWF::WriteJSON( const char* filename )
 						for( int v = 0; v < fillDraw.startVerts.Num(); v++ )
 						{
 							const idVec2& vert = fillDraw.startVerts[v];
-						
+							
 							file->WriteFloatString( "\t\t\t\t\t\t{ \"v\": [ %f, %f ] }%s\n", vert.x, vert.y, ( v == ( fillDraw.startVerts.Num() - 1 ) ) ? "" : "," );
 						}
 						file->WriteFloatString( "\t\t\t\t\t]" );
@@ -1051,7 +1051,7 @@ void idSWF::WriteJSON( const char* filename )
 						for( int v = 0; v < fillDraw.indices.Num(); v++ )
 						{
 							const uint16& vert = fillDraw.indices[v];
-						
+							
 							file->WriteFloatString( "%i%s", vert, ( v == fillDraw.indices.Num() - 1 ) ? "" : ", " );
 						}
 #else
@@ -1267,15 +1267,19 @@ void idSWF::WriteJSON( const char* filename )
 		
 		if( dictionary[i].type != SWF_DICT_NULL )
 		{
-			file->WriteFloatString( "\t\t}%s\n", ( i == ( dictionary.Num() - 1 ) ) ? "" : "," );
+			//file->WriteFloatString( "\t\t}%s\n", ( i == ( dictionary.Num() - 1 ) ) ? "" : "," );
+			file->WriteFloatString( "\t\t},\n" );
 		}
 	}
 	
-	file->WriteFloatString( "\t],\n" );
-	
-	file->WriteFloatString( "\t\"mainsprite\":\n\t{\n" );
+	file->WriteFloatString( "\t\t{\n" );
+	file->WriteFloatString( "\t\t\t\"type\": \"SPRITE\",\n" );
+	file->WriteFloatString( "\t\t\t\"characterID\": %i,\n", dictionary.Num() );
+	file->WriteFloatString( "\t\t\t\"mainsprite\": true,\n" );
 	mainsprite->WriteJSON( file, dictionary.Num() );
-	file->WriteFloatString( "\t}\n}\n" );
+	file->WriteFloatString( "\t\t}\n" );
+	file->WriteFloatString( "\t]\n" );
+	file->WriteFloatString( "}\n" );
 }
 
 // RB end

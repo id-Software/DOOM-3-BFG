@@ -385,6 +385,9 @@ private:
 	const idMaterial* guiCursor_arrow;
 	const idMaterial* guiCursor_hand;
 	const idMaterial* white;
+	// RB begin
+	const idFont*     debugFont;
+	// RB end
 	
 private:
 	friend class idSWFSprite;
@@ -449,6 +452,13 @@ private:
 	void			RenderEditText( idRenderSystem* gui, idSWFTextInstance* textInstance, const swfRenderState_t& renderState, int time, bool isSplitscreen = false );
 	uint64			GLStateForRenderState( const swfRenderState_t& renderState );
 	void			FindTooltipIcons( idStr* text );
+	
+	// RB: debugging tools
+	swfRect_t		CalcRect( const idSWFSpriteInstance* sprite, const swfRenderState_t& renderState );
+	void			DrawRect( idRenderSystem* gui, const swfRect_t& rect, const idVec4& color );
+	int				DrawText( idRenderSystem* gui, float x, float y, float scale, idVec4 color, const char* text, float adjust, int limit, int style );
+	int				DrawText( idRenderSystem* gui, const char* text, float textScale, int textAlign, idVec4 color, const swfRect_t& rectDraw, bool wrap, int cursor = -1, bool calcOnly = false, idList<int>* breaks = NULL, int limit = 0 );
+	// RB end
 	
 	//----------------------------------
 	// SWF_Image.cpp

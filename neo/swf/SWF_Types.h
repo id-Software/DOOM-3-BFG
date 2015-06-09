@@ -67,6 +67,41 @@ struct swfRect_t
 	swfRect_t();
 	idVec2 tl;
 	idVec2 br;
+	
+	// RB: helpers
+	swfRect_t( float x, float y, float w, float h )
+	{
+		tl.x = x;
+		tl.y = y;
+		br.x = x + w;
+		br.y = y + h;
+	}
+	
+	float x() const
+	{
+		return tl.x;
+	}
+	
+	float y() const
+	{
+		return tl.y;
+	}
+	
+	float w() const
+	{
+		return fabs( br.x - tl.x );
+	}
+	
+	float h() const
+	{
+		return fabs( br.y - tl.y );
+	}
+	
+	float Bottom() const
+	{
+		return br.y;
+	}
+	// RB end
 };
 struct swfMatrix_t
 {
