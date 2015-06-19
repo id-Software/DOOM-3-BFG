@@ -40,6 +40,8 @@ set(CPU_TYPE "" CACHE STRING "When set, passes this string as CPU-ID which will 
 
 set(CPU_OPTIMIZATION "-mmmx -msse -msse2" CACHE STRING "Which CPU specific optimitations should be used beside the compiler's default?")
 
+option(USE_INTRINSICS "Compile using intrinsics (e.g mmx, sse, msse2)" ON)
+
 if(UNIX)
 	set(OPENAL TRUE)
 endif()
@@ -70,6 +72,9 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
 	endif()
 	if (CPU_OPTIMIZATION)
 		add_definitions(${CPU_OPTIMIZATION})
+	endif()
+	if (USE_INTRINSICS)
+		add_definitions(-DUSE_INTRINSICS)
 	endif()
 	if(WIN32)
 		# require msvcr70.dll or newer for _aligned_malloc etc

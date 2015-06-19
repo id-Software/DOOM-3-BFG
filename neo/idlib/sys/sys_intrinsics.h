@@ -29,11 +29,6 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __SYS_INTRIINSICS_H__
 #define __SYS_INTRIINSICS_H__
 
-#if defined(__x86_64__)
-// Enable this only on amd64
-#define USE_INTRINSICS
-#endif
-
 #if defined(USE_INTRINSICS)
 #include <emmintrin.h>
 #endif
