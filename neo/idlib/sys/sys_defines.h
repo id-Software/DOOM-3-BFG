@@ -104,10 +104,14 @@ If you have questions concerning this license or the applicable additional terms
 
 #elif defined(__linux__) || defined(__FreeBSD__) || defined(__APPLE__)
 
+#ifndef CPUSTRING
 #if defined(__i386__)
 #define	CPUSTRING						"x86"
 #elif defined(__x86_64__)
 #define CPUSTRING						"x86_86"
+#else
+#error unknown CPU
+#endif
 #endif
 
 #if defined(__FreeBSD__)
