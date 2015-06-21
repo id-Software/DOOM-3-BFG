@@ -1404,6 +1404,7 @@ if(MSVC)
         ${PNG_LIBRARY}
         ${JPEG_LIBRARY}
         ${GLEW_LIBRARY}
+	${CMAKE_DL_LIBS}
 		)
 		
 	#CMAKE_BINARY_DIR
@@ -1552,15 +1553,10 @@ else()
 			set(RT_LIBRARY rt)
 		endif()
 
-		if(NOT "${CMAKE_SYSTEM}" MATCHES "FreeBSD")
-			set(DL_LIBRARY dl)
-		endif()
-
 		target_link_libraries(RBDoom3BFG
 			idlib
 			${OPENGL_LIBRARIES}
 			pthread
-			${DL_LIBRARY}
 			${RT_LIBRARY}
 			${SDLx_LIBRARY}
 			${OPENAL_LIBRARY}
@@ -1569,6 +1565,7 @@ else()
             ${PNG_LIBRARY}
             ${JPEG_LIBRARY}
             ${GLEW_LIBRARY}
+	    ${CMAKE_DL_LIBS}
 			)
 	endif()
     
