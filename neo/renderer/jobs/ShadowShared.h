@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -28,7 +28,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __SHADOWSHARED_H__
 #define __SHADOWSHARED_H__
 
-enum shadowVolumeState_t {
+enum shadowVolumeState_t
+{
 	SHADOWVOLUME_DONE		= 0,
 	SHADOWVOLUME_UNFINISHED	= 1
 };
@@ -39,11 +40,11 @@ const float INSIDE_SHADOW_VOLUME_EXTRA_STRETCH = 4.0f;	// in theory, should vary
 #define TEMP_ROUND4( x )				( ( x + 3 ) & ~3 )	// round up to a multiple of 4 for SIMD
 #define TEMP_CULLBITS( numVerts )		TEMP_ROUND4( numVerts )
 
-bool R_ViewPotentiallyInsideInfiniteShadowVolume( const idBounds & occluderBounds, const idVec3 & localLight, const idVec3 & localView, const float znear );
+bool R_ViewPotentiallyInsideInfiniteShadowVolume( const idBounds& occluderBounds, const idVec3& localLight, const idVec3& localView, const float znear );
 
-bool R_LineIntersectsTriangleExpandedWithSphere( const idVec3 & lineStart, const idVec3 & lineEnd, const idVec3 & lineDir, const float lineLength,
-													const float sphereRadius, const idVec3 & triVert0, const idVec3 & triVert1, const idVec3 & triVert2 );
-bool R_ViewInsideShadowVolume( byte * cullBits, const idShadowVert * verts, int numVerts, const triIndex_t * indexes, int numIndexes,
-								const idVec3 & localLightOrigin, const idVec3 & localViewOrigin, const float zNear );
+bool R_LineIntersectsTriangleExpandedWithSphere( const idVec3& lineStart, const idVec3& lineEnd, const idVec3& lineDir, const float lineLength,
+		const float sphereRadius, const idVec3& triVert0, const idVec3& triVert1, const idVec3& triVert2 );
+bool R_ViewInsideShadowVolume( byte* cullBits, const idShadowVert* verts, int numVerts, const triIndex_t* indexes, int numIndexes,
+							   const idVec3& localLightOrigin, const idVec3& localViewOrigin, const float zNear );
 
 #endif // !__SHADOWSHARED_H__

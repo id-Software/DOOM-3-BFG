@@ -27,15 +27,16 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include "Precompiled.h"
-#include "globaldata.h"
-
-// We are referring to sprite numbers.
-#include "info.h"
 
 #ifdef __GNUG__
 #pragma implementation "d_items.h"
 #endif
 #include "d_items.h"
+
+#include "globaldata.h"
+
+// We are referring to sprite numbers.
+#include "info.h"
 
 
 //

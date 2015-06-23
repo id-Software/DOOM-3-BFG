@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -39,36 +39,46 @@ to keep it compact, instead of just using the idBounds class
 ================================================================================================
 */
 
-class idScreenRect {
+class idScreenRect
+{
 public:
 	// Inclusive pixel bounds inside viewport
 	short		x1;
 	short		y1;
 	short		x2;
 	short		y2;
-
+	
 	// for depth bounds test
-	float       zmin; 
+	float       zmin;
 	float		zmax;
-
+	
 	// clear to backwards values
 	void		Clear();
 	bool		IsEmpty() const;
-	short		GetWidth() const { return x2 - x1 + 1; }
-	short		GetHeight() const { return y2 - y1 + 1; }
-	int			GetArea() const { return ( x2 - x1 + 1 ) * ( y2 - y1 + 1 ); }
-
+	short		GetWidth() const
+	{
+		return x2 - x1 + 1;
+	}
+	short		GetHeight() const
+	{
+		return y2 - y1 + 1;
+	}
+	int			GetArea() const
+	{
+		return ( x2 - x1 + 1 ) * ( y2 - y1 + 1 );
+	}
+	
 	// expand by one pixel each way to fix roundoffs
 	void		Expand();
-
+	
 	// adds a point
 	void		AddPoint( float x, float y );
-
-	void		Intersect( const idScreenRect &rect );
-	void		Union( const idScreenRect &rect );
-	bool		Equals( const idScreenRect &rect ) const;
+	
+	void		Intersect( const idScreenRect& rect );
+	void		Union( const idScreenRect& rect );
+	bool		Equals( const idScreenRect& rect ) const;
 };
 
-void R_ShowColoredScreenRect( const idScreenRect &rect, int colorIndex );
+void R_ShowColoredScreenRect( const idScreenRect& rect, int colorIndex );
 
 #endif /* !__SCREENRECT_H__ */

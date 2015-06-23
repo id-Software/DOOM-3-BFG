@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -38,34 +38,35 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 
-class idSecurityCamera : public idEntity {
+class idSecurityCamera : public idEntity
+{
 public:
 	CLASS_PROTOTYPE( idSecurityCamera );
-
+	
 	void					Spawn();
-
-	void					Save( idSaveGame *savefile ) const;
-	void					Restore( idRestoreGame *savefile );
-
+	
+	void					Save( idSaveGame* savefile ) const;
+	void					Restore( idRestoreGame* savefile );
+	
 	virtual void			Think();
-
-	virtual renderView_t *	GetRenderView();
-	virtual void			Killed( idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, int location );
-	virtual bool			Pain( idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, int location );
+	
+	virtual renderView_t* 	GetRenderView();
+	virtual void			Killed( idEntity* inflictor, idEntity* attacker, int damage, const idVec3& dir, int location );
+	virtual bool			Pain( idEntity* inflictor, idEntity* attacker, int damage, const idVec3& dir, int location );
 	virtual void			Present();
-
-
+	
+	
 private:
 
 	enum { SCANNING, LOSINGINTEREST, ALERT, ACTIVATED };
-
+	
 	float					angle;
 	float					sweepAngle;
 	int						modelAxis;
 	bool					flipAxis;
 	float					scanDist;
 	float					scanFov;
-							
+	
 	float					sweepStart;
 	float					sweepEnd;
 	bool					negativeSweep;
@@ -73,20 +74,20 @@ private:
 	int						alertMode;
 	float					stopSweeping;
 	float					scanFovCos;
-
+	
 	idVec3					viewOffset;
-							
+	
 	int						pvsArea;
 	idPhysics_RigidBody		physicsObj;
 	idTraceModel			trm;
-
+	
 	void					StartSweep();
 	bool					CanSeePlayer();
 	void					SetAlertMode( int status );
 	void					DrawFov();
 	const idVec3			GetAxis() const;
 	float					SweepSpeed() const;
-
+	
 	void					Event_ReverseSweep();
 	void					Event_ContinueSweep();
 	void					Event_Pause();

@@ -2,9 +2,10 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2012 Robert Beckebans
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,7 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
-#include "../idlib/precompiled.h"
+#include "precompiled.h"
 
 #include "DeviceContext.h"
 #include "Window.h"
@@ -35,7 +36,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "SimpleWindow.h"
 
 
-idSimpleWindow::idSimpleWindow(idWindow *win) {
+idSimpleWindow::idSimpleWindow( idWindow* win )
+{
 	gui = win->GetGui();
 	drawRect = win->drawRect;
 	clientRect = win->clientRect;
@@ -52,7 +54,7 @@ idSimpleWindow::idSimpleWindow(idWindow *win) {
 	background = win->background;
 	flags = win->flags;
 	textShadow = win->textShadow;
-
+	
 	visible = win->visible;
 	text = win->text;
 	rect = win->rect;
@@ -64,261 +66,322 @@ idSimpleWindow::idSimpleWindow(idWindow *win) {
 	rotate = win->rotate;
 	shear = win->shear;
 	backGroundName = win->backGroundName;
-	if (backGroundName.Length()) {
-		background = declManager->FindMaterial(backGroundName);
+	if( backGroundName.Length() )
+	{
+		background = declManager->FindMaterial( backGroundName );
 		background->SetSort( SS_GUI );
 	}
-	backGroundName.SetMaterialPtr(&background);
-
-// 
+	backGroundName.SetMaterialPtr( &background );
+	
+//
 //  added parent
 	mParent = win->GetParent();
-// 
+//
 
 	hideCursor = win->hideCursor;
-
-	idWindow *parent = win->GetParent();
-	if (parent) {
-		if (text.NeedsUpdate()) {
-			parent->AddUpdateVar(&text);
+	
+	idWindow* parent = win->GetParent();
+	if( parent )
+	{
+		if( text.NeedsUpdate() )
+		{
+			parent->AddUpdateVar( &text );
 		}
-		if (visible.NeedsUpdate()) {
-			parent->AddUpdateVar(&visible);
+		if( visible.NeedsUpdate() )
+		{
+			parent->AddUpdateVar( &visible );
 		}
-		if (rect.NeedsUpdate()) {
-			parent->AddUpdateVar(&rect);
+		if( rect.NeedsUpdate() )
+		{
+			parent->AddUpdateVar( &rect );
 		}
-		if (backColor.NeedsUpdate()) {
-			parent->AddUpdateVar(&backColor);
+		if( backColor.NeedsUpdate() )
+		{
+			parent->AddUpdateVar( &backColor );
 		}
-		if (matColor.NeedsUpdate()) {
-			parent->AddUpdateVar(&matColor);
+		if( matColor.NeedsUpdate() )
+		{
+			parent->AddUpdateVar( &matColor );
 		}
-		if (foreColor.NeedsUpdate()) {
-			parent->AddUpdateVar(&foreColor);
+		if( foreColor.NeedsUpdate() )
+		{
+			parent->AddUpdateVar( &foreColor );
 		}
-		if (borderColor.NeedsUpdate()) {
-			parent->AddUpdateVar(&borderColor);
+		if( borderColor.NeedsUpdate() )
+		{
+			parent->AddUpdateVar( &borderColor );
 		}
-		if (textScale.NeedsUpdate()) {
-			parent->AddUpdateVar(&textScale);
+		if( textScale.NeedsUpdate() )
+		{
+			parent->AddUpdateVar( &textScale );
 		}
-		if (rotate.NeedsUpdate()) {
-			parent->AddUpdateVar(&rotate);
+		if( rotate.NeedsUpdate() )
+		{
+			parent->AddUpdateVar( &rotate );
 		}
-		if (shear.NeedsUpdate()) {
-			parent->AddUpdateVar(&shear);
+		if( shear.NeedsUpdate() )
+		{
+			parent->AddUpdateVar( &shear );
 		}
-		if (backGroundName.NeedsUpdate()) {
-			parent->AddUpdateVar(&backGroundName);
+		if( backGroundName.NeedsUpdate() )
+		{
+			parent->AddUpdateVar( &backGroundName );
 		}
 	}
 }
 
-idSimpleWindow::~idSimpleWindow() {
+idSimpleWindow::~idSimpleWindow()
+{
 
 }
 
-void idSimpleWindow::StateChanged( bool redraw ) {
+void idSimpleWindow::StateChanged( bool redraw )
+{
 }
 
-void idSimpleWindow::SetupTransforms(float x, float y) {
+void idSimpleWindow::SetupTransforms( float x, float y )
+{
 	static idMat3 trans;
 	static idVec3 org;
-
+	
 	trans.Identity();
 	org.Set( origin.x + x, origin.y + y, 0 );
-	if ( rotate ) {
+	if( rotate )
+	{
 		static idRotation rot;
 		static idVec3 vec( 0, 0, 1 );
 		rot.Set( org, vec, rotate );
 		trans = rot.ToMat3();
 	}
-
+	
 	static idMat3 smat;
 	smat.Identity();
-	if (shear.x() || shear.y()) {
+	if( shear.x() || shear.y() )
+	{
 		smat[0][1] = shear.x();
 		smat[1][0] = shear.y();
 		trans *= smat;
 	}
-
-	if ( !trans.IsIdentity() ) {
+	
+	if( !trans.IsIdentity() )
+	{
 		dc->SetTransformInfo( org, trans );
 	}
 }
 
-void idSimpleWindow::DrawBackground(const idRectangle &drawRect) {
-	if (backColor.w() > 0) {
-		dc->DrawFilledRect(drawRect.x, drawRect.y, drawRect.w, drawRect.h, backColor);
+void idSimpleWindow::DrawBackground( const idRectangle& drawRect )
+{
+	if( backColor.w() > 0 )
+	{
+		dc->DrawFilledRect( drawRect.x, drawRect.y, drawRect.w, drawRect.h, backColor );
 	}
-
-	if (background) {
-		if (matColor.w() > 0) {
+	
+	if( background )
+	{
+		if( matColor.w() > 0 )
+		{
 			float scalex, scaley;
-			if ( flags & WIN_NATURALMAT ) {
+			if( flags & WIN_NATURALMAT )
+			{
 				scalex = drawRect.w / background->GetImageWidth();
 				scaley = drawRect.h / background->GetImageHeight();
-			} else {
+			}
+			else
+			{
 				scalex = matScalex;
 				scaley = matScaley;
 			}
-			dc->DrawMaterial(drawRect.x, drawRect.y, drawRect.w, drawRect.h, background, matColor, scalex, scaley);
+			dc->DrawMaterial( drawRect.x, drawRect.y, drawRect.w, drawRect.h, background, matColor, scalex, scaley );
 		}
 	}
 }
 
-void idSimpleWindow::DrawBorderAndCaption(const idRectangle &drawRect) {
-	if (flags & WIN_BORDER) {
-		if (borderSize) {
-			dc->DrawRect(drawRect.x, drawRect.y, drawRect.w, drawRect.h, borderSize, borderColor);
+void idSimpleWindow::DrawBorderAndCaption( const idRectangle& drawRect )
+{
+	if( flags & WIN_BORDER )
+	{
+		if( borderSize )
+		{
+			dc->DrawRect( drawRect.x, drawRect.y, drawRect.w, drawRect.h, borderSize, borderColor );
 		}
 	}
 }
 
-void idSimpleWindow::CalcClientRect(float xofs, float yofs) {
+void idSimpleWindow::CalcClientRect( float xofs, float yofs )
+{
 
 	drawRect = rect;
-
-	if ( flags & WIN_INVERTRECT ) {
+	
+	if( flags & WIN_INVERTRECT )
+	{
 		drawRect.x = rect.x() - rect.w();
 		drawRect.y = rect.y() - rect.h();
 	}
 	
 	drawRect.x += xofs;
 	drawRect.y += yofs;
-
+	
 	clientRect = drawRect;
-	if (rect.h() > 0.0 && rect.w() > 0.0) {
-
-		if (flags & WIN_BORDER && borderSize != 0.0) {
+	if( rect.h() > 0.0 && rect.w() > 0.0 )
+	{
+	
+		if( flags & WIN_BORDER && borderSize != 0.0 )
+		{
 			clientRect.x += borderSize;
 			clientRect.y += borderSize;
 			clientRect.w -= borderSize;
 			clientRect.h -= borderSize;
 		}
-
+		
 		textRect = clientRect;
 		textRect.x += 2.0;
-	 	textRect.w -= 2.0;
+		textRect.w -= 2.0;
 		textRect.y += 2.0;
 		textRect.h -= 2.0;
 		textRect.x += textAlignx;
 		textRect.y += textAligny;
-
+		
 	}
 	origin.Set( rect.x() + ( rect.w() / 2 ), rect.y() + ( rect.h() / 2 ) );
-
+	
 }
 
 
-void idSimpleWindow::Redraw(float x, float y) {
-	
-	if (!visible) {
+void idSimpleWindow::Redraw( float x, float y )
+{
+
+	if( !visible )
+	{
 		return;
 	}
-
-	CalcClientRect(0, 0);
+	
+	CalcClientRect( 0, 0 );
 	dc->SetFont( font );
-	drawRect.Offset(x, y);
-	clientRect.Offset(x, y);
-	textRect.Offset(x, y);
-	SetupTransforms(x, y);
-	if ( flags & WIN_NOCLIP ) {
+	drawRect.Offset( x, y );
+	clientRect.Offset( x, y );
+	textRect.Offset( x, y );
+	SetupTransforms( x, y );
+	if( flags & WIN_NOCLIP )
+	{
 		dc->EnableClipping( false );
 	}
-	DrawBackground(drawRect);
-	DrawBorderAndCaption(drawRect);
-	if ( textShadow ) {
+	DrawBackground( drawRect );
+	DrawBorderAndCaption( drawRect );
+	if( textShadow )
+	{
 		idStr shadowText = text;
 		idRectangle shadowRect = textRect;
-
+		
 		shadowText.RemoveColors();
 		shadowRect.x += textShadow;
 		shadowRect.y += textShadow;
-
+		
 		dc->DrawText( shadowText, textScale, textAlign, colorBlack, shadowRect, !( flags & WIN_NOWRAP ), -1 );
 	}
-	dc->DrawText(text, textScale, textAlign, foreColor, textRect, !( flags & WIN_NOWRAP ), -1);
-	dc->SetTransformInfo(vec3_origin, mat3_identity);
-	if ( flags & WIN_NOCLIP ) {
+	dc->DrawText( text, textScale, textAlign, foreColor, textRect, !( flags & WIN_NOWRAP ), -1 );
+	dc->SetTransformInfo( vec3_origin, mat3_identity );
+	if( flags & WIN_NOCLIP )
+	{
 		dc->EnableClipping( true );
 	}
-	drawRect.Offset(-x, -y);
-	clientRect.Offset(-x, -y);
-	textRect.Offset(-x, -y);
+	drawRect.Offset( -x, -y );
+	clientRect.Offset( -x, -y );
+	textRect.Offset( -x, -y );
 }
 
-int idSimpleWindow::GetWinVarOffset( idWinVar *wv, drawWin_t* owner) {
+int idSimpleWindow::GetWinVarOffset( idWinVar* wv, drawWin_t* owner )
+{
 	int ret = -1;
-
-	if ( wv == &rect ) {
-		ret = (int)&( ( idSimpleWindow * ) 0 )->rect;
+	
+	// RB: 64 bit fixes, changed oldschool offsets using ptrdiff_t
+	if( wv == &rect )
+	{
+		ret = ( ptrdiff_t )&rect - ( ptrdiff_t )this;
 	}
-
-	if ( wv == &backColor ) {
-		ret = (int)&( ( idSimpleWindow * ) 0 )->backColor;
+	
+	if( wv == &backColor )
+	{
+		ret = ( ptrdiff_t )&backColor - ( ptrdiff_t )this;
 	}
-
-	if ( wv == &matColor ) {
-		ret = (int)&( ( idSimpleWindow * ) 0 )->matColor;
+	
+	if( wv == &matColor )
+	{
+		ret = ( ptrdiff_t )&matColor - ( ptrdiff_t )this;
 	}
-
-	if ( wv == &foreColor ) {
-		ret = (int)&( ( idSimpleWindow * ) 0 )->foreColor;
+	
+	if( wv == &foreColor )
+	{
+		ret = ( ptrdiff_t )&foreColor - ( ptrdiff_t )this;
 	}
-
-	if ( wv == &borderColor ) {
-		ret = (int)&( ( idSimpleWindow * ) 0 )->borderColor;
+	
+	if( wv == &borderColor )
+	{
+		ret = ( ptrdiff_t )&borderColor - ( ptrdiff_t )this;
 	}
-
-	if ( wv == &textScale ) {
-		ret = (int)&( ( idSimpleWindow * ) 0 )->textScale;
+	
+	if( wv == &textScale )
+	{
+		ret = ( ptrdiff_t )&textScale - ( ptrdiff_t )this;
 	}
-
-	if ( wv == &rotate ) {
-		ret = (int)&( ( idSimpleWindow * ) 0 )->rotate;
+	
+	if( wv == &rotate )
+	{
+		ret = ( ptrdiff_t )&rotate - ( ptrdiff_t )this;
 	}
-
-	if ( ret != -1 ) {
+	// RB end
+	
+	if( ret != -1 )
+	{
 		owner->simp = this;
 	}
 	return ret;
 }
 
-idWinVar *idSimpleWindow::GetWinVarByName(const char *_name) {
-	idWinVar *retVar = NULL;
-	if (idStr::Icmp(_name, "background") == 0) {
+idWinVar* idSimpleWindow::GetWinVarByName( const char* _name )
+{
+	idWinVar* retVar = NULL;
+	if( idStr::Icmp( _name, "background" ) == 0 )
+	{
 		retVar = &backGroundName;
 	}
-	if (idStr::Icmp(_name, "visible") == 0) {
+	if( idStr::Icmp( _name, "visible" ) == 0 )
+	{
 		retVar = &visible;
 	}
-	if (idStr::Icmp(_name, "rect") == 0) {
+	if( idStr::Icmp( _name, "rect" ) == 0 )
+	{
 		retVar = &rect;
 	}
-	if (idStr::Icmp(_name, "backColor") == 0) {
+	if( idStr::Icmp( _name, "backColor" ) == 0 )
+	{
 		retVar = &backColor;
 	}
-	if (idStr::Icmp(_name, "matColor") == 0) {
+	if( idStr::Icmp( _name, "matColor" ) == 0 )
+	{
 		retVar = &matColor;
 	}
-	if (idStr::Icmp(_name, "foreColor") == 0) {
+	if( idStr::Icmp( _name, "foreColor" ) == 0 )
+	{
 		retVar = &foreColor;
 	}
-	if (idStr::Icmp(_name, "borderColor") == 0) {
+	if( idStr::Icmp( _name, "borderColor" ) == 0 )
+	{
 		retVar = &borderColor;
 	}
-	if (idStr::Icmp(_name, "textScale") == 0) {
+	if( idStr::Icmp( _name, "textScale" ) == 0 )
+	{
 		retVar = &textScale;
 	}
-	if (idStr::Icmp(_name, "rotate") == 0) {
+	if( idStr::Icmp( _name, "rotate" ) == 0 )
+	{
 		retVar = &rotate;
 	}
-	if (idStr::Icmp(_name, "shear") == 0) {
+	if( idStr::Icmp( _name, "shear" ) == 0 )
+	{
 		retVar = &shear;
 	}
-	if (idStr::Icmp(_name, "text") == 0) {
+	if( idStr::Icmp( _name, "text" ) == 0 )
+	{
 		retVar = &text;
 	}
 	return retVar;
@@ -329,7 +392,8 @@ idWinVar *idSimpleWindow::GetWinVarByName(const char *_name) {
 idSimpleWindow::WriteToSaveGame
 ========================
 */
-void idSimpleWindow::WriteToSaveGame( idFile *savefile ) {
+void idSimpleWindow::WriteToSaveGame( idFile* savefile )
+{
 
 	savefile->Write( &flags, sizeof( flags ) );
 	savefile->Write( &drawRect, sizeof( drawRect ) );
@@ -344,7 +408,7 @@ void idSimpleWindow::WriteToSaveGame( idFile *savefile ) {
 	savefile->Write( &textAligny, sizeof( textAligny ) );
 	savefile->Write( &textShadow, sizeof( textShadow ) );
 	savefile->WriteString( font->GetName() );
-
+	
 	text.WriteToSaveGame( savefile );
 	visible.WriteToSaveGame( savefile );
 	rect.WriteToSaveGame( savefile );
@@ -356,18 +420,21 @@ void idSimpleWindow::WriteToSaveGame( idFile *savefile ) {
 	rotate.WriteToSaveGame( savefile );
 	shear.WriteToSaveGame( savefile );
 	backGroundName.WriteToSaveGame( savefile );
-
+	
 	int stringLen;
-
-	if ( background ) {
+	
+	if( background )
+	{
 		stringLen = strlen( background->GetName() );
 		savefile->Write( &stringLen, sizeof( stringLen ) );
 		savefile->Write( background->GetName(), stringLen );
-	} else {
+	}
+	else
+	{
 		stringLen = 0;
 		savefile->Write( &stringLen, sizeof( stringLen ) );
 	}
-
+	
 }
 
 /*
@@ -375,18 +442,19 @@ void idSimpleWindow::WriteToSaveGame( idFile *savefile ) {
 idSimpleWindow::ReadFromSaveGame
 ========================
 */
-void idSimpleWindow::ReadFromSaveGame( idFile *savefile ) {
+void idSimpleWindow::ReadFromSaveGame( idFile* savefile )
+{
 
 	savefile->Read( &flags, sizeof( flags ) );
 	savefile->Read( &drawRect, sizeof( drawRect ) );
 	savefile->Read( &clientRect, sizeof( clientRect ) );
 	savefile->Read( &textRect, sizeof( textRect ) );
 	savefile->Read( &origin, sizeof( origin ) );
-/*	if ( savefile->GetFileVersion() < BUILD_NUMBER_8TH_ANNIVERSARY_1 ) {
-		int fontNum;
-		savefile->Read( &fontNum, sizeof( fontNum ) );
-		font = renderSystem->RegisterFont( "" );
-	} */
+	/*	if ( savefile->GetFileVersion() < BUILD_NUMBER_8TH_ANNIVERSARY_1 ) {
+			int fontNum;
+			savefile->Read( &fontNum, sizeof( fontNum ) );
+			font = renderSystem->RegisterFont( "" );
+		} */
 	savefile->Read( &matScalex, sizeof( matScalex ) );
 	savefile->Read( &matScaley, sizeof( matScaley ) );
 	savefile->Read( &borderSize, sizeof( borderSize ) );
@@ -395,9 +463,9 @@ void idSimpleWindow::ReadFromSaveGame( idFile *savefile ) {
 	savefile->Read( &textAligny, sizeof( textAligny ) );
 	savefile->Read( &textShadow, sizeof( textShadow ) );
 //	if ( savefile->GetFileVersion() >= BUILD_NUMBER_8TH_ANNIVERSARY_1 ) {
-		idStr fontName;
-		savefile->ReadString( fontName );
-		font = renderSystem->RegisterFont( fontName );
+	idStr fontName;
+	savefile->ReadString( fontName );
+	font = renderSystem->RegisterFont( fontName );
 //	}
 
 	text.ReadFromSaveGame( savefile );
@@ -411,22 +479,25 @@ void idSimpleWindow::ReadFromSaveGame( idFile *savefile ) {
 	rotate.ReadFromSaveGame( savefile );
 	shear.ReadFromSaveGame( savefile );
 	backGroundName.ReadFromSaveGame( savefile );
-
+	
 	int stringLen;
-
+	
 	savefile->Read( &stringLen, sizeof( stringLen ) );
-	if ( stringLen > 0 ) {
+	if( stringLen > 0 )
+	{
 		idStr backName;
-
+		
 		backName.Fill( ' ', stringLen );
-		savefile->Read( &(backName)[0], stringLen );
-
+		savefile->Read( &( backName )[0], stringLen );
+		
 		background = declManager->FindMaterial( backName );
 		background->SetSort( SS_GUI );
-	} else {
+	}
+	else
+	{
 		background = NULL;
 	}
-
+	
 }
 
 
@@ -434,8 +505,9 @@ void idSimpleWindow::ReadFromSaveGame( idFile *savefile ) {
 ===============================
 */
 
-size_t idSimpleWindow::Size() {
-	size_t sz = sizeof(*this);
+size_t idSimpleWindow::Size()
+{
+	size_t sz = sizeof( *this );
 	sz += name.Size();
 	sz += text.Size();
 	sz += backGroundName.Size();

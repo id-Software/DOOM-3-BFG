@@ -84,11 +84,11 @@ void M_SetupNextMenu(menu_t *menudef);
 void M_DrawThermo(int x,int y,int thermWidth,int thermDot);
 void M_DrawEmptyCell(menu_t *menu,int item);
 void M_DrawSelCell(menu_t *menu,int item);
-void M_WriteText(int x, int y, char *string);
-int  M_StringWidth(char *string);
-int  M_StringHeight(char *string);
+void M_WriteText(int x, int y, const char *string);
+int  M_StringWidth(const char *string);
+int  M_StringHeight(const char *string);
 void M_StartControlPanel(void);
-void M_StartMessage(char *string,messageRoutine_t routine,qboolean input);
+void M_StartMessage(const char *string,messageRoutine_t routine,qboolean input);
 void M_StopMessage(void);
 void M_ClearMenus (void);
 

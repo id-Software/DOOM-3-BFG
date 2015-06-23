@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
-#include "../../idlib/precompiled.h"
+#include "precompiled.h"
 
 #include "../Game_local.h"
 
@@ -40,7 +40,8 @@ END_CLASS
 idPhysics::~idPhysics
 ================
 */
-idPhysics::~idPhysics() {
+idPhysics::~idPhysics()
+{
 }
 
 /*
@@ -48,7 +49,8 @@ idPhysics::~idPhysics() {
 idPhysics::Save
 ================
 */
-void idPhysics::Save( idSaveGame *savefile ) const {
+void idPhysics::Save( idSaveGame* savefile ) const
+{
 }
 
 /*
@@ -56,7 +58,8 @@ void idPhysics::Save( idSaveGame *savefile ) const {
 idPhysics::Restore
 ================
 */
-void idPhysics::Restore( idRestoreGame *savefile ) {
+void idPhysics::Restore( idRestoreGame* savefile )
+{
 }
 
 /*
@@ -64,8 +67,9 @@ void idPhysics::Restore( idRestoreGame *savefile ) {
 idPhysics::SetClipBox
 ================
 */
-void idPhysics::SetClipBox( const idBounds &bounds, float density ) {
-	SetClipModel( new (TAG_PHYSICS_CLIP) idClipModel( idTraceModel( bounds ) ), density );
+void idPhysics::SetClipBox( const idBounds& bounds, float density )
+{
+	SetClipModel( new( TAG_PHYSICS_CLIP ) idClipModel( idTraceModel( bounds ) ), density );
 }
 
 /*
@@ -73,6 +77,7 @@ void idPhysics::SetClipBox( const idBounds &bounds, float density ) {
 idPhysics::SnapTimeToPhysicsFrame
 ================
 */
-int idPhysics::SnapTimeToPhysicsFrame( int t ) {
+int idPhysics::SnapTimeToPhysicsFrame( int t )
+{
 	return MSEC_ALIGN_TO_FRAME( t );
 }

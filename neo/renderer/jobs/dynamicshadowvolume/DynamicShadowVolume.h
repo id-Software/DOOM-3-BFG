@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -55,7 +55,8 @@ model like for instance a world model.
 #define TEMP_VERTS( numVerts )			TEMP_ROUND16( numVerts * sizeof( idVec4 ) )
 #define OUTPUT_INDEX_BUFFER_SIZE		4096
 
-struct silEdge_t {
+struct silEdge_t
+{
 	// NOTE: using triIndex_t for the planes is dubious, as there can be 2x the faces as verts
 	triIndex_t					p1, p2;					// planes defining the edge
 	triIndex_t					v1, v2;					// verts defining the edge
@@ -66,15 +67,16 @@ struct silEdge_t {
 dynamicShadowVolumeParms_t
 ================================================
 */
-struct dynamicShadowVolumeParms_t {
+struct dynamicShadowVolumeParms_t
+{
 	// input
-	const idDrawVert *				verts;					// streamed in from main memory
+	const idDrawVert* 				verts;					// streamed in from main memory
 	int								numVerts;
-	const triIndex_t *				indexes;				// streamed in from main memory
+	const triIndex_t* 				indexes;				// streamed in from main memory
 	int								numIndexes;
-	const silEdge_t	*				silEdges;				// streamed in from main memory
+	const silEdge_t*					silEdges;				// streamed in from main memory
 	int								numSilEdges;
-	const idJointMat *				joints;					// in SPU local memory
+	const idJointMat* 				joints;					// in SPU local memory
 	int								numJoints;
 	idBounds						triangleBounds;
 	idRenderMatrix					triangleMVP;
@@ -89,28 +91,28 @@ struct dynamicShadowVolumeParms_t {
 	bool							useShadowPreciseInsideTest;
 	bool							useShadowDepthBounds;
 	// temp
-	byte *							tempFacing;				// temp buffer in SPU local memory
-	byte *							tempCulled;				// temp buffer in SPU local memory
-	idVec4 *						tempVerts;				// temp buffer in SPU local memory
+	byte* 							tempFacing;				// temp buffer in SPU local memory
+	byte* 							tempCulled;				// temp buffer in SPU local memory
+	idVec4* 						tempVerts;				// temp buffer in SPU local memory
 	// output
-	triIndex_t *					indexBuffer;			// output buffer in SPU local memory
-	triIndex_t *					shadowIndices;			// streamed out to main memory
+	triIndex_t* 					indexBuffer;			// output buffer in SPU local memory
+	triIndex_t* 					shadowIndices;			// streamed out to main memory
 	int								maxShadowIndices;
-	int *							numShadowIndices;		// streamed out to main memory
-	triIndex_t *					lightIndices;			// streamed out to main memory
+	int* 							numShadowIndices;		// streamed out to main memory
+	triIndex_t* 					lightIndices;			// streamed out to main memory
 	int								maxLightIndices;
-	int *							numLightIndices;		// streamed out to main memory
-	int *							renderZFail;			// streamed out to main memory
-	float *							shadowZMin;				// streamed out to main memory
-	float *							shadowZMax;				// streamed out to main memory
-	volatile shadowVolumeState_t *	shadowVolumeState;		// streamed out to main memory
+	int* 							numLightIndices;		// streamed out to main memory
+	int* 							renderZFail;			// streamed out to main memory
+	float* 							shadowZMin;				// streamed out to main memory
+	float* 							shadowZMax;				// streamed out to main memory
+	volatile shadowVolumeState_t* 	shadowVolumeState;		// streamed out to main memory
 	// next in chain on view entity
-	dynamicShadowVolumeParms_t *	next;
+	dynamicShadowVolumeParms_t* 	next;
 	int								pad;
 };
 
 
-void DynamicShadowVolumeJob( const dynamicShadowVolumeParms_t * parms );
-void DynamicShadowVolume_SetupSPURSHeader( CellSpursJob128 * job, const dynamicShadowVolumeParms_t * parms );
+void DynamicShadowVolumeJob( const dynamicShadowVolumeParms_t* parms );
+void DynamicShadowVolume_SetupSPURSHeader( CellSpursJob128* job, const dynamicShadowVolumeParms_t* parms );
 
 #endif // !__DYNAMICSHADOWVOLUME_H__

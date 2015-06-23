@@ -41,7 +41,7 @@ extern void I_SetTime( int );
 bool waitingForWipe;
 
 static const int dargc = 7;
-static char* dargv[4][7] =
+static const char* dargv[4][7] =
 {
 	{ "doomlauncher", "-net", "0", "127.0.0.1", "127.0.0.1", "127.0.0.1", "127.0.0.1" },
 	{ "doomlauncher", "-net", "1", "127.0.0.1", "127.0.0.1", "127.0.0.1", "127.0.0.1" },
@@ -106,7 +106,7 @@ void DoomInterface::Startup( int playerscount, bool multiplayer )
 			printf( "\n" );
 			DoomLib::InitGame(mpArgc[i], mpArgVPtr[i] );
 		} else {
-			DoomLib::InitGame(localdargc, dargv[i] ); 
+			DoomLib::InitGame(localdargc, (char **)dargv[i] );
 		}
 
 		if( DoomLib::skipToLoad ) {
@@ -211,7 +211,7 @@ void DoomInterface::Shutdown() {
 	lastTicRun = 0;
 }
 
-qboolean G_CheckDemoStatus( void );
+qboolean G_CheckDemoStatus();
 
 void DoomInterface::QuitCurrentGame() {
 	for ( int i = 0; i < numplayers; i++ ) {

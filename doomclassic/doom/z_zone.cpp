@@ -438,7 +438,7 @@ Z_ChangeTag2
     if (block->id != ZONEID)
 	I_Error ("Z_ChangeTag: freed a pointer without ZONEID");
 
-    if (tag >= PU_PURGELEVEL && (unsigned)block->user < 0x100)
+    if (tag >= PU_PURGELEVEL && (uintptr_t)block->user < 0x100)
 	I_Error ("Z_ChangeTag: an owner is required for purgable blocks");
 
     block->tag = tag;

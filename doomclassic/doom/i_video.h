@@ -61,8 +61,8 @@ void I_EndRead (void);
 
 void I_InitInput (void);
 
-void I_ShutdownInput( void ) ;
-void I_InputFrame( void );
+void I_ShutdownInput() ;
+void I_InputFrame();
 
 void I_UpdateControllerState(void);
 struct controller_t;
@@ -70,7 +70,7 @@ int I_PollMouseInputEvents( controller_t * ) ;
 int I_ReturnMouseInputEvent( const int n, event_t* e);
 int I_PollJoystickInputEvents( controller_t * ) ;
 int I_ReturnJoystickInputEvent( const int n, event_t* e);
-void I_EndJoystickInputEvents( void );
+void I_EndJoystickInputEvents();
 
 #endif
 

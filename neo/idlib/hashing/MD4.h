@@ -10,6 +10,8 @@
 ===============================================================================
 */
 
-unsigned long MD4_BlockChecksum( const void *data, int length );
+// RB: 64 bit fix, changed long to int
+unsigned int MD4_BlockChecksum( const void* data, int length );
+// RB end
 
 #endif /* !__MD4_H__ */

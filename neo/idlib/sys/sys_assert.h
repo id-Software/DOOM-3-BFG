@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@ Getting assert() to work as we want on all platforms and code analysis tools can
 ================================================================================================
 */
 
-bool AssertFailed( const char *file, int line, const char *expression );
+bool AssertFailed( const char* file, int line, const char* expression );
 
 // tell PC-Lint that assert failed won't return, which means it can assume the conditions
 // are true for subsequent analysis.
@@ -55,7 +55,14 @@ bool AssertFailed( const char *file, int line, const char *expression );
 // We have the code analysis tools on the 360 compiler,
 // so let it know what our asserts are.
 // The VS ultimate editions also get it on win32, but not x86
+
+// RB: __analysis_assume only necessary with MSVC
+#if defined(_MSC_VER)
 #define assert( x )		__analysis_assume( x ) ; idassert( x )
+#else
+#define assert( x )		idassert( x )
+#endif
+// RB end
 
 #define verify( x )		( ( x ) ? true : ( AssertFailed( __FILE__, __LINE__, #x ), false ) )
 
@@ -64,7 +71,7 @@ bool AssertFailed( const char *file, int line, const char *expression );
 
 //====================== assert in release mode =======================
 
-#define idassert( x )	{ (( void )0); } 
+#define idassert( x )	{ (( void )0); }
 
 #undef assert
 
@@ -80,14 +87,16 @@ bool AssertFailed( const char *file, int line, const char *expression );
 
 #define release_assert( x )	idreleaseassert( x )
 
-#define assert_2_byte_aligned( ptr )		assert( ( ((UINT_PTR)(ptr)) &  1 ) == 0 )
-#define assert_4_byte_aligned( ptr )		assert( ( ((UINT_PTR)(ptr)) &  3 ) == 0 )
-#define assert_8_byte_aligned( ptr )		assert( ( ((UINT_PTR)(ptr)) &  7 ) == 0 )
-#define assert_16_byte_aligned( ptr )		assert( ( ((UINT_PTR)(ptr)) & 15 ) == 0 )
-#define assert_32_byte_aligned( ptr )		assert( ( ((UINT_PTR)(ptr)) & 31 ) == 0 )
-#define assert_64_byte_aligned( ptr )		assert( ( ((UINT_PTR)(ptr)) & 63 ) == 0 )
-#define assert_128_byte_aligned( ptr )		assert( ( ((UINT_PTR)(ptr)) & 127 ) == 0 )
-#define assert_aligned_to_type_size( ptr )	assert( ( ((UINT_PTR)(ptr)) & ( sizeof( (ptr)[0] ) - 1 ) ) == 0 )
+// RB: changed UINT_PTR to uintptr_t
+#define assert_2_byte_aligned( ptr )		assert( ( ((uintptr_t)(ptr)) &  1 ) == 0 )
+#define assert_4_byte_aligned( ptr )		assert( ( ((uintptr_t)(ptr)) &  3 ) == 0 )
+#define assert_8_byte_aligned( ptr )		assert( ( ((uintptr_t)(ptr)) &  7 ) == 0 )
+#define assert_16_byte_aligned( ptr )		assert( ( ((uintptr_t)(ptr)) & 15 ) == 0 )
+#define assert_32_byte_aligned( ptr )		assert( ( ((uintptr_t)(ptr)) & 31 ) == 0 )
+#define assert_64_byte_aligned( ptr )		assert( ( ((uintptr_t)(ptr)) & 63 ) == 0 )
+#define assert_128_byte_aligned( ptr )		assert( ( ((uintptr_t)(ptr)) & 127 ) == 0 )
+#define assert_aligned_to_type_size( ptr )	assert( ( ((uintptr_t)(ptr)) & ( sizeof( (ptr)[0] ) - 1 ) ) == 0 )
+// RB end
 
 #if !defined( __TYPEINFOGEN__ ) && !defined( _lint )	// pcLint has problems with assert_offsetof()
 

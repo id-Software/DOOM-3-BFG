@@ -2,9 +2,10 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013-2014 Robert Beckebans
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,7 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
-#include "../idlib/precompiled.h"
+#include "precompiled.h"
 
 #include "tr_local.h"
 
@@ -40,7 +41,8 @@ idRenderProgManager renderProgManager;
 idRenderProgManager::idRenderProgManager()
 ================================================================================================
 */
-idRenderProgManager::idRenderProgManager() {
+idRenderProgManager::idRenderProgManager()
+{
 }
 
 /*
@@ -48,7 +50,8 @@ idRenderProgManager::idRenderProgManager() {
 idRenderProgManager::~idRenderProgManager()
 ================================================================================================
 */
-idRenderProgManager::~idRenderProgManager() {
+idRenderProgManager::~idRenderProgManager()
+{
 }
 
 /*
@@ -56,7 +59,8 @@ idRenderProgManager::~idRenderProgManager() {
 R_ReloadShaders
 ================================================================================================
 */
-static void R_ReloadShaders( const idCmdArgs &args ) {	
+static void R_ReloadShaders( const idCmdArgs& args )
+{
 	renderProgManager.KillAllShaders();
 	renderProgManager.LoadAllShaders();
 }
@@ -66,85 +70,168 @@ static void R_ReloadShaders( const idCmdArgs &args ) {
 idRenderProgManager::Init()
 ================================================================================================
 */
-void idRenderProgManager::Init() {
+void idRenderProgManager::Init()
+{
 	common->Printf( "----- Initializing Render Shaders -----\n" );
-
-
-	for ( int i = 0; i < MAX_BUILTINS; i++ ) {
+	
+	
+	for( int i = 0; i < MAX_BUILTINS; i++ )
+	{
 		builtinShaders[i] = -1;
 	}
-	struct builtinShaders_t {
-		int index;
-		const char * name;
-	} builtins[] = {
-		{ BUILTIN_GUI, "gui.vfp" },
-		{ BUILTIN_COLOR, "color.vfp" },
-		{ BUILTIN_SIMPLESHADE, "simpleshade.vfp" },
-		{ BUILTIN_TEXTURED, "texture.vfp" },
-		{ BUILTIN_TEXTURE_VERTEXCOLOR, "texture_color.vfp" },
-		{ BUILTIN_TEXTURE_VERTEXCOLOR_SKINNED, "texture_color_skinned.vfp" },
-		{ BUILTIN_TEXTURE_TEXGEN_VERTEXCOLOR, "texture_color_texgen.vfp" },
-		{ BUILTIN_INTERACTION, "interaction.vfp" },
-		{ BUILTIN_INTERACTION_SKINNED, "interaction_skinned.vfp" },
-		{ BUILTIN_INTERACTION_AMBIENT, "interactionAmbient.vfp" },
-		{ BUILTIN_INTERACTION_AMBIENT_SKINNED, "interactionAmbient_skinned.vfp" },
-		{ BUILTIN_ENVIRONMENT, "environment.vfp" },
-		{ BUILTIN_ENVIRONMENT_SKINNED, "environment_skinned.vfp" },
-		{ BUILTIN_BUMPY_ENVIRONMENT, "bumpyEnvironment.vfp" },
-		{ BUILTIN_BUMPY_ENVIRONMENT_SKINNED, "bumpyEnvironment_skinned.vfp" },
-
-		{ BUILTIN_DEPTH, "depth.vfp" },
-		{ BUILTIN_DEPTH_SKINNED, "depth_skinned.vfp" },
-		{ BUILTIN_SHADOW_DEBUG, "shadowDebug.vfp" },
-		{ BUILTIN_SHADOW_DEBUG_SKINNED, "shadowDebug_skinned.vfp" },
-
-		{ BUILTIN_BLENDLIGHT, "blendlight.vfp" },
-		{ BUILTIN_FOG, "fog.vfp" },
-		{ BUILTIN_FOG_SKINNED, "fog_skinned.vfp" },
-		{ BUILTIN_SKYBOX, "skybox.vfp" },
-		{ BUILTIN_WOBBLESKY, "wobblesky.vfp" },
-		{ BUILTIN_POSTPROCESS, "postprocess.vfp" },
-		{ BUILTIN_STEREO_DEGHOST, "stereoDeGhost.vfp" },
-		{ BUILTIN_STEREO_WARP, "stereoWarp.vfp" },
-		{ BUILTIN_ZCULL_RECONSTRUCT, "zcullReconstruct.vfp" },
-		{ BUILTIN_BINK, "bink.vfp" },
-		{ BUILTIN_BINK_GUI, "bink_gui.vfp" },
-		{ BUILTIN_STEREO_INTERLACE, "stereoInterlace.vfp" },
-		{ BUILTIN_MOTION_BLUR, "motionBlur.vfp" },
+	
+	// RB: added checks for GPU skinning
+	struct builtinShaders_t
+	{
+		int			index;
+		const char* name;
+		const char* nameOutSuffix;
+		uint32		shaderFeatures;
+		bool		requireGPUSkinningSupport;
+	} builtins[] =
+	{
+		{ BUILTIN_GUI, "gui.vfp", 0, false },
+		{ BUILTIN_COLOR, "color.vfp", 0, false },
+		// RB begin
+		{ BUILTIN_COLOR_SKINNED, "color", "_skinned", BIT( USE_GPU_SKINNING ), true },
+		{ BUILTIN_VERTEX_COLOR, "vertex_color.vfp", "", 0, false },
+		// RB end
+//		{ BUILTIN_SIMPLESHADE, "simpleshade.vfp", 0, false },
+		{ BUILTIN_TEXTURED, "texture.vfp", 0, false },
+		{ BUILTIN_TEXTURE_VERTEXCOLOR, "texture_color.vfp", 0, false },
+		{ BUILTIN_TEXTURE_VERTEXCOLOR_SKINNED, "texture_color_skinned.vfp", 0, true },
+		{ BUILTIN_TEXTURE_TEXGEN_VERTEXCOLOR, "texture_color_texgen.vfp", 0, false },
+		// RB begin
+		{ BUILTIN_INTERACTION, "interaction.vfp", "", 0, false },
+		{ BUILTIN_INTERACTION_SKINNED, "interaction", "_skinned", BIT( USE_GPU_SKINNING ), true },
+		{ BUILTIN_INTERACTION_AMBIENT, "interactionAmbient.vfp", 0, false },
+		{ BUILTIN_INTERACTION_AMBIENT_SKINNED, "interactionAmbient_skinned.vfp", 0, true },
+		{ BUILTIN_INTERACTION_SHADOW_MAPPING_SPOT, "interactionSM", "_spot", 0, false },
+		{ BUILTIN_INTERACTION_SHADOW_MAPPING_SPOT_SKINNED, "interactionSM", "_spot_skinned", BIT( USE_GPU_SKINNING ), true },
+		{ BUILTIN_INTERACTION_SHADOW_MAPPING_POINT, "interactionSM", "_point", BIT( LIGHT_POINT ), false },
+		{ BUILTIN_INTERACTION_SHADOW_MAPPING_POINT_SKINNED, "interactionSM", "_point_skinned", BIT( USE_GPU_SKINNING ) | BIT( LIGHT_POINT ), true },
+		{ BUILTIN_INTERACTION_SHADOW_MAPPING_PARALLEL, "interactionSM", "_parallel", BIT( LIGHT_PARALLEL ), false },
+		{ BUILTIN_INTERACTION_SHADOW_MAPPING_PARALLEL_SKINNED, "interactionSM", "_parallel_skinned", BIT( USE_GPU_SKINNING ) | BIT( LIGHT_PARALLEL ), true },
+		// RB end
+		{ BUILTIN_ENVIRONMENT, "environment.vfp", 0, false },
+		{ BUILTIN_ENVIRONMENT_SKINNED, "environment_skinned.vfp", 0, true },
+		{ BUILTIN_BUMPY_ENVIRONMENT, "bumpyenvironment.vfp", 0, false },
+		{ BUILTIN_BUMPY_ENVIRONMENT_SKINNED, "bumpyenvironment_skinned.vfp", 0, true },
+		
+		{ BUILTIN_DEPTH, "depth.vfp", 0, false },
+		{ BUILTIN_DEPTH_SKINNED, "depth_skinned.vfp", 0, true },
+		
+		{ BUILTIN_SHADOW, "shadow.vfp", 0, false },
+		{ BUILTIN_SHADOW_SKINNED, "shadow_skinned.vfp", 0, true },
+		
+		{ BUILTIN_SHADOW_DEBUG, "shadowDebug.vfp", 0, false },
+		{ BUILTIN_SHADOW_DEBUG_SKINNED, "shadowDebug_skinned.vfp", 0, true },
+		
+		{ BUILTIN_BLENDLIGHT, "blendlight.vfp", 0, false },
+		{ BUILTIN_FOG, "fog.vfp", 0, false },
+		{ BUILTIN_FOG_SKINNED, "fog_skinned.vfp", 0, true },
+		{ BUILTIN_SKYBOX, "skybox.vfp", 0, false },
+		{ BUILTIN_WOBBLESKY, "wobblesky.vfp", 0, false },
+		{ BUILTIN_POSTPROCESS, "postprocess.vfp", 0, false },
+		{ BUILTIN_STEREO_DEGHOST, "stereoDeGhost.vfp", 0, false },
+		{ BUILTIN_STEREO_WARP, "stereoWarp.vfp", 0, false },
+//		{ BUILTIN_ZCULL_RECONSTRUCT, "zcullReconstruct.vfp", 0, false },
+		{ BUILTIN_BINK, "bink.vfp", 0, false },
+		{ BUILTIN_BINK_GUI, "bink_gui.vfp", 0, false },
+		{ BUILTIN_STEREO_INTERLACE, "stereoInterlace.vfp", 0, false },
+		{ BUILTIN_MOTION_BLUR, "motionBlur.vfp", 0, false },
+		
+		// RB begin
+		{ BUILTIN_DEBUG_SHADOWMAP, "debug_shadowmap.vfp", "", 0, false },
+		// RB end
 	};
 	int numBuiltins = sizeof( builtins ) / sizeof( builtins[0] );
 	vertexShaders.SetNum( numBuiltins );
 	fragmentShaders.SetNum( numBuiltins );
 	glslPrograms.SetNum( numBuiltins );
-
-	for ( int i = 0; i < numBuiltins; i++ ) {
+	
+	for( int i = 0; i < numBuiltins; i++ )
+	{
 		vertexShaders[i].name = builtins[i].name;
+		vertexShaders[i].nameOutSuffix = builtins[i].nameOutSuffix;
+		vertexShaders[i].shaderFeatures = builtins[i].shaderFeatures;
+		vertexShaders[i].builtin = true;
+		
 		fragmentShaders[i].name = builtins[i].name;
+		fragmentShaders[i].nameOutSuffix = builtins[i].nameOutSuffix;
+		fragmentShaders[i].shaderFeatures = builtins[i].shaderFeatures;
+		fragmentShaders[i].builtin = true;
+		
 		builtinShaders[builtins[i].index] = i;
+		
+		if( builtins[i].requireGPUSkinningSupport && !glConfig.gpuSkinningAvailable )
+		{
+			// RB: don't try to load shaders that would break the GLSL compiler in the OpenGL driver
+			continue;
+		}
+		
 		LoadVertexShader( i );
 		LoadFragmentShader( i );
 		LoadGLSLProgram( i, i, i );
 	}
-
-	// Special case handling for fastZ shaders
-	builtinShaders[BUILTIN_SHADOW] = FindVertexShader( "shadow.vp" );
-	builtinShaders[BUILTIN_SHADOW_SKINNED] = FindVertexShader( "shadow_skinned.vp" );
-
-	FindGLSLProgram( "shadow.vp", builtinShaders[BUILTIN_SHADOW], -1 );
-	FindGLSLProgram( "shadow_skinned.vp", builtinShaders[BUILTIN_SHADOW_SKINNED], -1 );
-
+	
+	// special case handling for fastZ shaders
+	/*
+	switch( glConfig.driverType )
+	{
+		case GLDRV_OPENGL32_CORE_PROFILE:
+		case GLDRV_OPENGL_ES2:
+		case GLDRV_OPENGL_ES3:
+		case GLDRV_OPENGL_MESA:
+		{
+			builtinShaders[BUILTIN_SHADOW] = FindVertexShader( "shadow.vp" );
+			int shadowFragmentShaderIndex = FindFragmentShader( "shadow.fp" );
+			FindGLSLProgram( "shadow.vp", builtinShaders[BUILTIN_SHADOW], shadowFragmentShaderIndex );
+	
+			if( glConfig.gpuSkinningAvailable )
+			{
+				builtinShaders[BUILTIN_SHADOW_SKINNED] = FindVertexShader( "shadow_skinned.vp" );
+				int shadowFragmentShaderIndex = FindFragmentShader( "shadow_skinned.fp" );
+				FindGLSLProgram( "shadow_skinned.vp", builtinShaders[BUILTIN_SHADOW_SKINNED], shadowFragmentShaderIndex );
+				break;
+			}
+		}
+	
+		default:
+		{
+			// fast path on PC
+			builtinShaders[BUILTIN_SHADOW] = FindVertexShader( "shadow.vp" );
+			FindGLSLProgram( "shadow.vp", builtinShaders[BUILTIN_SHADOW], -1 );
+	
+			if( glConfig.gpuSkinningAvailable )
+			{
+				builtinShaders[BUILTIN_SHADOW_SKINNED] = FindVertexShader( "shadow_skinned.vp" );
+				FindGLSLProgram( "shadow_skinned.vp", builtinShaders[BUILTIN_SHADOW_SKINNED], -1 );
+			}
+		}
+	}
+	*/
+	
 	glslUniforms.SetNum( RENDERPARM_USER + MAX_GLSL_USER_PARMS, vec4_zero );
-
-	vertexShaders[builtinShaders[BUILTIN_TEXTURE_VERTEXCOLOR_SKINNED]].usesJoints = true;
-	vertexShaders[builtinShaders[BUILTIN_INTERACTION_SKINNED]].usesJoints = true;
-	vertexShaders[builtinShaders[BUILTIN_INTERACTION_AMBIENT_SKINNED]].usesJoints = true;
-	vertexShaders[builtinShaders[BUILTIN_ENVIRONMENT_SKINNED]].usesJoints = true;
-	vertexShaders[builtinShaders[BUILTIN_BUMPY_ENVIRONMENT_SKINNED]].usesJoints = true;
-	vertexShaders[builtinShaders[BUILTIN_DEPTH_SKINNED]].usesJoints = true;
-	vertexShaders[builtinShaders[BUILTIN_SHADOW_SKINNED]].usesJoints = true;
-	vertexShaders[builtinShaders[BUILTIN_SHADOW_DEBUG_SKINNED]].usesJoints = true;
-	vertexShaders[builtinShaders[BUILTIN_FOG_SKINNED]].usesJoints = true;
-
+	
+	if( glConfig.gpuSkinningAvailable )
+	{
+		vertexShaders[builtinShaders[BUILTIN_TEXTURE_VERTEXCOLOR_SKINNED]].usesJoints = true;
+		vertexShaders[builtinShaders[BUILTIN_INTERACTION_SKINNED]].usesJoints = true;
+		vertexShaders[builtinShaders[BUILTIN_INTERACTION_AMBIENT_SKINNED]].usesJoints = true;
+		vertexShaders[builtinShaders[BUILTIN_ENVIRONMENT_SKINNED]].usesJoints = true;
+		vertexShaders[builtinShaders[BUILTIN_BUMPY_ENVIRONMENT_SKINNED]].usesJoints = true;
+		vertexShaders[builtinShaders[BUILTIN_DEPTH_SKINNED]].usesJoints = true;
+		vertexShaders[builtinShaders[BUILTIN_SHADOW_SKINNED]].usesJoints = true;
+		vertexShaders[builtinShaders[BUILTIN_SHADOW_DEBUG_SKINNED]].usesJoints = true;
+		vertexShaders[builtinShaders[BUILTIN_FOG_SKINNED]].usesJoints = true;
+		// RB begin
+		vertexShaders[builtinShaders[BUILTIN_INTERACTION_SHADOW_MAPPING_SPOT_SKINNED]].usesJoints = true;
+		vertexShaders[builtinShaders[BUILTIN_INTERACTION_SHADOW_MAPPING_POINT_SKINNED]].usesJoints = true;
+		vertexShaders[builtinShaders[BUILTIN_INTERACTION_SHADOW_MAPPING_PARALLEL_SKINNED]].usesJoints = true;
+		// RB end
+	}
+	
 	cmdSystem->AddCommand( "reloadShaders", R_ReloadShaders, CMD_FL_RENDERER, "reloads shaders" );
 }
 
@@ -153,15 +240,25 @@ void idRenderProgManager::Init() {
 idRenderProgManager::LoadAllShaders()
 ================================================================================================
 */
-void idRenderProgManager::LoadAllShaders() {
-	for ( int i = 0; i < vertexShaders.Num(); i++ ) {
+void idRenderProgManager::LoadAllShaders()
+{
+	for( int i = 0; i < vertexShaders.Num(); i++ )
+	{
 		LoadVertexShader( i );
 	}
-	for ( int i = 0; i < fragmentShaders.Num(); i++ ) {
+	for( int i = 0; i < fragmentShaders.Num(); i++ )
+	{
 		LoadFragmentShader( i );
 	}
-
-	for ( int i = 0; i < glslPrograms.Num(); ++i ) {
+	
+	for( int i = 0; i < glslPrograms.Num(); ++i )
+	{
+		if( glslPrograms[i].vertexShaderIndex == -1 || glslPrograms[i].fragmentShaderIndex == -1 )
+		{
+			// RB: skip reloading because we didn't load it initially
+			continue;
+		}
+		
 		LoadGLSLProgram( i, glslPrograms[i].vertexShaderIndex, glslPrograms[i].fragmentShaderIndex );
 	}
 }
@@ -171,23 +268,30 @@ void idRenderProgManager::LoadAllShaders() {
 idRenderProgManager::KillAllShaders()
 ================================================================================================
 */
-void idRenderProgManager::KillAllShaders() {
+void idRenderProgManager::KillAllShaders()
+{
 	Unbind();
-	for ( int i = 0; i < vertexShaders.Num(); i++ ) {
-		if ( vertexShaders[i].progId != INVALID_PROGID ) {
-			qglDeleteShader( vertexShaders[i].progId );
+	for( int i = 0; i < vertexShaders.Num(); i++ )
+	{
+		if( vertexShaders[i].progId != INVALID_PROGID )
+		{
+			glDeleteShader( vertexShaders[i].progId );
 			vertexShaders[i].progId = INVALID_PROGID;
 		}
 	}
-	for ( int i = 0; i < fragmentShaders.Num(); i++ ) {
-		if ( fragmentShaders[i].progId != INVALID_PROGID ) {
-			qglDeleteShader( fragmentShaders[i].progId );
+	for( int i = 0; i < fragmentShaders.Num(); i++ )
+	{
+		if( fragmentShaders[i].progId != INVALID_PROGID )
+		{
+			glDeleteShader( fragmentShaders[i].progId );
 			fragmentShaders[i].progId = INVALID_PROGID;
 		}
 	}
-	for ( int i = 0; i < glslPrograms.Num(); ++i ) {
-		if ( glslPrograms[i].progId != INVALID_PROGID ) {
-			qglDeleteProgram( glslPrograms[i].progId );
+	for( int i = 0; i < glslPrograms.Num(); ++i )
+	{
+		if( glslPrograms[i].progId != INVALID_PROGID )
+		{
+			glDeleteProgram( glslPrograms[i].progId );
 			glslPrograms[i].progId = INVALID_PROGID;
 		}
 	}
@@ -198,7 +302,8 @@ void idRenderProgManager::KillAllShaders() {
 idRenderProgManager::Shutdown()
 ================================================================================================
 */
-void idRenderProgManager::Shutdown() {
+void idRenderProgManager::Shutdown()
+{
 	KillAllShaders();
 }
 
@@ -207,9 +312,12 @@ void idRenderProgManager::Shutdown() {
 idRenderProgManager::FindVertexShader
 ================================================================================================
 */
-int idRenderProgManager::FindVertexShader( const char * name ) {
-	for ( int i = 0; i < vertexShaders.Num(); i++ ) {
-		if ( vertexShaders[i].name.Icmp( name ) == 0 ) {
+int idRenderProgManager::FindVertexShader( const char* name )
+{
+	for( int i = 0; i < vertexShaders.Num(); i++ )
+	{
+		if( vertexShaders[i].name.Icmp( name ) == 0 )
+		{
 			LoadVertexShader( i );
 			return i;
 		}
@@ -219,16 +327,19 @@ int idRenderProgManager::FindVertexShader( const char * name ) {
 	int index = vertexShaders.Append( shader );
 	LoadVertexShader( index );
 	currentVertexShader = index;
-
-	// FIXME: we should really scan the program source code for using rpEnableSkinning but at this
-	// point we directly load a binary and the program source code is not available on the consoles
-	if (	idStr::Icmp( name, "heatHaze.vfp" ) == 0 ||
-			idStr::Icmp( name, "heatHazeWithMask.vfp" ) == 0 ||
-			idStr::Icmp( name, "heatHazeWithMaskAndVertex.vfp" ) == 0 ) {
-		vertexShaders[index].usesJoints = true;
-		vertexShaders[index].optionalSkinning = true;
+	
+	// RB: removed idStr::Icmp( name, "heatHaze.vfp" ) == 0  hack
+	// this requires r_useUniformArrays 1
+	for( int i = 0; i < vertexShaders[index].uniforms.Num(); i++ )
+	{
+		if( vertexShaders[index].uniforms[i] == RENDERPARM_ENABLE_SKINNING )
+		{
+			vertexShaders[index].usesJoints = true;
+			vertexShaders[index].optionalSkinning = true;
+		}
 	}
-
+	// RB end
+	
 	return index;
 }
 
@@ -237,9 +348,12 @@ int idRenderProgManager::FindVertexShader( const char * name ) {
 idRenderProgManager::FindFragmentShader
 ================================================================================================
 */
-int idRenderProgManager::FindFragmentShader( const char * name ) {
-	for ( int i = 0; i < fragmentShaders.Num(); i++ ) {
-		if ( fragmentShaders[i].name.Icmp( name ) == 0 ) {
+int idRenderProgManager::FindFragmentShader( const char* name )
+{
+	for( int i = 0; i < fragmentShaders.Num(); i++ )
+	{
+		if( fragmentShaders[i].name.Icmp( name ) == 0 )
+		{
 			LoadFragmentShader( i );
 			return i;
 		}
@@ -260,11 +374,15 @@ int idRenderProgManager::FindFragmentShader( const char * name ) {
 idRenderProgManager::LoadVertexShader
 ================================================================================================
 */
-void idRenderProgManager::LoadVertexShader( int index ) {
-	if ( vertexShaders[index].progId != INVALID_PROGID ) {
+void idRenderProgManager::LoadVertexShader( int index )
+{
+	if( vertexShaders[index].progId != INVALID_PROGID )
+	{
 		return; // Already loaded
 	}
-	vertexShaders[index].progId = ( GLuint ) LoadGLSLShader( GL_VERTEX_SHADER, vertexShaders[index].name, vertexShaders[index].uniforms );
+	
+	vertexShader_t& vs = vertexShaders[index];
+	vertexShaders[index].progId = ( GLuint ) LoadGLSLShader( GL_VERTEX_SHADER, vs.name, vs.nameOutSuffix, vs.shaderFeatures, vs.builtin, vs.uniforms );
 }
 
 /*
@@ -272,90 +390,15 @@ void idRenderProgManager::LoadVertexShader( int index ) {
 idRenderProgManager::LoadFragmentShader
 ================================================================================================
 */
-void idRenderProgManager::LoadFragmentShader( int index ) {
-	if ( fragmentShaders[index].progId != INVALID_PROGID ) {
+void idRenderProgManager::LoadFragmentShader( int index )
+{
+	if( fragmentShaders[index].progId != INVALID_PROGID )
+	{
 		return; // Already loaded
 	}
-	fragmentShaders[index].progId = ( GLuint ) LoadGLSLShader( GL_FRAGMENT_SHADER, fragmentShaders[index].name, fragmentShaders[index].uniforms );
-}
-
-/*
-================================================================================================
-idRenderProgManager::LoadShader
-================================================================================================
-*/
-GLuint idRenderProgManager::LoadShader( GLenum target, const char * name, const char * startToken ) {
-
-	idStr fullPath = "renderprogs\\gl\\";
-	fullPath += name;
-
-	common->Printf( "%s", fullPath.c_str() );
-
-	char * fileBuffer = NULL;
-	fileSystem->ReadFile( fullPath.c_str(), (void **)&fileBuffer, NULL );
-	if ( fileBuffer == NULL ) {
-		common->Printf( ": File not found\n" );
-		return INVALID_PROGID;
-	}
-	if ( !R_IsInitialized() ) {
-		common->Printf( ": Renderer not initialized\n" );
-		fileSystem->FreeFile( fileBuffer );
-		return INVALID_PROGID;
-	}
-
-	// vertex and fragment shaders are both be present in a single file, so
-	// scan for the proper header to be the start point, and stamp a 0 in after the end
-	char * start = strstr( (char *)fileBuffer, startToken );
-	if ( start == NULL ) {
-		common->Printf( ": %s not found\n", startToken );
-		fileSystem->FreeFile( fileBuffer );
-		return INVALID_PROGID;
-	}
-	char * end = strstr( start, "END" );
-	if ( end == NULL ) {
-		common->Printf( ": END not found for %s\n", startToken );
-		fileSystem->FreeFile( fileBuffer );
-		return INVALID_PROGID;
-	}
-	end[3] = 0;
-
-	idStr program = start;
-	program.Replace( "vertex.normal", "vertex.attrib[11]" );
-	program.Replace( "vertex.texcoord[0]", "vertex.attrib[8]" );
-	program.Replace( "vertex.texcoord", "vertex.attrib[8]" );
-
-	GLuint progId;
-	qglGenProgramsARB( 1, &progId );
-
-	qglBindProgramARB( target, progId );
-	qglGetError();
-
-	qglProgramStringARB( target, GL_PROGRAM_FORMAT_ASCII_ARB, program.Length(), program.c_str() );
-	GLenum err = qglGetError();
-
-	GLint ofs = -1;
-	qglGetIntegerv( GL_PROGRAM_ERROR_POSITION_ARB, &ofs );
-	if ( ( err == GL_INVALID_OPERATION ) || ( ofs != -1 ) ) {
-		if ( err == GL_INVALID_OPERATION ) {
-			const GLubyte * str = qglGetString( GL_PROGRAM_ERROR_STRING_ARB );
-			common->Printf( "\nGL_PROGRAM_ERROR_STRING_ARB: %s\n", str );
-		} else {
-			common->Printf( "\nUNKNOWN ERROR\n" );
-		}
-		if ( ofs < 0 ) {
-			common->Printf( "GL_PROGRAM_ERROR_POSITION_ARB < 0\n" );
-		} else if ( ofs >= program.Length() ) {
-			common->Printf( "error at end of shader\n" );
-		} else {
-			common->Printf( "error at %i:\n%s", ofs, program.c_str() + ofs );
-		}
-		qglDeleteProgramsARB( 1, &progId );
-		fileSystem->FreeFile( fileBuffer );
-		return INVALID_PROGID;
-	}
-	common->Printf( "\n" );
-	fileSystem->FreeFile( fileBuffer );
-	return progId;
+	
+	fragmentShader_t& fs = fragmentShaders[index];
+	fragmentShaders[index].progId = ( GLuint ) LoadGLSLShader( GL_FRAGMENT_SHADER, fs.name, fs.nameOutSuffix, fs.shaderFeatures, fs.builtin, fs.uniforms );
 }
 
 /*
@@ -363,40 +406,85 @@ GLuint idRenderProgManager::LoadShader( GLenum target, const char * name, const 
 idRenderProgManager::BindShader
 ================================================================================================
 */
-void idRenderProgManager::BindShader( int vIndex, int fIndex ) {
-	if ( currentVertexShader == vIndex && currentFragmentShader == fIndex ) {
+// RB begin
+void idRenderProgManager::BindShader( int progIndex, int vIndex, int fIndex, bool builtin )
+{
+	if( currentVertexShader == vIndex && currentFragmentShader == fIndex )
+	{
 		return;
 	}
-	currentVertexShader = vIndex;
-	currentFragmentShader = fIndex;
-	// vIndex denotes the GLSL program
-	if ( vIndex >= 0 && vIndex < glslPrograms.Num() ) {
-		currentRenderProgram = vIndex;
-		RENDERLOG_PRINTF( "Binding GLSL Program %s\n", glslPrograms[vIndex].name.c_str() );
-		qglUseProgram( glslPrograms[vIndex].progId );
+	
+	if( builtin )
+	{
+		currentVertexShader = vIndex;
+		currentFragmentShader = fIndex;
+		
+		// vIndex denotes the GLSL program
+		if( vIndex >= 0 && vIndex < glslPrograms.Num() )
+		{
+			currentRenderProgram = vIndex;
+			RENDERLOG_PRINTF( "Binding GLSL Program %s\n", glslPrograms[vIndex].name.c_str() );
+			glUseProgram( glslPrograms[vIndex].progId );
+		}
+	}
+	else
+	{
+		if( progIndex == -1 )
+		{
+			// RB: FIXME linear search
+			for( int i = 0; i < glslPrograms.Num(); ++i )
+			{
+				if( ( glslPrograms[i].vertexShaderIndex == vIndex ) && ( glslPrograms[i].fragmentShaderIndex == fIndex ) )
+				{
+					progIndex = i;
+					break;
+				}
+			}
+		}
+		
+		currentVertexShader = vIndex;
+		currentFragmentShader = fIndex;
+		
+		if( progIndex >= 0 && progIndex < glslPrograms.Num() )
+		{
+			currentRenderProgram = progIndex;
+			RENDERLOG_PRINTF( "Binding GLSL Program %s\n", glslPrograms[progIndex].name.c_str() );
+			glUseProgram( glslPrograms[progIndex].progId );
+		}
 	}
 }
+// RB end
 
 /*
 ================================================================================================
 idRenderProgManager::Unbind
 ================================================================================================
 */
-void idRenderProgManager::Unbind() {
+void idRenderProgManager::Unbind()
+{
 	currentVertexShader = -1;
 	currentFragmentShader = -1;
-
-	qglUseProgram( 0 );
+	
+	glUseProgram( 0 );
 }
+
+// RB begin
+bool idRenderProgManager::IsShaderBound() const
+{
+	return ( currentVertexShader != -1 );
+}
+// RB end
 
 /*
 ================================================================================================
 idRenderProgManager::SetRenderParms
 ================================================================================================
 */
-void idRenderProgManager::SetRenderParms( renderParm_t rp, const float * value, int num ) {
-	for ( int i = 0; i < num; i++ ) {
-		SetRenderParm( (renderParm_t)(rp + i), value + ( i * 4 ) );
+void idRenderProgManager::SetRenderParms( renderParm_t rp, const float* value, int num )
+{
+	for( int i = 0; i < num; i++ )
+	{
+		SetRenderParm( ( renderParm_t )( rp + i ), value + ( i * 4 ) );
 	}
 }
 
@@ -405,7 +493,8 @@ void idRenderProgManager::SetRenderParms( renderParm_t rp, const float * value, 
 idRenderProgManager::SetRenderParm
 ================================================================================================
 */
-void idRenderProgManager::SetRenderParm( renderParm_t rp, const float * value ) {
+void idRenderProgManager::SetRenderParm( renderParm_t rp, const float* value )
+{
 	SetUniformValue( rp, value );
 }
 

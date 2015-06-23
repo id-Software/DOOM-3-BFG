@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#include "../idlib/precompiled.h"
+#include "precompiled.h"
 #pragma hdrstop
 
 
@@ -35,7 +35,8 @@ If you have questions concerning this license or the applicable additional terms
 idDeclSkin::Size
 =================
 */
-size_t idDeclSkin::Size() const {
+size_t idDeclSkin::Size() const
+{
 	return sizeof( idDeclSkin );
 }
 
@@ -44,7 +45,8 @@ size_t idDeclSkin::Size() const {
 idDeclSkin::FreeData
 ================
 */
-void idDeclSkin::FreeData() {
+void idDeclSkin::FreeData()
+{
 	mappings.Clear();
 }
 
@@ -53,49 +55,58 @@ void idDeclSkin::FreeData() {
 idDeclSkin::Parse
 ================
 */
-bool idDeclSkin::Parse( const char *text, const int textLength, bool allowBinaryVersion ) {
+bool idDeclSkin::Parse( const char* text, const int textLength, bool allowBinaryVersion )
+{
 	idLexer src;
 	idToken	token, token2;
-
+	
 	src.LoadMemory( text, textLength, GetFileName(), GetLineNum() );
 	src.SetFlags( DECL_LEXER_FLAGS );
 	src.SkipUntilString( "{" );
-
+	
 	associatedModels.Clear();
-
-	while (1) {
-		if ( !src.ReadToken( &token ) ) {
+	
+	while( 1 )
+	{
+		if( !src.ReadToken( &token ) )
+		{
 			break;
 		}
-
-		if ( !token.Icmp( "}" ) ) {
+		
+		if( !token.Icmp( "}" ) )
+		{
 			break;
 		}
-		if ( !src.ReadToken( &token2 ) ) {
+		if( !src.ReadToken( &token2 ) )
+		{
 			src.Warning( "Unexpected end of file" );
 			MakeDefault();
 			return false;
 		}
-
-		if ( !token.Icmp( "model" ) ) {
+		
+		if( !token.Icmp( "model" ) )
+		{
 			associatedModels.Append( token2 );
 			continue;
 		}
-
+		
 		skinMapping_t	map;
-
-		if ( !token.Icmp( "*" ) ) {
+		
+		if( !token.Icmp( "*" ) )
+		{
 			// wildcard
 			map.from = NULL;
-		} else {
+		}
+		else
+		{
 			map.from = declManager->FindMaterial( token );
 		}
-
+		
 		map.to = declManager->FindMaterial( token2 );
-
+		
 		mappings.Append( map );
 	}
-
+	
 	return false;
 }
 
@@ -104,19 +115,23 @@ bool idDeclSkin::Parse( const char *text, const int textLength, bool allowBinary
 idDeclSkin::SetDefaultText
 ================
 */
-bool idDeclSkin::SetDefaultText() {
+bool idDeclSkin::SetDefaultText()
+{
 	// if there exists a material with the same name
-	if ( declManager->FindType( DECL_MATERIAL, GetName(), false ) ) {
+	if( declManager->FindType( DECL_MATERIAL, GetName(), false ) )
+	{
 		char generated[2048];
-
+		
 		idStr::snPrintf( generated, sizeof( generated ),
-						"skin %s // IMPLICITLY GENERATED\n"
-						"{\n"
-						"_default %s\n"
-						"}\n", GetName(), GetName() );
+						 "skin %s // IMPLICITLY GENERATED\n"
+						 "{\n"
+						 "_default %s\n"
+						 "}\n", GetName(), GetName() );
 		SetText( generated );
 		return true;
-	} else {
+	}
+	else
+	{
 		return false;
 	}
 }
@@ -126,10 +141,11 @@ bool idDeclSkin::SetDefaultText() {
 idDeclSkin::DefaultDefinition
 ================
 */
-const char *idDeclSkin::DefaultDefinition() const {
+const char* idDeclSkin::DefaultDefinition() const
+{
 	return
 		"{\n"
-	"\t"	"\"*\"\t\"_default\"\n"
+		"\t"	"\"*\"\t\"_default\"\n"
 		"}";
 }
 
@@ -138,8 +154,9 @@ const char *idDeclSkin::DefaultDefinition() const {
 idDeclSkin::GetNumModelAssociations
 ================
 */
-const int idDeclSkin::GetNumModelAssociations(void ) const {
-	return associatedModels.Num(); 
+const int idDeclSkin::GetNumModelAssociations() const
+{
+	return associatedModels.Num();
 }
 
 /*
@@ -147,8 +164,10 @@ const int idDeclSkin::GetNumModelAssociations(void ) const {
 idDeclSkin::GetAssociatedModel
 ================
 */
-const char *idDeclSkin::GetAssociatedModel( int index ) const {
-	if ( index >= 0 && index < associatedModels.Num() ) {
+const char* idDeclSkin::GetAssociatedModel( int index ) const
+{
+	if( index >= 0 && index < associatedModels.Num() )
+	{
 		return associatedModels[ index ];
 	}
 	return "";
@@ -159,27 +178,32 @@ const char *idDeclSkin::GetAssociatedModel( int index ) const {
 RemapShaderBySkin
 ===============
 */
-const idMaterial *idDeclSkin::RemapShaderBySkin( const idMaterial *shader ) const {
+const idMaterial* idDeclSkin::RemapShaderBySkin( const idMaterial* shader ) const
+{
 	int		i;
-
-	if ( !shader ) {
+	
+	if( !shader )
+	{
 		return NULL;
 	}
-
+	
 	// never remap surfaces that were originally nodraw, like collision hulls
-	if ( !shader->IsDrawn() ) {
+	if( !shader->IsDrawn() )
+	{
 		return shader;
 	}
-
-	for ( i = 0; i < mappings.Num() ; i++ ) {
-		const skinMapping_t	*map = &mappings[i];
-
+	
+	for( i = 0; i < mappings.Num() ; i++ )
+	{
+		const skinMapping_t*	map = &mappings[i];
+		
 		// NULL = wildcard match
-		if ( !map->from || map->from == shader ) {
+		if( !map->from || map->from == shader )
+		{
 			return map->to;
 		}
 	}
-
+	
 	// didn't find a match or wildcard, so stay the same
 	return shader;
 }

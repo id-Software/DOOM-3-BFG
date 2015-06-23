@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 #pragma hdrstop
-#include "../../idLib/precompiled.h"
+#include "precompiled.h"
 #include "../Game_local.h"
 
 /*
@@ -47,49 +47,59 @@ Future work:
 idMenuWidget_List::Update
 ========================
 */
-void idMenuWidget_List::Update() {
+void idMenuWidget_List::Update()
+{
 
-	if ( GetSWFObject() == NULL ) {
+	if( GetSWFObject() == NULL )
+	{
 		return;
 	}
-
-	idSWFScriptObject & root = GetSWFObject()->GetRootObject();
-
-	if ( !BindSprite( root ) ) {
+	
+	idSWFScriptObject& root = GetSWFObject()->GetRootObject();
+	
+	if( !BindSprite( root ) )
+	{
 		return;
 	}
-
-	for ( int optionIndex = 0; optionIndex < GetNumVisibleOptions(); ++optionIndex ) {
+	
+	for( int optionIndex = 0; optionIndex < GetNumVisibleOptions(); ++optionIndex )
+	{
 		const int childIndex = GetViewOffset() + optionIndex;
 		bool shown = false;
-
-		if ( optionIndex < GetChildren().Num() ) {
-			idMenuWidget & child = GetChildByIndex( optionIndex );
+		
+		if( optionIndex < GetChildren().Num() )
+		{
+			idMenuWidget& child = GetChildByIndex( optionIndex );
 			const int controlIndex = GetNumVisibleOptions() - Min( GetNumVisibleOptions(), GetTotalNumberOfOptions() ) + optionIndex;
 			child.SetSpritePath( GetSpritePath(), va( "item%d", controlIndex ) );
-			if ( child.BindSprite( root ) ) {
+			if( child.BindSprite( root ) )
+			{
 				PrepareListElement( child, childIndex );
 				child.Update();
 				shown = true;
 			}
 		}
-
-		if ( !shown ) {
+		
+		if( !shown )
+		{
 			// hide the item
-			idSWFSpriteInstance * const sprite = GetSprite()->GetScriptObject()->GetSprite( va( "item%d", optionIndex - GetTotalNumberOfOptions() ) );
-			if ( sprite != NULL ) {
+			idSWFSpriteInstance* const sprite = GetSprite()->GetScriptObject()->GetSprite( va( "item%d", optionIndex - GetTotalNumberOfOptions() ) );
+			if( sprite != NULL )
+			{
 				sprite->SetVisible( false );
 			}
 		}
 	}
-
-	idSWFSpriteInstance * const upSprite = GetSprite()->GetScriptObject()->GetSprite( "upIndicator" );
-	if ( upSprite != NULL ) {
+	
+	idSWFSpriteInstance* const upSprite = GetSprite()->GetScriptObject()->GetSprite( "upIndicator" );
+	if( upSprite != NULL )
+	{
 		upSprite->SetVisible( GetViewOffset() > 0 );
 	}
-
-	idSWFSpriteInstance * const downSprite = GetSprite()->GetScriptObject()->GetSprite( "downIndicator" );
-	if ( downSprite != NULL ) {
+	
+	idSWFSpriteInstance* const downSprite = GetSprite()->GetScriptObject()->GetSprite( "downIndicator" );
+	if( downSprite != NULL )
+	{
 		downSprite->SetVisible( GetViewOffset() + GetNumVisibleOptions() < GetTotalNumberOfOptions() );
 	}
 }
@@ -99,22 +109,29 @@ void idMenuWidget_List::Update() {
 idMenuWidget_List::HandleAction
 ========================
 */
-bool idMenuWidget_List::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled ) {
+bool idMenuWidget_List::HandleAction( idWidgetAction& action, const idWidgetEvent& event, idMenuWidget* widget, bool forceHandled )
+{
 
-	const idSWFParmList & parms = action.GetParms();
-
-	if ( action.GetType() == WIDGET_ACTION_SCROLL_VERTICAL ) {
+	const idSWFParmList& parms = action.GetParms();
+	
+	if( action.GetType() == WIDGET_ACTION_SCROLL_VERTICAL )
+	{
 		const scrollType_t scrollType = static_cast< scrollType_t >( event.arg );
-		if ( scrollType == SCROLL_SINGLE ) {
+		if( scrollType == SCROLL_SINGLE )
+		{
 			Scroll( parms[ 0 ].ToInteger() );
-		} else if ( scrollType == SCROLL_PAGE ) {
+		}
+		else if( scrollType == SCROLL_PAGE )
+		{
 			ScrollOffset( parms[ 0 ].ToInteger() * ( GetNumVisibleOptions() - 1 ) );
-		} else if ( scrollType == SCROLL_FULL ) {
+		}
+		else if( scrollType == SCROLL_FULL )
+		{
 			ScrollOffset( parms[ 0 ].ToInteger() * 999 );
 		}
 		return true;
 	}
-
+	
 	return idMenuWidget::HandleAction( action, event, widget, forceHandled );
 }
 
@@ -123,7 +140,8 @@ bool idMenuWidget_List::HandleAction( idWidgetAction & action, const idWidgetEve
 idMenuWidget_List::ObserveEvent
 ========================
 */
-void idMenuWidget_List::ObserveEvent( const idMenuWidget & widget, const idWidgetEvent & event ) {
+void idMenuWidget_List::ObserveEvent( const idMenuWidget& widget, const idWidgetEvent& event )
+{
 	ExecuteEvent( event );
 }
 
@@ -135,56 +153,82 @@ Pure functional encapsulation of how to calculate a new index and offset based o
 chose to move through the list.
 ========================
 */
-void idMenuWidget_List::CalculatePositionFromIndexDelta( int & outIndex, int & outOffset, const int currentIndex, const int currentOffset, const int windowSize, const int maxSize, const int indexDelta, const bool allowWrapping, const bool wrapAround ) const {
+void idMenuWidget_List::CalculatePositionFromIndexDelta( int& outIndex, int& outOffset, const int currentIndex, const int currentOffset, const int windowSize, const int maxSize, const int indexDelta, const bool allowWrapping, const bool wrapAround ) const
+{
 	assert( indexDelta != 0 );
 	
 	int newIndex = currentIndex + indexDelta;
 	bool wrapped = false;
-
-	if ( indexDelta > 0 ) {
+	
+	if( indexDelta > 0 )
+	{
 		// moving down the list
-		if ( newIndex > maxSize - 1 ) {
-			if ( allowWrapping ) {
-				if ( wrapAround ) {
+		if( newIndex > maxSize - 1 )
+		{
+			if( allowWrapping )
+			{
+				if( wrapAround )
+				{
 					wrapped = true;
 					newIndex = 0 + ( newIndex - maxSize );
-				} else {
+				}
+				else
+				{
 					newIndex = 0;
 				}
-			} else {
+			}
+			else
+			{
 				newIndex = maxSize - 1;
 			}
 		}
-	} else {
+	}
+	else
+	{
 		// moving up the list
-		if ( newIndex < 0 ) {
-			if ( allowWrapping ) {
-				if ( wrapAround ) {
+		if( newIndex < 0 )
+		{
+			if( allowWrapping )
+			{
+				if( wrapAround )
+				{
 					newIndex = maxSize + newIndex;
-				} else {
+				}
+				else
+				{
 					newIndex = maxSize - 1;
 				}
-			} else {
+			}
+			else
+			{
 				newIndex = 0;
 			}
 		}
 	}
-
+	
 	// calculate the offset
-	if ( newIndex - currentOffset >= windowSize ) {
+	if( newIndex - currentOffset >= windowSize )
+	{
 		outOffset = newIndex - windowSize + 1;
-	} else if ( currentOffset > newIndex ) {
-		if ( wrapped ) {
+	}
+	else if( currentOffset > newIndex )
+	{
+		if( wrapped )
+		{
 			outOffset = 0;
-		} else {
+		}
+		else
+		{
 			outOffset = newIndex;
 		}
-	} else {
+	}
+	else
+	{
 		outOffset = currentOffset;
 	}
-
+	
 	outIndex = newIndex;
-
+	
 	// the intended behavior is that outOffset and outIndex are always within maxSize of each
 	// other, as they are meant to model a window of items that should be visible in the list.
 	assert( outIndex - outOffset < windowSize );
@@ -196,25 +240,31 @@ void idMenuWidget_List::CalculatePositionFromIndexDelta( int & outIndex, int & o
 idMenuWidget_List::CalculatePositionFromOffsetDelta
 ========================
 */
-void idMenuWidget_List::CalculatePositionFromOffsetDelta( int & outIndex, int & outOffset, const int currentIndex, const int currentOffset, const int windowSize, const int maxSize, const int offsetDelta ) const {
+void idMenuWidget_List::CalculatePositionFromOffsetDelta( int& outIndex, int& outOffset, const int currentIndex, const int currentOffset, const int windowSize, const int maxSize, const int offsetDelta ) const
+{
 	// shouldn't be setting both indexDelta AND offsetDelta
 	// FIXME: make this simpler code - just pass a boolean to control it?
 	assert( offsetDelta != 0 );
 	
 	const int newOffset = Max( currentIndex + offsetDelta, 0 );
-		
-	if ( newOffset >= maxSize ) {
+	
+	if( newOffset >= maxSize )
+	{
 		// scrolling past the end - just scroll all the way to the end
 		outIndex = maxSize - 1;
 		outOffset = Max( maxSize - windowSize, 0 );
-	} else if ( newOffset >= maxSize - windowSize ) {
+	}
+	else if( newOffset >= maxSize - windowSize )
+	{
 		// scrolled to the last window
 		outIndex = newOffset;
 		outOffset = Max( maxSize - windowSize, 0 );
-	} else {
+	}
+	else
+	{
 		outIndex = outOffset = newOffset;
 	}
-
+	
 	// the intended behavior is that outOffset and outIndex are always within maxSize of each
 	// other, as they are meant to model a window of items that should be visible in the list.
 	assert( outIndex - outOffset < windowSize );
@@ -226,24 +276,29 @@ void idMenuWidget_List::CalculatePositionFromOffsetDelta( int & outIndex, int & 
 idMenuWidget_List::Scroll
 ========================
 */
-void idMenuWidget_List::Scroll( const int scrollAmount, const bool wrapAround ) {
+void idMenuWidget_List::Scroll( const int scrollAmount, const bool wrapAround )
+{
 
-	if ( GetTotalNumberOfOptions() == 0 ) {
+	if( GetTotalNumberOfOptions() == 0 )
+	{
 		return;
 	}
-
+	
 	int newIndex, newOffset;
-
+	
 	CalculatePositionFromIndexDelta( newIndex, newOffset, GetViewIndex(), GetViewOffset(), GetNumVisibleOptions(), GetTotalNumberOfOptions(), scrollAmount, IsWrappingAllowed(), wrapAround );
-	if ( newOffset != GetViewOffset() ) {
+	if( newOffset != GetViewOffset() )
+	{
 		SetViewOffset( newOffset );
-		if ( menuData != NULL ) {
-			menuData->PlaySound( GUI_SOUND_FOCUS );	
+		if( menuData != NULL )
+		{
+			menuData->PlaySound( GUI_SOUND_FOCUS );
 		}
 		Update();
 	}
-
-	if ( newIndex != GetViewIndex() ) {
+	
+	if( newIndex != GetViewIndex() )
+	{
 		SetViewIndex( newIndex );
 		SetFocusIndex( newIndex - newOffset );
 	}
@@ -254,21 +309,25 @@ void idMenuWidget_List::Scroll( const int scrollAmount, const bool wrapAround ) 
 idMenuWidget_List::ScrollOffset
 ========================
 */
-void idMenuWidget_List::ScrollOffset( const int scrollAmount ) {
+void idMenuWidget_List::ScrollOffset( const int scrollAmount )
+{
 
-	if ( GetTotalNumberOfOptions() == 0 ) {
+	if( GetTotalNumberOfOptions() == 0 )
+	{
 		return;
 	}
-
+	
 	int newIndex, newOffset;
-
+	
 	CalculatePositionFromOffsetDelta( newIndex, newOffset, GetViewIndex(), GetViewOffset(), GetNumVisibleOptions(), GetTotalNumberOfOptions(), scrollAmount );
-	if ( newOffset != GetViewOffset() ) {
+	if( newOffset != GetViewOffset() )
+	{
 		SetViewOffset( newOffset );
 		Update();
 	}
-
-	if ( newIndex != GetViewIndex() ) {
+	
+	if( newIndex != GetViewIndex() )
+	{
 		SetViewIndex( newIndex );
 		SetFocusIndex( newIndex - newOffset );
 	}
@@ -283,44 +342,55 @@ void idMenuWidget_List::ScrollOffset( const int scrollAmount ) {
 idMenuWidget_GameBrowserList::Update
 ========================
 */
-void idMenuWidget_GameBrowserList::Update() {
+void idMenuWidget_GameBrowserList::Update()
+{
 
-	if ( GetSWFObject() == NULL ) {
+	if( GetSWFObject() == NULL )
+	{
 		return;
 	}
-
-	idSWFScriptObject & root = GetSWFObject()->GetRootObject();
-
-	if ( !BindSprite( root ) ) {
+	
+	idSWFScriptObject& root = GetSWFObject()->GetRootObject();
+	
+	if( !BindSprite( root ) )
+	{
 		return;
 	}
-
-	for ( int optionIndex = 0; optionIndex < GetNumVisibleOptions(); ++optionIndex ) {		
+	
+	for( int optionIndex = 0; optionIndex < GetNumVisibleOptions(); ++optionIndex )
+	{
 		const int childIndex = GetViewOffset() + optionIndex;
 		bool shown = false;
-		if ( optionIndex < GetChildren().Num() ) {
-			idMenuWidget & child = GetChildByIndex( optionIndex );
+		if( optionIndex < GetChildren().Num() )
+		{
+			idMenuWidget& child = GetChildByIndex( optionIndex );
 			child.SetSpritePath( GetSpritePath(), va( "item%d", optionIndex ) );
-			if ( child.BindSprite( root ) ) {
+			if( child.BindSprite( root ) )
+			{
 				shown = PrepareListElement( child, childIndex );
-				if ( shown ) {
+				if( shown )
+				{
 					child.SetState( WIDGET_STATE_NORMAL );
 					child.GetSprite()->SetVisible( true );
 					child.Update();
-				} else {
+				}
+				else
+				{
 					child.GetSprite()->SetVisible( false );
 				}
 			}
 		}
 	}
-
-	idSWFSpriteInstance * const upSprite = GetSprite()->GetScriptObject()->GetSprite( "upIndicator" );
-	if ( upSprite != NULL ) {
+	
+	idSWFSpriteInstance* const upSprite = GetSprite()->GetScriptObject()->GetSprite( "upIndicator" );
+	if( upSprite != NULL )
+	{
 		upSprite->SetVisible( GetViewOffset() > 0 );
 	}
-
-	idSWFSpriteInstance * const downSprite = GetSprite()->GetScriptObject()->GetSprite( "downIndicator" );
-	if ( downSprite != NULL ) {
+	
+	idSWFSpriteInstance* const downSprite = GetSprite()->GetScriptObject()->GetSprite( "downIndicator" );
+	if( downSprite != NULL )
+	{
 		downSprite->SetVisible( GetViewOffset() + GetNumVisibleOptions() < GetTotalNumberOfOptions() );
 	}
 }
@@ -330,27 +400,31 @@ void idMenuWidget_GameBrowserList::Update() {
 idMenuWidget_GameBrowserList::PrepareListElement
 ========================
 */
-bool idMenuWidget_GameBrowserList::PrepareListElement( idMenuWidget & widget, const int childIndex ) {
+bool idMenuWidget_GameBrowserList::PrepareListElement( idMenuWidget& widget, const int childIndex )
+{
 
-	if ( childIndex >= games.Num() ) {
+	if( childIndex >= games.Num() )
+	{
 		return false;
 	}
-
-	idMenuWidget_ServerButton * const button = dynamic_cast< idMenuWidget_ServerButton * >( &widget );
-	if ( button == NULL ) {
+	
+	idMenuWidget_ServerButton* const button = dynamic_cast< idMenuWidget_ServerButton* >( &widget );
+	if( button == NULL )
+	{
 		return false;
 	}
-
-	if ( games[childIndex].serverName.IsEmpty() ) {
+	
+	if( games[childIndex].serverName.IsEmpty() )
+	{
 		return false;
 	}
-
+	
 	const idBrowserEntry_t entry = games[childIndex];
-
+	
 	button->SetButtonInfo( entry.serverName, entry.mapName, entry.modeName, entry.index, entry.players, entry.maxPlayers, entry.joinable, entry.validMap );
-
+	
 	return true;
-
+	
 }
 
 /*
@@ -358,7 +432,8 @@ bool idMenuWidget_GameBrowserList::PrepareListElement( idMenuWidget & widget, co
 idMenuWidget_GameBrowserList::PrepareListElement
 ========================
 */
-void idMenuWidget_GameBrowserList::ClearGames() {
+void idMenuWidget_GameBrowserList::ClearGames()
+{
 	games.Clear();
 }
 
@@ -367,10 +442,11 @@ void idMenuWidget_GameBrowserList::ClearGames() {
 idMenuWidget_GameBrowserList::PrepareListElement
 ========================
 */
-void idMenuWidget_GameBrowserList::AddGame( idStr name_, idStrId mapName_, idStr modeName_, int index_, int players_, int maxPlayers_, bool joinable_, bool validMap_ ) {
+void idMenuWidget_GameBrowserList::AddGame( idStr name_, idStrId mapName_, idStr modeName_, int index_, int players_, int maxPlayers_, bool joinable_, bool validMap_ )
+{
 
 	idBrowserEntry_t entry;
-
+	
 	entry.serverName = name_;
 	entry.index = index_;
 	entry.players = players_;
@@ -379,7 +455,7 @@ void idMenuWidget_GameBrowserList::AddGame( idStr name_, idStrId mapName_, idStr
 	entry.validMap = validMap_;
 	entry.mapName = mapName_;
 	entry.modeName = modeName_;
-
+	
 	games.Append( entry );
 }
 
@@ -388,7 +464,8 @@ void idMenuWidget_GameBrowserList::AddGame( idStr name_, idStrId mapName_, idStr
 idMenuWidget_GameBrowserList::GetTotalNumberOfOptions
 ========================
 */
-int idMenuWidget_GameBrowserList::GetTotalNumberOfOptions() const {
+int idMenuWidget_GameBrowserList::GetTotalNumberOfOptions() const
+{
 	return games.Num();
 }
 
@@ -397,12 +474,14 @@ int idMenuWidget_GameBrowserList::GetTotalNumberOfOptions() const {
 idMenuWidget_GameBrowserList::PrepareListElement
 ========================
 */
-int idMenuWidget_GameBrowserList::GetServerIndex() {
+int idMenuWidget_GameBrowserList::GetServerIndex()
+{
 
-	if ( GetViewIndex() < games.Num() ) {
+	if( GetViewIndex() < games.Num() )
+	{
 		return games[ GetViewIndex() ].index;
 	}
-
+	
 	return -1;
-
+	
 }

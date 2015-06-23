@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -37,25 +37,30 @@ If you have questions concerning this license or the applicable additional terms
 ==============================================================
 */
 
-class idResourceCacheEntry {
+class idResourceCacheEntry
+{
 public:
-	idResourceCacheEntry() {
+	idResourceCacheEntry()
+	{
 		Clear();
 	}
-	void Clear() {
+	void Clear()
+	{
 		filename.Empty();
 		//filename = NULL;
 		offset = 0;
 		length = 0;
 		containerIndex = 0;
 	}
-	size_t Read( idFile *f ) {
+	size_t Read( idFile* f )
+	{
 		size_t sz = f->ReadString( filename );
 		sz += f->ReadBig( offset );
 		sz += f->ReadBig( length );
 		return sz;
 	}
-	size_t Write( idFile *f ) {
+	size_t Write( idFile* f )
+	{
 		size_t sz = f->WriteString( filename );
 		sz += f->WriteBig( offset );
 		sz += f->WriteBig( length );
@@ -68,34 +73,40 @@ public:
 };
 
 static const uint32 RESOURCE_FILE_MAGIC = 0xD000000D;
-class idResourceContainer {
+class idResourceContainer
+{
 	friend class	idFileSystemLocal;
 	//friend class	idReadSpawnThread;
 public:
-	idResourceContainer() {
+	idResourceContainer()
+	{
 		resourceFile = NULL;
 		tableOffset = 0;
 		tableLength = 0;
 		resourceMagic = 0;
 		numFileResources = 0;
 	}
-	~idResourceContainer() {
+	~idResourceContainer()
+	{
 		delete resourceFile;
 		cacheTable.Clear();
 	}
-	bool Init( const char * fileName, uint8 containerIndex );
-	static void WriteResourceFile( const char *fileName, const idStrList &manifest, const bool &_writeManifest );
-	static void WriteManifestFile( const char *name, const idStrList &list );
-	static int ReadManifestFile( const char *filename, idStrList &list );
-	static void ExtractResourceFile ( const char * fileName, const char * outPath, bool copyWavs );
-	static void UpdateResourceFile( const char *filename, const idStrList &filesToAdd );
-	idFile *OpenFile( const char *fileName );
-	const char * GetFileName() const { return fileName.c_str(); }
-	void SetContainerIndex( const int & _idx );
+	bool Init( const char* fileName, uint8 containerIndex );
+	static void WriteResourceFile( const char* fileName, const idStrList& manifest, const bool& _writeManifest );
+	static void WriteManifestFile( const char* name, const idStrList& list );
+	static int ReadManifestFile( const char* filename, idStrList& list );
+	static void ExtractResourceFile( const char* fileName, const char* outPath, bool copyWavs );
+	static void UpdateResourceFile( const char* filename, const idStrList& filesToAdd );
+	idFile* OpenFile( const char* fileName );
+	const char* GetFileName() const
+	{
+		return fileName.c_str();
+	}
+	void SetContainerIndex( const int& _idx );
 	void ReOpen();
 private:
 	idStrStatic< 256 > fileName;
-	idFile *	resourceFile;			// open file handle
+	idFile* 	resourceFile;			// open file handle
 	// offset should probably be a 64 bit value for development, but 4 gigs won't fit on
 	// a DVD layer, so it isn't a retail limitation.
 	int		tableOffset;			// table offset

@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -53,58 +53,62 @@ static const int MAX_OVERLAYS				= 8;
 
 compile_time_assert( CONST_ISPOWEROFTWO( MAX_OVERLAYS ) );
 
-struct overlayProjectionParms_t {
+struct overlayProjectionParms_t
+{
 	idPlane				localTextureAxis[2];
-	const idMaterial *	material;
+	const idMaterial* 	material;
 	int					startTime;
 };
 
-struct overlayVertex_t {
+struct overlayVertex_t
+{
 	int					vertexNum;
 	halfFloat_t			st[2];
 };
 
-struct overlay_t {
+struct overlay_t
+{
 	int					surfaceNum;
 	int					surfaceId;
 	int					maxReferencedVertex;
 	int					numIndexes;
-	triIndex_t *		indexes;
+	triIndex_t* 		indexes;
 	int					numVerts;
-	overlayVertex_t *	verts;
-	const idMaterial *	material;
+	overlayVertex_t* 	verts;
+	const idMaterial* 	material;
 };
 
-class idRenderModelOverlay {
+class idRenderModelOverlay
+{
 public:
-								idRenderModelOverlay();
-								~idRenderModelOverlay();
-
+	idRenderModelOverlay();
+	~idRenderModelOverlay();
+	
 	void						ReUse();
-
-	void						AddDeferredOverlay( const overlayProjectionParms_t & localParms );
-	void						CreateDeferredOverlays( const idRenderModel * model );
-
+	
+	void						AddDeferredOverlay( const overlayProjectionParms_t& localParms );
+	void						CreateDeferredOverlays( const idRenderModel* model );
+	
 	unsigned int				GetNumOverlayDrawSurfs();
-	struct drawSurf_t *			CreateOverlayDrawSurf( const struct viewEntity_t *space, const idRenderModel *baseModel, unsigned int index );
-
-	void						ReadFromDemoFile( class idDemoFile *f );
-	void						WriteToDemoFile( class idDemoFile *f ) const;
-
+	struct drawSurf_t* 			CreateOverlayDrawSurf( const struct viewEntity_t* space, const idRenderModel* baseModel, unsigned int index );
+	
+	void						ReadFromDemoFile( class idDemoFile* f );
+	void						WriteToDemoFile( class idDemoFile* f ) const;
+	
 private:
 	overlay_t					overlays[MAX_OVERLAYS];
 	unsigned int				firstOverlay;
 	unsigned int				nextOverlay;
-
+	
 	overlayProjectionParms_t	deferredOverlays[MAX_DEFERRED_OVERLAYS];
 	unsigned int				firstDeferredOverlay;
 	unsigned int				nextDeferredOverlay;
-
-	const idMaterial *			overlayMaterials[MAX_OVERLAYS];
+	
+	const idMaterial* 			overlayMaterials[MAX_OVERLAYS];
 	unsigned int				numOverlayMaterials;
-
-	void						CreateOverlay( const idRenderModel *model, const idPlane localTextureAxis[2], const idMaterial *material );
-	void						FreeOverlay( overlay_t & overlay );
+	
+	void						CreateOverlay( const idRenderModel* model, const idPlane localTextureAxis[2], const idMaterial* material );
+	void						FreeOverlay( overlay_t& overlay );
 };
 
 #endif /* !__MODELOVERLAY_H__ */

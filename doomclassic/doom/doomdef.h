@@ -337,6 +337,9 @@ typedef enum
 //#include "sounds.h"
 
 
+#ifndef _WIN32
+#define MAX_PATH	260
+#endif
 
 
 #endif          // __DOOMDEF__

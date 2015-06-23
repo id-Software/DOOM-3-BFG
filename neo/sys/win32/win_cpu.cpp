@@ -2,7 +2,8 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2012 Robert Beckebans 
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
 
@@ -27,7 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
-#include "../../idlib/precompiled.h"
+#include "precompiled.h"
 
 #include "win_local.h"
 
@@ -47,16 +48,19 @@ If you have questions concerning this license or the applicable additional terms
 Sys_GetClockTicks
 ================
 */
-double Sys_GetClockTicks() {
-#if 0
+double Sys_GetClockTicks()
+{
+// RB begin
+#if defined(_WIN64)
 
 	LARGE_INTEGER li;
 
 	QueryPerformanceCounter( &li );
-	return = (double ) li.LowPart + (double) 0xFFFFFFFF * li.HighPart;
+	return (double ) li.LowPart + (double) 0xFFFFFFFF * li.HighPart;
 
 #else
 
+#if defined(_MSC_VER)
 	unsigned long lo, hi;
 
 	__asm {
@@ -70,7 +74,25 @@ double Sys_GetClockTicks() {
 	}
 	return (double ) lo + (double) 0xFFFFFFFF * hi;
 
+#elif defined(__GNUC__) && defined( __i386__ )
+	unsigned long lo, hi;
+
+	__asm__ __volatile__(
+		"push %%ebx\n"			\
+		"xor %%eax,%%eax\n"		\
+		"cpuid\n"					\
+		"rdtsc\n"					\
+		"mov %%eax,%0\n"			\
+		"mov %%edx,%1\n"			\
+		"pop %%ebx\n"
+		: "=r"( lo ), "=r"( hi ) );
+	return ( double ) lo + ( double ) 0xFFFFFFFF * hi;
+#else
+#error unsupported CPU
 #endif
+
+#endif
+	// RB end
 }
 
 /*
@@ -131,6 +153,8 @@ double Sys_ClockTicksPerSecond() {
 HasCPUID
 ================
 */
+// RB: no checks on Win64
+#if !defined(_WIN64)
 static bool HasCPUID() {
 	__asm 
 	{
@@ -162,6 +186,7 @@ err:
 good:
 	return true;
 }
+#endif
 
 #define _REG_EAX		0
 #define _REG_EBX		1
@@ -173,6 +198,8 @@ good:
 CPUID
 ================
 */
+// RB: no checks on Win64
+#if !defined(_WIN64)
 static void CPUID( int func, unsigned regs[4] ) {
 	unsigned regEAX, regEBX, regECX, regEDX;
 
@@ -191,13 +218,15 @@ static void CPUID( int func, unsigned regs[4] ) {
 	regs[_REG_ECX] = regECX;
 	regs[_REG_EDX] = regEDX;
 }
-
+#endif
 
 /*
 ================
 IsAMD
 ================
 */
+// RB: no checks on Win64
+#if !defined(_WIN64)
 static bool IsAMD() {
 	char pstring[16];
 	char processorString[13];
@@ -223,12 +252,15 @@ static bool IsAMD() {
 	}
 	return false;
 }
+#endif
 
 /*
 ================
 HasCMOV
 ================
 */
+// RB: no checks on Win64
+#if !defined(_WIN64)
 static bool HasCMOV() {
 	unsigned regs[4];
 
@@ -241,12 +273,15 @@ static bool HasCMOV() {
 	}
 	return false;
 }
+#endif
 
 /*
 ================
 Has3DNow
 ================
 */
+// RB: no checks on Win64
+#if !defined(_WIN64)
 static bool Has3DNow() {
 	unsigned regs[4];
 
@@ -264,12 +299,15 @@ static bool Has3DNow() {
 
 	return false;
 }
+#endif
 
 /*
 ================
 HasMMX
 ================
 */
+// RB: no checks on Win64
+#if !defined(_WIN64)
 static bool HasMMX() {
 	unsigned regs[4];
 
@@ -282,12 +320,15 @@ static bool HasMMX() {
 	}
 	return false;
 }
+#endif
 
 /*
 ================
 HasSSE
 ================
 */
+// RB: no checks on Win64
+#if !defined(_WIN64)
 static bool HasSSE() {
 	unsigned regs[4];
 
@@ -300,12 +341,15 @@ static bool HasSSE() {
 	}
 	return false;
 }
+#endif
 
 /*
 ================
 HasSSE2
 ================
 */
+// RB: no checks on Win64
+#if !defined(_WIN64)
 static bool HasSSE2() {
 	unsigned regs[4];
 
@@ -318,12 +362,15 @@ static bool HasSSE2() {
 	}
 	return false;
 }
+#endif
 
 /*
 ================
 HasSSE3
 ================
 */
+// RB: no checks on Win64
+#if !defined(_WIN64)
 static bool HasSSE3() {
 	unsigned regs[4];
 
@@ -336,12 +383,15 @@ static bool HasSSE3() {
 	}
 	return false;
 }
+#endif
 
 /*
 ================
 LogicalProcPerPhysicalProc
 ================
 */
+// RB: no checks on Win64
+#if !defined(_WIN64)
 #define NUM_LOGICAL_BITS   0x00FF0000     // EBX[23:16] Bit 16-23 in ebx contains the number of logical
                                           // processors per physical processor when execute cpuid with 
                                           // eax set to 1
@@ -354,12 +404,15 @@ static unsigned char LogicalProcPerPhysicalProc() {
 	}
 	return (unsigned char) ((regebx & NUM_LOGICAL_BITS) >> 16);
 }
+#endif
 
 /*
 ================
 GetAPIC_ID
 ================
 */
+// RB: no checks on Win64
+#if !defined(_WIN64)
 #define INITIAL_APIC_ID_BITS  0xFF000000  // EBX[31:24] Bits 24-31 (8 bits) return the 8-bit unique 
                                           // initial APIC ID for the processor this code is running on.
                                           // Default value = 0xff if HT is not supported
@@ -372,6 +425,7 @@ static unsigned char GetAPIC_ID() {
 	}
 	return (unsigned char) ((regebx & INITIAL_APIC_ID_BITS) >> 24);
 }
+#endif
 
 /*
 ================
@@ -382,6 +436,8 @@ CPUCount
 	returns one of the HT_* flags
 ================
 */
+// RB: no checks on Win64
+#if !defined(_WIN64)
 #define HT_NOT_CAPABLE				0
 #define HT_ENABLED					1
 #define HT_DISABLED					2
@@ -473,12 +529,15 @@ int CPUCount( int &logicalNum, int &physicalNum ) {
 	}
 	return statusFlag;
 }
+#endif
 
 /*
 ================
 HasHTT
 ================
 */
+// RB: no checks on Win64
+#if !defined(_WIN64)
 static bool HasHTT() {
 	unsigned regs[4];
 	int logicalNum, physicalNum, HTStatusFlag;
@@ -497,12 +556,15 @@ static bool HasHTT() {
 	}
 	return true;
 }
+#endif
 
 /*
 ================
-HasHTT
+HasDAZ
 ================
 */
+// RB: no checks on Win64
+#if !defined(_WIN64)
 static bool HasDAZ() {
 	__declspec(align(16)) unsigned char FXSaveArea[512];
 	unsigned char *FXArea = FXSaveArea;
@@ -527,6 +589,7 @@ static bool HasDAZ() {
 	dwMask = *(DWORD *)&FXArea[28];						// Read the MXCSR Mask
 	return ( ( dwMask & ( 1 << 6 ) ) == ( 1 << 6 ) );	// Return if the DAZ bit is set
 }
+#endif
 
 /*
 ================================================================================================
@@ -706,11 +769,21 @@ void Sys_CPUCount( int & numLogicalCPUCores, int & numPhysicalCPUCores, int & nu
 Sys_GetCPUId
 ================
 */
-cpuid_t Sys_GetCPUId() {
+cpuid_t Sys_GetCPUId()
+{
+	// RB: we assume a modern x86 chip
+#if defined(_WIN64)
+	int flags = CPUID_GENERIC;
+	
+	flags |= CPUID_SSE;
+	flags |= CPUID_SSE2;
+
+	return (cpuid_t)flags;
+#else
 	int flags;
 
 	// verify we're at least a Pentium or 486 with CPUID support
-	if ( !HasCPUID() ) {
+	if ( !HasCPUID() ){
 		return CPUID_UNSUPPORTED;
 	}
 
@@ -762,6 +835,7 @@ cpuid_t Sys_GetCPUId() {
 	}
 
 	return (cpuid_t)flags;
+#endif
 }
 
 
@@ -855,7 +929,9 @@ int Sys_FPU_PrintStateFlags( char *ptr, int ctrl, int stat, int tags, int inof, 
 Sys_FPU_StackIsEmpty
 ===============
 */
-bool Sys_FPU_StackIsEmpty() {
+bool Sys_FPU_StackIsEmpty()
+{
+#if !defined(_WIN64)
 	__asm {
 		mov			eax, statePtr
 		fnstenv		[eax]
@@ -866,6 +942,7 @@ bool Sys_FPU_StackIsEmpty() {
 	}
 	return false;
 empty:
+#endif
 	return true;
 }
 
@@ -874,7 +951,9 @@ empty:
 Sys_FPU_ClearStack
 ===============
 */
-void Sys_FPU_ClearStack() {
+void Sys_FPU_ClearStack()
+{
+#if !defined(_WIN64)
 	__asm {
 		mov			eax, statePtr
 		fnstenv		[eax]
@@ -890,6 +969,7 @@ void Sys_FPU_ClearStack() {
 		jmp			emptyStack
 	done:
 	}
+#endif
 }
 
 /*
@@ -899,7 +979,11 @@ Sys_FPU_GetState
   gets the FPU state without changing the state
 ===============
 */
-const char *Sys_FPU_GetState() {
+const char *Sys_FPU_GetState()
+{
+#if defined(_WIN64)
+	return "TODO Sys_FPU_GetState()";
+#else
 	double fpuStack[8] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 	double *fpuStackPtr = fpuStack;
 	int i, numValues;
@@ -996,6 +1080,7 @@ const char *Sys_FPU_GetState() {
 	Sys_FPU_PrintStateFlags( ptr, ctrl, stat, tags, inof, inse, opof, opse );
 
 	return fpuString;
+#endif
 }
 
 /*
@@ -1003,7 +1088,9 @@ const char *Sys_FPU_GetState() {
 Sys_FPU_EnableExceptions
 ===============
 */
-void Sys_FPU_EnableExceptions( int exceptions ) {
+void Sys_FPU_EnableExceptions( int exceptions )
+{
+#if !defined(_WIN64)
 	__asm {
 		mov			eax, statePtr
 		mov			ecx, exceptions
@@ -1016,6 +1103,7 @@ void Sys_FPU_EnableExceptions( int exceptions ) {
 		mov			word ptr [eax], bx
 		fldcw		word ptr [eax]
 	}
+#endif
 }
 
 /*
@@ -1023,7 +1111,9 @@ void Sys_FPU_EnableExceptions( int exceptions ) {
 Sys_FPU_SetPrecision
 ===============
 */
-void Sys_FPU_SetPrecision( int precision ) {
+void Sys_FPU_SetPrecision( int precision )
+{
+#if !defined(_WIN64)
 	short precisionBitTable[4] = { 0, 1, 3, 0 };
 	short precisionBits = precisionBitTable[precision & 3] << 8;
 	short precisionMask = ~( ( 1 << 9 ) | ( 1 << 8 ) );
@@ -1038,6 +1128,7 @@ void Sys_FPU_SetPrecision( int precision ) {
 		mov			word ptr [eax], bx
 		fldcw		word ptr [eax]
 	}
+#endif
 }
 
 /*
@@ -1045,7 +1136,9 @@ void Sys_FPU_SetPrecision( int precision ) {
 Sys_FPU_SetRounding
 ================
 */
-void Sys_FPU_SetRounding( int rounding ) {
+void Sys_FPU_SetRounding( int rounding )
+{
+#if !defined(_WIN64)
 	short roundingBitTable[4] = { 0, 1, 2, 3 };
 	short roundingBits = roundingBitTable[rounding & 3] << 10;
 	short roundingMask = ~( ( 1 << 11 ) | ( 1 << 10 ) );
@@ -1060,6 +1153,7 @@ void Sys_FPU_SetRounding( int rounding ) {
 		mov			word ptr [eax], bx
 		fldcw		word ptr [eax]
 	}
+#endif
 }
 
 /*
@@ -1067,7 +1161,9 @@ void Sys_FPU_SetRounding( int rounding ) {
 Sys_FPU_SetDAZ
 ================
 */
-void Sys_FPU_SetDAZ( bool enable ) {
+void Sys_FPU_SetDAZ( bool enable )
+{
+#if !defined(_WIN64)
 	DWORD dwData;
 
 	_asm {
@@ -1081,6 +1177,7 @@ void Sys_FPU_SetDAZ( bool enable ) {
 		mov		dwData, eax
 		LDMXCSR	dword ptr dwData
 	}
+#endif
 }
 
 /*
@@ -1088,7 +1185,9 @@ void Sys_FPU_SetDAZ( bool enable ) {
 Sys_FPU_SetFTZ
 ================
 */
-void Sys_FPU_SetFTZ( bool enable ) {
+void Sys_FPU_SetFTZ( bool enable ) 
+{
+#if !defined(_WIN64)
 	DWORD dwData;
 
 	_asm {
@@ -1102,4 +1201,5 @@ void Sys_FPU_SetFTZ( bool enable ) {
 		mov		dwData, eax
 		LDMXCSR	dword ptr dwData
 	}
+#endif
 }
