@@ -39,6 +39,12 @@ option(USE_SYSTEM_LIBJPEG
 option(USE_SYSTEM_LIBGLEW
                 "Use the system libglew instead of the bundled one" OFF)
 
+set(CPU_TYPE "" CACHE STRING "When set, passes this string as CPU-ID which will be embedded into the binary.")
+
+set(CPU_OPTIMIZATION "-mmmx -msse -msse2" CACHE STRING "Which CPU specific optimitations should be used beside the compiler's default?")
+
+option(USE_INTRINSICS "Compile using intrinsics (e.g mmx, sse, msse2)" ON)
+
 if(UNIX)
 	set(OPENAL TRUE)
 endif()
@@ -64,7 +70,15 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
 	#add_definitions(-Wall)
 	add_definitions(-Werror=format-security)
 	add_definitions(-Werror=format)
-	add_definitions(-mmmx -msse -msse2)
+	if(CPU_TYPE)
+		add_definitions(-DCPUSTRING="${CPU_TYPE}")
+	endif()
+	if (CPU_OPTIMIZATION)
+		add_definitions(${CPU_OPTIMIZATION})
+	endif()
+	if (USE_INTRINSICS)
+		add_definitions(-DUSE_INTRINSICS)
+	endif()
 	if(WIN32)
 		# require msvcr70.dll or newer for _aligned_malloc etc
 		# I think it is from Visual C++ .NET 2002, so it should be available on any remotely modern system.
