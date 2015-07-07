@@ -595,6 +595,8 @@ set(OGGVORBIS_SOURCES
 	libs/oggvorbis/vorbissrc/bitrate.c
 	libs/oggvorbis/vorbissrc/vorbisfile.c)
 
+file(GLOB RAPIDJSON_INCLUDES libs/rapidjson/include/rapidjson/*.h)
+	
 file(GLOB SYS_INCLUDES sys/*.h)
 file(GLOB SYS_SOURCES sys/*.cpp)
 
@@ -985,6 +987,8 @@ source_group("libs\\zlib\\minizip" FILES ${MINIZIP_SOURCES})
 source_group("libs\\glew" FILES ${GLEW_INCLUDES})
 source_group("libs\\glew" FILES ${GLEW_SOURCES})
 
+source_group("libs\\rapidjson" FILES ${RAPIDJSON_INCLUDES})
+
 source_group("libs\\freetype" FILES ${FREETYPE_SOURCES})
 
 source_group("sound" FILES ${SOUND_INCLUDES})
@@ -1135,6 +1139,7 @@ set(RBDOOM3_INCLUDES
 			${ZLIB_INCLUDES}
 			${MINIZIP_INCLUDES}
 			${GLEW_INCLUDES}
+			${RAPIDJSON_INCLUDES}
 			#${FREETYPE_SOURCES}
 			${SOUND_INCLUDES}
 			#${OGGVORBIS_INCLUDES}

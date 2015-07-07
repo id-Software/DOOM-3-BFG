@@ -37,7 +37,7 @@ idCVar swf_loadBinary( "swf_loadBinary", "1", CVAR_INTEGER, "used to set whether
 // RB begin
 idCVar swf_exportAtlas( "swf_exportAtlas", "0", CVAR_INTEGER, "" );
 idCVar swf_exportSWF( "swf_exportSWF", "1", CVAR_INTEGER, "" );
-idCVar swf_exportXML( "swf_exportXML", "1", CVAR_INTEGER, "" );
+idCVar swf_exportJSON( "swf_exportJSON", "1", CVAR_INTEGER, "" );
 // RB end
 
 int idSWF::mouseX = -1;
@@ -140,12 +140,26 @@ idSWF::idSWF( const char* filename_, idSoundWorld* soundWorld_ )
 	binaryFileName += filename;
 	binaryFileName.SetFileExtension( ".bswf" );
 	
+	// RB: add JSON alternative
+	idStr jsonFileName = filename;
+	jsonFileName.SetFileExtension( ".json" );
+	ID_TIME_T jsonSourceTime = fileSystem->GetTimestamp( jsonFileName );
+	
 	if( swf_loadBinary.GetBool() )
 	{
 		ID_TIME_T sourceTime = fileSystem->GetTimestamp( filename );
+		if( sourceTime == FILE_NOT_FOUND_TIMESTAMP )
+		{
+			sourceTime = jsonSourceTime;
+		}
+		
 		if( !LoadBinary( binaryFileName, sourceTime ) )
 		{
-			if( LoadSWF( filename ) )
+			if( LoadJSON( jsonFileName ) )
+			{
+				WriteBinary( binaryFileName );
+			}
+			else if( LoadSWF( filename ) )
 			{
 				WriteBinary( binaryFileName );
 			}
@@ -153,11 +167,13 @@ idSWF::idSWF( const char* filename_, idSoundWorld* soundWorld_ )
 	}
 	else
 	{
-		LoadSWF( filename );
+		if( !LoadJSON( jsonFileName ) )
+		{
+			LoadSWF( filename );
+		}
 	}
 	
-	// RB begin
-	if( swf_exportXML.GetBool() )
+	if( swf_exportJSON.GetBool() )
 	{
 		idStr jsonFileName = "exported/";
 		jsonFileName += filename;

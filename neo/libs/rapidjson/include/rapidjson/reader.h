@@ -412,8 +412,8 @@ public:
                 SkipWhitespace(is);
 
                 if (is.Peek() != '\0') {
-                    RAPIDJSON_PARSE_ERROR_NORETURN(kParseErrorDocumentRootNotSingular, is.Tell());
-                    RAPIDJSON_PARSE_ERROR_EARLY_RETURN(parseResult_);
+                    //RAPIDJSON_PARSE_ERROR_NORETURN(kParseErrorDocumentRootNotSingular, is.Tell());
+                    //RAPIDJSON_PARSE_ERROR_EARLY_RETURN(parseResult_);
                 }
             }
         }

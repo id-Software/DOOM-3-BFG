@@ -30,6 +30,9 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 #include "../renderer/Font.h"
 #include "../renderer/Image.h"
+#include "../../libs/rapidjson/include/rapidjson/document.h"
+
+using namespace rapidjson;
 
 #pragma warning(disable: 4355) // 'this' : used in base member initializer list
 
@@ -823,6 +826,324 @@ void idSWF::SetBackgroundColor( idSWFBitStream& bitstream )
 =======
 
 // RB begin
+
+struct MyHandler
+{
+	bool Null()
+	{
+		idLib::Printf( "Null()\n" );
+		return true;
+	}
+	bool Bool( bool b )
+	{
+		idLib::Printf( "Bool( %i )\n", b );
+		return true;
+	}
+	bool Int( int i )
+	{
+		idLib::Printf( "Int( %i )\n",  i ) ;
+		return true;
+	}
+	bool Uint( unsigned u )
+	{
+		idLib::Printf( "Uint( %d )\n", u );
+		return true;
+	}
+	bool Int64( int64_t i )
+	{
+		idLib::Printf( "Int64( %i )\n", i );
+		return true;
+	}
+	bool Uint64( uint64_t u )
+	{
+		idLib::Printf( "Uint64( %d )\n",  u );
+		return true;
+	}
+	bool Double( double d )
+	{
+		idLib::Printf( "Double( %f )\n", d );
+		return true;
+	}
+	
+	bool String( const char* str, SizeType length, bool copy )
+	{
+		idLib::Printf( "String( %s, %i, %i )\n", str, length, copy );
+		return true;
+	}
+	bool StartObject()
+	{
+		idLib::Printf( "StartObject()\n" );
+		return true;
+	}
+	
+	bool Key( const char* str, SizeType length, bool copy )
+	{
+		idLib::Printf( "Key( %s, %i, %i )\n", str, length, copy );
+		return true;
+	}
+	bool EndObject( SizeType memberCount )
+	{
+		idLib::Printf( "EndObject( %i )\n", memberCount );
+		return true;
+	}
+	bool StartArray()
+	{
+		idLib::Printf( "StartArray()\n" );
+		return true;
+	}
+	bool EndArray( SizeType elementCount )
+	{
+		idLib::Printf( "EndArray( %i )\n", elementCount );
+		return true;
+	}
+};
+
+/*
+===================
+idSWF::LoadJSON
+===================
+*/
+bool idSWF::LoadJSON( const char* bfilename )
+{
+	idFile* f = fileSystem->OpenFileReadMemory( bfilename );
+	if( f == NULL || f->Length() <= 0 )
+	{
+		return false;
+	}
+	
+	
+	
+	int fileLength = f->Length();
+	const char* fileData = ( const char* )Mem_Alloc( fileLength, TAG_SWF );
+	size_t fileSize = f->Read( ( byte* ) fileData, fileLength );
+	delete f;
+	
+#if 0
+	Reader reader;
+	StringStream ss( fileData );
+	
+	MyHandler handler;
+	reader.Parse( ss, handler );
+#endif
+	
+	rapidjson::Document d;
+	d.Parse( fileData );
+	
+	assert( d.IsObject() );
+	
+	if( d.HasMember( "version" ) )
+	{
+		Value& s = d["version"];
+		int version = s.GetInt();
+		
+		idLib::Printf( "version = %i", version );
+	}
+	
+	//d.Begin
+	//Value& s = d["version"];
+	
+	//ID_TIME_T btimestamp = s.GetInt64();
+	//f->ReadBig( btimestamp );
+	
+#if 0
+	f->ReadBig( frameWidth );
+	f->ReadBig( frameHeight );
+	f->ReadBig( frameRate );
+	
+	if( mouseX == -1 )
+	{
+		mouseX = ( frameWidth / 2 );
+	}
+	
+	if( mouseY == -1 )
+	{
+		mouseY = ( frameHeight / 2 );
+	}
+	
+	mainsprite->Read( f );
+	
+	int num = 0;
+	f->ReadBig( num );
+	dictionary.SetNum( num );
+	for( int i = 0; i < dictionary.Num(); i++ )
+	{
+		f->ReadBig( dictionary[i].type );
+		switch( dictionary[i].type )
+		{
+			case SWF_DICT_IMAGE:
+			{
+				idStr imageName;
+				f->ReadString( imageName );
+				if( imageName[0] == '.' )
+				{
+					// internal image in the atlas
+					dictionary[i].material = NULL;
+				}
+				else
+				{
+					dictionary[i].material = declManager->FindMaterial( imageName );
+				}
+				for( int j = 0 ; j < 2 ; j++ )
+				{
+					f->ReadBig( dictionary[i].imageSize[j] );
+					f->ReadBig( dictionary[i].imageAtlasOffset[j] );
+				}
+				for( int j = 0 ; j < 4 ; j++ )
+				{
+					f->ReadBig( dictionary[i].channelScale[j] );
+				}
+				break;
+			}
+			case SWF_DICT_MORPH:
+			case SWF_DICT_SHAPE:
+			{
+				dictionary[i].shape = new( TAG_SWF ) idSWFShape;
+				idSWFShape* shape = dictionary[i].shape;
+				f->ReadBig( shape->startBounds.tl );
+				f->ReadBig( shape->startBounds.br );
+				f->ReadBig( shape->endBounds.tl );
+				f->ReadBig( shape->endBounds.br );
+				f->ReadBig( num );
+				shape->fillDraws.SetNum( num );
+				for( int d = 0; d < shape->fillDraws.Num(); d++ )
+				{
+					idSWFShapeDrawFill& fillDraw = shape->fillDraws[d];
+					f->ReadBig( fillDraw.style.type );
+					f->ReadBig( fillDraw.style.subType );
+					f->Read( &fillDraw.style.startColor, 4 );
+					f->Read( &fillDraw.style.endColor, 4 );
+					f->ReadBigArray( ( float* )&fillDraw.style.startMatrix, 6 );
+					f->ReadBigArray( ( float* )&fillDraw.style.endMatrix, 6 );
+					f->ReadBig( fillDraw.style.gradient.numGradients );
+					for( int g = 0; g < fillDraw.style.gradient.numGradients; g++ )
+					{
+						f->ReadBig( fillDraw.style.gradient.gradientRecords[g].startRatio );
+						f->ReadBig( fillDraw.style.gradient.gradientRecords[g].endRatio );
+						f->Read( &fillDraw.style.gradient.gradientRecords[g].startColor, 4 );
+						f->Read( &fillDraw.style.gradient.gradientRecords[g].endColor, 4 );
+					}
+					f->ReadBig( fillDraw.style.focalPoint );
+					f->ReadBig( fillDraw.style.bitmapID );
+					f->ReadBig( num );
+					fillDraw.startVerts.SetNum( num );
+					f->ReadBigArray( fillDraw.startVerts.Ptr(), fillDraw.startVerts.Num() );
+					f->ReadBig( num );
+					fillDraw.endVerts.SetNum( num );
+					f->ReadBigArray( fillDraw.endVerts.Ptr(), fillDraw.endVerts.Num() );
+					f->ReadBig( num );
+					fillDraw.indices.SetNum( num );
+					f->ReadBigArray( fillDraw.indices.Ptr(), fillDraw.indices.Num() );
+				}
+				f->ReadBig( num );
+				shape->lineDraws.SetNum( num );
+				for( int d = 0; d < shape->lineDraws.Num(); d++ )
+				{
+					idSWFShapeDrawLine& lineDraw = shape->lineDraws[d];
+					f->ReadBig( lineDraw.style.startWidth );
+					f->ReadBig( lineDraw.style.endWidth );
+					f->Read( &lineDraw.style.startColor, 4 );
+					f->Read( &lineDraw.style.endColor, 4 );
+					f->ReadBig( num );
+					lineDraw.startVerts.SetNum( num );
+					f->ReadBigArray( lineDraw.startVerts.Ptr(), lineDraw.startVerts.Num() );
+					f->ReadBig( num );
+					lineDraw.endVerts.SetNum( num );
+					f->ReadBigArray( lineDraw.endVerts.Ptr(), lineDraw.endVerts.Num() );
+					f->ReadBig( num );
+					lineDraw.indices.SetNum( num );
+					f->ReadBigArray( lineDraw.indices.Ptr(), lineDraw.indices.Num() );
+				}
+				break;
+			}
+			case SWF_DICT_SPRITE:
+			{
+				dictionary[i].sprite = new( TAG_SWF ) idSWFSprite( this );
+				dictionary[i].sprite->Read( f );
+				break;
+			}
+			case SWF_DICT_FONT:
+			{
+				dictionary[i].font = new( TAG_SWF ) idSWFFont;
+				idSWFFont* font = dictionary[i].font;
+				idStr fontName;
+				f->ReadString( fontName );
+				font->fontID = renderSystem->RegisterFont( fontName );
+				f->ReadBig( font->ascent );
+				f->ReadBig( font->descent );
+				f->ReadBig( font->leading );
+				f->ReadBig( num );
+				font->glyphs.SetNum( num );
+				for( int g = 0; g < font->glyphs.Num(); g++ )
+				{
+					f->ReadBig( font->glyphs[g].code );
+					f->ReadBig( font->glyphs[g].advance );
+					f->ReadBig( num );
+					font->glyphs[g].verts.SetNum( num );
+					f->ReadBigArray( font->glyphs[g].verts.Ptr(), font->glyphs[g].verts.Num() );
+					f->ReadBig( num );
+					font->glyphs[g].indices.SetNum( num );
+					f->ReadBigArray( font->glyphs[g].indices.Ptr(), font->glyphs[g].indices.Num() );
+				}
+				break;
+			}
+			case SWF_DICT_TEXT:
+			{
+				dictionary[i].text = new( TAG_SWF ) idSWFText;
+				idSWFText* text = dictionary[i].text;
+				f->ReadBig( text->bounds.tl );
+				f->ReadBig( text->bounds.br );
+				f->ReadBigArray( ( float* )&text->matrix, 6 );
+				f->ReadBig( num );
+				text->textRecords.SetNum( num );
+				for( int t = 0; t < text->textRecords.Num(); t++ )
+				{
+					idSWFTextRecord& textRecord = text->textRecords[t];
+					f->ReadBig( textRecord.fontID );
+					f->Read( &textRecord.color, 4 );
+					f->ReadBig( textRecord.xOffset );
+					f->ReadBig( textRecord.yOffset );
+					f->ReadBig( textRecord.textHeight );
+					f->ReadBig( textRecord.firstGlyph );
+					f->ReadBig( textRecord.numGlyphs );
+				}
+				f->ReadBig( num );
+				text->glyphs.SetNum( num );
+				for( int g = 0; g < text->glyphs.Num(); g++ )
+				{
+					f->ReadBig( text->glyphs[g].index );
+					f->ReadBig( text->glyphs[g].advance );
+				}
+				break;
+			}
+			case SWF_DICT_EDITTEXT:
+			{
+				dictionary[i].edittext = new( TAG_SWF ) idSWFEditText;
+				idSWFEditText* edittext = dictionary[i].edittext;
+				f->ReadBig( edittext->bounds.tl );
+				f->ReadBig( edittext->bounds.br );
+				f->ReadBig( edittext->flags );
+				f->ReadBig( edittext->fontID );
+				f->ReadBig( edittext->fontHeight );
+				f->Read( &edittext->color, 4 );
+				f->ReadBig( edittext->maxLength );
+				f->ReadBig( edittext->align );
+				f->ReadBig( edittext->leftMargin );
+				f->ReadBig( edittext->rightMargin );
+				f->ReadBig( edittext->indent );
+				f->ReadBig( edittext->leading );
+				f->ReadString( edittext->variable );
+				f->ReadString( edittext->initialText );
+				break;
+			}
+		}
+	}
+	delete f;
+	
+	return true;
+#else
+	return false;
+#endif
+}
 
 /*
 ===================
