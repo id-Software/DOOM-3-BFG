@@ -29,12 +29,6 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __SYS_INTRIINSICS_H__
 #define __SYS_INTRIINSICS_H__
 
-#if !defined(USE_INTRINSICS)
-#if defined(WIN32) || defined(__i386__) || defined(__x86_64__)
-#define USE_INTRINSICS
-#endif
-#endif
-
 #if defined(USE_INTRINSICS)
 #include <emmintrin.h>
 #endif
