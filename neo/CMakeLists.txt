@@ -196,6 +196,10 @@ elseif(MSVC)
         if( WINRT ) # Windows RT
                 add_definitions(-DUSE_WINRT)
         endif()
+
+        if (USE_INTRINSICS)
+                add_definitions(-DUSE_INTRINSICS)
+        endif()
 					
 	if(NOT CMAKE_CL_64)
 		add_definitions(-D_USE_32BIT_TIME_T)
