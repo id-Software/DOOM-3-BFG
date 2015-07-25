@@ -911,8 +911,6 @@ bool idSWF::LoadJSON( const char* bfilename )
 		return false;
 	}
 	
-	
-	
 	int fileLength = f->Length();
 	const char* fileData = ( const char* )Mem_Alloc( fileLength, TAG_SWF );
 	size_t fileSize = f->Read( ( byte* ) fileData, fileLength );
@@ -931,24 +929,22 @@ bool idSWF::LoadJSON( const char* bfilename )
 	
 	assert( d.IsObject() );
 	
+	
 	if( d.HasMember( "version" ) )
 	{
 		Value& s = d["version"];
 		int version = s.GetInt();
 		
-		idLib::Printf( "version = %i", version );
+		//idLib::Printf( "version = %i", version );
 	}
-	
-	//d.Begin
-	//Value& s = d["version"];
 	
 	//ID_TIME_T btimestamp = s.GetInt64();
 	//f->ReadBig( btimestamp );
 	
-#if 0
-	f->ReadBig( frameWidth );
-	f->ReadBig( frameHeight );
-	f->ReadBig( frameRate );
+	// these values can be trash
+	frameWidth = d["frameWidth"].GetDouble();
+	frameHeight = d["frameHeight"].GetDouble();
+	frameRate = d["frameRate"].GetInt();
 	
 	if( mouseX == -1 )
 	{
@@ -960,6 +956,283 @@ bool idSWF::LoadJSON( const char* bfilename )
 		mouseY = ( frameHeight / 2 );
 	}
 	
+	Value& a = d["dict"];
+	assert( a.IsArray() );
+	
+	dictionary.SetNum( a.Size() );
+	
+	for( SizeType i = 0; i < a.Size(); i++ )
+	{
+		Value& entry = a[i];
+		idStr type = entry["type"].GetString();
+		
+		if( type == "IMAGE" )
+		{
+			dictionary[i].type = SWF_DICT_IMAGE;
+			
+			idStrStatic< MAX_OSPATH > imageName = entry["imagefile"].GetString();
+			if( imageName[0] == '.' )
+			{
+				// internal image in the atlas
+				dictionary[i].material = NULL;
+			}
+			else
+			{
+				dictionary[i].material = declManager->FindMaterial( imageName );
+			}
+			
+			dictionary[i].imageSize[0] = entry["width"].GetDouble();
+			dictionary[i].imageSize[1] = entry["height"].GetDouble();
+			
+			idVec4& channelScale = dictionary[i].channelScale;
+			
+			channelScale.x = entry["channelScale"]["x"].GetDouble();
+			channelScale.y = entry["channelScale"]["y"].GetDouble();
+			channelScale.z = entry["channelScale"]["z"].GetDouble();
+			channelScale.w = entry["channelScale"]["w"].GetDouble();
+		}
+		else if( type == "SHAPE" || type == "MORPH" )
+		{
+			if( type == "MORPH" )
+			{
+				dictionary[i].type = SWF_DICT_MORPH;
+			}
+			else
+			{
+				dictionary[i].type = SWF_DICT_SHAPE;
+			}
+			
+			dictionary[i].shape = new( TAG_SWF ) idSWFShape;
+			
+			idSWFShape* shape = dictionary[i].shape;
+			
+			shape->startBounds.tl.x = entry["startBounds"][0].GetDouble();
+			shape->startBounds.tl.y = entry["startBounds"][1].GetDouble();
+			shape->startBounds.br.x = entry["startBounds"][2].GetDouble();
+			shape->startBounds.br.y = entry["startBounds"][3].GetDouble();
+			
+			shape->endBounds.tl.x = entry["endBounds"][0].GetDouble();
+			shape->endBounds.tl.y = entry["endBounds"][1].GetDouble();
+			shape->endBounds.br.x = entry["endBounds"][2].GetDouble();
+			shape->endBounds.br.y = entry["endBounds"][3].GetDouble();
+			
+			shape->fillDraws.SetNum( entry["fillDraws"].Size() );
+			for( int d = 0; d < shape->fillDraws.Num(); d++ )
+			{
+				idSWFShapeDrawFill& fillDraw = shape->fillDraws[d];
+				Value& jsonDraw = entry["fillDraws"][d];
+				
+				Value& style = jsonDraw["style"];
+				idStr type = style["type"].GetString();
+				
+				// 0 = solid, 1 = gradient, 4 = bitmap
+				if( type == "gradient" )
+				{
+					fillDraw.style.type = 1;
+				}
+				else if( type == "bitmap" )
+				{
+					fillDraw.style.type = 4;
+				}
+				else if( type == "solid" )
+				{
+					fillDraw.style.type = 0;
+				}
+				else
+				{
+					// unknown
+					fillDraw.style.type = 0;
+				}
+				
+				// 0 = linear, 2 = radial, 3 = focal; 0 = repeat, 1 = clamp, 2 = near repeat, 3 = near clamp
+				idStr subType = style["subType"].GetString();
+				
+				if( subType == "linear" ||  subType == "repeat" )
+				{
+					fillDraw.style.subType = 0;
+				}
+				else if( subType == "radial" || subType == "near repeat" )
+				{
+					fillDraw.style.subType = 2;
+				}
+				else if( subType == "focal" || subType == "near clamp" )
+				{
+					fillDraw.style.subType = 3;
+				}
+				else
+				{
+					// unknown
+					fillDraw.style.subType = 0;
+				}
+				
+				if( fillDraw.style.type == 0 ) //style.HasMember["startColor"] )// )
+				{
+					Value& startColor = style["startColor"];
+					fillDraw.style.startColor.r = ( uint8 )( startColor[0].GetDouble() * 255 ) & 0xFF;
+					fillDraw.style.startColor.g = ( uint8 )( startColor[1].GetDouble() * 255 ) & 0xFF;
+					fillDraw.style.startColor.b = ( uint8 )( startColor[2].GetDouble() * 255 ) & 0xFF;
+					fillDraw.style.startColor.a = ( uint8 )( startColor[3].GetDouble() * 255 ) & 0xFF;
+					
+					if( style.HasMember( "endColor" ) )
+					{
+						Value& endColor = style["endColor"];
+						fillDraw.style.endColor.r = ( uint8 )( startColor[0].GetDouble() * 255 ) & 0xFF;
+						fillDraw.style.endColor.g = ( uint8 )( startColor[1].GetDouble() * 255 ) & 0xFF;
+						fillDraw.style.endColor.b = ( uint8 )( startColor[2].GetDouble() * 255 ) & 0xFF;
+						fillDraw.style.endColor.a = ( uint8 )( startColor[3].GetDouble() * 255 ) & 0xFF;
+					}
+					else
+					{
+						fillDraw.style.endColor = fillDraw.style.startColor;
+					}
+				}
+				
+				if( fillDraw.style.type > 0 )
+				{
+					Value& startMatrix = style["startMatrix"];
+					fillDraw.style.startMatrix.xx =  startMatrix[0].GetDouble();
+					fillDraw.style.startMatrix.yy =  startMatrix[1].GetDouble();
+					fillDraw.style.startMatrix.xy =  startMatrix[2].GetDouble();
+					fillDraw.style.startMatrix.yx =  startMatrix[3].GetDouble();
+					fillDraw.style.startMatrix.tx =  startMatrix[4].GetDouble();
+					fillDraw.style.startMatrix.ty =  startMatrix[5].GetDouble();
+					
+					if( style.HasMember( "endMatrix" ) )
+					{
+						Value& endMatrix = style["endMatrix"];
+						fillDraw.style.endMatrix.xx =  endMatrix[0].GetDouble();
+						fillDraw.style.endMatrix.yy =  endMatrix[1].GetDouble();
+						fillDraw.style.endMatrix.xy =  endMatrix[2].GetDouble();
+						fillDraw.style.endMatrix.yx =  endMatrix[3].GetDouble();
+						fillDraw.style.endMatrix.tx =  endMatrix[4].GetDouble();
+						fillDraw.style.endMatrix.ty =  endMatrix[5].GetDouble();
+					}
+					else
+					{
+						fillDraw.style.endMatrix = fillDraw.style.startMatrix;
+					}
+				}
+				
+				// gradient
+				if( fillDraw.style.type == 1 )
+				{
+					Value& gradients = style["gradients"];
+					fillDraw.style.gradient.numGradients = gradients.Size();
+					
+					for( int g = 0; g < fillDraw.style.gradient.numGradients; g++ )
+					{
+						swfGradientRecord_t gr = fillDraw.style.gradient.gradientRecords[g];
+						
+						Value& gradientRecord = gradients[g];
+						
+						gr.startRatio = gradientRecord["startRatio"].GetUint() & 0xFF;
+						gr.endRatio = gradientRecord["endRatio"].GetUint() & 0xFF;
+						
+						Value& startColor = gradientRecord["startColor"];
+						gr.startColor.r = ( uint8 )( startColor[0].GetDouble() * 255 ) & 0xFF;
+						gr.startColor.g = ( uint8 )( startColor[1].GetDouble() * 255 ) & 0xFF;
+						gr.startColor.b = ( uint8 )( startColor[2].GetDouble() * 255 ) & 0xFF;
+						gr.startColor.a = ( uint8 )( startColor[3].GetDouble() * 255 ) & 0xFF;
+						
+						Value& endColor = gradientRecord["endColor"];
+						gr.endColor.r = ( uint8 )( startColor[0].GetDouble() * 255 ) & 0xFF;
+						gr.endColor.g = ( uint8 )( startColor[1].GetDouble() * 255 ) & 0xFF;
+						gr.endColor.b = ( uint8 )( startColor[2].GetDouble() * 255 ) & 0xFF;
+						gr.endColor.a = ( uint8 )( startColor[3].GetDouble() * 255 ) & 0xFF;
+					}
+					
+					if( style.HasMember( "focalPoint" ) )
+					{
+						fillDraw.style.focalPoint = style["focalPoint"].GetDouble();
+					}
+					else
+					{
+						fillDraw.style.focalPoint = 0;
+					}
+				}
+				
+				// bitmap
+				if( fillDraw.style.type == 4 )
+				{
+					fillDraw.style.bitmapID = style["bitmapID"].GetUint();
+				}
+				else
+				{
+					fillDraw.style.bitmapID = 65535;
+				}
+				
+				Value& startVerts = jsonDraw["startVerts"];
+				
+				fillDraw.startVerts.SetNum( startVerts.Size() );
+				for( int v = 0; v < fillDraw.startVerts.Num(); v++ )
+				{
+					idVec2& vert = fillDraw.startVerts[v];
+					
+					vert.x = startVerts[v]["v"][0].GetDouble();
+					vert.y = startVerts[v]["v"][1].GetDouble();
+				}
+				
+				if( jsonDraw.HasMember( "endVerts" ) )
+				{
+					// this is a morph shape
+					
+					Value& endVerts = jsonDraw["endVerts"];
+					
+					fillDraw.endVerts.SetNum( endVerts.Size() );
+					for( int v = 0; v < fillDraw.endVerts.Num(); v++ )
+					{
+						idVec2& vert = fillDraw.endVerts[v];
+						
+						vert.x = endVerts[v]["v"][0].GetDouble();
+						vert.y = endVerts[v]["v"][1].GetDouble();
+					}
+				}
+				
+				Value& indices = jsonDraw["indices"];
+				fillDraw.indices.SetNum( indices.Size() );
+				
+#if 1
+				for( int v = 0; v < fillDraw.indices.Num(); v++ )
+				{
+					uint16& vert = fillDraw.indices[v];
+					
+					vert = indices[v].GetUint();
+				}
+#else
+				for( int v = fillDraw.indices.Num() - 1; v >= 0; v-- )
+				{
+					uint16& vert = fillDraw.indices[v];
+				
+					vert = indices[v].GetUint();
+				}
+#endif
+				
+			}
+#if 0
+			f->ReadBig( num );
+			shape->lineDraws.SetNum( num );
+			for( int d = 0; d < shape->lineDraws.Num(); d++ )
+			{
+				idSWFShapeDrawLine& lineDraw = shape->lineDraws[d];
+				f->ReadBig( lineDraw.style.startWidth );
+				f->ReadBig( lineDraw.style.endWidth );
+				f->Read( &lineDraw.style.startColor, 4 );
+				f->Read( &lineDraw.style.endColor, 4 );
+				f->ReadBig( num );
+				lineDraw.startVerts.SetNum( num );
+				f->ReadBigArray( lineDraw.startVerts.Ptr(), lineDraw.startVerts.Num() );
+				f->ReadBig( num );
+				lineDraw.endVerts.SetNum( num );
+				f->ReadBigArray( lineDraw.endVerts.Ptr(), lineDraw.endVerts.Num() );
+				f->ReadBig( num );
+				lineDraw.indices.SetNum( num );
+				f->ReadBigArray( lineDraw.indices.Ptr(), lineDraw.indices.Num() );
+			}
+#endif
+		}
+	}
+	
+#if 0
 	mainsprite->Read( f );
 	
 	int num = 0;
@@ -970,30 +1243,6 @@ bool idSWF::LoadJSON( const char* bfilename )
 		f->ReadBig( dictionary[i].type );
 		switch( dictionary[i].type )
 		{
-			case SWF_DICT_IMAGE:
-			{
-				idStr imageName;
-				f->ReadString( imageName );
-				if( imageName[0] == '.' )
-				{
-					// internal image in the atlas
-					dictionary[i].material = NULL;
-				}
-				else
-				{
-					dictionary[i].material = declManager->FindMaterial( imageName );
-				}
-				for( int j = 0 ; j < 2 ; j++ )
-				{
-					f->ReadBig( dictionary[i].imageSize[j] );
-					f->ReadBig( dictionary[i].imageAtlasOffset[j] );
-				}
-				for( int j = 0 ; j < 4 ; j++ )
-				{
-					f->ReadBig( dictionary[i].channelScale[j] );
-				}
-				break;
-			}
 			case SWF_DICT_MORPH:
 			case SWF_DICT_SHAPE:
 			{
@@ -1168,12 +1417,12 @@ void idSWF::WriteJSON( const char* filename )
 	{
 		const idSWFDictionaryEntry& entry = dictionary[i];
 		
-		if( dictionary[i].type != SWF_DICT_NULL )
+		//if( dictionary[i].type != SWF_DICT_NULL )
 		{
 			file->WriteFloatString( "\t\t{\n" );
 			
 			file->WriteFloatString( "\t\t\t\"type\": \"%s\",\n", idSWF::GetDictTypeName( dictionary[i].type ) );
-			file->WriteFloatString( "\t\t\t\"characterID\": %i,\n", i );
+			file->WriteFloatString( "\t\t\t\"characterID\": %i%s\n", i, dictionary[i].type != SWF_DICT_NULL ? "," : "" );
 		}
 		
 		switch( dictionary[i].type )
@@ -1205,20 +1454,18 @@ void idSWF::WriteJSON( const char* filename )
 			{
 				idSWFShape* shape = dictionary[i].shape;
 				
-				float x = shape->startBounds.tl.x;
-				float y = shape->startBounds.tl.y;
-				float width = fabs( shape->startBounds.br.x - shape->startBounds.tl.x );
-				float height = fabs( shape->startBounds.br.y - shape->startBounds.tl.y );
+				idVec2 tl = shape->startBounds.tl;
+				idVec2 br = shape->startBounds.br;
 				
 				//file->WriteFloatString( "\t\t\t\"imageSize\": { \"width\": %f, \"height\": %f },\n", dictionary[i].imageSize[0], dictionary[i].imageSize[1] );
-				file->WriteFloatString( "\t\t\t\"startBounds\": { \"x\": %f, \"y\": %f, \"width\": %f, \"height\": %f },\n", x, y, width, height );
+				//file->WriteFloatString( "\t\t\t\"startBounds\": { \"x\": %f, \"y\": %f, \"width\": %f, \"height\": %f },\n", x, y, width, height );
 				
-				x = shape->endBounds.tl.x;
-				y = shape->endBounds.tl.y;
-				width = fabs( shape->endBounds.br.x - shape->endBounds.tl.x );
-				height = fabs( shape->endBounds.br.y - shape->endBounds.tl.y );
+				file->WriteFloatString( "\t\t\t\"startBounds\": [ %f, %f, %f, %f ],\n", tl.x, tl.y, br.x, br.y );
 				
-				file->WriteFloatString( "\t\t\t\"endBounds\": { \"x\": %f, \"y\": %f, \"width\": %f, \"height\": %f },\n", x, y, width, height );
+				tl = shape->endBounds.tl;
+				br = shape->endBounds.br;
+				
+				file->WriteFloatString( "\t\t\t\"endBounds\": [ %f, %f, %f, %f ],\n", tl.x, tl.y, br.x, br.y );
 				
 				// export fill draws
 				file->WriteFloatString( "\t\t\t\"fillDraws\":\n\t\t\t[\n" );
@@ -1313,6 +1560,7 @@ void idSWF::WriteJSON( const char* filename )
 						}
 					}
 					
+					// not used in BFG menus
 					if( fillDraw.style.gradient.numGradients )
 					{
 						file->WriteFloatString( "\t\t\t\t\t\"gradients\":\n\t\t\t\t\t[\n" );
@@ -1321,17 +1569,15 @@ void idSWF::WriteJSON( const char* filename )
 						{
 							swfGradientRecord_t gr = fillDraw.style.gradient.gradientRecords[g];
 							
-							file->WriteFloatString( "\t\t\t\t\t<GradientRecord startRatio=\"%i\" endRatio=\"%i\">\n", gr.startRatio, gr.endRatio );
+							file->WriteFloatString( "\t\t\t\t\t{ \"startRatio\": %i, \"endRatio\": %i,\n", gr.startRatio, gr.endRatio );
 							
 							idVec4 color = gr.startColor.ToVec4();
-							file->WriteFloatString( "\t\t\t\t\t\t<StartColor r=\"%f\" g=\"%f\" b=\"%f\" a=\"%f\"/>\n",
-													color.x, color.y, color.z, color.w );
-													
+							file->WriteFloatString( ",\n\t\t\t\t\t\t\"startColor\": [ %f, %f, %f, %f ]", color.x, color.y, color.z, color.w );
+							
 							idVec4 endColor = gr.endColor.ToVec4();
 							if( color != endColor )
 							{
-								file->WriteFloatString( "\t\t\t\t\t\t<EndColor r=\"%f\" g=\"%f\" b=\"%f\" a=\"%f\"/>\n",
-														color.x, color.y, color.z, endColor.w );
+								file->WriteFloatString( ",\n\t\t\t\t\t\t\"endColor\": [ %f, %f, %f, %f ]", endColor.x, endColor.y, endColor.z, endColor.w );
 							}
 							
 							file->WriteFloatString( "\t\t\t\t\t\t}%s\n", ( g == ( fillDraw.style.gradient.numGradients - 1 ) ) ? "" : "," );
@@ -1587,7 +1833,7 @@ void idSWF::WriteJSON( const char* filename )
 			}
 		}
 		
-		if( dictionary[i].type != SWF_DICT_NULL )
+		//if( dictionary[i].type != SWF_DICT_NULL )
 		{
 			//file->WriteFloatString( "\t\t}%s\n", ( i == ( dictionary.Num() - 1 ) ) ? "" : "," );
 			file->WriteFloatString( "\t\t},\n" );
