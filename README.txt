@@ -170,6 +170,10 @@ _________________________
 		
 		> yum install cmake SDL-devel openal-devel
 	
+	On ArchLinux 
+	
+		> sudo pacman -S sdl2 ffmpeg openal cmake
+	
 	On openSUSE (tested in 13.1)
 	
 		> zypper in openal-soft-devel cmake libSDL-devel libffmpeg1-devel
