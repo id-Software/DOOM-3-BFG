@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013 Robert Beckebans
+Copyright (C) 2013-2015 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -28,6 +28,8 @@ If you have questions concerning this license or the applicable additional terms
 */
 #pragma hdrstop
 #include "precompiled.h"
+
+using namespace rapidjson;
 
 /*
 ========================
@@ -291,6 +293,98 @@ void idSWFSprite::Write( idFile* f )
 
 
 // RB begin
+void idSWFSprite::ReadJSON( rapidjson::Value& entry )
+{
+	frameCount = entry["frameCount"].GetUint();
+	
+	Value& fo = entry["frameOffsets"];
+	frameOffsets.SetNum( fo.Size() );
+	
+	for( int i = 0; i < frameOffsets.Num(); i++ )
+	{
+		frameOffsets[i] = fo[i].GetUint();
+	}
+	
+	if( entry.HasMember( "frameLabels" ) )
+	{
+		Value& fl = entry["frameLabels"];
+		frameLabels.SetNum( fl.Size() );
+		for( int i = 0; i < frameLabels.Num(); i++ )
+		{
+			frameLabels[i].frameNum = fl[i]["frameNum"].GetUint();
+			frameLabels[i].frameLabel = fl[i]["frameLabel"].GetString();
+		}
+	}
+	
+	Value& c = entry["commands"];
+	commands.SetNum( c.Size() );
+	for( int i = 0; i < commands.Num(); i++ )
+	{
+		Value& command = c[i];
+		Value& type = command["type"];
+		
+#if 1
+		if( type == "Tag_PlaceObject2" )
+		{
+			commands[i].tag = Tag_PlaceObject2;
+			
+			idFile_SWF file( new idFile_Memory() );
+			
+			uint8 flags1 = command["flags"].GetUint();
+			file.WriteU8( flags1 );
+			
+			uint16 depth = command["depth"].GetUint();
+			file.WriteU16( depth );
+			
+			if( ( flags1 & PlaceFlagHasCharacter ) != 0 )
+			{
+				uint16 characterID = command["characterID"].GetUint();
+				file.WriteU16( characterID );
+			}
+			
+			if( ( flags1 & PlaceFlagHasMatrix ) != 0 )
+			{
+				swfMatrix_t m;
+				Value& startMatrix = command["startMatrix"];
+				m.xx =  startMatrix[0].GetDouble();
+				m.yy =  startMatrix[1].GetDouble();
+				m.xy =  startMatrix[2].GetDouble();
+				m.yx =  startMatrix[3].GetDouble();
+				m.tx =  startMatrix[4].GetDouble();
+				m.ty =  startMatrix[5].GetDouble();
+				file.WriteMatrix( m );
+			}
+			
+			if( ( flags1 & PlaceFlagHasColorTransform ) != 0 )
+			{
+				swfColorXform_t cxf;
+				
+				Value& mulColor = command["mulColor"];
+				cxf.mul.x = mulColor[0].GetDouble();
+				cxf.mul.y = mulColor[1].GetDouble();
+				cxf.mul.z = mulColor[2].GetDouble();
+				cxf.mul.w = mulColor[3].GetDouble();
+				
+				if( command.HasMember( "addColor" ) )
+				{
+					Value& addColor = command["addColor"];
+					cxf.add.x = addColor[0].GetDouble();
+					cxf.add.y = addColor[1].GetDouble();
+					cxf.add.z = addColor[2].GetDouble();
+					cxf.add.w = addColor[3].GetDouble();
+				}
+				
+				// TODO
+				//file.WriteColorXFormRGBA( cxf );
+			}
+			
+			uint32 streamLength = file->Length();
+			commands[i].stream.Load( ( byte* ) static_cast<idFile_Memory*>( ( idFile* )file )->GetDataPtr(), streamLength, true );
+		}
+#endif
+	}
+}
+
 void idSWFSprite::WriteJSON( idFile* f, int characterID )
 {
 	f->WriteFloatString( "\t\t\t\"frameCount\": %i,\n", frameCount );

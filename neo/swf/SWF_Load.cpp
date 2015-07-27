@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 #include "../renderer/Font.h"
 #include "../renderer/Image.h"
-#include "../../libs/rapidjson/include/rapidjson/document.h"
+//#include "../../libs/rapidjson/include/rapidjson/document.h"
 
 using namespace rapidjson;
 
@@ -1292,7 +1292,12 @@ bool idSWF::LoadJSON( const char* bfilename )
 				}
 			}
 		}
-		//if( another type)
+		else if( type == "SPRITE" )
+		{
+			dictionary[i].type = SWF_DICT_SPRITE;
+			dictionary[i].sprite = new( TAG_SWF ) idSWFSprite( this );
+			dictionary[i].sprite->ReadJSON( entry );
+		}
 	}
 	
 #if 0
