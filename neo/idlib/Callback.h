@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -40,11 +40,12 @@ the OnChange handlers in the CVar system.
 idCallback
 ================================================
 */
-class idCallback {
+class idCallback
+{
 public:
 	virtual ~idCallback() {}
 	virtual void Call() = 0;
-	virtual idCallback * Clone() const = 0;
+	virtual idCallback* Clone() const = 0;
 };
 
 /*
@@ -54,20 +55,24 @@ idCallbackStatic
 Callback class that forwards the call to a c-style function
 ================================================
 */
-class idCallbackStatic : public idCallback {
+class idCallbackStatic : public idCallback
+{
 public:
-	idCallbackStatic( void (*f)() ) {
+	idCallbackStatic( void ( *f )() )
+	{
 		this->f = f;
 	}
-	void Call() {
+	void Call()
+	{
 		f();
 	}
-	idCallback * Clone() const {
+	idCallback* Clone() const
+	{
 		//idScopedGlobalHeap	everythingHereGoesInTheGlobalHeap;
-		return new (TAG_FUNC_CALLBACK) idCallbackStatic( f );
+		return new( TAG_FUNC_CALLBACK ) idCallbackStatic( f );
 	}
 private:
-	void (*f)();
+	void ( *f )();
 };
 
 /*
@@ -78,21 +83,25 @@ Callback class that forwards the call to a member function
 ================================================
 */
 template< class T >
-class idCallbackBindMem : public idCallback {
+class idCallbackBindMem : public idCallback
+{
 public:
-	idCallbackBindMem( T * t, void (T::*f)() ) {
+	idCallbackBindMem( T* t, void ( T::*f )() )
+	{
 		this->t = t;
 		this->f = f;
 	}
-	void Call() {
-		(t->*f)();
+	void Call()
+	{
+		( t->*f )();
 	}
-	idCallback * Clone() const {
-		return new (TAG_FUNC_CALLBACK) idCallbackBindMem( t, f );
+	idCallback* Clone() const
+	{
+		return new( TAG_FUNC_CALLBACK ) idCallbackBindMem( t, f );
 	}
 private:
-	T * t;
-	void (T::*f)();
+	T* t;
+	void ( T::*f )();
 };
 
 /*
@@ -103,24 +112,28 @@ Callback class that forwards the call to a member function with an additional co
 ================================================
 */
 template< class T, typename A1 >
-class idCallbackBindMemArg1 : public idCallback {
+class idCallbackBindMemArg1 : public idCallback
+{
 public:
-	idCallbackBindMemArg1( T * t_, void (T::*f_)( A1 ), A1 a1_ ) :
+	idCallbackBindMemArg1( T* t_, void ( T::*f_ )( A1 ), A1 a1_ ) :
 		t( t_ ),
 		f( f_ ),
-		a1( a1_ ) {
+		a1( a1_ )
+	{
 	}
-	void Call() {
-		(t->*f)( a1 );
+	void Call()
+	{
+		( t->*f )( a1 );
 	}
-	idCallback * Clone() const {
-		return new (TAG_FUNC_CALLBACK) idCallbackBindMemArg1( t, f, a1 );
+	idCallback* Clone() const
+	{
+		return new( TAG_FUNC_CALLBACK ) idCallbackBindMemArg1( t, f, a1 );
 	}
 private:
-	T * t;
-	void (T::*f)( A1 );
+	T* t;
+	void ( T::*f )( A1 );
 	A1 a1;
-
+	
 	// hack to get to compile on the 360 with reference arguments
 	// with this on the PC, the MakeCallback function fails compilation because it's returning a copy
 	// therefore, the Arg1 callbacks can't have arguments that are references
@@ -130,11 +143,11 @@ private:
 /*
 ================================================================================================
 
-	These are needed because we can't derive the type of an object from the type passed to the 
+	These are needed because we can't derive the type of an object from the type passed to the
 	constructor. If it weren't for these, we'd have to manually specify the type:
 
 		idCallbackBindMem<idFoo>( this, &idFoo::MyFunction );
-	becomes: 
+	becomes:
 		MakeCallback( this, &idFoo::MyFunction );
 
 ================================================================================================
@@ -145,8 +158,9 @@ private:
 MakeCallback
 ========================
 */
-ID_INLINE_EXTERN idCallbackStatic MakeCallback( void (*f)(void) ) { 
-	return idCallbackStatic( f ); 
+ID_INLINE_EXTERN idCallbackStatic MakeCallback( void ( *f )() )
+{
+	return idCallbackStatic( f );
 }
 
 /*
@@ -155,8 +169,9 @@ MakeCallback
 ========================
 */
 template < class T >
-ID_INLINE_EXTERN idCallbackBindMem<T> MakeCallback( T * t, void (T::*f)(void) ) { 
-	return idCallbackBindMem<T>( t, f ); 
+ID_INLINE_EXTERN idCallbackBindMem<T> MakeCallback( T* t, void ( T::*f )() )
+{
+	return idCallbackBindMem<T>( t, f );
 }
 
 /*
@@ -165,7 +180,8 @@ MakeCallback
 ========================
 */
 template < class T, typename A1 >
-ID_INLINE_EXTERN idCallbackBindMemArg1<T, A1> MakeCallback( T * t, void (T::*f)( A1 ), A1 a1 ) { 
+ID_INLINE_EXTERN idCallbackBindMemArg1<T, A1> MakeCallback( T* t, void ( T::*f )( A1 ), A1 a1 )
+{
 	return idCallbackBindMemArg1<T, A1>( t, f, a1 );
 }
 

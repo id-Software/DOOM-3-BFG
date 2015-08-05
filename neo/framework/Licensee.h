@@ -2,9 +2,10 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2012 Robert Beckebans
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -35,9 +36,12 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #define GAME_NAME						"DOOM 3: BFG Edition"		// appears on window titles and errors
-#define SAVE_PATH						"\\id Software\\DOOM 3 BFG"
 
-#define ENGINE_VERSION					"D3BFG 1"	// printed in console
+// RB: changed home folder so we don't break the savegame of the original game
+#define SAVE_PATH						"\\id Software\\RBDOOM 3 BFG"
+
+#define ENGINE_VERSION					"RBDOOM 3 BFG 1.0.3"	// printed in console
+// RB end
 
 #define	BASE_GAMEDIR					"base"
 
@@ -56,3 +60,14 @@ If you have questions concerning this license or the applicable additional terms
 #define WIN32_CONSOLE_CLASS				"D3BFG_WinConsole"
 #define	WIN32_WINDOW_CLASS_NAME			"D3BFG"
 #define	WIN32_FAKE_WINDOW_CLASS_NAME	"D3BFG_WGL_FAKE"
+
+// RB begin
+// Default base path (used only if none could be found)
+#ifdef __APPLE__
+#define DEFAULT_BASEPATH				"/Applications/RBDOOM-3-BFG.app/Contents/Resources"
+#else
+#define DEFAULT_BASEPATH				"/usr/share/games/doom3bfg"
+#endif
+// RB end
+
+

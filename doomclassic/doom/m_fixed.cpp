@@ -27,19 +27,18 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include "Precompiled.h"
-#include "globaldata.h"
-
-#include "stdlib.h"
-
-#include "doomtype.h"
-#include "i_system.h"
 
 #ifdef __GNUG__
 #pragma implementation "m_fixed.h"
 #endif
 #include "m_fixed.h"
 
+#include "globaldata.h"
 
+#include "stdlib.h"
+
+#include "doomtype.h"
+#include "i_system.h"
 
 
 // Fixme. __USE_C_FIXED__ or something.

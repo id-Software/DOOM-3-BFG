@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,14 +27,15 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
-#include "../idlib/precompiled.h"
+#include "precompiled.h"
 
 #include "tr_local.h"
 
-idRenderEntityLocal::idRenderEntityLocal() {
+idRenderEntityLocal::idRenderEntityLocal()
+{
 	memset( &parms, 0, sizeof( parms ) );
 	memset( modelMatrix, 0, sizeof( modelMatrix ) );
-
+	
 	world					= NULL;
 	index					= 0;
 	lastModifiedFrameNum	= 0;
@@ -54,33 +55,41 @@ idRenderEntityLocal::idRenderEntityLocal() {
 	needsPortalSky			= false;
 }
 
-void idRenderEntityLocal::FreeRenderEntity() {
+void idRenderEntityLocal::FreeRenderEntity()
+{
 }
 
-void idRenderEntityLocal::UpdateRenderEntity( const renderEntity_t *re, bool forceUpdate ) {
+void idRenderEntityLocal::UpdateRenderEntity( const renderEntity_t* re, bool forceUpdate )
+{
 }
 
-void idRenderEntityLocal::GetRenderEntity( renderEntity_t *re ) {
+void idRenderEntityLocal::GetRenderEntity( renderEntity_t* re )
+{
 }
 
-void idRenderEntityLocal::ForceUpdate() {
+void idRenderEntityLocal::ForceUpdate()
+{
 }
 
-int idRenderEntityLocal::GetIndex() {
+int idRenderEntityLocal::GetIndex()
+{
 	return index;
 }
 
-void idRenderEntityLocal::ProjectOverlay( const idPlane localTextureAxis[2], const idMaterial *material ) {
+void idRenderEntityLocal::ProjectOverlay( const idPlane localTextureAxis[2], const idMaterial* material )
+{
 }
-void idRenderEntityLocal::RemoveDecals() {
+void idRenderEntityLocal::RemoveDecals()
+{
 }
 
 //======================================================================
 
-idRenderLightLocal::idRenderLightLocal() {
+idRenderLightLocal::idRenderLightLocal()
+{
 	memset( &parms, 0, sizeof( parms ) );
 	memset( lightProject, 0, sizeof( lightProject ) );
-
+	
 	lightHasMoved			= false;
 	world					= NULL;
 	index					= 0;
@@ -96,19 +105,24 @@ idRenderLightLocal::idRenderLightLocal() {
 	foggedPortals			= NULL;
 	firstInteraction		= NULL;
 	lastInteraction			= NULL;
-
+	
 	baseLightProject.Zero();
 	inverseBaseLightProject.Zero();
 }
 
-void idRenderLightLocal::FreeRenderLight() {
+void idRenderLightLocal::FreeRenderLight()
+{
 }
-void idRenderLightLocal::UpdateRenderLight( const renderLight_t *re, bool forceUpdate ) {
+void idRenderLightLocal::UpdateRenderLight( const renderLight_t* re, bool forceUpdate )
+{
 }
-void idRenderLightLocal::GetRenderLight( renderLight_t *re ) {
+void idRenderLightLocal::GetRenderLight( renderLight_t* re )
+{
 }
-void idRenderLightLocal::ForceUpdate() {
+void idRenderLightLocal::ForceUpdate()
+{
 }
-int idRenderLightLocal::GetIndex() {
+int idRenderLightLocal::GetIndex()
+{
 	return index;
 }

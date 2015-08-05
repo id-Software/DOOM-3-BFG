@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -26,20 +26,22 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 #pragma hdrstop
-#include "../idlib/precompiled.h"
+#include "precompiled.h"
 #include "sys_lobby_backend.h"
 #include "sys_lobby_backend_direct.h"
 
 extern idCVar net_port;
+extern idCVar net_ip;
 
-extern idLobbyToSessionCB * lobbyToSessionCB;
+extern idLobbyToSessionCB* lobbyToSessionCB;
 
 /*
 ========================
 idLobbyBackendDirect::idLobbyBackendWin
 ========================
 */
-idLobbyBackendDirect::idLobbyBackendDirect() {
+idLobbyBackendDirect::idLobbyBackendDirect()
+{
 	state = STATE_INVALID;
 }
 
@@ -48,12 +50,13 @@ idLobbyBackendDirect::idLobbyBackendDirect() {
 idLobbyBackendDirect::StartHosting
 ========================
 */
-void idLobbyBackendDirect::StartHosting( const idMatchParameters & p, float skillLevel, lobbyBackendType_t type ) {
+void idLobbyBackendDirect::StartHosting( const idMatchParameters& p, float skillLevel, lobbyBackendType_t type )
+{
 	NET_VERBOSE_PRINT( "idLobbyBackendDirect::StartHosting\n" );
-
+	
 	isLocal = MatchTypeIsLocal( p.matchFlags );
 	isHost	= true;
-
+	
 	state	= STATE_READY;
 	isLocal = true;
 }
@@ -63,13 +66,17 @@ void idLobbyBackendDirect::StartHosting( const idMatchParameters & p, float skil
 idLobbyBackendDirect::StartFinding
 ========================
 */
-void idLobbyBackendDirect::StartFinding( const idMatchParameters & p, int numPartyUsers, float skillLevel ) {
+void idLobbyBackendDirect::StartFinding( const idMatchParameters& p, int numPartyUsers, float skillLevel )
+{
 	isLocal = MatchTypeIsLocal( p.matchFlags );
 	isHost	= false;
-
-	if ( lobbyToSessionCB->CanJoinLocalHost() ) {
+	
+	if( lobbyToSessionCB->CanJoinLocalHost() )
+	{
 		state = STATE_READY;
-	} else {
+	}
+	else
+	{
 		state = STATE_FAILED;
 	}
 }
@@ -79,7 +86,8 @@ void idLobbyBackendDirect::StartFinding( const idMatchParameters & p, int numPar
 idLobbyBackendDirect::GetSearchResults
 ========================
 */
-void idLobbyBackendDirect::GetSearchResults( idList< lobbyConnectInfo_t > & searchResults ) {
+void idLobbyBackendDirect::GetSearchResults( idList< lobbyConnectInfo_t >& searchResults )
+{
 	lobbyConnectInfo_t fakeResult;
 	searchResults.Clear();
 	searchResults.Append( fakeResult );
@@ -90,14 +98,21 @@ void idLobbyBackendDirect::GetSearchResults( idList< lobbyConnectInfo_t > & sear
 idLobbyBackendDirect::JoinFromConnectInfo
 ========================
 */
-void idLobbyBackendDirect::JoinFromConnectInfo( const lobbyConnectInfo_t & connectInfo ) {
-	if ( lobbyToSessionCB->CanJoinLocalHost() ) {
+void idLobbyBackendDirect::JoinFromConnectInfo( const lobbyConnectInfo_t& connectInfo )
+{
+	if( lobbyToSessionCB->CanJoinLocalHost() )
+	{
+		// TODO: "CanJoinLocalHost" == *must* join LocalHost ?!
 		Sys_StringToNetAdr( "localhost", &address, true );
 		address.port = net_port.GetInteger();
-	} else {
-		address = connectInfo.netAddr;
+		NET_VERBOSE_PRINT( "NET: idLobbyBackendDirect::JoinFromConnectInfo(): canJoinLocalHost\n" );
 	}
-
+	else
+	{
+		address = connectInfo.netAddr;
+		NET_VERBOSE_PRINT( "NET: idLobbyBackendDirect::JoinFromConnectInfo(): %s\n", Sys_NetAdrToString( address ) );
+	}
+	
 	state		= STATE_READY;
 	isLocal		= false;
 	isHost		= false;
@@ -108,7 +123,8 @@ void idLobbyBackendDirect::JoinFromConnectInfo( const lobbyConnectInfo_t & conne
 idLobbyBackendDirect::Shutdown
 ========================
 */
-void idLobbyBackendDirect::Shutdown() {
+void idLobbyBackendDirect::Shutdown()
+{
 	state = STATE_SHUTDOWN;
 }
 
@@ -117,7 +133,8 @@ void idLobbyBackendDirect::Shutdown() {
 idLobbyBackendDirect::BecomeHost
 ========================
 */
-void idLobbyBackendDirect::BecomeHost( int numInvites ) {
+void idLobbyBackendDirect::BecomeHost( int numInvites )
+{
 }
 
 /*
@@ -125,7 +142,8 @@ void idLobbyBackendDirect::BecomeHost( int numInvites ) {
 idLobbyBackendDirect::FinishBecomeHost
 ========================
 */
-void idLobbyBackendDirect::FinishBecomeHost() {
+void idLobbyBackendDirect::FinishBecomeHost()
+{
 	isHost = true;
 }
 
@@ -134,7 +152,8 @@ void idLobbyBackendDirect::FinishBecomeHost() {
 idLobbyBackendDirect::GetOwnerAddress
 ========================
 */
-void idLobbyBackendDirect::GetOwnerAddress( lobbyAddress_t & outAddr ) {
+void idLobbyBackendDirect::GetOwnerAddress( lobbyAddress_t& outAddr )
+{
 	outAddr.netAddr = address;
 	state			= STATE_READY;
 }
@@ -144,7 +163,8 @@ void idLobbyBackendDirect::GetOwnerAddress( lobbyAddress_t & outAddr ) {
 idLobbyBackendDirect::SetIsJoinable
 ========================
 */
-void idLobbyBackendDirect::SetIsJoinable( bool joinable ) {
+void idLobbyBackendDirect::SetIsJoinable( bool joinable )
+{
 }
 
 /*
@@ -152,19 +172,30 @@ void idLobbyBackendDirect::SetIsJoinable( bool joinable ) {
 idLobbyBackendDirect::GetConnectInfo
 ========================
 */
-lobbyConnectInfo_t idLobbyBackendDirect::GetConnectInfo() {
+lobbyConnectInfo_t idLobbyBackendDirect::GetConnectInfo()
+{
 	lobbyConnectInfo_t connectInfo;
-
+	
 	// If we aren't the host, this lobby should have been joined through JoinFromConnectInfo
-	if ( IsHost() ) {
+	if( IsHost() )
+	{
 		// If we are the host, give them our ip address
-		const char * ip = Sys_GetLocalIP( 0 );
+		// DG: always using the first IP doesn't work, because on linux that's 127.0.0.1
+		// and even if not, this causes trouble with NAT.
+		// So either use net_ip or, if it's not set ("localhost"), use 0.0.0.0 which is
+		// a special case the client will treat as "just use the IP I used for the lobby"
+		// (which is the right behavior for the Direct backend, I guess).
+		// the client special case is in idLobby::HandleReliableMsg
+		const char* ip = net_ip.GetString();
+		if( ip == NULL || idStr::Length( ip ) == 0 || idStr::Icmp( ip, "localhost" ) == 0 )
+			ip = "0.0.0.0";
+		// DG end
 		Sys_StringToNetAdr( ip, &address, false );
 		address.port = net_port.GetInteger();
 	}
-
+	
 	connectInfo.netAddr = address;
-
+	
 	return connectInfo;
 }
 
@@ -173,7 +204,8 @@ lobbyConnectInfo_t idLobbyBackendDirect::GetConnectInfo() {
 idLobbyBackendDirect::IsOwnerOfConnectInfo
 ========================
 */
-bool idLobbyBackendDirect::IsOwnerOfConnectInfo( const lobbyConnectInfo_t & connectInfo ) const {
+bool idLobbyBackendDirect::IsOwnerOfConnectInfo( const lobbyConnectInfo_t& connectInfo ) const
+{
 	return Sys_CompareNetAdrBase( address, connectInfo.netAddr );
 }
 
@@ -182,7 +214,8 @@ bool idLobbyBackendDirect::IsOwnerOfConnectInfo( const lobbyConnectInfo_t & conn
 idLobbyBackendDirect::Pump
 ========================
 */
-void idLobbyBackendDirect::Pump() {
+void idLobbyBackendDirect::Pump()
+{
 }
 
 /*
@@ -190,7 +223,8 @@ void idLobbyBackendDirect::Pump() {
 idLobbyBackendDirect::UpdateMatchParms
 ========================
 */
-void idLobbyBackendDirect::UpdateMatchParms( const idMatchParameters & p ) {
+void idLobbyBackendDirect::UpdateMatchParms( const idMatchParameters& p )
+{
 }
 
 /*
@@ -198,7 +232,8 @@ void idLobbyBackendDirect::UpdateMatchParms( const idMatchParameters & p ) {
 idLobbyBackendDirect::UpdateLobbySkill
 ========================
 */
-void idLobbyBackendDirect::UpdateLobbySkill( float lobbySkill ) {
+void idLobbyBackendDirect::UpdateLobbySkill( float lobbySkill )
+{
 }
 
 /*
@@ -206,7 +241,8 @@ void idLobbyBackendDirect::UpdateLobbySkill( float lobbySkill ) {
 idLobbyBackendDirect::SetInGame
 ========================
 */
-void idLobbyBackendDirect::SetInGame( bool value ) {
+void idLobbyBackendDirect::SetInGame( bool value )
+{
 }
 
 /*
@@ -214,7 +250,8 @@ void idLobbyBackendDirect::SetInGame( bool value ) {
 idLobbyBackendDirect::RegisterUser
 ========================
 */
-void idLobbyBackendDirect::RegisterUser( lobbyUser_t * user, bool isLocal ) {
+void idLobbyBackendDirect::RegisterUser( lobbyUser_t* user, bool isLocal )
+{
 }
 
 /*
@@ -222,5 +259,6 @@ void idLobbyBackendDirect::RegisterUser( lobbyUser_t * user, bool isLocal ) {
 idLobbyBackendDirect::UnregisterUser
 ========================
 */
-void idLobbyBackendDirect::UnregisterUser( lobbyUser_t * user, bool isLocal ) {
+void idLobbyBackendDirect::UnregisterUser( lobbyUser_t* user, bool isLocal )
+{
 }

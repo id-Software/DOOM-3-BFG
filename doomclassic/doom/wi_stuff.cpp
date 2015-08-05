@@ -31,8 +31,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "Main.h"
 #include "sys/sys_session.h"
 #include "sys/sys_signin.h"
-#include "DoomLeaderboards.h"
-#include "d3xp/Game_Local.h"
+//#include "DoomLeaderboards.h"
+#include "d3xp/Game_local.h"
 
 
 #include <stdio.h>

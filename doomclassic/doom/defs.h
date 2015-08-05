@@ -219,7 +219,7 @@ If you have questions concerning this license or the applicable additional terms
 #define BFGCELLS		40		
 // p_pspr.defs end // 
 //  p_saveg.defs begin // 
-#define PADSAVEP()	::g->save_p += (4 - ((int) ::g->save_p & 3)) & 3
+#define PADSAVEP()	::g->save_p += (4 - ((intptr_t) ::g->save_p & 3)) & 3
 // p_saveg.defs end // 
 //  p_setup.defs begin // 
 #define MAX_DEATHMATCH_STARTS	10

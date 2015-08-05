@@ -84,7 +84,8 @@ int	DOOMPORT = 1002;	// DHM - Nerve :: On original XBox, ports 1000 - 1255 saved
 
 
 unsigned long GetServerIP() {
-	return ::g->sendaddress[::g->doomcom.consoleplayer].sin_addr.s_addr;
+	//return ::g->sendaddress[::g->doomcom.consoleplayer].sin_addr.s_addr;
+	return 0;
 }
 
 void	(*netget) (void);
@@ -96,16 +97,17 @@ void	(*netsend) (void);
 //
 int UDPsocket (void)
 {
-	int	s;
+	//int	s;
 
 	// allocate a socket
-	s = socket (AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-	if ( !IsValidSocket( s ) ) {
-		int err = GetLastSocketError();
-		I_Error( "can't create socket, error %d", err );
-	}
+	//s = socket (AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+	//if ( !IsValidSocket( s ) ) {
+	//	int err = GetLastSocketError();
+	//	I_Error( "can't create socket, error %d", err );
+	//}
 
-	return s;
+	//return s;
+	return 0;
 }
 
 //
@@ -258,21 +260,21 @@ void I_InitNetwork (void)
 }
 
 // DHM - Nerve
-void I_ShutdownNetwork( void ) {
+void I_ShutdownNetwork() {
 	
 }
 
 void I_NetCmd (void)
 {
-	if (::g->doomcom.command == CMD_SEND)
-	{
-		netsend ();
-	}
-	else if (::g->doomcom.command == CMD_GET)
-	{
-		netget ();
-	}
-	else
-		I_Error ("Bad net cmd: %i\n",::g->doomcom.command); 
+	//if (::g->doomcom.command == CMD_SEND)
+	//{
+	//	netsend ();
+	//}
+	//else if (::g->doomcom.command == CMD_GET)
+	//{
+	//	netget ();
+	//}
+	//else
+	//	I_Error ("Bad net cmd: %i\n",::g->doomcom.command);
 }
 

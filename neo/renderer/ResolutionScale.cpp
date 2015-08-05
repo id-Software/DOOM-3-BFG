@@ -2,9 +2,10 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2014 Robert Beckebans
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,7 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
-#include "../idlib/precompiled.h"
+#include "precompiled.h"
 #include "tr_local.h"
 #include "ResolutionScale.h"
 
@@ -37,7 +38,9 @@ idResolutionScale	resolutionScale;
 static const float MINIMUM_RESOLUTION_SCALE = 0.5f;
 static const float MAXIMUM_RESOLUTION_SCALE = 1.0f;
 
-idCVar rs_enable( "rs_enable", "1", CVAR_INTEGER, "Enable dynamic resolution scaling, 0 - off, 1 - horz only, 2 - vert only, 3 - both" );
+// RB: turned this off. It is only useful on mobile devices or consoles
+idCVar rs_enable( "rs_enable", "0", CVAR_INTEGER, "Enable dynamic resolution scaling, 0 - off, 1 - horz only, 2 - vert only, 3 - both" );
+// Rb end
 idCVar rs_forceFractionX( "rs_forceFractionX", "0", CVAR_FLOAT, "Force a specific 0.0 to 1.0 horizontal resolution scale" );
 idCVar rs_forceFractionY( "rs_forceFractionY", "0", CVAR_FLOAT, "Force a specific 0.0 to 1.0 vertical resolution scale" );
 idCVar rs_showResolutionChanges( "rs_showResolutionChanges", "0", CVAR_INTEGER, "1 = Print whenever the resolution scale changes, 2 = always" );
@@ -54,7 +57,8 @@ idCVar rs_display( "rs_display", "0", CVAR_INTEGER, "0 - percentages, 1 - pixels
 idResolutionScale::idResolutionScale
 ========================
 */
-idResolutionScale::idResolutionScale() {
+idResolutionScale::idResolutionScale()
+{
 	dropMilliseconds = 15.0f;
 	raiseMilliseconds = 13.0f;
 	framesAboveRaise = 0;
@@ -66,7 +70,8 @@ idResolutionScale::idResolutionScale() {
 idResolutionScale::InitForMap
 ========================
 */
-void idResolutionScale::InitForMap( const char * mapName ) {
+void idResolutionScale::InitForMap( const char* mapName )
+{
 	dropMilliseconds = rs_dropMilliseconds.GetFloat();
 	raiseMilliseconds = rs_raiseMilliseconds.GetFloat();
 }
@@ -76,7 +81,8 @@ void idResolutionScale::InitForMap( const char * mapName ) {
 idResolutionScale::ResetToFullResolution
 ========================
 */
-void idResolutionScale::ResetToFullResolution() {
+void idResolutionScale::ResetToFullResolution()
+{
 	currentResolution = 1.0f;
 }
 
@@ -85,22 +91,33 @@ void idResolutionScale::ResetToFullResolution() {
 idResolutionScale::GetCurrentResolutionScale
 ========================
 */
-void idResolutionScale::GetCurrentResolutionScale( float & x, float & y ) {
+void idResolutionScale::GetCurrentResolutionScale( float& x, float& y )
+{
 	assert( currentResolution >= MINIMUM_RESOLUTION_SCALE );
 	assert( currentResolution <= MAXIMUM_RESOLUTION_SCALE );
-
+	
 	x = MAXIMUM_RESOLUTION_SCALE;
 	y = MAXIMUM_RESOLUTION_SCALE;
-	switch ( rs_enable.GetInteger() ) {
-		case 0: return;
-		case 1: x = currentResolution; break;
-		case 2: y = currentResolution; break;
-		case 3: {
+	switch( rs_enable.GetInteger() )
+	{
+		case 0:
+			return;
+		case 1:
+			x = currentResolution;
+			break;
+		case 2:
+			y = currentResolution;
+			break;
+		case 3:
+		{
 			const float middle = ( MINIMUM_RESOLUTION_SCALE + MAXIMUM_RESOLUTION_SCALE ) * 0.5f;
-			if ( currentResolution >= middle ) {
+			if( currentResolution >= middle )
+			{
 				// First scale horizontally from max to min
 				x = MINIMUM_RESOLUTION_SCALE + ( currentResolution - middle ) * 2.0f;
-			} else {
+			}
+			else
+			{
 				// Then scale vertically from max to min
 				x = MINIMUM_RESOLUTION_SCALE;
 				y = MINIMUM_RESOLUTION_SCALE + ( currentResolution - MINIMUM_RESOLUTION_SCALE ) * 2.0f;
@@ -109,11 +126,13 @@ void idResolutionScale::GetCurrentResolutionScale( float & x, float & y ) {
 		}
 	}
 	float forceFrac = rs_forceFractionX.GetFloat();
-	if ( forceFrac > 0.0f && forceFrac <= MAXIMUM_RESOLUTION_SCALE ) {
+	if( forceFrac > 0.0f && forceFrac <= MAXIMUM_RESOLUTION_SCALE )
+	{
 		x = forceFrac;
-	} 
+	}
 	forceFrac = rs_forceFractionY.GetFloat();
-	if ( forceFrac > 0.0f && forceFrac <= MAXIMUM_RESOLUTION_SCALE ) {
+	if( forceFrac > 0.0f && forceFrac <= MAXIMUM_RESOLUTION_SCALE )
+	{
 		y = forceFrac;
 	}
 }
@@ -123,11 +142,13 @@ void idResolutionScale::GetCurrentResolutionScale( float & x, float & y ) {
 idResolutionScale::SetCurrentGPUFrameTime
 ========================
 */
-void idResolutionScale::SetCurrentGPUFrameTime( int microseconds ) {
+void idResolutionScale::SetCurrentGPUFrameTime( int microseconds )
+{
 	float old = currentResolution;
 	float milliseconds = microseconds * 0.001f;
-
-	if ( milliseconds > dropMilliseconds ) {
+	
+	if( milliseconds > dropMilliseconds )
+	{
 		// We missed our target, so drop the resolution.
 		// The target should be set conservatively so this does not
 		// necessarily imply a missed VBL.
@@ -135,28 +156,36 @@ void idResolutionScale::SetCurrentGPUFrameTime( int microseconds ) {
 		// we might consider making the drop in some way
 		// proportional to how badly we missed
 		currentResolution -= rs_dropFraction.GetFloat();
-		if ( currentResolution < MINIMUM_RESOLUTION_SCALE ) {
+		if( currentResolution < MINIMUM_RESOLUTION_SCALE )
+		{
 			currentResolution = MINIMUM_RESOLUTION_SCALE;
 		}
-	} else if ( milliseconds < raiseMilliseconds ) {
+	}
+	else if( milliseconds < raiseMilliseconds )
+	{
 		// We seem to have speed to spare, so increase the resolution
 		// if we stay here consistantly.  The raise fraction should
 		// be smaller than the drop fraction to avoid ping-ponging
 		// back and forth.
-		if ( ++framesAboveRaise >= rs_raiseFrames.GetInteger() ) {
+		if( ++framesAboveRaise >= rs_raiseFrames.GetInteger() )
+		{
 			framesAboveRaise = 0;
 			currentResolution += rs_raiseFraction.GetFloat();
-			if ( currentResolution > MAXIMUM_RESOLUTION_SCALE ) {
+			if( currentResolution > MAXIMUM_RESOLUTION_SCALE )
+			{
 				currentResolution = MAXIMUM_RESOLUTION_SCALE;
 			}
 		}
-	} else {
+	}
+	else
+	{
 		// we are inside the target range
 		framesAboveRaise = 0;
 	}
-
-	if ( rs_showResolutionChanges.GetInteger() > 1 ||
-		( rs_showResolutionChanges.GetInteger() == 1 && currentResolution != old ) ) {
+	
+	if( rs_showResolutionChanges.GetInteger() > 1 ||
+			( rs_showResolutionChanges.GetInteger() == 1 && currentResolution != old ) )
+	{
 		idLib::Printf( "GPU msec: %4.1f resolutionScale: %4.2f\n", milliseconds, currentResolution );
 	}
 }
@@ -166,27 +195,38 @@ void idResolutionScale::SetCurrentGPUFrameTime( int microseconds ) {
 idResolutionScale::GetConsoleText
 ========================
 */
-void idResolutionScale::GetConsoleText( idStr &s ) {
+void idResolutionScale::GetConsoleText( idStr& s )
+{
 	float x;
 	float y;
-	if ( rs_enable.GetInteger() == 0 ) {
+	if( rs_enable.GetInteger() == 0 )
+	{
 		s = "rs-off";
 		return;
 	}
 	GetCurrentResolutionScale( x, y );
-	if ( rs_display.GetInteger() > 0 ) {
+	if( rs_display.GetInteger() > 0 )
+	{
 		x *= 1280.0f;
 		y *= 720.0f;
-		if ( rs_enable.GetInteger() == 1 ) {
+		if( rs_enable.GetInteger() == 1 )
+		{
 			y = 1.0f;
-		} else if ( rs_enable.GetInteger() == 2 ) {
+		}
+		else if( rs_enable.GetInteger() == 2 )
+		{
 			x = 1.0f;
 		}
 		s = va( "rs-pixels %i", idMath::Ftoi( x * y ) );
-	} else {
-		if ( rs_enable.GetInteger() == 3 ) {
+	}
+	else
+	{
+		if( rs_enable.GetInteger() == 3 )
+		{
 			s = va( "%2i%%h,%2i%%v", idMath::Ftoi( 100.0f * x ), idMath::Ftoi( 100.0f * y ) );
-		} else {
+		}
+		else
+		{
 			s = va( "%2i%%%s", ( rs_enable.GetInteger() == 1 ) ? idMath::Ftoi( 100.0f * x ) : idMath::Ftoi( 100.0f * y ), ( rs_enable.GetInteger() == 1 ) ? "h" : "v" );
 		}
 	}

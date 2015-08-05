@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -59,14 +59,16 @@ Private structures used by the MD3 loader.
 // vertex scales
 #define	MD3_XYZ_SCALE		(1.0/64)
 
-typedef struct md3Frame_s {
+typedef struct md3Frame_s
+{
 	idVec3		bounds[2];
 	idVec3		localOrigin;
 	float		radius;
 	char		name[16];
 } md3Frame_t;
 
-typedef struct md3Tag_s {
+typedef struct md3Tag_s
+{
 	char		name[MAX_MD3PATH];	// tag name
 	idVec3		origin;
 	idVec3		axis[3];
@@ -83,63 +85,69 @@ typedef struct md3Tag_s {
 ** XyzNormals		sizeof( md3XyzNormal_t ) * numVerts * numFrames
 */
 
-typedef struct md3Surface_s {
-	int			ident;				// 
-
+typedef struct md3Surface_s
+{
+	int			ident;				//
+	
 	char		name[MAX_MD3PATH];	// polyset name
-
+	
 	int			flags;
 	int			numFrames;			// all surfaces in a model should have the same
-
+	
 	int			numShaders;			// all surfaces in a model should have the same
 	int			numVerts;
-
+	
 	int			numTriangles;
 	int			ofsTriangles;
-
+	
 	int			ofsShaders;			// offset from start of md3Surface_t
 	int			ofsSt;				// texture coords are common for all frames
 	int			ofsXyzNormals;		// numVerts * numFrames
-
+	
 	int			ofsEnd;				// next surface follows
 } md3Surface_t;
 
-typedef struct {
+typedef struct
+{
 	char				name[MAX_MD3PATH];
-	const idMaterial *	shader;			// for in-game use
+	const idMaterial* 	shader;			// for in-game use
 } md3Shader_t;
 
-typedef struct {
+typedef struct
+{
 	int			indexes[3];
 } md3Triangle_t;
 
-typedef struct {
+typedef struct
+{
 	float		st[2];
 } md3St_t;
 
-typedef struct {
+typedef struct
+{
 	short		xyz[3];
 	short		normal;
 } md3XyzNormal_t;
 
-typedef struct md3Header_s {
+typedef struct md3Header_s
+{
 	int			ident;
 	int			version;
-
+	
 	char		name[MAX_MD3PATH];	// model name
-
+	
 	int			flags;
-
+	
 	int			numFrames;
-	int			numTags;			
+	int			numTags;
 	int			numSurfaces;
-
+	
 	int			numSkins;
-
+	
 	int			ofsFrames;			// offset for first frame
 	int			ofsTags;			// numFrames * numTags
 	int			ofsSurfaces;		// first surface, others follow
-
+	
 	int			ofsEnd;				// end of file
 } md3Header_t;
 

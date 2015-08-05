@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -28,7 +28,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __SWF_ENUMS_H__
 #define __SWF_ENUMS_H__
 
-enum swfDictType_t {
+enum swfDictType_t
+{
 	SWF_DICT_NULL,
 	SWF_DICT_IMAGE,
 	SWF_DICT_SHAPE,
@@ -38,7 +39,8 @@ enum swfDictType_t {
 	SWF_DICT_TEXT,
 	SWF_DICT_EDITTEXT
 };
-enum swfTag_t {
+enum swfTag_t
+{
 	Tag_End = 0,
 	Tag_ShowFrame = 1,
 	Tag_DefineShape = 2,
@@ -102,9 +104,10 @@ enum swfTag_t {
 	Tag_DefineFontName = 88,
 	Tag_StartSound2 = 89
 };
-enum swfAction_t {
+enum swfAction_t
+{
 	Action_End = 0,
-
+	
 	// swf 3
 	Action_NextFrame = 0x04,
 	Action_PrevFrame = 0x05,
@@ -112,13 +115,13 @@ enum swfAction_t {
 	Action_Stop = 0x07,
 	Action_ToggleQuality = 0x08,
 	Action_StopSounds = 0x09,
-
+	
 	Action_GotoFrame = 0x81,
 	Action_GetURL = 0x83,
 	Action_WaitForFrame = 0x8A,
 	Action_SetTarget = 0x8B,
 	Action_GoToLabel = 0x8C,
-
+	
 	// swf 4
 	Action_Add = 0x0A,
 	Action_Subtract = 0x0B,
@@ -154,7 +157,7 @@ enum swfAction_t {
 	Action_MBStringExtract = 0x35,
 	Action_MBCharToAscii = 0x36,
 	Action_MBAsciiToChar = 0x37,
-
+	
 	Action_WaitForFrame2 = 0x8D,
 	Action_Push = 0x96,
 	Action_Jump = 0x99,
@@ -162,7 +165,7 @@ enum swfAction_t {
 	Action_If = 0x9D,
 	Action_Call = 0x9E,
 	Action_GotoFrame2 = 0x9F,
-
+	
 	// swf 5
 	Action_Delete = 0x3A,
 	Action_Delete2 = 0x3B,
@@ -196,26 +199,26 @@ enum swfAction_t {
 	Action_BitLShift = 0x63,
 	Action_BitRShift = 0x64,
 	Action_BitURShift = 0x65,
-
+	
 	Action_StoreRegister = 0x87,
 	Action_ConstantPool = 0x88,
 	Action_With = 0x94,
 	Action_DefineFunction = 0x9B,
-
+	
 	// swf 6
 	Action_InstanceOf = 0x54,
 	Action_Enumerate2 = 0x55,
 	Action_StrictEquals = 0x66,
 	Action_Greater = 0x67,
 	Action_StringGreater = 0x68,
-
+	
 	// swf 7
 	Action_Extends = 0x69,
 	Action_CastOp = 0x2B,
 	Action_ImplementsOp = 0x2C,
 	Action_Throw = 0x2A,
 	Action_Try = 0x8F,
-
+	
 	Action_DefineFunction2 = 0x8E,
 };
 

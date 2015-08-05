@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 #pragma hdrstop
-#include "../../idLib/precompiled.h"
+#include "precompiled.h"
 #include "../Game_local.h"
 
 /*
@@ -34,7 +34,8 @@ If you have questions concerning this license or the applicable additional terms
 idMenuWidget_MenuBar::Initialize
 ========================
 */
-void idMenuWidget_MenuBar::Initialize( idMenuHandler * data ) {
+void idMenuWidget_MenuBar::Initialize( idMenuHandler* data )
+{
 	idMenuWidget::Initialize( data );
 }
 
@@ -43,53 +44,64 @@ void idMenuWidget_MenuBar::Initialize( idMenuHandler * data ) {
 idMenuWidget_MenuBar::Update
 ========================
 */
-void idMenuWidget_MenuBar::Update() {
+void idMenuWidget_MenuBar::Update()
+{
 
-	if ( GetSWFObject() == NULL ) {
+	if( GetSWFObject() == NULL )
+	{
 		return;
 	}
-
-	idSWFScriptObject & root = GetSWFObject()->GetRootObject();
-
-	if ( !BindSprite( root ) ) {
+	
+	idSWFScriptObject& root = GetSWFObject()->GetRootObject();
+	
+	if( !BindSprite( root ) )
+	{
 		return;
 	}
-
+	
 	totalWidth = 0.0f;
 	buttonPos = 0.0f;
-
-	for ( int index = 0; index < GetNumVisibleOptions(); ++index ) {
-			
-		if ( index >= children.Num() ) {
+	
+	for( int index = 0; index < GetNumVisibleOptions(); ++index )
+	{
+	
+		if( index >= children.Num() )
+		{
 			break;
 		}
-
-		if ( index != 0 ) {
+		
+		if( index != 0 )
+		{
 			totalWidth += rightSpacer;
 		}
-
-		idMenuWidget & child = GetChildByIndex( index );
+		
+		idMenuWidget& child = GetChildByIndex( index );
 		child.SetSpritePath( GetSpritePath(), va( "btn%d", index ) );
-		if ( child.BindSprite( root ) ) {
+		if( child.BindSprite( root ) )
+		{
 			PrepareListElement( child, index );
 			child.Update();
 		}
 	}
-
+	
 	// 640 is half the size of our flash files width
 	float xPos = 640.0f - ( totalWidth / 2.0f );
 	GetSprite()->SetXPos( xPos );
-
-	idSWFSpriteInstance * backing = GetSprite()->GetScriptObject()->GetNestedSprite( "backing" );
-	if ( backing != NULL ) {
-		if ( menuData != NULL && menuData->GetPlatform() != 2 ) {
+	
+	idSWFSpriteInstance* backing = GetSprite()->GetScriptObject()->GetNestedSprite( "backing" );
+	if( backing != NULL )
+	{
+		if( menuData != NULL && menuData->GetPlatform() != 2 )
+		{
 			backing->SetVisible( false );
-		} else {
+		}
+		else
+		{
 			backing->SetVisible( true );
 			backing->SetXPos( totalWidth / 2.0f );
 		}
 	}
-
+	
 }
 
 /*
@@ -97,9 +109,11 @@ void idMenuWidget_MenuBar::Update() {
 idMenuWidget_MenuBar::SetListHeadings
 ========================
 */
-void idMenuWidget_MenuBar::SetListHeadings( idList< idStr > & list ) {
+void idMenuWidget_MenuBar::SetListHeadings( idList< idStr >& list )
+{
 	headings.Clear();
-	for ( int index = 0; index < list.Num(); ++index ) {
+	for( int index = 0; index < list.Num(); ++index )
+	{
 		headings.Append( list[ index ] );
 	}
 }
@@ -109,8 +123,9 @@ void idMenuWidget_MenuBar::SetListHeadings( idList< idStr > & list ) {
 idMenuWidget_MenuBar::GetTotalNumberOfOptions
 ========================
 */
-int idMenuWidget_MenuBar::GetTotalNumberOfOptions() const { 
-	return GetChildren().Num(); 
+int idMenuWidget_MenuBar::GetTotalNumberOfOptions() const
+{
+	return GetChildren().Num();
 }
 
 /*
@@ -118,30 +133,37 @@ int idMenuWidget_MenuBar::GetTotalNumberOfOptions() const {
 idMenuWidget_MenuBar::PrepareListElement
 ========================
 */
-bool idMenuWidget_MenuBar::PrepareListElement( idMenuWidget & widget, const int navIndex ) {
+bool idMenuWidget_MenuBar::PrepareListElement( idMenuWidget& widget, const int navIndex )
+{
 
-	if ( navIndex >= GetNumVisibleOptions() ) {
+	if( navIndex >= GetNumVisibleOptions() )
+	{
 		return false;
 	}
-
-	idMenuWidget_MenuButton * const button = dynamic_cast< idMenuWidget_MenuButton * >( &widget );
-	if ( button == NULL || button->GetSprite() == NULL ) {
+	
+	idMenuWidget_MenuButton* const button = dynamic_cast< idMenuWidget_MenuButton* >( &widget );
+	if( button == NULL || button->GetSprite() == NULL )
+	{
 		return false;
 	}
-
-	if ( navIndex >= headings.Num() ) {
+	
+	if( navIndex >= headings.Num() )
+	{
 		button->SetLabel( "" );
-	} else {
+	}
+	else
+	{
 		button->SetLabel( headings[navIndex] );
-		idSWFTextInstance * ti = button->GetSprite()->GetScriptObject()->GetNestedText( "txtVal" );
-		if ( ti != NULL ) {
+		idSWFTextInstance* ti = button->GetSprite()->GetScriptObject()->GetNestedText( "txtVal" );
+		if( ti != NULL )
+		{
 			ti->SetStrokeInfo( true, 0.7f, 1.25f );
-			ti->SetText( headings[ navIndex ] );			
+			ti->SetText( headings[ navIndex ] );
 			button->SetPosition( buttonPos );
 			totalWidth += ti->GetTextLength();
 			buttonPos += rightSpacer + ti->GetTextLength();
 		}
 	}
-
+	
 	return true;
 }

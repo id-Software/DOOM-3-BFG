@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -59,7 +59,7 @@ static const uint64 GLS_REDMASK							= 1 << 7;
 static const uint64 GLS_GREENMASK						= 1 << 8;
 static const uint64 GLS_BLUEMASK						= 1 << 9;
 static const uint64 GLS_ALPHAMASK						= 1 << 10;
-static const uint64 GLS_COLORMASK						= (GLS_REDMASK|GLS_GREENMASK|GLS_BLUEMASK);
+static const uint64 GLS_COLORMASK						= ( GLS_REDMASK | GLS_GREENMASK | GLS_BLUEMASK );
 
 static const uint64 GLS_POLYMODE_LINE					= 1 << 11;
 static const uint64 GLS_POLYGON_OFFSET					= 1 << 12;

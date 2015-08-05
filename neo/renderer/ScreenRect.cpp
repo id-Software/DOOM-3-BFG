@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
-#include "../idlib/precompiled.h"
+#include "precompiled.h"
 
 #include "tr_local.h"
 
@@ -44,7 +44,8 @@ idScreenRect
 idScreenRect::Clear
 ======================
 */
-void idScreenRect::Clear() {
+void idScreenRect::Clear()
+{
 	x1 = y1 = 32000;
 	x2 = y2 = -32000;
 	zmin = 0.0f;
@@ -56,20 +57,25 @@ void idScreenRect::Clear() {
 idScreenRect::AddPoint
 ======================
 */
-void idScreenRect::AddPoint( float x, float y ) {
+void idScreenRect::AddPoint( float x, float y )
+{
 	int	ix = idMath::Ftoi( x );
 	int iy = idMath::Ftoi( y );
-
-	if ( ix < x1 ) {
+	
+	if( ix < x1 )
+	{
 		x1 = ix;
 	}
-	if ( ix > x2 ) {
+	if( ix > x2 )
+	{
 		x2 = ix;
 	}
-	if ( iy < y1 ) {
+	if( iy < y1 )
+	{
 		y1 = iy;
 	}
-	if ( iy > y2 ) {
+	if( iy > y2 )
+	{
 		y2 = iy;
 	}
 }
@@ -79,7 +85,8 @@ void idScreenRect::AddPoint( float x, float y ) {
 idScreenRect::Expand
 ======================
 */
-void idScreenRect::Expand() {
+void idScreenRect::Expand()
+{
 	x1--;
 	y1--;
 	x2++;
@@ -91,17 +98,22 @@ void idScreenRect::Expand() {
 idScreenRect::Intersect
 ======================
 */
-void idScreenRect::Intersect( const idScreenRect &rect ) {
-	if ( rect.x1 > x1 ) {
+void idScreenRect::Intersect( const idScreenRect& rect )
+{
+	if( rect.x1 > x1 )
+	{
 		x1 = rect.x1;
 	}
-	if ( rect.x2 < x2 ) {
+	if( rect.x2 < x2 )
+	{
 		x2 = rect.x2;
 	}
-	if ( rect.y1 > y1 ) {
+	if( rect.y1 > y1 )
+	{
 		y1 = rect.y1;
 	}
-	if ( rect.y2 < y2 ) {
+	if( rect.y2 < y2 )
+	{
 		y2 = rect.y2;
 	}
 }
@@ -111,17 +123,22 @@ void idScreenRect::Intersect( const idScreenRect &rect ) {
 idScreenRect::Union
 ======================
 */
-void idScreenRect::Union( const idScreenRect &rect ) {
-	if ( rect.x1 < x1 ) {
+void idScreenRect::Union( const idScreenRect& rect )
+{
+	if( rect.x1 < x1 )
+	{
 		x1 = rect.x1;
 	}
-	if ( rect.x2 > x2 ) {
+	if( rect.x2 > x2 )
+	{
 		x2 = rect.x2;
 	}
-	if ( rect.y1 < y1 ) {
+	if( rect.y1 < y1 )
+	{
 		y1 = rect.y1;
 	}
-	if ( rect.y2 > y2 ) {
+	if( rect.y2 > y2 )
+	{
 		y2 = rect.y2;
 	}
 }
@@ -131,7 +148,8 @@ void idScreenRect::Union( const idScreenRect &rect ) {
 idScreenRect::Equals
 ======================
 */
-bool idScreenRect::Equals( const idScreenRect &rect ) const {
+bool idScreenRect::Equals( const idScreenRect& rect ) const
+{
 	return ( x1 == rect.x1 && x2 == rect.x2 && y1 == rect.y1 && y2 == rect.y2 );
 }
 
@@ -140,7 +158,8 @@ bool idScreenRect::Equals( const idScreenRect &rect ) const {
 idScreenRect::IsEmpty
 ======================
 */
-bool idScreenRect::IsEmpty() const {
+bool idScreenRect::IsEmpty() const
+{
 	return ( x1 > x2 || y1 > y2 );
 }
 
@@ -149,8 +168,10 @@ bool idScreenRect::IsEmpty() const {
 R_ShowColoredScreenRect
 ======================
 */
-void R_ShowColoredScreenRect( const idScreenRect &rect, int colorIndex ) {
-	if ( !rect.IsEmpty() ) {
+void R_ShowColoredScreenRect( const idScreenRect& rect, int colorIndex )
+{
+	if( !rect.IsEmpty() )
+	{
 		static idVec4 colors[] = { colorRed, colorGreen, colorBlue, colorYellow, colorMagenta, colorCyan, colorWhite, colorPurple };
 		tr.viewDef->renderWorld->DebugScreenRect( colors[colorIndex & 7], rect, tr.viewDef );
 	}

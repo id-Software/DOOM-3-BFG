@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -39,33 +39,34 @@ class idPlayerProfile;
 
 /*
 ================================================
-idProfileMgr 
+idProfileMgr
 ================================================
 */
-class idProfileMgr {
+class idProfileMgr
+{
 public:
-						idProfileMgr();
-						~idProfileMgr();
-
+	idProfileMgr();
+	~idProfileMgr();
+	
 	// Called the first time it's asked to load
-	void				Init( idLocalUser * user );
-
+	void				Init( idLocalUser* user );
+	
 	void 				Pump();
-	idPlayerProfile *	GetProfile();
-
+	idPlayerProfile* 	GetProfile();
+	
 private:
 	void				LoadSettingsAsync();
 	void				SaveSettingsAsync();
 	
-	void				OnLoadSettingsCompleted( idSaveLoadParms * parms );
-	void				OnSaveSettingsCompleted( idSaveLoadParms * parms );
-
+	void				OnLoadSettingsCompleted( idSaveLoadParms* parms );
+	void				OnSaveSettingsCompleted( idSaveLoadParms* parms );
+	
 private:
 	std::auto_ptr< idSaveGameProcessorSaveProfile >	profileSaveProcessor;
 	std::auto_ptr< idSaveGameProcessorLoadProfile >	profileLoadProcessor;
-
-	idLocalUser *						user;					// reference passed in
-	idPlayerProfile *					profile;				
+	
+	idLocalUser* 						user;					// reference passed in
+	idPlayerProfile* 					profile;
 	saveGameHandle_t					handle;
 };
 
@@ -74,19 +75,20 @@ private:
 idSaveGameProcessorSaveProfile
 ================================================
 */
-class idSaveGameProcessorSaveProfile : public idSaveGameProcessorSaveFiles {
+class idSaveGameProcessorSaveProfile : public idSaveGameProcessorSaveFiles
+{
 public:
 	DEFINE_CLASS( idSaveGameProcessorSaveProfile );
-					
-					idSaveGameProcessorSaveProfile();
-
-	bool			InitSaveProfile( idPlayerProfile * profile, const char * folder );
+	
+	idSaveGameProcessorSaveProfile();
+	
+	bool			InitSaveProfile( idPlayerProfile* profile, const char* folder );
 	virtual bool	Process();
-
+	
 private:
-	idFile_SaveGame *	profileFile;
-	idPlayerProfile *	profile;
-
+	idFile_SaveGame* 	profileFile;
+	idPlayerProfile* 	profile;
+	
 };
 
 /*
@@ -94,21 +96,22 @@ private:
 idSaveGameProcessorLoadProfile
 ================================================
 */
-class idSaveGameProcessorLoadProfile : public idSaveGameProcessorLoadFiles {
+class idSaveGameProcessorLoadProfile : public idSaveGameProcessorLoadFiles
+{
 public:
 	DEFINE_CLASS( idSaveGameProcessorLoadProfile );
-
-					idSaveGameProcessorLoadProfile();
-					~idSaveGameProcessorLoadProfile();
-
-	bool			InitLoadProfile( idPlayerProfile * profile, const char * folder );
+	
+	idSaveGameProcessorLoadProfile();
+	~idSaveGameProcessorLoadProfile();
+	
+	bool			InitLoadProfile( idPlayerProfile* profile, const char* folder );
 	virtual bool	Process();
-
-
+	
+	
 private:
-	idFile_SaveGame *	profileFile;
-	idPlayerProfile *	profile;
-
+	idFile_SaveGame* 	profileFile;
+	idPlayerProfile* 	profile;
+	
 };
 
 // Synchronous check, just checks if a profile exists within the savegame location

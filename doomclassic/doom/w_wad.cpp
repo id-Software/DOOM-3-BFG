@@ -27,6 +27,12 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include "Precompiled.h"
+
+#ifdef __GNUG__
+#pragma implementation "w_wad.h"
+#endif
+#include "w_wad.h"
+
 #include "globaldata.h"
 
 
@@ -43,12 +49,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "z_zone.h"
 
 #include "idlib/precompiled.h"
-
-#ifdef __GNUG__
-#pragma implementation "w_wad.h"
-#endif
-#include "w_wad.h"
-
 
 
 //
@@ -308,7 +308,7 @@ void W_InitMultipleFiles (const char** filenames)
 }
 
 
-void W_Shutdown( void ) {
+void W_Shutdown() {
 /*
 	for (int i = 0 ; i < MAXWADFILES ; i++) {
 		if ( ::g->wadFileHandles[i] ) {

@@ -54,7 +54,7 @@ If you have questions concerning this license or the applicable additional terms
 // Data.
 #include "sounds.h"
 
-#include "../../neo/d3xp/Game_Local.h"
+#include "../../neo/d3xp/Game_local.h"
 
 //
 // Animating textures and planes

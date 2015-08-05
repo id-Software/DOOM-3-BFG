@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -47,13 +47,16 @@ idBinSearch_GreaterEqual
 ====================
 */
 template< class type >
-ID_INLINE int idBinSearch_Less( const type *array, const int arraySize, const type &value ) {
+ID_INLINE int idBinSearch_Less( const type* array, const int arraySize, const type& value )
+{
 	int len = arraySize;
 	int mid = len;
 	int offset = 0;
-	while( mid > 0 ) {
+	while( mid > 0 )
+	{
 		mid = len >> 1;
-		if ( array[offset+mid] < value ) {
+		if( array[offset + mid] < value )
+		{
 			offset += mid;
 		}
 		len -= mid;
@@ -69,13 +72,16 @@ idBinSearch_GreaterEqual
 ====================
 */
 template< class type >
-ID_INLINE int idBinSearch_LessEqual( const type *array, const int arraySize, const type &value ) {
+ID_INLINE int idBinSearch_LessEqual( const type* array, const int arraySize, const type& value )
+{
 	int len = arraySize;
 	int mid = len;
 	int offset = 0;
-	while( mid > 0 ) {
+	while( mid > 0 )
+	{
 		mid = len >> 1;
-		if ( array[offset+mid] <= value ) {
+		if( array[offset + mid] <= value )
+		{
 			offset += mid;
 		}
 		len -= mid;
@@ -91,22 +97,27 @@ idBinSearch_Greater
 ====================
 */
 template< class type >
-ID_INLINE int idBinSearch_Greater( const type *array, const int arraySize, const type &value ) {
+ID_INLINE int idBinSearch_Greater( const type* array, const int arraySize, const type& value )
+{
 	int len = arraySize;
 	int mid = len;
 	int offset = 0;
 	int res = 0;
-	while( mid > 0 ) {
+	while( mid > 0 )
+	{
 		mid = len >> 1;
-		if ( array[offset+mid] > value ) {
+		if( array[offset + mid] > value )
+		{
 			res = 0;
-		} else {
+		}
+		else
+		{
 			offset += mid;
 			res = 1;
 		}
 		len -= mid;
 	}
-	return offset+res;
+	return offset + res;
 }
 
 /*
@@ -117,22 +128,27 @@ idBinSearch_GreaterEqual
 ====================
 */
 template< class type >
-ID_INLINE int idBinSearch_GreaterEqual( const type *array, const int arraySize, const type &value ) {
+ID_INLINE int idBinSearch_GreaterEqual( const type* array, const int arraySize, const type& value )
+{
 	int len = arraySize;
 	int mid = len;
 	int offset = 0;
 	int res = 0;
-	while( mid > 0 ) {
+	while( mid > 0 )
+	{
 		mid = len >> 1;
-		if ( array[offset+mid] >= value ) {
+		if( array[offset + mid] >= value )
+		{
 			res = 0;
-		} else {
+		}
+		else
+		{
 			offset += mid;
 			res = 1;
 		}
 		len -= mid;
 	}
-	return offset+res;
+	return offset + res;
 }
 
 #endif /* !__BINSEARCH_H__ */

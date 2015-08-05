@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -35,47 +35,53 @@ There is one main sprite, and many many sub-sprites
 Only the main sprite is allowed to add things to the dictionary
 ================================================
 */
-class idSWFSprite {
+class idSWFSprite
+{
 public:
-	idSWFSprite( class idSWF * swf );
+	idSWFSprite( class idSWF* swf );
 	~idSWFSprite();
-
-	void	Load( idSWFBitStream & bitstream, bool parseDictionary );
-
-	void	Read( idFile * f );
-	void	Write( idFile * f );
 	
-	class idSWF * GetSWF() { return swf; }
-
+	void	Load( idSWFBitStream& bitstream, bool parseDictionary );
+	
+	void	Read( idFile* f );
+	void	Write( idFile* f );
+	
+	class idSWF* GetSWF()
+	{
+		return swf;
+	}
+	
 private:
 	friend class idSWFSpriteInstance;
 	friend class idSWFScriptFunction_Script;
-
-	class idSWF * swf;	// this is required so things can access the dictionary, it would be kind of nice if we just had an idSWFDictionary pointer instead
-
+	
+	class idSWF* swf;	// this is required so things can access the dictionary, it would be kind of nice if we just had an idSWFDictionary pointer instead
+	
 	uint16	frameCount;
-
+	
 	// frameOffsets contains offsets into the commands list for each frame
 	// the first command for frame 3 is frameOffsets[2] and the last command is frameOffsets[3]
 	idList< uint32, TAG_SWF >	frameOffsets;
-
-	struct swfFrameLabel_t {
+	
+	struct swfFrameLabel_t
+	{
 		idStr frameLabel;
 		uint32 frameNum;
 	};
 	idList< swfFrameLabel_t, TAG_SWF > frameLabels;
-
-	struct swfSpriteCommand_t {
+	
+	struct swfSpriteCommand_t
+	{
 		swfTag_t		tag;
 		idSWFBitStream	stream;
 	};
 	idList< swfSpriteCommand_t, TAG_SWF > commands;
-
+	
 	//// [ES-BrianBugh 1/16/10] - There can be multiple DoInitAction tags, and all need to be executed.
 	idList<idSWFBitStream, TAG_SWF> doInitActions;
-
-	byte * commandBuffer;
-
+	
+	byte* commandBuffer;
+	
 };
 
 #endif // !__SWF_SPRITES_H__

@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 2013 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
 
@@ -26,7 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#include "global.inc"
+#include "renderprogs/global.inc"
 
 uniform samplerCUBE	samp0 : register(s0); // texture 0 is the cube map
 uniform sampler2D	samp1 : register(s1); // normal map
@@ -48,7 +49,15 @@ struct PS_OUT {
 void main( PS_IN fragment, out PS_OUT result ) {
 
 	float4 bump = tex2D( samp1, fragment.texcoord0 ) * 2.0f - 1.0f;
-	float3 localNormal = float3( bump.wy, 0.0f );
+	
+	// RB begin
+	float3 localNormal;
+#if defined(GLES2)
+	localNormal = float3( bump.rg, 0.0f );
+#else
+	localNormal = float3( bump.wy, 0.0f );
+#endif
+	// RB end
 	localNormal.z = sqrt( 1.0f - dot3( localNormal, localNormal ) );
 
 	float3 globalNormal;

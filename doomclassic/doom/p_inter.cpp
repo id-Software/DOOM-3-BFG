@@ -55,7 +55,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "sys/sys_signin.h"
 
-#include "../../neo/d3xp/Game_Local.h"
+#include "../../neo/d3xp/Game_local.h"
 
 // a weapon is found with two clip loads,
 // a big item has five clip loads
