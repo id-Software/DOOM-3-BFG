@@ -1427,7 +1427,7 @@ CONSOLE_COMMAND_SHIP( idclev, "warp to next level", 0 ) {
 			return;
 		}
 
-		if( map > 32 ) {
+		if( map > 33 ) { //Doom 3 BFG Edition's Doom 2 has MAP33 Betray 
 			map = 1;
 		}
 	}

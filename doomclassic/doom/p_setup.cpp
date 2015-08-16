@@ -347,6 +347,14 @@ void P_LoadThings (int lump)
 				break;
 			}
 		}
+		// Do not spawn cool, old monsters if MAP33 Betray needs German censorship. 
+		else 
+		{
+			if (::g->gamemap==33 && mt->type==84) // MAP33 Betray still has Wolf SS
+			{
+				mt->type = 3004; // Former Human instead
+			}
+		}
 		if (spawn == false)
 			break;
 
@@ -680,6 +688,13 @@ P_SetupLevel
 	P_LoadSideDefs (lumpnum+ML_SIDEDEFS);
 
 	P_LoadLineDefs (lumpnum+ML_LINEDEFS);
+	if (::g->gamemode==commercial && map==33) // Doom 3 BFG Edition's MAP33 has a bug with a teleporter missing a tag
+	{
+		for (i=0 ; i<::g->numlines ; i++) {
+			if (::g->lines[i].special==97 && ::g->lines[i].tag==0) // teleporter with missing tag
+				::g->lines[i].tag = 41; 
+		}
+	}
 	P_LoadSubsectors (lumpnum+ML_SSECTORS);
 	P_LoadNodes (lumpnum+ML_NODES);
 	P_LoadSegs (lumpnum+ML_SEGS);
