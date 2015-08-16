@@ -265,7 +265,6 @@ void D_Display (void)
 			R_DrawViewBorder ();    // erase old menu stuff
 			::g->borderdrawcount--;
 		}
-
 	}
 
 	::g->menuactivestate = ::g->menuactive;

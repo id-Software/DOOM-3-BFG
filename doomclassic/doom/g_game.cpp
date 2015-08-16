@@ -1398,7 +1398,7 @@ qboolean G_DoLoadGame ()
 
 	::g->gameaction = ga_nothing; 
 
-	M_ReadFile (::g->savename, &::g->savebuffer); 
+	M_ReadFile (::g->savename, &::g->savebuffer);
 
 	waitingForWipe = true;
 
@@ -1509,7 +1509,7 @@ qboolean G_DoSaveGame (void)
 
 	}
 
-	::g->save_p = ::g->savebuffer = ::g->screens[1];
+	::g->save_p = ::g->savebuffer = (byte*) ::g->screens[1];
 
 	memcpy (::g->save_p, description, SAVESTRINGSIZE); 
 	::g->save_p += SAVESTRINGSIZE; 

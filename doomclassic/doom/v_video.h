@@ -48,7 +48,7 @@ If you have questions concerning this license or the applicable additional terms
 
 
 
-extern	byte*		screens[5];
+extern	colormapindex_t*		screens[5];
 
 extern  int	dirtybox[4];
 
@@ -95,7 +95,7 @@ V_DrawBlock
   int		scrn,
   int		width,
   int		height,
-  byte*		src );
+  colormapindex_t*		src );
 
 // Reads a linear block of pixels into the view buffer.
 void
@@ -105,7 +105,7 @@ V_GetBlock
   int		scrn,
   int		width,
   int		height,
-  byte*		dest );
+  colormapindex_t*		dest );
 
 
 void

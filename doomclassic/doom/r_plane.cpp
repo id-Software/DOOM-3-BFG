@@ -113,24 +113,14 @@ R_MapPlane
     }
 //#endif
 
-    if (::g->planeheight != ::g->cachedheight[y])
-    {
-	::g->cachedheight[y] = ::g->planeheight;
-	distance = ::g->cacheddistance[y] = FixedMul (::g->planeheight, ::g->yslope[y]);
-	::g->ds_xstep = ::g->cachedxstep[y] = FixedMul (distance,::g->basexscale);
-	::g->ds_ystep = ::g->cachedystep[y] = FixedMul (distance,::g->baseyscale);
-    }
-    else
-    {
-	distance = ::g->cacheddistance[y];
-	::g->ds_xstep = ::g->cachedxstep[y];
-	::g->ds_ystep = ::g->cachedystep[y];
-    }
-	
-	extern angle_t GetViewAngle();
+    distance = FixedMul (::g->planeheight, ::g->yslope[y]);
+    ::g->ds_xstep = FixedMul (distance,::g->basexscale);
+    ::g->ds_ystep = FixedMul (distance,::g->baseyscale);
+
+    extern angle_t GetViewAngle();
     length = FixedMul (distance,::g->distscale[x1]);
     angle = (GetViewAngle() + ::g->xtoviewangle[x1])>>ANGLETOFINESHIFT;
-	extern fixed_t GetViewX(); extern fixed_t GetViewY();
+    extern fixed_t GetViewX(); extern fixed_t GetViewY();
     ::g->ds_xfrac = GetViewX() + FixedMul(finecosine[angle], length);
     ::g->ds_yfrac = -GetViewY() - FixedMul(finesine[angle], length);
 
@@ -145,7 +135,7 @@ R_MapPlane
 
 	::g->ds_colormap = ::g->planezlight[index];
     }
-	
+
     ::g->ds_y = y;
     ::g->ds_x1 = x1;
     ::g->ds_x2 = x2;
@@ -160,7 +150,7 @@ R_MapPlane
 		::g->ds_xstep,
 		::g->ds_ystep,
 		::g->ds_colormap,
-		::g->ds_source );	
+		::g->ds_source );
 }
 
 
@@ -180,16 +170,16 @@ void R_ClearPlanes (void)
 	::g->ceilingclip[i] = -1;
     }
 
-	::g->lastvisplane = ::g->visplanes;
+    ::g->lastvisplane = ::g->visplanes;
     ::g->lastopening = ::g->openings;
 
     // texture calculation
     memset (::g->cachedheight, 0, sizeof(::g->cachedheight));
 
     // left to right mapping
-	extern angle_t GetViewAngle();
+    extern angle_t GetViewAngle();
     angle = (GetViewAngle()-ANG90)>>ANGLETOFINESHIFT;
-	
+
     // scale will be unit scale at SCREENWIDTH/2 distance
     ::g->basexscale = FixedDiv (finecosine[angle],::g->centerxfrac);
     ::g->baseyscale = -FixedDiv (finesine[angle],::g->centerxfrac);
@@ -205,26 +195,26 @@ visplane_t* R_FindPlane( fixed_t height, int picnum, int lightlevel ) {
     visplane_t*	check;
 	
     if (picnum == ::g->skyflatnum) {
-		height = 0;			// all skys map together
-		lightlevel = 0;
-	}
+	height = 0;			// all skys map together
+	lightlevel = 0;
+    }
 	
-	for (check=::g->visplanes; check < ::g->lastvisplane; check++) {
-		if (height == check->height && picnum == check->picnum && lightlevel == check->lightlevel) {
-			break;
-		}
+    for (check=::g->visplanes; check < ::g->lastvisplane; check++) {
+	if (height == check->height && picnum == check->picnum && lightlevel == check->lightlevel) {
+	    break;
 	}
+    }
 
-	if (check < ::g->lastvisplane)
-		return check;
+    if (check < ::g->lastvisplane)
+	    return check;
 		
     //if (::g->lastvisplane - ::g->visplanes == MAXVISPLANES)
-		//I_Error ("R_FindPlane: no more visplanes");
-	if ( ::g->lastvisplane - ::g->visplanes == MAXVISPLANES ) {
-		check = ::g->visplanes;
-		return check;
-	}
-		
+	    //I_Error ("R_FindPlane: no more visplanes");
+    if ( ::g->lastvisplane - ::g->visplanes == MAXVISPLANES ) {
+	    check = ::g->visplanes;
+	    return check;
+    }
+
     ::g->lastvisplane++;
 
     check->height = height;
@@ -329,7 +319,7 @@ R_MakeSpans
 	R_MapPlane (b1,::g->spanstart[b1],x-1);
 	b1--;
     }
-	
+
     while (t2 < t1 && t2<=b2)
     {
 	::g->spanstart[t2] = x;
@@ -355,7 +345,7 @@ void R_DrawPlanes (void)
     int			x;
     int			stop;
     int			angle;
-				
+
 #ifdef RANGECHECK
     if (::g->ds_p - ::g->drawsegs > MAXDRAWSEGS)
 	I_Error ("R_DrawPlanes: ::g->drawsegs overflow (%i)",
@@ -403,12 +393,12 @@ void R_DrawPlanes (void)
 	    }
 	    continue;
 	}
-	
+
 	// regular flat
 	::g->ds_source = (byte*)W_CacheLumpNum(::g->firstflat +
 				   ::g->flattranslation[pl->picnum],
 				   PU_CACHE_SHARED);
-	
+
 	::g->planeheight = abs(pl->height-::g->viewz);
 	light = (pl->lightlevel >> LIGHTSEGSHIFT)+::g->extralight;
 
@@ -422,7 +412,7 @@ void R_DrawPlanes (void)
 
 	pl->top[pl->maxx+1] = 0xffff;
 	pl->top[pl->minx-1] = 0xffff;
-		
+
 	stop = pl->maxx + 1;
 
 	for (x=pl->minx ; x<= stop ; x++)

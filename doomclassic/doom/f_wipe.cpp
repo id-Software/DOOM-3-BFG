@@ -43,30 +43,26 @@ If you have questions concerning this license or the applicable additional terms
 
 // when zero, stop the wipe
 
-
 void
 wipe_shittyColMajorXform
-( short*	array,
+( colormapindex_t*	array,
   int		width,
   int		height )
 {
     int		x;
     int		y;
-    short*	dest;
+    colormapindex_t*	dest;
 
-    //dest = (short*) DoomLib::Z_Malloc(width*height*2, PU_STATIC, 0 );
-	dest = new short[ width * height ];
+	dest = new colormapindex_t[ width * height ];
 
     for(y=0;y<height;y++)
 		for(x=0;x<width;x++)
 			dest[x*height+y] = array[y*width+x];
 
-    memcpy(array, dest, width*height*2);
+    memcpy(array, dest, width*height*sizeof(colormapindex_t));
 
-    //Z_Free(dest);
 	delete[] dest;
 }
-
 
 int
 wipe_initMelt
@@ -77,13 +73,13 @@ wipe_initMelt
     int i, r;
     
     // copy start screen to main screen
-    memcpy(::g->wipe_scr, ::g->wipe_scr_start, width*height);
-    
+    memcpy(::g->wipe_scr, ::g->wipe_scr_start, width*height*sizeof(colormapindex_t));
+
     // makes this wipe faster (in theory)
     // to have stuff in column-major format
-    wipe_shittyColMajorXform((short*)::g->wipe_scr_start, width/2, height);
-    wipe_shittyColMajorXform((short*)::g->wipe_scr_end, width/2, height);
-    
+    wipe_shittyColMajorXform(::g->wipe_scr_start, width, height);
+    wipe_shittyColMajorXform(::g->wipe_scr_end, width, height);
+
     // setup initial column positions
     // (::g->wipe_y<0 => not ready to scroll yet)
     ::g->wipe_y = (int *) DoomLib::Z_Malloc(width*sizeof(int), PU_STATIC, 0);
@@ -101,7 +97,6 @@ wipe_initMelt
 		else if (::g->wipe_y[i] == -16)
 			::g->wipe_y[i] = -15;
 	}
-
     return 0;
 }
 
@@ -111,11 +106,9 @@ int wipe_doMelt( int width, int height, int ticks ) {
 	int		dy;
 	int		idx;
 
-	short*	s;
-	short*	d;
+	colormapindex_t*	s;
+	colormapindex_t*	d;
 	qboolean	done = true;
-
-	width/=2;
 
 	while (ticks--)
 	{
@@ -133,8 +126,8 @@ int wipe_doMelt( int width, int height, int ticks ) {
 				if (::g->wipe_y[i]+dy >= height)
 					dy = height - ::g->wipe_y[i];
 
-				s = &((short *)::g->wipe_scr_end)[i*height+::g->wipe_y[i]];
-				d = &((short *)::g->wipe_scr)[::g->wipe_y[i]*width+i];
+				s = &(::g->wipe_scr_end)[i*height+::g->wipe_y[i]];
+				d = &(::g->wipe_scr)[::g->wipe_y[i]*width+i];
 
 				idx = 0;
 				for (j=dy;j;j--)
@@ -145,8 +138,8 @@ int wipe_doMelt( int width, int height, int ticks ) {
 
 				::g->wipe_y[i] += dy;
 
-				s = &((short *)::g->wipe_scr_start)[i*height];
-				d = &((short *)::g->wipe_scr)[::g->wipe_y[i]*width+i];
+				s = &(::g->wipe_scr_start)[i*height];
+				d = &(::g->wipe_scr)[::g->wipe_y[i]*width+i];
 
 				idx = 0;
 				for (j=height-::g->wipe_y[i];j;j--)
@@ -232,4 +225,3 @@ wipe_ScreenWipe
 
 	return !::g->go;
 }
-

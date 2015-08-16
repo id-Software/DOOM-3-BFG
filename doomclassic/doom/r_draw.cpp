@@ -87,7 +87,7 @@ void R_DrawColumn ( lighttable_t * dc_colormap,
 					byte * dc_source ) 
 { 
 	int			count; 
-	byte*		dest; 
+	colormapindex_t*    dest; 
 	fixed_t		frac;
 	fixed_t		fracstep;	 
 
@@ -197,8 +197,8 @@ void R_DrawColumnLow ( lighttable_t * dc_colormap,
 					   byte * dc_source ) 
 { 
 	int			count; 
-	byte*		dest; 
-	byte*		dest2;
+	colormapindex_t*		dest; 
+	colormapindex_t*		dest2;
 	fixed_t		frac;
 	fixed_t		fracstep;	 
 
@@ -259,7 +259,7 @@ void R_DrawFuzzColumn ( lighttable_t * dc_colormap,
 						  byte * dc_source ) 
 { 
 	int			count; 
-	byte*		dest; 
+	colormapindex_t*    dest; 
 	fixed_t		frac;
 	fixed_t		fracstep;	 
 
@@ -329,7 +329,14 @@ void R_DrawFuzzColumn ( lighttable_t * dc_colormap,
 		//  a pixel that is either one column
 		//  left or right of the current one.
 		// Add index from colormap to index.
-		*dest = ::g->colormaps[6*256+dest[::g->fuzzoffset[::g->fuzzpos]]]; 
+        //*dest = ::g->colormaps[6*256+dest[::g->fuzzoffset[::g->fuzzpos]]]; 
+
+        colormapindex_t curr = dest[::g->fuzzoffset[::g->fuzzpos]];
+        int level = ((curr >> 8) - 3);
+        if (level < 0) level = 0;
+
+        //*dest = (curr & 255) + (level * 256);
+        *dest = ::g->stored_colormaps[6*256+ (curr & 255)] + (level * 256);
 
 		// Clamp table lookup index.
 		if (++::g->fuzzpos == FUZZTABLE) 
@@ -358,7 +365,7 @@ void R_DrawTranslatedColumn ( lighttable_t * dc_colormap,
 						  byte * dc_source ) 
 { 
 	int			count; 
-	byte*		dest; 
+	colormapindex_t*    dest; 
 	fixed_t		frac;
 	fixed_t		fracstep;	 
 
@@ -481,18 +488,18 @@ void R_InitTranslationTables (void)
 //
 // Draws the actual span.
 void R_DrawSpan ( fixed_t xfrac,
-				  fixed_t yfrac,
-				  fixed_t ds_y,
-				  int ds_x1,
-				  int ds_x2,
-				  fixed_t ds_xstep,
-				  fixed_t ds_ystep,
-				  lighttable_t * ds_colormap,
-				  byte * ds_source ) 
+		  fixed_t yfrac,
+		  fixed_t ds_y,
+		  int ds_x1,
+		  int ds_x2,
+		  fixed_t ds_xstep,
+		  fixed_t ds_ystep,
+		  lighttable_t * ds_colormap,
+		  byte * ds_source ) 
 { 
-	byte*		dest; 
-	int			count;
-	int			spot; 
+	colormapindex_t*    dest; 
+	int	count;
+	int	spot; 
 
 #ifdef RANGECHECK
 	if (::g->ds_x2 < ::g->ds_x1
@@ -511,11 +518,13 @@ void R_DrawSpan ( fixed_t xfrac,
 	// We do not check for zero spans here?
 	count = ds_x2 - g->ds_x1; 
 
+	/*
 	if ( ds_x2 < ds_x1 ) {
 		return;						// SMF - think this is the sky
 	}
+	*/
 
-	do 
+	do
 	{
 		// Current texture index in u,v.
 		spot = ((yfrac>>(16-6))&(63*64)) + ((xfrac>>16)&63);
@@ -528,7 +537,7 @@ void R_DrawSpan ( fixed_t xfrac,
 		xfrac += ds_xstep; 
 		yfrac += ds_ystep;
 
-	} while (count--); 
+	} while (count--);
 } 
 
 
@@ -619,7 +628,7 @@ void R_DrawSpanLow ( fixed_t xfrac,
 				  lighttable_t * ds_colormap,
 				  byte * ds_source ) 
 {
-	byte*		dest; 
+	colormapindex_t*		dest; 
 	int			count;
 	int			spot; 
 
@@ -701,9 +710,9 @@ R_InitBuffer
 // Also draws a beveled edge.
 //
 void R_FillBackScreen (void) 
-{ 
+{
 	byte*		src;
-	byte*		dest; 
+	colormapindex_t*    dest; 
 	int			x;
 	int			y; 
 	int			width, height, windowx, windowy;
@@ -727,17 +736,22 @@ void R_FillBackScreen (void)
 	src = (byte*)W_CacheLumpName (name, PU_CACHE_SHARED); 
 	dest = ::g->screens[1]; 
 
-	for (y=0 ; y<SCREENHEIGHT-SBARHEIGHT ; y++) { 
-		for (x=0 ; x<SCREENWIDTH/64 ; x++) 	{ 
-			memcpy(dest, src+((y&63)<<6), 64); 
-			dest += 64; 
-		} 
-		if (SCREENWIDTH&63) 
-		{ 
-			memcpy(dest, src+((y&63)<<6), SCREENWIDTH&63); 
-			dest += (SCREENWIDTH&63); 
-		} 
-	} 
+	for (y=0 ; y<SCREENHEIGHT-SBARHEIGHT ; y++) {
+#if 0
+        for (x=0 ; x<SCREENWIDTH/64 ; x++) {
+			memcpy(dest, src+((y&63)<<6), 64);
+			dest += 64;
+		}
+        if (SCREENWIDTH&63)
+		{
+			memcpy(dest, src+((y&63)<<6), SCREENWIDTH&63);
+			dest += (SCREENWIDTH&63);
+		}
+#else
+        for (x=0 ; x<SCREENWIDTH ; x++)
+            *dest++ = (colormapindex_t) (src+((y&63)<<6))[x & 63];
+#endif
+	}
 
 	width = ::g->scaledviewwidth / GLOBAL_IMAGE_SCALER;
 	height = ::g->viewheight / GLOBAL_IMAGE_SCALER;
@@ -769,7 +783,7 @@ void R_FillBackScreen (void)
 	V_DrawPatch(windowx+width, windowy-8, 1, (patch_t*)W_CacheLumpName ("brdr_tr",PU_CACHE_SHARED));
 	V_DrawPatch(windowx-8, windowy+height, 1, (patch_t*)W_CacheLumpName ("brdr_bl",PU_CACHE_SHARED));
 	V_DrawPatch (windowx+width, windowy+height, 1, (patch_t*)W_CacheLumpName ("brdr_br",PU_CACHE_SHARED));
-} 
+}
 
 
 //
@@ -779,14 +793,14 @@ void
 R_VideoErase
 ( unsigned	ofs,
  int		count ) 
-{ 
+{
 	// LFB copy.
 	// This might not be a good idea if memcpy
 	//  is not optiomal, e.g. byte by byte on
 	//  a 32bit CPU, as GNU GCC/Linux libc did
 	//  at one point.
-	memcpy(::g->screens[0]+ofs, ::g->screens[1]+ofs, count); 
-} 
+	memcpy(::g->screens[0]+ofs, ::g->screens[1]+ofs, count * sizeof(colormapindex_t)); 
+}
 
 
 //

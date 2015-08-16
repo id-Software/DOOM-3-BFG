@@ -569,14 +569,23 @@ void R_InitSpriteLumps (void)
 void R_InitColormaps (void)
 {
     int	lump, length;
-    
+
     // Load in the light tables, 
     //  256 byte align tables.
     lump = W_GetNumForName("COLORMAP"); 
     length = W_LumpLength (lump) + 255; 
-    ::g->colormaps = (lighttable_t*)DoomLib::Z_Malloc (length, PU_STATIC, 0); 
-    ::g->colormaps = (byte *)( ((int)::g->colormaps + 255)&~0xff); 
-    W_ReadLump (lump,::g->colormaps); 
+    ::g->stored_colormaps = (byte*)DoomLib::Z_Malloc (length, PU_STATIC, 0); 
+    ::g->stored_colormaps = (byte*)( ((int)::g->stored_colormaps + 255)&~0xff); 
+    W_ReadLump (lump,::g->stored_colormaps);
+
+    // Calculate 24bpp colormaps as identity functions:
+    ::g->colormaps = (lighttable_t*)DoomLib::Z_Malloc (256 * (NUMCOLORMAPS + 1) * sizeof(lighttable_t), PU_STATIC, 0);
+    for (int c = 0; c < NUMCOLORMAPS; ++c)
+        for (int i = 0; i < 256; ++i)
+            ::g->colormaps[c * 256 + i] = c * 256 + i;
+    // Setup the inverse colormap for invulnerable mode:
+    for (int i = 0; i < 256; ++i)
+        ::g->colormaps[(INVERSECOLORMAP * 256) + i] = ::g->stored_colormaps[(32 * 256) + i];
 }
 
 
@@ -769,8 +778,3 @@ void R_PrecacheLevel (void)
 	}
     }
 }
-
-
-
-
-

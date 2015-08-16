@@ -305,16 +305,10 @@ typedef post_t	postColumn_t;
 //
 // OTHER TYPES
 //
-
-// This could be wider for >8 bit display.
-// Indeed, true color support is posibble
-//  precalculating 24bpp lightmap/colormap LUT.
-//  from darkening PLAYPAL to all black.
-// Could even us emore than 32 levels.
-typedef byte	lighttable_t;	
-
-
-
+// ADD(jsd): colormapindex_t represents a index into the final palette (which can be > 256 colors for 32bpp lightmapping)
+typedef unsigned int    colormapindex_t;
+// CHANGE(jsd): Alias of colormapindex_t; was byte
+typedef colormapindex_t	lighttable_t;
 
 //
 // ?

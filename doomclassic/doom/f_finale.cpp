@@ -333,8 +333,8 @@ void F_Ticker (void)
 void F_TextWrite (void)
 {
     byte*	src;
-    byte*	dest;
-    
+    colormapindex_t*	dest;
+
     int		x,y,w;
     int		count;
     const char*	ch;
@@ -352,16 +352,23 @@ void F_TextWrite (void)
 	
     for (y=0 ; y<SCREENHEIGHT ; y++)
     {
-	for (x=0 ; x<SCREENWIDTH/64 ; x++)
-	{
-	    memcpy (dest, src+((y&63)<<6), 64);
-	    dest += 64;
-	}
-	if (SCREENWIDTH&63)
-	{
-	    memcpy (dest, src+((y&63)<<6), SCREENWIDTH&63);
-	    dest += (SCREENWIDTH&63);
-	}
+#if 0
+        for (x=0 ; x<SCREENWIDTH/64 ; x++)
+        {
+	        memcpy (dest, src+((y&63)<<6), 64);
+	        dest += 64;
+        }
+        if (SCREENWIDTH&63)
+        {
+	        memcpy (dest, src+((y&63)<<6), SCREENWIDTH&63);
+	        dest += (SCREENWIDTH&63);
+        }
+#else
+        for (x=0 ; x<SCREENWIDTH; x++)
+        {
+	        *dest++ = (src+((y&63)<<6))[x & 63];
+        }
+#endif
     }
 
     V_MarkRect (0, 0, SCREENWIDTH, SCREENHEIGHT);

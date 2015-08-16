@@ -76,7 +76,7 @@ void *I_ZoneBase( int *size )
 {
 	enum
 	{
-		HEAP_SIZE = 15 * 1024 * 1024			// SMF - was 10 * 1024 * 1024
+		HEAP_SIZE = 20 * 1024 * 1024			// SMF - was 10 * 1024 * 1024
 	};
 	*size = HEAP_SIZE;
 	return malloc( HEAP_SIZE );
