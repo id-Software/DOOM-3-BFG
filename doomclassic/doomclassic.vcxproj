@@ -123,6 +123,7 @@
     <ClInclude Include="doom\p_setup.h" />
     <ClInclude Include="doom\p_spec.h" />
     <ClInclude Include="doom\p_tick.h" />
+    <ClInclude Include="doom\redcross.h" />
     <ClInclude Include="doom\r_bsp.h" />
     <ClInclude Include="doom\r_data.h" />
     <ClInclude Include="doom\r_defs.h" />
@@ -144,6 +145,7 @@
     <ClInclude Include="doom\vars.h" />
     <ClInclude Include="doom\v_video.h" />
     <ClInclude Include="doom\wi_stuff.h" />
+    <ClInclude Include="doom\wolflump.h" />
     <ClInclude Include="doom\w_wad.h" />
     <ClInclude Include="doom\z_zone.h" />
   </ItemGroup>

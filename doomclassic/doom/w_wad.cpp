@@ -49,7 +49,16 @@ If you have questions concerning this license or the applicable additional terms
 #endif
 #include "w_wad.h"
 
+//Uncensor red crosses on Medikits, Stimpacks, and Beserk 
+//in Doom 3 BFG Edition's Doom 1 and Doom 2
+#include "redcross.h"
+int lumpnum_media0 = -1, lumpnum_stima0 = -1, lumpnum_pstra0 = -1;
 
+//Uncensor Wolfenstein 3D walls 
+//in Doom 3 BFG Edition's Doom 1 and Doom 2
+#include "wolflump.h"
+int lumpnum_wolf2 = -1, lumpnum_wolf3 = -1, lumpnum_wolf4 = -1, 
+	lumpnum_wolf6 = -1, lumpnum_wolf7 = -1, lumpnum_wolf14 = -1, lumpnum_wolf17 = -1;
 
 //
 // GLOBALS
@@ -278,7 +287,25 @@ void W_InitMultipleFiles (const char** filenames)
 
 		// will be realloced as lumps are added
 		lumpinfo = NULL;
-
+		
+		// Do the first file (the main WAD) seperately, so only it is affected.
+		if (*filenames) {
+			W_AddFile (*filenames);
+			filenames++;
+			// Find its medikit, stimpack, and beserk lumps so they can be fixed.
+			lumpnum_media0 = W_CheckNumForName("MEDIA0");
+			lumpnum_stima0 = W_CheckNumForName("STIMA0");
+			lumpnum_pstra0 = W_CheckNumForName("PSTRA0");
+			// Find its censored wolfenstein wall lumps so they can be fixed.
+			lumpnum_wolf2  = W_CheckNumForName("WOLF2");
+			lumpnum_wolf3  = W_CheckNumForName("WOLF3");
+			lumpnum_wolf4  = W_CheckNumForName("WOLF4");
+			lumpnum_wolf6  = W_CheckNumForName("WOLF6");
+			lumpnum_wolf7  = W_CheckNumForName("WOLF7");
+			lumpnum_wolf14 = W_CheckNumForName("WOLF14");
+			lumpnum_wolf17 = W_CheckNumForName("WOLF17");
+		}
+		// Other wads are handled like normal
 		for ( ; *filenames ; filenames++)
 		{
 			W_AddFile (*filenames);
@@ -414,6 +441,28 @@ int W_LumpLength (int lump)
     if (lump >= numlumps)
 		I_Error ("W_LumpLength: %i >= numlumps",lump);
 
+	// Hardcoded medikit, stimpack, and beserk lumps have hardcoded lengths.
+	if (lump==lumpnum_media0) { //MEDIA0 Medipack
+		return lump_media0_len;
+	} else if (lump==lumpnum_stima0) { //STIMA0 stimpack
+		return lump_stima0_len;
+	} else if (lump==lumpnum_pstra0) { //PSTRA0 beserk
+		return lump_pstra0_len;
+	} else if (lump==lumpnum_wolf2) { //WOLF2 wall
+		return lump_wolf2_len;
+	} else if (lump==lumpnum_wolf3) { //WOLF3 wall
+		return lump_wolf3_len;
+	} else if (lump==lumpnum_wolf4) { //WOLF4 wall
+		return lump_wolf4_len;
+	} else if (lump==lumpnum_wolf6) { //WOLF6 wall
+		return lump_wolf6_len;
+	} else if (lump==lumpnum_wolf7) { //WOLF7 wall
+		return lump_wolf7_len;
+	} else if (lump==lumpnum_wolf14) { //WOLF14 wall
+		return lump_wolf14_len;
+	} else if (lump==lumpnum_wolf17) { //WOLF17 wall
+		return lump_wolf17_len;
+	}
     return lumpinfo[lump].size;
 }
 
@@ -435,6 +484,40 @@ W_ReadLump
 	
     if (lump >= numlumps)
 		I_Error ("W_ReadLump: %i >= numlumps",lump);
+
+	// Use hardcoded replacements for medikit, stimpack, and beserk lumps
+	// to restore the red crosses. This only affects the main wad.
+	if (lump==lumpnum_media0) { //MEDIA0 Medikit
+		memcpy(dest, lump_media0, lump_media0_len);
+		return;
+	} else if (lump==lumpnum_stima0) { //STIMA0 stimpack
+		memcpy(dest, lump_stima0, lump_stima0_len);
+		return;
+	} else if (lump==lumpnum_pstra0) { //PSTRA0 beserk
+		memcpy(dest, lump_pstra0, lump_pstra0_len);
+		return;
+	} else if (lump==lumpnum_wolf2) { //WOLF2 wall
+		memcpy(dest, lump_wolf2, lump_wolf2_len);
+		return;
+	} else if (lump==lumpnum_wolf3) { //WOLF3 wall
+		memcpy(dest, lump_wolf3, lump_wolf3_len);
+		return;
+	} else if (lump==lumpnum_wolf4) { //WOLF4 wall
+		memcpy(dest, lump_wolf4, lump_wolf4_len);
+		return;
+	} else if (lump==lumpnum_wolf6) { //WOLF6 wall
+		memcpy(dest, lump_wolf6, lump_wolf6_len);
+		return;
+	} else if (lump==lumpnum_wolf7) { //WOLF7 wall
+		memcpy(dest, lump_wolf7, lump_wolf7_len);
+		return;
+	} else if (lump==lumpnum_wolf14) { //WOLF14 wall
+		memcpy(dest, lump_wolf14, lump_wolf14_len);
+		return;
+	} else if (lump==lumpnum_wolf17) { //WOLF17 wall
+		memcpy(dest, lump_wolf17, lump_wolf17_len);
+		return;
+	}
 
     l = lumpinfo+lump;
 	
