@@ -375,7 +375,37 @@ void idSWFSprite::ReadJSON( rapidjson::Value& entry )
 				}
 				
 				// TODO
-				//file.WriteColorXFormRGBA( cxf );
+				file.WriteColorXFormRGBA( cxf );
+			}
+			
+			if( ( flags1 & PlaceFlagHasRatio ) != 0 )
+			{
+				float ratio = command["ratio"].GetDouble();
+				file.WriteU16( ( uint16 )( ratio * 65535 ) );
+			}
+			
+			if( ( flags1 & PlaceFlagHasName ) != 0 )
+			{
+				Value& name = command["name"];
+				idStr string = name.GetString();
+				string.Append( '\0' );
+				int len = string.Length();
+				
+				file->Write( string.c_str(), len );
+				
+				// TODO
+				//file.writeStrin
+			}
+			
+			if( ( flags1 & PlaceFlagHasClipDepth ) != 0 )
+			{
+				uint16 clipDepth = command["clipDepth"].GetUint();
+				file.WriteU16( clipDepth );
+			}
+			
+			if( ( flags1 & PlaceFlagHasClipActions ) != 0 )
+			{
+				// FIXME: clip actions
 			}
 			
 			uint32 streamLength = file->Length();
@@ -389,8 +419,6 @@ void idSWFSprite::WriteJSON( idFile* f, int characterID )
 {
 	f->WriteFloatString( "\t\t\t\"frameCount\": %i,\n", frameCount );
 	
-	//f->WriteFloatString( "\t\t\t\"frameOffsets\": %i,\n", frameOffsets.Num() );
-	
 	if( frameOffsets.Num() )
 	{
 		f->WriteFloatString( "\t\t\t\"frameOffsets\": [ " );
@@ -401,7 +429,6 @@ void idSWFSprite::WriteJSON( idFile* f, int characterID )
 		f->WriteFloatString( " ],\n" );
 	}
 	
-	//f->WriteFloatString( "\t\t<frameLabels num=\"%i\">", frameLabels.Num() );
 	if( frameLabels.Num() )
 	{
 		f->WriteFloatString( "\t\t\t\"frameLabels\":\n\t\t\t[\n" );

@@ -2,7 +2,7 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 2013 Robert Beckebans
+Copyright (C) 2013-2015 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -245,6 +245,69 @@ void idFile_SWF::WriteMatrix( const swfMatrix_t& matrix )
 	WriteSBits( ty, nBits );
 	
 	ByteAlign();
+}
+
+void idFile_SWF::WriteColorXFormRGBA( const swfColorXform_t& xcf )
+{
+	bool hasAddTerms = ( xcf.add.x != 0.0f || xcf.add.y != 0.0f || xcf.add.z != 0.0f || xcf.add.w != 0.0f );
+	WriteUBits( hasAddTerms ? 1 : 0, 1 );
+	
+	bool hasMulTerms = ( xcf.mul.x != 0.0f || xcf.mul.y != 0.0f || xcf.mul.z != 0.0f || xcf.mul.w != 0.0f );
+	WriteUBits( hasMulTerms ? 1 : 0, 1 );
+	
+	int nBits = 0;
+	
+	int mulRed = 0;
+	int mulGreen = 0;
+	int mulBlue = 0;
+	int mulAlpha = 0;
+	if( hasMulTerms )
+	{
+		mulRed = FLOAT2SWFFIXED8( xcf.mul.x );
+		mulGreen = FLOAT2SWFFIXED8( xcf.mul.y );
+		mulBlue = FLOAT2SWFFIXED8( xcf.mul.z );
+		mulAlpha = FLOAT2SWFFIXED8( xcf.mul.w );
+		
+		nBits = EnlargeBitCountS( mulRed, nBits );
+		nBits = EnlargeBitCountS( mulGreen, nBits );
+		nBits = EnlargeBitCountS( mulBlue, nBits );
+		nBits = EnlargeBitCountS( mulAlpha, nBits );
+	}
+	
+	int red = 0;
+	int green = 0;
+	int blue = 0;
+	int alpha = 0;
+	if( hasAddTerms )
+	{
+		red = FLOAT2SWFFIXED8( xcf.add.x );
+		green = FLOAT2SWFFIXED8( xcf.add.y );
+		blue = FLOAT2SWFFIXED8( xcf.add.z );
+		alpha = FLOAT2SWFFIXED8( xcf.add.w );
+		
+		nBits = EnlargeBitCountS( red, nBits );
+		nBits = EnlargeBitCountS( green, nBits );
+		nBits = EnlargeBitCountS( blue, nBits );
+		nBits = EnlargeBitCountS( alpha, nBits );
+	}
+	
+	WriteUBits( 4, nBits );
+	
+	if( hasMulTerms )
+	{
+		WriteSBits( mulRed, nBits );
+		WriteSBits( mulGreen, nBits );
+		WriteSBits( mulBlue, nBits );
+		WriteSBits( mulAlpha, nBits );
+	}
+	
+	if( hasAddTerms )
+	{
+		WriteSBits( red, nBits );
+		WriteSBits( green, nBits );
+		WriteSBits( blue, nBits );
+		WriteSBits( alpha, nBits );
+	}
 }
 
 void idFile_SWF::WriteColorRGB( const swfColorRGB_t& color )

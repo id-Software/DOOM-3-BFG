@@ -52,6 +52,11 @@ ID_INLINE int FLOAT2SWFFIXED16( float value )
 {
 	return ( int )( value * 65536 );
 }
+
+ID_INLINE int FLOAT2SWFFIXED8( float value )
+{
+	return ( int )( value * 255 );
+}
 // RB end
 
 struct swfHeader_t
