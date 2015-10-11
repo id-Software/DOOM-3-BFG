@@ -44,33 +44,27 @@ idFile_SWF::~idFile_SWF()
 
 
 
-int idFile_SWF::BitCountS( const int value )
+int idFile_SWF::BitCountS( const int64 value, bool isSigned )
 {
-	int count = 0;
+	int number = idMath::Abs( value );
 	
-#if 1
-	count = idMath::BitCount( value );
-#else
-	int v = value;
-	while( v > 0 )
+	int64 x = 1;
+	int i;
+	
+	for( i = 1; i <= 64; i++ )
 	{
-		if( ( v & 1 ) == 1 )
-		{
-			// lower bit is set
-			count++;
-		}
-	
-		// shift bits, remove lower bit
-		v >>= 1;
+		x <<= 1;
+		if( x > number )
+			break;
 	}
-#endif
 	
-	return count;
+	return ( int )( i + ( ( isSigned ) ? 1 : 0 ) );
 }
 
 int idFile_SWF::BitCountU( const int value )
 {
-	int nBits = idMath::BitCount( value );
+	//int nBits = idMath::BitCount( value );
+	int nBits = BitCountS( value, false );
 	
 	return nBits;
 }
@@ -79,14 +73,19 @@ int idFile_SWF::BitCountFloat( const float value )
 {
 	int value2 = ( int ) value;
 	
-	int nBits = BitCountS( value2 );
+	int nBits = BitCountS( value2, value < 0.0F );
 	
 	return nBits;
 }
 
 int idFile_SWF::EnlargeBitCountS( const int value, int numBits )
 {
-	int n = BitCountS( value );
+	if( value  == 0 )
+	{
+		return numBits;
+	}
+	
+	int n = BitCountS( value, true );
 	if( n > numBits )
 	{
 		numBits = n;
@@ -97,6 +96,11 @@ int idFile_SWF::EnlargeBitCountS( const int value, int numBits )
 
 int idFile_SWF::EnlargeBitCountU( const int value, int numBits )
 {
+	if( value  == 0 )
+	{
+		return numBits;
+	}
+	
 	int n = BitCountU( value );
 	if( n > numBits )
 	{
@@ -123,26 +127,74 @@ void idFile_SWF::WriteByte( byte bits )
 
 void idFile_SWF::WriteUBits( int value, int numBits )
 {
+#if 1
 	for( int bit = 0; bit < numBits; bit++ )
 	{
 		int nb = ( int )( ( value >> ( numBits - 1 - bit ) ) & 1 );
 		
 		NBits += nb * ( 1 << ( 7 - bitPos ) );
+		//NBits += nb * ( 1 << ( bitPos ) );
+		
 		bitPos++;
 		
 		if( bitPos == 8 )
 		{
-			WriteByte( NBits );
+			WriteByte( ( byte )( NBits & 0xFF ) );
 			
 			bitPos = 0;
 			NBits = 0;
 		}
 	}
+#else
+	if( numBits == 0 )
+		return;
+	
+	if( bitPos == 0 )
+	{
+		bitPos = 8;
+	}
+	
+	while( numBits > 0 )
+	{
+		while( ( bitPos > 0 ) && ( numBits > 0 ) )
+		{
+			int32 or = ( value & ( 1L << ( numBits - 1 ) ) );
+			int shift = bitPos - numBits;
+			if( shift < 0 )
+				or >>= -shift;
+			else
+				or <<= shift;
+			NBits |= ( int ) or;
+	
+			numBits--;
+			bitPos--;
+		}
+	
+		if( bitPos == 0 )
+		{
+			WriteByte( NBits );
+	
+			NBits = 0;
+	
+			if( numBits > 0 )
+			{
+				bitPos = 8;
+			}
+		}
+	}
+#endif
 }
 
 void idFile_SWF::WriteSBits( int value, int numBits )
 {
-	WriteUBits( value, numBits );
+	int32 tmp = value & 0x7FFFFFFF;
+	
+	if( value < 0 )
+	{
+		tmp |= ( 1L << ( ( int32 )numBits - 1 ) );
+	}
+	
+	WriteUBits( tmp, numBits );
 }
 
 void idFile_SWF::WriteU8( uint8 value )
@@ -210,7 +262,7 @@ void idFile_SWF::WriteMatrix( const swfMatrix_t& matrix )
 		nBits = EnlargeBitCountS( xx, nBits );
 		nBits = EnlargeBitCountS( yy, nBits );
 		
-		WriteUBits( 5, nBits );
+		WriteUBits( nBits, 5 );
 		WriteSBits( xx, nBits );
 		WriteSBits( yy, nBits );
 	}
@@ -228,7 +280,7 @@ void idFile_SWF::WriteMatrix( const swfMatrix_t& matrix )
 		nBits = EnlargeBitCountS( yx, nBits );
 		nBits = EnlargeBitCountS( xy, nBits );
 		
-		WriteUBits( 5, nBits );
+		WriteUBits( nBits, 5 );
 		WriteSBits( yx, nBits );
 		WriteSBits( xy, nBits );
 	}
@@ -240,7 +292,7 @@ void idFile_SWF::WriteMatrix( const swfMatrix_t& matrix )
 	nBits = EnlargeBitCountS( tx, nBits );
 	nBits = EnlargeBitCountS( ty, nBits );
 	
-	WriteUBits( 5, nBits );
+	WriteUBits( nBits, 5 );
 	WriteSBits( tx, nBits );
 	WriteSBits( ty, nBits );
 	
@@ -291,7 +343,7 @@ void idFile_SWF::WriteColorXFormRGBA( const swfColorXform_t& xcf )
 		nBits = EnlargeBitCountS( alpha, nBits );
 	}
 	
-	WriteUBits( 4, nBits );
+	WriteUBits( nBits, 4 );
 	
 	if( hasMulTerms )
 	{
@@ -308,6 +360,8 @@ void idFile_SWF::WriteColorXFormRGBA( const swfColorXform_t& xcf )
 		WriteSBits( blue, nBits );
 		WriteSBits( alpha, nBits );
 	}
+	
+	ByteAlign();
 }
 
 void idFile_SWF::WriteColorRGB( const swfColorRGB_t& color )

@@ -58,14 +58,15 @@ public:
 	{
 		if( bitPos > 0 )
 		{
-			bitPos = 0;
 			WriteByte( NBits );
+			
+			bitPos = 0;
 			NBits = 0;
 		}
 	}
 	
 	
-	static int		BitCountS( const int value );
+	static int		BitCountS( const int64 value, bool isSigned );
 	static int		BitCountU( const int value );
 	static int		BitCountFloat( const float value );
 	
@@ -96,8 +97,8 @@ private:
 	
 	idFile*			file;	// The managed file pointer.
 	
-	byte			bitPos;
-	byte			NBits;
+	int				bitPos;
+	int				NBits;
 	
 };
 
