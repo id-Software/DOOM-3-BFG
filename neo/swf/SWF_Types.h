@@ -55,7 +55,7 @@ ID_INLINE int FLOAT2SWFFIXED16( float value )
 
 ID_INLINE int FLOAT2SWFFIXED8( float value )
 {
-	return ( int )( value * 255 );
+	return ( int )( value * 256 );
 }
 // RB end
 

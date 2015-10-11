@@ -323,15 +323,34 @@ void idSWFSprite::ReadJSON( rapidjson::Value& entry )
 		Value& command = c[i];
 		Value& type = command["type"];
 		
-#if 1
-		if( type == "Tag_PlaceObject2" )
+		if( type == "Tag_PlaceObject2" || type == "Tag_PlaceObject3" )
 		{
-			commands[i].tag = Tag_PlaceObject2;
+			if( type == "Tag_PlaceObject3" )
+			{
+				commands[i].tag = Tag_PlaceObject3;
+			}
+			else
+			{
+				commands[i].tag = Tag_PlaceObject2;
+			}
 			
 			idFile_SWF file( new idFile_Memory() );
 			
-			uint8 flags1 = command["flags"].GetUint();
-			file.WriteU8( flags1 );
+			uint8 flags1 = 0;
+			uint8 flags2 = 0;
+			if( type == "Tag_PlaceObject3" )
+			{
+				flags1 = command["flags1"].GetUint();
+				file.WriteU8( flags1 );
+				
+				flags2 = command["flags2"].GetUint();
+				file.WriteU8( flags2 );
+			}
+			else
+			{
+				flags1 = command["flags"].GetUint();
+				file.WriteU8( flags1 );
+			}
 			
 			uint16 depth = command["depth"].GetUint();
 			file.WriteU16( depth );
@@ -374,7 +393,6 @@ void idSWFSprite::ReadJSON( rapidjson::Value& entry )
 					cxf.add.w = addColor[3].GetDouble();
 				}
 				
-				// TODO
 				file.WriteColorXFormRGBA( cxf );
 			}
 			
@@ -403,6 +421,12 @@ void idSWFSprite::ReadJSON( rapidjson::Value& entry )
 				file.WriteU16( clipDepth );
 			}
 			
+			if( ( flags2 & PlaceFlagHasBlendMode ) != 0 )
+			{
+				uint8 blendMode = command["blendMode"].GetUint();
+				file.WriteU8( blendMode );
+			}
+			
 			if( ( flags1 & PlaceFlagHasClipActions ) != 0 )
 			{
 				// FIXME: clip actions
@@ -411,7 +435,6 @@ void idSWFSprite::ReadJSON( rapidjson::Value& entry )
 			uint32 streamLength = file->Length();
 			commands[i].stream.Load( ( byte* ) static_cast<idFile_Memory*>( ( idFile* )file )->GetDataPtr(), streamLength, true );
 		}
-#endif
 	}
 }
 
@@ -497,7 +520,7 @@ void idSWFSprite::WriteJSON( idFile* f, int characterID )
 
 void idSWFSprite::WriteJSON_PlaceObject2( idFile* file, idSWFBitStream& bitstream, int sourceCharacterID, int commandID, const char* indentPrefix )
 {
-	uint64 flags1 = bitstream.ReadU8();
+	uint8 flags1 = bitstream.ReadU8();
 	int depth = bitstream.ReadU16();
 	
 	file->WriteFloatString( "%s\t\t\t\t{\n", ( commandID != 0 ) ? ",\n" : "" );
@@ -575,9 +598,9 @@ void idSWFSprite::WriteJSON_PlaceObject2( idFile* file, idSWFBitStream& bitstrea
 
 void idSWFSprite::WriteJSON_PlaceObject3( idFile* file, idSWFBitStream& bitstream, int sourceCharacterID, int commandID, const char* indentPrefix )
 {
-	uint64 flags1 = bitstream.ReadU8();
-	uint64 flags2 = bitstream.ReadU8();
-	int depth = bitstream.ReadU16();
+	uint8 flags1 = bitstream.ReadU8();
+	uint8 flags2 = bitstream.ReadU8();
+	uint16 depth = bitstream.ReadU16();
 	
 	file->WriteFloatString( "%s\t\t\t\t{\n", ( commandID != 0 ) ? ",\n" : "" );
 	file->WriteFloatString( "\t\t\t\t\t\"type\": \"Tag_PlaceObject3\",\n" );

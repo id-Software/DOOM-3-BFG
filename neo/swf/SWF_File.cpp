@@ -127,13 +127,11 @@ void idFile_SWF::WriteByte( byte bits )
 
 void idFile_SWF::WriteUBits( int value, int numBits )
 {
-#if 1
 	for( int bit = 0; bit < numBits; bit++ )
 	{
 		int nb = ( int )( ( value >> ( numBits - 1 - bit ) ) & 1 );
 		
 		NBits += nb * ( 1 << ( 7 - bitPos ) );
-		//NBits += nb * ( 1 << ( bitPos ) );
 		
 		bitPos++;
 		
@@ -145,44 +143,6 @@ void idFile_SWF::WriteUBits( int value, int numBits )
 			NBits = 0;
 		}
 	}
-#else
-	if( numBits == 0 )
-		return;
-	
-	if( bitPos == 0 )
-	{
-		bitPos = 8;
-	}
-	
-	while( numBits > 0 )
-	{
-		while( ( bitPos > 0 ) && ( numBits > 0 ) )
-		{
-			int32 or = ( value & ( 1L << ( numBits - 1 ) ) );
-			int shift = bitPos - numBits;
-			if( shift < 0 )
-				or >>= -shift;
-			else
-				or <<= shift;
-			NBits |= ( int ) or;
-	
-			numBits--;
-			bitPos--;
-		}
-	
-		if( bitPos == 0 )
-		{
-			WriteByte( NBits );
-	
-			NBits = 0;
-	
-			if( numBits > 0 )
-			{
-				bitPos = 8;
-			}
-		}
-	}
-#endif
 }
 
 void idFile_SWF::WriteSBits( int value, int numBits )
@@ -209,7 +169,7 @@ void idFile_SWF::WriteU16( uint16 value )
 	ByteAlign();
 	
 	WriteByte( value & 0xFF );
-	WriteByte( value >> 8 );
+	WriteByte( ( value >> 8 ) & 0xFF );
 }
 
 void idFile_SWF::WriteU32( uint32 value )
