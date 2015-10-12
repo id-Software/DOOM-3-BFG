@@ -399,25 +399,17 @@ private:
 	
 	bool			LoadBinary( const char* bfilename, ID_TIME_T sourceTime );
 	void			WriteBinary( const char* bfilename );
-<<<<<<< HEAD
-<<<<<<< HEAD
+	
 	void			FileAttributes( idSWFBitStream& bitstream );
 	void			Metadata( idSWFBitStream& bitstream );
 	void			SetBackgroundColor( idSWFBitStream& bitstream );
-=======
-	// RB begin
-=======
 	
-<<<<<<< HEAD
->>>>>>> 534d415... SWF export
 	void			LoadXML( const char* filename );
 	void			WriteXML( const char* filename );
-=======
-	void			LoadJSON( const char* filename );
+	
+	bool			LoadJSON( const char* filename );
 	void			WriteJSON( const char* filename );
->>>>>>> 24a45e0... JSON Flash export 1
 	// RB end
->>>>>>> c4098bc... XML Flash part 1
 	
 	//----------------------------------
 	// SWF_Shapes.cpp

@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013 Robert Beckebans
+Copyright (C) 2013-2015 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -792,7 +792,7 @@ void idSWF::WriteBinary( const char* bfilename )
 	}
 }
 
-<<<<<<< HEAD
+
 /*
 ===================
 idSWF::FileAttributes
@@ -823,7 +823,6 @@ void idSWF::SetBackgroundColor( idSWFBitStream& bitstream )
 {
 	bitstream.Seek( 4 ); // int
 }
-=======
 
 // RB begin
 
@@ -1888,6 +1887,4 @@ void idSWF::WriteJSON( const char* filename )
 	file->WriteFloatString( "\t]\n" );
 	file->WriteFloatString( "}\n" );
 }
-
 // RB end
->>>>>>> c4098bc... XML Flash part 1

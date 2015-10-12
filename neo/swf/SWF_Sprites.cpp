@@ -514,9 +514,7 @@ void idSWFSprite::WriteJSON( idFile* f, int characterID )
 	}
 #endif
 }
-<<<<<<< HEAD
 // RB end
-=======
 
 void idSWFSprite::WriteJSON_PlaceObject2( idFile* file, idSWFBitStream& bitstream, int sourceCharacterID, int commandID, const char* indentPrefix )
 {
@@ -812,4 +810,4 @@ void idSWFSprite::WriteSWF( idFile_SWF& f, int characterID )
 }
 
 // RB end
->>>>>>> 2f86bde... Extended Shape-Command exports
+
