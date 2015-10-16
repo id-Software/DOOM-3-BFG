@@ -958,7 +958,8 @@ bool idSWF::LoadJSON( const char* bfilename )
 	Value& a = d["dict"];
 	assert( a.IsArray() );
 	
-	dictionary.SetNum( a.Size() );
+	// do not include the last item which is the main sprite
+	dictionary.SetNum( a.Size() - 1 );
 	
 	for( SizeType i = 0; i < a.Size(); i++ )
 	{
@@ -1293,9 +1294,16 @@ bool idSWF::LoadJSON( const char* bfilename )
 		}
 		else if( type == "SPRITE" )
 		{
-			dictionary[i].type = SWF_DICT_SPRITE;
-			dictionary[i].sprite = new( TAG_SWF ) idSWFSprite( this );
-			dictionary[i].sprite->ReadJSON( entry );
+			if( entry.HasMember( "mainsprite" ) || i == ( a.Size() - 1 ) )
+			{
+				mainsprite->ReadJSON( entry );
+			}
+			else
+			{
+				dictionary[i].type = SWF_DICT_SPRITE;
+				dictionary[i].sprite = new( TAG_SWF ) idSWFSprite( this );
+				dictionary[i].sprite->ReadJSON( entry );
+			}
 		}
 	}
 	
