@@ -435,6 +435,31 @@ void idSWFSprite::ReadJSON( rapidjson::Value& entry )
 			uint32 streamLength = file->Length();
 			commands[i].stream.Load( ( byte* ) static_cast<idFile_Memory*>( ( idFile* )file )->GetDataPtr(), streamLength, true );
 		}
+		else if( type == "Tag_RemoveObject2" )
+		{
+			commands[i].tag = Tag_RemoveObject2;
+			
+			idFile_SWF file( new idFile_Memory() );
+			
+			uint16 depth = command["depth"].GetUint();
+			file.WriteU16( depth );
+			
+			uint32 streamLength = file->Length();
+			commands[i].stream.Load( ( byte* ) static_cast<idFile_Memory*>( ( idFile* )file )->GetDataPtr(), streamLength, true );
+		}
+		else if( type == "Tag_DoAction" )
+		{
+			commands[i].tag = Tag_DoAction;
+			
+			idFile_SWF file( new idFile_Memory() );
+			
+			idBase64 base64 = command["stream"].GetString();
+			base64.Decode( file );
+			
+			uint32 streamLength = file->Length() - 1; // skip trailing zero added by Decode()
+			commands[i].stream.Load( ( byte* ) static_cast<idFile_Memory*>( ( idFile* )file )->GetDataPtr(), streamLength, true );
+		}
+		
 	}
 }
 

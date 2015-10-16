@@ -969,7 +969,7 @@ bool idSWF::LoadJSON( const char* bfilename )
 		{
 			dictionary[i].type = SWF_DICT_IMAGE;
 			
-			idStrStatic< MAX_OSPATH > imageName = entry["imagefile"].GetString();
+			idStrStatic< MAX_OSPATH > imageName = entry["material"].GetString();
 			if( imageName[0] == '.' )
 			{
 				// internal image in the atlas
@@ -1444,11 +1444,11 @@ void idSWF::WriteJSON( const char* filename )
 					idStr filenameWithoutExt = filename;
 					filenameWithoutExt.StripFileExtension();
 					
-					file->WriteFloatString( "\t\t\t\"imagefile\": \"%s/image_characterid_%i.png\",\n", filenameWithoutExt.c_str(), i );
+					file->WriteFloatString( "\t\t\t\"material\": \"%s/image_characterid_%i\",\n", filenameWithoutExt.c_str(), i );
 				}
 				
 				file->WriteFloatString( "\t\t\t\"width\": %i, \"height\": %i, \"atlasOffsetX\": %i, \"atlasOffsetY\": %i,\n",
-										entry.imageSize[0], entry.imageSize[1], entry.imageAtlasOffset[0], entry.imageAtlasOffset[1] );
+										entry.imageSize[0], entry.imageSize[1], 0, 0 ); // FIXME? entry.imageAtlasOffset[0], entry.imageAtlasOffset[1] );
 										
 				file->WriteFloatString( "\t\t\t\"channelScale\": { \"x\": %f, \"y\": %f, \"z\": %f, \"w\": %f }\n", entry.channelScale.x, entry.channelScale.y, entry.channelScale.z, entry.channelScale.w );
 				break;
