@@ -1163,15 +1163,18 @@ bool idSWF::LoadJSON( const char* bfilename )
 						fillDraw.style.bitmapID = 65535;
 					}
 					
-					Value& startVerts = jsonDraw["startVerts"];
-					
-					fillDraw.startVerts.SetNum( startVerts.Size() );
-					for( int v = 0; v < fillDraw.startVerts.Num(); v++ )
+					if( jsonDraw.HasMember( "startVerts" ) )
 					{
-						idVec2& vert = fillDraw.startVerts[v];
+						Value& startVerts = jsonDraw["startVerts"];
 						
-						vert.x = startVerts[v]["v"][0].GetDouble();
-						vert.y = startVerts[v]["v"][1].GetDouble();
+						fillDraw.startVerts.SetNum( startVerts.Size() );
+						for( int v = 0; v < fillDraw.startVerts.Num(); v++ )
+						{
+							idVec2& vert = fillDraw.startVerts[v];
+							
+							vert.x = startVerts[v]["v"][0].GetDouble();
+							vert.y = startVerts[v]["v"][1].GetDouble();
+						}
 					}
 					
 					if( jsonDraw.HasMember( "endVerts" ) )
@@ -1190,28 +1193,29 @@ bool idSWF::LoadJSON( const char* bfilename )
 						}
 					}
 					
-					Value& indices = jsonDraw["indices"];
-					fillDraw.indices.SetNum( indices.Size() );
-					
-#if 1
-					for( int v = 0; v < fillDraw.indices.Num(); v++ )
+					if( jsonDraw.HasMember( "indices" ) )
 					{
-						uint16& vert = fillDraw.indices[v];
+						Value& indices = jsonDraw["indices"];
+						fillDraw.indices.SetNum( indices.Size() );
 						
-						vert = indices[v].GetUint();
-					}
+#if 1
+						for( int v = 0; v < fillDraw.indices.Num(); v++ )
+						{
+							uint16& vert = fillDraw.indices[v];
+							
+							vert = indices[v].GetUint();
+						}
 #else
-					for( int v = fillDraw.indices.Num() - 1; v >= 0; v-- )
-					{
-						uint16& vert = fillDraw.indices[v];
-					
-						vert = indices[v].GetUint();
-					}
+						for( int v = fillDraw.indices.Num() - 1; v >= 0; v-- )
+						{
+							uint16& vert = fillDraw.indices[v];
+						
+							vert = indices[v].GetUint();
+						}
 #endif
-					
+					}
 				}
 			}
-			
 			
 			if( entry.HasMember( "lineDraws" ) )
 			{
@@ -1305,7 +1309,79 @@ bool idSWF::LoadJSON( const char* bfilename )
 				dictionary[i].sprite->ReadJSON( entry );
 			}
 		}
+		else if( type == "FONT" )
+		{
+			dictionary[i].type = SWF_DICT_FONT;
+			dictionary[i].font = new( TAG_SWF ) idSWFFont;
+			
+			idSWFFont* font = dictionary[i].font;
+			idStr fontName = entry["name"].GetString();
+			font->fontID = renderSystem->RegisterFont( fontName );
+			
+			
+			font->ascent = entry["ascent"].GetUint();
+			font->descent = entry["descent"].GetUint();
+			font->leading = entry["leading"].GetUint();
+			
+			// RB: ignore glyphs because they are not used
+		}
+		else if( type == "EDITTEXT" )
+		{
+			dictionary[i].type = SWF_DICT_EDITTEXT;
+			dictionary[i].edittext = new( TAG_SWF ) idSWFEditText;
+			idSWFEditText* edittext = dictionary[i].edittext;
+			
+			edittext->bounds.tl.x = entry["bounds"][0].GetDouble();
+			edittext->bounds.tl.y = entry["bounds"][1].GetDouble();
+			edittext->bounds.br.x = entry["bounds"][2].GetDouble();
+			edittext->bounds.br.y = entry["bounds"][3].GetDouble();
+			
+			
+			edittext->flags = entry["flags"].GetUint();
+			edittext->fontID = entry["fontID"].GetUint();
+			edittext->fontHeight = entry["fontHeight"].GetUint();
+			
+			Value& color = entry["color"];
+			edittext->color.r = ( uint8 )( color[0].GetDouble() * 255 ) & 0xFF;
+			edittext->color.g = ( uint8 )( color[1].GetDouble() * 255 ) & 0xFF;
+			edittext->color.b = ( uint8 )( color[2].GetDouble() * 255 ) & 0xFF;
+			edittext->color.a = ( uint8 )( color[3].GetDouble() * 255 ) & 0xFF;
+			
+			edittext->maxLength = entry["maxLength"].GetUint();
+			
+			idStr align = entry["align"].GetString();
+			if( align == "RIGHT" )
+			{
+				edittext->align = SWF_ET_ALIGN_RIGHT;
+			}
+			else if( align == "CENTER" )
+			{
+				edittext->align = SWF_ET_ALIGN_CENTER;
+			}
+			else if( align == "JUSTITY" )
+			{
+				edittext->align = SWF_ET_ALIGN_JUSTIFY;
+			}
+			else
+			{
+				edittext->align = SWF_ET_ALIGN_LEFT;
+			}
+			
+			edittext->leftMargin = entry["leftMargin"].GetUint();
+			edittext->rightMargin = entry["rightMargin"].GetUint();
+			edittext->indent = entry["indent"].GetUint();
+			edittext->leading = entry["leading"].GetUint();
+			
+			edittext->variable = entry["variable"].GetString();
+			edittext->initialText = entry["initialText"].GetString();
+		}
+		else if( type == "TEXT" )
+		{
+			// RB: FIXME? not used on BFG files
+		}
 	}
+	
+	return false;
 	
 #if 0
 	mainsprite->Read( f );
@@ -1318,37 +1394,6 @@ bool idSWF::LoadJSON( const char* bfilename )
 		f->ReadBig( dictionary[i].type );
 		switch( dictionary[i].type )
 		{
-			case SWF_DICT_SPRITE:
-			{
-				dictionary[i].sprite = new( TAG_SWF ) idSWFSprite( this );
-				dictionary[i].sprite->Read( f );
-				break;
-			}
-			case SWF_DICT_FONT:
-			{
-				dictionary[i].font = new( TAG_SWF ) idSWFFont;
-				idSWFFont* font = dictionary[i].font;
-				idStr fontName;
-				f->ReadString( fontName );
-				font->fontID = renderSystem->RegisterFont( fontName );
-				f->ReadBig( font->ascent );
-				f->ReadBig( font->descent );
-				f->ReadBig( font->leading );
-				f->ReadBig( num );
-				font->glyphs.SetNum( num );
-				for( int g = 0; g < font->glyphs.Num(); g++ )
-				{
-					f->ReadBig( font->glyphs[g].code );
-					f->ReadBig( font->glyphs[g].advance );
-					f->ReadBig( num );
-					font->glyphs[g].verts.SetNum( num );
-					f->ReadBigArray( font->glyphs[g].verts.Ptr(), font->glyphs[g].verts.Num() );
-					f->ReadBig( num );
-					font->glyphs[g].indices.SetNum( num );
-					f->ReadBigArray( font->glyphs[g].indices.Ptr(), font->glyphs[g].indices.Num() );
-				}
-				break;
-			}
 			case SWF_DICT_TEXT:
 			{
 				dictionary[i].text = new( TAG_SWF ) idSWFText;
@@ -1423,8 +1468,7 @@ void idSWF::WriteJSON( const char* filename )
 		return;
 	}
 	
-	//file->WriteFloatString( "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" );
-	file->WriteFloatString( "{\n \t\"version\": %i,\n \t\"timestamp\": %i,\n \t\"frameWidth\": %f,\n \t\"frameHeight\": %f,\n \t\"frameRate\": %i,\n", XSWF_VERSION, timestamp, frameWidth, frameHeight, frameRate );
+	file->WriteFloatString( "{\n \t\"version\": %i,\n \t\"frameWidth\": %f,\n \t\"frameHeight\": %f,\n \t\"frameRate\": %i,\n", XSWF_VERSION, ( float )frameWidth, ( float )frameHeight, ( int )frameRate );
 	
 	file->WriteFloatString( "\t\"dict\":\n\t[\n" );
 	for( int i = 0; i < dictionary.Num(); i++ )
@@ -1614,6 +1658,10 @@ void idSWF::WriteJSON( const char* filename )
 							}
 							file->WriteFloatString( "\t\t\t\t\t]" );
 						}
+						else
+						{
+							idLib::Printf( "fillDraw %i of characterID %i has no startVerts\n", d, i );
+						}
 						
 						if( fillDraw.endVerts.Num() )
 						{
@@ -1646,6 +1694,16 @@ void idSWF::WriteJSON( const char* filename )
 							}
 #endif
 							file->WriteFloatString( "]\n" );
+						}
+						
+						if( !fillDraw.startVerts.Num() && !fillDraw.endVerts.Num() && !fillDraw.indices.Num() )
+						{
+							file->WriteFloatString( "\n" );
+						}
+						//else
+						{
+							// skip \t\t\t\t}
+							//file->WriteFloatString( "%s\n", ( d == ( shape->fillDraws.Num() - 1 ) ) ? "" : "," );
 						}
 						
 						file->WriteFloatString( "\t\t\t\t}%s\n", ( d == ( shape->fillDraws.Num() - 1 ) ) ? "" : "," );
@@ -1745,8 +1803,8 @@ void idSWF::WriteJSON( const char* filename )
 			{
 				const idSWFFont* font = dictionary[i].font;
 				
-				file->WriteFloatString( "\t\t\t\"name\": \"%s\", \"ascent\": %i, \"descent\": %i, \"leading\": %i, \"glyphsNum\": %i\n",
-										font->fontID->GetName(), font->ascent, font->descent, font->leading, font->glyphs.Num() );
+				file->WriteFloatString( "\t\t\t\"name\": \"%s\", \"ascent\": %i, \"descent\": %i, \"leading\": %i\n", //, \"glyphsNum\": %i\n",
+										font->fontID->GetName(), font->ascent, font->descent, font->leading ); //, font->glyphs.Num() );
 										
 #if 0
 				for( int g = 0; g < font->glyphs.Num(); g++ )
@@ -1779,6 +1837,8 @@ void idSWF::WriteJSON( const char* filename )
 			
 			case SWF_DICT_TEXT:
 			{
+				// RB: not used in BFG files
+				
 				const idSWFText* text = dictionary[i].text;
 				
 				file->WriteFloatString( "\t\t<Text characterID=\"%i\">\n", i );
@@ -1851,30 +1911,13 @@ void idSWF::WriteJSON( const char* filename )
 										et->leftMargin, et->rightMargin, et->indent, et->leading,
 										et->variable.c_str(), initialText.c_str() );
 										
-				float x = et->bounds.tl.x;
-				float y = et->bounds.tl.y;
-				float width = fabs( et->bounds.br.x - et->bounds.tl.x );
-				float height = fabs( et->bounds.br.y - et->bounds.tl.y );
+				idVec2 tl = et->bounds.tl;
+				idVec2 br = et->bounds.br;
 				
-				file->WriteFloatString( "\t\t\t\"bounds\": { \"x\": %f, \"y\": %f, \"width\": %f, \"height\": %f },\n", x, y, width, height );
+				file->WriteFloatString( "\t\t\t\"bounds\": [ %f, %f, %f, %f ],\n", tl.x, tl.y, br.x, br.y );
 				
 				idVec4 color = et->color.ToVec4();
 				file->WriteFloatString( "\t\t\t\"color\": [ %f, %f, %f, %f ]\n", color.x, color.y, color.z, color.w );
-				
-				//file->WriteBig( et->bounds.tl );
-				//file->WriteBig( et->bounds.br );
-				//file->WriteBig( et->flags );
-				//file->WriteBig( et->fontID );
-				//file->WriteBig( et->fontHeight );
-				//file->Write( &et->color, 4 );
-				//file->WriteBig( et->maxLength );
-				//file->WriteBig( et->align );
-				//file->WriteBig( et->leftMargin );
-				//file->WriteBig( et->rightMargin );
-				//file->WriteBig( et->indent );
-				//file->WriteBig( et->leading );
-				//file->WriteString( et->variable );
-				//file->WriteString( et->initialText );
 				break;
 			}
 		}
