@@ -145,18 +145,20 @@ idSWF::idSWF( const char* filename_, idSoundWorld* soundWorld_ )
 	jsonFileName.SetFileExtension( ".json" );
 	ID_TIME_T jsonSourceTime = fileSystem->GetTimestamp( jsonFileName );
 	
+	bool loadedFromJSON = false;
 	if( swf_loadBinary.GetBool() )
 	{
-		ID_TIME_T sourceTime = fileSystem->GetTimestamp( filename );
-		if( sourceTime == FILE_NOT_FOUND_TIMESTAMP )
+		if( timestamp == FILE_NOT_FOUND_TIMESTAMP )
 		{
-			sourceTime = jsonSourceTime;
+			timestamp = jsonSourceTime;
 		}
 		
-		if( !LoadBinary( binaryFileName, sourceTime ) )
+		if( !LoadBinary( binaryFileName, timestamp ) )
 		{
 			if( LoadJSON( jsonFileName ) )
 			{
+				loadedFromJSON = true;
+				
 				WriteBinary( binaryFileName );
 			}
 			else if( LoadSWF( filename ) )
@@ -167,7 +169,11 @@ idSWF::idSWF( const char* filename_, idSoundWorld* soundWorld_ )
 	}
 	else
 	{
-		if( !LoadJSON( jsonFileName ) )
+		if( LoadJSON( jsonFileName ) )
+		{
+			loadedFromJSON = true;
+		}
+		else
 		{
 			LoadSWF( filename );
 		}
@@ -190,7 +196,7 @@ idSWF::idSWF( const char* filename_, idSoundWorld* soundWorld_ )
 	int atlasExportImageWidth = 0;
 	int atlasExportImageHeight = 0;
 	
-	if( swf_exportAtlas.GetBool() || swf_exportSWF.GetBool() )
+	if( /*!loadedFromJSON &&*/ ( swf_exportAtlas.GetBool() || swf_exportSWF.GetBool() ) )
 	{
 		idStrStatic< MAX_OSPATH > generatedName = atlasFileName;
 		generatedName.StripFileExtension();

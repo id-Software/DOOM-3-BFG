@@ -725,13 +725,13 @@ void idSWFSprite::WriteJSON_DoAction( idFile* file, idSWFBitStream& bitstream, i
 	
 	base64.Encode( bitstream.Ptr(), bitstream.Length() );
 	
-	file->WriteFloatString( "%s\t\t\t\t{\t\"type\": \"Tag_DoAction\", \"streamLength\": %i, \"stream\": \"%s\" }", ( commandID != 0 ) ? ",\n" : "", bitstream.Length(), base64.c_str() );
-	
 #if 0
+	file->WriteFloatString( "%s\t\t\t\t{\t\"type\": \"Tag_DoAction\", \"streamLength\": %i, \"stream\": \"%s\" }", ( commandID != 0 ) ? ",\n" : "", bitstream.Length(), base64.c_str() );
+#else
 	idSWFScriptObject* scriptObject = idSWFScriptObject::Alloc();
 	scriptObject->SetPrototype( &spriteInstanceScriptObjectPrototype );
 //	scriptObject->SetSprite( this );
-
+	
 	idSWFScriptFunction_Script* actionScript = idSWFScriptFunction_Script::Alloc();
 	
 	idList<idSWFScriptObject*, TAG_SWF> scope;
@@ -739,9 +739,12 @@ void idSWFSprite::WriteJSON_DoAction( idFile* file, idSWFBitStream& bitstream, i
 	scope.Append( scriptObject );
 	actionScript->SetScope( scope );
 //	actionScript->SetDefaultSprite( this );
-
+	
 	actionScript->SetData( bitstream.Ptr(), bitstream.Length() );
 	idStr scriptText = actionScript->CallToScript( scriptObject, idSWFParmList(), file->GetName(), characterID, commandID );
+	idStr quotedText = idStr::CStyleQuote( scriptText.c_str() );
+	
+	file->WriteFloatString( "%s\t\t\t\t{\n\t\t\t\t\t\"type\": \"Tag_DoAction\", \"streamLength\": %i, \"stream\": \"%s\",\n\t\t\t\t\t\"luaCode\": %s\n\t\t\t\t}", ( commandID != 0 ) ? ",\n" : "", bitstream.Length(), base64.c_str(), quotedText.c_str() );
 	
 	//file->WriteFloatString( "%s\t<DoAction streamLength=\"%i\">%s</DoAction>\n", indentPrefix, bitstream.Length(), base64.c_str() );
 	

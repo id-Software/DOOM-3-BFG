@@ -902,9 +902,9 @@ struct MyHandler
 idSWF::LoadJSON
 ===================
 */
-bool idSWF::LoadJSON( const char* bfilename )
+bool idSWF::LoadJSON( const char* filename )
 {
-	idFile* f = fileSystem->OpenFileReadMemory( bfilename );
+	idFile* f = fileSystem->OpenFileReadMemory( filename );
 	if( f == NULL || f->Length() <= 0 )
 	{
 		return false;
@@ -968,9 +968,9 @@ bool idSWF::LoadJSON( const char* bfilename )
 		
 		if( type == "IMAGE" )
 		{
-			dictionary[i].type = SWF_DICT_IMAGE;
+			//dictionary[i].type = SWF_DICT_IMAGE;
 			
-			idStrStatic< MAX_OSPATH > imageName = entry["material"].GetString();
+			idStrStatic< MAX_OSPATH > imageName = entry["imageFile"].GetString();
 			if( imageName[0] == '.' )
 			{
 				// internal image in the atlas
@@ -981,15 +981,25 @@ bool idSWF::LoadJSON( const char* bfilename )
 				dictionary[i].material = declManager->FindMaterial( imageName );
 			}
 			
-			dictionary[i].imageSize[0] = entry["width"].GetDouble();
-			dictionary[i].imageSize[1] = entry["height"].GetDouble();
+			//dictionary[i].imageSize[0] = entry["width"].GetDouble();
+			//dictionary[i].imageSize[1] = entry["height"].GetDouble();
 			
-			idVec4& channelScale = dictionary[i].channelScale;
+			//idVec4& channelScale = dictionary[i].channelScale;
+			//channelScale.x = entry["channelScale"]["x"].GetDouble();
+			//channelScale.y = entry["channelScale"]["y"].GetDouble();
+			//channelScale.z = entry["channelScale"]["z"].GetDouble();
+			//channelScale.w = entry["channelScale"]["w"].GetDouble();
 			
-			channelScale.x = entry["channelScale"]["x"].GetDouble();
-			channelScale.y = entry["channelScale"]["y"].GetDouble();
-			channelScale.z = entry["channelScale"]["z"].GetDouble();
-			channelScale.w = entry["channelScale"]["w"].GetDouble();
+			byte* imageData = NULL;
+			int width, height;
+			ID_TIME_T timestamp;
+			R_LoadImage( imageName.c_str(), &imageData, &width, &height, &timestamp, false );
+			if( imageData != NULL )
+			{
+				LoadImage( i, imageData, width, height );
+				
+				Mem_Free( imageData );
+			}
 		}
 		else if( type == "SHAPE" || type == "MORPH" )
 		{
@@ -1381,76 +1391,14 @@ bool idSWF::LoadJSON( const char* bfilename )
 		}
 	}
 	
-	return false;
+	// now that all images have been loaded, write out the combined image
+	idStr atlasFileName = "generated/";
+	atlasFileName += filename;
+	atlasFileName.SetFileExtension( ".png" );
 	
-#if 0
-	mainsprite->Read( f );
-	
-	int num = 0;
-	f->ReadBig( num );
-	dictionary.SetNum( num );
-	for( int i = 0; i < dictionary.Num(); i++ )
-	{
-		f->ReadBig( dictionary[i].type );
-		switch( dictionary[i].type )
-		{
-			case SWF_DICT_TEXT:
-			{
-				dictionary[i].text = new( TAG_SWF ) idSWFText;
-				idSWFText* text = dictionary[i].text;
-				f->ReadBig( text->bounds.tl );
-				f->ReadBig( text->bounds.br );
-				f->ReadBigArray( ( float* )&text->matrix, 6 );
-				f->ReadBig( num );
-				text->textRecords.SetNum( num );
-				for( int t = 0; t < text->textRecords.Num(); t++ )
-				{
-					idSWFTextRecord& textRecord = text->textRecords[t];
-					f->ReadBig( textRecord.fontID );
-					f->Read( &textRecord.color, 4 );
-					f->ReadBig( textRecord.xOffset );
-					f->ReadBig( textRecord.yOffset );
-					f->ReadBig( textRecord.textHeight );
-					f->ReadBig( textRecord.firstGlyph );
-					f->ReadBig( textRecord.numGlyphs );
-				}
-				f->ReadBig( num );
-				text->glyphs.SetNum( num );
-				for( int g = 0; g < text->glyphs.Num(); g++ )
-				{
-					f->ReadBig( text->glyphs[g].index );
-					f->ReadBig( text->glyphs[g].advance );
-				}
-				break;
-			}
-			case SWF_DICT_EDITTEXT:
-			{
-				dictionary[i].edittext = new( TAG_SWF ) idSWFEditText;
-				idSWFEditText* edittext = dictionary[i].edittext;
-				f->ReadBig( edittext->bounds.tl );
-				f->ReadBig( edittext->bounds.br );
-				f->ReadBig( edittext->flags );
-				f->ReadBig( edittext->fontID );
-				f->ReadBig( edittext->fontHeight );
-				f->Read( &edittext->color, 4 );
-				f->ReadBig( edittext->maxLength );
-				f->ReadBig( edittext->align );
-				f->ReadBig( edittext->leftMargin );
-				f->ReadBig( edittext->rightMargin );
-				f->ReadBig( edittext->indent );
-				f->ReadBig( edittext->leading );
-				f->ReadString( edittext->variable );
-				f->ReadString( edittext->initialText );
-				break;
-			}
-		}
-	}
-	delete f;
+	WriteSwfImageAtlas( atlasFileName );
 	
 	return true;
-#else
-	return false;
-#endif
 }
 
 /*
@@ -1458,11 +1406,11 @@ bool idSWF::LoadJSON( const char* bfilename )
 idSWF::WriteJSON
 ===================
 */
-void idSWF::WriteJSON( const char* filename )
+void idSWF::WriteJSON( const char* jsonFilename )
 {
 	const bool exportBitmapShapesOnly = false;
 	
-	idFileLocal file( fileSystem->OpenFileWrite( filename, "fs_basepath" ) );
+	idFileLocal file( fileSystem->OpenFileWrite( jsonFilename, "fs_basepath" ) );
 	if( file == NULL )
 	{
 		return;
@@ -1489,18 +1437,18 @@ void idSWF::WriteJSON( const char* filename )
 			{
 				if( dictionary[i].material )
 				{
-					file->WriteFloatString( "\t\t\t\"material\": \"%s\",\n", dictionary[i].material->GetName() );
+					file->WriteFloatString( "\t\t\t\"imageFile\": \"%s\",\n", dictionary[i].material->GetName() );
 				}
 				else
 				{
 					idStr filenameWithoutExt = filename;
 					filenameWithoutExt.StripFileExtension();
 					
-					file->WriteFloatString( "\t\t\t\"material\": \"%s/image_characterid_%i\",\n", filenameWithoutExt.c_str(), i );
+					file->WriteFloatString( "\t\t\t\"imageFile\": \"%s/image_characterid_%i.png\",\n", filenameWithoutExt.c_str(), i );
 				}
 				
 				file->WriteFloatString( "\t\t\t\"width\": %i, \"height\": %i, \"atlasOffsetX\": %i, \"atlasOffsetY\": %i,\n",
-										entry.imageSize[0], entry.imageSize[1], 0, 0 ); // FIXME? entry.imageAtlasOffset[0], entry.imageAtlasOffset[1] );
+										entry.imageSize[0], entry.imageSize[1], entry.imageAtlasOffset[0], entry.imageAtlasOffset[1] );
 										
 				file->WriteFloatString( "\t\t\t\"channelScale\": { \"x\": %f, \"y\": %f, \"z\": %f, \"w\": %f }\n", entry.channelScale.x, entry.channelScale.y, entry.channelScale.z, entry.channelScale.w );
 				break;
@@ -1531,7 +1479,7 @@ void idSWF::WriteJSON( const char* filename )
 					
 					if( shape->fillDraws.Num() > 1 )
 					{
-						idLib::Printf( S_COLOR_YELLOW "WARNING: " S_COLOR_RED "%s.Shape%i has %i fill draws\n", filename, i, shape->fillDraws.Num() );
+						idLib::Printf( S_COLOR_YELLOW "WARNING: " S_COLOR_RED "%s.Shape%i has %i fill draws\n", filename.c_str(), i, shape->fillDraws.Num() );
 					}
 					
 					for( int d = 0; d < shape->fillDraws.Num(); d++ )
