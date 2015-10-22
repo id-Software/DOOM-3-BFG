@@ -170,6 +170,10 @@ _________________________
 		
 		> yum install cmake SDL-devel openal-devel
 	
+	On ArchLinux 
+	
+		> sudo pacman -S sdl2 ffmpeg openal cmake
+	
 	On openSUSE (tested in 13.1)
 	
 		> zypper in openal-soft-devel cmake libSDL-devel libffmpeg1-devel
@@ -346,6 +350,8 @@ If you want to report an issue with the game, you should make sure that your rep
     * If you are sending a console log, make sure to enable developer output:
 
               RBDoom3BFG.exe +set developer 1 +set logfile 2
+			  
+		You can find your qconsole.log on Windows in C:\Users\<your user name>\Saved Games\id Software\RBDOOM 3 BFG\base\
 
 NOTE: We cannot help you with OS-specific issues like configuring OpenGL correctly, configuring ALSA or configuring the network.
 	
