@@ -1,53 +1,54 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE html>
 <html>
-<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
-  <head>
-    <meta charset="utf-8">
-    <title>
-      NUT
-    </title>
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="style.min.css">
-  </head>
-  <body>
-    <div style="width: 95%; margin: auto">
-      <h1>
-      NUT
-      </h1>
-<div align="center">
-</div>
+<!-- Created on April 4, 2014 by texi2html 1.82 -->
+<!--
+texi2html was written by: 
+            Lionel Cons <Lionel.Cons@cern.ch> (original author)
+            Karl Berry  <karl@freefriends.org>
+            Olaf Bachmann <obachman@mathematik.uni-kl.de>
+            and many others.
+Maintained by: Many creative people.
+Send bugs and suggestions to <texi2html-bug@nongnu.org>
 
+-->
+<head>
+<title>FFmpeg documentation : NUT: </title>
 
+<meta name="description" content="NUT: ">
+<meta name="keywords" content="FFmpeg documentation : NUT: ">
+<meta name="Generator" content="texi2html 1.82">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link rel="stylesheet" type="text/css" href="default.css" />
+
+<link rel="icon" href="favicon.png" type="image/png" />
+</head>
+<body>
+<div id="container">
+<div id="body">
 
 <a name="SEC_Top"></a>
+<h1 class="settitle">NUT</h1>
 
 <a name="SEC_Contents"></a>
-<h2 class="contents-heading">Table of Contents</h2>
-
+<h1>Table of Contents</h1>
 <div class="contents">
 
-<ul class="no-bullet">
-  <li><a name="toc-Description" href="#Description">1 Description</a></li>
-  <li><a name="toc-Modes" href="#Modes">2 Modes</a>
-  <ul class="no-bullet">
-    <li><a name="toc-BROADCAST" href="#BROADCAST">2.1 BROADCAST</a></li>
-    <li><a name="toc-PIPE" href="#PIPE">2.2 PIPE</a></li>
-  </ul></li>
-  <li><a name="toc-Container_002dspecific-codec-tags" href="#Container_002dspecific-codec-tags">3 Container-specific codec tags</a>
-  <ul class="no-bullet">
-    <li><a name="toc-Generic-raw-YUVA-formats" href="#Generic-raw-YUVA-formats">3.1 Generic raw YUVA formats</a></li>
-    <li><a name="toc-Raw-Audio" href="#Raw-Audio">3.2 Raw Audio</a></li>
-    <li><a name="toc-Subtitles" href="#Subtitles">3.3 Subtitles</a></li>
-    <li><a name="toc-Raw-Data" href="#Raw-Data">3.4 Raw Data</a></li>
-    <li><a name="toc-Codecs" href="#Codecs">3.5 Codecs</a></li>
-  </ul></li>
+<ul class="toc">
+  <li><a name="toc-Description" href="#Description">1. Description</a></li>
+  <li><a name="toc-Container_002dspecific-codec-tags" href="#Container_002dspecific-codec-tags">2. Container-specific codec tags</a>
+  <ul class="toc">
+    <li><a name="toc-Generic-raw-YUVA-formats" href="#Generic-raw-YUVA-formats">2.1 Generic raw YUVA formats</a></li>
+    <li><a name="toc-Raw-Audio" href="#Raw-Audio">2.2 Raw Audio</a></li>
+    <li><a name="toc-Subtitles" href="#Subtitles">2.3 Subtitles</a></li>
+    <li><a name="toc-Raw-Data" href="#Raw-Data">2.4 Raw Data</a></li>
+    <li><a name="toc-Codecs" href="#Codecs">2.5 Codecs</a></li>
+  </ul>
+</li>
 </ul>
 </div>
 
-
 <a name="Description"></a>
-<h2 class="chapter">1 Description<span class="pull-right"><a class="anchor hidden-xs" href="#Description" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-Description" aria-hidden="true">TOC</a></span></h2>
+<h1 class="chapter"><a href="nut.html#toc-Description">1. Description</a></h1>
 <p>NUT is a low overhead generic container format. It stores audio, video,
 subtitle and user-defined streams in a simple, yet efficient, way.
 </p>
@@ -58,35 +59,11 @@ and was finalized in 2008.
 In case of any differences between this text and the official specification,
 the official specification shall prevail.
 </p>
-<a name="Modes"></a>
-<h2 class="chapter">2 Modes<span class="pull-right"><a class="anchor hidden-xs" href="#Modes" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-Modes" aria-hidden="true">TOC</a></span></h2>
-<p>NUT has some variants signaled by using the flags field in its main header.
-</p>
-<table>
-<tr><td width="40%">BROADCAST</td><td width="40%">Extend the syncpoint to report the sender wallclock</td></tr>
-<tr><td width="40%">PIPE</td><td width="40%">Omit completely the syncpoint</td></tr>
-</table>
-
-<a name="BROADCAST"></a>
-<h3 class="section">2.1 BROADCAST<span class="pull-right"><a class="anchor hidden-xs" href="#BROADCAST" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-BROADCAST" aria-hidden="true">TOC</a></span></h3>
-
-<p>The BROADCAST variant provides a secondary time reference to facilitate
-detecting endpoint latency and network delays.
-It assumes all the endpoint clocks are syncronized.
-To be used in real-time scenarios.
-</p>
-<a name="PIPE"></a>
-<h3 class="section">2.2 PIPE<span class="pull-right"><a class="anchor hidden-xs" href="#PIPE" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-PIPE" aria-hidden="true">TOC</a></span></h3>
-
-<p>The PIPE variant assumes NUT is used as non-seekable intermediate container,
-by not using syncpoint removes unneeded overhead and reduces the overall
-memory usage.
-</p>
 <a name="Container_002dspecific-codec-tags"></a>
-<h2 class="chapter">3 Container-specific codec tags<span class="pull-right"><a class="anchor hidden-xs" href="#Container_002dspecific-codec-tags" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-Container_002dspecific-codec-tags" aria-hidden="true">TOC</a></span></h2>
+<h1 class="chapter"><a href="nut.html#toc-Container_002dspecific-codec-tags">2. Container-specific codec tags</a></h1>
 
 <a name="Generic-raw-YUVA-formats"></a>
-<h3 class="section">3.1 Generic raw YUVA formats<span class="pull-right"><a class="anchor hidden-xs" href="#Generic-raw-YUVA-formats" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-Generic-raw-YUVA-formats" aria-hidden="true">TOC</a></span></h3>
+<h2 class="section"><a href="nut.html#toc-Generic-raw-YUVA-formats">2.1 Generic raw YUVA formats</a></h2>
 
 <p>Since many exotic planar YUVA pixel formats are not considered by
 the AVI/QuickTime FourCC lists, the following scheme is adopted for
@@ -108,7 +85,7 @@ width/height right to find the chroma width/height.
 to be read big-endian.
 </p>
 <a name="Raw-Audio"></a>
-<h3 class="section">3.2 Raw Audio<span class="pull-right"><a class="anchor hidden-xs" href="#Raw-Audio" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-Raw-Audio" aria-hidden="true">TOC</a></span></h3>
+<h2 class="section"><a href="nut.html#toc-Raw-Audio">2.2 Raw Audio</a></h2>
 
 <table>
 <tr><td width="40%">ALAW</td><td width="40%">A-LAW</td></tr>
@@ -121,12 +98,11 @@ to be read big-endian.
 &lt;interleaving&gt; is D for default, P is for planar.
 &lt;bits&gt; is 8/16/24/32
 </p>
-<div class="example">
-<pre class="example">PFD[32]   would for example be signed 32 bit little-endian IEEE float
-</pre></div>
+<table><tr><td>&nbsp;</td><td><pre class="example">PFD[32]   would for example be signed 32 bit little-endian IEEE float
+</pre></td></tr></table>
 
 <a name="Subtitles"></a>
-<h3 class="section">3.3 Subtitles<span class="pull-right"><a class="anchor hidden-xs" href="#Subtitles" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-Subtitles" aria-hidden="true">TOC</a></span></h3>
+<h2 class="section"><a href="nut.html#toc-Subtitles">2.3 Subtitles</a></h2>
 
 <table>
 <tr><td width="40%">UTF8</td><td width="40%">Raw UTF-8</td></tr>
@@ -136,14 +112,14 @@ to be read big-endian.
 </table>
 
 <a name="Raw-Data"></a>
-<h3 class="section">3.4 Raw Data<span class="pull-right"><a class="anchor hidden-xs" href="#Raw-Data" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-Raw-Data" aria-hidden="true">TOC</a></span></h3>
+<h2 class="section"><a href="nut.html#toc-Raw-Data">2.4 Raw Data</a></h2>
 
 <table>
 <tr><td width="40%">UTF8</td><td width="40%">Raw UTF-8</td></tr>
 </table>
 
 <a name="Codecs"></a>
-<h3 class="section">3.5 Codecs<span class="pull-right"><a class="anchor hidden-xs" href="#Codecs" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-Codecs" aria-hidden="true">TOC</a></span></h3>
+<h2 class="section"><a href="nut.html#toc-Codecs">2.5 Codecs</a></h2>
 
 <table>
 <tr><td width="40%">3IV1</td><td width="40%">non-compliant MPEG-4 generated by old 3ivx</td></tr>
@@ -203,10 +179,5 @@ to be read big-endian.
 <tr><td width="40%">XVIX</td><td width="40%">non-compliant MPEG-4 generated by old Xvid with interlacing bug</td></tr>
 </table>
 
-
-      <p style="font-size: small;">
-        This document was generated using <a href="http://www.gnu.org/software/texinfo/"><em>makeinfo</em></a>.
-      </p>
-    </div>
-  </body>
-</html>
+<footer class="footer pagination-right">
+<span class="label label-info">This document was generated by <em>Kyle Schwarz</em> on <em>April 4, 2014</em> using <a href="http://www.nongnu.org/texi2html/"><em>texi2html 1.82</em></a>.</span></footer></div></div></body>

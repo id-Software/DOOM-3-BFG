@@ -25,12 +25,13 @@
 /**
  * @file
  * API example for demuxing, decoding, filtering, encoding and muxing
- * @example transcoding.c
+ * @example doc/examples/transcoding.c
  */
 
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libavfilter/avfiltergraph.h>
+#include <libavfilter/avcodec.h>
 #include <libavfilter/buffersink.h>
 #include <libavfilter/buffersrc.h>
 #include <libavutil/opt.h>
@@ -115,10 +116,6 @@ static int open_output_file(const char *filename)
                 || dec_ctx->codec_type == AVMEDIA_TYPE_AUDIO) {
             /* in this example, we choose transcoding to same codec */
             encoder = avcodec_find_encoder(dec_ctx->codec_id);
-            if (!encoder) {
-                av_log(NULL, AV_LOG_FATAL, "Necessary encoder not found\n");
-                return AVERROR_INVALIDDATA;
-            }
 
             /* In this example, we transcode to same properties (picture size,
              * sample rate etc.). These properties can be changed for output
@@ -160,7 +157,7 @@ static int open_output_file(const char *filename)
         }
 
         if (ofmt_ctx->oformat->flags & AVFMT_GLOBALHEADER)
-            enc_ctx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
+            enc_ctx->flags |= CODEC_FLAG_GLOBAL_HEADER;
 
     }
     av_dump_format(ofmt_ctx, 0, filename, 1);
@@ -337,7 +334,7 @@ static int init_filters(void)
     const char *filter_spec;
     unsigned int i;
     int ret;
-    filter_ctx = av_malloc_array(ifmt_ctx->nb_streams, sizeof(*filter_ctx));
+    filter_ctx = av_malloc(sizeof(FilteringContext) * ifmt_ctx->nb_streams);
     if (!filter_ctx)
         return AVERROR(ENOMEM);
 
@@ -388,9 +385,17 @@ static int encode_write_frame(AVFrame *filt_frame, unsigned int stream_index, in
 
     /* prepare packet for muxing */
     enc_pkt.stream_index = stream_index;
-    av_packet_rescale_ts(&enc_pkt,
-                         ofmt_ctx->streams[stream_index]->codec->time_base,
-                         ofmt_ctx->streams[stream_index]->time_base);
+    enc_pkt.dts = av_rescale_q_rnd(enc_pkt.dts,
+            ofmt_ctx->streams[stream_index]->codec->time_base,
+            ofmt_ctx->streams[stream_index]->time_base,
+            AV_ROUND_NEAR_INF|AV_ROUND_PASS_MINMAX);
+    enc_pkt.pts = av_rescale_q_rnd(enc_pkt.pts,
+            ofmt_ctx->streams[stream_index]->codec->time_base,
+            ofmt_ctx->streams[stream_index]->time_base,
+            AV_ROUND_NEAR_INF|AV_ROUND_PASS_MINMAX);
+    enc_pkt.duration = av_rescale_q(enc_pkt.duration,
+            ofmt_ctx->streams[stream_index]->codec->time_base,
+            ofmt_ctx->streams[stream_index]->time_base);
 
     av_log(NULL, AV_LOG_DEBUG, "Muxing frame\n");
     /* mux encoded frame */
@@ -448,7 +453,7 @@ static int flush_encoder(unsigned int stream_index)
     int got_frame;
 
     if (!(ofmt_ctx->streams[stream_index]->codec->codec->capabilities &
-                AV_CODEC_CAP_DELAY))
+                CODEC_CAP_DELAY))
         return 0;
 
     while (1) {
@@ -504,9 +509,14 @@ int main(int argc, char **argv)
                 ret = AVERROR(ENOMEM);
                 break;
             }
-            av_packet_rescale_ts(&packet,
-                                 ifmt_ctx->streams[stream_index]->time_base,
-                                 ifmt_ctx->streams[stream_index]->codec->time_base);
+            packet.dts = av_rescale_q_rnd(packet.dts,
+                    ifmt_ctx->streams[stream_index]->time_base,
+                    ifmt_ctx->streams[stream_index]->codec->time_base,
+                    AV_ROUND_NEAR_INF|AV_ROUND_PASS_MINMAX);
+            packet.pts = av_rescale_q_rnd(packet.pts,
+                    ifmt_ctx->streams[stream_index]->time_base,
+                    ifmt_ctx->streams[stream_index]->codec->time_base,
+                    AV_ROUND_NEAR_INF|AV_ROUND_PASS_MINMAX);
             dec_func = (type == AVMEDIA_TYPE_VIDEO) ? avcodec_decode_video2 :
                 avcodec_decode_audio4;
             ret = dec_func(ifmt_ctx->streams[stream_index]->codec, frame,
@@ -528,15 +538,20 @@ int main(int argc, char **argv)
             }
         } else {
             /* remux this frame without reencoding */
-            av_packet_rescale_ts(&packet,
-                                 ifmt_ctx->streams[stream_index]->time_base,
-                                 ofmt_ctx->streams[stream_index]->time_base);
+            packet.dts = av_rescale_q_rnd(packet.dts,
+                    ifmt_ctx->streams[stream_index]->time_base,
+                    ofmt_ctx->streams[stream_index]->time_base,
+                    AV_ROUND_NEAR_INF|AV_ROUND_PASS_MINMAX);
+            packet.pts = av_rescale_q_rnd(packet.pts,
+                    ifmt_ctx->streams[stream_index]->time_base,
+                    ofmt_ctx->streams[stream_index]->time_base,
+                    AV_ROUND_NEAR_INF|AV_ROUND_PASS_MINMAX);
 
             ret = av_interleaved_write_frame(ofmt_ctx, &packet);
             if (ret < 0)
                 goto end;
         }
-        av_packet_unref(&packet);
+        av_free_packet(&packet);
     }
 
     /* flush filters and encoders */
@@ -560,7 +575,7 @@ int main(int argc, char **argv)
 
     av_write_trailer(ofmt_ctx);
 end:
-    av_packet_unref(&packet);
+    av_free_packet(&packet);
     av_frame_free(&frame);
     for (i = 0; i < ifmt_ctx->nb_streams; i++) {
         avcodec_close(ifmt_ctx->streams[i]->codec);
@@ -572,7 +587,7 @@ end:
     av_free(filter_ctx);
     avformat_close_input(&ifmt_ctx);
     if (ofmt_ctx && !(ofmt_ctx->oformat->flags & AVFMT_NOFILE))
-        avio_closep(&ofmt_ctx->pb);
+        avio_close(ofmt_ctx->pb);
     avformat_free_context(ofmt_ctx);
 
     if (ret < 0)

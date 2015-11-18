@@ -144,7 +144,6 @@ void *av_realloc_f(void *ptr, size_t nelem, size_t elsize);
  *          The situation is undefined according to POSIX and may crash with
  *          some libc implementations.
  */
-av_warn_unused_result
 int av_reallocp(void *ptr, size_t size);
 
 /**
@@ -242,16 +241,6 @@ av_alloc_size(1, 2) static inline void *av_mallocz_array(size_t nmemb, size_t si
 char *av_strdup(const char *s) av_malloc_attrib;
 
 /**
- * Duplicate a substring of the string s.
- * @param s string to be duplicated
- * @param len the maximum length of the resulting string (not counting the
- *            terminating byte).
- * @return Pointer to a newly-allocated string containing a
- * copy of s or NULL if the string cannot be allocated.
- */
-char *av_strndup(const char *s, size_t len) av_malloc_attrib;
-
-/**
  * Duplicate the buffer p.
  * @param p buffer to be duplicated
  * @return Pointer to a newly allocated buffer containing a
@@ -264,7 +253,6 @@ void *av_memdup(const void *p, size_t size);
  * av_realloc() and set the pointer pointing to it to NULL.
  * @param ptr Pointer to the pointer to the memory block which should
  * be freed.
- * @note passing a pointer to a NULL pointer is safe and leads to no action.
  * @see av_free()
  */
 void av_freep(void *ptr);
@@ -305,7 +293,6 @@ void av_dynarray_add(void *tab_ptr, int *nb_ptr, void *elem);
  * @return >=0 on success, negative otherwise.
  * @see av_dynarray_add(), av_dynarray2_add()
  */
-av_warn_unused_result
 int av_dynarray_add_nofree(void *tab_ptr, int *nb_ptr, void *elem);
 
 /**

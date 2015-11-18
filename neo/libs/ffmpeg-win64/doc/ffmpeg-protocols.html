@@ -1,99 +1,102 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE html>
 <html>
-<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
-  <head>
-    <meta charset="utf-8">
-    <title>
-      FFmpeg Protocols Documentation
-    </title>
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="style.min.css">
-  </head>
-  <body>
-    <div style="width: 95%; margin: auto">
-      <h1>
-      FFmpeg Protocols Documentation
-      </h1>
-<div align="center">
-</div>
+<!-- Created on April 4, 2014 by texi2html 1.82 -->
+<!--
+texi2html was written by: 
+            Lionel Cons <Lionel.Cons@cern.ch> (original author)
+            Karl Berry  <karl@freefriends.org>
+            Olaf Bachmann <obachman@mathematik.uni-kl.de>
+            and many others.
+Maintained by: Many creative people.
+Send bugs and suggestions to <texi2html-bug@nongnu.org>
 
+-->
+<head>
+<title>FFmpeg documentation : FFmpeg Protocols </title>
+
+<meta name="description" content="FFmpeg Protocols Documentation: ">
+<meta name="keywords" content="FFmpeg documentation : FFmpeg Protocols ">
+<meta name="Generator" content="texi2html 1.82">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link rel="stylesheet" type="text/css" href="default.css" />
+
+<link rel="icon" href="favicon.png" type="image/png" />
+</head>
+<body>
+<div id="container">
+<div id="body">
 
 <a name="SEC_Top"></a>
+<h1 class="settitle">FFmpeg Protocols Documentation</h1>
 
 <a name="SEC_Contents"></a>
-<h2 class="contents-heading">Table of Contents</h2>
-
+<h1>Table of Contents</h1>
 <div class="contents">
 
-<ul class="no-bullet">
-  <li><a name="toc-Description" href="#Description">1 Description</a></li>
-  <li><a name="toc-Protocols" href="#Protocols">2 Protocols</a>
-  <ul class="no-bullet">
-    <li><a name="toc-async" href="#async">2.1 async</a></li>
-    <li><a name="toc-bluray" href="#bluray">2.2 bluray</a></li>
-    <li><a name="toc-cache" href="#cache">2.3 cache</a></li>
-    <li><a name="toc-concat" href="#concat">2.4 concat</a></li>
-    <li><a name="toc-crypto" href="#crypto">2.5 crypto</a></li>
-    <li><a name="toc-data" href="#data">2.6 data</a></li>
-    <li><a name="toc-file" href="#file">2.7 file</a></li>
-    <li><a name="toc-ftp" href="#ftp">2.8 ftp</a></li>
-    <li><a name="toc-gopher" href="#gopher">2.9 gopher</a></li>
-    <li><a name="toc-hls" href="#hls">2.10 hls</a></li>
-    <li><a name="toc-http" href="#http">2.11 http</a>
-    <ul class="no-bullet">
-      <li><a name="toc-HTTP-Cookies" href="#HTTP-Cookies">2.11.1 HTTP Cookies</a></li>
+<ul class="toc">
+  <li><a name="toc-Description" href="#Description">1. Description</a></li>
+  <li><a name="toc-Protocols" href="#Protocols">2. Protocols</a>
+  <ul class="toc">
+    <li><a name="toc-bluray" href="#bluray">2.1 bluray</a></li>
+    <li><a name="toc-cache" href="#cache">2.2 cache</a></li>
+    <li><a name="toc-concat" href="#concat">2.3 concat</a></li>
+    <li><a name="toc-crypto" href="#crypto">2.4 crypto</a></li>
+    <li><a name="toc-data" href="#data">2.5 data</a></li>
+    <li><a name="toc-file" href="#file">2.6 file</a></li>
+    <li><a name="toc-ftp" href="#ftp">2.7 ftp</a></li>
+    <li><a name="toc-gopher" href="#gopher">2.8 gopher</a></li>
+    <li><a name="toc-hls" href="#hls">2.9 hls</a></li>
+    <li><a name="toc-http" href="#http">2.10 http</a>
+    <ul class="toc">
+      <li><a name="toc-HTTP-Cookies" href="#HTTP-Cookies">2.10.1 HTTP Cookies</a></li>
     </ul></li>
-    <li><a name="toc-Icecast" href="#Icecast">2.12 Icecast</a></li>
-    <li><a name="toc-mmst" href="#mmst">2.13 mmst</a></li>
-    <li><a name="toc-mmsh" href="#mmsh">2.14 mmsh</a></li>
-    <li><a name="toc-md5" href="#md5">2.15 md5</a></li>
-    <li><a name="toc-pipe" href="#pipe">2.16 pipe</a></li>
-    <li><a name="toc-rtmp" href="#rtmp">2.17 rtmp</a></li>
-    <li><a name="toc-rtmpe" href="#rtmpe">2.18 rtmpe</a></li>
-    <li><a name="toc-rtmps" href="#rtmps">2.19 rtmps</a></li>
-    <li><a name="toc-rtmpt" href="#rtmpt">2.20 rtmpt</a></li>
-    <li><a name="toc-rtmpte" href="#rtmpte">2.21 rtmpte</a></li>
-    <li><a name="toc-rtmpts" href="#rtmpts">2.22 rtmpts</a></li>
-    <li><a name="toc-libsmbclient" href="#libsmbclient">2.23 libsmbclient</a></li>
-    <li><a name="toc-libssh" href="#libssh">2.24 libssh</a></li>
-    <li><a name="toc-librtmp-rtmp_002c-rtmpe_002c-rtmps_002c-rtmpt_002c-rtmpte" href="#librtmp-rtmp_002c-rtmpe_002c-rtmps_002c-rtmpt_002c-rtmpte">2.25 librtmp rtmp, rtmpe, rtmps, rtmpt, rtmpte</a></li>
-    <li><a name="toc-rtp" href="#rtp">2.26 rtp</a></li>
-    <li><a name="toc-rtsp" href="#rtsp">2.27 rtsp</a>
-    <ul class="no-bullet">
-      <li><a name="toc-Examples" href="#Examples">2.27.1 Examples</a></li>
+    <li><a name="toc-mmst" href="#mmst">2.11 mmst</a></li>
+    <li><a name="toc-mmsh" href="#mmsh">2.12 mmsh</a></li>
+    <li><a name="toc-md5" href="#md5">2.13 md5</a></li>
+    <li><a name="toc-pipe" href="#pipe">2.14 pipe</a></li>
+    <li><a name="toc-rtmp" href="#rtmp">2.15 rtmp</a></li>
+    <li><a name="toc-rtmpe" href="#rtmpe">2.16 rtmpe</a></li>
+    <li><a name="toc-rtmps" href="#rtmps">2.17 rtmps</a></li>
+    <li><a name="toc-rtmpt" href="#rtmpt">2.18 rtmpt</a></li>
+    <li><a name="toc-rtmpte" href="#rtmpte">2.19 rtmpte</a></li>
+    <li><a name="toc-rtmpts" href="#rtmpts">2.20 rtmpts</a></li>
+    <li><a name="toc-libssh" href="#libssh">2.21 libssh</a></li>
+    <li><a name="toc-librtmp-rtmp_002c-rtmpe_002c-rtmps_002c-rtmpt_002c-rtmpte" href="#librtmp-rtmp_002c-rtmpe_002c-rtmps_002c-rtmpt_002c-rtmpte">2.22 librtmp rtmp, rtmpe, rtmps, rtmpt, rtmpte</a></li>
+    <li><a name="toc-rtp" href="#rtp">2.23 rtp</a></li>
+    <li><a name="toc-rtsp" href="#rtsp">2.24 rtsp</a>
+    <ul class="toc">
+      <li><a name="toc-Examples" href="#Examples">2.24.1 Examples</a></li>
     </ul></li>
-    <li><a name="toc-sap" href="#sap">2.28 sap</a>
-    <ul class="no-bullet">
-      <li><a name="toc-Muxer" href="#Muxer">2.28.1 Muxer</a></li>
-      <li><a name="toc-Demuxer" href="#Demuxer">2.28.2 Demuxer</a></li>
+    <li><a name="toc-sap" href="#sap">2.25 sap</a>
+    <ul class="toc">
+      <li><a name="toc-Muxer" href="#Muxer">2.25.1 Muxer</a></li>
+      <li><a name="toc-Demuxer" href="#Demuxer">2.25.2 Demuxer</a></li>
     </ul></li>
-    <li><a name="toc-sctp" href="#sctp">2.29 sctp</a></li>
-    <li><a name="toc-srtp" href="#srtp">2.30 srtp</a></li>
-    <li><a name="toc-subfile" href="#subfile">2.31 subfile</a></li>
-    <li><a name="toc-tcp" href="#tcp">2.32 tcp</a></li>
-    <li><a name="toc-tls" href="#tls">2.33 tls</a></li>
-    <li><a name="toc-udp" href="#udp">2.34 udp</a>
-    <ul class="no-bullet">
-      <li><a name="toc-Examples-1" href="#Examples-1">2.34.1 Examples</a></li>
+    <li><a name="toc-sctp" href="#sctp">2.26 sctp</a></li>
+    <li><a name="toc-srtp" href="#srtp">2.27 srtp</a></li>
+    <li><a name="toc-subfile" href="#subfile">2.28 subfile</a></li>
+    <li><a name="toc-tcp" href="#tcp">2.29 tcp</a></li>
+    <li><a name="toc-tls" href="#tls">2.30 tls</a></li>
+    <li><a name="toc-udp" href="#udp">2.31 udp</a>
+    <ul class="toc">
+      <li><a name="toc-Examples-1" href="#Examples-1">2.31.1 Examples</a></li>
     </ul></li>
-    <li><a name="toc-unix" href="#unix">2.35 unix</a></li>
+    <li><a name="toc-unix" href="#unix">2.32 unix</a></li>
   </ul></li>
-  <li><a name="toc-See-Also" href="#See-Also">3 See Also</a></li>
-  <li><a name="toc-Authors" href="#Authors">4 Authors</a></li>
+  <li><a name="toc-See-Also" href="#See-Also">3. See Also</a></li>
+  <li><a name="toc-Authors" href="#Authors">4. Authors</a></li>
 </ul>
 </div>
 
-
 <a name="Description"></a>
-<h2 class="chapter">1 Description<span class="pull-right"><a class="anchor hidden-xs" href="#Description" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-Description" aria-hidden="true">TOC</a></span></h2>
+<h1 class="chapter"><a href="ffmpeg-protocols.html#toc-Description">1. Description</a></h1>
 
 <p>This document describes the input and output protocols provided by the
 libavformat library.
 </p>
 
 <a name="Protocols"></a>
-<h2 class="chapter">2 Protocols<span class="pull-right"><a class="anchor hidden-xs" href="#Protocols" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-Protocols" aria-hidden="true">TOC</a></span></h2>
+<h1 class="chapter"><a href="ffmpeg-protocols.html#toc-Protocols">2. Protocols</a></h1>
 
 <p>Protocols are configured elements in FFmpeg that enable access to
 resources that require specific protocols.
@@ -113,35 +116,22 @@ supported protocols.
 </p>
 <p>A description of the currently available protocols follows.
 </p>
-<a name="async"></a>
-<h3 class="section">2.1 async<span class="pull-right"><a class="anchor hidden-xs" href="#async" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-async" aria-hidden="true">TOC</a></span></h3>
-
-<p>Asynchronous data filling wrapper for input stream.
-</p>
-<p>Fill data in a background thread, to decouple I/O operation from demux thread.
-</p>
-<div class="example">
-<pre class="example">async:<var>URL</var>
-async:http://host/resource
-async:cache:http://host/resource
-</pre></div>
-
 <a name="bluray"></a>
-<h3 class="section">2.2 bluray<span class="pull-right"><a class="anchor hidden-xs" href="#bluray" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-bluray" aria-hidden="true">TOC</a></span></h3>
+<h2 class="section"><a href="ffmpeg-protocols.html#toc-bluray">2.1 bluray</a></h2>
 
 <p>Read BluRay playlist.
 </p>
 <p>The accepted options are:
 </p><dl compact="compact">
-<dt><samp>angle</samp></dt>
+<dt> &lsquo;<samp>angle</samp>&rsquo;</dt>
 <dd><p>BluRay angle
 </p>
 </dd>
-<dt><samp>chapter</samp></dt>
+<dt> &lsquo;<samp>chapter</samp>&rsquo;</dt>
 <dd><p>Start chapter (1...N)
 </p>
 </dd>
-<dt><samp>playlist</samp></dt>
+<dt> &lsquo;<samp>playlist</samp>&rsquo;</dt>
 <dd><p>Playlist to read (BDMV/PLAYLIST/?????.mpls)
 </p>
 </dd>
@@ -150,96 +140,88 @@ async:cache:http://host/resource
 <p>Examples:
 </p>
 <p>Read longest playlist from BluRay mounted to /mnt/bluray:
-</p><div class="example">
-<pre class="example">bluray:/mnt/bluray
-</pre></div>
+</p><table><tr><td>&nbsp;</td><td><pre class="example">bluray:/mnt/bluray
+</pre></td></tr></table>
 
 <p>Read angle 2 of playlist 4 from BluRay mounted to /mnt/bluray, start from chapter 2:
-</p><div class="example">
-<pre class="example">-playlist 4 -angle 2 -chapter 2 bluray:/mnt/bluray
-</pre></div>
+</p><table><tr><td>&nbsp;</td><td><pre class="example">-playlist 4 -angle 2 -chapter 2 bluray:/mnt/bluray
+</pre></td></tr></table>
 
 <a name="cache"></a>
-<h3 class="section">2.3 cache<span class="pull-right"><a class="anchor hidden-xs" href="#cache" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-cache" aria-hidden="true">TOC</a></span></h3>
+<h2 class="section"><a href="ffmpeg-protocols.html#toc-cache">2.2 cache</a></h2>
 
 <p>Caching wrapper for input stream.
 </p>
 <p>Cache the input stream to temporary file. It brings seeking capability to live streams.
 </p>
-<div class="example">
-<pre class="example">cache:<var>URL</var>
-</pre></div>
+<table><tr><td>&nbsp;</td><td><pre class="example">cache:<var>URL</var>
+</pre></td></tr></table>
 
 <a name="concat"></a>
-<h3 class="section">2.4 concat<span class="pull-right"><a class="anchor hidden-xs" href="#concat" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-concat" aria-hidden="true">TOC</a></span></h3>
+<h2 class="section"><a href="ffmpeg-protocols.html#toc-concat">2.3 concat</a></h2>
 
 <p>Physical concatenation protocol.
 </p>
-<p>Read and seek from many resources in sequence as if they were
+<p>Allow to read and seek from many resource in sequence as if they were
 a unique resource.
 </p>
 <p>A URL accepted by this protocol has the syntax:
-</p><div class="example">
-<pre class="example">concat:<var>URL1</var>|<var>URL2</var>|...|<var>URLN</var>
-</pre></div>
+</p><table><tr><td>&nbsp;</td><td><pre class="example">concat:<var>URL1</var>|<var>URL2</var>|...|<var>URLN</var>
+</pre></td></tr></table>
 
 <p>where <var>URL1</var>, <var>URL2</var>, ..., <var>URLN</var> are the urls of the
 resource to be concatenated, each one possibly specifying a distinct
 protocol.
 </p>
-<p>For example to read a sequence of files <samp>split1.mpeg</samp>,
-<samp>split2.mpeg</samp>, <samp>split3.mpeg</samp> with <code>ffplay</code> use the
+<p>For example to read a sequence of files &lsquo;<tt>split1.mpeg</tt>&rsquo;,
+&lsquo;<tt>split2.mpeg</tt>&rsquo;, &lsquo;<tt>split3.mpeg</tt>&rsquo; with <code>ffplay</code> use the
 command:
-</p><div class="example">
-<pre class="example">ffplay concat:split1.mpeg\|split2.mpeg\|split3.mpeg
-</pre></div>
+</p><table><tr><td>&nbsp;</td><td><pre class="example">ffplay concat:split1.mpeg\|split2.mpeg\|split3.mpeg
+</pre></td></tr></table>
 
 <p>Note that you may need to escape the character &quot;|&quot; which is special for
 many shells.
 </p>
 <a name="crypto"></a>
-<h3 class="section">2.5 crypto<span class="pull-right"><a class="anchor hidden-xs" href="#crypto" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-crypto" aria-hidden="true">TOC</a></span></h3>
+<h2 class="section"><a href="ffmpeg-protocols.html#toc-crypto">2.4 crypto</a></h2>
 
 <p>AES-encrypted stream reading protocol.
 </p>
 <p>The accepted options are:
 </p><dl compact="compact">
-<dt><samp>key</samp></dt>
+<dt> &lsquo;<samp>key</samp>&rsquo;</dt>
 <dd><p>Set the AES decryption key binary block from given hexadecimal representation.
 </p>
 </dd>
-<dt><samp>iv</samp></dt>
+<dt> &lsquo;<samp>iv</samp>&rsquo;</dt>
 <dd><p>Set the AES decryption initialization vector binary block from given hexadecimal representation.
 </p></dd>
 </dl>
 
 <p>Accepted URL formats:
-</p><div class="example">
-<pre class="example">crypto:<var>URL</var>
+</p><table><tr><td>&nbsp;</td><td><pre class="example">crypto:<var>URL</var>
 crypto+<var>URL</var>
-</pre></div>
+</pre></td></tr></table>
 
 <a name="data"></a>
-<h3 class="section">2.6 data<span class="pull-right"><a class="anchor hidden-xs" href="#data" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-data" aria-hidden="true">TOC</a></span></h3>
+<h2 class="section"><a href="ffmpeg-protocols.html#toc-data">2.5 data</a></h2>
 
 <p>Data in-line in the URI. See <a href="http://en.wikipedia.org/wiki/Data_URI_scheme">http://en.wikipedia.org/wiki/Data_URI_scheme</a>.
 </p>
 <p>For example, to convert a GIF file given inline with <code>ffmpeg</code>:
-</p><div class="example">
-<pre class="example">ffmpeg -i &quot;data:image/gif;base64,R0lGODdhCAAIAMIEAAAAAAAA//8AAP//AP///////////////ywAAAAACAAIAAADF0gEDLojDgdGiJdJqUX02iB4E8Q9jUMkADs=&quot; smiley.png
-</pre></div>
+</p><table><tr><td>&nbsp;</td><td><pre class="example">ffmpeg -i &quot;data:image/gif;base64,R0lGODdhCAAIAMIEAAAAAAAA//8AAP//AP///////////////ywAAAAACAAIAAADF0gEDLojDgdGiJdJqUX02iB4E8Q9jUMkADs=&quot; smiley.png
+</pre></td></tr></table>
 
 <a name="file"></a>
-<h3 class="section">2.7 file<span class="pull-right"><a class="anchor hidden-xs" href="#file" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-file" aria-hidden="true">TOC</a></span></h3>
+<h2 class="section"><a href="ffmpeg-protocols.html#toc-file">2.6 file</a></h2>
 
 <p>File access protocol.
 </p>
-<p>Read from or write to a file.
+<p>Allow to read from or write to a file.
 </p>
 <p>A file URL can have the form:
-</p><div class="example">
-<pre class="example">file:<var>filename</var>
-</pre></div>
+</p><table><tr><td>&nbsp;</td><td><pre class="example">file:<var>filename</var>
+</pre></td></tr></table>
 
 <p>where <var>filename</var> is the path of the file to read.
 </p>
@@ -248,21 +230,20 @@ file URL. Depending on the build, an URL that looks like a Windows
 path with the drive letter at the beginning will also be assumed to be
 a file URL (usually not the case in builds for unix-like systems).
 </p>
-<p>For example to read from a file <samp>input.mpeg</samp> with <code>ffmpeg</code>
+<p>For example to read from a file &lsquo;<tt>input.mpeg</tt>&rsquo; with <code>ffmpeg</code>
 use the command:
-</p><div class="example">
-<pre class="example">ffmpeg -i file:input.mpeg output.mpeg
-</pre></div>
+</p><table><tr><td>&nbsp;</td><td><pre class="example">ffmpeg -i file:input.mpeg output.mpeg
+</pre></td></tr></table>
 
 <p>This protocol accepts the following options:
 </p>
 <dl compact="compact">
-<dt><samp>truncate</samp></dt>
+<dt> &lsquo;<samp>truncate</samp>&rsquo;</dt>
 <dd><p>Truncate existing files on write, if set to 1. A value of 0 prevents
 truncating. Default value is 1.
 </p>
 </dd>
-<dt><samp>blocksize</samp></dt>
+<dt> &lsquo;<samp>blocksize</samp>&rsquo;</dt>
 <dd><p>Set I/O operation maximum block size, in bytes. Default value is
 <code>INT_MAX</code>, which results in not limiting the requested block size.
 Setting this value reasonably low improves user termination request reaction
@@ -271,32 +252,31 @@ time, which is valuable for files on slow medium.
 </dl>
 
 <a name="ftp"></a>
-<h3 class="section">2.8 ftp<span class="pull-right"><a class="anchor hidden-xs" href="#ftp" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-ftp" aria-hidden="true">TOC</a></span></h3>
+<h2 class="section"><a href="ffmpeg-protocols.html#toc-ftp">2.7 ftp</a></h2>
 
 <p>FTP (File Transfer Protocol).
 </p>
-<p>Read from or write to remote resources using FTP protocol.
+<p>Allow to read from or write to remote resources using FTP protocol.
 </p>
 <p>Following syntax is required.
-</p><div class="example">
-<pre class="example">ftp://[user[:password]@]server[:port]/path/to/remote/resource.mpeg
-</pre></div>
+</p><table><tr><td>&nbsp;</td><td><pre class="example">ftp://[user[:password]@]server[:port]/path/to/remote/resource.mpeg
+</pre></td></tr></table>
 
 <p>This protocol accepts the following options.
 </p>
 <dl compact="compact">
-<dt><samp>timeout</samp></dt>
-<dd><p>Set timeout in microseconds of socket I/O operations used by the underlying low level
+<dt> &lsquo;<samp>timeout</samp>&rsquo;</dt>
+<dd><p>Set timeout of socket I/O operations used by the underlying low level
 operation. By default it is set to -1, which means that the timeout is
 not specified.
 </p>
 </dd>
-<dt><samp>ftp-anonymous-password</samp></dt>
+<dt> &lsquo;<samp>ftp-anonymous-password</samp>&rsquo;</dt>
 <dd><p>Password used when login as anonymous user. Typically an e-mail address
 should be used.
 </p>
 </dd>
-<dt><samp>ftp-write-seekable</samp></dt>
+<dt> &lsquo;<samp>ftp-write-seekable</samp>&rsquo;</dt>
 <dd><p>Control seekability of connection during encoding. If set to 1 the
 resource is supposed to be seekable, if set to 0 it is assumed not
 to be seekable. Default value is 0.
@@ -309,12 +289,12 @@ etc.). Different FTP servers behave in different way during seek
 operation. ff* tools may produce incomplete content due to server limitations.
 </p>
 <a name="gopher"></a>
-<h3 class="section">2.9 gopher<span class="pull-right"><a class="anchor hidden-xs" href="#gopher" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-gopher" aria-hidden="true">TOC</a></span></h3>
+<h2 class="section"><a href="ffmpeg-protocols.html#toc-gopher">2.8 gopher</a></h2>
 
 <p>Gopher protocol.
 </p>
 <a name="hls"></a>
-<h3 class="section">2.10 hls<span class="pull-right"><a class="anchor hidden-xs" href="#hls" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-hls" aria-hidden="true">TOC</a></span></h3>
+<h2 class="section"><a href="ffmpeg-protocols.html#toc-hls">2.9 hls</a></h2>
 
 <p>Read Apple HTTP Live Streaming compliant segmented stream as
 a uniform one. The M3U8 playlists describing the segments can be
@@ -324,10 +304,9 @@ The nested protocol is declared by specifying
 &quot;+<var>proto</var>&quot; after the hls URI scheme name, where <var>proto</var>
 is either &quot;file&quot; or &quot;http&quot;.
 </p>
-<div class="example">
-<pre class="example">hls+http://host/path/to/remote/resource.m3u8
+<table><tr><td>&nbsp;</td><td><pre class="example">hls+http://host/path/to/remote/resource.m3u8
 hls+file://path/to/local/resource.m3u8
-</pre></div>
+</pre></td></tr></table>
 
 <p>Using this protocol is discouraged - the hls demuxer should work
 just as well (if not, please report the issues) and is more complete.
@@ -335,229 +314,121 @@ To use the hls demuxer instead, simply use the direct URLs to the
 m3u8 files.
 </p>
 <a name="http"></a>
-<h3 class="section">2.11 http<span class="pull-right"><a class="anchor hidden-xs" href="#http" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-http" aria-hidden="true">TOC</a></span></h3>
+<h2 class="section"><a href="ffmpeg-protocols.html#toc-http">2.10 http</a></h2>
 
 <p>HTTP (Hyper Text Transfer Protocol).
 </p>
 <p>This protocol accepts the following options:
 </p>
 <dl compact="compact">
-<dt><samp>seekable</samp></dt>
+<dt> &lsquo;<samp>seekable</samp>&rsquo;</dt>
 <dd><p>Control seekability of connection. If set to 1 the resource is
 supposed to be seekable, if set to 0 it is assumed not to be seekable,
 if set to -1 it will try to autodetect if it is seekable. Default
 value is -1.
 </p>
 </dd>
-<dt><samp>chunked_post</samp></dt>
+<dt> &lsquo;<samp>chunked_post</samp>&rsquo;</dt>
 <dd><p>If set to 1 use chunked Transfer-Encoding for posts, default is 1.
 </p>
 </dd>
-<dt><samp>content_type</samp></dt>
+<dt> &lsquo;<samp>content_type</samp>&rsquo;</dt>
 <dd><p>Set a specific content type for the POST messages.
 </p>
 </dd>
-<dt><samp>headers</samp></dt>
+<dt> &lsquo;<samp>headers</samp>&rsquo;</dt>
 <dd><p>Set custom HTTP headers, can override built in default headers. The
 value must be a string encoding the headers.
 </p>
 </dd>
-<dt><samp>multiple_requests</samp></dt>
+<dt> &lsquo;<samp>multiple_requests</samp>&rsquo;</dt>
 <dd><p>Use persistent connections if set to 1, default is 0.
 </p>
 </dd>
-<dt><samp>post_data</samp></dt>
+<dt> &lsquo;<samp>post_data</samp>&rsquo;</dt>
 <dd><p>Set custom HTTP post data.
 </p>
 </dd>
-<dt><samp>user-agent</samp></dt>
-<dt><samp>user_agent</samp></dt>
+<dt> &lsquo;<samp>user-agent</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>user_agent</samp>&rsquo;</dt>
 <dd><p>Override the User-Agent header. If not specified the protocol will use a
 string describing the libavformat build. (&quot;Lavf/&lt;version&gt;&quot;)
 </p>
 </dd>
-<dt><samp>timeout</samp></dt>
-<dd><p>Set timeout in microseconds of socket I/O operations used by the underlying low level
+<dt> &lsquo;<samp>timeout</samp>&rsquo;</dt>
+<dd><p>Set timeout of socket I/O operations used by the underlying low level
 operation. By default it is set to -1, which means that the timeout is
 not specified.
 </p>
 </dd>
-<dt><samp>reconnect_at_eof</samp></dt>
-<dd><p>If set then eof is treated like an error and causes reconnection, this is useful
-for live / endless streams.
-</p>
-</dd>
-<dt><samp>reconnect_streamed</samp></dt>
-<dd><p>If set then even streamed/non seekable streams will be reconnected on errors.
-</p>
-</dd>
-<dt><samp>reconnect_delay_max</samp></dt>
-<dd><p>Sets the maximum delay in seconds after which to give up reconnecting
-</p>
-</dd>
-<dt><samp>mime_type</samp></dt>
+<dt> &lsquo;<samp>mime_type</samp>&rsquo;</dt>
 <dd><p>Export the MIME type.
 </p>
 </dd>
-<dt><samp>icy</samp></dt>
+<dt> &lsquo;<samp>icy</samp>&rsquo;</dt>
 <dd><p>If set to 1 request ICY (SHOUTcast) metadata from the server. If the server
 supports this, the metadata has to be retrieved by the application by reading
-the <samp>icy_metadata_headers</samp> and <samp>icy_metadata_packet</samp> options.
-The default is 1.
+the &lsquo;<samp>icy_metadata_headers</samp>&rsquo; and &lsquo;<samp>icy_metadata_packet</samp>&rsquo; options.
+The default is 0.
 </p>
 </dd>
-<dt><samp>icy_metadata_headers</samp></dt>
+<dt> &lsquo;<samp>icy_metadata_headers</samp>&rsquo;</dt>
 <dd><p>If the server supports ICY metadata, this contains the ICY-specific HTTP reply
 headers, separated by newline characters.
 </p>
 </dd>
-<dt><samp>icy_metadata_packet</samp></dt>
-<dd><p>If the server supports ICY metadata, and <samp>icy</samp> was set to 1, this
+<dt> &lsquo;<samp>icy_metadata_packet</samp>&rsquo;</dt>
+<dd><p>If the server supports ICY metadata, and &lsquo;<samp>icy</samp>&rsquo; was set to 1, this
 contains the last non-empty metadata packet sent by the server. It should be
 polled in regular intervals by applications interested in mid-stream metadata
 updates.
 </p>
 </dd>
-<dt><samp>cookies</samp></dt>
+<dt> &lsquo;<samp>cookies</samp>&rsquo;</dt>
 <dd><p>Set the cookies to be sent in future requests. The format of each cookie is the
 same as the value of a Set-Cookie HTTP response field. Multiple cookies can be
 delimited by a newline character.
 </p>
 </dd>
-<dt><samp>offset</samp></dt>
+<dt> &lsquo;<samp>offset</samp>&rsquo;</dt>
 <dd><p>Set initial byte offset.
 </p>
 </dd>
-<dt><samp>end_offset</samp></dt>
+<dt> &lsquo;<samp>end_offset</samp>&rsquo;</dt>
 <dd><p>Try to limit the request to bytes preceding this offset.
-</p>
-</dd>
-<dt><samp>method</samp></dt>
-<dd><p>When used as a client option it sets the HTTP method for the request.
-</p>
-<p>When used as a server option it sets the HTTP method that is going to be
-expected from the client(s).
-If the expected and the received HTTP method do not match the client will
-be given a Bad Request response.
-When unset the HTTP method is not checked for now. This will be replaced by
-autodetection in the future.
-</p>
-</dd>
-<dt><samp>listen</samp></dt>
-<dd><p>If set to 1 enables experimental HTTP server. This can be used to send data when
-used as an output option, or read data from a client with HTTP POST when used as
-an input option.
-If set to 2 enables experimental mutli-client HTTP server. This is not yet implemented
-in ffmpeg.c or ffserver.c and thus must not be used as a command line option.
-</p><div class="example">
-<pre class="example"># Server side (sending):
-ffmpeg -i somefile.ogg -c copy -listen 1 -f ogg http://<var>server</var>:<var>port</var>
-
-# Client side (receiving):
-ffmpeg -i http://<var>server</var>:<var>port</var> -c copy somefile.ogg
-
-# Client can also be done with wget:
-wget http://<var>server</var>:<var>port</var> -O somefile.ogg
-
-# Server side (receiving):
-ffmpeg -listen 1 -i http://<var>server</var>:<var>port</var> -c copy somefile.ogg
-
-# Client side (sending):
-ffmpeg -i somefile.ogg -chunked_post 0 -c copy -f ogg http://<var>server</var>:<var>port</var>
-
-# Client can also be done with wget:
-wget --post-file=somefile.ogg http://<var>server</var>:<var>port</var>
-</pre></div>
-
-</dd>
+</p></dd>
 </dl>
 
 <a name="HTTP-Cookies"></a>
-<h4 class="subsection">2.11.1 HTTP Cookies<span class="pull-right"><a class="anchor hidden-xs" href="#HTTP-Cookies" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-HTTP-Cookies" aria-hidden="true">TOC</a></span></h4>
+<h3 class="subsection"><a href="ffmpeg-protocols.html#toc-HTTP-Cookies">2.10.1 HTTP Cookies</a></h3>
 
 <p>Some HTTP requests will be denied unless cookie values are passed in with the
-request. The <samp>cookies</samp> option allows these cookies to be specified. At
+request. The &lsquo;<samp>cookies</samp>&rsquo; option allows these cookies to be specified. At
 the very least, each cookie must specify a value along with a path and domain.
 HTTP requests that match both the domain and path will automatically include the
 cookie value in the HTTP Cookie header field. Multiple cookies can be delimited
 by a newline.
 </p>
 <p>The required syntax to play a stream specifying a cookie is:
-</p><div class="example">
-<pre class="example">ffplay -cookies &quot;nlqptid=nltid=tsn; path=/; domain=somedomain.com;&quot; http://somedomain.com/somestream.m3u8
-</pre></div>
-
-<a name="Icecast"></a>
-<h3 class="section">2.12 Icecast<span class="pull-right"><a class="anchor hidden-xs" href="#Icecast" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-Icecast" aria-hidden="true">TOC</a></span></h3>
-
-<p>Icecast protocol (stream to Icecast servers)
-</p>
-<p>This protocol accepts the following options:
-</p>
-<dl compact="compact">
-<dt><samp>ice_genre</samp></dt>
-<dd><p>Set the stream genre.
-</p>
-</dd>
-<dt><samp>ice_name</samp></dt>
-<dd><p>Set the stream name.
-</p>
-</dd>
-<dt><samp>ice_description</samp></dt>
-<dd><p>Set the stream description.
-</p>
-</dd>
-<dt><samp>ice_url</samp></dt>
-<dd><p>Set the stream website URL.
-</p>
-</dd>
-<dt><samp>ice_public</samp></dt>
-<dd><p>Set if the stream should be public.
-The default is 0 (not public).
-</p>
-</dd>
-<dt><samp>user_agent</samp></dt>
-<dd><p>Override the User-Agent header. If not specified a string of the form
-&quot;Lavf/&lt;version&gt;&quot; will be used.
-</p>
-</dd>
-<dt><samp>password</samp></dt>
-<dd><p>Set the Icecast mountpoint password.
-</p>
-</dd>
-<dt><samp>content_type</samp></dt>
-<dd><p>Set the stream content type. This must be set if it is different from
-audio/mpeg.
-</p>
-</dd>
-<dt><samp>legacy_icecast</samp></dt>
-<dd><p>This enables support for Icecast versions &lt; 2.4.0, that do not support the
-HTTP PUT method but the SOURCE method.
-</p>
-</dd>
-</dl>
-
-<div class="example">
-<pre class="example">icecast://[<var>username</var>[:<var>password</var>]@]<var>server</var>:<var>port</var>/<var>mountpoint</var>
-</pre></div>
+</p><table><tr><td>&nbsp;</td><td><pre class="example">ffplay -cookies &quot;nlqptid=nltid=tsn; path=/; domain=somedomain.com;&quot; http://somedomain.com/somestream.m3u8
+</pre></td></tr></table>
 
 <a name="mmst"></a>
-<h3 class="section">2.13 mmst<span class="pull-right"><a class="anchor hidden-xs" href="#mmst" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-mmst" aria-hidden="true">TOC</a></span></h3>
+<h2 class="section"><a href="ffmpeg-protocols.html#toc-mmst">2.11 mmst</a></h2>
 
 <p>MMS (Microsoft Media Server) protocol over TCP.
 </p>
 <a name="mmsh"></a>
-<h3 class="section">2.14 mmsh<span class="pull-right"><a class="anchor hidden-xs" href="#mmsh" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-mmsh" aria-hidden="true">TOC</a></span></h3>
+<h2 class="section"><a href="ffmpeg-protocols.html#toc-mmsh">2.12 mmsh</a></h2>
 
 <p>MMS (Microsoft Media Server) protocol over HTTP.
 </p>
 <p>The required syntax is:
-</p><div class="example">
-<pre class="example">mmsh://<var>server</var>[:<var>port</var>][/<var>app</var>][/<var>playpath</var>]
-</pre></div>
+</p><table><tr><td>&nbsp;</td><td><pre class="example">mmsh://<var>server</var>[:<var>port</var>][/<var>app</var>][/<var>playpath</var>]
+</pre></td></tr></table>
 
 <a name="md5"></a>
-<h3 class="section">2.15 md5<span class="pull-right"><a class="anchor hidden-xs" href="#md5" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-md5" aria-hidden="true">TOC</a></span></h3>
+<h2 class="section"><a href="ffmpeg-protocols.html#toc-md5">2.13 md5</a></h2>
 
 <p>MD5 output protocol.
 </p>
@@ -566,28 +437,26 @@ this to the designated output or stdout if none is specified. It can
 be used to test muxers without writing an actual file.
 </p>
 <p>Some examples follow.
-</p><div class="example">
-<pre class="example"># Write the MD5 hash of the encoded AVI file to the file output.avi.md5.
+</p><table><tr><td>&nbsp;</td><td><pre class="example"># Write the MD5 hash of the encoded AVI file to the file output.avi.md5.
 ffmpeg -i input.flv -f avi -y md5:output.avi.md5
 
 # Write the MD5 hash of the encoded AVI file to stdout.
 ffmpeg -i input.flv -f avi -y md5:
-</pre></div>
+</pre></td></tr></table>
 
 <p>Note that some formats (typically MOV) require the output protocol to
 be seekable, so they will fail with the MD5 output protocol.
 </p>
 <a name="pipe"></a>
-<h3 class="section">2.16 pipe<span class="pull-right"><a class="anchor hidden-xs" href="#pipe" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-pipe" aria-hidden="true">TOC</a></span></h3>
+<h2 class="section"><a href="ffmpeg-protocols.html#toc-pipe">2.14 pipe</a></h2>
 
 <p>UNIX pipe access protocol.
 </p>
-<p>Read and write from UNIX pipes.
+<p>Allow to read and write from UNIX pipes.
 </p>
 <p>The accepted syntax is:
-</p><div class="example">
-<pre class="example">pipe:[<var>number</var>]
-</pre></div>
+</p><table><tr><td>&nbsp;</td><td><pre class="example">pipe:[<var>number</var>]
+</pre></td></tr></table>
 
 <p><var>number</var> is the number corresponding to the file descriptor of the
 pipe (e.g. 0 for stdin, 1 for stdout, 2 for stderr).  If <var>number</var>
@@ -595,23 +464,21 @@ is not specified, by default the stdout file descriptor will be used
 for writing, stdin for reading.
 </p>
 <p>For example to read from stdin with <code>ffmpeg</code>:
-</p><div class="example">
-<pre class="example">cat test.wav | ffmpeg -i pipe:0
+</p><table><tr><td>&nbsp;</td><td><pre class="example">cat test.wav | ffmpeg -i pipe:0
 # ...this is the same as...
 cat test.wav | ffmpeg -i pipe:
-</pre></div>
+</pre></td></tr></table>
 
 <p>For writing to stdout with <code>ffmpeg</code>:
-</p><div class="example">
-<pre class="example">ffmpeg -i test.wav -f avi pipe:1 | cat &gt; test.avi
+</p><table><tr><td>&nbsp;</td><td><pre class="example">ffmpeg -i test.wav -f avi pipe:1 | cat &gt; test.avi
 # ...this is the same as...
 ffmpeg -i test.wav -f avi pipe: | cat &gt; test.avi
-</pre></div>
+</pre></td></tr></table>
 
 <p>This protocol accepts the following options:
 </p>
 <dl compact="compact">
-<dt><samp>blocksize</samp></dt>
+<dt> &lsquo;<samp>blocksize</samp>&rsquo;</dt>
 <dd><p>Set I/O operation maximum block size, in bytes. Default value is
 <code>INT_MAX</code>, which results in not limiting the requested block size.
 Setting this value reasonably low improves user termination request reaction
@@ -623,7 +490,7 @@ time, which is valuable if data transmission is slow.
 be seekable, so they will fail with the pipe output protocol.
 </p>
 <a name="rtmp"></a>
-<h3 class="section">2.17 rtmp<span class="pull-right"><a class="anchor hidden-xs" href="#rtmp" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-rtmp" aria-hidden="true">TOC</a></span></h3>
+<h2 class="section"><a href="ffmpeg-protocols.html#toc-rtmp">2.15 rtmp</a></h2>
 
 <p>Real-Time Messaging Protocol.
 </p>
@@ -631,47 +498,46 @@ be seekable, so they will fail with the pipe output protocol.
 content across a TCP/IP network.
 </p>
 <p>The required syntax is:
-</p><div class="example">
-<pre class="example">rtmp://[<var>username</var>:<var>password</var>@]<var>server</var>[:<var>port</var>][/<var>app</var>][/<var>instance</var>][/<var>playpath</var>]
-</pre></div>
+</p><table><tr><td>&nbsp;</td><td><pre class="example">rtmp://[<var>username</var>:<var>password</var>@]<var>server</var>[:<var>port</var>][/<var>app</var>][/<var>instance</var>][/<var>playpath</var>]
+</pre></td></tr></table>
 
 <p>The accepted parameters are:
 </p><dl compact="compact">
-<dt><samp>username</samp></dt>
+<dt> &lsquo;<samp>username</samp>&rsquo;</dt>
 <dd><p>An optional username (mostly for publishing).
 </p>
 </dd>
-<dt><samp>password</samp></dt>
+<dt> &lsquo;<samp>password</samp>&rsquo;</dt>
 <dd><p>An optional password (mostly for publishing).
 </p>
 </dd>
-<dt><samp>server</samp></dt>
+<dt> &lsquo;<samp>server</samp>&rsquo;</dt>
 <dd><p>The address of the RTMP server.
 </p>
 </dd>
-<dt><samp>port</samp></dt>
+<dt> &lsquo;<samp>port</samp>&rsquo;</dt>
 <dd><p>The number of the TCP port to use (by default is 1935).
 </p>
 </dd>
-<dt><samp>app</samp></dt>
+<dt> &lsquo;<samp>app</samp>&rsquo;</dt>
 <dd><p>It is the name of the application to access. It usually corresponds to
 the path where the application is installed on the RTMP server
-(e.g. <samp>/ondemand/</samp>, <samp>/flash/live/</samp>, etc.). You can override
+(e.g. &lsquo;<tt>/ondemand/</tt>&rsquo;, &lsquo;<tt>/flash/live/</tt>&rsquo;, etc.). You can override
 the value parsed from the URI through the <code>rtmp_app</code> option, too.
 </p>
 </dd>
-<dt><samp>playpath</samp></dt>
+<dt> &lsquo;<samp>playpath</samp>&rsquo;</dt>
 <dd><p>It is the path or name of the resource to play with reference to the
 application specified in <var>app</var>, may be prefixed by &quot;mp4:&quot;. You
 can override the value parsed from the URI through the <code>rtmp_playpath</code>
 option, too.
 </p>
 </dd>
-<dt><samp>listen</samp></dt>
+<dt> &lsquo;<samp>listen</samp>&rsquo;</dt>
 <dd><p>Act as a server, listening for an incoming connection.
 </p>
 </dd>
-<dt><samp>timeout</samp></dt>
+<dt> &lsquo;<samp>timeout</samp>&rsquo;</dt>
 <dd><p>Maximum time to wait for the incoming connection. Implies listen.
 </p></dd>
 </dl>
@@ -679,16 +545,16 @@ option, too.
 <p>Additionally, the following parameters can be set via command line options
 (or in code via <code>AVOption</code>s):
 </p><dl compact="compact">
-<dt><samp>rtmp_app</samp></dt>
+<dt> &lsquo;<samp>rtmp_app</samp>&rsquo;</dt>
 <dd><p>Name of application to connect on the RTMP server. This option
 overrides the parameter specified in the URI.
 </p>
 </dd>
-<dt><samp>rtmp_buffer</samp></dt>
+<dt> &lsquo;<samp>rtmp_buffer</samp>&rsquo;</dt>
 <dd><p>Set the client buffer time in milliseconds. The default is 3000.
 </p>
 </dd>
-<dt><samp>rtmp_conn</samp></dt>
+<dt> &lsquo;<samp>rtmp_conn</samp>&rsquo;</dt>
 <dd><p>Extra arbitrary AMF connection parameters, parsed from a string,
 e.g. like <code>B:1 S:authMe O:1 NN:code:1.23 NS:flag:ok O:0</code>.
 Each value is prefixed by a single character denoting the type,
@@ -701,18 +567,18 @@ the value (i.e. <code>NB:myFlag:1</code>). This option may be used multiple
 times to construct arbitrary AMF sequences.
 </p>
 </dd>
-<dt><samp>rtmp_flashver</samp></dt>
+<dt> &lsquo;<samp>rtmp_flashver</samp>&rsquo;</dt>
 <dd><p>Version of the Flash plugin used to run the SWF player. The default
 is LNX 9,0,124,2. (When publishing, the default is FMLE/3.0 (compatible;
 &lt;libavformat version&gt;).)
 </p>
 </dd>
-<dt><samp>rtmp_flush_interval</samp></dt>
+<dt> &lsquo;<samp>rtmp_flush_interval</samp>&rsquo;</dt>
 <dd><p>Number of packets flushed in the same request (RTMPT only). The default
 is 10.
 </p>
 </dd>
-<dt><samp>rtmp_live</samp></dt>
+<dt> &lsquo;<samp>rtmp_live</samp>&rsquo;</dt>
 <dd><p>Specify that the media is a live stream. No resuming or seeking in
 live streams is possible. The default value is <code>any</code>, which means the
 subscriber first tries to play the live stream specified in the
@@ -721,39 +587,39 @@ recorded stream. The other possible values are <code>live</code> and
 <code>recorded</code>.
 </p>
 </dd>
-<dt><samp>rtmp_pageurl</samp></dt>
+<dt> &lsquo;<samp>rtmp_pageurl</samp>&rsquo;</dt>
 <dd><p>URL of the web page in which the media was embedded. By default no
 value will be sent.
 </p>
 </dd>
-<dt><samp>rtmp_playpath</samp></dt>
+<dt> &lsquo;<samp>rtmp_playpath</samp>&rsquo;</dt>
 <dd><p>Stream identifier to play or to publish. This option overrides the
 parameter specified in the URI.
 </p>
 </dd>
-<dt><samp>rtmp_subscribe</samp></dt>
+<dt> &lsquo;<samp>rtmp_subscribe</samp>&rsquo;</dt>
 <dd><p>Name of live stream to subscribe to. By default no value will be sent.
 It is only sent if the option is specified or if rtmp_live
 is set to live.
 </p>
 </dd>
-<dt><samp>rtmp_swfhash</samp></dt>
+<dt> &lsquo;<samp>rtmp_swfhash</samp>&rsquo;</dt>
 <dd><p>SHA256 hash of the decompressed SWF file (32 bytes).
 </p>
 </dd>
-<dt><samp>rtmp_swfsize</samp></dt>
+<dt> &lsquo;<samp>rtmp_swfsize</samp>&rsquo;</dt>
 <dd><p>Size of the decompressed SWF file, required for SWFVerification.
 </p>
 </dd>
-<dt><samp>rtmp_swfurl</samp></dt>
+<dt> &lsquo;<samp>rtmp_swfurl</samp>&rsquo;</dt>
 <dd><p>URL of the SWF player for the media. By default no value will be sent.
 </p>
 </dd>
-<dt><samp>rtmp_swfverify</samp></dt>
+<dt> &lsquo;<samp>rtmp_swfverify</samp>&rsquo;</dt>
 <dd><p>URL to player swf file, compute hash/size automatically.
 </p>
 </dd>
-<dt><samp>rtmp_tcurl</samp></dt>
+<dt> &lsquo;<samp>rtmp_tcurl</samp>&rsquo;</dt>
 <dd><p>URL of the target stream. Defaults to proto://host[:port]/app.
 </p>
 </dd>
@@ -761,18 +627,16 @@ is set to live.
 
 <p>For example to read with <code>ffplay</code> a multimedia resource named
 &quot;sample&quot; from the application &quot;vod&quot; from an RTMP server &quot;myserver&quot;:
-</p><div class="example">
-<pre class="example">ffplay rtmp://myserver/vod/sample
-</pre></div>
+</p><table><tr><td>&nbsp;</td><td><pre class="example">ffplay rtmp://myserver/vod/sample
+</pre></td></tr></table>
 
 <p>To publish to a password protected server, passing the playpath and
 app names separately:
-</p><div class="example">
-<pre class="example">ffmpeg -re -i &lt;input&gt; -f flv -rtmp_playpath some/long/path -rtmp_app long/app/name rtmp://username:password@myserver/
-</pre></div>
+</p><table><tr><td>&nbsp;</td><td><pre class="example">ffmpeg -re -i &lt;input&gt; -f flv -rtmp_playpath some/long/path -rtmp_app long/app/name rtmp://username:password@myserver/
+</pre></td></tr></table>
 
 <a name="rtmpe"></a>
-<h3 class="section">2.18 rtmpe<span class="pull-right"><a class="anchor hidden-xs" href="#rtmpe" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-rtmpe" aria-hidden="true">TOC</a></span></h3>
+<h2 class="section"><a href="ffmpeg-protocols.html#toc-rtmpe">2.16 rtmpe</a></h2>
 
 <p>Encrypted Real-Time Messaging Protocol.
 </p>
@@ -782,7 +646,7 @@ consisting of Diffie-Hellman key exchange and HMACSHA256, generating
 a pair of RC4 keys.
 </p>
 <a name="rtmps"></a>
-<h3 class="section">2.19 rtmps<span class="pull-right"><a class="anchor hidden-xs" href="#rtmps" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-rtmps" aria-hidden="true">TOC</a></span></h3>
+<h2 class="section"><a href="ffmpeg-protocols.html#toc-rtmps">2.17 rtmps</a></h2>
 
 <p>Real-Time Messaging Protocol over a secure SSL connection.
 </p>
@@ -790,7 +654,7 @@ a pair of RC4 keys.
 multimedia content across an encrypted connection.
 </p>
 <a name="rtmpt"></a>
-<h3 class="section">2.20 rtmpt<span class="pull-right"><a class="anchor hidden-xs" href="#rtmpt" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-rtmpt" aria-hidden="true">TOC</a></span></h3>
+<h2 class="section"><a href="ffmpeg-protocols.html#toc-rtmpt">2.18 rtmpt</a></h2>
 
 <p>Real-Time Messaging Protocol tunneled through HTTP.
 </p>
@@ -799,7 +663,7 @@ for streaming multimedia content within HTTP requests to traverse
 firewalls.
 </p>
 <a name="rtmpte"></a>
-<h3 class="section">2.21 rtmpte<span class="pull-right"><a class="anchor hidden-xs" href="#rtmpte" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-rtmpte" aria-hidden="true">TOC</a></span></h3>
+<h2 class="section"><a href="ffmpeg-protocols.html#toc-rtmpte">2.19 rtmpte</a></h2>
 
 <p>Encrypted Real-Time Messaging Protocol tunneled through HTTP.
 </p>
@@ -808,7 +672,7 @@ is used for streaming multimedia content within HTTP requests to traverse
 firewalls.
 </p>
 <a name="rtmpts"></a>
-<h3 class="section">2.22 rtmpts<span class="pull-right"><a class="anchor hidden-xs" href="#rtmpts" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-rtmpts" aria-hidden="true">TOC</a></span></h3>
+<h2 class="section"><a href="ffmpeg-protocols.html#toc-rtmpts">2.20 rtmpts</a></h2>
 
 <p>Real-Time Messaging Protocol tunneled through HTTPS.
 </p>
@@ -816,81 +680,46 @@ firewalls.
 for streaming multimedia content within HTTPS requests to traverse
 firewalls.
 </p>
-<a name="libsmbclient"></a>
-<h3 class="section">2.23 libsmbclient<span class="pull-right"><a class="anchor hidden-xs" href="#libsmbclient" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-libsmbclient" aria-hidden="true">TOC</a></span></h3>
-
-<p>libsmbclient permits one to manipulate CIFS/SMB network resources.
-</p>
-<p>Following syntax is required.
-</p>
-<div class="example">
-<pre class="example">smb://[[domain:]user[:password@]]server[/share[/path[/file]]]
-</pre></div>
-
-<p>This protocol accepts the following options.
-</p>
-<dl compact="compact">
-<dt><samp>timeout</samp></dt>
-<dd><p>Set timeout in miliseconds of socket I/O operations used by the underlying
-low level operation. By default it is set to -1, which means that the timeout
-is not specified.
-</p>
-</dd>
-<dt><samp>truncate</samp></dt>
-<dd><p>Truncate existing files on write, if set to 1. A value of 0 prevents
-truncating. Default value is 1.
-</p>
-</dd>
-<dt><samp>workgroup</samp></dt>
-<dd><p>Set the workgroup used for making connections. By default workgroup is not specified.
-</p>
-</dd>
-</dl>
-
-<p>For more information see: <a href="http://www.samba.org/">http://www.samba.org/</a>.
-</p>
 <a name="libssh"></a>
-<h3 class="section">2.24 libssh<span class="pull-right"><a class="anchor hidden-xs" href="#libssh" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-libssh" aria-hidden="true">TOC</a></span></h3>
+<h2 class="section"><a href="ffmpeg-protocols.html#toc-libssh">2.21 libssh</a></h2>
 
 <p>Secure File Transfer Protocol via libssh
 </p>
-<p>Read from or write to remote resources using SFTP protocol.
+<p>Allow to read from or write to remote resources using SFTP protocol.
 </p>
 <p>Following syntax is required.
 </p>
-<div class="example">
-<pre class="example">sftp://[user[:password]@]server[:port]/path/to/remote/resource.mpeg
-</pre></div>
+<table><tr><td>&nbsp;</td><td><pre class="example">sftp://[user[:password]@]server[:port]/path/to/remote/resource.mpeg
+</pre></td></tr></table>
 
 <p>This protocol accepts the following options.
 </p>
 <dl compact="compact">
-<dt><samp>timeout</samp></dt>
+<dt> &lsquo;<samp>timeout</samp>&rsquo;</dt>
 <dd><p>Set timeout of socket I/O operations used by the underlying low level
 operation. By default it is set to -1, which means that the timeout
 is not specified.
 </p>
 </dd>
-<dt><samp>truncate</samp></dt>
+<dt> &lsquo;<samp>truncate</samp>&rsquo;</dt>
 <dd><p>Truncate existing files on write, if set to 1. A value of 0 prevents
 truncating. Default value is 1.
 </p>
 </dd>
-<dt><samp>private_key</samp></dt>
+<dt> &lsquo;<samp>private_key</samp>&rsquo;</dt>
 <dd><p>Specify the path of the file containing private key to use during authorization.
-By default libssh searches for keys in the <samp>~/.ssh/</samp> directory.
+By default libssh searches for keys in the &lsquo;<tt>~/.ssh/</tt>&rsquo; directory.
 </p>
 </dd>
 </dl>
 
 <p>Example: Play a file stored on remote server.
 </p>
-<div class="example">
-<pre class="example">ffplay sftp://user:password@server_address:22/home/user/resource.mpeg
-</pre></div>
+<table><tr><td>&nbsp;</td><td><pre class="example">ffplay sftp://user:password@server_address:22/home/user/resource.mpeg
+</pre></td></tr></table>
 
 <a name="librtmp-rtmp_002c-rtmpe_002c-rtmps_002c-rtmpt_002c-rtmpte"></a>
-<h3 class="section">2.25 librtmp rtmp, rtmpe, rtmps, rtmpt, rtmpte<span class="pull-right"><a class="anchor hidden-xs" href="#librtmp-rtmp_002c-rtmpe_002c-rtmps_002c-rtmpt_002c-rtmpte" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-librtmp-rtmp_002c-rtmpe_002c-rtmps_002c-rtmpt_002c-rtmpte" aria-hidden="true">TOC</a></span></h3>
+<h2 class="section"><a href="ffmpeg-protocols.html#toc-librtmp-rtmp_002c-rtmpe_002c-rtmps_002c-rtmpt_002c-rtmpte">2.22 librtmp rtmp, rtmpe, rtmps, rtmpt, rtmpte</a></h2>
 
 <p>Real-Time Messaging Protocol and its variants supported through
 librtmp.
@@ -906,9 +735,8 @@ encrypted RTMP (RTMPE), RTMP over SSL/TLS (RTMPS) and tunneled
 variants of these encrypted types (RTMPTE, RTMPTS).
 </p>
 <p>The required syntax is:
-</p><div class="example">
-<pre class="example"><var>rtmp_proto</var>://<var>server</var>[:<var>port</var>][/<var>app</var>][/<var>playpath</var>] <var>options</var>
-</pre></div>
+</p><table><tr><td>&nbsp;</td><td><pre class="example"><var>rtmp_proto</var>://<var>server</var>[:<var>port</var>][/<var>app</var>][/<var>playpath</var>] <var>options</var>
+</pre></td></tr></table>
 
 <p>where <var>rtmp_proto</var> is one of the strings &quot;rtmp&quot;, &quot;rtmpt&quot;, &quot;rtmpe&quot;,
 &quot;rtmps&quot;, &quot;rtmpte&quot;, &quot;rtmpts&quot; corresponding to each RTMP variant, and
@@ -921,17 +749,15 @@ meaning as specified for the RTMP native protocol.
 </p>
 <p>For example, to stream a file in real-time to an RTMP server using
 <code>ffmpeg</code>:
-</p><div class="example">
-<pre class="example">ffmpeg -re -i myfile -f flv rtmp://myserver/live/mystream
-</pre></div>
+</p><table><tr><td>&nbsp;</td><td><pre class="example">ffmpeg -re -i myfile -f flv rtmp://myserver/live/mystream
+</pre></td></tr></table>
 
 <p>To play the same stream using <code>ffplay</code>:
-</p><div class="example">
-<pre class="example">ffplay &quot;rtmp://myserver/live/mystream live=1&quot;
-</pre></div>
+</p><table><tr><td>&nbsp;</td><td><pre class="example">ffplay &quot;rtmp://myserver/live/mystream live=1&quot;
+</pre></td></tr></table>
 
 <a name="rtp"></a>
-<h3 class="section">2.26 rtp<span class="pull-right"><a class="anchor hidden-xs" href="#rtp" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-rtp" aria-hidden="true">TOC</a></span></h3>
+<h2 class="section"><a href="ffmpeg-protocols.html#toc-rtp">2.23 rtp</a></h2>
 
 <p>Real-time Transport Protocol.
 </p>
@@ -943,48 +769,48 @@ rtp://<var>hostname</var>[:<var>port</var>][?<var>option</var>=<var>val</var>...
 <p>The following URL options are supported:
 </p>
 <dl compact="compact">
-<dt><samp>ttl=<var>n</var></samp></dt>
+<dt> &lsquo;<samp>ttl=<var>n</var></samp>&rsquo;</dt>
 <dd><p>Set the TTL (Time-To-Live) value (for multicast only).
 </p>
 </dd>
-<dt><samp>rtcpport=<var>n</var></samp></dt>
+<dt> &lsquo;<samp>rtcpport=<var>n</var></samp>&rsquo;</dt>
 <dd><p>Set the remote RTCP port to <var>n</var>.
 </p>
 </dd>
-<dt><samp>localrtpport=<var>n</var></samp></dt>
+<dt> &lsquo;<samp>localrtpport=<var>n</var></samp>&rsquo;</dt>
 <dd><p>Set the local RTP port to <var>n</var>.
 </p>
 </dd>
-<dt><samp>localrtcpport=<var>n</var>'</samp></dt>
+<dt> &lsquo;<samp>localrtcpport=<var>n</var>'</samp>&rsquo;</dt>
 <dd><p>Set the local RTCP port to <var>n</var>.
 </p>
 </dd>
-<dt><samp>pkt_size=<var>n</var></samp></dt>
+<dt> &lsquo;<samp>pkt_size=<var>n</var></samp>&rsquo;</dt>
 <dd><p>Set max packet size (in bytes) to <var>n</var>.
 </p>
 </dd>
-<dt><samp>connect=0|1</samp></dt>
+<dt> &lsquo;<samp>connect=0|1</samp>&rsquo;</dt>
 <dd><p>Do a <code>connect()</code> on the UDP socket (if set to 1) or not (if set
 to 0).
 </p>
 </dd>
-<dt><samp>sources=<var>ip</var>[,<var>ip</var>]</samp></dt>
+<dt> &lsquo;<samp>sources=<var>ip</var>[,<var>ip</var>]</samp>&rsquo;</dt>
 <dd><p>List allowed source IP addresses.
 </p>
 </dd>
-<dt><samp>block=<var>ip</var>[,<var>ip</var>]</samp></dt>
+<dt> &lsquo;<samp>block=<var>ip</var>[,<var>ip</var>]</samp>&rsquo;</dt>
 <dd><p>List disallowed (blocked) source IP addresses.
 </p>
 </dd>
-<dt><samp>write_to_source=0|1</samp></dt>
+<dt> &lsquo;<samp>write_to_source=0|1</samp>&rsquo;</dt>
 <dd><p>Send packets to the source address of the latest received packet (if
 set to 1) or to a default remote address (if set to 0).
 </p>
 </dd>
-<dt><samp>localport=<var>n</var></samp></dt>
+<dt> &lsquo;<samp>localport=<var>n</var></samp>&rsquo;</dt>
 <dd><p>Set the local RTP port to <var>n</var>.
 </p>
-<p>This is a deprecated option. Instead, <samp>localrtpport</samp> should be
+<p>This is a deprecated option. Instead, &lsquo;<samp>localrtpport</samp>&rsquo; should be
 used.
 </p>
 </dd>
@@ -993,18 +819,21 @@ used.
 <p>Important notes:
 </p>
 <ol>
-<li> If <samp>rtcpport</samp> is not set the RTCP port will be set to the RTP
+<li>
+If &lsquo;<samp>rtcpport</samp>&rsquo; is not set the RTCP port will be set to the RTP
 port value plus 1.
 
-</li><li> If <samp>localrtpport</samp> (the local RTP port) is not set any available
+</li><li>
+If &lsquo;<samp>localrtpport</samp>&rsquo; (the local RTP port) is not set any available
 port will be used for the local RTP and RTCP ports.
 
-</li><li> If <samp>localrtcpport</samp> (the local RTCP port) is not set it will be
-set to the local RTP port value plus 1.
+</li><li>
+If &lsquo;<samp>localrtcpport</samp>&rsquo; (the local RTCP port) is not set it will be
+set to the the local RTP port value plus 1.
 </li></ol>
 
 <a name="rtsp"></a>
-<h3 class="section">2.27 rtsp<span class="pull-right"><a class="anchor hidden-xs" href="#rtsp" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-rtsp" aria-hidden="true">TOC</a></span></h3>
+<h2 class="section"><a href="ffmpeg-protocols.html#toc-rtsp">2.24 rtsp</a></h2>
 
 <p>Real-Time Streaming Protocol.
 </p>
@@ -1018,9 +847,8 @@ supporting it (currently Darwin Streaming Server and Mischa Spiegelmock&rsquo;s
 <a href="https://github.com/revmischa/rtsp-server">RTSP server</a>).
 </p>
 <p>The required syntax for a RTSP url is:
-</p><div class="example">
-<pre class="example">rtsp://<var>hostname</var>[:<var>port</var>]/<var>path</var>
-</pre></div>
+</p><table><tr><td>&nbsp;</td><td><pre class="example">rtsp://<var>hostname</var>[:<var>port</var>]/<var>path</var>
+</pre></td></tr></table>
 
 <p>Options can be set on the <code>ffmpeg</code>/<code>ffplay</code> command
 line, or set in code via <code>AVOption</code>s or in
@@ -1029,30 +857,30 @@ line, or set in code via <code>AVOption</code>s or in
 <p>The following options are supported.
 </p>
 <dl compact="compact">
-<dt><samp>initial_pause</samp></dt>
+<dt> &lsquo;<samp>initial_pause</samp>&rsquo;</dt>
 <dd><p>Do not start playing the stream immediately if set to 1. Default value
 is 0.
 </p>
 </dd>
-<dt><samp>rtsp_transport</samp></dt>
-<dd><p>Set RTSP transport protocols.
+<dt> &lsquo;<samp>rtsp_transport</samp>&rsquo;</dt>
+<dd><p>Set RTSP trasport protocols.
 </p>
 <p>It accepts the following values:
 </p><dl compact="compact">
-<dt>&lsquo;<samp>udp</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>udp</samp>&rsquo;</dt>
 <dd><p>Use UDP as lower transport protocol.
 </p>
 </dd>
-<dt>&lsquo;<samp>tcp</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>tcp</samp>&rsquo;</dt>
 <dd><p>Use TCP (interleaving within the RTSP control channel) as lower
 transport protocol.
 </p>
 </dd>
-<dt>&lsquo;<samp>udp_multicast</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>udp_multicast</samp>&rsquo;</dt>
 <dd><p>Use UDP multicast as lower transport protocol.
 </p>
 </dd>
-<dt>&lsquo;<samp>http</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>http</samp>&rsquo;</dt>
 <dd><p>Use HTTP tunneling as lower transport protocol, which is useful for
 passing proxies.
 </p></dd>
@@ -1063,18 +891,18 @@ tried one at a time (if the setup of one fails, the next one is tried).
 For the muxer, only the &lsquo;<samp>tcp</samp>&rsquo; and &lsquo;<samp>udp</samp>&rsquo; options are supported.
 </p>
 </dd>
-<dt><samp>rtsp_flags</samp></dt>
+<dt> &lsquo;<samp>rtsp_flags</samp>&rsquo;</dt>
 <dd><p>Set RTSP flags.
 </p>
 <p>The following values are accepted:
 </p><dl compact="compact">
-<dt>&lsquo;<samp>filter_src</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>filter_src</samp>&rsquo;</dt>
 <dd><p>Accept packets only from negotiated peer address and port.
 </p></dd>
-<dt>&lsquo;<samp>listen</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>listen</samp>&rsquo;</dt>
 <dd><p>Act as a server, listening for an incoming connection.
 </p></dd>
-<dt>&lsquo;<samp>prefer_tcp</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>prefer_tcp</samp>&rsquo;</dt>
 <dd><p>Try TCP for RTP transport first, if TCP is available as RTSP RTP transport.
 </p></dd>
 </dl>
@@ -1082,44 +910,44 @@ For the muxer, only the &lsquo;<samp>tcp</samp>&rsquo; and &lsquo;<samp>udp</sam
 <p>Default value is &lsquo;<samp>none</samp>&rsquo;.
 </p>
 </dd>
-<dt><samp>allowed_media_types</samp></dt>
+<dt> &lsquo;<samp>allowed_media_types</samp>&rsquo;</dt>
 <dd><p>Set media types to accept from the server.
 </p>
 <p>The following flags are accepted:
 </p><dl compact="compact">
-<dt>&lsquo;<samp>video</samp>&rsquo;</dt>
-<dt>&lsquo;<samp>audio</samp>&rsquo;</dt>
-<dt>&lsquo;<samp>data</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>video</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>audio</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>data</samp>&rsquo;</dt>
 </dl>
 
 <p>By default it accepts all media types.
 </p>
 </dd>
-<dt><samp>min_port</samp></dt>
+<dt> &lsquo;<samp>min_port</samp>&rsquo;</dt>
 <dd><p>Set minimum local UDP port. Default value is 5000.
 </p>
 </dd>
-<dt><samp>max_port</samp></dt>
+<dt> &lsquo;<samp>max_port</samp>&rsquo;</dt>
 <dd><p>Set maximum local UDP port. Default value is 65000.
 </p>
 </dd>
-<dt><samp>timeout</samp></dt>
+<dt> &lsquo;<samp>timeout</samp>&rsquo;</dt>
 <dd><p>Set maximum timeout (in seconds) to wait for incoming connections.
 </p>
-<p>A value of -1 means infinite (default). This option implies the
-<samp>rtsp_flags</samp> set to &lsquo;<samp>listen</samp>&rsquo;.
+<p>A value of -1 mean infinite (default). This option implies the
+&lsquo;<samp>rtsp_flags</samp>&rsquo; set to &lsquo;<samp>listen</samp>&rsquo;.
 </p>
 </dd>
-<dt><samp>reorder_queue_size</samp></dt>
+<dt> &lsquo;<samp>reorder_queue_size</samp>&rsquo;</dt>
 <dd><p>Set number of packets to buffer for handling of reordered packets.
 </p>
 </dd>
-<dt><samp>stimeout</samp></dt>
-<dd><p>Set socket TCP I/O timeout in microseconds.
+<dt> &lsquo;<samp>stimeout</samp>&rsquo;</dt>
+<dd><p>Set socket TCP I/O timeout in micro seconds.
 </p>
 </dd>
-<dt><samp>user-agent</samp></dt>
-<dd><p>Override User-Agent header. If not specified, it defaults to the
+<dt> &lsquo;<samp>user-agent</samp>&rsquo;</dt>
+<dd><p>Override User-Agent header. If not specified, it default to the
 libavformat identifier string.
 </p></dd>
 </dl>
@@ -1135,35 +963,35 @@ streams to display can be chosen with <code>-vst</code> <var>n</var> and
 on the fly by pressing <code>v</code> and <code>a</code>.
 </p>
 <a name="Examples"></a>
-<h4 class="subsection">2.27.1 Examples<span class="pull-right"><a class="anchor hidden-xs" href="#Examples" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-Examples" aria-hidden="true">TOC</a></span></h4>
+<h3 class="subsection"><a href="ffmpeg-protocols.html#toc-Examples">2.24.1 Examples</a></h3>
 
 <p>The following examples all make use of the <code>ffplay</code> and
 <code>ffmpeg</code> tools.
 </p>
 <ul>
-<li> Watch a stream over UDP, with a max reordering delay of 0.5 seconds:
-<div class="example">
-<pre class="example">ffplay -max_delay 500000 -rtsp_transport udp rtsp://server/video.mp4
-</pre></div>
+<li>
+Watch a stream over UDP, with a max reordering delay of 0.5 seconds:
+<table><tr><td>&nbsp;</td><td><pre class="example">ffplay -max_delay 500000 -rtsp_transport udp rtsp://server/video.mp4
+</pre></td></tr></table>
 
-</li><li> Watch a stream tunneled over HTTP:
-<div class="example">
-<pre class="example">ffplay -rtsp_transport http rtsp://server/video.mp4
-</pre></div>
+</li><li>
+Watch a stream tunneled over HTTP:
+<table><tr><td>&nbsp;</td><td><pre class="example">ffplay -rtsp_transport http rtsp://server/video.mp4
+</pre></td></tr></table>
 
-</li><li> Send a stream in realtime to a RTSP server, for others to watch:
-<div class="example">
-<pre class="example">ffmpeg -re -i <var>input</var> -f rtsp -muxdelay 0.1 rtsp://server/live.sdp
-</pre></div>
+</li><li>
+Send a stream in realtime to a RTSP server, for others to watch:
+<table><tr><td>&nbsp;</td><td><pre class="example">ffmpeg -re -i <var>input</var> -f rtsp -muxdelay 0.1 rtsp://server/live.sdp
+</pre></td></tr></table>
 
-</li><li> Receive a stream in realtime:
-<div class="example">
-<pre class="example">ffmpeg -rtsp_flags listen -i rtsp://ownaddress/live.sdp <var>output</var>
-</pre></div>
+</li><li>
+Receive a stream in realtime:
+<table><tr><td>&nbsp;</td><td><pre class="example">ffmpeg -rtsp_flags listen -i rtsp://ownaddress/live.sdp <var>output</var>
+</pre></td></tr></table>
 </li></ul>
 
 <a name="sap"></a>
-<h3 class="section">2.28 sap<span class="pull-right"><a class="anchor hidden-xs" href="#sap" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-sap" aria-hidden="true">TOC</a></span></h3>
+<h2 class="section"><a href="ffmpeg-protocols.html#toc-sap">2.25 sap</a></h2>
 
 <p>Session Announcement Protocol (RFC 2974). This is not technically a
 protocol handler in libavformat, it is a muxer and demuxer.
@@ -1171,12 +999,11 @@ It is used for signalling of RTP streams, by announcing the SDP for the
 streams regularly on a separate port.
 </p>
 <a name="Muxer"></a>
-<h4 class="subsection">2.28.1 Muxer<span class="pull-right"><a class="anchor hidden-xs" href="#Muxer" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-Muxer" aria-hidden="true">TOC</a></span></h4>
+<h3 class="subsection"><a href="ffmpeg-protocols.html#toc-Muxer">2.25.1 Muxer</a></h3>
 
 <p>The syntax for a SAP url given to the muxer is:
-</p><div class="example">
-<pre class="example">sap://<var>destination</var>[:<var>port</var>][?<var>options</var>]
-</pre></div>
+</p><table><tr><td>&nbsp;</td><td><pre class="example">sap://<var>destination</var>[:<var>port</var>][?<var>options</var>]
+</pre></td></tr></table>
 
 <p>The RTP packets are sent to <var>destination</var> on port <var>port</var>,
 or to port 5004 if no port is specified.
@@ -1184,24 +1011,24 @@ or to port 5004 if no port is specified.
 are supported:
 </p>
 <dl compact="compact">
-<dt><samp>announce_addr=<var>address</var></samp></dt>
+<dt> &lsquo;<samp>announce_addr=<var>address</var></samp>&rsquo;</dt>
 <dd><p>Specify the destination IP address for sending the announcements to.
 If omitted, the announcements are sent to the commonly used SAP
 announcement multicast address 224.2.127.254 (sap.mcast.net), or
 ff0e::2:7ffe if <var>destination</var> is an IPv6 address.
 </p>
 </dd>
-<dt><samp>announce_port=<var>port</var></samp></dt>
+<dt> &lsquo;<samp>announce_port=<var>port</var></samp>&rsquo;</dt>
 <dd><p>Specify the port to send the announcements on, defaults to
 9875 if not specified.
 </p>
 </dd>
-<dt><samp>ttl=<var>ttl</var></samp></dt>
+<dt> &lsquo;<samp>ttl=<var>ttl</var></samp>&rsquo;</dt>
 <dd><p>Specify the time to live value for the announcements and RTP packets,
 defaults to 255.
 </p>
 </dd>
-<dt><samp>same_port=<var>0|1</var></samp></dt>
+<dt> &lsquo;<samp>same_port=<var>0|1</var></samp>&rsquo;</dt>
 <dd><p>If set to 1, send all RTP streams on the same port pair. If zero (the
 default), all streams are sent on unique ports, with each stream on a
 port 2 numbers higher than the previous.
@@ -1215,29 +1042,25 @@ on unique ports.
 </p>
 <p>To broadcast a stream on the local subnet, for watching in VLC:
 </p>
-<div class="example">
-<pre class="example">ffmpeg -re -i <var>input</var> -f sap sap://224.0.0.255?same_port=1
-</pre></div>
+<table><tr><td>&nbsp;</td><td><pre class="example">ffmpeg -re -i <var>input</var> -f sap sap://224.0.0.255?same_port=1
+</pre></td></tr></table>
 
 <p>Similarly, for watching in <code>ffplay</code>:
 </p>
-<div class="example">
-<pre class="example">ffmpeg -re -i <var>input</var> -f sap sap://224.0.0.255
-</pre></div>
+<table><tr><td>&nbsp;</td><td><pre class="example">ffmpeg -re -i <var>input</var> -f sap sap://224.0.0.255
+</pre></td></tr></table>
 
 <p>And for watching in <code>ffplay</code>, over IPv6:
 </p>
-<div class="example">
-<pre class="example">ffmpeg -re -i <var>input</var> -f sap sap://[ff0e::1:2:3:4]
-</pre></div>
+<table><tr><td>&nbsp;</td><td><pre class="example">ffmpeg -re -i <var>input</var> -f sap sap://[ff0e::1:2:3:4]
+</pre></td></tr></table>
 
 <a name="Demuxer"></a>
-<h4 class="subsection">2.28.2 Demuxer<span class="pull-right"><a class="anchor hidden-xs" href="#Demuxer" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-Demuxer" aria-hidden="true">TOC</a></span></h4>
+<h3 class="subsection"><a href="ffmpeg-protocols.html#toc-Demuxer">2.25.2 Demuxer</a></h3>
 
 <p>The syntax for a SAP url given to the demuxer is:
-</p><div class="example">
-<pre class="example">sap://[<var>address</var>][:<var>port</var>]
-</pre></div>
+</p><table><tr><td>&nbsp;</td><td><pre class="example">sap://[<var>address</var>][:<var>port</var>]
+</pre></td></tr></table>
 
 <p><var>address</var> is the multicast address to listen for announcements on,
 if omitted, the default 224.2.127.254 (sap.mcast.net) is used. <var>port</var>
@@ -1250,59 +1073,56 @@ Once an announcement is received, it tries to receive that particular stream.
 </p>
 <p>To play back the first stream announced on the normal SAP multicast address:
 </p>
-<div class="example">
-<pre class="example">ffplay sap://
-</pre></div>
+<table><tr><td>&nbsp;</td><td><pre class="example">ffplay sap://
+</pre></td></tr></table>
 
 <p>To play back the first stream announced on one the default IPv6 SAP multicast address:
 </p>
-<div class="example">
-<pre class="example">ffplay sap://[ff0e::2:7ffe]
-</pre></div>
+<table><tr><td>&nbsp;</td><td><pre class="example">ffplay sap://[ff0e::2:7ffe]
+</pre></td></tr></table>
 
 <a name="sctp"></a>
-<h3 class="section">2.29 sctp<span class="pull-right"><a class="anchor hidden-xs" href="#sctp" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-sctp" aria-hidden="true">TOC</a></span></h3>
+<h2 class="section"><a href="ffmpeg-protocols.html#toc-sctp">2.26 sctp</a></h2>
 
 <p>Stream Control Transmission Protocol.
 </p>
 <p>The accepted URL syntax is:
-</p><div class="example">
-<pre class="example">sctp://<var>host</var>:<var>port</var>[?<var>options</var>]
-</pre></div>
+</p><table><tr><td>&nbsp;</td><td><pre class="example">sctp://<var>host</var>:<var>port</var>[?<var>options</var>]
+</pre></td></tr></table>
 
 <p>The protocol accepts the following options:
 </p><dl compact="compact">
-<dt><samp>listen</samp></dt>
+<dt> &lsquo;<samp>listen</samp>&rsquo;</dt>
 <dd><p>If set to any value, listen for an incoming connection. Outgoing connection is done by default.
 </p>
 </dd>
-<dt><samp>max_streams</samp></dt>
+<dt> &lsquo;<samp>max_streams</samp>&rsquo;</dt>
 <dd><p>Set the maximum number of streams. By default no limit is set.
 </p></dd>
 </dl>
 
 <a name="srtp"></a>
-<h3 class="section">2.30 srtp<span class="pull-right"><a class="anchor hidden-xs" href="#srtp" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-srtp" aria-hidden="true">TOC</a></span></h3>
+<h2 class="section"><a href="ffmpeg-protocols.html#toc-srtp">2.27 srtp</a></h2>
 
 <p>Secure Real-time Transport Protocol.
 </p>
 <p>The accepted options are:
 </p><dl compact="compact">
-<dt><samp>srtp_in_suite</samp></dt>
-<dt><samp>srtp_out_suite</samp></dt>
+<dt> &lsquo;<samp>srtp_in_suite</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>srtp_out_suite</samp>&rsquo;</dt>
 <dd><p>Select input and output encoding suites.
 </p>
 <p>Supported values:
 </p><dl compact="compact">
-<dt>&lsquo;<samp>AES_CM_128_HMAC_SHA1_80</samp>&rsquo;</dt>
-<dt>&lsquo;<samp>SRTP_AES128_CM_HMAC_SHA1_80</samp>&rsquo;</dt>
-<dt>&lsquo;<samp>AES_CM_128_HMAC_SHA1_32</samp>&rsquo;</dt>
-<dt>&lsquo;<samp>SRTP_AES128_CM_HMAC_SHA1_32</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>AES_CM_128_HMAC_SHA1_80</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>SRTP_AES128_CM_HMAC_SHA1_80</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>AES_CM_128_HMAC_SHA1_32</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>SRTP_AES128_CM_HMAC_SHA1_32</samp>&rsquo;</dt>
 </dl>
 
 </dd>
-<dt><samp>srtp_in_params</samp></dt>
-<dt><samp>srtp_out_params</samp></dt>
+<dt> &lsquo;<samp>srtp_in_params</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>srtp_out_params</samp>&rsquo;</dt>
 <dd><p>Set input and output encoding parameters, which are expressed by a
 base64-encoded representation of a binary block. The first 16 bytes of
 this binary block are used as master key, the following 14 bytes are
@@ -1311,17 +1131,17 @@ used as master salt.
 </dl>
 
 <a name="subfile"></a>
-<h3 class="section">2.31 subfile<span class="pull-right"><a class="anchor hidden-xs" href="#subfile" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-subfile" aria-hidden="true">TOC</a></span></h3>
+<h2 class="section"><a href="ffmpeg-protocols.html#toc-subfile">2.28 subfile</a></h2>
 
 <p>Virtually extract a segment of a file or another stream.
 The underlying stream must be seekable.
 </p>
 <p>Accepted options:
 </p><dl compact="compact">
-<dt><samp>start</samp></dt>
+<dt> &lsquo;<samp>start</samp>&rsquo;</dt>
 <dd><p>Start offset of the extracted segment, in bytes.
 </p></dd>
-<dt><samp>end</samp></dt>
+<dt> &lsquo;<samp>end</samp>&rsquo;</dt>
 <dd><p>End offset of the extracted segment, in bytes.
 </p></dd>
 </dl>
@@ -1330,24 +1150,20 @@ The underlying stream must be seekable.
 </p>
 <p>Extract a chapter from a DVD VOB file (start and end sectors obtained
 externally and multiplied by 2048):
-</p><div class="example">
-<pre class="example">subfile,,start,153391104,end,268142592,,:/media/dvd/VIDEO_TS/VTS_08_1.VOB
-</pre></div>
+</p><table><tr><td>&nbsp;</td><td><pre class="example">subfile,,start,153391104,end,268142592,,:/media/dvd/VIDEO_TS/VTS_08_1.VOB
+</pre></td></tr></table>
 
 <p>Play an AVI file directly from a TAR archive:
-</p><div class="example">
-<pre class="example">subfile,,start,183241728,end,366490624,,:archive.tar
-</pre></div>
-
+subfile,,start,183241728,end,366490624,,:archive.tar
+</p>
 <a name="tcp"></a>
-<h3 class="section">2.32 tcp<span class="pull-right"><a class="anchor hidden-xs" href="#tcp" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-tcp" aria-hidden="true">TOC</a></span></h3>
+<h2 class="section"><a href="ffmpeg-protocols.html#toc-tcp">2.29 tcp</a></h2>
 
 <p>Transmission Control Protocol.
 </p>
 <p>The required syntax for a TCP url is:
-</p><div class="example">
-<pre class="example">tcp://<var>hostname</var>:<var>port</var>[?<var>options</var>]
-</pre></div>
+</p><table><tr><td>&nbsp;</td><td><pre class="example">tcp://<var>hostname</var>:<var>port</var>[?<var>options</var>]
+</pre></td></tr></table>
 
 <p><var>options</var> contains a list of &amp;-separated options of the form
 <var>key</var>=<var>val</var>.
@@ -1355,44 +1171,42 @@ externally and multiplied by 2048):
 <p>The list of supported options follows.
 </p>
 <dl compact="compact">
-<dt><samp>listen=<var>1|0</var></samp></dt>
+<dt> &lsquo;<samp>listen=<var>1|0</var></samp>&rsquo;</dt>
 <dd><p>Listen for an incoming connection. Default value is 0.
 </p>
 </dd>
-<dt><samp>timeout=<var>microseconds</var></samp></dt>
+<dt> &lsquo;<samp>timeout=<var>microseconds</var></samp>&rsquo;</dt>
 <dd><p>Set raise error timeout, expressed in microseconds.
 </p>
 <p>This option is only relevant in read mode: if no data arrived in more
 than this time interval, raise error.
 </p>
 </dd>
-<dt><samp>listen_timeout=<var>milliseconds</var></samp></dt>
-<dd><p>Set listen timeout, expressed in milliseconds.
+<dt> &lsquo;<samp>listen_timeout=<var>microseconds</var></samp>&rsquo;</dt>
+<dd><p>Set listen timeout, expressed in microseconds.
 </p></dd>
 </dl>
 
 <p>The following example shows how to setup a listening TCP connection
 with <code>ffmpeg</code>, which is then accessed with <code>ffplay</code>:
-</p><div class="example">
-<pre class="example">ffmpeg -i <var>input</var> -f <var>format</var> tcp://<var>hostname</var>:<var>port</var>?listen
+</p><table><tr><td>&nbsp;</td><td><pre class="example">ffmpeg -i <var>input</var> -f <var>format</var> tcp://<var>hostname</var>:<var>port</var>?listen
 ffplay tcp://<var>hostname</var>:<var>port</var>
-</pre></div>
+</pre></td></tr></table>
 
 <a name="tls"></a>
-<h3 class="section">2.33 tls<span class="pull-right"><a class="anchor hidden-xs" href="#tls" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-tls" aria-hidden="true">TOC</a></span></h3>
+<h2 class="section"><a href="ffmpeg-protocols.html#toc-tls">2.30 tls</a></h2>
 
 <p>Transport Layer Security (TLS) / Secure Sockets Layer (SSL)
 </p>
 <p>The required syntax for a TLS/SSL url is:
-</p><div class="example">
-<pre class="example">tls://<var>hostname</var>:<var>port</var>[?<var>options</var>]
-</pre></div>
+</p><table><tr><td>&nbsp;</td><td><pre class="example">tls://<var>hostname</var>:<var>port</var>[?<var>options</var>]
+</pre></td></tr></table>
 
 <p>The following parameters can be set via command line options
 (or in code via <code>AVOption</code>s):
 </p>
 <dl compact="compact">
-<dt><samp>ca_file, cafile=<var>filename</var></samp></dt>
+<dt> &lsquo;<samp>ca_file, cafile=<var>filename</var></samp>&rsquo;</dt>
 <dd><p>A file containing certificate authority (CA) root certificates to treat
 as trusted. If the linked TLS library contains a default this might not
 need to be specified for verification to work, but not all libraries and
@@ -1400,7 +1214,7 @@ setups have defaults built in.
 The file must be in OpenSSL PEM format.
 </p>
 </dd>
-<dt><samp>tls_verify=<var>1|0</var></samp></dt>
+<dt> &lsquo;<samp>tls_verify=<var>1|0</var></samp>&rsquo;</dt>
 <dd><p>If enabled, try to verify the peer that we are communicating with.
 Note, if using OpenSSL, this currently only makes sure that the
 peer certificate is signed by one of the root certificates in the CA
@@ -1412,18 +1226,18 @@ the host name is validated as well.)
 provided by the caller in many cases.
 </p>
 </dd>
-<dt><samp>cert_file, cert=<var>filename</var></samp></dt>
+<dt> &lsquo;<samp>cert_file, cert=<var>filename</var></samp>&rsquo;</dt>
 <dd><p>A file containing a certificate to use in the handshake with the peer.
 (When operating as server, in listen mode, this is more often required
 by the peer, while client certificates only are mandated in certain
 setups.)
 </p>
 </dd>
-<dt><samp>key_file, key=<var>filename</var></samp></dt>
+<dt> &lsquo;<samp>key_file, key=<var>filename</var></samp>&rsquo;</dt>
 <dd><p>A file containing the private key for the certificate.
 </p>
 </dd>
-<dt><samp>listen=<var>1|0</var></samp></dt>
+<dt> &lsquo;<samp>listen=<var>1|0</var></samp>&rsquo;</dt>
 <dd><p>If enabled, listen for connections on the provided port, and assume
 the server role in the handshake instead of the client role.
 </p>
@@ -1434,25 +1248,22 @@ the server role in the handshake instead of the client role.
 </p>
 <p>To create a TLS/SSL server that serves an input stream.
 </p>
-<div class="example">
-<pre class="example">ffmpeg -i <var>input</var> -f <var>format</var> tls://<var>hostname</var>:<var>port</var>?listen&amp;cert=<var>server.crt</var>&amp;key=<var>server.key</var>
-</pre></div>
+<table><tr><td>&nbsp;</td><td><pre class="example">ffmpeg -i <var>input</var> -f <var>format</var> tls://<var>hostname</var>:<var>port</var>?listen&amp;cert=<var>server.crt</var>&amp;key=<var>server.key</var>
+</pre></td></tr></table>
 
 <p>To play back a stream from the TLS/SSL server using <code>ffplay</code>:
 </p>
-<div class="example">
-<pre class="example">ffplay tls://<var>hostname</var>:<var>port</var>
-</pre></div>
+<table><tr><td>&nbsp;</td><td><pre class="example">ffplay tls://<var>hostname</var>:<var>port</var>
+</pre></td></tr></table>
 
 <a name="udp"></a>
-<h3 class="section">2.34 udp<span class="pull-right"><a class="anchor hidden-xs" href="#udp" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-udp" aria-hidden="true">TOC</a></span></h3>
+<h2 class="section"><a href="ffmpeg-protocols.html#toc-udp">2.31 udp</a></h2>
 
 <p>User Datagram Protocol.
 </p>
 <p>The required syntax for an UDP URL is:
-</p><div class="example">
-<pre class="example">udp://<var>hostname</var>:<var>port</var>[?<var>options</var>]
-</pre></div>
+</p><table><tr><td>&nbsp;</td><td><pre class="example">udp://<var>hostname</var>:<var>port</var>[?<var>options</var>]
+</pre></td></tr></table>
 
 <p><var>options</var> contains a list of &amp;-separated options of the form <var>key</var>=<var>val</var>.
 </p>
@@ -1464,35 +1275,35 @@ UDP socket buffer overruns. The <var>fifo_size</var> and
 <p>The list of supported options follows.
 </p>
 <dl compact="compact">
-<dt><samp>buffer_size=<var>size</var></samp></dt>
+<dt> &lsquo;<samp>buffer_size=<var>size</var></samp>&rsquo;</dt>
 <dd><p>Set the UDP maximum socket buffer size in bytes. This is used to set either
 the receive or send buffer size, depending on what the socket is used for.
 Default is 64KB.  See also <var>fifo_size</var>.
 </p>
 </dd>
-<dt><samp>localport=<var>port</var></samp></dt>
+<dt> &lsquo;<samp>localport=<var>port</var></samp>&rsquo;</dt>
 <dd><p>Override the local UDP port to bind with.
 </p>
 </dd>
-<dt><samp>localaddr=<var>addr</var></samp></dt>
+<dt> &lsquo;<samp>localaddr=<var>addr</var></samp>&rsquo;</dt>
 <dd><p>Choose the local IP address. This is useful e.g. if sending multicast
 and the host has multiple interfaces, where the user can choose
 which interface to send on by specifying the IP address of that interface.
 </p>
 </dd>
-<dt><samp>pkt_size=<var>size</var></samp></dt>
+<dt> &lsquo;<samp>pkt_size=<var>size</var></samp>&rsquo;</dt>
 <dd><p>Set the size in bytes of UDP packets.
 </p>
 </dd>
-<dt><samp>reuse=<var>1|0</var></samp></dt>
+<dt> &lsquo;<samp>reuse=<var>1|0</var></samp>&rsquo;</dt>
 <dd><p>Explicitly allow or disallow reusing UDP sockets.
 </p>
 </dd>
-<dt><samp>ttl=<var>ttl</var></samp></dt>
+<dt> &lsquo;<samp>ttl=<var>ttl</var></samp>&rsquo;</dt>
 <dd><p>Set the time to live value (for multicast only).
 </p>
 </dd>
-<dt><samp>connect=<var>1|0</var></samp></dt>
+<dt> &lsquo;<samp>connect=<var>1|0</var></samp>&rsquo;</dt>
 <dd><p>Initialize the UDP socket with <code>connect()</code>. In this case, the
 destination address can&rsquo;t be changed with ff_udp_set_remote_url later.
 If the destination address isn&rsquo;t known at the start, this option can
@@ -1504,95 +1315,87 @@ For receiving, this gives the benefit of only receiving packets from
 the specified peer address/port.
 </p>
 </dd>
-<dt><samp>sources=<var>address</var>[,<var>address</var>]</samp></dt>
+<dt> &lsquo;<samp>sources=<var>address</var>[,<var>address</var>]</samp>&rsquo;</dt>
 <dd><p>Only receive packets sent to the multicast group from one of the
 specified sender IP addresses.
 </p>
 </dd>
-<dt><samp>block=<var>address</var>[,<var>address</var>]</samp></dt>
+<dt> &lsquo;<samp>block=<var>address</var>[,<var>address</var>]</samp>&rsquo;</dt>
 <dd><p>Ignore packets sent to the multicast group from the specified
 sender IP addresses.
 </p>
 </dd>
-<dt><samp>fifo_size=<var>units</var></samp></dt>
+<dt> &lsquo;<samp>fifo_size=<var>units</var></samp>&rsquo;</dt>
 <dd><p>Set the UDP receiving circular buffer size, expressed as a number of
 packets with size of 188 bytes. If not specified defaults to 7*4096.
 </p>
 </dd>
-<dt><samp>overrun_nonfatal=<var>1|0</var></samp></dt>
+<dt> &lsquo;<samp>overrun_nonfatal=<var>1|0</var></samp>&rsquo;</dt>
 <dd><p>Survive in case of UDP receiving circular buffer overrun. Default
 value is 0.
 </p>
 </dd>
-<dt><samp>timeout=<var>microseconds</var></samp></dt>
+<dt> &lsquo;<samp>timeout=<var>microseconds</var></samp>&rsquo;</dt>
 <dd><p>Set raise error timeout, expressed in microseconds.
 </p>
 <p>This option is only relevant in read mode: if no data arrived in more
 than this time interval, raise error.
-</p>
-</dd>
-<dt><samp>broadcast=<var>1|0</var></samp></dt>
-<dd><p>Explicitly allow or disallow UDP broadcasting.
-</p>
-<p>Note that broadcasting may not work properly on networks having
-a broadcast storm protection.
 </p></dd>
 </dl>
 
 <a name="Examples-1"></a>
-<h4 class="subsection">2.34.1 Examples<span class="pull-right"><a class="anchor hidden-xs" href="#Examples-1" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-Examples-1" aria-hidden="true">TOC</a></span></h4>
+<h3 class="subsection"><a href="ffmpeg-protocols.html#toc-Examples-1">2.31.1 Examples</a></h3>
 
 <ul>
-<li> Use <code>ffmpeg</code> to stream over UDP to a remote endpoint:
-<div class="example">
-<pre class="example">ffmpeg -i <var>input</var> -f <var>format</var> udp://<var>hostname</var>:<var>port</var>
-</pre></div>
+<li>
+Use <code>ffmpeg</code> to stream over UDP to a remote endpoint:
+<table><tr><td>&nbsp;</td><td><pre class="example">ffmpeg -i <var>input</var> -f <var>format</var> udp://<var>hostname</var>:<var>port</var>
+</pre></td></tr></table>
 
-</li><li> Use <code>ffmpeg</code> to stream in mpegts format over UDP using 188
+</li><li>
+Use <code>ffmpeg</code> to stream in mpegts format over UDP using 188
 sized UDP packets, using a large input buffer:
-<div class="example">
-<pre class="example">ffmpeg -i <var>input</var> -f mpegts udp://<var>hostname</var>:<var>port</var>?pkt_size=188&amp;buffer_size=65535
-</pre></div>
+<table><tr><td>&nbsp;</td><td><pre class="example">ffmpeg -i <var>input</var> -f mpegts udp://<var>hostname</var>:<var>port</var>?pkt_size=188&amp;buffer_size=65535
+</pre></td></tr></table>
 
-</li><li> Use <code>ffmpeg</code> to receive over UDP from a remote endpoint:
-<div class="example">
-<pre class="example">ffmpeg -i udp://[<var>multicast-address</var>]:<var>port</var> ...
-</pre></div>
+</li><li>
+Use <code>ffmpeg</code> to receive over UDP from a remote endpoint:
+<table><tr><td>&nbsp;</td><td><pre class="example">ffmpeg -i udp://[<var>multicast-address</var>]:<var>port</var> ...
+</pre></td></tr></table>
 </li></ul>
 
 <a name="unix"></a>
-<h3 class="section">2.35 unix<span class="pull-right"><a class="anchor hidden-xs" href="#unix" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-unix" aria-hidden="true">TOC</a></span></h3>
+<h2 class="section"><a href="ffmpeg-protocols.html#toc-unix">2.32 unix</a></h2>
 
 <p>Unix local socket
 </p>
 <p>The required syntax for a Unix socket URL is:
 </p>
-<div class="example">
-<pre class="example">unix://<var>filepath</var>
-</pre></div>
+<table><tr><td>&nbsp;</td><td><pre class="example">unix://<var>filepath</var>
+</pre></td></tr></table>
 
 <p>The following parameters can be set via command line options
 (or in code via <code>AVOption</code>s):
 </p>
 <dl compact="compact">
-<dt><samp>timeout</samp></dt>
+<dt> &lsquo;<samp>timeout</samp>&rsquo;</dt>
 <dd><p>Timeout in ms.
 </p></dd>
-<dt><samp>listen</samp></dt>
+<dt> &lsquo;<samp>listen</samp>&rsquo;</dt>
 <dd><p>Create the Unix socket in listening mode.
 </p></dd>
 </dl>
 
 
 <a name="See-Also"></a>
-<h2 class="chapter">3 See Also<span class="pull-right"><a class="anchor hidden-xs" href="#See-Also" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-See-Also" aria-hidden="true">TOC</a></span></h2>
+<h1 class="chapter"><a href="ffmpeg-protocols.html#toc-See-Also">3. See Also</a></h1>
 
 <p><a href="ffmpeg.html">ffmpeg</a>, <a href="ffplay.html">ffplay</a>, <a href="ffprobe.html">ffprobe</a>, <a href="ffserver.html">ffserver</a>,
 <a href="libavformat.html">libavformat</a>
 </p>
 
 <a name="Authors"></a>
-<h2 class="chapter">4 Authors<span class="pull-right"><a class="anchor hidden-xs" href="#Authors" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-Authors" aria-hidden="true">TOC</a></span></h2>
+<h1 class="chapter"><a href="ffmpeg-protocols.html#toc-Authors">4. Authors</a></h1>
 
 <p>The FFmpeg developers.
 </p>
@@ -1602,13 +1405,8 @@ sized UDP packets, using a large input buffer:
 online repository at <a href="http://source.ffmpeg.org">http://source.ffmpeg.org</a>.
 </p>
 <p>Maintainers for the specific components are listed in the file
-<samp>MAINTAINERS</samp> in the source code tree.
+&lsquo;<tt>MAINTAINERS</tt>&rsquo; in the source code tree.
 </p>
 
-
-      <p style="font-size: small;">
-        This document was generated using <a href="http://www.gnu.org/software/texinfo/"><em>makeinfo</em></a>.
-      </p>
-    </div>
-  </body>
-</html>
+<footer class="footer pagination-right">
+<span class="label label-info">This document was generated by <em>Kyle Schwarz</em> on <em>April 4, 2014</em> using <a href="http://www.nongnu.org/texi2html/"><em>texi2html 1.82</em></a>.</span></footer></div></div></body>

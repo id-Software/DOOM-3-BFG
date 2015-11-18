@@ -138,13 +138,15 @@
  *
  * @{
  *
- * @defgroup preproc_misc Preprocessor String Macros
+ * @defgroup lavu_internal Internal
+ *
+ * Not exported functions, for internal usage only
  *
  * @{
  *
  * @}
  *
- * @defgroup version_utils Library Version Macros
+ * @defgroup preproc_misc Preprocessor String Macros
  *
  * @{
  *
@@ -161,13 +163,6 @@
  * Return the LIBAVUTIL_VERSION_INT constant.
  */
 unsigned avutil_version(void);
-
-/**
- * Return an informative version string. This usually is the actual release
- * version number or a git commit description. This string has no fixed format
- * and can change any time. It should never be parsed by code.
- */
-const char *av_version_info(void);
 
 /**
  * Return the libavutil build-time configuration.
@@ -287,10 +282,10 @@ char av_get_picture_type_char(enum AVPictureType pict_type);
 
 #include "common.h"
 #include "error.h"
-#include "rational.h"
 #include "version.h"
 #include "macros.h"
 #include "mathematics.h"
+#include "rational.h"
 #include "log.h"
 #include "pixfmt.h"
 
@@ -329,11 +324,6 @@ unsigned av_int_list_length_for_size(unsigned elsize,
  * errno.
  */
 FILE *av_fopen_utf8(const char *path, const char *mode);
-
-/**
- * Return the fractional representation of the internal time base.
- */
-AVRational av_get_time_base_q(void);
 
 /**
  * @}

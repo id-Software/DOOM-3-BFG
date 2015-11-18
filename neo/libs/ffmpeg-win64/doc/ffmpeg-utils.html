@@ -1,42 +1,49 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE html>
 <html>
-<!-- Created by GNU Texinfo 5.2, http://www.gnu.org/software/texinfo/ -->
-  <head>
-    <meta charset="utf-8">
-    <title>
-      FFmpeg Utilities Documentation
-    </title>
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="style.min.css">
-  </head>
-  <body>
-    <div style="width: 95%; margin: auto">
-      <h1>
-      FFmpeg Utilities Documentation
-      </h1>
-<div align="center">
-</div>
+<!-- Created on April 4, 2014 by texi2html 1.82 -->
+<!--
+texi2html was written by: 
+            Lionel Cons <Lionel.Cons@cern.ch> (original author)
+            Karl Berry  <karl@freefriends.org>
+            Olaf Bachmann <obachman@mathematik.uni-kl.de>
+            and many others.
+Maintained by: Many creative people.
+Send bugs and suggestions to <texi2html-bug@nongnu.org>
 
+-->
+<head>
+<title>FFmpeg documentation : FFmpeg Utilities </title>
+
+<meta name="description" content="FFmpeg Utilities Documentation: ">
+<meta name="keywords" content="FFmpeg documentation : FFmpeg Utilities ">
+<meta name="Generator" content="texi2html 1.82">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link rel="stylesheet" type="text/css" href="default.css" />
+
+<link rel="icon" href="favicon.png" type="image/png" />
+</head>
+<body>
+<div id="container">
+<div id="body">
 
 <a name="SEC_Top"></a>
+<h1 class="settitle">FFmpeg Utilities Documentation</h1>
 
 <a name="SEC_Contents"></a>
-<h2 class="contents-heading">Table of Contents</h2>
-
+<h1>Table of Contents</h1>
 <div class="contents">
 
-<ul class="no-bullet">
-  <li><a name="toc-Description" href="#Description">1 Description</a></li>
-  <li><a name="toc-Syntax" href="#Syntax">2 Syntax</a>
-  <ul class="no-bullet">
+<ul class="toc">
+  <li><a name="toc-Description" href="#Description">1. Description</a></li>
+  <li><a name="toc-Syntax" href="#Syntax">2. Syntax</a>
+  <ul class="toc">
     <li><a name="toc-Quoting-and-escaping" href="#Quoting-and-escaping">2.1 Quoting and escaping</a>
-    <ul class="no-bullet">
+    <ul class="toc">
       <li><a name="toc-Examples" href="#Examples">2.1.1 Examples</a></li>
     </ul></li>
     <li><a name="toc-Date" href="#Date">2.2 Date</a></li>
     <li><a name="toc-Time-duration" href="#Time-duration">2.3 Time duration</a>
-    <ul class="no-bullet">
+    <ul class="toc">
       <li><a name="toc-Examples-1" href="#Examples-1">2.3.1 Examples</a></li>
     </ul></li>
     <li><a name="toc-Video-size" href="#Video-size">2.4 Video size</a></li>
@@ -45,46 +52,50 @@
     <li><a name="toc-Color" href="#Color">2.7 Color</a></li>
     <li><a name="toc-Channel-Layout" href="#Channel-Layout">2.8 Channel Layout</a></li>
   </ul></li>
-  <li><a name="toc-Expression-Evaluation" href="#Expression-Evaluation">3 Expression Evaluation</a></li>
-  <li><a name="toc-OpenCL-Options" href="#OpenCL-Options">4 OpenCL Options</a></li>
-  <li><a name="toc-See-Also" href="#See-Also">5 See Also</a></li>
-  <li><a name="toc-Authors" href="#Authors">6 Authors</a></li>
+  <li><a name="toc-Expression-Evaluation" href="#Expression-Evaluation">3. Expression Evaluation</a></li>
+  <li><a name="toc-OpenCL-Options" href="#OpenCL-Options">4. OpenCL Options</a></li>
+  <li><a name="toc-See-Also" href="#See-Also">5. See Also</a></li>
+  <li><a name="toc-Authors" href="#Authors">6. Authors</a></li>
 </ul>
 </div>
 
-
 <a name="Description"></a>
-<h2 class="chapter">1 Description<span class="pull-right"><a class="anchor hidden-xs" href="#Description" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-Description" aria-hidden="true">TOC</a></span></h2>
+<h1 class="chapter"><a href="ffmpeg-utils.html#toc-Description">1. Description</a></h1>
 
 <p>This document describes some generic features and utilities provided
 by the libavutil library.
 </p>
 
 <a name="Syntax"></a>
-<h2 class="chapter">2 Syntax<span class="pull-right"><a class="anchor hidden-xs" href="#Syntax" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-Syntax" aria-hidden="true">TOC</a></span></h2>
+<h1 class="chapter"><a href="ffmpeg-utils.html#toc-Syntax">2. Syntax</a></h1>
 
 <p>This section documents the syntax and formats employed by the FFmpeg
 libraries and tools.
 </p>
-<a name="quoting_005fand_005fescaping"></a><a name="Quoting-and-escaping"></a>
-<h3 class="section">2.1 Quoting and escaping<span class="pull-right"><a class="anchor hidden-xs" href="#Quoting-and-escaping" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-Quoting-and-escaping" aria-hidden="true">TOC</a></span></h3>
+<p><a name="quoting_005fand_005fescaping"></a>
+</p><a name="Quoting-and-escaping"></a>
+<h2 class="section"><a href="ffmpeg-utils.html#toc-Quoting-and-escaping">2.1 Quoting and escaping</a></h2>
 
 <p>FFmpeg adopts the following quoting and escaping mechanism, unless
 explicitly specified. The following rules are applied:
 </p>
 <ul>
-<li> &lsquo;<samp>'</samp>&rsquo; and &lsquo;<samp>\</samp>&rsquo; are special characters (respectively used for
+<li>
+<code>'</code> and <code>\</code> are special characters (respectively used for
 quoting and escaping). In addition to them, there might be other
 special characters depending on the specific syntax where the escaping
 and quoting are employed.
 
-</li><li> A special character is escaped by prefixing it with a &lsquo;<samp>\</samp>&rsquo;.
+</li><li>
+A special character is escaped by prefixing it with a &rsquo;\&rsquo;.
 
-</li><li> All characters enclosed between &lsquo;<samp>''</samp>&rsquo; are included literally in the
-parsed string. The quote character &lsquo;<samp>'</samp>&rsquo; itself cannot be quoted,
+</li><li>
+All characters enclosed between &rdquo; are included literally in the
+parsed string. The quote character <code>'</code> itself cannot be quoted,
 so you may need to close the quote and escape it.
 
-</li><li> Leading and trailing whitespaces, unless escaped or quoted, are
+</li><li>
+Leading and trailing whitespaces, unless escaped or quoted, are
 removed from the parsed string.
 </li></ul>
 
@@ -93,52 +104,52 @@ the command line or a script, which depends on the syntax of the
 adopted shell language.
 </p>
 <p>The function <code>av_get_token</code> defined in
-<samp>libavutil/avstring.h</samp> can be used to parse a token quoted or
+&lsquo;<tt>libavutil/avstring.h</tt>&rsquo; can be used to parse a token quoted or
 escaped according to the rules defined above.
 </p>
-<p>The tool <samp>tools/ffescape</samp> in the FFmpeg source tree can be used
+<p>The tool &lsquo;<tt>tools/ffescape</tt>&rsquo; in the FFmpeg source tree can be used
 to automatically quote or escape a string in a script.
 </p>
 <a name="Examples"></a>
-<h4 class="subsection">2.1.1 Examples<span class="pull-right"><a class="anchor hidden-xs" href="#Examples" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-Examples" aria-hidden="true">TOC</a></span></h4>
+<h3 class="subsection"><a href="ffmpeg-utils.html#toc-Examples">2.1.1 Examples</a></h3>
 
 <ul>
-<li> Escape the string <code>Crime d'Amour</code> containing the <code>'</code> special
+<li>
+Escape the string <code>Crime d'Amour</code> containing the <code>'</code> special
 character:
-<div class="example">
-<pre class="example">Crime d\'Amour
-</pre></div>
+<table><tr><td>&nbsp;</td><td><pre class="example">Crime d\'Amour
+</pre></td></tr></table>
 
-</li><li> The string above contains a quote, so the <code>'</code> needs to be escaped
+</li><li>
+The string above contains a quote, so the <code>'</code> needs to be escaped
 when quoting it:
-<div class="example">
-<pre class="example">'Crime d'\''Amour'
-</pre></div>
+<table><tr><td>&nbsp;</td><td><pre class="example">'Crime d'\''Amour'
+</pre></td></tr></table>
 
-</li><li> Include leading or trailing whitespaces using quoting:
-<div class="example">
-<pre class="example">'  this string starts and ends with whitespaces  '
-</pre></div>
+</li><li>
+Include leading or trailing whitespaces using quoting:
+<table><tr><td>&nbsp;</td><td><pre class="example">'  this string starts and ends with whitespaces  '
+</pre></td></tr></table>
 
-</li><li> Escaping and quoting can be mixed together:
-<div class="example">
-<pre class="example">' The string '\'string\'' is a string '
-</pre></div>
+</li><li>
+Escaping and quoting can be mixed together:
+<table><tr><td>&nbsp;</td><td><pre class="example">' The string '\'string\'' is a string '
+</pre></td></tr></table>
 
-</li><li> To include a literal &lsquo;<samp>\</samp>&rsquo; you can use either escaping or quoting:
-<div class="example">
-<pre class="example">'c:\foo' can be written as c:\\foo
-</pre></div>
+</li><li>
+To include a literal <code>\</code> you can use either escaping or quoting:
+<table><tr><td>&nbsp;</td><td><pre class="example">'c:\foo' can be written as c:\\foo
+</pre></td></tr></table>
 </li></ul>
 
-<a name="date-syntax"></a><a name="Date"></a>
-<h3 class="section">2.2 Date<span class="pull-right"><a class="anchor hidden-xs" href="#Date" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-Date" aria-hidden="true">TOC</a></span></h3>
+<p><a name="date-syntax"></a>
+</p><a name="Date"></a>
+<h2 class="section"><a href="ffmpeg-utils.html#toc-Date">2.2 Date</a></h2>
 
 <p>The accepted syntax is:
-</p><div class="example">
-<pre class="example">[(YYYY-MM-DD|YYYYMMDD)[T|t| ]]((HH:MM:SS[.m...]]])|(HHMMSS[.m...]]]))[Z]
+</p><table><tr><td>&nbsp;</td><td><pre class="example">[(YYYY-MM-DD|YYYYMMDD)[T|t| ]]((HH:MM:SS[.m...]]])|(HHMMSS[.m...]]]))[Z]
 now
-</pre></div>
+</pre></td></tr></table>
 
 <p>If the value is &quot;now&quot; it takes the current time.
 </p>
@@ -147,14 +158,14 @@ interpreted as UTC.
 If the year-month-day part is not specified it takes the current
 year-month-day.
 </p>
-<a name="time-duration-syntax"></a><a name="Time-duration"></a>
-<h3 class="section">2.3 Time duration<span class="pull-right"><a class="anchor hidden-xs" href="#Time-duration" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-Time-duration" aria-hidden="true">TOC</a></span></h3>
+<p><a name="time-duration-syntax"></a>
+</p><a name="Time-duration"></a>
+<h2 class="section"><a href="ffmpeg-utils.html#toc-Time-duration">2.3 Time duration</a></h2>
 
 <p>There are two accepted syntaxes for expressing time duration.
 </p>
-<div class="example">
-<pre class="example">[-][<var>HH</var>:]<var>MM</var>:<var>SS</var>[.<var>m</var>...]
-</pre></div>
+<table><tr><td>&nbsp;</td><td><pre class="example">[-][<var>HH</var>:]<var>MM</var>:<var>SS</var>[.<var>m</var>...]
+</pre></td></tr></table>
 
 <p><var>HH</var> expresses the number of hours, <var>MM</var> the number of minutes
 for a maximum of 2 digits, and <var>SS</var> the number of seconds for a
@@ -163,9 +174,8 @@ maximum of 2 digits. The <var>m</var> at the end expresses decimal value for
 </p>
 <p><em>or</em>
 </p>
-<div class="example">
-<pre class="example">[-]<var>S</var>+[.<var>m</var>...]
-</pre></div>
+<table><tr><td>&nbsp;</td><td><pre class="example">[-]<var>S</var>+[.<var>m</var>...]
+</pre></td></tr></table>
 
 <p><var>S</var> expresses the number of seconds, with the optional decimal part
 <var>m</var>.
@@ -173,194 +183,184 @@ maximum of 2 digits. The <var>m</var> at the end expresses decimal value for
 <p>In both expressions, the optional &lsquo;<samp>-</samp>&rsquo; indicates negative duration.
 </p>
 <a name="Examples-1"></a>
-<h4 class="subsection">2.3.1 Examples<span class="pull-right"><a class="anchor hidden-xs" href="#Examples-1" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-Examples-1" aria-hidden="true">TOC</a></span></h4>
+<h3 class="subsection"><a href="ffmpeg-utils.html#toc-Examples-1">2.3.1 Examples</a></h3>
 
 <p>The following examples are all valid time duration:
 </p>
 <dl compact="compact">
-<dt>&lsquo;<samp>55</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>55</samp>&rsquo;</dt>
 <dd><p>55 seconds
 </p>
 </dd>
-<dt>&lsquo;<samp>12:03:45</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>12:03:45</samp>&rsquo;</dt>
 <dd><p>12 hours, 03 minutes and 45 seconds
 </p>
 </dd>
-<dt>&lsquo;<samp>23.189</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>23.189</samp>&rsquo;</dt>
 <dd><p>23.189 seconds
 </p></dd>
 </dl>
 
-<a name="video-size-syntax"></a><a name="Video-size"></a>
-<h3 class="section">2.4 Video size<span class="pull-right"><a class="anchor hidden-xs" href="#Video-size" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-Video-size" aria-hidden="true">TOC</a></span></h3>
+<p><a name="video-size-syntax"></a>
+</p><a name="Video-size"></a>
+<h2 class="section"><a href="ffmpeg-utils.html#toc-Video-size">2.4 Video size</a></h2>
 <p>Specify the size of the sourced video, it may be a string of the form
 <var>width</var>x<var>height</var>, or the name of a size abbreviation.
 </p>
 <p>The following abbreviations are recognized:
 </p><dl compact="compact">
-<dt>&lsquo;<samp>ntsc</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>ntsc</samp>&rsquo;</dt>
 <dd><p>720x480
 </p></dd>
-<dt>&lsquo;<samp>pal</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>pal</samp>&rsquo;</dt>
 <dd><p>720x576
 </p></dd>
-<dt>&lsquo;<samp>qntsc</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>qntsc</samp>&rsquo;</dt>
 <dd><p>352x240
 </p></dd>
-<dt>&lsquo;<samp>qpal</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>qpal</samp>&rsquo;</dt>
 <dd><p>352x288
 </p></dd>
-<dt>&lsquo;<samp>sntsc</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>sntsc</samp>&rsquo;</dt>
 <dd><p>640x480
 </p></dd>
-<dt>&lsquo;<samp>spal</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>spal</samp>&rsquo;</dt>
 <dd><p>768x576
 </p></dd>
-<dt>&lsquo;<samp>film</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>film</samp>&rsquo;</dt>
 <dd><p>352x240
 </p></dd>
-<dt>&lsquo;<samp>ntsc-film</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>ntsc-film</samp>&rsquo;</dt>
 <dd><p>352x240
 </p></dd>
-<dt>&lsquo;<samp>sqcif</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>sqcif</samp>&rsquo;</dt>
 <dd><p>128x96
 </p></dd>
-<dt>&lsquo;<samp>qcif</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>qcif</samp>&rsquo;</dt>
 <dd><p>176x144
 </p></dd>
-<dt>&lsquo;<samp>cif</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>cif</samp>&rsquo;</dt>
 <dd><p>352x288
 </p></dd>
-<dt>&lsquo;<samp>4cif</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>4cif</samp>&rsquo;</dt>
 <dd><p>704x576
 </p></dd>
-<dt>&lsquo;<samp>16cif</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>16cif</samp>&rsquo;</dt>
 <dd><p>1408x1152
 </p></dd>
-<dt>&lsquo;<samp>qqvga</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>qqvga</samp>&rsquo;</dt>
 <dd><p>160x120
 </p></dd>
-<dt>&lsquo;<samp>qvga</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>qvga</samp>&rsquo;</dt>
 <dd><p>320x240
 </p></dd>
-<dt>&lsquo;<samp>vga</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>vga</samp>&rsquo;</dt>
 <dd><p>640x480
 </p></dd>
-<dt>&lsquo;<samp>svga</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>svga</samp>&rsquo;</dt>
 <dd><p>800x600
 </p></dd>
-<dt>&lsquo;<samp>xga</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>xga</samp>&rsquo;</dt>
 <dd><p>1024x768
 </p></dd>
-<dt>&lsquo;<samp>uxga</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>uxga</samp>&rsquo;</dt>
 <dd><p>1600x1200
 </p></dd>
-<dt>&lsquo;<samp>qxga</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>qxga</samp>&rsquo;</dt>
 <dd><p>2048x1536
 </p></dd>
-<dt>&lsquo;<samp>sxga</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>sxga</samp>&rsquo;</dt>
 <dd><p>1280x1024
 </p></dd>
-<dt>&lsquo;<samp>qsxga</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>qsxga</samp>&rsquo;</dt>
 <dd><p>2560x2048
 </p></dd>
-<dt>&lsquo;<samp>hsxga</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>hsxga</samp>&rsquo;</dt>
 <dd><p>5120x4096
 </p></dd>
-<dt>&lsquo;<samp>wvga</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>wvga</samp>&rsquo;</dt>
 <dd><p>852x480
 </p></dd>
-<dt>&lsquo;<samp>wxga</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>wxga</samp>&rsquo;</dt>
 <dd><p>1366x768
 </p></dd>
-<dt>&lsquo;<samp>wsxga</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>wsxga</samp>&rsquo;</dt>
 <dd><p>1600x1024
 </p></dd>
-<dt>&lsquo;<samp>wuxga</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>wuxga</samp>&rsquo;</dt>
 <dd><p>1920x1200
 </p></dd>
-<dt>&lsquo;<samp>woxga</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>woxga</samp>&rsquo;</dt>
 <dd><p>2560x1600
 </p></dd>
-<dt>&lsquo;<samp>wqsxga</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>wqsxga</samp>&rsquo;</dt>
 <dd><p>3200x2048
 </p></dd>
-<dt>&lsquo;<samp>wquxga</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>wquxga</samp>&rsquo;</dt>
 <dd><p>3840x2400
 </p></dd>
-<dt>&lsquo;<samp>whsxga</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>whsxga</samp>&rsquo;</dt>
 <dd><p>6400x4096
 </p></dd>
-<dt>&lsquo;<samp>whuxga</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>whuxga</samp>&rsquo;</dt>
 <dd><p>7680x4800
 </p></dd>
-<dt>&lsquo;<samp>cga</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>cga</samp>&rsquo;</dt>
 <dd><p>320x200
 </p></dd>
-<dt>&lsquo;<samp>ega</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>ega</samp>&rsquo;</dt>
 <dd><p>640x350
 </p></dd>
-<dt>&lsquo;<samp>hd480</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>hd480</samp>&rsquo;</dt>
 <dd><p>852x480
 </p></dd>
-<dt>&lsquo;<samp>hd720</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>hd720</samp>&rsquo;</dt>
 <dd><p>1280x720
 </p></dd>
-<dt>&lsquo;<samp>hd1080</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>hd1080</samp>&rsquo;</dt>
 <dd><p>1920x1080
 </p></dd>
-<dt>&lsquo;<samp>2k</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>2k</samp>&rsquo;</dt>
 <dd><p>2048x1080
 </p></dd>
-<dt>&lsquo;<samp>2kflat</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>2kflat</samp>&rsquo;</dt>
 <dd><p>1998x1080
 </p></dd>
-<dt>&lsquo;<samp>2kscope</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>2kscope</samp>&rsquo;</dt>
 <dd><p>2048x858
 </p></dd>
-<dt>&lsquo;<samp>4k</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>4k</samp>&rsquo;</dt>
 <dd><p>4096x2160
 </p></dd>
-<dt>&lsquo;<samp>4kflat</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>4kflat</samp>&rsquo;</dt>
 <dd><p>3996x2160
 </p></dd>
-<dt>&lsquo;<samp>4kscope</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>4kscope</samp>&rsquo;</dt>
 <dd><p>4096x1716
 </p></dd>
-<dt>&lsquo;<samp>nhd</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>nhd</samp>&rsquo;</dt>
 <dd><p>640x360
 </p></dd>
-<dt>&lsquo;<samp>hqvga</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>hqvga</samp>&rsquo;</dt>
 <dd><p>240x160
 </p></dd>
-<dt>&lsquo;<samp>wqvga</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>wqvga</samp>&rsquo;</dt>
 <dd><p>400x240
 </p></dd>
-<dt>&lsquo;<samp>fwqvga</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>fwqvga</samp>&rsquo;</dt>
 <dd><p>432x240
 </p></dd>
-<dt>&lsquo;<samp>hvga</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>hvga</samp>&rsquo;</dt>
 <dd><p>480x320
 </p></dd>
-<dt>&lsquo;<samp>qhd</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>qhd</samp>&rsquo;</dt>
 <dd><p>960x540
-</p></dd>
-<dt>&lsquo;<samp>2kdci</samp>&rsquo;</dt>
-<dd><p>2048x1080
-</p></dd>
-<dt>&lsquo;<samp>4kdci</samp>&rsquo;</dt>
-<dd><p>4096x2160
-</p></dd>
-<dt>&lsquo;<samp>uhd2160</samp>&rsquo;</dt>
-<dd><p>3840x2160
-</p></dd>
-<dt>&lsquo;<samp>uhd4320</samp>&rsquo;</dt>
-<dd><p>7680x4320
 </p></dd>
 </dl>
 
-<a name="video-rate-syntax"></a><a name="Video-rate"></a>
-<h3 class="section">2.5 Video rate<span class="pull-right"><a class="anchor hidden-xs" href="#Video-rate" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-Video-rate" aria-hidden="true">TOC</a></span></h3>
+<p><a name="video-rate-syntax"></a>
+</p><a name="Video-rate"></a>
+<h2 class="section"><a href="ffmpeg-utils.html#toc-Video-rate">2.5 Video rate</a></h2>
 
 <p>Specify the frame rate of a video, expressed as the number of frames
 generated per second. It has to be a string in the format
@@ -369,34 +369,35 @@ number or a valid video frame rate abbreviation.
 </p>
 <p>The following abbreviations are recognized:
 </p><dl compact="compact">
-<dt>&lsquo;<samp>ntsc</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>ntsc</samp>&rsquo;</dt>
 <dd><p>30000/1001
 </p></dd>
-<dt>&lsquo;<samp>pal</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>pal</samp>&rsquo;</dt>
 <dd><p>25/1
 </p></dd>
-<dt>&lsquo;<samp>qntsc</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>qntsc</samp>&rsquo;</dt>
 <dd><p>30000/1001
 </p></dd>
-<dt>&lsquo;<samp>qpal</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>qpal</samp>&rsquo;</dt>
 <dd><p>25/1
 </p></dd>
-<dt>&lsquo;<samp>sntsc</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>sntsc</samp>&rsquo;</dt>
 <dd><p>30000/1001
 </p></dd>
-<dt>&lsquo;<samp>spal</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>spal</samp>&rsquo;</dt>
 <dd><p>25/1
 </p></dd>
-<dt>&lsquo;<samp>film</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>film</samp>&rsquo;</dt>
 <dd><p>24/1
 </p></dd>
-<dt>&lsquo;<samp>ntsc-film</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>ntsc-film</samp>&rsquo;</dt>
 <dd><p>24000/1001
 </p></dd>
 </dl>
 
-<a name="ratio-syntax"></a><a name="Ratio"></a>
-<h3 class="section">2.6 Ratio<span class="pull-right"><a class="anchor hidden-xs" href="#Ratio" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-Ratio" aria-hidden="true">TOC</a></span></h3>
+<p><a name="ratio-syntax"></a>
+</p><a name="Ratio"></a>
+<h2 class="section"><a href="ffmpeg-utils.html#toc-Ratio">2.6 Ratio</a></h2>
 
 <p>A ratio can be expressed as an expression, or in the form
 <var>numerator</var>:<var>denominator</var>.
@@ -407,8 +408,9 @@ want to exclude those values.
 </p>
 <p>The undefined value can be expressed using the &quot;0:0&quot; string.
 </p>
-<a name="color-syntax"></a><a name="Color"></a>
-<h3 class="section">2.7 Color<span class="pull-right"><a class="anchor hidden-xs" href="#Color" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-Color" aria-hidden="true">TOC</a></span></h3>
+<p><a name="color-syntax"></a>
+</p><a name="Color"></a>
+<h2 class="section"><a href="ffmpeg-utils.html#toc-Color">2.7 Color</a></h2>
 
 <p>It can be the name of a color as defined below (case insensitive match) or a
 <code>[0x|#]RRGGBB[AA]</code> sequence, possibly followed by @ and a string
@@ -424,430 +426,431 @@ component is not specified then &lsquo;<samp>0xff</samp>&rsquo; is assumed.
 </p>
 <p>The following names of colors are recognized:
 </p><dl compact="compact">
-<dt>&lsquo;<samp>AliceBlue</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>AliceBlue</samp>&rsquo;</dt>
 <dd><p>0xF0F8FF
 </p></dd>
-<dt>&lsquo;<samp>AntiqueWhite</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>AntiqueWhite</samp>&rsquo;</dt>
 <dd><p>0xFAEBD7
 </p></dd>
-<dt>&lsquo;<samp>Aqua</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Aqua</samp>&rsquo;</dt>
 <dd><p>0x00FFFF
 </p></dd>
-<dt>&lsquo;<samp>Aquamarine</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Aquamarine</samp>&rsquo;</dt>
 <dd><p>0x7FFFD4
 </p></dd>
-<dt>&lsquo;<samp>Azure</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Azure</samp>&rsquo;</dt>
 <dd><p>0xF0FFFF
 </p></dd>
-<dt>&lsquo;<samp>Beige</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Beige</samp>&rsquo;</dt>
 <dd><p>0xF5F5DC
 </p></dd>
-<dt>&lsquo;<samp>Bisque</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Bisque</samp>&rsquo;</dt>
 <dd><p>0xFFE4C4
 </p></dd>
-<dt>&lsquo;<samp>Black</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Black</samp>&rsquo;</dt>
 <dd><p>0x000000
 </p></dd>
-<dt>&lsquo;<samp>BlanchedAlmond</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>BlanchedAlmond</samp>&rsquo;</dt>
 <dd><p>0xFFEBCD
 </p></dd>
-<dt>&lsquo;<samp>Blue</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Blue</samp>&rsquo;</dt>
 <dd><p>0x0000FF
 </p></dd>
-<dt>&lsquo;<samp>BlueViolet</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>BlueViolet</samp>&rsquo;</dt>
 <dd><p>0x8A2BE2
 </p></dd>
-<dt>&lsquo;<samp>Brown</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Brown</samp>&rsquo;</dt>
 <dd><p>0xA52A2A
 </p></dd>
-<dt>&lsquo;<samp>BurlyWood</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>BurlyWood</samp>&rsquo;</dt>
 <dd><p>0xDEB887
 </p></dd>
-<dt>&lsquo;<samp>CadetBlue</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>CadetBlue</samp>&rsquo;</dt>
 <dd><p>0x5F9EA0
 </p></dd>
-<dt>&lsquo;<samp>Chartreuse</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Chartreuse</samp>&rsquo;</dt>
 <dd><p>0x7FFF00
 </p></dd>
-<dt>&lsquo;<samp>Chocolate</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Chocolate</samp>&rsquo;</dt>
 <dd><p>0xD2691E
 </p></dd>
-<dt>&lsquo;<samp>Coral</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Coral</samp>&rsquo;</dt>
 <dd><p>0xFF7F50
 </p></dd>
-<dt>&lsquo;<samp>CornflowerBlue</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>CornflowerBlue</samp>&rsquo;</dt>
 <dd><p>0x6495ED
 </p></dd>
-<dt>&lsquo;<samp>Cornsilk</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Cornsilk</samp>&rsquo;</dt>
 <dd><p>0xFFF8DC
 </p></dd>
-<dt>&lsquo;<samp>Crimson</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Crimson</samp>&rsquo;</dt>
 <dd><p>0xDC143C
 </p></dd>
-<dt>&lsquo;<samp>Cyan</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Cyan</samp>&rsquo;</dt>
 <dd><p>0x00FFFF
 </p></dd>
-<dt>&lsquo;<samp>DarkBlue</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>DarkBlue</samp>&rsquo;</dt>
 <dd><p>0x00008B
 </p></dd>
-<dt>&lsquo;<samp>DarkCyan</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>DarkCyan</samp>&rsquo;</dt>
 <dd><p>0x008B8B
 </p></dd>
-<dt>&lsquo;<samp>DarkGoldenRod</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>DarkGoldenRod</samp>&rsquo;</dt>
 <dd><p>0xB8860B
 </p></dd>
-<dt>&lsquo;<samp>DarkGray</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>DarkGray</samp>&rsquo;</dt>
 <dd><p>0xA9A9A9
 </p></dd>
-<dt>&lsquo;<samp>DarkGreen</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>DarkGreen</samp>&rsquo;</dt>
 <dd><p>0x006400
 </p></dd>
-<dt>&lsquo;<samp>DarkKhaki</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>DarkKhaki</samp>&rsquo;</dt>
 <dd><p>0xBDB76B
 </p></dd>
-<dt>&lsquo;<samp>DarkMagenta</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>DarkMagenta</samp>&rsquo;</dt>
 <dd><p>0x8B008B
 </p></dd>
-<dt>&lsquo;<samp>DarkOliveGreen</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>DarkOliveGreen</samp>&rsquo;</dt>
 <dd><p>0x556B2F
 </p></dd>
-<dt>&lsquo;<samp>Darkorange</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Darkorange</samp>&rsquo;</dt>
 <dd><p>0xFF8C00
 </p></dd>
-<dt>&lsquo;<samp>DarkOrchid</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>DarkOrchid</samp>&rsquo;</dt>
 <dd><p>0x9932CC
 </p></dd>
-<dt>&lsquo;<samp>DarkRed</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>DarkRed</samp>&rsquo;</dt>
 <dd><p>0x8B0000
 </p></dd>
-<dt>&lsquo;<samp>DarkSalmon</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>DarkSalmon</samp>&rsquo;</dt>
 <dd><p>0xE9967A
 </p></dd>
-<dt>&lsquo;<samp>DarkSeaGreen</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>DarkSeaGreen</samp>&rsquo;</dt>
 <dd><p>0x8FBC8F
 </p></dd>
-<dt>&lsquo;<samp>DarkSlateBlue</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>DarkSlateBlue</samp>&rsquo;</dt>
 <dd><p>0x483D8B
 </p></dd>
-<dt>&lsquo;<samp>DarkSlateGray</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>DarkSlateGray</samp>&rsquo;</dt>
 <dd><p>0x2F4F4F
 </p></dd>
-<dt>&lsquo;<samp>DarkTurquoise</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>DarkTurquoise</samp>&rsquo;</dt>
 <dd><p>0x00CED1
 </p></dd>
-<dt>&lsquo;<samp>DarkViolet</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>DarkViolet</samp>&rsquo;</dt>
 <dd><p>0x9400D3
 </p></dd>
-<dt>&lsquo;<samp>DeepPink</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>DeepPink</samp>&rsquo;</dt>
 <dd><p>0xFF1493
 </p></dd>
-<dt>&lsquo;<samp>DeepSkyBlue</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>DeepSkyBlue</samp>&rsquo;</dt>
 <dd><p>0x00BFFF
 </p></dd>
-<dt>&lsquo;<samp>DimGray</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>DimGray</samp>&rsquo;</dt>
 <dd><p>0x696969
 </p></dd>
-<dt>&lsquo;<samp>DodgerBlue</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>DodgerBlue</samp>&rsquo;</dt>
 <dd><p>0x1E90FF
 </p></dd>
-<dt>&lsquo;<samp>FireBrick</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>FireBrick</samp>&rsquo;</dt>
 <dd><p>0xB22222
 </p></dd>
-<dt>&lsquo;<samp>FloralWhite</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>FloralWhite</samp>&rsquo;</dt>
 <dd><p>0xFFFAF0
 </p></dd>
-<dt>&lsquo;<samp>ForestGreen</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>ForestGreen</samp>&rsquo;</dt>
 <dd><p>0x228B22
 </p></dd>
-<dt>&lsquo;<samp>Fuchsia</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Fuchsia</samp>&rsquo;</dt>
 <dd><p>0xFF00FF
 </p></dd>
-<dt>&lsquo;<samp>Gainsboro</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Gainsboro</samp>&rsquo;</dt>
 <dd><p>0xDCDCDC
 </p></dd>
-<dt>&lsquo;<samp>GhostWhite</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>GhostWhite</samp>&rsquo;</dt>
 <dd><p>0xF8F8FF
 </p></dd>
-<dt>&lsquo;<samp>Gold</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Gold</samp>&rsquo;</dt>
 <dd><p>0xFFD700
 </p></dd>
-<dt>&lsquo;<samp>GoldenRod</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>GoldenRod</samp>&rsquo;</dt>
 <dd><p>0xDAA520
 </p></dd>
-<dt>&lsquo;<samp>Gray</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Gray</samp>&rsquo;</dt>
 <dd><p>0x808080
 </p></dd>
-<dt>&lsquo;<samp>Green</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Green</samp>&rsquo;</dt>
 <dd><p>0x008000
 </p></dd>
-<dt>&lsquo;<samp>GreenYellow</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>GreenYellow</samp>&rsquo;</dt>
 <dd><p>0xADFF2F
 </p></dd>
-<dt>&lsquo;<samp>HoneyDew</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>HoneyDew</samp>&rsquo;</dt>
 <dd><p>0xF0FFF0
 </p></dd>
-<dt>&lsquo;<samp>HotPink</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>HotPink</samp>&rsquo;</dt>
 <dd><p>0xFF69B4
 </p></dd>
-<dt>&lsquo;<samp>IndianRed</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>IndianRed</samp>&rsquo;</dt>
 <dd><p>0xCD5C5C
 </p></dd>
-<dt>&lsquo;<samp>Indigo</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Indigo</samp>&rsquo;</dt>
 <dd><p>0x4B0082
 </p></dd>
-<dt>&lsquo;<samp>Ivory</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Ivory</samp>&rsquo;</dt>
 <dd><p>0xFFFFF0
 </p></dd>
-<dt>&lsquo;<samp>Khaki</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Khaki</samp>&rsquo;</dt>
 <dd><p>0xF0E68C
 </p></dd>
-<dt>&lsquo;<samp>Lavender</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Lavender</samp>&rsquo;</dt>
 <dd><p>0xE6E6FA
 </p></dd>
-<dt>&lsquo;<samp>LavenderBlush</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>LavenderBlush</samp>&rsquo;</dt>
 <dd><p>0xFFF0F5
 </p></dd>
-<dt>&lsquo;<samp>LawnGreen</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>LawnGreen</samp>&rsquo;</dt>
 <dd><p>0x7CFC00
 </p></dd>
-<dt>&lsquo;<samp>LemonChiffon</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>LemonChiffon</samp>&rsquo;</dt>
 <dd><p>0xFFFACD
 </p></dd>
-<dt>&lsquo;<samp>LightBlue</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>LightBlue</samp>&rsquo;</dt>
 <dd><p>0xADD8E6
 </p></dd>
-<dt>&lsquo;<samp>LightCoral</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>LightCoral</samp>&rsquo;</dt>
 <dd><p>0xF08080
 </p></dd>
-<dt>&lsquo;<samp>LightCyan</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>LightCyan</samp>&rsquo;</dt>
 <dd><p>0xE0FFFF
 </p></dd>
-<dt>&lsquo;<samp>LightGoldenRodYellow</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>LightGoldenRodYellow</samp>&rsquo;</dt>
 <dd><p>0xFAFAD2
 </p></dd>
-<dt>&lsquo;<samp>LightGreen</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>LightGreen</samp>&rsquo;</dt>
 <dd><p>0x90EE90
 </p></dd>
-<dt>&lsquo;<samp>LightGrey</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>LightGrey</samp>&rsquo;</dt>
 <dd><p>0xD3D3D3
 </p></dd>
-<dt>&lsquo;<samp>LightPink</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>LightPink</samp>&rsquo;</dt>
 <dd><p>0xFFB6C1
 </p></dd>
-<dt>&lsquo;<samp>LightSalmon</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>LightSalmon</samp>&rsquo;</dt>
 <dd><p>0xFFA07A
 </p></dd>
-<dt>&lsquo;<samp>LightSeaGreen</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>LightSeaGreen</samp>&rsquo;</dt>
 <dd><p>0x20B2AA
 </p></dd>
-<dt>&lsquo;<samp>LightSkyBlue</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>LightSkyBlue</samp>&rsquo;</dt>
 <dd><p>0x87CEFA
 </p></dd>
-<dt>&lsquo;<samp>LightSlateGray</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>LightSlateGray</samp>&rsquo;</dt>
 <dd><p>0x778899
 </p></dd>
-<dt>&lsquo;<samp>LightSteelBlue</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>LightSteelBlue</samp>&rsquo;</dt>
 <dd><p>0xB0C4DE
 </p></dd>
-<dt>&lsquo;<samp>LightYellow</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>LightYellow</samp>&rsquo;</dt>
 <dd><p>0xFFFFE0
 </p></dd>
-<dt>&lsquo;<samp>Lime</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Lime</samp>&rsquo;</dt>
 <dd><p>0x00FF00
 </p></dd>
-<dt>&lsquo;<samp>LimeGreen</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>LimeGreen</samp>&rsquo;</dt>
 <dd><p>0x32CD32
 </p></dd>
-<dt>&lsquo;<samp>Linen</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Linen</samp>&rsquo;</dt>
 <dd><p>0xFAF0E6
 </p></dd>
-<dt>&lsquo;<samp>Magenta</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Magenta</samp>&rsquo;</dt>
 <dd><p>0xFF00FF
 </p></dd>
-<dt>&lsquo;<samp>Maroon</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Maroon</samp>&rsquo;</dt>
 <dd><p>0x800000
 </p></dd>
-<dt>&lsquo;<samp>MediumAquaMarine</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>MediumAquaMarine</samp>&rsquo;</dt>
 <dd><p>0x66CDAA
 </p></dd>
-<dt>&lsquo;<samp>MediumBlue</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>MediumBlue</samp>&rsquo;</dt>
 <dd><p>0x0000CD
 </p></dd>
-<dt>&lsquo;<samp>MediumOrchid</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>MediumOrchid</samp>&rsquo;</dt>
 <dd><p>0xBA55D3
 </p></dd>
-<dt>&lsquo;<samp>MediumPurple</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>MediumPurple</samp>&rsquo;</dt>
 <dd><p>0x9370D8
 </p></dd>
-<dt>&lsquo;<samp>MediumSeaGreen</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>MediumSeaGreen</samp>&rsquo;</dt>
 <dd><p>0x3CB371
 </p></dd>
-<dt>&lsquo;<samp>MediumSlateBlue</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>MediumSlateBlue</samp>&rsquo;</dt>
 <dd><p>0x7B68EE
 </p></dd>
-<dt>&lsquo;<samp>MediumSpringGreen</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>MediumSpringGreen</samp>&rsquo;</dt>
 <dd><p>0x00FA9A
 </p></dd>
-<dt>&lsquo;<samp>MediumTurquoise</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>MediumTurquoise</samp>&rsquo;</dt>
 <dd><p>0x48D1CC
 </p></dd>
-<dt>&lsquo;<samp>MediumVioletRed</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>MediumVioletRed</samp>&rsquo;</dt>
 <dd><p>0xC71585
 </p></dd>
-<dt>&lsquo;<samp>MidnightBlue</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>MidnightBlue</samp>&rsquo;</dt>
 <dd><p>0x191970
 </p></dd>
-<dt>&lsquo;<samp>MintCream</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>MintCream</samp>&rsquo;</dt>
 <dd><p>0xF5FFFA
 </p></dd>
-<dt>&lsquo;<samp>MistyRose</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>MistyRose</samp>&rsquo;</dt>
 <dd><p>0xFFE4E1
 </p></dd>
-<dt>&lsquo;<samp>Moccasin</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Moccasin</samp>&rsquo;</dt>
 <dd><p>0xFFE4B5
 </p></dd>
-<dt>&lsquo;<samp>NavajoWhite</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>NavajoWhite</samp>&rsquo;</dt>
 <dd><p>0xFFDEAD
 </p></dd>
-<dt>&lsquo;<samp>Navy</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Navy</samp>&rsquo;</dt>
 <dd><p>0x000080
 </p></dd>
-<dt>&lsquo;<samp>OldLace</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>OldLace</samp>&rsquo;</dt>
 <dd><p>0xFDF5E6
 </p></dd>
-<dt>&lsquo;<samp>Olive</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Olive</samp>&rsquo;</dt>
 <dd><p>0x808000
 </p></dd>
-<dt>&lsquo;<samp>OliveDrab</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>OliveDrab</samp>&rsquo;</dt>
 <dd><p>0x6B8E23
 </p></dd>
-<dt>&lsquo;<samp>Orange</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Orange</samp>&rsquo;</dt>
 <dd><p>0xFFA500
 </p></dd>
-<dt>&lsquo;<samp>OrangeRed</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>OrangeRed</samp>&rsquo;</dt>
 <dd><p>0xFF4500
 </p></dd>
-<dt>&lsquo;<samp>Orchid</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Orchid</samp>&rsquo;</dt>
 <dd><p>0xDA70D6
 </p></dd>
-<dt>&lsquo;<samp>PaleGoldenRod</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>PaleGoldenRod</samp>&rsquo;</dt>
 <dd><p>0xEEE8AA
 </p></dd>
-<dt>&lsquo;<samp>PaleGreen</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>PaleGreen</samp>&rsquo;</dt>
 <dd><p>0x98FB98
 </p></dd>
-<dt>&lsquo;<samp>PaleTurquoise</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>PaleTurquoise</samp>&rsquo;</dt>
 <dd><p>0xAFEEEE
 </p></dd>
-<dt>&lsquo;<samp>PaleVioletRed</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>PaleVioletRed</samp>&rsquo;</dt>
 <dd><p>0xD87093
 </p></dd>
-<dt>&lsquo;<samp>PapayaWhip</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>PapayaWhip</samp>&rsquo;</dt>
 <dd><p>0xFFEFD5
 </p></dd>
-<dt>&lsquo;<samp>PeachPuff</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>PeachPuff</samp>&rsquo;</dt>
 <dd><p>0xFFDAB9
 </p></dd>
-<dt>&lsquo;<samp>Peru</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Peru</samp>&rsquo;</dt>
 <dd><p>0xCD853F
 </p></dd>
-<dt>&lsquo;<samp>Pink</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Pink</samp>&rsquo;</dt>
 <dd><p>0xFFC0CB
 </p></dd>
-<dt>&lsquo;<samp>Plum</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Plum</samp>&rsquo;</dt>
 <dd><p>0xDDA0DD
 </p></dd>
-<dt>&lsquo;<samp>PowderBlue</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>PowderBlue</samp>&rsquo;</dt>
 <dd><p>0xB0E0E6
 </p></dd>
-<dt>&lsquo;<samp>Purple</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Purple</samp>&rsquo;</dt>
 <dd><p>0x800080
 </p></dd>
-<dt>&lsquo;<samp>Red</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Red</samp>&rsquo;</dt>
 <dd><p>0xFF0000
 </p></dd>
-<dt>&lsquo;<samp>RosyBrown</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>RosyBrown</samp>&rsquo;</dt>
 <dd><p>0xBC8F8F
 </p></dd>
-<dt>&lsquo;<samp>RoyalBlue</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>RoyalBlue</samp>&rsquo;</dt>
 <dd><p>0x4169E1
 </p></dd>
-<dt>&lsquo;<samp>SaddleBrown</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>SaddleBrown</samp>&rsquo;</dt>
 <dd><p>0x8B4513
 </p></dd>
-<dt>&lsquo;<samp>Salmon</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Salmon</samp>&rsquo;</dt>
 <dd><p>0xFA8072
 </p></dd>
-<dt>&lsquo;<samp>SandyBrown</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>SandyBrown</samp>&rsquo;</dt>
 <dd><p>0xF4A460
 </p></dd>
-<dt>&lsquo;<samp>SeaGreen</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>SeaGreen</samp>&rsquo;</dt>
 <dd><p>0x2E8B57
 </p></dd>
-<dt>&lsquo;<samp>SeaShell</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>SeaShell</samp>&rsquo;</dt>
 <dd><p>0xFFF5EE
 </p></dd>
-<dt>&lsquo;<samp>Sienna</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Sienna</samp>&rsquo;</dt>
 <dd><p>0xA0522D
 </p></dd>
-<dt>&lsquo;<samp>Silver</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Silver</samp>&rsquo;</dt>
 <dd><p>0xC0C0C0
 </p></dd>
-<dt>&lsquo;<samp>SkyBlue</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>SkyBlue</samp>&rsquo;</dt>
 <dd><p>0x87CEEB
 </p></dd>
-<dt>&lsquo;<samp>SlateBlue</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>SlateBlue</samp>&rsquo;</dt>
 <dd><p>0x6A5ACD
 </p></dd>
-<dt>&lsquo;<samp>SlateGray</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>SlateGray</samp>&rsquo;</dt>
 <dd><p>0x708090
 </p></dd>
-<dt>&lsquo;<samp>Snow</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Snow</samp>&rsquo;</dt>
 <dd><p>0xFFFAFA
 </p></dd>
-<dt>&lsquo;<samp>SpringGreen</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>SpringGreen</samp>&rsquo;</dt>
 <dd><p>0x00FF7F
 </p></dd>
-<dt>&lsquo;<samp>SteelBlue</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>SteelBlue</samp>&rsquo;</dt>
 <dd><p>0x4682B4
 </p></dd>
-<dt>&lsquo;<samp>Tan</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Tan</samp>&rsquo;</dt>
 <dd><p>0xD2B48C
 </p></dd>
-<dt>&lsquo;<samp>Teal</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Teal</samp>&rsquo;</dt>
 <dd><p>0x008080
 </p></dd>
-<dt>&lsquo;<samp>Thistle</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Thistle</samp>&rsquo;</dt>
 <dd><p>0xD8BFD8
 </p></dd>
-<dt>&lsquo;<samp>Tomato</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Tomato</samp>&rsquo;</dt>
 <dd><p>0xFF6347
 </p></dd>
-<dt>&lsquo;<samp>Turquoise</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Turquoise</samp>&rsquo;</dt>
 <dd><p>0x40E0D0
 </p></dd>
-<dt>&lsquo;<samp>Violet</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Violet</samp>&rsquo;</dt>
 <dd><p>0xEE82EE
 </p></dd>
-<dt>&lsquo;<samp>Wheat</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Wheat</samp>&rsquo;</dt>
 <dd><p>0xF5DEB3
 </p></dd>
-<dt>&lsquo;<samp>White</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>White</samp>&rsquo;</dt>
 <dd><p>0xFFFFFF
 </p></dd>
-<dt>&lsquo;<samp>WhiteSmoke</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>WhiteSmoke</samp>&rsquo;</dt>
 <dd><p>0xF5F5F5
 </p></dd>
-<dt>&lsquo;<samp>Yellow</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>Yellow</samp>&rsquo;</dt>
 <dd><p>0xFFFF00
 </p></dd>
-<dt>&lsquo;<samp>YellowGreen</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>YellowGreen</samp>&rsquo;</dt>
 <dd><p>0x9ACD32
 </p></dd>
 </dl>
 
-<a name="channel-layout-syntax"></a><a name="Channel-Layout"></a>
-<h3 class="section">2.8 Channel Layout<span class="pull-right"><a class="anchor hidden-xs" href="#Channel-Layout" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-Channel-Layout" aria-hidden="true">TOC</a></span></h3>
+<p><a name="channel-layout-syntax"></a>
+</p><a name="Channel-Layout"></a>
+<h2 class="section"><a href="ffmpeg-utils.html#toc-Channel-Layout">2.8 Channel Layout</a></h2>
 
 <p>A channel layout specifies the spatial disposition of the channels in
 a multi-channel audio stream. To specify a channel layout, FFmpeg
@@ -856,79 +859,79 @@ makes use of a special syntax.
 <p>Individual channels are identified by an id, as given by the table
 below:
 </p><dl compact="compact">
-<dt>&lsquo;<samp>FL</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>FL</samp>&rsquo;</dt>
 <dd><p>front left
 </p></dd>
-<dt>&lsquo;<samp>FR</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>FR</samp>&rsquo;</dt>
 <dd><p>front right
 </p></dd>
-<dt>&lsquo;<samp>FC</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>FC</samp>&rsquo;</dt>
 <dd><p>front center
 </p></dd>
-<dt>&lsquo;<samp>LFE</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>LFE</samp>&rsquo;</dt>
 <dd><p>low frequency
 </p></dd>
-<dt>&lsquo;<samp>BL</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>BL</samp>&rsquo;</dt>
 <dd><p>back left
 </p></dd>
-<dt>&lsquo;<samp>BR</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>BR</samp>&rsquo;</dt>
 <dd><p>back right
 </p></dd>
-<dt>&lsquo;<samp>FLC</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>FLC</samp>&rsquo;</dt>
 <dd><p>front left-of-center
 </p></dd>
-<dt>&lsquo;<samp>FRC</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>FRC</samp>&rsquo;</dt>
 <dd><p>front right-of-center
 </p></dd>
-<dt>&lsquo;<samp>BC</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>BC</samp>&rsquo;</dt>
 <dd><p>back center
 </p></dd>
-<dt>&lsquo;<samp>SL</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>SL</samp>&rsquo;</dt>
 <dd><p>side left
 </p></dd>
-<dt>&lsquo;<samp>SR</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>SR</samp>&rsquo;</dt>
 <dd><p>side right
 </p></dd>
-<dt>&lsquo;<samp>TC</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>TC</samp>&rsquo;</dt>
 <dd><p>top center
 </p></dd>
-<dt>&lsquo;<samp>TFL</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>TFL</samp>&rsquo;</dt>
 <dd><p>top front left
 </p></dd>
-<dt>&lsquo;<samp>TFC</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>TFC</samp>&rsquo;</dt>
 <dd><p>top front center
 </p></dd>
-<dt>&lsquo;<samp>TFR</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>TFR</samp>&rsquo;</dt>
 <dd><p>top front right
 </p></dd>
-<dt>&lsquo;<samp>TBL</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>TBL</samp>&rsquo;</dt>
 <dd><p>top back left
 </p></dd>
-<dt>&lsquo;<samp>TBC</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>TBC</samp>&rsquo;</dt>
 <dd><p>top back center
 </p></dd>
-<dt>&lsquo;<samp>TBR</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>TBR</samp>&rsquo;</dt>
 <dd><p>top back right
 </p></dd>
-<dt>&lsquo;<samp>DL</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>DL</samp>&rsquo;</dt>
 <dd><p>downmix left
 </p></dd>
-<dt>&lsquo;<samp>DR</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>DR</samp>&rsquo;</dt>
 <dd><p>downmix right
 </p></dd>
-<dt>&lsquo;<samp>WL</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>WL</samp>&rsquo;</dt>
 <dd><p>wide left
 </p></dd>
-<dt>&lsquo;<samp>WR</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>WR</samp>&rsquo;</dt>
 <dd><p>wide right
 </p></dd>
-<dt>&lsquo;<samp>SDL</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>SDL</samp>&rsquo;</dt>
 <dd><p>surround direct left
 </p></dd>
-<dt>&lsquo;<samp>SDR</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>SDR</samp>&rsquo;</dt>
 <dd><p>surround direct right
 </p></dd>
-<dt>&lsquo;<samp>LFE2</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>LFE2</samp>&rsquo;</dt>
 <dd><p>low frequency 2
 </p></dd>
 </dl>
@@ -936,85 +939,85 @@ below:
 <p>Standard channel layout compositions can be specified by using the
 following identifiers:
 </p><dl compact="compact">
-<dt>&lsquo;<samp>mono</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>mono</samp>&rsquo;</dt>
 <dd><p>FC
 </p></dd>
-<dt>&lsquo;<samp>stereo</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>stereo</samp>&rsquo;</dt>
 <dd><p>FL+FR
 </p></dd>
-<dt>&lsquo;<samp>2.1</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>2.1</samp>&rsquo;</dt>
 <dd><p>FL+FR+LFE
 </p></dd>
-<dt>&lsquo;<samp>3.0</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>3.0</samp>&rsquo;</dt>
 <dd><p>FL+FR+FC
 </p></dd>
-<dt>&lsquo;<samp>3.0(back)</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>3.0(back)</samp>&rsquo;</dt>
 <dd><p>FL+FR+BC
 </p></dd>
-<dt>&lsquo;<samp>4.0</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>4.0</samp>&rsquo;</dt>
 <dd><p>FL+FR+FC+BC
 </p></dd>
-<dt>&lsquo;<samp>quad</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>quad</samp>&rsquo;</dt>
 <dd><p>FL+FR+BL+BR
 </p></dd>
-<dt>&lsquo;<samp>quad(side)</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>quad(side)</samp>&rsquo;</dt>
 <dd><p>FL+FR+SL+SR
 </p></dd>
-<dt>&lsquo;<samp>3.1</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>3.1</samp>&rsquo;</dt>
 <dd><p>FL+FR+FC+LFE
 </p></dd>
-<dt>&lsquo;<samp>5.0</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>5.0</samp>&rsquo;</dt>
 <dd><p>FL+FR+FC+BL+BR
 </p></dd>
-<dt>&lsquo;<samp>5.0(side)</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>5.0(side)</samp>&rsquo;</dt>
 <dd><p>FL+FR+FC+SL+SR
 </p></dd>
-<dt>&lsquo;<samp>4.1</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>4.1</samp>&rsquo;</dt>
 <dd><p>FL+FR+FC+LFE+BC
 </p></dd>
-<dt>&lsquo;<samp>5.1</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>5.1</samp>&rsquo;</dt>
 <dd><p>FL+FR+FC+LFE+BL+BR
 </p></dd>
-<dt>&lsquo;<samp>5.1(side)</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>5.1(side)</samp>&rsquo;</dt>
 <dd><p>FL+FR+FC+LFE+SL+SR
 </p></dd>
-<dt>&lsquo;<samp>6.0</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>6.0</samp>&rsquo;</dt>
 <dd><p>FL+FR+FC+BC+SL+SR
 </p></dd>
-<dt>&lsquo;<samp>6.0(front)</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>6.0(front)</samp>&rsquo;</dt>
 <dd><p>FL+FR+FLC+FRC+SL+SR
 </p></dd>
-<dt>&lsquo;<samp>hexagonal</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>hexagonal</samp>&rsquo;</dt>
 <dd><p>FL+FR+FC+BL+BR+BC
 </p></dd>
-<dt>&lsquo;<samp>6.1</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>6.1</samp>&rsquo;</dt>
 <dd><p>FL+FR+FC+LFE+BC+SL+SR
 </p></dd>
-<dt>&lsquo;<samp>6.1</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>6.1</samp>&rsquo;</dt>
 <dd><p>FL+FR+FC+LFE+BL+BR+BC
 </p></dd>
-<dt>&lsquo;<samp>6.1(front)</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>6.1(front)</samp>&rsquo;</dt>
 <dd><p>FL+FR+LFE+FLC+FRC+SL+SR
 </p></dd>
-<dt>&lsquo;<samp>7.0</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>7.0</samp>&rsquo;</dt>
 <dd><p>FL+FR+FC+BL+BR+SL+SR
 </p></dd>
-<dt>&lsquo;<samp>7.0(front)</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>7.0(front)</samp>&rsquo;</dt>
 <dd><p>FL+FR+FC+FLC+FRC+SL+SR
 </p></dd>
-<dt>&lsquo;<samp>7.1</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>7.1</samp>&rsquo;</dt>
 <dd><p>FL+FR+FC+LFE+BL+BR+SL+SR
 </p></dd>
-<dt>&lsquo;<samp>7.1(wide)</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>7.1(wide)</samp>&rsquo;</dt>
 <dd><p>FL+FR+FC+LFE+BL+BR+FLC+FRC
 </p></dd>
-<dt>&lsquo;<samp>7.1(wide-side)</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>7.1(wide-side)</samp>&rsquo;</dt>
 <dd><p>FL+FR+FC+LFE+FLC+FRC+SL+SR
 </p></dd>
-<dt>&lsquo;<samp>octagonal</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>octagonal</samp>&rsquo;</dt>
 <dd><p>FL+FR+FC+BL+BR+BC+SL+SR
 </p></dd>
-<dt>&lsquo;<samp>downmix</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>downmix</samp>&rsquo;</dt>
 <dd><p>DL+DR
 </p></dd>
 </dl>
@@ -1022,17 +1025,21 @@ following identifiers:
 <p>A custom channel layout can be specified as a sequence of terms, separated by
 &rsquo;+&rsquo; or &rsquo;|&rsquo;. Each term can be:
 </p><ul>
-<li> the name of a standard channel layout (e.g. &lsquo;<samp>mono</samp>&rsquo;,
+<li>
+the name of a standard channel layout (e.g. &lsquo;<samp>mono</samp>&rsquo;,
 &lsquo;<samp>stereo</samp>&rsquo;, &lsquo;<samp>4.0</samp>&rsquo;, &lsquo;<samp>quad</samp>&rsquo;, &lsquo;<samp>5.0</samp>&rsquo;, etc.)
 
-</li><li> the name of a single channel (e.g. &lsquo;<samp>FL</samp>&rsquo;, &lsquo;<samp>FR</samp>&rsquo;, &lsquo;<samp>FC</samp>&rsquo;, &lsquo;<samp>LFE</samp>&rsquo;, etc.)
+</li><li>
+the name of a single channel (e.g. &lsquo;<samp>FL</samp>&rsquo;, &lsquo;<samp>FR</samp>&rsquo;, &lsquo;<samp>FC</samp>&rsquo;, &lsquo;<samp>LFE</samp>&rsquo;, etc.)
 
-</li><li> a number of channels, in decimal, optionally followed by &rsquo;c&rsquo;, yielding
+</li><li>
+a number of channels, in decimal, optionally followed by &rsquo;c&rsquo;, yielding
 the default channel layout for that number of channels (see the
 function <code>av_get_default_channel_layout</code>)
 
-</li><li> a channel layout mask, in hexadecimal starting with &quot;0x&quot; (see the
-<code>AV_CH_*</code> macros in <samp>libavutil/channel_layout.h</samp>.
+</li><li>
+a channel layout mask, in hexadecimal starting with &quot;0x&quot; (see the
+<code>AV_CH_*</code> macros in &lsquo;<tt>libavutil/channel_layout.h</tt>&rsquo;.
 </li></ul>
 
 <p>Starting from libavutil version 53 the trailing character &quot;c&quot; to
@@ -1041,13 +1048,13 @@ mask could also be specified as a decimal number (if and only if not
 followed by &quot;c&quot;).
 </p>
 <p>See also the function <code>av_get_channel_layout</code> defined in
-<samp>libavutil/channel_layout.h</samp>.
+&lsquo;<tt>libavutil/channel_layout.h</tt>&rsquo;.
 </p>
 <a name="Expression-Evaluation"></a>
-<h2 class="chapter">3 Expression Evaluation<span class="pull-right"><a class="anchor hidden-xs" href="#Expression-Evaluation" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-Expression-Evaluation" aria-hidden="true">TOC</a></span></h2>
+<h1 class="chapter"><a href="ffmpeg-utils.html#toc-Expression-Evaluation">3. Expression Evaluation</a></h1>
 
 <p>When evaluating an arithmetic expression, FFmpeg uses an internal
-formula evaluator, implemented through the <samp>libavutil/eval.h</samp>
+formula evaluator, implemented through the &lsquo;<tt>libavutil/eval.h</tt>&rsquo;
 interface.
 </p>
 <p>An expression may contain unary, binary operators, constants, and
@@ -1065,29 +1072,29 @@ expression evaluates to the value of <var>expr2</var>.
 </p>
 <p>The following functions are available:
 </p><dl compact="compact">
-<dt><samp>abs(x)</samp></dt>
+<dt> &lsquo;<samp>abs(x)</samp>&rsquo;</dt>
 <dd><p>Compute absolute value of <var>x</var>.
 </p>
 </dd>
-<dt><samp>acos(x)</samp></dt>
+<dt> &lsquo;<samp>acos(x)</samp>&rsquo;</dt>
 <dd><p>Compute arccosine of <var>x</var>.
 </p>
 </dd>
-<dt><samp>asin(x)</samp></dt>
+<dt> &lsquo;<samp>asin(x)</samp>&rsquo;</dt>
 <dd><p>Compute arcsine of <var>x</var>.
 </p>
 </dd>
-<dt><samp>atan(x)</samp></dt>
+<dt> &lsquo;<samp>atan(x)</samp>&rsquo;</dt>
 <dd><p>Compute arctangent of <var>x</var>.
 </p>
 </dd>
-<dt><samp>between(x, min, max)</samp></dt>
+<dt> &lsquo;<samp>between(x, min, max)</samp>&rsquo;</dt>
 <dd><p>Return 1 if <var>x</var> is greater than or equal to <var>min</var> and lesser than or
 equal to <var>max</var>, 0 otherwise.
 </p>
 </dd>
-<dt><samp>bitand(x, y)</samp></dt>
-<dt><samp>bitor(x, y)</samp></dt>
+<dt> &lsquo;<samp>bitand(x, y)</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>bitor(x, y)</samp>&rsquo;</dt>
 <dd><p>Compute bitwise and/or operation on <var>x</var> and <var>y</var>.
 </p>
 <p>The results of the evaluation of <var>x</var> and <var>y</var> are converted to
@@ -1098,130 +1105,126 @@ floating point can lose precision. Beware of unexpected results for
 large numbers (usually 2^53 and larger).
 </p>
 </dd>
-<dt><samp>ceil(expr)</samp></dt>
+<dt> &lsquo;<samp>ceil(expr)</samp>&rsquo;</dt>
 <dd><p>Round the value of expression <var>expr</var> upwards to the nearest
 integer. For example, &quot;ceil(1.5)&quot; is &quot;2.0&quot;.
 </p>
 </dd>
-<dt><samp>clip(x, min, max)</samp></dt>
-<dd><p>Return the value of <var>x</var> clipped between <var>min</var> and <var>max</var>.
-</p>
-</dd>
-<dt><samp>cos(x)</samp></dt>
+<dt> &lsquo;<samp>cos(x)</samp>&rsquo;</dt>
 <dd><p>Compute cosine of <var>x</var>.
 </p>
 </dd>
-<dt><samp>cosh(x)</samp></dt>
+<dt> &lsquo;<samp>cosh(x)</samp>&rsquo;</dt>
 <dd><p>Compute hyperbolic cosine of <var>x</var>.
 </p>
 </dd>
-<dt><samp>eq(x, y)</samp></dt>
+<dt> &lsquo;<samp>eq(x, y)</samp>&rsquo;</dt>
 <dd><p>Return 1 if <var>x</var> and <var>y</var> are equivalent, 0 otherwise.
 </p>
 </dd>
-<dt><samp>exp(x)</samp></dt>
+<dt> &lsquo;<samp>exp(x)</samp>&rsquo;</dt>
 <dd><p>Compute exponential of <var>x</var> (with base <code>e</code>, the Euler&rsquo;s number).
 </p>
 </dd>
-<dt><samp>floor(expr)</samp></dt>
+<dt> &lsquo;<samp>floor(expr)</samp>&rsquo;</dt>
 <dd><p>Round the value of expression <var>expr</var> downwards to the nearest
 integer. For example, &quot;floor(-1.5)&quot; is &quot;-2.0&quot;.
 </p>
 </dd>
-<dt><samp>gauss(x)</samp></dt>
+<dt> &lsquo;<samp>gauss(x)</samp>&rsquo;</dt>
 <dd><p>Compute Gauss function of <var>x</var>, corresponding to
 <code>exp(-x*x/2) / sqrt(2*PI)</code>.
 </p>
 </dd>
-<dt><samp>gcd(x, y)</samp></dt>
+<dt> &lsquo;<samp>gcd(x, y)</samp>&rsquo;</dt>
 <dd><p>Return the greatest common divisor of <var>x</var> and <var>y</var>. If both <var>x</var> and
 <var>y</var> are 0 or either or both are less than zero then behavior is undefined.
 </p>
 </dd>
-<dt><samp>gt(x, y)</samp></dt>
+<dt> &lsquo;<samp>gt(x, y)</samp>&rsquo;</dt>
 <dd><p>Return 1 if <var>x</var> is greater than <var>y</var>, 0 otherwise.
 </p>
 </dd>
-<dt><samp>gte(x, y)</samp></dt>
+<dt> &lsquo;<samp>gte(x, y)</samp>&rsquo;</dt>
 <dd><p>Return 1 if <var>x</var> is greater than or equal to <var>y</var>, 0 otherwise.
 </p>
 </dd>
-<dt><samp>hypot(x, y)</samp></dt>
+<dt> &lsquo;<samp>hypot(x, y)</samp>&rsquo;</dt>
 <dd><p>This function is similar to the C function with the same name; it returns
 &quot;sqrt(<var>x</var>*<var>x</var> + <var>y</var>*<var>y</var>)&quot;, the length of the hypotenuse of a
 right triangle with sides of length <var>x</var> and <var>y</var>, or the distance of the
 point (<var>x</var>, <var>y</var>) from the origin.
 </p>
 </dd>
-<dt><samp>if(x, y)</samp></dt>
+<dt> &lsquo;<samp>if(x, y)</samp>&rsquo;</dt>
 <dd><p>Evaluate <var>x</var>, and if the result is non-zero return the result of
 the evaluation of <var>y</var>, return 0 otherwise.
 </p>
 </dd>
-<dt><samp>if(x, y, z)</samp></dt>
+<dt> &lsquo;<samp>if(x, y, z)</samp>&rsquo;</dt>
 <dd><p>Evaluate <var>x</var>, and if the result is non-zero return the evaluation
 result of <var>y</var>, otherwise the evaluation result of <var>z</var>.
 </p>
 </dd>
-<dt><samp>ifnot(x, y)</samp></dt>
+<dt> &lsquo;<samp>ifnot(x, y)</samp>&rsquo;</dt>
 <dd><p>Evaluate <var>x</var>, and if the result is zero return the result of the
 evaluation of <var>y</var>, return 0 otherwise.
 </p>
 </dd>
-<dt><samp>ifnot(x, y, z)</samp></dt>
+<dt> &lsquo;<samp>ifnot(x, y, z)</samp>&rsquo;</dt>
 <dd><p>Evaluate <var>x</var>, and if the result is zero return the evaluation
 result of <var>y</var>, otherwise the evaluation result of <var>z</var>.
 </p>
 </dd>
-<dt><samp>isinf(x)</samp></dt>
+<dt> &lsquo;<samp>isinf(x)</samp>&rsquo;</dt>
 <dd><p>Return 1.0 if <var>x</var> is +/-INFINITY, 0.0 otherwise.
 </p>
 </dd>
-<dt><samp>isnan(x)</samp></dt>
+<dt> &lsquo;<samp>isnan(x)</samp>&rsquo;</dt>
 <dd><p>Return 1.0 if <var>x</var> is NAN, 0.0 otherwise.
 </p>
 </dd>
-<dt><samp>ld(var)</samp></dt>
-<dd><p>Load the value of the internal variable with number
+<dt> &lsquo;<samp>ld(var)</samp>&rsquo;</dt>
+<dd><p>Allow to load the value of the internal variable with number
 <var>var</var>, which was previously stored with st(<var>var</var>, <var>expr</var>).
 The function returns the loaded value.
 </p>
 </dd>
-<dt><samp>log(x)</samp></dt>
+<dt> &lsquo;<samp>log(x)</samp>&rsquo;</dt>
 <dd><p>Compute natural logarithm of <var>x</var>.
 </p>
 </dd>
-<dt><samp>lt(x, y)</samp></dt>
+<dt> &lsquo;<samp>lt(x, y)</samp>&rsquo;</dt>
 <dd><p>Return 1 if <var>x</var> is lesser than <var>y</var>, 0 otherwise.
 </p>
 </dd>
-<dt><samp>lte(x, y)</samp></dt>
+<dt> &lsquo;<samp>lte(x, y)</samp>&rsquo;</dt>
 <dd><p>Return 1 if <var>x</var> is lesser than or equal to <var>y</var>, 0 otherwise.
 </p>
 </dd>
-<dt><samp>max(x, y)</samp></dt>
+<dt> &lsquo;<samp>max(x, y)</samp>&rsquo;</dt>
 <dd><p>Return the maximum between <var>x</var> and <var>y</var>.
 </p>
 </dd>
-<dt><samp>min(x, y)</samp></dt>
+<dt> &lsquo;<samp>min(x, y)</samp>&rsquo;</dt>
 <dd><p>Return the maximum between <var>x</var> and <var>y</var>.
 </p>
 </dd>
-<dt><samp>mod(x, y)</samp></dt>
+<dt> &lsquo;<samp>mod(x, y)</samp>&rsquo;</dt>
 <dd><p>Compute the remainder of division of <var>x</var> by <var>y</var>.
 </p>
 </dd>
-<dt><samp>not(expr)</samp></dt>
+<dt> &lsquo;<samp>not(expr)</samp>&rsquo;</dt>
 <dd><p>Return 1.0 if <var>expr</var> is zero, 0.0 otherwise.
 </p>
 </dd>
-<dt><samp>pow(x, y)</samp></dt>
+<dt> &lsquo;<samp>pow(x, y)</samp>&rsquo;</dt>
 <dd><p>Compute the power of <var>x</var> elevated <var>y</var>, it is equivalent to
 &quot;(<var>x</var>)^(<var>y</var>)&quot;.
 </p>
 </dd>
-<dt><samp>print(t)</samp></dt>
-<dt><samp>print(t, l)</samp></dt>
+<dt> &lsquo;<samp>print(t)</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>print(t, l)</samp>&rsquo;</dt>
 <dd><p>Print the value of expression <var>t</var> with loglevel <var>l</var>. If
 <var>l</var> is not specified then a default log level is used.
 Returns the value of the expression printed.
@@ -1229,12 +1232,12 @@ Returns the value of the expression printed.
 <p>Prints t with loglevel l
 </p>
 </dd>
-<dt><samp>random(x)</samp></dt>
+<dt> &lsquo;<samp>random(x)</samp>&rsquo;</dt>
 <dd><p>Return a pseudo random value between 0.0 and 1.0. <var>x</var> is the index of the
 internal variable which will be used to save the seed/state.
 </p>
 </dd>
-<dt><samp>root(expr, max)</samp></dt>
+<dt> &lsquo;<samp>root(expr, max)</samp>&rsquo;</dt>
 <dd><p>Find an input value for which the function represented by <var>expr</var>
 with argument <var>ld(0)</var> is 0 in the interval 0..<var>max</var>.
 </p>
@@ -1248,41 +1251,41 @@ various input values that the expression can access through
 corresponding input value will be returned.
 </p>
 </dd>
-<dt><samp>sin(x)</samp></dt>
+<dt> &lsquo;<samp>sin(x)</samp>&rsquo;</dt>
 <dd><p>Compute sine of <var>x</var>.
 </p>
 </dd>
-<dt><samp>sinh(x)</samp></dt>
+<dt> &lsquo;<samp>sinh(x)</samp>&rsquo;</dt>
 <dd><p>Compute hyperbolic sine of <var>x</var>.
 </p>
 </dd>
-<dt><samp>sqrt(expr)</samp></dt>
+<dt> &lsquo;<samp>sqrt(expr)</samp>&rsquo;</dt>
 <dd><p>Compute the square root of <var>expr</var>. This is equivalent to
 &quot;(<var>expr</var>)^.5&quot;.
 </p>
 </dd>
-<dt><samp>squish(x)</samp></dt>
+<dt> &lsquo;<samp>squish(x)</samp>&rsquo;</dt>
 <dd><p>Compute expression <code>1/(1 + exp(4*x))</code>.
 </p>
 </dd>
-<dt><samp>st(var, expr)</samp></dt>
-<dd><p>Store the value of the expression <var>expr</var> in an internal
+<dt> &lsquo;<samp>st(var, expr)</samp>&rsquo;</dt>
+<dd><p>Allow to store the value of the expression <var>expr</var> in an internal
 variable. <var>var</var> specifies the number of the variable where to
 store the value, and it is a value ranging from 0 to 9. The function
 returns the value stored in the internal variable.
 Note, Variables are currently not shared between expressions.
 </p>
 </dd>
-<dt><samp>tan(x)</samp></dt>
+<dt> &lsquo;<samp>tan(x)</samp>&rsquo;</dt>
 <dd><p>Compute tangent of <var>x</var>.
 </p>
 </dd>
-<dt><samp>tanh(x)</samp></dt>
+<dt> &lsquo;<samp>tanh(x)</samp>&rsquo;</dt>
 <dd><p>Compute hyperbolic tangent of <var>x</var>.
 </p>
 </dd>
-<dt><samp>taylor(expr, x)</samp></dt>
-<dt><samp>taylor(expr, x, id)</samp></dt>
+<dt> &lsquo;<samp>taylor(expr, x)</samp>&rsquo;</dt>
+<dt> &lsquo;<samp>taylor(expr, x, id)</samp>&rsquo;</dt>
 <dd><p>Evaluate a Taylor series at <var>x</var>, given an expression representing
 the <code>ld(id)</code>-th derivative of a function at 0.
 </p>
@@ -1297,16 +1300,16 @@ with various input values that the expression can access through
 <code>taylor(expr, x-y)</code> can be used.
 </p>
 </dd>
-<dt><samp>time(0)</samp></dt>
+<dt> &lsquo;<samp>time(0)</samp>&rsquo;</dt>
 <dd><p>Return the current (wallclock) time in seconds.
 </p>
 </dd>
-<dt><samp>trunc(expr)</samp></dt>
+<dt> &lsquo;<samp>trunc(expr)</samp>&rsquo;</dt>
 <dd><p>Round the value of expression <var>expr</var> towards zero to the nearest
 integer. For example, &quot;trunc(-1.5)&quot; is &quot;-1.0&quot;.
 </p>
 </dd>
-<dt><samp>while(cond, expr)</samp></dt>
+<dt> &lsquo;<samp>while(cond, expr)</samp>&rsquo;</dt>
 <dd><p>Evaluate expression <var>expr</var> while the expression <var>cond</var> is
 non-zero, and returns the value of the last <var>expr</var> evaluation, or
 NAN if <var>cond</var> was always false.
@@ -1315,13 +1318,13 @@ NAN if <var>cond</var> was always false.
 
 <p>The following constants are available:
 </p><dl compact="compact">
-<dt><samp>PI</samp></dt>
+<dt> &lsquo;<samp>PI</samp>&rsquo;</dt>
 <dd><p>area of the unit disc, approximately 3.14
 </p></dd>
-<dt><samp>E</samp></dt>
+<dt> &lsquo;<samp>E</samp>&rsquo;</dt>
 <dd><p>exp(1) (Euler&rsquo;s number), approximately 2.718
 </p></dd>
-<dt><samp>PHI</samp></dt>
+<dt> &lsquo;<samp>PHI</samp>&rsquo;</dt>
 <dd><p>golden ratio (1+sqrt(5))/2, approximately 1.618
 </p></dd>
 </dl>
@@ -1334,13 +1337,11 @@ value, note that:
 <p><code>+</code> works like OR
 </p>
 <p>For example the construct:
-</p><div class="example">
-<pre class="example">if (A AND B) then C
-</pre></div>
+</p><table><tr><td>&nbsp;</td><td><pre class="example">if (A AND B) then C
+</pre></td></tr></table>
 <p>is equivalent to:
-</p><div class="example">
-<pre class="example">if(A*B, C)
-</pre></div>
+</p><table><tr><td>&nbsp;</td><td><pre class="example">if(A*B, C)
+</pre></td></tr></table>
 
 <p>In your C code, you can extend the list of unary and binary functions,
 and define recognized constants, so that they are available for your
@@ -1356,71 +1357,71 @@ unit prefix or used alone. This allows using for example &rsquo;KB&rsquo;, &rsqu
 <p>The list of available International System prefixes follows, with
 indication of the corresponding powers of 10 and of 2.
 </p><dl compact="compact">
-<dt><samp>y</samp></dt>
+<dt> &lsquo;<samp>y</samp>&rsquo;</dt>
 <dd><p>10^-24 / 2^-80
 </p></dd>
-<dt><samp>z</samp></dt>
+<dt> &lsquo;<samp>z</samp>&rsquo;</dt>
 <dd><p>10^-21 / 2^-70
 </p></dd>
-<dt><samp>a</samp></dt>
+<dt> &lsquo;<samp>a</samp>&rsquo;</dt>
 <dd><p>10^-18 / 2^-60
 </p></dd>
-<dt><samp>f</samp></dt>
+<dt> &lsquo;<samp>f</samp>&rsquo;</dt>
 <dd><p>10^-15 / 2^-50
 </p></dd>
-<dt><samp>p</samp></dt>
+<dt> &lsquo;<samp>p</samp>&rsquo;</dt>
 <dd><p>10^-12 / 2^-40
 </p></dd>
-<dt><samp>n</samp></dt>
+<dt> &lsquo;<samp>n</samp>&rsquo;</dt>
 <dd><p>10^-9 / 2^-30
 </p></dd>
-<dt><samp>u</samp></dt>
+<dt> &lsquo;<samp>u</samp>&rsquo;</dt>
 <dd><p>10^-6 / 2^-20
 </p></dd>
-<dt><samp>m</samp></dt>
+<dt> &lsquo;<samp>m</samp>&rsquo;</dt>
 <dd><p>10^-3 / 2^-10
 </p></dd>
-<dt><samp>c</samp></dt>
+<dt> &lsquo;<samp>c</samp>&rsquo;</dt>
 <dd><p>10^-2
 </p></dd>
-<dt><samp>d</samp></dt>
+<dt> &lsquo;<samp>d</samp>&rsquo;</dt>
 <dd><p>10^-1
 </p></dd>
-<dt><samp>h</samp></dt>
+<dt> &lsquo;<samp>h</samp>&rsquo;</dt>
 <dd><p>10^2
 </p></dd>
-<dt><samp>k</samp></dt>
+<dt> &lsquo;<samp>k</samp>&rsquo;</dt>
 <dd><p>10^3 / 2^10
 </p></dd>
-<dt><samp>K</samp></dt>
+<dt> &lsquo;<samp>K</samp>&rsquo;</dt>
 <dd><p>10^3 / 2^10
 </p></dd>
-<dt><samp>M</samp></dt>
+<dt> &lsquo;<samp>M</samp>&rsquo;</dt>
 <dd><p>10^6 / 2^20
 </p></dd>
-<dt><samp>G</samp></dt>
+<dt> &lsquo;<samp>G</samp>&rsquo;</dt>
 <dd><p>10^9 / 2^30
 </p></dd>
-<dt><samp>T</samp></dt>
+<dt> &lsquo;<samp>T</samp>&rsquo;</dt>
 <dd><p>10^12 / 2^40
 </p></dd>
-<dt><samp>P</samp></dt>
+<dt> &lsquo;<samp>P</samp>&rsquo;</dt>
 <dd><p>10^15 / 2^40
 </p></dd>
-<dt><samp>E</samp></dt>
+<dt> &lsquo;<samp>E</samp>&rsquo;</dt>
 <dd><p>10^18 / 2^50
 </p></dd>
-<dt><samp>Z</samp></dt>
+<dt> &lsquo;<samp>Z</samp>&rsquo;</dt>
 <dd><p>10^21 / 2^60
 </p></dd>
-<dt><samp>Y</samp></dt>
+<dt> &lsquo;<samp>Y</samp>&rsquo;</dt>
 <dd><p>10^24 / 2^70
 </p></dd>
 </dl>
 
 
 <a name="OpenCL-Options"></a>
-<h2 class="chapter">4 OpenCL Options<span class="pull-right"><a class="anchor hidden-xs" href="#OpenCL-Options" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-OpenCL-Options" aria-hidden="true">TOC</a></span></h2>
+<h1 class="chapter"><a href="ffmpeg-utils.html#toc-OpenCL-Options">4. OpenCL Options</a></h1>
 
 <p>When FFmpeg is configured with <code>--enable-opencl</code>, it is possible
 to set the options for the global OpenCL context.
@@ -1428,20 +1429,20 @@ to set the options for the global OpenCL context.
 <p>The list of supported options follows:
 </p>
 <dl compact="compact">
-<dt><samp>build_options</samp></dt>
+<dt> &lsquo;<samp>build_options</samp>&rsquo;</dt>
 <dd><p>Set build options used to compile the registered kernels.
 </p>
 <p>See reference &quot;OpenCL Specification Version: 1.2 chapter 5.6.4&quot;.
 </p>
 </dd>
-<dt><samp>platform_idx</samp></dt>
+<dt> &lsquo;<samp>platform_idx</samp>&rsquo;</dt>
 <dd><p>Select the index of the platform to run OpenCL code.
 </p>
 <p>The specified index must be one of the indexes in the device list
 which can be obtained with <code>ffmpeg -opencl_bench</code> or <code>av_opencl_get_device_list()</code>.
 </p>
 </dd>
-<dt><samp>device_idx</samp></dt>
+<dt> &lsquo;<samp>device_idx</samp>&rsquo;</dt>
 <dd><p>Select the index of the device used to run OpenCL code.
 </p>
 <p>The specified index must be one of the indexes in the device list which
@@ -1452,14 +1453,14 @@ can be obtained with <code>ffmpeg -opencl_bench</code> or <code>av_opencl_get_de
 
 
 <a name="See-Also"></a>
-<h2 class="chapter">5 See Also<span class="pull-right"><a class="anchor hidden-xs" href="#See-Also" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-See-Also" aria-hidden="true">TOC</a></span></h2>
+<h1 class="chapter"><a href="ffmpeg-utils.html#toc-See-Also">5. See Also</a></h1>
 
 <p><a href="ffmpeg.html">ffmpeg</a>, <a href="ffplay.html">ffplay</a>, <a href="ffprobe.html">ffprobe</a>, <a href="ffserver.html">ffserver</a>,
 <a href="libavutil.html">libavutil</a>
 </p>
 
 <a name="Authors"></a>
-<h2 class="chapter">6 Authors<span class="pull-right"><a class="anchor hidden-xs" href="#Authors" aria-hidden="true">#</a> <a class="anchor hidden-xs"href="#toc-Authors" aria-hidden="true">TOC</a></span></h2>
+<h1 class="chapter"><a href="ffmpeg-utils.html#toc-Authors">6. Authors</a></h1>
 
 <p>The FFmpeg developers.
 </p>
@@ -1469,13 +1470,8 @@ can be obtained with <code>ffmpeg -opencl_bench</code> or <code>av_opencl_get_de
 online repository at <a href="http://source.ffmpeg.org">http://source.ffmpeg.org</a>.
 </p>
 <p>Maintainers for the specific components are listed in the file
-<samp>MAINTAINERS</samp> in the source code tree.
+&lsquo;<tt>MAINTAINERS</tt>&rsquo; in the source code tree.
 </p>
 
-
-      <p style="font-size: small;">
-        This document was generated using <a href="http://www.gnu.org/software/texinfo/"><em>makeinfo</em></a>.
-      </p>
-    </div>
-  </body>
-</html>
+<footer class="footer pagination-right">
+<span class="label label-info">This document was generated by <em>Kyle Schwarz</em> on <em>April 4, 2014</em> using <a href="http://www.nongnu.org/texi2html/"><em>texi2html 1.82</em></a>.</span></footer></div></div></body>
