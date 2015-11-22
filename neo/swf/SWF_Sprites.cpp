@@ -398,8 +398,8 @@ void idSWFSprite::ReadJSON( rapidjson::Value& entry )
 			
 			if( ( flags1 & PlaceFlagHasRatio ) != 0 )
 			{
-				float ratio = command["ratio"].GetDouble();
-				file.WriteU16( ( uint16 )( ratio * 65535 ) );
+				uint16 ratio = command["ratio"].GetUint();
+				file.WriteU16( ratio );
 			}
 			
 			if( ( flags1 & PlaceFlagHasName ) != 0 )
@@ -582,9 +582,8 @@ void idSWFSprite::WriteJSON_PlaceObject2( idFile* file, idSWFBitStream& bitstrea
 	
 	if( ( flags1 & PlaceFlagHasRatio ) != 0 )
 	{
-		float ratio = bitstream.ReadU16() * ( 1.0f / 65535.0f );
-		
-		file->WriteFloatString( ",\n\t\t\t\t\t\"ratio\": %f", ratio );
+		uint16 ratio = bitstream.ReadU16();
+		file->WriteFloatString( ",\n\t\t\t\t\t\"ratio\": %i", ratio );
 	}
 	
 	if( ( flags1 & PlaceFlagHasName ) != 0 )
@@ -661,9 +660,8 @@ void idSWFSprite::WriteJSON_PlaceObject3( idFile* file, idSWFBitStream& bitstrea
 	
 	if( ( flags1 & PlaceFlagHasRatio ) != 0 )
 	{
-		float ratio = bitstream.ReadU16() * ( 1.0f / 65535.0f );
-		
-		file->WriteFloatString( ",\n\t\t\t\t\t\"ratio\": %f", ratio );
+		uint16 ratio = bitstream.ReadU16();
+		file->WriteFloatString( ",\n\t\t\t\t\t\"ratio\": %i", ratio );
 	}
 	
 	if( ( flags1 & PlaceFlagHasName ) != 0 )
