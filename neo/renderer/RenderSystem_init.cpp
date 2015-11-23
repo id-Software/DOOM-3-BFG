@@ -504,18 +504,18 @@ static void R_CheckPortableExtensions()
 		common->Printf( "X..%s not found\n", "GL_GREMEDY_string_marker" );
 	}
 	
-	// GL_EXT_framebuffer_object
-	glConfig.framebufferObjectAvailable = GLEW_EXT_framebuffer_object != 0;
+	// GL_ARB_framebuffer_object
+	glConfig.framebufferObjectAvailable = GLEW_ARB_framebuffer_object != 0;
 	if( glConfig.framebufferObjectAvailable )
 	{
 		glGetIntegerv( GL_MAX_RENDERBUFFER_SIZE, &glConfig.maxRenderbufferSize );
 		glGetIntegerv( GL_MAX_COLOR_ATTACHMENTS, &glConfig.maxColorAttachments );
 		
-		common->Printf( "...using %s\n", "GL_EXT_framebuffer_object" );
+		common->Printf( "...using %s\n", "GL_ARB_framebuffer_object" );
 	}
 	else
 	{
-		common->Printf( "X..%s not found\n", "GL_EXT_framebuffer_object" );
+		common->Printf( "X..%s not found\n", "GL_ARB_framebuffer_object" );
 	}
 	
 	// GL_EXT_framebuffer_blit
@@ -526,7 +526,7 @@ static void R_CheckPortableExtensions()
 	}
 	else
 	{
-		common->Printf( "X..%s not found\n", "GL_EXT_framebuffer_object" );
+		common->Printf( "X..%s not found\n", "GL_EXT_framebuffer_blit" );
 	}
 	
 	// GL_ARB_debug_output
@@ -583,10 +583,10 @@ static void R_CheckPortableExtensions()
 		idLib::Error( "GL_ARB_draw_elements_base_vertex not available" );
 	}
 	// GL_ARB_vertex_program / GL_ARB_fragment_program
-	if( !glConfig.fragmentProgramAvailable )
-	{
-		idLib::Warning( "GL_ARB_fragment_program not available" );
-	}
+	//if( !glConfig.fragmentProgramAvailable )
+	//{
+	//	idLib::Warning( "GL_ARB_fragment_program not available" );
+	//}
 	// GLSL
 	if( !glConfig.glslAvailable )
 	{
