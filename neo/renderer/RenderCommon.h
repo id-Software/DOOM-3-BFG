@@ -70,6 +70,8 @@ enum demoCommand_t
 	DC_SET_PORTAL_STATE,
 	DC_UPDATE_SOUNDOCCLUSION,
 	DC_GUI_MODEL,
+	DC_UPDATE_ENVPROBEDEF,
+	DC_DELETE_ENVPROBEDEF,
 	DC_UPDATE_DECAL,
 	DC_DELETE_DECAL,
 	DC_UPDATE_OVERLAY,
@@ -129,9 +131,12 @@ struct areaReference_t
 	areaReference_t* 		areaNext;				// chain in the area
 	areaReference_t* 		areaPrev;
 	areaReference_t* 		ownerNext;				// chain on either the entityDef or lightDef
-	idRenderEntityLocal* 	entity;					// only one of entity / light will be non-NULL
-	idRenderLightLocal* 	light;					// only one of entity / light will be non-NULL
-	struct portalArea_s*		area;					// so owners can find all the areas they are in
+	
+	idRenderEntityLocal* 	entity;					// only one of entity / light / envprobe will be non-NULL
+	idRenderLightLocal* 	light;					// only one of entity / light / envprobe will be non-NULL
+	RenderEnvprobeLocal*	envprobe;				// only one of entity / light / envprobe will be non-NULL
+	
+	struct portalArea_s*		area;				// so owners can find all the areas they are in
 };
 
 
@@ -148,6 +153,19 @@ public:
 	virtual int				GetIndex() = 0;
 };
 
+// RB : RennderEnvprobe should become the new public interface replacing the qhandle_t to envprobe defs in the idRenderWorld interface
+class RenderEnvprobe
+{
+public:
+	virtual					~RenderEnvprobe() {}
+	
+	virtual void			FreeRenderEnvprobe() = 0;
+	virtual void			UpdateRenderEnvprobe( const renderEnvironmentProbe_t* ep, bool forceUpdate = false ) = 0;
+	virtual void			GetRenderEnvprobe( renderEnvironmentProbe_t* ep ) = 0;
+	virtual void			ForceUpdate() = 0;
+	virtual int				GetIndex() = 0;
+};
+// RB end
 
 // idRenderEntity should become the new public interface replacing the qhandle_t to entity defs in the idRenderWorld interface
 class idRenderEntity
@@ -220,6 +238,40 @@ public:
 	struct doublePortal_s* 	foggedPortals;
 };
 
+
+// RB begin
+class RenderEnvprobeLocal : public RenderEnvprobe
+{
+public:
+	RenderEnvprobeLocal();
+	
+	virtual void			FreeRenderEnvprobe() override;
+	virtual void			UpdateRenderEnvprobe( const renderEnvironmentProbe_t* ep, bool forceUpdate = false ) override;
+	virtual void			GetRenderEnvprobe( renderEnvironmentProbe_t* ep ) override;
+	virtual void			ForceUpdate() override;
+	virtual int				GetIndex() override;
+	
+	renderEnvironmentProbe_t	parms;					// specification
+	
+	bool						envprobeHasMoved;		// the light has changed its position since it was
+	// first added, so the prelight model is not valid
+	idRenderWorldLocal* 		world;
+	int							index;					// in world envprobeDefs
+	
+	int							areaNum;				// if not -1, we may be able to cull all the envprobe's
+	// interactions if !viewDef->connectedAreas[areaNum]
+	
+	int							lastModifiedFrameNum;	// to determine if it is constantly changing,
+	// and should go in the dynamic frame memory, or kept
+	// in the cached memory
+	bool						archived;				// for demo writing
+	
+	// derived information
+	areaReference_t* 			references;				// each area the light is present in will have a lightRef
+	//idInteraction* 			firstInteraction;		// doubly linked list
+	//idInteraction* 			lastInteraction;
+};
+// RB end
 
 class idRenderEntityLocal : public idRenderEntity
 {
@@ -666,6 +718,7 @@ struct performanceCounters_t
 	int		c_tangentIndexes;	// R_DeriveTangents()
 	int		c_entityUpdates;
 	int		c_lightUpdates;
+	int		c_envprobeUpdates;
 	int		c_entityReferences;
 	int		c_lightReferences;
 	int		c_guiSurfs;
@@ -1180,6 +1233,10 @@ void R_DeriveLightData( idRenderLightLocal* light );
 void R_RenderLightFrustum( const renderLight_t& renderLight, idPlane lightFrustum[6] );
 
 srfTriangles_t* R_PolytopeSurface( int numPlanes, const idPlane* planes, idWinding** windings );
+
+void R_CreateEnvprobeRefs( RenderEnvprobeLocal* probe );
+void R_FreeEnvprobeDefDerivedData( RenderEnvprobeLocal* probe );
+
 // RB end
 void R_CreateLightRefs( idRenderLightLocal* light );
 void R_FreeLightDefDerivedData( idRenderLightLocal* light );

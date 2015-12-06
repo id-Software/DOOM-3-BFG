@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013-2014 Robert Beckebans
+Copyright (C) 2013-2015 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -753,6 +753,55 @@ void R_CreateLightRefs( idRenderLightLocal* light )
 /*
 =================================================================================
 
+ENVPROBE DEFS
+
+=================================================================================
+*/
+
+void R_CreateEnvprobeRefs( RenderEnvprobeLocal* probe )
+{
+	// TODO ? derive envprobe data
+	//R_DeriveEnvprobeData( probe );
+	
+	// determine the areaNum for the envprobe origin, which may let us
+	// cull the envprobe if it is behind a closed door
+	probe->areaNum = probe->world->PointInArea( probe->parms.origin );
+	
+	// bump the view count so we can tell if an
+	// area already has a reference
+	tr.viewCount++;
+	
+	// push the probe down the BSP tree into areas
+	probe->world->PushEnvprobeIntoTree_r( probe, 0 );
+}
+
+void R_FreeEnvprobeDefDerivedData( RenderEnvprobeLocal* probe )
+{
+	// TODO free all the interactions
+	//while( ldef->firstInteraction != NULL )
+	//{
+	//	ldef->firstInteraction->UnlinkAndFree();
+	//}
+	
+	// free all the references to the envprobe
+	areaReference_t* nextRef = NULL;
+	for( areaReference_t* lref = probe->references; lref != NULL; lref = nextRef )
+	{
+		nextRef = lref->ownerNext;
+		
+		// unlink from the area
+		lref->areaNext->areaPrev = lref->areaPrev;
+		lref->areaPrev->areaNext = lref->areaNext;
+		
+		// put it back on the free list for reuse
+		probe->world->areaReferenceAllocator.Free( lref );
+	}
+	probe->references = NULL;
+}
+
+/*
+=================================================================================
+
 WORLD MODEL & LIGHT DEFS
 
 =================================================================================
@@ -790,6 +839,18 @@ void R_FreeDerivedData()
 			}
 			R_FreeLightDefDerivedData( light );
 		}
+		
+		// RB begin
+		for( int i = 0; i < rw->envprobeDefs.Num(); i++ )
+		{
+			RenderEnvprobeLocal* probe = rw->envprobeDefs[i];
+			if( probe == NULL )
+			{
+				continue;
+			}
+			R_FreeEnvprobeDefDerivedData( probe );
+		}
+		// RB end
 	}
 }
 
@@ -869,6 +930,21 @@ void R_ReCreateWorldReferences()
 			light->world->FreeLightDef( i );
 			rw->UpdateLightDef( i, &parms );
 		}
+		
+		// RB begin
+		for( int i = 0; i < rw->envprobeDefs.Num(); i++ )
+		{
+			RenderEnvprobeLocal* probe = rw->envprobeDefs[i];
+			if( probe == NULL )
+			{
+				continue;
+			}
+			renderEnvironmentProbe_t parms = probe->parms;
+			
+			probe->world->FreeLightDef( i );
+			rw->UpdateEnvprobeDef( i, &parms );
+		}
+		// RB end
 	}
 }
 

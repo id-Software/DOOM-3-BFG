@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2015 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -780,6 +781,18 @@ void idRenderWorldLocal::FreeDefs()
 			entityDefs[i] = NULL;
 		}
 	}
+	
+	// RB: free all envprobeDefs
+	for( int i = 0; i < envprobeDefs.Num(); i++ )
+	{
+		RenderEnvprobeLocal* ep = envprobeDefs[i];
+		if( ep != NULL && ep->world == this )
+		{
+			FreeEnvprobeDef( i );
+			envprobeDefs[i] = NULL;
+		}
+	}
+	// RB end
 	
 	// Reset decals and overlays
 	for( int i = 0; i < decals.Num(); i++ )
