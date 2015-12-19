@@ -418,10 +418,15 @@ void idRenderWorldLocal::SetupAreaRefs()
 	for( int i = 0; i < numPortalAreas; i++ )
 	{
 		portalAreas[i].areaNum = i;
+		
 		portalAreas[i].lightRefs.areaNext =
 			portalAreas[i].lightRefs.areaPrev = &portalAreas[i].lightRefs;
+			
 		portalAreas[i].entityRefs.areaNext =
 			portalAreas[i].entityRefs.areaPrev = &portalAreas[i].entityRefs;
+			
+		portalAreas[i].envprobeRefs.areaNext =
+			portalAreas[i].envprobeRefs.areaPrev = &portalAreas[i].envprobeRefs;
 	}
 }
 

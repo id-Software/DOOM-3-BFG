@@ -221,6 +221,7 @@ typedef struct renderLight_s
 typedef struct
 {
 	idVec3					origin;
+	float					shaderParms[MAX_ENTITY_SHADER_PARMS];
 	
 	// if non-zero, the environment probe will not show up in the specific view,
 	// which may be used if we want to have slightly different muzzle

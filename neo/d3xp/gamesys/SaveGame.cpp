@@ -731,6 +731,21 @@ void idSaveGame::WriteRenderLight( const renderLight_t& renderLight )
 	}
 }
 
+// RB begin
+void idSaveGame::WriteRenderEnvprobe( const renderEnvironmentProbe_t& renderEnvprobe )
+{
+	WriteVec3( renderEnvprobe.origin );
+	
+	WriteInt( renderEnvprobe.suppressEnvprobeInViewID );
+	WriteInt( renderEnvprobe.allowEnvprobeInViewID );
+	
+	for( int i = 0; i < MAX_ENTITY_SHADER_PARMS; i++ )
+	{
+		WriteFloat( renderEnvprobe.shaderParms[ i ] );
+	}
+}
+// Rb end
+
 /*
 ================
 idSaveGame::WriteRefSound
@@ -1628,6 +1643,21 @@ void idRestoreGame::ReadRenderLight( renderLight_t& renderLight )
 	ReadInt( index );
 	renderLight.referenceSound = gameSoundWorld->EmitterForIndex( index );
 }
+
+// RB begin
+void idRestoreGame::ReadRenderEnvprobe( renderEnvironmentProbe_t& renderEnvprobe )
+{
+	ReadVec3( renderEnvprobe.origin );
+	
+	ReadInt( renderEnvprobe.suppressEnvprobeInViewID );
+	ReadInt( renderEnvprobe.allowEnvprobeInViewID );
+	
+	for( int i = 0; i < MAX_ENTITY_SHADER_PARMS; i++ )
+	{
+		ReadFloat( renderEnvprobe.shaderParms[ i ] );
+	}
+}
+// RB end
 
 /*
 ================

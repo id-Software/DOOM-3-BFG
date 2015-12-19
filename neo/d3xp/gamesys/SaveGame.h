@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2015 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -82,6 +83,7 @@ public:
 	void					WriteUserInterface( const idUserInterface* ui, bool unique );
 	void					WriteRenderEntity( const renderEntity_t& renderEntity );
 	void					WriteRenderLight( const renderLight_t& renderLight );
+	void					WriteRenderEnvprobe( const renderEnvironmentProbe_t& renderEnvprobe ); // RB
 	void					WriteRefSound( const refSound_t& refSound );
 	void					WriteRenderView( const renderView_t& view );
 	void					WriteUsercmd( const usercmd_t& usercmd );
@@ -169,6 +171,7 @@ public:
 	void					ReadUserInterface( idUserInterface*& ui );
 	void					ReadRenderEntity( renderEntity_t& renderEntity );
 	void					ReadRenderLight( renderLight_t& renderLight );
+	void					ReadRenderEnvprobe( renderEnvironmentProbe_t& renderEnvprobe ); // RB
 	void					ReadRefSound( refSound_t& refSound );
 	void					ReadRenderView( renderView_t& view );
 	void					ReadUsercmd( usercmd_t& usercmd );
