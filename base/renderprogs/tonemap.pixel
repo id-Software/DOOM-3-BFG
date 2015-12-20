@@ -1,0 +1,174 @@
+/*
+===========================================================================
+
+Doom 3 BFG Edition GPL Source Code
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 2009-2014 Robert Beckebans
+
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+
+Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Doom 3 BFG Edition Source Code is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Doom 3 BFG Edition Source Code.  If not, see <http://www.gnu.org/licenses/>.
+
+In addition, the Doom 3 BFG Edition Source Code is also subject to certain additional terms. You should have received a copy of these additional terms immediately following the terms and conditions of the GNU General Public License which accompanied the Doom 3 BFG Edition Source Code.  If not, please request a copy in writing from id Software at the address below.
+
+If you have questions concerning this license or the applicable additional terms, you may contact in writing id Software LLC, c/o ZeniMax Media Inc., Suite 120, Rockville, Maryland 20850 USA.
+
+===========================================================================
+*/
+
+#include "renderprogs/global.inc"
+
+uniform sampler2D samp0		: register(s0);
+
+struct PS_IN
+{
+	float4 position : VPOS;
+	float2 texcoord0 : TEXCOORD0_centroid;
+};
+
+struct PS_OUT
+{
+	float4 color : COLOR;
+};
+
+void main( PS_IN fragment, out PS_OUT result )
+{
+	float2 tCoords = fragment.texcoord0;
+	
+#if defined(BRIGHTPASS_FILTER)
+	// multiply with 4 because the FBO is only 1/4th of the screen resolution
+	tCoords *= float2( 4.0, 4.0 );
+#endif
+	
+	float4 color = tex2D( samp0, tCoords );
+	
+#if 0
+	const float hdrGamma = 2.2;
+	float gamma = 1.0 / hdrGamma;
+	color.r = pow( color.r, gamma );
+	color.g = pow( color.g, gamma );
+	color.b = pow( color.b, gamma );
+#endif
+	
+	// see http://www.gamedev.net/reference/articles/article2208.asp
+	// for Mathematics of Reinhard's Photographic Tone Reproduction Operator
+	
+	// get the luminance of the current pixel
+	float Y = dot( LUMINANCE_VECTOR, color );
+
+#if defined(BRIGHTPASS)
+	if(Y < 0.1)
+	{
+		//discard;
+		result.color = float4( 0.0, 0.0, 0.0, 1.0 );
+		return;
+	}
+#endif
+	
+	float hdrKey = rpScreenCorrectionFactor.x;
+	float hdrAverageLuminance = rpScreenCorrectionFactor.y;
+	float hdrMaxLuminance = rpScreenCorrectionFactor.z;
+	
+	// calculate the relative luminance
+	float Yr = hdrKey * Y / hdrAverageLuminance;
+
+	float Ymax = hdrMaxLuminance;
+
+	/*
+#if 0
+	float L = Yr * ( 1.0 + Yr / ( Ymax * Ymax ) ) / ( 1.0 + Yr );
+#else
+	float L = 1.0 - exp( -Yr );
+#endif
+	
+	color.rgb *= L;
+	*/
+	
+	// RGB -> XYZ conversion 
+	const mat3 RGB2XYZ = mat3(  0.4124564,  0.3575761,  0.1804375, 
+								0.2126729,  0.7151522,  0.0721750, 
+								0.0193339,  0.1191920,  0.9503041);				                      
+								
+	float3 XYZ = RGB2XYZ * color.rgb;
+	
+	// XYZ -> Yxy conversion 
+	float3 Yxy; 
+	
+	// Y = Y luminance
+	Yxy.r = XYZ.g;
+	
+	// x = X / (X + Y + Z)
+	Yxy.g = XYZ.r / ( XYZ.r + XYZ.g + XYZ.b );
+	
+	// y = Y / (X + Y + Z)
+	Yxy.b = XYZ.g / ( XYZ.r + XYZ.g + XYZ.b );
+	
+	// (Lp) map average luminance to the middlegrey zone by scaling pixel luminance 
+	float Lp = Yxy.r * hdrKey / hdrAverageLuminance;
+	
+	// (Ld) scale all luminance within a displayable range of 0 to 1
+	
+#if 1 //defined(r_HDRToneMappingOperator_1)
+	Yxy.r = ( Lp * ( 1.0 + Lp / ( Ymax * Ymax ) ) ) / ( 1.0 + Lp );
+#else
+	Yxy.r = 1.0 - exp( -Lp );
+#endif
+	
+	// Yxy -> XYZ conversion 
+	
+	// X = Y * x / y
+	XYZ.r = Yxy.r * Yxy.g / Yxy.b;
+	
+	// Y = Y
+	XYZ.g = Yxy.r;
+	
+	// Z = Y * (1-x-y) / y  or  Z = (1 - x - y) * (Y / y)
+	XYZ.b = ( 1 - Yxy.g - Yxy.b ) * ( Yxy.r / Yxy.b );
+	
+	// XYZ -> RGB conversion
+	const mat3 XYZ2RGB  = mat3(	3.2404542, -1.5371385, -0.4985314,
+								-0.9692660,  1.8760108,  0.0415560,
+								0.0556434, -0.2040259, 1.0572252);
+	
+	color.rgb = clamp(XYZ2RGB * XYZ, 0.0, 1.0);
+	// color.rgb *= Yxy.r;
+	
+#if defined(BRIGHTPASS)
+	// adjust contrast
+	// L = pow(L, 1.32);
+	
+	const half hdrContrastThreshold = rpOverbright.x;
+	const half hdrContrastOffset = rpOverbright.y;
+	
+	float T = max( Lp - hdrContrastThreshold, 0.0 );
+	// float T = max(1.0 - exp( -Yr ) - hdrContrastThreshold, 0.0);
+	float B = T > 0.0 ? T / (hdrContrastOffset + T) : T;
+	
+	color.rgb *= clamp( B, 0.0, 1.0 );
+#endif
+	
+#if 0
+	const float hdrGamma = 2.2;
+	float gamma = 1.0 / hdrGamma;
+	color.r = pow( color.r, gamma );
+	color.g = pow( color.g, gamma );
+	color.b = pow( color.b, gamma );
+#endif
+	
+	result.color = color;
+	
+#if 0
+	result.color = float4( Lp, Lp, Lp, 1.0 );
+#endif
+}
