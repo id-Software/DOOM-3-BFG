@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2012-2014 Robert Beckebans
+Copyright (C) 2012-2015 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -136,7 +136,13 @@ idCVar r_logFile( "r_logFile", "0", CVAR_RENDERER | CVAR_INTEGER, "number of fra
 idCVar r_clear( "r_clear", "2", CVAR_RENDERER, "force screen clear every frame, 1 = purple, 2 = black, 'r g b' = custom" );
 
 idCVar r_offsetFactor( "r_offsetfactor", "0", CVAR_RENDERER | CVAR_FLOAT, "polygon offset parameter" );
+// RB: offset factor was 0, and units were -600 which caused some very ugly polygon offsets on Android so I reverted the values to the same as in Q3A
+#if defined(__ANDROID__)
+idCVar r_offsetUnits( "r_offsetunits", "-2", CVAR_RENDERER | CVAR_FLOAT, "polygon offset parameter" );
+#else
 idCVar r_offsetUnits( "r_offsetunits", "-600", CVAR_RENDERER | CVAR_FLOAT, "polygon offset parameter" );
+#endif
+// RB end
 
 idCVar r_shadowPolygonOffset( "r_shadowPolygonOffset", "-1", CVAR_RENDERER | CVAR_FLOAT, "bias value added to depth test for stencil shadow drawing" );
 idCVar r_shadowPolygonFactor( "r_shadowPolygonFactor", "0", CVAR_RENDERER | CVAR_FLOAT, "scale value for stencil shadow drawing" );
@@ -237,6 +243,19 @@ idCVar r_shadowMapPolygonOffset( "r_shadowMapPolygonOffset", "3000", CVAR_RENDER
 idCVar r_shadowMapOccluderFacing( "r_shadowMapOccluderFacing", "2", CVAR_RENDERER | CVAR_INTEGER, "0 = front faces, 1 = back faces, 2 = twosided" );
 idCVar r_shadowMapRegularDepthBiasScale( "r_shadowMapRegularDepthBiasScale", "0.999", CVAR_RENDERER | CVAR_FLOAT, "shadowmap bias to fight shadow acne for point and spot lights" );
 idCVar r_shadowMapSunDepthBiasScale( "r_shadowMapSunDepthBiasScale", "0.999991", CVAR_RENDERER | CVAR_FLOAT, "shadowmap bias to fight shadow acne for cascaded shadow mapping with parallel lights" );
+
+// RB: HDR parameters
+idCVar r_useHDR( "r_useHDR", "1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_BOOL, "use high dynamic range rendering" );
+idCVar r_hdrMinLuminance( "r_hdrMinLuminance", "0.18", CVAR_RENDERER | CVAR_FLOAT, "" );
+idCVar r_hdrMaxLuminance( "r_hdrMaxLuminance", "3000", CVAR_RENDERER | CVAR_FLOAT, "" );
+idCVar r_hdrKey( "r_hdrKey", "1.5", CVAR_RENDERER | CVAR_FLOAT, "" );
+idCVar r_hdrContrastThreshold( "r_hdrContrastThreshold", "2", CVAR_RENDERER | CVAR_FLOAT, "" );
+idCVar r_hdrContrastOffset( "r_hdrContrastOffset", "3", CVAR_RENDERER | CVAR_FLOAT, "" );
+idCVar r_hdrGlarePasses( "r_hdrGlarePasses", "4", CVAR_RENDERER | CVAR_INTEGER, "" );
+idCVar r_hdrDebug( "r_hdrDebug", "0", CVAR_RENDERER | CVAR_FLOAT, "" );
+
+idCVar r_ldrContrastThreshold( "r_ldrContrastThreshold", "1.1", CVAR_RENDERER | CVAR_FLOAT, "" );
+idCVar r_ldrContrastOffset( "r_ldrContrastOffset", "3", CVAR_RENDERER | CVAR_FLOAT, "" );
 // RB end
 
 const char* fileExten[3] = { "tga", "png", "jpg" };
@@ -1930,7 +1949,6 @@ void R_TransformCubemap( const char* orgDirection[6], const char* orgDir, const 
 	idStr fullname;
 	int			i;
 	bool        errorInOriginalImages = false;
-	int			outSize;
 	byte*		buffers[6];
 	int			width = 0, height = 0;
 	
@@ -2684,13 +2702,13 @@ void idRenderSystemLocal::Init()
 	guiModel->Clear();
 	tr_guiModel = guiModel;	// for DeviceContext fast path
 	
+	globalImages->Init();
+	
 	// RB begin
 	Framebuffer::Init();
 	// RB end
 	
-	globalImages->Init();
-	
-	idCinematic::InitCinematic( );
+	idCinematic::InitCinematic();
 	
 	// build brightness translation tables
 	R_SetColorMappings();

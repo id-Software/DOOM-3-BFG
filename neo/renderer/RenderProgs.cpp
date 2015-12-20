@@ -133,6 +133,12 @@ void idRenderProgManager::Init()
 		{ BUILTIN_SKYBOX, "skybox.vfp", 0, false },
 		{ BUILTIN_WOBBLESKY, "wobblesky.vfp", 0, false },
 		{ BUILTIN_POSTPROCESS, "postprocess.vfp", 0, false },
+		// RB begin
+		{ BUILTIN_SCREEN, "screen", "", 0, false },
+		{ BUILTIN_TONEMAP, "tonemap", "", 0, false },
+		{ BUILTIN_BRIGHTPASS, "tonemap", "_brightpass", BIT( BRIGHTPASS ), false },
+		{ BUILTIN_HDR_GLARE_CHROMATIC, "hdr_glare_chromatic", "", 0, false },
+		// RB end
 		{ BUILTIN_STEREO_DEGHOST, "stereoDeGhost.vfp", 0, false },
 		{ BUILTIN_STEREO_WARP, "stereoWarp.vfp", 0, false },
 //		{ BUILTIN_ZCULL_RECONSTRUCT, "zcullReconstruct.vfp", 0, false },

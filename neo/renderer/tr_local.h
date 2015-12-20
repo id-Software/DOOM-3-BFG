@@ -736,6 +736,11 @@ struct backEndState_t
 	// RB begin
 	idRenderMatrix		shadowV[6];				// shadow depth view matrix
 	idRenderMatrix		shadowP[6];				// shadow depth projection matrix
+	
+	float				hdrAverageLuminance;
+	float				hdrMaxLuminance;
+	float				hdrTime;
+	float				hdrKey;
 	// RB end
 	
 	// surfaces used for code-based drawing
@@ -959,6 +964,7 @@ extern idCVar r_useShadowDepthBounds;		// use depth bounds test on individual sh
 // RB begin
 extern idCVar r_useShadowMapping;			// use shadow mapping instead of stencil shadows
 extern idCVar r_useHalfLambertLighting;		// use Half-Lambert lighting instead of classic Lambert
+extern idCVar r_useHDR;
 // RB end
 
 extern idCVar r_skipStaticInteractions;		// skip interactions created at level load
@@ -1072,6 +1078,17 @@ extern idCVar r_shadowMapPolygonOffset;
 extern idCVar r_shadowMapOccluderFacing;
 extern idCVar r_shadowMapRegularDepthBiasScale;
 extern idCVar r_shadowMapSunDepthBiasScale;
+
+extern idCVar r_hdrMinLuminance;
+extern idCVar r_hdrMaxLuminance;
+extern idCVar r_hdrKey;
+extern idCVar r_hdrContrastThreshold;
+extern idCVar r_hdrContrastOffset;
+extern idCVar r_hdrGlarePasses;
+extern idCVar r_hdrDebug;
+
+extern idCVar r_ldrContrastThreshold;
+extern idCVar r_ldrContrastOffset;
 // RB end
 
 /*

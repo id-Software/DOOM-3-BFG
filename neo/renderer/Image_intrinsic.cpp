@@ -147,16 +147,39 @@ static void R_RGBA8Image( idImage* image )
 
 static void R_DepthImage( idImage* image )
 {
-	byte	data[DEFAULT_SIZE][DEFAULT_SIZE][4];
-	
-	memset( data, 0, sizeof( data ) );
-	data[0][0][0] = 16;
-	data[0][0][1] = 32;
-	data[0][0][2] = 48;
-	data[0][0][3] = 96;
-	
-	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE, TF_NEAREST, TR_CLAMP, TD_DEPTH );
+	// RB: NULL data and MSAA support
+	int msaaSamples = r_multiSamples.GetInteger();
+	image->GenerateImage( NULL, glConfig.nativeScreenWidth, glConfig.nativeScreenHeight, TF_NEAREST, TR_CLAMP, TD_DEPTH, msaaSamples );
+	// RB end
 }
+
+// RB begin
+static void R_HDR_RGBA16FImage_ResNative( idImage* image )
+{
+	int msaaSamples = r_multiSamples.GetInteger();
+	image->GenerateImage( NULL, glConfig.nativeScreenWidth, glConfig.nativeScreenHeight, TF_NEAREST, TR_CLAMP, TD_RGBA16F, msaaSamples );
+}
+
+static void R_HDR_RGBA16FImage_ResNative_NoMSAA( idImage* image )
+{
+	image->GenerateImage( NULL, glConfig.nativeScreenWidth, glConfig.nativeScreenHeight, TF_NEAREST, TR_CLAMP, TD_RGBA16F );
+}
+
+static void R_HDR_RGBA16FImage_ResQuarter( idImage* image )
+{
+	image->GenerateImage( NULL, glConfig.nativeScreenWidth / 4, glConfig.nativeScreenHeight / 4, TF_NEAREST, TR_CLAMP, TD_RGBA16F );
+}
+
+static void R_HDR_RGBA16FImage_ResQuarter_Linear( idImage* image )
+{
+	image->GenerateImage( NULL, glConfig.nativeScreenWidth / 4, glConfig.nativeScreenHeight / 4, TF_LINEAR, TR_CLAMP, TD_LOOKUP_TABLE_RGBA );
+}
+
+static void R_HDR_RGBA16FImage_Res64( idImage* image )
+{
+	image->GenerateImage( NULL, 64, 64, TF_NEAREST, TR_CLAMP, TD_RGBA16F );
+}
+// RB end
 
 static void R_AlphaNotchImage( idImage* image )
 {
@@ -597,6 +620,14 @@ void idImageManager::CreateIntrinsicImages()
 	jitterImage16 = globalImages->ImageFromFunction( "_jitter16", R_CreateJitterImage16 );
 	
 	randomImage256 = globalImages->ImageFromFunction( "_random256", R_CreateRandom256Image );
+	
+	currentRenderHDRImage = globalImages->ImageFromFunction( "_currentRenderHDR", R_HDR_RGBA16FImage_ResNative );
+	currentRenderHDRImageNoMSAA = globalImages->ImageFromFunction( "_currentRenderHDRNoMSAA", R_HDR_RGBA16FImage_ResNative_NoMSAA );
+	currentRenderHDRImageQuarter = globalImages->ImageFromFunction( "_currentRenderHDRQuarter", R_HDR_RGBA16FImage_ResQuarter );
+	currentRenderHDRImage64 = globalImages->ImageFromFunction( "_currentRenderHDR64", R_HDR_RGBA16FImage_Res64 );
+	
+	bloomRender[0] = globalImages->ImageFromFunction( "_bloomRender0", R_HDR_RGBA16FImage_ResQuarter_Linear );
+	bloomRender[1] = globalImages->ImageFromFunction( "_bloomRender1", R_HDR_RGBA16FImage_ResQuarter_Linear );
 	// RB end
 	
 	// scratchImage is used for screen wipes/doublevision etc..

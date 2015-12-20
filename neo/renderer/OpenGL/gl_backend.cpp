@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013-2015 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -105,19 +106,19 @@ static void	RB_SetBuffer( const void* data )
 		float c[3];
 		if( sscanf( r_clear.GetString(), "%f %f %f", &c[0], &c[1], &c[2] ) == 3 )
 		{
-			GL_Clear( true, false, false, 0, c[0], c[1], c[2], 1.0f );
+			GL_Clear( true, false, false, 0, c[0], c[1], c[2], 1.0f, true );
 		}
 		else if( r_clear.GetInteger() == 2 )
 		{
-			GL_Clear( true, false, false, 0, 0.0f, 0.0f,  0.0f, 1.0f );
+			GL_Clear( true, false, false, 0, 0.0f, 0.0f,  0.0f, 1.0f, true );
 		}
 		else if( r_showOverDraw.GetBool() )
 		{
-			GL_Clear( true, false, false, 0, 1.0f, 1.0f, 1.0f, 1.0f );
+			GL_Clear( true, false, false, 0, 1.0f, 1.0f, 1.0f, 1.0f, true );
 		}
 		else
 		{
-			GL_Clear( true, false, false, 0, 0.4f, 0.0f, 0.25f, 1.0f );
+			GL_Clear( true, false, false, 0, 0.4f, 0.0f, 0.25f, 1.0f, true );
 		}
 	}
 }
@@ -595,6 +596,7 @@ void RB_ExecuteBackEndCommands( const emptyCommand_t* cmds )
 				}
 				break;
 			case RC_SET_BUFFER:
+				RB_SetBuffer( cmds );
 				c_setBuffers++;
 				break;
 			case RC_COPY_RENDER:
