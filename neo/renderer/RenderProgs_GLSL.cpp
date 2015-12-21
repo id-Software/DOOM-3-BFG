@@ -364,7 +364,8 @@ const char* idRenderProgManager::GLSLMacroNames[MAX_SHADER_MACRO_NAMES] =
 	"USE_GPU_SKINNING",
 	"LIGHT_POINT",
 	"LIGHT_PARALLEL",
-	"BRIGHTPASS"
+	"BRIGHTPASS",
+	"HDR_DEBUG"
 };
 // RB end
 

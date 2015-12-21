@@ -413,6 +413,11 @@ public:
 		BindShader_Builtin( BUILTIN_HDR_GLARE_CHROMATIC );
 	}
 	
+	void	BindShader_HDRDebug()
+	{
+		BindShader_Builtin( BUILTIN_HDR_DEBUG );
+	}
+	
 #if 0
 	void	BindShader_ZCullReconstruct()
 	{
@@ -526,6 +531,7 @@ protected:
 		BUILTIN_TONEMAP,
 		BUILTIN_BRIGHTPASS,
 		BUILTIN_HDR_GLARE_CHROMATIC,
+		BUILTIN_HDR_DEBUG,
 		// RB end
 		BUILTIN_STEREO_DEGHOST,
 		BUILTIN_STEREO_WARP,
@@ -551,6 +557,7 @@ protected:
 		LIGHT_POINT,
 		LIGHT_PARALLEL,
 		BRIGHTPASS,
+		HDR_DEBUG,
 		
 		MAX_SHADER_MACRO_NAMES,
 	};

@@ -355,6 +355,8 @@ public:
 	idImage*			currentRenderHDRImageQuarter;
 	idImage*			currentRenderHDRImage64;
 	idImage*			bloomRender[2];
+	idImage*			heatmap5Image;
+	idImage*			heatmap7Image;
 	// RB end
 	idImage* 			scratchImage;
 	idImage* 			scratchImage2;

@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
-Copyright (C) 2009-2014 Robert Beckebans
+Copyright (C) 2009-2015 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
 
@@ -29,7 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "renderprogs/global.inc"
 
-uniform sampler2D samp0		: register(s0);
+uniform sampler2D	samp0 : register(s0); // texture 0 is _currentRender
+uniform sampler2D	samp1 : register(s1); // texture 1 is heatmap
 
 struct PS_IN
 {
@@ -42,6 +43,19 @@ struct PS_OUT
 	float4 color : COLOR;
 };
 
+float A = 0.15;
+float B = 0.50;
+float C = 0.10;
+float D = 0.20;
+float E = 0.02;
+float F = 0.30;
+float W = 11.2;
+ 
+float3 Uncharted2Tonemap( float3 x )
+{
+	return ( ( x * ( A * x + C * B ) + D * E ) / ( x * ( A * x + B ) + D * F ) ) - E / F;
+}
+
 void main( PS_IN fragment, out PS_OUT result )
 {
 	float2 tCoords = fragment.texcoord0;
@@ -53,20 +67,18 @@ void main( PS_IN fragment, out PS_OUT result )
 	
 	float4 color = tex2D( samp0, tCoords );
 	
-#if 0
+	// get the luminance of the current pixel
+	float Y = dot( LUMINANCE_VECTOR, color );
+
+#if 1
+	// convert from sRGB to linear RGB
 	const float hdrGamma = 2.2;
-	float gamma = 1.0 / hdrGamma;
+	float gamma = hdrGamma;
 	color.r = pow( color.r, gamma );
 	color.g = pow( color.g, gamma );
 	color.b = pow( color.b, gamma );
 #endif
 	
-	// see http://www.gamedev.net/reference/articles/article2208.asp
-	// for Mathematics of Reinhard's Photographic Tone Reproduction Operator
-	
-	// get the luminance of the current pixel
-	float Y = dot( LUMINANCE_VECTOR, color );
-
 #if defined(BRIGHTPASS)
 	if(Y < 0.1)
 	{
@@ -81,94 +93,62 @@ void main( PS_IN fragment, out PS_OUT result )
 	float hdrMaxLuminance = rpScreenCorrectionFactor.z;
 	
 	// calculate the relative luminance
-	float Yr = hdrKey * Y / hdrAverageLuminance;
+	float Yr = ( hdrKey * Y ) / hdrAverageLuminance;
 
 	float Ymax = hdrMaxLuminance;
 
-	/*
-#if 0
+	
+#if 1
+	// advanced Reinhard operator, artistically desirable to burn out bright areas
 	float L = Yr * ( 1.0 + Yr / ( Ymax * Ymax ) ) / ( 1.0 + Yr );
-#else
-	float L = 1.0 - exp( -Yr );
-#endif
-	
 	color.rgb *= L;
-	*/
-	
-	// RGB -> XYZ conversion 
-	const mat3 RGB2XYZ = mat3(  0.4124564,  0.3575761,  0.1804375, 
-								0.2126729,  0.7151522,  0.0721750, 
-								0.0193339,  0.1191920,  0.9503041);				                      
-								
-	float3 XYZ = RGB2XYZ * color.rgb;
-	
-	// XYZ -> Yxy conversion 
-	float3 Yxy; 
-	
-	// Y = Y luminance
-	Yxy.r = XYZ.g;
-	
-	// x = X / (X + Y + Z)
-	Yxy.g = XYZ.r / ( XYZ.r + XYZ.g + XYZ.b );
-	
-	// y = Y / (X + Y + Z)
-	Yxy.b = XYZ.g / ( XYZ.r + XYZ.g + XYZ.b );
-	
-	// (Lp) map average luminance to the middlegrey zone by scaling pixel luminance 
-	float Lp = Yxy.r * hdrKey / hdrAverageLuminance;
-	
-	// (Ld) scale all luminance within a displayable range of 0 to 1
-	
-#if 1 //defined(r_HDRToneMappingOperator_1)
-	Yxy.r = ( Lp * ( 1.0 + Lp / ( Ymax * Ymax ) ) ) / ( 1.0 + Lp );
 #else
-	Yxy.r = 1.0 - exp( -Lp );
+	// Uncharted 2 tone mapper but looks weird :(
+
+	float exposure = ( hdrKey / hdrAverageLuminance ) * 0.4;
+	//float exposure = Yr * 1.0;
+	float3 exposedColor = exposure * color.rgb;
+	
+	float3 curr = Uncharted2Tonemap( exposedColor );
+	
+	float3 whiteScale = 1.0 / Uncharted2Tonemap( float3( Ymax ) );
+	color.rgb = curr * whiteScale;
 #endif
-	
-	// Yxy -> XYZ conversion 
-	
-	// X = Y * x / y
-	XYZ.r = Yxy.r * Yxy.g / Yxy.b;
-	
-	// Y = Y
-	XYZ.g = Yxy.r;
-	
-	// Z = Y * (1-x-y) / y  or  Z = (1 - x - y) * (Y / y)
-	XYZ.b = ( 1 - Yxy.g - Yxy.b ) * ( Yxy.r / Yxy.b );
-	
-	// XYZ -> RGB conversion
-	const mat3 XYZ2RGB  = mat3(	3.2404542, -1.5371385, -0.4985314,
-								-0.9692660,  1.8760108,  0.0415560,
-								0.0556434, -0.2040259, 1.0572252);
-	
-	color.rgb = clamp(XYZ2RGB * XYZ, 0.0, 1.0);
-	// color.rgb *= Yxy.r;
 	
 #if defined(BRIGHTPASS)
 	// adjust contrast
-	// L = pow(L, 1.32);
+	//L = pow( L, 1.32 );
 	
 	const half hdrContrastThreshold = rpOverbright.x;
 	const half hdrContrastOffset = rpOverbright.y;
 	
-	float T = max( Lp - hdrContrastThreshold, 0.0 );
-	// float T = max(1.0 - exp( -Yr ) - hdrContrastThreshold, 0.0);
-	float B = T > 0.0 ? T / (hdrContrastOffset + T) : T;
+	//float T = max( ( Yr * ( 1.0 + Yr / ( Ymax * Ymax * 2.0 ) ) ) - hdrContrastThreshold, 0.0 );
+	//float T = max( 1.0 - exp( -Yr ) - hdrContrastThreshold, 0.0 );
+	float T = max( Yr - hdrContrastThreshold, 0.0 );
+	
+	float B = T > 0.0 ? T / ( hdrContrastOffset + T ) : T;
 	
 	color.rgb *= clamp( B, 0.0, 1.0 );
 #endif
 	
-#if 0
-	const float hdrGamma = 2.2;
-	float gamma = 1.0 / hdrGamma;
+#if 1
+	// convert from linear RGB to sRGB
+
+	//float hdrGamma = 2.2;
+	gamma = 1.0 / hdrGamma;
 	color.r = pow( color.r, gamma );
 	color.g = pow( color.g, gamma );
 	color.b = pow( color.b, gamma );
 #endif
 	
+#if defined(HDR_DEBUG)
+	//color = tex2D( samp1, float2( L, 0.0 ) );
+	color = tex2D( samp1, float2( dot( LUMINANCE_VECTOR, color ), 0.0 ) );
+#endif
+
 	result.color = color;
 	
 #if 0
-	result.color = float4( Lp, Lp, Lp, 1.0 );
+	result.color = float4( L, L, L, 1.0 );
 #endif
 }

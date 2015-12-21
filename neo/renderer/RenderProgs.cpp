@@ -138,6 +138,7 @@ void idRenderProgManager::Init()
 		{ BUILTIN_TONEMAP, "tonemap", "", 0, false },
 		{ BUILTIN_BRIGHTPASS, "tonemap", "_brightpass", BIT( BRIGHTPASS ), false },
 		{ BUILTIN_HDR_GLARE_CHROMATIC, "hdr_glare_chromatic", "", 0, false },
+		{ BUILTIN_HDR_DEBUG, "tonemap", "_debug", BIT( HDR_DEBUG ), false },
 		// RB end
 		{ BUILTIN_STEREO_DEGHOST, "stereoDeGhost.vfp", 0, false },
 		{ BUILTIN_STEREO_WARP, "stereoWarp.vfp", 0, false },

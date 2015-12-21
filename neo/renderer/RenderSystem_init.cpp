@@ -246,10 +246,10 @@ idCVar r_shadowMapSunDepthBiasScale( "r_shadowMapSunDepthBiasScale", "0.999991",
 
 // RB: HDR parameters
 idCVar r_useHDR( "r_useHDR", "1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_BOOL, "use high dynamic range rendering" );
-idCVar r_hdrMinLuminance( "r_hdrMinLuminance", "0.18", CVAR_RENDERER | CVAR_FLOAT, "" );
+idCVar r_hdrMinLuminance( "r_hdrMinLuminance", "0.001", CVAR_RENDERER | CVAR_FLOAT, "" );
 idCVar r_hdrMaxLuminance( "r_hdrMaxLuminance", "3000", CVAR_RENDERER | CVAR_FLOAT, "" );
-idCVar r_hdrKey( "r_hdrKey", "1.5", CVAR_RENDERER | CVAR_FLOAT, "" );
-idCVar r_hdrContrastThreshold( "r_hdrContrastThreshold", "2", CVAR_RENDERER | CVAR_FLOAT, "" );
+idCVar r_hdrKey( "r_hdrKey", "0.18", CVAR_RENDERER | CVAR_FLOAT, "" );
+idCVar r_hdrContrastThreshold( "r_hdrContrastThreshold", "20", CVAR_RENDERER | CVAR_FLOAT, "" );
 idCVar r_hdrContrastOffset( "r_hdrContrastOffset", "3", CVAR_RENDERER | CVAR_FLOAT, "" );
 idCVar r_hdrGlarePasses( "r_hdrGlarePasses", "4", CVAR_RENDERER | CVAR_INTEGER, "" );
 idCVar r_hdrDebug( "r_hdrDebug", "0", CVAR_RENDERER | CVAR_FLOAT, "" );

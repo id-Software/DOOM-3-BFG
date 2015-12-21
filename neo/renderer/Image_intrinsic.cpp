@@ -588,6 +588,108 @@ static void R_CreateRandom256Image( idImage* image )
 	
 	image->GenerateImage( ( byte* )data, 256, 256, TF_NEAREST, TR_REPEAT, TD_LOOKUP_TABLE_RGBA );
 }
+
+static void R_CreateHeatmap5ColorsImage( idImage* image )
+{
+	int		x, y;
+	byte	data[16][FALLOFF_TEXTURE_SIZE][4];
+	
+	const int numColors = 5;
+	static idVec4 colors[numColors] = { colorBlue, colorCyan, colorGreen, colorYellow, colorRed };
+	
+	memset( data, 0, sizeof( data ) );
+	for( x = 0 ; x < FALLOFF_TEXTURE_SIZE; x++ )
+	{
+		int index1, index2;
+		
+		float value = x / ( float )FALLOFF_TEXTURE_SIZE;
+		
+		float lerp = 0.0f;
+		
+		if( value <= 0.0 )
+		{
+			index1 = index2 = 0;
+		}
+		else if( value >= 1.0f )
+		{
+			index1 = index2 = numColors - 1;
+		}
+		else
+		{
+			value = value * ( numColors - 1 );
+			index1 = idMath::Floor( value );
+			index2 = index1 + 1;
+			lerp = value - float( index1 );
+		}
+		
+		idVec4 color( 0, 0, 0, 1 );
+		
+		color.x = ( colors[index2].x - colors[index1].x ) * lerp + colors[index1].x;
+		color.y = ( colors[index2].y - colors[index1].y ) * lerp + colors[index1].y;
+		color.z = ( colors[index2].z - colors[index1].z ) * lerp + colors[index1].z;
+		
+		for( y = 0 ; y < 16 ; y++ )
+		{
+			data[y][x][0] = color.x * 255;
+			data[y][x][1] = color.y * 255;
+			data[y][x][2] = color.z * 255;
+			data[y][x][3] = 255;
+		}
+	}
+	
+	image->GenerateImage( ( byte* )data, FALLOFF_TEXTURE_SIZE, 16, TF_LINEAR, TR_CLAMP, TD_LOOKUP_TABLE_RGBA );
+}
+
+static void R_CreateHeatmap7ColorsImage( idImage* image )
+{
+	int		x, y;
+	byte	data[16][FALLOFF_TEXTURE_SIZE][4];
+	
+	const int numColors = 7;
+	static idVec4 colors[numColors] = { colorBlack, colorBlue, colorCyan, colorGreen, colorYellow, colorRed, colorWhite };
+	
+	memset( data, 0, sizeof( data ) );
+	for( x = 0 ; x < FALLOFF_TEXTURE_SIZE; x++ )
+	{
+		int index1, index2;
+		
+		float value = x / ( float )FALLOFF_TEXTURE_SIZE;
+		
+		float lerp = 0.0f;
+		
+		if( value <= 0.0 )
+		{
+			index1 = index2 = 0;
+		}
+		else if( value >= 1.0f )
+		{
+			index1 = index2 = numColors - 1;
+		}
+		else
+		{
+			value = value * ( numColors - 1 );
+			index1 = idMath::Floor( value );
+			index2 = index1 + 1;
+			lerp = value - float( index1 );
+		}
+		
+		idVec4 color( 0, 0, 0, 1 );
+		
+		color.x = ( colors[index2].x - colors[index1].x ) * lerp + colors[index1].x;
+		color.y = ( colors[index2].y - colors[index1].y ) * lerp + colors[index1].y;
+		color.z = ( colors[index2].z - colors[index1].z ) * lerp + colors[index1].z;
+		
+		for( y = 0 ; y < 16 ; y++ )
+		{
+			data[y][x][0] = color.x * 255;
+			data[y][x][1] = color.y * 255;
+			data[y][x][2] = color.z * 255;
+			data[y][x][3] = 255;
+		}
+	}
+	
+	image->GenerateImage( ( byte* )data, FALLOFF_TEXTURE_SIZE, 16, TF_LINEAR, TR_CLAMP, TD_LOOKUP_TABLE_RGBA );
+}
 // RB end
 
 /*
@@ -628,6 +730,9 @@ void idImageManager::CreateIntrinsicImages()
 	
 	bloomRender[0] = globalImages->ImageFromFunction( "_bloomRender0", R_HDR_RGBA16FImage_ResQuarter_Linear );
 	bloomRender[1] = globalImages->ImageFromFunction( "_bloomRender1", R_HDR_RGBA16FImage_ResQuarter_Linear );
+	
+	heatmap5Image = ImageFromFunction( "_heatmap5", R_CreateHeatmap5ColorsImage );
+	heatmap7Image = ImageFromFunction( "_heatmap7", R_CreateHeatmap7ColorsImage );
 	// RB end
 	
 	// scratchImage is used for screen wipes/doublevision etc..
