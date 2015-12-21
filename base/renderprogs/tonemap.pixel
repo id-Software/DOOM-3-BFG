@@ -70,10 +70,11 @@ void main( PS_IN fragment, out PS_OUT result )
 	// get the luminance of the current pixel
 	float Y = dot( LUMINANCE_VECTOR, color );
 
-#if 1
-	// convert from sRGB to linear RGB
 	const float hdrGamma = 2.2;
 	float gamma = hdrGamma;
+	
+#if 0
+	// convert from sRGB to linear RGB
 	color.r = pow( color.r, gamma );
 	color.g = pow( color.g, gamma );
 	color.b = pow( color.b, gamma );

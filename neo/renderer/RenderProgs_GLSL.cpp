@@ -555,7 +555,7 @@ idStr StripDeadCode( const idStr& in, const char* name, const idStrList& compile
 		src.AddDefine( "USE_HALF_LAMBERT" );
 	}
 	
-	if( r_useSRGB.GetBool() )
+	if( r_useSRGB.GetBool() || r_useHDR.GetBool() )
 	{
 		src.AddDefine( "USE_SRGB" );
 	}

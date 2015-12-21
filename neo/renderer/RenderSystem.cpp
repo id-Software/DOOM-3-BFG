@@ -284,7 +284,7 @@ static void R_CheckCvars()
 		r_useSRGB.ClearModified();
 		if( glConfig.sRGBFramebufferAvailable )
 		{
-			if( r_useSRGB.GetBool() )
+			if( r_useSRGB.GetBool() && r_useSRGB.GetInteger() != 3 )
 			{
 				glEnable( GL_FRAMEBUFFER_SRGB );
 			}
