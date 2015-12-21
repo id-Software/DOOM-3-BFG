@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013-2014 Robert Beckebans
+Copyright (C) 2013-2015 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -553,6 +553,11 @@ idStr StripDeadCode( const idStr& in, const char* name, const idStrList& compile
 	if( r_useHalfLambertLighting.GetBool() )
 	{
 		src.AddDefine( "USE_HALF_LAMBERT" );
+	}
+	
+	if( r_useSRGB.GetBool() )
+	{
+		src.AddDefine( "USE_SRGB" );
 	}
 	
 	idList< idCGBlock > blocks;

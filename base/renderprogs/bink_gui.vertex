@@ -52,6 +52,6 @@ void main( VS_IN vertex, out VS_OUT result ) {
 	result.position.w = dot4( vertex.position, rpMVPmatrixW );
 
 	result.texcoord0.xy = vertex.texcoord.xy;
-	result.texcoord1 = ( swizzleColor( vertex.color2 ) * 2.0 ) - 1.0;
+	result.texcoord1 = ( ( vertex.color2 ) * 2.0 ) - 1.0;
 	result.color =  swizzleColor( vertex.color );
 }

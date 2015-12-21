@@ -53,13 +53,13 @@ struct PS_OUT {
 
 void main( PS_IN fragment, out PS_OUT result ) {
 	half4 bumpMap =			tex2D( samp0, fragment.texcoord1.xy );
-	half4 lightFalloff =	idtex2Dproj( samp1, fragment.texcoord2 );
-	half4 lightProj	=		idtex2Dproj( samp2, fragment.texcoord3 );
+	half4 lightFalloff =	( idtex2Dproj( samp1, fragment.texcoord2 ) );
+	half4 lightProj	=		( idtex2Dproj( samp2, fragment.texcoord3 ) );
 	half4 YCoCG =			tex2D( samp3, fragment.texcoord4.xy );
-	half4 specMap =			tex2D( samp4, fragment.texcoord5.xy );
+	half4 specMap =			sRGBAToLinearRGBA( tex2D( samp4, fragment.texcoord5.xy ) );
 
 	half3 lightVector = normalize( fragment.texcoord0.xyz );
-	half3 diffuseMap = ConvertYCoCgToRGB( YCoCG );
+	half3 diffuseMap = sRGBToLinearRGB( ConvertYCoCgToRGB( YCoCG ) );
 
 	half3 localNormal;
 	// RB begin

@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013-2014 Robert Beckebans
+Copyright (C) 2013-2015 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -365,27 +365,42 @@ void idImage::AllocImage()
 	GL_CheckErrors();
 	PurgeImage();
 	
+	int sRGB = r_useSRGB.GetInteger();
+	
 	switch( opts.format )
 	{
 		case FMT_RGBA8:
-			internalFormat = GL_RGBA8;
+			//internalFormat = GL_RGBA8;
+			//internalFormat = ( glConfig.sRGBFramebufferAvailable && ( sRGB == 1 || sRGB == 3 ) ) ? GL_SRGB8_ALPHA8 : GL_RGBA8;
+			internalFormat = ( glConfig.sRGBFramebufferAvailable && ( sRGB == 1 || sRGB == 3 ) ) ? GL_SRGB8_ALPHA8 : GL_RGBA8;
 			dataFormat = GL_RGBA;
 			dataType = GL_UNSIGNED_BYTE;
 			break;
 		case FMT_XRGB8:
-			internalFormat = GL_RGB;
+			internalFormat = ( glConfig.sRGBFramebufferAvailable && ( sRGB == 1 || sRGB == 3 ) ) ? GL_SRGB : GL_RGB;
 			dataFormat = GL_RGBA;
 			dataType = GL_UNSIGNED_BYTE;
 			break;
 		case FMT_RGB565:
+			//internalFormat = ( glConfig.sRGBFramebufferAvailable && ( sRGB == 1 || sRGB == 3 ) ) ? GL_SRGB : GL_RGB;
 			internalFormat = GL_RGB;
 			dataFormat = GL_RGB;
 			dataType = GL_UNSIGNED_SHORT_5_6_5;
 			break;
 		case FMT_ALPHA:
 #if defined( USE_CORE_PROFILE )
-			internalFormat = GL_R8;
-			dataFormat = GL_RED;
+#if 1
+			if( ( glConfig.sRGBFramebufferAvailable && ( sRGB == 1 || sRGB == 3 ) ) )
+			{
+				internalFormat = GL_SRGB;
+				dataFormat = GL_RED;
+			}
+			else
+#endif
+			{
+				internalFormat = GL_R8;
+				dataFormat = GL_RED;
+			}
 #else
 			internalFormat = GL_ALPHA8;
 			dataFormat = GL_ALPHA;
@@ -423,12 +438,14 @@ void idImage::AllocImage()
 			dataType = GL_UNSIGNED_BYTE;
 			break;
 		case FMT_DXT1:
-			internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+			internalFormat = ( glConfig.sRGBFramebufferAvailable && ( sRGB == 1 || sRGB == 3 ) ) ? GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT : GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+			//internalFormat =  GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
 			dataFormat = GL_RGBA;
 			dataType = GL_UNSIGNED_BYTE;
 			break;
 		case FMT_DXT5:
-			internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+			internalFormat = ( glConfig.sRGBFramebufferAvailable && ( sRGB == 1 || sRGB == 3 ) && opts.colorFormat != CFM_YCOCG_DXT5 && opts.colorFormat != CFM_NORMAL_DXT5 ) ? GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT : GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+			//internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
 			dataFormat = GL_RGBA;
 			dataType = GL_UNSIGNED_BYTE;
 			break;

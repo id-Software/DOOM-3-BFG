@@ -136,7 +136,8 @@ ID_INLINE void idImage::DeriveOpts()
 				opts.gammaMips = true;
 				break;
 			case TD_LIGHT:
-				opts.format = FMT_RGB565;
+				// RB: don't destroy lighting
+				opts.format = FMT_RGBA8; //FMT_RGB565;
 				opts.gammaMips = true;
 				break;
 			case TD_LOOKUP_TABLE_MONO:
