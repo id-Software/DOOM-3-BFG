@@ -66,6 +66,9 @@ int BitsForFormat( textureFormat_t format )
 			return 4;
 		case FMT_SHADOW_ARRAY:
 			return ( 32 * 6 );
+			
+		case FMT_RGBA16F:
+			return 64;
 		// RB end
 		case FMT_DEPTH:
 			return 32;
@@ -876,11 +879,20 @@ void idImage::Print() const
 	switch( opts.textureType )
 	{
 		case TT_2D:
-			common->Printf( " " );
+			common->Printf( "      " );
 			break;
 		case TT_CUBIC:
-			common->Printf( "C" );
+			common->Printf( "C     " );
 			break;
+			
+		case TT_2D_ARRAY:
+			common->Printf( "2D-A  " );
+			break;
+			
+		case TT_2D_MULTISAMPLE:
+			common->Printf( "2D-MS " );
+			break;
+			
 		default:
 			common->Printf( "<BAD TYPE:%i>", opts.textureType );
 			break;
@@ -903,6 +915,8 @@ void idImage::Print() const
 			NAME_FORMAT( DXT5 );
 			// RB begin
 			NAME_FORMAT( ETC1_RGB8_OES );
+			NAME_FORMAT( SHADOW_ARRAY );
+			NAME_FORMAT( RGBA16F );
 			// RB end
 			NAME_FORMAT( DEPTH );
 			NAME_FORMAT( X16 );
