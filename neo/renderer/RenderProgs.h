@@ -232,6 +232,7 @@ public:
 	{
 		BindShader_Builtin( BUILTIN_TEXTURE_TEXGEN_VERTEXCOLOR );
 	};
+	
 	void	BindShader_Interaction()
 	{
 		BindShader_Builtin( BUILTIN_INTERACTION );
@@ -288,6 +289,7 @@ public:
 	{
 		BindShader_Builtin( BUILTIN_SIMPLESHADE );
 	}
+	
 	void	BindShader_Environment()
 	{
 		BindShader_Builtin( BUILTIN_ENVIRONMENT );
@@ -350,6 +352,7 @@ public:
 	{
 		BindShader_Builtin( BUILTIN_BLENDLIGHT );
 	}
+	
 	void	BindShader_Fog()
 	{
 		BindShader_Builtin( BUILTIN_FOG );
@@ -406,6 +409,7 @@ public:
 	{
 		BindShader_Builtin( BUILTIN_BINK_GUI );
 	}
+	
 	void	BindShader_MotionBlur()
 	{
 		BindShader_Builtin( BUILTIN_MOTION_BLUR );
@@ -572,14 +576,14 @@ protected:
 		idList<glslUniformLocation_t> uniformLocations;
 	};
 	int	currentRenderProgram;
-	idList<glslProgram_t> glslPrograms;
+	idList<glslProgram_t, TAG_RENDER> glslPrograms;
 	idStaticList < idVec4, RENDERPARM_USER + MAX_GLSL_USER_PARMS > glslUniforms;
 	
 	
 	int				currentVertexShader;
 	int				currentFragmentShader;
-	idList<vertexShader_t > vertexShaders;
-	idList<fragmentShader_t > fragmentShaders;
+	idList<vertexShader_t, TAG_RENDER> vertexShaders;
+	idList<fragmentShader_t, TAG_RENDER> fragmentShaders;
 };
 
 extern idRenderProgManager renderProgManager;

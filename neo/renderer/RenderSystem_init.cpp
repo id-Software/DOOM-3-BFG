@@ -350,12 +350,19 @@ static void R_CheckPortableExtensions()
 	// RB: Mesa support
 	if( idStr::Icmpn( glConfig.renderer_string, "Mesa", 4 ) == 0 || idStr::Icmpn( glConfig.renderer_string, "X.org", 4 ) == 0 || idStr::Icmpn( glConfig.renderer_string, "Gallium", 7 ) == 0 )
 	{
-		glConfig.driverType = GLDRV_OPENGL_MESA;
+		if( glConfig.driverType == GLDRV_OPENGL32_CORE_PROFILE )
+		{
+			glConfig.driverType = GLDRV_OPENGL_MESA_CORE_PROFILE;
+		}
+		else
+		{
+			glConfig.driverType = GLDRV_OPENGL_MESA;
+		}
 	}
 	// RB end
 	
 	// GL_ARB_multitexture
-	if( glConfig.driverType == GLDRV_OPENGL32_COMPATIBILITY_PROFILE || glConfig.driverType == GLDRV_OPENGL32_CORE_PROFILE || glConfig.driverType == GLDRV_OPENGL_MESA )
+	if( glConfig.driverType != GLDRV_OPENGL3X )
 	{
 		glConfig.multitextureAvailable = true;
 	}
@@ -370,8 +377,14 @@ static void R_CheckPortableExtensions()
 	
 	// GL_ARB_texture_compression + GL_S3_s3tc
 	// DRI drivers may have GL_ARB_texture_compression but no GL_EXT_texture_compression_s3tc
-	glConfig.textureCompressionAvailable = GLEW_ARB_texture_compression != 0 && GLEW_EXT_texture_compression_s3tc != 0;
-	
+	if( glConfig.driverType == GLDRV_OPENGL_MESA_CORE_PROFILE )
+	{
+		glConfig.textureCompressionAvailable = true;
+	}
+	else
+	{
+		glConfig.textureCompressionAvailable = GLEW_ARB_texture_compression != 0 && GLEW_EXT_texture_compression_s3tc != 0;
+	}
 	// GL_EXT_texture_filter_anisotropic
 	glConfig.anisotropicFilterAvailable = GLEW_EXT_texture_filter_anisotropic != 0;
 	if( glConfig.anisotropicFilterAvailable )
@@ -406,13 +419,34 @@ static void R_CheckPortableExtensions()
 	r_useSRGB.SetModified();		// the CheckCvars() next frame will enable / disable it
 	
 	// GL_ARB_vertex_buffer_object
-	glConfig.vertexBufferObjectAvailable = GLEW_ARB_vertex_buffer_object != 0;
+	if( glConfig.driverType == GLDRV_OPENGL_MESA_CORE_PROFILE )
+	{
+		glConfig.vertexBufferObjectAvailable = true;
+	}
+	else
+	{
+		glConfig.vertexBufferObjectAvailable = GLEW_ARB_vertex_buffer_object != 0;
+	}
 	
 	// GL_ARB_map_buffer_range, map a section of a buffer object's data store
-	glConfig.mapBufferRangeAvailable = GLEW_ARB_map_buffer_range != 0;
+	//if( glConfig.driverType == GLDRV_OPENGL_MESA_CORE_PROFILE )
+	//{
+	//    glConfig.mapBufferRangeAvailable = true;
+	//}
+	//else
+	{
+		glConfig.mapBufferRangeAvailable = GLEW_ARB_map_buffer_range != 0;
+	}
 	
 	// GL_ARB_vertex_array_object
-	glConfig.vertexArrayObjectAvailable = GLEW_ARB_vertex_array_object != 0;
+	//if( glConfig.driverType == GLDRV_OPENGL_MESA_CORE_PROFILE )
+	//{
+	//    glConfig.vertexArrayObjectAvailable = true;
+	//}
+	//else
+	{
+		glConfig.vertexArrayObjectAvailable = GLEW_ARB_vertex_array_object != 0;
+	}
 	
 	// GL_ARB_draw_elements_base_vertex
 	glConfig.drawElementsBaseVertexAvailable = GLEW_ARB_draw_elements_base_vertex != 0;
@@ -470,18 +504,18 @@ static void R_CheckPortableExtensions()
 		common->Printf( "X..%s not found\n", "GL_GREMEDY_string_marker" );
 	}
 	
-	// GL_EXT_framebuffer_object
-	glConfig.framebufferObjectAvailable = GLEW_EXT_framebuffer_object != 0;
+	// GL_ARB_framebuffer_object
+	glConfig.framebufferObjectAvailable = GLEW_ARB_framebuffer_object != 0;
 	if( glConfig.framebufferObjectAvailable )
 	{
 		glGetIntegerv( GL_MAX_RENDERBUFFER_SIZE, &glConfig.maxRenderbufferSize );
 		glGetIntegerv( GL_MAX_COLOR_ATTACHMENTS, &glConfig.maxColorAttachments );
 		
-		common->Printf( "...using %s\n", "GL_EXT_framebuffer_object" );
+		common->Printf( "...using %s\n", "GL_ARB_framebuffer_object" );
 	}
 	else
 	{
-		common->Printf( "X..%s not found\n", "GL_EXT_framebuffer_object" );
+		common->Printf( "X..%s not found\n", "GL_ARB_framebuffer_object" );
 	}
 	
 	// GL_EXT_framebuffer_blit
@@ -492,7 +526,7 @@ static void R_CheckPortableExtensions()
 	}
 	else
 	{
-		common->Printf( "X..%s not found\n", "GL_EXT_framebuffer_object" );
+		common->Printf( "X..%s not found\n", "GL_EXT_framebuffer_blit" );
 	}
 	
 	// GL_ARB_debug_output
@@ -549,10 +583,10 @@ static void R_CheckPortableExtensions()
 		idLib::Error( "GL_ARB_draw_elements_base_vertex not available" );
 	}
 	// GL_ARB_vertex_program / GL_ARB_fragment_program
-	if( !glConfig.fragmentProgramAvailable )
-	{
-		idLib::Warning( "GL_ARB_fragment_program not available" );
-	}
+	//if( !glConfig.fragmentProgramAvailable )
+	//{
+	//	idLib::Warning( "GL_ARB_fragment_program not available" );
+	//}
 	// GLSL
 	if( !glConfig.glslAvailable )
 	{
@@ -793,10 +827,11 @@ void R_InitOpenGL()
 	
 	float glVersion = atof( glConfig.version_string );
 	float glslVersion = atof( glConfig.shading_language_string );
-	idLib::Printf( "OpenGL Version  : %3.1f\n", glVersion );
-	idLib::Printf( "OpenGL Vendor   : %s\n", glConfig.vendor_string );
-	idLib::Printf( "OpenGL Renderer : %s\n", glConfig.renderer_string );
-	idLib::Printf( "OpenGL GLSL     : %3.1f\n", glslVersion );
+	idLib::Printf( "OpenGL Version   : %3.1f\n", glVersion );
+	idLib::Printf( "OpenGL Vendor    : %s\n", glConfig.vendor_string );
+	idLib::Printf( "OpenGL Renderer  : %s\n", glConfig.renderer_string );
+	idLib::Printf( "OpenGL GLSL      : %3.1f\n", glslVersion );
+	idLib::Printf( "OpenGL Extensions: %s\n", glConfig.extensions_string );
 	
 	// OpenGL driver constants
 	GLint temp;
