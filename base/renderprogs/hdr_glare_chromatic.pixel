@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
-Copyright (C) 2014 Robert Beckebans
+Copyright (C) 2014-2015 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
 
@@ -74,7 +74,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	const float3 chromaticOffsets[9] = float3[](
 	float3(0.5, 0.5, 0.5), // w
 	float3(0.8, 0.3, 0.3),
-	//float3(1.0, 0.2, 0.2), // r
+//	float3(1.0, 0.2, 0.2), // r
 	float3(0.5, 0.2, 0.8),
 	float3(0.2, 0.2, 1.0), // b
 	float3(0.2, 0.3, 0.9),
@@ -91,10 +91,9 @@ void main( PS_IN fragment, out PS_OUT result )
 	const int tap = 4;
 	const int samples = 9;
 	
-	float scale = 13.0;
-	const float weightScale = 2.7;
+	float scale = 13.0; // bloom width
+	const float weightScale = 2.3; // bloom strength
 	
-	//for( int i = -tap; i < tap; i++ )
 	for( int i = 0; i < samples; i++ )
     {
 	    //float t = ( ( float( 4 + ( i ) ) ) / ( float( samples ) - 1.0 ) );
@@ -103,13 +102,10 @@ void main( PS_IN fragment, out PS_OUT result )
 		
 		//float3 so = spectrumoffset( t );
 		float3 so = chromaticOffsets[ i ];
-		//float3 so = float3( 1.0 );
 		float4 color = tex2D( samp0, st + float2( float( i ), 0 ) * rpWindowCoord.xy * scale );
 			
 		float weight = gaussFact[ i ];
-		//sumColor += color.rgb * ( so.rgb * weight * weightScale );
 		sumColor += color.rgb * ( so.rgb * weight * weightScale );
-		sumSpectrum += ( so.rgb * weight * weightScale );
 	}
 	
 #if 1
@@ -123,7 +119,6 @@ void main( PS_IN fragment, out PS_OUT result )
 			
 		float weight = gaussFact[ i ];
 		sumColor += color.rgb * ( so.rgb * weight * weightScale );
-		sumSpectrum += ( so.rgb * weight * weightScale );
 	}
 #endif
 	

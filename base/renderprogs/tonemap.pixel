@@ -68,7 +68,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	float4 color = tex2D( samp0, tCoords );
 	
 	// get the luminance of the current pixel
-	float Y = dot( LUMINANCE_VECTOR, color );
+	float Y = dot( LUMINANCE_SRGB, color );
 
 #if 1
 	// convert from sRGB to linear RGB
@@ -105,7 +105,7 @@ void main( PS_IN fragment, out PS_OUT result )
 #else
 	// Uncharted 2 tone mapper but looks weird :(
 
-	float exposure = ( hdrKey / hdrAverageLuminance ) * 0.4;
+	float exposure = ( hdrKey / hdrAverageLuminance ) * 0.2;
 	//float exposure = Yr * 1.0;
 	float3 exposedColor = exposure * color.rgb;
 	
@@ -143,7 +143,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	
 #if defined(HDR_DEBUG)
 	//color = tex2D( samp1, float2( L, 0.0 ) );
-	color = tex2D( samp1, float2( dot( LUMINANCE_VECTOR, color ), 0.0 ) );
+	color = tex2D( samp1, float2( dot( LUMINANCE_SRGB, color ), 0.0 ) );
 #endif
 
 	result.color = color;

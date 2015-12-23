@@ -3815,7 +3815,7 @@ static void RB_CalculateAdaptation()
 	float			avgLuminance;
 	float			maxLuminance;
 	double			sum;
-	const idVec3    LUMINANCE_VECTOR( 0.2125f, 0.7154f, 0.0721f ); // FIXME be careful wether this should be linear RGB or sRGB
+	const idVec3    LUMINANCE_SRGB( 0.2125f, 0.7154f, 0.0721f ); // be careful wether this should be linear RGB or sRGB
 	idVec4			color;
 	float			newAdaptation;
 	float			newMaximum;
@@ -3838,7 +3838,7 @@ static void RB_CalculateAdaptation()
 		color[2] = image[i * 4 + 2];
 		color[3] = image[i * 4 + 3];
 		
-		luminance = ( color.x * LUMINANCE_VECTOR.x + color.y * LUMINANCE_VECTOR.y + color.z * LUMINANCE_VECTOR.z ) + 0.0001f;
+		luminance = ( color.x * LUMINANCE_SRGB.x + color.y * LUMINANCE_SRGB.y + color.z * LUMINANCE_SRGB.z ) + 0.0001f;
 		if( luminance > maxLuminance )
 		{
 			maxLuminance = luminance;
@@ -4607,10 +4607,12 @@ void RB_PostProcess( const void* data )
 
 	// only do the post process step if resolution scaling is enabled. Prevents the unnecessary copying of the framebuffer and
 	// corresponding full screen quad pass.
-	if( rs_enable.GetInteger() == 0 )
+	if( rs_enable.GetInteger() == 0 && !r_useFilmicPostProcessEffects.GetBool() )
 	{
 		return;
 	}
+	
+	RENDERLOG_PRINTF( "---------- RB_PostProcess() ----------\n" );
 	
 	// resolve the scaled rendering to a temporary texture
 	postProcessCommand_t* cmd = ( postProcessCommand_t* )data;
@@ -4629,7 +4631,36 @@ void RB_PostProcess( const void* data )
 	
 	GL_SelectTexture( 0 );
 	globalImages->currentRenderImage->Bind();
+	
+	GL_SelectTexture( 1 );
+	globalImages->grainImage1->Bind();
+	
 	renderProgManager.BindShader_PostProcess();
+	
+	const static int GRAIN_SIZE = 128;
+	
+	// screen power of two correction factor
+	float screenCorrectionParm[4];
+	screenCorrectionParm[0] = 1.0f / GRAIN_SIZE;
+	screenCorrectionParm[1] = 1.0f / GRAIN_SIZE;
+	screenCorrectionParm[2] = 1.0f;
+	screenCorrectionParm[3] = 1.0f;
+	SetFragmentParm( RENDERPARM_SCREENCORRECTIONFACTOR, screenCorrectionParm ); // rpScreenCorrectionFactor
+	
+	float jitterTexOffset[4];
+	if( r_shadowMapRandomizeJitter.GetBool() )
+	{
+		jitterTexOffset[0] = ( rand() & 255 ) / 255.0;
+		jitterTexOffset[1] = ( rand() & 255 ) / 255.0;
+	}
+	else
+	{
+		jitterTexOffset[0] = 0;
+		jitterTexOffset[1] = 0;
+	}
+	jitterTexOffset[2] = 0.0f;
+	jitterTexOffset[3] = 0.0f;
+	SetFragmentParm( RENDERPARM_JITTERTEXOFFSET, jitterTexOffset ); // rpJitterTexOffset
 	
 	// Draw
 	RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );

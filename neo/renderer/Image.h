@@ -349,6 +349,7 @@ public:
 	idImage*			jitterImage1;				// shadow jitter
 	idImage*			jitterImage4;
 	idImage*			jitterImage16;
+	idImage*			grainImage1;
 	idImage*			randomImage256;
 	idImage*			currentRenderHDRImage;
 	idImage*			currentRenderHDRImageNoMSAA;

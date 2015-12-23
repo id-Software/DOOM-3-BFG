@@ -589,6 +589,8 @@ static void R_CreateRandom256Image( idImage* image )
 	image->GenerateImage( ( byte* )data, 256, 256, TF_NEAREST, TR_REPEAT, TD_LOOKUP_TABLE_RGBA );
 }
 
+
+
 static void R_CreateHeatmap5ColorsImage( idImage* image )
 {
 	int		x, y;
@@ -690,6 +692,39 @@ static void R_CreateHeatmap7ColorsImage( idImage* image )
 	
 	image->GenerateImage( ( byte* )data, FALLOFF_TEXTURE_SIZE, 16, TF_LINEAR, TR_CLAMP, TD_LOOKUP_TABLE_RGBA );
 }
+
+static void R_CreateGrainImage1( idImage* image )
+{
+	const static int GRAIN_SIZE = 128;
+	
+	static byte	data[GRAIN_SIZE][GRAIN_SIZE][4];
+	
+	idRandom2 random( Sys_Milliseconds() );
+	
+	for( int i = 0 ; i < GRAIN_SIZE ; i++ )
+	{
+		for( int j = 0 ; j < GRAIN_SIZE ; j++ )
+		{
+#if 0
+			//int value = 127 - 8 + ( rand() & 15 ); //random.RandomInt( 127 );
+			int value = 127 - 8 + random.RandomInt( 15 );
+			
+			data[i][j][0] = value;
+			data[i][j][1] = value;
+			data[i][j][2] = value;
+			data[i][j][3] = 0;
+#else
+			data[i][j][0] = 127 - 8 + random.RandomInt( 15 );
+			data[i][j][1] = 127 - 8 + random.RandomInt( 15 );
+			data[i][j][2] = 127 - 8 + random.RandomInt( 15 );
+			data[i][j][3] = 0;
+#endif
+		}
+	}
+	
+	image->GenerateImage( ( byte* )data, GRAIN_SIZE, GRAIN_SIZE, TF_NEAREST, TR_REPEAT, TD_LOOKUP_TABLE_RGBA );
+}
+
 // RB end
 
 /*
@@ -733,6 +768,8 @@ void idImageManager::CreateIntrinsicImages()
 	
 	heatmap5Image = ImageFromFunction( "_heatmap5", R_CreateHeatmap5ColorsImage );
 	heatmap7Image = ImageFromFunction( "_heatmap7", R_CreateHeatmap7ColorsImage );
+	
+	grainImage1 = globalImages->ImageFromFunction( "_grain1", R_CreateGrainImage1 );
 	// RB end
 	
 	// scratchImage is used for screen wipes/doublevision etc..
