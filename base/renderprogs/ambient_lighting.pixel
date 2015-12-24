@@ -92,6 +92,6 @@ void main( PS_IN fragment, out PS_OUT result ) {
 	half3 rimColor = half3( 0.125 ) * 1.2 * lightColor * pow( rim, rimPower );
 	
 	//result.color.rgb = localNormal.xyz * 0.5 + 0.5;
-	result.color.xyz = ( diffuseColor + specularColor ) * halfLdotN * lightColor + rimColor;
+	result.color.xyz = ( ( diffuseColor + specularColor ) * halfLdotN * lightColor + rimColor ) * fragment.color.rgb;;
 	result.color.w = 1.0;
 }

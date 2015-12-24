@@ -2115,6 +2115,7 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 			renderProgManager.SetRenderParm( RENDERPARM_COLOR, directedColor.ToFloatPtr() );
 			renderProgManager.SetRenderParm( RENDERPARM_AMBIENT_COLOR, ambientColor.ToFloatPtr() );
 		}
+		float ambientBoost = r_useHDR.GetBool() ? 1.5 : 1.0;
 #endif
 		
 		/*
