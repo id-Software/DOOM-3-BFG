@@ -105,8 +105,9 @@ void main( PS_IN fragment, out PS_OUT result )
 #else
 	// Uncharted 2 tone mapper but looks weird :(
 
-	float exposure = ( hdrKey / hdrAverageLuminance ) * 0.2;
+	//float exposure = ( hdrKey / hdrAverageLuminance ) * 0.2;
 	//float exposure = Yr * 1.0;
+	float exposure = 0.5;
 	float3 exposedColor = exposure * color.rgb;
 	
 	float3 curr = Uncharted2Tonemap( exposedColor );

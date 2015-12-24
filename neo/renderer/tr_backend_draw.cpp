@@ -1886,6 +1886,7 @@ static void RB_AmbientPass( const drawSurf_t* const* drawSurfs, int numDrawSurfs
 		}
 #else
 		idVec4 ambientColor;
+		float ambientBoost = r_useHDR.GetBool() ? 1.5 : 1.0;
 		ambientColor.x = r_forceAmbient.GetFloat();
 		ambientColor.y = r_forceAmbient.GetFloat();
 		ambientColor.z = r_forceAmbient.GetFloat();
