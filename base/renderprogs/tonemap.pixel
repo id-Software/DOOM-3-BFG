@@ -100,14 +100,18 @@ void main( PS_IN fragment, out PS_OUT result )
 	
 #if 1
 	// advanced Reinhard operator, artistically desirable to burn out bright areas
-	float L = Yr * ( 1.0 + Yr / ( Ymax * Ymax ) ) / ( 1.0 + Yr );
+	//float L = Yr * ( 1.0 + Yr / ( Ymax * Ymax ) ) / ( 1.0 + Yr );
+	
+	// exponential tone mapper that is very similar to the Uncharted one
+	// very good in keeping the colors natural
+	float L = 1.0 - exp( -Yr );
 	color.rgb *= L;
 #else
 	// Uncharted 2 tone mapper but looks weird :(
 
 	//float exposure = ( hdrKey / hdrAverageLuminance ) * 0.2;
 	//float exposure = Yr * 1.0;
-	float exposure = 0.5;
+	float exposure = 1.0;
 	float3 exposedColor = exposure * color.rgb;
 	
 	float3 curr = Uncharted2Tonemap( exposedColor );

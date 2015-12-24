@@ -19,8 +19,6 @@ _______________________________
 
 - True 64 bit HDR lighting with adaptive tone mapping
 
-	The used Reinhard operator adds a bit more contrast to the game and gives it a harder look.
-
 - Filmic post process effects like Technicolor color grading and film grain
 
 - Fixed issues with Mesa drivers and allowed them to use shadow mapping
