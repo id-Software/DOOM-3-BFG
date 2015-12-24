@@ -5,6 +5,8 @@ return
 	"skinning.inc",
 	
 	-- shaders
+	"ambient_lighting.pixel",
+	"ambient_lighting.vertex",
 	"bink.pixel",
 	"bink.vertex",
 	"bink_gui.pixel",
