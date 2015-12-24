@@ -78,7 +78,6 @@ _______________________________
 
 - Enhanced Subpixel Morphological Antialiasing
 	For more information see "Anti-Aliasing Methods in CryENGINE 3" and the docs at http://www.iryoku.com/smaa/
-
 - Filmic post process effects like Technicolor color grading and film grain
 
 - Fixed issues with Mesa drivers and allowed them to use shadow mapping

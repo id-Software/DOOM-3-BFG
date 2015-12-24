@@ -115,7 +115,11 @@ void main( PS_IN fragment, out PS_OUT result )
 	
 #if OPERATOR == 0
 	// advanced Reinhard operator, artistically desirable to burn out bright areas
-	float L = Yr * ( 1.0 + Yr / ( Ymax * Ymax ) ) / ( 1.0 + Yr );
+	//float L = Yr * ( 1.0 + Yr / ( Ymax * Ymax ) ) / ( 1.0 + Yr );
+	
+	// exponential tone mapper that is very similar to the Uncharted one
+	// very good in keeping the colors natural
+	float L = 1.0 - exp( -Yr );
 	color.rgb *= L;
 
 #elif OPERATOR == 1
