@@ -258,7 +258,7 @@ idCVar r_ldrContrastThreshold( "r_ldrContrastThreshold", "1.1", CVAR_RENDERER | 
 idCVar r_ldrContrastOffset( "r_ldrContrastOffset", "3", CVAR_RENDERER | CVAR_FLOAT, "" );
 
 idCVar r_useFilmicPostProcessEffects( "r_useFilmicPostProcessEffects", "1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_BOOL, "apply several post process effects to mimic a filmic look" );
-idCVar r_forceAmbient( "r_forceAmbient", "0.3", CVAR_RENDERER | CVAR_FLOAT, "render additional ambient pass to make the game less dark", 0.0f, 0.4f );
+idCVar r_forceAmbient( "r_forceAmbient", "0.2", CVAR_RENDERER | CVAR_FLOAT, "render additional ambient pass to make the game less dark", 0.0f, 0.4f );
 // RB end
 
 const char* fileExten[3] = { "tga", "png", "jpg" };
