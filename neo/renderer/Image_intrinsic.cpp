@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013-2014 Robert Beckebans
+Copyright (C) 2013-2015 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -32,6 +32,8 @@ If you have questions concerning this license or the applicable additional terms
 
 
 #include "tr_local.h"
+#include "SMAA/AreaTex.h"
+#include "SMAA/SearchTex.h"
 
 #define	DEFAULT_SIZE	16
 
@@ -725,6 +727,46 @@ static void R_CreateGrainImage1( idImage* image )
 	image->GenerateImage( ( byte* )data, GRAIN_SIZE, GRAIN_SIZE, TF_NEAREST, TR_REPEAT, TD_LOOKUP_TABLE_RGBA );
 }
 
+static void R_CreateSMAAAreaImage( idImage* image )
+{
+	static byte	data[AREATEX_HEIGHT][AREATEX_WIDTH][4];
+	
+	idRandom2 random( Sys_Milliseconds() );
+	
+	for( int x = 0; x < AREATEX_WIDTH; x++ )
+	{
+		for( int y = 0; y < AREATEX_HEIGHT; y++ )
+		{
+			data[y][x][0] = areaTexBytes[ y * AREATEX_PITCH + x * 2 + 0 ];
+			data[y][x][1] = areaTexBytes[ y * AREATEX_PITCH + x * 2 + 1 ];
+			data[y][x][2] = 0;
+			data[y][x][3] = 1;
+		}
+	}
+	
+	image->GenerateImage( ( byte* )data, AREATEX_WIDTH, AREATEX_HEIGHT, TF_NEAREST, TR_REPEAT, TD_LOOKUP_TABLE_RGBA );
+}
+
+static void R_CreateSMAASearchImage( idImage* image )
+{
+	static byte	data[SEARCHTEX_HEIGHT][SEARCHTEX_WIDTH][4];
+	
+	idRandom2 random( Sys_Milliseconds() );
+	
+	for( int x = 0; x < SEARCHTEX_WIDTH; x++ )
+	{
+		for( int y = 0; y < SEARCHTEX_HEIGHT; y++ )
+		{
+			data[y][x][0] = searchTexBytes[ y * SEARCHTEX_PITCH + x ];
+			data[y][x][1] = 0;
+			data[y][x][2] = 0;
+			data[y][x][3] = 1;
+		}
+	}
+	
+	image->GenerateImage( ( byte* )data, SEARCHTEX_WIDTH, SEARCHTEX_HEIGHT, TF_NEAREST, TR_REPEAT, TD_LOOKUP_TABLE_MONO );
+}
+
 // RB end
 
 /*
@@ -770,6 +812,8 @@ void idImageManager::CreateIntrinsicImages()
 	heatmap7Image = ImageFromFunction( "_heatmap7", R_CreateHeatmap7ColorsImage );
 	
 	grainImage1 = globalImages->ImageFromFunction( "_grain1", R_CreateGrainImage1 );
+	smaaAreaImage = globalImages->ImageFromFunction( "_smaaArea", R_CreateSMAAAreaImage );
+	smaaSearchImage = globalImages->ImageFromFunction( "_smaaSearch", R_CreateSMAASearchImage );
 	// RB end
 	
 	// scratchImage is used for screen wipes/doublevision etc..
