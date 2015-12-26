@@ -2,7 +2,7 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 2014 Robert Beckebans
+Copyright (C) 2014-2015 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -125,6 +125,8 @@ struct globalFramebuffers_t
 //	Framebuffer*				hdrQuarterFBO;
 	Framebuffer*				hdr64FBO;
 	Framebuffer*				bloomRenderFBO[MAX_BLOOM_BUFFERS];
+//	Framebuffer*				smaaEdgesFBO;
+//	Framebuffer*				smaaBlendFBO;
 };
 extern globalFramebuffers_t globalFramebuffers;
 

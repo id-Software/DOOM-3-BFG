@@ -2,7 +2,7 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 2014 Robert Beckebans
+Copyright (C) 2014-2015 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -149,6 +149,21 @@ void Framebuffer::Init()
 		globalFramebuffers.bloomRenderFBO[i]->AttachImage2D( GL_TEXTURE_2D, globalImages->bloomRender[i], 0 );
 		globalFramebuffers.bloomRenderFBO[i]->Check();
 	}
+	
+	// SMSAA
+	/*
+	globalFramebuffers.smaaEdgesFBO = new Framebuffer( "_smaaEdges", glConfig.nativeScreenWidth, glConfig.nativeScreenHeight );
+	globalFramebuffers.smaaEdgesFBO->Bind();
+	globalFramebuffers.smaaEdgesFBO->AddColorBuffer( GL_RGBA8, 0 );
+	globalFramebuffers.smaaEdgesFBO->AttachImage2D( GL_TEXTURE_2D, globalImages->smaaEdgesImage, 0 );
+	globalFramebuffers.smaaEdgesFBO->Check();
+	
+	globalFramebuffers.smaaBlendFBO = new Framebuffer( "_smaaBlend", glConfig.nativeScreenWidth, glConfig.nativeScreenHeight );
+	globalFramebuffers.smaaBlendFBO->Bind();
+	globalFramebuffers.smaaBlendFBO->AddColorBuffer( GL_RGBA8, 0 );
+	globalFramebuffers.smaaBlendFBO->AttachImage2D( GL_TEXTURE_2D, globalImages->smaaBlendImage, 0 );
+	globalFramebuffers.smaaBlendFBO->Check();
+	*/
 	
 	Unbind();
 }

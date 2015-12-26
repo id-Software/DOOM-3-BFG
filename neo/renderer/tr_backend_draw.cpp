@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013-2014 Robert Beckebans
+Copyright (C) 2013-2015 Robert Beckebans
 Copyright (C) 2014 Carl Kenner
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
@@ -4944,7 +4944,7 @@ void RB_PostProcess( const void* data )
 
 	// only do the post process step if resolution scaling is enabled. Prevents the unnecessary copying of the framebuffer and
 	// corresponding full screen quad pass.
-	if( rs_enable.GetInteger() == 0 && !r_useFilmicPostProcessEffects.GetBool() )
+	if( rs_enable.GetInteger() == 0 && !r_useFilmicPostProcessEffects.GetBool() ) //&& !r_useSMAA.GetInteger() )
 	{
 		return;
 	}
@@ -4968,6 +4968,31 @@ void RB_PostProcess( const void* data )
 	
 	GL_SelectTexture( 0 );
 	globalImages->currentRenderImage->Bind();
+	
+	// SMAA
+	{
+		/*
+		 * The shader has three passes, chained together as follows:
+		 *
+		 *                           |input|------------------·
+		 *                              v                     |
+		 *                    [ SMAA*EdgeDetection ]          |
+		 *                              v                     |
+		 *                          |edgesTex|                |
+		 *                              v                     |
+		 *              [ SMAABlendingWeightCalculation ]     |
+		 *                              v                     |
+		 *                          |blendTex|                |
+		 *                              v                     |
+		 *                [ SMAANeighborhoodBlending ] <------·
+		 *                              v
+		 *                           |output|
+		*/
+		
+		renderProgManager.BindShader_SMAA_EdgeDetection();
+		
+		RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
+	}
 	
 	GL_SelectTexture( 1 );
 	globalImages->grainImage1->Bind();

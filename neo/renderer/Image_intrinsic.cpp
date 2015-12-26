@@ -181,6 +181,11 @@ static void R_HDR_RGBA16FImage_Res64( idImage* image )
 {
 	image->GenerateImage( NULL, 64, 64, TF_NEAREST, TR_CLAMP, TD_RGBA16F );
 }
+
+static void R_SMAAImage_ResNative( idImage* image )
+{
+	image->GenerateImage( NULL, glConfig.nativeScreenWidth, glConfig.nativeScreenHeight, TF_NEAREST, TR_CLAMP, TD_LOOKUP_TABLE_RGBA );
+}
 // RB end
 
 static void R_AlphaNotchImage( idImage* image )
@@ -744,7 +749,7 @@ static void R_CreateSMAAAreaImage( idImage* image )
 		}
 	}
 	
-	image->GenerateImage( ( byte* )data, AREATEX_WIDTH, AREATEX_HEIGHT, TF_NEAREST, TR_REPEAT, TD_LOOKUP_TABLE_RGBA );
+	image->GenerateImage( ( byte* )data, AREATEX_WIDTH, AREATEX_HEIGHT, TF_LINEAR, TR_CLAMP, TD_LOOKUP_TABLE_RGBA );
 }
 
 static void R_CreateSMAASearchImage( idImage* image )
@@ -764,7 +769,7 @@ static void R_CreateSMAASearchImage( idImage* image )
 		}
 	}
 	
-	image->GenerateImage( ( byte* )data, SEARCHTEX_WIDTH, SEARCHTEX_HEIGHT, TF_NEAREST, TR_REPEAT, TD_LOOKUP_TABLE_MONO );
+	image->GenerateImage( ( byte* )data, SEARCHTEX_WIDTH, SEARCHTEX_HEIGHT, TF_LINEAR, TR_CLAMP, TD_LOOKUP_TABLE_MONO );
 }
 
 // RB end
@@ -812,8 +817,12 @@ void idImageManager::CreateIntrinsicImages()
 	heatmap7Image = ImageFromFunction( "_heatmap7", R_CreateHeatmap7ColorsImage );
 	
 	grainImage1 = globalImages->ImageFromFunction( "_grain1", R_CreateGrainImage1 );
+	
 	smaaAreaImage = globalImages->ImageFromFunction( "_smaaArea", R_CreateSMAAAreaImage );
 	smaaSearchImage = globalImages->ImageFromFunction( "_smaaSearch", R_CreateSMAASearchImage );
+	
+	smaaEdgesImage = globalImages->ImageFromFunction( "_smaaEdges", R_SMAAImage_ResNative );
+	smaaBlendImage = globalImages->ImageFromFunction( "_smaaBlend", R_SMAAImage_ResNative );
 	// RB end
 	
 	// scratchImage is used for screen wipes/doublevision etc..

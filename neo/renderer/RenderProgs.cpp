@@ -141,6 +141,10 @@ void idRenderProgManager::Init()
 		{ BUILTIN_BRIGHTPASS, "tonemap", "_brightpass", BIT( BRIGHTPASS ), false },
 		{ BUILTIN_HDR_GLARE_CHROMATIC, "hdr_glare_chromatic", "", 0, false },
 		{ BUILTIN_HDR_DEBUG, "tonemap", "_debug", BIT( HDR_DEBUG ), false },
+		
+		{ BUILTIN_SMAA_EDGE_DETECTION, "SMAA_edge_detection", "", 0, false },
+		{ BUILTIN_SMAA_BLENDING_WEIGHT_CALCULATION, "SMAA_blending_weight_calc", "", 0, false },
+		{ BUILTIN_SMAA_NEIGHBORHOOD_BLENDING, "SMAA_final", "", 0, false },
 		// RB end
 		{ BUILTIN_STEREO_DEGHOST, "stereoDeGhost.vfp", 0, false },
 		{ BUILTIN_STEREO_WARP, "stereoWarp.vfp", 0, false },
