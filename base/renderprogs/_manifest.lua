@@ -3,6 +3,7 @@ return
 	-- includes
 	"global.inc",
 	"skinning.inc",
+	"SMAA.inc",
 	
 	-- shaders
 	"ambient_lighting.pixel",
