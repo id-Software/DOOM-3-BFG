@@ -4991,9 +4991,18 @@ void RB_PostProcess( const void* data )
 		
 		renderProgManager.BindShader_SMAA_EdgeDetection();
 		
+		// set SMAA_RT_METRICS = rpScreenCorrectionFactor
+		float screenCorrectionParm[4];
+		screenCorrectionParm[0] = 1.0f / glConfig.nativeScreenWidth;
+		screenCorrectionParm[1] = 1.0f / glConfig.nativeScreenHeight;
+		screenCorrectionParm[2] = glConfig.nativeScreenWidth;
+		screenCorrectionParm[3] = glConfig.nativeScreenHeight;
+		SetFragmentParm( RENDERPARM_SCREENCORRECTIONFACTOR, screenCorrectionParm ); // rpScreenCorrectionFactor
+		
 		RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
 	}
 	
+#if 0
 	GL_SelectTexture( 1 );
 	globalImages->grainImage1->Bind();
 	
@@ -5026,6 +5035,8 @@ void RB_PostProcess( const void* data )
 	
 	// Draw
 	RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
+	
+#endif
 	
 	renderLog.CloseBlock();
 }

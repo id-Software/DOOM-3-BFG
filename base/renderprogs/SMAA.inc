@@ -575,15 +575,15 @@ SamplerState PointSampler { Filter = MIN_MAG_MIP_POINT; AddressU = Clamp; Addres
 #else
 #define mad(a, b, c) (a * b + c)
 #endif
-#define float2 vec2
-#define float3 vec3
-#define float4 vec4
-#define int2 ivec2
-#define int3 ivec3
-#define int4 ivec4
-#define bool2 bvec2
-#define bool3 bvec3
-#define bool4 bvec4
+//#define float2 vec2
+//#define float3 vec3
+//#define float4 vec4
+//#define int2 ivec2
+//#define int3 ivec3
+//#define int4 ivec4
+//#define bool2 bvec2
+//#define bool3 bvec3
+//#define bool4 bvec4
 #endif
 
 #if !defined(SMAA_HLSL_3) && !defined(SMAA_HLSL_4) && !defined(SMAA_HLSL_4_1) && !defined(SMAA_GLSL_3) && !defined(SMAA_GLSL_4) && !defined(SMAA_CUSTOM_SL)

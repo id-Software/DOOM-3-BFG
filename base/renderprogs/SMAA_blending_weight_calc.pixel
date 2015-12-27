@@ -54,5 +54,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	// base color with tone mapping and other post processing applied
 	float4 color = tex2D( samp0, tCoords );
 	
+	
+	
 	result.color = color;
 }

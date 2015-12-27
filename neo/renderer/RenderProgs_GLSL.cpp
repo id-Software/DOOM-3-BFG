@@ -555,6 +555,11 @@ idStr StripDeadCode( const idStr& in, const char* name, const idStrList& compile
 		src.AddDefine( "USE_HALF_LAMBERT" );
 	}
 	
+	// SMAA configuration
+	src.AddDefine( "SMAA_GLSL_3" );
+	src.AddDefine( "SMAA_RT_METRICS rpScreenCorrectionFactor " );
+	src.AddDefine( "SMAA_PRESET_HIGH" );
+	
 	idList< idCGBlock > blocks;
 	
 	blocks.SetNum( 100 );
