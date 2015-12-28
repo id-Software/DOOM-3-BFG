@@ -121,7 +121,9 @@ struct globalFramebuffers_t
 {
 	Framebuffer*				shadowFBO[MAX_SHADOWMAP_RESOLUTIONS];
 	Framebuffer*				hdrFBO;
+#if defined(USE_HDR_MSAA)
 	Framebuffer*				hdrNonMSAAFBO;
+#endif
 //	Framebuffer*				hdrQuarterFBO;
 	Framebuffer*				hdr64FBO;
 	Framebuffer*				bloomRenderFBO[MAX_BLOOM_BUFFERS];
