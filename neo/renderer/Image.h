@@ -358,6 +358,7 @@ public:
 	idImage*			bloomRender[2];
 	idImage*			heatmap5Image;
 	idImage*			heatmap7Image;
+	idImage*			smaaInputImage;
 	idImage*			smaaAreaImage;
 	idImage*			smaaSearchImage;
 	idImage*			smaaEdgesImage;

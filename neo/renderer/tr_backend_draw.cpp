@@ -4954,7 +4954,8 @@ void RB_PostProcess( const void* data )
 	// resolve the scaled rendering to a temporary texture
 	postProcessCommand_t* cmd = ( postProcessCommand_t* )data;
 	const idScreenRect& viewport = cmd->viewDef->viewport;
-	globalImages->currentRenderImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
+	//globalImages->currentRenderImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
+	globalImages->smaaInputImage->CopyFramebuffer( 0, 0, glConfig.nativeScreenWidth, glConfig.nativeScreenHeight );
 	
 	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
 	GL_Cull( CT_TWO_SIDED );
@@ -4967,7 +4968,7 @@ void RB_PostProcess( const void* data )
 	GL_Scissor( 0, 0, screenWidth, screenHeight );
 	
 	GL_SelectTexture( 0 );
-	globalImages->currentRenderImage->Bind();
+	globalImages->smaaInputImage->Bind();
 	
 	// SMAA
 	{
@@ -5005,11 +5006,16 @@ void RB_PostProcess( const void* data )
 		renderProgManager.BindShader_SMAA_EdgeDetection();
 		RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
 		
+#if 1
 		//globalImages->smaaEdgesImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
 		
-		globalFramebuffers.smaaBlendFBO->Bind();
+		//globalFramebuffers.smaaBlendFBO->Bind();
+		Framebuffer::Unbind();
 		
 		glClear( GL_COLOR_BUFFER_BIT );
+		
+		GL_SelectTexture( 0 );
+		globalImages->smaaEdgesImage->Bind();
 		
 		GL_SelectTexture( 1 );
 		globalImages->smaaAreaImage->Bind();
@@ -5021,25 +5027,28 @@ void RB_PostProcess( const void* data )
 		RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
 		
 		Framebuffer::Unbind();
+#endif
 		
-		globalImages->BindNull();
-		GL_SelectTexture( 1 );
+#if 0
 		globalImages->BindNull();
 		
 		//GL_SelectTexture( 0 );
 		//globalImages->smaaBlendImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
 		
 		GL_SelectTexture( 0 );
-		globalImages->currentRenderImage->Bind();
+		globalImages->smaaInputImage->Bind();
 		
 		GL_SelectTexture( 1 );
 		globalImages->smaaBlendImage->Bind();
 		
 		renderProgManager.BindShader_SMAA_NeighborhoodBlending();
 		RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
+#endif
 	}
 	
 #if 0
+	globalImages->currentRenderImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
+	
 	GL_SelectTexture( 1 );
 	globalImages->grainImage1->Bind();
 	

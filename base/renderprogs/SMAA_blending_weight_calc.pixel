@@ -67,7 +67,8 @@ void main( PS_IN fragment, out PS_OUT result )
 	float2 pixcoord = fragment.texcoord4.st;
 	
 	// TODO
-	float4 subsampleIndices = float4( 0.0 );
+	//float4 subsampleIndices = float4( 1.0, 1.0, 1.0, 0.0 );
+	float4 subsampleIndices = float4( 0.0, 0.0, 0.0, 0.0 );
 	
 	float4 color = SMAABlendingWeightCalculationPS( texcoord,
                                        pixcoord,
@@ -76,6 +77,7 @@ void main( PS_IN fragment, out PS_OUT result )
                                        samp1,
                                        samp2,
                                        subsampleIndices );
-									   
+
+	//color = float4( texcoord.s, texcoord.t, 0.0, 1.0 );
 	result.color = color;
 }

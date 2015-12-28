@@ -147,6 +147,19 @@ static void R_RGBA8Image( idImage* image )
 	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE, TF_DEFAULT, TR_REPEAT, TD_LOOKUP_TABLE_RGBA );
 }
 
+static void R_RGBA8LinearImage( idImage* image )
+{
+	byte	data[DEFAULT_SIZE][DEFAULT_SIZE][4];
+	
+	memset( data, 0, sizeof( data ) );
+	data[0][0][0] = 16;
+	data[0][0][1] = 32;
+	data[0][0][2] = 48;
+	data[0][0][3] = 96;
+	
+	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE, TF_LINEAR, TR_REPEAT, TD_LOOKUP_TABLE_RGBA );
+}
+
 static void R_DepthImage( idImage* image )
 {
 	// RB: NULL data and MSAA support
@@ -742,10 +755,17 @@ static void R_CreateSMAAAreaImage( idImage* image )
 	{
 		for( int y = 0; y < AREATEX_HEIGHT; y++ )
 		{
+#if 0
+			data[AREATEX_HEIGHT - y][x][0] = areaTexBytes[ y * AREATEX_PITCH + x * 2 + 0 ];
+			data[AREATEX_HEIGHT - y][x][1] = areaTexBytes[ y * AREATEX_PITCH + x * 2 + 1 ];
+			data[AREATEX_HEIGHT - y][x][2] = 0;
+			data[AREATEX_HEIGHT - y][x][3] = 1;
+#else
 			data[y][x][0] = areaTexBytes[ y * AREATEX_PITCH + x * 2 + 0 ];
 			data[y][x][1] = areaTexBytes[ y * AREATEX_PITCH + x * 2 + 1 ];
 			data[y][x][2] = 0;
 			data[y][x][3] = 1;
+#endif
 		}
 	}
 	
@@ -762,14 +782,21 @@ static void R_CreateSMAASearchImage( idImage* image )
 	{
 		for( int y = 0; y < SEARCHTEX_HEIGHT; y++ )
 		{
+#if 0
+			data[SEARCHTEX_HEIGHT - y][x][0] = searchTexBytes[ y * SEARCHTEX_PITCH + x ];
+			data[SEARCHTEX_HEIGHT - y][x][1] = 0;
+			data[SEARCHTEX_HEIGHT - y][x][2] = 0;
+			data[SEARCHTEX_HEIGHT - y][x][3] = 1;
+#else
 			data[y][x][0] = searchTexBytes[ y * SEARCHTEX_PITCH + x ];
 			data[y][x][1] = 0;
 			data[y][x][2] = 0;
 			data[y][x][3] = 1;
+#endif
 		}
 	}
 	
-	image->GenerateImage( ( byte* )data, SEARCHTEX_WIDTH, SEARCHTEX_HEIGHT, TF_LINEAR, TR_CLAMP, TD_LOOKUP_TABLE_MONO );
+	image->GenerateImage( ( byte* )data, SEARCHTEX_WIDTH, SEARCHTEX_HEIGHT, TF_NEAREST, TR_CLAMP, TD_LOOKUP_TABLE_MONO );
 }
 
 // RB end
@@ -817,6 +844,8 @@ void idImageManager::CreateIntrinsicImages()
 	heatmap7Image = ImageFromFunction( "_heatmap7", R_CreateHeatmap7ColorsImage );
 	
 	grainImage1 = globalImages->ImageFromFunction( "_grain1", R_CreateGrainImage1 );
+	
+	smaaInputImage = ImageFromFunction( "_smaaInput", R_RGBA8LinearImage );
 	
 	smaaAreaImage = globalImages->ImageFromFunction( "_smaaArea", R_CreateSMAAAreaImage );
 	smaaSearchImage = globalImages->ImageFromFunction( "_smaaSearch", R_CreateSMAASearchImage );

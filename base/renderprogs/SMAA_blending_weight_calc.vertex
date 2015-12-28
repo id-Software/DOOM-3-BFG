@@ -56,11 +56,13 @@ void main( VS_IN vertex, out VS_OUT result )
 {
 	result.position = vertex.position;
 
-	result.texcoord0 =  vertex.texcoord;
+	float2 texcoord = vertex.texcoord;
+	//float2 texcoord = float2( vertex.texcoord.s, 1.0 - vertex.texcoord.t );
+	result.texcoord0 = texcoord;
 
 	float4 offset[3];
 	float2 pixcoord;
-	SMAABlendingWeightCalculationVS( vertex.texcoord, pixcoord, offset );
+	SMAABlendingWeightCalculationVS( texcoord, pixcoord, offset );
 	
 	result.texcoord1 = offset[0];
 	result.texcoord2 = offset[1];
