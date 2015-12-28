@@ -197,7 +197,7 @@ static void R_HDR_RGBA16FImage_Res64( idImage* image )
 
 static void R_SMAAImage_ResNative( idImage* image )
 {
-	image->GenerateImage( NULL, glConfig.nativeScreenWidth, glConfig.nativeScreenHeight, TF_NEAREST, TR_CLAMP, TD_LOOKUP_TABLE_RGBA );
+	image->GenerateImage( NULL, glConfig.nativeScreenWidth, glConfig.nativeScreenHeight, TF_LINEAR, TR_CLAMP, TD_LOOKUP_TABLE_RGBA );
 }
 // RB end
 
@@ -796,7 +796,7 @@ static void R_CreateSMAASearchImage( idImage* image )
 		}
 	}
 	
-	image->GenerateImage( ( byte* )data, SEARCHTEX_WIDTH, SEARCHTEX_HEIGHT, TF_NEAREST, TR_CLAMP, TD_LOOKUP_TABLE_MONO );
+	image->GenerateImage( ( byte* )data, SEARCHTEX_WIDTH, SEARCHTEX_HEIGHT, TF_LINEAR, TR_CLAMP, TD_LOOKUP_TABLE_MONO );
 }
 
 // RB end

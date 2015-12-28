@@ -5009,8 +5009,8 @@ void RB_PostProcess( const void* data )
 #if 1
 		//globalImages->smaaEdgesImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
 		
-		//globalFramebuffers.smaaBlendFBO->Bind();
-		Framebuffer::Unbind();
+		globalFramebuffers.smaaBlendFBO->Bind();
+		//Framebuffer::Unbind();
 		
 		glClear( GL_COLOR_BUFFER_BIT );
 		
@@ -5029,7 +5029,7 @@ void RB_PostProcess( const void* data )
 		Framebuffer::Unbind();
 #endif
 		
-#if 0
+#if 1
 		globalImages->BindNull();
 		
 		//GL_SelectTexture( 0 );
