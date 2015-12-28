@@ -221,6 +221,26 @@ void Framebuffer::CheckFramebuffers()
 			globalFramebuffers.bloomRenderFBO[i]->Check();
 		}
 		
+		// SMAA
+
+		globalImages->smaaEdgesImage->Resize( glConfig.nativeScreenWidth, glConfig.nativeScreenHeight );
+			
+		globalFramebuffers.smaaEdgesFBO->width = glConfig.nativeScreenWidth / 4;
+		globalFramebuffers.smaaEdgesFBO->height = glConfig.nativeScreenHeight / 4;
+			
+		globalFramebuffers.smaaEdgesFBO->Bind();
+		globalFramebuffers.smaaEdgesFBO->AttachImage2D( GL_TEXTURE_2D, globalImages->smaaEdgesImage, 0 );
+		globalFramebuffers.smaaEdgesFBO->Check();
+
+		globalImages->smaaBlendImage->Resize( glConfig.nativeScreenWidth, glConfig.nativeScreenHeight );
+			
+		globalFramebuffers.smaaBlendFBO->width = glConfig.nativeScreenWidth / 4;
+		globalFramebuffers.smaaBlendFBO->height = glConfig.nativeScreenHeight / 4;
+			
+		globalFramebuffers.smaaBlendFBO->Bind();
+		globalFramebuffers.smaaBlendFBO->AttachImage2D( GL_TEXTURE_2D, globalImages->smaaBlendImage, 0 );
+		globalFramebuffers.smaaBlendFBO->Check();
+
 		Unbind();
 	}
 }

@@ -5046,7 +5046,7 @@ void RB_PostProcess( const void* data )
 #endif
 	}
 	
-#if 0
+#if 1
 	globalImages->currentRenderImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
 	
 	GL_SelectTexture( 1 );
