@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 2015 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
 
@@ -28,7 +29,12 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "renderprogs/global.inc"
 
-struct VS_IN {
+#define SMAA_INCLUDE_VS 1
+#define SMAA_INCLUDE_PS 0
+#include "renderprogs/SMAA.inc"
+
+struct VS_IN 
+{
 	float4 position : POSITION;
 	float2 texcoord : TEXCOORD0;
 	float4 normal : NORMAL;
@@ -36,17 +42,29 @@ struct VS_IN {
 	float4 color : COLOR0;
 };
 
-struct VS_OUT {
+struct VS_OUT
+{
 	float4 position : POSITION;
 	float2 texcoord0 : TEXCOORD0;
+	float4 texcoord1 : TEXCOORD1;
+	float4 texcoord2 : TEXCOORD2;
+	float4 texcoord3 : TEXCOORD3;
+	float4 texcoord4 : TEXCOORD4;
 };
 
-void main( VS_IN vertex, out VS_OUT result ) {
+void main( VS_IN vertex, out VS_OUT result )
+{
 	result.position = vertex.position;
 
-	//result.position.x = vertex.position; //dot4( vertex.position, rpMVPmatrixX );
-	//result.position.y = dot4( vertex.position, rpMVPmatrixY );
-	//result.position.z = dot4( vertex.position, rpMVPmatrixZ );
-	//result.position.w = dot4( vertex.position, rpMVPmatrixW );
 	result.texcoord0 =  vertex.texcoord;
+
+	float4 offset[3];
+	float2 pixcoord;
+	SMAABlendingWeightCalculationVS( vertex.texcoord, pixcoord, offset );
+	
+	result.texcoord1 = offset[0];
+	result.texcoord2 = offset[1];
+	result.texcoord3 = offset[2];
+
+	result.texcoord4.st = pixcoord;
 }
