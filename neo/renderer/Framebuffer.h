@@ -125,8 +125,8 @@ struct globalFramebuffers_t
 //	Framebuffer*				hdrQuarterFBO;
 	Framebuffer*				hdr64FBO;
 	Framebuffer*				bloomRenderFBO[MAX_BLOOM_BUFFERS];
-//	Framebuffer*				smaaEdgesFBO;
-//	Framebuffer*				smaaBlendFBO;
+	Framebuffer*				smaaEdgesFBO;
+	Framebuffer*				smaaBlendFBO;
 };
 extern globalFramebuffers_t globalFramebuffers;
 

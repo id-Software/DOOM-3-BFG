@@ -4997,10 +4997,19 @@ void RB_PostProcess( const void* data )
 		screenCorrectionParm[3] = glConfig.nativeScreenHeight;
 		SetFragmentParm( RENDERPARM_SCREENCORRECTIONFACTOR, screenCorrectionParm ); // rpScreenCorrectionFactor
 		
+		globalFramebuffers.smaaEdgesFBO->Bind();
+		
+		glClearColor( 0, 0, 0, 0 );
+		glClear( GL_COLOR_BUFFER_BIT );
+		
 		renderProgManager.BindShader_SMAA_EdgeDetection();
 		RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
 		
-		globalImages->smaaEdgesImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
+		//globalImages->smaaEdgesImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
+		
+		globalFramebuffers.smaaBlendFBO->Bind();
+		
+		glClear( GL_COLOR_BUFFER_BIT );
 		
 		GL_SelectTexture( 1 );
 		globalImages->smaaAreaImage->Bind();
@@ -5011,10 +5020,23 @@ void RB_PostProcess( const void* data )
 		renderProgManager.BindShader_SMAA_BlendingWeightCalculation();
 		RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
 		
+		Framebuffer::Unbind();
 		
+		globalImages->BindNull();
+		GL_SelectTexture( 1 );
+		globalImages->BindNull();
 		
+		//GL_SelectTexture( 0 );
+		//globalImages->smaaBlendImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
 		
-		//globalImages->currentRenderImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
+		GL_SelectTexture( 0 );
+		globalImages->currentRenderImage->Bind();
+		
+		GL_SelectTexture( 1 );
+		globalImages->smaaBlendImage->Bind();
+		
+		renderProgManager.BindShader_SMAA_NeighborhoodBlending();
+		RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
 	}
 	
 #if 0
@@ -5053,6 +5075,7 @@ void RB_PostProcess( const void* data )
 	
 #endif
 	
+	GL_SelectTexture( 2 );
 	globalImages->BindNull();
 	
 	GL_SelectTexture( 1 );

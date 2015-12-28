@@ -151,7 +151,6 @@ void Framebuffer::Init()
 	}
 	
 	// SMSAA
-	/*
 	globalFramebuffers.smaaEdgesFBO = new Framebuffer( "_smaaEdges", glConfig.nativeScreenWidth, glConfig.nativeScreenHeight );
 	globalFramebuffers.smaaEdgesFBO->Bind();
 	globalFramebuffers.smaaEdgesFBO->AddColorBuffer( GL_RGBA8, 0 );
@@ -163,7 +162,6 @@ void Framebuffer::Init()
 	globalFramebuffers.smaaBlendFBO->AddColorBuffer( GL_RGBA8, 0 );
 	globalFramebuffers.smaaBlendFBO->AttachImage2D( GL_TEXTURE_2D, globalImages->smaaBlendImage, 0 );
 	globalFramebuffers.smaaBlendFBO->Check();
-	*/
 	
 	Unbind();
 }
