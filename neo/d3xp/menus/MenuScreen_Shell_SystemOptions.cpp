@@ -426,6 +426,11 @@ bool idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::IsRestar
 		return true;
 	}
 	
+	if( originalShadowMapping != r_useShadowMapping.GetInteger() )
+	{
+		return true;
+	}
+	
 	return false;
 }
 
@@ -612,7 +617,7 @@ idSWFScriptVar idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings
 			}
 			
 			static const int numValues = 5;
-			static const const char* values[numValues] =
+			static const char* values[numValues] =
 			{
 				"None",
 				"SMAA 1X",
