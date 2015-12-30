@@ -4948,7 +4948,7 @@ void RB_PostProcess( const void* data )
 
 	// only do the post process step if resolution scaling is enabled. Prevents the unnecessary copying of the framebuffer and
 	// corresponding full screen quad pass.
-	if( rs_enable.GetInteger() == 0 && !r_useFilmicPostProcessEffects.GetBool() ) //&& !r_useSMAA.GetInteger() )
+	if( rs_enable.GetInteger() == 0 && !r_useFilmicPostProcessEffects.GetBool() && r_antiAliasing.GetInteger() == 0 )
 	{
 		return;
 	}
@@ -4958,8 +4958,6 @@ void RB_PostProcess( const void* data )
 	// resolve the scaled rendering to a temporary texture
 	postProcessCommand_t* cmd = ( postProcessCommand_t* )data;
 	const idScreenRect& viewport = cmd->viewDef->viewport;
-	//globalImages->currentRenderImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
-	globalImages->smaaInputImage->CopyFramebuffer( 0, 0, glConfig.nativeScreenWidth, glConfig.nativeScreenHeight );
 	
 	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
 	GL_Cull( CT_TWO_SIDED );
@@ -4971,10 +4969,9 @@ void RB_PostProcess( const void* data )
 	GL_Viewport( 0, 0, screenWidth, screenHeight );
 	GL_Scissor( 0, 0, screenWidth, screenHeight );
 	
-	GL_SelectTexture( 0 );
-	globalImages->smaaInputImage->Bind();
-	
 	// SMAA
+	int aaMode = r_antiAliasing.GetInteger();
+	if( aaMode == ANTI_ALIASING_SMAA_1X )
 	{
 		/*
 		 * The shader has three passes, chained together as follows:
@@ -4994,6 +4991,8 @@ void RB_PostProcess( const void* data )
 		 *                           |output|
 		*/
 		
+		globalImages->smaaInputImage->CopyFramebuffer( 0, 0, glConfig.nativeScreenWidth, glConfig.nativeScreenHeight );
+		
 		// set SMAA_RT_METRICS = rpScreenCorrectionFactor
 		float screenCorrectionParm[4];
 		screenCorrectionParm[0] = 1.0f / glConfig.nativeScreenWidth;
@@ -5006,6 +5005,9 @@ void RB_PostProcess( const void* data )
 		
 		glClearColor( 0, 0, 0, 0 );
 		glClear( GL_COLOR_BUFFER_BIT );
+		
+		GL_SelectTexture( 0 );
+		globalImages->smaaInputImage->Bind();
 		
 		renderProgManager.BindShader_SMAA_EdgeDetection();
 		RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
@@ -5051,41 +5053,46 @@ void RB_PostProcess( const void* data )
 	}
 	
 #if 1
-	globalImages->currentRenderImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
-	
-	GL_SelectTexture( 1 );
-	globalImages->grainImage1->Bind();
-	
-	renderProgManager.BindShader_PostProcess();
-	
-	const static int GRAIN_SIZE = 128;
-	
-	// screen power of two correction factor
-	float screenCorrectionParm[4];
-	screenCorrectionParm[0] = 1.0f / GRAIN_SIZE;
-	screenCorrectionParm[1] = 1.0f / GRAIN_SIZE;
-	screenCorrectionParm[2] = 1.0f;
-	screenCorrectionParm[3] = 1.0f;
-	SetFragmentParm( RENDERPARM_SCREENCORRECTIONFACTOR, screenCorrectionParm ); // rpScreenCorrectionFactor
-	
-	float jitterTexOffset[4];
-	if( r_shadowMapRandomizeJitter.GetBool() )
+	if( r_useFilmicPostProcessEffects.GetBool() )
 	{
-		jitterTexOffset[0] = ( rand() & 255 ) / 255.0;
-		jitterTexOffset[1] = ( rand() & 255 ) / 255.0;
+		globalImages->currentRenderImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
+		
+		GL_SelectTexture( 0 );
+		globalImages->currentRenderImage->Bind();
+		
+		GL_SelectTexture( 1 );
+		globalImages->grainImage1->Bind();
+		
+		renderProgManager.BindShader_PostProcess();
+		
+		const static int GRAIN_SIZE = 128;
+		
+		// screen power of two correction factor
+		float screenCorrectionParm[4];
+		screenCorrectionParm[0] = 1.0f / GRAIN_SIZE;
+		screenCorrectionParm[1] = 1.0f / GRAIN_SIZE;
+		screenCorrectionParm[2] = 1.0f;
+		screenCorrectionParm[3] = 1.0f;
+		SetFragmentParm( RENDERPARM_SCREENCORRECTIONFACTOR, screenCorrectionParm ); // rpScreenCorrectionFactor
+		
+		float jitterTexOffset[4];
+		if( r_shadowMapRandomizeJitter.GetBool() )
+		{
+			jitterTexOffset[0] = ( rand() & 255 ) / 255.0;
+			jitterTexOffset[1] = ( rand() & 255 ) / 255.0;
+		}
+		else
+		{
+			jitterTexOffset[0] = 0;
+			jitterTexOffset[1] = 0;
+		}
+		jitterTexOffset[2] = 0.0f;
+		jitterTexOffset[3] = 0.0f;
+		SetFragmentParm( RENDERPARM_JITTERTEXOFFSET, jitterTexOffset ); // rpJitterTexOffset
+		
+		// Draw
+		RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
 	}
-	else
-	{
-		jitterTexOffset[0] = 0;
-		jitterTexOffset[1] = 0;
-	}
-	jitterTexOffset[2] = 0.0f;
-	jitterTexOffset[3] = 0.0f;
-	SetFragmentParm( RENDERPARM_JITTERTEXOFFSET, jitterTexOffset ); // rpJitterTexOffset
-	
-	// Draw
-	RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
-	
 #endif
 	
 	GL_SelectTexture( 2 );

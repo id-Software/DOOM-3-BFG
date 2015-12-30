@@ -68,7 +68,7 @@ void idMenuScreen_Shell_Credits::SetupCreditList()
 	creditList.Append( creditInfo_t( 3,	"RBDOOM 3 BFG EDITION"	) );
 	creditList.Append( creditInfo_t() );
 	creditList.Append( creditInfo_t( 1,	"Lead Programmer"	) );
-	creditList.Append( creditInfo_t( 0,	"Robert Beckebans - Major part of the Linux port"	) );
+	creditList.Append( creditInfo_t( 0,	"Robert Beckebans - Renderer + engine upgrades, Linux"	) );
 	creditList.Append( creditInfo_t() );
 	creditList.Append( creditInfo_t( 1,	"Additional Programming"	) );
 	creditList.Append( creditInfo_t( 0,	"Daniel Gibson - Tons of code cleanups, netcode++"	) );

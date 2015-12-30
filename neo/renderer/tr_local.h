@@ -921,7 +921,7 @@ extern idCVar r_skipIntelWorkarounds;		// skip work arounds for Intel driver bug
 extern idCVar r_vidMode;					// video mode number
 extern idCVar r_displayRefresh;				// optional display refresh rate option for vid mode
 extern idCVar r_fullscreen;					// 0 = windowed, 1 = full screen
-extern idCVar r_multiSamples;				// number of antialiasing samples
+extern idCVar r_antiAliasing;				// anti aliasing mode, SMAA, TXAA, MSAA etc.
 
 extern idCVar r_znear;						// near Z clip plane
 
@@ -1093,6 +1093,8 @@ extern idCVar r_ldrContrastOffset;
 
 extern idCVar r_useFilmicPostProcessEffects;
 extern idCVar r_forceAmbient;
+
+extern idCVar r_antiAliasing;
 // RB end
 
 /*

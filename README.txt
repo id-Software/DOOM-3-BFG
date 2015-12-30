@@ -303,14 +303,19 @@ __________________________________________
 
 - True 64 bit HDR lighting with adaptive tone mapping
 
-	The used Reinhard operator adds a bit more contrast to the game and gives it a harder look.
+- Enhanced Subpixel Morphological Antialiasing
+	For more information see "Anti-Aliasing Methods in CryENGINE 3" and the docs at http://www.iryoku.com/smaa/
 
 - Filmic post process effects like Technicolor color grading and film grain
+
+- Additional ambient render pass to make the game less dark similar to the Quake 4 r_forceAmbient technique
 
 ___________________________________________________
 
 9) CONSOLE VARIABLES
 __________________________________________
+
+r_antiAliasing - Different Anti-Aliasing modes
 
 r_useShadowMapping [0 or 1] - Use soft shadow mapping instead of hard stencil shadows
 
