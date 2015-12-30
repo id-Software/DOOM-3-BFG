@@ -31,7 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 
 const static int NUM_SYSTEM_OPTIONS_OPTIONS = 8;
 
-extern idCVar r_multiSamples;
+extern idCVar r_antiAliasing;
 extern idCVar r_motionBlur;
 extern idCVar r_swapInterval;
 extern idCVar s_volume_dB;
@@ -389,7 +389,7 @@ idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::LoadData
 void idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::LoadData()
 {
 	originalFramerate = com_engineHz.GetInteger();
-	originalAntialias = r_multiSamples.GetInteger();
+	originalAntialias = r_antiAliasing.GetInteger();
 	originalMotionBlur = r_motionBlur.GetInteger();
 	originalVsync = r_swapInterval.GetInteger();
 	originalBrightness = r_lightScale.GetFloat();
@@ -416,14 +416,16 @@ idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::IsRestartRequ
 */
 bool idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::IsRestartRequired() const
 {
-	if( originalAntialias != r_multiSamples.GetInteger() )
+	if( originalAntialias != r_antiAliasing.GetInteger() )
 	{
 		return true;
 	}
+	
 	if( originalFramerate != com_engineHz.GetInteger() )
 	{
 		return true;
 	}
+	
 	return false;
 }
 
@@ -500,10 +502,17 @@ void idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::AdjustFi
 		case SYSTEM_FIELD_ANTIALIASING:
 		{
 			// RB: disabled 16x MSAA
-			static const int numValues = 4;
-			static const int values[numValues] = { 0, 2, 4, 8 };
+			static const int numValues = 5;
+			static const int values[numValues] =
+			{
+				ANTI_ALIASING_NONE,
+				ANTI_ALIASING_SMAA_1X,
+				ANTI_ALIASING_MSAA_2X,
+				ANTI_ALIASING_MSAA_4X,
+				ANTI_ALIASING_MSAA_8X
+			};
 			// RB end
-			r_multiSamples.SetInteger( AdjustOption( r_multiSamples.GetInteger(), values, numValues, adjustAmount ) );
+			r_antiAliasing.SetInteger( AdjustOption( r_antiAliasing.GetInteger(), values, numValues, adjustAmount ) );
 			break;
 		}
 		case SYSTEM_FIELD_MOTIONBLUR:
@@ -596,11 +605,26 @@ idSWFScriptVar idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings
 				return "#str_swf_disabled";
 			}
 		case SYSTEM_FIELD_ANTIALIASING:
-			if( r_multiSamples.GetInteger() == 0 )
+		{
+			if( r_antiAliasing.GetInteger() == 0 )
 			{
 				return "#str_swf_disabled";
 			}
-			return va( "%dx", r_multiSamples.GetInteger() );
+			
+			static const int numValues = 5;
+			static const const char* values[numValues] =
+			{
+				"None",
+				"SMAA 1X",
+				"MSAA 2X",
+				"MSAA 4X",
+				"MSAA 8X"
+			};
+			
+			compile_time_assert( numValues == ( ANTI_ALIASING_MSAA_8X + 1 ) );
+			
+			return values[ r_antiAliasing.GetInteger() ];
+		}
 		case SYSTEM_FIELD_MOTIONBLUR:
 			if( r_motionBlur.GetInteger() == 0 )
 			{
@@ -641,7 +665,7 @@ bool idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::IsDataCh
 	{
 		return true;
 	}
-	if( originalAntialias != r_multiSamples.GetInteger() )
+	if( originalAntialias != r_antiAliasing.GetInteger() )
 	{
 		return true;
 	}
