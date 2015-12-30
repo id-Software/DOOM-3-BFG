@@ -43,13 +43,13 @@ struct PS_OUT
 	float4 color : COLOR;
 };
 
-float A = 0.15;
-float B = 0.50;
-float C = 0.10;
-float D = 0.20;
-float E = 0.02;
-float F = 0.30;
-float W = 11.2;
+float A = 0.22; // shoulder strength
+float B = 0.3;	// linear strength
+float C = 0.10;	// linear angle
+float D = 0.20;	// toe strength
+float E = 0.01;	// toe numerator
+float F = 0.30;	// toe denominator
+float W = 11.2;	// linear white point
  
 float3 Uncharted2Tonemap( float3 x )
 {
@@ -68,7 +68,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	float4 color = tex2D( samp0, tCoords );
 	
 	// get the luminance of the current pixel
-	float Y = dot( LUMINANCE_VECTOR, color );
+	float Y = dot( LUMINANCE_SRGB, color );
 
 	const float hdrGamma = 2.2;
 	float gamma = hdrGamma;
@@ -99,15 +99,33 @@ void main( PS_IN fragment, out PS_OUT result )
 	float Ymax = hdrMaxLuminance;
 
 	
-#if 1
+#if 0
 	// advanced Reinhard operator, artistically desirable to burn out bright areas
 	float L = Yr * ( 1.0 + Yr / ( Ymax * Ymax ) ) / ( 1.0 + Yr );
 	color.rgb *= L;
+	
+	// http://freespace.virgin.net/hugo.elias/graphics/x_posure.htm
+	// exponential tone mapper that is very similar to the Uncharted one
+	// very good in keeping the colors natural
+	//float exposure = 1.0;
+	//float L = ( 1.0 - exp( -Yr * exposure ) );
+	//color.rgb *= L;
+	
+	// Kodak filmic tone mappping, includes gamma correction
+	//float3 rgb = max( float3( 0 ), color.rgb - float3( 0.004 ) );
+	//color.rgb = rgb * ( float3( 0.5 ) + 6.2 * rgb ) / ( float3( 0.06 ) + rgb * ( float3( 1.7 ) + 6.2 * rgb ) );
+	
+	// http://iwasbeingirony.blogspot.de/2010/04/approximating-film-with-tonemapping.html
+	//const float cutoff = 0.025;
+	//color.rgb += ( cutoff * 2.0 - color.rgb ) * saturate( cutoff * 2 - color.rgb ) * ( 0.25 / cutoff ) - cutoff;
+	//color.rgb = color.rgb * ( float3( 0.5 ) + 6.2 * color.rgb ) / ( float3( 0.06 ) + color.rgb * ( float3( 1.7 ) + 6.2 * color.rgb ) );
+	
 #else
-	// Uncharted 2 tone mapper but looks weird :(
+	// Uncharted 2 tone mapping based on Kodak film curve
 
-	float exposure = ( hdrKey / hdrAverageLuminance ) * 0.4;
+	//float exposure = ( hdrKey / hdrAverageLuminance ) * 0.2;
 	//float exposure = Yr * 1.0;
+	float exposure = 1.0;
 	float3 exposedColor = exposure * color.rgb;
 	
 	float3 curr = Uncharted2Tonemap( exposedColor );
@@ -144,7 +162,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	
 #if defined(HDR_DEBUG)
 	//color = tex2D( samp1, float2( L, 0.0 ) );
-	color = tex2D( samp1, float2( dot( LUMINANCE_VECTOR, color ), 0.0 ) );
+	color = tex2D( samp1, float2( dot( LUMINANCE_SRGB, color ), 0.0 ) );
 #endif
 
 	result.color = color;

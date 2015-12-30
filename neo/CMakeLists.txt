@@ -400,6 +400,7 @@ file(GLOB RENDERER_JOBS_STATICSHADOWVOLUME_INCLUDES renderer/jobs/staticshadowvo
 file(GLOB RENDERER_JOBS_STATICSHADOWVOLUME_SOURCES renderer/jobs/staticshadowvolume/*.cpp)
 file(GLOB RENDERER_OPENGL_INCLUDES renderer/OpenGL/*.h)
 file(GLOB RENDERER_OPENGL_SOURCES renderer/OpenGL/*.cpp)
+file(GLOB RENDERER_SMAA_INCLUDES renderer/SMAA/*.h)
 
 file(GLOB IRRXML_INCLUDES libs/irrxml/src/*.h)
 file(GLOB IRRXML_SOURCES libs/irrxml/src/*.cpp)
@@ -988,6 +989,8 @@ source_group("renderer\\jobs\\staticshadowvolume" FILES ${RENDERER_JOBS_STATICSH
 source_group("renderer\\OpenGL" FILES ${RENDERER_OPENGL_INCLUDES})
 source_group("renderer\\OpenGL" FILES ${RENDERER_OPENGL_SOURCES})
 
+source_group("renderer\\SMAA" FILES ${RENDERER_SMAA_INCLUDES})
+
 source_group("libs\\irrxml" FILES ${IRRXML_INCLUDES})
 source_group("libs\\irrxml" FILES ${IRRXML_SOURCES})
 
@@ -1150,6 +1153,7 @@ set(RBDOOM3_INCLUDES
 			${RENDERER_JOBS_PRELIGHTSHADOWVOLUME_INCLUDES}
 			${RENDERER_JOBS_STATICSHADOWVOLUME_INCLUDES}
 			${RENDERER_OPENGL_INCLUDES}
+			${RENDERER_SMAA_INCLUDES}
 			#${IRRXML_INCLUDES}
 			${JPEG_INCLUDES}
 			${PNG_INCLUDES}

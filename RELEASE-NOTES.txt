@@ -14,6 +14,20 @@ Thank you for downloading RBDOOM-3-BFG.
 
 _______________________________________
 
+TBD - RBDOOM-3-BFG 1.1.0
+_______________________________
+
+- True 64 bit HDR lighting with adaptive tone mapping
+
+- Filmic post process effects like Technicolor color grading and film grain
+
+- Fixed issues with Mesa drivers and allowed them to use shadow mapping
+
+- Defaulted fs_resourceLoadPriority to 0 so it is not necessary anymore to specify when running a modification
+
+
+_______________________________________
+
 7 March 2015 - RBDOOM-3-BFG 1.0.3
 _______________________________
 

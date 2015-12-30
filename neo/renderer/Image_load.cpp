@@ -730,6 +730,7 @@ void idImage::CopyFramebuffer( int x, int y, int imageWidth, int imageHeight )
 	
 		//if( backEnd.glState.currentFramebuffer != NULL && backEnd.glState.currentFramebuffer->IsMultiSampled() )
 	
+#if defined(USE_HDR_MSAA)
 		if( globalFramebuffers.hdrFBO->IsMultiSampled() )
 		{
 			glBindFramebuffer( GL_READ_FRAMEBUFFER, globalFramebuffers.hdrFBO->GetFramebuffer() );
@@ -746,6 +747,7 @@ void idImage::CopyFramebuffer( int x, int y, int imageWidth, int imageHeight )
 			globalFramebuffers.hdrFBO->Bind();
 		}
 		else
+#endif
 		{
 			glCopyTexImage2D( target, 0, GL_RGBA16F, x, y, imageWidth, imageHeight, 0 );
 		}

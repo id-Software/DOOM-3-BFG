@@ -2,7 +2,7 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 2014 Robert Beckebans
+Copyright (C) 2014-2015 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -100,6 +100,7 @@ void Framebuffer::Init()
 	globalFramebuffers.hdrFBO = new Framebuffer( "_hdr", glConfig.nativeScreenWidth, glConfig.nativeScreenHeight );
 	globalFramebuffers.hdrFBO->Bind();
 	
+#if defined(USE_HDR_MSAA)
 	if( r_multiSamples.GetBool() )
 	{
 		globalFramebuffers.hdrFBO->AddColorBuffer( GL_RGBA16F, 0, r_multiSamples.GetInteger() );
@@ -109,6 +110,7 @@ void Framebuffer::Init()
 		globalFramebuffers.hdrFBO->AttachImageDepth( GL_TEXTURE_2D_MULTISAMPLE, globalImages->currentDepthImage );
 	}
 	else
+#endif
 	{
 		globalFramebuffers.hdrFBO->AddColorBuffer( GL_RGBA16F, 0 );
 		globalFramebuffers.hdrFBO->AddDepthBuffer( GL_DEPTH24_STENCIL8 );
@@ -120,7 +122,7 @@ void Framebuffer::Init()
 	globalFramebuffers.hdrFBO->Check();
 	
 	// HDR no MSAA
-	
+#if defined(USE_HDR_MSAA)
 	globalFramebuffers.hdrNonMSAAFBO = new Framebuffer( "_hdrNoMSAA", glConfig.nativeScreenWidth, glConfig.nativeScreenHeight );
 	globalFramebuffers.hdrNonMSAAFBO->Bind();
 	
@@ -128,6 +130,7 @@ void Framebuffer::Init()
 	globalFramebuffers.hdrNonMSAAFBO->AttachImage2D( GL_TEXTURE_2D, globalImages->currentRenderHDRImageNoMSAA, 0 );
 	
 	globalFramebuffers.hdrNonMSAAFBO->Check();
+#endif
 	
 	// HDR DOWNSCALE
 	
@@ -150,6 +153,19 @@ void Framebuffer::Init()
 		globalFramebuffers.bloomRenderFBO[i]->Check();
 	}
 	
+	// SMSAA
+	globalFramebuffers.smaaEdgesFBO = new Framebuffer( "_smaaEdges", glConfig.nativeScreenWidth, glConfig.nativeScreenHeight );
+	globalFramebuffers.smaaEdgesFBO->Bind();
+	globalFramebuffers.smaaEdgesFBO->AddColorBuffer( GL_RGBA8, 0 );
+	globalFramebuffers.smaaEdgesFBO->AttachImage2D( GL_TEXTURE_2D, globalImages->smaaEdgesImage, 0 );
+	globalFramebuffers.smaaEdgesFBO->Check();
+	
+	globalFramebuffers.smaaBlendFBO = new Framebuffer( "_smaaBlend", glConfig.nativeScreenWidth, glConfig.nativeScreenHeight );
+	globalFramebuffers.smaaBlendFBO->Bind();
+	globalFramebuffers.smaaBlendFBO->AddColorBuffer( GL_RGBA8, 0 );
+	globalFramebuffers.smaaBlendFBO->AttachImage2D( GL_TEXTURE_2D, globalImages->smaaBlendImage, 0 );
+	globalFramebuffers.smaaBlendFBO->Check();
+	
 	Unbind();
 }
 
@@ -163,6 +179,7 @@ void Framebuffer::CheckFramebuffers()
 		globalImages->currentRenderHDRImage->Resize( glConfig.nativeScreenWidth, glConfig.nativeScreenHeight );
 		globalImages->currentDepthImage->Resize( glConfig.nativeScreenWidth, glConfig.nativeScreenHeight );
 		
+#if defined(USE_HDR_MSAA)
 		if( r_multiSamples.GetBool() )
 		{
 			globalImages->currentRenderHDRImageNoMSAA->Resize( glConfig.nativeScreenWidth, glConfig.nativeScreenHeight );
@@ -176,6 +193,7 @@ void Framebuffer::CheckFramebuffers()
 			globalFramebuffers.hdrNonMSAAFBO->height = glConfig.nativeScreenHeight;
 		}
 		else
+#endif
 		{
 			globalFramebuffers.hdrFBO->Bind();
 			globalFramebuffers.hdrFBO->AttachImage2D( GL_TEXTURE_2D, globalImages->currentRenderHDRImage, 0 );
@@ -207,6 +225,26 @@ void Framebuffer::CheckFramebuffers()
 			globalFramebuffers.bloomRenderFBO[i]->AttachImage2D( GL_TEXTURE_2D, globalImages->bloomRender[i], 0 );
 			globalFramebuffers.bloomRenderFBO[i]->Check();
 		}
+		
+		// SMAA
+		
+		globalImages->smaaEdgesImage->Resize( glConfig.nativeScreenWidth, glConfig.nativeScreenHeight );
+		
+		globalFramebuffers.smaaEdgesFBO->width = glConfig.nativeScreenWidth / 4;
+		globalFramebuffers.smaaEdgesFBO->height = glConfig.nativeScreenHeight / 4;
+		
+		globalFramebuffers.smaaEdgesFBO->Bind();
+		globalFramebuffers.smaaEdgesFBO->AttachImage2D( GL_TEXTURE_2D, globalImages->smaaEdgesImage, 0 );
+		globalFramebuffers.smaaEdgesFBO->Check();
+		
+		globalImages->smaaBlendImage->Resize( glConfig.nativeScreenWidth, glConfig.nativeScreenHeight );
+		
+		globalFramebuffers.smaaBlendFBO->width = glConfig.nativeScreenWidth / 4;
+		globalFramebuffers.smaaBlendFBO->height = glConfig.nativeScreenHeight / 4;
+		
+		globalFramebuffers.smaaBlendFBO->Bind();
+		globalFramebuffers.smaaBlendFBO->AttachImage2D( GL_TEXTURE_2D, globalImages->smaaBlendImage, 0 );
+		globalFramebuffers.smaaBlendFBO->Check();
 		
 		Unbind();
 	}

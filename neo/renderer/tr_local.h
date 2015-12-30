@@ -1090,6 +1090,9 @@ extern idCVar r_hdrDebug;
 
 extern idCVar r_ldrContrastThreshold;
 extern idCVar r_ldrContrastOffset;
+
+extern idCVar r_useFilmicPostProcessEffects;
+extern idCVar r_forceAmbient;
 // RB end
 
 /*

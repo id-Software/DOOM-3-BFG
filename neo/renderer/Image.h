@@ -349,14 +349,22 @@ public:
 	idImage*			jitterImage1;				// shadow jitter
 	idImage*			jitterImage4;
 	idImage*			jitterImage16;
+	idImage*			grainImage1;
 	idImage*			randomImage256;
 	idImage*			currentRenderHDRImage;
+#if defined(USE_HDR_MSAA)
 	idImage*			currentRenderHDRImageNoMSAA;
+#endif
 	idImage*			currentRenderHDRImageQuarter;
 	idImage*			currentRenderHDRImage64;
 	idImage*			bloomRender[2];
 	idImage*			heatmap5Image;
 	idImage*			heatmap7Image;
+	idImage*			smaaInputImage;
+	idImage*			smaaAreaImage;
+	idImage*			smaaSearchImage;
+	idImage*			smaaEdgesImage;
+	idImage*			smaaBlendImage;
 	// RB end
 	idImage* 			scratchImage;
 	idImage* 			scratchImage2;

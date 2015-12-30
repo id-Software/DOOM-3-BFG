@@ -211,6 +211,16 @@ public:
 	{
 		BindShader_Builtin( BUILTIN_VERTEX_COLOR );
 	}
+	
+	void	BindShader_AmbientLighting()
+	{
+		BindShader_Builtin( BUILTIN_AMBIENT_LIGHTING );
+	}
+	
+	void	BindShader_AmbientLightingSkinned()
+	{
+		BindShader_Builtin( BUILTIN_AMBIENT_LIGHTING_SKINNED );
+	}
 	// RB end
 	
 	void	BindShader_Texture( )
@@ -418,6 +428,21 @@ public:
 		BindShader_Builtin( BUILTIN_HDR_DEBUG );
 	}
 	
+	void	BindShader_SMAA_EdgeDetection()
+	{
+		BindShader_Builtin( BUILTIN_SMAA_EDGE_DETECTION );
+	}
+	
+	void	BindShader_SMAA_BlendingWeightCalculation()
+	{
+		BindShader_Builtin( BUILTIN_SMAA_BLENDING_WEIGHT_CALCULATION );
+	}
+	
+	void	BindShader_SMAA_NeighborhoodBlending()
+	{
+		BindShader_Builtin( BUILTIN_SMAA_NEIGHBORHOOD_BLENDING );
+	}
+	
 #if 0
 	void	BindShader_ZCullReconstruct()
 	{
@@ -490,6 +515,8 @@ protected:
 		// RB begin
 		BUILTIN_COLOR_SKINNED,
 		BUILTIN_VERTEX_COLOR,
+		BUILTIN_AMBIENT_LIGHTING,
+		BUILTIN_AMBIENT_LIGHTING_SKINNED,
 		// RB end
 		BUILTIN_SIMPLESHADE,
 		BUILTIN_TEXTURED,
@@ -532,6 +559,10 @@ protected:
 		BUILTIN_BRIGHTPASS,
 		BUILTIN_HDR_GLARE_CHROMATIC,
 		BUILTIN_HDR_DEBUG,
+		
+		BUILTIN_SMAA_EDGE_DETECTION,
+		BUILTIN_SMAA_BLENDING_WEIGHT_CALCULATION,
+		BUILTIN_SMAA_NEIGHBORHOOD_BLENDING,
 		// RB end
 		BUILTIN_STEREO_DEGHOST,
 		BUILTIN_STEREO_WARP,
