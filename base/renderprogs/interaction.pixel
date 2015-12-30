@@ -90,9 +90,9 @@ void main( PS_IN fragment, out PS_OUT result ) {
 	// RB: added abs
 	half3 specularContribution = _half3( pow( abs( hDotN ), specularPower ) );
 
-	half3 diffuseColor = diffuseMap * rpDiffuseModifier.xyz;
-	half3 specularColor = specMap.xyz * specularContribution * rpSpecularModifier.xyz;
-	half3 lightColor = lightProj.xyz * lightFalloff.xyz;
+	half3 diffuseColor = diffuseMap * sRGBToLinearRGB( rpDiffuseModifier.xyz );
+	half3 specularColor = specMap.xyz * specularContribution * sRGBToLinearRGB( rpSpecularModifier.xyz * 1.0 );
+	half3 lightColor =  sRGBToLinearRGB( lightProj.xyz * lightFalloff.xyz );
 	
 	half rim =  1.0f - saturate( hDotN );
 	half rimPower = 16.0f;
