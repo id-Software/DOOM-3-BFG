@@ -862,6 +862,8 @@ void idImageManager::CreateIntrinsicImages()
 	
 	smaaEdgesImage = globalImages->ImageFromFunction( "_smaaEdges", R_SMAAImage_ResNative );
 	smaaBlendImage = globalImages->ImageFromFunction( "_smaaBlend", R_SMAAImage_ResNative );
+	
+	currentNormalsImage = ImageFromFunction( "_currentNormals", R_RGBA8Image );
 	// RB end
 	
 	// scratchImage is used for screen wipes/doublevision etc..

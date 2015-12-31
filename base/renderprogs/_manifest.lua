@@ -48,6 +48,8 @@ return
 	"fog_skinned.vertex",
 	"fxaa.pixel",
 	"fxaa.vertex",
+	"gbuffer.pixel",
+	"gbuffer.vertex",
 	"gui.pixel",
 	"gui.vertex",
 	"hdr_glare_chromatic.pixel",

@@ -365,6 +365,7 @@ public:
 	idImage*			smaaSearchImage;
 	idImage*			smaaEdgesImage;
 	idImage*			smaaBlendImage;
+	idImage*			currentNormalsImage;			// cheap G-Buffer replacement, holds normals and surface roughness
 	// RB end
 	idImage* 			scratchImage;
 	idImage* 			scratchImage2;

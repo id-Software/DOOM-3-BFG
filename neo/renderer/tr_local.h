@@ -1093,7 +1093,8 @@ extern idCVar r_ldrContrastOffset;
 extern idCVar r_useFilmicPostProcessEffects;
 extern idCVar r_forceAmbient;
 
-extern idCVar r_antiAliasing;
+extern idCVar r_useSSGI;
+extern idCVar r_ssgiDebug;
 // RB end
 
 /*
