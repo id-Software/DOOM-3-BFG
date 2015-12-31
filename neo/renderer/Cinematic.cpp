@@ -439,8 +439,8 @@ idCinematicLocal::~idCinematicLocal()
 	
 	// RB: TODO double check this. It seems we have different versions of ffmpeg on Kubuntu 13.10 and the win32 development files
 #if defined(_WIN32) || defined(_WIN64)
-	avcodec_free_frame( &frame );
-	avcodec_free_frame( &frame2 );
+	av_frame_free( &frame );
+	av_frame_free( &frame2 );
 #else
 	av_freep( &frame );
 	av_freep( &frame2 );
@@ -557,12 +557,12 @@ bool idCinematicLocal::InitFromFFMPEGFile( const char* qpath, bool amilooping )
 	framePos = -1;
 	common->Printf( "Loaded FFMPEG file: '%s', looping=%d%dx%d, %f FPS, %f sec\n", qpath, looping, CIN_WIDTH, CIN_HEIGHT, frameRate, durationSec );
 	image = ( byte* )Mem_Alloc( CIN_WIDTH * CIN_HEIGHT * 4 * 2, TAG_CINEMATIC );
-	avpicture_fill( ( AVPicture* )frame2, image, PIX_FMT_BGR32, CIN_WIDTH, CIN_HEIGHT );
+	avpicture_fill( ( AVPicture* )frame2, image, AV_PIX_FMT_BGR32, CIN_WIDTH, CIN_HEIGHT );
 	if( img_convert_ctx )
 	{
 		sws_freeContext( img_convert_ctx );
 	}
-	img_convert_ctx = sws_getContext( dec_ctx->width, dec_ctx->height, dec_ctx->pix_fmt, CIN_WIDTH, CIN_HEIGHT, PIX_FMT_BGR32, SWS_BICUBIC, NULL, NULL, NULL );
+	img_convert_ctx = sws_getContext( dec_ctx->width, dec_ctx->height, dec_ctx->pix_fmt, CIN_WIDTH, CIN_HEIGHT, AV_PIX_FMT_BGR32, SWS_BICUBIC, NULL, NULL, NULL );
 	status = FMV_PLAY;
 	
 	startTime = 0;
