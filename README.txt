@@ -303,13 +303,27 @@ __________________________________________
 - Changed light interaction shaders to use Half-Lambert lighting like in Half-Life 2 to 
 	make the game less dark. https://developer.valvesoftware.com/wiki/Half_Lambert
 
+- True 64 bit HDR lighting with adaptive tone mapping
+
+- Enhanced Subpixel Morphological Antialiasing
+	For more information see "Anti-Aliasing Methods in CryENGINE 3" and the docs at http://www.iryoku.com/smaa/
+
+- Filmic post process effects like Technicolor color grading and film grain
+
+- Additional ambient render pass to make the game less dark similar to the Quake 4 r_forceAmbient technique
 
 ___________________________________________________
 
 9) CONSOLE VARIABLES
 __________________________________________
 
-r_useShadowMapping 1 - Use soft shadow mapping instead of hard stencil shadows
+r_antiAliasing - Different Anti-Aliasing modes
+
+r_useShadowMapping [0 or 1] - Use soft shadow mapping instead of hard stencil shadows
+
+r_useHDR [0 or 1] - Use High Dynamic Range lighting with adaptive tone mapping
+
+r_useFilmicPostProcessEffects [0 or 1] - Apply several post process effects to mimic a filmic look"
 
 
 ___________________________________________________

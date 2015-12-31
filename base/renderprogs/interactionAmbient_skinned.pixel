@@ -71,14 +71,28 @@ void main( PS_IN fragment, out PS_OUT result ) {
 	// RB end
 	localNormal.z = sqrt( abs( dot( localNormal.xy, localNormal.xy ) - 0.25 ) );
 	localNormal = normalize( localNormal );
+	
+	// traditional very dark Lambert light model used in Doom 3
+	half ldotN = saturate( dot3( localNormal, lightVector ) );
 
+#if defined(USE_HALF_LAMBERT)
+	// RB: http://developer.valvesoftware.com/wiki/Half_Lambert
+	half halfLdotN = dot3( localNormal, lightVector ) * 0.5 + 0.5;
+	halfLdotN *= halfLdotN;
+
+	half lambert = halfLdotN;
+#else
+	half lambert = ldotN;
+#endif
+	
 	const half specularPower = 10.0f;
 	half hDotN = dot3( normalize( fragment.texcoord6.xyz ), localNormal );
-	half3 specularContribution = _half3( pow( hDotN, specularPower ) );
+	// RB: added abs
+	half3 specularContribution = _half3( pow( abs( hDotN ), specularPower ) );
 
 	half3 diffuseColor = diffuseMap * rpDiffuseModifier.xyz;
 	half3 specularColor = specMap.xyz * specularContribution * rpSpecularModifier.xyz;
-	half3 lightColor = lightProj.xyz * lightFalloff.xyz; // ambient fix
+	half3 lightColor = 1.0 * lightProj.xyz * lightFalloff.xyz;
 
 	result.color.xyz = ( diffuseColor + specularColor ) * lightColor * fragment.color.xyz;
 	result.color.w = 1.0;

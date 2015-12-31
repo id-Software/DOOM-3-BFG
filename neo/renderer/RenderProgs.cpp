@@ -95,6 +95,8 @@ void idRenderProgManager::Init()
 		// RB begin
 		{ BUILTIN_COLOR_SKINNED, "color", "_skinned", BIT( USE_GPU_SKINNING ), true },
 		{ BUILTIN_VERTEX_COLOR, "vertex_color.vfp", "", 0, false },
+		{ BUILTIN_AMBIENT_LIGHTING, "ambient_lighting", "", 0, false },
+		{ BUILTIN_AMBIENT_LIGHTING_SKINNED, "ambient_lighting", "_skinned", BIT( USE_GPU_SKINNING ), true },
 		// RB end
 //		{ BUILTIN_SIMPLESHADE, "simpleshade.vfp", 0, false },
 		{ BUILTIN_TEXTURED, "texture.vfp", 0, false },
@@ -133,6 +135,17 @@ void idRenderProgManager::Init()
 		{ BUILTIN_SKYBOX, "skybox.vfp", 0, false },
 		{ BUILTIN_WOBBLESKY, "wobblesky.vfp", 0, false },
 		{ BUILTIN_POSTPROCESS, "postprocess.vfp", 0, false },
+		// RB begin
+		{ BUILTIN_SCREEN, "screen", "", 0, false },
+		{ BUILTIN_TONEMAP, "tonemap", "", 0, false },
+		{ BUILTIN_BRIGHTPASS, "tonemap", "_brightpass", BIT( BRIGHTPASS ), false },
+		{ BUILTIN_HDR_GLARE_CHROMATIC, "hdr_glare_chromatic", "", 0, false },
+		{ BUILTIN_HDR_DEBUG, "tonemap", "_debug", BIT( HDR_DEBUG ), false },
+		
+		{ BUILTIN_SMAA_EDGE_DETECTION, "SMAA_edge_detection", "", 0, false },
+		{ BUILTIN_SMAA_BLENDING_WEIGHT_CALCULATION, "SMAA_blending_weight_calc", "", 0, false },
+		{ BUILTIN_SMAA_NEIGHBORHOOD_BLENDING, "SMAA_final", "", 0, false },
+		// RB end
 		{ BUILTIN_STEREO_DEGHOST, "stereoDeGhost.vfp", 0, false },
 		{ BUILTIN_STEREO_WARP, "stereoWarp.vfp", 0, false },
 //		{ BUILTIN_ZCULL_RECONSTRUCT, "zcullReconstruct.vfp", 0, false },
@@ -226,6 +239,7 @@ void idRenderProgManager::Init()
 		vertexShaders[builtinShaders[BUILTIN_SHADOW_DEBUG_SKINNED]].usesJoints = true;
 		vertexShaders[builtinShaders[BUILTIN_FOG_SKINNED]].usesJoints = true;
 		// RB begin
+		vertexShaders[builtinShaders[BUILTIN_AMBIENT_LIGHTING_SKINNED]].usesJoints = true;
 		vertexShaders[builtinShaders[BUILTIN_INTERACTION_SHADOW_MAPPING_SPOT_SKINNED]].usesJoints = true;
 		vertexShaders[builtinShaders[BUILTIN_INTERACTION_SHADOW_MAPPING_POINT_SKINNED]].usesJoints = true;
 		vertexShaders[builtinShaders[BUILTIN_INTERACTION_SHADOW_MAPPING_PARALLEL_SKINNED]].usesJoints = true;

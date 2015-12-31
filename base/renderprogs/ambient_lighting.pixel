@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 2013-2015 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
 
@@ -36,9 +37,10 @@ uniform sampler2D	samp4 : register(s4); // texture 5 is the per-surface specular
 
 struct PS_IN {
 	half4 position	: VPOS;
+	half4 texcoord0	: TEXCOORD0_centroid;
 	half4 texcoord1	: TEXCOORD1_centroid;
-	half4 texcoord2	: TEXCOORD2_centroid;
-	half4 texcoord3	: TEXCOORD3_centroid;
+//	half4 texcoord2	: TEXCOORD2_centroid;
+//	half4 texcoord3	: TEXCOORD3_centroid;
 	half4 texcoord4	: TEXCOORD4_centroid;
 	half4 texcoord5	: TEXCOORD5_centroid;
 	half4 texcoord6	: TEXCOORD6_centroid;
@@ -51,48 +53,45 @@ struct PS_OUT {
 
 void main( PS_IN fragment, out PS_OUT result ) {
 	half4 bumpMap =			tex2D( samp0, fragment.texcoord1.xy );
-	half4 lightFalloff =	idtex2Dproj( samp1, fragment.texcoord2 );
-	half4 lightProj	=		idtex2Dproj( samp2, fragment.texcoord3 );
+//	half4 lightFalloff =	idtex2Dproj( samp1, fragment.texcoord2 );
+//	half4 lightProj	=		idtex2Dproj( samp2, fragment.texcoord3 );
 	half4 YCoCG =			tex2D( samp3, fragment.texcoord4.xy );
 	half4 specMap =			tex2D( samp4, fragment.texcoord5.xy );
 
-	const half3 ambientLightVector = half3( 0.5f, 9.5f - 0.385f, 0.8925f );
-	half3 lightVector = normalize( ambientLightVector );
+	half3 lightVector = normalize( fragment.texcoord0.xyz );
 	half3 diffuseMap = ConvertYCoCgToRGB( YCoCG );
 
 	half3 localNormal;
-	// RB begin
 #if defined(USE_NORMAL_FMT_RGB8)
 	localNormal.xy = bumpMap.rg - 0.5;
 #else
 	localNormal.xy = bumpMap.wy - 0.5;
 #endif
-	// RB end
 	localNormal.z = sqrt( abs( dot( localNormal.xy, localNormal.xy ) - 0.25 ) );
 	localNormal = normalize( localNormal );
-	
-	// traditional very dark Lambert light model used in Doom 3
-	half ldotN = saturate( dot3( localNormal, lightVector ) );
 
-#if defined(USE_HALF_LAMBERT)
-	// RB: http://developer.valvesoftware.com/wiki/Half_Lambert
-	half halfLdotN = dot3( localNormal, lightVector ) * 0.5 + 0.5;
-	halfLdotN *= halfLdotN;
-
-	half lambert = halfLdotN;
-#else
-	half lambert = ldotN;
-#endif
-	
 	const half specularPower = 10.0f;
 	half hDotN = dot3( normalize( fragment.texcoord6.xyz ), localNormal );
 	// RB: added abs
 	half3 specularContribution = _half3( pow( abs( hDotN ), specularPower ) );
 
-	half3 diffuseColor = diffuseMap * rpDiffuseModifier.xyz;
+	half3 diffuseColor = diffuseMap * rpDiffuseModifier.xyz * 1.5f;
 	half3 specularColor = specMap.xyz * specularContribution * rpSpecularModifier.xyz;
-	half3 lightColor = 1.0 * lightProj.xyz * lightFalloff.xyz;
-
-	result.color.xyz = ( diffuseColor + specularColor ) * lightColor * fragment.color.xyz;
+	
+	// RB: http://developer.valvesoftware.com/wiki/Half_Lambert
+	float halfLdotN = dot3( localNormal, lightVector ) * 0.5 + 0.5;
+	halfLdotN *= halfLdotN;
+	
+	// traditional very dark Lambert light model used in Doom 3
+	float ldotN = dot3( localNormal, lightVector );
+	
+	half3 lightColor = rpAmbientColor.rgb;
+	
+	half rim =  1.0f - saturate( hDotN );
+	half rimPower = 8.0;
+	half3 rimColor = half3( 0.125 ) * 1.2 * lightColor * pow( rim, rimPower );
+	
+	//result.color.rgb = localNormal.xyz * 0.5 + 0.5;
+	result.color.xyz = ( ( diffuseColor + specularColor ) * halfLdotN * lightColor + rimColor ) * fragment.color.rgb;;
 	result.color.w = 1.0;
 }

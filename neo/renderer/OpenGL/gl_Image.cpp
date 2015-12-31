@@ -102,11 +102,15 @@ void idImage::SubImageUpload( int mipLevel, int x, int y, int z, int width, int 
 	{
 		glPixelStorei( GL_UNPACK_ROW_LENGTH, pixelPitch );
 	}
+	
 	if( opts.format == FMT_RGB565 )
 	{
+#if !defined(USE_GLES3)
 		glPixelStorei( GL_UNPACK_SWAP_BYTES, GL_TRUE );
+#endif
 	}
-#ifdef DEBUG
+	
+#if defined(DEBUG) || defined(__ANDROID__)
 	GL_CheckErrors();
 #endif
 	if( IsCompressed() )
@@ -131,9 +135,11 @@ void idImage::SubImageUpload( int mipLevel, int x, int y, int z, int width, int 
 		
 		glTexSubImage2D( uploadTarget, mipLevel, x, y, width, height, dataFormat, dataType, pic );
 	}
-#ifdef DEBUG
+	
+#if defined(DEBUG) || defined(__ANDROID__)
 	GL_CheckErrors();
 #endif
+	
 	if( opts.format == FMT_RGB565 )
 	{
 		glPixelStorei( GL_UNPACK_SWAP_BYTES, GL_FALSE );
@@ -174,6 +180,11 @@ void idImage::SetTexParameters()
 		case TT_2D_ARRAY:
 			target = GL_TEXTURE_2D_ARRAY;
 			break;
+		case TT_2D_MULTISAMPLE:
+			//target = GL_TEXTURE_2D_MULTISAMPLE;
+			//break;
+			// no texture parameters for MSAA FBO textures
+			return;
 		// RB end
 		default:
 			idLib::FatalError( "%s: bad texture type %d", GetName(), opts.textureType );
@@ -433,6 +444,12 @@ void idImage::AllocImage()
 			dataType = GL_UNSIGNED_BYTE;
 			break;
 			
+		case FMT_RGBA16F:
+			internalFormat = GL_RGBA16F;
+			dataFormat = GL_RGBA;
+			dataType = GL_UNSIGNED_BYTE;
+			break;
+			
 		case FMT_X16:
 			internalFormat = GL_INTENSITY16;
 			dataFormat = GL_LUMINANCE;
@@ -485,6 +502,12 @@ void idImage::AllocImage()
 		uploadTarget = GL_TEXTURE_2D_ARRAY;
 		numSides = 6;
 	}
+	else if( opts.textureType == TT_2D_MULTISAMPLE )
+	{
+		target = GL_TEXTURE_2D_MULTISAMPLE;
+		uploadTarget = GL_TEXTURE_2D_MULTISAMPLE;
+		numSides = 1;
+	}
 	// RB end
 	else
 	{
@@ -498,6 +521,10 @@ void idImage::AllocImage()
 	if( opts.textureType == TT_2D_ARRAY )
 	{
 		glTexImage3D( uploadTarget, 0, internalFormat, opts.width, opts.height, numSides, 0, dataFormat, GL_UNSIGNED_BYTE, NULL );
+	}
+	else if( opts.textureType == TT_2D_MULTISAMPLE )
+	{
+		glTexImage2DMultisample( uploadTarget, opts.msaaSamples, internalFormat, opts.width, opts.height, GL_FALSE );
 	}
 	else
 	{

@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013-2015 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -294,15 +295,22 @@ static void R_CheckCvars()
 		}
 	}
 	
-	if( r_multiSamples.IsModified() )
+	if( r_antiAliasing.IsModified() )
 	{
-		if( r_multiSamples.GetInteger() > 0 )
+		switch( r_antiAliasing.GetInteger() )
 		{
-			glEnable( GL_MULTISAMPLE );
-		}
-		else
-		{
-			glDisable( GL_MULTISAMPLE );
+			case ANTI_ALIASING_MSAA_2X:
+			case ANTI_ALIASING_MSAA_4X:
+			case ANTI_ALIASING_MSAA_8X:
+				if( r_antiAliasing.GetInteger() > 0 )
+				{
+					glEnable( GL_MULTISAMPLE );
+				}
+				break;
+				
+			default:
+				glDisable( GL_MULTISAMPLE );
+				break;
 		}
 	}
 	
@@ -779,6 +787,10 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 	
 	// check for dynamic changes that require some initialization
 	R_CheckCvars();
+	
+	// RB: resize HDR buffers
+	Framebuffer::CheckFramebuffers();
+	// RB end
 	
 	// check for errors
 	GL_CheckErrors();

@@ -73,7 +73,7 @@ void main( PS_IN fragment, out PS_OUT result ) {
 	localNormal = normalize( localNormal );
 	
 	// traditional very dark Lambert light model used in Doom 3
-	half ldotN = dot3( localNormal, lightVector );
+	half ldotN = saturate( dot3( localNormal, lightVector ) );
 
 #if defined(USE_HALF_LAMBERT)
 	// RB: http://developer.valvesoftware.com/wiki/Half_Lambert

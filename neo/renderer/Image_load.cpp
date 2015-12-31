@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013-2015 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -60,8 +61,15 @@ int BitsForFormat( textureFormat_t format )
 			return 4;
 		case FMT_DXT5:
 			return 8;
+		// RB: added ETC compression
+		case FMT_ETC1_RGB8_OES:
+			return 4;
 		case FMT_SHADOW_ARRAY:
 			return ( 32 * 6 );
+			
+		case FMT_RGBA16F:
+			return 64;
+		// RB end
 		case FMT_DEPTH:
 			return 32;
 		case FMT_X16:
@@ -98,6 +106,10 @@ ID_INLINE void idImage::DeriveOpts()
 				
 			case TD_SHADOW_ARRAY:
 				opts.format = FMT_SHADOW_ARRAY;
+				break;
+				
+			case TD_RGBA16F:
+				opts.format = FMT_RGBA16F;
 				break;
 				
 			case TD_DIFFUSE:
@@ -162,7 +174,7 @@ ID_INLINE void idImage::DeriveOpts()
 			{
 				temp_width >>= 1;
 				temp_height >>= 1;
-				if( ( opts.format == FMT_DXT1 || opts.format == FMT_DXT5 ) &&
+				if( ( opts.format == FMT_DXT1 || opts.format == FMT_DXT5 || opts.format == FMT_ETC1_RGB8_OES ) &&
 						( ( temp_width & 0x3 ) != 0 || ( temp_height & 0x3 ) != 0 ) )
 				{
 					break;
@@ -192,7 +204,7 @@ void idImage::AllocImage( const idImageOpts& imgOpts, textureFilter_t tf, textur
 GenerateImage
 ================
 */
-void idImage::GenerateImage( const byte* pic, int width, int height, textureFilter_t filterParm, textureRepeat_t repeatParm, textureUsage_t usageParm )
+void idImage::GenerateImage( const byte* pic, int width, int height, textureFilter_t filterParm, textureRepeat_t repeatParm, textureUsage_t usageParm, int msaaSamples )
 {
 	PurgeImage();
 	
@@ -201,10 +213,11 @@ void idImage::GenerateImage( const byte* pic, int width, int height, textureFilt
 	usage = usageParm;
 	cubeFiles = CF_2D;
 	
-	opts.textureType = TT_2D;
+	opts.textureType = ( msaaSamples > 0 ) ? TT_2D_MULTISAMPLE : TT_2D;
 	opts.width = width;
 	opts.height = height;
 	opts.numLevels = 0;
+	opts.msaaSamples = msaaSamples;
 	DeriveOpts();
 	
 	// if we don't have a rendering context, just return after we
@@ -216,17 +229,26 @@ void idImage::GenerateImage( const byte* pic, int width, int height, textureFilt
 		return;
 	}
 	
-	idBinaryImage im( GetName() );
-	im.Load2DFromMemory( width, height, pic, opts.numLevels, opts.format, opts.colorFormat, opts.gammaMips );
-	
-	AllocImage();
-	
-	for( int i = 0; i < im.NumImages(); i++ )
+	// RB: allow pic == NULL for internal framebuffer images
+	if( pic == NULL || opts.textureType == TT_2D_MULTISAMPLE )
 	{
-		const bimageImage_t& img = im.GetImageHeader( i );
-		const byte* data = im.GetImageData( i );
-		SubImageUpload( img.level, 0, 0, img.destZ, img.width, img.height, data );
+		AllocImage();
 	}
+	else
+	{
+		idBinaryImage im( GetName() );
+		im.Load2DFromMemory( width, height, pic, opts.numLevels, opts.format, opts.colorFormat, opts.gammaMips );
+		
+		AllocImage();
+		
+		for( int i = 0; i < im.NumImages(); i++ )
+		{
+			const bimageImage_t& img = im.GetImageHeader( i );
+			const byte* data = im.GetImageData( i );
+			SubImageUpload( img.level, 0, 0, img.destZ, img.width, img.height, data );
+		}
+	}
+	// RB end
 }
 
 /*
@@ -564,6 +586,7 @@ void idImage::Bind()
 	
 	const int texUnit = backEnd.glState.currenttmu;
 	
+	// RB: added support for more types
 	tmu_t* tmu = &backEnd.glState.tmu[texUnit];
 	// bind the texture
 	if( opts.textureType == TT_2D )
@@ -572,17 +595,17 @@ void idImage::Bind()
 		{
 			tmu->current2DMap = texnum;
 			
-			// RB begin
+#if !defined(USE_GLES2) && !defined(USE_GLES3)
 			if( glConfig.directStateAccess )
 			{
 				glBindMultiTextureEXT( GL_TEXTURE0 + texUnit, GL_TEXTURE_2D, texnum );
 			}
 			else
+#endif
 			{
 				glActiveTexture( GL_TEXTURE0 + texUnit );
 				glBindTexture( GL_TEXTURE_2D, texnum );
 			}
-			// RB end
 		}
 	}
 	else if( opts.textureType == TT_CUBIC )
@@ -591,7 +614,6 @@ void idImage::Bind()
 		{
 			tmu->currentCubeMap = texnum;
 			
-			// RB begin
 #if !defined(USE_GLES2) && !defined(USE_GLES3)
 			if( glConfig.directStateAccess )
 			{
@@ -603,7 +625,6 @@ void idImage::Bind()
 				glActiveTexture( GL_TEXTURE0 + texUnit );
 				glBindTexture( GL_TEXTURE_CUBE_MAP, texnum );
 			}
-			// RB end
 		}
 	}
 	else if( opts.textureType == TT_2D_ARRAY )
@@ -612,7 +633,6 @@ void idImage::Bind()
 		{
 			tmu->current2DArray = texnum;
 			
-			// RB begin
 #if !defined(USE_GLES2) && !defined(USE_GLES3)
 			if( glConfig.directStateAccess )
 			{
@@ -624,10 +644,28 @@ void idImage::Bind()
 				glActiveTexture( GL_TEXTURE0 + texUnit );
 				glBindTexture( GL_TEXTURE_2D_ARRAY, texnum );
 			}
-			// RB end
 		}
 	}
-	
+	else if( opts.textureType == TT_2D_MULTISAMPLE )
+	{
+		if( tmu->current2DMap != texnum )
+		{
+			tmu->current2DMap = texnum;
+			
+#if !defined(USE_GLES2) && !defined(USE_GLES3)
+			if( glConfig.directStateAccess )
+			{
+				glBindMultiTextureEXT( GL_TEXTURE0 + texUnit, GL_TEXTURE_2D_MULTISAMPLE, texnum );
+			}
+			else
+#endif
+			{
+				glActiveTexture( GL_TEXTURE0 + texUnit );
+				glBindTexture( GL_TEXTURE_2D_MULTISAMPLE, texnum );
+			}
+		}
+	}
+	// RB end
 }
 
 /*
@@ -651,20 +689,80 @@ CopyFramebuffer
 */
 void idImage::CopyFramebuffer( int x, int y, int imageWidth, int imageHeight )
 {
-	glBindTexture( ( opts.textureType == TT_CUBIC ) ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, texnum );
+	int target = GL_TEXTURE_2D;
+	switch( opts.textureType )
+	{
+		case TT_2D:
+			target = GL_TEXTURE_2D;
+			break;
+		case TT_CUBIC:
+			target = GL_TEXTURE_CUBE_MAP;
+			break;
+		case TT_2D_ARRAY:
+			target = GL_TEXTURE_2D_ARRAY;
+			break;
+		case TT_2D_MULTISAMPLE:
+			target = GL_TEXTURE_2D_MULTISAMPLE;
+			break;
+		default:
+			//idLib::FatalError( "%s: bad texture type %d", GetName(), opts.textureType );
+			return;
+	}
 	
-	glReadBuffer( GL_BACK );
+	glBindTexture( target, texnum );
+	
+#if !defined(USE_GLES2)
+	if( Framebuffer::IsDefaultFramebufferActive() )
+	{
+		glReadBuffer( GL_BACK );
+	}
+#endif
 	
 	opts.width = imageWidth;
 	opts.height = imageHeight;
-	glCopyTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA8, x, y, imageWidth, imageHeight, 0 );
+	
+#if defined(USE_GLES2)
+	glCopyTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, x, y, imageWidth, imageHeight, 0 );
+#else
+	if( r_useHDR.GetBool() && globalFramebuffers.hdrFBO->IsBound() )
+	{
+	
+		//if( backEnd.glState.currentFramebuffer != NULL && backEnd.glState.currentFramebuffer->IsMultiSampled() )
+	
+#if defined(USE_HDR_MSAA)
+		if( globalFramebuffers.hdrFBO->IsMultiSampled() )
+		{
+			glBindFramebuffer( GL_READ_FRAMEBUFFER, globalFramebuffers.hdrFBO->GetFramebuffer() );
+			glBindFramebuffer( GL_DRAW_FRAMEBUFFER, globalFramebuffers.hdrNonMSAAFBO->GetFramebuffer() );
+			glBlitFramebuffer( 0, 0, glConfig.nativeScreenWidth, glConfig.nativeScreenHeight,
+							   0, 0, glConfig.nativeScreenWidth, glConfig.nativeScreenHeight,
+							   GL_COLOR_BUFFER_BIT,
+							   GL_LINEAR );
+	
+			globalFramebuffers.hdrNonMSAAFBO->Bind();
+	
+			glCopyTexImage2D( target, 0, GL_RGBA16F, x, y, imageWidth, imageHeight, 0 );
+	
+			globalFramebuffers.hdrFBO->Bind();
+		}
+		else
+#endif
+		{
+			glCopyTexImage2D( target, 0, GL_RGBA16F, x, y, imageWidth, imageHeight, 0 );
+		}
+	}
+	else
+	{
+		glCopyTexImage2D( target, 0, GL_RGBA8, x, y, imageWidth, imageHeight, 0 );
+	}
+#endif
 	
 	// these shouldn't be necessary if the image was initialized properly
-	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+	glTexParameterf( target, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+	glTexParameterf( target, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 	
-	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
-	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+	glTexParameterf( target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+	glTexParameterf( target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
 	
 	backEnd.pc.c_copyFrameBuffer++;
 }
@@ -783,11 +881,20 @@ void idImage::Print() const
 	switch( opts.textureType )
 	{
 		case TT_2D:
-			common->Printf( " " );
+			common->Printf( "      " );
 			break;
 		case TT_CUBIC:
-			common->Printf( "C" );
+			common->Printf( "C     " );
 			break;
+			
+		case TT_2D_ARRAY:
+			common->Printf( "2D-A  " );
+			break;
+			
+		case TT_2D_MULTISAMPLE:
+			common->Printf( "2D-MS " );
+			break;
+			
 		default:
 			common->Printf( "<BAD TYPE:%i>", opts.textureType );
 			break;
@@ -797,7 +904,7 @@ void idImage::Print() const
 	
 	switch( opts.format )
 	{
-#define NAME_FORMAT( x ) case FMT_##x: common->Printf( "%-6s ", #x ); break;
+#define NAME_FORMAT( x ) case FMT_##x: common->Printf( "%-16s ", #x ); break;
 			NAME_FORMAT( NONE );
 			NAME_FORMAT( RGBA8 );
 			NAME_FORMAT( XRGB8 );
@@ -808,6 +915,11 @@ void idImage::Print() const
 			NAME_FORMAT( INT8 );
 			NAME_FORMAT( DXT1 );
 			NAME_FORMAT( DXT5 );
+			// RB begin
+			NAME_FORMAT( ETC1_RGB8_OES );
+			NAME_FORMAT( SHADOW_ARRAY );
+			NAME_FORMAT( RGBA16F );
+			// RB end
 			NAME_FORMAT( DEPTH );
 			NAME_FORMAT( X16 );
 			NAME_FORMAT( Y16_X16 );

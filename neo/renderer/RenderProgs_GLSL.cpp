@@ -364,6 +364,8 @@ const char* idRenderProgManager::GLSLMacroNames[MAX_SHADER_MACRO_NAMES] =
 	"USE_GPU_SKINNING",
 	"LIGHT_POINT",
 	"LIGHT_PARALLEL",
+	"BRIGHTPASS",
+	"HDR_DEBUG"
 };
 // RB end
 
@@ -552,6 +554,11 @@ idStr StripDeadCode( const idStr& in, const char* name, const idStrList& compile
 	{
 		src.AddDefine( "USE_HALF_LAMBERT" );
 	}
+	
+	// SMAA configuration
+	src.AddDefine( "SMAA_GLSL_3" );
+	src.AddDefine( "SMAA_RT_METRICS rpScreenCorrectionFactor " );
+	src.AddDefine( "SMAA_PRESET_HIGH" );
 	
 	idList< idCGBlock > blocks;
 	
@@ -1142,13 +1149,13 @@ void ParseInOutStruct( idLexer& src, int attribType, int attribIgnoreType, idLis
 		}
 		
 		// RB: ignore reserved builtin gl_ uniforms
-		switch( glConfig.driverType )
+		//switch( glConfig.driverType )
 		{
 			//case GLDRV_OPENGL32_CORE_PROFILE:
 			//case GLDRV_OPENGL_ES2:
 			//case GLDRV_OPENGL_ES3:
 			//case GLDRV_OPENGL_MESA:
-			default:
+			//default:
 			{
 				for( int i = 0; attribsPC[i].semantic != NULL; i++ )
 				{
@@ -1162,7 +1169,7 @@ void ParseInOutStruct( idLexer& src, int attribType, int attribIgnoreType, idLis
 					}
 				}
 				
-				break;
+				//break;
 			}
 		}
 		// RB end
