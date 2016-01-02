@@ -458,6 +458,11 @@ public:
 		BindShader_Builtin( BUILTIN_AMBIENT_OCCLUSION );
 	}
 	
+	void	BindShader_AmbientOcclusionBlur()
+	{
+		BindShader_Builtin( BUILTIN_AMBIENT_OCCLUSION_BLUR );
+	}
+	
 #if 0
 	void	BindShader_ZCullReconstruct()
 	{
@@ -582,6 +587,7 @@ protected:
 		BUILTIN_SMAA_NEIGHBORHOOD_BLENDING,
 		
 		BUILTIN_AMBIENT_OCCLUSION,
+		BUILTIN_AMBIENT_OCCLUSION_BLUR,
 		// RB end
 		BUILTIN_STEREO_DEGHOST,
 		BUILTIN_STEREO_WARP,

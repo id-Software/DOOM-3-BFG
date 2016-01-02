@@ -4624,8 +4624,33 @@ void RB_SSAO()
 	SetFragmentParm( RENDERPARM_OVERBRIGHT, samples.ToFloatPtr() );
 	
 	// RB: set unprojection matrices so we can convert zbuffer values back to camera and world spaces
-	SetVertexParms( RENDERPARM_MODELMATRIX_X, backEnd.viewDef->unprojectionToWorldRenderMatrix[0], 4 );
+	idRenderMatrix modelViewMatrix;
+	idRenderMatrix::Transpose( *( idRenderMatrix* )backEnd.viewDef->worldSpace.modelViewMatrix, modelViewMatrix );
+	idRenderMatrix cameraToWorldMatrix;
+	if( !idRenderMatrix::Inverse( modelViewMatrix, cameraToWorldMatrix ) )
+	{
+		idLib::Warning( "cameraToWorldMatrix invert failed" );
+	}
+	
+	SetVertexParms( RENDERPARM_MODELMATRIX_X, cameraToWorldMatrix[0], 4 );
+	//SetVertexParms( RENDERPARM_MODELMATRIX_X, backEnd.viewDef->unprojectionToWorldRenderMatrix[0], 4 );
+	
 	SetVertexParms( RENDERPARM_PROJMATRIX_X, backEnd.viewDef->unprojectionToCameraRenderMatrix[0], 4 );
+	
+	float jitterTexOffset[4];
+	if( r_shadowMapRandomizeJitter.GetBool() )
+	{
+		jitterTexOffset[0] = ( rand() & 255 ) / 255.0;
+		jitterTexOffset[1] = ( rand() & 255 ) / 255.0;
+	}
+	else
+	{
+		jitterTexOffset[0] = 0;
+		jitterTexOffset[1] = 0;
+	}
+	jitterTexOffset[2] = backEnd.viewDef->renderView.time[0] * 0.001f;
+	jitterTexOffset[3] = 0.0f;
+	SetFragmentParm( RENDERPARM_JITTERTEXOFFSET, jitterTexOffset ); // rpJitterTexOffset
 	
 	GL_SelectTexture( 0 );
 	globalImages->currentNormalsImage->Bind();
@@ -4634,6 +4659,45 @@ void RB_SSAO()
 	globalImages->currentDepthImage->Bind();
 	
 	RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
+	
+	
+	// AO blur X
+#if 1
+	renderProgManager.BindShader_AmbientOcclusionBlur();
+	
+	const idScreenRect& viewport = backEnd.viewDef->viewport;
+	globalImages->currentAOImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
+	
+	// set axis parameter
+	float jitterTexScale[4];
+	jitterTexScale[0] = 1;
+	jitterTexScale[1] = 0;
+	jitterTexScale[2] = 0;
+	jitterTexScale[3] = 0;
+	SetFragmentParm( RENDERPARM_JITTERTEXSCALE, jitterTexScale ); // rpJitterTexScale
+	
+	GL_SelectTexture( 0 );
+	globalImages->currentAOImage->Bind();
+	
+	RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
+	
+	
+	// AO blur Y
+	globalImages->currentAOImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
+	
+	// set axis parameter
+	jitterTexScale[0] = 0;
+	jitterTexScale[1] = 1;
+	jitterTexScale[2] = 0;
+	jitterTexScale[3] = 0;
+	SetFragmentParm( RENDERPARM_JITTERTEXSCALE, jitterTexScale ); // rpJitterTexScale
+	
+	GL_SelectTexture( 0 );
+	globalImages->currentAOImage->Bind();
+	
+	RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
+#endif
+	
 	GL_CheckErrors();
 }
 // RB end

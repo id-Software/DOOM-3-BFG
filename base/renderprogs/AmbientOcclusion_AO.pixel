@@ -60,7 +60,7 @@ const float METERS_TO_DOOM = ( 1.0 / DOOM_TO_METERS );	// meters to doom
 
 /** Used for preventing AO computation on the sky (at infinite depth) and defining the CS Z to bilateral depth key scaling.
     This need not match the real far plane but should not be much more than it.*/
-const float FAR_PLANE_Z = -4000.0;// * METERS_TO_DOOM;
+const float FAR_PLANE_Z = -4000.0;
 
 /** World-space AO radius in scene units (r).  e.g., 1.0m */
 const float radius = 1.0 * METERS_TO_DOOM;
@@ -71,7 +71,7 @@ const float invRadius2 = 1.0 / radius2;
 const float bias = 0.01 * METERS_TO_DOOM;
 
 /** intensity / radius^6 */
-const float intensity = 0.2;
+const float intensity = 0.5;
 const float intensityDivR6 = intensity / ( radius* radius* radius* radius* radius* radius );
 
 const float projScale = 300.0;// * METERS_TO_DOOM;
@@ -151,6 +151,16 @@ float3 getPosition( float2 ssP, sampler2D cszBuffer )
 	
 	csP.xyz /= csP.w;
 	
+#if 0
+	float4 wP;
+	wP.x = dot4( csP, rpModelMatrixX );
+	wP.y = dot4( csP, rpModelMatrixY );
+	wP.z = dot4( csP, rpModelMatrixZ );
+	wP.w = dot4( csP, rpModelMatrixW );
+	//wP.xyz /= wP.w;
+	return wP.xyz;
+#endif
+	
 	return csP.xyz;
 }
 
@@ -190,8 +200,17 @@ float3 getOffsetPosition( ivec2 issC, vec2 unitOffset, float ssR, sampler2D cszB
 	csP.y = dot4( P, rpProjectionMatrixY );
 	csP.z = dot4( P, rpProjectionMatrixZ );
 	csP.w = dot4( P, rpProjectionMatrixW );
-	
 	csP.xyz /= csP.w;
+	
+#if 0
+	float4 wP;
+	wP.x = dot4( csP, rpModelMatrixX );
+	wP.y = dot4( csP, rpModelMatrixY );
+	wP.z = dot4( csP, rpModelMatrixZ );
+	wP.w = dot4( csP, rpModelMatrixW );
+	//wP.xyz /= wP.w;
+	return wP.xyz;
+#endif
 	
 	return csP.xyz;
 }
@@ -219,7 +238,7 @@ float fallOffFunction( float vv, float vn, float epsilon )
 	// contribution still falls off with radius^2, but we've adjusted the rate in a way that is
 	// more computationally efficient and happens to be aesthetically pleasing.  Assumes
 	// division by radius^6 in main()
-	// return 4.0 * max(1.0 - vv * invRadius2, 0.0) * max(vn - bias, 0.0);
+	//return 4.0 * max(1.0 - vv * invRadius2, 0.0) * max(vn - bias, 0.0);
 	
 	// D: Low contrast, no division operation
 	//return 2.0 * float(vv < radius * radius) * max(vn - bias, 0.0);
@@ -229,12 +248,13 @@ float fallOffFunction( float vv, float vn, float epsilon )
 float aoValueFromPositionsAndNormal( float3 C, float3 n_C, float3 Q )
 {
 	float3 v = Q - C;
+	//v = normalize( v );
 	float vv = dot( v, v );
 	float vn = dot( v, n_C );
 	const float epsilon = 0.001;
 	
 	// Without the angular adjustment term, surfaces seen head on have less AO
-	return fallOffFunction( vv, vn, epsilon ) * lerp( 1.0, max( 0.0, 1.5 * n_C.z ), 0.35 );
+	return fallOffFunction( vv, vn, epsilon );// * lerp( 1.0, max( 0.0, 1.5 * n_C.z ), 0.35 );
 }
 
 
@@ -281,7 +301,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	result.color = float4( 0.0, 0.0, 0.0, 1.0 );
 	
 #if 1
-	if( fragment.texcoord0.x < 0.5 )
+	if( fragment.texcoord0.x < 0.15 )
 	{
 		discard;
 	}
@@ -300,19 +320,28 @@ void main( PS_IN fragment, out PS_OUT result )
 	// World space point being shaded
 	vec3 C = getPosition( ssC, CS_Z_buffer );
 	
-	//float z = length( C - rpGlobalEyePos.xyz ) * 10.0;
+	//float z = length( C - rpGlobalEyePos.xyz );
 	bilateralKey = CSZToKey( C.z );
 	
 	visibility = 0.0;
 	
-#if 1
+#if 0
 	//vec3 n_C = texelFetch( normal_buffer, ivec2( gl_FragCoord.xy ), 0 ).xyz;
 	//n_C = normalize( n_C * normal_readMultiplyFirst.xyz + normal_readAddSecond.xyz );
+	
 	float3 n_C = tex2D( samp0, fragment.texcoord0 ).rgb * 2.0 - 1.0;
+	n_C = normalize( n_C );
 	//n_C = -n_C;
+	
+	if( length( n_C ) < 0.1 )
+	{
+		visibility = 1.0;
+		return;
+	}
+	
 #else
 	// Reconstruct normals from positions.
-	float3 n_C = reconstructCSFaceNormal( C );
+	float3 n_C = reconstructNonUnitCSFaceNormal( C );
 	// Since n_C is computed from the cross product of cmaera-space edge vectors from points at adjacent pixels, its magnitude will be proportional to the square of distance from the camera
 	if( dot( n_C, n_C ) > ( square( C.z * C.z * 0.00006 ) ) ) // if the threshold # is too big you will see black dots where we used a bad normal at edges, too small -> white
 	{
@@ -320,6 +349,7 @@ void main( PS_IN fragment, out PS_OUT result )
 		// except at depth discontinuities, where they will be large and lead
 		// to 1-pixel false occlusions because they are not reliable
 		visibility = 1.0;
+		//result.color = float4( visibility, visibility, visibility, 1.0 );
 		return;
 	}
 	else
@@ -331,7 +361,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	// Hash function used in the HPG12 AlchemyAO paper
 	float randomPatternRotationAngle = ( ( ( 3 * issC.x ) ^ ( issC.y + issC.x * issC.y ) )
 #if TEMPORALLY_VARY_SAMPLES
-										 + g3d_SceneTime
+										 + rpJitterTexOffset.x
 #endif
 									   ) * 10;
 									   
@@ -339,7 +369,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	// proportional to the projected area of the sphere
 	float ssDiskRadius = -projScale * radius / C.z;
 	
-#if 0
+#if 1
 	if( ssDiskRadius <= MIN_RADIUS )
 	{
 		// There is no way to compute AO at this radius
@@ -366,7 +396,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	float A = max( 0.0, 1.0 - sum * intensityDivR6 * ( 5.0 / NUM_SAMPLES ) );
 	// Anti-tone map to reduce contrast and drag dark region farther
 	// (x^0.2 + 1.2 * x^4)/2.2
-	A = ( pow( A, 0.2 ) + 1.2 * A * A * A * A ) / 2.2;
+	//A = ( pow( A, 0.2 ) + 1.2 * A * A * A * A ) / 2.2;
 #endif
 	
 	// Visualize random spin distribution
@@ -374,11 +404,13 @@ void main( PS_IN fragment, out PS_OUT result )
 	
 	// Fade in as the radius reaches 2 pixels
 	visibility = lerp( 1.0, A, saturate( ssDiskRadius - MIN_RADIUS ) );
+	//visibility = A;
 	
 	//result.color = float4( visibility, bilateralKey, 0.0, 1.0 );
 	//result.color = float4( bilateralKey, bilateralKey, bilateralKey, 1.0 );
-	result.color = float4( visibility, visibility, visibility, 1.0 );
+	//result.color = float4( visibility, visibility, visibility, 1.0 );
 	//result.color = float4( n_C * 0.5 + 0.5, 1.0 );
+	//result.color = float4( n_C, 1.0 );
 	//result.color = texture( samp0, fragment.texcoord0 ).rgba;
 	
 	// derive clip space from the depth buffer and screen position
