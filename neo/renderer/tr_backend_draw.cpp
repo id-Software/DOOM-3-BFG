@@ -1889,11 +1889,16 @@ static void RB_AmbientPass( const drawSurf_t* const* drawSurfs, int numDrawSurfs
 				SetVertexParm( RENDERPARM_LOCALLIGHTORIGIN, localLightDirection.ToFloatPtr() );
 			}
 			
-			// RB: we want to store the normals in world space so we need the model -> world matrix
+			// RB: if we want to store the normals in world space so we need the model -> world matrix
 			idRenderMatrix modelMatrix;
 			idRenderMatrix::Transpose( *( idRenderMatrix* )drawSurf->space->modelMatrix, modelMatrix );
 			
 			SetVertexParms( RENDERPARM_MODELMATRIX_X, modelMatrix[0], 4 );
+			
+			// RB: if we want to store the normals in camera space so we need the model -> camera matrix
+			float modelViewMatrixTranspose[16];
+			R_MatrixTranspose( drawSurf->space->modelViewMatrix, modelViewMatrixTranspose );
+			SetVertexParms( RENDERPARM_MODELVIEWMATRIX_X, modelViewMatrixTranspose, 4 );
 		}
 		
 #if 0
@@ -4495,6 +4500,142 @@ static void RB_Bloom( const viewDef_t* viewDef )
 	GL_State( GLS_DEFAULT );
 	GL_Cull( CT_FRONT_SIDED );
 }
+
+
+void RB_SSAO()
+{
+	if( !backEnd.viewDef->viewEntitys )
+	{
+		// 3D views only
+		return;
+	}
+	
+	if( r_useSSGI.GetInteger() <= 0 )
+	{
+		return;
+	}
+	
+	// FIXME very expensive to enable this in subviews
+	if( backEnd.viewDef->isSubview )
+	{
+		return;
+	}
+	
+	GL_CheckErrors();
+	
+#if 0
+	// clear the alpha buffer and draw only the hands + weapon into it so
+	// we can avoid blurring them
+	glClearColor( 0, 0, 0, 1 );
+	GL_State( GLS_COLORMASK | GLS_DEPTHMASK );
+	glClear( GL_COLOR_BUFFER_BIT );
+	GL_Color( 0, 0, 0, 0 );
+	GL_SelectTexture( 0 );
+	globalImages->blackImage->Bind();
+	backEnd.currentSpace = NULL;
+	
+	drawSurf_t** drawSurfs = ( drawSurf_t** )&backEnd.viewDef->drawSurfs[0];
+	for( int surfNum = 0; surfNum < backEnd.viewDef->numDrawSurfs; surfNum++ )
+	{
+		const drawSurf_t* surf = drawSurfs[ surfNum ];
+		
+		if( !surf->space->weaponDepthHack && !surf->space->skipMotionBlur && !surf->material->HasSubview() )
+		{
+			// Apply motion blur to this object
+			continue;
+		}
+		
+		const idMaterial* shader = surf->material;
+		if( shader->Coverage() == MC_TRANSLUCENT )
+		{
+			// muzzle flash, etc
+			continue;
+		}
+		
+		// set mvp matrix
+		if( surf->space != backEnd.currentSpace )
+		{
+			RB_SetMVP( surf->space->mvp );
+			backEnd.currentSpace = surf->space;
+		}
+		
+		// this could just be a color, but we don't have a skinned color-only prog
+		if( surf->jointCache )
+		{
+			renderProgManager.BindShader_TextureVertexColorSkinned();
+		}
+		else
+		{
+			renderProgManager.BindShader_TextureVertexColor();
+		}
+		
+		// draw it solid
+		RB_DrawElementsWithCounters( surf );
+	}
+	GL_State( GLS_DEPTHFUNC_ALWAYS );
+	
+	// copy off the color buffer and the depth buffer for the motion blur prog
+	// we use the viewport dimensions for copying the buffers in case resolution scaling is enabled.
+	const idScreenRect& viewport = backEnd.viewDef->viewport;
+	globalImages->currentRenderImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
+	
+	// in stereo rendering, each eye needs to get a separate previous frame mvp
+	int mvpIndex = ( backEnd.viewDef->renderView.viewEyeBuffer == 1 ) ? 1 : 0;
+	
+	// derive the matrix to go from current pixels to previous frame pixels
+	idRenderMatrix	inverseMVP;
+	idRenderMatrix::Inverse( backEnd.viewDef->worldSpace.mvp, inverseMVP );
+	
+	idRenderMatrix	motionMatrix;
+	idRenderMatrix::Multiply( backEnd.prevMVP[mvpIndex], inverseMVP, motionMatrix );
+	
+	backEnd.prevMVP[mvpIndex] = backEnd.viewDef->worldSpace.mvp;
+	
+	RB_SetMVP( motionMatrix );
+#endif
+	
+	backEnd.currentSpace = &backEnd.viewDef->worldSpace;
+	RB_SetMVP( backEnd.viewDef->worldSpace.mvp );
+	
+	//GL_State( GLS_DEPTHFUNC_ALWAYS );
+	//GL_Cull( CT_TWO_SIDED );
+	
+	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
+	GL_Cull( CT_TWO_SIDED );
+	
+	int screenWidth = renderSystem->GetWidth();
+	int screenHeight = renderSystem->GetHeight();
+	
+	// set the window clipping
+	GL_Viewport( 0, 0, screenWidth, screenHeight );
+	GL_Scissor( 0, 0, screenWidth, screenHeight );
+	
+	renderProgManager.BindShader_AmbientOcclusion();
+	
+	float screenCorrectionParm[4];
+	screenCorrectionParm[0] = 1.0f / glConfig.nativeScreenWidth;
+	screenCorrectionParm[1] = 1.0f / glConfig.nativeScreenHeight;
+	screenCorrectionParm[2] = glConfig.nativeScreenWidth;
+	screenCorrectionParm[3] = glConfig.nativeScreenHeight;
+	SetFragmentParm( RENDERPARM_SCREENCORRECTIONFACTOR, screenCorrectionParm ); // rpScreenCorrectionFactor
+	
+	// let the fragment program know how many samples we are going to use
+	idVec4 samples( ( float )( 1 << r_motionBlur.GetInteger() ) );
+	SetFragmentParm( RENDERPARM_OVERBRIGHT, samples.ToFloatPtr() );
+	
+	// RB: set unprojection matrices so we can convert zbuffer values back to camera and world spaces
+	SetVertexParms( RENDERPARM_MODELMATRIX_X, backEnd.viewDef->unprojectionToWorldRenderMatrix[0], 4 );
+	SetVertexParms( RENDERPARM_PROJMATRIX_X, backEnd.viewDef->unprojectionToCameraRenderMatrix[0], 4 );
+	
+	GL_SelectTexture( 0 );
+	globalImages->currentNormalsImage->Bind();
+	
+	GL_SelectTexture( 1 );
+	globalImages->currentDepthImage->Bind();
+	
+	RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
+	GL_CheckErrors();
+}
 // RB end
 
 /*
@@ -4621,6 +4762,17 @@ void RB_DrawViewInternal( const viewDef_t* viewDef, const int stereoEye )
 	RB_DrawInteractions( viewDef );
 	
 	//-------------------------------------------------
+	// capture the depth for the motion blur before rendering any post process surfaces that may contribute to the depth
+	//-------------------------------------------------
+	if( ( r_motionBlur.GetInteger() > 0 || r_useSSGI.GetBool() ) && !r_useHDR.GetBool() )
+	{
+		const idScreenRect& viewport = backEnd.viewDef->viewport;
+		globalImages->currentDepthImage->CopyDepthbuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
+	}
+	
+	RB_SSAO();
+	
+	//-------------------------------------------------
 	// now draw any non-light dependent shading passes
 	//-------------------------------------------------
 	int processed = 0;
@@ -4646,15 +4798,6 @@ void RB_DrawViewInternal( const viewDef_t* viewDef, const int stereoEye )
 	// so they are properly dimmed down
 	//-------------------------------------------------
 	RB_FogAllLights();
-	
-	//-------------------------------------------------
-	// capture the depth for the motion blur before rendering any post process surfaces that may contribute to the depth
-	//-------------------------------------------------
-	if( r_motionBlur.GetInteger() > 0 && !r_useHDR.GetBool() )
-	{
-		const idScreenRect& viewport = backEnd.viewDef->viewport;
-		globalImages->currentDepthImage->CopyDepthbuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
-	}
 	
 	//-------------------------------------------------
 	// now draw any screen warping post-process effects using _currentRender

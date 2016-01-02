@@ -178,6 +178,8 @@ float rand( float2 co ) {
 #define PI	3.14159265358979323846
 #endif
 
+#define square( x )		( x * x )
+
 #define DEG2RAD( a )				( ( a ) * PI / 180.0f )
 #define RAD2DEG( a )				( ( a ) * 180.0f / PI )
 

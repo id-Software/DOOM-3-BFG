@@ -453,6 +453,11 @@ public:
 		BindShader_Builtin( BUILTIN_SMAA_NEIGHBORHOOD_BLENDING );
 	}
 	
+	void	BindShader_AmbientOcclusion()
+	{
+		BindShader_Builtin( BUILTIN_AMBIENT_OCCLUSION );
+	}
+	
 #if 0
 	void	BindShader_ZCullReconstruct()
 	{
@@ -575,6 +580,8 @@ protected:
 		BUILTIN_SMAA_EDGE_DETECTION,
 		BUILTIN_SMAA_BLENDING_WEIGHT_CALCULATION,
 		BUILTIN_SMAA_NEIGHBORHOOD_BLENDING,
+		
+		BUILTIN_AMBIENT_OCCLUSION,
 		// RB end
 		BUILTIN_STEREO_DEGHOST,
 		BUILTIN_STEREO_WARP,

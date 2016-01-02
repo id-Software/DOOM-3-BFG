@@ -419,6 +419,15 @@ struct viewDef_t
 	
 	float				projectionMatrix[16];
 	idRenderMatrix		projectionRenderMatrix;	// tech5 version of projectionMatrix
+	
+	// RB begin
+	float				unprojectionToCameraMatrix[16];
+	idRenderMatrix		unprojectionToCameraRenderMatrix;
+	
+	float				unprojectionToWorldMatrix[16];
+	idRenderMatrix		unprojectionToWorldRenderMatrix;
+	// RB end
+	
 	viewEntity_t		worldSpace;
 	
 	idRenderWorldLocal* renderWorld;

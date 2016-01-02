@@ -472,6 +472,11 @@ void R_RenderView( viewDef_t* parms )
 	// portal-to-screen scissor calculations
 	R_SetupProjectionMatrix( tr.viewDef );
 	
+	// RB: we need a unprojection matrix to calculate the vertex position based on the depth image value
+	// for some post process shaders
+	R_SetupUnprojection( tr.viewDef );
+	// RB end
+	
 	// setup render matrices for faster culling
 	idRenderMatrix::Transpose( *( idRenderMatrix* )tr.viewDef->projectionMatrix, tr.viewDef->projectionRenderMatrix );
 	idRenderMatrix viewRenderMatrix;
