@@ -4474,7 +4474,7 @@ static void RB_Bloom( const viewDef_t* viewDef )
 		globalFramebuffers.bloomRenderFBO[( j + 1 ) % 2 ]->Bind();
 		glClear( GL_COLOR_BUFFER_BIT );
 		
-		globalImages->bloomRender[j % 2]->Bind();
+		globalImages->bloomRenderImage[j % 2]->Bind();
 		
 		RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
 	}
@@ -4488,7 +4488,7 @@ static void RB_Bloom( const viewDef_t* viewDef )
 	
 	renderProgManager.BindShader_Screen();
 	
-	globalImages->bloomRender[( j + 1 ) % 2]->Bind();
+	globalImages->bloomRenderImage[( j + 1 ) % 2]->Bind();
 	
 	RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
 	
@@ -4520,6 +4520,8 @@ void RB_SSAO()
 	{
 		return;
 	}
+	
+	RENDERLOG_PRINTF( "---------- RB_SSAO() ----------\n" );
 	
 	GL_CheckErrors();
 	
@@ -4600,15 +4602,22 @@ void RB_SSAO()
 	//GL_State( GLS_DEPTHFUNC_ALWAYS );
 	//GL_Cull( CT_TWO_SIDED );
 	
-	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
-	GL_Cull( CT_TWO_SIDED );
-	
 	int screenWidth = renderSystem->GetWidth();
 	int screenHeight = renderSystem->GetHeight();
 	
 	// set the window clipping
 	GL_Viewport( 0, 0, screenWidth, screenHeight );
 	GL_Scissor( 0, 0, screenWidth, screenHeight );
+	
+	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
+	GL_Cull( CT_TWO_SIDED );
+	
+	const bool hdrIsActive = ( r_useHDR.GetBool() && globalFramebuffers.hdrFBO != NULL && globalFramebuffers.hdrFBO->IsBound() );
+	
+	globalFramebuffers.ambientOcclusionFBO[0]->Bind();
+	
+	glClearColor( 1, 0, 0, 1 );
+	glClear( GL_COLOR_BUFFER_BIT );
 	
 	renderProgManager.BindShader_AmbientOcclusion();
 	
@@ -4661,15 +4670,19 @@ void RB_SSAO()
 	RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
 	
 	
+	float jitterTexScale[4];
+	
 	// AO blur X
 #if 1
+	globalFramebuffers.ambientOcclusionFBO[1]->Bind();
+	
 	renderProgManager.BindShader_AmbientOcclusionBlur();
 	
-	const idScreenRect& viewport = backEnd.viewDef->viewport;
-	globalImages->currentAOImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
+	//const idScreenRect& viewport = backEnd.viewDef->viewport;
+	//globalImages->currentAOImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
 	
 	// set axis parameter
-	float jitterTexScale[4];
+	
 	jitterTexScale[0] = 1;
 	jitterTexScale[1] = 0;
 	jitterTexScale[2] = 0;
@@ -4677,13 +4690,24 @@ void RB_SSAO()
 	SetFragmentParm( RENDERPARM_JITTERTEXSCALE, jitterTexScale ); // rpJitterTexScale
 	
 	GL_SelectTexture( 0 );
-	globalImages->currentAOImage->Bind();
+	globalImages->ambientOcclusionImage[0]->Bind();
 	
 	RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
-	
+#endif
 	
 	// AO blur Y
-	globalImages->currentAOImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
+	if( hdrIsActive )
+	{
+		globalFramebuffers.hdrFBO->Bind();
+	}
+	else
+	{
+		Framebuffer::Unbind();
+	}
+	
+	//globalImages->currentAOImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
+	
+	renderProgManager.BindShader_AmbientOcclusionBlurAndOutput();
 	
 	// set axis parameter
 	jitterTexScale[0] = 0;
@@ -4693,10 +4717,11 @@ void RB_SSAO()
 	SetFragmentParm( RENDERPARM_JITTERTEXSCALE, jitterTexScale ); // rpJitterTexScale
 	
 	GL_SelectTexture( 0 );
-	globalImages->currentAOImage->Bind();
+	globalImages->ambientOcclusionImage[1]->Bind();
 	
 	RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
-#endif
+	
+	
 	
 	GL_CheckErrors();
 }

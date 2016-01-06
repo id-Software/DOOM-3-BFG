@@ -298,10 +298,10 @@ const float MIN_RADIUS = 3.0; // pixels
 
 void main( PS_IN fragment, out PS_OUT result )
 {
-	result.color = float4( 0.0, 0.0, 0.0, 1.0 );
+	result.color = float4( 1.0, 0.0, 0.0, 1.0 );
 	
-#if 1
-	if( fragment.texcoord0.x < 0.15 )
+#if 0
+	if( fragment.texcoord0.x < 0.25 )
 	{
 		discard;
 	}

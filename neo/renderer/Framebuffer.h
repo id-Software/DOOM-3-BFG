@@ -31,6 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 
 static const int MAX_SHADOWMAP_RESOLUTIONS = 5;
 static const int MAX_BLOOM_BUFFERS = 2;
+static const int MAX_SSAO_BUFFERS = 2;
 
 #if 1
 static	int shadowMapResolutions[MAX_SHADOWMAP_RESOLUTIONS] = { 2048, 1024, 512, 512, 256 };
@@ -127,6 +128,7 @@ struct globalFramebuffers_t
 //	Framebuffer*				hdrQuarterFBO;
 	Framebuffer*				hdr64FBO;
 	Framebuffer*				bloomRenderFBO[MAX_BLOOM_BUFFERS];
+	Framebuffer*				ambientOcclusionFBO[MAX_SSAO_BUFFERS];
 	Framebuffer*				smaaEdgesFBO;
 	Framebuffer*				smaaBlendFBO;
 };

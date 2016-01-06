@@ -514,7 +514,7 @@ void idRenderLog::LogCloseBlock( renderLogIndentLabel_t label )
 {
 	closeBlockTime = Sys_Microseconds();
 	
-	assert( logLevel > 0 );
+	//assert( logLevel > 0 );
 	logLevel--;
 	
 	Outdent( label );
