@@ -149,6 +149,7 @@ void idRenderProgManager::Init()
 		{ BUILTIN_SMAA_NEIGHBORHOOD_BLENDING, "SMAA_final", "", 0, false },
 		
 		{ BUILTIN_AMBIENT_OCCLUSION, "AmbientOcclusion_AO", "", 0, false },
+		{ BUILTIN_AMBIENT_OCCLUSION_AND_OUTPUT, "AmbientOcclusion_AO", "_write", BIT( BRIGHTPASS ), false },
 		{ BUILTIN_AMBIENT_OCCLUSION_BLUR, "AmbientOcclusion_blur", "", 0, false },
 		{ BUILTIN_AMBIENT_OCCLUSION_BLUR_AND_OUTPUT, "AmbientOcclusion_blur", "_write", BIT( BRIGHTPASS ), false },
 		// RB end

@@ -1841,6 +1841,7 @@ static void RB_AmbientPass( const drawSurf_t* const* drawSurfs, int numDrawSurfs
 		//}
 		//else
 		{
+#if 0
 			if( r_useSSGI.GetBool() )
 			{
 				// fill geometry buffer with normal/roughness information
@@ -1854,6 +1855,7 @@ static void RB_AmbientPass( const drawSurf_t* const* drawSurfs, int numDrawSurfs
 				}
 			}
 			else
+#endif
 			{
 				// draw Quake 4 style ambient
 				if( drawSurf->jointCache )
@@ -2101,6 +2103,7 @@ static void RB_AmbientPass( const drawSurf_t* const* drawSurfs, int numDrawSurfs
 	renderLog.CloseBlock();
 	renderLog.CloseMainBlock();
 	
+#if 0
 	if( r_useSSGI.GetBool() )
 	{
 		GL_SelectTexture( 0 );
@@ -2124,6 +2127,7 @@ static void RB_AmbientPass( const drawSurf_t* const* drawSurfs, int numDrawSurfs
 		
 		globalImages->BindNull();
 	}
+#endif
 }
 
 // RB end
@@ -4614,12 +4618,23 @@ void RB_SSAO()
 	
 	const bool hdrIsActive = ( r_useHDR.GetBool() && globalFramebuffers.hdrFBO != NULL && globalFramebuffers.hdrFBO->IsBound() );
 	
-	globalFramebuffers.ambientOcclusionFBO[0]->Bind();
-	
-	glClearColor( 1, 0, 0, 1 );
-	glClear( GL_COLOR_BUFFER_BIT );
-	
-	renderProgManager.BindShader_AmbientOcclusion();
+	if( r_ssaoFiltering.GetBool() )
+	{
+		globalFramebuffers.ambientOcclusionFBO[0]->Bind();
+		
+		glClearColor( 1, 0, 0, 1 );
+		glClear( GL_COLOR_BUFFER_BIT );
+		
+		renderProgManager.BindShader_AmbientOcclusion();
+	}
+	else
+	{
+		if( r_ssgiDebug.GetInteger() <= 0 )
+		{
+			GL_State( GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
+		}
+		renderProgManager.BindShader_AmbientOcclusionAndOutput();
+	}
 	
 	float screenCorrectionParm[4];
 	screenCorrectionParm[0] = 1.0f / glConfig.nativeScreenWidth;
@@ -4628,10 +4643,7 @@ void RB_SSAO()
 	screenCorrectionParm[3] = glConfig.nativeScreenHeight;
 	SetFragmentParm( RENDERPARM_SCREENCORRECTIONFACTOR, screenCorrectionParm ); // rpScreenCorrectionFactor
 	
-	// let the fragment program know how many samples we are going to use
-	idVec4 samples( ( float )( 1 << r_motionBlur.GetInteger() ) );
-	SetFragmentParm( RENDERPARM_OVERBRIGHT, samples.ToFloatPtr() );
-	
+#if 0
 	// RB: set unprojection matrices so we can convert zbuffer values back to camera and world spaces
 	idRenderMatrix modelViewMatrix;
 	idRenderMatrix::Transpose( *( idRenderMatrix* )backEnd.viewDef->worldSpace.modelViewMatrix, modelViewMatrix );
@@ -4643,8 +4655,9 @@ void RB_SSAO()
 	
 	SetVertexParms( RENDERPARM_MODELMATRIX_X, cameraToWorldMatrix[0], 4 );
 	//SetVertexParms( RENDERPARM_MODELMATRIX_X, backEnd.viewDef->unprojectionToWorldRenderMatrix[0], 4 );
-	
+#endif
 	SetVertexParms( RENDERPARM_PROJMATRIX_X, backEnd.viewDef->unprojectionToCameraRenderMatrix[0], 4 );
+	
 	
 	float jitterTexOffset[4];
 	if( r_shadowMapRandomizeJitter.GetBool() )
@@ -4669,58 +4682,64 @@ void RB_SSAO()
 	
 	RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
 	
-	
-	float jitterTexScale[4];
-	
-	// AO blur X
+	if( r_ssaoFiltering.GetBool() )
+	{
+		float jitterTexScale[4];
+		
+		// AO blur X
 #if 1
-	globalFramebuffers.ambientOcclusionFBO[1]->Bind();
-	
-	renderProgManager.BindShader_AmbientOcclusionBlur();
-	
-	//const idScreenRect& viewport = backEnd.viewDef->viewport;
-	//globalImages->currentAOImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
-	
-	// set axis parameter
-	
-	jitterTexScale[0] = 1;
-	jitterTexScale[1] = 0;
-	jitterTexScale[2] = 0;
-	jitterTexScale[3] = 0;
-	SetFragmentParm( RENDERPARM_JITTERTEXSCALE, jitterTexScale ); // rpJitterTexScale
-	
-	GL_SelectTexture( 0 );
-	globalImages->ambientOcclusionImage[0]->Bind();
-	
-	RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
+		globalFramebuffers.ambientOcclusionFBO[1]->Bind();
+		
+		renderProgManager.BindShader_AmbientOcclusionBlur();
+		
+		//const idScreenRect& viewport = backEnd.viewDef->viewport;
+		//globalImages->currentAOImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
+		
+		// set axis parameter
+		
+		jitterTexScale[0] = 1;
+		jitterTexScale[1] = 0;
+		jitterTexScale[2] = 0;
+		jitterTexScale[3] = 0;
+		SetFragmentParm( RENDERPARM_JITTERTEXSCALE, jitterTexScale ); // rpJitterTexScale
+		
+		GL_SelectTexture( 0 );
+		globalImages->ambientOcclusionImage[0]->Bind();
+		
+		RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
 #endif
-	
-	// AO blur Y
-	if( hdrIsActive )
-	{
-		globalFramebuffers.hdrFBO->Bind();
+		
+		// AO blur Y
+		if( hdrIsActive )
+		{
+			globalFramebuffers.hdrFBO->Bind();
+		}
+		else
+		{
+			Framebuffer::Unbind();
+		}
+		
+		if( r_ssgiDebug.GetInteger() <= 0 )
+		{
+			GL_State( GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
+		}
+		
+		//globalImages->currentAOImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
+		
+		renderProgManager.BindShader_AmbientOcclusionBlurAndOutput();
+		
+		// set axis parameter
+		jitterTexScale[0] = 0;
+		jitterTexScale[1] = 1;
+		jitterTexScale[2] = 0;
+		jitterTexScale[3] = 0;
+		SetFragmentParm( RENDERPARM_JITTERTEXSCALE, jitterTexScale ); // rpJitterTexScale
+		
+		GL_SelectTexture( 0 );
+		globalImages->ambientOcclusionImage[1]->Bind();
+		
+		RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
 	}
-	else
-	{
-		Framebuffer::Unbind();
-	}
-	
-	//globalImages->currentAOImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
-	
-	renderProgManager.BindShader_AmbientOcclusionBlurAndOutput();
-	
-	// set axis parameter
-	jitterTexScale[0] = 0;
-	jitterTexScale[1] = 1;
-	jitterTexScale[2] = 0;
-	jitterTexScale[3] = 0;
-	SetFragmentParm( RENDERPARM_JITTERTEXSCALE, jitterTexScale ); // rpJitterTexScale
-	
-	GL_SelectTexture( 0 );
-	globalImages->ambientOcclusionImage[1]->Bind();
-	
-	RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
-	
 	
 	
 	GL_CheckErrors();

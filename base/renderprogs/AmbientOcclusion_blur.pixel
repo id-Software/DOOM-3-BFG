@@ -75,7 +75,7 @@ struct PS_OUT
 #define VALUE_IS_KEY       0
 
 /** Channel encoding the bilateral key value (which must not be the same as VALUE_COMPONENTS) */
-#if 0 //NUM_KEY_COMPONENTS == 2
+#if 1 //NUM_KEY_COMPONENTS == 2
 #define KEY_COMPONENTS     gb
 #else
 #define KEY_COMPONENTS     g
@@ -97,9 +97,9 @@ struct PS_OUT
 #define  aoResult       result.color.VALUE_COMPONENTS
 #define  keyPassThrough result.color.KEY_COMPONENTS
 
-#if 0 //NUM_KEY_COMPONENTS == 2
+#if 1 //NUM_KEY_COMPONENTS == 2
 /** Returns a number on (0, 1) */
-float unpackKey( vec2 p )
+float unpackKey( float2 p )
 {
 	return p.x * ( 256.0 / 257.0 ) + p.y * ( 1.0 / 257.0 );
 }

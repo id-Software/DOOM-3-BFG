@@ -8,6 +8,10 @@ return
 	-- shaders
 	"ambient_lighting.pixel",
 	"ambient_lighting.vertex",
+	"AmbientOcclusion_AO.pixel",
+	"AmbientOcclusion_AO.vertex",
+	"AmbientOcclusion_blur.pixel",
+	"AmbientOcclusion_blur.vertex",
 	"bink.pixel",
 	"bink.vertex",
 	"bink_gui.pixel",

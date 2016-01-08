@@ -60,7 +60,7 @@ const float METERS_TO_DOOM = ( 1.0 / DOOM_TO_METERS );	// meters to doom
 
 /** Used for preventing AO computation on the sky (at infinite depth) and defining the CS Z to bilateral depth key scaling.
     This need not match the real far plane but should not be much more than it.*/
-const float FAR_PLANE_Z = -4000.0;
+const float FAR_PLANE_Z = -16000.0;
 
 /** World-space AO radius in scene units (r).  e.g., 1.0m */
 const float radius = 1.0 * METERS_TO_DOOM;
@@ -71,7 +71,7 @@ const float invRadius2 = 1.0 / radius2;
 const float bias = 0.01 * METERS_TO_DOOM;
 
 /** intensity / radius^6 */
-const float intensity = 0.5;
+const float intensity = 0.3;
 const float intensityDivR6 = intensity / ( radius* radius* radius* radius* radius* radius );
 
 const float projScale = 300.0;// * METERS_TO_DOOM;
@@ -119,6 +119,19 @@ float CSZToKey( float z )
 	return clamp( z * ( 1.0 / FAR_PLANE_Z ), 0.0, 1.0 );
 }
 
+/** Used for packing Z into the GB channels */
+void packKey( float key, out float2 p )
+{
+	// Round to the nearest 1/256.0
+	float temp = floor( key * 256.0 );
+	
+	// Integer part
+	p.x = temp * ( 1.0 / 256.0 );
+	
+	// Fractional part
+	p.y = key * 256.0 - temp;
+}
+
 /** Reconstructs screen-space unit normal from screen-space position */
 float3 reconstructCSFaceNormal( float3 C )
 {
@@ -135,14 +148,23 @@ float3 reconstructNonUnitCSFaceNormal( float3 C )
 /** Read the camera-space position of the point at screen-space pixel ssP */
 float3 getPosition( float2 ssP, sampler2D cszBuffer )
 {
+#if 1
+	// derive clip space from the depth buffer and screen position
+	float windowZ = tex2D( cszBuffer, ssP ).x;
+	float3 ndc = float3( ssP * 2.0 - 1.0, windowZ * 2.0 - 1.0 );
+	//float clipW = -rpProjectionMatrixZ.w / ( -rpProjectionMatrixZ.z - ndc.z );
+	//float4 P = float4( ndc * clipW, clipW );
+	float4 P = float4( ndc, 1.0 );
+#else
 	float4 P;
 	P.z = tex2D( cszBuffer, ssP ).r;
 	P.xy = float2( ssP ); //+ float2( 0.5 ) );
 	P.w = 1.0;
-	
+#endif
 	// offset to pixel center
 	//P = reconstructCSPosition( float2( ssP ) + float2( 0.5 ), P.z, projInfo );
 	
+#if 1
 	float4 csP;
 	csP.x = dot4( P, rpProjectionMatrixX );
 	csP.y = dot4( P, rpProjectionMatrixY );
@@ -150,6 +172,7 @@ float3 getPosition( float2 ssP, sampler2D cszBuffer )
 	csP.w = dot4( P, rpProjectionMatrixW );
 	
 	csP.xyz /= csP.w;
+#endif
 	
 #if 0
 	float4 wP;
@@ -186,7 +209,17 @@ float3 getOffsetPosition( ivec2 issC, vec2 unitOffset, float ssR, sampler2D cszB
 	
 	float2 ossC = float2( ssP ) * rpScreenCorrectionFactor.xy;
 	
-	P.z = texture( cszBuffer, ossC, 0.0 ).r;
+	float windowZ = texture( cszBuffer, ossC, 0.0 ).r;
+	
+#if 1
+	float3 ndc = float3( ossC * 2.0 - 1.0, windowZ * 2.0 - 1.0 );
+	//float clipW = -rpProjectionMatrixZ.w / ( -rpProjectionMatrixZ.z - ndc.z );
+	//P = float4( ndc * clipW, clipW );
+	P = float4( ndc, 1.0 );
+	
+	//return P.xyz;
+#else
+	
 	//P.z = texture( cszBuffer, mipP, 0.0 ).r;
 	//P.z = texture( cszBuffer, mipP, mipLevel ).r;
 	
@@ -194,13 +227,16 @@ float3 getOffsetPosition( ivec2 issC, vec2 unitOffset, float ssR, sampler2D cszB
 	//P = reconstructCSPosition( ( vec2( ssP ) + vec2( 0.5 ) ) * invCszBufferScale, P.z, projInfo );
 	P.xy = ossC; //+ float2( 0.5 ) ) * invCszBufferScale;
 	P.w = 1.0;
+#endif
 	
+#if 1
 	float4 csP;
 	csP.x = dot4( P, rpProjectionMatrixX );
 	csP.y = dot4( P, rpProjectionMatrixY );
 	csP.z = dot4( P, rpProjectionMatrixZ );
 	csP.w = dot4( P, rpProjectionMatrixW );
 	csP.xyz /= csP.w;
+#endif
 	
 #if 0
 	float4 wP;
@@ -294,7 +330,7 @@ float sampleAO( ivec2 issC, in float3 C, in float3 n_C, in float ssDiskRadius, i
 const float MIN_RADIUS = 3.0; // pixels
 
 #define visibility      result.color.r
-#define bilateralKey    result.color.g
+#define bilateralKey    result.color.gb
 
 void main( PS_IN fragment, out PS_OUT result )
 {
@@ -321,7 +357,8 @@ void main( PS_IN fragment, out PS_OUT result )
 	vec3 C = getPosition( ssC, CS_Z_buffer );
 	
 	//float z = length( C - rpGlobalEyePos.xyz );
-	bilateralKey = CSZToKey( C.z );
+	//bilateralKey = CSZToKey( C.z );
+	packKey( CSZToKey( C.z ), bilateralKey );
 	
 	visibility = 0.0;
 	
@@ -406,13 +443,14 @@ void main( PS_IN fragment, out PS_OUT result )
 	visibility = lerp( 1.0, A, saturate( ssDiskRadius - MIN_RADIUS ) );
 	//visibility = A;
 	
+#if defined(BRIGHTPASS)
 	//result.color = float4( visibility, bilateralKey, 0.0, 1.0 );
 	//result.color = float4( bilateralKey, bilateralKey, bilateralKey, 1.0 );
-	//result.color = float4( visibility, visibility, visibility, 1.0 );
+	result.color = float4( visibility, visibility, visibility, 1.0 );
 	//result.color = float4( n_C * 0.5 + 0.5, 1.0 );
 	//result.color = float4( n_C, 1.0 );
 	//result.color = texture( samp0, fragment.texcoord0 ).rgba;
-	
+#endif
 	// derive clip space from the depth buffer and screen position
 	// float windowZ = tex2D( samp1, fragment.texcoord0 ).x;
 	// float3 ndc = float3( fragment.texcoord0 * 2.0 - 1.0, windowZ * 2.0 - 1.0 );
