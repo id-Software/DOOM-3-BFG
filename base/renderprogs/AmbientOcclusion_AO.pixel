@@ -149,11 +149,8 @@ float3 reconstructNonUnitCSFaceNormal( float3 C )
 float3 getPosition( float2 ssP, sampler2D cszBuffer )
 {
 #if 1
-	// derive clip space from the depth buffer and screen position
 	float windowZ = tex2D( cszBuffer, ssP ).x;
 	float3 ndc = float3( ssP * 2.0 - 1.0, windowZ * 2.0 - 1.0 );
-	//float clipW = -rpProjectionMatrixZ.w / ( -rpProjectionMatrixZ.z - ndc.z );
-	//float4 P = float4( ndc * clipW, clipW );
 	float4 P = float4( ndc, 1.0 );
 #else
 	float4 P;
@@ -170,26 +167,24 @@ float3 getPosition( float2 ssP, sampler2D cszBuffer )
 	csP.y = dot4( P, rpProjectionMatrixY );
 	csP.z = dot4( P, rpProjectionMatrixZ );
 	csP.w = dot4( P, rpProjectionMatrixW );
-	
 	csP.xyz /= csP.w;
-#endif
 	
-#if 0
+	return csP.xyz;
+#else
+	// transform to world space if using world space normals
 	float4 wP;
 	wP.x = dot4( csP, rpModelMatrixX );
 	wP.y = dot4( csP, rpModelMatrixY );
 	wP.z = dot4( csP, rpModelMatrixZ );
 	wP.w = dot4( csP, rpModelMatrixW );
-	//wP.xyz /= wP.w;
+	wP.xyz /= wP.w;
 	return wP.xyz;
 #endif
-	
-	return csP.xyz;
 }
 
 /** Read the camera-space position of the point at screen-space pixel ssP + unitOffset * ssR.  Assumes length(unitOffset) == 1.
     Use cszBufferScale if reading from the peeled depth buffer, which has been scaled by (1 / invCszBufferScale) from the original */
-float3 getOffsetPosition( ivec2 issC, vec2 unitOffset, float ssR, sampler2D cszBuffer, float invCszBufferScale )
+float3 getOffsetPosition( int2 issC, float2 unitOffset, float ssR, sampler2D cszBuffer, float invCszBufferScale )
 {
 	// Derivation:
 	//  mipLevel = floor(log(ssR / MAX_OFFSET));
@@ -199,32 +194,35 @@ float3 getOffsetPosition( ivec2 issC, vec2 unitOffset, float ssR, sampler2D cszB
 	int mipLevel = clamp( int( floor( log2( ssR ) ) ) - LOG_MAX_OFFSET, 0, MAX_MIP_LEVEL );
 #endif
 	
-	ivec2 ssP = ivec2( ssR * unitOffset ) + issC;
+	int2 ssP = int2( ssR * unitOffset ) + issC;
 	
 	float4 P;
 	
 	// We need to divide by 2^mipLevel to read the appropriately scaled coordinate from a MIP-map.
 	// Manually clamp to the texture size because texelFetch bypasses the texture unit
-	ivec2 mipP = clamp( ssP >> mipLevel, ivec2( 0 ), textureSize( CS_Z_buffer, mipLevel ) - ivec2( 1 ) );
+	int2 mipP = clamp( ssP >> mipLevel, int2( 0 ), textureSize( CS_Z_buffer, mipLevel ) - int2( 1 ) );
 	
 	float2 ossC = float2( ssP ) * rpScreenCorrectionFactor.xy;
 	
+#if 1
+	// RB: this is the key for fast ambient occlusion - use a hierarchical depth buffer
+	// for more information see McGuire12SAO.pdf - Scalable Ambient Obscurance
+	// http://graphics.cs.williams.edu/papers/SAOHPG12/
+	float windowZ = texelFetch( cszBuffer, mipP, mipLevel ).r;
+#else
 	float windowZ = texture( cszBuffer, ossC, 0.0 ).r;
+#endif
 	
 #if 1
 	float3 ndc = float3( ossC * 2.0 - 1.0, windowZ * 2.0 - 1.0 );
-	//float clipW = -rpProjectionMatrixZ.w / ( -rpProjectionMatrixZ.z - ndc.z );
-	//P = float4( ndc * clipW, clipW );
 	P = float4( ndc, 1.0 );
-	
-	//return P.xyz;
 #else
 	
 	//P.z = texture( cszBuffer, mipP, 0.0 ).r;
 	//P.z = texture( cszBuffer, mipP, mipLevel ).r;
 	
 	// Offset to pixel center
-	//P = reconstructCSPosition( ( vec2( ssP ) + vec2( 0.5 ) ) * invCszBufferScale, P.z, projInfo );
+	//P = reconstructCSPosition( ( float2( ssP ) + float2( 0.5 ) ) * invCszBufferScale, P.z, projInfo );
 	P.xy = ossC; //+ float2( 0.5 ) ) * invCszBufferScale;
 	P.w = 1.0;
 #endif
@@ -236,19 +234,18 @@ float3 getOffsetPosition( ivec2 issC, vec2 unitOffset, float ssR, sampler2D cszB
 	csP.z = dot4( P, rpProjectionMatrixZ );
 	csP.w = dot4( P, rpProjectionMatrixW );
 	csP.xyz /= csP.w;
-#endif
 	
-#if 0
+	return csP.xyz;
+#else
+	// transform to world space if using world space normals
 	float4 wP;
 	wP.x = dot4( csP, rpModelMatrixX );
 	wP.y = dot4( csP, rpModelMatrixY );
 	wP.z = dot4( csP, rpModelMatrixZ );
 	wP.w = dot4( csP, rpModelMatrixW );
-	//wP.xyz /= wP.w;
+	wP.xyz /= wP.w;
 	return wP.xyz;
 #endif
-	
-	return csP.xyz;
 }
 
 float fallOffFunction( float vv, float vn, float epsilon )
@@ -290,7 +287,7 @@ float aoValueFromPositionsAndNormal( float3 C, float3 n_C, float3 Q )
 	const float epsilon = 0.001;
 	
 	// Without the angular adjustment term, surfaces seen head on have less AO
-	return fallOffFunction( vv, vn, epsilon );// * lerp( 1.0, max( 0.0, 1.5 * n_C.z ), 0.35 );
+	return fallOffFunction( vv, vn, epsilon ) * lerp( 1.0, max( 0.0, 1.5 * n_C.z ), 0.35 );
 }
 
 
@@ -305,7 +302,7 @@ float aoValueFromPositionsAndNormal( float3 C, float3 n_C, float3 Q )
 
     When sampling from the peeled depth buffer, make sure ssDiskRadius has been premultiplied by cszBufferScale
 */
-float sampleAO( ivec2 issC, in float3 C, in float3 n_C, in float ssDiskRadius, in int tapIndex, in float randomPatternRotationAngle, in sampler2D cszBuffer, in float invCszBufferScale )
+float sampleAO( int2 issC, in float3 C, in float3 n_C, in float ssDiskRadius, in int tapIndex, in float randomPatternRotationAngle, in sampler2D cszBuffer, in float invCszBufferScale )
 {
 	// Offset on the unit disk, spun for this pixel
 	float ssR;
@@ -343,15 +340,9 @@ void main( PS_IN fragment, out PS_OUT result )
 	}
 #endif
 	
-	//float3 normal = tex2D( samp0, fragment.texcoord0 ).rgb * 2.0 - 1.0;
-	//if( length( normal ) < 0.9 )
-	//{
-	//discard;
-	//}
-	
 	// Pixel being shaded
 	float2 ssC = fragment.texcoord0;
-	ivec2 issC = ivec2( ssC.x * rpScreenCorrectionFactor.z, ssC.y * rpScreenCorrectionFactor.w );
+	int2 issC = int2( ssC.x * rpScreenCorrectionFactor.z, ssC.y * rpScreenCorrectionFactor.w );
 	
 	// World space point being shaded
 	vec3 C = getPosition( ssC, CS_Z_buffer );
@@ -363,18 +354,17 @@ void main( PS_IN fragment, out PS_OUT result )
 	visibility = 0.0;
 	
 #if 1
-	//vec3 n_C = texelFetch( normal_buffer, ivec2( gl_FragCoord.xy ), 0 ).xyz;
-	//n_C = normalize( n_C * normal_readMultiplyFirst.xyz + normal_readAddSecond.xyz );
-	
-	float3 n_C = tex2D( samp0, fragment.texcoord0 ).rgb * 2.0 - 1.0;
-	n_C = normalize( n_C );
-	//n_C = -n_C;
+	vec3 n_C = texelFetch( samp0, int2( gl_FragCoord.xy ), 0 ).xyz * 2.0 - 1.0;
+	//float3 n_C = tex2D( samp0, fragment.texcoord0 ).rgb * 2.0 - 1.0;
 	
 	if( length( n_C ) < 0.1 )
 	{
 		visibility = 1.0;
 		return;
 	}
+	
+	n_C = normalize( n_C );
+	//n_C = -n_C;
 	
 #else
 	// Reconstruct normals from positions.
@@ -451,10 +441,4 @@ void main( PS_IN fragment, out PS_OUT result )
 	//result.color = float4( n_C, 1.0 );
 	//result.color = texture( samp0, fragment.texcoord0 ).rgba;
 #endif
-	// derive clip space from the depth buffer and screen position
-	// float windowZ = tex2D( samp1, fragment.texcoord0 ).x;
-	// float3 ndc = float3( fragment.texcoord0 * 2.0 - 1.0, windowZ * 2.0 - 1.0 );
-	// float clipW = -rpProjectionMatrixZ.w / ( -rpProjectionMatrixZ.z - ndc.z );
-	
-	// float4 clip = float4( ndc * clipW, clipW );
 }

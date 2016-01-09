@@ -12,6 +12,8 @@ return
 	"AmbientOcclusion_AO.vertex",
 	"AmbientOcclusion_blur.pixel",
 	"AmbientOcclusion_blur.vertex",
+	"AmbientOcclusion_minify.pixel",
+	"AmbientOcclusion_minify.vertex",
 	"bink.pixel",
 	"bink.vertex",
 	"bink_gui.pixel",

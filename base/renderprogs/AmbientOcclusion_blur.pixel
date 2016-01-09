@@ -91,7 +91,7 @@ struct PS_OUT
 //#endif
 
 /** (1, 0) or (0, 1)*/
-//uniform ivec2       axis;
+//uniform int2       axis;
 
 
 #define  aoResult       result.color.VALUE_COMPONENTS
@@ -135,13 +135,13 @@ float3 reconstructCSPosition( float2 S, float z )
 
 /** Used for preventing AO computation on the sky (at infinite depth) and defining the CS Z to bilateral depth key scaling.
     This need not match the real far plane but should not be much more than it.*/
-const float FAR_PLANE_Z = -4000.0;
+const float FAR_PLANE_Z = -16000.0;
 
-float3 positionFromKey( float key, ivec2 ssC )
+float3 positionFromKey( float key, int2 ssC )
 {
 	float z = key * FAR_PLANE_Z;
-	//float3 C = reconstructCSPosition( vec2( ssC )/* + vec2( 0.5 )*/, z, pInfo );
-	float3 C = reconstructCSPosition( vec2( ssC ), z );
+	//float3 C = reconstructCSPosition( float2( ssC )/* + float2( 0.5 )*/, z, pInfo );
+	float3 C = reconstructCSPosition( float2( ssC ), z );
 	return C;
 }
 
@@ -152,7 +152,7 @@ uniform float4            normal_readMultiplyFirst;
 uniform float4            normal_readAddSecond;
 #endif
 
-float calculateBilateralWeight( float key, float tapKey, ivec2 tapLoc, float3 n_C, float3 C )
+float calculateBilateralWeight( float key, float tapKey, int2 tapLoc, float3 n_C, float3 C )
 {
 	// range domain (the "bilateral" weight). As depth difference increases, decrease weight.
 	float depthWeight = max( 0.0, 1.0 - ( EDGE_SHARPNESS * 2000.0 ) * abs( tapKey - key ) );
@@ -239,7 +239,7 @@ void main( PS_IN fragment, out PS_OUT result )
 // #       endif
 //#   endif
 
-	ivec2 ssC = ivec2( gl_FragCoord.xy );
+	int2 ssC = int2( gl_FragCoord.xy );
 	
 	float4 temp = texelFetch( source, ssC, 0 );
 	
@@ -287,7 +287,7 @@ void main( PS_IN fragment, out PS_OUT result )
 		// so the IF statement has no runtime cost
 		if( r != 0 )
 		{
-			ivec2 tapLoc = ssC + ivec2( rpJitterTexScale.xy ) * ( r * SCALE );
+			int2 tapLoc = ssC + int2( rpJitterTexScale.xy ) * ( r * SCALE );
 			temp = texelFetch( source, tapLoc, 0 );
 			float      tapKey = unpackKey( temp.KEY_COMPONENTS );
 			VALUE_TYPE value  = temp.VALUE_COMPONENTS;
@@ -307,7 +307,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	float lastBilateralWeight = 9999.0;
 	for( int r = -1; r >= -R; --r )
 	{
-		ivec2 tapLoc = ssC + ivec2( rpJitterTexScale.xy ) * ( r * SCALE );
+		int2 tapLoc = ssC + int2( rpJitterTexScale.xy ) * ( r * SCALE );
 		temp = texelFetch( source, tapLoc, 0 );
 		float      tapKey = unpackKey( temp.KEY_COMPONENTS );
 		VALUE_TYPE value  = temp.VALUE_COMPONENTS;
@@ -327,7 +327,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	lastBilateralWeight = 9999.0;
 	for( int r = 1; r <= R; ++r )
 	{
-		ivec2 tapLoc = ssC + ivec2( rpJitterTexScale.xy ) * ( r * SCALE );
+		int2 tapLoc = ssC + int2( rpJitterTexScale.xy ) * ( r * SCALE );
 		temp = texelFetch( source, tapLoc, 0 );
 		float      tapKey = unpackKey( temp.KEY_COMPONENTS );
 		VALUE_TYPE value  = temp.VALUE_COMPONENTS;

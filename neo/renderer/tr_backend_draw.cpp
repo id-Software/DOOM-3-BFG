@@ -1752,9 +1752,13 @@ AMBIENT PASS RENDERING
 RB_AmbientPass
 ==================
 */
-static void RB_AmbientPass( const drawSurf_t* const* drawSurfs, int numDrawSurfs )
+static void RB_AmbientPass( const drawSurf_t* const* drawSurfs, int numDrawSurfs, bool fillGbuffer )
 {
-	if( ( r_forceAmbient.GetFloat() <= 0 || r_skipAmbient.GetBool() ) && !r_useSSGI.GetBool() )
+	if( fillGbuffer && !r_useSSGI.GetBool() )
+	{
+		return;
+	}
+	else if( r_forceAmbient.GetFloat() <= 0 || r_skipAmbient.GetBool() )
 	{
 		return;
 	}
@@ -1842,7 +1846,7 @@ static void RB_AmbientPass( const drawSurf_t* const* drawSurfs, int numDrawSurfs
 		//else
 		{
 #if 1
-			if( r_useSSGI.GetBool() )
+			if( r_useSSGI.GetBool() && fillGbuffer )
 			{
 				// fill geometry buffer with normal/roughness information
 				if( drawSurf->jointCache )
@@ -2104,7 +2108,7 @@ static void RB_AmbientPass( const drawSurf_t* const* drawSurfs, int numDrawSurfs
 	renderLog.CloseMainBlock();
 	
 #if 1
-	if( r_useSSGI.GetBool() )
+	if( r_useSSGI.GetBool() && fillGbuffer )
 	{
 		GL_SelectTexture( 0 );
 		globalImages->currentNormalsImage->Bind();
@@ -4616,7 +4620,7 @@ void RB_SSAO()
 		glClearColor( 0, 0, 0, 1 );
 		
 		GL_SelectTexture( 0 );
-		globalImages->currentDepthImage->Bind();
+		//globalImages->currentDepthImage->Bind();
 		
 		for( int i = 0; i < MAX_HIERARCHICAL_ZBUFFERS; i++ )
 		{
@@ -4630,6 +4634,26 @@ void RB_SSAO()
 			
 			glClear( GL_COLOR_BUFFER_BIT );
 			
+			if( i == 0 )
+			{
+				renderProgManager.BindShader_AmbientOcclusionReconstructCSZ();
+				
+				globalImages->currentDepthImage->Bind();
+			}
+			else
+			{
+				renderProgManager.BindShader_AmbientOcclusionMinify();
+				
+				GL_SelectTexture( 0 );
+				globalImages->hierarchicalZbufferImage->Bind();
+			}
+			
+			float jitterTexScale[4];
+			jitterTexScale[0] = i - 1;
+			jitterTexScale[1] = 0;
+			jitterTexScale[2] = 0;
+			jitterTexScale[3] = 0;
+			SetFragmentParm( RENDERPARM_JITTERTEXSCALE, jitterTexScale ); // rpJitterTexScale
 #if 1
 			float screenCorrectionParm[4];
 			screenCorrectionParm[0] = 1.0f / width;
@@ -4909,9 +4933,16 @@ void RB_DrawViewInternal( const viewDef_t* viewDef, const int stereoEye )
 	RB_FillDepthBufferFast( drawSurfs, numDrawSurfs );
 	
 	//-------------------------------------------------
+	// FIXME, OPTIMIZE: merge this with FillDepthBufferFast like in a light prepass deferred renderer
+	//
+	// fill the geometric buffer with normals and roughness
+	//-------------------------------------------------
+	RB_AmbientPass( drawSurfs, numDrawSurfs, true );
+	
+	//-------------------------------------------------
 	// fill the depth buffer and the color buffer with precomputed Q3A style lighting
 	//-------------------------------------------------
-	RB_AmbientPass( drawSurfs, numDrawSurfs );
+	RB_AmbientPass( drawSurfs, numDrawSurfs, false );
 	
 	//-------------------------------------------------
 	// main light renderer

@@ -31,6 +31,8 @@ struct PS_OUT
 };
 // *INDENT-ON*
 
+//#extension GL_EXT_gpu_shader4 : enable
+
 //#expect USE_PEELED_DEPTH_BUFFER "binary"
 
 #if 0 //( USE_PEELED_DEPTH_BUFFER != 0 )
@@ -39,23 +41,39 @@ struct PS_OUT
 #define mask r
 #endif
 
+float reconstructCSZ( float d )
+{
+	//return clipInfo[0] / (clipInfo[1] * d + clipInfo[2]);
+	
+	// infinite far perspective matrix
+	return 3.0 / ( -1.0 * d + 1.0 );
+}
+
 void main( PS_IN fragment, out PS_OUT result )
 {
+#if defined(BRIGHTPASS)
+	float2 ssC = fragment.texcoord0;
+	float depth = tex2D( samp0, ssC ).r;
+	//depth = reconstructCSZ( depth );
+	result.color.mask = depth;
+#else
 	//int2 ssP = int2( gl_FragCoord.xy );
 	int2 ssP = int2( fragment.texcoord0 * rpScreenCorrectionFactor.zw );
 	
-	//int previousMIPNumber
+	int previousMIPNumber = int( rpJitterTexScale.x );
 	
 	// Rotated grid subsampling to avoid XY directional bias or Z precision bias while downsampling.
 	// On DX9, the bit-and can be implemented with floating-point modulo
-	//result.color.mask = texelFetch2D( texture, clamp( ssP * 2 + int2( ssP.y & 1, ssP.x & 1 ), int2( 0 ), textureSize( texture, previousMIPNumber ) - int2( 1 ) ), previousMIPNumber ).mask;
+	//result.color.mask = texture( samp0, clamp( ssP * 2 + int2( ssP.y & 1, ssP.x & 1 ), int2( 0 ), textureSize( samp0, previousMIPNumber ) - int2( 1 ) ) * rpScreenCorrectionFactor.xy, previousMIPNumber ).mask;
+	result.color.mask = texelFetch( samp0, clamp( ssP * 2 + int2( ssP.y & 1, ssP.x & 1 ), int2( 0 ), textureSize( samp0, previousMIPNumber ) - int2( 1 ) ), previousMIPNumber ).mask;
 	//result.color.mask = texelFetch2D( samp0, int3( ssP * 2 + int2( ( ssP.y & 1 ) ^ 1, ( ssP.x & 1 ) ^ 1 ), 0 ) );
 	
 	// result.color.mask = texelFetch( samp0, ssP, 0 ).r;
 	
 	//float2 ssC = float2( ssP * 2 + int2( ( ssP.y & 1 ) ^ 1, ( ssP.x & 1 ) ^ 1 ) ) * rpScreenCorrectionFactor.xy;
 	//float2 ssC = float2( ssP ) * rpScreenCorrectionFactor.xy;
-	float2 ssC = fragment.texcoord0;
-	float depth = tex2D( samp0, ssC ).r;
-	result.color.mask = depth;
+	//float2 ssC = fragment.texcoord0;
+	//float depth = tex2D( samp0, ssC ).r;
+	//result.color.mask = depth;
+#endif
 }
