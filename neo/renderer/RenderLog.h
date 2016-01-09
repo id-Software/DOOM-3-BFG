@@ -34,7 +34,7 @@ Contains the RenderLog declaration.
 ================================================================================================
 */
 
-#if 1// defined(ID_RETAIL) && !defined(ID_RETAIL_INTERNAL)
+#if defined(ID_RETAIL) && !defined(ID_RETAIL_INTERNAL)
 #define STUB_RENDER_LOG
 #endif
 
