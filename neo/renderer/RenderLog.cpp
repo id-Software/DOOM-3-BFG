@@ -103,7 +103,7 @@ FIXME: this is not thread safe on the PC
 */
 void PC_BeginNamedEvent( const char* szName, ... )
 {
-#if 1
+#if 0
 	if( !r_pix.GetBool() )
 	{
 		return;
@@ -148,7 +148,7 @@ PC_EndNamedEvent
 */
 void PC_EndNamedEvent()
 {
-#if 1
+#if 0
 	if( !r_pix.GetBool() )
 	{
 		return;
@@ -183,7 +183,7 @@ PC_EndFrame
 */
 void PC_EndFrame()
 {
-#if 1
+#if 0
 	if( !r_pix.GetBool() )
 	{
 		return;

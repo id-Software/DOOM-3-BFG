@@ -74,7 +74,7 @@ const float bias = 0.01 * METERS_TO_DOOM;
 const float intensity = 0.3;
 const float intensityDivR6 = intensity / ( radius* radius* radius* radius* radius* radius );
 
-const float projScale = 500.0;// * METERS_TO_DOOM;
+const float projScale = 500.0;
 
 //#expect NUM_SAMPLES "Integer number of samples to take at each pixels"
 //#expect NUM_SPIRAL_TURNS "Integer number of turns around the circle that the spiral pattern makes. The G3D::AmbientOcclusion class provides a discrepancy-minimizing value of NUM_SPIRAL_TURNS for eac value of NUM_SAMPLES."

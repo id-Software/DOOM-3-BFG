@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013-2014 Robert Beckebans
+Copyright (C) 2013-2016 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -483,6 +483,11 @@ public:
 		BindShader_Builtin( BUILTIN_AMBIENT_OCCLUSION_RECONSTRUCT_CSZ );
 	}
 	
+	void	BindShader_DeepGBufferRadiosity()
+	{
+		BindShader_Builtin( BUILTIN_DEEP_GBUFFER_RADIOSITY_SSGI );
+	}
+	
 #if 0
 	void	BindShader_ZCullReconstruct()
 	{
@@ -612,6 +617,8 @@ protected:
 		BUILTIN_AMBIENT_OCCLUSION_BLUR_AND_OUTPUT,
 		BUILTIN_AMBIENT_OCCLUSION_MINIFY,
 		BUILTIN_AMBIENT_OCCLUSION_RECONSTRUCT_CSZ,
+		
+		BUILTIN_DEEP_GBUFFER_RADIOSITY_SSGI,
 		// RB end
 		BUILTIN_STEREO_DEGHOST,
 		BUILTIN_STEREO_WARP,

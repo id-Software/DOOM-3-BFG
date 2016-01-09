@@ -4,5 +4,6 @@ astyle.exe -v -Q --options=astyle-options.ini ../base/renderprogs/postprocess.pi
 astyle.exe -v -Q --options=astyle-options.ini ../base/renderprogs/AmbientOcclusion_AO.pixel
 astyle.exe -v -Q --options=astyle-options.ini ../base/renderprogs/AmbientOcclusion_blur.pixel
 astyle.exe -v -Q --options=astyle-options.ini ../base/renderprogs/AmbientOcclusion_minify.pixel
+astyle.exe -v -Q --options=astyle-options.ini ../base/renderprogs/DeepGBufferRadiosity_DeepGBufferRadiosity.pixel
 
 pause

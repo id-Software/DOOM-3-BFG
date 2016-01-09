@@ -154,6 +154,7 @@ void idRenderProgManager::Init()
 		{ BUILTIN_AMBIENT_OCCLUSION_BLUR_AND_OUTPUT, "AmbientOcclusion_blur", "_write", BIT( BRIGHTPASS ), false },
 		{ BUILTIN_AMBIENT_OCCLUSION_MINIFY, "AmbientOcclusion_minify", "", 0, false },
 		{ BUILTIN_AMBIENT_OCCLUSION_RECONSTRUCT_CSZ, "AmbientOcclusion_minify", "_mip0", BIT( BRIGHTPASS ), false },
+		{ BUILTIN_DEEP_GBUFFER_RADIOSITY_SSGI, "DeepGBufferRadiosity_DeepGBufferRadiosity", "", 0, false },
 		// RB end
 		{ BUILTIN_STEREO_DEGHOST, "stereoDeGhost.vfp", 0, false },
 		{ BUILTIN_STEREO_WARP, "stereoWarp.vfp", 0, false },
