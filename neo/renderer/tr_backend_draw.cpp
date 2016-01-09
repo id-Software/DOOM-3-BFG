@@ -1777,8 +1777,8 @@ static void RB_AmbientPass( const drawSurf_t* const* drawSurfs, int numDrawSurfs
 	//	Framebuffer::Unbind();
 	//}
 	
-	renderLog.OpenMainBlock( MRB_FILL_DEPTH_BUFFER );
-	renderLog.OpenBlock( "RB_AmbientPassFast" );
+	renderLog.OpenMainBlock( MRB_AMBIENT_PASS );
+	renderLog.OpenBlock( "RB_AmbientPass" );
 	
 	// RB: not needed
 	// GL_StartDepthPass( backEnd.viewDef->scissor );
@@ -1841,7 +1841,7 @@ static void RB_AmbientPass( const drawSurf_t* const* drawSurfs, int numDrawSurfs
 		//}
 		//else
 		{
-#if 0
+#if 1
 			if( r_useSSGI.GetBool() )
 			{
 				// fill geometry buffer with normal/roughness information
@@ -2103,7 +2103,7 @@ static void RB_AmbientPass( const drawSurf_t* const* drawSurfs, int numDrawSurfs
 	renderLog.CloseBlock();
 	renderLog.CloseMainBlock();
 	
-#if 0
+#if 1
 	if( r_useSSGI.GetBool() )
 	{
 		GL_SelectTexture( 0 );
@@ -4603,11 +4603,45 @@ void RB_SSAO()
 	backEnd.currentSpace = &backEnd.viewDef->worldSpace;
 	RB_SetMVP( backEnd.viewDef->worldSpace.mvp );
 	
-	//GL_State( GLS_DEPTHFUNC_ALWAYS );
-	//GL_Cull( CT_TWO_SIDED );
+	const bool hdrIsActive = ( r_useHDR.GetBool() && globalFramebuffers.hdrFBO != NULL && globalFramebuffers.hdrFBO->IsBound() );
 	
 	int screenWidth = renderSystem->GetWidth();
 	int screenHeight = renderSystem->GetHeight();
+	
+	// build hierarchical depth buffer
+	if( r_useHierarchicalDepthBuffer.GetBool() )
+	{
+		renderProgManager.BindShader_AmbientOcclusionMinify();
+		
+		glClearColor( 0, 0, 0, 1 );
+		
+		GL_SelectTexture( 0 );
+		globalImages->currentDepthImage->Bind();
+		
+		for( int i = 0; i < MAX_HIERARCHICAL_ZBUFFERS; i++ )
+		{
+			int width = globalFramebuffers.csDepthFBO[i]->GetWidth();
+			int height = globalFramebuffers.csDepthFBO[i]->GetHeight();
+			
+			GL_Viewport( 0, 0, width, height );
+			GL_Scissor( 0, 0, width, height );
+			
+			globalFramebuffers.csDepthFBO[i]->Bind();
+			
+			glClear( GL_COLOR_BUFFER_BIT );
+			
+#if 1
+			float screenCorrectionParm[4];
+			screenCorrectionParm[0] = 1.0f / width;
+			screenCorrectionParm[1] = 1.0f / height;
+			screenCorrectionParm[2] = width;
+			screenCorrectionParm[3] = height;
+			SetFragmentParm( RENDERPARM_SCREENCORRECTIONFACTOR, screenCorrectionParm ); // rpScreenCorrectionFactor
+#endif
+			
+			RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
+		}
+	}
 	
 	// set the window clipping
 	GL_Viewport( 0, 0, screenWidth, screenHeight );
@@ -4615,8 +4649,6 @@ void RB_SSAO()
 	
 	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
 	GL_Cull( CT_TWO_SIDED );
-	
-	const bool hdrIsActive = ( r_useHDR.GetBool() && globalFramebuffers.hdrFBO != NULL && globalFramebuffers.hdrFBO->IsBound() );
 	
 	if( r_ssaoFiltering.GetBool() )
 	{
@@ -4633,6 +4665,16 @@ void RB_SSAO()
 		{
 			GL_State( GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
 		}
+		
+		if( hdrIsActive )
+		{
+			globalFramebuffers.hdrFBO->Bind();
+		}
+		else
+		{
+			Framebuffer::Unbind();
+		}
+		
 		renderProgManager.BindShader_AmbientOcclusionAndOutput();
 	}
 	
@@ -4678,7 +4720,14 @@ void RB_SSAO()
 	globalImages->currentNormalsImage->Bind();
 	
 	GL_SelectTexture( 1 );
-	globalImages->currentDepthImage->Bind();
+	if( r_useHierarchicalDepthBuffer.GetBool() )
+	{
+		globalImages->hierarchicalZbufferImage->Bind();
+	}
+	else
+	{
+		globalImages->currentDepthImage->Bind();
+	}
 	
 	RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
 	

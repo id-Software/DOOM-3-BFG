@@ -2,7 +2,7 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 2014-2015 Robert Beckebans
+Copyright (C) 2014-2016 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -164,6 +164,17 @@ void Framebuffer::Init()
 		globalFramebuffers.ambientOcclusionFBO[i]->Check();
 	}
 	
+	// HIERARCHICAL Z BUFFER
+	
+	for( int i = 0; i < MAX_HIERARCHICAL_ZBUFFERS; i++ )
+	{
+		globalFramebuffers.csDepthFBO[i] = new Framebuffer( va( "_csz%i", i ), glConfig.nativeScreenWidth / ( 1 << i ), glConfig.nativeScreenHeight / ( 1 << i ) );
+		globalFramebuffers.csDepthFBO[i]->Bind();
+		globalFramebuffers.csDepthFBO[i]->AddColorBuffer( GL_R32F, 0 );
+		globalFramebuffers.csDepthFBO[i]->AttachImage2D( GL_TEXTURE_2D, globalImages->hierarchicalZbufferImage, 0, i );
+		globalFramebuffers.csDepthFBO[i]->Check();
+	}
+	
 	// SMAA
 	
 	globalFramebuffers.smaaEdgesFBO = new Framebuffer( "_smaaEdges", glConfig.nativeScreenWidth, glConfig.nativeScreenHeight );
@@ -251,6 +262,20 @@ void Framebuffer::CheckFramebuffers()
 			globalFramebuffers.ambientOcclusionFBO[i]->Bind();
 			globalFramebuffers.ambientOcclusionFBO[i]->AttachImage2D( GL_TEXTURE_2D, globalImages->ambientOcclusionImage[i], 0 );
 			globalFramebuffers.ambientOcclusionFBO[i]->Check();
+		}
+		
+		// HIERARCHICAL Z BUFFER
+		
+		globalImages->hierarchicalZbufferImage->Resize( glConfig.nativeScreenWidth, glConfig.nativeScreenHeight );
+		
+		for( int i = 0; i < MAX_HIERARCHICAL_ZBUFFERS; i++ )
+		{
+			globalFramebuffers.csDepthFBO[i]->width = glConfig.nativeScreenWidth / ( 1 << i );
+			globalFramebuffers.csDepthFBO[i]->height = glConfig.nativeScreenHeight / ( 1 << i );
+			
+			globalFramebuffers.csDepthFBO[i]->Bind();
+			globalFramebuffers.csDepthFBO[i]->AttachImage2D( GL_TEXTURE_2D, globalImages->hierarchicalZbufferImage, 0, i );
+			globalFramebuffers.csDepthFBO[i]->Check();
 		}
 		
 		// SMAA
@@ -383,7 +408,7 @@ void Framebuffer::AddDepthBuffer( int format, int multiSamples )
 	GL_CheckErrors();
 }
 
-void Framebuffer::AttachImage2D( int target, const idImage* image, int index )
+void Framebuffer::AttachImage2D( int target, const idImage* image, int index, int mipmapLod )
 {
 	if( ( target != GL_TEXTURE_2D ) && ( target != GL_TEXTURE_2D_MULTISAMPLE ) && ( target < GL_TEXTURE_CUBE_MAP_POSITIVE_X || target > GL_TEXTURE_CUBE_MAP_NEGATIVE_Z ) )
 	{
@@ -397,7 +422,7 @@ void Framebuffer::AttachImage2D( int target, const idImage* image, int index )
 		return;
 	}
 	
-	glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, target, image->texnum, 0 );
+	glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, target, image->texnum, mipmapLod );
 }
 
 void Framebuffer::AttachImageDepth( int target, const idImage* image )

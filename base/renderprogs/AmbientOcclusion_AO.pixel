@@ -74,7 +74,7 @@ const float bias = 0.01 * METERS_TO_DOOM;
 const float intensity = 0.3;
 const float intensityDivR6 = intensity / ( radius* radius* radius* radius* radius* radius );
 
-const float projScale = 300.0;// * METERS_TO_DOOM;
+const float projScale = 500.0;// * METERS_TO_DOOM;
 
 //#expect NUM_SAMPLES "Integer number of samples to take at each pixels"
 //#expect NUM_SPIRAL_TURNS "Integer number of turns around the circle that the spiral pattern makes. The G3D::AmbientOcclusion class provides a discrepancy-minimizing value of NUM_SPIRAL_TURNS for eac value of NUM_SAMPLES."
@@ -337,7 +337,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	result.color = float4( 1.0, 0.0, 0.0, 1.0 );
 	
 #if 0
-	if( fragment.texcoord0.x < 0.25 )
+	if( fragment.texcoord0.x < 0.5 )
 	{
 		discard;
 	}
@@ -362,7 +362,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	
 	visibility = 0.0;
 	
-#if 0
+#if 1
 	//vec3 n_C = texelFetch( normal_buffer, ivec2( gl_FragCoord.xy ), 0 ).xyz;
 	//n_C = normalize( n_C * normal_readMultiplyFirst.xyz + normal_readAddSecond.xyz );
 	

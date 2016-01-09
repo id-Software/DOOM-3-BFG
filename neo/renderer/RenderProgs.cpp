@@ -152,6 +152,7 @@ void idRenderProgManager::Init()
 		{ BUILTIN_AMBIENT_OCCLUSION_AND_OUTPUT, "AmbientOcclusion_AO", "_write", BIT( BRIGHTPASS ), false },
 		{ BUILTIN_AMBIENT_OCCLUSION_BLUR, "AmbientOcclusion_blur", "", 0, false },
 		{ BUILTIN_AMBIENT_OCCLUSION_BLUR_AND_OUTPUT, "AmbientOcclusion_blur", "_write", BIT( BRIGHTPASS ), false },
+		{ BUILTIN_AMBIENT_OCCLUSION_MINIFY, "AmbientOcclusion_minify", "", 0, false },
 		// RB end
 		{ BUILTIN_STEREO_DEGHOST, "stereoDeGhost.vfp", 0, false },
 		{ BUILTIN_STEREO_WARP, "stereoWarp.vfp", 0, false },

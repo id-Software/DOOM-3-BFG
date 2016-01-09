@@ -34,7 +34,7 @@ Contains the RenderLog declaration.
 ================================================================================================
 */
 
-#if defined(ID_RETAIL) && !defined(ID_RETAIL_INTERNAL)
+#if 1// defined(ID_RETAIL) && !defined(ID_RETAIL_INTERNAL)
 #define STUB_RENDER_LOG
 #endif
 
@@ -43,6 +43,7 @@ enum renderLogMainBlock_t
 	MRB_NONE,
 	MRB_BEGIN_DRAWING_VIEW,
 	MRB_FILL_DEPTH_BUFFER,
+	MRB_AMBIENT_PASS,
 	MRB_DRAW_INTERACTIONS,
 	MRB_DRAW_SHADER_PASSES,
 	MRB_FOG_ALL_LIGHTS,

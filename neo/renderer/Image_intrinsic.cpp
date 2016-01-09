@@ -207,6 +207,11 @@ static void R_SMAAImage_ResNative( idImage* image )
 {
 	image->GenerateImage( NULL, glConfig.nativeScreenWidth, glConfig.nativeScreenHeight, TF_LINEAR, TR_CLAMP, TD_LOOKUP_TABLE_RGBA );
 }
+
+static void R_HierarchicalZBufferImage_ResNative( idImage* image )
+{
+	image->GenerateImage( NULL, glConfig.nativeScreenWidth, glConfig.nativeScreenHeight, TF_NEAREST_MIPMAP, TR_CLAMP, TD_R32F );
+}
 // RB end
 
 static void R_AlphaNotchImage( idImage* image )
@@ -866,6 +871,8 @@ void idImageManager::CreateIntrinsicImages()
 	currentNormalsImage = ImageFromFunction( "_currentNormals", R_RGBA8Image );
 	ambientOcclusionImage[0] = ImageFromFunction( "_ao0", R_SMAAImage_ResNative );
 	ambientOcclusionImage[1] = ImageFromFunction( "_ao1", R_SMAAImage_ResNative );
+	
+	hierarchicalZbufferImage = ImageFromFunction( "_cszBuffer", R_HierarchicalZBufferImage_ResNative );
 	// RB end
 	
 	// scratchImage is used for screen wipes/doublevision etc..

@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013-2014 Robert Beckebans
+Copyright (C) 2013-2016 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -271,6 +271,7 @@ void idImage::SetTexParameters()
 			glTexParameterf( target, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 			break;
 		case TF_NEAREST:
+		case TF_NEAREST_MIPMAP:
 			glTexParameterf( target, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
 			glTexParameterf( target, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
 			break;
@@ -447,6 +448,18 @@ void idImage::AllocImage()
 		case FMT_RGBA16F:
 			internalFormat = GL_RGBA16F;
 			dataFormat = GL_RGBA;
+			dataType = GL_UNSIGNED_BYTE;
+			break;
+			
+		case FMT_RGBA32F:
+			internalFormat = GL_RGBA32F;
+			dataFormat = GL_RGBA;
+			dataType = GL_UNSIGNED_BYTE;
+			break;
+			
+		case FMT_R32F:
+			internalFormat = GL_R32F;
+			dataFormat = GL_RED;
 			dataType = GL_UNSIGNED_BYTE;
 			break;
 			

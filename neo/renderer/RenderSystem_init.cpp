@@ -263,6 +263,7 @@ idCVar r_forceAmbient( "r_forceAmbient", "0.2", CVAR_RENDERER | CVAR_FLOAT, "ren
 idCVar r_useSSGI( "r_useSSGI", "1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_BOOL, "use screen space global illumination and reflections" );
 idCVar r_ssgiDebug( "r_ssgiDebug", "0", CVAR_RENDERER | CVAR_INTEGER, "" );
 idCVar r_ssaoFiltering( "r_ssaoFiltering", "1", CVAR_RENDERER | CVAR_BOOL, "" );
+idCVar r_useHierarchicalDepthBuffer( "r_useHierarchicalDepthBuffer", "1", CVAR_RENDERER | CVAR_BOOL, "" );
 // RB end
 
 const char* fileExten[3] = { "tga", "png", "jpg" };

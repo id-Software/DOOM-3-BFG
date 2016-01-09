@@ -3,5 +3,6 @@ astyle.exe -v --formatted --options=astyle-options.ini --exclude="libs" --exclud
 astyle.exe -v -Q --options=astyle-options.ini ../base/renderprogs/postprocess.pixel
 astyle.exe -v -Q --options=astyle-options.ini ../base/renderprogs/AmbientOcclusion_AO.pixel
 astyle.exe -v -Q --options=astyle-options.ini ../base/renderprogs/AmbientOcclusion_blur.pixel
+astyle.exe -v -Q --options=astyle-options.ini ../base/renderprogs/AmbientOcclusion_minify.pixel
 
 pause
