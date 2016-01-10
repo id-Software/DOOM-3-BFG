@@ -46,7 +46,10 @@ float reconstructCSZ( float d )
 	//return clipInfo[0] / (clipInfo[1] * d + clipInfo[2]);
 	
 	// infinite far perspective matrix
-	return 3.0 / ( -1.0 * d + 1.0 );
+	return -3.0 / ( -1.0 * d + 1.0 );
+	
+	//d = d * 2.0 - 1.0;
+	//return -rpProjectionMatrixZ.w / ( -rpProjectionMatrixZ.z - d );
 }
 
 void main( PS_IN fragment, out PS_OUT result )
