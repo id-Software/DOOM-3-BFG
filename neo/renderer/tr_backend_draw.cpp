@@ -2123,9 +2123,9 @@ static void RB_AmbientPass( const drawSurf_t* const* drawSurfs, int numDrawSurfs
 		const idScreenRect& viewport = backEnd.viewDef->viewport;
 		globalImages->currentNormalsImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
 		
-		if( r_ssgiDebug.GetInteger() != 1 )
+		//if( r_ssgiDebug.GetInteger() != 1 )
 		{
-			GL_Clear( true, false, false, STENCIL_SHADOW_TEST_VALUE, 0.0f, 0.0f, 0.0f, 0.0f, false );
+			GL_Clear( true, false, false, STENCIL_SHADOW_TEST_VALUE, 0.0f, 0.0f, 0.0f, 1.0f, false );
 		}
 		
 		//if( hdrIsActive )
@@ -4859,7 +4859,19 @@ static void RB_SSGI( const viewDef_t* viewDef )
 	int screenWidth = renderSystem->GetWidth();
 	int screenHeight = renderSystem->GetHeight();
 	
-#if 0
+	// set the window clipping
+	GL_Viewport( 0, 0, screenWidth, screenHeight );
+	GL_Scissor( 0, 0, screenWidth, screenHeight );
+	
+#if 1
+	if( !hdrIsActive )
+	{
+		const idScreenRect& viewport = viewDef->viewport;
+		globalImages->currentRenderImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
+	}
+#endif
+	
+#if 1
 	// build hierarchical depth buffer
 	if( r_useHierarchicalDepthBuffer.GetBool() )
 	{
@@ -4921,31 +4933,31 @@ static void RB_SSGI( const viewDef_t* viewDef )
 	GL_Scissor( 0, 0, screenWidth, screenHeight );
 	
 	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
+	//GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
 	GL_Cull( CT_TWO_SIDED );
 	
-	if( !hdrIsActive )
-	{
-		const idScreenRect& viewport = viewDef->viewport;
-		globalImages->currentRenderImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
-	}
-	
-#if 0
-	if( r_ssaoFiltering.GetBool() )
+#if 1
+	if( r_ssgiFiltering.GetBool() )
 	{
 		globalFramebuffers.ambientOcclusionFBO[0]->Bind();
 		
+		// FIXME remove and mix with color from previous frame
 		glClearColor( 0, 0, 0, 0 );
 		glClear( GL_COLOR_BUFFER_BIT );
 		
-		renderProgManager.BindShader_AmbientOcclusion();
+		renderProgManager.BindShader_DeepGBufferRadiosity();
 	}
 	else
 #endif
 	{
-		//if( r_ssgiDebug.GetInteger() <= 0 )
-		//{
-		//	GL_State( GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
-		//}
+		if( r_ssgiDebug.GetInteger() <= 0 )
+		{
+			GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
+		}
+		else
+		{
+			GL_State( GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
+		}
 		
 		if( hdrIsActive )
 		{
@@ -5015,8 +5027,8 @@ static void RB_SSGI( const viewDef_t* viewDef )
 	
 	RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
 	
-#if 0
-	if( r_ssaoFiltering.GetBool() )
+#if 1
+	if( r_ssgiFiltering.GetBool() )
 	{
 		float jitterTexScale[4];
 		
@@ -5024,13 +5036,9 @@ static void RB_SSGI( const viewDef_t* viewDef )
 #if 1
 		globalFramebuffers.ambientOcclusionFBO[1]->Bind();
 		
-		renderProgManager.BindShader_AmbientOcclusionBlur();
-		
-		//const idScreenRect& viewport = backEnd.viewDef->viewport;
-		//globalImages->currentAOImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
+		renderProgManager.BindShader_DeepGBufferRadiosityBlur();
 		
 		// set axis parameter
-		
 		jitterTexScale[0] = 1;
 		jitterTexScale[1] = 0;
 		jitterTexScale[2] = 0;
@@ -5055,12 +5063,14 @@ static void RB_SSGI( const viewDef_t* viewDef )
 		
 		if( r_ssgiDebug.GetInteger() <= 0 )
 		{
+			GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
+		}
+		else
+		{
 			GL_State( GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
 		}
 		
-		//globalImages->currentAOImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
-		
-		renderProgManager.BindShader_AmbientOcclusionBlurAndOutput();
+		renderProgManager.BindShader_DeepGBufferRadiosityBlurAndOutput();
 		
 		// set axis parameter
 		jitterTexScale[0] = 0;

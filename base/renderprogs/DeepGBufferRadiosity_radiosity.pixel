@@ -35,6 +35,8 @@
 // This must be less than or equal to the MAX_MIP_LEVEL defined in SAmbientOcclusion.cpp
 #define MAX_MIP_LEVEL (5)
 
+#define MIN_MIP_LEVEL 0
+
 const float DOOM_TO_METERS = 0.0254;					// doom to meters
 const float METERS_TO_DOOM = ( 1.0 / DOOM_TO_METERS );	// meters to doom
 
@@ -223,9 +225,9 @@ void computeMipInfo( float ssR, int2 ssP, sampler2D cszBuffer, out int mipLevel,
 	// Derivation:
 	//  mipLevel = floor(log(ssR / MAX_OFFSET));
 #ifdef GL_EXT_gpu_shader5
-	mipLevel = clamp( findMSB( int( ssR ) ) - LOG_MAX_OFFSET,        MIN_MIP_LEVEL, MAX_MIP_LEVEL );
+	mipLevel = clamp( findMSB( int( ssR ) ) - LOG_MAX_OFFSET, MIN_MIP_LEVEL, MAX_MIP_LEVEL );
 #else
-	mipLevel = clamp( int( floor( log2( ssR ) ) ) - LOG_MAX_OFFSET,    MIN_MIP_LEVEL, MAX_MIP_LEVEL );
+	mipLevel = clamp( int( floor( log2( ssR ) ) ) - LOG_MAX_OFFSET, MIN_MIP_LEVEL, MAX_MIP_LEVEL );
 #endif
 	
 	// We need to divide by 2^mipLevel to read the appropriately scaled coordinate from a MIP-map.
@@ -390,9 +392,9 @@ void sampleIndirectLight
   in sampler2D        cszBuffer,
   in sampler2D        nBuffer,
   in sampler2D        bounceBuffer,
-  inout float3   irradianceSum,
+  inout float3        irradianceSum,
   inout float         numSamplesUsed,
-  inout float3   iiPeeled,
+  inout float3        iiPeeled,
   inout float         weightSumPeeled )
 {
 
@@ -457,7 +459,7 @@ void main( PS_IN fragment, out PS_OUT result )
 {
 	result.color = float4( 0.0, 0.0, 0.0, 1.0 );
 	
-#if 1
+#if 0
 	if( fragment.texcoord0.x < 0.5 )
 	{
 		discard;

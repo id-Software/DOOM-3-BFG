@@ -1104,6 +1104,7 @@ extern idCVar r_forceAmbient;
 
 extern idCVar r_useSSGI;
 extern idCVar r_ssgiDebug;
+extern idCVar r_ssgiFiltering;
 extern idCVar r_ssaoFiltering;
 extern idCVar r_useHierarchicalDepthBuffer;
 // RB end
