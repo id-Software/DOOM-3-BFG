@@ -228,6 +228,8 @@ float rand( float2 co ) {
 #define square( x )		( x * x )
 
 
+static const half4 LUMINANCE_VECTOR = half4( 0.2125, 0.7154, 0.0721, 0.0 );
+
 static const half4 LUMINANCE_SRGB = half4( 0.2125, 0.7154, 0.0721, 0.0 );
 static const half4 LUMINANCE_LINEAR = half4( 0.299, 0.587, 0.144, 0.0 );
 #define _half2( x )		half2( x )
