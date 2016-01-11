@@ -19,11 +19,13 @@
 #include "renderprogs/global.inc"
 
 // *INDENT-OFF*
-uniform sampler2D samp0 : register( s0 ); // view color
+uniform sampler2D samp0 : register( s0 ); // view normals
 uniform sampler2D samp1 : register( s1 ); // view depth
+uniform sampler2D samp2 : register( s2 ); // view AO
  
-#define source			samp0 
+#define normal_buffer	samp0
 #define cszBuffer		samp1
+#define source			samp2 
  
 struct PS_IN
 {
@@ -38,6 +40,7 @@ struct PS_OUT
 
 #define PEELED_LAYER 0
 #define USE_OCT16 0
+#define USE_NORMALS 1
 
 //#expect PEELED_LAYER "binary"
 
@@ -100,7 +103,12 @@ float3 sampleNormal( sampler2D normalBuffer, int2 ssC, int mipLevel )
 
 /** Used for preventing AO computation on the sky (at infinite depth) and defining the CS Z to bilateral depth key scaling.
     This need not match the real far plane but should not be much more than it.*/
-const float FAR_PLANE_Z = -4000.0;
+const float FAR_PLANE_Z = -16000.0;
+
+float CSZToKey( float z )
+{
+	return clamp( z * ( 1.0 / FAR_PLANE_Z ), 0.0, 1.0 );
+}
 
 float reconstructCSZ( float d )
 {
@@ -140,12 +148,12 @@ float getKey( int2 ssP )
 #endif
 
 #if 0
-	key = reconstructCSZ( key );	
+	key = reconstructCSZ( key );
 #else
 	float3 P = reconstructCSPosition( float2( ssP ) + float2( 0.5 ), key );
 	key = P.z;
 #endif
-
+	
 	key = clamp( key * ( 1.0 / FAR_PLANE_Z ), 0.0, 1.0 );
 	return key;
 }
@@ -157,19 +165,31 @@ float3 positionFromKey( float key, int2 ssC )
 	return C;
 }
 
+/** Read the camera-space position of the point at screen-space pixel ssP */
+float3 getPosition( int2 ssP, sampler2D cszBuffer )
+{
+	float3 P;
+	P.z = texelFetch( cszBuffer, ssP, 0 ).r;
+	
+	// Offset to pixel center
+	P = reconstructCSPosition( float2( ssP ) + float2( 0.5 ), P.z );
+	
+	return P;
+}
+
 float calculateBilateralWeight( float key, float tapKey, int2 tapLoc, float3 n_C, float3 C )
 {
 	// range domain (the "bilateral" weight). As depth difference increases, decrease weight.
 	float depthWeight = max( 0.0, 1.0 - ( EDGE_SHARPNESS * 2000.0 ) * abs( tapKey - key ) );
 	
-	float k_normal = 40.0;
-	float k_plane = 0.5;
+	float k_normal = 1.0; //40.0;
+	float k_plane = 1.0; //0.5;
 	
 	// Prevents blending over creases.
-	float normalWeight = 1000.0;
+	float normalWeight = 1.0; //1000.0;
 	float planeWeight = 1.0;
 	
-#if 0 //def normal_notNull
+#if USE_NORMALS
 	float3 tapN_C = sampleNormal( normal_buffer, tapLoc, 0 );
 	depthWeight = 1.0;
 	
@@ -177,9 +197,10 @@ float calculateBilateralWeight( float key, float tapKey, int2 tapLoc, float3 n_C
 	normalWeight = max( 1.0 - EDGE_SHARPNESS * normalError, 0.00 );
 	
 	
-	float lowDistanceThreshold2 = 0.01;
+	float lowDistanceThreshold2 = 0.001; //0.01;
 	
-	float3 tapC = positionFromKey( tapKey, tapLoc, projInfo );
+	//float3 tapC = positionFromKey( tapKey, tapLoc, projInfo );
+	float3 tapC = getPosition( tapLoc, cszBuffer );
 	
 	// Change in position in camera space
 	float3 dq = C - tapC;
@@ -248,10 +269,6 @@ void main( PS_IN fragment, out PS_OUT result )
 	
 	float4 temp = texelFetch( source, ssC, 0 );
 	
-	float key = getKey( ssC );
-	
-	VALUE_TYPE sum = temp.VALUE_COMPONENTS;
-	
 #if 0
 	if( fragment.texcoord0.x < 0.75 )
 	{
@@ -259,6 +276,16 @@ void main( PS_IN fragment, out PS_OUT result )
 		return;
 	}
 #endif
+	
+#if 0
+	float key = getKey( ssC );
+	float3 C = positionFromKey( key, ssC );
+#else
+	float3 C = getPosition( ssC, cszBuffer );
+	float key = CSZToKey( C.z );
+#endif
+	
+	VALUE_TYPE sum = temp.VALUE_COMPONENTS;
 	
 	if( key == 1.0 )
 	{
@@ -274,11 +301,9 @@ void main( PS_IN fragment, out PS_OUT result )
 	sum *= totalWeight;
 	
 	float3 n_C;
-#if 0 //def normal_notNull
+#if USE_NORMALS
 	n_C = sampleNormal( normal_buffer, ssC, 0 );
 #endif
-	
-	float3 C = positionFromKey( key, ssC );
 	
 #if MDB_WEIGHTS == 0
 	for( int r = -R; r <= R; ++r )

@@ -39,6 +39,7 @@
 #define TEMPORALLY_VARY_TAPS 0
 #define HIGH_QUALITY 1
 #define USE_OCT16 0
+#define USE_MIPMAPS 1
 
 // Total number of direct samples to take at each pixel
 #define NUM_SAMPLES 11
@@ -63,7 +64,7 @@ const float METERS_TO_DOOM = ( 1.0 / DOOM_TO_METERS );	// meters to doom
 
 /** Used for preventing AO computation on the sky (at infinite depth) and defining the CS Z to bilateral depth key scaling.
     This need not match the real far plane but should not be much more than it.*/
-const float FAR_PLANE_Z = -4000.0;
+//const float FAR_PLANE_Z = -4000.0;
 
 /** World-space AO radius in scene units (r).  e.g., 1.0m */
 const float radius = 1.0 * METERS_TO_DOOM;
@@ -111,10 +112,10 @@ struct PS_OUT
 
 
 /** Used for packing Z into the GB channels */
-float CSZToKey( float z )
-{
-	return clamp( z * ( 1.0 / FAR_PLANE_Z ), 0.0, 1.0 );
-}
+// float CSZToKey( float z )
+// {
+// return clamp( z * ( 1.0 / FAR_PLANE_Z ), 0.0, 1.0 );
+// }
 
 /** Used for packing Z into the GB channels */
 void packKey( float key, out float2 p )
@@ -225,7 +226,7 @@ float3 getOffsetPosition( int2 issC, float2 unitOffset, float ssR, sampler2D csz
 	int2 mipP;
 	computeMipInfo( ssR, ssP, cszBuffer, mipLevel, mipP );
 	
-#if 1
+#if USE_MIPMAPS
 	// RB: this is the key for fast ambient occlusion - use a hierarchical depth buffer
 	// for more information see McGuire12SAO.pdf - Scalable Ambient Obscurance
 	// http://graphics.cs.williams.edu/papers/SAOHPG12/
