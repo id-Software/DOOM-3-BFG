@@ -147,7 +147,9 @@ __________________________________________________________
 5. Use the VC13 solution to compile what you need:
 	RBDOOM-3-BFG/build/RBDoom3BFG.sln
 	
-6. Download ffmpeg-20140405-git-ec8789a-win32-shared.7z from ffmpeg.zeranoe.com/builds/win32/shared
+6. Download ffmpeg-20151105-git-c878082-win32-shared.7z from ffmpeg.zeranoe.com/builds/win32/shared
+ 	or
+	ffmpeg-20151105-git-c878082-win64-shared.7z from ffmpeg.zeranoe.com/builds/win64/shared
 
 7. Extract the FFmpeg DLLs to your current build directory under RBDOOM-3-BFG/build/
 
@@ -374,11 +376,7 @@ mod directory, you should first specify your mod directory adding the following 
 
 "+set fs_game modDirectoryName"
 
-as well as force the content of your mod directory over the content of the game with the following command:
-
-"+set fs_resourceLoadPriority 0"
-
-so it would end up looking like: RBDoom3BFG +set fs_resourceLoadPriority 0 +set fs_game modDirectoryName
+so it would end up looking like: RBDoom3BFG +set fs_game modDirectoryName
 
 
 IMPORTANT: RBDOOM-3-BFG does not support old Doom 3 modiciations that include sourcecode modifications in binary form (.dll)

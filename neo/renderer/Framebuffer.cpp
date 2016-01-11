@@ -2,7 +2,7 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 2014-2015 Robert Beckebans
+Copyright (C) 2014-2016 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -144,16 +144,39 @@ void Framebuffer::Init()
 	
 	// BLOOM
 	
-	for( int i = 0; i < 2; i++ )
+	for( int i = 0; i < MAX_BLOOM_BUFFERS; i++ )
 	{
 		globalFramebuffers.bloomRenderFBO[i] = new Framebuffer( va( "_bloomRender%i", i ), glConfig.nativeScreenWidth, glConfig.nativeScreenHeight );
 		globalFramebuffers.bloomRenderFBO[i]->Bind();
 		globalFramebuffers.bloomRenderFBO[i]->AddColorBuffer( GL_RGBA8, 0 );
-		globalFramebuffers.bloomRenderFBO[i]->AttachImage2D( GL_TEXTURE_2D, globalImages->bloomRender[i], 0 );
+		globalFramebuffers.bloomRenderFBO[i]->AttachImage2D( GL_TEXTURE_2D, globalImages->bloomRenderImage[i], 0 );
 		globalFramebuffers.bloomRenderFBO[i]->Check();
 	}
 	
-	// SMSAA
+	// AMBIENT OCCLUSION
+	
+	for( int i = 0; i < MAX_SSAO_BUFFERS; i++ )
+	{
+		globalFramebuffers.ambientOcclusionFBO[i] = new Framebuffer( va( "_aoRender%i", i ), glConfig.nativeScreenWidth, glConfig.nativeScreenHeight );
+		globalFramebuffers.ambientOcclusionFBO[i]->Bind();
+		globalFramebuffers.ambientOcclusionFBO[i]->AddColorBuffer( GL_RGBA8, 0 );
+		globalFramebuffers.ambientOcclusionFBO[i]->AttachImage2D( GL_TEXTURE_2D, globalImages->ambientOcclusionImage[i], 0 );
+		globalFramebuffers.ambientOcclusionFBO[i]->Check();
+	}
+	
+	// HIERARCHICAL Z BUFFER
+	
+	for( int i = 0; i < MAX_HIERARCHICAL_ZBUFFERS; i++ )
+	{
+		globalFramebuffers.csDepthFBO[i] = new Framebuffer( va( "_csz%i", i ), glConfig.nativeScreenWidth / ( 1 << i ), glConfig.nativeScreenHeight / ( 1 << i ) );
+		globalFramebuffers.csDepthFBO[i]->Bind();
+		globalFramebuffers.csDepthFBO[i]->AddColorBuffer( GL_R32F, 0 );
+		globalFramebuffers.csDepthFBO[i]->AttachImage2D( GL_TEXTURE_2D, globalImages->hierarchicalZbufferImage, 0, i );
+		globalFramebuffers.csDepthFBO[i]->Check();
+	}
+	
+	// SMAA
+	
 	globalFramebuffers.smaaEdgesFBO = new Framebuffer( "_smaaEdges", glConfig.nativeScreenWidth, glConfig.nativeScreenHeight );
 	globalFramebuffers.smaaEdgesFBO->Bind();
 	globalFramebuffers.smaaEdgesFBO->AddColorBuffer( GL_RGBA8, 0 );
@@ -213,17 +236,46 @@ void Framebuffer::CheckFramebuffers()
 		globalFramebuffers.hdrQuarterFBO->Check();
 		*/
 		
-		// BLOOOM
-		for( int i = 0; i < 2; i++ )
+		// BLOOM
+		
+		for( int i = 0; i < MAX_BLOOM_BUFFERS; i++ )
 		{
-			globalImages->bloomRender[i]->Resize( glConfig.nativeScreenWidth / 4, glConfig.nativeScreenHeight / 4 );
+			globalImages->bloomRenderImage[i]->Resize( glConfig.nativeScreenWidth / 4, glConfig.nativeScreenHeight / 4 );
 			
 			globalFramebuffers.bloomRenderFBO[i]->width = glConfig.nativeScreenWidth / 4;
 			globalFramebuffers.bloomRenderFBO[i]->height = glConfig.nativeScreenHeight / 4;
 			
 			globalFramebuffers.bloomRenderFBO[i]->Bind();
-			globalFramebuffers.bloomRenderFBO[i]->AttachImage2D( GL_TEXTURE_2D, globalImages->bloomRender[i], 0 );
+			globalFramebuffers.bloomRenderFBO[i]->AttachImage2D( GL_TEXTURE_2D, globalImages->bloomRenderImage[i], 0 );
 			globalFramebuffers.bloomRenderFBO[i]->Check();
+		}
+		
+		// AMBIENT OCCLUSION
+		
+		for( int i = 0; i < MAX_SSAO_BUFFERS; i++ )
+		{
+			globalImages->ambientOcclusionImage[i]->Resize( glConfig.nativeScreenWidth, glConfig.nativeScreenHeight );
+			
+			globalFramebuffers.ambientOcclusionFBO[i]->width = glConfig.nativeScreenWidth;
+			globalFramebuffers.ambientOcclusionFBO[i]->height = glConfig.nativeScreenHeight;
+			
+			globalFramebuffers.ambientOcclusionFBO[i]->Bind();
+			globalFramebuffers.ambientOcclusionFBO[i]->AttachImage2D( GL_TEXTURE_2D, globalImages->ambientOcclusionImage[i], 0 );
+			globalFramebuffers.ambientOcclusionFBO[i]->Check();
+		}
+		
+		// HIERARCHICAL Z BUFFER
+		
+		globalImages->hierarchicalZbufferImage->Resize( glConfig.nativeScreenWidth, glConfig.nativeScreenHeight );
+		
+		for( int i = 0; i < MAX_HIERARCHICAL_ZBUFFERS; i++ )
+		{
+			globalFramebuffers.csDepthFBO[i]->width = glConfig.nativeScreenWidth / ( 1 << i );
+			globalFramebuffers.csDepthFBO[i]->height = glConfig.nativeScreenHeight / ( 1 << i );
+			
+			globalFramebuffers.csDepthFBO[i]->Bind();
+			globalFramebuffers.csDepthFBO[i]->AttachImage2D( GL_TEXTURE_2D, globalImages->hierarchicalZbufferImage, 0, i );
+			globalFramebuffers.csDepthFBO[i]->Check();
 		}
 		
 		// SMAA
@@ -257,12 +309,7 @@ void Framebuffer::Shutdown()
 
 void Framebuffer::Bind()
 {
-#if 0
-	if( r_logFile.GetBool() )
-	{
-		RB_LogComment( "--- Framebuffer::Bind( name = '%s' ) ---\n", fboName.c_str() );
-	}
-#endif
+	RENDERLOG_PRINTF( "Framebuffer::Bind( %s )\n", fboName.c_str() );
 	
 	if( backEnd.glState.currentFramebuffer != this )
 	{
@@ -278,6 +325,8 @@ bool Framebuffer::IsBound()
 
 void Framebuffer::Unbind()
 {
+	RENDERLOG_PRINTF( "Framebuffer::Unbind()\n" );
+	
 	//if(backEnd.glState.framebuffer != NULL)
 	{
 		glBindFramebuffer( GL_FRAMEBUFFER, 0 );
@@ -359,7 +408,7 @@ void Framebuffer::AddDepthBuffer( int format, int multiSamples )
 	GL_CheckErrors();
 }
 
-void Framebuffer::AttachImage2D( int target, const idImage* image, int index )
+void Framebuffer::AttachImage2D( int target, const idImage* image, int index, int mipmapLod )
 {
 	if( ( target != GL_TEXTURE_2D ) && ( target != GL_TEXTURE_2D_MULTISAMPLE ) && ( target < GL_TEXTURE_CUBE_MAP_POSITIVE_X || target > GL_TEXTURE_CUBE_MAP_NEGATIVE_Z ) )
 	{
@@ -373,7 +422,7 @@ void Framebuffer::AttachImage2D( int target, const idImage* image, int index )
 		return;
 	}
 	
-	glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, target, image->texnum, 0 );
+	glFramebufferTexture2D( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, target, image->texnum, mipmapLod );
 }
 
 void Framebuffer::AttachImageDepth( int target, const idImage* image )

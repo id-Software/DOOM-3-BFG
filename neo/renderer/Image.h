@@ -59,6 +59,8 @@ typedef enum
 	// RB begin
 	TD_SHADOW_ARRAY,		// 2D depth buffer array for shadow mapping
 	TD_RGBA16F,
+	TD_RGBA32F,
+	TD_R32F,
 	// RB end
 } textureUsage_t;
 
@@ -357,7 +359,7 @@ public:
 #endif
 	idImage*			currentRenderHDRImageQuarter;
 	idImage*			currentRenderHDRImage64;
-	idImage*			bloomRender[2];
+	idImage*			bloomRenderImage[2];
 	idImage*			heatmap5Image;
 	idImage*			heatmap7Image;
 	idImage*			smaaInputImage;
@@ -365,6 +367,9 @@ public:
 	idImage*			smaaSearchImage;
 	idImage*			smaaEdgesImage;
 	idImage*			smaaBlendImage;
+	idImage*			currentNormalsImage;			// cheap G-Buffer replacement, holds normals and surface roughness
+	idImage*			ambientOcclusionImage[2];		// contain AO and bilateral filtering keys
+	idImage*			hierarchicalZbufferImage;		// zbuffer with mip maps to accelerate screen space ray tracing
 	// RB end
 	idImage* 			scratchImage;
 	idImage* 			scratchImage2;

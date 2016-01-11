@@ -77,9 +77,10 @@ enum AVRounding {
 };
 
 /**
- * Return the greatest common divisor of a and b.
- * If both a and b are 0 or either or both are <0 then behavior is
- * undefined.
+ * Compute the greatest common divisor of a and b.
+ *
+ * @return gcd of a and b up to sign; if a >= 0 and b >= 0, return value is >= 0;
+ * if a == 0 and b == 0, returns 0.
  */
 int64_t av_const av_gcd(int64_t a, int64_t b);
 
@@ -146,7 +147,7 @@ int64_t av_rescale_delta(AVRational in_tb, int64_t in_ts,  AVRational fs_tb, int
 /**
  * Add a value to a timestamp.
  *
- * This function gurantees that when the same value is repeatly added that
+ * This function guarantees that when the same value is repeatly added that
  * no accumulation of rounding errors occurs.
  *
  * @param ts Input timestamp

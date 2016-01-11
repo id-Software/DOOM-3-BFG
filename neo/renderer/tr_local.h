@@ -419,6 +419,15 @@ struct viewDef_t
 	
 	float				projectionMatrix[16];
 	idRenderMatrix		projectionRenderMatrix;	// tech5 version of projectionMatrix
+	
+	// RB begin
+	float				unprojectionToCameraMatrix[16];
+	idRenderMatrix		unprojectionToCameraRenderMatrix;
+	
+	float				unprojectionToWorldMatrix[16];
+	idRenderMatrix		unprojectionToWorldRenderMatrix;
+	// RB end
+	
 	viewEntity_t		worldSpace;
 	
 	idRenderWorldLocal* renderWorld;
@@ -1094,7 +1103,11 @@ extern idCVar r_ldrContrastOffset;
 extern idCVar r_useFilmicPostProcessEffects;
 extern idCVar r_forceAmbient;
 
-extern idCVar r_antiAliasing;
+extern idCVar r_useSSGI;
+extern idCVar r_ssgiDebug;
+extern idCVar r_ssgiFiltering;
+extern idCVar r_ssaoFiltering;
+extern idCVar r_useHierarchicalDepthBuffer;
 // RB end
 
 /*

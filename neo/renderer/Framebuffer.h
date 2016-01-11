@@ -2,7 +2,7 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 2014-2015 Robert Beckebans
+Copyright (C) 2014-2016 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -31,6 +31,8 @@ If you have questions concerning this license or the applicable additional terms
 
 static const int MAX_SHADOWMAP_RESOLUTIONS = 5;
 static const int MAX_BLOOM_BUFFERS = 2;
+static const int MAX_SSAO_BUFFERS = 2;
+static const int MAX_HIERARCHICAL_ZBUFFERS = 6; // native resolution + 5 MIP LEVELS
 
 #if 1
 static	int shadowMapResolutions[MAX_SHADOWMAP_RESOLUTIONS] = { 2048, 1024, 512, 512, 256 };
@@ -61,7 +63,7 @@ public:
 	void					AddColorBuffer( int format, int index, int multiSamples = 0 );
 	void					AddDepthBuffer( int format, int multiSamples = 0 );
 	
-	void					AttachImage2D( int target, const idImage* image, int index );
+	void					AttachImage2D( int target, const idImage* image, int index, int mipmapLod = 0 );
 	void					AttachImage3D( const idImage* image );
 	void					AttachImageDepth( int target, const idImage* image );
 	void					AttachImageDepthLayer( const idImage* image, int layer );
@@ -127,6 +129,8 @@ struct globalFramebuffers_t
 //	Framebuffer*				hdrQuarterFBO;
 	Framebuffer*				hdr64FBO;
 	Framebuffer*				bloomRenderFBO[MAX_BLOOM_BUFFERS];
+	Framebuffer*				ambientOcclusionFBO[MAX_SSAO_BUFFERS];
+	Framebuffer*				csDepthFBO[MAX_HIERARCHICAL_ZBUFFERS];
 	Framebuffer*				smaaEdgesFBO;
 	Framebuffer*				smaaBlendFBO;
 };
