@@ -12,7 +12,7 @@
 #define USE_OCT16 0
 #define COMPUTE_PEELED_LAYER 0
 #define USE_MIPMAPS 1
-#define USE_TAP_NORMAL 0
+#define USE_TAP_NORMAL 1
 
 #define HIGH_QUALITY 0
 
@@ -473,8 +473,8 @@ void sampleIndirectLight
 	numSamplesUsed += weight_Y;
 #endif
 	
-	//irradianceSum += E;
-	irradianceSum += pow( E, float3( 2.2 ) ); // RB: to linear RGB
+	irradianceSum += E;
+	//irradianceSum += pow( E, float3( 2.2 ) ); // RB: to linear RGB
 }
 
 
@@ -535,8 +535,8 @@ void main( PS_IN fragment, out PS_OUT result )
 	const float solidAngleHemisphere = 2 * PI;
 	float3 E_X = irradianceSum * solidAngleHemisphere / ( numSamplesUsed + 0.00001 );
 	
-	//indirectColor = E_X;
-	indirectColor = pow( E_X, float3( 1.0 / 2.2 ) ); // RB: to sRGB
+	indirectColor = E_X;
+	//indirectColor = pow( E_X, float3( 1.0 / 2.2 ) ); // RB: to sRGB
 	
 	// What is the ambient visibility of this location
 	visibility = 1 - numSamplesUsed / float( NUM_SAMPLES );

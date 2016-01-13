@@ -134,7 +134,7 @@ static float dot4( float2 a, float4 b ) { return dot( float4( a, 0, 1 ), b ); }
 half3 sRGBToLinearRGB( half3 rgb )
 {
 #if defined(USE_SRGB)
-	return pow( rgb, half3( 2.2 ) );
+	return max( pow( rgb, half3( 2.2 ) ), half3( 0.0 ) );
 #else
 	return rgb;
 #endif
@@ -143,7 +143,7 @@ half3 sRGBToLinearRGB( half3 rgb )
 half4 sRGBAToLinearRGBA( half4 rgba )
 {
 #if defined(USE_SRGB)
-	return pow( rgba, half4( 2.2 ) );
+	return float4( max( pow( rgba.rgb, half3( 2.2 ) ), half3( 0.0 ) ), rgba.a );
 #else
 	return rgba;
 #endif
@@ -243,7 +243,8 @@ static const half4 LUMINANCE_LINEAR = half4( 0.299, 0.587, 0.144, 0.0 );
 static float4 idtex2Dproj( sampler2D samp, float4 texCoords ) { return tex2Dproj( samp, texCoords.xyw ); }
 static float4 swizzleColor( float4 c )
 { 
-	return sRGBAToLinearRGBA( c ); 
+	return c;
+	//return sRGBAToLinearRGBA( c ); 
 }
 static float2 vposToScreenPosTexCoord( float2 vpos ) { return vpos.xy * rpWindowCoord.xy; }
 

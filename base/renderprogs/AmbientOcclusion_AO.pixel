@@ -75,7 +75,7 @@ const float invRadius2 = 1.0 / radius2;
 const float bias = 0.01 * METERS_TO_DOOM;
 
 /** intensity / radius^6 */
-const float intensity = 0.3;
+const float intensity = 0.6;
 const float intensityDivR6 = intensity / ( radius* radius* radius* radius* radius* radius );
 
 /** The height in pixels of a 1m object if viewed from 1m away.

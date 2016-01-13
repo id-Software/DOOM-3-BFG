@@ -248,8 +248,8 @@ idCVar r_shadowMapSunDepthBiasScale( "r_shadowMapSunDepthBiasScale", "0.999991",
 idCVar r_useHDR( "r_useHDR", "1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_BOOL, "use high dynamic range rendering" );
 idCVar r_hdrMinLuminance( "r_hdrMinLuminance", "0.05", CVAR_RENDERER | CVAR_FLOAT, "" );
 idCVar r_hdrMaxLuminance( "r_hdrMaxLuminance", "300", CVAR_RENDERER | CVAR_FLOAT, "" );
-idCVar r_hdrKey( "r_hdrKey", "0.5", CVAR_RENDERER | CVAR_FLOAT, "mid-gray 0.5 in linear RGB space (without gamma curve applied)" );
-idCVar r_hdrContrastThreshold( "r_hdrContrastThreshold", "13", CVAR_RENDERER | CVAR_FLOAT, "all pixels brighter than this cause HDR bloom glares" );
+idCVar r_hdrKey( "r_hdrKey", "1.0", CVAR_RENDERER | CVAR_FLOAT, "mid-gray 0.5 in linear RGB space (without gamma curve applied)" );
+idCVar r_hdrContrastThreshold( "r_hdrContrastThreshold", "33", CVAR_RENDERER | CVAR_FLOAT, "all pixels brighter than this cause HDR bloom glares" );
 idCVar r_hdrContrastOffset( "r_hdrContrastOffset", "100", CVAR_RENDERER | CVAR_FLOAT, "" );
 idCVar r_hdrGlarePasses( "r_hdrGlarePasses", "8", CVAR_RENDERER | CVAR_INTEGER, "how many times the bloom blur is rendered offscreen. number should be even" );
 idCVar r_hdrDebug( "r_hdrDebug", "0", CVAR_RENDERER | CVAR_FLOAT, "show scene luminance as heat map" );

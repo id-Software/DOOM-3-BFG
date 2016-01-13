@@ -75,8 +75,8 @@ void main( PS_IN fragment, out PS_OUT result ) {
 	// RB: added abs
 	half3 specularContribution = _half3( pow( abs( hDotN ), specularPower ) );
 
-	half3 diffuseColor = diffuseMap * sRGBToLinearRGB( rpDiffuseModifier.xyz ) * 1.5f;
-	half3 specularColor = specMap.xyz * specularContribution * sRGBToLinearRGB( rpSpecularModifier.xyz ); 
+	half3 diffuseColor = diffuseMap * ( rpDiffuseModifier.xyz ) * 1.5f;
+	half3 specularColor = specMap.xyz * specularContribution * ( rpSpecularModifier.xyz ); 
 	
 	// RB: http://developer.valvesoftware.com/wiki/Half_Lambert
 	float halfLdotN = dot3( localNormal, lightVector ) * 0.5 + 0.5;
@@ -92,6 +92,7 @@ void main( PS_IN fragment, out PS_OUT result ) {
 	half3 rimColor = sRGBToLinearRGB( half3( 0.125 ) * 1.2 ) * lightColor * pow( rim, rimPower );
 	
 	//result.color.rgb = localNormal.xyz * 0.5 + 0.5;
-	result.color.xyz = ( ( diffuseColor + specularColor ) * halfLdotN * lightColor + rimColor ) * fragment.color.rgb;;
-	result.color.w = 1.0;
+	result.color.xyz = ( ( diffuseColor + specularColor ) * halfLdotN * lightColor + rimColor ) * fragment.color.rgb;
+	//result.color = ( ( diffuseColor + specularColor ) * halfLdotN * lightColor + rimColor ) * fragment.color.rgba;
+	result.color.w = fragment.color.a;
 }

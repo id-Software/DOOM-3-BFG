@@ -5244,7 +5244,7 @@ void RB_DrawViewInternal( const viewDef_t* viewDef, const int stereoEye )
 	//-------------------------------------------------
 	// darken the scene using the screen space ambient occlusion result
 	//-------------------------------------------------
-	//RB_SSAO( viewDef );
+	RB_SSAO( viewDef );
 	//RB_SSGI( viewDef );
 	
 	//-------------------------------------------------
@@ -5271,7 +5271,7 @@ void RB_DrawViewInternal( const viewDef_t* viewDef, const int stereoEye )
 	//-------------------------------------------------
 	// use direct light and emissive light contributions to add indirect screen space light
 	//-------------------------------------------------
-	RB_SSGI( viewDef );
+	//RB_SSGI( viewDef );
 	
 	//-------------------------------------------------
 	// fog and blend lights, drawn after emissive surfaces
