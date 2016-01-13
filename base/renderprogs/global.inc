@@ -133,7 +133,7 @@ static float dot4( float2 a, float4 b ) { return dot( float4( a, 0, 1 ), b ); }
 
 half3 sRGBToLinearRGB( half3 rgb )
 {
-#if defined(USE_SRGB)
+#if defined(USE_LINEAR_RGB)
 	return max( pow( rgb, half3( 2.2 ) ), half3( 0.0 ) );
 #else
 	return rgb;
@@ -142,7 +142,7 @@ half3 sRGBToLinearRGB( half3 rgb )
 
 half4 sRGBAToLinearRGBA( half4 rgba )
 {
-#if defined(USE_SRGB)
+#if defined(USE_LINEAR_RGB)
 	return float4( max( pow( rgba.rgb, half3( 2.2 ) ), half3( 0.0 ) ), rgba.a );
 #else
 	return rgba;
@@ -151,7 +151,7 @@ half4 sRGBAToLinearRGBA( half4 rgba )
 
 half3 LinearRGBToSRGB( half3 rgb )
 {
-#if defined(USE_SRGB)
+#if defined(USE_LINEAR_RGB)
 	return pow( rgb, half3( 1.0 ) / half3( 2.2 ) );
 #else
 	return rgb;
@@ -160,7 +160,7 @@ half3 LinearRGBToSRGB( half3 rgb )
 
 half4 LinearRGBToSRGB( half4 rgba )
 {
-#if defined(USE_SRGB)
+#if defined(USE_LINEAR_RGB)
 	rgba.rgb = pow( rgba.rgb, half3( 1.0 ) / half3( 2.2 ) );
 	return rgba; //pow( rgba, half4( 1.0 ) / half4( 2.2 ) );
 #else

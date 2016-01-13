@@ -136,8 +136,13 @@ void main( PS_IN fragment, out PS_OUT result )
 	//color.rgb = color.rgb * ( float3( 0.5 ) + 6.2 * color.rgb ) / ( float3( 0.06 ) + color.rgb * ( float3( 1.7 ) + 6.2 * color.rgb ) );
 	
 #elif OPERATOR == 2
-	float exposure = 1.0;
-	float3 exposedColor = exposure * color.rgb;
+
+	// can be in range [-4.0 .. 4.0]
+	float exposure = rpScreenCorrectionFactor.w;
+	
+	// exposure curves ranges from 0.0625 to 16.0
+	float3 exposedColor = exp2( exposure ) * color.rgb;
+	//float3 exposedColor = exposure * color.rgb;
 	
 	float3 curr = ACESFilm( exposedColor );
 	
@@ -148,7 +153,7 @@ void main( PS_IN fragment, out PS_OUT result )
 
 	//float exposure = ( hdrKey / hdrAverageLuminance ) * 0.2;
 	//float exposure = Yr * 1.0;
-	float exposure = 1.0;
+	float exposure = rpScreenCorrectionFactor.w;
 	float3 exposedColor = exposure * color.rgb;
 	
 	float3 curr = Uncharted2Tonemap( exposedColor );

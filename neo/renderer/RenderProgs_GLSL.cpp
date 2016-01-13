@@ -555,9 +555,9 @@ idStr StripDeadCode( const idStr& in, const char* name, const idStrList& compile
 		src.AddDefine( "USE_HALF_LAMBERT" );
 	}
 	
-	if( r_useSRGB.GetBool() || r_useHDR.GetBool() )
+	if( r_useHDR.GetBool() )
 	{
-		src.AddDefine( "USE_SRGB" );
+		src.AddDefine( "USE_LINEAR_RGB" );
 	}
 	
 	// SMAA configuration

@@ -941,7 +941,7 @@ extern idCVar r_singleTriangle;				// only draw a single triangle per primitive
 extern idCVar r_logFile;					// number of frames to emit GL logs
 extern idCVar r_clear;						// force screen clear every frame
 extern idCVar r_subviewOnly;				// 1 = don't render main view, allowing subviews to be debugged
-extern idCVar r_lightScale;					// all light intensities are multiplied by this, which is normally 2
+extern idCVar r_lightScale;					// all light intensities are multiplied by this, which is normally 3
 extern idCVar r_flareSize;					// scale the flare deforms from the material def
 
 extern idCVar r_gamma;						// changes gamma tables
@@ -1089,10 +1089,12 @@ extern idCVar r_shadowMapOccluderFacing;
 extern idCVar r_shadowMapRegularDepthBiasScale;
 extern idCVar r_shadowMapSunDepthBiasScale;
 
+extern idCVar r_hdrAutoExposure;
 extern idCVar r_hdrMinLuminance;
 extern idCVar r_hdrMaxLuminance;
 extern idCVar r_hdrKey;
-extern idCVar r_hdrContrastThreshold;
+extern idCVar r_hdrContrastDynamicThreshold;
+extern idCVar r_hdrContrastStaticThreshold;
 extern idCVar r_hdrContrastOffset;
 extern idCVar r_hdrGlarePasses;
 extern idCVar r_hdrDebug;
@@ -1106,8 +1108,13 @@ extern idCVar r_forceAmbient;
 extern idCVar r_useSSGI;
 extern idCVar r_ssgiDebug;
 extern idCVar r_ssgiFiltering;
+
+extern idCVar r_useSSAO;
+extern idCVar r_ssaoDebug;
 extern idCVar r_ssaoFiltering;
 extern idCVar r_useHierarchicalDepthBuffer;
+
+extern idCVar r_exposure;
 // RB end
 
 /*

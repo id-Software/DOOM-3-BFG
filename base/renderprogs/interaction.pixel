@@ -86,7 +86,8 @@ void main( PS_IN fragment, out PS_OUT result )
 	half halfLdotN = dot3( localNormal, lightVector ) * 0.5 + 0.5;
 	halfLdotN *= halfLdotN;
 
-	half lambert = halfLdotN;
+	// tweak to not loose so many details
+	half lambert = lerp( ldotN, halfLdotN, 0.5 );
 #else
 	half lambert = ldotN;
 #endif

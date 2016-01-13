@@ -1340,6 +1340,8 @@ static void RB_RenderInteractions( const drawSurf_t* surfList, const viewLight_t
 	}
 	// RB end
 	
+	float lightScale = r_useHDR.GetBool() ? 3.0f : r_lightScale.GetFloat();
+	
 	for( int lightStageNum = 0; lightStageNum < lightShader->GetNumStages(); lightStageNum++ )
 	{
 		const shaderStage_t*	lightStage = lightShader->GetStage( lightStageNum );
@@ -1350,7 +1352,6 @@ static void RB_RenderInteractions( const drawSurf_t* surfList, const viewLight_t
 			continue;
 		}
 		
-		const float lightScale = r_lightScale.GetFloat();
 		const idVec4 lightColor(
 			lightScale * lightRegs[ lightStage->color.registers[0] ],
 			lightScale * lightRegs[ lightStage->color.registers[1] ],
@@ -1756,7 +1757,7 @@ static void RB_AmbientPass( const drawSurf_t* const* drawSurfs, int numDrawSurfs
 {
 	if( fillGbuffer )
 	{
-		if( !r_useSSGI.GetBool() )
+		if( !r_useSSGI.GetBool() && !r_useSSAO.GetBool() )
 		{
 			return;
 		}
@@ -1809,6 +1810,17 @@ static void RB_AmbientPass( const drawSurf_t* const* drawSurfs, int numDrawSurfs
 	const idVec4 diffuseColor = lightColor;
 	const idVec4 specularColor = lightColor * 2.0f;
 	
+	idVec4 ambientColor;
+	float ambientBoost = 1.0f;
+	ambientBoost += r_useSSAO.GetBool() ? 0.5f : 0.0f;
+	ambientBoost *= r_useHDR.GetBool() ? 1.1f : 1.0f;
+	ambientColor.x = r_forceAmbient.GetFloat() * ambientBoost;
+	ambientColor.y = r_forceAmbient.GetFloat() * ambientBoost;
+	ambientColor.z = r_forceAmbient.GetFloat() * ambientBoost;
+	ambientColor.w = 1;
+	
+	renderProgManager.SetRenderParm( RENDERPARM_AMBIENT_COLOR, ambientColor.ToFloatPtr() );
+	
 	// setup renderparms assuming we will be drawing trivial surfaces first
 	RB_SetupForFastPathInteractions( diffuseColor, specularColor );
 	
@@ -1852,7 +1864,7 @@ static void RB_AmbientPass( const drawSurf_t* const* drawSurfs, int numDrawSurfs
 		//else
 		{
 #if 1
-			if( r_useSSGI.GetBool() && fillGbuffer )
+			if( ( r_useSSAO.GetBool() || r_useSSGI.GetBool() ) && fillGbuffer )
 			{
 				// fill geometry buffer with normal/roughness information
 				if( drawSurf->jointCache )
@@ -1931,15 +1943,6 @@ static void RB_AmbientPass( const drawSurf_t* const* drawSurfs, int numDrawSurfs
 			renderProgManager.SetRenderParm( RENDERPARM_COLOR, directedColor.ToFloatPtr() );
 			renderProgManager.SetRenderParm( RENDERPARM_AMBIENT_COLOR, ambientColor.ToFloatPtr() );
 		}
-#else
-		idVec4 ambientColor;
-		float ambientBoost = r_useHDR.GetBool() ? 1.5 : 1.0;
-		ambientColor.x = r_forceAmbient.GetFloat();
-		ambientColor.y = r_forceAmbient.GetFloat();
-		ambientColor.z = r_forceAmbient.GetFloat();
-		ambientColor.w = 1;
-		
-		renderProgManager.SetRenderParm( RENDERPARM_AMBIENT_COLOR, ambientColor.ToFloatPtr() );
 #endif
 		
 		/*
@@ -2113,8 +2116,7 @@ static void RB_AmbientPass( const drawSurf_t* const* drawSurfs, int numDrawSurfs
 	renderLog.CloseBlock();
 	renderLog.CloseMainBlock();
 	
-#if 1
-	if( r_useSSGI.GetBool() && fillGbuffer )
+	if( ( r_useSSAO.GetBool() || r_useSSGI.GetBool() ) && fillGbuffer )
 	{
 		GL_SelectTexture( 0 );
 		globalImages->currentNormalsImage->Bind();
@@ -2137,7 +2139,6 @@ static void RB_AmbientPass( const drawSurf_t* const* drawSurfs, int numDrawSurfs
 		
 		globalImages->BindNull();
 	}
-#endif
 }
 
 // RB end
@@ -4236,88 +4237,102 @@ static void RB_CalculateAdaptation()
 	float			newAdaptation;
 	float			newMaximum;
 	
-	curTime = Sys_Milliseconds() / 1000.0f;
-	
-	// calculate the average scene luminance
-	globalFramebuffers.hdr64FBO->Bind();
-	
-	// read back the contents
-//	glFinish();
-	glReadPixels( 0, 0, 64, 64, GL_RGBA, GL_FLOAT, image );
-	
-	sum = 0.0f;
-	maxLuminance = 0.0f;
-	for( i = 0; i < ( 64 * 64 ); i += 4 )
+	if( !r_hdrAutoExposure.GetBool() )
 	{
-		color[0] = image[i * 4 + 0];
-		color[1] = image[i * 4 + 1];
-		color[2] = image[i * 4 + 2];
-		color[3] = image[i * 4 + 3];
+		// no dynamic exposure
 		
-		luminance = ( color.x * LUMINANCE_SRGB.x + color.y * LUMINANCE_SRGB.y + color.z * LUMINANCE_SRGB.z ) + 0.0001f;
-		if( luminance > maxLuminance )
-		{
-			maxLuminance = luminance;
-		}
-		
-		float logLuminance = log( luminance + 1 );
-		//if( logLuminance > 0 )
-		{
-			sum += luminance;
-		}
-	}
-#if 0
-	sum /= ( 64.0f * 64.0f );
-	avgLuminance = exp( sum );
-#else
-	avgLuminance = sum / ( 64.0f * 64.0f );
-#endif
-	
-	// the user's adapted luminance level is simulated by closing the gap between
-	// adapted luminance and current luminance by 2% every frame, based on a
-	// 30 fps rate. This is not an accurate model of human adaptation, which can
-	// take longer than half an hour.
-	if( backEnd.hdrTime > curTime )
-	{
-		backEnd.hdrTime = curTime;
-	}
-	
-	deltaTime = curTime - backEnd.hdrTime;
-	
-	//if(r_hdrMaxLuminance->value)
-	{
-		backEnd.hdrAverageLuminance = idMath::ClampFloat( r_hdrMinLuminance.GetFloat(), r_hdrMaxLuminance.GetFloat(), backEnd.hdrAverageLuminance );
-		avgLuminance = idMath::ClampFloat( r_hdrMinLuminance.GetFloat(), r_hdrMaxLuminance.GetFloat(), avgLuminance );
-		
-		backEnd.hdrMaxLuminance = idMath::ClampFloat( r_hdrMinLuminance.GetFloat(), r_hdrMaxLuminance.GetFloat(), backEnd.hdrMaxLuminance );
-		maxLuminance = idMath::ClampFloat( r_hdrMinLuminance.GetFloat(), r_hdrMaxLuminance.GetFloat(), maxLuminance );
-	}
-	
-	newAdaptation = backEnd.hdrAverageLuminance + ( avgLuminance - backEnd.hdrAverageLuminance ) * ( 1.0f - powf( 0.98f, 30.0f * deltaTime ) );
-	newMaximum = backEnd.hdrMaxLuminance + ( maxLuminance - backEnd.hdrMaxLuminance ) * ( 1.0f - powf( 0.98f, 30.0f * deltaTime ) );
-	
-	if( !IsNAN( newAdaptation ) && !IsNAN( newMaximum ) )
-	{
-#if 1
-		backEnd.hdrAverageLuminance = newAdaptation;
-		backEnd.hdrMaxLuminance = newMaximum;
-#else
-		backEnd.hdrAverageLuminance = avgLuminance;
-		backEnd.hdrMaxLuminance = maxLuminance;
-#endif
-	}
-	
-	backEnd.hdrTime = curTime;
-	
-	// calculate HDR image key
-	if( r_hdrKey.GetFloat() <= 0 )
-	{
-		// calculation from: Perceptual Effects in Real-time Tone Mapping - Krawczyk et al.
-		backEnd.hdrKey = 1.03 - ( 2.0 / ( 2.0 + ( backEnd.hdrAverageLuminance + 1.0f ) ) );
+		backEnd.hdrKey = r_hdrKey.GetFloat();
+		backEnd.hdrAverageLuminance = 1;
+		backEnd.hdrMaxLuminance = 1;
 	}
 	else
 	{
-		backEnd.hdrKey = r_hdrKey.GetFloat();
+		curTime = Sys_Milliseconds() / 1000.0f;
+		
+		// calculate the average scene luminance
+		globalFramebuffers.hdr64FBO->Bind();
+		
+		// read back the contents
+		//	glFinish();
+		glReadPixels( 0, 0, 64, 64, GL_RGBA, GL_FLOAT, image );
+		
+		sum = 0.0f;
+		maxLuminance = 0.0f;
+		for( i = 0; i < ( 64 * 64 ); i += 4 )
+		{
+			color[0] = image[i * 4 + 0];
+			color[1] = image[i * 4 + 1];
+			color[2] = image[i * 4 + 2];
+			color[3] = image[i * 4 + 3];
+			
+			luminance = ( color.x * LUMINANCE_SRGB.x + color.y * LUMINANCE_SRGB.y + color.z * LUMINANCE_SRGB.z ) + 0.0001f;
+			if( luminance > maxLuminance )
+			{
+				maxLuminance = luminance;
+			}
+			
+			float logLuminance = log( luminance + 1 );
+			//if( logLuminance > 0 )
+			{
+				sum += luminance;
+			}
+		}
+#if 0
+		sum /= ( 64.0f * 64.0f );
+		avgLuminance = exp( sum );
+#else
+		avgLuminance = sum / ( 64.0f * 64.0f );
+#endif
+		
+		// the user's adapted luminance level is simulated by closing the gap between
+		// adapted luminance and current luminance by 2% every frame, based on a
+		// 30 fps rate. This is not an accurate model of human adaptation, which can
+		// take longer than half an hour.
+		if( backEnd.hdrTime > curTime )
+		{
+			backEnd.hdrTime = curTime;
+		}
+		
+		deltaTime = curTime - backEnd.hdrTime;
+		
+		//if(r_hdrMaxLuminance->value)
+		{
+			backEnd.hdrAverageLuminance = idMath::ClampFloat( r_hdrMinLuminance.GetFloat(), r_hdrMaxLuminance.GetFloat(), backEnd.hdrAverageLuminance );
+			avgLuminance = idMath::ClampFloat( r_hdrMinLuminance.GetFloat(), r_hdrMaxLuminance.GetFloat(), avgLuminance );
+			
+			backEnd.hdrMaxLuminance = idMath::ClampFloat( r_hdrMinLuminance.GetFloat(), r_hdrMaxLuminance.GetFloat(), backEnd.hdrMaxLuminance );
+			maxLuminance = idMath::ClampFloat( r_hdrMinLuminance.GetFloat(), r_hdrMaxLuminance.GetFloat(), maxLuminance );
+		}
+		
+		newAdaptation = backEnd.hdrAverageLuminance + ( avgLuminance - backEnd.hdrAverageLuminance ) * ( 1.0f - powf( 0.98f, 30.0f * deltaTime ) );
+		newMaximum = backEnd.hdrMaxLuminance + ( maxLuminance - backEnd.hdrMaxLuminance ) * ( 1.0f - powf( 0.98f, 30.0f * deltaTime ) );
+		
+		if( !IsNAN( newAdaptation ) && !IsNAN( newMaximum ) )
+		{
+#if 1
+			backEnd.hdrAverageLuminance = newAdaptation;
+			backEnd.hdrMaxLuminance = newMaximum;
+#else
+			backEnd.hdrAverageLuminance = avgLuminance;
+			backEnd.hdrMaxLuminance = maxLuminance;
+#endif
+		}
+		
+		backEnd.hdrTime = curTime;
+		
+		// calculate HDR image key
+#if 0
+		// RB: this never worked :/
+		if( r_hdrAutoExposure.GetBool() )
+		{
+			// calculation from: Perceptual Effects in Real-time Tone Mapping - Krawczyk et al.
+			backEnd.hdrKey = 1.03 - ( 2.0 / ( 2.0 + ( backEnd.hdrAverageLuminance + 1.0f ) ) );
+		}
+		else
+#endif
+		{
+			backEnd.hdrKey = r_hdrKey.GetFloat();
+		}
 	}
 	
 	if( r_hdrDebug.GetBool() )
@@ -4380,15 +4395,18 @@ static void RB_Tonemap( const viewDef_t* viewDef )
 		screenCorrectionParm[0] = 1.0f;
 		screenCorrectionParm[1] = 1.0f;
 		screenCorrectionParm[2] = 1.0f;
-		screenCorrectionParm[3] = 1.0f;
 	}
 	else
 	{
 		screenCorrectionParm[0] = backEnd.hdrKey;
 		screenCorrectionParm[1] = backEnd.hdrAverageLuminance;
 		screenCorrectionParm[2] = backEnd.hdrMaxLuminance;
-		screenCorrectionParm[3] = 1.0f;
 	}
+	
+	float exposure = ( r_exposure.GetFloat() * 2.0f - 1.0f ) * 4.0f;
+	//float exposure = r_exposure.GetFloat() * 2.0f;
+	screenCorrectionParm[3] = idMath::ClampFloat( -10.0f, 10.0f, exposure );
+	
 	SetFragmentParm( RENDERPARM_SCREENCORRECTIONFACTOR, screenCorrectionParm ); // rpScreenCorrectionFactor
 	
 	// Draw
@@ -4472,7 +4490,14 @@ static void RB_Bloom( const viewDef_t* viewDef )
 	float overbright[4];
 	if( r_useHDR.GetBool() )
 	{
-		overbright[0] = r_hdrContrastThreshold.GetFloat();
+		if( r_hdrAutoExposure.GetBool() )
+		{
+			overbright[0] = r_hdrContrastDynamicThreshold.GetFloat();
+		}
+		else
+		{
+			overbright[0] = r_hdrContrastStaticThreshold.GetFloat();
+		}
 		overbright[1] = r_hdrContrastOffset.GetFloat();
 		overbright[2] = 0;
 		overbright[3] = 0;
@@ -4535,7 +4560,7 @@ static void RB_SSAO( const viewDef_t* viewDef )
 		return;
 	}
 	
-	if( r_useSSGI.GetInteger() <= 0 )
+	if( r_useSSAO.GetInteger() <= 0 )
 	{
 		return;
 	}
@@ -4704,7 +4729,7 @@ static void RB_SSAO( const viewDef_t* viewDef )
 	}
 	else
 	{
-		if( r_ssgiDebug.GetInteger() <= 0 )
+		if( r_ssaoDebug.GetInteger() <= 0 )
 		{
 			GL_State( GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO | GLS_ALPHAMASK | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
 		}
@@ -4807,7 +4832,7 @@ static void RB_SSAO( const viewDef_t* viewDef )
 			Framebuffer::Unbind();
 		}
 		
-		if( r_ssgiDebug.GetInteger() <= 0 )
+		if( r_ssaoDebug.GetInteger() <= 0 )
 		{
 			GL_State( GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
 		}
@@ -5235,14 +5260,14 @@ void RB_DrawViewInternal( const viewDef_t* viewDef, const int stereoEye )
 	//-------------------------------------------------
 	// capture the depth for the motion blur before rendering any post process surfaces that may contribute to the depth
 	//-------------------------------------------------
-	if( ( r_motionBlur.GetInteger() > 0 || r_useSSGI.GetBool() ) && !r_useHDR.GetBool() )
+	if( ( r_motionBlur.GetInteger() > 0 ||  r_useSSAO.GetBool() || r_useSSGI.GetBool() ) && !r_useHDR.GetBool() )
 	{
 		const idScreenRect& viewport = backEnd.viewDef->viewport;
 		globalImages->currentDepthImage->CopyDepthbuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
 	}
 	
 	//-------------------------------------------------
-	// darken the scene using the screen space ambient occlusion result
+	// darken the scene using the screen space ambient occlusion
 	//-------------------------------------------------
 	RB_SSAO( viewDef );
 	//RB_SSGI( viewDef );
@@ -5630,7 +5655,7 @@ void RB_PostProcess( const void* data )
 		return;
 	}
 	
-	if( r_ssgiDebug.GetInteger() > 0 )
+	if( ( r_ssaoDebug.GetInteger() > 0 ) || ( r_ssgiDebug.GetInteger() > 0 ) )
 	{
 		return;
 	}
