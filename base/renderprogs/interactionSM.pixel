@@ -331,7 +331,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	// disney GGX
 	float D = ( hdotN * hdotN ) * ( rrrr - 1.0 ) + 1.0;
 	float VFapprox = ( ldotH * ldotH ) * ( roughness + 0.5 );
-	half3 specularBRDF = ( rrrr / ( 4.0 * PI * D * D * VFapprox ) ) * reflectColor;
+	half3 specularBRDF = ( rrrr / ( 4.0 * PI * D * D * VFapprox ) ) * ldotN * reflectColor;
 	//specularBRDF = half3( 0.0 );
 	
 #if 0
