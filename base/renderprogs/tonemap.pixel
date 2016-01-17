@@ -138,6 +138,20 @@ void main( PS_IN fragment, out PS_OUT result )
 #elif OPERATOR == 2
 
 	// can be in range [-4.0 .. 4.0]
+	//float exposureOffset = rpScreenCorrectionFactor.w;
+	
+	float avgLuminance = max( hdrAverageLuminance, 0.001 );
+	float linearExposure = ( hdrKey / avgLuminance );
+	float exposure = log2( max( linearExposure, 0.0001 ) );
+	
+	//exposure = -2.0;
+	float3 exposedColor = exp2( exposure ) * color.rgb;
+	
+	color.rgb = ACESFilm( exposedColor );
+	
+#elif OPERATOR == 3
+
+	// can be in range [-4.0 .. 4.0]
 	float exposure = rpScreenCorrectionFactor.w;
 	
 	// exposure curves ranges from 0.0625 to 16.0
@@ -148,7 +162,8 @@ void main( PS_IN fragment, out PS_OUT result )
 	
 	float3 whiteScale = 1.0 / ACESFilm( float3( Ymax ) );
 	color.rgb = curr * whiteScale;
-#elif OPERATOR == 3
+	
+#elif OPERATOR == 4
 	// Uncharted 2 tone mapping based on Kodak film curve
 
 	//float exposure = ( hdrKey / hdrAverageLuminance ) * 0.2;

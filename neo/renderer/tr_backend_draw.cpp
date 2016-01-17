@@ -1812,7 +1812,7 @@ static void RB_AmbientPass( const drawSurf_t* const* drawSurfs, int numDrawSurfs
 	
 	idVec4 ambientColor;
 	float ambientBoost = 1.0f;
-	ambientBoost += r_useSSAO.GetBool() ? 0.5f : 0.0f;
+	ambientBoost += r_useSSAO.GetBool() ? 0.2f : 0.0f;
 	ambientBoost *= r_useHDR.GetBool() ? 1.1f : 1.0f;
 	ambientColor.x = r_forceAmbient.GetFloat() * ambientBoost;
 	ambientColor.y = r_forceAmbient.GetFloat() * ambientBoost;
@@ -4242,7 +4242,7 @@ static void RB_CalculateAdaptation()
 		// no dynamic exposure
 		
 		backEnd.hdrKey = r_hdrKey.GetFloat();
-		backEnd.hdrAverageLuminance = 1;
+		backEnd.hdrAverageLuminance = r_hdrMinLuminance.GetFloat();
 		backEnd.hdrMaxLuminance = 1;
 	}
 	else
@@ -4392,20 +4392,38 @@ static void RB_Tonemap( const viewDef_t* viewDef )
 	float screenCorrectionParm[4];
 	if( viewDef->is2Dgui )
 	{
-		screenCorrectionParm[0] = 1.0f;
+		screenCorrectionParm[0] = 2.0f;
 		screenCorrectionParm[1] = 1.0f;
 		screenCorrectionParm[2] = 1.0f;
 	}
 	else
 	{
-		screenCorrectionParm[0] = backEnd.hdrKey;
-		screenCorrectionParm[1] = backEnd.hdrAverageLuminance;
-		screenCorrectionParm[2] = backEnd.hdrMaxLuminance;
+		if( r_hdrAutoExposure.GetBool() )
+		{
+			float exposureOffset = Lerp( -0.01f, 0.02f, idMath::ClampFloat( 0.0, 1.0, r_exposure.GetFloat() ) );
+			
+			screenCorrectionParm[0] = backEnd.hdrKey + exposureOffset;
+			screenCorrectionParm[1] = backEnd.hdrAverageLuminance;
+			screenCorrectionParm[2] = backEnd.hdrMaxLuminance;
+			screenCorrectionParm[3] = exposureOffset;
+			//screenCorrectionParm[3] = Lerp( -1, 5, idMath::ClampFloat( 0.0, 1.0, r_exposure.GetFloat() ) );
+		}
+		else
+		{
+			//float exposureOffset = ( idMath::ClampFloat( 0.0, 1.0, r_exposure.GetFloat() ) * 2.0f - 1.0f ) * 0.01f;
+			
+			float exposureOffset = Lerp( -0.01f, 0.01f, idMath::ClampFloat( 0.0, 1.0, r_exposure.GetFloat() ) );
+			
+			screenCorrectionParm[0] = 0.015f + exposureOffset;
+			screenCorrectionParm[1] = 0.005f;
+			screenCorrectionParm[2] = 1;
+			
+			// RB: this gives a nice exposure curve in Scilab when using
+			// log2( max( 3 + 0..10, 0.001 ) ) as input for exp2
+			//float exposureOffset = r_exposure.GetFloat() * 10.0f;
+			//screenCorrectionParm[3] = exposureOffset;
+		}
 	}
-	
-	float exposure = ( r_exposure.GetFloat() * 2.0f - 1.0f ) * 4.0f;
-	//float exposure = r_exposure.GetFloat() * 2.0f;
-	screenCorrectionParm[3] = idMath::ClampFloat( -10.0f, 10.0f, exposure );
 	
 	SetFragmentParm( RENDERPARM_SCREENCORRECTIONFACTOR, screenCorrectionParm ); // rpScreenCorrectionFactor
 	
