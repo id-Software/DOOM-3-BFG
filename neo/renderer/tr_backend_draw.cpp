@@ -437,10 +437,20 @@ static void RB_BindVariableStageImage( const textureStage_t* texture, const floa
 		}
 		else if( cin.image != NULL )
 		{
-			//Carl: A single RGB image works better with the FFMPEG BINK codec.
+			// Carl: A single RGB image works better with the FFMPEG BINK codec.
 			GL_SelectTexture( 0 );
 			cin.image->Bind();
-			renderProgManager.BindShader_TextureVertexColor();
+			
+			/*
+			if( backEnd.viewDef->is2Dgui )
+			{
+				renderProgManager.BindShader_TextureVertexColor_sRGB();
+			}
+			else
+			{
+				renderProgManager.BindShader_TextureVertexColor();
+			}
+			*/
 		}
 		else
 		{
@@ -3777,11 +3787,11 @@ static int RB_DrawShaderPasses( const drawSurf_t* const* const drawSurfs, const 
 					{
 						// This is a hack... Only SWF Guis set GLS_OVERRIDE
 						// Old style guis do not, and we don't want them to use the new GUI renederProg
-						renderProgManager.BindShader_BinkGUI();
+						renderProgManager.BindShader_TextureVertexColor_sRGB();
 					}
 					else
 					{
-						renderProgManager.BindShader_Bink();
+						renderProgManager.BindShader_TextureVertexColor();
 					}
 				}
 				else

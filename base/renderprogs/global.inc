@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
-Copyright (C) 2013-2014 Robert Beckebans
+Copyright (C) 2013-2016 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
 
@@ -133,7 +133,7 @@ static float dot4( float2 a, float4 b ) { return dot( float4( a, 0, 1 ), b ); }
 
 half3 sRGBToLinearRGB( half3 rgb )
 {
-#if defined(USE_LINEAR_RGB)
+#if defined( USE_LINEAR_RGB ) && !defined( USE_SRGB )
 	return max( pow( rgb, half3( 2.2 ) ), half3( 0.0 ) );
 #else
 	return rgb;
@@ -142,7 +142,7 @@ half3 sRGBToLinearRGB( half3 rgb )
 
 half4 sRGBAToLinearRGBA( half4 rgba )
 {
-#if defined(USE_LINEAR_RGB)
+#if defined( USE_LINEAR_RGB ) && !defined( USE_SRGB )
 	return float4( max( pow( rgba.rgb, half3( 2.2 ) ), half3( 0.0 ) ), rgba.a );
 #else
 	return rgba;
@@ -151,7 +151,7 @@ half4 sRGBAToLinearRGBA( half4 rgba )
 
 half3 LinearRGBToSRGB( half3 rgb )
 {
-#if defined(USE_LINEAR_RGB)
+#if defined( USE_LINEAR_RGB ) && !defined( USE_SRGB )
 	return pow( rgb, half3( 1.0 ) / half3( 2.2 ) );
 #else
 	return rgb;
@@ -160,7 +160,7 @@ half3 LinearRGBToSRGB( half3 rgb )
 
 half4 LinearRGBToSRGB( half4 rgba )
 {
-#if defined(USE_LINEAR_RGB)
+#if defined( USE_LINEAR_RGB ) && !defined( USE_SRGB )
 	rgba.rgb = pow( rgba.rgb, half3( 1.0 ) / half3( 2.2 ) );
 	return rgba; //pow( rgba, half4( 1.0 ) / half4( 2.2 ) );
 #else
@@ -227,11 +227,9 @@ float rand( float2 co ) {
 
 #define square( x )		( x * x )
 
-
-static const half4 LUMINANCE_VECTOR = half4( 0.2125, 0.7154, 0.0721, 0.0 );
-
 static const half4 LUMINANCE_SRGB = half4( 0.2125, 0.7154, 0.0721, 0.0 );
 static const half4 LUMINANCE_LINEAR = half4( 0.299, 0.587, 0.144, 0.0 );
+
 #define _half2( x )		half2( x )
 #define _half3( x )		half3( x )
 #define _half4( x )		half4( x )

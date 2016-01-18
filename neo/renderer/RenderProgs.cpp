@@ -90,8 +90,8 @@ void idRenderProgManager::Init()
 		bool		requireGPUSkinningSupport;
 	} builtins[] =
 	{
-		{ BUILTIN_GUI, "gui.vfp", 0, false },
-		{ BUILTIN_COLOR, "color.vfp", 0, false },
+		{ BUILTIN_GUI, "gui.vfp", "", 0, false },
+		{ BUILTIN_COLOR, "color.vfp", "", 0, false },
 		// RB begin
 		{ BUILTIN_COLOR_SKINNED, "color", "_skinned", BIT( USE_GPU_SKINNING ), true },
 		{ BUILTIN_VERTEX_COLOR, "vertex_color.vfp", "", 0, false },
@@ -101,10 +101,11 @@ void idRenderProgManager::Init()
 		{ BUILTIN_SMALL_GEOMETRY_BUFFER_SKINNED, "gbuffer", "_skinned", BIT( USE_GPU_SKINNING ), true },
 		// RB end
 //		{ BUILTIN_SIMPLESHADE, "simpleshade.vfp", 0, false },
-		{ BUILTIN_TEXTURED, "texture.vfp", 0, false },
-		{ BUILTIN_TEXTURE_VERTEXCOLOR, "texture_color.vfp", 0, false },
-		{ BUILTIN_TEXTURE_VERTEXCOLOR_SKINNED, "texture_color_skinned.vfp", 0, true },
-		{ BUILTIN_TEXTURE_TEXGEN_VERTEXCOLOR, "texture_color_texgen.vfp", 0, false },
+		{ BUILTIN_TEXTURED, "texture.vfp", "", 0, false },
+		{ BUILTIN_TEXTURE_VERTEXCOLOR, "texture_color.vfp", "", 0, false },
+		{ BUILTIN_TEXTURE_VERTEXCOLOR_SRGB, "texture_color.vfp", "", BIT( USE_SRGB ), false },
+		{ BUILTIN_TEXTURE_VERTEXCOLOR_SKINNED, "texture_color_skinned.vfp", "", 0, true },
+		{ BUILTIN_TEXTURE_TEXGEN_VERTEXCOLOR, "texture_color_texgen.vfp", "",  0, false },
 		// RB begin
 		{ BUILTIN_INTERACTION, "interaction.vfp", "", 0, false },
 		{ BUILTIN_INTERACTION_SKINNED, "interaction", "_skinned", BIT( USE_GPU_SKINNING ), true },
@@ -117,26 +118,26 @@ void idRenderProgManager::Init()
 		{ BUILTIN_INTERACTION_SHADOW_MAPPING_PARALLEL, "interactionSM", "_parallel", BIT( LIGHT_PARALLEL ), false },
 		{ BUILTIN_INTERACTION_SHADOW_MAPPING_PARALLEL_SKINNED, "interactionSM", "_parallel_skinned", BIT( USE_GPU_SKINNING ) | BIT( LIGHT_PARALLEL ), true },
 		// RB end
-		{ BUILTIN_ENVIRONMENT, "environment.vfp", 0, false },
-		{ BUILTIN_ENVIRONMENT_SKINNED, "environment_skinned.vfp", 0, true },
-		{ BUILTIN_BUMPY_ENVIRONMENT, "bumpyenvironment.vfp", 0, false },
-		{ BUILTIN_BUMPY_ENVIRONMENT_SKINNED, "bumpyenvironment_skinned.vfp", 0, true },
+		{ BUILTIN_ENVIRONMENT, "environment.vfp", "", 0, false },
+		{ BUILTIN_ENVIRONMENT_SKINNED, "environment_skinned.vfp", "",  0, true },
+		{ BUILTIN_BUMPY_ENVIRONMENT, "bumpyenvironment.vfp", "", 0, false },
+		{ BUILTIN_BUMPY_ENVIRONMENT_SKINNED, "bumpyenvironment_skinned.vfp", "", 0, true },
 		
-		{ BUILTIN_DEPTH, "depth.vfp", 0, false },
-		{ BUILTIN_DEPTH_SKINNED, "depth_skinned.vfp", 0, true },
+		{ BUILTIN_DEPTH, "depth.vfp", "", 0, false },
+		{ BUILTIN_DEPTH_SKINNED, "depth_skinned.vfp", "", 0, true },
 		
-		{ BUILTIN_SHADOW, "shadow.vfp", 0, false },
-		{ BUILTIN_SHADOW_SKINNED, "shadow_skinned.vfp", 0, true },
+		{ BUILTIN_SHADOW, "shadow.vfp", "", 0, false },
+		{ BUILTIN_SHADOW_SKINNED, "shadow_skinned.vfp", "", 0, true },
 		
-		{ BUILTIN_SHADOW_DEBUG, "shadowDebug.vfp", 0, false },
-		{ BUILTIN_SHADOW_DEBUG_SKINNED, "shadowDebug_skinned.vfp", 0, true },
+		{ BUILTIN_SHADOW_DEBUG, "shadowDebug.vfp", "", 0, false },
+		{ BUILTIN_SHADOW_DEBUG_SKINNED, "shadowDebug_skinned.vfp", "", 0, true },
 		
-		{ BUILTIN_BLENDLIGHT, "blendlight.vfp", 0, false },
-		{ BUILTIN_FOG, "fog.vfp", 0, false },
-		{ BUILTIN_FOG_SKINNED, "fog_skinned.vfp", 0, true },
-		{ BUILTIN_SKYBOX, "skybox.vfp", 0, false },
-		{ BUILTIN_WOBBLESKY, "wobblesky.vfp", 0, false },
-		{ BUILTIN_POSTPROCESS, "postprocess.vfp", 0, false },
+		{ BUILTIN_BLENDLIGHT, "blendlight.vfp", "", 0, false },
+		{ BUILTIN_FOG, "fog.vfp", "", 0, false },
+		{ BUILTIN_FOG_SKINNED, "fog_skinned.vfp", "", 0, true },
+		{ BUILTIN_SKYBOX, "skybox.vfp", "",  0, false },
+		{ BUILTIN_WOBBLESKY, "wobblesky.vfp", "", 0, false },
+		{ BUILTIN_POSTPROCESS, "postprocess.vfp", "", 0, false },
 		// RB begin
 		{ BUILTIN_SCREEN, "screen", "", 0, false },
 		{ BUILTIN_TONEMAP, "tonemap", "", 0, false },
@@ -158,13 +159,13 @@ void idRenderProgManager::Init()
 		{ BUILTIN_DEEP_GBUFFER_RADIOSITY_BLUR, "DeepGBufferRadiosity_blur", "", 0, false },
 		{ BUILTIN_DEEP_GBUFFER_RADIOSITY_BLUR_AND_OUTPUT, "DeepGBufferRadiosity_blur", "_write", BIT( BRIGHTPASS ), false },
 		// RB end
-		{ BUILTIN_STEREO_DEGHOST, "stereoDeGhost.vfp", 0, false },
-		{ BUILTIN_STEREO_WARP, "stereoWarp.vfp", 0, false },
+		{ BUILTIN_STEREO_DEGHOST, "stereoDeGhost.vfp", "", 0, false },
+		{ BUILTIN_STEREO_WARP, "stereoWarp.vfp", "", 0, false },
 //		{ BUILTIN_ZCULL_RECONSTRUCT, "zcullReconstruct.vfp", 0, false },
-		{ BUILTIN_BINK, "bink.vfp", 0, false },
-		{ BUILTIN_BINK_GUI, "bink_gui.vfp", 0, false },
-		{ BUILTIN_STEREO_INTERLACE, "stereoInterlace.vfp", 0, false },
-		{ BUILTIN_MOTION_BLUR, "motionBlur.vfp", 0, false },
+		{ BUILTIN_BINK, "bink.vfp", "",  0, false },
+		{ BUILTIN_BINK_GUI, "bink_gui.vfp", "", 0, false },
+		{ BUILTIN_STEREO_INTERLACE, "stereoInterlace.vfp", "", 0, false },
+		{ BUILTIN_MOTION_BLUR, "motionBlur.vfp", "", 0, false },
 		
 		// RB begin
 		{ BUILTIN_DEBUG_SHADOWMAP, "debug_shadowmap.vfp", "", 0, false },
