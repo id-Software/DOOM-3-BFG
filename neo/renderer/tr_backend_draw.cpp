@@ -1793,10 +1793,15 @@ static void RB_AmbientPass( const drawSurf_t* const* drawSurfs, int numDrawSurfs
 	
 	const bool hdrIsActive = ( r_useHDR.GetBool() && globalFramebuffers.hdrFBO != NULL && globalFramebuffers.hdrFBO->IsBound() );
 	
-	//if( hdrIsActive && r_useSSLR.GetBool() )
-	//{
-	//	Framebuffer::Unbind();
-	//}
+	/*
+	if( fillGbuffer )
+	{
+		globalFramebuffers.geometryBufferFBO->Bind();
+	
+		glClearColor( 0, 0, 0, 0 );
+		glClear( GL_COLOR_BUFFER_BIT );
+	}
+	*/
 	
 	renderLog.OpenMainBlock( MRB_AMBIENT_PASS );
 	renderLog.OpenBlock( "RB_AmbientPass" );
@@ -1810,7 +1815,15 @@ static void RB_AmbientPass( const drawSurf_t* const* drawSurfs, int numDrawSurfs
 	// draw all the subview surfaces, which will already be at the start of the sorted list,
 	// with the general purpose path
 	//GL_State( GLS_DEFAULT );
-	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHMASK | GLS_DEPTHFUNC_EQUAL );
+	
+	//if( fillGbuffer )
+	{
+		GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_EQUAL );
+	}
+	//else
+	//{
+	//	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHMASK | GLS_DEPTHFUNC_EQUAL );
+	//}
 	
 	GL_Color( colorWhite );
 	
@@ -1874,7 +1887,7 @@ static void RB_AmbientPass( const drawSurf_t* const* drawSurfs, int numDrawSurfs
 		//else
 		{
 #if 1
-			if( ( r_useSSAO.GetBool() || r_useSSGI.GetBool() ) && fillGbuffer )
+			if( fillGbuffer )
 			{
 				// fill geometry buffer with normal/roughness information
 				if( drawSurf->jointCache )
@@ -2126,29 +2139,37 @@ static void RB_AmbientPass( const drawSurf_t* const* drawSurfs, int numDrawSurfs
 	renderLog.CloseBlock();
 	renderLog.CloseMainBlock();
 	
-	if( ( r_useSSAO.GetBool() || r_useSSGI.GetBool() ) && fillGbuffer )
+	if( fillGbuffer )
 	{
 		GL_SelectTexture( 0 );
-		globalImages->currentNormalsImage->Bind();
 		
 		// FIXME: this copies RGBA16F into _currentNormals if HDR is enabled
 		const idScreenRect& viewport = backEnd.viewDef->viewport;
 		globalImages->currentNormalsImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
 		
-		//if( r_ssgiDebug.GetInteger() != 1 )
+		//GL_Clear( true, false, false, STENCIL_SHADOW_TEST_VALUE, 0.0f, 0.0f, 0.0f, 1.0f, false );
+		
+		
+		/*
+		if( hdrIsActive )
 		{
-			GL_Clear( true, false, false, STENCIL_SHADOW_TEST_VALUE, 0.0f, 0.0f, 0.0f, 1.0f, false );
+			globalFramebuffers.hdrFBO->Bind();
 		}
-		
-		//if( hdrIsActive )
-		//{
-		//	globalFramebuffers.hdrFBO->Bind();
-		//}
-		
-		renderProgManager.Unbind();
-		
+		else
+		{
+			Framebuffer::Unbind();
+		}
+		*/
+	}
+	
+	// unbind texture units
+	for( int i = 0; i < 7; i++ )
+	{
+		GL_SelectTexture( i );
 		globalImages->BindNull();
 	}
+	
+	renderProgManager.Unbind();
 }
 
 // RB end

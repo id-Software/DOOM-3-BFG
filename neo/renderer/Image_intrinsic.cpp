@@ -868,7 +868,8 @@ void idImageManager::CreateIntrinsicImages()
 	smaaEdgesImage = globalImages->ImageFromFunction( "_smaaEdges", R_SMAAImage_ResNative );
 	smaaBlendImage = globalImages->ImageFromFunction( "_smaaBlend", R_SMAAImage_ResNative );
 	
-	currentNormalsImage = ImageFromFunction( "_currentNormals", R_RGBA8Image );
+	currentNormalsImage = ImageFromFunction( "_currentNormals", R_SMAAImage_ResNative );
+	
 	ambientOcclusionImage[0] = ImageFromFunction( "_ao0", R_SMAAImage_ResNative );
 	ambientOcclusionImage[1] = ImageFromFunction( "_ao1", R_SMAAImage_ResNative );
 	

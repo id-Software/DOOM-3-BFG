@@ -175,6 +175,14 @@ void Framebuffer::Init()
 		globalFramebuffers.csDepthFBO[i]->Check();
 	}
 	
+	// GEOMETRY BUFFER
+	
+	//globalFramebuffers.geometryBufferFBO = new Framebuffer( "_gbuffer", glConfig.nativeScreenWidth, glConfig.nativeScreenHeight );
+	//globalFramebuffers.geometryBufferFBO->Bind();
+	//globalFramebuffers.geometryBufferFBO->AddColorBuffer( GL_RGBA8, 0 );
+	//globalFramebuffers.geometryBufferFBO->AttachImage2D( GL_TEXTURE_2D, globalImages->currentNormalsImage, 0 );
+	//globalFramebuffers.geometryBufferFBO->Check();
+	
 	// SMAA
 	
 	globalFramebuffers.smaaEdgesFBO = new Framebuffer( "_smaaEdges", glConfig.nativeScreenWidth, glConfig.nativeScreenHeight );
@@ -278,12 +286,23 @@ void Framebuffer::CheckFramebuffers()
 			globalFramebuffers.csDepthFBO[i]->Check();
 		}
 		
+		// GEOMETRY BUFFER
+		
+		//globalImages->currentNormalsImage->Resize( glConfig.nativeScreenWidth, glConfig.nativeScreenHeight );
+		
+		//globalFramebuffers.geometryBufferFBO->width = glConfig.nativeScreenWidth;
+		//globalFramebuffers.geometryBufferFBO->height = glConfig.nativeScreenHeight;
+		
+		//globalFramebuffers.geometryBufferFBO->Bind();
+		//globalFramebuffers.geometryBufferFBO->AttachImage2D( GL_TEXTURE_2D, globalImages->currentNormalsImage, 0 );
+		//globalFramebuffers.geometryBufferFBO->Check();
+		
 		// SMAA
 		
 		globalImages->smaaEdgesImage->Resize( glConfig.nativeScreenWidth, glConfig.nativeScreenHeight );
 		
-		globalFramebuffers.smaaEdgesFBO->width = glConfig.nativeScreenWidth / 4;
-		globalFramebuffers.smaaEdgesFBO->height = glConfig.nativeScreenHeight / 4;
+		globalFramebuffers.smaaEdgesFBO->width = glConfig.nativeScreenWidth;
+		globalFramebuffers.smaaEdgesFBO->height = glConfig.nativeScreenHeight;
 		
 		globalFramebuffers.smaaEdgesFBO->Bind();
 		globalFramebuffers.smaaEdgesFBO->AttachImage2D( GL_TEXTURE_2D, globalImages->smaaEdgesImage, 0 );
@@ -291,8 +310,8 @@ void Framebuffer::CheckFramebuffers()
 		
 		globalImages->smaaBlendImage->Resize( glConfig.nativeScreenWidth, glConfig.nativeScreenHeight );
 		
-		globalFramebuffers.smaaBlendFBO->width = glConfig.nativeScreenWidth / 4;
-		globalFramebuffers.smaaBlendFBO->height = glConfig.nativeScreenHeight / 4;
+		globalFramebuffers.smaaBlendFBO->width = glConfig.nativeScreenWidth;
+		globalFramebuffers.smaaBlendFBO->height = glConfig.nativeScreenHeight;
 		
 		globalFramebuffers.smaaBlendFBO->Bind();
 		globalFramebuffers.smaaBlendFBO->AttachImage2D( GL_TEXTURE_2D, globalImages->smaaBlendImage, 0 );
