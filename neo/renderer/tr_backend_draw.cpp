@@ -1878,7 +1878,7 @@ static void RB_AmbientPass( const drawSurf_t* const* drawSurfs, int numDrawSurfs
 			continue;
 		}
 		
-		bool isWorldModel = ( drawSurf->space->entityDef->parms.origin == vec3_origin );
+		//bool isWorldModel = ( drawSurf->space->entityDef->parms.origin == vec3_origin );
 		
 		//if( isWorldModel )
 		//{
@@ -1926,15 +1926,15 @@ static void RB_AmbientPass( const drawSurf_t* const* drawSurfs, int numDrawSurfs
 			R_GlobalPointToLocal( drawSurf->space->modelMatrix, backEnd.viewDef->renderView.vieworg, localViewOrigin.ToVec3() );
 			SetVertexParm( RENDERPARM_LOCALVIEWORIGIN, localViewOrigin.ToFloatPtr() );
 			
-			if( !isWorldModel )
-			{
-				// tranform the light direction into model local space
-				idVec3 globalLightDirection( 0.0f, 0.0f, -1.0f ); // HACK
-				idVec4 localLightDirection( 0.0f );
-				R_GlobalVectorToLocal( drawSurf->space->modelMatrix, globalLightDirection, localLightDirection.ToVec3() );
-				
-				SetVertexParm( RENDERPARM_LOCALLIGHTORIGIN, localLightDirection.ToFloatPtr() );
-			}
+			//if( !isWorldModel )
+			//{
+			//	// tranform the light direction into model local space
+			//	idVec3 globalLightDirection( 0.0f, 0.0f, -1.0f ); // HACK
+			//	idVec4 localLightDirection( 0.0f );
+			//	R_GlobalVectorToLocal( drawSurf->space->modelMatrix, globalLightDirection, localLightDirection.ToVec3() );
+			//
+			//	SetVertexParm( RENDERPARM_LOCALLIGHTORIGIN, localLightDirection.ToFloatPtr() );
+			//}
 			
 			// RB: if we want to store the normals in world space so we need the model -> world matrix
 			idRenderMatrix modelMatrix;
