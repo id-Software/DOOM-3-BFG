@@ -56,10 +56,10 @@ void main( PS_IN fragment, out PS_OUT result ) {
 //	half4 lightFalloff =	idtex2Dproj( samp1, fragment.texcoord2 );
 //	half4 lightProj	=		idtex2Dproj( samp2, fragment.texcoord3 );
 	half4 YCoCG =			tex2D( samp3, fragment.texcoord4.xy );
-	half4 specMap =			tex2D( samp4, fragment.texcoord5.xy );
+	half4 specMap =			sRGBAToLinearRGBA( tex2D( samp4, fragment.texcoord5.xy ) );
 
 	half3 lightVector = normalize( fragment.texcoord0.xyz );
-	half3 diffuseMap = ConvertYCoCgToRGB( YCoCG );
+	half3 diffuseMap = sRGBToLinearRGB( ConvertYCoCgToRGB( YCoCG ) );
 
 	half3 localNormal;
 #if defined(USE_NORMAL_FMT_RGB8)
@@ -75,8 +75,8 @@ void main( PS_IN fragment, out PS_OUT result ) {
 	// RB: added abs
 	half3 specularContribution = _half3( pow( abs( hDotN ), specularPower ) );
 
-	half3 diffuseColor = diffuseMap * rpDiffuseModifier.xyz * 1.5f;
-	half3 specularColor = specMap.xyz * specularContribution * rpSpecularModifier.xyz;
+	half3 diffuseColor = diffuseMap * ( rpDiffuseModifier.xyz ) * 1.5f;
+	half3 specularColor = specMap.xyz * specularContribution * ( rpSpecularModifier.xyz ); 
 	
 	// RB: http://developer.valvesoftware.com/wiki/Half_Lambert
 	float halfLdotN = dot3( localNormal, lightVector ) * 0.5 + 0.5;
@@ -85,13 +85,14 @@ void main( PS_IN fragment, out PS_OUT result ) {
 	// traditional very dark Lambert light model used in Doom 3
 	float ldotN = dot3( localNormal, lightVector );
 	
-	half3 lightColor = rpAmbientColor.rgb;
+	half3 lightColor = sRGBToLinearRGB( rpAmbientColor.rgb );
 	
 	half rim =  1.0f - saturate( hDotN );
 	half rimPower = 8.0;
-	half3 rimColor = half3( 0.125 ) * 1.2 * lightColor * pow( rim, rimPower );
+	half3 rimColor = sRGBToLinearRGB( half3( 0.125 ) * 1.2 ) * lightColor * pow( rim, rimPower );
 	
 	//result.color.rgb = localNormal.xyz * 0.5 + 0.5;
-	result.color.xyz = ( ( diffuseColor + specularColor ) * halfLdotN * lightColor + rimColor ) * fragment.color.rgb;;
-	result.color.w = 1.0;
+	result.color.xyz = ( ( diffuseColor + specularColor ) * halfLdotN * lightColor + rimColor ) * fragment.color.rgb;
+	//result.color = ( ( diffuseColor + specularColor ) * halfLdotN * lightColor + rimColor ) * fragment.color.rgba;
+	result.color.w = fragment.color.a;
 }

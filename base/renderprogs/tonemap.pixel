@@ -43,17 +43,30 @@ struct PS_OUT
 	float4 color : COLOR;
 };
 
-float A = 0.22; // shoulder strength
-float B = 0.3;	// linear strength
-float C = 0.10;	// linear angle
-float D = 0.20;	// toe strength
-float E = 0.01;	// toe numerator
-float F = 0.30;	// toe denominator
-float W = 11.2;	// linear white point
+
  
 float3 Uncharted2Tonemap( float3 x )
 {
+	float A = 0.22; // shoulder strength
+	float B = 0.3;	// linear strength
+	float C = 0.10;	// linear angle
+	float D = 0.20;	// toe strength
+	float E = 0.01;	// toe numerator
+	float F = 0.30;	// toe denominator
+	float W = 11.2;	// linear white point
+
 	return ( ( x * ( A * x + C * B ) + D * E ) / ( x * ( A * x + B ) + D * F ) ) - E / F;
+}
+
+// https://knarkowicz.wordpress.com/2016/01/06/aces-filmic-tone-mapping-curve/
+float3 ACESFilm( float3 x )
+{
+    float a = 2.51;
+    float b = 0.03;
+    float c = 2.43;
+    float d = 0.59;
+    float e = 0.14;
+    return saturate( ( x * ( a * x + b ) ) / ( x * ( c * x + d ) + e ) );
 }
 
 void main( PS_IN fragment, out PS_OUT result )
@@ -70,10 +83,11 @@ void main( PS_IN fragment, out PS_OUT result )
 	// get the luminance of the current pixel
 	float Y = dot( LUMINANCE_SRGB, color );
 
-#if 1
-	// convert from sRGB to linear RGB
 	const float hdrGamma = 2.2;
 	float gamma = hdrGamma;
+	
+#if 0
+	// convert from sRGB to linear RGB
 	color.r = pow( color.r, gamma );
 	color.g = pow( color.g, gamma );
 	color.b = pow( color.b, gamma );
@@ -97,18 +111,20 @@ void main( PS_IN fragment, out PS_OUT result )
 
 	float Ymax = hdrMaxLuminance;
 
+#define OPERATOR 2
 	
-#if 0
+#if OPERATOR == 0
 	// advanced Reinhard operator, artistically desirable to burn out bright areas
 	float L = Yr * ( 1.0 + Yr / ( Ymax * Ymax ) ) / ( 1.0 + Yr );
 	color.rgb *= L;
-	
+
+#elif OPERATOR == 1
 	// http://freespace.virgin.net/hugo.elias/graphics/x_posure.htm
 	// exponential tone mapper that is very similar to the Uncharted one
 	// very good in keeping the colors natural
-	//float exposure = 1.0;
-	//float L = ( 1.0 - exp( -Yr * exposure ) );
-	//color.rgb *= L;
+	float exposure = 1.0;
+	float L = ( 1.0 - exp( -Yr * exposure ) );
+	color.rgb *= L;
 	
 	// Kodak filmic tone mappping, includes gamma correction
 	//float3 rgb = max( float3( 0 ), color.rgb - float3( 0.004 ) );
@@ -119,12 +135,40 @@ void main( PS_IN fragment, out PS_OUT result )
 	//color.rgb += ( cutoff * 2.0 - color.rgb ) * saturate( cutoff * 2 - color.rgb ) * ( 0.25 / cutoff ) - cutoff;
 	//color.rgb = color.rgb * ( float3( 0.5 ) + 6.2 * color.rgb ) / ( float3( 0.06 ) + color.rgb * ( float3( 1.7 ) + 6.2 * color.rgb ) );
 	
-#else
+#elif OPERATOR == 2
+
+	// can be in range [-4.0 .. 4.0]
+	//float exposureOffset = rpScreenCorrectionFactor.w;
+	
+	float avgLuminance = max( hdrAverageLuminance, 0.001 );
+	float linearExposure = ( hdrKey / avgLuminance );
+	float exposure = log2( max( linearExposure, 0.0001 ) );
+	
+	//exposure = -2.0;
+	float3 exposedColor = exp2( exposure ) * color.rgb;
+	
+	color.rgb = ACESFilm( exposedColor );
+	
+#elif OPERATOR == 3
+
+	// can be in range [-4.0 .. 4.0]
+	float exposure = rpScreenCorrectionFactor.w;
+	
+	// exposure curves ranges from 0.0625 to 16.0
+	float3 exposedColor = exp2( exposure ) * color.rgb;
+	//float3 exposedColor = exposure * color.rgb;
+	
+	float3 curr = ACESFilm( exposedColor );
+	
+	float3 whiteScale = 1.0 / ACESFilm( float3( Ymax ) );
+	color.rgb = curr * whiteScale;
+	
+#elif OPERATOR == 4
 	// Uncharted 2 tone mapping based on Kodak film curve
 
 	//float exposure = ( hdrKey / hdrAverageLuminance ) * 0.2;
 	//float exposure = Yr * 1.0;
-	float exposure = 1.0;
+	float exposure = rpScreenCorrectionFactor.w;
 	float3 exposedColor = exposure * color.rgb;
 	
 	float3 curr = Uncharted2Tonemap( exposedColor );

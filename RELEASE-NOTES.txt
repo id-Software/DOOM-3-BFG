@@ -17,7 +17,7 @@ _______________________________________
 TBD - RBDOOM-3-BFG 1.1.0
 _______________________________
 
-- True 64 bit HDR lighting with adaptive filmic tone mapping
+- True 64 bit HDR lighting with adaptive filmic tone mapping and gamma-correct rendering in linear RGB space
 
 - Enhanced Subpixel Morphological Antialiasing
 	For more information see "Anti-Aliasing Methods in CryENGINE 3" and the docs at http://www.iryoku.com/smaa/
@@ -30,6 +30,9 @@ _______________________________
 
 - Additional ambient render pass to make the game less dark similar to the Quake 4 r_forceAmbient technique
 
+- Screen Space Ambient Occlusion http://graphics.cs.williams.edu/papers/SAOHPG12/
+
+- Did some fine tuning to the Half-Lambert lighting curve so bump mapping doesn't loose too much details
 
 
 _______________________________________

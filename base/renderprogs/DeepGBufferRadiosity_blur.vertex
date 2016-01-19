@@ -3,7 +3,6 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
-Copyright (C) 2013 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
 
@@ -29,48 +28,20 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "renderprogs/global.inc"
 
-uniform samplerCUBE	samp0 : register(s0); // texture 0 is the cube map
-uniform sampler2D	samp1 : register(s1); // normal map
-
-struct PS_IN {
-	float4 position		: VPOS;
-	float2 texcoord0	: TEXCOORD0_centroid;
-	float3 texcoord1	: TEXCOORD1_centroid;
-	float3 texcoord2	: TEXCOORD2_centroid;
-	float3 texcoord3	: TEXCOORD3_centroid;
-	float3 texcoord4	: TEXCOORD4_centroid;
-	float4 color		: COLOR0;
+struct VS_IN 
+{
+	float4 position : POSITION;
+	float2 texcoord : TEXCOORD0;
 };
 
-struct PS_OUT {
-	float4 color : COLOR;
+struct VS_OUT
+{
+	float4 position : POSITION;
+	float2 texcoord0 : TEXCOORD0;
 };
 
-void main( PS_IN fragment, out PS_OUT result ) {
-
-	float4 bump = tex2D( samp1, fragment.texcoord0 ) * 2.0f - 1.0f;
-	
-	// RB begin
-	float3 localNormal;
-#if defined(GLES2)
-	localNormal = float3( bump.rg, 0.0f );
-#else
-	localNormal = float3( bump.wy, 0.0f );
-#endif
-	// RB end
-	localNormal.z = sqrt( 1.0f - dot3( localNormal, localNormal ) );
-
-	float3 globalNormal;
-	globalNormal.x = dot3( localNormal, fragment.texcoord2 );
-	globalNormal.y = dot3( localNormal, fragment.texcoord3 );
-	globalNormal.z = dot3( localNormal, fragment.texcoord4 );
-
-	float3 globalEye = normalize( fragment.texcoord1 );
-
-	float3 reflectionVector = globalNormal * dot3( globalEye, globalNormal );
-	reflectionVector = ( reflectionVector * 2.0f ) - globalEye;
-
-	float4 envMap = texCUBE( samp0, reflectionVector );
-
-	result.color = float4( sRGBToLinearRGB( envMap.xyz ), 1.0f ) * fragment.color;
+void main( VS_IN vertex, out VS_OUT result )
+{
+	result.position = vertex.position;
+	result.texcoord0 = vertex.texcoord;
 }

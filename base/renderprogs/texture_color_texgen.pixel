@@ -48,5 +48,5 @@ void main( PS_IN fragment, out PS_OUT result ) {
 	// gets called.
 	float4 texSample = idtex2Dproj( samp0, fragment.texcoord0 );
 
-	result.color = texSample * fragment.color;
+	result.color = sRGBAToLinearRGBA( texSample ) * fragment.color;
 }

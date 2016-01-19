@@ -207,6 +207,11 @@ static void R_SMAAImage_ResNative( idImage* image )
 {
 	image->GenerateImage( NULL, glConfig.nativeScreenWidth, glConfig.nativeScreenHeight, TF_LINEAR, TR_CLAMP, TD_LOOKUP_TABLE_RGBA );
 }
+
+static void R_HierarchicalZBufferImage_ResNative( idImage* image )
+{
+	image->GenerateImage( NULL, glConfig.nativeScreenWidth, glConfig.nativeScreenHeight, TF_NEAREST_MIPMAP, TR_CLAMP, TD_R32F );
+}
 // RB end
 
 static void R_AlphaNotchImage( idImage* image )
@@ -847,8 +852,8 @@ void idImageManager::CreateIntrinsicImages()
 	currentRenderHDRImageQuarter = globalImages->ImageFromFunction( "_currentRenderHDRQuarter", R_HDR_RGBA16FImage_ResQuarter );
 	currentRenderHDRImage64 = globalImages->ImageFromFunction( "_currentRenderHDR64", R_HDR_RGBA16FImage_Res64 );
 	
-	bloomRender[0] = globalImages->ImageFromFunction( "_bloomRender0", R_HDR_RGBA16FImage_ResQuarter_Linear );
-	bloomRender[1] = globalImages->ImageFromFunction( "_bloomRender1", R_HDR_RGBA16FImage_ResQuarter_Linear );
+	bloomRenderImage[0] = globalImages->ImageFromFunction( "_bloomRender0", R_HDR_RGBA16FImage_ResQuarter_Linear );
+	bloomRenderImage[1] = globalImages->ImageFromFunction( "_bloomRender1", R_HDR_RGBA16FImage_ResQuarter_Linear );
 	
 	heatmap5Image = ImageFromFunction( "_heatmap5", R_CreateHeatmap5ColorsImage );
 	heatmap7Image = ImageFromFunction( "_heatmap7", R_CreateHeatmap7ColorsImage );
@@ -862,6 +867,13 @@ void idImageManager::CreateIntrinsicImages()
 	
 	smaaEdgesImage = globalImages->ImageFromFunction( "_smaaEdges", R_SMAAImage_ResNative );
 	smaaBlendImage = globalImages->ImageFromFunction( "_smaaBlend", R_SMAAImage_ResNative );
+	
+	currentNormalsImage = ImageFromFunction( "_currentNormals", R_SMAAImage_ResNative );
+	
+	ambientOcclusionImage[0] = ImageFromFunction( "_ao0", R_SMAAImage_ResNative );
+	ambientOcclusionImage[1] = ImageFromFunction( "_ao1", R_SMAAImage_ResNative );
+	
+	hierarchicalZbufferImage = ImageFromFunction( "_cszBuffer", R_HierarchicalZBufferImage_ResNative );
 	// RB end
 	
 	// scratchImage is used for screen wipes/doublevision etc..

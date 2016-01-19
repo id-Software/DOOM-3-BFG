@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013-2014 Robert Beckebans
+Copyright (C) 2013-2016 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -221,6 +221,16 @@ public:
 	{
 		BindShader_Builtin( BUILTIN_AMBIENT_LIGHTING_SKINNED );
 	}
+	
+	void	BindShader_SmallGeometryBuffer()
+	{
+		BindShader_Builtin( BUILTIN_SMALL_GEOMETRY_BUFFER );
+	}
+	
+	void	BindShader_SmallGeometryBufferSkinned()
+	{
+		BindShader_Builtin( BUILTIN_SMALL_GEOMETRY_BUFFER_SKINNED );
+	}
 	// RB end
 	
 	void	BindShader_Texture( )
@@ -231,6 +241,11 @@ public:
 	void	BindShader_TextureVertexColor()
 	{
 		BindShader_Builtin( BUILTIN_TEXTURE_VERTEXCOLOR );
+	};
+	
+	void	BindShader_TextureVertexColor_sRGB()
+	{
+		BindShader_Builtin( BUILTIN_TEXTURE_VERTEXCOLOR_SRGB );
 	};
 	
 	void	BindShader_TextureVertexColorSkinned()
@@ -443,6 +458,51 @@ public:
 		BindShader_Builtin( BUILTIN_SMAA_NEIGHBORHOOD_BLENDING );
 	}
 	
+	void	BindShader_AmbientOcclusion()
+	{
+		BindShader_Builtin( BUILTIN_AMBIENT_OCCLUSION );
+	}
+	
+	void	BindShader_AmbientOcclusionAndOutput()
+	{
+		BindShader_Builtin( BUILTIN_AMBIENT_OCCLUSION_AND_OUTPUT );
+	}
+	
+	void	BindShader_AmbientOcclusionBlur()
+	{
+		BindShader_Builtin( BUILTIN_AMBIENT_OCCLUSION_BLUR );
+	}
+	
+	void	BindShader_AmbientOcclusionBlurAndOutput()
+	{
+		BindShader_Builtin( BUILTIN_AMBIENT_OCCLUSION_BLUR_AND_OUTPUT );
+	}
+	
+	void	BindShader_AmbientOcclusionMinify()
+	{
+		BindShader_Builtin( BUILTIN_AMBIENT_OCCLUSION_MINIFY );
+	}
+	
+	void	BindShader_AmbientOcclusionReconstructCSZ()
+	{
+		BindShader_Builtin( BUILTIN_AMBIENT_OCCLUSION_RECONSTRUCT_CSZ );
+	}
+	
+	void	BindShader_DeepGBufferRadiosity()
+	{
+		BindShader_Builtin( BUILTIN_DEEP_GBUFFER_RADIOSITY_SSGI );
+	}
+	
+	void	BindShader_DeepGBufferRadiosityBlur()
+	{
+		BindShader_Builtin( BUILTIN_DEEP_GBUFFER_RADIOSITY_BLUR );
+	}
+	
+	void	BindShader_DeepGBufferRadiosityBlurAndOutput()
+	{
+		BindShader_Builtin( BUILTIN_DEEP_GBUFFER_RADIOSITY_BLUR_AND_OUTPUT );
+	}
+	
 #if 0
 	void	BindShader_ZCullReconstruct()
 	{
@@ -517,10 +577,13 @@ protected:
 		BUILTIN_VERTEX_COLOR,
 		BUILTIN_AMBIENT_LIGHTING,
 		BUILTIN_AMBIENT_LIGHTING_SKINNED,
+		BUILTIN_SMALL_GEOMETRY_BUFFER,
+		BUILTIN_SMALL_GEOMETRY_BUFFER_SKINNED,
 		// RB end
 		BUILTIN_SIMPLESHADE,
 		BUILTIN_TEXTURED,
 		BUILTIN_TEXTURE_VERTEXCOLOR,
+		BUILTIN_TEXTURE_VERTEXCOLOR_SRGB,
 		BUILTIN_TEXTURE_VERTEXCOLOR_SKINNED,
 		BUILTIN_TEXTURE_TEXGEN_VERTEXCOLOR,
 		BUILTIN_INTERACTION,
@@ -563,6 +626,17 @@ protected:
 		BUILTIN_SMAA_EDGE_DETECTION,
 		BUILTIN_SMAA_BLENDING_WEIGHT_CALCULATION,
 		BUILTIN_SMAA_NEIGHBORHOOD_BLENDING,
+		
+		BUILTIN_AMBIENT_OCCLUSION,
+		BUILTIN_AMBIENT_OCCLUSION_AND_OUTPUT,
+		BUILTIN_AMBIENT_OCCLUSION_BLUR,
+		BUILTIN_AMBIENT_OCCLUSION_BLUR_AND_OUTPUT,
+		BUILTIN_AMBIENT_OCCLUSION_MINIFY,
+		BUILTIN_AMBIENT_OCCLUSION_RECONSTRUCT_CSZ,
+		
+		BUILTIN_DEEP_GBUFFER_RADIOSITY_SSGI,
+		BUILTIN_DEEP_GBUFFER_RADIOSITY_BLUR,
+		BUILTIN_DEEP_GBUFFER_RADIOSITY_BLUR_AND_OUTPUT,
 		// RB end
 		BUILTIN_STEREO_DEGHOST,
 		BUILTIN_STEREO_WARP,
@@ -589,6 +663,7 @@ protected:
 		LIGHT_PARALLEL,
 		BRIGHTPASS,
 		HDR_DEBUG,
+		USE_SRGB,
 		
 		MAX_SHADER_MACRO_NAMES,
 	};

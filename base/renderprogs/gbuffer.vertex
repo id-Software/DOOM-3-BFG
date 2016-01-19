@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
-Copyright (C) 2014 Robert Beckebans
+Copyright (C) 2016 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
 
@@ -44,21 +44,16 @@ struct VS_IN {
 
 struct VS_OUT {
 	float4 position		: POSITION;
-	float4 texcoord0	: TEXCOORD0;
-	float4 texcoord1	: TEXCOORD1;
-	float4 texcoord2	: TEXCOORD2;
-	float4 texcoord3	: TEXCOORD3;
-	float4 texcoord4	: TEXCOORD4;
-	float4 texcoord5	: TEXCOORD5;
-	float4 texcoord6	: TEXCOORD6;
-	float4 texcoord7	: TEXCOORD7;
-	float4 texcoord8	: TEXCOORD8;
-	float4 texcoord9	: TEXCOORD9;
+	float2 texcoord0	: TEXCOORD0;
+	float3 texcoord1	: TEXCOORD1;
+	float3 texcoord2	: TEXCOORD2;
+	float3 texcoord3	: TEXCOORD3;
+	float3 texcoord4	: TEXCOORD4;
 	float4 color		: COLOR0;
 };
 
 void main( VS_IN vertex, out VS_OUT result ) {
-
+	
 	float4 vNormal = vertex.normal * 2.0 - 1.0;
 	float4 vTangent = vertex.tangent * 2.0 - 1.0;
 	float3 vBitangent = cross( vNormal.xyz, vTangent.xyz ) * vTangent.w;
@@ -131,77 +126,43 @@ void main( VS_IN vertex, out VS_OUT result ) {
 	result.position.z = dot4( modelPosition, rpMVPmatrixZ );
 	result.position.w = dot4( modelPosition, rpMVPmatrixW );
 
-	float4 defaultTexCoord = float4( 0.0f, 0.5f, 0.0f, 1.0f );
+	// textures 0 takes the base coordinates by the texture matrix
+	result.texcoord0.x = dot4( vertex.texcoord.xy, rpBumpMatrixS );
+	result.texcoord0.y = dot4( vertex.texcoord.xy, rpBumpMatrixT );
 
-	//calculate vector to light
-	float4 toLightLocal = rpLocalLightOrigin - modelPosition;
+	//float4 toEye = rpLocalViewOrigin - modelPosition;
+	//result.texcoord1.x = dot3( toEye, rpModelMatrixX );
+	//result.texcoord1.y = dot3( toEye, rpModelMatrixY );
+	//result.texcoord1.z = dot3( toEye, rpModelMatrixZ );
 
-	//--------------------------------------------------------------
+#if 0
+	// rotate into world space
+	result.texcoord2.x = dot3( tangent, rpModelMatrixX );
+	result.texcoord3.x = dot3( tangent, rpModelMatrixY );
+	result.texcoord4.x = dot3( tangent, rpModelMatrixZ );
 
-	//result.texcoord0 is the direction to the light in tangent space
-	result.texcoord0.x = dot3( tangent, toLightLocal );
-	result.texcoord0.y = dot3( bitangent, toLightLocal );
-	result.texcoord0.z = dot3( normal, toLightLocal );
-	result.texcoord0.w = 1.0f;
+	result.texcoord2.y = dot3( bitangent, rpModelMatrixX );
+	result.texcoord3.y = dot3( bitangent, rpModelMatrixY );
+	result.texcoord4.y = dot3( bitangent, rpModelMatrixZ );
 
-	//textures 1 takes the base coordinates by the texture matrix
-	result.texcoord1 = defaultTexCoord;
-	result.texcoord1.x = dot4( vertex.texcoord.xy, rpBumpMatrixS );
-	result.texcoord1.y = dot4( vertex.texcoord.xy, rpBumpMatrixT );
-
-	//# texture 2 has one texgen
-	result.texcoord2 = defaultTexCoord;
-	result.texcoord2.x = dot4( modelPosition, rpLightFalloffS );
-
-	//# texture 3 has three texgens
-	result.texcoord3.x = dot4( modelPosition, rpLightProjectionS );
-	result.texcoord3.y = dot4( modelPosition, rpLightProjectionT );
-	result.texcoord3.z = 0.0f;
-	result.texcoord3.w = dot4( modelPosition, rpLightProjectionQ );
-
-	//# textures 4 takes the base coordinates by the texture matrix
-	result.texcoord4 = defaultTexCoord;
-	result.texcoord4.x = dot4( vertex.texcoord.xy, rpDiffuseMatrixS );
-	result.texcoord4.y = dot4( vertex.texcoord.xy, rpDiffuseMatrixT );
-
-	//# textures 5 takes the base coordinates by the texture matrix
-	result.texcoord5 = defaultTexCoord;
-	result.texcoord5.x = dot4( vertex.texcoord.xy, rpSpecularMatrixS );
-	result.texcoord5.y = dot4( vertex.texcoord.xy, rpSpecularMatrixT );
-
-	//# texture 6's texcoords will be the halfangle in texture space
-
-	//# calculate normalized vector to light in R0
-	toLightLocal = normalize( toLightLocal );
-
-	//# calculate normalized vector to viewer in R1
-	float4 toView = normalize( rpLocalViewOrigin - modelPosition );
+	result.texcoord2.z = dot3( normal, rpModelMatrixX );
+	result.texcoord3.z = dot3( normal, rpModelMatrixY );
+	result.texcoord4.z = dot3( normal, rpModelMatrixZ );	
 	
-	//# put into texture space
-	result.texcoord6.x = dot3( tangent, toView );
-	result.texcoord6.y = dot3( bitangent, toView );
-	result.texcoord6.z = dot3( normal, toView );
-	result.texcoord6.w = 1.0f;
-	
-	result.texcoord7 = modelPosition;
-	
-	float4 worldPosition;
-	worldPosition.x = dot4( modelPosition, rpModelMatrixX );
-	worldPosition.y = dot4( modelPosition, rpModelMatrixY );
-	worldPosition.z = dot4( modelPosition, rpModelMatrixZ );
-	worldPosition.w = dot4( modelPosition, rpModelMatrixW );
-	
-	float4 toLightGlobal = rpGlobalLightOrigin - worldPosition;
-	
-	result.texcoord8 = toLightGlobal;
-	
-	float4 viewPosition;
-	viewPosition.x = dot4( modelPosition, rpModelViewMatrixX );
-	viewPosition.y = dot4( modelPosition, rpModelViewMatrixY );
-	viewPosition.z = dot4( modelPosition, rpModelViewMatrixZ );
-	viewPosition.w = dot4( modelPosition, rpModelViewMatrixW );
-	
-	result.texcoord9 = viewPosition;
+#else
+	// rotate into view space
+	result.texcoord2.x = dot3( tangent, rpModelViewMatrixX );
+	result.texcoord3.x = dot3( tangent, rpModelViewMatrixY );
+	result.texcoord4.x = dot3( tangent, rpModelViewMatrixZ );
+
+	result.texcoord2.y = dot3( bitangent, rpModelViewMatrixX );
+	result.texcoord3.y = dot3( bitangent, rpModelViewMatrixY );
+	result.texcoord4.y = dot3( bitangent, rpModelViewMatrixZ );
+
+	result.texcoord2.z = dot3( normal, rpModelViewMatrixX );
+	result.texcoord3.z = dot3( normal, rpModelViewMatrixY );
+	result.texcoord4.z = dot3( normal, rpModelViewMatrixZ );	
+#endif
 
 #if defined( USE_GPU_SKINNING )
 	// for joint transformation of the tangent space, we use color and

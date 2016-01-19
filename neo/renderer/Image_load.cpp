@@ -66,9 +66,12 @@ int BitsForFormat( textureFormat_t format )
 			return 4;
 		case FMT_SHADOW_ARRAY:
 			return ( 32 * 6 );
-			
 		case FMT_RGBA16F:
 			return 64;
+		case FMT_RGBA32F:
+			return 128;
+		case FMT_R32F:
+			return 32;
 		// RB end
 		case FMT_DEPTH:
 			return 32;
@@ -112,6 +115,14 @@ ID_INLINE void idImage::DeriveOpts()
 				opts.format = FMT_RGBA16F;
 				break;
 				
+			case TD_RGBA32F:
+				opts.format = FMT_RGBA32F;
+				break;
+				
+			case TD_R32F:
+				opts.format = FMT_R32F;
+				break;
+				
 			case TD_DIFFUSE:
 				// TD_DIFFUSE gets only set to when its a diffuse texture for an interaction
 				opts.gammaMips = true;
@@ -139,7 +150,8 @@ ID_INLINE void idImage::DeriveOpts()
 				opts.gammaMips = true;
 				break;
 			case TD_LIGHT:
-				opts.format = FMT_RGB565;
+				// RB: don't destroy lighting
+				opts.format = FMT_RGB565; //FMT_RGBA8;
 				opts.gammaMips = true;
 				break;
 			case TD_LOOKUP_TABLE_MONO:
@@ -919,6 +931,8 @@ void idImage::Print() const
 			NAME_FORMAT( ETC1_RGB8_OES );
 			NAME_FORMAT( SHADOW_ARRAY );
 			NAME_FORMAT( RGBA16F );
+			NAME_FORMAT( RGBA32F );
+			NAME_FORMAT( R32F );
 			// RB end
 			NAME_FORMAT( DEPTH );
 			NAME_FORMAT( X16 );
@@ -938,6 +952,9 @@ void idImage::Print() const
 			break;
 		case TF_NEAREST:
 			common->Printf( "nrst " );
+			break;
+		case TF_NEAREST_MIPMAP:
+			common->Printf( "nmip " );
 			break;
 		default:
 			common->Printf( "<BAD FILTER:%i>", filter );

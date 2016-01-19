@@ -55,5 +55,5 @@ void main( VS_IN vertex, out VS_OUT result ) {
 	result.texcoord0 = toEye.xyz;
 	result.texcoord1 = vNormal.xyz;
 
-	result.color = rpColor;
+	result.color = sRGBAToLinearRGBA( rpColor );
 }

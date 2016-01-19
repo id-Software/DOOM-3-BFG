@@ -596,7 +596,7 @@ void RB_ExecuteBackEndCommands( const emptyCommand_t* cmds )
 				}
 				break;
 			case RC_SET_BUFFER:
-				RB_SetBuffer( cmds );
+				//RB_SetBuffer( cmds );
 				c_setBuffers++;
 				break;
 			case RC_COPY_RENDER:

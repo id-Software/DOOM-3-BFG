@@ -54,11 +54,11 @@ void main( PS_IN fragment, out PS_OUT result ) {
 	half4 lightFalloff =	idtex2Dproj( samp1, fragment.texcoord2 );
 	half4 lightProj	=		idtex2Dproj( samp2, fragment.texcoord3 );
 	half4 YCoCG =			tex2D( samp3, fragment.texcoord4.xy );
-	half4 specMap =			tex2D( samp4, fragment.texcoord5.xy );
+	half4 specMap =			sRGBAToLinearRGBA( tex2D( samp4, fragment.texcoord5.xy ) );
 
 	const half3 ambientLightVector = half3( 0.5f, 9.5f - 0.385f, 0.8925f );
 	half3 lightVector = normalize( ambientLightVector );
-	half3 diffuseMap = ConvertYCoCgToRGB( YCoCG );
+	half3 diffuseMap = sRGBToLinearRGB( ConvertYCoCgToRGB( YCoCG ) );
 
 	half3 localNormal;
 	// RB begin
@@ -89,8 +89,8 @@ void main( PS_IN fragment, out PS_OUT result ) {
 	// RB: added abs
 	half3 specularContribution = _half3( pow( abs( hDotN ), specularPower ) );
 
-	half3 diffuseColor = diffuseMap * rpDiffuseModifier.xyz;
-	half3 specularColor = specMap.xyz * specularContribution * rpSpecularModifier.xyz;
+	half3 diffuseColor = diffuseMap * sRGBToLinearRGB( rpDiffuseModifier.xyz );
+	half3 specularColor = specMap.xyz * specularContribution * sRGBToLinearRGB( rpSpecularModifier.xyz );
 	half3 lightColor = 1.0 * lightProj.xyz * lightFalloff.xyz;
 
 	result.color.xyz = ( diffuseColor + specularColor ) * lightColor * fragment.color.xyz;
