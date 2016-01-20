@@ -1,4 +1,4 @@
-This is a FFmpeg win32 shared build by Kyle Schwarz.
+This is a FFmpeg win64 shared build by Kyle Schwarz.
 
 Zeranoe's FFmpeg Builds Home Page: <http://ffmpeg.zeranoe.com/builds/>
 
