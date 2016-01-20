@@ -4,6 +4,7 @@ return
 	"global.inc",
 	"skinning.inc",
 	"SMAA.inc",
+	"BRDF.inc",
 	
 	-- shaders
 	"ambient_lighting.pixel",
