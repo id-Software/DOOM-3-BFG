@@ -3831,7 +3831,15 @@ static int RB_DrawShaderPasses( const drawSurf_t* const* const drawSurfs, const 
 						}
 						else
 						{
-							renderProgManager.BindShader_TextureVertexColor();
+							if( backEnd.viewDef->is2Dgui )
+							{
+								// RB: 2D fullscreen drawing like warp or damage blend effects
+								renderProgManager.BindShader_TextureVertexColor_sRGB();
+							}
+							else
+							{
+								renderProgManager.BindShader_TextureVertexColor();
+							}
 						}
 					}
 				}
@@ -5227,11 +5235,13 @@ void RB_DrawViewInternal( const viewDef_t* viewDef, const int stereoEye )
 	
 	//GL_CheckErrors();
 	
-	// Clear the depth buffer and clear the stencil to 128 for stencil shadows as well as gui masking
-	GL_Clear( false, true, true, STENCIL_SHADOW_TEST_VALUE, 0.0f, 0.0f, 0.0f, 0.0f, true );
-	
 	// RB begin
-	if( r_useHDR.GetBool() && !viewDef->is2Dgui )
+	bool useHDR = r_useHDR.GetBool() && !viewDef->is2Dgui;
+	
+	// Clear the depth buffer and clear the stencil to 128 for stencil shadows as well as gui masking
+	GL_Clear( false, true, true, STENCIL_SHADOW_TEST_VALUE, 0.0f, 0.0f, 0.0f, 0.0f, useHDR );
+	
+	if( useHDR )
 	{
 		globalFramebuffers.hdrFBO->Bind();
 	}
@@ -5402,7 +5412,7 @@ void RB_DrawViewInternal( const viewDef_t* viewDef, const int stereoEye )
 	RB_RenderDebugTools( drawSurfs, numDrawSurfs );
 	
 	// RB: convert back from HDR to LDR range
-	if( r_useHDR.GetBool() && !viewDef->is2Dgui )
+	if( useHDR )
 	{
 		/*
 		int x = backEnd.viewDef->viewport.x1;
