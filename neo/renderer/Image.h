@@ -385,6 +385,19 @@ public:
 								   
 	void		SetTexParameters();	// update aniso and trilinear
 	
+	// DG: added for imgui integration (to be used with ImGui::Image() etc)
+	void*		GetImGuiTextureID()
+	{
+		if( !IsLoaded() )
+		{
+			// load the image on demand here, which isn't our normal game operating mode
+			ActuallyLoadImage( true );
+		}
+		
+		return ( void* )( intptr_t )texnum;
+	}
+	// DG end
+	
 private:
 	friend class idImageManager;
 	

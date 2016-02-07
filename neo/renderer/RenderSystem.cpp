@@ -645,6 +645,9 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 	// After coming back from an autoswap, we won't have anything to render
 	//if( frameData && frameData->cmdHead->next != NULL )
 	{
+		// RB: FIXME move this elsewhere
+		ImGuiHook::Render();
+		
 		// wait for our fence to hit, which means the swap has actually happened
 		// We must do this before clearing any resources the GPU may be using
 		backend.GL_BlockingSwapBuffers();

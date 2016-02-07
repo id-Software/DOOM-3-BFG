@@ -347,6 +347,36 @@ void idCommonLocal::StartupVariable( const char* match )
 	}
 }
 
+// DG: add doom3 tools
+/*
+=================
+idCommonLocal::InitTool
+=================
+*/
+void idCommonLocal::InitTool( const toolFlag_t tool, const idDict* dict, idEntity* entity )
+{
+#if defined(USE_MFC_TOOLS)
+	if( tool & EDITOR_SOUND )
+	{
+		//SoundEditorInit( dict ); // TODO: implement this somewhere
+	}
+	else if( tool & EDITOR_PARTICLE )
+	{
+		//ParticleEditorInit( dict );
+	}
+	else if( tool & EDITOR_AF )
+	{
+		//AFEditorInit( dict );
+	}
+#else
+	if( tool & EDITOR_LIGHT )
+	{
+		ImGuiTools::LightEditorInit( dict, entity );
+	}
+#endif
+}
+// DG end
+
 /*
 ==================
 idCommonLocal::AddStartupCommands
@@ -517,6 +547,7 @@ CONSOLE_COMMAND( printMemInfo, "prints memory debugging data", NULL )
 			   
 	fileSystem->CloseFile( f );
 }
+
 
 /*
 ==================
@@ -1502,6 +1533,9 @@ void idCommonLocal::Shutdown()
 	delete loadGUI;
 	loadGUI = NULL;
 	
+	printf( "ImGuiHook::Destroy();\n" );
+	ImGuiHook::Destroy();
+	
 	printf( "delete renderWorld;\n" );
 	delete renderWorld;
 	renderWorld = NULL;
@@ -1853,6 +1887,11 @@ bool idCommonLocal::ProcessEvent( const sysEvent_t* event )
 	
 	// menus / etc
 	if( MenuEvent( event ) )
+	{
+		return true;
+	}
+	
+	if( ImGuiHook::InjectSysEvent( event ) )
 	{
 		return true;
 	}

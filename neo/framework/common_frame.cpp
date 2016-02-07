@@ -32,7 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 
 #include "Common_local.h"
-#include "../renderer/Image.h" // now I did it!
+#include "../renderer/Image.h"
 
 // RB begin
 #if defined(USE_DOOMCLASSIC)
@@ -478,6 +478,9 @@ void idCommonLocal::Frame()
 		WriteConfiguration();
 		
 		eventLoop->RunEventLoop();
+		
+		// DG: prepare new ImGui frame - I guess this is a good place, as all new events should be available?
+		ImGuiHook::NewFrame();
 		
 		// Activate the shell if it's been requested
 		if( showShellRequested && game )
