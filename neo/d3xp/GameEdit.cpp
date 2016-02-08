@@ -1185,7 +1185,18 @@ void idGameEdit::MapCopyDictToEntity( const char* name, const idDict* dict ) con
 				const idKeyValue* kv = dict->GetKeyVal( i );
 				const char* key = kv->GetKey();
 				const char* val = kv->GetValue();
-				mapent->epairs.Set( key, val );
+				
+				// DG: if val is "", delete key from the entity
+				//     => same behavior as EntityChangeSpawnArgs()
+				if( val[0] == '\0' )
+				{
+					mapent->epairs.Delete( key );
+				}
+				else
+				{
+					mapent->epairs.Set( key, val );
+				}
+				// DG end
 			}
 		}
 	}

@@ -95,7 +95,7 @@ bool HandleKeyEvent( const sysEvent_t& keyEvent )
 	assert( keyEvent.evType == SE_KEY );
 	
 	keyNum_t keyNum = static_cast<keyNum_t>( keyEvent.evValue );
-	bool pressed = keyEvent.evValue2;
+	bool pressed = keyEvent.evValue2 > 0;
 	
 	ImGuiIO& io = ImGui::GetIO();
 	
@@ -112,13 +112,12 @@ bool HandleKeyEvent( const sysEvent_t& keyEvent )
 	}
 	else if( keyNum >= K_MOUSE1 && keyNum <= K_MOUSE5 )
 	{
-		if( pressed )
-		{
-			// K_MOUSE* are contiguous, so they can be used as indexes into imgui's
-			// g_MousePressed[] - imgui even uses the same order (left, right, middle, X1, X2)
-			int buttonIdx = keyNum - K_MOUSE1;
-			g_MousePressed[buttonIdx] = true;
-		}
+		int buttonIdx = keyNum - K_MOUSE1;
+		
+		// K_MOUSE* are contiguous, so they can be used as indexes into imgui's
+		// g_MousePressed[] - imgui even uses the same order (left, right, middle, X1, X2)
+		g_MousePressed[buttonIdx] = pressed;
+		
 		return true; // let's pretend we also handle mouse up events
 	}
 	
@@ -292,10 +291,10 @@ bool CreateDeviceObjects()
 void RenderDrawLists( ImDrawData* draw_data )
 {
 	// Setup render state: alpha-blending enabled, no face culling, no depth testing, scissor enabled
-	static GLint last_program, last_texture, polygon_mode;
+	GLint last_program, last_texture, polygon_mode[2];
 	glGetIntegerv( GL_CURRENT_PROGRAM, &last_program );
 	glGetIntegerv( GL_TEXTURE_BINDING_2D, &last_texture );
-	glGetIntegerv( GL_POLYGON_MODE, &polygon_mode );
+	glGetIntegerv( GL_POLYGON_MODE, polygon_mode );
 	glEnable( GL_BLEND );
 	glBlendEquation( GL_FUNC_ADD );
 	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
@@ -349,7 +348,7 @@ void RenderDrawLists( ImDrawData* draw_data )
 	}
 	
 	// Restore modified state
-	glPolygonMode( GL_FRONT_AND_BACK, polygon_mode );
+	glPolygonMode( polygon_mode[0], polygon_mode[1] );
 	glBindVertexArray( 0 );
 	glBindBuffer( GL_ARRAY_BUFFER, 0 );
 	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
@@ -417,9 +416,15 @@ bool Init( int windowWidth, int windowHeight )
 
 void NotifyDisplaySizeChanged( int width, int height )
 {
-	if( IsInitialized() )
+	if( g_DisplaySize.x != width || g_DisplaySize.y != height )
 	{
 		g_DisplaySize = ImVec2( ( float )width, ( float )height );
+		
+		if( IsInitialized() )
+		{
+			Destroy();
+			Init( width, height );
+		}
 	}
 }
 
@@ -479,7 +484,10 @@ void NewFrame()
 {
 	if( IsInitialized() && ShowWindows() )
 	{
-		if( !g_FontTexture ) CreateDeviceObjects();
+		if( !g_FontTexture )
+		{
+			CreateDeviceObjects();
+		}
 		
 		ImGuiIO& io = ImGui::GetIO();
 		
@@ -500,7 +508,7 @@ void NewFrame()
 		for( int i = 0; i < 5; ++i )
 		{
 			io.MouseDown[i] = g_MousePressed[i] || usercmdGen->KeyState( K_MOUSE1 + i ) == 1;
-			g_MousePressed[i] = false;
+			//g_MousePressed[i] = false;
 		}
 		
 		io.MouseWheel = g_MouseWheel;
