@@ -101,6 +101,8 @@ int64 com_engineHz_numerator = 100LL * 1000LL;
 int64 com_engineHz_denominator = 100LL * 60LL;
 
 // RB begin
+int com_editors = 0;
+
 #if defined(_WIN32)
 HWND com_hwndMsg = NULL;
 #endif
