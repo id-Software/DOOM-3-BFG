@@ -147,7 +147,9 @@ __________________________________________________________
 5. Use the VC13 solution to compile what you need:
 	RBDOOM-3-BFG/build/RBDoom3BFG.sln
 	
-6. Download ffmpeg-20140405-git-ec8789a-win32-shared.7z from ffmpeg.zeranoe.com/builds/win32/shared
+6. Download ffmpeg-20151105-git-c878082-win32-shared.7z from ffmpeg.zeranoe.com/builds/win32/shared
+ 	or
+	ffmpeg-20151105-git-c878082-win64-shared.7z from ffmpeg.zeranoe.com/builds/win64/shared
 
 7. Extract the FFmpeg DLLs to your current build directory under RBDOOM-3-BFG/build/
 
@@ -169,6 +171,10 @@ _________________________
 		// TODO add ffmpeg libs for bink videos
 		
 		> yum install cmake SDL-devel openal-devel
+	
+	On ArchLinux 
+	
+		> sudo pacman -S sdl2 ffmpeg openal cmake
 	
 	On openSUSE (tested in 13.1)
 	
@@ -214,29 +220,22 @@ unfortunately requires Steam for Windows - Steam for Linux or OSX won't do, beca
 Even the DVD version of Doom 3 BFG only contains encrytped data that is decoded
 by Steam on install.
 
-Fortunately, you can run Steam in Wine to install Doom3 BFG and afterwards copy the 
-game data somewhere else to use it with native executables.
-Winetricks ( http://winetricks.org/ ) makes installing Windows Steam on Linux really easy.
+On Linux and OSX the easiest way to install is with SteamCMD: https://developer.valvesoftware.com/wiki/SteamCMD
+See the description on https://developer.valvesoftware.com/wiki/SteamCMD#Linux (OS X is directly below that) on how to install SteamCMD on your system. You won't have to create a new user.
 
-If using the Linux version of Steam, you can open the console (launch steam with -console or try steam://open/console in a web browser) and enter the following:
-	download_depot 208200 208202
-This will download the base game files to a path similar to (the path cannot be configured):
-	~/.steam/root/ubuntu12_32/steamapps/content/app_208200/depot_208202/
-Steam will not provide feedback on the download progress so you will have to watch the folder.
-You will also have to run download_depot for your language:
-	download_depot 208200 <language depot>
-	Where <language depot> is:
-		English: 208203
-		German: 208204
-		French: 208205
-		Italian: 208206
-		Spanish: 208207
-		Japanese: 208208
-Combining the contents of both depots will provide the necessary game files for the engine.
+Then you can download Doom 3 BFG with
+
+> ./steamcmd.sh +@sSteamCmdForcePlatformType windows +login <YOUR_STEAM_LOGIN_NAME> +force_install_dir ./doom3bfg/ +app_update 208200 validate +quit
+
+(replace <YOUR_STEAM_LOGIN_NAME> with your steam login name)
+When it's done you should have the normal windows installation of Doom 3 BFG in ./doom3bfg/ and the needed files in ./doom3bfg/base/
+That number is the "AppID" of Doom 3 BFG; if you wanna use this to get the data of other games you own, you can look up the AppID at https://steamdb.info/
+
+NOTE that we've previously recommended using download_depot in the Steam console to install the game data. That turned out to be unreliable and result in broken, unusable game data. So use SteamCMD instead, as described above.
 
 Anyway:
 
-1. Install Doom 3 BFG in Steam (Windows version), make sure it's getting 
+1. Install Doom 3 BFG in Steam (Windows version) or SteamCMD, make sure it's getting
    updated/patched.
 
 2. Create your own Doom 3 BFG directory, e.g. /path/to/Doom3BFG/
@@ -244,6 +243,7 @@ Anyway:
 3. Copy the game-data's base dir from Steam to that directory 
    (e.g. /path/to/Doom3BFG/), it's in
 	/your/path/to/Steam/steamapps/common/DOOM 3 BFG Edition/base/
+	or, if you used SteamCMD, in the path you used above.
 
 4. Copy your RBDoom3BFG executable that you created in 5) or 6) and the FFmpeg DLLs to your own 
    Doom 3 BFG directory (/path/to/Doom3BFG).
@@ -303,13 +303,35 @@ __________________________________________
 - Changed light interaction shaders to use Half-Lambert lighting like in Half-Life 2 to 
 	make the game less dark. https://developer.valvesoftware.com/wiki/Half_Lambert
 
+- True 64 bit HDR lighting with adaptive tone mapping and gamma-correct rendering in linear RGB space
+
+- Enhanced Subpixel Morphological Antialiasing
+	For more information see "Anti-Aliasing Methods in CryENGINE 3" and the docs at http://www.iryoku.com/smaa/
+
+- Filmic post process effects like Technicolor color grading and film grain
+
+- Additional ambient render pass to make the game less dark similar to the Quake 4 r_forceAmbient technique
 
 ___________________________________________________
 
 9) CONSOLE VARIABLES
 __________________________________________
 
-r_useShadowMapping 1 - Use soft shadow mapping instead of hard stencil shadows
+r_antiAliasing - Different Anti-Aliasing modes
+
+r_useShadowMapping [0 or 1] - Use soft shadow mapping instead of hard stencil shadows
+
+r_useHDR [0 or 1] - Use High Dynamic Range lighting
+
+r_hdrAutoExposure [0 or 1] - Adaptive tonemapping with HDR
+	This allows to have very bright or very dark scenes but the camera will adopt to it so the scene won't loose details
+	
+r_exposure [0 .. 1] - Default 0.5, Controls brightness and affects HDR exposure key
+	This is what you change in the video brightness options
+
+r_useSSAO [0 .. 1] - Use Screen Space Ambient Occlusion to darken the corners in the scene
+	
+r_useFilmicPostProcessEffects [0 or 1] - Apply several post process effects to mimic a filmic look"
 
 
 ___________________________________________________
@@ -317,9 +339,12 @@ ___________________________________________________
 10) KNOWN ISSUES
 __________________________________________
 
-Doom 3 wasn't designed to work with shadow maps so:
+- HDR does not work with old-school stencil shadows
+
+- MSAA anti-aliasing modes don't work with HDR: Use SMAA
 
 - Some lights cause shadow acne with shadow mapping
+
 - Some shadows might almost disappear due to the shadow filtering
 
 ___________________________________________________
@@ -346,6 +371,8 @@ If you want to report an issue with the game, you should make sure that your rep
     * If you are sending a console log, make sure to enable developer output:
 
               RBDoom3BFG.exe +set developer 1 +set logfile 2
+			  
+		You can find your qconsole.log on Windows in C:\Users\<your user name>\Saved Games\id Software\RBDOOM 3 BFG\base\
 
 NOTE: We cannot help you with OS-specific issues like configuring OpenGL correctly, configuring ALSA or configuring the network.
 	
@@ -360,11 +387,7 @@ mod directory, you should first specify your mod directory adding the following 
 
 "+set fs_game modDirectoryName"
 
-as well as force the content of your mod directory over the content of the game with the following command:
-
-"+set fs_resourceLoadPriority 0"
-
-so it would end up looking like: RBDoom3BFG +set fs_resourceLoadPriority 0 +set fs_game modDirectoryName
+so it would end up looking like: RBDoom3BFG +set fs_game modDirectoryName
 
 
 IMPORTANT: RBDOOM-3-BFG does not support old Doom 3 modiciations that include sourcecode modifications in binary form (.dll)

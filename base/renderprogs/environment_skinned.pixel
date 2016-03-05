@@ -52,5 +52,5 @@ void main( PS_IN fragment, out PS_OUT result ) {
 
 	float4 envMap = texCUBE( samp0, reflectionVector );
 
-	result.color = float4( envMap.xyz, 1.0f ) * fragment.color;
+	result.color = float4( sRGBToLinearRGB( envMap.xyz ), 1.0f ) * fragment.color;
 }

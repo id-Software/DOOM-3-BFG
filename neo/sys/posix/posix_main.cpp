@@ -835,18 +835,6 @@ void Sys_Sleep( int msec )
 #endif
 }
 
-char* Sys_GetClipboardData()
-{
-	Sys_Printf( "TODO: Sys_GetClipboardData\n" );
-	return NULL;
-}
-
-void Sys_SetClipboardData( const char* string )
-{
-	Sys_Printf( "TODO: Sys_SetClipboardData\n" );
-}
-
-
 // stub pretty much everywhere - heavy calling
 void Sys_FlushCacheMemory( void* base, int bytes )
 {

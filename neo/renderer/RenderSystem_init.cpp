@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2012-2014 Robert Beckebans
+Copyright (C) 2012-2015 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -51,7 +51,7 @@ idCVar r_debugContext( "r_debugContext", "0", CVAR_RENDERER, "Enable various lev
 idCVar r_glDriver( "r_glDriver", "", CVAR_RENDERER, "\"opengl32\", etc." );
 idCVar r_skipIntelWorkarounds( "r_skipIntelWorkarounds", "0", CVAR_RENDERER | CVAR_BOOL, "skip workarounds for Intel driver bugs" );
 // RB: disabled 16x MSAA
-idCVar r_multiSamples( "r_multiSamples", "0", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "number of antialiasing samples", 0, 8 );
+idCVar r_antiAliasing( "r_antiAliasing", "0", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, " 0 = None\n 1 = SMAA 1x\n 2 = MSAA 2x\n 3 = MSAA 4x\n 4 = MSAA 8x\n", 0, ANTI_ALIASING_MSAA_8X );
 // RB end
 idCVar r_vidMode( "r_vidMode", "0", CVAR_ARCHIVE | CVAR_RENDERER | CVAR_INTEGER, "fullscreen video mode number" );
 idCVar r_displayRefresh( "r_displayRefresh", "0", CVAR_RENDERER | CVAR_INTEGER | CVAR_NOCHEAT, "optional display refresh rate option for vid mode", 0.0f, 240.0f );
@@ -136,14 +136,20 @@ idCVar r_logFile( "r_logFile", "0", CVAR_RENDERER | CVAR_INTEGER, "number of fra
 idCVar r_clear( "r_clear", "2", CVAR_RENDERER, "force screen clear every frame, 1 = purple, 2 = black, 'r g b' = custom" );
 
 idCVar r_offsetFactor( "r_offsetfactor", "0", CVAR_RENDERER | CVAR_FLOAT, "polygon offset parameter" );
+// RB: offset factor was 0, and units were -600 which caused some very ugly polygon offsets on Android so I reverted the values to the same as in Q3A
+#if defined(__ANDROID__)
+idCVar r_offsetUnits( "r_offsetunits", "-2", CVAR_RENDERER | CVAR_FLOAT, "polygon offset parameter" );
+#else
 idCVar r_offsetUnits( "r_offsetunits", "-600", CVAR_RENDERER | CVAR_FLOAT, "polygon offset parameter" );
+#endif
+// RB end
 
 idCVar r_shadowPolygonOffset( "r_shadowPolygonOffset", "-1", CVAR_RENDERER | CVAR_FLOAT, "bias value added to depth test for stencil shadow drawing" );
 idCVar r_shadowPolygonFactor( "r_shadowPolygonFactor", "0", CVAR_RENDERER | CVAR_FLOAT, "scale value for stencil shadow drawing" );
 idCVar r_subviewOnly( "r_subviewOnly", "0", CVAR_RENDERER | CVAR_BOOL, "1 = don't render main view, allowing subviews to be debugged" );
 idCVar r_testGamma( "r_testGamma", "0", CVAR_RENDERER | CVAR_FLOAT, "if > 0 draw a grid pattern to test gamma levels", 0, 195 );
 idCVar r_testGammaBias( "r_testGammaBias", "0", CVAR_RENDERER | CVAR_FLOAT, "if > 0 draw a grid pattern to test gamma levels" );
-idCVar r_lightScale( "r_lightScale", "3", CVAR_ARCHIVE | CVAR_RENDERER | CVAR_FLOAT, "all light intensities are multiplied by this" );
+idCVar r_lightScale( "r_lightScale", "3", CVAR_ARCHIVE | CVAR_RENDERER | CVAR_FLOAT, "all light intensities are multiplied by this", 0, 100 );
 idCVar r_flareSize( "r_flareSize", "1", CVAR_RENDERER | CVAR_FLOAT, "scale the flare deforms from the material def" );
 
 idCVar r_skipPrelightShadows( "r_skipPrelightShadows", "0", CVAR_RENDERER | CVAR_BOOL, "skip the dmap generated static shadow volumes" );
@@ -237,6 +243,35 @@ idCVar r_shadowMapPolygonOffset( "r_shadowMapPolygonOffset", "3000", CVAR_RENDER
 idCVar r_shadowMapOccluderFacing( "r_shadowMapOccluderFacing", "2", CVAR_RENDERER | CVAR_INTEGER, "0 = front faces, 1 = back faces, 2 = twosided" );
 idCVar r_shadowMapRegularDepthBiasScale( "r_shadowMapRegularDepthBiasScale", "0.999", CVAR_RENDERER | CVAR_FLOAT, "shadowmap bias to fight shadow acne for point and spot lights" );
 idCVar r_shadowMapSunDepthBiasScale( "r_shadowMapSunDepthBiasScale", "0.999991", CVAR_RENDERER | CVAR_FLOAT, "shadowmap bias to fight shadow acne for cascaded shadow mapping with parallel lights" );
+
+// RB: HDR parameters
+idCVar r_useHDR( "r_useHDR", "1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_BOOL, "use high dynamic range rendering" );
+idCVar r_hdrAutoExposure( "r_hdrAutoExposure", "1", CVAR_RENDERER | CVAR_BOOL, "EXPENSIVE: enables adapative HDR tone mapping otherwise the exposure is derived by r_exposure" );
+idCVar r_hdrMinLuminance( "r_hdrMinLuminance", "0.005", CVAR_RENDERER | CVAR_FLOAT, "" );
+idCVar r_hdrMaxLuminance( "r_hdrMaxLuminance", "300", CVAR_RENDERER | CVAR_FLOAT, "" );
+idCVar r_hdrKey( "r_hdrKey", "0.015", CVAR_RENDERER | CVAR_FLOAT, "magic exposure key that works well with Doom 3 maps" );
+idCVar r_hdrContrastDynamicThreshold( "r_hdrContrastDynamicThreshold", "2", CVAR_RENDERER | CVAR_FLOAT, "if auto exposure is on, all pixels brighter than this cause HDR bloom glares" );
+idCVar r_hdrContrastStaticThreshold( "r_hdrContrastStaticThreshold", "3", CVAR_RENDERER | CVAR_FLOAT, "if auto exposure is off, all pixels brighter than this cause HDR bloom glares" );
+idCVar r_hdrContrastOffset( "r_hdrContrastOffset", "100", CVAR_RENDERER | CVAR_FLOAT, "" );
+idCVar r_hdrGlarePasses( "r_hdrGlarePasses", "8", CVAR_RENDERER | CVAR_INTEGER, "how many times the bloom blur is rendered offscreen. number should be even" );
+idCVar r_hdrDebug( "r_hdrDebug", "0", CVAR_RENDERER | CVAR_FLOAT, "show scene luminance as heat map" );
+
+idCVar r_ldrContrastThreshold( "r_ldrContrastThreshold", "1.1", CVAR_RENDERER | CVAR_FLOAT, "" );
+idCVar r_ldrContrastOffset( "r_ldrContrastOffset", "3", CVAR_RENDERER | CVAR_FLOAT, "" );
+
+idCVar r_useFilmicPostProcessEffects( "r_useFilmicPostProcessEffects", "1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_BOOL, "apply several post process effects to mimic a filmic look" );
+idCVar r_forceAmbient( "r_forceAmbient", "0.2", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_FLOAT, "render additional ambient pass to make the game less dark", 0.0f, 0.4f );
+
+idCVar r_useSSGI( "r_useSSGI", "0", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_BOOL, "use screen space global illumination and reflections" );
+idCVar r_ssgiDebug( "r_ssgiDebug", "0", CVAR_RENDERER | CVAR_INTEGER, "" );
+idCVar r_ssgiFiltering( "r_ssgiFiltering", "1", CVAR_RENDERER | CVAR_BOOL, "" );
+
+idCVar r_useSSAO( "r_useSSAO", "1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_BOOL, "use screen space ambient occlusion to darken corners" );
+idCVar r_ssaoDebug( "r_ssaoDebug", "0", CVAR_RENDERER | CVAR_INTEGER, "" );
+idCVar r_ssaoFiltering( "r_ssaoFiltering", "1", CVAR_RENDERER | CVAR_BOOL, "" );
+idCVar r_useHierarchicalDepthBuffer( "r_useHierarchicalDepthBuffer", "1", CVAR_RENDERER | CVAR_BOOL, "" );
+
+idCVar r_exposure( "r_exposure", "0.5", CVAR_ARCHIVE | CVAR_RENDERER | CVAR_FLOAT, "HDR exposure or LDR brightness [0.0 .. 1.0]", 0.0f, 1.0f );
 // RB end
 
 const char* fileExten[3] = { "tga", "png", "jpg" };
@@ -350,12 +385,19 @@ static void R_CheckPortableExtensions()
 	// RB: Mesa support
 	if( idStr::Icmpn( glConfig.renderer_string, "Mesa", 4 ) == 0 || idStr::Icmpn( glConfig.renderer_string, "X.org", 4 ) == 0 || idStr::Icmpn( glConfig.renderer_string, "Gallium", 7 ) == 0 )
 	{
-		glConfig.driverType = GLDRV_OPENGL_MESA;
+		if( glConfig.driverType == GLDRV_OPENGL32_CORE_PROFILE )
+		{
+			glConfig.driverType = GLDRV_OPENGL_MESA_CORE_PROFILE;
+		}
+		else
+		{
+			glConfig.driverType = GLDRV_OPENGL_MESA;
+		}
 	}
 	// RB end
 	
 	// GL_ARB_multitexture
-	if( glConfig.driverType == GLDRV_OPENGL32_COMPATIBILITY_PROFILE || glConfig.driverType == GLDRV_OPENGL32_CORE_PROFILE || glConfig.driverType == GLDRV_OPENGL_MESA )
+	if( glConfig.driverType != GLDRV_OPENGL3X )
 	{
 		glConfig.multitextureAvailable = true;
 	}
@@ -370,8 +412,14 @@ static void R_CheckPortableExtensions()
 	
 	// GL_ARB_texture_compression + GL_S3_s3tc
 	// DRI drivers may have GL_ARB_texture_compression but no GL_EXT_texture_compression_s3tc
-	glConfig.textureCompressionAvailable = GLEW_ARB_texture_compression != 0 && GLEW_EXT_texture_compression_s3tc != 0;
-	
+	if( glConfig.driverType == GLDRV_OPENGL_MESA_CORE_PROFILE )
+	{
+		glConfig.textureCompressionAvailable = true;
+	}
+	else
+	{
+		glConfig.textureCompressionAvailable = GLEW_ARB_texture_compression != 0 && GLEW_EXT_texture_compression_s3tc != 0;
+	}
 	// GL_EXT_texture_filter_anisotropic
 	glConfig.anisotropicFilterAvailable = GLEW_EXT_texture_filter_anisotropic != 0;
 	if( glConfig.anisotropicFilterAvailable )
@@ -406,13 +454,34 @@ static void R_CheckPortableExtensions()
 	r_useSRGB.SetModified();		// the CheckCvars() next frame will enable / disable it
 	
 	// GL_ARB_vertex_buffer_object
-	glConfig.vertexBufferObjectAvailable = GLEW_ARB_vertex_buffer_object != 0;
+	if( glConfig.driverType == GLDRV_OPENGL_MESA_CORE_PROFILE )
+	{
+		glConfig.vertexBufferObjectAvailable = true;
+	}
+	else
+	{
+		glConfig.vertexBufferObjectAvailable = GLEW_ARB_vertex_buffer_object != 0;
+	}
 	
 	// GL_ARB_map_buffer_range, map a section of a buffer object's data store
-	glConfig.mapBufferRangeAvailable = GLEW_ARB_map_buffer_range != 0;
+	//if( glConfig.driverType == GLDRV_OPENGL_MESA_CORE_PROFILE )
+	//{
+	//    glConfig.mapBufferRangeAvailable = true;
+	//}
+	//else
+	{
+		glConfig.mapBufferRangeAvailable = GLEW_ARB_map_buffer_range != 0;
+	}
 	
 	// GL_ARB_vertex_array_object
-	glConfig.vertexArrayObjectAvailable = GLEW_ARB_vertex_array_object != 0;
+	//if( glConfig.driverType == GLDRV_OPENGL_MESA_CORE_PROFILE )
+	//{
+	//    glConfig.vertexArrayObjectAvailable = true;
+	//}
+	//else
+	{
+		glConfig.vertexArrayObjectAvailable = GLEW_ARB_vertex_array_object != 0;
+	}
 	
 	// GL_ARB_draw_elements_base_vertex
 	glConfig.drawElementsBaseVertexAvailable = GLEW_ARB_draw_elements_base_vertex != 0;
@@ -470,18 +539,18 @@ static void R_CheckPortableExtensions()
 		common->Printf( "X..%s not found\n", "GL_GREMEDY_string_marker" );
 	}
 	
-	// GL_EXT_framebuffer_object
-	glConfig.framebufferObjectAvailable = GLEW_EXT_framebuffer_object != 0;
+	// GL_ARB_framebuffer_object
+	glConfig.framebufferObjectAvailable = GLEW_ARB_framebuffer_object != 0;
 	if( glConfig.framebufferObjectAvailable )
 	{
 		glGetIntegerv( GL_MAX_RENDERBUFFER_SIZE, &glConfig.maxRenderbufferSize );
 		glGetIntegerv( GL_MAX_COLOR_ATTACHMENTS, &glConfig.maxColorAttachments );
 		
-		common->Printf( "...using %s\n", "GL_EXT_framebuffer_object" );
+		common->Printf( "...using %s\n", "GL_ARB_framebuffer_object" );
 	}
 	else
 	{
-		common->Printf( "X..%s not found\n", "GL_EXT_framebuffer_object" );
+		common->Printf( "X..%s not found\n", "GL_ARB_framebuffer_object" );
 	}
 	
 	// GL_EXT_framebuffer_blit
@@ -492,7 +561,7 @@ static void R_CheckPortableExtensions()
 	}
 	else
 	{
-		common->Printf( "X..%s not found\n", "GL_EXT_framebuffer_object" );
+		common->Printf( "X..%s not found\n", "GL_EXT_framebuffer_blit" );
 	}
 	
 	// GL_ARB_debug_output
@@ -549,10 +618,10 @@ static void R_CheckPortableExtensions()
 		idLib::Error( "GL_ARB_draw_elements_base_vertex not available" );
 	}
 	// GL_ARB_vertex_program / GL_ARB_fragment_program
-	if( !glConfig.fragmentProgramAvailable )
-	{
-		idLib::Warning( "GL_ARB_fragment_program not available" );
-	}
+	//if( !glConfig.fragmentProgramAvailable )
+	//{
+	//	idLib::Warning( "GL_ARB_fragment_program not available" );
+	//}
 	// GLSL
 	if( !glConfig.glslAvailable )
 	{
@@ -674,7 +743,23 @@ void R_SetNewMode( const bool fullInit )
 			}
 		}
 		
-		parms.multiSamples = r_multiSamples.GetInteger();
+		switch( r_antiAliasing.GetInteger() )
+		{
+			case ANTI_ALIASING_MSAA_2X:
+				parms.multiSamples = 2;
+				break;
+			case ANTI_ALIASING_MSAA_4X:
+				parms.multiSamples = 4;
+				break;
+			case ANTI_ALIASING_MSAA_8X:
+				parms.multiSamples = 8;
+				break;
+				
+			default:
+				parms.multiSamples = 0;
+				break;
+		}
+		
 		if( i == 0 )
 		{
 			parms.stereo = ( stereoRender_enable.GetInteger() == STEREO3D_QUAD_BUFFER );
@@ -720,7 +805,7 @@ safeMode:
 		r_vidMode.SetInteger( 0 );
 		r_fullscreen.SetInteger( 1 );
 		r_displayRefresh.SetInteger( 0 );
-		r_multiSamples.SetInteger( 0 );
+		r_antiAliasing.SetInteger( 0 );
 	}
 }
 
@@ -793,10 +878,11 @@ void R_InitOpenGL()
 	
 	float glVersion = atof( glConfig.version_string );
 	float glslVersion = atof( glConfig.shading_language_string );
-	idLib::Printf( "OpenGL Version  : %3.1f\n", glVersion );
-	idLib::Printf( "OpenGL Vendor   : %s\n", glConfig.vendor_string );
-	idLib::Printf( "OpenGL Renderer : %s\n", glConfig.renderer_string );
-	idLib::Printf( "OpenGL GLSL     : %3.1f\n", glslVersion );
+	idLib::Printf( "OpenGL Version   : %3.1f\n", glVersion );
+	idLib::Printf( "OpenGL Vendor    : %s\n", glConfig.vendor_string );
+	idLib::Printf( "OpenGL Renderer  : %s\n", glConfig.renderer_string );
+	idLib::Printf( "OpenGL GLSL      : %3.1f\n", glslVersion );
+	idLib::Printf( "OpenGL Extensions: %s\n", glConfig.extensions_string );
 	
 	// OpenGL driver constants
 	GLint temp;
@@ -1895,7 +1981,6 @@ void R_TransformCubemap( const char* orgDirection[6], const char* orgDir, const 
 	idStr fullname;
 	int			i;
 	bool        errorInOriginalImages = false;
-	int			outSize;
 	byte*		buffers[6];
 	int			width = 0, height = 0;
 	
@@ -2649,13 +2734,13 @@ void idRenderSystemLocal::Init()
 	guiModel->Clear();
 	tr_guiModel = guiModel;	// for DeviceContext fast path
 	
+	globalImages->Init();
+	
 	// RB begin
 	Framebuffer::Init();
 	// RB end
 	
-	globalImages->Init();
-	
-	idCinematic::InitCinematic( );
+	idCinematic::InitCinematic();
 	
 	// build brightness translation tables
 	R_SetColorMappings();

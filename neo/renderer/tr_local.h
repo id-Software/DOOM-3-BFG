@@ -419,6 +419,15 @@ struct viewDef_t
 	
 	float				projectionMatrix[16];
 	idRenderMatrix		projectionRenderMatrix;	// tech5 version of projectionMatrix
+	
+	// RB begin
+	float				unprojectionToCameraMatrix[16];
+	idRenderMatrix		unprojectionToCameraRenderMatrix;
+	
+	float				unprojectionToWorldMatrix[16];
+	idRenderMatrix		unprojectionToWorldRenderMatrix;
+	// RB end
+	
 	viewEntity_t		worldSpace;
 	
 	idRenderWorldLocal* renderWorld;
@@ -736,6 +745,11 @@ struct backEndState_t
 	// RB begin
 	idRenderMatrix		shadowV[6];				// shadow depth view matrix
 	idRenderMatrix		shadowP[6];				// shadow depth projection matrix
+	
+	float				hdrAverageLuminance;
+	float				hdrMaxLuminance;
+	float				hdrTime;
+	float				hdrKey;
 	// RB end
 	
 	// surfaces used for code-based drawing
@@ -916,7 +930,7 @@ extern idCVar r_skipIntelWorkarounds;		// skip work arounds for Intel driver bug
 extern idCVar r_vidMode;					// video mode number
 extern idCVar r_displayRefresh;				// optional display refresh rate option for vid mode
 extern idCVar r_fullscreen;					// 0 = windowed, 1 = full screen
-extern idCVar r_multiSamples;				// number of antialiasing samples
+extern idCVar r_antiAliasing;				// anti aliasing mode, SMAA, TXAA, MSAA etc.
 
 extern idCVar r_znear;						// near Z clip plane
 
@@ -927,7 +941,7 @@ extern idCVar r_singleTriangle;				// only draw a single triangle per primitive
 extern idCVar r_logFile;					// number of frames to emit GL logs
 extern idCVar r_clear;						// force screen clear every frame
 extern idCVar r_subviewOnly;				// 1 = don't render main view, allowing subviews to be debugged
-extern idCVar r_lightScale;					// all light intensities are multiplied by this, which is normally 2
+extern idCVar r_lightScale;					// all light intensities are multiplied by this, which is normally 3
 extern idCVar r_flareSize;					// scale the flare deforms from the material def
 
 extern idCVar r_gamma;						// changes gamma tables
@@ -959,6 +973,8 @@ extern idCVar r_useShadowDepthBounds;		// use depth bounds test on individual sh
 // RB begin
 extern idCVar r_useShadowMapping;			// use shadow mapping instead of stencil shadows
 extern idCVar r_useHalfLambertLighting;		// use Half-Lambert lighting instead of classic Lambert
+extern idCVar r_useHDR;
+extern idCVar r_useSRGB;
 // RB end
 
 extern idCVar r_skipStaticInteractions;		// skip interactions created at level load
@@ -1072,6 +1088,33 @@ extern idCVar r_shadowMapPolygonOffset;
 extern idCVar r_shadowMapOccluderFacing;
 extern idCVar r_shadowMapRegularDepthBiasScale;
 extern idCVar r_shadowMapSunDepthBiasScale;
+
+extern idCVar r_hdrAutoExposure;
+extern idCVar r_hdrMinLuminance;
+extern idCVar r_hdrMaxLuminance;
+extern idCVar r_hdrKey;
+extern idCVar r_hdrContrastDynamicThreshold;
+extern idCVar r_hdrContrastStaticThreshold;
+extern idCVar r_hdrContrastOffset;
+extern idCVar r_hdrGlarePasses;
+extern idCVar r_hdrDebug;
+
+extern idCVar r_ldrContrastThreshold;
+extern idCVar r_ldrContrastOffset;
+
+extern idCVar r_useFilmicPostProcessEffects;
+extern idCVar r_forceAmbient;
+
+extern idCVar r_useSSGI;
+extern idCVar r_ssgiDebug;
+extern idCVar r_ssgiFiltering;
+
+extern idCVar r_useSSAO;
+extern idCVar r_ssaoDebug;
+extern idCVar r_ssaoFiltering;
+extern idCVar r_useHierarchicalDepthBuffer;
+
+extern idCVar r_exposure;
 // RB end
 
 /*

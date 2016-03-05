@@ -1731,6 +1731,36 @@ const char* Sys_GetKeyName( keyNum_t keynum )
 	return NULL;
 }
 
+char* Sys_GetClipboardData()
+{
+#if SDL_VERSION_ATLEAST(2, 0, 0)
+	char* txt = SDL_GetClipboardText();
+	
+	if( txt == NULL )
+	{
+		return NULL;
+	}
+	else if( txt[0] == '\0' )
+	{
+		SDL_free( txt );
+		return NULL;
+	}
+	
+	char* ret = Mem_CopyString( txt );
+	SDL_free( txt );
+	return ret;
+#else
+	return NULL; // SDL1.2 doesn't support clipboard
+#endif
+}
+
+void Sys_SetClipboardData( const char* string )
+{
+#if SDL_VERSION_ATLEAST(2, 0, 0)
+	SDL_SetClipboardText( string );
+#endif
+}
+
 
 //=====================================================================================
 //	Joystick Input Handling

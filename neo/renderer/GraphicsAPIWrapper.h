@@ -164,7 +164,10 @@ ID_INLINE void	GL_ViewportAndScissor( const idScreenRect& rect )
 	GL_Viewport( rect );
 	GL_Scissor( rect );
 }
-void			GL_Clear( bool color, bool depth, bool stencil, byte stencilValue, float r, float g, float b, float a );
+
+// RB: HDR parm
+void			GL_Clear( bool color, bool depth, bool stencil, byte stencilValue, float r, float g, float b, float a, bool clearHDR = true );
+// RB end
 void			GL_PolygonOffset( float scale, float bias );
 void			GL_DepthBoundsTest( const float zmin, const float zmax );
 //void			GL_Color( float* color );

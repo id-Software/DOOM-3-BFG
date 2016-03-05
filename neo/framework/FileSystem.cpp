@@ -307,7 +307,7 @@ idCVar  idFileSystemLocal::fs_game_base( "fs_game_base", "", CVAR_SYSTEM | CVAR_
 
 idCVar	fs_basepath( "fs_basepath", "", CVAR_SYSTEM | CVAR_INIT, "" );
 idCVar	fs_savepath( "fs_savepath", "", CVAR_SYSTEM | CVAR_INIT, "" );
-idCVar	fs_resourceLoadPriority( "fs_resourceLoadPriority", "1", CVAR_SYSTEM , "if 1, open requests will be honored from resource files first; if 0, the resource files are checked after normal search paths" );
+idCVar	fs_resourceLoadPriority( "fs_resourceLoadPriority", "0", CVAR_SYSTEM , "if 1, open requests will be honored from resource files first; if 0, the resource files are checked after normal search paths" );
 idCVar	fs_enableBackgroundCaching( "fs_enableBackgroundCaching", "1", CVAR_SYSTEM , "if 1 allow the 360 to precache game files in the background" );
 
 idFileSystemLocal	fileSystemLocal;

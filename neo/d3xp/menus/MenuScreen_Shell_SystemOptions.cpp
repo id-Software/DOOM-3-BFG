@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2014-2016 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -31,10 +32,11 @@ If you have questions concerning this license or the applicable additional terms
 
 const static int NUM_SYSTEM_OPTIONS_OPTIONS = 8;
 
-extern idCVar r_multiSamples;
+extern idCVar r_antiAliasing;
 extern idCVar r_motionBlur;
 extern idCVar r_swapInterval;
 extern idCVar s_volume_dB;
+extern idCVar r_exposure; // RB: use this to control HDR exposure or brightness in LDR mode
 extern idCVar r_lightScale;
 
 /*
@@ -389,10 +391,10 @@ idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::LoadData
 void idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::LoadData()
 {
 	originalFramerate = com_engineHz.GetInteger();
-	originalAntialias = r_multiSamples.GetInteger();
+	originalAntialias = r_antiAliasing.GetInteger();
 	originalMotionBlur = r_motionBlur.GetInteger();
 	originalVsync = r_swapInterval.GetInteger();
-	originalBrightness = r_lightScale.GetFloat();
+	originalBrightness = r_exposure.GetFloat();
 	originalVolume = s_volume_dB.GetFloat();
 	// RB begin
 	originalShadowMapping = r_useShadowMapping.GetInteger();
@@ -416,14 +418,21 @@ idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::IsRestartRequ
 */
 bool idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::IsRestartRequired() const
 {
-	if( originalAntialias != r_multiSamples.GetInteger() )
+	if( originalAntialias != r_antiAliasing.GetInteger() )
 	{
 		return true;
 	}
+	
 	if( originalFramerate != com_engineHz.GetInteger() )
 	{
 		return true;
 	}
+	
+	if( originalShadowMapping != r_useShadowMapping.GetInteger() )
+	{
+		return true;
+	}
+	
 	return false;
 }
 
@@ -500,10 +509,17 @@ void idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::AdjustFi
 		case SYSTEM_FIELD_ANTIALIASING:
 		{
 			// RB: disabled 16x MSAA
-			static const int numValues = 4;
-			static const int values[numValues] = { 0, 2, 4, 8 };
+			static const int numValues = 5;
+			static const int values[numValues] =
+			{
+				ANTI_ALIASING_NONE,
+				ANTI_ALIASING_SMAA_1X,
+				ANTI_ALIASING_MSAA_2X,
+				ANTI_ALIASING_MSAA_4X,
+				ANTI_ALIASING_MSAA_8X
+			};
 			// RB end
-			r_multiSamples.SetInteger( AdjustOption( r_multiSamples.GetInteger(), values, numValues, adjustAmount ) );
+			r_antiAliasing.SetInteger( AdjustOption( r_antiAliasing.GetInteger(), values, numValues, adjustAmount ) );
 			break;
 		}
 		case SYSTEM_FIELD_MOTIONBLUR:
@@ -532,9 +548,11 @@ void idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::AdjustFi
 		// RB end
 		case SYSTEM_FIELD_BRIGHTNESS:
 		{
-			const float percent = LinearAdjust( r_lightScale.GetFloat(), 2.0f, 4.0f, 0.0f, 100.0f );
+			const float percent = LinearAdjust( r_exposure.GetFloat(), 0.0f, 1.0f, 0.0f, 100.0f );
 			const float adjusted = percent + ( float )adjustAmount;
 			const float clamped = idMath::ClampFloat( 0.0f, 100.0f, adjusted );
+			
+			r_exposure.SetFloat( LinearAdjust( clamped, 0.0f, 100.0f, 0.0f, 1.0f ) );
 			r_lightScale.SetFloat( LinearAdjust( clamped, 0.0f, 100.0f, 2.0f, 4.0f ) );
 			break;
 		}
@@ -596,11 +614,26 @@ idSWFScriptVar idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings
 				return "#str_swf_disabled";
 			}
 		case SYSTEM_FIELD_ANTIALIASING:
-			if( r_multiSamples.GetInteger() == 0 )
+		{
+			if( r_antiAliasing.GetInteger() == 0 )
 			{
 				return "#str_swf_disabled";
 			}
-			return va( "%dx", r_multiSamples.GetInteger() );
+			
+			static const int numValues = 5;
+			static const char* values[numValues] =
+			{
+				"None",
+				"SMAA 1X",
+				"MSAA 2X",
+				"MSAA 4X",
+				"MSAA 8X"
+			};
+			
+			compile_time_assert( numValues == ( ANTI_ALIASING_MSAA_8X + 1 ) );
+			
+			return values[ r_antiAliasing.GetInteger() ];
+		}
 		case SYSTEM_FIELD_MOTIONBLUR:
 			if( r_motionBlur.GetInteger() == 0 )
 			{
@@ -621,7 +654,7 @@ idSWFScriptVar idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings
 		//	return LinearAdjust( r_lodBias.GetFloat(), -1.0f, 1.0f, 0.0f, 100.0f );
 		// RB end
 		case SYSTEM_FIELD_BRIGHTNESS:
-			return LinearAdjust( r_lightScale.GetFloat(), 2.0f, 4.0f, 0.0f, 100.0f );
+			return LinearAdjust( r_exposure.GetFloat(), 0.0f, 1.0f, 0.0f, 100.0f );
 		case SYSTEM_FIELD_VOLUME:
 		{
 			return 100.0f * Square( 1.0f - ( s_volume_dB.GetFloat() / DB_SILENCE ) );
@@ -641,7 +674,7 @@ bool idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::IsDataCh
 	{
 		return true;
 	}
-	if( originalAntialias != r_multiSamples.GetInteger() )
+	if( originalAntialias != r_antiAliasing.GetInteger() )
 	{
 		return true;
 	}
@@ -653,7 +686,7 @@ bool idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::IsDataCh
 	{
 		return true;
 	}
-	if( originalBrightness != r_lightScale.GetFloat() )
+	if( originalBrightness != r_exposure.GetFloat() )
 	{
 		return true;
 	}

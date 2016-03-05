@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013-2014 Robert Beckebans
+Copyright (C) 2013-2016 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -211,6 +211,26 @@ public:
 	{
 		BindShader_Builtin( BUILTIN_VERTEX_COLOR );
 	}
+	
+	void	BindShader_AmbientLighting()
+	{
+		BindShader_Builtin( BUILTIN_AMBIENT_LIGHTING );
+	}
+	
+	void	BindShader_AmbientLightingSkinned()
+	{
+		BindShader_Builtin( BUILTIN_AMBIENT_LIGHTING_SKINNED );
+	}
+	
+	void	BindShader_SmallGeometryBuffer()
+	{
+		BindShader_Builtin( BUILTIN_SMALL_GEOMETRY_BUFFER );
+	}
+	
+	void	BindShader_SmallGeometryBufferSkinned()
+	{
+		BindShader_Builtin( BUILTIN_SMALL_GEOMETRY_BUFFER_SKINNED );
+	}
 	// RB end
 	
 	void	BindShader_Texture( )
@@ -223,6 +243,11 @@ public:
 		BindShader_Builtin( BUILTIN_TEXTURE_VERTEXCOLOR );
 	};
 	
+	void	BindShader_TextureVertexColor_sRGB()
+	{
+		BindShader_Builtin( BUILTIN_TEXTURE_VERTEXCOLOR_SRGB );
+	};
+	
 	void	BindShader_TextureVertexColorSkinned()
 	{
 		BindShader_Builtin( BUILTIN_TEXTURE_VERTEXCOLOR_SKINNED );
@@ -232,6 +257,7 @@ public:
 	{
 		BindShader_Builtin( BUILTIN_TEXTURE_TEXGEN_VERTEXCOLOR );
 	};
+	
 	void	BindShader_Interaction()
 	{
 		BindShader_Builtin( BUILTIN_INTERACTION );
@@ -288,6 +314,7 @@ public:
 	{
 		BindShader_Builtin( BUILTIN_SIMPLESHADE );
 	}
+	
 	void	BindShader_Environment()
 	{
 		BindShader_Builtin( BUILTIN_ENVIRONMENT );
@@ -350,6 +377,7 @@ public:
 	{
 		BindShader_Builtin( BUILTIN_BLENDLIGHT );
 	}
+	
 	void	BindShader_Fog()
 	{
 		BindShader_Builtin( BUILTIN_FOG );
@@ -390,6 +418,91 @@ public:
 		BindShader_Builtin( BUILTIN_POSTPROCESS );
 	}
 	
+	void	BindShader_Screen()
+	{
+		BindShader_Builtin( BUILTIN_SCREEN );
+	}
+	
+	void	BindShader_Tonemap()
+	{
+		BindShader_Builtin( BUILTIN_TONEMAP );
+	}
+	
+	void	BindShader_Brightpass()
+	{
+		BindShader_Builtin( BUILTIN_BRIGHTPASS );
+	}
+	
+	void	BindShader_HDRGlareChromatic()
+	{
+		BindShader_Builtin( BUILTIN_HDR_GLARE_CHROMATIC );
+	}
+	
+	void	BindShader_HDRDebug()
+	{
+		BindShader_Builtin( BUILTIN_HDR_DEBUG );
+	}
+	
+	void	BindShader_SMAA_EdgeDetection()
+	{
+		BindShader_Builtin( BUILTIN_SMAA_EDGE_DETECTION );
+	}
+	
+	void	BindShader_SMAA_BlendingWeightCalculation()
+	{
+		BindShader_Builtin( BUILTIN_SMAA_BLENDING_WEIGHT_CALCULATION );
+	}
+	
+	void	BindShader_SMAA_NeighborhoodBlending()
+	{
+		BindShader_Builtin( BUILTIN_SMAA_NEIGHBORHOOD_BLENDING );
+	}
+	
+	void	BindShader_AmbientOcclusion()
+	{
+		BindShader_Builtin( BUILTIN_AMBIENT_OCCLUSION );
+	}
+	
+	void	BindShader_AmbientOcclusionAndOutput()
+	{
+		BindShader_Builtin( BUILTIN_AMBIENT_OCCLUSION_AND_OUTPUT );
+	}
+	
+	void	BindShader_AmbientOcclusionBlur()
+	{
+		BindShader_Builtin( BUILTIN_AMBIENT_OCCLUSION_BLUR );
+	}
+	
+	void	BindShader_AmbientOcclusionBlurAndOutput()
+	{
+		BindShader_Builtin( BUILTIN_AMBIENT_OCCLUSION_BLUR_AND_OUTPUT );
+	}
+	
+	void	BindShader_AmbientOcclusionMinify()
+	{
+		BindShader_Builtin( BUILTIN_AMBIENT_OCCLUSION_MINIFY );
+	}
+	
+	void	BindShader_AmbientOcclusionReconstructCSZ()
+	{
+		BindShader_Builtin( BUILTIN_AMBIENT_OCCLUSION_RECONSTRUCT_CSZ );
+	}
+	
+	void	BindShader_DeepGBufferRadiosity()
+	{
+		BindShader_Builtin( BUILTIN_DEEP_GBUFFER_RADIOSITY_SSGI );
+	}
+	
+	void	BindShader_DeepGBufferRadiosityBlur()
+	{
+		BindShader_Builtin( BUILTIN_DEEP_GBUFFER_RADIOSITY_BLUR );
+	}
+	
+	void	BindShader_DeepGBufferRadiosityBlurAndOutput()
+	{
+		BindShader_Builtin( BUILTIN_DEEP_GBUFFER_RADIOSITY_BLUR_AND_OUTPUT );
+	}
+	
 #if 0
 	void	BindShader_ZCullReconstruct()
 	{
@@ -406,6 +519,7 @@ public:
 	{
 		BindShader_Builtin( BUILTIN_BINK_GUI );
 	}
+	
 	void	BindShader_MotionBlur()
 	{
 		BindShader_Builtin( BUILTIN_MOTION_BLUR );
@@ -461,10 +575,15 @@ protected:
 		// RB begin
 		BUILTIN_COLOR_SKINNED,
 		BUILTIN_VERTEX_COLOR,
+		BUILTIN_AMBIENT_LIGHTING,
+		BUILTIN_AMBIENT_LIGHTING_SKINNED,
+		BUILTIN_SMALL_GEOMETRY_BUFFER,
+		BUILTIN_SMALL_GEOMETRY_BUFFER_SKINNED,
 		// RB end
 		BUILTIN_SIMPLESHADE,
 		BUILTIN_TEXTURED,
 		BUILTIN_TEXTURE_VERTEXCOLOR,
+		BUILTIN_TEXTURE_VERTEXCOLOR_SRGB,
 		BUILTIN_TEXTURE_VERTEXCOLOR_SKINNED,
 		BUILTIN_TEXTURE_TEXGEN_VERTEXCOLOR,
 		BUILTIN_INTERACTION,
@@ -497,6 +616,28 @@ protected:
 		BUILTIN_SKYBOX,
 		BUILTIN_WOBBLESKY,
 		BUILTIN_POSTPROCESS,
+		// RB begin
+		BUILTIN_SCREEN,
+		BUILTIN_TONEMAP,
+		BUILTIN_BRIGHTPASS,
+		BUILTIN_HDR_GLARE_CHROMATIC,
+		BUILTIN_HDR_DEBUG,
+		
+		BUILTIN_SMAA_EDGE_DETECTION,
+		BUILTIN_SMAA_BLENDING_WEIGHT_CALCULATION,
+		BUILTIN_SMAA_NEIGHBORHOOD_BLENDING,
+		
+		BUILTIN_AMBIENT_OCCLUSION,
+		BUILTIN_AMBIENT_OCCLUSION_AND_OUTPUT,
+		BUILTIN_AMBIENT_OCCLUSION_BLUR,
+		BUILTIN_AMBIENT_OCCLUSION_BLUR_AND_OUTPUT,
+		BUILTIN_AMBIENT_OCCLUSION_MINIFY,
+		BUILTIN_AMBIENT_OCCLUSION_RECONSTRUCT_CSZ,
+		
+		BUILTIN_DEEP_GBUFFER_RADIOSITY_SSGI,
+		BUILTIN_DEEP_GBUFFER_RADIOSITY_BLUR,
+		BUILTIN_DEEP_GBUFFER_RADIOSITY_BLUR_AND_OUTPUT,
+		// RB end
 		BUILTIN_STEREO_DEGHOST,
 		BUILTIN_STEREO_WARP,
 		BUILTIN_ZCULL_RECONSTRUCT,
@@ -520,6 +661,9 @@ protected:
 		USE_GPU_SKINNING,
 		LIGHT_POINT,
 		LIGHT_PARALLEL,
+		BRIGHTPASS,
+		HDR_DEBUG,
+		USE_SRGB,
 		
 		MAX_SHADER_MACRO_NAMES,
 	};
@@ -572,14 +716,14 @@ protected:
 		idList<glslUniformLocation_t> uniformLocations;
 	};
 	int	currentRenderProgram;
-	idList<glslProgram_t> glslPrograms;
+	idList<glslProgram_t, TAG_RENDER> glslPrograms;
 	idStaticList < idVec4, RENDERPARM_USER + MAX_GLSL_USER_PARMS > glslUniforms;
 	
 	
 	int				currentVertexShader;
 	int				currentFragmentShader;
-	idList<vertexShader_t > vertexShaders;
-	idList<fragmentShader_t > fragmentShaders;
+	idList<vertexShader_t, TAG_RENDER> vertexShaders;
+	idList<fragmentShader_t, TAG_RENDER> fragmentShaders;
 };
 
 extern idRenderProgManager renderProgManager;

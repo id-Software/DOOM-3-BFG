@@ -587,6 +587,7 @@ static void RB_ShowLightCount()
 	}
 }
 
+#if 0
 /*
 ===============
 RB_SetWeaponDepthHack
@@ -669,6 +670,7 @@ static void RB_LoadMatrixWithBypass( const float m[16] )
 	glLoadMatrixf( m );
 }
 
+#endif
 /*
 ====================
 RB_RenderDrawSurfListWithFunction
@@ -690,6 +692,7 @@ static void RB_RenderDrawSurfListWithFunction( drawSurf_t** drawSurfs, int numDr
 		{
 			continue;
 		}
+		
 		assert( drawSurf->space != NULL );
 		
 		// RB begin

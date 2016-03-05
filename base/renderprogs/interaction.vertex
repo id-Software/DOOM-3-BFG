@@ -174,13 +174,10 @@ void main( VS_IN vertex, out VS_OUT result ) {
 	//# calculate normalized vector to viewer in R1
 	float4 toView = normalize( rpLocalViewOrigin - modelPosition );
 	
-	//# add together to become the half angle vector in object space (non-normalized)
-	float4 halfAngleVector = toLight + toView;
-
 	//# put into texture space
-	result.texcoord6.x = dot3( tangent, halfAngleVector );
-	result.texcoord6.y = dot3( bitangent, halfAngleVector );
-	result.texcoord6.z = dot3( normal, halfAngleVector );
+	result.texcoord6.x = dot3( tangent, toView );
+	result.texcoord6.y = dot3( bitangent, toView );
+	result.texcoord6.z = dot3( normal, toView );
 	result.texcoord6.w = 1.0f;
 
 #if defined( USE_GPU_SKINNING )

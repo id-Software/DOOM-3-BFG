@@ -79,7 +79,7 @@
 
 /**
  * @}
- * @defgroup channel_mask_c Audio channel convenience macros
+ * @defgroup channel_mask_c Audio channel layouts
  * @{
  * */
 #define AV_CH_LAYOUT_MONO              (AV_CH_FRONT_CENTER)
@@ -108,6 +108,7 @@
 #define AV_CH_LAYOUT_7POINT1_WIDE      (AV_CH_LAYOUT_5POINT1|AV_CH_FRONT_LEFT_OF_CENTER|AV_CH_FRONT_RIGHT_OF_CENTER)
 #define AV_CH_LAYOUT_7POINT1_WIDE_BACK (AV_CH_LAYOUT_5POINT1_BACK|AV_CH_FRONT_LEFT_OF_CENTER|AV_CH_FRONT_RIGHT_OF_CENTER)
 #define AV_CH_LAYOUT_OCTAGONAL         (AV_CH_LAYOUT_5POINT0|AV_CH_BACK_LEFT|AV_CH_BACK_CENTER|AV_CH_BACK_RIGHT)
+#define AV_CH_LAYOUT_HEXADECAGONAL     (AV_CH_LAYOUT_OCTAGONAL|AV_CH_WIDE_LEFT|AV_CH_WIDE_RIGHT|AV_CH_TOP_BACK_LEFT|AV_CH_TOP_BACK_RIGHT|AV_CH_TOP_BACK_CENTER|AV_CH_TOP_FRONT_CENTER|AV_CH_TOP_FRONT_LEFT|AV_CH_TOP_FRONT_RIGHT)
 #define AV_CH_LAYOUT_STEREO_DOWNMIX    (AV_CH_STEREO_LEFT|AV_CH_STEREO_RIGHT)
 
 enum AVMatrixEncoding {
@@ -120,10 +121,6 @@ enum AVMatrixEncoding {
     AV_MATRIX_ENCODING_DOLBYHEADPHONE,
     AV_MATRIX_ENCODING_NB
 };
-
-/**
- * @}
- */
 
 /**
  * Return a channel layout id that matches name, or 0 if no match is found.
@@ -219,6 +216,7 @@ int av_get_standard_channel_layout(unsigned index, uint64_t *layout,
                                    const char **name);
 
 /**
+ * @}
  * @}
  */
 

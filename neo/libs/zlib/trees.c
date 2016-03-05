@@ -35,6 +35,9 @@
 /* #define GEN_TREES_H */
 
 #include "deflate.h"
+
+// RB: avoid problems with SourceAnnotations.h
+#define VERIFY_FORMAT_STRING
 #include "idlib/sys/sys_defines.h"
 
 #ifdef DEBUG

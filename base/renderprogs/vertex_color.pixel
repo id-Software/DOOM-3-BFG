@@ -43,5 +43,5 @@ struct PS_OUT
 
 void main( PS_IN fragment, out PS_OUT result )
 {
-	result.color = fragment.color;
+	result.color = sRGBAToLinearRGBA( fragment.color );
 }

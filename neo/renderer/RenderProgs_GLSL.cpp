@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013-2014 Robert Beckebans
+Copyright (C) 2013-2015 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -364,6 +364,9 @@ const char* idRenderProgManager::GLSLMacroNames[MAX_SHADER_MACRO_NAMES] =
 	"USE_GPU_SKINNING",
 	"LIGHT_POINT",
 	"LIGHT_PARALLEL",
+	"BRIGHTPASS",
+	"HDR_DEBUG",
+	"USE_SRGB"
 };
 // RB end
 
@@ -523,6 +526,10 @@ idStr StripDeadCode( const idStr& in, const char* name, const idStrList& compile
 	//idLexer src( LEXFL_NOFATALERRORS );
 	idParser_EmbeddedGLSL src( LEXFL_NOFATALERRORS );
 	src.LoadMemory( in.c_str(), in.Length(), name );
+	
+	idStrStatic<256> sourceName = "filename ";
+	sourceName += name;
+	src.AddDefine( sourceName );
 	src.AddDefine( "PC" );
 	
 	for( int i = 0; i < compileMacros.Num(); i++ )
@@ -552,6 +559,16 @@ idStr StripDeadCode( const idStr& in, const char* name, const idStrList& compile
 	{
 		src.AddDefine( "USE_HALF_LAMBERT" );
 	}
+	
+	if( r_useHDR.GetBool() )
+	{
+		src.AddDefine( "USE_LINEAR_RGB" );
+	}
+	
+	// SMAA configuration
+	src.AddDefine( "SMAA_GLSL_3" );
+	src.AddDefine( "SMAA_RT_METRICS rpScreenCorrectionFactor " );
+	src.AddDefine( "SMAA_PRESET_HIGH" );
 	
 	idList< idCGBlock > blocks;
 	
@@ -971,6 +988,13 @@ const char* fragmentInsert_GLSL_ES_3_00 =
 	"#version 300 es\n"
 	"#define PC\n"
 	"precision mediump float;\n"
+	"precision lowp sampler2D;\n"
+	"precision lowp sampler2DShadow;\n"
+	"precision lowp sampler2DArray;\n"
+	"precision lowp sampler2DArrayShadow;\n"
+	"precision lowp samplerCube;\n"
+	"precision lowp samplerCubeShadow;\n"
+	"precision lowp sampler3D;\n"
 	"\n"
 	"void clip( float v ) { if ( v < 0.0 ) { discard; } }\n"
 	"void clip( vec2 v ) { if ( any( lessThan( v, vec2( 0.0 ) ) ) ) { discard; } }\n"
@@ -1135,13 +1159,13 @@ void ParseInOutStruct( idLexer& src, int attribType, int attribIgnoreType, idLis
 		}
 		
 		// RB: ignore reserved builtin gl_ uniforms
-		switch( glConfig.driverType )
+		//switch( glConfig.driverType )
 		{
 			//case GLDRV_OPENGL32_CORE_PROFILE:
 			//case GLDRV_OPENGL_ES2:
 			//case GLDRV_OPENGL_ES3:
 			//case GLDRV_OPENGL_MESA:
-			default:
+			//default:
 			{
 				for( int i = 0; attribsPC[i].semantic != NULL; i++ )
 				{
@@ -1155,7 +1179,7 @@ void ParseInOutStruct( idLexer& src, int attribType, int attribIgnoreType, idLis
 					}
 				}
 				
-				break;
+				//break;
 			}
 		}
 		// RB end
@@ -1564,6 +1588,9 @@ idStr ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, i
 	
 	idStr out;
 	
+	// RB: tell shader debuggers what shader we look at
+	idStr filenameHint = "// filename " + idStr( name ) + "\n";
+	
 	// RB: changed to allow multiple versions of GLSL
 	if( isVertexProgram )
 	{
@@ -1573,6 +1600,7 @@ idStr ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, i
 			case GLDRV_OPENGL_ES3:
 			{
 				out.ReAllocate( idStr::Length( vertexInsert_GLSL_ES_1_0 ) + in.Length() * 2, false );
+				out += filenameHint;
 				out += vertexInsert_GLSL_ES_1_0;
 				break;
 			}
@@ -1580,6 +1608,7 @@ idStr ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, i
 			case GLDRV_OPENGL_MESA:
 			{
 				out.ReAllocate( idStr::Length( vertexInsert_GLSL_ES_3_00 ) + in.Length() * 2, false );
+				out += filenameHint;
 				out += vertexInsert_GLSL_ES_3_00;
 				break;
 			}
@@ -1587,6 +1616,7 @@ idStr ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, i
 			default:
 			{
 				out.ReAllocate( idStr::Length( vertexInsert_GLSL_1_50 ) + in.Length() * 2, false );
+				out += filenameHint;
 				out += vertexInsert_GLSL_1_50;
 				break;
 			}
@@ -1602,6 +1632,7 @@ idStr ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, i
 			case GLDRV_OPENGL_ES3:
 			{
 				out.ReAllocate( idStr::Length( fragmentInsert_GLSL_ES_1_0 ) + in.Length() * 2, false );
+				out += filenameHint;
 				out += fragmentInsert_GLSL_ES_1_0;
 				break;
 			}
@@ -1609,6 +1640,7 @@ idStr ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, i
 			case GLDRV_OPENGL_MESA:
 			{
 				out.ReAllocate( idStr::Length( fragmentInsert_GLSL_ES_3_00 ) + in.Length() * 2, false );
+				out += filenameHint;
 				out += fragmentInsert_GLSL_ES_3_00;
 				break;
 			}
@@ -1616,6 +1648,7 @@ idStr ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, i
 			default:
 			{
 				out.ReAllocate( idStr::Length( fragmentInsert_GLSL_1_50 ) + in.Length() * 2, false );
+				out += filenameHint;
 				out += fragmentInsert_GLSL_1_50;
 				break;
 			}

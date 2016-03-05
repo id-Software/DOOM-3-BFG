@@ -159,6 +159,7 @@ bool idPlayerProfile::Serialize( idSerializer& ser )
 		cvarDict.Delete( "r_fullscreen" );
 		cvarDict.Delete( "r_vidMode" );
 		cvarDict.Delete( "r_multisamples" );
+		cvarDict.Delete( "r_antiAliasing" );
 		cvarDict.Delete( "com_engineHz" );
 		cvarSystem->SetCVarsFromDict( cvarDict );
 		common->StartupVariable( NULL );

@@ -43,5 +43,5 @@ struct PS_OUT {
 void main( PS_IN fragment, out PS_OUT result ) {
 	float4 color = tex2D( samp0, fragment.texcoord0 ) * fragment.color;
 	clip( color.a - rpAlphaTest.x );
-	result.color = color;
+	result.color = sRGBAToLinearRGBA( color );
 }

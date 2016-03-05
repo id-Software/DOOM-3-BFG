@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013-2014 Robert Beckebans
+Copyright (C) 2013-2015 Robert Beckebans
 Copyright (C) 2014 Carl Kenner
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
@@ -437,10 +437,20 @@ static void RB_BindVariableStageImage( const textureStage_t* texture, const floa
 		}
 		else if( cin.image != NULL )
 		{
-			//Carl: A single RGB image works better with the FFMPEG BINK codec.
+			// Carl: A single RGB image works better with the FFMPEG BINK codec.
 			GL_SelectTexture( 0 );
 			cin.image->Bind();
-			renderProgManager.BindShader_TextureVertexColor();
+			
+			/*
+			if( backEnd.viewDef->is2Dgui )
+			{
+				renderProgManager.BindShader_TextureVertexColor_sRGB();
+			}
+			else
+			{
+				renderProgManager.BindShader_TextureVertexColor();
+			}
+			*/
 		}
 		else
 		{
@@ -1340,6 +1350,8 @@ static void RB_RenderInteractions( const drawSurf_t* surfList, const viewLight_t
 	}
 	// RB end
 	
+	float lightScale = r_useHDR.GetBool() ? 3.0f : r_lightScale.GetFloat();
+	
 	for( int lightStageNum = 0; lightStageNum < lightShader->GetNumStages(); lightStageNum++ )
 	{
 		const shaderStage_t*	lightStage = lightShader->GetStage( lightStageNum );
@@ -1350,7 +1362,6 @@ static void RB_RenderInteractions( const drawSurf_t* surfList, const viewLight_t
 			continue;
 		}
 		
-		const float lightScale = r_lightScale.GetFloat();
 		const idVec4 lightColor(
 			lightScale * lightRegs[ lightStage->color.registers[0] ],
 			lightScale * lightRegs[ lightStage->color.registers[1] ],
@@ -1736,6 +1747,432 @@ static void RB_RenderInteractions( const drawSurf_t* surfList, const viewLight_t
 	
 	renderProgManager.Unbind();
 }
+
+// RB begin
+
+/*
+=========================================================================================
+
+AMBIENT PASS RENDERING
+
+=========================================================================================
+*/
+
+/*
+==================
+RB_AmbientPass
+==================
+*/
+static void RB_AmbientPass( const drawSurf_t* const* drawSurfs, int numDrawSurfs, bool fillGbuffer )
+{
+	if( fillGbuffer )
+	{
+		if( !r_useSSGI.GetBool() && !r_useSSAO.GetBool() )
+		{
+			return;
+		}
+	}
+	else
+	{
+		if( r_forceAmbient.GetFloat() <= 0 || r_skipAmbient.GetBool() )
+		{
+			return;
+		}
+	}
+	
+	if( numDrawSurfs == 0 )
+	{
+		return;
+	}
+	
+	// if we are just doing 2D rendering, no need to fill the depth buffer
+	if( backEnd.viewDef->viewEntitys == NULL )
+	{
+		return;
+	}
+	
+	const bool hdrIsActive = ( r_useHDR.GetBool() && globalFramebuffers.hdrFBO != NULL && globalFramebuffers.hdrFBO->IsBound() );
+	
+	/*
+	if( fillGbuffer )
+	{
+		globalFramebuffers.geometryBufferFBO->Bind();
+	
+		glClearColor( 0, 0, 0, 0 );
+		glClear( GL_COLOR_BUFFER_BIT );
+	}
+	*/
+	
+	renderLog.OpenMainBlock( MRB_AMBIENT_PASS );
+	renderLog.OpenBlock( "RB_AmbientPass" );
+	
+	// RB: not needed
+	// GL_StartDepthPass( backEnd.viewDef->scissor );
+	
+	// force MVP change on first surface
+	backEnd.currentSpace = NULL;
+	
+	// draw all the subview surfaces, which will already be at the start of the sorted list,
+	// with the general purpose path
+	//GL_State( GLS_DEFAULT );
+	
+	//if( fillGbuffer )
+	{
+		GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_EQUAL );
+	}
+	//else
+	//{
+	//	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHMASK | GLS_DEPTHFUNC_EQUAL );
+	//}
+	
+	GL_Color( colorWhite );
+	
+	const float lightScale = 1.0f; //r_lightScale.GetFloat();
+	const idVec4 lightColor = colorWhite * lightScale;
+	// apply the world-global overbright and the 2x factor for specular
+	const idVec4 diffuseColor = lightColor;
+	const idVec4 specularColor = lightColor * 2.0f;
+	
+	idVec4 ambientColor;
+	float ambientBoost = 1.0f;
+	ambientBoost += r_useSSAO.GetBool() ? 0.2f : 0.0f;
+	ambientBoost *= r_useHDR.GetBool() ? 1.1f : 1.0f;
+	ambientColor.x = r_forceAmbient.GetFloat() * ambientBoost;
+	ambientColor.y = r_forceAmbient.GetFloat() * ambientBoost;
+	ambientColor.z = r_forceAmbient.GetFloat() * ambientBoost;
+	ambientColor.w = 1;
+	
+	renderProgManager.SetRenderParm( RENDERPARM_AMBIENT_COLOR, ambientColor.ToFloatPtr() );
+	
+	// setup renderparms assuming we will be drawing trivial surfaces first
+	RB_SetupForFastPathInteractions( diffuseColor, specularColor );
+	
+	for( int i = 0; i < numDrawSurfs; i++ )
+	{
+		const drawSurf_t* drawSurf = drawSurfs[i];
+		const idMaterial* surfaceMaterial = drawSurf->material;
+		
+		// translucent surfaces don't put anything in the depth buffer and don't
+		// test against it, which makes them fail the mirror clip plane operation
+		if( surfaceMaterial->Coverage() == MC_TRANSLUCENT )
+		{
+			continue;
+		}
+		
+		// get the expressions for conditionals / color / texcoords
+		const float* surfaceRegs = drawSurf->shaderRegisters;
+		
+		// if all stages of a material have been conditioned off, don't do anything
+		int stage = 0;
+		for( ; stage < surfaceMaterial->GetNumStages(); stage++ )
+		{
+			const shaderStage_t* pStage = surfaceMaterial->GetStage( stage );
+			// check the stage enable condition
+			if( surfaceRegs[ pStage->conditionRegister ] != 0 )
+			{
+				break;
+			}
+		}
+		if( stage == surfaceMaterial->GetNumStages() )
+		{
+			continue;
+		}
+		
+		//bool isWorldModel = ( drawSurf->space->entityDef->parms.origin == vec3_origin );
+		
+		//if( isWorldModel )
+		//{
+		//	renderProgManager.BindShader_VertexLighting();
+		//}
+		//else
+		{
+#if 1
+			if( fillGbuffer )
+			{
+				// fill geometry buffer with normal/roughness information
+				if( drawSurf->jointCache )
+				{
+					renderProgManager.BindShader_SmallGeometryBufferSkinned();
+				}
+				else
+				{
+					renderProgManager.BindShader_SmallGeometryBuffer();
+				}
+			}
+			else
+#endif
+			{
+				// draw Quake 4 style ambient
+				if( drawSurf->jointCache )
+				{
+					renderProgManager.BindShader_AmbientLightingSkinned();
+				}
+				else
+				{
+					renderProgManager.BindShader_AmbientLighting();
+				}
+			}
+		}
+		
+		// change the matrix if needed
+		if( drawSurf->space != backEnd.currentSpace )
+		{
+			backEnd.currentSpace = drawSurf->space;
+			
+			RB_SetMVP( drawSurf->space->mvp );
+			
+			// tranform the view origin into model local space
+			idVec4 localViewOrigin( 1.0f );
+			R_GlobalPointToLocal( drawSurf->space->modelMatrix, backEnd.viewDef->renderView.vieworg, localViewOrigin.ToVec3() );
+			SetVertexParm( RENDERPARM_LOCALVIEWORIGIN, localViewOrigin.ToFloatPtr() );
+			
+			//if( !isWorldModel )
+			//{
+			//	// tranform the light direction into model local space
+			//	idVec3 globalLightDirection( 0.0f, 0.0f, -1.0f ); // HACK
+			//	idVec4 localLightDirection( 0.0f );
+			//	R_GlobalVectorToLocal( drawSurf->space->modelMatrix, globalLightDirection, localLightDirection.ToVec3() );
+			//
+			//	SetVertexParm( RENDERPARM_LOCALLIGHTORIGIN, localLightDirection.ToFloatPtr() );
+			//}
+			
+			// RB: if we want to store the normals in world space so we need the model -> world matrix
+			idRenderMatrix modelMatrix;
+			idRenderMatrix::Transpose( *( idRenderMatrix* )drawSurf->space->modelMatrix, modelMatrix );
+			
+			SetVertexParms( RENDERPARM_MODELMATRIX_X, modelMatrix[0], 4 );
+			
+			// RB: if we want to store the normals in camera space so we need the model -> camera matrix
+			float modelViewMatrixTranspose[16];
+			R_MatrixTranspose( drawSurf->space->modelViewMatrix, modelViewMatrixTranspose );
+			SetVertexParms( RENDERPARM_MODELVIEWMATRIX_X, modelViewMatrixTranspose, 4 );
+		}
+		
+#if 0
+		if( !isWorldModel )
+		{
+			idVec4 directedColor;
+			directedColor.x = drawSurf->space->gridDirectedLight.x;
+			directedColor.y = drawSurf->space->gridDirectedLight.y;
+			directedColor.z = drawSurf->space->gridDirectedLight.z;
+			directedColor.w = 1;
+			
+			idVec4 ambientColor;
+			ambientColor.x = drawSurf->space->gridAmbientLight.x;
+			ambientColor.y = drawSurf->space->gridAmbientLight.y;
+			ambientColor.z = drawSurf->space->gridAmbientLight.z;
+			ambientColor.w = 1;
+			
+			renderProgManager.SetRenderParm( RENDERPARM_COLOR, directedColor.ToFloatPtr() );
+			renderProgManager.SetRenderParm( RENDERPARM_AMBIENT_COLOR, ambientColor.ToFloatPtr() );
+		}
+#endif
+		
+		/*
+		uint64 surfGLState = 0;
+		
+		// set polygon offset if necessary
+		if( surfaceMaterial->TestMaterialFlag( MF_POLYGONOFFSET ) )
+		{
+			surfGLState |= GLS_POLYGON_OFFSET;
+			GL_PolygonOffset( r_offsetFactor.GetFloat(), r_offsetUnits.GetFloat() * surfaceMaterial->GetPolygonOffset() );
+		}
+		
+		// subviews will just down-modulate the color buffer
+		idVec4 color;
+		if( surfaceMaterial->GetSort() == SS_SUBVIEW )
+		{
+			surfGLState |= GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO | GLS_DEPTHFUNC_LESS;
+			color[0] = 1.0f;
+			color[1] = 1.0f;
+			color[2] = 1.0f;
+			color[3] = 1.0f;
+		}
+		else
+		{
+			// others just draw black
+		#if 0
+			color[0] = 0.0f;
+			color[1] = 0.0f;
+			color[2] = 0.0f;
+			color[3] = 1.0f;
+		#else
+			color = colorWhite;
+		#endif
+		}
+		*/
+		
+		// check for the fast path
+		if( surfaceMaterial->GetFastPathBumpImage() && !r_skipInteractionFastPath.GetBool() )
+		{
+			renderLog.OpenBlock( surfaceMaterial->GetName() );
+			
+			// texture 0 will be the per-surface bump map
+			GL_SelectTexture( INTERACTION_TEXUNIT_BUMP );
+			surfaceMaterial->GetFastPathBumpImage()->Bind();
+			
+			// texture 3 is the per-surface diffuse map
+			GL_SelectTexture( INTERACTION_TEXUNIT_DIFFUSE );
+			surfaceMaterial->GetFastPathDiffuseImage()->Bind();
+			
+			// texture 4 is the per-surface specular map
+			GL_SelectTexture( INTERACTION_TEXUNIT_SPECULAR );
+			surfaceMaterial->GetFastPathSpecularImage()->Bind();
+			
+			RB_DrawElementsWithCounters( drawSurf );
+			
+			renderLog.CloseBlock();
+			continue;
+		}
+		
+		renderLog.OpenBlock( surfaceMaterial->GetName() );
+		
+		//bool drawSolid = false;
+		
+		
+		// we may have multiple alpha tested stages
+		// if the only alpha tested stages are condition register omitted,
+		// draw a normal opaque surface
+		bool didDraw = false;
+		
+		drawInteraction_t inter = {};
+		inter.surf = drawSurf;
+		inter.bumpImage = NULL;
+		inter.specularImage = NULL;
+		inter.diffuseImage = NULL;
+		
+		inter.diffuseColor[0] = inter.diffuseColor[1] = inter.diffuseColor[2] = inter.diffuseColor[3] = 1;
+		inter.specularColor[0] = inter.specularColor[1] = inter.specularColor[2] = inter.specularColor[3] = 0;
+		
+		// perforated surfaces may have multiple alpha tested stages
+		for( stage = 0; stage < surfaceMaterial->GetNumStages(); stage++ )
+		{
+			const shaderStage_t* surfaceStage = surfaceMaterial->GetStage( stage );
+			
+			switch( surfaceStage->lighting )
+			{
+				case SL_COVERAGE:
+				{
+					// ignore any coverage stages since they should only be used for the depth fill pass
+					// for diffuse stages that use alpha test.
+					break;
+				}
+				
+				case SL_AMBIENT:
+				{
+					// ignore ambient stages while drawing interactions
+					break;
+				}
+				
+				case SL_BUMP:
+				{
+					// ignore stage that fails the condition
+					if( !surfaceRegs[ surfaceStage->conditionRegister ] )
+					{
+						break;
+					}
+					// draw any previous interaction
+					if( inter.bumpImage != NULL )
+					{
+						RB_DrawSingleInteraction( &inter );
+					}
+					inter.bumpImage = surfaceStage->texture.image;
+					inter.diffuseImage = NULL;
+					inter.specularImage = NULL;
+					RB_SetupInteractionStage( surfaceStage, surfaceRegs, NULL,
+											  inter.bumpMatrix, NULL );
+					break;
+				}
+				
+				case SL_DIFFUSE:
+				{
+					// ignore stage that fails the condition
+					if( !surfaceRegs[ surfaceStage->conditionRegister ] )
+					{
+						break;
+					}
+					
+					// draw any previous interaction
+					if( inter.diffuseImage != NULL )
+					{
+						RB_DrawSingleInteraction( &inter );
+					}
+					
+					inter.diffuseImage = surfaceStage->texture.image;
+					inter.vertexColor = surfaceStage->vertexColor;
+					RB_SetupInteractionStage( surfaceStage, surfaceRegs, diffuseColor.ToFloatPtr(),
+											  inter.diffuseMatrix, inter.diffuseColor.ToFloatPtr() );
+					break;
+				}
+				
+				case SL_SPECULAR:
+				{
+					// ignore stage that fails the condition
+					if( !surfaceRegs[ surfaceStage->conditionRegister ] )
+					{
+						break;
+					}
+					// draw any previous interaction
+					if( inter.specularImage != NULL )
+					{
+						RB_DrawSingleInteraction( &inter );
+					}
+					inter.specularImage = surfaceStage->texture.image;
+					inter.vertexColor = surfaceStage->vertexColor;
+					RB_SetupInteractionStage( surfaceStage, surfaceRegs, specularColor.ToFloatPtr(),
+											  inter.specularMatrix, inter.specularColor.ToFloatPtr() );
+					break;
+				}
+			}
+		}
+		
+		// draw the final interaction
+		RB_DrawSingleInteraction( &inter );
+		
+		renderLog.CloseBlock();
+	}
+	
+#ifdef USE_CORE_PROFILE
+	SetFragmentParm( RENDERPARM_ALPHA_TEST, vec4_zero.ToFloatPtr() );
+#endif
+	
+	renderLog.CloseBlock();
+	renderLog.CloseMainBlock();
+	
+	if( fillGbuffer )
+	{
+		GL_SelectTexture( 0 );
+		
+		// FIXME: this copies RGBA16F into _currentNormals if HDR is enabled
+		const idScreenRect& viewport = backEnd.viewDef->viewport;
+		globalImages->currentNormalsImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
+		
+		//GL_Clear( true, false, false, STENCIL_SHADOW_TEST_VALUE, 0.0f, 0.0f, 0.0f, 1.0f, false );
+		
+		
+		/*
+		if( hdrIsActive )
+		{
+			globalFramebuffers.hdrFBO->Bind();
+		}
+		else
+		{
+			Framebuffer::Unbind();
+		}
+		*/
+	}
+	
+	// unbind texture units
+	for( int i = 0; i < 7; i++ )
+	{
+		GL_SelectTexture( i );
+		globalImages->BindNull();
+	}
+	
+	renderProgManager.Unbind();
+}
+
+// RB end
 
 /*
 ==============================================================================================
@@ -2135,7 +2572,7 @@ static void RB_StencilSelectLight( const viewLight_t* vLight )
 	// clear stencil buffer to 0 (not drawable)
 	uint64 glStateMinusStencil = GL_GetCurrentStateMinusStencil();
 	GL_State( glStateMinusStencil | GLS_STENCIL_FUNC_ALWAYS | GLS_STENCIL_MAKE_REF( STENCIL_SHADOW_TEST_VALUE ) | GLS_STENCIL_MAKE_MASK( STENCIL_SHADOW_MASK_VALUE ) );	// make sure stencil mask passes for the clear
-	GL_Clear( false, false, true, 0, 0.0f, 0.0f, 0.0f, 0.0f );	// clear to 0 for stencil select
+	GL_Clear( false, false, true, 0, 0.0f, 0.0f, 0.0f, 0.0f, false );	// clear to 0 for stencil select
 	
 	// set the depthbounds
 	GL_DepthBoundsTest( vLight->scissorRect.zmin, vLight->scissorRect.zmax );
@@ -2819,8 +3256,14 @@ static void RB_ShadowMapPass( const drawSurf_t* drawSurfs, const viewLight_t* vL
 	}
 	
 	// cleanup the shadow specific rendering state
-	
-	Framebuffer::BindNull();
+	if( r_useHDR.GetBool() ) //&& !backEnd.viewDef->is2Dgui )
+	{
+		globalFramebuffers.hdrFBO->Bind();
+	}
+	else
+	{
+		Framebuffer::Unbind();
+	}
 	renderProgManager.Unbind();
 	
 	GL_State( GLS_DEFAULT );
@@ -2972,7 +3415,7 @@ static void RB_DrawInteractions( const viewDef_t* viewDef )
 						backEnd.currentScissor = rect;
 					}
 					GL_State( GLS_DEFAULT );	// make sure stencil mask passes for the clear
-					GL_Clear( false, false, true, STENCIL_SHADOW_TEST_VALUE, 0.0f, 0.0f, 0.0f, 0.0f );
+					GL_Clear( false, false, true, STENCIL_SHADOW_TEST_VALUE, 0.0f, 0.0f, 0.0f, 0.0f, false );
 				}
 			}
 			
@@ -3037,7 +3480,7 @@ static void RB_DrawInteractions( const viewDef_t* viewDef )
 	GL_State( GLS_DEFAULT );
 	
 	// unbind texture units
-	for( int i = 0; i < 5; i++ )
+	for( int i = 0; i < 7; i++ )
 	{
 		GL_SelectTexture( i );
 		globalImages->BindNull();
@@ -3365,11 +3808,11 @@ static int RB_DrawShaderPasses( const drawSurf_t* const* const drawSurfs, const 
 					{
 						// This is a hack... Only SWF Guis set GLS_OVERRIDE
 						// Old style guis do not, and we don't want them to use the new GUI renederProg
-						renderProgManager.BindShader_BinkGUI();
+						renderProgManager.BindShader_TextureVertexColor_sRGB();
 					}
 					else
 					{
-						renderProgManager.BindShader_Bink();
+						renderProgManager.BindShader_TextureVertexColor();
 					}
 				}
 				else
@@ -3388,7 +3831,15 @@ static int RB_DrawShaderPasses( const drawSurf_t* const* const drawSurfs, const 
 						}
 						else
 						{
-							renderProgManager.BindShader_TextureVertexColor();
+							if( backEnd.viewDef->is2Dgui )
+							{
+								// RB: 2D fullscreen drawing like warp or damage blend effects
+								renderProgManager.BindShader_TextureVertexColor_sRGB();
+							}
+							else
+							{
+								renderProgManager.BindShader_TextureVertexColor();
+							}
 						}
 					}
 				}
@@ -3448,6 +3899,17 @@ static int RB_DrawShaderPasses( const drawSurf_t* const* const drawSurfs, const 
 	
 	GL_Cull( CT_FRONT_SIDED );
 	GL_Color( 1.0f, 1.0f, 1.0f );
+	
+	// disable stencil shadow test
+	GL_State( GLS_DEFAULT );
+	
+	// unbind texture units
+	for( int i = 0; i < 7; i++ )
+	{
+		GL_SelectTexture( i );
+		globalImages->BindNull();
+	}
+	GL_SelectTexture( 0 );
 	
 	renderLog.CloseBlock();
 	return i;
@@ -3798,6 +4260,930 @@ static void RB_FogAllLights()
 	renderLog.CloseMainBlock();
 }
 
+// RB begin
+static void RB_CalculateAdaptation()
+{
+	int				i;
+	static float	image[64 * 64 * 4];
+	float           curTime;
+	float			deltaTime;
+	float           luminance;
+	float			avgLuminance;
+	float			maxLuminance;
+	double			sum;
+	const idVec3    LUMINANCE_SRGB( 0.2125f, 0.7154f, 0.0721f ); // be careful wether this should be linear RGB or sRGB
+	idVec4			color;
+	float			newAdaptation;
+	float			newMaximum;
+	
+	if( !r_hdrAutoExposure.GetBool() )
+	{
+		// no dynamic exposure
+		
+		backEnd.hdrKey = r_hdrKey.GetFloat();
+		backEnd.hdrAverageLuminance = r_hdrMinLuminance.GetFloat();
+		backEnd.hdrMaxLuminance = 1;
+	}
+	else
+	{
+		curTime = Sys_Milliseconds() / 1000.0f;
+		
+		// calculate the average scene luminance
+		globalFramebuffers.hdr64FBO->Bind();
+		
+		// read back the contents
+		//	glFinish();
+		glReadPixels( 0, 0, 64, 64, GL_RGBA, GL_FLOAT, image );
+		
+		sum = 0.0f;
+		maxLuminance = 0.0f;
+		for( i = 0; i < ( 64 * 64 ); i += 4 )
+		{
+			color[0] = image[i * 4 + 0];
+			color[1] = image[i * 4 + 1];
+			color[2] = image[i * 4 + 2];
+			color[3] = image[i * 4 + 3];
+			
+			luminance = ( color.x * LUMINANCE_SRGB.x + color.y * LUMINANCE_SRGB.y + color.z * LUMINANCE_SRGB.z ) + 0.0001f;
+			if( luminance > maxLuminance )
+			{
+				maxLuminance = luminance;
+			}
+			
+			float logLuminance = log( luminance + 1 );
+			//if( logLuminance > 0 )
+			{
+				sum += luminance;
+			}
+		}
+#if 0
+		sum /= ( 64.0f * 64.0f );
+		avgLuminance = exp( sum );
+#else
+		avgLuminance = sum / ( 64.0f * 64.0f );
+#endif
+		
+		// the user's adapted luminance level is simulated by closing the gap between
+		// adapted luminance and current luminance by 2% every frame, based on a
+		// 30 fps rate. This is not an accurate model of human adaptation, which can
+		// take longer than half an hour.
+		if( backEnd.hdrTime > curTime )
+		{
+			backEnd.hdrTime = curTime;
+		}
+		
+		deltaTime = curTime - backEnd.hdrTime;
+		
+		//if(r_hdrMaxLuminance->value)
+		{
+			backEnd.hdrAverageLuminance = idMath::ClampFloat( r_hdrMinLuminance.GetFloat(), r_hdrMaxLuminance.GetFloat(), backEnd.hdrAverageLuminance );
+			avgLuminance = idMath::ClampFloat( r_hdrMinLuminance.GetFloat(), r_hdrMaxLuminance.GetFloat(), avgLuminance );
+			
+			backEnd.hdrMaxLuminance = idMath::ClampFloat( r_hdrMinLuminance.GetFloat(), r_hdrMaxLuminance.GetFloat(), backEnd.hdrMaxLuminance );
+			maxLuminance = idMath::ClampFloat( r_hdrMinLuminance.GetFloat(), r_hdrMaxLuminance.GetFloat(), maxLuminance );
+		}
+		
+		newAdaptation = backEnd.hdrAverageLuminance + ( avgLuminance - backEnd.hdrAverageLuminance ) * ( 1.0f - powf( 0.98f, 30.0f * deltaTime ) );
+		newMaximum = backEnd.hdrMaxLuminance + ( maxLuminance - backEnd.hdrMaxLuminance ) * ( 1.0f - powf( 0.98f, 30.0f * deltaTime ) );
+		
+		if( !IsNAN( newAdaptation ) && !IsNAN( newMaximum ) )
+		{
+#if 1
+			backEnd.hdrAverageLuminance = newAdaptation;
+			backEnd.hdrMaxLuminance = newMaximum;
+#else
+			backEnd.hdrAverageLuminance = avgLuminance;
+			backEnd.hdrMaxLuminance = maxLuminance;
+#endif
+		}
+		
+		backEnd.hdrTime = curTime;
+		
+		// calculate HDR image key
+#if 0
+		// RB: this never worked :/
+		if( r_hdrAutoExposure.GetBool() )
+		{
+			// calculation from: Perceptual Effects in Real-time Tone Mapping - Krawczyk et al.
+			backEnd.hdrKey = 1.03 - ( 2.0 / ( 2.0 + ( backEnd.hdrAverageLuminance + 1.0f ) ) );
+		}
+		else
+#endif
+		{
+			backEnd.hdrKey = r_hdrKey.GetFloat();
+		}
+	}
+	
+	if( r_hdrDebug.GetBool() )
+	{
+		idLib::Printf( "HDR luminance avg = %f, max = %f, key = %f\n", backEnd.hdrAverageLuminance, backEnd.hdrMaxLuminance, backEnd.hdrKey );
+	}
+	
+	//GL_CheckErrors();
+}
+
+
+static void RB_Tonemap( const viewDef_t* viewDef )
+{
+	RENDERLOG_PRINTF( "---------- RB_Tonemap( avg = %f, max = %f, key = %f, is2Dgui = %i ) ----------\n", backEnd.hdrAverageLuminance, backEnd.hdrMaxLuminance, backEnd.hdrKey, ( int )viewDef->is2Dgui );
+	
+	//postProcessCommand_t* cmd = ( postProcessCommand_t* )data;
+	//const idScreenRect& viewport = cmd->viewDef->viewport;
+	//globalImages->currentRenderImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
+	
+	Framebuffer::Unbind();
+	
+	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
+	GL_Cull( CT_TWO_SIDED );
+	
+	int screenWidth = renderSystem->GetWidth();
+	int screenHeight = renderSystem->GetHeight();
+	
+	// set the window clipping
+	GL_Viewport( 0, 0, screenWidth, screenHeight );
+	GL_Scissor( 0, 0, screenWidth, screenHeight );
+	
+	GL_SelectTexture( 0 );
+	
+#if defined(USE_HDR_MSAA)
+	if( r_multiSamples.GetInteger() > 0 )
+	{
+		globalImages->currentRenderHDRImageNoMSAA->Bind();
+	}
+	else
+#endif
+	{
+		globalImages->currentRenderHDRImage->Bind();
+	}
+	
+	GL_SelectTexture( 1 );
+	globalImages->heatmap7Image->Bind();
+	
+	if( r_hdrDebug.GetBool() )
+	{
+		renderProgManager.BindShader_HDRDebug();
+	}
+	else
+	{
+		renderProgManager.BindShader_Tonemap();
+	}
+	
+	float screenCorrectionParm[4];
+	if( viewDef->is2Dgui )
+	{
+		screenCorrectionParm[0] = 2.0f;
+		screenCorrectionParm[1] = 1.0f;
+		screenCorrectionParm[2] = 1.0f;
+	}
+	else
+	{
+		if( r_hdrAutoExposure.GetBool() )
+		{
+			float exposureOffset = Lerp( -0.01f, 0.02f, idMath::ClampFloat( 0.0, 1.0, r_exposure.GetFloat() ) );
+			
+			screenCorrectionParm[0] = backEnd.hdrKey + exposureOffset;
+			screenCorrectionParm[1] = backEnd.hdrAverageLuminance;
+			screenCorrectionParm[2] = backEnd.hdrMaxLuminance;
+			screenCorrectionParm[3] = exposureOffset;
+			//screenCorrectionParm[3] = Lerp( -1, 5, idMath::ClampFloat( 0.0, 1.0, r_exposure.GetFloat() ) );
+		}
+		else
+		{
+			//float exposureOffset = ( idMath::ClampFloat( 0.0, 1.0, r_exposure.GetFloat() ) * 2.0f - 1.0f ) * 0.01f;
+			
+			float exposureOffset = Lerp( -0.01f, 0.01f, idMath::ClampFloat( 0.0, 1.0, r_exposure.GetFloat() ) );
+			
+			screenCorrectionParm[0] = 0.015f + exposureOffset;
+			screenCorrectionParm[1] = 0.005f;
+			screenCorrectionParm[2] = 1;
+			
+			// RB: this gives a nice exposure curve in Scilab when using
+			// log2( max( 3 + 0..10, 0.001 ) ) as input for exp2
+			//float exposureOffset = r_exposure.GetFloat() * 10.0f;
+			//screenCorrectionParm[3] = exposureOffset;
+		}
+	}
+	
+	SetFragmentParm( RENDERPARM_SCREENCORRECTIONFACTOR, screenCorrectionParm ); // rpScreenCorrectionFactor
+	
+	// Draw
+	RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
+	
+	// unbind heatmap
+	globalImages->BindNull();
+	
+	// unbind _currentRender
+	GL_SelectTexture( 0 );
+	globalImages->BindNull();
+	
+	renderProgManager.Unbind();
+	
+	GL_State( GLS_DEFAULT );
+	GL_Cull( CT_FRONT_SIDED );
+}
+
+
+static void RB_Bloom( const viewDef_t* viewDef )
+{
+	if( viewDef->is2Dgui || !r_useHDR.GetBool() )
+	{
+		return;
+	}
+	
+	RENDERLOG_PRINTF( "---------- RB_Bloom( avg = %f, max = %f, key = %f ) ----------\n", backEnd.hdrAverageLuminance, backEnd.hdrMaxLuminance, backEnd.hdrKey );
+	
+	// BRIGHTPASS
+	
+	//GL_CheckErrors();
+	
+	//Framebuffer::Unbind();
+	//globalFramebuffers.hdrQuarterFBO->Bind();
+	
+	glClearColor( 0, 0, 0, 1 );
+//	glClear( GL_COLOR_BUFFER_BIT );
+
+	GL_State( /*GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO |*/ GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
+	GL_Cull( CT_TWO_SIDED );
+	
+	int screenWidth = renderSystem->GetWidth();
+	int screenHeight = renderSystem->GetHeight();
+	
+	// set the window clipping
+	GL_Viewport( 0, 0, screenWidth / 4, screenHeight / 4 );
+	GL_Scissor( 0, 0, screenWidth / 4, screenHeight / 4 );
+	
+	globalFramebuffers.bloomRenderFBO[ 0 ]->Bind();
+	
+	GL_SelectTexture( 0 );
+	
+	if( r_useHDR.GetBool() )
+	{
+		globalImages->currentRenderHDRImage->Bind();
+		
+		renderProgManager.BindShader_Brightpass();
+	}
+	else
+	{
+		int x = backEnd.viewDef->viewport.x1;
+		int y = backEnd.viewDef->viewport.y1;
+		int	w = backEnd.viewDef->viewport.x2 - backEnd.viewDef->viewport.x1 + 1;
+		int	h = backEnd.viewDef->viewport.y2 - backEnd.viewDef->viewport.y1 + 1;
+		
+		RENDERLOG_PRINTF( "Resolve to %i x %i buffer\n", w, h );
+		
+		// resolve the screen
+		globalImages->currentRenderImage->CopyFramebuffer( x, y, w, h );
+		
+		renderProgManager.BindShader_Brightpass();
+	}
+	
+	float screenCorrectionParm[4];
+	screenCorrectionParm[0] = backEnd.hdrKey;
+	screenCorrectionParm[1] = backEnd.hdrAverageLuminance;
+	screenCorrectionParm[2] = backEnd.hdrMaxLuminance;
+	screenCorrectionParm[3] = 1.0f;
+	SetFragmentParm( RENDERPARM_SCREENCORRECTIONFACTOR, screenCorrectionParm ); // rpScreenCorrectionFactor
+	
+	float overbright[4];
+	if( r_useHDR.GetBool() )
+	{
+		if( r_hdrAutoExposure.GetBool() )
+		{
+			overbright[0] = r_hdrContrastDynamicThreshold.GetFloat();
+		}
+		else
+		{
+			overbright[0] = r_hdrContrastStaticThreshold.GetFloat();
+		}
+		overbright[1] = r_hdrContrastOffset.GetFloat();
+		overbright[2] = 0;
+		overbright[3] = 0;
+	}
+	else
+	{
+		overbright[0] = r_ldrContrastThreshold.GetFloat();
+		overbright[1] = r_ldrContrastOffset.GetFloat();
+		overbright[2] = 0;
+		overbright[3] = 0;
+	}
+	SetFragmentParm( RENDERPARM_OVERBRIGHT, overbright ); // rpOverbright
+	
+	// Draw
+	RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
+	
+	
+	// BLOOM PING PONG rendering
+	renderProgManager.BindShader_HDRGlareChromatic();
+	
+	int j;
+	for( j = 0; j < r_hdrGlarePasses.GetInteger(); j++ )
+	{
+		globalFramebuffers.bloomRenderFBO[( j + 1 ) % 2 ]->Bind();
+		glClear( GL_COLOR_BUFFER_BIT );
+		
+		globalImages->bloomRenderImage[j % 2]->Bind();
+		
+		RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
+	}
+	
+	// add filtered glare back to main context
+	Framebuffer::Unbind();
+	
+	RB_ResetViewportAndScissorToDefaultCamera( viewDef );
+	
+	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
+	
+	renderProgManager.BindShader_Screen();
+	
+	globalImages->bloomRenderImage[( j + 1 ) % 2]->Bind();
+	
+	RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
+	
+	globalImages->BindNull();
+	
+	Framebuffer::Unbind();
+	renderProgManager.Unbind();
+	
+	GL_State( GLS_DEFAULT );
+	GL_Cull( CT_FRONT_SIDED );
+}
+
+
+static void RB_SSAO( const viewDef_t* viewDef )
+{
+	if( !viewDef->viewEntitys || viewDef->is2Dgui )
+	{
+		// 3D views only
+		return;
+	}
+	
+	if( r_useSSAO.GetInteger() <= 0 )
+	{
+		return;
+	}
+	
+	// FIXME very expensive to enable this in subviews
+	if( viewDef->isSubview )
+	{
+		return;
+	}
+	
+	RENDERLOG_PRINTF( "---------- RB_SSAO() ----------\n" );
+	
+#if 0
+	GL_CheckErrors();
+	
+	// clear the alpha buffer and draw only the hands + weapon into it so
+	// we can avoid blurring them
+	glClearColor( 0, 0, 0, 1 );
+	GL_State( GLS_COLORMASK | GLS_DEPTHMASK );
+	glClear( GL_COLOR_BUFFER_BIT );
+	GL_Color( 0, 0, 0, 0 );
+	
+	
+	GL_SelectTexture( 0 );
+	globalImages->blackImage->Bind();
+	backEnd.currentSpace = NULL;
+	
+	drawSurf_t** drawSurfs = ( drawSurf_t** )&backEnd.viewDef->drawSurfs[0];
+	for( int surfNum = 0; surfNum < backEnd.viewDef->numDrawSurfs; surfNum++ )
+	{
+		const drawSurf_t* surf = drawSurfs[ surfNum ];
+		
+		if( !surf->space->weaponDepthHack && !surf->space->skipMotionBlur && !surf->material->HasSubview() )
+		{
+			// Apply motion blur to this object
+			continue;
+		}
+		
+		const idMaterial* shader = surf->material;
+		if( shader->Coverage() == MC_TRANSLUCENT )
+		{
+			// muzzle flash, etc
+			continue;
+		}
+		
+		// set mvp matrix
+		if( surf->space != backEnd.currentSpace )
+		{
+			RB_SetMVP( surf->space->mvp );
+			backEnd.currentSpace = surf->space;
+		}
+		
+		// this could just be a color, but we don't have a skinned color-only prog
+		if( surf->jointCache )
+		{
+			renderProgManager.BindShader_TextureVertexColorSkinned();
+		}
+		else
+		{
+			renderProgManager.BindShader_TextureVertexColor();
+		}
+		
+		// draw it solid
+		RB_DrawElementsWithCounters( surf );
+	}
+	GL_State( GLS_DEPTHFUNC_ALWAYS );
+	
+	// copy off the color buffer and the depth buffer for the motion blur prog
+	// we use the viewport dimensions for copying the buffers in case resolution scaling is enabled.
+	const idScreenRect& viewport = backEnd.viewDef->viewport;
+	globalImages->currentRenderImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
+	
+	// in stereo rendering, each eye needs to get a separate previous frame mvp
+	int mvpIndex = ( backEnd.viewDef->renderView.viewEyeBuffer == 1 ) ? 1 : 0;
+	
+	// derive the matrix to go from current pixels to previous frame pixels
+	idRenderMatrix	inverseMVP;
+	idRenderMatrix::Inverse( backEnd.viewDef->worldSpace.mvp, inverseMVP );
+	
+	idRenderMatrix	motionMatrix;
+	idRenderMatrix::Multiply( backEnd.prevMVP[mvpIndex], inverseMVP, motionMatrix );
+	
+	backEnd.prevMVP[mvpIndex] = backEnd.viewDef->worldSpace.mvp;
+	
+	RB_SetMVP( motionMatrix );
+#endif
+	
+	backEnd.currentSpace = &backEnd.viewDef->worldSpace;
+	RB_SetMVP( backEnd.viewDef->worldSpace.mvp );
+	
+	const bool hdrIsActive = ( r_useHDR.GetBool() && globalFramebuffers.hdrFBO != NULL && globalFramebuffers.hdrFBO->IsBound() );
+	
+	int screenWidth = renderSystem->GetWidth();
+	int screenHeight = renderSystem->GetHeight();
+	
+	// build hierarchical depth buffer
+	if( r_useHierarchicalDepthBuffer.GetBool() )
+	{
+		renderProgManager.BindShader_AmbientOcclusionMinify();
+		
+		glClearColor( 0, 0, 0, 1 );
+		
+		GL_SelectTexture( 0 );
+		//globalImages->currentDepthImage->Bind();
+		
+		for( int i = 0; i < MAX_HIERARCHICAL_ZBUFFERS; i++ )
+		{
+			int width = globalFramebuffers.csDepthFBO[i]->GetWidth();
+			int height = globalFramebuffers.csDepthFBO[i]->GetHeight();
+			
+			GL_Viewport( 0, 0, width, height );
+			GL_Scissor( 0, 0, width, height );
+			
+			globalFramebuffers.csDepthFBO[i]->Bind();
+			
+			glClear( GL_COLOR_BUFFER_BIT );
+			
+			if( i == 0 )
+			{
+				renderProgManager.BindShader_AmbientOcclusionReconstructCSZ();
+				
+				globalImages->currentDepthImage->Bind();
+			}
+			else
+			{
+				renderProgManager.BindShader_AmbientOcclusionMinify();
+				
+				GL_SelectTexture( 0 );
+				globalImages->hierarchicalZbufferImage->Bind();
+			}
+			
+			float jitterTexScale[4];
+			jitterTexScale[0] = i - 1;
+			jitterTexScale[1] = 0;
+			jitterTexScale[2] = 0;
+			jitterTexScale[3] = 0;
+			SetFragmentParm( RENDERPARM_JITTERTEXSCALE, jitterTexScale ); // rpJitterTexScale
+#if 1
+			float screenCorrectionParm[4];
+			screenCorrectionParm[0] = 1.0f / width;
+			screenCorrectionParm[1] = 1.0f / height;
+			screenCorrectionParm[2] = width;
+			screenCorrectionParm[3] = height;
+			SetFragmentParm( RENDERPARM_SCREENCORRECTIONFACTOR, screenCorrectionParm ); // rpScreenCorrectionFactor
+#endif
+			
+			RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
+		}
+	}
+	
+	// set the window clipping
+	GL_Viewport( 0, 0, screenWidth, screenHeight );
+	GL_Scissor( 0, 0, screenWidth, screenHeight );
+	
+	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
+	GL_Cull( CT_TWO_SIDED );
+	
+	if( r_ssaoFiltering.GetBool() )
+	{
+		globalFramebuffers.ambientOcclusionFBO[0]->Bind();
+		
+		glClearColor( 0, 0, 0, 0 );
+		glClear( GL_COLOR_BUFFER_BIT );
+		
+		renderProgManager.BindShader_AmbientOcclusion();
+	}
+	else
+	{
+		if( r_ssaoDebug.GetInteger() <= 0 )
+		{
+			GL_State( GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO | GLS_ALPHAMASK | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
+		}
+		
+		if( hdrIsActive )
+		{
+			globalFramebuffers.hdrFBO->Bind();
+		}
+		else
+		{
+			Framebuffer::Unbind();
+		}
+		
+		renderProgManager.BindShader_AmbientOcclusionAndOutput();
+	}
+	
+	float screenCorrectionParm[4];
+	screenCorrectionParm[0] = 1.0f / glConfig.nativeScreenWidth;
+	screenCorrectionParm[1] = 1.0f / glConfig.nativeScreenHeight;
+	screenCorrectionParm[2] = glConfig.nativeScreenWidth;
+	screenCorrectionParm[3] = glConfig.nativeScreenHeight;
+	SetFragmentParm( RENDERPARM_SCREENCORRECTIONFACTOR, screenCorrectionParm ); // rpScreenCorrectionFactor
+	
+#if 0
+	// RB: set unprojection matrices so we can convert zbuffer values back to camera and world spaces
+	idRenderMatrix modelViewMatrix;
+	idRenderMatrix::Transpose( *( idRenderMatrix* )backEnd.viewDef->worldSpace.modelViewMatrix, modelViewMatrix );
+	idRenderMatrix cameraToWorldMatrix;
+	if( !idRenderMatrix::Inverse( modelViewMatrix, cameraToWorldMatrix ) )
+	{
+		idLib::Warning( "cameraToWorldMatrix invert failed" );
+	}
+	
+	SetVertexParms( RENDERPARM_MODELMATRIX_X, cameraToWorldMatrix[0], 4 );
+	//SetVertexParms( RENDERPARM_MODELMATRIX_X, viewDef->unprojectionToWorldRenderMatrix[0], 4 );
+#endif
+	SetVertexParms( RENDERPARM_MODELMATRIX_X, viewDef->unprojectionToCameraRenderMatrix[0], 4 );
+	
+	
+	float jitterTexOffset[4];
+	if( r_shadowMapRandomizeJitter.GetBool() )
+	{
+		jitterTexOffset[0] = ( rand() & 255 ) / 255.0;
+		jitterTexOffset[1] = ( rand() & 255 ) / 255.0;
+	}
+	else
+	{
+		jitterTexOffset[0] = 0;
+		jitterTexOffset[1] = 0;
+	}
+	jitterTexOffset[2] = viewDef->renderView.time[0] * 0.001f;
+	jitterTexOffset[3] = 0.0f;
+	SetFragmentParm( RENDERPARM_JITTERTEXOFFSET, jitterTexOffset ); // rpJitterTexOffset
+	
+	GL_SelectTexture( 0 );
+	globalImages->currentNormalsImage->Bind();
+	
+	GL_SelectTexture( 1 );
+	if( r_useHierarchicalDepthBuffer.GetBool() )
+	{
+		globalImages->hierarchicalZbufferImage->Bind();
+	}
+	else
+	{
+		globalImages->currentDepthImage->Bind();
+	}
+	
+	RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
+	
+	if( r_ssaoFiltering.GetBool() )
+	{
+		float jitterTexScale[4];
+		
+		// AO blur X
+#if 1
+		globalFramebuffers.ambientOcclusionFBO[1]->Bind();
+		
+		renderProgManager.BindShader_AmbientOcclusionBlur();
+		
+		// set axis parameter
+		jitterTexScale[0] = 1;
+		jitterTexScale[1] = 0;
+		jitterTexScale[2] = 0;
+		jitterTexScale[3] = 0;
+		SetFragmentParm( RENDERPARM_JITTERTEXSCALE, jitterTexScale ); // rpJitterTexScale
+		
+		GL_SelectTexture( 2 );
+		globalImages->ambientOcclusionImage[0]->Bind();
+		
+		RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
+#endif
+		
+		// AO blur Y
+		if( hdrIsActive )
+		{
+			globalFramebuffers.hdrFBO->Bind();
+		}
+		else
+		{
+			Framebuffer::Unbind();
+		}
+		
+		if( r_ssaoDebug.GetInteger() <= 0 )
+		{
+			GL_State( GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
+		}
+		
+		renderProgManager.BindShader_AmbientOcclusionBlurAndOutput();
+		
+		// set axis parameter
+		jitterTexScale[0] = 0;
+		jitterTexScale[1] = 1;
+		jitterTexScale[2] = 0;
+		jitterTexScale[3] = 0;
+		SetFragmentParm( RENDERPARM_JITTERTEXSCALE, jitterTexScale ); // rpJitterTexScale
+		
+		GL_SelectTexture( 2 );
+		globalImages->ambientOcclusionImage[1]->Bind();
+		
+		RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
+	}
+	
+	renderProgManager.Unbind();
+	
+	GL_State( GLS_DEFAULT );
+	GL_Cull( CT_FRONT_SIDED );
+	
+	//GL_CheckErrors();
+}
+
+static void RB_SSGI( const viewDef_t* viewDef )
+{
+	if( !viewDef->viewEntitys || viewDef->is2Dgui )
+	{
+		// 3D views only
+		return;
+	}
+	
+	if( r_useSSGI.GetInteger() <= 0 )
+	{
+		return;
+	}
+	
+	// FIXME very expensive to enable this in subviews
+	if( viewDef->isSubview )
+	{
+		return;
+	}
+	
+	RENDERLOG_PRINTF( "---------- RB_SSGI() ----------\n" );
+	
+	backEnd.currentSpace = &backEnd.viewDef->worldSpace;
+	RB_SetMVP( backEnd.viewDef->worldSpace.mvp );
+	
+	const bool hdrIsActive = ( r_useHDR.GetBool() && globalFramebuffers.hdrFBO != NULL && globalFramebuffers.hdrFBO->IsBound() );
+	
+	int screenWidth = renderSystem->GetWidth();
+	int screenHeight = renderSystem->GetHeight();
+	
+	// set the window clipping
+	GL_Viewport( 0, 0, screenWidth, screenHeight );
+	GL_Scissor( 0, 0, screenWidth, screenHeight );
+	
+	if( !hdrIsActive )
+	{
+		const idScreenRect& viewport = viewDef->viewport;
+		globalImages->currentRenderImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
+	}
+	
+	// build hierarchical depth buffer
+	if( r_useHierarchicalDepthBuffer.GetBool() )
+	{
+		renderProgManager.BindShader_AmbientOcclusionMinify();
+		
+		glClearColor( 0, 0, 0, 1 );
+		
+		GL_SelectTexture( 0 );
+		//globalImages->currentDepthImage->Bind();
+		
+		for( int i = 0; i < MAX_HIERARCHICAL_ZBUFFERS; i++ )
+		{
+			int width = globalFramebuffers.csDepthFBO[i]->GetWidth();
+			int height = globalFramebuffers.csDepthFBO[i]->GetHeight();
+			
+			GL_Viewport( 0, 0, width, height );
+			GL_Scissor( 0, 0, width, height );
+			
+			globalFramebuffers.csDepthFBO[i]->Bind();
+			
+			glClear( GL_COLOR_BUFFER_BIT );
+			
+			if( i == 0 )
+			{
+				renderProgManager.BindShader_AmbientOcclusionReconstructCSZ();
+				
+				globalImages->currentDepthImage->Bind();
+			}
+			else
+			{
+				renderProgManager.BindShader_AmbientOcclusionMinify();
+				
+				GL_SelectTexture( 0 );
+				globalImages->hierarchicalZbufferImage->Bind();
+			}
+			
+			float jitterTexScale[4];
+			jitterTexScale[0] = i - 1;
+			jitterTexScale[1] = 0;
+			jitterTexScale[2] = 0;
+			jitterTexScale[3] = 0;
+			SetFragmentParm( RENDERPARM_JITTERTEXSCALE, jitterTexScale ); // rpJitterTexScale
+#if 1
+			float screenCorrectionParm[4];
+			screenCorrectionParm[0] = 1.0f / width;
+			screenCorrectionParm[1] = 1.0f / height;
+			screenCorrectionParm[2] = width;
+			screenCorrectionParm[3] = height;
+			SetFragmentParm( RENDERPARM_SCREENCORRECTIONFACTOR, screenCorrectionParm ); // rpScreenCorrectionFactor
+#endif
+			
+			RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
+		}
+	}
+	
+	// set the window clipping
+	GL_Viewport( 0, 0, screenWidth, screenHeight );
+	GL_Scissor( 0, 0, screenWidth, screenHeight );
+	
+	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
+	GL_Cull( CT_TWO_SIDED );
+	
+	if( r_ssgiFiltering.GetBool() )
+	{
+		globalFramebuffers.ambientOcclusionFBO[0]->Bind();
+		
+		// FIXME remove and mix with color from previous frame
+		glClearColor( 0, 0, 0, 0 );
+		glClear( GL_COLOR_BUFFER_BIT );
+		
+		renderProgManager.BindShader_DeepGBufferRadiosity();
+	}
+	else
+	{
+		if( r_ssgiDebug.GetInteger() > 0 )
+		{
+			// replace current
+			GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
+		}
+		else
+		{
+			// add result to main color
+			GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
+		}
+		
+		if( hdrIsActive )
+		{
+			globalFramebuffers.hdrFBO->Bind();
+		}
+		else
+		{
+			Framebuffer::Unbind();
+		}
+		
+		renderProgManager.BindShader_DeepGBufferRadiosity();
+	}
+	
+	float screenCorrectionParm[4];
+	screenCorrectionParm[0] = 1.0f / glConfig.nativeScreenWidth;
+	screenCorrectionParm[1] = 1.0f / glConfig.nativeScreenHeight;
+	screenCorrectionParm[2] = glConfig.nativeScreenWidth;
+	screenCorrectionParm[3] = glConfig.nativeScreenHeight;
+	SetFragmentParm( RENDERPARM_SCREENCORRECTIONFACTOR, screenCorrectionParm ); // rpScreenCorrectionFactor
+	
+#if 0
+	// RB: set unprojection matrices so we can convert zbuffer values back to camera and world spaces
+	idRenderMatrix modelViewMatrix;
+	idRenderMatrix::Transpose( *( idRenderMatrix* )backEnd.viewDef->worldSpace.modelViewMatrix, modelViewMatrix );
+	idRenderMatrix cameraToWorldMatrix;
+	if( !idRenderMatrix::Inverse( modelViewMatrix, cameraToWorldMatrix ) )
+	{
+		idLib::Warning( "cameraToWorldMatrix invert failed" );
+	}
+	
+	SetVertexParms( RENDERPARM_MODELMATRIX_X, cameraToWorldMatrix[0], 4 );
+	//SetVertexParms( RENDERPARM_MODELMATRIX_X, viewDef->unprojectionToWorldRenderMatrix[0], 4 );
+#endif
+	SetVertexParms( RENDERPARM_MODELMATRIX_X, viewDef->unprojectionToCameraRenderMatrix[0], 4 );
+	
+	
+	float jitterTexOffset[4];
+	if( r_shadowMapRandomizeJitter.GetBool() )
+	{
+		jitterTexOffset[0] = ( rand() & 255 ) / 255.0;
+		jitterTexOffset[1] = ( rand() & 255 ) / 255.0;
+	}
+	else
+	{
+		jitterTexOffset[0] = 0;
+		jitterTexOffset[1] = 0;
+	}
+	jitterTexOffset[2] = viewDef->renderView.time[0] * 0.001f;
+	jitterTexOffset[3] = 0.0f;
+	SetFragmentParm( RENDERPARM_JITTERTEXOFFSET, jitterTexOffset ); // rpJitterTexOffset
+	
+	GL_SelectTexture( 0 );
+	globalImages->currentNormalsImage->Bind();
+	
+	GL_SelectTexture( 1 );
+	if( r_useHierarchicalDepthBuffer.GetBool() )
+	{
+		globalImages->hierarchicalZbufferImage->Bind();
+	}
+	else
+	{
+		globalImages->currentDepthImage->Bind();
+	}
+	
+	GL_SelectTexture( 2 );
+	if( hdrIsActive )
+	{
+		globalImages->currentRenderHDRImage->Bind();
+	}
+	else
+	{
+		globalImages->currentRenderImage->Bind();
+	}
+	
+	RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
+	
+	if( r_ssgiFiltering.GetBool() )
+	{
+		float jitterTexScale[4];
+		
+		// AO blur X
+#if 1
+		globalFramebuffers.ambientOcclusionFBO[1]->Bind();
+		
+		renderProgManager.BindShader_DeepGBufferRadiosityBlur();
+		
+		// set axis parameter
+		jitterTexScale[0] = 1;
+		jitterTexScale[1] = 0;
+		jitterTexScale[2] = 0;
+		jitterTexScale[3] = 0;
+		SetFragmentParm( RENDERPARM_JITTERTEXSCALE, jitterTexScale ); // rpJitterTexScale
+		
+		GL_SelectTexture( 2 );
+		globalImages->ambientOcclusionImage[0]->Bind();
+		
+		RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
+#endif
+		
+		// AO blur Y
+		if( hdrIsActive )
+		{
+			globalFramebuffers.hdrFBO->Bind();
+		}
+		else
+		{
+			Framebuffer::Unbind();
+		}
+		
+		if( r_ssgiDebug.GetInteger() > 0 )
+		{
+			// replace current
+			GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
+		}
+		else
+		{
+			// add result to main color
+			GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
+		}
+		
+		renderProgManager.BindShader_DeepGBufferRadiosityBlurAndOutput();
+		
+		// set axis parameter
+		jitterTexScale[0] = 0;
+		jitterTexScale[1] = 1;
+		jitterTexScale[2] = 0;
+		jitterTexScale[3] = 0;
+		SetFragmentParm( RENDERPARM_JITTERTEXSCALE, jitterTexScale ); // rpJitterTexScale
+		
+		GL_SelectTexture( 2 );
+		globalImages->ambientOcclusionImage[1]->Bind();
+		
+		RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
+	}
+	
+	renderProgManager.Unbind();
+	
+	GL_State( GLS_DEFAULT );
+	GL_Cull( CT_FRONT_SIDED );
+	
+	//GL_CheckErrors();
+}
+// RB end
+
 /*
 =========================================================================================================
 
@@ -3847,9 +5233,25 @@ void RB_DrawViewInternal( const viewDef_t* viewDef, const int stereoEye )
 	// ensures that depth writes are enabled for the depth clear
 	GL_State( GLS_DEFAULT );
 	
+	//GL_CheckErrors();
+	
+	// RB begin
+	bool useHDR = r_useHDR.GetBool() && !viewDef->is2Dgui;
 	
 	// Clear the depth buffer and clear the stencil to 128 for stencil shadows as well as gui masking
-	GL_Clear( false, true, true, STENCIL_SHADOW_TEST_VALUE, 0.0f, 0.0f, 0.0f, 0.0f );
+	GL_Clear( false, true, true, STENCIL_SHADOW_TEST_VALUE, 0.0f, 0.0f, 0.0f, 0.0f, useHDR );
+	
+	if( useHDR )
+	{
+		globalFramebuffers.hdrFBO->Bind();
+	}
+	else
+	{
+		Framebuffer::Unbind();
+	}
+	// RB end
+	
+	//GL_CheckErrors();
 	
 	// normal face culling
 	GL_Cull( CT_FRONT_SIDED );
@@ -3898,9 +5300,36 @@ void RB_DrawViewInternal( const viewDef_t* viewDef, const int stereoEye )
 	RB_FillDepthBufferFast( drawSurfs, numDrawSurfs );
 	
 	//-------------------------------------------------
+	// FIXME, OPTIMIZE: merge this with FillDepthBufferFast like in a light prepass deferred renderer
+	//
+	// fill the geometric buffer with normals and roughness
+	//-------------------------------------------------
+	RB_AmbientPass( drawSurfs, numDrawSurfs, true );
+	
+	//-------------------------------------------------
+	// fill the depth buffer and the color buffer with precomputed Q3A style lighting
+	//-------------------------------------------------
+	RB_AmbientPass( drawSurfs, numDrawSurfs, false );
+	
+	//-------------------------------------------------
 	// main light renderer
 	//-------------------------------------------------
 	RB_DrawInteractions( viewDef );
+	
+	//-------------------------------------------------
+	// capture the depth for the motion blur before rendering any post process surfaces that may contribute to the depth
+	//-------------------------------------------------
+	if( ( r_motionBlur.GetInteger() > 0 ||  r_useSSAO.GetBool() || r_useSSGI.GetBool() ) && !r_useHDR.GetBool() )
+	{
+		const idScreenRect& viewport = backEnd.viewDef->viewport;
+		globalImages->currentDepthImage->CopyDepthbuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
+	}
+	
+	//-------------------------------------------------
+	// darken the scene using the screen space ambient occlusion
+	//-------------------------------------------------
+	RB_SSAO( viewDef );
+	//RB_SSGI( viewDef );
 	
 	//-------------------------------------------------
 	// now draw any non-light dependent shading passes
@@ -3924,19 +5353,15 @@ void RB_DrawViewInternal( const viewDef_t* viewDef, const int stereoEye )
 	}
 	
 	//-------------------------------------------------
+	// use direct light and emissive light contributions to add indirect screen space light
+	//-------------------------------------------------
+	//RB_SSGI( viewDef );
+	
+	//-------------------------------------------------
 	// fog and blend lights, drawn after emissive surfaces
 	// so they are properly dimmed down
 	//-------------------------------------------------
 	RB_FogAllLights();
-	
-	//-------------------------------------------------
-	// capture the depth for the motion blur before rendering any post process surfaces that may contribute to the depth
-	//-------------------------------------------------
-	if( r_motionBlur.GetInteger() > 0 )
-	{
-		const idScreenRect& viewport = backEnd.viewDef->viewport;
-		globalImages->currentDepthImage->CopyDepthbuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
-	}
 	
 	//-------------------------------------------------
 	// now draw any screen warping post-process effects using _currentRender
@@ -3985,6 +5410,67 @@ void RB_DrawViewInternal( const viewDef_t* viewDef, const int stereoEye )
 	// render debug tools
 	//-------------------------------------------------
 	RB_RenderDebugTools( drawSurfs, numDrawSurfs );
+	
+	// RB: convert back from HDR to LDR range
+	if( useHDR )
+	{
+		/*
+		int x = backEnd.viewDef->viewport.x1;
+		int y = backEnd.viewDef->viewport.y1;
+		int	w = backEnd.viewDef->viewport.x2 - backEnd.viewDef->viewport.x1 + 1;
+		int	h = backEnd.viewDef->viewport.y2 - backEnd.viewDef->viewport.y1 + 1;
+		
+		GL_Viewport( viewDef->viewport.x1,
+				viewDef->viewport.y1,
+				viewDef->viewport.x2 + 1 - viewDef->viewport.x1,
+				viewDef->viewport.y2 + 1 - viewDef->viewport.y1 );
+		*/
+		
+		/*
+		glBindFramebuffer( GL_READ_FRAMEBUFFER, globalFramebuffers.hdrFBO->GetFramebuffer() );
+		glBindFramebuffer( GL_DRAW_FRAMEBUFFER, globalFramebuffers.hdrQuarterFBO->GetFramebuffer() );
+		glBlitFramebuffer( 0, 0, glConfig.nativeScreenWidth, glConfig.nativeScreenHeight,
+						   0, 0, glConfig.nativeScreenWidth * 0.25f, glConfig.nativeScreenHeight * 0.25f,
+						   GL_COLOR_BUFFER_BIT,
+						   GL_LINEAR );
+		*/
+		
+#if defined(USE_HDR_MSAA)
+		if( r_multiSamples.GetInteger() > 0 )
+		{
+			glBindFramebuffer( GL_READ_FRAMEBUFFER, globalFramebuffers.hdrFBO->GetFramebuffer() );
+			glBindFramebuffer( GL_DRAW_FRAMEBUFFER, globalFramebuffers.hdrNonMSAAFBO->GetFramebuffer() );
+			glBlitFramebuffer( 0, 0, glConfig.nativeScreenWidth, glConfig.nativeScreenHeight,
+							   0, 0, glConfig.nativeScreenWidth, glConfig.nativeScreenHeight,
+							   GL_COLOR_BUFFER_BIT,
+							   GL_LINEAR );
+							   
+			// TODO resolve to 1x1
+			glBindFramebuffer( GL_READ_FRAMEBUFFER_EXT, globalFramebuffers.hdrNonMSAAFBO->GetFramebuffer() );
+			glBindFramebuffer( GL_DRAW_FRAMEBUFFER_EXT, globalFramebuffers.hdr64FBO->GetFramebuffer() );
+			glBlitFramebuffer( 0, 0, glConfig.nativeScreenWidth, glConfig.nativeScreenHeight,
+							   0, 0, 64, 64,
+							   GL_COLOR_BUFFER_BIT,
+							   GL_LINEAR );
+		}
+		else
+#endif
+		{
+			glBindFramebuffer( GL_READ_FRAMEBUFFER_EXT, globalFramebuffers.hdrFBO->GetFramebuffer() );
+			glBindFramebuffer( GL_DRAW_FRAMEBUFFER_EXT, globalFramebuffers.hdr64FBO->GetFramebuffer() );
+			glBlitFramebuffer( 0, 0, glConfig.nativeScreenWidth, glConfig.nativeScreenHeight,
+							   0, 0, 64, 64,
+							   GL_COLOR_BUFFER_BIT,
+							   GL_LINEAR );
+		}
+		
+		RB_CalculateAdaptation();
+		
+		RB_Tonemap( viewDef );
+	}
+	
+	RB_Bloom( viewDef );
+	// RB end
 	
 	renderLog.CloseBlock();
 }
@@ -4223,15 +5709,21 @@ void RB_PostProcess( const void* data )
 
 	// only do the post process step if resolution scaling is enabled. Prevents the unnecessary copying of the framebuffer and
 	// corresponding full screen quad pass.
-	if( rs_enable.GetInteger() == 0 )
+	if( rs_enable.GetInteger() == 0 && !r_useFilmicPostProcessEffects.GetBool() && r_antiAliasing.GetInteger() == 0 )
 	{
 		return;
 	}
 	
+	if( ( r_ssaoDebug.GetInteger() > 0 ) || ( r_ssgiDebug.GetInteger() > 0 ) )
+	{
+		return;
+	}
+	
+	RENDERLOG_PRINTF( "---------- RB_PostProcess() ----------\n" );
+	
 	// resolve the scaled rendering to a temporary texture
 	postProcessCommand_t* cmd = ( postProcessCommand_t* )data;
 	const idScreenRect& viewport = cmd->viewDef->viewport;
-	globalImages->currentRenderImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
 	
 	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
 	GL_Cull( CT_TWO_SIDED );
@@ -4243,12 +5735,142 @@ void RB_PostProcess( const void* data )
 	GL_Viewport( 0, 0, screenWidth, screenHeight );
 	GL_Scissor( 0, 0, screenWidth, screenHeight );
 	
-	GL_SelectTexture( 0 );
-	globalImages->currentRenderImage->Bind();
-	renderProgManager.BindShader_PostProcess();
+	// SMAA
+	int aaMode = r_antiAliasing.GetInteger();
+	if( aaMode == ANTI_ALIASING_SMAA_1X )
+	{
+		/*
+		 * The shader has three passes, chained together as follows:
+		 *
+		 *                           |input|------------------·
+		 *                              v                     |
+		 *                    [ SMAA*EdgeDetection ]          |
+		 *                              v                     |
+		 *                          |edgesTex|                |
+		 *                              v                     |
+		 *              [ SMAABlendingWeightCalculation ]     |
+		 *                              v                     |
+		 *                          |blendTex|                |
+		 *                              v                     |
+		 *                [ SMAANeighborhoodBlending ] <------·
+		 *                              v
+		 *                           |output|
+		*/
+		
+		globalImages->smaaInputImage->CopyFramebuffer( 0, 0, glConfig.nativeScreenWidth, glConfig.nativeScreenHeight );
+		
+		// set SMAA_RT_METRICS = rpScreenCorrectionFactor
+		float screenCorrectionParm[4];
+		screenCorrectionParm[0] = 1.0f / glConfig.nativeScreenWidth;
+		screenCorrectionParm[1] = 1.0f / glConfig.nativeScreenHeight;
+		screenCorrectionParm[2] = glConfig.nativeScreenWidth;
+		screenCorrectionParm[3] = glConfig.nativeScreenHeight;
+		SetFragmentParm( RENDERPARM_SCREENCORRECTIONFACTOR, screenCorrectionParm ); // rpScreenCorrectionFactor
+		
+		globalFramebuffers.smaaEdgesFBO->Bind();
+		
+		glClearColor( 0, 0, 0, 0 );
+		glClear( GL_COLOR_BUFFER_BIT );
+		
+		GL_SelectTexture( 0 );
+		globalImages->smaaInputImage->Bind();
+		
+		renderProgManager.BindShader_SMAA_EdgeDetection();
+		RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
+		
+#if 1
+		//globalImages->smaaEdgesImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
+		
+		globalFramebuffers.smaaBlendFBO->Bind();
+		//Framebuffer::Unbind();
+		
+		glClear( GL_COLOR_BUFFER_BIT );
+		
+		GL_SelectTexture( 0 );
+		globalImages->smaaEdgesImage->Bind();
+		
+		GL_SelectTexture( 1 );
+		globalImages->smaaAreaImage->Bind();
+		
+		GL_SelectTexture( 2 );
+		globalImages->smaaSearchImage->Bind();
+		
+		renderProgManager.BindShader_SMAA_BlendingWeightCalculation();
+		RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
+		
+		Framebuffer::Unbind();
+#endif
+		
+#if 1
+		globalImages->BindNull();
+		
+		//GL_SelectTexture( 0 );
+		//globalImages->smaaBlendImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
+		
+		GL_SelectTexture( 0 );
+		globalImages->smaaInputImage->Bind();
+		
+		GL_SelectTexture( 1 );
+		globalImages->smaaBlendImage->Bind();
+		
+		renderProgManager.BindShader_SMAA_NeighborhoodBlending();
+		RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
+#endif
+	}
 	
-	// Draw
-	RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
+#if 1
+	if( r_useFilmicPostProcessEffects.GetBool() )
+	{
+		globalImages->currentRenderImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
+		
+		GL_SelectTexture( 0 );
+		globalImages->currentRenderImage->Bind();
+		
+		GL_SelectTexture( 1 );
+		globalImages->grainImage1->Bind();
+		
+		renderProgManager.BindShader_PostProcess();
+		
+		const static int GRAIN_SIZE = 128;
+		
+		// screen power of two correction factor
+		float screenCorrectionParm[4];
+		screenCorrectionParm[0] = 1.0f / GRAIN_SIZE;
+		screenCorrectionParm[1] = 1.0f / GRAIN_SIZE;
+		screenCorrectionParm[2] = 1.0f;
+		screenCorrectionParm[3] = 1.0f;
+		SetFragmentParm( RENDERPARM_SCREENCORRECTIONFACTOR, screenCorrectionParm ); // rpScreenCorrectionFactor
+		
+		float jitterTexOffset[4];
+		if( r_shadowMapRandomizeJitter.GetBool() )
+		{
+			jitterTexOffset[0] = ( rand() & 255 ) / 255.0;
+			jitterTexOffset[1] = ( rand() & 255 ) / 255.0;
+		}
+		else
+		{
+			jitterTexOffset[0] = 0;
+			jitterTexOffset[1] = 0;
+		}
+		jitterTexOffset[2] = 0.0f;
+		jitterTexOffset[3] = 0.0f;
+		SetFragmentParm( RENDERPARM_JITTERTEXOFFSET, jitterTexOffset ); // rpJitterTexOffset
+		
+		// Draw
+		RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
+	}
+#endif
+	
+	GL_SelectTexture( 2 );
+	globalImages->BindNull();
+	
+	GL_SelectTexture( 1 );
+	globalImages->BindNull();
+	
+	GL_SelectTexture( 0 );
+	globalImages->BindNull();
+	
+	renderProgManager.Unbind();
 	
 	renderLog.CloseBlock();
 }

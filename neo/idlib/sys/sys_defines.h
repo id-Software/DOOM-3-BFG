@@ -102,12 +102,16 @@ If you have questions concerning this license or the applicable additional terms
 #endif
 
 
-#elif defined(__linux__) || defined(__FreeBSD__) || defined(__APPLE__)
+#elif defined(__linux__) || defined(__FreeBSD__) || defined(__APPLE__) || defined(__GNUC__) || defined(__clang__)
 
+#ifndef CPUSTRING
 #if defined(__i386__)
 #define	CPUSTRING						"x86"
 #elif defined(__x86_64__)
 #define CPUSTRING						"x86_86"
+#else
+#error unknown CPU
+#endif
 #endif
 
 #if defined(__FreeBSD__)
@@ -116,6 +120,8 @@ If you have questions concerning this license or the applicable additional terms
 #define	BUILD_STRING					"linux-" CPUSTRING
 #elif defined(__APPLE__)
 #define BUILD_STRING					"osx-" CPUSTRING
+#else
+#define BUILD_STRING					"other-" CPUSTRING
 #endif
 
 #define _alloca							alloca
@@ -146,6 +152,8 @@ If you have questions concerning this license or the applicable additional terms
 #define CALLBACK
 #define __cdecl
 
+#else
+#error unknown build enviorment
 #endif
 // RB end
 
@@ -207,12 +215,13 @@ bulk of the codebase, so it is the best place for analyze pragmas.
 // win32 needs this, but 360 doesn't
 #pragma warning( disable: 6540 )	// warning C6540: The use of attribute annotations on this function will invalidate all of its existing __declspec annotations [D:\tech5\engine\engine-10.vcxproj]
 
-
+#if !defined(VERIFY_FORMAT_STRING)
 // checking format strings catches a LOT of errors
 #include <CodeAnalysis\SourceAnnotations.h>
 #define	VERIFY_FORMAT_STRING	[SA_FormatString(Style="printf")]
 // DG: alternative for GCC with attribute (NOOP for MSVC)
 #define ID_STATIC_ATTRIBUTE_PRINTF(STRIDX, FIRSTARGIDX)
+#endif
 
 #else
 #define	VERIFY_FORMAT_STRING

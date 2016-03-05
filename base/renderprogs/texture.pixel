@@ -41,4 +41,6 @@ struct PS_OUT {
 
 void main( PS_IN fragment, out PS_OUT result ) {
 	result.color = tex2D( samp0, fragment.texcoord0 ) * rpColor;
+	//result.color = textureLod( samp0, fragment.texcoord0, 2.0 ) * rpColor;
+	//result.color = float4( 0.0, 1.0, 0.0, 1.0 ) * rpColor;
 }
