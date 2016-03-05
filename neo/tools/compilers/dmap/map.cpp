@@ -389,9 +389,11 @@ static void ParseSurface( const idMapPatch* patch, const idSurface* surface, con
 	for( i = 0; i < surface->GetNumIndexes(); i += 3 )
 	{
 		tri = AllocTri();
-		tri->v[2] = ( *surface )[surface->GetIndexes()[i + 0]];
-		tri->v[1] = ( *surface )[surface->GetIndexes()[i + 2]];
+		
 		tri->v[0] = ( *surface )[surface->GetIndexes()[i + 1]];
+		tri->v[1] = ( *surface )[surface->GetIndexes()[i + 2]];
+		tri->v[2] = ( *surface )[surface->GetIndexes()[i + 0]];
+		
 		tri->material = material;
 		tri->next = prim->tris;
 		prim->tris = tri;
@@ -455,11 +457,11 @@ static int ParsePolygonMesh( const MapPolygonMesh* mesh, int primitiveNum, int n
 	
 	for( int i = 0; i < mesh->GetNumPolygons(); i++ )
 	{
-		MapPolygon* poly = mesh->GetFace( i );
+		const MapPolygon& poly = mesh->GetFace( i );
 		
-		const idMaterial* mat = declManager->FindMaterial( poly->GetMaterial() );
+		const idMaterial* mat = declManager->FindMaterial( poly.GetMaterial() );
 		
-		const idList<int>& indexes = poly->GetIndexes();
+		const idList<int>& indexes = poly.GetIndexes();
 		
 		//idList<int> unique;
 		//for( int j = 0; j < indexes.Num(); j++ )

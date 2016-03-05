@@ -290,7 +290,7 @@ ID_INLINE MapPolygon::MapPolygon()
 
 ID_INLINE MapPolygon::MapPolygon( int numIndexes )
 {
-	indexes.AssureSize( 3 );
+	//indexes.AssureSize( 3 );
 }
 
 
@@ -301,7 +301,7 @@ public:
 	~MapPolygonMesh()
 	{
 		//verts.DeleteContents();
-		polygons.DeleteContents( true );
+		//polygons.DeleteContents( true );
 	}
 	
 	void					ConvertFromBrush( const idMapBrush* brush, int entityNum, int primitiveNum );
@@ -309,6 +309,9 @@ public:
 	
 	static MapPolygonMesh*	Parse( idLexer& src, const idVec3& origin, float version = CURRENT_MAP_VERSION );
 	bool					Write( idFile* fp, int primitiveNum, const idVec3& origin ) const;
+	
+	static MapPolygonMesh*	ParseJSON( idLexer& src );
+	bool					WriteJSON( idFile* fp, int primitiveNum, const idVec3& origin ) const;
 	
 	
 	
@@ -328,12 +331,12 @@ public:
 		return polygons.Num();
 	}
 	
-	int						AddPolygon( MapPolygon* face )
-	{
-		return polygons.Append( face );
-	}
+	//int						AddPolygon( MapPolygon* face )
+	//{
+	//	return polygons.Append( face );
+	//}
 	
-	MapPolygon* 			GetFace( int i ) const
+	const MapPolygon& 			GetFace( int i ) const
 	{
 		return polygons[i];
 	}
@@ -357,10 +360,12 @@ public:
 private:
 	void					SetContents();
 	
+	int						originalType;
+	
 protected:
 
 	idList<idDrawVert>		verts;			// vertices can be shared between polygons
-	idList<MapPolygon*>		polygons;
+	idList<MapPolygon>		polygons;
 	
 	// derived data after parsing
 	
@@ -391,6 +396,10 @@ public:
 	}
 	static idMapEntity* 	Parse( idLexer& src, bool worldSpawn = false, float version = CURRENT_MAP_VERSION );
 	bool					Write( idFile* fp, int entityNum ) const;
+	// RB begin
+	static idMapEntity* 	ParseJSON( idLexer& src );
+	bool					WriteJSON( idFile* fp, int entityNum, int numEntities ) const;
+	// RB end
 	int						GetNumPrimitives() const
 	{
 		return primitives.Num();
@@ -428,6 +437,7 @@ public:
 	bool					Write( const char* fileName, const char* ext, bool fromBasePath = true );
 	
 	// RB begin
+	bool					WriteJSON( const char* fileName, const char* ext, bool fromBasePath = true );
 	bool					ConvertToPolygonMeshFormat();
 	// RB end
 	

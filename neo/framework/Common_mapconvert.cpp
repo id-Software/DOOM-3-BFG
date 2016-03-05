@@ -377,15 +377,15 @@ void OBJExporter::ConvertMeshToOBJ( OBJGroup& group, const MapPolygonMesh* mesh,
 	
 	for( int i = 0; i < mesh->GetNumPolygons(); i++ )
 	{
-		MapPolygon* poly = mesh->GetFace( i );
+		const MapPolygon& poly = mesh->GetFace( i );
 		
-		const idMaterial* material = declManager->FindMaterial( poly->GetMaterial() );
+		const idMaterial* material = declManager->FindMaterial( poly.GetMaterial() );
 		materials.AddUnique( material );
 		
 		OBJExporter::OBJFace& face = geometry.faces.Alloc();
 		face.material = material;
 		
-		const idList<int>& indexes = poly->GetIndexes();
+		const idList<int>& indexes = poly.GetIndexes();
 		
 		for( int j = 0; j < verts.Num(); j++ )
 		{
@@ -621,6 +621,49 @@ CONSOLE_COMMAND( convertMap, "Convert .map file to new map format with polygons 
 		convertedFileName += "_converted";
 		
 		map.Write( convertedFileName, ".map" );
+	}
+	
+	common->SetRefreshOnPrint( false );
+}
+
+
+CONSOLE_COMMAND( convertMapToJSON, "Convert .map file to new map format with polygons instead of brushes ", idCmdSystem::ArgCompletion_MapName )
+{
+	common->SetRefreshOnPrint( true );
+	
+	if( args.Argc() != 2 )
+	{
+		common->Printf( "Usage: convertMapToJSON <map>\n" );
+		return;
+	}
+	
+	idStr filename = args.Argv( 1 );
+	if( !filename.Length() )
+	{
+		return;
+	}
+	filename.StripFileExtension();
+	
+	idStr mapName;
+	sprintf( mapName, "maps/%s.map", filename.c_str() );
+	
+	idMapFile map;
+	if( map.Parse( mapName, false, false ) )
+	{
+		map.ConvertToPolygonMeshFormat();
+		
+		idStrStatic< MAX_OSPATH > canonical = mapName;
+		canonical.ToLower();
+		
+		idStrStatic< MAX_OSPATH > extension;
+		canonical.StripFileExtension();
+		
+		idStrStatic< MAX_OSPATH > convertedFileName;
+		
+		convertedFileName = canonical;
+		//convertedFileName += "_converted";
+		
+		map.WriteJSON( convertedFileName, ".json" );
 	}
 	
 	common->SetRefreshOnPrint( false );

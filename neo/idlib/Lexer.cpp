@@ -1695,6 +1695,34 @@ int idLexer::Parse1DMatrix( int x, float* m )
 	return true;
 }
 
+// RB begin
+int idLexer::Parse1DMatrixJSON( int x, float* m )
+{
+	int i;
+	
+	if( !idLexer::ExpectTokenString( "[" ) )
+	{
+		return false;
+	}
+	
+	for( i = 0; i < x; i++ )
+	{
+		m[i] = idLexer::ParseFloat();
+		
+		if( i < ( x - 1 ) && !idLexer::ExpectTokenString( "," ) )
+		{
+			return false;
+		}
+	}
+	
+	if( !idLexer::ExpectTokenString( "]" ) )
+	{
+		return false;
+	}
+	return true;
+}
+// RB end
+
 /*
 ================
 idLexer::Parse2DMatrix

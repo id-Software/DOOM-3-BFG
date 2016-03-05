@@ -3018,9 +3018,9 @@ static void CM_EstimateVertsAndEdges( const idMapEntity* mapEnt, int* numVerts, 
 			
 			for( int i = 0; i < mesh->GetNumPolygons(); i++ )
 			{
-				const MapPolygon* poly = mesh->GetFace( i );
+				const MapPolygon& poly = mesh->GetFace( i );
 				
-				*numEdges += ( poly->GetIndexes().Num() - 2 ) * 3;
+				*numEdges += ( poly.GetIndexes().Num() - 2 ) * 3;
 			}
 			continue;
 		}
@@ -3187,11 +3187,11 @@ void idCollisionModelManagerLocal::ConvertMesh( cm_model_t* model, const MapPoly
 	idFixedWinding w;
 	for( int i = 0; i < mesh->GetNumPolygons(); i++ )
 	{
-		MapPolygon* poly = mesh->GetFace( i );
+		const MapPolygon& poly = mesh->GetFace( i );
 		
-		const idMaterial* material = declManager->FindMaterial( poly->GetMaterial() );
+		const idMaterial* material = declManager->FindMaterial( poly.GetMaterial() );
 		
-		const idList<int>& indexes = poly->GetIndexes();
+		const idList<int>& indexes = poly.GetIndexes();
 		
 		w.SetNumPoints( indexes.Num() );
 		
