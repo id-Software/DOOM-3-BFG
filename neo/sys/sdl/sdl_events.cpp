@@ -649,7 +649,26 @@ void Sys_InitInput()
 	SDL_EnableKeyRepeat( SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL );
 #endif
 	in_keyboard.SetModified();
-	
+
+#if SDL_VERSION_ATLEAST(2, 0, 0)
+    // GameController
+    if (SDL_Init(SDL_INIT_GAMECONTROLLER))
+        common->Printf("Sys_InitInput: SDL_INIT_GAMECONTROLLER error: %s\n", SDL_GetError());
+
+    SDL_GameController *controller = NULL;
+    for (int i = 0; i < SDL_NumJoysticks(); ++i) {
+        if (SDL_IsGameController(i)) {
+            controller = SDL_GameControllerOpen(i);
+            if (controller) {
+                common->Printf("GameController %i name: %s\n", i, SDL_GameControllerName(controller));
+                common->Printf("GameController %i is mapped as \"%s\".\n", i, SDL_GameControllerMapping(controller));
+            } else {
+                common->Printf("Could not open gamecontroller %i: %s\n", i, SDL_GetError());
+            }
+
+        }
+    }
+#else
 	// WM0110: Initialise SDL Joystick
 	common->Printf( "Sys_InitInput: Joystick subsystem init\n" );
 	if( SDL_Init( SDL_INIT_JOYSTICK ) )
@@ -702,6 +721,7 @@ void Sys_InitInput()
 		joy = NULL;
 	}
 	// WM0110
+#endif
 }
 
 /*
@@ -1231,7 +1251,54 @@ sysEvent_t Sys_GetEvent()
 				res.evValue2 = ev.button.state == SDL_PRESSED ? 1 : 0;
 				
 				return res;
-				
+
+#if SDL_VERSION_ATLEAST(2, 0, 0)
+            // GameController
+            case SDL_JOYAXISMOTION:
+            case SDL_JOYHATMOTION:
+            case SDL_JOYBUTTONDOWN:
+            case SDL_JOYBUTTONUP:
+            case SDL_JOYDEVICEADDED:
+            case SDL_JOYDEVICEREMOVED:
+                // Avoid 'unknown event' spam
+                continue;
+
+            case SDL_CONTROLLERAXISMOTION:
+                res.evType = SE_JOYSTICK;
+                res.evValue = J_AXIS_LEFT_X + (ev.caxis.axis - SDL_CONTROLLER_AXIS_LEFTX);
+                res.evValue2 = ev.caxis.value;
+
+                joystick_polls.Append(joystick_poll_t(res.evValue, res.evValue2));
+                return res;
+
+            case SDL_CONTROLLERBUTTONDOWN:
+            case SDL_CONTROLLERBUTTONUP:
+                static int controllerButtonRemap[][2] = {
+                    {K_JOY1, J_ACTION1},
+                    {K_JOY2, J_ACTION2},
+                    {K_JOY3, J_ACTION3},
+                    {K_JOY4, J_ACTION4},
+                    {K_JOY9, J_ACTION9},
+                    {K_JOY11, J_ACTION11},
+                    {K_JOY10, J_ACTION10},
+                    {K_JOY7, J_ACTION7},
+                    {K_JOY8, J_ACTION8},
+                    {K_JOY5, J_ACTION5},
+                    {K_JOY6, J_ACTION6},
+                    {K_JOY_DPAD_UP, J_DPAD_UP},
+                    {K_JOY_DPAD_DOWN, J_DPAD_DOWN},
+                    {K_JOY_DPAD_LEFT, J_DPAD_LEFT},
+                    {K_JOY_DPAD_RIGHT, J_DPAD_RIGHT},
+                };
+                joystick_polls.Append(joystick_poll_t(controllerButtonRemap[ev.cbutton.button][1], ev.cbutton.state == SDL_PRESSED ? 1 : 0));
+
+                res.evType = SE_KEY;
+                res.evValue = controllerButtonRemap[ev.cbutton.button][0];
+				res.evValue2 = ev.cbutton.state == SDL_PRESSED ? 1 : 0;
+
+                joystick_polls.Append(joystick_poll_t(res.evValue, res.evValue2));
+                return res;
+#else
 			// WM0110
 			// NOTE: it seems that the key bindings for the GUI and for the game are
 			// totally independant. I think the event returned by this function seems to work
@@ -1592,6 +1659,7 @@ sysEvent_t Sys_GetEvent()
 				
 				return res;
 			// WM0110
+#endif
 			
 			case SDL_QUIT:
 				PushConsoleEvent( "quit" );
