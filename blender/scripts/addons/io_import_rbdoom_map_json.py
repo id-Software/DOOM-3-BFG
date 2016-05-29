@@ -83,7 +83,10 @@ def import_map( filename ):
     end = time.time()
     print( "loading {0} took {1} seconds".format( filename, ( end - start ) ) )
     
-    for ent in data["entities"]:
+    numEntities = len( data["entities"] )
+    for entNum in range( numEntities ):
+        
+        ent = data["entities"][entNum]
      
         origin = ( 0, 0, 0 )
         entname = "worldspawn"
@@ -95,7 +98,7 @@ def import_map( filename ):
         if "name" in ent:
             entname = ent["name"]
             
-        print( "creating " + entname + "..." )
+        print( "creating entity {0} of {1}: {2}".format( entNum, numEntities, entname ) )
             
         #group = bpy.data.groups.new( entname )
         #group = bpy.ops.object.empty_add()
@@ -184,7 +187,7 @@ def import_map( filename ):
                 
                 me = bpy.data.meshes.new( primName )
                 ob = bpy.data.objects.new( primName, me )
-                ob.location = origin
+                #ob.location = origin
                 ob.show_name = True
      
                 # link object to scene and make active
