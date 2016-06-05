@@ -223,7 +223,8 @@ def import_map( filename ):
                     mat = f["material"]
                     if not mat in materials:
                         materials.append( mat )
-                 
+                
+                # create blender materials 
                 for mat in materials:
                     #print( mat )
                     
@@ -235,7 +236,74 @@ def import_map( filename ):
                     
                     me.materials.append( bmat )
                     
-                #mat = bpy.data.materials[ f.material ]
+                # create blender groups for special materials like textures/common/clip or visportals
+                groupDict = [
+                    ( "textures/common/caulk", "caulk" ),
+                    ( "textures/common/nodraw", "nodraw" ),
+                    ( "textures/common/nodrawsolid", "nodrawsolid" ),
+                    
+                    ( "textures/common/collision", "collision" ),
+                    ( "textures/common/clip", "clip" ),
+                    ( "textures/common/player_clip", "player_clip" ),
+                    ( "textures/common/player_clip", "clip" ),
+                    ( "textures/common/full_clip", "full_clip" ),
+                    ( "textures/common/full_clip", "clip" ),
+                    ( "textures/common/monster_clip", "monster_clip" ),
+                    ( "textures/common/monster_clip", "clip" ),
+                    ( "textures/common/ik_clip", "ik_clip" ),
+                    ( "textures/common/ik_clip", "clip" ),
+                    ( "textures/common/movable_clip", "movable_clip" ),
+                    ( "textures/common/movable_clip", "clip" ),
+                    ( "textures/common/clip_plusmovables", "clip_plusmovables" ),
+                    ( "textures/common/clip_plusmovables", "clip" ),
+                    
+                    ( "textures/common/cushion", "cushion" ),
+                    ( "textures/common/slick", "slick" ),
+                    ( "textures/common/noimpact", "noimpact" ),
+                    ( "textures/common/nodrop", "nodrop" ),
+                    ( "textures/common/ladder", "ladder" ),
+                    
+                    ( "textures/common/mirror", "mirror" ),
+                    
+                    ( "textures/common/shadow", "shadow" ),
+                    ( "textures/common/shadow2", "shadow2" ),
+                    
+                    ( "textures/common/trigger", "trigger" ),
+                    ( "textures/common/trigmulti", "trigger" ),
+                    ( "textures/common/trigonce", "trigger" ),
+                    ( "textures/common/trigtimer", "trigger" ),
+                    ( "textures/common/trigrelay", "trigger" ),
+                    ( "textures/common/trighurt", "trigger" ),
+                    ( "textures/common/trigfade", "trigger" ),
+                    ( "textures/common/triggui", "trigger" ),
+                    ( "textures/common/trigentityname", "trigger" ),
+                    ( "textures/common/trigentityname_once", "trigger" ),
+                    
+                    ( "textures/editor/entitygui", "gui" ),
+                    ( "textures/editor/entitygui2", "gui" ),
+                    ( "textures/editor/entitygui3", "gui" ),
+                    ( "textures/editor/pda_gui", "gui" ),
+                    
+                    ( "textures/editor/aassolid", "aassolid" ),
+                    ( "textures/editor/aassolid", "aas" ),
+                    ( "textures/editor/aasobstacle", "aasobstacle" ),
+                    ( "textures/editor/aassolid", "aas" ),
+                    
+                    ( "textures/editor/visportal", "visportal" )
+                ]
+                
+                for mat in materials:
+                    
+                    for ( tex, groupName ) in groupDict:
+                        if mat == tex:
+                            group = None
+                            if groupName in bpy.data.groups:
+                                group = bpy.data.groups[ groupName ]
+                                group.objects.link( ob )
+                            else:
+                                bpy.ops.group.create( name = groupName )
+                            
+                
                     
                 for i in range( len( prim["polygons"] ) ):
                     f = prim["polygons"][i]
@@ -244,7 +312,12 @@ def import_map( filename ):
                     #print( "polygon {0} material_index = {1}".format( i, me.polygons[i].material_index ) )
                 
                 me.update()
+                
+                ob.select = False
             
+        # deselect so we don't add objects into the wrong groups
+        entObj.select = False
+
 
 
 class ImportMap( bpy.types.Operator, ImportHelper ):
