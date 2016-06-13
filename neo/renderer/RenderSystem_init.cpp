@@ -3,7 +3,8 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2012-2015 Robert Beckebans
+Copyright (C) 2014-2016 Robert Beckebans
+Copyright (C) 2014-2016 Kot in Action Creative Artel
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -39,6 +40,12 @@ If you have questions concerning this license or the applicable additional terms
 #include "../sys/win32/win_local.h"
 #endif
 // RB end
+
+// foresthale 2014-03-01: fixed custom screenshot resolution by doing a more direct render path
+#define BUGFIXEDSCREENSHOTRESOLUTION 1
+#ifdef BUGFIXEDSCREENSHOTRESOLUTION
+#include "../framework/Common_local.h"
+#endif
 
 // DeviceContext bypasses RenderSystem to work directly with this
 idGuiModel* tr_guiModel;
@@ -1254,6 +1261,26 @@ void R_ReadTiledPixels( int width, int height, byte* buffer, renderView_t* ref =
 	int sysHeight = renderSystem->GetHeight();
 	byte* temp = ( byte* )R_StaticAlloc( ( sysWidth + 3 ) * sysHeight * 3 );
 	
+	// foresthale 2014-03-01: fixed custom screenshot resolution by doing a more direct render path
+#ifdef BUGFIXEDSCREENSHOTRESOLUTION
+	if( sysWidth > width )
+		sysWidth = width;
+	
+	if( sysHeight > height )
+		sysHeight = height;
+	
+	// make sure the game / draw thread has completed
+	//commonLocal.WaitGameThread();
+	
+	// discard anything currently on the list
+	tr.SwapCommandBuffers( NULL, NULL, NULL, NULL );
+	
+	int originalNativeWidth = glConfig.nativeScreenWidth;
+	int originalNativeHeight = glConfig.nativeScreenHeight;
+	glConfig.nativeScreenWidth = sysWidth;
+	glConfig.nativeScreenHeight = sysHeight;
+#endif
+	
 	// disable scissor, so we don't need to adjust all those rects
 	r_useScissor.SetBool( false );
 	
@@ -1261,17 +1288,42 @@ void R_ReadTiledPixels( int width, int height, byte* buffer, renderView_t* ref =
 	{
 		for( int yo = 0 ; yo < height ; yo += sysHeight )
 		{
+			// foresthale 2014-03-01: fixed custom screenshot resolution by doing a more direct render path
+#ifdef BUGFIXEDSCREENSHOTRESOLUTION
+			// discard anything currently on the list
+			tr.SwapCommandBuffers( NULL, NULL, NULL, NULL );
+			if( ref )
+			{
+				// ref is only used by envShot, Event_camShot, etc to grab screenshots of things in the world,
+				// so this omits the hud and other effects
+				tr.primaryWorld->RenderScene( ref );
+			}
+			else
+			{
+				// build all the draw commands without running a new game tic
+				commonLocal.Draw();
+			}
+			// this should exit right after vsync, with the GPU idle and ready to draw
+			const emptyCommand_t* cmd = tr.SwapCommandBuffers( NULL, NULL, NULL, NULL );
+			
+			// get the GPU busy with new commands
+			tr.RenderCommandBuffers( cmd );
+			
+			// discard anything currently on the list (this triggers SwapBuffers)
+			tr.SwapCommandBuffers( NULL, NULL, NULL, NULL );
+#else
+			// foresthale 2014-03-01: note: ref is always NULL in every call path to this function
 			if( ref )
 			{
 				// discard anything currently on the list
 				tr.SwapCommandBuffers( NULL, NULL, NULL, NULL );
-				
+			
 				// build commands to render the scene
 				tr.primaryWorld->RenderScene( ref );
-				
+			
 				// finish off these commands
 				const emptyCommand_t* cmd = tr.SwapCommandBuffers( NULL, NULL, NULL, NULL );
-				
+			
 				// issue the commands to the GPU
 				tr.RenderCommandBuffers( cmd );
 			}
@@ -1280,6 +1332,7 @@ void R_ReadTiledPixels( int width, int height, byte* buffer, renderView_t* ref =
 				const bool captureToImage = false;
 				common->UpdateScreen( captureToImage, false );
 			}
+#endif
 			
 			int w = sysWidth;
 			if( xo + w > width )
@@ -1304,6 +1357,15 @@ void R_ReadTiledPixels( int width, int height, byte* buffer, renderView_t* ref =
 			}
 		}
 	}
+	
+	// foresthale 2014-03-01: fixed custom screenshot resolution by doing a more direct render path
+#ifdef BUGFIXEDSCREENSHOTRESOLUTION
+	// discard anything currently on the list
+	tr.SwapCommandBuffers( NULL, NULL, NULL, NULL );
+	
+	glConfig.nativeScreenWidth = originalNativeWidth;
+	glConfig.nativeScreenHeight = originalNativeHeight;
+#endif
 	
 	r_useScissor.SetBool( true );
 	
@@ -1406,7 +1468,7 @@ void idRenderSystemLocal::TakeScreenshot( int width, int height, const char* fil
 	}
 	if( exten == PNG )
 	{
-		R_WritePNG( finalFileName, buffer, 3, width, height, false );
+		R_WritePNG( finalFileName, buffer, 3, width, height, false, "fs_basepath" );
 	}
 	else
 	{
@@ -1428,7 +1490,7 @@ void idRenderSystemLocal::TakeScreenshot( int width, int height, const char* fil
 			buffer[i + 2] = temp;
 		}
 		
-		fileSystem->WriteFile( finalFileName, buffer, c );
+		fileSystem->WriteFile( finalFileName, buffer, c, "fs_basepath" );
 	}
 	
 	R_StaticFree( buffer );
@@ -1725,7 +1787,7 @@ void R_EnvShot_f( const idCmdArgs& args )
 		ref.viewaxis = axis[i];
 		fullname.Format( "env/%s%s", baseName, extension );
 		
-		tr.TakeScreenshot( size, size, fullname, blends, &ref, TGA );
+		tr.TakeScreenshot( size, size, fullname, blends, &ref, PNG );
 	}
 	
 	// restore the original resolution, axis and fov
