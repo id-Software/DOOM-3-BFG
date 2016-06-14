@@ -282,7 +282,7 @@ idCVar r_exposure( "r_exposure", "0.5", CVAR_ARCHIVE | CVAR_RENDERER | CVAR_FLOA
 // RB end
 
 const char* fileExten[3] = { "tga", "png", "jpg" };
-const char* envDirection[6] = { "_nx", "_py", "_ny", "_pz", "_nz", "_px" };
+const char* envDirection[6] = { "_px", "_nx", "_py", "_ny", "_pz", "_nz" };
 const char* skyDirection[6] = { "_forward", "_back", "_left", "_right", "_up", "_down" };
 
 
@@ -1265,10 +1265,10 @@ void R_ReadTiledPixels( int width, int height, byte* buffer, renderView_t* ref =
 #ifdef BUGFIXEDSCREENSHOTRESOLUTION
 	if( sysWidth > width )
 		sysWidth = width;
-	
+		
 	if( sysHeight > height )
 		sysHeight = height;
-	
+		
 	// make sure the game / draw thread has completed
 	//commonLocal.WaitGameThread();
 	
@@ -1683,7 +1683,7 @@ void R_EnvShot_f( const idCmdArgs& args )
 	idStr		fullname;
 	const char*	baseName;
 	int			i;
-	idMat3		axis[7], oldAxis;
+	idMat3		axis[6], oldAxis;
 	renderView_t	ref;
 	viewDef_t	primary;
 	int			blends;
@@ -1727,33 +1727,36 @@ void R_EnvShot_f( const idCmdArgs& args )
 	primary = *tr.primaryView;
 	
 	memset( &axis, 0, sizeof( axis ) );
-	axis[0][0][0] = 1; // this one gets ignored as it always come out wrong.
-	axis[0][1][2] = 1; // and so we repeat this axis as the last one.
+	
+	// +X
+	axis[0][0][0] = 1;
+	axis[0][1][2] = 1;
 	axis[0][2][1] = 1;
 	
+	// -X
 	axis[1][0][0] = -1;
 	axis[1][1][2] = -1;
 	axis[1][2][1] = 1;
 	
+	// +Y
 	axis[2][0][1] = 1;
 	axis[2][1][0] = -1;
 	axis[2][2][2] = -1;
 	
+	// -Y
 	axis[3][0][1] = -1;
 	axis[3][1][0] = -1;
 	axis[3][2][2] = 1;
 	
+	// +Z
 	axis[4][0][2] = 1;
 	axis[4][1][0] = -1;
 	axis[4][2][1] = 1;
 	
+	// -Z
 	axis[5][0][2] = -1;
 	axis[5][1][0] = 1;
 	axis[5][2][1] = 1;
-	
-	axis[6][0][0] = 1; // this is the repetition of the first axis
-	axis[6][1][2] = 1;
-	axis[6][2][1] = 1;
 	
 	// let's get the game window to a "size" resolution
 	if( ( res_w != size ) || ( res_h != size ) )
@@ -1763,31 +1766,23 @@ void R_EnvShot_f( const idCmdArgs& args )
 		R_SetNewMode( false ); // the same as "vid_restart"
 	} // FIXME that's a hack!!
 	
-	for( i = 0 ; i < 7 ; i++ )
+	// so we return to that axis and fov after the fact.
+	oldAxis = primary.renderView.viewaxis;
+	old_fov_x = primary.renderView.fov_x;
+	old_fov_y = primary.renderView.fov_y;
+	
+	for( i = 0 ; i < 6 ; i++ )
 	{
 	
 		ref = primary.renderView;
 		
-		if( i == 0 )
-		{
-			// so we return to that axis and fov after the fact.
-			oldAxis = ref.viewaxis;
-			old_fov_x = ref.fov_x;
-			old_fov_y = ref.fov_y;
-			//this is part of the hack
-			extension = "_wrong";
-		}
-		else
-		{
-			// this keeps being part of the hack
-			extension = envDirection[ i - 1 ]; //yes, indeed, this is totally part of the hack!
-		}
+		extension = envDirection[ i ];
 		
 		ref.fov_x = ref.fov_y = 90;
 		ref.viewaxis = axis[i];
 		fullname.Format( "env/%s%s", baseName, extension );
 		
-		tr.TakeScreenshot( size, size, fullname, blends, &ref, PNG );
+		tr.TakeScreenshot( size, size, fullname, blends, &ref, TGA );
 	}
 	
 	// restore the original resolution, axis and fov
@@ -2089,7 +2084,7 @@ void R_TransformCubemap( const char* orgDirection[6], const char* orgDir, const 
 		fullname.Format( "%s/%s/%s%s.%s", destDir, baseName, baseName, destDirection[i], fileExten [TGA] );
 		common->Printf( "writing %s\n", fullname.c_str() );
 		common->UpdateScreen( false );
-		R_WriteTGA( fullname, buffers[i], width, width );
+		R_WriteTGA( fullname, buffers[i], width, width, false, "fs_basepath" );
 	}
 	
 	for( i = 0 ; i < 6 ; i++ )
