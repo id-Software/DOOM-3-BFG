@@ -51,7 +51,7 @@ def object_children_to_primitives( obj ):
                     for i in range( len( c.data.vertices ) ):
                         v = c.data.vertices[i]
                         st = c.data.uv_layers[0].data[i]
-                        verts.append( { 'xyz': [ v.co[0], v.co[1], v.co[2] ], 'st': [ st.uv[0], st.uv[1] ], 'normal': [ v.normal[0], v.normal[1], v.normal[2] ] } )
+                        verts.append( { 'xyz': [ v.co[0], v.co[1], v.co[2] ], 'st': [ st.uv[0], 1.0 - st.uv[1] ], 'normal': [ v.normal[0], v.normal[1], v.normal[2] ] } )
                         
                 else:
                     for v in c.data.vertices:
