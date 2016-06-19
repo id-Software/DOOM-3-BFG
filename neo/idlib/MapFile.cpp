@@ -1105,11 +1105,11 @@ unsigned int idMapEntity::GetGeometryCRC() const
 class idSort_CompareMapEntity : public idSort_Quick< idMapEntity*, idSort_CompareMapEntity >
 {
 public:
-	int Compare( idMapEntity*& a, idMapEntity*& b ) const
+	int Compare( idMapEntity* const& a, idMapEntity* const& b ) const
 	{
 		if( idStr::Icmp( a->epairs.GetString( "name" ), "worldspawn" ) == 0 )
 		{
-			return -1;
+			return 1;
 		}
 		
 		if( idStr::Icmp( b->epairs.GetString( "name" ), "worldspawn" ) == 0 )
@@ -1224,7 +1224,22 @@ bool idMapFile::Parse( const char* filename, bool ignoreRegion, bool osPath )
 			}
 		}
 		
-		entities.SortWithTemplate( idSort_CompareMapEntity() );
+		//entities.SortWithTemplate( idSort_CompareMapEntity() );
+		
+		if( entities.Num() > 0 && ( idStr::Icmp( entities[0]->epairs.GetString( "name" ), "worldspawn" ) != 0 ) )
+		{
+			// move world spawn to first place
+			for( int i = 1; i < entities.Num(); i++ )
+			{
+				if( idStr::Icmp( entities[i]->epairs.GetString( "name" ), "worldspawn" ) == 0 )
+				{
+					idMapEntity* tmp = entities[0];
+					entities[0] = entities[i];
+					entities[i] = tmp;
+					break;
+				}
+			}
+		}
 	}
 	else
 	{
