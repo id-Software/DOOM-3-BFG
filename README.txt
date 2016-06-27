@@ -329,6 +329,8 @@ r_hdrAutoExposure [0 or 1] - Adaptive tonemapping with HDR
 r_exposure [0 .. 1] - Default 0.5, Controls brightness and affects HDR exposure key
 	This is what you change in the video brightness options
 
+r_useSSAO [0 .. 1] - Use Screen Space Ambient Occlusion to darken the corners in the scene
+	
 r_useFilmicPostProcessEffects [0 or 1] - Apply several post process effects to mimic a filmic look"
 
 
@@ -339,7 +341,7 @@ __________________________________________
 
 - HDR does not work with old-school stencil shadows
 
-- MSAA antiliasing modes don't work with HDR: Use SMAA
+- MSAA anti-aliasing modes don't work with HDR: Use SMAA
 
 - Some lights cause shadow acne with shadow mapping
 

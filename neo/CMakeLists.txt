@@ -27,6 +27,9 @@ option(ONATIVE
 option(WINRT
 		"Build for Windows RT" OFF)
 		
+option(WINDOWS10
+		"Build for Windows 10" OFF)
+		
 option(USE_SYSTEM_ZLIB
                 "Use the system zlib instead of the bundled one" OFF)
 
@@ -193,12 +196,12 @@ elseif(MSVC)
                                        #-DUSE_OPENAL
 					-DUSE_EXCEPTIONS)
         ## Check for Version ##
-        if( WINRT ) # Windows RT
-                add_definitions(-DUSE_WINRT)
+        if( WINRT OR WINDOWS10 ) # Windows RT
+			add_definitions(-DUSE_WINRT)
         endif()
 
         if (USE_INTRINSICS)
-                add_definitions(-DUSE_INTRINSICS)
+			add_definitions(-DUSE_INTRINSICS)
         endif()
 					
 	if(NOT CMAKE_CL_64)
@@ -1268,9 +1271,20 @@ if(MSVC)
 		# endif()
 		
 	# else()
+	
+	if(WINDOWS10)
+		set(DirectX_LIBRARIES
+			dinput8
+			dsound
+			dxguid
+			#dxerr
+			Xinput
+			xaudio2.lib
+			)
+	else()
 		find_package(DirectX REQUIRED)
 		include_directories(${DirectX_INCLUDE_DIR})
-	#endif()
+	endif()
 	
 	if(OPENAL)
 		add_definitions(-DUSE_OPENAL)
@@ -1431,7 +1445,7 @@ if(MSVC)
         ${PNG_LIBRARY}
         ${JPEG_LIBRARY}
         ${GLEW_LIBRARY}
-	${CMAKE_DL_LIBS}
+		${CMAKE_DL_LIBS}
 		)
 		
 	#CMAKE_BINARY_DIR
