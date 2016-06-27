@@ -47,13 +47,13 @@ If you have questions concerning this license or the applicable additional terms
 
 static const int NUM_DECAL_BOUNDING_PLANES	= 6;
 #ifdef ID_PC
-static const int MAX_DEFERRED_DECALS		= 8;
+static const int MAX_DEFERRED_DECALS		= 16;
 static const int DEFFERED_DECAL_TIMEOUT		= 1000;	// don't create a decal if it wasn't visible within the first second
-static const int MAX_DECALS					= 64;
+static const int MAX_DECALS					= 128;
 #else
-static const int MAX_DEFERRED_DECALS		= 4;
+static const int MAX_DEFERRED_DECALS		= 16;
 static const int DEFFERED_DECAL_TIMEOUT		= 200;	// don't create a decal if it wasn't visible within the first 200 milliseconds
-static const int MAX_DECALS					= 32;
+static const int MAX_DECALS					= 128;
 #endif
 static const int MAX_DECAL_VERTS			= 3 + NUM_DECAL_BOUNDING_PLANES + 3 + 6;	// 3 triangle verts clipped NUM_DECAL_BOUNDING_PLANES + 3 times (plus 6 for safety)
 static const int MAX_DECAL_INDEXES			= ( MAX_DECAL_VERTS - 2 ) * 3;
