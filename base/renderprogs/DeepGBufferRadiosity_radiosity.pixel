@@ -195,8 +195,8 @@ void sampleBothNormals( sampler2D normalBuffer, int2 ssC, int mipLevel, out floa
 float2 tapLocation( int sampleNumber, float spinAngle, float radialJitter, out float ssR )
 {
 	// Radius relative to ssR
-	float alpha = float( sampleNumber + radialJitter ) * ( 1.0 / NUM_SAMPLES );
-	float angle = alpha * ( NUM_SPIRAL_TURNS * 6.28 ) + spinAngle;
+	float alpha = ( float( sampleNumber ) + radialJitter) * ( 1.0 / float( NUM_SAMPLES ) );
+	float angle = alpha * ( float( NUM_SPIRAL_TURNS ) * 6.28 ) + spinAngle;
 	
 	ssR = alpha;
 	return float2( cos( angle ), sin( angle ) );
@@ -382,7 +382,7 @@ void iiValueFromPositionsAndNormalsAndLambertian( int2 ssP, float3 X, float3 n_X
 	// E = radiosity_Y * dot(w_i, n_X) * weight_Y * float(dot(YminusX, YminusX) < radius2);
 	
 	if( ( dot( YminusX, YminusX ) < radius2 ) && // Radius check
-			( weight_Y > 0 ) )
+			( weight_Y > 0.0 ) )
 	{
 		E = radiosity_Y * dot( w_i, n_X );
 	}
@@ -512,7 +512,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	float ssDiskRadius = -projScale * radius / C.z;
 	
 	// Hash function used in the HPG12 AlchemyAO paper
-	float randomPatternRotationAngle = ( 3 * ssC.x ^ ssC.y + ssC.x * ssC.y ) * 10;
+	float randomPatternRotationAngle = float( 3 * ssC.x ^ ssC.y + ssC.x * ssC.y ) * 10.0;
 #if TEMPORALLY_VARY_TAPS
 	randomPatternRotationAngle += rpJitterTexOffset.x;
 #endif
@@ -532,23 +532,23 @@ void main( PS_IN fragment, out PS_OUT result )
 		sampleIndirectLight( ssC, C, n_C, C_peeled, n_C_peeled, ssDiskRadius, i, randomPatternRotationAngle, radialJitter, CS_Z_buffer, normal_buffer, colorBuffer, irradianceSum, numSamplesUsed, ii_peeled, peeledSum );
 	}
 	
-	const float solidAngleHemisphere = 2 * PI;
+	const float solidAngleHemisphere = 2.0 * PI;
 	float3 E_X = irradianceSum * solidAngleHemisphere / ( numSamplesUsed + 0.00001 );
 	
 	indirectColor = E_X;
 	//indirectColor = pow( E_X, float3( 1.0 / 2.2 ) ); // RB: to sRGB
 	
 	// What is the ambient visibility of this location
-	visibility = 1 - numSamplesUsed / float( NUM_SAMPLES );
+	visibility = 1.0 - numSamplesUsed / float( NUM_SAMPLES );
 	//visibility = clamp( 1 - numSamplesUsed / float( NUM_SAMPLES ), 0.0, 1.0 );
-	//visibility = pow( max( 0.0, 1.0 - sqrt( sum * ( 3.0 / NUM_SAMPLES ) ) ), intensity );
+	//visibility = pow( max( 0.0, 1.0 - sqrt( sum * ( 3.0 / float( NUM_SAMPLES ) ) ) ), intensity );
 	
 	//result.color = float4( visibility, visibility, visibility, 1.0 );
 	//result.color = float4( n_C * 0.5 + 0.5, 1.0 );
 	//result.color = texture( samp2, fragment.texcoord0 ).rgba;
 	
 #if COMPUTE_PEELED_LAYER
-	float A_peeled = 1 - peeledSum / float( NUM_SAMPLES );
+	float A_peeled = 1.0 - peeledSum / float( NUM_SAMPLES );
 	float3 E_X_peeled = ii_peeled * solidAngleHemisphere / ( peeledSum + 0.00001 );
 	
 	indirectPeeledResult    = E_X_peeled;
