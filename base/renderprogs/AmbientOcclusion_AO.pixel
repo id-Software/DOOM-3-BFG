@@ -175,8 +175,8 @@ float3 sampleNormal( sampler2D normalBuffer, int2 ssC, int mipLevel )
 float2 tapLocation( int sampleNumber, float spinAngle, out float ssR )
 {
 	// Radius relative to ssR
-	float alpha = float( sampleNumber + 0.5 ) * ( 1.0 / NUM_SAMPLES );
-	float angle = alpha * ( NUM_SPIRAL_TURNS * 6.28 ) + spinAngle;
+	float alpha = ( float( sampleNumber ) + 0.5 ) * ( 1.0 / float( NUM_SAMPLES ) );
+	float angle = alpha * ( float( NUM_SPIRAL_TURNS ) * 6.28 ) + spinAngle;
 	
 	ssR = alpha;
 	return float2( cos( angle ), sin( angle ) );
@@ -374,7 +374,7 @@ void main( PS_IN fragment, out PS_OUT result )
 #else
 	// Reconstruct normals from positions.
 	float3 n_C = reconstructNonUnitCSFaceNormal( C );
-	// Since n_C is computed from the cross product of cmaera-space edge vectors from points at adjacent pixels, its magnitude will be proportional to the square of distance from the camera
+	// Since n_C is computed from the cross product of camera-space edge vectors from points at adjacent pixels, its magnitude will be proportional to the square of distance from the camera
 	if( dot( n_C, n_C ) > ( square( C.z * C.z * 0.00006 ) ) ) // if the threshold # is too big you will see black dots where we used a bad normal at edges, too small -> white
 	{
 		// The normals from depth should be very small values before normalization,
@@ -391,11 +391,11 @@ void main( PS_IN fragment, out PS_OUT result )
 #endif
 	
 	// Hash function used in the HPG12 AlchemyAO paper
-	float randomPatternRotationAngle = ( ( ( 3 * ssP.x ) ^ ( ssP.y + ssP.x * ssP.y ) )
+	float randomPatternRotationAngle = float( ( ( 3 * ssP.x ) ^ ( ssP.y + ssP.x * ssP.y ) )
 #if TEMPORALLY_VARY_TAPS
 										 + rpJitterTexOffset.x
 #endif
-									   ) * 10;
+									   ) * 10.0;
 									   
 	// Choose the screen-space sample radius
 	// proportional to the projected area of the sphere
@@ -419,13 +419,13 @@ void main( PS_IN fragment, out PS_OUT result )
 	float sum = 0.0;
 	for( int i = 0; i < NUM_SAMPLES; ++i )
 	{
-		sum += sampleAO( ssP, C, n_C, ssDiskRadius, i, randomPatternRotationAngle, CS_Z_buffer, 1 );
+		sum += sampleAO( ssP, C, n_C, ssDiskRadius, i, randomPatternRotationAngle, CS_Z_buffer, 1.0 );
 	}
 	
 #if HIGH_QUALITY
-	float A = pow( max( 0.0, 1.0 - sqrt( sum * ( 3.0 / NUM_SAMPLES ) ) ), intensity );
+	float A = pow( max( 0.0, 1.0 - sqrt( sum * ( 3.0 / float( NUM_SAMPLES ) ) ) ), intensity );
 #else
-	float A = max( 0.0, 1.0 - sum * intensityDivR6 * ( 5.0 / NUM_SAMPLES ) );
+	float A = max( 0.0, 1.0 - sum * intensityDivR6 * ( 5.0 / float( NUM_SAMPLES ) ) );
 	// Anti-tone map to reduce contrast and drag dark region farther
 	// (x^0.2 + 1.2 * x^4)/2.2
 	//A = ( pow( A, 0.2 ) + 1.2 * A * A * A * A ) / 2.2;
