@@ -139,7 +139,7 @@ def export_map( filename ):
     f.close()
 
 
-class ExportMap( bpy.types.Operator, ImportHelper ):
+class ExportMap( bpy.types.Operator, ExportHelper ):
     """Save a JSON file"""
     bl_idname = "export_scene.rbdoom_map_json"
     bl_label = "Export RBDOOM-3-BFG JSON map"
