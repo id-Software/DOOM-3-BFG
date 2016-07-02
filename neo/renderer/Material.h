@@ -3,6 +3,8 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2014-2016 Robert Beckebans
+Copyright (C) 2014-2016 Kot in Action Creative Artel
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -280,8 +282,15 @@ typedef enum
 	MF_NOSHADOWS				= BIT( 2 ),
 	MF_FORCESHADOWS				= BIT( 3 ),
 	MF_NOSELFSHADOW				= BIT( 4 ),
-	MF_NOPORTALFOG				= BIT( 5 ),	// this fog volume won't ever consider a portal fogged out
-	MF_EDITOR_VISIBLE			= BIT( 6 )	// in use (visible) per editor
+	MF_NOPORTALFOG				= BIT( 5 ),	 // this fog volume won't ever consider a portal fogged out
+	MF_EDITOR_VISIBLE			= BIT( 6 ),	 // in use (visible) per editor
+	// motorsep 11-23-2014; material LOD keys that define what LOD iteration the surface falls into
+	MF_LOD1_SHIFT				= 7,
+	MF_LOD1						= BIT( 7 ),	 // motorsep 11-24-2014; material flag for LOD1 iteration
+	MF_LOD2						= BIT( 8 ),	 // motorsep 11-24-2014; material flag for LOD2 iteration
+	MF_LOD3						= BIT( 9 ),	 // motorsep 11-24-2014; material flag for LOD3 iteration
+	MF_LOD4						= BIT( 10 ), // motorsep 11-24-2014; material flag for LOD4 iteration
+	MF_LOD_PERSISTENT			= BIT( 11 )	 // motorsep 11-24-2014; material flag for persistent LOD iteration
 } materialFlags_t;
 
 // contents flags, NOTE: make sure to keep the defines in doom_defs.script up to date with these!
@@ -789,6 +798,24 @@ public:
 	};
 	void				AddReference();
 	
+	// motorsep 11-23-2014; material LOD keys that define what LOD iteration the surface falls into
+	// lod1 - lod4 defines several levels of LOD
+	// persistentLOD specifies the LOD iteration that still being rendered, even after the camera is beyond the distance at which LOD iteration should not be rendered
+	
+	bool				IsLOD() const
+	{
+		return ( materialFlags & ( MF_LOD1 | MF_LOD2 | MF_LOD3 | MF_LOD4 ) ) != 0;
+	}
+	// foresthale 2014-11-24: added IsLODVisibleForDistance method
+	bool				IsLODVisibleForDistance( float distance, float lodBase ) const
+	{
+		int bit = ( materialFlags & ( MF_LOD1 | MF_LOD2 | MF_LOD3 | MF_LOD4 ) ) >> MF_LOD1_SHIFT;
+		float m1 = lodBase * ( bit >> 1 );
+		float m2 = lodBase * bit;
+		return distance >= m1 && ( distance < m2 || ( materialFlags & ( MF_LOD_PERSISTENT ) ) );
+	}
+	
+	
 private:
 	// parse the entire material
 	void				CommonInit();
@@ -825,7 +852,7 @@ private:
 	idStr				desc;				// description
 	idStr				renderBump;			// renderbump command options, without the "renderbump" at the start
 	
-	idImage*				lightFalloffImage;	// only for light shaders
+	idImage*			lightFalloffImage;	// only for light shaders
 	
 	idImage* 			fastPathBumpImage;	// if any of these are set, they all will be
 	idImage* 			fastPathDiffuseImage;
