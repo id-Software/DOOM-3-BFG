@@ -3,6 +3,8 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2014-2016 Robert Beckebans
+Copyright (C) 2014-2016 Kot in Action Creative Artel
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -1205,6 +1207,11 @@ void idMaterial::ParseFragmentMap( idLexer& src, newShaderStage_t* newStage )
 	{
 		src.ReadTokenOnLine( &token );
 		
+		if( !token.Icmp( "normalMap" ) )
+		{
+			td = TD_BUMP;
+			continue;
+		}
 		if( !token.Icmp( "cubeMap" ) )
 		{
 			cubeMap = CF_NATIVE;
@@ -2337,7 +2344,8 @@ void idMaterial::ParseMaterial( idLexer& src )
 			// volume would be coplanar with the surface, giving depth fighting
 			// we could make this no-self-shadows, but it may be more important
 			// to receive shadows from no-self-shadow monsters
-			SetMaterialFlag( MF_NOSHADOWS );
+			if( !r_useShadowMapping.GetBool() ) // motorsep 11-08-2014; when shadow mapping is on, we allow two-sided surfaces to cast shadows
+				SetMaterialFlag( MF_NOSHADOWS );
 		}
 		// backSided
 		else if( !token.Icmp( "backSided" ) )
@@ -2505,6 +2513,33 @@ void idMaterial::ParseMaterial( idLexer& src )
 			
 			// noShadows
 			SetMaterialFlag( MF_NOSHADOWS );
+			continue;
+		}
+		
+		// motorsep 11-23-2014; material LOD keys that define what LOD iteration the surface falls into
+		else if( !token.Icmp( "lod1" ) )
+		{
+			SetMaterialFlag( MF_LOD1 );
+			continue;
+		}
+		else if( !token.Icmp( "lod2" ) )
+		{
+			SetMaterialFlag( MF_LOD2 );
+			continue;
+		}
+		else if( !token.Icmp( "lod3" ) )
+		{
+			SetMaterialFlag( MF_LOD3 );
+			continue;
+		}
+		else if( !token.Icmp( "lod4" ) )
+		{
+			SetMaterialFlag( MF_LOD4 );
+			continue;
+		}
+		else if( !token.Icmp( "persistentLOD" ) )
+		{
+			SetMaterialFlag( MF_LOD_PERSISTENT );
 			continue;
 		}
 		else if( token == "{" )
