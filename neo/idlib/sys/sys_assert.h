@@ -100,12 +100,16 @@ bool AssertFailed( const char* file, int line, const char* expression );
 
 #if !defined( __TYPEINFOGEN__ ) && !defined( _lint )	// pcLint has problems with assert_offsetof()
 
+#if __cplusplus >= 201103L
+#define compile_time_assert( x ) static_assert( x, "Assertion failure" )
+#else
 template<bool> struct compile_time_assert_failed;
 template<> struct compile_time_assert_failed<true> {};
 template<int x> struct compile_time_assert_test {};
 #define compile_time_assert_join2( a, b )	a##b
 #define compile_time_assert_join( a, b )	compile_time_assert_join2(a,b)
 #define compile_time_assert( x )			typedef compile_time_assert_test<sizeof(compile_time_assert_failed<(bool)(x)>)> compile_time_assert_join(compile_time_assert_typedef_, __LINE__)
+#endif
 
 #define assert_sizeof( type, size )						compile_time_assert( sizeof( type ) == size )
 #define assert_sizeof_8_byte_multiple( type )			compile_time_assert( ( sizeof( type ) &  7 ) == 0 )

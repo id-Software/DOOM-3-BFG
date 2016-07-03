@@ -826,77 +826,6 @@ void idSWF::SetBackgroundColor( idSWFBitStream& bitstream )
 
 // RB begin
 
-struct MyHandler
-{
-	bool Null()
-	{
-		idLib::Printf( "Null()\n" );
-		return true;
-	}
-	bool Bool( bool b )
-	{
-		idLib::Printf( "Bool( %i )\n", b );
-		return true;
-	}
-	bool Int( int i )
-	{
-		idLib::Printf( "Int( %i )\n",  i ) ;
-		return true;
-	}
-	bool Uint( unsigned u )
-	{
-		idLib::Printf( "Uint( %d )\n", u );
-		return true;
-	}
-	bool Int64( int64_t i )
-	{
-		idLib::Printf( "Int64( %i )\n", i );
-		return true;
-	}
-	bool Uint64( uint64_t u )
-	{
-		idLib::Printf( "Uint64( %d )\n",  u );
-		return true;
-	}
-	bool Double( double d )
-	{
-		idLib::Printf( "Double( %f )\n", d );
-		return true;
-	}
-	
-	bool String( const char* str, SizeType length, bool copy )
-	{
-		idLib::Printf( "String( %s, %i, %i )\n", str, length, copy );
-		return true;
-	}
-	bool StartObject()
-	{
-		idLib::Printf( "StartObject()\n" );
-		return true;
-	}
-	
-	bool Key( const char* str, SizeType length, bool copy )
-	{
-		idLib::Printf( "Key( %s, %i, %i )\n", str, length, copy );
-		return true;
-	}
-	bool EndObject( SizeType memberCount )
-	{
-		idLib::Printf( "EndObject( %i )\n", memberCount );
-		return true;
-	}
-	bool StartArray()
-	{
-		idLib::Printf( "StartArray()\n" );
-		return true;
-	}
-	bool EndArray( SizeType elementCount )
-	{
-		idLib::Printf( "EndArray( %i )\n", elementCount );
-		return true;
-	}
-};
-
 /*
 ===================
 idSWF::LoadJSON
@@ -914,14 +843,6 @@ bool idSWF::LoadJSON( const char* filename )
 	const char* fileData = ( const char* )Mem_Alloc( fileLength, TAG_SWF );
 	size_t fileSize = f->Read( ( byte* ) fileData, fileLength );
 	delete f;
-	
-#if 0
-	Reader reader;
-	StringStream ss( fileData );
-	
-	MyHandler handler;
-	reader.Parse( ss, handler );
-#endif
 	
 	rapidjson::Document d;
 	d.Parse( fileData );
