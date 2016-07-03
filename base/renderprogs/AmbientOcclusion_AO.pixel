@@ -393,10 +393,10 @@ void main( PS_IN fragment, out PS_OUT result )
 	// Hash function used in the HPG12 AlchemyAO paper
 	float randomPatternRotationAngle = float( ( ( 3 * ssP.x ) ^ ( ssP.y + ssP.x * ssP.y ) )
 #if TEMPORALLY_VARY_TAPS
-										 + rpJitterTexOffset.x
+									   + rpJitterTexOffset.x
 #endif
-									   ) * 10.0;
-									   
+											) * 10.0;
+											
 	// Choose the screen-space sample radius
 	// proportional to the projected area of the sphere
 	float ssDiskRadius = -projScale * radius / C.z;
