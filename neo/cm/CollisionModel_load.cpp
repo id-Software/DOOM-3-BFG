@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013-2015 Robert Beckebans
+Copyright (C) 2013-2016 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -3846,7 +3846,9 @@ cm_model_t* idCollisionModelManagerLocal::LoadRenderModel( const char* fileName 
 	
 	// only load ASE and LWO models
 	idStr( fileName ).ExtractFileExtension( extension );
-	if( ( extension.Icmp( "ase" ) != 0 ) && ( extension.Icmp( "lwo" ) != 0 ) && ( extension.Icmp( "ma" ) != 0 ) )
+	
+	// RB: DAE support
+	if( ( extension.Icmp( "ase" ) != 0 ) && ( extension.Icmp( "lwo" ) != 0 ) && ( extension.Icmp( "ma" ) != 0 ) && ( extension.Icmp( "dae" ) != 0 ) )
 	{
 		return NULL;
 	}
