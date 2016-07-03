@@ -3,6 +3,7 @@
 
 Doom 3 GPL Source Code
 Copyright (C) 1999-2011 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013-2015 Robert Beckebans
 
 This file is part of the Doom 3 GPL Source Code (?Doom 3 Source Code?).
 
@@ -45,14 +46,35 @@ bool ProcessModel( uEntity_t* e, bool floodFill )
 	// build a bsp tree using all of the sides
 	// of all of the structural brushes
 	faces = MakeStructuralBspFaceList( e->primitives );
+	
+	// RB: dump BSP for debugging
+	if( dmapGlobals.glview )
+	{
+		WriteGLView( faces, "facelist" );
+	}
+	// RB end
+	
 	e->tree = FaceBSP( faces );
 	
 	// create portals at every leaf intersection
 	// to allow flood filling
 	MakeTreePortals( e->tree );
 	
+	// RB: calculate node numbers for split plane analysis
+	NumberNodes_r( e->tree->headnode, 0 );
+	
 	// classify the leafs as opaque or areaportal
 	FilterBrushesIntoTree( e );
+	
+	// RB: use mapTri_t by MapPolygonMesh primitives in case we don't use brushes
+	FilterMeshesIntoTree( e );
+	
+	// RB: dump BSP for debugging
+	//if( dmapGlobals.glview )
+	//{
+	//WriteGLView( e->tree, "unclipped", dmapGlobals.entityNum );
+	//}
+	// RB end
 	
 	// see if the bsp is completely enclosed
 	if( floodFill && !dmapGlobals.noFlood )
@@ -83,6 +105,13 @@ bool ProcessModel( uEntity_t* e, bool floodFill )
 	// determine areas before clipping tris into the
 	// tree, so tris will never cross area boundaries
 	FloodAreas( e );
+	
+	// RB: dump BSP for debugging
+	if( dmapGlobals.glview )
+	{
+		WriteGLView( e->tree, "areas", dmapGlobals.entityNum );
+	}
+	// RB end
 	
 	// we now have a BSP tree with solid and non-solid leafs marked with areas
 	// all primitives will now be clipped into this, throwing away
@@ -393,6 +422,15 @@ void Dmap( const idCmdArgs& args )
 	if( ProcessModels() )
 	{
 		WriteOutputFile();
+		
+		// RB: dump BSP after nodes being pruned and optimized
+		if( dmapGlobals.glview )
+		{
+			uEntity_t* world = &dmapGlobals.uEntities[0];
+			
+			WriteGLView( world->tree, "pruned", 0, true );
+		}
+		// RB end
 	}
 	else
 	{

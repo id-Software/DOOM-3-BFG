@@ -39,6 +39,7 @@ If you have questions concerning this license or the applicable additional terms
 
 class idJointMat;
 struct deformInfo_t;
+class ColladaParser; // RB: Collada support
 
 class idRenderModelStatic : public idRenderModel
 {
@@ -56,6 +57,10 @@ public:
 	{
 		return true;
 	}
+	
+	// RB begin
+	virtual void				ExportOBJ( idFile* objFile, idFile* mtlFile, ID_TIME_T* _timeStamp = NULL ) const;
+	// RB end
 	
 	virtual void				PartialInitFromFile( const char* fileName );
 	virtual void				PurgeModel();
@@ -111,9 +116,11 @@ public:
 	void						MakeDefaultModel();
 	
 	bool						LoadASE( const char* fileName );
+	bool						LoadDAE( const char* fileName ); // RB
 	bool						LoadLWO( const char* fileName );
 	bool						LoadMA( const char* filename );
 	
+	bool						ConvertDAEToModelSurfaces( const ColladaParser* dae ); // RB
 	bool						ConvertASEToModelSurfaces( const struct aseModel_s* ase );
 	bool						ConvertLWOToModelSurfaces( const struct st_lwObject* lwo );
 	bool						ConvertMAToModelSurfaces( const struct maModel_s* ma );

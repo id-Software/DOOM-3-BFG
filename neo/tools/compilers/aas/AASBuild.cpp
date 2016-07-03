@@ -656,6 +656,8 @@ bool idAASBuild::CheckForEntities( const idMapFile* mapFile, idStrList& entityCl
 	int		i;
 	idStr	classname;
 	
+	com_editors |= EDITOR_AAS;
+	
 	for( i = 0; i < mapFile->GetNumEntities(); i++ )
 	{
 		if( !mapFile->GetEntity( i )->epairs.GetString( "classname", "", classname ) )
@@ -668,6 +670,8 @@ bool idAASBuild::CheckForEntities( const idMapFile* mapFile, idStrList& entityCl
 			entityClassNames.AddUnique( classname );
 		}
 	}
+	
+	com_editors &= ~EDITOR_AAS;
 	
 	return ( entityClassNames.Num() != 0 );
 }

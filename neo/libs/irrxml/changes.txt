@@ -1,0 +1,33 @@
+-------------------------------------------------------------------------------------
+Changes in version 1.2 (13 November 2005)
+
+- irrXML now supports CDATA.
+
+- some small bug fixes have been made, making irrXML compatible for .NET users who
+  have to struggle with the famous bool return bug in the .NET framework.
+
+- There are two new method overloads: getAttributeValueAsInt() and 
+  getAttributeValueAsFloat() now also take the index of the attribute as parameter. 
+  Thanks to Patrik Müller who suggested and implemented this initially, the same 
+  for the CDATA support.
+
+-------------------------------------------------------------------------------------
+Changes in version 1.1 (02 July 2005)
+
+- irrxml is now also able to parse embedded text correctly when it is shorter than
+  2 characters. 
+  
+- irrxml now treats whitespace quite intelligent and doesn't report it when it is
+  obviously used for formatting the xml file. (Text won't be reported when it only contains
+  whitespace and is shorter than 3 characters)
+  
+- irrxml won't crash anymore when the xml file is malformatted and an attribute has
+  an opening but no closing attribute.
+  
+- Removed a documentation which claimed that the xml parser doesn't work as the xml standard
+  when replacing special characters, which wasn't true.
+
+-------------------------------------------------------------------------------------
+Changes in version 1.0 (14 May 2005)
+
+- Initial release

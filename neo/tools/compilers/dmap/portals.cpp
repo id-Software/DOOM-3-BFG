@@ -3,6 +3,7 @@
 
 Doom 3 GPL Source Code
 Copyright (C) 1999-2011 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2015 Robert Beckebans
 
 This file is part of the Doom 3 GPL Source Code (?Doom 3 Source Code?).
 
@@ -32,8 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "dmap.h"
 
 
-interAreaPortal_t interAreaPortals[MAX_INTER_AREA_PORTALS];
-int					numInterAreaPortals;
+idList<interAreaPortal_t> interAreaPortals;
 
 
 int		c_active_portals;
@@ -803,6 +803,68 @@ static side_t*	FindSideForPortal( uPortal_t* p )
 	return NULL;
 }
 
+// RB: extra function to avoid many allocations
+static bool	CheckTrianglesForPortal( uPortal_t* p )
+{
+	int			i;
+	node_t*		node;
+	mapTri_t*	tri;
+	
+	// scan both bordering nodes triangle lists for portal triangles that share the plane
+	for( i = 0 ; i < 2 ; i++ )
+	{
+		node = p->nodes[i];
+		for( tri = node->areaPortalTris; tri; tri = tri->next )
+		{
+			if( !( tri->material->GetContentFlags() & CONTENTS_AREAPORTAL ) )
+			{
+				continue;
+			}
+			
+			if( ( tri->planeNum & ~1 ) != ( p->onnode->planenum & ~1 ) )
+			{
+				continue;
+			}
+			
+			return true;
+		}
+	}
+	
+	return false;
+}
+
+static bool	FindTrianglesForPortal( uPortal_t* p, idList<mapTri_t*>& tris )
+{
+	int			i;
+	node_t*		node;
+	mapTri_t*	tri;
+	
+	tris.Clear();
+	
+	// scan both bordering nodes triangle lists for portal triangles that share the plane
+	for( i = 0 ; i < 2 ; i++ )
+	{
+		node = p->nodes[i];
+		for( tri = node->areaPortalTris; tri; tri = tri->next )
+		{
+			if( !( tri->material->GetContentFlags() & CONTENTS_AREAPORTAL ) )
+			{
+				continue;
+			}
+			
+			if( ( tri->planeNum & ~1 ) != ( p->onnode->planenum & ~1 ) )
+			{
+				continue;
+			}
+			
+			tris.Append( tri );
+		}
+	}
+	
+	return tris.Num() > 0;
+}
+// RB end
+
 /*
 =============
 FloodAreas_r
@@ -839,6 +901,12 @@ void FloodAreas_r( node_t* node )
 		
 		// can't flood through an area portal
 		if( FindSideForPortal( p ) )
+		{
+			continue;
+		}
+		
+		// RB: check area portal triangles as well
+		if( CheckTrianglesForPortal( p ) )
 		{
 			continue;
 		}
@@ -923,7 +991,6 @@ void ClearAreas_r( node_t* node )
 /*
 =================
 FindInterAreaPortals_r
-
 =================
 */
 static void FindInterAreaPortals_r( node_t* node )
@@ -980,7 +1047,7 @@ static void FindInterAreaPortals_r( node_t* node )
 		}
 		
 		// see if we have created this portal before
-		for( i = 0 ; i < numInterAreaPortals ; i++ )
+		for( i = 0; i < interAreaPortals.Num(); i++ )
 		{
 			iap = &interAreaPortals[i];
 			
@@ -992,13 +1059,13 @@ static void FindInterAreaPortals_r( node_t* node )
 			}
 		}
 		
-		if( i != numInterAreaPortals )
+		if( i != interAreaPortals.Num() )
 		{
 			continue;	// already emited
 		}
 		
-		iap = &interAreaPortals[numInterAreaPortals];
-		numInterAreaPortals++;
+		iap = &interAreaPortals.Alloc();
+		
 		if( side->planenum == p->onnode->planenum )
 		{
 			iap->area0 = p->nodes[0]->area;
@@ -1010,8 +1077,84 @@ static void FindInterAreaPortals_r( node_t* node )
 			iap->area1 = p->nodes[0]->area;
 		}
 		iap->side = side;
+	}
+	
+	// RB: check area portal triangles
+	idList<mapTri_t*> apTriangles;
+	for( p = node->portals ; p ; p = p->next[s] )
+	{
+		node_t*	other;
+		
+		s = ( p->nodes[1] == node );
+		other = p->nodes[!s];
+		
+		if( other->opaque )
+		{
+			continue;
+		}
+		
+		// only report areas going from lower number to higher number
+		// so we don't report the portal twice
+		if( other->area <= node->area )
+		{
+			continue;
+		}
+		
+		FindTrianglesForPortal( p, apTriangles );
+		if( apTriangles.Num() < 2 )
+		{
+			//common->Warning( "FindTrianglesForPortal failed at %s", p->winding->GetCenter().ToString() );
+			continue;
+		}
+		
+		// see if we have created this portal before
+		for( i = 0; i < interAreaPortals.Num(); i++ )
+		{
+			iap = &interAreaPortals[i];
+			
+			if( apTriangles[0]->polygonId == iap->polygonId &&
+					( ( p->nodes[0]->area == iap->area0 && p->nodes[1]->area == iap->area1 )
+					  || ( p->nodes[1]->area == iap->area0 && p->nodes[0]->area == iap->area1 ) ) )
+			{
+				break;
+			}
+		}
+		
+		if( i != interAreaPortals.Num() )
+		{
+			continue;	// already emited
+		}
+		
+		iap = &interAreaPortals.Alloc();
+		
+		if( apTriangles[0]->planeNum == p->onnode->planenum )
+		{
+			iap->area0 = p->nodes[0]->area;
+			iap->area1 = p->nodes[1]->area;
+		}
+		else
+		{
+			iap->area0 = p->nodes[1]->area;
+			iap->area1 = p->nodes[0]->area;
+		}
+		
+		iap->polygonId = apTriangles[0]->polygonId;
+		
+		// merge triangles to a new winding
+		for( int j = 0; j < apTriangles.Num(); j++ )
+		{
+			mapTri_t* tri = apTriangles[j];
+			idVec3 planeNormal = dmapGlobals.mapPlanes[ tri->planeNum].Normal();
+			
+			for( int k = 0; k < 3; k++ )
+			{
+				iap->w.AddToConvexHull( tri->v[k].xyz, planeNormal );
+			}
+		}
+		
 		
 	}
+	// RB end
 }
 
 
@@ -1046,7 +1189,7 @@ void FloodAreas( uEntity_t* e )
 	// identify all portals between areas if this is the world
 	if( e == &dmapGlobals.uEntities[0] )
 	{
-		numInterAreaPortals = 0;
+		interAreaPortals.Clear();
 		FindInterAreaPortals_r( e->tree->headnode );
 	}
 }

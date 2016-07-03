@@ -202,6 +202,9 @@ public:
 	float			ParseFloat( bool* errorFlag = NULL );
 	// parse matrices with floats
 	int				Parse1DMatrix( int x, float* m );
+	// RB begin
+	int				Parse1DMatrixJSON( int x, float* m );
+	// RB end
 	int				Parse2DMatrix( int y, int x, float* m );
 	int				Parse3DMatrix( int z, int y, int x, float* m );
 	// parse a braced section into a string
