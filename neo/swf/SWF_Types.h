@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013-2015 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -41,6 +42,23 @@ ID_INLINE float SWFFIXED8( int fixed )
 	return fixed * ( 1.0f / 256.0f );
 }
 
+// RB begin
+ID_INLINE int FLOAT2SWFTWIP( float value )
+{
+	return ( int )( value * 20 );
+}
+
+ID_INLINE int FLOAT2SWFFIXED16( float value )
+{
+	return ( int )( value * 65536 );
+}
+
+ID_INLINE int FLOAT2SWFFIXED8( float value )
+{
+	return ( int )( value * 256 );
+}
+// RB end
+
 struct swfHeader_t
 {
 	byte compression;
@@ -54,6 +72,41 @@ struct swfRect_t
 	swfRect_t();
 	idVec2 tl;
 	idVec2 br;
+	
+	// RB: helpers
+	swfRect_t( float x, float y, float w, float h )
+	{
+		tl.x = x;
+		tl.y = y;
+		br.x = x + w;
+		br.y = y + h;
+	}
+	
+	float x() const
+	{
+		return tl.x;
+	}
+	
+	float y() const
+	{
+		return tl.y;
+	}
+	
+	float w() const
+	{
+		return fabs( br.x - tl.x );
+	}
+	
+	float h() const
+	{
+		return fabs( br.y - tl.y );
+	}
+	
+	float Bottom() const
+	{
+		return br.y;
+	}
+	// RB end
 };
 struct swfMatrix_t
 {
@@ -75,6 +128,20 @@ struct swfMatrix_t
 		ty = a.ty;
 		return *this;
 	}
+	
+	// RB begin
+	bool operator==( const swfMatrix_t& a )
+	{
+		return ( xx == a.xx && yy == a.yy && xy == a.xy && yx == a.yx && tx == a.tx && ty == a.ty );
+		
+	}
+	
+	bool operator!=( const swfMatrix_t& a )
+	{
+		return !( xx == a.xx && yy == a.yy && xy == a.xy && yx == a.yx && tx == a.tx && ty == a.ty );
+		
+	}
+	// RB end
 };
 struct swfColorRGB_t
 {
@@ -158,6 +225,7 @@ public:
 	idSWFFontGlyph();
 	uint16 code;
 	int16 advance;
+	// RB: verts and indices are not used by the renderer
 	idList< idVec2, TAG_SWF > verts;
 	idList< uint16, TAG_SWF > indices;
 };

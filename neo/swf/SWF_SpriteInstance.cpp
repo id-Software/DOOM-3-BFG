@@ -427,7 +427,7 @@ void idSWFSpriteInstance::RunTo( int targetFrame )
 		targetFrame = sprite->frameOffsets.Num() - 1;
 	}
 	
-	//actions.Clear();
+	// actions.Clear();
 	
 	uint32 firstActionCommand = sprite->frameOffsets[ targetFrame - 1 ];
 	
@@ -468,9 +468,11 @@ idSWFSpriteInstance::DoAction
 */
 void idSWFSpriteInstance::DoAction( idSWFBitStream& bitstream )
 {
+#if 1
 	swfAction_t& action = actions.Alloc();
 	action.data = bitstream.ReadData( bitstream.Length() );
 	action.dataLength = bitstream.Length();
+#endif
 }
 
 /*

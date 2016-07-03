@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013-2015 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -27,6 +28,8 @@ If you have questions concerning this license or the applicable additional terms
 */
 #pragma hdrstop
 #include "precompiled.h"
+
+using namespace rapidjson;
 
 /*
 ========================
@@ -287,3 +290,550 @@ void idSWFSprite::Write( idFile* f )
 		f->WriteBig( doInitActions[i].Length() );
 	}
 }
+
+
+// RB begin
+void idSWFSprite::ReadJSON( rapidjson::Value& entry )
+{
+	frameCount = entry["frameCount"].GetUint();
+	
+	Value& fo = entry["frameOffsets"];
+	frameOffsets.SetNum( fo.Size() );
+	
+	for( int i = 0; i < frameOffsets.Num(); i++ )
+	{
+		frameOffsets[i] = fo[i].GetUint();
+	}
+	
+	if( entry.HasMember( "frameLabels" ) )
+	{
+		Value& fl = entry["frameLabels"];
+		frameLabels.SetNum( fl.Size() );
+		for( int i = 0; i < frameLabels.Num(); i++ )
+		{
+			frameLabels[i].frameNum = fl[i]["frameNum"].GetUint();
+			frameLabels[i].frameLabel = fl[i]["frameLabel"].GetString();
+		}
+	}
+	
+	Value& c = entry["commands"];
+	commands.SetNum( c.Size() );
+	for( int i = 0; i < commands.Num(); i++ )
+	{
+		Value& command = c[i];
+		Value& type = command["type"];
+		
+		if( type == "Tag_PlaceObject2" || type == "Tag_PlaceObject3" )
+		{
+			if( type == "Tag_PlaceObject3" )
+			{
+				commands[i].tag = Tag_PlaceObject3;
+			}
+			else
+			{
+				commands[i].tag = Tag_PlaceObject2;
+			}
+			
+			idFile_SWF file( new idFile_Memory() );
+			
+			uint8 flags1 = 0;
+			uint8 flags2 = 0;
+			if( type == "Tag_PlaceObject3" )
+			{
+				flags1 = command["flags1"].GetUint();
+				file.WriteU8( flags1 );
+				
+				flags2 = command["flags2"].GetUint();
+				file.WriteU8( flags2 );
+			}
+			else
+			{
+				flags1 = command["flags"].GetUint();
+				file.WriteU8( flags1 );
+			}
+			
+			uint16 depth = command["depth"].GetUint();
+			file.WriteU16( depth );
+			
+			if( ( flags1 & PlaceFlagHasCharacter ) != 0 )
+			{
+				uint16 characterID = command["characterID"].GetUint();
+				file.WriteU16( characterID );
+			}
+			
+			if( ( flags1 & PlaceFlagHasMatrix ) != 0 )
+			{
+				swfMatrix_t m;
+				Value& startMatrix = command["startMatrix"];
+				m.xx =  startMatrix[0].GetDouble();
+				m.yy =  startMatrix[1].GetDouble();
+				m.xy =  startMatrix[2].GetDouble();
+				m.yx =  startMatrix[3].GetDouble();
+				m.tx =  startMatrix[4].GetDouble();
+				m.ty =  startMatrix[5].GetDouble();
+				file.WriteMatrix( m );
+			}
+			
+			if( ( flags1 & PlaceFlagHasColorTransform ) != 0 )
+			{
+				swfColorXform_t cxf;
+				
+				Value& mulColor = command["mulColor"];
+				cxf.mul.x = mulColor[0].GetDouble();
+				cxf.mul.y = mulColor[1].GetDouble();
+				cxf.mul.z = mulColor[2].GetDouble();
+				cxf.mul.w = mulColor[3].GetDouble();
+				
+				if( command.HasMember( "addColor" ) )
+				{
+					Value& addColor = command["addColor"];
+					cxf.add.x = addColor[0].GetDouble();
+					cxf.add.y = addColor[1].GetDouble();
+					cxf.add.z = addColor[2].GetDouble();
+					cxf.add.w = addColor[3].GetDouble();
+				}
+				
+				file.WriteColorXFormRGBA( cxf );
+			}
+			
+			if( ( flags1 & PlaceFlagHasRatio ) != 0 )
+			{
+				uint16 ratio = command["ratio"].GetUint();
+				file.WriteU16( ratio );
+			}
+			
+			if( ( flags1 & PlaceFlagHasName ) != 0 )
+			{
+				Value& name = command["name"];
+				idStr string = name.GetString();
+				string.Append( '\0' );
+				int len = string.Length();
+				
+				file->Write( string.c_str(), len );
+				
+				// TODO
+				//file.writeStrin
+			}
+			
+			if( ( flags1 & PlaceFlagHasClipDepth ) != 0 )
+			{
+				uint16 clipDepth = command["clipDepth"].GetUint();
+				file.WriteU16( clipDepth );
+			}
+			
+			if( ( flags2 & PlaceFlagHasBlendMode ) != 0 )
+			{
+				uint8 blendMode = command["blendMode"].GetUint();
+				file.WriteU8( blendMode );
+			}
+			
+			if( ( flags1 & PlaceFlagHasClipActions ) != 0 )
+			{
+				// FIXME: clip actions
+			}
+			
+			uint32 streamLength = file->Length();
+			commands[i].stream.Load( ( byte* ) static_cast<idFile_Memory*>( ( idFile* )file )->GetDataPtr(), streamLength, true );
+		}
+		else if( type == "Tag_RemoveObject2" )
+		{
+			commands[i].tag = Tag_RemoveObject2;
+			
+			idFile_SWF file( new idFile_Memory() );
+			
+			uint16 depth = command["depth"].GetUint();
+			file.WriteU16( depth );
+			
+			uint32 streamLength = file->Length();
+			commands[i].stream.Load( ( byte* ) static_cast<idFile_Memory*>( ( idFile* )file )->GetDataPtr(), streamLength, true );
+		}
+		else if( type == "Tag_DoAction" )
+		{
+			commands[i].tag = Tag_DoAction;
+			
+			idFile_SWF file( new idFile_Memory() );
+			
+			idBase64 base64 = command["stream"].GetString();
+			base64.Decode( file );
+			
+			uint32 streamLength = file->Length() - 1; // skip trailing zero added by Decode()
+			commands[i].stream.Load( ( byte* ) static_cast<idFile_Memory*>( ( idFile* )file )->GetDataPtr(), streamLength, true );
+		}
+		
+	}
+}
+
+void idSWFSprite::WriteJSON( idFile* f, int characterID )
+{
+	f->WriteFloatString( "\t\t\t\"frameCount\": %i,\n", frameCount );
+	
+	if( frameOffsets.Num() )
+	{
+		f->WriteFloatString( "\t\t\t\"frameOffsets\": [ " );
+		for( int i = 0; i < frameOffsets.Num(); i++ )
+		{
+			f->WriteFloatString( "%i%s", frameOffsets[i], ( i == frameOffsets.Num() - 1 ) ? "" : ", " );
+		}
+		f->WriteFloatString( " ],\n" );
+	}
+	
+	if( frameLabels.Num() )
+	{
+		f->WriteFloatString( "\t\t\t\"frameLabels\":\n\t\t\t[\n" );
+		for( int i = 0; i < frameLabels.Num(); i++ )
+		{
+			f->WriteFloatString( "\t\t\t\t{ \"frameNum\": %i, \"frameLabel\": \"%s\" }%s\n", frameLabels[i].frameNum, frameLabels[i].frameLabel.c_str(), ( i == frameLabels.Num() - 1 ) ? "" : ", " );
+		}
+		f->WriteFloatString( "\t\t\t],\n" );
+	}
+	
+	
+#if 1
+	idBase64 base64;
+	
+	f->WriteFloatString( "\t\t\t\"commands\":\n\t\t\t[\n" );
+	for( int i = 0; i < commands.Num(); i++ )
+	{
+		idSWFSprite::swfSpriteCommand_t& command = commands[i];
+		
+		//base64.Encode( command.stream.Ptr(), command.stream.Length() );
+		//base64.Decode( src );
+		
+		//f->WriteFloatString( "%s\t<Command tag=\"%s\" streamLength=\"%i\">%s</Command>\n", indentPrefix, idSWF::GetTagName( commands[i].tag ), src.Length(), src.c_str() );
+		//f->WriteFloatString( "%s\t<Command tag=\"%s\" streamLength=\"%i\">%s</Command>\n", indentPrefix, idSWF::GetTagName( commands[i].tag ), commands[i].stream.Length(), base64.c_str() );
+		
+		//f->WriteFloatString( "%s\t<Command tag=\"%s\" streamLength=\"%i\">\n", indentPrefix, idSWF::GetTagName( command.tag ), command.stream.Length(), base64.c_str() );
+		//f->WriteFloatString( "%s\t\t<Stream>%s</Stream>\n", indentPrefix, base64.c_str() );
+		
+		command.stream.Rewind();
+		switch( command.tag )
+		{
+				//case Tag_PlaceObject2:
+				//	WriteXML_PlaceObject2( command.stream, indentPrefix );
+				//	break;
+				
+#define HANDLE_SWF_TAG( x ) case Tag_##x: WriteJSON_##x( f, command.stream, characterID, i ); break;
+				HANDLE_SWF_TAG( PlaceObject2 );
+				HANDLE_SWF_TAG( PlaceObject3 );
+				HANDLE_SWF_TAG( RemoveObject2 );
+				//HANDLE_SWF_TAG( StartSound );
+				HANDLE_SWF_TAG( DoAction );
+#undef HANDLE_SWF_TAG
+			default:
+				break;
+				//idLib::Printf( "Export Sprite: Unhandled tag %s\n", idSWF::GetTagName( command.tag ) );
+		}
+	}
+	f->WriteFloatString( "\n\t\t\t]\n" );
+	
+	if( doInitActions.Num() )
+	{
+		f->WriteFloatString( ",\n\t\t\t\"doInitActions\":\t\t\t[\n" );
+		for( int i = 0; i < doInitActions.Num(); i++ )
+		{
+			base64.Encode( doInitActions[i].Ptr(), doInitActions[i].Length() );
+			
+			f->WriteFloatString( "\t\t\t\"DoInitAction\": { \"streamLength\": %i, \"stream\": \"%s\" }%s\n", doInitActions[i].Length(), base64.c_str(), ( i == doInitActions.Num() - 1 ) ? "" : ", " );
+		}
+		f->WriteFloatString( "\t\t\t]" );
+	}
+#endif
+}
+// RB end
+
+void idSWFSprite::WriteJSON_PlaceObject2( idFile* file, idSWFBitStream& bitstream, int sourceCharacterID, int commandID, const char* indentPrefix )
+{
+	uint8 flags1 = bitstream.ReadU8();
+	int depth = bitstream.ReadU16();
+	
+	file->WriteFloatString( "%s\t\t\t\t{\n", ( commandID != 0 ) ? ",\n" : "" );
+	file->WriteFloatString( "\t\t\t\t\t\"type\": \"Tag_PlaceObject2\",\n" );
+	file->WriteFloatString( "\t\t\t\t\t\"flags\": %i, \"depth\": %i", flags1, depth );
+	
+	if( ( flags1 & PlaceFlagHasCharacter ) != 0 )
+	{
+		int characterID = bitstream.ReadU16();
+		file->WriteFloatString( ",\n\t\t\t\t\t\"characterID\": %i", characterID );
+	}
+	
+	if( ( flags1 & PlaceFlagHasMatrix ) != 0 )
+	{
+		swfMatrix_t m;
+		
+		bitstream.ReadMatrix( m );
+		
+		file->WriteFloatString( ",\n\t\t\t\t\t\"startMatrix\": [ %f, %f, %f, %f, %f, %f ]", m.xx, m.yy, m.xy, m.yx, m.tx, m.ty );
+	}
+	
+	if( ( flags1 & PlaceFlagHasColorTransform ) != 0 )
+	{
+		swfColorXform_t cxf;
+		bitstream.ReadColorXFormRGBA( cxf );
+		
+		idVec4 color = cxf.mul;
+		file->WriteFloatString( ",\n\t\t\t\t\t\"mulColor\": [ %f, %f, %f, %f ]", color.x, color.y, color.z, color.w );
+		
+		color = cxf.add;
+		if( color != vec4_origin )
+		{
+			file->WriteFloatString( ",\n\t\t\t\t\t\"addColor\": [ %f, %f, %f, %f ]", color.x, color.y, color.z, color.w );
+		}
+	}
+	
+	if( ( flags1 & PlaceFlagHasRatio ) != 0 )
+	{
+		uint16 ratio = bitstream.ReadU16();
+		file->WriteFloatString( ",\n\t\t\t\t\t\"ratio\": %i", ratio );
+	}
+	
+	if( ( flags1 & PlaceFlagHasName ) != 0 )
+	{
+		idStr name = bitstream.ReadString();
+		
+		file->WriteFloatString( ",\n\t\t\t\t\t\"name\": \"%s\"", name.c_str() );
+		
+		/*if( display->spriteInstance )
+		{
+			display->spriteInstance->name = name;
+			scriptObject->Set( name, display->spriteInstance->GetScriptObject() );
+		}
+		else if( display->textInstance )
+		{
+			scriptObject->Set( name, display->textInstance->GetScriptObject() );
+		}*/
+	}
+	
+	if( ( flags1 & PlaceFlagHasClipDepth ) != 0 )
+	{
+		uint16 clipDepth = bitstream.ReadU16();
+		file->WriteFloatString( ",\n\t\t\t\t\t\"clipDepth\": %i", clipDepth );
+	}
+	
+	if( ( flags1 & PlaceFlagHasClipActions ) != 0 )
+	{
+		// FIXME: clip actions
+	}
+	
+	file->WriteFloatString( "\n\t\t\t\t}" );
+}
+
+
+void idSWFSprite::WriteJSON_PlaceObject3( idFile* file, idSWFBitStream& bitstream, int sourceCharacterID, int commandID, const char* indentPrefix )
+{
+	uint8 flags1 = bitstream.ReadU8();
+	uint8 flags2 = bitstream.ReadU8();
+	uint16 depth = bitstream.ReadU16();
+	
+	file->WriteFloatString( "%s\t\t\t\t{\n", ( commandID != 0 ) ? ",\n" : "" );
+	file->WriteFloatString( "\t\t\t\t\t\"type\": \"Tag_PlaceObject3\",\n" );
+	file->WriteFloatString( "\t\t\t\t\t\"flags1\": %i, \"flags2\": %i, \"depth\": %i", flags1, flags2, depth );
+	
+	if( ( flags1 & PlaceFlagHasCharacter ) != 0 )
+	{
+		int characterID = bitstream.ReadU16();
+		file->WriteFloatString( ",\n\t\t\t\t\t\"characterID\": %i", characterID );
+	}
+	
+	if( ( flags1 & PlaceFlagHasMatrix ) != 0 )
+	{
+		swfMatrix_t m;
+		
+		bitstream.ReadMatrix( m );
+		
+		file->WriteFloatString( ",\n\t\t\t\t\t\"startMatrix\": [ %f, %f, %f, %f, %f, %f ]", m.xx, m.yy, m.xy, m.yx, m.tx, m.ty );
+	}
+	
+	if( ( flags1 & PlaceFlagHasColorTransform ) != 0 )
+	{
+		swfColorXform_t cxf;
+		bitstream.ReadColorXFormRGBA( cxf );
+		
+		idVec4 color = cxf.mul;
+		file->WriteFloatString( ",\n\t\t\t\t\t\"mulColor\": [ %f, %f, %f, %f ]", color.x, color.y, color.z, color.w );
+		
+		color = cxf.add;
+		if( color != vec4_origin )
+		{
+			file->WriteFloatString( ",\n\t\t\t\t\t\"addColor\": [ %f, %f, %f, %f ]", color.x, color.y, color.z, color.w );
+		}
+	}
+	
+	if( ( flags1 & PlaceFlagHasRatio ) != 0 )
+	{
+		uint16 ratio = bitstream.ReadU16();
+		file->WriteFloatString( ",\n\t\t\t\t\t\"ratio\": %i", ratio );
+	}
+	
+	if( ( flags1 & PlaceFlagHasName ) != 0 )
+	{
+		idStr name = bitstream.ReadString();
+		
+		file->WriteFloatString( ",\n\t\t\t\t\t\"name\": \"%s\"", name.c_str() );
+		
+		/*if( display->spriteInstance )
+		{
+			display->spriteInstance->name = name;
+			scriptObject->Set( name, display->spriteInstance->GetScriptObject() );
+		}
+		else if( display->textInstance )
+		{
+			scriptObject->Set( name, display->textInstance->GetScriptObject() );
+		}*/
+	}
+	
+	if( ( flags1 & PlaceFlagHasClipDepth ) != 0 )
+	{
+		uint16 clipDepth = bitstream.ReadU16();
+		file->WriteFloatString( ",\n\t\t\t\t\t\"clipDepth\": %i", clipDepth );
+	}
+	
+	if( ( flags2 & PlaceFlagHasFilterList ) != 0 )
+	{
+		// we don't support filters and because the filter list is variable length we
+		// can't support anything after the filter list either (blend modes and clip actions)
+		//idLib::Warning( "PlaceObject3: has filters" );
+		file->WriteFloatString( ",\n\t\t\t\t\t\"hasFilterList\": true" );
+		return;
+	}
+	
+	if( ( flags2 & PlaceFlagHasBlendMode ) != 0 )
+	{
+		uint8 blendMode = bitstream.ReadU8();
+		file->WriteFloatString( ",\n\t\t\t\t\t\"blendMode\": %i", blendMode );
+	}
+	
+	if( ( flags1 & PlaceFlagHasClipActions ) != 0 )
+	{
+		// FIXME: clip actions
+	}
+	
+	file->WriteFloatString( "\n\t\t\t\t}" );
+}
+
+void idSWFSprite::WriteJSON_RemoveObject2( idFile* file, idSWFBitStream& bitstream, int sourceCharacterID, int commandID, const char* indentPrefix )
+{
+	int depth = bitstream.ReadU16();
+	
+	file->WriteFloatString( "%s\t\t\t\t{\t\"type\": \"Tag_RemoveObject2\", \"depth\": %i }", ( commandID != 0 ) ? ",\n" : "", depth );
+}
+
+void idSWFSprite::WriteJSON_DoAction( idFile* file, idSWFBitStream& bitstream, int characterID, int commandID, const char* indentPrefix )
+{
+	idBase64 base64;
+	
+	base64.Encode( bitstream.Ptr(), bitstream.Length() );
+	
+#if 0
+	file->WriteFloatString( "%s\t\t\t\t{\t\"type\": \"Tag_DoAction\", \"streamLength\": %i, \"stream\": \"%s\" }", ( commandID != 0 ) ? ",\n" : "", bitstream.Length(), base64.c_str() );
+#else
+	idSWFScriptObject* scriptObject = idSWFScriptObject::Alloc();
+	scriptObject->SetPrototype( &spriteInstanceScriptObjectPrototype );
+//	scriptObject->SetSprite( this );
+	
+	idSWFScriptFunction_Script* actionScript = idSWFScriptFunction_Script::Alloc();
+	
+	idList<idSWFScriptObject*, TAG_SWF> scope;
+	//scope.Append( swf->globals );
+	scope.Append( scriptObject );
+	actionScript->SetScope( scope );
+//	actionScript->SetDefaultSprite( this );
+	
+	actionScript->SetData( bitstream.Ptr(), bitstream.Length() );
+	idStr scriptText = actionScript->CallToScript( scriptObject, idSWFParmList(), file->GetName(), characterID, commandID );
+	idStr quotedText = idStr::CStyleQuote( scriptText.c_str() );
+	
+	file->WriteFloatString( "%s\t\t\t\t{\n\t\t\t\t\t\"type\": \"Tag_DoAction\", \"streamLength\": %i, \"stream\": \"%s\",\n\t\t\t\t\t\"luaCode\": %s\n\t\t\t\t}", ( commandID != 0 ) ? ",\n" : "", bitstream.Length(), base64.c_str(), quotedText.c_str() );
+	
+	//file->WriteFloatString( "%s\t<DoAction streamLength=\"%i\">%s</DoAction>\n", indentPrefix, bitstream.Length(), base64.c_str() );
+	
+	delete actionScript;
+	delete scriptObject;
+#endif
+	
+	
+	
+	
+}
+
+
+void idSWFSprite::WriteSWF( idFile_SWF& f, int characterID )
+{
+	// TODO frameLabels
+	
+	// TODO Tag_ShowFrames
+	
+	int tagLength = 4;
+	
+	for( int i = 0; i < doInitActions.Num(); i++ )
+	{
+		tagLength += idFile_SWF::GetTagHeaderSize( Tag_DoInitAction, doInitActions[i].Length() );
+		tagLength += doInitActions[i].Length();
+	}
+	
+	for( int i = 0; i < commands.Num(); i++ )
+	{
+		idSWFSprite::swfSpriteCommand_t& command = commands[i];
+		
+		switch( command.tag )
+		{
+			case Tag_PlaceObject2:
+			case Tag_PlaceObject3:
+			case Tag_RemoveObject2:
+			case Tag_DoAction:
+				tagLength += idFile_SWF::GetTagHeaderSize( command.tag, command.stream.Length() );
+				tagLength += command.stream.Length();
+				break;
+				
+			default:
+				//idLib::Printf( "Export Sprite: Unhandled tag %s\n", idSWF::GetTagName( command.tag ) );
+				break;
+		}
+	}
+	
+	f.WriteTagHeader( Tag_DefineSprite, tagLength );
+	
+	f.WriteU16( characterID );
+	f.WriteU16( frameCount );
+	
+	
+	
+	/*
+	for( int i = 0; i < frameLabels.Num(); i++ )
+	{
+		f->WriteFloatString( "%s\t<FrameLabel frameNum=\"%i\" frameLabel=\"%s\"/>\n", indentPrefix, frameLabels[i].frameNum, frameLabels[i].frameLabel.c_str() );
+	}
+	*/
+	
+	for( int i = 0; i < doInitActions.Num(); i++ )
+	{
+		f.WriteTagHeader( Tag_DoInitAction, doInitActions[i].Length() );
+		f.Write( doInitActions[i].Ptr(), doInitActions[i].Length() );
+	}
+	
+	for( int i = 0; i < commands.Num(); i++ )
+	{
+		idSWFSprite::swfSpriteCommand_t& command = commands[i];
+		
+		command.stream.Rewind();
+		switch( command.tag )
+		{
+			case Tag_PlaceObject2:
+			case Tag_PlaceObject3:
+			case Tag_RemoveObject2:
+			case Tag_DoAction:
+				f.WriteTagHeader( command.tag, command.stream.Length() );
+				f.Write( command.stream.Ptr(), command.stream.Length() );
+				break;
+				
+			default:
+				//idLib::Printf( "Export Sprite: Unhandled tag %s\n", idSWF::GetTagName( command.tag ) );
+				break;
+		}
+		
+	}
+	
+	//f.WriteTagHeader( Tag_End, 0 );
+}
+
+// RB end
+

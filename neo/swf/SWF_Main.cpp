@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013-2015 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -28,16 +29,24 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "precompiled.h"
 #include "../renderer/Image.h"
+#include "../renderer/DXT//DXTCodec.h"
 
 #pragma warning(disable: 4355) // 'this' : used in base member initializer list
 
 idCVar swf_loadBinary( "swf_loadBinary", "1", CVAR_INTEGER, "used to set whether to load binary swf from generated" );
+// RB begin
+idCVar swf_exportAtlas( "swf_exportAtlas", "0", CVAR_INTEGER, "" );
+idCVar swf_exportSWF( "swf_exportSWF", "1", CVAR_INTEGER, "" );
+idCVar swf_exportJSON( "swf_exportJSON", "1", CVAR_INTEGER, "" );
+// RB end
 
 int idSWF::mouseX = -1;
 int idSWF::mouseY = -1;
 bool idSWF::isMouseInClientArea = false;
 
 extern idCVar in_useJoystick;
+
+
 
 /*
 ===================
@@ -58,6 +67,9 @@ idSWF::idSWF( const char* filename_, idSoundWorld* soundWorld_ )
 	guiCursor_arrow = declManager->FindMaterial( "ui/assets/guicursor_arrow" );
 	guiCursor_hand = declManager->FindMaterial( "ui/assets/guicursor_hand" );
 	white = declManager->FindMaterial( "_white" );
+	
+	// RB:
+	debugFont = renderSystem->RegisterFont( "Arial Narrow" );
 	
 	tooltipButtonImage.Append( keyButtonImages_t( "<JOY1>", "guis/assets/hud/controller/xb360/a", "guis/assets/hud/controller/ps3/cross", 37, 37, 0 ) );
 	tooltipButtonImage.Append( keyButtonImages_t( "<JOY2>", "guis/assets/hud/controller/xb360/b", "guis/assets/hud/controller/ps3/circle", 37, 37, 0 ) );
@@ -128,12 +140,28 @@ idSWF::idSWF( const char* filename_, idSoundWorld* soundWorld_ )
 	binaryFileName += filename;
 	binaryFileName.SetFileExtension( ".bswf" );
 	
+	// RB: add JSON alternative
+	idStr jsonFileName = filename;
+	jsonFileName.SetFileExtension( ".json" );
+	ID_TIME_T jsonSourceTime = fileSystem->GetTimestamp( jsonFileName );
+	
+	bool loadedFromJSON = false;
 	if( swf_loadBinary.GetBool() )
 	{
-		ID_TIME_T sourceTime = fileSystem->GetTimestamp( filename );
-		if( !LoadBinary( binaryFileName, sourceTime ) )
+		if( timestamp == FILE_NOT_FOUND_TIMESTAMP )
 		{
-			if( LoadSWF( filename ) )
+			timestamp = jsonSourceTime;
+		}
+		
+		if( !LoadBinary( binaryFileName, timestamp ) )
+		{
+			if( LoadJSON( jsonFileName ) )
+			{
+				loadedFromJSON = true;
+				
+				WriteBinary( binaryFileName );
+			}
+			else if( LoadSWF( filename ) )
 			{
 				WriteBinary( binaryFileName );
 			}
@@ -141,11 +169,158 @@ idSWF::idSWF( const char* filename_, idSoundWorld* soundWorld_ )
 	}
 	else
 	{
-		LoadSWF( filename );
+		if( LoadJSON( jsonFileName ) )
+		{
+			loadedFromJSON = true;
+		}
+		else
+		{
+			LoadSWF( filename );
+		}
 	}
+	
+	if( swf_exportJSON.GetBool() )
+	{
+		idStr jsonFileName = "exported/";
+		jsonFileName += filename;
+		jsonFileName.SetFileExtension( ".json" );
+		
+		WriteJSON( jsonFileName );
+	}
+	
 	idStr atlasFileName = binaryFileName;
 	atlasFileName.SetFileExtension( ".tga" );
 	atlasMaterial = declManager->FindMaterial( atlasFileName );
+	
+	byte* atlasExportImageRGBA = NULL;
+	int atlasExportImageWidth = 0;
+	int atlasExportImageHeight = 0;
+	
+	if( /*!loadedFromJSON &&*/ ( swf_exportAtlas.GetBool() || swf_exportSWF.GetBool() ) )
+	{
+		idStrStatic< MAX_OSPATH > generatedName = atlasFileName;
+		generatedName.StripFileExtension();
+		idImage::GetGeneratedName( generatedName, TD_DEFAULT, CF_2D );
+		
+		idBinaryImage im( generatedName );
+		ID_TIME_T binaryFileTime = im.LoadFromGeneratedFile( FILE_NOT_FOUND_TIMESTAMP );
+		
+		if( binaryFileTime != FILE_NOT_FOUND_TIMESTAMP )
+		{
+			const bimageFile_t& imgHeader = im.GetFileHeader();
+			const bimageImage_t& img = im.GetImageHeader( 0 );
+			
+			const byte* data = im.GetImageData( 0 );
+			
+			//( img.level, 0, 0, img.destZ, img.width, img.height, data );
+			
+			idTempArray<byte> rgba( img.width * img.height * 4 );
+			memset( rgba.Ptr(), 255, rgba.Size() );
+			
+			if( imgHeader.format == FMT_DXT1 )
+			{
+				idDxtDecoder dxt;
+				dxt.DecompressImageDXT1( data, rgba.Ptr(), img.width, img.height );
+			}
+			else if( imgHeader.format == FMT_DXT5 )
+			{
+				idDxtDecoder dxt;
+				
+				if( imgHeader.colorFormat == CFM_NORMAL_DXT5 )
+				{
+					dxt.DecompressNormalMapDXT5( data, rgba.Ptr(), img.width, img.height );
+				}
+				else if( imgHeader.colorFormat == CFM_YCOCG_DXT5 )
+				{
+					dxt.DecompressYCoCgDXT5( data, rgba.Ptr(), img.width, img.height );
+				}
+				else
+				{
+				
+					dxt.DecompressImageDXT5( data, rgba.Ptr(), img.width, img.height );
+				}
+			}
+			else if( imgHeader.format == FMT_LUM8 || imgHeader.format == FMT_INT8 )
+			{
+				// LUM8 and INT8 just read the red channel
+				byte* pic = rgba.Ptr();
+				for( int i = 0; i < img.dataSize; i++ )
+				{
+					pic[ i * 4 ] = data[ i ];
+				}
+			}
+			else if( imgHeader.format == FMT_ALPHA )
+			{
+				// ALPHA reads the alpha channel
+				byte* pic = rgba.Ptr();
+				for( int i = 0; i < img.dataSize; i++ )
+				{
+					pic[ i * 4 + 3 ] = data[ i ];
+				}
+			}
+			else if( imgHeader.format == FMT_L8A8 )
+			{
+				// L8A8 reads the alpha and red channels
+				byte* pic = rgba.Ptr();
+				for( int i = 0; i < img.dataSize / 2; i++ )
+				{
+					pic[ i * 4 + 0 ] = data[ i * 2 + 0 ];
+					pic[ i * 4 + 3 ] = data[ i * 2 + 1 ];
+				}
+			}
+			else if( imgHeader.format == FMT_RGB565 )
+			{
+				// FIXME
+				/*
+				byte* pic = rgba.Ptr();
+				for( int i = 0; i < img.dataSize / 2; i++ )
+				{
+					unsigned short color = ( ( pic[ i * 4 + 0 ] >> 3 ) << 11 ) | ( ( pic[ i * 4 + 1 ] >> 2 ) << 5 ) | ( pic[ i * 4 + 2 ] >> 3 );
+					img.data[ i * 2 + 0 ] = ( color >> 8 ) & 0xFF;
+					img.data[ i * 2 + 1 ] = color & 0xFF;
+				}
+				*/
+			}
+			else
+			{
+				byte* pic = rgba.Ptr();
+				for( int i = 0; i < img.dataSize; i++ )
+				{
+					pic[ i ] = data[ i ];
+				}
+			}
+			
+			idStr atlasFileNameExport = atlasFileName;
+			atlasFileNameExport.Replace( "generated/", "exported/" );
+			atlasFileNameExport.SetFileExtension( ".png" );
+			
+			R_WritePNG( atlasFileNameExport, rgba.Ptr(), 4, img.width, img.height, true, "fs_basepath" );
+			
+			if( swf_exportSWF.GetBool() )
+			{
+				atlasExportImageWidth = img.width;
+				atlasExportImageHeight = img.height;
+				atlasExportImageRGBA = ( byte* ) Mem_Alloc( rgba.Size(), TAG_TEMP );
+				memcpy( atlasExportImageRGBA, rgba.Ptr(), rgba.Size() );
+			}
+		}
+	}
+	
+	if( swf_exportSWF.GetBool() )
+	{
+		idStr swfFileName = "exported/";
+		swfFileName += filename;
+		swfFileName.SetFileExtension( ".swf" );
+		
+		WriteSWF( swfFileName, atlasExportImageRGBA, atlasExportImageWidth, atlasExportImageHeight );
+	}
+	
+	if( atlasExportImageRGBA != NULL )
+	{
+		Mem_Free( atlasExportImageRGBA );
+		atlasExportImageRGBA = NULL;
+	}
+	// RB end
 	
 	globals = idSWFScriptObject::Alloc();
 	globals->Set( "_global", globals );

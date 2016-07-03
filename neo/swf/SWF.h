@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -31,6 +32,9 @@ If you have questions concerning this license or the applicable additional terms
 #include "SWF_Enums.h"
 #include "SWF_Types.h"
 #include "SWF_Bitstream.h"
+// RB begin
+#include "SWF_File.h"
+// RB end
 #include "SWF_ScriptVar.h"
 #include "SWF_Sprites.h"
 #include "SWF_ScriptObject.h"
@@ -381,17 +385,31 @@ private:
 	const idMaterial* guiCursor_arrow;
 	const idMaterial* guiCursor_hand;
 	const idMaterial* white;
+	// RB begin
+	const idFont*     debugFont;
+	// RB end
 	
 private:
 	friend class idSWFSprite;
 	friend class idSWFSpriteInstance;
 	
+	// RB begin
 	bool			LoadSWF( const char* fullpath );
+	void			WriteSWF( const char* filename, const byte* atlasImageRGBA, int atlasImageWidth, int atlasImageHeight );
+	
 	bool			LoadBinary( const char* bfilename, ID_TIME_T sourceTime );
 	void			WriteBinary( const char* bfilename );
+	
 	void			FileAttributes( idSWFBitStream& bitstream );
 	void			Metadata( idSWFBitStream& bitstream );
 	void			SetBackgroundColor( idSWFBitStream& bitstream );
+	
+	void			LoadXML( const char* filename );
+	void			WriteXML( const char* filename );
+	
+	bool			LoadJSON( const char* filename );
+	void			WriteJSON( const char* filename );
+	// RB end
 	
 	//----------------------------------
 	// SWF_Shapes.cpp
@@ -426,6 +444,13 @@ private:
 	void			RenderEditText( idRenderSystem* gui, idSWFTextInstance* textInstance, const swfRenderState_t& renderState, int time, bool isSplitscreen = false );
 	uint64			GLStateForRenderState( const swfRenderState_t& renderState );
 	void			FindTooltipIcons( idStr* text );
+	
+	// RB: debugging tools
+	swfRect_t		CalcRect( const idSWFSpriteInstance* sprite, const swfRenderState_t& renderState );
+	void			DrawRect( idRenderSystem* gui, const swfRect_t& rect, const idVec4& color );
+	int				DrawText( idRenderSystem* gui, float x, float y, float scale, idVec4 color, const char* text, float adjust, int limit, int style );
+	int				DrawText( idRenderSystem* gui, const char* text, float textScale, int textAlign, idVec4 color, const swfRect_t& rectDraw, bool wrap, int cursor = -1, bool calcOnly = false, idList<int>* breaks = NULL, int limit = 0 );
+	// RB end
 	
 	//----------------------------------
 	// SWF_Image.cpp
@@ -490,11 +515,18 @@ private:
 	// SWF_Zlib.cpp
 	//----------------------------------
 	bool			Inflate( const byte* input, int inputSize, byte* output, int outputSize );
+	// RB begin
+	bool			Deflate( const byte* input, int inputSize, byte* output, int& outputSize );
+	// RB end
 	
 public:
 	//----------------------------------
 	// SWF_Names.cpp
 	//----------------------------------
+	// RB begin
+	static const char* GetDictTypeName( swfDictType_t type );
+	static const char* GetEditTextAlignName( swfEditTextAlign_t align );
+	// RB end
 	static const char* GetTagName( swfTag_t tag );
 	static const char* GetActionName( swfAction_t action );
 	

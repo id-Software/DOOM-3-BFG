@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013-2015 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -35,6 +36,15 @@ idCVar swf_stopat( "swf_stopat", "0", CVAR_FLOAT, "stop at a specific frame" );
 idCVar swf_titleSafe( "swf_titleSafe", "0.005", CVAR_FLOAT, "space between UI elements and screen edge", 0.0f, 0.075f );
 
 idCVar swf_forceAlpha( "swf_forceAlpha", "0", CVAR_FLOAT, "force an alpha value on all elements, useful to show invisible animating elements", 0.0f, 1.0f );
+
+// RB begin
+idCVar swf_skipSolids( "swf_skipSolids", "0", CVAR_BOOL, "" );
+idCVar swf_skipGradients( "swf_skipGradients", "0", CVAR_BOOL, "" );
+idCVar swf_skipLineDraws( "swf_skipLineDraws", "0", CVAR_BOOL, "" );
+idCVar swf_skipBitmaps( "swf_skipBitmaps", "0", CVAR_BOOL, "" );
+
+idCVar swf_show( "swf_show", "0", CVAR_INTEGER, "" );
+// RB end
 
 extern idCVar swf_textStrokeSize;
 extern idCVar swf_textStrokeSizeGlyphSpacer;
@@ -454,6 +464,33 @@ void idSWF::RenderSprite( idRenderSystem* gui, idSWFSpriteInstance* spriteInstan
 			//idLib::Warning( "%s: Tried to render an unrenderable character %d", filename.c_str(), entry->type );
 		}
 	}
+	
+	// RB begin
+	if( swf_show.GetInteger() > 0 && !spriteInstance->name.IsEmpty() )//Icmp( "buttonBar" ) == 0 )
+	{
+		swfRect_t rect = CalcRect( spriteInstance, renderState );
+		
+		DrawRect( gui, rect, colorRed );
+		
+		if( swf_show.GetInteger() > 1 )
+		{
+			idVec4 color = colorWhite;
+			
+			if( spriteInstance->parent != NULL && spriteInstance->parent == mainspriteInstance )
+			{
+				color = colorCyan;
+			}
+			
+			idStr str;
+			//str = display.spriteInstance->name.c_str();
+			sprintf( str, "%s\n%s", spriteInstance->name.c_str(), GetName() );
+			
+			DrawText( gui, str, 0.35f, 0, color, swfRect_t( rect.tl.x, rect.tl.y, 300, 40 ), false );
+			//DrawText( gui, str, 0.25 * 2, 0, colorWhite, swfRect_t( rect.tl.x, rect.tl.y, 300, 40 ), false );
+		}
+	}
+	// RB end
+	
 	for( int j = 0; j < activeMasks.Num(); j++ )
 	{
 		const swfDisplayEntry_t* mask = activeMasks[ j ];
@@ -650,11 +687,25 @@ void idSWF::RenderShape( idRenderSystem* gui, const idSWFShape* shape, const swf
 		}
 		else if( fill.style.type == 0 )
 		{
+			// RB begin
+			if( swf_skipSolids.GetBool() )
+			{
+				continue;
+			}
+			// RB end
+			
 			material = guiSolid;
 			color.mul = fill.style.startColor.ToVec4();
 		}
 		else if( fill.style.type == 4 && fill.style.bitmapID != 65535 )
 		{
+			// RB begin
+			if( swf_skipBitmaps.GetBool() )
+			{
+				continue;
+			}
+			// RB end
+			
 			// everything in a single image atlas
 			idSWFDictionaryEntry* entry = &dictionary[ fill.style.bitmapID ];
 			material = atlasMaterial;
@@ -674,6 +725,13 @@ void idSWF::RenderShape( idRenderSystem* gui, const idSWFShape* shape, const swf
 		}
 		else
 		{
+			// RB begin
+			if( fill.style.type == 1 && swf_skipGradients.GetBool() )
+			{
+				continue;
+			}
+			// RB end
+			
 			material = guiSolid;
 		}
 		color = color.Multiply( renderState.cxf );
@@ -755,48 +813,53 @@ void idSWF::RenderShape( idRenderSystem* gui, const idSWFShape* shape, const swf
 		WriteDrawVerts16( & verts[fill.startVerts.Num() & ~3], tempVerts, fill.startVerts.Num() & 3 );
 	}
 	
-	for( int i = 0; i < shape->lineDraws.Num(); i++ )
+	// RB begin
+	if( !swf_skipLineDraws.GetBool() )
 	{
-		const idSWFShapeDrawLine& line = shape->lineDraws[i];
-		swfColorXform_t color;
-		color.mul = line.style.startColor.ToVec4();
-		color = color.Multiply( renderState.cxf );
-		if( swf_forceAlpha.GetFloat() > 0.0f )
+		for( int i = 0; i < shape->lineDraws.Num(); i++ )
 		{
-			color.mul.w = swf_forceAlpha.GetFloat();
-			color.add.w = 0.0f;
-		}
-		if( ( color.mul.w + color.add.w ) <= ALPHA_EPSILON )
-		{
-			continue;
-		}
-		uint32 packedColorM = LittleLong( PackColor( color.mul ) );
-		uint32 packedColorA = LittleLong( PackColor( ( color.add * 0.5f ) + idVec4( 0.5f ) ) ); // Compress from -1..1 to 0..1
-		
-		gui->SetGLState( GLStateForRenderState( renderState ) | GLS_POLYMODE_LINE );
-		
-		idDrawVert* verts = gui->AllocTris( line.startVerts.Num(), line.indices.Ptr(), line.indices.Num(), white, renderState.stereoDepth );
-		if( verts == NULL )
-		{
-			continue;
-		}
-		
-		for( int j = 0; j < line.startVerts.Num(); j++ )
-		{
-			const idVec2& xy = line.startVerts[j];
+			const idSWFShapeDrawLine& line = shape->lineDraws[i];
+			swfColorXform_t color;
+			color.mul = line.style.startColor.ToVec4();
+			color = color.Multiply( renderState.cxf );
+			if( swf_forceAlpha.GetFloat() > 0.0f )
+			{
+				color.mul.w = swf_forceAlpha.GetFloat();
+				color.add.w = 0.0f;
+			}
+			if( ( color.mul.w + color.add.w ) <= ALPHA_EPSILON )
+			{
+				continue;
+			}
+			uint32 packedColorM = LittleLong( PackColor( color.mul ) );
+			uint32 packedColorA = LittleLong( PackColor( ( color.add * 0.5f ) + idVec4( 0.5f ) ) ); // Compress from -1..1 to 0..1
 			
-			ALIGNTYPE16 idDrawVert tempVert;
+			gui->SetGLState( GLStateForRenderState( renderState ) | GLS_POLYMODE_LINE );
 			
-			tempVert.Clear();
-			tempVert.xyz.ToVec2() = renderState.matrix.Transform( xy ).Scale( scaleToVirtual );
-			tempVert.xyz.z = 0.0f;
-			tempVert.SetTexCoord( 0.0f, 0.0f );
-			tempVert.SetNativeOrderColor( packedColorM );
-			tempVert.SetNativeOrderColor2( packedColorA );
+			idDrawVert* verts = gui->AllocTris( line.startVerts.Num(), line.indices.Ptr(), line.indices.Num(), white, renderState.stereoDepth );
+			if( verts == NULL )
+			{
+				continue;
+			}
 			
-			WriteDrawVerts16( & verts[j], & tempVert, 1 );
+			for( int j = 0; j < line.startVerts.Num(); j++ )
+			{
+				const idVec2& xy = line.startVerts[j];
+				
+				ALIGNTYPE16 idDrawVert tempVert;
+				
+				tempVert.Clear();
+				tempVert.xyz.ToVec2() = renderState.matrix.Transform( xy ).Scale( scaleToVirtual );
+				tempVert.xyz.z = 0.0f;
+				tempVert.SetTexCoord( 0.0f, 0.0f );
+				tempVert.SetNativeOrderColor( packedColorM );
+				tempVert.SetNativeOrderColor2( packedColorA );
+				
+				WriteDrawVerts16( & verts[j], & tempVert, 1 );
+			}
 		}
 	}
+	// RB end
 }
 
 /*
@@ -1842,4 +1905,434 @@ void idSWF::FindTooltipIcons( idStr* text )
 	}
 }
 
+// RB begin
+swfRect_t idSWF::CalcRect( const idSWFSpriteInstance* spriteInstance, const swfRenderState_t& renderState )
+{
+	swfRect_t bounds;
+	bounds.tl.x = renderState.matrix.tx;
+	bounds.tl.y = renderState.matrix.ty;
+	bounds.br.x = renderState.matrix.tx;
+	bounds.br.y = renderState.matrix.ty;
+	
+	if( spriteInstance == NULL )
+	{
+		idLib::Warning( "%s: CalcRect: spriteInstance == NULL", filename.c_str() );
+		return bounds;
+	}
+	
+#if 1
+	for( int i = 0; i < spriteInstance->displayList.Num(); i++ )
+	{
+		const swfDisplayEntry_t& display = spriteInstance->displayList[i];
+		
+		idSWFDictionaryEntry* entry = FindDictionaryEntry( display.characterID );
+		if( entry == NULL )
+		{
+			continue;
+		}
+		
+		swfRenderState_t renderState2;
+		renderState2.matrix = display.matrix.Multiply( renderState.matrix );
+		
+		if( entry->type == SWF_DICT_SPRITE )
+		{
+			swfRect_t spriteBounds = CalcRect( display.spriteInstance, renderState2 );
+			
+			if( spriteBounds.tl.x < bounds.tl.x )
+			{
+				bounds.tl.x = spriteBounds.tl.x;
+			}
+			else if( spriteBounds.br.x > bounds.br.x )
+			{
+				bounds.br.x = spriteBounds.br.x;
+			}
+			
+			if( spriteBounds.tl.y < bounds.tl.y )
+			{
+				bounds.tl.y = spriteBounds.tl.y;
+			}
+			else if( spriteBounds.br.y > bounds.br.y )
+			{
+				bounds.br.y = spriteBounds.br.y;
+			}
+		}
+		else if( entry->type == SWF_DICT_SHAPE )
+		{
+			const idSWFShape* shape = entry->shape;
+			
+			for( int i = 0; i < shape->fillDraws.Num(); i++ )
+			{
+				const idSWFShapeDrawFill& fill = shape->fillDraws[i];
+				
+				for( int j = 0; j < fill.startVerts.Num(); j++ )
+				{
+					const idVec2& xy = fill.startVerts[j];
+					
+					idVec2 p = renderState.matrix.Transform( xy );//.Scale( scaleToVirtual );
+					
+					if( p.x < bounds.tl.x )
+					{
+						bounds.tl.x = p.x;
+					}
+					else if( p.x > bounds.br.x )
+					{
+						bounds.br.x = p.x;
+					}
+					
+					if( p.y < bounds.tl.y )
+					{
+						bounds.tl.y = p.y;
+					}
+					else if( p.y > bounds.br.y )
+					{
+						bounds.br.y = p.y;
+					}
+				}
+			}
+		}
+		else if( entry->type == SWF_DICT_MORPH )
+		{
+			// TODO
+		}
+		else if( entry->type == SWF_DICT_EDITTEXT )
+		{
+			// TODO
+		}
+		else
+		{
+			//idLib::Warning( "%s: Tried to render an unrenderable character %d", filename.c_str(), entry->type );
+		}
+	}
+#endif
+	
+	return bounds;
+}
 
+void idSWF::DrawRect( idRenderSystem* gui, const swfRect_t& rect, const idVec4& color )
+{
+	renderSystem->SetColor( color );
+	
+	float x = rect.tl.x;
+	float y = rect.tl.y;
+	float w = fabs( rect.br.x - rect.tl.x );
+	float h = fabs( rect.br.y - rect.tl.y );
+	
+	float size = 1;
+	
+	DrawStretchPic( x, y, size, h, 0, 0, 0, 0, white );
+	DrawStretchPic( x + w - size, y, size, h, 0, 0, 0, 0, white );
+	DrawStretchPic( x, y, w, size, 0, 0, 0, 0, white );
+	DrawStretchPic( x, y + h - size, w, size, 0, 0, 0, 0, white );
+}
+
+static triIndex_t quadPicIndexes[6] = { 3, 0, 2, 2, 0, 1 };
+int idSWF::DrawText( idRenderSystem* gui, float x, float y, float scale, idVec4 color, const char* text, float adjust, int limit, int style )
+{
+	/*
+	if( !matIsIdentity || cursor != -1 )
+	{
+		// fallback to old code
+		return idDeviceContext::DrawText( x, y, scale, color, text, adjust, limit, style, cursor );
+	}
+	*/
+	
+	idStr drawText = text;
+	
+	if( drawText.Length() == 0 )
+	{
+		return 0;
+	}
+	if( color.w == 0.0f )
+	{
+		return 0;
+	}
+	
+	const uint32 currentColor = PackColor( color );
+	uint32 currentColorNativeByteOrder = LittleLong( currentColor );
+	
+	int len = drawText.Length();
+	if( limit > 0 && len > limit )
+	{
+		len = limit;
+	}
+	
+	int charIndex = 0;
+	while( charIndex < drawText.Length() )
+	{
+		uint32 textChar = drawText.UTF8Char( charIndex );
+		if( textChar == C_COLOR_ESCAPE )
+		{
+			// I'm not sure if inline text color codes are used anywhere in the game,
+			// they may only be needed for multi-color user names
+			idVec4		newColor;
+			uint32 colorIndex = drawText.UTF8Char( charIndex );
+			if( colorIndex == C_COLOR_DEFAULT )
+			{
+				newColor = color;
+			}
+			else
+			{
+				newColor = idStr::ColorForIndex( colorIndex );
+				newColor[3] = color[3];
+			}
+			renderSystem->SetColor( newColor );
+			currentColorNativeByteOrder = LittleLong( PackColor( newColor ) );
+			continue;
+		}
+		
+		scaledGlyphInfo_t glyphInfo;
+		debugFont->GetScaledGlyph( scale, textChar, glyphInfo );
+		
+		// PaintChar( x, y, glyphInfo );
+		float drawY = y - glyphInfo.top;
+		float drawX = x + glyphInfo.left;
+		float w = glyphInfo.width;
+		float h = glyphInfo.height;
+		float s = glyphInfo.s1;
+		float t = glyphInfo.t1;
+		float s2 = glyphInfo.s2;
+		float t2 = glyphInfo.t2;
+		
+		float xOffset = 0;
+		float yOffset = 0;
+		
+		//idDrawVert* verts = gui->AllocTris( fill.startVerts.Num(), fill.indices.Ptr(), fill.indices.Num(), material, renderState.stereoDepth );
+		
+		//if( !ClippedCoords( &drawX, &drawY, &w, &h, &s, &t, &s2, &t2 ) )
+		{
+			float x1 = xOffset + drawX * scaleToVirtual.x;
+			float x2 = xOffset + ( drawX + w ) * scaleToVirtual.x;
+			float y1 = yOffset + drawY * scaleToVirtual.y;
+			float y2 = yOffset + ( drawY + h ) * scaleToVirtual.y;
+			idDrawVert* verts = gui->AllocTris( 4, quadPicIndexes, 6, glyphInfo.material, STEREO_DEPTH_TYPE_NONE );
+			if( verts != NULL )
+			{
+				verts[0].xyz[0] = x1;
+				verts[0].xyz[1] = y1;
+				verts[0].xyz[2] = 0.0f;
+				verts[0].SetTexCoord( s, t );
+				verts[0].SetNativeOrderColor( currentColorNativeByteOrder );
+				verts[0].ClearColor2();
+				
+				verts[1].xyz[0] = x2;
+				verts[1].xyz[1] = y1;
+				verts[1].xyz[2] = 0.0f;
+				verts[1].SetTexCoord( s2, t );
+				verts[1].SetNativeOrderColor( currentColorNativeByteOrder );
+				verts[1].ClearColor2();
+				
+				verts[2].xyz[0] = x2;
+				verts[2].xyz[1] = y2;
+				verts[2].xyz[2] = 0.0f;
+				verts[2].SetTexCoord( s2, t2 );
+				verts[2].SetNativeOrderColor( currentColorNativeByteOrder );
+				verts[2].ClearColor2();
+				
+				verts[3].xyz[0] = x1;
+				verts[3].xyz[1] = y2;
+				verts[3].xyz[2] = 0.0f;
+				verts[3].SetTexCoord( s, t2 );
+				verts[3].SetNativeOrderColor( currentColorNativeByteOrder );
+				verts[3].ClearColor2();
+			}
+		}
+		
+		x += glyphInfo.xSkip + adjust;
+	}
+	return drawText.Length();
+}
+
+int idSWF::DrawText( idRenderSystem* gui, const char* text, float textScale, int textAlign, idVec4 color, const swfRect_t& rectDraw, bool wrap, int cursor, bool calcOnly, idList<int>* breaks, int limit )
+{
+	int			count = 0;
+	int			charIndex = 0;
+	int			lastBreak = 0;
+	float		y = 0.0f;
+	float		textWidth = 0.0f;
+	float		textWidthAtLastBreak = 0.0f;
+	
+	float		charSkip = idMath::Ftoi( debugFont->GetMaxCharWidth( textScale ) ) + 1;
+	float		lineSkip = idMath::Ftoi( debugFont->GetMaxCharWidth( textScale ) );
+	
+	bool		lineBreak = false;
+	bool		wordBreak = false;
+	
+	float		rectWidth = fabs( rectDraw.br.x - rectDraw.tl.x );
+	float		rectHeight = fabs( rectDraw.br.y - rectDraw.tl.y );
+	
+	idStr drawText = text;
+	idStr textBuffer;
+	
+	if( !calcOnly && !( text && *text ) )
+	{
+		//if( cursor == 0 )
+		//{
+		//	renderSystem->SetColor( color );
+		//	DrawEditCursor( rectDraw.tl.x, lineSkip + rectDraw.y, textScale );
+		//}
+		return idMath::Ftoi( rectWidth / charSkip );
+	}
+	
+	y = lineSkip + rectDraw.y();
+	
+	if( breaks )
+	{
+		breaks->Append( 0 );
+	}
+	
+	while( charIndex < drawText.Length() )
+	{
+		uint32 textChar = drawText.UTF8Char( charIndex );
+		
+		// See if we need to start a new line.
+		if( textChar == '\n' || textChar == '\r' || charIndex == drawText.Length() )
+		{
+			lineBreak = true;
+			if( charIndex < drawText.Length() )
+			{
+				// New line character and we still have more text to read.
+				char nextChar = drawText[ charIndex + 1 ];
+				if( ( textChar == '\n' && nextChar == '\r' ) || ( textChar == '\r' && nextChar == '\n' ) )
+				{
+					// Just absorb extra newlines.
+					textChar = drawText.UTF8Char( charIndex );
+				}
+			}
+		}
+		
+		// Check for escape colors if not then simply get the glyph width.
+		if( textChar == C_COLOR_ESCAPE && charIndex < drawText.Length() )
+		{
+			textBuffer.AppendUTF8Char( textChar );
+			textChar = drawText.UTF8Char( charIndex );
+		}
+		
+		// If the character isn't a new line then add it to the text buffer.
+		if( textChar != '\n' && textChar != '\r' )
+		{
+			textWidth += debugFont->GetGlyphWidth( textScale, textChar );
+			textBuffer.AppendUTF8Char( textChar );
+		}
+		
+		if( !lineBreak && ( textWidth > rectWidth ) )
+		{
+			// The next character will cause us to overflow, if we haven't yet found a suitable
+			// break spot, set it to be this character
+			if( textBuffer.Length() > 0 && lastBreak == 0 )
+			{
+				lastBreak = textBuffer.Length();
+				textWidthAtLastBreak = textWidth;
+			}
+			wordBreak = true;
+		}
+		else if( lineBreak || ( wrap && ( textChar == ' ' || textChar == '\t' ) ) )
+		{
+			// The next character is in view, so if we are a break character, store our position
+			lastBreak = textBuffer.Length();
+			textWidthAtLastBreak = textWidth;
+		}
+		
+		// We need to go to a new line
+		if( lineBreak || wordBreak )
+		{
+			float x = rectDraw.tl.x;
+			
+			if( textWidthAtLastBreak > 0 )
+			{
+				textWidth = textWidthAtLastBreak;
+			}
+			
+			// Align text if needed
+#if 0
+			if( textAlign == ALIGN_RIGHT )
+			{
+				x = rectDraw.tl.x + rectWidth - textWidth;
+			}
+			else if( textAlign == ALIGN_CENTER )
+			{
+				x = rectDraw.tl.x + ( rectWidth - textWidth ) / 2;
+			}
+#endif
+			
+			if( wrap || lastBreak > 0 )
+			{
+				// This is a special case to handle breaking in the middle of a word.
+				// if we didn't do this, the cursor would appear on the end of this line
+				// and the beginning of the next.
+				if( wordBreak && cursor >= lastBreak && lastBreak == textBuffer.Length() )
+				{
+					cursor++;
+				}
+			}
+			
+			// Draw what's in the current text buffer.
+			if( !calcOnly )
+			{
+				if( lastBreak > 0 )
+				{
+					count += DrawText( gui, x, y, textScale, color, textBuffer.Left( lastBreak ).c_str(), 0, 0, 0 );
+					textBuffer = textBuffer.Right( textBuffer.Length() - lastBreak );
+				}
+				else
+				{
+					count += DrawText( gui, x, y, textScale, color, textBuffer.c_str(), 0, 0, 0 );
+					textBuffer.Clear();
+				}
+			}
+			
+			if( cursor < lastBreak )
+			{
+				cursor = -1;
+			}
+			else if( cursor >= 0 )
+			{
+				cursor -= ( lastBreak + 1 );
+			}
+			
+			// If wrap is disabled return at this point.
+			if( !wrap )
+			{
+				return lastBreak;
+			}
+			
+			// If we've hit the allowed character limit then break.
+			if( limit && count > limit )
+			{
+				break;
+			}
+			
+			y += lineSkip + 5;
+			
+			if( !calcOnly && y > rectDraw.Bottom() )
+			{
+				break;
+			}
+			
+			// If breaks were requested then make a note of this one.
+			if( breaks )
+			{
+				breaks->Append( drawText.Length() - charIndex );
+			}
+			
+			// Reset necessary parms for next line.
+			lastBreak = 0;
+			textWidth = 0;
+			textWidthAtLastBreak = 0;
+			lineBreak = false;
+			wordBreak = false;
+			
+			// Reassess the remaining width
+			for( int i = 0; i < textBuffer.Length(); )
+			{
+				if( textChar != C_COLOR_ESCAPE )
+				{
+					textWidth += debugFont->GetGlyphWidth( textScale, textBuffer.UTF8Char( i ) );
+				}
+			}
+			
+			continue;
+		}
+	}
+	
+	return idMath::Ftoi( rectWidth / charSkip );
+}

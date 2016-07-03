@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2015 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -264,6 +265,156 @@ idSWFScriptVar idSWFScriptFunction_Script::Call( idSWFScriptObject* thisObject, 
 	
 	return retVal;
 }
+
+// RB begin
+idStr idSWFScriptFunction_Script::CallToScript( idSWFScriptObject* thisObject, const idSWFParmList& parms, const char* filename, int characterID, int actionID )
+{
+	idSWFBitStream bitstream( data, length, false );
+	
+	// We assume scope[0] is the global scope
+	assert( scope.Num() > 0 );
+	
+	if( thisObject == NULL )
+	{
+		thisObject = scope[0];
+	}
+	
+	idSWFScriptObject* locals = idSWFScriptObject::Alloc();
+	
+	idSWFStack stack;
+	stack.SetNum( parms.Num() + 1 );
+	for( int i = 0; i < parms.Num(); i++ )
+	{
+		stack[ parms.Num() - i - 1 ] = parms[i];
+		
+		// Unfortunately at this point we don't have the function name anymore, so our warning messages aren't very detailed
+		if( i < parameters.Num() )
+		{
+			if( parameters[i].reg > 0 && parameters[i].reg < registers.Num() )
+			{
+				registers[ parameters[i].reg ] = parms[i];
+			}
+			locals->Set( parameters[i].name, parms[i] );
+		}
+	}
+	// Set any additional parameters to undefined
+	for( int i = parms.Num(); i < parameters.Num(); i++ )
+	{
+		if( parameters[i].reg > 0 && parameters[i].reg < registers.Num() )
+		{
+			registers[ parameters[i].reg ].SetUndefined();
+		}
+		locals->Set( parameters[i].name, idSWFScriptVar() );
+	}
+	stack.A().SetInteger( parms.Num() );
+	
+	int preloadReg = 1;
+	if( flags & BIT( 0 ) )
+	{
+		// load "this" into a register
+		registers[ preloadReg ].SetObject( thisObject );
+		preloadReg++;
+	}
+	if( ( flags & BIT( 1 ) ) == 0 )
+	{
+		// create "this"
+		locals->Set( "this", idSWFScriptVar( thisObject ) );
+	}
+	if( flags & BIT( 2 ) )
+	{
+		idSWFScriptObject* arguments = idSWFScriptObject::Alloc();
+		// load "arguments" into a register
+		arguments->MakeArray();
+		
+		int numElements = parms.Num();
+		
+		for( int i = 0; i < numElements; i++ )
+		{
+			arguments->Set( i, parms[i] );
+		}
+		
+		registers[ preloadReg ].SetObject( arguments );
+		preloadReg++;
+		
+		arguments->Release();
+	}
+	if( ( flags & BIT( 3 ) ) == 0 )
+	{
+		idSWFScriptObject* arguments = idSWFScriptObject::Alloc();
+		
+		// create "arguments"
+		arguments->MakeArray();
+		
+		int numElements = parms.Num();
+		
+		for( int i = 0; i < numElements; i++ )
+		{
+			arguments->Set( i, parms[i] );
+		}
+		
+		locals->Set( "arguments", idSWFScriptVar( arguments ) );
+		
+		arguments->Release();
+	}
+	if( flags & BIT( 4 ) )
+	{
+		// load "super" into a register
+		registers[ preloadReg ].SetObject( thisObject->GetPrototype() );
+		preloadReg++;
+	}
+	if( ( flags & BIT( 5 ) ) == 0 )
+	{
+		// create "super"
+		locals->Set( "super", idSWFScriptVar( thisObject->GetPrototype() ) );
+	}
+	if( flags & BIT( 6 ) )
+	{
+		// preload _root
+		registers[ preloadReg ] = scope[0]->Get( "_root" );
+		preloadReg++;
+	}
+	if( flags & BIT( 7 ) )
+	{
+		// preload _parent
+		if( thisObject->GetSprite() != NULL && thisObject->GetSprite()->parent != NULL )
+		{
+			registers[ preloadReg ].SetObject( thisObject->GetSprite()->parent->scriptObject );
+		}
+		else
+		{
+			registers[ preloadReg ].SetNULL();
+		}
+		preloadReg++;
+	}
+	if( flags & BIT( 8 ) )
+	{
+		// load "_global" into a register
+		registers[ preloadReg ].SetObject( scope[0] );
+		preloadReg++;
+	}
+	
+	int scopeSize = scope.Num();
+	scope.Append( locals );
+	locals->AddRef();
+	
+	idStr retVal = ExportToScript( thisObject, stack, bitstream, filename, characterID, actionID );
+	
+	assert( scope.Num() == scopeSize + 1 );
+	for( int i = scopeSize; i < scope.Num(); i++ )
+	{
+		if( verify( scope[i] ) )
+		{
+			scope[i]->Release();
+		}
+	}
+	scope.SetNum( scopeSize );
+	
+	locals->Release();
+	locals = NULL;
+	
+	return retVal;
+}
+// RB end
 
 /*
 ========================
@@ -1571,6 +1722,1286 @@ idSWFScriptVar idSWFScriptFunction_Script::Run( idSWFScriptObject* thisObject, i
 	callstackLevel--;
 	return idSWFScriptVar();
 }
+
+// RB begin
+idStr idSWFScriptFunction_Script::UpdateIndent( int indentLevel ) const
+{
+	idStr indent;
+	for( int i = 0; i < indentLevel; i++ )
+	{
+		indent += '\t';
+	}
+	
+	return indent;
+}
+
+void idSWFScriptFunction_Script::AddLine( const idStr& line )
+{
+	ActionBlock& block = currentBlock->blocks.Alloc();
+	block.parent = currentBlock;
+	block.line = line;
+}
+
+void idSWFScriptFunction_Script::AddBlock( const idStr& line )
+{
+	ActionBlock& block = currentBlock->blocks.Alloc();
+	block.parent = currentBlock;
+	
+	block.line = line;
+	currentBlock = &block;
+}
+
+void idSWFScriptFunction_Script::QuitCurrentBlock()
+{
+	if( currentBlock->parent != NULL )
+	{
+		currentBlock = currentBlock->parent;
+	}
+}
+
+idStr idSWFScriptFunction_Script::BuildActionCode( const idList<ActionBlock>& blocks, int level )
+{
+	idStr ret;
+	
+	idStr prefix = UpdateIndent( level );
+	
+	for( int i = 0; i < blocks.Num(); i++ )
+	{
+		const ActionBlock& block = blocks[i];
+		
+		if( !block.line.IsEmpty() )
+		{
+			ret += prefix + block.line + "\n";
+		}
+		
+		if( block.blocks.Num() )
+		{
+			ret += BuildActionCode( block.blocks, ++level );
+			
+			ret += prefix + "end\n";
+		}
+	}
+	
+	return ret;
+}
+
+idStr idSWFScriptFunction_Script::ExportToScript( idSWFScriptObject* thisObject, idSWFStack& stack, idSWFBitStream& bitstream, const char* filename, int characterID, int actionID )
+{
+	static int callstackLevel = -1;
+	idSWFSpriteInstance* thisSprite = thisObject->GetSprite();
+	idSWFSpriteInstance* currentTarget = thisSprite;
+	
+	if( currentTarget == NULL )
+	{
+		thisSprite = currentTarget = defaultSprite;
+	}
+	
+	callstackLevel++;
+	
+//	idStr actionScript;
+
+	actionBlocks.Clear();
+	currentBlock = &actionBlocks.Alloc();
+	currentBlock->line = va( "function sprite%i_action%i()", characterID, actionID );
+	
+	//int indentLevel = 0;
+	//idStr indent;
+	
+	while( bitstream.Tell() < bitstream.Length() )
+	{
+		swfAction_t code = ( swfAction_t )bitstream.ReadU8();
+		uint16 recordLength = 0;
+		if( code >= 0x80 )
+		{
+			recordLength = bitstream.ReadU16();
+		}
+		
+		//if( swf_debug.GetInteger() >= 3 )
+		{
+			// stack[0] is always 0 so don't read it
+			//if( swf_debug.GetInteger() >= 4 )
+			{
+				//idLib::Printf( "%s.Sprite%i script:\n%s\n", filename, characterID, actionScript.c_str() );
+				
+				for( int i = stack.Num() - 1; i >= 0 ; i-- )
+				{
+					idLib::Printf( "%s.Sprite%i  %c: %s (%s)\n", filename, characterID, ( char )( 64 + stack.Num() - i ), stack[i].ToString().c_str(), stack[i].TypeOf() );
+				}
+				
+#if 0
+				for( int i = 0; i < registers.Num(); i++ )
+				{
+					if( !registers[i].IsUndefined() )
+					{
+						idLib::Printf( " R%d: %s (%s)\n", i, registers[i].ToString().c_str(), registers[i].TypeOf() );
+					}
+				}
+#endif
+			}
+			
+			idLib::Printf( "%s.Sprite%i SWF%d: code %s\n", filename, characterID, callstackLevel, GetSwfActionName( code ) );
+		}
+		
+		switch( code )
+		{
+			case Action_Return:
+				callstackLevel--;
+				AddLine( "return " + stack.A().ToString() );
+				goto finish;
+			case Action_End:
+			
+				QuitCurrentBlock();
+				//actionScript += indent + "end\n";
+				
+				callstackLevel--;
+				goto finish;
+			case Action_NextFrame:
+				AddLine( "nextFrame()" );
+				break;
+			case Action_PrevFrame:
+				AddLine( "prevFrame()" );
+				break;
+			case Action_Play:
+				AddLine( "play()" );
+				break;
+			case Action_Stop:
+				AddLine( "stop()" );
+				break;
+			case Action_ToggleQuality:
+				break;
+			case Action_StopSounds:
+				break;
+			case Action_GotoFrame:
+			{
+				assert( recordLength == 2 );
+				int frameNum = bitstream.ReadU16() + 1;
+				
+				AddLine( va( "gotoAndPlay( %i )", frameNum ) );
+				break;
+			}
+			case Action_SetTarget:
+			{
+				const char* targetName = ( const char* )bitstream.ReadData( recordLength );
+				AddLine( va( "setTarget( \"%s\" )", targetName ) );
+				break;
+			}
+			case Action_GoToLabel:
+			{
+				const char* targetName = ( const char* )bitstream.ReadData( recordLength );
+				AddLine( va( "gotoLabel( \"%s\" )", targetName ) );
+				break;
+			}
+			case Action_Push:
+			{
+				idSWFBitStream pushstream( bitstream.ReadData( recordLength ), recordLength, false );
+				while( pushstream.Tell() < pushstream.Length() )
+				{
+					uint8 type = pushstream.ReadU8();
+					switch( type )
+					{
+						case 0:
+							stack.Alloc().SetString( pushstream.ReadString() );
+							break;
+						case 1:
+							stack.Alloc().SetFloat( pushstream.ReadFloat() );
+							break;
+						case 2:
+							stack.Alloc().SetNULL();
+							break;
+						case 3:
+							stack.Alloc().SetUndefined();
+							break;
+						case 4:
+							stack.Alloc() = registers[ pushstream.ReadU8() ];
+							break;
+						case 5:
+							stack.Alloc().SetBool( pushstream.ReadU8() != 0 );
+							break;
+						case 6:
+							stack.Alloc().SetFloat( ( float )pushstream.ReadDouble() );
+							break;
+						case 7:
+							stack.Alloc().SetInteger( pushstream.ReadS32() );
+							break;
+						case 8:
+							stack.Alloc().SetString( constants.Get( pushstream.ReadU8() ) );
+							break;
+						case 9:
+							stack.Alloc().SetString( constants.Get( pushstream.ReadU16() ) );
+							break;
+					}
+				}
+				break;
+			}
+			case Action_Pop:
+			{
+				if( stack.A().IsString() || stack.A().IsResult() )
+				{
+					AddLine( stack.A().ToString() );
+					//line.Empty();
+				}
+				
+				if( stack.A().IsNumeric() )
+				{
+					QuitCurrentBlock();
+					
+					//*block += indent + "end\n";
+				}
+				
+				stack.Pop( 1 );
+				break;
+			}
+			case Action_Add:
+				//stack.B().SetFloat( stack.B().ToFloat() + stack.A().ToFloat() );
+				stack.B().SetResult( va( "%s + %s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+				stack.Pop( 1 );
+				break;
+			case Action_Subtract:
+				//stack.B().SetFloat( stack.B().ToFloat() - stack.A().ToFloat() );
+				stack.B().SetResult( va( "%s - %s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+				stack.Pop( 1 );
+				break;
+			case Action_Multiply:
+				//stack.B().SetFloat( stack.B().ToFloat() * stack.A().ToFloat() );
+				stack.B().SetResult( va( "%s * %s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+				stack.Pop( 1 );
+				break;
+			case Action_Divide:
+				//stack.B().SetFloat( stack.B().ToFloat() / stack.A().ToFloat() );
+				stack.B().SetResult( va( "%s == %s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+				stack.Pop( 1 );
+				break;
+			case Action_Equals:
+				//stack.B().SetBool( stack.B().ToFloat() == stack.A().ToFloat() );
+				stack.B().SetResult( va( "%s == %s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+				stack.Pop( 1 );
+				break;
+			case Action_Less:
+				//stack.B().SetBool( stack.B().ToFloat() < stack.A().ToFloat() );
+				stack.B().SetResult( va( "%s < %s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+				stack.Pop( 1 );
+				break;
+			case Action_And:
+				//stack.B().SetBool( stack.B().ToBool() && stack.A().ToBool() );
+				stack.B().SetResult( va( "%s && %s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+				stack.Pop( 1 );
+				break;
+			case Action_Or:
+				//stack.B().SetBool( stack.B().ToBool() || stack.A().ToBool() );
+				stack.B().SetResult( va( "%s || %s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+				stack.Pop( 1 );
+				break;
+			case Action_Not:
+				//stack.A().SetBool( !stack.A().ToBool() );
+				stack.A().SetResult( va( "!( %s )", stack.A().ToString().c_str() ) );
+				break;
+			case Action_StringEquals:
+				//stack.B().SetBool( stack.B().ToString() == stack.A().ToString() );
+				stack.B().SetResult( va( "%s == %s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+				stack.Pop( 1 );
+				break;
+			case Action_StringLength:
+				//stack.A().SetInteger( stack.A().ToString().Length() );
+				stack.A().SetResult( va( "%s:len()", stack.A().ToString().c_str() ) );
+				break;
+			case Action_StringAdd:
+				//stack.B().SetString( stack.B().ToString() + stack.A().ToString() );
+				stack.B().SetResult( stack.B().ToString() + stack.A().ToString() );
+				stack.Pop( 1 );
+				break;
+			case Action_StringExtract:
+				stack.C().SetResult( stack.C().ToString().Mid( stack.B().ToInteger(), stack.A().ToInteger() ) );
+				stack.Pop( 2 );
+				break;
+			case Action_StringLess:
+				stack.B().SetBool( stack.B().ToString() < stack.A().ToString() );
+				stack.Pop( 1 );
+				break;
+			case Action_StringGreater:
+				stack.B().SetBool( stack.B().ToString() > stack.A().ToString() );
+				stack.Pop( 1 );
+				break;
+			case Action_ToInteger:
+				stack.A().SetInteger( stack.A().ToInteger() );
+				break;
+			case Action_CharToAscii:
+				stack.A().SetInteger( stack.A().ToString()[0] );
+				break;
+			case Action_AsciiToChar:
+				stack.A().SetString( va( "%c", stack.A().ToInteger() ) );
+				break;
+			case Action_Jump:
+				// RB: do not jump and continue translating to Lua or ActionScript
+				bitstream.ReadS16();
+				
+				//bitstream.Seek( bitstream.ReadS16() );
+				
+				QuitCurrentBlock();
+				break;
+			case Action_If:
+			{
+				AddBlock( va( "if( %s ) then\n", stack.A().ToString().c_str() ) );
+				
+				int16 offset = bitstream.ReadS16();
+				//if( stack.A().ToBool() )
+				//{
+				//	bitstream.Seek( offset );
+				//}
+				stack.Pop( 1 );
+				break;
+			}
+			case Action_GetVariable:
+			{
+				idStr variableName = stack.A().ToString();
+				
+				/*
+				for( int i = scope.Num() - 1; i >= 0; i-- )
+				{
+					stack.A() = scope[i]->Get( variableName );
+					if( !stack.A().IsUndefined() )
+					{
+						break;
+					}
+				}
+				if( stack.A().IsUndefined() ) //
+				{
+					if( swf_debug.GetInteger() > 1 )
+					{
+						idLib::Printf( "SWF: unknown variable %s\n", variableName.c_str() );
+					}
+					stack.A().SetString( variableName );
+				}
+				*/
+				
+				//line += variableName;
+				break;
+			}
+			case Action_SetVariable:
+			{
+				idStr variableName = stack.B().ToString();
+				/*
+				bool found = false;
+				for( int i = scope.Num() - 1; i >= 0; i-- )
+				{
+					if( scope[i]->HasProperty( variableName ) )
+					{
+						scope[i]->Set( variableName, stack.A() );
+						found = true;
+						break;
+					}
+				}
+				if( !found )
+				{
+					thisObject->Set( variableName, stack.A() );
+				}
+				*/
+				if( stack.A().IsString() )
+				{
+					AddLine( va( "%s = \"%s\"\n", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+					
+				}
+				else
+				{
+					AddLine( va( "%s = %s\n", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+				}
+				
+				stack.Pop( 2 );
+				break;
+			}
+			case Action_GotoFrame2:
+			{
+			
+				uint32 frameNum = 0;
+				uint8 flags = bitstream.ReadU8();
+				if( flags & 2 )
+				{
+					frameNum += bitstream.ReadU16();
+				}
+				
+				if( ( flags & 1 ) != 0 )
+				{
+					AddLine( va( "gotoAndPlay( %i )", frameNum ) );
+				}
+				else
+				{
+					AddLine( va( "gotoAndStop( %i )", frameNum ) );
+				}
+				AddLine( va( "gotoAndPlay( %i )", frameNum ) );
+				
+				stack.Pop( 1 );
+				break;
+			}
+			case Action_GetProperty:
+			{
+				if( verify( thisSprite != NULL ) )
+				{
+					idSWFSpriteInstance* target = thisSprite->ResolveTarget( stack.B().ToString() );
+					stack.B() = target->scriptObject->Get( GetPropertyName( stack.A().ToInteger() ) );
+				}
+				else if( swf_debug.GetInteger() > 0 )
+				{
+					idLib::Printf( "SWF: no target movie clip for getProperty\n" );
+				}
+				stack.Pop( 1 );
+				break;
+			}
+			case Action_SetProperty:
+			{
+				if( verify( thisSprite != NULL ) )
+				{
+					idSWFSpriteInstance* target = thisSprite->ResolveTarget( stack.C().ToString() );
+					target->scriptObject->Set( GetPropertyName( stack.B().ToInteger() ), stack.A() );
+				}
+				else if( swf_debug.GetInteger() > 0 )
+				{
+					idLib::Printf( "SWF: no target movie clip for setProperty\n" );
+				}
+				stack.Pop( 3 );
+				break;
+			}
+			case Action_Trace:
+				if( stack.A().IsString() )
+				{
+					AddLine( va( "trace( \"%s\" )\n", stack.A().ToString().c_str() ) );
+				}
+				else
+				{
+					AddLine( va( "trace( %s )\n", stack.A().ToString().c_str() ) );
+				}
+				stack.Pop( 1 );
+				break;
+			case Action_GetTime:
+				stack.Alloc().SetInteger( Sys_Milliseconds() );
+				break;
+			case Action_RandomNumber:
+				assert( thisSprite && thisSprite->sprite && thisSprite->sprite->GetSWF() );
+				stack.A().SetInteger( thisSprite->sprite->GetSWF()->GetRandom().RandomInt( stack.A().ToInteger() ) );
+				break;
+			case Action_CallFunction:
+			{
+				idStr functionName = stack.A().ToString();
+				idSWFScriptVar function;
+				idSWFScriptObject* object = NULL;
+				for( int i = scope.Num() - 1; i >= 0; i-- )
+				{
+					function = scope[i]->Get( functionName );
+					if( !function.IsUndefined() )
+					{
+						object = scope[i];
+						break;
+					}
+				}
+				stack.Pop( 1 );
+				
+				idStr line = va( "%s( ", functionName.c_str() );
+				
+				idSWFParmList parms;
+				parms.SetNum( stack.A().ToInteger() );
+				stack.Pop( 1 );
+				for( int i = 0; i < parms.Num(); i++ )
+				{
+					parms[i] = stack.A();
+					
+					if( stack.A().IsString() )
+					{
+						line += va( "\"%s\"%s", stack.A().ToString().c_str(), ( i < ( parms.Num() - 1 ) ) ? ", " : " " );
+					}
+					else
+					{
+						line += va( "%s%s", stack.A().ToString().c_str(), ( i < ( parms.Num() - 1 ) ) ? ", " : " " );
+					}
+					
+					stack.Pop( 1 );
+				}
+				
+				line += ")";
+				
+				if( function.IsFunction() && verify( object ) )
+				{
+					stack.Alloc() = function.GetFunction()->Call( object, parms );
+				}
+				else
+				{
+					idLib::PrintfIf( swf_debug.GetInteger() > 0, "SWF: unknown function %s\n", functionName.c_str() );
+					
+					stack.Alloc().SetResult( line );
+				}
+				
+				break;
+			}
+			case Action_CallMethod:
+			{
+				idStr functionName = stack.A().ToString();
+				// If the top stack is undefined but there is an object, it's calling the constructor
+				if( functionName.IsEmpty() || stack.A().IsUndefined() || stack.A().IsNULL() )
+				{
+					functionName = "__constructor__";
+				}
+				idSWFScriptObject* object = NULL;
+				idSWFScriptVar function;
+				if( stack.B().IsObject() )
+				{
+					object = stack.B().GetObject();
+					function = object->Get( functionName );
+					if( !function.IsFunction() )
+					{
+						idLib::PrintfIf( swf_debug.GetInteger() > 1, "SWF: unknown method %s on %s\n", functionName.c_str(), object->DefaultValue( true ).ToString().c_str() );
+					}
+				}
+				else
+				{
+					idLib::PrintfIf( swf_debug.GetInteger() > 1, "SWF: NULL object for method %s\n", functionName.c_str() );
+				}
+				
+				idStr line = va( "%s.%s( ", stack.B().ToString().c_str(), functionName.c_str() );
+				
+				stack.Pop( 2 );
+				
+				idSWFParmList parms;
+				parms.SetNum( stack.A().ToInteger() );
+				stack.Pop( 1 );
+				for( int i = 0; i < parms.Num(); i++ )
+				{
+					parms[i] = stack.A();
+					
+					if( stack.A().IsString() )
+					{
+						line += va( "\"%s\"%s", stack.A().ToString().c_str(), ( i < ( parms.Num() - 1 ) ) ? ", " : " " );
+					}
+					else
+					{
+						line += va( "%s%s", stack.A().ToString().c_str(), ( i < ( parms.Num() - 1 ) ) ? ", " : " " );
+					}
+					
+					stack.Pop( 1 );
+				}
+				
+				line += ")";
+				
+				if( function.IsFunction() )
+				{
+					stack.Alloc() = function.GetFunction()->Call( object, parms );
+				}
+				else
+				{
+					stack.Alloc().SetResult( line );
+				}
+				
+				//line.Empty();
+				break;
+			}
+			case Action_ConstantPool:
+			{
+				constants.Clear();
+				uint16 numConstants = bitstream.ReadU16();
+				for( int i = 0; i < numConstants; i++ )
+				{
+					constants.Append( idSWFScriptString::Alloc( bitstream.ReadString() ) );
+				}
+				break;
+			}
+			case Action_DefineFunction:
+			{
+				idStr functionName = bitstream.ReadString();
+				
+				idSWFScriptFunction_Script* newFunction = idSWFScriptFunction_Script::Alloc();
+				newFunction->SetScope( scope );
+				newFunction->SetConstants( constants );
+				newFunction->SetDefaultSprite( defaultSprite );
+				
+				idStr line;
+				if( functionName.IsEmpty() )
+				{
+					line = "function( ";
+				}
+				else
+				{
+					line = va( "function %( ", functionName.c_str() );
+				}
+				
+				uint16 numParms = bitstream.ReadU16();
+				newFunction->AllocParameters( numParms );
+				for( int i = 0; i < numParms; i++ )
+				{
+					const char* parm = bitstream.ReadString();
+					
+					if( stack.A().IsString() )
+					{
+						line += va( "\"%s\"%s", parm, ( i < ( numParms - 1 ) ) ? ", " : " " );
+					}
+					else
+					{
+						line += va( "%s%s", parm, ( i < ( numParms - 1 ) ) ? ", " : " " );
+					}
+					
+					newFunction->SetParameter( i, 0, parm );
+				}
+				
+				line += ")";
+				
+				uint16 codeSize = bitstream.ReadU16();
+				newFunction->SetData( bitstream.ReadData( codeSize ), codeSize );
+				
+				if( functionName.IsEmpty() )
+				{
+					stack.Alloc().SetResult( line );
+				}
+				AddBlock( line );
+				
+				/*
+				if( functionName.IsEmpty() )
+				{
+					stack.Alloc().SetFunction( newFunction );
+				}
+				else
+				{
+					thisObject->Set( functionName, idSWFScriptVar( newFunction ) );
+				}
+				*/
+				newFunction->Release();
+				break;
+			}
+			case Action_DefineFunction2:
+			{
+				idStr functionName = bitstream.ReadString();
+				
+				idSWFScriptFunction_Script* newFunction = idSWFScriptFunction_Script::Alloc();
+				newFunction->SetScope( scope );
+				newFunction->SetConstants( constants );
+				newFunction->SetDefaultSprite( defaultSprite );
+				
+				uint16 numParms = bitstream.ReadU16();
+				
+				// The number of registers is from 0 to 255, although valid values are 1 to 256.
+				// There must always be at least one register for DefineFunction2, to hold "this" or "super" when required.
+				uint8 numRegs = bitstream.ReadU8() + 1;
+				
+				// Note that SWF byte-ordering causes the flag bits to be reversed per-byte
+				// from how the swf_file_format_spec_v10.pdf document describes the ordering in ActionDefineFunction2.
+				// PreloadThisFlag is byte 0, not 7, PreloadGlobalFlag is 8, not 15.
+				uint16 flags = bitstream.ReadU16();
+				
+				newFunction->AllocParameters( numParms );
+				newFunction->AllocRegisters( numRegs );
+				newFunction->SetFlags( flags );
+				
+				idStr line;
+				if( functionName.IsEmpty() )
+				{
+					line = "function( ";
+				}
+				else
+				{
+					line = va( "function %( ", functionName.c_str() );
+				}
+				
+				for( int i = 0; i < numParms; i++ )
+				{
+					uint8 reg = bitstream.ReadU8();
+					const char* name = bitstream.ReadString();
+					if( reg >= numRegs )
+					{
+						idLib::Warning( "SWF: Parameter %s in function %s bound to out of range register %d", name, functionName.c_str(), reg );
+						reg = 0;
+					}
+					newFunction->SetParameter( i, reg, name );
+					
+					if( stack.A().IsString() )
+					{
+						line += va( "\"%s\"%s", name, ( i < ( numParms - 1 ) ) ? ", " : " " );
+					}
+					else
+					{
+						line += va( "%s%s", name, ( i < ( numParms - 1 ) ) ? ", " : " " );
+					}
+				}
+				
+				line += ")";
+				
+				if( functionName.IsEmpty() )
+				{
+					stack.Alloc().SetResult( line );
+				}
+				AddBlock( line );
+				
+				uint16 codeSize = bitstream.ReadU16();
+				newFunction->SetData( bitstream.ReadData( codeSize ), codeSize );
+				
+				/*
+				if( functionName.IsEmpty() )
+				{
+					stack.Alloc().SetFunction( newFunction );
+				}
+				else
+				{
+					thisObject->Set( functionName, idSWFScriptVar( newFunction ) );
+				}
+				*/
+				
+				newFunction->Release();
+				break;
+			}
+			case Action_Enumerate:
+			{
+				idStr variableName = stack.A().ToString();
+				for( int i = scope.Num() - 1; i >= 0; i-- )
+				{
+					stack.A() = scope[i]->Get( variableName );
+					if( !stack.A().IsUndefined() )
+					{
+						break;
+					}
+				}
+				if( !stack.A().IsObject() )
+				{
+					stack.A().SetNULL();
+				}
+				else
+				{
+					idSWFScriptObject* object = stack.A().GetObject();
+					object->AddRef();
+					stack.A().SetNULL();
+					for( int i = 0; i < object->NumVariables(); i++ )
+					{
+						stack.Alloc().SetString( object->EnumVariable( i ) );
+					}
+					object->Release();
+				}
+				break;
+			}
+			case Action_Enumerate2:
+			{
+				if( !stack.A().IsObject() )
+				{
+					stack.A().SetNULL();
+				}
+				else
+				{
+					idSWFScriptObject* object = stack.A().GetObject();
+					object->AddRef();
+					stack.A().SetNULL();
+					for( int i = 0; i < object->NumVariables(); i++ )
+					{
+						stack.Alloc().SetString( object->EnumVariable( i ) );
+					}
+					object->Release();
+				}
+				break;
+			}
+			case Action_Equals2:
+			{
+				//stack.B().SetBool( stack.A().AbstractEquals( stack.B() ) );
+				stack.B().SetResult( va( "%s == %s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+				
+				stack.Pop( 1 );
+				break;
+			}
+			case Action_StrictEquals:
+			{
+				//stack.B().SetBool( stack.A().StrictEquals( stack.B() ) );
+				stack.B().SetResult( va( "%s == %s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+				
+				stack.Pop( 1 );
+				break;
+			}
+			case Action_GetMember:
+			{
+				if( ( stack.B().IsUndefined() || stack.B().IsNULL() ) && swf_debug.GetInteger() > 1 )
+				{
+					idLib::Printf( "SWF: tried to get member %s on an invalid object in sprite '%s'\n", stack.A().ToString().c_str(), thisSprite != NULL ? thisSprite->GetName() : "" );
+				}
+				
+				/*
+				if( stack.B().IsObject() )
+				{
+					idSWFScriptObject* object = stack.B().GetObject();
+					if( stack.A().IsNumeric() )
+					{
+						stack.B() = object->Get( stack.A().ToInteger() );
+					}
+					else
+					{
+						stack.B() = object->Get( stack.A().ToString() );
+					}
+					if( stack.B().IsUndefined() && swf_debug.GetInteger() > 1 )
+					{
+						idLib::Printf( "SWF: unknown member %s\n", stack.A().ToString().c_str() );
+					}
+				}
+				else if( stack.B().IsString() )
+				{
+					idStr propertyName = stack.A().ToString();
+					if( propertyName.Cmp( "length" ) == 0 )
+					{
+						stack.B().SetInteger( stack.B().ToString().Length() );
+					}
+					else if( propertyName.Cmp( "value" ) == 0 )
+					{
+						// Do nothing
+					}
+					else
+					{
+						stack.B().SetUndefined();
+					}
+				}
+				else if( stack.B().IsFunction() )
+				{
+					idStr propertyName = stack.A().ToString();
+					if( propertyName.Cmp( "prototype" ) == 0 )
+					{
+						// if this is a function, it's a class definition function, and it just wants the prototype object
+						// create it if it hasn't been already, and return it
+						idSWFScriptFunction* sfs = stack.B().GetFunction();
+						idSWFScriptObject* object = sfs->GetPrototype();
+				
+						if( object == NULL )
+						{
+							object = idSWFScriptObject::Alloc();
+							// Set the __proto__ to the main Object prototype
+							idSWFScriptVar baseObjConstructor = scope[0]->Get( "Object" );
+							idSWFScriptFunction* baseObj = baseObjConstructor.GetFunction();
+							object->Set( "__proto__", baseObj->GetPrototype() );
+							sfs->SetPrototype( object );
+						}
+				
+						stack.B() = idSWFScriptVar( object );
+					}
+					else
+					{
+						stack.B().SetUndefined();
+					}
+				}
+				else
+				{
+					stack.B().SetUndefined();
+				}
+				*/
+				
+				//line = va( "%s.%s", stack.B().ToString().c_str(), stack.A().ToString().c_str() );
+				
+				//line += va( "%s.", stack.B().ToString().c_str() );
+				
+				//actionScript += line;
+				//line.Empty();
+				
+				idStr& member = stack.A().ToString();
+				//if( stack.A().IsString() )
+				//{
+				//	stack.B().SetResult( va( "%s[\"%s\"]", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+				//}
+				//else
+				if( member.Find( ' ' ) > 0 || member.Find( '\"' ) > 0 )
+				{
+					stack.B().SetResult( va( "%s[%s]", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+				}
+				else
+				{
+					stack.B().SetResult( va( "%s.%s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+				}
+				
+				stack.Pop( 1 );
+				break;
+			}
+			case Action_SetMember:
+			{
+				//if( stack.C().IsObject() )
+				{
+					//idSWFScriptObject* object = stack.C().GetObject();
+					//if( stack.B().IsNumeric() )
+					//{
+					//	object->Set( stack.B().ToInteger(), stack.A() );
+					//
+					//	line += va( ".%s = %i;\n", stack.B().ToString().c_str(), stack.A().ToInteger() );
+					//}
+					//else
+					
+					if( stack.A().IsString() )
+					{
+						AddLine( va( "%s.%s = \"%s\"\n", stack.C().ToString().c_str(), stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+						
+					}
+					else
+					{
+						AddLine( va( "%s.%s = %s\n", stack.C().ToString().c_str(), stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+					}
+				}
+				stack.Pop( 3 );
+				break;
+			}
+			case Action_InitArray:
+			{
+				idSWFScriptObject* object = idSWFScriptObject::Alloc();
+				object->MakeArray();
+				
+				int numElements = stack.A().ToInteger();
+				stack.Pop( 1 );
+				
+				for( int i = 0; i < numElements; i++ )
+				{
+					object->Set( i, stack.A() );
+					stack.Pop( 1 );
+				}
+				
+				stack.Alloc().SetObject( object );
+				
+				object->Release();
+				break;
+			}
+			case Action_InitObject:
+			{
+				idSWFScriptObject* object = idSWFScriptObject::Alloc();
+				
+				int numElements = stack.A().ToInteger();
+				stack.Pop( 1 );
+				
+				for( int i = 0; i < numElements; i++ )
+				{
+					object->Set( stack.B().ToString(), stack.A() );
+					stack.Pop( 2 );
+				}
+				
+				stack.Alloc().SetObject( object );
+				
+				object->Release();
+				break;
+			}
+			case Action_NewObject:
+			{
+				idSWFScriptObject* object = idSWFScriptObject::Alloc();
+				
+				idStr functionName = stack.A().ToString();
+				stack.Pop( 1 );
+				
+				if( functionName.Cmp( "Array" ) == 0 )
+				{
+					object->MakeArray();
+					
+					int numElements = stack.A().ToInteger();
+					stack.Pop( 1 );
+					
+					for( int i = 0; i < numElements; i++ )
+					{
+						object->Set( i, stack.A() );
+						stack.Pop( 1 );
+					}
+					
+					idSWFScriptVar baseObjConstructor = scope[0]->Get( "Object" );
+					idSWFScriptFunction* baseObj = baseObjConstructor.GetFunction();
+					object->Set( "__proto__", baseObj->GetPrototype() );
+					// object prototype is not set here because it will be auto created from Object later
+				}
+				else
+				{
+					idSWFParmList parms;
+					parms.SetNum( stack.A().ToInteger() );
+					stack.Pop( 1 );
+					for( int i = 0; i < parms.Num(); i++ )
+					{
+						parms[i] = stack.A();
+						stack.Pop( 1 );
+					}
+					
+					idSWFScriptVar objdef = scope[0]->Get( functionName );
+					if( objdef.IsFunction() )
+					{
+						idSWFScriptFunction* constructorFunction = objdef.GetFunction();
+						object->Set( "__proto__", constructorFunction->GetPrototype() );
+						object->SetPrototype( constructorFunction->GetPrototype() );
+						constructorFunction->Call( object, parms );
+					}
+					else
+					{
+						idLib::Warning( "SWF: Unknown class definition %s", functionName.c_str() );
+					}
+				}
+				
+				stack.Alloc().SetObject( object );
+				
+				object->Release();
+				break;
+			}
+			case Action_Extends:
+			{
+				idSWFScriptFunction* superclassConstructorFunction = stack.A().GetFunction();
+				idSWFScriptFunction* subclassConstructorFunction = stack.B().GetFunction();
+				stack.Pop( 2 );
+				
+				idSWFScriptObject* scriptObject = idSWFScriptObject::Alloc();
+				scriptObject->SetPrototype( superclassConstructorFunction->GetPrototype() );
+				scriptObject->Set( "__proto__", idSWFScriptVar( superclassConstructorFunction->GetPrototype() ) );
+				scriptObject->Set( "__constructor__", idSWFScriptVar( superclassConstructorFunction ) );
+				
+				subclassConstructorFunction->SetPrototype( scriptObject );
+				
+				scriptObject->Release();
+				break;
+			}
+			case Action_TargetPath:
+			{
+				if( !stack.A().IsObject() )
+				{
+					stack.A().SetUndefined();
+				}
+				else
+				{
+					idSWFScriptObject* object = stack.A().GetObject();
+					if( object->GetSprite() == NULL )
+					{
+						stack.A().SetUndefined();
+					}
+					else
+					{
+						idStr dotName = object->GetSprite()->name.c_str();
+						for( idSWFSpriteInstance* target = object->GetSprite()->parent; target != NULL; target = target->parent )
+						{
+							dotName = target->name + "." + dotName;
+						}
+						stack.A().SetString( dotName );
+					}
+				}
+				break;
+			}
+			case Action_With:
+			{
+				int withSize = bitstream.ReadU16();
+				idSWFBitStream bitstream2( bitstream.ReadData( withSize ), withSize, false );
+				if( stack.A().IsObject() )
+				{
+					idSWFScriptObject* withObject = stack.A().GetObject();
+					withObject->AddRef();
+					stack.Pop( 1 );
+					scope.Append( withObject );
+					Run( thisObject, stack, bitstream2 );
+					scope.SetNum( scope.Num() - 1 );
+					withObject->Release();
+				}
+				else
+				{
+					if( swf_debug.GetInteger() > 0 )
+					{
+						idLib::Printf( "SWF: with() invalid object specified\n" );
+					}
+					stack.Pop( 1 );
+				}
+				break;
+			}
+			case Action_ToNumber:
+				if( stack.A().IsString() )
+				{
+					stack.A().SetResult( va( "tonumber( \"%s\" )", stack.A().ToString().c_str() ) );
+				}
+				else
+				{
+					stack.A().SetResult( va( "tonumber( %s )", stack.A().ToString().c_str() ) );
+				}
+				break;
+			case Action_ToString:
+				stack.A().SetResult( va( "tostring( %s )", stack.A().ToString().c_str() ) );
+				break;
+			case Action_TypeOf:
+				if( stack.A().IsString() )
+				{
+					stack.A().SetResult( va( "type( \"%s\" )", stack.A().ToString().c_str() ) );
+				}
+				else
+				{
+					stack.A().SetResult( va( "type( %s )", stack.A().ToString().c_str() ) );
+				}
+				break;
+			case Action_Add2:
+			{
+				if( stack.B().IsString() && stack.A().IsString() )
+				{
+					stack.B().SetResult( va( "\"%s\" .. \"%s\"", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+				}
+				else if( stack.B().IsString() && !stack.A().IsString() )
+				{
+					stack.B().SetResult( va( "\"%s\" + %s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+				}
+				else if( !stack.B().IsString() && stack.A().IsString() )
+				{
+					stack.B().SetResult( va( "%s + \"%s\"", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+				}
+				else
+				{
+					stack.B().SetResult( va( "%s + %s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+				}
+				stack.Pop( 1 );
+				break;
+			}
+			case Action_Less2:
+			{
+				/*
+				if( stack.A().IsString() && stack.B().IsString() )
+				{
+					stack.B().SetString( va( "%s < %s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+				}
+				else
+				*/
+				{
+					stack.B().SetResult( va( "%s < %s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+				}
+				stack.Pop( 1 );
+				break;
+			}
+			case Action_Greater:
+			{
+				/*
+				if( stack.A().IsString() && stack.B().IsString() )
+				{
+					stack.B().SetBool( stack.B().ToString() > stack.A().ToString() );
+				}
+				else
+				*/
+				{
+					stack.B().SetResult( va( "%s > %s", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+				}
+				stack.Pop( 1 );
+				break;
+			}
+			case Action_Modulo:
+			{
+				int32 a = stack.A().ToInteger();
+				int32 b = stack.B().ToInteger();
+				if( a == 0 )
+				{
+					stack.B().SetUndefined();
+				}
+				else
+				{
+					stack.B().SetInteger( b % a );
+				}
+				stack.Pop( 1 );
+				break;
+			}
+			case Action_BitAnd:
+				stack.B().SetInteger( stack.B().ToInteger() & stack.A().ToInteger() );
+				stack.Pop( 1 );
+				break;
+			case Action_BitLShift:
+				stack.B().SetInteger( stack.B().ToInteger() << stack.A().ToInteger() );
+				stack.Pop( 1 );
+				break;
+			case Action_BitOr:
+				stack.B().SetInteger( stack.B().ToInteger() | stack.A().ToInteger() );
+				stack.Pop( 1 );
+				break;
+			case Action_BitRShift:
+				stack.B().SetInteger( stack.B().ToInteger() >> stack.A().ToInteger() );
+				stack.Pop( 1 );
+				break;
+			case Action_BitURShift:
+				stack.B().SetInteger( ( uint32 )stack.B().ToInteger() >> stack.A().ToInteger() );
+				stack.Pop( 1 );
+				break;
+			case Action_BitXor:
+				stack.B().SetInteger( stack.B().ToInteger() ^ stack.A().ToInteger() );
+				stack.Pop( 1 );
+				break;
+			case Action_Decrement:
+			{
+				//stack.A().SetFloat( stack.A().ToFloat() - 1.0f );
+				
+				const char* a = stack.A().ToString().c_str();
+				stack.A().SetResult( va( "%s - 1", a ) );
+				break;
+			}
+			case Action_Increment:
+			{
+				//stack.A().SetFloat( stack.A().ToFloat() + 1.0f );
+				
+				const char* a = stack.A().ToString().c_str();
+				stack.A().SetResult( va( "%s + 1", a ) );
+				break;
+			}
+			case Action_PushDuplicate:
+			{
+				idSWFScriptVar dup = stack.A();
+				stack.Alloc() = dup;
+				break;
+			}
+			case Action_StackSwap:
+			{
+				idSWFScriptVar temp = stack.A();
+				stack.A() = stack.B();
+				stack.A() = temp;
+				break;
+			}
+			case Action_StoreRegister:
+			{
+				uint8 registerNumber = bitstream.ReadU8();
+				registers[ registerNumber ] = stack.A();
+				break;
+			}
+			case Action_DefineLocal:
+			{
+				scope[scope.Num() - 1]->Set( stack.B().ToString(), stack.A() );
+				
+				if( stack.A().IsString() )
+				{
+					AddLine( va( "local %s = \"%s\"\n", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+				}
+				else
+				{
+					AddLine( va( "local %s = %s\n", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
+				}
+				
+				stack.Pop( 2 );
+				break;
+			}
+			case Action_DefineLocal2:
+			{
+				scope[scope.Num() - 1]->Set( stack.A().ToString(), idSWFScriptVar() );
+				
+				AddLine( va( "local %s = {}\n", stack.A().ToString().c_str() ) );
+				
+				stack.Pop( 1 );
+				break;
+			}
+			case Action_Delete:
+			{
+				if( swf_debug.GetInteger() > 0 )
+				{
+					idLib::Printf( "SWF: Delete ignored\n" );
+				}
+				// We no longer support deleting variables because the performance cost of updating the hash tables is not worth it
+				stack.Pop( 2 );
+				break;
+			}
+			case Action_Delete2:
+			{
+				if( swf_debug.GetInteger() > 0 )
+				{
+					idLib::Printf( "SWF: Delete2 ignored\n" );
+				}
+				// We no longer support deleting variables because the performance cost of updating the hash tables is not worth it
+				stack.Pop( 1 );
+				break;
+			}
+			// These are functions we just don't support because we never really needed to
+			case Action_CloneSprite:
+			case Action_RemoveSprite:
+			case Action_Call:
+			case Action_SetTarget2:
+			case Action_NewMethod:
+			default:
+				idLib::Warning( "SWF: Unhandled Action %s", idSWF::GetActionName( code ) );
+				// We have to abort here because the rest of the script is basically meaningless now
+				assert( false );
+				callstackLevel--;
+				goto finish;
+		}
+	}
+	callstackLevel--;
+	
+finish:
+	idStr actionScript = BuildActionCode( actionBlocks, 0 );
+	
+	idLib::Printf( "%s.Sprite%i script:\n%s\n", filename, characterID, actionScript.c_str() );
+	
+	return actionScript;
+}
+// RB end
 
 /*
 ========================

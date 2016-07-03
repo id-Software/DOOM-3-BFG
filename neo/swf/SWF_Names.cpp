@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -27,6 +28,40 @@ If you have questions concerning this license or the applicable additional terms
 */
 #pragma hdrstop
 #include "precompiled.h"
+
+// RB begin
+const char* idSWF::GetDictTypeName( swfDictType_t type )
+{
+#define SWF_DICT_NAME( x ) case SWF_DICT_##x: return #x;
+	switch( type )
+	{
+			SWF_DICT_NAME( NULL );
+			SWF_DICT_NAME( IMAGE );
+			SWF_DICT_NAME( SHAPE );
+			SWF_DICT_NAME( MORPH );
+			SWF_DICT_NAME( SPRITE );
+			SWF_DICT_NAME( FONT );
+			SWF_DICT_NAME( TEXT );
+			SWF_DICT_NAME( EDITTEXT );
+		default:
+			return "????";
+	}
+}
+
+const char* idSWF::GetEditTextAlignName( swfEditTextAlign_t align )
+{
+#define SWF_ET_ALIGN_NAME( x ) case SWF_ET_ALIGN_##x: return #x;
+	switch( align )
+	{
+			SWF_ET_ALIGN_NAME( LEFT );
+			SWF_ET_ALIGN_NAME( RIGHT );
+			SWF_ET_ALIGN_NAME( CENTER );
+			SWF_ET_ALIGN_NAME( JUSTIFY );
+		default:
+			return "????";
+	}
+}
+// RB end
 
 /*
 ========================
