@@ -35,9 +35,9 @@ If you have questions concerning this license or the applicable additional terms
 
 idCVar swf_loadBinary( "swf_loadBinary", "1", CVAR_INTEGER, "used to set whether to load binary swf from generated" );
 // RB begin
-idCVar swf_exportAtlas( "swf_exportAtlas", "0", CVAR_INTEGER, "" );
-idCVar swf_exportSWF( "swf_exportSWF", "1", CVAR_INTEGER, "" );
-idCVar swf_exportJSON( "swf_exportJSON", "1", CVAR_INTEGER, "" );
+idCVar postLoadExportFlashAtlas( "postLoadExportFlashAtlas", "0", CVAR_INTEGER, "" );
+idCVar postLoadExportFlashToSWF( "postLoadExportFlashToSWF", "0", CVAR_INTEGER, "" );
+idCVar postLoadExportFlashToJSON( "postLoadExportFlashToJSON", "0", CVAR_INTEGER, "" );
 // RB end
 
 int idSWF::mouseX = -1;
@@ -179,7 +179,7 @@ idSWF::idSWF( const char* filename_, idSoundWorld* soundWorld_ )
 		}
 	}
 	
-	if( swf_exportJSON.GetBool() )
+	if( postLoadExportFlashToSWF.GetBool() )
 	{
 		idStr jsonFileName = "exported/";
 		jsonFileName += filename;
@@ -196,7 +196,7 @@ idSWF::idSWF( const char* filename_, idSoundWorld* soundWorld_ )
 	int atlasExportImageWidth = 0;
 	int atlasExportImageHeight = 0;
 	
-	if( /*!loadedFromJSON &&*/ ( swf_exportAtlas.GetBool() || swf_exportSWF.GetBool() ) )
+	if( /*!loadedFromJSON &&*/ ( postLoadExportFlashToJSON.GetBool() || postLoadExportFlashAtlas.GetBool() || postLoadExportFlashToSWF.GetBool() ) )
 	{
 		idStrStatic< MAX_OSPATH > generatedName = atlasFileName;
 		generatedName.StripFileExtension();
@@ -296,7 +296,7 @@ idSWF::idSWF( const char* filename_, idSoundWorld* soundWorld_ )
 			
 			R_WritePNG( atlasFileNameExport, rgba.Ptr(), 4, img.width, img.height, true, "fs_basepath" );
 			
-			if( swf_exportSWF.GetBool() )
+			if( postLoadExportFlashToSWF.GetBool() )
 			{
 				atlasExportImageWidth = img.width;
 				atlasExportImageHeight = img.height;
@@ -306,7 +306,7 @@ idSWF::idSWF( const char* filename_, idSoundWorld* soundWorld_ )
 		}
 	}
 	
-	if( swf_exportSWF.GetBool() )
+	if( postLoadExportFlashToSWF.GetBool() )
 	{
 		idStr swfFileName = "exported/";
 		swfFileName += filename;

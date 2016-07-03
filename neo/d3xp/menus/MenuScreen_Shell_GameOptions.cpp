@@ -125,8 +125,8 @@ void idMenuScreen_Shell_GameOptions::Initialize( idMenuHandler* data )
 	control->SetupEvents( DEFAULT_REPEAT_TIME, options->GetChildren().Num() );
 	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_PRESS_FOCUSED, options->GetChildren().Num() );
 	options->AddChild( control );
-
-	control = new(TAG_SWF)idMenuWidget_ControlButton();
+	
+	control = new( TAG_SWF )idMenuWidget_ControlButton();
 	control->SetOptionType( OPTION_SLIDER_TOGGLE );
 	control->SetLabel( "muzzle flashes" );
 	control->SetDataSource( &systemData, idMenuDataSource_GameSettings::GAME_FIELD_MUZZLE_FLASHES );
@@ -417,8 +417,8 @@ bool idMenuScreen_Shell_GameOptions::idMenuDataSource_GameSettings::IsDataChange
 	{
 		return true;
 	}
-
-	if (fields[ GAME_FIELD_MUZZLE_FLASHES ].ToBool() != originalFields[ GAME_FIELD_MUZZLE_FLASHES ].ToBool() )
+	
+	if( fields[ GAME_FIELD_MUZZLE_FLASHES ].ToBool() != originalFields[ GAME_FIELD_MUZZLE_FLASHES ].ToBool() )
 	{
 		return true;
 	}
