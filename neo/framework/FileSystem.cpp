@@ -2271,7 +2271,7 @@ int idFileSystemLocal::GetFileList( const char* relativePath, const idStrList& e
 				}
 				
 				// ensure we have a path, and not just a filename containing the path
-				if( rt.filename[ pathLength ] == '\0' || rt.filename[pathLength - 1] != '/' )
+				if( rt.filename[ pathLength ] == '\0' || ( pathLength && rt.filename[pathLength - 1] != '/' ) )
 				{
 					continue;
 				}
