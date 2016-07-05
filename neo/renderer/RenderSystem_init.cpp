@@ -1872,6 +1872,126 @@ void R_SampleCubeMap( const idVec3& dir, int size, byte* buffers[6], byte result
 	result[3] = buffers[axis][( y * size + x ) * 4 + 3];
 }
 
+class CommandlineProgressBar
+{
+private:
+	size_t tics = 0;
+	size_t nextTicCount = 0;
+	int	count = 0;
+	int expectedCount = 0;
+	
+public:
+	CommandlineProgressBar( int _expectedCount )
+	{
+		expectedCount = _expectedCount;
+		
+		common->Printf( "0%%  10   20   30   40   50   60   70   80   90   100%%\n" );
+		common->Printf( "|----|----|----|----|----|----|----|----|----|----|\n" );
+		
+		common->UpdateScreen( false );
+	}
+	
+	void Increment()
+	{
+		if( ( count + 1 ) >= nextTicCount )
+		{
+			size_t ticsNeeded = ( size_t )( ( ( double )( count + 1 ) / expectedCount ) * 50.0 );
+			
+			do
+			{
+				common->Printf( "*" );
+			}
+			while( ++tics < ticsNeeded );
+			
+			nextTicCount = ( size_t )( ( tics / 50.0 ) * expectedCount );
+			if( count == ( expectedCount - 1 ) )
+			{
+				if( tics < 51 )
+				{
+					common->Printf( "*" );
+				}
+				common->Printf( "\n" );
+			}
+			
+			common->UpdateScreen( false );
+		}
+		
+		count++;
+	}
+};
+
+
+// http://holger.dammertz.org/stuff/notes_HammersleyOnHemisphere.html
+
+// To implement the Hammersley point set we only need an efficent way to implement the Van der Corput radical inverse phi2(i).
+// Since it is in base 2 we can use some basic bit operations to achieve this.
+// The brilliant book Hacker's Delight [warren01] provides us a a simple way to reverse the bits in a given 32bit integer. Using this, the following code then implements phi2(i)
+
+/*
+GLSL version
+
+float radicalInverse_VdC( uint bits )
+{
+	bits = (bits << 16u) | (bits >> 16u);
+	bits = ((bits & 0x55555555u) << 1u) | ((bits & 0xAAAAAAAAu) >> 1u);
+	bits = ((bits & 0x33333333u) << 2u) | ((bits & 0xCCCCCCCCu) >> 2u);
+	bits = ((bits & 0x0F0F0F0Fu) << 4u) | ((bits & 0xF0F0F0F0u) >> 4u);
+	bits = ((bits & 0x00FF00FFu) << 8u) | ((bits & 0xFF00FF00u) >> 8u);
+	return float(bits) * 2.3283064365386963e-10; // / 0x100000000
+}
+*/
+
+// RB: radical inverse implementation from the Mitsuba PBR system
+
+// Van der Corput radical inverse in base 2 with single precision
+inline float RadicalInverse_VdC( uint32_t n, uint32_t scramble = 0U )
+{
+	/* Efficiently reverse the bits in 'n' using binary operations */
+#if (defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 2))) || defined(__clang__)
+	n = __builtin_bswap32( n );
+#else
+	n = ( n << 16 ) | ( n >> 16 );
+	n = ( ( n & 0x00ff00ff ) << 8 ) | ( ( n & 0xff00ff00 ) >> 8 );
+#endif
+	n = ( ( n & 0x0f0f0f0f ) << 4 ) | ( ( n & 0xf0f0f0f0 ) >> 4 );
+	n = ( ( n & 0x33333333 ) << 2 ) | ( ( n & 0xcccccccc ) >> 2 );
+	n = ( ( n & 0x55555555 ) << 1 ) | ( ( n & 0xaaaaaaaa ) >> 1 );
+	
+	// Account for the available precision and scramble
+	n = ( n >> ( 32 - 24 ) ) ^ ( scramble & ~ -( 1 << 24 ) );
+	
+	return ( float ) n / ( float )( 1U << 24 );
+}
+
+// The ith point xi is then computed by
+inline idVec2 Hammersley2D( uint i, uint N )
+{
+	return idVec2( float( i ) / float( N ), RadicalInverse_VdC( i ) );
+}
+
+idVec3 ImportanceSampleGGX( const idVec2& Xi, float roughness, const idVec3& N )
+{
+	float a = roughness * roughness;
+	
+	// cosinus distributed direction (Z-up or tangent space) from the hammersley point xi
+	float Phi = 2 * idMath::PI * Xi.x;
+	float cosTheta = sqrt( ( 1 - Xi.y ) / ( 1 + ( a * a - 1 ) * Xi.y ) );
+	float sinTheta = sqrt( 1 - cosTheta * cosTheta );
+	
+	idVec3 H;
+	H.x = sinTheta * cos( Phi );
+	H.y = sinTheta * sin( Phi );
+	H.z = cosTheta;
+	
+	// rotate from tangent space to world space along N
+	idVec3 upVector = abs( N.z ) < 0.999f ? idVec3( 0, 0, 1 ) : idVec3( 1, 0, 0 );
+	idVec3 tangentX = upVector.Cross( N );
+	tangentX.Normalize();
+	idVec3 tangentY = N.Cross( tangentX );
+	
+	return tangentX * H.x + tangentY * H.y + N * H.z;
+}
+
 /*
 ==================
 R_MakeAmbientMap_f
@@ -1954,6 +2074,8 @@ void R_MakeAmbientMap_f( const idCmdArgs& args )
 		}
 	}
 	
+	bool pacifier = true;
+	
 	// resample with hemispherical blending
 	int	samples = 1000;
 	
@@ -1961,6 +2083,10 @@ void R_MakeAmbientMap_f( const idCmdArgs& args )
 	
 	for( int map = 0 ; map < 2 ; map++ )
 	{
+		CommandlineProgressBar progressBar( outSize * outSize * 6 );
+		
+		int	start = Sys_Milliseconds();
+		
 		for( i = 0 ; i < 6 ; i++ )
 		{
 			for( int x = 0 ; x < outSize ; x++ )
@@ -1973,30 +2099,14 @@ void R_MakeAmbientMap_f( const idCmdArgs& args )
 					dir = cubeAxis[i][0] + -( -1 + 2.0 * x / ( outSize - 1 ) ) * cubeAxis[i][1] + -( -1 + 2.0 * y / ( outSize - 1 ) ) * cubeAxis[i][2];
 					dir.Normalize();
 					total[0] = total[1] = total[2] = 0;
-					//samples = 1;
-					float	limit = map ? 0.95 : 0.25;		// small for specular, almost hemisphere for ambient
+					
+					float roughness = map ? 0.1 : 0.95;		// small for specular, almost hemisphere for ambient
 					
 					for( int s = 0 ; s < samples ; s++ )
 					{
-						// pick a random direction vector that is inside the unit sphere but not behind dir,
-						// which is a robust way to evenly sample a hemisphere
-						idVec3	test;
-						while( 1 )
-						{
-							for( int j = 0 ; j < 3 ; j++ )
-							{
-								test[j] = -1 + 2 * ( rand() & 0x7fff ) / ( float )0x7fff;
-							}
-							if( test.Length() > 1.0 )
-							{
-								continue;
-							}
-							test.Normalize();
-							if( test * dir > limit )  	// don't do a complete hemisphere
-							{
-								break;
-							}
-						}
+						idVec2 Xi = Hammersley2D( s, samples );
+						idVec3 test = ImportanceSampleGGX( Xi, roughness, dir );
+						
 						byte	result[4];
 						//test = dir;
 						R_SampleCubeMap( test, width, buffers, result );
@@ -2008,21 +2118,37 @@ void R_MakeAmbientMap_f( const idCmdArgs& args )
 					outBuffer[( y * outSize + x ) * 4 + 1] = total[1] / samples;
 					outBuffer[( y * outSize + x ) * 4 + 2] = total[2] / samples;
 					outBuffer[( y * outSize + x ) * 4 + 3] = 255;
+					
+					progressBar.Increment();
 				}
 			}
 			
 			if( map == 0 )
 			{
-				fullname.Format( "env/%s_amb%s.%s", baseName, envDirection[i], fileExten[TGA] );
+				fullname.Format( "env/%s_amb%s.%s", baseName, envDirection[i], fileExten[PNG] );
 			}
 			else
 			{
-				fullname.Format( "env/%s_spec%s.%s", baseName, envDirection[i], fileExten[TGA] );
+				fullname.Format( "env/%s_spec%s.%s", baseName, envDirection[i], fileExten[PNG] );
 			}
-			common->Printf( "writing %s\n", fullname.c_str() );
+			//common->Printf( "writing %s\n", fullname.c_str() );
+			
 			const bool captureToImage = false;
 			common->UpdateScreen( captureToImage );
-			R_WriteTGA( fullname, outBuffer, outSize, outSize );
+			
+			//R_WriteTGA( fullname, outBuffer, outSize, outSize, false, "fs_basepath" );
+			R_WritePNG( fullname, outBuffer, 4, outSize, outSize, true, "fs_basepath" );
+		}
+		
+		int	end = Sys_Milliseconds();
+		
+		if( map == 0 )
+		{
+			common->Printf( "env/%s_amb convolved  in %5.1f seconds\n\n", baseName, ( end - start ) * 0.001f );
+		}
+		else
+		{
+			common->Printf( "env/%s_spec convolved  in %5.1f seconds\n\n", baseName, ( end - start ) * 0.001f );
 		}
 	}
 	
