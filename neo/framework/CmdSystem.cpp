@@ -551,19 +551,6 @@ void idCmdSystemLocal::ExecuteTokenizedString( const idCmdArgs& args )
 		return;		// no tokens
 	}
 	
-	// DEBUG: print commands executed by the console
-	/*
-		if(args.Argc() == 1) {
-			common->Printf("idCmdSystemLocal::ExecuteTokenizedString: '%s'\n", args.Argv( 0 ));
-		}
-		else if(args.Argc() == 2) {
-			common->Printf("idCmdSystemLocal::ExecuteTokenizedString: '%s' '%s'\n", args.Argv( 0 ), args.Argv( 1 ));
-		}
-		else if(args.Argc() == 3) {
-			common->Printf("idCmdSystemLocal::ExecuteTokenizedString: '%s' '%s' '%s'\n", args.Argv( 0 ), args.Argv( 1 ), args.Argv( 2 ));
-		}
-	*/
-	
 	// check registered command functions
 	for( prev = &commands; *prev; prev = &cmd->next )
 	{

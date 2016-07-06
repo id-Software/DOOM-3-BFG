@@ -111,7 +111,7 @@ static const float negOne[4] = { -1, -1, -1, -1 };
 RB_SetVertexColorParms
 ================
 */
-static void RB_SetVertexColorParms( stageVertexColor_t svc )
+void RB_SetVertexColorParms( stageVertexColor_t svc )
 {
 	switch( svc )
 	{

@@ -3,7 +3,8 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013-2014 Robert Beckebans
+Copyright (C) 2014-2016 Robert Beckebans
+Copyright (C) 2014-2016 Kot in Action Creative Artel
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -928,25 +929,66 @@ RB_ShowSurfaceInfo
 Debugging tool
 =====================
 */
-static void RB_ShowSurfaceInfo( drawSurf_t** drawSurfs, int numDrawSurfs )
+
+
+static idStr surfModelName, surfMatName;
+static idVec3 surfPoint;
+static bool surfTraced = false;
+
+
+void idRenderSystemLocal::OnFrame()
 {
+	// Do tracing at a safe time to avoid threading issues.
 	modelTrace_t mt;
 	idVec3 start, end;
+	
+	surfTraced = false;
 	
 	if( !r_showSurfaceInfo.GetBool() )
 	{
 		return;
 	}
 	
+	if( tr.primaryView == NULL )
+	{
+		return;
+	}
+	
 	// start far enough away that we don't hit the player model
-	start = tr.primaryView->renderView.vieworg + tr.primaryView->renderView.viewaxis[0] * 16;
+	start = tr.primaryView->renderView.vieworg + tr.primaryView->renderView.viewaxis[0] * 32;
 	end = start + tr.primaryView->renderView.viewaxis[0] * 1000.0f;
 	if( !tr.primaryWorld->Trace( mt, start, end, 0.0f, false ) )
 	{
 		return;
 	}
 	
-	globalImages->BindNull();
+	surfPoint = mt.point;
+	surfModelName = mt.entity->hModel->Name();
+	surfMatName = mt.material->GetName();
+	surfTraced = true;
+}
+
+
+static void RB_ShowSurfaceInfo( drawSurf_t** drawSurfs, int numDrawSurfs )
+{
+	if( !r_showSurfaceInfo.GetBool() || !surfTraced )
+	{
+		return;
+	}
+	
+	// globalImages->BindNull();
+	// qglDisable( GL_TEXTURE_2D );
+	
+	RB_SimpleWorldSetup();
+	
+	// foresthale 2014-05-02: don't use a shader for tools
+	//renderProgManager.BindShader_TextureVertexColor();
+	GL_SelectTexture( 0 );
+	globalImages->whiteImage->Bind();
+	
+	RB_SetVertexColorParms( SVC_MODULATE );
+	// foresthale 2014-05-02: don't use a shader for tools
+	//renderProgManager.CommitUniforms();
 	
 	GL_Color( 1, 1, 1 );
 	
@@ -956,15 +998,15 @@ static void RB_ShowSurfaceInfo( drawSurf_t** drawSurfs, int numDrawSurfs )
 	GL_PolygonOffset( scale, bias );
 	GL_State( GLS_DEPTHFUNC_ALWAYS | GLS_POLYMODE_LINE | GLS_POLYGON_OFFSET );
 	
-	idVec3	trans[3];
-	float	matrix[16];
+	// idVec3	trans[3];
+	// float	matrix[16];
 	
 	// transform the object verts into global space
-	R_AxisToModelMatrix( mt.entity->axis, mt.entity->origin, matrix );
+	// R_AxisToModelMatrix( mt.entity->axis, mt.entity->origin, matrix );
 	
-	tr.primaryWorld->DrawText( mt.entity->hModel->Name(), mt.point + tr.primaryView->renderView.viewaxis[2] * 12,
+	tr.primaryWorld->DrawText( surfModelName, surfPoint + tr.primaryView->renderView.viewaxis[2] * 12,
 							   0.35f, colorRed, tr.primaryView->renderView.viewaxis );
-	tr.primaryWorld->DrawText( mt.material->GetName(), mt.point,
+	tr.primaryWorld->DrawText( surfMatName, surfPoint,
 							   0.35f, colorBlue, tr.primaryView->renderView.viewaxis );
 }
 
