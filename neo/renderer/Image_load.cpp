@@ -217,6 +217,35 @@ void idImage::AllocImage( const idImageOpts& imgOpts, textureFilter_t tf, textur
 }
 
 /*
+		
+		
+		// foresthale 2014-05-30: give a nice progress display when binarizing
+		commonLocal.LoadPacifierBinarizeFilename( GetName() , "generated image" );
+		if( opts.numLevels > 1 )
+		{
+			commonLocal.LoadPacifierBinarizeProgressTotal( opts.width * opts.height * 4 / 3 );
+		}
+		else
+		{
+			commonLocal.LoadPacifierBinarizeProgressTotal( opts.width * opts.height );
+		}
+		
+		commonLocal.LoadPacifierBinarizeEnd();
+		
+	
+	// foresthale 2014-05-30: give a nice progress display when binarizing
+	commonLocal.LoadPacifierBinarizeFilename( GetName(), "generated cube image" );
+	if( opts.numLevels > 1 )
+	{
+		commonLocal.LoadPacifierBinarizeProgressTotal( opts.width * opts.width * 6 * 4 / 3 );
+	}
+	else
+	{
+		commonLocal.LoadPacifierBinarizeProgressTotal( opts.width * opts.width * 6 );
+	}
+	
+	commonLocal.LoadPacifierBinarizeEnd();
+	
 ===============
 GetGeneratedName
 
@@ -462,6 +491,19 @@ void idImage::ActuallyLoadImage( bool fromBackEnd )
 			opts.height = height;
 			opts.numLevels = 0;
 			DeriveOpts();
+			
+			// foresthale 2014-05-30: give a nice progress display when binarizing
+			commonLocal.LoadPacifierBinarizeFilename( generatedName.c_str(), binarizeReason.c_str() );
+			if( opts.numLevels > 1 )
+			{
+				commonLocal.LoadPacifierBinarizeProgressTotal( opts.width * opts.width * 6 * 4 / 3 );
+			}
+			else
+			{
+				commonLocal.LoadPacifierBinarizeProgressTotal( opts.width * opts.width * 6 );
+			}
+			
+			commonLocal.LoadPacifierBinarizeEnd();
 			
 			// foresthale 2014-05-30: give a nice progress display when binarizing
 			commonLocal.LoadPacifierBinarizeFilename( generatedName.c_str(), binarizeReason.c_str() );
