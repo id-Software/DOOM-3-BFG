@@ -9,6 +9,8 @@ return
 	-- shaders
 	"ambient_lighting.ps.hlsl",
 	"ambient_lighting.vs.hlsl",
+	"ambient_lighting_IBL.pixel",
+	"ambient_lighting_IBL.vertex",
 	"AmbientOcclusion_AO.ps.hlsl",
 	"AmbientOcclusion_AO.vs.hlsl",
 	"AmbientOcclusion_blur.ps.hlsl",

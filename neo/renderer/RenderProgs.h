@@ -290,6 +290,16 @@ public:
 		BindShader_Builtin( BUILTIN_AMBIENT_LIGHTING_SKINNED );
 	}
 	
+	void	BindShader_ImageBasedLighting()
+	{
+		BindShader_Builtin( BUILTIN_AMBIENT_LIGHTING_IBL );
+	}
+	
+	void	BindShader_ImageBasedLightingSkinned()
+	{
+		BindShader_Builtin( BUILTIN_AMBIENT_LIGHTING_IBL_SKINNED );
+	}
+	
 	void	BindShader_SmallGeometryBuffer()
 	{
 		BindShader_Builtin( BUILTIN_SMALL_GEOMETRY_BUFFER );
@@ -647,6 +657,8 @@ private:
 		BUILTIN_VERTEX_COLOR,
 		BUILTIN_AMBIENT_LIGHTING,
 		BUILTIN_AMBIENT_LIGHTING_SKINNED,
+		BUILTIN_AMBIENT_LIGHTING_IBL,
+		BUILTIN_AMBIENT_LIGHTING_IBL_SKINNED,
 		BUILTIN_SMALL_GEOMETRY_BUFFER,
 		BUILTIN_SMALL_GEOMETRY_BUFFER_SKINNED,
 		// RB end

@@ -216,6 +216,8 @@ typedef enum
 	TD_COVERAGE,			// coverage map for fill depth pass when YCoCG is used
 	TD_DEPTH,				// depth buffer copy for motion blur
 	// RB begin
+	TD_HIGHQUALITY_CUBE,	// motorsep - Uncompressed cubemap texture (RGB colorspace)
+	TD_LOWQUALITY_CUBE,		// motorsep - Compressed cubemap texture (RGB colorspace DXT5)
 	TD_SHADOW_ARRAY,		// 2D depth buffer array for shadow mapping
 	TD_RGBA16F,
 	TD_RGBA32F,
@@ -545,6 +547,9 @@ public:
 	idImage*			currentNormalsImage;			// cheap G-Buffer replacement, holds normals and surface roughness
 	idImage*			ambientOcclusionImage[2];		// contain AO and bilateral filtering keys
 	idImage*			hierarchicalZbufferImage;		// zbuffer with mip maps to accelerate screen space ray tracing
+	
+	idImage*			defaultUACIrradianceCube;
+	idImage*			defaultUACRadianceCube;
 	// RB end
 	idImage* 			scratchImage;
 	idImage* 			scratchImage2;
@@ -553,7 +558,7 @@ public:
 	idImage* 			currentDepthImage;				// for motion blur
 	idImage* 			originalCurrentRenderImage;		// currentRenderImage before any changes for stereo rendering
 	idImage* 			loadingIconImage;				// loading icon must exist always
-	idImage* 			hellLoadingIconImage;				// loading icon must exist always
+	idImage* 			hellLoadingIconImage;			// loading icon must exist always
 	
 	//--------------------------------------------------------
 	

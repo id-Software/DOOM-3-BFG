@@ -169,6 +169,17 @@ ID_INLINE void idImage::DeriveOpts()
 			case TD_LOOKUP_TABLE_RGBA:
 				opts.format = FMT_RGBA8;
 				break;
+			// motorsep 05-17-2015; added this for uncompressed cubemap/skybox textures
+			case TD_HIGHQUALITY_CUBE:
+				opts.colorFormat = CFM_DEFAULT;
+				opts.format = FMT_RGBA8;
+				opts.gammaMips = true;
+				break;
+			case TD_LOWQUALITY_CUBE:
+				opts.colorFormat = CFM_DEFAULT; // CFM_YCOCG_DXT5;
+				opts.format = FMT_DXT5;
+				opts.gammaMips = true;
+				break;
 			default:
 				assert( false );
 				opts.format = FMT_RGBA8;
