@@ -86,7 +86,7 @@ def object_to_entity( obj ):
     #return json.dumps( obj.items(), indent = 4  )
     #return { "items": obj.items() }
     
-    #return { "children":[{'name':key,"size":value} for key,value in sample.items()]}
+    #return { "children":[{'name':key,"size":value} for key,value in obj.items()]}
     #return { obj.items() }
     #return sample
     
@@ -94,13 +94,26 @@ def object_to_entity( obj ):
     #for key,value in obj.items():
     #   dict.insert( key, value )
     
+    print( "creating entity {0} of type {1}".format( obj.name, obj.type ) )
+    
     # make shallow copy without arrays of entries
-    ent = dict( obj )
+    #ent = dict( obj )
+    #ent = dict()
+    
+    ignore_keys = [ '_RNA_UI', 'cycles_visibility', 'cycles' ]
+    
+    ent = {}
+    for key,value in obj.items():# if key not in ignore_keys:
+        
+       if key not in ignore_keys:
+            ent[ key] = value
+            print( "entity {0} key {1} has value {2}".format( obj.name, key, value ) )
+    
     
     # TODO quakeify name if necessary
     ent['name'] = obj.name
     ent['origin'] = "%f %f %f" % ( obj.location[0], obj.location[1], obj.location[2] )
-    ent['blender_object_type'] = obj.type
+    #ent['blender_object_type'] = obj.type
     
     if obj.type == 'LAMP':
         
@@ -173,3 +186,17 @@ def unregister():
 
 if __name__ == "__main__":
     register()
+    
+    """
+    ignore_types = ['CAMERA','MESH','ARMATURE']
+
+    entities = [ obj for obj in bpy.context.selected_objects if obj.type not in ignore_types ]
+
+    data = {
+        "version": 3,
+        "authoring_tool": "Blender " + bpy.app.version_string,
+        "entities": [ object_to_entity( obj ) for obj in entities ] }
+
+    j = json.dumps( data, indent = 4 )
+    print( j )
+    """
