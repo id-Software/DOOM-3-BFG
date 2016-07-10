@@ -1265,7 +1265,7 @@ void idRenderBackend::SetupInteractionStage( const shaderStage_t* surfaceStage, 
 idRenderBackend::DrawSingleInteraction
 =================
 */
-void idRenderBackend::DrawSingleInteraction( drawInteraction_t* din )
+void idRenderBackend::DrawSingleInteraction( drawInteraction_t* din, bool useIBL )
 {
 	if( din->bumpImage == NULL )
 	{
@@ -1296,6 +1296,35 @@ void idRenderBackend::DrawSingleInteraction( drawInteraction_t* din )
 	if( diffuseIsBlack && specularIsBlack )
 	{
 		return;
+	}
+	
+	if( useIBL )
+	{
+		const textureUsage_t specUsage = din->specularImage->GetUsage();
+		
+		if( specUsage == TD_SPECULAR_PBR_RMAO || specUsage == TD_SPECULAR_PBR_RMAOD )
+		{
+			// PBR path with roughness, metal and AO
+			if( din->surf->jointCache )
+			{
+				renderProgManager.BindShader_ImageBasedLightingSkinned_PBR();
+			}
+			else
+			{
+				renderProgManager.BindShader_ImageBasedLighting_PBR();
+			}
+		}
+		else
+		{
+			if( din->surf->jointCache )
+			{
+				renderProgManager.BindShader_ImageBasedLightingSkinned();
+			}
+			else
+			{
+				renderProgManager.BindShader_ImageBasedLighting();
+			}
+		}
 	}
 	
 	// bump matrix
@@ -1836,7 +1865,7 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 						// draw any previous interaction
 						if( inter.bumpImage != NULL )
 						{
-							DrawSingleInteraction( &inter );
+							DrawSingleInteraction( &inter, false );
 						}
 						inter.bumpImage = surfaceStage->texture.image;
 						inter.diffuseImage = NULL;
@@ -1854,7 +1883,7 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 						// draw any previous interaction
 						if( inter.diffuseImage != NULL )
 						{
-							DrawSingleInteraction( &inter );
+							DrawSingleInteraction( &inter, false );
 						}
 						inter.diffuseImage = surfaceStage->texture.image;
 						inter.vertexColor = surfaceStage->vertexColor;
@@ -1872,7 +1901,7 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 						// draw any previous interaction
 						if( inter.specularImage != NULL )
 						{
-							DrawSingleInteraction( &inter );
+							DrawSingleInteraction( &inter, false );
 						}
 						inter.specularImage = surfaceStage->texture.image;
 						inter.vertexColor = surfaceStage->vertexColor;
@@ -1884,7 +1913,7 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 			}
 			
 			// draw the final interaction
-			DrawSingleInteraction( &inter );
+			DrawSingleInteraction( &inter, false );
 			
 			renderLog.CloseBlock();
 		}
@@ -2243,7 +2272,7 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 					// draw any previous interaction
 					if( inter.bumpImage != NULL )
 					{
-						DrawSingleInteraction( &inter );
+						DrawSingleInteraction( &inter, !fillGbuffer );
 					}
 					inter.bumpImage = surfaceStage->texture.image;
 					inter.diffuseImage = NULL;
@@ -2264,7 +2293,7 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 					// draw any previous interaction
 					if( inter.diffuseImage != NULL )
 					{
-						DrawSingleInteraction( &inter );
+						DrawSingleInteraction( &inter, !fillGbuffer );
 					}
 					
 					inter.diffuseImage = surfaceStage->texture.image;
@@ -2284,7 +2313,7 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 					// draw any previous interaction
 					if( inter.specularImage != NULL )
 					{
-						DrawSingleInteraction( &inter );
+						DrawSingleInteraction( &inter, !fillGbuffer );
 					}
 					inter.specularImage = surfaceStage->texture.image;
 					inter.vertexColor = surfaceStage->vertexColor;
@@ -2296,7 +2325,7 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 		}
 		
 		// draw the final interaction
-		DrawSingleInteraction( &inter );
+		DrawSingleInteraction( &inter,!fillGbuffer );
 		
 		renderLog.CloseBlock();
 	}

@@ -109,8 +109,8 @@ void idRenderProgManager::Init()
 		{ BUILTIN_VERTEX_COLOR, "vertex_color.vfp", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
 		{ BUILTIN_AMBIENT_LIGHTING, "ambient_lighting", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
 		{ BUILTIN_AMBIENT_LIGHTING_SKINNED, "ambient_lighting", "_skinned", BIT( USE_GPU_SKINNING ), true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
-		{ BUILTIN_AMBIENT_LIGHTING_IBL, "ambient_lighting_IBL", "", 0, false false, SHADER_STAGE_DEFAULT, LAYOUT_DRA },
-		{ BUILTIN_AMBIENT_LIGHTING_IBL_SKINNED, "ambient_lighting_IBL", "_skinned", BIT( USE_GPU_SKINNING ), true false, SHADER_STAGE_DEFAULT, LAYOUT_DRA },
+		{ BUILTIN_AMBIENT_LIGHTING_IBL, "ambient_lighting_IBL", "", 0, false false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_AMBIENT_LIGHTING_IBL_SKINNED, "ambient_lighting_IBL", "_skinned", BIT( USE_GPU_SKINNING ), true false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
 		{ BUILTIN_SMALL_GEOMETRY_BUFFER, "gbuffer", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
 		{ BUILTIN_SMALL_GEOMETRY_BUFFER_SKINNED, "gbuffer", "_skinned", BIT( USE_GPU_SKINNING ), true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
 		// RB end
@@ -245,6 +245,7 @@ void idRenderProgManager::Init()
 		// RB begin
 		renderProgs[builtinShaders[BUILTIN_AMBIENT_LIGHTING_SKINNED]].usesJoints = true;
 		renderProgs[builtinShaders[BUILTIN_AMBIENT_LIGHTING_IBL_SKINNED]].usesJoints = true;
+		renderProgs[builtinShaders[BUILTIN_AMBIENT_LIGHTING_IBL_PBR_SKINNED]].usesJoints = true;
 		renderProgs[builtinShaders[BUILTIN_SMALL_GEOMETRY_BUFFER_SKINNED]].usesJoints = true;
 		renderProgs[builtinShaders[BUILTIN_INTERACTION_SHADOW_MAPPING_SPOT_SKINNED]].usesJoints = true;
 		renderProgs[builtinShaders[BUILTIN_INTERACTION_SHADOW_MAPPING_POINT_SKINNED]].usesJoints = true;

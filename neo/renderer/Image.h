@@ -216,6 +216,8 @@ typedef enum
 	TD_COVERAGE,			// coverage map for fill depth pass when YCoCG is used
 	TD_DEPTH,				// depth buffer copy for motion blur
 	// RB begin
+	TD_SPECULAR_PBR_RMAO,	// may be compressed, and always zeros the alpha channel, linear RGB R = roughness, G = metal, B = ambient occlusion
+	TD_SPECULAR_PBR_RMAOD,	// may be compressed, alpha channel contains displacement map
 	TD_HIGHQUALITY_CUBE,	// motorsep - Uncompressed cubemap texture (RGB colorspace)
 	TD_LOWQUALITY_CUBE,		// motorsep - Compressed cubemap texture (RGB colorspace DXT5)
 	TD_SHADOW_ARRAY,		// 2D depth buffer array for shadow mapping
@@ -365,6 +367,11 @@ public:
 	bool		IsCompressed() const
 	{
 		return ( opts.format == FMT_DXT1 || opts.format == FMT_DXT5 );
+	}
+	
+	textureUsage_t GetUsage() const
+	{
+		return usage;
 	}
 	
 	bool				IsLoaded() const;

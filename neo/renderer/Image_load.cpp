@@ -137,6 +137,19 @@ ID_INLINE void idImage::DeriveOpts()
 				opts.format = FMT_DXT1;
 				opts.colorFormat = CFM_DEFAULT;
 				break;
+				
+			case TD_SPECULAR_PBR_RMAO:
+				opts.gammaMips = false;
+				opts.format = FMT_DXT1;
+				opts.colorFormat = CFM_DEFAULT;
+				break;
+				
+			case TD_SPECULAR_PBR_RMAOD:
+				opts.gammaMips = false;
+				opts.format = FMT_DXT5;
+				opts.colorFormat = CFM_DEFAULT;
+				break;
+				
 			case TD_DEFAULT:
 				opts.gammaMips = true;
 				opts.format = FMT_DXT5;
