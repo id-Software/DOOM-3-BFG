@@ -3,7 +3,8 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2012 Robert Beckebans
+Copyright (C) 2012-2016 Robert Beckebans
+Copyright (C) 2014-2016 Kot in Action Creative Artel
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -90,6 +91,7 @@ struct decal_t
 	int						numIndexes;
 	int						startTime;
 	const idMaterial* 		material;
+	mutable bool			writtenToDemo;
 }
 #if !defined(_WIN32)
 ALIGNTYPE16
@@ -127,6 +129,9 @@ public:
 	void						ReadFromDemoFile( class idDemoFile* f );
 	void						WriteToDemoFile( class idDemoFile* f ) const;
 	
+	qhandle_t 					index; // Used for Demo files.
+	int							demoSerialWrite;
+	int							demoSerialCurrent;
 private:
 	decal_t						decals[MAX_DECALS];
 	unsigned int				firstDecal;
