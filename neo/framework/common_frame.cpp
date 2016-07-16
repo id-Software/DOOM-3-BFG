@@ -610,7 +610,8 @@ void idCommonLocal::Frame()
 			gameTimeResidual += clampedDeltaMilliseconds * timescale.GetFloat();
 			
 			// don't run any frames when paused
-			if( pauseGame )
+			// jpcy: the game is paused when playing a demo, but playDemo should wait like the game does
+			if( pauseGame && !( readDemo && !timeDemo ) )
 			{
 				gameFrame++;
 				gameTimeResidual = 0;
@@ -674,6 +675,10 @@ void idCommonLocal::Frame()
 			Sys_Sleep( 0 );
 		}
 		
+		// jpcy: playDemo uses the game frame wait logic, but shouldn't run any game frames
+		if( readDemo && !timeDemo )
+			numGameFrames = 0;
+			
 		//--------------------------------------------
 		// It would be better to push as much of this as possible
 		// either before or after the renderSystem->SwapCommandBuffers(),
