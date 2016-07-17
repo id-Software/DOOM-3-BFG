@@ -3,7 +3,8 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2012-2014 Robert Beckebans
+Copyright (C) 2012-2016 Robert Beckebans
+Copyright (C) 2014-2016 Kot in Action Creative Artel
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -71,7 +72,14 @@ enum demoCommand_t
 	DC_DEFINE_MODEL,
 	DC_SET_PORTAL_STATE,
 	DC_UPDATE_SOUNDOCCLUSION,
-	DC_GUI_MODEL
+	DC_GUI_MODEL,
+	DC_UPDATE_DECAL,
+	DC_DELETE_DECAL,
+	DC_UPDATE_OVERLAY,
+	DC_DELETE_OVERLAY,
+	DC_CACHE_SKINS,
+	DC_CACHE_PARTICLES,
+	DC_CACHE_MATERIALS,
 };
 
 /*
@@ -232,7 +240,8 @@ public:
 	virtual void			RemoveDecals();
 	
 	bool					IsDirectlyVisible() const;
-	
+	void					ReadFromDemoFile( class idDemoFile* f );
+	void					WriteToDemoFile( class idDemoFile* f ) const;
 	renderEntity_t			parms;
 	
 	float					modelMatrix[16];		// this is just a rearrangement of parms.axis and parms.origin
@@ -821,6 +830,7 @@ public:
 	virtual void			DrawBigStringExt( int x, int y, const char* string, const idVec4& setColor, bool forceColor );
 	
 	virtual void			WriteDemoPics();
+	virtual void			WriteEndFrame();
 	virtual void			DrawDemoPics();
 	virtual const emptyCommand_t* 	SwapCommandBuffers( uint64* frontEndMicroSec, uint64* backEndMicroSec, uint64* shadowMicroSec, uint64* gpuMicroSec );
 	

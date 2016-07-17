@@ -3,7 +3,8 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013-2014 Robert Beckebans
+Copyright (C) 2013-2016 Robert Beckebans
+Copyright (C) 2014-2016 Kot in Action Creative Artel
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -309,6 +310,7 @@ public:
 	
 	// dump all 2D drawing so far this frame to the demo file
 	virtual void			WriteDemoPics() = 0;
+	virtual void			WriteEndFrame() = 0;
 	
 	// draw the 2D pics that were saved out with the current demo frame
 	virtual void			DrawDemoPics() = 0;

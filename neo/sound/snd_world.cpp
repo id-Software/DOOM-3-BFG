@@ -3,6 +3,8 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2014-2016 Robert Beckebans
+Copyright (C) 2014-2016 Kot in Action Creative Artel
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -43,6 +45,8 @@ idCVar s_drawSounds( "s_drawSounds", "0", CVAR_INTEGER, "", 0, 2, idCmdSystem::A
 idCVar s_showVoices( "s_showVoices", "0", CVAR_BOOL, "show active voices" );
 idCVar s_volume_dB( "s_volume_dB", "0", CVAR_ARCHIVE | CVAR_FLOAT, "volume in dB" );
 extern idCVar s_noSound;
+
+extern void WriteDeclCache( idDemoFile* f, int demoCategory, int demoCode, declType_t  declType );
 
 /*
 ========================
@@ -189,6 +193,22 @@ void idSoundWorldLocal::PlaceListener( const idVec3& origin, const idMat3& axis,
 	else
 	{
 		listener.area = 0;
+	}
+}
+
+/*
+========================
+idSoundWorldLocal::WriteSoundShaderLoad
+========================
+*/
+void idSoundWorldLocal::WriteSoundShaderLoad( const idSoundShader* snd )
+{
+	if( writeDemo )
+	{
+		writeDemo->WriteInt( DS_SOUND );
+		writeDemo->WriteInt( SCMD_CACHESOUNDSHADER );
+		writeDemo->WriteInt( 1 );
+		writeDemo->WriteHashString( snd->GetName() );
 	}
 }
 
@@ -861,6 +881,8 @@ void idSoundWorldLocal::StartWritingDemo( idDemoFile* demo )
 {
 	writeDemo = demo;
 	
+	WriteDeclCache( writeDemo, DS_SOUND, SCMD_CACHESOUNDSHADER, DECL_SOUND );
+	
 	writeDemo->WriteInt( DS_SOUND );
 	writeDemo->WriteInt( SCMD_STATE );
 	
@@ -901,6 +923,17 @@ void idSoundWorldLocal::ProcessDemoCommand( idDemoFile* readDemo )
 	
 	switch( dc )
 	{
+		case SCMD_CACHESOUNDSHADER:
+		{
+			int numCaches = 0;
+			readDemo->ReadInt( numCaches );
+			for( int i = 0; i < numCaches; ++i )
+			{
+				const char* declName = readDemo->ReadHashString();
+				declManager->FindSound( declName );
+			}
+			break;
+		}
 		case SCMD_STATE:
 			ReadFromSaveGame( readDemo );
 			UnPause();
@@ -921,11 +954,8 @@ void idSoundWorldLocal::ProcessDemoCommand( idDemoFile* readDemo )
 		case SCMD_ALLOC_EMITTER:
 		{
 			readDemo->ReadInt( index );
-			if( index < 1 || index > emitters.Num() )
-			{
-				common->Error( "idSoundWorldLocal::ProcessDemoCommand: bad emitter number" );
-			}
-			if( index == emitters.Num() )
+			
+			while( emitters.Num() <= index )
 			{
 				// append a brand new one
 				AllocSoundEmitter();

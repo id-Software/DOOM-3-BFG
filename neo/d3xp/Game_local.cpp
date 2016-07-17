@@ -3,6 +3,8 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2014-2016 Robert Beckebans
+Copyright (C) 2014-2016 Kot in Action Creative Artel
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -2590,6 +2592,8 @@ void idGameLocal::RunFrame( idUserCmdMgr& cmdMgr, gameReturn_t& ret )
 			slow.realClientTime = slow.time;
 			
 			SelectTimeGroup( false );
+			
+			DemoWriteGameInfo();
 			
 #ifdef GAME_DLL
 			// allow changing SIMD usage on the fly
@@ -5914,6 +5918,17 @@ void idGameLocal::Shell_UpdateLeaderboard( const idLeaderboardCallback* callback
 
 /*
 ========================
+idGameLocal::StartDemoPlayback
+========================
+*/
+void idGameLocal::StartDemoPlayback( idRenderWorld* renderworld )
+{
+	gameRenderWorld = renderworld;
+	smokeParticles->Init();
+}
+
+/*
+========================
 idGameLocal::SimulateProjectiles
 ========================
 */
@@ -5950,4 +5965,64 @@ bool idGameLocal::SimulateProjectiles()
 	}
 	
 	return moreProjectiles;
+}
+
+/*
+===============
+idGameLocal::DemoWriteGameInfo
+===============
+*/
+void idGameLocal::DemoWriteGameInfo()
+{
+	if( common->WriteDemo() != NULL )
+	{
+		common->WriteDemo()->WriteInt( DS_GAME );
+		common->WriteDemo()->WriteInt( GCMD_GAMETIME );
+		
+		common->WriteDemo()->WriteInt( previousTime );
+		common->WriteDemo()->WriteInt( time );
+		common->WriteDemo()->WriteInt( framenum );
+		
+		common->WriteDemo()->WriteInt( fast.previousTime );
+		common->WriteDemo()->WriteInt( fast.time );
+		common->WriteDemo()->WriteInt( fast.realClientTime );
+		
+		common->WriteDemo()->WriteInt( slow.previousTime );
+		common->WriteDemo()->WriteInt( slow.time );
+		common->WriteDemo()->WriteInt( slow.realClientTime );
+	}
+}
+
+bool idGameLocal::ProcessDemoCommand( idDemoFile* readDemo )
+{
+	gameDemoCommand_t cmd = GCMD_UNKNOWN;
+	
+	if( !readDemo->ReadInt( ( int& )cmd ) )
+		return false;
+		
+	switch( cmd )
+	{
+		case GCMD_GAMETIME:
+		{
+			readDemo->ReadInt( previousTime );
+			readDemo->ReadInt( time );
+			readDemo->ReadInt( framenum );
+			
+			readDemo->ReadInt( fast.previousTime );
+			readDemo->ReadInt( fast.time );
+			readDemo->ReadInt( fast.realClientTime );
+			
+			readDemo->ReadInt( slow.previousTime );
+			readDemo->ReadInt( slow.time );
+			readDemo->ReadInt( slow.realClientTime );
+			break;
+		}
+		default:
+		{
+			common->Error( "Bad demo game command '%d' in demo stream", cmd );
+			break;
+		}
+	}
+	
+	return true;
 }

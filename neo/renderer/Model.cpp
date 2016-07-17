@@ -4,6 +4,7 @@
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2012-2016 Robert Beckebans
+Copyright (C) 2014-2016 Kot in Action Creative Artel
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -3369,13 +3370,9 @@ idRenderModelStatic::WriteToDemoFile
 */
 void idRenderModelStatic::WriteToDemoFile( class idDemoFile* f )
 {
-	int	data[1];
-	
 	// note that it has been updated
 	lastArchivedFrame = tr.frameCount;
 	
-	data[0] = DC_DEFINE_MODEL;
-	f->WriteInt( data[0] );
 	f->WriteHashString( this->Name() );
 	
 	int i, j, iData = surfaces.Num();

@@ -3,6 +3,8 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2014-2016 Robert Beckebans
+Copyright (C) 2014-2016 Kot in Action Creative Artel
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -161,6 +163,7 @@ idRenderWorldLocal::idRenderWorldLocal()
 		decals[i].entityHandle = -1;
 		decals[i].lastStartTime = 0;
 		decals[i].decals = new( TAG_MODEL ) idRenderModelDecal();
+		decals[i].decals->index = i;
 	}
 	
 	for( int i = 0; i < overlays.Num(); i++ )
@@ -168,6 +171,7 @@ idRenderWorldLocal::idRenderWorldLocal()
 		overlays[i].entityHandle = -1;
 		overlays[i].lastStartTime = 0;
 		overlays[i].overlays = new( TAG_MODEL ) idRenderModelOverlay();
+		overlays[ i ].overlays->index = i;
 	}
 }
 
@@ -346,11 +350,7 @@ void idRenderWorldLocal::UpdateEntityDef( qhandle_t entityHandle, const renderEn
 	def->parms = *re;
 	
 	def->lastModifiedFrameNum = tr.frameCount;
-	if( common->WriteDemo() && def->archived )
-	{
-		WriteFreeEntity( entityHandle );
-		def->archived = false;
-	}
+	def->archived = false;
 	
 	// optionally immediately issue any callbacks
 	if( !r_useEntityCallbacks.GetBool() && def->parms.callback != NULL )
@@ -676,6 +676,7 @@ void idRenderWorldLocal::ProjectDecalOntoWorld( const idFixedWinding& winding, c
 				def->decals = AllocDecal( def->index, startTime );
 			}
 			def->decals->AddDeferredDecal( localParms );
+			def->archived = false;
 		}
 	}
 }
@@ -731,6 +732,7 @@ void idRenderWorldLocal::ProjectDecal( qhandle_t entityHandle, const idFixedWind
 		def->decals = AllocDecal( def->index, startTime );
 	}
 	def->decals->AddDeferredDecal( localParms );
+	def->archived = false;
 }
 
 /*
@@ -769,6 +771,7 @@ void idRenderWorldLocal::ProjectOverlay( qhandle_t entityHandle, const idPlane l
 		def->overlays = AllocOverlay( def->index, startTime );
 	}
 	def->overlays->AddDeferredOverlay( localParms );
+	def->archived = false;
 }
 
 /*
@@ -802,7 +805,10 @@ idRenderModelDecal* idRenderWorldLocal::AllocDecal( qhandle_t newEntityHandle, i
 	decals[oldest].entityHandle = newEntityHandle;
 	decals[oldest].lastStartTime = startTime;
 	decals[oldest].decals->ReUse();
-	
+	if( common->WriteDemo() )
+	{
+		WriteFreeDecal( common->WriteDemo(), oldest );
+	}
 	return decals[oldest].decals;
 }
 

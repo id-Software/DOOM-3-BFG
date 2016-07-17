@@ -3,7 +3,8 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2012 Robert Beckebans
+Copyright (C) 2012-2016 Robert Beckebans
+Copyright (C) 2014-2016 Kot in Action Creative Artel
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -293,6 +294,7 @@ void idCommonLocal::Draw()
 	}
 	else if( readDemo )
 	{
+		AdvanceRenderDemo( true );
 		renderWorld->RenderScene( &currentDemoRenderView );
 		renderSystem->DrawDemoPics();
 	}
@@ -321,6 +323,7 @@ void idCommonLocal::Draw()
 		if( writeDemo )
 		{
 			renderSystem->WriteDemoPics();
+			renderSystem->WriteEndFrame();
 		}
 	}
 	else
@@ -607,7 +610,8 @@ void idCommonLocal::Frame()
 			gameTimeResidual += clampedDeltaMilliseconds * timescale.GetFloat();
 			
 			// don't run any frames when paused
-			if( pauseGame )
+			// jpcy: the game is paused when playing a demo, but playDemo should wait like the game does
+			if( pauseGame && !( readDemo && !timeDemo ) )
 			{
 				gameFrame++;
 				gameTimeResidual = 0;
@@ -671,6 +675,10 @@ void idCommonLocal::Frame()
 			Sys_Sleep( 0 );
 		}
 		
+		// jpcy: playDemo uses the game frame wait logic, but shouldn't run any game frames
+		if( readDemo && !timeDemo )
+			numGameFrames = 0;
+			
 		//--------------------------------------------
 		// It would be better to push as much of this as possible
 		// either before or after the renderSystem->SwapCommandBuffers(),
