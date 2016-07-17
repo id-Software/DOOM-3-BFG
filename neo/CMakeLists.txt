@@ -619,6 +619,7 @@ set(GAMED3XP_INCLUDES
 	d3xp/Camera.h
 	#d3xp/EndLevel.h
 	d3xp/Entity.h
+	d3xp/EnvironmentProbe.h
 	d3xp/Fx.h
 	d3xp/Game.h
 	d3xp/GameEdit.h
@@ -656,6 +657,7 @@ set(GAMED3XP_SOURCES
 	d3xp/Camera.cpp
 	#d3xp/EndLevel.cpp
 	d3xp/Entity.cpp
+	d3xp/EnvironmentProbe.cpp
 	d3xp/Fx.cpp
 	d3xp/GameEdit.cpp
 	d3xp/Game_local.cpp
