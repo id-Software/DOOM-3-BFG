@@ -957,7 +957,7 @@ void I_PlaySong( const char *songname, int looping)
 	bool isStopped = false;
 	int d = 0;
 	while ( !isStopped ) {
-		XAUDIO2_VOICE_STATE test;
+		XAUDIO2_VOICE_STATE test = {};
 
 		if ( pMusicSourceVoice != NULL ) {
 			pMusicSourceVoice->GetState( &test );
