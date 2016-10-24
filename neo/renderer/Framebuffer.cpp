@@ -104,10 +104,10 @@ void Framebuffer::Init()
 	globalFramebuffers.hdrFBO->Bind();
 	
 #if defined(USE_HDR_MSAA)
-	if( r_multiSamples.GetBool() )
+	if( glConfig.multisamples )
 	{
-		globalFramebuffers.hdrFBO->AddColorBuffer( GL_RGBA16F, 0, r_multiSamples.GetInteger() );
-		globalFramebuffers.hdrFBO->AddDepthBuffer( GL_DEPTH24_STENCIL8, r_multiSamples.GetInteger() );
+		globalFramebuffers.hdrFBO->AddColorBuffer( GL_RGBA16F, 0, glConfig.multisamples );
+		globalFramebuffers.hdrFBO->AddDepthBuffer( GL_DEPTH24_STENCIL8, glConfig.multisamples );
 		
 		globalFramebuffers.hdrFBO->AttachImage2D( GL_TEXTURE_2D_MULTISAMPLE, globalImages->currentRenderHDRImage, 0 );
 		globalFramebuffers.hdrFBO->AttachImageDepth( GL_TEXTURE_2D_MULTISAMPLE, globalImages->currentDepthImage );
@@ -217,7 +217,7 @@ void Framebuffer::CheckFramebuffers()
 		globalImages->currentDepthImage->Resize( screenWidth, screenHeight );
 		
 #if defined(USE_HDR_MSAA)
-		if( r_multiSamples.GetBool() )
+		if( glConfig.multisamples )
 		{
 			globalImages->currentRenderHDRImageNoMSAA->Resize( screenWidth, screenHeight );
 			
