@@ -4804,10 +4804,10 @@ static void RB_SSAO( const viewDef_t* viewDef )
 	}
 	
 	float screenCorrectionParm[4];
-	screenCorrectionParm[0] = 1.0f / glConfig.nativeScreenWidth;
-	screenCorrectionParm[1] = 1.0f / glConfig.nativeScreenHeight;
-	screenCorrectionParm[2] = glConfig.nativeScreenWidth;
-	screenCorrectionParm[3] = glConfig.nativeScreenHeight;
+	screenCorrectionParm[0] = 1.0f / screenWidth;
+	screenCorrectionParm[1] = 1.0f / screenHeight;
+	screenCorrectionParm[2] = screenWidth;
+	screenCorrectionParm[3] = screenHeight;
 	SetFragmentParm( RENDERPARM_SCREENCORRECTIONFACTOR, screenCorrectionParm ); // rpScreenCorrectionFactor
 	
 #if 0
@@ -5054,10 +5054,10 @@ static void RB_SSGI( const viewDef_t* viewDef )
 	}
 	
 	float screenCorrectionParm[4];
-	screenCorrectionParm[0] = 1.0f / glConfig.nativeScreenWidth;
-	screenCorrectionParm[1] = 1.0f / glConfig.nativeScreenHeight;
-	screenCorrectionParm[2] = glConfig.nativeScreenWidth;
-	screenCorrectionParm[3] = glConfig.nativeScreenHeight;
+	screenCorrectionParm[0] = 1.0f / screenWidth;
+	screenCorrectionParm[1] = 1.0f / screenHeight;
+	screenCorrectionParm[2] = screenWidth;
+	screenCorrectionParm[3] = screenHeight;
 	SetFragmentParm( RENDERPARM_SCREENCORRECTIONFACTOR, screenCorrectionParm ); // rpScreenCorrectionFactor
 	
 #if 0
@@ -5429,8 +5429,8 @@ void RB_DrawViewInternal( const viewDef_t* viewDef, const int stereoEye )
 		/*
 		glBindFramebuffer( GL_READ_FRAMEBUFFER, globalFramebuffers.hdrFBO->GetFramebuffer() );
 		glBindFramebuffer( GL_DRAW_FRAMEBUFFER, globalFramebuffers.hdrQuarterFBO->GetFramebuffer() );
-		glBlitFramebuffer( 0, 0, glConfig.nativeScreenWidth, glConfig.nativeScreenHeight,
-						   0, 0, glConfig.nativeScreenWidth * 0.25f, glConfig.nativeScreenHeight * 0.25f,
+		glBlitFramebuffer( 0, 0, renderSystem->GetWidth(), renderSystem->GetHeight(),
+						   0, 0, renderSystem->GetWidth() * 0.25f, renderSystem->GetHeight() * 0.25f,
 						   GL_COLOR_BUFFER_BIT,
 						   GL_LINEAR );
 		*/
@@ -5440,15 +5440,15 @@ void RB_DrawViewInternal( const viewDef_t* viewDef, const int stereoEye )
 		{
 			glBindFramebuffer( GL_READ_FRAMEBUFFER, globalFramebuffers.hdrFBO->GetFramebuffer() );
 			glBindFramebuffer( GL_DRAW_FRAMEBUFFER, globalFramebuffers.hdrNonMSAAFBO->GetFramebuffer() );
-			glBlitFramebuffer( 0, 0, glConfig.nativeScreenWidth, glConfig.nativeScreenHeight,
-							   0, 0, glConfig.nativeScreenWidth, glConfig.nativeScreenHeight,
+			glBlitFramebuffer( 0, 0, renderSystem->GetWidth(), renderSystem->GetHeight(),
+							   0, 0, renderSystem->GetWidth(), renderSystem->GetHeight(),
 							   GL_COLOR_BUFFER_BIT,
 							   GL_LINEAR );
 							   
 			// TODO resolve to 1x1
 			glBindFramebuffer( GL_READ_FRAMEBUFFER_EXT, globalFramebuffers.hdrNonMSAAFBO->GetFramebuffer() );
 			glBindFramebuffer( GL_DRAW_FRAMEBUFFER_EXT, globalFramebuffers.hdr64FBO->GetFramebuffer() );
-			glBlitFramebuffer( 0, 0, glConfig.nativeScreenWidth, glConfig.nativeScreenHeight,
+			glBlitFramebuffer( 0, 0, renderSystem->GetWidth(), renderSystem->GetHeight(),
 							   0, 0, 64, 64,
 							   GL_COLOR_BUFFER_BIT,
 							   GL_LINEAR );
@@ -5458,7 +5458,7 @@ void RB_DrawViewInternal( const viewDef_t* viewDef, const int stereoEye )
 		{
 			glBindFramebuffer( GL_READ_FRAMEBUFFER_EXT, globalFramebuffers.hdrFBO->GetFramebuffer() );
 			glBindFramebuffer( GL_DRAW_FRAMEBUFFER_EXT, globalFramebuffers.hdr64FBO->GetFramebuffer() );
-			glBlitFramebuffer( 0, 0, glConfig.nativeScreenWidth, glConfig.nativeScreenHeight,
+			glBlitFramebuffer( 0, 0, renderSystem->GetWidth(), renderSystem->GetHeight(),
 							   0, 0, 64, 64,
 							   GL_COLOR_BUFFER_BIT,
 							   GL_LINEAR );
@@ -5757,14 +5757,14 @@ void RB_PostProcess( const void* data )
 		 *                           |output|
 		*/
 		
-		globalImages->smaaInputImage->CopyFramebuffer( 0, 0, glConfig.nativeScreenWidth, glConfig.nativeScreenHeight );
+		globalImages->smaaInputImage->CopyFramebuffer( 0, 0, screenWidth, screenHeight );
 		
 		// set SMAA_RT_METRICS = rpScreenCorrectionFactor
 		float screenCorrectionParm[4];
-		screenCorrectionParm[0] = 1.0f / glConfig.nativeScreenWidth;
-		screenCorrectionParm[1] = 1.0f / glConfig.nativeScreenHeight;
-		screenCorrectionParm[2] = glConfig.nativeScreenWidth;
-		screenCorrectionParm[3] = glConfig.nativeScreenHeight;
+		screenCorrectionParm[0] = 1.0f / screenWidth;
+		screenCorrectionParm[1] = 1.0f / screenHeight;
+		screenCorrectionParm[2] = screenWidth;
+		screenCorrectionParm[3] = screenHeight;
 		SetFragmentParm( RENDERPARM_SCREENCORRECTIONFACTOR, screenCorrectionParm ); // rpScreenCorrectionFactor
 		
 		globalFramebuffers.smaaEdgesFBO->Bind();
