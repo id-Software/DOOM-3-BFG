@@ -314,6 +314,14 @@ static void R_CheckCvars()
 				break;
 		}
 	}
+
+	if (r_useHDR.IsModified() || r_useHalfLambertLighting.IsModified() )
+	{
+		r_useHDR.ClearModified();
+		r_useHalfLambertLighting.ClearModified();
+		renderProgManager.KillAllShaders();
+		renderProgManager.LoadAllShaders();
+	}
 	
 	// RB: turn off shadow mapping for OpenGL drivers that are too slow
 	switch( glConfig.driverType )
