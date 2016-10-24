@@ -851,6 +851,8 @@ public:
 	// internal functions
 	idRenderSystemLocal();
 	~idRenderSystemLocal();
+
+	void					UpdateStereo3DMode();
 	
 	void					Clear();
 	void					GetCroppedViewport( idScreenRect* viewport );

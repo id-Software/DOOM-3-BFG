@@ -168,7 +168,7 @@ static void R_DepthImage( idImage* image )
 #else
 	int msaaSamples = 0;
 #endif
-	image->GenerateImage( NULL, glConfig.nativeScreenWidth, glConfig.nativeScreenHeight, TF_NEAREST, TR_CLAMP, TD_DEPTH, msaaSamples );
+	image->GenerateImage( NULL, renderSystem->GetWidth(), renderSystem->GetHeight(), TF_NEAREST, TR_CLAMP, TD_DEPTH, msaaSamples );
 	// RB end
 }
 
@@ -180,22 +180,22 @@ static void R_HDR_RGBA16FImage_ResNative( idImage* image )
 #else
 	int msaaSamples = 0;
 #endif
-	image->GenerateImage( NULL, glConfig.nativeScreenWidth, glConfig.nativeScreenHeight, TF_NEAREST, TR_CLAMP, TD_RGBA16F, msaaSamples );
+	image->GenerateImage( NULL, renderSystem->GetWidth(), renderSystem->GetHeight(), TF_NEAREST, TR_CLAMP, TD_RGBA16F, msaaSamples );
 }
 
 static void R_HDR_RGBA16FImage_ResNative_NoMSAA( idImage* image )
 {
-	image->GenerateImage( NULL, glConfig.nativeScreenWidth, glConfig.nativeScreenHeight, TF_NEAREST, TR_CLAMP, TD_RGBA16F );
+	image->GenerateImage( NULL, renderSystem->GetWidth(), renderSystem->GetHeight(), TF_NEAREST, TR_CLAMP, TD_RGBA16F );
 }
 
 static void R_HDR_RGBA16FImage_ResQuarter( idImage* image )
 {
-	image->GenerateImage( NULL, glConfig.nativeScreenWidth / 4, glConfig.nativeScreenHeight / 4, TF_NEAREST, TR_CLAMP, TD_RGBA16F );
+	image->GenerateImage( NULL, renderSystem->GetWidth() / 4, renderSystem->GetHeight() / 4, TF_NEAREST, TR_CLAMP, TD_RGBA16F );
 }
 
 static void R_HDR_RGBA16FImage_ResQuarter_Linear( idImage* image )
 {
-	image->GenerateImage( NULL, glConfig.nativeScreenWidth / 4, glConfig.nativeScreenHeight / 4, TF_LINEAR, TR_CLAMP, TD_LOOKUP_TABLE_RGBA );
+	image->GenerateImage( NULL, renderSystem->GetWidth() / 4, renderSystem->GetHeight() / 4, TF_LINEAR, TR_CLAMP, TD_LOOKUP_TABLE_RGBA );
 }
 
 static void R_HDR_RGBA16FImage_Res64( idImage* image )
@@ -205,12 +205,12 @@ static void R_HDR_RGBA16FImage_Res64( idImage* image )
 
 static void R_SMAAImage_ResNative( idImage* image )
 {
-	image->GenerateImage( NULL, glConfig.nativeScreenWidth, glConfig.nativeScreenHeight, TF_LINEAR, TR_CLAMP, TD_LOOKUP_TABLE_RGBA );
+	image->GenerateImage( NULL, renderSystem->GetWidth(), renderSystem->GetHeight(), TF_LINEAR, TR_CLAMP, TD_LOOKUP_TABLE_RGBA );
 }
 
 static void R_HierarchicalZBufferImage_ResNative( idImage* image )
 {
-	image->GenerateImage( NULL, glConfig.nativeScreenWidth, glConfig.nativeScreenHeight, TF_NEAREST_MIPMAP, TR_CLAMP, TD_R32F );
+	image->GenerateImage( NULL, renderSystem->GetWidth(), renderSystem->GetHeight(), TF_NEAREST_MIPMAP, TR_CLAMP, TD_R32F );
 }
 // RB end
 
