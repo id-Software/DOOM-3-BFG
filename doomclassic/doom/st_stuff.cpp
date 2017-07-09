@@ -973,10 +973,10 @@ void ST_loadGraphics(void)
 	// Load the numbers, tall and short
 	for (i=0;i<10;i++)
 	{
-		sprintf(namebuf, "STTNUM%d", i);
+		idStr::snPrintf(namebuf, sizeof( namebuf ), "STTNUM%d", i);
 		::g->tallnum[i] = (patch_t *) W_CacheLumpName(namebuf, PU_STATIC_SHARED);
 
-		sprintf(namebuf, "STYSNUM%d", i);
+		idStr::snPrintf(namebuf, sizeof( namebuf ), "STYSNUM%d", i);
 		::g->shortnum[i] = (patch_t *) W_CacheLumpName(namebuf, PU_STATIC_SHARED);
 	}
 

@@ -390,7 +390,7 @@ void Dmap( const idCmdArgs& args )
 	// if this isn't a regioned map, delete the last saved region map
 	if( passedName.Right( 4 ) != ".reg" )
 	{
-		sprintf( path, "%s.reg", dmapGlobals.mapFileBase );
+		idStr::snPrintf( path, sizeof( path ), "%s.reg", dmapGlobals.mapFileBase );
 		fileSystem->RemoveFile( path );
 	}
 	else
@@ -402,7 +402,7 @@ void Dmap( const idCmdArgs& args )
 	passedName = stripped;
 	
 	// delete any old line leak files
-	sprintf( path, "%s.lin", dmapGlobals.mapFileBase );
+	idStr::snPrintf( path, sizeof( path ),"%s.lin", dmapGlobals.mapFileBase );
 	fileSystem->RemoveFile( path );
 	
 	// delete any old generated binary proc files
