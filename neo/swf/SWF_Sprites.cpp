@@ -453,7 +453,7 @@ void idSWFSprite::ReadJSON( rapidjson::Value& entry )
 			
 			idFile_SWF file( new idFile_Memory() );
 			
-            idBase64 base64( command["stream"].GetString() );
+			idBase64 base64( command["stream"].GetString() );
 			base64.Decode( file );
 			
 			uint32 streamLength = file->Length() - 1; // skip trailing zero added by Decode()

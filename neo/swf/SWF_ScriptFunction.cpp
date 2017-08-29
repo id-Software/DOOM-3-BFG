@@ -2316,7 +2316,7 @@ idStr idSWFScriptFunction_Script::ExportToScript( idSWFScriptObject* thisObject,
 				}
 				else
 				{
-                    line = va( "function %s( ", functionName.c_str() );
+					line = va( "function %s( ", functionName.c_str() );
 				}
 				
 				uint16 numParms = bitstream.ReadU16();
@@ -2392,7 +2392,7 @@ idStr idSWFScriptFunction_Script::ExportToScript( idSWFScriptObject* thisObject,
 				}
 				else
 				{
-                    line = va( "function %s( ", functionName.c_str() );
+					line = va( "function %s( ", functionName.c_str() );
 				}
 				
 				for( int i = 0; i < numParms; i++ )
@@ -2584,7 +2584,7 @@ idStr idSWFScriptFunction_Script::ExportToScript( idSWFScriptObject* thisObject,
 				//actionScript += line;
 				//line.Empty();
 				
-                const idStr& member = stack.A().ToString();
+				const idStr& member = stack.A().ToString();
 				//if( stack.A().IsString() )
 				//{
 				//	stack.B().SetResult( va( "%s[\"%s\"]", stack.B().ToString().c_str(), stack.A().ToString().c_str() ) );
