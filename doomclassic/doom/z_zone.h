@@ -103,7 +103,7 @@ typedef struct memblock_s
 #define Z_ChangeTag(p,t) \
 { \
       if (( (memblock_t *)( (byte *)(p) - sizeof(memblock_t)))->id!=0x1d4a11) \
-	  I_Error("Z_CT at "__FILE__":%i",__LINE__); \
+	  I_Error("Z_CT at " __FILE__ ":%i",__LINE__); \
 	  Z_ChangeTag2((void**)&p,t); \
 };
 

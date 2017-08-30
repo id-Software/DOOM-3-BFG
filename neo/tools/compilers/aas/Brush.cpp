@@ -44,7 +44,7 @@ If you have questions concerning this license or the applicable additional terms
 DisplayRealTimeString
 ============
 */
-void DisplayRealTimeString( char* string, ... )
+void DisplayRealTimeString( const char* string, ... )
 {
 	va_list argPtr;
 	char buf[MAX_STRING_CHARS];
