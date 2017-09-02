@@ -4406,7 +4406,7 @@ static void RB_Tonemap( const viewDef_t* viewDef )
 	GL_SelectTexture( 0 );
 	
 #if defined(USE_HDR_MSAA)
-	if( r_multiSamples.GetInteger() > 0 )
+	if( glConfig.multisamples > 0 )
 	{
 		globalImages->currentRenderHDRImageNoMSAA->Bind();
 	}
@@ -5436,7 +5436,7 @@ void RB_DrawViewInternal( const viewDef_t* viewDef, const int stereoEye )
 		*/
 		
 #if defined(USE_HDR_MSAA)
-		if( r_multiSamples.GetInteger() > 0 )
+		if( glConfig.multisamples > 0 )
 		{
 			glBindFramebuffer( GL_READ_FRAMEBUFFER, globalFramebuffers.hdrFBO->GetFramebuffer() );
 			glBindFramebuffer( GL_DRAW_FRAMEBUFFER, globalFramebuffers.hdrNonMSAAFBO->GetFramebuffer() );

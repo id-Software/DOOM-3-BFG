@@ -164,7 +164,7 @@ static void R_DepthImage( idImage* image )
 {
 	// RB: NULL data and MSAA support
 #if defined(USE_HDR_MSAA)
-	int msaaSamples = r_multiSamples.GetInteger();
+	int msaaSamples = glConfig.multisamples;
 #else
 	int msaaSamples = 0;
 #endif
@@ -176,7 +176,7 @@ static void R_DepthImage( idImage* image )
 static void R_HDR_RGBA16FImage_ResNative( idImage* image )
 {
 #if defined(USE_HDR_MSAA)
-	int msaaSamples = r_multiSamples.GetInteger();
+	int msaaSamples = glConfig.multisamples;
 #else
 	int msaaSamples = 0;
 #endif

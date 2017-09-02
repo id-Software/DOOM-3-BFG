@@ -46,7 +46,7 @@ If you have questions concerning this license or the applicable additional terms
 class idBrush;
 class idBrushList;
 
-void DisplayRealTimeString( char* string, ... ) ID_STATIC_ATTRIBUTE_PRINTF( 1, 2 );
+void DisplayRealTimeString( const char* string, ... ) ID_STATIC_ATTRIBUTE_PRINTF( 1, 2 );
 
 
 //===============================================================
