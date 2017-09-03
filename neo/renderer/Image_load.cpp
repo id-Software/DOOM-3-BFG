@@ -667,7 +667,6 @@ Automatically enables 2D mapping or cube mapping if needed
 */
 void idImage::Bind()
 {
-
 	RENDERLOG_PRINTF( "idImage::Bind( %s )\n", GetName() );
 	
 	// load the image if necessary (FIXME: not SMP safe!)
@@ -677,7 +676,7 @@ void idImage::Bind()
 		ActuallyLoadImage( true );
 	}
 	
-	const int texUnit = backEnd.glState.currenttmu;
+	const int texUnit = tr.backend.currenttmu;
 	
 	// RB: added support for more types
 	tmu_t* tmu = &backEnd.glState.tmu[texUnit];

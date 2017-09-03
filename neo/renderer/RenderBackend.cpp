@@ -44,7 +44,6 @@ idCVar r_useLightStencilSelect( "r_useLightStencilSelect", "0", CVAR_RENDERER | 
 
 extern idCVar stereoRender_swapEyes;
 
-backEndState_t	backEnd;
 
 /*
 ================
@@ -78,6 +77,305 @@ static ID_INLINE void SetFragmentParm( renderParm_t rp, const float* value )
 {
 	renderProgManager.SetUniformValue( rp, value );
 }
+
+/*
+====================
+PrintState
+====================
+*/
+#if 0
+void PrintState( uint64 stateBits, uint64* stencilBits )
+{
+	if( renderLog.Active() == 0 )
+	{
+		return;
+	}
+	
+	renderLog.OpenBlock( "GL_State" );
+	
+	// culling
+	renderLog.Printf( "Culling: " );
+	switch( stateBits & GLS_CULL_BITS )
+	{
+		case GLS_CULL_FRONTSIDED:
+			renderLog.Printf_NoIndent( "FRONTSIDED -> BACK" );
+			break;
+		case GLS_CULL_BACKSIDED:
+			renderLog.Printf_NoIndent( "BACKSIDED -> FRONT" );
+			break;
+		case GLS_CULL_TWOSIDED:
+			renderLog.Printf_NoIndent( "TWOSIDED" );
+			break;
+		default:
+			renderLog.Printf_NoIndent( "NA" );
+			break;
+	}
+	renderLog.Printf_NoIndent( "\n" );
+	
+	// polygon mode
+	renderLog.Printf( "PolygonMode: %s\n", ( stateBits & GLS_POLYMODE_LINE ) ? "LINE" : "FILL" );
+	
+	// color mask
+	renderLog.Printf( "ColorMask: " );
+	renderLog.Printf_NoIndent( ( stateBits & GLS_REDMASK ) ? "_" : "R" );
+	renderLog.Printf_NoIndent( ( stateBits & GLS_GREENMASK ) ? "_" : "G" );
+	renderLog.Printf_NoIndent( ( stateBits & GLS_BLUEMASK ) ? "_" : "B" );
+	renderLog.Printf_NoIndent( ( stateBits & GLS_ALPHAMASK ) ? "_" : "A" );
+	renderLog.Printf_NoIndent( "\n" );
+	
+	// blend
+	renderLog.Printf( "Blend: src=" );
+	switch( stateBits & GLS_SRCBLEND_BITS )
+	{
+		case GLS_SRCBLEND_ZERO:
+			renderLog.Printf_NoIndent( "ZERO" );
+			break;
+		case GLS_SRCBLEND_ONE:
+			renderLog.Printf_NoIndent( "ONE" );
+			break;
+		case GLS_SRCBLEND_DST_COLOR:
+			renderLog.Printf_NoIndent( "DST_COLOR" );
+			break;
+		case GLS_SRCBLEND_ONE_MINUS_DST_COLOR:
+			renderLog.Printf_NoIndent( "ONE_MINUS_DST_COLOR" );
+			break;
+		case GLS_SRCBLEND_SRC_ALPHA:
+			renderLog.Printf_NoIndent( "SRC_ALPHA" );
+			break;
+		case GLS_SRCBLEND_ONE_MINUS_SRC_ALPHA:
+			renderLog.Printf_NoIndent( "ONE_MINUS_SRC_ALPHA" );
+			break;
+		case GLS_SRCBLEND_DST_ALPHA:
+			renderLog.Printf_NoIndent( "DST_ALPHA" );
+			break;
+		case GLS_SRCBLEND_ONE_MINUS_DST_ALPHA:
+			renderLog.Printf_NoIndent( "ONE_MINUS_DST_ALPHA" );
+			break;
+		default:
+			renderLog.Printf_NoIndent( "NA" );
+			break;
+	}
+	renderLog.Printf_NoIndent( ", dst=" );
+	switch( stateBits & GLS_DSTBLEND_BITS )
+	{
+		case GLS_DSTBLEND_ZERO:
+			renderLog.Printf_NoIndent( "ZERO" );
+			break;
+		case GLS_DSTBLEND_ONE:
+			renderLog.Printf_NoIndent( "ONE" );
+			break;
+		case GLS_DSTBLEND_SRC_COLOR:
+			renderLog.Printf_NoIndent( "SRC_COLOR" );
+			break;
+		case GLS_DSTBLEND_ONE_MINUS_SRC_COLOR:
+			renderLog.Printf_NoIndent( "ONE_MINUS_SRC_COLOR" );
+			break;
+		case GLS_DSTBLEND_SRC_ALPHA:
+			renderLog.Printf_NoIndent( "SRC_ALPHA" );
+			break;
+		case GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA:
+			renderLog.Printf_NoIndent( "ONE_MINUS_SRC_ALPHA" );
+			break;
+		case GLS_DSTBLEND_DST_ALPHA:
+			renderLog.Printf_NoIndent( "DST_ALPHA" );
+			break;
+		case GLS_DSTBLEND_ONE_MINUS_DST_ALPHA:
+			renderLog.Printf_NoIndent( "ONE_MINUS_DST_ALPHA" );
+			break;
+		default:
+			renderLog.Printf_NoIndent( "NA" );
+	}
+	renderLog.Printf_NoIndent( "\n" );
+	
+	// depth func
+	renderLog.Printf( "DepthFunc: " );
+	switch( stateBits & GLS_DEPTHFUNC_BITS )
+	{
+		case GLS_DEPTHFUNC_EQUAL:
+			renderLog.Printf_NoIndent( "EQUAL" );
+			break;
+		case GLS_DEPTHFUNC_ALWAYS:
+			renderLog.Printf_NoIndent( "ALWAYS" );
+			break;
+		case GLS_DEPTHFUNC_LESS:
+			renderLog.Printf_NoIndent( "LEQUAL" );
+			break;
+		case GLS_DEPTHFUNC_GREATER:
+			renderLog.Printf_NoIndent( "GEQUAL" );
+			break;
+		default:
+			renderLog.Printf_NoIndent( "NA" );
+			break;
+	}
+	renderLog.Printf_NoIndent( "\n" );
+	
+	// depth mask
+	renderLog.Printf( "DepthWrite: %s\n", ( stateBits & GLS_DEPTHMASK ) ? "FALSE" : "TRUE" );
+	
+	renderLog.Printf( "DepthBounds: %s\n", ( stateBits & GLS_DEPTH_TEST_MASK ) ? "TRUE" : "FALSE" );
+	
+	// depth bias
+	renderLog.Printf( "DepthBias: %s\n", ( stateBits & GLS_POLYGON_OFFSET ) ? "TRUE" : "FALSE" );
+	
+	// stencil
+	auto printStencil = [&]( stencilFace_t face, uint64 bits, uint64 mask, uint64 ref )
+	{
+		renderLog.Printf( "Stencil: %s, ", ( bits & ( GLS_STENCIL_FUNC_BITS | GLS_STENCIL_OP_BITS ) ) ? "ON" : "OFF" );
+		renderLog.Printf_NoIndent( "Face=" );
+		switch( face )
+		{
+			case STENCIL_FACE_FRONT:
+				renderLog.Printf_NoIndent( "FRONT" );
+				break;
+			case STENCIL_FACE_BACK:
+				renderLog.Printf_NoIndent( "BACK" );
+				break;
+			default:
+				renderLog.Printf_NoIndent( "BOTH" );
+				break;
+		}
+		renderLog.Printf_NoIndent( ", Func=" );
+		switch( bits & GLS_STENCIL_FUNC_BITS )
+		{
+			case GLS_STENCIL_FUNC_NEVER:
+				renderLog.Printf_NoIndent( "NEVER" );
+				break;
+			case GLS_STENCIL_FUNC_LESS:
+				renderLog.Printf_NoIndent( "LESS" );
+				break;
+			case GLS_STENCIL_FUNC_EQUAL:
+				renderLog.Printf_NoIndent( "EQUAL" );
+				break;
+			case GLS_STENCIL_FUNC_LEQUAL:
+				renderLog.Printf_NoIndent( "LEQUAL" );
+				break;
+			case GLS_STENCIL_FUNC_GREATER:
+				renderLog.Printf_NoIndent( "GREATER" );
+				break;
+			case GLS_STENCIL_FUNC_NOTEQUAL:
+				renderLog.Printf_NoIndent( "NOTEQUAL" );
+				break;
+			case GLS_STENCIL_FUNC_GEQUAL:
+				renderLog.Printf_NoIndent( "GEQUAL" );
+				break;
+			case GLS_STENCIL_FUNC_ALWAYS:
+				renderLog.Printf_NoIndent( "ALWAYS" );
+				break;
+			default:
+				renderLog.Printf_NoIndent( "NA" );
+				break;
+		}
+		renderLog.Printf_NoIndent( ", OpFail=" );
+		switch( bits & GLS_STENCIL_OP_FAIL_BITS )
+		{
+			case GLS_STENCIL_OP_FAIL_KEEP:
+				renderLog.Printf_NoIndent( "KEEP" );
+				break;
+			case GLS_STENCIL_OP_FAIL_ZERO:
+				renderLog.Printf_NoIndent( "ZERO" );
+				break;
+			case GLS_STENCIL_OP_FAIL_REPLACE:
+				renderLog.Printf_NoIndent( "REPLACE" );
+				break;
+			case GLS_STENCIL_OP_FAIL_INCR:
+				renderLog.Printf_NoIndent( "INCR" );
+				break;
+			case GLS_STENCIL_OP_FAIL_DECR:
+				renderLog.Printf_NoIndent( "DECR" );
+				break;
+			case GLS_STENCIL_OP_FAIL_INVERT:
+				renderLog.Printf_NoIndent( "INVERT" );
+				break;
+			case GLS_STENCIL_OP_FAIL_INCR_WRAP:
+				renderLog.Printf_NoIndent( "INCR_WRAP" );
+				break;
+			case GLS_STENCIL_OP_FAIL_DECR_WRAP:
+				renderLog.Printf_NoIndent( "DECR_WRAP" );
+				break;
+			default:
+				renderLog.Printf_NoIndent( "NA" );
+				break;
+		}
+		renderLog.Printf_NoIndent( ", ZFail=" );
+		switch( bits & GLS_STENCIL_OP_ZFAIL_BITS )
+		{
+			case GLS_STENCIL_OP_ZFAIL_KEEP:
+				renderLog.Printf_NoIndent( "KEEP" );
+				break;
+			case GLS_STENCIL_OP_ZFAIL_ZERO:
+				renderLog.Printf_NoIndent( "ZERO" );
+				break;
+			case GLS_STENCIL_OP_ZFAIL_REPLACE:
+				renderLog.Printf_NoIndent( "REPLACE" );
+				break;
+			case GLS_STENCIL_OP_ZFAIL_INCR:
+				renderLog.Printf_NoIndent( "INCR" );
+				break;
+			case GLS_STENCIL_OP_ZFAIL_DECR:
+				renderLog.Printf_NoIndent( "DECR" );
+				break;
+			case GLS_STENCIL_OP_ZFAIL_INVERT:
+				renderLog.Printf_NoIndent( "INVERT" );
+				break;
+			case GLS_STENCIL_OP_ZFAIL_INCR_WRAP:
+				renderLog.Printf_NoIndent( "INCR_WRAP" );
+				break;
+			case GLS_STENCIL_OP_ZFAIL_DECR_WRAP:
+				renderLog.Printf_NoIndent( "DECR_WRAP" );
+				break;
+			default:
+				renderLog.Printf_NoIndent( "NA" );
+				break;
+		}
+		renderLog.Printf_NoIndent( ", OpPass=" );
+		switch( bits & GLS_STENCIL_OP_PASS_BITS )
+		{
+			case GLS_STENCIL_OP_PASS_KEEP:
+				renderLog.Printf_NoIndent( "KEEP" );
+				break;
+			case GLS_STENCIL_OP_PASS_ZERO:
+				renderLog.Printf_NoIndent( "ZERO" );
+				break;
+			case GLS_STENCIL_OP_PASS_REPLACE:
+				renderLog.Printf_NoIndent( "REPLACE" );
+				break;
+			case GLS_STENCIL_OP_PASS_INCR:
+				renderLog.Printf_NoIndent( "INCR" );
+				break;
+			case GLS_STENCIL_OP_PASS_DECR:
+				renderLog.Printf_NoIndent( "DECR" );
+				break;
+			case GLS_STENCIL_OP_PASS_INVERT:
+				renderLog.Printf_NoIndent( "INVERT" );
+				break;
+			case GLS_STENCIL_OP_PASS_INCR_WRAP:
+				renderLog.Printf_NoIndent( "INCR_WRAP" );
+				break;
+			case GLS_STENCIL_OP_PASS_DECR_WRAP:
+				renderLog.Printf_NoIndent( "DECR_WRAP" );
+				break;
+			default:
+				renderLog.Printf_NoIndent( "NA" );
+				break;
+		}
+		renderLog.Printf_NoIndent( ", mask=%llu, ref=%llu\n", mask, ref );
+	};
+	
+	uint32 mask = uint32( ( stateBits & GLS_STENCIL_FUNC_MASK_BITS ) >> GLS_STENCIL_FUNC_MASK_SHIFT );
+	uint32 ref = uint32( ( stateBits & GLS_STENCIL_FUNC_REF_BITS ) >> GLS_STENCIL_FUNC_REF_SHIFT );
+	if( stateBits & GLS_SEPARATE_STENCIL )
+	{
+		printStencil( STENCIL_FACE_FRONT, stencilBits[ 0 ], mask, ref );
+		printStencil( STENCIL_FACE_BACK, stencilBits[ 1 ], mask, ref );
+	}
+	else
+	{
+		printStencil( STENCIL_FACE_NUM, stateBits, mask, ref );
+	}
+	
+	renderLog.CloseBlock();
+}
+#endif
 
 /*
 ================
@@ -130,160 +428,7 @@ void RB_SetVertexColorParms( stageVertexColor_t svc )
 	}
 }
 
-/*
-================
-RB_DrawElementsWithCounters
-================
-*/
-void RB_DrawElementsWithCounters( const drawSurf_t* surf )
-{
-	// get vertex buffer
-	const vertCacheHandle_t vbHandle = surf->ambientCache;
-	idVertexBuffer* vertexBuffer;
-	if( vertexCache.CacheIsStatic( vbHandle ) )
-	{
-		vertexBuffer = &vertexCache.staticData.vertexBuffer;
-	}
-	else
-	{
-		const uint64 frameNum = ( int )( vbHandle >> VERTCACHE_FRAME_SHIFT ) & VERTCACHE_FRAME_MASK;
-		if( frameNum != ( ( vertexCache.currentFrame - 1 ) & VERTCACHE_FRAME_MASK ) )
-		{
-			idLib::Warning( "RB_DrawElementsWithCounters, vertexBuffer == NULL" );
-			return;
-		}
-		vertexBuffer = &vertexCache.frameData[vertexCache.drawListNum].vertexBuffer;
-	}
-	const int vertOffset = ( int )( vbHandle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
-	
-	// get index buffer
-	const vertCacheHandle_t ibHandle = surf->indexCache;
-	idIndexBuffer* indexBuffer;
-	if( vertexCache.CacheIsStatic( ibHandle ) )
-	{
-		indexBuffer = &vertexCache.staticData.indexBuffer;
-	}
-	else
-	{
-		const uint64 frameNum = ( int )( ibHandle >> VERTCACHE_FRAME_SHIFT ) & VERTCACHE_FRAME_MASK;
-		if( frameNum != ( ( vertexCache.currentFrame - 1 ) & VERTCACHE_FRAME_MASK ) )
-		{
-			idLib::Warning( "RB_DrawElementsWithCounters, indexBuffer == NULL" );
-			return;
-		}
-		indexBuffer = &vertexCache.frameData[vertexCache.drawListNum].indexBuffer;
-	}
-	// RB: 64 bit fixes, changed int to GLintptr
-	const GLintptr indexOffset = ( GLintptr )( ibHandle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
-	// RB end
-	
-	RENDERLOG_PRINTF( "Binding Buffers: %p:%i %p:%i\n", vertexBuffer, vertOffset, indexBuffer, indexOffset );
-	
-	if( surf->jointCache )
-	{
-		// DG: this happens all the time in the erebus1 map with blendlight.vfp,
-		// so don't call assert (through verify) here until it's fixed (if fixable)
-		// else the game crashes on linux when using debug builds
-		
-		// FIXME: fix this properly if possible?
-		// RB: yes but it would require an additional blend light skinned shader
-		//if( !verify( renderProgManager.ShaderUsesJoints() ) )
-		if( !renderProgManager.ShaderUsesJoints() )
-			// DG end
-		{
-			return;
-		}
-	}
-	else
-	{
-		if( !verify( !renderProgManager.ShaderUsesJoints() || renderProgManager.ShaderHasOptionalSkinning() ) )
-		{
-			return;
-		}
-	}
-	
-	
-	if( surf->jointCache )
-	{
-		idJointBuffer jointBuffer;
-		if( !vertexCache.GetJointBuffer( surf->jointCache, &jointBuffer ) )
-		{
-			idLib::Warning( "RB_DrawElementsWithCounters, jointBuffer == NULL" );
-			return;
-		}
-		assert( ( jointBuffer.GetOffset() & ( glConfig.uniformBufferOffsetAlignment - 1 ) ) == 0 );
-		
-		// RB: 64 bit fixes, changed GLuint to GLintptr
-		const GLintptr ubo = reinterpret_cast< GLintptr >( jointBuffer.GetAPIObject() );
-		// RB end
-		
-		glBindBufferRange( GL_UNIFORM_BUFFER, 0, ubo, jointBuffer.GetOffset(), jointBuffer.GetNumJoints() * sizeof( idJointMat ) );
-	}
-	
-	renderProgManager.CommitUniforms();
-	
-	// RB: 64 bit fixes, changed GLuint to GLintptr
-	if( backEnd.glState.currentIndexBuffer != ( GLintptr )indexBuffer->GetAPIObject() || !r_useStateCaching.GetBool() )
-	{
-		glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ( GLintptr )indexBuffer->GetAPIObject() );
-		backEnd.glState.currentIndexBuffer = ( GLintptr )indexBuffer->GetAPIObject();
-	}
-	
-	if( ( backEnd.glState.vertexLayout != LAYOUT_DRAW_VERT ) || ( backEnd.glState.currentVertexBuffer != ( GLintptr )vertexBuffer->GetAPIObject() ) || !r_useStateCaching.GetBool() )
-	{
-		glBindBuffer( GL_ARRAY_BUFFER, ( GLintptr )vertexBuffer->GetAPIObject() );
-		backEnd.glState.currentVertexBuffer = ( GLintptr )vertexBuffer->GetAPIObject();
-		
-		glEnableVertexAttribArray( PC_ATTRIB_INDEX_VERTEX );
-		glEnableVertexAttribArray( PC_ATTRIB_INDEX_NORMAL );
-		glEnableVertexAttribArray( PC_ATTRIB_INDEX_COLOR );
-		glEnableVertexAttribArray( PC_ATTRIB_INDEX_COLOR2 );
-		glEnableVertexAttribArray( PC_ATTRIB_INDEX_ST );
-		glEnableVertexAttribArray( PC_ATTRIB_INDEX_TANGENT );
-		
-#if defined(USE_GLES2) || defined(USE_GLES3)
-		glVertexAttribPointer( PC_ATTRIB_INDEX_VERTEX, 3, GL_FLOAT, GL_FALSE, sizeof( idDrawVert ), ( void* )( vertOffset + DRAWVERT_XYZ_OFFSET ) );
-		glVertexAttribPointer( PC_ATTRIB_INDEX_NORMAL, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), ( void* )( vertOffset + DRAWVERT_NORMAL_OFFSET ) );
-		glVertexAttribPointer( PC_ATTRIB_INDEX_COLOR, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), ( void* )( vertOffset + DRAWVERT_COLOR_OFFSET ) );
-		glVertexAttribPointer( PC_ATTRIB_INDEX_COLOR2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), ( void* )( vertOffset + DRAWVERT_COLOR2_OFFSET ) );
-#if defined(USE_ANGLE)
-		glVertexAttribPointer( PC_ATTRIB_INDEX_ST, 2, GL_HALF_FLOAT_OES, GL_TRUE, sizeof( idDrawVert ), ( void* )( vertOffset + DRAWVERT_ST_OFFSET ) );
-#else
-		glVertexAttribPointer( PC_ATTRIB_INDEX_ST, 2, GL_HALF_FLOAT, GL_TRUE, sizeof( idDrawVert ), ( void* )( vertOffset + DRAWVERT_ST_OFFSET ) );
-#endif
-		glVertexAttribPointer( PC_ATTRIB_INDEX_TANGENT, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), ( void* )( vertOffset + DRAWVERT_TANGENT_OFFSET ) );
-		
-#else
-		glVertexAttribPointer( PC_ATTRIB_INDEX_VERTEX, 3, GL_FLOAT, GL_FALSE, sizeof( idDrawVert ), ( void* )( DRAWVERT_XYZ_OFFSET ) );
-		glVertexAttribPointer( PC_ATTRIB_INDEX_NORMAL, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), ( void* )( DRAWVERT_NORMAL_OFFSET ) );
-		glVertexAttribPointer( PC_ATTRIB_INDEX_COLOR, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), ( void* )( DRAWVERT_COLOR_OFFSET ) );
-		glVertexAttribPointer( PC_ATTRIB_INDEX_COLOR2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), ( void* )( DRAWVERT_COLOR2_OFFSET ) );
-		glVertexAttribPointer( PC_ATTRIB_INDEX_ST, 2, GL_HALF_FLOAT, GL_TRUE, sizeof( idDrawVert ), ( void* )( DRAWVERT_ST_OFFSET ) );
-		glVertexAttribPointer( PC_ATTRIB_INDEX_TANGENT, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), ( void* )( DRAWVERT_TANGENT_OFFSET ) );
-#endif // #if defined(USE_GLES2) || defined(USE_GLES3)
-		
-		backEnd.glState.vertexLayout = LAYOUT_DRAW_VERT;
-	}
-	// RB end
-	
-#if defined(USE_GLES3) //defined(USE_GLES2)
-	glDrawElements(	GL_TRIANGLES,
-					r_singleTriangle.GetBool() ? 3 : surf->numIndexes,
-					GL_INDEX_TYPE,
-					( triIndex_t* )indexOffset );
-#else
-	glDrawElementsBaseVertex( GL_TRIANGLES,
-							  r_singleTriangle.GetBool() ? 3 : surf->numIndexes,
-							  GL_INDEX_TYPE,
-							  ( triIndex_t* )indexOffset,
-							  vertOffset / sizeof( idDrawVert ) );
-#endif
-					
-	// RB: added stats
-	backEnd.pc.c_drawElements++;
-	backEnd.pc.c_drawIndexes += surf->numIndexes;
-	// RB end
-}
+
 
 /*
 ======================
@@ -404,12 +549,12 @@ static void RB_BakeTextureMatrixIntoTexgen( idPlane lightProject[3], const float
 
 /*
 ======================
-RB_BindVariableStageImage
+idRenderBackend::BindVariableStageImage
 
 Handles generating a cinematic frame if needed
 ======================
 */
-static void RB_BindVariableStageImage( const textureStage_t* texture, const float* shaderRegisters )
+void idRenderBackend::BindVariableStageImage( const textureStage_t* texture, const float* shaderRegisters )
 {
 	if( texture->cinematic )
 	{
@@ -424,7 +569,7 @@ static void RB_BindVariableStageImage( const textureStage_t* texture, const floa
 		// offset time by shaderParm[7] (FIXME: make the time offset a parameter of the shader?)
 		// We make no attempt to optimize for multiple identical cinematics being in view, or
 		// for cinematics going at a lower framerate than the renderer.
-		cin = texture->cinematic->ImageForTime( backEnd.viewDef->renderView.time[0] + idMath::Ftoi( 1000.0f * backEnd.viewDef->renderView.shaderParms[11] ) );
+		cin = texture->cinematic->ImageForTime( viewDef->renderView.time[0] + idMath::Ftoi( 1000.0f * viewDef->renderView.shaderParms[11] ) );
 		if( cin.imageY != NULL )
 		{
 			GL_SelectTexture( 0 );
@@ -473,10 +618,10 @@ static void RB_BindVariableStageImage( const textureStage_t* texture, const floa
 
 /*
 ================
-RB_PrepareStageTexturing
+idRenderBackend::PrepareStageTexturing
 ================
 */
-static void RB_PrepareStageTexturing( const shaderStage_t* pStage,  const drawSurf_t* surf )
+void idRenderBackend::PrepareStageTexturing( const shaderStage_t* pStage,  const drawSurf_t* surf )
 {
 	float useTexGenParm[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	
@@ -539,7 +684,7 @@ static void RB_PrepareStageTexturing( const shaderStage_t* pStage,  const drawSu
 		{
 			// very ad-hoc "wobble" transform
 			float s, c;
-			idMath::SinCos( wobbleSpeed * backEnd.viewDef->renderView.time[0] * 0.001f, s, c );
+			idMath::SinCos( wobbleSpeed * viewDef->renderView.time[0] * 0.001f, s, c );
 			
 			float ws, wc;
 			idMath::SinCos( wobbleDegrees, ws, wc );
@@ -562,7 +707,7 @@ static void RB_PrepareStageTexturing( const shaderStage_t* pStage,  const drawSu
 		
 		// add the rotate
 		float rs, rc;
-		idMath::SinCos( rotateSpeed * backEnd.viewDef->renderView.time[0] * 0.001f, rs, rc );
+		idMath::SinCos( rotateSpeed * viewDef->renderView.time[0] * 0.001f, rs, rc );
 		
 		float transform[12];
 		transform[0 * 4 + 0] = axis[0][0] * rc + axis[1][0] * rs;
@@ -593,7 +738,7 @@ static void RB_PrepareStageTexturing( const shaderStage_t* pStage,  const drawSu
 		useTexGenParm[3] = 1.0f;
 		
 		float mat[16];
-		R_MatrixMultiply( surf->space->modelViewMatrix, backEnd.viewDef->projectionMatrix, mat );
+		R_MatrixMultiply( surf->space->modelViewMatrix, viewDef->projectionMatrix, mat );
 		
 		RENDERLOG_PRINTF( "TexGen : %s\n", ( pStage->texture.texgen == TG_SCREEN ) ? "TG_SCREEN" : "TG_SCREEN2" );
 		renderLog.Indent();
@@ -642,12 +787,11 @@ static void RB_PrepareStageTexturing( const shaderStage_t* pStage,  const drawSu
 
 /*
 ================
-RB_FinishStageTexturing
+idRenderBackend::FinishStageTexturing
 ================
 */
-static void RB_FinishStageTexturing( const shaderStage_t* pStage, const drawSurf_t* surf )
+void idRenderBackend::FinishStageTexturing( const shaderStage_t* pStage, const drawSurf_t* surf )
 {
-
 	if( pStage->texture.cinematic )
 	{
 		// unbind the extra bink textures
@@ -678,20 +822,21 @@ static void RB_FinishStageTexturing( const shaderStage_t* pStage, const drawSurf
 }
 
 // RB: moved this up because we need to call this several times for shadow mapping
-static void RB_ResetViewportAndScissorToDefaultCamera( const viewDef_t* viewDef )
+void idRenderBackend::ResetViewportAndScissorToDefaultCamera( const viewDef_t* _viewDef )
 {
 	// set the window clipping
-	GL_Viewport( viewDef->viewport.x1,
-				 viewDef->viewport.y1,
-				 viewDef->viewport.x2 + 1 - viewDef->viewport.x1,
-				 viewDef->viewport.y2 + 1 - viewDef->viewport.y1 );
+	GL_Viewport( _viewDef->viewport.x1,
+				 _viewDef->viewport.y1,
+				 _viewDef->viewport.x2 + 1 - _viewDef->viewport.x1,
+				 _viewDef->viewport.y2 + 1 - _viewDef->viewport.y1 );
 				 
 	// the scissor may be smaller than the viewport for subviews
-	GL_Scissor( backEnd.viewDef->viewport.x1 + viewDef->scissor.x1,
-				backEnd.viewDef->viewport.y1 + viewDef->scissor.y1,
-				viewDef->scissor.x2 + 1 - viewDef->scissor.x1,
-				viewDef->scissor.y2 + 1 - viewDef->scissor.y1 );
-	backEnd.currentScissor = viewDef->scissor;
+	GL_Scissor( viewDef->viewport.x1 + _viewDef->scissor.x1,
+				viewDef->viewport.y1 + _viewDef->scissor.y1,
+				_viewDef->scissor.x2 + 1 - _viewDef->scissor.x1,
+				_viewDef->scissor.y2 + 1 - _viewDef->scissor.y1 );
+				
+	currentScissor = viewDef->scissor;
 }
 // RB end
 
@@ -705,10 +850,10 @@ DEPTH BUFFER RENDERING
 
 /*
 ==================
-RB_FillDepthBufferGeneric
+idRenderBackend::FillDepthBufferGeneric
 ==================
 */
-static void RB_FillDepthBufferGeneric( const drawSurf_t* const* drawSurfs, int numDrawSurfs )
+void idRenderBackend::FillDepthBufferGeneric( const drawSurf_t* const* drawSurfs, int numDrawSurfs )
 {
 	for( int i = 0; i < numDrawSurfs; i++ )
 	{
@@ -742,11 +887,11 @@ static void RB_FillDepthBufferGeneric( const drawSurf_t* const* drawSurfs, int n
 		}
 		
 		// change the matrix if needed
-		if( drawSurf->space != backEnd.currentSpace )
+		if( drawSurf->space != currentSpace )
 		{
 			RB_SetMVP( drawSurf->space->mvp );
 			
-			backEnd.currentSpace = drawSurf->space;
+			currentSpace = drawSurf->space;
 		}
 		
 		uint64 surfGLState = 0;
@@ -855,16 +1000,16 @@ static void RB_FillDepthBufferGeneric( const drawSurf_t* const* drawSurfs, int n
 				pStage->texture.image->Bind();
 				
 				// set texture matrix and texGens
-				RB_PrepareStageTexturing( pStage, drawSurf );
+				PrepareStageTexturing( pStage, drawSurf );
 				
 				// must render with less-equal for Z-Cull to work properly
 				assert( ( GL_GetCurrentState() & GLS_DEPTHFUNC_BITS ) == GLS_DEPTHFUNC_LESS );
 				
 				// draw it
-				RB_DrawElementsWithCounters( drawSurf );
+				DrawElementsWithCounters( drawSurf );
 				
 				// clean up
-				RB_FinishStageTexturing( pStage, drawSurf );
+				FinishStageTexturing( pStage, drawSurf );
 				
 				// unset privatePolygonOffset if necessary
 				if( pStage->privatePolygonOffset )
@@ -905,7 +1050,7 @@ static void RB_FillDepthBufferGeneric( const drawSurf_t* const* drawSurfs, int n
 			assert( ( GL_GetCurrentState() & GLS_DEPTHFUNC_BITS ) == GLS_DEPTHFUNC_LESS );
 			
 			// draw it
-			RB_DrawElementsWithCounters( drawSurf );
+			DrawElementsWithCounters( drawSurf );
 		}
 		
 		renderLog.CloseBlock();
@@ -918,7 +1063,7 @@ static void RB_FillDepthBufferGeneric( const drawSurf_t* const* drawSurfs, int n
 
 /*
 =====================
-RB_FillDepthBufferFast
+idRenderBackend::FillDepthBufferFast
 
 Optimized fast path code.
 
@@ -934,7 +1079,7 @@ If there are no subview surfaces, we could clear to black and use fast-Z renderi
 on the 360.
 =====================
 */
-static void RB_FillDepthBufferFast( drawSurf_t** drawSurfs, int numDrawSurfs )
+void idRenderBackend::FillDepthBufferFast( drawSurf_t** drawSurfs, int numDrawSurfs )
 {
 	if( numDrawSurfs == 0 )
 	{
@@ -942,7 +1087,7 @@ static void RB_FillDepthBufferFast( drawSurf_t** drawSurfs, int numDrawSurfs )
 	}
 	
 	// if we are just doing 2D rendering, no need to fill the depth buffer
-	if( backEnd.viewDef->viewEntitys == NULL )
+	if( viewDef->viewEntitys == NULL )
 	{
 		return;
 	}
@@ -950,10 +1095,10 @@ static void RB_FillDepthBufferFast( drawSurf_t** drawSurfs, int numDrawSurfs )
 	renderLog.OpenMainBlock( MRB_FILL_DEPTH_BUFFER );
 	renderLog.OpenBlock( "RB_FillDepthBufferFast" );
 	
-	GL_StartDepthPass( backEnd.viewDef->scissor );
+	GL_StartDepthPass( viewDef->scissor );
 	
 	// force MVP change on first surface
-	backEnd.currentSpace = NULL;
+	currentSpace = NULL;
 	
 	// draw all the subview surfaces, which will already be at the start of the sorted list,
 	// with the general purpose path
@@ -966,7 +1111,8 @@ static void RB_FillDepthBufferFast( drawSurf_t** drawSurfs, int numDrawSurfs )
 		{
 			break;
 		}
-		RB_FillDepthBufferGeneric( &drawSurfs[surfNum], 1 );
+		
+		FillDepthBufferGeneric( &drawSurfs[surfNum], 1 );
 	}
 	
 	const drawSurf_t** perforatedSurfaces = ( const drawSurf_t** )_alloca( numDrawSurfs * sizeof( drawSurf_t* ) );
@@ -998,10 +1144,10 @@ static void RB_FillDepthBufferFast( drawSurf_t** drawSurfs, int numDrawSurfs )
 		// set polygon offset?
 		
 		// set mvp matrix
-		if( surf->space != backEnd.currentSpace )
+		if( surf->space != currentSpace )
 		{
 			RB_SetMVP( surf->space->mvp );
-			backEnd.currentSpace = surf->space;
+			currentSpace = surf->space;
 		}
 		
 		renderLog.OpenBlock( shader->GetName() );
@@ -1019,7 +1165,7 @@ static void RB_FillDepthBufferFast( drawSurf_t** drawSurfs, int numDrawSurfs )
 		assert( ( GL_GetCurrentState() & GLS_DEPTHFUNC_BITS ) == GLS_DEPTHFUNC_LESS );
 		
 		// draw it solid
-		RB_DrawElementsWithCounters( surf );
+		DrawElementsWithCounters( surf );
 		
 		renderLog.CloseBlock();
 	}
@@ -1027,7 +1173,7 @@ static void RB_FillDepthBufferFast( drawSurf_t** drawSurfs, int numDrawSurfs )
 	// draw all perforated surfaces with the general code path
 	if( numPerforatedSurfaces > 0 )
 	{
-		RB_FillDepthBufferGeneric( perforatedSurfaces, numPerforatedSurfaces );
+		FillDepthBufferGeneric( perforatedSurfaces, numPerforatedSurfaces );
 	}
 	
 	// Allow platform specific data to be collected after the depth pass.
@@ -1055,11 +1201,11 @@ const int INTERACTION_TEXUNIT_JITTER		= 6;
 
 /*
 ==================
-RB_SetupInteractionStage
+idRenderBackend::SetupInteractionStage
 ==================
 */
-static void RB_SetupInteractionStage( const shaderStage_t* surfaceStage, const float* surfaceRegs, const float lightColor[4],
-									  idVec4 matrix[2], float color[4] )
+void idRenderBackend::SetupInteractionStage( const shaderStage_t* surfaceStage, const float* surfaceRegs, const float lightColor[4],
+		idVec4 matrix[2], float color[4] )
 {
 
 	if( surfaceStage->texture.hasMatrix )
@@ -1112,10 +1258,10 @@ static void RB_SetupInteractionStage( const shaderStage_t* surfaceStage, const f
 
 /*
 =================
-RB_DrawSingleInteraction
+idRenderBackend::DrawSingleInteraction
 =================
 */
-static void RB_DrawSingleInteraction( drawInteraction_t* din )
+void idRenderBackend::DrawSingleInteraction( drawInteraction_t* din )
 {
 	if( din->bumpImage == NULL )
 	{
@@ -1177,7 +1323,7 @@ static void RB_DrawSingleInteraction( drawInteraction_t* din )
 	GL_SelectTexture( INTERACTION_TEXUNIT_SPECULAR );
 	din->specularImage->Bind();
 	
-	RB_DrawElementsWithCounters( din->surf );
+	DrawElementsWithCounters( din->surf );
 }
 
 /*
@@ -1212,12 +1358,12 @@ static void RB_SetupForFastPathInteractions( const idVec4& diffuseColor, const i
 
 /*
 =============
-RB_RenderInteractions
+idRenderBackend::RenderInteractions
 
 With added sorting and trivial path work.
 =============
 */
-static void RB_RenderInteractions( const drawSurf_t* surfList, const viewLight_t* vLight, int depthFunc, bool performStencilTest, bool useLightDepthBounds )
+void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const viewLight_t* vLight, int depthFunc, bool performStencilTest, bool useLightDepthBounds )
 {
 	if( surfList == NULL )
 	{
@@ -1225,13 +1371,14 @@ static void RB_RenderInteractions( const drawSurf_t* surfList, const viewLight_t
 	}
 	
 	// change the scissor if needed, it will be constant across all the surfaces lit by the light
-	if( !backEnd.currentScissor.Equals( vLight->scissorRect ) && r_useScissor.GetBool() )
+	if( !currentScissor.Equals( vLight->scissorRect ) && r_useScissor.GetBool() )
 	{
-		GL_Scissor( backEnd.viewDef->viewport.x1 + vLight->scissorRect.x1,
-					backEnd.viewDef->viewport.y1 + vLight->scissorRect.y1,
+		GL_Scissor( viewDef->viewport.x1 + vLight->scissorRect.x1,
+					viewDef->viewport.y1 + vLight->scissorRect.y1,
 					vLight->scissorRect.x2 + 1 - vLight->scissorRect.x1,
 					vLight->scissorRect.y2 + 1 - vLight->scissorRect.y1 );
-		backEnd.currentScissor = vLight->scissorRect;
+					
+		currentScissor = vLight->scissorRect;
 	}
 	
 	// perform setup here that will be constant for all interactions
@@ -1278,7 +1425,7 @@ static void RB_RenderInteractions( const drawSurf_t* surfList, const viewLight_t
 			}
 			uint64 end = Sys_Microseconds();
 			
-			backEnd.pc.shadowMicroSec += end - start;
+			pc.shadowMicroSec += end - start;
 		}
 		
 		const idMaterial* surfaceShader = walk->material;
@@ -1340,10 +1487,10 @@ static void RB_RenderInteractions( const drawSurf_t* surfList, const viewLight_t
 		if( vLight->parallel )
 		{
 			float cascadeDistances[4];
-			cascadeDistances[0] = backEnd.viewDef->frustumSplitDistances[0];
-			cascadeDistances[1] = backEnd.viewDef->frustumSplitDistances[1];
-			cascadeDistances[2] = backEnd.viewDef->frustumSplitDistances[2];
-			cascadeDistances[3] = backEnd.viewDef->frustumSplitDistances[3];
+			cascadeDistances[0] = viewDef->frustumSplitDistances[0];
+			cascadeDistances[1] = viewDef->frustumSplitDistances[1];
+			cascadeDistances[2] = viewDef->frustumSplitDistances[2];
+			cascadeDistances[3] = viewDef->frustumSplitDistances[3];
 			SetFragmentParm( RENDERPARM_CASCADEDISTANCES, cascadeDistances ); // rpCascadeDistances
 		}
 		
@@ -1419,7 +1566,7 @@ static void RB_RenderInteractions( const drawSurf_t* surfList, const viewLight_t
 		RB_SetupForFastPathInteractions( diffuseColor, specularColor );
 		
 		// even if the space does not change between light stages, each light stage may need a different lightTextureMatrix baked in
-		backEnd.currentSpace = NULL;
+		currentSpace = NULL;
 		
 		for( int sortedSurfNum = 0; sortedSurfNum < allSurfaces.Num(); sortedSurfNum++ )
 		{
@@ -1496,9 +1643,9 @@ static void RB_RenderInteractions( const drawSurf_t* surfList, const viewLight_t
 			inter.surf = surf;
 			
 			// change the MVP matrix, view/light origin and light projection vectors if needed
-			if( surf->space != backEnd.currentSpace )
+			if( surf->space != currentSpace )
 			{
-				backEnd.currentSpace = surf->space;
+				currentSpace = surf->space;
 				
 				// turn off the light depth bounds test if this model is rendered with a depth hack
 				if( useLightDepthBounds )
@@ -1543,7 +1690,7 @@ static void RB_RenderInteractions( const drawSurf_t* surfList, const viewLight_t
 				idVec4 localLightOrigin( 0.0f );
 				idVec4 localViewOrigin( 1.0f );
 				R_GlobalPointToLocal( surf->space->modelMatrix, vLight->globalLightOrigin, localLightOrigin.ToVec3() );
-				R_GlobalPointToLocal( surf->space->modelMatrix, backEnd.viewDef->renderView.vieworg, localViewOrigin.ToVec3() );
+				R_GlobalPointToLocal( surf->space->modelMatrix, viewDef->renderView.vieworg, localViewOrigin.ToVec3() );
 				
 				// set the local light/view origin
 				SetVertexParm( RENDERPARM_LOCALLIGHTORIGIN, localLightOrigin.ToFloatPtr() );
@@ -1576,10 +1723,10 @@ static void RB_RenderInteractions( const drawSurf_t* surfList, const viewLight_t
 						for( int i = 0; i < ( r_shadowMapSplits.GetInteger() + 1 ); i++ )
 						{
 							idRenderMatrix modelToShadowMatrix;
-							idRenderMatrix::Multiply( backEnd.shadowV[i], modelMatrix, modelToShadowMatrix );
+							idRenderMatrix::Multiply( shadowV[i], modelMatrix, modelToShadowMatrix );
 							
 							idRenderMatrix shadowClipMVP;
-							idRenderMatrix::Multiply( backEnd.shadowP[i], modelToShadowMatrix, shadowClipMVP );
+							idRenderMatrix::Multiply( shadowP[i], modelToShadowMatrix, shadowClipMVP );
 							
 							idRenderMatrix shadowWindowMVP;
 							idRenderMatrix::Multiply( renderMatrix_clipSpaceToWindowSpace, shadowClipMVP, shadowWindowMVP );
@@ -1592,10 +1739,10 @@ static void RB_RenderInteractions( const drawSurf_t* surfList, const viewLight_t
 						for( int i = 0; i < 6; i++ )
 						{
 							idRenderMatrix modelToShadowMatrix;
-							idRenderMatrix::Multiply( backEnd.shadowV[i], modelMatrix, modelToShadowMatrix );
+							idRenderMatrix::Multiply( shadowV[i], modelMatrix, modelToShadowMatrix );
 							
 							idRenderMatrix shadowClipMVP;
-							idRenderMatrix::Multiply( backEnd.shadowP[i], modelToShadowMatrix, shadowClipMVP );
+							idRenderMatrix::Multiply( shadowP[i], modelToShadowMatrix, shadowClipMVP );
 							
 							idRenderMatrix shadowWindowMVP;
 							idRenderMatrix::Multiply( renderMatrix_clipSpaceToWindowSpace, shadowClipMVP, shadowWindowMVP );
@@ -1608,10 +1755,10 @@ static void RB_RenderInteractions( const drawSurf_t* surfList, const viewLight_t
 						// spot light
 						
 						idRenderMatrix modelToShadowMatrix;
-						idRenderMatrix::Multiply( backEnd.shadowV[0], modelMatrix, modelToShadowMatrix );
+						idRenderMatrix::Multiply( shadowV[0], modelMatrix, modelToShadowMatrix );
 						
 						idRenderMatrix shadowClipMVP;
-						idRenderMatrix::Multiply( backEnd.shadowP[0], modelToShadowMatrix, shadowClipMVP );
+						idRenderMatrix::Multiply( shadowP[0], modelToShadowMatrix, shadowClipMVP );
 						
 						SetVertexParms( ( renderParm_t )( RENDERPARM_SHADOW_MATRIX_0_X ), shadowClipMVP[0], 4 );
 						
@@ -1637,7 +1784,7 @@ static void RB_RenderInteractions( const drawSurf_t* surfList, const viewLight_t
 				GL_SelectTexture( INTERACTION_TEXUNIT_SPECULAR );
 				surfaceShader->GetFastPathSpecularImage()->Bind();
 				
-				RB_DrawElementsWithCounters( surf );
+				DrawElementsWithCounters( surf );
 				
 				renderLog.CloseBlock();
 				continue;
@@ -1685,7 +1832,7 @@ static void RB_RenderInteractions( const drawSurf_t* surfList, const viewLight_t
 						// draw any previous interaction
 						if( inter.bumpImage != NULL )
 						{
-							RB_DrawSingleInteraction( &inter );
+							DrawSingleInteraction( &inter );
 						}
 						inter.bumpImage = surfaceStage->texture.image;
 						inter.diffuseImage = NULL;
@@ -1704,7 +1851,7 @@ static void RB_RenderInteractions( const drawSurf_t* surfList, const viewLight_t
 						// draw any previous interaction
 						if( inter.diffuseImage != NULL )
 						{
-							RB_DrawSingleInteraction( &inter );
+							DrawSingleInteraction( &inter );
 						}
 						inter.diffuseImage = surfaceStage->texture.image;
 						inter.vertexColor = surfaceStage->vertexColor;
@@ -1722,7 +1869,7 @@ static void RB_RenderInteractions( const drawSurf_t* surfList, const viewLight_t
 						// draw any previous interaction
 						if( inter.specularImage != NULL )
 						{
-							RB_DrawSingleInteraction( &inter );
+							DrawSingleInteraction( &inter );
 						}
 						inter.specularImage = surfaceStage->texture.image;
 						inter.vertexColor = surfaceStage->vertexColor;
@@ -1734,7 +1881,7 @@ static void RB_RenderInteractions( const drawSurf_t* surfList, const viewLight_t
 			}
 			
 			// draw the final interaction
-			RB_DrawSingleInteraction( &inter );
+			DrawSingleInteraction( &inter );
 			
 			renderLog.CloseBlock();
 		}
@@ -1760,10 +1907,10 @@ AMBIENT PASS RENDERING
 
 /*
 ==================
-RB_AmbientPass
+idRenderBackend::AmbientPass
 ==================
 */
-static void RB_AmbientPass( const drawSurf_t* const* drawSurfs, int numDrawSurfs, bool fillGbuffer )
+void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDrawSurfs, bool fillGbuffer )
 {
 	if( fillGbuffer )
 	{
@@ -1786,7 +1933,7 @@ static void RB_AmbientPass( const drawSurf_t* const* drawSurfs, int numDrawSurfs
 	}
 	
 	// if we are just doing 2D rendering, no need to fill the depth buffer
-	if( backEnd.viewDef->viewEntitys == NULL )
+	if( viewDef->viewEntitys == NULL )
 	{
 		return;
 	}
@@ -1810,7 +1957,7 @@ static void RB_AmbientPass( const drawSurf_t* const* drawSurfs, int numDrawSurfs
 	// GL_StartDepthPass( backEnd.viewDef->scissor );
 	
 	// force MVP change on first surface
-	backEnd.currentSpace = NULL;
+	currentSpace = NULL;
 	
 	// draw all the subview surfaces, which will already be at the start of the sorted list,
 	// with the general purpose path
@@ -1915,15 +2062,15 @@ static void RB_AmbientPass( const drawSurf_t* const* drawSurfs, int numDrawSurfs
 		}
 		
 		// change the matrix if needed
-		if( drawSurf->space != backEnd.currentSpace )
+		if( drawSurf->space != currentSpace )
 		{
-			backEnd.currentSpace = drawSurf->space;
+			currentSpace = drawSurf->space;
 			
 			RB_SetMVP( drawSurf->space->mvp );
 			
 			// tranform the view origin into model local space
 			idVec4 localViewOrigin( 1.0f );
-			R_GlobalPointToLocal( drawSurf->space->modelMatrix, backEnd.viewDef->renderView.vieworg, localViewOrigin.ToVec3() );
+			R_GlobalPointToLocal( drawSurf->space->modelMatrix, viewDef->renderView.vieworg, localViewOrigin.ToVec3() );
 			SetVertexParm( RENDERPARM_LOCALVIEWORIGIN, localViewOrigin.ToFloatPtr() );
 			
 			//if( !isWorldModel )
@@ -2019,7 +2166,7 @@ static void RB_AmbientPass( const drawSurf_t* const* drawSurfs, int numDrawSurfs
 			GL_SelectTexture( INTERACTION_TEXUNIT_SPECULAR );
 			surfaceMaterial->GetFastPathSpecularImage()->Bind();
 			
-			RB_DrawElementsWithCounters( drawSurf );
+			DrawElementsWithCounters( drawSurf );
 			
 			renderLog.CloseBlock();
 			continue;
@@ -2074,7 +2221,7 @@ static void RB_AmbientPass( const drawSurf_t* const* drawSurfs, int numDrawSurfs
 					// draw any previous interaction
 					if( inter.bumpImage != NULL )
 					{
-						RB_DrawSingleInteraction( &inter );
+						DrawSingleInteraction( &inter );
 					}
 					inter.bumpImage = surfaceStage->texture.image;
 					inter.diffuseImage = NULL;
@@ -2095,7 +2242,7 @@ static void RB_AmbientPass( const drawSurf_t* const* drawSurfs, int numDrawSurfs
 					// draw any previous interaction
 					if( inter.diffuseImage != NULL )
 					{
-						RB_DrawSingleInteraction( &inter );
+						DrawSingleInteraction( &inter );
 					}
 					
 					inter.diffuseImage = surfaceStage->texture.image;
@@ -2115,7 +2262,7 @@ static void RB_AmbientPass( const drawSurf_t* const* drawSurfs, int numDrawSurfs
 					// draw any previous interaction
 					if( inter.specularImage != NULL )
 					{
-						RB_DrawSingleInteraction( &inter );
+						DrawSingleInteraction( &inter );
 					}
 					inter.specularImage = surfaceStage->texture.image;
 					inter.vertexColor = surfaceStage->vertexColor;
@@ -2127,7 +2274,7 @@ static void RB_AmbientPass( const drawSurf_t* const* drawSurfs, int numDrawSurfs
 		}
 		
 		// draw the final interaction
-		RB_DrawSingleInteraction( &inter );
+		DrawSingleInteraction( &inter );
 		
 		renderLog.CloseBlock();
 	}
@@ -2184,12 +2331,12 @@ STENCIL SHADOW RENDERING
 
 /*
 =====================
-RB_StencilShadowPass
+idRenderBackend::StencilShadowPass
 
 The stencil buffer should have been set to 128 on any surfaces that might receive shadows.
 =====================
 */
-static void RB_StencilShadowPass( const drawSurf_t* drawSurfs, const viewLight_t* vLight )
+void idRenderBackend::StencilShadowPass( const drawSurf_t* drawSurfs, const viewLight_t* vLight )
 {
 	if( r_skipShadows.GetBool() )
 	{
@@ -2245,7 +2392,7 @@ static void RB_StencilShadowPass( const drawSurf_t* drawSurfs, const viewLight_t
 	
 	
 	// process the chain of shadows with the current rendering state
-	backEnd.currentSpace = NULL;
+	currentSpace = NULL;
 	
 	for( const drawSurf_t* drawSurf = drawSurfs; drawSurf != NULL; drawSurf = drawSurf->nextOnLight )
 	{
@@ -2267,7 +2414,7 @@ static void RB_StencilShadowPass( const drawSurf_t* drawSurfs, const viewLight_t
 			}
 			uint64 end = Sys_Microseconds();
 			
-			backEnd.pc.shadowMicroSec += end - start;
+			pc.shadowMicroSec += end - start;
 		}
 		
 		if( drawSurf->numIndexes == 0 )
@@ -2275,17 +2422,18 @@ static void RB_StencilShadowPass( const drawSurf_t* drawSurfs, const viewLight_t
 			continue;	// a job may have created an empty shadow volume
 		}
 		
-		if( !backEnd.currentScissor.Equals( drawSurf->scissorRect ) && r_useScissor.GetBool() )
+		if( !currentScissor.Equals( drawSurf->scissorRect ) && r_useScissor.GetBool() )
 		{
 			// change the scissor
-			GL_Scissor( backEnd.viewDef->viewport.x1 + drawSurf->scissorRect.x1,
-						backEnd.viewDef->viewport.y1 + drawSurf->scissorRect.y1,
+			GL_Scissor( viewDef->viewport.x1 + drawSurf->scissorRect.x1,
+						viewDef->viewport.y1 + drawSurf->scissorRect.y1,
 						drawSurf->scissorRect.x2 + 1 - drawSurf->scissorRect.x1,
 						drawSurf->scissorRect.y2 + 1 - drawSurf->scissorRect.y1 );
-			backEnd.currentScissor = drawSurf->scissorRect;
+						
+			currentScissor = drawSurf->scissorRect;
 		}
 		
-		if( drawSurf->space != backEnd.currentSpace )
+		if( drawSurf->space != currentSpace )
 		{
 			// change the matrix
 			RB_SetMVP( drawSurf->space->mvp );
@@ -2295,7 +2443,7 @@ static void RB_StencilShadowPass( const drawSurf_t* drawSurfs, const viewLight_t
 			R_GlobalPointToLocal( drawSurf->space->modelMatrix, vLight->globalLightOrigin, localLight.ToVec3() );
 			SetVertexParm( RENDERPARM_LOCALLIGHTORIGIN, localLight.ToFloatPtr() );
 			
-			backEnd.currentSpace = drawSurf->space;
+			currentSpace = drawSurf->space;
 		}
 		
 		if( r_showShadows.GetInteger() == 0 )
@@ -2402,10 +2550,10 @@ static void RB_StencilShadowPass( const drawSurf_t* drawSurfs, const viewLight_t
 		RENDERLOG_PRINTF( "Binding Buffers: %p %p\n", vertexBuffer, indexBuffer );
 		
 		// RB: 64 bit fixes, changed GLuint to GLintptr
-		if( backEnd.glState.currentIndexBuffer != ( GLintptr )indexBuffer->GetAPIObject() || !r_useStateCaching.GetBool() )
+		if( currentIndexBuffer != ( GLintptr )indexBuffer->GetAPIObject() || !r_useStateCaching.GetBool() )
 		{
 			glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ( GLintptr )indexBuffer->GetAPIObject() );
-			backEnd.glState.currentIndexBuffer = ( GLintptr )indexBuffer->GetAPIObject();
+			currentIndexBuffer = ( GLintptr )indexBuffer->GetAPIObject();
 		}
 		
 		if( drawSurf->jointCache )
@@ -2423,10 +2571,10 @@ static void RB_StencilShadowPass( const drawSurf_t* drawSurfs, const viewLight_t
 			const GLintptr ubo = reinterpret_cast< GLintptr >( jointBuffer.GetAPIObject() );
 			glBindBufferRange( GL_UNIFORM_BUFFER, 0, ubo, jointBuffer.GetOffset(), jointBuffer.GetNumJoints() * sizeof( idJointMat ) );
 			
-			if( ( backEnd.glState.vertexLayout != LAYOUT_DRAW_SHADOW_VERT_SKINNED ) || ( backEnd.glState.currentVertexBuffer != ( GLintptr )vertexBuffer->GetAPIObject() ) || !r_useStateCaching.GetBool() )
+			if( ( vertexLayout != LAYOUT_DRAW_SHADOW_VERT_SKINNED ) || ( currentVertexBuffer != ( GLintptr )vertexBuffer->GetAPIObject() ) || !r_useStateCaching.GetBool() )
 			{
 				glBindBuffer( GL_ARRAY_BUFFER, ( GLintptr )vertexBuffer->GetAPIObject() );
-				backEnd.glState.currentVertexBuffer = ( GLintptr )vertexBuffer->GetAPIObject();
+				currentVertexBuffer = ( GLintptr )vertexBuffer->GetAPIObject();
 				
 				glEnableVertexAttribArray( PC_ATTRIB_INDEX_VERTEX );
 				glDisableVertexAttribArray( PC_ATTRIB_INDEX_NORMAL );
@@ -2445,16 +2593,16 @@ static void RB_StencilShadowPass( const drawSurf_t* drawSurfs, const viewLight_t
 				glVertexAttribPointer( PC_ATTRIB_INDEX_COLOR2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idShadowVertSkinned ), ( void* )( SHADOWVERTSKINNED_COLOR2_OFFSET ) );
 #endif
 				
-				backEnd.glState.vertexLayout = LAYOUT_DRAW_SHADOW_VERT_SKINNED;
+				vertexLayout = LAYOUT_DRAW_SHADOW_VERT_SKINNED;
 			}
 			
 		}
 		else
 		{
-			if( ( backEnd.glState.vertexLayout != LAYOUT_DRAW_SHADOW_VERT ) || ( backEnd.glState.currentVertexBuffer != ( GLintptr )vertexBuffer->GetAPIObject() ) || !r_useStateCaching.GetBool() )
+			if( ( vertexLayout != LAYOUT_DRAW_SHADOW_VERT ) || ( currentVertexBuffer != ( GLintptr )vertexBuffer->GetAPIObject() ) || !r_useStateCaching.GetBool() )
 			{
 				glBindBuffer( GL_ARRAY_BUFFER, ( GLintptr )vertexBuffer->GetAPIObject() );
-				backEnd.glState.currentVertexBuffer = ( GLintptr )vertexBuffer->GetAPIObject();
+				currentVertexBuffer = ( GLintptr )vertexBuffer->GetAPIObject();
 				
 				glEnableVertexAttribArray( PC_ATTRIB_INDEX_VERTEX );
 				glDisableVertexAttribArray( PC_ATTRIB_INDEX_NORMAL );
@@ -2469,7 +2617,7 @@ static void RB_StencilShadowPass( const drawSurf_t* drawSurfs, const viewLight_t
 				glVertexAttribPointer( PC_ATTRIB_INDEX_VERTEX, 4, GL_FLOAT, GL_FALSE, sizeof( idShadowVert ), ( void* )( SHADOWVERT_XYZW_OFFSET ) );
 #endif
 				
-				backEnd.glState.vertexLayout = LAYOUT_DRAW_SHADOW_VERT;
+				vertexLayout = LAYOUT_DRAW_SHADOW_VERT;
 			}
 		}
 		// RB end
@@ -2494,8 +2642,8 @@ static void RB_StencilShadowPass( const drawSurf_t* drawSurfs, const viewLight_t
 		}
 		
 		// RB: added stats
-		backEnd.pc.c_shadowElements++;
-		backEnd.pc.c_shadowIndexes += drawSurf->numIndexes;
+		pc.c_shadowElements++;
+		pc.c_shadowIndexes += drawSurf->numIndexes;
 		// RB end
 		
 		if( !renderZPass && r_useStencilShadowPreload.GetBool() )
@@ -2522,8 +2670,8 @@ static void RB_StencilShadowPass( const drawSurf_t* drawSurfs, const viewLight_t
 			}
 			
 			// RB: added stats
-			backEnd.pc.c_shadowElements++;
-			backEnd.pc.c_shadowIndexes += drawSurf->numIndexes;
+			pc.c_shadowElements++;
+			pc.c_shadowIndexes += drawSurf->numIndexes;
 			// RB end
 		}
 	}
@@ -2548,25 +2696,26 @@ static void RB_StencilShadowPass( const drawSurf_t* drawSurfs, const viewLight_t
 
 /*
 ==================
-RB_StencilSelectLight
+idRenderBackend::StencilSelectLight
 
 Deform the zeroOneCubeModel to exactly cover the light volume. Render the deformed cube model to the stencil buffer in
 such a way that only fragments that are directly visible and contained within the volume will be written creating a
 mask to be used by the following stencil shadow and draw interaction passes.
 ==================
 */
-static void RB_StencilSelectLight( const viewLight_t* vLight )
+void idRenderBackend::StencilSelectLight( const viewLight_t* vLight )
 {
 	renderLog.OpenBlock( "Stencil Select" );
 	
 	// enable the light scissor
-	if( !backEnd.currentScissor.Equals( vLight->scissorRect ) && r_useScissor.GetBool() )
+	if( !currentScissor.Equals( vLight->scissorRect ) && r_useScissor.GetBool() )
 	{
-		GL_Scissor( backEnd.viewDef->viewport.x1 + vLight->scissorRect.x1,
-					backEnd.viewDef->viewport.y1 + vLight->scissorRect.y1,
+		GL_Scissor( viewDef->viewport.x1 + vLight->scissorRect.x1,
+					viewDef->viewport.y1 + vLight->scissorRect.y1,
 					vLight->scissorRect.x2 + 1 - vLight->scissorRect.x1,
 					vLight->scissorRect.y2 + 1 - vLight->scissorRect.y1 );
-		backEnd.currentScissor = vLight->scissorRect;
+					
+		currentScissor = vLight->scissorRect;
 	}
 	
 	// clear stencil buffer to 0 (not drawable)
@@ -2585,14 +2734,14 @@ static void RB_StencilSelectLight( const viewLight_t* vLight )
 	
 	// set the matrix for deforming the 'zeroOneCubeModel' into the frustum to exactly cover the light volume
 	idRenderMatrix invProjectMVPMatrix;
-	idRenderMatrix::Multiply( backEnd.viewDef->worldSpace.mvp, vLight->inverseBaseLightProject, invProjectMVPMatrix );
+	idRenderMatrix::Multiply( viewDef->worldSpace.mvp, vLight->inverseBaseLightProject, invProjectMVPMatrix );
 	RB_SetMVP( invProjectMVPMatrix );
 	
 	// two-sided stencil test
 	glStencilOpSeparate( GL_FRONT, GL_KEEP, GL_REPLACE, GL_ZERO );
 	glStencilOpSeparate( GL_BACK, GL_KEEP, GL_ZERO, GL_REPLACE );
 	
-	RB_DrawElementsWithCounters( &backEnd.zeroOneCubeSurface );
+	DrawElementsWithCounters( &zeroOneCubeSurface );
 	
 	// reset stencil state
 	
@@ -2707,10 +2856,10 @@ void MatrixLookAtRH( float m[16], const idVec3& eye, const idVec3& dir, const id
 
 /*
 =====================
-RB_ShadowMapPass
+idRenderBackend::ShadowMapPass
 =====================
 */
-static void RB_ShadowMapPass( const drawSurf_t* drawSurfs, const viewLight_t* vLight, int side )
+void idRenderBackend::ShadowMapPass( const drawSurf_t* drawSurfs, const viewLight_t* vLight, int side )
 {
 	if( r_skipShadows.GetBool() )
 	{
@@ -2773,11 +2922,11 @@ static void RB_ShadowMapPass( const drawSurf_t* drawSurfs, const viewLight_t* vL
 		//idAngles angles = lightDir.ToAngles();
 		//idMat3 rotation = angles.ToMat3();
 		
-		const idVec3 viewDir = backEnd.viewDef->renderView.viewaxis[0];
-		const idVec3 viewPos = backEnd.viewDef->renderView.vieworg;
+		const idVec3 viewDir = viewDef->renderView.viewaxis[0];
+		const idVec3 viewPos = viewDef->renderView.vieworg;
 		
 #if 1
-		idRenderMatrix::CreateViewMatrix( backEnd.viewDef->renderView.vieworg, rotation, lightViewRenderMatrix );
+		idRenderMatrix::CreateViewMatrix( viewDef->renderView.vieworg, rotation, lightViewRenderMatrix );
 #else
 		float lightViewMatrix[16];
 		MatrixLookAtRH( lightViewMatrix, viewPos, lightDir, viewDir );
@@ -2815,7 +2964,7 @@ static void RB_ShadowMapPass( const drawSurf_t* drawSurfs, const viewLight_t* vL
 		// invert the MVP projection so we can deform zero-to-one cubes into the frustum pyramid shape and calculate global bounds
 		
 		idRenderMatrix splitFrustumInverse;
-		if( !idRenderMatrix::Inverse( backEnd.viewDef->frustumMVPs[FRUSTUM_CASCADE1 + side], splitFrustumInverse ) )
+		if( !idRenderMatrix::Inverse( viewDef->frustumMVPs[FRUSTUM_CASCADE1 + side], splitFrustumInverse ) )
 		{
 			idLib::Warning( "splitFrustumMVP invert failed" );
 		}
@@ -2912,8 +3061,8 @@ static void RB_ShadowMapPass( const drawSurf_t* drawSurfs, const viewLight_t* vL
 		MatrixOrthogonalProjectionRH( lightProjectionMatrix, cropBounds[0][0], cropBounds[1][0], cropBounds[0][1], cropBounds[1][1], -cropBounds[1][2], -cropBounds[0][2] );
 		idRenderMatrix::Transpose( *( idRenderMatrix* )lightProjectionMatrix, lightProjectionRenderMatrix );
 		
-		backEnd.shadowV[side] = lightViewRenderMatrix;
-		backEnd.shadowP[side] = lightProjectionRenderMatrix;
+		shadowV[side] = lightViewRenderMatrix;
+		shadowP[side] = lightProjectionRenderMatrix;
 	}
 	else if( vLight->pointLight && side >= 0 )
 	{
@@ -2992,9 +3141,6 @@ static void RB_ShadowMapPass( const drawSurf_t* drawSurfs, const viewLight_t* vL
 		
 		idRenderMatrix::Transpose( *( idRenderMatrix* )lightViewMatrix, lightViewRenderMatrix );
 		
-		
-		
-		
 		// set up 90 degree projection matrix
 		const float zNear = 4;
 		const float	fov = r_shadowMapFrustumFOV.GetFloat();
@@ -3036,19 +3182,17 @@ static void RB_ShadowMapPass( const drawSurf_t* drawSurfs, const viewLight_t* vL
 		
 		idRenderMatrix::Transpose( *( idRenderMatrix* )lightProjectionMatrix, lightProjectionRenderMatrix );
 		
-		backEnd.shadowV[side] = lightViewRenderMatrix;
-		backEnd.shadowP[side] = lightProjectionRenderMatrix;
+		shadowV[side] = lightViewRenderMatrix;
+		shadowP[side] = lightProjectionRenderMatrix;
 	}
 	else
 	{
 		lightViewRenderMatrix.Identity();
 		lightProjectionRenderMatrix = vLight->baseLightProject;
 		
-		backEnd.shadowV[0] = lightViewRenderMatrix;
-		backEnd.shadowP[0] = lightProjectionRenderMatrix;
+		shadowV[0] = lightViewRenderMatrix;
+		shadowP[0] = lightProjectionRenderMatrix;
 	}
-	
-	
 	
 	globalFramebuffers.shadowFBO[vLight->shadowLOD]->Bind();
 	
@@ -3068,7 +3212,7 @@ static void RB_ShadowMapPass( const drawSurf_t* drawSurfs, const viewLight_t* vL
 	glClear( GL_DEPTH_BUFFER_BIT );
 	
 	// process the chain of shadows with the current rendering state
-	backEnd.currentSpace = NULL;
+	currentSpace = NULL;
 	
 	for( const drawSurf_t* drawSurf = drawSurfs; drawSurf != NULL; drawSurf = drawSurf->nextOnLight )
 	{
@@ -3086,7 +3230,7 @@ static void RB_ShadowMapPass( const drawSurf_t* drawSurfs, const viewLight_t* vL
 			}
 			uint64 end = Sys_Microseconds();
 			
-			backEnd.pc.shadowMicroSec += end - start;
+			pc.shadowMicroSec += end - start;
 		}
 #endif
 		
@@ -3095,7 +3239,7 @@ static void RB_ShadowMapPass( const drawSurf_t* drawSurfs, const viewLight_t* vL
 			continue;	// a job may have created an empty shadow geometry
 		}
 		
-		if( drawSurf->space != backEnd.currentSpace )
+		if( drawSurf->space != currentSpace )
 		{
 			idRenderMatrix modelRenderMatrix;
 			idRenderMatrix::Transpose( *( idRenderMatrix* )drawSurf->space->modelMatrix, modelRenderMatrix );
@@ -3133,7 +3277,7 @@ static void RB_ShadowMapPass( const drawSurf_t* drawSurfs, const viewLight_t* vL
 			SetVertexParm( RENDERPARM_LOCALLIGHTORIGIN, localLight.ToFloatPtr() );
 			*/
 			
-			backEnd.currentSpace = drawSurf->space;
+			currentSpace = drawSurf->space;
 		}
 		
 		bool didDraw = false;
@@ -3220,16 +3364,16 @@ static void RB_ShadowMapPass( const drawSurf_t* drawSurfs, const viewLight_t* vL
 				pStage->texture.image->Bind();
 				
 				// set texture matrix and texGens
-				RB_PrepareStageTexturing( pStage, drawSurf );
+				PrepareStageTexturing( pStage, drawSurf );
 				
 				// must render with less-equal for Z-Cull to work properly
 				assert( ( GL_GetCurrentState() & GLS_DEPTHFUNC_BITS ) == GLS_DEPTHFUNC_LESS );
 				
 				// draw it
-				RB_DrawElementsWithCounters( drawSurf );
+				DrawElementsWithCounters( drawSurf );
 				
 				// clean up
-				RB_FinishStageTexturing( pStage, drawSurf );
+				FinishStageTexturing( pStage, drawSurf );
 				
 				// unset privatePolygonOffset if necessary
 				if( pStage->privatePolygonOffset )
@@ -3251,7 +3395,7 @@ static void RB_ShadowMapPass( const drawSurf_t* drawSurfs, const viewLight_t* vL
 				renderProgManager.BindShader_Depth();
 			}
 			
-			RB_DrawElementsWithCounters( drawSurf );
+			DrawElementsWithCounters( drawSurf );
 		}
 	}
 	
@@ -3283,10 +3427,10 @@ DRAW INTERACTIONS
 */
 /*
 ==================
-RB_DrawInteractions
+idRenderBackend::DrawInteractions
 ==================
 */
-static void RB_DrawInteractions( const viewDef_t* viewDef )
+void idRenderBackend::DrawInteractions( const viewDef_t* _viewDef )
 {
 	if( r_skipInteractions.GetBool() )
 	{
@@ -3304,7 +3448,7 @@ static void RB_DrawInteractions( const viewDef_t* viewDef )
 	//
 	// for each light, perform shadowing and adding
 	//
-	for( const viewLight_t* vLight = backEnd.viewDef->viewLights; vLight != NULL; vLight = vLight->next )
+	for( const viewLight_t* vLight = viewDef->viewLights; vLight != NULL; vLight = vLight->next )
 	{
 		// do fogging later
 		if( vLight->lightShader->IsFogLight() )
@@ -3361,23 +3505,23 @@ static void RB_DrawInteractions( const viewDef_t* viewDef )
 			
 			for( ; side < sideStop ; side++ )
 			{
-				RB_ShadowMapPass( vLight->globalShadows, vLight, side );
+				ShadowMapPass( vLight->globalShadows, vLight, side );
 			}
 			
 			// go back from light view to default camera view
-			RB_ResetViewportAndScissorToDefaultCamera( viewDef );
+			ResetViewportAndScissorToDefaultCamera( _viewDef );
 			
 			if( vLight->localInteractions != NULL )
 			{
 				renderLog.OpenBlock( "Local Light Interactions" );
-				RB_RenderInteractions( vLight->localInteractions, vLight, GLS_DEPTHFUNC_EQUAL, false, useLightDepthBounds );
+				RenderInteractions( vLight->localInteractions, vLight, GLS_DEPTHFUNC_EQUAL, false, useLightDepthBounds );
 				renderLog.CloseBlock();
 			}
 			
 			if( vLight->globalInteractions != NULL )
 			{
 				renderLog.OpenBlock( "Global Light Interactions" );
-				RB_RenderInteractions( vLight->globalInteractions, vLight, GLS_DEPTHFUNC_EQUAL, false, useLightDepthBounds );
+				RenderInteractions( vLight->globalInteractions, vLight, GLS_DEPTHFUNC_EQUAL, false, useLightDepthBounds );
 				renderLog.CloseBlock();
 			}
 		}
@@ -3388,14 +3532,14 @@ static void RB_DrawInteractions( const viewDef_t* viewDef )
 			
 			// mirror flips the sense of the stencil select, and I don't want to risk accidentally breaking it
 			// in the normal case, so simply disable the stencil select in the mirror case
-			const bool useLightStencilSelect = ( r_useLightStencilSelect.GetBool() && backEnd.viewDef->isMirror == false );
+			const bool useLightStencilSelect = ( r_useLightStencilSelect.GetBool() && viewDef->isMirror == false );
 			
 			if( performStencilTest )
 			{
 				if( useLightStencilSelect )
 				{
 					// write a stencil mask for the visible light bounds to hi-stencil
-					RB_StencilSelectLight( vLight );
+					StencilSelectLight( vLight );
 				}
 				else
 				{
@@ -3406,7 +3550,7 @@ static void RB_DrawInteractions( const viewDef_t* viewDef )
 					rect.x2 = ( vLight->scissorRect.x2 + 15 ) & ~15;
 					rect.y2 = ( vLight->scissorRect.y2 + 15 ) & ~15;
 					
-					if( !backEnd.currentScissor.Equals( rect ) && r_useScissor.GetBool() )
+					if( !currentScissor.Equals( rect ) && r_useScissor.GetBool() )
 					{
 						GL_Scissor( backEnd.viewDef->viewport.x1 + rect.x1,
 									backEnd.viewDef->viewport.y1 + rect.y1,
@@ -3422,28 +3566,28 @@ static void RB_DrawInteractions( const viewDef_t* viewDef )
 			if( vLight->globalShadows != NULL )
 			{
 				renderLog.OpenBlock( "Global Light Shadows" );
-				RB_StencilShadowPass( vLight->globalShadows, vLight );
+				StencilShadowPass( vLight->globalShadows, vLight );
 				renderLog.CloseBlock();
 			}
 			
 			if( vLight->localInteractions != NULL )
 			{
 				renderLog.OpenBlock( "Local Light Interactions" );
-				RB_RenderInteractions( vLight->localInteractions, vLight, GLS_DEPTHFUNC_EQUAL, performStencilTest, useLightDepthBounds );
+				RenderInteractions( vLight->localInteractions, vLight, GLS_DEPTHFUNC_EQUAL, performStencilTest, useLightDepthBounds );
 				renderLog.CloseBlock();
 			}
 			
 			if( vLight->localShadows != NULL )
 			{
 				renderLog.OpenBlock( "Local Light Shadows" );
-				RB_StencilShadowPass( vLight->localShadows, vLight );
+				StencilShadowPass( vLight->localShadows, vLight );
 				renderLog.CloseBlock();
 			}
 			
 			if( vLight->globalInteractions != NULL )
 			{
 				renderLog.OpenBlock( "Global Light Interactions" );
-				RB_RenderInteractions( vLight->globalInteractions, vLight, GLS_DEPTHFUNC_EQUAL, performStencilTest, useLightDepthBounds );
+				RenderInteractions( vLight->globalInteractions, vLight, GLS_DEPTHFUNC_EQUAL, performStencilTest, useLightDepthBounds );
 				renderLog.CloseBlock();
 			}
 		}
@@ -3468,7 +3612,7 @@ static void RB_DrawInteractions( const viewDef_t* viewDef )
 			// stencil shadows only affect surfaces that contribute to the view depth
 			// buffer and translucent surfaces do not contribute to the view depth buffer.
 			
-			RB_RenderInteractions( vLight->translucentInteractions, vLight, GLS_DEPTHFUNC_LESS, false, false );
+			RenderInteractions( vLight->translucentInteractions, vLight, GLS_DEPTHFUNC_LESS, false, false );
 			
 			renderLog.CloseBlock();
 		}
@@ -3507,7 +3651,7 @@ NON-INTERACTION SHADER PASSES
 
 /*
 =====================
-RB_DrawShaderPasses
+idRenderBackend::DrawShaderPasses
 
 Draw non-light dependent passes
 
@@ -3515,8 +3659,8 @@ If we are rendering Guis, the drawSurf_t::sort value is a depth offset that can
 be multiplied by guiEye for polarity and screenSeparation for scale.
 =====================
 */
-static int RB_DrawShaderPasses( const drawSurf_t* const* const drawSurfs, const int numDrawSurfs,
-								const float guiStereoScreenOffset, const int stereoEye )
+int idRenderBackend::DrawShaderPasses( const drawSurf_t* const* const drawSurfs, const int numDrawSurfs,
+									   const float guiStereoScreenOffset, const int stereoEye )
 {
 	// only obey skipAmbient if we are rendering a view
 	if( backEnd.viewDef->viewEntitys && r_skipAmbient.GetBool() )
@@ -3925,12 +4069,12 @@ BLEND LIGHT PROJECTION
 
 /*
 =====================
-RB_T_BlendLight
+idRenderBackend::T_BlendLight
 =====================
 */
-static void RB_T_BlendLight( const drawSurf_t* drawSurfs, const viewLight_t* vLight )
+void idRenderBackend::T_BlendLight( const drawSurf_t* drawSurfs, const viewLight_t* vLight )
 {
-	backEnd.currentSpace = NULL;
+	currentSpace = NULL;
 	
 	for( const drawSurf_t* drawSurf = drawSurfs; drawSurf != NULL; drawSurf = drawSurf->nextOnLight )
 	{
@@ -3940,17 +4084,18 @@ static void RB_T_BlendLight( const drawSurf_t* drawSurfs, const viewLight_t* vLi
 			// temporarily jump over the scissor and draw so the gl error callback doesn't get hit
 		}
 		
-		if( !backEnd.currentScissor.Equals( drawSurf->scissorRect ) && r_useScissor.GetBool() )
+		if( !currentScissor.Equals( drawSurf->scissorRect ) && r_useScissor.GetBool() )
 		{
 			// change the scissor
-			GL_Scissor( backEnd.viewDef->viewport.x1 + drawSurf->scissorRect.x1,
-						backEnd.viewDef->viewport.y1 + drawSurf->scissorRect.y1,
+			GL_Scissor( viewDef->viewport.x1 + drawSurf->scissorRect.x1,
+						viewDef->viewport.y1 + drawSurf->scissorRect.y1,
 						drawSurf->scissorRect.x2 + 1 - drawSurf->scissorRect.x1,
 						drawSurf->scissorRect.y2 + 1 - drawSurf->scissorRect.y1 );
-			backEnd.currentScissor = drawSurf->scissorRect;
+						
+			currentScissor = drawSurf->scissorRect;
 		}
 		
-		if( drawSurf->space != backEnd.currentSpace )
+		if( drawSurf->space != currentSpace )
 		{
 			// change the matrix
 			RB_SetMVP( drawSurf->space->mvp );
@@ -3967,22 +4112,22 @@ static void RB_T_BlendLight( const drawSurf_t* drawSurfs, const viewLight_t* vLi
 			SetVertexParm( RENDERPARM_TEXGEN_0_Q, lightProjectInCurrentSpace[2].ToFloatPtr() );
 			SetVertexParm( RENDERPARM_TEXGEN_1_S, lightProjectInCurrentSpace[3].ToFloatPtr() );	// falloff
 			
-			backEnd.currentSpace = drawSurf->space;
+			currentSpace = drawSurf->space;
 		}
 		
-		RB_DrawElementsWithCounters( drawSurf );
+		DrawElementsWithCounters( drawSurf );
 	}
 }
 
 /*
 =====================
-RB_BlendLight
+idRenderBackend::BlendLight
 
 Dual texture together the falloff and projection texture with a blend
 mode to the framebuffer, instead of interacting with the surface texture
 =====================
 */
-static void RB_BlendLight( const drawSurf_t* drawSurfs, const drawSurf_t* drawSurfs2, const viewLight_t* vLight )
+void idRenderBackend::BlendLight( const drawSurf_t* drawSurfs, const drawSurf_t* drawSurfs2, const viewLight_t* vLight )
 {
 	if( drawSurfs == NULL )
 	{
@@ -4033,8 +4178,8 @@ static void RB_BlendLight( const drawSurf_t* drawSurfs, const drawSurf_t* drawSu
 		lightColor[3] = regs[ stage->color.registers[3] ];
 		GL_Color( lightColor );
 		
-		RB_T_BlendLight( drawSurfs, vLight );
-		RB_T_BlendLight( drawSurfs2, vLight );
+		T_BlendLight( drawSurfs, vLight );
+		T_BlendLight( drawSurfs2, vLight );
 	}
 	
 	GL_SelectTexture( 1 );
@@ -4056,12 +4201,12 @@ FOG LIGHTS
 
 /*
 =====================
-RB_T_BasicFog
+idRenderBackend::T_BasicFog
 =====================
 */
-static void RB_T_BasicFog( const drawSurf_t* drawSurfs, const idPlane fogPlanes[4], const idRenderMatrix* inverseBaseLightProject )
+void idRenderBackend::T_BasicFog( const drawSurf_t* drawSurfs, const idPlane fogPlanes[4], const idRenderMatrix* inverseBaseLightProject )
 {
-	backEnd.currentSpace = NULL;
+	currentSpace = NULL;
 	
 	for( const drawSurf_t* drawSurf = drawSurfs; drawSurf != NULL; drawSurf = drawSurf->nextOnLight )
 	{
@@ -4071,17 +4216,18 @@ static void RB_T_BasicFog( const drawSurf_t* drawSurfs, const idPlane fogPlanes[
 			// temporarily jump over the scissor and draw so the gl error callback doesn't get hit
 		}
 		
-		if( !backEnd.currentScissor.Equals( drawSurf->scissorRect ) && r_useScissor.GetBool() )
+		if( !currentScissor.Equals( drawSurf->scissorRect ) && r_useScissor.GetBool() )
 		{
 			// change the scissor
-			GL_Scissor( backEnd.viewDef->viewport.x1 + drawSurf->scissorRect.x1,
-						backEnd.viewDef->viewport.y1 + drawSurf->scissorRect.y1,
+			GL_Scissor( viewDef->viewport.x1 + drawSurf->scissorRect.x1,
+						viewDef->viewport.y1 + drawSurf->scissorRect.y1,
 						drawSurf->scissorRect.x2 + 1 - drawSurf->scissorRect.x1,
 						drawSurf->scissorRect.y2 + 1 - drawSurf->scissorRect.y1 );
-			backEnd.currentScissor = drawSurf->scissorRect;
+						
+			currentScissor = drawSurf->scissorRect;
 		}
 		
-		if( drawSurf->space != backEnd.currentSpace )
+		if( drawSurf->space != currentSpace )
 		{
 			idPlane localFogPlanes[4];
 			if( inverseBaseLightProject == NULL )
@@ -4095,7 +4241,7 @@ static void RB_T_BasicFog( const drawSurf_t* drawSurfs, const idPlane fogPlanes[
 			else
 			{
 				idRenderMatrix invProjectMVPMatrix;
-				idRenderMatrix::Multiply( backEnd.viewDef->worldSpace.mvp, *inverseBaseLightProject, invProjectMVPMatrix );
+				idRenderMatrix::Multiply( viewDef->worldSpace.mvp, *inverseBaseLightProject, invProjectMVPMatrix );
 				RB_SetMVP( invProjectMVPMatrix );
 				for( int i = 0; i < 4; i++ )
 				{
@@ -4108,7 +4254,7 @@ static void RB_T_BasicFog( const drawSurf_t* drawSurfs, const idPlane fogPlanes[
 			SetVertexParm( RENDERPARM_TEXGEN_1_T, localFogPlanes[2].ToFloatPtr() );
 			SetVertexParm( RENDERPARM_TEXGEN_1_S, localFogPlanes[3].ToFloatPtr() );
 			
-			backEnd.currentSpace = ( inverseBaseLightProject == NULL ) ? drawSurf->space : NULL;
+			currentSpace = ( inverseBaseLightProject == NULL ) ? drawSurf->space : NULL;
 		}
 		
 		if( drawSurf->jointCache )
@@ -4120,16 +4266,16 @@ static void RB_T_BasicFog( const drawSurf_t* drawSurfs, const idPlane fogPlanes[
 			renderProgManager.BindShader_Fog();
 		}
 		
-		RB_DrawElementsWithCounters( drawSurf );
+		DrawElementsWithCounters( drawSurf );
 	}
 }
 
 /*
 ==================
-RB_FogPass
+idRenderBackend::FogPass
 ==================
 */
-static void RB_FogPass( const drawSurf_t* drawSurfs,  const drawSurf_t* drawSurfs2, const viewLight_t* vLight )
+void idRenderBackend::FogPass( const drawSurf_t* drawSurfs,  const drawSurf_t* drawSurfs2, const viewLight_t* vLight )
 {
 	renderLog.OpenBlock( vLight->lightShader->GetName() );
 	
@@ -4170,17 +4316,17 @@ static void RB_FogPass( const drawSurf_t* drawSurfs,  const drawSurf_t* drawSurf
 	globalImages->fogEnterImage->Bind();
 	
 	// S is based on the view origin
-	const float s = vLight->fogPlane.Distance( backEnd.viewDef->renderView.vieworg );
+	const float s = vLight->fogPlane.Distance( viewDef->renderView.vieworg );
 	
 	const float FOG_SCALE = 0.001f;
 	
 	idPlane fogPlanes[4];
 	
 	// S-0
-	fogPlanes[0][0] = a * backEnd.viewDef->worldSpace.modelViewMatrix[0 * 4 + 2];
-	fogPlanes[0][1] = a * backEnd.viewDef->worldSpace.modelViewMatrix[1 * 4 + 2];
-	fogPlanes[0][2] = a * backEnd.viewDef->worldSpace.modelViewMatrix[2 * 4 + 2];
-	fogPlanes[0][3] = a * backEnd.viewDef->worldSpace.modelViewMatrix[3 * 4 + 2] + 0.5f;
+	fogPlanes[0][0] = a * viewDef->worldSpace.modelViewMatrix[0 * 4 + 2];
+	fogPlanes[0][1] = a * viewDef->worldSpace.modelViewMatrix[1 * 4 + 2];
+	fogPlanes[0][2] = a * viewDef->worldSpace.modelViewMatrix[2 * 4 + 2];
+	fogPlanes[0][3] = a * viewDef->worldSpace.modelViewMatrix[3 * 4 + 2] + 0.5f;
 	
 	// T-0
 	fogPlanes[1][0] = 0.0f;//a * backEnd.viewDef->worldSpace.modelViewMatrix[0*4+0];
@@ -4210,9 +4356,9 @@ static void RB_FogPass( const drawSurf_t* drawSurfs,  const drawSurf_t* drawSurf
 	GL_State( GLS_DEPTHMASK | GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA | GLS_DEPTHFUNC_LESS );
 	GL_Cull( CT_BACK_SIDED );
 	
-	backEnd.zeroOneCubeSurface.space = &backEnd.viewDef->worldSpace;
-	backEnd.zeroOneCubeSurface.scissorRect = backEnd.viewDef->scissor;
-	RB_T_BasicFog( &backEnd.zeroOneCubeSurface, fogPlanes, &vLight->inverseBaseLightProject );
+	zeroOneCubeSurface.space = &viewDef->worldSpace;
+	zeroOneCubeSurface.scissorRect = viewDef->scissor;
+	T_BasicFog( &zeroOneCubeSurface, fogPlanes, &vLight->inverseBaseLightProject );
 	
 	GL_Cull( CT_FRONT_SIDED );
 	
@@ -4228,13 +4374,13 @@ static void RB_FogPass( const drawSurf_t* drawSurfs,  const drawSurf_t* drawSurf
 
 /*
 ==================
-RB_FogAllLights
+idRenderBackend::FogAllLights
 ==================
 */
-static void RB_FogAllLights()
+void idRenderBackend::FogAllLights()
 {
 	if( r_skipFogLights.GetBool() || r_showOverDraw.GetInteger() != 0
-			|| backEnd.viewDef->isXraySubview /* don't fog in xray mode*/ )
+			|| viewDef->isXraySubview /* don't fog in xray mode*/ )
 	{
 		return;
 	}
@@ -4242,17 +4388,17 @@ static void RB_FogAllLights()
 	renderLog.OpenBlock( "RB_FogAllLights" );
 	
 	// force fog plane to recalculate
-	backEnd.currentSpace = NULL;
+	currentSpace = NULL;
 	
-	for( viewLight_t* vLight = backEnd.viewDef->viewLights; vLight != NULL; vLight = vLight->next )
+	for( viewLight_t* vLight = viewDef->viewLights; vLight != NULL; vLight = vLight->next )
 	{
 		if( vLight->lightShader->IsFogLight() )
 		{
-			RB_FogPass( vLight->globalInteractions, vLight->localInteractions, vLight );
+			FogPass( vLight->globalInteractions, vLight->localInteractions, vLight );
 		}
 		else if( vLight->lightShader->IsBlendLight() )
 		{
-			RB_BlendLight( vLight->globalInteractions, vLight->localInteractions, vLight );
+			BlendLight( vLight->globalInteractions, vLight->localInteractions, vLight );
 		}
 	}
 	
@@ -4261,7 +4407,7 @@ static void RB_FogAllLights()
 }
 
 // RB begin
-static void RB_CalculateAdaptation()
+void idRenderBackend::CalculateAutomaticExposure()
 {
 	int				i;
 	static float	image[64 * 64 * 4];
@@ -4280,9 +4426,9 @@ static void RB_CalculateAdaptation()
 	{
 		// no dynamic exposure
 		
-		backEnd.hdrKey = r_hdrKey.GetFloat();
-		backEnd.hdrAverageLuminance = r_hdrMinLuminance.GetFloat();
-		backEnd.hdrMaxLuminance = 1;
+		hdrKey = r_hdrKey.GetFloat();
+		hdrAverageLuminance = r_hdrMinLuminance.GetFloat();
+		hdrMaxLuminance = 1;
 	}
 	else
 	{
@@ -4327,37 +4473,37 @@ static void RB_CalculateAdaptation()
 		// adapted luminance and current luminance by 2% every frame, based on a
 		// 30 fps rate. This is not an accurate model of human adaptation, which can
 		// take longer than half an hour.
-		if( backEnd.hdrTime > curTime )
+		if( hdrTime > curTime )
 		{
-			backEnd.hdrTime = curTime;
+			hdrTime = curTime;
 		}
 		
-		deltaTime = curTime - backEnd.hdrTime;
+		deltaTime = curTime - hdrTime;
 		
 		//if(r_hdrMaxLuminance->value)
 		{
-			backEnd.hdrAverageLuminance = idMath::ClampFloat( r_hdrMinLuminance.GetFloat(), r_hdrMaxLuminance.GetFloat(), backEnd.hdrAverageLuminance );
+			hdrAverageLuminance = idMath::ClampFloat( r_hdrMinLuminance.GetFloat(), r_hdrMaxLuminance.GetFloat(), backEnd.hdrAverageLuminance );
 			avgLuminance = idMath::ClampFloat( r_hdrMinLuminance.GetFloat(), r_hdrMaxLuminance.GetFloat(), avgLuminance );
 			
-			backEnd.hdrMaxLuminance = idMath::ClampFloat( r_hdrMinLuminance.GetFloat(), r_hdrMaxLuminance.GetFloat(), backEnd.hdrMaxLuminance );
+			hdrMaxLuminance = idMath::ClampFloat( r_hdrMinLuminance.GetFloat(), r_hdrMaxLuminance.GetFloat(), backEnd.hdrMaxLuminance );
 			maxLuminance = idMath::ClampFloat( r_hdrMinLuminance.GetFloat(), r_hdrMaxLuminance.GetFloat(), maxLuminance );
 		}
 		
-		newAdaptation = backEnd.hdrAverageLuminance + ( avgLuminance - backEnd.hdrAverageLuminance ) * ( 1.0f - powf( 0.98f, 30.0f * deltaTime ) );
-		newMaximum = backEnd.hdrMaxLuminance + ( maxLuminance - backEnd.hdrMaxLuminance ) * ( 1.0f - powf( 0.98f, 30.0f * deltaTime ) );
+		newAdaptation = hdrAverageLuminance + ( avgLuminance - hdrAverageLuminance ) * ( 1.0f - powf( 0.98f, 30.0f * deltaTime ) );
+		newMaximum = hdrMaxLuminance + ( maxLuminance - hdrMaxLuminance ) * ( 1.0f - powf( 0.98f, 30.0f * deltaTime ) );
 		
 		if( !IsNAN( newAdaptation ) && !IsNAN( newMaximum ) )
 		{
 #if 1
-			backEnd.hdrAverageLuminance = newAdaptation;
-			backEnd.hdrMaxLuminance = newMaximum;
+			hdrAverageLuminance = newAdaptation;
+			hdrMaxLuminance = newMaximum;
 #else
-			backEnd.hdrAverageLuminance = avgLuminance;
-			backEnd.hdrMaxLuminance = maxLuminance;
+			hdrAverageLuminance = avgLuminance;
+			hdrMaxLuminance = maxLuminance;
 #endif
 		}
 		
-		backEnd.hdrTime = curTime;
+		hdrTime = curTime;
 		
 		// calculate HDR image key
 #if 0
@@ -4365,27 +4511,27 @@ static void RB_CalculateAdaptation()
 		if( r_hdrAutoExposure.GetBool() )
 		{
 			// calculation from: Perceptual Effects in Real-time Tone Mapping - Krawczyk et al.
-			backEnd.hdrKey = 1.03 - ( 2.0 / ( 2.0 + ( backEnd.hdrAverageLuminance + 1.0f ) ) );
+			hdrKey = 1.03 - ( 2.0 / ( 2.0 + ( hdrAverageLuminance + 1.0f ) ) );
 		}
 		else
 #endif
 		{
-			backEnd.hdrKey = r_hdrKey.GetFloat();
+			hdrKey = r_hdrKey.GetFloat();
 		}
 	}
 	
 	if( r_hdrDebug.GetBool() )
 	{
-		idLib::Printf( "HDR luminance avg = %f, max = %f, key = %f\n", backEnd.hdrAverageLuminance, backEnd.hdrMaxLuminance, backEnd.hdrKey );
+		idLib::Printf( "HDR luminance avg = %f, max = %f, key = %f\n", hdrAverageLuminance, hdrMaxLuminance, hdrKey );
 	}
 	
 	//GL_CheckErrors();
 }
 
 
-static void RB_Tonemap( const viewDef_t* viewDef )
+void idRenderBackend::Tonemap( const viewDef_t* _viewDef )
 {
-	RENDERLOG_PRINTF( "---------- RB_Tonemap( avg = %f, max = %f, key = %f, is2Dgui = %i ) ----------\n", backEnd.hdrAverageLuminance, backEnd.hdrMaxLuminance, backEnd.hdrKey, ( int )viewDef->is2Dgui );
+	RENDERLOG_PRINTF( "---------- RB_Tonemap( avg = %f, max = %f, key = %f, is2Dgui = %i ) ----------\n", hdrAverageLuminance, hdrMaxLuminance, hdrKey, ( int )viewDef->is2Dgui );
 	
 	//postProcessCommand_t* cmd = ( postProcessCommand_t* )data;
 	//const idScreenRect& viewport = cmd->viewDef->viewport;
@@ -4429,7 +4575,7 @@ static void RB_Tonemap( const viewDef_t* viewDef )
 	}
 	
 	float screenCorrectionParm[4];
-	if( viewDef->is2Dgui )
+	if( _viewDef->is2Dgui )
 	{
 		screenCorrectionParm[0] = 2.0f;
 		screenCorrectionParm[1] = 1.0f;
@@ -4441,9 +4587,9 @@ static void RB_Tonemap( const viewDef_t* viewDef )
 		{
 			float exposureOffset = Lerp( -0.01f, 0.02f, idMath::ClampFloat( 0.0, 1.0, r_exposure.GetFloat() ) );
 			
-			screenCorrectionParm[0] = backEnd.hdrKey + exposureOffset;
-			screenCorrectionParm[1] = backEnd.hdrAverageLuminance;
-			screenCorrectionParm[2] = backEnd.hdrMaxLuminance;
+			screenCorrectionParm[0] = hdrKey + exposureOffset;
+			screenCorrectionParm[1] = hdrAverageLuminance;
+			screenCorrectionParm[2] = hdrMaxLuminance;
 			screenCorrectionParm[3] = exposureOffset;
 			//screenCorrectionParm[3] = Lerp( -1, 5, idMath::ClampFloat( 0.0, 1.0, r_exposure.GetFloat() ) );
 		}
@@ -4467,7 +4613,7 @@ static void RB_Tonemap( const viewDef_t* viewDef )
 	SetFragmentParm( RENDERPARM_SCREENCORRECTIONFACTOR, screenCorrectionParm ); // rpScreenCorrectionFactor
 	
 	// Draw
-	RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
+	DrawElementsWithCounters( &unitSquareSurface );
 	
 	// unbind heatmap
 	globalImages->BindNull();
@@ -4483,14 +4629,14 @@ static void RB_Tonemap( const viewDef_t* viewDef )
 }
 
 
-static void RB_Bloom( const viewDef_t* viewDef )
+void idRenderBackend::Bloom( const viewDef_t* _viewDef )
 {
-	if( viewDef->is2Dgui || !r_useHDR.GetBool() )
+	if( _viewDef->is2Dgui || !r_useHDR.GetBool() )
 	{
 		return;
 	}
 	
-	RENDERLOG_PRINTF( "---------- RB_Bloom( avg = %f, max = %f, key = %f ) ----------\n", backEnd.hdrAverageLuminance, backEnd.hdrMaxLuminance, backEnd.hdrKey );
+	RENDERLOG_PRINTF( "---------- RB_Bloom( avg = %f, max = %f, key = %f ) ----------\n", hdrAverageLuminance, hdrMaxLuminance, hdrKey );
 	
 	// BRIGHTPASS
 	
@@ -4524,10 +4670,10 @@ static void RB_Bloom( const viewDef_t* viewDef )
 	}
 	else
 	{
-		int x = backEnd.viewDef->viewport.x1;
-		int y = backEnd.viewDef->viewport.y1;
-		int	w = backEnd.viewDef->viewport.x2 - backEnd.viewDef->viewport.x1 + 1;
-		int	h = backEnd.viewDef->viewport.y2 - backEnd.viewDef->viewport.y1 + 1;
+		int x = viewDef->viewport.x1;
+		int y = viewDef->viewport.y1;
+		int	w = viewDef->viewport.x2 - viewDef->viewport.x1 + 1;
+		int	h = viewDef->viewport.y2 - viewDef->viewport.y1 + 1;
 		
 		RENDERLOG_PRINTF( "Resolve to %i x %i buffer\n", w, h );
 		
@@ -4538,9 +4684,9 @@ static void RB_Bloom( const viewDef_t* viewDef )
 	}
 	
 	float screenCorrectionParm[4];
-	screenCorrectionParm[0] = backEnd.hdrKey;
-	screenCorrectionParm[1] = backEnd.hdrAverageLuminance;
-	screenCorrectionParm[2] = backEnd.hdrMaxLuminance;
+	screenCorrectionParm[0] = hdrKey;
+	screenCorrectionParm[1] = hdrAverageLuminance;
+	screenCorrectionParm[2] = hdrMaxLuminance;
 	screenCorrectionParm[3] = 1.0f;
 	SetFragmentParm( RENDERPARM_SCREENCORRECTIONFACTOR, screenCorrectionParm ); // rpScreenCorrectionFactor
 	
@@ -4569,7 +4715,7 @@ static void RB_Bloom( const viewDef_t* viewDef )
 	SetFragmentParm( RENDERPARM_OVERBRIGHT, overbright ); // rpOverbright
 	
 	// Draw
-	RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
+	DrawElementsWithCounters( &unitSquareSurface );
 	
 	
 	// BLOOM PING PONG rendering
@@ -4583,13 +4729,13 @@ static void RB_Bloom( const viewDef_t* viewDef )
 		
 		globalImages->bloomRenderImage[j % 2]->Bind();
 		
-		RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
+		DrawElementsWithCounters( &unitSquareSurface );
 	}
 	
 	// add filtered glare back to main context
 	Framebuffer::Unbind();
 	
-	RB_ResetViewportAndScissorToDefaultCamera( viewDef );
+	ResetViewportAndScissorToDefaultCamera( _viewDef );
 	
 	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
 	
@@ -4597,7 +4743,7 @@ static void RB_Bloom( const viewDef_t* viewDef )
 	
 	globalImages->bloomRenderImage[( j + 1 ) % 2]->Bind();
 	
-	RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
+	DrawElementsWithCounters( &unitSquareSurface );
 	
 	globalImages->BindNull();
 	
@@ -4609,9 +4755,9 @@ static void RB_Bloom( const viewDef_t* viewDef )
 }
 
 
-static void RB_SSAO( const viewDef_t* viewDef )
+void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef )
 {
-	if( !viewDef->viewEntitys || viewDef->is2Dgui )
+	if( !_viewDef->viewEntitys || _viewDef->is2Dgui )
 	{
 		// 3D views only
 		return;
@@ -4623,7 +4769,7 @@ static void RB_SSAO( const viewDef_t* viewDef )
 	}
 	
 	// FIXME very expensive to enable this in subviews
-	if( viewDef->isSubview )
+	if( _viewDef->isSubview )
 	{
 		return;
 	}
@@ -4705,8 +4851,8 @@ static void RB_SSAO( const viewDef_t* viewDef )
 	RB_SetMVP( motionMatrix );
 #endif
 	
-	backEnd.currentSpace = &backEnd.viewDef->worldSpace;
-	RB_SetMVP( backEnd.viewDef->worldSpace.mvp );
+	currentSpace = &viewDef->worldSpace;
+	RB_SetMVP( viewDef->worldSpace.mvp );
 	
 	const bool hdrIsActive = ( r_useHDR.GetBool() && globalFramebuffers.hdrFBO != NULL && globalFramebuffers.hdrFBO->IsBound() );
 	
@@ -4764,7 +4910,7 @@ static void RB_SSAO( const viewDef_t* viewDef )
 			SetFragmentParm( RENDERPARM_SCREENCORRECTIONFACTOR, screenCorrectionParm ); // rpScreenCorrectionFactor
 #endif
 			
-			RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
+			DrawElementsWithCounters( &unitSquareSurface );
 		}
 	}
 	
@@ -4854,7 +5000,7 @@ static void RB_SSAO( const viewDef_t* viewDef )
 		globalImages->currentDepthImage->Bind();
 	}
 	
-	RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
+	DrawElementsWithCounters( &unitSquareSurface );
 	
 	if( r_ssaoFiltering.GetBool() )
 	{
@@ -4876,7 +5022,7 @@ static void RB_SSAO( const viewDef_t* viewDef )
 		GL_SelectTexture( 2 );
 		globalImages->ambientOcclusionImage[0]->Bind();
 		
-		RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
+		DrawElementsWithCounters( &unitSquareSurface );
 #endif
 		
 		// AO blur Y
@@ -4906,7 +5052,7 @@ static void RB_SSAO( const viewDef_t* viewDef )
 		GL_SelectTexture( 2 );
 		globalImages->ambientOcclusionImage[1]->Bind();
 		
-		RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
+		DrawElementsWithCounters( &unitSquareSurface );
 	}
 	
 	renderProgManager.Unbind();
@@ -4917,9 +5063,9 @@ static void RB_SSAO( const viewDef_t* viewDef )
 	//GL_CheckErrors();
 }
 
-static void RB_SSGI( const viewDef_t* viewDef )
+void idRenderBackend::DrawScreenSpaceGlobalIllumination( const viewDef_t* _viewDef )
 {
-	if( !viewDef->viewEntitys || viewDef->is2Dgui )
+	if( !_viewDef->viewEntitys || _viewDef->is2Dgui )
 	{
 		// 3D views only
 		return;
@@ -4931,15 +5077,15 @@ static void RB_SSGI( const viewDef_t* viewDef )
 	}
 	
 	// FIXME very expensive to enable this in subviews
-	if( viewDef->isSubview )
+	if( _viewDef->isSubview )
 	{
 		return;
 	}
 	
 	RENDERLOG_PRINTF( "---------- RB_SSGI() ----------\n" );
 	
-	backEnd.currentSpace = &backEnd.viewDef->worldSpace;
-	RB_SetMVP( backEnd.viewDef->worldSpace.mvp );
+	currentSpace = &viewDef->worldSpace;
+	RB_SetMVP( viewDef->worldSpace.mvp );
 	
 	const bool hdrIsActive = ( r_useHDR.GetBool() && globalFramebuffers.hdrFBO != NULL && globalFramebuffers.hdrFBO->IsBound() );
 	
@@ -5007,7 +5153,7 @@ static void RB_SSGI( const viewDef_t* viewDef )
 			SetFragmentParm( RENDERPARM_SCREENCORRECTIONFACTOR, screenCorrectionParm ); // rpScreenCorrectionFactor
 #endif
 			
-			RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
+			DrawElementsWithCounters( &unitSquareSurface );
 		}
 	}
 	
@@ -5114,7 +5260,7 @@ static void RB_SSGI( const viewDef_t* viewDef )
 		globalImages->currentRenderImage->Bind();
 	}
 	
-	RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
+	DrawElementsWithCounters( &unitSquareSurface );
 	
 	if( r_ssgiFiltering.GetBool() )
 	{
@@ -5136,7 +5282,7 @@ static void RB_SSGI( const viewDef_t* viewDef )
 		GL_SelectTexture( 2 );
 		globalImages->ambientOcclusionImage[0]->Bind();
 		
-		RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
+		DrawElementsWithCounters( &unitSquareSurface );
 #endif
 		
 		// AO blur Y
@@ -5172,7 +5318,7 @@ static void RB_SSGI( const viewDef_t* viewDef )
 		GL_SelectTexture( 2 );
 		globalImages->ambientOcclusionImage[1]->Bind();
 		
-		RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
+		DrawElementsWithCounters( &unitSquareSurface );
 	}
 	
 	renderProgManager.Unbind();
@@ -5194,10 +5340,10 @@ BACKEND COMMANDS
 
 /*
 ==================
-RB_DrawViewInternal
+idRenderBackend::DrawViewInternal
 ==================
 */
-void RB_DrawViewInternal( const viewDef_t* viewDef, const int stereoEye )
+void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int stereoEye )
 {
 	renderLog.OpenBlock( "RB_DrawViewInternal" );
 	
@@ -5206,12 +5352,12 @@ void RB_DrawViewInternal( const viewDef_t* viewDef, const int stereoEye )
 	// this used to be in the gui emit code, but now that it can be running
 	// in a separate thread, it must not try to load images, so do it here.
 	//-------------------------------------------------
-	drawSurf_t** drawSurfs = ( drawSurf_t** )&viewDef->drawSurfs[0];
-	const int numDrawSurfs = viewDef->numDrawSurfs;
+	drawSurf_t** drawSurfs = ( drawSurf_t** )&_viewDef->drawSurfs[0];
+	const int numDrawSurfs = _viewDef->numDrawSurfs;
 	
 	for( int i = 0; i < numDrawSurfs; i++ )
 	{
-		const drawSurf_t* ds = viewDef->drawSurfs[ i ];
+		const drawSurf_t* ds = _viewDef->drawSurfs[ i ];
 		if( ds->material != NULL )
 		{
 			const_cast<idMaterial*>( ds->material )->EnsureNotPurged();
@@ -5226,9 +5372,9 @@ void RB_DrawViewInternal( const viewDef_t* viewDef, const int stereoEye )
 	//
 	// clear the z buffer, set the projection matrix, etc
 	//-------------------------------------------------
-	RB_ResetViewportAndScissorToDefaultCamera( viewDef );
+	ResetViewportAndScissorToDefaultCamera( _viewDef );
 	
-	backEnd.glState.faceCulling = -1;		// force face culling to set next time
+	faceCulling = -1;		// force face culling to set next time
 	
 	// ensures that depth writes are enabled for the depth clear
 	GL_State( GLS_DEFAULT );
@@ -5236,7 +5382,7 @@ void RB_DrawViewInternal( const viewDef_t* viewDef, const int stereoEye )
 	//GL_CheckErrors();
 	
 	// RB begin
-	bool useHDR = r_useHDR.GetBool() && !viewDef->is2Dgui;
+	bool useHDR = r_useHDR.GetBool() && !_viewDef->is2Dgui;
 	
 	// Clear the depth buffer and clear the stencil to 128 for stencil shadows as well as gui masking
 	GL_Clear( false, true, true, STENCIL_SHADOW_TEST_VALUE, 0.0f, 0.0f, 0.0f, 0.0f, useHDR );
@@ -5269,9 +5415,9 @@ void RB_DrawViewInternal( const viewDef_t* viewDef, const int stereoEye )
 		// set eye position in global space
 		//
 		float parm[4];
-		parm[0] = backEnd.viewDef->renderView.vieworg[0];
-		parm[1] = backEnd.viewDef->renderView.vieworg[1];
-		parm[2] = backEnd.viewDef->renderView.vieworg[2];
+		parm[0] = viewDef->renderView.vieworg[0];
+		parm[1] = viewDef->renderView.vieworg[1];
+		parm[2] = viewDef->renderView.vieworg[2];
 		parm[3] = 1.0f;
 		
 		SetVertexParm( RENDERPARM_GLOBALEYEPOS, parm ); // rpGlobalEyePos
@@ -5290,46 +5436,46 @@ void RB_DrawViewInternal( const viewDef_t* viewDef, const int stereoEye )
 		
 		// Set Projection Matrix
 		float projMatrixTranspose[16];
-		R_MatrixTranspose( backEnd.viewDef->projectionMatrix, projMatrixTranspose );
+		R_MatrixTranspose( viewDef->projectionMatrix, projMatrixTranspose );
 		SetVertexParms( RENDERPARM_PROJMATRIX_X, projMatrixTranspose, 4 );
 	}
 	
 	//-------------------------------------------------
 	// fill the depth buffer and clear color buffer to black except on subviews
 	//-------------------------------------------------
-	RB_FillDepthBufferFast( drawSurfs, numDrawSurfs );
+	FillDepthBufferFast( drawSurfs, numDrawSurfs );
 	
 	//-------------------------------------------------
 	// FIXME, OPTIMIZE: merge this with FillDepthBufferFast like in a light prepass deferred renderer
 	//
 	// fill the geometric buffer with normals and roughness
 	//-------------------------------------------------
-	RB_AmbientPass( drawSurfs, numDrawSurfs, true );
+	AmbientPass( drawSurfs, numDrawSurfs, true );
 	
 	//-------------------------------------------------
 	// fill the depth buffer and the color buffer with precomputed Q3A style lighting
 	//-------------------------------------------------
-	RB_AmbientPass( drawSurfs, numDrawSurfs, false );
+	AmbientPass( drawSurfs, numDrawSurfs, false );
 	
 	//-------------------------------------------------
 	// main light renderer
 	//-------------------------------------------------
-	RB_DrawInteractions( viewDef );
+	DrawInteractions( _viewDef );
 	
 	//-------------------------------------------------
 	// capture the depth for the motion blur before rendering any post process surfaces that may contribute to the depth
 	//-------------------------------------------------
 	if( ( r_motionBlur.GetInteger() > 0 ||  r_useSSAO.GetBool() || r_useSSGI.GetBool() ) && !r_useHDR.GetBool() )
 	{
-		const idScreenRect& viewport = backEnd.viewDef->viewport;
+		const idScreenRect& viewport = viewDef->viewport;
 		globalImages->currentDepthImage->CopyDepthbuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
 	}
 	
 	//-------------------------------------------------
 	// darken the scene using the screen space ambient occlusion
 	//-------------------------------------------------
-	RB_SSAO( viewDef );
-	//RB_SSGI( viewDef );
+	DrawScreenSpaceAmbientOcclusion( _viewDef );
+	//RB_SSGI( _viewDef );
 	
 	//-------------------------------------------------
 	// now draw any non-light dependent shading passes
@@ -5339,16 +5485,16 @@ void RB_DrawViewInternal( const viewDef_t* viewDef, const int stereoEye )
 	{
 		renderLog.OpenMainBlock( MRB_DRAW_SHADER_PASSES );
 		float guiScreenOffset;
-		if( viewDef->viewEntitys != NULL )
+		if( _viewDef->viewEntitys != NULL )
 		{
 			// guiScreenOffset will be 0 in non-gui views
 			guiScreenOffset = 0.0f;
 		}
 		else
 		{
-			guiScreenOffset = stereoEye * viewDef->renderView.stereoScreenSeparation;
+			guiScreenOffset = stereoEye * _viewDef->renderView.stereoScreenSeparation;
 		}
-		processed = RB_DrawShaderPasses( drawSurfs, numDrawSurfs, guiScreenOffset, stereoEye );
+		processed = DrawShaderPasses( drawSurfs, numDrawSurfs, guiScreenOffset, stereoEye );
 		renderLog.CloseMainBlock();
 	}
 	
@@ -5361,17 +5507,17 @@ void RB_DrawViewInternal( const viewDef_t* viewDef, const int stereoEye )
 	// fog and blend lights, drawn after emissive surfaces
 	// so they are properly dimmed down
 	//-------------------------------------------------
-	RB_FogAllLights();
+	FogAllLights();
 	
 	//-------------------------------------------------
 	// now draw any screen warping post-process effects using _currentRender
 	//-------------------------------------------------
 	if( processed < numDrawSurfs && !r_skipPostProcess.GetBool() )
 	{
-		int x = backEnd.viewDef->viewport.x1;
-		int y = backEnd.viewDef->viewport.y1;
-		int	w = backEnd.viewDef->viewport.x2 - backEnd.viewDef->viewport.x1 + 1;
-		int	h = backEnd.viewDef->viewport.y2 - backEnd.viewDef->viewport.y1 + 1;
+		int x = viewDef->viewport.x1;
+		int y = viewDef->viewport.y1;
+		int	w = viewDef->viewport.x2 - viewDef->viewport.x1 + 1;
+		int	h = viewDef->viewport.y2 - viewDef->viewport.y1 + 1;
 		
 		RENDERLOG_PRINTF( "Resolve to %i x %i buffer\n", w, h );
 		
@@ -5379,7 +5525,7 @@ void RB_DrawViewInternal( const viewDef_t* viewDef, const int stereoEye )
 		
 		// resolve the screen
 		globalImages->currentRenderImage->CopyFramebuffer( x, y, w, h );
-		backEnd.currentRenderCopied = true;
+		currentRenderCopied = true;
 		
 		// RENDERPARM_SCREENCORRECTIONFACTOR amd RENDERPARM_WINDOWCOORD overlap
 		// diffuseScale and specularScale
@@ -5402,7 +5548,7 @@ void RB_DrawViewInternal( const viewDef_t* viewDef, const int stereoEye )
 		
 		// render the remaining surfaces
 		renderLog.OpenMainBlock( MRB_DRAW_SHADER_PASSES_POST );
-		RB_DrawShaderPasses( drawSurfs + processed, numDrawSurfs - processed, 0.0f /* definitely not a gui */, stereoEye );
+		DrawShaderPasses( drawSurfs + processed, numDrawSurfs - processed, 0.0f /* definitely not a gui */, stereoEye );
 		renderLog.CloseMainBlock();
 	}
 	
@@ -5464,12 +5610,12 @@ void RB_DrawViewInternal( const viewDef_t* viewDef, const int stereoEye )
 							   GL_LINEAR );
 		}
 		
-		RB_CalculateAdaptation();
+		CalculateAutomaticExposure();
 		
-		RB_Tonemap( viewDef );
+		Tonemap( _viewDef );
 	}
 	
-	RB_Bloom( viewDef );
+	Bloom( _viewDef );
 	// RB end
 	
 	renderLog.CloseBlock();
@@ -5482,9 +5628,9 @@ RB_MotionBlur
 Experimental feature
 ==================
 */
-void RB_MotionBlur()
+void idRenderBackend::MotionBlur()
 {
-	if( !backEnd.viewDef->viewEntitys )
+	if( !viewDef->viewEntitys )
 	{
 		// 3D views only
 		return;
@@ -5493,7 +5639,7 @@ void RB_MotionBlur()
 	{
 		return;
 	}
-	if( backEnd.viewDef->isSubview )
+	if( viewDef->isSubview )
 	{
 		return;
 	}
@@ -5508,10 +5654,10 @@ void RB_MotionBlur()
 	GL_Color( 0, 0, 0, 0 );
 	GL_SelectTexture( 0 );
 	globalImages->blackImage->Bind();
-	backEnd.currentSpace = NULL;
+	currentSpace = NULL;
 	
-	drawSurf_t** drawSurfs = ( drawSurf_t** )&backEnd.viewDef->drawSurfs[0];
-	for( int surfNum = 0; surfNum < backEnd.viewDef->numDrawSurfs; surfNum++ )
+	drawSurf_t** drawSurfs = ( drawSurf_t** )&viewDef->drawSurfs[0];
+	for( int surfNum = 0; surfNum < viewDef->numDrawSurfs; surfNum++ )
 	{
 		const drawSurf_t* surf = drawSurfs[ surfNum ];
 		
@@ -5529,10 +5675,10 @@ void RB_MotionBlur()
 		}
 		
 		// set mvp matrix
-		if( surf->space != backEnd.currentSpace )
+		if( surf->space != currentSpace )
 		{
 			RB_SetMVP( surf->space->mvp );
-			backEnd.currentSpace = surf->space;
+			currentSpace = surf->space;
 		}
 		
 		// this could just be a color, but we don't have a skinned color-only prog
@@ -5546,26 +5692,27 @@ void RB_MotionBlur()
 		}
 		
 		// draw it solid
-		RB_DrawElementsWithCounters( surf );
+		DrawElementsWithCounters( surf );
 	}
+	
 	GL_State( GLS_DEPTHFUNC_ALWAYS );
 	
 	// copy off the color buffer and the depth buffer for the motion blur prog
 	// we use the viewport dimensions for copying the buffers in case resolution scaling is enabled.
-	const idScreenRect& viewport = backEnd.viewDef->viewport;
+	const idScreenRect& viewport = viewDef->viewport;
 	globalImages->currentRenderImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
 	
 	// in stereo rendering, each eye needs to get a separate previous frame mvp
-	int mvpIndex = ( backEnd.viewDef->renderView.viewEyeBuffer == 1 ) ? 1 : 0;
+	int mvpIndex = ( viewDef->renderView.viewEyeBuffer == 1 ) ? 1 : 0;
 	
 	// derive the matrix to go from current pixels to previous frame pixels
 	idRenderMatrix	inverseMVP;
-	idRenderMatrix::Inverse( backEnd.viewDef->worldSpace.mvp, inverseMVP );
+	idRenderMatrix::Inverse( viewDef->worldSpace.mvp, inverseMVP );
 	
 	idRenderMatrix	motionMatrix;
-	idRenderMatrix::Multiply( backEnd.prevMVP[mvpIndex], inverseMVP, motionMatrix );
+	idRenderMatrix::Multiply( prevMVP[mvpIndex], inverseMVP, motionMatrix );
 	
-	backEnd.prevMVP[mvpIndex] = backEnd.viewDef->worldSpace.mvp;
+	prevMVP[mvpIndex] = viewDef->worldSpace.mvp;
 	
 	RB_SetMVP( motionMatrix );
 	
@@ -5583,38 +5730,38 @@ void RB_MotionBlur()
 	GL_SelectTexture( 1 );
 	globalImages->currentDepthImage->Bind();
 	
-	RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
+	DrawElementsWithCounters( &unitSquareSurface );
 	GL_CheckErrors();
 }
 
 /*
 ==================
-RB_DrawView
+idRenderBackend::DrawView
 
 StereoEye will always be 0 in mono modes, or -1 / 1 in stereo modes.
 If the view is a GUI view that is repeated for both eyes, the viewDef.stereoEye value
 is 0, so the stereoEye parameter is not always the same as that.
 ==================
 */
-void RB_DrawView( const void* data, const int stereoEye )
+void idRenderBackend::DrawView( const void* data, const int stereoEye )
 {
 	const drawSurfsCommand_t* cmd = ( const drawSurfsCommand_t* )data;
 	
-	backEnd.viewDef = cmd->viewDef;
+	viewDef = cmd->viewDef;
 	
 	// we will need to do a new copyTexSubImage of the screen
 	// when a SS_POST_PROCESS material is used
-	backEnd.currentRenderCopied = false;
+	currentRenderCopied = false;
 	
 	// if there aren't any drawsurfs, do nothing
-	if( !backEnd.viewDef->numDrawSurfs )
+	if( !viewDef->numDrawSurfs )
 	{
 		return;
 	}
 	
 	// skip render bypasses everything that has models, assuming
 	// them to be 3D views, but leaves 2D rendering visible
-	if( r_skipRender.GetBool() && backEnd.viewDef->viewEntitys )
+	if( r_skipRender.GetBool() && viewDef->viewEntitys )
 	{
 		return;
 	}
@@ -5630,14 +5777,14 @@ void RB_DrawView( const void* data, const int stereoEye )
 	//}
 	// RB end
 	
-	backEnd.pc.c_surfaces += backEnd.viewDef->numDrawSurfs;
+	pc.c_surfaces += viewDef->numDrawSurfs;
 	
 	RB_ShowOverdraw();
 	
 	// render the scene
-	RB_DrawViewInternal( cmd->viewDef, stereoEye );
+	DrawViewInternal( cmd->viewDef, stereoEye );
 	
-	RB_MotionBlur();
+	MotionBlur();
 	
 	// restore the context for 2D drawing if we were stubbing it out
 	// RB: not really needed
@@ -5651,7 +5798,7 @@ void RB_DrawView( const void* data, const int stereoEye )
 	// optionally draw a box colored based on the eye number
 	if( r_drawEyeColor.GetBool() )
 	{
-		const idScreenRect& r = backEnd.viewDef->viewport;
+		const idScreenRect& r = viewDef->viewport;
 		GL_Scissor( ( r.x1 + r.x2 ) / 2, ( r.y1 + r.y2 ) / 2, 32, 32 );
 		switch( stereoEye )
 		{
@@ -5670,12 +5817,12 @@ void RB_DrawView( const void* data, const int stereoEye )
 
 /*
 ==================
-RB_CopyRender
+idRenderBackend::CopyRender
 
 Copy part of the current framebuffer to an image
 ==================
 */
-void RB_CopyRender( const void* data )
+void idRenderBackend::CopyRender( const void* data )
 {
 	const copyRenderCommand_t* cmd = ( const copyRenderCommand_t* )data;
 	
@@ -5699,14 +5846,13 @@ void RB_CopyRender( const void* data )
 
 /*
 ==================
-RB_PostProcess
+idRenderBackend::PostProcess
 
 ==================
 */
 extern idCVar rs_enable;
-void RB_PostProcess( const void* data )
+void idRenderBackend::PostProcess( const void* data )
 {
-
 	// only do the post process step if resolution scaling is enabled. Prevents the unnecessary copying of the framebuffer and
 	// corresponding full screen quad pass.
 	if( rs_enable.GetInteger() == 0 && !r_useFilmicPostProcessEffects.GetBool() && r_antiAliasing.GetInteger() == 0 )
@@ -5776,7 +5922,7 @@ void RB_PostProcess( const void* data )
 		globalImages->smaaInputImage->Bind();
 		
 		renderProgManager.BindShader_SMAA_EdgeDetection();
-		RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
+		DrawElementsWithCounters( &unitSquareSurface );
 		
 #if 1
 		//globalImages->smaaEdgesImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
@@ -5796,7 +5942,7 @@ void RB_PostProcess( const void* data )
 		globalImages->smaaSearchImage->Bind();
 		
 		renderProgManager.BindShader_SMAA_BlendingWeightCalculation();
-		RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
+		DrawElementsWithCounters( &unitSquareSurface );
 		
 		Framebuffer::Unbind();
 #endif
@@ -5814,7 +5960,7 @@ void RB_PostProcess( const void* data )
 		globalImages->smaaBlendImage->Bind();
 		
 		renderProgManager.BindShader_SMAA_NeighborhoodBlending();
-		RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
+		DrawElementsWithCounters( &unitSquareSurface );
 #endif
 	}
 	
@@ -5857,7 +6003,7 @@ void RB_PostProcess( const void* data )
 		SetFragmentParm( RENDERPARM_JITTERTEXOFFSET, jitterTexOffset ); // rpJitterTexOffset
 		
 		// Draw
-		RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
+		DrawElementsWithCounters( &unitSquareSurface );
 	}
 #endif
 	

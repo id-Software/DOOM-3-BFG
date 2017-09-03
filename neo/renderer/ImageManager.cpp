@@ -742,21 +742,7 @@ void R_CombineCubeImages_f( const idCmdArgs& args )
 	common->SetRefreshOnPrint( false );
 }
 
-/*
-===============
-UnbindAll
-===============
-*/
-void idImageManager::UnbindAll()
-{
-	int oldTMU = backEnd.glState.currenttmu;
-	for( int i = 0; i < MAX_PROG_TEXTURE_PARMS; ++i )
-	{
-		backEnd.glState.currenttmu = i;
-		BindNull();
-	}
-	backEnd.glState.currenttmu = oldTMU;
-}
+
 
 /*
 ===============

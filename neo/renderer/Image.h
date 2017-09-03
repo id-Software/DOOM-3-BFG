@@ -447,7 +447,6 @@ private:
 #endif
 };
 
-
 // data is RGBA
 void	R_WriteTGA( const char* filename, const byte* data, int width, int height, bool flipVertical = false, const char* basePath = "fs_savepath" );
 // data is in top-to-bottom raster order unless flipVertical is set
@@ -497,9 +496,6 @@ public:
 	
 	// reloads all apropriate images after a vid_restart
 	void				ReloadImages( bool all );
-	
-	// unbind all textures from all texture units
-	void				UnbindAll();
 	
 	// disable the active texture unit
 	void				BindNull();
