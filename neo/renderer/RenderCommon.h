@@ -35,7 +35,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "GLState.h"
 #include "ScreenRect.h"
-#include "ImageOpts.h"
 #include "Image.h"
 #include "Font.h"
 #include "Framebuffer.h"

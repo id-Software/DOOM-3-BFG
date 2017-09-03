@@ -46,7 +46,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "win_local.h"
 #include "rc/doom_resource.h"
-#include "../../renderer/tr_local.h"
+#include "../../renderer/RenderCommon.h"
 
 
 

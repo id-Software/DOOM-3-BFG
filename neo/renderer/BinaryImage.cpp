@@ -36,7 +36,7 @@ If you have questions concerning this license or the applicable additional terms
 ================================================================================================
 */
 
-#include "tr_local.h"
+#include "RenderCommon.h"
 #include "DXT/DXTCodec.h"
 #include "Color/ColorSpace.h"
 

@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "precompiled.h"
 
-#include "tr_local.h"
+#include "RenderCommon.h"
 
 const float idGuiModel::STEREO_DEPTH_NEAR = 0.0f;
 const float idGuiModel::STEREO_DEPTH_MID  = 0.5f;

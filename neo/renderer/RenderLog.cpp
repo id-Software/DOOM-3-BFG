@@ -27,7 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 #pragma hdrstop
-#include "tr_local.h"
+#include "RenderCommon.h"
 
 /*
 ================================================================================================

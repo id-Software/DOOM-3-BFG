@@ -31,7 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 
 #include "win_local.h"
-#include "../../renderer/tr_local.h"
+#include "../../renderer/RenderCommon.h"
 
 #include <windowsx.h>
 
