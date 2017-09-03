@@ -391,8 +391,8 @@ static void R_CheckPortableExtensions()
 	
 	// RB: Mesa support
 	if( idStr::Icmpn( glConfig.renderer_string, "Mesa", 4 ) == 0 || idStr::Icmpn( glConfig.renderer_string, "X.org", 5 ) == 0 || idStr::Icmpn( glConfig.renderer_string, "Gallium", 7 ) == 0 ||
-	    strcmp( glConfig.vendor_string, "X.Org" ) == 0 ||
-	    idStr::Icmpn( glConfig.renderer_string, "llvmpipe", 8 ) == 0 )
+			strcmp( glConfig.vendor_string, "X.Org" ) == 0 ||
+			idStr::Icmpn( glConfig.renderer_string, "llvmpipe", 8 ) == 0 )
 	{
 		if( glConfig.driverType == GLDRV_OPENGL32_CORE_PROFILE )
 		{
@@ -2792,9 +2792,9 @@ void idRenderSystemLocal::Init()
 	guiModel = new( TAG_RENDER ) idGuiModel;
 	guiModel->Clear();
 	tr_guiModel = guiModel;	// for DeviceContext fast path
-
+	
 	UpdateStereo3DMode();
-
+	
 	globalImages->Init();
 	
 	// RB begin

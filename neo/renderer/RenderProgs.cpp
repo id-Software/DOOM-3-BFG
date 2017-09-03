@@ -200,10 +200,10 @@ void idRenderProgManager::Init()
 		LoadFragmentShader( i );
 		LoadGLSLProgram( i, i, i );
 	}
-
+	
 	r_useHalfLambertLighting.ClearModified();
 	r_useHDR.ClearModified();
-
+	
 	// special case handling for fastZ shaders
 	/*
 	switch( glConfig.driverType )

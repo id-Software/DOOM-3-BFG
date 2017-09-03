@@ -314,8 +314,8 @@ static void R_CheckCvars()
 				break;
 		}
 	}
-
-	if (r_useHDR.IsModified() || r_useHalfLambertLighting.IsModified() )
+	
+	if( r_useHDR.IsModified() || r_useHalfLambertLighting.IsModified() )
 	{
 		r_useHDR.ClearModified();
 		r_useHalfLambertLighting.ClearModified();

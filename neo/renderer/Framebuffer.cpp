@@ -96,7 +96,7 @@ void Framebuffer::Init()
 	}
 	
 	// HDR
-
+	
 	int screenWidth = renderSystem->GetWidth();
 	int screenHeight = renderSystem->GetHeight();
 	
@@ -207,7 +207,7 @@ void Framebuffer::CheckFramebuffers()
 {
 	int screenWidth = renderSystem->GetWidth();
 	int screenHeight = renderSystem->GetHeight();
-
+	
 	if( globalFramebuffers.hdrFBO->GetWidth() != screenWidth || globalFramebuffers.hdrFBO->GetHeight() != screenHeight )
 	{
 		Unbind();
@@ -224,7 +224,7 @@ void Framebuffer::CheckFramebuffers()
 			globalFramebuffers.hdrNonMSAAFBO->Bind();
 			globalFramebuffers.hdrNonMSAAFBO->AttachImage2D( GL_TEXTURE_2D, globalImages->currentRenderHDRImageNoMSAA, 0 );
 			globalFramebuffers.hdrNonMSAAFBO->Check();
-
+			
 			globalFramebuffers.hdrNonMSAAFBO->width = screenWidth;
 			globalFramebuffers.hdrNonMSAAFBO->height = screenHeight;
 			
