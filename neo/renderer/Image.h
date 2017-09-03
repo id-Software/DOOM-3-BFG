@@ -104,6 +104,15 @@ enum textureFormat_t
 
 int BitsForFormat( textureFormat_t format );
 
+enum textureSamples_t
+{
+	SAMPLE_1	= BIT( 0 ),
+	SAMPLE_2	= BIT( 1 ),
+	SAMPLE_4	= BIT( 2 ),
+	SAMPLE_8	= BIT( 3 ),
+	SAMPLE_16	= BIT( 4 )
+};
+
 /*
 ================================================
 DXT5 color formats
@@ -140,14 +149,12 @@ public:
 	textureType_t		textureType;
 	textureFormat_t		format;
 	textureColor_t		colorFormat;
+	textureSamples_t	samples;
 	int					width;
 	int					height;			// not needed for cube maps
 	int					numLevels;		// if 0, will be 1 for NEAREST / LINEAR filters, otherwise based on size
 	bool				gammaMips;		// if true, mips will be generated with gamma correction
 	bool				readback;		// 360 specific - cpu reads back from this texture, so allocate with cached memory
-	// RB: for MSAA FBO targets
-	int					msaaSamples;
-	// RB end
 };
 
 /*
@@ -159,15 +166,14 @@ ID_INLINE idImageOpts::idImageOpts()
 {
 	format			= FMT_NONE;
 	colorFormat		= CFM_DEFAULT;
+	samples			= SAMPLE_1;
 	width			= 0;
 	height			= 0;
 	numLevels		= 0;
 	textureType		= TT_2D;
 	gammaMips		= false;
 	readback		= false;
-	// RB begin
-	msaaSamples		= 0;
-	// RB end
+	
 };
 
 /*
@@ -242,6 +248,7 @@ class idImage
 	
 public:
 	idImage( const char* name );
+	~idImage();
 	
 	const char* 	GetName() const
 	{
@@ -253,18 +260,6 @@ public:
 	// May perform file loading if the image was not preloaded.
 	void		Bind();
 	
-	// Should be called at least once
-	void		SetSamplerState( textureFilter_t tf, textureRepeat_t tr );
-	
-	// used by callback functions to specify the actual data
-	// data goes from the bottom to the top line of the image, as OpenGL expects it
-	// These perform an implicit Bind() on the current texture unit
-	// FIXME: should we implement cinematics this way, instead of with explicit calls?
-	void		GenerateImage( const byte* pic, int width, int height,
-							   textureFilter_t filter, textureRepeat_t repeat, textureUsage_t usage, int msaaSamples = 0 );
-	void		GenerateCubeImage( const byte* pic[6], int size,
-								   textureFilter_t filter, textureUsage_t usage );
-								   
 	// RB begin
 	void		GenerateShadowArray( int width, int height, textureFilter_t filter, textureRepeat_t repeat, textureUsage_t usage );
 	// RB end
@@ -316,6 +311,27 @@ public:
 	// Platform specific implementations
 	//---------------------------------------------
 	
+	
+#if defined( ID_VULKAN )
+	void		CreateFromSwapImage( VkImage image, VkImageView imageView, VkFormat format, const VkExtent2D& extent );
+	VkImage		GetImage() const
+	{
+		return image;
+	}
+	VkImageView	GetView() const
+	{
+		return view;
+	}
+	VkImageLayout GetLayout() const
+	{
+		return layout;
+	}
+	VkSampler	GetSampler() const
+	{
+		return sampler;
+	}
+#endif
+	
 	void		AllocImage( const idImageOpts& imgOpts, textureFilter_t filter, textureRepeat_t repeat );
 	
 	// Deletes the texture object, but leaves the structure so it can be reloaded
@@ -348,20 +364,37 @@ public:
 		return ( opts.format == FMT_DXT1 || opts.format == FMT_DXT5 );
 	}
 	
-	void		SetTexParameters();	// update aniso and trilinear
+	
 	
 	bool		IsLoaded() const
 	{
 		return texnum != TEXTURE_NOT_LOADED;
 	}
 	
-	static void			GetGeneratedName( idStr& _name, const textureUsage_t& _usage, const cubeFiles_t& _cube );
+	static void	GetGeneratedName( idStr& _name, const textureUsage_t& _usage, const cubeFiles_t& _cube );
+	
+	// used by callback functions to specify the actual data
+	// data goes from the bottom to the top line of the image, as OpenGL expects it
+	// These perform an implicit Bind() on the current texture unit
+	// FIXME: should we implement cinematics this way, instead of with explicit calls?
+	void		GenerateImage( const byte* pic,
+							   int width, int height,
+							   textureFilter_t filter,
+							   textureRepeat_t repeat,
+							   textureUsage_t usage,
+							   int msaaSamples = 0 );
+							   
+	void		GenerateCubeImage( const byte* pic[6], int size,
+								   textureFilter_t filter, textureUsage_t usage );
+								   
+	void		SetTexParameters();	// update aniso and trilinear
 	
 private:
 	friend class idImageManager;
 	
-	void				AllocImage();
-	void				DeriveOpts();
+	void		DeriveOpts();
+	void		AllocImage();
+	void		SetSamplerState( textureFilter_t tf, textureRepeat_t tr );
 	
 	// parameters that define this image
 	idStr				imgName;				// game path, including extension (except for cube maps), may be an image program
@@ -384,35 +417,35 @@ private:
 	
 	static const GLuint TEXTURE_NOT_LOADED = 0xFFFFFFFF;
 	
+#if defined( ID_VULKAN )
+	bool				bIsSwapChainImage;
+	VkFormat			internalFormat;
+	VkImage				image;
+	VkImageView			view;
+	VkImageLayout		layout;
+	VkSampler			sampler;
+	
+#if defined( ID_USE_AMD_ALLOCATOR )
+	VmaAllocation		allocation;
+	static idList< VmaAllocation >		allocationGarbage[ NUM_FRAME_DATA ];
+#else
+	vulkanAllocation_t	allocation;
+	static idList< vulkanAllocation_t > allocationGarbage[ NUM_FRAME_DATA ];
+#endif
+	
+	static int						garbageIndex;
+	static idList< VkImage >		imageGarbage[ NUM_FRAME_DATA ];
+	static idList< VkImageView >	viewGarbage[ NUM_FRAME_DATA ];
+	static idList< VkSampler >		samplerGarbage[ NUM_FRAME_DATA ];
+#else
 	GLuint				texnum;				// gl texture binding
 	
 	// we could derive these in subImageUpload each time if necessary
 	GLuint				internalFormat;
 	GLuint				dataFormat;
 	GLuint				dataType;
-	
-	
+#endif
 };
-
-ID_INLINE idImage::idImage( const char* name ) : imgName( name )
-{
-	texnum = TEXTURE_NOT_LOADED;
-	internalFormat = 0;
-	dataFormat = 0;
-	dataType = 0;
-	generatorFunction = NULL;
-	filter = TF_DEFAULT;
-	repeat = TR_REPEAT;
-	usage = TD_DEFAULT;
-	cubeFiles = CF_2D;
-	
-	referencedOutsideLevelLoad = false;
-	levelLoadReferenced = false;
-	defaulted = false;
-	sourceFileTime = FILE_NOT_FOUND_TIMESTAMP;
-	binaryFileTime = FILE_NOT_FOUND_TIMESTAMP;
-	refCount = 0;
-}
 
 
 // data is RGBA
@@ -489,7 +522,7 @@ public:
 	void				PrintMemInfo( MemInfo_t* mi );
 	
 	// built-in images
-	void CreateIntrinsicImages();
+	void				CreateIntrinsicImages();
 	idImage* 			defaultImage;
 	idImage* 			flatNormalMap;				// 128 128 255 in all pixels
 	idImage* 			alphaNotchImage;			// 2x1 texture with just 1110 and 1111 with point sampling

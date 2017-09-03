@@ -231,7 +231,7 @@ void idImage::GenerateImage( const byte* pic, int width, int height, textureFilt
 	opts.width = width;
 	opts.height = height;
 	opts.numLevels = 0;
-	opts.msaaSamples = msaaSamples;
+	opts.samples = textureSamples_t( msaaSamples );
 	DeriveOpts();
 	
 	// if we don't have a rendering context, just return after we

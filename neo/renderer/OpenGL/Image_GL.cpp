@@ -38,6 +38,41 @@ Contains the Image implementation for OpenGL.
 #include "../RenderCommon.h"
 
 /*
+====================
+idImage::idImage
+====================
+*/
+idImage::idImage( const char* name ) : imgName( name )
+{
+	texnum = TEXTURE_NOT_LOADED;
+	internalFormat = 0;
+	dataFormat = 0;
+	dataType = 0;
+	generatorFunction = NULL;
+	filter = TF_DEFAULT;
+	repeat = TR_REPEAT;
+	usage = TD_DEFAULT;
+	cubeFiles = CF_2D;
+	
+	referencedOutsideLevelLoad = false;
+	levelLoadReferenced = false;
+	defaulted = false;
+	sourceFileTime = FILE_NOT_FOUND_TIMESTAMP;
+	binaryFileTime = FILE_NOT_FOUND_TIMESTAMP;
+	refCount = 0;
+}
+
+/*
+====================
+idImage::~idImage
+====================
+*/
+idImage::~idImage()
+{
+	PurgeImage();
+}
+
+/*
 ========================
 idImage::SubImageUpload
 ========================
@@ -554,7 +589,7 @@ void idImage::AllocImage()
 	}
 	else if( opts.textureType == TT_2D_MULTISAMPLE )
 	{
-		glTexImage2DMultisample( uploadTarget, opts.msaaSamples, internalFormat, opts.width, opts.height, GL_FALSE );
+		glTexImage2DMultisample( uploadTarget, opts.samples, internalFormat, opts.width, opts.height, GL_FALSE );
 	}
 	else
 	{
