@@ -678,7 +678,7 @@ const char* idMultiplayerGame::GameTime()
 		t = s / 10;
 		s -= t * 10;
 		
-		sprintf( buff, "%i:%i%i", m, t, s );
+		idStr::snPrintf( buff, sizeof( buff ), "%i:%i%i", m, t, s );
 	}
 	return &buff[0];
 }

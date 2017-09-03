@@ -198,7 +198,7 @@ void Sys_CPUCount( int& numLogicalCPUCores, int& numPhysicalCPUCores, int& numCP
 		pos = 0;
 		while( pos < len )
 		{
-			if( !idStr::Cmpn( buf + pos, "processor", 9 ) )
+			if( !idStr::Cmpn( buf + pos, "cpu cores", 9 ) )
 			{
 				pos = strchr( buf + pos, ':' ) - buf + 2;
 				end = strchr( buf + pos, '\n' ) - buf;
@@ -210,9 +210,9 @@ void Sys_CPUCount( int& numLogicalCPUCores, int& numPhysicalCPUCores, int& numCP
 					
 					int processor = atoi( number );
 					
-					if( ( processor + 1 ) > s_numPhysicalCPUCores )
+					if( ( processor ) > s_numPhysicalCPUCores )
 					{
-						s_numPhysicalCPUCores = processor + 1;
+						s_numPhysicalCPUCores = processor;
 					}
 				}
 				else
@@ -221,7 +221,7 @@ void Sys_CPUCount( int& numLogicalCPUCores, int& numPhysicalCPUCores, int& numCP
 					break;
 				}
 			}
-			else if( !idStr::Cmpn( buf + pos, "core id", 7 ) )
+			else if( !idStr::Cmpn( buf + pos, "siblings", 8 ) )
 			{
 				pos = strchr( buf + pos, ':' ) - buf + 2;
 				end = strchr( buf + pos, '\n' ) - buf;
@@ -233,9 +233,9 @@ void Sys_CPUCount( int& numLogicalCPUCores, int& numPhysicalCPUCores, int& numCP
 					
 					int coreId = atoi( number );
 					
-					if( ( coreId + 1 ) > s_numLogicalCPUCores )
+					if( ( coreId ) > s_numLogicalCPUCores )
 					{
-						s_numLogicalCPUCores = coreId + 1;
+						s_numLogicalCPUCores = coreId;
 					}
 				}
 				else
