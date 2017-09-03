@@ -3,6 +3,8 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2014-2016 Robert Beckebans
+Copyright (C) 2014-2016 Kot in Action Creative Artel
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -25,13 +27,9 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
-/*
-================================================================================================
-Contains the DxtEncoder implementation.
-================================================================================================
-*/
-
 #pragma hdrstop
+#include "precompiled.h"
+#include "framework/Common_local.h"
 #include "DXTCodec_local.h"
 #include "DXTCodec.h"
 
@@ -45,6 +43,29 @@ Contains the DxtEncoder implementation.
 
 typedef uint16	word;
 typedef uint32	dword;
+
+// macros required by gimp-dds code:
+#ifndef MIN
+# ifdef __GNUC__
+#  define MIN(a, b)  ({typeof(a) _a=(a); typeof(b) _b=(b); _a < _b ? _a : _b;})
+# else
+#  define MIN(a, b)  ((a) < (b) ? (a) : (b))
+# endif
+#endif
+
+#define PUTL16( buf, s ) \
+	( buf )[0] = ( ( s )      ) & 0xff; \
+	( buf )[1] = ( ( s ) >> 8 ) & 0xff;
+
+#define PUTL32( buf, l ) \
+	( buf )[0] = ( ( l )       ) & 0xff; \
+	( buf )[1] = ( ( l ) >>  8 ) & 0xff; \
+	( buf )[2] = ( ( l ) >> 16 ) & 0xff; \
+	( buf )[3] = ( ( l ) >> 24 ) & 0xff;
+
+#define INSET_SHIFT  4
+
+#define BLOCK_OFFSET( x, y, w, bs )  ( ( ( y ) >> 2 ) * ( ( bs ) * ( ( ( w ) + 3 ) >> 2 ) ) + ( ( bs ) * ( ( x ) >> 2 ) ) )
 
 /*
 ========================
@@ -2154,7 +2175,8 @@ void idDxtEncoder::CompressImageDXT1HQ( const byte* inBuf, byte* outBuf, int wid
 	{
 		for( int i = 0; i < width; i += 4 )
 		{
-		
+			commonLocal.LoadPacifierBinarizeProgressIncrement( 16 );
+			
 			ExtractBlock( inBuf + i * 4, width, block );
 			
 			GetMinMaxColorsHQ( block, col1, col2, false );
@@ -2235,7 +2257,8 @@ void idDxtEncoder::CompressImageDXT5HQ( const byte* inBuf, byte* outBuf, int wid
 	{
 		for( int i = 0; i < width; i += 4 )
 		{
-		
+			commonLocal.LoadPacifierBinarizeProgressIncrement( 16 );
+			
 			ExtractBlock( inBuf + i * 4, width, block );
 			
 			GetMinMaxColorsHQ( block, col1, col2, true );
@@ -2334,7 +2357,8 @@ void idDxtEncoder::CompressImageCTX1HQ( const byte* inBuf, byte* outBuf, int wid
 	{
 		for( int i = 0; i < width; i += 4 )
 		{
-		
+			commonLocal.LoadPacifierBinarizeProgressIncrement( 16 );
+			
 			ExtractBlock( inBuf + i * 4, width, block );
 			
 			GetMinMaxCTX1HQ( block, col1, col2 );
@@ -2415,6 +2439,335 @@ void idDxtEncoder::ScaleYCoCg( byte* colorBlock ) const
 
 /*
 ========================
+idDxtEncoder::ExtractBlockGimpDDS
+
+Extract 4x4 BGRA block
+========================
+*/
+void idDxtEncoder::ExtractBlockGimpDDS( const byte* src, int x, int y, int w, int h, byte* block )
+{
+	int i, j;
+	int bw = MIN( w - x, 4 );
+	int bh = MIN( h - y, 4 );
+	int bx, by;
+	const int rem[] =
+	{
+		0, 0, 0, 0,
+		0, 1, 0, 1,
+		0, 1, 2, 0,
+		0, 1, 2, 3
+	};
+	
+	for( i = 0; i < 4; i++ )
+	{
+		by = rem[( bh - 1 ) * 4 + i] + y;
+		for( j = 0; j < 4; j++ )
+		{
+			bx = rem[( bw - 1 ) * 4 + j] + x;
+			block[( i * 4 * 4 ) + ( j * 4 ) + 0] = src[( by * ( w * 4 ) ) + ( bx * 4 ) + 0];
+			block[( i * 4 * 4 ) + ( j * 4 ) + 1] = src[( by * ( w * 4 ) ) + ( bx * 4 ) + 1];
+			block[( i * 4 * 4 ) + ( j * 4 ) + 2] = src[( by * ( w * 4 ) ) + ( bx * 4 ) + 2];
+			block[( i * 4 * 4 ) + ( j * 4 ) + 3] = src[( by * ( w * 4 ) ) + ( bx * 4 ) + 3];
+		}
+	}
+}
+
+/*
+========================
+idDxtEncoder::EncodeAlphaBlockBC3GimpDDS
+
+Write DXT5 alpha block
+========================
+*/
+void idDxtEncoder::EncodeAlphaBlockBC3GimpDDS( byte* dst, const byte* block, const int offset )
+{
+	int i, v, mn, mx;
+	int dist, bias, dist2, dist4, bits, mask;
+	int a, idx, t;
+	
+	block += offset;
+	block += 3;
+	// find min/max alpha pair
+	mn = mx = block[0];
+	for( i = 0; i < 16; i++ )
+	{
+		v = block[4 * i];
+		if( v > mx ) mx = v;
+		if( v < mn ) mn = v;
+	}
+	// encode them
+	*dst++ = mx;
+	*dst++ = mn;
+	// determine bias and emit indices
+	// given the choice of mx/mn, these indices are optimal:
+	// http://fgiesen.wordpress.com/2009/12/15/dxt5-alpha-block-index-determination/
+	dist = mx - mn;
+	dist4 = dist * 4;
+	dist2 = dist * 2;
+	bias = ( dist < 8 ) ? ( dist - 1 ) : ( dist / 2 + 2 );
+	bias -= mn * 7;
+	bits = 0;
+	mask = 0;
+	for( i = 0; i < 16; i++ )
+	{
+		a = block[4 * i] * 7 + bias;
+		// Select index. This is a "linear scale" lerp factor between 0 (val=min) and 7 (val=max).
+		t = ( a >= dist4 ) ? -1 : 0;
+		idx =  t & 4;
+		a -= dist4 & t;
+		t = ( a >= dist2 ) ? -1 : 0;
+		idx += t & 2;
+		a -= dist2 & t;
+		idx += ( a >= dist );
+		// turn linear scale into DXT index (0/1 are extremal pts)
+		idx = -idx & 7;
+		idx ^= ( 2 > idx );
+		// write index
+		mask |= idx << bits;
+		if( ( bits += 3 ) >= 8 )
+		{
+			*dst++ = mask;
+			mask >>= 8;
+			bits -= 8;
+		}
+	}
+}
+
+/*
+========================
+idDxtEncoder::GetMinMaxYCoCgGimpDDS
+========================
+*/
+void idDxtEncoder::GetMinMaxYCoCgGimpDDS( const byte* block, byte* mincolor, byte* maxcolor )
+{
+	int i;
+	
+	mincolor[2] = mincolor[1] = 255;
+	maxcolor[2] = maxcolor[1] = 0;
+	for( i = 0; i < 16; i++ )
+	{
+		if( block[4 * i + 2] < mincolor[2] ) mincolor[2] = block[4 * i + 2];
+		if( block[4 * i + 1] < mincolor[1] ) mincolor[1] = block[4 * i + 1];
+		if( block[4 * i + 2] > maxcolor[2] ) maxcolor[2] = block[4 * i + 2];
+		if( block[4 * i + 1] > maxcolor[1] ) maxcolor[1] = block[4 * i + 1];
+	}
+}
+
+/*
+========================
+idDxtEncoder::ScaleYCoCgGimpDDS
+========================
+*/
+void idDxtEncoder::ScaleYCoCgGimpDDS( byte* block, byte* mincolor, byte* maxcolor )
+{
+	const int s0 = 128 / 2 - 1;
+	const int s1 = 128 / 4 - 1;
+	int m0, m1, m2, m3;
+	int mask0, mask1, scale;
+	int i;
+	
+	m0 = abs( mincolor[2] - 128 );
+	m1 = abs( mincolor[1] - 128 );
+	m2 = abs( maxcolor[2] - 128 );
+	m3 = abs( maxcolor[1] - 128 );
+	if( m1 > m0 ) m0 = m1;
+	if( m3 > m2 ) m2 = m3;
+	if( m2 > m0 ) m0 = m2;
+	
+	mask0 = -( m0 <= s0 );
+	mask1 = -( m0 <= s1 );
+	scale = 1 + ( 1 & mask0 ) + ( 2 & mask1 );
+	
+	mincolor[2] = ( mincolor[2] - 128 ) * scale + 128;
+	mincolor[1] = ( mincolor[1] - 128 ) * scale + 128;
+	mincolor[0] = ( scale - 1 ) << 3;
+	
+	maxcolor[2] = ( maxcolor[2] - 128 ) * scale + 128;
+	maxcolor[1] = ( maxcolor[1] - 128 ) * scale + 128;
+	maxcolor[0] = ( scale - 1 ) << 3;
+	
+	for( i = 0; i < 16; i++ )
+	{
+		block[i * 4 + 2] = ( block[i * 4 + 2] - 128 ) * scale + 128;
+		block[i * 4 + 1] = ( block[i * 4 + 1] - 128 ) * scale + 128;
+	}
+}
+
+/*
+========================
+idDxtEncoder::InsetBBoxYCoCgGimpDDS
+========================
+*/
+void idDxtEncoder::InsetBBoxYCoCgGimpDDS( byte* mincolor, byte* maxcolor )
+{
+	int inset[4], mini[4], maxi[4];
+	
+	inset[2] = ( maxcolor[2] - mincolor[2] ) - ( ( 1 << ( INSET_SHIFT - 1 ) ) - 1 );
+	inset[1] = ( maxcolor[1] - mincolor[1] ) - ( ( 1 << ( INSET_SHIFT - 1 ) ) - 1 );
+	
+	mini[2] = ( ( mincolor[2] << INSET_SHIFT ) + inset[2] ) >> INSET_SHIFT;
+	mini[1] = ( ( mincolor[1] << INSET_SHIFT ) + inset[1] ) >> INSET_SHIFT;
+	
+	maxi[2] = ( ( maxcolor[2] << INSET_SHIFT ) - inset[2] ) >> INSET_SHIFT;
+	maxi[1] = ( ( maxcolor[1] << INSET_SHIFT ) - inset[1] ) >> INSET_SHIFT;
+	
+	mini[2] = ( mini[2] >= 0 ) ? mini[2] : 0;
+	mini[1] = ( mini[1] >= 0 ) ? mini[1] : 0;
+	
+	maxi[2] = ( maxi[2] <= 255 ) ? maxi[2] : 255;
+	maxi[1] = ( maxi[1] <= 255 ) ? maxi[1] : 255;
+	
+	mincolor[2] = ( mini[2] & 0xf8 ) | ( mini[2] >> 5 );
+	mincolor[1] = ( mini[1] & 0xfc ) | ( mini[1] >> 6 );
+	
+	maxcolor[2] = ( maxi[2] & 0xf8 ) | ( maxi[2] >> 5 );
+	maxcolor[1] = ( maxi[1] & 0xfc ) | ( maxi[1] >> 6 );
+}
+
+/*
+========================
+idDxtEncoder::SelectDiagonalYCoCgGimpDDS
+========================
+*/
+void idDxtEncoder::SelectDiagonalYCoCgGimpDDS( const byte* block, byte* mincolor, byte* maxcolor )
+{
+	byte mid0, mid1, side, mask, b0, b1, c0, c1;
+	int i;
+	
+	mid0 = ( ( int )mincolor[2] + maxcolor[2] + 1 ) >> 1;
+	mid1 = ( ( int )mincolor[1] + maxcolor[1] + 1 ) >> 1;
+	
+	side = 0;
+	for( i = 0; i < 16; i++ )
+	{
+		b0 = block[i * 4 + 2] >= mid0;
+		b1 = block[i * 4 + 1] >= mid1;
+		side += ( b0 ^ b1 );
+	}
+	
+	mask = -( side > 8 );
+	mask &= -( mincolor[2] != maxcolor[2] );
+	
+	c0 = mincolor[1];
+	c1 = maxcolor[1];
+	
+	c0 ^= c1;
+	c1 ^= c0 & mask;
+	c0 ^= c1;
+	
+	mincolor[1] = c0;
+	maxcolor[1] = c1;
+}
+
+/*
+========================
+idDxtEncoder::LerpRGB13GimpDDS
+
+Linear interpolation at 1/3 point between a and b
+========================
+*/
+void idDxtEncoder::LerpRGB13GimpDDS( byte* dst, byte* a, byte* b )
+{
+#if 0
+	dst[0] = blerp( a[0], b[0], 0x55 );
+	dst[1] = blerp( a[1], b[1], 0x55 );
+	dst[2] = blerp( a[2], b[2], 0x55 );
+#else
+	// according to the S3TC/DX10 specs, this is the correct way to do the
+	// interpolation (with no rounding bias)
+	//
+	// dst = ( 2 * a + b ) / 3;
+	dst[0] = ( 2 * a[0] + b[0] ) / 3;
+	dst[1] = ( 2 * a[1] + b[1] ) / 3;
+	dst[2] = ( 2 * a[2] + b[2] ) / 3;
+#endif
+}
+
+/*
+========================
+idDxtEncoder::Mul8BitGimpDDS
+========================
+*/
+inline int idDxtEncoder::Mul8BitGimpDDS( int a, int b )
+{
+	int t = a * b + 128;
+	return ( ( t + ( t >> 8 ) ) >> 8 );
+}
+
+/*
+========================
+idDxtEncoder::PackRGB565GimpDDS
+
+Pack BGR8 to RGB565
+========================
+*/
+inline unsigned short idDxtEncoder::PackRGB565GimpDDS( const byte* c )
+{
+	return( ( Mul8BitGimpDDS( c[2], 31 ) << 11 ) |
+			( Mul8BitGimpDDS( c[1], 63 ) <<  5 ) |
+			( Mul8BitGimpDDS( c[0], 31 ) ) );
+}
+
+/*
+========================
+idDxtEncoder::EncodeYCoCgBlockGimpDDS
+========================
+*/
+void idDxtEncoder::EncodeYCoCgBlockGimpDDS( byte* dst, byte* block )
+{
+	byte colors[4][3], *maxcolor, *mincolor;
+	unsigned int mask;
+	int c0, c1, d0, d1, d2, d3;
+	int b0, b1, b2, b3, b4;
+	int x0, x1, x2;
+	int i, idx;
+	
+	maxcolor = &colors[0][0];
+	mincolor = &colors[1][0];
+	
+	GetMinMaxYCoCgGimpDDS( block, mincolor, maxcolor );
+	ScaleYCoCgGimpDDS( block, mincolor, maxcolor );
+	InsetBBoxYCoCgGimpDDS( mincolor, maxcolor );
+	SelectDiagonalYCoCgGimpDDS( block, mincolor, maxcolor );
+	
+	LerpRGB13GimpDDS( &colors[2][0], maxcolor, mincolor );
+	LerpRGB13GimpDDS( &colors[3][0], mincolor, maxcolor );
+	
+	mask = 0;
+	
+	for( i = 0; i < 16; i++ )
+	{
+		c0 = block[4 * i + 2];
+		c1 = block[4 * i + 1];
+		
+		d0 = abs( colors[0][2] - c0 ) + abs( colors[0][1] - c1 );
+		d1 = abs( colors[1][2] - c0 ) + abs( colors[1][1] - c1 );
+		d2 = abs( colors[2][2] - c0 ) + abs( colors[2][1] - c1 );
+		d3 = abs( colors[3][2] - c0 ) + abs( colors[3][1] - c1 );
+		
+		b0 = d0 > d3;
+		b1 = d1 > d2;
+		b2 = d0 > d2;
+		b3 = d1 > d3;
+		b4 = d2 > d3;
+		
+		x0 = b1 & b2;
+		x1 = b0 & b3;
+		x2 = b0 & b4;
+		
+		idx = ( x2 | ( ( x0 | x1 ) << 1 ) );
+		
+		mask |= idx << ( 2 * i );
+	}
+	
+	PUTL16( dst + 0, PackRGB565GimpDDS( maxcolor ) );
+	PUTL16( dst + 2, PackRGB565GimpDDS( mincolor ) );
+	PUTL32( dst + 4, mask );
+}
+
+
+/*
+========================
 idDxtEncoder::CompressYCoCgDXT5HQ
 
 params:	inBuf		- image to compress
@@ -2459,7 +2812,8 @@ void idDxtEncoder::CompressYCoCgDXT5HQ( const byte* inBuf, byte* outBuf, int wid
 	{
 		for( int i = 0; i < width; i += 4 )
 		{
-		
+			commonLocal.LoadPacifierBinarizeProgressIncrement( 16 );
+			
 			ExtractBlock( inBuf + i * 4, width, block );
 			ScaleYCoCg( block );
 			
@@ -2565,7 +2919,8 @@ void idDxtEncoder::CompressYCoCgCTX1DXT5AHQ( const byte* inBuf, byte* outBuf, in
 	{
 		for( int i = 0; i < width; i += 4 )
 		{
-		
+			commonLocal.LoadPacifierBinarizeProgressIncrement( 16 );
+			
 			ExtractBlock( inBuf + i * 4, width, block );
 			
 			GetMinMaxAlphaHQ( block, 3, col1, col2 );
@@ -2713,7 +3068,8 @@ void idDxtEncoder::CompressNormalMapDXT1HQ( const byte* inBuf, byte* outBuf, int
 	{
 		for( int i = 0; i < width; i += 4 )
 		{
-		
+			commonLocal.LoadPacifierBinarizeProgressIncrement( 16 );
+			
 			ExtractBlock( inBuf + i * 4, width, block );
 			
 			for( int k = 0; k < 16; k++ )
@@ -2782,7 +3138,8 @@ void idDxtEncoder::CompressNormalMapDXT1RenormalizeHQ( const byte* inBuf, byte* 
 	{
 		for( int i = 0; i < width; i += 4 )
 		{
-		
+			commonLocal.LoadPacifierBinarizeProgressIncrement( 16 );
+			
 			ExtractBlock( inBuf + i * 4, width, block );
 			
 			// clear alpha channel
@@ -3038,7 +3395,8 @@ void idDxtEncoder::CompressNormalMapDXT5HQ( const byte* inBuf, byte* outBuf, int
 	{
 		for( int i = 0; i < width; i += 4 )
 		{
-		
+			commonLocal.LoadPacifierBinarizeProgressIncrement( 16 );
+			
 			ExtractBlock( inBuf + i * 4, width, block );
 			
 			// swizzle components
@@ -3149,7 +3507,8 @@ void idDxtEncoder::CompressNormalMapDXT5RenormalizeHQ( const byte* inBuf, byte* 
 	{
 		for( int i = 0; i < width; i += 4 )
 		{
-		
+			commonLocal.LoadPacifierBinarizeProgressIncrement( 16 );
+			
 			ExtractBlock( inBuf + i * 4, width, block );
 			
 			// swizzle components
@@ -3186,6 +3545,7 @@ void idDxtEncoder::CompressNormalMapDXT5RenormalizeHQ( const byte* inBuf, byte* 
 		}
 		outData += dstPadding;
 		inBuf += srcPadding;
+		
 	}
 	
 	////idLib::Printf( "\r100%%\n" );
@@ -3234,7 +3594,8 @@ void idDxtEncoder::CompressNormalMapDXN2HQ( const byte* inBuf, byte* outBuf, int
 	{
 		for( int i = 0; i < width; i += 4 )
 		{
-		
+			commonLocal.LoadPacifierBinarizeProgressIncrement( 16 );
+			
 			ExtractBlock( inBuf + i * 4, width, block );
 			
 			for( int k = 0; k < 2; k++ )
@@ -3995,7 +4356,8 @@ void idDxtEncoder::CompressImageDXT1Fast_Generic( const byte* inBuf, byte* outBu
 	{
 		for( int i = 0; i < width; i += 4 )
 		{
-		
+			commonLocal.LoadPacifierBinarizeProgressIncrement( 16 );
+			
 			ExtractBlock( inBuf + i * 4, width, block );
 			
 			GetMinMaxBBox( block, minColor, maxColor );
@@ -4039,7 +4401,8 @@ void idDxtEncoder::CompressImageDXT1AlphaFast_Generic( const byte* inBuf, byte* 
 	{
 		for( int i = 0; i < width; i += 4 )
 		{
-		
+			commonLocal.LoadPacifierBinarizeProgressIncrement( 16 );
+			
 			ExtractBlock( inBuf + i * 4, width, block );
 			
 			GetMinMaxBBox( block, minColor, maxColor );
@@ -4092,7 +4455,8 @@ void idDxtEncoder::CompressImageDXT5Fast_Generic( const byte* inBuf, byte* outBu
 	{
 		for( int i = 0; i < width; i += 4 )
 		{
-		
+			commonLocal.LoadPacifierBinarizeProgressIncrement( 16 );
+			
 			ExtractBlock( inBuf + i * 4, width, block );
 			
 			GetMinMaxBBox( block, minColor, maxColor );
@@ -4415,7 +4779,8 @@ void idDxtEncoder::CompressYCoCgDXT5Fast_Generic( const byte* inBuf, byte* outBu
 	{
 		for( int i = 0; i < width; i += 4 )
 		{
-		
+			commonLocal.LoadPacifierBinarizeProgressIncrement( 16 );
+			
 			ExtractBlock( inBuf + i * 4, width, block );
 			
 			GetMinMaxBBox( block, minColor, maxColor );
@@ -4469,7 +4834,8 @@ void idDxtEncoder::CompressYCoCgAlphaDXT5Fast( const byte* inBuf, byte* outBuf, 
 	{
 		for( int i = 0; i < width; i += 4 )
 		{
-		
+			commonLocal.LoadPacifierBinarizeProgressIncrement( 16 );
+			
 			ExtractBlock( inBuf + i * 4, width, block );
 			
 			// scale down the chroma of texels that are close to gray with low luminance
@@ -4536,7 +4902,8 @@ void idDxtEncoder::CompressYCoCgCTX1DXT5AFast_Generic( const byte* inBuf, byte* 
 	{
 		for( int i = 0; i < width; i += 4 )
 		{
-		
+			commonLocal.LoadPacifierBinarizeProgressIncrement( 16 );
+			
 			ExtractBlock( inBuf + i * 4, width, block );
 			
 			GetMinMaxBBox( block, minColor, maxColor );
@@ -4729,7 +5096,8 @@ void idDxtEncoder::CompressNormalMapDXT5Fast_Generic( const byte* inBuf, byte* o
 	{
 		for( int i = 0; i < width; i += 4 )
 		{
-		
+			commonLocal.LoadPacifierBinarizeProgressIncrement( 16 );
+			
 			ExtractBlock( inBuf + i * 4, width, block );
 			
 			GetMinMaxBBox( block, normal1, normal2 );
@@ -4777,7 +5145,8 @@ void idDxtEncoder::CompressImageDXN1Fast_Generic( const byte* inBuf, byte* outBu
 	{
 		for( int i = 0; i < width; i += 4 )
 		{
-		
+			commonLocal.LoadPacifierBinarizeProgressIncrement( 16 );
+			
 			ExtractBlock( inBuf + i * 4, width, block );
 			
 			GetMinMaxBBox( block, min, max );
@@ -4820,7 +5189,8 @@ void idDxtEncoder::CompressNormalMapDXN2Fast_Generic( const byte* inBuf, byte* o
 	{
 		for( int i = 0; i < width; i += 4 )
 		{
-		
+			commonLocal.LoadPacifierBinarizeProgressIncrement( 16 );
+			
 			ExtractBlock( inBuf + i * 4, width, block );
 			
 			GetMinMaxBBox( block, normal1, normal2 );
@@ -4982,7 +5352,8 @@ void idDxtEncoder::ConvertNormalMapDXN2_DXT5( const byte* inBuf, byte* outBuf, i
 	{
 		for( int i = 0; i < width; i += 4, inBuf += 16, outBuf += 16 )
 		{
-		
+			commonLocal.LoadPacifierBinarizeProgressIncrement( 16 );
+			
 			// decode normal Y stored as a DXT5 alpha channel
 			DecodeDXNAlphaValues( inBuf + 0, values );
 			
@@ -5133,7 +5504,8 @@ void idDxtEncoder::ConvertNormalMapDXT5_DXN2( const byte* inBuf, byte* outBuf, i
 	{
 		for( int i = 0; i < width; i += 4, inBuf += 16, outBuf += 16 )
 		{
-		
+			commonLocal.LoadPacifierBinarizeProgressIncrement( 16 );
+			
 			// decode normal Y stored as a DXT5 alpha channel
 			DecodeNormalYValues( inBuf + 8, minNormalY, maxNormalY, values );
 			
@@ -5184,7 +5556,8 @@ void idDxtEncoder::ConvertImageDXN1_DXT1( const byte* inBuf, byte* outBuf, int w
 	{
 		for( int i = 0; i < width; i += 4, inBuf += 8, outBuf += 8 )
 		{
-		
+			commonLocal.LoadPacifierBinarizeProgressIncrement( 16 );
+			
 			// decode single channel stored as a DXT5 alpha channel
 			DecodeDXNAlphaValues( inBuf + 0, values );
 			

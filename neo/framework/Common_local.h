@@ -3,7 +3,8 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2012 Robert Beckebans
+Copyright (C) 2014-2016 Robert Beckebans
+Copyright (C) 2014-2016 Kot in Action Creative Artel
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -151,7 +152,10 @@ public:
 	// DG: added possibility to *not* release mouse in UpdateScreen(), it fucks up the view angle for screenshots
 	virtual void				UpdateScreen( bool captureToImage, bool releaseMouse = true );
 	// DG end
-	virtual void				UpdateLevelLoadPacifier();
+	virtual void				UpdateLevelLoadPacifier();  // Indefinate
+//	virtual void				UpdateLevelLoadPacifier( int mProgress );
+//	virtual void				UpdateLevelLoadPacifier( bool Secondary );
+//	virtual void				UpdateLevelLoadPacifier( bool updateSecondary, int mProgress );
 	virtual void				StartupVariable( const char* match );
 	virtual void				WriteConfigToFile( const char* filename );
 	virtual void				BeginRedirect( char* buffer, int buffersize, void ( *flush )( const char* ) );
@@ -282,6 +286,12 @@ public:
 public:
 	void	Draw();			// called by gameThread
 	
+	// foresthale 2014-03-01: added WaitGameThread() method
+	void	WaitGameThread()
+	{
+		gameThread.WaitForThread();
+	}
+	
 	int		GetGameThreadTotalTime() const
 	{
 		return gameThread.GetThreadTotalTime();
@@ -310,6 +320,18 @@ public:
 	{
 		return time_gpu;
 	}
+	// foresthale 2014-05-30: a special binarize pacifier has to be shown in
+	// some cases, which includes filename and ETA information, note that
+	// the progress function takes 0-1 float, not 0-100, and can be called
+	// very quickly (it will check that enough time has passed when updating)
+	void LoadPacifierBinarizeFilename( const char* filename, const char* reason );
+	void LoadPacifierBinarizeInfo( const char* info );
+	void LoadPacifierBinarizeMiplevel( int level, int maxLevel );
+	void LoadPacifierBinarizeProgress( float progress );
+	void LoadPacifierBinarizeEnd();
+	// for images in particular we can measure more accurately this way (to deal with mipmaps)
+	void LoadPacifierBinarizeProgressTotal( int total );
+	void LoadPacifierBinarizeProgressIncrement( int step );
 	
 	frameTiming_t		frameTiming;
 	frameTiming_t		mainFrameTiming;
@@ -516,6 +538,18 @@ private:
 	int					lastPacifierSessionTime;
 	int					lastPacifierGuiTime;
 	bool				lastPacifierDialogState;
+	
+	// foresthale 2014-05-30: a special binarize pacifier has to be shown in some cases, which includes filename and ETA information
+	bool				loadPacifierBinarizeActive;
+	int					loadPacifierBinarizeStartTime;
+	float				loadPacifierBinarizeProgress;
+	float				loadPacifierBinarizeTimeLeft;
+	idStr				loadPacifierBinarizeFilename;
+	idStr				loadPacifierBinarizeInfo;
+	int					loadPacifierBinarizeMiplevel;
+	int					loadPacifierBinarizeMiplevelTotal;
+	int					loadPacifierBinarizeProgressTotal;
+	int					loadPacifierBinarizeProgressCurrent;
 	
 	bool				showShellRequested;
 	

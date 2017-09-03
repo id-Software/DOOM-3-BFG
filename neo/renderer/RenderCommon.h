@@ -861,6 +861,8 @@ public:
 		return frameCount;
 	};
 	
+	void					OnFrame();
+	
 public:
 	// renderer globals
 	bool					registered;		// cleared at shutdown, set at InitOpenGL
@@ -1518,6 +1520,7 @@ void RB_ShowDestinationAlpha();
 void RB_ShowOverdraw();
 void RB_RenderDebugTools( drawSurf_t** drawSurfs, int numDrawSurfs );
 void RB_ShutdownDebugTools();
+void RB_SetVertexColorParms( stageVertexColor_t svc );
 
 //=============================================
 

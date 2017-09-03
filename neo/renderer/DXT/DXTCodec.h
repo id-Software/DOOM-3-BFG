@@ -3,7 +3,8 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013 Robert Beckebans
+Copyright (C) 2014-2016 Robert Beckebans
+Copyright (C) 2014-2016 Kot in Action Creative Artel
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -248,6 +249,16 @@ private:
 	int					GetMinMaxNormalsDXT5HQ( const byte* normalBlock, byte* minColor, byte* maxColor, unsigned int& colorIndices, byte* alphaIndices ) const;
 	int					GetMinMaxNormalsDXT5HQFast( const byte* normalBlock, byte* minColor, byte* maxColor, unsigned int& colorIndices, byte* alphaIndices ) const;
 	void				ScaleYCoCg( byte* colorBlock ) const;
+	void				ExtractBlockGimpDDS( const byte* src, int x, int y, int w, int h, byte* block );
+	void				EncodeAlphaBlockBC3GimpDDS( byte* dst, const byte* block, const int offset );
+	void				GetMinMaxYCoCgGimpDDS( const byte* block, byte* mincolor, byte* maxcolor );
+	void				ScaleYCoCgGimpDDS( byte* block, byte* mincolor, byte* maxcolor );
+	void				InsetBBoxYCoCgGimpDDS( byte* mincolor, byte* maxcolor );
+	void				SelectDiagonalYCoCgGimpDDS( const byte* block, byte* mincolor, byte* maxcolor );
+	void				LerpRGB13GimpDDS( byte* dst, byte* a, byte* b );
+	inline int			Mul8BitGimpDDS( int a, int b );
+	inline unsigned short	PackRGB565GimpDDS( const byte* c );
+	void				EncodeYCoCgBlockGimpDDS( byte* dst, byte* block );
 	void				BiasScaleNormalY( byte* colorBlock ) const;
 	void				RotateNormalsDXT1( byte* block ) const;
 	void				RotateNormalsDXT5( byte* block ) const;

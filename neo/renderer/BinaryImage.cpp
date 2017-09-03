@@ -3,6 +3,8 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2014-2016 Robert Beckebans
+Copyright (C) 2014-2016 Kot in Action Creative Artel
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -27,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 #pragma hdrstop
 #include "precompiled.h"
+#include "framework/Common_local.h"
 
 /*
 ================================================================================================
@@ -41,6 +44,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "Color/ColorSpace.h"
 
 idCVar image_highQualityCompression( "image_highQualityCompression", "0", CVAR_BOOL, "Use high quality (slow) compression" );
+idCVar r_useHighQualitySky( "r_useHighQualitySky", "0", CVAR_BOOL | CVAR_ARCHIVE, "Use high quality skyboxes" );
 
 /*
 ========================
@@ -55,6 +59,8 @@ void idBinaryImage::Load2DFromMemory( int width, int height, const byte* pic_con
 	fileData.width = width;
 	fileData.height = height;
 	fileData.numLevels = numLevels;
+	
+	commonLocal.LoadPacifierBinarizeInfo( va( "(%d x %d)", width, height ) );
 	
 	byte* pic = ( byte* )Mem_Alloc( width * height * 4, TAG_TEMP );
 	memcpy( pic, pic_const, width * height * 4 );
@@ -95,6 +101,8 @@ void idBinaryImage::Load2DFromMemory( int width, int height, const byte* pic_con
 	{
 		idBinaryImageData& img = images[ level ];
 		
+		commonLocal.LoadPacifierBinarizeMiplevel( level + 1, numLevels );
+		
 		// Images that are going to be DXT compressed and aren't multiples of 4 need to be
 		// padded out before compressing.
 		byte* dxtPic = pic;
@@ -132,10 +140,14 @@ void idBinaryImage::Load2DFromMemory( int width, int height, const byte* pic_con
 			img.Alloc( dxtWidth * dxtHeight / 2 );
 			if( image_highQualityCompression.GetBool() )
 			{
+				commonLocal.LoadPacifierBinarizeInfo( va( "(%d x %d) - DXT1HQ", width, height ) );
+				
 				dxt.CompressImageDXT1HQ( dxtPic, img.data, dxtWidth, dxtHeight );
 			}
 			else
 			{
+				commonLocal.LoadPacifierBinarizeInfo( va( "(%d x %d) - DXT1Fast", width, height ) );
+				
 				dxt.CompressImageDXT1Fast( dxtPic, img.data, dxtWidth, dxtHeight );
 			}
 		}
@@ -147,10 +159,14 @@ void idBinaryImage::Load2DFromMemory( int width, int height, const byte* pic_con
 			{
 				if( image_highQualityCompression.GetBool() )
 				{
+					commonLocal.LoadPacifierBinarizeInfo( va( "(%d x %d) - NormalMapDXT5HQ", width, height ) );
+					
 					dxt.CompressNormalMapDXT5HQ( dxtPic, img.data, dxtWidth, dxtHeight );
 				}
 				else
 				{
+					commonLocal.LoadPacifierBinarizeInfo( va( "(%d x %d) - NormalMapDXT5Fast", width, height ) );
+					
 					dxt.CompressNormalMapDXT5Fast( dxtPic, img.data, dxtWidth, dxtHeight );
 				}
 			}
@@ -158,10 +174,14 @@ void idBinaryImage::Load2DFromMemory( int width, int height, const byte* pic_con
 			{
 				if( image_highQualityCompression.GetBool() )
 				{
+					commonLocal.LoadPacifierBinarizeInfo( va( "(%d x %d) - YCoCgDXT5HQ", width, height ) );
+					
 					dxt.CompressYCoCgDXT5HQ( dxtPic, img.data, dxtWidth, dxtHeight );
 				}
 				else
 				{
+					commonLocal.LoadPacifierBinarizeInfo( va( "(%d x %d) - YCoCgDXT5Fast", width, height ) );
+					
 					dxt.CompressYCoCgDXT5Fast( dxtPic, img.data, dxtWidth, dxtHeight );
 				}
 			}
@@ -170,10 +190,14 @@ void idBinaryImage::Load2DFromMemory( int width, int height, const byte* pic_con
 				fileData.colorFormat = colorFormat = CFM_DEFAULT;
 				if( image_highQualityCompression.GetBool() )
 				{
+					commonLocal.LoadPacifierBinarizeInfo( va( "(%d x %d) - DXT5HQ", width, height ) );
+					
 					dxt.CompressImageDXT5HQ( dxtPic, img.data, dxtWidth, dxtHeight );
 				}
 				else
 				{
+					commonLocal.LoadPacifierBinarizeInfo( va( "(%d x %d) - DXT5Fast", width, height ) );
+					
 					dxt.CompressImageDXT5Fast( dxtPic, img.data, dxtWidth, dxtHeight );
 				}
 			}
@@ -289,6 +313,8 @@ idBinaryImage::LoadCubeFromMemory
 */
 void idBinaryImage::LoadCubeFromMemory( int width, const byte* pics[6], int numLevels, textureFormat_t& textureFormat, bool gammaMips )
 {
+	commonLocal.LoadPacifierBinarizeInfo( va( "cube (%d)", width ) );
+	
 	fileData.textureType = TT_CUBIC;
 	fileData.format = textureFormat;
 	fileData.colorFormat = CFM_DEFAULT;
@@ -302,10 +328,13 @@ void idBinaryImage::LoadCubeFromMemory( int width, const byte* pics[6], int numL
 		const byte* orig = pics[side];
 		const byte* pic = orig;
 		int	scaledWidth = fileData.width;
+		
 		for( int level = 0; level < fileData.numLevels; level++ )
 		{
 			// compress data or convert floats as necessary
 			idBinaryImageData& img = images[ level * 6 + side ];
+			
+			commonLocal.LoadPacifierBinarizeMiplevel( level, fileData.numLevels );
 			
 			// handle padding blocks less than 4x4 for the DXT compressors
 			ALIGN16( byte padBlock[64] );

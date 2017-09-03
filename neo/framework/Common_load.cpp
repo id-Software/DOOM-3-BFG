@@ -3,6 +3,8 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2014-2016 Robert Beckebans
+Copyright (C) 2014-2016 Kot in Action Creative Artel
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -784,6 +786,84 @@ void idCommonLocal::UpdateLevelLoadPacifier()
 			renderSystem->BeginAutomaticBackgroundSwaps( icon );
 		}
 	}
+}
+
+// foresthale 2014-05-30: loading progress pacifier for binarize operations only
+void idCommonLocal::LoadPacifierBinarizeFilename( const char* filename, const char* reason )
+{
+	idLib::Printf( "Binarize File: '%s' - reason '%s'\n", filename, reason );
+	
+	// we won't actually show updates on very quick files (<16ms), so keep this false until the first progress
+	loadPacifierBinarizeActive = false;
+	loadPacifierBinarizeFilename = filename;
+	loadPacifierBinarizeInfo = "";
+	loadPacifierBinarizeProgress = 0.0f;
+	loadPacifierBinarizeStartTime = Sys_Milliseconds();
+	loadPacifierBinarizeMiplevel = 0;
+	loadPacifierBinarizeMiplevelTotal = 0;
+}
+
+void idCommonLocal::LoadPacifierBinarizeInfo( const char* info )
+{
+	loadPacifierBinarizeInfo = info;
+}
+
+void idCommonLocal::LoadPacifierBinarizeMiplevel( int level, int maxLevel )
+{
+	loadPacifierBinarizeMiplevel = level;
+	loadPacifierBinarizeMiplevelTotal = maxLevel;
+}
+
+// foresthale 2014-05-30: loading progress pacifier for binarize operations only
+void idCommonLocal::LoadPacifierBinarizeProgress( float progress )
+{
+	static int lastUpdateTime = 0;
+	int time = Sys_Milliseconds();
+	if( progress == 0.0f )
+	{
+		// restart the progress, so that if multiple images have to be
+		// binarized for one filename, we don't give bogus estimates...
+		loadPacifierBinarizeStartTime = Sys_Milliseconds();
+	}
+	loadPacifierBinarizeProgress = progress;
+	if( ( time - lastUpdateTime ) >= 16 )
+	{
+		lastUpdateTime = time;
+		loadPacifierBinarizeActive = true;
+		
+		UpdateLevelLoadPacifier();
+		
+		// TODO merge
+		//UpdateLevelLoadPacifier( true, progress );
+	}
+}
+
+// foresthale 2014-05-30: loading progress pacifier for binarize operations only
+void idCommonLocal::LoadPacifierBinarizeEnd()
+{
+	loadPacifierBinarizeActive = false;
+	loadPacifierBinarizeStartTime = 0;
+	loadPacifierBinarizeProgress = 0.0f;
+	loadPacifierBinarizeTimeLeft = 0.0f;
+	loadPacifierBinarizeFilename = "";
+	loadPacifierBinarizeProgressTotal = 0;
+	loadPacifierBinarizeProgressCurrent = 0;
+	loadPacifierBinarizeMiplevel = 0;
+	loadPacifierBinarizeMiplevelTotal = 0;
+}
+
+// foresthale 2014-05-30: loading progress pacifier for binarize operations only
+void idCommonLocal::LoadPacifierBinarizeProgressTotal( int total )
+{
+	loadPacifierBinarizeProgressTotal = total;
+	loadPacifierBinarizeProgressCurrent = 0;
+}
+
+// foresthale 2014-05-30: loading progress pacifier for binarize operations only
+void idCommonLocal::LoadPacifierBinarizeProgressIncrement( int step )
+{
+	loadPacifierBinarizeProgressCurrent += step;
+	LoadPacifierBinarizeProgress( ( float )loadPacifierBinarizeProgressCurrent / loadPacifierBinarizeProgressTotal );
 }
 
 /*
