@@ -1416,7 +1416,6 @@ struct localTrace_t
 };
 
 localTrace_t R_LocalTrace( const idVec3& start, const idVec3& end, const float radius, const srfTriangles_t* tri );
-void RB_ShowTrace( drawSurf_t** drawSurfs, int numDrawSurfs );
 
 
 
@@ -1450,12 +1449,7 @@ void RB_ClearDebugLines( int time );
 void RB_AddDebugPolygon( const idVec4& color, const idWinding& winding, const int lifeTime, const bool depthTest );
 void RB_ClearDebugPolygons( int time );
 void RB_DrawBounds( const idBounds& bounds );
-void RB_ShowLights( drawSurf_t** drawSurfs, int numDrawSurfs );
-void RB_ShowLightCount( drawSurf_t** drawSurfs, int numDrawSurfs );
-void RB_PolygonClear();
-void RB_ScanStencilBuffer();
-void RB_ShowDestinationAlpha();
-void RB_ShowOverdraw();
+
 void RB_RenderDebugTools( drawSurf_t** drawSurfs, int numDrawSurfs );
 void RB_ShutdownDebugTools();
 void RB_SetVertexColorParms( stageVertexColor_t svc );
@@ -1468,7 +1462,6 @@ void RB_SetVertexColorParms( stageVertexColor_t svc );
 #include "jobs/prelightshadowvolume/PreLightShadowVolume.h"
 #include "jobs/staticshadowvolume/StaticShadowVolume.h"
 #include "jobs/dynamicshadowvolume/DynamicShadowVolume.h"
-#include "GraphicsAPIWrapper.h"
 #include "GLMatrix.h"
 
 

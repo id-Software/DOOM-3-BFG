@@ -673,7 +673,7 @@ void R_AddLights()
 		}
 		
 		int end = Sys_Microseconds();
-		backEnd.pc.shadowMicroSec += end - start;
+		tr.backend.pc.shadowMicroSec += end - start;
 	}
 }
 

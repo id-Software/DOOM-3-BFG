@@ -136,14 +136,14 @@ void idRenderSystemLocal::RenderCommandBuffers( const emptyCommand_t* const cmdH
 				glGenQueries( 1, & tr.timerQueryId );
 			}
 			glBeginQuery( GL_TIME_ELAPSED_EXT, tr.timerQueryId );
-			ExecuteBackEndCommands( cmdHead );
+			backend.ExecuteBackEndCommands( cmdHead );
 			glEndQuery( GL_TIME_ELAPSED_EXT );
 			glFlush();
 		}
 		else
 #endif
 		{
-			ExecuteBackEndCommands( cmdHead );
+			backend.ExecuteBackEndCommands( cmdHead );
 		}
 	}
 	

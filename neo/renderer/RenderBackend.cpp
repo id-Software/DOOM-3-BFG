@@ -1095,8 +1095,6 @@ void idRenderBackend::FillDepthBufferFast( drawSurf_t** drawSurfs, int numDrawSu
 	renderLog.OpenMainBlock( MRB_FILL_DEPTH_BUFFER );
 	renderLog.OpenBlock( "RB_FillDepthBufferFast" );
 	
-	GL_StartDepthPass( viewDef->scissor );
-	
 	// force MVP change on first surface
 	currentSpace = NULL;
 	
@@ -1175,9 +1173,6 @@ void idRenderBackend::FillDepthBufferFast( drawSurf_t** drawSurfs, int numDrawSu
 	{
 		FillDepthBufferGeneric( perforatedSurfaces, numPerforatedSurfaces );
 	}
-	
-	// Allow platform specific data to be collected after the depth pass.
-	GL_FinishDepthPass();
 	
 	renderLog.CloseBlock();
 	renderLog.CloseMainBlock();
@@ -2291,7 +2286,7 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 		GL_SelectTexture( 0 );
 		
 		// FIXME: this copies RGBA16F into _currentNormals if HDR is enabled
-		const idScreenRect& viewport = backEnd.viewDef->viewport;
+		const idScreenRect& viewport = viewDef->viewport;
 		globalImages->currentNormalsImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
 		
 		//GL_Clear( true, false, false, STENCIL_SHADOW_TEST_VALUE, 0.0f, 0.0f, 0.0f, 1.0f, false );
@@ -3552,11 +3547,12 @@ void idRenderBackend::DrawInteractions( const viewDef_t* _viewDef )
 					
 					if( !currentScissor.Equals( rect ) && r_useScissor.GetBool() )
 					{
-						GL_Scissor( backEnd.viewDef->viewport.x1 + rect.x1,
-									backEnd.viewDef->viewport.y1 + rect.y1,
+						GL_Scissor( viewDef->viewport.x1 + rect.x1,
+									viewDef->viewport.y1 + rect.y1,
 									rect.x2 + 1 - rect.x1,
 									rect.y2 + 1 - rect.y1 );
-						backEnd.currentScissor = rect;
+									
+						currentScissor = rect;
 					}
 					GL_State( GLS_DEFAULT );	// make sure stencil mask passes for the clear
 					GL_Clear( false, false, true, STENCIL_SHADOW_TEST_VALUE, 0.0f, 0.0f, 0.0f, 0.0f, false );
@@ -3663,7 +3659,7 @@ int idRenderBackend::DrawShaderPasses( const drawSurf_t* const* const drawSurfs,
 									   const float guiStereoScreenOffset, const int stereoEye )
 {
 	// only obey skipAmbient if we are rendering a view
-	if( backEnd.viewDef->viewEntitys && r_skipAmbient.GetBool() )
+	if( viewDef->viewEntitys && r_skipAmbient.GetBool() )
 	{
 		return numDrawSurfs;
 	}
@@ -3675,7 +3671,7 @@ int idRenderBackend::DrawShaderPasses( const drawSurf_t* const* const drawSurfs,
 	
 	GL_SelectTexture( 0 );
 	
-	backEnd.currentSpace = ( const viewEntity_t* )1;	// using NULL makes /analyze think surf->space needs to be checked...
+	currentSpace = ( const viewEntity_t* )1;	// using NULL makes /analyze think surf->space needs to be checked...
 	float currentGuiStereoOffset = 0.0f;
 	
 	int i = 0;
@@ -3705,7 +3701,7 @@ int idRenderBackend::DrawShaderPasses( const drawSurf_t* const* const drawSurfs,
 			continue;
 		}
 		
-		if( backEnd.viewDef->isXraySubview && surf->space->entityDef )
+		if( viewDef->isXraySubview && surf->space->entityDef )
 		{
 			if( surf->space->entityDef->parms.xrayIndex != 2 )
 			{
@@ -3714,7 +3710,7 @@ int idRenderBackend::DrawShaderPasses( const drawSurf_t* const* const drawSurfs,
 		}
 		
 		// we need to draw the post process shaders after we have drawn the fog lights
-		if( shader->GetSort() >= SS_POST_PROCESS && !backEnd.currentRenderCopied )
+		if( shader->GetSort() >= SS_POST_PROCESS && !currentRenderCopied )
 		{
 			break;
 		}
@@ -3737,12 +3733,12 @@ int idRenderBackend::DrawShaderPasses( const drawSurf_t* const* const drawSurfs,
 		const float thisGuiStereoOffset = guiStereoScreenOffset * surf->sort;
 		
 		// change the matrix and other space related vars if needed
-		if( surf->space != backEnd.currentSpace || thisGuiStereoOffset != currentGuiStereoOffset )
+		if( surf->space != currentSpace || thisGuiStereoOffset != currentGuiStereoOffset )
 		{
-			backEnd.currentSpace = surf->space;
+			currentSpace = surf->space;
 			currentGuiStereoOffset = thisGuiStereoOffset;
 			
-			const viewEntity_t* space = backEnd.currentSpace;
+			const viewEntity_t* space = currentSpace;
 			
 			if( guiStereoScreenOffset != 0.0f )
 			{
@@ -3755,7 +3751,7 @@ int idRenderBackend::DrawShaderPasses( const drawSurf_t* const* const drawSurfs,
 			
 			// set eye position in local space
 			idVec4 localViewOrigin( 1.0f );
-			R_GlobalPointToLocal( space->modelMatrix, backEnd.viewDef->renderView.vieworg, localViewOrigin.ToVec3() );
+			R_GlobalPointToLocal( space->modelMatrix, viewDef->renderView.vieworg, localViewOrigin.ToVec3() );
 			SetVertexParm( RENDERPARM_LOCALVIEWORIGIN, localViewOrigin.ToFloatPtr() );
 			
 			// set model Matrix
@@ -3770,13 +3766,14 @@ int idRenderBackend::DrawShaderPasses( const drawSurf_t* const* const drawSurfs,
 		}
 		
 		// change the scissor if needed
-		if( !backEnd.currentScissor.Equals( surf->scissorRect ) && r_useScissor.GetBool() )
+		if( !currentScissor.Equals( surf->scissorRect ) && r_useScissor.GetBool() )
 		{
-			GL_Scissor( backEnd.viewDef->viewport.x1 + surf->scissorRect.x1,
-						backEnd.viewDef->viewport.y1 + surf->scissorRect.y1,
+			GL_Scissor( viewDef->viewport.x1 + surf->scissorRect.x1,
+						viewDef->viewport.y1 + surf->scissorRect.y1,
 						surf->scissorRect.x2 + 1 - surf->scissorRect.x1,
 						surf->scissorRect.y2 + 1 - surf->scissorRect.y1 );
-			backEnd.currentScissor = surf->scissorRect;
+						
+			currentScissor = surf->scissorRect;
 		}
 		
 		// get the expressions for conditionals / color / texcoords
@@ -3881,7 +3878,7 @@ int idRenderBackend::DrawShaderPasses( const drawSurf_t* const* const drawSurfs,
 				}
 				
 				// draw it
-				RB_DrawElementsWithCounters( surf );
+				DrawElementsWithCounters( surf );
 				
 				// unbind texture units
 				for( int j = 0; j < newStage->numFragmentProgramImages; j++ )
@@ -3975,7 +3972,7 @@ int idRenderBackend::DrawShaderPasses( const drawSurf_t* const* const drawSurfs,
 						}
 						else
 						{
-							if( backEnd.viewDef->is2Dgui )
+							if( viewDef->is2Dgui )
 							{
 								// RB: 2D fullscreen drawing like warp or damage blend effects
 								renderProgManager.BindShader_TextureVertexColor_sRGB();
@@ -4011,7 +4008,7 @@ int idRenderBackend::DrawShaderPasses( const drawSurf_t* const* const drawSurfs,
 			RB_SetVertexColorParms( svc );
 			
 			// bind the texture
-			RB_BindVariableStageImage( &pStage->texture, regs );
+			BindVariableStageImage( &pStage->texture, regs );
 			
 			// set privatePolygonOffset if necessary
 			if( pStage->privatePolygonOffset )
@@ -4023,12 +4020,12 @@ int idRenderBackend::DrawShaderPasses( const drawSurf_t* const* const drawSurfs,
 			// set the state
 			GL_State( stageGLState );
 			
-			RB_PrepareStageTexturing( pStage, surf );
+			PrepareStageTexturing( pStage, surf );
 			
 			// draw it
-			RB_DrawElementsWithCounters( surf );
+			DrawElementsWithCounters( surf );
 			
-			RB_FinishStageTexturing( pStage, surf );
+			FinishStageTexturing( pStage, surf );
 			
 			// unset privatePolygonOffset if necessary
 			if( pStage->privatePolygonOffset )
@@ -4348,8 +4345,8 @@ void idRenderBackend::FogPass( const drawSurf_t* drawSurfs,  const drawSurf_t* d
 	
 	// draw it
 	GL_State( GLS_DEPTHMASK | GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA | GLS_DEPTHFUNC_EQUAL );
-	RB_T_BasicFog( drawSurfs, fogPlanes, NULL );
-	RB_T_BasicFog( drawSurfs2, fogPlanes, NULL );
+	T_BasicFog( drawSurfs, fogPlanes, NULL );
+	T_BasicFog( drawSurfs2, fogPlanes, NULL );
 	
 	// the light frustum bounding planes aren't in the depth buffer, so use depthfunc_less instead
 	// of depthfunc_equal
@@ -4482,10 +4479,10 @@ void idRenderBackend::CalculateAutomaticExposure()
 		
 		//if(r_hdrMaxLuminance->value)
 		{
-			hdrAverageLuminance = idMath::ClampFloat( r_hdrMinLuminance.GetFloat(), r_hdrMaxLuminance.GetFloat(), backEnd.hdrAverageLuminance );
+			hdrAverageLuminance = idMath::ClampFloat( r_hdrMinLuminance.GetFloat(), r_hdrMaxLuminance.GetFloat(), hdrAverageLuminance );
 			avgLuminance = idMath::ClampFloat( r_hdrMinLuminance.GetFloat(), r_hdrMaxLuminance.GetFloat(), avgLuminance );
 			
-			hdrMaxLuminance = idMath::ClampFloat( r_hdrMinLuminance.GetFloat(), r_hdrMaxLuminance.GetFloat(), backEnd.hdrMaxLuminance );
+			hdrMaxLuminance = idMath::ClampFloat( r_hdrMinLuminance.GetFloat(), r_hdrMaxLuminance.GetFloat(), hdrMaxLuminance );
 			maxLuminance = idMath::ClampFloat( r_hdrMinLuminance.GetFloat(), r_hdrMaxLuminance.GetFloat(), maxLuminance );
 		}
 		
@@ -5779,7 +5776,7 @@ void idRenderBackend::DrawView( const void* data, const int stereoEye )
 	
 	pc.c_surfaces += viewDef->numDrawSurfs;
 	
-	RB_ShowOverdraw();
+	DBG_ShowOverdraw();
 	
 	// render the scene
 	DrawViewInternal( cmd->viewDef, stereoEye );

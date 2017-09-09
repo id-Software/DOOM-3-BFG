@@ -2909,7 +2909,7 @@ void idRenderSystemLocal::Init()
 	ambientLightVector[2] = 0.8925f;
 	ambientLightVector[3] = 1.0f;
 	
-	memset( &backEnd, 0, sizeof( backEnd ) );
+	backend.Init();
 	
 	R_InitCvars();
 	

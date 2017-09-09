@@ -673,12 +673,13 @@ void idImage::PurgeImage()
 		glDeleteTextures( 1, ( GLuint* )&texnum );	// this should be the ONLY place it is ever called!
 		texnum = TEXTURE_NOT_LOADED;
 	}
+	
 	// clear all the current binding caches, so the next bind will do a real one
 	for( int i = 0 ; i < MAX_MULTITEXTURE_UNITS ; i++ )
 	{
-		backEnd.glState.tmu[i].current2DMap = TEXTURE_NOT_LOADED;
-		backEnd.glState.tmu[i].current2DArray = TEXTURE_NOT_LOADED;
-		backEnd.glState.tmu[i].currentCubeMap = TEXTURE_NOT_LOADED;
+		glcontext.tmu[i].current2DMap = TEXTURE_NOT_LOADED;
+		glcontext.tmu[i].current2DArray = TEXTURE_NOT_LOADED;
+		glcontext.tmu[i].currentCubeMap = TEXTURE_NOT_LOADED;
 	}
 }
 

@@ -31,6 +31,17 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __RENDERER_BACKEND_H__
 #define __RENDERER_BACKEND_H__
 
+// RB begin
+#define USE_CORE_PROFILE
+
+bool			GL_CheckErrors_( const char* filename, int line );
+#if 1 // !defined(RETAIL)
+#define         GL_CheckErrors()	GL_CheckErrors_(__FILE__, __LINE__)
+#else
+#define         GL_CheckErrors()	false
+#endif
+// RB end
+
 struct tmu_t
 {
 	unsigned int	current2DMap;
@@ -118,8 +129,8 @@ void RB_LoadShaderTextureMatrix( const float* shaderRegisters, const textureStag
 void RB_BakeTextureMatrixIntoTexgen( idPlane lightProject[3], const float* textureMatrix );
 void RB_SetupInteractionStage( const shaderStage_t* surfaceStage, const float* surfaceRegs, const float lightColor[4], idVec4 matrix[2], float color[4] );
 
-bool ChangeDisplaySettingsIfNeeded( gfxImpParms_t parms );
-bool CreateGameWindow( gfxImpParms_t parms );
+//bool ChangeDisplaySettingsIfNeeded( gfxImpParms_t parms );
+//bool CreateGameWindow( gfxImpParms_t parms );
 
 #if defined( ID_VULKAN )
 
@@ -201,11 +212,11 @@ extern vulkanContext_t vkcontext;
 
 struct glContext_t
 {
-	bool		bAnisotropicFilterAvailable;
-	bool		bTextureLODBiasAvailable;
-	
-	float		maxTextureAnisotropy;
-	
+//	bool		bAnisotropicFilterAvailable;
+//	bool		bTextureLODBiasAvailable;
+
+//	float		maxTextureAnisotropy;
+
 	tmu_t		tmu[ MAX_MULTITEXTURE_UNITS ];
 	uint64		stencilOperations[ STENCIL_FACE_NUM ];
 };
@@ -304,10 +315,13 @@ private:
 	void				GL_StartFrame();
 	void				GL_EndFrame();
 	
+	uint64				GL_GetCurrentState() const;
 	uint64				GL_GetCurrentStateMinusStencil() const;
 	void				GL_SetDefaultState();
+	
 	void				GL_State( uint64 stateBits, bool forceGlState = false );
 	void				GL_SeparateStencil( stencilFace_t face, uint64 stencilBits );
+	void				GL_Cull( cullType_t cullType ); // TODO remove
 	
 	void				GL_SelectTexture( int unit );
 	void				GL_BindTexture( idImage* image );
@@ -323,6 +337,7 @@ private:
 	
 	void				GL_Scissor( int x /* left*/, int y /* bottom */, int w, int h );
 	void				GL_Viewport( int x /* left */, int y /* bottom */, int w, int h );
+	
 	ID_INLINE void		GL_Scissor( const idScreenRect& rect )
 	{
 		GL_Scissor( rect.x1, rect.y1, rect.x2 - rect.x1 + 1, rect.y2 - rect.y1 + 1 );
@@ -332,38 +347,53 @@ private:
 		GL_Viewport( rect.x1, rect.y1, rect.x2 - rect.x1 + 1, rect.y2 - rect.y1 + 1 );
 	}
 	
+	ID_INLINE void	GL_ViewportAndScissor( int x, int y, int w, int h )
+	{
+		GL_Viewport( x, y, w, h );
+		GL_Scissor( x, y, w, h );
+	}
+	
+	ID_INLINE void	GL_ViewportAndScissor( const idScreenRect& rect )
+	{
+		GL_Viewport( rect );
+		GL_Scissor( rect );
+	}
+	
 	void				GL_Color( float r, float g, float b, float a );
 	ID_INLINE void		GL_Color( float r, float g, float b )
 	{
 		GL_Color( r, g, b, 1.0f );
 	}
 	
-	ID_INLINE void GL_Color( const idVec3& color )
+	ID_INLINE void		GL_Color( const idVec3& color )
 	{
 		GL_Color( color[0], color[1], color[2], 1.0f );
 	}
 	
-	ID_INLINE void GL_Color( const idVec4& color )
+	ID_INLINE void		GL_Color( const idVec4& color )
 	{
 		GL_Color( color[0], color[1], color[2], color[3] );
 	}
 	
-	void				GL_Color( float* color );
-	
+//	void				GL_Color( float* color );
+
 	void				SetBuffer( const void* data );
 	
 private:
 	void				DBG_SimpleSurfaceSetup( const drawSurf_t* drawSurf );
 	void				DBG_SimpleWorldSetup();
+	void				DBG_PolygonClear();
 	void				DBG_ShowDestinationAlpha();
+	void				DBG_ScanStencilBuffer();
+	void				DBG_CountStencilBuffer();
 	void				DBG_ColorByStencilBuffer();
 	void				DBG_ShowOverdraw();
 	void				DBG_ShowIntensity();
 	void				DBG_ShowDepthBuffer();
 	void				DBG_ShowLightCount();
-	void				DBG_EnterWeaponDepthHack();
-	void				DBG_EnterModelDepthHack( float depth );
-	void				DBG_LeaveDepthHack();
+//	void				DBG_EnterWeaponDepthHack();
+//	void				DBG_EnterModelDepthHack( float depth );
+//	void				DBG_LeaveDepthHack();
 	void				DBG_RenderDrawSurfListWithFunction( drawSurf_t** drawSurfs, int numDrawSurfs );
 	void				DBG_ShowSilhouette();
 	void				DBG_ShowTris( drawSurf_t** drawSurfs, int numDrawSurfs );
@@ -378,14 +408,20 @@ private:
 	void				DBG_ShowDominantTris( drawSurf_t** drawSurfs, int numDrawSurfs );
 	void				DBG_ShowEdges( drawSurf_t** drawSurfs, int numDrawSurfs );
 	void				DBG_ShowLights();
+	void				DBG_ShowShadowMapLODs(); // RB
 	void				DBG_ShowPortals();
+	
 	void				DBG_ShowDebugText();
 	void				DBG_ShowDebugLines();
 	void				DBG_ShowDebugPolygons();
+	
 	void				DBG_ShowCenterOfProjection();
+	void				DBG_ShowLines();
+	
 	void				DBG_TestGamma();
 	void				DBG_TestGammaBias();
 	void				DBG_TestImage();
+	void				DBG_ShowShadowMaps(); // RB
 	void				DBG_ShowTrace( drawSurf_t** drawSurfs, int numDrawSurfs );
 	void				DBG_RenderDebugTools( drawSurf_t** drawSurfs, int numDrawSurfs );
 	
