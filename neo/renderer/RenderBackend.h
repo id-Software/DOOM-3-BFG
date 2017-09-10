@@ -127,7 +127,6 @@ void RB_SetVertexColorParms( stageVertexColor_t svc );
 void RB_GetShaderTextureMatrix( const float* shaderRegisters, const textureStage_t* texture, float matrix[16] );
 void RB_LoadShaderTextureMatrix( const float* shaderRegisters, const textureStage_t* texture );
 void RB_BakeTextureMatrixIntoTexgen( idPlane lightProject[3], const float* textureMatrix );
-void RB_SetupInteractionStage( const shaderStage_t* surfaceStage, const float* surfaceRegs, const float lightColor[4], idVec4 matrix[2], float color[4] );
 
 //bool ChangeDisplaySettingsIfNeeded( gfxImpParms_t parms );
 //bool CreateGameWindow( gfxImpParms_t parms );
@@ -250,6 +249,7 @@ public:
 	void				BlockingSwapBuffers();
 	
 	void				Print();
+	void				CheckCVars();
 	
 private:
 	void				DrawFlickerBox();
@@ -258,7 +258,6 @@ private:
 	void				DrawStencilShadowPass( const drawSurf_t* drawSurf, const bool renderZPass );
 	
 	void				SetColorMappings();
-	void				CheckCVars();
 	void				ResizeImages();
 	
 	void				DrawViewInternal( const viewDef_t* viewDef, const int stereoEye );
@@ -324,11 +323,11 @@ private:
 	void				GL_Cull( cullType_t cullType ); // TODO remove
 	
 	void				GL_SelectTexture( int unit );
-	void				GL_BindTexture( idImage* image );
-	
-	void				GL_CopyFrameBuffer( idImage* image, int x, int y, int imageWidth, int imageHeight );
-	void				GL_CopyDepthBuffer( idImage* image, int x, int y, int imageWidth, int imageHeight );
-	
+//	void				GL_BindTexture( idImage* image );
+
+//	void				GL_CopyFrameBuffer( idImage* image, int x, int y, int imageWidth, int imageHeight );
+//	void				GL_CopyDepthBuffer( idImage* image, int x, int y, int imageWidth, int imageHeight );
+
 	// RB: HDR parm
 	void				GL_Clear( bool color, bool depth, bool stencil, byte stencilValue, float r, float g, float b, float a, bool clearHDR = true );
 	
@@ -468,6 +467,12 @@ private:
 	
 	float				polyOfsScale;
 	float				polyOfsBias;
+	
+public:
+	int					GetCurrentTextureUnit() const
+	{
+		return currenttmu;
+	}
 	
 #if 0
 	unsigned short		gammaTable[ 256 ];		// brightness / gamma modify this

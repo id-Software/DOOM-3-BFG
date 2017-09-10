@@ -228,115 +228,7 @@ void	R_AddDrawPostProcess( viewDef_t* parms )
 //=================================================================================
 
 
-/*
-=============
-R_CheckCvars
 
-See if some cvars that we watch have changed
-=============
-*/
-static void R_CheckCvars()
-{
-	// gamma stuff
-	if( r_gamma.IsModified() || r_brightness.IsModified() )
-	{
-		r_gamma.ClearModified();
-		r_brightness.ClearModified();
-		R_SetColorMappings();
-	}
-	
-	// filtering
-	if( r_maxAnisotropicFiltering.IsModified() || r_useTrilinearFiltering.IsModified() || r_lodBias.IsModified() )
-	{
-		idLib::Printf( "Updating texture filter parameters.\n" );
-		r_maxAnisotropicFiltering.ClearModified();
-		r_useTrilinearFiltering.ClearModified();
-		r_lodBias.ClearModified();
-		for( int i = 0 ; i < globalImages->images.Num() ; i++ )
-		{
-			if( globalImages->images[i] )
-			{
-				globalImages->images[i]->Bind();
-				globalImages->images[i]->SetTexParameters();
-			}
-		}
-	}
-	
-	extern idCVar r_useSeamlessCubeMap;
-	if( r_useSeamlessCubeMap.IsModified() )
-	{
-		r_useSeamlessCubeMap.ClearModified();
-		if( glConfig.seamlessCubeMapAvailable )
-		{
-			if( r_useSeamlessCubeMap.GetBool() )
-			{
-				glEnable( GL_TEXTURE_CUBE_MAP_SEAMLESS );
-			}
-			else
-			{
-				glDisable( GL_TEXTURE_CUBE_MAP_SEAMLESS );
-			}
-		}
-	}
-	
-	extern idCVar r_useSRGB;
-	if( r_useSRGB.IsModified() )
-	{
-		r_useSRGB.ClearModified();
-		if( glConfig.sRGBFramebufferAvailable )
-		{
-			if( r_useSRGB.GetBool() && r_useSRGB.GetInteger() != 3 )
-			{
-				glEnable( GL_FRAMEBUFFER_SRGB );
-			}
-			else
-			{
-				glDisable( GL_FRAMEBUFFER_SRGB );
-			}
-		}
-	}
-	
-	if( r_antiAliasing.IsModified() )
-	{
-		switch( r_antiAliasing.GetInteger() )
-		{
-			case ANTI_ALIASING_MSAA_2X:
-			case ANTI_ALIASING_MSAA_4X:
-			case ANTI_ALIASING_MSAA_8X:
-				if( r_antiAliasing.GetInteger() > 0 )
-				{
-					glEnable( GL_MULTISAMPLE );
-				}
-				break;
-				
-			default:
-				glDisable( GL_MULTISAMPLE );
-				break;
-		}
-	}
-	
-	if( r_useHDR.IsModified() || r_useHalfLambertLighting.IsModified() )
-	{
-		r_useHDR.ClearModified();
-		r_useHalfLambertLighting.ClearModified();
-		renderProgManager.KillAllShaders();
-		renderProgManager.LoadAllShaders();
-	}
-	
-	// RB: turn off shadow mapping for OpenGL drivers that are too slow
-	switch( glConfig.driverType )
-	{
-		case GLDRV_OPENGL_ES2:
-		case GLDRV_OPENGL_ES3:
-			//case GLDRV_OPENGL_MESA:
-			r_useShadowMapping.SetInteger( 0 );
-			break;
-			
-		default:
-			break;
-	}
-	// RB end
-}
 
 /*
 =============
@@ -754,8 +646,7 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 	{
 		// wait for our fence to hit, which means the swap has actually happened
 		// We must do this before clearing any resources the GPU may be using
-		void GL_BlockingSwapBuffers();
-		GL_BlockingSwapBuffers();
+		backend.BlockingSwapBuffers();
 	}
 	
 	// read back the start and end timer queries from the previous frame
@@ -795,7 +686,7 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 	PrintPerformanceCounters();
 	
 	// check for dynamic changes that require some initialization
-	R_CheckCvars();
+	backend.CheckCVars();
 	
 	// RB: resize HDR buffers
 	Framebuffer::CheckFramebuffers();

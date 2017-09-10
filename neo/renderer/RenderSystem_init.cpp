@@ -952,67 +952,7 @@ void R_InitOpenGL()
 	// RB end
 }
 
-/*
-==================
-GL_CheckErrors
-==================
-*/
-// RB: added filename, line parms
-bool GL_CheckErrors_( const char* filename, int line )
-{
-	int		err;
-	char	s[64];
-	int		i;
-	
-	if( r_ignoreGLErrors.GetBool() )
-	{
-		return false;
-	}
-	
-	// check for up to 10 errors pending
-	bool error = false;
-	for( i = 0 ; i < 10 ; i++ )
-	{
-		err = glGetError();
-		if( err == GL_NO_ERROR )
-		{
-			break;
-		}
-		
-		error = true;
-		switch( err )
-		{
-			case GL_INVALID_ENUM:
-				strcpy( s, "GL_INVALID_ENUM" );
-				break;
-			case GL_INVALID_VALUE:
-				strcpy( s, "GL_INVALID_VALUE" );
-				break;
-			case GL_INVALID_OPERATION:
-				strcpy( s, "GL_INVALID_OPERATION" );
-				break;
-#if !defined(USE_GLES2) && !defined(USE_GLES3)
-			case GL_STACK_OVERFLOW:
-				strcpy( s, "GL_STACK_OVERFLOW" );
-				break;
-			case GL_STACK_UNDERFLOW:
-				strcpy( s, "GL_STACK_UNDERFLOW" );
-				break;
-#endif
-			case GL_OUT_OF_MEMORY:
-				strcpy( s, "GL_OUT_OF_MEMORY" );
-				break;
-			default:
-				idStr::snPrintf( s, sizeof( s ), "%i", err );
-				break;
-		}
-		
-		common->Printf( "caught OpenGL error: %s in file %s line %i\n", s, filename, line );
-	}
-	
-	return error;
-}
-// RB end
+
 
 /*
 =====================

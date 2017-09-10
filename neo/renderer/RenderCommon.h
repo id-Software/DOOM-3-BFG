@@ -1428,10 +1428,6 @@ TR_BACKEND_DRAW
 */
 
 void RB_SetMVP( const idRenderMatrix& mvp );
-void RB_DrawViewInternal( const viewDef_t* viewDef, const int stereoEye );
-void RB_DrawView( const void* data, const int stereoEye );
-void RB_CopyRender( const void* data );
-void RB_PostProcess( const void* data );
 
 /*
 =============================================================
@@ -1450,7 +1446,6 @@ void RB_AddDebugPolygon( const idVec4& color, const idWinding& winding, const in
 void RB_ClearDebugPolygons( int time );
 void RB_DrawBounds( const idBounds& bounds );
 
-void RB_RenderDebugTools( drawSurf_t** drawSurfs, int numDrawSurfs );
 void RB_ShutdownDebugTools();
 void RB_SetVertexColorParms( stageVertexColor_t svc );
 

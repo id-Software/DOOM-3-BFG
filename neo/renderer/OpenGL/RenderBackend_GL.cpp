@@ -53,7 +53,69 @@ static GLsync	renderSync[2];
 void GLimp_SwapBuffers();
 void RB_SetMVP( const idRenderMatrix& mvp );
 
+glContext_t glcontext;
 
+/*
+==================
+GL_CheckErrors
+==================
+*/
+// RB: added filename, line parms
+bool GL_CheckErrors_( const char* filename, int line )
+{
+	int		err;
+	char	s[64];
+	int		i;
+	
+	if( r_ignoreGLErrors.GetBool() )
+	{
+		return false;
+	}
+	
+	// check for up to 10 errors pending
+	bool error = false;
+	for( i = 0 ; i < 10 ; i++ )
+	{
+		err = glGetError();
+		if( err == GL_NO_ERROR )
+		{
+			break;
+		}
+		
+		error = true;
+		switch( err )
+		{
+			case GL_INVALID_ENUM:
+				strcpy( s, "GL_INVALID_ENUM" );
+				break;
+			case GL_INVALID_VALUE:
+				strcpy( s, "GL_INVALID_VALUE" );
+				break;
+			case GL_INVALID_OPERATION:
+				strcpy( s, "GL_INVALID_OPERATION" );
+				break;
+#if !defined(USE_GLES2) && !defined(USE_GLES3)
+			case GL_STACK_OVERFLOW:
+				strcpy( s, "GL_STACK_OVERFLOW" );
+				break;
+			case GL_STACK_UNDERFLOW:
+				strcpy( s, "GL_STACK_UNDERFLOW" );
+				break;
+#endif
+			case GL_OUT_OF_MEMORY:
+				strcpy( s, "GL_OUT_OF_MEMORY" );
+				break;
+			default:
+				idStr::snPrintf( s, sizeof( s ), "%i", err );
+				break;
+		}
+		
+		common->Printf( "caught OpenGL error: %s in file %s line %i\n", s, filename, line );
+	}
+	
+	return error;
+}
+// RB end
 
 /*
 =============
@@ -889,6 +951,117 @@ uint64 idRenderBackend::GL_GetCurrentStateMinusStencil() const
 
 
 /*
+=============
+idRenderBackend::CheckCVars
+
+See if some cvars that we watch have changed
+=============
+*/
+void idRenderBackend::CheckCVars()
+{
+	// gamma stuff
+	if( r_gamma.IsModified() || r_brightness.IsModified() )
+	{
+		r_gamma.ClearModified();
+		r_brightness.ClearModified();
+		R_SetColorMappings();
+	}
+	
+	// filtering
+	if( r_maxAnisotropicFiltering.IsModified() || r_useTrilinearFiltering.IsModified() || r_lodBias.IsModified() )
+	{
+		idLib::Printf( "Updating texture filter parameters.\n" );
+		r_maxAnisotropicFiltering.ClearModified();
+		r_useTrilinearFiltering.ClearModified();
+		r_lodBias.ClearModified();
+		
+		for( int i = 0 ; i < globalImages->images.Num() ; i++ )
+		{
+			if( globalImages->images[i] )
+			{
+				globalImages->images[i]->Bind();
+				globalImages->images[i]->SetTexParameters();
+			}
+		}
+	}
+	
+	extern idCVar r_useSeamlessCubeMap;
+	if( r_useSeamlessCubeMap.IsModified() )
+	{
+		r_useSeamlessCubeMap.ClearModified();
+		if( glConfig.seamlessCubeMapAvailable )
+		{
+			if( r_useSeamlessCubeMap.GetBool() )
+			{
+				glEnable( GL_TEXTURE_CUBE_MAP_SEAMLESS );
+			}
+			else
+			{
+				glDisable( GL_TEXTURE_CUBE_MAP_SEAMLESS );
+			}
+		}
+	}
+	
+	extern idCVar r_useSRGB;
+	if( r_useSRGB.IsModified() )
+	{
+		r_useSRGB.ClearModified();
+		if( glConfig.sRGBFramebufferAvailable )
+		{
+			if( r_useSRGB.GetBool() && r_useSRGB.GetInteger() != 3 )
+			{
+				glEnable( GL_FRAMEBUFFER_SRGB );
+			}
+			else
+			{
+				glDisable( GL_FRAMEBUFFER_SRGB );
+			}
+		}
+	}
+	
+	if( r_antiAliasing.IsModified() )
+	{
+		switch( r_antiAliasing.GetInteger() )
+		{
+			case ANTI_ALIASING_MSAA_2X:
+			case ANTI_ALIASING_MSAA_4X:
+			case ANTI_ALIASING_MSAA_8X:
+				if( r_antiAliasing.GetInteger() > 0 )
+				{
+					glEnable( GL_MULTISAMPLE );
+				}
+				break;
+				
+			default:
+				glDisable( GL_MULTISAMPLE );
+				break;
+		}
+	}
+	
+	if( r_useHDR.IsModified() || r_useHalfLambertLighting.IsModified() )
+	{
+		r_useHDR.ClearModified();
+		r_useHalfLambertLighting.ClearModified();
+		renderProgManager.KillAllShaders();
+		renderProgManager.LoadAllShaders();
+	}
+	
+	// RB: turn off shadow mapping for OpenGL drivers that are too slow
+	switch( glConfig.driverType )
+	{
+		case GLDRV_OPENGL_ES2:
+		case GLDRV_OPENGL_ES3:
+			//case GLDRV_OPENGL_MESA:
+			r_useShadowMapping.SetInteger( 0 );
+			break;
+			
+		default:
+			break;
+	}
+	// RB end
+}
+
+/*
 ============================================================================
 
 RENDER BACK END THREAD FUNCTIONS
@@ -1180,7 +1353,7 @@ void idRenderBackend::StereoRenderExecuteBackEndCommands( const emptyCommand_t* 
 					SetBuffer( cmds );
 					break;
 				case RC_COPY_RENDER:
-					RB_CopyRender( cmds );
+					CopyRender( cmds );
 					break;
 				case RC_POST_PROCESS:
 				{
@@ -1189,7 +1362,7 @@ void idRenderBackend::StereoRenderExecuteBackEndCommands( const emptyCommand_t* 
 					{
 						break;
 					}
-					RB_PostProcess( cmds );
+					PostProcess( cmds );
 				}
 				break;
 				default:
@@ -1455,7 +1628,7 @@ void idRenderBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
 				break;
 			case RC_DRAW_VIEW_3D:
 			case RC_DRAW_VIEW_GUI:
-				RB_DrawView( cmds, 0 );
+				DrawView( cmds, 0 );
 				if( ( ( const drawSurfsCommand_t* )cmds )->viewDef->viewEntitys )
 				{
 					c_draw3d++;
@@ -1470,11 +1643,11 @@ void idRenderBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
 				c_setBuffers++;
 				break;
 			case RC_COPY_RENDER:
-				RB_CopyRender( cmds );
+				CopyRender( cmds );
 				c_copyRenders++;
 				break;
 			case RC_POST_PROCESS:
-				RB_PostProcess( cmds );
+				PostProcess( cmds );
 				break;
 			default:
 				common->Error( "RB_ExecuteBackEndCommands: bad commandId" );

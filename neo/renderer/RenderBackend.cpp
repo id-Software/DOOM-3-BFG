@@ -1832,8 +1832,7 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 						inter.bumpImage = surfaceStage->texture.image;
 						inter.diffuseImage = NULL;
 						inter.specularImage = NULL;
-						RB_SetupInteractionStage( surfaceStage, surfaceRegs, NULL,
-												  inter.bumpMatrix, NULL );
+						SetupInteractionStage( surfaceStage, surfaceRegs, NULL, inter.bumpMatrix, NULL );
 						break;
 					}
 					case SL_DIFFUSE:
@@ -1850,8 +1849,8 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 						}
 						inter.diffuseImage = surfaceStage->texture.image;
 						inter.vertexColor = surfaceStage->vertexColor;
-						RB_SetupInteractionStage( surfaceStage, surfaceRegs, diffuseColor.ToFloatPtr(),
-												  inter.diffuseMatrix, inter.diffuseColor.ToFloatPtr() );
+						SetupInteractionStage( surfaceStage, surfaceRegs, diffuseColor.ToFloatPtr(),
+											   inter.diffuseMatrix, inter.diffuseColor.ToFloatPtr() );
 						break;
 					}
 					case SL_SPECULAR:
@@ -1868,8 +1867,8 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 						}
 						inter.specularImage = surfaceStage->texture.image;
 						inter.vertexColor = surfaceStage->vertexColor;
-						RB_SetupInteractionStage( surfaceStage, surfaceRegs, specularColor.ToFloatPtr(),
-												  inter.specularMatrix, inter.specularColor.ToFloatPtr() );
+						SetupInteractionStage( surfaceStage, surfaceRegs, specularColor.ToFloatPtr(),
+											   inter.specularMatrix, inter.specularColor.ToFloatPtr() );
 						break;
 					}
 				}
@@ -2221,8 +2220,8 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 					inter.bumpImage = surfaceStage->texture.image;
 					inter.diffuseImage = NULL;
 					inter.specularImage = NULL;
-					RB_SetupInteractionStage( surfaceStage, surfaceRegs, NULL,
-											  inter.bumpMatrix, NULL );
+					SetupInteractionStage( surfaceStage, surfaceRegs, NULL,
+										   inter.bumpMatrix, NULL );
 					break;
 				}
 				
@@ -2242,8 +2241,8 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 					
 					inter.diffuseImage = surfaceStage->texture.image;
 					inter.vertexColor = surfaceStage->vertexColor;
-					RB_SetupInteractionStage( surfaceStage, surfaceRegs, diffuseColor.ToFloatPtr(),
-											  inter.diffuseMatrix, inter.diffuseColor.ToFloatPtr() );
+					SetupInteractionStage( surfaceStage, surfaceRegs, diffuseColor.ToFloatPtr(),
+										   inter.diffuseMatrix, inter.diffuseColor.ToFloatPtr() );
 					break;
 				}
 				
@@ -2261,8 +2260,8 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 					}
 					inter.specularImage = surfaceStage->texture.image;
 					inter.vertexColor = surfaceStage->vertexColor;
-					RB_SetupInteractionStage( surfaceStage, surfaceRegs, specularColor.ToFloatPtr(),
-											  inter.specularMatrix, inter.specularColor.ToFloatPtr() );
+					SetupInteractionStage( surfaceStage, surfaceRegs, specularColor.ToFloatPtr(),
+										   inter.specularMatrix, inter.specularColor.ToFloatPtr() );
 					break;
 				}
 			}
@@ -5552,7 +5551,7 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 	//-------------------------------------------------
 	// render debug tools
 	//-------------------------------------------------
-	RB_RenderDebugTools( drawSurfs, numDrawSurfs );
+	DBG_RenderDebugTools( drawSurfs, numDrawSurfs );
 	
 	// RB: convert back from HDR to LDR range
 	if( useHDR )
