@@ -402,7 +402,7 @@ void Dmap( const idCmdArgs& args )
 	passedName = stripped;
 	
 	// delete any old line leak files
-	idStr::snPrintf( path, sizeof( path ),"%s.lin", dmapGlobals.mapFileBase );
+	idStr::snPrintf( path, sizeof( path ), "%s.lin", dmapGlobals.mapFileBase );
 	fileSystem->RemoveFile( path );
 	
 	// delete any old generated binary proc files

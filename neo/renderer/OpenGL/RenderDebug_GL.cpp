@@ -440,7 +440,6 @@ void idRenderBackend::DBG_ShowIntensity()
 	glRasterPos2f( 0, 0 );
 	glPopMatrix();
 	GL_Color( 1, 1, 1 );
-	globalImages->BindNull();
 	glMatrixMode( GL_MODELVIEW );
 	
 	glDrawPixels( renderSystem->GetWidth(), renderSystem->GetHeight(), GL_RGBA , GL_UNSIGNED_BYTE, colorReadback );
@@ -478,7 +477,6 @@ void idRenderBackend::DBG_ShowDepthBuffer()
 	
 	GL_State( GLS_DEPTHFUNC_ALWAYS );
 	GL_Color( 1, 1, 1 );
-	globalImages->BindNull();
 	
 	depthReadback = R_StaticAlloc( renderSystem->GetWidth() * renderSystem->GetHeight() * 4, TAG_RENDER_TOOLS );
 	memset( depthReadback, 0, renderSystem->GetWidth() * renderSystem->GetHeight() * 4 );
@@ -677,16 +675,12 @@ void idRenderBackend::DBG_ShowSilhouette()
 	}
 	
 	// clear all triangle edges to black
-	globalImages->BindNull();
 	
-	// RB begin
+	// RB
 	renderProgManager.BindShader_Color();
-	// RB end
 	
 	GL_Color( 0, 0, 0 );
-	
 	GL_State( GLS_DEPTHFUNC_ALWAYS | GLS_POLYMODE_LINE );
-	
 	GL_Cull( CT_TWO_SIDED );
 	
 	DBG_RenderDrawSurfListWithFunction( viewDef->drawSurfs, viewDef->numDrawSurfs );
@@ -925,8 +919,6 @@ void idRenderBackend::DBG_ShowViewEntitys( viewEntity_t* vModels )
 		common->Printf( "\n" );
 	}
 	
-	globalImages->BindNull();
-	
 	renderProgManager.BindShader_Color();
 	
 	GL_Color( 1, 1, 1 );
@@ -1009,7 +1001,6 @@ void idRenderBackend::DBG_ShowTexturePolarity( drawSurf_t** drawSurfs, int numDr
 	{
 		return;
 	}
-	globalImages->BindNull();
 	
 	GL_State( GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA );
 	
@@ -1088,7 +1079,6 @@ void idRenderBackend::DBG_ShowUnsmoothedTangents( drawSurf_t** drawSurfs, int nu
 	{
 		return;
 	}
-	globalImages->BindNull();
 	
 	GL_State( GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA );
 	
@@ -1150,7 +1140,6 @@ void idRenderBackend::DBG_ShowTangentSpace( drawSurf_t** drawSurfs, int numDrawS
 	{
 		return;
 	}
-	globalImages->BindNull();
 	
 	GL_State( GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA );
 	
@@ -1216,7 +1205,6 @@ void idRenderBackend::DBG_ShowVertexColor( drawSurf_t** drawSurfs, int numDrawSu
 	{
 		return;
 	}
-	globalImages->BindNull();
 	
 	// RB begin
 	renderProgManager.BindShader_VertexColor();
@@ -1275,8 +1263,6 @@ void idRenderBackend::DBG_ShowNormals( drawSurf_t** drawSurfs, int numDrawSurfs 
 	{
 		return;
 	}
-	
-	globalImages->BindNull();
 	
 	if( !r_debugLineDepthTest.GetBool() )
 	{
@@ -1387,8 +1373,6 @@ void idRenderBackend::DBG_ShowTextureVectors( drawSurf_t** drawSurfs, int numDra
 	
 	GL_State( GLS_DEPTHFUNC_LESS );
 	
-	globalImages->BindNull();
-	
 	for( int i = 0; i < numDrawSurfs; i++ )
 	{
 		drawSurf_t* drawSurf = drawSurfs[i];
@@ -1496,8 +1480,6 @@ void idRenderBackend::DBG_ShowDominantTris( drawSurf_t** drawSurfs, int numDrawS
 	GL_PolygonOffset( -1, -2 );
 	glEnable( GL_POLYGON_OFFSET_LINE );
 	
-	globalImages->BindNull();
-	
 	for( i = 0; i < numDrawSurfs; i++ )
 	{
 		drawSurf = drawSurfs[i];
@@ -1559,8 +1541,6 @@ void idRenderBackend::DBG_ShowEdges( drawSurf_t** drawSurfs, int numDrawSurfs )
 	{
 		return;
 	}
-	
-	globalImages->BindNull();
 	
 	GL_State( GLS_DEPTHFUNC_ALWAYS );
 	
@@ -1668,8 +1648,6 @@ void idRenderBackend::DBG_ShowLights()
 	
 	GL_State( GLS_DEFAULT );
 	
-	globalImages->BindNull();
-	
 	renderProgManager.BindShader_Color();
 	
 	GL_Cull( CT_TWO_SIDED );
@@ -1733,8 +1711,6 @@ void idRenderBackend::DBG_ShowShadowMapLODs()
 	}
 	
 	GL_State( GLS_DEFAULT );
-	
-	globalImages->BindNull();
 	
 	renderProgManager.BindShader_Color();
 	
@@ -1831,7 +1807,6 @@ void idRenderBackend::DBG_ShowPortals()
 	// all portals are expressed in world coordinates
 	DBG_SimpleWorldSetup();
 	
-	globalImages->BindNull();
 	renderProgManager.BindShader_Color();
 	GL_State( GLS_DEPTHFUNC_ALWAYS );
 	
@@ -2113,8 +2088,6 @@ void idRenderBackend::DBG_ShowDebugText()
 	// all lines are expressed in world coordinates
 	DBG_SimpleWorldSetup();
 	
-	globalImages->BindNull();
-	
 	width = r_debugLineWidth.GetInteger();
 	if( width < 1 )
 	{
@@ -2245,8 +2218,6 @@ void idRenderBackend::DBG_ShowDebugLines()
 	renderProgManager.BindShader_VertexColor();
 	renderProgManager.CommitUniforms();
 	// RB end
-	
-	globalImages->BindNull();
 	
 	width = r_debugLineWidth.GetInteger();
 	if( width < 1 )
@@ -2386,8 +2357,6 @@ void idRenderBackend::DBG_ShowDebugPolygons()
 	renderProgManager.BindShader_VertexColor();
 	renderProgManager.CommitUniforms();
 	// RB end
-	
-	globalImages->BindNull();
 	
 	if( r_debugPolygonFilled.GetBool() )
 	{

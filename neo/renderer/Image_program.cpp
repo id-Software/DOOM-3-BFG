@@ -419,8 +419,7 @@ static bool R_ParseImageProgram_r( idLexer& src, byte** pic, int* width, int* he
 								   ID_TIME_T* timestamps, textureUsage_t* usage )
 {
 	idToken		token;
-	float		scale;
-	ID_TIME_T		timestamp;
+	ID_TIME_T	timestamp;
 	
 	src.ReadToken( &token );
 	
@@ -454,7 +453,7 @@ static bool R_ParseImageProgram_r( idLexer& src, byte** pic, int* width, int* he
 		
 		src.ReadToken( &token );
 		AppendToken( token );
-		scale = token.GetFloatValue();
+		float scale = token.GetFloatValue();
 		
 		// process it
 		if( pic )
@@ -637,7 +636,7 @@ static bool R_ParseImageProgram_r( idLexer& src, byte** pic, int* width, int* he
 		if( pic )
 		{
 			int		c;
-			c = *width** height * 4;
+			c = *width * *height * 4;
 			for( i = 0 ; i < c ; i += 4 )
 			{
 				( *pic )[i + 1] =
@@ -662,7 +661,7 @@ static bool R_ParseImageProgram_r( idLexer& src, byte** pic, int* width, int* he
 		if( pic )
 		{
 			int		c;
-			c = *width** height * 4;
+			c = *width * *height * 4;
 			for( i = 0 ; i < c ; i += 4 )
 			{
 				( *pic )[i + 3] = ( ( *pic )[i + 0] + ( *pic )[i + 1] + ( *pic )[i + 2] ) / 3;

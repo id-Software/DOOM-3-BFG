@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013-2014 Robert Beckebans
+Copyright (C) 2013-2017 Robert Beckebans
 Copyright (C) 2016-2017 Dustin Land
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
@@ -311,7 +311,6 @@ public:
 	// Platform specific implementations
 	//---------------------------------------------
 	
-	
 #if defined( ID_VULKAN )
 	void		CreateFromSwapImage( VkImage image, VkImageView imageView, VkFormat format, const VkExtent2D& extent );
 	VkImage		GetImage() const
@@ -497,9 +496,6 @@ public:
 	// reloads all apropriate images after a vid_restart
 	void				ReloadImages( bool all );
 	
-	// disable the active texture unit
-	void				BindNull();
-	
 	// Called only by renderSystem::BeginLevelLoad
 	void				BeginLevelLoad();
 	
@@ -510,10 +506,6 @@ public:
 	
 	// Loads unloaded level images
 	int					LoadLevelImages( bool pacifier );
-	
-	// used to clear and then write the dds conversion batch file
-	void				StartBuild();
-	void				FinishBuild( bool removeDups = false );
 	
 	void				PrintMemInfo( MemInfo_t* mi );
 	
@@ -576,8 +568,6 @@ public:
 };
 
 extern idImageManager*	globalImages;		// pointer to global list for the rest of the system
-
-int MakePowerOfTwo( int num );
 
 /*
 ====================================================================

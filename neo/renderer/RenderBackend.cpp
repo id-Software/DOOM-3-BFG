@@ -795,10 +795,6 @@ void idRenderBackend::FinishStageTexturing( const shaderStage_t* pStage, const d
 	if( pStage->texture.cinematic )
 	{
 		// unbind the extra bink textures
-		GL_SelectTexture( 1 );
-		globalImages->BindNull();
-		GL_SelectTexture( 2 );
-		globalImages->BindNull();
 		GL_SelectTexture( 0 );
 	}
 	
@@ -809,8 +805,6 @@ void idRenderBackend::FinishStageTexturing( const shaderStage_t* pStage, const d
 		if( bumpStage != NULL )
 		{
 			// per-pixel reflection mapping with bump mapping
-			GL_SelectTexture( 1 );
-			globalImages->BindNull();
 			GL_SelectTexture( 0 );
 		}
 		else
@@ -2280,10 +2274,10 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 	renderLog.CloseBlock();
 	renderLog.CloseMainBlock();
 	
+	GL_SelectTexture( 0 );
+	
 	if( fillGbuffer )
 	{
-		GL_SelectTexture( 0 );
-		
 		// FIXME: this copies RGBA16F into _currentNormals if HDR is enabled
 		const idScreenRect& viewport = viewDef->viewport;
 		globalImages->currentNormalsImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
@@ -2301,13 +2295,6 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 			Framebuffer::Unbind();
 		}
 		*/
-	}
-	
-	// unbind texture units
-	for( int i = 0; i < 7; i++ )
-	{
-		GL_SelectTexture( i );
-		globalImages->BindNull();
 	}
 	
 	renderProgManager.Unbind();
@@ -2347,7 +2334,6 @@ void idRenderBackend::StencilShadowPass( const drawSurf_t* drawSurfs, const view
 	renderProgManager.BindShader_Shadow();
 	
 	GL_SelectTexture( 0 );
-	globalImages->BindNull();
 	
 	uint64 glState = 0;
 	
@@ -2870,7 +2856,6 @@ void idRenderBackend::ShadowMapPass( const drawSurf_t* drawSurfs, const viewLigh
 	renderProgManager.BindShader_Depth();
 	
 	GL_SelectTexture( 0 );
-	globalImages->BindNull();
 	
 	uint64 glState = 0;
 	
@@ -3619,11 +3604,6 @@ void idRenderBackend::DrawInteractions( const viewDef_t* _viewDef )
 	GL_State( GLS_DEFAULT );
 	
 	// unbind texture units
-	for( int i = 0; i < 7; i++ )
-	{
-		GL_SelectTexture( i );
-		globalImages->BindNull();
-	}
 	GL_SelectTexture( 0 );
 	
 	// reset depth bounds
@@ -3664,9 +3644,6 @@ int idRenderBackend::DrawShaderPasses( const drawSurf_t* const* const drawSurfs,
 	}
 	
 	renderLog.OpenBlock( "RB_DrawShaderPasses" );
-	
-	GL_SelectTexture( 1 );
-	globalImages->BindNull();
 	
 	GL_SelectTexture( 0 );
 	
@@ -3879,17 +3856,6 @@ int idRenderBackend::DrawShaderPasses( const drawSurf_t* const* const drawSurfs,
 				// draw it
 				DrawElementsWithCounters( surf );
 				
-				// unbind texture units
-				for( int j = 0; j < newStage->numFragmentProgramImages; j++ )
-				{
-					idImage* image = newStage->fragmentProgramImages[j];
-					if( image != NULL )
-					{
-						GL_SelectTexture( j );
-						globalImages->BindNull();
-					}
-				}
-				
 				// clear rpEnableSkinning if it was set
 				if( surf->jointCache && renderProgManager.ShaderHasOptionalSkinning() )
 				{
@@ -4043,12 +4009,6 @@ int idRenderBackend::DrawShaderPasses( const drawSurf_t* const* const drawSurfs,
 	// disable stencil shadow test
 	GL_State( GLS_DEFAULT );
 	
-	// unbind texture units
-	for( int i = 0; i < 7; i++ )
-	{
-		GL_SelectTexture( i );
-		globalImages->BindNull();
-	}
 	GL_SelectTexture( 0 );
 	
 	renderLog.CloseBlock();
@@ -4177,9 +4137,6 @@ void idRenderBackend::BlendLight( const drawSurf_t* drawSurfs, const drawSurf_t*
 		T_BlendLight( drawSurfs, vLight );
 		T_BlendLight( drawSurfs2, vLight );
 	}
-	
-	GL_SelectTexture( 1 );
-	globalImages->BindNull();
 	
 	GL_SelectTexture( 0 );
 	
@@ -4357,9 +4314,6 @@ void idRenderBackend::FogPass( const drawSurf_t* drawSurfs,  const drawSurf_t* d
 	T_BasicFog( &zeroOneCubeSurface, fogPlanes, &vLight->inverseBaseLightProject );
 	
 	GL_Cull( CT_FRONT_SIDED );
-	
-	GL_SelectTexture( 1 );
-	globalImages->BindNull();
 	
 	GL_SelectTexture( 0 );
 	
@@ -4611,13 +4565,7 @@ void idRenderBackend::Tonemap( const viewDef_t* _viewDef )
 	// Draw
 	DrawElementsWithCounters( &unitSquareSurface );
 	
-	// unbind heatmap
-	globalImages->BindNull();
-	
-	// unbind _currentRender
 	GL_SelectTexture( 0 );
-	globalImages->BindNull();
-	
 	renderProgManager.Unbind();
 	
 	GL_State( GLS_DEFAULT );
@@ -4741,9 +4689,6 @@ void idRenderBackend::Bloom( const viewDef_t* _viewDef )
 	
 	DrawElementsWithCounters( &unitSquareSurface );
 	
-	globalImages->BindNull();
-	
-	Framebuffer::Unbind();
 	renderProgManager.Unbind();
 	
 	GL_State( GLS_DEFAULT );
@@ -5944,8 +5889,6 @@ void idRenderBackend::PostProcess( const void* data )
 #endif
 		
 #if 1
-		globalImages->BindNull();
-		
 		//GL_SelectTexture( 0 );
 		//globalImages->smaaBlendImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
 		
@@ -6003,15 +5946,7 @@ void idRenderBackend::PostProcess( const void* data )
 	}
 #endif
 	
-	GL_SelectTexture( 2 );
-	globalImages->BindNull();
-	
-	GL_SelectTexture( 1 );
-	globalImages->BindNull();
-	
 	GL_SelectTexture( 0 );
-	globalImages->BindNull();
-	
 	renderProgManager.Unbind();
 	
 	renderLog.CloseBlock();
