@@ -241,7 +241,22 @@ Once Wine is installed and configured on your system install Doom 3 BFG edition 
 
 > wine setup_doom_3_bfg_1.14_\(13452\)_\(g\).exe
 
+(there will be several .exe files from GOG, make sure all of them are in the same directory)
+
 Once this is complete, by default you can find your Doom 3 BFG "base/" directory at ".wine/drive_c/GOG\ Games/DOOM\ 3\ BFG/base".
+
+Note that you may want to add the following line to the bottom of the default.cfg in whatever "base/" directory you use:
+
+> set sys_lang "english"
+
+This will ensure the game and its menus are in english and don't default to something else. Alternatives include:
+
+set sys_lang "english"
+set sys_lang "french"
+set sys_lang "german"
+set sys_lang "italian"
+set sys_lang "japanese"
+set sys_lang "spanish"
 
 Anyway:
 
