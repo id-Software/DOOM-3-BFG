@@ -433,7 +433,8 @@ static void RB_BindVariableStageImage( const textureStage_t* texture, const floa
 			cin.imageCr->Bind();
 			GL_SelectTexture( 2 );
 			cin.imageCb->Bind();
-			
+			// DG: imageY is only used for bink videos (with libbinkdec), so the bink shader must be used
+			renderProgManager.BindShader_Bink();
 		}
 		else if( cin.image != NULL )
 		{

@@ -66,6 +66,17 @@ extern "C"
 }
 #endif
 
+#ifdef USE_BINKDEC
+// DG: not sure how to use FFMPEG and BINKDEC at the same time.. it might be useful if someone wants to
+//     use binkdec for bink and FFMPEG for other formats in custom code so I didn't just rip FFMPEG out
+//     But right now it's unsupported, if you need this adjust the video loading code etc yourself
+#ifdef USE_FFMPEG
+#error "Currently, only one of FFMPEG and BINKDEC is supported at a time!"
+#endif
+
+#include <BinkDecoder.h>
+#endif // USE_BINKDEC
+
 class idCinematicLocal : public idCinematic
 {
 public:
@@ -97,6 +108,19 @@ private:
 	cinData_t				ImageForTimeFFMPEG( int milliseconds );
 	bool					InitFromFFMPEGFile( const char* qpath, bool looping );
 	void					FFMPEGReset();
+#endif
+#ifdef USE_BINKDEC
+	BinkHandle				binkHandle;
+	cinData_t				ImageForTimeBinkDec( int milliseconds );
+	bool					InitFromBinkDecFile( const char* qpath, bool looping );
+	void					BinkDecReset();
+	
+	YUVbuffer				yuvBuffer;
+	int						framePos;
+	int						numFrames;
+	idImage*				imgY;
+	idImage*				imgCr;
+	idImage*				imgCb;
 #endif
 	idImage*				img;
 	bool					isRoQ;
@@ -400,6 +424,38 @@ idCinematicLocal::idCinematicLocal()
 	hasFrame = false;
 #endif
 	
+#ifdef USE_BINKDEC
+	binkHandle.isValid = false;
+	binkHandle.instanceIndex = -1; // whatever this is, it now has a deterministic value
+	framePos = -1;
+	numFrames = 0;
+	
+	imgY = globalImages->AllocStandaloneImage( "_cinematicY" );
+	imgCr = globalImages->AllocStandaloneImage( "_cinematicCr" );
+	imgCb = globalImages->AllocStandaloneImage( "_cinematicCb" );
+	{
+		idImageOpts opts;
+		opts.format = FMT_LUM8;
+		opts.colorFormat = CFM_DEFAULT;
+		opts.width = 32;
+		opts.height = 32;
+		opts.numLevels = 1;
+		if( imgY != NULL )
+		{
+			imgY->AllocImage( opts, TF_LINEAR, TR_REPEAT );
+		}
+		if( imgCr != NULL )
+		{
+			imgCr->AllocImage( opts, TF_LINEAR, TR_REPEAT );
+		}
+		if( imgCb != NULL )
+		{
+			imgCb->AllocImage( opts, TF_LINEAR, TR_REPEAT );
+		}
+	}
+	
+#endif
+	
 	// Carl: Original Doom 3 RoQ files:
 	image = NULL;
 	status = FMV_EOF;
@@ -455,6 +511,20 @@ idCinematicLocal::~idCinematicLocal()
 	{
 		sws_freeContext( img_convert_ctx );
 	}
+#endif
+	
+#ifdef USE_BINKDEC
+	if( binkHandle.isValid )
+	{
+		Bink_Close( binkHandle );
+	}
+	
+	delete imgY;
+	imgY = NULL;
+	delete imgCr;
+	imgCr = NULL;
+	delete imgCr;
+	imgCb = NULL;
 #endif
 	
 	delete img;
@@ -599,6 +669,80 @@ void idCinematicLocal::FFMPEGReset()
 }
 #endif
 
+#ifdef USE_BINKDEC
+bool idCinematicLocal::InitFromBinkDecFile( const char* qpath, bool amilooping )
+{
+	int ret;
+	looping = amilooping;
+	startTime = 0;
+	isRoQ = false;
+	CIN_HEIGHT = DEFAULT_CIN_HEIGHT;
+	CIN_WIDTH  =  DEFAULT_CIN_WIDTH;
+	
+	idStr fullpath;
+	idFile* testFile = fileSystem->OpenFileRead( qpath );
+	if( testFile )
+	{
+		fullpath = testFile->GetFullPath();
+		fileSystem->CloseFile( testFile );
+	}
+	// RB: case sensitivity HACK for Linux
+	else if( idStr::Cmpn( qpath, "sound/vo", 8 ) == 0 )
+	{
+		idStr newPath( qpath );
+		newPath.Replace( "sound/vo", "sound/VO" );
+		
+		testFile = fileSystem->OpenFileRead( newPath );
+		if( testFile )
+		{
+			fullpath = testFile->GetFullPath();
+			fileSystem->CloseFile( testFile );
+		}
+		else
+		{
+			common->Warning( "idCinematic: Cannot open BinkDec video file: '%s', %d\n", qpath, looping );
+			return false;
+		}
+	}
+	
+	binkHandle = Bink_Open( fullpath );
+	if( !binkHandle.isValid )
+	{
+		common->Warning( "idCinematic: Cannot open BinkDec video file: '%s', %d\n", qpath, looping );
+		return false;
+	}
+	
+	{
+		uint32_t w = 0, h = 0;
+		Bink_GetFrameSize( binkHandle, w, h );
+		CIN_WIDTH = w;
+		CIN_HEIGHT = h;
+	}
+	
+	frameRate = Bink_GetFrameRate( binkHandle );
+	numFrames = Bink_GetNumFrames( binkHandle );
+	float durationSec = frameRate * numFrames;
+	animationLength = durationSec;
+	buf = NULL;
+	
+	common->Printf( "Loaded BinkDec file: '%s', looping=%d%dx%d, %f FPS, %f sec\n", qpath, looping, CIN_WIDTH, CIN_HEIGHT, frameRate, durationSec );
+	
+	status = FMV_PLAY;
+	
+	startTime = Sys_Milliseconds();
+	memset( yuvBuffer, 0, sizeof( yuvBuffer ) );
+	framePos = -1;
+	
+	return true;
+}
+
+void idCinematicLocal::BinkDecReset()
+{
+	framePos = -1;
+	Bink_GotoFrame( binkHandle, 0 );
+	status = FMV_LOOPED;
+}
+#endif // USE_BINKDEC
 
 /*
 ==============
@@ -646,6 +790,13 @@ bool idCinematicLocal::InitFromFile( const char* qpath, bool amilooping )
 		fileName = temp;
 		//idLib::Warning( "New filename: '%s'\n", fileName.c_str() );
 		return InitFromFFMPEGFile( fileName.c_str(), amilooping );
+#elif defined(USE_BINKDEC)
+		idStr temp = fileName.StripFileExtension() + ".bik";
+		animationLength = 0;
+		RoQShutdown();
+		fileName = temp;
+		//idLib::Warning( "New filename: '%s'\n", fileName.c_str() );
+		return InitFromBinkDecFile( fileName.c_str(), amilooping );
 #else
 		animationLength = 0;
 		return false;
@@ -727,6 +878,14 @@ void idCinematicLocal::Close()
 		status = FMV_EOF;
 	}
 #endif
+#ifdef USE_BINKDEC
+	if( !isRoQ && binkHandle.isValid )
+	{
+		memset( yuvBuffer, 0 , sizeof( yuvBuffer ) );
+		Bink_Close( binkHandle );
+		status = FMV_EOF;
+	}
+#endif
 }
 
 /*
@@ -768,6 +927,10 @@ cinData_t idCinematicLocal::ImageForTime( int thisTime )
 	// Carl: Handle BFG format BINK videos separately
 	if( !isRoQ )
 		return ImageForTimeFFMPEG( thisTime );
+#endif
+#ifdef USE_BINKDEC // DG: libbinkdec support
+	if( !isRoQ )
+		return ImageForTimeBinkDec( thisTime );
 #endif
 		
 	// Carl: Handle original Doom 3 RoQ video files
@@ -992,6 +1155,128 @@ cinData_t idCinematicLocal::ImageForTimeFFMPEG( int thisTime )
 	img->UploadScratch( image, CIN_WIDTH, CIN_HEIGHT );
 	hasFrame = true;
 	cinData.image = img;
+	
+	return cinData;
+}
+#endif
+
+
+#ifdef USE_BINKDEC
+cinData_t idCinematicLocal::ImageForTimeBinkDec( int thisTime )
+{
+	cinData_t	cinData = {0};
+	
+	if( thisTime <= 0 )
+	{
+		thisTime = Sys_Milliseconds();
+	}
+	
+	if( r_skipDynamicTextures.GetBool() || status == FMV_EOF || status == FMV_IDLE )
+	{
+		return cinData;
+	}
+	
+	if( !binkHandle.isValid )
+	{
+		// RB: .bik requested but not found
+		return cinData;
+	}
+	
+	if( startTime == -1 )
+	{
+		BinkDecReset();
+		startTime = thisTime;
+	}
+	
+	int desiredFrame = ( ( thisTime - startTime ) * frameRate ) / 1000.0f;
+	if( desiredFrame < 0 )
+	{
+		desiredFrame = 0;
+	}
+	
+	if( desiredFrame >= numFrames )
+	{
+		status = FMV_EOF;
+		if( looping )
+		{
+			desiredFrame = 0;
+			BinkDecReset();
+			framePos = -1;
+			startTime = thisTime;
+			status = FMV_PLAY;
+		}
+		else
+		{
+			status = FMV_IDLE;
+			return cinData;
+		}
+	}
+	
+	if( desiredFrame == framePos )
+	{
+		cinData.imageWidth = CIN_WIDTH;
+		cinData.imageHeight = CIN_HEIGHT;
+		cinData.status = status;
+		
+		cinData.imageY = imgY;
+		cinData.imageCr = imgCr;
+		cinData.imageCb = imgCb;
+		return cinData;
+	}
+	
+	// Bink_GotoFrame(binkHandle, desiredFrame);
+	// apparently Bink_GotoFrame() doesn't work super well, so skip frames
+	// (if necessary) by calling Bink_GetNextFrame()
+	while( framePos < desiredFrame )
+	{
+		framePos = Bink_GetNextFrame( binkHandle, yuvBuffer );
+	}
+	
+	cinData.imageWidth = CIN_WIDTH;
+	cinData.imageHeight = CIN_HEIGHT;
+	cinData.status = status;
+	
+	double invAspRat = double( CIN_HEIGHT ) / double( CIN_WIDTH );
+	
+	idImage* imgs[3] = {imgY, imgCb, imgCr}; // that's the order of the channels in yuvBuffer[]
+	for( int i = 0; i < 3; ++i )
+	{
+		// Note: img->UploadScratch() seems to assume 32bit per pixel data, but this is 8bit/pixel
+		//       so uploading is a bit more manual here (compared to ffmpeg or RoQ)
+		idImage* img = imgs[i];
+		int w = yuvBuffer[i].width;
+		int h = yuvBuffer[i].height;
+		// some videos, including the logo video and the main menu background,
+		// seem to have superfluous rows in at least some of the channels,
+		// leading to a black or glitchy bar at the bottom of the video.
+		// cut that off by reducing the height to the expected height
+		if( h > CIN_HEIGHT )
+		{
+			h = CIN_HEIGHT;
+		}
+		else if( h < CIN_HEIGHT )
+		{
+			// the U and V channels have a lower resolution than the Y channel
+			// (or the logical video resolution), so use the aspect ratio to
+			// calculate the real height
+			int hExp = invAspRat * w + 0.5;
+			if( h > hExp )
+				h = hExp;
+		}
+		
+		if( img->GetUploadWidth() != w || img->GetUploadHeight() != h )
+		{
+			idImageOpts opts = img->GetOpts();
+			opts.width = w;
+			opts.height = h;
+			img->AllocImage( opts, TF_LINEAR, TR_REPEAT );
+		}
+		img->SubImageUpload( 0, 0, 0, 0, w, h, yuvBuffer[i].data );
+	}
+	
+	cinData.imageY = imgY;
+	cinData.imageCr = imgCr;
+	cinData.imageCb = imgCb;
 	
 	return cinData;
 }

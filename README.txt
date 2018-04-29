@@ -619,3 +619,36 @@ select the most convenient license for your needs from (1) the
 GNU GPL, (2) the GNU LGPL, or (3) the Perl Artistic License.  
 
 
+libbinkdec
+---------------------------------------------------------------------------
+neo/libs/libbinkdec/*
+
+Copyright (C) 2011 Barry Duncan
+
+Based on Bink video decoder from FFmpeg
+
+ Copyright (C) 2009 Konstantin Shishkov
+ Copyright (C) 2011 Peter Ross <pross@xvid.org>
+
+And generic Code from FFmpeg
+
+ Copyright (C) 2000-2011 FFmpeg team, http://www.ffmpeg.org
+
+libbinkdec and (the used parts of) FFmpeg are released under LGPL v2.1:
+
+ This library is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 2.1 of the License, or (at your option) any later version.
+ 
+ This library is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+ 
+ You should have received a copy of the GNU Lesser General Public
+ License along with this library; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+
+(You can find the whole license text on https://www.gnu.org/licenses/lgpl-2.1.html
+ or in neo/libs/libbinkdec/COPYING)
