@@ -1,0 +1,15 @@
+LIBRARY
+EXPORTS
+
+; functions
+Bink_Open
+Bink_Close
+Bink_GetNumAudioTracks
+Bink_GetAudioTrackDetails
+Bink_GetAudioData
+Bink_GetNumFrames
+Bink_GetCurrentFrameNum
+Bink_GetNextFrame
+Bink_GetFrameSize
+Bink_GetFrameRate
+Bink_GotoFrame
