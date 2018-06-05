@@ -1511,7 +1511,7 @@ void WI_loadData(void)
 		// DHM - Nerve :: Use our background image
 		//strcpy(name, "DMENUPIC");
 	else 
-		std::snprintf(name, sizeof( name ), "WIMAP%d", ::g->wbs->epsd);
+		idStr::snPrintf(name, sizeof( name ), "WIMAP%d", ::g->wbs->epsd);
 
 	if ( ::g->gamemode == retail )
 	{
