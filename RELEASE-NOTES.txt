@@ -14,7 +14,30 @@ Thank you for downloading RBDOOM-3-BFG.
 
 _______________________________________
 
-TBD - RBDOOM-3-BFG 1.1.0
+TBD in 2018 - RBDOOM-3-BFG 1.2.0
+_______________________________
+
+- Added in-engine Flash debugging tools and new console variables.
+  These tools help to analyse the id Tech view of Flash and what SWF tags are supported and how they are interpreted
+  by id Tech's own ActionScript 2 interpreter
+	- swf_exportAtlas
+	- swf_exportSWF
+	- swf_exportJSON
+	- swf_show : Draws the bounding box of instanced Flash sprites in red and their names
+
+- Added Steel Storm 2 Engine render demo fixes
+
+- Merged LordHavoc's image compression progress bar which shows up in the map loading screen
+  when loading new images from mods
+  
+- Added instructions how to use these Doom 3 port with the GOG installer
+
+- Many smaller compiler related fixes
+
+
+_______________________________________
+
+11 April 2016 - RBDOOM-3-BFG 1.1.0 preview 3
 _______________________________
 
 - True 64 bit HDR lighting with adaptive filmic tone mapping and gamma-correct rendering in linear RGB space
