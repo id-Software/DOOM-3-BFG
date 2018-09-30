@@ -656,9 +656,9 @@ P_SetupLevel
 	if ( ::g->gamemode == commercial)
 	{
 		if (map<10)
-			sprintf (lumpname,"map0%i", map);
+			sprintf (lumpname, "map0%i", map % 100);
 		else
-			sprintf (lumpname,"map%i", map);
+			sprintf (lumpname, "map%i", map % 100);
 	}
 	else
 	{
