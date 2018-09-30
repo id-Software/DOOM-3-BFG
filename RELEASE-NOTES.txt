@@ -17,6 +17,10 @@ _______________________________________
 TBD in 2018 - RBDOOM-3-BFG 1.2.0
 _______________________________
 
+- Refactored OpenGL renderer backend to match Dustin Land's Doom 3 BFG Vulkan port
+
+- Integrated libbinkdec for video playback as a slim alternative to FFmpeg (thanks to Daniel Gibson)
+
 - Added in-engine Flash debugging tools and new console variables.
   These tools help to analyse the id Tech view of Flash and what SWF tags are supported and how they are interpreted
   by id Tech's own ActionScript 2 interpreter
