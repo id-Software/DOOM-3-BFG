@@ -108,7 +108,7 @@ If you have questions concerning this license or the applicable additional terms
 #if defined(__i386__)
 #define	CPUSTRING						"x86"
 #elif defined(__x86_64__)
-#define CPUSTRING						"x86_86"
+#define CPUSTRING						"x86_64"
 #else
 #error unknown CPU
 #endif
