@@ -35,7 +35,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "GLState.h"
 #include "ScreenRect.h"
-#include "ImageOpts.h"
 #include "Image.h"
 #include "Font.h"
 #include "Framebuffer.h"
@@ -676,15 +675,6 @@ struct performanceCounters_t
 };
 
 
-struct tmu_t
-{
-	unsigned int	current2DMap;
-	unsigned int	current2DArray;
-	unsigned int	currentCubeMap;
-};
-
-
-const int MAX_MULTITEXTURE_UNITS =	8;
 
 enum vertexLayoutType_t
 {
@@ -694,78 +684,30 @@ enum vertexLayoutType_t
 	LAYOUT_DRAW_SHADOW_VERT_SKINNED
 };
 
+/*
 struct glstate_t
 {
 	tmu_t				tmu[MAX_MULTITEXTURE_UNITS];
-	
+
 	int					currenttmu;
-	
+
 	int					faceCulling;
-	
+
 	vertexLayoutType_t	vertexLayout;
-	
+
 	// RB: 64 bit fixes, changed unsigned int to uintptr_t
 	uintptr_t			currentVertexBuffer;
 	uintptr_t			currentIndexBuffer;
-	
+
 	Framebuffer*		currentFramebuffer;
 	// RB end
-	
+
 	float				polyOfsScale;
 	float				polyOfsBias;
-	
+
 	uint64				glStateBits;
 };
-
-struct backEndCounters_t
-{
-	int		c_surfaces;
-	int		c_shaders;
-	
-	int		c_drawElements;
-	int		c_drawIndexes;
-	
-	int		c_shadowElements;
-	int		c_shadowIndexes;
-	
-	int		c_copyFrameBuffer;
-	
-	float	c_overDraw;
-	
-	int		totalMicroSec;			// total microseconds for backend run
-	int		shadowMicroSec;
-};
-
-// all state modified by the back end is separated
-// from the front end state
-struct backEndState_t
-{
-	const viewDef_t*		viewDef;
-	backEndCounters_t	pc;
-	
-	const viewEntity_t* currentSpace;			// for detecting when a matrix must change
-	idScreenRect		currentScissor;			// for scissor clipping, local inside renderView viewport
-	glstate_t			glState;				// for OpenGL state deltas
-	
-	bool				currentRenderCopied;	// true if any material has already referenced _currentRender
-	
-	idRenderMatrix		prevMVP[2];				// world MVP from previous frame for motion blur, per-eye
-	
-	// RB begin
-	idRenderMatrix		shadowV[6];				// shadow depth view matrix
-	idRenderMatrix		shadowP[6];				// shadow depth projection matrix
-	
-	float				hdrAverageLuminance;
-	float				hdrMaxLuminance;
-	float				hdrTime;
-	float				hdrKey;
-	// RB end
-	
-	// surfaces used for code-based drawing
-	drawSurf_t			unitSquareSurface;
-	drawSurf_t			zeroOneCubeSurface;
-	drawSurf_t			testImageSurface;
-};
+*/
 
 class idParallelJobList;
 
@@ -773,6 +715,8 @@ const int MAX_GUI_SURFACES	= 1024;		// default size of the drawSurfs list for gu
 // be automatically expanded as needed
 
 static const int MAX_RENDER_CROPS = 8;
+
+#include "RenderBackend.h"
 
 /*
 ** Most renderer globals are defined here.
@@ -845,13 +789,14 @@ public:
 	virtual void			UnCrop();
 	virtual bool			UploadImage( const char* imageName, const byte* data, int width, int height );
 	
+	void					PrintPerformanceCounters();
 	
 	
 public:
 	// internal functions
 	idRenderSystemLocal();
 	~idRenderSystemLocal();
-
+	
 	void					UpdateStereo3DMode();
 	
 	void					Clear();
@@ -928,10 +873,11 @@ public:
 	
 	idParallelJobList* 		frontEndJobList;
 	
+	idRenderBackend			backend;
+	
 	unsigned				timerQueryId;		// for GL_TIME_ELAPSED_EXT queries
 };
 
-extern backEndState_t		backEnd;
 extern idRenderSystemLocal	tr;
 extern glconfig_t			glConfig;		// outside of TR since it shouldn't be cleared during ref re-init
 
@@ -1470,17 +1416,8 @@ struct localTrace_t
 };
 
 localTrace_t R_LocalTrace( const idVec3& start, const idVec3& end, const float radius, const srfTriangles_t* tri );
-void RB_ShowTrace( drawSurf_t** drawSurfs, int numDrawSurfs );
 
-/*
-=============================================================
 
-BACKEND
-
-=============================================================
-*/
-
-void RB_ExecuteBackEndCommands( const emptyCommand_t* cmds );
 
 /*
 ============================================================
@@ -1491,11 +1428,6 @@ TR_BACKEND_DRAW
 */
 
 void RB_SetMVP( const idRenderMatrix& mvp );
-void RB_DrawElementsWithCounters( const drawSurf_t* surf );
-void RB_DrawViewInternal( const viewDef_t* viewDef, const int stereoEye );
-void RB_DrawView( const void* data, const int stereoEye );
-void RB_CopyRender( const void* data );
-void RB_PostProcess( const void* data );
 
 /*
 =============================================================
@@ -1513,13 +1445,7 @@ void RB_ClearDebugLines( int time );
 void RB_AddDebugPolygon( const idVec4& color, const idWinding& winding, const int lifeTime, const bool depthTest );
 void RB_ClearDebugPolygons( int time );
 void RB_DrawBounds( const idBounds& bounds );
-void RB_ShowLights( drawSurf_t** drawSurfs, int numDrawSurfs );
-void RB_ShowLightCount( drawSurf_t** drawSurfs, int numDrawSurfs );
-void RB_PolygonClear();
-void RB_ScanStencilBuffer();
-void RB_ShowDestinationAlpha();
-void RB_ShowOverdraw();
-void RB_RenderDebugTools( drawSurf_t** drawSurfs, int numDrawSurfs );
+
 void RB_ShutdownDebugTools();
 void RB_SetVertexColorParms( stageVertexColor_t svc );
 
@@ -1531,7 +1457,6 @@ void RB_SetVertexColorParms( stageVertexColor_t svc );
 #include "jobs/prelightshadowvolume/PreLightShadowVolume.h"
 #include "jobs/staticshadowvolume/StaticShadowVolume.h"
 #include "jobs/dynamicshadowvolume/DynamicShadowVolume.h"
-#include "GraphicsAPIWrapper.h"
 #include "GLMatrix.h"
 
 

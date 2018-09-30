@@ -35,7 +35,245 @@ Contains the Image implementation for OpenGL.
 ================================================================================================
 */
 
-#include "../tr_local.h"
+#include "../RenderCommon.h"
+
+/*
+====================
+idImage::idImage
+====================
+*/
+idImage::idImage( const char* name ) : imgName( name )
+{
+	texnum = TEXTURE_NOT_LOADED;
+	internalFormat = 0;
+	dataFormat = 0;
+	dataType = 0;
+	generatorFunction = NULL;
+	filter = TF_DEFAULT;
+	repeat = TR_REPEAT;
+	usage = TD_DEFAULT;
+	cubeFiles = CF_2D;
+	
+	referencedOutsideLevelLoad = false;
+	levelLoadReferenced = false;
+	defaulted = false;
+	sourceFileTime = FILE_NOT_FOUND_TIMESTAMP;
+	binaryFileTime = FILE_NOT_FOUND_TIMESTAMP;
+	refCount = 0;
+}
+
+/*
+====================
+idImage::~idImage
+====================
+*/
+idImage::~idImage()
+{
+	PurgeImage();
+}
+
+/*
+==============
+Bind
+
+Automatically enables 2D mapping or cube mapping if needed
+==============
+*/
+void idImage::Bind()
+{
+	RENDERLOG_PRINTF( "idImage::Bind( %s )\n", GetName() );
+	
+	// load the image if necessary (FIXME: not SMP safe!)
+	if( !IsLoaded() )
+	{
+		// load the image on demand here, which isn't our normal game operating mode
+		ActuallyLoadImage( true );
+	}
+	
+	const int texUnit = tr.backend.GetCurrentTextureUnit();
+	
+	// RB: added support for more types
+	tmu_t* tmu = &glcontext.tmu[texUnit];
+	// bind the texture
+	if( opts.textureType == TT_2D )
+	{
+		if( tmu->current2DMap != texnum )
+		{
+			tmu->current2DMap = texnum;
+			
+#if !defined(USE_GLES2) && !defined(USE_GLES3)
+			if( glConfig.directStateAccess )
+			{
+				glBindMultiTextureEXT( GL_TEXTURE0 + texUnit, GL_TEXTURE_2D, texnum );
+			}
+			else
+#endif
+			{
+				glActiveTexture( GL_TEXTURE0 + texUnit );
+				glBindTexture( GL_TEXTURE_2D, texnum );
+			}
+		}
+	}
+	else if( opts.textureType == TT_CUBIC )
+	{
+		if( tmu->currentCubeMap != texnum )
+		{
+			tmu->currentCubeMap = texnum;
+			
+#if !defined(USE_GLES2) && !defined(USE_GLES3)
+			if( glConfig.directStateAccess )
+			{
+				glBindMultiTextureEXT( GL_TEXTURE0 + texUnit, GL_TEXTURE_CUBE_MAP, texnum );
+			}
+			else
+#endif
+			{
+				glActiveTexture( GL_TEXTURE0 + texUnit );
+				glBindTexture( GL_TEXTURE_CUBE_MAP, texnum );
+			}
+		}
+	}
+	else if( opts.textureType == TT_2D_ARRAY )
+	{
+		if( tmu->current2DArray != texnum )
+		{
+			tmu->current2DArray = texnum;
+			
+#if !defined(USE_GLES2) && !defined(USE_GLES3)
+			if( glConfig.directStateAccess )
+			{
+				glBindMultiTextureEXT( GL_TEXTURE0 + texUnit, GL_TEXTURE_2D_ARRAY, texnum );
+			}
+			else
+#endif
+			{
+				glActiveTexture( GL_TEXTURE0 + texUnit );
+				glBindTexture( GL_TEXTURE_2D_ARRAY, texnum );
+			}
+		}
+	}
+	else if( opts.textureType == TT_2D_MULTISAMPLE )
+	{
+		if( tmu->current2DMap != texnum )
+		{
+			tmu->current2DMap = texnum;
+			
+#if !defined(USE_GLES2) && !defined(USE_GLES3)
+			if( glConfig.directStateAccess )
+			{
+				glBindMultiTextureEXT( GL_TEXTURE0 + texUnit, GL_TEXTURE_2D_MULTISAMPLE, texnum );
+			}
+			else
+#endif
+			{
+				glActiveTexture( GL_TEXTURE0 + texUnit );
+				glBindTexture( GL_TEXTURE_2D_MULTISAMPLE, texnum );
+			}
+		}
+	}
+	// RB end
+}
+
+/*
+====================
+CopyFramebuffer
+====================
+*/
+void idImage::CopyFramebuffer( int x, int y, int imageWidth, int imageHeight )
+{
+	int target = GL_TEXTURE_2D;
+	switch( opts.textureType )
+	{
+		case TT_2D:
+			target = GL_TEXTURE_2D;
+			break;
+		case TT_CUBIC:
+			target = GL_TEXTURE_CUBE_MAP;
+			break;
+		case TT_2D_ARRAY:
+			target = GL_TEXTURE_2D_ARRAY;
+			break;
+		case TT_2D_MULTISAMPLE:
+			target = GL_TEXTURE_2D_MULTISAMPLE;
+			break;
+		default:
+			//idLib::FatalError( "%s: bad texture type %d", GetName(), opts.textureType );
+			return;
+	}
+	
+	glBindTexture( target, texnum );
+	
+#if !defined(USE_GLES2)
+	if( Framebuffer::IsDefaultFramebufferActive() )
+	{
+		glReadBuffer( GL_BACK );
+	}
+#endif
+	
+	opts.width = imageWidth;
+	opts.height = imageHeight;
+	
+#if defined(USE_GLES2)
+	glCopyTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, x, y, imageWidth, imageHeight, 0 );
+#else
+	if( r_useHDR.GetBool() && globalFramebuffers.hdrFBO->IsBound() )
+	{
+	
+		//if( backEnd.glState.currentFramebuffer != NULL && backEnd.glState.currentFramebuffer->IsMultiSampled() )
+	
+#if defined(USE_HDR_MSAA)
+		if( globalFramebuffers.hdrFBO->IsMultiSampled() )
+		{
+			glBindFramebuffer( GL_READ_FRAMEBUFFER, globalFramebuffers.hdrFBO->GetFramebuffer() );
+			glBindFramebuffer( GL_DRAW_FRAMEBUFFER, globalFramebuffers.hdrNonMSAAFBO->GetFramebuffer() );
+			glBlitFramebuffer( 0, 0, glConfig.nativeScreenWidth, glConfig.nativeScreenHeight,
+							   0, 0, glConfig.nativeScreenWidth, glConfig.nativeScreenHeight,
+							   GL_COLOR_BUFFER_BIT,
+							   GL_LINEAR );
+	
+			globalFramebuffers.hdrNonMSAAFBO->Bind();
+	
+			glCopyTexImage2D( target, 0, GL_RGBA16F, x, y, imageWidth, imageHeight, 0 );
+	
+			globalFramebuffers.hdrFBO->Bind();
+		}
+		else
+#endif
+		{
+			glCopyTexImage2D( target, 0, GL_RGBA16F, x, y, imageWidth, imageHeight, 0 );
+		}
+	}
+	else
+	{
+		glCopyTexImage2D( target, 0, GL_RGBA8, x, y, imageWidth, imageHeight, 0 );
+	}
+#endif
+	
+	// these shouldn't be necessary if the image was initialized properly
+	glTexParameterf( target, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+	glTexParameterf( target, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+	
+	glTexParameterf( target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+	glTexParameterf( target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+	
+	tr.backend.pc.c_copyFrameBuffer++;
+}
+
+/*
+====================
+CopyDepthbuffer
+====================
+*/
+void idImage::CopyDepthbuffer( int x, int y, int imageWidth, int imageHeight )
+{
+	glBindTexture( ( opts.textureType == TT_CUBIC ) ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, texnum );
+	
+	opts.width = imageWidth;
+	opts.height = imageHeight;
+	glCopyTexImage2D( GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, x, y, imageWidth, imageHeight, 0 );
+	
+	tr.backend.pc.c_copyFrameBuffer++;
+}
 
 /*
 ========================
@@ -554,7 +792,7 @@ void idImage::AllocImage()
 	}
 	else if( opts.textureType == TT_2D_MULTISAMPLE )
 	{
-		glTexImage2DMultisample( uploadTarget, opts.msaaSamples, internalFormat, opts.width, opts.height, GL_FALSE );
+		glTexImage2DMultisample( uploadTarget, opts.samples, internalFormat, opts.width, opts.height, GL_FALSE );
 	}
 	else
 	{
@@ -638,12 +876,13 @@ void idImage::PurgeImage()
 		glDeleteTextures( 1, ( GLuint* )&texnum );	// this should be the ONLY place it is ever called!
 		texnum = TEXTURE_NOT_LOADED;
 	}
+	
 	// clear all the current binding caches, so the next bind will do a real one
 	for( int i = 0 ; i < MAX_MULTITEXTURE_UNITS ; i++ )
 	{
-		backEnd.glState.tmu[i].current2DMap = TEXTURE_NOT_LOADED;
-		backEnd.glState.tmu[i].current2DArray = TEXTURE_NOT_LOADED;
-		backEnd.glState.tmu[i].currentCubeMap = TEXTURE_NOT_LOADED;
+		glcontext.tmu[i].current2DMap = TEXTURE_NOT_LOADED;
+		glcontext.tmu[i].current2DArray = TEXTURE_NOT_LOADED;
+		glcontext.tmu[i].currentCubeMap = TEXTURE_NOT_LOADED;
 	}
 }
 

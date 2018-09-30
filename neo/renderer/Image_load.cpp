@@ -3,8 +3,9 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013-2016 Robert Beckebans
+Copyright (C) 2013-2017 Robert Beckebans
 Copyright (C) 2014-2016 Kot in Action Creative Artel
+Copyright (C) 2016-2017 Dustin Land
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -32,7 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 
 #include "framework/Common_local.h"
-#include "tr_local.h"
+#include "RenderCommon.h"
 
 /*
 ================
@@ -94,7 +95,6 @@ idImage::DeriveOpts
 */
 ID_INLINE void idImage::DeriveOpts()
 {
-
 	if( opts.format == FMT_NONE )
 	{
 		opts.colorFormat = CFM_DEFAULT;
@@ -152,7 +152,9 @@ ID_INLINE void idImage::DeriveOpts()
 				opts.gammaMips = true;
 				break;
 			case TD_LIGHT:
-				// RB: don't destroy lighting
+				// RB: TODO check binary format version
+				// D3 BFG assets require RGB565 but it introduces color banding
+				// mods would prefer FMT_RGBA8
 				opts.format = FMT_RGB565; //FMT_RGBA8;
 				opts.gammaMips = true;
 				break;
@@ -214,172 +216,6 @@ void idImage::AllocImage( const idImageOpts& imgOpts, textureFilter_t tf, textur
 }
 
 /*
-================
-GenerateImage
-================
-*/
-void idImage::GenerateImage( const byte* pic, int width, int height, textureFilter_t filterParm, textureRepeat_t repeatParm, textureUsage_t usageParm, int msaaSamples )
-{
-	PurgeImage();
-	
-	filter = filterParm;
-	repeat = repeatParm;
-	usage = usageParm;
-	cubeFiles = CF_2D;
-	
-	opts.textureType = ( msaaSamples > 0 ) ? TT_2D_MULTISAMPLE : TT_2D;
-	opts.width = width;
-	opts.height = height;
-	opts.numLevels = 0;
-	opts.msaaSamples = msaaSamples;
-	DeriveOpts();
-	
-	// if we don't have a rendering context, just return after we
-	// have filled in the parms.  We must have the values set, or
-	// an image match from a shader before the render starts would miss
-	// the generated texture
-	if( !R_IsInitialized() )
-	{
-		return;
-	}
-	
-	// RB: allow pic == NULL for internal framebuffer images
-	if( pic == NULL || opts.textureType == TT_2D_MULTISAMPLE )
-	{
-		AllocImage();
-	}
-	else
-	{
-		idBinaryImage im( GetName() );
-		
-		
-		// foresthale 2014-05-30: give a nice progress display when binarizing
-		commonLocal.LoadPacifierBinarizeFilename( GetName() , "generated image" );
-		if( opts.numLevels > 1 )
-		{
-			commonLocal.LoadPacifierBinarizeProgressTotal( opts.width * opts.height * 4 / 3 );
-		}
-		else
-		{
-			commonLocal.LoadPacifierBinarizeProgressTotal( opts.width * opts.height );
-		}
-		
-		im.Load2DFromMemory( width, height, pic, opts.numLevels, opts.format, opts.colorFormat, opts.gammaMips );
-		
-		commonLocal.LoadPacifierBinarizeEnd();
-		
-		AllocImage();
-		
-		for( int i = 0; i < im.NumImages(); i++ )
-		{
-			const bimageImage_t& img = im.GetImageHeader( i );
-			const byte* data = im.GetImageData( i );
-			SubImageUpload( img.level, 0, 0, img.destZ, img.width, img.height, data );
-		}
-	}
-	// RB end
-}
-
-/*
-====================
-GenerateCubeImage
-
-Non-square cube sides are not allowed
-====================
-*/
-void idImage::GenerateCubeImage( const byte* pic[6], int size, textureFilter_t filterParm, textureUsage_t usageParm )
-{
-	PurgeImage();
-	
-	filter = filterParm;
-	repeat = TR_CLAMP;
-	usage = usageParm;
-	cubeFiles = CF_NATIVE;
-	
-	opts.textureType = TT_CUBIC;
-	opts.width = size;
-	opts.height = size;
-	opts.numLevels = 0;
-	DeriveOpts();
-	
-	// if we don't have a rendering context, just return after we
-	// have filled in the parms.  We must have the values set, or
-	// an image match from a shader before the render starts would miss
-	// the generated texture
-	if( !R_IsInitialized() )
-	{
-		return;
-	}
-	
-	idBinaryImage im( GetName() );
-	
-	// foresthale 2014-05-30: give a nice progress display when binarizing
-	commonLocal.LoadPacifierBinarizeFilename( GetName(), "generated cube image" );
-	if( opts.numLevels > 1 )
-	{
-		commonLocal.LoadPacifierBinarizeProgressTotal( opts.width * opts.width * 6 * 4 / 3 );
-	}
-	else
-	{
-		commonLocal.LoadPacifierBinarizeProgressTotal( opts.width * opts.width * 6 );
-	}
-	
-	im.LoadCubeFromMemory( size, pic, opts.numLevels, opts.format, opts.gammaMips );
-	
-	commonLocal.LoadPacifierBinarizeEnd();
-	
-	AllocImage();
-	
-	for( int i = 0; i < im.NumImages(); i++ )
-	{
-		const bimageImage_t& img = im.GetImageHeader( i );
-		const byte* data = im.GetImageData( i );
-		SubImageUpload( img.level, 0, 0, img.destZ, img.width, img.height, data );
-	}
-}
-
-// RB begin
-void idImage::GenerateShadowArray( int width, int height, textureFilter_t filterParm, textureRepeat_t repeatParm, textureUsage_t usageParm )
-{
-	PurgeImage();
-	
-	filter = filterParm;
-	repeat = repeatParm;
-	usage = usageParm;
-	cubeFiles = CF_2D_ARRAY;
-	
-	opts.textureType = TT_2D_ARRAY;
-	opts.width = width;
-	opts.height = height;
-	opts.numLevels = 0;
-	DeriveOpts();
-	
-	// if we don't have a rendering context, just return after we
-	// have filled in the parms.  We must have the values set, or
-	// an image match from a shader before the render starts would miss
-	// the generated texture
-	if( !R_IsInitialized() )
-	{
-		return;
-	}
-	
-	//idBinaryImage im( GetName() );
-	//im.Load2DFromMemory( width, height, pic, opts.numLevels, opts.format, opts.colorFormat, opts.gammaMips );
-	
-	AllocImage();
-	
-	/*
-	for( int i = 0; i < im.NumImages(); i++ )
-	{
-		const bimageImage_t& img = im.GetImageHeader( i );
-		const byte* data = im.GetImageData( i );
-		SubImageUpload( img.level, 0, 0, img.destZ, img.width, img.height, data );
-	}
-	*/
-}
-// RB end
-
-/*
 ===============
 GetGeneratedName
 
@@ -436,12 +272,11 @@ void idImage::ActuallyLoadImage( bool fromBackEnd )
 	}
 	else
 	{
-		// RB begin
+		// RB: added CF_2D_ARRAY
 		if( cubeFiles == CF_2D_ARRAY )
 		{
 			opts.textureType = TT_2D_ARRAY;
 		}
-		// RB end
 		else if( cubeFiles != CF_2D )
 		{
 			opts.textureType = TT_CUBIC;
@@ -649,286 +484,11 @@ void idImage::ActuallyLoadImage( bool fromBackEnd )
 	
 	AllocImage();
 	
-	
 	for( int i = 0; i < im.NumImages(); i++ )
 	{
 		const bimageImage_t& img = im.GetImageHeader( i );
 		const byte* data = im.GetImageData( i );
 		SubImageUpload( img.level, 0, 0, img.destZ, img.width, img.height, data );
-	}
-}
-
-/*
-==============
-Bind
-
-Automatically enables 2D mapping or cube mapping if needed
-==============
-*/
-void idImage::Bind()
-{
-
-	RENDERLOG_PRINTF( "idImage::Bind( %s )\n", GetName() );
-	
-	// load the image if necessary (FIXME: not SMP safe!)
-	if( !IsLoaded() )
-	{
-		// load the image on demand here, which isn't our normal game operating mode
-		ActuallyLoadImage( true );
-	}
-	
-	const int texUnit = backEnd.glState.currenttmu;
-	
-	// RB: added support for more types
-	tmu_t* tmu = &backEnd.glState.tmu[texUnit];
-	// bind the texture
-	if( opts.textureType == TT_2D )
-	{
-		if( tmu->current2DMap != texnum )
-		{
-			tmu->current2DMap = texnum;
-			
-#if !defined(USE_GLES2) && !defined(USE_GLES3)
-			if( glConfig.directStateAccess )
-			{
-				glBindMultiTextureEXT( GL_TEXTURE0 + texUnit, GL_TEXTURE_2D, texnum );
-			}
-			else
-#endif
-			{
-				glActiveTexture( GL_TEXTURE0 + texUnit );
-				glBindTexture( GL_TEXTURE_2D, texnum );
-			}
-		}
-	}
-	else if( opts.textureType == TT_CUBIC )
-	{
-		if( tmu->currentCubeMap != texnum )
-		{
-			tmu->currentCubeMap = texnum;
-			
-#if !defined(USE_GLES2) && !defined(USE_GLES3)
-			if( glConfig.directStateAccess )
-			{
-				glBindMultiTextureEXT( GL_TEXTURE0 + texUnit, GL_TEXTURE_CUBE_MAP, texnum );
-			}
-			else
-#endif
-			{
-				glActiveTexture( GL_TEXTURE0 + texUnit );
-				glBindTexture( GL_TEXTURE_CUBE_MAP, texnum );
-			}
-		}
-	}
-	else if( opts.textureType == TT_2D_ARRAY )
-	{
-		if( tmu->current2DArray != texnum )
-		{
-			tmu->current2DArray = texnum;
-			
-#if !defined(USE_GLES2) && !defined(USE_GLES3)
-			if( glConfig.directStateAccess )
-			{
-				glBindMultiTextureEXT( GL_TEXTURE0 + texUnit, GL_TEXTURE_2D_ARRAY, texnum );
-			}
-			else
-#endif
-			{
-				glActiveTexture( GL_TEXTURE0 + texUnit );
-				glBindTexture( GL_TEXTURE_2D_ARRAY, texnum );
-			}
-		}
-	}
-	else if( opts.textureType == TT_2D_MULTISAMPLE )
-	{
-		if( tmu->current2DMap != texnum )
-		{
-			tmu->current2DMap = texnum;
-			
-#if !defined(USE_GLES2) && !defined(USE_GLES3)
-			if( glConfig.directStateAccess )
-			{
-				glBindMultiTextureEXT( GL_TEXTURE0 + texUnit, GL_TEXTURE_2D_MULTISAMPLE, texnum );
-			}
-			else
-#endif
-			{
-				glActiveTexture( GL_TEXTURE0 + texUnit );
-				glBindTexture( GL_TEXTURE_2D_MULTISAMPLE, texnum );
-			}
-		}
-	}
-	// RB end
-}
-
-/*
-================
-MakePowerOfTwo
-================
-*/
-int MakePowerOfTwo( int num )
-{
-	int	pot;
-	for( pot = 1; pot < num; pot <<= 1 )
-	{
-	}
-	return pot;
-}
-
-/*
-====================
-CopyFramebuffer
-====================
-*/
-void idImage::CopyFramebuffer( int x, int y, int imageWidth, int imageHeight )
-{
-	int target = GL_TEXTURE_2D;
-	switch( opts.textureType )
-	{
-		case TT_2D:
-			target = GL_TEXTURE_2D;
-			break;
-		case TT_CUBIC:
-			target = GL_TEXTURE_CUBE_MAP;
-			break;
-		case TT_2D_ARRAY:
-			target = GL_TEXTURE_2D_ARRAY;
-			break;
-		case TT_2D_MULTISAMPLE:
-			target = GL_TEXTURE_2D_MULTISAMPLE;
-			break;
-		default:
-			//idLib::FatalError( "%s: bad texture type %d", GetName(), opts.textureType );
-			return;
-	}
-	
-	glBindTexture( target, texnum );
-	
-#if !defined(USE_GLES2)
-	if( Framebuffer::IsDefaultFramebufferActive() )
-	{
-		glReadBuffer( GL_BACK );
-	}
-#endif
-	
-	opts.width = imageWidth;
-	opts.height = imageHeight;
-	
-#if defined(USE_GLES2)
-	glCopyTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, x, y, imageWidth, imageHeight, 0 );
-#else
-	if( r_useHDR.GetBool() && globalFramebuffers.hdrFBO->IsBound() )
-	{
-	
-		//if( backEnd.glState.currentFramebuffer != NULL && backEnd.glState.currentFramebuffer->IsMultiSampled() )
-	
-#if defined(USE_HDR_MSAA)
-		if( globalFramebuffers.hdrFBO->IsMultiSampled() )
-		{
-			glBindFramebuffer( GL_READ_FRAMEBUFFER, globalFramebuffers.hdrFBO->GetFramebuffer() );
-			glBindFramebuffer( GL_DRAW_FRAMEBUFFER, globalFramebuffers.hdrNonMSAAFBO->GetFramebuffer() );
-			glBlitFramebuffer( 0, 0, glConfig.nativeScreenWidth, glConfig.nativeScreenHeight,
-							   0, 0, glConfig.nativeScreenWidth, glConfig.nativeScreenHeight,
-							   GL_COLOR_BUFFER_BIT,
-							   GL_LINEAR );
-	
-			globalFramebuffers.hdrNonMSAAFBO->Bind();
-	
-			glCopyTexImage2D( target, 0, GL_RGBA16F, x, y, imageWidth, imageHeight, 0 );
-	
-			globalFramebuffers.hdrFBO->Bind();
-		}
-		else
-#endif
-		{
-			glCopyTexImage2D( target, 0, GL_RGBA16F, x, y, imageWidth, imageHeight, 0 );
-		}
-	}
-	else
-	{
-		glCopyTexImage2D( target, 0, GL_RGBA8, x, y, imageWidth, imageHeight, 0 );
-	}
-#endif
-	
-	// these shouldn't be necessary if the image was initialized properly
-	glTexParameterf( target, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-	glTexParameterf( target, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-	
-	glTexParameterf( target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
-	glTexParameterf( target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
-	
-	backEnd.pc.c_copyFrameBuffer++;
-}
-
-/*
-====================
-CopyDepthbuffer
-====================
-*/
-void idImage::CopyDepthbuffer( int x, int y, int imageWidth, int imageHeight )
-{
-	glBindTexture( ( opts.textureType == TT_CUBIC ) ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, texnum );
-	
-	opts.width = imageWidth;
-	opts.height = imageHeight;
-	glCopyTexImage2D( GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, x, y, imageWidth, imageHeight, 0 );
-	
-	backEnd.pc.c_copyFrameBuffer++;
-}
-
-/*
-=============
-RB_UploadScratchImage
-
-if rows = cols * 6, assume it is a cube map animation
-=============
-*/
-void idImage::UploadScratch( const byte* data, int cols, int rows )
-{
-
-	// if rows = cols * 6, assume it is a cube map animation
-	if( rows == cols * 6 )
-	{
-		rows /= 6;
-		const byte* pic[6];
-		for( int i = 0; i < 6; i++ )
-		{
-			pic[i] = data + cols * rows * 4 * i;
-		}
-		
-		if( opts.textureType != TT_CUBIC || usage != TD_LOOKUP_TABLE_RGBA )
-		{
-			GenerateCubeImage( pic, cols, TF_LINEAR, TD_LOOKUP_TABLE_RGBA );
-			return;
-		}
-		if( opts.width != cols || opts.height != rows )
-		{
-			opts.width = cols;
-			opts.height = rows;
-			AllocImage();
-		}
-		SetSamplerState( TF_LINEAR, TR_CLAMP );
-		for( int i = 0; i < 6; i++ )
-		{
-			SubImageUpload( 0, 0, 0, i, opts.width, opts.height, pic[i] );
-		}
-		
-	}
-	else
-	{
-		if( opts.textureType != TT_2D || usage != TD_LOOKUP_TABLE_RGBA )
-		{
-			GenerateImage( data, cols, rows, TF_LINEAR, TR_REPEAT, TD_LOOKUP_TABLE_RGBA );
-			return;
-		}
-		if( opts.width != cols || opts.height != rows )
-		{
-			opts.width = cols;
-			opts.height = rows;
-			AllocImage();
-		}
-		SetSamplerState( TF_LINEAR, TR_REPEAT );
-		SubImageUpload( 0, 0, 0, 0, opts.width, opts.height, data );
 	}
 }
 
@@ -1123,4 +683,225 @@ void idImage::SetSamplerState( textureFilter_t tf, textureRepeat_t tr )
 	repeat = tr;
 	glBindTexture( ( opts.textureType == TT_CUBIC ) ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, texnum );
 	SetTexParameters();
+}
+
+/*
+================
+GenerateImage
+================
+*/
+void idImage::GenerateImage( const byte* pic, int width, int height, textureFilter_t filterParm, textureRepeat_t repeatParm, textureUsage_t usageParm, int msaaSamples )
+{
+	PurgeImage();
+	
+	filter = filterParm;
+	repeat = repeatParm;
+	usage = usageParm;
+	cubeFiles = CF_2D;
+	
+	opts.textureType = ( msaaSamples > 0 ) ? TT_2D_MULTISAMPLE : TT_2D;
+	opts.width = width;
+	opts.height = height;
+	opts.numLevels = 0;
+	opts.samples = textureSamples_t( msaaSamples );
+	DeriveOpts();
+	
+	// if we don't have a rendering context, just return after we
+	// have filled in the parms.  We must have the values set, or
+	// an image match from a shader before the render starts would miss
+	// the generated texture
+	if( !R_IsInitialized() )
+	{
+		return;
+	}
+	
+	// RB: allow pic == NULL for internal framebuffer images
+	if( pic == NULL || opts.textureType == TT_2D_MULTISAMPLE )
+	{
+		AllocImage();
+	}
+	else
+	{
+		idBinaryImage im( GetName() );
+		
+		
+		// foresthale 2014-05-30: give a nice progress display when binarizing
+		commonLocal.LoadPacifierBinarizeFilename( GetName() , "generated image" );
+		if( opts.numLevels > 1 )
+		{
+			commonLocal.LoadPacifierBinarizeProgressTotal( opts.width * opts.height * 4 / 3 );
+		}
+		else
+		{
+			commonLocal.LoadPacifierBinarizeProgressTotal( opts.width * opts.height );
+		}
+		
+		im.Load2DFromMemory( width, height, pic, opts.numLevels, opts.format, opts.colorFormat, opts.gammaMips );
+		
+		commonLocal.LoadPacifierBinarizeEnd();
+		
+		AllocImage();
+		
+		for( int i = 0; i < im.NumImages(); i++ )
+		{
+			const bimageImage_t& img = im.GetImageHeader( i );
+			const byte* data = im.GetImageData( i );
+			SubImageUpload( img.level, 0, 0, img.destZ, img.width, img.height, data );
+		}
+	}
+	// RB end
+}
+
+/*
+====================
+GenerateCubeImage
+
+Non-square cube sides are not allowed
+====================
+*/
+void idImage::GenerateCubeImage( const byte* pic[6], int size, textureFilter_t filterParm, textureUsage_t usageParm )
+{
+	PurgeImage();
+	
+	filter = filterParm;
+	repeat = TR_CLAMP;
+	usage = usageParm;
+	cubeFiles = CF_NATIVE;
+	
+	opts.textureType = TT_CUBIC;
+	opts.width = size;
+	opts.height = size;
+	opts.numLevels = 0;
+	DeriveOpts();
+	
+	// if we don't have a rendering context, just return after we
+	// have filled in the parms.  We must have the values set, or
+	// an image match from a shader before the render starts would miss
+	// the generated texture
+	if( !R_IsInitialized() )
+	{
+		return;
+	}
+	
+	idBinaryImage im( GetName() );
+	
+	// foresthale 2014-05-30: give a nice progress display when binarizing
+	commonLocal.LoadPacifierBinarizeFilename( GetName(), "generated cube image" );
+	if( opts.numLevels > 1 )
+	{
+		commonLocal.LoadPacifierBinarizeProgressTotal( opts.width * opts.width * 6 * 4 / 3 );
+	}
+	else
+	{
+		commonLocal.LoadPacifierBinarizeProgressTotal( opts.width * opts.width * 6 );
+	}
+	
+	im.LoadCubeFromMemory( size, pic, opts.numLevels, opts.format, opts.gammaMips );
+	
+	commonLocal.LoadPacifierBinarizeEnd();
+	
+	AllocImage();
+	
+	for( int i = 0; i < im.NumImages(); i++ )
+	{
+		const bimageImage_t& img = im.GetImageHeader( i );
+		const byte* data = im.GetImageData( i );
+		SubImageUpload( img.level, 0, 0, img.destZ, img.width, img.height, data );
+	}
+}
+
+// RB begin
+void idImage::GenerateShadowArray( int width, int height, textureFilter_t filterParm, textureRepeat_t repeatParm, textureUsage_t usageParm )
+{
+	PurgeImage();
+	
+	filter = filterParm;
+	repeat = repeatParm;
+	usage = usageParm;
+	cubeFiles = CF_2D_ARRAY;
+	
+	opts.textureType = TT_2D_ARRAY;
+	opts.width = width;
+	opts.height = height;
+	opts.numLevels = 0;
+	DeriveOpts();
+	
+	// if we don't have a rendering context, just return after we
+	// have filled in the parms.  We must have the values set, or
+	// an image match from a shader before the render starts would miss
+	// the generated texture
+	if( !R_IsInitialized() )
+	{
+		return;
+	}
+	
+	//idBinaryImage im( GetName() );
+	//im.Load2DFromMemory( width, height, pic, opts.numLevels, opts.format, opts.colorFormat, opts.gammaMips );
+	
+	AllocImage();
+	
+	/*
+	for( int i = 0; i < im.NumImages(); i++ )
+	{
+		const bimageImage_t& img = im.GetImageHeader( i );
+		const byte* data = im.GetImageData( i );
+		SubImageUpload( img.level, 0, 0, img.destZ, img.width, img.height, data );
+	}
+	*/
+}
+// RB end
+/*
+=============
+RB_UploadScratchImage
+
+if rows = cols * 6, assume it is a cube map animation
+=============
+*/
+void idImage::UploadScratch( const byte* data, int cols, int rows )
+{
+	// if rows = cols * 6, assume it is a cube map animation
+	if( rows == cols * 6 )
+	{
+		rows /= 6;
+		const byte* pic[6];
+		for( int i = 0; i < 6; i++ )
+		{
+			pic[i] = data + cols * rows * 4 * i;
+		}
+		
+		if( opts.textureType != TT_CUBIC || usage != TD_LOOKUP_TABLE_RGBA )
+		{
+			GenerateCubeImage( pic, cols, TF_LINEAR, TD_LOOKUP_TABLE_RGBA );
+			return;
+		}
+		if( opts.width != cols || opts.height != rows )
+		{
+			opts.width = cols;
+			opts.height = rows;
+			
+			AllocImage();
+		}
+		SetSamplerState( TF_LINEAR, TR_CLAMP );
+		for( int i = 0; i < 6; i++ )
+		{
+			SubImageUpload( 0, 0, 0, i, opts.width, opts.height, pic[i] );
+		}
+	}
+	else
+	{
+		if( opts.textureType != TT_2D || usage != TD_LOOKUP_TABLE_RGBA )
+		{
+			GenerateImage( data, cols, rows, TF_LINEAR, TR_REPEAT, TD_LOOKUP_TABLE_RGBA );
+			return;
+		}
+		if( opts.width != cols || opts.height != rows )
+		{
+			opts.width = cols;
+			opts.height = rows;
+			
+			AllocImage();
+		}
+		SetSamplerState( TF_LINEAR, TR_REPEAT );
+		SubImageUpload( 0, 0, 0, 0, opts.width, opts.height, data );
+	}
 }

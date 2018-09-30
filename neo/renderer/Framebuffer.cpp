@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 #pragma hdrstop
 
-#include "tr_local.h"
+#include "RenderCommon.h"
 #include "Framebuffer.h"
 
 idList<Framebuffer*>	Framebuffer::framebuffers;
@@ -79,7 +79,7 @@ void Framebuffer::Init()
 {
 	cmdSystem->AddCommand( "listFramebuffers", R_ListFramebuffers_f, CMD_FL_RENDERER, "lists framebuffers" );
 	
-	backEnd.glState.currentFramebuffer = NULL;
+	tr.backend.currentFramebuffer = NULL;
 	
 	// SHADOWMAPS
 	
@@ -96,7 +96,7 @@ void Framebuffer::Init()
 	}
 	
 	// HDR
-
+	
 	int screenWidth = renderSystem->GetWidth();
 	int screenHeight = renderSystem->GetHeight();
 	
@@ -207,7 +207,7 @@ void Framebuffer::CheckFramebuffers()
 {
 	int screenWidth = renderSystem->GetWidth();
 	int screenHeight = renderSystem->GetHeight();
-
+	
 	if( globalFramebuffers.hdrFBO->GetWidth() != screenWidth || globalFramebuffers.hdrFBO->GetHeight() != screenHeight )
 	{
 		Unbind();
@@ -224,7 +224,7 @@ void Framebuffer::CheckFramebuffers()
 			globalFramebuffers.hdrNonMSAAFBO->Bind();
 			globalFramebuffers.hdrNonMSAAFBO->AttachImage2D( GL_TEXTURE_2D, globalImages->currentRenderHDRImageNoMSAA, 0 );
 			globalFramebuffers.hdrNonMSAAFBO->Check();
-
+			
 			globalFramebuffers.hdrNonMSAAFBO->width = screenWidth;
 			globalFramebuffers.hdrNonMSAAFBO->height = screenHeight;
 			
@@ -340,33 +340,33 @@ void Framebuffer::Bind()
 {
 	RENDERLOG_PRINTF( "Framebuffer::Bind( %s )\n", fboName.c_str() );
 	
-	if( backEnd.glState.currentFramebuffer != this )
+	if( tr.backend.currentFramebuffer != this )
 	{
 		glBindFramebuffer( GL_FRAMEBUFFER, frameBuffer );
-		backEnd.glState.currentFramebuffer = this;
+		tr.backend.currentFramebuffer = this;
 	}
 }
 
 bool Framebuffer::IsBound()
 {
-	return ( backEnd.glState.currentFramebuffer == this );
+	return ( tr.backend.currentFramebuffer == this );
 }
 
 void Framebuffer::Unbind()
 {
 	RENDERLOG_PRINTF( "Framebuffer::Unbind()\n" );
 	
-	//if(backEnd.glState.framebuffer != NULL)
+	//if(tr.backend.framebuffer != NULL)
 	{
 		glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 		glBindRenderbuffer( GL_RENDERBUFFER, 0 );
-		backEnd.glState.currentFramebuffer = NULL;
+		tr.backend.currentFramebuffer = NULL;
 	}
 }
 
 bool Framebuffer::IsDefaultFramebufferActive()
 {
-	return ( backEnd.glState.currentFramebuffer == NULL );
+	return ( tr.backend.currentFramebuffer == NULL );
 }
 
 void Framebuffer::AddColorBuffer( int format, int index, int multiSamples )

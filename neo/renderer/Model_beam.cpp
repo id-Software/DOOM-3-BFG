@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 
 
-#include "tr_local.h"
+#include "RenderCommon.h"
 #include "Model_local.h"
 
 /*

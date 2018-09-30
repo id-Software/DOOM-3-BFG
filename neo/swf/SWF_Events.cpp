@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2016-2017 Dustin Land
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -89,14 +90,14 @@ idSWFScriptObject* idSWF::HitTest( idSWFSpriteInstance* spriteInstance, const sw
 		else if( entry->type == SWF_DICT_SHAPE && ( parentObject != NULL ) )
 		{
 			idSWFShape* shape = entry->shape;
-			for( int i = 0; i < shape->fillDraws.Num(); i++ )
+			for( int j = 0; j < shape->fillDraws.Num(); j++ )
 			{
-				const idSWFShapeDrawFill& fill = shape->fillDraws[i];
-				for( int j = 0; j < fill.indices.Num(); j += 3 )
+				const idSWFShapeDrawFill& fill = shape->fillDraws[j];
+				for( int k = 0; k < fill.indices.Num(); k += 3 )
 				{
-					idVec2 xy1 = renderState2.matrix.Transform( fill.startVerts[fill.indices[j + 0]] );
-					idVec2 xy2 = renderState2.matrix.Transform( fill.startVerts[fill.indices[j + 1]] );
-					idVec2 xy3 = renderState2.matrix.Transform( fill.startVerts[fill.indices[j + 2]] );
+					idVec2 xy1 = renderState2.matrix.Transform( fill.startVerts[fill.indices[k + 0]] );
+					idVec2 xy2 = renderState2.matrix.Transform( fill.startVerts[fill.indices[k + 1]] );
+					idVec2 xy3 = renderState2.matrix.Transform( fill.startVerts[fill.indices[k + 2]] );
 					
 					idMat3 edgeEquations;
 					edgeEquations[0].Set( xy1.x + xOffset, xy1.y + yOffset, 1.0f );
@@ -161,9 +162,6 @@ idSWFScriptObject* idSWF::HitTest( idSWFSpriteInstance* spriteInstance, const sw
 			idVec3 tr;
 			idVec3 br;
 			idVec3 bl;
-			
-			float xOffset = spriteInstance->xOffset;
-			float yOffset = spriteInstance->yOffset;
 			
 			float topOffset = 0.0f;
 			
@@ -289,7 +287,7 @@ bool idSWF::HandleEvent( const sysEvent_t* event )
 						return true;
 					}
 					
-					idSWFScriptVar var = hitObject->Get( "onDrag" );
+					var = hitObject->Get( "onDrag" );
 					if( var.IsFunction() )
 					{
 						idSWFParmList parms;

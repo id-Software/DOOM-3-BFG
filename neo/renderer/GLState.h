@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2016-2017 Dustin Land
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -69,6 +70,12 @@ static const uint64 GLS_DEPTHFUNC_ALWAYS				= 1 << 13;
 static const uint64 GLS_DEPTHFUNC_GREATER				= 2 << 13;
 static const uint64 GLS_DEPTHFUNC_EQUAL					= 3 << 13;
 static const uint64 GLS_DEPTHFUNC_BITS					= 3 << 13;
+
+static const uint64 GLS_CULL_FRONTSIDED					= 0 << 15;
+static const uint64 GLS_CULL_BACKSIDED					= 1 << 15;
+static const uint64 GLS_CULL_TWOSIDED					= 2 << 15;
+static const uint64 GLS_CULL_BITS						= 2 << 15;
+static const uint64 GLS_CULL_MASK						= GLS_CULL_FRONTSIDED | GLS_CULL_BACKSIDED | GLS_CULL_TWOSIDED;
 
 static const uint64 GLS_BLENDOP_ADD						= 0 << 18;
 static const uint64 GLS_BLENDOP_SUB						= 1 << 18;
@@ -138,9 +145,15 @@ static const uint64 GLS_ALPHATEST_FUNC_BITS				= 3ull << 56;
 
 static const uint64 GLS_STENCIL_OP_BITS					= GLS_STENCIL_OP_FAIL_BITS | GLS_STENCIL_OP_ZFAIL_BITS | GLS_STENCIL_OP_PASS_BITS;
 
+static const uint64 GLS_DEPTH_TEST_MASK					= 1ull << 58;
+static const uint64 GLS_CLOCKWISE						= 1ull << 59;
+static const uint64 GLS_SEPARATE_STENCIL				= 1ull << 60;
+static const uint64 GLS_MIRROR_VIEW						= 1ull << 61;
+
 static const uint64 GLS_OVERRIDE						= 1ull << 63;		// override the render prog state
 
-static const uint64 GLS_DEFAULT = 0;
+static const uint64 GLS_KEEP							= GLS_DEPTH_TEST_MASK;
+static const uint64 GLS_DEFAULT							= 0;
 
 #define STENCIL_SHADOW_TEST_VALUE		128
 #define STENCIL_SHADOW_MASK_VALUE		255

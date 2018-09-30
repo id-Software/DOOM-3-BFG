@@ -3,7 +3,8 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013-2014 Robert Beckebans
+Copyright (C) 2013-2017 Robert Beckebans
+Copyright (C) 2016-2017 Dustin Land
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -26,6 +27,164 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
+
+enum textureType_t
+{
+	TT_DISABLED,
+	TT_2D,
+	TT_CUBIC,
+	// RB begin
+	TT_2D_ARRAY,
+	TT_2D_MULTISAMPLE
+	// RB end
+};
+
+/*
+================================================
+The internal *Texture Format Types*, ::textureFormat_t, are:
+================================================
+*/
+enum textureFormat_t
+{
+	FMT_NONE,
+	
+	//------------------------
+	// Standard color image formats
+	//------------------------
+	
+	FMT_RGBA8,			// 32 bpp
+	FMT_XRGB8,			// 32 bpp
+	
+	//------------------------
+	// Alpha channel only
+	//------------------------
+	
+	// Alpha ends up being the same as L8A8 in our current implementation, because straight
+	// alpha gives 0 for color, but we want 1.
+	FMT_ALPHA,
+	
+	//------------------------
+	// Luminance replicates the value across RGB with a constant A of 255
+	// Intensity replicates the value across RGBA
+	//------------------------
+	
+	FMT_L8A8,			// 16 bpp
+	FMT_LUM8,			//  8 bpp
+	FMT_INT8,			//  8 bpp
+	
+	//------------------------
+	// Compressed texture formats
+	//------------------------
+	
+	FMT_DXT1,			// 4 bpp
+	FMT_DXT5,			// 8 bpp
+	
+	//------------------------
+	// Depth buffer formats
+	//------------------------
+	
+	FMT_DEPTH,			// 24 bpp
+	
+	//------------------------
+	//
+	//------------------------
+	
+	FMT_X16,			// 16 bpp
+	FMT_Y16_X16,		// 32 bpp
+	FMT_RGB565,			// 16 bpp
+	
+	// RB: don't change above for legacy .bimage compatibility
+	FMT_ETC1_RGB8_OES,	// 4 bpp
+	FMT_SHADOW_ARRAY,	// 32 bpp * 6
+	FMT_RGBA16F,		// 64 bpp
+	FMT_RGBA32F,		// 128 bpp
+	FMT_R32F,			// 32 bpp
+	// RB end
+};
+
+int BitsForFormat( textureFormat_t format );
+
+enum textureSamples_t
+{
+	SAMPLE_1	= BIT( 0 ),
+	SAMPLE_2	= BIT( 1 ),
+	SAMPLE_4	= BIT( 2 ),
+	SAMPLE_8	= BIT( 3 ),
+	SAMPLE_16	= BIT( 4 )
+};
+
+/*
+================================================
+DXT5 color formats
+================================================
+*/
+enum textureColor_t
+{
+	CFM_DEFAULT,			// RGBA
+	CFM_NORMAL_DXT5,		// XY format and use the fast DXT5 compressor
+	CFM_YCOCG_DXT5,			// convert RGBA to CoCg_Y format
+	CFM_GREEN_ALPHA,		// Copy the alpha channel to green
+	
+	// RB: don't change above for legacy .bimage compatibility
+	CFM_YCOCG_RGBA8,
+	// RB end
+};
+
+/*
+================================================
+idImageOpts hold parameters for texture operations.
+================================================
+*/
+class idImageOpts
+{
+public:
+	idImageOpts();
+	
+	bool	operator==( const idImageOpts& opts );
+	
+	//---------------------------------------------------
+	// these determine the physical memory size and layout
+	//---------------------------------------------------
+	
+	textureType_t		textureType;
+	textureFormat_t		format;
+	textureColor_t		colorFormat;
+	textureSamples_t	samples;
+	int					width;
+	int					height;			// not needed for cube maps
+	int					numLevels;		// if 0, will be 1 for NEAREST / LINEAR filters, otherwise based on size
+	bool				gammaMips;		// if true, mips will be generated with gamma correction
+	bool				readback;		// 360 specific - cpu reads back from this texture, so allocate with cached memory
+};
+
+/*
+========================
+idImageOpts::idImageOpts
+========================
+*/
+ID_INLINE idImageOpts::idImageOpts()
+{
+	format			= FMT_NONE;
+	colorFormat		= CFM_DEFAULT;
+	samples			= SAMPLE_1;
+	width			= 0;
+	height			= 0;
+	numLevels		= 0;
+	textureType		= TT_2D;
+	gammaMips		= false;
+	readback		= false;
+	
+};
+
+/*
+========================
+idImageOpts::operator==
+========================
+*/
+ID_INLINE bool idImageOpts::operator==( const idImageOpts& opts )
+{
+	return ( memcmp( this, &opts, sizeof( *this ) ) == 0 );
+}
 
 /*
 ====================================================================
@@ -79,7 +238,6 @@ enum imageFileType_t
 	JPG
 };
 
-#include "ImageOpts.h"
 #include "BinaryImage.h"
 
 #define	MAX_IMAGE_NAME	256
@@ -90,6 +248,7 @@ class idImage
 	
 public:
 	idImage( const char* name );
+	~idImage();
 	
 	const char* 	GetName() const
 	{
@@ -101,18 +260,6 @@ public:
 	// May perform file loading if the image was not preloaded.
 	void		Bind();
 	
-	// Should be called at least once
-	void		SetSamplerState( textureFilter_t tf, textureRepeat_t tr );
-	
-	// used by callback functions to specify the actual data
-	// data goes from the bottom to the top line of the image, as OpenGL expects it
-	// These perform an implicit Bind() on the current texture unit
-	// FIXME: should we implement cinematics this way, instead of with explicit calls?
-	void		GenerateImage( const byte* pic, int width, int height,
-							   textureFilter_t filter, textureRepeat_t repeat, textureUsage_t usage, int msaaSamples = 0 );
-	void		GenerateCubeImage( const byte* pic[6], int size,
-								   textureFilter_t filter, textureUsage_t usage );
-								   
 	// RB begin
 	void		GenerateShadowArray( int width, int height, textureFilter_t filter, textureRepeat_t repeat, textureUsage_t usage );
 	// RB end
@@ -164,6 +311,26 @@ public:
 	// Platform specific implementations
 	//---------------------------------------------
 	
+#if defined( ID_VULKAN )
+	void		CreateFromSwapImage( VkImage image, VkImageView imageView, VkFormat format, const VkExtent2D& extent );
+	VkImage		GetImage() const
+	{
+		return image;
+	}
+	VkImageView	GetView() const
+	{
+		return view;
+	}
+	VkImageLayout GetLayout() const
+	{
+		return layout;
+	}
+	VkSampler	GetSampler() const
+	{
+		return sampler;
+	}
+#endif
+	
 	void		AllocImage( const idImageOpts& imgOpts, textureFilter_t filter, textureRepeat_t repeat );
 	
 	// Deletes the texture object, but leaves the structure so it can be reloaded
@@ -196,20 +363,37 @@ public:
 		return ( opts.format == FMT_DXT1 || opts.format == FMT_DXT5 );
 	}
 	
-	void		SetTexParameters();	// update aniso and trilinear
+	
 	
 	bool		IsLoaded() const
 	{
 		return texnum != TEXTURE_NOT_LOADED;
 	}
 	
-	static void			GetGeneratedName( idStr& _name, const textureUsage_t& _usage, const cubeFiles_t& _cube );
+	static void	GetGeneratedName( idStr& _name, const textureUsage_t& _usage, const cubeFiles_t& _cube );
+	
+	// used by callback functions to specify the actual data
+	// data goes from the bottom to the top line of the image, as OpenGL expects it
+	// These perform an implicit Bind() on the current texture unit
+	// FIXME: should we implement cinematics this way, instead of with explicit calls?
+	void		GenerateImage( const byte* pic,
+							   int width, int height,
+							   textureFilter_t filter,
+							   textureRepeat_t repeat,
+							   textureUsage_t usage,
+							   int msaaSamples = 0 );
+							   
+	void		GenerateCubeImage( const byte* pic[6], int size,
+								   textureFilter_t filter, textureUsage_t usage );
+								   
+	void		SetTexParameters();	// update aniso and trilinear
 	
 private:
 	friend class idImageManager;
 	
-	void				AllocImage();
-	void				DeriveOpts();
+	void		DeriveOpts();
+	void		AllocImage();
+	void		SetSamplerState( textureFilter_t tf, textureRepeat_t tr );
 	
 	// parameters that define this image
 	idStr				imgName;				// game path, including extension (except for cube maps), may be an image program
@@ -232,36 +416,35 @@ private:
 	
 	static const GLuint TEXTURE_NOT_LOADED = 0xFFFFFFFF;
 	
+#if defined( ID_VULKAN )
+	bool				bIsSwapChainImage;
+	VkFormat			internalFormat;
+	VkImage				image;
+	VkImageView			view;
+	VkImageLayout		layout;
+	VkSampler			sampler;
+	
+#if defined( ID_USE_AMD_ALLOCATOR )
+	VmaAllocation		allocation;
+	static idList< VmaAllocation >		allocationGarbage[ NUM_FRAME_DATA ];
+#else
+	vulkanAllocation_t	allocation;
+	static idList< vulkanAllocation_t > allocationGarbage[ NUM_FRAME_DATA ];
+#endif
+	
+	static int						garbageIndex;
+	static idList< VkImage >		imageGarbage[ NUM_FRAME_DATA ];
+	static idList< VkImageView >	viewGarbage[ NUM_FRAME_DATA ];
+	static idList< VkSampler >		samplerGarbage[ NUM_FRAME_DATA ];
+#else
 	GLuint				texnum;				// gl texture binding
 	
 	// we could derive these in subImageUpload each time if necessary
 	GLuint				internalFormat;
 	GLuint				dataFormat;
 	GLuint				dataType;
-	
-	
+#endif
 };
-
-ID_INLINE idImage::idImage( const char* name ) : imgName( name )
-{
-	texnum = TEXTURE_NOT_LOADED;
-	internalFormat = 0;
-	dataFormat = 0;
-	dataType = 0;
-	generatorFunction = NULL;
-	filter = TF_DEFAULT;
-	repeat = TR_REPEAT;
-	usage = TD_DEFAULT;
-	cubeFiles = CF_2D;
-	
-	referencedOutsideLevelLoad = false;
-	levelLoadReferenced = false;
-	defaulted = false;
-	sourceFileTime = FILE_NOT_FOUND_TIMESTAMP;
-	binaryFileTime = FILE_NOT_FOUND_TIMESTAMP;
-	refCount = 0;
-}
-
 
 // data is RGBA
 void	R_WriteTGA( const char* filename, const byte* data, int width, int height, bool flipVertical = false, const char* basePath = "fs_savepath" );
@@ -313,12 +496,6 @@ public:
 	// reloads all apropriate images after a vid_restart
 	void				ReloadImages( bool all );
 	
-	// unbind all textures from all texture units
-	void				UnbindAll();
-	
-	// disable the active texture unit
-	void				BindNull();
-	
 	// Called only by renderSystem::BeginLevelLoad
 	void				BeginLevelLoad();
 	
@@ -330,14 +507,10 @@ public:
 	// Loads unloaded level images
 	int					LoadLevelImages( bool pacifier );
 	
-	// used to clear and then write the dds conversion batch file
-	void				StartBuild();
-	void				FinishBuild( bool removeDups = false );
-	
 	void				PrintMemInfo( MemInfo_t* mi );
 	
 	// built-in images
-	void CreateIntrinsicImages();
+	void				CreateIntrinsicImages();
 	idImage* 			defaultImage;
 	idImage* 			flatNormalMap;				// 128 128 255 in all pixels
 	idImage* 			alphaNotchImage;			// 2x1 texture with just 1110 and 1111 with point sampling
@@ -395,8 +568,6 @@ public:
 };
 
 extern idImageManager*	globalImages;		// pointer to global list for the rest of the system
-
-int MakePowerOfTwo( int num );
 
 /*
 ====================================================================

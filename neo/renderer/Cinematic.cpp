@@ -39,7 +39,7 @@ extern idCVar s_noSound;
 #include <jpeglib.h>
 //}
 
-#include "tr_local.h"
+#include "RenderCommon.h"
 
 #define CIN_system	1
 #define CIN_loop	2

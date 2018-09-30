@@ -31,7 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "precompiled.h"
 
-#include "tr_local.h"
+#include "RenderCommon.h"
 
 // RB begin
 #if defined(_WIN32)
@@ -391,8 +391,8 @@ static void R_CheckPortableExtensions()
 	
 	// RB: Mesa support
 	if( idStr::Icmpn( glConfig.renderer_string, "Mesa", 4 ) == 0 || idStr::Icmpn( glConfig.renderer_string, "X.org", 5 ) == 0 || idStr::Icmpn( glConfig.renderer_string, "Gallium", 7 ) == 0 ||
-	    strcmp( glConfig.vendor_string, "X.Org" ) == 0 ||
-	    idStr::Icmpn( glConfig.renderer_string, "llvmpipe", 8 ) == 0 )
+			strcmp( glConfig.vendor_string, "X.Org" ) == 0 ||
+			idStr::Icmpn( glConfig.renderer_string, "llvmpipe", 8 ) == 0 )
 	{
 		if( glConfig.driverType == GLDRV_OPENGL32_CORE_PROFILE )
 		{
@@ -952,67 +952,7 @@ void R_InitOpenGL()
 	// RB end
 }
 
-/*
-==================
-GL_CheckErrors
-==================
-*/
-// RB: added filename, line parms
-bool GL_CheckErrors_( const char* filename, int line )
-{
-	int		err;
-	char	s[64];
-	int		i;
-	
-	if( r_ignoreGLErrors.GetBool() )
-	{
-		return false;
-	}
-	
-	// check for up to 10 errors pending
-	bool error = false;
-	for( i = 0 ; i < 10 ; i++ )
-	{
-		err = glGetError();
-		if( err == GL_NO_ERROR )
-		{
-			break;
-		}
-		
-		error = true;
-		switch( err )
-		{
-			case GL_INVALID_ENUM:
-				strcpy( s, "GL_INVALID_ENUM" );
-				break;
-			case GL_INVALID_VALUE:
-				strcpy( s, "GL_INVALID_VALUE" );
-				break;
-			case GL_INVALID_OPERATION:
-				strcpy( s, "GL_INVALID_OPERATION" );
-				break;
-#if !defined(USE_GLES2) && !defined(USE_GLES3)
-			case GL_STACK_OVERFLOW:
-				strcpy( s, "GL_STACK_OVERFLOW" );
-				break;
-			case GL_STACK_UNDERFLOW:
-				strcpy( s, "GL_STACK_UNDERFLOW" );
-				break;
-#endif
-			case GL_OUT_OF_MEMORY:
-				strcpy( s, "GL_OUT_OF_MEMORY" );
-				break;
-			default:
-				idStr::snPrintf( s, sizeof( s ), "%i", err );
-				break;
-		}
-		
-		common->Printf( "caught OpenGL error: %s in file %s line %i\n", s, filename, line );
-	}
-	
-	return error;
-}
-// RB end
+
 
 /*
 =====================
@@ -2909,7 +2849,7 @@ void idRenderSystemLocal::Init()
 	ambientLightVector[2] = 0.8925f;
 	ambientLightVector[3] = 1.0f;
 	
-	memset( &backEnd, 0, sizeof( backEnd ) );
+	backend.Init();
 	
 	R_InitCvars();
 	
@@ -2918,9 +2858,9 @@ void idRenderSystemLocal::Init()
 	guiModel = new( TAG_RENDER ) idGuiModel;
 	guiModel->Clear();
 	tr_guiModel = guiModel;	// for DeviceContext fast path
-
+	
 	UpdateStereo3DMode();
-
+	
 	globalImages->Init();
 	
 	// RB begin

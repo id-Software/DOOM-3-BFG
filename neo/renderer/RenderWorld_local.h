@@ -251,7 +251,6 @@ public:
 	{
 		return areaScreenRect[areaNum];
 	}
-	void					ShowPortals();
 	
 	//--------------------------
 	// RenderWorld_demo.cpp

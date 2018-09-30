@@ -42,16 +42,16 @@ class idGuiModel
 public:
 	idGuiModel();
 	
-	void	Clear();
+	void		Clear();
 	
-	void	WriteToDemo( idDemoFile* demo );
-	void	ReadFromDemo( idDemoFile* demo );
+	void		WriteToDemo( idDemoFile* demo );
+	void		ReadFromDemo( idDemoFile* demo );
 	
 	// allocates memory for verts and indexes in frame-temporary buffer memory
-	void	BeginFrame();
+	void		BeginFrame();
 	
-	void	EmitToCurrentView( float modelMatrix[16], bool depthHack );
-	void	EmitFullScreen();
+	void		EmitToCurrentView( float modelMatrix[16], bool depthHack );
+	void		EmitFullScreen();
 	
 	// the returned pointer will be in write-combined memory, so only make contiguous
 	// 32 bit writes and never read from it.
@@ -60,10 +60,9 @@ public:
 						   
 	//---------------------------
 private:
-	void	AdvanceSurf();
-	void	EmitSurfaces( float modelMatrix[16], float modelViewMatrix[16],
-						  bool depthHack, bool allowFullScreenStereoDepth, bool linkAsEntity );
-						  
+	void		AdvanceSurf();
+	void		EmitSurfaces( float modelMatrix[16], float modelViewMatrix[16], bool depthHack, bool allowFullScreenStereoDepth, bool linkAsEntity );
+	
 	guiModelSurface_t* 			surf;
 	
 	float						shaderParms[ MAX_ENTITY_SHADER_PARMS ];
@@ -81,8 +80,8 @@ private:
 	idDrawVert* 				vertexPointer;
 	triIndex_t* 				indexPointer;
 	
-	int		numVerts;
-	int		numIndexes;
+	int							numVerts;
+	int							numIndexes;
 	
 	idList<guiModelSurface_t, TAG_MODEL>	surfaces;
 };

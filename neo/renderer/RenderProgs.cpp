@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "precompiled.h"
 
-#include "tr_local.h"
+#include "RenderCommon.h"
 
 
 
@@ -200,10 +200,10 @@ void idRenderProgManager::Init()
 		LoadFragmentShader( i );
 		LoadGLSLProgram( i, i, i );
 	}
-
+	
 	r_useHalfLambertLighting.ClearModified();
 	r_useHDR.ClearModified();
-
+	
 	// special case handling for fastZ shaders
 	/*
 	switch( glConfig.driverType )

@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "precompiled.h"
 
-#include "tr_local.h"
+#include "RenderCommon.h"
 
 extern idCVar r_useAreasConnectedForShadowCulling;
 extern idCVar r_useParallelAddShadows;
@@ -673,7 +673,7 @@ void R_AddLights()
 		}
 		
 		int end = Sys_Microseconds();
-		backEnd.pc.shadowMicroSec += end - start;
+		tr.backend.pc.shadowMicroSec += end - start;
 	}
 }
 

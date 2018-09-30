@@ -827,16 +827,6 @@ CONSOLE_COMMAND( reloadLanguage, "reload language dict", NULL )
 
 /*
 =================
-Com_StartBuild_f
-=================
-*/
-CONSOLE_COMMAND( startBuild, "prepares to make a build", NULL )
-{
-	globalImages->StartBuild();
-}
-
-/*
-=================
 Com_FinishBuild_f
 =================
 */
@@ -846,7 +836,6 @@ CONSOLE_COMMAND( finishBuild, "finishes the build process", NULL )
 	{
 		game->CacheDictionaryMedia( NULL );
 	}
-	globalImages->FinishBuild( ( args.Argc() > 1 ) );
 }
 
 /*
