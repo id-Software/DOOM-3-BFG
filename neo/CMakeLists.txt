@@ -23,6 +23,9 @@ option(FFMPEG
 
 option(BINKDEC
 		"Use included libbinkdec to render Bink videos" ON)
+		
+option(USE_VULKAN
+		"Use Vulkan instead of OpenGL" OFF)
 
 option(ONATIVE
 		"Optimize for the host CPU" OFF)
@@ -267,19 +270,37 @@ else (JPEG_FOUND)
     set(JPEG_LIBRARY "" )
 endif (JPEG_FOUND)
 
-if (USE_SYSTEM_LIBGLEW)
-find_package(GLEW)
-endif(USE_SYSTEM_LIBGLEW)
+if(USE_VULKAN)
+	# Use FindVulkan module added with CMAKE 3.7
+	if(NOT CMAKE_VERSION VERSION_LESS 3.7.0)
+		message( STATUS "Using module to find Vulkan" )
+		find_package(Vulkan)
+	endif()
+	
+	
+	if(NOT Vulkan_FOUND)
+		message(FATAL_ERROR "Could not find Vulkan library!")
+	else()
+		message(STATUS ${Vulkan_LIBRARY})
+	endif()
+	
+	add_definitions(-DUSE_VULKAN)
+	
+else()
+	if(USE_SYSTEM_LIBGLEW)
+	find_package(GLEW)
+	endif(USE_SYSTEM_LIBGLEW)
 
-if (GLEW_FOUND)
-    include_directories(${GLEW_INCLUDE_DIRS})
-    set(GLEW_LIBRARY ${GLEW_LIBRARIES})
-else (GLEW_FOUND)
-    include_directories("libs/glew/include")
-    set(GLEW_LIBRARY "" )
-    add_definitions(-DGLEW_STATIC)
-endif (GLEW_FOUND)
-
+	if(GLEW_FOUND)
+		include_directories(${GLEW_INCLUDE_DIRS})
+		set(GLEW_LIBRARY ${GLEW_LIBRARIES})
+	else()
+		include_directories("libs/glew/include")
+		set(GLEW_LIBRARY "" )
+		add_definitions(-DGLEW_STATIC)
+	endif()
+endif()
+	
 add_subdirectory(idlib)
 
 file(GLOB AAS_INCLUDES aas/*.h)
@@ -308,9 +329,14 @@ file(GLOB RENDERER_JOBS_PRELIGHTSHADOWVOLUME_INCLUDES renderer/jobs/prelightshad
 file(GLOB RENDERER_JOBS_PRELIGHTSHADOWVOLUME_SOURCES renderer/jobs/prelightshadowvolume/*.cpp)
 file(GLOB RENDERER_JOBS_STATICSHADOWVOLUME_INCLUDES renderer/jobs/staticshadowvolume/*.h)
 file(GLOB RENDERER_JOBS_STATICSHADOWVOLUME_SOURCES renderer/jobs/staticshadowvolume/*.cpp)
+
+file(GLOB RENDERER_SMAA_INCLUDES renderer/SMAA/*.h)
+
 file(GLOB RENDERER_OPENGL_INCLUDES renderer/OpenGL/*.h)
 file(GLOB RENDERER_OPENGL_SOURCES renderer/OpenGL/*.cpp)
-file(GLOB RENDERER_SMAA_INCLUDES renderer/SMAA/*.h)
+
+file(GLOB RENDERER_VULKAN_INCLUDES renderer/Vulkan/*.h)
+file(GLOB RENDERER_VULKAN_SOURCES renderer/Vulkan/*.cpp)
 
 file(GLOB IRRXML_INCLUDES libs/irrxml/src/*.h)
 file(GLOB IRRXML_SOURCES libs/irrxml/src/*.cpp)
@@ -907,6 +933,9 @@ source_group("renderer\\jobs\\staticshadowvolume" FILES ${RENDERER_JOBS_STATICSH
 source_group("renderer\\OpenGL" FILES ${RENDERER_OPENGL_INCLUDES})
 source_group("renderer\\OpenGL" FILES ${RENDERER_OPENGL_SOURCES})
 
+source_group("renderer\\Vulkan" FILES ${RENDERER_VULKAN_INCLUDES})
+source_group("renderer\\Vulkan" FILES ${RENDERER_VULKAN_SOURCES})
+
 source_group("renderer\\SMAA" FILES ${RENDERER_SMAA_INCLUDES})
 
 source_group("libs\\irrxml" FILES ${IRRXML_INCLUDES})
@@ -1075,7 +1104,7 @@ set(RBDOOM3_INCLUDES
 			${RENDERER_JOBS_DYNAMICSHADOWVOLUME_INCLUDES}
 			${RENDERER_JOBS_PRELIGHTSHADOWVOLUME_INCLUDES}
 			${RENDERER_JOBS_STATICSHADOWVOLUME_INCLUDES}
-			${RENDERER_OPENGL_INCLUDES}
+			
 			${RENDERER_SMAA_INCLUDES}
 			${IRRXML_INCLUDES}
 			${JPEG_INCLUDES}
@@ -1113,7 +1142,6 @@ set(RBDOOM3_SOURCES
 			${RENDERER_JOBS_DYNAMICSHADOWVOLUME_SOURCES}
 			${RENDERER_JOBS_PRELIGHTSHADOWVOLUME_SOURCES}
 			${RENDERER_JOBS_STATICSHADOWVOLUME_SOURCES}
-			${RENDERER_OPENGL_SOURCES}
 			${IRRXML_SOURCES}
 			${JPEG_SOURCES}
 			${PNG_SOURCES}
@@ -1207,6 +1235,18 @@ if(MSVC)
 	else()
 		find_package(DirectX REQUIRED)
 		include_directories(${DirectX_INCLUDE_DIR})
+	endif()
+	
+	if(USE_VULKAN)
+		list(APPEND RBDOOM3_INCLUDES ${RENDERER_VULKAN_INCLUDES})
+		list(APPEND RBDOOM3_SOURCES ${RENDERER_VULKAN_SOURCES})
+	else()
+		list(APPEND RBDOOM3_INCLUDES ${RENDERER_OPENGL_INCLUDES})
+		list(APPEND RBDOOM3_SOURCES ${RENDERER_OPENGL_SOURCES})
+		
+		set(OpenGL_LIBRARIES
+			opengl32
+			glu32)
 	endif()
 	
 	if(OPENAL)
@@ -1353,15 +1393,12 @@ if(MSVC)
 	target_link_libraries(RBDoom3BFG
 		idlib
 		${DirectX_LIBRARIES}
-		#libcurl 
-		#openal32 
-		opengl32
-		glu32
 		dbghelp
 		#eaxguid
 		iphlpapi
 		winmm
 		wsock32.lib
+		${OpenGL_LIBRARIES}
 		${OpenAL_LIBRARIES}
 		${FFmpeg_LIBRARIES}
         ${ZLIB_LIBRARY}
