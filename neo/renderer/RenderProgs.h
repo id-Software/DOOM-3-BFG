@@ -37,6 +37,44 @@ static const int PC_ATTRIB_INDEX_COLOR2		= 4;
 static const int PC_ATTRIB_INDEX_ST			= 8;
 static const int PC_ATTRIB_INDEX_TANGENT	= 9;
 
+
+/*
+================================================
+vertexMask_t
+
+NOTE: There is a PS3 dependency between the bit flag specified here and the vertex
+attribute index and attribute semantic specified in DeclRenderProg.cpp because the
+stored render prog vertexMask is initialized with cellCgbGetVertexConfiguration().
+The ATTRIB_INDEX_ defines are used to make sure the vertexMask_t and attrib assignment
+in DeclRenderProg.cpp are in sync.
+
+Even though VERTEX_MASK_XYZ_SHORT and VERTEX_MASK_ST_SHORT are not real attributes,
+they come before the VERTEX_MASK_MORPH to reduce the range of vertex program
+permutations defined by the vertexMask_t bits on the Xbox 360 (see MAX_VERTEX_DECLARATIONS).
+================================================
+*/
+enum vertexMask_t
+{
+	VERTEX_MASK_XYZ			= BIT( PC_ATTRIB_INDEX_VERTEX ),
+	VERTEX_MASK_ST			= BIT( PC_ATTRIB_INDEX_ST ),
+	VERTEX_MASK_NORMAL		= BIT( PC_ATTRIB_INDEX_NORMAL ),
+	VERTEX_MASK_COLOR		= BIT( PC_ATTRIB_INDEX_COLOR ),
+	VERTEX_MASK_TANGENT		= BIT( PC_ATTRIB_INDEX_TANGENT ),
+	VERTEX_MASK_COLOR2		= BIT( PC_ATTRIB_INDEX_COLOR2 ),
+};
+
+#if defined(USE_VULKAN)
+enum vertexLayoutType_t
+{
+	LAYOUT_UNKNOWN = 0,	// RB: TODO -1
+	LAYOUT_DRAW_VERT,
+	LAYOUT_DRAW_SHADOW_VERT,
+	LAYOUT_DRAW_SHADOW_VERT_SKINNED,
+	NUM_VERTEX_LAYOUTS
+};
+#endif
+
+
 // This enum list corresponds to the global constant register indecies as defined in global.inc for all
 // shaders.  We used a shared pool to keeps things simple.  If something changes here then it also
 // needs to change in global.inc and vice versa
@@ -162,7 +200,7 @@ enum renderParm_t
 struct glslUniformLocation_t
 {
 	int		parmIndex;
-	GLint	uniformIndex;
+	int		uniformIndex;
 };
 
 
@@ -565,8 +603,8 @@ public:
 	void		ZeroUniforms();
 	
 protected:
-	void	LoadVertexShader( int index );
-	void	LoadFragmentShader( int index );
+	void		LoadVertexShader( int index );
+	void		LoadFragmentShader( int index );
 	
 	enum
 	{
@@ -671,18 +709,18 @@ protected:
 	static const char* GLSLMacroNames[MAX_SHADER_MACRO_NAMES];
 	const char*	GetGLSLMacroName( shaderFeature_t sf ) const;
 	
-	bool	CompileGLSL( GLenum target, const char* name );
-	GLuint	LoadGLSLShader( GLenum target, const char* name, const char* nameOutSuffix, uint32 shaderFeatures, bool builtin, idList<int>& uniforms );
+	bool	CompileGLSL( uint target, const char* name );
+	uint	LoadGLSLShader( uint target, const char* name, const char* nameOutSuffix, uint32 shaderFeatures, bool builtin, idList<int>& uniforms );
 	void	LoadGLSLProgram( const int programIndex, const int vertexShaderIndex, const int fragmentShaderIndex );
 	
-	static const GLuint INVALID_PROGID = 0xFFFFFFFF;
+	static const uint INVALID_PROGID = 0xFFFFFFFF;
 	
 	struct vertexShader_t
 	{
 		vertexShader_t() : progId( INVALID_PROGID ), usesJoints( false ), optionalSkinning( false ), shaderFeatures( 0 ), builtin( false ) {}
 		idStr		name;
 		idStr		nameOutSuffix;
-		GLuint		progId;
+		uint		progId;
 		bool		usesJoints;
 		bool		optionalSkinning;
 		uint32		shaderFeatures;		// RB: Cg compile macros
@@ -694,7 +732,7 @@ protected:
 		fragmentShader_t() : progId( INVALID_PROGID ), shaderFeatures( 0 ), builtin( false ) {}
 		idStr		name;
 		idStr		nameOutSuffix;
-		GLuint		progId;
+		uint		progId;
 		uint32		shaderFeatures;
 		bool		builtin;
 		idList<int>	uniforms;
@@ -708,11 +746,11 @@ protected:
 			vertexUniformArray( -1 ),
 			fragmentUniformArray( -1 ) {}
 		idStr		name;
-		GLuint		progId;
+		uint		progId;
 		int			vertexShaderIndex;
 		int			fragmentShaderIndex;
-		GLint		vertexUniformArray;
-		GLint		fragmentUniformArray;
+		uint		vertexUniformArray;
+		uint		fragmentUniformArray;
 		idList<glslUniformLocation_t> uniformLocations;
 	};
 	int	currentRenderProgram;

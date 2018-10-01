@@ -84,10 +84,18 @@ const int MAX_EXPRESSION_OPS = 4096;
 const int MAX_EXPRESSION_REGISTERS = 4096;
 
 // renderer
+// everything that is needed by the backend needs
+// to be double buffered to allow it to run in
+// parallel on a dual cpu machine
+const uint32 NUM_FRAME_DATA	= 2;
 
+#if defined(USE_VULKAN)
+#include "../renderer/Vulkan/qvk.h"
+#else
 // RB: replaced QGL with GLEW
 #include <GL/glew.h>
 // RB end
+#endif
 #include "../renderer/Cinematic.h"
 #include "../renderer/Material.h"
 #include "../renderer/BufferObject.h"

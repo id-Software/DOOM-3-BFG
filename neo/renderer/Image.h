@@ -365,10 +365,7 @@ public:
 	
 	
 	
-	bool		IsLoaded() const
-	{
-		return texnum != TEXTURE_NOT_LOADED;
-	}
+	
 	
 	static void	GetGeneratedName( idStr& _name, const textureUsage_t& _usage, const cubeFiles_t& _cube );
 	
@@ -414,9 +411,9 @@ private:
 	
 	int					refCount;				// overall ref count
 	
-	static const GLuint TEXTURE_NOT_LOADED = 0xFFFFFFFF;
+	static const uint32 TEXTURE_NOT_LOADED = 0xFFFFFFFF;
 	
-#if defined( ID_VULKAN )
+#if defined( USE_VULKAN )
 	bool				bIsSwapChainImage;
 	VkFormat			internalFormat;
 	VkImage				image;
@@ -443,6 +440,12 @@ private:
 	GLuint				internalFormat;
 	GLuint				dataFormat;
 	GLuint				dataType;
+	
+public:
+	bool				IsLoaded() const
+	{
+		return texnum != TEXTURE_NOT_LOADED;
+	}
 #endif
 };
 

@@ -550,7 +550,7 @@ struct setBufferCommand_t
 {
 	renderCommand_t		commandId;
 	renderCommand_t* 	next;
-	GLenum	buffer;
+	int					buffer;
 };
 
 struct drawSurfsCommand_t
@@ -674,40 +674,16 @@ struct performanceCounters_t
 	int		frontEndMicroSec;	// sum of time in all RE_RenderScene's in a frame
 };
 
-
-
+#if !defined(USE_VULKAN)
 enum vertexLayoutType_t
 {
-	LAYOUT_UNKNOWN = 0,
+	LAYOUT_UNKNOWN = 0,	// RB: TODO -1
 	LAYOUT_DRAW_VERT,
 	LAYOUT_DRAW_SHADOW_VERT,
-	LAYOUT_DRAW_SHADOW_VERT_SKINNED
+	LAYOUT_DRAW_SHADOW_VERT_SKINNED,
+	NUM_VERTEX_LAYOUTS
 };
-
-/*
-struct glstate_t
-{
-	tmu_t				tmu[MAX_MULTITEXTURE_UNITS];
-
-	int					currenttmu;
-
-	int					faceCulling;
-
-	vertexLayoutType_t	vertexLayout;
-
-	// RB: 64 bit fixes, changed unsigned int to uintptr_t
-	uintptr_t			currentVertexBuffer;
-	uintptr_t			currentIndexBuffer;
-
-	Framebuffer*		currentFramebuffer;
-	// RB end
-
-	float				polyOfsScale;
-	float				polyOfsBias;
-
-	uint64				glStateBits;
-};
-*/
+#endif
 
 class idParallelJobList;
 

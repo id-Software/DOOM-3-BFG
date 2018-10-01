@@ -81,30 +81,7 @@ struct attribInfo_t
 	int				vertexMask;
 };
 
-/*
-================================================
-vertexMask_t
 
-NOTE: There is a PS3 dependency between the bit flag specified here and the vertex
-attribute index and attribute semantic specified in DeclRenderProg.cpp because the
-stored render prog vertexMask is initialized with cellCgbGetVertexConfiguration().
-The ATTRIB_INDEX_ defines are used to make sure the vertexMask_t and attrib assignment
-in DeclRenderProg.cpp are in sync.
-
-Even though VERTEX_MASK_XYZ_SHORT and VERTEX_MASK_ST_SHORT are not real attributes,
-they come before the VERTEX_MASK_MORPH to reduce the range of vertex program
-permutations defined by the vertexMask_t bits on the Xbox 360 (see MAX_VERTEX_DECLARATIONS).
-================================================
-*/
-enum vertexMask_t
-{
-	VERTEX_MASK_XYZ			= BIT( PC_ATTRIB_INDEX_VERTEX ),
-	VERTEX_MASK_ST			= BIT( PC_ATTRIB_INDEX_ST ),
-	VERTEX_MASK_NORMAL		= BIT( PC_ATTRIB_INDEX_NORMAL ),
-	VERTEX_MASK_COLOR		= BIT( PC_ATTRIB_INDEX_COLOR ),
-	VERTEX_MASK_TANGENT		= BIT( PC_ATTRIB_INDEX_TANGENT ),
-	VERTEX_MASK_COLOR2		= BIT( PC_ATTRIB_INDEX_COLOR2 ),
-};
 
 attribInfo_t attribsPC[] =
 {
@@ -1700,6 +1677,7 @@ idStr ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, i
 idRenderProgManager::LoadGLSLShader
 ================================================================================================
 */
+#if !defined(USE_VULKAN)
 GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, const char* nameOutSuffix, uint32 shaderFeatures, bool builtin, idList<int>& uniforms )
 {
 
@@ -1932,6 +1910,8 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, con
 	
 	return shader;
 }
+#endif // #if !defined(USE_VULKAN)
+
 /*
 ================================================================================================
 idRenderProgManager::FindGLSLProgram

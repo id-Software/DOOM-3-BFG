@@ -128,7 +128,7 @@ void idRenderSystemLocal::RenderCommandBuffers( const emptyCommand_t* const cmdH
 	// draw 2D graphics
 	if( !r_skipBackEnd.GetBool() )
 	{
-#if !defined(USE_GLES2) && !defined(USE_GLES3)
+#if !defined(USE_VULKAN)
 		if( glConfig.timerQueryAvailable )
 		{
 			if( tr.timerQueryId == 0 )

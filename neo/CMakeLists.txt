@@ -25,7 +25,7 @@ option(BINKDEC
 		"Use included libbinkdec to render Bink videos" ON)
 		
 option(USE_VULKAN
-		"Use Vulkan instead of OpenGL" ON)
+		"Use Vulkan instead of OpenGL" OFF)
 
 option(ONATIVE
 		"Optimize for the host CPU" OFF)
@@ -288,23 +288,29 @@ if(USE_VULKAN)
 	endif()
 	
 	add_definitions(-DUSE_VULKAN)
+	include_directories($ENV{VK_SDK_PATH}/Include)
 	
 	set(GLSLANG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs/glslang)
 	add_subdirectory(${GLSLANG_DIR})
-endif()
 
-if(USE_SYSTEM_LIBGLEW)
-	find_package(GLEW)
-endif(USE_SYSTEM_LIBGLEW)
-
-if(GLEW_FOUND)
-	include_directories(${GLEW_INCLUDE_DIRS})
-	set(GLEW_LIBRARY ${GLEW_LIBRARIES})
 else()
-	include_directories("libs/glew/include")
-	set(GLEW_LIBRARY "" )
-	add_definitions(-DGLEW_STATIC)
+
+	if(USE_SYSTEM_LIBGLEW)
+		find_package(GLEW)
+	endif(USE_SYSTEM_LIBGLEW)
+
+	if(GLEW_FOUND)
+		include_directories(${GLEW_INCLUDE_DIRS})
+		set(GLEW_LIBRARY ${GLEW_LIBRARIES})
+	else()
+		include_directories("libs/glew/include")
+		set(GLEW_LIBRARY "" )
+		add_definitions(-DGLEW_STATIC)
+	endif()
+	
 endif()
+
+
 	
 add_subdirectory(idlib)
 
@@ -1250,8 +1256,9 @@ if(MSVC)
 			${Vulkan_LIBRARY}
 			glslang
 			#SPIR-V
-			opengl32
-			glu32)
+			#opengl32
+			#glu32
+			)
 		
 	else()
 		list(APPEND RBDOOM3_INCLUDES ${RENDERER_OPENGL_INCLUDES})

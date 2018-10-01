@@ -455,7 +455,7 @@ private:
 	// RB end
 	
 private:
-#if 1 //!defined( USE_VULKAN )
+#if !defined( USE_VULKAN )
 	int					currenttmu;
 	
 	unsigned int		currentVertexBuffer;

@@ -302,6 +302,8 @@ idRenderProgManager::KillAllShaders()
 void idRenderProgManager::KillAllShaders()
 {
 	Unbind();
+	
+#if !defined(USE_VULKAN)
 	for( int i = 0; i < vertexShaders.Num(); i++ )
 	{
 		if( vertexShaders[i].progId != INVALID_PROGID )
@@ -326,6 +328,7 @@ void idRenderProgManager::KillAllShaders()
 			glslPrograms[i].progId = INVALID_PROGID;
 		}
 	}
+#endif
 }
 
 /*
@@ -413,7 +416,10 @@ void idRenderProgManager::LoadVertexShader( int index )
 	}
 	
 	vertexShader_t& vs = vertexShaders[index];
-	vertexShaders[index].progId = ( GLuint ) LoadGLSLShader( GL_VERTEX_SHADER, vs.name, vs.nameOutSuffix, vs.shaderFeatures, vs.builtin, vs.uniforms );
+	
+#if !defined(USE_VULKAN)
+	vertexShaders[index].progId = ( uint ) LoadGLSLShader( GL_VERTEX_SHADER, vs.name, vs.nameOutSuffix, vs.shaderFeatures, vs.builtin, vs.uniforms );
+#endif
 }
 
 /*
@@ -429,7 +435,9 @@ void idRenderProgManager::LoadFragmentShader( int index )
 	}
 	
 	fragmentShader_t& fs = fragmentShaders[index];
-	fragmentShaders[index].progId = ( GLuint ) LoadGLSLShader( GL_FRAGMENT_SHADER, fs.name, fs.nameOutSuffix, fs.shaderFeatures, fs.builtin, fs.uniforms );
+#if !defined(USE_VULKAN)
+	fragmentShaders[index].progId = ( uint ) LoadGLSLShader( GL_FRAGMENT_SHADER, fs.name, fs.nameOutSuffix, fs.shaderFeatures, fs.builtin, fs.uniforms );
+#endif
 }
 
 /*

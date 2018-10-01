@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2016-2017 Dustin Land
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -27,6 +28,10 @@ If you have questions concerning this license or the applicable additional terms
 */
 #ifndef __BUFFEROBJECT_H__
 #define __BUFFEROBJECT_H__
+
+#if defined( USE_VULKAN )
+#include "Vulkan/Allocator_VK.h"
+#endif
 
 /*
 ================================================================================================

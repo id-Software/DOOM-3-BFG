@@ -5344,7 +5344,7 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 	// normal face culling
 	GL_Cull( CT_FRONT_SIDED );
 	
-#if defined(USE_CORE_PROFILE) && !defined(USE_GLES2) && !defined(USE_GLES3)
+#if defined(USE_CORE_PROFILE) && !defined(USE_GLES2) && !defined(USE_GLES3) && !defined(USE_VULKAN)
 	// bind one global Vertex Array Object (VAO)
 	glBindVertexArray( glConfig.global_vao );
 #endif
