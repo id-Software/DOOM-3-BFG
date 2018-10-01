@@ -455,7 +455,7 @@ private:
 	// RB end
 	
 private:
-#if !defined( USE_VULKAN )
+#if 1 //!defined( USE_VULKAN )
 	int					currenttmu;
 	
 	unsigned int		currentVertexBuffer;
@@ -473,35 +473,6 @@ public:
 	{
 		return currenttmu;
 	}
-	
-#if 0
-	unsigned short		gammaTable[ 256 ];		// brightness / gamma modify this
-	
-	idStr				rendererString;
-	idStr				vendorString;
-	idStr				versionString;
-	idStr				extensionsString;
-	idStr				wglExtensionsString;
-	idStr				shadingLanguageString;
-	
-	float				glVersion;			// atof( version_string )
-	graphicsVendor_t	vendor;
-	
-	int					maxTextureSize;		// queried from GL
-	int					maxTextureCoords;
-	int					maxTextureImageUnits;
-	int					uniformBufferOffsetAlignment;
-	
-	int					colorBits;
-	int					depthBits;
-	int					stencilBits;
-	
-	bool				depthBoundsTestAvailable;
-	bool				timerQueryAvailable;
-	bool				swapControlTearAvailable;
-	
-	int					displayFrequency;
-#endif
 	
 #endif // !defined( USE_VULKAN )
 };

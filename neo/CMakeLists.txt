@@ -25,7 +25,7 @@ option(BINKDEC
 		"Use included libbinkdec to render Bink videos" ON)
 		
 option(USE_VULKAN
-		"Use Vulkan instead of OpenGL" OFF)
+		"Use Vulkan instead of OpenGL" ON)
 
 option(ONATIVE
 		"Optimize for the host CPU" OFF)
@@ -270,6 +270,9 @@ else (JPEG_FOUND)
     set(JPEG_LIBRARY "" )
 endif (JPEG_FOUND)
 
+
+
+
 if(USE_VULKAN)
 	# Use FindVulkan module added with CMAKE 3.7
 	if(NOT CMAKE_VERSION VERSION_LESS 3.7.0)
@@ -286,19 +289,21 @@ if(USE_VULKAN)
 	
 	add_definitions(-DUSE_VULKAN)
 	
-else()
-	if(USE_SYSTEM_LIBGLEW)
-	find_package(GLEW)
-	endif(USE_SYSTEM_LIBGLEW)
+	set(GLSLANG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs/glslang)
+	add_subdirectory(${GLSLANG_DIR})
+endif()
 
-	if(GLEW_FOUND)
-		include_directories(${GLEW_INCLUDE_DIRS})
-		set(GLEW_LIBRARY ${GLEW_LIBRARIES})
-	else()
-		include_directories("libs/glew/include")
-		set(GLEW_LIBRARY "" )
-		add_definitions(-DGLEW_STATIC)
-	endif()
+if(USE_SYSTEM_LIBGLEW)
+	find_package(GLEW)
+endif(USE_SYSTEM_LIBGLEW)
+
+if(GLEW_FOUND)
+	include_directories(${GLEW_INCLUDE_DIRS})
+	set(GLEW_LIBRARY ${GLEW_LIBRARIES})
+else()
+	include_directories("libs/glew/include")
+	set(GLEW_LIBRARY "" )
+	add_definitions(-DGLEW_STATIC)
 endif()
 	
 add_subdirectory(idlib)
@@ -1240,6 +1245,14 @@ if(MSVC)
 	if(USE_VULKAN)
 		list(APPEND RBDOOM3_INCLUDES ${RENDERER_VULKAN_INCLUDES})
 		list(APPEND RBDOOM3_SOURCES ${RENDERER_VULKAN_SOURCES})
+		
+		set(Vulkan_LIBRARIES
+			${Vulkan_LIBRARY}
+			glslang
+			#SPIR-V
+			opengl32
+			glu32)
+		
 	else()
 		list(APPEND RBDOOM3_INCLUDES ${RENDERER_OPENGL_INCLUDES})
 		list(APPEND RBDOOM3_SOURCES ${RENDERER_OPENGL_SOURCES})
@@ -1398,6 +1411,7 @@ if(MSVC)
 		iphlpapi
 		winmm
 		wsock32.lib
+		${Vulkan_LIBRARIES}
 		${OpenGL_LIBRARIES}
 		${OpenAL_LIBRARIES}
 		${FFmpeg_LIBRARIES}
