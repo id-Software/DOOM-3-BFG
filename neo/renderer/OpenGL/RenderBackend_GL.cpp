@@ -193,7 +193,7 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 	
 	if( surf->jointCache )
 	{
-		idJointBuffer jointBuffer;
+		idUniformBuffer jointBuffer;
 		if( !vertexCache.GetJointBuffer( surf->jointCache, &jointBuffer ) )
 		{
 			idLib::Warning( "RB_DrawElementsWithCounters, jointBuffer == NULL" );
@@ -202,10 +202,10 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 		assert( ( jointBuffer.GetOffset() & ( glConfig.uniformBufferOffsetAlignment - 1 ) ) == 0 );
 		
 		// RB: 64 bit fixes, changed GLuint to GLintptr
-		const GLintptr ubo = reinterpret_cast< GLintptr >( jointBuffer.GetAPIObject() );
+		const GLintptr ubo = jointBuffer.GetAPIObject();
 		// RB end
 		
-		glBindBufferRange( GL_UNIFORM_BUFFER, 0, ubo, jointBuffer.GetOffset(), jointBuffer.GetNumJoints() * sizeof( idJointMat ) );
+		glBindBufferRange( GL_UNIFORM_BUFFER, 0, ubo, jointBuffer.GetOffset(), jointBuffer.GetSize() );
 	}
 	
 	renderProgManager.CommitUniforms();

@@ -914,7 +914,7 @@ void R_InitOpenGL()
 	r_initialized = true;
 	
 	// allocate the vertex array range or vertex objects
-	vertexCache.Init();
+	vertexCache.Init( glConfig.uniformBufferOffsetAlignment );
 	
 	// allocate the frame data, which may be more if smp is enabled
 	R_InitFrameData();

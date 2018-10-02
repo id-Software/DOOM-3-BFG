@@ -291,7 +291,7 @@ if(USE_VULKAN)
 	include_directories($ENV{VK_SDK_PATH}/Include)
 	
 	set(GLSLANG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs/glslang)
-	add_subdirectory(${GLSLANG_DIR})
+	#add_subdirectory(${GLSLANG_DIR})
 
 else()
 
@@ -1254,7 +1254,7 @@ if(MSVC)
 		
 		set(Vulkan_LIBRARIES
 			${Vulkan_LIBRARY}
-			glslang
+			#glslang
 			#SPIR-V
 			#opengl32
 			#glu32

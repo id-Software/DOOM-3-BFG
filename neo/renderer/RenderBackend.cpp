@@ -2541,7 +2541,7 @@ void idRenderBackend::StencilShadowPass( const drawSurf_t* drawSurfs, const view
 		{
 			assert( renderProgManager.ShaderUsesJoints() );
 			
-			idJointBuffer jointBuffer;
+			idUniformBuffer jointBuffer;
 			if( !vertexCache.GetJointBuffer( drawSurf->jointCache, &jointBuffer ) )
 			{
 				idLib::Warning( "RB_DrawElementsWithCounters, jointBuffer == NULL" );
@@ -2549,8 +2549,8 @@ void idRenderBackend::StencilShadowPass( const drawSurf_t* drawSurfs, const view
 			}
 			assert( ( jointBuffer.GetOffset() & ( glConfig.uniformBufferOffsetAlignment - 1 ) ) == 0 );
 			
-			const GLintptr ubo = reinterpret_cast< GLintptr >( jointBuffer.GetAPIObject() );
-			glBindBufferRange( GL_UNIFORM_BUFFER, 0, ubo, jointBuffer.GetOffset(), jointBuffer.GetNumJoints() * sizeof( idJointMat ) );
+			const GLintptr ubo = jointBuffer.GetAPIObject();
+			glBindBufferRange( GL_UNIFORM_BUFFER, 0, ubo, jointBuffer.GetOffset(), jointBuffer.GetSize() );
 			
 			if( ( vertexLayout != LAYOUT_DRAW_SHADOW_VERT_SKINNED ) || ( currentVertexBuffer != ( GLintptr )vertexBuffer->GetAPIObject() ) || !r_useStateCaching.GetBool() )
 			{
