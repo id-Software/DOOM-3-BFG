@@ -312,6 +312,125 @@ static void CreateVulkanInstance()
 
 /*
 =============
+CreateSurface
+=============
+*/
+#ifdef _WIN32
+#include "../../sys/win32/win_local.h"
+#endif
+
+static void CreateSurface()
+{
+#ifdef _WIN32
+	VkWin32SurfaceCreateInfoKHR createInfo = {};
+	createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+	createInfo.hinstance = win32.hInstance;
+	createInfo.hwnd = win32.hWnd;
+	
+	ID_VK_CHECK( vkCreateWin32SurfaceKHR( vkcontext.instance, &createInfo, NULL, &vkcontext.surface ) );
+	
+#elif defined(VK_USE_PLATFORM_WAYLAND_KHR)
+	VkWaylandSurfaceCreateInfoKHR createInfo = {};
+	createInfo.sType = VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR;
+	createInfo.pNext = NULL;
+	createInfo.display = info.display;
+	createInfo.surface = info.window;
+	
+	ID_VK_CHECK( vkCreateWaylandSurfaceKHR( info.inst, &createInfo, NULL, &info.surface ) );
+	
+#else
+	VkXcbSurfaceCreateInfoKHR createInfo = {};
+	createInfo.sType = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;
+	createInfo.pNext = NULL;
+	createInfo.connection = info.connection;
+	createInfo.window = info.window;
+	
+	ID_VK_CHECK( vkCreateXcbSurfaceKHR( info.inst, &createInfo, NULL, &info.surface ) );
+#endif  // _WIN32
+	
+	
+}
+
+/*
+=============
+EnumeratePhysicalDevices
+=============
+*/
+static void EnumeratePhysicalDevices()
+{
+	uint32 numDevices = 0;
+	ID_VK_CHECK( vkEnumeratePhysicalDevices( vkcontext.instance, &numDevices, NULL ) );
+	ID_VK_VALIDATE( numDevices > 0, "vkEnumeratePhysicalDevices returned zero devices." );
+	
+	idList< VkPhysicalDevice > devices;
+	devices.SetNum( numDevices );
+	
+	ID_VK_CHECK( vkEnumeratePhysicalDevices( vkcontext.instance, &numDevices, devices.Ptr() ) );
+	ID_VK_VALIDATE( numDevices > 0, "vkEnumeratePhysicalDevices returned zero devices." );
+	
+	vkcontext.gpus.SetNum( numDevices );
+	
+	for( uint32 i = 0; i < numDevices; ++i )
+	{
+		gpuInfo_t& gpu = vkcontext.gpus[ i ];
+		gpu.device = devices[ i ];
+		
+		{
+			uint32 numQueues = 0;
+			vkGetPhysicalDeviceQueueFamilyProperties( gpu.device, &numQueues, NULL );
+			ID_VK_VALIDATE( numQueues > 0, "vkGetPhysicalDeviceQueueFamilyProperties returned zero queues." );
+			
+			gpu.queueFamilyProps.SetNum( numQueues );
+			vkGetPhysicalDeviceQueueFamilyProperties( gpu.device, &numQueues, gpu.queueFamilyProps.Ptr() );
+			ID_VK_VALIDATE( numQueues > 0, "vkGetPhysicalDeviceQueueFamilyProperties returned zero queues." );
+		}
+		
+		{
+			uint32 numExtension;
+			ID_VK_CHECK( vkEnumerateDeviceExtensionProperties( gpu.device, NULL, &numExtension, NULL ) );
+			ID_VK_VALIDATE( numExtension > 0, "vkEnumerateDeviceExtensionProperties returned zero extensions." );
+			
+			gpu.extensionProps.SetNum( numExtension );
+			ID_VK_CHECK( vkEnumerateDeviceExtensionProperties( gpu.device, NULL, &numExtension, gpu.extensionProps.Ptr() ) );
+			ID_VK_VALIDATE( numExtension > 0, "vkEnumerateDeviceExtensionProperties returned zero extensions." );
+			
+#if 0
+			for( uint32 j = 0; j < numExtension; j++ )
+			{
+				idLib::Printf( "Found Vulkan Extension '%s' on device %d\n", gpu.extensionProps[j].extensionName, i );
+			}
+#endif
+		}
+		
+		ID_VK_CHECK( vkGetPhysicalDeviceSurfaceCapabilitiesKHR( gpu.device, vkcontext.surface, &gpu.surfaceCaps ) );
+		
+		{
+			uint32 numFormats;
+			ID_VK_CHECK( vkGetPhysicalDeviceSurfaceFormatsKHR( gpu.device, vkcontext.surface, &numFormats, NULL ) );
+			ID_VK_VALIDATE( numFormats > 0, "vkGetPhysicalDeviceSurfaceFormatsKHR returned zero surface formats." );
+			
+			gpu.surfaceFormats.SetNum( numFormats );
+			ID_VK_CHECK( vkGetPhysicalDeviceSurfaceFormatsKHR( gpu.device, vkcontext.surface, &numFormats, gpu.surfaceFormats.Ptr() ) );
+			ID_VK_VALIDATE( numFormats > 0, "vkGetPhysicalDeviceSurfaceFormatsKHR returned zero surface formats." );
+		}
+		
+		{
+			uint32 numPresentModes;
+			ID_VK_CHECK( vkGetPhysicalDeviceSurfacePresentModesKHR( gpu.device, vkcontext.surface, &numPresentModes, NULL ) );
+			ID_VK_VALIDATE( numPresentModes > 0, "vkGetPhysicalDeviceSurfacePresentModesKHR returned zero present modes." );
+			
+			gpu.presentModes.SetNum( numPresentModes );
+			ID_VK_CHECK( vkGetPhysicalDeviceSurfacePresentModesKHR( gpu.device, vkcontext.surface, &numPresentModes, gpu.presentModes.Ptr() ) );
+			ID_VK_VALIDATE( numPresentModes > 0, "vkGetPhysicalDeviceSurfacePresentModesKHR returned zero present modes." );
+		}
+		
+		vkGetPhysicalDeviceMemoryProperties( gpu.device, &gpu.memProps );
+		vkGetPhysicalDeviceProperties( gpu.device, &gpu.props );
+	}
+}
+
+/*
+=============
 ClearContext
 =============
 */
@@ -415,6 +534,14 @@ void idRenderBackend::Init()
 	
 	// create the Vulkan instance and enable validation layers
 	CreateVulkanInstance();
+	
+	// create the windowing interface
+#ifdef _WIN32
+	CreateSurface();
+#endif
+	
+	// grab detailed information of available GPUs
+	EnumeratePhysicalDevices();
 }
 
 /*
