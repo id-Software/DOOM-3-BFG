@@ -1278,10 +1278,10 @@ bool GLimp_Init( glimpParms_t parms )
 	
 #if !defined(USE_VULKAN)
 	cmdSystem->AddCommand( "testSwapBuffers", GLimp_TestSwapBuffers, CMD_FL_SYSTEM, "Times swapbuffer options" );
-#endif
 	
 	common->Printf( "Initializing OpenGL subsystem with multisamples:%i stereo:%i fullscreen:%i\n",
 					parms.multiSamples, parms.stereo, parms.fullScreen );
+#endif
 					
 	// check our desktop attributes
 	hDC = GetDC( GetDesktopWindow() );

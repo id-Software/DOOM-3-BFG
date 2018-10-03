@@ -1732,9 +1732,6 @@ void GfxInfo_f( const idCmdArgs& args )
 	// RB begin
 #if defined(_WIN32) && !defined(USE_VULKAN)
 	// WGL_EXT_swap_interval
-	typedef BOOL ( WINAPI * PFNWGLSWAPINTERVALEXTPROC )( int interval );
-	extern	PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT;
-	
 	if( r_swapInterval.GetInteger() && wglSwapIntervalEXT != NULL )
 	{
 		common->Printf( "Forcing swapInterval %i\n", r_swapInterval.GetInteger() );

@@ -90,8 +90,294 @@ const char* VK_ErrorToString( VkResult result )
 	};
 }
 
+static const int g_numInstanceExtensions = 2;
+static const char* g_instanceExtensions[ g_numInstanceExtensions ] =
+{
+	VK_KHR_SURFACE_EXTENSION_NAME,
+	VK_KHR_WIN32_SURFACE_EXTENSION_NAME
+};
+
+static const int g_numDebugInstanceExtensions = 1;
+static const char* g_debugInstanceExtensions[ g_numDebugInstanceExtensions ] =
+{
+	VK_EXT_DEBUG_REPORT_EXTENSION_NAME
+};
+
+static const int g_numDeviceExtensions = 1;
+static const char* g_deviceExtensions[ g_numDeviceExtensions ] =
+{
+	VK_KHR_SWAPCHAIN_EXTENSION_NAME
+};
+
+static const int g_numValidationLayers = 1;
+static const char* g_validationLayers[ g_numValidationLayers ] =
+{
+	"VK_LAYER_LUNARG_standard_validation"
+};
 
 
+/*
+=========================================================================================================
+
+DEBUGGING AND VALIDATION
+
+=========================================================================================================
+*/
+
+/*
+=============
+DebugCallback
+=============
+*/
+/*
+static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(
+	VkDebugReportFlagsEXT flags,
+	VkDebugReportObjectTypeEXT objType,
+	uint64 obj, size_t location, int32 code,
+	const char* layerPrefix, const char* msg, void* userData )
+{
+
+	idLib::Printf( "VK_DEBUG::%s: %s flags=%d, objType=%d, obj=%llu, location=%lld, code=%d\n",
+				   layerPrefix, msg, flags, objType, obj, location, code );
+
+
+
+	return VK_FALSE;
+}
+*/
+
+VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback( VkDebugReportFlagsEXT msgFlags, VkDebugReportObjectTypeEXT objType, uint64_t srcObject,
+		size_t location, int32_t msgCode, const char* layerPrefix, const char* msg,
+		void* userData )
+{
+	if( msgFlags & VK_DEBUG_REPORT_ERROR_BIT_EXT )
+	{
+		idLib::Printf( "Vulkan ERROR: [ %s ] Code %d : '%s'\n", layerPrefix, msgCode, msg );
+	}
+	else if( msgFlags & VK_DEBUG_REPORT_WARNING_BIT_EXT )
+	{
+		idLib::Printf( "Vulkan WARNING: [ %s ] Code %d : '%s'\n", layerPrefix, msgCode, msg );
+	}
+	else if( msgFlags & VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT )
+	{
+		idLib::Printf( "Vulkan PERFORMANCE WARNING: [ %s ] Code %d : '%s'\n", layerPrefix, msgCode, msg );
+	}
+	else if( msgFlags & VK_DEBUG_REPORT_INFORMATION_BIT_EXT )
+	{
+		idLib::Printf( "Vulkan INFO: [ %s ] Code %d : '%s'\n", layerPrefix, msgCode, msg );
+	}
+	else if( msgFlags & VK_DEBUG_REPORT_DEBUG_BIT_EXT )
+	{
+		idLib::Printf( "Vulkan DEBUG: [ %s ] Code %d : '%s'\n", layerPrefix, msgCode, msg );
+	}
+	
+	/*
+	 * false indicates that layer should not bail-out of an
+	 * API call that had validation failures. This may mean that the
+	 * app dies inside the driver due to invalid parameter(s).
+	 * That's what would happen without validation layers, so we'll
+	 * keep that behavior here.
+	 */
+	return VK_FALSE;
+}
+
+/*
+=============
+CreateDebugReportCallback
+=============
+*/
+static void CreateDebugReportCallback()
+{
+	VkDebugReportCallbackCreateInfoEXT callbackInfo = {};
+	callbackInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
+	callbackInfo.flags = VK_DEBUG_REPORT_DEBUG_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT | VK_DEBUG_REPORT_ERROR_BIT_EXT; // VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT
+	callbackInfo.pfnCallback = ( PFN_vkDebugReportCallbackEXT ) DebugCallback;
+	
+	PFN_vkCreateDebugReportCallbackEXT func = ( PFN_vkCreateDebugReportCallbackEXT ) vkGetInstanceProcAddr( vkcontext.instance, "vkCreateDebugReportCallbackEXT" );
+	ID_VK_VALIDATE( func != NULL, "Could not find vkCreateDebugReportCallbackEXT" );
+	ID_VK_CHECK( func( vkcontext.instance, &callbackInfo, NULL, &vkcontext.callback ) );
+}
+
+/*
+=============
+DestroyDebugReportCallback
+=============
+*/
+static void DestroyDebugReportCallback()
+{
+	PFN_vkDestroyDebugReportCallbackEXT func = ( PFN_vkDestroyDebugReportCallbackEXT ) vkGetInstanceProcAddr( vkcontext.instance, "vkDestroyDebugReportCallbackEXT" );
+	ID_VK_VALIDATE( func != NULL, "Could not find vkDestroyDebugReportCallbackEXT" );
+	func( vkcontext.instance, vkcontext.callback, NULL );
+}
+
+/*
+=============
+ValidateValidationLayers
+=============
+*/
+static void ValidateValidationLayers()
+{
+	uint32 instanceLayerCount = 0;
+	vkEnumerateInstanceLayerProperties( &instanceLayerCount, NULL );
+	
+	idList< VkLayerProperties > instanceLayers;
+	instanceLayers.SetNum( instanceLayerCount );
+	vkEnumerateInstanceLayerProperties( &instanceLayerCount, instanceLayers.Ptr() );
+	
+	bool found = false;
+	for( uint32 i = 0; i < g_numValidationLayers; ++i )
+	{
+		for( uint32 j = 0; j < instanceLayerCount; ++j )
+		{
+			if( i == 0 )
+			{
+				idLib::Printf( "Found Vulkan Validation Layer '%s'\n", instanceLayers[j].layerName );
+			}
+			
+			if( idStr::Icmp( g_validationLayers[i], instanceLayers[j].layerName ) == 0 )
+			{
+				found = true;
+				break;
+			}
+		}
+		
+		if( !found )
+		{
+			idLib::FatalError( "Cannot find validation layer: %s.\n", g_validationLayers[ i ] );
+		}
+	}
+}
+/*
+=============
+CreateVulkanInstance
+=============
+*/
+static void CreateVulkanInstance()
+{
+	VkApplicationInfo appInfo = {};
+	appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+	appInfo.pApplicationName = GAME_NAME;
+	appInfo.applicationVersion = 1;
+	appInfo.pEngineName = "idTech 4.5x";
+	appInfo.engineVersion = 1;
+	appInfo.apiVersion = VK_MAKE_VERSION( 1, 0, VK_HEADER_VERSION );
+	
+	VkInstanceCreateInfo createInfo = {};
+	createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+	createInfo.pApplicationInfo = &appInfo;
+	
+	const bool enableLayers = r_vkEnableValidationLayers.GetBool();
+	
+	vkcontext.instanceExtensions.Clear();
+	vkcontext.deviceExtensions.Clear();
+	vkcontext.validationLayers.Clear();
+	
+	for( int i = 0; i < g_numInstanceExtensions; ++i )
+	{
+		vkcontext.instanceExtensions.Append( g_instanceExtensions[ i ] );
+	}
+	
+	for( int i = 0; i < g_numDeviceExtensions; ++i )
+	{
+		vkcontext.deviceExtensions.Append( g_deviceExtensions[ i ] );
+	}
+	
+	if( enableLayers )
+	{
+		for( int i = 0; i < g_numDebugInstanceExtensions; ++i )
+		{
+			vkcontext.instanceExtensions.Append( g_debugInstanceExtensions[ i ] );
+		}
+		
+		for( int i = 0; i < g_numValidationLayers; ++i )
+		{
+			vkcontext.validationLayers.Append( g_validationLayers[ i ] );
+		}
+		
+		ValidateValidationLayers();
+	}
+	
+	createInfo.enabledExtensionCount = vkcontext.instanceExtensions.Num();
+	createInfo.ppEnabledExtensionNames = vkcontext.instanceExtensions.Ptr();
+	createInfo.enabledLayerCount = vkcontext.validationLayers.Num();
+	createInfo.ppEnabledLayerNames = vkcontext.validationLayers.Ptr();
+	
+	ID_VK_CHECK( vkCreateInstance( &createInfo, NULL, &vkcontext.instance ) );
+	
+	if( enableLayers )
+	{
+		CreateDebugReportCallback();
+	}
+}
+
+/*
+=============
+ClearContext
+=============
+*/
+static void ClearContext()
+{
+	vkcontext.counter = 0;
+	vkcontext.currentFrameData = 0;
+	vkcontext.jointCacheHandle = 0;
+	memset( vkcontext.stencilOperations, 0, sizeof( vkcontext.stencilOperations ) );
+	vkcontext.instance = VK_NULL_HANDLE;
+	vkcontext.physicalDevice = VK_NULL_HANDLE;
+	vkcontext.device = VK_NULL_HANDLE;
+	vkcontext.graphicsQueue = VK_NULL_HANDLE;
+	vkcontext.presentQueue = VK_NULL_HANDLE;
+	vkcontext.graphicsFamilyIdx = -1;
+	vkcontext.presentFamilyIdx = -1;
+	vkcontext.callback = VK_NULL_HANDLE;
+	vkcontext.instanceExtensions.Clear();
+	vkcontext.deviceExtensions.Clear();
+	vkcontext.validationLayers.Clear();
+	vkcontext.gpu = NULL;
+	vkcontext.gpus.Clear();
+	vkcontext.commandPool = VK_NULL_HANDLE;
+	vkcontext.commandBuffer.Zero();
+	vkcontext.commandBufferFences.Zero();
+	vkcontext.commandBufferRecorded.Zero();
+	vkcontext.surface = VK_NULL_HANDLE;
+	vkcontext.presentMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
+	vkcontext.depthFormat = VK_FORMAT_UNDEFINED;
+	vkcontext.renderPass = VK_NULL_HANDLE;
+	vkcontext.pipelineCache = VK_NULL_HANDLE;
+	vkcontext.sampleCount = VK_SAMPLE_COUNT_1_BIT;
+	vkcontext.supersampling = false;
+	vkcontext.fullscreen = 0;
+	vkcontext.swapchain = VK_NULL_HANDLE;
+	vkcontext.swapchainFormat = VK_FORMAT_UNDEFINED;
+	vkcontext.currentSwapIndex = 0;
+	vkcontext.msaaImage = VK_NULL_HANDLE;
+	vkcontext.msaaImageView = VK_NULL_HANDLE;
+	vkcontext.swapchainImages.Zero();
+	vkcontext.frameBuffers.Zero();
+	vkcontext.acquireSemaphores.Zero();
+	vkcontext.renderCompleteSemaphores.Zero();
+	vkcontext.currentImageParm = 0;
+	vkcontext.imageParms.Zero();
+}
+
+/*
+=============
+idRenderBackend::idRenderBackend
+=============
+*/
+idRenderBackend::idRenderBackend()
+{
+	ClearContext();
+}
+
+/*
+=============
+idRenderBackend::~idRenderBackend
+=============
+*/
+idRenderBackend::~idRenderBackend()
+{
+
+}
 
 /*
 =============================
@@ -103,6 +389,56 @@ bool R_IsInitialized()
 {
 	return r_initialized;
 }
+
+/*
+=============
+idRenderBackend::Init
+=============
+*/
+void idRenderBackend::Init()
+{
+	if( R_IsInitialized() )
+	{
+		idLib::FatalError( "R_InitVulkan called while active" );
+	}
+	
+	// DG: make sure SDL has setup video so getting supported modes in R_SetNewMode() works
+	GLimp_PreInit();
+	// DG end
+	
+	R_SetNewMode( true );
+	
+	// input and sound systems need to be tied to the new window
+	Sys_InitInput();
+	
+	idLib::Printf( "----- Initializing Vulkan driver -----\n" );
+	
+	// create the Vulkan instance and enable validation layers
+	CreateVulkanInstance();
+}
+
+/*
+=============
+idRenderBackend::Shutdown
+=============
+*/
+void idRenderBackend::Shutdown()
+{
+	// destroy Debug Callback
+	if( r_vkEnableValidationLayers.GetBool() )
+	{
+		DestroyDebugReportCallback();
+	}
+	
+	// destroy the Instance
+	vkDestroyInstance( vkcontext.instance, NULL );
+	
+	// destroy main window
+	GLimp_Shutdown();
+	r_initialized = false;
+}
+
+
 
 
 bool GL_CheckErrors_( const char* filename, int line )
@@ -574,46 +910,7 @@ void idRenderBackend::BlockingSwapBuffers()
 	vkcontext.currentFrameData = vkcontext.counter % NUM_FRAME_DATA;
 }
 
-/*
-=============
-idRenderBackend::idRenderBackend
-=============
-*/
-idRenderBackend::idRenderBackend()
-{
-	Init();
-}
 
-/*
-=============
-idRenderBackend::~idRenderBackend
-=============
-*/
-idRenderBackend::~idRenderBackend()
-{
-
-}
-
-/*
-=============
-idRenderBackend::Init
-=============
-*/
-void idRenderBackend::Init()
-{
-	//memset( glcontext.tmu, 0, sizeof( glcontext.tmu ) );
-	//memset( glcontext.stencilOperations, 0, sizeof( glcontext.stencilOperations ) );
-}
-
-/*
-=============
-idRenderBackend::Shutdown
-=============
-*/
-void idRenderBackend::Shutdown()
-{
-
-}
 
 /*
 ====================
