@@ -858,6 +858,11 @@ extern glconfig_t			glConfig;		// outside of TR since it shouldn't be cleared du
 //
 // cvars
 //
+extern idCVar r_windowX;
+extern idCVar r_windowY;
+extern idCVar r_windowWidth;
+extern idCVar r_windowHeight;
+
 extern idCVar r_debugContext;				// enable various levels of context debug
 extern idCVar r_glDriver;					// "opengl32", etc
 extern idCVar r_skipIntelWorkarounds;		// skip work arounds for Intel driver bugs
@@ -909,6 +914,7 @@ extern idCVar r_useShadowMapping;			// use shadow mapping instead of stencil sha
 extern idCVar r_useHalfLambertLighting;		// use Half-Lambert lighting instead of classic Lambert
 extern idCVar r_useHDR;
 extern idCVar r_useSRGB;
+extern idCVar r_useSeamlessCubeMap;
 // RB end
 
 extern idCVar r_skipStaticInteractions;		// skip interactions created at level load
@@ -1001,6 +1007,7 @@ extern idCVar r_materialOverride;			// override all materials
 
 extern idCVar r_debugRenderToTexture;
 
+extern idCVar stereoRender_enable;
 extern idCVar stereoRender_deGhost;			// subtract from opposite eye to reduce ghosting
 
 extern idCVar r_useGPUSkinning;
@@ -1059,8 +1066,7 @@ INITIALIZATION
 ====================================================================
 */
 
-void R_Init();
-void R_InitOpenGL();
+void R_SetNewMode( const bool fullInit );
 
 void R_SetColorMappings();
 

@@ -116,7 +116,446 @@ bool GL_CheckErrors_( const char* filename, int line )
 	
 	return error;
 }
+
+
+static bool r_initialized = false;
+
+/*
+=============================
+R_IsInitialized
+=============================
+*/
+bool R_IsInitialized()
+{
+	return r_initialized;
+}
+
+
+
+/*
+========================
+DebugCallback
+
+For ARB_debug_output
+========================
+*/
+// RB: added const to userParam
+static void CALLBACK DebugCallback( unsigned int source, unsigned int type,
+									unsigned int id, unsigned int severity, int length, const char* message, const void* userParam )
+{
+	// it probably isn't safe to do an idLib::Printf at this point
+	
+	// RB: printf should be thread safe on Linux
+#if defined(_WIN32)
+	OutputDebugString( message );
+	OutputDebugString( "\n" );
+#else
+	printf( "%s\n", message );
+#endif
+	// RB end
+}
+
+
+/*
+==================
+R_CheckPortableExtensions
+==================
+*/
+// RB: replaced QGL with GLEW
+static void R_CheckPortableExtensions()
+{
+	glConfig.glVersion = atof( glConfig.version_string );
+	const char* badVideoCard = idLocalization::GetString( "#str_06780" );
+	if( glConfig.glVersion < 2.0f )
+	{
+		idLib::FatalError( "%s", badVideoCard );
+	}
+	
+	if( idStr::Icmpn( glConfig.renderer_string, "ATI ", 4 ) == 0 || idStr::Icmpn( glConfig.renderer_string, "AMD ", 4 ) == 0 )
+	{
+		glConfig.vendor = VENDOR_AMD;
+	}
+	else if( idStr::Icmpn( glConfig.renderer_string, "NVIDIA", 6 ) == 0 )
+	{
+		glConfig.vendor = VENDOR_NVIDIA;
+	}
+	else if( idStr::Icmpn( glConfig.renderer_string, "Intel", 5 ) == 0 )
+	{
+		glConfig.vendor = VENDOR_INTEL;
+	}
+	
+	// RB: Mesa support
+	if( idStr::Icmpn( glConfig.renderer_string, "Mesa", 4 ) == 0 || idStr::Icmpn( glConfig.renderer_string, "X.org", 5 ) == 0 || idStr::Icmpn( glConfig.renderer_string, "Gallium", 7 ) == 0 ||
+			strcmp( glConfig.vendor_string, "X.Org" ) == 0 ||
+			idStr::Icmpn( glConfig.renderer_string, "llvmpipe", 8 ) == 0 )
+	{
+		if( glConfig.driverType == GLDRV_OPENGL32_CORE_PROFILE )
+		{
+			glConfig.driverType = GLDRV_OPENGL_MESA_CORE_PROFILE;
+		}
+		else
+		{
+			glConfig.driverType = GLDRV_OPENGL_MESA;
+		}
+	}
+	// RB end
+	
+	// GL_ARB_multitexture
+	if( glConfig.driverType != GLDRV_OPENGL3X )
+	{
+		glConfig.multitextureAvailable = true;
+	}
+	else
+	{
+		glConfig.multitextureAvailable = GLEW_ARB_multitexture != 0;
+	}
+	
+	// GL_EXT_direct_state_access
+	glConfig.directStateAccess = GLEW_EXT_direct_state_access != 0;
+	
+	
+	// GL_ARB_texture_compression + GL_S3_s3tc
+	// DRI drivers may have GL_ARB_texture_compression but no GL_EXT_texture_compression_s3tc
+	if( glConfig.driverType == GLDRV_OPENGL_MESA_CORE_PROFILE )
+	{
+		glConfig.textureCompressionAvailable = true;
+	}
+	else
+	{
+		glConfig.textureCompressionAvailable = GLEW_ARB_texture_compression != 0 && GLEW_EXT_texture_compression_s3tc != 0;
+	}
+	// GL_EXT_texture_filter_anisotropic
+	glConfig.anisotropicFilterAvailable = GLEW_EXT_texture_filter_anisotropic != 0;
+	if( glConfig.anisotropicFilterAvailable )
+	{
+		glGetFloatv( GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &glConfig.maxTextureAnisotropy );
+		common->Printf( "   maxTextureAnisotropy: %f\n", glConfig.maxTextureAnisotropy );
+	}
+	else
+	{
+		glConfig.maxTextureAnisotropy = 1;
+	}
+	
+	// GL_EXT_texture_lod_bias
+	// The actual extension is broken as specificed, storing the state in the texture unit instead
+	// of the texture object.  The behavior in GL 1.4 is the behavior we use.
+	glConfig.textureLODBiasAvailable = ( glConfig.glVersion >= 1.4 || GLEW_EXT_texture_lod_bias != 0 );
+	if( glConfig.textureLODBiasAvailable )
+	{
+		common->Printf( "...using %s\n", "GL_EXT_texture_lod_bias" );
+	}
+	else
+	{
+		common->Printf( "X..%s not found\n", "GL_EXT_texture_lod_bias" );
+	}
+	
+	// GL_ARB_seamless_cube_map
+	glConfig.seamlessCubeMapAvailable = GLEW_ARB_seamless_cube_map != 0;
+	r_useSeamlessCubeMap.SetModified();		// the CheckCvars() next frame will enable / disable it
+	
+	// GL_ARB_framebuffer_sRGB
+	glConfig.sRGBFramebufferAvailable = GLEW_ARB_framebuffer_sRGB != 0;
+	r_useSRGB.SetModified();		// the CheckCvars() next frame will enable / disable it
+	
+	// GL_ARB_vertex_buffer_object
+	if( glConfig.driverType == GLDRV_OPENGL_MESA_CORE_PROFILE )
+	{
+		glConfig.vertexBufferObjectAvailable = true;
+	}
+	else
+	{
+		glConfig.vertexBufferObjectAvailable = GLEW_ARB_vertex_buffer_object != 0;
+	}
+	
+	// GL_ARB_map_buffer_range, map a section of a buffer object's data store
+	//if( glConfig.driverType == GLDRV_OPENGL_MESA_CORE_PROFILE )
+	//{
+	//    glConfig.mapBufferRangeAvailable = true;
+	//}
+	//else
+	{
+		glConfig.mapBufferRangeAvailable = GLEW_ARB_map_buffer_range != 0;
+	}
+	
+	// GL_ARB_vertex_array_object
+	//if( glConfig.driverType == GLDRV_OPENGL_MESA_CORE_PROFILE )
+	//{
+	//    glConfig.vertexArrayObjectAvailable = true;
+	//}
+	//else
+	{
+		glConfig.vertexArrayObjectAvailable = GLEW_ARB_vertex_array_object != 0;
+	}
+	
+	// GL_ARB_draw_elements_base_vertex
+	glConfig.drawElementsBaseVertexAvailable = GLEW_ARB_draw_elements_base_vertex != 0;
+	
+	// GL_ARB_vertex_program / GL_ARB_fragment_program
+	glConfig.fragmentProgramAvailable = GLEW_ARB_fragment_program != 0;
+	//if( glConfig.fragmentProgramAvailable )
+	{
+		glGetIntegerv( GL_MAX_TEXTURE_COORDS, ( GLint* )&glConfig.maxTextureCoords );
+		glGetIntegerv( GL_MAX_TEXTURE_IMAGE_UNITS, ( GLint* )&glConfig.maxTextureImageUnits );
+	}
+	
+	// GLSL, core in OpenGL > 2.0
+	glConfig.glslAvailable = ( glConfig.glVersion >= 2.0f );
+	
+	// GL_ARB_uniform_buffer_object
+	glConfig.uniformBufferAvailable = GLEW_ARB_uniform_buffer_object != 0;
+	if( glConfig.uniformBufferAvailable )
+	{
+		glGetIntegerv( GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, ( GLint* )&glConfig.uniformBufferOffsetAlignment );
+		if( glConfig.uniformBufferOffsetAlignment < 256 )
+		{
+			glConfig.uniformBufferOffsetAlignment = 256;
+		}
+	}
+	// RB: make GPU skinning optional for weak OpenGL drivers
+	glConfig.gpuSkinningAvailable = glConfig.uniformBufferAvailable && ( glConfig.driverType == GLDRV_OPENGL3X || glConfig.driverType == GLDRV_OPENGL32_CORE_PROFILE || glConfig.driverType == GLDRV_OPENGL32_COMPATIBILITY_PROFILE );
+	
+	// ATI_separate_stencil / OpenGL 2.0 separate stencil
+	glConfig.twoSidedStencilAvailable = ( glConfig.glVersion >= 2.0f ) || GLEW_ATI_separate_stencil != 0;
+	
+	// GL_EXT_depth_bounds_test
+	glConfig.depthBoundsTestAvailable = GLEW_EXT_depth_bounds_test != 0;
+	
+	// GL_ARB_sync
+	glConfig.syncAvailable = GLEW_ARB_sync &&
+							 // as of 5/24/2012 (driver version 15.26.12.64.2761) sync objects
+							 // do not appear to work for the Intel HD 4000 graphics
+							 ( glConfig.vendor != VENDOR_INTEL || r_skipIntelWorkarounds.GetBool() );
+							 
+	// GL_ARB_occlusion_query
+	glConfig.occlusionQueryAvailable = GLEW_ARB_occlusion_query != 0;
+	
+	// GL_ARB_timer_query
+	glConfig.timerQueryAvailable = ( GLEW_ARB_timer_query != 0 || GLEW_EXT_timer_query != 0 ) && ( glConfig.vendor != VENDOR_INTEL || r_skipIntelWorkarounds.GetBool() ) && glConfig.driverType != GLDRV_OPENGL_MESA;
+	
+	// GREMEDY_string_marker
+	glConfig.gremedyStringMarkerAvailable = GLEW_GREMEDY_string_marker != 0;
+	if( glConfig.gremedyStringMarkerAvailable )
+	{
+		common->Printf( "...using %s\n", "GL_GREMEDY_string_marker" );
+	}
+	else
+	{
+		common->Printf( "X..%s not found\n", "GL_GREMEDY_string_marker" );
+	}
+	
+	// GL_ARB_framebuffer_object
+	glConfig.framebufferObjectAvailable = GLEW_ARB_framebuffer_object != 0;
+	if( glConfig.framebufferObjectAvailable )
+	{
+		glGetIntegerv( GL_MAX_RENDERBUFFER_SIZE, &glConfig.maxRenderbufferSize );
+		glGetIntegerv( GL_MAX_COLOR_ATTACHMENTS, &glConfig.maxColorAttachments );
+		
+		common->Printf( "...using %s\n", "GL_ARB_framebuffer_object" );
+	}
+	else
+	{
+		common->Printf( "X..%s not found\n", "GL_ARB_framebuffer_object" );
+	}
+	
+	// GL_EXT_framebuffer_blit
+	glConfig.framebufferBlitAvailable = GLEW_EXT_framebuffer_blit != 0;
+	if( glConfig.framebufferBlitAvailable )
+	{
+		common->Printf( "...using %s\n", "GL_EXT_framebuffer_blit" );
+	}
+	else
+	{
+		common->Printf( "X..%s not found\n", "GL_EXT_framebuffer_blit" );
+	}
+	
+	// GL_ARB_debug_output
+	glConfig.debugOutputAvailable = GLEW_ARB_debug_output != 0;
+	if( glConfig.debugOutputAvailable )
+	{
+		if( r_debugContext.GetInteger() >= 1 )
+		{
+			glDebugMessageCallbackARB( ( GLDEBUGPROCARB ) DebugCallback, NULL );
+		}
+		if( r_debugContext.GetInteger() >= 2 )
+		{
+			// force everything to happen in the main thread instead of in a separate driver thread
+			glEnable( GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB );
+		}
+		if( r_debugContext.GetInteger() >= 3 )
+		{
+			// enable all the low priority messages
+			glDebugMessageControlARB( GL_DONT_CARE,
+									  GL_DONT_CARE,
+									  GL_DEBUG_SEVERITY_LOW_ARB,
+									  0, NULL, true );
+		}
+	}
+	
+	// GL_ARB_multitexture
+	if( !glConfig.multitextureAvailable )
+	{
+		idLib::Error( "GL_ARB_multitexture not available" );
+	}
+	// GL_ARB_texture_compression + GL_EXT_texture_compression_s3tc
+	if( !glConfig.textureCompressionAvailable )
+	{
+		idLib::Error( "GL_ARB_texture_compression or GL_EXT_texture_compression_s3tc not available" );
+	}
+	// GL_ARB_vertex_buffer_object
+	if( !glConfig.vertexBufferObjectAvailable )
+	{
+		idLib::Error( "GL_ARB_vertex_buffer_object not available" );
+	}
+	// GL_ARB_map_buffer_range
+	if( !glConfig.mapBufferRangeAvailable )
+	{
+		idLib::Error( "GL_ARB_map_buffer_range not available" );
+	}
+	// GL_ARB_vertex_array_object
+	if( !glConfig.vertexArrayObjectAvailable )
+	{
+		idLib::Error( "GL_ARB_vertex_array_object not available" );
+	}
+	// GL_ARB_draw_elements_base_vertex
+	if( !glConfig.drawElementsBaseVertexAvailable )
+	{
+		idLib::Error( "GL_ARB_draw_elements_base_vertex not available" );
+	}
+	// GL_ARB_vertex_program / GL_ARB_fragment_program
+	//if( !glConfig.fragmentProgramAvailable )
+	//{
+	//	idLib::Warning( "GL_ARB_fragment_program not available" );
+	//}
+	// GLSL
+	if( !glConfig.glslAvailable )
+	{
+		idLib::Error( "GLSL not available" );
+	}
+	// GL_ARB_uniform_buffer_object
+	if( !glConfig.uniformBufferAvailable )
+	{
+		idLib::Error( "GL_ARB_uniform_buffer_object not available" );
+	}
+	// GL_EXT_stencil_two_side
+	if( !glConfig.twoSidedStencilAvailable )
+	{
+		idLib::Error( "GL_ATI_separate_stencil not available" );
+	}
+	
+	// generate one global Vertex Array Object (VAO)
+	glGenVertexArrays( 1, &glConfig.global_vao );
+	glBindVertexArray( glConfig.global_vao );
+}
 // RB end
+
+idStr extensions_string;
+
+/*
+==================
+R_InitOpenGL
+
+This function is responsible for initializing a valid OpenGL subsystem
+for rendering.  This is done by calling the system specific GLimp_Init,
+which gives us a working OGL subsystem, then setting all necessary openGL
+state, including images, vertex programs, and display lists.
+
+Changes to the vertex cache size or smp state require a vid_restart.
+
+If R_IsInitialized() is false, no rendering can take place, but
+all renderSystem functions will still operate properly, notably the material
+and model information functions.
+==================
+*/
+void idRenderBackend::Init()
+{
+	common->Printf( "----- R_InitOpenGL -----\n" );
+	
+	if( R_IsInitialized() )
+	{
+		common->FatalError( "R_InitOpenGL called while active" );
+	}
+	
+	// DG: make sure SDL has setup video so getting supported modes in R_SetNewMode() works
+	GLimp_PreInit();
+	// DG end
+	
+	R_SetNewMode( true );
+	
+	// input and sound systems need to be tied to the new window
+	Sys_InitInput();
+	
+	// get our config strings
+	glConfig.vendor_string = ( const char* )glGetString( GL_VENDOR );
+	glConfig.renderer_string = ( const char* )glGetString( GL_RENDERER );
+	glConfig.version_string = ( const char* )glGetString( GL_VERSION );
+	glConfig.shading_language_string = ( const char* )glGetString( GL_SHADING_LANGUAGE_VERSION );
+	glConfig.extensions_string = ( const char* )glGetString( GL_EXTENSIONS );
+	
+	if( glConfig.extensions_string == NULL )
+	{
+		// As of OpenGL 3.2, glGetStringi is required to obtain the available extensions
+		//glGetStringi = ( PFNGLGETSTRINGIPROC )GLimp_ExtensionPointer( "glGetStringi" );
+		
+		// Build the extensions string
+		GLint numExtensions;
+		glGetIntegerv( GL_NUM_EXTENSIONS, &numExtensions );
+		extensions_string.Clear();
+		for( int i = 0; i < numExtensions; i++ )
+		{
+			extensions_string.Append( ( const char* )glGetStringi( GL_EXTENSIONS, i ) );
+			// the now deprecated glGetString method usaed to create a single string with each extension separated by a space
+			if( i < numExtensions - 1 )
+			{
+				extensions_string.Append( ' ' );
+			}
+		}
+		glConfig.extensions_string = extensions_string.c_str();
+	}
+	
+	
+	float glVersion = atof( glConfig.version_string );
+	float glslVersion = atof( glConfig.shading_language_string );
+	idLib::Printf( "OpenGL Version   : %3.1f\n", glVersion );
+	idLib::Printf( "OpenGL Vendor    : %s\n", glConfig.vendor_string );
+	idLib::Printf( "OpenGL Renderer  : %s\n", glConfig.renderer_string );
+	idLib::Printf( "OpenGL GLSL      : %3.1f\n", glslVersion );
+	idLib::Printf( "OpenGL Extensions: %s\n", glConfig.extensions_string );
+	
+	// OpenGL driver constants
+	GLint temp;
+	glGetIntegerv( GL_MAX_TEXTURE_SIZE, &temp );
+	glConfig.maxTextureSize = temp;
+	
+	// stubbed or broken drivers may have reported 0...
+	if( glConfig.maxTextureSize <= 0 )
+	{
+		glConfig.maxTextureSize = 256;
+	}
+	
+	r_initialized = true;
+	
+	// recheck all the extensions (FIXME: this might be dangerous)
+	R_CheckPortableExtensions();
+	
+	renderProgManager.Init();
+	
+	r_initialized = true;
+	
+	// allocate the vertex array range or vertex objects
+	vertexCache.Init( glConfig.uniformBufferOffsetAlignment );
+	
+	// allocate the frame data, which may be more if smp is enabled
+	R_InitFrameData();
+	
+	// Reset our gamma
+	R_SetColorMappings();
+}
+
+void idRenderBackend::Shutdown()
+{
+	GLimp_Shutdown();
+	r_initialized = false;
+}
 
 /*
 =============
@@ -986,7 +1425,6 @@ void idRenderBackend::CheckCVars()
 		}
 	}
 	
-	extern idCVar r_useSeamlessCubeMap;
 	if( r_useSeamlessCubeMap.IsModified() )
 	{
 		r_useSeamlessCubeMap.ClearModified();
@@ -1003,7 +1441,6 @@ void idRenderBackend::CheckCVars()
 		}
 	}
 	
-	extern idCVar r_useSRGB;
 	if( r_useSRGB.IsModified() )
 	{
 		r_useSRGB.ClearModified();
@@ -1412,7 +1849,8 @@ idRenderBackend::idRenderBackend
 */
 idRenderBackend::idRenderBackend()
 {
-	Init();
+	memset( glcontext.tmu, 0, sizeof( glcontext.tmu ) );
+	memset( glcontext.stencilOperations, 0, sizeof( glcontext.stencilOperations ) );
 }
 
 /*
@@ -1423,17 +1861,6 @@ idRenderBackend::~idRenderBackend
 idRenderBackend::~idRenderBackend()
 {
 
-}
-
-/*
-=============
-idRenderBackend::Init
-=============
-*/
-void idRenderBackend::Init()
-{
-	memset( glcontext.tmu, 0, sizeof( glcontext.tmu ) );
-	memset( glcontext.stencilOperations, 0, sizeof( glcontext.stencilOperations ) );
 }
 
 /*
