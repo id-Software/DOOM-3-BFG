@@ -3013,6 +3013,9 @@ void idRenderBackend::ShadowMapPass( const drawSurf_t* drawSurfs, const viewLigh
 		shadowP[0] = lightProjectionRenderMatrix;
 	}
 	
+	
+	// FIXME
+#if !defined(USE_VULKAN)
 	globalFramebuffers.shadowFBO[vLight->shadowLOD]->Bind();
 	
 	if( side < 0 )
@@ -3028,7 +3031,7 @@ void idRenderBackend::ShadowMapPass( const drawSurf_t* drawSurfs, const viewLigh
 	
 	GL_ViewportAndScissor( 0, 0, shadowMapResolutions[vLight->shadowLOD], shadowMapResolutions[vLight->shadowLOD] );
 	
-#if !defined(USE_VULKAN)
+	
 	glClear( GL_DEPTH_BUFFER_BIT );
 #endif
 	
@@ -4229,9 +4232,11 @@ void idRenderBackend::CalculateAutomaticExposure()
 		// calculate the average scene luminance
 		globalFramebuffers.hdr64FBO->Bind();
 		
+		// FIXME
+#if !defined(USE_VULKAN)
 		// read back the contents
-		//	glFinish();
 		glReadPixels( 0, 0, 64, 64, GL_RGBA, GL_FLOAT, image );
+#endif
 		
 		sum = 0.0f;
 		maxLuminance = 0.0f;
@@ -4431,8 +4436,11 @@ void idRenderBackend::Bloom( const viewDef_t* _viewDef )
 	//Framebuffer::Unbind();
 	//globalFramebuffers.hdrQuarterFBO->Bind();
 	
+	// FIXME
+#if !defined(USE_VULKAN)
 	glClearColor( 0, 0, 0, 1 );
 //	glClear( GL_COLOR_BUFFER_BIT );
+#endif
 
 	GL_State( /*GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO |*/ GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
 	GL_Cull( CT_TWO_SIDED );
@@ -4511,7 +4519,11 @@ void idRenderBackend::Bloom( const viewDef_t* _viewDef )
 	for( j = 0; j < r_hdrGlarePasses.GetInteger(); j++ )
 	{
 		globalFramebuffers.bloomRenderFBO[( j + 1 ) % 2 ]->Bind();
+		
+		// FIXME
+#if !defined(USE_VULKAN)
 		glClear( GL_COLOR_BUFFER_BIT );
+#endif
 		
 		globalImages->bloomRenderImage[j % 2]->Bind();
 		
@@ -4540,6 +4552,7 @@ void idRenderBackend::Bloom( const viewDef_t* _viewDef )
 
 void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef )
 {
+#if !defined(USE_VULKAN)
 	if( !_viewDef->viewEntitys || _viewDef->is2Dgui )
 	{
 		// 3D views only
@@ -4844,10 +4857,12 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 	GL_Cull( CT_FRONT_SIDED );
 	
 	//GL_CheckErrors();
+#endif
 }
 
 void idRenderBackend::DrawScreenSpaceGlobalIllumination( const viewDef_t* _viewDef )
 {
+#if !defined(USE_VULKAN)
 	if( !_viewDef->viewEntitys || _viewDef->is2Dgui )
 	{
 		// 3D views only
@@ -5110,6 +5125,7 @@ void idRenderBackend::DrawScreenSpaceGlobalIllumination( const viewDef_t* _viewD
 	GL_Cull( CT_FRONT_SIDED );
 	
 	//GL_CheckErrors();
+#endif
 }
 // RB end
 
@@ -5157,7 +5173,9 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 	//-------------------------------------------------
 	ResetViewportAndScissorToDefaultCamera( _viewDef );
 	
+#if !defined(USE_VULKAN)
 	faceCulling = -1;		// force face culling to set next time
+#endif
 	
 	// ensures that depth writes are enabled for the depth clear
 	GL_State( GLS_DEFAULT );
@@ -5340,6 +5358,7 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 	//-------------------------------------------------
 	DBG_RenderDebugTools( drawSurfs, numDrawSurfs );
 	
+#if !defined(USE_VULKAN)
 	// RB: convert back from HDR to LDR range
 	if( useHDR )
 	{
@@ -5399,7 +5418,7 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 	}
 	
 	Bloom( _viewDef );
-	// RB end
+#endif
 	
 	renderLog.CloseBlock();
 }
@@ -5429,11 +5448,18 @@ void idRenderBackend::MotionBlur()
 	
 	GL_CheckErrors();
 	
+	
 	// clear the alpha buffer and draw only the hands + weapon into it so
 	// we can avoid blurring them
-	glClearColor( 0, 0, 0, 1 );
 	GL_State( GLS_COLORMASK | GLS_DEPTHMASK );
+	
+// FIXME
+#if !defined(USE_VULKAN)
+	glClearColor( 0, 0, 0, 1 );
 	glClear( GL_COLOR_BUFFER_BIT );
+	
+#endif
+	
 	GL_Color( 0, 0, 0, 0 );
 	GL_SelectTexture( 0 );
 	globalImages->blackImage->Bind();
@@ -5650,6 +5676,9 @@ void idRenderBackend::PostProcess( const void* data )
 	
 	RENDERLOG_PRINTF( "---------- RB_PostProcess() ----------\n" );
 	
+// FIXME
+#if !defined(USE_VULKAN)
+
 	// resolve the scaled rendering to a temporary texture
 	postProcessCommand_t* cmd = ( postProcessCommand_t* )data;
 	const idScreenRect& viewport = cmd->viewDef->viewport;
@@ -5790,6 +5819,8 @@ void idRenderBackend::PostProcess( const void* data )
 	
 	GL_SelectTexture( 0 );
 	renderProgManager.Unbind();
+	
+#endif
 	
 	renderLog.CloseBlock();
 }

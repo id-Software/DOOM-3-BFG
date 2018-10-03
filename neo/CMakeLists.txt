@@ -297,7 +297,7 @@ else()
 
 	if(USE_SYSTEM_LIBGLEW)
 		find_package(GLEW)
-	endif(USE_SYSTEM_LIBGLEW)
+	endif()
 
 	if(GLEW_FOUND)
 		include_directories(${GLEW_INCLUDE_DIRS})
@@ -306,6 +306,16 @@ else()
 		include_directories("libs/glew/include")
 		set(GLEW_LIBRARY "" )
 		add_definitions(-DGLEW_STATIC)
+		
+		set(GLEW_INCLUDES libs/glew/include/GL/glew.h)
+		set(GLEW_SOURCES libs/glew/src/glew.c)
+
+		if(WIN32)
+			set(GLEW_INCLUDES ${GLEW_INCLUDES} libs/glew/include/GL/wglew.h)
+		else()
+			set(GLEW_INCLUDES ${GLEW_INCLUDES} libs/glew/include/GL/glxew.h)
+		endif()
+		
 	endif()
 	
 endif()
@@ -446,19 +456,7 @@ endif()
 file(GLOB MINIZIP_INCLUDES libs/zlib/minizip/*.h)
 file(GLOB MINIZIP_SOURCES libs/zlib/minizip/*.c libs/zlib/minizip/*.cpp)
 	
-if (NOT GLEW_FOUND)
-    set(GLEW_INCLUDES libs/glew/include/GL/glew.h)
-    set(GLEW_SOURCES libs/glew/src/glew.c)
 
-    if(WIN32)
-        set(GLEW_INCLUDES ${GLEW_INCLUDES} libs/glew/include/GL/wglew.h)
-    else(WIN32)
-        set(GLEW_INCLUDES ${GLEW_INCLUDES} libs/glew/include/GL/glxew.h)
-    endif(WIN32)
-else (NOT GLEW_FOUND)
-    set(GLEW_INCLUDES "")
-    set(GLEW_SOURCES "")
-endif (NOT GLEW_FOUND)
 	
 set(FREETYPE_SOURCES
 	libs/freetype/src/autofit/autofit.c

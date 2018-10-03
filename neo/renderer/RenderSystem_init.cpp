@@ -687,6 +687,9 @@ If ref isn't specified, the full session UpdateScreen will be done.
 */
 void R_ReadTiledPixels( int width, int height, byte* buffer, renderView_t* ref = NULL )
 {
+	// FIXME
+#if !defined(USE_VULKAN)
+	
 	// include extra space for OpenGL padding to word boundaries
 	int sysWidth = renderSystem->GetWidth();
 	int sysHeight = renderSystem->GetHeight();
@@ -801,6 +804,7 @@ void R_ReadTiledPixels( int width, int height, byte* buffer, renderView_t* ref =
 	r_useScissor.SetBool( true );
 	
 	R_StaticFree( temp );
+#endif
 }
 
 
@@ -1058,47 +1062,7 @@ void R_ScreenShot_f( const idCmdArgs& args )
 	common->Printf( "Wrote %s\n", checkname.c_str() );
 }
 
-/*
-===============
-R_StencilShot
-Save out a screenshot showing the stencil buffer expanded by 16x range
-===============
-*/
-void R_StencilShot()
-{
-	int			i, c;
-	
-	int	width = tr.GetWidth();
-	int	height = tr.GetHeight();
-	
-	int	pix = width * height;
-	
-	c = pix * 3 + 18;
-	idTempArray< byte > buffer( c );
-	memset( buffer.Ptr(), 0, 18 );
-	
-	idTempArray< byte > byteBuffer( pix );
-	
-	glReadPixels( 0, 0, width, height, GL_STENCIL_INDEX , GL_UNSIGNED_BYTE, byteBuffer.Ptr() );
-	
-	for( i = 0 ; i < pix ; i++ )
-	{
-		buffer[18 + i * 3] =
-			buffer[18 + i * 3 + 1] =
-				//		buffer[18+i*3+2] = ( byteBuffer[i] & 15 ) * 16;
-				buffer[18 + i * 3 + 2] = byteBuffer[i];
-	}
-	
-	// fill in the header (this is vertically flipped, which glReadPixels emits)
-	buffer[2] = 2;		// uncompressed type
-	buffer[12] = width & 255;
-	buffer[13] = width >> 8;
-	buffer[14] = height & 255;
-	buffer[15] = height >> 8;
-	buffer[16] = 24;	// pixel size
-	
-	fileSystem->WriteFile( "screenshots/stencilShot.tga", buffer.Ptr(), c, "fs_savepath" );
-}
+
 
 /*
 ==================
@@ -1766,7 +1730,7 @@ void GfxInfo_f( const idCmdArgs& args )
 	common->Printf( "-------\n" );
 	
 	// RB begin
-#if defined(_WIN32) && !defined(USE_GLES2)
+#if defined(_WIN32) && !defined(USE_VULKAN)
 	// WGL_EXT_swap_interval
 	typedef BOOL ( WINAPI * PFNWGLSWAPINTERVALEXTPROC )( int interval );
 	extern	PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT;
@@ -2480,11 +2444,13 @@ void idRenderSystemLocal::InitOpenGL()
 		// Reloading images here causes the rendertargets to get deleted. Figure out how to handle this properly on 360
 		globalImages->ReloadImages( true );
 		
+#if !defined(USE_VULKAN)
 		int err = glGetError();
 		if( err != GL_NO_ERROR )
 		{
 			common->Printf( "glGetError() = 0x%x\n", err );
 		}
+#endif
 	}
 }
 

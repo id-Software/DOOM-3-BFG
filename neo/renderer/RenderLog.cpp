@@ -87,12 +87,14 @@ struct pixEvent_t
 
 idCVar r_pix( "r_pix", "0", CVAR_INTEGER, "print GPU/CPU event timing" );
 
+#if !defined(USE_VULKAN)
 static const int	MAX_PIX_EVENTS = 256;
 // defer allocation of this until needed, so we don't waste lots of memory
 pixEvent_t* 		pixEvents;	// [MAX_PIX_EVENTS]
 int					numPixEvents;
 int					numPixLevels;
 static GLuint		timeQueryIds[MAX_PIX_EVENTS];
+#endif
 
 /*
 ========================
@@ -412,7 +414,7 @@ idRenderLog::Printf
 */
 void idRenderLog::Printf( const char* fmt, ... )
 {
-#if !defined(USE_GLES2) && !defined(USE_GLES3)
+#if !defined(USE_VULKAN)
 	if( activeLevel <= LOG_LEVEL_BLOCKS_ONLY )
 	{
 		return;
@@ -466,7 +468,7 @@ void idRenderLog::LogOpenBlock( renderLogIndentLabel_t label, const char* fmt, .
 		//logFile->Printf( "%s%1.1f msec gap from last closeblock\n", indentString, ( now - closeBlockTime ) * ( 1.0f / 1000.0f ) );
 		//}
 		
-#if !defined(USE_GLES2) && !defined(USE_GLES3)
+#if !defined(USE_VULKAN)
 		if( glConfig.gremedyStringMarkerAvailable )
 		{
 			//Printf( fmt, args );

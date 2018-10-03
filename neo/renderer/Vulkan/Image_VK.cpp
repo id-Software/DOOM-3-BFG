@@ -73,6 +73,16 @@ idImage::~idImage()
 }
 
 /*
+====================
+idImage::IsLoaded
+====================
+*/
+bool idImage::IsLoaded() const
+{
+	return image != VK_NULL_HANDLE; // TODO_VK maybe do something better than this.
+}
+
+/*
 ==============
 Bind
 
@@ -130,6 +140,16 @@ idImage::SetTexParameters
 ========================
 */
 void idImage::SetTexParameters()
+{
+
+}
+
+/*
+====================
+idImage::SetSamplerState
+====================
+*/
+void idImage::SetSamplerState( textureFilter_t filter, textureRepeat_t repeat )
 {
 
 }

@@ -37,23 +37,72 @@ If you have questions concerning this license or the applicable additional terms
 
 idCVar r_drawFlickerBox( "r_drawFlickerBox", "0", CVAR_RENDERER | CVAR_BOOL, "visual test for dropping frames" );
 idCVar stereoRender_warp( "stereoRender_warp", "0", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_BOOL, "use the optical warping renderprog instead of stereoDeGhost" );
-idCVar stereoRender_warpStrength( "stereoRender_warpStrength", "1.45", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_FLOAT, "amount of pre-distortion" );
-
-idCVar stereoRender_warpCenterX( "stereoRender_warpCenterX", "0.5", CVAR_RENDERER | CVAR_FLOAT | CVAR_ARCHIVE, "center for left eye, right eye will be 1.0 - this" );
-idCVar stereoRender_warpCenterY( "stereoRender_warpCenterY", "0.5", CVAR_RENDERER | CVAR_FLOAT | CVAR_ARCHIVE, "center for both eyes" );
-idCVar stereoRender_warpParmZ( "stereoRender_warpParmZ", "0", CVAR_RENDERER | CVAR_FLOAT | CVAR_ARCHIVE, "development parm" );
-idCVar stereoRender_warpParmW( "stereoRender_warpParmW", "0", CVAR_RENDERER | CVAR_FLOAT | CVAR_ARCHIVE, "development parm" );
-idCVar stereoRender_warpTargetFraction( "stereoRender_warpTargetFraction", "1.0", CVAR_RENDERER | CVAR_FLOAT | CVAR_ARCHIVE, "fraction of half-width the through-lens view covers" );
 
 idCVar r_showSwapBuffers( "r_showSwapBuffers", "0", CVAR_BOOL, "Show timings from GL_BlockingSwapBuffers" );
 idCVar r_syncEveryFrame( "r_syncEveryFrame", "1", CVAR_BOOL, "Don't let the GPU buffer execution past swapbuffers" );
 
-static int		swapIndex;		// 0 or 1 into renderSync
-//static GLsync	renderSync[2];
 
-void GLimp_SwapBuffers();
-void RB_SetMVP( const idRenderMatrix& mvp );
+// NEW VULKAN STUFF
 
+idCVar r_vkEnableValidationLayers( "r_vkEnableValidationLayers", "0", CVAR_BOOL, "" );
+
+vulkanContext_t vkcontext;
+
+#define ID_VK_ERROR_STRING( x ) case static_cast< int >( x ): return #x
+
+/*
+=============
+VK_ErrorToString
+=============
+*/
+const char* VK_ErrorToString( VkResult result )
+{
+	switch( result )
+	{
+			ID_VK_ERROR_STRING( VK_SUCCESS );
+			ID_VK_ERROR_STRING( VK_NOT_READY );
+			ID_VK_ERROR_STRING( VK_TIMEOUT );
+			ID_VK_ERROR_STRING( VK_EVENT_SET );
+			ID_VK_ERROR_STRING( VK_EVENT_RESET );
+			ID_VK_ERROR_STRING( VK_INCOMPLETE );
+			ID_VK_ERROR_STRING( VK_ERROR_OUT_OF_HOST_MEMORY );
+			ID_VK_ERROR_STRING( VK_ERROR_OUT_OF_DEVICE_MEMORY );
+			ID_VK_ERROR_STRING( VK_ERROR_INITIALIZATION_FAILED );
+			ID_VK_ERROR_STRING( VK_ERROR_DEVICE_LOST );
+			ID_VK_ERROR_STRING( VK_ERROR_MEMORY_MAP_FAILED );
+			ID_VK_ERROR_STRING( VK_ERROR_LAYER_NOT_PRESENT );
+			ID_VK_ERROR_STRING( VK_ERROR_EXTENSION_NOT_PRESENT );
+			ID_VK_ERROR_STRING( VK_ERROR_FEATURE_NOT_PRESENT );
+			ID_VK_ERROR_STRING( VK_ERROR_INCOMPATIBLE_DRIVER );
+			ID_VK_ERROR_STRING( VK_ERROR_TOO_MANY_OBJECTS );
+			ID_VK_ERROR_STRING( VK_ERROR_FORMAT_NOT_SUPPORTED );
+			ID_VK_ERROR_STRING( VK_ERROR_SURFACE_LOST_KHR );
+			ID_VK_ERROR_STRING( VK_ERROR_NATIVE_WINDOW_IN_USE_KHR );
+			ID_VK_ERROR_STRING( VK_SUBOPTIMAL_KHR );
+			ID_VK_ERROR_STRING( VK_ERROR_OUT_OF_DATE_KHR );
+			ID_VK_ERROR_STRING( VK_ERROR_INCOMPATIBLE_DISPLAY_KHR );
+			ID_VK_ERROR_STRING( VK_ERROR_VALIDATION_FAILED_EXT );
+			ID_VK_ERROR_STRING( VK_ERROR_INVALID_SHADER_NV );
+			ID_VK_ERROR_STRING( VK_RESULT_BEGIN_RANGE );
+			ID_VK_ERROR_STRING( VK_RESULT_RANGE_SIZE );
+		default:
+			return "UNKNOWN";
+	};
+}
+
+
+
+
+/*
+=============================
+R_IsInitialized
+=============================
+*/
+static bool r_initialized = false;
+bool R_IsInitialized()
+{
+	return r_initialized;
+}
 
 
 bool GL_CheckErrors_( const char* filename, int line )
@@ -557,6 +606,16 @@ void idRenderBackend::Init()
 }
 
 /*
+=============
+idRenderBackend::Shutdown
+=============
+*/
+void idRenderBackend::Shutdown()
+{
+
+}
+
+/*
 ====================
 idRenderBackend::StereoRenderExecuteBackEndCommands
 
@@ -653,4 +712,73 @@ void idRenderBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
 	}
 	
 	renderLog.EndFrame();
+}
+
+
+/*
+==============================================================================================
+
+STENCIL SHADOW RENDERING
+
+==============================================================================================
+*/
+
+/*
+=====================
+idRenderBackend::DrawStencilShadowPass
+=====================
+*/
+void idRenderBackend::DrawStencilShadowPass( const drawSurf_t* drawSurf, const bool renderZPass )
+{
+}
+
+
+/*
+==============================================================================================
+
+OFFSCREEN RENDERING
+
+==============================================================================================
+*/
+
+void Framebuffer::Init()
+{
+	// TODO
+}
+
+void Framebuffer::Shutdown()
+{
+	// TODO
+}
+
+bool Framebuffer::IsDefaultFramebufferActive()
+{
+	// TODO
+	return true;
+}
+
+void Framebuffer::Bind()
+{
+	// TODO
+}
+
+void Framebuffer::Unbind()
+{
+	// TODO
+}
+
+bool Framebuffer::IsBound()
+{
+	// TODO
+	return true;
+}
+
+void Framebuffer::Check()
+{
+	// TODO
+}
+
+void Framebuffer::CheckFramebuffers()
+{
+	// TODO
 }

@@ -1071,7 +1071,6 @@ void R_SetNewMode( const bool fullInit );
 void R_SetColorMappings();
 
 void R_ScreenShot_f( const idCmdArgs& args );
-void R_StencilShot();
 
 /*
 ====================================================================

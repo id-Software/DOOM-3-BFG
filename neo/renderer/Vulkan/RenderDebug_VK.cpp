@@ -381,10 +381,75 @@ void idRenderBackend::DBG_ShowPortals()
 
 /*
 ================
+idRenderBackend::DBG_ClearDebugText
+================
+*/
+void RB_ClearDebugText( int time )
+{
+
+}
+
+/*
+================
+RB_AddDebugText
+================
+*/
+void RB_AddDebugText( const char* text, const idVec3& origin, float scale, const idVec4& color, const idMat3& viewAxis, const int align, const int lifetime, const bool depthTest )
+{
+
+}
+
+/*
+================
+RB_DrawTextLength
+
+  returns the length of the given text
+================
+*/
+float RB_DrawTextLength( const char* text, float scale, int len )
+{
+	return 0;
+}
+
+/*
+================
+RB_DrawText
+
+  oriented on the viewaxis
+  align can be 0-left, 1-center (default), 2-right
+================
+*/
+void RB_DrawText( const char* text, const idVec3& origin, float scale, const idVec4& color, const idMat3& viewAxis, const int align )
+{
+
+}
+
+/*
+================
 idRenderBackend::DBG_ShowDebugText
 ================
 */
 void idRenderBackend::DBG_ShowDebugText()
+{
+
+}
+
+/*
+================
+RB_ClearDebugLines
+================
+*/
+void RB_ClearDebugLines( int time )
+{
+
+}
+
+/*
+================
+RB_AddDebugLine
+================
+*/
+void RB_AddDebugLine( const idVec4& color, const idVec3& start, const idVec3& end, const int lifeTime, const bool depthTest )
 {
 
 }
@@ -399,6 +464,25 @@ void idRenderBackend::DBG_ShowDebugLines()
 
 }
 
+/*
+================
+RB_ClearDebugPolygons
+================
+*/
+void RB_ClearDebugPolygons( int time )
+{
+
+}
+
+/*
+================
+RB_AddDebugPolygon
+================
+*/
+void RB_AddDebugPolygon( const idVec4& color, const idWinding& winding, const int lifeTime, const bool depthTest )
+{
+
+}
 
 /*
 ================

@@ -1981,6 +1981,7 @@ idRenderProgManager::CommitUnforms
 */
 void idRenderProgManager::CommitUniforms()
 {
+#if !defined(USE_VULKAN)
 	const int progID = GetGLSLCurrentProgram();
 	const glslProgram_t& prog = glslPrograms[progID];
 	
@@ -2076,6 +2077,7 @@ void idRenderProgManager::CommitUniforms()
 	}
 	
 	//GL_CheckErrors();
+#endif
 }
 
 class idSort_QuickUniforms : public idSort_Quick< glslUniformLocation_t, idSort_QuickUniforms >
@@ -2094,6 +2096,7 @@ idRenderProgManager::LoadGLSLProgram
 */
 void idRenderProgManager::LoadGLSLProgram( const int programIndex, const int vertexShaderIndex, const int fragmentShaderIndex )
 {
+#if !defined(USE_VULKAN)
 	glslProgram_t& prog = glslPrograms[programIndex];
 	
 	if( prog.progId != INVALID_PROGID )
@@ -2263,6 +2266,7 @@ void idRenderProgManager::LoadGLSLProgram( const int programIndex, const int ver
 	prog.progId = program;
 	prog.fragmentShaderIndex = fragmentShaderIndex;
 	prog.vertexShaderIndex = vertexShaderIndex;
+#endif
 }
 
 /*

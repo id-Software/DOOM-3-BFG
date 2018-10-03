@@ -112,6 +112,9 @@ enum antiAliasingMode_t
 // These are constant once the OpenGL subsystem is initialized.
 struct glconfig_t
 {
+	graphicsVendor_t	vendor;
+	graphicsDriverType_t driverType;
+	
 	const char* 		renderer_string;
 	const char* 		vendor_string;
 	const char* 		version_string;
@@ -120,10 +123,6 @@ struct glconfig_t
 	const char* 		shading_language_string;
 	
 	float				glVersion;				// atof( version_string )
-	graphicsVendor_t	vendor;
-	// RB begin
-	graphicsDriverType_t driverType;
-	// RB end
 	
 	int					maxTextureSize;			// queried from GL
 	int					maxTextureCoords;
