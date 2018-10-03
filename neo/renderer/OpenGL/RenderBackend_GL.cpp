@@ -1062,6 +1062,190 @@ void idRenderBackend::CheckCVars()
 	// RB end
 }
 
+
+/*
+==============================================================================================
+
+STENCIL SHADOW RENDERING
+
+==============================================================================================
+*/
+extern idCVar r_useStencilShadowPreload;
+
+/*
+==================
+idRenderBackend::DrawStencilShadowPass
+==================
+*/
+void idRenderBackend::DrawStencilShadowPass( const drawSurf_t* drawSurf, const bool renderZPass )
+{
+	// get vertex buffer
+	const vertCacheHandle_t vbHandle = drawSurf->shadowCache;
+	idVertexBuffer* vertexBuffer;
+	if( vertexCache.CacheIsStatic( vbHandle ) )
+	{
+		vertexBuffer = &vertexCache.staticData.vertexBuffer;
+	}
+	else
+	{
+		const uint64 frameNum = ( int )( vbHandle >> VERTCACHE_FRAME_SHIFT ) & VERTCACHE_FRAME_MASK;
+		if( frameNum != ( ( vertexCache.currentFrame - 1 ) & VERTCACHE_FRAME_MASK ) )
+		{
+			idLib::Warning( "DrawStencilShadowPass, vertexBuffer == NULL" );
+			return;
+		}
+		vertexBuffer = &vertexCache.frameData[vertexCache.drawListNum].vertexBuffer;
+	}
+	const int vertOffset = ( int )( vbHandle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
+	
+	// get index buffer
+	const vertCacheHandle_t ibHandle = drawSurf->indexCache;
+	idIndexBuffer* indexBuffer;
+	if( vertexCache.CacheIsStatic( ibHandle ) )
+	{
+		indexBuffer = &vertexCache.staticData.indexBuffer;
+	}
+	else
+	{
+		const uint64 frameNum = ( int )( ibHandle >> VERTCACHE_FRAME_SHIFT ) & VERTCACHE_FRAME_MASK;
+		if( frameNum != ( ( vertexCache.currentFrame - 1 ) & VERTCACHE_FRAME_MASK ) )
+		{
+			idLib::Warning( "DrawStencilShadowPass, indexBuffer == NULL" );
+			return;
+		}
+		indexBuffer = &vertexCache.frameData[vertexCache.drawListNum].indexBuffer;
+	}
+	const uint64 indexOffset = ( int )( ibHandle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
+	
+	RENDERLOG_PRINTF( "Binding Buffers: %p %p\n", vertexBuffer, indexBuffer );
+	
+	// RB: 64 bit fixes, changed GLuint to GLintptr
+	if( currentIndexBuffer != ( GLintptr )indexBuffer->GetAPIObject() || !r_useStateCaching.GetBool() )
+	{
+		glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ( GLintptr )indexBuffer->GetAPIObject() );
+		currentIndexBuffer = ( GLintptr )indexBuffer->GetAPIObject();
+	}
+	
+	if( drawSurf->jointCache )
+	{
+		assert( renderProgManager.ShaderUsesJoints() );
+		
+		idUniformBuffer jointBuffer;
+		if( !vertexCache.GetJointBuffer( drawSurf->jointCache, &jointBuffer ) )
+		{
+			idLib::Warning( "DrawStencilShadowPass, jointBuffer == NULL" );
+			return;
+		}
+		assert( ( jointBuffer.GetOffset() & ( glConfig.uniformBufferOffsetAlignment - 1 ) ) == 0 );
+		
+		const GLintptr ubo = jointBuffer.GetAPIObject();
+		glBindBufferRange( GL_UNIFORM_BUFFER, 0, ubo, jointBuffer.GetOffset(), jointBuffer.GetSize() );
+		
+		if( ( vertexLayout != LAYOUT_DRAW_SHADOW_VERT_SKINNED ) || ( currentVertexBuffer != ( GLintptr )vertexBuffer->GetAPIObject() ) || !r_useStateCaching.GetBool() )
+		{
+			glBindBuffer( GL_ARRAY_BUFFER, ( GLintptr )vertexBuffer->GetAPIObject() );
+			currentVertexBuffer = ( GLintptr )vertexBuffer->GetAPIObject();
+			
+			glEnableVertexAttribArray( PC_ATTRIB_INDEX_VERTEX );
+			glDisableVertexAttribArray( PC_ATTRIB_INDEX_NORMAL );
+			glEnableVertexAttribArray( PC_ATTRIB_INDEX_COLOR );
+			glEnableVertexAttribArray( PC_ATTRIB_INDEX_COLOR2 );
+			glDisableVertexAttribArray( PC_ATTRIB_INDEX_ST );
+			glDisableVertexAttribArray( PC_ATTRIB_INDEX_TANGENT );
+			
+#if defined(USE_GLES2) || defined(USE_GLES3)
+			glVertexAttribPointer( PC_ATTRIB_INDEX_VERTEX, 4, GL_FLOAT, GL_FALSE, sizeof( idShadowVertSkinned ), ( void* )( vertOffset + SHADOWVERTSKINNED_XYZW_OFFSET ) );
+			glVertexAttribPointer( PC_ATTRIB_INDEX_COLOR, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idShadowVertSkinned ), ( void* )( vertOffset + SHADOWVERTSKINNED_COLOR_OFFSET ) );
+			glVertexAttribPointer( PC_ATTRIB_INDEX_COLOR2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idShadowVertSkinned ), ( void* )( vertOffset + SHADOWVERTSKINNED_COLOR2_OFFSET ) );
+#else
+			glVertexAttribPointer( PC_ATTRIB_INDEX_VERTEX, 4, GL_FLOAT, GL_FALSE, sizeof( idShadowVertSkinned ), ( void* )( SHADOWVERTSKINNED_XYZW_OFFSET ) );
+			glVertexAttribPointer( PC_ATTRIB_INDEX_COLOR, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idShadowVertSkinned ), ( void* )( SHADOWVERTSKINNED_COLOR_OFFSET ) );
+			glVertexAttribPointer( PC_ATTRIB_INDEX_COLOR2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idShadowVertSkinned ), ( void* )( SHADOWVERTSKINNED_COLOR2_OFFSET ) );
+#endif
+			
+			vertexLayout = LAYOUT_DRAW_SHADOW_VERT_SKINNED;
+		}
+		
+	}
+	else
+	{
+		if( ( vertexLayout != LAYOUT_DRAW_SHADOW_VERT ) || ( currentVertexBuffer != ( GLintptr )vertexBuffer->GetAPIObject() ) || !r_useStateCaching.GetBool() )
+		{
+			glBindBuffer( GL_ARRAY_BUFFER, ( GLintptr )vertexBuffer->GetAPIObject() );
+			currentVertexBuffer = ( GLintptr )vertexBuffer->GetAPIObject();
+			
+			glEnableVertexAttribArray( PC_ATTRIB_INDEX_VERTEX );
+			glDisableVertexAttribArray( PC_ATTRIB_INDEX_NORMAL );
+			glDisableVertexAttribArray( PC_ATTRIB_INDEX_COLOR );
+			glDisableVertexAttribArray( PC_ATTRIB_INDEX_COLOR2 );
+			glDisableVertexAttribArray( PC_ATTRIB_INDEX_ST );
+			glDisableVertexAttribArray( PC_ATTRIB_INDEX_TANGENT );
+			
+#if defined(USE_GLES2) || defined(USE_GLES3)
+			glVertexAttribPointer( PC_ATTRIB_INDEX_VERTEX, 4, GL_FLOAT, GL_FALSE, sizeof( idShadowVert ), ( void* )( vertOffset + SHADOWVERT_XYZW_OFFSET ) );
+#else
+			glVertexAttribPointer( PC_ATTRIB_INDEX_VERTEX, 4, GL_FLOAT, GL_FALSE, sizeof( idShadowVert ), ( void* )( SHADOWVERT_XYZW_OFFSET ) );
+#endif
+			
+			vertexLayout = LAYOUT_DRAW_SHADOW_VERT;
+		}
+	}
+	// RB end
+	
+	renderProgManager.CommitUniforms();
+	
+	if( drawSurf->jointCache )
+	{
+#if defined(USE_GLES3) //defined(USE_GLES2)
+		glDrawElements( GL_TRIANGLES, r_singleTriangle.GetBool() ? 3 : drawSurf->numIndexes, GL_INDEX_TYPE, ( triIndex_t* )indexOffset );
+#else
+		glDrawElementsBaseVertex( GL_TRIANGLES, r_singleTriangle.GetBool() ? 3 : drawSurf->numIndexes, GL_INDEX_TYPE, ( triIndex_t* )indexOffset, vertOffset / sizeof( idShadowVertSkinned ) );
+#endif
+	}
+	else
+	{
+#if defined(USE_GLES3)
+		glDrawElements( GL_TRIANGLES, r_singleTriangle.GetBool() ? 3 : drawSurf->numIndexes, GL_INDEX_TYPE, ( triIndex_t* )indexOffset );
+#else
+		glDrawElementsBaseVertex( GL_TRIANGLES, r_singleTriangle.GetBool() ? 3 : drawSurf->numIndexes, GL_INDEX_TYPE, ( triIndex_t* )indexOffset, vertOffset / sizeof( idShadowVert ) );
+#endif
+	}
+	
+	// RB: added stats
+	pc.c_shadowElements++;
+	pc.c_shadowIndexes += drawSurf->numIndexes;
+	// RB end
+	
+	if( !renderZPass && r_useStencilShadowPreload.GetBool() )
+	{
+		// render again with Z-pass
+		glStencilOpSeparate( GL_FRONT, GL_KEEP, GL_KEEP, GL_INCR );
+		glStencilOpSeparate( GL_BACK, GL_KEEP, GL_KEEP, GL_DECR );
+		
+		if( drawSurf->jointCache )
+		{
+#if defined(USE_GLES3)
+			glDrawElements( GL_TRIANGLES, r_singleTriangle.GetBool() ? 3 : drawSurf->numIndexes, GL_INDEX_TYPE, ( triIndex_t* )indexOffset );
+#else
+			glDrawElementsBaseVertex( GL_TRIANGLES, r_singleTriangle.GetBool() ? 3 : drawSurf->numIndexes, GL_INDEX_TYPE, ( triIndex_t* )indexOffset, vertOffset / sizeof( idShadowVertSkinned ) );
+#endif
+		}
+		else
+		{
+#if defined(USE_GLES3)
+			glDrawElements( GL_TRIANGLES, r_singleTriangle.GetBool() ? 3 : drawSurf->numIndexes, GL_INDEX_TYPE, ( triIndex_t* )indexOffset );
+#else
+			glDrawElementsBaseVertex( GL_TRIANGLES, r_singleTriangle.GetBool() ? 3 : drawSurf->numIndexes, GL_INDEX_TYPE, ( triIndex_t* )indexOffset, vertOffset / sizeof( idShadowVert ) );
+#endif
+		}
+		
+		// RB: added stats
+		pc.c_shadowElements++;
+		pc.c_shadowIndexes += drawSurf->numIndexes;
+		// RB end
+	}
+}
+
 /*
 ============================================================================
 

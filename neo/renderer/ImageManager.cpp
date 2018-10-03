@@ -690,7 +690,6 @@ Init
 */
 void idImageManager::Init()
 {
-
 	images.Resize( 1024, 1024 );
 	imageHash.ResizeIndex( 1024 );
 	

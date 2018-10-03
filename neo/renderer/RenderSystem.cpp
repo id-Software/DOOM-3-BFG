@@ -649,6 +649,7 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 		backend.BlockingSwapBuffers();
 	}
 	
+#if !defined(USE_VULKAN)
 	// read back the start and end timer queries from the previous frame
 	if( glConfig.timerQueryAvailable )
 	{
@@ -665,6 +666,7 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 			*gpuMicroSec = drawingTimeNanoseconds / 1000;
 		}
 	}
+#endif
 	
 	//------------------------------
 	
@@ -770,9 +772,12 @@ const emptyCommand_t* idRenderSystemLocal::SwapCommandBuffers_FinishCommandBuffe
 	// set the time for shader effects in 2D rendering
 	frameShaderTime = Sys_Milliseconds() * 0.001;
 	
+#if !defined(USE_VULKAN)
+	// RB: TODO RC_SET_BUFFER is not handled in OpenGL
 	setBufferCommand_t* cmd2 = ( setBufferCommand_t* )R_GetCommandBuffer( sizeof( *cmd2 ) );
 	cmd2->commandId = RC_SET_BUFFER;
 	cmd2->buffer = ( int )GL_BACK;
+#endif
 	
 	// the old command buffer can now be rendered, while the new one can
 	// be built in parallel
@@ -987,6 +992,7 @@ void idRenderSystemLocal::CaptureRenderToFile( const char* fileName, bool fixAlp
 	guiModel->Clear();
 	RenderCommandBuffers( frameData->cmdHead );
 	
+#if !defined(USE_VULKAN)
 	glReadBuffer( GL_BACK );
 	
 	// include extra space for OpenGL padding to word boundaries
@@ -1009,6 +1015,7 @@ void idRenderSystemLocal::CaptureRenderToFile( const char* fileName, bool fixAlp
 	
 	R_StaticFree( data );
 	R_StaticFree( data2 );
+#endif
 }
 
 

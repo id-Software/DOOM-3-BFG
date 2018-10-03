@@ -73,6 +73,16 @@ idImage::~idImage()
 }
 
 /*
+====================
+idImage::IsLoaded
+====================
+*/
+bool idImage::IsLoaded() const
+{
+	return texnum != TEXTURE_NOT_LOADED;
+}
+
+/*
 ==============
 Bind
 
@@ -386,6 +396,23 @@ void idImage::SubImageUpload( int mipLevel, int x, int y, int z, int width, int 
 	{
 		glPixelStorei( GL_UNPACK_ROW_LENGTH, 0 );
 	}
+}
+
+/*
+========================
+idImage::SetSamplerState
+========================
+*/
+void idImage::SetSamplerState( textureFilter_t tf, textureRepeat_t tr )
+{
+	if( tf == filter && tr == repeat )
+	{
+		return;
+	}
+	filter = tf;
+	repeat = tr;
+	glBindTexture( ( opts.textureType == TT_CUBIC ) ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, texnum );
+	SetTexParameters();
 }
 
 /*

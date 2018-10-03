@@ -363,9 +363,7 @@ public:
 		return ( opts.format == FMT_DXT1 || opts.format == FMT_DXT5 );
 	}
 	
-	
-	
-	
+	bool				IsLoaded() const;
 	
 	static void	GetGeneratedName( idStr& _name, const textureUsage_t& _usage, const cubeFiles_t& _cube );
 	
@@ -421,7 +419,7 @@ private:
 	VkImageLayout		layout;
 	VkSampler			sampler;
 	
-#if defined( ID_USE_AMD_ALLOCATOR )
+#if defined( USE_AMD_ALLOCATOR )
 	VmaAllocation		allocation;
 	static idList< VmaAllocation >		allocationGarbage[ NUM_FRAME_DATA ];
 #else
@@ -440,12 +438,6 @@ private:
 	GLuint				internalFormat;
 	GLuint				dataFormat;
 	GLuint				dataType;
-	
-public:
-	bool				IsLoaded() const
-	{
-		return texnum != TEXTURE_NOT_LOADED;
-	}
 #endif
 };
 

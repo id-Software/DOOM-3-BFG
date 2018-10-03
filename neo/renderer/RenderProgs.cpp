@@ -463,7 +463,10 @@ void idRenderProgManager::BindShader( int progIndex, int vIndex, int fIndex, boo
 		{
 			currentRenderProgram = vIndex;
 			RENDERLOG_PRINTF( "Binding GLSL Program %s\n", glslPrograms[vIndex].name.c_str() );
+			
+#if !defined(USE_VULKAN)
 			glUseProgram( glslPrograms[vIndex].progId );
+#endif
 		}
 	}
 	else
@@ -488,7 +491,10 @@ void idRenderProgManager::BindShader( int progIndex, int vIndex, int fIndex, boo
 		{
 			currentRenderProgram = progIndex;
 			RENDERLOG_PRINTF( "Binding GLSL Program %s\n", glslPrograms[progIndex].name.c_str() );
+			
+#if !defined(USE_VULKAN)
 			glUseProgram( glslPrograms[progIndex].progId );
+#endif
 		}
 	}
 }
@@ -504,7 +510,9 @@ void idRenderProgManager::Unbind()
 	currentVertexShader = -1;
 	currentFragmentShader = -1;
 	
+#if !defined(USE_VULKAN)
 	glUseProgram( 0 );
+#endif
 }
 
 // RB begin

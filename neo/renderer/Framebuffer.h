@@ -40,6 +40,7 @@ static	int shadowMapResolutions[MAX_SHADOWMAP_RESOLUTIONS] = { 2048, 1024, 512, 
 static	int shadowMapResolutions[MAX_SHADOWMAP_RESOLUTIONS] = { 1024, 1024, 1024, 1024, 1024 };
 #endif
 
+
 class Framebuffer
 {
 public:
@@ -136,6 +137,5 @@ struct globalFramebuffers_t
 	Framebuffer*				smaaBlendFBO;
 };
 extern globalFramebuffers_t globalFramebuffers;
-
 
 #endif // __FRAMEBUFFER_H__

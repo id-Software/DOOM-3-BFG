@@ -838,7 +838,6 @@ and model information functions.
 */
 void R_InitOpenGL()
 {
-
 	common->Printf( "----- R_InitOpenGL -----\n" );
 	
 	if( R_IsInitialized() )
@@ -851,7 +850,6 @@ void R_InitOpenGL()
 	// DG end
 	
 	R_SetNewMode( true );
-	
 	
 	// input and sound systems need to be tied to the new window
 	Sys_InitInput();
@@ -2540,15 +2538,7 @@ void R_TouchGui_f( const idCmdArgs& args )
 	uiManager->Touch( gui );
 }
 
-/*
-=================
-R_InitCvars
-=================
-*/
-void R_InitCvars()
-{
-	// update latched cvars here
-}
+
 
 /*
 =================
@@ -2850,8 +2840,6 @@ void idRenderSystemLocal::Init()
 	ambientLightVector[3] = 1.0f;
 	
 	backend.Init();
-	
-	R_InitCvars();
 	
 	R_InitCommands();
 	

@@ -39,10 +39,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "Font.h"
 #include "Framebuffer.h"
 
-// everything that is needed by the backend needs
-// to be double buffered to allow it to run in
-// parallel on a dual cpu machine
-const int SMP_FRAMES				= 1;
+
 
 // maximum texture units
 const int MAX_PROG_TEXTURE_PARMS	= 16;
@@ -54,6 +51,7 @@ const float	DEFAULT_FOG_DISTANCE	= 500.0f;
 // picky to get the bilerp correct at terminator
 const int FOG_ENTER_SIZE			= 64;
 const float FOG_ENTER				= ( FOG_ENTER_SIZE + 1.0f ) / ( FOG_ENTER_SIZE * 2 );
+
 
 enum demoCommand_t
 {

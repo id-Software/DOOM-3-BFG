@@ -672,7 +672,6 @@ void idCinematicLocal::FFMPEGReset()
 #ifdef USE_BINKDEC
 bool idCinematicLocal::InitFromBinkDecFile( const char* qpath, bool amilooping )
 {
-	int ret;
 	looping = amilooping;
 	startTime = 0;
 	isRoQ = false;

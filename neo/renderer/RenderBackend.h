@@ -131,7 +131,7 @@ void RB_BakeTextureMatrixIntoTexgen( idPlane lightProject[3], const float* textu
 //bool ChangeDisplaySettingsIfNeeded( gfxImpParms_t parms );
 //bool CreateGameWindow( gfxImpParms_t parms );
 
-#if defined( ID_VULKAN )
+#if defined( USE_VULKAN )
 
 struct gpuInfo_t
 {

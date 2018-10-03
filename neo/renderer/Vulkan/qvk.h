@@ -52,6 +52,16 @@ If you have questions concerning this license or the applicable additional terms
 
 const char* VK_ErrorToString( VkResult result );
 
+
+static const int MAX_DESC_SETS				= 16384;
+static const int MAX_DESC_UNIFORM_BUFFERS	= 8192;
+static const int MAX_DESC_IMAGE_SAMPLERS	= 12384;
+static const int MAX_DESC_SET_WRITES		= 32;
+static const int MAX_DESC_SET_UNIFORMS		= 48;
+static const int MAX_IMAGE_PARMS			= 16;
+static const int MAX_UBO_PARMS				= 2;
+
+
 #endif
 
 #endif

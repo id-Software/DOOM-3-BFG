@@ -55,7 +55,7 @@ idCVar r_useOpenGL32( "r_useOpenGL32", "1", CVAR_INTEGER, "0 = OpenGL 2.0, 1 = O
 
 
 
-
+#if !defined(USE_VULKAN)
 /*
 ========================
 GLimp_TestSwapBuffers
@@ -99,6 +99,7 @@ void GLimp_TestSwapBuffers( const idCmdArgs& args )
 		}
 	}
 }
+#endif
 
 /*
 ========================
