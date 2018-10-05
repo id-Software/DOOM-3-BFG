@@ -248,7 +248,7 @@ On exit, the idImage will have a valid OpenGL texture number that can be bound
 void idImage::ActuallyLoadImage( bool fromBackEnd )
 {
 	// if we don't have a rendering context yet, just return
-	if( !R_IsInitialized() )
+	if( !tr.IsInitialized() )
 	{
 		return;
 	}
@@ -692,7 +692,7 @@ void idImage::GenerateImage( const byte* pic, int width, int height, textureFilt
 	// have filled in the parms.  We must have the values set, or
 	// an image match from a shader before the render starts would miss
 	// the generated texture
-	if( !R_IsInitialized() )
+	if( !tr.IsInitialized() )
 	{
 		return;
 	}
@@ -760,7 +760,7 @@ void idImage::GenerateCubeImage( const byte* pic[6], int size, textureFilter_t f
 	// have filled in the parms.  We must have the values set, or
 	// an image match from a shader before the render starts would miss
 	// the generated texture
-	if( !R_IsInitialized() )
+	if( !tr.IsInitialized() )
 	{
 		return;
 	}
@@ -812,7 +812,7 @@ void idImage::GenerateShadowArray( int width, int height, textureFilter_t filter
 	// have filled in the parms.  We must have the values set, or
 	// an image match from a shader before the render starts would miss
 	// the generated texture
-	if( !R_IsInitialized() )
+	if( !tr.IsInitialized() )
 	{
 		return;
 	}

@@ -704,6 +704,10 @@ public:
 	// external functions
 	virtual void			Init();
 	virtual void			Shutdown();
+	virtual bool			IsInitialized() const
+	{
+		return bInitialized;
+	}
 	virtual void			ResetGuiModels();
 	virtual void			InitOpenGL();
 	virtual void			ShutdownOpenGL();
@@ -765,6 +769,10 @@ public:
 	
 	void					PrintPerformanceCounters();
 	
+	void					SetInitialized()
+	{
+		bInitialized = true;
+	}
 	
 public:
 	// internal functions
@@ -850,6 +858,9 @@ public:
 	idRenderBackend			backend;
 	
 	unsigned				timerQueryId;		// for GL_TIME_ELAPSED_EXT queries
+	
+private:
+	bool					bInitialized;
 };
 
 extern idRenderSystemLocal	tr;

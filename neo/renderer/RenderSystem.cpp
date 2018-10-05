@@ -238,7 +238,8 @@ idRenderSystemLocal::idRenderSystemLocal
 idRenderSystemLocal::idRenderSystemLocal() :
 	unitSquareTriangles( NULL ),
 	zeroOneCubeTriangles( NULL ),
-	testImageTriangles( NULL )
+	testImageTriangles( NULL ),
+	bInitialized( false )
 {
 	Clear();
 }
@@ -311,7 +312,7 @@ idRenderSystemLocal::DrawStretchPic
 static triIndex_t quadPicIndexes[6] = { 3, 0, 2, 2, 0, 1 };
 void idRenderSystemLocal::DrawStretchPic( const idVec4& topLeft, const idVec4& topRight, const idVec4& bottomRight, const idVec4& bottomLeft, const idMaterial* material )
 {
-	if( !R_IsInitialized() )
+	if( !IsInitialized() )
 	{
 		return;
 	}
@@ -366,7 +367,7 @@ idRenderSystemLocal::DrawStretchTri
 */
 void idRenderSystemLocal::DrawStretchTri( const idVec2& p1, const idVec2& p2, const idVec2& p3, const idVec2& t1, const idVec2& t2, const idVec2& t3, const idMaterial* material )
 {
-	if( !R_IsInitialized() )
+	if( !IsInitialized() )
 	{
 		return;
 	}
@@ -635,14 +636,14 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 		*gpuMicroSec = 0;		// until shown otherwise
 	}
 	
-	if( !R_IsInitialized() )
+	if( !IsInitialized() )
 	{
 		return;
 	}
 	
 	
 	// After coming back from an autoswap, we won't have anything to render
-	if( frameData->cmdHead->next != NULL )
+	if( frameData && frameData->cmdHead->next != NULL )
 	{
 		// wait for our fence to hit, which means the swap has actually happened
 		// We must do this before clearing any resources the GPU may be using
@@ -705,7 +706,7 @@ idRenderSystemLocal::SwapCommandBuffers_FinishCommandBuffers
 */
 const emptyCommand_t* idRenderSystemLocal::SwapCommandBuffers_FinishCommandBuffers()
 {
-	if( !R_IsInitialized() )
+	if( !IsInitialized() )
 	{
 		return NULL;
 	}
@@ -854,7 +855,7 @@ idRenderSystemLocal::CropRenderSize
 */
 void idRenderSystemLocal::CropRenderSize( int width, int height )
 {
-	if( !R_IsInitialized() )
+	if( !IsInitialized() )
 	{
 		return;
 	}
@@ -901,7 +902,7 @@ idRenderSystemLocal::UnCrop
 */
 void idRenderSystemLocal::UnCrop()
 {
-	if( !R_IsInitialized() )
+	if( !IsInitialized() )
 	{
 		return;
 	}
@@ -936,7 +937,7 @@ idRenderSystemLocal::CaptureRenderToImage
 */
 void idRenderSystemLocal::CaptureRenderToImage( const char* imageName, bool clearColorAfterCopy )
 {
-	if( !R_IsInitialized() )
+	if( !IsInitialized() )
 	{
 		return;
 	}
@@ -981,7 +982,7 @@ idRenderSystemLocal::CaptureRenderToFile
 */
 void idRenderSystemLocal::CaptureRenderToFile( const char* fileName, bool fixAlpha )
 {
-	if( !R_IsInitialized() )
+	if( !IsInitialized() )
 	{
 		return;
 	}

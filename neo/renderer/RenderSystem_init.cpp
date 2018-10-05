@@ -1816,7 +1816,7 @@ R_VidRestart_f
 void R_VidRestart_f( const idCmdArgs& args )
 {
 	// if OpenGL isn't started, do nothing
-	if( !R_IsInitialized() )
+	if( !tr.IsInitialized() )
 	{
 		return;
 	}
@@ -2209,6 +2209,9 @@ void idRenderSystemLocal::Init()
 	
 	R_InitCommands();
 	
+	// allocate the frame data, which may be more if smp is enabled
+	R_InitFrameData();
+	
 	guiModel = new( TAG_RENDER ) idGuiModel;
 	guiModel->Clear();
 	tr_guiModel = guiModel;	// for DeviceContext fast path
@@ -2253,6 +2256,8 @@ void idRenderSystemLocal::Init()
 	
 	frontEndJobList = parallelJobManager->AllocJobList( JOBLIST_RENDERER_FRONTEND, JOBLIST_PRIORITY_MEDIUM, 2048, 0, NULL );
 	
+	bInitialized = true;
+	
 	// make sure the command buffers are ready to accept the first screen update
 	SwapCommandBuffers( NULL, NULL, NULL, NULL );
 	
@@ -2271,7 +2276,7 @@ void idRenderSystemLocal::Shutdown()
 	
 	fonts.DeleteContents();
 	
-	if( R_IsInitialized() )
+	if( IsInitialized() )
 	{
 		globalImages->PurgeAllImages();
 	}
@@ -2303,6 +2308,8 @@ void idRenderSystemLocal::Shutdown()
 	Clear();
 	
 	ShutdownOpenGL();
+	
+	bInitialized = false;
 }
 
 /*
@@ -2434,7 +2441,7 @@ idRenderSystemLocal::InitOpenGL
 void idRenderSystemLocal::InitOpenGL()
 {
 	// if OpenGL isn't started, start it now
-	if( !R_IsInitialized() )
+	if( !IsInitialized() )
 	{
 		backend.Init();
 		
@@ -2471,7 +2478,7 @@ idRenderSystemLocal::IsOpenGLRunning
 */
 bool idRenderSystemLocal::IsOpenGLRunning() const
 {
-	return R_IsInitialized();
+	return IsInitialized();
 }
 
 /*

@@ -1968,10 +1968,12 @@ idRenderProgManager::SetUniformValue
 */
 void idRenderProgManager::SetUniformValue( const renderParm_t rp, const float* value )
 {
+#if !defined(USE_VULKAN)
 	for( int i = 0; i < 4; i++ )
 	{
 		glslUniforms[rp][i] = value[i];
 	}
+#endif
 }
 
 /*

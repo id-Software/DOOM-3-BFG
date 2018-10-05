@@ -154,9 +154,14 @@ struct vulkanContext_t
 	uint64							stencilOperations[ STENCIL_FACE_NUM ];
 	
 	VkInstance						instance;
+	
+	// selected physical device
 	VkPhysicalDevice				physicalDevice;
 	VkPhysicalDeviceFeatures		physicalDeviceFeatures;
+	
+	// logical device
 	VkDevice						device;
+	
 	VkQueue							graphicsQueue;
 	VkQueue							presentQueue;
 	int								graphicsFamilyIdx;
@@ -167,7 +172,10 @@ struct vulkanContext_t
 	idList< const char* >			deviceExtensions;
 	idList< const char* >			validationLayers;
 	
+	// selected GPU
 	gpuInfo_t* 						gpu;
+	
+	// all GPUs found on the system
 	idList< gpuInfo_t >				gpus;
 	
 	VkCommandPool					commandPool;

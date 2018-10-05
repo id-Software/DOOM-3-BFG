@@ -307,12 +307,16 @@ public:
 		levelLoadReferenced = true;
 	}
 	void		ActuallyLoadImage( bool fromBackEnd );
+	
 	//---------------------------------------------
 	// Platform specific implementations
 	//---------------------------------------------
 	
-#if defined( ID_VULKAN )
+#if defined( USE_VULKAN )
 	void		CreateFromSwapImage( VkImage image, VkImageView imageView, VkFormat format, const VkExtent2D& extent );
+	
+	static void	EmptyGarbage();
+	
 	VkImage		GetImage() const
 	{
 		return image;
@@ -345,7 +349,7 @@ public:
 	// they must be a multiple of four for dxt data.
 	void		SubImageUpload( int mipLevel, int destX, int destY, int destZ,
 								int width, int height, const void* data,
-								int pixelPitch = 0 ) const;
+								int pixelPitch = 0 );
 								
 	// SetPixel is assumed to be a fast memory write on consoles, degenerating to a
 	// SubImageUpload on PCs.  Used to update the page mapping images.
@@ -412,6 +416,8 @@ private:
 	static const uint32 TEXTURE_NOT_LOADED = 0xFFFFFFFF;
 	
 #if defined( USE_VULKAN )
+	void				CreateSampler();
+	
 	bool				bIsSwapChainImage;
 	VkFormat			internalFormat;
 	VkImage				image;

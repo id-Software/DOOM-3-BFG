@@ -33,6 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "../RenderCommon.h"
 #include "../RenderBackend.h"
+#include "Staging_VK.h"
 #include "../../framework/Common_local.h"
 
 idCVar r_drawFlickerBox( "r_drawFlickerBox", "0", CVAR_RENDERER | CVAR_BOOL, "visual test for dropping frames" );
@@ -152,23 +153,23 @@ VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback( VkDebugReportFlagsEXT msgFlags, Vk
 {
 	if( msgFlags & VK_DEBUG_REPORT_ERROR_BIT_EXT )
 	{
-		idLib::Printf( "Vulkan ERROR: [ %s ] Code %d : '%s'\n", layerPrefix, msgCode, msg );
+		idLib::Printf( "[Vulkan] ERROR: [ %s ] Code %d : '%s'\n", layerPrefix, msgCode, msg );
 	}
 	else if( msgFlags & VK_DEBUG_REPORT_WARNING_BIT_EXT )
 	{
-		idLib::Printf( "Vulkan WARNING: [ %s ] Code %d : '%s'\n", layerPrefix, msgCode, msg );
+		idLib::Printf( "[Vulkan] WARNING: [ %s ] Code %d : '%s'\n", layerPrefix, msgCode, msg );
 	}
 	else if( msgFlags & VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT )
 	{
-		idLib::Printf( "Vulkan PERFORMANCE WARNING: [ %s ] Code %d : '%s'\n", layerPrefix, msgCode, msg );
+		idLib::Printf( "[Vulkan] PERFORMANCE WARNING: [ %s ] Code %d : '%s'\n", layerPrefix, msgCode, msg );
 	}
 	else if( msgFlags & VK_DEBUG_REPORT_INFORMATION_BIT_EXT )
 	{
-		idLib::Printf( "Vulkan INFO: [ %s ] Code %d : '%s'\n", layerPrefix, msgCode, msg );
+		idLib::Printf( "[Vulkan] INFO: [ %s ] Code %d : '%s'\n", layerPrefix, msgCode, msg );
 	}
 	else if( msgFlags & VK_DEBUG_REPORT_DEBUG_BIT_EXT )
 	{
-		idLib::Printf( "Vulkan DEBUG: [ %s ] Code %d : '%s'\n", layerPrefix, msgCode, msg );
+		idLib::Printf( "[Vulkan] DEBUG: [ %s ] Code %d : '%s'\n", layerPrefix, msgCode, msg );
 	}
 	
 	/*
@@ -375,6 +376,7 @@ static void EnumeratePhysicalDevices()
 		gpuInfo_t& gpu = vkcontext.gpus[ i ];
 		gpu.device = devices[ i ];
 		
+		// get Queue family properties
 		{
 			uint32 numQueues = 0;
 			vkGetPhysicalDeviceQueueFamilyProperties( gpu.device, &numQueues, NULL );
@@ -385,6 +387,7 @@ static void EnumeratePhysicalDevices()
 			ID_VK_VALIDATE( numQueues > 0, "vkGetPhysicalDeviceQueueFamilyProperties returned zero queues." );
 		}
 		
+		// grab available Vulkan extensions
 		{
 			uint32 numExtension;
 			ID_VK_CHECK( vkEnumerateDeviceExtensionProperties( gpu.device, NULL, &numExtension, NULL ) );
@@ -402,6 +405,7 @@ static void EnumeratePhysicalDevices()
 #endif
 		}
 		
+		// grab surface specific information
 		ID_VK_CHECK( vkGetPhysicalDeviceSurfaceCapabilitiesKHR( gpu.device, vkcontext.surface, &gpu.surfaceCaps ) );
 		
 		{
@@ -426,7 +430,463 @@ static void EnumeratePhysicalDevices()
 		
 		vkGetPhysicalDeviceMemoryProperties( gpu.device, &gpu.memProps );
 		vkGetPhysicalDeviceProperties( gpu.device, &gpu.props );
+		
+		switch( gpu.props.vendorID )
+		{
+			case 0x8086:
+				idLib::Printf( "Found device[%i] Vendor: Intel\n", i );
+				break;
+				
+			case 0x10DE:
+				idLib::Printf( "Found device[%i] Vendor: NVIDIA\n", i );
+				break;
+				
+			case 0x1002:
+				idLib::Printf( "Found device[%i] Vendor: AMD\n", i );
+				break;
+				
+			default:
+				idLib::Printf( "Found device[%i] Vendor: Unknown (0x%x)\n", i, gpu.props.vendorID );
+		}
 	}
+}
+
+
+/*
+=============
+CheckPhysicalDeviceExtensionSupport
+=============
+*/
+static bool CheckPhysicalDeviceExtensionSupport( gpuInfo_t& gpu, idList< const char* >& requiredExt )
+{
+	int required = requiredExt.Num();
+	int available = 0;
+	
+	for( int i = 0; i < requiredExt.Num(); ++i )
+	{
+		for( int j = 0; j < gpu.extensionProps.Num(); ++j )
+		{
+			if( idStr::Icmp( requiredExt[ i ], gpu.extensionProps[ j ].extensionName ) == 0 )
+			{
+				available++;
+				break;
+			}
+		}
+	}
+	
+	return available == required;
+}
+
+/*
+=============
+SelectPhysicalDevice
+=============
+*/
+static void SelectPhysicalDevice()
+{
+	//idLib::Printf( "Selecting physical device:\n" );
+	
+	for( int i = 0; i < vkcontext.gpus.Num(); ++i )
+	{
+		gpuInfo_t& gpu = vkcontext.gpus[ i ];
+		
+		int graphicsIdx = -1;
+		int presentIdx = -1;
+		
+		if( !CheckPhysicalDeviceExtensionSupport( gpu, vkcontext.deviceExtensions ) )
+		{
+			continue;
+		}
+		
+		if( gpu.surfaceFormats.Num() == 0 )
+		{
+			continue;
+		}
+		
+		if( gpu.presentModes.Num() == 0 )
+		{
+			continue;
+		}
+		
+		// Find graphics queue family
+		for( int j = 0; j < gpu.queueFamilyProps.Num(); ++j )
+		{
+			VkQueueFamilyProperties& props = gpu.queueFamilyProps[ j ];
+			
+			if( props.queueCount == 0 )
+			{
+				continue;
+			}
+			
+			if( props.queueFlags & VK_QUEUE_GRAPHICS_BIT )
+			{
+				graphicsIdx = j;
+				break;
+			}
+		}
+		
+		// Find present queue family
+		for( int j = 0; j < gpu.queueFamilyProps.Num(); ++j )
+		{
+			VkQueueFamilyProperties& props = gpu.queueFamilyProps[ j ];
+			
+			if( props.queueCount == 0 )
+			{
+				continue;
+			}
+			
+			VkBool32 supportsPresent = VK_FALSE;
+			vkGetPhysicalDeviceSurfaceSupportKHR( gpu.device, j, vkcontext.surface, &supportsPresent );
+			if( supportsPresent )
+			{
+				presentIdx = j;
+				break;
+			}
+		}
+		
+		// Did we find a device supporting both graphics and present.
+		if( graphicsIdx >= 0 && presentIdx >= 0 )
+		{
+			vkcontext.graphicsFamilyIdx = graphicsIdx;
+			vkcontext.presentFamilyIdx = presentIdx;
+			vkcontext.physicalDevice = gpu.device;
+			vkcontext.gpu = &gpu;
+			
+			vkGetPhysicalDeviceFeatures( vkcontext.physicalDevice, &vkcontext.physicalDeviceFeatures );
+			
+			idLib::Printf( "Selected device '%s'\n", gpu.props.deviceName );
+			
+			// RB: found vendor IDs in nvQuake
+			switch( gpu.props.vendorID )
+			{
+				case 0x8086:
+					idLib::Printf( "Vendor: Intel\n", i );
+					glConfig.vendor = VENDOR_INTEL;
+					break;
+					
+				case 0x10DE:
+					idLib::Printf( "Vendor: NVIDIA\n", i );
+					glConfig.vendor = VENDOR_NVIDIA;
+					break;
+					
+				case 0x1002:
+					idLib::Printf( "Vendor: AMD\n", i );
+					glConfig.vendor = VENDOR_AMD;
+					break;
+					
+				default:
+					idLib::Printf( "Vendor: Unknown (0x%x)\n", i, gpu.props.vendorID );
+			}
+			
+			return;
+		}
+	}
+	
+	// If we can't render or present, just bail.
+	idLib::FatalError( "Could not find a physical device which fits our desired profile" );
+}
+
+/*
+=============
+CreateLogicalDeviceAndQueues
+=============
+*/
+static void CreateLogicalDeviceAndQueues()
+{
+	idList< int > uniqueIdx;
+	uniqueIdx.AddUnique( vkcontext.graphicsFamilyIdx );
+	uniqueIdx.AddUnique( vkcontext.presentFamilyIdx );
+	
+	idList< VkDeviceQueueCreateInfo > devqInfo;
+	
+	const float priority = 1.0f;
+	for( int i = 0; i < uniqueIdx.Num(); ++i )
+	{
+		VkDeviceQueueCreateInfo qinfo = {};
+		qinfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+		qinfo.queueFamilyIndex = uniqueIdx[ i ];
+		qinfo.queueCount = 1;
+		qinfo.pQueuePriorities = &priority;
+		
+		devqInfo.Append( qinfo );
+	}
+	
+	VkPhysicalDeviceFeatures deviceFeatures = {};
+	deviceFeatures.textureCompressionBC = VK_TRUE;
+	deviceFeatures.imageCubeArray = VK_TRUE;
+	deviceFeatures.depthClamp = VK_TRUE;
+	deviceFeatures.depthBiasClamp = VK_TRUE;
+	deviceFeatures.depthBounds = VK_TRUE;
+	deviceFeatures.fillModeNonSolid = VK_TRUE;
+	deviceFeatures.samplerAnisotropy = vkcontext.physicalDeviceFeatures.samplerAnisotropy; // RB
+	
+	VkDeviceCreateInfo info = {};
+	info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+	info.queueCreateInfoCount = devqInfo.Num();
+	info.pQueueCreateInfos = devqInfo.Ptr();
+	info.pEnabledFeatures = &deviceFeatures;
+	info.enabledExtensionCount = vkcontext.deviceExtensions.Num();
+	info.ppEnabledExtensionNames = vkcontext.deviceExtensions.Ptr();
+	
+	if( r_vkEnableValidationLayers.GetBool() )
+	{
+		info.enabledLayerCount = vkcontext.validationLayers.Num();
+		info.ppEnabledLayerNames = vkcontext.validationLayers.Ptr();
+	}
+	else
+	{
+		info.enabledLayerCount = 0;
+	}
+	
+	ID_VK_CHECK( vkCreateDevice( vkcontext.physicalDevice, &info, NULL, &vkcontext.device ) );
+	
+	vkGetDeviceQueue( vkcontext.device, vkcontext.graphicsFamilyIdx, 0, &vkcontext.graphicsQueue );
+	vkGetDeviceQueue( vkcontext.device, vkcontext.presentFamilyIdx, 0, &vkcontext.presentQueue );
+}
+
+/*
+=============
+ChooseSurfaceFormat
+=============
+*/
+static VkSurfaceFormatKHR ChooseSurfaceFormat( idList< VkSurfaceFormatKHR >& formats )
+{
+	VkSurfaceFormatKHR result;
+	
+	if( formats.Num() == 1 && formats[ 0 ].format == VK_FORMAT_UNDEFINED )
+	{
+		result.format = VK_FORMAT_B8G8R8A8_UNORM;
+		result.colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+		return result;
+	}
+	
+	for( int i = 0; i < formats.Num(); ++i )
+	{
+		VkSurfaceFormatKHR& fmt = formats[ i ];
+		if( fmt.format == VK_FORMAT_B8G8R8A8_UNORM && fmt.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR )
+		{
+			return fmt;
+		}
+	}
+	
+	return formats[ 0 ];
+}
+
+/*
+=============
+ChoosePresentMode
+=============
+*/
+static VkPresentModeKHR ChoosePresentMode( idList< VkPresentModeKHR >& modes )
+{
+	VkPresentModeKHR desiredMode = VK_PRESENT_MODE_FIFO_KHR;
+	
+	if( r_swapInterval.GetInteger() < 1 )
+	{
+		for( int i = 0; i < modes.Num(); i++ )
+		{
+			if( modes[i] == VK_PRESENT_MODE_MAILBOX_KHR )
+			{
+				return VK_PRESENT_MODE_MAILBOX_KHR;
+			}
+			if( ( modes[i] != VK_PRESENT_MODE_MAILBOX_KHR ) && ( modes[i] == VK_PRESENT_MODE_IMMEDIATE_KHR ) )
+			{
+				return VK_PRESENT_MODE_IMMEDIATE_KHR;
+			}
+		}
+	}
+	
+	for( int i = 0; i < modes.Num(); ++i )
+	{
+		if( modes[i] == desiredMode )
+		{
+			return desiredMode;
+		}
+	}
+	
+	return VK_PRESENT_MODE_FIFO_KHR;
+}
+
+/*
+=============
+ChooseSurfaceExtent
+=============
+*/
+static VkExtent2D ChooseSurfaceExtent( VkSurfaceCapabilitiesKHR& caps )
+{
+	VkExtent2D extent;
+	
+	if( caps.currentExtent.width == -1 )
+	{
+		extent.width = glConfig.nativeScreenWidth;
+		extent.height = glConfig.nativeScreenHeight;
+	}
+	else
+	{
+		extent = caps.currentExtent;
+	}
+	
+	return extent;
+}
+
+/*
+=============
+CreateSwapChain
+=============
+*/
+static void CreateSwapChain()
+{
+	gpuInfo_t& gpu = *vkcontext.gpu;
+	
+	VkSurfaceFormatKHR surfaceFormat = ChooseSurfaceFormat( gpu.surfaceFormats );
+	VkPresentModeKHR presentMode = ChoosePresentMode( gpu.presentModes );
+	VkExtent2D extent = ChooseSurfaceExtent( gpu.surfaceCaps );
+	
+	VkSwapchainCreateInfoKHR info = {};
+	info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+	info.surface = vkcontext.surface;
+	info.minImageCount = NUM_FRAME_DATA;
+	info.imageFormat = surfaceFormat.format;
+	info.imageColorSpace = surfaceFormat.colorSpace;
+	info.imageExtent = extent;
+	info.imageArrayLayers = 1;
+	info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+	
+	if( vkcontext.graphicsFamilyIdx != vkcontext.presentFamilyIdx )
+	{
+		uint32 indices[] = { ( uint32 )vkcontext.graphicsFamilyIdx, ( uint32 )vkcontext.presentFamilyIdx };
+		
+		info.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+		info.queueFamilyIndexCount = 2;
+		info.pQueueFamilyIndices = indices;
+	}
+	else
+	{
+		info.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+	}
+	
+	info.preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+	info.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+	info.presentMode = presentMode;
+	info.clipped = VK_TRUE;
+	
+	ID_VK_CHECK( vkCreateSwapchainKHR( vkcontext.device, &info, NULL, &vkcontext.swapchain ) );
+	
+	vkcontext.swapchainFormat = surfaceFormat.format;
+	vkcontext.presentMode = presentMode;
+	vkcontext.swapchainExtent = extent;
+	vkcontext.fullscreen = glConfig.isFullscreen;
+	
+	uint32 numImages = 0;
+	idArray< VkImage, NUM_FRAME_DATA > swapchainImages;
+	ID_VK_CHECK( vkGetSwapchainImagesKHR( vkcontext.device, vkcontext.swapchain, &numImages, NULL ) );
+	ID_VK_VALIDATE( numImages > 0, "vkGetSwapchainImagesKHR returned a zero image count." );
+	
+	ID_VK_CHECK( vkGetSwapchainImagesKHR( vkcontext.device, vkcontext.swapchain, &numImages, swapchainImages.Ptr() ) );
+	ID_VK_VALIDATE( numImages > 0, "vkGetSwapchainImagesKHR returned a zero image count." );
+	
+	for( uint32 i = 0; i < NUM_FRAME_DATA; ++i )
+	{
+		VkImageViewCreateInfo imageViewCreateInfo = {};
+		imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		imageViewCreateInfo.image = swapchainImages[ i ];
+		imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		imageViewCreateInfo.format = vkcontext.swapchainFormat;
+		imageViewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_R;
+		imageViewCreateInfo.components.g = VK_COMPONENT_SWIZZLE_G;
+		imageViewCreateInfo.components.b = VK_COMPONENT_SWIZZLE_B;
+		imageViewCreateInfo.components.a = VK_COMPONENT_SWIZZLE_A;
+		imageViewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		imageViewCreateInfo.subresourceRange.baseMipLevel = 0;
+		imageViewCreateInfo.subresourceRange.levelCount = 1;
+		imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
+		imageViewCreateInfo.subresourceRange.layerCount = 1;
+		imageViewCreateInfo.flags = 0;
+		
+		VkImageView imageView;
+		ID_VK_CHECK( vkCreateImageView( vkcontext.device, &imageViewCreateInfo, NULL, &imageView ) );
+		
+		idImage* image = new idImage( va( "_swapchain%d", i ) );
+		image->CreateFromSwapImage(
+			swapchainImages[ i ],
+			imageView,
+			vkcontext.swapchainFormat,
+			vkcontext.swapchainExtent );
+		vkcontext.swapchainImages[ i ] = image;
+	}
+}
+
+/*
+=============
+CreateCommandPool
+=============
+*/
+static void CreateCommandPool()
+{
+	VkCommandPoolCreateInfo commandPoolCreateInfo = {};
+	commandPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+	commandPoolCreateInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+	commandPoolCreateInfo.queueFamilyIndex = vkcontext.graphicsFamilyIdx;
+	
+	ID_VK_CHECK( vkCreateCommandPool( vkcontext.device, &commandPoolCreateInfo, NULL, &vkcontext.commandPool ) );
+}
+
+/*
+=============
+CreateCommandBuffer
+=============
+*/
+static void CreateCommandBuffer()
+{
+	VkCommandBufferAllocateInfo commandBufferAllocateInfo = {};
+	commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+	commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+	commandBufferAllocateInfo.commandPool = vkcontext.commandPool;
+	commandBufferAllocateInfo.commandBufferCount = NUM_FRAME_DATA;
+	
+	ID_VK_CHECK( vkAllocateCommandBuffers( vkcontext.device, &commandBufferAllocateInfo, vkcontext.commandBuffer.Ptr() ) );
+	
+	VkFenceCreateInfo fenceCreateInfo = {};
+	fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+	
+	for( int i = 0; i < NUM_FRAME_DATA; ++i )
+	{
+		ID_VK_CHECK( vkCreateFence( vkcontext.device, &fenceCreateInfo, NULL, &vkcontext.commandBufferFences[ i ] ) );
+	}
+}
+
+/*
+=============
+CreateSemaphores
+=============
+*/
+static void CreateSemaphores()
+{
+	VkSemaphoreCreateInfo semaphoreCreateInfo = {};
+	semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+	
+	for( int i = 0; i < NUM_FRAME_DATA; ++i )
+	{
+		ID_VK_CHECK( vkCreateSemaphore( vkcontext.device, &semaphoreCreateInfo, NULL, &vkcontext.acquireSemaphores[ i ] ) );
+		ID_VK_CHECK( vkCreateSemaphore( vkcontext.device, &semaphoreCreateInfo, NULL, &vkcontext.renderCompleteSemaphores[ i ] ) );
+	}
+}
+
+/*
+=============
+DestroySwapChain
+=============
+*/
+static void DestroySwapChain()
+{
+	for( uint32 i = 0; i < NUM_FRAME_DATA; ++i )
+	{
+		vkDestroyImageView( vkcontext.device, vkcontext.swapchainImages[ i ]->GetView(), NULL );
+		delete vkcontext.swapchainImages[ i ];
+	}
+	vkcontext.swapchainImages.Zero();
+	
+	vkDestroySwapchainKHR( vkcontext.device, vkcontext.swapchain, NULL );
 }
 
 /*
@@ -499,24 +959,13 @@ idRenderBackend::~idRenderBackend()
 }
 
 /*
-=============================
-R_IsInitialized
-=============================
-*/
-static bool r_initialized = false;
-bool R_IsInitialized()
-{
-	return r_initialized;
-}
-
-/*
 =============
 idRenderBackend::Init
 =============
 */
 void idRenderBackend::Init()
 {
-	if( R_IsInitialized() )
+	if( tr.IsInitialized() )
 	{
 		idLib::FatalError( "R_InitVulkan called while active" );
 	}
@@ -542,6 +991,64 @@ void idRenderBackend::Init()
 	
 	// grab detailed information of available GPUs
 	EnumeratePhysicalDevices();
+	
+	// find queue family/families supporting graphics and present.
+	SelectPhysicalDevice();
+	
+	// create logical device and queues
+	CreateLogicalDeviceAndQueues();
+	
+	// create semaphores for image acquisition and rendering completion
+	CreateSemaphores();
+	
+	// create Command Pool
+	CreateCommandPool();
+	
+	// create Command Buffer
+	CreateCommandBuffer();
+	
+	// setup the allocator
+#if defined( USE_AMD_ALLOCATOR )
+	extern idCVar r_vkHostVisibleMemoryMB;
+	extern idCVar r_vkDeviceLocalMemoryMB;
+	
+	VmaAllocatorCreateInfo createInfo = {};
+	createInfo.physicalDevice = vkcontext.physicalDevice;
+	createInfo.device = vkcontext.device;
+	createInfo.preferredSmallHeapBlockSize = r_vkHostVisibleMemoryMB.GetInteger() * 1024 * 1024;
+	createInfo.preferredLargeHeapBlockSize = r_vkDeviceLocalMemoryMB.GetInteger() * 1024 * 1024;
+	
+	vmaCreateAllocator( &createInfo, &vmaAllocator );
+#else
+	vulkanAllocator.Init();
+#endif
+	
+	// start the Staging Manager
+	stagingManager.Init();
+	
+	// create Swap Chain
+	CreateSwapChain();
+	
+#if 0
+	
+	// create Render Targets
+	CreateRenderTargets();
+	
+	// create Render Pass
+	CreateRenderPass();
+	
+	// create Pipeline Cache
+	CreatePipelineCache();
+	
+	// create Frame Buffers
+	CreateFrameBuffers();
+	
+	// init RenderProg Manager
+	renderProgManager.Init();
+#endif
+	
+	// init Vertex Cache
+	vertexCache.Init( vkcontext.gpu->props.limits.minUniformBufferOffsetAlignment );
 }
 
 /*
@@ -551,18 +1058,60 @@ idRenderBackend::Shutdown
 */
 void idRenderBackend::Shutdown()
 {
+	for( int i = 0; i < NUM_FRAME_DATA; ++i )
+	{
+		idImage::EmptyGarbage();
+	}
+	
+	// destroy Swap Chain
+	DestroySwapChain();
+	
+	// stop the Staging Manager
+	stagingManager.Shutdown();
+	
+	// destroy Command Buffer
+	vkFreeCommandBuffers( vkcontext.device, vkcontext.commandPool, NUM_FRAME_DATA, vkcontext.commandBuffer.Ptr() );
+	for( int i = 0; i < NUM_FRAME_DATA; ++i )
+	{
+		vkDestroyFence( vkcontext.device, vkcontext.commandBufferFences[ i ], NULL );
+	}
+	
+	// destroy Command Pool
+	vkDestroyCommandPool( vkcontext.device, vkcontext.commandPool, NULL );
+	
+	// destroy Semaphores
+	for( int i = 0; i < NUM_FRAME_DATA; ++i )
+	{
+		vkDestroySemaphore( vkcontext.device, vkcontext.acquireSemaphores[ i ], NULL );
+		vkDestroySemaphore( vkcontext.device, vkcontext.renderCompleteSemaphores[ i ], NULL );
+	}
+	
 	// destroy Debug Callback
 	if( r_vkEnableValidationLayers.GetBool() )
 	{
 		DestroyDebugReportCallback();
 	}
 	
+	// dump all our memory
+#if defined( USE_AMD_ALLOCATOR )
+	vmaDestroyAllocator( vmaAllocator );
+#else
+	vulkanAllocator.Shutdown();
+#endif
+	
+	// destroy Logical Device
+	vkDestroyDevice( vkcontext.device, NULL );
+	
+	// destroy Surface
+	vkDestroySurfaceKHR( vkcontext.instance, vkcontext.surface, NULL );
+	
 	// destroy the Instance
 	vkDestroyInstance( vkcontext.instance, NULL );
 	
+	ClearContext();
+	
 	// destroy main window
 	GLimp_Shutdown();
-	r_initialized = false;
 }
 
 

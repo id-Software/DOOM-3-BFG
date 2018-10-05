@@ -199,8 +199,6 @@ struct glconfig_t
 
 struct emptyCommand_t;
 
-bool R_IsInitialized();
-
 const int SMALLCHAR_WIDTH		= 8;
 const int SMALLCHAR_HEIGHT		= 16;
 const int BIGCHAR_WIDTH			= 16;
@@ -228,6 +226,8 @@ public:
 	
 	// only called before quitting
 	virtual void			Shutdown() = 0;
+	
+	virtual bool			IsInitialized() const = 0;
 	
 	virtual void			ResetGuiModels() = 0;
 	

@@ -118,17 +118,7 @@ bool GL_CheckErrors_( const char* filename, int line )
 }
 
 
-static bool r_initialized = false;
 
-/*
-=============================
-R_IsInitialized
-=============================
-*/
-bool R_IsInitialized()
-{
-	return r_initialized;
-}
 
 
 
@@ -470,7 +460,7 @@ void idRenderBackend::Init()
 {
 	common->Printf( "----- R_InitOpenGL -----\n" );
 	
-	if( R_IsInitialized() )
+	if( tr.IsInitialized() )
 	{
 		common->FatalError( "R_InitOpenGL called while active" );
 	}
@@ -532,14 +522,12 @@ void idRenderBackend::Init()
 		glConfig.maxTextureSize = 256;
 	}
 	
-	r_initialized = true;
-	
 	// recheck all the extensions (FIXME: this might be dangerous)
 	R_CheckPortableExtensions();
 	
 	renderProgManager.Init();
 	
-	r_initialized = true;
+	tr.SetInitialized();
 	
 	// allocate the vertex array range or vertex objects
 	vertexCache.Init( glConfig.uniformBufferOffsetAlignment );
@@ -554,7 +542,6 @@ void idRenderBackend::Init()
 void idRenderBackend::Shutdown()
 {
 	GLimp_Shutdown();
-	r_initialized = false;
 }
 
 /*
