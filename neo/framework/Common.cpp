@@ -1307,7 +1307,7 @@ void idCommonLocal::Init( int argc, const char* const* argv, const char* cmdline
 			// display the legal splash screen
 			// No clue why we have to render this twice to show up...
 			RenderSplash();
-			RenderSplash();
+			//RenderSplash();
 		}
 		
 		

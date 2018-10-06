@@ -40,8 +40,8 @@ Contains the Image implementation for Vulkan
 #include "Staging_VK.h"
 
 int						idImage::garbageIndex = 0;
-#if defined( ID_USE_AMD_ALLOCATOR )
-idList< VmaAllocation > idImage::m_allocationGarbage[ NUM_FRAME_DATA ];
+#if defined( USE_AMD_ALLOCATOR )
+idList< VmaAllocation > idImage::allocationGarbage[ NUM_FRAME_DATA ];
 #else
 idList< vulkanAllocation_t > idImage::allocationGarbage[ NUM_FRAME_DATA ];
 #endif
@@ -304,7 +304,7 @@ void idImage::EmptyGarbage()
 {
 	garbageIndex = ( garbageIndex + 1 ) % NUM_FRAME_DATA;
 	
-#if defined( ID_USE_AMD_ALLOCATOR )
+#if defined( USE_AMD_ALLOCATOR )
 	idList< VmaAllocation >& allocationsToFree = allocationGarbage[ garbageIndex ];
 #else
 	idList< vulkanAllocation_t >& allocationsToFree = allocationGarbage[ garbageIndex ];
@@ -313,7 +313,7 @@ void idImage::EmptyGarbage()
 	idList< VkImageView >& viewsToFree = viewGarbage[ garbageIndex ];
 	idList< VkSampler >& samplersToFree = samplerGarbage[ garbageIndex ];
 	
-#if defined( ID_USE_AMD_ALLOCATOR )
+#if defined( USE_AMD_ALLOCATOR )
 	const int numAllocations = allocationsToFree.Num();
 	for( int i = 0; i < numAllocations; ++i )
 	{
@@ -537,7 +537,7 @@ void idImage::AllocImage()
 	imageCreateInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 	imageCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 	
-#if defined( ID_USE_AMD_ALLOCATOR )
+#if defined( USE_AMD_ALLOCATOR )
 	VmaMemoryRequirements vmaReq = {};
 	vmaReq.usage = VMA_MEMORY_USAGE_GPU_ONLY;
 	
@@ -592,7 +592,7 @@ void idImage::PurgeImage()
 		viewGarbage[ garbageIndex ].Append( view );
 		imageGarbage[ garbageIndex ].Append( image );
 		
-#if defined( ID_USE_AMD_ALLOCATOR )
+#if defined( USE_AMD_ALLOCATOR )
 		allocation = NULL;
 #else
 		allocation = vulkanAllocation_t();

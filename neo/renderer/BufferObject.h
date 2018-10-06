@@ -119,7 +119,7 @@ protected:
 #if defined( USE_VULKAN )
 	VkBuffer			apiObject;
 	
-#if defined( ID_USE_AMD_ALLOCATOR )
+#if defined( USE_AMD_ALLOCATOR )
 	VmaAllocation		vmaAllocation;
 	VmaAllocationInfo	allocation;
 #else

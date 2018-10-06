@@ -291,47 +291,6 @@ static void CreateVulkanInstance()
 
 /*
 =============
-CreateSurface
-=============
-*/
-#ifdef _WIN32
-#include "../../sys/win32/win_local.h"
-#endif
-
-static void CreateSurface()
-{
-#ifdef _WIN32
-	VkWin32SurfaceCreateInfoKHR createInfo = {};
-	createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
-	createInfo.hinstance = win32.hInstance;
-	createInfo.hwnd = win32.hWnd;
-	
-	ID_VK_CHECK( vkCreateWin32SurfaceKHR( vkcontext.instance, &createInfo, NULL, &vkcontext.surface ) );
-	
-#elif defined(VK_USE_PLATFORM_WAYLAND_KHR)
-	VkWaylandSurfaceCreateInfoKHR createInfo = {};
-	createInfo.sType = VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR;
-	createInfo.pNext = NULL;
-	createInfo.display = info.display;
-	createInfo.surface = info.window;
-	
-	ID_VK_CHECK( vkCreateWaylandSurfaceKHR( info.inst, &createInfo, NULL, &info.surface ) );
-	
-#else
-	VkXcbSurfaceCreateInfoKHR createInfo = {};
-	createInfo.sType = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;
-	createInfo.pNext = NULL;
-	createInfo.connection = info.connection;
-	createInfo.window = info.window;
-	
-	ID_VK_CHECK( vkCreateXcbSurfaceKHR( info.inst, &createInfo, NULL, &info.surface ) );
-#endif  // _WIN32
-	
-	
-}
-
-/*
-=============
 EnumeratePhysicalDevices
 =============
 */
@@ -427,6 +386,47 @@ static void EnumeratePhysicalDevices()
 				idLib::Printf( "Found device[%i] Vendor: Unknown (0x%x)\n", i, gpu.props.vendorID );
 		}
 	}
+}
+
+/*
+=============
+CreateSurface
+=============
+*/
+#ifdef _WIN32
+#include "../../sys/win32/win_local.h"
+#endif
+
+static void CreateSurface()
+{
+#ifdef _WIN32
+	VkWin32SurfaceCreateInfoKHR createInfo = {};
+	createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+	createInfo.hinstance = win32.hInstance;
+	createInfo.hwnd = win32.hWnd;
+	
+	ID_VK_CHECK( vkCreateWin32SurfaceKHR( vkcontext.instance, &createInfo, NULL, &vkcontext.surface ) );
+	
+#elif defined(VK_USE_PLATFORM_WAYLAND_KHR)
+	VkWaylandSurfaceCreateInfoKHR createInfo = {};
+	createInfo.sType = VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR;
+	createInfo.pNext = NULL;
+	createInfo.display = info.display;
+	createInfo.surface = info.window;
+	
+	ID_VK_CHECK( vkCreateWaylandSurfaceKHR( info.inst, &createInfo, NULL, &info.surface ) );
+	
+#else
+	VkXcbSurfaceCreateInfoKHR createInfo = {};
+	createInfo.sType = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;
+	createInfo.pNext = NULL;
+	createInfo.connection = info.connection;
+	createInfo.window = info.window;
+	
+	ID_VK_CHECK( vkCreateXcbSurfaceKHR( info.inst, &createInfo, NULL, &info.surface ) );
+#endif  // _WIN32
+	
+	
 }
 
 
@@ -596,7 +596,7 @@ static void CreateLogicalDeviceAndQueues()
 	deviceFeatures.depthBiasClamp = VK_TRUE;
 	deviceFeatures.depthBounds = VK_TRUE;
 	deviceFeatures.fillModeNonSolid = VK_TRUE;
-	deviceFeatures.samplerAnisotropy = vkcontext.physicalDeviceFeatures.samplerAnisotropy; // RB
+	//deviceFeatures.samplerAnisotropy = vkcontext.physicalDeviceFeatures.samplerAnisotropy; // RB
 	
 	VkDeviceCreateInfo info = {};
 	info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -796,6 +796,23 @@ static void CreateSwapChain()
 
 /*
 =============
+DestroySwapChain
+=============
+*/
+static void DestroySwapChain()
+{
+	for( uint32 i = 0; i < NUM_FRAME_DATA; ++i )
+	{
+		vkDestroyImageView( vkcontext.device, vkcontext.swapchainImages[ i ]->GetView(), NULL );
+		delete vkcontext.swapchainImages[ i ];
+	}
+	vkcontext.swapchainImages.Zero();
+	
+	vkDestroySwapchainKHR( vkcontext.device, vkcontext.swapchain, NULL );
+}
+
+/*
+=============
 CreateCommandPool
 =============
 */
@@ -850,22 +867,7 @@ static void CreateSemaphores()
 	}
 }
 
-/*
-=============
-DestroySwapChain
-=============
-*/
-static void DestroySwapChain()
-{
-	for( uint32 i = 0; i < NUM_FRAME_DATA; ++i )
-	{
-		vkDestroyImageView( vkcontext.device, vkcontext.swapchainImages[ i ]->GetView(), NULL );
-		delete vkcontext.swapchainImages[ i ];
-	}
-	vkcontext.swapchainImages.Zero();
-	
-	vkDestroySwapchainKHR( vkcontext.device, vkcontext.swapchain, NULL );
-}
+
 
 /*
 =============
