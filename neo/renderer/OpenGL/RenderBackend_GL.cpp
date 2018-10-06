@@ -715,7 +715,10 @@ idRenderBackend::GL_StartFrame
 */
 void idRenderBackend::GL_StartFrame()
 {
-
+	// If we have a stereo pixel format, this will draw to both
+	// the back left and back right buffers, which will have a
+	// performance penalty.
+	glDrawBuffer( GL_BACK );
 }
 
 /*
@@ -1748,7 +1751,7 @@ GL_BlockingSwapBuffers
 We want to exit this with the GPU idle, right at vsync
 =============
 */
-void idRenderBackend::BlockingSwapBuffers()
+void idRenderBackend::GL_BlockingSwapBuffers()
 {
 	RENDERLOG_PRINTF( "***************** GL_BlockingSwapBuffers *****************\n\n\n" );
 	
@@ -2177,99 +2180,4 @@ void idRenderBackend::StereoRenderExecuteBackEndCommands( const emptyCommand_t* 
 	pc.totalMicroSec = backEndFinishTime - backEndStartTime;
 }
 
-/*
-====================
-RB_ExecuteBackEndCommands
 
-This function will be called syncronously if running without
-smp extensions, or asyncronously by another thread.
-====================
-*/
-void idRenderBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
-{
-	// r_debugRenderToTexture
-	int c_draw3d = 0;
-	int c_draw2d = 0;
-	int c_setBuffers = 0;
-	int c_copyRenders = 0;
-	
-	resolutionScale.SetCurrentGPUFrameTime( commonLocal.GetRendererGPUMicroseconds() );
-	
-	renderLog.StartFrame();
-	
-	if( cmds->commandId == RC_NOP && !cmds->next )
-	{
-		return;
-	}
-	
-	if( renderSystem->GetStereo3DMode() != STEREO3D_OFF )
-	{
-		StereoRenderExecuteBackEndCommands( cmds );
-		renderLog.EndFrame();
-		return;
-	}
-	
-	uint64 backEndStartTime = Sys_Microseconds();
-	
-	// needed for editor rendering
-	GL_SetDefaultState();
-	
-	// If we have a stereo pixel format, this will draw to both
-	// the back left and back right buffers, which will have a
-	// performance penalty.
-	glDrawBuffer( GL_BACK );
-	
-	for( ; cmds != NULL; cmds = ( const emptyCommand_t* )cmds->next )
-	{
-		switch( cmds->commandId )
-		{
-			case RC_NOP:
-				break;
-			case RC_DRAW_VIEW_3D:
-			case RC_DRAW_VIEW_GUI:
-				DrawView( cmds, 0 );
-				if( ( ( const drawSurfsCommand_t* )cmds )->viewDef->viewEntitys )
-				{
-					c_draw3d++;
-				}
-				else
-				{
-					c_draw2d++;
-				}
-				break;
-			case RC_SET_BUFFER:
-				//RB_SetBuffer( cmds );
-				c_setBuffers++;
-				break;
-			case RC_COPY_RENDER:
-				CopyRender( cmds );
-				c_copyRenders++;
-				break;
-			case RC_POST_PROCESS:
-				PostProcess( cmds );
-				break;
-			default:
-				common->Error( "RB_ExecuteBackEndCommands: bad commandId" );
-				break;
-		}
-	}
-	
-	DrawFlickerBox();
-	
-	// Fix for the steam overlay not showing up while in game without Shell/Debug/Console/Menu also rendering
-	glColorMask( 1, 1, 1, 1 );
-	
-	glFlush();
-	
-	// stop rendering on this thread
-	uint64 backEndFinishTime = Sys_Microseconds();
-	pc.totalMicroSec = backEndFinishTime - backEndStartTime;
-	
-	if( r_debugRenderToTexture.GetInteger() == 1 )
-	{
-		common->Printf( "3d: %i, 2d: %i, SetBuf: %i, CpyRenders: %i, CpyFrameBuf: %i\n", c_draw3d, c_draw2d, c_setBuffers, c_copyRenders, pc.c_copyFrameBuffer );
-		pc.c_copyFrameBuffer = 0;
-	}
-	
-	renderLog.EndFrame();
-}

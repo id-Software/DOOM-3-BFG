@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013-2015 Robert Beckebans
+Copyright (C) 2013-2018 Robert Beckebans
 Copyright (C) 2016-2017 Dustin Land
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
@@ -34,7 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../RenderCommon.h"
 #include "../RenderBackend.h"
 #include "Staging_VK.h"
-#include "../../framework/Common_local.h"
+//#include "../../framework/Common_local.h"
 
 idCVar r_drawFlickerBox( "r_drawFlickerBox", "0", CVAR_RENDERER | CVAR_BOOL, "visual test for dropping frames" );
 idCVar stereoRender_warp( "stereoRender_warp", "0", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_BOOL, "use the optical warping renderprog instead of stereoDeGhost" );
@@ -45,7 +45,7 @@ idCVar r_syncEveryFrame( "r_syncEveryFrame", "1", CVAR_BOOL, "Don't let the GPU 
 
 // NEW VULKAN STUFF
 
-idCVar r_vkEnableValidationLayers( "r_vkEnableValidationLayers", "0", CVAR_BOOL, "" );
+idCVar r_vkEnableValidationLayers( "r_vkEnableValidationLayers", "1", CVAR_BOOL, "" );
 
 vulkanContext_t vkcontext;
 
@@ -123,28 +123,6 @@ static const char* g_validationLayers[ g_numValidationLayers ] =
 DEBUGGING AND VALIDATION
 
 =========================================================================================================
-*/
-
-/*
-=============
-DebugCallback
-=============
-*/
-/*
-static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(
-	VkDebugReportFlagsEXT flags,
-	VkDebugReportObjectTypeEXT objType,
-	uint64 obj, size_t location, int32 code,
-	const char* layerPrefix, const char* msg, void* userData )
-{
-
-	idLib::Printf( "VK_DEBUG::%s: %s flags=%d, objType=%d, obj=%llu, location=%lld, code=%d\n",
-				   layerPrefix, msg, flags, objType, obj, location, code );
-
-
-
-	return VK_FALSE;
-}
 */
 
 VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback( VkDebugReportFlagsEXT msgFlags, VkDebugReportObjectTypeEXT objType, uint64_t srcObject,
@@ -891,6 +869,322 @@ static void DestroySwapChain()
 
 /*
 =============
+ChooseSupportedFormat
+=============
+*/
+static VkFormat ChooseSupportedFormat( VkFormat* formats, int numFormats, VkImageTiling tiling, VkFormatFeatureFlags features )
+{
+	for( int i = 0; i < numFormats; ++i )
+	{
+		VkFormat format = formats[ i ];
+		
+		VkFormatProperties props;
+		vkGetPhysicalDeviceFormatProperties( vkcontext.physicalDevice, format, &props );
+		
+		if( tiling == VK_IMAGE_TILING_LINEAR && ( props.linearTilingFeatures & features ) == features )
+		{
+			return format;
+		}
+		else if( tiling == VK_IMAGE_TILING_OPTIMAL && ( props.optimalTilingFeatures & features ) == features )
+		{
+			return format;
+		}
+	}
+	
+	idLib::FatalError( "Failed to find a supported format." );
+	
+	return VK_FORMAT_UNDEFINED;
+}
+
+/*
+=============
+CreateRenderTargets
+=============
+*/
+static void CreateRenderTargets()
+{
+	// Determine samples before creating depth
+	VkImageFormatProperties fmtProps = {};
+	vkGetPhysicalDeviceImageFormatProperties( vkcontext.physicalDevice, vkcontext.swapchainFormat,
+			VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, 0, &fmtProps );
+			
+	int samples;
+	
+	switch( r_antiAliasing.GetInteger() )
+	{
+		case ANTI_ALIASING_MSAA_2X:
+			samples = 2;
+			break;
+			
+		case ANTI_ALIASING_MSAA_4X:
+			samples = 4;
+			break;
+			
+		case ANTI_ALIASING_MSAA_8X:
+			samples = 8;
+			break;
+			
+		default:
+			samples = 0;
+			break;
+	}
+	
+	if( samples >= 16 && ( fmtProps.sampleCounts & VK_SAMPLE_COUNT_16_BIT ) )
+	{
+		vkcontext.sampleCount = VK_SAMPLE_COUNT_16_BIT;
+	}
+	else if( samples >= 8 && ( fmtProps.sampleCounts & VK_SAMPLE_COUNT_8_BIT ) )
+	{
+		vkcontext.sampleCount = VK_SAMPLE_COUNT_8_BIT;
+	}
+	else if( samples >= 4 && ( fmtProps.sampleCounts & VK_SAMPLE_COUNT_4_BIT ) )
+	{
+		vkcontext.sampleCount = VK_SAMPLE_COUNT_4_BIT;
+	}
+	else if( samples >= 2 && ( fmtProps.sampleCounts & VK_SAMPLE_COUNT_2_BIT ) )
+	{
+		vkcontext.sampleCount = VK_SAMPLE_COUNT_2_BIT;
+	}
+	
+	// Select Depth Format
+	{
+		VkFormat formats[] =
+		{
+			VK_FORMAT_D32_SFLOAT_S8_UINT,
+			VK_FORMAT_D24_UNORM_S8_UINT
+		};
+		vkcontext.depthFormat = ChooseSupportedFormat(
+									formats, 3,
+									VK_IMAGE_TILING_OPTIMAL,
+									VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT );
+	}
+	
+	idImageOpts depthOptions;
+	depthOptions.format = FMT_DEPTH;
+	depthOptions.width = renderSystem->GetWidth();
+	depthOptions.height = renderSystem->GetHeight();
+	depthOptions.numLevels = 1;
+	depthOptions.samples = static_cast< textureSamples_t >( vkcontext.sampleCount );
+	
+	globalImages->ScratchImage( "_viewDepth", &depthOptions, TF_DEFAULT, TR_REPEAT, TD_DEFAULT );
+	
+	if( vkcontext.sampleCount > VK_SAMPLE_COUNT_1_BIT )
+	{
+		vkcontext.supersampling = vkcontext.physicalDeviceFeatures.sampleRateShading == VK_TRUE;
+		
+		VkImageCreateInfo createInfo = {};
+		createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+		createInfo.imageType = VK_IMAGE_TYPE_2D;
+		createInfo.format = vkcontext.swapchainFormat;
+		createInfo.extent.width = vkcontext.swapchainExtent.width;
+		createInfo.extent.height = vkcontext.swapchainExtent.height;
+		createInfo.extent.depth = 1;
+		createInfo.mipLevels = 1;
+		createInfo.arrayLayers = 1;
+		createInfo.samples = vkcontext.sampleCount;
+		createInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+		createInfo.usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_STORAGE_BIT;
+		createInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		
+		ID_VK_CHECK( vkCreateImage( vkcontext.device, &createInfo, NULL, &vkcontext.msaaImage ) );
+		
+#if defined( USE_AMD_ALLOCATOR )
+		VmaMemoryRequirements vmaReq = {};
+		vmaReq.usage = VMA_MEMORY_USAGE_GPU_ONLY;
+		
+		ID_VK_CHECK( vmaCreateImage( vmaAllocator, &createInfo, &vmaReq, &vkcontext.msaaImage, &vkcontext.msaaVmaAllocation, &vkcontext.msaaAllocation ) );
+#else
+		VkMemoryRequirements memoryRequirements = {};
+		vkGetImageMemoryRequirements( vkcontext.device, vkcontext.msaaImage, &memoryRequirements );
+		
+		vkcontext.msaaAllocation = vulkanAllocator.Allocate(
+									   memoryRequirements.size,
+									   memoryRequirements.alignment,
+									   memoryRequirements.memoryTypeBits,
+									   VULKAN_MEMORY_USAGE_GPU_ONLY,
+									   VULKAN_ALLOCATION_TYPE_IMAGE_OPTIMAL );
+		
+		ID_VK_CHECK( vkBindImageMemory( vkcontext.device, vkcontext.msaaImage, vkcontext.msaaAllocation.deviceMemory, vkcontext.msaaAllocation.offset ) );
+#endif
+		
+		VkImageViewCreateInfo viewInfo = {};
+		viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		viewInfo.format = vkcontext.swapchainFormat;
+		viewInfo.image = vkcontext.msaaImage;
+		viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		viewInfo.subresourceRange.baseMipLevel = 0;
+		viewInfo.subresourceRange.levelCount = 1;
+		viewInfo.subresourceRange.baseArrayLayer = 0;
+		viewInfo.subresourceRange.layerCount = 1;
+		
+		ID_VK_CHECK( vkCreateImageView( vkcontext.device, &viewInfo, NULL, &vkcontext.msaaImageView ) );
+	}
+}
+
+/*
+=============
+DestroyRenderTargets
+=============
+*/
+static void DestroyRenderTargets()
+{
+	vkDestroyImageView( vkcontext.device, vkcontext.msaaImageView, NULL );
+	
+#if defined( USE_AMD_ALLOCATOR )
+	vmaDestroyImage( vmaAllocator, vkcontext.msaaImage, vkcontext.msaaVmaAllocation );
+	vkcontext.msaaAllocation = VmaAllocationInfo();
+	vkcontext.msaaVmaAllocation = NULL;
+#else
+	vkDestroyImage( vkcontext.device, vkcontext.msaaImage, NULL );
+	vulkanAllocator.Free( vkcontext.msaaAllocation );
+	vkcontext.msaaAllocation = vulkanAllocation_t();
+#endif
+	
+	vkcontext.msaaImage = VK_NULL_HANDLE;
+	vkcontext.msaaImageView = VK_NULL_HANDLE;
+}
+
+/*
+=============
+CreateRenderPass
+=============
+*/
+static void CreateRenderPass()
+{
+	VkAttachmentDescription attachments[ 3 ];
+	memset( attachments, 0, sizeof( attachments ) );
+	
+	const bool resolve = vkcontext.sampleCount > VK_SAMPLE_COUNT_1_BIT;
+	
+	VkAttachmentDescription& colorAttachment = attachments[ 0 ];
+	colorAttachment.format = vkcontext.swapchainFormat;
+	colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+	colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+	colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	colorAttachment.finalLayout = VK_IMAGE_LAYOUT_GENERAL;
+	
+	VkAttachmentDescription& depthAttachment = attachments[ 1 ];
+	depthAttachment.format = vkcontext.depthFormat;
+	depthAttachment.samples = vkcontext.sampleCount;
+	depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+	
+	VkAttachmentDescription& resolveAttachment = attachments[ 2 ];
+	resolveAttachment.format = vkcontext.swapchainFormat;
+	resolveAttachment.samples = vkcontext.sampleCount;
+	resolveAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	resolveAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+	resolveAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	resolveAttachment.finalLayout = VK_IMAGE_LAYOUT_GENERAL;
+	
+	VkAttachmentReference colorRef = {};
+	colorRef.attachment = resolve ? 2 : 0;
+	colorRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	
+	VkAttachmentReference depthRef = {};
+	depthRef.attachment = 1;
+	depthRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+	
+	VkAttachmentReference resolveRef = {};
+	resolveRef.attachment = 0;
+	resolveRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	
+	VkSubpassDescription subpass = {};
+	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+	subpass.colorAttachmentCount = 1;
+	subpass.pColorAttachments = &colorRef;
+	subpass.pDepthStencilAttachment = &depthRef;
+	if( resolve )
+	{
+		subpass.pResolveAttachments = &resolveRef;
+	}
+	
+	VkRenderPassCreateInfo renderPassCreateInfo = {};
+	renderPassCreateInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+	renderPassCreateInfo.attachmentCount = resolve ? 3 : 2;
+	renderPassCreateInfo.pAttachments = attachments;
+	renderPassCreateInfo.subpassCount = 1;
+	renderPassCreateInfo.pSubpasses = &subpass;
+	renderPassCreateInfo.dependencyCount = 0;
+	
+	ID_VK_CHECK( vkCreateRenderPass( vkcontext.device, &renderPassCreateInfo, NULL, &vkcontext.renderPass ) );
+}
+
+/*
+=============
+CreatePipelineCache
+=============
+*/
+static void CreatePipelineCache()
+{
+	VkPipelineCacheCreateInfo pipelineCacheCreateInfo = {};
+	pipelineCacheCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
+	ID_VK_CHECK( vkCreatePipelineCache( vkcontext.device, &pipelineCacheCreateInfo, NULL, &vkcontext.pipelineCache ) );
+}
+
+/*
+=============
+CreateFrameBuffers
+=============
+*/
+static void CreateFrameBuffers()
+{
+	VkImageView attachments[ 3 ];
+	
+	// depth attachment is the same
+	idImage* depthImg = globalImages->GetImage( "_viewDepth" );
+	if( depthImg == NULL )
+	{
+		idLib::FatalError( "CreateFrameBuffers: No _viewDepth image." );
+	}
+	else
+	{
+		attachments[ 1 ] = depthImg->GetView();
+	}
+	
+	const bool resolve = vkcontext.sampleCount > VK_SAMPLE_COUNT_1_BIT;
+	if( resolve )
+	{
+		attachments[ 2 ] = vkcontext.msaaImageView;
+	}
+	
+	VkFramebufferCreateInfo frameBufferCreateInfo = {};
+	frameBufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+	frameBufferCreateInfo.renderPass = vkcontext.renderPass;
+	frameBufferCreateInfo.attachmentCount = resolve ? 3 : 2;
+	frameBufferCreateInfo.pAttachments = attachments;
+	frameBufferCreateInfo.width = renderSystem->GetWidth();
+	frameBufferCreateInfo.height = renderSystem->GetHeight();
+	frameBufferCreateInfo.layers = 1;
+	
+	for( int i = 0; i < NUM_FRAME_DATA; ++i )
+	{
+		attachments[ 0 ] = vkcontext.swapchainImages[ i ]->GetView();
+		ID_VK_CHECK( vkCreateFramebuffer( vkcontext.device, &frameBufferCreateInfo, NULL, &vkcontext.frameBuffers[ i ] ) );
+	}
+}
+
+/*
+=============
+DestroyFrameBuffers
+=============
+*/
+static void DestroyFrameBuffers()
+{
+	for( int i = 0; i < NUM_FRAME_DATA; ++i )
+	{
+		vkDestroyFramebuffer( vkcontext.device, vkcontext.frameBuffers[ i ], NULL );
+	}
+	vkcontext.frameBuffers.Zero();
+}
+
+
+/*
+=============
 ClearContext
 =============
 */
@@ -1029,8 +1323,6 @@ void idRenderBackend::Init()
 	// create Swap Chain
 	CreateSwapChain();
 	
-#if 0
-	
 	// create Render Targets
 	CreateRenderTargets();
 	
@@ -1043,6 +1335,7 @@ void idRenderBackend::Init()
 	// create Frame Buffers
 	CreateFrameBuffers();
 	
+#if 0
 	// init RenderProg Manager
 	renderProgManager.Init();
 #endif
@@ -1058,10 +1351,25 @@ idRenderBackend::Shutdown
 */
 void idRenderBackend::Shutdown()
 {
+	// RB: release input before anything goes wrong
+	Sys_ShutdownInput();
+	
 	for( int i = 0; i < NUM_FRAME_DATA; ++i )
 	{
 		idImage::EmptyGarbage();
 	}
+	
+	// detroy Frame Buffers
+	DestroyFrameBuffers();
+	
+	// destroy Pipeline Cache
+	vkDestroyPipelineCache( vkcontext.device, vkcontext.pipelineCache, NULL );
+	
+	// destroy Render Pass
+	vkDestroyRenderPass( vkcontext.device, vkcontext.renderPass, NULL );
+	
+	// destroy Render Targets
+	DestroyRenderTargets();
 	
 	// destroy Swap Chain
 	DestroySwapChain();
@@ -1145,13 +1453,64 @@ GL COMMANDS
 */
 
 /*
+
+     Drawing a frame
+
+- Aquire the next swapchain image to use - vkAquireNextImageKHR
+- Submit the command buffer to a queue - vkQueueSubmit
+- Present the backbuffer - vkQueuePresentKHR
+- Synchronize with Semaphores
+
+
+
+				  |--------------------------|   |-------------------------|
+                  |  vkAquireNextImageKHR	 |   |  vkQueuePresentKHR      |
+                  |--------------------------|   |-------------------------|
+                                    |                  ^
+                                    |                  |
+                                   `´                  |
+         |---------------------------------|    |---------------------------------|
+         |                                 |    |                                 |
+         |      Backbuffer Semaphore       |    |   Render Complete Semaphore     |
+         |                                 |    |								  |
+         |:--------------------------------|    |---------------------------------|
+                                    |                  ^
+                                    |                  |
+                                    `´                 |
+                                |-------------------------|
+								|      vkQueueSubmit      |
+                                |-------------------------|
+*/
+
+/*
 ==================
 idRenderBackend::GL_StartFrame
 ==================
 */
 void idRenderBackend::GL_StartFrame()
 {
-
+	ID_VK_CHECK( vkAcquireNextImageKHR( vkcontext.device, vkcontext.swapchain, UINT64_MAX, vkcontext.acquireSemaphores[ vkcontext.currentFrameData ], VK_NULL_HANDLE, &vkcontext.currentSwapIndex ) );
+	
+	idImage::EmptyGarbage();
+	
+#if !defined( USE_AMD_ALLOCATOR )
+	vulkanAllocator.EmptyGarbage();
+#endif
+	stagingManager.Flush();
+	
+	//TODO renderProgManager.StartFrame();
+	
+	VkCommandBufferBeginInfo commandBufferBeginInfo = {};
+	commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+	ID_VK_CHECK( vkBeginCommandBuffer( vkcontext.commandBuffer[ vkcontext.currentFrameData ], &commandBufferBeginInfo ) );
+	
+	VkRenderPassBeginInfo renderPassBeginInfo = {};
+	renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	renderPassBeginInfo.renderPass = vkcontext.renderPass;
+	renderPassBeginInfo.framebuffer = vkcontext.frameBuffers[ vkcontext.currentSwapIndex ];
+	renderPassBeginInfo.renderArea.extent = vkcontext.swapchainExtent;
+	
+	vkCmdBeginRenderPass( vkcontext.commandBuffer[ vkcontext.currentFrameData ], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE );
 }
 
 /*
@@ -1161,7 +1520,53 @@ idRenderBackend::GL_EndFrame
 */
 void idRenderBackend::GL_EndFrame()
 {
-
+	vkCmdEndRenderPass( vkcontext.commandBuffer[ vkcontext.currentFrameData ] );
+	
+	// Transition our swap image to present.
+	// Do this instead of having the renderpass do the transition
+	// so we can take advantage of the general layout to avoid
+	// additional image barriers.
+	VkImageMemoryBarrier barrier = {};
+	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	barrier.image = vkcontext.swapchainImages[ vkcontext.currentSwapIndex ]->GetImage();
+	barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	barrier.subresourceRange.baseMipLevel = 0;
+	barrier.subresourceRange.levelCount = 1;
+	barrier.subresourceRange.baseArrayLayer = 0;
+	barrier.subresourceRange.layerCount = 1;
+	barrier.oldLayout = VK_IMAGE_LAYOUT_GENERAL;
+	barrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+	barrier.srcAccessMask = VK_PIPELINE_STAGE_TRANSFER_BIT |
+							VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	barrier.dstAccessMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+	
+	vkCmdPipelineBarrier(
+		vkcontext.commandBuffer[ vkcontext.currentFrameData ],
+		VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+		VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+		0, 0, NULL, 0, NULL, 1, &barrier );
+		
+	ID_VK_CHECK( vkEndCommandBuffer( vkcontext.commandBuffer[ vkcontext.currentFrameData ] ) )
+	vkcontext.commandBufferRecorded[ vkcontext.currentFrameData ] = true;
+	
+	VkSemaphore* acquire = &vkcontext.acquireSemaphores[ vkcontext.currentFrameData ];
+	VkSemaphore* finished = &vkcontext.renderCompleteSemaphores[ vkcontext.currentFrameData ];
+	
+	VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	
+	VkSubmitInfo submitInfo = {};
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &vkcontext.commandBuffer[ vkcontext.currentFrameData ];
+	submitInfo.waitSemaphoreCount = 1;
+	submitInfo.pWaitSemaphores = acquire;
+	submitInfo.signalSemaphoreCount = 1;
+	submitInfo.pSignalSemaphores = finished;
+	submitInfo.pWaitDstStageMask = &dstStageMask;
+	
+	ID_VK_CHECK( vkQueueSubmit( vkcontext.graphicsQueue, 1, &submitInfo, vkcontext.commandBufferFences[ vkcontext.currentFrameData ] ) );
 }
 
 /*
@@ -1185,11 +1590,10 @@ void idRenderBackend::GL_SetDefaultState()
 	
 	GL_State( 0, true );
 	
+	GL_Scissor( 0, 0, renderSystem->GetWidth(), renderSystem->GetHeight() );
+	
 	// RB begin
 	Framebuffer::Unbind();
-	// RB end
-	
-	
 	
 	// RB: don't keep renderprogs that were enabled during level load
 	renderProgManager.Unbind();
@@ -1259,7 +1663,13 @@ idRenderBackend::GL_Scissor
 */
 void idRenderBackend::GL_Scissor( int x /* left*/, int y /* bottom */, int w, int h )
 {
-	// TODO
+	VkRect2D scissor;
+	scissor.offset.x = x;
+	scissor.offset.y = y;
+	scissor.extent.width = w;
+	scissor.extent.height = h;
+	
+	vkCmdSetScissor( vkcontext.commandBuffer[ vkcontext.currentFrameData ], 0, 1, &scissor );
 }
 
 /*
@@ -1269,7 +1679,15 @@ idRenderBackend::GL_Viewport
 */
 void idRenderBackend::GL_Viewport( int x /* left */, int y /* bottom */, int w, int h )
 {
-	// TODO
+	VkViewport viewport;
+	viewport.x = x;
+	viewport.y = y;
+	viewport.width = w;
+	viewport.height = h;
+	viewport.minDepth = 0.0f;
+	viewport.maxDepth = 1.0f;
+	
+	vkCmdSetViewport( vkcontext.commandBuffer[ vkcontext.currentFrameData ], 0, 1, &viewport );
 }
 
 /*
@@ -1314,7 +1732,50 @@ idRenderBackend::GL_Clear
 */
 void idRenderBackend::GL_Clear( bool color, bool depth, bool stencil, byte stencilValue, float r, float g, float b, float a, bool clearHDR )
 {
-	// TODO
+	RENDERLOG_PRINTF( "GL_Clear( color=%d, depth=%d, stencil=%d, stencil=%d, r=%f, g=%f, b=%f, a=%f )\n",
+					  color, depth, stencil, stencilValue, r, g, b, a );
+					  
+	uint32 numAttachments = 0;
+	VkClearAttachment attachments[ 2 ];
+	memset( attachments, 0, sizeof( attachments ) );
+	
+	if( color )
+	{
+		VkClearAttachment& attachment = attachments[ numAttachments++ ];
+		attachment.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		attachment.colorAttachment = 0;
+		
+		VkClearColorValue& color = attachment.clearValue.color;
+		color.float32[ 0 ] = r;
+		color.float32[ 1 ] = g;
+		color.float32[ 2 ] = b;
+		color.float32[ 3 ] = a;
+	}
+	
+	if( depth || stencil )
+	{
+		VkClearAttachment& attachment = attachments[ numAttachments++ ];
+		
+		if( depth )
+		{
+			attachment.aspectMask |= VK_IMAGE_ASPECT_DEPTH_BIT;
+		}
+		
+		if( stencil )
+		{
+			attachment.aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
+		}
+		
+		attachment.clearValue.depthStencil.depth = 1.0f;
+		attachment.clearValue.depthStencil.stencil = stencilValue;
+	}
+	
+	VkClearRect clearRect = {};
+	clearRect.baseArrayLayer = 0;
+	clearRect.layerCount = 1;
+	clearRect.rect.extent = vkcontext.swapchainExtent;
+	
+	vkCmdClearAttachments( vkcontext.commandBuffer[ vkcontext.currentFrameData ], numAttachments, attachments, 1, &clearRect );
 	
 	/*
 	int clearFlags = 0;
@@ -1556,12 +2017,13 @@ GL_BlockingSwapBuffers
 We want to exit this with the GPU idle, right at vsync
 =============
 */
-void idRenderBackend::BlockingSwapBuffers()
+void idRenderBackend::GL_BlockingSwapBuffers()
 {
 	RENDERLOG_PRINTF( "***************** BlockingSwapBuffers *****************\n\n\n" );
 	
 	if( vkcontext.commandBufferRecorded[ vkcontext.currentFrameData ] == false )
 	{
+		// RB: no need to present anything if no command buffers where recorded in this frame
 		return;
 	}
 	
@@ -1582,6 +2044,8 @@ void idRenderBackend::BlockingSwapBuffers()
 	
 	ID_VK_CHECK( vkQueuePresentKHR( vkcontext.presentQueue, &presentInfo ) );
 	
+	// RB: at this time the image is presented on the screen
+	
 	vkcontext.counter++;
 	vkcontext.currentFrameData = vkcontext.counter % NUM_FRAME_DATA;
 }
@@ -1600,92 +2064,7 @@ void idRenderBackend::StereoRenderExecuteBackEndCommands( const emptyCommand_t* 
 	// RB: TODO ?
 }
 
-/*
-====================
-RB_ExecuteBackEndCommands
 
-This function will be called syncronously if running without
-smp extensions, or asyncronously by another thread.
-====================
-*/
-void idRenderBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
-{
-	// r_debugRenderToTexture
-	int c_draw3d = 0;
-	int c_draw2d = 0;
-	int c_setBuffers = 0;
-	int c_copyRenders = 0;
-	
-	resolutionScale.SetCurrentGPUFrameTime( commonLocal.GetRendererGPUMicroseconds() );
-	
-	renderLog.StartFrame();
-	
-	if( cmds->commandId == RC_NOP && !cmds->next )
-	{
-		return;
-	}
-	
-	if( renderSystem->GetStereo3DMode() != STEREO3D_OFF )
-	{
-		StereoRenderExecuteBackEndCommands( cmds );
-		renderLog.EndFrame();
-		return;
-	}
-	
-	uint64 backEndStartTime = Sys_Microseconds();
-	
-	// needed for editor rendering
-	GL_SetDefaultState();
-	
-	for( ; cmds != NULL; cmds = ( const emptyCommand_t* )cmds->next )
-	{
-		switch( cmds->commandId )
-		{
-			case RC_NOP:
-				break;
-			case RC_DRAW_VIEW_3D:
-			case RC_DRAW_VIEW_GUI:
-				DrawView( cmds, 0 );
-				if( ( ( const drawSurfsCommand_t* )cmds )->viewDef->viewEntitys )
-				{
-					c_draw3d++;
-				}
-				else
-				{
-					c_draw2d++;
-				}
-				break;
-			case RC_SET_BUFFER:
-				//RB_SetBuffer( cmds );
-				c_setBuffers++;
-				break;
-			case RC_COPY_RENDER:
-				CopyRender( cmds );
-				c_copyRenders++;
-				break;
-			case RC_POST_PROCESS:
-				PostProcess( cmds );
-				break;
-			default:
-				common->Error( "RB_ExecuteBackEndCommands: bad commandId" );
-				break;
-		}
-	}
-	
-	DrawFlickerBox();
-	
-	// stop rendering on this thread
-	uint64 backEndFinishTime = Sys_Microseconds();
-	pc.totalMicroSec = backEndFinishTime - backEndStartTime;
-	
-	if( r_debugRenderToTexture.GetInteger() == 1 )
-	{
-		common->Printf( "3d: %i, 2d: %i, SetBuf: %i, CpyRenders: %i, CpyFrameBuf: %i\n", c_draw3d, c_draw2d, c_setBuffers, c_copyRenders, pc.c_copyFrameBuffer );
-		pc.c_copyFrameBuffer = 0;
-	}
-	
-	renderLog.EndFrame();
-}
 
 
 /*

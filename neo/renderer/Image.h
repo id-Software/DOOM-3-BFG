@@ -425,7 +425,7 @@ private:
 	VkImageLayout		layout;
 	VkSampler			sampler;
 	
-#if defined( USE_AMD_ALLOCATOR )
+#if defined( AMD_ALLOCATOR )
 	VmaAllocation		allocation;
 	static idList< VmaAllocation >		allocationGarbage[ NUM_FRAME_DATA ];
 #else

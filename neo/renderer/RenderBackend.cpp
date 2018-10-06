@@ -31,8 +31,10 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "precompiled.h"
 
+#include "../../framework/Common_local.h"
 #include "RenderCommon.h"
 #include "Framebuffer.h"
+
 
 idCVar r_drawEyeColor( "r_drawEyeColor", "0", CVAR_RENDERER | CVAR_BOOL, "Draw a colored box, red = left eye, blue = right eye, grey = non-stereo" );
 idCVar r_motionBlur( "r_motionBlur", "0", CVAR_RENDERER | CVAR_INTEGER | CVAR_ARCHIVE, "1 - 5, log2 of the number of motion blur samples" );
@@ -5136,6 +5138,103 @@ BACKEND COMMANDS
 
 =========================================================================================================
 */
+
+
+/*
+====================
+RB_ExecuteBackEndCommands
+
+This function will be called syncronously if running without
+smp extensions, or asyncronously by another thread.
+====================
+*/
+void idRenderBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
+{
+	// r_debugRenderToTexture
+	int c_draw3d = 0;
+	int c_draw2d = 0;
+	int c_setBuffers = 0;
+	int c_copyRenders = 0;
+	
+	resolutionScale.SetCurrentGPUFrameTime( commonLocal.GetRendererGPUMicroseconds() );
+	
+	renderLog.StartFrame();
+	GL_StartFrame();
+	
+	if( cmds->commandId == RC_NOP && !cmds->next )
+	{
+		return;
+	}
+	
+	if( renderSystem->GetStereo3DMode() != STEREO3D_OFF )
+	{
+		StereoRenderExecuteBackEndCommands( cmds );
+		renderLog.EndFrame();
+		return;
+	}
+	
+	uint64 backEndStartTime = Sys_Microseconds();
+	
+	// needed for editor rendering
+	GL_SetDefaultState();
+	
+	for( ; cmds != NULL; cmds = ( const emptyCommand_t* )cmds->next )
+	{
+		switch( cmds->commandId )
+		{
+			case RC_NOP:
+				break;
+				
+			case RC_DRAW_VIEW_3D:
+			case RC_DRAW_VIEW_GUI:
+				DrawView( cmds, 0 );
+				if( ( ( const drawSurfsCommand_t* )cmds )->viewDef->viewEntitys )
+				{
+					c_draw3d++;
+				}
+				else
+				{
+					c_draw2d++;
+				}
+				break;
+				
+			case RC_SET_BUFFER:
+				//RB_SetBuffer( cmds );
+				c_setBuffers++;
+				break;
+				
+			case RC_COPY_RENDER:
+				CopyRender( cmds );
+				c_copyRenders++;
+				break;
+				
+			case RC_POST_PROCESS:
+				PostProcess( cmds );
+				break;
+				
+			default:
+				common->Error( "RB_ExecuteBackEndCommands: bad commandId" );
+				break;
+		}
+	}
+	
+	DrawFlickerBox();
+	
+	GL_EndFrame();
+	
+	// stop rendering on this thread
+	uint64 backEndFinishTime = Sys_Microseconds();
+	pc.totalMicroSec = backEndFinishTime - backEndStartTime;
+	
+	if( r_debugRenderToTexture.GetInteger() == 1 )
+	{
+		common->Printf( "3d: %i, 2d: %i, SetBuf: %i, CpyRenders: %i, CpyFrameBuf: %i\n", c_draw3d, c_draw2d, c_setBuffers, c_copyRenders, pc.c_copyFrameBuffer );
+		pc.c_copyFrameBuffer = 0;
+	}
+	
+	renderLog.EndFrame();
+}
+
 
 /*
 ==================

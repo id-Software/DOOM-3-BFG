@@ -248,10 +248,10 @@ On exit, the idImage will have a valid OpenGL texture number that can be bound
 void idImage::ActuallyLoadImage( bool fromBackEnd )
 {
 	// if we don't have a rendering context yet, just return
-	if( !tr.IsInitialized() )
-	{
-		return;
-	}
+	//if( !tr.IsInitialized() )
+	//{
+	//	return;
+	//}
 	
 	// this is the ONLY place generatorFunction will ever be called
 	if( generatorFunction )
@@ -688,15 +688,6 @@ void idImage::GenerateImage( const byte* pic, int width, int height, textureFilt
 	opts.samples = textureSamples_t( msaaSamples );
 	DeriveOpts();
 	
-	// if we don't have a rendering context, just return after we
-	// have filled in the parms.  We must have the values set, or
-	// an image match from a shader before the render starts would miss
-	// the generated texture
-	if( !tr.IsInitialized() )
-	{
-		return;
-	}
-	
 	// RB: allow pic == NULL for internal framebuffer images
 	if( pic == NULL || opts.textureType == TT_2D_MULTISAMPLE )
 	{
@@ -705,7 +696,6 @@ void idImage::GenerateImage( const byte* pic, int width, int height, textureFilt
 	else
 	{
 		idBinaryImage im( GetName() );
-		
 		
 		// foresthale 2014-05-30: give a nice progress display when binarizing
 		commonLocal.LoadPacifierBinarizeFilename( GetName() , "generated image" );

@@ -462,7 +462,7 @@ void idIndexBuffer::Update( const void* data, int size, int offset ) const
 	if( usage == BU_DYNAMIC )
 	{
 		CopyBuffer(
-#if defined( ID_USE_AMD_ALLOCATOR )
+#if defined( USE_AMD_ALLOCATOR )
 			( byte* )m_allocation.pMappedData + GetOffset() + offset,
 #else
 			allocation.data + GetOffset() + offset,
@@ -501,7 +501,7 @@ void* idIndexBuffer::MapBuffer( bufferMapType_t mapType )
 		idLib::FatalError( "idIndexBuffer::MapBuffer: Cannot map a buffer marked as BU_STATIC." );
 	}
 	
-#if defined( ID_USE_AMD_ALLOCATOR )
+#if defined( USE_AMD_ALLOCATOR )
 	void* buffer = ( byte* )m_allocation.pMappedData + GetOffset();
 #else
 	void* buffer = allocation.data + GetOffset();
@@ -543,7 +543,7 @@ void idIndexBuffer::ClearWithoutFreeing()
 	size = 0;
 	offsetInOtherBuffer = OWNS_BUFFER_FLAG;
 	apiObject = VK_NULL_HANDLE;
-#if defined( ID_USE_AMD_ALLOCATOR )
+#if defined( USE_AMD_ALLOCATOR )
 	allocation = VmaAllocationInfo();
 	vmaAllocation = NULL;
 #else
@@ -602,7 +602,7 @@ bool idUniformBuffer::AllocBufferObject( const void* data, int allocSize, buffer
 		bufferCreateInfo.usage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 	}
 	
-#if defined( ID_USE_AMD_ALLOCATOR )
+#if defined( USE_AMD_ALLOCATOR )
 	VmaMemoryRequirements vmaReq = {};
 	if( usage == BU_STATIC )
 	{
@@ -680,7 +680,7 @@ void idUniformBuffer::FreeBufferObject()
 	
 	if( apiObject != VK_NULL_HANDLE )
 	{
-#if defined( ID_USE_AMD_ALLOCATOR )
+#if defined( USE_AMD_ALLOCATOR )
 		vmaDestroyBuffer( vmaAllocator, apiObject, vmaAllocation );
 		apiObject = VK_NULL_HANDLE;
 		allocation = VmaAllocationInfo();
@@ -715,7 +715,7 @@ void idUniformBuffer::Update( const void* data, int size, int offset ) const
 	if( usage == BU_DYNAMIC )
 	{
 		CopyBuffer(
-#if defined( ID_USE_AMD_ALLOCATOR )
+#if defined( USE_AMD_ALLOCATOR )
 			( byte* )m_allocation.pMappedData + GetOffset() + offset,
 #else
 			allocation.data + GetOffset() + offset,
@@ -755,7 +755,7 @@ void* idUniformBuffer::MapBuffer( bufferMapType_t mapType )
 		idLib::FatalError( "idUniformBuffer::MapBuffer: Cannot map a buffer marked as BU_STATIC." );
 	}
 	
-#if defined( ID_USE_AMD_ALLOCATOR )
+#if defined( USE_AMD_ALLOCATOR )
 	void* buffer = ( byte* )m_allocation.pMappedData + GetOffset();
 #else
 	void* buffer = allocation.data + GetOffset();
@@ -797,7 +797,7 @@ void idUniformBuffer::ClearWithoutFreeing()
 	size = 0;
 	offsetInOtherBuffer = OWNS_BUFFER_FLAG;
 	apiObject = VK_NULL_HANDLE;
-#if defined( ID_USE_AMD_ALLOCATOR )
+#if defined( USE_AMD_ALLOCATOR )
 	allocation = VmaAllocationInfo();
 	vmaAllocation = NULL;
 #else

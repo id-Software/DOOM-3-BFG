@@ -285,8 +285,6 @@ static	void DrawAllEdges()
 	}
 	qglEnd();
 	qglFlush();
-	
-//	GLimp_SwapBuffers();
 #endif
 }
 
@@ -351,8 +349,6 @@ static	void DrawEdges( optIsland_t* island )
 	}
 	qglEnd();
 	qglFlush();
-	
-//	GLimp_SwapBuffers();
 #endif
 }
 

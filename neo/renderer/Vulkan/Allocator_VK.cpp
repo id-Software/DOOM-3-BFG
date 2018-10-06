@@ -459,7 +459,7 @@ idVulkanAllocator
 ================================================================================================
 */
 
-#if defined( ID_USE_AMD_ALLOCATOR )
+#if defined( USE_AMD_ALLOCATOR )
 VmaAllocator vmaAllocator;
 #else
 idVulkanAllocator vulkanAllocator;
