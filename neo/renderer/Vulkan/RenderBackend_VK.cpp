@@ -49,6 +49,31 @@ idCVar r_vkEnableValidationLayers( "r_vkEnableValidationLayers", "1", CVAR_BOOL,
 
 vulkanContext_t vkcontext;
 
+static const int g_numInstanceExtensions = 2;
+static const char* g_instanceExtensions[ g_numInstanceExtensions ] =
+{
+	VK_KHR_SURFACE_EXTENSION_NAME,
+	VK_KHR_WIN32_SURFACE_EXTENSION_NAME
+};
+
+static const int g_numDebugInstanceExtensions = 1;
+static const char* g_debugInstanceExtensions[ g_numDebugInstanceExtensions ] =
+{
+	VK_EXT_DEBUG_REPORT_EXTENSION_NAME
+};
+
+static const int g_numDeviceExtensions = 1;
+static const char* g_deviceExtensions[ g_numDeviceExtensions ] =
+{
+	VK_KHR_SWAPCHAIN_EXTENSION_NAME
+};
+
+static const int g_numValidationLayers = 1;
+static const char* g_validationLayers[ g_numValidationLayers ] =
+{
+	"VK_LAYER_LUNARG_standard_validation"
+};
+
 #define ID_VK_ERROR_STRING( x ) case static_cast< int >( x ): return #x
 
 /*
@@ -91,30 +116,7 @@ const char* VK_ErrorToString( VkResult result )
 	};
 }
 
-static const int g_numInstanceExtensions = 2;
-static const char* g_instanceExtensions[ g_numInstanceExtensions ] =
-{
-	VK_KHR_SURFACE_EXTENSION_NAME,
-	VK_KHR_WIN32_SURFACE_EXTENSION_NAME
-};
 
-static const int g_numDebugInstanceExtensions = 1;
-static const char* g_debugInstanceExtensions[ g_numDebugInstanceExtensions ] =
-{
-	VK_EXT_DEBUG_REPORT_EXTENSION_NAME
-};
-
-static const int g_numDeviceExtensions = 1;
-static const char* g_deviceExtensions[ g_numDeviceExtensions ] =
-{
-	VK_KHR_SWAPCHAIN_EXTENSION_NAME
-};
-
-static const int g_numValidationLayers = 1;
-static const char* g_validationLayers[ g_numValidationLayers ] =
-{
-	"VK_LAYER_LUNARG_standard_validation"
-};
 
 
 /*
@@ -756,18 +758,17 @@ static void CreateSwapChain()
 	vkcontext.fullscreen = glConfig.isFullscreen;
 	
 	uint32 numImages = 0;
-	idArray< VkImage, NUM_FRAME_DATA > swapchainImages;
 	ID_VK_CHECK( vkGetSwapchainImagesKHR( vkcontext.device, vkcontext.swapchain, &numImages, NULL ) );
 	ID_VK_VALIDATE( numImages > 0, "vkGetSwapchainImagesKHR returned a zero image count." );
 	
-	ID_VK_CHECK( vkGetSwapchainImagesKHR( vkcontext.device, vkcontext.swapchain, &numImages, swapchainImages.Ptr() ) );
+	ID_VK_CHECK( vkGetSwapchainImagesKHR( vkcontext.device, vkcontext.swapchain, &numImages, vkcontext.swapchainImages.Ptr() ) );
 	ID_VK_VALIDATE( numImages > 0, "vkGetSwapchainImagesKHR returned a zero image count." );
 	
 	for( uint32 i = 0; i < NUM_FRAME_DATA; ++i )
 	{
 		VkImageViewCreateInfo imageViewCreateInfo = {};
 		imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		imageViewCreateInfo.image = swapchainImages[ i ];
+		imageViewCreateInfo.image = vkcontext.swapchainImages[ i ];
 		imageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
 		imageViewCreateInfo.format = vkcontext.swapchainFormat;
 		imageViewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_R;
@@ -781,16 +782,7 @@ static void CreateSwapChain()
 		imageViewCreateInfo.subresourceRange.layerCount = 1;
 		imageViewCreateInfo.flags = 0;
 		
-		VkImageView imageView;
-		ID_VK_CHECK( vkCreateImageView( vkcontext.device, &imageViewCreateInfo, NULL, &imageView ) );
-		
-		idImage* image = new idImage( va( "_swapchain%d", i ) );
-		image->CreateFromSwapImage(
-			swapchainImages[ i ],
-			imageView,
-			vkcontext.swapchainFormat,
-			vkcontext.swapchainExtent );
-		vkcontext.swapchainImages[ i ] = image;
+		ID_VK_CHECK( vkCreateImageView( vkcontext.device, &imageViewCreateInfo, NULL, &vkcontext.swapchainViews[ i ] ) );
 	}
 }
 
@@ -803,10 +795,10 @@ static void DestroySwapChain()
 {
 	for( uint32 i = 0; i < NUM_FRAME_DATA; ++i )
 	{
-		vkDestroyImageView( vkcontext.device, vkcontext.swapchainImages[ i ]->GetView(), NULL );
-		delete vkcontext.swapchainImages[ i ];
+		vkDestroyImageView( vkcontext.device, vkcontext.swapchainViews[ i ], NULL );
 	}
 	vkcontext.swapchainImages.Zero();
+	vkcontext.swapchainViews.Zero();
 	
 	vkDestroySwapchainKHR( vkcontext.device, vkcontext.swapchain, NULL );
 }
@@ -1165,7 +1157,7 @@ static void CreateFrameBuffers()
 	
 	for( int i = 0; i < NUM_FRAME_DATA; ++i )
 	{
-		attachments[ 0 ] = vkcontext.swapchainImages[ i ]->GetView();
+		attachments[ 0 ] = vkcontext.swapchainViews[ i ];
 		ID_VK_CHECK( vkCreateFramebuffer( vkcontext.device, &frameBufferCreateInfo, NULL, &vkcontext.frameBuffers[ i ] ) );
 	}
 }
@@ -1183,7 +1175,6 @@ static void DestroyFrameBuffers()
 	}
 	vkcontext.frameBuffers.Zero();
 }
-
 
 /*
 =============
@@ -1227,6 +1218,7 @@ static void ClearContext()
 	vkcontext.msaaImage = VK_NULL_HANDLE;
 	vkcontext.msaaImageView = VK_NULL_HANDLE;
 	vkcontext.swapchainImages.Zero();
+	vkcontext.swapchainViews.Zero();
 	vkcontext.frameBuffers.Zero();
 	vkcontext.acquireSemaphores.Zero();
 	vkcontext.renderCompleteSemaphores.Zero();
@@ -1285,22 +1277,22 @@ void idRenderBackend::Init()
 	CreateSurface();
 #endif
 	
-	// grab detailed information of available GPUs
+	// Enumerate physical devices and get their properties
 	EnumeratePhysicalDevices();
 	
-	// find queue family/families supporting graphics and present.
+	// Find queue family/families supporting graphics and present.
 	SelectPhysicalDevice();
 	
-	// create logical device and queues
+	// Create logical device and queues
 	CreateLogicalDeviceAndQueues();
 	
-	// create semaphores for image acquisition and rendering completion
+	// Create semaphores for image acquisition and rendering completion
 	CreateSemaphores();
 	
-	// create Command Pool
+	// Create Command Pool
 	CreateCommandPool();
 	
-	// create Command Buffer
+	// Create Command Buffer
 	CreateCommandBuffer();
 	
 	// setup the allocator
@@ -1319,22 +1311,22 @@ void idRenderBackend::Init()
 	vulkanAllocator.Init();
 #endif
 	
-	// start the Staging Manager
+	// Start the Staging Manager
 	stagingManager.Init();
 	
-	// create Swap Chain
+	// Create Swap Chain
 	CreateSwapChain();
 	
-	// create Render Targets
+	// Create Render Targets
 	CreateRenderTargets();
 	
-	// create Render Pass
+	// Create Render Pass
 	CreateRenderPass();
 	
-	// create Pipeline Cache
+	// Create Pipeline Cache
 	CreatePipelineCache();
 	
-	// create Frame Buffers
+	// Create Frame Buffers
 	CreateFrameBuffers();
 	
 #if 0
@@ -1361,42 +1353,42 @@ void idRenderBackend::Shutdown()
 		idImage::EmptyGarbage();
 	}
 	
-	// detroy Frame Buffers
+	// Detroy Frame Buffers
 	DestroyFrameBuffers();
 	
-	// destroy Pipeline Cache
+	// Destroy Pipeline Cache
 	vkDestroyPipelineCache( vkcontext.device, vkcontext.pipelineCache, NULL );
 	
-	// destroy Render Pass
+	// Destroy Render Pass
 	vkDestroyRenderPass( vkcontext.device, vkcontext.renderPass, NULL );
 	
-	// destroy Render Targets
+	// Destroy Render Targets
 	DestroyRenderTargets();
 	
-	// destroy Swap Chain
+	// Destroy Swap Chain
 	DestroySwapChain();
 	
-	// stop the Staging Manager
+	// Stop the Staging Manager
 	stagingManager.Shutdown();
 	
-	// destroy Command Buffer
+	// Destroy Command Buffer
 	vkFreeCommandBuffers( vkcontext.device, vkcontext.commandPool, NUM_FRAME_DATA, vkcontext.commandBuffer.Ptr() );
 	for( int i = 0; i < NUM_FRAME_DATA; ++i )
 	{
 		vkDestroyFence( vkcontext.device, vkcontext.commandBufferFences[ i ], NULL );
 	}
 	
-	// destroy Command Pool
+	// Destroy Command Pool
 	vkDestroyCommandPool( vkcontext.device, vkcontext.commandPool, NULL );
 	
-	// destroy Semaphores
+	// Destroy Semaphores
 	for( int i = 0; i < NUM_FRAME_DATA; ++i )
 	{
 		vkDestroySemaphore( vkcontext.device, vkcontext.acquireSemaphores[ i ], NULL );
 		vkDestroySemaphore( vkcontext.device, vkcontext.renderCompleteSemaphores[ i ], NULL );
 	}
 	
-	// destroy Debug Callback
+	// Destroy Debug Callback
 	if( r_vkEnableValidationLayers.GetBool() )
 	{
 		DestroyDebugReportCallback();
@@ -1409,13 +1401,13 @@ void idRenderBackend::Shutdown()
 	vulkanAllocator.Shutdown();
 #endif
 	
-	// destroy Logical Device
+	// Destroy Logical Device
 	vkDestroyDevice( vkcontext.device, NULL );
 	
-	// destroy Surface
+	// Destroy Surface
 	vkDestroySurfaceKHR( vkcontext.instance, vkcontext.surface, NULL );
 	
-	// destroy the Instance
+	// Destroy the Instance
 	vkDestroyInstance( vkcontext.instance, NULL );
 	
 	ClearContext();
@@ -1534,7 +1526,7 @@ void idRenderBackend::GL_EndFrame()
 	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
 	barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 	barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-	barrier.image = vkcontext.swapchainImages[ vkcontext.currentSwapIndex ]->GetImage();
+	barrier.image = vkcontext.swapchainImages[ vkcontext.currentSwapIndex ];
 	barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 	barrier.subresourceRange.baseMipLevel = 0;
 	barrier.subresourceRange.levelCount = 1;

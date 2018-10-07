@@ -2446,7 +2446,7 @@ void idRenderSystemLocal::InitOpenGL()
 		backend.Init();
 		
 		// Reloading images here causes the rendertargets to get deleted. Figure out how to handle this properly on 360
-		globalImages->ReloadImages( true );
+		//globalImages->ReloadImages( true );
 		
 #if !defined(USE_VULKAN)
 		int err = glGetError();

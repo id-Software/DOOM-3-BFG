@@ -204,7 +204,9 @@ struct vulkanContext_t
 #else
 	vulkanAllocation_t				msaaAllocation;
 #endif
-	idArray< idImage*, NUM_FRAME_DATA >		swapchainImages;
+	idArray< VkImage, NUM_FRAME_DATA >			swapchainImages;
+	idArray< VkImageView, NUM_FRAME_DATA >		swapchainViews;
+	
 	idArray< VkFramebuffer, NUM_FRAME_DATA >	frameBuffers;
 	idArray< VkSemaphore, NUM_FRAME_DATA >		acquireSemaphores;
 	idArray< VkSemaphore, NUM_FRAME_DATA >		renderCompleteSemaphores;

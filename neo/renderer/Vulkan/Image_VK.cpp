@@ -203,26 +203,6 @@ bool idImage::IsLoaded() const
 
 /*
 ====================
-idImage::CreateFromSwapImage
-====================
-*/
-void idImage::CreateFromSwapImage( VkImage image, VkImageView imageView, VkFormat format, const VkExtent2D& extent )
-{
-	image = image;
-	view = imageView;
-	internalFormat = format;
-	opts.textureType = TT_2D;
-	opts.format = FMT_RGBA8;
-	opts.numLevels = 1;
-	opts.width = extent.width;
-	opts.height = extent.height;
-	bIsSwapChainImage = true;
-	
-	// TODO_VK may need to setup more state here.
-}
-
-/*
-====================
 idImage::CreateSampler
 ====================
 */
@@ -383,83 +363,7 @@ void idImage::CopyDepthbuffer( int x, int y, int imageWidth, int imageHeight )
 
 }
 
-/*
-========================
-idImage::SubImageUpload
-========================
-*/
-void idImage::SubImageUpload( int mipLevel, int x, int y, int z, int width, int height, const void* pic, int pixelPitch )
-{
-	assert( x >= 0 && y >= 0 && mipLevel >= 0 && width >= 0 && height >= 0 && mipLevel < opts.numLevels );
-	
-	if( IsCompressed() )
-	{
-		width = ( width + 3 ) & ~3;
-		height = ( height + 3 ) & ~3;
-	}
-	
-	int size = width * height * BitsForFormat( opts.format ) / 8;
-	
-	VkBuffer buffer;
-	VkCommandBuffer commandBuffer;
-	int offset = 0;
-	byte* data = stagingManager.Stage( size, 16, commandBuffer, buffer, offset );
-	if( opts.format == FMT_RGB565 )
-	{
-		byte* imgData = ( byte* )pic;
-		for( int i = 0; i < size; i += 2 )
-		{
-			data[ i ] = imgData[ i + 1 ];
-			data[ i + 1 ] = imgData[ i ];
-		}
-	}
-	else
-	{
-		memcpy( data, pic, size );
-	}
-	
-	VkBufferImageCopy imgCopy = {};
-	imgCopy.bufferOffset = offset;
-	imgCopy.bufferRowLength = pixelPitch;
-	imgCopy.bufferImageHeight = height;
-	imgCopy.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-	imgCopy.imageSubresource.layerCount = 1;
-	imgCopy.imageSubresource.mipLevel = mipLevel;
-	imgCopy.imageSubresource.baseArrayLayer = z;
-	imgCopy.imageOffset.x = x;
-	imgCopy.imageOffset.y = y;
-	imgCopy.imageOffset.z = 0;
-	imgCopy.imageExtent.width = width;
-	imgCopy.imageExtent.height = height;
-	imgCopy.imageExtent.depth = 1;
-	
-	VkImageMemoryBarrier barrier = {};
-	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-	barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-	barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-	barrier.image = image;
-	barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-	barrier.subresourceRange.baseMipLevel = 0;
-	barrier.subresourceRange.levelCount = opts.numLevels;
-	barrier.subresourceRange.baseArrayLayer = z;
-	barrier.subresourceRange.layerCount = 1;
-	
-	barrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-	barrier.srcAccessMask = 0;
-	barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-	vkCmdPipelineBarrier( commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, NULL, 0, NULL, 1, &barrier );
-	
-	vkCmdCopyBufferToImage( commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imgCopy );
-	
-	barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-	barrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-	barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-	barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-	vkCmdPipelineBarrier( commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, 0, 0, NULL, 0, NULL, 1, &barrier );
-	
-	layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-}
+
 
 /*
 ========================
@@ -574,9 +478,9 @@ void idImage::AllocImage()
 }
 
 /*
-========================
+====================
 idImage::PurgeImage
-========================
+====================
 */
 void idImage::PurgeImage()
 {
@@ -611,4 +515,82 @@ idImage::Resize
 void idImage::Resize( int width, int height )
 {
 
+}
+
+/*
+====================
+idImage::SubImageUpload
+====================
+*/
+void idImage::SubImageUpload( int mipLevel, int x, int y, int z, int width, int height, const void* pic, int pixelPitch )
+{
+	assert( x >= 0 && y >= 0 && mipLevel >= 0 && width >= 0 && height >= 0 && mipLevel < opts.numLevels );
+	
+	if( IsCompressed() )
+	{
+		width = ( width + 3 ) & ~3;
+		height = ( height + 3 ) & ~3;
+	}
+	
+	int size = width * height * BitsForFormat( opts.format ) / 8;
+	
+	VkBuffer buffer;
+	VkCommandBuffer commandBuffer;
+	int offset = 0;
+	byte* data = stagingManager.Stage( size, 16, commandBuffer, buffer, offset );
+	if( opts.format == FMT_RGB565 )
+	{
+		byte* imgData = ( byte* )pic;
+		for( int i = 0; i < size; i += 2 )
+		{
+			data[ i ] = imgData[ i + 1 ];
+			data[ i + 1 ] = imgData[ i ];
+		}
+	}
+	else
+	{
+		memcpy( data, pic, size );
+	}
+	
+	VkBufferImageCopy imgCopy = {};
+	imgCopy.bufferOffset = offset;
+	imgCopy.bufferRowLength = pixelPitch;
+	imgCopy.bufferImageHeight = height;
+	imgCopy.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	imgCopy.imageSubresource.layerCount = 1;
+	imgCopy.imageSubresource.mipLevel = mipLevel;
+	imgCopy.imageSubresource.baseArrayLayer = z;
+	imgCopy.imageOffset.x = x;
+	imgCopy.imageOffset.y = y;
+	imgCopy.imageOffset.z = 0;
+	imgCopy.imageExtent.width = width;
+	imgCopy.imageExtent.height = height;
+	imgCopy.imageExtent.depth = 1;
+	
+	VkImageMemoryBarrier barrier = {};
+	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	barrier.image = image;
+	barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	barrier.subresourceRange.baseMipLevel = 0;
+	barrier.subresourceRange.levelCount = opts.numLevels;
+	barrier.subresourceRange.baseArrayLayer = z;
+	barrier.subresourceRange.layerCount = 1;
+	
+	barrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+	barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+	barrier.srcAccessMask = 0;
+	barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+	vkCmdPipelineBarrier( commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, NULL, 0, NULL, 1, &barrier );
+	
+	vkCmdCopyBufferToImage( commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imgCopy );
+	
+	barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+	barrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+	barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+	vkCmdPipelineBarrier( commandBuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, 0, 0, NULL, 0, NULL, 1, &barrier );
+	
+	layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 }

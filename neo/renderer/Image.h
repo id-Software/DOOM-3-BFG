@@ -313,8 +313,6 @@ public:
 	//---------------------------------------------
 	
 #if defined( USE_VULKAN )
-	void		CreateFromSwapImage( VkImage image, VkImageView imageView, VkFormat format, const VkExtent2D& extent );
-	
 	static void	EmptyGarbage();
 	
 	VkImage		GetImage() const
