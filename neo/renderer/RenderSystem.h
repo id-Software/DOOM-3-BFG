@@ -95,7 +95,9 @@ enum graphicsDriverType_t
 	GLDRV_OPENGL_ES2,
 	GLDRV_OPENGL_ES3,
 	GLDRV_OPENGL_MESA,						// fear this, it is probably the best to disable GPU skinning and run shaders in GLSL ES 1.0
-	GLDRV_OPENGL_MESA_CORE_PROFILE
+	GLDRV_OPENGL_MESA_CORE_PROFILE,
+	
+	GLDRV_VULKAN
 };
 
 enum antiAliasingMode_t

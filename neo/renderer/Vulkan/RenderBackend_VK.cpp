@@ -1501,6 +1501,8 @@ void idRenderBackend::GL_StartFrame()
 	stagingManager.Flush();
 	
 	//TODO renderProgManager.StartFrame();
+	//vkResetDescriptorPool( vkcontext.device, descriptorPools[ currentData ], 0 );
+	
 	
 	VkCommandBufferBeginInfo commandBufferBeginInfo = {};
 	commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -1569,6 +1571,46 @@ void idRenderBackend::GL_EndFrame()
 	submitInfo.pWaitDstStageMask = &dstStageMask;
 	
 	ID_VK_CHECK( vkQueueSubmit( vkcontext.graphicsQueue, 1, &submitInfo, vkcontext.commandBufferFences[ vkcontext.currentFrameData ] ) );
+}
+
+/*
+=============
+GL_BlockingSwapBuffers
+
+We want to exit this with the GPU idle, right at vsync
+=============
+*/
+void idRenderBackend::GL_BlockingSwapBuffers()
+{
+	RENDERLOG_PRINTF( "***************** BlockingSwapBuffers *****************\n\n\n" );
+	
+	if( vkcontext.commandBufferRecorded[ vkcontext.currentFrameData ] == false )
+	{
+		// RB: no need to present anything if no command buffers where recorded in this frame
+		return;
+	}
+	
+	ID_VK_CHECK( vkWaitForFences( vkcontext.device, 1, &vkcontext.commandBufferFences[ vkcontext.currentFrameData ], VK_TRUE, UINT64_MAX ) );
+	
+	ID_VK_CHECK( vkResetFences( vkcontext.device, 1, &vkcontext.commandBufferFences[ vkcontext.currentFrameData ] ) );
+	vkcontext.commandBufferRecorded[ vkcontext.currentFrameData ] = false;
+	
+	VkSemaphore* finished = &vkcontext.renderCompleteSemaphores[ vkcontext.currentFrameData ];
+	
+	VkPresentInfoKHR presentInfo = {};
+	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+	presentInfo.waitSemaphoreCount = 1;
+	presentInfo.pWaitSemaphores = finished;
+	presentInfo.swapchainCount = 1;
+	presentInfo.pSwapchains = &vkcontext.swapchain;
+	presentInfo.pImageIndices = &vkcontext.currentSwapIndex;
+	
+	ID_VK_CHECK( vkQueuePresentKHR( vkcontext.presentQueue, &presentInfo ) );
+	
+	// RB: at this time the image is presented on the screen
+	
+	vkcontext.counter++;
+	vkcontext.currentFrameData = vkcontext.counter % NUM_FRAME_DATA;
 }
 
 /*
@@ -2012,45 +2054,7 @@ void idRenderBackend::SetBuffer( const void* data )
 	}
 }
 
-/*
-=============
-GL_BlockingSwapBuffers
 
-We want to exit this with the GPU idle, right at vsync
-=============
-*/
-void idRenderBackend::GL_BlockingSwapBuffers()
-{
-	RENDERLOG_PRINTF( "***************** BlockingSwapBuffers *****************\n\n\n" );
-	
-	if( vkcontext.commandBufferRecorded[ vkcontext.currentFrameData ] == false )
-	{
-		// RB: no need to present anything if no command buffers where recorded in this frame
-		return;
-	}
-	
-	ID_VK_CHECK( vkWaitForFences( vkcontext.device, 1, &vkcontext.commandBufferFences[ vkcontext.currentFrameData ], VK_TRUE, UINT64_MAX ) );
-	
-	ID_VK_CHECK( vkResetFences( vkcontext.device, 1, &vkcontext.commandBufferFences[ vkcontext.currentFrameData ] ) );
-	vkcontext.commandBufferRecorded[ vkcontext.currentFrameData ] = false;
-	
-	VkSemaphore* finished = &vkcontext.renderCompleteSemaphores[ vkcontext.currentFrameData ];
-	
-	VkPresentInfoKHR presentInfo = {};
-	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-	presentInfo.waitSemaphoreCount = 1;
-	presentInfo.pWaitSemaphores = finished;
-	presentInfo.swapchainCount = 1;
-	presentInfo.pSwapchains = &vkcontext.swapchain;
-	presentInfo.pImageIndices = &vkcontext.currentSwapIndex;
-	
-	ID_VK_CHECK( vkQueuePresentKHR( vkcontext.presentQueue, &presentInfo ) );
-	
-	// RB: at this time the image is presented on the screen
-	
-	vkcontext.counter++;
-	vkcontext.currentFrameData = vkcontext.counter % NUM_FRAME_DATA;
-}
 
 
 

@@ -3,7 +3,8 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013-2015 Robert Beckebans
+Copyright (C) 2013-2018 Robert Beckebans
+Copyright (C) 2016-2017 Dustin Land
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -34,7 +35,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "RenderProgs_embedded.h"
 
 idCVar r_skipStripDeadCode( "r_skipStripDeadCode", "0", CVAR_BOOL, "Skip stripping dead code" );
-idCVar r_useUniformArrays( "r_useUniformArrays", "1", CVAR_BOOL, "" );
 
 // DG: the AMD drivers output a lot of useless warnings which are fscking annoying, added this CVar to suppress them
 idCVar r_displayGLSLCompilerMessages( "r_displayGLSLCompilerMessages", "1", CVAR_BOOL | CVAR_ARCHIVE, "Show info messages the GPU driver outputs when compiling the shaders" );
@@ -42,7 +42,7 @@ idCVar r_displayGLSLCompilerMessages( "r_displayGLSLCompilerMessages", "1", CVAR
 
 // RB begin
 idCVar r_alwaysExportGLSL( "r_alwaysExportGLSL", "1", CVAR_BOOL, "" );
-// RB end
+
 
 #define VERTEX_UNIFORM_ARRAY_NAME				"_va_"
 #define FRAGMENT_UNIFORM_ARRAY_NAME				"_fa_"
@@ -81,8 +81,6 @@ struct attribInfo_t
 	int				vertexMask;
 };
 
-
-
 attribInfo_t attribsPC[] =
 {
 	// vertex attributes
@@ -108,7 +106,7 @@ attribInfo_t attribsPC[] =
 	{ "float",		"facing",		"FACE",			"gl_FrontFacing",		0,	AT_PS_IN | AT_PS_IN_RESERVED,		0 },
 	
 	// fragment program output
-	{ "float4",		"color",		"COLOR",		"fo_FragColor",		0,	AT_PS_OUT /*| AT_PS_OUT_RESERVED*/,		0 }, // GLSL version 1.2 doesn't allow for custom color name mappings
+	{ "float4",		"color",		"COLOR",		"fo_FragColor",		0,	AT_PS_OUT /*| AT_PS_OUT_RESERVED*/,		0 },
 	{ "half4",		"hcolor",		"COLOR",		"fo_FragColor",		0,	AT_PS_OUT /*| AT_PS_OUT_RESERVED*/,		0 },
 	{ "float4",		"color0",		"COLOR0",		"fo_FragColor",		0,	AT_PS_OUT /*| AT_PS_OUT_RESERVED*/,		0 },
 	{ "float4",		"color1",		"COLOR1",		"fo_FragColor",		1,	AT_PS_OUT /*| AT_PS_OUT_RESERVED*/,		0 },
@@ -117,15 +115,9 @@ attribInfo_t attribsPC[] =
 	{ "float",		"depth",		"DEPTH",		"gl_FragDepth",		4,	AT_PS_OUT | AT_PS_OUT_RESERVED,		0 },
 	
 	// vertex to fragment program pass through
-#if 0 //defined(USE_GLES2)
-	{ "float4",		"color",		"COLOR",		"vofi_FrontColor",			0,	AT_VS_OUT | AT_VS_OUT_RESERVED,	0 },
-	{ "float4",		"color0",		"COLOR0",		"vofi_Color",				0,	AT_VS_OUT | AT_VS_OUT_RESERVED,	0 },
-	{ "float4",		"color1",		"COLOR1",		"vofi_FrontSecondaryColor",	0,	AT_VS_OUT | AT_VS_OUT_RESERVED,	0 },
-#else
 	{ "float4",		"color",		"COLOR",		"vofi_Color",				0,	AT_VS_OUT,	0 },
 	{ "float4",		"color0",		"COLOR0",		"vofi_Color",				0,	AT_VS_OUT,	0 },
 	{ "float4",		"color1",		"COLOR1",		"vofi_SecondaryColor",		0,	AT_VS_OUT,	0 },
-#endif
 	
 	
 	{ "float4",		"color",		"COLOR",		"vofi_Color",				0,	AT_PS_IN,	0 },
@@ -527,10 +519,7 @@ idStr StripDeadCode( const idStr& in, const char* name, const idStrList& compile
 		src.AddDefine( "USE_GPU_SKINNING" );
 	}
 	
-	if( r_useUniformArrays.GetBool() )
-	{
-		src.AddDefine( "USE_UNIFORM_ARRAYS" );
-	}
+	src.AddDefine( "USE_UNIFORM_ARRAYS" );
 	
 	if( r_useHalfLambertLighting.GetBool() )
 	{
@@ -783,55 +772,72 @@ struct typeConversion_t
 	
 	{ "sampler2DMS",		"sampler2DMS" },
 	
+	// RB: HACK convert all text2D stuff to modern texture() usage
+	{ "texCUBE",			"texture" },
+	{ "tex2Dproj",			"textureProj" },
+	{ "tex2D",				"texture" },
+	
 	{ NULL, NULL }
 };
 
-// RB begin
-#if defined(USE_GLES2)
-const char* vertexInsert_GLSL_ES_1_0 =
+const char* vertexInsert =
 {
-	"#version 100\n"
-	"#define GLES2\n"
-	"#define PC\n"
-	"precision mediump float;\n"
+	"#version 450\n"
+	"#pragma shader_stage( vertex )\n"
+	"#extension GL_ARB_separate_shader_objects : enable\n"
+	//"#define PC\n"
 	"\n"
-	"float saturate( float v ) { return clamp( v, 0.0, 1.0 ); }\n"
-	"vec2 saturate( vec2 v ) { return clamp( v, 0.0, 1.0 ); }\n"
-	"vec3 saturate( vec3 v ) { return clamp( v, 0.0, 1.0 ); }\n"
-	"vec4 saturate( vec4 v ) { return clamp( v, 0.0, 1.0 ); }\n"
+	//"float saturate( float v ) { return clamp( v, 0.0, 1.0 ); }\n"
+	//"vec2 saturate( vec2 v ) { return clamp( v, 0.0, 1.0 ); }\n"
+	//"vec3 saturate( vec3 v ) { return clamp( v, 0.0, 1.0 ); }\n"
+	//"vec4 saturate( vec4 v ) { return clamp( v, 0.0, 1.0 ); }\n"
 	//"vec4 tex2Dlod( sampler2D sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.xy, texcoord.w ); }\n"
-	"\n"
+	//"\n"
 };
-#else
-const char* vertexInsert_GLSL_ES_1_0 =
-{
-	"#version 100\n"
-	
-#if !defined(USE_MESA)
-	"#define GLES2\n"
-#endif
-	
-	"#define PC\n"
-	
-#if 1 //defined(__ANDROID__)
-	"precision mediump float;\n"
-#else
-	"precision highp float;\n"
-#endif
-	
-#if defined(USE_GPU_SKINNING) && !defined(__ANDROID__)
-	"#extension GL_ARB_gpu_shader5 : enable\n"
-#endif
-	"\n"
-	"float saturate( float v ) { return clamp( v, 0.0, 1.0 ); }\n"
-	"vec2 saturate( vec2 v ) { return clamp( v, 0.0, 1.0 ); }\n"
-	"vec3 saturate( vec3 v ) { return clamp( v, 0.0, 1.0 ); }\n"
-	"vec4 saturate( vec4 v ) { return clamp( v, 0.0, 1.0 ); }\n"
-	//"vec4 tex2Dlod( sampler2D sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.xy, texcoord.w ); }\n"
-	"\n"
-};
-#endif // #if defined(USE_GLES2)
 
+const char* fragmentInsert =
+{
+	"#version 450\n"
+	"#pragma shader_stage( fragment )\n"
+	"#extension GL_ARB_separate_shader_objects : enable\n"
+	//"#define PC\n"
+	"\n"
+	"void clip( float v ) { if ( v < 0.0 ) { discard; } }\n"
+	"void clip( vec2 v ) { if ( any( lessThan( v, vec2( 0.0 ) ) ) ) { discard; } }\n"
+	"void clip( vec3 v ) { if ( any( lessThan( v, vec3( 0.0 ) ) ) ) { discard; } }\n"
+	"void clip( vec4 v ) { if ( any( lessThan( v, vec4( 0.0 ) ) ) ) { discard; } }\n"
+	"\n"
+	"float saturate( float v ) { return clamp( v, 0.0, 1.0 ); }\n"
+	"vec2 saturate( vec2 v ) { return clamp( v, 0.0, 1.0 ); }\n"
+	"vec3 saturate( vec3 v ) { return clamp( v, 0.0, 1.0 ); }\n"
+	"vec4 saturate( vec4 v ) { return clamp( v, 0.0, 1.0 ); }\n"
+	"\n"
+	//"vec4 tex2D( sampler2D sampler, vec2 texcoord ) { return texture( sampler, texcoord.xy ); }\n"
+	//"vec4 tex2D( sampler2DShadow sampler, vec3 texcoord ) { return vec4( texture( sampler, texcoord.xyz ) ); }\n"
+	//"\n"
+	//"vec4 tex2D( sampler2D sampler, vec2 texcoord, vec2 dx, vec2 dy ) { return textureGrad( sampler, texcoord.xy, dx, dy ); }\n"
+	//"vec4 tex2D( sampler2DShadow sampler, vec3 texcoord, vec2 dx, vec2 dy ) { return vec4( textureGrad( sampler, texcoord.xyz, dx, dy ) ); }\n"
+	//"\n"
+	//"vec4 texCUBE( samplerCube sampler, vec3 texcoord ) { return texture( sampler, texcoord.xyz ); }\n"
+	//"vec4 texCUBE( samplerCubeShadow sampler, vec4 texcoord ) { return vec4( texture( sampler, texcoord.xyzw ) ); }\n"
+	//"\n"
+	//"vec4 tex1Dproj( sampler1D sampler, vec2 texcoord ) { return textureProj( sampler, texcoord ); }\n"
+	//"vec4 tex2Dproj( sampler2D sampler, vec3 texcoord ) { return textureProj( sampler, texcoord ); }\n"
+	//"vec4 tex3Dproj( sampler3D sampler, vec4 texcoord ) { return textureProj( sampler, texcoord ); }\n"
+	//"\n"
+	//"vec4 tex1Dbias( sampler1D sampler, vec4 texcoord ) { return texture( sampler, texcoord.x, texcoord.w ); }\n"
+	//"vec4 tex2Dbias( sampler2D sampler, vec4 texcoord ) { return texture( sampler, texcoord.xy, texcoord.w ); }\n"
+	//"vec4 tex3Dbias( sampler3D sampler, vec4 texcoord ) { return texture( sampler, texcoord.xyz, texcoord.w ); }\n"
+	//"vec4 texCUBEbias( samplerCube sampler, vec4 texcoord ) { return texture( sampler, texcoord.xyz, texcoord.w ); }\n"
+	//"\n"
+	//"vec4 tex1Dlod( sampler1D sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.x, texcoord.w ); }\n"
+	//"vec4 tex2Dlod( sampler2D sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.xy, texcoord.w ); }\n"
+	//"vec4 tex3Dlod( sampler3D sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.xyz, texcoord.w ); }\n"
+	//"vec4 texCUBElod( samplerCube sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.xyz, texcoord.w ); }\n"
+	//"\n"
+};
+
+// RB begin
 const char* vertexInsert_GLSL_ES_3_00 =
 {
 	"#version 300 es\n"
@@ -847,118 +853,6 @@ const char* vertexInsert_GLSL_ES_3_00 =
 	//"vec4 tex2Dlod( sampler2D sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.xy, texcoord.w ); }\n"
 	"\n"
 };
-
-const char* vertexInsert_GLSL_1_50 =
-{
-	"#version 150\n"
-	"#define PC\n"
-	"\n"
-	"float saturate( float v ) { return clamp( v, 0.0, 1.0 ); }\n"
-	"vec2 saturate( vec2 v ) { return clamp( v, 0.0, 1.0 ); }\n"
-	"vec3 saturate( vec3 v ) { return clamp( v, 0.0, 1.0 ); }\n"
-	"vec4 saturate( vec4 v ) { return clamp( v, 0.0, 1.0 ); }\n"
-	"vec4 tex2Dlod( sampler2D sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.xy, texcoord.w ); }\n"
-	"\n"
-};
-
-
-#if defined(USE_GLES2)
-const char* fragmentInsert_GLSL_ES_1_0 =
-{
-	"#version 100\n"
-	"#define GLES2\n"
-	"#define PC\n"
-	"precision mediump float;\n"
-	"#extension GL_OES_standard_derivatives : enable\n"
-	"\n"
-	"void clip( float v ) { if ( v < 0.0 ) { discard; } }\n"
-	"void clip( vec2 v ) { if ( any( lessThan( v, vec2( 0.0 ) ) ) ) { discard; } }\n"
-	"void clip( vec3 v ) { if ( any( lessThan( v, vec3( 0.0 ) ) ) ) { discard; } }\n"
-	"void clip( vec4 v ) { if ( any( lessThan( v, vec4( 0.0 ) ) ) ) { discard; } }\n"
-	"\n"
-	"float saturate( float v ) { return clamp( v, 0.0, 1.0 ); }\n"
-	"vec2 saturate( vec2 v ) { return clamp( v, 0.0, 1.0 ); }\n"
-	"vec3 saturate( vec3 v ) { return clamp( v, 0.0, 1.0 ); }\n"
-	"vec4 saturate( vec4 v ) { return clamp( v, 0.0, 1.0 ); }\n"
-	"\n"
-	"vec4 tex2D( sampler2D sampler, vec2 texcoord ) { return texture2D( sampler, texcoord.xy ); }\n"
-	//"vec4 tex2D( sampler2DShadow sampler, vec3 texcoord ) { return vec4( texture( sampler, texcoord.xyz ) ); }\n"
-	"\n"
-	//"vec4 tex2D( sampler2D sampler, vec2 texcoord, vec2 dx, vec2 dy ) { return textureGrad( sampler, texcoord.xy, dx, dy ); }\n"
-	//"vec4 tex2D( sampler2DShadow sampler, vec3 texcoord, vec2 dx, vec2 dy ) { return vec4( textureGrad( sampler, texcoord.xyz, dx, dy ) ); }\n"
-	//"\n"
-	"vec4 texCUBE( samplerCube sampler, vec3 texcoord ) { return textureCube( sampler, texcoord.xyz ); }\n"
-	//"vec4 texCUBE( samplerCubeShadow sampler, vec4 texcoord ) { return vec4( textureCube( sampler, texcoord.xyzw ) ); }\n"
-	"\n"
-	//"vec4 tex1Dproj( sampler1D sampler, vec2 texcoord ) { return textureProj( sampler, texcoord ); }\n"
-	"vec4 tex2Dproj( sampler2D sampler, vec3 texcoord ) { return texture2DProj( sampler, texcoord ); }\n"
-	//"vec4 tex3Dproj( sampler3D sampler, vec4 texcoord ) { return textureProj( sampler, texcoord ); }\n"
-	"\n"
-	//"vec4 tex1Dbias( sampler1D sampler, vec4 texcoord ) { return texture( sampler, texcoord.x, texcoord.w ); }\n"
-	//"vec4 tex2Dbias( sampler2D sampler, vec4 texcoord ) { return texture( sampler, texcoord.xy, texcoord.w ); }\n"
-	//"vec4 tex3Dbias( sampler3D sampler, vec4 texcoord ) { return texture( sampler, texcoord.xyz, texcoord.w ); }\n"
-	//"vec4 texCUBEbias( samplerCube sampler, vec4 texcoord ) { return texture( sampler, texcoord.xyz, texcoord.w ); }\n"
-	//"\n"
-	//"vec4 tex1Dlod( sampler1D sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.x, texcoord.w ); }\n"
-	//"vec4 tex2Dlod( sampler2D sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.xy, texcoord.w ); }\n"
-	//"vec4 tex3Dlod( sampler3D sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.xyz, texcoord.w ); }\n"
-	//"vec4 texCUBElod( samplerCube sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.xyz, texcoord.w ); }\n"
-	//"\n"
-};
-#else
-const char* fragmentInsert_GLSL_ES_1_0 =
-{
-	"#version 100\n"
-	
-#if !defined(USE_MESA)
-	"#define GLES2\n"
-#endif
-	
-	"#define PC\n"
-	
-#if 1 //defined(__ANDROID__)
-	"precision mediump float;\n"
-	//"#extension GL_OES_standard_derivatives : enable\n"
-#else
-	"precision highp float;\n"
-#endif
-	"\n"
-	"void clip( float v ) { if ( v < 0.0 ) { discard; } }\n"
-	"void clip( vec2 v ) { if ( any( lessThan( v, vec2( 0.0 ) ) ) ) { discard; } }\n"
-	"void clip( vec3 v ) { if ( any( lessThan( v, vec3( 0.0 ) ) ) ) { discard; } }\n"
-	"void clip( vec4 v ) { if ( any( lessThan( v, vec4( 0.0 ) ) ) ) { discard; } }\n"
-	"\n"
-	"float saturate( float v ) { return clamp( v, 0.0, 1.0 ); }\n"
-	"vec2 saturate( vec2 v ) { return clamp( v, 0.0, 1.0 ); }\n"
-	"vec3 saturate( vec3 v ) { return clamp( v, 0.0, 1.0 ); }\n"
-	"vec4 saturate( vec4 v ) { return clamp( v, 0.0, 1.0 ); }\n"
-	"\n"
-	"vec4 tex2D( sampler2D sampler, vec2 texcoord ) { return texture2D( sampler, texcoord.xy ); }\n"
-	//"vec4 tex2D( sampler2DShadow sampler, vec3 texcoord ) { return vec4( texture( sampler, texcoord.xyz ) ); }\n"
-	"\n"
-	//"vec4 tex2D( sampler2D sampler, vec2 texcoord, vec2 dx, vec2 dy ) { return textureGrad( sampler, texcoord.xy, dx, dy ); }\n"
-	//"vec4 tex2D( sampler2DShadow sampler, vec3 texcoord, vec2 dx, vec2 dy ) { return vec4( textureGrad( sampler, texcoord.xyz, dx, dy ) ); }\n"
-	//"\n"
-	"vec4 texCUBE( samplerCube sampler, vec3 texcoord ) { return textureCube( sampler, texcoord.xyz ); }\n"
-	//"vec4 texCUBE( samplerCubeShadow sampler, vec4 texcoord ) { return vec4( textureCube( sampler, texcoord.xyzw ) ); }\n"
-	"\n"
-	//"vec4 tex1Dproj( sampler1D sampler, vec2 texcoord ) { return textureProj( sampler, texcoord ); }\n"
-	"vec4 tex2Dproj( sampler2D sampler, vec3 texcoord ) { return texture2DProj( sampler, texcoord ); }\n"
-	//"vec4 tex3Dproj( sampler3D sampler, vec4 texcoord ) { return textureProj( sampler, texcoord ); }\n"
-	"\n"
-	//"vec4 tex1Dbias( sampler1D sampler, vec4 texcoord ) { return texture( sampler, texcoord.x, texcoord.w ); }\n"
-	//"vec4 tex2Dbias( sampler2D sampler, vec4 texcoord ) { return texture( sampler, texcoord.xy, texcoord.w ); }\n"
-	//"vec4 tex3Dbias( sampler3D sampler, vec4 texcoord ) { return texture( sampler, texcoord.xyz, texcoord.w ); }\n"
-	//"vec4 texCUBEbias( samplerCube sampler, vec4 texcoord ) { return texture( sampler, texcoord.xyz, texcoord.w ); }\n"
-	//"\n"
-	//"vec4 tex1Dlod( sampler1D sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.x, texcoord.w ); }\n"
-	//"vec4 tex2Dlod( sampler2D sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.xy, texcoord.w ); }\n"
-	//"vec4 tex3Dlod( sampler3D sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.xyz, texcoord.w ); }\n"
-	//"vec4 texCUBElod( samplerCube sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.xyz, texcoord.w ); }\n"
-	//"\n"
-};
-#endif // #if defined(USE_GLES2)
-
 
 const char* fragmentInsert_GLSL_ES_3_00 =
 {
@@ -1002,46 +896,6 @@ const char* fragmentInsert_GLSL_ES_3_00 =
 	"vec4 texCUBEbias( samplerCube sampler, vec4 texcoord ) { return texture( sampler, texcoord.xyz, texcoord.w ); }\n"
 	"\n"
 	//"vec4 tex1Dlod( sampler1D sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.x, texcoord.w ); }\n"
-	"vec4 tex2Dlod( sampler2D sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.xy, texcoord.w ); }\n"
-	"vec4 tex3Dlod( sampler3D sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.xyz, texcoord.w ); }\n"
-	"vec4 texCUBElod( samplerCube sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.xyz, texcoord.w ); }\n"
-	"\n"
-};
-
-const char* fragmentInsert_GLSL_1_50 =
-{
-	"#version 150\n"
-	"#define PC\n"
-	"\n"
-	"void clip( float v ) { if ( v < 0.0 ) { discard; } }\n"
-	"void clip( vec2 v ) { if ( any( lessThan( v, vec2( 0.0 ) ) ) ) { discard; } }\n"
-	"void clip( vec3 v ) { if ( any( lessThan( v, vec3( 0.0 ) ) ) ) { discard; } }\n"
-	"void clip( vec4 v ) { if ( any( lessThan( v, vec4( 0.0 ) ) ) ) { discard; } }\n"
-	"\n"
-	"float saturate( float v ) { return clamp( v, 0.0, 1.0 ); }\n"
-	"vec2 saturate( vec2 v ) { return clamp( v, 0.0, 1.0 ); }\n"
-	"vec3 saturate( vec3 v ) { return clamp( v, 0.0, 1.0 ); }\n"
-	"vec4 saturate( vec4 v ) { return clamp( v, 0.0, 1.0 ); }\n"
-	"\n"
-	"vec4 tex2D( sampler2D sampler, vec2 texcoord ) { return texture( sampler, texcoord.xy ); }\n"
-	"vec4 tex2D( sampler2DShadow sampler, vec3 texcoord ) { return vec4( texture( sampler, texcoord.xyz ) ); }\n"
-	"\n"
-	"vec4 tex2D( sampler2D sampler, vec2 texcoord, vec2 dx, vec2 dy ) { return textureGrad( sampler, texcoord.xy, dx, dy ); }\n"
-	"vec4 tex2D( sampler2DShadow sampler, vec3 texcoord, vec2 dx, vec2 dy ) { return vec4( textureGrad( sampler, texcoord.xyz, dx, dy ) ); }\n"
-	"\n"
-	"vec4 texCUBE( samplerCube sampler, vec3 texcoord ) { return texture( sampler, texcoord.xyz ); }\n"
-	"vec4 texCUBE( samplerCubeShadow sampler, vec4 texcoord ) { return vec4( texture( sampler, texcoord.xyzw ) ); }\n"
-	"\n"
-	"vec4 tex1Dproj( sampler1D sampler, vec2 texcoord ) { return textureProj( sampler, texcoord ); }\n"
-	"vec4 tex2Dproj( sampler2D sampler, vec3 texcoord ) { return textureProj( sampler, texcoord ); }\n"
-	"vec4 tex3Dproj( sampler3D sampler, vec4 texcoord ) { return textureProj( sampler, texcoord ); }\n"
-	"\n"
-	"vec4 tex1Dbias( sampler1D sampler, vec4 texcoord ) { return texture( sampler, texcoord.x, texcoord.w ); }\n"
-	"vec4 tex2Dbias( sampler2D sampler, vec4 texcoord ) { return texture( sampler, texcoord.xy, texcoord.w ); }\n"
-	"vec4 tex3Dbias( sampler3D sampler, vec4 texcoord ) { return texture( sampler, texcoord.xyz, texcoord.w ); }\n"
-	"vec4 texCUBEbias( samplerCube sampler, vec4 texcoord ) { return texture( sampler, texcoord.xyz, texcoord.w ); }\n"
-	"\n"
-	"vec4 tex1Dlod( sampler1D sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.x, texcoord.w ); }\n"
 	"vec4 tex2Dlod( sampler2D sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.xy, texcoord.w ); }\n"
 	"vec4 tex3Dlod( sampler3D sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.xyz, texcoord.w ); }\n"
 	"vec4 texCUBElod( samplerCube sampler, vec4 texcoord ) { return textureLod( sampler, texcoord.xyz, texcoord.w ); }\n"
@@ -1159,7 +1013,15 @@ void ParseInOutStruct( idLexer& src, int attribType, int attribIgnoreType, idLis
 				//break;
 			}
 		}
-		// RB end
+		
+		if( glConfig.driverType == GLDRV_VULKAN )
+		{
+			// RB: HACK change vec4 in_Position to vec3
+			if( var.nameGLSL == "in_Position" && var.type == "vec4" )
+			{
+				var.type = "vec3";
+			}
+		}
 		
 		inOutVars.Append( var );
 	}
@@ -1172,7 +1034,7 @@ void ParseInOutStruct( idLexer& src, int attribType, int attribIgnoreType, idLis
 ConvertCG2GLSL
 ========================
 */
-idStr ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, idStr& uniforms )
+idStr ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, idStr& layout, bool vkGLSL )
 {
 	idStr program;
 	program.ReAllocate( in.Length() * 2, false );
@@ -1180,11 +1042,13 @@ idStr ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, i
 	idList< inOutVariable_t, TAG_RENDERPROG > varsIn;
 	idList< inOutVariable_t, TAG_RENDERPROG > varsOut;
 	idList< idStr > uniformList;
+	idList< idStr > samplerList;
 	
 	idLexer src( LEXFL_NOFATALERRORS );
 	src.LoadMemory( in.c_str(), in.Length(), name );
 	
 	bool inMain = false;
+	bool justEnteredMain = false;
 	const char* uniformArrayName = isVertexProgram ? VERTEX_UNIFORM_ARRAY_NAME : FRAGMENT_UNIFORM_ARRAY_NAME;
 	char newline[128] = { "\n" };
 	
@@ -1226,7 +1090,46 @@ idStr ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, i
 			
 			src.ReadToken( &token );
 		}
-		// RB end
+		
+		// RB: check for sampler uniforms
+		if( vkGLSL )
+		{
+			while( token == "uniform" && ( src.PeekTokenString( "sampler2D" ) || src.PeekTokenString( "samplerCUBE" ) || src.PeekTokenString( "sampler3D" ) ) )
+			{
+				idStr sampler;
+				
+				// sampler2D or whatever
+				src.ReadToken( &token );
+				
+				//  HACK
+				if( token == "samplerCUBE" )
+				{
+					sampler += "samplerCube";
+				}
+				else
+				{
+					sampler += token;
+				}
+				sampler += " ";
+				
+				// the actual variable name
+				src.ReadToken( &token );
+				sampler += token;
+				
+				samplerList.Append( sampler );
+				
+				// strip ': register()' from uniforms
+				if( src.CheckTokenString( ":" ) )
+				{
+					if( src.CheckTokenString( "register" ) )
+					{
+						src.SkipUntilString( ";" );
+					}
+				}
+				
+				src.ReadToken( &token );
+			}
+		}
 		
 		// convert the in/out structs
 		if( token == "struct" )
@@ -1234,62 +1137,44 @@ idStr ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, i
 			if( src.CheckTokenString( "VS_IN" ) )
 			{
 				ParseInOutStruct( src, AT_VS_IN, 0, varsIn );
+				
 				program += "\n\n";
 				for( int i = 0; i < varsIn.Num(); i++ )
 				{
 					if( varsIn[i].declareInOut )
 					{
-						// RB begin
-						switch( glConfig.driverType )
+						// RB: add layout locations
+						if( vkGLSL )
 						{
-							case GLDRV_OPENGL_ES2:
-							case GLDRV_OPENGL_ES3:
-								//case GLDRV_OPENGL_MESA:
-							{
-								program += "attribute " + varsIn[i].type + " " + varsIn[i].nameGLSL + ";\n";
-								break;
-							}
-							
-							default:
-							{
-								program += "in " + varsIn[i].type + " " + varsIn[i].nameGLSL + ";\n";
-								break;
-							}
+							program += va( "layout( location = %i ) in %s %s;\n", i, varsIn[i].type.c_str(), varsIn[i].nameGLSL.c_str() );
 						}
-						// RB end
+						else
+						{
+							program += "in " + varsIn[i].type + " " + varsIn[i].nameGLSL + ";\n";
+						}
 					}
 				}
 				continue;
 			}
 			else if( src.CheckTokenString( "VS_OUT" ) )
 			{
-				// RB begin
+				// RB
 				ParseInOutStruct( src, AT_VS_OUT, AT_VS_OUT_RESERVED, varsOut );
-				// RB end
 				
 				program += "\n";
 				for( int i = 0; i < varsOut.Num(); i++ )
 				{
 					if( varsOut[i].declareInOut )
 					{
-						// RB begin
-						switch( glConfig.driverType )
+						// RB: add layout locations
+						if( vkGLSL )
 						{
-							case GLDRV_OPENGL_ES2:
-							case GLDRV_OPENGL_ES3:
-								//case GLDRV_OPENGL_MESA:
-							{
-								program += "varying " + varsOut[i].type + " " + varsOut[i].nameGLSL + ";\n";
-								break;
-							}
-							
-							default:
-							{
-								program += "out " + varsOut[i].type + " " + varsOut[i].nameGLSL + ";\n";
-								break;
-							}
+							program += va( "layout( location = %i ) out %s %s;\n", i, varsOut[i].type.c_str(), varsOut[i].nameGLSL.c_str() );
 						}
-						// RB end
+						else
+						{
+							program += "out " + varsOut[i].type + " " + varsOut[i].nameGLSL + ";\n";
+						}
 					}
 				}
 				continue;
@@ -1297,27 +1182,21 @@ idStr ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, i
 			else if( src.CheckTokenString( "PS_IN" ) )
 			{
 				ParseInOutStruct( src, AT_PS_IN, AT_PS_IN_RESERVED, varsIn );
+				
 				program += "\n\n";
 				for( int i = 0; i < varsIn.Num(); i++ )
 				{
 					if( varsIn[i].declareInOut )
 					{
-						// RB begin
-						switch( glConfig.driverType )
+						// RB: add layout locations
+						if( vkGLSL )
 						{
-							case GLDRV_OPENGL_ES2:
-							case GLDRV_OPENGL_ES3:
-								//case GLDRV_OPENGL_MESA:
-							{
-								program += "varying " + varsIn[i].type + " " + varsIn[i].nameGLSL + ";\n";
-								break;
-							}
-							
-							default:
-								program += "in " + varsIn[i].type + " " + varsIn[i].nameGLSL + ";\n";
-								break;
+							program += va( "layout( location = %i ) in %s %s;\n", i, varsIn[i].type.c_str(), varsIn[i].nameGLSL.c_str() );
 						}
-						// RB end
+						else
+						{
+							program += "in " + varsIn[i].type + " " + varsIn[i].nameGLSL + ";\n";
+						}
 					}
 				}
 				inOutVariable_t var;
@@ -1331,14 +1210,21 @@ idStr ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, i
 			{
 				// RB begin
 				ParseInOutStruct( src, AT_PS_OUT, AT_PS_OUT_RESERVED, varsOut );
-				// RB end
 				
 				program += "\n";
 				for( int i = 0; i < varsOut.Num(); i++ )
 				{
 					if( varsOut[i].declareInOut )
 					{
-						program += "out " + varsOut[i].type + " " + varsOut[i].nameGLSL + ";\n";
+						// RB: add layout locations
+						if( vkGLSL )
+						{
+							program += va( "layout( location = %i ) out %s %s;\n", i, varsOut[i].type.c_str(), varsOut[i].nameGLSL.c_str() );
+						}
+						else
+						{
+							program += "out " + varsOut[i].type + " " + varsOut[i].nameGLSL + ";\n";
+						}
 					}
 				}
 				continue;
@@ -1398,6 +1284,14 @@ idStr ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, i
 			int len = Min( idStr::Length( newline ) + 1, ( int )sizeof( newline ) - 1 );
 			newline[len - 1] = '\t';
 			newline[len - 0] = '\0';
+			
+			// RB: add this to every vertex shader
+			if( inMain && !justEnteredMain && isVertexProgram && vkGLSL )
+			{
+				program += "\nvec4 position4 = vec4( in_Position, 1.0 );\n";
+				justEnteredMain = true;
+			}
+			
 			continue;
 		}
 		if( token == "}" )
@@ -1427,61 +1321,65 @@ idStr ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, i
 			continue;
 		}
 		
-		if( r_useUniformArrays.GetBool() )
+		
+		// check for uniforms that need to be converted to the array
+		bool isUniform = false;
+		for( int i = 0; i < uniformList.Num(); i++ )
 		{
-			// check for uniforms that need to be converted to the array
-			bool isUniform = false;
-			for( int i = 0; i < uniformList.Num(); i++ )
+			if( token == uniformList[i] )
 			{
-				if( token == uniformList[i] )
+				program += ( token.linesCrossed > 0 ) ? newline : ( token.WhiteSpaceBeforeToken() > 0 ? " " : "" );
+				
+				// RB: for some unknown reasons has the Nvidia driver problems with regular uniforms when using glUniform4fv
+				// so we need these uniform arrays
+				// I added special check rpShadowMatrices so we can still index the uniforms from the shader
+				
+				if( idStr::Cmp( uniformList[i].c_str(), "rpShadowMatrices" ) == 0 )
 				{
-					program += ( token.linesCrossed > 0 ) ? newline : ( token.WhiteSpaceBeforeToken() > 0 ? " " : "" );
+					program += va( "%s[/* %s */ %d + ", uniformArrayName, uniformList[i].c_str(), i );
 					
-					// RB: for some unknown reasons has the Nvidia driver problems with regular uniforms when using glUniform4fv
-					// so we need these uniform arrays
-					// I added special check rpShadowMatrices so we can still index the uniforms from the shader
-					
-					if( idStr::Cmp( uniformList[i].c_str(), "rpShadowMatrices" ) == 0 )
+					if( src.ExpectTokenString( "[" ) )
 					{
-						program += va( "%s[/* %s */ %d + ", uniformArrayName, uniformList[i].c_str(), i );
+						idStr uniformIndexing;
 						
-						if( src.ExpectTokenString( "[" ) )
+						while( src.ReadToken( &token ) )
 						{
-							idStr uniformIndexing;
-							
-							while( src.ReadToken( &token ) )
+							if( token == "]" )
 							{
-								if( token == "]" )
-								{
-									break;
-								}
-								
-								uniformIndexing += token;
-								uniformIndexing += " ";
+								break;
 							}
 							
-							program += uniformIndexing + "]";
+							uniformIndexing += token;
+							uniformIndexing += " ";
 						}
+						
+						program += uniformIndexing + "]";
+					}
+				}
+				else
+				{
+					if( vkGLSL )
+					{
+						program += va( "%s", uniformList[i].c_str() );
 					}
 					else
 					{
 						program += va( "%s[%d /* %s */]", uniformArrayName, i, uniformList[i].c_str() );
 					}
-					// RB end
-					isUniform = true;
-					break;
 				}
+				
+				isUniform = true;
+				break;
 			}
-			if( isUniform )
-			{
-				continue;
-			}
+		}
+		if( isUniform )
+		{
+			continue;
 		}
 		
 		// check for input/output parameters
 		if( src.CheckTokenString( "." ) )
 		{
-		
 			if( token == "vertex" || token == "fragment" )
 			{
 				idToken member;
@@ -1493,7 +1391,19 @@ idStr ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, i
 					if( member.Cmp( varsIn[i].nameCg ) == 0 )
 					{
 						program += ( token.linesCrossed > 0 ) ? newline : ( token.WhiteSpaceBeforeToken() > 0 ? " " : "" );
-						program += varsIn[i].nameGLSL;
+						
+						/*
+						RB: HACK use position4 instead of in_Position directly
+						because I can't figure out how to do strides with Vulkan
+						*/
+						if( vkGLSL && ( varsIn[i].nameGLSL == "in_Position" ) )
+						{
+							program += "position4";
+						}
+						else
+						{
+							program += varsIn[i].nameGLSL;
+						}
 						foundInOut = true;
 						break;
 					}
@@ -1573,15 +1483,6 @@ idStr ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, i
 	{
 		switch( glConfig.driverType )
 		{
-			case GLDRV_OPENGL_ES2:
-			case GLDRV_OPENGL_ES3:
-			{
-				out.ReAllocate( idStr::Length( vertexInsert_GLSL_ES_1_0 ) + in.Length() * 2, false );
-				out += filenameHint;
-				out += vertexInsert_GLSL_ES_1_0;
-				break;
-			}
-			
 			case GLDRV_OPENGL_MESA:
 			{
 				out.ReAllocate( idStr::Length( vertexInsert_GLSL_ES_3_00 ) + in.Length() * 2, false );
@@ -1592,9 +1493,9 @@ idStr ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, i
 			
 			default:
 			{
-				out.ReAllocate( idStr::Length( vertexInsert_GLSL_1_50 ) + in.Length() * 2, false );
+				out.ReAllocate( idStr::Length( vertexInsert ) + in.Length() * 2, false );
 				out += filenameHint;
-				out += vertexInsert_GLSL_1_50;
+				out += vertexInsert;
 				break;
 			}
 		}
@@ -1605,15 +1506,6 @@ idStr ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, i
 	{
 		switch( glConfig.driverType )
 		{
-			case GLDRV_OPENGL_ES2:
-			case GLDRV_OPENGL_ES3:
-			{
-				out.ReAllocate( idStr::Length( fragmentInsert_GLSL_ES_1_0 ) + in.Length() * 2, false );
-				out += filenameHint;
-				out += fragmentInsert_GLSL_ES_1_0;
-				break;
-			}
-			
 			case GLDRV_OPENGL_MESA:
 			{
 				out.ReAllocate( idStr::Length( fragmentInsert_GLSL_ES_3_00 ) + in.Length() * 2, false );
@@ -1624,9 +1516,9 @@ idStr ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, i
 			
 			default:
 			{
-				out.ReAllocate( idStr::Length( fragmentInsert_GLSL_1_50 ) + in.Length() * 2, false );
+				out.ReAllocate( idStr::Length( fragmentInsert ) + in.Length() * 2, false );
 				out += filenameHint;
-				out += fragmentInsert_GLSL_1_50;
+				out += fragmentInsert;
 				break;
 			}
 		}
@@ -1635,7 +1527,27 @@ idStr ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, i
 	
 	if( uniformList.Num() > 0 )
 	{
-		if( r_useUniformArrays.GetBool() )
+		if( vkGLSL )
+		{
+			out += "\n";
+			if( isVertexProgram )
+			{
+				out += "layout( binding = 0 ) uniform UBOV {\n";
+			}
+			else
+			{
+				out += "layout( binding = 1 ) uniform UBOF {\n";
+			}
+			
+			for( int i = 0; i < uniformList.Num(); i++ )
+			{
+				out += "\tvec4 ";
+				out += uniformList[i];
+				out += ";\n";
+			}
+			out += "};\n";
+		}
+		else
 		{
 			int extraSize = 0;
 			for( int i = 0; i < uniformList.Num(); i++ )
@@ -1648,26 +1560,40 @@ idStr ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, i
 			
 			out += va( "\nuniform vec4 %s[%d];\n", uniformArrayName, uniformList.Num() + extraSize );
 		}
-		else
+	}
+	
+	// RB: add samplers with layout bindings
+	if( vkGLSL )
+	{
+		int bindingOffset = uniformList.Num() > 0 ? 2 : 0;
+		
+		for( int i = 0; i < samplerList.Num(); i++ )
 		{
-			out += "\n";
-			for( int i = 0; i < uniformList.Num(); i++ )
-			{
-				out += "uniform vec4 ";
-				out += uniformList[i];
-				out += ";\n";
-			}
+			out += va( "layout( binding = %i ) uniform %s;\n", i + bindingOffset , samplerList[i].c_str() );
 		}
 	}
 	
 	out += program;
 	
+	layout += "uniforms [\n";
 	for( int i = 0; i < uniformList.Num(); i++ )
 	{
-		uniforms += uniformList[i];
-		uniforms += "\n";
+		layout += "\t";
+		layout += uniformList[i];
+		layout += "\n";
 	}
-	uniforms += "\n";
+	layout += "]\n";
+	
+	layout += "bindings [\n";
+	if( uniformList.Num() > 0 )
+	{
+		layout += "\tubo\n";
+	}
+	for( int i = 0; i < samplerList.Num(); i++ )
+	{
+		layout += "\t sampler\n";
+	}
+	layout += "]\n";
 	
 	return out;
 }
@@ -1694,14 +1620,6 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, con
 	
 	switch( glConfig.driverType )
 	{
-		case GLDRV_OPENGL_ES2:
-		case GLDRV_OPENGL_ES3:
-		{
-			outFileGLSL.Format( "renderprogs/glsles-1_0/%s%s", name, nameOutSuffix );
-			outFileUniforms.Format( "renderprogs/glsles-1_0/%s%s", name, nameOutSuffix );
-			break;
-		}
-		
 		case GLDRV_OPENGL_MESA:
 		{
 			outFileGLSL.Format( "renderprogs/glsles-3_00/%s%s", name, nameOutSuffix );
@@ -1709,10 +1627,17 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, con
 			break;
 		}
 		
+		case GLDRV_VULKAN:
+		{
+			outFileGLSL.Format( "renderprogs/vkglsl/%s%s", name, nameOutSuffix );
+			outFileUniforms.Format( "renderprogs/vkglsl/%s%s", name, nameOutSuffix );
+			break;
+		}
+		
 		default:
 		{
-			outFileGLSL.Format( "renderprogs/glsl-1_50/%s%s", name, nameOutSuffix );
-			outFileUniforms.Format( "renderprogs/glsl-1_50/%s%s", name, nameOutSuffix );
+			outFileGLSL.Format( "renderprogs/glsl-4_50/%s%s", name, nameOutSuffix );
+			outFileUniforms.Format( "renderprogs/glsl-4_50/%s%s", name, nameOutSuffix );
 		}
 	}
 	
@@ -1723,15 +1648,15 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, con
 	{
 		inFile += ".pixel";
 		outFileHLSL += "_fragment.hlsl";
-		outFileGLSL += "_fragment.glsl";
-		outFileUniforms += "_fragment.uniforms";
+		outFileGLSL += ".frag";
+		outFileUniforms += ".frag.layout";
 	}
 	else
 	{
 		inFile += ".vertex";
 		outFileHLSL += "_vertex.hlsl";
-		outFileGLSL += "_vertex.glsl";
-		outFileUniforms += "_vertex.uniforms";
+		outFileGLSL += ".vert";
+		outFileUniforms += ".vert.layout";
 	}
 	
 	// first check whether we already have a valid GLSL file and compare it to the hlsl timestamp;
@@ -1781,14 +1706,11 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, con
 		
 		idStr hlslCode( hlslFileBuffer );
 		idStr programHLSL = StripDeadCode( hlslCode, inFile, compileMacros, builtin );
-		programGLSL = ConvertCG2GLSL( programHLSL, inFile, target == GL_VERTEX_SHADER, programUniforms );
+		programGLSL = ConvertCG2GLSL( programHLSL, inFile, target == GL_VERTEX_SHADER, programUniforms, glConfig.driverType == GLDRV_VULKAN );
 		
 		fileSystem->WriteFile( outFileHLSL, programHLSL.c_str(), programHLSL.Length(), "fs_savepath" );
 		fileSystem->WriteFile( outFileGLSL, programGLSL.c_str(), programGLSL.Length(), "fs_savepath" );
-		if( r_useUniformArrays.GetBool() )
-		{
-			fileSystem->WriteFile( outFileUniforms, programUniforms.c_str(), programUniforms.Length(), "fs_savepath" );
-		}
+		fileSystem->WriteFile( outFileUniforms, programUniforms.c_str(), programUniforms.Length(), "fs_savepath" );
 	}
 	else
 	{
@@ -1802,7 +1724,7 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, con
 		programGLSL = ( const char* ) fileBufferGLSL;
 		Mem_Free( fileBufferGLSL );
 		
-		if( r_useUniformArrays.GetBool() )
+		
 		{
 			// read in the uniform file
 			void* fileBufferUniforms = NULL;
@@ -1816,37 +1738,44 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, con
 		}
 	}
 	
-	// find the uniforms locations in either the vertex or fragment uniform array
-	if( r_useUniformArrays.GetBool() )
+	// RB: find the uniforms locations in either the vertex or fragment uniform array
+	// this uses the new layout structure
 	{
 		uniforms.Clear();
 		
 		idLexer src( programUniforms, programUniforms.Length(), "uniforms" );
 		idToken token;
-		while( src.ReadToken( &token ) )
+		if( src.ExpectTokenString( "uniforms" ) )
 		{
-			int index = -1;
-			for( int i = 0; i < RENDERPARM_TOTAL && index == -1; i++ )
+			src.ExpectTokenString( "[" );
+			
+			while( !src.CheckTokenString( "]" ) )
 			{
-				const char* parmName = GetGLSLParmName( i );
-				if( token == parmName )
+				src.ReadToken( &token );
+				
+				int index = -1;
+				for( int i = 0; i < RENDERPARM_TOTAL && index == -1; i++ )
 				{
-					index = i;
+					const char* parmName = GetGLSLParmName( i );
+					if( token == parmName )
+					{
+						index = i;
+					}
 				}
-			}
-			for( int i = 0; i < MAX_GLSL_USER_PARMS && index == -1; i++ )
-			{
-				const char* parmName = GetGLSLParmName( RENDERPARM_USER + i );
-				if( token == parmName )
+				for( int i = 0; i < MAX_GLSL_USER_PARMS && index == -1; i++ )
 				{
-					index = RENDERPARM_USER + i;
+					const char* parmName = GetGLSLParmName( RENDERPARM_USER + i );
+					if( token == parmName )
+					{
+						index = RENDERPARM_USER + i;
+					}
 				}
+				if( index == -1 )
+				{
+					idLib::Error( "couldn't find uniform %s for %s", token.c_str(), outFileGLSL.c_str() );
+				}
+				uniforms.Append( index );
 			}
-			if( index == -1 )
-			{
-				idLib::Error( "couldn't find uniform %s for %s", token.c_str(), outFileGLSL.c_str() );
-			}
-			uniforms.Append( index );
 		}
 	}
 	
@@ -1989,107 +1918,67 @@ void idRenderProgManager::CommitUniforms()
 	
 	//GL_CheckErrors();
 	
-	if( r_useUniformArrays.GetBool() )
+	ALIGNTYPE16 idVec4 localVectors[RENDERPARM_USER + MAX_GLSL_USER_PARMS];
+	
+	if( prog.vertexShaderIndex >= 0 )
 	{
-		ALIGNTYPE16 idVec4 localVectors[RENDERPARM_USER + MAX_GLSL_USER_PARMS];
-		
-		if( prog.vertexShaderIndex >= 0 )
+		const idList<int>& vertexUniforms = vertexShaders[prog.vertexShaderIndex].uniforms;
+		if( prog.vertexUniformArray != -1 && vertexUniforms.Num() > 0 )
 		{
-			const idList<int>& vertexUniforms = vertexShaders[prog.vertexShaderIndex].uniforms;
-			if( prog.vertexUniformArray != -1 && vertexUniforms.Num() > 0 )
+			int totalUniforms = 0;
+			for( int i = 0; i < vertexUniforms.Num(); i++ )
 			{
-				int totalUniforms = 0;
-				for( int i = 0; i < vertexUniforms.Num(); i++ )
+				// RB: HACK rpShadowMatrices[6 * 4]
+				if( vertexUniforms[i] == RENDERPARM_SHADOW_MATRIX_0_X )
 				{
-					// RB: HACK rpShadowMatrices[6 * 4]
-					if( vertexUniforms[i] == RENDERPARM_SHADOW_MATRIX_0_X )
+					for( int j = 0; j < ( 6 * 4 ); j++ )
 					{
-						for( int j = 0; j < ( 6 * 4 ); j++ )
-						{
-							localVectors[i + j] = glslUniforms[vertexUniforms[i] + j];
-							totalUniforms++;
-						}
-						
-					}
-					else
-					{
-						localVectors[i] = glslUniforms[vertexUniforms[i]];
+						localVectors[i + j] = glslUniforms[vertexUniforms[i] + j];
 						totalUniforms++;
 					}
+					
 				}
-				glUniform4fv( prog.vertexUniformArray, totalUniforms, localVectors->ToFloatPtr() );
-			}
-		}
-		
-		if( prog.fragmentShaderIndex >= 0 )
-		{
-			const idList<int>& fragmentUniforms = fragmentShaders[prog.fragmentShaderIndex].uniforms;
-			if( prog.fragmentUniformArray != -1 && fragmentUniforms.Num() > 0 )
-			{
-				int totalUniforms = 0;
-				for( int i = 0; i < fragmentUniforms.Num(); i++ )
+				else
 				{
-					// RB: HACK rpShadowMatrices[6 * 4]
-					if( fragmentUniforms[i] == RENDERPARM_SHADOW_MATRIX_0_X )
-					{
-						for( int j = 0; j < ( 6 * 4 ); j++ )
-						{
-							localVectors[i + j] = glslUniforms[fragmentUniforms[i] + j];
-							totalUniforms++;
-						}
-						
-					}
-					else
-					{
-						localVectors[i] = glslUniforms[fragmentUniforms[i]];
-						totalUniforms++;
-					}
+					localVectors[i] = glslUniforms[vertexUniforms[i]];
+					totalUniforms++;
 				}
-				glUniform4fv( prog.fragmentUniformArray, totalUniforms, localVectors->ToFloatPtr() );
 			}
+			glUniform4fv( prog.vertexUniformArray, totalUniforms, localVectors->ToFloatPtr() );
 		}
 	}
-	else
+	
+	if( prog.fragmentShaderIndex >= 0 )
 	{
-		for( int i = 0; i < prog.uniformLocations.Num(); i++ )
+		const idList<int>& fragmentUniforms = fragmentShaders[prog.fragmentShaderIndex].uniforms;
+		if( prog.fragmentUniformArray != -1 && fragmentUniforms.Num() > 0 )
 		{
-			const glslUniformLocation_t& uniformLocation = prog.uniformLocations[i];
-			
-			// RB: HACK rpShadowMatrices[6 * 4]
-			if( uniformLocation.parmIndex == RENDERPARM_SHADOW_MATRIX_0_X )
+			int totalUniforms = 0;
+			for( int i = 0; i < fragmentUniforms.Num(); i++ )
 			{
-				glUniform4fv( uniformLocation.uniformIndex, 6 * 4, glslUniforms[uniformLocation.parmIndex].ToFloatPtr() );
-			}
-			else
-			{
-				glUniform4fv( uniformLocation.uniformIndex, 1, glslUniforms[uniformLocation.parmIndex].ToFloatPtr() );
-				
-#if 0
-				if( GL_CheckErrors() )
+				// RB: HACK rpShadowMatrices[6 * 4]
+				if( fragmentUniforms[i] == RENDERPARM_SHADOW_MATRIX_0_X )
 				{
-					const char* parmName = GetGLSLParmName( uniformLocation.parmIndex );
-					const char* value = glslUniforms[uniformLocation.parmIndex].ToString();
+					for( int j = 0; j < ( 6 * 4 ); j++ )
+					{
+						localVectors[i + j] = glslUniforms[fragmentUniforms[i] + j];
+						totalUniforms++;
+					}
 					
-					idLib::Printf( "glUniform4fv( %i = %s, value = %s ) failed for %s\n", uniformLocation.parmIndex, parmName, value, prog.name.c_str() );
 				}
-#endif
+				else
+				{
+					localVectors[i] = glslUniforms[fragmentUniforms[i]];
+					totalUniforms++;
+				}
 			}
-			// RB end
+			glUniform4fv( prog.fragmentUniformArray, totalUniforms, localVectors->ToFloatPtr() );
 		}
 	}
 	
 	//GL_CheckErrors();
 #endif
 }
-
-class idSort_QuickUniforms : public idSort_Quick< glslUniformLocation_t, idSort_QuickUniforms >
-{
-public:
-	int Compare( const glslUniformLocation_t& a, const glslUniformLocation_t& b ) const
-	{
-		return a.uniformIndex - b.uniformIndex;
-	}
-};
 
 /*
 ================================================================================================
@@ -2172,48 +2061,12 @@ void idRenderProgManager::LoadGLSLProgram( const int programIndex, const int ver
 		return;
 	}
 	
-	if( r_useUniformArrays.GetBool() )
-	{
-		prog.vertexUniformArray = glGetUniformLocation( program, VERTEX_UNIFORM_ARRAY_NAME );
-		prog.fragmentUniformArray = glGetUniformLocation( program, FRAGMENT_UNIFORM_ARRAY_NAME );
-		
-		assert( prog.vertexUniformArray != -1 || vertexShaderIndex < 0 || vertexShaders[vertexShaderIndex].uniforms.Num() == 0 );
-		assert( prog.fragmentUniformArray != -1 || fragmentShaderIndex < 0 || fragmentShaders[fragmentShaderIndex].uniforms.Num() == 0 );
-	}
-	else
-	{
-		// store the uniform locations after we have linked the GLSL program
-		prog.uniformLocations.Clear();
-		for( int i = 0; i < RENDERPARM_TOTAL; i++ )
-		{
-			const char* parmName = GetGLSLParmName( i );
-			GLint loc = glGetUniformLocation( program, parmName );
-			if( loc != -1 )
-			{
-				glslUniformLocation_t uniformLocation;
-				uniformLocation.parmIndex = i;
-				uniformLocation.uniformIndex = loc;
-				prog.uniformLocations.Append( uniformLocation );
-			}
-		}
-		
-		// store the USER uniform locations
-		for( int i = 0; i < MAX_GLSL_USER_PARMS; i++ )
-		{
-			const char* parmName = GetGLSLParmName( RENDERPARM_USER + i );
-			GLint loc = glGetUniformLocation( program, parmName );
-			if( loc != -1 )
-			{
-				glslUniformLocation_t uniformLocation;
-				uniformLocation.parmIndex = RENDERPARM_USER + i;
-				uniformLocation.uniformIndex = loc;
-				prog.uniformLocations.Append( uniformLocation );
-			}
-		}
-		
-		// sort the uniforms based on index
-		prog.uniformLocations.SortWithTemplate( idSort_QuickUniforms() );
-	}
+	prog.vertexUniformArray = glGetUniformLocation( program, VERTEX_UNIFORM_ARRAY_NAME );
+	prog.fragmentUniformArray = glGetUniformLocation( program, FRAGMENT_UNIFORM_ARRAY_NAME );
+	
+	assert( prog.vertexUniformArray != -1 || vertexShaderIndex < 0 || vertexShaders[vertexShaderIndex].uniforms.Num() == 0 );
+	assert( prog.fragmentUniformArray != -1 || fragmentShaderIndex < 0 || fragmentShaders[fragmentShaderIndex].uniforms.Num() == 0 );
+	
 	
 	// RB: only load joint uniform buffers if available
 	if( glConfig.gpuSkinningAvailable )
@@ -2237,28 +2090,6 @@ void idRenderProgManager::LoadGLSLProgram( const int programIndex, const int ver
 		{
 			glUniform1i( loc, i );
 			numSamplerUniforms++;
-		}
-	}
-	
-	// RB: make sure that we collected all uniforms we are interested in
-	if( !r_useUniformArrays.GetBool() )
-	{
-		int numActiveUniforms;
-		glGetProgramiv( program, GL_ACTIVE_UNIFORMS, &numActiveUniforms );
-		GL_CheckErrors();
-		
-		if( ( numActiveUniforms - numSamplerUniforms ) != prog.uniformLocations.Num() )
-		{
-			int				size;
-			GLenum			type;
-			char            uniformName[1000];
-			
-			for( int i = 0; i < numActiveUniforms; i++ )
-			{
-				glGetActiveUniform( program, i, sizeof( uniformName ), NULL, &size, &type, uniformName );
-				
-				idLib::Printf( "active uniform: '%s'\n", uniformName );
-			}
 		}
 	}
 	
