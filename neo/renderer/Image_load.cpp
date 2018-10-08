@@ -105,6 +105,7 @@ ID_INLINE void idImage::DeriveOpts()
 				opts.format = FMT_DXT1;
 				opts.colorFormat = CFM_GREEN_ALPHA;
 				break;
+				
 			case TD_DEPTH:
 				opts.format = FMT_DEPTH;
 				break;
@@ -672,7 +673,7 @@ void idImage::Reload( bool force )
 GenerateImage
 ================
 */
-void idImage::GenerateImage( const byte* pic, int width, int height, textureFilter_t filterParm, textureRepeat_t repeatParm, textureUsage_t usageParm, int msaaSamples )
+void idImage::GenerateImage( const byte* pic, int width, int height, textureFilter_t filterParm, textureRepeat_t repeatParm, textureUsage_t usageParm, textureSamples_t samples )
 {
 	PurgeImage();
 	
@@ -681,11 +682,11 @@ void idImage::GenerateImage( const byte* pic, int width, int height, textureFilt
 	usage = usageParm;
 	cubeFiles = CF_2D;
 	
-	opts.textureType = ( msaaSamples > 0 ) ? TT_2D_MULTISAMPLE : TT_2D;
+	opts.textureType = ( samples > SAMPLE_1 ) ? TT_2D_MULTISAMPLE : TT_2D;
 	opts.width = width;
 	opts.height = height;
 	opts.numLevels = 0;
-	opts.samples = textureSamples_t( msaaSamples );
+	opts.samples = samples;
 	DeriveOpts();
 	
 	// RB: allow pic == NULL for internal framebuffer images

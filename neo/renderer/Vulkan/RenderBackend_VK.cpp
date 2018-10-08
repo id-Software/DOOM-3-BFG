@@ -960,7 +960,7 @@ static void CreateRenderTargets()
 	depthOptions.numLevels = 1;
 	depthOptions.samples = static_cast< textureSamples_t >( vkcontext.sampleCount );
 	
-	globalImages->ScratchImage( "_viewDepth", &depthOptions, TF_DEFAULT, TR_REPEAT, TD_DEFAULT );
+	globalImages->ScratchImage( "_viewDepth", depthOptions );
 	
 	if( vkcontext.sampleCount > VK_SAMPLE_COUNT_1_BIT )
 	{

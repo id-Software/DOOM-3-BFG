@@ -378,7 +378,7 @@ public:
 							   textureFilter_t filter,
 							   textureRepeat_t repeat,
 							   textureUsage_t usage,
-							   int msaaSamples = 0 );
+							   textureSamples_t samples = SAMPLE_1 );
 							   
 	void		GenerateCubeImage( const byte* pic[6], int size,
 								   textureFilter_t filter, textureUsage_t usage );
@@ -488,6 +488,9 @@ public:
 	
 	// scratch images are for internal renderer use.  ScratchImage names should always begin with an underscore
 	idImage* 			ScratchImage( const char* name, idImageOpts* imgOpts, textureFilter_t filter, textureRepeat_t repeat, textureUsage_t usage );
+	
+	// These images are for internal renderer use.  Names should start with "_".
+	idImage* 			ScratchImage( const char* name, const idImageOpts& opts );
 	
 	// purges all the images before a vid_restart
 	void				PurgeAllImages();

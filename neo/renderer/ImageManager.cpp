@@ -533,6 +533,35 @@ idImage* idImageManager::ScratchImage( const char* _name, idImageOpts* imgOpts, 
 
 /*
 ===============
+idImageManager::ScratchImage
+===============
+*/
+idImage* idImageManager::ScratchImage( const char* name, const idImageOpts& opts )
+{
+	if( !name || !name[0] )
+	{
+		idLib::FatalError( "idImageManager::ScratchImage" );
+	}
+	
+	idImage* image = GetImage( name );
+	if( image == NULL )
+	{
+		image = AllocImage( name );
+	}
+	else
+	{
+		image->PurgeImage();
+	}
+	
+	image->opts = opts;
+	image->AllocImage();
+	image->referencedOutsideLevelLoad = true;
+	
+	return image;
+}
+
+/*
+===============
 idImageManager::GetImage
 ===============
 */
