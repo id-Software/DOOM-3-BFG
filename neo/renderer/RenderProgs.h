@@ -64,16 +64,6 @@ enum vertexMask_t
 	VERTEX_MASK_COLOR2		= BIT( PC_ATTRIB_INDEX_COLOR2 ),
 };
 
-#if defined(USE_VULKAN)
-enum vertexLayoutType_t
-{
-	LAYOUT_UNKNOWN = 0,	// RB: TODO -1
-	LAYOUT_DRAW_VERT,
-	LAYOUT_DRAW_SHADOW_VERT,
-	LAYOUT_DRAW_SHADOW_VERT_SKINNED,
-	NUM_VERTEX_LAYOUTS
-};
-#endif
 
 
 // This enum list corresponds to the global constant register indecies as defined in global.inc for all
@@ -205,7 +195,19 @@ enum renderParm_t
 	RENDERPARM_TOTAL,
 };
 
+enum rpStage_t
+{
+	SHADER_STAGE_VERTEX		= BIT( 0 ),
+	SHADER_STAGE_FRAGMENT	= BIT( 1 ),
+	SHADER_STAGE_ALL		= SHADER_STAGE_VERTEX | SHADER_STAGE_FRAGMENT
+};
 
+enum rpBinding_t
+{
+	BINDING_TYPE_UNIFORM_BUFFER,
+	BINDING_TYPE_SAMPLER,
+	BINDING_TYPE_MAX
+};
 
 
 
@@ -225,8 +227,6 @@ public:
 	void	Shutdown();
 	
 	void	StartFrame();
-	
-	const idVec4& GetRenderParm( renderParm_t rp );
 	
 	void	SetRenderParm( renderParm_t rp, const float* value );
 	void	SetRenderParms( renderParm_t rp, const float* values, int numValues );
@@ -607,7 +607,7 @@ public:
 		return currentRenderProgram;
 	}
 	void		SetUniformValue( const renderParm_t rp, const float* value );
-	void		CommitUniforms();
+	void		CommitUniforms( uint64 stateBits );
 	int			FindGLSLProgram( const char* name, int vIndex, int fIndex );
 	void		ZeroUniforms();
 	

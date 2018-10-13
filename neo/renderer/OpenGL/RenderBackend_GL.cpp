@@ -634,7 +634,7 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 		glBindBufferRange( GL_UNIFORM_BUFFER, 0, ubo, jointBuffer.GetOffset(), jointBuffer.GetSize() );
 	}
 	
-	renderProgManager.CommitUniforms();
+	renderProgManager.CommitUniforms( glStateBits );
 	
 	// RB: 64 bit fixes, changed GLuint to GLintptr
 	if( currentIndexBuffer != ( GLintptr )indexBuffer->GetAPIObject() || !r_useStateCaching.GetBool() )
@@ -655,48 +655,26 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 		glEnableVertexAttribArray( PC_ATTRIB_INDEX_ST );
 		glEnableVertexAttribArray( PC_ATTRIB_INDEX_TANGENT );
 		
-#if defined(USE_GLES2) || defined(USE_GLES3)
-		glVertexAttribPointer( PC_ATTRIB_INDEX_VERTEX, 3, GL_FLOAT, GL_FALSE, sizeof( idDrawVert ), ( void* )( vertOffset + DRAWVERT_XYZ_OFFSET ) );
-		glVertexAttribPointer( PC_ATTRIB_INDEX_NORMAL, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), ( void* )( vertOffset + DRAWVERT_NORMAL_OFFSET ) );
-		glVertexAttribPointer( PC_ATTRIB_INDEX_COLOR, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), ( void* )( vertOffset + DRAWVERT_COLOR_OFFSET ) );
-		glVertexAttribPointer( PC_ATTRIB_INDEX_COLOR2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), ( void* )( vertOffset + DRAWVERT_COLOR2_OFFSET ) );
-#if defined(USE_ANGLE)
-		glVertexAttribPointer( PC_ATTRIB_INDEX_ST, 2, GL_HALF_FLOAT_OES, GL_TRUE, sizeof( idDrawVert ), ( void* )( vertOffset + DRAWVERT_ST_OFFSET ) );
-#else
-		glVertexAttribPointer( PC_ATTRIB_INDEX_ST, 2, GL_HALF_FLOAT, GL_TRUE, sizeof( idDrawVert ), ( void* )( vertOffset + DRAWVERT_ST_OFFSET ) );
-#endif
-		glVertexAttribPointer( PC_ATTRIB_INDEX_TANGENT, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), ( void* )( vertOffset + DRAWVERT_TANGENT_OFFSET ) );
-		
-#else
 		glVertexAttribPointer( PC_ATTRIB_INDEX_VERTEX, 3, GL_FLOAT, GL_FALSE, sizeof( idDrawVert ), ( void* )( DRAWVERT_XYZ_OFFSET ) );
 		glVertexAttribPointer( PC_ATTRIB_INDEX_NORMAL, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), ( void* )( DRAWVERT_NORMAL_OFFSET ) );
 		glVertexAttribPointer( PC_ATTRIB_INDEX_COLOR, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), ( void* )( DRAWVERT_COLOR_OFFSET ) );
 		glVertexAttribPointer( PC_ATTRIB_INDEX_COLOR2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), ( void* )( DRAWVERT_COLOR2_OFFSET ) );
 		glVertexAttribPointer( PC_ATTRIB_INDEX_ST, 2, GL_HALF_FLOAT, GL_TRUE, sizeof( idDrawVert ), ( void* )( DRAWVERT_ST_OFFSET ) );
 		glVertexAttribPointer( PC_ATTRIB_INDEX_TANGENT, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), ( void* )( DRAWVERT_TANGENT_OFFSET ) );
-#endif // #if defined(USE_GLES2) || defined(USE_GLES3)
 		
 		vertexLayout = LAYOUT_DRAW_VERT;
 	}
 	// RB end
 	
-#if defined(USE_GLES3) //defined(USE_GLES2)
-	glDrawElements(	GL_TRIANGLES,
-					r_singleTriangle.GetBool() ? 3 : surf->numIndexes,
-					GL_INDEX_TYPE,
-					( triIndex_t* )indexOffset );
-#else
 	glDrawElementsBaseVertex( GL_TRIANGLES,
 							  r_singleTriangle.GetBool() ? 3 : surf->numIndexes,
 							  GL_INDEX_TYPE,
 							  ( triIndex_t* )indexOffset,
 							  vertOffset / sizeof( idDrawVert ) );
-#endif
-					
+							  
 	// RB: added stats
 	pc.c_drawElements++;
 	pc.c_drawIndexes += surf->numIndexes;
-	// RB end
 }
 
 
@@ -1366,7 +1344,7 @@ idRenderBackend::GL_GetCurrentState
 */
 uint64 idRenderBackend::GL_GetCurrentState() const
 {
-	return tr.backend.glStateBits;
+	return glStateBits;
 }
 
 /*
@@ -1619,7 +1597,7 @@ void idRenderBackend::DrawStencilShadowPass( const drawSurf_t* drawSurf, const b
 	}
 	// RB end
 	
-	renderProgManager.CommitUniforms();
+	renderProgManager.CommitUniforms( glStateBits );
 	
 	if( drawSurf->jointCache )
 	{

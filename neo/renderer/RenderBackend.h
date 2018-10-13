@@ -324,7 +324,9 @@ private:
 	void				GL_StartFrame();
 	void				GL_EndFrame();
 	
+public:
 	uint64				GL_GetCurrentState() const;
+private:
 	uint64				GL_GetCurrentStateMinusStencil() const;
 	void				GL_SetDefaultState();
 	

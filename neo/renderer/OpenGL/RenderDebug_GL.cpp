@@ -1223,7 +1223,7 @@ void idRenderBackend::DBG_ShowVertexColor( drawSurf_t** drawSurfs, int numDrawSu
 			continue;
 		}
 		
-		renderProgManager.CommitUniforms();
+		renderProgManager.CommitUniforms( glStateBits );
 		
 		glBegin( GL_TRIANGLES );
 		for( j = 0; j < tri->numIndexes; j++ )
@@ -1842,7 +1842,7 @@ void idRenderBackend::DBG_ShowPortals()
 			}
 			
 			// RB begin
-			renderProgManager.CommitUniforms();
+			renderProgManager.CommitUniforms( glStateBits );
 			// RB end
 			
 			glBegin( GL_LINE_LOOP );
@@ -1983,7 +1983,7 @@ static void RB_DrawText( const char* text, const idVec3& origin, float scale, co
 	
 	// RB begin
 	//GL_Color( color[0], color[1], color[2], 1 /*color[3]*/ );
-	renderProgManager.CommitUniforms();
+	renderProgManager.CommitUniforms( tr.backend.GL_GetCurrentState() );
 	// RB end
 	
 	int i, j, len, num, index, charIndex, line;
@@ -2216,7 +2216,7 @@ void idRenderBackend::DBG_ShowDebugLines()
 	
 	// RB begin
 	renderProgManager.BindShader_VertexColor();
-	renderProgManager.CommitUniforms();
+	renderProgManager.CommitUniforms( glStateBits );
 	// RB end
 	
 	width = r_debugLineWidth.GetInteger();
@@ -2355,7 +2355,7 @@ void idRenderBackend::DBG_ShowDebugPolygons()
 	
 	// RB begin
 	renderProgManager.BindShader_VertexColor();
-	renderProgManager.CommitUniforms();
+	renderProgManager.CommitUniforms( glStateBits );
 	// RB end
 	
 	if( r_debugPolygonFilled.GetBool() )

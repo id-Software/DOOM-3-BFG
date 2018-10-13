@@ -672,7 +672,6 @@ struct performanceCounters_t
 	int		frontEndMicroSec;	// sum of time in all RE_RenderScene's in a frame
 };
 
-#if !defined(USE_VULKAN)
 enum vertexLayoutType_t
 {
 	LAYOUT_UNKNOWN = 0,	// RB: TODO -1
@@ -681,7 +680,6 @@ enum vertexLayoutType_t
 	LAYOUT_DRAW_SHADOW_VERT_SKINNED,
 	NUM_VERTEX_LAYOUTS
 };
-#endif
 
 class idParallelJobList;
 
