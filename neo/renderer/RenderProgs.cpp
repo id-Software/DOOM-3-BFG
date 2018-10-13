@@ -83,110 +83,105 @@ void idRenderProgManager::Init()
 	// RB: added checks for GPU skinning
 	struct builtinShaders_t
 	{
-		int			index;
-		const char* name;
-		const char* nameOutSuffix;
-		uint32		shaderFeatures;
-		bool		requireGPUSkinningSupport;
+		int					index;
+		const char*			name;
+		const char*			nameOutSuffix;
+		uint32				shaderFeatures;
+		bool				requireGPUSkinningSupport;
+		rpStage_t			stages;
+		vertexLayoutType_t	layout;
 	} builtins[] =
 	{
-		{ BUILTIN_GUI, "gui.vfp", "", 0, false },
-		{ BUILTIN_COLOR, "color.vfp", "", 0, false },
+		{ BUILTIN_GUI, "gui.vfp", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_COLOR, "color.vfp", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
 		// RB begin
-		{ BUILTIN_COLOR_SKINNED, "color", "_skinned", BIT( USE_GPU_SKINNING ), true },
-		{ BUILTIN_VERTEX_COLOR, "vertex_color.vfp", "", 0, false },
-		{ BUILTIN_AMBIENT_LIGHTING, "ambient_lighting", "", 0, false },
-		{ BUILTIN_AMBIENT_LIGHTING_SKINNED, "ambient_lighting", "_skinned", BIT( USE_GPU_SKINNING ), true },
-		{ BUILTIN_SMALL_GEOMETRY_BUFFER, "gbuffer", "", 0, false },
-		{ BUILTIN_SMALL_GEOMETRY_BUFFER_SKINNED, "gbuffer", "_skinned", BIT( USE_GPU_SKINNING ), true },
+		{ BUILTIN_COLOR_SKINNED, "color", "_skinned", BIT( USE_GPU_SKINNING ), true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_VERTEX_COLOR, "vertex_color.vfp", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_AMBIENT_LIGHTING, "ambient_lighting", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_AMBIENT_LIGHTING_SKINNED, "ambient_lighting", "_skinned", BIT( USE_GPU_SKINNING ), true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_SMALL_GEOMETRY_BUFFER, "gbuffer", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_SMALL_GEOMETRY_BUFFER_SKINNED, "gbuffer", "_skinned", BIT( USE_GPU_SKINNING ), true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
 		// RB end
-//		{ BUILTIN_SIMPLESHADE, "simpleshade.vfp", 0, false },
-		{ BUILTIN_TEXTURED, "texture.vfp", "", 0, false },
-		{ BUILTIN_TEXTURE_VERTEXCOLOR, "texture_color.vfp", "", 0, false },
-		{ BUILTIN_TEXTURE_VERTEXCOLOR_SRGB, "texture_color.vfp", "", BIT( USE_SRGB ), false },
-		{ BUILTIN_TEXTURE_VERTEXCOLOR_SKINNED, "texture_color_skinned.vfp", "", 0, true },
-		{ BUILTIN_TEXTURE_TEXGEN_VERTEXCOLOR, "texture_color_texgen.vfp", "",  0, false },
+		{ BUILTIN_TEXTURED, "texture.vfp", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_TEXTURE_VERTEXCOLOR, "texture_color.vfp", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_TEXTURE_VERTEXCOLOR_SRGB, "texture_color.vfp", "", BIT( USE_SRGB ), false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_TEXTURE_VERTEXCOLOR_SKINNED, "texture_color_skinned.vfp", "", 0, true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_TEXTURE_TEXGEN_VERTEXCOLOR, "texture_color_texgen.vfp", "",  0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
 		// RB begin
-		{ BUILTIN_INTERACTION, "interaction.vfp", "", 0, false },
-		{ BUILTIN_INTERACTION_SKINNED, "interaction", "_skinned", BIT( USE_GPU_SKINNING ), true },
-		{ BUILTIN_INTERACTION_AMBIENT, "interactionAmbient.vfp", 0, false },
-		{ BUILTIN_INTERACTION_AMBIENT_SKINNED, "interactionAmbient_skinned.vfp", 0, true },
-		{ BUILTIN_INTERACTION_SHADOW_MAPPING_SPOT, "interactionSM", "_spot", 0, false },
-		{ BUILTIN_INTERACTION_SHADOW_MAPPING_SPOT_SKINNED, "interactionSM", "_spot_skinned", BIT( USE_GPU_SKINNING ), true },
-		{ BUILTIN_INTERACTION_SHADOW_MAPPING_POINT, "interactionSM", "_point", BIT( LIGHT_POINT ), false },
-		{ BUILTIN_INTERACTION_SHADOW_MAPPING_POINT_SKINNED, "interactionSM", "_point_skinned", BIT( USE_GPU_SKINNING ) | BIT( LIGHT_POINT ), true },
-		{ BUILTIN_INTERACTION_SHADOW_MAPPING_PARALLEL, "interactionSM", "_parallel", BIT( LIGHT_PARALLEL ), false },
-		{ BUILTIN_INTERACTION_SHADOW_MAPPING_PARALLEL_SKINNED, "interactionSM", "_parallel_skinned", BIT( USE_GPU_SKINNING ) | BIT( LIGHT_PARALLEL ), true },
+		{ BUILTIN_INTERACTION, "interaction.vfp", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_INTERACTION_SKINNED, "interaction", "_skinned", BIT( USE_GPU_SKINNING ), true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_INTERACTION_AMBIENT, "interactionAmbient.vfp", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_INTERACTION_AMBIENT_SKINNED, "interactionAmbient_skinned.vfp", "", 0, true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_INTERACTION_SHADOW_MAPPING_SPOT, "interactionSM", "_spot", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_INTERACTION_SHADOW_MAPPING_SPOT_SKINNED, "interactionSM", "_spot_skinned", BIT( USE_GPU_SKINNING ), true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_INTERACTION_SHADOW_MAPPING_POINT, "interactionSM", "_point", BIT( LIGHT_POINT ), false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_INTERACTION_SHADOW_MAPPING_POINT_SKINNED, "interactionSM", "_point_skinned", BIT( USE_GPU_SKINNING ) | BIT( LIGHT_POINT ), true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_INTERACTION_SHADOW_MAPPING_PARALLEL, "interactionSM", "_parallel", BIT( LIGHT_PARALLEL ), false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_INTERACTION_SHADOW_MAPPING_PARALLEL_SKINNED, "interactionSM", "_parallel_skinned", BIT( USE_GPU_SKINNING ) | BIT( LIGHT_PARALLEL ), true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
 		// RB end
-		{ BUILTIN_ENVIRONMENT, "environment.vfp", "", 0, false },
-		{ BUILTIN_ENVIRONMENT_SKINNED, "environment_skinned.vfp", "",  0, true },
-		{ BUILTIN_BUMPY_ENVIRONMENT, "bumpyenvironment.vfp", "", 0, false },
-		{ BUILTIN_BUMPY_ENVIRONMENT_SKINNED, "bumpyenvironment_skinned.vfp", "", 0, true },
+		{ BUILTIN_ENVIRONMENT, "environment.vfp", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_ENVIRONMENT_SKINNED, "environment_skinned.vfp", "",  0, true , SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT},
+		{ BUILTIN_BUMPY_ENVIRONMENT, "bumpyenvironment.vfp", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_BUMPY_ENVIRONMENT_SKINNED, "bumpyenvironment_skinned.vfp", "", 0, true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
 		
-		{ BUILTIN_DEPTH, "depth.vfp", "", 0, false },
-		{ BUILTIN_DEPTH_SKINNED, "depth_skinned.vfp", "", 0, true },
+		{ BUILTIN_DEPTH, "depth.vfp", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_DEPTH_SKINNED, "depth_skinned.vfp", "", 0, true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
 		
-		{ BUILTIN_SHADOW, "shadow.vfp", "", 0, false },
-		{ BUILTIN_SHADOW_SKINNED, "shadow_skinned.vfp", "", 0, true },
+		{ BUILTIN_SHADOW, "shadow.vfp", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_SHADOW_VERT },
+		{ BUILTIN_SHADOW_SKINNED, "shadow_skinned.vfp", "", 0, true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_SHADOW_VERT_SKINNED },
 		
-		{ BUILTIN_SHADOW_DEBUG, "shadowDebug.vfp", "", 0, false },
-		{ BUILTIN_SHADOW_DEBUG_SKINNED, "shadowDebug_skinned.vfp", "", 0, true },
+		{ BUILTIN_SHADOW_DEBUG, "shadowDebug.vfp", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_SHADOW_DEBUG_SKINNED, "shadowDebug_skinned.vfp", "", 0, true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
 		
-		{ BUILTIN_BLENDLIGHT, "blendlight.vfp", "", 0, false },
-		{ BUILTIN_FOG, "fog.vfp", "", 0, false },
-		{ BUILTIN_FOG_SKINNED, "fog_skinned.vfp", "", 0, true },
-		{ BUILTIN_SKYBOX, "skybox.vfp", "",  0, false },
-		{ BUILTIN_WOBBLESKY, "wobblesky.vfp", "", 0, false },
-		{ BUILTIN_POSTPROCESS, "postprocess.vfp", "", 0, false },
+		{ BUILTIN_BLENDLIGHT, "blendlight.vfp", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_FOG, "fog.vfp", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_FOG_SKINNED, "fog_skinned.vfp", "", 0, true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_SKYBOX, "skybox.vfp", "",  0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_WOBBLESKY, "wobblesky.vfp", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_POSTPROCESS, "postprocess.vfp", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
 		// RB begin
-		{ BUILTIN_SCREEN, "screen", "", 0, false },
-		{ BUILTIN_TONEMAP, "tonemap", "", 0, false },
-		{ BUILTIN_BRIGHTPASS, "tonemap", "_brightpass", BIT( BRIGHTPASS ), false },
-		{ BUILTIN_HDR_GLARE_CHROMATIC, "hdr_glare_chromatic", "", 0, false },
-		{ BUILTIN_HDR_DEBUG, "tonemap", "_debug", BIT( HDR_DEBUG ), false },
+		{ BUILTIN_SCREEN, "screen", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_TONEMAP, "tonemap", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_BRIGHTPASS, "tonemap", "_brightpass", BIT( BRIGHTPASS ), false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_HDR_GLARE_CHROMATIC, "hdr_glare_chromatic", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_HDR_DEBUG, "tonemap", "_debug", BIT( HDR_DEBUG ), false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
 		
-		{ BUILTIN_SMAA_EDGE_DETECTION, "SMAA_edge_detection", "", 0, false },
-		{ BUILTIN_SMAA_BLENDING_WEIGHT_CALCULATION, "SMAA_blending_weight_calc", "", 0, false },
-		{ BUILTIN_SMAA_NEIGHBORHOOD_BLENDING, "SMAA_final", "", 0, false },
+		{ BUILTIN_SMAA_EDGE_DETECTION, "SMAA_edge_detection", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_SMAA_BLENDING_WEIGHT_CALCULATION, "SMAA_blending_weight_calc", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_SMAA_NEIGHBORHOOD_BLENDING, "SMAA_final", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
 		
-		{ BUILTIN_AMBIENT_OCCLUSION, "AmbientOcclusion_AO", "", 0, false },
-		{ BUILTIN_AMBIENT_OCCLUSION_AND_OUTPUT, "AmbientOcclusion_AO", "_write", BIT( BRIGHTPASS ), false },
-		{ BUILTIN_AMBIENT_OCCLUSION_BLUR, "AmbientOcclusion_blur", "", 0, false },
-		{ BUILTIN_AMBIENT_OCCLUSION_BLUR_AND_OUTPUT, "AmbientOcclusion_blur", "_write", BIT( BRIGHTPASS ), false },
-		{ BUILTIN_AMBIENT_OCCLUSION_MINIFY, "AmbientOcclusion_minify", "", 0, false },
-		{ BUILTIN_AMBIENT_OCCLUSION_RECONSTRUCT_CSZ, "AmbientOcclusion_minify", "_mip0", BIT( BRIGHTPASS ), false },
-		{ BUILTIN_DEEP_GBUFFER_RADIOSITY_SSGI, "DeepGBufferRadiosity_radiosity", "", 0, false },
-		{ BUILTIN_DEEP_GBUFFER_RADIOSITY_BLUR, "DeepGBufferRadiosity_blur", "", 0, false },
-		{ BUILTIN_DEEP_GBUFFER_RADIOSITY_BLUR_AND_OUTPUT, "DeepGBufferRadiosity_blur", "_write", BIT( BRIGHTPASS ), false },
+		{ BUILTIN_AMBIENT_OCCLUSION, "AmbientOcclusion_AO", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_AMBIENT_OCCLUSION_AND_OUTPUT, "AmbientOcclusion_AO", "_write", BIT( BRIGHTPASS ), false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_AMBIENT_OCCLUSION_BLUR, "AmbientOcclusion_blur", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_AMBIENT_OCCLUSION_BLUR_AND_OUTPUT, "AmbientOcclusion_blur", "_write", BIT( BRIGHTPASS ), false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_AMBIENT_OCCLUSION_MINIFY, "AmbientOcclusion_minify", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_AMBIENT_OCCLUSION_RECONSTRUCT_CSZ, "AmbientOcclusion_minify", "_mip0", BIT( BRIGHTPASS ), false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_DEEP_GBUFFER_RADIOSITY_SSGI, "DeepGBufferRadiosity_radiosity", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_DEEP_GBUFFER_RADIOSITY_BLUR, "DeepGBufferRadiosity_blur", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_DEEP_GBUFFER_RADIOSITY_BLUR_AND_OUTPUT, "DeepGBufferRadiosity_blur", "_write", BIT( BRIGHTPASS ), false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
 		// RB end
-		{ BUILTIN_STEREO_DEGHOST, "stereoDeGhost.vfp", "", 0, false },
-		{ BUILTIN_STEREO_WARP, "stereoWarp.vfp", "", 0, false },
-//		{ BUILTIN_ZCULL_RECONSTRUCT, "zcullReconstruct.vfp", 0, false },
-		{ BUILTIN_BINK, "bink.vfp", "",  0, false },
-		{ BUILTIN_BINK_GUI, "bink_gui.vfp", "", 0, false },
-		{ BUILTIN_STEREO_INTERLACE, "stereoInterlace.vfp", "", 0, false },
-		{ BUILTIN_MOTION_BLUR, "motionBlur.vfp", "", 0, false },
+		{ BUILTIN_STEREO_DEGHOST, "stereoDeGhost.vfp", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_STEREO_WARP, "stereoWarp.vfp", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_BINK, "bink.vfp", "",  0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_BINK_GUI, "bink_gui.vfp", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_STEREO_INTERLACE, "stereoInterlace.vfp", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_MOTION_BLUR, "motionBlur.vfp", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
 		
 		// RB begin
-		{ BUILTIN_DEBUG_SHADOWMAP, "debug_shadowmap.vfp", "", 0, false },
+		{ BUILTIN_DEBUG_SHADOWMAP, "debug_shadowmap.vfp", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
 		// RB end
 	};
 	int numBuiltins = sizeof( builtins ) / sizeof( builtins[0] );
-	vertexShaders.SetNum( numBuiltins );
-	fragmentShaders.SetNum( numBuiltins );
-	glslPrograms.SetNum( numBuiltins );
+	
+	renderProgs.SetNum( numBuiltins );
 	
 	for( int i = 0; i < numBuiltins; i++ )
 	{
-		vertexShaders[i].name = builtins[i].name;
-		vertexShaders[i].nameOutSuffix = builtins[i].nameOutSuffix;
-		vertexShaders[i].shaderFeatures = builtins[i].shaderFeatures;
-		vertexShaders[i].builtin = true;
+		renderProg_t& prog = renderProgs[ i ];
 		
-		fragmentShaders[i].name = builtins[i].name;
-		fragmentShaders[i].nameOutSuffix = builtins[i].nameOutSuffix;
-		fragmentShaders[i].shaderFeatures = builtins[i].shaderFeatures;
-		fragmentShaders[i].builtin = true;
+		prog.name = builtins[i].name;
+		prog.builtin = true;
+		prog.layout = builtins[i].layout;
 		
 		builtinShaders[builtins[i].index] = i;
 		
@@ -196,33 +191,45 @@ void idRenderProgManager::Init()
 			continue;
 		}
 		
-		LoadVertexShader( i );
-		LoadFragmentShader( i );
-		LoadGLSLProgram( i, i, i );
+		int vIndex = -1;
+		if( builtins[ i ].stages & SHADER_STAGE_VERTEX )
+		{
+			vIndex = FindShader( builtins[ i ].name, SHADER_STAGE_VERTEX, builtins[i].nameOutSuffix, builtins[i].shaderFeatures, true );
+		}
+		
+		int fIndex = -1;
+		if( builtins[ i ].stages & SHADER_STAGE_FRAGMENT )
+		{
+			fIndex = FindShader( builtins[ i ].name, SHADER_STAGE_FRAGMENT, builtins[i].nameOutSuffix, builtins[i].shaderFeatures, true );
+		}
+		
+		idLib::Printf( "Loading GLSL program %i %i %i\n", i, vIndex, fIndex );
+		
+		LoadGLSLProgram( i, vIndex, fIndex );
 	}
 	
 	r_useHalfLambertLighting.ClearModified();
 	r_useHDR.ClearModified();
 	
-	glslUniforms.SetNum( RENDERPARM_TOTAL, vec4_zero );
+	uniforms.SetNum( RENDERPARM_TOTAL, vec4_zero );
 	
 	if( glConfig.gpuSkinningAvailable )
 	{
-		vertexShaders[builtinShaders[BUILTIN_TEXTURE_VERTEXCOLOR_SKINNED]].usesJoints = true;
-		vertexShaders[builtinShaders[BUILTIN_INTERACTION_SKINNED]].usesJoints = true;
-		vertexShaders[builtinShaders[BUILTIN_INTERACTION_AMBIENT_SKINNED]].usesJoints = true;
-		vertexShaders[builtinShaders[BUILTIN_ENVIRONMENT_SKINNED]].usesJoints = true;
-		vertexShaders[builtinShaders[BUILTIN_BUMPY_ENVIRONMENT_SKINNED]].usesJoints = true;
-		vertexShaders[builtinShaders[BUILTIN_DEPTH_SKINNED]].usesJoints = true;
-		vertexShaders[builtinShaders[BUILTIN_SHADOW_SKINNED]].usesJoints = true;
-		vertexShaders[builtinShaders[BUILTIN_SHADOW_DEBUG_SKINNED]].usesJoints = true;
-		vertexShaders[builtinShaders[BUILTIN_FOG_SKINNED]].usesJoints = true;
+		renderProgs[builtinShaders[BUILTIN_TEXTURE_VERTEXCOLOR_SKINNED]].usesJoints = true;
+		renderProgs[builtinShaders[BUILTIN_INTERACTION_SKINNED]].usesJoints = true;
+		renderProgs[builtinShaders[BUILTIN_INTERACTION_AMBIENT_SKINNED]].usesJoints = true;
+		renderProgs[builtinShaders[BUILTIN_ENVIRONMENT_SKINNED]].usesJoints = true;
+		renderProgs[builtinShaders[BUILTIN_BUMPY_ENVIRONMENT_SKINNED]].usesJoints = true;
+		renderProgs[builtinShaders[BUILTIN_DEPTH_SKINNED]].usesJoints = true;
+		renderProgs[builtinShaders[BUILTIN_SHADOW_SKINNED]].usesJoints = true;
+		renderProgs[builtinShaders[BUILTIN_SHADOW_DEBUG_SKINNED]].usesJoints = true;
+		renderProgs[builtinShaders[BUILTIN_FOG_SKINNED]].usesJoints = true;
 		// RB begin
-		vertexShaders[builtinShaders[BUILTIN_AMBIENT_LIGHTING_SKINNED]].usesJoints = true;
-		vertexShaders[builtinShaders[BUILTIN_SMALL_GEOMETRY_BUFFER_SKINNED]].usesJoints = true;
-		vertexShaders[builtinShaders[BUILTIN_INTERACTION_SHADOW_MAPPING_SPOT_SKINNED]].usesJoints = true;
-		vertexShaders[builtinShaders[BUILTIN_INTERACTION_SHADOW_MAPPING_POINT_SKINNED]].usesJoints = true;
-		vertexShaders[builtinShaders[BUILTIN_INTERACTION_SHADOW_MAPPING_PARALLEL_SKINNED]].usesJoints = true;
+		renderProgs[builtinShaders[BUILTIN_AMBIENT_LIGHTING_SKINNED]].usesJoints = true;
+		renderProgs[builtinShaders[BUILTIN_SMALL_GEOMETRY_BUFFER_SKINNED]].usesJoints = true;
+		renderProgs[builtinShaders[BUILTIN_INTERACTION_SHADOW_MAPPING_SPOT_SKINNED]].usesJoints = true;
+		renderProgs[builtinShaders[BUILTIN_INTERACTION_SHADOW_MAPPING_POINT_SKINNED]].usesJoints = true;
+		renderProgs[builtinShaders[BUILTIN_INTERACTION_SHADOW_MAPPING_PARALLEL_SKINNED]].usesJoints = true;
 		// RB end
 	}
 	
@@ -236,24 +243,20 @@ idRenderProgManager::LoadAllShaders()
 */
 void idRenderProgManager::LoadAllShaders()
 {
-	for( int i = 0; i < vertexShaders.Num(); i++ )
+	for( int i = 0; i < shaders.Num(); i++ )
 	{
-		LoadVertexShader( i );
-	}
-	for( int i = 0; i < fragmentShaders.Num(); i++ )
-	{
-		LoadFragmentShader( i );
+		LoadShader( i, shaders[i].stage );
 	}
 	
-	for( int i = 0; i < glslPrograms.Num(); ++i )
+	for( int i = 0; i < renderProgs.Num(); ++i )
 	{
-		if( glslPrograms[i].vertexShaderIndex == -1 || glslPrograms[i].fragmentShaderIndex == -1 )
+		if( renderProgs[i].vertexShaderIndex == -1 || renderProgs[i].fragmentShaderIndex == -1 )
 		{
 			// RB: skip reloading because we didn't load it initially
 			continue;
 		}
 		
-		LoadGLSLProgram( i, glslPrograms[i].vertexShaderIndex, glslPrograms[i].fragmentShaderIndex );
+		LoadGLSLProgram( i, renderProgs[i].vertexShaderIndex, renderProgs[i].fragmentShaderIndex );
 	}
 }
 
@@ -267,28 +270,21 @@ void idRenderProgManager::KillAllShaders()
 	Unbind();
 	
 #if !defined(USE_VULKAN)
-	for( int i = 0; i < vertexShaders.Num(); i++ )
+	for( int i = 0; i < shaders.Num(); i++ )
 	{
-		if( vertexShaders[i].progId != INVALID_PROGID )
+		if( shaders[i].progId != INVALID_PROGID )
 		{
-			glDeleteShader( vertexShaders[i].progId );
-			vertexShaders[i].progId = INVALID_PROGID;
+			glDeleteShader( shaders[i].progId );
+			shaders[i].progId = INVALID_PROGID;
 		}
 	}
-	for( int i = 0; i < fragmentShaders.Num(); i++ )
+	
+	for( int i = 0; i < renderProgs.Num(); ++i )
 	{
-		if( fragmentShaders[i].progId != INVALID_PROGID )
+		if( renderProgs[i].progId != INVALID_PROGID )
 		{
-			glDeleteShader( fragmentShaders[i].progId );
-			fragmentShaders[i].progId = INVALID_PROGID;
-		}
-	}
-	for( int i = 0; i < glslPrograms.Num(); ++i )
-	{
-		if( glslPrograms[i].progId != INVALID_PROGID )
-		{
-			glDeleteProgram( glslPrograms[i].progId );
-			glslPrograms[i].progId = INVALID_PROGID;
+			glDeleteProgram( renderProgs[i].progId );
+			renderProgs[i].progId = INVALID_PROGID;
 		}
 	}
 #endif
@@ -309,159 +305,73 @@ void idRenderProgManager::Shutdown()
 idRenderProgManager::FindVertexShader
 ================================================================================================
 */
-int idRenderProgManager::FindVertexShader( const char* name )
+int idRenderProgManager::FindShader( const char* name, rpStage_t stage, const char* nameOutSuffix, uint32 features, bool builtin )
 {
-	for( int i = 0; i < vertexShaders.Num(); i++ )
+	idStr shaderName( name );
+	shaderName.StripFileExtension();
+	//shaderName += nameOutSuffix;
+	
+	for( int i = 0; i < shaders.Num(); i++ )
 	{
-		if( vertexShaders[i].name.Icmp( name ) == 0 )
+		shader_t& shader = shaders[ i ];
+		if( shader.name.Icmp( shaderName.c_str() ) == 0 && shader.stage == stage && shader.nameOutSuffix.Icmp( nameOutSuffix ) == 0 )
 		{
-			LoadVertexShader( i );
+			LoadShader( i, stage );
 			return i;
 		}
 	}
-	vertexShader_t shader;
-	shader.name = name;
-	int index = vertexShaders.Append( shader );
-	LoadVertexShader( index );
-	currentVertexShader = index;
 	
-	// RB: removed idStr::Icmp( name, "heatHaze.vfp" ) == 0  hack
-	// this requires r_useUniformArrays 1
-	for( int i = 0; i < vertexShaders[index].uniforms.Num(); i++ )
-	{
-		if( vertexShaders[index].uniforms[i] == RENDERPARM_ENABLE_SKINNING )
-		{
-			vertexShaders[index].usesJoints = true;
-			vertexShaders[index].optionalSkinning = true;
-		}
-	}
-	// RB end
+	shader_t shader;
+	shader.name = shaderName;
+	shader.nameOutSuffix = nameOutSuffix;
+	shader.shaderFeatures = features;
+	shader.builtin = builtin;
+	shader.stage = stage;
 	
-	return index;
-}
-
-/*
-================================================================================================
-idRenderProgManager::FindFragmentShader
-================================================================================================
-*/
-int idRenderProgManager::FindFragmentShader( const char* name )
-{
-	for( int i = 0; i < fragmentShaders.Num(); i++ )
-	{
-		if( fragmentShaders[i].name.Icmp( name ) == 0 )
-		{
-			LoadFragmentShader( i );
-			return i;
-		}
-	}
-	fragmentShader_t shader;
-	shader.name = name;
-	int index = fragmentShaders.Append( shader );
-	LoadFragmentShader( index );
-	currentFragmentShader = index;
+	int index = shaders.Append( shader );
+	LoadShader( index, stage );
+	
 	return index;
 }
 
 
 
 
+
 /*
 ================================================================================================
-idRenderProgManager::LoadVertexShader
+idRenderProgManager::LoadShader
 ================================================================================================
 */
-void idRenderProgManager::LoadVertexShader( int index )
+void idRenderProgManager::LoadShader( int index, rpStage_t stage )
 {
-	if( vertexShaders[index].progId != INVALID_PROGID )
+	if( shaders[index].progId != INVALID_PROGID )
 	{
 		return; // Already loaded
 	}
 	
-	vertexShader_t& vs = vertexShaders[index];
-	
-#if !defined(USE_VULKAN)
-	vertexShaders[index].progId = ( uint ) LoadGLSLShader( GL_VERTEX_SHADER, vs.name, vs.nameOutSuffix, vs.shaderFeatures, vs.builtin, vs.uniforms );
-#endif
+	LoadShader( shaders[index] );
 }
+
+
 
 /*
 ================================================================================================
-idRenderProgManager::LoadFragmentShader
+idRenderProgManager::BindProgram
 ================================================================================================
 */
-void idRenderProgManager::LoadFragmentShader( int index )
+void idRenderProgManager::BindProgram( int index )
 {
-	if( fragmentShaders[index].progId != INVALID_PROGID )
-	{
-		return; // Already loaded
-	}
-	
-	fragmentShader_t& fs = fragmentShaders[index];
-#if !defined(USE_VULKAN)
-	fragmentShaders[index].progId = ( uint ) LoadGLSLShader( GL_FRAGMENT_SHADER, fs.name, fs.nameOutSuffix, fs.shaderFeatures, fs.builtin, fs.uniforms );
-#endif
-}
-
-/*
-================================================================================================
-idRenderProgManager::BindShader
-================================================================================================
-*/
-// RB begin
-void idRenderProgManager::BindShader( int progIndex, int vIndex, int fIndex, bool builtin )
-{
-	if( currentVertexShader == vIndex && currentFragmentShader == fIndex )
+	if( current == index )
 	{
 		return;
 	}
 	
-	if( builtin )
-	{
-		currentVertexShader = vIndex;
-		currentFragmentShader = fIndex;
-		
-		// vIndex denotes the GLSL program
-		if( vIndex >= 0 && vIndex < glslPrograms.Num() )
-		{
-			currentRenderProgram = vIndex;
-			RENDERLOG_PRINTF( "Binding GLSL Program %s\n", glslPrograms[vIndex].name.c_str() );
-			
-#if !defined(USE_VULKAN)
-			glUseProgram( glslPrograms[vIndex].progId );
-#endif
-		}
-	}
-	else
-	{
-		if( progIndex == -1 )
-		{
-			// RB: FIXME linear search
-			for( int i = 0; i < glslPrograms.Num(); ++i )
-			{
-				if( ( glslPrograms[i].vertexShaderIndex == vIndex ) && ( glslPrograms[i].fragmentShaderIndex == fIndex ) )
-				{
-					progIndex = i;
-					break;
-				}
-			}
-		}
-		
-		currentVertexShader = vIndex;
-		currentFragmentShader = fIndex;
-		
-		if( progIndex >= 0 && progIndex < glslPrograms.Num() )
-		{
-			currentRenderProgram = progIndex;
-			RENDERLOG_PRINTF( "Binding GLSL Program %s\n", glslPrograms[progIndex].name.c_str() );
-			
-#if !defined(USE_VULKAN)
-			glUseProgram( glslPrograms[progIndex].progId );
-#endif
-		}
-	}
+	current = index;
+	
+	RENDERLOG_PRINTF( "Binding GLSL Program %s\n", renderProgs[ index ].name.c_str() );
+	glUseProgram( renderProgs[ index ].progId );
 }
-// RB end
 
 /*
 ================================================================================================
@@ -470,8 +380,7 @@ idRenderProgManager::Unbind
 */
 void idRenderProgManager::Unbind()
 {
-	currentVertexShader = -1;
-	currentFragmentShader = -1;
+	current = -1;
 	
 #if !defined(USE_VULKAN)
 	glUseProgram( 0 );
@@ -481,7 +390,7 @@ void idRenderProgManager::Unbind()
 // RB begin
 bool idRenderProgManager::IsShaderBound() const
 {
-	return ( currentVertexShader != -1 );
+	return ( current != -1 );
 }
 // RB end
 

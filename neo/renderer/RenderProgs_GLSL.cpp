@@ -44,18 +44,9 @@ idCVar r_displayGLSLCompilerMessages( "r_displayGLSLCompilerMessages", "1", CVAR
 idCVar r_alwaysExportGLSL( "r_alwaysExportGLSL", "1", CVAR_BOOL, "" );
 
 
-#define VERTEX_UNIFORM_ARRAY_NAME				"_va_"
-#define FRAGMENT_UNIFORM_ARRAY_NAME				"_fa_"
 
-static const int AT_VS_IN  = BIT( 1 );
-static const int AT_VS_OUT = BIT( 2 );
-static const int AT_PS_IN  = BIT( 3 );
-static const int AT_PS_OUT = BIT( 4 );
-// RB begin
-static const int AT_VS_OUT_RESERVED = BIT( 5 );
-static const int AT_PS_IN_RESERVED	= BIT( 6 );
-static const int AT_PS_OUT_RESERVED = BIT( 7 );
-// RB end
+
+
 
 struct idCGBlock
 {
@@ -70,17 +61,6 @@ struct idCGBlock
 attribInfo_t
 ================================================
 */
-struct attribInfo_t
-{
-	const char* 	type;
-	const char* 	name;
-	const char* 	semantic;
-	const char* 	glsl;
-	int				bind;
-	int				flags;
-	int				vertexMask;
-};
-
 attribInfo_t attribsPC[] =
 {
 	// vertex attributes
@@ -1613,7 +1593,7 @@ idRenderProgManager::LoadGLSLShader
 ================================================================================================
 */
 #if !defined(USE_VULKAN)
-GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, const char* nameOutSuffix, uint32 shaderFeatures, bool builtin, idList<int>& uniforms )
+void idRenderProgManager::LoadShader( shader_t& shader )
 {
 
 	idStr inFile;
@@ -1622,39 +1602,41 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, con
 	idStr outFileUniforms;
 	
 	// RB: replaced backslashes
-	inFile.Format( "renderprogs/%s", name );
+	inFile.Format( "renderprogs/%s", shader.name.c_str() );
 	inFile.StripFileExtension();
-	outFileHLSL.Format( "renderprogs/hlsl/%s%s", name, nameOutSuffix );
+	outFileHLSL.Format( "renderprogs/hlsl/%s%s", shader.name.c_str(), shader.nameOutSuffix.c_str() );
 	outFileHLSL.StripFileExtension();
 	
 	switch( glConfig.driverType )
 	{
 		case GLDRV_OPENGL_MESA:
 		{
-			outFileGLSL.Format( "renderprogs/glsles-3_00/%s%s", name, nameOutSuffix );
-			outFileUniforms.Format( "renderprogs/glsles-3_00/%s%s", name, nameOutSuffix );
+			outFileGLSL.Format( "renderprogs/glsles-3_00/%s%s", shader.name.c_str(), shader.nameOutSuffix.c_str() );
+			outFileUniforms.Format( "renderprogs/glsles-3_00/%s%s", shader.name.c_str(), shader.nameOutSuffix.c_str() );
 			break;
 		}
 		
 		case GLDRV_VULKAN:
 		{
-			outFileGLSL.Format( "renderprogs/vkglsl/%s%s", name, nameOutSuffix );
-			outFileUniforms.Format( "renderprogs/vkglsl/%s%s", name, nameOutSuffix );
+			outFileGLSL.Format( "renderprogs/vkglsl/%s%s", shader.name.c_str(), shader.nameOutSuffix.c_str() );
+			outFileUniforms.Format( "renderprogs/vkglsl/%s%s", shader.name.c_str(), shader.nameOutSuffix.c_str() );
 			break;
 		}
 		
 		default:
 		{
-			outFileGLSL.Format( "renderprogs/glsl-4_50/%s%s", name, nameOutSuffix );
-			outFileUniforms.Format( "renderprogs/glsl-4_50/%s%s", name, nameOutSuffix );
+			outFileGLSL.Format( "renderprogs/glsl-4_50/%s%s", shader.name.c_str(), shader.nameOutSuffix.c_str() );
+			outFileUniforms.Format( "renderprogs/glsl-4_50/%s%s", shader.name.c_str(), shader.nameOutSuffix.c_str() );
 		}
 	}
 	
 	outFileGLSL.StripFileExtension();
 	outFileUniforms.StripFileExtension();
 	
-	if( target == GL_FRAGMENT_SHADER )
+	GLenum glTarget;
+	if( shader.stage == SHADER_STAGE_FRAGMENT )
 	{
+		glTarget = GL_FRAGMENT_SHADER;
 		inFile += ".pixel";
 		outFileHLSL += "_fragment.hlsl";
 		outFileGLSL += ".frag";
@@ -1662,6 +1644,7 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, con
 	}
 	else
 	{
+		glTarget = GL_VERTEX_SHADER;
 		inFile += ".vertex";
 		outFileHLSL += "_vertex.hlsl";
 		outFileGLSL += ".vert";
@@ -1689,7 +1672,7 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, con
 			hlslFileBuffer = FindEmbeddedSourceShader( inFile.c_str() );
 			if( hlslFileBuffer == NULL )
 			{
-				return false;
+				return;
 			}
 			len = strlen( hlslFileBuffer );
 		}
@@ -1700,13 +1683,13 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, con
 		
 		if( len <= 0 )
 		{
-			return false;
+			return;
 		}
 		
 		idStrList compileMacros;
 		for( int j = 0; j < MAX_SHADER_MACRO_NAMES; j++ )
 		{
-			if( BIT( j ) & shaderFeatures )
+			if( BIT( j ) & shader.shaderFeatures )
 			{
 				const char* macroName = GetGLSLMacroName( ( shaderFeature_t ) j );
 				compileMacros.Append( idStr( macroName ) );
@@ -1714,8 +1697,8 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, con
 		}
 		
 		idStr hlslCode( hlslFileBuffer );
-		idStr programHLSL = StripDeadCode( hlslCode, inFile, compileMacros, builtin );
-		programGLSL = ConvertCG2GLSL( programHLSL, inFile, target == GL_VERTEX_SHADER, programUniforms, glConfig.driverType == GLDRV_VULKAN );
+		idStr programHLSL = StripDeadCode( hlslCode, inFile, compileMacros, shader.builtin );
+		programGLSL = ConvertCG2GLSL( programHLSL, inFile, shader.stage == SHADER_STAGE_VERTEX, programUniforms, glConfig.driverType == GLDRV_VULKAN );
 		
 		fileSystem->WriteFile( outFileHLSL, programHLSL.c_str(), programHLSL.Length(), "fs_savepath" );
 		fileSystem->WriteFile( outFileGLSL, programGLSL.c_str(), programGLSL.Length(), "fs_savepath" );
@@ -1750,7 +1733,7 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, con
 	// RB: find the uniforms locations in either the vertex or fragment uniform array
 	// this uses the new layout structure
 	{
-		uniforms.Clear();
+		shader.uniforms.Clear();
 		
 		idLexer src( programUniforms, programUniforms.Length(), "uniforms" );
 		idToken token;
@@ -1776,27 +1759,27 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, con
 				{
 					idLib::Error( "couldn't find uniform %s for %s", token.c_str(), outFileGLSL.c_str() );
 				}
-				uniforms.Append( index );
+				shader.uniforms.Append( index );
 			}
 		}
 	}
 	
 	// create and compile the shader
-	const GLuint shader = glCreateShader( target );
-	if( shader )
+	shader.progId = glCreateShader( glTarget );
+	if( shader.progId )
 	{
 		const char* source[1] = { programGLSL.c_str() };
 		
-		glShaderSource( shader, 1, source, NULL );
-		glCompileShader( shader );
+		glShaderSource( shader.progId, 1, source, NULL );
+		glCompileShader( shader.progId );
 		
 		int infologLength = 0;
-		glGetShaderiv( shader, GL_INFO_LOG_LENGTH, &infologLength );
+		glGetShaderiv( shader.progId, GL_INFO_LOG_LENGTH, &infologLength );
 		if( infologLength > 1 )
 		{
 			idTempArray<char> infoLog( infologLength );
 			int charsWritten = 0;
-			glGetShaderInfoLog( shader, infologLength, &charsWritten, infoLog.Ptr() );
+			glGetShaderInfoLog( shader.progId, infologLength, &charsWritten, infoLog.Ptr() );
 			
 			// catch the strings the ATI and Intel drivers output on success
 			if( strstr( infoLog.Ptr(), "successfully compiled to run on hardware" ) != NULL ||
@@ -1806,7 +1789,7 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, con
 			}
 			else if( r_displayGLSLCompilerMessages.GetBool() ) // DG:  check for the CVar I added above
 			{
-				idLib::Printf( "While compiling %s program %s\n", ( target == GL_FRAGMENT_SHADER ) ? "fragment" : "vertex" , inFile.c_str() );
+				idLib::Printf( "While compiling %s program %s\n", ( shader.stage == SHADER_STAGE_FRAGMENT ) ? "fragment" : "vertex" , inFile.c_str() );
 				
 				const char separator = '\n';
 				idList<idStr> lines;
@@ -1831,15 +1814,13 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, con
 		}
 		
 		GLint compiled = GL_FALSE;
-		glGetShaderiv( shader, GL_COMPILE_STATUS, &compiled );
+		glGetShaderiv( shader.progId, GL_COMPILE_STATUS, &compiled );
 		if( compiled == GL_FALSE )
 		{
-			glDeleteShader( shader );
-			return INVALID_PROGID;
+			glDeleteShader( shader.progId );
+			return;
 		}
 	}
-	
-	return shader;
 }
 #endif // #if !defined(USE_VULKAN)
 
@@ -1850,10 +1831,9 @@ idRenderProgManager::FindGLSLProgram
 */
 int	 idRenderProgManager::FindGLSLProgram( const char* name, int vIndex, int fIndex )
 {
-
-	for( int i = 0; i < glslPrograms.Num(); ++i )
+	for( int i = 0; i < renderProgs.Num(); ++i )
 	{
-		if( ( glslPrograms[i].vertexShaderIndex == vIndex ) && ( glslPrograms[i].fragmentShaderIndex == fIndex ) )
+		if( ( renderProgs[i].vertexShaderIndex == vIndex ) && ( renderProgs[i].fragmentShaderIndex == fIndex ) )
 		{
 			LoadGLSLProgram( i, vIndex, fIndex );
 			return i;
@@ -1862,7 +1842,7 @@ int	 idRenderProgManager::FindGLSLProgram( const char* name, int vIndex, int fIn
 	
 	renderProg_t program;
 	program.name = name;
-	int index = glslPrograms.Append( program );
+	int index = renderProgs.Append( program );
 	LoadGLSLProgram( index, vIndex, fIndex );
 	return index;
 }
@@ -1897,134 +1877,14 @@ void idRenderProgManager::SetUniformValue( const renderParm_t rp, const float* v
 #if !defined(USE_VULKAN)
 	for( int i = 0; i < 4; i++ )
 	{
-		glslUniforms[rp][i] = value[i];
+		uniforms[rp][i] = value[i];
 	}
 #endif
 }
 
 
 
-/*
-================================================================================================
-idRenderProgManager::LoadGLSLProgram
-================================================================================================
-*/
-void idRenderProgManager::LoadGLSLProgram( const int programIndex, const int vertexShaderIndex, const int fragmentShaderIndex )
-{
-#if !defined(USE_VULKAN)
-	renderProg_t& prog = glslPrograms[programIndex];
-	
-	if( prog.progId != INVALID_PROGID )
-	{
-		return; // Already loaded
-	}
-	
-	GLuint vertexProgID = ( vertexShaderIndex != -1 ) ? vertexShaders[ vertexShaderIndex ].progId : INVALID_PROGID;
-	GLuint fragmentProgID = ( fragmentShaderIndex != -1 ) ? fragmentShaders[ fragmentShaderIndex ].progId : INVALID_PROGID;
-	
-	const GLuint program = glCreateProgram();
-	if( program )
-	{
-	
-		if( vertexProgID != INVALID_PROGID )
-		{
-			glAttachShader( program, vertexProgID );
-		}
-		
-		if( fragmentProgID != INVALID_PROGID )
-		{
-			glAttachShader( program, fragmentProgID );
-		}
-		
-		// bind vertex attribute locations
-		for( int i = 0; attribsPC[i].glsl != NULL; i++ )
-		{
-			if( ( attribsPC[i].flags & AT_VS_IN ) != 0 )
-			{
-				glBindAttribLocation( program, attribsPC[i].bind, attribsPC[i].glsl );
-			}
-		}
-		
-		glLinkProgram( program );
-		
-		int infologLength = 0;
-		glGetProgramiv( program, GL_INFO_LOG_LENGTH, &infologLength );
-		if( infologLength > 1 )
-		{
-			char* infoLog = ( char* )malloc( infologLength );
-			int charsWritten = 0;
-			glGetProgramInfoLog( program, infologLength, &charsWritten, infoLog );
-			
-			// catch the strings the ATI and Intel drivers output on success
-			if( strstr( infoLog, "Vertex shader(s) linked, fragment shader(s) linked." ) != NULL || strstr( infoLog, "No errors." ) != NULL )
-			{
-				//idLib::Printf( "render prog %s from %s linked\n", GetName(), GetFileName() );
-			}
-			else
-			{
-				idLib::Printf( "While linking GLSL program %d with vertexShader %s and fragmentShader %s\n",
-							   programIndex,
-							   ( vertexShaderIndex >= 0 ) ? vertexShaders[vertexShaderIndex].name.c_str() : "<Invalid>",
-							   ( fragmentShaderIndex >= 0 ) ? fragmentShaders[ fragmentShaderIndex ].name.c_str() : "<Invalid>" );
-				idLib::Printf( "%s\n", infoLog );
-			}
-			
-			free( infoLog );
-		}
-	}
-	
-	int linked = GL_FALSE;
-	glGetProgramiv( program, GL_LINK_STATUS, &linked );
-	if( linked == GL_FALSE )
-	{
-		glDeleteProgram( program );
-		idLib::Error( "While linking GLSL program %d with vertexShader %s and fragmentShader %s\n",
-					  programIndex,
-					  ( vertexShaderIndex >= 0 ) ? vertexShaders[vertexShaderIndex].name.c_str() : "<Invalid>",
-					  ( fragmentShaderIndex >= 0 ) ? fragmentShaders[ fragmentShaderIndex ].name.c_str() : "<Invalid>" );
-		return;
-	}
-	
-	prog.vertexUniformArray = glGetUniformLocation( program, VERTEX_UNIFORM_ARRAY_NAME );
-	prog.fragmentUniformArray = glGetUniformLocation( program, FRAGMENT_UNIFORM_ARRAY_NAME );
-	
-	assert( prog.vertexUniformArray != -1 || vertexShaderIndex < 0 || vertexShaders[vertexShaderIndex].uniforms.Num() == 0 );
-	assert( prog.fragmentUniformArray != -1 || fragmentShaderIndex < 0 || fragmentShaders[fragmentShaderIndex].uniforms.Num() == 0 );
-	
-	
-	// RB: only load joint uniform buffers if available
-	if( glConfig.gpuSkinningAvailable )
-	{
-		// get the uniform buffer binding for skinning joint matrices
-		GLint blockIndex = glGetUniformBlockIndex( program, "matrices_ubo" );
-		if( blockIndex != -1 )
-		{
-			glUniformBlockBinding( program, blockIndex, 0 );
-		}
-	}
-	// RB end
-	
-	// set the texture unit locations once for the render program. We only need to do this once since we only link the program once
-	glUseProgram( program );
-	int numSamplerUniforms = 0;
-	for( int i = 0; i < MAX_PROG_TEXTURE_PARMS; ++i )
-	{
-		GLint loc = glGetUniformLocation( program, va( "samp%d", i ) );
-		if( loc != -1 )
-		{
-			glUniform1i( loc, i );
-			numSamplerUniforms++;
-		}
-	}
-	
-	idStr programName = vertexShaders[ vertexShaderIndex ].name;
-	programName.StripFileExtension();
-	prog.name = programName;
-	prog.progId = program;
-	prog.fragmentShaderIndex = fragmentShaderIndex;
-	prog.vertexShaderIndex = vertexShaderIndex;
-#endif
-}
+
 
 /*
 ================================================================================================
@@ -2033,6 +1893,6 @@ idRenderProgManager::ZeroUniforms
 */
 void idRenderProgManager::ZeroUniforms()
 {
-	memset( glslUniforms.Ptr(), 0, glslUniforms.Allocated() );
+	memset( uniforms.Ptr(), 0, uniforms.Allocated() );
 }
 

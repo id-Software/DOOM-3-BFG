@@ -199,7 +199,9 @@ enum rpStage_t
 {
 	SHADER_STAGE_VERTEX		= BIT( 0 ),
 	SHADER_STAGE_FRAGMENT	= BIT( 1 ),
-	SHADER_STAGE_ALL		= SHADER_STAGE_VERTEX | SHADER_STAGE_FRAGMENT
+	SHADER_STAGE_COMPUTE	= BIT( 2 ), // RB: for future use
+	
+	SHADER_STAGE_DEFAULT	= SHADER_STAGE_VERTEX | SHADER_STAGE_FRAGMENT
 };
 
 enum rpBinding_t
@@ -209,7 +211,29 @@ enum rpBinding_t
 	BINDING_TYPE_MAX
 };
 
+#define VERTEX_UNIFORM_ARRAY_NAME				"_va_"
+#define FRAGMENT_UNIFORM_ARRAY_NAME				"_fa_"
 
+static const int AT_VS_IN			= BIT( 1 );
+static const int AT_VS_OUT			= BIT( 2 );
+static const int AT_PS_IN			= BIT( 3 );
+static const int AT_PS_OUT			= BIT( 4 );
+static const int AT_VS_OUT_RESERVED = BIT( 5 );
+static const int AT_PS_IN_RESERVED	= BIT( 6 );
+static const int AT_PS_OUT_RESERVED = BIT( 7 );
+
+struct attribInfo_t
+{
+	const char* 	type;
+	const char* 	name;
+	const char* 	semantic;
+	const char* 	glsl;
+	int				bind;
+	int				flags;
+	int				vertexMask;
+};
+
+extern attribInfo_t attribsPC[];
 
 
 /*
@@ -231,12 +255,9 @@ public:
 	void	SetRenderParm( renderParm_t rp, const float* value );
 	void	SetRenderParms( renderParm_t rp, const float* values, int numValues );
 	
-	int		FindVertexShader( const char* name );
-	int		FindFragmentShader( const char* name );
+	int		FindShader( const char* name, rpStage_t stage, const char* nameOutSuffix, uint32 features, bool builtin );
 	
-	// RB: added progIndex to handle many custom renderprogs
-	void	BindShader( int progIndex, int vIndex, int fIndex, bool builtin );
-	// RB end
+	void	BindProgram( int progIndex );
 	
 	void	BindShader_GUI( )
 	{
@@ -356,11 +377,6 @@ public:
 		BindShader_Builtin( BUILTIN_INTERACTION_SHADOW_MAPPING_PARALLEL_SKINNED );
 	}
 	// RB end
-	
-	void	BindShader_SimpleShade()
-	{
-		BindShader_Builtin( BUILTIN_SIMPLESHADE );
-	}
 	
 	void	BindShader_Environment()
 	{
@@ -581,12 +597,12 @@ public:
 	// the joints buffer should only be bound for vertex programs that use joints
 	bool		ShaderUsesJoints() const
 	{
-		return vertexShaders[currentVertexShader].usesJoints;
+		return renderProgs[current].usesJoints;
 	}
 	// the rpEnableSkinning render parm should only be set for vertex programs that use it
 	bool		ShaderHasOptionalSkinning() const
 	{
-		return vertexShaders[currentVertexShader].optionalSkinning;
+		return renderProgs[current].optionalSkinning;
 	}
 	
 	// unbind the currently bound render program
@@ -602,18 +618,14 @@ public:
 	
 	static const int	MAX_GLSL_USER_PARMS = 8;
 	const char*	GetGLSLParmName( int rp ) const;
-	int			GetGLSLCurrentProgram() const
-	{
-		return currentRenderProgram;
-	}
+	
 	void		SetUniformValue( const renderParm_t rp, const float* value );
 	void		CommitUniforms( uint64 stateBits );
 	int			FindGLSLProgram( const char* name, int vIndex, int fIndex );
 	void		ZeroUniforms();
 	
 protected:
-	void		LoadVertexShader( int index );
-	void		LoadFragmentShader( int index );
+	void		LoadShader( int index, rpStage_t stage );
 	
 	enum
 	{
@@ -627,7 +639,6 @@ protected:
 		BUILTIN_SMALL_GEOMETRY_BUFFER,
 		BUILTIN_SMALL_GEOMETRY_BUFFER_SKINNED,
 		// RB end
-		BUILTIN_SIMPLESHADE,
 		BUILTIN_TEXTURED,
 		BUILTIN_TEXTURE_VERTEXCOLOR,
 		BUILTIN_TEXTURE_VERTEXCOLOR_SRGB,
@@ -687,7 +698,6 @@ protected:
 		// RB end
 		BUILTIN_STEREO_DEGHOST,
 		BUILTIN_STEREO_WARP,
-		BUILTIN_ZCULL_RECONSTRUCT,
 		BUILTIN_BINK,
 		BUILTIN_BINK_GUI,
 		BUILTIN_STEREO_INTERLACE,
@@ -700,7 +710,7 @@ protected:
 	int builtinShaders[MAX_BUILTINS];
 	void BindShader_Builtin( int i )
 	{
-		BindShader( -1, builtinShaders[i], builtinShaders[i], true );
+		BindProgram( i );
 	}
 	
 	enum shaderFeature_t
@@ -719,59 +729,55 @@ protected:
 	const char*	GetGLSLMacroName( shaderFeature_t sf ) const;
 	
 	bool	CompileGLSL( uint target, const char* name );
-	uint	LoadGLSLShader( uint target, const char* name, const char* nameOutSuffix, uint32 shaderFeatures, bool builtin, idList<int>& uniforms );
 	void	LoadGLSLProgram( const int programIndex, const int vertexShaderIndex, const int fragmentShaderIndex );
 	
 	static const uint INVALID_PROGID = 0xFFFFFFFF;
 	
-	struct vertexShader_t
+	struct shader_t
 	{
-		vertexShader_t() : progId( INVALID_PROGID ), usesJoints( false ), optionalSkinning( false ), shaderFeatures( 0 ), builtin( false ) {}
-		idStr		name;
-		idStr		nameOutSuffix;
-		uint		progId;
-		bool		usesJoints;
-		bool		optionalSkinning;
-		uint32		shaderFeatures;		// RB: Cg compile macros
-		bool		builtin;			// RB: part of the core shaders built into the executable
-		idList<int>	uniforms;
-	};
-	
-	struct fragmentShader_t
-	{
-		fragmentShader_t() : progId( INVALID_PROGID ), shaderFeatures( 0 ), builtin( false ) {}
-		idStr		name;
-		idStr		nameOutSuffix;
-		uint		progId;
-		uint32		shaderFeatures;
-		bool		builtin;
-		idList<int>	uniforms;
+		shader_t() :
+			progId( INVALID_PROGID ),
+			shaderFeatures( 0 ),
+			builtin( false ),
+			uniformArray( -1 ) {}
+		idStr			name;
+		idStr			nameOutSuffix;
+		uint32			shaderFeatures;		// RB: Cg compile macros
+		bool			builtin;			// RB: part of the core shaders built into the executable
+		rpStage_t		stage;
+		uint			progId;
+		int				uniformArray;
+		idList<int>		uniforms;
 	};
 	
 	struct renderProg_t
 	{
-		renderProg_t() :	progId( INVALID_PROGID ),
+		renderProg_t() :
+			progId( INVALID_PROGID ),
+			usesJoints( false ),
+			optionalSkinning( false ),
+			builtin( false ),
+			layout( LAYOUT_UNKNOWN ),
 			vertexShaderIndex( -1 ),
-			fragmentShaderIndex( -1 ),
-			vertexUniformArray( -1 ),
-			fragmentUniformArray( -1 ) {}
-		idStr		name;
-		uint		progId;
-		int			vertexShaderIndex;
-		int			fragmentShaderIndex;
-		uint		vertexUniformArray;
-		uint		fragmentUniformArray;
+			fragmentShaderIndex( -1 ) {}
+			
+		idStr				name;
+		uint				progId;
+		bool				usesJoints;
+		bool				optionalSkinning;
+		bool				builtin;			// RB: part of the core shaders built into the executable
+		vertexLayoutType_t	layout;
+		int					vertexShaderIndex;
+		int					fragmentShaderIndex;
 	};
 	
-	int											currentRenderProgram;
-	idList<renderProg_t, TAG_RENDER>			glslPrograms;
-	idStaticList < idVec4, RENDERPARM_TOTAL >	glslUniforms;
+	void							LoadShader( shader_t& shader );
 	
+	int											current;
+	idList<renderProg_t, TAG_RENDER>			renderProgs;
+	idList<shader_t, TAG_RENDER>				shaders;
 	
-	int											currentVertexShader;
-	int											currentFragmentShader;
-	idList<vertexShader_t, TAG_RENDER>			vertexShaders;
-	idList<fragmentShader_t, TAG_RENDER>		fragmentShaders;
+	idStaticList < idVec4, RENDERPARM_TOTAL >	uniforms;
 };
 
 extern idRenderProgManager renderProgManager;

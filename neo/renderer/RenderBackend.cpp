@@ -3667,10 +3667,7 @@ int idRenderBackend::DrawShaderPasses( const drawSurf_t* const* const drawSurfs,
 				
 				GL_State( stageGLState );
 				
-				// RB: CRITICAL BUGFIX: changed newStage->glslProgram to vertexProgram and fragmentProgram
-				// otherwise it will result in an out of bounds crash in RB_DrawElementsWithCounters
-				renderProgManager.BindShader( newStage->glslProgram, newStage->vertexProgram, newStage->fragmentProgram, false );
-				// RB end
+				renderProgManager.BindProgram( newStage->glslProgram );
 				
 				for( int j = 0; j < newStage->numVertexParms; j++ )
 				{
