@@ -3679,7 +3679,7 @@ int idRenderBackend::DrawShaderPasses( const drawSurf_t* const* const drawSurfs,
 					parm[1] = regs[ newStage->vertexParms[j][1] ];
 					parm[2] = regs[ newStage->vertexParms[j][2] ];
 					parm[3] = regs[ newStage->vertexParms[j][3] ];
-					SetVertexParm( ( renderParm_t )( RENDERPARM_USER + j ), parm );
+					SetVertexParm( ( renderParm_t )( RENDERPARM_USER0 + j ), parm );
 				}
 				
 				// set rpEnableSkinning if the shader has optional support for skinning

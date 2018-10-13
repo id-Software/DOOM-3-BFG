@@ -204,44 +204,7 @@ void idRenderProgManager::Init()
 	r_useHalfLambertLighting.ClearModified();
 	r_useHDR.ClearModified();
 	
-	// special case handling for fastZ shaders
-	/*
-	switch( glConfig.driverType )
-	{
-		case GLDRV_OPENGL32_CORE_PROFILE:
-		case GLDRV_OPENGL_ES2:
-		case GLDRV_OPENGL_ES3:
-		case GLDRV_OPENGL_MESA:
-		{
-			builtinShaders[BUILTIN_SHADOW] = FindVertexShader( "shadow.vp" );
-			int shadowFragmentShaderIndex = FindFragmentShader( "shadow.fp" );
-			FindGLSLProgram( "shadow.vp", builtinShaders[BUILTIN_SHADOW], shadowFragmentShaderIndex );
-	
-			if( glConfig.gpuSkinningAvailable )
-			{
-				builtinShaders[BUILTIN_SHADOW_SKINNED] = FindVertexShader( "shadow_skinned.vp" );
-				int shadowFragmentShaderIndex = FindFragmentShader( "shadow_skinned.fp" );
-				FindGLSLProgram( "shadow_skinned.vp", builtinShaders[BUILTIN_SHADOW_SKINNED], shadowFragmentShaderIndex );
-				break;
-			}
-		}
-	
-		default:
-		{
-			// fast path on PC
-			builtinShaders[BUILTIN_SHADOW] = FindVertexShader( "shadow.vp" );
-			FindGLSLProgram( "shadow.vp", builtinShaders[BUILTIN_SHADOW], -1 );
-	
-			if( glConfig.gpuSkinningAvailable )
-			{
-				builtinShaders[BUILTIN_SHADOW_SKINNED] = FindVertexShader( "shadow_skinned.vp" );
-				FindGLSLProgram( "shadow_skinned.vp", builtinShaders[BUILTIN_SHADOW_SKINNED], -1 );
-			}
-		}
-	}
-	*/
-	
-	glslUniforms.SetNum( RENDERPARM_USER + MAX_GLSL_USER_PARMS, vec4_zero );
+	glslUniforms.SetNum( RENDERPARM_TOTAL, vec4_zero );
 	
 	if( glConfig.gpuSkinningAvailable )
 	{

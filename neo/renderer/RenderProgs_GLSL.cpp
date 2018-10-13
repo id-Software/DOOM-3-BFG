@@ -324,6 +324,15 @@ static const char* GLSLParmNames[RENDERPARM_TOTAL] =
 	"rpShadowMatrix5Y",
 	"rpShadowMatrix5Z",
 	"rpShadowMatrix5W",
+	
+	"rpUser0",
+	"rpUser1",
+	"rpUser2",
+	"rpUser3",
+	"rpUser4",
+	"rpUser5",
+	"rpUser6",
+	"rpUser7"
 	// RB end
 };
 
@@ -1762,14 +1771,7 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, con
 						index = i;
 					}
 				}
-				for( int i = 0; i < MAX_GLSL_USER_PARMS && index == -1; i++ )
-				{
-					const char* parmName = GetGLSLParmName( RENDERPARM_USER + i );
-					if( token == parmName )
-					{
-						index = RENDERPARM_USER + i;
-					}
-				}
+				
 				if( index == -1 )
 				{
 					idLib::Error( "couldn't find uniform %s for %s", token.c_str(), outFileGLSL.c_str() );
@@ -1858,7 +1860,7 @@ int	 idRenderProgManager::FindGLSLProgram( const char* name, int vIndex, int fIn
 		}
 	}
 	
-	glslProgram_t program;
+	renderProg_t program;
 	program.name = name;
 	int index = glslPrograms.Append( program );
 	LoadGLSLProgram( index, vIndex, fIndex );
@@ -1872,11 +1874,6 @@ idRenderProgManager::GetGLSLParmName
 */
 const char* idRenderProgManager::GetGLSLParmName( int rp ) const
 {
-	if( rp >= RENDERPARM_USER )
-	{
-		int userParmIndex = rp - RENDERPARM_USER;
-		return va( "rpUser%d", userParmIndex );
-	}
 	assert( rp < RENDERPARM_TOTAL );
 	return GLSLParmNames[ rp ];
 }
@@ -1914,11 +1911,11 @@ void idRenderProgManager::CommitUniforms()
 {
 #if !defined(USE_VULKAN)
 	const int progID = GetGLSLCurrentProgram();
-	const glslProgram_t& prog = glslPrograms[progID];
+	const renderProg_t& prog = glslPrograms[progID];
 	
 	//GL_CheckErrors();
 	
-	ALIGNTYPE16 idVec4 localVectors[RENDERPARM_USER + MAX_GLSL_USER_PARMS];
+	ALIGNTYPE16 idVec4 localVectors[RENDERPARM_TOTAL];
 	
 	if( prog.vertexShaderIndex >= 0 )
 	{
@@ -1988,7 +1985,7 @@ idRenderProgManager::LoadGLSLProgram
 void idRenderProgManager::LoadGLSLProgram( const int programIndex, const int vertexShaderIndex, const int fragmentShaderIndex )
 {
 #if !defined(USE_VULKAN)
-	glslProgram_t& prog = glslPrograms[programIndex];
+	renderProg_t& prog = glslPrograms[programIndex];
 	
 	if( prog.progId != INVALID_PROGID )
 	{

@@ -3,7 +3,8 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013-2016 Robert Beckebans
+Copyright (C) 2013-2018 Robert Beckebans
+Copyright (C) 2016-2017 Dustin Land
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -190,18 +191,22 @@ enum renderParm_t
 	RENDERPARM_SHADOW_MATRIX_5_Y,
 	RENDERPARM_SHADOW_MATRIX_5_Z,
 	RENDERPARM_SHADOW_MATRIX_5_W,
+	
+	RENDERPARM_USER0,
+	RENDERPARM_USER1,
+	RENDERPARM_USER2,
+	RENDERPARM_USER3,
+	RENDERPARM_USER4,
+	RENDERPARM_USER5,
+	RENDERPARM_USER6,
+	RENDERPARM_USER7,
 	// RB end
 	
 	RENDERPARM_TOTAL,
-	RENDERPARM_USER = 128,
 };
 
 
-struct glslUniformLocation_t
-{
-	int		parmIndex;
-	int		uniformIndex;
-};
+
 
 
 
@@ -218,6 +223,10 @@ public:
 	
 	void	Init();
 	void	Shutdown();
+	
+	void	StartFrame();
+	
+	const idVec4& GetRenderParm( renderParm_t rp );
 	
 	void	SetRenderParm( renderParm_t rp, const float* value );
 	void	SetRenderParms( renderParm_t rp, const float* values, int numValues );
@@ -727,6 +736,7 @@ protected:
 		bool		builtin;			// RB: part of the core shaders built into the executable
 		idList<int>	uniforms;
 	};
+	
 	struct fragmentShader_t
 	{
 		fragmentShader_t() : progId( INVALID_PROGID ), shaderFeatures( 0 ), builtin( false ) {}
@@ -738,9 +748,9 @@ protected:
 		idList<int>	uniforms;
 	};
 	
-	struct glslProgram_t
+	struct renderProg_t
 	{
-		glslProgram_t() :	progId( INVALID_PROGID ),
+		renderProg_t() :	progId( INVALID_PROGID ),
 			vertexShaderIndex( -1 ),
 			fragmentShaderIndex( -1 ),
 			vertexUniformArray( -1 ),
@@ -751,17 +761,17 @@ protected:
 		int			fragmentShaderIndex;
 		uint		vertexUniformArray;
 		uint		fragmentUniformArray;
-		idList<glslUniformLocation_t> uniformLocations;
 	};
-	int	currentRenderProgram;
-	idList<glslProgram_t, TAG_RENDER> glslPrograms;
-	idStaticList < idVec4, RENDERPARM_USER + MAX_GLSL_USER_PARMS > glslUniforms;
+	
+	int											currentRenderProgram;
+	idList<renderProg_t, TAG_RENDER>			glslPrograms;
+	idStaticList < idVec4, RENDERPARM_TOTAL >	glslUniforms;
 	
 	
-	int				currentVertexShader;
-	int				currentFragmentShader;
-	idList<vertexShader_t, TAG_RENDER> vertexShaders;
-	idList<fragmentShader_t, TAG_RENDER> fragmentShaders;
+	int											currentVertexShader;
+	int											currentFragmentShader;
+	idList<vertexShader_t, TAG_RENDER>			vertexShaders;
+	idList<fragmentShader_t, TAG_RENDER>		fragmentShaders;
 };
 
 extern idRenderProgManager renderProgManager;
