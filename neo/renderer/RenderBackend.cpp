@@ -576,12 +576,22 @@ void idRenderBackend::BindVariableStageImage( const textureStage_t* texture, con
 		{
 			GL_SelectTexture( 0 );
 			cin.imageY->Bind();
+			
 			GL_SelectTexture( 1 );
 			cin.imageCr->Bind();
+			
 			GL_SelectTexture( 2 );
 			cin.imageCb->Bind();
+			
 			// DG: imageY is only used for bink videos (with libbinkdec), so the bink shader must be used
-			renderProgManager.BindShader_Bink();
+			if( viewDef->is2Dgui )
+			{
+				renderProgManager.BindShader_BinkGUI();
+			}
+			else
+			{
+				renderProgManager.BindShader_Bink();
+			}
 		}
 		else if( cin.image != NULL )
 		{

@@ -54,7 +54,10 @@ void main( PS_IN fragment, out PS_OUT result ) {
 	float3 p = ( YScalar * Y );
 	p += ( crc * Cr ) + ( crb * Cb ) + adj;
 
-	result.color.xyz = p;
-	result.color.w = 1.0;
-	result.color *= rpColor;
+	float4 color;
+	color.xyz = p;
+	color.w = 1.0;
+	color *= rpColor;
+		
+	result.color = sRGBAToLinearRGBA( color );
 }
