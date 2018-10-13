@@ -12,15 +12,10 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the 
 // specific language governing permissions and limitations under the License.
 
-#ifndef RAPIDJSON_ERROR_ERROR_H_
-#define RAPIDJSON_ERROR_ERROR_H_
+#ifndef RAPIDJSON_ERROR_ERROR_H__
+#define RAPIDJSON_ERROR_ERROR_H__
 
 #include "../rapidjson.h"
-
-#ifdef __clang__
-RAPIDJSON_DIAG_PUSH
-RAPIDJSON_DIAG_OFF(padded)
-#endif
 
 /*! \file error.h */
 
@@ -104,7 +99,7 @@ enum ParseErrorCode {
     \see GenericReader::Parse, GenericDocument::Parse
 */
 struct ParseResult {
-public:
+
     //! Default constructor, no error.
     ParseResult() : code_(kParseErrorNone), offset_(0) {}
     //! Constructor to set an error.
@@ -148,8 +143,4 @@ typedef const RAPIDJSON_ERROR_CHARTYPE* (*GetParseErrorFunc)(ParseErrorCode);
 
 RAPIDJSON_NAMESPACE_END
 
-#ifdef __clang__
-RAPIDJSON_DIAG_POP
-#endif
-
-#endif // RAPIDJSON_ERROR_ERROR_H_
+#endif // RAPIDJSON_ERROR_ERROR_H__
