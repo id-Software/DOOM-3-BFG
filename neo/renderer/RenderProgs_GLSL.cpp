@@ -1637,16 +1637,16 @@ void idRenderProgManager::LoadShader( shader_t& shader )
 	if( shader.stage == SHADER_STAGE_FRAGMENT )
 	{
 		glTarget = GL_FRAGMENT_SHADER;
-		inFile += ".pixel";
-		outFileHLSL += "_fragment.hlsl";
+		inFile += ".ps.hlsl";
+		outFileHLSL += ".ps.hlsl";
 		outFileGLSL += ".frag";
 		outFileUniforms += ".frag.layout";
 	}
 	else
 	{
 		glTarget = GL_VERTEX_SHADER;
-		inFile += ".vertex";
-		outFileHLSL += "_vertex.hlsl";
+		inFile += ".vs.hlsl";
+		outFileHLSL += ".vs.hlsl";
 		outFileGLSL += ".vert";
 		outFileUniforms += ".vert.layout";
 	}

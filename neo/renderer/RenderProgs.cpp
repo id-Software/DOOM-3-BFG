@@ -203,7 +203,7 @@ void idRenderProgManager::Init()
 			fIndex = FindShader( builtins[ i ].name, SHADER_STAGE_FRAGMENT, builtins[i].nameOutSuffix, builtins[i].shaderFeatures, true );
 		}
 		
-		idLib::Printf( "Loading GLSL program %i %i %i\n", i, vIndex, fIndex );
+		//idLib::Printf( "Loading GLSL program %i %i %i\n", i, vIndex, fIndex );
 		
 		LoadGLSLProgram( i, vIndex, fIndex );
 	}
@@ -234,6 +234,23 @@ void idRenderProgManager::Init()
 	}
 	
 	cmdSystem->AddCommand( "reloadShaders", R_ReloadShaders, CMD_FL_RENDERER, "reloads shaders" );
+	
+#if defined(USE_VULKAN)
+	// Create Vertex Descriptions
+	CreateVertexDescriptions();
+	
+	// Create Descriptor Pools
+	CreateDescriptorPools( descriptorPools );
+	
+	for( int i = 0; i < NUM_FRAME_DATA; ++i )
+	{
+		parmBuffers[ i ] = new idUniformBuffer();
+		parmBuffers[ i ]->AllocBufferObject( NULL, MAX_DESC_SETS * MAX_DESC_SET_UNIFORMS * sizeof( idVec4 ), BU_DYNAMIC );
+	}
+	
+	// Placeholder: mainly for optionalSkinning
+	emptyUBO.AllocBufferObject( NULL, sizeof( idVec4 ), BU_DYNAMIC );
+#endif
 }
 
 /*

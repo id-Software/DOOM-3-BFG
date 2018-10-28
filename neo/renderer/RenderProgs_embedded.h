@@ -11,7 +11,7 @@ struct cgShaderDef_t
 static const cgShaderDef_t cg_renderprogs[] =
 {
 	{
-		"renderprogs/global.inc",
+		"renderprogs/global.inc.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -267,7 +267,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/skinning.inc",
+		"renderprogs/skinning.inc.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -349,7 +349,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/SMAA.inc",
+		"renderprogs/SMAA.inc.hlsl",
 		"/**\n"
 		" * Copyright (C) 2013 Jorge Jimenez (jorge@iryoku.com)\n"
 		" * Copyright (C) 2013 Jose I. Echevarria (joseignacioechevarria@gmail.com)\n"
@@ -1737,7 +1737,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/BRDF.inc",
+		"renderprogs/BRDF.inc.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -1878,7 +1878,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/ambient_lighting.pixel",
+		"renderprogs/ambient_lighting.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -1908,7 +1908,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform sampler2D	samp0 : register(s0); // texture 1 is the per-surface bump map\n"
 		"uniform sampler2D	samp1 : register(s1); // texture 2 is the light falloff texture\n"
@@ -1982,7 +1982,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/ambient_lighting.vertex",
+		"renderprogs/ambient_lighting.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -2012,7 +2012,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"#if defined( USE_GPU_SKINNING )\n"
 		"uniform matrices_ubo { float4 matrices[408]; };\n"
@@ -2186,7 +2186,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/AmbientOcclusion_AO.pixel",
+		"renderprogs/AmbientOcclusion_AO.ps.hlsl",
 		"/**\n"
 		" \file AmbientOcclusion_AO.pix\n"
 		" \author Morgan McGuire and Michael Mara, NVIDIA Research\n"
@@ -2218,7 +2218,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"\n"
 		"  */\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"\n"
 		"\n"
@@ -2641,7 +2641,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/AmbientOcclusion_AO.vertex",
+		"renderprogs/AmbientOcclusion_AO.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -2670,7 +2670,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"struct VS_IN \n"
 		"{\n"
@@ -2693,7 +2693,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/AmbientOcclusion_blur.pixel",
+		"renderprogs/AmbientOcclusion_blur.ps.hlsl",
 		"/**\n"
 		"  \file AmbientOcclusion_blur.pix\n"
 		"  \author Morgan McGuire and Michael Mara, NVIDIA Research\n"
@@ -2712,7 +2712,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"  Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.\n"
 		"  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n"
 		"*/\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"// *INDENT-OFF*\n"
 		"uniform sampler2D samp0 : register( s0 ); // view normals\n"
@@ -3087,7 +3087,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/AmbientOcclusion_blur.vertex",
+		"renderprogs/AmbientOcclusion_blur.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -3116,7 +3116,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"struct VS_IN \n"
 		"{\n"
@@ -3139,7 +3139,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/AmbientOcclusion_minify.pixel",
+		"renderprogs/AmbientOcclusion_minify.ps.hlsl",
 		"/**\n"
 		" \file AmbientOcclusion_minify.pix\n"
 		" \author Morgan McGuire and Michael Mara, NVIDIA Research\n"
@@ -3157,7 +3157,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n"
 		"\n"
 		" */\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"// *INDENT-OFF*\n"
 		"uniform sampler2D samp0 : register( s0 ); // zbuffer\n"
@@ -3227,7 +3227,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/AmbientOcclusion_minify.vertex",
+		"renderprogs/AmbientOcclusion_minify.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -3256,7 +3256,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"struct VS_IN \n"
 		"{\n"
@@ -3279,7 +3279,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/bink.pixel",
+		"renderprogs/bink.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -3308,7 +3308,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform sampler2D samp0 : register(s0); // Y\n"
 		"uniform sampler2D samp1 : register(s1); // Cr\n"
@@ -3336,15 +3336,18 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	float3 p = ( YScalar * Y );\n"
 		"	p += ( crc * Cr ) + ( crb * Cb ) + adj;\n"
 		"\n"
-		"	result.color.xyz = p;\n"
-		"	result.color.w = 1.0;\n"
-		"	result.color *= rpColor;\n"
+		"	float4 color;\n"
+		"	color.xyz = p;\n"
+		"	color.w = 1.0;\n"
+		"	color *= rpColor;\n"
+		"		\n"
+		"	result.color = sRGBAToLinearRGBA( color );\n"
 		"}\n"
 		
 	},
 	
 	{
-		"renderprogs/bink.vertex",
+		"renderprogs/bink.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -3373,7 +3376,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"struct VS_IN {\n"
 		"	float4 position : POSITION;\n"
@@ -3400,7 +3403,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/bink_gui.pixel",
+		"renderprogs/bink_gui.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -3429,7 +3432,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform sampler2D samp0 : register(s0); // Y\n"
 		"uniform sampler2D samp1 : register(s1); // Cr\n"
@@ -3471,7 +3474,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/bink_gui.vertex",
+		"renderprogs/bink_gui.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -3501,7 +3504,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"struct VS_IN {\n"
 		"	float4 position : POSITION;\n"
@@ -3534,7 +3537,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/blendLight.pixel",
+		"renderprogs/blendLight.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -3563,7 +3566,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform sampler2D samp0 : register(s0);\n"
 		"uniform sampler2D samp1 : register(s1);\n"
@@ -3586,7 +3589,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/blendLight.vertex",
+		"renderprogs/blendLight.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -3615,7 +3618,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"struct VS_IN {\n"
 		"	float4 position : POSITION;\n"
@@ -3651,7 +3654,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/bloodorb1_capture.pixel",
+		"renderprogs/bloodorb1_capture.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -3680,7 +3683,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform sampler2D samp0 : register(s0); //_accum\n"
 		"uniform sampler2D samp1 : register(s1); //_currentRender\n"
@@ -3708,7 +3711,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/bloodorb1_capture.vertex",
+		"renderprogs/bloodorb1_capture.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -3737,7 +3740,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform float4 rpUser0 : register( c128 ); //rpCenterScale\n"
 		"\n"
@@ -3772,7 +3775,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/bloodorb2_capture.pixel",
+		"renderprogs/bloodorb2_capture.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -3801,7 +3804,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform sampler2D samp0 : register(s0); //_accum\n"
 		"uniform sampler2D samp1 : register(s1); //_currentRender\n"
@@ -3835,7 +3838,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/bloodorb2_capture.vertex",
+		"renderprogs/bloodorb2_capture.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -3864,7 +3867,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform float4 rpUser0 : register( c128 ); //rpCenterScaleTex0\n"
 		"uniform float4 rpUser1 : register( c129 ); //rpRotateTex0\n"
@@ -3909,7 +3912,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/bloodorb3_capture.pixel",
+		"renderprogs/bloodorb3_capture.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -3938,7 +3941,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform sampler2D samp0 : register(s0); //_accum\n"
 		"uniform sampler2D samp1 : register(s1); //_currentRender\n"
@@ -3984,7 +3987,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/bloodorb3_capture.vertex",
+		"renderprogs/bloodorb3_capture.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -4013,7 +4016,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform float4 rpUser0 : register( c128 ); //rpCenterScaleTex\n"
 		"uniform float4 rpUser1 : register( c129 ); //rpRotateTex\n"
@@ -4065,7 +4068,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/bloodorb_draw.pixel",
+		"renderprogs/bloodorb_draw.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -4094,7 +4097,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform sampler2D samp0 : register(s0); //_accum\n"
 		"uniform sampler2D samp1 : register(s1); //_currentRender\n"
@@ -4121,7 +4124,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/bloodorb_draw.vertex",
+		"renderprogs/bloodorb_draw.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -4150,7 +4153,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"struct VS_IN {\n"
 		"	float4 position : POSITION;\n"
@@ -4178,7 +4181,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/bumpyenvironment.pixel",
+		"renderprogs/bumpyenvironment.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -4208,7 +4211,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform samplerCUBE	samp0 : register(s0); // texture 0 is the cube map\n"
 		"uniform sampler2D	samp1 : register(s1); // normal map\n"
@@ -4259,7 +4262,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/bumpyenvironment.vertex",
+		"renderprogs/bumpyenvironment.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -4288,7 +4291,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"struct VS_IN {\n"
 		"	float4 position : POSITION;\n"
@@ -4344,7 +4347,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/bumpyenvironment_skinned.pixel",
+		"renderprogs/bumpyenvironment_skinned.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -4374,7 +4377,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform samplerCUBE	samp0 : register(s0); // texture 0 is the cube map\n"
 		"uniform sampler2D	samp1 : register(s1); // normal map\n"
@@ -4426,7 +4429,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/bumpyenvironment_skinned.vertex",
+		"renderprogs/bumpyenvironment_skinned.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -4456,7 +4459,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform matrices_ubo { float4 matrices[408]; };\n"
 		"\n"
@@ -4569,7 +4572,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/color.pixel",
+		"renderprogs/color.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -4598,7 +4601,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform sampler2D samp0 : register(s0);\n"
 		"\n"
@@ -4613,7 +4616,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/color.vertex",
+		"renderprogs/color.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -4643,7 +4646,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"#if defined(USE_GPU_SKINNING)\n"
 		"uniform matrices_ubo { float4 matrices[408]; };\n"
@@ -4717,7 +4720,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/colorProcess.pixel",
+		"renderprogs/colorProcess.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -4746,7 +4749,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform sampler2D samp0 : register(s0);\n"
 		"\n"
@@ -4770,7 +4773,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/colorProcess.vertex",
+		"renderprogs/colorProcess.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -4799,7 +4802,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform float4 rpUser0 : register(c128); //rpFraction\n"
 		"uniform float4 rpUser1 : register(c129); //rpTargetHue\n"
@@ -4837,9 +4840,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/DeepGBufferRadiosity_radiosity.pixel",
+		"renderprogs/DeepGBufferRadiosity_radiosity.ps.hlsl",
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"// #version 120 // -*- c++ -*-\n"
 		"// #extension GL_EXT_gpu_shader4 : require\n"
@@ -5400,7 +5403,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/DeepGBufferRadiosity_radiosity.vertex",
+		"renderprogs/DeepGBufferRadiosity_radiosity.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -5429,7 +5432,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"struct VS_IN \n"
 		"{\n"
@@ -5452,7 +5455,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/DeepGBufferRadiosity_blur.pixel",
+		"renderprogs/DeepGBufferRadiosity_blur.ps.hlsl",
 		"/**\n"
 		"  \file AmbientOcclusion_blur.pix\n"
 		"  \author Morgan McGuire and Michael Mara, NVIDIA Research\n"
@@ -5471,7 +5474,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"  Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.\n"
 		"  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n"
 		"*/\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"// *INDENT-OFF*\n"
 		"uniform sampler2D samp0 : register( s0 ); // view normals\n"
@@ -5836,7 +5839,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/DeepGBufferRadiosity_blur.vertex",
+		"renderprogs/DeepGBufferRadiosity_blur.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -5865,7 +5868,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"struct VS_IN \n"
 		"{\n"
@@ -5888,7 +5891,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/debug_shadowmap.pixel",
+		"renderprogs/debug_shadowmap.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -5918,7 +5921,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform sampler2DArray samp0 : register(s0);\n"
 		"\n"
@@ -5945,7 +5948,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/debug_shadowmap.vertex",
+		"renderprogs/debug_shadowmap.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -5974,7 +5977,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"struct VS_IN {\n"
 		"	float4 position : POSITION;\n"
@@ -6008,7 +6011,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/depth.pixel",
+		"renderprogs/depth.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -6037,7 +6040,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform sampler2D samp0 : register(s0);\n"
 		"struct PS_OUT {\n"
@@ -6051,7 +6054,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/depth.vertex",
+		"renderprogs/depth.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -6080,7 +6083,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"struct VS_IN {\n"
 		"	float4 position : POSITION;\n"
@@ -6100,7 +6103,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/depth_skinned.pixel",
+		"renderprogs/depth_skinned.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -6129,7 +6132,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform sampler2D samp0 : register(s0);\n"
 		"struct PS_OUT {\n"
@@ -6143,7 +6146,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/depth_skinned.vertex",
+		"renderprogs/depth_skinned.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -6173,7 +6176,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform matrices_ubo { float4 matrices[408]; };\n"
 		"\n"
@@ -6234,7 +6237,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/enviroSuit.pixel",
+		"renderprogs/enviroSuit.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -6263,7 +6266,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform sampler2D	samp0 : register(s0); // texture 0 is _current Render\n"
 		"uniform sampler2D	samp1 : register(s1); // texture 1 is the per-surface bump map\n"
@@ -6296,7 +6299,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/enviroSuit.vertex",
+		"renderprogs/enviroSuit.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -6325,7 +6328,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"// User Renderparms start at 128 as per renderprogs.h\n"
 		"\n"
@@ -6363,7 +6366,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/environment.pixel",
+		"renderprogs/environment.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -6392,7 +6395,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform samplerCUBE	samp0 : register(s0); // texture 0 is the cube map\n"
 		"\n"
@@ -6425,7 +6428,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/environment.vertex",
+		"renderprogs/environment.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -6454,7 +6457,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"struct VS_IN {\n"
 		"	float4 position : POSITION;\n"
@@ -6490,7 +6493,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/environment_skinned.pixel",
+		"renderprogs/environment_skinned.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -6519,7 +6522,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform samplerCUBE	samp0 : register(s0); // texture 0 is the cube map\n"
 		"\n"
@@ -6552,7 +6555,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/environment_skinned.vertex",
+		"renderprogs/environment_skinned.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -6582,7 +6585,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform matrices_ubo { float4 matrices[408]; };\n"
 		"\n"
@@ -6664,7 +6667,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/fog.pixel",
+		"renderprogs/fog.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -6693,7 +6696,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform sampler2D samp0 : register(s0);\n"
 		"uniform sampler2D samp1 : register(s1);\n"
@@ -6717,7 +6720,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/fog.vertex",
+		"renderprogs/fog.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -6746,7 +6749,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"struct VS_IN {\n"
 		"	float4 position : POSITION;\n"
@@ -6779,7 +6782,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/fog_skinned.pixel",
+		"renderprogs/fog_skinned.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -6808,7 +6811,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform sampler2D samp0 : register(s0);\n"
 		"uniform sampler2D samp1 : register(s1);\n"
@@ -6832,7 +6835,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/fog_skinned.vertex",
+		"renderprogs/fog_skinned.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -6862,7 +6865,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform matrices_ubo { float4 matrices[408]; };\n"
 		"\n"
@@ -6935,7 +6938,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/fxaa.pixel",
+		"renderprogs/fxaa.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -6964,7 +6967,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"#define FXAA_GREEN_AS_LUMA 1\n"
 		"#define FXAA_EARLY_EXIT 0\n"
 		"#include \"Fxaa3_11.h\"\n"
@@ -7050,7 +7053,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/fxaa.vertex",
+		"renderprogs/fxaa.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -7079,7 +7082,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"struct VS_IN {\n"
 		"	float4 position : POSITION;\n"
@@ -7102,7 +7105,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/gbuffer.pixel",
+		"renderprogs/gbuffer.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -7132,7 +7135,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform sampler2D	samp0 : register(s0); // normal map\n"
 		"\n"
@@ -7190,7 +7193,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/gbuffer.vertex",
+		"renderprogs/gbuffer.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -7220,7 +7223,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"#if defined( USE_GPU_SKINNING )\n"
 		"uniform matrices_ubo { float4 matrices[408]; };\n"
@@ -7374,7 +7377,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/gui.pixel",
+		"renderprogs/gui.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -7403,7 +7406,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform sampler2D samp0 : register(s0);\n"
 		"\n"
@@ -7427,7 +7430,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/gui.vertex",
+		"renderprogs/gui.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -7457,7 +7460,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"struct VS_IN {\n"
 		"	float4 position : POSITION;\n"
@@ -7490,7 +7493,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/hdr_glare_chromatic.pixel",
+		"renderprogs/hdr_glare_chromatic.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -7520,7 +7523,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform sampler2D samp0		: register(s0);\n"
 		"\n"
@@ -7624,7 +7627,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/hdr_glare_chromatic.vertex",
+		"renderprogs/hdr_glare_chromatic.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -7653,7 +7656,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"struct VS_IN {\n"
 		"	float4 position : POSITION;\n"
@@ -7681,7 +7684,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/heatHazeWithMask.pixel",
+		"renderprogs/heatHazeWithMask.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -7710,7 +7713,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform sampler2D	samp0 : register(s0); // texture 0 is _current Render\n"
 		"uniform sampler2D	samp1 : register(s1); // texture 1 is the per-surface bump map\n"
@@ -7752,7 +7755,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/heatHazeWithMask.vertex",
+		"renderprogs/heatHazeWithMask.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -7782,7 +7785,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"// RB: no GPU skinning with ES 2.0\n"
 		"#if defined(USE_GPU_SKINNING)\n"
@@ -7811,7 +7814,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"\n"
 		"void main( VS_IN vertex, out VS_OUT result ) {\n"
 		"\n"
-		"	#include \"skinning.inc\"\n"
+		"	#include \"skinning.inc.hlsl\"\n"
 		"\n"
 		"	// texture 0 takes the texture coordinates unmodified\n"
 		"	result.texcoord0 = float4( vertex.texcoord.xy, 0, 0 );\n"
@@ -7846,7 +7849,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/heatHazeWithMaskAndVertex.pixel",
+		"renderprogs/heatHazeWithMaskAndVertex.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -7875,7 +7878,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform sampler2D	samp0 : register(s0); // texture 0 is _current Render\n"
 		"uniform sampler2D	samp1 : register(s1); // texture 1 is the per-surface bump map\n"
@@ -7919,7 +7922,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/heatHazeWithMaskAndVertex.vertex",
+		"renderprogs/heatHazeWithMaskAndVertex.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -7949,7 +7952,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"// RB: no GPU skinning with ES 2.0\n"
 		"#if defined(USE_GPU_SKINNING)\n"
@@ -7979,7 +7982,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"\n"
 		"void main( VS_IN vertex, out VS_OUT result ) {\n"
 		"\n"
-		"	#include \"skinning.inc\"\n"
+		"	#include \"skinning.inc.hlsl\"\n"
 		"\n"
 		"	// texture 0 takes the texture coordinates unmodified\n"
 		"	result.texcoord0 = float4( vertex.texcoord, 0 , 0 );\n"
@@ -8015,7 +8018,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/heathaze.pixel",
+		"renderprogs/heathaze.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -8045,7 +8048,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform sampler2D	samp0 : register(s0); // texture 0 is _current Render\n"
 		"uniform sampler2D	samp1 : register(s1); // texture 1 is the per-surface bump map\n"
@@ -8078,7 +8081,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/heathaze.vertex",
+		"renderprogs/heathaze.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -8108,7 +8111,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"// User Renderparms start at 128 as per renderprogs.h\n"
 		"\n"
@@ -8138,7 +8141,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"\n"
 		"void main( VS_IN vertex, out VS_OUT result ) {\n"
 		"\n"
-		"	#include \"skinning.inc\"\n"
+		"	#include \"skinning.inc.hlsl\"\n"
 		"\n"
 		"	//texture 0 takes the texture coordinates and adds a scroll\n"
 		"	const float4 textureScroll = rpUser0;\n"
@@ -8170,7 +8173,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/interaction.pixel",
+		"renderprogs/interaction.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -8200,8 +8203,8 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
-		"#include \"renderprogs/BRDF.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
+		"#include \"BRDF.inc.hlsl\"\n"
 		"\n"
 		"uniform sampler2D	samp0 : register(s0); // texture 1 is the per-surface bump map\n"
 		"uniform sampler2D	samp1 : register(s1); // texture 2 is the light falloff texture\n"
@@ -8371,7 +8374,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/interaction.vertex",
+		"renderprogs/interaction.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -8401,7 +8404,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"#if defined( USE_GPU_SKINNING )\n"
 		"uniform matrices_ubo { float4 matrices[408]; };\n"
@@ -8571,7 +8574,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/interactionAmbient.pixel",
+		"renderprogs/interactionAmbient.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -8600,7 +8603,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform sampler2D	samp0 : register(s0); // texture 1 is the per-surface bump map\n"
 		"uniform sampler2D	samp1 : register(s1); // texture 2 is the light falloff texture\n"
@@ -8675,7 +8678,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/interactionAmbient.vertex",
+		"renderprogs/interactionAmbient.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -8704,7 +8707,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"struct VS_IN {\n"
 		"	float4 position : POSITION;\n"
@@ -8793,7 +8796,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/interactionAmbient_skinned.pixel",
+		"renderprogs/interactionAmbient_skinned.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -8823,7 +8826,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform sampler2D	samp0 : register(s0); // texture 1 is the per-surface bump map\n"
 		"uniform sampler2D	samp1 : register(s1); // texture 2 is the light falloff texture\n"
@@ -8898,7 +8901,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/interactionAmbient_skinned.vertex",
+		"renderprogs/interactionAmbient_skinned.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -8928,7 +8931,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform matrices_ubo { float4 matrices[408]; };\n"
 		"\n"
@@ -9075,7 +9078,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/interactionSM.pixel",
+		"renderprogs/interactionSM.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -9105,8 +9108,8 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
-		"#include \"renderprogs/BRDF.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
+		"#include \"BRDF.inc.hlsl\"\n"
 		"\n"
 		"uniform sampler2D				samp0 : register(s0); // texture 1 is the per-surface bump map\n"
 		"uniform sampler2D				samp1 : register(s1); // texture 2 is the light falloff texture\n"
@@ -9457,7 +9460,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/interactionSM.vertex",
+		"renderprogs/interactionSM.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -9487,7 +9490,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"#if defined( USE_GPU_SKINNING )\n"
 		"uniform matrices_ubo { float4 matrices[408]; };\n"
@@ -9680,7 +9683,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/motionBlur.pixel",
+		"renderprogs/motionBlur.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -9710,7 +9713,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform sampler2D samp0 : register(s0);   // view color\n"
 		"uniform sampler2D samp1 : register(s1);   // view depth\n"
@@ -9779,7 +9782,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/motionBlur.vertex",
+		"renderprogs/motionBlur.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -9808,7 +9811,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"struct VS_IN {\n"
 		"	float4 position : POSITION;\n"
@@ -9828,7 +9831,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/postprocess.pixel",
+		"renderprogs/postprocess.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -9858,7 +9861,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"// *INDENT-OFF*\n"
 		"uniform sampler2D samp0		: register(s0);\n"
@@ -9992,7 +9995,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/postprocess.vertex",
+		"renderprogs/postprocess.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -10021,7 +10024,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"struct VS_IN {\n"
 		"	float4 position : POSITION;\n"
@@ -10049,7 +10052,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/screen.pixel",
+		"renderprogs/screen.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -10079,7 +10082,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform sampler2D samp0		: register(s0);\n"
 		"\n"
@@ -10106,7 +10109,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/screen.vertex",
+		"renderprogs/screen.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -10135,7 +10138,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"struct VS_IN {\n"
 		"	float4 position : POSITION;\n"
@@ -10163,7 +10166,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/shadow.pixel",
+		"renderprogs/shadow.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -10192,7 +10195,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform sampler2D samp0 : register(s0);\n"
 		"struct PS_OUT {\n"
@@ -10206,7 +10209,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/shadow.vertex",
+		"renderprogs/shadow.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -10235,7 +10238,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"struct VS_IN {\n"
 		"	float4 position : POSITION;\n"
@@ -10258,7 +10261,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/shadowDebug.pixel",
+		"renderprogs/shadowDebug.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -10287,7 +10290,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform sampler2D samp0 : register(s0);\n"
 		"struct PS_OUT {\n"
@@ -10301,7 +10304,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/shadowDebug.vertex",
+		"renderprogs/shadowDebug.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -10330,7 +10333,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"struct VS_IN {\n"
 		"	float4 position : POSITION;\n"
@@ -10353,7 +10356,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/shadowDebug_skinned.pixel",
+		"renderprogs/shadowDebug_skinned.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -10382,7 +10385,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform sampler2D samp0 : register(s0);\n"
 		"struct PS_OUT {\n"
@@ -10396,7 +10399,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/shadowDebug_skinned.vertex",
+		"renderprogs/shadowDebug_skinned.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -10426,7 +10429,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform matrices_ubo { float4 matrices[408]; };\n"
 		"\n"
@@ -10493,7 +10496,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/shadow_skinned.pixel",
+		"renderprogs/shadow_skinned.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -10522,7 +10525,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform sampler2D samp0 : register(s0);\n"
 		"struct PS_OUT {\n"
@@ -10536,7 +10539,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/shadow_skinned.vertex",
+		"renderprogs/shadow_skinned.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -10566,7 +10569,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform matrices_ubo { float4 matrices[408]; };\n"
 		"\n"
@@ -10633,7 +10636,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/simpleshade.pixel",
+		"renderprogs/simpleshade.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -10662,7 +10665,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"struct PS_IN {\n"
 		"	float4 position		: VPOS;\n"
@@ -10700,7 +10703,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/simpleshade.vertex",
+		"renderprogs/simpleshade.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -10729,7 +10732,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"struct VS_IN {\n"
 		"	float4 position : POSITION;\n"
@@ -10758,7 +10761,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/skybox.pixel",
+		"renderprogs/skybox.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -10787,7 +10790,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform samplerCUBE samp0 : register(s0);\n"
 		"\n"
@@ -10809,7 +10812,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/skybox.vertex",
+		"renderprogs/skybox.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -10838,7 +10841,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"struct VS_IN {\n"
 		"	float4 position : POSITION;\n"
@@ -10869,7 +10872,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/SMAA_blending_weight_calc.pixel",
+		"renderprogs/SMAA_blending_weight_calc.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -10899,11 +10902,12 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"#define SMAA_INCLUDE_VS 0\n"
 		"#define SMAA_INCLUDE_PS 1\n"
-		"#include \"renderprogs/SMAA.inc\"\n"
+		"\n"
+		"#include \"SMAA.inc.hlsl\"\n"
 		"\n"
 		"// *INDENT-OFF*\n"
 		"uniform sampler2D samp0		: register(s0);		// _smaaEdges\n"
@@ -10958,7 +10962,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/SMAA_blending_weight_calc.vertex",
+		"renderprogs/SMAA_blending_weight_calc.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -10988,11 +10992,11 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"#define SMAA_INCLUDE_VS 1\n"
 		"#define SMAA_INCLUDE_PS 0\n"
-		"#include \"renderprogs/SMAA.inc\"\n"
+		"#include \"SMAA.inc.hlsl\"\n"
 		"\n"
 		"struct VS_IN \n"
 		"{\n"
@@ -11035,7 +11039,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/SMAA_edge_detection.pixel",
+		"renderprogs/SMAA_edge_detection.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -11065,11 +11069,11 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"#define SMAA_INCLUDE_VS 0\n"
 		"#define SMAA_INCLUDE_PS 1\n"
-		"#include \"renderprogs/SMAA.inc\"\n"
+		"#include \"SMAA.inc.hlsl\"\n"
 		"\n"
 		"// *INDENT-OFF*\n"
 		"uniform sampler2D samp0		: register(s0);		// _currentColor\n"
@@ -11116,7 +11120,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/SMAA_edge_detection.vertex",
+		"renderprogs/SMAA_edge_detection.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -11146,11 +11150,11 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"#define SMAA_INCLUDE_VS 1\n"
 		"#define SMAA_INCLUDE_PS 0\n"
-		"#include \"renderprogs/SMAA.inc\"\n"
+		"#include \"SMAA.inc.hlsl\"\n"
 		"\n"
 		"struct VS_IN \n"
 		"{\n"
@@ -11190,7 +11194,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/SMAA_final.pixel",
+		"renderprogs/SMAA_final.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -11220,11 +11224,11 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"#define SMAA_INCLUDE_VS 0\n"
 		"#define SMAA_INCLUDE_PS 1\n"
-		"#include \"renderprogs/SMAA.inc\"\n"
+		"#include \"SMAA.inc.hlsl\"\n"
 		"\n"
 		"// *INDENT-OFF*\n"
 		"uniform sampler2D samp0		: register(s0);		// _currentColor\n"
@@ -11269,7 +11273,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/SMAA_final.vertex",
+		"renderprogs/SMAA_final.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -11299,11 +11303,11 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"#define SMAA_INCLUDE_VS 1\n"
 		"#define SMAA_INCLUDE_PS 0\n"
-		"#include \"renderprogs/SMAA.inc\"\n"
+		"#include \"SMAA.inc.hlsl\"\n"
 		"\n"
 		"struct VS_IN \n"
 		"{\n"
@@ -11336,7 +11340,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/stereoDeGhost.pixel",
+		"renderprogs/stereoDeGhost.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -11365,7 +11369,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform sampler2D samp0 : register(s0);\n"
 		"\n"
@@ -11380,7 +11384,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/stereoDeGhost.vertex",
+		"renderprogs/stereoDeGhost.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -11409,7 +11413,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"struct VS_IN {\n"
 		"	float4 position : POSITION;\n"
@@ -11433,7 +11437,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/stereoInterlace.pixel",
+		"renderprogs/stereoInterlace.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -11462,7 +11466,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform sampler2D samp0 : register(s0);\n"
 		"uniform sampler2D samp1 : register(s1);\n"
@@ -11487,7 +11491,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/stereoInterlace.vertex",
+		"renderprogs/stereoInterlace.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -11516,7 +11520,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"struct VS_IN {\n"
 		"	float4 position : POSITION;\n"
@@ -11540,7 +11544,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/stereoWarp.pixel",
+		"renderprogs/stereoWarp.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -11569,7 +11573,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"/*\n"
 		"\n"
@@ -11620,7 +11624,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/stereoWarp.vertex",
+		"renderprogs/stereoWarp.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -11649,7 +11653,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"struct VS_IN {\n"
 		"	float4 position : POSITION;\n"
@@ -11672,7 +11676,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/texture.pixel",
+		"renderprogs/texture.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -11701,7 +11705,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform sampler2D samp0 : register(s0);\n"
 		"\n"
@@ -11723,7 +11727,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/texture.vertex",
+		"renderprogs/texture.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -11752,7 +11756,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"struct VS_IN {\n"
 		"	float4 position : POSITION;\n"
@@ -11786,7 +11790,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/texture_color.pixel",
+		"renderprogs/texture_color.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -11815,7 +11819,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform sampler2D samp0 : register(s0);\n"
 		"\n"
@@ -11838,7 +11842,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/texture_color.vertex",
+		"renderprogs/texture_color.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -11867,7 +11871,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"struct VS_IN {\n"
 		"	float4 position : POSITION;\n"
@@ -11905,7 +11909,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/texture_color_skinned.pixel",
+		"renderprogs/texture_color_skinned.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -11934,7 +11938,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform sampler2D samp0 : register(s0);\n"
 		"\n"
@@ -11957,7 +11961,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/texture_color_skinned.vertex",
+		"renderprogs/texture_color_skinned.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -11987,7 +11991,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform matrices_ubo { float4 matrices[408]; };\n"
 		"\n"
@@ -12063,7 +12067,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/texture_color_texgen.pixel",
+		"renderprogs/texture_color_texgen.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -12092,7 +12096,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform sampler2D samp0 : register(s0);\n"
 		"\n"
@@ -12120,7 +12124,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/texture_color_texgen.vertex",
+		"renderprogs/texture_color_texgen.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -12149,7 +12153,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"struct VS_IN {\n"
 		"	float4 position : POSITION;\n"
@@ -12191,7 +12195,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/tonemap.pixel",
+		"renderprogs/tonemap.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -12221,7 +12225,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform sampler2D	samp0 : register(s0); // texture 0 is _currentRender\n"
 		"uniform sampler2D	samp1 : register(s1); // texture 1 is heatmap\n"
@@ -12413,7 +12417,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/tonemap.vertex",
+		"renderprogs/tonemap.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -12442,7 +12446,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"struct VS_IN {\n"
 		"	float4 position : POSITION;\n"
@@ -12470,7 +12474,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/vertex_color.pixel",
+		"renderprogs/vertex_color.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -12500,7 +12504,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform sampler2D samp0 : register(s0);\n"
 		"\n"
@@ -12522,7 +12526,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/vertex_color.vertex",
+		"renderprogs/vertex_color.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -12552,7 +12556,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"struct VS_IN\n"
 		"{\n"
@@ -12582,7 +12586,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/wobblesky.pixel",
+		"renderprogs/wobblesky.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -12611,7 +12615,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"uniform samplerCUBE samp0 : register(s0);\n"
 		"\n"
@@ -12633,7 +12637,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/wobblesky.vertex",
+		"renderprogs/wobblesky.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -12662,7 +12666,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"struct VS_IN {\n"
 		"	float4 position : POSITION;\n"
@@ -12696,7 +12700,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/zcullReconstruct.pixel",
+		"renderprogs/zcullReconstruct.ps.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -12725,7 +12729,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"struct PS_OUT {	\n"
 		"	float depth : DEPTH;\n"
@@ -12740,7 +12744,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 	},
 	
 	{
-		"renderprogs/zcullReconstruct.vertex",
+		"renderprogs/zcullReconstruct.vs.hlsl",
 		"/*\n"
 		"===========================================================================\n"
 		"\n"
@@ -12769,7 +12773,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"===========================================================================\n"
 		"*/\n"
 		"\n"
-		"#include \"renderprogs/global.inc\"\n"
+		"#include \"global.inc.hlsl\"\n"
 		"\n"
 		"struct VS_IN {\n"
 		"	float4 position : POSITION;\n"

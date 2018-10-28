@@ -359,6 +359,8 @@ file(GLOB RENDERER_OPENGL_SOURCES renderer/OpenGL/*.cpp)
 file(GLOB RENDERER_VULKAN_INCLUDES renderer/Vulkan/*.h)
 file(GLOB RENDERER_VULKAN_SOURCES renderer/Vulkan/*.cpp)
 
+file(GLOB SHADERS ../base/renderprogs/*.hlsl ../base/renderprogs/*.inc )
+
 file(GLOB IRRXML_INCLUDES libs/irrxml/src/*.h)
 file(GLOB IRRXML_SOURCES libs/irrxml/src/*.cpp)
 
@@ -947,6 +949,8 @@ source_group("renderer\\Vulkan" FILES ${RENDERER_VULKAN_SOURCES})
 
 source_group("renderer\\SMAA" FILES ${RENDERER_SMAA_INCLUDES})
 
+source_group("renderer\\Shaders" FILES ${SHADERS})
+
 source_group("libs\\irrxml" FILES ${IRRXML_INCLUDES})
 source_group("libs\\irrxml" FILES ${IRRXML_SOURCES})
 
@@ -1114,6 +1118,7 @@ set(RBDOOM3_INCLUDES
 			${RENDERER_JOBS_PRELIGHTSHADOWVOLUME_INCLUDES}
 			${RENDERER_JOBS_STATICSHADOWVOLUME_INCLUDES}
 			
+			${SHADERS}
 			${RENDERER_SMAA_INCLUDES}
 			${IRRXML_INCLUDES}
 			${JPEG_INCLUDES}
@@ -1396,6 +1401,8 @@ if(MSVC)
 		OBJECT_OUTPUTS "precompiled.pch"
 		)
 	endif()
+	
+	set_source_files_properties( ${SHADERS} PROPERTIES VS_TOOL_OVERRIDE "None" )
 	
 	list(APPEND RBDOOM3_SOURCES ${WIN32_RESOURCES})
 	
