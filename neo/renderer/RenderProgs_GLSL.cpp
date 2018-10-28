@@ -1083,7 +1083,7 @@ idStr idRenderProgManager::ConvertCG2GLSL( const idStr& in, const char* name, bo
 		// RB: check for sampler uniforms
 		if( vkGLSL )
 		{
-			while( token == "uniform" && ( src.PeekTokenString( "sampler2D" ) || src.PeekTokenString( "samplerCUBE" ) || src.PeekTokenString( "sampler3D" ) ) )
+			while( token == "uniform" && ( src.PeekTokenString( "sampler2D" ) || src.PeekTokenString( "samplerCUBE" ) || src.PeekTokenString( "sampler3D" ) || src.PeekTokenString( "sampler2DArrayShadow" ) ) )
 			{
 				idStr sampler;
 				
@@ -1639,16 +1639,11 @@ idRenderProgManager::SetUniformValue
 */
 void idRenderProgManager::SetUniformValue( const renderParm_t rp, const float* value )
 {
-#if !defined(USE_VULKAN)
 	for( int i = 0; i < 4; i++ )
 	{
 		uniforms[rp][i] = value[i];
 	}
-#endif
 }
-
-
-
 
 
 /*

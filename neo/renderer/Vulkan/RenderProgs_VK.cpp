@@ -205,7 +205,12 @@ idRenderProgManager::StartFrame
 */
 void idRenderProgManager::StartFrame()
 {
-
+	counter++;
+	currentData = counter % NUM_FRAME_DATA;
+	currentDescSet = 0;
+	currentParmBufferOffset = 0;
+	
+	vkResetDescriptorPool( vkcontext.device, descriptorPools[ currentData ], 0 );
 }
 
 /*
@@ -249,6 +254,110 @@ void idRenderProgManager::LoadShader( int index, rpStage_t stage )
 	
 	LoadShader( shaders[index] );
 }
+
+
+/*
+================================================================================================
+CompileGLSLtoSPIRV
+================================================================================================
+*/
+#define USE_GLSLANG 1
+
+#if defined(USE_GLSLANG)
+
+#include <glslang/public/ShaderLang.h>
+#include <glslang/Include/ResourceLimits.h>
+#include <SPIRV/GlslangToSpv.h>
+#include <StandAlone/DirStackFileIncluder.h>
+
+namespace glslang
+{
+
+// These are the default resources for TBuiltInResources, used for both
+//  - parsing this string for the case where the user didn't supply one,
+//  - dumping out a template for user construction of a config file.
+extern const TBuiltInResource DefaultTBuiltInResource;
+
+}
+
+static bool glslangInitialized = false;
+
+static int CompileGLSLtoSPIRV( const char* filename, const idStr& dataGLSL, const rpStage_t stage, uint32** spirvBuffer )
+{
+	if( !glslangInitialized )
+	{
+		glslang::InitializeProcess();
+		glslangInitialized = true;
+	}
+	
+	const char* inputCString = dataGLSL.c_str();
+	
+	EShLanguage shaderType;
+	if( stage == SHADER_STAGE_VERTEX )
+	{
+		shaderType = EShLangVertex;
+	}
+	else if( stage == SHADER_STAGE_COMPUTE )
+	{
+		shaderType = EShLangCompute;
+	}
+	else
+	{
+		shaderType = EShLangFragment;
+	}
+	
+	glslang::TShader shader( shaderType );
+	shader.setStrings( &inputCString, 1 );
+	
+	int clientInputSemanticsVersion = 100; // maps to, say, #define VULKAN 100
+	glslang::EShTargetClientVersion vulkanClientVersion = glslang::EShTargetVulkan_1_0;
+	glslang::EShTargetLanguageVersion targetVersion = glslang::EShTargetSpv_1_0;
+	
+	shader.setEnvInput( glslang::EShSourceGlsl, shaderType, glslang::EShClientVulkan, clientInputSemanticsVersion );
+	shader.setEnvClient( glslang::EShClientVulkan, vulkanClientVersion );
+	shader.setEnvTarget( glslang::EShTargetSpv, targetVersion );
+	
+	TBuiltInResource resources;
+	resources = glslang::DefaultTBuiltInResource;
+	EShMessages messages = ( EShMessages )( EShMsgSpvRules | EShMsgVulkanRules );
+	
+	const int defaultVersion = 100;
+	
+	if( !shader.parse( &resources, 100, false, messages ) )
+	{
+		idLib::Printf( "GLSL parsing failed for: %s\n", filename );
+		idLib::Printf( "%s\n", shader.getInfoLog() );
+		idLib::Printf( "%s\n", shader.getInfoDebugLog() );
+	}
+	
+	glslang::TProgram program;
+	program.addShader( &shader );
+	
+	if( !program.link( messages ) )
+	{
+		idLib::Printf( "GLSL linking failed for: %s\n", filename );
+		idLib::Printf( "%s\n", shader.getInfoLog() );
+		idLib::Printf( "%s\n", shader.getInfoDebugLog() );
+	}
+	
+	// All that’s left to do now is to convert the program’s intermediate representation into SpirV:
+	std::vector<unsigned int>	spirV;
+	spv::SpvBuildLogger			logger;
+	glslang::SpvOptions			spvOptions;
+	
+	glslang::GlslangToSpv( *program.getIntermediate( shaderType ), spirV, &logger, &spvOptions );
+	
+	int32 spirvLen = spirV.size() * sizeof( unsigned int );
+	
+	void* buffer = Mem_Alloc( spirvLen, TAG_RENDERPROG );
+	memcpy( buffer, spirV.data(), spirvLen );
+	
+	*spirvBuffer = ( uint32* ) buffer;
+	return spirvLen;
+	
+	
+}
+#endif
 
 /*
 ================================================================================================
@@ -378,7 +487,7 @@ void idRenderProgManager::LoadShader( shader_t& shader )
 	// RB: find the uniforms locations in either the vertex or fragment uniform array
 	// this uses the new layout structure
 	{
-		idLexer src( outFileLayout, outFileLayout.Length(), "layout" );
+		idLexer src( programLayout, programLayout.Length(), "layout" );
 		idToken token;
 		if( src.ExpectTokenString( "uniforms" ) )
 		{
@@ -434,6 +543,15 @@ void idRenderProgManager::LoadShader( shader_t& shader )
 	}
 	
 	// TODO GLSL to SPIR-V compilation
+	uint32* spirvBuffer = NULL;
+	int spirvLen = CompileGLSLtoSPIRV( outFileGLSL.c_str(), programGLSL, shader.stage, &spirvBuffer );
+	
+	VkShaderModuleCreateInfo shaderModuleCreateInfo = {};
+	shaderModuleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+	shaderModuleCreateInfo.codeSize = spirvLen;
+	shaderModuleCreateInfo.pCode = ( uint32* )spirvBuffer;
+	
+	ID_VK_CHECK( vkCreateShaderModule( vkcontext.device, &shaderModuleCreateInfo, NULL, &shader.module ) );
 	
 #if 0
 	

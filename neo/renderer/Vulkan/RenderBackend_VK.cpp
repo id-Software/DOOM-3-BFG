@@ -1269,6 +1269,7 @@ void idRenderBackend::Init()
 	
 	idLib::Printf( "----- Initializing Vulkan driver -----\n" );
 	
+	glConfig.driverType = GLDRV_VULKAN;
 	glConfig.gpuSkinningAvailable = true;
 	
 	// create the Vulkan instance and enable validation layers
