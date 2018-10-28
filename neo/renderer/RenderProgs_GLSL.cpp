@@ -1083,7 +1083,12 @@ idStr idRenderProgManager::ConvertCG2GLSL( const idStr& in, const char* name, bo
 		// RB: check for sampler uniforms
 		if( vkGLSL )
 		{
-			while( token == "uniform" && ( src.PeekTokenString( "sampler2D" ) || src.PeekTokenString( "samplerCUBE" ) || src.PeekTokenString( "sampler3D" ) || src.PeekTokenString( "sampler2DArrayShadow" ) ) )
+			while( token == "uniform" &&
+					( src.PeekTokenString( "sampler2D" ) ||
+					  src.PeekTokenString( "samplerCUBE" ) ||
+					  src.PeekTokenString( "sampler3D" ) ||
+					  src.PeekTokenString( "sampler2DArrayShadow" ) ||
+					  src.PeekTokenString( "sampler2DArray" ) ) )
 			{
 				idStr sampler;
 				
@@ -1325,7 +1330,14 @@ idStr idRenderProgManager::ConvertCG2GLSL( const idStr& in, const char* name, bo
 				
 				if( idStr::Cmp( uniformList[i].c_str(), "rpShadowMatrices" ) == 0 )
 				{
-					program += va( "%s[/* %s */ %d + ", uniformArrayName, uniformList[i].c_str(), i );
+					if( vkGLSL )
+					{
+						program += va( "%s[ ", uniformList[i].c_str() );
+					}
+					else
+					{
+						program += va( "%s[/* %s */ %d + ", uniformArrayName, uniformList[i].c_str(), i );
+					}
 					
 					if( src.ExpectTokenString( "[" ) )
 					{
@@ -1532,6 +1544,13 @@ idStr idRenderProgManager::ConvertCG2GLSL( const idStr& in, const char* name, bo
 			{
 				out += "\tvec4 ";
 				out += uniformList[i];
+				
+				// TODO fix this ugly hack
+				if( uniformList[i] == "rpShadowMatrices" )
+				{
+					out += "[6*4]";
+				}
+				
 				out += ";\n";
 			}
 			out += "};\n";
