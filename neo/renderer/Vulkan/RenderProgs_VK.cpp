@@ -32,6 +32,170 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 
 #include "../RenderCommon.h"
+#include "../RenderProgs.h"
+
+
+void RpPrintState( uint64 stateBits, uint64* stencilBits );
+
+struct vertexLayout_t
+{
+	VkPipelineVertexInputStateCreateInfo inputState;
+	idList< VkVertexInputBindingDescription > bindingDesc;
+	idList< VkVertexInputAttributeDescription > attributeDesc;
+};
+
+idUniformBuffer emptyUBO;
+
+static vertexLayout_t vertexLayouts[ NUM_VERTEX_LAYOUTS ];
+
+static const char* renderProgBindingStrings[ BINDING_TYPE_MAX ] =
+{
+	"ubo",
+	"sampler"
+};
+
+/*
+=============
+CreateVertexDescriptions
+=============
+*/
+void CreateVertexDescriptions()
+{
+	VkPipelineVertexInputStateCreateInfo createInfo = {};
+	createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+	createInfo.pNext = NULL;
+	createInfo.flags = 0;
+	
+	VkVertexInputBindingDescription binding = {};
+	VkVertexInputAttributeDescription attribute = {};
+	
+	{
+		vertexLayout_t& layout = vertexLayouts[ LAYOUT_DRAW_VERT ];
+		layout.inputState = createInfo;
+		
+		uint32 locationNo = 0;
+		uint32 offset = 0;
+		
+		binding.stride = sizeof( idDrawVert );
+		binding.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+		layout.bindingDesc.Append( binding );
+		
+		// Position
+		attribute.format = VK_FORMAT_R32G32B32_SFLOAT;
+		attribute.location = locationNo++;
+		attribute.offset = offset;
+		layout.attributeDesc.Append( attribute );
+		offset += sizeof( idDrawVert::xyz );
+		
+		// TexCoord
+		attribute.format = VK_FORMAT_R16G16_SFLOAT;
+		attribute.location = locationNo++;
+		attribute.offset = offset;
+		layout.attributeDesc.Append( attribute );
+		offset += sizeof( idDrawVert::st );
+		
+		// Normal
+		attribute.format = VK_FORMAT_R8G8B8A8_UNORM;
+		attribute.location = locationNo++;
+		attribute.offset = offset;
+		layout.attributeDesc.Append( attribute );
+		offset += sizeof( idDrawVert::normal );
+		
+		// Tangent
+		attribute.format = VK_FORMAT_R8G8B8A8_UNORM;
+		attribute.location = locationNo++;
+		attribute.offset = offset;
+		layout.attributeDesc.Append( attribute );
+		offset += sizeof( idDrawVert::tangent );
+		
+		// Color1
+		attribute.format = VK_FORMAT_R8G8B8A8_UNORM;
+		attribute.location = locationNo++;
+		attribute.offset = offset;
+		layout.attributeDesc.Append( attribute );
+		offset += sizeof( idDrawVert::color );
+		
+		// Color2
+		attribute.format = VK_FORMAT_R8G8B8A8_UNORM;
+		attribute.location = locationNo++;
+		attribute.offset = offset;
+		layout.attributeDesc.Append( attribute );
+	}
+	
+	{
+		vertexLayout_t& layout = vertexLayouts[ LAYOUT_DRAW_SHADOW_VERT_SKINNED ];
+		layout.inputState = createInfo;
+		
+		uint32 locationNo = 0;
+		uint32 offset = 0;
+		
+		binding.stride = sizeof( idShadowVertSkinned );
+		binding.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+		layout.bindingDesc.Append( binding );
+		
+		// Position
+		attribute.format = VK_FORMAT_R32G32B32A32_SFLOAT;
+		attribute.location = locationNo++;
+		attribute.offset = offset;
+		layout.attributeDesc.Append( attribute );
+		offset += sizeof( idShadowVertSkinned::xyzw );
+		
+		// Color1
+		attribute.format = VK_FORMAT_R8G8B8A8_UNORM;
+		attribute.location = locationNo++;
+		attribute.offset = offset;
+		layout.attributeDesc.Append( attribute );
+		offset += sizeof( idShadowVertSkinned::color );
+		
+		// Color2
+		attribute.format = VK_FORMAT_R8G8B8A8_UNORM;
+		attribute.location = locationNo++;
+		attribute.offset = offset;
+		layout.attributeDesc.Append( attribute );
+	}
+	
+	{
+		vertexLayout_t& layout = vertexLayouts[ LAYOUT_DRAW_SHADOW_VERT ];
+		layout.inputState = createInfo;
+		
+		binding.stride = sizeof( idShadowVert );
+		binding.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+		layout.bindingDesc.Append( binding );
+		
+		// Position
+		attribute.format = VK_FORMAT_R32G32B32A32_SFLOAT;
+		attribute.location = 0;
+		attribute.offset = 0;
+		layout.attributeDesc.Append( attribute );
+	}
+}
+
+/*
+========================
+CreateDescriptorPools
+========================
+*/
+void CreateDescriptorPools( VkDescriptorPool( &pools )[ NUM_FRAME_DATA ] )
+{
+	const int numPools = 2;
+	VkDescriptorPoolSize poolSizes[ numPools ];
+	poolSizes[ 0 ].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	poolSizes[ 0 ].descriptorCount = MAX_DESC_UNIFORM_BUFFERS;
+	poolSizes[ 1 ].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	poolSizes[ 1 ].descriptorCount = MAX_DESC_IMAGE_SAMPLERS;
+	
+	VkDescriptorPoolCreateInfo poolCreateInfo = {};
+	poolCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	poolCreateInfo.pNext = NULL;
+	poolCreateInfo.maxSets = MAX_DESC_SETS;
+	poolCreateInfo.poolSizeCount = numPools;
+	poolCreateInfo.pPoolSizes = poolSizes;
+	
+	for( int i = 0; i < NUM_FRAME_DATA; ++i )
+	{
+		ID_VK_CHECK( vkCreateDescriptorPool( vkcontext.device, &poolCreateInfo, NULL, &pools[ i ] ) );
+	}
+}
 
 
 /*
@@ -58,8 +222,7 @@ void idRenderProgManager::BindProgram( int index )
 	
 	current = index;
 	
-	RENDERLOG_PRINTF( "Binding GLSL Program %s\n", renderProgs[ index ].name.c_str() );
-	glUseProgram( renderProgs[ index ].progId );
+	RENDERLOG_PRINTF( "Binding SPIR-V Program %s\n", renderProgs[ index ].name.c_str() );
 }
 
 /*
@@ -70,8 +233,6 @@ idRenderProgManager::Unbind
 void idRenderProgManager::Unbind()
 {
 	current = -1;
-	
-	glUseProgram( 0 );
 }
 
 /*
@@ -81,7 +242,7 @@ idRenderProgManager::LoadShader
 */
 void idRenderProgManager::LoadShader( int index, rpStage_t stage )
 {
-	if( shaders[index].progId != INVALID_PROGID )
+	if( shaders[ index ].module != VK_NULL_HANDLE )
 	{
 		return; // Already loaded
 	}
@@ -96,11 +257,11 @@ idRenderProgManager::LoadGLSLShader
 */
 void idRenderProgManager::LoadShader( shader_t& shader )
 {
-
 	idStr inFile;
 	idStr outFileHLSL;
 	idStr outFileGLSL;
-	idStr outFileUniforms;
+	idStr outFileSPIRV;
+	idStr outFileLayout;
 	
 	// RB: replaced backslashes
 	inFile.Format( "renderprogs/%s", shader.name.c_str() );
@@ -108,48 +269,27 @@ void idRenderProgManager::LoadShader( shader_t& shader )
 	outFileHLSL.Format( "renderprogs/hlsl/%s%s", shader.name.c_str(), shader.nameOutSuffix.c_str() );
 	outFileHLSL.StripFileExtension();
 	
-	switch( glConfig.driverType )
-	{
-		case GLDRV_OPENGL_MESA:
-		{
-			outFileGLSL.Format( "renderprogs/glsles-3_00/%s%s", shader.name.c_str(), shader.nameOutSuffix.c_str() );
-			outFileUniforms.Format( "renderprogs/glsles-3_00/%s%s", shader.name.c_str(), shader.nameOutSuffix.c_str() );
-			break;
-		}
-		
-		case GLDRV_VULKAN:
-		{
-			outFileGLSL.Format( "renderprogs/vkglsl/%s%s", shader.name.c_str(), shader.nameOutSuffix.c_str() );
-			outFileUniforms.Format( "renderprogs/vkglsl/%s%s", shader.name.c_str(), shader.nameOutSuffix.c_str() );
-			break;
-		}
-		
-		default:
-		{
-			outFileGLSL.Format( "renderprogs/glsl-4_50/%s%s", shader.name.c_str(), shader.nameOutSuffix.c_str() );
-			outFileUniforms.Format( "renderprogs/glsl-4_50/%s%s", shader.name.c_str(), shader.nameOutSuffix.c_str() );
-		}
-	}
+	outFileGLSL.Format( "renderprogs/vkglsl/%s%s", shader.name.c_str(), shader.nameOutSuffix.c_str() );
+	outFileLayout.Format( "renderprogs/vkglsl/%s%s", shader.name.c_str(), shader.nameOutSuffix.c_str() );
 	
 	outFileGLSL.StripFileExtension();
-	outFileUniforms.StripFileExtension();
+	outFileLayout.StripFileExtension();
 	
-	GLenum glTarget;
 	if( shader.stage == SHADER_STAGE_FRAGMENT )
 	{
-		glTarget = GL_FRAGMENT_SHADER;
 		inFile += ".ps.hlsl";
 		outFileHLSL += ".ps.hlsl";
 		outFileGLSL += ".frag";
-		outFileUniforms += ".frag.layout";
+		outFileLayout += ".frag.layout";
+		outFileSPIRV += ".fspv";
 	}
 	else
 	{
-		glTarget = GL_VERTEX_SHADER;
 		inFile += ".vs.hlsl";
 		outFileHLSL += ".vs.hlsl";
 		outFileGLSL += ".vert";
-		outFileUniforms += ".vert.layout";
+		outFileLayout += ".vert.layout";
+		outFileSPIRV += ".vspv";
 	}
 	
 	// first check whether we already have a valid GLSL file and compare it to the hlsl timestamp;
@@ -161,20 +301,22 @@ void idRenderProgManager::LoadShader( shader_t& shader )
 	
 	// if the glsl file doesn't exist or we have a newer HLSL file we need to recreate the glsl file.
 	idStr programGLSL;
-	idStr programUniforms;
-	if( ( glslFileLength <= 0 ) || ( hlslTimeStamp != FILE_NOT_FOUND_TIMESTAMP && hlslTimeStamp > glslTimeStamp ) || r_alwaysExportGLSL.GetBool() )
+	idStr programLayout;
+	//if( ( glslFileLength <= 0 ) || ( hlslTimeStamp != FILE_NOT_FOUND_TIMESTAMP && hlslTimeStamp > glslTimeStamp ) || r_alwaysExportGLSL.GetBool() )
 	{
 		const char* hlslFileBuffer = NULL;
 		int len = 0;
 		
 		if( hlslFileLength <= 0 )
 		{
-			// hlsl file doesn't even exist bail out
 			hlslFileBuffer = FindEmbeddedSourceShader( inFile.c_str() );
 			if( hlslFileBuffer == NULL )
 			{
+				// hlsl file doesn't even exist bail out
+				idLib::Error( "HLSL file %s could not be loaded and may be corrupt", inFile.c_str() );
 				return;
 			}
+			
 			len = strlen( hlslFileBuffer );
 		}
 		else
@@ -199,12 +341,13 @@ void idRenderProgManager::LoadShader( shader_t& shader )
 		
 		idStr hlslCode( hlslFileBuffer );
 		idStr programHLSL = StripDeadCode( hlslCode, inFile, compileMacros, shader.builtin );
-		programGLSL = ConvertCG2GLSL( programHLSL, inFile, shader.stage == SHADER_STAGE_VERTEX, programUniforms, glConfig.driverType == GLDRV_VULKAN );
+		programGLSL = ConvertCG2GLSL( programHLSL, inFile, shader.stage == SHADER_STAGE_VERTEX, programLayout, true );
 		
 		fileSystem->WriteFile( outFileHLSL, programHLSL.c_str(), programHLSL.Length(), "fs_savepath" );
 		fileSystem->WriteFile( outFileGLSL, programGLSL.c_str(), programGLSL.Length(), "fs_savepath" );
-		fileSystem->WriteFile( outFileUniforms, programUniforms.c_str(), programUniforms.Length(), "fs_savepath" );
+		fileSystem->WriteFile( outFileLayout, programLayout.c_str(), programLayout.Length(), "fs_savepath" );
 	}
+	/*
 	else
 	{
 		// read in the glsl file
@@ -216,8 +359,8 @@ void idRenderProgManager::LoadShader( shader_t& shader )
 		}
 		programGLSL = ( const char* ) fileBufferGLSL;
 		Mem_Free( fileBufferGLSL );
-		
-		
+	
+	
 		{
 			// read in the uniform file
 			void* fileBufferUniforms = NULL;
@@ -230,13 +373,12 @@ void idRenderProgManager::LoadShader( shader_t& shader )
 			Mem_Free( fileBufferUniforms );
 		}
 	}
+	*/
 	
 	// RB: find the uniforms locations in either the vertex or fragment uniform array
 	// this uses the new layout structure
 	{
-		shader.uniforms.Clear();
-		
-		idLexer src( programUniforms, programUniforms.Length(), "uniforms" );
+		idLexer src( outFileLayout, outFileLayout.Length(), "layout" );
 		idToken token;
 		if( src.ExpectTokenString( "uniforms" ) )
 		{
@@ -260,10 +402,40 @@ void idRenderProgManager::LoadShader( shader_t& shader )
 				{
 					idLib::Error( "couldn't find uniform %s for %s", token.c_str(), outFileGLSL.c_str() );
 				}
-				shader.uniforms.Append( index );
+				shader.parmIndices.Append( index );
+			}
+		}
+		
+		if( src.ExpectTokenString( "bindings" ) )
+		{
+			src.ExpectTokenString( "[" );
+			
+			while( !src.CheckTokenString( "]" ) )
+			{
+				src.ReadToken( &token );
+				
+				int index = -1;
+				for( int i = 0; i < BINDING_TYPE_MAX; ++i )
+				{
+					if( token == renderProgBindingStrings[ i ] )
+					{
+						index = i;
+					}
+				}
+				
+				if( index == -1 )
+				{
+					idLib::Error( "Invalid binding %s", token.c_str() );
+				}
+				
+				shader.bindings.Append( static_cast< rpBinding_t >( index ) );
 			}
 		}
 	}
+	
+	// TODO GLSL to SPIR-V compilation
+	
+#if 0
 	
 	// create and compile the shader
 	shader.progId = glCreateShader( glTarget );
@@ -322,6 +494,7 @@ void idRenderProgManager::LoadShader( shader_t& shader )
 			return;
 		}
 	}
+#endif
 }
 
 /*
@@ -338,127 +511,18 @@ void idRenderProgManager::LoadGLSLProgram( const int programIndex, const int ver
 		return; // Already loaded
 	}
 	
-	//shader_t& vertexShader = shaders[ vertexShaderIndex ];
-	//shader_t& fragmentShader = shaders[ fragmentShaderIndex ];
-	
-	GLuint vertexProgID = ( vertexShaderIndex != -1 ) ? shaders[ vertexShaderIndex ].progId : INVALID_PROGID;
-	GLuint fragmentProgID = ( fragmentShaderIndex != -1 ) ? shaders[ fragmentShaderIndex ].progId : INVALID_PROGID;
-	
-	const GLuint program = glCreateProgram();
-	if( program )
-	{
-		if( vertexProgID != INVALID_PROGID )
-		{
-			glAttachShader( program, vertexProgID );
-		}
-		
-		if( fragmentProgID != INVALID_PROGID )
-		{
-			glAttachShader( program, fragmentProgID );
-		}
-		
-		// bind vertex attribute locations
-		for( int i = 0; attribsPC[i].glsl != NULL; i++ )
-		{
-			if( ( attribsPC[i].flags & AT_VS_IN ) != 0 )
-			{
-				glBindAttribLocation( program, attribsPC[i].bind, attribsPC[i].glsl );
-			}
-		}
-		
-		glLinkProgram( program );
-		
-		int infologLength = 0;
-		glGetProgramiv( program, GL_INFO_LOG_LENGTH, &infologLength );
-		if( infologLength > 1 )
-		{
-			char* infoLog = ( char* )malloc( infologLength );
-			int charsWritten = 0;
-			glGetProgramInfoLog( program, infologLength, &charsWritten, infoLog );
-			
-			// catch the strings the ATI and Intel drivers output on success
-			if( strstr( infoLog, "Vertex shader(s) linked, fragment shader(s) linked." ) != NULL || strstr( infoLog, "No errors." ) != NULL )
-			{
-				//idLib::Printf( "render prog %s from %s linked\n", GetName(), GetFileName() );
-			}
-			else
-			{
-				idLib::Printf( "While linking GLSL program %d with vertexShader %s and fragmentShader %s\n",
-							   programIndex,
-							   ( vertexShaderIndex >= 0 ) ? shaders[vertexShaderIndex].name.c_str() : "<Invalid>",
-							   ( fragmentShaderIndex >= 0 ) ? shaders[ fragmentShaderIndex ].name.c_str() : "<Invalid>" );
-				idLib::Printf( "%s\n", infoLog );
-			}
-			
-			free( infoLog );
-		}
-	}
-	
-	int linked = GL_FALSE;
-	glGetProgramiv( program, GL_LINK_STATUS, &linked );
-	if( linked == GL_FALSE )
-	{
-		glDeleteProgram( program );
-		idLib::Error( "While linking GLSL program %d with vertexShader %s and fragmentShader %s\n",
-					  programIndex,
-					  ( vertexShaderIndex >= 0 ) ? shaders[vertexShaderIndex].name.c_str() : "<Invalid>",
-					  ( fragmentShaderIndex >= 0 ) ? shaders[ fragmentShaderIndex ].name.c_str() : "<Invalid>" );
-		return;
-	}
-	
-	//shaders[ vertexShaderIndex ].uniformArray = glGetUniformLocation( program, VERTEX_UNIFORM_ARRAY_NAME );
-	//shaders[ fragmentShaderIndex ].uniformArray = glGetUniformLocation( program, FRAGMENT_UNIFORM_ARRAY_NAME );
-	
-	if( vertexShaderIndex > -1 && shaders[ vertexShaderIndex ].uniforms.Num() > 0 )
-	{
-		shader_t& vertexShader = shaders[ vertexShaderIndex ];
-		vertexShader.uniformArray = glGetUniformLocation( program, VERTEX_UNIFORM_ARRAY_NAME );
-	}
-	
-	if( fragmentShaderIndex > -1 && shaders[ fragmentShaderIndex ].uniforms.Num() > 0 )
-	{
-		shader_t& fragmentShader = shaders[ fragmentShaderIndex ];
-		fragmentShader.uniformArray = glGetUniformLocation( program, FRAGMENT_UNIFORM_ARRAY_NAME );
-	}
-	
-	assert( shaders[ vertexShaderIndex ].uniformArray != -1 || vertexShaderIndex > -1 || shaders[vertexShaderIndex].uniforms.Num() == 0 );
-	assert( shaders[ fragmentShaderIndex ].uniformArray != -1 || fragmentShaderIndex > -1 || shaders[fragmentShaderIndex].uniforms.Num() == 0 );
-	
-	
-	// RB: only load joint uniform buffers if available
-	if( glConfig.gpuSkinningAvailable )
-	{
-		// get the uniform buffer binding for skinning joint matrices
-		GLint blockIndex = glGetUniformBlockIndex( program, "matrices_ubo" );
-		if( blockIndex != -1 )
-		{
-			glUniformBlockBinding( program, blockIndex, 0 );
-		}
-	}
-	// RB end
-	
-	// set the texture unit locations once for the render program. We only need to do this once since we only link the program once
-	glUseProgram( program );
-	int numSamplerUniforms = 0;
-	for( int i = 0; i < MAX_PROG_TEXTURE_PARMS; ++i )
-	{
-		GLint loc = glGetUniformLocation( program, va( "samp%d", i ) );
-		if( loc != -1 )
-		{
-			glUniform1i( loc, i );
-			numSamplerUniforms++;
-		}
-	}
-	
 	idStr programName = shaders[ vertexShaderIndex ].name;
 	programName.StripFileExtension();
 	prog.name = programName;
-	prog.progId = program;
+	//prog.progId = programIndex;
 	prog.fragmentShaderIndex = fragmentShaderIndex;
 	prog.vertexShaderIndex = vertexShaderIndex;
 	
+	// TODO
+	//CreateDescriptorSetLayout( shaders[ vertexShaderIndex ], shaders[ fragmentShaderIndex ], prog );
+	
+#if 0
 	// RB: removed idStr::Icmp( name, "heatHaze.vfp" ) == 0  hack
-	// this requires r_useUniformArrays 1
 	for( int i = 0; i < shaders[vertexShaderIndex].uniforms.Num(); i++ )
 	{
 		if( shaders[vertexShaderIndex].uniforms[i] == RENDERPARM_ENABLE_SKINNING )
@@ -467,10 +531,8 @@ void idRenderProgManager::LoadGLSLProgram( const int programIndex, const int ver
 			prog.optionalSkinning = true;
 		}
 	}
-	// RB end
+#endif
 }
-
-
 
 /*
 ================================================================================================
@@ -479,6 +541,7 @@ idRenderProgManager::CommitUnforms
 */
 void idRenderProgManager::CommitUniforms( uint64 stateBits )
 {
+#if 0
 	const int progID = current;
 	const renderProg_t& prog = renderProgs[progID];
 	
@@ -524,7 +587,7 @@ void idRenderProgManager::CommitUniforms( uint64 stateBits )
 		commitarray( localVectors, shaders[ prog.fragmentShaderIndex ] );
 	}
 	
-	//GL_CheckErrors();
+#endif
 }
 
 

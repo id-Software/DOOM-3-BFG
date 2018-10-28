@@ -330,7 +330,7 @@ const char* idRenderProgManager::GLSLMacroNames[MAX_SHADER_MACRO_NAMES] =
 
 
 // RB: added embedded Cg shader resources
-static const char* FindEmbeddedSourceShader( const char* name )
+const char* idRenderProgManager::FindEmbeddedSourceShader( const char* name )
 {
 	const char* embeddedSource = NULL;
 	for( int i = 0 ; cg_renderprogs[i].name ; i++ )
@@ -391,17 +391,17 @@ private:
 			path += *token;
 			
 			//if( !script->LoadFile( path, OSPath ) )
-			const char* embeddedSource = FindEmbeddedSourceShader( path );
+			const char* embeddedSource = idRenderProgManager::FindEmbeddedSourceShader( path );
 			if( embeddedSource == NULL )
 			{
 				// try absolute path
 				path = *token;
-				embeddedSource = FindEmbeddedSourceShader( path );
+				embeddedSource = idRenderProgManager::FindEmbeddedSourceShader( path );
 				if( embeddedSource == NULL )
 				{
 					// try from the include path
 					path = includepath + *token;
-					embeddedSource = FindEmbeddedSourceShader( path );
+					embeddedSource = idRenderProgManager::FindEmbeddedSourceShader( path );
 				}
 			}
 			
@@ -442,7 +442,7 @@ private:
 			}
 			script = new idLexer;
 			
-			const char* embeddedSource = FindEmbeddedSourceShader( includepath + path );
+			const char* embeddedSource = idRenderProgManager::FindEmbeddedSourceShader( includepath + path );
 			
 			if( embeddedSource == NULL || !script->LoadMemory( embeddedSource, strlen( embeddedSource ), path ) )
 			{
@@ -474,7 +474,7 @@ private:
 StripDeadCode
 ========================
 */
-idStr StripDeadCode( const idStr& in, const char* name, const idStrList& compileMacros, bool builtin )
+idStr idRenderProgManager::StripDeadCode( const idStr& in, const char* name, const idStrList& compileMacros, bool builtin )
 {
 	if( r_skipStripDeadCode.GetBool() )
 	{
@@ -1023,7 +1023,7 @@ void ParseInOutStruct( idLexer& src, int attribType, int attribIgnoreType, idLis
 ConvertCG2GLSL
 ========================
 */
-idStr ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, idStr& layout, bool vkGLSL )
+idStr idRenderProgManager::ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, idStr& layout, bool vkGLSL )
 {
 	idStr program;
 	program.ReAllocate( in.Length() * 2, false );
@@ -1587,242 +1587,7 @@ idStr ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, i
 	return out;
 }
 
-/*
-================================================================================================
-idRenderProgManager::LoadGLSLShader
-================================================================================================
-*/
-#if !defined(USE_VULKAN)
-void idRenderProgManager::LoadShader( shader_t& shader )
-{
 
-	idStr inFile;
-	idStr outFileHLSL;
-	idStr outFileGLSL;
-	idStr outFileUniforms;
-	
-	// RB: replaced backslashes
-	inFile.Format( "renderprogs/%s", shader.name.c_str() );
-	inFile.StripFileExtension();
-	outFileHLSL.Format( "renderprogs/hlsl/%s%s", shader.name.c_str(), shader.nameOutSuffix.c_str() );
-	outFileHLSL.StripFileExtension();
-	
-	switch( glConfig.driverType )
-	{
-		case GLDRV_OPENGL_MESA:
-		{
-			outFileGLSL.Format( "renderprogs/glsles-3_00/%s%s", shader.name.c_str(), shader.nameOutSuffix.c_str() );
-			outFileUniforms.Format( "renderprogs/glsles-3_00/%s%s", shader.name.c_str(), shader.nameOutSuffix.c_str() );
-			break;
-		}
-		
-		case GLDRV_VULKAN:
-		{
-			outFileGLSL.Format( "renderprogs/vkglsl/%s%s", shader.name.c_str(), shader.nameOutSuffix.c_str() );
-			outFileUniforms.Format( "renderprogs/vkglsl/%s%s", shader.name.c_str(), shader.nameOutSuffix.c_str() );
-			break;
-		}
-		
-		default:
-		{
-			outFileGLSL.Format( "renderprogs/glsl-4_50/%s%s", shader.name.c_str(), shader.nameOutSuffix.c_str() );
-			outFileUniforms.Format( "renderprogs/glsl-4_50/%s%s", shader.name.c_str(), shader.nameOutSuffix.c_str() );
-		}
-	}
-	
-	outFileGLSL.StripFileExtension();
-	outFileUniforms.StripFileExtension();
-	
-	GLenum glTarget;
-	if( shader.stage == SHADER_STAGE_FRAGMENT )
-	{
-		glTarget = GL_FRAGMENT_SHADER;
-		inFile += ".ps.hlsl";
-		outFileHLSL += ".ps.hlsl";
-		outFileGLSL += ".frag";
-		outFileUniforms += ".frag.layout";
-	}
-	else
-	{
-		glTarget = GL_VERTEX_SHADER;
-		inFile += ".vs.hlsl";
-		outFileHLSL += ".vs.hlsl";
-		outFileGLSL += ".vert";
-		outFileUniforms += ".vert.layout";
-	}
-	
-	// first check whether we already have a valid GLSL file and compare it to the hlsl timestamp;
-	ID_TIME_T hlslTimeStamp;
-	int hlslFileLength = fileSystem->ReadFile( inFile.c_str(), NULL, &hlslTimeStamp );
-	
-	ID_TIME_T glslTimeStamp;
-	int glslFileLength = fileSystem->ReadFile( outFileGLSL.c_str(), NULL, &glslTimeStamp );
-	
-	// if the glsl file doesn't exist or we have a newer HLSL file we need to recreate the glsl file.
-	idStr programGLSL;
-	idStr programUniforms;
-	if( ( glslFileLength <= 0 ) || ( hlslTimeStamp != FILE_NOT_FOUND_TIMESTAMP && hlslTimeStamp > glslTimeStamp ) || r_alwaysExportGLSL.GetBool() )
-	{
-		const char* hlslFileBuffer = NULL;
-		int len = 0;
-		
-		if( hlslFileLength <= 0 )
-		{
-			// hlsl file doesn't even exist bail out
-			hlslFileBuffer = FindEmbeddedSourceShader( inFile.c_str() );
-			if( hlslFileBuffer == NULL )
-			{
-				return;
-			}
-			len = strlen( hlslFileBuffer );
-		}
-		else
-		{
-			len = fileSystem->ReadFile( inFile.c_str(), ( void** ) &hlslFileBuffer );
-		}
-		
-		if( len <= 0 )
-		{
-			return;
-		}
-		
-		idStrList compileMacros;
-		for( int j = 0; j < MAX_SHADER_MACRO_NAMES; j++ )
-		{
-			if( BIT( j ) & shader.shaderFeatures )
-			{
-				const char* macroName = GetGLSLMacroName( ( shaderFeature_t ) j );
-				compileMacros.Append( idStr( macroName ) );
-			}
-		}
-		
-		idStr hlslCode( hlslFileBuffer );
-		idStr programHLSL = StripDeadCode( hlslCode, inFile, compileMacros, shader.builtin );
-		programGLSL = ConvertCG2GLSL( programHLSL, inFile, shader.stage == SHADER_STAGE_VERTEX, programUniforms, glConfig.driverType == GLDRV_VULKAN );
-		
-		fileSystem->WriteFile( outFileHLSL, programHLSL.c_str(), programHLSL.Length(), "fs_savepath" );
-		fileSystem->WriteFile( outFileGLSL, programGLSL.c_str(), programGLSL.Length(), "fs_savepath" );
-		fileSystem->WriteFile( outFileUniforms, programUniforms.c_str(), programUniforms.Length(), "fs_savepath" );
-	}
-	else
-	{
-		// read in the glsl file
-		void* fileBufferGLSL = NULL;
-		int lengthGLSL = fileSystem->ReadFile( outFileGLSL.c_str(), &fileBufferGLSL );
-		if( lengthGLSL <= 0 )
-		{
-			idLib::Error( "GLSL file %s could not be loaded and may be corrupt", outFileGLSL.c_str() );
-		}
-		programGLSL = ( const char* ) fileBufferGLSL;
-		Mem_Free( fileBufferGLSL );
-		
-		
-		{
-			// read in the uniform file
-			void* fileBufferUniforms = NULL;
-			int lengthUniforms = fileSystem->ReadFile( outFileUniforms.c_str(), &fileBufferUniforms );
-			if( lengthUniforms <= 0 )
-			{
-				idLib::Error( "uniform file %s could not be loaded and may be corrupt", outFileUniforms.c_str() );
-			}
-			programUniforms = ( const char* ) fileBufferUniforms;
-			Mem_Free( fileBufferUniforms );
-		}
-	}
-	
-	// RB: find the uniforms locations in either the vertex or fragment uniform array
-	// this uses the new layout structure
-	{
-		shader.uniforms.Clear();
-		
-		idLexer src( programUniforms, programUniforms.Length(), "uniforms" );
-		idToken token;
-		if( src.ExpectTokenString( "uniforms" ) )
-		{
-			src.ExpectTokenString( "[" );
-			
-			while( !src.CheckTokenString( "]" ) )
-			{
-				src.ReadToken( &token );
-				
-				int index = -1;
-				for( int i = 0; i < RENDERPARM_TOTAL && index == -1; i++ )
-				{
-					const char* parmName = GetGLSLParmName( i );
-					if( token == parmName )
-					{
-						index = i;
-					}
-				}
-				
-				if( index == -1 )
-				{
-					idLib::Error( "couldn't find uniform %s for %s", token.c_str(), outFileGLSL.c_str() );
-				}
-				shader.uniforms.Append( index );
-			}
-		}
-	}
-	
-	// create and compile the shader
-	shader.progId = glCreateShader( glTarget );
-	if( shader.progId )
-	{
-		const char* source[1] = { programGLSL.c_str() };
-		
-		glShaderSource( shader.progId, 1, source, NULL );
-		glCompileShader( shader.progId );
-		
-		int infologLength = 0;
-		glGetShaderiv( shader.progId, GL_INFO_LOG_LENGTH, &infologLength );
-		if( infologLength > 1 )
-		{
-			idTempArray<char> infoLog( infologLength );
-			int charsWritten = 0;
-			glGetShaderInfoLog( shader.progId, infologLength, &charsWritten, infoLog.Ptr() );
-			
-			// catch the strings the ATI and Intel drivers output on success
-			if( strstr( infoLog.Ptr(), "successfully compiled to run on hardware" ) != NULL ||
-					strstr( infoLog.Ptr(), "No errors." ) != NULL )
-			{
-				//idLib::Printf( "%s program %s from %s compiled to run on hardware\n", typeName, GetName(), GetFileName() );
-			}
-			else if( r_displayGLSLCompilerMessages.GetBool() ) // DG:  check for the CVar I added above
-			{
-				idLib::Printf( "While compiling %s program %s\n", ( shader.stage == SHADER_STAGE_FRAGMENT ) ? "fragment" : "vertex" , inFile.c_str() );
-				
-				const char separator = '\n';
-				idList<idStr> lines;
-				lines.Clear();
-				idStr source( programGLSL );
-				lines.Append( source );
-				for( int index = 0, ofs = lines[index].Find( separator ); ofs != -1; index++, ofs = lines[index].Find( separator ) )
-				{
-					lines.Append( lines[index].c_str() + ofs + 1 );
-					lines[index].CapLength( ofs );
-				}
-				
-				idLib::Printf( "-----------------\n" );
-				for( int i = 0; i < lines.Num(); i++ )
-				{
-					idLib::Printf( "%3d: %s\n", i + 1, lines[i].c_str() );
-				}
-				idLib::Printf( "-----------------\n" );
-				
-				idLib::Printf( "%s\n", infoLog.Ptr() );
-			}
-		}
-		
-		GLint compiled = GL_FALSE;
-		glGetShaderiv( shader.progId, GL_COMPILE_STATUS, &compiled );
-		if( compiled == GL_FALSE )
-		{
-			glDeleteShader( shader.progId );
-			return;
-		}
-	}
-}
-#endif // #if !defined(USE_VULKAN)
 
 /*
 ================================================================================================

@@ -1269,6 +1269,8 @@ void idRenderBackend::Init()
 	
 	idLib::Printf( "----- Initializing Vulkan driver -----\n" );
 	
+	glConfig.gpuSkinningAvailable = true;
+	
 	// create the Vulkan instance and enable validation layers
 	CreateVulkanInstance();
 	
@@ -1329,10 +1331,8 @@ void idRenderBackend::Init()
 	// Create Frame Buffers
 	CreateFrameBuffers();
 	
-#if 0
 	// init RenderProg Manager
 	renderProgManager.Init();
-#endif
 	
 	// init Vertex Cache
 	vertexCache.Init( vkcontext.gpu->props.limits.minUniformBufferOffsetAlignment );

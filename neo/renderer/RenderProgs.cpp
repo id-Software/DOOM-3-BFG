@@ -33,6 +33,16 @@ If you have questions concerning this license or the applicable additional terms
 #include "RenderCommon.h"
 
 
+#if defined(USE_VULKAN)
+
+extern idUniformBuffer emptyUBO;
+
+void CreateVertexDescriptions();
+
+void CreateDescriptorPools( VkDescriptorPool( &pools )[ NUM_FRAME_DATA ] );
+
+#endif
+
 
 idRenderProgManager renderProgManager;
 
@@ -351,58 +361,6 @@ int idRenderProgManager::FindShader( const char* name, rpStage_t stage, const ch
 	return index;
 }
 
-
-
-
-
-/*
-================================================================================================
-idRenderProgManager::LoadShader
-================================================================================================
-*/
-void idRenderProgManager::LoadShader( int index, rpStage_t stage )
-{
-	if( shaders[index].progId != INVALID_PROGID )
-	{
-		return; // Already loaded
-	}
-	
-	LoadShader( shaders[index] );
-}
-
-
-
-/*
-================================================================================================
-idRenderProgManager::BindProgram
-================================================================================================
-*/
-void idRenderProgManager::BindProgram( int index )
-{
-	if( current == index )
-	{
-		return;
-	}
-	
-	current = index;
-	
-	RENDERLOG_PRINTF( "Binding GLSL Program %s\n", renderProgs[ index ].name.c_str() );
-	glUseProgram( renderProgs[ index ].progId );
-}
-
-/*
-================================================================================================
-idRenderProgManager::Unbind
-================================================================================================
-*/
-void idRenderProgManager::Unbind()
-{
-	current = -1;
-	
-#if !defined(USE_VULKAN)
-	glUseProgram( 0 );
-#endif
-}
 
 // RB begin
 bool idRenderProgManager::IsShaderBound() const

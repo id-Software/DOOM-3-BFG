@@ -624,8 +624,13 @@ public:
 	int			FindGLSLProgram( const char* name, int vIndex, int fIndex );
 	void		ZeroUniforms();
 	
-protected:
+	static const char* FindEmbeddedSourceShader( const char* name );
+	
+private:
 	void		LoadShader( int index, rpStage_t stage );
+	
+	idStr		StripDeadCode( const idStr& in, const char* name, const idStrList& compileMacros, bool builtin );
+	idStr		ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, idStr& layout, bool vkGLSL );
 	
 	enum
 	{
@@ -733,6 +738,67 @@ protected:
 	
 	static const uint INVALID_PROGID = 0xFFFFFFFF;
 	
+#if defined(USE_VULKAN)
+	struct shader_t
+	{
+		shader_t() :
+			shaderFeatures( 0 ),
+			builtin( false ),
+			module( VK_NULL_HANDLE ) {}
+		idStr				name;
+		idStr				nameOutSuffix;
+		uint32				shaderFeatures;		// RB: Cg compile macros
+		bool				builtin;			// RB: part of the core shaders built into the executable
+		rpStage_t			stage;
+		VkShaderModule		module;
+		idList<rpBinding_t>	bindings;
+		idList<int>			parmIndices;
+	};
+	
+	struct renderProg_t
+	{
+		renderProg_t() :
+			progId( INVALID_PROGID ),
+			usesJoints( false ),
+			optionalSkinning( false ),
+			builtin( false ),
+			vertexShaderIndex( -1 ),
+			fragmentShaderIndex( -1 ),
+			layout( LAYOUT_UNKNOWN ),
+			pipelineLayout( VK_NULL_HANDLE ),
+			descriptorSetLayout( VK_NULL_HANDLE ) {}
+			
+		struct pipelineState_t
+		{
+			pipelineState_t() :
+				stateBits( 0 ),
+				pipeline( VK_NULL_HANDLE )
+			{
+				memset( stencilOperations, 0xFF, sizeof( stencilOperations ) );
+			}
+			
+			uint64		stateBits;
+			VkPipeline	pipeline;
+			uint64		stencilOperations[ 2 ];
+		};
+		
+		VkPipeline GetPipeline( uint64 stateBits, VkShaderModule vertexShader, VkShaderModule fragmentShader );
+		
+		idStr				name;
+		uint				progId;
+		bool				usesJoints;
+		bool				optionalSkinning;
+		bool				builtin;			// RB: part of the core shaders built into the executable
+		int					vertexShaderIndex;
+		int					fragmentShaderIndex;
+		
+		vertexLayoutType_t		layout;
+		VkPipelineLayout		pipelineLayout;
+		VkDescriptorSetLayout	descriptorSetLayout;
+		idList<rpBinding_t>		bindings;
+		idList<pipelineState_t>	pipelines;
+	};
+#else
 	struct shader_t
 	{
 		shader_t() :
@@ -760,7 +826,7 @@ protected:
 			layout( LAYOUT_UNKNOWN ),
 			vertexShaderIndex( -1 ),
 			fragmentShaderIndex( -1 ) {}
-			
+	
 		idStr				name;
 		uint				progId;
 		bool				usesJoints;
@@ -770,6 +836,7 @@ protected:
 		int					vertexShaderIndex;
 		int					fragmentShaderIndex;
 	};
+#endif
 	
 	void							LoadShader( shader_t& shader );
 	
@@ -778,6 +845,17 @@ protected:
 	idList<shader_t, TAG_RENDER>				shaders;
 	
 	idStaticList < idVec4, RENDERPARM_TOTAL >	uniforms;
+	
+#if defined( USE_VULKAN )
+	int					counter;
+	int					currentData;
+	int					currentDescSet;
+	int					currentParmBufferOffset;
+	VkDescriptorPool	descriptorPools[ NUM_FRAME_DATA ];
+	VkDescriptorSet		descriptorSets[ NUM_FRAME_DATA ][ MAX_DESC_SETS ];
+	
+	idUniformBuffer* 	parmBuffers[ NUM_FRAME_DATA ];
+#endif
 };
 
 extern idRenderProgManager renderProgManager;
