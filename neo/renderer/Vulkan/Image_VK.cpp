@@ -358,7 +358,9 @@ Automatically enables 2D mapping or cube mapping if needed
 */
 void idImage::Bind()
 {
-
+	RENDERLOG_PRINTF( "GL_BindTexture( %s )\n", GetName() );
+	
+	vkcontext.imageParms[ vkcontext.currentImageParm ] = this;
 }
 
 /*

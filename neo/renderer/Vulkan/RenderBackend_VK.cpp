@@ -1432,7 +1432,146 @@ idRenderBackend::DrawElementsWithCounters
 */
 void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 {
-
+	// get vertex buffer
+	const vertCacheHandle_t vbHandle = surf->ambientCache;
+	idVertexBuffer* vertexBuffer;
+	if( vertexCache.CacheIsStatic( vbHandle ) )
+	{
+		vertexBuffer = &vertexCache.staticData.vertexBuffer;
+	}
+	else
+	{
+		const uint64 frameNum = ( int )( vbHandle >> VERTCACHE_FRAME_SHIFT ) & VERTCACHE_FRAME_MASK;
+		if( frameNum != ( ( vertexCache.currentFrame - 1 ) & VERTCACHE_FRAME_MASK ) )
+		{
+			idLib::Warning( "RB_DrawElementsWithCounters, vertexBuffer == NULL" );
+			return;
+		}
+		vertexBuffer = &vertexCache.frameData[vertexCache.drawListNum].vertexBuffer;
+	}
+	const int vertOffset = ( int )( vbHandle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
+	
+	// get index buffer
+	const vertCacheHandle_t ibHandle = surf->indexCache;
+	idIndexBuffer* indexBuffer;
+	if( vertexCache.CacheIsStatic( ibHandle ) )
+	{
+		indexBuffer = &vertexCache.staticData.indexBuffer;
+	}
+	else
+	{
+		const uint64 frameNum = ( int )( ibHandle >> VERTCACHE_FRAME_SHIFT ) & VERTCACHE_FRAME_MASK;
+		if( frameNum != ( ( vertexCache.currentFrame - 1 ) & VERTCACHE_FRAME_MASK ) )
+		{
+			idLib::Warning( "RB_DrawElementsWithCounters, indexBuffer == NULL" );
+			return;
+		}
+		indexBuffer = &vertexCache.frameData[vertexCache.drawListNum].indexBuffer;
+	}
+	// RB: 64 bit fixes, changed int to ptrdiff_t
+	const ptrdiff_t indexOffset = ( ptrdiff_t )( ibHandle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
+	
+	RENDERLOG_PRINTF( "Binding Buffers: %p:%i %p:%i\n", vertexBuffer, vertOffset, indexBuffer, indexOffset );
+	
+	if( surf->jointCache )
+	{
+		// DG: this happens all the time in the erebus1 map with blendlight.vfp,
+		// so don't call assert (through verify) here until it's fixed (if fixable)
+		// else the game crashes on linux when using debug builds
+		
+		// FIXME: fix this properly if possible?
+		// RB: yes but it would require an additional blend light skinned shader
+		//if( !verify( renderProgManager.ShaderUsesJoints() ) )
+		if( !renderProgManager.ShaderUsesJoints() )
+			// DG end
+		{
+			return;
+		}
+	}
+	else
+	{
+		if( !verify( !renderProgManager.ShaderUsesJoints() || renderProgManager.ShaderHasOptionalSkinning() ) )
+		{
+			return;
+		}
+	}
+	
+	
+	if( surf->jointCache )
+	{
+		idUniformBuffer jointBuffer;
+		if( !vertexCache.GetJointBuffer( surf->jointCache, &jointBuffer ) )
+		{
+			idLib::Warning( "RB_DrawElementsWithCounters, jointBuffer == NULL" );
+			return;
+		}
+		assert( ( jointBuffer.GetOffset() & ( glConfig.uniformBufferOffsetAlignment - 1 ) ) == 0 );
+		
+		// FIXME
+		
+		//const GLintptr ubo = jointBuffer.GetAPIObject();
+		//glBindBufferRange( GL_UNIFORM_BUFFER, 0, ubo, jointBuffer.GetOffset(), jointBuffer.GetSize() );
+	}
+	
+	renderProgManager.CommitUniforms( glStateBits );
+	
+	
+	/*
+	if( currentIndexBuffer != ( GLintptr )indexBuffer->GetAPIObject() || !r_useStateCaching.GetBool() )
+	{
+		glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ( GLintptr )indexBuffer->GetAPIObject() );
+		currentIndexBuffer = ( GLintptr )indexBuffer->GetAPIObject();
+	}
+	*/
+	
+	{
+		const VkBuffer buffer = indexBuffer->GetAPIObject();
+		const VkDeviceSize offset = indexBuffer->GetOffset();
+		vkCmdBindIndexBuffer( vkcontext.commandBuffer[ vkcontext.currentFrameData ], buffer, offset, VK_INDEX_TYPE_UINT16 );
+	}
+	
+	/*
+	if( ( vertexLayout != LAYOUT_DRAW_VERT ) || ( currentVertexBuffer != ( GLintptr )vertexBuffer->GetAPIObject() ) || !r_useStateCaching.GetBool() )
+	{
+		glBindBuffer( GL_ARRAY_BUFFER, ( GLintptr )vertexBuffer->GetAPIObject() );
+		currentVertexBuffer = ( GLintptr )vertexBuffer->GetAPIObject();
+	
+		glEnableVertexAttribArray( PC_ATTRIB_INDEX_VERTEX );
+		glEnableVertexAttribArray( PC_ATTRIB_INDEX_NORMAL );
+		glEnableVertexAttribArray( PC_ATTRIB_INDEX_COLOR );
+		glEnableVertexAttribArray( PC_ATTRIB_INDEX_COLOR2 );
+		glEnableVertexAttribArray( PC_ATTRIB_INDEX_ST );
+		glEnableVertexAttribArray( PC_ATTRIB_INDEX_TANGENT );
+	
+		glVertexAttribPointer( PC_ATTRIB_INDEX_VERTEX, 3, GL_FLOAT, GL_FALSE, sizeof( idDrawVert ), ( void* )( DRAWVERT_XYZ_OFFSET ) );
+		glVertexAttribPointer( PC_ATTRIB_INDEX_NORMAL, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), ( void* )( DRAWVERT_NORMAL_OFFSET ) );
+		glVertexAttribPointer( PC_ATTRIB_INDEX_COLOR, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), ( void* )( DRAWVERT_COLOR_OFFSET ) );
+		glVertexAttribPointer( PC_ATTRIB_INDEX_COLOR2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), ( void* )( DRAWVERT_COLOR2_OFFSET ) );
+		glVertexAttribPointer( PC_ATTRIB_INDEX_ST, 2, GL_HALF_FLOAT, GL_TRUE, sizeof( idDrawVert ), ( void* )( DRAWVERT_ST_OFFSET ) );
+		glVertexAttribPointer( PC_ATTRIB_INDEX_TANGENT, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), ( void* )( DRAWVERT_TANGENT_OFFSET ) );
+	
+		vertexLayout = LAYOUT_DRAW_VERT;
+	}
+	*/
+	
+	{
+		const VkBuffer buffer = vertexBuffer->GetAPIObject();
+		const VkDeviceSize offset = vertexBuffer->GetOffset();
+		vkCmdBindVertexBuffers( vkcontext.commandBuffer[ vkcontext.currentFrameData ], 0, 1, &buffer, &offset );
+	}
+	
+	/*
+	glDrawElementsBaseVertex( GL_TRIANGLES,
+							  r_singleTriangle.GetBool() ? 3 : surf->numIndexes,
+							  GL_INDEX_TYPE,
+							  ( triIndex_t* )indexOffset,
+							  vertOffset / sizeof( idDrawVert ) );
+	*/
+	
+	vkCmdDrawIndexed(
+		vkcontext.commandBuffer[ vkcontext.currentFrameData ],
+		surf->numIndexes, 1, ( indexOffset >> 1 ), vertOffset / sizeof( idDrawVert ), 0 );
+		
 	// RB: added stats
 	pc.c_drawElements++;
 	pc.c_drawIndexes += surf->numIndexes;
@@ -1653,22 +1792,11 @@ This routine is responsible for setting the most commonly changed state
 */
 void idRenderBackend::GL_State( uint64 stateBits, bool forceGlState )
 {
-	uint64 diff = stateBits ^ glStateBits;
-	
-	if( !r_useStateCaching.GetBool() || forceGlState )
+	glStateBits = stateBits | ( glStateBits & GLS_KEEP );
+	if( viewDef != NULL && viewDef->isMirror )
 	{
-		// make sure everything is set all the time, so we
-		// can see if our delta checking is screwing up
-		diff = 0xFFFFFFFFFFFFFFFF;
+		glStateBits |= GLS_MIRROR_VIEW;
 	}
-	else if( diff == 0 )
-	{
-		return;
-	}
-	
-	// TODO
-	
-	glStateBits = stateBits;
 }
 
 /*
@@ -1688,18 +1816,6 @@ void idRenderBackend::GL_SelectTexture( int index )
 	vkcontext.currentImageParm = index;
 }
 
-/*
-====================
-idRenderBackend::GL_Cull
-
-This handles the flipping needed when the view being
-rendered is a mirored view.
-====================
-*/
-void idRenderBackend::GL_Cull( cullType_t cullType )
-{
-	// TODO REMOVE
-}
 
 /*
 ====================
