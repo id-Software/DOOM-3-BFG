@@ -191,7 +191,7 @@ void idRenderProgManager::Init()
 		
 		prog.name = builtins[i].name;
 		prog.builtin = true;
-		prog.layout = builtins[i].layout;
+		prog.vertexLayout = builtins[i].layout;
 		
 		builtinShaders[builtins[i].index] = i;
 		

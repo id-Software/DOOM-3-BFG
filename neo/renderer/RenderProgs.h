@@ -764,7 +764,7 @@ private:
 			builtin( false ),
 			vertexShaderIndex( -1 ),
 			fragmentShaderIndex( -1 ),
-			layout( LAYOUT_UNKNOWN ),
+			vertexLayout( LAYOUT_UNKNOWN ),
 			pipelineLayout( VK_NULL_HANDLE ),
 			descriptorSetLayout( VK_NULL_HANDLE ) {}
 			
@@ -792,14 +792,15 @@ private:
 		int					vertexShaderIndex;
 		int					fragmentShaderIndex;
 		
-		vertexLayoutType_t		layout;
+		vertexLayoutType_t		vertexLayout;
 		VkPipelineLayout		pipelineLayout;
 		VkDescriptorSetLayout	descriptorSetLayout;
 		idList<rpBinding_t>		bindings;
 		idList<pipelineState_t>	pipelines;
 	};
 	
-	static void CreateDescriptorSetLayout( const shader_t& vertexShader, const shader_t& fragmentShader, renderProg_t& renderProg );
+	static void		CreateDescriptorSetLayout( const shader_t& vertexShader, const shader_t& fragmentShader, renderProg_t& renderProg );
+	void			AllocParmBlockBuffer( const idList<int>& parmIndices, idUniformBuffer& ubo );
 #else
 	struct shader_t
 	{
@@ -834,7 +835,7 @@ private:
 		bool				usesJoints;
 		bool				optionalSkinning;
 		bool				builtin;			// RB: part of the core shaders built into the executable
-		vertexLayoutType_t	layout;
+		vertexLayoutType_t	vertexLayout;
 		int					vertexShaderIndex;
 		int					fragmentShaderIndex;
 	};

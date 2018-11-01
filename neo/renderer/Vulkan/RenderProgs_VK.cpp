@@ -650,8 +650,10 @@ void idRenderProgManager::LoadGLSLProgram( const int programIndex, const int ver
 	prog.fragmentShaderIndex = fragmentShaderIndex;
 	prog.vertexShaderIndex = vertexShaderIndex;
 	
-	// TODO
 	CreateDescriptorSetLayout( shaders[ vertexShaderIndex ], shaders[ fragmentShaderIndex ], prog );
+	
+	
+	// TODO
 	
 #if 0
 	// RB: removed idStr::Icmp( name, "heatHaze.vfp" ) == 0  hack
@@ -664,6 +666,504 @@ void idRenderProgManager::LoadGLSLProgram( const int programIndex, const int ver
 		}
 	}
 #endif
+}
+
+
+/*
+========================
+idRenderProgManager::AllocParmBlockBuffer
+========================
+*/
+void idRenderProgManager::AllocParmBlockBuffer( const idList<int>& parmIndices, idUniformBuffer& ubo )
+{
+	const int numParms = parmIndices.Num();
+	const int bytes = ALIGN( numParms * sizeof( idVec4 ), vkcontext.gpu->props.limits.minUniformBufferOffsetAlignment );
+	
+	ubo.Reference( *parmBuffers[ currentData ], currentParmBufferOffset, bytes );
+	
+	idVec4* gpuUniforms = ( idVec4* )ubo.MapBuffer( BM_WRITE );
+	
+	for( int i = 0; i < numParms; ++i )
+	{
+		gpuUniforms[ i ] = uniforms[ static_cast< renderParm_t >( parmIndices[ i ] ) ];
+	}
+	
+	ubo.UnmapBuffer();
+	
+	currentParmBufferOffset += bytes;
+}
+
+/*
+========================
+GetStencilOpState
+========================
+*/
+static VkStencilOpState GetStencilOpState( uint64 stencilBits )
+{
+	VkStencilOpState state = {};
+	
+	switch( stencilBits & GLS_STENCIL_OP_FAIL_BITS )
+	{
+		case GLS_STENCIL_OP_FAIL_KEEP:
+			state.failOp = VK_STENCIL_OP_KEEP;
+			break;
+		case GLS_STENCIL_OP_FAIL_ZERO:
+			state.failOp = VK_STENCIL_OP_ZERO;
+			break;
+		case GLS_STENCIL_OP_FAIL_REPLACE:
+			state.failOp = VK_STENCIL_OP_REPLACE;
+			break;
+		case GLS_STENCIL_OP_FAIL_INCR:
+			state.failOp = VK_STENCIL_OP_INCREMENT_AND_CLAMP;
+			break;
+		case GLS_STENCIL_OP_FAIL_DECR:
+			state.failOp = VK_STENCIL_OP_DECREMENT_AND_CLAMP;
+			break;
+		case GLS_STENCIL_OP_FAIL_INVERT:
+			state.failOp = VK_STENCIL_OP_INVERT;
+			break;
+		case GLS_STENCIL_OP_FAIL_INCR_WRAP:
+			state.failOp = VK_STENCIL_OP_INCREMENT_AND_WRAP;
+			break;
+		case GLS_STENCIL_OP_FAIL_DECR_WRAP:
+			state.failOp = VK_STENCIL_OP_DECREMENT_AND_WRAP;
+			break;
+	}
+	switch( stencilBits & GLS_STENCIL_OP_ZFAIL_BITS )
+	{
+		case GLS_STENCIL_OP_ZFAIL_KEEP:
+			state.depthFailOp = VK_STENCIL_OP_KEEP;
+			break;
+		case GLS_STENCIL_OP_ZFAIL_ZERO:
+			state.depthFailOp = VK_STENCIL_OP_ZERO;
+			break;
+		case GLS_STENCIL_OP_ZFAIL_REPLACE:
+			state.depthFailOp = VK_STENCIL_OP_REPLACE;
+			break;
+		case GLS_STENCIL_OP_ZFAIL_INCR:
+			state.depthFailOp = VK_STENCIL_OP_INCREMENT_AND_CLAMP;
+			break;
+		case GLS_STENCIL_OP_ZFAIL_DECR:
+			state.depthFailOp = VK_STENCIL_OP_DECREMENT_AND_CLAMP;
+			break;
+		case GLS_STENCIL_OP_ZFAIL_INVERT:
+			state.depthFailOp = VK_STENCIL_OP_INVERT;
+			break;
+		case GLS_STENCIL_OP_ZFAIL_INCR_WRAP:
+			state.depthFailOp = VK_STENCIL_OP_INCREMENT_AND_WRAP;
+			break;
+		case GLS_STENCIL_OP_ZFAIL_DECR_WRAP:
+			state.depthFailOp = VK_STENCIL_OP_DECREMENT_AND_WRAP;
+			break;
+	}
+	switch( stencilBits & GLS_STENCIL_OP_PASS_BITS )
+	{
+		case GLS_STENCIL_OP_PASS_KEEP:
+			state.passOp = VK_STENCIL_OP_KEEP;
+			break;
+		case GLS_STENCIL_OP_PASS_ZERO:
+			state.passOp = VK_STENCIL_OP_ZERO;
+			break;
+		case GLS_STENCIL_OP_PASS_REPLACE:
+			state.passOp = VK_STENCIL_OP_REPLACE;
+			break;
+		case GLS_STENCIL_OP_PASS_INCR:
+			state.passOp = VK_STENCIL_OP_INCREMENT_AND_CLAMP;
+			break;
+		case GLS_STENCIL_OP_PASS_DECR:
+			state.passOp = VK_STENCIL_OP_DECREMENT_AND_CLAMP;
+			break;
+		case GLS_STENCIL_OP_PASS_INVERT:
+			state.passOp = VK_STENCIL_OP_INVERT;
+			break;
+		case GLS_STENCIL_OP_PASS_INCR_WRAP:
+			state.passOp = VK_STENCIL_OP_INCREMENT_AND_WRAP;
+			break;
+		case GLS_STENCIL_OP_PASS_DECR_WRAP:
+			state.passOp = VK_STENCIL_OP_DECREMENT_AND_WRAP;
+			break;
+	}
+	
+	return state;
+}
+
+/*
+========================
+CreateGraphicsPipeline
+========================
+*/
+static VkPipeline CreateGraphicsPipeline(
+	vertexLayoutType_t vertexLayoutType,
+	VkShaderModule vertexShader,
+	VkShaderModule fragmentShader,
+	VkPipelineLayout pipelineLayout,
+	uint64 stateBits )
+{
+
+	// Pipeline
+	vertexLayout_t& vertexLayout = vertexLayouts[ vertexLayoutType ];
+	
+	// Vertex Input
+	VkPipelineVertexInputStateCreateInfo vertexInputState = vertexLayout.inputState;
+	vertexInputState.vertexBindingDescriptionCount = vertexLayout.bindingDesc.Num();
+	vertexInputState.pVertexBindingDescriptions = vertexLayout.bindingDesc.Ptr();
+	vertexInputState.vertexAttributeDescriptionCount = vertexLayout.attributeDesc.Num();
+	vertexInputState.pVertexAttributeDescriptions = vertexLayout.attributeDesc.Ptr();
+	
+	// Input Assembly
+	VkPipelineInputAssemblyStateCreateInfo assemblyInputState = {};
+	assemblyInputState.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+	assemblyInputState.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+	
+	// Rasterization
+	VkPipelineRasterizationStateCreateInfo rasterizationState = {};
+	rasterizationState.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+	rasterizationState.rasterizerDiscardEnable = VK_FALSE;
+	rasterizationState.depthBiasEnable = ( stateBits & GLS_POLYGON_OFFSET ) != 0;
+	rasterizationState.depthClampEnable = VK_FALSE;
+	rasterizationState.frontFace = ( stateBits & GLS_CLOCKWISE ) ? VK_FRONT_FACE_CLOCKWISE : VK_FRONT_FACE_COUNTER_CLOCKWISE;
+	rasterizationState.lineWidth = 1.0f;
+	rasterizationState.polygonMode = ( stateBits & GLS_POLYMODE_LINE ) ? VK_POLYGON_MODE_LINE : VK_POLYGON_MODE_FILL;
+	
+	switch( stateBits & GLS_CULL_BITS )
+	{
+		case GLS_CULL_TWOSIDED:
+			rasterizationState.cullMode = VK_CULL_MODE_NONE;
+			break;
+			
+		case GLS_CULL_BACKSIDED:
+			if( stateBits & GLS_MIRROR_VIEW )
+			{
+				rasterizationState.cullMode = VK_CULL_MODE_FRONT_BIT;
+			}
+			else
+			{
+				rasterizationState.cullMode = VK_CULL_MODE_BACK_BIT;
+			}
+			break;
+			
+		case GLS_CULL_FRONTSIDED:
+		default:
+			if( stateBits & GLS_MIRROR_VIEW )
+			{
+				rasterizationState.cullMode = VK_CULL_MODE_BACK_BIT;
+			}
+			else
+			{
+				rasterizationState.cullMode = VK_CULL_MODE_FRONT_BIT;
+			}
+			break;
+	}
+	
+	// Color Blend Attachment
+	VkPipelineColorBlendAttachmentState attachmentState = {};
+	{
+		VkBlendFactor srcFactor = VK_BLEND_FACTOR_ONE;
+		switch( stateBits & GLS_SRCBLEND_BITS )
+		{
+			case GLS_SRCBLEND_ZERO:
+				srcFactor = VK_BLEND_FACTOR_ZERO;
+				break;
+			case GLS_SRCBLEND_ONE:
+				srcFactor = VK_BLEND_FACTOR_ONE;
+				break;
+			case GLS_SRCBLEND_DST_COLOR:
+				srcFactor = VK_BLEND_FACTOR_DST_COLOR;
+				break;
+			case GLS_SRCBLEND_ONE_MINUS_DST_COLOR:
+				srcFactor = VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR;
+				break;
+			case GLS_SRCBLEND_SRC_ALPHA:
+				srcFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+				break;
+			case GLS_SRCBLEND_ONE_MINUS_SRC_ALPHA:
+				srcFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+				break;
+			case GLS_SRCBLEND_DST_ALPHA:
+				srcFactor = VK_BLEND_FACTOR_DST_ALPHA;
+				break;
+			case GLS_SRCBLEND_ONE_MINUS_DST_ALPHA:
+				srcFactor = VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA;
+				break;
+		}
+		
+		VkBlendFactor dstFactor = VK_BLEND_FACTOR_ZERO;
+		switch( stateBits & GLS_DSTBLEND_BITS )
+		{
+			case GLS_DSTBLEND_ZERO:
+				dstFactor = VK_BLEND_FACTOR_ZERO;
+				break;
+			case GLS_DSTBLEND_ONE:
+				dstFactor = VK_BLEND_FACTOR_ONE;
+				break;
+			case GLS_DSTBLEND_SRC_COLOR:
+				dstFactor = VK_BLEND_FACTOR_SRC_COLOR;
+				break;
+			case GLS_DSTBLEND_ONE_MINUS_SRC_COLOR:
+				dstFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR;
+				break;
+			case GLS_DSTBLEND_SRC_ALPHA:
+				dstFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+				break;
+			case GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA:
+				dstFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+				break;
+			case GLS_DSTBLEND_DST_ALPHA:
+				dstFactor = VK_BLEND_FACTOR_DST_ALPHA;
+				break;
+			case GLS_DSTBLEND_ONE_MINUS_DST_ALPHA:
+				dstFactor = VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA;
+				break;
+		}
+		
+		VkBlendOp blendOp = VK_BLEND_OP_ADD;
+		switch( stateBits & GLS_BLENDOP_BITS )
+		{
+			case GLS_BLENDOP_MIN:
+				blendOp = VK_BLEND_OP_MIN;
+				break;
+			case GLS_BLENDOP_MAX:
+				blendOp = VK_BLEND_OP_MAX;
+				break;
+			case GLS_BLENDOP_ADD:
+				blendOp = VK_BLEND_OP_ADD;
+				break;
+			case GLS_BLENDOP_SUB:
+				blendOp = VK_BLEND_OP_SUBTRACT;
+				break;
+		}
+		
+		attachmentState.blendEnable = ( srcFactor != VK_BLEND_FACTOR_ONE || dstFactor != VK_BLEND_FACTOR_ZERO );
+		attachmentState.colorBlendOp = blendOp;
+		attachmentState.srcColorBlendFactor = srcFactor;
+		attachmentState.dstColorBlendFactor = dstFactor;
+		attachmentState.alphaBlendOp = blendOp;
+		attachmentState.srcAlphaBlendFactor = srcFactor;
+		attachmentState.dstAlphaBlendFactor = dstFactor;
+		
+		// Color Mask
+		attachmentState.colorWriteMask = 0;
+		attachmentState.colorWriteMask |= ( stateBits & GLS_REDMASK ) ?	0 : VK_COLOR_COMPONENT_R_BIT;
+		attachmentState.colorWriteMask |= ( stateBits & GLS_GREENMASK ) ? 0 : VK_COLOR_COMPONENT_G_BIT;
+		attachmentState.colorWriteMask |= ( stateBits & GLS_BLUEMASK ) ? 0 : VK_COLOR_COMPONENT_B_BIT;
+		attachmentState.colorWriteMask |= ( stateBits & GLS_ALPHAMASK ) ? 0 : VK_COLOR_COMPONENT_A_BIT;
+	}
+	
+	// Color Blend
+	VkPipelineColorBlendStateCreateInfo colorBlendState = {};
+	colorBlendState.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+	colorBlendState.attachmentCount = 1;
+	colorBlendState.pAttachments = &attachmentState;
+	
+	// Depth / Stencil
+	VkPipelineDepthStencilStateCreateInfo depthStencilState = {};
+	{
+		VkCompareOp depthCompareOp = VK_COMPARE_OP_ALWAYS;
+		switch( stateBits & GLS_DEPTHFUNC_BITS )
+		{
+			case GLS_DEPTHFUNC_EQUAL:
+				depthCompareOp = VK_COMPARE_OP_EQUAL;
+				break;
+			case GLS_DEPTHFUNC_ALWAYS:
+				depthCompareOp = VK_COMPARE_OP_ALWAYS;
+				break;
+			case GLS_DEPTHFUNC_LESS:
+				depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
+				break;
+			case GLS_DEPTHFUNC_GREATER:
+				depthCompareOp = VK_COMPARE_OP_GREATER_OR_EQUAL;
+				break;
+		}
+		
+		VkCompareOp stencilCompareOp = VK_COMPARE_OP_ALWAYS;
+		switch( stateBits & GLS_STENCIL_FUNC_BITS )
+		{
+			case GLS_STENCIL_FUNC_NEVER:
+				stencilCompareOp = VK_COMPARE_OP_NEVER;
+				break;
+			case GLS_STENCIL_FUNC_LESS:
+				stencilCompareOp = VK_COMPARE_OP_LESS;
+				break;
+			case GLS_STENCIL_FUNC_EQUAL:
+				stencilCompareOp = VK_COMPARE_OP_EQUAL;
+				break;
+			case GLS_STENCIL_FUNC_LEQUAL:
+				stencilCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
+				break;
+			case GLS_STENCIL_FUNC_GREATER:
+				stencilCompareOp = VK_COMPARE_OP_GREATER;
+				break;
+			case GLS_STENCIL_FUNC_NOTEQUAL:
+				stencilCompareOp = VK_COMPARE_OP_NOT_EQUAL;
+				break;
+			case GLS_STENCIL_FUNC_GEQUAL:
+				stencilCompareOp = VK_COMPARE_OP_GREATER_OR_EQUAL;
+				break;
+			case GLS_STENCIL_FUNC_ALWAYS:
+				stencilCompareOp = VK_COMPARE_OP_ALWAYS;
+				break;
+		}
+		
+		depthStencilState.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+		depthStencilState.depthTestEnable = VK_TRUE;
+		depthStencilState.depthWriteEnable = ( stateBits & GLS_DEPTHMASK ) == 0;
+		depthStencilState.depthCompareOp = depthCompareOp;
+		depthStencilState.depthBoundsTestEnable = ( stateBits & GLS_DEPTH_TEST_MASK ) != 0;
+		depthStencilState.minDepthBounds = 0.0f;
+		depthStencilState.maxDepthBounds = 1.0f;
+		depthStencilState.stencilTestEnable = ( stateBits & ( GLS_STENCIL_FUNC_BITS | GLS_STENCIL_OP_BITS | GLS_SEPARATE_STENCIL ) ) != 0;
+		
+		uint32 ref = uint32( ( stateBits & GLS_STENCIL_FUNC_REF_BITS ) >> GLS_STENCIL_FUNC_REF_SHIFT );
+		uint32 mask = uint32( ( stateBits & GLS_STENCIL_FUNC_MASK_BITS ) >> GLS_STENCIL_FUNC_MASK_SHIFT );
+		
+		if( stateBits & GLS_SEPARATE_STENCIL )
+		{
+			depthStencilState.front = GetStencilOpState( vkcontext.stencilOperations[ STENCIL_FACE_FRONT ] );
+			depthStencilState.front.writeMask = 0xFFFFFFFF;
+			depthStencilState.front.compareOp = stencilCompareOp;
+			depthStencilState.front.compareMask = mask;
+			depthStencilState.front.reference = ref;
+			
+			depthStencilState.back = GetStencilOpState( vkcontext.stencilOperations[ STENCIL_FACE_BACK ] );
+			depthStencilState.back.writeMask = 0xFFFFFFFF;
+			depthStencilState.back.compareOp = stencilCompareOp;
+			depthStencilState.back.compareMask = mask;
+			depthStencilState.back.reference = ref;
+		}
+		else
+		{
+			depthStencilState.front = GetStencilOpState( stateBits );
+			depthStencilState.front.writeMask = 0xFFFFFFFF;
+			depthStencilState.front.compareOp = stencilCompareOp;
+			depthStencilState.front.compareMask = mask;
+			depthStencilState.front.reference = ref;
+			depthStencilState.back = depthStencilState.front;
+		}
+	}
+	
+	// Multisample
+	VkPipelineMultisampleStateCreateInfo multisampleState = {};
+	multisampleState.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+	multisampleState.rasterizationSamples = vkcontext.sampleCount;
+	if( vkcontext.supersampling )
+	{
+		multisampleState.sampleShadingEnable = VK_TRUE;
+		multisampleState.minSampleShading = 1.0f;
+	}
+	
+	// Shader Stages
+	idList< VkPipelineShaderStageCreateInfo > stages;
+	VkPipelineShaderStageCreateInfo stage = {};
+	stage.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	stage.pName = "main";
+	
+	{
+		stage.module = vertexShader;
+		stage.stage = VK_SHADER_STAGE_VERTEX_BIT;
+		stages.Append( stage );
+	}
+	
+	if( fragmentShader != VK_NULL_HANDLE )
+	{
+		stage.module = fragmentShader;
+		stage.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+		stages.Append( stage );
+	}
+	
+	// Dynamic
+	idList< VkDynamicState > dynamic;
+	dynamic.Append( VK_DYNAMIC_STATE_SCISSOR );
+	dynamic.Append( VK_DYNAMIC_STATE_VIEWPORT );
+	
+	if( stateBits & GLS_POLYGON_OFFSET )
+	{
+		dynamic.Append( VK_DYNAMIC_STATE_DEPTH_BIAS );
+	}
+	
+	if( stateBits & GLS_DEPTH_TEST_MASK )
+	{
+		dynamic.Append( VK_DYNAMIC_STATE_DEPTH_BOUNDS );
+	}
+	
+	VkPipelineDynamicStateCreateInfo dynamicState = {};
+	dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+	dynamicState.dynamicStateCount = dynamic.Num();
+	dynamicState.pDynamicStates = dynamic.Ptr();
+	
+	// Viewport / Scissor
+	VkPipelineViewportStateCreateInfo viewportState = {};
+	viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+	viewportState.viewportCount = 1;
+	viewportState.scissorCount = 1;
+	
+	// Pipeline Create
+	VkGraphicsPipelineCreateInfo createInfo = {};
+	createInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+	createInfo.layout = pipelineLayout;
+	createInfo.renderPass = vkcontext.renderPass;
+	createInfo.pVertexInputState = &vertexInputState;
+	createInfo.pInputAssemblyState = &assemblyInputState;
+	createInfo.pRasterizationState = &rasterizationState;
+	createInfo.pColorBlendState = &colorBlendState;
+	createInfo.pDepthStencilState = &depthStencilState;
+	createInfo.pMultisampleState = &multisampleState;
+	createInfo.pDynamicState = &dynamicState;
+	createInfo.pViewportState = &viewportState;
+	createInfo.stageCount = stages.Num();
+	createInfo.pStages = stages.Ptr();
+	
+	VkPipeline pipeline = VK_NULL_HANDLE;
+	
+	ID_VK_CHECK( vkCreateGraphicsPipelines( vkcontext.device, vkcontext.pipelineCache, 1, &createInfo, NULL, &pipeline ) );
+	
+	return pipeline;
+}
+
+/*
+========================
+renderProg_t::GetPipeline
+========================
+*/
+VkPipeline idRenderProgManager::renderProg_t::GetPipeline( uint64 stateBits, VkShaderModule vertexShader, VkShaderModule fragmentShader )
+{
+	for( int i = 0; i < pipelines.Num(); ++i )
+	{
+		pipelineState_t& pipelineState = pipelines[ i ];
+		if( stateBits != pipelineState.stateBits )
+		{
+			continue;
+		}
+		
+		if( stateBits & GLS_SEPARATE_STENCIL )
+		{
+			if( vkcontext.stencilOperations[ STENCIL_FACE_FRONT ] != pipelineState.stencilOperations[ STENCIL_FACE_FRONT ] )
+			{
+				continue;
+			}
+			
+			if( vkcontext.stencilOperations[ STENCIL_FACE_BACK ] != pipelineState.stencilOperations[ STENCIL_FACE_BACK ] )
+			{
+				continue;
+			}
+		}
+		
+		return pipelineState.pipeline;
+	}
+	
+	VkPipeline pipeline = CreateGraphicsPipeline( vertexLayout, vertexShader, fragmentShader, pipelineLayout, stateBits );
+	
+	pipelineState_t pipelineState;
+	pipelineState.pipeline = pipeline;
+	pipelineState.stateBits = stateBits;
+	
+	if( stateBits & GLS_SEPARATE_STENCIL )
+	{
+		memcpy( pipelineState.stencilOperations, vkcontext.stencilOperations, sizeof( pipelineState.stencilOperations ) );
+	}
+	
+	pipelines.Append( pipelineState );
+	
+	return pipeline;
 }
 
 /*
@@ -720,6 +1220,133 @@ void idRenderProgManager::CommitUniforms( uint64 stateBits )
 	}
 	
 #endif
+	
+	renderProg_t& prog = renderProgs[ current ];
+	
+	VkPipeline pipeline = prog.GetPipeline( stateBits, shaders[ prog.vertexShaderIndex ].module, shaders[ prog.fragmentShaderIndex ].module );
+	
+	VkDescriptorSetAllocateInfo setAllocInfo = {};
+	setAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+	setAllocInfo.pNext = NULL;
+	setAllocInfo.descriptorPool = descriptorPools[ currentData ];
+	setAllocInfo.descriptorSetCount = 1;
+	setAllocInfo.pSetLayouts = &prog.descriptorSetLayout;
+	
+	ID_VK_CHECK( vkAllocateDescriptorSets( vkcontext.device, &setAllocInfo, &descriptorSets[ currentData ][ currentDescSet ] ) );
+	
+	VkDescriptorSet descSet = descriptorSets[ currentData ][ currentDescSet ];
+	currentDescSet++;
+	
+	int writeIndex = 0;
+	int bufferIndex = 0;
+	int	imageIndex = 0;
+	int bindingIndex = 0;
+	
+	VkWriteDescriptorSet writes[ MAX_DESC_SET_WRITES ];
+	VkDescriptorBufferInfo bufferInfos[ MAX_DESC_SET_WRITES ];
+	VkDescriptorImageInfo imageInfos[ MAX_DESC_SET_WRITES ];
+	
+	int uboIndex = 0;
+	idUniformBuffer* ubos[ 3 ] = { NULL, NULL, NULL };
+	
+	idUniformBuffer vertParms;
+	if( prog.vertexShaderIndex > -1 && shaders[ prog.vertexShaderIndex ].parmIndices.Num() > 0 )
+	{
+		AllocParmBlockBuffer( shaders[ prog.vertexShaderIndex ].parmIndices, vertParms );
+		
+		ubos[ uboIndex++ ] = &vertParms;
+	}
+	
+	idUniformBuffer jointBuffer;
+	if( prog.usesJoints && vkcontext.jointCacheHandle > 0 )
+	{
+		if( !vertexCache.GetJointBuffer( vkcontext.jointCacheHandle, &jointBuffer ) )
+		{
+			idLib::Error( "idRenderProgManager::CommitCurrent: jointBuffer == NULL" );
+			return;
+		}
+		assert( ( jointBuffer.GetOffset() & ( vkcontext.gpu->props.limits.minUniformBufferOffsetAlignment - 1 ) ) == 0 );
+		
+		ubos[ uboIndex++ ] = &jointBuffer;
+	}
+	else if( prog.optionalSkinning )
+	{
+		ubos[ uboIndex++ ] = &emptyUBO;
+	}
+	
+	idUniformBuffer fragParms;
+	if( prog.fragmentShaderIndex > -1 && shaders[ prog.fragmentShaderIndex ].parmIndices.Num() > 0 )
+	{
+		AllocParmBlockBuffer( shaders[ prog.fragmentShaderIndex ].parmIndices, fragParms );
+		
+		ubos[ uboIndex++ ] = &fragParms;
+	}
+	
+	for( int i = 0; i < prog.bindings.Num(); ++i )
+	{
+		rpBinding_t binding = prog.bindings[ i ];
+		
+		switch( binding )
+		{
+			case BINDING_TYPE_UNIFORM_BUFFER:
+			{
+				idUniformBuffer* ubo = ubos[ bufferIndex ];
+				
+				VkDescriptorBufferInfo& bufferInfo = bufferInfos[ bufferIndex++ ];
+				memset( &bufferInfo, 0, sizeof( VkDescriptorBufferInfo ) );
+				bufferInfo.buffer = ubo->GetAPIObject();
+				bufferInfo.offset = ubo->GetOffset();
+				bufferInfo.range = ubo->GetSize();
+				
+				VkWriteDescriptorSet& write = writes[ writeIndex++ ];
+				memset( &write, 0, sizeof( VkWriteDescriptorSet ) );
+				write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+				write.dstSet = descSet;
+				write.dstBinding = bindingIndex++;
+				write.descriptorCount = 1;
+				write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+				write.pBufferInfo = &bufferInfo;
+				
+				break;
+			}
+			case BINDING_TYPE_SAMPLER:
+			{
+				idImage* image = vkcontext.imageParms[ imageIndex ];
+				
+				VkDescriptorImageInfo& imageInfo = imageInfos[ imageIndex++ ];
+				memset( &imageInfo, 0, sizeof( VkDescriptorImageInfo ) );
+				imageInfo.imageLayout = image->GetLayout();
+				imageInfo.imageView = image->GetView();
+				imageInfo.sampler = image->GetSampler();
+				
+				assert( image->GetView() != VK_NULL_HANDLE );
+				
+				VkWriteDescriptorSet& write = writes[ writeIndex++ ];
+				memset( &write, 0, sizeof( VkWriteDescriptorSet ) );
+				write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+				write.dstSet = descSet;
+				write.dstBinding = bindingIndex++;
+				write.descriptorCount = 1;
+				write.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+				write.pImageInfo = &imageInfo;
+				
+				break;
+			}
+		}
+	}
+	
+	vkUpdateDescriptorSets( vkcontext.device, writeIndex, writes, 0, NULL );
+	
+	vkCmdBindDescriptorSets(
+		vkcontext.commandBuffer[ vkcontext.currentFrameData ],
+		VK_PIPELINE_BIND_POINT_GRAPHICS,
+		prog.pipelineLayout, 0, 1, &descSet,
+		0, NULL );
+		
+	vkCmdBindPipeline(
+		vkcontext.commandBuffer[ vkcontext.currentFrameData ],
+		VK_PIPELINE_BIND_POINT_GRAPHICS,
+		pipeline );
 }
 
 
