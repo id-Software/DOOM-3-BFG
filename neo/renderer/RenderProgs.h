@@ -798,6 +798,8 @@ private:
 		idList<rpBinding_t>		bindings;
 		idList<pipelineState_t>	pipelines;
 	};
+	
+	static void CreateDescriptorSetLayout( const shader_t& vertexShader, const shader_t& fragmentShader, renderProg_t& renderProg );
 #else
 	struct shader_t
 	{

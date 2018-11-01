@@ -200,6 +200,81 @@ void CreateDescriptorPools( VkDescriptorPool( &pools )[ NUM_FRAME_DATA ] )
 
 /*
 ========================
+GetDescriptorType
+========================
+*/
+static VkDescriptorType GetDescriptorType( rpBinding_t type )
+{
+	switch( type )
+	{
+		case BINDING_TYPE_UNIFORM_BUFFER:
+			return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			
+		case BINDING_TYPE_SAMPLER:
+			return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			
+		default:
+			idLib::Error( "Unknown rpBinding_t %d", static_cast< int >( type ) );
+			return VK_DESCRIPTOR_TYPE_MAX_ENUM;
+	}
+}
+
+/*
+========================
+CreateDescriptorSetLayout
+========================
+*/
+void idRenderProgManager::CreateDescriptorSetLayout( const shader_t& vertexShader, const shader_t& fragmentShader, renderProg_t& renderProg )
+{
+	// Descriptor Set Layout
+	{
+		idList< VkDescriptorSetLayoutBinding > layoutBindings;
+		VkDescriptorSetLayoutBinding binding = {};
+		binding.descriptorCount = 1;
+		
+		uint32 bindingId = 0;
+		
+		binding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+		for( int i = 0; i < vertexShader.bindings.Num(); ++i )
+		{
+			binding.binding = bindingId++;
+			binding.descriptorType = GetDescriptorType( vertexShader.bindings[ i ] );
+			renderProg.bindings.Append( vertexShader.bindings[ i ] );
+			
+			layoutBindings.Append( binding );
+		}
+		
+		binding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+		for( int i = 0; i < fragmentShader.bindings.Num(); ++i )
+		{
+			binding.binding = bindingId++;
+			binding.descriptorType = GetDescriptorType( fragmentShader.bindings[ i ] );
+			renderProg.bindings.Append( fragmentShader.bindings[ i ] );
+			
+			layoutBindings.Append( binding );
+		}
+		
+		VkDescriptorSetLayoutCreateInfo createInfo = {};
+		createInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+		createInfo.bindingCount = layoutBindings.Num();
+		createInfo.pBindings = layoutBindings.Ptr();
+		
+		vkCreateDescriptorSetLayout( vkcontext.device, &createInfo, NULL, &renderProg.descriptorSetLayout );
+	}
+	
+	// Pipeline Layout
+	{
+		VkPipelineLayoutCreateInfo createInfo = {};
+		createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+		createInfo.setLayoutCount = 1;
+		createInfo.pSetLayouts = &renderProg.descriptorSetLayout;
+		
+		vkCreatePipelineLayout( vkcontext.device, &createInfo, NULL, &renderProg.pipelineLayout );
+	}
+}
+
+/*
+========================
 idRenderProgManager::StartFrame
 ========================
 */
@@ -552,67 +627,6 @@ void idRenderProgManager::LoadShader( shader_t& shader )
 	shaderModuleCreateInfo.pCode = ( uint32* )spirvBuffer;
 	
 	ID_VK_CHECK( vkCreateShaderModule( vkcontext.device, &shaderModuleCreateInfo, NULL, &shader.module ) );
-	
-#if 0
-	
-	// create and compile the shader
-	shader.progId = glCreateShader( glTarget );
-	if( shader.progId )
-	{
-		const char* source[1] = { programGLSL.c_str() };
-		
-		glShaderSource( shader.progId, 1, source, NULL );
-		glCompileShader( shader.progId );
-		
-		int infologLength = 0;
-		glGetShaderiv( shader.progId, GL_INFO_LOG_LENGTH, &infologLength );
-		if( infologLength > 1 )
-		{
-			idTempArray<char> infoLog( infologLength );
-			int charsWritten = 0;
-			glGetShaderInfoLog( shader.progId, infologLength, &charsWritten, infoLog.Ptr() );
-			
-			// catch the strings the ATI and Intel drivers output on success
-			if( strstr( infoLog.Ptr(), "successfully compiled to run on hardware" ) != NULL ||
-					strstr( infoLog.Ptr(), "No errors." ) != NULL )
-			{
-				//idLib::Printf( "%s program %s from %s compiled to run on hardware\n", typeName, GetName(), GetFileName() );
-			}
-			else if( r_displayGLSLCompilerMessages.GetBool() ) // DG:  check for the CVar I added above
-			{
-				idLib::Printf( "While compiling %s program %s\n", ( shader.stage == SHADER_STAGE_FRAGMENT ) ? "fragment" : "vertex" , inFile.c_str() );
-				
-				const char separator = '\n';
-				idList<idStr> lines;
-				lines.Clear();
-				idStr source( programGLSL );
-				lines.Append( source );
-				for( int index = 0, ofs = lines[index].Find( separator ); ofs != -1; index++, ofs = lines[index].Find( separator ) )
-				{
-					lines.Append( lines[index].c_str() + ofs + 1 );
-					lines[index].CapLength( ofs );
-				}
-				
-				idLib::Printf( "-----------------\n" );
-				for( int i = 0; i < lines.Num(); i++ )
-				{
-					idLib::Printf( "%3d: %s\n", i + 1, lines[i].c_str() );
-				}
-				idLib::Printf( "-----------------\n" );
-				
-				idLib::Printf( "%s\n", infoLog.Ptr() );
-			}
-		}
-		
-		GLint compiled = GL_FALSE;
-		glGetShaderiv( shader.progId, GL_COMPILE_STATUS, &compiled );
-		if( compiled == GL_FALSE )
-		{
-			glDeleteShader( shader.progId );
-			return;
-		}
-	}
-#endif
 }
 
 /*
@@ -637,7 +651,7 @@ void idRenderProgManager::LoadGLSLProgram( const int programIndex, const int ver
 	prog.vertexShaderIndex = vertexShaderIndex;
 	
 	// TODO
-	//CreateDescriptorSetLayout( shaders[ vertexShaderIndex ], shaders[ fragmentShaderIndex ], prog );
+	CreateDescriptorSetLayout( shaders[ vertexShaderIndex ], shaders[ fragmentShaderIndex ], prog );
 	
 #if 0
 	// RB: removed idStr::Icmp( name, "heatHaze.vfp" ) == 0  hack

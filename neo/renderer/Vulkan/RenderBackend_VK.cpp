@@ -1517,7 +1517,9 @@ idRenderBackend::GL_EndFrame
 */
 void idRenderBackend::GL_EndFrame()
 {
-	vkCmdEndRenderPass( vkcontext.commandBuffer[ vkcontext.currentFrameData ] );
+	VkCommandBuffer commandBuffer = vkcontext.commandBuffer[ vkcontext.currentFrameData ];
+	
+	vkCmdEndRenderPass( commandBuffer );
 	
 	// Transition our swap image to present.
 	// Do this instead of having the renderpass do the transition
@@ -1535,17 +1537,23 @@ void idRenderBackend::GL_EndFrame()
 	barrier.subresourceRange.layerCount = 1;
 	barrier.oldLayout = VK_IMAGE_LAYOUT_GENERAL;
 	barrier.newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+	
+#if 0
 	barrier.srcAccessMask = VK_PIPELINE_STAGE_TRANSFER_BIT |
 							VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 	barrier.dstAccessMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+#else
+	barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	barrier.dstAccessMask = 0;
+#endif
 	
 	vkCmdPipelineBarrier(
-		vkcontext.commandBuffer[ vkcontext.currentFrameData ],
+		commandBuffer,
 		VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
 		VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
 		0, 0, NULL, 0, NULL, 1, &barrier );
 		
-	ID_VK_CHECK( vkEndCommandBuffer( vkcontext.commandBuffer[ vkcontext.currentFrameData ] ) )
+	ID_VK_CHECK( vkEndCommandBuffer( commandBuffer ) )
 	vkcontext.commandBufferRecorded[ vkcontext.currentFrameData ] = true;
 	
 	VkSemaphore* acquire = &vkcontext.acquireSemaphores[ vkcontext.currentFrameData ];
