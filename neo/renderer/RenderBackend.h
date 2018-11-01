@@ -31,8 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __RENDERER_BACKEND_H__
 #define __RENDERER_BACKEND_H__
 
-// RB begin
-#define USE_CORE_PROFILE
+
 
 bool			GL_CheckErrors_( const char* filename, int line );
 #if 1 // !defined(RETAIL)
@@ -332,7 +331,6 @@ private:
 	
 	void				GL_State( uint64 stateBits, bool forceGlState = false );
 	void				GL_SeparateStencil( stencilFace_t face, uint64 stencilBits );
-	void				GL_Cull( cullType_t cullType ); // TODO remove
 	
 	void				GL_SelectTexture( int unit );
 //	void				GL_BindTexture( idImage* image );
@@ -474,7 +472,6 @@ private:
 	unsigned int		currentIndexBuffer;
 	Framebuffer*		currentFramebuffer;		// RB: for offscreen rendering
 	
-	int					faceCulling;
 	vertexLayoutType_t	vertexLayout;
 	
 	float				polyOfsScale;

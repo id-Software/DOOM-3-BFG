@@ -680,8 +680,7 @@ void idRenderBackend::DBG_ShowSilhouette()
 	renderProgManager.BindShader_Color();
 	
 	GL_Color( 0, 0, 0 );
-	GL_State( GLS_DEPTHFUNC_ALWAYS | GLS_POLYMODE_LINE );
-	GL_Cull( CT_TWO_SIDED );
+	GL_State( GLS_DEPTHFUNC_ALWAYS | GLS_POLYMODE_LINE | GLS_CULL_TWOSIDED );
 	
 	DBG_RenderDrawSurfListWithFunction( viewDef->drawSurfs, viewDef->numDrawSurfs );
 	
@@ -745,7 +744,6 @@ void idRenderBackend::DBG_ShowSilhouette()
 	
 	GL_State( GLS_DEFAULT );
 	GL_Color( 1, 1, 1 );
-	GL_Cull( CT_FRONT_SIDED );
 }
 
 /*
@@ -787,7 +785,7 @@ void idRenderBackend::DBG_ShowTris( drawSurf_t** drawSurfs, int numDrawSurfs )
 	
 	if( r_showTris.GetInteger() == 3 )
 	{
-		GL_Cull( CT_TWO_SIDED );
+		GL_State( glStateBits & ~( GLS_CULL_MASK ) | GLS_CULL_TWOSIDED );
 	}
 	
 	GL_Color( color );
@@ -796,7 +794,7 @@ void idRenderBackend::DBG_ShowTris( drawSurf_t** drawSurfs, int numDrawSurfs )
 	
 	if( r_showTris.GetInteger() == 3 )
 	{
-		GL_Cull( CT_FRONT_SIDED );
+		GL_State( glStateBits & ~( GLS_CULL_MASK ) | GLS_CULL_FRONTSIDED );
 	}
 }
 
@@ -922,8 +920,7 @@ void idRenderBackend::DBG_ShowViewEntitys( viewEntity_t* vModels )
 	renderProgManager.BindShader_Color();
 	
 	GL_Color( 1, 1, 1 );
-	GL_State( GLS_DEPTHFUNC_ALWAYS | GLS_POLYMODE_LINE );
-	GL_Cull( CT_TWO_SIDED );
+	GL_State( GLS_DEPTHFUNC_ALWAYS | GLS_POLYMODE_LINE | GLS_CULL_TWOSIDED );
 	
 	for( const viewEntity_t* vModel = vModels; vModel; vModel = vModel->next )
 	{
@@ -1646,11 +1643,9 @@ void idRenderBackend::DBG_ShowLights()
 		return;
 	}
 	
-	GL_State( GLS_DEFAULT );
+	GL_State( GLS_DEFAULT | GLS_CULL_TWOSIDED );
 	
 	renderProgManager.BindShader_Color();
-	
-	GL_Cull( CT_TWO_SIDED );
 	
 	common->Printf( "volumes: " );	// FIXME: not in back end!
 	
@@ -1710,11 +1705,9 @@ void idRenderBackend::DBG_ShowShadowMapLODs()
 		return;
 	}
 	
-	GL_State( GLS_DEFAULT );
+	GL_State( GLS_DEFAULT | GLS_CULL_TWOSIDED );
 	
 	renderProgManager.BindShader_Color();
-	
-	GL_Cull( CT_TWO_SIDED );
 	
 	common->Printf( "volumes: " );	// FIXME: not in back end!
 	

@@ -826,7 +826,7 @@ private:
 			usesJoints( false ),
 			optionalSkinning( false ),
 			builtin( false ),
-			layout( LAYOUT_UNKNOWN ),
+			vertexLayout( LAYOUT_UNKNOWN ),
 			vertexShaderIndex( -1 ),
 			fragmentShaderIndex( -1 ) {}
 	

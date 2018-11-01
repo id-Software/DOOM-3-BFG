@@ -983,13 +983,9 @@ void idRenderBackend::FillDepthBufferGeneric( const drawSurf_t* const* drawSurfs
 				
 				GL_Color( color );
 				
-#ifdef USE_CORE_PROFILE
 				GL_State( stageGLState );
 				idVec4 alphaTestValue( regs[ pStage->alphaTestRegister ] );
 				SetFragmentParm( RENDERPARM_ALPHA_TEST, alphaTestValue.ToFloatPtr() );
-#else
-				GL_State( stageGLState | GLS_ALPHATEST_FUNC_GREATER | GLS_ALPHATEST_MAKE_REF( idMath::Ftob( 255.0f * regs[ pStage->alphaTestRegister ] ) ) );
-#endif
 				
 				if( drawSurf->jointCache )
 				{
@@ -1063,9 +1059,7 @@ void idRenderBackend::FillDepthBufferGeneric( const drawSurf_t* const* drawSurfs
 		renderLog.CloseBlock();
 	}
 	
-#ifdef USE_CORE_PROFILE
 	SetFragmentParm( RENDERPARM_ALPHA_TEST, vec4_zero.ToFloatPtr() );
-#endif
 }
 
 /*
@@ -2280,9 +2274,7 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 		renderLog.CloseBlock();
 	}
 	
-#ifdef USE_CORE_PROFILE
 	SetFragmentParm( RENDERPARM_ALPHA_TEST, vec4_zero.ToFloatPtr() );
-#endif
 	
 	renderLog.CloseBlock();
 	renderLog.CloseMainBlock();
@@ -2377,13 +2369,18 @@ void idRenderBackend::StencilShadowPass( const drawSurf_t* drawSurfs, const view
 	// the actual stencil func will be set in the draw code, but we need to make sure it isn't
 	// disabled here, and that the value will get reset for the interactions without looking
 	// like a no-change-required
-	GL_State( glState | GLS_STENCIL_OP_FAIL_KEEP | GLS_STENCIL_OP_ZFAIL_KEEP | GLS_STENCIL_OP_PASS_INCR |
-			  GLS_STENCIL_MAKE_REF( STENCIL_SHADOW_TEST_VALUE ) | GLS_STENCIL_MAKE_MASK( STENCIL_SHADOW_MASK_VALUE ) | GLS_POLYGON_OFFSET );
-			  
+	
 	// Two Sided Stencil reduces two draw calls to one for slightly faster shadows
-	GL_Cull( CT_TWO_SIDED );
-	
-	
+	GL_State(
+		glState |
+		GLS_STENCIL_OP_FAIL_KEEP |
+		GLS_STENCIL_OP_ZFAIL_KEEP |
+		GLS_STENCIL_OP_PASS_INCR |
+		GLS_STENCIL_MAKE_REF( STENCIL_SHADOW_TEST_VALUE ) |
+		GLS_STENCIL_MAKE_MASK( STENCIL_SHADOW_MASK_VALUE ) |
+		GLS_POLYGON_OFFSET |
+		GLS_CULL_TWOSIDED );
+		
 	// process the chain of shadows with the current rendering state
 	currentSpace = NULL;
 	
@@ -2508,7 +2505,7 @@ void idRenderBackend::StencilShadowPass( const drawSurf_t* drawSurfs, const view
 	
 	// cleanup the shadow specific rendering state
 	
-	GL_Cull( CT_FRONT_SIDED );
+	GL_State( glStateBits & ~( GLS_CULL_MASK ) | GLS_CULL_FRONTSIDED );
 	
 	// reset depth bounds
 	if( r_useShadowDepthBounds.GetBool() )
@@ -2557,9 +2554,16 @@ void idRenderBackend::StencilSelectLight( const viewLight_t* vLight )
 	GL_DepthBoundsTest( vLight->scissorRect.zmin, vLight->scissorRect.zmax );
 	
 	
-	GL_State( GLS_COLORMASK | GLS_ALPHAMASK | GLS_DEPTHMASK | GLS_DEPTHFUNC_LESS | GLS_STENCIL_FUNC_ALWAYS | GLS_STENCIL_MAKE_REF( STENCIL_SHADOW_TEST_VALUE ) | GLS_STENCIL_MAKE_MASK( STENCIL_SHADOW_MASK_VALUE ) );
-	GL_Cull( CT_TWO_SIDED );
-	
+	GL_State(
+		GLS_COLORMASK |
+		GLS_ALPHAMASK |
+		GLS_CULL_TWOSIDED |
+		GLS_DEPTHMASK |
+		GLS_DEPTHFUNC_LESS |
+		GLS_STENCIL_FUNC_ALWAYS |
+		GLS_STENCIL_MAKE_REF( STENCIL_SHADOW_TEST_VALUE ) |
+		GLS_STENCIL_MAKE_MASK( STENCIL_SHADOW_MASK_VALUE ) );
+		
 	renderProgManager.BindShader_Depth();
 	
 	// set the matrix for deforming the 'zeroOneCubeModel' into the frustum to exactly cover the light volume
@@ -2576,8 +2580,7 @@ void idRenderBackend::StencilSelectLight( const viewLight_t* vLight )
 	DrawElementsWithCounters( &zeroOneCubeSurface );
 	
 	// reset stencil state
-	
-	GL_Cull( CT_FRONT_SIDED );
+	GL_State( glStateBits & ~( GLS_CULL_MASK ) | GLS_CULL_FRONTSIDED );
 	
 	renderProgManager.Unbind();
 	
@@ -2719,17 +2722,17 @@ void idRenderBackend::ShadowMapPass( const drawSurf_t* drawSurfs, const viewLigh
 	switch( r_shadowMapOccluderFacing.GetInteger() )
 	{
 		case 0:
-			GL_Cull( CT_FRONT_SIDED );
+			GL_State( glStateBits & ~( GLS_CULL_MASK ) | GLS_CULL_FRONTSIDED );
 			GL_PolygonOffset( r_shadowMapPolygonFactor.GetFloat(), r_shadowMapPolygonOffset.GetFloat() );
 			break;
 			
 		case 1:
-			GL_Cull( CT_BACK_SIDED );
+			GL_State( glStateBits & ~( GLS_CULL_MASK ) | GLS_CULL_BACKSIDED );
 			GL_PolygonOffset( -r_shadowMapPolygonFactor.GetFloat(), -r_shadowMapPolygonOffset.GetFloat() );
 			break;
 			
 		default:
-			GL_Cull( CT_TWO_SIDED );
+			GL_State( glStateBits & ~( GLS_CULL_MASK ) | GLS_CULL_TWOSIDED );
 			GL_PolygonOffset( r_shadowMapPolygonFactor.GetFloat(), r_shadowMapPolygonOffset.GetFloat() );
 			break;
 	}
@@ -3176,13 +3179,9 @@ void idRenderBackend::ShadowMapPass( const drawSurf_t* drawSurfs, const viewLigh
 				
 				GL_Color( color );
 				
-#ifdef USE_CORE_PROFILE
 				GL_State( stageGLState );
 				idVec4 alphaTestValue( regs[ pStage->alphaTestRegister ] );
 				SetFragmentParm( RENDERPARM_ALPHA_TEST, alphaTestValue.ToFloatPtr() );
-#else
-				GL_State( stageGLState | GLS_ALPHATEST_FUNC_GREATER | GLS_ALPHATEST_MAKE_REF( idMath::Ftob( 255.0f * regs[ pStage->alphaTestRegister ] ) ) );
-#endif
 				
 				if( drawSurf->jointCache )
 				{
@@ -3247,11 +3246,8 @@ void idRenderBackend::ShadowMapPass( const drawSurf_t* drawSurfs, const viewLigh
 	renderProgManager.Unbind();
 	
 	GL_State( GLS_DEFAULT );
-	GL_Cull( CT_FRONT_SIDED );
 	
-#ifdef USE_CORE_PROFILE
 	SetFragmentParm( RENDERPARM_ALPHA_TEST, vec4_zero.ToFloatPtr() );
-#endif
 }
 
 /*
@@ -3613,16 +3609,31 @@ int idRenderBackend::DrawShaderPasses( const drawSurf_t* const* const drawSurfs,
 		const float*	regs = surf->shaderRegisters;
 		
 		// set face culling appropriately
+		uint64 cullMode;
 		if( surf->space->isGuiSurface )
 		{
-			GL_Cull( CT_TWO_SIDED );
+			cullMode = GLS_CULL_TWOSIDED;
 		}
 		else
 		{
-			GL_Cull( shader->GetCullType() );
+			switch( shader->GetCullType() )
+			{
+				case CT_TWO_SIDED:
+					cullMode = GLS_CULL_TWOSIDED;
+					break;
+					
+				case CT_BACK_SIDED:
+					cullMode = GLS_CULL_BACKSIDED;
+					break;
+					
+				case CT_FRONT_SIDED:
+				default:
+					cullMode = GLS_CULL_FRONTSIDED;
+					break;
+			}
 		}
 		
-		uint64 surfGLState = surf->extraGLState;
+		uint64 surfGLState = surf->extraGLState | cullMode;
 		
 		// set polygon offset if necessary
 		if( shader->TestMaterialFlag( MF_POLYGONOFFSET ) )
@@ -3857,7 +3868,6 @@ int idRenderBackend::DrawShaderPasses( const drawSurf_t* const* const drawSurfs,
 		renderLog.CloseBlock();
 	}
 	
-	GL_Cull( CT_FRONT_SIDED );
 	GL_Color( 1.0f, 1.0f, 1.0f );
 	
 	// disable stencil shadow test
@@ -4160,14 +4170,13 @@ void idRenderBackend::FogPass( const drawSurf_t* drawSurfs,  const drawSurf_t* d
 	
 	// the light frustum bounding planes aren't in the depth buffer, so use depthfunc_less instead
 	// of depthfunc_equal
-	GL_State( GLS_DEPTHMASK | GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA | GLS_DEPTHFUNC_LESS );
-	GL_Cull( CT_BACK_SIDED );
+	GL_State( GLS_DEPTHMASK | GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA | GLS_DEPTHFUNC_LESS | GLS_CULL_BACKSIDED );
 	
 	zeroOneCubeSurface.space = &viewDef->worldSpace;
 	zeroOneCubeSurface.scissorRect = viewDef->scissor;
 	T_BasicFog( &zeroOneCubeSurface, fogPlanes, &vLight->inverseBaseLightProject );
 	
-	GL_Cull( CT_FRONT_SIDED );
+	GL_State( glStateBits & ~( GLS_CULL_MASK ) | GLS_CULL_FRONTSIDED );
 	
 	GL_SelectTexture( 0 );
 	
@@ -4345,8 +4354,7 @@ void idRenderBackend::Tonemap( const viewDef_t* _viewDef )
 	
 	Framebuffer::Unbind();
 	
-	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
-	GL_Cull( CT_TWO_SIDED );
+	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS | GLS_CULL_TWOSIDED );
 	
 	int screenWidth = renderSystem->GetWidth();
 	int screenHeight = renderSystem->GetHeight();
@@ -4425,7 +4433,6 @@ void idRenderBackend::Tonemap( const viewDef_t* _viewDef )
 	renderProgManager.Unbind();
 	
 	GL_State( GLS_DEFAULT );
-	GL_Cull( CT_FRONT_SIDED );
 }
 
 
@@ -4451,8 +4458,7 @@ void idRenderBackend::Bloom( const viewDef_t* _viewDef )
 //	glClear( GL_COLOR_BUFFER_BIT );
 #endif
 
-	GL_State( /*GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO |*/ GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
-	GL_Cull( CT_TWO_SIDED );
+	GL_State( /*GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO |*/ GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS | GLS_CULL_TWOSIDED );
 	
 	int screenWidth = renderSystem->GetWidth();
 	int screenHeight = renderSystem->GetHeight();
@@ -4555,7 +4561,6 @@ void idRenderBackend::Bloom( const viewDef_t* _viewDef )
 	renderProgManager.Unbind();
 	
 	GL_State( GLS_DEFAULT );
-	GL_Cull( CT_FRONT_SIDED );
 }
 
 
@@ -4723,8 +4728,7 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 	GL_Viewport( 0, 0, screenWidth, screenHeight );
 	GL_Scissor( 0, 0, screenWidth, screenHeight );
 	
-	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
-	GL_Cull( CT_TWO_SIDED );
+	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS | GLS_CULL_TWOSIDED );
 	
 	if( r_ssaoFiltering.GetBool() )
 	{
@@ -4863,7 +4867,6 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 	renderProgManager.Unbind();
 	
 	GL_State( GLS_DEFAULT );
-	GL_Cull( CT_FRONT_SIDED );
 	
 	//GL_CheckErrors();
 #endif
@@ -4968,8 +4971,7 @@ void idRenderBackend::DrawScreenSpaceGlobalIllumination( const viewDef_t* _viewD
 	GL_Viewport( 0, 0, screenWidth, screenHeight );
 	GL_Scissor( 0, 0, screenWidth, screenHeight );
 	
-	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
-	GL_Cull( CT_TWO_SIDED );
+	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS | GLS_CULL_TWOSIDED );
 	
 	if( r_ssgiFiltering.GetBool() )
 	{
@@ -5131,7 +5133,6 @@ void idRenderBackend::DrawScreenSpaceGlobalIllumination( const viewDef_t* _viewD
 	renderProgManager.Unbind();
 	
 	GL_State( GLS_DEFAULT );
-	GL_Cull( CT_FRONT_SIDED );
 	
 	//GL_CheckErrors();
 #endif
@@ -5279,12 +5280,8 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 	//-------------------------------------------------
 	ResetViewportAndScissorToDefaultCamera( _viewDef );
 	
-#if !defined(USE_VULKAN)
-	faceCulling = -1;		// force face culling to set next time
-#endif
-	
 	// ensures that depth writes are enabled for the depth clear
-	GL_State( GLS_DEFAULT );
+	GL_State( GLS_DEFAULT | GLS_CULL_FRONTSIDED, true );
 	
 	//GL_CheckErrors();
 	
@@ -5306,10 +5303,7 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 	
 	//GL_CheckErrors();
 	
-	// normal face culling
-	GL_Cull( CT_FRONT_SIDED );
-	
-#if defined(USE_CORE_PROFILE) && !defined(USE_VULKAN)
+#if !defined(USE_VULKAN)
 	// bind one global Vertex Array Object (VAO)
 	glBindVertexArray( glConfig.global_vao );
 #endif
@@ -5631,8 +5625,7 @@ void idRenderBackend::MotionBlur()
 	
 	RB_SetMVP( motionMatrix );
 	
-	GL_State( GLS_DEPTHFUNC_ALWAYS );
-	GL_Cull( CT_TWO_SIDED );
+	GL_State( GLS_DEPTHFUNC_ALWAYS | GLS_CULL_TWOSIDED );
 	
 	renderProgManager.BindShader_MotionBlur();
 	
@@ -5789,8 +5782,7 @@ void idRenderBackend::PostProcess( const void* data )
 	postProcessCommand_t* cmd = ( postProcessCommand_t* )data;
 	const idScreenRect& viewport = cmd->viewDef->viewport;
 	
-	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
-	GL_Cull( CT_TWO_SIDED );
+	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS |  GLS_CULL_TWOSIDED );
 	
 	int screenWidth = renderSystem->GetWidth();
 	int screenHeight = renderSystem->GetHeight();

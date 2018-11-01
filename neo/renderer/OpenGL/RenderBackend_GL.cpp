@@ -732,7 +732,6 @@ void idRenderBackend::GL_SetDefaultState()
 	currentVertexBuffer = 0;
 	currentIndexBuffer = 0;
 	currentFramebuffer = 0;
-	faceCulling = 0;
 	vertexLayout = LAYOUT_UNKNOWN;
 	polyOfsScale = 0.0f;
 	polyOfsBias = 0.0f;
@@ -749,6 +748,7 @@ void idRenderBackend::GL_SetDefaultState()
 	Framebuffer::Unbind();
 	// RB end
 	
+#if 0
 	// These are changed by GL_Cull
 	glCullFace( GL_FRONT_AND_BACK );
 	glEnable( GL_CULL_FACE );
@@ -762,6 +762,7 @@ void idRenderBackend::GL_SetDefaultState()
 	glDisable( GL_POLYGON_OFFSET_FILL );
 	glDisable( GL_POLYGON_OFFSET_LINE );
 	glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+#endif
 	
 	// These should never be changed
 	// DG: deprecated in opengl 3.2 and not needed because we don't do fixed function pipeline
@@ -803,6 +804,46 @@ void idRenderBackend::GL_State( uint64 stateBits, bool forceGlState )
 	else if( diff == 0 )
 	{
 		return;
+	}
+	
+	//
+	// culling
+	//
+	if( diff & ( GLS_CULL_BITS ) )//| GLS_MIRROR_VIEW ) )
+	{
+		switch( stateBits & GLS_CULL_BITS )
+		{
+			case GLS_CULL_TWOSIDED:
+				glDisable( GL_CULL_FACE );
+				break;
+				
+			case GLS_CULL_BACKSIDED:
+				glEnable( GL_CULL_FACE );
+				if( viewDef != NULL && viewDef->isMirror )
+				{
+					stateBits |= GLS_MIRROR_VIEW;
+					glCullFace( GL_FRONT );
+				}
+				else
+				{
+					glCullFace( GL_BACK );
+				}
+				break;
+				
+			case GLS_CULL_FRONTSIDED:
+			default:
+				glEnable( GL_CULL_FACE );
+				if( viewDef != NULL && viewDef->isMirror )
+				{
+					stateBits |= GLS_MIRROR_VIEW;
+					glCullFace( GL_BACK );
+				}
+				else
+				{
+					glCullFace( GL_FRONT );
+				}
+				break;
+		}
 	}
 	
 	//
@@ -969,41 +1010,6 @@ void idRenderBackend::GL_State( uint64 stateBits, bool forceGlState )
 		}
 	}
 	
-#if !defined( USE_CORE_PROFILE )
-	//
-	// alpha test
-	//
-	if( diff & ( GLS_ALPHATEST_FUNC_BITS | GLS_ALPHATEST_FUNC_REF_BITS ) )
-	{
-		if( ( stateBits & GLS_ALPHATEST_FUNC_BITS ) != 0 )
-		{
-			glEnable( GL_ALPHA_TEST );
-			
-			GLenum func = GL_ALWAYS;
-			switch( stateBits & GLS_ALPHATEST_FUNC_BITS )
-			{
-				case GLS_ALPHATEST_FUNC_LESS:
-					func = GL_LESS;
-					break;
-				case GLS_ALPHATEST_FUNC_EQUAL:
-					func = GL_EQUAL;
-					break;
-				case GLS_ALPHATEST_FUNC_GREATER:
-					func = GL_GEQUAL;
-					break;
-				default:
-					assert( false );
-			}
-			GLclampf ref = ( ( stateBits & GLS_ALPHATEST_FUNC_REF_BITS ) >> GLS_ALPHATEST_FUNC_REF_SHIFT ) / ( float )0xFF;
-			glAlphaFunc( func, ref );
-		}
-		else
-		{
-			glDisable( GL_ALPHA_TEST );
-		}
-	}
-#endif
-	
 	//
 	// stencil
 	//
@@ -1169,58 +1175,7 @@ void idRenderBackend::GL_SelectTexture( int unit )
 	currenttmu = unit;
 }
 
-/*
-====================
-idRenderBackend::GL_Cull
 
-This handles the flipping needed when the view being
-rendered is a mirored view.
-====================
-*/
-void idRenderBackend::GL_Cull( cullType_t cullType )
-{
-	if( faceCulling == cullType )
-	{
-		return;
-	}
-	
-	if( cullType == CT_TWO_SIDED )
-	{
-		glDisable( GL_CULL_FACE );
-	}
-	else
-	{
-		if( faceCulling == CT_TWO_SIDED )
-		{
-			glEnable( GL_CULL_FACE );
-		}
-		
-		if( cullType == CT_BACK_SIDED )
-		{
-			if( viewDef->isMirror )
-			{
-				glCullFace( GL_FRONT );
-			}
-			else
-			{
-				glCullFace( GL_BACK );
-			}
-		}
-		else
-		{
-			if( viewDef->isMirror )
-			{
-				glCullFace( GL_BACK );
-			}
-			else
-			{
-				glCullFace( GL_FRONT );
-			}
-		}
-	}
-	
-	faceCulling = cullType;
-}
 
 /*
 ====================
@@ -1971,8 +1926,7 @@ void idRenderBackend::StereoRenderExecuteBackEndCommands( const emptyCommand_t* 
 		glDrawBuffer( GL_BACK );
 	}
 	
-	GL_State( GLS_DEPTHFUNC_ALWAYS );
-	GL_Cull( CT_TWO_SIDED );
+	GL_State( GLS_DEPTHFUNC_ALWAYS | GLS_CULL_TWOSIDED );
 	
 	// We just want to do a quad pass - so make sure we disable any texgen and
 	// set the texture matrix to the identity so we don't get anomalies from
