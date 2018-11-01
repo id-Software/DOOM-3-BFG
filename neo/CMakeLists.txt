@@ -271,7 +271,9 @@ else (JPEG_FOUND)
 endif (JPEG_FOUND)
 
 
-
+macro(SET_OPTION option value)
+  set(${option} ${value} CACHE "" INTERNAL FORCE)
+endmacro()
 
 if(USE_VULKAN)
 	# Use FindVulkan module added with CMAKE 3.7
@@ -289,6 +291,16 @@ if(USE_VULKAN)
 	
 	add_definitions(-DUSE_VULKAN)
 	include_directories($ENV{VK_SDK_PATH}/Include)
+	
+	# override Glslang build options
+	SET_OPTION(ENABLE_SPVREMAPPER OFF)
+	SET_OPTION(ENABLE_GLSLANG_BINARIES OFF)
+	SET_OPTION(ENABLE_HLSL OFF)
+	SET_OPTION(ENABLE_OPT OFF)
+	
+	#option(ENABLE_AMD_EXTENSIONS "Enables support of AMD-specific extensions" ON)
+	#option(ENABLE_NV_EXTENSIONS "Enables support of Nvidia-specific extensions" ON)
+	#option(ENABLE_OPT "Enables spirv-opt capability if present" ON)
 	
 	set(GLSLANG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs/glslang)
 	add_subdirectory(${GLSLANG_DIR})
@@ -1260,11 +1272,12 @@ if(MSVC)
 		set(Vulkan_LIBRARIES
 			${Vulkan_LIBRARY}
 			glslang
-			glslang-default-resource-limits
 			SPIRV
-			#opengl32
-			#glu32
 			)
+			
+		if(ENABLE_GLSLANG_BINARIES)
+			list(APPEND Vulkan_LIBRARIES glslang-default-resource-limits)
+		endif()
 		
 	else()
 		list(APPEND RBDOOM3_INCLUDES ${RENDERER_OPENGL_INCLUDES})
