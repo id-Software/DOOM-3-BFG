@@ -45,7 +45,7 @@ idCVar r_syncEveryFrame( "r_syncEveryFrame", "1", CVAR_BOOL, "Don't let the GPU 
 
 // NEW VULKAN STUFF
 
-idCVar r_vkEnableValidationLayers( "r_vkEnableValidationLayers", "0", CVAR_BOOL, "" );
+idCVar r_vkEnableValidationLayers( "r_vkEnableValidationLayers", "1", CVAR_BOOL, "" );
 
 vulkanContext_t vkcontext;
 
@@ -1064,6 +1064,10 @@ static void CreateRenderPass()
 	depthAttachment.samples = vkcontext.sampleCount;
 	depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 	depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	
+	// RB
+	depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	
 	depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 	depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 	
@@ -1183,8 +1187,8 @@ ClearContext
 */
 static void ClearContext()
 {
-	vkcontext.counter = 0;
-	vkcontext.currentFrameData = 0;
+	vkcontext.frameCounter = 0;
+	vkcontext.frameParity = 0;
 	vkcontext.jointCacheHandle = 0;
 	memset( vkcontext.stencilOperations, 0, sizeof( vkcontext.stencilOperations ) );
 	vkcontext.instance = VK_NULL_HANDLE;
@@ -1348,6 +1352,9 @@ void idRenderBackend::Shutdown()
 {
 	// RB: release input before anything goes wrong
 	Sys_ShutdownInput();
+	
+	// Destroy Shaders
+	renderProgManager.Shutdown();
 	
 	for( int i = 0; i < NUM_FRAME_DATA; ++i )
 	{
@@ -1527,7 +1534,7 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 	{
 		const VkBuffer buffer = indexBuffer->GetAPIObject();
 		const VkDeviceSize offset = indexBuffer->GetOffset();
-		vkCmdBindIndexBuffer( vkcontext.commandBuffer[ vkcontext.currentFrameData ], buffer, offset, VK_INDEX_TYPE_UINT16 );
+		vkCmdBindIndexBuffer( vkcontext.commandBuffer[ vkcontext.frameParity ], buffer, offset, VK_INDEX_TYPE_UINT16 );
 	}
 	
 	/*
@@ -1557,7 +1564,7 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 	{
 		const VkBuffer buffer = vertexBuffer->GetAPIObject();
 		const VkDeviceSize offset = vertexBuffer->GetOffset();
-		vkCmdBindVertexBuffers( vkcontext.commandBuffer[ vkcontext.currentFrameData ], 0, 1, &buffer, &offset );
+		vkCmdBindVertexBuffers( vkcontext.commandBuffer[ vkcontext.frameParity ], 0, 1, &buffer, &offset );
 	}
 	
 	/*
@@ -1569,12 +1576,73 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 	*/
 	
 	vkCmdDrawIndexed(
-		vkcontext.commandBuffer[ vkcontext.currentFrameData ],
+		vkcontext.commandBuffer[ vkcontext.frameParity ],
 		surf->numIndexes, 1, ( indexOffset >> 1 ), vertOffset / sizeof( idDrawVert ), 0 );
 		
 	// RB: added stats
 	pc.c_drawElements++;
 	pc.c_drawIndexes += surf->numIndexes;
+}
+
+
+/*
+====================
+idRenderBackend::ResizeImages
+====================
+*/
+void idRenderBackend::ResizeImages()
+{
+	if( vkcontext.swapchainExtent.width == glConfig.nativeScreenWidth &&
+			vkcontext.swapchainExtent.height == glConfig.nativeScreenHeight &&
+			vkcontext.fullscreen == glConfig.isFullscreen )
+	{
+		return;
+	}
+	
+	stagingManager.Flush();
+	
+	vkDeviceWaitIdle( vkcontext.device );
+	
+	idImage::EmptyGarbage();
+	
+	// Destroy Frame Buffers
+	DestroyFrameBuffers();
+	
+	// Destroy Render Targets
+	DestroyRenderTargets();
+	
+	// Destroy Current Swap Chain
+	DestroySwapChain();
+	
+	// Destroy Current Surface
+	vkDestroySurfaceKHR( vkcontext.instance, vkcontext.surface, NULL );
+	
+#if !defined( USE_AMD_ALLOCATOR )
+	vulkanAllocator.EmptyGarbage();
+#endif
+	
+	// Create New Surface
+	CreateSurface();
+	
+	// Refresh Surface Capabilities
+	ID_VK_CHECK( vkGetPhysicalDeviceSurfaceCapabilitiesKHR( vkcontext.physicalDevice, vkcontext.surface, &vkcontext.gpu->surfaceCaps ) );
+	
+	// Recheck presentation support
+	VkBool32 supportsPresent = VK_FALSE;
+	ID_VK_CHECK( vkGetPhysicalDeviceSurfaceSupportKHR( vkcontext.physicalDevice, vkcontext.presentFamilyIdx, vkcontext.surface, &supportsPresent ) );
+	if( supportsPresent == VK_FALSE )
+	{
+		idLib::FatalError( "idRenderBackend::ResizeImages: New surface does not support present?" );
+	}
+	
+	// Create New Swap Chain
+	CreateSwapChain();
+	
+	// Create New Render Targets
+	CreateRenderTargets();
+	
+	// Create New Frame Buffers
+	CreateFrameBuffers();
 }
 
 
@@ -1623,7 +1691,7 @@ idRenderBackend::GL_StartFrame
 */
 void idRenderBackend::GL_StartFrame()
 {
-	ID_VK_CHECK( vkAcquireNextImageKHR( vkcontext.device, vkcontext.swapchain, UINT64_MAX, vkcontext.acquireSemaphores[ vkcontext.currentFrameData ], VK_NULL_HANDLE, &vkcontext.currentSwapIndex ) );
+	ID_VK_CHECK( vkAcquireNextImageKHR( vkcontext.device, vkcontext.swapchain, UINT64_MAX, vkcontext.acquireSemaphores[ vkcontext.frameParity ], VK_NULL_HANDLE, &vkcontext.currentSwapIndex ) );
 	
 	idImage::EmptyGarbage();
 	
@@ -1637,7 +1705,7 @@ void idRenderBackend::GL_StartFrame()
 	
 	VkCommandBufferBeginInfo commandBufferBeginInfo = {};
 	commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-	ID_VK_CHECK( vkBeginCommandBuffer( vkcontext.commandBuffer[ vkcontext.currentFrameData ], &commandBufferBeginInfo ) );
+	ID_VK_CHECK( vkBeginCommandBuffer( vkcontext.commandBuffer[ vkcontext.frameParity ], &commandBufferBeginInfo ) );
 	
 	VkRenderPassBeginInfo renderPassBeginInfo = {};
 	renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -1645,7 +1713,7 @@ void idRenderBackend::GL_StartFrame()
 	renderPassBeginInfo.framebuffer = vkcontext.frameBuffers[ vkcontext.currentSwapIndex ];
 	renderPassBeginInfo.renderArea.extent = vkcontext.swapchainExtent;
 	
-	vkCmdBeginRenderPass( vkcontext.commandBuffer[ vkcontext.currentFrameData ], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE );
+	vkCmdBeginRenderPass( vkcontext.commandBuffer[ vkcontext.frameParity ], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE );
 }
 
 /*
@@ -1655,7 +1723,7 @@ idRenderBackend::GL_EndFrame
 */
 void idRenderBackend::GL_EndFrame()
 {
-	VkCommandBuffer commandBuffer = vkcontext.commandBuffer[ vkcontext.currentFrameData ];
+	VkCommandBuffer commandBuffer = vkcontext.commandBuffer[ vkcontext.frameParity ];
 	
 	vkCmdEndRenderPass( commandBuffer );
 	
@@ -1692,24 +1760,24 @@ void idRenderBackend::GL_EndFrame()
 		0, 0, NULL, 0, NULL, 1, &barrier );
 		
 	ID_VK_CHECK( vkEndCommandBuffer( commandBuffer ) )
-	vkcontext.commandBufferRecorded[ vkcontext.currentFrameData ] = true;
+	vkcontext.commandBufferRecorded[ vkcontext.frameParity ] = true;
 	
-	VkSemaphore* acquire = &vkcontext.acquireSemaphores[ vkcontext.currentFrameData ];
-	VkSemaphore* finished = &vkcontext.renderCompleteSemaphores[ vkcontext.currentFrameData ];
+	VkSemaphore* acquire = &vkcontext.acquireSemaphores[ vkcontext.frameParity ];
+	VkSemaphore* finished = &vkcontext.renderCompleteSemaphores[ vkcontext.frameParity ];
 	
 	VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 	
 	VkSubmitInfo submitInfo = {};
 	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 	submitInfo.commandBufferCount = 1;
-	submitInfo.pCommandBuffers = &vkcontext.commandBuffer[ vkcontext.currentFrameData ];
+	submitInfo.pCommandBuffers = &vkcontext.commandBuffer[ vkcontext.frameParity ];
 	submitInfo.waitSemaphoreCount = 1;
 	submitInfo.pWaitSemaphores = acquire;
 	submitInfo.signalSemaphoreCount = 1;
 	submitInfo.pSignalSemaphores = finished;
 	submitInfo.pWaitDstStageMask = &dstStageMask;
 	
-	ID_VK_CHECK( vkQueueSubmit( vkcontext.graphicsQueue, 1, &submitInfo, vkcontext.commandBufferFences[ vkcontext.currentFrameData ] ) );
+	ID_VK_CHECK( vkQueueSubmit( vkcontext.graphicsQueue, 1, &submitInfo, vkcontext.commandBufferFences[ vkcontext.frameParity ] ) );
 }
 
 /*
@@ -1723,18 +1791,18 @@ void idRenderBackend::GL_BlockingSwapBuffers()
 {
 	RENDERLOG_PRINTF( "***************** BlockingSwapBuffers *****************\n\n\n" );
 	
-	if( vkcontext.commandBufferRecorded[ vkcontext.currentFrameData ] == false )
+	if( vkcontext.commandBufferRecorded[ vkcontext.frameParity ] == false )
 	{
 		// RB: no need to present anything if no command buffers where recorded in this frame
 		return;
 	}
 	
-	ID_VK_CHECK( vkWaitForFences( vkcontext.device, 1, &vkcontext.commandBufferFences[ vkcontext.currentFrameData ], VK_TRUE, UINT64_MAX ) );
+	ID_VK_CHECK( vkWaitForFences( vkcontext.device, 1, &vkcontext.commandBufferFences[ vkcontext.frameParity ], VK_TRUE, UINT64_MAX ) );
 	
-	ID_VK_CHECK( vkResetFences( vkcontext.device, 1, &vkcontext.commandBufferFences[ vkcontext.currentFrameData ] ) );
-	vkcontext.commandBufferRecorded[ vkcontext.currentFrameData ] = false;
+	ID_VK_CHECK( vkResetFences( vkcontext.device, 1, &vkcontext.commandBufferFences[ vkcontext.frameParity ] ) );
+	vkcontext.commandBufferRecorded[ vkcontext.frameParity ] = false;
 	
-	VkSemaphore* finished = &vkcontext.renderCompleteSemaphores[ vkcontext.currentFrameData ];
+	VkSemaphore* finished = &vkcontext.renderCompleteSemaphores[ vkcontext.frameParity ];
 	
 	VkPresentInfoKHR presentInfo = {};
 	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
@@ -1748,8 +1816,8 @@ void idRenderBackend::GL_BlockingSwapBuffers()
 	
 	// RB: at this time the image is presented on the screen
 	
-	vkcontext.counter++;
-	vkcontext.currentFrameData = vkcontext.counter % NUM_FRAME_DATA;
+	vkcontext.frameCounter++;
+	vkcontext.frameParity = vkcontext.frameCounter % NUM_FRAME_DATA;
 }
 
 /*
@@ -1829,7 +1897,7 @@ void idRenderBackend::GL_Scissor( int x /* left*/, int y /* bottom */, int w, in
 	scissor.extent.width = w;
 	scissor.extent.height = h;
 	
-	vkCmdSetScissor( vkcontext.commandBuffer[ vkcontext.currentFrameData ], 0, 1, &scissor );
+	vkCmdSetScissor( vkcontext.commandBuffer[ vkcontext.frameParity ], 0, 1, &scissor );
 }
 
 /*
@@ -1847,7 +1915,7 @@ void idRenderBackend::GL_Viewport( int x /* left */, int y /* bottom */, int w, 
 	viewport.minDepth = 0.0f;
 	viewport.maxDepth = 1.0f;
 	
-	vkCmdSetViewport( vkcontext.commandBuffer[ vkcontext.currentFrameData ], 0, 1, &viewport );
+	vkCmdSetViewport( vkcontext.commandBuffer[ vkcontext.frameParity ], 0, 1, &viewport );
 }
 
 /*
@@ -1935,7 +2003,7 @@ void idRenderBackend::GL_Clear( bool color, bool depth, bool stencil, byte stenc
 	clearRect.layerCount = 1;
 	clearRect.rect.extent = vkcontext.swapchainExtent;
 	
-	vkCmdClearAttachments( vkcontext.commandBuffer[ vkcontext.currentFrameData ], numAttachments, attachments, 1, &clearRect );
+	vkCmdClearAttachments( vkcontext.commandBuffer[ vkcontext.frameParity ], numAttachments, attachments, 1, &clearRect );
 	
 	/*
 	int clearFlags = 0;
@@ -2121,7 +2189,7 @@ void idRenderBackend::DrawFlickerBox()
 	
 	VkClearColorValue& color = attachment.clearValue.color;
 	
-	if( vkcontext.currentFrameData & 1 )
+	if( vkcontext.frameParity & 1 )
 	{
 		color.float32[ 0 ] = 1;
 		color.float32[ 1 ] = 0;
@@ -2145,7 +2213,7 @@ void idRenderBackend::DrawFlickerBox()
 	clearRect.layerCount = 1;
 	clearRect.rect.extent = extent;
 	
-	vkCmdClearAttachments( vkcontext.commandBuffer[ vkcontext.currentFrameData ], 1, &attachment, 1, &clearRect );
+	vkCmdClearAttachments( vkcontext.commandBuffer[ vkcontext.frameParity ], 1, &attachment, 1, &clearRect );
 	
 	/*
 	if( tr.frameCount & 1 )

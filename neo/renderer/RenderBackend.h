@@ -146,8 +146,8 @@ struct gpuInfo_t
 
 struct vulkanContext_t
 {
-	uint64							counter;
-	uint32							currentFrameData;
+	uint64							frameCounter;
+	uint32							frameParity;
 	
 	vertCacheHandle_t				jointCacheHandle;
 	uint64							stencilOperations[ STENCIL_FACE_NUM ];

@@ -33,7 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../RenderBackend.h"
 #include "Allocator_VK.h"
 
-idCVar r_vkDeviceLocalMemoryMB( "r_vkDeviceLocalMemoryMB", "128", CVAR_INTEGER | CVAR_INIT, "" );
+idCVar r_vkDeviceLocalMemoryMB( "r_vkDeviceLocalMemoryMB", "256", CVAR_INTEGER | CVAR_INIT, "" );
 idCVar r_vkHostVisibleMemoryMB( "r_vkHostVisibleMemoryMB", "64", CVAR_INTEGER | CVAR_INIT, "" );
 
 /*

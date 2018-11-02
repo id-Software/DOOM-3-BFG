@@ -560,6 +560,12 @@ void idRenderBackend::BindVariableStageImage( const textureStage_t* texture, con
 {
 	if( texture->cinematic )
 	{
+#if defined(USE_VULKAN)
+	
+		// FIXME upload of video image sub resources
+		GL_SelectTexture( 0 );
+		globalImages->defaultImage->Bind();
+#else
 		cinData_t cin;
 		
 		if( r_skipDynamicTextures.GetBool() )
@@ -576,13 +582,13 @@ void idRenderBackend::BindVariableStageImage( const textureStage_t* texture, con
 		{
 			GL_SelectTexture( 0 );
 			cin.imageY->Bind();
-			
+		
 			GL_SelectTexture( 1 );
 			cin.imageCr->Bind();
-			
+		
 			GL_SelectTexture( 2 );
 			cin.imageCb->Bind();
-			
+		
 			// DG: imageY is only used for bink videos (with libbinkdec), so the bink shader must be used
 			if( viewDef->is2Dgui )
 			{
@@ -598,7 +604,7 @@ void idRenderBackend::BindVariableStageImage( const textureStage_t* texture, con
 			// Carl: A single RGB image works better with the FFMPEG BINK codec.
 			GL_SelectTexture( 0 );
 			cin.image->Bind();
-			
+		
 			/*
 			if( backEnd.viewDef->is2Dgui )
 			{
@@ -618,6 +624,7 @@ void idRenderBackend::BindVariableStageImage( const textureStage_t* texture, con
 			// SWF GUI case is handled better, too
 			renderProgManager.BindShader_TextureVertexColor();
 		}
+#endif
 	}
 	else
 	{
@@ -5166,6 +5173,8 @@ void idRenderBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
 	
 	resolutionScale.SetCurrentGPUFrameTime( commonLocal.GetRendererGPUMicroseconds() );
 	
+	ResizeImages();
+	
 	renderLog.StartFrame();
 	GL_StartFrame();
 	
@@ -5207,7 +5216,7 @@ void idRenderBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
 				break;
 				
 			case RC_SET_BUFFER:
-				SetBuffer( cmds );
+				//SetBuffer( cmds );
 				c_setBuffers++;
 				break;
 				
