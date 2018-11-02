@@ -1146,6 +1146,7 @@ idStr idRenderProgManager::ConvertCG2GLSL( const idStr& in, const char* name, bo
 				ParseInOutStruct( src, AT_VS_OUT, AT_VS_OUT_RESERVED, varsOut );
 				
 				program += "\n";
+				int numDeclareOut = 0;
 				for( int i = 0; i < varsOut.Num(); i++ )
 				{
 					if( varsOut[i].declareInOut )
@@ -1153,12 +1154,14 @@ idStr idRenderProgManager::ConvertCG2GLSL( const idStr& in, const char* name, bo
 						// RB: add layout locations
 						if( vkGLSL )
 						{
-							program += va( "layout( location = %i ) out %s %s;\n", i, varsOut[i].type.c_str(), varsOut[i].nameGLSL.c_str() );
+							program += va( "layout( location = %i ) out %s %s;\n", numDeclareOut, varsOut[i].type.c_str(), varsOut[i].nameGLSL.c_str() );
 						}
 						else
 						{
 							program += "out " + varsOut[i].type + " " + varsOut[i].nameGLSL + ";\n";
 						}
+						
+						numDeclareOut++;
 					}
 				}
 				continue;
@@ -1168,6 +1171,7 @@ idStr idRenderProgManager::ConvertCG2GLSL( const idStr& in, const char* name, bo
 				ParseInOutStruct( src, AT_PS_IN, AT_PS_IN_RESERVED, varsIn );
 				
 				program += "\n\n";
+				int numDeclareOut = 0;
 				for( int i = 0; i < varsIn.Num(); i++ )
 				{
 					if( varsIn[i].declareInOut )
@@ -1175,12 +1179,14 @@ idStr idRenderProgManager::ConvertCG2GLSL( const idStr& in, const char* name, bo
 						// RB: add layout locations
 						if( vkGLSL )
 						{
-							program += va( "layout( location = %i ) in %s %s;\n", i, varsIn[i].type.c_str(), varsIn[i].nameGLSL.c_str() );
+							program += va( "layout( location = %i ) in %s %s;\n", numDeclareOut, varsIn[i].type.c_str(), varsIn[i].nameGLSL.c_str() );
 						}
 						else
 						{
 							program += "in " + varsIn[i].type + " " + varsIn[i].nameGLSL + ";\n";
 						}
+						
+						numDeclareOut++;
 					}
 				}
 				inOutVariable_t var;
@@ -1272,7 +1278,7 @@ idStr idRenderProgManager::ConvertCG2GLSL( const idStr& in, const char* name, bo
 			// RB: add this to every vertex shader
 			if( inMain && !justEnteredMain && isVertexProgram && vkGLSL )
 			{
-				program += "\nvec4 position4 = vec4( in_Position, 1.0 );\n";
+				program += "\n\tvec4 position4 = vec4( in_Position, 1.0 );\n";
 				justEnteredMain = true;
 			}
 			
@@ -1563,7 +1569,7 @@ idStr idRenderProgManager::ConvertCG2GLSL( const idStr& in, const char* name, bo
 	// RB: add samplers with layout bindings
 	if( vkGLSL )
 	{
-		int bindingOffset = uniformList.Num() > 0 ? 2 : 0;
+		int bindingOffset = uniformList.Num() > 0 ? 2 : 1;
 		
 		for( int i = 0; i < samplerList.Num(); i++ )
 		{

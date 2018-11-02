@@ -181,6 +181,7 @@ void CreateDescriptorPools( VkDescriptorPool( &pools )[ NUM_FRAME_DATA ] )
 	VkDescriptorPoolSize poolSizes[ numPools ];
 	poolSizes[ 0 ].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	poolSizes[ 0 ].descriptorCount = MAX_DESC_UNIFORM_BUFFERS;
+	
 	poolSizes[ 1 ].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	poolSizes[ 1 ].descriptorCount = MAX_DESC_IMAGE_SAMPLERS;
 	
