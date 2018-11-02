@@ -727,6 +727,8 @@ void idRenderProgManager::LoadShader( shader_t& shader )
 	shaderModuleCreateInfo.pCode = ( uint32* )spirvBuffer;
 	
 	ID_VK_CHECK( vkCreateShaderModule( vkcontext.device, &shaderModuleCreateInfo, NULL, &shader.module ) );
+	
+	Mem_Free( spirvBuffer );
 }
 
 /*
@@ -1450,5 +1452,42 @@ void idRenderProgManager::CommitUniforms( uint64 stateBits )
 }
 
 
+void idRenderProgManager::PrintPipelines()
+{
+	for( int i = 0; i < renderProgManager.renderProgs.Num(); ++i )
+	{
+		renderProg_t& prog = renderProgManager.renderProgs[ i ];
+		for( int j = 0; j < prog.pipelines.Num(); ++j )
+		{
+			idLib::Printf( "%s: %llu\n", prog.name.c_str(), prog.pipelines[ j ].stateBits );
+			idLib::Printf( "------------------------------------------\n" );
+			RpPrintState( prog.pipelines[ j ].stateBits, vkcontext.stencilOperations );
+			idLib::Printf( "\n" );
+		}
+	}
+}
 
+void idRenderProgManager::ClearPipelines()
+{
+	for( int i = 0; i < renderProgManager.renderProgs.Num(); ++i )
+	{
+		renderProg_t& prog = renderProgManager.renderProgs[ i ];
+		for( int j = 0; j < prog.pipelines.Num(); ++j )
+		{
+			vkDestroyPipeline( vkcontext.device, prog.pipelines[ j ].pipeline, NULL );
+		}
+		prog.pipelines.Clear();
+	}
+}
+
+
+CONSOLE_COMMAND( Vulkan_PrintPipelineStates, "Print the GLState bits associated with each pipeline.", 0 )
+{
+	renderProgManager.PrintPipelines();
+}
+
+CONSOLE_COMMAND( Vulkan_ClearPipelines, "Clear all existing pipelines, forcing them to be recreated.", 0 )
+{
+	renderProgManager.ClearPipelines();
+}
 

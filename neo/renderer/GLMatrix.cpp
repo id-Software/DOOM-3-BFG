@@ -453,13 +453,20 @@ void R_SetupProjectionMatrix( viewDef_t* viewDef )
 	ymin += jittery * height;
 	ymax += jittery * height;
 	
+	// RB: IMPORTANT - the projectionMatrix has a few changes to make it work with Vulkan
+	// In Vulkan is the y-axis flipped
+	
 	viewDef->projectionMatrix[0 * 4 + 0] = 2.0f * zNear / width;
 	viewDef->projectionMatrix[1 * 4 + 0] = 0.0f;
 	viewDef->projectionMatrix[2 * 4 + 0] = ( xmax + xmin ) / width;	// normally 0
 	viewDef->projectionMatrix[3 * 4 + 0] = 0.0f;
 	
 	viewDef->projectionMatrix[0 * 4 + 1] = 0.0f;
+#if defined(USE_VULKAN)
+	viewDef->projectionMatrix[1 * 4 + 1] = -2.0f * zNear / height;
+#else
 	viewDef->projectionMatrix[1 * 4 + 1] = 2.0f * zNear / height;
+#endif
 	viewDef->projectionMatrix[2 * 4 + 1] = ( ymax + ymin ) / height;	// normally 0
 	viewDef->projectionMatrix[3 * 4 + 1] = 0.0f;
 	
@@ -468,8 +475,8 @@ void R_SetupProjectionMatrix( viewDef_t* viewDef )
 	// rasterize right at the wraparound point
 	viewDef->projectionMatrix[0 * 4 + 2] = 0.0f;
 	viewDef->projectionMatrix[1 * 4 + 2] = 0.0f;
-	viewDef->projectionMatrix[2 * 4 + 2] = -0.999f; // adjust value to prevent imprecision issues
-	viewDef->projectionMatrix[3 * 4 + 2] = -2.0f * zNear;
+	viewDef->projectionMatrix[2 * 4 + 2] = -0.999f;			// adjust value to prevent imprecision issues
+	viewDef->projectionMatrix[3 * 4 + 2] = -1.0f * zNear;	// RB: was -2.0f * zNear
 	
 	viewDef->projectionMatrix[0 * 4 + 3] = 0.0f;
 	viewDef->projectionMatrix[1 * 4 + 3] = 0.0f;
@@ -481,10 +488,6 @@ void R_SetupProjectionMatrix( viewDef_t* viewDef )
 		viewDef->projectionMatrix[1 * 4 + 1] = -viewDef->projectionMatrix[1 * 4 + 1];
 		viewDef->projectionMatrix[1 * 4 + 3] = -viewDef->projectionMatrix[1 * 4 + 3];
 	}
-	
-#if defined(USE_VULKAN)
-	viewDef->projectionMatrix[1 * 4 + 1] *= -1.0F;
-#endif
 }
 
 

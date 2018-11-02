@@ -265,30 +265,34 @@ void idGuiModel::EmitFullScreen()
 	viewDef->scissor.x2 = viewDef->viewport.x2 - viewDef->viewport.x1;
 	viewDef->scissor.y2 = viewDef->viewport.y2 - viewDef->viewport.y1;
 	
+	// RB: IMPORTANT - the projectionMatrix has a few changes to make it work with Vulkan
 	viewDef->projectionMatrix[0 * 4 + 0] = 2.0f / renderSystem->GetVirtualWidth();
 	viewDef->projectionMatrix[0 * 4 + 1] = 0.0f;
 	viewDef->projectionMatrix[0 * 4 + 2] = 0.0f;
 	viewDef->projectionMatrix[0 * 4 + 3] = 0.0f;
 	
 	viewDef->projectionMatrix[1 * 4 + 0] = 0.0f;
+#if defined(USE_VULKAN)
+	viewDef->projectionMatrix[1 * 4 + 1] = 2.0f / renderSystem->GetVirtualHeight();
+#else
 	viewDef->projectionMatrix[1 * 4 + 1] = -2.0f / renderSystem->GetVirtualHeight();
+#endif
 	viewDef->projectionMatrix[1 * 4 + 2] = 0.0f;
 	viewDef->projectionMatrix[1 * 4 + 3] = 0.0f;
 	
 	viewDef->projectionMatrix[2 * 4 + 0] = 0.0f;
 	viewDef->projectionMatrix[2 * 4 + 1] = 0.0f;
-	viewDef->projectionMatrix[2 * 4 + 2] = -2.0f;
+	viewDef->projectionMatrix[2 * 4 + 2] = -1.0f;
 	viewDef->projectionMatrix[2 * 4 + 3] = 0.0f;
 	
-	viewDef->projectionMatrix[3 * 4 + 0] = -1.0f;
-	viewDef->projectionMatrix[3 * 4 + 1] = 1.0f;
-	viewDef->projectionMatrix[3 * 4 + 2] = -1.0f;
-	viewDef->projectionMatrix[3 * 4 + 3] = 1.0f;
-	
+	viewDef->projectionMatrix[3 * 4 + 0] = -1.0f; // RB: was -2.0f
 #if defined(USE_VULKAN)
-	viewDef->projectionMatrix[1 * 4 + 1] *= -1.0F;
-	viewDef->projectionMatrix[3 * 4 + 1] *= -1.0F;
+	viewDef->projectionMatrix[3 * 4 + 1] = -1.0f;
+#else
+	viewDef->projectionMatrix[3 * 4 + 1] = 1.0f;
 #endif
+	viewDef->projectionMatrix[3 * 4 + 2] = 0.0f; // RB: was 1.0f
+	viewDef->projectionMatrix[3 * 4 + 3] = 1.0f;
 	
 	// make a tech5 renderMatrix for faster culling
 	idRenderMatrix::Transpose( *( idRenderMatrix* )viewDef->projectionMatrix, viewDef->projectionRenderMatrix );

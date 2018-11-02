@@ -45,7 +45,7 @@ idCVar r_syncEveryFrame( "r_syncEveryFrame", "1", CVAR_BOOL, "Don't let the GPU 
 
 // NEW VULKAN STUFF
 
-idCVar r_vkEnableValidationLayers( "r_vkEnableValidationLayers", "1", CVAR_BOOL, "" );
+idCVar r_vkEnableValidationLayers( "r_vkEnableValidationLayers", "0", CVAR_BOOL, "" );
 
 vulkanContext_t vkcontext;
 
@@ -1066,7 +1066,7 @@ static void CreateRenderPass()
 	depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 	
 	// RB
-	depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	//depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 	
 	depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 	depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
@@ -1925,7 +1925,9 @@ idRenderBackend::GL_PolygonOffset
 */
 void idRenderBackend::GL_PolygonOffset( float scale, float bias )
 {
-	// TODO
+	vkCmdSetDepthBias( vkcontext.commandBuffer[ vkcontext.frameParity ], bias, 0.0f, scale );
+	
+	RENDERLOG_PRINTF( "GL_PolygonOffset( scale=%f, bias=%f )\n", scale, bias );
 }
 
 /*
@@ -1935,7 +1937,22 @@ idRenderBackend::GL_DepthBoundsTest
 */
 void idRenderBackend::GL_DepthBoundsTest( const float zmin, const float zmax )
 {
-	// TODO
+	if( zmin > zmax )
+	{
+		return;
+	}
+	
+	if( zmin == 0.0f && zmax == 0.0f )
+	{
+		glStateBits = glStateBits & ~GLS_DEPTH_TEST_MASK;
+	}
+	else
+	{
+		glStateBits |= GLS_DEPTH_TEST_MASK;
+		vkCmdSetDepthBounds( vkcontext.commandBuffer[ vkcontext.frameParity ], zmin, zmax );
+	}
+	
+	RENDERLOG_PRINTF( "GL_DepthBoundsTest( zmin=%f, zmax=%f )\n", zmin, zmax );
 }
 
 /*

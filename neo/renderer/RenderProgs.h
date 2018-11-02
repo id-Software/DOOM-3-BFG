@@ -624,6 +624,11 @@ public:
 	int			FindGLSLProgram( const char* name, int vIndex, int fIndex );
 	void		ZeroUniforms();
 	
+#if defined(USE_VULKAN)
+	void		PrintPipelines();
+	void		ClearPipelines();
+#endif
+	
 	static const char* FindEmbeddedSourceShader( const char* name );
 	
 private:
