@@ -51,7 +51,7 @@ If you have questions concerning this license or the applicable additional terms
 
 
 
-idCVar r_useOpenGL32( "r_useOpenGL32", "1", CVAR_INTEGER, "0 = OpenGL 2.0, 1 = OpenGL 3.2 compatibility profile, 2 = OpenGL 3.2 core profile", 0, 2 );
+idCVar r_useOpenGL45( "r_useOpenGL45", "2", CVAR_INTEGER, "0 = OpenGL 4.0, 1 = OpenGL 4.5 compatibility profile, 2 = OpenGL 4.5 core profile", 0, 2 );
 
 
 
@@ -341,11 +341,11 @@ CreateOpenGLContextOnDC
 #if !defined(USE_VULKAN)
 static HGLRC CreateOpenGLContextOnDC( const HDC hdc, const bool debugContext )
 {
-	int useOpenGL32 = r_useOpenGL32.GetInteger();
+	int useCoreProfile = r_useOpenGL45.GetInteger();
 	HGLRC m_hrc = NULL;
 	
 	// RB: for GLintercept 1.2.0 or otherwise we can't diff the framebuffers using the XML log
-	if( !WGLEW_ARB_create_context || useOpenGL32 == 0 )
+	if( !WGLEW_ARB_create_context || useCoreProfile == 0 )
 	{
 		return wglCreateContext( hdc );
 	}
@@ -353,11 +353,11 @@ static HGLRC CreateOpenGLContextOnDC( const HDC hdc, const bool debugContext )
 	
 	for( int i = 0; i < 2; i++ )
 	{
-		const int glMajorVersion = ( useOpenGL32 != 0 ) ? 3 : 2;
-		const int glMinorVersion = ( useOpenGL32 != 0 ) ? 2 : 0;
+		const int glMajorVersion = ( useCoreProfile != 0 ) ? 4 : 5;
+		const int glMinorVersion = ( useCoreProfile != 0 ) ? 4 : 0;
 		const int glDebugFlag = debugContext ? WGL_CONTEXT_DEBUG_BIT_ARB : 0;
-		const int glProfileMask = ( useOpenGL32 != 0 ) ? WGL_CONTEXT_PROFILE_MASK_ARB : 0;
-		const int glProfile = ( useOpenGL32 == 1 ) ? WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB : ( ( useOpenGL32 == 2 ) ? WGL_CONTEXT_CORE_PROFILE_BIT_ARB : 0 );
+		const int glProfileMask = ( useCoreProfile != 0 ) ? WGL_CONTEXT_PROFILE_MASK_ARB : 0;
+		const int glProfile = ( useCoreProfile == 1 ) ? WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB : ( ( useCoreProfile == 2 ) ? WGL_CONTEXT_CORE_PROFILE_BIT_ARB : 0 );
 		const int attribs[] =
 		{
 			WGL_CONTEXT_MAJOR_VERSION_ARB,	glMajorVersion,
@@ -372,11 +372,11 @@ static HGLRC CreateOpenGLContextOnDC( const HDC hdc, const bool debugContext )
 		{
 			idLib::Printf( "created OpenGL %d.%d context\n", glMajorVersion, glMinorVersion );
 			
-			if( useOpenGL32 == 2 )
+			if( useCoreProfile == 2 )
 			{
 				glConfig.driverType = GLDRV_OPENGL32_CORE_PROFILE;
 			}
-			else if( useOpenGL32 == 1 )
+			else if( useCoreProfile == 1 )
 			{
 				glConfig.driverType = GLDRV_OPENGL32_COMPATIBILITY_PROFILE;
 			}
@@ -389,7 +389,7 @@ static HGLRC CreateOpenGLContextOnDC( const HDC hdc, const bool debugContext )
 		}
 		
 		idLib::Printf( "failed to create OpenGL %d.%d context\n", glMajorVersion, glMinorVersion );
-		useOpenGL32 = 0;	// fall back to OpenGL 2.0
+		useCoreProfile = 0;	// fall back to OpenGL 2.0
 	}
 	
 	if( m_hrc == NULL )

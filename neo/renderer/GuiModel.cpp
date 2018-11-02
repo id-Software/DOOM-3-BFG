@@ -233,7 +233,6 @@ Creates a view that covers the screen and emit the surfaces
 */
 void idGuiModel::EmitFullScreen()
 {
-
 	if( surfaces[0].numIndexes == 0 )
 	{
 		return;
@@ -285,6 +284,11 @@ void idGuiModel::EmitFullScreen()
 	viewDef->projectionMatrix[3 * 4 + 1] = 1.0f;
 	viewDef->projectionMatrix[3 * 4 + 2] = -1.0f;
 	viewDef->projectionMatrix[3 * 4 + 3] = 1.0f;
+	
+#if defined(USE_VULKAN)
+	viewDef->projectionMatrix[1 * 4 + 1] *= -1.0F;
+	viewDef->projectionMatrix[3 * 4 + 1] *= -1.0F;
+#endif
 	
 	// make a tech5 renderMatrix for faster culling
 	idRenderMatrix::Transpose( *( idRenderMatrix* )viewDef->projectionMatrix, viewDef->projectionRenderMatrix );
