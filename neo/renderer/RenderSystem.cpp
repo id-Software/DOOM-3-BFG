@@ -773,11 +773,17 @@ const emptyCommand_t* idRenderSystemLocal::SwapCommandBuffers_FinishCommandBuffe
 	// set the time for shader effects in 2D rendering
 	frameShaderTime = Sys_Milliseconds() * 0.001;
 	
-#if !defined(USE_VULKAN)
+#if 1 //!defined(USE_VULKAN)
 	// RB: TODO RC_SET_BUFFER is not handled in OpenGL
 	setBufferCommand_t* cmd2 = ( setBufferCommand_t* )R_GetCommandBuffer( sizeof( *cmd2 ) );
 	cmd2->commandId = RC_SET_BUFFER;
+	
+#if defined(USE_VULKAN)
+	cmd2->buffer = 0;
+#else
 	cmd2->buffer = ( int )GL_BACK;
+#endif
+	
 #endif
 	
 	// the old command buffer can now be rendered, while the new one can

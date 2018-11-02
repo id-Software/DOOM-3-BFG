@@ -2114,7 +2114,38 @@ void idRenderBackend::DrawFlickerBox()
 		return;
 	}
 	
-	// TODO
+	VkClearAttachment attachment = {};
+	
+	attachment.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	attachment.colorAttachment = 0;
+	
+	VkClearColorValue& color = attachment.clearValue.color;
+	
+	if( vkcontext.currentFrameData & 1 )
+	{
+		color.float32[ 0 ] = 1;
+		color.float32[ 1 ] = 0;
+		color.float32[ 2 ] = 0;
+		color.float32[ 3 ] = 1;
+	}
+	else
+	{
+		color.float32[ 0 ] = 0;
+		color.float32[ 1 ] = 1;
+		color.float32[ 2 ] = 0;
+		color.float32[ 3 ] = 1;
+	}
+	
+	VkExtent2D extent;
+	extent.width = 256;
+	extent.height = 256;
+	
+	VkClearRect clearRect = {};
+	clearRect.baseArrayLayer = 0;
+	clearRect.layerCount = 1;
+	clearRect.rect.extent = extent;
+	
+	vkCmdClearAttachments( vkcontext.commandBuffer[ vkcontext.currentFrameData ], 1, &attachment, 1, &clearRect );
 	
 	/*
 	if( tr.frameCount & 1 )
