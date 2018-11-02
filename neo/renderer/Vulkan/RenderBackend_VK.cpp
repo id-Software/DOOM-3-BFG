@@ -45,7 +45,7 @@ idCVar r_syncEveryFrame( "r_syncEveryFrame", "1", CVAR_BOOL, "Don't let the GPU 
 
 // NEW VULKAN STUFF
 
-idCVar r_vkEnableValidationLayers( "r_vkEnableValidationLayers", "1", CVAR_BOOL, "" );
+idCVar r_vkEnableValidationLayers( "r_vkEnableValidationLayers", "0", CVAR_BOOL, "" );
 
 vulkanContext_t vkcontext;
 
@@ -1632,8 +1632,7 @@ void idRenderBackend::GL_StartFrame()
 #endif
 	stagingManager.Flush();
 	
-	//TODO renderProgManager.StartFrame();
-	//vkResetDescriptorPool( vkcontext.device, descriptorPools[ currentData ], 0 );
+	renderProgManager.StartFrame();
 	
 	
 	VkCommandBufferBeginInfo commandBufferBeginInfo = {};
