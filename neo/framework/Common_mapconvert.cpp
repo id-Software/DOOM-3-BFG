@@ -605,7 +605,7 @@ CONSOLE_COMMAND( convertMap, "Convert .map file to new map format with polygons 
 	sprintf( mapName, "maps/%s.map", filename.c_str() );
 	
 	idMapFile map;
-	if( map.Parse( mapName, false, false ) )
+	if( map.Parse( mapName, true, false ) )
 	{
 		map.ConvertToPolygonMeshFormat();
 		
@@ -648,7 +648,7 @@ CONSOLE_COMMAND( convertMapToJSON, "Convert .map file to new map format with pol
 	sprintf( mapName, "maps/%s.map", filename.c_str() );
 	
 	idMapFile map;
-	if( map.Parse( mapName, false, false ) )
+	if( map.Parse( mapName, true, false ) )
 	{
 		map.ConvertToPolygonMeshFormat();
 		
