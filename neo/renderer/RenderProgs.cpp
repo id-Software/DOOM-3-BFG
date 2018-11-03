@@ -289,62 +289,7 @@ void idRenderProgManager::LoadAllShaders()
 	}
 }
 
-/*
-================================================================================================
-idRenderProgManager::KillAllShaders()
-================================================================================================
-*/
-void idRenderProgManager::KillAllShaders()
-{
-	Unbind();
-	
-	// destroy shaders
-	for( int i = 0; i < shaders.Num(); ++i )
-	{
-		shader_t& shader = shaders[ i ];
-		vkDestroyShaderModule( vkcontext.device, shader.module, NULL );
-		shader.module = VK_NULL_HANDLE;
-	}
-	
-	// destroy pipelines
-	for( int i = 0; i < renderProgs.Num(); ++i )
-	{
-		renderProg_t& prog = renderProgs[ i ];
-		
-		for( int j = 0; j < prog.pipelines.Num(); ++j )
-		{
-			vkDestroyPipeline( vkcontext.device, prog.pipelines[ j ].pipeline, NULL );
-		}
-		prog.pipelines.Clear();
-		
-		vkDestroyDescriptorSetLayout( vkcontext.device, prog.descriptorSetLayout, NULL );
-		vkDestroyPipelineLayout( vkcontext.device, prog.pipelineLayout, NULL );
-	}
-	renderProgs.Clear();
-	
-	for( int i = 0; i < NUM_FRAME_DATA; ++i )
-	{
-		parmBuffers[ i ]->FreeBufferObject();
-		delete parmBuffers[ i ];
-		parmBuffers[ i ] = NULL;
-	}
-	
-	emptyUBO.FreeBufferObject();
-	
-	for( int i = 0; i < NUM_FRAME_DATA; ++i )
-	{
-		//vkFreeDescriptorSets( vkcontext.device, descriptorPools[ i ], MAX_DESC_SETS, descriptorSets[ i ] );
-		vkResetDescriptorPool( vkcontext.device, descriptorPools[ i ], 0 );
-		vkDestroyDescriptorPool( vkcontext.device, descriptorPools[ i ], NULL );
-	}
-	
-	memset( descriptorSets, 0, sizeof( descriptorSets ) );
-	memset( descriptorPools, 0, sizeof( descriptorPools ) );
-	
-	counter = 0;
-	currentData = 0;
-	currentDescSet = 0;
-}
+
 
 /*
 ================================================================================================

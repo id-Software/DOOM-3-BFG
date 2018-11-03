@@ -1195,10 +1195,10 @@ GENERAL INTERACTION RENDERING
 */
 
 const int INTERACTION_TEXUNIT_BUMP			= 0;
-const int INTERACTION_TEXUNIT_FALLOFF		= 1;
-const int INTERACTION_TEXUNIT_PROJECTION	= 2;
-const int INTERACTION_TEXUNIT_DIFFUSE		= 3;
-const int INTERACTION_TEXUNIT_SPECULAR		= 4;
+const int INTERACTION_TEXUNIT_SPECULARMIX	= 1;
+const int INTERACTION_TEXUNIT_BASECOLOR		= 2;
+const int INTERACTION_TEXUNIT_FALLOFF		= 3;
+const int INTERACTION_TEXUNIT_PROJECTION	= 4;
 const int INTERACTION_TEXUNIT_SHADOWMAPS	= 5;
 const int INTERACTION_TEXUNIT_JITTER		= 6;
 
@@ -1318,13 +1318,13 @@ void idRenderBackend::DrawSingleInteraction( drawInteraction_t* din )
 	GL_SelectTexture( INTERACTION_TEXUNIT_BUMP );
 	din->bumpImage->Bind();
 	
-	// texture 3 is the per-surface diffuse map
-	GL_SelectTexture( INTERACTION_TEXUNIT_DIFFUSE );
-	din->diffuseImage->Bind();
-	
-	// texture 4 is the per-surface specular map
-	GL_SelectTexture( INTERACTION_TEXUNIT_SPECULAR );
+	// texture 1 is the per-surface specular map
+	GL_SelectTexture( INTERACTION_TEXUNIT_SPECULARMIX );
 	din->specularImage->Bind();
+	
+	// texture 2 is the per-surface diffuse map
+	GL_SelectTexture( INTERACTION_TEXUNIT_BASECOLOR );
+	din->diffuseImage->Bind();
 	
 	DrawElementsWithCounters( din->surf );
 }
@@ -1779,13 +1779,13 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 				GL_SelectTexture( INTERACTION_TEXUNIT_BUMP );
 				surfaceShader->GetFastPathBumpImage()->Bind();
 				
-				// texture 3 is the per-surface diffuse map
-				GL_SelectTexture( INTERACTION_TEXUNIT_DIFFUSE );
-				surfaceShader->GetFastPathDiffuseImage()->Bind();
-				
-				// texture 4 is the per-surface specular map
-				GL_SelectTexture( INTERACTION_TEXUNIT_SPECULAR );
+				// texture 1 is the per-surface specular map
+				GL_SelectTexture( INTERACTION_TEXUNIT_SPECULARMIX );
 				surfaceShader->GetFastPathSpecularImage()->Bind();
+				
+				// texture 2 is the per-surface diffuse map
+				GL_SelectTexture( INTERACTION_TEXUNIT_BASECOLOR );
+				surfaceShader->GetFastPathDiffuseImage()->Bind();
 				
 				DrawElementsWithCounters( surf );
 				
@@ -2160,13 +2160,13 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 			GL_SelectTexture( INTERACTION_TEXUNIT_BUMP );
 			surfaceMaterial->GetFastPathBumpImage()->Bind();
 			
-			// texture 3 is the per-surface diffuse map
-			GL_SelectTexture( INTERACTION_TEXUNIT_DIFFUSE );
-			surfaceMaterial->GetFastPathDiffuseImage()->Bind();
-			
-			// texture 4 is the per-surface specular map
-			GL_SelectTexture( INTERACTION_TEXUNIT_SPECULAR );
+			// texture 1 is the per-surface specular map
+			GL_SelectTexture( INTERACTION_TEXUNIT_SPECULARMIX );
 			surfaceMaterial->GetFastPathSpecularImage()->Bind();
+			
+			// texture 2 is the per-surface diffuse map
+			GL_SelectTexture( INTERACTION_TEXUNIT_BASECOLOR );
+			surfaceMaterial->GetFastPathDiffuseImage()->Bind();
 			
 			DrawElementsWithCounters( drawSurf );
 			

@@ -4,6 +4,7 @@
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2013-2014 Robert Beckebans
+Copyright (C) 2016-2017 Dustin Land
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -1392,8 +1393,7 @@ idRenderModel* idRenderModelMD5::InstantiateDynamicModel( const struct renderEnt
 	if( staticModel->jointsInverted == NULL )
 	{
 		staticModel->numInvertedJoints = numInvertedJoints;
-		const int alignment = glConfig.uniformBufferOffsetAlignment;
-		staticModel->jointsInverted = ( idJointMat* )Mem_ClearedAlloc( ALIGN( numInvertedJoints * sizeof( idJointMat ), alignment ), TAG_JOINTMAT );
+		staticModel->jointsInverted = ( idJointMat* )Mem_ClearedAlloc( numInvertedJoints * sizeof( idJointMat ), TAG_JOINTMAT );
 		staticModel->jointsInvertedBuffer = 0;
 	}
 	else

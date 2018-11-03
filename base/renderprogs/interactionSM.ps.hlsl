@@ -30,11 +30,11 @@ If you have questions concerning this license or the applicable additional terms
 #include "global.inc.hlsl"
 #include "BRDF.inc.hlsl"
 
-uniform sampler2D				samp0 : register(s0); // texture 1 is the per-surface bump map
-uniform sampler2D				samp1 : register(s1); // texture 2 is the light falloff texture
-uniform sampler2D				samp2 : register(s2); // texture 3 is the light projection texture
-uniform sampler2D				samp3 : register(s3); // texture 4 is the per-surface diffuse map
-uniform sampler2D				samp4 : register(s4); // texture 5 is the per-surface specular map
+uniform sampler2D               samp0 : register(s0); // texture 1 is the per-surface normal map
+uniform sampler2D               samp1 : register(s1); // texture 3 is the per-surface specular or roughness/metallic/AO mixer map
+uniform sampler2D               samp2 : register(s2); // texture 2 is the per-surface baseColor map 
+uniform sampler2D               samp3 : register(s3); // texture 4 is the light falloff texture
+uniform sampler2D               samp4 : register(s4); // texture 5 is the light projection texture
 uniform sampler2DArrayShadow	samp5 : register(s5); // texture 6 is the shadowmap array
 uniform sampler2D				samp6 : register(s6); // texture 7 is the jitter texture 
 
@@ -64,10 +64,10 @@ struct PS_OUT
 void main( PS_IN fragment, out PS_OUT result )
 {
 	half4 bumpMap =			tex2D( samp0, fragment.texcoord1.xy );
-	half4 lightFalloff =	( idtex2Dproj( samp1, fragment.texcoord2 ) );
-	half4 lightProj	=		( idtex2Dproj( samp2, fragment.texcoord3 ) );
-	half4 YCoCG =			tex2D( samp3, fragment.texcoord4.xy );
-	half4 specMapSRGB =		tex2D( samp4, fragment.texcoord5.xy );
+	half4 lightFalloff =	( idtex2Dproj( samp3, fragment.texcoord2 ) );
+	half4 lightProj	=		( idtex2Dproj( samp4, fragment.texcoord3 ) );
+	half4 YCoCG =			tex2D( samp2, fragment.texcoord4.xy );
+	half4 specMapSRGB =		tex2D( samp1, fragment.texcoord5.xy );
 	half4 specMap =			sRGBAToLinearRGBA( specMapSRGB );
 
 	half3 lightVector = normalize( fragment.texcoord0.xyz );

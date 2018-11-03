@@ -530,6 +530,40 @@ void idRenderProgManager::CommitUniforms( uint64 stateBits )
 	//GL_CheckErrors();
 }
 
+/*
+================================================================================================
+idRenderProgManager::KillAllShaders()
+================================================================================================
+*/
+void idRenderProgManager::KillAllShaders()
+{
+	Unbind();
+	
+	for( int i = 0; i < shaders.Num(); i++ )
+	{
+		if( shaders[i].progId != INVALID_PROGID )
+		{
+			glDeleteShader( shaders[i].progId );
+			shaders[i].progId = INVALID_PROGID;
+		}
+	}
+	
+	for( int i = 0; i < renderProgs.Num(); ++i )
+	{
+		if( renderProgs[i].progId != INVALID_PROGID )
+		{
+			glDeleteProgram( renderProgs[i].progId );
+			renderProgs[i].progId = INVALID_PROGID;
+		}
+	}
+}
 
-
-
+/*
+====================
+idRenderBackend::ResizeImages
+====================
+*/
+void idRenderBackend::ResizeImages()
+{
+	// TODO resize framebuffers here
+}

@@ -1490,7 +1490,6 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 		// RB: yes but it would require an additional blend light skinned shader
 		//if( !verify( renderProgManager.ShaderUsesJoints() ) )
 		if( !renderProgManager.ShaderUsesJoints() )
-			// DG end
 		{
 			return;
 		}
@@ -1512,12 +1511,6 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 			idLib::Warning( "RB_DrawElementsWithCounters, jointBuffer == NULL" );
 			return;
 		}
-		assert( ( jointBuffer.GetOffset() & ( glConfig.uniformBufferOffsetAlignment - 1 ) ) == 0 );
-		
-		// FIXME
-		
-		//const GLintptr ubo = jointBuffer.GetAPIObject();
-		//glBindBufferRange( GL_UNIFORM_BUFFER, 0, ubo, jointBuffer.GetOffset(), jointBuffer.GetSize() );
 	}
 	
 	renderProgManager.CommitUniforms( glStateBits );
