@@ -635,7 +635,7 @@ private:
 	void		LoadShader( int index, rpStage_t stage );
 	
 	idStr		StripDeadCode( const idStr& in, const char* name, const idStrList& compileMacros, bool builtin );
-	idStr		ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, idStr& layout, bool vkGLSL );
+	idStr		ConvertCG2GLSL( const idStr& in, const char* name, rpStage_t stage, idStr& layout, bool vkGLSL, bool hasGPUSkinning );
 	
 	enum
 	{

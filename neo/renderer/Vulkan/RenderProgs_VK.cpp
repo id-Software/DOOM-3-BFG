@@ -623,9 +623,21 @@ void idRenderProgManager::LoadShader( shader_t& shader )
 			}
 		}
 		
+		// FIXME: we should really scan the program source code for using rpEnableSkinning but at this
+		// point we directly load a binary and the program source code is not available on the consoles
+		bool hasGPUSkinning = false;
+		
+		if(	idStr::Icmp( shader.name.c_str(), "heatHaze.vfp" ) == 0 ||
+				idStr::Icmp( shader.name.c_str(), "heatHazeWithMask.vfp" ) == 0 ||
+				idStr::Icmp( shader.name.c_str(), "heatHazeWithMaskAndVertex.vfp" ) == 0 ||
+				( BIT( USE_GPU_SKINNING ) & shader.shaderFeatures ) )
+		{
+			hasGPUSkinning = true;
+		}
+		
 		idStr hlslCode( hlslFileBuffer );
 		idStr programHLSL = StripDeadCode( hlslCode, inFile, compileMacros, shader.builtin );
-		programGLSL = ConvertCG2GLSL( programHLSL, inFile, shader.stage == SHADER_STAGE_VERTEX, programLayout, true );
+		programGLSL = ConvertCG2GLSL( programHLSL, inFile, shader.stage, programLayout, true, hasGPUSkinning );
 		
 		fileSystem->WriteFile( outFileHLSL, programHLSL.c_str(), programHLSL.Length(), "fs_savepath" );
 		fileSystem->WriteFile( outFileGLSL, programGLSL.c_str(), programGLSL.Length(), "fs_savepath" );
@@ -757,11 +769,11 @@ void idRenderProgManager::LoadGLSLProgram( const int programIndex, const int ver
 	
 	// TODO
 	
-#if 0
+#if 1
 	// RB: removed idStr::Icmp( name, "heatHaze.vfp" ) == 0  hack
-	for( int i = 0; i < shaders[vertexShaderIndex].uniforms.Num(); i++ )
+	for( int i = 0; i < shaders[vertexShaderIndex].parmIndices.Num(); i++ )
 	{
-		if( shaders[vertexShaderIndex].uniforms[i] == RENDERPARM_ENABLE_SKINNING )
+		if( shaders[vertexShaderIndex].parmIndices[i] == RENDERPARM_ENABLE_SKINNING )
 		{
 			prog.usesJoints = true;
 			prog.optionalSkinning = true;
@@ -834,6 +846,8 @@ idRenderProgManager::AllocParmBlockBuffer
 */
 void idRenderProgManager::AllocParmBlockBuffer( const idList<int>& parmIndices, idUniformBuffer& ubo )
 {
+	// TODO support shadow matrices + 23 float4
+	
 	const int numParms = parmIndices.Num();
 	const int bytes = ALIGN( numParms * sizeof( idVec4 ), vkcontext.gpu->props.limits.minUniformBufferOffsetAlignment );
 	
@@ -1488,6 +1502,7 @@ void idRenderProgManager::CommitUniforms( uint64 stateBits )
 				write.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 				write.pImageInfo = &imageInfo;
 				
+				//imageIndex++;
 				break;
 			}
 		}

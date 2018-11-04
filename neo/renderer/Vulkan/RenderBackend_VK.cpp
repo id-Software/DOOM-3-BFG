@@ -1502,16 +1502,7 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 		}
 	}
 	
-	
-	if( surf->jointCache )
-	{
-		idUniformBuffer jointBuffer;
-		if( !vertexCache.GetJointBuffer( surf->jointCache, &jointBuffer ) )
-		{
-			idLib::Warning( "RB_DrawElementsWithCounters, jointBuffer == NULL" );
-			return;
-		}
-	}
+	vkcontext.jointCacheHandle = surf->jointCache;
 	
 	renderProgManager.CommitUniforms( glStateBits );
 	
@@ -2252,13 +2243,13 @@ void idRenderBackend::SetBuffer( const void* data )
 	
 	RENDERLOG_PRINTF( "---------- RB_SetBuffer ---------- to buffer # %d\n", cmd->buffer );
 	
-	GL_Scissor( 0, 0, tr.GetWidth(), tr.GetHeight() );
-	
 	// clear screen for debugging
 	// automatically enable this with several other debug tools
 	// that might leave unrendered portions of the screen
 	if( r_clear.GetFloat() || idStr::Length( r_clear.GetString() ) != 1 || r_singleArea.GetBool() || r_showOverDraw.GetBool() )
 	{
+		GL_Scissor( 0, 0, tr.GetWidth(), tr.GetHeight() );
+		
 		float c[3];
 		if( sscanf( r_clear.GetString(), "%f %f %f", &c[0], &c[1], &c[2] ) == 3 )
 		{

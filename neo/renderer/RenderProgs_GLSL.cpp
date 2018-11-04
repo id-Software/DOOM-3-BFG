@@ -1013,7 +1013,7 @@ void ParseInOutStruct( idLexer& src, int attribType, int attribIgnoreType, idLis
 ConvertCG2GLSL
 ========================
 */
-idStr idRenderProgManager::ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, idStr& layout, bool vkGLSL )
+idStr idRenderProgManager::ConvertCG2GLSL( const idStr& in, const char* name, rpStage_t stage, idStr& layout, bool vkGLSL, bool hasGPUSkinning )
 {
 	idStr program;
 	program.ReAllocate( in.Length() * 2, false );
@@ -1028,7 +1028,7 @@ idStr idRenderProgManager::ConvertCG2GLSL( const idStr& in, const char* name, bo
 	
 	bool inMain = false;
 	bool justEnteredMain = false;
-	const char* uniformArrayName = isVertexProgram ? VERTEX_UNIFORM_ARRAY_NAME : FRAGMENT_UNIFORM_ARRAY_NAME;
+	const char* uniformArrayName = ( stage == SHADER_STAGE_VERTEX ) ? VERTEX_UNIFORM_ARRAY_NAME : FRAGMENT_UNIFORM_ARRAY_NAME;
 	char newline[128] = { "\n" };
 	
 	idToken token;
@@ -1112,6 +1112,20 @@ idStr idRenderProgManager::ConvertCG2GLSL( const idStr& in, const char* name, bo
 				}
 				
 				src.ReadToken( &token );
+			}
+			
+			// RB: HACK to add matrices uniform block layer
+			if( token == "uniform" && src.PeekTokenString( "matrices_ubo" ) )
+			{
+				hasGPUSkinning = true;
+				
+				//src.ReadToken( &token );
+				
+				//src.SkipRestOfLine();
+				//program += "\nlayout( binding = 1 ) ";
+				
+				src.SkipRestOfLine();
+				continue;
 			}
 		}
 		
@@ -1276,7 +1290,7 @@ idStr idRenderProgManager::ConvertCG2GLSL( const idStr& in, const char* name, bo
 			newline[len - 0] = '\0';
 			
 			// RB: add this to every vertex shader
-			if( inMain && !justEnteredMain && isVertexProgram && vkGLSL )
+			if( inMain && !justEnteredMain && ( stage == SHADER_STAGE_VERTEX ) && vkGLSL )
 			{
 				program += "\n\tvec4 position4 = vec4( in_Position, 1.0 );\n";
 				justEnteredMain = true;
@@ -1476,7 +1490,7 @@ idStr idRenderProgManager::ConvertCG2GLSL( const idStr& in, const char* name, bo
 	idStr filenameHint = "// filename " + idStr( name ) + "\n";
 	
 	// RB: changed to allow multiple versions of GLSL
-	if( isVertexProgram )
+	if( ( stage == SHADER_STAGE_VERTEX ) )
 	{
 		switch( glConfig.driverType )
 		{
@@ -1527,13 +1541,14 @@ idStr idRenderProgManager::ConvertCG2GLSL( const idStr& in, const char* name, bo
 		if( vkGLSL )
 		{
 			out += "\n";
-			if( isVertexProgram )
+			if( ( stage == SHADER_STAGE_VERTEX ) )
 			{
 				out += "layout( binding = 0 ) uniform UBOV {\n";
 			}
 			else
 			{
-				out += "layout( binding = 1 ) uniform UBOF {\n";
+				//out += "layout( binding = 1 ) uniform UBOF {\n";
+				out += va( "layout( binding = %i ) uniform UBOF {\n", hasGPUSkinning ? 2 : 1 );
 			}
 			
 			for( int i = 0; i < uniformList.Num(); i++ )
@@ -1550,6 +1565,13 @@ idStr idRenderProgManager::ConvertCG2GLSL( const idStr& in, const char* name, bo
 				out += ";\n";
 			}
 			out += "};\n";
+			
+			if( hasGPUSkinning && ( stage == SHADER_STAGE_VERTEX ) )
+			{
+				out += "\nlayout( binding = 1 ) uniform UBO_MAT {\n";
+				out += "\t vec4 matrices[ 408 ];\n";
+				out += "};\n";
+			}
 		}
 		else
 		{
@@ -1569,7 +1591,17 @@ idStr idRenderProgManager::ConvertCG2GLSL( const idStr& in, const char* name, bo
 	// RB: add samplers with layout bindings
 	if( vkGLSL )
 	{
-		int bindingOffset = uniformList.Num() > 0 ? 2 : 1;
+		int bindingOffset = 1;
+		
+		if( hasGPUSkinning )
+		{
+			bindingOffset++;
+		}
+		
+		if( uniformList.Num() > 0 )
+		{
+			bindingOffset++;
+		}
 		
 		for( int i = 0; i < samplerList.Num(); i++ )
 		{
@@ -1589,13 +1621,20 @@ idStr idRenderProgManager::ConvertCG2GLSL( const idStr& in, const char* name, bo
 	layout += "]\n";
 	
 	layout += "bindings [\n";
+	
 	if( uniformList.Num() > 0 )
 	{
 		layout += "\tubo\n";
 	}
+	
+	if( hasGPUSkinning && ( stage == SHADER_STAGE_VERTEX ) )
+	{
+		layout += "\tubo\n";
+	}
+	
 	for( int i = 0; i < samplerList.Num(); i++ )
 	{
-		layout += "\t sampler\n";
+		layout += "\tsampler\n";
 	}
 	layout += "]\n";
 	

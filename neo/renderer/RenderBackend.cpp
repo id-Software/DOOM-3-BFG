@@ -5216,7 +5216,7 @@ void idRenderBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
 				break;
 				
 			case RC_SET_BUFFER:
-				//SetBuffer( cmds );
+				SetBuffer( cmds );
 				c_setBuffers++;
 				break;
 				
