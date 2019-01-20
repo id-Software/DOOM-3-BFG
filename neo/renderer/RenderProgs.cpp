@@ -201,16 +201,22 @@ void idRenderProgManager::Init()
 			continue;
 		}
 		
+		uint32 shaderFeatures = builtins[i].shaderFeatures;
+		if( builtins[i].requireGPUSkinningSupport )
+		{
+			shaderFeatures |= BIT( USE_GPU_SKINNING );
+		}
+		
 		int vIndex = -1;
 		if( builtins[ i ].stages & SHADER_STAGE_VERTEX )
 		{
-			vIndex = FindShader( builtins[ i ].name, SHADER_STAGE_VERTEX, builtins[i].nameOutSuffix, builtins[i].shaderFeatures, true );
+			vIndex = FindShader( builtins[ i ].name, SHADER_STAGE_VERTEX, builtins[i].nameOutSuffix, shaderFeatures, true );
 		}
 		
 		int fIndex = -1;
 		if( builtins[ i ].stages & SHADER_STAGE_FRAGMENT )
 		{
-			fIndex = FindShader( builtins[ i ].name, SHADER_STAGE_FRAGMENT, builtins[i].nameOutSuffix, builtins[i].shaderFeatures, true );
+			fIndex = FindShader( builtins[ i ].name, SHADER_STAGE_FRAGMENT, builtins[i].nameOutSuffix, shaderFeatures, true );
 		}
 		
 		//idLib::Printf( "Loading GLSL program %i %i %i\n", i, vIndex, fIndex );

@@ -1654,7 +1654,6 @@ int	 idRenderProgManager::FindGLSLProgram( const char* name, int vIndex, int fIn
 	{
 		if( ( renderProgs[i].vertexShaderIndex == vIndex ) && ( renderProgs[i].fragmentShaderIndex == fIndex ) )
 		{
-			LoadGLSLProgram( i, vIndex, fIndex );
 			return i;
 		}
 	}

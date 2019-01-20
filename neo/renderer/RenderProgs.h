@@ -621,6 +621,7 @@ public:
 	
 	void		SetUniformValue( const renderParm_t rp, const float* value );
 	void		CommitUniforms( uint64 stateBits );
+	void		CachePipeline( uint64 stateBits );
 	int			FindGLSLProgram( const char* name, int vIndex, int fIndex );
 	void		ZeroUniforms();
 	
@@ -769,7 +770,7 @@ private:
 			builtin( false ),
 			vertexShaderIndex( -1 ),
 			fragmentShaderIndex( -1 ),
-			vertexLayout( LAYOUT_UNKNOWN ),
+			vertexLayout( LAYOUT_DRAW_VERT ),
 			pipelineLayout( VK_NULL_HANDLE ),
 			descriptorSetLayout( VK_NULL_HANDLE ) {}
 			

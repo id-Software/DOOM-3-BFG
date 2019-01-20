@@ -14,10 +14,14 @@ Thank you for downloading RBDOOM-3-BFG.
 
 _______________________________________
 
-TBD in 2018 - RBDOOM-3-BFG 1.2.0
+TBD in 2019 - RBDOOM-3-BFG 1.2.0
 _______________________________
 
-- Refactored OpenGL renderer backend to match Dustin Land's Doom 3 BFG Vulkan port
+- Vulkan renderer backend based on Dustin Land's Doom 3 BFG Vulkan port
+
+- Refactored and simplified OpenGL renderer backend to match Vulkan backend
+
+- Renamed the .vertex and .pixel shader files to .hlsl
 
 - Integrated libbinkdec for video playback as a slim alternative to FFmpeg (thanks to Daniel Gibson)
 

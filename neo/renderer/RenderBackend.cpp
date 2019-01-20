@@ -3643,10 +3643,17 @@ int idRenderBackend::DrawShaderPasses( const drawSurf_t* const* const drawSurfs,
 		uint64 surfGLState = surf->extraGLState | cullMode;
 		
 		// set polygon offset if necessary
+		
 		if( shader->TestMaterialFlag( MF_POLYGONOFFSET ) )
 		{
-			GL_PolygonOffset( r_offsetFactor.GetFloat(), r_offsetUnits.GetFloat() * shader->GetPolygonOffset() );
 			surfGLState = GLS_POLYGON_OFFSET;
+			
+			// RB: make sure the pipeline of the current shader has dynamic polygon offset enabled
+			//renderProgManager.CommitUniforms( surfGLState );
+			
+#if !defined( USE_VULKAN )
+			GL_PolygonOffset( r_offsetFactor.GetFloat(), r_offsetUnits.GetFloat() * shader->GetPolygonOffset() );
+#endif
 		}
 		
 		for( int stage = 0; stage < shader->GetNumStages(); stage++ )
@@ -3847,15 +3854,36 @@ int idRenderBackend::DrawShaderPasses( const drawSurf_t* const* const drawSurfs,
 			// bind the texture
 			BindVariableStageImage( &pStage->texture, regs );
 			
-			// set privatePolygonOffset if necessary
 			if( pStage->privatePolygonOffset )
 			{
-				GL_PolygonOffset( r_offsetFactor.GetFloat(), r_offsetUnits.GetFloat() * pStage->privatePolygonOffset );
 				stageGLState |= GLS_POLYGON_OFFSET;
 			}
 			
 			// set the state
 			GL_State( stageGLState );
+			
+			// set privatePolygonOffset if necessary
+#if defined( USE_VULKAN )
+			if( shader->TestMaterialFlag( MF_POLYGONOFFSET ) || pStage->privatePolygonOffset )
+			{
+				// RB: make sure the pipeline of the current shader has dynamic polygon offset enabled
+				renderProgManager.CommitUniforms( stageGLState );
+				
+				if( shader->TestMaterialFlag( MF_POLYGONOFFSET ) )
+				{
+					GL_PolygonOffset( r_offsetFactor.GetFloat(), r_offsetUnits.GetFloat() * shader->GetPolygonOffset() );
+				}
+				else
+				{
+					GL_PolygonOffset( r_offsetFactor.GetFloat(), r_offsetUnits.GetFloat() * pStage->privatePolygonOffset );
+				}
+			}
+#else
+			if( pStage->privatePolygonOffset )
+			{
+				GL_PolygonOffset( r_offsetFactor.GetFloat(), r_offsetUnits.GetFloat() * pStage->privatePolygonOffset );
+			}
+#endif
 			
 			PrepareStageTexturing( pStage, surf );
 			
@@ -3869,6 +3897,7 @@ int idRenderBackend::DrawShaderPasses( const drawSurf_t* const* const drawSurfs,
 			{
 				GL_PolygonOffset( r_offsetFactor.GetFloat(), r_offsetUnits.GetFloat() * shader->GetPolygonOffset() );
 			}
+			
 			renderLog.CloseBlock();
 		}
 		

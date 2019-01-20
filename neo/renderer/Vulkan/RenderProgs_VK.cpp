@@ -627,9 +627,9 @@ void idRenderProgManager::LoadShader( shader_t& shader )
 		// point we directly load a binary and the program source code is not available on the consoles
 		bool hasGPUSkinning = false;
 		
-		if(	idStr::Icmp( shader.name.c_str(), "heatHaze.vfp" ) == 0 ||
-				idStr::Icmp( shader.name.c_str(), "heatHazeWithMask.vfp" ) == 0 ||
-				idStr::Icmp( shader.name.c_str(), "heatHazeWithMaskAndVertex.vfp" ) == 0 ||
+		if(	idStr::Icmp( shader.name.c_str(), "heatHaze" ) == 0 ||
+				idStr::Icmp( shader.name.c_str(), "heatHazeWithMask" ) == 0 ||
+				idStr::Icmp( shader.name.c_str(), "heatHazeWithMaskAndVertex" ) == 0 ||
 				( BIT( USE_GPU_SKINNING ) & shader.shaderFeatures ) )
 		{
 			hasGPUSkinning = true;
@@ -1520,6 +1520,13 @@ void idRenderProgManager::CommitUniforms( uint64 stateBits )
 		vkcontext.commandBuffer[ vkcontext.frameParity ],
 		VK_PIPELINE_BIND_POINT_GRAPHICS,
 		pipeline );
+}
+
+void idRenderProgManager::CachePipeline( uint64 stateBits )
+{
+	renderProg_t& prog = renderProgs[ current ];
+	
+	VkPipeline pipeline = prog.GetPipeline( stateBits, shaders[ prog.vertexShaderIndex ].module, shaders[ prog.fragmentShaderIndex ].module );
 }
 
 
