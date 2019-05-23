@@ -86,13 +86,13 @@ class idFile;
 
 struct idNullPtr {
 	// one pointer member initialized to zero so you can pass NULL as a vararg
-	void *value; idNullPtr() : value( 0 ) { }
+	void *value; constexpr idNullPtr() : value( 0 ) { }
 
 	// implicit conversion to all pointer types
-	template<typename T1> operator T1 * () const { return 0; }
+	template<typename T1> constexpr operator T1 * () const { return 0; }
 
 	// implicit conversion to all pointer to member types
-	template<typename T1, typename T2> operator T1 T2::* () const { return 0; }
+	template<typename T1, typename T2> constexpr operator T1 T2::* () const { return 0; }
 };
 
 //#undef NULL
