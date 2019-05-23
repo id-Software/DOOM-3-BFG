@@ -130,7 +130,7 @@ void Cmd_ListSpawnArgs_f( const idCmdArgs &args ) {
 
 	for ( i = 0; i < ent->spawnArgs.GetNumKeyVals(); i++ ) {
 		const idKeyValue *kv = ent->spawnArgs.GetKeyVal( i );
-		gameLocal.Printf( "\"%s\"  "S_COLOR_WHITE"\"%s\"\n", kv->GetKey().c_str(), kv->GetValue().c_str() );
+		gameLocal.Printf( "\"%s\"  " S_COLOR_WHITE "\"%s\"\n", kv->GetKey().c_str(), kv->GetValue().c_str() );
 	}
 }
 
