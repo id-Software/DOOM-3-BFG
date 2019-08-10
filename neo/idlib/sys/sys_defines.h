@@ -109,6 +109,8 @@ If you have questions concerning this license or the applicable additional terms
 #define	CPUSTRING						"x86"
 #elif defined(__x86_64__)
 #define CPUSTRING						"x86_64"
+#elif defined(__e2k__)
+#define CPUSTRING						"e2k"
 #else
 #error unknown CPU
 #endif
