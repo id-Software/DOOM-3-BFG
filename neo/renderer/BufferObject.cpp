@@ -33,6 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 
 idCVar r_showBuffers( "r_showBuffers", "0", CVAR_INTEGER, "" );
 
+#ifdef _WIN32
 /*
 ==================
 IsWriteCombined
@@ -51,7 +52,7 @@ bool IsWriteCombined( void* base )
 	bool isWriteCombined = ( ( info.AllocationProtect & PAGE_WRITECOMBINE ) != 0 );
 	return isWriteCombined;
 }
-
+#endif
 
 #if defined(USE_INTRINSICS)
 

@@ -99,7 +99,6 @@ idRenderProgManager::LoadGLSLShader
 */
 void idRenderProgManager::LoadShader( shader_t& shader )
 {
-
 	idStr inFile;
 	idStr outFileHLSL;
 	idStr outFileGLSL;
@@ -200,9 +199,21 @@ void idRenderProgManager::LoadShader( shader_t& shader )
 			}
 		}
 		
+		// FIXME: we should really scan the program source code for using rpEnableSkinning but at this
+		// point we directly load a binary and the program source code is not available on the consoles
+		bool hasGPUSkinning = false;
+		
+		if(	idStr::Icmp( shader.name.c_str(), "heatHaze" ) == 0 ||
+				idStr::Icmp( shader.name.c_str(), "heatHazeWithMask" ) == 0 ||
+				idStr::Icmp( shader.name.c_str(), "heatHazeWithMaskAndVertex" ) == 0 ||
+				( BIT( USE_GPU_SKINNING ) & shader.shaderFeatures ) )
+		{
+			hasGPUSkinning = true;
+		}
+		
 		idStr hlslCode( hlslFileBuffer );
 		idStr programHLSL = StripDeadCode( hlslCode, inFile, compileMacros, shader.builtin );
-		programGLSL = ConvertCG2GLSL( programHLSL, inFile, shader.stage == SHADER_STAGE_VERTEX, programUniforms, glConfig.driverType == GLDRV_VULKAN );
+		programGLSL = ConvertCG2GLSL( programHLSL, inFile.c_str(), shader.stage, programUniforms, false, hasGPUSkinning );
 		
 		fileSystem->WriteFile( outFileHLSL, programHLSL.c_str(), programHLSL.Length(), "fs_savepath" );
 		fileSystem->WriteFile( outFileGLSL, programGLSL.c_str(), programGLSL.Length(), "fs_savepath" );

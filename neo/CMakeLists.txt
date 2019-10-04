@@ -1518,6 +1518,25 @@ else()
 				${STUBAUDIO_SOURCES}
 				${DOOMCLASSIC_STUBAUDIO_SOURCES})
 		endif()
+		
+		if(USE_VULKAN)
+            list(APPEND RBDOOM3_INCLUDES ${RENDERER_VULKAN_INCLUDES})
+            list(APPEND RBDOOM3_SOURCES ${RENDERER_VULKAN_SOURCES})
+            
+            set(Vulkan_LIBRARIES
+                ${Vulkan_LIBRARY}
+                glslang
+                SPIRV
+                )
+                
+            if(ENABLE_GLSLANG_BINARIES)
+                list(APPEND Vulkan_LIBRARIES glslang-default-resource-limits)
+            endif()
+            
+        else()
+            list(APPEND RBDOOM3_INCLUDES ${RENDERER_OPENGL_INCLUDES})
+            list(APPEND RBDOOM3_SOURCES ${RENDERER_OPENGL_SOURCES})
+        endif()
 			
 	endif()
 

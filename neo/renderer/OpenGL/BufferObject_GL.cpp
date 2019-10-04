@@ -126,7 +126,7 @@ bool idVertexBuffer::AllocBufferObject( const void* data, int allocSize, bufferU
 	
 	if( r_showBuffers.GetBool() )
 	{
-		idLib::Printf( "vertex buffer alloc %p, api %p (%i bytes)\n", this, GetAPIObject(), GetSize() );
+		idLib::Printf( "vertex buffer alloc %p, api %p (%i bytes)\n", this, ( GLuint* )&apiObject, GetSize() );
 	}
 	
 	// copy the data
@@ -164,7 +164,7 @@ void idVertexBuffer::FreeBufferObject()
 	
 	if( r_showBuffers.GetBool() )
 	{
-		idLib::Printf( "vertex buffer free %p, api %p (%i bytes)\n", this, GetAPIObject(), GetSize() );
+		idLib::Printf( "vertex buffer free %p, api %p (%i bytes)\n", this, ( GLuint* )&apiObject, GetSize() );
 	}
 	
 	glDeleteBuffers( 1, ( GLuint* )&apiObject );
@@ -344,7 +344,7 @@ bool idIndexBuffer::AllocBufferObject( const void* data, int allocSize, bufferUs
 	
 	if( r_showBuffers.GetBool() )
 	{
-		idLib::Printf( "index buffer alloc %p, api %p (%i bytes)\n", this, GetAPIObject(), GetSize() );
+		idLib::Printf( "index buffer alloc %p, api %p (%i bytes)\n", this, ( GLuint* )&apiObject, GetSize() );
 	}
 	
 	// copy the data
@@ -382,7 +382,7 @@ void idIndexBuffer::FreeBufferObject()
 	
 	if( r_showBuffers.GetBool() )
 	{
-		idLib::Printf( "index buffer free %p, api %p (%i bytes)\n", this, GetAPIObject(), GetSize() );
+		idLib::Printf( "index buffer free %p, api %p (%i bytes)\n", this, ( GLuint* )&apiObject, GetSize() );
 	}
 	
 	glDeleteBuffers( 1, ( GLuint* )&apiObject );
@@ -550,7 +550,7 @@ bool idUniformBuffer::AllocBufferObject( const void* data, int allocSize, buffer
 	
 	if( r_showBuffers.GetBool() )
 	{
-		idLib::Printf( "joint buffer alloc %p, api %p (%i joints)\n", this, GetAPIObject(), GetSize() );
+		idLib::Printf( "joint buffer alloc %p, api %p (%i joints)\n", this, ( GLuint* )&apiObject, GetSize() );
 	}
 	
 	// copy the data
@@ -588,7 +588,7 @@ void idUniformBuffer::FreeBufferObject()
 	
 	if( r_showBuffers.GetBool() )
 	{
-		idLib::Printf( "joint buffer free %p, api %p (%i size)\n", this, GetAPIObject(), GetSize() );
+		idLib::Printf( "joint buffer free %p, api %p (%i size)\n", this, ( GLuint* )&apiObject, GetSize() );
 	}
 	
 	glBindBuffer( GL_UNIFORM_BUFFER, 0 );

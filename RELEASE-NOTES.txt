@@ -36,7 +36,7 @@ _______________________________
 - Added Steel Storm 2 Engine render demo fixes
 
 - Merged LordHavoc's image compression progress bar which shows up in the map loading screen
-  when loading new images from mods
+  when loading and compressing new images from mods
   
 - Added instructions how to use these Doom 3 port with the GOG installer
 

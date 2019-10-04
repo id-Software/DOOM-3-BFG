@@ -123,9 +123,9 @@ struct debugPolygon_t
 
 void RB_SetMVP( const idRenderMatrix& mvp );
 void RB_SetVertexColorParms( stageVertexColor_t svc );
-void RB_GetShaderTextureMatrix( const float* shaderRegisters, const textureStage_t* texture, float matrix[16] );
-void RB_LoadShaderTextureMatrix( const float* shaderRegisters, const textureStage_t* texture );
-void RB_BakeTextureMatrixIntoTexgen( idPlane lightProject[3], const float* textureMatrix );
+//void RB_GetShaderTextureMatrix( const float* shaderRegisters, const textureStage_t* texture, float matrix[16] );
+//void RB_LoadShaderTextureMatrix( const float* shaderRegisters, const textureStage_t* texture );
+//void RB_BakeTextureMatrixIntoTexgen( idPlane lightProject[3], const float* textureMatrix );
 
 //bool ChangeDisplaySettingsIfNeeded( gfxImpParms_t parms );
 //bool CreateGameWindow( gfxImpParms_t parms );
