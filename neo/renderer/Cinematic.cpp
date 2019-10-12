@@ -523,7 +523,7 @@ idCinematicLocal::~idCinematicLocal()
 	imgY = NULL;
 	delete imgCr;
 	imgCr = NULL;
-	delete imgCr;
+	delete imgCb;
 	imgCb = NULL;
 #endif
 	

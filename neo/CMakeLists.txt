@@ -48,6 +48,9 @@ option(USE_SYSTEM_LIBJPEG
 option(USE_SYSTEM_LIBGLEW
                 "Use the system libglew instead of the bundled one" OFF)
 
+option(USE_SYSTEM_RAPIDJSON
+                "Use the system rapidjson instead of the bundled one" OFF)
+
 set(CPU_TYPE "" CACHE STRING "When set, passes this string as CPU-ID which will be embedded into the binary.")
 
 set(CPU_OPTIMIZATION "-mmmx -msse -msse2" CACHE STRING "Which CPU specific optimitations should be used beside the compiler's default?")
@@ -331,8 +334,18 @@ else()
 		endif()
 		
 	endif()
-	
 endif()
+
+if(USE_SYSTEM_RAPIDJSON)
+find_package(rapidjson REQUIRED)
+endif(USE_SYSTEM_RAPIDJSON)
+
+if (RAPIDJSON_FOUND)
+	include_directories("${RAPIDJSON_INCLUDE_DIRS}")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${RAPIDJSON_CXX_FLAGS}")
+else (RAPIDJSON_FOUND)
+	include_directories("libs/rapidjson/include")
+endif (RAPIDJSON_FOUND)
 
 
 	

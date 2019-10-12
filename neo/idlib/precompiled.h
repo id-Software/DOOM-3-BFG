@@ -113,7 +113,7 @@ const uint32 NUM_FRAME_DATA	= 2;
 #include "../ui/UserInterface.h"
 
 // RB: required for SWF extensions
-#include "../libs/rapidjson/include/rapidjson/document.h"
+#include "rapidjson/document.h"
 
 #include "../swf/SWF.h"
 

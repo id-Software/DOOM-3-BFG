@@ -437,7 +437,7 @@ void RB_SetVertexColorParms( stageVertexColor_t svc )
 RB_GetShaderTextureMatrix
 ======================
 */
-static void RB_GetShaderTextureMatrix( const float* shaderRegisters, const textureStage_t* texture, float matrix[16] )
+void RB_GetShaderTextureMatrix( const float* shaderRegisters, const textureStage_t* texture, float matrix[16] )
 {
 	matrix[0 * 4 + 0] = shaderRegisters[ texture->matrix[0][0] ];
 	matrix[1 * 4 + 0] = shaderRegisters[ texture->matrix[0][1] ];
@@ -476,7 +476,7 @@ static void RB_GetShaderTextureMatrix( const float* shaderRegisters, const textu
 RB_LoadShaderTextureMatrix
 ======================
 */
-static void RB_LoadShaderTextureMatrix( const float* shaderRegisters, const textureStage_t* texture )
+void RB_LoadShaderTextureMatrix( const float* shaderRegisters, const textureStage_t* texture )
 {
 	float texS[4] = { 1.0f, 0.0f, 0.0f, 0.0f };
 	float texT[4] = { 0.0f, 1.0f, 0.0f, 0.0f };
@@ -511,7 +511,7 @@ static void RB_LoadShaderTextureMatrix( const float* shaderRegisters, const text
 RB_BakeTextureMatrixIntoTexgen
 =====================
 */
-static void RB_BakeTextureMatrixIntoTexgen( idPlane lightProject[3], const float* textureMatrix )
+void RB_BakeTextureMatrixIntoTexgen( idPlane lightProject[3], const float* textureMatrix )
 {
 	float genMatrix[16];
 	float final[16];
