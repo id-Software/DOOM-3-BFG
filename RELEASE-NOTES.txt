@@ -14,14 +14,39 @@ Thank you for downloading RBDOOM-3-BFG.
 
 _______________________________________
 
-TBD in 2019 - RBDOOM-3-BFG 1.2.0
+TBD in early 2020 - RBDOOM-3-BFG 1.3.0
 _______________________________
 
-- Vulkan renderer backend based on Dustin Land's Doom 3 BFG Vulkan port
+- Finish Vulkan renderer backend
+
+- Fix GPU Skinning with Vulkan
+
+- Fix the lighting with stencil shadows with Vulkan
+
+- Port HDR and Shadow Mapping to Vulkan
+
+
+
+_______________________________________
+
+October 2019 - RBDOOM-3-BFG 1.2.0
+_______________________________
+
+This is a maintenance release without Vulkan support even though it contains a lot Vulkan specific code.
+
+- Experimental Work in Progress Vulkan renderer backend based on Dustin Land's Doom 3 BFG Vulkan port
+  This renderer backend only supports ambient lighting and no light interactions but it also comes with a big renderer code cleanup.
+
+  The changes also fixed several rendering bugs that occured in OpenGL:
+  
+- Fixed black dots when HDR and SSAO is enabled
+
+- Hit/damage markers show a white background #422
 
 - Refactored and simplified OpenGL renderer backend to match Vulkan backend
 
 - Renamed the .vertex and .pixel shader files to .hlsl
+  This allows better editing of the shaders within Visual Studio including Intellisense support.
 
 - Integrated libbinkdec for video playback as a slim alternative to FFmpeg (thanks to Daniel Gibson)
 
@@ -40,7 +65,8 @@ _______________________________
   
 - Added instructions how to use these Doom 3 port with the GOG installer
 
-- Many smaller compiler related fixes
+- Many smaller compiler related fixes like VS 2017 and VS 2019 support.
+  If it fails to compile with GCC then it should at least build with Clang on Linux
 
 
 _______________________________________
