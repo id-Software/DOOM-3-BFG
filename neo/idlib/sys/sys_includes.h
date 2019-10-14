@@ -103,6 +103,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma warning(disable : 4100)				// unreferenced formal parameter
 #pragma warning(disable : 4127)				// conditional expression is constant
 #pragma warning(disable : 4244)				// conversion to smaller type, possible loss of data
+#pragma warning(disable : 4267)				// RB 'initializing': conversion from 'size_t' to 'int', possible loss of data
 #pragma warning(disable : 4714)				// function marked as __forceinline not inlined
 #pragma warning(disable : 4996)				// unsafe string operations
 #endif // _MSC_VER
