@@ -31,7 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "precompiled.h"
 
-#include "../../framework/Common_local.h"
+#include "framework/Common_local.h"
 #include "RenderCommon.h"
 #include "Framebuffer.h"
 
