@@ -2325,7 +2325,7 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 		}
 		
 		// draw the final interaction
-		DrawSingleInteraction( &inter,!fillGbuffer );
+		DrawSingleInteraction( &inter, !fillGbuffer );
 		
 		renderLog.CloseBlock();
 	}

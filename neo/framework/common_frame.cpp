@@ -832,6 +832,7 @@ void idCommonLocal::Frame()
 		
 		// foresthale 2014-05-12: also check com_editors as many of them are not particularly thread-safe (editLights for example)
 		if( !com_smp.GetInteger() < 0 )
+		{
 			// RB: this is the same as Doom 3 renderSystem->EndFrame()
 			renderSystem->SwapCommandBuffers_FinishRendering( &time_frontend, &time_backend, &time_shadows, &time_gpu );
 		}

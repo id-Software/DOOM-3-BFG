@@ -241,8 +241,8 @@ void idImage::AllocImage( const idImageOpts& imgOpts, textureFilter_t tf, textur
 }
 
 /*
-		
-		
+
+
 		// foresthale 2014-05-30: give a nice progress display when binarizing
 		commonLocal.LoadPacifierBinarizeFilename( GetName() , "generated image" );
 		if( opts.numLevels > 1 )
@@ -253,10 +253,10 @@ void idImage::AllocImage( const idImageOpts& imgOpts, textureFilter_t tf, textur
 		{
 			commonLocal.LoadPacifierBinarizeProgressTotal( opts.width * opts.height );
 		}
-		
+
 		commonLocal.LoadPacifierBinarizeEnd();
-		
-	
+
+
 	// foresthale 2014-05-30: give a nice progress display when binarizing
 	commonLocal.LoadPacifierBinarizeFilename( GetName(), "generated cube image" );
 	if( opts.numLevels > 1 )
@@ -267,9 +267,9 @@ void idImage::AllocImage( const idImageOpts& imgOpts, textureFilter_t tf, textur
 	{
 		commonLocal.LoadPacifierBinarizeProgressTotal( opts.width * opts.width * 6 );
 	}
-	
+
 	commonLocal.LoadPacifierBinarizeEnd();
-	
+
 ===============
 GetGeneratedName
 
