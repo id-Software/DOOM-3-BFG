@@ -471,7 +471,7 @@ static float* vecToArr( idVec3& v )
 void LightEditor::DrawWindow()
 {
 	bool showWindow = showIt;
-	if( ImGui::Begin( title, &showWindow, ImGuiWindowFlags_ShowBorders ) )
+	if( ImGui::Begin( title, &showWindow ) ) //, ImGuiWindowFlags_ShowBorders ) )
 	{
 		bool changes = false;
 		

@@ -836,8 +836,8 @@ static void R_CreateImGuiFontImage( idImage* image )
 	io.Fonts->TexID = ( void* )( intptr_t )image->GetImGuiTextureID();
 	
 	// Cleanup (don't clear the input data if you want to append new fonts later)
-	io.Fonts->ClearInputData();
-	io.Fonts->ClearTexData();
+	//io.Fonts->ClearInputData();
+	//io.Fonts->ClearTexData();
 }
 
 // RB end

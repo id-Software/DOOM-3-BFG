@@ -17,6 +17,8 @@
 #include "renderer/RenderBackend.h"
 
 
+idCVar imgui_showDemoWindow( "imgui_showDemoWindow", "0", CVAR_GUI | CVAR_BOOL, "show big ImGui demo window" );
+
 // our custom ImGui functions from BFGimgui.h
 
 // like DragFloat3(), but with "X: ", "Y: " or "Z: " prepended to each display_format, for vectors
@@ -180,10 +182,13 @@ void FillCharKeys( int* keyMap )
 // Sys_GetClipboardData() expects that you Mem_Free() its returned data
 // ImGui can't do that, of course, so copy it into a static buffer here,
 // Mem_Free() and return the copy
-const char* GetClipboardWrapper()
+const char* GetClipboardText( void* )
 {
 	char* txt = Sys_GetClipboardData();
-	if( txt == NULL ) return NULL;
+	if( txt == NULL )
+	{
+		return NULL;
+	}
 	
 	static idStr clipboardBuf;
 	clipboardBuf = txt;
@@ -193,10 +198,15 @@ const char* GetClipboardWrapper()
 	return clipboardBuf.c_str();
 }
 
+void SetClipboardText( void*, const char* text )
+{
+	Sys_SetClipboardData( text );
+}
+
 
 bool ShowWindows()
 {
-	return ImGuiTools::AreEditorsActive();
+	return ( ImGuiTools::AreEditorsActive() || imgui_showDemoWindow.GetBool() );
 }
 
 bool UseInput()
@@ -212,6 +222,10 @@ bool Init( int windowWidth, int windowHeight )
 	{
 		Destroy();
 	}
+	
+	IMGUI_CHECKVERSION();
+	
+	ImGui::CreateContext();
 	
 	ImGuiIO& io = ImGui::GetIO();
 	// Keyboard mapping. ImGui will use those indices to peek into the io.KeyDown[] array.
@@ -236,15 +250,22 @@ bool Init( int windowWidth, int windowHeight )
 	io.DisplaySize = g_DisplaySize;
 	
 	io.RenderDrawListsFn = idRenderBackend::ImGui_RenderDrawLists;
-	io.SetClipboardTextFn = Sys_SetClipboardData;
-	io.GetClipboardTextFn = GetClipboardWrapper;
+	
+	// RB: FIXME double check
+	io.SetClipboardTextFn = SetClipboardText;
+	io.GetClipboardTextFn = GetClipboardText;
+	io.ClipboardUserData = NULL;
 	
 	// make it a bit prettier with rounded edges
 	ImGuiStyle& style = ImGui::GetStyle();
-	style.ChildWindowRounding = 9.0f;
-	style.FrameRounding = 4.0f;
-	style.ScrollbarRounding = 4.0f;
-	style.GrabRounding = 4.0f;
+	//style.ChildWindowRounding = 9.0f;
+	//style.FrameRounding = 4.0f;
+	//style.ScrollbarRounding = 4.0f;
+	//style.GrabRounding = 4.0f;
+	
+	// Setup style
+	ImGui::StyleColorsDark();
+	//ImGui::StyleColorsClassic();
 	
 	g_IsInit = true;
 	
@@ -321,13 +342,6 @@ void NewFrame()
 {
 	if( IsInitialized() && ShowWindows() )
 	{
-		/*
-		if( !g_FontTexture )
-		{
-			CreateDeviceObjects();
-		}
-		*/
-		
 		ImGuiIO& io = ImGui::GetIO();
 		
 		// Setup display size (every frame to accommodate for window resizing)
@@ -361,6 +375,11 @@ void NewFrame()
 		// Start the frame
 		ImGui::NewFrame();
 		g_haveNewFrame = true;
+		
+		if( imgui_showDemoWindow.GetBool() && !ImGuiTools::ReleaseMouseForTools() )
+		{
+			ImGuiTools::impl::SetReleaseToolMouse( true );
+		}
 	}
 }
 
@@ -377,6 +396,11 @@ void Render()
 		
 		ImGuiTools::DrawToolWindows();
 		
+		if( imgui_showDemoWindow.GetBool() )
+		{
+			ImGui::ShowDemoWindow();
+		}
+		
 		ImGui::Render();
 		g_haveNewFrame = false;
 	}
@@ -386,7 +410,7 @@ void Destroy()
 {
 	if( IsInitialized() )
 	{
-		ImGui::Shutdown();
+		ImGui::DestroyContext();
 		g_IsInit = false;
 	}
 }
