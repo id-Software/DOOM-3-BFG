@@ -558,6 +558,7 @@ public:
 	idImage*			currentNormalsImage;			// cheap G-Buffer replacement, holds normals and surface roughness
 	idImage*			ambientOcclusionImage[2];		// contain AO and bilateral filtering keys
 	idImage*			hierarchicalZbufferImage;		// zbuffer with mip maps to accelerate screen space ray tracing
+	idImage*			imguiFontImage;
 	// RB end
 	idImage* 			scratchImage;
 	idImage* 			scratchImage2;

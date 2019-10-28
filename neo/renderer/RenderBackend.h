@@ -242,6 +242,14 @@ all state modified by the back end is separated from the front end state
 
 ===========================================================================
 */
+//namespace ImGui
+//{
+//
+//}
+
+//#include "../libs/imgui/imgui.h"
+struct ImDrawData;
+
 class idRenderBackend
 {
 	friend class Framebuffer;
@@ -259,6 +267,10 @@ public:
 	
 	void				Print();
 	void				CheckCVars();
+	
+	static void			ImGui_Init();
+	static void			ImGui_Shutdown();
+	static void			ImGui_RenderDrawLists( ImDrawData* draw_data );
 	
 private:
 	void				DrawFlickerBox();
