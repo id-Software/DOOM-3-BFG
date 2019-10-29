@@ -1,7 +1,7 @@
 RBDOOM-3-BFG Readme - https://github.com/RobertBeckebans/RBDOOM-3-BFG
 
 
-<img src="https://i.imgur.com/4WJGNzX.png">
+<img src="https://i.imgur.com/jEmcriO.png">
 
 
 ## Table of Contents
