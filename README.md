@@ -107,22 +107,30 @@ Left: No post processing except HDR tone mapping. Right: r_useFilmicPostProcessi
 ---
 ## ".plan" <a name=".plan"></a>
 
-* Finish Vulkan renderer backend
+* Finish PBR texture support
+* Add IBL lighting and [Light probe interpolation using tetrahedral tessellations](https://gdcvault.com/play/1015312/Light-Probe-Interpolation-Using-Tetrahedral)
+* Generate IBL probes on the GPU through compute shaders
+* Add Screen Space Reflections
+* Finish adapting the Vulkan renderer backend based on Dustin Land's vkDOOM3
 * Fix GPU Skinning with Vulkan
 * Fix the lighting with stencil shadows with Vulkan
-* Port HDR and Shadow Mapping to Vulkan
+* Port all the extras like HDR, Shadow Mapping and Post Processing to Vulkan
+* Get ImGui to run with Vulkan and show the Vulkan memory fragmentation with it live
+* Evaluate Blender 2.8 as a complete replacement for D3Radiant and update the scripts for it
 
 ---
 ## May or may not ".plan" <a name=".plan2"></a>
 
-* Port Virtual Texturing support from IcedTech [IcedTech](https://github.com/jmarshall23/IcedTech)
+* Add [Volumetric Lighting](http://www.alexandre-pestana.com/volumetric-lights/)
+* Give Mara's and McGuire's DeepGBuffer Screen Space Global Illumination a second try with Christoph Schieds' A-SVGF realtime denoising because A-SVGF works really well in Q2RTX
+* Port Virtual Texturing support from [IcedTech](https://github.com/jmarshall23/IcedTech)
 * Slim texture loading routines based on stb_image
 * Add texture compression based on [Basis Universal GPU Texture and Texture Video Compression Codec](https://github.com/binomialLLC/basis_universal)
-* Scrap complex and complicated deferred and multipass forward shading with a simpler forward+ solution
+* Scrap complex and complicated multipass forward shading with a simpler forward+ solution
 * Rip & Tear renderer backend with modern approaches by [The-Forge](https://github.com/ConfettiFX/The-Forge)
-* Add Temporal Anti-Aliasing
+* Imrpove SMAAA with Temporal Anti-Aliasing (SMAA T2x)
 * Replace collision detection and physics with PhysX 4.1
-* Add glTF 2.0 support because it is the new JPG of 3D ;)
+* Add glTF 2.0 support for static models and animations because it is the new JPG of 3D ;)
 * Replace sound system with [SoLoud](https://github.com/jarikomppa/soloud)
 
 ---
@@ -369,4 +377,4 @@ You can find your qconsole.log on Windows in C:\Users\<your user name>\Saved Gam
 **A**: You can but don't bother me to give you free support and you probably should use Unreal Engine 4. I am a full time game developer and usually don't have time for any free support.
 
 **Q**: How do I know what code you've changed?
-**A**: Apart from the Git diffs, you can look for `// RB` in the source code. Many other contributors commented their changes in the same way. I enforced the usage of Astyle in this project which also makes it alot easier to compare it against other ports of DOOM-3-BFG.
+**A**: Apart from the Git diffs, you can look for `// RB` in the source code. Many other contributors commented their changes in the same way. I enforced the usage of Astyle in this project which also makes it alot easier to compare it against other ports of DOOM-3-BFG. Simply format the other ports with Astyle like I do in neo/astyle-code.bat and you can compare the code easily in WinMerge or KDiff3.
