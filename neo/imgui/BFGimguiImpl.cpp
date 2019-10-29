@@ -401,6 +401,8 @@ void Render()
 			ImGui::ShowDemoWindow();
 		}
 		
+		ImGui::End();
+		
 		ImGui::Render();
 		g_haveNewFrame = false;
 	}
