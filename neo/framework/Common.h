@@ -66,6 +66,7 @@ ID_INLINE int MSEC_ALIGN_TO_FRAME( int msec )
 }
 
 class idGame;
+class idEntity;
 class idRenderWorld;
 class idSoundWorld;
 class idSession;
@@ -231,6 +232,9 @@ public:
 	// If match is NULL, all set commands will be executed, otherwise
 	// only a set with the exact name.
 	virtual void				StartupVariable( const char* match ) = 0;
+	
+	// Initializes a tool with the given dictionary.
+	virtual void				InitTool( const toolFlag_t tool, const idDict* dict, idEntity* entity ) = 0;
 	
 	// Begins redirection of console output to the given buffer.
 	virtual void				BeginRedirect( char* buffer, int buffersize, void ( *flush )( const char* ) ) = 0;

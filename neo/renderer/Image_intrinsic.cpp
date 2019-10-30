@@ -30,6 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "precompiled.h"
 
+#include "../../libs/imgui/imgui.h"
 
 #include "RenderCommon.h"
 #include "SMAA/AreaTex.h"
@@ -813,6 +814,32 @@ static void R_CreateSMAASearchImage( idImage* image )
 	image->GenerateImage( ( byte* )data, SEARCHTEX_WIDTH, SEARCHTEX_HEIGHT, TF_LINEAR, TR_CLAMP, TD_LOOKUP_TABLE_MONO );
 }
 
+static void R_CreateImGuiFontImage( idImage* image )
+{
+	ImGuiIO& io = ImGui::GetIO();
+	
+	byte* pixels = NULL;
+	int width, height;
+	io.Fonts->GetTexDataAsRGBA32( &pixels, &width, &height ); // Load as RGBA 32-bits for OpenGL3 demo because it is more likely to be compatible with user's existing shader.
+	
+	/*
+	glGenTextures( 1, &g_FontTexture );
+	glBindTexture( GL_TEXTURE_2D, g_FontTexture );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+	glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels );
+	*/
+	
+	image->GenerateImage( ( byte* )pixels, width, height, TF_LINEAR, TR_CLAMP, TD_LOOKUP_TABLE_RGBA );
+	
+	// Store our identifier
+	io.Fonts->TexID = ( void* )( intptr_t )image->GetImGuiTextureID();
+	
+	// Cleanup (don't clear the input data if you want to append new fonts later)
+	//io.Fonts->ClearInputData();
+	//io.Fonts->ClearTexData();
+}
+
 // RB end
 
 /*
@@ -875,6 +902,8 @@ void idImageManager::CreateIntrinsicImages()
 	ambientOcclusionImage[1] = ImageFromFunction( "_ao1", R_SMAAImage_ResNative );
 	
 	hierarchicalZbufferImage = ImageFromFunction( "_cszBuffer", R_HierarchicalZBufferImage_ResNative );
+	
+	imguiFontImage = ImageFromFunction( "_imguiFont", R_CreateImGuiFontImage );
 	// RB end
 	
 	// scratchImage is used for screen wipes/doublevision etc..

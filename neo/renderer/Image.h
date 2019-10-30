@@ -394,6 +394,19 @@ public:
 								   
 	void		SetTexParameters();	// update aniso and trilinear
 	
+	// DG: added for imgui integration (to be used with ImGui::Image() etc)
+	void*		GetImGuiTextureID()
+	{
+		if( !IsLoaded() )
+		{
+			// load the image on demand here, which isn't our normal game operating mode
+			ActuallyLoadImage( true );
+		}
+		
+		return ( void* )( intptr_t )texnum;
+	}
+	// DG end
+	
 private:
 	friend class idImageManager;
 	
@@ -554,6 +567,7 @@ public:
 	idImage*			currentNormalsImage;			// cheap G-Buffer replacement, holds normals and surface roughness
 	idImage*			ambientOcclusionImage[2];		// contain AO and bilateral filtering keys
 	idImage*			hierarchicalZbufferImage;		// zbuffer with mip maps to accelerate screen space ray tracing
+	idImage*			imguiFontImage;
 	
 	idImage*			defaultUACIrradianceCube;
 	idImage*			defaultUACRadianceCube;

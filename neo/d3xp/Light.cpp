@@ -958,6 +958,14 @@ idLight::ShowEditingDialog
 */
 void idLight::ShowEditingDialog()
 {
+	if( g_editEntityMode.GetInteger() == 1 )
+	{
+		common->InitTool( EDITOR_LIGHT, &spawnArgs , this );
+	}
+	else
+	{
+		common->InitTool( EDITOR_SOUND, &spawnArgs, this );
+	}
 }
 
 /*

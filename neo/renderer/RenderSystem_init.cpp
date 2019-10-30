@@ -408,6 +408,10 @@ void R_SetNewMode( const bool fullInit )
 			if( GLimp_Init( parms ) )
 			{
 				// it worked
+				
+				// DG: ImGui must be initialized after the window has been created, it needs an opengl context
+				ImGuiHook::Init( parms.width, parms.height );
+				
 				break;
 			}
 		}
@@ -417,6 +421,9 @@ void R_SetNewMode( const bool fullInit )
 			if( GLimp_SetScreenParms( parms ) )
 			{
 				// it worked
+				
+				// DG: ImGui must know about the changed window size
+				ImGuiHook::NotifyDisplaySizeChanged( parms.width, parms.height );
 				break;
 			}
 		}
