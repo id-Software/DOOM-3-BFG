@@ -47,7 +47,7 @@ struct PS_OUT
 
 #define USE_TECHNICOLOR						1		// [0 or 1]
 
-#define Technicolor_Amount					0.6		// [0.00 to 1.00]
+#define Technicolor_Amount					0.5		// [0.00 to 1.00]
 #define Technicolor_Power					4.0		// [0.00 to 8.00]
 #define Technicolor_RedNegativeAmount		0.88	// [0.00 to 1.00]
 #define Technicolor_GreenNegativeAmount		0.88	// [0.00 to 1.00]

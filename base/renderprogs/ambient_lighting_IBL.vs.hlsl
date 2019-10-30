@@ -27,7 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#include "renderprogs/global.inc"
+#include "global.inc.hlsl"
 
 #if defined( USE_GPU_SKINNING )
 uniform matrices_ubo { float4 matrices[408]; };

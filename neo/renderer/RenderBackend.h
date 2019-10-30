@@ -242,12 +242,6 @@ all state modified by the back end is separated from the front end state
 
 ===========================================================================
 */
-//namespace ImGui
-//{
-//
-//}
-
-//#include "../libs/imgui/imgui.h"
 struct ImDrawData;
 
 class idRenderBackend

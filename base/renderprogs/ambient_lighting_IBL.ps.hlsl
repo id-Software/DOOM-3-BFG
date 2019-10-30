@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
-Copyright (C) 2013-2016 Robert Beckebans
+Copyright (C) 2013-2019 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
 
@@ -27,14 +27,14 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#include "renderprogs/global.inc"
-#include "renderprogs/BRDF.inc"
+#include "global.inc.hlsl"
+#include "BRDF.inc.hlsl"
 
-uniform sampler2D	samp0 : register(s0); // texture 1 is the per-surface bump map
-uniform sampler2D	samp1 : register(s1); // texture 2 is the light falloff texture
-uniform sampler2D	samp2 : register(s2); // texture 3 is the light projection texture
-uniform sampler2D	samp3 : register(s3); // texture 4 is the per-surface diffuse map
-uniform sampler2D	samp4 : register(s4); // texture 5 is the per-surface specular map
+uniform sampler2D samp0 : register(s0); // texture 1 is the per-surface normal map
+uniform sampler2D samp1 : register(s1); // texture 3 is the per-surface specular or roughness/metallic/AO mixer map
+uniform sampler2D samp2 : register(s2); // texture 2 is the per-surface baseColor map 
+uniform sampler2D samp3 : register(s3); // texture 4 is the light falloff texture
+uniform sampler2D samp4 : register(s4); // texture 5 is the light projection texture
 
 uniform samplerCUBE	samp7 : register(s7); // texture 0 is the cube map
 uniform samplerCUBE	samp8 : register(s8); // texture 0 is the cube map
@@ -59,8 +59,8 @@ void main( PS_IN fragment, out PS_OUT result ) {
 	half4 bumpMap =			tex2D( samp0, fragment.texcoord0.xy );
 //	half4 lightFalloff =	idtex2Dproj( samp1, fragment.texcoord2 );
 //	half4 lightProj	=		idtex2Dproj( samp2, fragment.texcoord3 );
-	half4 YCoCG =			tex2D( samp3, fragment.texcoord1.xy );
-	half4 specMap =			tex2D( samp4, fragment.texcoord2.xy );
+	half4 YCoCG =			tex2D( samp2, fragment.texcoord1.xy );
+	half4 specMap =			tex2D( samp1, fragment.texcoord2.xy );
 
 	//half3 lightVector = normalize( fragment.texcoord0.xyz );
 	half3 diffuseMap = sRGBToLinearRGB( ConvertYCoCgToRGB( YCoCG ) );
@@ -118,12 +118,12 @@ void main( PS_IN fragment, out PS_OUT result ) {
 	half3 specularColor = lerp( dielectricColor, baseColor, metallic );
 	
 	//diffuseColor = half3( 1.0 );
-	float3 diffuseLight = sRGBToLinearRGB( texCUBE( samp7, globalNormal ).rgb ) * diffuseColor * ( rpDiffuseModifier.xyz ) * 1.5f;
+	float3 diffuseLight = ( texCUBE( samp7, globalNormal ).rgb ) * diffuseColor * ( rpDiffuseModifier.xyz ) * 1.5f;
 	
 	//specularColor = half3( 0.0 );
 	
 	float mip = clamp( ( roughness * 7.0 ) + 3.0, 0.0, 10.0 );
-	float3 envColor = sRGBToLinearRGB( texCUBElod( samp8, float4( reflectionVector, mip ) ).rgb ) * ( rpSpecularModifier.xyz ) * 1.0f;
+	float3 envColor = ( textureLod( samp8, reflectionVector, mip ).rgb ) * ( rpSpecularModifier.xyz ) * 1.0f;
 	
 	float3 specularLight = envColor * specularColor;
 	
@@ -132,8 +132,9 @@ void main( PS_IN fragment, out PS_OUT result ) {
 	half4 specMapSRGB = specMap;
 	specMap = sRGBAToLinearRGBA( specMap );
 	
-	//float3 diffuseLight = sRGBToLinearRGB( texCUBE( samp7, globalNormal ).rgb ) * diffuseMap.rgb * ( rpDiffuseModifier.xyz ) * 1.5f;
-	float3 diffuseLight = diffuseMap.rgb * ( rpDiffuseModifier.xyz ) * 1.5f;
+	//float3 diffuseLight = sRGBToLinearRGB( texCUBE( samp7, globalNormal ).rgb ) * diffuseMap.rgb * ( rpDiffuseModifier.xyz ) * 3.5f;
+    float3 diffuseLight = ( texCUBE( samp7, globalNormal ).rgb ) * diffuseMap.rgb * ( rpDiffuseModifier.xyz ) * 3.5f;
+	//float3 diffuseLight = diffuseMap.rgb * ( rpDiffuseModifier.xyz ) * 1.5f;
 
 	// HACK calculate roughness from D3 gloss maps
 	float Y = dot( LUMINANCE_SRGB.rgb, specMapSRGB.rgb );
@@ -144,7 +145,7 @@ void main( PS_IN fragment, out PS_OUT result ) {
 	const float roughness = 1.0 - glossiness;
 	
 	float mip = clamp( ( roughness * 7.0 ) + 0.0, 0.0, 10.0 );
-	float3 envColor = sRGBToLinearRGB( texCUBElod( samp8, float4( reflectionVector, mip ) ).rgb ) * ( rpSpecularModifier.xyz ) * 1.0f;
+	float3 envColor = ( textureLod( samp8, reflectionVector, mip ).rgb ) * ( rpSpecularModifier.xyz ) * 0.5f;
 	
 	float3 specularLight = envColor * specMap.rgb;
 	
