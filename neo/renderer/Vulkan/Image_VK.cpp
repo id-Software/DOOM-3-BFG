@@ -370,7 +370,80 @@ CopyFramebuffer
 */
 void idImage::CopyFramebuffer( int x, int y, int imageWidth, int imageHeight )
 {
-
+#if 0
+	VkCommandBuffer commandBuffer = vkcontext.commandBuffer[ vkcontext.frameParity ];
+	
+	vkCmdEndRenderPass( commandBuffer );
+	
+	VkImageMemoryBarrier dstBarrier = {};
+	dstBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	dstBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	dstBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	dstBarrier.image = GetImage();
+	dstBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	dstBarrier.subresourceRange.baseMipLevel = 0;
+	dstBarrier.subresourceRange.levelCount = 1;
+	dstBarrier.subresourceRange.baseArrayLayer = 0;
+	dstBarrier.subresourceRange.layerCount = 1;
+	
+	// Pre copy transitions
+	{
+		// Transition the color dst image so we can transfer to it.
+		dstBarrier.oldLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		dstBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+		dstBarrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+		dstBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+		vkCmdPipelineBarrier(
+			commandBuffer,
+			VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+			VK_PIPELINE_STAGE_TRANSFER_BIT,
+			0, 0, NULL, 0, NULL, 1, &dstBarrier );
+	}
+	
+	// Perform the blit/copy
+	{
+		VkImageBlit region = {};
+		region.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		region.srcSubresource.baseArrayLayer = 0;
+		region.srcSubresource.mipLevel = 0;
+		region.srcSubresource.layerCount = 1;
+		region.srcOffsets[ 1 ] = { imageWidth, imageHeight, 1 };
+		
+		region.dstSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		region.dstSubresource.baseArrayLayer = 0;
+		region.dstSubresource.mipLevel = 0;
+		region.dstSubresource.layerCount = 1;
+		region.dstOffsets[ 1 ] = { imageWidth, imageHeight, 1 };
+		
+		vkCmdBlitImage(
+			commandBuffer,
+			vkcontext.swapchainImages[ vkcontext.currentSwapIndex ], VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+			GetImage(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+			1, &region, VK_FILTER_NEAREST );
+	}
+	
+	// Post copy transitions
+	{
+		// Transition the color dst image so we can transfer to it.
+		dstBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+		dstBarrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		dstBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+		dstBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+		vkCmdPipelineBarrier(
+			commandBuffer,
+			VK_PIPELINE_STAGE_TRANSFER_BIT,
+			VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+			0, 0, NULL, 0, NULL, 1, &dstBarrier );
+	}
+	
+	VkRenderPassBeginInfo renderPassBeginInfo = {};
+	renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+	renderPassBeginInfo.renderPass = vkcontext.renderPass;
+	renderPassBeginInfo.framebuffer = vkcontext.frameBuffers[ vkcontext.currentSwapIndex ];
+	renderPassBeginInfo.renderArea.extent = vkcontext.swapchainExtent;
+	
+	vkCmdBeginRenderPass( commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE );
+#endif
 }
 
 /*

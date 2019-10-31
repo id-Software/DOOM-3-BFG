@@ -431,14 +431,11 @@ private:
 	void				DBG_ShowLights();
 	void				DBG_ShowShadowMapLODs(); // RB
 	void				DBG_ShowPortals();
-	
 	void				DBG_ShowDebugText();
 	void				DBG_ShowDebugLines();
 	void				DBG_ShowDebugPolygons();
-	
 	void				DBG_ShowCenterOfProjection();
 	void				DBG_ShowLines();
-	
 	void				DBG_TestGamma();
 	void				DBG_TestGammaBias();
 	void				DBG_TestImage();
