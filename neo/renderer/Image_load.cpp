@@ -137,6 +137,19 @@ ID_INLINE void idImage::DeriveOpts()
 				opts.format = FMT_DXT1;
 				opts.colorFormat = CFM_DEFAULT;
 				break;
+				
+			case TD_SPECULAR_PBR_RMAO:
+				opts.gammaMips = false;
+				opts.format = FMT_DXT1;
+				opts.colorFormat = CFM_DEFAULT;
+				break;
+				
+			case TD_SPECULAR_PBR_RMAOD:
+				opts.gammaMips = false;
+				opts.format = FMT_DXT5;
+				opts.colorFormat = CFM_DEFAULT;
+				break;
+				
 			case TD_DEFAULT:
 				opts.gammaMips = true;
 				opts.format = FMT_DXT5;
@@ -168,6 +181,17 @@ ID_INLINE void idImage::DeriveOpts()
 			case TD_LOOKUP_TABLE_RGB1:
 			case TD_LOOKUP_TABLE_RGBA:
 				opts.format = FMT_RGBA8;
+				break;
+			// motorsep 05-17-2015; added this for uncompressed cubemap/skybox textures
+			case TD_HIGHQUALITY_CUBE:
+				opts.colorFormat = CFM_DEFAULT;
+				opts.format = FMT_RGBA8;
+				opts.gammaMips = true;
+				break;
+			case TD_LOWQUALITY_CUBE:
+				opts.colorFormat = CFM_DEFAULT; // CFM_YCOCG_DXT5;
+				opts.format = FMT_DXT5;
+				opts.gammaMips = true;
 				break;
 			default:
 				assert( false );
@@ -217,6 +241,35 @@ void idImage::AllocImage( const idImageOpts& imgOpts, textureFilter_t tf, textur
 }
 
 /*
+
+
+		// foresthale 2014-05-30: give a nice progress display when binarizing
+		commonLocal.LoadPacifierBinarizeFilename( GetName() , "generated image" );
+		if( opts.numLevels > 1 )
+		{
+			commonLocal.LoadPacifierBinarizeProgressTotal( opts.width * opts.height * 4 / 3 );
+		}
+		else
+		{
+			commonLocal.LoadPacifierBinarizeProgressTotal( opts.width * opts.height );
+		}
+
+		commonLocal.LoadPacifierBinarizeEnd();
+
+
+	// foresthale 2014-05-30: give a nice progress display when binarizing
+	commonLocal.LoadPacifierBinarizeFilename( GetName(), "generated cube image" );
+	if( opts.numLevels > 1 )
+	{
+		commonLocal.LoadPacifierBinarizeProgressTotal( opts.width * opts.width * 6 * 4 / 3 );
+	}
+	else
+	{
+		commonLocal.LoadPacifierBinarizeProgressTotal( opts.width * opts.width * 6 );
+	}
+
+	commonLocal.LoadPacifierBinarizeEnd();
+
 ===============
 GetGeneratedName
 
@@ -462,6 +515,19 @@ void idImage::ActuallyLoadImage( bool fromBackEnd )
 			opts.height = height;
 			opts.numLevels = 0;
 			DeriveOpts();
+			
+			// foresthale 2014-05-30: give a nice progress display when binarizing
+			commonLocal.LoadPacifierBinarizeFilename( generatedName.c_str(), binarizeReason.c_str() );
+			if( opts.numLevels > 1 )
+			{
+				commonLocal.LoadPacifierBinarizeProgressTotal( opts.width * opts.width * 6 * 4 / 3 );
+			}
+			else
+			{
+				commonLocal.LoadPacifierBinarizeProgressTotal( opts.width * opts.width * 6 );
+			}
+			
+			commonLocal.LoadPacifierBinarizeEnd();
 			
 			// foresthale 2014-05-30: give a nice progress display when binarizing
 			commonLocal.LoadPacifierBinarizeFilename( generatedName.c_str(), binarizeReason.c_str() );

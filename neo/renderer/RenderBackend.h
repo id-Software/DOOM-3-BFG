@@ -242,12 +242,6 @@ all state modified by the back end is separated from the front end state
 
 ===========================================================================
 */
-//namespace ImGui
-//{
-//
-//}
-
-//#include "../libs/imgui/imgui.h"
 struct ImDrawData;
 
 class idRenderBackend
@@ -304,7 +298,7 @@ private:
 			idVec4 matrix[2], float color[4] );
 			
 	void				DrawInteractions( const viewDef_t* _viewDef );
-	void				DrawSingleInteraction( drawInteraction_t* din );
+	void				DrawSingleInteraction( drawInteraction_t* din, bool useIBL );
 	int					DrawShaderPasses( const drawSurf_t* const* const drawSurfs, const int numDrawSurfs,
 										  const float guiStereoScreenOffset, const int stereoEye );
 										  

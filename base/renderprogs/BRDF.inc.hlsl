@@ -60,6 +60,11 @@ half3 Fresnel_Schlick( half3 specularColor, half vdotH )
 	return specularColor + ( 1.0 - specularColor ) * pow( 1.0 - vdotH, 5.0 );
 }
 
+half3 Fresnel_Glossy( half3 specularColor, half roughness, half vdotH )
+{
+	return specularColor + ( max( half3( 1.0  - roughness ), specularColor ) - specularColor ) * pow( 1.0 - vdotH, 5.0 );
+}
+
 // Visibility term G( l, v, h )
 // Very similar to Marmoset Toolbag 2 and gives almost the same results as Smith GGX
 float Visibility_Schlick( half vdotN, half ldotN, float alpha )

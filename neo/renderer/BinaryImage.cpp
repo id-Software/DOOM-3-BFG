@@ -44,7 +44,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "Color/ColorSpace.h"
 
 idCVar image_highQualityCompression( "image_highQualityCompression", "0", CVAR_BOOL, "Use high quality (slow) compression" );
-idCVar r_useHighQualitySky( "r_useHighQualitySky", "0", CVAR_BOOL | CVAR_ARCHIVE, "Use high quality skyboxes" );
+idCVar r_useHighQualitySky( "r_useHighQualitySky", "1", CVAR_BOOL | CVAR_ARCHIVE, "Use high quality skyboxes" );
 
 /*
 ========================
@@ -360,13 +360,37 @@ void idBinaryImage::LoadCubeFromMemory( int width, const byte* pics[6], int numL
 			{
 				img.Alloc( padSize * padSize / 2 );
 				idDxtEncoder dxt;
-				dxt.CompressImageDXT1Fast( padSrc, img.data, padSize, padSize );
+				
+				if( image_highQualityCompression.GetBool() )
+				{
+					commonLocal.LoadPacifierBinarizeInfo( va( "(%d x %d) - DXT1HQ", width, width ) );
+					
+					dxt.CompressImageDXT1HQ( padSrc, img.data, padSize, padSize );
+				}
+				else
+				{
+					commonLocal.LoadPacifierBinarizeInfo( va( "(%d x %d) - DXT1Fast", width, width ) );
+					
+					dxt.CompressImageDXT1Fast( padSrc, img.data, padSize, padSize );
+				}
 			}
 			else if( textureFormat == FMT_DXT5 )
 			{
 				img.Alloc( padSize * padSize );
 				idDxtEncoder dxt;
-				dxt.CompressImageDXT5Fast( padSrc, img.data, padSize, padSize );
+				
+				if( image_highQualityCompression.GetBool() )
+				{
+					commonLocal.LoadPacifierBinarizeInfo( va( "(%d x %d) - DXT5HQ", width, width ) );
+					
+					dxt.CompressImageDXT5HQ( padSrc, img.data, padSize, padSize );
+				}
+				else
+				{
+					commonLocal.LoadPacifierBinarizeInfo( va( "(%d x %d) - DXT5Fast", width, width ) );
+					
+					dxt.CompressImageDXT5Fast( padSrc, img.data, padSize, padSize );
+				}
 			}
 			else
 			{

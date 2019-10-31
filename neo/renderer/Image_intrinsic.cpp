@@ -920,6 +920,9 @@ void idImageManager::CreateIntrinsicImages()
 	loadingIconImage = ImageFromFile( "textures/loadingicon2", TF_DEFAULT, TR_CLAMP, TD_DEFAULT, CF_2D );
 	hellLoadingIconImage = ImageFromFile( "textures/loadingicon3", TF_DEFAULT, TR_CLAMP, TD_DEFAULT, CF_2D );
 	
+	defaultUACIrradianceCube = ImageFromFile( "env/testmap_1_amb", TF_DEFAULT, TR_CLAMP, TD_HIGHQUALITY_CUBE, CF_NATIVE );
+	defaultUACRadianceCube = ImageFromFile( "env/testmap_1_spec", TF_DEFAULT, TR_CLAMP, TD_HIGHQUALITY_CUBE, CF_NATIVE );
+	
 	release_assert( loadingIconImage->referencedOutsideLevelLoad );
 	release_assert( hellLoadingIconImage->referencedOutsideLevelLoad );
 }

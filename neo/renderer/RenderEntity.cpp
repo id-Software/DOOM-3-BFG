@@ -129,6 +129,38 @@ int idRenderLightLocal::GetIndex()
 	return index;
 }
 
+//======================================================================
+
+RenderEnvprobeLocal::RenderEnvprobeLocal()
+{
+	memset( &parms, 0, sizeof( parms ) );
+	
+	envprobeHasMoved		= false;
+	world					= NULL;
+	index					= 0;
+	areaNum					= 0;
+	lastModifiedFrameNum	= 0;
+	archived				= false;
+	references				= NULL;
+}
+
+void RenderEnvprobeLocal::FreeRenderEnvprobe()
+{
+}
+void RenderEnvprobeLocal::UpdateRenderEnvprobe( const renderEnvironmentProbe_t* ep, bool forceUpdate )
+{
+}
+void RenderEnvprobeLocal::GetRenderEnvprobe( renderEnvironmentProbe_t* ep )
+{
+}
+void RenderEnvprobeLocal::ForceUpdate()
+{
+}
+int RenderEnvprobeLocal::GetIndex()
+{
+	return index;
+}
+
 
 void idRenderEntityLocal::ReadFromDemoFile( class idDemoFile* f )
 {
