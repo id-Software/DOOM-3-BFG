@@ -32,11 +32,12 @@ uniform float4 rpUser0 : register(c128); //rpFraction
 uniform float4 rpUser1 : register(c129); //rpTargetHue
 
 struct VS_IN {
-	float4 position : POSITION;
-	float2 texcoord : TEXCOORD0;
-	float4 normal : NORMAL;
-	float4 tangent : TANGENT;
-	float4 color : COLOR0;
+    float4 position : POSITION;
+    float2 texcoord : TEXCOORD0;
+    float4 normal : NORMAL;
+    float4 tangent : TANGENT;
+    float4 color : COLOR0;
+    float4 color2 : COLOR1;
 };
 
 struct VS_OUT {
