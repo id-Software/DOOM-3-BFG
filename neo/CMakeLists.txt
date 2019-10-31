@@ -27,6 +27,9 @@ option(BINKDEC
 option(USE_VULKAN
 		"Use Vulkan instead of OpenGL" OFF)
 
+option(SPIRV_SHADERC
+		"Compile SPIR-V shader byte code using shaderc instead of using Glslang directly" OFF)
+
 option(ONATIVE
 		"Optimize for the host CPU" OFF)
 		
@@ -293,22 +296,34 @@ if(USE_VULKAN)
 	endif()
 	
 	add_definitions(-DUSE_VULKAN)
-	include_directories($ENV{VK_SDK_PATH}/Include)
+	include_directories($ENV{VULKAN_SDK}/Include)
 	
-	# override Glslang build options
-	SET_OPTION(ENABLE_SPVREMAPPER OFF)
-	SET_OPTION(ENABLE_GLSLANG_BINARIES OFF)
-	SET_OPTION(ENABLE_HLSL OFF)
-	#SET_OPTION(ENABLE_OPT OFF)
+	if(SPIRV_SHADERC)
+		add_definitions(-DSPIRV_SHADERC)
+
+		if(CMAKE_CL_64)
+			link_directories($ENV{VULKAN_SDK}/Lib)
+		else()
+			link_directories($ENV{VULKAN_SDK}/Lib32)
+		endif()
+
+	else()
+		# override Glslang build options
+		SET_OPTION(ENABLE_SPVREMAPPER OFF)
+		SET_OPTION(ENABLE_GLSLANG_BINARIES OFF)
+		SET_OPTION(ENABLE_HLSL OFF)
+		SET_OPTION(ENABLE_OPT ON)
+		SET_OPTION(SPIRV_SKIP_EXECUTABLES ON)
 	
-	#option(ENABLE_AMD_EXTENSIONS "Enables support of AMD-specific extensions" ON)
-	#option(ENABLE_NV_EXTENSIONS "Enables support of Nvidia-specific extensions" ON)
-	#option(ENABLE_OPT "Enables spirv-opt capability if present" ON)
+		#option(ENABLE_AMD_EXTENSIONS "Enables support of AMD-specific extensions" ON)
+		#option(ENABLE_NV_EXTENSIONS "Enables support of Nvidia-specific extensions" ON)
+		#option(ENABLE_OPT "Enables spirv-opt capability if present" ON)
 	
-	set(GLSLANG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs/glslang)
-	add_subdirectory(${GLSLANG_DIR})
+		set(GLSLANG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs/glslang)
+		add_subdirectory(${GLSLANG_DIR})
 	
-	include_directories(${GLSLANG_DIR}/glslang)
+		include_directories(${GLSLANG_DIR}/glslang)
+	endif()
 
 else()
 
@@ -1309,12 +1324,16 @@ if(MSVC)
 		
 		set(Vulkan_LIBRARIES
 			${Vulkan_LIBRARY}
-			glslang
-			SPIRV
 			)
-			
-		if(ENABLE_GLSLANG_BINARIES)
-			list(APPEND Vulkan_LIBRARIES glslang-default-resource-limits)
+
+		if(SPIRV_SHADERC)
+			list(APPEND Vulkan_LIBRARIES shaderc_combined)
+		else()
+			list(APPEND Vulkan_LIBRARIES glslang SPIRV)
+
+			if(ENABLE_GLSLANG_BINARIES)
+				list(APPEND Vulkan_LIBRARIES glslang-default-resource-limits)
+			endif()
 		endif()
 		
 	else()

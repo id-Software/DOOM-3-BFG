@@ -337,9 +337,64 @@ void idRenderProgManager::LoadShader( int index, rpStage_t stage )
 CompileGLSLtoSPIRV
 ================================================================================================
 */
-#define USE_GLSLANG 1
 
-#if defined(USE_GLSLANG)
+
+#if defined(SPIRV_SHADERC)
+
+#include <shaderc/shaderc.hpp>
+
+static int CompileGLSLtoSPIRV( const char* filename, const idStr& dataGLSL, const rpStage_t stage, uint32** spirvBuffer )
+{
+	shaderc::Compiler compiler;
+	shaderc::CompileOptions options;
+	
+	// Like -DMY_DEFINE=1
+	//options.AddMacroDefinition("MY_DEFINE", "1");
+	
+	//if (optimize)
+	{
+		options.SetOptimizationLevel( shaderc_optimization_level_size );
+	}
+	
+	shaderc_shader_kind shaderKind;
+	if( stage == SHADER_STAGE_VERTEX )
+	{
+		shaderKind = shaderc_glsl_vertex_shader;
+	}
+	else if( stage == SHADER_STAGE_COMPUTE )
+	{
+		shaderKind = shaderc_glsl_compute_shader;
+	}
+	else
+	{
+		shaderKind = shaderc_glsl_fragment_shader;
+	}
+	
+	std::string source = dataGLSL.c_str();
+	
+	shaderc::SpvCompilationResult module = compiler.CompileGlslToSpv( source, shaderKind, filename, options );
+	
+	if( module.GetCompilationStatus() != shaderc_compilation_status_success )
+	{
+		idLib::Printf( "Comping GLSL to SPIR-V using shaderc failed for: %s\n", filename );
+		idLib::Printf( "%s\n", module.GetErrorMessage().c_str() );
+		return 0;
+	}
+	
+	std::vector<uint32_t> spirV = { module.cbegin(), module.cend() };
+	
+	// copy to spirvBuffer
+	int32 spirvLen = spirV.size() * sizeof( uint32_t );
+	
+	void* buffer = Mem_Alloc( spirvLen, TAG_RENDERPROG );
+	memcpy( buffer, spirV.data(), spirvLen );
+	
+	*spirvBuffer = ( uint32_t* ) buffer;
+	return spirvLen;
+	
+	
+}
+#else
 
 #include <glslang/public/ShaderLang.h>
 #include <glslang/Include/ResourceLimits.h>
