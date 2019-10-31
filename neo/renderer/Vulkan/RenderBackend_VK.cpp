@@ -2356,3 +2356,34 @@ void Framebuffer::CheckFramebuffers()
 {
 	// TODO
 }
+
+/*
+==============================================================================================
+
+IMGUI RENDERING
+
+==============================================================================================
+*/
+#include "../../libs/imgui/imgui.h"
+
+void idRenderBackend::ImGui_Init()
+{
+	// TODO
+}
+
+void idRenderBackend::ImGui_Shutdown()
+{
+	// TODO
+	
+	//ImGui::GetIO().Fonts->TexID = 0;
+}
+
+// This is the main rendering function that you have to implement and provide to ImGui (via setting up 'RenderDrawListsFn' in the ImGuiIO structure)
+// If text or lines are blurry when integrating ImGui in your engine:
+// - in your Render function, try translating your projection matrix by (0.5f,0.5f) or (0.375f,0.375f)
+void idRenderBackend::ImGui_RenderDrawLists( ImDrawData* draw_data )
+{
+	// TODO
+	
+	renderProgManager.Unbind();
+}

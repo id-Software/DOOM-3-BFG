@@ -394,7 +394,12 @@ public:
 			ActuallyLoadImage( true );
 		}
 		
+#if defined( USE_VULKAN )
+		return ( void* )( intptr_t )image;
+#else
 		return ( void* )( intptr_t )texnum;
+#endif
+		
 	}
 	// DG end
 	
