@@ -1302,7 +1302,7 @@ static VkPipeline CreateGraphicsPipeline(
 	dynamic.Append( VK_DYNAMIC_STATE_SCISSOR );
 	dynamic.Append( VK_DYNAMIC_STATE_VIEWPORT );
 	
-	if( stateBits & GLS_POLYGON_OFFSET )
+	//if( stateBits & GLS_POLYGON_OFFSET )
 	{
 		dynamic.Append( VK_DYNAMIC_STATE_DEPTH_BIAS );
 	}
