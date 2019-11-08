@@ -36,6 +36,7 @@ enum vulkanMemoryUsage_t
 	VULKAN_MEMORY_USAGE_CPU_ONLY,
 	VULKAN_MEMORY_USAGE_CPU_TO_GPU,
 	VULKAN_MEMORY_USAGE_GPU_TO_CPU,
+	VULKAN_MEMORY_USAGES,
 };
 
 enum vulkanAllocationType_t
@@ -44,7 +45,8 @@ enum vulkanAllocationType_t
 	VULKAN_ALLOCATION_TYPE_BUFFER,
 	VULKAN_ALLOCATION_TYPE_IMAGE,
 	VULKAN_ALLOCATION_TYPE_IMAGE_LINEAR,
-	VULKAN_ALLOCATION_TYPE_IMAGE_OPTIMAL
+	VULKAN_ALLOCATION_TYPE_IMAGE_OPTIMAL,
+	VULKAN_ALLOCATION_TYPES,
 };
 
 uint32 FindMemoryTypeIndex( const uint32 memoryTypeBits, const vulkanMemoryUsage_t usage );
@@ -101,13 +103,14 @@ public:
 		vulkanAllocation_t& allocation );
 	void				Free( vulkanAllocation_t& allocation );
 	
+	void				Print();
+	
 private:
 	struct chunk_t
 	{
 		uint32					id;
 		VkDeviceSize			size;
 		VkDeviceSize			offset;
-		vulkanMemoryUsage_t		usage;
 		chunk_t* 				prev;
 		chunk_t* 				next;
 		vulkanAllocationType_t	type;
@@ -122,6 +125,8 @@ private:
 	VkDeviceSize		allocated;
 	byte* 				data;
 };
+
+typedef idArray< idList< idVulkanBlock* >, VK_MAX_MEMORY_TYPES > idVulkanBlocks;
 
 /*
 ================================================================================================
@@ -148,14 +153,16 @@ public:
 	void					Free( const vulkanAllocation_t allocation );
 	void					EmptyGarbage();
 	
+	void					Print();
+	
 private:
 	int							garbageIndex;
 	
-	int							deviceLocalMemoryMB;
-	int							hostVisibleMemoryMB;
+	int							deviceLocalMemoryBytes;
+	int							hostVisibleMemoryBytes;
 	VkDeviceSize				bufferImageGranularity;
 	
-	idArray< idList< idVulkanBlock* >, VK_MAX_MEMORY_TYPES > blocks;
+	idVulkanBlocks				blocks;
 	idList<vulkanAllocation_t>	garbage[ NUM_FRAME_DATA ];
 };
 
