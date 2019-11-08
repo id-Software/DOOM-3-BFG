@@ -93,6 +93,7 @@ static const uint64 GLS_STENCIL_FUNC_MASK_BITS			= 0xFFll << GLS_STENCIL_FUNC_MA
 #define GLS_STENCIL_MAKE_REF( x ) ( ( (uint64)(x) << GLS_STENCIL_FUNC_REF_SHIFT ) & GLS_STENCIL_FUNC_REF_BITS )
 #define GLS_STENCIL_MAKE_MASK( x ) ( ( (uint64)(x) << GLS_STENCIL_FUNC_MASK_SHIFT ) & GLS_STENCIL_FUNC_MASK_BITS )
 
+// Next 12 bits act as front+back unless GLS_SEPARATE_STENCIL is set, in which case it acts as front.
 static const uint64 GLS_STENCIL_FUNC_ALWAYS				= 0ull << 36;
 static const uint64 GLS_STENCIL_FUNC_LESS				= 1ull << 36;
 static const uint64 GLS_STENCIL_FUNC_LEQUAL				= 2ull << 36;
@@ -133,23 +134,55 @@ static const uint64 GLS_STENCIL_OP_PASS_INCR_WRAP		= 6ull << 45;
 static const uint64 GLS_STENCIL_OP_PASS_DECR_WRAP		= 7ull << 45;
 static const uint64 GLS_STENCIL_OP_PASS_BITS			= 7ull << 45;
 
-static const uint64 GLS_ALPHATEST_FUNC_REF_SHIFT		= 48;
-static const uint64 GLS_ALPHATEST_FUNC_REF_BITS			= 0xFFll << GLS_ALPHATEST_FUNC_REF_SHIFT;
-#define GLS_ALPHATEST_MAKE_REF( x ) ( ( (uint64)(x) << GLS_ALPHATEST_FUNC_REF_SHIFT ) & GLS_ALPHATEST_FUNC_REF_BITS )
+// Next 12 bits act as back and are only active when GLS_SEPARATE_STENCIL is set.
+static const uint64 GLS_BACK_STENCIL_FUNC_ALWAYS		= 0ull << 48;
+static const uint64 GLS_BACK_STENCIL_FUNC_LESS			= 1ull << 48;
+static const uint64 GLS_BACK_STENCIL_FUNC_LEQUAL		= 2ull << 48;
+static const uint64 GLS_BACK_STENCIL_FUNC_GREATER		= 3ull << 48;
+static const uint64 GLS_BACK_STENCIL_FUNC_GEQUAL		= 4ull << 48;
+static const uint64 GLS_BACK_STENCIL_FUNC_EQUAL			= 5ull << 48;
+static const uint64 GLS_BACK_STENCIL_FUNC_NOTEQUAL		= 6ull << 48;
+static const uint64 GLS_BACK_STENCIL_FUNC_NEVER			= 7ull << 48;
+static const uint64 GLS_BACK_STENCIL_FUNC_BITS			= 7ull << 48;
 
-static const uint64 GLS_ALPHATEST_FUNC_ALWAYS			= 0ull << 56;
-static const uint64 GLS_ALPHATEST_FUNC_LESS				= 1ull << 56;
-static const uint64 GLS_ALPHATEST_FUNC_GREATER			= 2ull << 56;
-static const uint64 GLS_ALPHATEST_FUNC_EQUAL			= 3ull << 56;
-static const uint64 GLS_ALPHATEST_FUNC_BITS				= 3ull << 56;
+static const uint64 GLS_BACK_STENCIL_OP_FAIL_KEEP		= 0ull << 51;
+static const uint64 GLS_BACK_STENCIL_OP_FAIL_ZERO		= 1ull << 51;
+static const uint64 GLS_BACK_STENCIL_OP_FAIL_REPLACE	= 2ull << 51;
+static const uint64 GLS_BACK_STENCIL_OP_FAIL_INCR		= 3ull << 51;
+static const uint64 GLS_BACK_STENCIL_OP_FAIL_DECR		= 4ull << 51;
+static const uint64 GLS_BACK_STENCIL_OP_FAIL_INVERT		= 5ull << 51;
+static const uint64 GLS_BACK_STENCIL_OP_FAIL_INCR_WRAP	= 6ull << 51;
+static const uint64 GLS_BACK_STENCIL_OP_FAIL_DECR_WRAP	= 7ull << 51;
+static const uint64 GLS_BACK_STENCIL_OP_FAIL_BITS		= 7ull << 51;
 
-static const uint64 GLS_STENCIL_OP_BITS					= GLS_STENCIL_OP_FAIL_BITS | GLS_STENCIL_OP_ZFAIL_BITS | GLS_STENCIL_OP_PASS_BITS;
+static const uint64 GLS_BACK_STENCIL_OP_ZFAIL_KEEP		= 0ull << 54;
+static const uint64 GLS_BACK_STENCIL_OP_ZFAIL_ZERO		= 1ull << 54;
+static const uint64 GLS_BACK_STENCIL_OP_ZFAIL_REPLACE	= 2ull << 54;
+static const uint64 GLS_BACK_STENCIL_OP_ZFAIL_INCR		= 3ull << 54;
+static const uint64 GLS_BACK_STENCIL_OP_ZFAIL_DECR		= 4ull << 54;
+static const uint64 GLS_BACK_STENCIL_OP_ZFAIL_INVERT	= 5ull << 54;
+static const uint64 GLS_BACK_STENCIL_OP_ZFAIL_INCR_WRAP	= 6ull << 54;
+static const uint64 GLS_BACK_STENCIL_OP_ZFAIL_DECR_WRAP	= 7ull << 54;
+static const uint64 GLS_BACK_STENCIL_OP_ZFAIL_BITS		= 7ull << 54;
 
-static const uint64 GLS_DEPTH_TEST_MASK					= 1ull << 58;
-static const uint64 GLS_CLOCKWISE						= 1ull << 59;
-static const uint64 GLS_SEPARATE_STENCIL				= 1ull << 60;
-static const uint64 GLS_MIRROR_VIEW						= 1ull << 61;
+static const uint64 GLS_BACK_STENCIL_OP_PASS_KEEP		= 0ull << 57;
+static const uint64 GLS_BACK_STENCIL_OP_PASS_ZERO		= 1ull << 57;
+static const uint64 GLS_BACK_STENCIL_OP_PASS_REPLACE	= 2ull << 57;
+static const uint64 GLS_BACK_STENCIL_OP_PASS_INCR		= 3ull << 57;
+static const uint64 GLS_BACK_STENCIL_OP_PASS_DECR		= 4ull << 57;
+static const uint64 GLS_BACK_STENCIL_OP_PASS_INVERT		= 5ull << 57;
+static const uint64 GLS_BACK_STENCIL_OP_PASS_INCR_WRAP	= 6ull << 57;
+static const uint64 GLS_BACK_STENCIL_OP_PASS_DECR_WRAP	= 7ull << 57;
+static const uint64 GLS_BACK_STENCIL_OP_PASS_BITS		= 7ull << 57;
 
+static const uint64 GLS_SEPARATE_STENCIL				= GLS_BACK_STENCIL_OP_FAIL_BITS | GLS_BACK_STENCIL_OP_ZFAIL_BITS | GLS_BACK_STENCIL_OP_PASS_BITS;
+static const uint64 GLS_STENCIL_OP_BITS					= GLS_STENCIL_OP_FAIL_BITS | GLS_STENCIL_OP_ZFAIL_BITS | GLS_STENCIL_OP_PASS_BITS | GLS_SEPARATE_STENCIL;
+static const uint64 GLS_STENCIL_FRONT_OPS				= GLS_STENCIL_OP_FAIL_BITS | GLS_STENCIL_OP_ZFAIL_BITS | GLS_STENCIL_OP_PASS_BITS;
+static const uint64 GLS_STENCIL_BACK_OPS				= GLS_SEPARATE_STENCIL;
+
+static const uint64 GLS_DEPTH_TEST_MASK					= 1ull << 60;
+static const uint64 GLS_CLOCKWISE						= 1ull << 61;
+static const uint64 GLS_MIRROR_VIEW						= 1ull << 62;
 static const uint64 GLS_OVERRIDE						= 1ull << 63;		// override the render prog state
 
 static const uint64 GLS_KEEP							= GLS_DEPTH_TEST_MASK;

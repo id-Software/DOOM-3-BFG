@@ -2544,26 +2544,6 @@ void idRenderBackend::StencilShadowPass( const drawSurf_t* drawSurfs, const view
 		
 		const bool renderZPass = ( drawSurf->renderZFail == 0 ) || r_forceZPassStencilShadows.GetBool();
 		
-		
-#if !defined(USE_VULKAN)
-		if( renderZPass )
-		{
-			// Z-pass
-			glStencilOpSeparate( GL_FRONT, GL_KEEP, GL_KEEP, GL_INCR );
-			glStencilOpSeparate( GL_BACK, GL_KEEP, GL_KEEP, GL_DECR );
-		}
-		else if( r_useStencilShadowPreload.GetBool() )
-		{
-			// preload + Z-pass
-			glStencilOpSeparate( GL_FRONT, GL_KEEP, GL_DECR, GL_DECR );
-			glStencilOpSeparate( GL_BACK, GL_KEEP, GL_INCR, GL_INCR );
-		}
-		else
-		{
-			// Z-fail
-		}
-#endif
-		
 		DrawStencilShadowPass( drawSurf, renderZPass );
 	}
 	

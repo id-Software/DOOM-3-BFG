@@ -805,12 +805,10 @@ private:
 				stateBits( 0 ),
 				pipeline( VK_NULL_HANDLE )
 			{
-				memset( stencilOperations, 0xFF, sizeof( stencilOperations ) );
 			}
 			
 			uint64		stateBits;
 			VkPipeline	pipeline;
-			uint64		stencilOperations[ 2 ];
 		};
 		
 		VkPipeline GetPipeline( uint64 stateBits, VkShaderModule vertexShader, VkShaderModule fragmentShader );

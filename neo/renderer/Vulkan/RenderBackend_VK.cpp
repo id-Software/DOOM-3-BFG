@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013-2018 Robert Beckebans
+Copyright (C) 2013-2019 Robert Beckebans
 Copyright (C) 2016-2017 Dustin Land
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
@@ -116,9 +116,6 @@ const char* VK_ErrorToString( VkResult result )
 	};
 }
 
-
-
-
 /*
 =========================================================================================================
 
@@ -127,6 +124,11 @@ DEBUGGING AND VALIDATION
 =========================================================================================================
 */
 
+/*
+=============
+DebugCallback
+=============
+*/
 VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback( VkDebugReportFlagsEXT msgFlags, VkDebugReportObjectTypeEXT objType, uint64_t srcObject,
 		size_t location, int32_t msgCode, const char* layerPrefix, const char* msg,
 		void* userData )
@@ -1190,7 +1192,6 @@ static void ClearContext()
 	vkcontext.frameCounter = 0;
 	vkcontext.frameParity = 0;
 	vkcontext.jointCacheHandle = 0;
-	memset( vkcontext.stencilOperations, 0, sizeof( vkcontext.stencilOperations ) );
 	vkcontext.instance = VK_NULL_HANDLE;
 	vkcontext.physicalDevice = VK_NULL_HANDLE;
 	vkcontext.device = VK_NULL_HANDLE;
@@ -1302,7 +1303,7 @@ void idRenderBackend::Init()
 	// Create Command Buffer
 	CreateCommandBuffer();
 	
-	// setup the allocator
+	// Setup the allocator
 #if defined( USE_AMD_ALLOCATOR )
 	extern idCVar r_vkHostVisibleMemoryMB;
 	extern idCVar r_vkDeviceLocalMemoryMB;
@@ -1336,10 +1337,10 @@ void idRenderBackend::Init()
 	// Create Frame Buffers
 	CreateFrameBuffers();
 	
-	// init RenderProg Manager
+	// Init RenderProg Manager
 	renderProgManager.Init();
 	
-	// init Vertex Cache
+	// Init Vertex Cache
 	vertexCache.Init( vkcontext.gpu->props.limits.minUniformBufferOffsetAlignment );
 }
 
@@ -1402,7 +1403,7 @@ void idRenderBackend::Shutdown()
 		DestroyDebugReportCallback();
 	}
 	
-	// dump all our memory
+	// Dump all our memory
 #if defined( USE_AMD_ALLOCATOR )
 	vmaDestroyAllocator( vmaAllocator );
 #else
@@ -1431,6 +1432,76 @@ bool GL_CheckErrors_( const char* filename, int line )
 {
 	return false;
 }
+
+/*
+====================
+idRenderBackend::ResizeImages
+====================
+*/
+void idRenderBackend::ResizeImages()
+{
+	if( vkcontext.swapchainExtent.width == glConfig.nativeScreenWidth &&
+			vkcontext.swapchainExtent.height == glConfig.nativeScreenHeight &&
+			vkcontext.fullscreen == glConfig.isFullscreen )
+	{
+		return;
+	}
+	
+	stagingManager.Flush();
+	
+	vkDeviceWaitIdle( vkcontext.device );
+	
+	idImage::EmptyGarbage();
+	
+	// Destroy Frame Buffers
+	DestroyFrameBuffers();
+	
+	// Destroy Render Targets
+	DestroyRenderTargets();
+	
+	// Destroy Current Swap Chain
+	DestroySwapChain();
+	
+	// Destroy Current Surface
+	vkDestroySurfaceKHR( vkcontext.instance, vkcontext.surface, NULL );
+	
+#if !defined( USE_AMD_ALLOCATOR )
+	vulkanAllocator.EmptyGarbage();
+#endif
+	
+	// Create New Surface
+	CreateSurface();
+	
+	// Refresh Surface Capabilities
+	ID_VK_CHECK( vkGetPhysicalDeviceSurfaceCapabilitiesKHR( vkcontext.physicalDevice, vkcontext.surface, &vkcontext.gpu->surfaceCaps ) );
+	
+	// Recheck presentation support
+	VkBool32 supportsPresent = VK_FALSE;
+	ID_VK_CHECK( vkGetPhysicalDeviceSurfaceSupportKHR( vkcontext.physicalDevice, vkcontext.presentFamilyIdx, vkcontext.surface, &supportsPresent ) );
+	if( supportsPresent == VK_FALSE )
+	{
+		idLib::FatalError( "idRenderBackend::ResizeImages: New surface does not support present?" );
+	}
+	
+	// Create New Swap Chain
+	CreateSwapChain();
+	
+	// Create New Render Targets
+	CreateRenderTargets();
+	
+	// Create New Frame Buffers
+	CreateFrameBuffers();
+}
+
+
+/*
+=========================================================================================================
+
+BACKEND COMMANDS
+
+=========================================================================================================
+*/
+
 
 /*
 =============
@@ -1567,68 +1638,6 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 	pc.c_drawElements++;
 	pc.c_drawIndexes += surf->numIndexes;
 }
-
-
-/*
-====================
-idRenderBackend::ResizeImages
-====================
-*/
-void idRenderBackend::ResizeImages()
-{
-	if( vkcontext.swapchainExtent.width == glConfig.nativeScreenWidth &&
-			vkcontext.swapchainExtent.height == glConfig.nativeScreenHeight &&
-			vkcontext.fullscreen == glConfig.isFullscreen )
-	{
-		return;
-	}
-	
-	stagingManager.Flush();
-	
-	vkDeviceWaitIdle( vkcontext.device );
-	
-	idImage::EmptyGarbage();
-	
-	// Destroy Frame Buffers
-	DestroyFrameBuffers();
-	
-	// Destroy Render Targets
-	DestroyRenderTargets();
-	
-	// Destroy Current Swap Chain
-	DestroySwapChain();
-	
-	// Destroy Current Surface
-	vkDestroySurfaceKHR( vkcontext.instance, vkcontext.surface, NULL );
-	
-#if !defined( USE_AMD_ALLOCATOR )
-	vulkanAllocator.EmptyGarbage();
-#endif
-	
-	// Create New Surface
-	CreateSurface();
-	
-	// Refresh Surface Capabilities
-	ID_VK_CHECK( vkGetPhysicalDeviceSurfaceCapabilitiesKHR( vkcontext.physicalDevice, vkcontext.surface, &vkcontext.gpu->surfaceCaps ) );
-	
-	// Recheck presentation support
-	VkBool32 supportsPresent = VK_FALSE;
-	ID_VK_CHECK( vkGetPhysicalDeviceSurfaceSupportKHR( vkcontext.physicalDevice, vkcontext.presentFamilyIdx, vkcontext.surface, &supportsPresent ) );
-	if( supportsPresent == VK_FALSE )
-	{
-		idLib::FatalError( "idRenderBackend::ResizeImages: New surface does not support present?" );
-	}
-	
-	// Create New Swap Chain
-	CreateSwapChain();
-	
-	// Create New Render Targets
-	CreateRenderTargets();
-	
-	// Create New Frame Buffers
-	CreateFrameBuffers();
-}
-
 
 /*
 =========================================================================================================
@@ -2286,9 +2295,6 @@ void idRenderBackend::StereoRenderExecuteBackEndCommands( const emptyCommand_t* 
 	// RB: TODO ?
 }
 
-
-
-
 /*
 ==============================================================================================
 
@@ -2302,8 +2308,106 @@ STENCIL SHADOW RENDERING
 idRenderBackend::DrawStencilShadowPass
 =====================
 */
+extern idCVar r_useStencilShadowPreload;
+
 void idRenderBackend::DrawStencilShadowPass( const drawSurf_t* drawSurf, const bool renderZPass )
 {
+	if( renderZPass )
+	{
+		// Z-pass
+		uint64 stencil = GLS_STENCIL_OP_FAIL_KEEP | GLS_STENCIL_OP_ZFAIL_KEEP | GLS_STENCIL_OP_PASS_INCR
+						 | GLS_BACK_STENCIL_OP_FAIL_KEEP | GLS_BACK_STENCIL_OP_ZFAIL_KEEP | GLS_BACK_STENCIL_OP_PASS_DECR;
+						 
+		GL_State( ( glStateBits & ~GLS_STENCIL_OP_BITS ) | stencil );
+	}
+	else if( r_useStencilShadowPreload.GetBool() )
+	{
+		// preload + Z-pass
+		uint64 stencil = GLS_STENCIL_OP_FAIL_KEEP | GLS_STENCIL_OP_ZFAIL_DECR | GLS_STENCIL_OP_PASS_DECR
+						 | GLS_BACK_STENCIL_OP_FAIL_KEEP | GLS_BACK_STENCIL_OP_ZFAIL_INCR | GLS_BACK_STENCIL_OP_PASS_INCR;
+						 
+		GL_State( ( glStateBits & ~GLS_STENCIL_OP_BITS ) | stencil );
+	}
+	else
+	{
+		// Z-fail
+	}
+	
+	// get vertex buffer
+	const vertCacheHandle_t vbHandle = drawSurf->shadowCache;
+	idVertexBuffer* vertexBuffer;
+	if( vertexCache.CacheIsStatic( vbHandle ) )
+	{
+		vertexBuffer = &vertexCache.staticData.vertexBuffer;
+	}
+	else
+	{
+		const uint64 frameNum = ( int )( vbHandle >> VERTCACHE_FRAME_SHIFT ) & VERTCACHE_FRAME_MASK;
+		if( frameNum != ( ( vertexCache.currentFrame - 1 ) & VERTCACHE_FRAME_MASK ) )
+		{
+			idLib::Warning( "RB_DrawElementsWithCounters, vertexBuffer == NULL" );
+			return;
+		}
+		vertexBuffer = &vertexCache.frameData[ vertexCache.drawListNum ].vertexBuffer;
+	}
+	const int vertOffset = ( int )( vbHandle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
+	
+	// get index buffer
+	const vertCacheHandle_t ibHandle = drawSurf->indexCache;
+	idIndexBuffer* indexBuffer;
+	if( vertexCache.CacheIsStatic( ibHandle ) )
+	{
+		indexBuffer = &vertexCache.staticData.indexBuffer;
+	}
+	else
+	{
+		const uint64 frameNum = ( int )( ibHandle >> VERTCACHE_FRAME_SHIFT ) & VERTCACHE_FRAME_MASK;
+		if( frameNum != ( ( vertexCache.currentFrame - 1 ) & VERTCACHE_FRAME_MASK ) )
+		{
+			idLib::Warning( "RB_DrawElementsWithCounters, indexBuffer == NULL" );
+			return;
+		}
+		indexBuffer = &vertexCache.frameData[ vertexCache.drawListNum ].indexBuffer;
+	}
+	int indexOffset = ( int )( ibHandle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
+	
+	RENDERLOG_PRINTF( "Binding Buffers(%d): %p:%i %p:%i\n", drawSurf->numIndexes, vertexBuffer, vertOffset, indexBuffer, indexOffset );
+	
+	vkcontext.jointCacheHandle = drawSurf->jointCache;
+	
+	VkCommandBuffer commandBuffer = vkcontext.commandBuffer[ vkcontext.frameParity ];
+	
+	//PrintState( glStateBits, vkcontext.stencilOperations );
+	renderProgManager.CommitUniforms( glStateBits );
+	
+	{
+		const VkBuffer buffer = indexBuffer->GetAPIObject();
+		const VkDeviceSize offset = indexBuffer->GetOffset();
+		vkCmdBindIndexBuffer( commandBuffer, buffer, offset, VK_INDEX_TYPE_UINT16 );
+	}
+	{
+		const VkBuffer buffer = vertexBuffer->GetAPIObject();
+		const VkDeviceSize offset = vertexBuffer->GetOffset();
+		vkCmdBindVertexBuffers( commandBuffer, 0, 1, &buffer, &offset );
+	}
+	
+	const int baseVertex = vertOffset / ( drawSurf->jointCache ? sizeof( idShadowVertSkinned ) : sizeof( idShadowVert ) );
+	
+	vkCmdDrawIndexed( commandBuffer, drawSurf->numIndexes, 1, ( indexOffset >> 1 ), baseVertex, 0 );
+	
+	if( !renderZPass && r_useStencilShadowPreload.GetBool() )
+	{
+		// render again with Z-pass
+		uint64 stencil = GLS_STENCIL_OP_FAIL_KEEP | GLS_STENCIL_OP_ZFAIL_KEEP | GLS_STENCIL_OP_PASS_INCR
+						 | GLS_BACK_STENCIL_OP_FAIL_KEEP | GLS_BACK_STENCIL_OP_ZFAIL_KEEP | GLS_BACK_STENCIL_OP_PASS_DECR;
+						 
+		GL_State( ( glStateBits & ~GLS_STENCIL_OP_BITS ) | stencil );
+		
+		//PrintState( glStateBits, vkcontext.stencilOperations );
+		renderProgManager.CommitUniforms( glStateBits );
+		
+		vkCmdDrawIndexed( commandBuffer, drawSurf->numIndexes, 1, ( indexOffset >> 1 ), baseVertex, 0 );
+	}
 }
 
 

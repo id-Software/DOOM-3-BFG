@@ -35,7 +35,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../RenderProgs.h"
 
 
-void RpPrintState( uint64 stateBits, uint64* stencilBits );
+void RpPrintState( uint64 stateBits );
 
 struct vertexLayout_t
 {
@@ -197,7 +197,6 @@ void CreateDescriptorPools( VkDescriptorPool( &pools )[ NUM_FRAME_DATA ] )
 		ID_VK_CHECK( vkCreateDescriptorPool( vkcontext.device, &poolCreateInfo, NULL, &pools[ i ] ) );
 	}
 }
-
 
 /*
 ========================
@@ -1245,13 +1244,13 @@ static VkPipeline CreateGraphicsPipeline(
 		
 		if( stateBits & GLS_SEPARATE_STENCIL )
 		{
-			depthStencilState.front = GetStencilOpState( vkcontext.stencilOperations[ STENCIL_FACE_FRONT ] );
+			depthStencilState.front = GetStencilOpState( stateBits & GLS_STENCIL_FRONT_OPS );
 			depthStencilState.front.writeMask = 0xFFFFFFFF;
 			depthStencilState.front.compareOp = stencilCompareOp;
 			depthStencilState.front.compareMask = mask;
 			depthStencilState.front.reference = ref;
 			
-			depthStencilState.back = GetStencilOpState( vkcontext.stencilOperations[ STENCIL_FACE_BACK ] );
+			depthStencilState.back = GetStencilOpState( ( stateBits & GLS_STENCIL_BACK_OPS ) >> 12 );
 			depthStencilState.back.writeMask = 0xFFFFFFFF;
 			depthStencilState.back.compareOp = stencilCompareOp;
 			depthStencilState.back.compareMask = mask;
@@ -1307,7 +1306,7 @@ static VkPipeline CreateGraphicsPipeline(
 		dynamic.Append( VK_DYNAMIC_STATE_DEPTH_BIAS );
 	}
 	
-	if( stateBits & GLS_DEPTH_TEST_MASK )
+	//if( stateBits & GLS_DEPTH_TEST_MASK )
 	{
 		dynamic.Append( VK_DYNAMIC_STATE_DEPTH_BOUNDS );
 	}
@@ -1355,26 +1354,10 @@ VkPipeline idRenderProgManager::renderProg_t::GetPipeline( uint64 stateBits, VkS
 {
 	for( int i = 0; i < pipelines.Num(); ++i )
 	{
-		pipelineState_t& pipelineState = pipelines[ i ];
-		if( stateBits != pipelineState.stateBits )
+		if( stateBits == pipelines[ i ].stateBits )
 		{
-			continue;
+			return pipelines[ i ].pipeline;
 		}
-		
-		if( stateBits & GLS_SEPARATE_STENCIL )
-		{
-			if( vkcontext.stencilOperations[ STENCIL_FACE_FRONT ] != pipelineState.stencilOperations[ STENCIL_FACE_FRONT ] )
-			{
-				continue;
-			}
-			
-			if( vkcontext.stencilOperations[ STENCIL_FACE_BACK ] != pipelineState.stencilOperations[ STENCIL_FACE_BACK ] )
-			{
-				continue;
-			}
-		}
-		
-		return pipelineState.pipeline;
 	}
 	
 	VkPipeline pipeline = CreateGraphicsPipeline( vertexLayout, vertexShader, fragmentShader, pipelineLayout, stateBits );
@@ -1382,12 +1365,6 @@ VkPipeline idRenderProgManager::renderProg_t::GetPipeline( uint64 stateBits, VkS
 	pipelineState_t pipelineState;
 	pipelineState.pipeline = pipeline;
 	pipelineState.stateBits = stateBits;
-	
-	if( stateBits & GLS_SEPARATE_STENCIL )
-	{
-		memcpy( pipelineState.stencilOperations, vkcontext.stencilOperations, sizeof( pipelineState.stencilOperations ) );
-	}
-	
 	pipelines.Append( pipelineState );
 	
 	return pipeline;
@@ -1594,7 +1571,7 @@ void idRenderProgManager::PrintPipelines()
 		{
 			idLib::Printf( "%s: %llu\n", prog.name.c_str(), prog.pipelines[ j ].stateBits );
 			idLib::Printf( "------------------------------------------\n" );
-			RpPrintState( prog.pipelines[ j ].stateBits, vkcontext.stencilOperations );
+			RpPrintState( prog.pipelines[ j ].stateBits );
 			idLib::Printf( "\n" );
 		}
 	}

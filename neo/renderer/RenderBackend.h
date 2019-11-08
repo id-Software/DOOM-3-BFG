@@ -150,7 +150,6 @@ struct vulkanContext_t
 	uint32							frameParity;
 	
 	vertCacheHandle_t				jointCacheHandle;
-	uint64							stencilOperations[ STENCIL_FACE_NUM ];
 	
 	VkInstance						instance;
 	
@@ -336,8 +335,8 @@ private:
 	void				GL_SetDefaultState();
 	
 	void				GL_State( uint64 stateBits, bool forceGlState = false );
-	void				GL_SeparateStencil( stencilFace_t face, uint64 stencilBits );
-	
+//	void				GL_SeparateStencil( stencilFace_t face, uint64 stencilBits );
+
 	void				GL_SelectTexture( int unit );
 //	void				GL_BindTexture( idImage* image );
 

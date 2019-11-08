@@ -1444,6 +1444,23 @@ idRenderBackend::DrawStencilShadowPass
 */
 void idRenderBackend::DrawStencilShadowPass( const drawSurf_t* drawSurf, const bool renderZPass )
 {
+	if( renderZPass )
+	{
+		// Z-pass
+		glStencilOpSeparate( GL_FRONT, GL_KEEP, GL_KEEP, GL_INCR );
+		glStencilOpSeparate( GL_BACK, GL_KEEP, GL_KEEP, GL_DECR );
+	}
+	else if( r_useStencilShadowPreload.GetBool() )
+	{
+		// preload + Z-pass
+		glStencilOpSeparate( GL_FRONT, GL_KEEP, GL_DECR, GL_DECR );
+		glStencilOpSeparate( GL_BACK, GL_KEEP, GL_INCR, GL_INCR );
+	}
+	else
+	{
+		// Z-fail
+	}
+	
 	// get vertex buffer
 	const vertCacheHandle_t vbHandle = drawSurf->shadowCache;
 	idVertexBuffer* vertexBuffer;
