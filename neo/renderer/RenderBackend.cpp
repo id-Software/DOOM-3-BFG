@@ -1425,12 +1425,24 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 	// perform setup here that will be constant for all interactions
 	if( performStencilTest )
 	{
-		GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHMASK | depthFunc | GLS_STENCIL_FUNC_EQUAL | GLS_STENCIL_MAKE_REF( STENCIL_SHADOW_TEST_VALUE ) | GLS_STENCIL_MAKE_MASK( STENCIL_SHADOW_MASK_VALUE ) );
-		
+		GL_State(
+			GLS_SRCBLEND_ONE |
+			GLS_DSTBLEND_ONE |
+			GLS_DEPTHMASK |
+			depthFunc |
+			GLS_STENCIL_FUNC_EQUAL |
+			GLS_STENCIL_MAKE_REF( STENCIL_SHADOW_TEST_VALUE ) |
+			GLS_STENCIL_MAKE_MASK( STENCIL_SHADOW_MASK_VALUE ) );
+			
 	}
 	else
 	{
-		GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHMASK | depthFunc | GLS_STENCIL_FUNC_ALWAYS );
+		GL_State(
+			GLS_SRCBLEND_ONE |
+			GLS_DSTBLEND_ONE |
+			GLS_DEPTHMASK |
+			depthFunc |
+			GLS_STENCIL_FUNC_ALWAYS );
 	}
 	
 	// some rare lights have multiple animating stages, loop over them outside the surface list
@@ -2549,7 +2561,7 @@ void idRenderBackend::StencilShadowPass( const drawSurf_t* drawSurfs, const view
 	
 	// cleanup the shadow specific rendering state
 	
-	GL_State( glStateBits & ~( GLS_CULL_MASK ) | GLS_CULL_FRONTSIDED );
+	GL_State( ( glStateBits & ~( GLS_CULL_MASK ) ) | GLS_CULL_FRONTSIDED );
 	
 	// reset depth bounds
 	if( r_useShadowDepthBounds.GetBool() )
@@ -2591,12 +2603,16 @@ void idRenderBackend::StencilSelectLight( const viewLight_t* vLight )
 	
 	// clear stencil buffer to 0 (not drawable)
 	uint64 glStateMinusStencil = GL_GetCurrentStateMinusStencil();
-	GL_State( glStateMinusStencil | GLS_STENCIL_FUNC_ALWAYS | GLS_STENCIL_MAKE_REF( STENCIL_SHADOW_TEST_VALUE ) | GLS_STENCIL_MAKE_MASK( STENCIL_SHADOW_MASK_VALUE ) );	// make sure stencil mask passes for the clear
+	GL_State(
+		glStateMinusStencil |
+		GLS_STENCIL_FUNC_ALWAYS |
+		GLS_STENCIL_MAKE_REF( STENCIL_SHADOW_TEST_VALUE ) |
+		GLS_STENCIL_MAKE_MASK( STENCIL_SHADOW_MASK_VALUE ) );	// make sure stencil mask passes for the clear
+		
 	GL_Clear( false, false, true, 0, 0.0f, 0.0f, 0.0f, 0.0f, false );	// clear to 0 for stencil select
 	
 	// set the depthbounds
 	GL_DepthBoundsTest( vLight->scissorRect.zmin, vLight->scissorRect.zmax );
-	
 	
 	GL_State(
 		GLS_COLORMASK |
@@ -2605,6 +2621,8 @@ void idRenderBackend::StencilSelectLight( const viewLight_t* vLight )
 		GLS_DEPTHMASK |
 		GLS_DEPTHFUNC_LESS |
 		GLS_STENCIL_FUNC_ALWAYS |
+		GLS_STENCIL_OP_FAIL_KEEP | GLS_STENCIL_OP_ZFAIL_REPLACE | GLS_STENCIL_OP_PASS_ZERO |
+		GLS_BACK_STENCIL_OP_FAIL_KEEP | GLS_BACK_STENCIL_OP_ZFAIL_ZERO | GLS_BACK_STENCIL_OP_PASS_REPLACE |
 		GLS_STENCIL_MAKE_REF( STENCIL_SHADOW_TEST_VALUE ) |
 		GLS_STENCIL_MAKE_MASK( STENCIL_SHADOW_MASK_VALUE ) );
 		
@@ -2624,10 +2642,9 @@ void idRenderBackend::StencilSelectLight( const viewLight_t* vLight )
 	DrawElementsWithCounters( &zeroOneCubeSurface );
 	
 	// reset stencil state
-	GL_State( glStateBits & ~( GLS_CULL_MASK ) | GLS_CULL_FRONTSIDED );
+	GL_State( ( glStateBits & ~( GLS_CULL_MASK ) ) | GLS_CULL_FRONTSIDED );
 	
 	renderProgManager.Unbind();
-	
 	
 	// unset the depthbounds
 	GL_DepthBoundsTest( 0.0f, 0.0f );
@@ -2766,17 +2783,17 @@ void idRenderBackend::ShadowMapPass( const drawSurf_t* drawSurfs, const viewLigh
 	switch( r_shadowMapOccluderFacing.GetInteger() )
 	{
 		case 0:
-			GL_State( glStateBits & ~( GLS_CULL_MASK ) | GLS_CULL_FRONTSIDED );
+			GL_State( ( glStateBits & ~( GLS_CULL_MASK ) ) | GLS_CULL_FRONTSIDED );
 			GL_PolygonOffset( r_shadowMapPolygonFactor.GetFloat(), r_shadowMapPolygonOffset.GetFloat() );
 			break;
 			
 		case 1:
-			GL_State( glStateBits & ~( GLS_CULL_MASK ) | GLS_CULL_BACKSIDED );
+			GL_State( ( glStateBits & ~( GLS_CULL_MASK ) ) | GLS_CULL_BACKSIDED );
 			GL_PolygonOffset( -r_shadowMapPolygonFactor.GetFloat(), -r_shadowMapPolygonOffset.GetFloat() );
 			break;
 			
 		default:
-			GL_State( glStateBits & ~( GLS_CULL_MASK ) | GLS_CULL_TWOSIDED );
+			GL_State( ( glStateBits & ~( GLS_CULL_MASK ) ) | GLS_CULL_TWOSIDED );
 			GL_PolygonOffset( r_shadowMapPolygonFactor.GetFloat(), r_shadowMapPolygonOffset.GetFloat() );
 			break;
 	}
@@ -4219,7 +4236,7 @@ void idRenderBackend::FogPass( const drawSurf_t* drawSurfs,  const drawSurf_t* d
 	zeroOneCubeSurface.scissorRect = viewDef->scissor;
 	T_BasicFog( &zeroOneCubeSurface, fogPlanes, &vLight->inverseBaseLightProject );
 	
-	GL_State( glStateBits & ~( GLS_CULL_MASK ) | GLS_CULL_FRONTSIDED );
+	GL_State( ( glStateBits & ~( GLS_CULL_MASK ) ) | GLS_CULL_FRONTSIDED );
 	
 	GL_SelectTexture( 0 );
 	

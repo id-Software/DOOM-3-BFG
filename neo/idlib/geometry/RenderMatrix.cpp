@@ -51,7 +51,14 @@ If you have questions concerning this license or the applicable additional terms
 #define RENDER_MATRIX_INFINITY				1e30f	// NOTE: cannot initiaize a vec_float4 with idMath::INFINITY on the SPU
 #define RENDER_MATRIX_PROJECTION_EPSILON	0.1f
 
-#define CLIP_SPACE_OGL		// the OpenGL clip space Z is in the range [-1, 1]
+//#define CLIP_SPACE_OGL		// the OpenGL clip space Z is in the range [-1, 1]
+
+// RB: Vulkan requires the clip space Z is in the range [0, 1]
+// This change is especially important for all kinds of light bounding box -> clip space transformations so
+// the depth bounding tests clipping tests work properly
+#if defined( USE_VULKAN )
+#define CLIP_SPACE_D3D	1
+#endif
 
 /*
 ================================================================================================
