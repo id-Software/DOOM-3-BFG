@@ -47,7 +47,10 @@ class idProfileMgr
 public:
 	idProfileMgr();
 	~idProfileMgr();
-	
+
+  // Not copyable because we use unique_ptrs.
+  idProfileMgr& operator=(const idProfileMgr&) = delete;
+
 	// Called the first time it's asked to load
 	void				Init( idLocalUser* user );
 	
@@ -62,8 +65,8 @@ private:
 	void				OnSaveSettingsCompleted( idSaveLoadParms* parms );
 	
 private:
-	std::auto_ptr< idSaveGameProcessorSaveProfile >	profileSaveProcessor;
-	std::auto_ptr< idSaveGameProcessorLoadProfile >	profileLoadProcessor;
+	std::unique_ptr< idSaveGameProcessorSaveProfile >	profileSaveProcessor;
+	std::unique_ptr< idSaveGameProcessorLoadProfile >	profileLoadProcessor;
 	
 	idLocalUser* 						user;					// reference passed in
 	idPlayerProfile* 					profile;
