@@ -42,7 +42,7 @@ public:
 		maxDesiredLocalUsers( 0 ),
 		defaultProfile( NULL ) {}
 	virtual							~idSignInManagerBase() {}
-	
+
 	virtual void					Pump() = 0;
 	virtual int					GetNumLocalUsers() const = 0;
 	virtual idLocalUser* 			GetLocalUserByIndex( int index ) = 0;
@@ -67,14 +67,14 @@ public:
 		return false;
 	}
 	virtual void					Shutdown() {}
-	
+
 	// Outputs all the local users and other debugging information from the sign in manager
 	virtual void					DebugOutputLocalUserInfo() {}
-	
+
 	//================================================================================
 	// Common helper functions
 	//================================================================================
-	
+
 	void 					SetDesiredLocalUsers( int minDesiredLocalUsers, int maxDesiredLocalUsers )
 	{
 		this->minDesiredLocalUsers = minDesiredLocalUsers;
@@ -82,7 +82,7 @@ public:
 	}
 	bool 					ProcessInputEvent( const sysEvent_t* ev );
 	idPlayerProfile* 		GetDefaultProfile();
-	
+
 	// Master user always index 0
 	idLocalUser* 			GetMasterLocalUser()
 	{
@@ -92,7 +92,7 @@ public:
 	{
 		return ( GetNumLocalUsers() > 0 ) ? GetLocalUserByIndex( 0 ) : NULL;
 	}
-	
+
 	bool 					IsMasterLocalUserPersistent() const
 	{
 		return ( GetMasterLocalUser() != NULL ) ? GetMasterLocalUser()->IsPersistent() : false;
@@ -116,15 +116,15 @@ public:
 	bool					RemoveLocalUserByHandle( localUserHandle_t handle );
 	void					RemoveAllLocalUsers();
 	void					SaveUserProfiles();
-	
+
 	// This will remove local players that are not signed into a profile.
 	// If requiredOnline: This removes the users who cannot play online
 	void					ValidateLocalUsers( bool requireOnline );
-	
+
 	bool					RequirePersistentMaster();
-	
+
 	localUserHandle_t		GetUniqueLocalUserHandle( const char* name );
-	
+
 protected:
 	int					minDesiredLocalUsers;
 	int					maxDesiredLocalUsers;

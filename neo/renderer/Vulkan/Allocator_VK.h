@@ -63,7 +63,7 @@ struct vulkanAllocation_t
 		data( NULL )
 	{
 	}
-	
+
 	idVulkanBlock* block;
 	uint32			id;
 	VkDeviceMemory	deviceMemory;
@@ -86,15 +86,15 @@ class idVulkanBlock
 public:
 	idVulkanBlock( const uint32 memoryTypeIndex, const VkDeviceSize size, vulkanMemoryUsage_t usage );
 	~idVulkanBlock();
-	
+
 	bool				Init();
 	void				Shutdown();
-	
+
 	bool				IsHostVisible() const
 	{
 		return usage != VULKAN_MEMORY_USAGE_GPU_ONLY;
 	}
-	
+
 	bool				Allocate(
 		const uint32 size,
 		const uint32 align,
@@ -102,9 +102,9 @@ public:
 		const vulkanAllocationType_t allocType,
 		vulkanAllocation_t& allocation );
 	void				Free( vulkanAllocation_t& allocation );
-	
+
 	void				Print();
-	
+
 private:
 	struct chunk_t
 	{
@@ -116,7 +116,7 @@ private:
 		vulkanAllocationType_t	type;
 	};
 	chunk_t* 			head;
-	
+
 	uint32				nextBlockId;
 	uint32				memoryTypeIndex;
 	vulkanMemoryUsage_t	usage;
@@ -140,10 +140,10 @@ class idVulkanAllocator
 {
 public:
 	idVulkanAllocator();
-	
+
 	void					Init();
 	void					Shutdown();
-	
+
 	vulkanAllocation_t			Allocate(
 		const uint32 size,
 		const uint32 align,
@@ -152,24 +152,24 @@ public:
 		const vulkanAllocationType_t allocType );
 	void					Free( const vulkanAllocation_t allocation );
 	void					EmptyGarbage();
-	
+
 	void					Print();
-	
+
 private:
 	int							garbageIndex;
-	
+
 	int							deviceLocalMemoryBytes;
 	int							hostVisibleMemoryBytes;
 	VkDeviceSize				bufferImageGranularity;
-	
+
 	idVulkanBlocks				blocks;
 	idList<vulkanAllocation_t>	garbage[ NUM_FRAME_DATA ];
 };
 
 #if defined( USE_AMD_ALLOCATOR )
-extern VmaAllocator vmaAllocator;
+	extern VmaAllocator vmaAllocator;
 #else
-extern idVulkanAllocator vulkanAllocator;
+	extern idVulkanAllocator vulkanAllocator;
 #endif
 
 #endif

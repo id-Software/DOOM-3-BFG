@@ -42,28 +42,28 @@ class idFont
 public:
 	idFont( const char* n );
 	~idFont();
-	
+
 	void Touch();
-	
+
 	const char* GetName() const
 	{
 		return name;
 	}
-	
+
 	float GetLineHeight( float scale ) const;
 	float GetAscender( float scale ) const;
 	float GetMaxCharWidth( float scale ) const;
-	
+
 	float GetGlyphWidth( float scale, uint32 idx ) const;
 	void GetScaledGlyph( float scale, uint32 idx, scaledGlyphInfo_t& glyphInfo ) const;
-	
+
 private:
 	static idFont* RemapFont( const char* baseName );
-	
+
 	int	GetGlyphIndex( uint32 idx ) const;
-	
+
 	bool LoadFont();
-	
+
 	struct glyphInfo_t
 	{
 		byte	width;	// width of glyph in pixels
@@ -81,29 +81,29 @@ private:
 			float maxWidth;
 			float maxHeight;
 		} oldInfo[3];
-		
+
 		short		ascender;
 		short		descender;
-		
+
 		short		numGlyphs;
 		glyphInfo_t* glyphData;
-		
+
 		// This is a sorted array of all characters in the font
 		// This maps directly to glyphData, so if charIndex[0] is 42 then glyphData[0] is character 42
 		uint32* 	charIndex;
-		
+
 		// As an optimization, provide a direct mapping for the ascii character set
 		char		ascii[128];
-		
+
 		const idMaterial* 	material;
 	};
-	
+
 	// base name of the font (minus "fonts/" and ".dat")
 	idStr			name;
-	
+
 	// Fonts can be aliases to other fonts
 	idFont* alias;
-	
+
 	// If the font is NOT an alias, this is where the font data is located
 	fontInfo_t* fontInfo;
 };

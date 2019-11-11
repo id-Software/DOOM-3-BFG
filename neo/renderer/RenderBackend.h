@@ -35,9 +35,9 @@ If you have questions concerning this license or the applicable additional terms
 
 bool			GL_CheckErrors_( const char* filename, int line );
 #if 1 // !defined(RETAIL)
-#define         GL_CheckErrors()	GL_CheckErrors_(__FILE__, __LINE__)
+	#define         GL_CheckErrors()	GL_CheckErrors_(__FILE__, __LINE__)
 #else
-#define         GL_CheckErrors()	false
+	#define         GL_CheckErrors()	false
 #endif
 // RB end
 
@@ -61,17 +61,17 @@ struct backEndCounters_t
 {
 	int		c_surfaces;
 	int		c_shaders;
-	
+
 	int		c_drawElements;
 	int		c_drawIndexes;
-	
+
 	int		c_shadowElements;
 	int		c_shadowIndexes;
-	
+
 	int		c_copyFrameBuffer;
-	
+
 	float	c_overDraw;
-	
+
 	int		totalMicroSec;		// total microseconds for backend run
 	int		shadowMicroSec;
 };
@@ -148,39 +148,39 @@ struct vulkanContext_t
 {
 	uint64							frameCounter;
 	uint32							frameParity;
-	
+
 	vertCacheHandle_t				jointCacheHandle;
-	
+
 	VkInstance						instance;
-	
+
 	// selected physical device
 	VkPhysicalDevice				physicalDevice;
 	VkPhysicalDeviceFeatures		physicalDeviceFeatures;
-	
+
 	// logical device
 	VkDevice						device;
-	
+
 	VkQueue							graphicsQueue;
 	VkQueue							presentQueue;
 	int								graphicsFamilyIdx;
 	int								presentFamilyIdx;
 	VkDebugReportCallbackEXT		callback;
-	
+
 	idList< const char* >			instanceExtensions;
 	idList< const char* >			deviceExtensions;
 	idList< const char* >			validationLayers;
-	
+
 	// selected GPU
 	gpuInfo_t* 						gpu;
-	
+
 	// all GPUs found on the system
 	idList< gpuInfo_t >				gpus;
-	
+
 	VkCommandPool					commandPool;
 	idArray< VkCommandBuffer, NUM_FRAME_DATA >	commandBuffer;
 	idArray< VkFence, NUM_FRAME_DATA >			commandBufferFences;
 	idArray< bool, NUM_FRAME_DATA >				commandBufferRecorded;
-	
+
 	VkSurfaceKHR					surface;
 	VkPresentModeKHR				presentMode;
 	VkFormat						depthFormat;
@@ -188,7 +188,7 @@ struct vulkanContext_t
 	VkPipelineCache					pipelineCache;
 	VkSampleCountFlagBits			sampleCount;
 	bool							supersampling;
-	
+
 	int								fullscreen;
 	VkSwapchainKHR					swapchain;
 	VkFormat						swapchainFormat;
@@ -204,11 +204,11 @@ struct vulkanContext_t
 #endif
 	idArray< VkImage, NUM_FRAME_DATA >			swapchainImages;
 	idArray< VkImageView, NUM_FRAME_DATA >		swapchainViews;
-	
+
 	idArray< VkFramebuffer, NUM_FRAME_DATA >	frameBuffers;
 	idArray< VkSemaphore, NUM_FRAME_DATA >		acquireSemaphores;
 	idArray< VkSemaphore, NUM_FRAME_DATA >		renderCompleteSemaphores;
-	
+
 	int											currentImageParm;
 	idArray< idImage*, MAX_IMAGE_PARMS >		imageParms;
 };
@@ -246,94 +246,94 @@ struct ImDrawData;
 class idRenderBackend
 {
 	friend class Framebuffer;
-	
+
 public:
 	idRenderBackend();
 	~idRenderBackend();
-	
+
 	void				Init();
 	void				Shutdown();
-	
+
 	void				ExecuteBackEndCommands( const emptyCommand_t* cmds );
 	void				StereoRenderExecuteBackEndCommands( const emptyCommand_t* const allCmds );
 	void				GL_BlockingSwapBuffers();
-	
+
 	void				Print();
 	void				CheckCVars();
-	
+
 	static void			ImGui_Init();
 	static void			ImGui_Shutdown();
 	static void			ImGui_RenderDrawLists( ImDrawData* draw_data );
-	
+
 private:
 	void				DrawFlickerBox();
-	
+
 	void				DrawElementsWithCounters( const drawSurf_t* surf );
 	void				DrawStencilShadowPass( const drawSurf_t* drawSurf, const bool renderZPass );
-	
+
 	void				SetColorMappings();
 	void				ResizeImages();
-	
+
 	void				DrawViewInternal( const viewDef_t* viewDef, const int stereoEye );
 	void				DrawView( const void* data, const int stereoEye );
 	void				CopyRender( const void* data );
-	
+
 	void				BindVariableStageImage( const textureStage_t* texture, const float* shaderRegisters );
 	void				PrepareStageTexturing( const shaderStage_t* pStage, const drawSurf_t* surf );
 	void				FinishStageTexturing( const shaderStage_t* pStage, const drawSurf_t* surf );
-	
+
 	void				ResetViewportAndScissorToDefaultCamera( const viewDef_t* _viewDef );
-	
+
 	void				FillDepthBufferGeneric( const drawSurf_t* const* drawSurfs, int numDrawSurfs );
 	void				FillDepthBufferFast( drawSurf_t** drawSurfs, int numDrawSurfs );
-	
+
 	void				T_BlendLight( const drawSurf_t* drawSurfs, const viewLight_t* vLight );
 	void				BlendLight( const drawSurf_t* drawSurfs, const drawSurf_t* drawSurfs2, const viewLight_t* vLight );
 	void				T_BasicFog( const drawSurf_t* drawSurfs, const idPlane fogPlanes[ 4 ], const idRenderMatrix* inverseBaseLightProject );
 	void				FogPass( const drawSurf_t* drawSurfs,  const drawSurf_t* drawSurfs2, const viewLight_t* vLight );
 	void				FogAllLights();
-	
+
 	void				SetupInteractionStage( const shaderStage_t* surfaceStage, const float* surfaceRegs, const float lightColor[4],
 			idVec4 matrix[2], float color[4] );
-			
+
 	void				DrawInteractions( const viewDef_t* _viewDef );
 	void				DrawSingleInteraction( drawInteraction_t* din, bool useIBL );
 	int					DrawShaderPasses( const drawSurf_t* const* const drawSurfs, const int numDrawSurfs,
 										  const float guiStereoScreenOffset, const int stereoEye );
-										  
+
 	void				RenderInteractions( const drawSurf_t* surfList, const viewLight_t* vLight, int depthFunc, bool performStencilTest, bool useLightDepthBounds );
-	
+
 	// RB
 	void				AmbientPass( const drawSurf_t* const* drawSurfs, int numDrawSurfs, bool fillGbuffer );
 	void				ShadowMapPass( const drawSurf_t* drawSurfs, const viewLight_t* vLight, int side );
-	
+
 	void				StencilShadowPass( const drawSurf_t* drawSurfs, const viewLight_t* vLight );
 	void				StencilSelectLight( const viewLight_t* vLight );
-	
+
 	// RB: HDR stuff
-	
+
 	// TODO optimize and replace with compute shader
 	void				CalculateAutomaticExposure();
 	void				Tonemap( const viewDef_t* viewDef );
 	void				Bloom( const viewDef_t* viewDef );
-	
+
 	void				DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef );
 	void				DrawScreenSpaceGlobalIllumination( const viewDef_t* _viewDef );
-	
+
 	// Experimental feature
 	void				MotionBlur();
 	void				PostProcess( const void* data );
-	
+
 private:
 	void				GL_StartFrame();
 	void				GL_EndFrame();
-	
+
 public:
 	uint64				GL_GetCurrentState() const;
 private:
 	uint64				GL_GetCurrentStateMinusStencil() const;
 	void				GL_SetDefaultState();
-	
+
 	void				GL_State( uint64 stateBits, bool forceGlState = false );
 //	void				GL_SeparateStencil( stencilFace_t face, uint64 stencilBits );
 
@@ -345,13 +345,13 @@ private:
 
 	// RB: HDR parm
 	void				GL_Clear( bool color, bool depth, bool stencil, byte stencilValue, float r, float g, float b, float a, bool clearHDR = true );
-	
+
 	void				GL_DepthBoundsTest( const float zmin, const float zmax );
 	void				GL_PolygonOffset( float scale, float bias );
-	
+
 	void				GL_Scissor( int x /* left*/, int y /* bottom */, int w, int h );
 	void				GL_Viewport( int x /* left */, int y /* bottom */, int w, int h );
-	
+
 	ID_INLINE void		GL_Scissor( const idScreenRect& rect )
 	{
 		GL_Scissor( rect.x1, rect.y1, rect.x2 - rect.x1 + 1, rect.y2 - rect.y1 + 1 );
@@ -360,39 +360,39 @@ private:
 	{
 		GL_Viewport( rect.x1, rect.y1, rect.x2 - rect.x1 + 1, rect.y2 - rect.y1 + 1 );
 	}
-	
+
 	ID_INLINE void	GL_ViewportAndScissor( int x, int y, int w, int h )
 	{
 		GL_Viewport( x, y, w, h );
 		GL_Scissor( x, y, w, h );
 	}
-	
+
 	ID_INLINE void	GL_ViewportAndScissor( const idScreenRect& rect )
 	{
 		GL_Viewport( rect );
 		GL_Scissor( rect );
 	}
-	
+
 	void				GL_Color( float r, float g, float b, float a );
 	ID_INLINE void		GL_Color( float r, float g, float b )
 	{
 		GL_Color( r, g, b, 1.0f );
 	}
-	
+
 	ID_INLINE void		GL_Color( const idVec3& color )
 	{
 		GL_Color( color[0], color[1], color[2], 1.0f );
 	}
-	
+
 	ID_INLINE void		GL_Color( const idVec4& color )
 	{
 		GL_Color( color[0], color[1], color[2], color[3] );
 	}
-	
+
 //	void				GL_Color( float* color );
 
 	void				SetBuffer( const void* data );
-	
+
 private:
 	void				DBG_SimpleSurfaceSetup( const drawSurf_t* drawSurf );
 	void				DBG_SimpleWorldSetup();
@@ -435,56 +435,56 @@ private:
 	void				DBG_ShowShadowMaps(); // RB
 	void				DBG_ShowTrace( drawSurf_t** drawSurfs, int numDrawSurfs );
 	void				DBG_RenderDebugTools( drawSurf_t** drawSurfs, int numDrawSurfs );
-	
+
 public:
 	backEndCounters_t	pc;
-	
+
 	// surfaces used for code-based drawing
 	drawSurf_t			unitSquareSurface;
 	drawSurf_t			zeroOneCubeSurface;
 	drawSurf_t			testImageSurface;
-	
+
 private:
 	uint64				glStateBits;
-	
+
 	const viewDef_t* 	viewDef;
-	
+
 	const viewEntity_t*	currentSpace;			// for detecting when a matrix must change
 	idScreenRect		currentScissor;			// for scissor clipping, local inside renderView viewport
-	
+
 	bool				currentRenderCopied;	// true if any material has already referenced _currentRender
-	
+
 	idRenderMatrix		prevMVP[2];				// world MVP from previous frame for motion blur
-	
+
 	// RB begin
 	idRenderMatrix		shadowV[6];				// shadow depth view matrix
 	idRenderMatrix		shadowP[6];				// shadow depth projection matrix
-	
+
 	float				hdrAverageLuminance;
 	float				hdrMaxLuminance;
 	float				hdrTime;
 	float				hdrKey;
 	// RB end
-	
+
 private:
 #if !defined( USE_VULKAN )
 	int					currenttmu;
-	
+
 	unsigned int		currentVertexBuffer;
 	unsigned int		currentIndexBuffer;
 	Framebuffer*		currentFramebuffer;		// RB: for offscreen rendering
-	
+
 	vertexLayoutType_t	vertexLayout;
-	
+
 	float				polyOfsScale;
 	float				polyOfsBias;
-	
+
 public:
 	int					GetCurrentTextureUnit() const
 	{
 		return currenttmu;
 	}
-	
+
 #endif // !defined( USE_VULKAN )
 };
 

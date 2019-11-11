@@ -47,17 +47,17 @@ static void id_make_crc_table()
 	// RB: 64 bit fix, changed long to int
 	unsigned int c, poly;
 	// RB end
-	
+
 	/* terms of polynomial defining this crc (except x^32): */
 	static const byte p[] = {0, 1, 2, 4, 5, 7, 8, 10, 11, 12, 16, 22, 23, 26};
-	
+
 	/* make exclusive-or pattern from polynomial (0xedb88320L) */
 	poly = 0L;
 	for( i = 0; i < sizeof( p ) / sizeof( byte ); i++ )
 	{
 		poly |= 1L << ( 31 - p[i] );
 	}
-	
+
 	for( i = 0; i < 256; i++ )
 	{
 		// RB: 64 bit fix, changed long to int
@@ -163,7 +163,7 @@ void CRC32_UpdateChecksum( unsigned int& crcvalue, const void* data, int length 
 {
 	unsigned int crc;
 	const unsigned char* buf = ( const unsigned char* ) data;
-	
+
 	crc = crcvalue;
 	while( length-- )
 	{
@@ -180,7 +180,7 @@ void CRC32_FinishChecksum( unsigned int& crcvalue )
 unsigned int CRC32_BlockChecksum( const void* data, int length )
 {
 	unsigned int crc;
-	
+
 	CRC32_InitChecksum( crc );
 	CRC32_UpdateChecksum( crc, data, length );
 	CRC32_FinishChecksum( crc );

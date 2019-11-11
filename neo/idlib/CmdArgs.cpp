@@ -37,7 +37,7 @@ idCmdArgs::operator=
 void idCmdArgs::operator=( const idCmdArgs& args )
 {
 	int i;
-	
+
 	argc = args.argc;
 	memcpy( tokenized, args.tokenized, MAX_COMMAND_STRING );
 	for( i = 0; i < argc; i++ )
@@ -55,7 +55,7 @@ const char* idCmdArgs::Args( int start, int end, bool escapeArgs ) const
 {
 	static char cmd_args[MAX_COMMAND_STRING];
 	int		i;
-	
+
 	assert( argc < MAX_COMMAND_ARGS );
 	if( end < 0 )
 	{
@@ -110,7 +110,7 @@ const char* idCmdArgs::Args( int start, int end, bool escapeArgs ) const
 	{
 		strcat( cmd_args, "\"" );
 	}
-	
+
 	return cmd_args;
 }
 
@@ -129,15 +129,15 @@ void idCmdArgs::TokenizeString( const char* text, bool keepAsStrings )
 	idLexer		lex;
 	idToken		token, number;
 	int			len, totalLen;
-	
+
 	// clear previous args
 	argc = 0;
-	
+
 	if( !text )
 	{
 		return;
 	}
-	
+
 	lex.LoadMemory( text, strlen( text ), "idCmdSystemLocal::TokenizeString" );
 	lex.SetFlags( LEXFL_NOERRORS
 				  | LEXFL_NOWARNINGS
@@ -145,21 +145,21 @@ void idCmdArgs::TokenizeString( const char* text, bool keepAsStrings )
 				  | LEXFL_ALLOWPATHNAMES
 				  | LEXFL_NOSTRINGESCAPECHARS
 				  | LEXFL_ALLOWIPADDRESSES | ( keepAsStrings ? LEXFL_ONLYSTRINGS : 0 ) );
-				  
+
 	totalLen = 0;
-	
+
 	while( 1 )
 	{
 		if( argc == MAX_COMMAND_ARGS )
 		{
 			return;			// this is usually something malicious
 		}
-		
+
 		if( !lex.ReadToken( &token ) )
 		{
 			return;
 		}
-		
+
 		// check for negative numbers
 		if( !keepAsStrings && ( token == "-" ) )
 		{
@@ -168,7 +168,7 @@ void idCmdArgs::TokenizeString( const char* text, bool keepAsStrings )
 				token = "-" + number;
 			}
 		}
-		
+
 		// check for cvar expansion
 		if( token == "$" )
 		{
@@ -185,20 +185,20 @@ void idCmdArgs::TokenizeString( const char* text, bool keepAsStrings )
 				token = "<unknown>";
 			}
 		}
-		
+
 		len = token.Length();
-		
+
 		if( totalLen + len + 1 > sizeof( tokenized ) )
 		{
 			return;			// this is usually something malicious
 		}
-		
+
 		// regular token
 		argv[argc] = tokenized + totalLen;
 		argc++;
-		
+
 		idStr::Copynz( tokenized + totalLen, token.c_str(), sizeof( tokenized ) - totalLen );
-		
+
 		totalLen += len + 1;
 	}
 }

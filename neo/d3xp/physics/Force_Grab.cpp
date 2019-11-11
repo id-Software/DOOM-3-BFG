@@ -145,9 +145,9 @@ void idForce_Grab::Evaluate( int time )
 	idVec3			forceDir, v, objectCenter;
 	float			forceAmt;
 	float			mass = physics->GetMass( id );
-	
+
 	objectCenter = physics->GetAbsBounds( id ).GetCenter();
-	
+
 	if( g_grabberRandomMotion.GetBool() && !common->IsMultiplayer() )
 	{
 		// Jitter the objectCenter around so it doesn't remain stationary
@@ -158,23 +158,23 @@ void idForce_Grab::Evaluate( int time )
 		objectCenter.y += ( SinOffset * -3.5f * randScale1 ) + ( randScale2 * 1.4f );
 		objectCenter.z += ( SinOffset * 2.4f * randScale1 ) + ( randScale2 * 1.6f );
 	}
-	
+
 	forceDir = goalPosition - objectCenter;
 	distanceToGoal = forceDir.Normalize();
-	
+
 	float temp = distanceToGoal;
 	if( temp > 12.f && temp < 32.f )
 	{
 		temp = 32.f;
 	}
 	forceAmt = ( 1000.f * mass ) + ( 500.f * temp * mass );
-	
+
 	if( forceAmt / mass > 120000.f )
 	{
 		forceAmt = 120000.f * mass;
 	}
 	physics->AddForce( id, objectCenter, forceDir * forceAmt );
-	
+
 	if( distanceToGoal < 196.f )
 	{
 		v = physics->GetLinearVelocity( id );

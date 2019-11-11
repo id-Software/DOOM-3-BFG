@@ -65,7 +65,7 @@ sysEvent_t	idEventLoop::GetRealEvent()
 {
 	int			r;
 	sysEvent_t	ev;
-	
+
 	// either get an event from the system or the journal file
 	if( com_journal.GetInteger() == 2 )
 	{
@@ -87,7 +87,7 @@ sysEvent_t	idEventLoop::GetRealEvent()
 	else
 	{
 		ev = Sys_GetEvent();
-		
+
 		// write the journal value out if needed
 		if( com_journal.GetInteger() == 1 )
 		{
@@ -106,7 +106,7 @@ sysEvent_t	idEventLoop::GetRealEvent()
 			}
 		}
 	}
-	
+
 	return ev;
 }
 
@@ -119,19 +119,19 @@ void idEventLoop::PushEvent( sysEvent_t* event )
 {
 	sysEvent_t*		ev;
 	static			bool printedWarning;
-	
+
 	ev = &com_pushedEvents[ com_pushedEventsHead & ( MAX_PUSHED_EVENTS - 1 ) ];
-	
+
 	if( com_pushedEventsHead - com_pushedEventsTail >= MAX_PUSHED_EVENTS )
 	{
-	
+
 		// don't print the warning constantly, or it can give time for more...
 		if( !printedWarning )
 		{
 			printedWarning = true;
 			common->Printf( "WARNING: Com_PushEvent overflow\n" );
 		}
-		
+
 		if( ev->evPtr )
 		{
 			Mem_Free( ev->evPtr );
@@ -142,7 +142,7 @@ void idEventLoop::PushEvent( sysEvent_t* event )
 	{
 		printedWarning = false;
 	}
-	
+
 	*ev = *event;
 	com_pushedEventsHead++;
 }
@@ -174,7 +174,7 @@ void idEventLoop::ProcessEvent( sysEvent_t ev )
 	{
 		idKeyInput::PreliminaryKeyEvent( ev.evValue, ( ev.evValue2 != 0 ) );
 	}
-	
+
 	if( ev.evType == SE_CONSOLE )
 	{
 		// from a text console outside the game window
@@ -185,7 +185,7 @@ void idEventLoop::ProcessEvent( sysEvent_t ev )
 	{
 		common->ProcessEvent( &ev );
 	}
-	
+
 	// free any block data
 	if( ev.evPtr )
 	{
@@ -201,18 +201,18 @@ idEventLoop::RunEventLoop
 int idEventLoop::RunEventLoop( bool commandExecution )
 {
 	sysEvent_t	ev;
-	
+
 	while( 1 )
 	{
-	
+
 		if( commandExecution )
 		{
 			// execute any bound commands before processing another event
 			cmdSystem->ExecuteCommandBuffer();
 		}
-		
+
 		ev = GetEvent();
-		
+
 		// if no more events are available
 		if( ev.evType == SE_NONE )
 		{
@@ -220,7 +220,7 @@ int idEventLoop::RunEventLoop( bool commandExecution )
 		}
 		ProcessEvent( ev );
 	}
-	
+
 	return 0;	// never reached
 }
 
@@ -233,9 +233,9 @@ void idEventLoop::Init()
 {
 
 	initialTimeOffset = Sys_Milliseconds();
-	
+
 	common->StartupVariable( "journal" );
-	
+
 	if( com_journal.GetInteger() == 1 )
 	{
 		common->Printf( "Journaling events\n" );
@@ -248,7 +248,7 @@ void idEventLoop::Init()
 		com_journalFile = fileSystem->OpenFileRead( "journal.dat" );
 		com_journalDataFile = fileSystem->OpenFileRead( "journaldata.dat" );
 	}
-	
+
 	if( !com_journalFile || !com_journalDataFile )
 	{
 		com_journal.SetInteger( 0 );
@@ -290,11 +290,11 @@ int idEventLoop::Milliseconds()
 	return Sys_Milliseconds() - initialTimeOffset;
 #else
 	sysEvent_t	ev;
-	
+
 	// get events and push them until we get a null event with the current time
 	do
 	{
-	
+
 		ev = Com_GetRealEvent();
 		if( ev.evType != SE_NONE )
 		{
@@ -302,7 +302,7 @@ int idEventLoop::Milliseconds()
 		}
 	}
 	while( ev.evType != SE_NONE );
-	
+
 	return ev.evTime;
 #endif
 }

@@ -77,15 +77,15 @@ idSWF::idDecompressJPEG::idDecompressJPEG()
 {
 	jpeg_decompress_struct* cinfo = new( TAG_SWF ) jpeg_decompress_struct;
 	memset( cinfo, 0, sizeof( *cinfo ) );
-	
+
 	cinfo->err = new( TAG_SWF ) jpeg_error_mgr;
 	memset( cinfo->err, 0, sizeof( jpeg_error_mgr ) );
 	jpeg_std_error( cinfo->err );
 	cinfo->err->error_exit = swf_jpeg_error_exit;
 	cinfo->err->output_message = swf_jpeg_output_message;
-	
+
 	jpeg_create_decompress( cinfo );
-	
+
 	vinfo = cinfo;
 }
 
@@ -97,7 +97,7 @@ idSWF::idDecompressJPEG::~idDecompressJPEG
 idSWF::idDecompressJPEG::~idDecompressJPEG()
 {
 	jpeg_decompress_struct* cinfo = ( jpeg_decompress_struct* )vinfo;
-	
+
 	jpeg_destroy_decompress( cinfo );
 	delete cinfo->err;
 	delete cinfo;
@@ -111,13 +111,13 @@ idSWF::idDecompressJPEG::Load
 byte* idSWF::idDecompressJPEG::Load( const byte* input, int inputSize, int& width, int& height )
 {
 	jpeg_decompress_struct* cinfo = ( jpeg_decompress_struct* )vinfo;
-	
+
 	try
 	{
-	
+
 		width = 0;
 		height = 0;
-		
+
 		jpeg_source_mgr src;
 		memset( &src, 0, sizeof( src ) );
 		src.next_input_byte = ( JOCTET* )input;
@@ -128,19 +128,19 @@ byte* idSWF::idDecompressJPEG::Load( const byte* input, int inputSize, int& widt
 		src.resync_to_restart = jpeg_resync_to_restart;
 		src.term_source = swf_jpeg_term_source;
 		cinfo->src = &src;
-		
+
 		int result = 0;
 		do
 		{
 			result = jpeg_read_header( cinfo, FALSE );
 		}
 		while( result == JPEG_HEADER_TABLES_ONLY );
-		
+
 		if( result == JPEG_SUSPENDED )
 		{
 			return NULL;
 		}
-		
+
 		jpeg_start_decompress( cinfo );
 		if( cinfo->output_components != 4 )
 		{
@@ -159,13 +159,13 @@ byte* idSWF::idDecompressJPEG::Load( const byte* input, int inputSize, int& widt
 			jpeg_read_scanlines( cinfo, &scanlines, 1 );
 		}
 		jpeg_finish_decompress( cinfo );
-		
+
 		width = cinfo->output_width;
 		height = cinfo->output_height;
-		
+
 		cinfo->src = NULL;	// value goes out of scope
 		return output;
-		
+
 	}
 	catch( idException& )
 	{
@@ -195,25 +195,25 @@ void idSWF::WriteSwfImageAtlas( const char* filename )
 		// these are in DXT blocks, not pixels
 		inputSizes[i] = packImages[i].allocSize;
 	}
-	
+
 	idList<idVec2i>	outputPositions;
 	idVec2i	totalSize;
 	// smart allocator
 	RectAllocator( inputSizes, outputPositions, totalSize );
-	
+
 	float frac = RectPackingFraction( inputSizes, totalSize );
 	idLib::Printf( "%5.2f packing fraction in %ix%i image\n", frac, totalSize.x * 4, totalSize.y * 4 );
-	
+
 	int atlasWidth =  Max( 4, totalSize.x * 4 ) ;
 	int atlasHeight =  Max( 4, totalSize.y * 4 ) ;
-	
+
 	// we require multiple-of-128 widths to use the image data directly
 	// without re-packing on the 360 and PS3.  The growth checks in RectAllocator()
 	// will always align, but a single image won't necessarily be.
 	atlasWidth = ( atlasWidth + 127 ) & ~127;
-	
+
 	idTempArray<byte> swfAtlas( atlasWidth * atlasHeight * 4 );
-	
+
 	// fill everything with solid red
 	for( int i = 0; i < atlasWidth * atlasHeight; i++ )
 	{
@@ -222,19 +222,19 @@ void idSWF::WriteSwfImageAtlas( const char* filename )
 		swfAtlas[i * 4 + 2] = 0;
 		swfAtlas[i * 4 + 3] = 255;
 	}
-	
+
 	// allocate the blocks and copy the texels
 	for( int i = 0 ; i < packImages.Num() ; i++ )
 	{
 		imageToPack_t& pack = packImages[i];
 		assert( pack.imageData != NULL );
-		
+
 		int	blockWidth = pack.allocSize.x;
 		int	blockHeight = pack.allocSize.y;
-		
+
 		int x = outputPositions[i].x;
 		int y = outputPositions[i].y;
-		
+
 		// get the range for each channel so we can maximize it
 		// for better compression
 		int	minV[4] = { 255, 255, 255, 255 };
@@ -272,7 +272,7 @@ void idSWF::WriteSwfImageAtlas( const char* filename )
 		// a bias as well as a scale to enable us to take advantage of the
 		// min values as well as the max, but very few gui images don't go to black,
 		// and just doing a scale avoids changing more code.
-		
+
 		if( swf_useChannelScale.GetBool() )
 		{
 			for( int j = 0; j < pack.trueSize.x * pack.trueSize.y * 4; j++ )
@@ -283,7 +283,7 @@ void idSWF::WriteSwfImageAtlas( const char* filename )
 				pack.imageData[ j ] = v;
 			}
 		}
-		
+
 		assert( ( x + blockWidth ) * 4 <= atlasWidth );
 		assert( ( y + blockHeight ) * 4 <= atlasHeight );
 		// Extend the pixels with clamp-to-edge to the edge of the allocation block.
@@ -317,7 +317,7 @@ void idSWF::WriteSwfImageAtlas( const char* filename )
 					( ( int* )pack.imageData )[ srcY * pack.trueSize.x + srcX ];
 			}
 		}
-		
+
 		// save the information in the SWF dictionary
 		idSWFDictionaryEntry* entry = FindDictionaryEntry( pack.characterID );
 		assert( entry->material == NULL );
@@ -325,7 +325,7 @@ void idSWF::WriteSwfImageAtlas( const char* filename )
 		entry->imageSize.y = pack.trueSize.y;
 		entry->imageAtlasOffset.x = x + 1;
 		entry->imageAtlasOffset.y = y + 1;
-		
+
 		if( swf_useChannelScale.GetBool() )
 		{
 			for( int i = 0; i < 4; i++ )
@@ -333,11 +333,11 @@ void idSWF::WriteSwfImageAtlas( const char* filename )
 				entry->channelScale[i] = maxV[i] / 255.0f;
 			}
 		}
-		
+
 		Mem_Free( pack.imageData );
 		pack.imageData = NULL;
 	}
-	
+
 	// the TGA is only for examination during development
 	R_WritePNG( filename, swfAtlas.Ptr(), 4, atlasWidth, atlasHeight, false, "fs_basepath" );
 }
@@ -355,7 +355,7 @@ void idSWF::LoadImage( int characterID, const byte* imageData, int width, int he
 	{
 		return;
 	}
-	
+
 	// save the data off so we can do the image atlas allocation after we have collected
 	// all the images that are used by the entire swf
 	imageToPack_t	pack;
@@ -371,7 +371,7 @@ void idSWF::LoadImage( int characterID, const byte* imageData, int width, int he
 		// DXT blocks of 4.  If we choose to DCT / HDP encode the image block, we should probably
 		// increae the block size to 8 or 16 to prevent neighbor effects.
 		v = ( v + 3 ) >> 2;
-		
+
 		// Allways allocate a single pixel border around the images so there won't be any edge
 		// bleeds.  This can often be hidden in in the round-up to DXT size.
 		if( ( v << 2 ) - pack.trueSize[i] < 2 )
@@ -381,7 +381,7 @@ void idSWF::LoadImage( int characterID, const byte* imageData, int width, int he
 		pack.allocSize[i] = v;
 	}
 	packImages.Append( pack );
-	
+
 	entry->material = NULL;
 }
 
@@ -412,18 +412,18 @@ Reads a partial jpeg image, using the tables set by the JPEGTables tag
 void idSWF::DefineBits( idSWFBitStream& bitstream )
 {
 	uint16 characterID = bitstream.ReadU16();
-	
+
 	int jpegSize = bitstream.Length() - sizeof( uint16 );
-	
+
 	int width, height;
 	byte* imageData = jpeg.Load( bitstream.ReadData( jpegSize ), jpegSize, width, height );
 	if( imageData == NULL )
 	{
 		return;
 	}
-	
+
 	LoadImage( characterID, imageData, width, height );
-	
+
 	Mem_Free( imageData );
 }
 
@@ -436,20 +436,20 @@ Identical to DefineBits, except it uses a local JPEG table (not the one defined 
 void idSWF::DefineBitsJPEG2( idSWFBitStream& bitstream )
 {
 	uint16 characterID = bitstream.ReadU16();
-	
+
 	idDecompressJPEG jpeg;
-	
+
 	int jpegSize = bitstream.Length() - sizeof( uint16 );
-	
+
 	int width, height;
 	byte* imageData = jpeg.Load( bitstream.ReadData( jpegSize ), jpegSize, width, height );
 	if( imageData == NULL )
 	{
 		return;
 	}
-	
+
 	LoadImage( characterID, imageData, width, height );
-	
+
 	Mem_Free( imageData );
 }
 
@@ -463,19 +463,19 @@ void idSWF::DefineBitsJPEG3( idSWFBitStream& bitstream )
 {
 	uint16 characterID = bitstream.ReadU16();
 	uint32 jpegSize = bitstream.ReadU32();
-	
+
 	idDecompressJPEG jpeg;
-	
+
 	int width, height;
 	byte* imageData = jpeg.Load( bitstream.ReadData( jpegSize ), jpegSize, width, height );
 	if( imageData == NULL )
 	{
 		return;
 	}
-	
+
 	{
 		idTempArray<byte> alphaMap( width * height );
-		
+
 		int alphaSize = bitstream.Length() - jpegSize - sizeof( characterID ) - sizeof( jpegSize );
 		if( !Inflate( bitstream.ReadData( alphaSize ), alphaSize, alphaMap.Ptr(), ( int )alphaMap.Size() ) )
 		{
@@ -488,9 +488,9 @@ void idSWF::DefineBitsJPEG3( idSWFBitStream& bitstream )
 			imageData[i * 4 + 3] = alphaMap[i];
 		}
 	}
-	
+
 	LoadImage( characterID, imageData, width, height );
-	
+
 	Mem_Free( imageData );
 }
 
@@ -505,10 +505,10 @@ void idSWF::DefineBitsLossless( idSWFBitStream& bitstream )
 	uint8 format = bitstream.ReadU8();
 	uint16 width = bitstream.ReadU16();
 	uint16 height = bitstream.ReadU16();
-	
+
 	idTempArray< byte > buf( width * height * 4 );
 	byte* imageData = buf.Ptr();
-	
+
 	if( format == 3 )
 	{
 		uint32 paddedWidth = ( width + 3 ) & ~3;
@@ -586,7 +586,7 @@ void idSWF::DefineBitsLossless( idSWFBitStream& bitstream )
 		idLib::Warning( "DefineBitsLossless: Unknown image format %d", format );
 		memset( imageData, 0xFF, width * height * 4 );
 	}
-	
+
 	LoadImage( characterID, imageData, width, height );
 }
 
@@ -601,10 +601,10 @@ void idSWF::DefineBitsLossless2( idSWFBitStream& bitstream )
 	uint8 format = bitstream.ReadU8();
 	uint16 width = bitstream.ReadU16();
 	uint16 height = bitstream.ReadU16();
-	
+
 	idTempArray< byte > buf( width * height * 4 );
 	byte* imageData = buf.Ptr();
-	
+
 	if( format == 3 )
 	{
 		uint32 paddedWidth = ( width + 3 ) & ~3;
@@ -658,6 +658,6 @@ void idSWF::DefineBitsLossless2( idSWFBitStream& bitstream )
 		idLib::Warning( "DefineBitsLossless2: Unknown image format %d", format );
 		memset( imageData, 0xFF, width * height * 4 );
 	}
-	
+
 	LoadImage( characterID, imageData, width, height );
 }

@@ -38,7 +38,7 @@ idTraceModel::SetupBox
 void idTraceModel::SetupBox( const idBounds& boxBounds )
 {
 	int i;
-	
+
 	if( type != TRM_BOX )
 	{
 		InitBox();
@@ -70,7 +70,7 @@ void idTraceModel::SetupBox( const idBounds& boxBounds )
 	polys[3].bounds[0][0] = boxBounds[1][0];
 	polys[4].bounds[0][1] = boxBounds[1][1];
 	polys[5].bounds[1][0] = boxBounds[0][0];
-	
+
 	bounds = boxBounds;
 }
 
@@ -85,7 +85,7 @@ void idTraceModel::SetupBox( const float size )
 {
 	idBounds boxBounds;
 	float halfSize;
-	
+
 	halfSize = size * 0.5f;
 	boxBounds[0].Set( -halfSize, -halfSize, -halfSize );
 	boxBounds[1].Set( halfSize, halfSize, halfSize );
@@ -102,12 +102,12 @@ idTraceModel::InitBox
 void idTraceModel::InitBox()
 {
 	int i;
-	
+
 	type = TRM_BOX;
 	numVerts = 8;
 	numEdges = 12;
 	numPolys = 6;
-	
+
 	// set box edges
 	for( i = 0; i < 4; i++ )
 	{
@@ -118,7 +118,7 @@ void idTraceModel::InitBox()
 		edges[ i + 9 ].v[0] = i;
 		edges[ i + 9 ].v[1] = 4 + i;
 	}
-	
+
 	// all edges of a polygon go counter clockwise
 	polys[0].numEdges = 4;
 	polys[0].edges[0] = -4;
@@ -126,45 +126,45 @@ void idTraceModel::InitBox()
 	polys[0].edges[2] = -2;
 	polys[0].edges[3] = -1;
 	polys[0].normal.Set( 0.0f, 0.0f, -1.0f );
-	
+
 	polys[1].numEdges = 4;
 	polys[1].edges[0] = 5;
 	polys[1].edges[1] = 6;
 	polys[1].edges[2] = 7;
 	polys[1].edges[3] = 8;
 	polys[1].normal.Set( 0.0f, 0.0f, 1.0f );
-	
+
 	polys[2].numEdges = 4;
 	polys[2].edges[0] = 1;
 	polys[2].edges[1] = 10;
 	polys[2].edges[2] = -5;
 	polys[2].edges[3] = -9;
 	polys[2].normal.Set( 0.0f, -1.0f,  0.0f );
-	
+
 	polys[3].numEdges = 4;
 	polys[3].edges[0] = 2;
 	polys[3].edges[1] = 11;
 	polys[3].edges[2] = -6;
 	polys[3].edges[3] = -10;
 	polys[3].normal.Set( 1.0f,  0.0f,  0.0f );
-	
+
 	polys[4].numEdges = 4;
 	polys[4].edges[0] = 3;
 	polys[4].edges[1] = 12;
 	polys[4].edges[2] = -7;
 	polys[4].edges[3] = -11;
 	polys[4].normal.Set( 0.0f,  1.0f,  0.0f );
-	
+
 	polys[5].numEdges = 4;
 	polys[5].edges[0] = 4;
 	polys[5].edges[1] = 9;
 	polys[5].edges[2] = -8;
 	polys[5].edges[3] = -12;
 	polys[5].normal.Set( -1.0f,  0.0f,  0.0f );
-	
+
 	// convex model
 	isConvex = true;
-	
+
 	GenerateEdgeNormals();
 }
 
@@ -177,17 +177,17 @@ void idTraceModel::SetupOctahedron( const idBounds& octBounds )
 {
 	int i, e0, e1, v0, v1, v2;
 	idVec3 v;
-	
+
 	if( type != TRM_OCTAHEDRON )
 	{
 		InitOctahedron();
 	}
-	
+
 	offset = ( octBounds[0] + octBounds[1] ) * 0.5f;
 	v[0] = octBounds[1][0] - offset[0];
 	v[1] = octBounds[1][1] - offset[1];
 	v[2] = octBounds[1][2] - offset[2];
-	
+
 	// set vertices
 	verts[0].Set( offset.x + v[0], offset.y, offset.z );
 	verts[1].Set( offset.x - v[0], offset.y, offset.z );
@@ -195,7 +195,7 @@ void idTraceModel::SetupOctahedron( const idBounds& octBounds )
 	verts[3].Set( offset.x, offset.y - v[1], offset.z );
 	verts[4].Set( offset.x, offset.y, offset.z + v[2] );
 	verts[5].Set( offset.x, offset.y, offset.z - v[2] );
-	
+
 	// set polygons
 	for( i = 0; i < numPolys; i++ )
 	{
@@ -213,10 +213,10 @@ void idTraceModel::SetupOctahedron( const idBounds& octBounds )
 		polys[i].bounds.AddPoint( verts[v1] );
 		polys[i].bounds.AddPoint( verts[v2] );
 	}
-	
+
 	// trm bounds
 	bounds = octBounds;
-	
+
 	GenerateEdgeNormals();
 }
 
@@ -231,7 +231,7 @@ void idTraceModel::SetupOctahedron( const float size )
 {
 	idBounds octBounds;
 	float halfSize;
-	
+
 	halfSize = size * 0.5f;
 	octBounds[0].Set( -halfSize, -halfSize, -halfSize );
 	octBounds[1].Set( halfSize, halfSize, halfSize );
@@ -252,7 +252,7 @@ void idTraceModel::InitOctahedron()
 	numVerts = 6;
 	numEdges = 12;
 	numPolys = 8;
-	
+
 	// set edges
 	edges[ 1].v[0] =  4;
 	edges[ 1].v[1] =  0;
@@ -278,48 +278,48 @@ void idTraceModel::InitOctahedron()
 	edges[11].v[1] =  1;
 	edges[12].v[0] =  5;
 	edges[12].v[1] =  3;
-	
+
 	// all edges of a polygon go counter clockwise
 	polys[0].numEdges = 3;
 	polys[0].edges[0] = 1;
 	polys[0].edges[1] = 2;
 	polys[0].edges[2] = 3;
-	
+
 	polys[1].numEdges = 3;
 	polys[1].edges[0] = -3;
 	polys[1].edges[1] = 4;
 	polys[1].edges[2] = 5;
-	
+
 	polys[2].numEdges = 3;
 	polys[2].edges[0] = -5;
 	polys[2].edges[1] = 6;
 	polys[2].edges[2] = 7;
-	
+
 	polys[3].numEdges = 3;
 	polys[3].edges[0] = -7;
 	polys[3].edges[1] = 8;
 	polys[3].edges[2] = -1;
-	
+
 	polys[4].numEdges = 3;
 	polys[4].edges[0] = 9;
 	polys[4].edges[1] = -2;
 	polys[4].edges[2] = 10;
-	
+
 	polys[5].numEdges = 3;
 	polys[5].edges[0] = 11;
 	polys[5].edges[1] = -4;
 	polys[5].edges[2] = -9;
-	
+
 	polys[6].numEdges = 3;
 	polys[6].edges[0] = 12;
 	polys[6].edges[1] = -6;
 	polys[6].edges[2] = -11;
-	
+
 	polys[7].numEdges = 3;
 	polys[7].edges[0] = -10;
 	polys[7].edges[1] = -8;
 	polys[7].edges[2] = -12;
-	
+
 	// convex model
 	isConvex = true;
 }
@@ -334,12 +334,12 @@ void idTraceModel::SetupDodecahedron( const idBounds& dodBounds )
 	int i, e0, e1, e2, e3, v0, v1, v2, v3, v4;
 	float s, d;
 	idVec3 a, b, c;
-	
+
 	if( type != TRM_DODECAHEDRON )
 	{
 		InitDodecahedron();
 	}
-	
+
 	a[0] = a[1] = a[2] = 0.5773502691896257f; // 1.0f / ( 3.0f ) ^ 0.5f;
 	b[0] = b[1] = b[2] = 0.3568220897730899f; // ( ( 3.0f - ( 5.0f ) ^ 0.5f ) / 6.0f ) ^ 0.5f;
 	c[0] = c[1] = c[2] = 0.9341723589627156f; // ( ( 3.0f + ( 5.0f ) ^ 0.5f ) / 6.0f ) ^ 0.5f;
@@ -356,9 +356,9 @@ void idTraceModel::SetupDodecahedron( const idBounds& dodBounds )
 	a[2] *= s;
 	b[2] *= s;
 	c[2] *= s;
-	
+
 	offset = ( dodBounds[0] + dodBounds[1] ) * 0.5f;
-	
+
 	// set vertices
 	verts[ 0].Set( offset.x + a[0], offset.y + a[1], offset.z + a[2] );
 	verts[ 1].Set( offset.x + a[0], offset.y + a[1], offset.z - a[2] );
@@ -380,7 +380,7 @@ void idTraceModel::SetupDodecahedron( const idBounds& dodBounds )
 	verts[17].Set( offset.x       , offset.y - b[1], offset.z + c[2] );
 	verts[18].Set( offset.x       , offset.y + b[1], offset.z - c[2] );
 	verts[19].Set( offset.x       , offset.y - b[1], offset.z - c[2] );
-	
+
 	// set polygons
 	for( i = 0; i < numPolys; i++ )
 	{
@@ -404,10 +404,10 @@ void idTraceModel::SetupDodecahedron( const idBounds& dodBounds )
 		polys[i].bounds.AddPoint( verts[v3] );
 		polys[i].bounds.AddPoint( verts[v4] );
 	}
-	
+
 	// trm bounds
 	bounds = dodBounds;
-	
+
 	GenerateEdgeNormals();
 }
 
@@ -422,7 +422,7 @@ void idTraceModel::SetupDodecahedron( const float size )
 {
 	idBounds dodBounds;
 	float halfSize;
-	
+
 	halfSize = size * 0.5f;
 	dodBounds[0].Set( -halfSize, -halfSize, -halfSize );
 	dodBounds[1].Set( halfSize, halfSize, halfSize );
@@ -443,7 +443,7 @@ void idTraceModel::InitDodecahedron()
 	numVerts = 20;
 	numEdges = 30;
 	numPolys = 12;
-	
+
 	// set edges
 	edges[ 1].v[0] =  0;
 	edges[ 1].v[1] =  8;
@@ -505,7 +505,7 @@ void idTraceModel::InitDodecahedron()
 	edges[29].v[1] = 10;
 	edges[30].v[0] = 19;
 	edges[30].v[1] =  7;
-	
+
 	// all edges of a polygon go counter clockwise
 	polys[0].numEdges = 5;
 	polys[0].edges[0] = 1;
@@ -513,84 +513,84 @@ void idTraceModel::InitDodecahedron()
 	polys[0].edges[2] = 3;
 	polys[0].edges[3] = 4;
 	polys[0].edges[4] = 5;
-	
+
 	polys[1].numEdges = 5;
 	polys[1].edges[0] = -5;
 	polys[1].edges[1] = 6;
 	polys[1].edges[2] = 7;
 	polys[1].edges[3] = 8;
 	polys[1].edges[4] = 9;
-	
+
 	polys[2].numEdges = 5;
 	polys[2].edges[0] = -8;
 	polys[2].edges[1] = 10;
 	polys[2].edges[2] = 11;
 	polys[2].edges[3] = 12;
 	polys[2].edges[4] = 13;
-	
+
 	polys[3].numEdges = 5;
 	polys[3].edges[0] = 14;
 	polys[3].edges[1] = 15;
 	polys[3].edges[2] = 16;
 	polys[3].edges[3] = 17;
 	polys[3].edges[4] = -3;
-	
+
 	polys[4].numEdges = 5;
 	polys[4].edges[0] = 18;
 	polys[4].edges[1] = 19;
 	polys[4].edges[2] = 20;
 	polys[4].edges[3] = 21;
 	polys[4].edges[4] = -12;
-	
+
 	polys[5].numEdges = 5;
 	polys[5].edges[0] = 22;
 	polys[5].edges[1] = 23;
 	polys[5].edges[2] = 24;
 	polys[5].edges[3] = -16;
 	polys[5].edges[4] = 25;
-	
+
 	polys[6].numEdges = 5;
 	polys[6].edges[0] = -9;
 	polys[6].edges[1] = -13;
 	polys[6].edges[2] = -21;
 	polys[6].edges[3] = 26;
 	polys[6].edges[4] = -1;
-	
+
 	polys[7].numEdges = 5;
 	polys[7].edges[0] = -26;
 	polys[7].edges[1] = -20;
 	polys[7].edges[2] = 27;
 	polys[7].edges[3] = -14;
 	polys[7].edges[4] = -2;
-	
+
 	polys[8].numEdges = 5;
 	polys[8].edges[0] = -4;
 	polys[8].edges[1] = -17;
 	polys[8].edges[2] = -24;
 	polys[8].edges[3] = 28;
 	polys[8].edges[4] = -6;
-	
+
 	polys[9].numEdges = 5;
 	polys[9].edges[0] = -23;
 	polys[9].edges[1] = 29;
 	polys[9].edges[2] = -10;
 	polys[9].edges[3] = -7;
 	polys[9].edges[4] = -28;
-	
+
 	polys[10].numEdges = 5;
 	polys[10].edges[0] = -25;
 	polys[10].edges[1] = -15;
 	polys[10].edges[2] = -27;
 	polys[10].edges[3] = -19;
 	polys[10].edges[4] = 30;
-	
+
 	polys[11].numEdges = 5;
 	polys[11].edges[0] = -30;
 	polys[11].edges[1] = -18;
 	polys[11].edges[2] = -11;
 	polys[11].edges[3] = -29;
 	polys[11].edges[4] = -22;
-	
+
 	// convex model
 	isConvex = true;
 }
@@ -605,7 +605,7 @@ void idTraceModel::SetupCylinder( const idBounds& cylBounds, const int numSides 
 	int i, n, ii, n2;
 	float angle;
 	idVec3 halfSize;
-	
+
 	n = numSides;
 	if( n < 3 )
 	{
@@ -626,7 +626,7 @@ void idTraceModel::SetupCylinder( const idBounds& cylBounds, const int numSides 
 		idLib::common->Printf( "WARNING: idTraceModel::SetupCylinder: too many polygons\n" );
 		n = MAX_TRACEMODEL_POLYS - 2;
 	}
-	
+
 	type = TRM_CYLINDER;
 	numVerts = n * 2;
 	numEdges = n * 3;
@@ -693,7 +693,7 @@ void idTraceModel::SetupCylinder( const idBounds& cylBounds, const int numSides 
 	polys[n + 1].bounds[0][2] = bounds[1][2];
 	// convex model
 	isConvex = true;
-	
+
 	GenerateEdgeNormals();
 }
 
@@ -708,7 +708,7 @@ void idTraceModel::SetupCylinder( const float height, const float width, const i
 {
 	idBounds cylBounds;
 	float halfHeight, halfWidth;
-	
+
 	halfHeight = height * 0.5f;
 	halfWidth = width * 0.5f;
 	cylBounds[0].Set( -halfWidth, -halfWidth, -halfHeight );
@@ -726,7 +726,7 @@ void idTraceModel::SetupCone( const idBounds& coneBounds, const int numSides )
 	int i, n, ii;
 	float angle;
 	idVec3 halfSize;
-	
+
 	n = numSides;
 	if( n < 2 )
 	{
@@ -747,7 +747,7 @@ void idTraceModel::SetupCone( const idBounds& coneBounds, const int numSides )
 		idLib::common->Printf( "WARNING: idTraceModel::SetupCone: too many polygons\n" );
 		n = MAX_TRACEMODEL_POLYS - 1;
 	}
-	
+
 	type = TRM_CONE;
 	numVerts = n + 1;
 	numEdges = n * 2;
@@ -778,7 +778,7 @@ void idTraceModel::SetupCone( const idBounds& coneBounds, const int numSides )
 	}
 	// bottom polygon numEdges
 	polys[n].numEdges = n;
-	
+
 	// polygons
 	for( i = 0; i < n; i++ )
 	{
@@ -802,7 +802,7 @@ void idTraceModel::SetupCone( const idBounds& coneBounds, const int numSides )
 	polys[n].bounds[1][2] = bounds[0][2];
 	// convex model
 	isConvex = true;
-	
+
 	GenerateEdgeNormals();
 }
 
@@ -817,7 +817,7 @@ void idTraceModel::SetupCone( const float height, const float width, const int n
 {
 	idBounds coneBounds;
 	float halfWidth;
-	
+
 	halfWidth = width * 0.5f;
 	coneBounds[0].Set( -halfWidth, -halfWidth, -height );
 	coneBounds[1].Set( halfWidth, halfWidth, 0.0f );
@@ -835,7 +835,7 @@ void idTraceModel::SetupBone( const float length, const float width )
 {
 	int i, j, edgeNum;
 	float halfLength = length * 0.5f;
-	
+
 	if( type != TRM_BONE )
 	{
 		InitBone();
@@ -871,7 +871,7 @@ void idTraceModel::SetupBone( const float length, const float width )
 			polys[i].bounds.AddPoint( verts[ edges[abs( edgeNum )].v[edgeNum < 0] ] );
 		}
 	}
-	
+
 	GenerateEdgeNormals();
 }
 
@@ -885,12 +885,12 @@ idTraceModel::InitBone
 void idTraceModel::InitBone()
 {
 	int i;
-	
+
 	type = TRM_BONE;
 	numVerts = 5;
 	numEdges = 9;
 	numPolys = 6;
-	
+
 	// set bone edges
 	for( i = 0; i < 3; i++ )
 	{
@@ -901,38 +901,38 @@ void idTraceModel::InitBone()
 		edges[ i + 7 ].v[0] = i + 1;
 		edges[ i + 7 ].v[1] = 4;
 	}
-	
+
 	// all edges of a polygon go counter clockwise
 	polys[0].numEdges = 3;
 	polys[0].edges[0] = 2;
 	polys[0].edges[1] = -4;
 	polys[0].edges[2] = -1;
-	
+
 	polys[1].numEdges = 3;
 	polys[1].edges[0] = 3;
 	polys[1].edges[1] = -5;
 	polys[1].edges[2] = -2;
-	
+
 	polys[2].numEdges = 3;
 	polys[2].edges[0] = 1;
 	polys[2].edges[1] = -6;
 	polys[2].edges[2] = -3;
-	
+
 	polys[3].numEdges = 3;
 	polys[3].edges[0] = 4;
 	polys[3].edges[1] = 8;
 	polys[3].edges[2] = -7;
-	
+
 	polys[4].numEdges = 3;
 	polys[4].edges[0] = 5;
 	polys[4].edges[1] = 9;
 	polys[4].edges[2] = -8;
-	
+
 	polys[5].numEdges = 3;
 	polys[5].edges[0] = 6;
 	polys[5].edges[1] = 7;
 	polys[5].edges[2] = -9;
-	
+
 	// convex model
 	isConvex = true;
 }
@@ -946,7 +946,7 @@ void idTraceModel::SetupPolygon( const idVec3* v, const int count )
 {
 	int i, j;
 	idVec3 mid;
-	
+
 	type = TRM_POLYGON;
 	numVerts = count;
 	// times three because we need to be able to turn the polygon into a volume
@@ -955,7 +955,7 @@ void idTraceModel::SetupPolygon( const idVec3* v, const int count )
 		idLib::common->Printf( "WARNING: idTraceModel::SetupPolygon: too many vertices\n" );
 		numVerts = MAX_TRACEMODEL_EDGES / 3;
 	}
-	
+
 	numEdges = numVerts;
 	numPolys = 2;
 	// set polygon planes
@@ -1003,7 +1003,7 @@ void idTraceModel::SetupPolygon( const idWinding& w )
 {
 	int i;
 	idVec3* verts;
-	
+
 	verts = ( idVec3* ) _alloca16( w.GetNumPoints() * sizeof( idVec3 ) );
 	for( i = 0; i < w.GetNumPoints(); i++ )
 	{
@@ -1020,7 +1020,7 @@ idTraceModel::VolumeFromPolygon
 void idTraceModel::VolumeFromPolygon( idTraceModel& trm, float thickness ) const
 {
 	int i;
-	
+
 	trm = *this;
 	trm.type = TRM_POLYGONVOLUME;
 	trm.numVerts = numVerts * 2;
@@ -1044,7 +1044,7 @@ void idTraceModel::VolumeFromPolygon( idTraceModel& trm, float thickness ) const
 		trm.polys[2 + i].dist = trm.polys[2 + i].normal * verts[i];
 	}
 	trm.polys[1].dist = trm.polys[1].normal * trm.verts[ numEdges ];
-	
+
 	trm.GenerateEdgeNormals();
 }
 
@@ -1062,12 +1062,12 @@ int idTraceModel::GenerateEdgeNormals()
 	idVec3 dir;
 	traceModelPoly_t* poly;
 	traceModelEdge_t* edge;
-	
+
 	for( i = 0; i <= numEdges; i++ )
 	{
 		edges[i].normal.Zero();
 	}
-	
+
 	numSharpEdges = 0;
 	for( i = 0; i < numPolys; i++ )
 	{
@@ -1110,7 +1110,7 @@ idTraceModel::Translate
 void idTraceModel::Translate( const idVec3& translation )
 {
 	int i;
-	
+
 	for( i = 0; i < numVerts; i++ )
 	{
 		verts[i] += translation;
@@ -1134,12 +1134,12 @@ idTraceModel::Rotate
 void idTraceModel::Rotate( const idMat3& rotation )
 {
 	int i, j, edgeNum;
-	
+
 	for( i = 0; i < numVerts; i++ )
 	{
 		verts[i] *= rotation;
 	}
-	
+
 	bounds.Clear();
 	for( i = 0; i < numPolys; i++ )
 	{
@@ -1154,7 +1154,7 @@ void idTraceModel::Rotate( const idMat3& rotation )
 		polys[i].dist = polys[i].normal * verts[edges[abs( edgeNum )].v[INT32_SIGNBITSET( edgeNum )]];
 		bounds += polys[i].bounds;
 	}
-	
+
 	GenerateEdgeNormals();
 }
 
@@ -1168,7 +1168,7 @@ void idTraceModel::Shrink( const float m )
 	int i, j, edgeNum;
 	traceModelEdge_t* edge;
 	idVec3 dir;
-	
+
 	if( type == TRM_POLYGON )
 	{
 		for( i = 0; i < numEdges; i++ )
@@ -1186,11 +1186,11 @@ void idTraceModel::Shrink( const float m )
 		}
 		return;
 	}
-	
+
 	for( i = 0; i < numPolys; i++ )
 	{
 		polys[i].dist -= m;
-		
+
 		for( j = 0; j < polys[i].numEdges; j++ )
 		{
 			edgeNum = polys[i].edges[j];
@@ -1208,7 +1208,7 @@ idTraceModel::Compare
 bool idTraceModel::Compare( const idTraceModel& trm ) const
 {
 	int i;
-	
+
 	if( type != trm.type || numVerts != trm.numVerts ||
 			numEdges != trm.numEdges || numPolys != trm.numPolys )
 	{
@@ -1218,7 +1218,7 @@ bool idTraceModel::Compare( const idTraceModel& trm ) const
 	{
 		return false;
 	}
-	
+
 	switch( type )
 	{
 		case TRM_INVALID:
@@ -1255,7 +1255,7 @@ float idTraceModel::GetPolygonArea( int polyNum ) const
 	idVec3 base, v1, v2, cross;
 	float total;
 	const traceModelPoly_t* poly;
-	
+
 	if( polyNum < 0 || polyNum >= numPolys )
 	{
 		return 0.0f;
@@ -1282,7 +1282,7 @@ int idTraceModel::GetOrderedSilhouetteEdges( const int edgeIsSilEdge[MAX_TRACEMO
 {
 	int i, j, edgeNum, numSilEdges, nextSilVert;
 	int unsortedSilEdges[MAX_TRACEMODEL_EDGES];
-	
+
 	numSilEdges = 0;
 	for( i = 1; i <= numEdges; i++ )
 	{
@@ -1291,7 +1291,7 @@ int idTraceModel::GetOrderedSilhouetteEdges( const int edgeIsSilEdge[MAX_TRACEMO
 			unsortedSilEdges[numSilEdges++] = i;
 		}
 	}
-	
+
 	silEdges[0] = unsortedSilEdges[0];
 	unsortedSilEdges[0] = -1;
 	nextSilVert = edges[silEdges[0]].v[0];
@@ -1336,9 +1336,9 @@ int idTraceModel::GetProjectionSilhouetteEdges( const idVec3& projectionOrigin, 
 	int edgeIsSilEdge[MAX_TRACEMODEL_EDGES + 1];
 	const traceModelPoly_t* poly;
 	idVec3 dir;
-	
+
 	memset( edgeIsSilEdge, 0, sizeof( edgeIsSilEdge ) );
-	
+
 	for( i = 0; i < numPolys; i++ )
 	{
 		poly = &polys[i];
@@ -1353,7 +1353,7 @@ int idTraceModel::GetProjectionSilhouetteEdges( const idVec3& projectionOrigin, 
 			}
 		}
 	}
-	
+
 	return GetOrderedSilhouetteEdges( edgeIsSilEdge, silEdges );
 }
 
@@ -1367,9 +1367,9 @@ int idTraceModel::GetParallelProjectionSilhouetteEdges( const idVec3& projection
 	int i, j, edgeNum;
 	int edgeIsSilEdge[MAX_TRACEMODEL_EDGES + 1];
 	const traceModelPoly_t* poly;
-	
+
 	memset( edgeIsSilEdge, 0, sizeof( edgeIsSilEdge ) );
-	
+
 	for( i = 0; i < numPolys; i++ )
 	{
 		poly = &polys[i];
@@ -1382,7 +1382,7 @@ int idTraceModel::GetParallelProjectionSilhouetteEdges( const idVec3& projection
 			}
 		}
 	}
-	
+
 	return GetOrderedSilhouetteEdges( edgeIsSilEdge, silEdges );
 }
 
@@ -1417,7 +1417,7 @@ void idTraceModel::ProjectionIntegrals( int polyNum, int a, int b, struct projec
 	float a1_2, a1_3, b1_2, b1_3;
 	float C1, Ca, Caa, Caaa, Cb, Cbb, Cbbb;
 	float Cab, Kab, Caab, Kaab, Cabb, Kabb;
-	
+
 	memset( &integrals, 0, sizeof( projectionIntegrals_t ) );
 	poly = &polys[polyNum];
 	for( i = 0; i < poly->numEdges; i++ )
@@ -1441,7 +1441,7 @@ void idTraceModel::ProjectionIntegrals( int polyNum, int a, int b, struct projec
 		a1_3 = a1_2 * a1;
 		b1_2 = b1 * b1;
 		b1_3 = b1_2 * b1;
-		
+
 		C1 = a1 + a0;
 		Ca = a1 * C1 + a0_2;
 		Caa = a1 * Ca + a0_3;
@@ -1455,7 +1455,7 @@ void idTraceModel::ProjectionIntegrals( int polyNum, int a, int b, struct projec
 		Kaab = a1 * Kab + 4 * a0_3;
 		Cabb = 4 * b1_3 + 3 * b1_2 * b0 + 2 * b1 * b0_2 + b0_3;
 		Kabb = b1_3 + 2 * b1_2 * b0 + 3 * b1 * b0_2 + 4 * b0_3;
-		
+
 		integrals.P1 += db * C1;
 		integrals.Pa += db * Ca;
 		integrals.Paa += db * Caa;
@@ -1467,7 +1467,7 @@ void idTraceModel::ProjectionIntegrals( int polyNum, int a, int b, struct projec
 		integrals.Paab += db * ( b1 * Caab + b0 * Kaab );
 		integrals.Pabb += da * ( a1 * Cabb + a0 * Kabb );
 	}
-	
+
 	integrals.P1 *= ( 1.0f / 2.0f );
 	integrals.Pa *= ( 1.0f / 6.0f );
 	integrals.Paa *= ( 1.0f / 12.0f );
@@ -1499,32 +1499,32 @@ void idTraceModel::PolygonIntegrals( int polyNum, int a, int b, int c, struct po
 	idVec3 n;
 	float w;
 	float k1, k2, k3, k4;
-	
+
 	ProjectionIntegrals( polyNum, a, b, pi );
-	
+
 	n = polys[polyNum].normal;
 	w = -polys[polyNum].dist;
 	k1 = 1 / n[c];
 	k2 = k1 * k1;
 	k3 = k2 * k1;
 	k4 = k3 * k1;
-	
+
 	integrals.Fa = k1 * pi.Pa;
 	integrals.Fb = k1 * pi.Pb;
 	integrals.Fc = -k2 * ( n[a] * pi.Pa + n[b] * pi.Pb + w * pi.P1 );
-	
+
 	integrals.Faa = k1 * pi.Paa;
 	integrals.Fbb = k1 * pi.Pbb;
 	integrals.Fcc = k3 * ( Square( n[a] ) * pi.Paa + 2 * n[a] * n[b] * pi.Pab + Square( n[b] ) * pi.Pbb
 						   + w * ( 2 * ( n[a] * pi.Pa + n[b] * pi.Pb ) + w * pi.P1 ) );
-						   
+
 	integrals.Faaa = k1 * pi.Paaa;
 	integrals.Fbbb = k1 * pi.Pbbb;
 	integrals.Fccc = -k4 * ( Cube( n[a] ) * pi.Paaa + 3 * Square( n[a] ) * n[b] * pi.Paab
 							 + 3 * n[a] * Square( n[b] ) * pi.Pabb + Cube( n[b] ) * pi.Pbbb
 							 + 3 * w * ( Square( n[a] ) * pi.Paa + 2 * n[a] * n[b] * pi.Pab + Square( n[b] ) * pi.Pbb )
 							 + w * w * ( 3 * ( n[a] * pi.Pa + n[b] * pi.Pb ) + w * pi.P1 ) );
-							 
+
 	integrals.Faab = k1 * pi.Paab;
 	integrals.Fbbc = -k2 * ( n[a] * pi.Pabb + n[b] * pi.Pbbb + w * pi.Pbb );
 	integrals.Fcca = k3 * ( Square( n[a] ) * pi.Paaa + 2 * n[a] * n[b] * pi.Paab + Square( n[b] ) * pi.Pabb
@@ -1550,12 +1550,12 @@ void idTraceModel::VolumeIntegrals( struct volumeIntegrals_s& integrals ) const
 	polygonIntegrals_t pi;
 	int i, a, b, c;
 	float nx, ny, nz;
-	
+
 	memset( &integrals, 0, sizeof( volumeIntegrals_t ) );
 	for( i = 0; i < numPolys; i++ )
 	{
 		poly = &polys[i];
-		
+
 		nx = idMath::Fabs( poly->normal[0] );
 		ny = idMath::Fabs( poly->normal[1] );
 		nz = idMath::Fabs( poly->normal[2] );
@@ -1569,11 +1569,11 @@ void idTraceModel::VolumeIntegrals( struct volumeIntegrals_s& integrals ) const
 		}
 		a = ( c + 1 ) % 3;
 		b = ( a + 1 ) % 3;
-		
+
 		PolygonIntegrals( i, a, b, c, pi );
-		
+
 		integrals.T0 += poly->normal[0] * ( ( a == 0 ) ? pi.Fa : ( ( b == 0 ) ? pi.Fb : pi.Fc ) );
-		
+
 		integrals.T1[a] += poly->normal[a] * pi.Faa;
 		integrals.T1[b] += poly->normal[b] * pi.Fbb;
 		integrals.T1[c] += poly->normal[c] * pi.Fcc;
@@ -1584,7 +1584,7 @@ void idTraceModel::VolumeIntegrals( struct volumeIntegrals_s& integrals ) const
 		integrals.TP[b] += poly->normal[b] * pi.Fbbc;
 		integrals.TP[c] += poly->normal[c] * pi.Fcca;
 	}
-	
+
 	integrals.T1 *= 0.5f;
 	integrals.T2 *= ( 1.0f / 3.0f );
 	integrals.TP *= 0.5f;
@@ -1598,19 +1598,19 @@ idTraceModel::GetMassProperties
 void idTraceModel::GetMassProperties( const float density, float& mass, idVec3& centerOfMass, idMat3& inertiaTensor ) const
 {
 	volumeIntegrals_t integrals;
-	
+
 	// if polygon trace model
 	if( type == TRM_POLYGON )
 	{
 		idTraceModel trm;
-		
+
 		VolumeFromPolygon( trm, 1.0f );
 		trm.GetMassProperties( density, mass, centerOfMass, inertiaTensor );
 		return;
 	}
-	
+
 	VolumeIntegrals( integrals );
-	
+
 	// if no volume
 	if( integrals.T0 == 0.0f )
 	{
@@ -1619,7 +1619,7 @@ void idTraceModel::GetMassProperties( const float density, float& mass, idVec3& 
 		inertiaTensor.Identity();
 		return;
 	}
-	
+
 	// mass of model
 	mass = density * integrals.T0;
 	// center of mass

@@ -41,41 +41,41 @@ void idMenuWidget_PDA_UserData::Update()
 	{
 		return;
 	}
-	
+
 	idSWFScriptObject& root = GetSWFObject()->GetRootObject();
 	if( !BindSprite( root ) || GetSprite() == NULL )
 	{
 		return;
 	}
-	
+
 	idPlayer* player = gameLocal.GetLocalPlayer();
 	if( player == NULL )
 	{
 		return;
 	}
-	
+
 	if( pdaIndex > player->GetInventory().pdas.Num() )
 	{
 		return;
 	}
-	
+
 	const idDeclPDA* pda = player->GetInventory().pdas[ pdaIndex ];
-	
+
 	idSWFScriptObject* dataObj = GetSprite()->GetScriptObject();
-	
+
 	if( dataObj != NULL && pda != NULL )
 	{
-	
+
 		idSWFTextInstance* txtName = dataObj->GetNestedText( "txtName" );
 		idSWFTextInstance* txtId = dataObj->GetNestedText( "txtId" );
 		idSWFTextInstance* txtLocation = dataObj->GetNestedText( "txtLocation" );
 		idSWFTextInstance* txtRank = dataObj->GetNestedText( "txtRank" );
 		idSWFTextInstance* txtClearance = dataObj->GetNestedText( "txtClearance" );
 		idSWFTextInstance* txtLocHeading = dataObj->GetNestedText( "txtLocHeading" );
-		
+
 		if( txtName != NULL )
 		{
-		
+
 			if( pdaIndex == 0 )
 			{
 				txtName->SetIgnoreColor( false );
@@ -87,7 +87,7 @@ void idMenuWidget_PDA_UserData::Update()
 				txtName->SetText( pda->GetFullName() );
 			}
 		}
-		
+
 		if( txtLocHeading != NULL )
 		{
 			if( pdaIndex == 0 )
@@ -99,12 +99,12 @@ void idMenuWidget_PDA_UserData::Update()
 				txtLocHeading->SetText( idLocalization::GetString( "#str_02515" ) );	// post
 			}
 		}
-		
+
 		if( txtId != NULL )
 		{
 			txtId->SetText( pda->GetID() );
 		}
-		
+
 		if( txtLocation != NULL )
 		{
 			if( pdaIndex == 0 )
@@ -124,12 +124,12 @@ void idMenuWidget_PDA_UserData::Update()
 				txtLocation->SetText( pda->GetPost() );
 			}
 		}
-		
+
 		if( txtRank != NULL )
 		{
 			txtRank->SetText( pda->GetTitle() );
 		}
-		
+
 		if( txtClearance != NULL )
 		{
 			const char* security = pda->GetSecurity();
@@ -157,14 +157,14 @@ void idMenuWidget_PDA_UserData::ObserveEvent( const idMenuWidget& widget, const 
 	{
 		return;
 	}
-	
+
 	const idMenuWidget* const listWidget = button->GetParent();
-	
+
 	if( listWidget == NULL )
 	{
 		return;
 	}
-	
+
 	switch( event.type )
 	{
 		case WIDGET_EVENT_FOCUS_ON:

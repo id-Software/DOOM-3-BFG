@@ -99,22 +99,22 @@ struct Camera
 		,	mZNear( 0.1f )
 		,	mZFar( 1000.f )
 	{}
-	
+
 	// Name of camera
 	idStr mName;
-	
+
 	// True if it is an orthografic camera
 	bool mOrtho;
-	
+
 	//! Horizontal field of view in degrees
 	float mHorFov;
-	
+
 	//! Vertical field of view in degrees
 	float mVerFov;
-	
+
 	//! Screen aspect
 	float mAspect;
-	
+
 	//! Near& far z
 	float mZNear, mZFar;
 };
@@ -134,27 +134,27 @@ struct Light
 		,	mOuterAngle( 10e10f )
 		,	mIntensity( 1.f )
 	{}
-	
+
 	//! Type of the light source aiLightSourceType + ambient
 	unsigned int mType;
-	
+
 	//! Color of the light
 	idVec3 mColor;
-	
+
 	//! Light attenuation
 	float mAttConstant, mAttLinear, mAttQuadratic;
-	
+
 	//! Spot light falloff
 	float mFalloffAngle;
 	float mFalloffExponent;
-	
+
 	// -----------------------------------------------------
 	// FCOLLADA extension from here
-	
+
 	//! ... related stuff from maja and max extensions
 	float mPenumbraAngle;
 	float mOuterAngle;
-	
+
 	//! Common light intensity
 	float mIntensity;
 };
@@ -165,10 +165,10 @@ struct InputSemanticMapEntry
 	InputSemanticMapEntry()
 		:	mSet( 0 )
 	{}
-	
+
 	//! Index of set, optional
 	unsigned int mSet;
-	
+
 	//! Name of referenced vertex input
 	InputType mType;
 };
@@ -178,10 +178,10 @@ struct SemanticMappingTable
 {
 	//! Name of material
 	idStr mMatName;
-	
+
 	//! List of semantic map commands, grouped by effect semantic name
 	idHashTable<InputSemanticMapEntry> mMap;
-	
+
 	//! For std::find
 	bool operator == ( const idStr& s ) const
 	{
@@ -196,7 +196,7 @@ struct MeshInstance
 {
 	///< ID of the mesh or controller to be instanced
 	idStr mMeshOrController;
-	
+
 	///< Map of materials by the subgroup ID they're applied to
 	//idHashTable<SemanticMappingTable> mMaterials;
 	idStrList mMaterials;
@@ -231,31 +231,31 @@ struct Node
 	idStr mSID;
 	Node* mParent;
 	idList<Node*> mChildren;
-	
+
 	/** Operations in order to calculate the resulting transformation to parent. */
 	idList<Transform> mTransforms;
-	
+
 	/** Meshes at this node */
 	idList<MeshInstance> mMeshes;
-	
+
 	/** Lights at this node */
 	idList<LightInstance> mLights;
-	
+
 	/** Cameras at this node */
 	idList<CameraInstance> mCameras;
-	
+
 	/** Node instances at this node */
 	idList<NodeInstance> mNodeInstances;
-	
+
 	/** Rootnodes: Name of primary camera, if any */
 	idStr mPrimaryCamera;
-	
+
 	//! Constructor. Begin with a zero parent
 	Node()
 	{
 		mParent = NULL;
 	}
-	
+
 	//! Destructor: delete all children subsequently
 	~Node()
 	{
@@ -283,7 +283,7 @@ struct Accessor
 	// For example, SubOffset[0] denotes which of the values inside the object is the vector X component.
 	idStr mSource;   // URL of the source array
 	mutable const Data* mData; // Pointer to the source array, if resolved. NULL else
-	
+
 	Accessor()
 	{
 		mCount = 0;
@@ -309,7 +309,7 @@ struct InputChannel
 	size_t mOffset;       // Index offset in the indices array of per-face indices. Don't ask, can't explain that any better.
 	idStr mAccessor; // ID of the accessor where to read the actual values from.
 	mutable const Accessor* mResolved; // Pointer to the accessor, if resolved. NULL else
-	
+
 	InputChannel()
 	{
 		mType = IT_Invalid;
@@ -334,14 +334,14 @@ struct Mesh
 		//for (unsigned int i = 0; i < AI_MAX_NUMBER_OF_TEXTURECOORDS;++i)
 		//	mNumUVComponents[i] = 2;
 	}
-	
+
 	// just to check if there's some sophisticated addressing involved...
 	// which we don't support, and therefore should warn about.
 	idStr mVertexID;
-	
+
 	// Vertex data addressed by vertex indices
 	idList<InputChannel> mPerVertexData;
-	
+
 	// actual mesh data, assembled on encounter of a <p> element. Verbose format, not indexed
 	idList<idVec3> mPositions;
 	idList<idVec3> mNormals;
@@ -349,17 +349,17 @@ struct Mesh
 	idList<idVec3> mBitangents;
 	idList<idVec2> mTexCoords;
 	idList<dword> mColors;
-	
+
 	//unsigned int mNumUVComponents[AI_MAX_NUMBER_OF_TEXTURECOORDS];
-	
+
 	// Faces. Stored are only the number of vertices for each face.
 	// 1 == point, 2 == line, 3 == triangle, 4+ == poly
 	idList<int> mFaceSize;
-	
+
 	// Position indices for all faces in the sequence given in mFaceSize -
 	// necessary for bone weight assignment
 	idList<int> mFacePosIndices;
-	
+
 	// Submeshes in this mesh, each with a given material
 	idList<SubMesh> mSubMeshes;
 };
@@ -388,24 +388,24 @@ struct Controller
 {
 	// the URL of the mesh deformed by the controller.
 	idStr mMeshId;
-	
+
 	// accessor URL of the joint names
 	idStr mJointNameSource;
-	
+
 	///< The bind shape matrix, as array of floats. I'm not sure what this matrix actually describes, but it can't be ignored in all cases
 	float mBindShapeMatrix[16];
-	
+
 	// accessor URL of the joint inverse bind matrices
 	idStr mJointOffsetMatrixSource;
-	
+
 	// input channel: joint names.
 	InputChannel mWeightInputJoints;
 	// input channel: joint weights
 	InputChannel mWeightInputWeights;
-	
+
 	// Number of weights per vertex.
 	idList<size_t> mWeightCounts;
-	
+
 	// JointIndex-WeightIndex pairs for all vertices
 	idList< WeightPair > mWeights;
 };
@@ -453,50 +453,50 @@ struct Sampler
 		,	mWeighting( 1.f )
 		,	mMixWithPrevious( 1.f )
 	{}
-	
+
 	/** Name of image reference
 	 */
 	idStr mName;
-	
+
 	/** Wrap U?
 	 */
 	bool mWrapU;
-	
+
 	/** Wrap V?
 	 */
 	bool mWrapV;
-	
+
 	/** Mirror U?
 	 */
 	bool mMirrorU;
-	
+
 	/** Mirror V?
 	 */
 	bool mMirrorV;
-	
+
 	/** Blend mode
 	 */
 	//aiTextureOp mOp;
-	
+
 	/** UV transformation
 	 */
 	//aiUVTransform mTransform;
-	
+
 	/** Name of source UV channel
 	 */
 	//idStr mUVChannel;
-	
+
 	/** Resolved UV channel index or UINT_MAX if not known
 	 */
 	unsigned int mUVId;
-	
+
 	// OKINO/MAX3D extensions from here
 	// -------------------------------------------------------
-	
+
 	/** Weighting factor
 	 */
 	float mWeighting;
-	
+
 	/** Mixing factor from OKINO
 	 */
 	float mMixWithPrevious;
@@ -508,28 +508,28 @@ struct Effect
 {
 	// Shading mode
 	ShadeType mShadeType;
-	
+
 	// Colors
 	idVec4 mEmissive, mAmbient, mDiffuse, mSpecular,
 		   mTransparent, mReflective;
-		   
+
 	// Textures
 	Sampler mTexEmissive, mTexAmbient, mTexDiffuse, mTexSpecular,
 			mTexTransparent, mTexBump, mTexReflective;
-			
+
 	// Scalar factory
 	float mShininess, mRefractIndex, mReflectivity;
 	float mTransparency;
-	
+
 	// local params referring to each other by their SID
 	typedef idHashTable<Collada::EffectParam> ParamLibrary;
 	ParamLibrary mParams;
-	
+
 	// MAX3D extensions
 	// ---------------------------------------------------------
 	// Double-sided?
 	bool mDoubleSided, mWireframe, mFaceted;
-	
+
 	Effect()
 		: mShadeType( Shade_Phong )
 		, mEmissive( 0, 0, 0, 1 )
@@ -552,16 +552,16 @@ struct Effect
 struct Image
 {
 	idStr mFileName;
-	
+
 	/** If image file name is zero, embedded image data
 	 */
 	idList<uint8_t> mImageData;
-	
+
 	/** If image file name is zero, file format of
 	 *  embedded image data.
 	 */
 	idStr mEmbeddedFormat;
-	
+
 };
 
 /** An animation channel. */
@@ -571,7 +571,7 @@ struct AnimationChannel
 	 * "NodeID/TransformID.SubElement" notation
 	 */
 	idStr mTarget;
-	
+
 	/** Source URL of the time values. Collada calls them "input". Meh. */
 	idStr mSourceTimes;
 	/** Source URL of the value values. Collada calls them "output". */
@@ -583,13 +583,13 @@ struct Animation
 {
 	/** Anim name */
 	idStr mName;
-	
+
 	/** the animation channels, if any */
 	idList<AnimationChannel> mChannels;
-	
+
 	/** the sub-animations, if any */
 	idList<Animation*> mSubAnims;
-	
+
 	/** Destructor */
 	~Animation()
 	{
@@ -604,13 +604,13 @@ struct ChannelEntry
 	idStr mTransformId;   // the ID of the transformation step of the node which is influenced
 	size_t mTransformIndex; // Index into the node's transform chain to apply the channel to
 	size_t mSubElement; // starting index inside the transform data
-	
+
 	// resolved data references
 	const Collada::Accessor* mTimeAccessor; ///> Collada accessor to the time values
 	const Collada::Data* mTimeData; ///> Source data array for the time values
 	const Collada::Accessor* mValueAccessor; ///> Collada accessor to the key value values
 	const Collada::Data* mValueData; ///> Source datat array for the key value values
-	
+
 	ChannelEntry()
 	{
 		mChannel = NULL;

@@ -33,7 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 
 // RB: replaced QGL with GLEW
 #if !defined(USE_VULKAN)
-#include "../../libs/glew/include/GL/wglew.h" // windows OpenGL extensions
+	#include "../../libs/glew/include/GL/wglew.h" // windows OpenGL extensions
 #endif
 // RB end
 
@@ -79,41 +79,41 @@ typedef struct
 {
 	HWND			hWnd;
 	HINSTANCE		hInstance;
-	
+
 	bool			activeApp;			// changed with WM_ACTIVATE messages
 	bool			mouseReleased;		// when the game has the console down or is doing a long operation
 	bool			movingWindow;		// inhibit mouse grab when dragging the window
 	bool			mouseGrabbed;		// current state of grab and hide
-	
+
 	OSVERSIONINFOEX	osversion;
-	
+
 	cpuid_t			cpuid;
-	
+
 	// when we get a windows message, we store the time off so keyboard processing
 	// can know the exact time of an event (not really needed now that we use async direct input)
 	int				sysMsgTime;
-	
+
 	bool			windowClassRegistered;
-	
+
 	WNDPROC			wndproc;
-	
+
 	HDC				hDC;							// handle to device context
 	HGLRC			hGLRC;						// handle to GL rendering context
 	PIXELFORMATDESCRIPTOR pfd;
 	int				pixelformat;
-	
+
 	HINSTANCE		hinstOpenGL;	// HINSTANCE for the OpenGL library
-	
+
 	int				desktopBitsPixel;
 	int				desktopWidth, desktopHeight;
-	
+
 	int				cdsFullscreen;	// 0 = not fullscreen, otherwise monitor number
-	
+
 	idFileHandle	log_fp;
-	
+
 	unsigned short	oldHardwareGamma[3][256];
 	// desktop gamma is saved here for restoration at exit
-	
+
 	static idCVar	sys_arch;
 	static idCVar	sys_cpustring;
 	static idCVar	in_mouse;
@@ -124,16 +124,16 @@ typedef struct
 	static idCVar	win_viewlog;
 	static idCVar	win_timerUpdate;
 	static idCVar	win_allowMultipleInstances;
-	
+
 	CRITICAL_SECTION criticalSections[MAX_CRITICAL_SECTIONS];
-	
+
 	HINSTANCE		hInstDI;			// direct input
-	
+
 	LPDIRECTINPUT8			g_pdi;
 	LPDIRECTINPUTDEVICE8	g_pMouse;
 	LPDIRECTINPUTDEVICE8	g_pKeyboard;
 	idJoystickWin32			g_Joystick;
-	
+
 } Win32Vars_t;
 
 extern Win32Vars_t	win32;

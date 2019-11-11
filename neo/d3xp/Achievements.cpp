@@ -140,7 +140,7 @@ void idAchievementManager::SyncAchievments()
 	{
 		return;
 	}
-	
+
 	// Set achievement counts
 	for( int i = 0; i < counts.Num(); i++ )
 	{
@@ -177,12 +177,12 @@ idAchievementManager::Save
 void idAchievementManager::Save( idSaveGame* savefile ) const
 {
 	owner.Save( savefile );
-	
+
 	for( int i = 0; i < ACHIEVEMENTS_NUM; i++ )
 	{
 		savefile->WriteInt( counts[i] );
 	}
-	
+
 	savefile->WriteInt( lastImpKilledTime );
 	savefile->WriteInt( lastPlayerKilledTime );
 	savefile->WriteBool( playerTookDamage );
@@ -197,17 +197,17 @@ idAchievementManager::Restore
 void idAchievementManager::Restore( idRestoreGame* savefile )
 {
 	owner.Restore( savefile );
-	
+
 	for( int i = 0; i < ACHIEVEMENTS_NUM; i++ )
 	{
 		savefile->ReadInt( counts[i] );
 	}
-	
+
 	savefile->ReadInt( lastImpKilledTime );
 	savefile->ReadInt( lastPlayerKilledTime );
 	savefile->ReadBool( playerTookDamage );
 	savefile->ReadInt( currentHellTimeKills );
-	
+
 	SyncAchievments();
 }
 
@@ -222,11 +222,11 @@ void idAchievementManager::EventCompletesAchievement( const achievement_t eventI
 	{
 		return;
 	}
-	
+
 	idLocalUser* localUser = GetLocalUser();
 	if( localUser == NULL || localUser->GetProfile() == NULL )
 	{
-	
+
 		// Send a Reliable Message to the User that needs to unlock this.
 		if( owner != NULL )
 		{
@@ -235,25 +235,25 @@ void idAchievementManager::EventCompletesAchievement( const achievement_t eventI
 			byte buffer[ bufferSize ];
 			idBitMsg msg;
 			msg.InitWrite( buffer, bufferSize );
-			
+
 			msg.WriteByte( playerId );
 			msg.WriteByte( eventId );
-			
+
 			msg.WriteByteAlign();
 			idLib::Printf( "Host Sending Achievement\n" );
 			session->GetActingGameStateLobbyBase().SendReliableToLobbyUser( gameLocal.lobbyUserIDs[ owner->entityNumber ], GAME_RELIABLE_MESSAGE_ACHIEVEMENT_UNLOCK, msg );
 		}
-		
+
 		return; // Remote user or build game
 	}
-	
+
 	// Check to see if we've already given the achievement.
 	// If so, don't do again because we don't want to autosave every time a trigger is hit
 	if( localUser->GetProfile()->GetAchievement( eventId ) )
 	{
 		return;
 	}
-	
+
 #ifdef ID_RETAIL
 	if( common->GetConsoleUsed() )
 	{
@@ -265,9 +265,9 @@ void idAchievementManager::EventCompletesAchievement( const achievement_t eventI
 		return;
 	}
 #endif
-	
+
 	counts[eventId]++;
-	
+
 	if( counts[eventId] >= achievementInfo[eventId].required )
 	{
 		session->GetAchievementSystem().AchievementUnlock( localUser, eventId );
@@ -330,14 +330,14 @@ idAchievementManager::LocalUser_CompleteAchievement
 void idAchievementManager::LocalUser_CompleteAchievement( achievement_t id )
 {
 	idLocalUser* localUser = session->GetSignInManager().GetMasterLocalUser();
-	
+
 	// Check to see if we've already given the achievement.
 	// If so, don't do again because we don't want to autosave every time a trigger is hit
 	if( localUser == NULL || localUser->GetProfile()->GetAchievement( id ) )
 	{
 		return;
 	}
-	
+
 #ifdef ID_RETAIL
 	if( common->GetConsoleUsed() )
 	{
@@ -349,7 +349,7 @@ void idAchievementManager::LocalUser_CompleteAchievement( achievement_t id )
 		return;
 	}
 #endif
-	
+
 	session->GetAchievementSystem().AchievementUnlock( localUser, id );
 }
 
@@ -368,12 +368,12 @@ void idAchievementManager::CheckDoomClassicsAchievements( int killcount, int ite
 	const skill_t difficulty = ( skill_t )skill;
 	const currentGame_t currentGame = common->GetCurrentGame();
 	const GameMission_t expansion = ( GameMission_t )mission;
-	
-	
+
+
 	idLocalUser* localUser = session->GetSignInManager().GetMasterLocalUser();
 	if( localUser != NULL && localUser->GetProfile() != NULL )
 	{
-	
+
 		// GENERAL ACHIEVEMENT UNLOCKING.
 		if( currentGame == DOOM_CLASSIC )
 		{
@@ -383,17 +383,17 @@ void idAchievementManager::CheckDoomClassicsAchievements( int killcount, int ite
 		{
 			LocalUser_CompleteAchievement( ACHIEVEMENT_DOOM2_JUST_GETTING_STARTED_COMPLETE_ANY_LEVEL );
 		}
-		
+
 		// Complete Any Level on Nightmare.
 		if( difficulty == sk_nightmare && currentGame == DOOM_CLASSIC )
 		{
 			LocalUser_CompleteAchievement( ACHIEVEMENT_DOOM1_NIGHTMARE_COMPLETE_ANY_LEVEL_NIGHTMARE );
 		}
-		
+
 		const bool gotAllKills = killcount >= totalkills;
 		const bool gotAllItems = itemcount >= totalitems;
 		const bool gotAllSecrets = secretcount >= totalsecret;
-		
+
 		if( gotAllItems && gotAllKills && gotAllSecrets )
 		{
 			if( currentGame == DOOM_CLASSIC )
@@ -405,70 +405,70 @@ void idAchievementManager::CheckDoomClassicsAchievements( int killcount, int ite
 				LocalUser_CompleteAchievement( ACHIEVEMENT_DOOM2_BURNING_OUT_OF_CONTROL_COMPLETE_KILLS_ITEMS_SECRETS );
 			}
 		}
-		
+
 		// DOOM EXPANSION ACHIEVEMENTS
 		if( expansion == doom )
 		{
-		
+
 			if( map == 8 )
 			{
-			
+
 				// Medium or higher skill level.
 				if( difficulty >= sk_medium )
 				{
 					localUser->SetStatInt( STAT_DOOM_COMPLETED_EPISODE_1_MEDIUM + ( episode - 1 ), 1 );
 				}
-				
+
 				// Hard or higher skill level.
 				if( difficulty >= sk_hard )
 				{
 					localUser->SetStatInt( STAT_DOOM_COMPLETED_EPISODE_1_HARD + ( episode - 1 ), 1 );
 					localUser->SetStatInt( STAT_DOOM_COMPLETED_EPISODE_1_MEDIUM + ( episode - 1 ), 1 );
 				}
-				
+
 				if( difficulty == sk_nightmare )
 				{
 					localUser->SetStatInt( STAT_DOOM_COMPLETED_EPISODE_1_HARD + ( episode - 1 ), 1 );
 					localUser->SetStatInt( STAT_DOOM_COMPLETED_EPISODE_1_MEDIUM + ( episode - 1 ), 1 );
 				}
-				
+
 				// Save the Settings.
 				localUser->SaveProfileSettings();
 			}
-			
+
 			// Check to see if we've completed all episodes.
 			const int episode1completed = localUser->GetStatInt( STAT_DOOM_COMPLETED_EPISODE_1_MEDIUM );
 			const int episode2completed = localUser->GetStatInt( STAT_DOOM_COMPLETED_EPISODE_2_MEDIUM );
 			const int episode3completed = localUser->GetStatInt( STAT_DOOM_COMPLETED_EPISODE_3_MEDIUM );
 			const int episode4completed = localUser->GetStatInt( STAT_DOOM_COMPLETED_EPISODE_4_MEDIUM );
-			
+
 			const int episode1completed_hard = localUser->GetStatInt( STAT_DOOM_COMPLETED_EPISODE_1_HARD );
 			const int episode2completed_hard = localUser->GetStatInt( STAT_DOOM_COMPLETED_EPISODE_2_HARD );
 			const int episode3completed_hard = localUser->GetStatInt( STAT_DOOM_COMPLETED_EPISODE_3_HARD );
 			const int episode4completed_hard = localUser->GetStatInt( STAT_DOOM_COMPLETED_EPISODE_4_HARD );
-			
+
 			if( currentGame == DOOM_CLASSIC )
 			{
 				if( episode1completed )
 				{
 					LocalUser_CompleteAchievement( ACHIEVEMENT_DOOM1_EPISODE1_COMPLETE_MEDIUM );
 				}
-				
+
 				if( episode2completed )
 				{
 					LocalUser_CompleteAchievement( ACHIEVEMENT_DOOM1_EPISODE2_COMPLETE_MEDIUM );
 				}
-				
+
 				if( episode3completed )
 				{
 					LocalUser_CompleteAchievement( ACHIEVEMENT_DOOM1_EPISODE3_COMPLETE_MEDIUM );
 				}
-				
+
 				if( episode4completed )
 				{
 					LocalUser_CompleteAchievement( ACHIEVEMENT_DOOM1_EPISODE4_COMPLETE_MEDIUM );
 				}
-				
+
 				if( episode1completed_hard && episode2completed_hard && episode3completed_hard && episode4completed_hard )
 				{
 					LocalUser_CompleteAchievement( ACHIEVEMENT_DOOM1_RAMPAGE_COMPLETE_ALL_HARD );
@@ -477,14 +477,14 @@ void idAchievementManager::CheckDoomClassicsAchievements( int killcount, int ite
 		}
 		else if( expansion == doom2 )
 		{
-		
+
 			if( map == 30 )
 			{
-			
+
 				if( currentGame == DOOM2_CLASSIC )
 				{
 					LocalUser_CompleteAchievement( ACHIEVEMENT_DOOM2_FROM_EARTH_TO_HELL_COMPLETE_HELL_ON_EARTH );
-					
+
 					if( difficulty >= sk_hard )
 					{
 						LocalUser_CompleteAchievement( ACHIEVEMENT_DOOM2_SUPERIOR_FIREPOWER_COMPLETE_ALL_HARD );
@@ -496,14 +496,14 @@ void idAchievementManager::CheckDoomClassicsAchievements( int killcount, int ite
 		{
 			if( map == 8 )
 			{
-			
+
 				if( currentGame == DOOM2_CLASSIC )
 				{
 					LocalUser_CompleteAchievement( ACHIEVEMENT_DOOM2_AND_BACK_AGAIN_COMPLETE_NO_REST );
 				}
 			}
 		}
-		
+
 	}
 }
 #endif // #if defined(USE_DOOMCLASSIC)
@@ -584,10 +584,10 @@ CONSOLE_COMMAND( AchievementsList, "Lists achievements and status", NULL )
 		return;
 	}
 	idPlayerProfile* profile = user->GetProfile();
-	
+
 	idArray<bool, 128> achievementState;
 	bool achievementStateValid = session->GetAchievementSystem().GetAchievementState( user, achievementState );
-	
+
 	for( int i = 0; i < ACHIEVEMENTS_NUM; i++ )
 	{
 		const char* pInfo = "";
@@ -629,10 +629,10 @@ CONSOLE_COMMAND( AchievementsList, "Lists achievements and status", NULL )
 		{
 			count = 0;
 		}
-		
+
 		achievementDescription_t data;
 		bool descriptionValid = session->GetAchievementSystem().GetAchievementDescription( user, i, data );
-		
+
 		idLib::Printf( "%02d: %2d/%2d | %12.12s | %12.12s | %s%s\n", i, count, achievementInfo[i].required, pInfo, sInfo, descriptionValid ? data.hidden ? "(hidden) " : "" : "(unknown) ", descriptionValid ? data.name : "" );
 	}
 }

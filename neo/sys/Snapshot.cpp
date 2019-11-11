@@ -68,9 +68,9 @@ void idSnapShot::objectState_t::Print( const char* name )
 
 	unsigned int start = ( unsigned int )net_ssTemplateDebug_start.GetInteger();
 	unsigned int end = Min( ( unsigned int )buffer.Size(), start + net_ssTemplateDebug_len.GetInteger() );
-	
+
 	PrintAlign( va( "%s: [sz %d]", name, buffer.Size() ) );
-	
+
 	for( unsigned int i = start; i < end; i++ )
 	{
 		idLib::Printf( "%02X", buffer[i] );
@@ -204,7 +204,7 @@ idSnapShot::operator=
 void idSnapShot::operator=( const idSnapShot& other )
 {
 	//assert( mem.IsMapHeap() );
-	
+
 	if( this != &other )
 	{
 		for( int i = other.objectStates.Num(); i < objectStates.Num(); i++ )
@@ -243,7 +243,7 @@ void idSnapShot::PeekDeltaSequence( const char* deltaMem, int deltaSize, int& se
 {
 	lzwCompressionData_t	lzwData;
 	idLZWCompressor			lzwCompressor( &lzwData );
-	
+
 	lzwCompressor.Start( ( uint8* )deltaMem, deltaSize );
 	lzwCompressor.ReadAgnostic( sequence );
 	lzwCompressor.ReadAgnostic( baseSequence );
@@ -259,31 +259,31 @@ bool idSnapShot::ReadDeltaForJob( const char* deltaMem, int deltaSize, int visIn
 
 	bool report = net_verboseSnapshotReport.GetBool();
 	net_verboseSnapshotReport.SetBool( false );
-	
+
 	lzwCompressionData_t		lzwData;
 	idZeroRunLengthCompressor	rleCompressor;
 	idLZWCompressor				lzwCompressor( &lzwData );
 	int bytesRead = 0; // how many uncompressed bytes we read in. Used to figure out compression ratio
-	
+
 	lzwCompressor.Start( ( uint8* )deltaMem, deltaSize );
-	
+
 	// Skip past sequence and baseSequence
 	int sequence		= 0;
 	int baseSequence	= 0;
-	
+
 	lzwCompressor.ReadAgnostic( sequence );
 	lzwCompressor.ReadAgnostic( baseSequence );
 	lzwCompressor.ReadAgnostic( time );
 	bytesRead += sizeof( int ) * 3;
-	
+
 	int objectNum = 0;
 	uint16 delta = 0;
-	
-	
+
+
 	while( lzwCompressor.ReadAgnostic( delta, true ) == sizeof( delta ) )
 	{
 		bytesRead += sizeof( delta );
-		
+
 		objectNum += delta;
 		if( objectNum >= 0xFFFF )
 		{
@@ -295,13 +295,13 @@ bool idSnapShot::ReadDeltaForJob( const char* deltaMem, int deltaSize, int visIn
 			}
 			return true;
 		}
-		
+
 		objectState_t& state = FindOrCreateObjectByID( objectNum );
-		
+
 		objectSize_t newsize = 0;
 		lzwCompressor.ReadAgnostic( newsize );
 		bytesRead += sizeof( newsize );
-		
+
 		if( newsize == SIZE_STALE )
 		{
 			NET_VERBOSESNAPSHOT_PRINT( "read delta: object %d goes stale\n", objectNum );
@@ -333,9 +333,9 @@ bool idSnapShot::ReadDeltaForJob( const char* deltaMem, int deltaSize, int visIn
 			lzwCompressor.ReadAgnostic( newsize );
 			bytesRead += sizeof( newsize );
 		}
-		
+
 		objectState_t* 	objTemplateState = templateStates->FindObjectByID( objectNum );
-		
+
 		if( newsize == 0 )
 		{
 			// object deleted: reset state now so next one to use it doesn't have old data
@@ -346,7 +346,7 @@ bool idSnapShot::ReadDeltaForJob( const char* deltaMem, int deltaSize, int visIn
 			state.visMask = 0;
 			state.buffer._Release();
 			state.createdFromTemplate = false;
-			
+
 			if( objTemplateState != NULL && objTemplateState->buffer.Size() && objTemplateState->expectedSequence < baseSequence )
 			{
 				idLib::PrintfIf( net_ssTemplateDebug.GetBool(), "Clearing old template state[%d] [%d<%d]\n", objectNum, objTemplateState->expectedSequence, baseSequence );
@@ -357,11 +357,11 @@ bool idSnapShot::ReadDeltaForJob( const char* deltaMem, int deltaSize, int visIn
 				objTemplateState->visMask = 0;
 				objTemplateState->buffer._Release();
 			}
-			
+
 		}
 		else
 		{
-		
+
 			// new state?
 			bool debug = false;
 			if( state.buffer.Size() == 0 )
@@ -372,7 +372,7 @@ bool idSnapShot::ReadDeltaForJob( const char* deltaMem, int deltaSize, int visIn
 				{
 					idLib::PrintfIf( net_ssTemplateDebug.GetBool(), "\nAdding basestate for new object %d (for SS %d/%d. obj base created in ss %d) deltaSize: %d\n", objectNum, sequence, baseSequence, objTemplateState->expectedSequence, deltaSize );
 					state.buffer = objTemplateState->buffer;
-					
+
 					if( net_ssTemplateDebug.GetBool() )
 					{
 						state.Print( "SPAWN STATE" );
@@ -389,7 +389,7 @@ bool idSnapShot::ReadDeltaForJob( const char* deltaMem, int deltaSize, int visIn
 			{
 				state.createdFromTemplate = false;
 			}
-			
+
 			// the buffer shrank or stayed the same
 			objectBuffer_t newbuffer( newsize );
 			rleCompressor.Start( NULL, &lzwCompressor, newsize );
@@ -398,7 +398,7 @@ bool idSnapShot::ReadDeltaForJob( const char* deltaMem, int deltaSize, int visIn
 			{
 				byte b = rleCompressor.ReadByte();
 				newbuffer[i] = state.buffer[i] + b;
-				
+
 				if( debug && InDebugRange( i ) )
 				{
 					idLib::Printf( "%02X", b );
@@ -408,7 +408,7 @@ bool idSnapShot::ReadDeltaForJob( const char* deltaMem, int deltaSize, int visIn
 			if( newsize > compareSize )
 			{
 				rleCompressor.ReadBytes( newbuffer.Ptr() + compareSize, newsize - compareSize );
-				
+
 				if( debug )
 				{
 					for( objectSize_t i = compareSize; i < newsize; i++ )
@@ -419,7 +419,7 @@ bool idSnapShot::ReadDeltaForJob( const char* deltaMem, int deltaSize, int visIn
 						}
 					}
 				}
-				
+
 			}
 			state.buffer = newbuffer;
 			state.changedCount = sequence;
@@ -429,7 +429,7 @@ bool idSnapShot::ReadDeltaForJob( const char* deltaMem, int deltaSize, int visIn
 				idLib::Printf( "\n" );
 				state.Print( "NEW STATE" );
 			}
-			
+
 			if( report )
 			{
 				idLib::Printf( "    Obj %d Compressed: Size %d \n", objectNum, rleCompressor.CompressedSize() );
@@ -472,19 +472,19 @@ void idSnapShot::SubmitObjectJob(	const submitDeltaJobsInfo_t& 	submitDeltaJobsI
 	assert( newState != NULL || oldState != NULL );
 	assert_16_byte_aligned( curHeader );
 	assert_16_byte_aligned( curObjDest );
-	
+
 	int32 dataSize = newState != NULL ? newState->buffer.Size() : 0;
 	int totalSize = OBJ_DEST_SIZE_ALIGN16( dataSize );
-	
+
 	if( curObjParm - submitDeltaJobsInfo.objParms >= submitDeltaJobsInfo.maxObjParms )
 	{
 		idLib::Error( "Out of parms for snapshot jobs.\n" );
 	}
-	
+
 	// Check to see if we are out of dest write space, and need to flush the jobs
 	bool needToSubmit = ( curObjDest - submitDeltaJobsInfo.objMemory ) + totalSize >= submitDeltaJobsInfo.maxObjMemory;
 	needToSubmit |= ( curHeader - submitDeltaJobsInfo.headers >= submitDeltaJobsInfo.maxHeaders );
-	
+
 	if( needToSubmit )
 	{
 		// If this obj will put us over the limit, then submit the jobs now, and start over re-using the same buffers
@@ -492,50 +492,50 @@ void idSnapShot::SubmitObjectJob(	const submitDeltaJobsInfo_t& 	submitDeltaJobsI
 		curHeader	= submitDeltaJobsInfo.headers;
 		curObjDest	= submitDeltaJobsInfo.objMemory;
 	}
-	
+
 	// Setup obj parms
 	assert( submitDeltaJobsInfo.visIndex < 256 );
 	curObjParm->visIndex	= submitDeltaJobsInfo.visIndex;
 	curObjParm->destHeader	= curHeader;
 	curObjParm->dest		= curObjDest;
-	
+
 	memset( &curObjParm->newState, 0, sizeof( curObjParm->newState ) );
 	memset( &curObjParm->oldState, 0, sizeof( curObjParm->oldState ) );
-	
+
 	if( newState != NULL )
 	{
 		assert( newState->buffer.Size() <= 65535 );
-		
+
 		curObjParm->newState.valid		= 1;
 		curObjParm->newState.data		= newState->buffer.Ptr();
 		curObjParm->newState.size		= newState->buffer.Size();
 		curObjParm->newState.objectNum	= newState->objectNum;
 		curObjParm->newState.visMask	= newState->visMask;
 	}
-	
+
 	if( oldState != NULL )
 	{
 		assert( oldState->buffer.Size() <= 65535 );
-		
+
 		curObjParm->oldState.valid		= 1;
 		curObjParm->oldState.data		= oldState->buffer.Ptr();
 		curObjParm->oldState.size		= oldState->buffer.Size();
 		curObjParm->oldState.objectNum	= oldState->objectNum;
 		curObjParm->oldState.visMask	= oldState->visMask;
 	}
-	
+
 	assert_16_byte_aligned( curObjParm );
 	assert_16_byte_aligned( curObjParm->newState.data );
 	assert_16_byte_aligned( curObjParm->oldState.data );
-	
+
 	SnapshotObjectJob( curObjParm );
-	
+
 	// Advance past header + data
 	curObjDest += totalSize;
-	
+
 	// Advance parm pointer
 	curObjParm++;
-	
+
 	// Advance header pointer
 	curHeader++;
 }
@@ -555,18 +555,18 @@ void idSnapShot::SubmitLZWJob(
 )
 {
 	int numObjects = curObjParm - baseObjParm;
-	
+
 	if( numObjects == 0 )
 	{
 		return;		// Nothing to do
 	}
-	
+
 	if( curlzwParm - writeDeltaInfo.lzwParms >= writeDeltaInfo.maxDeltaParms )
 	{
 		idLib::Error( "SubmitLZWJob: Not enough lzwParams.\n" );
 		return;		// Can't do anymore
 	}
-	
+
 	curlzwParm->numObjects		= numObjects;
 	curlzwParm->headers			= writeDeltaInfo.headers;		// We always start grabbing from the beggining of the memory (it's reused, with fences to protect memory sharing)
 	curlzwParm->curTime			= this->GetTime();
@@ -574,13 +574,13 @@ void idSnapShot::SubmitLZWJob(
 	curlzwParm->baseSequence	= writeDeltaInfo.baseSequence;
 	curlzwParm->fragmented		= ( curlzwParm != writeDeltaInfo.lzwParms );
 	curlzwParm->saveDictionary	= saveDictionary;
-	
+
 	curlzwParm->ioData			= writeDeltaInfo.lzwInOutData;
-	
+
 	LZWJob( curlzwParm );
-	
+
 	curlzwParm++;
-	
+
 	// Set base so it now points to where the parms start for the new stream
 	baseObjParm = curObjParm;
 }
@@ -599,7 +599,7 @@ idSnapShot::objectState_t* idSnapShot::GetTemplateState( int objNum, idSnapShot*
 	if( spawnedStateIndex >= 0 )
 	{
 		oldState = templateStates->objectStates[ spawnedStateIndex ];
-		
+
 		if( net_ssTemplateDebug.GetBool() )
 		{
 			idLib::Printf( "\nGetTemplateState[%d]\n", objNum );
@@ -625,15 +625,15 @@ void idSnapShot::SubmitWriteDeltaToJobs( const submitDeltaJobsInfo_t& submitDelt
 	lzwParm_t* 		curlzwParms		= submitDeltaJobInfo.lzwParms;
 	objHeader_t* 	curHeader		= submitDeltaJobInfo.headers;
 	uint8* 			curObjMemory	= submitDeltaJobInfo.objMemory;
-	
+
 	submitDeltaJobInfo.lzwInOutData->numlzwDeltas	= 0;
 	submitDeltaJobInfo.lzwInOutData->lzwBytes		= 0;
 	submitDeltaJobInfo.lzwInOutData->fullSnap		= false;
-	
+
 	int j = 0;
-	
+
 	int numOldStates = submitDeltaJobInfo.oldSnap->objectStates.Num();
-	
+
 	for( int i = 0; i < objectStates.Num(); i++ )
 	{
 		objectState_t& newState = *objectStates[i];
@@ -644,39 +644,39 @@ void idSnapShot::SubmitWriteDeltaToJobs( const submitDeltaJobsInfo_t& submitDelt
 			idLib::Warning( "Snap obj [%d] state.size <= 0... skipping ", newState.objectNum );
 			continue;
 		}
-		
+
 		if( j >= numOldStates )
 		{
 			// We no longer have old objects to compare to.
 			// All objects are new from this point on.
-			
+
 			objectState_t* oldState = GetTemplateState( newState.objectNum, submitDeltaJobInfo.templateStates, &newState );
 			SubmitObjectJob( submitDeltaJobInfo, &newState, oldState, baseObjParms, curObjParms, curHeader, curObjMemory, curlzwParms );
 			continue;
 		}
-		
+
 		// write any deleted entities up to this one
 		for( ; j < numOldStates && newState.objectNum > submitDeltaJobInfo.oldSnap->objectStates[j]->objectNum; j++ )
 		{
 			objectState_t& oldState = *submitDeltaJobInfo.oldSnap->objectStates[j];
-			
+
 			if( ( oldState.stale && !oldState.deleted ) || oldState.buffer.Size() <= 0 )
 			{
 				continue;		// Don't delete objects that are stale and not marked as deleted
 			}
-			
+
 			SubmitObjectJob( submitDeltaJobInfo, NULL, &oldState, baseObjParms, curObjParms, curHeader, curObjMemory, curlzwParms );
 		}
-		
+
 		if( j >= numOldStates )
 		{
 			continue;	// Went past end of old list deleting objects
 		}
-		
+
 		// Beyond this point, we may have old state to compare against
 		objectState_t& submittedOldState = *submitDeltaJobInfo.oldSnap->objectStates[j];
 		objectState_t* oldState = &submittedOldState;
-		
+
 		if( newState.objectNum == oldState->objectNum )
 		{
 			if( oldState->buffer.Size() == 0 )
@@ -684,7 +684,7 @@ void idSnapShot::SubmitWriteDeltaToJobs( const submitDeltaJobsInfo_t& submitDelt
 				// New state (even though snapObj existed, its size was zero)
 				oldState = GetTemplateState( newState.objectNum, submitDeltaJobInfo.templateStates, &newState );
 			}
-			
+
 			SubmitObjectJob( submitDeltaJobInfo, &newState, oldState, baseObjParms, curObjParms, curHeader, curObjMemory, curlzwParms );
 			j++;
 		}
@@ -700,15 +700,15 @@ void idSnapShot::SubmitWriteDeltaToJobs( const submitDeltaJobsInfo_t& submitDelt
 	for( ; j < submitDeltaJobInfo.oldSnap->objectStates.Num(); j++ )
 	{
 		objectState_t& oldState = *submitDeltaJobInfo.oldSnap->objectStates[j];
-		
+
 		if( ( oldState.stale && !oldState.deleted ) || oldState.buffer.Size() <= 0 )
 		{
 			continue;		// Don't delete objects that are stale and not marked as deleted
 		}
-		
+
 		SubmitObjectJob( submitDeltaJobInfo, NULL, &oldState, baseObjParms, curObjParms, curHeader, curObjMemory, curlzwParms );
 	}
-	
+
 	// Submit any objects that are left over (will be all if they all fit up to this point)
 	SubmitLZWJob( submitDeltaJobInfo, baseObjParms, curObjParms, curlzwParms, false );
 }
@@ -722,7 +722,7 @@ bool idSnapShot::ReadDelta( idFile* file, int visIndex )
 {
 
 	file->ReadBig( time );
-	
+
 	int objectNum = 0;
 	uint16 delta = 0;
 	while( file->ReadBig( delta ) == sizeof( delta ) )
@@ -736,7 +736,7 @@ bool idSnapShot::ReadDelta( idFile* file, int visIndex )
 		objectState_t& state = FindOrCreateObjectByID( objectNum );
 		objectSize_t newsize = 0;
 		file->ReadBig( newsize );
-		
+
 		if( newsize == SIZE_STALE )
 		{
 			NET_VERBOSESNAPSHOT_PRINT( "read delta: object %d goes stale\n", objectNum );
@@ -767,7 +767,7 @@ bool idSnapShot::ReadDelta( idFile* file, int visIndex )
 			// the latest state is packed in, get the new size and continue reading the new state
 			file->ReadBig( newsize );
 		}
-		
+
 		if( newsize == 0 )
 		{
 			// object deleted
@@ -777,23 +777,23 @@ bool idSnapShot::ReadDelta( idFile* file, int visIndex )
 		{
 			objectBuffer_t newbuffer( newsize );
 			objectSize_t compareSize = Min( newsize, state.buffer.Size() );
-			
+
 			for( objectSize_t i = 0; i < compareSize; i++ )
 			{
 				uint8 delta = 0;
 				file->ReadBig<byte>( delta );
 				newbuffer[i] = state.buffer[i] + delta;
 			}
-			
+
 			if( newsize > compareSize )
 			{
 				file->Read( newbuffer.Ptr() + compareSize, newsize - compareSize );
 			}
-			
+
 			state.buffer = newbuffer;
 			state.changedCount++;
 		}
-		
+
 #ifdef SNAPSHOT_CHECKSUMS
 		if( state.buffer.Size() > 0 )
 		{
@@ -803,7 +803,7 @@ bool idSnapShot::ReadDelta( idFile* file, int visIndex )
 		}
 #endif
 	}
-	
+
 	// partial delta
 	return false;
 }
@@ -816,10 +816,10 @@ idSnapShot::WriteObject
 void idSnapShot::WriteObject( idFile* file, int visIndex, objectState_t* newState, objectState_t* oldState, int& lastobjectNum )
 {
 	assert( newState != NULL || oldState != NULL );
-	
+
 	bool visChange		= false; // visibility changes will be signified with a 0xffff state size
 	bool visSendState	= false; // the state is sent when an entity is no longer stale
-	
+
 	// Compute visibility changes
 	// (we need to do this before writing out object id, because we may not need to write out the id if we early out)
 	// (when we don't write out the id, we assume this is an "ack" when we deserialize the objects)
@@ -827,15 +827,15 @@ void idSnapShot::WriteObject( idFile* file, int visIndex, objectState_t* newStat
 	{
 		// Check visibility
 		assert( newState->objectNum == oldState->objectNum );
-		
+
 		if( visIndex > 0 )
 		{
 			bool oldVisible = ( oldState->visMask & ( 1 << visIndex ) ) != 0;
 			bool newVisible = ( newState->visMask & ( 1 << visIndex ) ) != 0;
-			
+
 			// Force visible if we need to either create or destroy this object
 			newVisible |= ( newState->buffer.Size() == 0 ) != ( oldState->buffer.Size() == 0 );
-			
+
 			if( !oldVisible && !newVisible )
 			{
 				// object is stale and ack'ed for this client, write nothing (see 'same object' below)
@@ -854,7 +854,7 @@ void idSnapShot::WriteObject( idFile* file, int visIndex, objectState_t* newStat
 				visSendState = true;
 			}
 		}
-		
+
 		// Same object, write a delta (never early out during vis changes)
 		if( !visChange && newState->buffer.Size() == oldState->buffer.Size() &&
 				( ( newState->buffer.Ptr() == oldState->buffer.Ptr() ) || memcmp( newState->buffer.Ptr(), oldState->buffer.Ptr(), newState->buffer.Size() ) == 0 ) )
@@ -863,7 +863,7 @@ void idSnapShot::WriteObject( idFile* file, int visIndex, objectState_t* newStat
 			return;
 		}
 	}
-	
+
 	// Get the id of the object we are writing out
 	uint16 objectNum;
 	if( newState != NULL )
@@ -878,14 +878,14 @@ void idSnapShot::WriteObject( idFile* file, int visIndex, objectState_t* newStat
 	{
 		objectNum = 0;
 	}
-	
+
 	assert( objectNum == 0 || objectNum > lastobjectNum );
-	
+
 	// Write out object id (using delta)
 	uint16 objectDelta = objectNum - lastobjectNum;
 	file->WriteBig( objectDelta );
 	lastobjectNum = objectNum;
-	
+
 	if( newState == NULL )
 	{
 		// Deleted, write 0 size
@@ -905,7 +905,7 @@ void idSnapShot::WriteObject( idFile* file, int visIndex, objectState_t* newStat
 		// Compare to last object
 		assert( newState != NULL && oldState != NULL );
 		assert( newState->objectNum == oldState->objectNum );
-		
+
 		if( visChange )
 		{
 			// fake size indicates vis state change
@@ -915,17 +915,17 @@ void idSnapShot::WriteObject( idFile* file, int visIndex, objectState_t* newStat
 		}
 		if( !visChange || visSendState )
 		{
-		
+
 			objectSize_t compareSize = Min( newState->buffer.Size(), oldState->buffer.Size() );		// Get the number of bytes that overlap
-			
+
 			file->WriteBig( newState->buffer.Size() );										// Write new size
-			
+
 			// Compare bytes that overlap
 			for( objectSize_t b = 0; b < compareSize; b++ )
 			{
 				file->WriteBig<byte>( ( 0xFF + 1 + newState->buffer[b] - oldState->buffer[b] ) & 0xFF );
 			}
-			
+
 			// Write leftover
 			if( newState->buffer.Size() > compareSize )
 			{
@@ -933,7 +933,7 @@ void idSnapShot::WriteObject( idFile* file, int visIndex, objectState_t* newStat
 			}
 		}
 	}
-	
+
 #ifdef SNAPSHOT_CHECKSUMS
 	if( ( !visChange || visSendState ) && newState != NULL )
 	{
@@ -961,24 +961,24 @@ idSnapShot::WriteDelta
 bool idSnapShot::WriteDelta( idSnapShot& old, int visIndex, idFile* file, int maxLength, int optimalLength )
 {
 	file->WriteBig( time );
-	
+
 	int objectHeaderSize = sizeof( uint16 ) + sizeof( objectSize_t );
 #ifdef SNAPSHOT_CHECKSUMS
 	objectHeaderSize += sizeof( unsigned int );
 #endif
-	
+
 	int lastobjectNum = 0;
 	int j = 0;
-	
+
 	for( int i = 0; i < objectStates.Num(); i++ )
 	{
 		objectState_t& newState = *objectStates[i];
-		
+
 		if( optimalLength > 0 && file->Length() >= optimalLength )
 		{
 			return false;
 		}
-		
+
 		if( !verify( newState.buffer.Size() < maxLength ) )
 		{
 			// If the new state's size is > the max packet size, we'll never be able to send it!
@@ -992,19 +992,19 @@ bool idSnapShot::WriteDelta( idSnapShot& old, int visIndex, idFile* file, int ma
 			idLib::Warning( "Snap obj [%d] state.size <= 0... skipping ", newState.objectNum );
 			continue;
 		}
-		
+
 		if( file->Length() + objectHeaderSize + newState.buffer.Size() >= maxLength )
 		{
 			return false;
 		}
-		
+
 		if( j >= old.objectStates.Num() )
 		{
 			// delta against an empty snap
 			WriteObject( file, visIndex, &newState, NULL, lastobjectNum );
 			continue;
 		}
-		
+
 		// write any deleted entities up to this one
 		for( ; newState.objectNum > old.objectStates[j]->objectNum; j++ )
 		{
@@ -1015,10 +1015,10 @@ bool idSnapShot::WriteDelta( idSnapShot& old, int visIndex, idFile* file, int ma
 			objectState_t& oldState = *old.objectStates[j];
 			WriteObject( file, visIndex, NULL, &oldState, lastobjectNum );
 		}
-		
+
 		// Beyond this point, we have old state to compare against
 		objectState_t& oldState = *old.objectStates[j];
-		
+
 		if( newState.objectNum == oldState.objectNum )
 		{
 			// FIXME: We don't need to early out if WriteObject determines that we won't send the object due to being stale
@@ -1035,7 +1035,7 @@ bool idSnapShot::WriteDelta( idSnapShot& old, int visIndex, idFile* file, int ma
 			{
 				return false;
 			}
-			
+
 			// Different object, this one is new, write the full state
 			WriteObject( file, visIndex, &newState, NULL, lastobjectNum );
 		}
@@ -1047,12 +1047,12 @@ bool idSnapShot::WriteDelta( idSnapShot& old, int visIndex, idFile* file, int ma
 		{
 			return false;
 		}
-		
+
 		if( optimalLength > 0 && file->Length() >= optimalLength )
 		{
 			return false;
 		}
-		
+
 		objectState_t& oldState = *old.objectStates[j];
 		WriteObject( file, visIndex, NULL, &oldState, lastobjectNum );
 	}
@@ -1062,7 +1062,7 @@ bool idSnapShot::WriteDelta( idSnapShot& old, int visIndex, idFile* file, int ma
 	}
 	uint16 objectDelta = 0xFFFF - lastobjectNum;
 	file->WriteBig( objectDelta );
-	
+
 	return true;
 }
 
@@ -1104,10 +1104,10 @@ bool idSnapShot::CopyObject( const idSnapShot& oldss, int objectNum, bool forceS
 	{
 		return false;
 	}
-	
+
 	const objectState_t& oldState = *oldss.objectStates[oldIndex];
 	objectState_t& newState = FindOrCreateObjectByID( objectNum );
-	
+
 	newState.buffer			= oldState.buffer;
 	newState.visMask		= oldState.visMask;
 	newState.stale			= oldState.stale;
@@ -1115,12 +1115,12 @@ bool idSnapShot::CopyObject( const idSnapShot& oldss, int objectNum, bool forceS
 	newState.changedCount	= oldState.changedCount;
 	newState.expectedSequence = oldState.expectedSequence;
 	newState.createdFromTemplate = oldState.createdFromTemplate;
-	
+
 	if( forceStale )
 	{
 		newState.visMask = 0;
 	}
-	
+
 	return true;
 }
 
@@ -1137,38 +1137,38 @@ int idSnapShot::CompareObject( const idSnapShot* oldss, int objectNum, int start
 	{
 		return 0;
 	}
-	
+
 	assert( FindObjectIndexByID( objectNum ) >= 0 );
-	
+
 	objectState_t& newState = FindOrCreateObjectByID( objectNum );
-	
+
 	int oldIndex = oldss->FindObjectIndexByID( objectNum );
 	if( oldIndex == -1 )
 	{
 		return ( end == 0 ? newState.buffer.Size() : end - start );	// Didn't exist in the old state, so we take the hit on the entire size
 	}
-	
+
 	objectState_t& oldState = const_cast< objectState_t& >( *oldss->objectStates[oldIndex] );
-	
+
 	int bytes = 0;
-	
+
 	int oldOffset = oldStart - start;
 	int commonSize = ( newState.buffer.Size() <= oldState.buffer.Size() - oldOffset ) ? newState.buffer.Size() : oldState.buffer.Size() - oldOffset;
 	if( end == 0 )
 	{
 		// default 0 means compare the whole thing
 		end = commonSize;
-		
+
 		// Get leftover (if any)
 		bytes = ( newState.buffer.Size() > oldState.buffer.Size() ) ? ( newState.buffer.Size() - oldState.buffer.Size() ) : 0;
 	}
 	else
 	{
-	
+
 		// else only compare up to end or the max buffer and dont include leftover
 		end = Min( commonSize, end );
 	}
-	
+
 	for( int b = start; b < end; b++ )
 	{
 		if( verify( b >= 0 && b < ( int )newState.buffer.Size() && b + oldOffset >= 0 && b + oldOffset < ( int )oldState.buffer.Size() ) )
@@ -1176,7 +1176,7 @@ int idSnapShot::CompareObject( const idSnapShot* oldss, int objectNum, int start
 			bytes += ( newState.buffer[b] != oldState.buffer[b + oldOffset] ) ? 1 : 0;
 		}
 	}
-	
+
 	return bytes;
 }
 
@@ -1255,12 +1255,12 @@ int idSnapShot::BinarySearch( int objectNum ) const
 	while( hi != lo )
 	{
 		int mid = ( hi + lo ) >> 1;
-		
+
 		if( objectStates[mid]->objectNum == objectNum )
 		{
 			return mid;		// Early out if we can
 		}
-		
+
 		if( objectStates[mid]->objectNum < objectNum )
 		{
 			lo = mid + 1;
@@ -1281,19 +1281,19 @@ idSnapShot::FindOrCreateObjectByID
 idSnapShot::objectState_t& idSnapShot::FindOrCreateObjectByID( int objectNum )
 {
 	//assert( mem.IsMapHeap() );
-	
+
 	int i = BinarySearch( objectNum );
-	
+
 	if( i >= 0 && i < objectStates.Num() && objectStates[i]->objectNum == objectNum )
 	{
 		return *objectStates[i];
 	}
-	
+
 	objectState_t* newstate = allocatedObjs.Alloc();
 	newstate->objectNum = objectNum;
-	
+
 	objectStates.Insert( newstate, i );
-	
+
 	return *objectStates[i];
 }
 
@@ -1306,14 +1306,14 @@ idSnapShot::objectState_t* idSnapShot::FindObjectByID( int objectNum ) const
 {
 
 	//assert( mem.IsMapHeap() );
-	
+
 	int i = BinarySearch( objectNum );
-	
+
 	if( i >= 0 && i < objectStates.Num() && objectStates[i]->objectNum == objectNum )
 	{
 		return objectStates[i];
 	}
-	
+
 	return NULL;
 }
 
@@ -1377,7 +1377,7 @@ void idSnapShot::ApplyToExistingState( int objId, idBitMsg& msg )
 	{
 		return;
 	}
-	
+
 	if( !objectState->createdFromTemplate )
 	{
 		// We were created this from a template, so we shouldn't be applying it again
@@ -1388,13 +1388,13 @@ void idSnapShot::ApplyToExistingState( int objId, idBitMsg& msg )
 		}
 		return;
 	}
-	
+
 	// Debug print the template (spawn) and delta state
 	if( net_ssTemplateDebug.GetBool() )
 	{
 		idLib::Printf( "\nApplyToExistingState[%d]. buffer size: %d msg size: %d\n", objId, objectState->buffer.Size(), msg.GetSize() );
 		objectState->Print( "DELTA STATE" );
-		
+
 		PrintAlign( "SPAWN STATE" );
 		for( int i = 0; i < msg.GetSize(); i++ )
 		{
@@ -1405,13 +1405,13 @@ void idSnapShot::ApplyToExistingState( int objId, idBitMsg& msg )
 		}
 		idLib::Printf( "\n" );
 	}
-	
+
 	// Actually apply it
 	for( objectSize_t i = 0; i < Min( objectState->buffer.Size(), msg.GetSize() ); i++ )
 	{
 		objectState->buffer[i] += msg.GetReadData()[i];
 	}
-	
+
 	// Debug print the final state
 	if( net_ssTemplateDebug.GetBool() )
 	{
@@ -1426,43 +1426,43 @@ CONSOLE_COMMAND( serializeQTest, "Serialization Sanity Test", 0 )
 
 	byte buffer[1024];
 	memset( buffer, 0, sizeof( buffer ) );
-	
+
 	float values[] = { 0.0001f, 0.001f, 0.01f, 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 0.999f,
 					   1.0f, 1.01f, 1.1f, 10.0f, 10.1f, 10.101f, 100.0f, 101.0f, 101.1f, 101.101f
 					 };
 	int num = sizeof( values ) / sizeof( float );
-	
+
 	idLib::Printf( "\n^3Testing SerializeQ and SerializeUQ \n" );
-	
+
 	{
 		idBitMsg writeBitMsg;
 		writeBitMsg.InitWrite( buffer, sizeof( buffer ) );
 		idSerializer writeSerializer( writeBitMsg, true );
-		
+
 		for( int i = 0; i < num; i++ )
 		{
 			writeSerializer.SerializeUQ( values[i], 255.0f, 16 );
 			writeSerializer.SerializeQ( values[i], 128.0f, 16 );
 		}
 	}
-	
+
 	{
 		idBitMsg readBitMsg;
 		readBitMsg.InitRead( buffer, sizeof( buffer ) );
 		idSerializer readSerializer( readBitMsg, false );
-		
+
 		for( int i = 0; i < num; i++ )
 		{
-		
+
 			float resultUQ = -999.0f;
 			float resultQ  = -999.0f;
-			
+
 			readSerializer.SerializeUQ( resultUQ, 255.0f, 16 );
 			readSerializer.SerializeQ( resultQ, 128.0f, 16 );
-			
+
 			float errorUQ = idMath::Fabs( ( resultUQ - values[i] ) ) / values[i];
 			float errorQ  = idMath::Fabs( ( resultQ - values[i] ) ) / values[i];
-			
+
 			idLib::Printf( "%s%f SerializeUQ: %f. Error: %f \n", errorUQ > 0.1f ? "^1" : "", values[i], resultUQ, errorUQ );
 			idLib::Printf( "%s%f SerializeQ: %f. Error: %f \n",   errorQ > 0.1f ? "^1" : "", values[i], resultQ, errorQ );
 		}

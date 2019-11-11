@@ -51,7 +51,7 @@ class idListWindow : public idWindow
 {
 public:
 	idListWindow( idUserInterfaceLocal* gui );
-	
+
 	virtual const char*	HandleEvent( const sysEvent_t* event, bool* updateVisuals );
 	virtual void		PostParse();
 	virtual void		Draw( int time, float x, float y );
@@ -63,9 +63,9 @@ public:
 		return idWindow::Allocated();
 	};
 	virtual idWinVar*	GetWinVarByName( const char* _name, bool winLookup = false, drawWin_t** owner = NULL );
-	
+
 	void				UpdateList();
-	
+
 private:
 	virtual bool		ParseInternalVar( const char* name, idTokenParser* src );
 	void				CommonInit();
@@ -75,7 +75,7 @@ private:
 	int					GetCurrentSel();
 	bool				IsSelected( int index );
 	void				ClearSelection( int sel );
-	
+
 	idList<idTabRect, TAG_OLD_UI>	tabInfo;
 	int					top;
 	float				sizeBias;
@@ -88,14 +88,14 @@ private:
 	idStr				tabIconVOffsetStr;
 	idHashTable<const idMaterial*> iconMaterials;
 	bool				multipleSel;
-	
+
 	idStrList			listItems;
 	idSliderWindow*		scroller;
 	idList<int, TAG_OLD_UI>			currentSel;
 	idStr				listName;
-	
+
 	int					clickTime;
-	
+
 	int					typedTime;
 	idStr				typed;
 };

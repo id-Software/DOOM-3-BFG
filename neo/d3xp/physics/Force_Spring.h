@@ -42,7 +42,7 @@ class idForce_Spring : public idForce
 
 public:
 	CLASS_PROTOTYPE( idForce_Spring );
-	
+
 	idForce_Spring();
 	virtual				~idForce_Spring();
 	// initialize the spring
@@ -50,11 +50,11 @@ public:
 	// set the entities and positions on these entities the spring is attached to
 	void				SetPosition(	idPhysics* physics1, int id1, const idVec3& p1,
 										idPhysics* physics2, int id2, const idVec3& p2 );
-										
+
 public: // common force interface
 	virtual void		Evaluate( int time );
 	virtual void		RemovePhysics( const idPhysics* phys );
-	
+
 private:
 
 	// spring properties
@@ -62,7 +62,7 @@ private:
 	float				Kcompress;
 	float				damping;
 	float				restLength;
-	
+
 	// positioning
 	idPhysics* 			physics1;	// first physics object
 	int					id1;		// clip model id of first physics object
@@ -70,7 +70,7 @@ private:
 	idPhysics* 			physics2;	// second physics object
 	int					id2;		// clip model id of second physics object
 	idVec3				p2;			// position on clip model
-	
+
 };
 
 #endif /* !__FORCE_SPRING_H__ */

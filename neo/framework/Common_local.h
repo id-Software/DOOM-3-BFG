@@ -53,11 +53,11 @@ public:
 		numGameFrames(),
 		isClient()
 	{}
-	
+
 	// the gameReturn_t is from the previous frame, the
 	// new frame will be running in parallel on exit
 	gameReturn_t	RunGameAndDraw( int numGameFrames, idUserCmdMgr& userCmdMgr_, bool isClient_, int startGameFrame );
-	
+
 	// Accessors to the stored frame/thread time information
 	void			SetThreadTotalTime( const int inTime )
 	{
@@ -67,7 +67,7 @@ public:
 	{
 		return threadTime;
 	}
-	
+
 	void			SetThreadGameTime( const int time )
 	{
 		threadGameTime = time;
@@ -76,7 +76,7 @@ public:
 	{
 		return threadGameTime;
 	}
-	
+
 	void			SetThreadRenderTime( const int time )
 	{
 		threadRenderTime = time;
@@ -85,10 +85,10 @@ public:
 	{
 		return threadRenderTime;
 	}
-	
+
 private:
 	virtual int	Run();
-	
+
 	int				gameTime;
 	int				drawTime;
 	int				threadTime;					// total time : game time + foreground render time
@@ -142,7 +142,7 @@ class idCommonLocal : public idCommon
 {
 public:
 	idCommonLocal();
-	
+
 	virtual void				Init( int argc, const char* const* argv, const char* cmdline );
 	virtual void				Shutdown();
 	virtual	void				CreateMainMenu();
@@ -175,34 +175,34 @@ public:
 	{
 		return com_shuttingDown;
 	}
-	
+
 	virtual const char* 		KeysFromBinding( const char* bind );
 	virtual const char* 		BindingFromKey( const char* key );
-	
+
 	virtual bool				IsMultiplayer();
 	virtual bool				IsServer();
 	virtual bool				IsClient();
-	
+
 	virtual bool				GetConsoleUsed()
 	{
 		return consoleUsed;
 	}
-	
+
 	virtual int					GetSnapRate();
-	
+
 	virtual void				NetReceiveReliable( int peer, int type, idBitMsg& msg );
 	virtual void				NetReceiveSnapshot( class idSnapShot& ss );
 	virtual void				NetReceiveUsercmds( int peer, idBitMsg& msg );
 	void						NetReadUsercmds( int clientNum, idBitMsg& msg );
-	
+
 	virtual bool				ProcessEvent( const sysEvent_t* event );
-	
+
 	virtual bool				LoadGame( const char* saveName );
 	virtual bool				SaveGame( const char* saveName );
-	
+
 	virtual int					ButtonState( int key );
 	virtual int					KeyState( int key );
-	
+
 	virtual idDemoFile* 		ReadDemo()
 	{
 		return readDemo;
@@ -211,7 +211,7 @@ public:
 	{
 		return writeDemo;
 	}
-	
+
 	virtual idGame* 			Game()
 	{
 		return game;
@@ -236,21 +236,21 @@ public:
 	{
 		return commonDialog;
 	}
-	
+
 	virtual void				OnSaveCompleted( idSaveLoadParms& parms );
 	virtual void				OnLoadCompleted( idSaveLoadParms& parms );
 	virtual void				OnLoadFilesCompleted( idSaveLoadParms& parms );
 	virtual void				OnEnumerationCompleted( idSaveLoadParms& parms );
 	virtual void				OnDeleteCompleted( idSaveLoadParms& parms );
 	virtual void				TriggerScreenWipe( const char* _wipeMaterial, bool hold );
-	
+
 	virtual void				OnStartHosting( idMatchParameters& parms );
-	
+
 	virtual int					GetGameFrame()
 	{
 		return gameFrame;
 	}
-	
+
 	virtual void				InitializeMPMapsModes();
 	virtual const idStrList& 			GetModeList() const
 	{
@@ -264,16 +264,16 @@ public:
 	{
 		return mpGameMaps;
 	}
-	
+
 	virtual void				ResetPlayerInput( int playerIndex );
-	
+
 	virtual bool				JapaneseCensorship() const;
-	
+
 	virtual void				QueueShowShell()
 	{
 		showShellRequested = true;
 	}
-	
+
 	// RB begin
 #if defined(USE_DOOMCLASSIC)
 	virtual currentGame_t		GetCurrentGame() const
@@ -283,16 +283,16 @@ public:
 	virtual void				SwitchToGame( currentGame_t newGame );
 #endif
 	// RB end
-	
+
 public:
 	void	Draw();			// called by gameThread
-	
+
 	// foresthale 2014-03-01: added WaitGameThread() method
 	void	WaitGameThread()
 	{
 		gameThread.WaitForThread();
 	}
-	
+
 	int		GetGameThreadTotalTime() const
 	{
 		return gameThread.GetThreadTotalTime();
@@ -333,21 +333,21 @@ public:
 	// for images in particular we can measure more accurately this way (to deal with mipmaps)
 	void LoadPacifierBinarizeProgressTotal( int total );
 	void LoadPacifierBinarizeProgressIncrement( int step );
-	
+
 	frameTiming_t		frameTiming;
 	frameTiming_t		mainFrameTiming;
-	
+
 public:	// These are public because they are called directly by static functions in this file
 
 	const char* GetCurrentMapName()
 	{
 		return currentMapName.c_str();
 	}
-	
+
 	// loads a map and starts a new game on it
 	void	StartNewGame( const char* mapName, bool devmap, int gameMode );
 	void	LeaveGame();
-	
+
 	void	DemoShot( const char* name );
 	void	StartRecordingRenderDemo( const char* name );
 	void	StopRecordingRenderDemo();
@@ -357,62 +357,62 @@ public:	// These are public because they are called directly by static functions
 	void	TimeRenderDemo( const char* name, bool twice = false, bool quit = false );
 	void	AVIRenderDemo( const char* name );
 	void	AVIGame( const char* name );
-	
+
 	// localization
 	void	InitLanguageDict();
 	void	LocalizeGui( const char* fileName, idLangDict& langDict );
 	void	LocalizeMapData( const char* fileName, idLangDict& langDict );
 	void	LocalizeSpecificMapData( const char* fileName, idLangDict& langDict, const idLangDict& replaceArgs );
-	
+
 	idUserCmdMgr& GetUCmdMgr()
 	{
 		return userCmdMgr;
 	}
-	
+
 private:
 	bool						com_fullyInitialized;
 	bool						com_refreshOnPrint;		// update the screen every print for dmap
 	errorParm_t					com_errorEntered;
 	bool						com_shuttingDown;
 	bool						com_isJapaneseSKU;
-	
+
 	idFile* 					logFile;
-	
+
 	char						errorMessage[MAX_PRINT_MSG_SIZE];
-	
+
 	char* 						rd_buffer;
 	int							rd_buffersize;
 	void	( *rd_flush )( const char* buffer );
-	
+
 	idStr						warningCaption;
 	idStrList					warningList;
 	idStrList					errorList;
-	
+
 	int							gameDLL;
-	
+
 	idCommonDialog				commonDialog;
-	
+
 	idFile_SaveGame 			saveFile;
 	idFile_SaveGame 			stringsFile;
 	idFile_SaveGamePipelined*	 pipelineFile;
-	
+
 	// The main render world and sound world
 	idRenderWorld* 		renderWorld;
 	idSoundWorld* 		soundWorld;
-	
+
 	// The renderer and sound system will write changes to writeDemo.
 	// Demos can be recorded and played at the same time when splicing.
 	idDemoFile* 		readDemo;
 	idDemoFile* 		writeDemo;
-	
+
 	bool				menuActive;
 	idSoundWorld* 		menuSoundWorld;			// so the game soundWorld can be muted
-	
+
 	bool				insideExecuteMapChange;	// Enable Pacifier Updates
-	
+
 	// This is set if the player enables the console, which disables achievements
 	bool				consoleUsed;
-	
+
 	// This additional information is required for ExecuteMapChange for SP games ONLY
 	// This data is cleared after ExecuteMapChange
 	struct mapSpawnData_t
@@ -426,14 +426,14 @@ private:
 	mapSpawnData_t		mapSpawnData;
 	idStr				currentMapName;			// for checking reload on same level
 	bool				mapSpawned;				// cleared on Stop()
-	
+
 	bool				insideUpdateScreen;		// true while inside ::UpdateScreen()
-	
+
 	idUserCmdMgr		userCmdMgr;
-	
+
 	int					nextUsercmdSendTime;	// Next time to send usercmds
 	int					nextSnapshotSendTime;	// Next time to send a snapshot
-	
+
 	idSnapShot			lastSnapShot;		// last snapshot we received from the server
 	struct reliableMsg_t
 	{
@@ -443,54 +443,54 @@ private:
 		byte* data;
 	};
 	idList<reliableMsg_t> reliableQueue;
-	
-	
+
+
 	// Snapshot interpolation
 	idSnapShot		oldss;				// last local snapshot
 	// (ie on server this is the last "master" snapshot  we created)
 	// (on clients this is the last received snapshot)
 	// used for comparisons with the new snapshot for com_drawSnapshot
-	
+
 	// This is ultimately controlled by net_maxBufferedSnapshots by running double speed, but this is the hard max before seeing visual popping
 	static const int RECEIVE_SNAPSHOT_BUFFER_SIZE = 16;
-	
+
 	int				readSnapshotIndex;
 	int				writeSnapshotIndex;
 	idArray<idSnapShot, RECEIVE_SNAPSHOT_BUFFER_SIZE>	receivedSnaps;
-	
+
 	float			optimalPCTBuffer;
 	float			optimalTimeBuffered;
 	float			optimalTimeBufferedWindow;
-	
+
 	uint64			snapRate;
 	uint64			actualRate;
-	
+
 	uint64			snapTime;			// time we got the most recent snapshot
 	uint64			snapTimeDelta;		// time interval that current ss was sent in
-	
+
 	uint64			snapTimeWrite;
 	uint64			snapCurrentTime;	// realtime playback time
 	netTimes_t		snapCurrent;		// current snapshot
 	netTimes_t		snapPrevious;		// previous snapshot
 	float			snapCurrentResidual;
-	
+
 	float			snapTimeBuffered;
 	float			effectiveSnapRate;
 	int				totalBufferedTime;
 	int				totalRecvTime;
-	
-	
-	
+
+
+
 	int					clientPrediction;
-	
+
 	int					gameFrame;			// Frame number of the local game
 	double				gameTimeResidual;	// left over msec from the last game frame
 	bool				syncNextGameFrame;
-	
+
 	bool				aviCaptureMode;		// if true, screenshots will be taken and sound captured
 	idStr				aviDemoShortName;	//
 	int					aviDemoFrameCount;
-	
+
 	enum timeDemo_t
 	{
 		TD_NO,
@@ -502,29 +502,29 @@ private:
 	int					numDemoFrames;		// for timeDemo and demoShot
 	int					demoTimeOffset;
 	renderView_t		currentDemoRenderView;
-	
+
 	idStrList			mpGameModes;
 	idStrList			mpDisplayGameModes;
 	idList<mpMap_t>		mpGameMaps;
-	
+
 	idSWF* 				loadGUI;
 	int					nextLoadTip;
 	bool				isHellMap;
 	bool				defaultLoadscreen;
 	idStaticList<int, LOAD_TIP_COUNT>	loadTipList;
-	
+
 	const idMaterial* 	splashScreen;
-	
+
 	const idMaterial* 	whiteMaterial;
-	
+
 	const idMaterial* 	wipeMaterial;
 	int					wipeStartTime;
 	int					wipeStopTime;
 	bool				wipeHold;
 	bool				wipeForced;		// used for the PS3 to start an early wipe while we are accessing saved game data
-	
+
 	idGameThread		gameThread;				// the game and draw code can be run in parallel
-	
+
 	// com_speeds times
 	int					count_numGameFrames;	// total number of game frames that were run
 	int					time_gameFrame;			// game logic time
@@ -534,12 +534,12 @@ private:
 	uint64				time_backend;			// renderer backend time
 	uint64				time_shadows;			// renderer backend waiting for shadow volumes to be created
 	uint64				time_gpu;				// total gpu time, at least for PC
-	
+
 	// Used during loading screens
 	int					lastPacifierSessionTime;
 	int					lastPacifierGuiTime;
 	bool				lastPacifierDialogState;
-	
+
 	// foresthale 2014-05-30: a special binarize pacifier has to be shown in some cases, which includes filename and ETA information
 	bool				loadPacifierBinarizeActive;
 	int					loadPacifierBinarizeStartTime;
@@ -551,24 +551,24 @@ private:
 	int					loadPacifierBinarizeMiplevelTotal;
 	int					loadPacifierBinarizeProgressTotal;
 	int					loadPacifierBinarizeProgressCurrent;
-	
+
 	bool				showShellRequested;
-	
+
 	// RB begin
 #if defined(USE_DOOMCLASSIC)
 	currentGame_t		currentGame;
 	currentGame_t		idealCurrentGame;		// Defer game switching so that bad things don't happen in the middle of the frame.
 	const idMaterial* 	doomClassicMaterial;
-	
+
 	static const int			DOOMCLASSIC_RENDERWIDTH = 320 * 3;
 	static const int			DOOMCLASSIC_RENDERHEIGHT = 200 * 3;
 	static const int			DOOMCLASSIC_BYTES_PER_PIXEL = 4;
 	static const int			DOOMCLASSIC_IMAGE_SIZE_IN_BYTES = DOOMCLASSIC_RENDERWIDTH * DOOMCLASSIC_RENDERHEIGHT * DOOMCLASSIC_BYTES_PER_PIXEL;
-	
+
 	idArray< byte, DOOMCLASSIC_IMAGE_SIZE_IN_BYTES >	doomClassicImageData;
 #endif
 	// RB end
-	
+
 private:
 	void	InitCommands();
 	void	InitSIMD();
@@ -585,59 +585,59 @@ private:
 	void	RenderSplash();
 	void	FilterLangList( idStrList* list, idStr lang );
 	void	CheckStartupStorageRequirements();
-	
+
 	void	ExitMenu();
 	bool	MenuEvent( const sysEvent_t* event );
-	
+
 	void	StartMenu( bool playIntro = false );
 	void	GuiFrameEvents();
-	
+
 	void	BeginAVICapture( const char* name );
 	void	EndAVICapture();
-	
+
 	void	AdvanceRenderDemo( bool singleFrameOnly );
-	
+
 	void	ProcessGameReturn( const gameReturn_t& ret );
-	
+
 	void	RunNetworkSnapshotFrame();
 	void	ExecuteReliableMessages();
-	
-	
+
+
 	// Snapshot interpolation
 	void	ProcessSnapshot( idSnapShot& ss );
 	int		CalcSnapTimeBuffered( int& totalBufferedTime, int& totalRecvTime );
 	void	ProcessNextSnapshot();
 	void	InterpolateSnapshot( netTimes_t& prev, netTimes_t& next, float fraction, bool predict );
 	void	ResetNetworkingState();
-	
+
 	int		NetworkFrame();
 	void	SendSnapshots();
 	void	SendUsercmds( int localClientNum );
-	
+
 	void	LoadLoadingGui( const char* mapName, bool& hellMap );
-	
+
 	// Meant to be used like:
 	// while ( waiting ) { BusyWait(); }
 	void	BusyWait();
 	bool	WaitForSessionState( idSession::sessionState_t desiredState );
-	
+
 	void	ExecuteMapChange();
 	void	UnloadMap();
-	
+
 	void	Stop( bool resetSession = true );
-	
+
 	// called by Draw when the scene to scene wipe is still running
 	void	DrawWipeModel();
 	void	StartWipe( const char* materialName, bool hold = false );
 	void	CompleteWipe();
 	void	ClearWipe();
-	
+
 	void	MoveToNewMap( const char* mapName, bool devmap );
-	
+
 	void	PlayIntroGui();
-	
+
 	void	ScrubSaveGameFileName( idStr& saveFileName ) const;
-	
+
 	// RB begin
 #if defined(USE_DOOMCLASSIC)
 	// Doom classic support

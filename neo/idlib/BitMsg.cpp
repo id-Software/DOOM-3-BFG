@@ -70,18 +70,18 @@ idBitMsg::GetByteSpace
 byte* idBitMsg::GetByteSpace( int length )
 {
 	byte* ptr;
-	
+
 	if( !writeData )
 	{
 		idLib::FatalError( "idBitMsg::GetByteSpace: cannot write to message" );
 	}
-	
+
 	// round up to the next byte
 	WriteByteAlign();
-	
+
 	// check for overflow
 	CheckOverflow( length << 3 );
-	
+
 	ptr = writeData + curSize;
 	curSize += length;
 	return ptr;
@@ -111,13 +111,13 @@ void idBitMsg::WriteBits( int value, int numBits )
 	{
 		idLib::FatalError( "idBitMsg::WriteBits: cannot write to message" );
 	}
-	
+
 	// check if the number of bits is valid
 	if( numBits == 0 || numBits < -31 || numBits > 32 )
 	{
 		idLib::FatalError( "idBitMsg::WriteBits: bad numBits %i", numBits );
 	}
-	
+
 	// check for value overflows
 	if( numBits != 32 )
 	{
@@ -127,7 +127,7 @@ void idBitMsg::WriteBits( int value, int numBits )
 			{
 				idLib::FatalError( "idBitMsg::WriteBits: value overflow %d %d",
 								   value, numBits );
-								   
+
 			}
 			else if( value < 0 )
 			{
@@ -143,7 +143,7 @@ void idBitMsg::WriteBits( int value, int numBits )
 			{
 				idLib::FatalError( "idBitMsg::WriteBits: value overflow %d %d",
 								   value, numBits );
-								   
+
 			}
 			else if( value < -r )
 			{
@@ -152,23 +152,23 @@ void idBitMsg::WriteBits( int value, int numBits )
 			}
 		}
 	}
-	
+
 	if( numBits < 0 )
 	{
 		numBits = -numBits;
 	}
-	
+
 	// check for msg overflow
 	if( CheckOverflow( numBits ) )
 	{
 		return;
 	}
-	
+
 	// Merge value with possible previous leftover
 	tempValue |= ( ( ( int64 )value ) & maskForNumBits64[numBits] ) << writeBit;
-	
+
 	writeBit += numBits;
-	
+
 	// Flush 8 bits (1 byte) at a time
 	while( writeBit >= 8 )
 	{
@@ -176,7 +176,7 @@ void idBitMsg::WriteBits( int value, int numBits )
 		tempValue >>= 8;
 		writeBit -= 8;
 	}
-	
+
 	// Write leftover now, in case this is the last WriteBits call
 	if( writeBit > 0 )
 	{
@@ -200,7 +200,7 @@ void idBitMsg::WriteString( const char* s, int maxLength, bool make7Bit )
 		int i, l;
 		byte* dataPtr;
 		const byte* bytePtr;
-		
+
 		l = idStr::Length( s );
 		if( maxLength >= 0 && l >= maxLength )
 		{
@@ -265,10 +265,10 @@ bool idBitMsg::WriteDeltaDict( const idDict& dict, const idDict* base )
 	int i;
 	const idKeyValue* kv, *basekv;
 	bool changed = false;
-	
+
 	if( base != NULL )
 	{
-	
+
 		for( i = 0; i < dict.GetNumKeyVals(); i++ )
 		{
 			kv = dict.GetKeyVal( i );
@@ -280,9 +280,9 @@ bool idBitMsg::WriteDeltaDict( const idDict& dict, const idDict* base )
 				changed = true;
 			}
 		}
-		
+
 		WriteString( "" );
-		
+
 		for( i = 0; i < base->GetNumKeyVals(); i++ )
 		{
 			basekv = base->GetKeyVal( i );
@@ -293,13 +293,13 @@ bool idBitMsg::WriteDeltaDict( const idDict& dict, const idDict* base )
 				changed = true;
 			}
 		}
-		
+
 		WriteString( "" );
-		
+
 	}
 	else
 	{
-	
+
 		for( i = 0; i < dict.GetNumKeyVals(); i++ )
 		{
 			kv = dict.GetKeyVal( i );
@@ -308,11 +308,11 @@ bool idBitMsg::WriteDeltaDict( const idDict& dict, const idDict* base )
 			changed = true;
 		}
 		WriteString( "" );
-		
+
 		WriteString( "" );
-		
+
 	}
-	
+
 	return changed;
 }
 
@@ -330,21 +330,21 @@ int idBitMsg::ReadBits( int numBits ) const
 	int		get;
 	int		fraction;
 	bool	sgn;
-	
+
 	if( !readData )
 	{
 		idLib::FatalError( "idBitMsg::ReadBits: cannot read from message" );
 	}
-	
+
 	// check if the number of bits is valid
 	if( numBits == 0 || numBits < -31 || numBits > 32 )
 	{
 		idLib::FatalError( "idBitMsg::ReadBits: bad numBits %i", numBits );
 	}
-	
+
 	value = 0;
 	valueBits = 0;
-	
+
 	if( numBits < 0 )
 	{
 		numBits = -numBits;
@@ -354,13 +354,13 @@ int idBitMsg::ReadBits( int numBits ) const
 	{
 		sgn = false;
 	}
-	
+
 	// check for overflow
 	if( numBits > GetRemainingReadBits() )
 	{
 		return -1;
 	}
-	
+
 	while( valueBits < numBits )
 	{
 		if( readBit == 0 )
@@ -377,11 +377,11 @@ int idBitMsg::ReadBits( int numBits ) const
 		// this doesn't really do anything: the bits set to 0 here are already shifted to 0
 		fraction &= ( 1 << get ) - 1;
 		value |= fraction << valueBits;
-		
+
 		valueBits += get;
 		readBit = ( readBit + get ) & 7;
 	}
-	
+
 	if( sgn )
 	{
 		if( value & ( 1 << ( numBits - 1 ) ) )
@@ -389,7 +389,7 @@ int idBitMsg::ReadBits( int numBits ) const
 			value |= -1 ^ ( ( 1 << numBits ) - 1 );
 		}
 	}
-	
+
 	return value;
 }
 
@@ -401,7 +401,7 @@ idBitMsg::ReadString
 int idBitMsg::ReadString( char* buffer, int bufferSize ) const
 {
 	int	l, c;
-	
+
 	ReadByteAlign();
 	l = 0;
 	while( 1 )
@@ -416,7 +416,7 @@ int idBitMsg::ReadString( char* buffer, int bufferSize ) const
 		{
 			c = '.';
 		}
-		
+
 		// we will read past any excessively long string, so
 		// the following data can be read, but the string will
 		// be truncated
@@ -426,7 +426,7 @@ int idBitMsg::ReadString( char* buffer, int bufferSize ) const
 			l++;
 		}
 	}
-	
+
 	buffer[l] = 0;
 	return l;
 }
@@ -439,7 +439,7 @@ idBitMsg::ReadString
 int idBitMsg::ReadString( idStr& str ) const
 {
 	ReadByteAlign();
-	
+
 	int cnt = 0;
 	for( int i = readCount; i < curSize; i++ )
 	{
@@ -449,11 +449,11 @@ int idBitMsg::ReadString( idStr& str ) const
 		}
 		cnt++;
 	}
-	
+
 	str.Clear();
 	str.Append( ( const char* )readData + readCount, cnt );
 	readCount += cnt + 1;
-	
+
 	return str.Length();
 }
 
@@ -465,10 +465,10 @@ idBitMsg::ReadData
 int idBitMsg::ReadData( void* data, int length ) const
 {
 	int cnt;
-	
+
 	ReadByteAlign();
 	cnt = readCount;
-	
+
 	if( readCount + length > curSize )
 	{
 		if( data )
@@ -485,7 +485,7 @@ int idBitMsg::ReadData( void* data, int length ) const
 		}
 		readCount += length;
 	}
-	
+
 	return ( readCount - cnt );
 }
 
@@ -511,7 +511,7 @@ bool idBitMsg::ReadDeltaDict( idDict& dict, const idDict* base ) const
 	char		key[MAX_STRING_CHARS];
 	char		value[MAX_STRING_CHARS];
 	bool		changed = false;
-	
+
 	if( base != NULL )
 	{
 		dict = *base;
@@ -520,20 +520,20 @@ bool idBitMsg::ReadDeltaDict( idDict& dict, const idDict* base ) const
 	{
 		dict.Clear();
 	}
-	
+
 	while( ReadString( key, sizeof( key ) ) != 0 )
 	{
 		ReadString( value, sizeof( value ) );
 		dict.Set( key, value );
 		changed = true;
 	}
-	
+
 	while( ReadString( key, sizeof( key ) ) != 0 )
 	{
 		dict.Delete( key );
 		changed = true;
 	}
-	
+
 	return changed;
 }
 
@@ -546,14 +546,14 @@ int idBitMsg::DirToBits( const idVec3& dir, int numBits )
 {
 	int max, bits;
 	float bias;
-	
+
 	assert( numBits >= 6 && numBits <= 32 );
 	assert( dir.LengthSqr() - 1.0f < 0.01f );
-	
+
 	numBits /= 3;
 	max = ( 1 << ( numBits - 1 ) ) - 1;
 	bias = 0.5f / max;
-	
+
 	bits = IEEE_FLT_SIGNBITSET( dir.x ) << ( numBits * 3 - 1 );
 	bits |= ( idMath::Ftoi( ( idMath::Fabs( dir.x ) + bias ) * max ) ) << ( numBits * 2 );
 	bits |= IEEE_FLT_SIGNBITSET( dir.y ) << ( numBits * 2 - 1 );
@@ -574,22 +574,22 @@ idVec3 idBitMsg::BitsToDir( int bits, int numBits )
 	int max;
 	float invMax;
 	idVec3 dir;
-	
+
 	assert( numBits >= 6 && numBits <= 32 );
-	
+
 	numBits /= 3;
 	max = ( 1 << ( numBits - 1 ) ) - 1;
 	invMax = 1.0f / max;
-	
+
 	dir.x = sign[( bits >> ( numBits * 3 - 1 ) ) & 1] * ( ( bits >> ( numBits * 2 ) ) & max )
 			* invMax;
-			
+
 	dir.y = sign[( bits >> ( numBits * 2 - 1 ) ) & 1] * ( ( bits >> ( numBits * 1 ) ) & max )
 			* invMax;
-			
+
 	dir.z = sign[( bits >> ( numBits * 1 - 1 ) ) & 1] * ( ( bits >> ( numBits * 0 ) ) & max )
 			* invMax;
-			
+
 	dir.NormalizeFast();
 	return dir;
 }

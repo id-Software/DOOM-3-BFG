@@ -54,7 +54,7 @@ byte* R_ResampleTexture( const byte* in, int inwidth, int inheight,
 	unsigned int	p1[MAX_DIMENSION], p2[MAX_DIMENSION];
 	const byte*		pix1, *pix2, *pix3, *pix4;
 	byte*		out, *out_p;
-	
+
 	if( outwidth > MAX_DIMENSION )
 	{
 		outwidth = MAX_DIMENSION;
@@ -63,12 +63,12 @@ byte* R_ResampleTexture( const byte* in, int inwidth, int inheight,
 	{
 		outheight = MAX_DIMENSION;
 	}
-	
+
 	out = ( byte* )R_StaticAlloc( outwidth * outheight * 4, TAG_IMAGE );
 	out_p = out;
-	
+
 	fracstep = inwidth * 0x10000 / outwidth;
-	
+
 	frac = fracstep >> 2;
 	for( i = 0 ; i < outwidth ; i++ )
 	{
@@ -81,7 +81,7 @@ byte* R_ResampleTexture( const byte* in, int inwidth, int inheight,
 		p2[i] = 4 * ( frac >> 16 );
 		frac += fracstep;
 	}
-	
+
 	for( i = 0 ; i < outheight ; i++, out_p += outwidth * 4 )
 	{
 		inrow = in + 4 * inwidth * ( int )( ( i + 0.25f ) * inheight / outheight );
@@ -99,7 +99,7 @@ byte* R_ResampleTexture( const byte* in, int inwidth, int inheight,
 			out_p[j * 4 + 3] = ( pix1[3] + pix2[3] + pix3[3] + pix4[3] ) >> 2;
 		}
 	}
-	
+
 	return out;
 }
 
@@ -118,10 +118,10 @@ byte* R_Dropsample( const byte* in, int inwidth, int inheight,
 	const byte*	inrow;
 	const byte*	pix1;
 	byte*		out, *out_p;
-	
+
 	out = ( byte* )R_StaticAlloc( outwidth * outheight * 4, TAG_IMAGE );
 	out_p = out;
-	
+
 	for( i = 0 ; i < outheight ; i++, out_p += outwidth * 4 )
 	{
 		inrow = in + 4 * inwidth * ( int )( ( i + 0.25 ) * inheight / outheight );
@@ -135,7 +135,7 @@ byte* R_Dropsample( const byte* in, int inwidth, int inheight,
 			out_p[j * 4 + 3] = pix1[3];
 		}
 	}
-	
+
 	return out;
 }
 
@@ -174,9 +174,9 @@ void	R_SetAlphaNormalDivergence( byte* in, int width, int height )
 			center[1] = ( pic_p[1] - 128 ) / 127;
 			center[2] = ( pic_p[2] - 128 ) / 127;
 			center.Normalize();
-			
+
 			float	maxDiverge = 1.0;
-			
+
 			// FIXME: this assumes wrap mode, but should handle clamp modes and border colors
 			for( int yy = -1 ; yy <= 1 ; yy++ )
 			{
@@ -192,7 +192,7 @@ void	R_SetAlphaNormalDivergence( byte* in, int width, int height )
 					corner[1] = ( corner_p[1] - 128 ) / 127;
 					corner[2] = ( corner_p[2] - 128 ) / 127;
 					corner.Normalize();
-					
+
 					float	diverge = corner * center;
 					if( diverge < maxDiverge )
 					{
@@ -200,7 +200,7 @@ void	R_SetAlphaNormalDivergence( byte* in, int width, int height )
 					}
 				}
 			}
-			
+
 			// we can get a diverge < 0 in some extreme cases
 			if( maxDiverge < 0 )
 			{
@@ -229,12 +229,12 @@ byte* R_MipMapWithAlphaSpecularity( const byte* in, int width, int height )
 	int		row;
 	int		newWidth, newHeight;
 	float*	fbuf, *fbuf_p;
-	
+
 	if( width < 1 || height < 1 || ( width + height == 2 ) )
 	{
 		common->FatalError( "R_MipMapWithAlphaMin called with size %i,%i", width, height );
 	}
-	
+
 	// convert the incoming texture to centered floating point
 	c = width * height;
 	fbuf = ( float* )_alloca( c * 4 * sizeof( *fbuf ) );
@@ -247,9 +247,9 @@ byte* R_MipMapWithAlphaSpecularity( const byte* in, int width, int height )
 		fbuf_p[2] = ( in_p[2] / 255.0 ) * 2.0 - 1.0;
 		fbuf_p[3] = ( in_p[3] / 255.0 );				// filtered divegence / specularity
 	}
-	
+
 	row = width * 4;
-	
+
 	newWidth = width >> 1;
 	newHeight = height >> 1;
 	if( !newWidth )
@@ -262,16 +262,16 @@ byte* R_MipMapWithAlphaSpecularity( const byte* in, int width, int height )
 	}
 	out = ( byte* )R_StaticAlloc( newWidth * newHeight * 4, TAG_IMAGE );
 	out_p = out;
-	
+
 	in_p = in;
-	
+
 	for( i = 0 ; i < newHeight ; i++ )
 	{
 		for( j = 0 ; j < newWidth ; j++, out_p += 4 )
 		{
 			idVec3	total;
 			float	totalSpec;
-			
+
 			total.Zero();
 			totalSpec = 0;
 			// find the average normal
@@ -282,17 +282,17 @@ byte* R_MipMapWithAlphaSpecularity( const byte* in, int width, int height )
 				{
 					sy = ( i * 2 + y ) & ( height - 1 );
 					fbuf_p = fbuf + ( sy * width + sx ) * 4;
-					
+
 					total[0] += fbuf_p[0];
 					total[1] += fbuf_p[1];
 					total[2] += fbuf_p[2];
-					
+
 					totalSpec += fbuf_p[3];
 				}
 			}
 			total.Normalize();
 			totalSpec /= 9.0;
-			
+
 			// find the maximum divergence
 			for( x = -1 ; x <= 1 ; x++ )
 			{
@@ -300,11 +300,11 @@ byte* R_MipMapWithAlphaSpecularity( const byte* in, int width, int height )
 				{
 				}
 			}
-			
+
 			// store the average normal and divergence
 		}
 	}
-	
+
 	return out;
 }
 
@@ -342,14 +342,14 @@ byte* R_MipMapWithGamma( const byte* in, int width, int height )
 	byte*	out, *out_p;
 	int		row;
 	int		newWidth, newHeight;
-	
+
 	if( width < 1 || height < 1 || ( width + height == 2 ) )
 	{
 		return NULL;
 	}
-	
+
 	row = width * 4;
-	
+
 	newWidth = width >> 1;
 	newHeight = height >> 1;
 	if( !newWidth )
@@ -362,12 +362,12 @@ byte* R_MipMapWithGamma( const byte* in, int width, int height )
 	}
 	out = ( byte* )R_StaticAlloc( newWidth * newHeight * 4, TAG_IMAGE );
 	out_p = out;
-	
+
 	in_p = in;
-	
+
 	width >>= 1;
 	height >>= 1;
-	
+
 	if( width == 0 || height == 0 )
 	{
 		width += height;	// get largest
@@ -390,7 +390,7 @@ byte* R_MipMapWithGamma( const byte* in, int width, int height )
 			out_p[3] = idMath::Ftob( 255.0f * idMath::Pow( 0.25f * ( mip_gammaTable[in_p[3]] + mip_gammaTable[in_p[7]] + mip_gammaTable[in_p[row + 3]] + mip_gammaTable[in_p[row + 7]] ), 1.0f / 2.2f ) );
 		}
 	}
-	
+
 	return out;
 }
 
@@ -408,14 +408,14 @@ byte* R_MipMap( const byte* in, int width, int height )
 	byte*	out, *out_p;
 	int		row;
 	int		newWidth, newHeight;
-	
+
 	if( width < 1 || height < 1 || ( width + height == 2 ) )
 	{
 		return NULL;
 	}
-	
+
 	row = width * 4;
-	
+
 	newWidth = width >> 1;
 	newHeight = height >> 1;
 	if( !newWidth )
@@ -428,12 +428,12 @@ byte* R_MipMap( const byte* in, int width, int height )
 	}
 	out = ( byte* )R_StaticAlloc( newWidth * newHeight * 4, TAG_IMAGE );
 	out_p = out;
-	
+
 	in_p = in;
-	
+
 	width >>= 1;
 	height >>= 1;
-	
+
 	if( width == 0 || height == 0 )
 	{
 		width += height;	// get largest
@@ -446,7 +446,7 @@ byte* R_MipMap( const byte* in, int width, int height )
 		}
 		return out;
 	}
-	
+
 	for( i = 0 ; i < height ; i++, in_p += row )
 	{
 		for( j = 0 ; j < width ; j++, out_p += 4, in_p += 8 )
@@ -457,7 +457,7 @@ byte* R_MipMap( const byte* in, int width, int height )
 			out_p[3] = ( in_p[3] + in_p[7] + in_p[row + 3] + in_p[row + 7] ) >> 2;
 		}
 	}
-	
+
 	return out;
 }
 
@@ -473,12 +473,12 @@ void R_BlendOverTexture( byte* data, int pixelCount, const byte blend[4] )
 	int		i;
 	int		inverseAlpha;
 	int		premult[3];
-	
+
 	inverseAlpha = 255 - blend[3];
 	premult[0] = blend[0] * blend[3];
 	premult[1] = blend[1] * blend[3];
 	premult[2] = blend[2] * blend[3];
-	
+
 	for( i = 0 ; i < pixelCount ; i++, data += 4 )
 	{
 		data[0] = ( data[0] * inverseAlpha + premult[0] ) >> 9;
@@ -499,7 +499,7 @@ void R_HorizontalFlip( byte* data, int width, int height )
 {
 	int		i, j;
 	int		temp;
-	
+
 	for( i = 0 ; i < height ; i++ )
 	{
 		for( j = 0 ; j < width / 2 ; j++ )
@@ -515,7 +515,7 @@ void R_VerticalFlip( byte* data, int width, int height )
 {
 	int		i, j;
 	int		temp;
-	
+
 	for( i = 0 ; i < width ; i++ )
 	{
 		for( j = 0 ; j < height / 2 ; j++ )
@@ -531,9 +531,9 @@ void R_RotatePic( byte* data, int width )
 {
 	int		i, j;
 	int*		temp;
-	
+
 	temp = ( int* )R_StaticAlloc( width * width * 4, TAG_IMAGE );
-	
+
 	for( i = 0 ; i < width ; i++ )
 	{
 		for( j = 0 ; j < width ; j++ )
@@ -542,9 +542,9 @@ void R_RotatePic( byte* data, int width )
 			*( temp + i * width + j ) = *( ( int* )data + j * width + i );
 		}
 	}
-	
+
 	memcpy( data, temp, width * width * 4 );
-	
+
 	R_StaticFree( temp );
 }
 

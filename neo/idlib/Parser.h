@@ -185,7 +185,7 @@ public:
 	static void		RemoveAllGlobalDefines();
 	// set the base folder to load files from
 	static void		SetBaseFolder( const char* path );
-	
+
 // RB: made protected to have custom #include behaviours for embedded resources
 protected:
 // RB end
@@ -202,9 +202,9 @@ protected:
 	indent_t* 		indentstack;				// stack with indents
 	int				skip;						// > 0 if skipping conditional code
 	const char*		marker_p;
-	
+
 	static define_t* globaldefines;				// list with global defines added to every source loaded
-	
+
 	void			PushIndent( int type, int skip );
 	void			PopIndent( int* type, int* skip );
 	void			PushScript( idLexer* script );

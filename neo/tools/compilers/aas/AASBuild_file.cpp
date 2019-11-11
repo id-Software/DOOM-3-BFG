@@ -78,11 +78,11 @@ void idAASBuild::ClearHash( const idBounds& bounds )
 {
 	int i;
 	float f, max;
-	
+
 	aas_vertexHash->Clear();
 	aas_edgeHash->Clear();
 	aas_vertexBounds = bounds;
-	
+
 	max = bounds[1].x - bounds[0].x;
 	f = bounds[1].y - bounds[0].y;
 	if( f > max )
@@ -111,7 +111,7 @@ idAASBuild::HashVec
 ID_INLINE int idAASBuild::HashVec( const idVec3& vec )
 {
 	int x, y;
-	
+
 	x = ( ( ( int )( vec[0] - aas_vertexBounds[0].x + 0.5 ) ) + 2 ) >> 2;
 	y = ( ( ( int )( vec[1] - aas_vertexBounds[0].y + 0.5 ) ) + 2 ) >> 2;
 	return ( x + y * VERTEX_HASH_BOXSIZE ) & ( VERTEX_HASH_SIZE - 1 );
@@ -126,7 +126,7 @@ bool idAASBuild::GetVertex( const idVec3& v, int* vertexNum )
 {
 	int i, hashKey, vn;
 	aasVertex_t vert, *p;
-	
+
 	for( i = 0; i < 3; i++ )
 	{
 		if( idMath::Fabs( v[i] - idMath::Rint( v[i] ) ) < INTEGRAL_EPSILON )
@@ -138,9 +138,9 @@ bool idAASBuild::GetVertex( const idVec3& v, int* vertexNum )
 			vert[i] = v[i];
 		}
 	}
-	
+
 	hashKey = idAASBuild::HashVec( vert );
-	
+
 	for( vn = aas_vertexHash->First( hashKey ); vn >= 0; vn = aas_vertexHash->Next( vn ) )
 	{
 		p = &file->vertices[vn];
@@ -153,11 +153,11 @@ bool idAASBuild::GetVertex( const idVec3& v, int* vertexNum )
 			return true;
 		}
 	}
-	
+
 	*vertexNum = file->vertices.Num();
 	aas_vertexHash->Add( hashKey, file->vertices.Num() );
 	file->vertices.Append( vert );
-	
+
 	return false;
 }
 
@@ -172,7 +172,7 @@ bool idAASBuild::GetEdge( const idVec3& v1, const idVec3& v2, int* edgeNum, int 
 	int* vertexNum;
 	aasEdge_t edge;
 	bool found;
-	
+
 	if( v1num != -1 )
 	{
 		found = true;
@@ -194,7 +194,7 @@ bool idAASBuild::GetEdge( const idVec3& v1, const idVec3& v2, int* edgeNum, int 
 	{
 		for( e = aas_edgeHash->First( hashKey ); e >= 0; e = aas_edgeHash->Next( e ) )
 		{
-		
+
 			vertexNum = file->edges[e].vertexNum;
 			if( vertexNum[0] == v2num )
 			{
@@ -220,15 +220,15 @@ bool idAASBuild::GetEdge( const idVec3& v1, const idVec3& v2, int* edgeNum, int 
 			return true;
 		}
 	}
-	
+
 	*edgeNum = file->edges.Num();
 	aas_edgeHash->Add( hashKey, file->edges.Num() );
-	
+
 	edge.vertexNum[0] = v1num;
 	edge.vertexNum[1] = v2num;
-	
+
 	file->edges.Append( edge );
-	
+
 	return false;
 }
 
@@ -243,7 +243,7 @@ bool idAASBuild::GetFaceForPortal( idBrushBSPPortal* portal, int side, int* face
 	int numFaceEdges, faceEdges[MAX_POINTS_ON_WINDING];
 	idWinding* w;
 	aasFace_t face;
-	
+
 	if( portal->GetFaceNum() > 0 )
 	{
 		if( side )
@@ -256,32 +256,32 @@ bool idAASBuild::GetFaceForPortal( idBrushBSPPortal* portal, int side, int* face
 		}
 		return true;
 	}
-	
+
 	w = portal->GetWinding();
 	// turn the winding into a sequence of edges
 	numFaceEdges = 0;
 	v1num = -1;		// first vertex unknown
 	for( i = 0; i < w->GetNumPoints(); i++ )
 	{
-	
+
 		GetEdge( ( *w )[i].ToVec3(), ( *w )[( i + 1 ) % w->GetNumPoints()].ToVec3(), &faceEdges[numFaceEdges], v1num );
-		
+
 		if( faceEdges[numFaceEdges] )
 		{
 			// last vertex of this edge is the first vertex of the next edge
 			v1num = file->edges[abs( faceEdges[numFaceEdges] )].vertexNum[INT32_SIGNBITNOTSET( faceEdges[numFaceEdges] )];
-			
+
 			// this edge is valid so keep it
 			numFaceEdges++;
 		}
 	}
-	
+
 	// should have at least 3 edges
 	if( numFaceEdges < 3 )
 	{
 		return false;
 	}
-	
+
 	// the polygon is invalid if some edge is found twice
 	for( i = 0; i < numFaceEdges; i++ )
 	{
@@ -293,9 +293,9 @@ bool idAASBuild::GetFaceForPortal( idBrushBSPPortal* portal, int side, int* face
 			}
 		}
 	}
-	
+
 	portal->SetFaceNum( file->faces.Num() );
-	
+
 	face.planeNum = file->planeList.FindPlane( portal->GetPlane(), AAS_PLANE_NORMAL_EPSILON, AAS_PLANE_DIST_EPSILON );
 	face.flags = portal->GetFlags();
 	face.areas[0] = face.areas[1] = 0;
@@ -314,7 +314,7 @@ bool idAASBuild::GetFaceForPortal( idBrushBSPPortal* portal, int side, int* face
 		*faceNum = file->faces.Num();
 	}
 	file->faces.Append( face );
-	
+
 	return true;
 }
 
@@ -328,13 +328,13 @@ bool idAASBuild::GetAreaForLeafNode( idBrushBSPNode* node, int* areaNum )
 	int s, faceNum;
 	idBrushBSPPortal* p;
 	aasArea_t area;
-	
+
 	if( node->GetAreaNum() )
 	{
 		*areaNum = -node->GetAreaNum();
 		return true;
 	}
-	
+
 	area.flags = node->GetFlags();
 	area.cluster = area.clusterAreaNum = 0;
 	area.contents = node->GetContents();
@@ -342,19 +342,19 @@ bool idAASBuild::GetAreaForLeafNode( idBrushBSPNode* node, int* areaNum )
 	area.numFaces = 0;
 	area.reach = NULL;
 	area.rev_reach = NULL;
-	
+
 	for( p = node->GetPortals(); p; p = p->Next( s ) )
 	{
 		s = ( p->GetNode( 1 ) == node );
-		
+
 		if( !GetFaceForPortal( p, s, &faceNum ) )
 		{
 			continue;
 		}
-		
+
 		file->faceIndex.Append( faceNum );
 		area.numFaces++;
-		
+
 		if( faceNum > 0 )
 		{
 			file->faces[abs( faceNum )].areas[0] = file->areas.Num();
@@ -364,19 +364,19 @@ bool idAASBuild::GetAreaForLeafNode( idBrushBSPNode* node, int* areaNum )
 			file->faces[abs( faceNum )].areas[1] = file->areas.Num();
 		}
 	}
-	
+
 	if( !area.numFaces )
 	{
 		*areaNum = 0;
 		return false;
 	}
-	
+
 	*areaNum = -file->areas.Num();
 	node->SetAreaNum( file->areas.Num() );
 	file->areas.Append( area );
-	
+
 	DisplayRealTimeString( "\r%6d", file->areas.Num() );
-	
+
 	return true;
 }
 
@@ -389,17 +389,17 @@ int idAASBuild::StoreTree_r( idBrushBSPNode* node )
 {
 	int areaNum, nodeNum, child0, child1;
 	aasNode_t aasNode;
-	
+
 	if( !node )
 	{
 		return 0;
 	}
-	
+
 	if( node->GetContents() & AREACONTENTS_SOLID )
 	{
 		return 0;
 	}
-	
+
 	if( !node->GetChild( 0 ) && !node->GetChild( 1 ) )
 	{
 		if( GetAreaForLeafNode( node, &areaNum ) )
@@ -408,24 +408,24 @@ int idAASBuild::StoreTree_r( idBrushBSPNode* node )
 		}
 		return 0;
 	}
-	
+
 	aasNode.planeNum = file->planeList.FindPlane( node->GetPlane(), AAS_PLANE_NORMAL_EPSILON, AAS_PLANE_DIST_EPSILON );
 	aasNode.children[0] = aasNode.children[1] = 0;
 	nodeNum = file->nodes.Num();
 	file->nodes.Append( aasNode );
-	
+
 	// !@#$%^ cause of some bug we cannot set the children directly with the StoreTree_r return value
 	child0 = StoreTree_r( node->GetChild( 0 ) );
 	file->nodes[nodeNum].children[0] = child0;
 	child1 = StoreTree_r( node->GetChild( 1 ) );
 	file->nodes[nodeNum].children[1] = child1;
-	
+
 	if( !child0 && !child1 )
 	{
 		file->nodes.SetNum( file->nodes.Num() - 1 );
 		return 0;
 	}
-	
+
 	return nodeNum;
 }
 
@@ -446,17 +446,17 @@ void idAASBuild::GetSizeEstimate_r( idBrushBSPNode* parent, idBrushBSPNode* node
 {
 	idBrushBSPPortal* p;
 	int s;
-	
+
 	if( !node )
 	{
 		return;
 	}
-	
+
 	if( node->GetContents() & AREACONTENTS_SOLID )
 	{
 		return;
 	}
-	
+
 	if( !node->GetChild( 0 ) && !node->GetChild( 1 ) )
 	{
 		// multiple branches of the bsp tree might point to the same leaf node
@@ -475,7 +475,7 @@ void idAASBuild::GetSizeEstimate_r( idBrushBSPNode* parent, idBrushBSPNode* node
 	{
 		size.numNodes++;
 	}
-	
+
 	GetSizeEstimate_r( node, node->GetChild( 0 ), size );
 	GetSizeEstimate_r( node, node->GetChild( 1 ), size );
 }
@@ -488,14 +488,14 @@ idAASBuild::SetSizeEstimate
 void idAASBuild::SetSizeEstimate( const idBrushBSP& bsp, idAASFileLocal* file )
 {
 	sizeEstimate_t size;
-	
+
 	size.numEdgeIndexes = 1;
 	size.numFaceIndexes = 1;
 	size.numAreas = 1;
 	size.numNodes = 1;
-	
+
 	GetSizeEstimate_r( NULL, bsp.GetRootNode(), size );
-	
+
 	file->planeList.Resize( size.numNodes / 2, 1024 );
 	file->vertices.Resize( size.numEdgeIndexes / 3, 1024 );
 	file->edges.Resize( size.numEdgeIndexes / 2, 1024 );
@@ -517,43 +517,43 @@ bool idAASBuild::StoreFile( const idBrushBSP& bsp )
 	aasFace_t face;
 	aasArea_t area;
 	aasNode_t node;
-	
+
 	common->Printf( "[Store AAS]\n" );
-	
+
 	SetupHash();
 	ClearHash( bsp.GetTreeBounds() );
-	
+
 	file = new idAASFileLocal();
-	
+
 	file->Clear();
-	
+
 	SetSizeEstimate( bsp, file );
-	
+
 	// the first edge is a dummy
 	memset( &edge, 0, sizeof( edge ) );
 	file->edges.Append( edge );
-	
+
 	// the first face is a dummy
 	memset( &face, 0, sizeof( face ) );
 	file->faces.Append( face );
-	
+
 	// the first area is a dummy
 	memset( &area, 0, sizeof( area ) );
 	file->areas.Append( area );
-	
+
 	// the first node is a dummy
 	memset( &node, 0, sizeof( node ) );
 	file->nodes.Append( node );
-	
+
 	// store the tree
 	StoreTree_r( bsp.GetRootNode() );
-	
+
 	// calculate area bounds and a reachable point in the area
 	file->FinishAreas();
-	
+
 	ShutdownHash();
-	
+
 	common->Printf( "\r%6d areas\n", file->areas.Num() );
-	
+
 	return true;
 }

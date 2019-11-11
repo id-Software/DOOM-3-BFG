@@ -53,14 +53,14 @@ public:
 	// Returns total mass of all pushed entities.
 	float			ClipTranslationalPush( trace_t& results, idEntity* pusher, const int flags,
 										   const idVec3& newOrigin, const idVec3& move );
-										   
+
 	float			ClipRotationalPush( trace_t& results, idEntity* pusher, const int flags,
 										const idMat3& newAxis, const idRotation& rotation );
-										
+
 	float			ClipPush( trace_t& results, idEntity* pusher, const int flags,
 							  const idVec3& oldOrigin, const idMat3& oldAxis,
 							  idVec3& newOrigin, idMat3& newAxis );
-							  
+
 	// initialize saving the positions of entities being pushed
 	void			InitSavingPushedEntityPositions();
 	// move all pushed entities back to their previous position
@@ -76,7 +76,7 @@ public:
 		assert( i >= 0 && i < numPushed );
 		return pushed[i].ent;
 	}
-	
+
 private:
 	struct pushed_s
 	{
@@ -84,7 +84,7 @@ private:
 		idAngles	deltaViewAngles;		// actor delta view angles
 	}				pushed[MAX_GENTITIES];	// pushed entities
 	int				numPushed;				// number of pushed entities
-	
+
 	struct pushedGroup_s
 	{
 		idEntity* 	ent;
@@ -93,7 +93,7 @@ private:
 		bool		test;
 	}				pushedGroup[MAX_GENTITIES];
 	int				pushedGroupSize;
-	
+
 private:
 	void			SaveEntityPosition( idEntity* ent );
 	bool			RotateEntityToAxial( idEntity* ent, idVec3 rotationPoint );

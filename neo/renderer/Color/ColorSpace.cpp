@@ -502,12 +502,12 @@ void idColorSpace::ConvertNormalMapToStereographicHeightMap( byte* heightMap, co
 	idTempArray<float> buffer( ( width + 1 ) * ( height + 1 ) * sizeof( float ) );
 	float* temp = ( float* )buffer.Ptr();
 	memset( temp, 0, ( width + 1 ) * ( height + 1 ) * sizeof( float ) );
-	
+
 	const int NUM_ITERATIONS = 32;
-	
+
 	float scale0 = 0.1f;
 	float scale1 = 0.9f;
-	
+
 	for( int n = 0; n < NUM_ITERATIONS; n++ )
 	{
 		for( int i = 0; i < height; i++ )
@@ -546,11 +546,11 @@ void idColorSpace::ConvertNormalMapToStereographicHeightMap( byte* heightMap, co
 				temp[( i - 1 ) * width + j] = scale0 * temp[( i - 1 ) * width + j] + scale1 * ( temp[( i + 0 ) * width + ( j + 0 )] + ( y / ( 1 + z ) ) );
 			}
 		}
-		
+
 		scale1 *= 0.99f;
 		scale0 = 1.0f - scale1;
 	}
-	
+
 	float minHeight = idMath::INFINITY;
 	float maxHeight = -idMath::INFINITY;
 	for( int j = 0; j < height; j++ )
@@ -567,9 +567,9 @@ void idColorSpace::ConvertNormalMapToStereographicHeightMap( byte* heightMap, co
 			}
 		}
 	}
-	
+
 	scale = ( maxHeight - minHeight );
-	
+
 	float s = 255.0f / scale;
 	for( int j = 0; j < height; j++ )
 	{
@@ -593,12 +593,12 @@ void idColorSpace::ConvertStereographicHeightMapToNormalMap( byte* normalMap, co
 	{
 		int previ = Max( i, 0 );
 		int nexti = Min( i + 1, height - 1 );
-		
+
 		for( int j = 0; j < width; j++ )
 		{
 			int prevj = Max( j, 0 );
 			int nextj = Min( j + 1, width - 1 );
-			
+
 			idVec3 normal;
 			float pX = scale * ( heightMap[i * width + prevj] - heightMap[i * width + nextj] ) / 255.0f;
 			float pY = scale * ( heightMap[previ * width + j] - heightMap[nexti * width + j] ) / 255.0f;
@@ -606,7 +606,7 @@ void idColorSpace::ConvertStereographicHeightMapToNormalMap( byte* normalMap, co
 			normal.x = pX * denom;
 			normal.y = pY * denom;
 			normal.z = denom - 1.0f;
-			
+
 			normalMap[( i * width + j ) * 4 + 0 ] = NORMALMAP_FLOAT_TO_BYTE( normal[0] );
 			normalMap[( i * width + j ) * 4 + 1 ] = NORMALMAP_FLOAT_TO_BYTE( normal[1] );
 			normalMap[( i * width + j ) * 4 + 2 ] = NORMALMAP_FLOAT_TO_BYTE( normal[2] );

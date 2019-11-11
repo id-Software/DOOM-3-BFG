@@ -36,15 +36,15 @@ If you have questions concerning this license or the applicable additional terms
 // RB begin
 #if defined(_WIN32)
 
-// Vista OpenGL wrapper check
-#include "../sys/win32/win_local.h"
+	// Vista OpenGL wrapper check
+	#include "../sys/win32/win_local.h"
 #endif
 // RB end
 
 // foresthale 2014-03-01: fixed custom screenshot resolution by doing a more direct render path
 #define BUGFIXEDSCREENSHOTRESOLUTION 1
 #ifdef BUGFIXEDSCREENSHOTRESOLUTION
-#include "../framework/Common_local.h"
+	#include "../framework/Common_local.h"
 #endif
 
 // DeviceContext bypasses RenderSystem to work directly with this
@@ -63,11 +63,11 @@ idCVar r_antiAliasing( "r_antiAliasing", "0", CVAR_RENDERER | CVAR_ARCHIVE | CVA
 idCVar r_vidMode( "r_vidMode", "0", CVAR_ARCHIVE | CVAR_RENDERER | CVAR_INTEGER, "fullscreen video mode number" );
 idCVar r_displayRefresh( "r_displayRefresh", "0", CVAR_RENDERER | CVAR_INTEGER | CVAR_NOCHEAT, "optional display refresh rate option for vid mode", 0.0f, 240.0f );
 #ifdef WIN32
-idCVar r_fullscreen( "r_fullscreen", "1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "0 = windowed, 1 = full screen on monitor 1, 2 = full screen on monitor 2, etc" );
+	idCVar r_fullscreen( "r_fullscreen", "1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "0 = windowed, 1 = full screen on monitor 1, 2 = full screen on monitor 2, etc" );
 #else
-// DG: add mode -2 for SDL, also defaulting to windowed mode, as that causes less trouble on linux
-idCVar r_fullscreen( "r_fullscreen", "0", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "-2 = use current monitor, -1 = (reserved), 0 = windowed, 1 = full screen on monitor 1, 2 = full screen on monitor 2, etc" );
-// DG end
+	// DG: add mode -2 for SDL, also defaulting to windowed mode, as that causes less trouble on linux
+	idCVar r_fullscreen( "r_fullscreen", "0", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "-2 = use current monitor, -1 = (reserved), 0 = windowed, 1 = full screen on monitor 1, 2 = full screen on monitor 2, etc" );
+	// DG end
 #endif
 idCVar r_customWidth( "r_customWidth", "1280", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "custom screen width. set r_vidMode to -1 to activate" );
 idCVar r_customHeight( "r_customHeight", "720", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "custom screen height. set r_vidMode to -1 to activate" );
@@ -145,9 +145,9 @@ idCVar r_clear( "r_clear", "2", CVAR_RENDERER, "force screen clear every frame, 
 idCVar r_offsetFactor( "r_offsetfactor", "0", CVAR_RENDERER | CVAR_FLOAT, "polygon offset parameter" );
 // RB: offset factor was 0, and units were -600 which caused some very ugly polygon offsets on Android so I reverted the values to the same as in Q3A
 #if defined(__ANDROID__)
-idCVar r_offsetUnits( "r_offsetunits", "-2", CVAR_RENDERER | CVAR_FLOAT, "polygon offset parameter" );
+	idCVar r_offsetUnits( "r_offsetunits", "-2", CVAR_RENDERER | CVAR_FLOAT, "polygon offset parameter" );
 #else
-idCVar r_offsetUnits( "r_offsetunits", "-600", CVAR_RENDERER | CVAR_FLOAT, "polygon offset parameter" );
+	idCVar r_offsetUnits( "r_offsetunits", "-600", CVAR_RENDERER | CVAR_FLOAT, "polygon offset parameter" );
 #endif
 // RB end
 
@@ -269,9 +269,9 @@ idCVar r_ldrContrastOffset( "r_ldrContrastOffset", "3", CVAR_RENDERER | CVAR_FLO
 idCVar r_useFilmicPostProcessEffects( "r_useFilmicPostProcessEffects", "1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_BOOL, "apply several post process effects to mimic a filmic look" );
 
 #if defined( USE_VULKAN )
-idCVar r_forceAmbient( "r_forceAmbient", "0.15", CVAR_RENDERER | CVAR_FLOAT, "render additional ambient pass to make the game less dark", 0.0f, 0.4f );
+	idCVar r_forceAmbient( "r_forceAmbient", "0.15", CVAR_RENDERER | CVAR_FLOAT, "render additional ambient pass to make the game less dark", 0.0f, 0.4f );
 #else
-idCVar r_forceAmbient( "r_forceAmbient", "0.3", CVAR_RENDERER | CVAR_FLOAT, "render additional ambient pass to make the game less dark", 0.0f, 0.4f );
+	idCVar r_forceAmbient( "r_forceAmbient", "0.3", CVAR_RENDERER | CVAR_FLOAT, "render additional ambient pass to make the game less dark", 0.0f, 0.4f );
 #endif
 
 idCVar r_useSSGI( "r_useSSGI", "0", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_BOOL, "use screen space global illumination and reflections" );
@@ -318,16 +318,16 @@ r_displayRefresh 70	specify 70 hz, etc
 void R_SetNewMode( const bool fullInit )
 {
 	// try up to three different configurations
-	
+
 	for( int i = 0 ; i < 3 ; i++ )
 	{
 		if( i == 0 && stereoRender_enable.GetInteger() != STEREO3D_QUAD_BUFFER )
 		{
 			continue;		// don't even try for a stereo mode
 		}
-		
+
 		glimpParms_t	parms;
-		
+
 		if( r_fullscreen.GetInteger() <= 0 )
 		{
 			// use explicit position / size for window
@@ -354,11 +354,11 @@ void R_SetNewMode( const bool fullInit )
 				idLib::Printf( "Going to safe mode because mode list failed." );
 				goto safeMode;
 			}
-			
+
 			parms.x = 0;		// ignored
 			parms.y = 0;		// ignored
 			parms.fullScreen = r_fullscreen.GetInteger();
-			
+
 			// set the parameters we are trying
 			if( r_vidMode.GetInteger() < 0 )
 			{
@@ -374,13 +374,13 @@ void R_SetNewMode( const bool fullInit )
 					idLib::Printf( "r_vidMode reset from %i to 0.\n", r_vidMode.GetInteger() );
 					r_vidMode.SetInteger( 0 );
 				}
-				
+
 				parms.width = modeList[ r_vidMode.GetInteger() ].width;
 				parms.height = modeList[ r_vidMode.GetInteger() ].height;
 				parms.displayHz = modeList[ r_vidMode.GetInteger() ].displayHz;
 			}
 		}
-		
+
 		switch( r_antiAliasing.GetInteger() )
 		{
 			case ANTI_ALIASING_MSAA_2X:
@@ -392,12 +392,12 @@ void R_SetNewMode( const bool fullInit )
 			case ANTI_ALIASING_MSAA_8X:
 				parms.multiSamples = 8;
 				break;
-				
+
 			default:
 				parms.multiSamples = 0;
 				break;
 		}
-		
+
 		if( i == 0 )
 		{
 			parms.stereo = ( stereoRender_enable.GetInteger() == STEREO3D_QUAD_BUFFER );
@@ -406,17 +406,17 @@ void R_SetNewMode( const bool fullInit )
 		{
 			parms.stereo = false;
 		}
-		
+
 		if( fullInit )
 		{
 			// create the context as well as setting up the window
 			if( GLimp_Init( parms ) )
 			{
 				// it worked
-				
+
 				// DG: ImGui must be initialized after the window has been created, it needs an opengl context
 				ImGuiHook::Init( parms.width, parms.height );
-				
+
 				break;
 			}
 		}
@@ -426,24 +426,24 @@ void R_SetNewMode( const bool fullInit )
 			if( GLimp_SetScreenParms( parms ) )
 			{
 				// it worked
-				
+
 				// DG: ImGui must know about the changed window size
 				ImGuiHook::NotifyDisplaySizeChanged( parms.width, parms.height );
 				break;
 			}
 		}
-		
+
 		if( i == 2 )
 		{
 			common->FatalError( "Unable to initialize OpenGL" );
 		}
-		
+
 		if( i == 0 )
 		{
 			// same settings, no stereo
 			continue;
 		}
-		
+
 safeMode:
 		// if we failed, set everything back to "safe mode"
 		// and try again
@@ -466,7 +466,7 @@ static void R_ReloadSurface_f( const idCmdArgs& args )
 {
 	modelTrace_t mt;
 	idVec3 start, end;
-	
+
 	// start far enough away that we don't hit the player model
 	start = tr.primaryView->renderView.vieworg + tr.primaryView->renderView.viewaxis[0] * 16;
 	end = start + tr.primaryView->renderView.viewaxis[0] * 1000.0f;
@@ -474,12 +474,12 @@ static void R_ReloadSurface_f( const idCmdArgs& args )
 	{
 		return;
 	}
-	
+
 	common->Printf( "Reloading %s\n", mt.material->GetName() );
-	
+
 	// reload the decl
 	mt.material->base->Reload();
-	
+
 	// reload any images used by the decl
 	mt.material->ReloadImages( false );
 }
@@ -517,19 +517,19 @@ testimage <filename>
 void R_TestImage_f( const idCmdArgs& args )
 {
 	int imageNum;
-	
+
 	if( tr.testVideo )
 	{
 		delete tr.testVideo;
 		tr.testVideo = NULL;
 	}
 	tr.testImage = NULL;
-	
+
 	if( args.Argc() != 2 )
 	{
 		return;
 	}
-	
+
 	if( idStr::IsNumeric( args.Argv( 1 ) ) )
 	{
 		imageNum = atoi( args.Argv( 1 ) );
@@ -559,16 +559,16 @@ void R_TestVideo_f( const idCmdArgs& args )
 		tr.testVideo = NULL;
 	}
 	tr.testImage = NULL;
-	
+
 	if( args.Argc() < 2 )
 	{
 		return;
 	}
-	
+
 	tr.testImage = globalImages->ImageFromFile( "_scratch", TF_DEFAULT, TR_REPEAT, TD_DEFAULT );
 	tr.testVideo = idCinematic::Alloc();
 	tr.testVideo->InitFromFile( args.Argv( 1 ), true );
-	
+
 	cinData_t	cin;
 	cin = tr.testVideo->ImageForTime( 0 );
 	if( cin.imageY == NULL )
@@ -578,14 +578,14 @@ void R_TestVideo_f( const idCmdArgs& args )
 		tr.testImage = NULL;
 		return;
 	}
-	
+
 	common->Printf( "%i x %i images\n", cin.imageWidth, cin.imageHeight );
-	
+
 	int	len = tr.testVideo->AnimationLength();
 	common->Printf( "%5.1f seconds of video\n", len * 0.001 );
-	
+
 	tr.testVideoStartTime = tr.primaryRenderView.time[1];
-	
+
 	// try to play the matching wav file
 	idStr	wavString = args.Argv( ( args.Argc() == 2 ) ? 1 : 2 );
 	wavString.StripFileExtension();
@@ -597,7 +597,7 @@ static int R_QsortSurfaceAreas( const void* a, const void* b )
 {
 	const idMaterial*	ea, *eb;
 	int	ac, bc;
-	
+
 	ea = *( idMaterial** )a;
 	if( !ea->EverReferenced() )
 	{
@@ -616,7 +616,7 @@ static int R_QsortSurfaceAreas( const void* a, const void* b )
 	{
 		bc = eb->GetSurfaceArea();
 	}
-	
+
 	if( ac < bc )
 	{
 		return -1;
@@ -625,7 +625,7 @@ static int R_QsortSurfaceAreas( const void* a, const void* b )
 	{
 		return 1;
 	}
-	
+
 	return idStr::Icmp( ea->GetName(), eb->GetName() );
 }
 
@@ -642,22 +642,22 @@ void R_ReportSurfaceAreas_f( const idCmdArgs& args )
 {
 	unsigned int		i;
 	idMaterial**	list;
-	
+
 	const unsigned int count = declManager->GetNumDecls( DECL_MATERIAL );
 	if( count == 0 )
 	{
 		return;
 	}
-	
+
 	list = ( idMaterial** )_alloca( count * sizeof( *list ) );
-	
+
 	for( i = 0 ; i < count ; i++ )
 	{
 		list[i] = ( idMaterial* )declManager->DeclByIndex( DECL_MATERIAL, i, false );
 	}
-	
+
 	qsort( list, count, sizeof( list[0] ), R_QsortSurfaceAreas );
-	
+
 	// skip over ones with 0 area
 	for( i = 0 ; i < count ; i++ )
 	{
@@ -666,7 +666,7 @@ void R_ReportSurfaceAreas_f( const idCmdArgs& args )
 			break;
 		}
 	}
-	
+
 	for( ; i < count ; i++ )
 	{
 		// report size in "editor blocks"
@@ -701,35 +701,39 @@ void R_ReadTiledPixels( int width, int height, byte* buffer, renderView_t* ref =
 {
 	// FIXME
 #if !defined(USE_VULKAN)
-	
+
 	// include extra space for OpenGL padding to word boundaries
 	int sysWidth = renderSystem->GetWidth();
 	int sysHeight = renderSystem->GetHeight();
 	byte* temp = ( byte* )R_StaticAlloc( ( sysWidth + 3 ) * sysHeight * 3 );
-	
+
 	// foresthale 2014-03-01: fixed custom screenshot resolution by doing a more direct render path
 #ifdef BUGFIXEDSCREENSHOTRESOLUTION
 	if( sysWidth > width )
+	{
 		sysWidth = width;
-		
+	}
+
 	if( sysHeight > height )
+	{
 		sysHeight = height;
-		
+	}
+
 	// make sure the game / draw thread has completed
 	//commonLocal.WaitGameThread();
-	
+
 	// discard anything currently on the list
 	tr.SwapCommandBuffers( NULL, NULL, NULL, NULL );
-	
+
 	int originalNativeWidth = glConfig.nativeScreenWidth;
 	int originalNativeHeight = glConfig.nativeScreenHeight;
 	glConfig.nativeScreenWidth = sysWidth;
 	glConfig.nativeScreenHeight = sysHeight;
 #endif
-	
+
 	// disable scissor, so we don't need to adjust all those rects
 	r_useScissor.SetBool( false );
-	
+
 	for( int xo = 0 ; xo < width ; xo += sysWidth )
 	{
 		for( int yo = 0 ; yo < height ; yo += sysHeight )
@@ -751,10 +755,10 @@ void R_ReadTiledPixels( int width, int height, byte* buffer, renderView_t* ref =
 			}
 			// this should exit right after vsync, with the GPU idle and ready to draw
 			const emptyCommand_t* cmd = tr.SwapCommandBuffers( NULL, NULL, NULL, NULL );
-			
+
 			// get the GPU busy with new commands
 			tr.RenderCommandBuffers( cmd );
-			
+
 			// discard anything currently on the list (this triggers SwapBuffers)
 			tr.SwapCommandBuffers( NULL, NULL, NULL, NULL );
 #else
@@ -763,13 +767,13 @@ void R_ReadTiledPixels( int width, int height, byte* buffer, renderView_t* ref =
 			{
 				// discard anything currently on the list
 				tr.SwapCommandBuffers( NULL, NULL, NULL, NULL );
-			
+
 				// build commands to render the scene
 				tr.primaryWorld->RenderScene( ref );
-			
+
 				// finish off these commands
 				const emptyCommand_t* cmd = tr.SwapCommandBuffers( NULL, NULL, NULL, NULL );
-			
+
 				// issue the commands to the GPU
 				tr.RenderCommandBuffers( cmd );
 			}
@@ -779,7 +783,7 @@ void R_ReadTiledPixels( int width, int height, byte* buffer, renderView_t* ref =
 				common->UpdateScreen( captureToImage, false );
 			}
 #endif
-			
+
 			int w = sysWidth;
 			if( xo + w > width )
 			{
@@ -790,12 +794,12 @@ void R_ReadTiledPixels( int width, int height, byte* buffer, renderView_t* ref =
 			{
 				h = height - yo;
 			}
-			
+
 			glReadBuffer( GL_FRONT );
 			glReadPixels( 0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, temp );
-			
+
 			int	row = ( w * 3 + 3 ) & ~3;		// OpenGL pads to dword boundaries
-			
+
 			for( int y = 0 ; y < h ; y++ )
 			{
 				memcpy( buffer + ( ( yo + y )* width + xo ) * 3,
@@ -803,18 +807,18 @@ void R_ReadTiledPixels( int width, int height, byte* buffer, renderView_t* ref =
 			}
 		}
 	}
-	
+
 	// foresthale 2014-03-01: fixed custom screenshot resolution by doing a more direct render path
 #ifdef BUGFIXEDSCREENSHOTRESOLUTION
 	// discard anything currently on the list
 	tr.SwapCommandBuffers( NULL, NULL, NULL, NULL );
-	
+
 	glConfig.nativeScreenWidth = originalNativeWidth;
 	glConfig.nativeScreenHeight = originalNativeHeight;
 #endif
-	
+
 	r_useScissor.SetBool( true );
-	
+
 	R_StaticFree( temp );
 #endif
 }
@@ -836,14 +840,14 @@ void idRenderSystemLocal::TakeScreenshot( int width, int height, const char* fil
 	byte*		buffer;
 	int			i, j, c, temp;
 	idStr finalFileName;
-	
+
 	finalFileName.Format( "%s.%s", fileName, fileExten[exten] );
-	
+
 	takingScreenshot = true;
-	
+
 	int pix = width * height;
 	const int bufferSize = pix * 3 + 18;
-	
+
 	if( exten == PNG )
 	{
 		buffer = ( byte* )R_StaticAlloc( pix * 3 );
@@ -853,7 +857,7 @@ void idRenderSystemLocal::TakeScreenshot( int width, int height, const char* fil
 		buffer = ( byte* )R_StaticAlloc( bufferSize );
 		memset( buffer, 0, bufferSize );
 	}
-	
+
 	if( blends <= 1 )
 	{
 		if( exten == PNG )
@@ -869,10 +873,10 @@ void idRenderSystemLocal::TakeScreenshot( int width, int height, const char* fil
 	{
 		unsigned short* shortBuffer = ( unsigned short* )R_StaticAlloc( pix * 2 * 3 );
 		memset( shortBuffer, 0, pix * 2 * 3 );
-		
+
 		// enable anti-aliasing jitter
 		r_jitter.SetBool( true );
-		
+
 		for( i = 0 ; i < blends ; i++ )
 		{
 			if( exten == PNG )
@@ -883,7 +887,7 @@ void idRenderSystemLocal::TakeScreenshot( int width, int height, const char* fil
 			{
 				R_ReadTiledPixels( width, height, buffer + 18, ref );
 			}
-			
+
 			for( j = 0 ; j < pix * 3 ; j++ )
 			{
 				if( exten == PNG )
@@ -896,7 +900,7 @@ void idRenderSystemLocal::TakeScreenshot( int width, int height, const char* fil
 				}
 			}
 		}
-		
+
 		// divide back to bytes
 		for( i = 0 ; i < pix * 3 ; i++ )
 		{
@@ -909,7 +913,7 @@ void idRenderSystemLocal::TakeScreenshot( int width, int height, const char* fil
 				buffer[18 + i] = shortBuffer[i] / blends;
 			}
 		}
-		
+
 		R_StaticFree( shortBuffer );
 		r_jitter.SetBool( false );
 	}
@@ -926,22 +930,22 @@ void idRenderSystemLocal::TakeScreenshot( int width, int height, const char* fil
 		buffer[14] = height & 255;
 		buffer[15] = height >> 8;
 		buffer[16] = 24;	// pixel size
-		
+
 		// swap rgb to bgr
 		c = 18 + width * height * 3;
-		
+
 		for( i = 18 ; i < c ; i += 3 )
 		{
 			temp = buffer[i];
 			buffer[i] = buffer[i + 2];
 			buffer[i + 2] = temp;
 		}
-		
+
 		fileSystem->WriteFile( finalFileName, buffer, c, "fs_basepath" );
 	}
-	
+
 	R_StaticFree( buffer );
-	
+
 	takingScreenshot = false;
 }
 
@@ -959,7 +963,7 @@ void R_ScreenshotFilename( int& lastNumber, const char* base, idStr& fileName )
 {
 	bool restrict = cvarSystem->GetCVarBool( "fs_restrict" );
 	cvarSystem->SetCVarBool( "fs_restrict", false );
-	
+
 	lastNumber++;
 	if( lastNumber > 99999 )
 	{
@@ -967,12 +971,12 @@ void R_ScreenshotFilename( int& lastNumber, const char* base, idStr& fileName )
 	}
 	for( ; lastNumber < 99999 ; lastNumber++ )
 	{
-	
+
 		// RB: added date to screenshot name
 #if 0
 		int	frac = lastNumber;
 		int	a, b, c, d, e;
-		
+
 		a = frac / 10000;
 		frac -= a * 10000;
 		b = frac / 1000;
@@ -982,13 +986,13 @@ void R_ScreenshotFilename( int& lastNumber, const char* base, idStr& fileName )
 		d = frac / 10;
 		frac -= d * 10;
 		e = frac;
-		
+
 		sprintf( fileName, "%s%i%i%i%i%i.png", base, a, b, c, d, e );
 #else
 		time_t aclock;
 		time( &aclock );
 		struct tm* t = localtime( &aclock );
-		
+
 		sprintf( fileName, "%s%s-%04d%02d%02d-%02d%02d%02d-%03d", base, "rbdoom-3-bfg",
 				 1900 + t->tm_year, 1 + t->tm_mon, t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec, lastNumber );
 #endif
@@ -1022,11 +1026,11 @@ void R_ScreenShot_f( const idCmdArgs& args )
 {
 	static int lastNumber = 0;
 	idStr checkname;
-	
+
 	int width = renderSystem->GetWidth();
 	int height = renderSystem->GetHeight();
 	int	blends = 0;
-	
+
 	switch( args.Argc() )
 	{
 		case 1:
@@ -1065,12 +1069,12 @@ void R_ScreenShot_f( const idCmdArgs& args )
 			common->Printf( "usage: screenshot\n       screenshot <filename>\n       screenshot <width> <height>\n       screenshot <width> <height> <blends>\n" );
 			return;
 	}
-	
+
 	// put the console away
 	console->Close();
-	
+
 	tr.TakeScreenshot( width, height, checkname, blends, NULL, PNG );
-	
+
 	common->Printf( "Wrote %s\n", checkname.c_str() );
 }
 
@@ -1097,17 +1101,17 @@ void R_EnvShot_f( const idCmdArgs& args )
 	const char*  extension;
 	int			size;
 	int         res_w, res_h, old_fov_x, old_fov_y;
-	
+
 	res_w = renderSystem->GetWidth();
 	res_h = renderSystem->GetHeight();
-	
+
 	if( args.Argc() != 2 && args.Argc() != 3 && args.Argc() != 4 )
 	{
 		common->Printf( "USAGE: envshot <basename> [size] [blends]\n" );
 		return;
 	}
 	baseName = args.Argv( 1 );
-	
+
 	blends = 1;
 	if( args.Argc() == 4 )
 	{
@@ -1124,47 +1128,47 @@ void R_EnvShot_f( const idCmdArgs& args )
 		size = 256;
 		blends = 1;
 	}
-	
+
 	if( !tr.primaryView )
 	{
 		common->Printf( "No primary view.\n" );
 		return;
 	}
-	
+
 	primary = *tr.primaryView;
-	
+
 	memset( &axis, 0, sizeof( axis ) );
-	
+
 	// +X
 	axis[0][0][0] = 1;
 	axis[0][1][2] = 1;
 	axis[0][2][1] = 1;
-	
+
 	// -X
 	axis[1][0][0] = -1;
 	axis[1][1][2] = -1;
 	axis[1][2][1] = 1;
-	
+
 	// +Y
 	axis[2][0][1] = 1;
 	axis[2][1][0] = -1;
 	axis[2][2][2] = -1;
-	
+
 	// -Y
 	axis[3][0][1] = -1;
 	axis[3][1][0] = -1;
 	axis[3][2][2] = 1;
-	
+
 	// +Z
 	axis[4][0][2] = 1;
 	axis[4][1][0] = -1;
 	axis[4][2][1] = 1;
-	
+
 	// -Z
 	axis[5][0][2] = -1;
 	axis[5][1][0] = 1;
 	axis[5][2][1] = 1;
-	
+
 	// let's get the game window to a "size" resolution
 	if( ( res_w != size ) || ( res_h != size ) )
 	{
@@ -1172,26 +1176,26 @@ void R_EnvShot_f( const idCmdArgs& args )
 		cvarSystem->SetCVarInteger( "r_windowHeight", size );
 		R_SetNewMode( false ); // the same as "vid_restart"
 	} // FIXME that's a hack!!
-	
+
 	// so we return to that axis and fov after the fact.
 	oldAxis = primary.renderView.viewaxis;
 	old_fov_x = primary.renderView.fov_x;
 	old_fov_y = primary.renderView.fov_y;
-	
+
 	for( i = 0 ; i < 6 ; i++ )
 	{
-	
+
 		ref = primary.renderView;
-		
+
 		extension = envDirection[ i ];
-		
+
 		ref.fov_x = ref.fov_y = 90;
 		ref.viewaxis = axis[i];
 		fullname.Format( "env/%s%s", baseName, extension );
-		
+
 		tr.TakeScreenshot( size, size, fullname, blends, &ref, TGA );
 	}
-	
+
 	// restore the original resolution, axis and fov
 	ref.viewaxis = oldAxis;
 	ref.fov_x = old_fov_x;
@@ -1199,7 +1203,7 @@ void R_EnvShot_f( const idCmdArgs& args )
 	cvarSystem->SetCVarInteger( "r_windowWidth", res_w );
 	cvarSystem->SetCVarInteger( "r_windowHeight", res_h );
 	R_SetNewMode( false ); // the same as "vid_restart"
-	
+
 	common->Printf( "Wrote a env set with the name %s\n", baseName );
 }
 
@@ -1217,11 +1221,11 @@ void R_SampleCubeMap( const idVec3& dir, int size, byte* buffers[6], byte result
 {
 	float	adir[3];
 	int		axis, x, y;
-	
+
 	adir[0] = fabs( dir[0] );
 	adir[1] = fabs( dir[1] );
 	adir[2] = fabs( dir[2] );
-	
+
 	if( dir[0] >= adir[1] && dir[0] >= adir[2] )
 	{
 		axis = 0;
@@ -1246,10 +1250,10 @@ void R_SampleCubeMap( const idVec3& dir, int size, byte* buffers[6], byte result
 	{
 		axis = 5;
 	}
-	
+
 	float	fx = ( dir * cubeAxis[axis][1] ) / ( dir * cubeAxis[axis][0] );
 	float	fy = ( dir * cubeAxis[axis][2] ) / ( dir * cubeAxis[axis][0] );
-	
+
 	fx = -fx;
 	fy = -fy;
 	x = size * 0.5 * ( fx + 1 );
@@ -1270,7 +1274,7 @@ void R_SampleCubeMap( const idVec3& dir, int size, byte* buffers[6], byte result
 	{
 		y = size - 1;
 	}
-	
+
 	result[0] = buffers[axis][( y * size + x ) * 4 + 0];
 	result[1] = buffers[axis][( y * size + x ) * 4 + 1];
 	result[2] = buffers[axis][( y * size + x ) * 4 + 2];
@@ -1284,30 +1288,30 @@ private:
 	size_t nextTicCount = 0;
 	int	count = 0;
 	int expectedCount = 0;
-	
+
 public:
 	CommandlineProgressBar( int _expectedCount )
 	{
 		expectedCount = _expectedCount;
-		
+
 		common->Printf( "0%%  10   20   30   40   50   60   70   80   90   100%%\n" );
 		common->Printf( "|----|----|----|----|----|----|----|----|----|----|\n" );
-		
+
 		common->UpdateScreen( false );
 	}
-	
+
 	void Increment()
 	{
 		if( ( count + 1 ) >= nextTicCount )
 		{
 			size_t ticsNeeded = ( size_t )( ( ( double )( count + 1 ) / expectedCount ) * 50.0 );
-			
+
 			do
 			{
 				common->Printf( "*" );
 			}
 			while( ++tics < ticsNeeded );
-			
+
 			nextTicCount = ( size_t )( ( tics / 50.0 ) * expectedCount );
 			if( count == ( expectedCount - 1 ) )
 			{
@@ -1317,10 +1321,10 @@ public:
 				}
 				common->Printf( "\n" );
 			}
-			
+
 			common->UpdateScreen( false );
 		}
-		
+
 		count++;
 	}
 };
@@ -1361,10 +1365,10 @@ inline float RadicalInverse_VdC( uint32_t n, uint32_t scramble = 0U )
 	n = ( ( n & 0x0f0f0f0f ) << 4 ) | ( ( n & 0xf0f0f0f0 ) >> 4 );
 	n = ( ( n & 0x33333333 ) << 2 ) | ( ( n & 0xcccccccc ) >> 2 );
 	n = ( ( n & 0x55555555 ) << 1 ) | ( ( n & 0xaaaaaaaa ) >> 1 );
-	
+
 	// Account for the available precision and scramble
 	n = ( n >> ( 32 - 24 ) ) ^ ( scramble & ~ -( 1 << 24 ) );
-	
+
 	return ( float ) n / ( float )( 1U << 24 );
 }
 
@@ -1377,23 +1381,23 @@ inline idVec2 Hammersley2D( uint i, uint N )
 idVec3 ImportanceSampleGGX( const idVec2& Xi, float roughness, const idVec3& N )
 {
 	float a = roughness * roughness;
-	
+
 	// cosinus distributed direction (Z-up or tangent space) from the hammersley point xi
 	float Phi = 2 * idMath::PI * Xi.x;
 	float cosTheta = sqrt( ( 1 - Xi.y ) / ( 1 + ( a * a - 1 ) * Xi.y ) );
 	float sinTheta = sqrt( 1 - cosTheta * cosTheta );
-	
+
 	idVec3 H;
 	H.x = sinTheta * cos( Phi );
 	H.y = sinTheta * sin( Phi );
 	H.z = cosTheta;
-	
+
 	// rotate from tangent space to world space along N
 	idVec3 upVector = abs( N.z ) < 0.999f ? idVec3( 0, 0, 1 ) : idVec3( 1, 0, 0 );
 	idVec3 tangentX = upVector.Cross( N );
 	tangentX.Normalize();
 	idVec3 tangentY = N.Cross( tangentX );
-	
+
 	return tangentX * H.x + tangentY * H.y + N * H.z;
 }
 
@@ -1417,14 +1421,14 @@ void R_MakeAmbientMap_f( const idCmdArgs& args )
 	int			outSize;
 	byte*		buffers[6];
 	int			width = 0, height = 0;
-	
+
 	if( args.Argc() != 2 && args.Argc() != 3 )
 	{
 		common->Printf( "USAGE: ambientshot <basename> [size]\n" );
 		return;
 	}
 	baseName = args.Argv( 1 );
-	
+
 	downSample = 0;
 	if( args.Argc() == 3 )
 	{
@@ -1434,32 +1438,32 @@ void R_MakeAmbientMap_f( const idCmdArgs& args )
 	{
 		outSize = 32;
 	}
-	
+
 	memset( &cubeAxis, 0, sizeof( cubeAxis ) );
 	cubeAxis[0][0][0] = 1;
 	cubeAxis[0][1][2] = 1;
 	cubeAxis[0][2][1] = 1;
-	
+
 	cubeAxis[1][0][0] = -1;
 	cubeAxis[1][1][2] = -1;
 	cubeAxis[1][2][1] = 1;
-	
+
 	cubeAxis[2][0][1] = 1;
 	cubeAxis[2][1][0] = -1;
 	cubeAxis[2][2][2] = -1;
-	
+
 	cubeAxis[3][0][1] = -1;
 	cubeAxis[3][1][0] = -1;
 	cubeAxis[3][2][2] = 1;
-	
+
 	cubeAxis[4][0][2] = 1;
 	cubeAxis[4][1][0] = -1;
 	cubeAxis[4][2][1] = 1;
-	
+
 	cubeAxis[5][0][2] = -1;
 	cubeAxis[5][1][0] = 1;
 	cubeAxis[5][2][1] = 1;
-	
+
 	// read all of the images
 	for( i = 0 ; i < 6 ; i++ )
 	{
@@ -1478,20 +1482,20 @@ void R_MakeAmbientMap_f( const idCmdArgs& args )
 			return;
 		}
 	}
-	
+
 	bool pacifier = true;
-	
+
 	// resample with hemispherical blending
 	int	samples = 1000;
-	
+
 	byte*	outBuffer = ( byte* )_alloca( outSize * outSize * 4 );
-	
+
 	for( int map = 0 ; map < 2 ; map++ )
 	{
 		CommandlineProgressBar progressBar( outSize * outSize * 6 );
-		
+
 		int	start = Sys_Milliseconds();
-		
+
 		for( i = 0 ; i < 6 ; i++ )
 		{
 			for( int x = 0 ; x < outSize ; x++ )
@@ -1500,18 +1504,18 @@ void R_MakeAmbientMap_f( const idCmdArgs& args )
 				{
 					idVec3	dir;
 					float	total[3];
-					
+
 					dir = cubeAxis[i][0] + -( -1 + 2.0 * x / ( outSize - 1 ) ) * cubeAxis[i][1] + -( -1 + 2.0 * y / ( outSize - 1 ) ) * cubeAxis[i][2];
 					dir.Normalize();
 					total[0] = total[1] = total[2] = 0;
-					
+
 					float roughness = map ? 0.1 : 0.95;		// small for specular, almost hemisphere for ambient
-					
+
 					for( int s = 0 ; s < samples ; s++ )
 					{
 						idVec2 Xi = Hammersley2D( s, samples );
 						idVec3 test = ImportanceSampleGGX( Xi, roughness, dir );
-						
+
 						byte	result[4];
 						//test = dir;
 						R_SampleCubeMap( test, width, buffers, result );
@@ -1523,11 +1527,11 @@ void R_MakeAmbientMap_f( const idCmdArgs& args )
 					outBuffer[( y * outSize + x ) * 4 + 1] = total[1] / samples;
 					outBuffer[( y * outSize + x ) * 4 + 2] = total[2] / samples;
 					outBuffer[( y * outSize + x ) * 4 + 3] = 255;
-					
+
 					progressBar.Increment();
 				}
 			}
-			
+
 			if( map == 0 )
 			{
 				fullname.Format( "env/%s_amb%s.%s", baseName, envDirection[i], fileExten[PNG] );
@@ -1537,16 +1541,16 @@ void R_MakeAmbientMap_f( const idCmdArgs& args )
 				fullname.Format( "env/%s_spec%s.%s", baseName, envDirection[i], fileExten[PNG] );
 			}
 			//common->Printf( "writing %s\n", fullname.c_str() );
-			
+
 			const bool captureToImage = false;
 			common->UpdateScreen( captureToImage );
-			
+
 			//R_WriteTGA( fullname, outBuffer, outSize, outSize, false, "fs_basepath" );
 			R_WritePNG( fullname, outBuffer, 4, outSize, outSize, true, "fs_basepath" );
 		}
-		
+
 		int	end = Sys_Milliseconds();
-		
+
 		if( map == 0 )
 		{
 			common->Printf( "env/%s_amb convolved  in %5.1f seconds\n\n", baseName, ( end - start ) * 0.001f );
@@ -1556,7 +1560,7 @@ void R_MakeAmbientMap_f( const idCmdArgs& args )
 			common->Printf( "env/%s_spec convolved  in %5.1f seconds\n\n", baseName, ( end - start ) * 0.001f );
 		}
 	}
-	
+
 	for( i = 0 ; i < 6 ; i++ )
 	{
 		if( buffers[i] )
@@ -1573,7 +1577,7 @@ void R_TransformCubemap( const char* orgDirection[6], const char* orgDir, const 
 	bool        errorInOriginalImages = false;
 	byte*		buffers[6];
 	int			width = 0, height = 0;
-	
+
 	for( i = 0 ; i < 6 ; i++ )
 	{
 		// read every image images
@@ -1582,7 +1586,7 @@ void R_TransformCubemap( const char* orgDirection[6], const char* orgDir, const 
 		const bool captureToImage = false;
 		common->UpdateScreen( captureToImage );
 		R_LoadImage( fullname, &buffers[i], &width, &height, NULL, true );
-		
+
 		//check if the buffer is troublesome
 		if( !buffers[i] )
 		{
@@ -1598,7 +1602,7 @@ void R_TransformCubemap( const char* orgDirection[6], const char* orgDir, const 
 		{
 			errorInOriginalImages = false;
 		}
-		
+
 		if( errorInOriginalImages )
 		{
 			errorInOriginalImages = false;
@@ -1606,20 +1610,20 @@ void R_TransformCubemap( const char* orgDirection[6], const char* orgDir, const 
 			{
 				Mem_Free( buffers[i] ); // clean up every buffer from this stage down
 			}
-			
+
 			return;
 		}
-		
+
 		// apply rotations and flips
 		R_ApplyCubeMapTransforms( i, buffers[i], width );
-		
+
 		//save the images with the appropiate skybox naming convention
 		fullname.Format( "%s/%s/%s%s.%s", destDir, baseName, baseName, destDirection[i], fileExten [TGA] );
 		common->Printf( "writing %s\n", fullname.c_str() );
 		common->UpdateScreen( false );
 		R_WriteTGA( fullname, buffers[i], width, width, false, "fs_basepath" );
 	}
-	
+
 	for( i = 0 ; i < 6 ; i++ )
 	{
 		if( buffers[i] )
@@ -1647,7 +1651,7 @@ void R_TransformEnvToSkybox_f( const idCmdArgs& args )
 		common->Printf( "USAGE: envToSky <basename>\n" );
 		return;
 	}
-	
+
 	R_TransformCubemap( envDirection, "env", skyDirection, "skybox", args.Argv( 1 ) );
 }
 
@@ -1670,7 +1674,7 @@ void R_TransformSkyboxToEnv_f( const idCmdArgs& args )
 		common->Printf( "USAGE: skyToEnv <basename>\n" );
 		return;
 	}
-	
+
 	R_TransformCubemap( skyDirection, "skybox", envDirection, "env", args.Argv( 1 ) );
 }
 
@@ -1686,14 +1690,14 @@ void R_SetColorMappings()
 {
 	float b = r_brightness.GetFloat();
 	float invg = 1.0f / r_gamma.GetFloat();
-	
+
 	float j = 0.0f;
 	for( int i = 0; i < 256; i++, j += b )
 	{
 		int inf = idMath::Ftoi( 0xffff * pow( j / 255.0f, invg ) + 0.5f );
 		tr.gammaTable[i] = idMath::ClampInt( 0, 0xFFFF, inf );
 	}
-	
+
 	GLimp_SetGamma( tr.gammaTable, tr.gammaTable, tr.gammaTable );
 }
 
@@ -1705,13 +1709,13 @@ GfxInfo_f
 void GfxInfo_f( const idCmdArgs& args )
 {
 	common->Printf( "CPU: %s\n", Sys_GetProcessorString() );
-	
+
 	const char* fsstrings[] =
 	{
 		"windowed",
 		"fullscreen"
 	};
-	
+
 	common->Printf( "\nGL_VENDOR: %s\n", glConfig.vendor_string );
 	common->Printf( "GL_RENDERER: %s\n", glConfig.renderer_string );
 	common->Printf( "GL_VERSION: %s\n", glConfig.version_string );
@@ -1723,11 +1727,11 @@ void GfxInfo_f( const idCmdArgs& args )
 	common->Printf( "GL_MAX_TEXTURE_SIZE: %d\n", glConfig.maxTextureSize );
 	common->Printf( "GL_MAX_TEXTURE_COORDS_ARB: %d\n", glConfig.maxTextureCoords );
 	common->Printf( "GL_MAX_TEXTURE_IMAGE_UNITS_ARB: %d\n", glConfig.maxTextureImageUnits );
-	
+
 	// print all the display adapters, monitors, and video modes
 	//void DumpAllDisplayDevices();
 	//DumpAllDisplayDevices();
-	
+
 	common->Printf( "\nPIXELFORMAT: color(%d-bits) Z(%d-bit) stencil(%d-bits)\n", glConfig.colorBits, glConfig.depthBits, glConfig.stencilBits );
 	common->Printf( "MODE: %d, %d x %d %s hz:", r_vidMode.GetInteger(), renderSystem->GetWidth(), renderSystem->GetHeight(), fsstrings[r_fullscreen.GetBool()] );
 	if( glConfig.displayFrequency )
@@ -1738,9 +1742,9 @@ void GfxInfo_f( const idCmdArgs& args )
 	{
 		common->Printf( "N/A\n" );
 	}
-	
+
 	common->Printf( "-------\n" );
-	
+
 	// RB begin
 #if defined(_WIN32) && !defined(USE_VULKAN)
 	// WGL_EXT_swap_interval
@@ -1754,7 +1758,7 @@ void GfxInfo_f( const idCmdArgs& args )
 	}
 #endif
 	// RB end
-	
+
 	if( glConfig.stereoPixelFormatAvailable && glConfig.isStereoPixelFormat )
 	{
 		idLib::Printf( "OpenGl quad buffer stereo pixel format active\n" );
@@ -1767,7 +1771,7 @@ void GfxInfo_f( const idCmdArgs& args )
 	{
 		idLib::Printf( "OpenGl quad buffer stereo pixel format not available\n" );
 	}
-	
+
 	idLib::Printf( "Stereo mode: " );
 	switch( renderSystem->GetStereo3DMode() )
 	{
@@ -1796,9 +1800,9 @@ void GfxInfo_f( const idCmdArgs& args )
 			idLib::Printf( "Unknown (%i)\n", renderSystem->GetStereo3DMode() );
 			break;
 	}
-	
+
 	idLib::Printf( "%i multisamples\n", glConfig.multisamples );
-	
+
 	common->Printf( "%5.1f cm screen width (%4.1f\" diagonal)\n",
 					glConfig.physicalScreenWidthInCentimeters, glConfig.physicalScreenWidthInCentimeters / 2.54f
 					* sqrt( ( float )( 16 * 16 + 9 * 9 ) ) / 16.0f );
@@ -1809,7 +1813,7 @@ void GfxInfo_f( const idCmdArgs& args )
 						renderSystem->GetPhysicalScreenWidthInCentimeters(), renderSystem->GetPhysicalScreenWidthInCentimeters() / 2.54f
 						* sqrt( ( float )( 16 * 16 + 9 * 9 ) ) / 16.0f );
 	}
-	
+
 	if( glConfig.gpuSkinningAvailable )
 	{
 		common->Printf( S_COLOR_GREEN "GPU skeletal animation available\n" );
@@ -1832,7 +1836,7 @@ void R_VidRestart_f( const idCmdArgs& args )
 	{
 		return;
 	}
-	
+
 	// set the mode without re-initializing the context
 	R_SetNewMode( false );
 }
@@ -1906,13 +1910,13 @@ TouchGui_f
 void R_TouchGui_f( const idCmdArgs& args )
 {
 	const char*	gui = args.Argv( 1 );
-	
+
 	if( !gui[0] )
 	{
 		common->Printf( "USAGE: touchGui <guiName>\n" );
 		return;
 	}
-	
+
 	common->Printf( "touchGui %s\n", gui );
 	const bool captureToImage = false;
 	common->UpdateScreen( captureToImage );
@@ -1981,25 +1985,25 @@ void idRenderSystemLocal::Clear()
 	guiModel = NULL;
 	memset( gammaTable, 0, sizeof( gammaTable ) );
 	takingScreenshot = false;
-	
+
 	if( unitSquareTriangles != NULL )
 	{
 		Mem_Free( unitSquareTriangles );
 		unitSquareTriangles = NULL;
 	}
-	
+
 	if( zeroOneCubeTriangles != NULL )
 	{
 		Mem_Free( zeroOneCubeTriangles );
 		zeroOneCubeTriangles = NULL;
 	}
-	
+
 	if( testImageTriangles != NULL )
 	{
 		Mem_Free( testImageTriangles );
 		testImageTriangles = NULL;
 	}
-	
+
 	frontEndJobList = NULL;
 }
 
@@ -2012,45 +2016,45 @@ static srfTriangles_t* R_MakeFullScreenTris()
 {
 	// copy verts and indexes
 	srfTriangles_t* tri = ( srfTriangles_t* )Mem_ClearedAlloc( sizeof( *tri ), TAG_RENDER_TOOLS );
-	
+
 	tri->numIndexes = 6;
 	tri->numVerts = 4;
-	
+
 	int indexSize = tri->numIndexes * sizeof( tri->indexes[0] );
 	int allocatedIndexBytes = ALIGN( indexSize, 16 );
 	tri->indexes = ( triIndex_t* )Mem_Alloc( allocatedIndexBytes, TAG_RENDER_TOOLS );
-	
+
 	int vertexSize = tri->numVerts * sizeof( tri->verts[0] );
 	int allocatedVertexBytes =  ALIGN( vertexSize, 16 );
 	tri->verts = ( idDrawVert* )Mem_ClearedAlloc( allocatedVertexBytes, TAG_RENDER_TOOLS );
-	
+
 	idDrawVert* verts = tri->verts;
-	
+
 	triIndex_t tempIndexes[6] = { 3, 0, 2, 2, 0, 1 };
 	memcpy( tri->indexes, tempIndexes, indexSize );
-	
+
 	verts[0].xyz[0] = -1.0f;
 	verts[0].xyz[1] = 1.0f;
 	verts[0].SetTexCoord( 0.0f, 1.0f );
-	
+
 	verts[1].xyz[0] = 1.0f;
 	verts[1].xyz[1] = 1.0f;
 	verts[1].SetTexCoord( 1.0f, 1.0f );
-	
+
 	verts[2].xyz[0] = 1.0f;
 	verts[2].xyz[1] = -1.0f;
 	verts[2].SetTexCoord( 1.0f, 0.0f );
-	
+
 	verts[3].xyz[0] = -1.0f;
 	verts[3].xyz[1] = -1.0f;
 	verts[3].SetTexCoord( 0.0f, 0.0f );
-	
+
 	for( int i = 0 ; i < 4 ; i++ )
 	{
 		verts[i].SetColor( 0xffffffff );
 	}
-	
-	
+
+
 	return tri;
 }
 
@@ -2062,23 +2066,23 @@ R_MakeZeroOneCubeTris
 static srfTriangles_t* R_MakeZeroOneCubeTris()
 {
 	srfTriangles_t* tri = ( srfTriangles_t* )Mem_ClearedAlloc( sizeof( *tri ), TAG_RENDER_TOOLS );
-	
+
 	tri->numVerts = 8;
 	tri->numIndexes = 36;
-	
+
 	const int indexSize = tri->numIndexes * sizeof( tri->indexes[0] );
 	const int allocatedIndexBytes = ALIGN( indexSize, 16 );
 	tri->indexes = ( triIndex_t* )Mem_Alloc( allocatedIndexBytes, TAG_RENDER_TOOLS );
-	
+
 	const int vertexSize = tri->numVerts * sizeof( tri->verts[0] );
 	const int allocatedVertexBytes =  ALIGN( vertexSize, 16 );
 	tri->verts = ( idDrawVert* )Mem_ClearedAlloc( allocatedVertexBytes, TAG_RENDER_TOOLS );
-	
+
 	idDrawVert* verts = tri->verts;
-	
+
 	const float low = 0.0f;
 	const float high = 1.0f;
-	
+
 	idVec3 center( 0.0f );
 	idVec3 mx( low, 0.0f, 0.0f );
 	idVec3 px( high, 0.0f, 0.0f );
@@ -2086,7 +2090,7 @@ static srfTriangles_t* R_MakeZeroOneCubeTris()
 	idVec3 py( 0.0f, high, 0.0f );
 	idVec3 mz( 0.0f, 0.0f,  low );
 	idVec3 pz( 0.0f, 0.0f, high );
-	
+
 	verts[0].xyz = center + mx + my + mz;
 	verts[1].xyz = center + px + my + mz;
 	verts[2].xyz = center + px + py + mz;
@@ -2095,7 +2099,7 @@ static srfTriangles_t* R_MakeZeroOneCubeTris()
 	verts[5].xyz = center + px + my + pz;
 	verts[6].xyz = center + px + py + pz;
 	verts[7].xyz = center + mx + py + pz;
-	
+
 	// bottom
 	tri->indexes[ 0 * 3 + 0] = 2;
 	tri->indexes[ 0 * 3 + 1] = 3;
@@ -2138,12 +2142,12 @@ static srfTriangles_t* R_MakeZeroOneCubeTris()
 	tri->indexes[11 * 3 + 0] = 5;
 	tri->indexes[11 * 3 + 1] = 4;
 	tri->indexes[11 * 3 + 2] = 6;
-	
+
 	for( int i = 0 ; i < 4 ; i++ )
 	{
 		verts[i].SetColor( 0xffffffff );
 	}
-	
+
 	return tri;
 }
 
@@ -2157,42 +2161,42 @@ Initializes the Test Image Triangles
 srfTriangles_t* R_MakeTestImageTriangles()
 {
 	srfTriangles_t* tri = ( srfTriangles_t* )Mem_ClearedAlloc( sizeof( *tri ), TAG_RENDER_TOOLS );
-	
+
 	tri->numIndexes = 6;
 	tri->numVerts = 4;
-	
+
 	int indexSize = tri->numIndexes * sizeof( tri->indexes[0] );
 	int allocatedIndexBytes = ALIGN( indexSize, 16 );
 	tri->indexes = ( triIndex_t* )Mem_Alloc( allocatedIndexBytes, TAG_RENDER_TOOLS );
-	
+
 	int vertexSize = tri->numVerts * sizeof( tri->verts[0] );
 	int allocatedVertexBytes =  ALIGN( vertexSize, 16 );
 	tri->verts = ( idDrawVert* )Mem_ClearedAlloc( allocatedVertexBytes, TAG_RENDER_TOOLS );
-	
+
 	ALIGNTYPE16 triIndex_t tempIndexes[6] = { 3, 0, 2, 2, 0, 1 };
 	memcpy( tri->indexes, tempIndexes, indexSize );
-	
+
 	idDrawVert* tempVerts = tri->verts;
 	tempVerts[0].xyz[0] = 0.0f;
 	tempVerts[0].xyz[1] = 0.0f;
 	tempVerts[0].xyz[2] = 0;
 	tempVerts[0].SetTexCoord( 0.0, 0.0f );
-	
+
 	tempVerts[1].xyz[0] = 1.0f;
 	tempVerts[1].xyz[1] = 0.0f;
 	tempVerts[1].xyz[2] = 0;
 	tempVerts[1].SetTexCoord( 1.0f, 0.0f );
-	
+
 	tempVerts[2].xyz[0] = 1.0f;
 	tempVerts[2].xyz[1] = 1.0f;
 	tempVerts[2].xyz[2] = 0;
 	tempVerts[2].SetTexCoord( 1.0f, 1.0f );
-	
+
 	tempVerts[3].xyz[0] = 0.0f;
 	tempVerts[3].xyz[1] = 1.0f;
 	tempVerts[3].xyz[2] = 0;
 	tempVerts[3].SetTexCoord( 0.0f, 1.0f );
-	
+
 	for( int i = 0; i < 4; i++ )
 	{
 		tempVerts[i].SetColor( 0xFFFFFFFF );
@@ -2208,48 +2212,48 @@ idRenderSystemLocal::Init
 void idRenderSystemLocal::Init()
 {
 	common->Printf( "------- Initializing renderSystem --------\n" );
-	
+
 	// clear all our internal state
 	viewCount = 1;		// so cleared structures never match viewCount
 	// we used to memset tr, but now that it is a class, we can't, so
 	// there may be other state we need to reset
-	
+
 	ambientLightVector[0] = 0.5f;
 	ambientLightVector[1] = 0.5f - 0.385f;
 	ambientLightVector[2] = 0.8925f;
 	ambientLightVector[3] = 1.0f;
-	
+
 	R_InitCommands();
-	
+
 	// allocate the frame data, which may be more if smp is enabled
 	R_InitFrameData();
-	
+
 	guiModel = new( TAG_RENDER ) idGuiModel;
 	guiModel->Clear();
 	tr_guiModel = guiModel;	// for DeviceContext fast path
-	
+
 	UpdateStereo3DMode();
-	
+
 	globalImages->Init();
-	
+
 	// RB begin
 	Framebuffer::Init();
 	// RB end
-	
+
 	idCinematic::InitCinematic();
-	
+
 	// build brightness translation tables
 	R_SetColorMappings();
-	
+
 	R_InitMaterials();
-	
+
 	renderModelManager->Init();
-	
+
 	// set the identity space
 	identitySpace.modelMatrix[0 * 4 + 0] = 1.0f;
 	identitySpace.modelMatrix[1 * 4 + 1] = 1.0f;
 	identitySpace.modelMatrix[2 * 4 + 2] = 1.0f;
-	
+
 	// make sure the tr.unitSquareTriangles data is current in the vertex / index cache
 	if( unitSquareTriangles == NULL )
 	{
@@ -2265,14 +2269,14 @@ void idRenderSystemLocal::Init()
 	{
 		testImageTriangles = R_MakeTestImageTriangles();
 	}
-	
+
 	frontEndJobList = parallelJobManager->AllocJobList( JOBLIST_RENDERER_FRONTEND, JOBLIST_PRIORITY_MEDIUM, 2048, 0, NULL );
-	
+
 	bInitialized = true;
-	
+
 	// make sure the command buffers are ready to accept the first screen update
 	SwapCommandBuffers( NULL, NULL, NULL, NULL );
-	
+
 	common->Printf( "renderSystem initialized.\n" );
 	common->Printf( "--------------------------------------\n" );
 }
@@ -2285,42 +2289,42 @@ idRenderSystemLocal::Shutdown
 void idRenderSystemLocal::Shutdown()
 {
 	common->Printf( "idRenderSystem::Shutdown()\n" );
-	
+
 	fonts.DeleteContents();
-	
+
 	if( IsInitialized() )
 	{
 		globalImages->PurgeAllImages();
 	}
-	
+
 	renderModelManager->Shutdown();
-	
+
 	idCinematic::ShutdownCinematic();
-	
+
 	globalImages->Shutdown();
-	
+
 	// RB begin
 	Framebuffer::Shutdown();
 	// RB end
-	
+
 	// free frame memory
 	R_ShutdownFrameData();
-	
+
 	UnbindBufferObjects();
-	
+
 	// free the vertex cache, which should have nothing allocated now
 	vertexCache.Shutdown();
-	
+
 	RB_ShutdownDebugTools();
-	
+
 	delete guiModel;
-	
+
 	parallelJobManager->FreeJobList( frontEndJobList );
-	
+
 	Clear();
-	
+
 	ShutdownOpenGL();
-	
+
 	bInitialized = false;
 }
 
@@ -2347,7 +2351,7 @@ void idRenderSystemLocal::BeginLevelLoad()
 {
 	globalImages->BeginLevelLoad();
 	renderModelManager->BeginLevelLoad();
-	
+
 	// Re-Initialize the Default Materials if needed.
 	R_InitMaterials();
 }
@@ -2456,10 +2460,10 @@ void idRenderSystemLocal::InitOpenGL()
 	if( !IsInitialized() )
 	{
 		backend.Init();
-		
+
 		// Reloading images here causes the rendertargets to get deleted. Figure out how to handle this properly on 360
 		//globalImages->ReloadImages( true );
-		
+
 #if !defined(USE_VULKAN)
 		int err = glGetError();
 		if( err != GL_NO_ERROR )
@@ -2479,7 +2483,7 @@ void idRenderSystemLocal::ShutdownOpenGL()
 {
 	// free the context and close the window
 	R_ShutdownFrameData();
-	
+
 	backend.Shutdown();
 }
 

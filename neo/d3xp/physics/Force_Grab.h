@@ -43,10 +43,10 @@ class idForce_Grab : public idForce
 
 public:
 	CLASS_PROTOTYPE( idForce_Grab );
-	
+
 	void				Save( idSaveGame* savefile ) const;
 	void				Restore( idRestoreGame* savefile );
-	
+
 	idForce_Grab();
 	virtual				~idForce_Grab();
 	// initialize the drag force
@@ -55,23 +55,23 @@ public:
 	void				SetPhysics( idPhysics* physics, int id, const idVec3& goal );
 	// update the goal position
 	void				SetGoalPosition( const idVec3& goal );
-	
-	
+
+
 public: // common force interface
 	virtual void		Evaluate( int time );
 	virtual void		RemovePhysics( const idPhysics* phys );
-	
+
 	// Get the distance from object to goal position
 	float				GetDistanceToGoal();
-	
+
 private:
 
 	// properties
 	float				damping;
 	idVec3				goalPosition;
-	
+
 	float				distanceToGoal;
-	
+
 	// positioning
 	idPhysics* 			physics;		// physics object
 	int					id;				// clip model id of physics object

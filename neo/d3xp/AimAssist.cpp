@@ -82,7 +82,7 @@ idAimAssist::Update
 void idAimAssist::Update()
 {
 	angleCorrection = ang_zero;
-	
+
 	UpdateNewAimAssist();
 }
 
@@ -98,16 +98,16 @@ void idAimAssist::UpdateNewAimAssist()
 	frictionScalar = 1.0f;
 	idEntity* lastTarget = targetEntity;
 	targetEntity = NULL;
-	
+
 	// is aim assisting allowed?  If not then just bail out
 	if( !aa_targetAimAssistEnable.GetBool() )
 	{
 		return;
 	}
-	
+
 	bool forceLastTarget = false;
 	idVec3 targetPos;
-	
+
 	idEntity* entity = NULL;
 	if( forceLastTarget )
 	{
@@ -118,25 +118,25 @@ void idAimAssist::UpdateNewAimAssist()
 	{
 		entity = FindAimAssistTarget( targetPos );
 	}
-	
+
 	if( entity != NULL )
 	{
-	
+
 		UpdateFriction( entity, targetPos );
-		
+
 		// by default we don't allow adhesion when we are standing still
 		const float playerMovementSpeedThreshold = Square( aa_targetAdhesionPlayerSpeedThreshold.GetFloat() );
 		float playerSpeed = player->GetPhysics()->GetLinearVelocity().LengthSqr();
-		
+
 		// only allow adhesion on actors (ai) or players.  Disallow adhesion on any static world entities such as explosive barrels
 		if( playerSpeed > playerMovementSpeedThreshold )
 		{
 			UpdateAdhesion( entity, targetPos );
 		}
-		
+
 		targetEntity = entity;
 	}
-	
+
 	lastTargetPos = targetPos;
 }
 
@@ -151,36 +151,36 @@ idEntity* idAimAssist::FindAimAssistTarget( idVec3& targetPos )
 	{
 		return NULL;
 	}
-	
+
 	//TO DO: Make this faster
 	//TO DO: Defer Traces
 	idEntity* 	optimalTarget = NULL;
 	float		currentBestScore = -idMath::INFINITY;
 	targetPos = vec3_zero;
-	
+
 	idVec3 cameraPos;
 	idMat3 cameraAxis;
 	player->GetViewPos( cameraPos, cameraAxis );
-	
+
 	float maxDistanceSquared = Square( aa_targetMaxDistance.GetFloat() );
-	
+
 	idVec3 dirToTarget;
 	float  distanceToTargetSquared;
 	idVec3 primaryTargetPos;
 	idVec3 secondaryTargetPos;
-	
+
 	for( idEntity* entity = gameLocal.aimAssistEntities.Next(); entity != NULL; entity = entity->aimAssistNode.Next() )
 	{
 		if( !entity->IsActive() )
 		{
 			continue;
 		}
-		
+
 		if( entity->IsHidden() )
 		{
 			continue;
 		}
-		
+
 		if( entity->IsType( idActor::Type ) )
 		{
 			idActor* actor = static_cast<idActor*>( entity );
@@ -193,7 +193,7 @@ idEntity* idAimAssist::FindAimAssistTarget( idVec3& targetPos )
 				}
 			}
 		}
-		
+
 		if( entity->IsType( idAI::Type ) )
 		{
 			idAI* aiEntity = static_cast<idAI*>( entity );
@@ -202,13 +202,13 @@ idEntity* idAimAssist::FindAimAssistTarget( idVec3& targetPos )
 				continue;
 			}
 		}
-		
+
 		// check whether we have a valid target position for this entity - skip it if we don't
 		if( !ComputeTargetPos( entity, primaryTargetPos, secondaryTargetPos ) )
 		{
 			continue;
 		}
-		
+
 		// is it close enough to us
 		dirToTarget = primaryTargetPos - cameraPos;
 		distanceToTargetSquared = dirToTarget.LengthSqr();
@@ -216,44 +216,44 @@ idEntity* idAimAssist::FindAimAssistTarget( idVec3& targetPos )
 		{
 			continue;
 		}
-		
+
 		// Compute a score in the range of 0..1 for how much are looking towards the target.
 		idVec3 forward = cameraAxis[ 0 ];
 		forward.Normalize();
 		dirToTarget.Normalize();
 		float ViewDirDotTargetDir = idMath::ClampFloat( -1.0f, 1.0f, forward * dirToTarget ); // compute the dot and clamp to account for floating point error
-		
+
 		// throw out anything thats outside of weapon's global FOV.
 		if( ViewDirDotTargetDir < 0.0f )
 		{
 			continue;
 		}
-		
+
 		// to be consistent we always use the primaryTargetPos to compute the score for this entity
 		float computedScore = ComputeEntityAimAssistScore( primaryTargetPos, cameraPos, cameraAxis );
-		
+
 		// check if the current score beats our current best score and we have line of sight to it.
 		if( computedScore > currentBestScore )
 		{
-		
+
 			// determine if the current target is in our line of sight
 			trace_t tr;
 			gameLocal.clip.TracePoint( tr, cameraPos, primaryTargetPos, MASK_MONSTERSOLID, player );
-			
+
 			// did our trace fail?
 			if( ( ( tr.fraction < 1.0f ) && ( tr.c.entityNum != entity->entityNumber ) ) || ( tr.fraction >= 1.0f ) )
 			{
-			
+
 				// if the collision test failed for the primary position -- check the secondary position
 				trace_t tr2;
 				gameLocal.clip.TracePoint( tr2, cameraPos, secondaryTargetPos, MASK_MONSTERSOLID, player );
-				
+
 				if( ( ( tr2.fraction < 1.0f ) && ( tr2.c.entityNum != entity->entityNumber ) ) || ( tr2.fraction >= 1.0f ) )
 				{
 					// if the secondary position is also not visible then give up
 					continue;
 				}
-				
+
 				// we can see the secondary target position so we should consider this entity but use
 				// the secondary position as the target position
 				targetPos = secondaryTargetPos;
@@ -262,13 +262,13 @@ idEntity* idAimAssist::FindAimAssistTarget( idVec3& targetPos )
 			{
 				targetPos = primaryTargetPos;
 			}
-			
+
 			// if we got here then this is our new best score
 			optimalTarget = entity;
 			currentBestScore = computedScore;
 		}
 	}
-	
+
 	return optimalTarget;
 }
 
@@ -281,19 +281,19 @@ float idAimAssist::ComputeEntityAimAssistScore( const idVec3& targetPos, const i
 {
 
 	float score = 0.0f;
-	
+
 	idVec3 dirToTarget = targetPos - cameraPos;
 	float distanceToTarget = dirToTarget.Length();
-	
+
 	// Compute a score in the range of 0..1 for how much are looking towards the target.
 	idVec3 forward = cameraAxis[0];
 	forward.Normalize();
 	dirToTarget.Normalize();
 	float ViewDirDotTargetDir = idMath::ClampFloat( 0.0f, 1.0f, forward * dirToTarget ); // compute the dot and clamp to account for floating point error
-	
+
 	// the more we look at the target the higher our score
 	score = ViewDirDotTargetDir;
-	
+
 	// weigh the score from the view angle higher than the distance score
 	static float aimWeight = 0.8f;
 	score *= aimWeight;
@@ -304,7 +304,7 @@ float idAimAssist::ComputeEntityAimAssistScore( const idVec3& targetPos, const i
 		float distanceWeight = 1.0f - aimWeight;
 		score += ( distanceScore * distanceWeight );
 	}
-	
+
 	return score * 1000.0f;
 }
 
@@ -320,35 +320,35 @@ void idAimAssist::UpdateAdhesion( idEntity* pTarget, const idVec3& targetPos )
 	{
 		return;
 	}
-	
+
 	if( !pTarget )
 	{
 		return;
 	}
-	
+
 	float contributionPctMax = aa_targetAdhesionContributionPctMax.GetFloat();
-	
+
 	idVec3 cameraPos;
 	idMat3 cameraAxis;
 	player->GetViewPos( cameraPos, cameraAxis );
-	
+
 	idAngles cameraViewAngles = cameraAxis.ToAngles();
 	cameraViewAngles.Normalize180();
-	
+
 	idVec3 cameraViewPos = cameraPos;
 	idVec3 dirToTarget = targetPos - cameraViewPos;
 	float distanceToTarget = dirToTarget.Length();
-	
+
 	idAngles aimAngles = dirToTarget.ToAngles();
 	aimAngles.Normalize180();
-	
+
 	// find the delta
 	aimAngles -= cameraViewAngles;
-	
+
 	// clamp velocities to some max values
 	aimAngles.yaw = idMath::ClampFloat( -aa_targetAdhesionYawSpeedMax.GetFloat(), aa_targetAdhesionYawSpeedMax.GetFloat(), aimAngles.yaw );
 	aimAngles.pitch = idMath::ClampFloat( -aa_targetAdhesionPitchSpeedMax.GetFloat(), aa_targetAdhesionPitchSpeedMax.GetFloat(), aimAngles.pitch );
-	
+
 	idVec3 forward = cameraAxis[0];
 	forward.Normalize();
 	dirToTarget.Normalize();
@@ -356,7 +356,7 @@ void idAimAssist::UpdateAdhesion( idEntity* pTarget, const idVec3& targetPos )
 	float aimLength = ViewDirDotTargetDir * distanceToTarget;
 	idVec3 aimPoint = cameraPos + ( forward * aimLength );
 	float delta = idMath::Sqrt( Square( distanceToTarget ) - Square( aimLength ) );
-	
+
 	float contribution = idMath::ClampFloat( 0.0f, contributionPctMax, 1.0f - ( delta / aa_targetAdhesionRadius.GetFloat() ) );
 	angleCorrection.yaw = aimAngles.yaw * contribution;
 	angleCorrection.pitch = aimAngles.pitch * contribution;
@@ -374,9 +374,9 @@ float idAimAssist::ComputeFrictionRadius( float distanceToTarget )
 	{
 		return aa_targetFrictionRadius.GetFloat();
 	}
-	
+
 	float distanceContributionScalar = ( aa_targetFrictionOptimalDistance.GetFloat() > 0.0f ) ? ( distanceToTarget / aa_targetFrictionOptimalDistance.GetFloat() ) : 0.0f;
-	
+
 	if( distanceToTarget > aa_targetFrictionOptimalDistance.GetFloat() )
 	{
 		const float range = idMath::ClampFloat( 0.0f, aa_targetFrictionMaxDistance.GetFloat(), aa_targetFrictionMaxDistance.GetFloat() - aa_targetFrictionOptimalDistance.GetFloat() );
@@ -385,7 +385,7 @@ float idAimAssist::ComputeFrictionRadius( float distanceToTarget )
 			distanceContributionScalar = 1.0f - ( ( distanceToTarget - aa_targetFrictionOptimalDistance.GetFloat() ) / range );
 		}
 	}
-	
+
 	return Lerp( aa_targetFrictionRadius.GetFloat(), aa_targetFrictionOptimalRadius.GetFloat(), distanceContributionScalar );
 }
 
@@ -401,12 +401,12 @@ void idAimAssist::UpdateFriction( idEntity* pTarget, const idVec3& targetPos )
 	{
 		return;
 	}
-	
+
 	if( pTarget == NULL )
 	{
 		return;
 	}
-	
+
 	idVec3 cameraPos;
 	idMat3 cameraAxis;
 	player->GetViewPos( cameraPos, cameraAxis );
@@ -419,7 +419,7 @@ void idAimAssist::UpdateFriction( idEntity* pTarget, const idVec3& targetPos )
 	float aimLength = ViewDirDotTargetDir * distanceToTarget;
 	idVec3 aimPoint = cameraPos + ( forward * aimLength );
 	float delta = idMath::Sqrt( Square( distanceToTarget ) - Square( aimLength ) );
-	
+
 	const float radius = ComputeFrictionRadius( distanceToTarget );
 	if( delta < radius )
 	{
@@ -438,12 +438,12 @@ bool idAimAssist::ComputeTargetPos( idEntity* entity, idVec3& primaryTargetPos, 
 
 	primaryTargetPos = vec3_zero;
 	secondaryTargetPos = vec3_zero;
-	
+
 	if( entity == NULL )
 	{
 		return false;
 	}
-	
+
 	// The target point on actors can now be either the head or the torso
 	idActor* actor = NULL;
 	if( entity->IsType( idActor::Type ) )
@@ -453,10 +453,10 @@ bool idAimAssist::ComputeTargetPos( idEntity* entity, idVec3& primaryTargetPos, 
 	if( actor != NULL )
 	{
 		// Actor AimPoint
-		
+
 		idVec3 torsoPos;
 		idVec3 headPos = actor->GetEyePosition();
-		
+
 		if( actor->GetHeadEntity() != NULL )
 		{
 			torsoPos = actor->GetHeadEntity()->GetPhysics()->GetOrigin();
@@ -466,20 +466,20 @@ bool idAimAssist::ComputeTargetPos( idEntity* entity, idVec3& primaryTargetPos, 
 			const float offsetScale = 0.9f;
 			torsoPos = actor->GetPhysics()->GetOrigin() + ( actor->EyeOffset() * offsetScale );
 		}
-		
+
 		primaryTargetPos = torsoPos;
 		secondaryTargetPos = headPos;
 		return true;
-		
+
 	}
 	else if( entity->GetPhysics()->GetClipModel() != NULL )
 	{
-	
+
 		const idBounds& box = entity->GetPhysics()->GetClipModel()->GetAbsBounds();
 		primaryTargetPos = box.GetCenter();
 		secondaryTargetPos = box.GetCenter();
 		return true;
 	}
-	
+
 	return false;
 }

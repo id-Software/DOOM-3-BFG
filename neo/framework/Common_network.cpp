@@ -143,7 +143,7 @@ void idCommonLocal::SendSnapshots()
 	}
 	idSnapShot ss;
 	game->ServerWriteSnapshot( ss );
-	
+
 	session->SendSnapshot( ss );
 	nextSnapshotSendTime = MSEC_ALIGN_TO_FRAME( currentTime + net_snapRate.GetInteger() );
 }
@@ -163,10 +163,10 @@ void idCommonLocal::NetReceiveSnapshot( class idSnapShot& ss )
 		assert( writeSnapshotIndex % RECEIVE_SNAPSHOT_BUFFER_SIZE == readSnapshotIndex % RECEIVE_SNAPSHOT_BUFFER_SIZE );
 		ProcessNextSnapshot();
 	}
-	
+
 	receivedSnaps[ writeSnapshotIndex % RECEIVE_SNAPSHOT_BUFFER_SIZE ] = ss;
 	writeSnapshotIndex++;
-	
+
 	// Force read the very first 2 snapshots
 	if( readSnapshotIndex < 2 )
 	{
@@ -203,18 +203,18 @@ void idCommonLocal::SendUsercmds( int localClientNum )
 	idSerializer ser( msg, true );
 	usercmd_t empty;
 	usercmd_t* last = &empty;
-	
+
 	usercmd_t* cmdBuffer[NUM_USERCMD_SEND];
 	const int numCmds = userCmdMgr.GetPlayerCmds( localClientNum, cmdBuffer, NUM_USERCMD_SEND );
 	msg.WriteByte( numCmds );
 	for( int i = 0; i < numCmds; i++ )
 	{
 		cmdBuffer[i]->Serialize( ser, *last );
-		
+
 		last = cmdBuffer[i];
 	}
 	session->SendUsercmds( msg );
-	
+
 	nextUsercmdSendTime = MSEC_ALIGN_TO_FRAME( currentTime + net_ucmdRate.GetInteger() );
 }
 
@@ -231,7 +231,7 @@ void idCommonLocal::NetReceiveUsercmds( int peer, idBitMsg& msg )
 		idLib::Warning( "NetReceiveUsercmds: Could not find client for peer %d", peer );
 		return;
 	}
-	
+
 	NetReadUsercmds( clientNum, msg );
 }
 
@@ -249,7 +249,7 @@ void idCommonLocal::NetReceiveReliable( int peer, int type, idBitMsg& msg )
 		idLib::Warning( "NetReceiveReliable: Could not find client for peer %d", peer );
 		return;
 	}
-	
+
 	const byte* msgData = msg.GetReadData() + msg.GetReadCount();
 	int msgSize = msg.GetRemainingData();
 	reliableMsg_t& reliable = reliableQueue.Alloc();
@@ -268,13 +268,13 @@ idCommonLocal::ProcessSnapshot
 void idCommonLocal::ProcessSnapshot( idSnapShot& ss )
 {
 	int time = Sys_Milliseconds();
-	
+
 	snapTime = time;
 	snapPrevious			= snapCurrent;
 	snapCurrent.serverTime	= ss.GetTime();
 	snapRate = snapCurrent.serverTime - snapPrevious.serverTime;
-	
-	
+
+
 	static int lastReceivedLocalTime = 0;
 	int timeSinceLastSnap = ( time - lastReceivedLocalTime );
 	if( net_debug_snapShotTime.GetBool() )
@@ -282,7 +282,7 @@ void idCommonLocal::ProcessSnapshot( idSnapShot& ss )
 		idLib::Printf( "^2ProcessSnapshot. delta serverTime: %d  delta localTime: %d \n", ( snapCurrent.serverTime - snapPrevious.serverTime ), timeSinceLastSnap );
 	}
 	lastReceivedLocalTime = time;
-	
+
 	/* JAF ?
 	for ( int i = 0; i < MAX_PLAYERS; i++ ) {
 		idBitMsg msg;
@@ -291,11 +291,11 @@ void idCommonLocal::ProcessSnapshot( idSnapShot& ss )
 				snapCurrent.players[ i ].valid = false;
 				continue;
 			}
-	
+
 			idSerializer ser( msg, false );
 			SerializePlayer( ser, snapCurrent.players[ i ] );
 			snapCurrent.players[ i ].valid = true;
-	
+
 			extern idCVar com_drawSnapshots;
 			if ( com_drawSnapshots.GetInteger() == 3 ) {
 				console->AddSnapObject( "players", msg.GetSize(), ss.CompareObject( &oldss, idSession::SS_PLAYER + i ) );
@@ -303,7 +303,7 @@ void idCommonLocal::ProcessSnapshot( idSnapShot& ss )
 		}
 	}
 	*/
-	
+
 	// Read usercmds from other players
 	for( int p = 0; p < MAX_PLAYERS; p++ )
 	{
@@ -317,19 +317,19 @@ void idCommonLocal::ProcessSnapshot( idSnapShot& ss )
 			NetReadUsercmds( p, msg );
 		}
 	}
-	
-	
-	
-	
+
+
+
+
 	// Set server game time here so that it accurately reflects the time when this frame was saved out, in case any serialize function needs it.
 	int oldTime = Game()->GetServerGameTimeMs();
 	Game()->SetServerGameTimeMs( snapCurrent.serverTime );
-	
+
 	Game()->ClientReadSnapshot( ss ); //, &oldss );
-	
+
 	// Restore server game time
 	Game()->SetServerGameTimeMs( oldTime );
-	
+
 	snapTimeDelta = ss.GetRecvTime() - oldss.GetRecvTime();
 	oldss = ss;
 }
@@ -346,39 +346,39 @@ void idCommonLocal::NetReadUsercmds( int clientNum, idBitMsg& msg )
 		idLib::Warning( "NetReadUsercmds: Trying to read commands from invalid clientNum %d", clientNum );
 		return;
 	}
-	
+
 	// TODO: This shouldn't actually happen. Figure out why it does.
 	// Seen on clients when another client leaves a match.
 	if( msg.GetReadData() == NULL )
 	{
 		return;
 	}
-	
+
 	idSerializer ser( msg, false );
-	
+
 	usercmd_t fakeCmd;
 	usercmd_t* base = &fakeCmd;
-	
+
 	usercmd_t lastCmd;
-	
+
 	bool										gotNewCmd = false;
 	idStaticList< usercmd_t, NUM_USERCMD_RELAY >	newCmdBuffer;
-	
+
 	usercmd_t baseCmd = userCmdMgr.NewestUserCmdForPlayer( clientNum );
 	int curMilliseconds = baseCmd.clientGameMilliseconds;
-	
+
 	const int numCmds = msg.ReadByte();
-	
+
 	for( int i = 0; i < numCmds; i++ )
 	{
 		usercmd_t newCmd;
 		newCmd.Serialize( ser, *base );
-		
+
 		lastCmd = newCmd;
 		base = &lastCmd;
-		
+
 		int newMilliseconds = newCmd.clientGameMilliseconds;
-		
+
 		if( newMilliseconds > curMilliseconds )
 		{
 			if( verify( i < NUM_USERCMD_RELAY ) )
@@ -389,7 +389,7 @@ void idCommonLocal::NetReadUsercmds( int clientNum, idBitMsg& msg )
 			}
 		}
 	}
-	
+
 	// Push the commands into the buffer.
 	for( int i = 0; i < newCmdBuffer.Num(); ++i )
 	{
@@ -426,30 +426,30 @@ int idCommonLocal::CalcSnapTimeBuffered( int& totalBufferedTime, int& totalRecvT
 
 	totalBufferedTime = snapRate;
 	totalRecvTime = snapTimeDelta;
-	
+
 	// oldSS = last ss we deserialized
 	int lastBuffTime = oldss.GetTime();
 	int lastRecvTime = oldss.GetRecvTime();
-	
+
 	// receivedSnaps[readSnapshotIndex % RECEIVE_SNAPSHOT_BUFFER_SIZE] = next buffered snapshot we haven't processed yet (might not exist)
 	for( int i = readSnapshotIndex; i < writeSnapshotIndex; i++ )
 	{
 		int buffTime = receivedSnaps[i % RECEIVE_SNAPSHOT_BUFFER_SIZE].GetTime();
 		int recvTime = receivedSnaps[i % RECEIVE_SNAPSHOT_BUFFER_SIZE].GetRecvTime();
-		
+
 		totalBufferedTime += buffTime - lastBuffTime;
 		totalRecvTime += recvTime - lastRecvTime;
-		
+
 		lastRecvTime = recvTime;
 		lastBuffTime = buffTime;
 	}
-	
+
 	totalRecvTime = Max( 1, totalRecvTime );
 	totalRecvTime = static_cast<float>( initialBaseTicksPerSec ) * static_cast<float>( totalRecvTime / 1000.0f ); // convert realMS to gameMS
-	
+
 	// remove time we've already interpolated over
 	int timeLeft = totalBufferedTime - Min< int >( snapRate, snapCurrentTime );
-	
+
 	//idLib::Printf( "CalcSnapTimeBuffered. timeLeft: %d totalRecvTime: %d, totalTimeBuffered: %d\n", timeLeft, totalRecvTime, totalBufferedTime );
 	return timeLeft;
 }
@@ -463,12 +463,12 @@ void idCommonLocal::InterpolateSnapshot( netTimes_t& prev, netTimes_t& next, flo
 {
 
 	int serverTime = Lerp( prev.serverTime, next.serverTime, fraction );
-	
+
 	Game()->SetServerGameTimeMs( serverTime );		// Set the global server time to the interpolated time of the server
 	Game()->SetInterpolation( fraction, serverTime, prev.serverTime, next.serverTime );
-	
+
 	//Game()->RunFrame( &userCmdMgr, &ret, true );
-	
+
 }
 
 /*
@@ -486,31 +486,31 @@ void idCommonLocal::RunNetworkSnapshotFrame()
 		Mem_Free( reliableQueue[i].data );
 	}
 	reliableQueue.Clear();
-	
+
 	// abuse the game timing to time presentable thinking on clients
 	time_gameFrame = Sys_Microseconds();
 	time_maxGameFrame = 0;
 	count_numGameFrames = 0;
-	
+
 	if( snapPrevious.serverTime >= 0 )
 	{
-	
+
 		int	msec_interval = 1 + idMath::Ftoi( ( float )initialBaseTicksPerSec );
-		
+
 		static int clientTimeResidual = 0;
 		static int lastTime = Sys_Milliseconds();
 		int currentTime = Sys_Milliseconds();
 		int deltaFrameTime = idMath::ClampInt( 1, 33, currentTime - lastTime );
-		
+
 		clientTimeResidual += idMath::ClampInt( 0, 50, currentTime - lastTime );
 		lastTime = currentTime;
-		
+
 		extern idCVar com_fixedTic;
 		if( com_fixedTic.GetBool() )
 		{
 			clientTimeResidual = 0;
 		}
-		
+
 		do
 		{
 			// If we are extrapolating and have fresher snapshots, then use the freshest one
@@ -519,39 +519,39 @@ void idCommonLocal::RunNetworkSnapshotFrame()
 				snapCurrentTime -= snapRate;
 				ProcessNextSnapshot();
 			}
-			
+
 			// this only matters when running < 60 fps
 			// JAF Game()->GetRenderWorld()->UpdateDeferredPositions();
-			
+
 			// Clamp the current time so that it doesn't fall outside of our extrapolation bounds
 			snapCurrentTime = idMath::ClampInt( 0, snapRate + Min( ( int )snapRate, ( int )net_maxExtrapolationInMS.GetInteger() ), snapCurrentTime );
-			
+
 			if( snapRate <= 0 )
 			{
 				idLib::Warning( "snapRate <= 0. Resetting to 100" );
 				snapRate = 100;
 			}
-			
+
 			float fraction = ( float )snapCurrentTime / ( float )snapRate;
 			if( !IsValid( fraction ) )
 			{
 				idLib::Warning( "Interpolation Fraction invalid: snapCurrentTime %d / snapRate %d", ( int )snapCurrentTime, ( int )snapRate );
 				fraction = 0.0f;
 			}
-			
+
 			InterpolateSnapshot( snapPrevious, snapCurrent, fraction, true );
-			
+
 			// Default to a snap scale of 1
 			float snapRateScale = net_interpolationBaseRate.GetFloat();
-			
+
 			snapTimeBuffered = CalcSnapTimeBuffered( totalBufferedTime, totalRecvTime );
 			effectiveSnapRate = static_cast< float >( totalBufferedTime ) / static_cast< float >( totalRecvTime );
-			
+
 			if( net_minBufferedSnapPCT_Static.GetFloat() > 0.0f )
 			{
 				optimalPCTBuffer = session->GetTitleStorageFloat( "net_minBufferedSnapPCT_Static", net_minBufferedSnapPCT_Static.GetFloat() );
 			}
-			
+
 			// Calculate optimal amount of buffered time we want
 			if( net_optimalDynamic.GetBool() )
 			{
@@ -563,7 +563,7 @@ void idCommonLocal::RunNetworkSnapshotFrame()
 				optimalTimeBuffered = net_optimalSnapTime.GetFloat();
 				optimalTimeBufferedWindow = net_optimalSnapWindow.GetFloat();
 			}
-			
+
 			// Scale snapRate based on where we are in the buffer
 			if( snapTimeBuffered <= optimalTimeBuffered )
 			{
@@ -591,54 +591,54 @@ void idCommonLocal::RunNetworkSnapshotFrame()
 						}
 					}
 				}
-				
-				
+
+
 			}
 			else if( snapTimeBuffered > optimalTimeBuffered + optimalTimeBufferedWindow )
 			{
 				// Go faster
 				snapRateScale = net_interpolationCatchupRate.GetFloat();
-				
+
 			}
-			
+
 			float delta_interpolate = ( float )initialBaseTicksPerSec * snapRateScale;
 			if( net_effectiveSnapRateEnable.GetBool() )
 			{
-			
+
 				float deltaFrameGameMS = static_cast<float>( initialBaseTicksPerSec ) * static_cast<float>( deltaFrameTime / 1000.0f );
 				delta_interpolate = ( deltaFrameGameMS * snapRateScale * effectiveSnapRate ) + snapCurrentResidual;
 				if( !IsValid( delta_interpolate ) )
 				{
 					delta_interpolate = 0.0f;
 				}
-				
+
 				snapCurrentResidual = idMath::Frac( delta_interpolate ); // fixme: snapCurrentTime should just be a float, but would require changes in d4 too
 				if( !IsValid( snapCurrentResidual ) )
 				{
 					snapCurrentResidual = 0.0f;
 				}
-				
+
 				if( net_effectiveSnapRateDebug.GetBool() )
 				{
 					idLib::Printf( "%d/%.2f snapRateScale: %.2f effectiveSR: %.2f d.interp: %.2f snapTimeBuffered: %.2f res: %.2f\n", deltaFrameTime, deltaFrameGameMS, snapRateScale, effectiveSnapRate, delta_interpolate, snapTimeBuffered, snapCurrentResidual );
 				}
 			}
-			
+
 			assert( IsValid( delta_interpolate ) );
 			int interpolate_interval = idMath::Ftoi( delta_interpolate );
-			
+
 			snapCurrentTime += interpolate_interval;	// advance interpolation time by the scaled interpolate_interval
 			clientTimeResidual -= msec_interval;		// advance local client residual time (fixed step)
-			
+
 		}
 		while( clientTimeResidual >= msec_interval );
-		
+
 		if( clientTimeResidual < 0 )
 		{
 			clientTimeResidual = 0;
 		}
 	}
-	
+
 	time_gameFrame = Sys_Microseconds() - time_gameFrame;
 }
 
@@ -658,7 +658,7 @@ void idCommonLocal::ExecuteReliableMessages()
 		Mem_Free( reliable.data );
 	}
 	reliableQueue.Clear();
-	
+
 }
 
 /*
@@ -672,35 +672,35 @@ void idCommonLocal::ResetNetworkingState()
 	snapTimeWrite	= 0;
 	snapCurrentTime	= 0;
 	snapCurrentResidual = 0.0f;
-	
+
 	snapTimeBuffered	= 0.0f;
 	effectiveSnapRate	= 0.0f;
 	totalBufferedTime	= 0;
 	totalRecvTime		= 0;
-	
+
 	readSnapshotIndex	= 0;
 	writeSnapshotIndex	= 0;
 	snapRate			= 100000;
 	optimalTimeBuffered	= 0.0f;
 	optimalPCTBuffer	= 0.5f;
 	optimalTimeBufferedWindow = 0.0;
-	
+
 	// Clear snapshot queue
 	for( int i = 0; i < RECEIVE_SNAPSHOT_BUFFER_SIZE; i++ )
 	{
 		receivedSnaps[i].Clear();
 	}
-	
+
 	userCmdMgr.SetDefaults();
-	
+
 	snapCurrent.localTime	= -1;
 	snapPrevious.localTime	= -1;
 	snapCurrent.serverTime	= -1;
 	snapPrevious.serverTime = -1;
-	
+
 	// Make sure our current snap state is cleared so state from last game doesn't carry over into new game
 	oldss.Clear();
-	
+
 	gameFrame = 0;
 	clientPrediction = 0;
 	nextUsercmdSendTime = 0;

@@ -54,7 +54,7 @@ class idClipModel
 {
 
 	friend class idClip;
-	
+
 public:
 	idClipModel();
 	explicit idClipModel( const char* name );
@@ -63,14 +63,14 @@ public:
 	explicit idClipModel( const int renderModelHandle );
 	explicit idClipModel( const idClipModel* model );
 	~idClipModel();
-	
+
 	bool					LoadModel( const char* name );
 	void					LoadModel( const idTraceModel& trm, bool persistantThroughSave = true );
 	void					LoadModel( const int renderModelHandle );
-	
+
 	void					Save( idSaveGame* savefile ) const;
 	void					Restore( idRestoreGame* savefile );
-	
+
 	void					Link( idClip& clp );				// must have been linked with an entity and id before
 	void					Link( idClip& clp, idEntity* ent, int newId, const idVec3& newOrigin, const idMat3& newAxis, int renderModelHandle = -1 );
 	void					Unlink();						// unlink from sectors
@@ -101,14 +101,14 @@ public:
 	cmHandle_t				Handle() const;				// returns handle used to collide vs this model
 	const idTraceModel* 	GetTraceModel() const;
 	void					GetMassProperties( const float density, float& mass, idVec3& centerOfMass, idMat3& inertiaTensor ) const;
-	
+
 	static cmHandle_t		CheckModel( const char* name );
 	static void				ClearTraceModelCache();
 	static int				TraceModelCacheSize();
-	
+
 	static void				SaveTraceModels( idSaveGame* savefile );
 	static void				RestoreTraceModels( idRestoreGame* savefile );
-	
+
 private:
 	bool					enabled;				// true if this clip model is used for clipping
 	idEntity* 				entity;					// entity using this clip model
@@ -123,13 +123,13 @@ private:
 	cmHandle_t				collisionModelHandle;	// handle to collision model
 	int						traceModelIndex;		// trace model used for collision detection
 	int						renderModelHandle;		// render model def handle
-	
+
 	struct clipLink_s* 		clipLinks;				// links into sectors
 	int						touchCount;
-	
+
 	void					Init();			// initialize
 	void					Link_r( struct clipSector_s* node );
-	
+
 	static int				AllocTraceModel( const idTraceModel& trm, bool persistantThroughSaves = true );
 	static void				FreeTraceModel( int traceModelIndex );
 	static idTraceModel* 	GetCachedTraceModel( int traceModelIndex );
@@ -276,13 +276,13 @@ class idClip
 {
 
 	friend class idClipModel;
-	
+
 public:
 	idClip();
-	
+
 	void					Init();
 	void					Shutdown();
-	
+
 	// clip versus the rest of the world
 	bool					Translation( trace_t& results, const idVec3& start, const idVec3& end,
 										 const idClipModel* mdl, const idMat3& trmAxis, int contentMask, const idEntity* passEntity );
@@ -294,13 +294,13 @@ public:
 									  const idClipModel* mdl, const idMat3& trmAxis, int contentMask, const idEntity* passEntity );
 	int						Contents( const idVec3& start,
 									  const idClipModel* mdl, const idMat3& trmAxis, int contentMask, const idEntity* passEntity );
-									  
+
 	// special case translations versus the rest of the world
 	bool					TracePoint( trace_t& results, const idVec3& start, const idVec3& end,
 										int contentMask, const idEntity* passEntity );
 	bool					TraceBounds( trace_t& results, const idVec3& start, const idVec3& end, const idBounds& bounds,
 										 int contentMask, const idEntity* passEntity );
-										 
+
 	// clip versus a specific model
 	void					TranslationModel( trace_t& results, const idVec3& start, const idVec3& end,
 			const idClipModel* mdl, const idMat3& trmAxis, int contentMask,
@@ -314,26 +314,26 @@ public:
 	int						ContentsModel( const idVec3& start,
 										   const idClipModel* mdl, const idMat3& trmAxis, int contentMask,
 										   cmHandle_t model, const idVec3& modelOrigin, const idMat3& modelAxis );
-										   
+
 	// clip versus all entities but not the world
 	void					TranslationEntities( trace_t& results, const idVec3& start, const idVec3& end,
 			const idClipModel* mdl, const idMat3& trmAxis, int contentMask, const idEntity* passEntity );
-			
+
 	// get a contact feature
 	bool					GetModelContactFeature( const contactInfo_t& contact, const idClipModel* clipModel, idFixedWinding& winding ) const;
-	
+
 	// get entities/clip models within or touching the given bounds
 	int						EntitiesTouchingBounds( const idBounds& bounds, int contentMask, idEntity** entityList, int maxCount ) const;
 	int						ClipModelsTouchingBounds( const idBounds& bounds, int contentMask, idClipModel** clipModelList, int maxCount ) const;
-	
+
 	const idBounds& 		GetWorldBounds() const;
 	idClipModel* 			DefaultClipModel();
-	
+
 	// stats and debug drawing
 	void					PrintStatistics();
 	void					DrawClipModels( const idVec3& eye, const float radius, const idEntity* passEntity );
 	bool					DrawModelContactFeature( const contactInfo_t& contact, const idClipModel* clipModel, int lifetime ) const;
-	
+
 private:
 	int						numClipSectors;
 	struct clipSector_s* 	clipSectors;
@@ -348,7 +348,7 @@ private:
 	int						numRenderModelTraces;
 	int						numContents;
 	int						numContacts;
-	
+
 private:
 	struct clipSector_s* 	CreateClipSectors_r( const int depth, const idBounds& bounds, idVec3& maxSector );
 	void					ClipModelsTouchingBounds_r( const struct clipSector_s* node, struct listParms_s& parms ) const;

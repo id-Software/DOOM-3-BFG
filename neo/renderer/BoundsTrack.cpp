@@ -56,14 +56,14 @@ struct shortBounds_t
 	{
 		SetToEmpty();
 	}
-	
+
 	shortBounds_t( const idBounds& b )
 	{
 		SetFromReferenceBounds( b );
 	}
-	
+
 	short	b[2][4];		// fourth element is just for padding
-	
+
 	idBounds ToFloatBounds() const
 	{
 		idBounds	f;
@@ -74,14 +74,14 @@ struct shortBounds_t
 		}
 		return f;
 	}
-	
+
 	bool	IntersectsShortBounds( shortBounds_t& comp ) const
 	{
 		shortBounds_t test;
 		comp.MakeComparisonBounds( test );
 		return IntersectsComparisonBounds( test );
 	}
-	
+
 	bool	IntersectsComparisonBounds( shortBounds_t& test ) const
 	{
 		// this can be a single ALTIVEC vcmpgtshR instruction
@@ -94,7 +94,7 @@ struct shortBounds_t
 			   && test.b[1][2] > b[1][2]
 			   && test.b[1][3] > b[1][3];
 	}
-	
+
 	void MakeComparisonBounds( shortBounds_t& comp ) const
 	{
 		comp.b[0][0] = -b[1][0];
@@ -106,7 +106,7 @@ struct shortBounds_t
 		comp.b[0][3] = 0x7fff;
 		comp.b[1][3] = 0x7fff;
 	}
-	
+
 	void SetFromReferenceBounds( const idBounds& set )
 	{
 		// the maxs are stored negated
@@ -121,7 +121,7 @@ struct shortBounds_t
 		}
 		b[0][3] = b[1][3] = 0;
 	}
-	
+
 	void SetToEmpty()
 	{
 		// this will always fail the comparison
@@ -168,7 +168,7 @@ int FindBoundsIntersectionsSimSIMD(
 
 	shortBounds_t	compareBounds;
 	testBounds.MakeComparisonBounds( compareBounds );
-	
+
 	int hits = 0;
 	for( int i = 0 ; i < numBounds ; i++ )
 	{
@@ -242,7 +242,7 @@ void	idBoundsTrack::Test()
 {
 	ClearAll();
 	idRandom	r;
-	
+
 	for( int i = 0 ; i < 1800 ; i++ )
 	{
 		idBounds b;
@@ -253,16 +253,16 @@ void	idBoundsTrack::Test()
 		}
 		SetIndex( i, b );
 	}
-	
+
 	const idBounds testBounds( idVec3( -1000, 2000, -3000 ), idVec3( 1500, 4500, -500 ) );
 	SetIndex( 1800, testBounds );
 	SetIndex( 0, testBounds );
-	
+
 	const shortBounds_t	shortTestBounds( testBounds );
-	
+
 	int intersectedIndexes1[ MAX_BOUNDS_TRACK_INDEXES ];
 	const int numHits1 = FindBoundsIntersectionsTEST( shortTestBounds, boundsList, maxIndex, intersectedIndexes1 );
-	
+
 	int intersectedIndexes2[ MAX_BOUNDS_TRACK_INDEXES ];
 	const int numHits2 = FindBoundsIntersectionsSimSIMD( shortTestBounds, boundsList, maxIndex, intersectedIndexes2 );
 	idLib::Printf( "%i intersections\n", numHits1 );
@@ -281,11 +281,11 @@ void	idBoundsTrack::Test()
 			}
 		}
 	}
-	
+
 	// run again for debugging failure
 	FindBoundsIntersectionsTEST( shortTestBounds, boundsList, maxIndex, intersectedIndexes1 );
 	FindBoundsIntersectionsSimSIMD( shortTestBounds, boundsList, maxIndex, intersectedIndexes2 );
-	
+
 	// timing
 	const int64 start = Sys_Microseconds();
 	for( int i = 0 ; i < 40 ; i++ )

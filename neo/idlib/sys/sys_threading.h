@@ -68,12 +68,12 @@ typedef int						interlockedInt_t;
 // from reordering read and write instructions across the barrier.
 // MemoryBarrier() inserts and CPU instruction that keeps the CPU from reordering reads and writes.
 #if defined(_MSC_VER)
-#pragma intrinsic(_ReadWriteBarrier)
-#define SYS_MEMORYBARRIER		_ReadWriteBarrier(); MemoryBarrier()
+	#pragma intrinsic(_ReadWriteBarrier)
+	#define SYS_MEMORYBARRIER		_ReadWriteBarrier(); MemoryBarrier()
 #elif defined(__GNUC__) // FIXME: what about clang?
-// according to http://en.wikipedia.org/wiki/Memory_ordering the following should be equivalent to the stuff above..
-//#ifdef __sync_syncronize
-#define SYS_MEMORYBARRIER		asm volatile("" ::: "memory");__sync_synchronize()
+	// according to http://en.wikipedia.org/wiki/Memory_ordering the following should be equivalent to the stuff above..
+	//#ifdef __sync_syncronize
+	#define SYS_MEMORYBARRIER		asm volatile("" ::: "memory");__sync_synchronize()
 #endif
 
 
@@ -97,29 +97,29 @@ public:
 	{
 		tlsIndex = TlsAlloc();
 	}
-	
+
 	idSysThreadLocalStorage( const ptrdiff_t& val )
 	{
 		tlsIndex = TlsAlloc();
 		TlsSetValue( tlsIndex, ( LPVOID )val );
 	}
-	
+
 	~idSysThreadLocalStorage()
 	{
 		TlsFree( tlsIndex );
 	}
-	
+
 	operator ptrdiff_t()
 	{
 		return ( ptrdiff_t )TlsGetValue( tlsIndex );
 	}
-	
+
 	const ptrdiff_t& operator = ( const ptrdiff_t& val )
 	{
 		TlsSetValue( tlsIndex, ( LPVOID )val );
 		return val;
 	}
-	
+
 	DWORD	tlsIndex;
 };
 #else
@@ -130,29 +130,29 @@ public:
 	{
 		pthread_key_create( &key, NULL );
 	}
-	
+
 	idSysThreadLocalStorage( const ptrdiff_t& val )
 	{
 		pthread_key_create( &key, NULL );
 		pthread_setspecific( key, ( const void* ) val );
 	}
-	
+
 	~idSysThreadLocalStorage()
 	{
 		pthread_key_delete( key );
 	}
-	
+
 	operator ptrdiff_t()
 	{
 		return ( ptrdiff_t )pthread_getspecific( key );
 	}
-	
+
 	const ptrdiff_t& operator = ( const ptrdiff_t& val )
 	{
 		pthread_setspecific( key, ( const void* ) val );
 		return val;
 	}
-	
+
 	pthread_key_t	key;
 };
 #endif

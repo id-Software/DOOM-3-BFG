@@ -86,7 +86,7 @@ bool idAASLocal::Init( const idStr& mapName, unsigned int mapFileCRC )
 	else
 	{
 		Shutdown();
-		
+
 		file = AASFileManager->LoadAAS( mapName, mapFileCRC );
 		if( !file )
 		{
@@ -169,7 +169,7 @@ int idAASLocal::PointReachableAreaNum( const idVec3& origin, const idBounds& sea
 	{
 		return 0;
 	}
-	
+
 	return file->PointReachableAreaNum( origin, searchBounds, areaFlags, TFL_INVALID );
 }
 
@@ -184,7 +184,7 @@ int idAASLocal::BoundsReachableAreaNum( const idBounds& bounds, const int areaFl
 	{
 		return 0;
 	}
-	
+
 	return file->BoundsReachableAreaNum( bounds, areaFlags, TFL_INVALID );
 }
 

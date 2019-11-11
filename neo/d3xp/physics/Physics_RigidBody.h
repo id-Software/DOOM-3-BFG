@@ -51,7 +51,7 @@ typedef struct rididBodyIState_s
 	idMat3					orientation;				// orientation of trace model
 	idVec3					linearMomentum;				// translational momentum relative to center of mass
 	idVec3					angularMomentum;			// rotational momentum relative to center of mass
-	
+
 	rididBodyIState_s() :
 		position( vec3_zero ),
 		orientation( mat3_identity ),
@@ -71,7 +71,7 @@ typedef struct rigidBodyPState_s
 	idVec3					externalForce;				// external force relative to center of mass
 	idVec3					externalTorque;				// external torque relative to center of mass
 	rigidBodyIState_t		i;							// state used for integration
-	
+
 	rigidBodyPState_s() :
 		atRest( true ),
 		lastTimeStep( 0 ),
@@ -90,13 +90,13 @@ class idPhysics_RigidBody : public idPhysics_Base
 public:
 
 	CLASS_PROTOTYPE( idPhysics_RigidBody );
-	
+
 	idPhysics_RigidBody();
 	~idPhysics_RigidBody();
-	
+
 	void					Save( idSaveGame* savefile ) const;
 	void					Restore( idRestoreGame* savefile );
-	
+
 	// initialisation
 	void					SetFriction( const float linear, const float angular, const float contact );
 	void					SetBouncyness( const float b );
@@ -107,27 +107,27 @@ public:
 	// enable/disable activation by impact
 	void					EnableImpact();
 	void					DisableImpact();
-	
+
 public:	// common physics interface
 	void					SetClipModel( idClipModel* model, float density, int id = 0, bool freeOld = true );
 	idClipModel* 			GetClipModel( int id = 0 ) const;
 	int						GetNumClipModels() const;
-	
+
 	void					SetMass( float mass, int id = -1 );
 	float					GetMass( int id = -1 ) const;
-	
+
 	void					SetContents( int contents, int id = -1 );
 	int						GetContents( int id = -1 ) const;
-	
+
 	const idBounds& 		GetBounds( int id = -1 ) const;
 	const idBounds& 		GetAbsBounds( int id = -1 ) const;
-	
+
 	bool					Evaluate( int timeStepMSec, int endTimeMSec );
 	bool					Interpolate( const float fraction );
 	void					ResetInterpolationState( const idVec3& origin, const idMat3& axis );
 	void					UpdateTime( int endTimeMSec );
 	int						GetTime() const;
-	
+
 	void					GetImpactInfo( const int id, const idVec3& point, impactInfo_t* info ) const;
 	void					ApplyImpulse( const int id, const idVec3& point, const idVec3& impulse );
 	void					AddForce( const int id, const idVec3& point, const idVec3& force );
@@ -136,79 +136,79 @@ public:	// common physics interface
 	bool					IsAtRest() const;
 	int						GetRestStartTime() const;
 	bool					IsPushable() const;
-	
+
 	void					SaveState();
 	void					RestoreState();
-	
+
 	void					SetOrigin( const idVec3& newOrigin, int id = -1 );
 	void					SetAxis( const idMat3& newAxis, int id = -1 );
-	
+
 	void					Translate( const idVec3& translation, int id = -1 );
 	void					Rotate( const idRotation& rotation, int id = -1 );
-	
+
 	const idVec3& 			GetOrigin( int id = 0 ) const;
 	const idMat3& 			GetAxis( int id = 0 ) const;
-	
+
 	void					SetLinearVelocity( const idVec3& newLinearVelocity, int id = 0 );
 	void					SetAngularVelocity( const idVec3& newAngularVelocity, int id = 0 );
-	
+
 	const idVec3& 			GetLinearVelocity( int id = 0 ) const;
 	const idVec3& 			GetAngularVelocity( int id = 0 ) const;
-	
+
 	void					ClipTranslation( trace_t& results, const idVec3& translation, const idClipModel* model ) const;
 	void					ClipRotation( trace_t& results, const idRotation& rotation, const idClipModel* model ) const;
 	int						ClipContents( const idClipModel* model ) const;
-	
+
 	void					DisableClip();
 	void					EnableClip();
-	
+
 	void					UnlinkClip();
 	void					LinkClip();
-	
+
 	bool					EvaluateContacts();
-	
+
 	void					SetPushed( int deltaTime );
 	const idVec3& 			GetPushedLinearVelocity( const int id = 0 ) const;
 	const idVec3& 			GetPushedAngularVelocity( const int id = 0 ) const;
-	
+
 	void					SetMaster( idEntity* master, const bool orientated );
-	
+
 	void					WriteToSnapshot( idBitMsg& msg ) const;
 	void					ReadFromSnapshot( const idBitMsg& msg );
-	
+
 private:
 	// state of the rigid body
 	rigidBodyPState_t		current;
 	rigidBodyPState_t		saved;
-	
+
 	// states for client interpolation
 	rigidBodyPState_t		previous;
 	rigidBodyPState_t		next;
-	
+
 	// rigid body properties
 	float					linearFriction;				// translational friction
 	float					angularFriction;			// rotational friction
 	float					contactFriction;			// friction with contact surfaces
 	float					bouncyness;					// bouncyness
 	idClipModel* 			clipModel;					// clip model used for collision detection
-	
+
 	// derived properties
 	float					mass;						// mass of body
 	float					inverseMass;				// 1 / mass
 	idVec3					centerOfMass;				// center of mass of trace model
 	idMat3					inertiaTensor;				// mass distribution
 	idMat3					inverseInertiaTensor;		// inverse inertia tensor
-	
+
 	idODE* 					integrator;					// integrator
 	bool					dropToFloor;				// true if dropping to the floor and putting to rest
 	bool					testSolid;					// true if testing for solid when dropping to the floor
 	bool					noImpact;					// if true do not activate when another object collides
 	bool					noContact;					// if true do not determine contacts and no contact friction
-	
+
 	// master
 	bool					hasMaster;
 	bool					isOrientated;
-	
+
 private:
 	friend void				RigidBodyDerivatives( const float t, const void* clientData, const float* state, float* derivatives );
 	void					Integrate( const float deltaTime, rigidBodyPState_t& next );

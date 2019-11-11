@@ -45,29 +45,29 @@ class idLinkList
 public:
 	idLinkList();
 	~idLinkList();
-	
+
 	bool				IsListEmpty() const;
 	bool				InList() const;
 	int					Num() const;
 	void				Clear();
-	
+
 	void				InsertBefore( idLinkList& node );
 	void				InsertAfter( idLinkList& node );
 	void				AddToEnd( idLinkList& node );
 	void				AddToFront( idLinkList& node );
-	
+
 	void				Remove();
-	
+
 	type* 				Next() const;
 	type* 				Prev() const;
-	
+
 	type* 				Owner() const;
 	void				SetOwner( type* object );
-	
+
 	idLinkList* 		ListHead() const;
 	idLinkList* 		NextNode() const;
 	idLinkList* 		PrevNode() const;
-	
+
 private:
 	idLinkList* 		head;
 	idLinkList* 		next;
@@ -143,13 +143,13 @@ int idLinkList<type>::Num() const
 {
 	idLinkList<type>*	node;
 	int					num;
-	
+
 	num = 0;
 	for( node = head->next; node != head; node = node->next )
 	{
 		num++;
 	}
-	
+
 	return num;
 }
 
@@ -188,7 +188,7 @@ void idLinkList<type>::Remove()
 {
 	prev->next = next;
 	next->prev = prev;
-	
+
 	next = this;
 	prev = this;
 	head = this;
@@ -206,7 +206,7 @@ template< class type >
 void idLinkList<type>::InsertBefore( idLinkList& node )
 {
 	Remove();
-	
+
 	next		= &node;
 	prev		= node.prev;
 	node.prev	= this;
@@ -226,7 +226,7 @@ template< class type >
 void idLinkList<type>::InsertAfter( idLinkList& node )
 {
 	Remove();
-	
+
 	prev		= &node;
 	next		= node.next;
 	node.next	= this;

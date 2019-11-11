@@ -54,7 +54,7 @@ void idLocalUserWin::Init( int inputDevice_, const char* gamertag_, int numLocal
 		// number so that it is always consistently "username (2)" for the second player.
 		gamertag.Format( "%s (%i)", gamertag_, numLocalUsers );
 	}
-	
+
 	inputDevice = inputDevice_;
 }
 

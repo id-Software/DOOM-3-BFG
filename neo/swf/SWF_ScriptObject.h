@@ -107,7 +107,7 @@ class idSWFScriptObject
 public:
 	idSWFScriptObject();
 	virtual					~idSWFScriptObject();
-	
+
 	static idSWFScriptObject* 	Alloc();
 	void					AddRef();
 	void					Release();
@@ -115,11 +115,11 @@ public:
 	{
 		noAutoDelete = b;
 	}
-	
+
 	void					Clear();
-	
+
 	void					MakeArray();
-	
+
 	void					SetSprite( idSWFSpriteInstance* s )
 	{
 		objectType = SWF_OBJECT_SPRITE;
@@ -129,7 +129,7 @@ public:
 	{
 		return ( objectType == SWF_OBJECT_SPRITE ) ? data.sprite : NULL;
 	}
-	
+
 	void					SetText( idSWFTextInstance* t )
 	{
 		objectType = SWF_OBJECT_TEXT;
@@ -139,7 +139,7 @@ public:
 	{
 		return ( objectType == SWF_OBJECT_TEXT ) ? data.text : NULL;
 	}
-	
+
 	// Also accessible via __proto__ property
 	idSWFScriptObject* 		GetPrototype()
 	{
@@ -165,7 +165,7 @@ public:
 	bool					HasProperty( const char* name );
 	bool					HasValidProperty( const char* name );
 	idSWFScriptVar			DefaultValue( bool stringHint );
-	
+
 	// This is to implement for-in (fixme: respect DONTENUM flag)
 	int						NumVariables()
 	{
@@ -175,18 +175,18 @@ public:
 	{
 		return variables[i].name;
 	}
-	
+
 	idSWFScriptVar			GetNestedVar( const char* arg1, const char* arg2 = NULL, const char* arg3 = NULL, const char* arg4 = NULL, const char* arg5 = NULL, const char* arg6 = NULL );
 	idSWFScriptObject* 		GetNestedObj( const char* arg1, const char* arg2 = NULL, const char* arg3 = NULL, const char* arg4 = NULL, const char* arg5 = NULL, const char* arg6 = NULL );
 	idSWFSpriteInstance* 	GetNestedSprite( const char* arg1, const char* arg2 = NULL, const char* arg3 = NULL, const char* arg4 = NULL, const char* arg5 = NULL, const char* arg6 = NULL );
 	idSWFTextInstance* 		GetNestedText( const char* arg1, const char* arg2 = NULL, const char* arg3 = NULL, const char* arg4 = NULL, const char* arg5 = NULL, const char* arg6 = NULL );
-	
+
 	void					PrintToConsole() const;
-	
+
 private:
 	int refCount;
 	bool noAutoDelete;
-	
+
 	enum swfNamedVarFlags_t
 	{
 		SWF_VAR_FLAG_NONE = 0,
@@ -198,7 +198,7 @@ private:
 		swfNamedVar_t() : native( NULL ) { }
 		~swfNamedVar_t();
 		swfNamedVar_t& operator=( const swfNamedVar_t& other );
-		
+
 		int							index;
 		int							hashNext;
 		idStr						name;
@@ -207,12 +207,12 @@ private:
 		int							flags;
 	};
 	idList< swfNamedVar_t, TAG_SWF >	variables;
-	
+
 	static const int VARIABLE_HASH_BUCKETS = 16;
 	int	variablesHash[VARIABLE_HASH_BUCKETS];
-	
+
 	idSWFScriptObject* 		prototype;
-	
+
 	enum swfObjectType_t
 	{
 		SWF_OBJECT_OBJECT,
@@ -220,13 +220,13 @@ private:
 		SWF_OBJECT_SPRITE,
 		SWF_OBJECT_TEXT
 	} objectType;
-	
+
 	union swfObjectData_t
 	{
 		idSWFSpriteInstance* 	sprite;			// only valid if objectType == SWF_OBJECT_SPRITE
 		idSWFTextInstance* 		text;			// only valid if objectType == SWF_OBJECT_TEXT
 	} data;
-	
+
 	swfNamedVar_t* 	GetVariable( int index, bool create );
 	swfNamedVar_t* 	GetVariable( const char* name, bool create );
 };

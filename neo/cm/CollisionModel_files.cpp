@@ -83,7 +83,7 @@ int idCollisionModelManagerLocal::CountPolygonMemory( cm_node_t* node ) const
 	cm_polygonRef_t* pref;
 	cm_polygon_t* p;
 	int memory;
-	
+
 	memory = 0;
 	for( pref = node->polygons; pref; pref = pref->next )
 	{
@@ -93,7 +93,7 @@ int idCollisionModelManagerLocal::CountPolygonMemory( cm_node_t* node ) const
 			continue;
 		}
 		p->checkcount = checkCount;
-		
+
 		memory += sizeof( cm_polygon_t ) + ( p->numEdges - 1 ) * sizeof( p->edges[0] );
 	}
 	if( node->planeType != -1 )
@@ -114,7 +114,7 @@ void idCollisionModelManagerLocal::WritePolygons( idFile* fp, cm_node_t* node )
 	cm_polygonRef_t* pref;
 	cm_polygon_t* p;
 	int i;
-	
+
 	for( pref = node->polygons; pref; pref = pref->next )
 	{
 		p = pref->p;
@@ -150,7 +150,7 @@ int idCollisionModelManagerLocal::CountBrushMemory( cm_node_t* node ) const
 	cm_brushRef_t* bref;
 	cm_brush_t* b;
 	int memory;
-	
+
 	memory = 0;
 	for( bref = node->brushes; bref; bref = bref->next )
 	{
@@ -160,7 +160,7 @@ int idCollisionModelManagerLocal::CountBrushMemory( cm_node_t* node ) const
 			continue;
 		}
 		b->checkcount = checkCount;
-		
+
 		memory += sizeof( cm_brush_t ) + ( b->numPlanes - 1 ) * sizeof( b->planes[0] );
 	}
 	if( node->planeType != -1 )
@@ -181,7 +181,7 @@ void idCollisionModelManagerLocal::WriteBrushes( idFile* fp, cm_node_t* node )
 	cm_brushRef_t* bref;
 	cm_brush_t* b;
 	int i;
-	
+
 	for( bref = node->brushes; bref; bref = bref->next )
 	{
 		b = bref->b;
@@ -213,7 +213,7 @@ idCollisionModelManagerLocal::WriteCollisionModel
 void idCollisionModelManagerLocal::WriteCollisionModel( idFile* fp, cm_model_t* model )
 {
 	int i, polygonMemory, brushMemory;
-	
+
 	fp->WriteFloatString( "collisionModel \"%s\" {\n", model->name.c_str() );
 	// vertices
 	fp->WriteFloatString( "\tvertices { /* numVertices = */ %d\n", model->numVertices );
@@ -261,10 +261,10 @@ void idCollisionModelManagerLocal::WriteCollisionModelsToFile( const char* filen
 	int i;
 	idFile* fp;
 	idStr name;
-	
+
 	name = filename;
 	name.SetFileExtension( CM_FILE_EXT );
-	
+
 	common->Printf( "writing %s\n", name.c_str() );
 	fp = fileSystem->OpenFileWrite( name, "fs_basepath" );
 	if( !fp )
@@ -272,18 +272,18 @@ void idCollisionModelManagerLocal::WriteCollisionModelsToFile( const char* filen
 		common->Warning( "idCollisionModelManagerLocal::WriteCollisionModelsToFile: Error opening file %s\n", name.c_str() );
 		return;
 	}
-	
+
 	// write file id and version
 	fp->WriteFloatString( "%s \"%s\"\n\n", CM_FILEID, CM_FILEVERSION );
 	// write the map file crc
 	fp->WriteFloatString( "%u\n\n", mapFileCRC );
-	
+
 	// write the collision models
 	for( i = firstModel; i < lastModel; i++ )
 	{
 		WriteCollisionModel( fp, models[ i ] );
 	}
-	
+
 	fileSystem->CloseFile( fp );
 }
 
@@ -297,14 +297,14 @@ bool idCollisionModelManagerLocal::WriteCollisionModelForMapEntity( const idMapE
 	idFile* fp;
 	idStr name;
 	cm_model_t* model;
-	
+
 	SetupHash();
 	model = CollisionModelForMapEntity( mapEnt );
 	model->name = filename;
-	
+
 	name = filename;
 	name.SetFileExtension( CM_FILE_EXT );
-	
+
 	common->Printf( "writing %s\n", name.c_str() );
 	fp = fileSystem->OpenFileWrite( name, "fs_basepath" );
 	if( !fp )
@@ -313,25 +313,25 @@ bool idCollisionModelManagerLocal::WriteCollisionModelForMapEntity( const idMapE
 		FreeModel( model );
 		return false;
 	}
-	
+
 	// write file id and version
 	fp->WriteFloatString( "%s \"%s\"\n\n", CM_FILEID, CM_FILEVERSION );
 	// write the map file crc
 	fp->WriteFloatString( "%u\n\n", 0 );
-	
+
 	// write the collision model
 	WriteCollisionModel( fp, model );
-	
+
 	fileSystem->CloseFile( fp );
-	
+
 	if( testTraceModel )
 	{
 		idTraceModel trm;
 		TrmFromModel( model, trm );
 	}
-	
+
 	FreeModel( model );
-	
+
 	return true;
 }
 
@@ -352,7 +352,7 @@ idCollisionModelManagerLocal::ParseVertices
 void idCollisionModelManagerLocal::ParseVertices( idLexer* src, cm_model_t* model )
 {
 	int i;
-	
+
 	src->ExpectTokenString( "{" );
 	model->numVertices = src->ParseInt();
 	model->maxVertices = model->numVertices;
@@ -375,7 +375,7 @@ idCollisionModelManagerLocal::ParseEdges
 void idCollisionModelManagerLocal::ParseEdges( idLexer* src, cm_model_t* model )
 {
 	int i;
-	
+
 	src->ExpectTokenString( "{" );
 	model->numEdges = src->ParseInt();
 	model->maxEdges = model->numEdges;
@@ -405,7 +405,7 @@ idCollisionModelManagerLocal::ParseNodes
 cm_node_t* idCollisionModelManagerLocal::ParseNodes( idLexer* src, cm_model_t* model, cm_node_t* parent )
 {
 	cm_node_t* node;
-	
+
 	model->numNodes++;
 	node = AllocNode( model, model->numNodes < NODE_BLOCK_SIZE_SMALL ? NODE_BLOCK_SIZE_SMALL : NODE_BLOCK_SIZE_LARGE );
 	node->brushes = NULL;
@@ -434,14 +434,14 @@ void idCollisionModelManagerLocal::ParsePolygons( idLexer* src, cm_model_t* mode
 	int i, numEdges;
 	idVec3 normal;
 	idToken token;
-	
+
 	if( src->CheckTokenType( TT_NUMBER, 0, &token ) )
 	{
 		model->polygonBlock = ( cm_polygonBlock_t* ) Mem_ClearedAlloc( sizeof( cm_polygonBlock_t ) + token.GetIntValue(), TAG_COLLISION );
 		model->polygonBlock->bytesRemaining = token.GetIntValue();
 		model->polygonBlock->next = ( ( byte* ) model->polygonBlock ) + sizeof( cm_polygonBlock_t );
 	}
-	
+
 	src->ExpectTokenString( "{" );
 	while( !src->CheckTokenString( "}" ) )
 	{
@@ -481,14 +481,14 @@ void idCollisionModelManagerLocal::ParseBrushes( idLexer* src, cm_model_t* model
 	int i, numPlanes;
 	idVec3 normal;
 	idToken token;
-	
+
 	if( src->CheckTokenType( TT_NUMBER, 0, &token ) )
 	{
 		model->brushBlock = ( cm_brushBlock_t* ) Mem_ClearedAlloc( sizeof( cm_brushBlock_t ) + token.GetIntValue(), TAG_COLLISION );
 		model->brushBlock->bytesRemaining = token.GetIntValue();
 		model->brushBlock->next = ( ( byte* ) model->brushBlock ) + sizeof( cm_brushBlock_t );
 	}
-	
+
 	src->ExpectTokenString( "{" );
 	while( !src->CheckTokenString( "}" ) )
 	{
@@ -533,7 +533,7 @@ cm_model_t* idCollisionModelManagerLocal::ParseCollisionModel( idLexer* src )
 
 	cm_model_t* model;
 	idToken token;
-	
+
 	if( numModels >= MAX_SUBMODELS )
 	{
 		common->Error( "LoadModel: no free slots" );
@@ -548,21 +548,21 @@ cm_model_t* idCollisionModelManagerLocal::ParseCollisionModel( idLexer* src )
 	src->ExpectTokenString( "{" );
 	while( !src->CheckTokenString( "}" ) )
 	{
-	
+
 		src->ReadToken( &token );
-		
+
 		if( token == "vertices" )
 		{
 			ParseVertices( src, model );
 			continue;
 		}
-		
+
 		if( token == "edges" )
 		{
 			ParseEdges( src, model );
 			continue;
 		}
-		
+
 		if( token == "nodes" )
 		{
 			src->ExpectTokenString( "{" );
@@ -570,19 +570,19 @@ cm_model_t* idCollisionModelManagerLocal::ParseCollisionModel( idLexer* src )
 			src->ExpectTokenString( "}" );
 			continue;
 		}
-		
+
 		if( token == "polygons" )
 		{
 			ParsePolygons( src, model );
 			continue;
 		}
-		
+
 		if( token == "brushes" )
 		{
 			ParseBrushes( src, model );
 			continue;
 		}
-		
+
 		src->Error( "ParseCollisionModel: bad token \"%s\"", token.c_str() );
 	}
 	// calculate edge normals
@@ -600,7 +600,7 @@ cm_model_t* idCollisionModelManagerLocal::ParseCollisionModel( idLexer* src )
 						model->numNodes * sizeof( cm_node_t ) +
 						model->numPolygonRefs * sizeof( cm_polygonRef_t ) +
 						model->numBrushRefs * sizeof( cm_brushRef_t );
-						
+
 	return model;
 }
 
@@ -614,19 +614,19 @@ bool idCollisionModelManagerLocal::LoadCollisionModelFile( const char* name, uns
 	idToken token;
 	idLexer* src;
 	unsigned int crc;
-	
+
 	// load it
 	idStrStatic< MAX_OSPATH > fileName = name;
-	
+
 	// check for generated file
 	idStrStatic< MAX_OSPATH > generatedFileName = fileName;
 	generatedFileName.Insert( "generated/", 0 );
 	generatedFileName.SetFileExtension( CM_BINARYFILE_EXT );
-	
+
 	// if we are reloading the same map, check the timestamp
 	// and try to skip all the work
 	ID_TIME_T currentTimeStamp = fileSystem->GetTimestamp( fileName );
-	
+
 	// see if we have a generated version of this
 	bool loaded = false;
 	idFileLocal file( fileSystem->OpenFileReadMemory( generatedFileName ) );
@@ -659,10 +659,10 @@ bool idCollisionModelManagerLocal::LoadCollisionModelFile( const char* name, uns
 			}
 		}
 	}
-	
+
 	if( !loaded )
 	{
-	
+
 		fileName.SetFileExtension( CM_FILE_EXT );
 		src = new( TAG_COLLISION ) idLexer( fileName );
 		src->SetFlags( LEXFL_NOSTRINGCONCAT | LEXFL_NODOLLARPRECOMPILE );
@@ -671,7 +671,7 @@ bool idCollisionModelManagerLocal::LoadCollisionModelFile( const char* name, uns
 			delete src;
 			return false;
 		}
-		
+
 		int numEntries = 0;
 		idFileLocal outputFile( fileSystem->OpenFileWrite( generatedFileName, "fs_basepath" ) );
 		if( outputFile != NULL )
@@ -682,28 +682,28 @@ bool idCollisionModelManagerLocal::LoadCollisionModelFile( const char* name, uns
 			outputFile->WriteString( CM_FILEID );
 			outputFile->WriteString( CM_FILEVERSION );
 		}
-		
+
 		if( !src->ExpectTokenString( CM_FILEID ) )
 		{
 			common->Warning( "%s is not an CM file.", fileName.c_str() );
 			delete src;
 			return false;
 		}
-		
+
 		if( !src->ReadToken( &token ) || token != CM_FILEVERSION )
 		{
 			common->Warning( "%s has version %s instead of %s", fileName.c_str(), token.c_str(), CM_FILEVERSION );
 			delete src;
 			return false;
 		}
-		
+
 		if( !src->ExpectTokenType( TT_NUMBER, TT_INTEGER, &token ) )
 		{
 			common->Warning( "%s has no map file CRC", fileName.c_str() );
 			delete src;
 			return false;
 		}
-		
+
 		crc = token.GetUnsignedLongValue();
 		if( mapFileCRC && crc != mapFileCRC )
 		{
@@ -711,7 +711,7 @@ bool idCollisionModelManagerLocal::LoadCollisionModelFile( const char* name, uns
 			delete src;
 			return false;
 		}
-		
+
 		// parse the file
 		while( 1 )
 		{
@@ -719,7 +719,7 @@ bool idCollisionModelManagerLocal::LoadCollisionModelFile( const char* name, uns
 			{
 				break;
 			}
-			
+
 			if( token == "collisionModel" )
 			{
 				cm_model_t* model = ParseCollisionModel( src );
@@ -735,7 +735,7 @@ bool idCollisionModelManagerLocal::LoadCollisionModelFile( const char* name, uns
 				}
 				continue;
 			}
-			
+
 			src->Error( "idCollisionModelManagerLocal::LoadCollisionModelFile: bad token \"%s\"", token.c_str() );
 		}
 		delete src;
@@ -745,6 +745,6 @@ bool idCollisionModelManagerLocal::LoadCollisionModelFile( const char* name, uns
 			outputFile->WriteBig( numEntries );
 		}
 	}
-	
+
 	return true;
 }

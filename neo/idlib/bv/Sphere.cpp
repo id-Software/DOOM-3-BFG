@@ -41,7 +41,7 @@ idSphere::PlaneDistance
 float idSphere::PlaneDistance( const idPlane& plane ) const
 {
 	float d;
-	
+
 	d = plane.Distance( origin );
 	if( d > radius )
 	{
@@ -62,7 +62,7 @@ idSphere::PlaneSide
 int idSphere::PlaneSide( const idPlane& plane, const float epsilon ) const
 {
 	float d;
-	
+
 	d = plane.Distance( origin );
 	if( d > radius + epsilon )
 	{
@@ -86,7 +86,7 @@ bool idSphere::LineIntersection( const idVec3& start, const idVec3& end ) const
 {
 	idVec3 r, s, e;
 	float a;
-	
+
 	s = start - origin;
 	e = end - origin;
 	r = e - s;
@@ -119,24 +119,24 @@ bool idSphere::RayIntersection( const idVec3& start, const idVec3& dir, float& s
 {
 	double a, b, c, d, sqrtd;
 	idVec3 p;
-	
+
 	p = start - origin;
 	a = dir * dir;
 	b = dir * p;
 	c = p * p - radius * radius;
 	d = b * b - c * a;
-	
+
 	if( d < 0.0f )
 	{
 		return false;
 	}
-	
+
 	sqrtd = idMath::Sqrt( d );
 	a = 1.0f / a;
-	
+
 	scale1 = ( -b + sqrtd ) * a;
 	scale2 = ( -b - sqrtd ) * a;
-	
+
 	return true;
 }
 
@@ -152,11 +152,11 @@ void idSphere::FromPoints( const idVec3* points, const int numPoints )
 	int i;
 	float radiusSqr, dist;
 	idVec3 mins, maxs;
-	
+
 	SIMDProcessor->MinMax( mins, maxs, points, numPoints );
-	
+
 	origin = ( mins + maxs ) * 0.5f;
-	
+
 	radiusSqr = 0.0f;
 	for( i = 0; i < numPoints; i++ )
 	{

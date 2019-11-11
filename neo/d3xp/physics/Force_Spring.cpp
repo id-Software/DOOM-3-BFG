@@ -101,11 +101,11 @@ void idForce_Spring::Evaluate( int time )
 	idMat3 axis;
 	idVec3 pos1, pos2, velocity1, velocity2, force, dampingForce;
 	impactInfo_t info;
-	
+
 	pos1 = p1;
 	pos2 = p2;
 	velocity1 = velocity2 = vec3_origin;
-	
+
 	if( physics1 )
 	{
 		axis = physics1->GetAxis( id1 );
@@ -117,7 +117,7 @@ void idForce_Spring::Evaluate( int time )
 			velocity1 = info.velocity;
 		}
 	}
-	
+
 	if( physics2 )
 	{
 		axis = physics2->GetAxis( id2 );
@@ -129,11 +129,11 @@ void idForce_Spring::Evaluate( int time )
 			velocity2 = info.velocity;
 		}
 	}
-	
+
 	force = pos2 - pos1;
 	dampingForce = ( damping * ( ( ( velocity2 - velocity1 ) * force ) / ( force * force ) ) ) * force;
 	length = force.Normalize();
-	
+
 	// if the spring is stretched
 	if( length > restLength )
 	{

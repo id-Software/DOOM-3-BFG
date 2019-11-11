@@ -39,39 +39,39 @@ idMenuScreen_PDA_UserData::Initialize
 void idMenuScreen_PDA_UserData::Initialize( idMenuHandler* data )
 {
 	idMenuScreen::Initialize( data );
-	
+
 	if( data != NULL )
 	{
 		menuGUI = data->GetGUI();
 	}
 	SetSpritePath( "menuData" );
-	
+
 	pdaUserData.SetSpritePath( GetSpritePath(), "info", "pdaData" );
 	pdaUserData.Initialize( data );
 	pdaUserData.SetNoAutoFree( true );
-	
+
 	AddChild( &pdaUserData );
-	
+
 	pdaObjectiveSimple.SetSpritePath( GetSpritePath(), "info", "missionInfo" );
 	pdaObjectiveSimple.Initialize( data );
 	pdaObjectiveSimple.SetNoAutoFree( true );
-	
+
 	AddChild( &pdaObjectiveSimple );
-	
+
 	pdaAudioFiles.SetSpritePath( GetSpritePath(), "info", "audioFiles" );
 	pdaAudioFiles.Initialize( data );
 	pdaAudioFiles.SetNoAutoFree( true );
-	
+
 	AddChild( &pdaAudioFiles );
-	
+
 	AddEventAction( WIDGET_EVENT_SCROLL_DOWN_RSTICK ).Set( new( TAG_SWF ) idWidgetActionHandler( &pdaAudioFiles.GetChildByIndex( 0 ), WIDGET_ACTION_EVENT_SCROLL_DOWN_START_REPEATER, WIDGET_EVENT_SCROLL_DOWN_RSTICK ) );
 	AddEventAction( WIDGET_EVENT_SCROLL_UP_RSTICK ).Set( new( TAG_SWF ) idWidgetActionHandler( &pdaAudioFiles.GetChildByIndex( 0 ), WIDGET_ACTION_EVENT_SCROLL_UP_START_REPEATER, WIDGET_EVENT_SCROLL_UP_RSTICK ) );
 	AddEventAction( WIDGET_EVENT_SCROLL_DOWN_RSTICK_RELEASE ).Set( new( TAG_SWF ) idWidgetActionHandler( &pdaAudioFiles.GetChildByIndex( 0 ), WIDGET_ACTION_EVENT_STOP_REPEATER, WIDGET_EVENT_SCROLL_DOWN_RSTICK_RELEASE ) );
 	AddEventAction( WIDGET_EVENT_SCROLL_UP_RSTICK_RELEASE ).Set( new( TAG_SWF ) idWidgetActionHandler( &pdaAudioFiles.GetChildByIndex( 0 ), WIDGET_ACTION_EVENT_STOP_REPEATER, WIDGET_EVENT_SCROLL_UP_RSTICK_RELEASE ) );
-	
+
 	AddEventAction( WIDGET_EVENT_TAB_NEXT ).Set( new( TAG_SWF ) idWidgetActionHandler( this, WIDGET_ACTION_EVENT_TAB_NEXT, WIDGET_EVENT_TAB_NEXT ) );
 	AddEventAction( WIDGET_EVENT_TAB_PREV ).Set( new( TAG_SWF ) idWidgetActionHandler( this, WIDGET_ACTION_EVENT_TAB_PREV, WIDGET_EVENT_TAB_PREV ) );
-	
+
 }
 
 /*
@@ -89,19 +89,19 @@ void idMenuScreen_PDA_UserData::Update()
 		{
 			cmdBar->ClearAllButtons();
 			idMenuWidget_CommandBar::buttonInfo_t* buttonInfo;
-			
+
 			buttonInfo = cmdBar->GetButton( idMenuWidget_CommandBar::BUTTON_JOY2 );
 			if( menuData->GetPlatform() != 2 )
 			{
 				buttonInfo->label = "#str_01345";
 			}
 			buttonInfo->action.Set( WIDGET_ACTION_GO_BACK );
-			
-			
+
+
 			buttonInfo = cmdBar->GetButton( idMenuWidget_CommandBar::BUTTON_TAB );
 			buttonInfo->label = "";
 			buttonInfo->action.Set( WIDGET_ACTION_GO_BACK );
-			
+
 			idPlayer* player = gameLocal.GetLocalPlayer();
 			idMenuWidget_DynamicList* pdaList = dynamic_cast< idMenuWidget_DynamicList* >( menuData->GetChildFromIndex( PDA_WIDGET_PDA_LIST ) );
 			if( pdaList != NULL && player != NULL )
@@ -133,10 +133,10 @@ void idMenuScreen_PDA_UserData::Update()
 					}
 				}
 			}
-			
+
 		}
 	}
-	
+
 	idMenuScreen::Update();
 }
 
@@ -157,16 +157,16 @@ void idMenuScreen_PDA_UserData::ShowScreen( const mainMenuTransition_t transitio
 			pdaSprite->SetVisible( true );
 			pdaSprite->PlayFrame( "rollOn" );
 		}
-		
+
 		idSWFSpriteInstance* navBar = root.GetNestedSprite( "navBar" );
 		if( navBar != NULL && menuData != NULL && menuData->ActiveScreen() == PDA_AREA_INVALID )
 		{
 			navBar->PlayFrame( "rollOn" );
 		}
 	}
-	
+
 	idMenuScreen::ShowScreen( transitionType );
-	
+
 	if( menuData != NULL )
 	{
 		idMenuWidget_DynamicList* pdaList = dynamic_cast< idMenuWidget_DynamicList* >( menuData->GetChildFromIndex( PDA_WIDGET_PDA_LIST ) );
@@ -195,7 +195,7 @@ void idMenuScreen_PDA_UserData::HideScreen( const mainMenuTransition_t transitio
 			pdaSprite->PlayFrame( "rollOff" );
 		}
 	}
-	
+
 	idMenuScreen::HideScreen( transitionType );
 }
 
@@ -211,32 +211,32 @@ bool idMenuScreen_PDA_UserData::HandleAction( idWidgetAction& action, const idWi
 	{
 		return true;
 	}
-	
+
 	if( menuData->ActiveScreen() != PDA_AREA_USER_DATA )
 	{
 		return false;
 	}
-	
+
 	widgetAction_t actionType = action.GetType();
 	const idSWFParmList& parms = action.GetParms();
-	
+
 	switch( actionType )
 	{
 		case WIDGET_ACTION_PRESS_FOCUSED:
 		{
-		
+
 			idMenuWidget_DynamicList* pdaList = dynamic_cast< idMenuWidget_DynamicList* >( menuData->GetChildFromIndex( PDA_WIDGET_PDA_LIST ) );
 			if( pdaList == NULL )
 			{
 				return true;
 			}
-			
+
 			int pdaIndex = pdaList->GetViewIndex();
 			if( pdaIndex == 0 )
 			{
 				return true;
 			}
-			
+
 			idPlayer* player = gameLocal.GetLocalPlayer();
 			if( player != NULL && player->IsSoundChannelPlaying( SND_CHANNEL_PDA_AUDIO ) )
 			{
@@ -282,6 +282,6 @@ bool idMenuScreen_PDA_UserData::HandleAction( idWidgetAction& action, const idWi
 			return true;
 		}
 	}
-	
+
 	return idMenuWidget::HandleAction( action, event, widget, forceHandled );
 }

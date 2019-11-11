@@ -50,29 +50,29 @@ class idPredictedValue
 public:
 	explicit	idPredictedValue();
 	explicit	idPredictedValue( const type_ & value_ );
-	
+
 	void		Set( const type_ & newValue );
-	
+
 	idPredictedValue< type_ >& operator=( const type_ & value );
-	
+
 	idPredictedValue< type_ >& operator+=( const type_ & toAdd );
 	idPredictedValue< type_ >& operator-=( const type_ & toSubtract );
-	
+
 	bool		UpdateFromSnapshot( const type_ & valueFromSnapshot, int clientNumber );
-	
+
 	type_		Get() const
 	{
 		return value;
 	}
-	
+
 private:
 	// Noncopyable
 	idPredictedValue( const idPredictedValue< type_ >& other );
 	idPredictedValue< type_ >& operator=( const idPredictedValue< type_ >& other );
-	
+
 	type_		value;
 	int			clientPredictedMilliseconds;	// The time in which the client predicted the value.
-	
+
 	void		UpdatePredictionTime();
 };
 

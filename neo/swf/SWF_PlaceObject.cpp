@@ -41,18 +41,18 @@ idSWFSpriteInstance::PlaceObject2
 void idSWFSpriteInstance::PlaceObject2( idSWFBitStream& bitstream )
 {
 	c_PlaceObject2++;
-	
+
 	uint64 flags = bitstream.ReadU8();
 	int depth = bitstream.ReadU16();
-	
+
 	int characterID = -1;
 	if( ( flags & PlaceFlagHasCharacter ) != 0 )
 	{
 		characterID = bitstream.ReadU16();
 	}
-	
+
 	swfDisplayEntry_t* display = NULL;
-	
+
 	if( ( flags & PlaceFlagMove ) != 0 )
 	{
 		// modify an existing entry
@@ -141,24 +141,24 @@ idSWFSpriteInstance::PlaceObject3
 void idSWFSpriteInstance::PlaceObject3( idSWFBitStream& bitstream )
 {
 	c_PlaceObject3++;
-	
+
 	uint64 flags1 = bitstream.ReadU8();
 	uint64 flags2 = bitstream.ReadU8();
 	uint16 depth = bitstream.ReadU16();
-	
+
 	if( ( flags2 & PlaceFlagHasClassName ) != 0 || ( ( ( flags2 & PlaceFlagHasImage ) != 0 ) && ( ( flags1 & PlaceFlagHasCharacter ) != 0 ) ) )
 	{
 		bitstream.ReadString(); // ignored
 	}
-	
+
 	int characterID = -1;
 	if( ( flags1 & PlaceFlagHasCharacter ) != 0 )
 	{
 		characterID = bitstream.ReadU16();
 	}
-	
+
 	swfDisplayEntry_t* display = NULL;
-	
+
 	if( ( flags1 & PlaceFlagMove ) != 0 )
 	{
 		// modify an existing entry

@@ -48,26 +48,26 @@ public:
 	explicit idWinding( const idPlane& plane );						// base winding for plane
 	explicit idWinding( const idWinding& winding );
 	virtual			~idWinding();
-	
+
 	idWinding& 		operator=( const idWinding& winding );
 	const idVec5& 	operator[]( const int index ) const;
 	idVec5& 		operator[]( const int index );
-	
+
 	// add a point to the end of the winding point array
 	idWinding& 		operator+=( const idVec3& v );
 	idWinding& 		operator+=( const idVec5& v );
 	void			AddPoint( const idVec3& v );
 	void			AddPoint( const idVec5& v );
-	
+
 	// number of points on winding
 	int				GetNumPoints() const;
 	void			SetNumPoints( int n );
 	virtual void	Clear();
-	
+
 	// huge winding for plane, the points go counter clockwise when facing the front of the plane
 	void			BaseForPlane( const idVec3& normal, const float dist );
 	void			BaseForPlane( const idPlane& plane );
-	
+
 	// splits the winding into a front and back winding, the winding itself stays unchanged
 	// returns a SIDE_?
 	int				Split( const idPlane& plane, const float epsilon, idWinding** front, idWinding** back ) const;
@@ -77,7 +77,7 @@ public:
 	// cuts off the part at the back side of the plane, returns true if some part was at the front
 	// if there is nothing at the front the number of points is set to zero
 	bool			ClipInPlace( const idPlane& plane, const float epsilon = ON_EPSILON, const bool keepOn = false );
-	
+
 	// returns a copy of the winding
 	idWinding* 		Copy() const;
 	idWinding* 		Reverse() const;
@@ -97,36 +97,36 @@ public:
 	idWinding* 		TryMerge( const idWinding& w, const idVec3& normal, int keep = false ) const;
 	// check whether the winding is valid or not
 	bool			Check( bool print = true ) const;
-	
+
 	float			GetArea() const;
 	idVec3			GetCenter() const;
 	float			GetRadius( const idVec3& center ) const;
 	void			GetPlane( idVec3& normal, float& dist ) const;
 	void			GetPlane( idPlane& plane ) const;
 	void			GetBounds( idBounds& bounds ) const;
-	
+
 	bool			IsTiny() const;
 	bool			IsHuge() const;	// base winding for a plane is typically huge
 	void			Print() const;
-	
+
 	float			PlaneDistance( const idPlane& plane ) const;
 	int				PlaneSide( const idPlane& plane, const float epsilon = ON_EPSILON ) const;
-	
+
 	bool			PlanesConcave( const idWinding& w2, const idVec3& normal1, const idVec3& normal2, float dist1, float dist2 ) const;
-	
+
 	bool			PointInside( const idVec3& normal, const idVec3& point, const float epsilon ) const;
 	// returns true if the line or ray intersects the winding
 	bool			LineIntersection( const idPlane& windingPlane, const idVec3& start, const idVec3& end, bool backFaceCull = false ) const;
 	// intersection point is start + dir * scale
 	bool			RayIntersection( const idPlane& windingPlane, const idVec3& start, const idVec3& dir, float& scale, bool backFaceCull = false ) const;
-	
+
 	static float	TriangleArea( const idVec3& a, const idVec3& b, const idVec3& c );
-	
+
 protected:
 	int				numPoints;				// number of points
 	idVec5* 		p;						// pointer to point data
 	int				allocedSize;
-	
+
 	bool			EnsureAlloced( int n, bool keep = false );
 	virtual bool	ReAllocate( int n, bool keep = false );
 };
@@ -147,7 +147,7 @@ ID_INLINE idWinding::idWinding( int n )
 ID_INLINE idWinding::idWinding( const idVec3* verts, const int n )
 {
 	int i;
-	
+
 	numPoints = allocedSize = 0;
 	p = NULL;
 	if( !EnsureAlloced( n ) )
@@ -201,7 +201,7 @@ ID_INLINE idWinding::~idWinding()
 ID_INLINE idWinding& idWinding::operator=( const idWinding& winding )
 {
 	int i;
-	
+
 	if( !EnsureAlloced( winding.numPoints ) )
 	{
 		numPoints = 0;
@@ -321,18 +321,18 @@ public:
 	explicit idFixedWinding( const idWinding& winding );
 	explicit idFixedWinding( const idFixedWinding& winding );
 	virtual			~idFixedWinding();
-	
+
 	idFixedWinding& operator=( const idWinding& winding );
-	
+
 	virtual void	Clear();
-	
+
 	// splits the winding in a back and front part, 'this' becomes the front part
 	// returns a SIDE_?
 	int				Split( idFixedWinding* back, const idPlane& plane, const float epsilon = ON_EPSILON );
-	
+
 protected:
 	idVec5			data[MAX_POINTS_ON_WINDING];	// point data
-	
+
 	virtual bool	ReAllocate( int n, bool keep = false );
 };
 
@@ -353,7 +353,7 @@ ID_INLINE idFixedWinding::idFixedWinding( int n )
 ID_INLINE idFixedWinding::idFixedWinding( const idVec3* verts, const int n )
 {
 	int i;
-	
+
 	numPoints = 0;
 	p = data;
 	allocedSize = MAX_POINTS_ON_WINDING;
@@ -389,7 +389,7 @@ ID_INLINE idFixedWinding::idFixedWinding( const idPlane& plane )
 ID_INLINE idFixedWinding::idFixedWinding( const idWinding& winding )
 {
 	int i;
-	
+
 	p = data;
 	allocedSize = MAX_POINTS_ON_WINDING;
 	if( !EnsureAlloced( winding.GetNumPoints() ) )
@@ -407,7 +407,7 @@ ID_INLINE idFixedWinding::idFixedWinding( const idWinding& winding )
 ID_INLINE idFixedWinding::idFixedWinding( const idFixedWinding& winding )
 {
 	int i;
-	
+
 	p = data;
 	allocedSize = MAX_POINTS_ON_WINDING;
 	if( !EnsureAlloced( winding.GetNumPoints() ) )
@@ -430,7 +430,7 @@ ID_INLINE idFixedWinding::~idFixedWinding()
 ID_INLINE idFixedWinding& idFixedWinding::operator=( const idWinding& winding )
 {
 	int i;
-	
+
 	if( !EnsureAlloced( winding.GetNumPoints() ) )
 	{
 		numPoints = 0;

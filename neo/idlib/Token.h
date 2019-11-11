@@ -73,31 +73,31 @@ class idToken : public idStr
 
 	friend class idParser;
 	friend class idLexer;
-	
+
 public:
 	int				type;								// token type
 	int				subtype;							// token sub type
 	int				line;								// line in script the token was on
 	int				linesCrossed;						// number of lines crossed in white space before token
 	int				flags;								// token flags, used for recursive defines
-	
+
 public:
 	idToken();
 	idToken( const idToken* token );
 	~idToken();
-	
+
 	void			operator=( const idStr& text );
 	void			operator=( const char* text );
-	
+
 	double			GetDoubleValue();				// double value of TT_NUMBER
 	float			GetFloatValue();				// float value of TT_NUMBER
 	unsigned long	GetUnsignedLongValue();		// unsigned long value of TT_NUMBER
 	int				GetIntValue();				// int value of TT_NUMBER
 	int				WhiteSpaceBeforeToken() const;// returns length of whitespace before token
 	void			ClearTokenWhiteSpace();		// forget whitespace before token
-	
+
 	void			NumberValue();				// calculate values for a TT_NUMBER
-	
+
 private:
 	// DG: use int instead of long for 64bit compatibility
 	unsigned int	intvalue;							// integer value
@@ -106,7 +106,7 @@ private:
 	const char* 	whiteSpaceStart_p;					// start of white space before token, only used by idLexer
 	const char* 	whiteSpaceEnd_p;					// end of white space before token, only used by idLexer
 	idToken* 		next;								// next token in chain, only used by idParser
-	
+
 	void			AppendDirty( const char a );		// append character without adding trailing zero
 };
 

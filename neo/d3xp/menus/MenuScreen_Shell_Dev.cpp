@@ -39,19 +39,19 @@ idMenuScreen_Shell_Dev::Initialize
 void idMenuScreen_Shell_Dev::Initialize( idMenuHandler* data )
 {
 	idMenuScreen::Initialize( data );
-	
+
 	if( data != NULL )
 	{
 		menuGUI = data->GetGUI();
 	}
-	
+
 	SetSpritePath( "menuSettings" );
-	
+
 	options = new( TAG_SWF ) idMenuWidget_DynamicList();
 	options->SetNumVisibleOptions( NUM_DEV_OPTIONS );
 	options->SetSpritePath( GetSpritePath(), "info", "options" );
 	options->SetWrappingAllowed( true );
-	
+
 	while( options->GetChildren().Num() < NUM_DEV_OPTIONS )
 	{
 		idMenuWidget_Button* const buttonWidget = new( TAG_SWF ) idMenuWidget_Button();
@@ -60,17 +60,17 @@ void idMenuScreen_Shell_Dev::Initialize( idMenuHandler* data )
 		options->AddChild( buttonWidget );
 	}
 	options->Initialize( data );
-	
+
 	AddChild( options );
-	
+
 	btnBack = new( TAG_SWF ) idMenuWidget_Button();
 	btnBack->Initialize( data );
 	btnBack->SetLabel( "MAIN MENU" );
 	btnBack->SetSpritePath( GetSpritePath(), "info", "btnBack" );
 	btnBack->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_GO_BACK );
-	
+
 	AddChild( btnBack );
-	
+
 	SetupDevOptions();
 	options->AddEventAction( WIDGET_EVENT_SCROLL_DOWN ).Set( new( TAG_SWF ) idWidgetActionHandler( options, WIDGET_ACTION_EVENT_SCROLL_DOWN_START_REPEATER, WIDGET_EVENT_SCROLL_DOWN ) );
 	options->AddEventAction( WIDGET_EVENT_SCROLL_UP ).Set( new( TAG_SWF ) idWidgetActionHandler( options, WIDGET_ACTION_EVENT_SCROLL_UP_START_REPEATER, WIDGET_EVENT_SCROLL_UP ) );
@@ -91,7 +91,7 @@ void idMenuScreen_Shell_Dev::SetupDevOptions()
 {
 
 	devOptions.Clear();
-	
+
 	devOptions.Append( devOption_t( "game/mars_city1", "Mars City 1" ) );
 	devOptions.Append( devOption_t( "game/mc_underground", "MC Underground" ) );
 	devOptions.Append( devOption_t( "game/mars_city2", "Mars City 2" ) );
@@ -144,16 +144,16 @@ void idMenuScreen_Shell_Dev::SetupDevOptions()
 	devOptions.Append( devOption_t( NULL, "-Test Maps-" ) );
 	devOptions.Append( devOption_t( "game/pdas", "PDAs" ) );
 	devOptions.Append( devOption_t( "testmaps/test_box", "Box" ) );
-	
+
 	idList< idList< idStr, TAG_IDLIB_LIST_MENU >, TAG_IDLIB_LIST_MENU > menuOptions;
-	
+
 	for( int i = 0; i < devOptions.Num(); ++i )
 	{
 		idList< idStr > option;
 		option.Append( devOptions[ i ].name );
 		menuOptions.Append( option );
 	}
-	
+
 	options->SetListData( menuOptions );
 }
 
@@ -178,7 +178,7 @@ void idMenuScreen_Shell_Dev::Update()
 				buttonInfo->label = "#str_00395";
 			}
 			buttonInfo->action.Set( WIDGET_ACTION_GO_BACK );
-			
+
 			buttonInfo = cmdBar->GetButton( idMenuWidget_CommandBar::BUTTON_JOY1 );
 			if( menuData->GetPlatform() != 2 )
 			{
@@ -187,7 +187,7 @@ void idMenuScreen_Shell_Dev::Update()
 			buttonInfo->action.Set( WIDGET_ACTION_PRESS_FOCUSED );
 		}
 	}
-	
+
 	idSWFScriptObject& root = GetSWFObject()->GetRootObject();
 	if( BindSprite( root ) )
 	{
@@ -197,19 +197,19 @@ void idMenuScreen_Shell_Dev::Update()
 			heading->SetText( "DEV" );
 			heading->SetStrokeInfo( true, 0.75f, 1.75f );
 		}
-		
+
 		idSWFSpriteInstance* gradient = GetSprite()->GetScriptObject()->GetNestedSprite( "info", "gradient" );
 		if( gradient != NULL && heading != NULL )
 		{
 			gradient->SetXPos( heading->GetTextLength() );
 		}
 	}
-	
+
 	if( btnBack != NULL )
 	{
 		btnBack->BindSprite( root );
 	}
-	
+
 	idMenuScreen::Update();
 }
 
@@ -245,15 +245,15 @@ bool idMenuScreen_Shell_Dev::HandleAction( idWidgetAction& action, const idWidge
 	{
 		return true;
 	}
-	
+
 	if( menuData->ActiveScreen() != SHELL_AREA_DEV )
 	{
 		return false;
 	}
-	
+
 	widgetAction_t actionType = action.GetType();
 	const idSWFParmList& parms = action.GetParms();
-	
+
 	switch( actionType )
 	{
 		case WIDGET_ACTION_GO_BACK:
@@ -267,28 +267,28 @@ bool idMenuScreen_Shell_Dev::HandleAction( idWidgetAction& action, const idWidge
 			{
 				return true;
 			}
-			
+
 			int selectionIndex = options->GetViewIndex();
 			if( parms.Num() == 1 )
 			{
 				selectionIndex = parms[0].ToInteger();
 			}
-			
+
 			if( options->GetFocusIndex() != selectionIndex - options->GetViewOffset() )
 			{
 				options->SetFocusIndex( selectionIndex );
 				options->SetViewIndex( options->GetViewOffset() + selectionIndex );
 			}
-			
+
 			int mapIndex = options->GetViewIndex();
 			if( ( mapIndex < devOptions.Num() ) && ( devOptions[ mapIndex ].map != NULL ) )
 			{
 				cmdSystem->AppendCommandText( va( "devmap %s\n", devOptions[ mapIndex ].map ) );
 			}
-			
+
 			return true;
 		}
 	}
-	
+
 	return idMenuWidget::HandleAction( action, event, widget, forceHandled );
 }

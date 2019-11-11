@@ -58,11 +58,11 @@ typedef struct
 {
 	int						type;
 	int						sibling;
-	
+
 	idStr					data;
 	idStr					name;
 	idStr					fire;
-	
+
 	float					delay;
 	float					duration;
 	float					restart;
@@ -77,11 +77,11 @@ typedef struct
 	float					rotate;
 	float					random1;
 	float					random2;
-	
+
 	idVec3					lightColor;
 	idVec3					offset;
 	idMat3					axis;
-	
+
 	bool					soundStarted;
 	bool					shakeStarted;
 	bool					shakeFalloff;
@@ -105,10 +105,10 @@ public:
 	virtual void			FreeData();
 	virtual void			Print() const;
 	virtual void			List() const;
-	
+
 	idList<idFXSingleAction, TAG_FX>events;
 	idStr					joint;
-	
+
 private:
 	void					ParseSingleFXAction( idLexer& src, idFXSingleAction& FXAction );
 };

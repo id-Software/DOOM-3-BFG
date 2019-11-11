@@ -68,7 +68,7 @@ ID_INLINE float F16toF32( halfFloat_t x )
 	int e = HF_EXP( x );
 	int m = HF_MANTISSA( x );
 	int s = HF_SIGN( x );
-	
+
 	if( 0 < e && e < 31 )
 	{
 		return s * powf( 2.0f, ( e - 15.0f ) ) * ( 1 + m / 1024.0f );
@@ -91,7 +91,7 @@ ID_INLINE halfFloat_t F32toF16( float a )
 	unsigned int signbit  = ( f & 0x80000000 ) >> 16;
 	int exponent = ( ( f & 0x7F800000 ) >> 23 ) - 112;
 	unsigned int mantissa = ( f & 0x007FFFFF );
-	
+
 	if( exponent <= 0 )
 	{
 		return 0;
@@ -100,7 +100,7 @@ ID_INLINE halfFloat_t F32toF16( float a )
 	{
 		return ( halfFloat_t )( signbit | 0x7BFF );
 	}
-	
+
 	return ( halfFloat_t )( signbit | ( exponent << 10 ) | ( mantissa >> 13 ) );
 }
 
@@ -117,9 +117,9 @@ class idDrawVert
 	friend class idSwap;
 	friend class idShadowVertSkinned;
 	friend class idRenderModelStatic;
-	
+
 	friend void TransformVertsAndTangents( idDrawVert* targetVerts, const int numVerts, const idDrawVert* baseVerts, const idJointMat* joints );
-	
+
 public:
 	idVec3				xyz;			// 12 bytes
 private:
@@ -130,36 +130,36 @@ private:
 public:
 	byte				color[4];		// 4 bytes
 	byte				color2[4];		// 4 bytes -- weights for skinning
-	
+
 	float				operator[]( const int index ) const;
 	float& 				operator[]( const int index );
-	
+
 	void				Clear();
-	
+
 	const idVec3		GetNormal() const;
 	const idVec3		GetNormalRaw() const;		// not re-normalized for renderbump
-	
+
 	// must be normalized already!
 	void				SetNormal( float x, float y, float z );
 	void				SetNormal( const idVec3& n );
-	
+
 	const idVec3		GetTangent() const;
 	const idVec3		GetTangentRaw() const;		// not re-normalized for renderbump
-	
+
 	// must be normalized already!
 	void				SetTangent( float x, float y, float z );
 	void				SetTangent( const idVec3& t );
-	
+
 	// derived from normal, tangent, and tangent flag
 	const idVec3 		GetBiTangent() const;
 	const idVec3 		GetBiTangentRaw() const;	// not re-normalized for renderbump
-	
+
 	void				SetBiTangent( float x, float y, float z );
 	ID_INLINE void		SetBiTangent( const idVec3& t );
-	
+
 	float				GetBiTangentSign() const;
 	byte				GetBiTangentSignBit() const;
-	
+
 	void				SetTexCoordNative( const halfFloat_t s, const halfFloat_t t );
 	void				SetTexCoord( const idVec2& st );
 	void				SetTexCoord( float s, float t );
@@ -170,23 +170,23 @@ public:
 	const float			GetTexCoordT() const;
 	const halfFloat_t	GetTexCoordNativeS() const;
 	const halfFloat_t	GetTexCoordNativeT() const;
-	
+
 	// either 1.0f or -1.0f
 	ID_INLINE void		SetBiTangentSign( float sign );
 	ID_INLINE void		SetBiTangentSignBit( byte bit );
-	
+
 	void				Lerp( const idDrawVert& a, const idDrawVert& b, const float f );
 	void				LerpAll( const idDrawVert& a, const idDrawVert& b, const float f );
-	
+
 	void				SetColor( dword color );
 	void				SetNativeOrderColor( dword color );
 	dword				GetColor() const;
-	
+
 	void				SetColor2( dword color );
 	void				SetNativeOrderColor2( dword color );
 	void				ClearColor2();
 	dword				GetColor2() const;
-	
+
 	static idDrawVert	GetSkinnedDrawVert( const idDrawVert& vert, const idJointMat* joints );
 	static idVec3		GetSkinnedDrawVertPosition( const idDrawVert& vert, const idJointMat* joints );
 };
@@ -202,9 +202,9 @@ public:
 // RB begin
 assert_sizeof( idDrawVert, DRAWVERT_SIZE );
 #if 0
-assert_offsetof( idDrawVert, xyz,		DRAWVERT_XYZ_OFFSET );
-assert_offsetof( idDrawVert, normal,	DRAWVERT_NORMAL_OFFSET );
-assert_offsetof( idDrawVert, tangent,	DRAWVERT_TANGENT_OFFSET );
+	assert_offsetof( idDrawVert, xyz,		DRAWVERT_XYZ_OFFSET );
+	assert_offsetof( idDrawVert, normal,	DRAWVERT_NORMAL_OFFSET );
+	assert_offsetof( idDrawVert, tangent,	DRAWVERT_TANGENT_OFFSET );
 #endif
 // RB end
 
@@ -218,30 +218,30 @@ Assumes input is in the range [-1, 1]
 ID_INLINE void VertexFloatToByte( const float& x, const float& y, const float& z, byte* bval )
 {
 	assert_4_byte_aligned( bval );	// for __stvebx
-	
+
 #if defined(USE_INTRINSICS)
-	
+
 	const __m128 vector_float_one			= { 1.0f, 1.0f, 1.0f, 1.0f };
 	const __m128 vector_float_half			= { 0.5f, 0.5f, 0.5f, 0.5f };
 	const __m128 vector_float_255_over_2	= { 255.0f / 2.0f, 255.0f / 2.0f, 255.0f / 2.0f, 255.0f / 2.0f };
-	
+
 	const __m128 xyz = _mm_unpacklo_ps( _mm_unpacklo_ps( _mm_load_ss( &x ), _mm_load_ss( &z ) ), _mm_load_ss( &y ) );
 	const __m128 xyzScaled = _mm_madd_ps( _mm_add_ps( xyz, vector_float_one ), vector_float_255_over_2, vector_float_half );
 	const __m128i xyzInt = _mm_cvtps_epi32( xyzScaled );
 	const __m128i xyzShort = _mm_packs_epi32( xyzInt, xyzInt );
 	const __m128i xyzChar = _mm_packus_epi16( xyzShort, xyzShort );
 	const __m128i xyz16 = _mm_unpacklo_epi8( xyzChar, _mm_setzero_si128() );
-	
+
 	bval[0] = ( byte )_mm_extract_epi16( xyz16, 0 );	// cannot use _mm_extract_epi8 because it is an SSE4 instruction
 	bval[1] = ( byte )_mm_extract_epi16( xyz16, 1 );
 	bval[2] = ( byte )_mm_extract_epi16( xyz16, 2 );
-	
+
 #else
-	
+
 	bval[0] = VERTEX_FLOAT_TO_BYTE( x );
 	bval[1] = VERTEX_FLOAT_TO_BYTE( y );
 	bval[2] = VERTEX_FLOAT_TO_BYTE( z );
-	
+
 #endif
 }
 
@@ -492,7 +492,7 @@ ID_INLINE void idDrawVert::LerpAll( const idDrawVert& a, const idDrawVert& b, co
 {
 	xyz = ::Lerp( a.xyz, b.xyz, f );
 	SetTexCoord( ::Lerp( a.GetTexCoord(), b.GetTexCoord(), f ) );
-	
+
 	idVec3 normal = ::Lerp( a.GetNormal(), b.GetNormal(), f );
 	idVec3 tangent = ::Lerp( a.GetTangent(), b.GetTangent(), f );
 	idVec3 bitangent = ::Lerp( a.GetBiTangent(), b.GetBiTangent(), f );
@@ -502,12 +502,12 @@ ID_INLINE void idDrawVert::LerpAll( const idDrawVert& a, const idDrawVert& b, co
 	SetNormal( normal );
 	SetTangent( tangent );
 	SetBiTangent( bitangent );
-	
+
 	color[0] = ( byte )( a.color[0] + f * ( b.color[0] - a.color[0] ) );
 	color[1] = ( byte )( a.color[1] + f * ( b.color[1] - a.color[1] ) );
 	color[2] = ( byte )( a.color[2] + f * ( b.color[2] - a.color[2] ) );
 	color[3] = ( byte )( a.color[3] + f * ( b.color[3] - a.color[3] ) );
-	
+
 	color2[0] = ( byte )( a.color2[0] + f * ( b.color2[0] - a.color2[0] ) );
 	color2[1] = ( byte )( a.color2[1] + f * ( b.color2[1] - a.color2[1] ) );
 	color2[2] = ( byte )( a.color2[2] + f * ( b.color2[2] - a.color2[2] ) );
@@ -699,9 +699,9 @@ ID_INLINE void WriteDrawVerts16( idDrawVert* destVerts, const idDrawVert* localV
 	assert_sizeof( idDrawVert, 32 );
 	assert_16_byte_aligned( destVerts );
 	assert_16_byte_aligned( localVerts );
-	
+
 #if defined(USE_INTRINSICS)
-	
+
 	for( int i = 0; i < numVerts; i++ )
 	{
 		__m128i v0 = _mm_load_si128( ( const __m128i* )( ( byte* )( localVerts + i ) +  0 ) );
@@ -709,11 +709,11 @@ ID_INLINE void WriteDrawVerts16( idDrawVert* destVerts, const idDrawVert* localV
 		_mm_stream_si128( ( __m128i* )( ( byte* )( destVerts + i ) +  0 ), v0 );
 		_mm_stream_si128( ( __m128i* )( ( byte* )( destVerts + i ) + 16 ), v1 );
 	}
-	
+
 #else
-	
+
 	memcpy( destVerts, localVerts, numVerts * sizeof( idDrawVert ) );
-	
+
 #endif
 }
 
@@ -728,23 +728,23 @@ ID_INLINE idDrawVert idDrawVert::GetSkinnedDrawVert( const idDrawVert& vert, con
 	{
 		return vert;
 	}
-	
+
 	const idJointMat& j0 = joints[vert.color[0]];
 	const idJointMat& j1 = joints[vert.color[1]];
 	const idJointMat& j2 = joints[vert.color[2]];
 	const idJointMat& j3 = joints[vert.color[3]];
-	
+
 	const float w0 = vert.color2[0] * ( 1.0f / 255.0f );
 	const float w1 = vert.color2[1] * ( 1.0f / 255.0f );
 	const float w2 = vert.color2[2] * ( 1.0f / 255.0f );
 	const float w3 = vert.color2[3] * ( 1.0f / 255.0f );
-	
+
 	idJointMat accum;
 	idJointMat::Mul( accum, j0, w0 );
 	idJointMat::Mad( accum, j1, w1 );
 	idJointMat::Mad( accum, j2, w2 );
 	idJointMat::Mad( accum, j3, w3 );
-	
+
 	idDrawVert outVert;
 	outVert.xyz = accum * idVec4( vert.xyz.x, vert.xyz.y, vert.xyz.z, 1.0f );
 	outVert.SetTexCoordNative( vert.GetTexCoordNativeS(), vert.GetTexCoordNativeT() );
@@ -770,23 +770,23 @@ ID_INLINE idVec3 idDrawVert::GetSkinnedDrawVertPosition( const idDrawVert& vert,
 	{
 		return vert.xyz;
 	}
-	
+
 	const idJointMat& j0 = joints[vert.color[0]];
 	const idJointMat& j1 = joints[vert.color[1]];
 	const idJointMat& j2 = joints[vert.color[2]];
 	const idJointMat& j3 = joints[vert.color[3]];
-	
+
 	const float w0 = vert.color2[0] * ( 1.0f / 255.0f );
 	const float w1 = vert.color2[1] * ( 1.0f / 255.0f );
 	const float w2 = vert.color2[2] * ( 1.0f / 255.0f );
 	const float w3 = vert.color2[3] * ( 1.0f / 255.0f );
-	
+
 	idJointMat accum;
 	idJointMat::Mul( accum, j0, w0 );
 	idJointMat::Mad( accum, j1, w1 );
 	idJointMat::Mad( accum, j2, w2 );
 	idJointMat::Mad( accum, j3, w3 );
-	
+
 	return accum * idVec4( vert.xyz.x, vert.xyz.y, vert.xyz.z, 1.0f );
 }
 
@@ -799,7 +799,7 @@ class idShadowVert
 {
 public:
 	idVec4			xyzw;
-	
+
 	void			Clear();
 	static int		CreateShadowCache( idShadowVert* vertexCache, const idDrawVert* verts, const int numVerts );
 };
@@ -825,7 +825,7 @@ public:
 	byte			color[4];
 	byte			color2[4];
 	byte			pad[8];		// pad to multiple of 32-byte for glDrawElementsBaseVertex
-	
+
 	void			Clear();
 	static int		CreateShadowCache( idShadowVertSkinned* vertexCache, const idDrawVert* verts, const int numVerts );
 };

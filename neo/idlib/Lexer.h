@@ -139,7 +139,7 @@ class idLexer
 {
 
 	friend class idParser;
-	
+
 public:
 	// constructor
 	idLexer();
@@ -189,10 +189,10 @@ public:
 	void			UnreadToken( const idToken* token );
 	// read a token only if on the same line
 	int				ReadTokenOnLine( idToken* token );
-	
+
 	//Returns the rest of the current line
 	const char*		ReadRestOfLine( idStr& out );
-	
+
 	// read a signed integer
 	int				ParseInt();
 	// read a boolean
@@ -249,10 +249,10 @@ public:
 	void			Warning( VERIFY_FORMAT_STRING const char* str, ... );
 	// returns true if Error() was called with LEXFL_NOFATALERRORS or LEXFL_NOERRORS set
 	bool			HadError() const;
-	
+
 	// set the base folder to load files from
 	static void		SetBaseFolder( const char* path );
-	
+
 private:
 	int				loaded;					// set when a script file is loaded from file or memory
 	idStr			filename;				// file name of the script
@@ -275,9 +275,9 @@ private:
 	idToken			token;					// available token
 	idLexer* 		next;					// next script in a chain
 	bool			hadError;				// set by idLexer::Error, even if the error is supressed
-	
+
 	static char		baseFolder[ 256 ];		// base folder to load files from
-	
+
 private:
 	void			CreatePunctuationTable( const punctuation_t* punctuations );
 	int				ReadWhiteSpace();

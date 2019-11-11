@@ -43,44 +43,44 @@ public:
 	idSphere();
 	explicit idSphere( const idVec3& point );
 	explicit idSphere( const idVec3& point, const float r );
-	
+
 	float			operator[]( const int index ) const;
 	float& 			operator[]( const int index );
 	idSphere		operator+( const idVec3& t ) const;				// returns tranlated sphere
 	idSphere& 		operator+=( const idVec3& t );					// translate the sphere
 	idSphere		operator+( const idSphere& s ) const;
 	idSphere& 		operator+=( const idSphere& s );
-	
+
 	bool			Compare( const idSphere& a ) const;							// exact compare, no epsilon
 	bool			Compare( const idSphere& a, const float epsilon ) const;	// compare with epsilon
 	bool			operator==(	const idSphere& a ) const;						// exact compare, no epsilon
 	bool			operator!=(	const idSphere& a ) const;						// exact compare, no epsilon
-	
+
 	void			Clear();									// inside out sphere
 	void			Zero();									// single point at origin
 	void			SetOrigin( const idVec3& o );					// set origin of sphere
 	void			SetRadius( const float r );						// set square radius
-	
+
 	const idVec3& 	GetOrigin() const;						// returns origin of sphere
 	float			GetRadius() const;						// returns sphere radius
 	bool			IsCleared() const;						// returns true if sphere is inside out
-	
+
 	bool			AddPoint( const idVec3& p );					// add the point, returns true if the sphere expanded
 	bool			AddSphere( const idSphere& s );					// add the sphere, returns true if the sphere expanded
 	idSphere		Expand( const float d ) const;					// return bounds expanded in all directions with the given value
 	idSphere& 		ExpandSelf( const float d );					// expand bounds in all directions with the given value
 	idSphere		Translate( const idVec3& translation ) const;
 	idSphere& 		TranslateSelf( const idVec3& translation );
-	
+
 	float			PlaneDistance( const idPlane& plane ) const;
 	int				PlaneSide( const idPlane& plane, const float epsilon = ON_EPSILON ) const;
-	
+
 	bool			ContainsPoint( const idVec3& p ) const;			// includes touching
 	bool			IntersectsSphere( const idSphere& s ) const;	// includes touching
 	bool			LineIntersection( const idVec3& start, const idVec3& end ) const;
 	// intersection points are (start + dir * scale1) and (start + dir * scale2)
 	bool			RayIntersection( const idVec3& start, const idVec3& dir, float& scale1, float& scale2 ) const;
-	
+
 	// Tight sphere for a point set.
 	void			FromPoints( const idVec3* points, const int numPoints );
 	// Most tight sphere for a translation.
@@ -89,9 +89,9 @@ public:
 	// Most tight sphere for a rotation.
 	void			FromPointRotation( const idVec3& point, const idRotation& rotation );
 	void			FromSphereRotation( const idSphere& sphere, const idVec3& start, const idRotation& rotation );
-	
+
 	void			AxisProjection( const idVec3& dir, float& min, float& max ) const;
-	
+
 private:
 	idVec3			origin;
 	float			radius;

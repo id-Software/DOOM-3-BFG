@@ -46,7 +46,7 @@ class idKeyInput
 public:
 	static void				Init();
 	static void				Shutdown();
-	
+
 	static void				ArgCompletion_KeyName( const idCmdArgs& args, void( *callback )( const char* s ) );
 	static void				PreliminaryKeyEvent( int keyNum, bool down );
 	static bool				IsDown( int keyNum );
@@ -54,11 +54,11 @@ public:
 	static bool				GetOverstrikeMode();
 	static void				SetOverstrikeMode( bool state );
 	static void				ClearStates();
-	
+
 	static keyNum_t			StringToKeyNum( const char* str );		// This is used by the "bind" command
 	static const char* 		KeyNumToString( keyNum_t keyNum );		// This is the inverse of StringToKeyNum, used for config files
 	static const char* 		LocalizedKeyName( keyNum_t keyNum );	// This returns text suitable to print on screen
-	
+
 	static void				SetBinding( int keyNum, const char* binding );
 	static const char* 		GetBinding( int keyNum );
 	static bool				UnbindBinding( const char* bind );

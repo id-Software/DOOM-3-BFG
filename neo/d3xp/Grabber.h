@@ -41,22 +41,22 @@ class idGrabber : public idEntity
 {
 public:
 	CLASS_PROTOTYPE( idGrabber );
-	
+
 	idGrabber();
 	~idGrabber();
-	
+
 	void					Save( idSaveGame* savefile ) const;
 	void					Restore( idRestoreGame* savefile );
-	
+
 	void					Initialize();
 	void					SetDragDistance( float dist );
 	int						Update( idPlayer* player, bool hide );
-	
+
 private:
 	idEntityPtr<idEntity>	dragEnt;			// entity being dragged
 	idForce_Grab			drag;
 	idVec3					saveGravity;
-	
+
 	int						id;					// id of body being dragged
 	idVec3					localPlayerPoint;	// dragged point in player space
 	idEntityPtr<idPlayer>	owner;
@@ -70,12 +70,12 @@ private:
 	float					dragTraceDist;
 	int						savedContents;
 	int						savedClipmask;
-	
+
 	idBeam*					beam;
 	idBeam*					beamTarget;
-	
+
 	int						warpId;
-	
+
 	bool					grabbableAI( const char* aiName );
 	void					StartDrag( idEntity* grabEnt, int id );
 	void					StopDrag( bool dropOnly );

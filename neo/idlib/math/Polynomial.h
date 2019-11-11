@@ -47,57 +47,57 @@ public:
 	explicit idPolynomial( float a, float b, float c );
 	explicit idPolynomial( float a, float b, float c, float d );
 	explicit idPolynomial( float a, float b, float c, float d, float e );
-	
+
 	float			operator[]( int index ) const;
 	float& 			operator[]( int index );
-	
+
 	idPolynomial	operator-() const;
 	idPolynomial& 	operator=( const idPolynomial& p );
-	
+
 	idPolynomial	operator+( const idPolynomial& p ) const;
 	idPolynomial	operator-( const idPolynomial& p ) const;
 	idPolynomial	operator*( const float s ) const;
 	idPolynomial	operator/( const float s ) const;
-	
+
 	idPolynomial& 	operator+=( const idPolynomial& p );
 	idPolynomial& 	operator-=( const idPolynomial& p );
 	idPolynomial& 	operator*=( const float s );
 	idPolynomial& 	operator/=( const float s );
-	
+
 	bool			Compare( const idPolynomial& p ) const;						// exact compare, no epsilon
 	bool			Compare( const idPolynomial& p, const float epsilon ) const;// compare with epsilon
 	bool			operator==(	const idPolynomial& p ) const;					// exact compare, no epsilon
 	bool			operator!=(	const idPolynomial& p ) const;					// exact compare, no epsilon
-	
+
 	void			Zero();
 	void			Zero( int d );
-	
+
 	int				GetDimension() const;									// get the degree of the polynomial
 	int				GetDegree() const;									// get the degree of the polynomial
 	float			GetValue( const float x ) const;							// evaluate the polynomial with the given real value
 	idComplex		GetValue( const idComplex& x ) const;						// evaluate the polynomial with the given complex value
 	idPolynomial	GetDerivative() const;								// get the first derivative of the polynomial
 	idPolynomial	GetAntiDerivative() const;							// get the anti derivative of the polynomial
-	
+
 	int				GetRoots( idComplex* roots ) const;							// get all roots
 	int				GetRoots( float* roots ) const;								// get the real roots
-	
+
 	static int		GetRoots1( float a, float b, float* roots );
 	static int		GetRoots2( float a, float b, float c, float* roots );
 	static int		GetRoots3( float a, float b, float c, float d, float* roots );
 	static int		GetRoots4( float a, float b, float c, float d, float e, float* roots );
-	
+
 	const float* 	ToFloatPtr() const;
 	float* 			ToFloatPtr();
 	const char* 	ToString( int precision = 2 ) const;
-	
+
 	static void		Test();
-	
+
 private:
 	int				degree;
 	int				allocated;
 	float* 			coefficient;
-	
+
 	void			Resize( int d, bool keep );
 	int				Laguer( const idComplex* coef, const int degree, idComplex& r ) const;
 };
@@ -179,7 +179,7 @@ ID_INLINE idPolynomial idPolynomial::operator-() const
 {
 	int i;
 	idPolynomial n;
-	
+
 	n = *this;
 	for( i = 0; i <= degree; i++ )
 	{
@@ -202,7 +202,7 @@ ID_INLINE idPolynomial idPolynomial::operator+( const idPolynomial& p ) const
 {
 	int i;
 	idPolynomial n;
-	
+
 	if( degree > p.degree )
 	{
 		n.Resize( degree, false );
@@ -249,7 +249,7 @@ ID_INLINE idPolynomial idPolynomial::operator-( const idPolynomial& p ) const
 {
 	int i;
 	idPolynomial n;
-	
+
 	if( degree > p.degree )
 	{
 		n.Resize( degree, false );
@@ -295,7 +295,7 @@ ID_INLINE idPolynomial idPolynomial::operator-( const idPolynomial& p ) const
 ID_INLINE idPolynomial idPolynomial::operator*( const float s ) const
 {
 	idPolynomial n;
-	
+
 	if( s == 0.0f )
 	{
 		n.degree = 0;
@@ -315,7 +315,7 @@ ID_INLINE idPolynomial idPolynomial::operator/( const float s ) const
 {
 	float invs;
 	idPolynomial n;
-	
+
 	assert( s != 0.0f );
 	n.Resize( degree, false );
 	invs = 1.0f / s;
@@ -329,7 +329,7 @@ ID_INLINE idPolynomial idPolynomial::operator/( const float s ) const
 ID_INLINE idPolynomial& idPolynomial::operator+=( const idPolynomial& p )
 {
 	int i;
-	
+
 	if( degree > p.degree )
 	{
 		for( i = 0; i <= p.degree; i++ )
@@ -366,7 +366,7 @@ ID_INLINE idPolynomial& idPolynomial::operator+=( const idPolynomial& p )
 ID_INLINE idPolynomial& idPolynomial::operator-=( const idPolynomial& p )
 {
 	int i;
-	
+
 	if( degree > p.degree )
 	{
 		for( i = 0; i <= p.degree; i++ )
@@ -419,7 +419,7 @@ ID_INLINE idPolynomial& idPolynomial::operator*=( const float s )
 ID_INLINE idPolynomial& idPolynomial::operator/=( const float s )
 {
 	float invs;
-	
+
 	assert( s != 0.0f );
 	invs = 1.0f / s;
 	for( int i = 0; i <= degree; i++ )
@@ -524,7 +524,7 @@ ID_INLINE idComplex idPolynomial::GetValue( const idComplex& x ) const
 ID_INLINE idPolynomial idPolynomial::GetDerivative() const
 {
 	idPolynomial n;
-	
+
 	if( degree == 0 )
 	{
 		return n;
@@ -540,7 +540,7 @@ ID_INLINE idPolynomial idPolynomial::GetDerivative() const
 ID_INLINE idPolynomial idPolynomial::GetAntiDerivative() const
 {
 	idPolynomial n;
-	
+
 	if( degree == 0 )
 	{
 		return n;
@@ -564,7 +564,7 @@ ID_INLINE int idPolynomial::GetRoots1( float a, float b, float* roots )
 ID_INLINE int idPolynomial::GetRoots2( float a, float b, float c, float* roots )
 {
 	float inva, ds;
-	
+
 	if( a != 1.0f )
 	{
 		assert( a != 0.0f );
@@ -594,7 +594,7 @@ ID_INLINE int idPolynomial::GetRoots2( float a, float b, float c, float* roots )
 ID_INLINE int idPolynomial::GetRoots3( float a, float b, float c, float d, float* roots )
 {
 	float inva, f, g, halfg, ofs, ds, dist, angle, cs, ss, t;
-	
+
 	if( a != 1.0f )
 	{
 		assert( a != 0.0f );
@@ -603,13 +603,13 @@ ID_INLINE int idPolynomial::GetRoots3( float a, float b, float c, float d, float
 		c *= inva;
 		b *= inva;
 	}
-	
+
 	f = ( 1.0f / 3.0f ) * ( 3.0f * c - b * b );
 	g = ( 1.0f / 27.0f ) * ( 2.0f * b * b * b - 9.0f * c * b + 27.0f * d );
 	halfg = 0.5f * g;
 	ofs = ( 1.0f / 3.0f ) * b;
 	ds = 0.25f * g * g + ( 1.0f / 27.0f ) * f * f * f;
-	
+
 	if( ds < 0.0f )
 	{
 		dist = idMath::Sqrt( ( -1.0f / 3.0f ) * f );
@@ -667,7 +667,7 @@ ID_INLINE int idPolynomial::GetRoots4( float a, float b, float c, float d, float
 	int count;
 	float inva, y, ds, r, s1, s2, t1, t2, tp, tm;
 	float roots3[3];
-	
+
 	if( a != 1.0f )
 	{
 		assert( a != 0.0f );
@@ -677,13 +677,13 @@ ID_INLINE int idPolynomial::GetRoots4( float a, float b, float c, float d, float
 		c *= inva;
 		b *= inva;
 	}
-	
+
 	count = 0;
-	
+
 	GetRoots3( 1.0f, -c, b * d - 4.0f * e, -b * b * e + 4.0f * c * e - d * d, roots3 );
 	y = roots3[0];
 	ds = 0.25f * b * b - c + y;
-	
+
 	if( ds < 0.0f )
 	{
 		return 0;
@@ -695,7 +695,7 @@ ID_INLINE int idPolynomial::GetRoots4( float a, float b, float c, float d, float
 		t2 = ( 4.0f * b * c - 8.0f * d - b * b * b ) / ( 4.0f * r );
 		tp = t1 + t2;
 		tm = t1 - t2;
-		
+
 		if( tp >= 0.0f )
 		{
 			s1 = idMath::Sqrt( tp );

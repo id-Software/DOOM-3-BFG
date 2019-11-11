@@ -75,12 +75,12 @@ void Posix_ClearSigs( )
 {
 	struct sigaction action;
 	int i;
-	
+
 	/* Set up the structure */
 	action.sa_handler = SIG_DFL;
 	sigemptyset( &action.sa_mask );
 	action.sa_flags = 0;
-	
+
 	i = 0;
 	while( siglist[ i ] != -1 )
 	{
@@ -100,27 +100,27 @@ sig_handler
 static void sig_handler( int signum, siginfo_t* info, void* context )
 {
 	static bool double_fault = false;
-	
+
 	if( double_fault )
 	{
 		Sys_Printf( "double fault %s, bailing out\n", strsignal( signum ) );
 		Posix_Exit( signum );
 	}
-	
+
 	double_fault = true;
-	
+
 	// NOTE: see sigaction man page, could verbose the whole siginfo_t and print human readable si_code
 	Sys_Printf( "signal caught: %s\nsi_code %d\n", strsignal( signum ), info->si_code );
-	
+
 	if( fatalError[ 0 ] )
 	{
 		Sys_Printf( "Was in fatal error shutdown: %s\n", fatalError );
 	}
-	
+
 	Sys_Printf( "Trying to exit gracefully..\n" );
-	
+
 	Posix_SetExit( signum );
-	
+
 	common->Quit();
 }
 
@@ -133,14 +133,14 @@ void Posix_InitSigs( )
 {
 	struct sigaction action;
 	int i;
-	
+
 	fatalError[0] = '\0';
-	
+
 	/* Set up the structure */
 	action.sa_sigaction = sig_handler;
 	sigemptyset( &action.sa_mask );
 	action.sa_flags = SA_SIGINFO | SA_NODEFER;
-	
+
 	i = 0;
 	while( siglist[ i ] != -1 )
 	{
@@ -159,7 +159,7 @@ void Posix_InitSigs( )
 		}
 		i++;
 	}
-	
+
 	// if the process is backgrounded (running non interactively)
 	// then SIGTTIN or SIGTOU could be emitted, if not caught, turns into a SIGSTP
 	signal( SIGTTIN, SIG_IGN );

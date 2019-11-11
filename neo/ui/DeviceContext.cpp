@@ -157,22 +157,22 @@ bool idDeviceContext::ClippedCoords( float* x, float* y, float* w, float* h, flo
 	{
 		return false;
 	}
-	
+
 	int c = clipRects.Num();
 	while( --c > 0 )
 	{
 		idRectangle* clipRect = &clipRects[c];
-		
+
 		float ox = *x;
 		float oy = *y;
 		float ow = *w;
 		float oh = *h;
-		
+
 		if( ow <= 0.0f || oh <= 0.0f )
 		{
 			break;
 		}
-		
+
 		if( *x < clipRect->x )
 		{
 			*w -= clipRect->x - *x;
@@ -207,26 +207,26 @@ bool idDeviceContext::ClippedCoords( float* x, float* y, float* w, float* h, flo
 		{
 			*h = clipRect->Bottom() - *y;
 		}
-		
+
 		if( s1 && s2 && t1 && t2 && ow > 0.0f )
 		{
 			float ns1, ns2, nt1, nt2;
 			// upper left
 			float u = ( *x - ox ) / ow;
 			ns1 = *s1 * ( 1.0f - u ) + *s2 * ( u );
-			
+
 			// upper right
 			u = ( *x + *w - ox ) / ow;
 			ns2 = *s1 * ( 1.0f - u ) + *s2 * ( u );
-			
+
 			// lower left
 			u = ( *y - oy ) / oh;
 			nt1 = *t1 * ( 1.0f - u ) + *t2 * ( u );
-			
+
 			// lower right
 			u = ( *y + *h - oy ) / oh;
 			nt2 = *t1 * ( 1.0f - u ) + *t2 * ( u );
-			
+
 			// set values
 			*s1 = ns1;
 			*s2 = ns2;
@@ -234,7 +234,7 @@ bool idDeviceContext::ClippedCoords( float* x, float* y, float* w, float* h, flo
 			*t2 = nt2;
 		}
 	}
-	
+
 	return ( *w == 0 || *h == 0 ) ? true : false;
 }
 
@@ -247,28 +247,28 @@ void idDeviceContext::DrawWinding( idWinding& w, const idMaterial* mat )
 {
 
 	idPlane p;
-	
+
 	p.Normal().Set( 1.0f, 0.0f, 0.0f );
 	p.SetDist( 0.0f );
 	w.ClipInPlace( p );
-	
+
 	p.Normal().Set( -1.0f, 0.0f, 0.0f );
 	p.SetDist( -SCREEN_WIDTH );
 	w.ClipInPlace( p );
-	
+
 	p.Normal().Set( 0.0f, 1.0f, 0.0f );
 	p.SetDist( 0.0f );
 	w.ClipInPlace( p );
-	
+
 	p.Normal().Set( 0.0f, -1.0f, 0.0f );
 	p.SetDist( -SCREEN_HEIGHT );
 	w.ClipInPlace( p );
-	
+
 	if( w.GetNumPoints() < 3 )
 	{
 		return;
 	}
-	
+
 	int numIndexes = 0;
 	triIndex_t tempIndexes[( MAX_POINTS_ON_WINDING - 2 ) * 3];
 	for( int j = 2; j < w.GetNumPoints(); j++ )
@@ -278,14 +278,14 @@ void idDeviceContext::DrawWinding( idWinding& w, const idMaterial* mat )
 		tempIndexes[numIndexes++] = j;
 	}
 	assert( numIndexes == ( w.GetNumPoints() - 2 ) * 3 );
-	
+
 	idDrawVert* verts = renderSystem->AllocTris( w.GetNumPoints(), tempIndexes, numIndexes, mat );
 	if( verts == NULL )
 	{
 		return;
 	}
 	uint32 currentColor = renderSystem->GetColor();
-	
+
 	for( int j = 0 ; j < w.GetNumPoints() ; j++ )
 	{
 		verts[j].xyz.x = xOffset + w[j].x * xScale;
@@ -307,20 +307,20 @@ void idDeviceContext::DrawStretchPic( float x, float y, float w, float h, float 
 		renderSystem->DrawStretchPic( xOffset + x * xScale, yOffset + y * yScale, w * xScale, h * yScale, s1, t1, s2, t2, shader );
 		return;
 	}
-	
+
 	idFixedWinding winding;
 	winding.AddPoint( idVec5( x, y, 0.0f, s1, t1 ) );
 	winding.AddPoint( idVec5( x + w, y, 0.0f, s2, t1 ) );
 	winding.AddPoint( idVec5( x + w, y + h, 0.0f, s2, t2 ) );
 	winding.AddPoint( idVec5( x, y + h, 0.0f, s1, t2 ) );
-	
+
 	for( int i = 0; i < winding.GetNumPoints(); i++ )
 	{
 		winding[i].ToVec3() -= origin;
 		winding[i].ToVec3() *= mat;
 		winding[i].ToVec3() += origin;
 	}
-	
+
 	DrawWinding( winding, shader );
 }
 
@@ -329,7 +329,7 @@ void idDeviceContext::DrawMaterial( float x, float y, float w, float h, const id
 {
 
 	renderSystem->SetColor( color );
-	
+
 	float	s0, s1, t0, t1;
 //
 //  handle negative scales as well
@@ -355,7 +355,7 @@ void idDeviceContext::DrawMaterial( float x, float y, float w, float h, const id
 		s0 = 0;
 		s1 = 1 * scalex;
 	}
-	
+
 	if( h < 0 )  	// flip about horizontal
 	{
 		h  = -h;
@@ -367,12 +367,12 @@ void idDeviceContext::DrawMaterial( float x, float y, float w, float h, const id
 		t0 = 0;
 		t1 = 1 * scaley;
 	}
-	
+
 	if( ClippedCoords( &x, &y, &w, &h, &s0, &t0, &s1, &t1 ) )
 	{
 		return;
 	}
-	
+
 	DrawStretchPic( x, y, w, h, s0, t0, s1, t1, mat );
 }
 
@@ -380,7 +380,7 @@ void idDeviceContext::DrawMaterialRotated( float x, float y, float w, float h, c
 {
 
 	renderSystem->SetColor( color );
-	
+
 	float	s0, s1, t0, t1;
 	//
 	//  handle negative scales as well
@@ -406,7 +406,7 @@ void idDeviceContext::DrawMaterialRotated( float x, float y, float w, float h, c
 		s0 = 0;
 		s1 = 1 * scalex;
 	}
-	
+
 	if( h < 0 )  	// flip about horizontal
 	{
 		h  = -h;
@@ -418,12 +418,12 @@ void idDeviceContext::DrawMaterialRotated( float x, float y, float w, float h, c
 		t0 = 0;
 		t1 = 1 * scaley;
 	}
-	
+
 	if( angle == 0.0f && ClippedCoords( &x, &y, &w, &h, &s0, &t0, &s1, &t1 ) )
 	{
 		return;
 	}
-	
+
 	DrawStretchPicRotated( x, y, w, h, s0, t0, s1, t1, mat, angle );
 }
 
@@ -435,21 +435,21 @@ void idDeviceContext::DrawStretchPicRotated( float x, float y, float w, float h,
 	winding.AddPoint( idVec5( x + w, y, 0.0f, s2, t1 ) );
 	winding.AddPoint( idVec5( x + w, y + h, 0.0f, s2, t2 ) );
 	winding.AddPoint( idVec5( x, y + h, 0.0f, s1, t2 ) );
-	
+
 	for( int i = 0; i < winding.GetNumPoints(); i++ )
 	{
 		winding[i].ToVec3() -= origin;
 		winding[i].ToVec3() *= mat;
 		winding[i].ToVec3() += origin;
 	}
-	
+
 	//Generate a translation so we can translate to the center of the image rotate and draw
 	idVec3 origTrans;
 	origTrans.x = x + ( w / 2 );
 	origTrans.y = y + ( h / 2 );
 	origTrans.z = 0;
-	
-	
+
+
 	//Rotate the verts about the z axis before drawing them
 	idMat3 rotz;
 	rotz.Identity();
@@ -465,7 +465,7 @@ void idDeviceContext::DrawStretchPicRotated( float x, float y, float w, float h,
 		winding[i].ToVec3() *= rotz;
 		winding[i].ToVec3() += origTrans;
 	}
-	
+
 	DrawWinding( winding, shader );
 }
 
@@ -476,14 +476,14 @@ void idDeviceContext::DrawFilledRect( float x, float y, float w, float h, const 
 	{
 		return;
 	}
-	
+
 	renderSystem->SetColor( color );
-	
+
 	if( ClippedCoords( &x, &y, &w, &h, NULL, NULL, NULL, NULL ) )
 	{
 		return;
 	}
-	
+
 	DrawStretchPic( x, y, w, h, 0, 0, 0, 0, whiteImage );
 }
 
@@ -495,14 +495,14 @@ void idDeviceContext::DrawRect( float x, float y, float w, float h, float size, 
 	{
 		return;
 	}
-	
+
 	renderSystem->SetColor( color );
-	
+
 	if( ClippedCoords( &x, &y, &w, &h, NULL, NULL, NULL, NULL ) )
 	{
 		return;
 	}
-	
+
 	DrawStretchPic( x, y, size, h, 0, 0, 0, 0, whiteImage );
 	DrawStretchPic( x + w - size, y, size, h, 0, 0, 0, 0, whiteImage );
 	DrawStretchPic( x, y, w, size, 0, 0, 0, 0, whiteImage );
@@ -516,7 +516,7 @@ void idDeviceContext::DrawMaterialRect( float x, float y, float w, float h, floa
 	{
 		return;
 	}
-	
+
 	renderSystem->SetColor( color );
 	DrawMaterial( x, y, size, h, mat, color );
 	DrawMaterial( x + w - size, y, size, h, mat, color );
@@ -530,18 +530,18 @@ void idDeviceContext::SetCursor( int n )
 
 	if( n > CURSOR_ARROW && n < CURSOR_COUNT )
 	{
-	
+
 		keyBindings_t binds = idKeyInput::KeyBindingsFromBinding( "_use", true );
-		
+
 		keyNum_t keyNum = K_NONE;
 		if( in_useJoystick.GetBool() )
 		{
 			keyNum = idKeyInput::StringToKeyNum( binds.gamepad.c_str() );
 		}
-		
+
 		if( keyNum != K_NONE )
 		{
-		
+
 			if( keyNum == K_JOY1 )
 			{
 				cursor = CURSOR_HAND_JOY1;
@@ -558,13 +558,13 @@ void idDeviceContext::SetCursor( int n )
 			{
 				cursor = CURSOR_HAND_JOY4;
 			}
-			
+
 		}
 		else
 		{
 			cursor = CURSOR_HAND;
 		}
-		
+
 	}
 	else
 	{
@@ -578,22 +578,22 @@ void idDeviceContext::DrawCursor( float* x, float* y, float size )
 	{
 		*x = 0;
 	}
-	
+
 	if( *x >= VIRTUAL_WIDTH )
 	{
 		*x = VIRTUAL_WIDTH;
 	}
-	
+
 	if( *y < 0 )
 	{
 		*y = 0;
 	}
-	
+
 	if( *y >= VIRTUAL_HEIGHT )
 	{
 		*y = VIRTUAL_HEIGHT;
 	}
-	
+
 	renderSystem->SetColor( colorWhite );
 	DrawStretchPic( *x, *y, size, size, 0, 0, 1, 1, cursorImages[cursor] );
 }
@@ -606,7 +606,7 @@ void idDeviceContext::PaintChar( float x, float y, const scaledGlyphInfo_t& glyp
 {
 	y -= glyphInfo.top;
 	x += glyphInfo.left;
-	
+
 	float w = glyphInfo.width;
 	float h = glyphInfo.height;
 	float s = glyphInfo.s1;
@@ -614,12 +614,12 @@ void idDeviceContext::PaintChar( float x, float y, const scaledGlyphInfo_t& glyp
 	float s2 = glyphInfo.s2;
 	float t2 = glyphInfo.t2;
 	const idMaterial* hShader = glyphInfo.material;
-	
+
 	if( ClippedCoords( &x, &y, &w, &h, &s, &t, &s2, &t2 ) )
 	{
 		return;
 	}
-	
+
 	DrawStretchPic( x, y, w, h, s, t, s2, t2, hShader );
 }
 
@@ -627,10 +627,10 @@ int idDeviceContext::DrawText( float x, float y, float scale, idVec4 color, cons
 {
 	int			len;
 	idVec4		newColor;
-	
+
 	idStr drawText = text;
 	int charIndex = 0;
-	
+
 	if( text && color.w != 0.0f )
 	{
 		renderSystem->SetColor( color );
@@ -640,13 +640,13 @@ int idDeviceContext::DrawText( float x, float y, float scale, idVec4 color, cons
 		{
 			len = limit;
 		}
-		
+
 		float prevGlyphSkip = 0.0f;
-		
+
 		while( charIndex < len )
 		{
 			uint32 textChar = drawText.UTF8Char( charIndex );
-			
+
 			if( idStr::IsColor( drawText.c_str() + charIndex ) )
 			{
 				if( drawText[ charIndex++ ] == C_COLOR_DEFAULT )
@@ -683,9 +683,9 @@ int idDeviceContext::DrawText( float x, float y, float scale, idVec4 color, cons
 				scaledGlyphInfo_t glyphInfo;
 				activeFont->GetScaledGlyph( scale, textChar, glyphInfo );
 				prevGlyphSkip = glyphInfo.xSkip;
-				
+
 				PaintChar( x, y, glyphInfo );
-				
+
 				if( cursor == charIndex - 1 )
 				{
 					DrawEditCursor( x, y, scale );
@@ -724,7 +724,7 @@ int idDeviceContext::TextWidth( const char* text, float scale, int limit )
 	{
 		return 0;
 	}
-	
+
 	int i;
 	float width = 0;
 	if( limit > 0 )
@@ -808,16 +808,16 @@ int idDeviceContext::DrawText( const char* text, float textScale, int textAlign,
 	float		y = 0.0f;
 	float		textWidth = 0.0f;
 	float		textWidthAtLastBreak = 0.0f;
-	
+
 	float		charSkip = MaxCharWidth( textScale ) + 1;
 	float		lineSkip = MaxCharHeight( textScale );
-	
+
 	bool		lineBreak = false;
 	bool		wordBreak = false;
-	
+
 	idStr drawText = text;
 	idStr textBuffer;
-	
+
 	if( !calcOnly && !( text && *text ) )
 	{
 		if( cursor == 0 )
@@ -827,18 +827,18 @@ int idDeviceContext::DrawText( const char* text, float textScale, int textAlign,
 		}
 		return idMath::Ftoi( rectDraw.w / charSkip );
 	}
-	
+
 	y = lineSkip + rectDraw.y;
-	
+
 	if( breaks )
 	{
 		breaks->Append( 0 );
 	}
-	
+
 	while( charIndex < drawText.Length() )
 	{
 		uint32 textChar = drawText.UTF8Char( charIndex );
-		
+
 		// See if we need to start a new line.
 		if( textChar == '\n' || textChar == '\r' || charIndex == drawText.Length() )
 		{
@@ -854,21 +854,21 @@ int idDeviceContext::DrawText( const char* text, float textScale, int textAlign,
 				}
 			}
 		}
-		
+
 		// Check for escape colors if not then simply get the glyph width.
 		if( textChar == C_COLOR_ESCAPE && charIndex < drawText.Length() )
 		{
 			textBuffer.AppendUTF8Char( textChar );
 			textChar = drawText.UTF8Char( charIndex );
 		}
-		
+
 		// If the character isn't a new line then add it to the text buffer.
 		if( textChar != '\n' && textChar != '\r' )
 		{
 			textWidth += activeFont->GetGlyphWidth( textScale, textChar );
 			textBuffer.AppendUTF8Char( textChar );
 		}
-		
+
 		if( !lineBreak && ( textWidth > rectDraw.w ) )
 		{
 			// The next character will cause us to overflow, if we haven't yet found a suitable
@@ -886,17 +886,17 @@ int idDeviceContext::DrawText( const char* text, float textScale, int textAlign,
 			lastBreak = textBuffer.Length();
 			textWidthAtLastBreak = textWidth;
 		}
-		
+
 		// We need to go to a new line
 		if( lineBreak || wordBreak )
 		{
 			float x = rectDraw.x;
-			
+
 			if( textWidthAtLastBreak > 0 )
 			{
 				textWidth = textWidthAtLastBreak;
 			}
-			
+
 			// Align text if needed
 			if( textAlign == ALIGN_RIGHT )
 			{
@@ -906,7 +906,7 @@ int idDeviceContext::DrawText( const char* text, float textScale, int textAlign,
 			{
 				x = rectDraw.x + ( rectDraw.w - textWidth ) / 2;
 			}
-			
+
 			if( wrap || lastBreak > 0 )
 			{
 				// This is a special case to handle breaking in the middle of a word.
@@ -917,7 +917,7 @@ int idDeviceContext::DrawText( const char* text, float textScale, int textAlign,
 					cursor++;
 				}
 			}
-			
+
 			// Draw what's in the current text buffer.
 			if( !calcOnly )
 			{
@@ -932,7 +932,7 @@ int idDeviceContext::DrawText( const char* text, float textScale, int textAlign,
 					textBuffer.Clear();
 				}
 			}
-			
+
 			if( cursor < lastBreak )
 			{
 				cursor = -1;
@@ -941,39 +941,39 @@ int idDeviceContext::DrawText( const char* text, float textScale, int textAlign,
 			{
 				cursor -= ( lastBreak + 1 );
 			}
-			
+
 			// If wrap is disabled return at this point.
 			if( !wrap )
 			{
 				return lastBreak;
 			}
-			
+
 			// If we've hit the allowed character limit then break.
 			if( limit && count > limit )
 			{
 				break;
 			}
-			
+
 			y += lineSkip + 5;
-			
+
 			if( !calcOnly && y > rectDraw.Bottom() )
 			{
 				break;
 			}
-			
+
 			// If breaks were requested then make a note of this one.
 			if( breaks )
 			{
 				breaks->Append( drawText.Length() - charIndex );
 			}
-			
+
 			// Reset necessary parms for next line.
 			lastBreak = 0;
 			textWidth = 0;
 			textWidthAtLastBreak = 0;
 			lineBreak = false;
 			wordBreak = false;
-			
+
 			// Reassess the remaining width
 			for( int i = 0; i < textBuffer.Length(); )
 			{
@@ -982,11 +982,11 @@ int idDeviceContext::DrawText( const char* text, float textScale, int textAlign,
 					textWidth += activeFont->GetGlyphWidth( textScale, textBuffer.UTF8Char( i ) );
 				}
 			}
-			
+
 			continue;
 		}
 	}
-	
+
 	return idMath::Ftoi( rectDraw.w / charSkip );
 }
 
@@ -1000,13 +1000,13 @@ char* idRectangle::String() const
 	static	int		index = 0;
 	static	char	str[ 8 ][ 48 ];
 	char*	s;
-	
+
 	// use an array so that multiple toString's won't collide
 	s = str[ index ];
 	index = ( index + 1 ) & 7;
-	
+
 	sprintf( s, "%.2f %.2f %.2f %.2f", x, y, w, h );
-	
+
 	return s;
 }
 
@@ -1036,7 +1036,7 @@ void idDeviceContextOptimized::EnableClipping( bool b )
 	{
 		// the actual value of the rect is irrelvent
 		PushClipRect( idRectangle( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT ) );
-		
+
 		// allow drawing beyond the normal bounds for debug text
 		// this also allows the cursor to draw outside, so we might want
 		// to make this exactly the screen bounds, since we aren't likely
@@ -1077,13 +1077,13 @@ static const idRectangle baseScreenRect( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT );
 void idDeviceContextOptimized::PushClipRect( idRectangle r )
 {
 	const idRectangle& prev = ( clipRects.Num() == 0 ) ? baseScreenRect : clipRects[clipRects.Num() - 1];
-	
+
 	// instead of storing the rect, store the intersection of the rect
 	// with the previous rect, so ClippedCoords() only has to test against one rect
 	idRectangle intersection = prev;
 	intersection.ClipAgainst( r, false );
 	clipRects.Append( intersection );
-	
+
 	const idRectangle& clipRect = clipRects[ clipRects.Num() - 1 ];
 	clipX1 = clipRect.x;
 	clipY1 = clipRect.y;
@@ -1097,13 +1097,13 @@ bool idDeviceContextOptimized::ClippedCoords( float* x, float* y, float* w, floa
 	const float oy = *y;
 	const float ow = *w;
 	const float oh = *h;
-	
+
 	// presume visible first
 	if( ox >= clipX1 && oy >= clipY1 && ox + ow <= clipX2 && oy + oh <= clipY2 )
 	{
 		return false;
 	}
-	
+
 	// do clipping
 	if( ox < clipX1 )
 	{
@@ -1131,12 +1131,12 @@ bool idDeviceContextOptimized::ClippedCoords( float* x, float* y, float* w, floa
 	{
 		*h = clipY2 - *y;
 	}
-	
+
 	if( *w <= 0 || *h <= 0 )
 	{
 		return true;
 	}
-	
+
 	// filled rects won't pass in texcoords
 	if( s1 )
 	{
@@ -1144,26 +1144,26 @@ bool idDeviceContextOptimized::ClippedCoords( float* x, float* y, float* w, floa
 		// upper left
 		float u = ( *x - ox ) / ow;
 		ns1 = *s1 * ( 1.0f - u ) + *s2 * ( u );
-		
+
 		// upper right
 		u = ( *x + *w - ox ) / ow;
 		ns2 = *s1 * ( 1.0f - u ) + *s2 * ( u );
-		
+
 		// lower left
 		u = ( *y - oy ) / oh;
 		nt1 = *t1 * ( 1.0f - u ) + *t2 * ( u );
-		
+
 		// lower right
 		u = ( *y + *h - oy ) / oh;
 		nt2 = *t1 * ( 1.0f - u ) + *t2 * ( u );
-		
+
 		// set values
 		*s1 = ns1;
 		*s2 = ns2;
 		*t1 = nt1;
 		*t2 = nt2;
 	}
-	
+
 	// still needs to be drawn
 	return false;
 }
@@ -1181,9 +1181,9 @@ int idDeviceContextOptimized::DrawText( float x, float y, float scale, idVec4 co
 		// fallback to old code
 		return idDeviceContext::DrawText( x, y, scale, color, text, adjust, limit, style, cursor );
 	}
-	
+
 	idStr drawText = text;
-	
+
 	if( drawText.Length() == 0 )
 	{
 		return 0;
@@ -1192,16 +1192,16 @@ int idDeviceContextOptimized::DrawText( float x, float y, float scale, idVec4 co
 	{
 		return 0;
 	}
-	
+
 	const uint32 currentColor = PackColor( color );
 	uint32 currentColorNativeByteOrder = LittleLong( currentColor );
-	
+
 	int len = drawText.Length();
 	if( limit > 0 && len > limit )
 	{
 		len = limit;
 	}
-	
+
 	int charIndex = 0;
 	while( charIndex < drawText.Length() )
 	{
@@ -1225,10 +1225,10 @@ int idDeviceContextOptimized::DrawText( float x, float y, float scale, idVec4 co
 			currentColorNativeByteOrder = LittleLong( PackColor( newColor ) );
 			continue;
 		}
-		
+
 		scaledGlyphInfo_t glyphInfo;
 		activeFont->GetScaledGlyph( scale, textChar, glyphInfo );
-		
+
 		// PaintChar( x, y, glyphInfo );
 		float drawY = y - glyphInfo.top;
 		float drawX = x + glyphInfo.left;
@@ -1238,7 +1238,7 @@ int idDeviceContextOptimized::DrawText( float x, float y, float scale, idVec4 co
 		float t = glyphInfo.t1;
 		float s2 = glyphInfo.s2;
 		float t2 = glyphInfo.t2;
-		
+
 		if( !ClippedCoords( &drawX, &drawY, &w, &h, &s, &t, &s2, &t2 ) )
 		{
 			float x1 = xOffset + drawX * xScale;
@@ -1254,21 +1254,21 @@ int idDeviceContextOptimized::DrawText( float x, float y, float scale, idVec4 co
 				verts[0].SetTexCoord( s, t );
 				verts[0].SetNativeOrderColor( currentColorNativeByteOrder );
 				verts[0].ClearColor2();
-				
+
 				verts[1].xyz[0] = x2;
 				verts[1].xyz[1] = y1;
 				verts[1].xyz[2] = 0.0f;
 				verts[1].SetTexCoord( s2, t );
 				verts[1].SetNativeOrderColor( currentColorNativeByteOrder );
 				verts[1].ClearColor2();
-				
+
 				verts[2].xyz[0] = x2;
 				verts[2].xyz[1] = y2;
 				verts[2].xyz[2] = 0.0f;
 				verts[2].SetTexCoord( s2, t2 );
 				verts[2].SetNativeOrderColor( currentColorNativeByteOrder );
 				verts[2].ClearColor2();
-				
+
 				verts[3].xyz[0] = x1;
 				verts[3].xyz[1] = y2;
 				verts[3].xyz[2] = 0.0f;
@@ -1277,7 +1277,7 @@ int idDeviceContextOptimized::DrawText( float x, float y, float scale, idVec4 co
 				verts[3].ClearColor2();
 			}
 		}
-		
+
 		x += glyphInfo.xSkip + adjust;
 	}
 	return drawText.Length();

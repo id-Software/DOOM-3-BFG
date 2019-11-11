@@ -38,24 +38,24 @@ idMenuScreen_Shell_Singleplayer::Initialize
 void idMenuScreen_Shell_Singleplayer::Initialize( idMenuHandler* data )
 {
 	idMenuScreen::Initialize( data );
-	
+
 	if( data != NULL )
 	{
 		menuGUI = data->GetGUI();
 	}
-	
+
 	SetSpritePath( "menuCampaign" );
-	
+
 	options = new( TAG_SWF ) idMenuWidget_DynamicList();
 	options->SetNumVisibleOptions( NUM_SINGLEPLAYER_OPTIONS );
 	options->SetSpritePath( GetSpritePath(), "info", "options" );
 	options->SetWrappingAllowed( true );
 	AddChild( options );
-	
+
 	idMenuWidget_Help* const helpWidget = new( TAG_SWF ) idMenuWidget_Help();
 	helpWidget->SetSpritePath( GetSpritePath(), "info", "helpTooltip" );
 	AddChild( helpWidget );
-	
+
 	while( options->GetChildren().Num() < NUM_SINGLEPLAYER_OPTIONS )
 	{
 		idMenuWidget_Button* const buttonWidget = new( TAG_SWF ) idMenuWidget_Button();
@@ -65,15 +65,15 @@ void idMenuScreen_Shell_Singleplayer::Initialize( idMenuHandler* data )
 		options->AddChild( buttonWidget );
 	}
 	options->Initialize( data );
-	
+
 	btnBack = new( TAG_SWF ) idMenuWidget_Button();
 	btnBack->Initialize( data );
 	btnBack->SetLabel( "#str_02305" );
 	btnBack->SetSpritePath( GetSpritePath(), "info", "btnBack" );
 	btnBack->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_GO_BACK );
-	
+
 	AddChild( btnBack );
-	
+
 	options->AddEventAction( WIDGET_EVENT_SCROLL_DOWN ).Set( new( TAG_SWF ) idWidgetActionHandler( options, WIDGET_ACTION_EVENT_SCROLL_DOWN_START_REPEATER, WIDGET_EVENT_SCROLL_DOWN ) );
 	options->AddEventAction( WIDGET_EVENT_SCROLL_UP ).Set( new( TAG_SWF ) idWidgetActionHandler( options, WIDGET_ACTION_EVENT_SCROLL_UP_START_REPEATER, WIDGET_EVENT_SCROLL_UP ) );
 	options->AddEventAction( WIDGET_EVENT_SCROLL_DOWN_RELEASE ).Set( new( TAG_SWF ) idWidgetActionHandler( options, WIDGET_ACTION_EVENT_STOP_REPEATER, WIDGET_EVENT_SCROLL_DOWN_RELEASE ) );
@@ -105,7 +105,7 @@ void idMenuScreen_Shell_Singleplayer::Update()
 				buttonInfo->label = "#str_00395";
 			}
 			buttonInfo->action.Set( WIDGET_ACTION_GO_BACK );
-			
+
 			buttonInfo = cmdBar->GetButton( idMenuWidget_CommandBar::BUTTON_JOY1 );
 			if( menuData->GetPlatform() != 2 )
 			{
@@ -114,7 +114,7 @@ void idMenuScreen_Shell_Singleplayer::Update()
 			buttonInfo->action.Set( WIDGET_ACTION_PRESS_FOCUSED );
 		}
 	}
-	
+
 	idSWFScriptObject& root = GetSWFObject()->GetRootObject();
 	if( BindSprite( root ) )
 	{
@@ -124,19 +124,19 @@ void idMenuScreen_Shell_Singleplayer::Update()
 			heading->SetText( "#str_swf_campaign" );
 			heading->SetStrokeInfo( true, 0.75f, 1.75f );
 		}
-		
+
 		idSWFSpriteInstance* gradient = GetSprite()->GetScriptObject()->GetNestedSprite( "info", "gradient" );
 		if( gradient != NULL && heading != NULL )
 		{
 			gradient->SetXPos( heading->GetTextLength() );
 		}
 	}
-	
+
 	if( btnBack != NULL )
 	{
 		btnBack->BindSprite( root );
 	}
-	
+
 	idMenuScreen::Update();
 }
 
@@ -150,7 +150,7 @@ void idMenuScreen_Shell_Singleplayer::ShowScreen( const mainMenuTransition_t tra
 
 	idList< idList< idStr, TAG_IDLIB_LIST_MENU >, TAG_IDLIB_LIST_MENU > menuOptions;
 	idList< idStr > option;
-	
+
 	canContinue = false;
 	const saveGameDetailsList_t& saveGameInfo = session->GetSaveGameManager().GetEnumeratedSavegames();
 	canContinue = ( saveGameInfo.Num() > 0 );
@@ -164,7 +164,7 @@ void idMenuScreen_Shell_Singleplayer::ShowScreen( const mainMenuTransition_t tra
 		option.Clear();
 		option.Append( "#str_01867" );	// load game
 		menuOptions.Append( option );
-		
+
 		int index = 0;
 		idMenuWidget_Button* buttonWidget = dynamic_cast< idMenuWidget_Button* >( &options->GetChildByIndex( index ) );
 		if( buttonWidget != NULL )
@@ -184,7 +184,7 @@ void idMenuScreen_Shell_Singleplayer::ShowScreen( const mainMenuTransition_t tra
 			buttonWidget->SetDescription( "#str_02213" );
 		}
 		index++;
-		
+
 	}
 	else
 	{
@@ -193,7 +193,7 @@ void idMenuScreen_Shell_Singleplayer::ShowScreen( const mainMenuTransition_t tra
 		option.Clear();
 		option.Append( "#str_01867" );	// load game
 		menuOptions.Append( option );
-		
+
 		if( options != NULL )
 		{
 			int index = 0;
@@ -210,12 +210,12 @@ void idMenuScreen_Shell_Singleplayer::ShowScreen( const mainMenuTransition_t tra
 			}
 		}
 	}
-	
+
 	if( options != NULL )
 	{
 		options->SetListData( menuOptions );
 	}
-	
+
 	idMenuScreen::ShowScreen( transitionType );
 }
 
@@ -252,7 +252,7 @@ void idMenuScreen_Shell_Singleplayer::ContinueGame()
 					return idSWFScriptVar();
 				}
 			};
-			
+
 			idStaticList< idSWFScriptFunction*, 4 > callbacks;
 			callbacks.Append( new( TAG_SWF ) idSWFScriptFunction_ContinueDamaged() );
 			idStaticList< idStrId, 4 > optionText;
@@ -279,15 +279,15 @@ bool idMenuScreen_Shell_Singleplayer::HandleAction( idWidgetAction& action, cons
 	{
 		return true;
 	}
-	
+
 	if( menuData->ActiveScreen() != SHELL_AREA_CAMPAIGN )
 	{
 		return false;
 	}
-	
+
 	widgetAction_t actionType = action.GetType();
 	const idSWFParmList& parms = action.GetParms();
-	
+
 	switch( actionType )
 	{
 		case WIDGET_ACTION_GO_BACK:
@@ -301,13 +301,13 @@ bool idMenuScreen_Shell_Singleplayer::HandleAction( idWidgetAction& action, cons
 			{
 				return true;
 			}
-			
+
 			int selectionIndex = options->GetViewIndex();
 			if( parms.Num() == 1 )
 			{
 				selectionIndex = parms[0].ToInteger();
 			}
-			
+
 			canContinue = false;
 			const saveGameDetailsList_t& saveGameInfo = session->GetSaveGameManager().GetEnumeratedSavegames();
 			canContinue = ( saveGameInfo.Num() > 0 );
@@ -316,7 +316,7 @@ bool idMenuScreen_Shell_Singleplayer::HandleAction( idWidgetAction& action, cons
 				if( selectionIndex == 0 )
 				{
 					ContinueGame();
-					
+
 				}
 				else if( selectionIndex == 1 )
 				{
@@ -359,10 +359,10 @@ bool idMenuScreen_Shell_Singleplayer::HandleAction( idWidgetAction& action, cons
 					menuData->SetNextScreen( SHELL_AREA_LOAD, MENU_TRANSITION_SIMPLE );
 				}
 			}
-			
+
 			return true;
 		}
 	}
-	
+
 	return idMenuWidget::HandleAction( action, event, widget, forceHandled );
 }

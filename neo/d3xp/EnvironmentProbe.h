@@ -42,22 +42,22 @@ class EnvironmentProbe : public idEntity
 {
 public:
 	CLASS_PROTOTYPE( EnvironmentProbe );
-	
+
 	EnvironmentProbe();
 	~EnvironmentProbe();
-	
+
 	void			Spawn();
-	
+
 	void			Save( idSaveGame* savefile ) const;					// archives object for save game file
 	void			Restore( idRestoreGame* savefile );					// unarchives object from save game file
-	
+
 	virtual void	UpdateChangeableSpawnArgs( const idDict* source );
 	virtual void	Think();
 	virtual void	ClientThink( const int curTime, const float fraction, const bool predict );
 	virtual void	FreeEnvprobeDef();
 	virtual bool	GetPhysicsToSoundTransform( idVec3& origin, idMat3& axis );
 	void			Present();
-	
+
 	void			SaveState( idDict* args );
 	virtual void	SetColor( float red, float green, float blue );
 	virtual void	SetColor( const idVec4& color );
@@ -75,27 +75,27 @@ public:
 	void			Fade( const idVec4& to, float fadeTime );
 	void			FadeOut( float time );
 	void			FadeIn( float time );
-	
+
 	qhandle_t		GetEnvprobeDefHandle() const
 	{
 		return envprobeDefHandle;
 	}
-	
+
 	void			SetEnvprobeParent( idEntity* lparent )
 	{
 		lightParent = lparent;
 	}
-	
+
 	void			SetLightLevel();
-	
+
 	virtual void	ShowEditingDialog();
-	
+
 	enum
 	{
 		EVENT_BECOMEBROKEN = idEntity::EVENT_MAXEVENTS,
 		EVENT_MAXEVENTS
 	};
-	
+
 	virtual void	ClientPredictionThink();
 	virtual void	WriteToSnapshot( idBitMsg& msg ) const;
 	virtual void	ReadFromSnapshot( const idBitMsg& msg );
@@ -109,11 +109,11 @@ private:
 	int				levels;
 	int				currentLevel;
 	idVec3			baseColor;
-	
+
 	// Colors used for client-side interpolation.
 	idVec3			previousBaseColor;
 	idVec3			nextBaseColor;
-	
+
 	int				count;
 	int				triggercount;
 	idEntity* 		lightParent;
@@ -121,10 +121,10 @@ private:
 	idVec4			fadeTo;
 	int				fadeStart;
 	int				fadeEnd;
-	
+
 private:
 	void			PresentEnvprobeDefChange();
-	
+
 	void			Event_GetEnvprobeParm( int parmnum );
 	void			Event_SetEnvprobeParm( int parmnum, float value );
 	void			Event_SetEnvprobeParms( float parm0, float parm1, float parm2, float parm3 );

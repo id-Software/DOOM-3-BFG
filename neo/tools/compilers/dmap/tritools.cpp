@@ -45,7 +45,7 @@ AllocTri
 mapTri_t*	AllocTri()
 {
 	mapTri_t*	tri;
-	
+
 	tri = ( mapTri_t* )Mem_Alloc( sizeof( *tri ), TAG_TOOLS );
 	memset( tri, 0, sizeof( *tri ) );
 	return tri;
@@ -72,15 +72,15 @@ This does not copy any tris, it just relinks them
 mapTri_t*	MergeTriLists( mapTri_t* a, mapTri_t* b )
 {
 	mapTri_t**	prev;
-	
+
 	prev = &a;
 	while( *prev )
 	{
 		prev = &( *prev )->next;
 	}
-	
+
 	*prev = b;
-	
+
 	return a;
 }
 
@@ -93,7 +93,7 @@ FreeTriList
 void FreeTriList( mapTri_t* a )
 {
 	mapTri_t*	next;
-	
+
 	for( ; a ; a = next )
 	{
 		next = a->next;
@@ -110,17 +110,17 @@ mapTri_t*	CopyTriList( const mapTri_t* a )
 {
 	mapTri_t*	testList;
 	const mapTri_t*	tri;
-	
+
 	testList = NULL;
 	for( tri = a ; tri ; tri = tri->next )
 	{
 		mapTri_t*	copy;
-		
+
 		copy = CopyMapTri( tri );
 		copy ->next = testList;
 		testList = copy;
 	}
-	
+
 	return testList;
 }
 
@@ -133,14 +133,14 @@ CountTriList
 int	CountTriList( const mapTri_t* tri )
 {
 	int		c;
-	
+
 	c = 0;
 	while( tri )
 	{
 		c++;
 		tri = tri->next;
 	}
-	
+
 	return c;
 }
 
@@ -153,10 +153,10 @@ CopyMapTri
 mapTri_t*	CopyMapTri( const mapTri_t* tri )
 {
 	mapTri_t*		t;
-	
+
 	t = ( mapTri_t* )Mem_Alloc( sizeof( *t ), TAG_TOOLS );
 	*t = *tri;
-	
+
 	return t;
 }
 
@@ -182,9 +182,9 @@ mapTri_t*	RemoveBadTris( const mapTri_t* list )
 	mapTri_t*	newList;
 	mapTri_t*	copy;
 	const mapTri_t*	tri;
-	
+
 	newList = NULL;
-	
+
 	for( tri = list ; tri ; tri = tri->next )
 	{
 		if( MapTriArea( tri ) > 0 )
@@ -194,7 +194,7 @@ mapTri_t*	RemoveBadTris( const mapTri_t* list )
 			newList = copy;
 		}
 	}
-	
+
 	return newList;
 }
 
@@ -222,7 +222,7 @@ DrawTri
 void DrawTri( const mapTri_t* tri )
 {
 	idWinding w;
-	
+
 	w.SetNumPoints( 3 );
 	w[0] = tri->v[0].xyz;
 	w[1] = tri->v[1].xyz;
@@ -241,21 +241,21 @@ Swaps the vertex order
 void	FlipTriList( mapTri_t* tris )
 {
 	mapTri_t*	tri;
-	
+
 	for( tri = tris ; tri ; tri = tri->next )
 	{
 		idDrawVert	v;
 		const struct hashVert_s* hv;
 		struct optVertex_s*	ov;
-		
+
 		v = tri->v[0];
 		tri->v[0] = tri->v[2];
 		tri->v[2] = v;
-		
+
 		hv = tri->hashVert[0];
 		tri->hashVert[0] = tri->hashVert[2];
 		tri->hashVert[2] = hv;
-		
+
 		ov = tri->optVert[0];
 		tri->optVert[0] = tri->optVert[2];
 		tri->optVert[2] = ov;
@@ -270,7 +270,7 @@ WindingForTri
 idWinding* WindingForTri( const mapTri_t* tri )
 {
 	idWinding*	w;
-	
+
 	w = new idWinding( 3 );
 	w->SetNumPoints( 3 );
 	( *w )[0] = tri->v[0].xyz;
@@ -290,32 +290,32 @@ void		TriVertsFromOriginal( mapTri_t* tri, const mapTri_t* original )
 {
 	int		i, j;
 	float	denom;
-	
+
 	denom = idWinding::TriangleArea( original->v[0].xyz, original->v[1].xyz, original->v[2].xyz );
 	if( denom == 0 )
 	{
 		return;		// original was degenerate, so it doesn't matter
 	}
-	
+
 	for( i = 0 ; i < 3 ; i++ )
 	{
 		float	a, b, c;
-		
+
 		// find the barycentric coordinates
 		a = idWinding::TriangleArea( tri->v[i].xyz, original->v[1].xyz, original->v[2].xyz ) / denom;
 		b = idWinding::TriangleArea( tri->v[i].xyz, original->v[2].xyz, original->v[0].xyz ) / denom;
 		c = idWinding::TriangleArea( tri->v[i].xyz, original->v[0].xyz, original->v[1].xyz ) / denom;
-		
+
 		// regenerate the interpolated values
-		
+
 		// RB begin
 		const idVec2 aST = original->v[0].GetTexCoord();
 		const idVec2 bST = original->v[1].GetTexCoord();
 		const idVec2 cST = original->v[2].GetTexCoord();
-		
+
 		tri->v[i].SetTexCoord(	a * aST.x + b * bST.x + c * cST.x,
 								a * aST.y + b * bST.y + c * cST.y );
-								
+
 		idVec3 tempNormal;
 		for( j = 0 ; j < 3 ; j++ )
 		{
@@ -343,12 +343,12 @@ mapTri_t* WindingToTriList( const idWinding* w, const mapTri_t* originalTri )
 	mapTri_t*	triList;
 	int			i, j;
 	const idVec3*	vec;
-	
+
 	if( !w )
 	{
 		return NULL;
 	}
-	
+
 	triList = NULL;
 	for( i = 2 ; i < w->GetNumPoints() ; i++ )
 	{
@@ -363,7 +363,7 @@ mapTri_t* WindingToTriList( const idWinding* w, const mapTri_t* originalTri )
 		}
 		tri->next = triList;
 		triList = tri;
-		
+
 		for( j = 0 ; j < 3 ; j++ )
 		{
 			if( j == 0 )
@@ -385,7 +385,7 @@ mapTri_t* WindingToTriList( const idWinding* w, const mapTri_t* originalTri )
 			TriVertsFromOriginal( tri, originalTri );
 		}
 	}
-	
+
 	return triList;
 }
 
@@ -401,24 +401,24 @@ void	ClipTriList( const mapTri_t* list, const idPlane& plane, float epsilon,
 	const mapTri_t* tri;
 	mapTri_t*		newList;
 	idWinding*		w, *frontW, *backW;
-	
+
 	*front = NULL;
 	*back = NULL;
-	
+
 	for( tri = list ; tri ; tri = tri->next )
 	{
 		w = WindingForTri( tri );
 		w->Split( plane, epsilon, &frontW, &backW );
-		
+
 		newList = WindingToTriList( frontW, tri );
 		*front = MergeTriLists( *front, newList );
-		
+
 		newList = WindingToTriList( backW, tri );
 		*back = MergeTriLists( *back, newList );
-		
+
 		delete w;
 	}
-	
+
 }
 
 /*

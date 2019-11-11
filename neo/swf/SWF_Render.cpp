@@ -102,15 +102,15 @@ void idSWF::Render( idRenderSystem* gui, int time, bool isSplitscreen )
 			swf_timescale.SetFloat( 0.0f );
 		}
 	}
-	
+
 	int currentTime = Sys_Milliseconds();
 	int framesToRun = 0;
-	
+
 	if( paused )
 	{
 		lastRenderTime = currentTime;
 	}
-	
+
 	if( swf_timescale.GetFloat() > 0.0f )
 	{
 		if( lastRenderTime == 0 )
@@ -135,25 +135,25 @@ void idSWF::Render( idRenderSystem* gui, int time, bool isSplitscreen )
 			mainspriteInstance->RunActions();
 		}
 	}
-	
+
 	const float pixelAspect = renderSystem->GetPixelAspect();
 	const float sysWidth = renderSystem->GetWidth() * ( pixelAspect > 1.0f ? pixelAspect : 1.0f );
 	const float sysHeight = renderSystem->GetHeight() / ( pixelAspect < 1.0f ? pixelAspect : 1.0f );
 	float scale = swfScale * sysHeight / ( float )frameHeight;
-	
+
 	swfRenderState_t renderState;
 	renderState.stereoDepth = ( stereoDepthType_t )mainspriteInstance->GetStereoDepth();
 	renderState.matrix.xx = scale;
 	renderState.matrix.yy = scale;
 	renderState.matrix.tx = 0.5f * ( sysWidth - ( frameWidth * scale ) );
 	renderState.matrix.ty = 0.5f * ( sysHeight - ( frameHeight * scale ) );
-	
+
 	renderBorder = renderState.matrix.tx / scale;
-	
+
 	scaleToVirtual.Set( ( float )renderSystem->GetVirtualWidth() / sysWidth, ( float )renderSystem->GetVirtualHeight() / sysHeight );
-	
+
 	RenderSprite( gui, mainspriteInstance, renderState, time, isSplitscreen );
-	
+
 	if( blackbars )
 	{
 		float barWidth = renderState.matrix.tx + 0.5f;
@@ -171,7 +171,7 @@ void idSWF::Render( idRenderSystem* gui, int time, bool isSplitscreen )
 			DrawStretchPic( 0.0f, sysHeight - barHeight, sysWidth, barHeight, 0, 0, 1, 1, white );
 		}
 	}
-	
+
 	if( isMouseInClientArea && ( mouseEnabled && useMouse ) && ( InhibitControl() || ( !InhibitControl() && !useInhibtControl ) ) )
 	{
 		gui->SetGLState( GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA );
@@ -187,7 +187,7 @@ void idSWF::Render( idRenderSystem* gui, int time, bool isSplitscreen )
 			DrawStretchPic( mouse.x, mouse.y, 32.0f, 32.0f, 0, 0, 1, 1, guiCursor_hand );
 		}
 	}
-	
+
 	// restore the GL State
 	gui->SetGLState( 0 );
 }
@@ -206,7 +206,7 @@ void idSWF::RenderMask( idRenderSystem* gui, const swfDisplayEntry_t* mask, cons
 	renderState2.ratio = mask->ratio;
 	renderState2.material = guiSolid;
 	renderState2.activeMasks = stencilMode;
-	
+
 	idSWFDictionaryEntry& entry = dictionary[ mask->characterID ];
 	if( entry.type == SWF_DICT_SHAPE )
 	{
@@ -239,13 +239,13 @@ void idSWF::RenderSprite( idRenderSystem* gui, idSWFSpriteInstance* spriteInstan
 	{
 		return;
 	}
-	
+
 	idStaticList<const swfDisplayEntry_t*, 256> activeMasks;
-	
+
 	for( int i = 0; i < spriteInstance->displayList.Num(); i++ )
 	{
 		const swfDisplayEntry_t& display = spriteInstance->displayList[i];
-		
+
 		for( int j = 0; j < activeMasks.Num(); j++ )
 		{
 			const swfDisplayEntry_t* mask = activeMasks[ j ];
@@ -266,9 +266,9 @@ void idSWF::RenderSprite( idRenderSystem* gui, idSWFSpriteInstance* spriteInstan
 		{
 			continue;
 		}
-		
+
 		swfRenderState_t renderState2;
-		
+
 		if( spriteInstance->stereoDepth != STEREO_DEPTH_TYPE_NONE )
 		{
 			renderState2.stereoDepth = ( stereoDepthType_t )spriteInstance->stereoDepth;
@@ -277,7 +277,7 @@ void idSWF::RenderSprite( idRenderSystem* gui, idSWFSpriteInstance* spriteInstan
 		{
 			renderState2.stereoDepth = renderState.stereoDepth;
 		}
-		
+
 		renderState2.matrix = display.matrix.Multiply( renderState.matrix );
 		renderState2.cxf = display.cxf.Multiply( renderState.cxf );
 		renderState2.ratio = display.ratio;
@@ -290,7 +290,7 @@ void idSWF::RenderSprite( idRenderSystem* gui, idSWFSpriteInstance* spriteInstan
 			renderState2.blendMode = renderState.blendMode;
 		}
 		renderState2.activeMasks = renderState.activeMasks + activeMasks.Num();
-		
+
 		if( spriteInstance->materialOverride != NULL )
 		{
 			renderState2.material = spriteInstance->materialOverride;
@@ -303,14 +303,14 @@ void idSWF::RenderSprite( idRenderSystem* gui, idSWFSpriteInstance* spriteInstan
 			renderState2.materialWidth = renderState.materialWidth;
 			renderState2.materialHeight = renderState.materialHeight;
 		}
-		
+
 		float xOffset = 0.0f;
 		float yOffset = 0.0f;
-		
+
 		if( entry->type == SWF_DICT_SPRITE )
 		{
 			display.spriteInstance->SetAlignment( spriteInstance->xOffset, spriteInstance->yOffset );
-			
+
 			if( display.spriteInstance->name[0] == '_' )
 			{
 				//if ( display.spriteInstance->name.Icmp( "_leftAlign" ) == 0 ) {
@@ -320,26 +320,26 @@ void idSWF::RenderSprite( idRenderSystem* gui, idSWFSpriteInstance* spriteInstan
 				//if ( display.spriteInstance->name.Icmp( "_rightAlign" ) == 0 ) {
 				//	renderState2.matrix.tx = ( (float)renderSystem->GetWidth() - ( ( (float)frameWidth - display.matrix.tx - adj ) * renderState.matrix.xx ) );
 				//}
-				
+
 				float widthAdj = swf_titleSafe.GetFloat() * frameWidth;
 				float heightAdj = swf_titleSafe.GetFloat() * frameHeight;
-				
+
 				const float pixelAspect = renderSystem->GetPixelAspect();
 				const float sysWidth = renderSystem->GetWidth() * ( pixelAspect > 1.0f ? pixelAspect : 1.0f );
 				const float sysHeight = renderSystem->GetHeight() / ( pixelAspect < 1.0f ? pixelAspect : 1.0f );
-				
+
 				if( display.spriteInstance->name.Icmp( "_fullScreen" ) == 0 )
 				{
 					renderState2.matrix.tx = display.matrix.tx * renderState.matrix.xx;
 					renderState2.matrix.ty = display.matrix.ty * renderState.matrix.yy;
-					
+
 					float xScale = sysWidth / ( float )frameWidth;
 					float yScale = sysHeight / ( float )frameHeight;
-					
+
 					renderState2.matrix.xx = xScale;
 					renderState2.matrix.yy = yScale;
 				}
-				
+
 				if( display.spriteInstance->name.Icmp( "_absTop" ) == 0 )
 				{
 					renderState2.matrix.ty = display.matrix.ty * renderState.matrix.yy;
@@ -375,12 +375,12 @@ void idSWF::RenderSprite( idRenderSystem* gui, idSWFSpriteInstance* spriteInstan
 					float prevX = renderState2.matrix.tx;
 					renderState2.matrix.tx = ( display.matrix.tx + widthAdj ) * renderState.matrix.xx;
 					xOffset = ( ( renderState2.matrix.tx - prevX ) / renderState.matrix.xx );
-					
-					
+
+
 					float prevY = renderState2.matrix.ty;
 					renderState2.matrix.ty = ( ( float )sysHeight - ( ( ( float )frameHeight - display.matrix.ty + heightAdj ) * renderState.matrix.yy ) );
 					yOffset = ( ( renderState2.matrix.ty - prevY ) / renderState.matrix.yy );
-					
+
 					display.spriteInstance->SetAlignment( spriteInstance->xOffset + xOffset, spriteInstance->yOffset + yOffset );
 				}
 				else if( display.spriteInstance->name.Icmp( "_absBottom" ) == 0 )
@@ -444,7 +444,7 @@ void idSWF::RenderSprite( idRenderSystem* gui, idSWFSpriteInstance* spriteInstan
 					display.spriteInstance->SetAlignment( spriteInstance->xOffset + xOffset, spriteInstance->yOffset + yOffset );
 				}
 			}
-			
+
 			RenderSprite( gui, display.spriteInstance, renderState2, time, isSplitscreen );
 		}
 		else if( entry->type == SWF_DICT_SHAPE )
@@ -464,33 +464,33 @@ void idSWF::RenderSprite( idRenderSystem* gui, idSWFSpriteInstance* spriteInstan
 			//idLib::Warning( "%s: Tried to render an unrenderable character %d", filename.c_str(), entry->type );
 		}
 	}
-	
+
 	// RB begin
 	if( swf_show.GetInteger() > 0 && !spriteInstance->name.IsEmpty() )//Icmp( "buttonBar" ) == 0 )
 	{
 		swfRect_t rect = CalcRect( spriteInstance, renderState );
-		
+
 		DrawRect( gui, rect, colorRed );
-		
+
 		if( swf_show.GetInteger() > 1 )
 		{
 			idVec4 color = colorWhite;
-			
+
 			if( spriteInstance->parent != NULL && spriteInstance->parent == mainspriteInstance )
 			{
 				color = colorCyan;
 			}
-			
+
 			idStr str;
 			//str = display.spriteInstance->name.c_str();
 			sprintf( str, "%s\n%s", spriteInstance->name.c_str(), GetName() );
-			
+
 			DrawText( gui, str, 0.35f, 0, color, swfRect_t( rect.tl.x, rect.tl.y, 300, 40 ), false );
 			//DrawText( gui, str, 0.25 * 2, 0, colorWhite, swfRect_t( rect.tl.x, rect.tl.y, 300, 40 ), false );
 		}
 	}
 	// RB end
-	
+
 	for( int j = 0; j < activeMasks.Num(); j++ )
 	{
 		const swfDisplayEntry_t* mask = activeMasks[ j ];
@@ -506,7 +506,7 @@ idSWF::GLStateForBlendMode
 uint64 idSWF::GLStateForRenderState( const swfRenderState_t& renderState )
 {
 	uint64 extraGLState = GLS_OVERRIDE | GLS_DEPTHFUNC_LESS | GLS_DEPTHMASK; // SWF GL State always overrides what's set in the material
-	
+
 	if( renderState.activeMasks > 0 )
 	{
 		extraGLState |= GLS_STENCIL_FUNC_EQUAL | GLS_STENCIL_MAKE_REF( 128 + renderState.activeMasks ) | GLS_STENCIL_MAKE_MASK( 255 );
@@ -519,7 +519,7 @@ uint64 idSWF::GLStateForRenderState( const swfRenderState_t& renderState )
 	{
 		return GLS_COLORMASK | GLS_ALPHAMASK | GLS_STENCIL_OP_FAIL_KEEP | GLS_STENCIL_OP_ZFAIL_KEEP | GLS_STENCIL_OP_PASS_DECR;
 	}
-	
+
 	switch( renderState.blendMode )
 	{
 		case 7: // difference : dst = abs( dst - src )
@@ -560,13 +560,13 @@ void idSWF::RenderMorphShape( idRenderSystem* gui, const idSWFShape* shape, cons
 		idLib::Warning( "%s: RenderMorphShape: shape == NULL", filename.c_str() );
 		return;
 	}
-	
+
 	for( int i = 0; i < shape->fillDraws.Num(); i++ )
 	{
 		const idSWFShapeDrawFill& fill = shape->fillDraws[i];
 		const idMaterial* material = NULL;
 		swfColorXform_t color;
-		
+
 		if( renderState.material != NULL )
 		{
 			material = renderState.material;
@@ -598,7 +598,7 @@ void idSWF::RenderMorphShape( idRenderSystem* gui, const idSWFShape* shape, cons
 		}
 		uint32 packedColorM = LittleLong( PackColor( color.mul ) );
 		uint32 packedColorA = LittleLong( PackColor( ( color.add * 0.5f ) + idVec4( 0.5f ) ) ); // Compress from -1..1 to 0..1
-		
+
 		swfRect_t bounds;
 		bounds.tl = Lerp( shape->startBounds.tl, shape->endBounds.tl, renderState.ratio );
 		bounds.br = Lerp( shape->startBounds.br, shape->endBounds.br, renderState.ratio );
@@ -612,7 +612,7 @@ void idSWF::RenderMorphShape( idRenderSystem* gui, const idSWFShape* shape, cons
 			size.y = renderState.materialHeight;
 		}
 		idVec2 oneOverSize( 1.0f / size.x, 1.0f / size.y );
-		
+
 		swfMatrix_t styleMatrix;
 		styleMatrix.xx = Lerp( fill.style.startMatrix.xx, fill.style.endMatrix.xx, renderState.ratio );
 		styleMatrix.yy = Lerp( fill.style.startMatrix.yy, fill.style.endMatrix.yy, renderState.ratio );
@@ -620,35 +620,35 @@ void idSWF::RenderMorphShape( idRenderSystem* gui, const idSWFShape* shape, cons
 		styleMatrix.yx = Lerp( fill.style.startMatrix.yx, fill.style.endMatrix.yx, renderState.ratio );
 		styleMatrix.tx = Lerp( fill.style.startMatrix.tx, fill.style.endMatrix.tx, renderState.ratio );
 		styleMatrix.ty = Lerp( fill.style.startMatrix.ty, fill.style.endMatrix.ty, renderState.ratio );
-		
+
 		swfMatrix_t invMatrix = styleMatrix.Inverse();
-		
+
 		gui->SetGLState( GLStateForRenderState( renderState ) );
-		
+
 		idDrawVert* verts = gui->AllocTris( fill.startVerts.Num(), fill.indices.Ptr(), fill.indices.Num(), material, renderState.stereoDepth );
 		if( verts == NULL )
 		{
 			continue;
 		}
-		
+
 		for( int j = 0; j < fill.startVerts.Num(); j++ )
 		{
 			idVec2 xy = Lerp( fill.startVerts[j], fill.endVerts[j], renderState.ratio );
-			
+
 			idVec2 st;
 			st.x = ( ( xy.x - bounds.tl.x ) * oneOverSize.x ) * 20.0f;
 			st.y = ( ( xy.y - bounds.tl.y ) * oneOverSize.y ) * 20.0f;
 			idVec2 adjust( 0.5f * oneOverSize.x, 0.5f * oneOverSize.y );
-			
+
 			ALIGNTYPE16 idDrawVert tempVert;
-			
+
 			tempVert.Clear();
 			tempVert.xyz.ToVec2() = renderState.matrix.Transform( xy ).Scale( scaleToVirtual );
 			tempVert.xyz.z = 0.0f;
 			tempVert.SetTexCoord( invMatrix.Transform( st ) + adjust );
 			tempVert.SetNativeOrderColor( packedColorM );
 			tempVert.SetNativeOrderColor2( packedColorA );
-			
+
 			WriteDrawVerts16( & verts[j], & tempVert, 1 );
 		}
 	}
@@ -666,20 +666,20 @@ void idSWF::RenderShape( idRenderSystem* gui, const idSWFShape* shape, const swf
 		idLib::Warning( "%s: RenderShape: shape == NULL", filename.c_str() );
 		return;
 	}
-	
+
 	for( int i = 0; i < shape->fillDraws.Num(); i++ )
 	{
 		const idSWFShapeDrawFill& fill = shape->fillDraws[i];
 		const idMaterial* material = NULL;
 		swfColorXform_t color;
-		
+
 		swfMatrix_t invMatrix;
 		idVec2	atlasScale( 0.0f, 0.0f );
 		idVec2	atlasBias( 0.0f, 0.0f );
 		bool	useAtlas = false;
-		
+
 		idVec2 size( 1.0f, 1.0f );
-		
+
 		if( renderState.material != NULL )
 		{
 			material = renderState.material;
@@ -693,7 +693,7 @@ void idSWF::RenderShape( idRenderSystem* gui, const idSWFShape* shape, const swf
 				continue;
 			}
 			// RB end
-			
+
 			material = guiSolid;
 			color.mul = fill.style.startColor.ToVec4();
 		}
@@ -705,7 +705,7 @@ void idSWF::RenderShape( idRenderSystem* gui, const idSWFShape* shape, const swf
 				continue;
 			}
 			// RB end
-			
+
 			// everything in a single image atlas
 			idSWFDictionaryEntry* entry = &dictionary[ fill.style.bitmapID ];
 			material = atlasMaterial;
@@ -719,7 +719,7 @@ void idSWF::RenderShape( idRenderSystem* gui, const idSWFShape* shape, const swf
 			// de-normalize color channels after DXT decompression
 			color.mul = entry->channelScale;
 			useAtlas = true;
-			
+
 			const swfMatrix_t& styleMatrix = fill.style.startMatrix;
 			invMatrix = styleMatrix.Inverse();
 		}
@@ -731,7 +731,7 @@ void idSWF::RenderShape( idRenderSystem* gui, const idSWFShape* shape, const swf
 				continue;
 			}
 			// RB end
-			
+
 			material = guiSolid;
 		}
 		color = color.Multiply( renderState.cxf );
@@ -744,10 +744,10 @@ void idSWF::RenderShape( idRenderSystem* gui, const idSWFShape* shape, const swf
 		{
 			continue;
 		}
-		
+
 		uint32 packedColorM = LittleLong( PackColor( color.mul ) );
 		uint32 packedColorA = LittleLong( PackColor( ( color.add * 0.5f ) + idVec4( 0.5f ) ) ); // Compress from -1..1 to 0..1
-		
+
 		const swfRect_t& bounds = shape->startBounds;
 		if( renderState.materialWidth > 0 )
 		{
@@ -758,28 +758,28 @@ void idSWF::RenderShape( idRenderSystem* gui, const idSWFShape* shape, const swf
 			size.y = renderState.materialHeight;
 		}
 		idVec2 oneOverSize( 1.0f / size.x, 1.0f / size.y );
-		
+
 		gui->SetGLState( GLStateForRenderState( renderState ) );
-		
+
 		idDrawVert* verts = gui->AllocTris( fill.startVerts.Num(), fill.indices.Ptr(), fill.indices.Num(), material, renderState.stereoDepth );
 		if( verts == NULL )
 		{
 			continue;
 		}
-		
+
 		ALIGNTYPE16 idDrawVert tempVerts[4];
 		for( int j = 0; j < fill.startVerts.Num(); j++ )
 		{
 			const idVec2& xy = fill.startVerts[j];
-			
+
 			idDrawVert& vert = tempVerts[j & 3];
-			
+
 			vert.Clear();
 			vert.xyz.ToVec2() = renderState.matrix.Transform( xy ).Scale( scaleToVirtual );
 			vert.xyz.z = 0.0f;
 			vert.SetNativeOrderColor( packedColorM );
 			vert.SetNativeOrderColor2( packedColorA );
-			
+
 			// For some reason I don't understand, having texcoords
 			// in the range of 2000 or so causes what should be solid
 			// fill areas to have horizontal bands on nvidia, but not 360.
@@ -795,14 +795,14 @@ void idSWF::RenderShape( idRenderSystem* gui, const idSWFShape* shape, const swf
 				{
 					st = st.Scale( atlasScale ) + atlasBias;
 				}
-				
+
 				// inset the tc - the gui may use a vmtr and the tc might end up
 				// crossing page boundaries if using [0.0,1.0]
 				st.x = idMath::ClampFloat( 0.001f, 0.999f, st.x );
 				st.y = idMath::ClampFloat( 0.001f, 0.999f, st.y );
 				vert.SetTexCoord( st );
 			}
-			
+
 			// write four verts at a time to video memory
 			if( ( j & 3 ) == 3 )
 			{
@@ -812,7 +812,7 @@ void idSWF::RenderShape( idRenderSystem* gui, const idSWFShape* shape, const swf
 		// write any remaining verts to video memory
 		WriteDrawVerts16( & verts[fill.startVerts.Num() & ~3], tempVerts, fill.startVerts.Num() & 3 );
 	}
-	
+
 	// RB begin
 	if( !swf_skipLineDraws.GetBool() )
 	{
@@ -833,28 +833,28 @@ void idSWF::RenderShape( idRenderSystem* gui, const idSWFShape* shape, const swf
 			}
 			uint32 packedColorM = LittleLong( PackColor( color.mul ) );
 			uint32 packedColorA = LittleLong( PackColor( ( color.add * 0.5f ) + idVec4( 0.5f ) ) ); // Compress from -1..1 to 0..1
-			
+
 			gui->SetGLState( GLStateForRenderState( renderState ) | GLS_POLYMODE_LINE );
-			
+
 			idDrawVert* verts = gui->AllocTris( line.startVerts.Num(), line.indices.Ptr(), line.indices.Num(), white, renderState.stereoDepth );
 			if( verts == NULL )
 			{
 				continue;
 			}
-			
+
 			for( int j = 0; j < line.startVerts.Num(); j++ )
 			{
 				const idVec2& xy = line.startVerts[j];
-				
+
 				ALIGNTYPE16 idDrawVert tempVert;
-				
+
 				tempVert.Clear();
 				tempVert.xyz.ToVec2() = renderState.matrix.Transform( xy ).Scale( scaleToVirtual );
 				tempVert.xyz.z = 0.0f;
 				tempVert.SetTexCoord( 0.0f, 0.0f );
 				tempVert.SetNativeOrderColor( packedColorM );
 				tempVert.SetNativeOrderColor2( packedColorA );
-				
+
 				WriteDrawVerts16( & verts[j], & tempVert, 1 );
 			}
 		}
@@ -888,16 +888,16 @@ void idSWF::RenderEditText( idRenderSystem* gui, idSWFTextInstance* textInstance
 		idLib::Warning( "%s: RenderEditText: textInstance == NULL", filename.c_str() );
 		return;
 	}
-	
+
 	if( !textInstance->visible )
 	{
 		return;
 	}
-	
+
 	const idSWFEditText* shape = textInstance->editText;
-	
+
 	idStr text;
-	
+
 	if( textInstance->variable.IsEmpty() )
 	{
 		if( textInstance->renderMode == SWF_TEXT_RENDER_PARAGRAPH )
@@ -933,19 +933,19 @@ void idSWF::RenderEditText( idRenderSystem* gui, idSWFTextInstance* textInstance
 			text = idLocalization::GetString( var.ToString() );
 		}
 	}
-	
+
 	if( text.Length() == 0 )
 	{
 		textInstance->selectionEnd = -1;
 		textInstance->selectionStart = -1;
 	}
-	
+
 	if( textInstance->NeedsSoundPlayed() )
 	{
 		PlaySound( textInstance->GetSoundClip() );
 		textInstance->ClearPlaySound();
 	}
-	
+
 	if( textInstance->tooltip )
 	{
 		FindTooltipIcons( &text );
@@ -954,22 +954,22 @@ void idSWF::RenderEditText( idRenderSystem* gui, idSWFTextInstance* textInstance
 	{
 		tooltipIconList.Clear();
 	}
-	
+
 	int selStart = textInstance->selectionStart;
 	int selEnd = textInstance->selectionEnd;
-	
+
 	int cursorPos = selEnd;
-	
+
 	bool inputField = false;
-	
+
 	idSWFScriptVar focusWindow = globals->Get( "focusWindow" );
 	if( focusWindow.IsObject() && focusWindow.GetObject() == &textInstance->scriptObject )
 	{
 		inputField = true;
 	}
-	
+
 	bool drawCursor = false;
-	
+
 	if( inputField && ( ( idLib::frameNumber >> 4 ) & 1 ) == 0 )
 	{
 		cursorPos = selEnd;
@@ -979,27 +979,27 @@ void idSWF::RenderEditText( idRenderSystem* gui, idSWFTextInstance* textInstance
 	{
 		SwapValues( selStart, selEnd );
 	}
-	
+
 	idVec2 xScaleVec = renderState.matrix.Scale( idVec2( 1.0f, 0.0f ) );
 	idVec2 yScaleVec = renderState.matrix.Scale( idVec2( 0.0f, 1.0f ) );
-	
+
 	float xScale = xScaleVec.Length();
 	float yScale = yScaleVec.Length();
-	
+
 	if( isSplitscreen )
 	{
 		yScale *= 0.5f;
 	}
-	
+
 	float invXScale = 1.0f / xScale;
 	float invYScale = 1.0f / yScale;
-	
+
 	swfMatrix_t matrix = renderState.matrix;
 	matrix.xx *= invXScale;
 	matrix.xy *= invXScale;
 	matrix.yy *= invYScale;
 	matrix.yx *= invYScale;
-	
+
 	idSWFDictionaryEntry* fontEntry = FindDictionaryEntry( shape->fontID, SWF_DICT_FONT );
 	if( fontEntry == NULL )
 	{
@@ -1007,15 +1007,15 @@ void idSWF::RenderEditText( idRenderSystem* gui, idSWFTextInstance* textInstance
 		return;
 	}
 	idSWFFont* swfFont = fontEntry->font;
-	
+
 	float postTransformHeight = SWFTWIP( shape->fontHeight ) * yScale;
-	
+
 	const idFont* fontInfo = swfFont->fontID;
-	
+
 	float glyphScale = postTransformHeight / 48.0f;
 	float imageScale = postTransformHeight / 24.0f;
 	textInstance->glyphScale = glyphScale;
-	
+
 	idVec4 defaultColor = textInstance->color.ToVec4();
 	defaultColor = defaultColor.Multiply( renderState.cxf.mul ) + renderState.cxf.add;
 	if( swf_forceAlpha.GetFloat() > 0.0f )
@@ -1026,35 +1026,35 @@ void idSWF::RenderEditText( idRenderSystem* gui, idSWFTextInstance* textInstance
 	{
 		return;
 	}
-	
+
 	idVec4 selColor( defaultColor );
 	selColor.w *= 0.5f;
-	
+
 	gui->SetColor( defaultColor );
 	gui->SetGLState( GLStateForRenderState( renderState ) );
-	
+
 	swfRect_t bounds;
 	bounds.tl.x = xScale * ( shape->bounds.tl.x + SWFTWIP( shape->leftMargin ) );
 	bounds.br.x = xScale * ( shape->bounds.br.x - SWFTWIP( shape->rightMargin ) );
-	
+
 	float linespacing = fontInfo->GetAscender( 1.15f * glyphScale );
 	if( shape->leading != 0 )
 	{
 		linespacing += SWFTWIP( shape->leading );
 	}
-	
+
 	bounds.tl.y = yScale * ( shape->bounds.tl.y + ( 1.15f * glyphScale ) );
 	bounds.br.y = yScale * ( shape->bounds.br.y );
-	
+
 	textInstance->linespacing = linespacing;
 	textInstance->bounds = bounds;
-	
+
 	if( shape->flags & SWF_ET_AUTOSIZE )
 	{
 		bounds.br.x = frameWidth;
 		bounds.br.y = frameHeight;
 	}
-	
+
 	if( drawCursor && cursorPos <= 0 )
 	{
 		float yPos = 0.0f;
@@ -1063,7 +1063,7 @@ void idSWF::RenderEditText( idRenderSystem* gui, idSWFTextInstance* textInstance
 		yPos = glyph.height / 2.0f;
 		DrawEditCursor( gui, bounds.tl.x, yPos, 1.0f, linespacing, matrix );
 	}
-	
+
 	if( textInstance->IsSubtitle() )
 	{
 		if( text.IsEmpty() && textInstance->subtitleText.IsEmpty() )
@@ -1075,35 +1075,35 @@ void idSWF::RenderEditText( idRenderSystem* gui, idSWFTextInstance* textInstance
 	{
 		return;
 	}
-	
+
 	float x = bounds.tl.x;
 	float y = bounds.tl.y;
-	
+
 	int maxLines = idMath::Ftoi( ( bounds.br.y - bounds.tl.y ) / linespacing );
 	if( maxLines == 0 )
 	{
 		maxLines = 1;
 	}
-	
+
 	textInstance->maxLines = maxLines;
-	
+
 	idList< idStr > textLines;
 	idStr* currentLine = &textLines.Alloc();
-	
+
 	// tracks the last breakable character we found
 	int lastbreak = 0;
 	float lastbreakX = 0;
-	
+
 	bool insertingImage = false;
 	int iconIndex = 0;
-	
+
 	int charIndex = 0;
-	
+
 	if( textInstance->IsSubtitle() )
 	{
 		charIndex = textInstance->GetSubStartIndex();
 	}
-	
+
 	while( charIndex < text.Length() )
 	{
 		if( text[ charIndex ] == '\n' )
@@ -1132,16 +1132,16 @@ void idSWF::RenderEditText( idRenderSystem* gui, idSWFTextInstance* textInstance
 		{
 			glyphSkip += ( swf_textStrokeSizeGlyphSpacer.GetFloat() * textInstance->GetStrokeWeight() * glyphScale );
 		}
-		
+
 		tooltipIcon_t iconCheck;
-		
+
 		if( iconIndex < tooltipIconList.Num() )
 		{
 			iconCheck = tooltipIconList[iconIndex];
 		}
-		
+
 		float imageSkip = 0.0f;
-		
+
 		if( charIndex - 1 == iconCheck.startIndex )
 		{
 			insertingImage = true;
@@ -1153,12 +1153,12 @@ void idSWF::RenderEditText( idRenderSystem* gui, idSWFTextInstance* textInstance
 			iconIndex++;
 			glyphSkip = 0.0f;
 		}
-		
+
 		if( insertingImage )
 		{
 			glyphSkip = 0.0f;
 		}
-		
+
 		if( !inputField )    // only break lines of text when we are not inputting data
 		{
 			if( x + glyphSkip > bounds.br.x || x + imageSkip > bounds.br.x )
@@ -1208,16 +1208,16 @@ void idSWF::RenderEditText( idRenderSystem* gui, idSWFTextInstance* textInstance
 			lastbreakX = x;
 		}
 	}
-	
+
 	// Subtitle functionality
 	if( textInstance->IsSubtitle() && textInstance->IsUpdatingSubtitle() )
 	{
 		if( textLines.Num() > 0 && textInstance->SubNeedsSwitch() )
 		{
-		
+
 			int lastWordIndex = textInstance->GetApporoximateSubtitleBreak( time );
 			int newEndChar = textInstance->GetSubStartIndex() + textLines[0].Length();
-			
+
 			int wordCount = 0;
 			bool earlyOut = false;
 			for( int index = 0; index < textLines[0].Length(); ++index )
@@ -1232,7 +1232,7 @@ void idSWF::RenderEditText( idRenderSystem* gui, idSWFTextInstance* textInstance
 							earlyOut = true;
 							break;
 						}
-						
+
 						// cover the double space at the beginning of sentences
 						if( index > 0 && textLines[0][index - 1 ] != ' ' )
 						{
@@ -1251,19 +1251,19 @@ void idSWF::RenderEditText( idRenderSystem* gui, idSWFTextInstance* textInstance
 					wordCount++;
 				}
 			}
-			
+
 			if( wordCount <= 0 && textLines[0].Length() > 0 )
 			{
 				wordCount = 1;
 			}
-			
+
 			if( !earlyOut )
 			{
 				textInstance->LastWordChanged( wordCount, time );
 			}
-			
+
 			textInstance->SetSubEndIndex( newEndChar, time );
-			
+
 			idStr subText = textLines[0].Left( newEndChar - textInstance->GetSubStartIndex() );
 			idSWFParmList parms;
 			parms.Append( subText );
@@ -1271,11 +1271,11 @@ void idSWF::RenderEditText( idRenderSystem* gui, idSWFTextInstance* textInstance
 			parms.Append( textInstance->GetSubAlignment() );
 			Invoke( "subtitleChanged", parms );
 			parms.Clear();
-			
+
 			textInstance->SetSubNextStartIndex( textInstance->GetSubEndIndex() );
 			textInstance->SwitchSubtitleText( time );
 		}
-		
+
 		if( !textInstance->UpdateSubtitle( time ) )
 		{
 			textInstance->SubtitleComplete();
@@ -1286,16 +1286,16 @@ void idSWF::RenderEditText( idRenderSystem* gui, idSWFTextInstance* textInstance
 			textInstance->SubtitleCleanup();
 		}
 	}
-	
+
 	//*************************************************
 	// CALCULATE THE NUMBER OF SCROLLS LINES LEFT
 	//*************************************************
-	
+
 	textInstance->CalcMaxScroll( textLines.Num() - maxLines );
-	
+
 	int c = 1;
 	int textLine = textInstance->scroll;
-	
+
 	if( textLine + maxLines > textLines.Num() && maxLines < textLines.Num() )
 	{
 		textLine = textLines.Num() - maxLines;
@@ -1311,12 +1311,12 @@ void idSWF::RenderEditText( idRenderSystem* gui, idSWFTextInstance* textInstance
 		textLine = textLines.Num() - maxLines;
 		textInstance->scroll = textInstance->maxscroll;
 	}
-	
+
 	// END SCROLL CALCULATION
 	//*************************************************
-	
+
 	int index = 0;
-	
+
 	int startCharacter = 0;
 	int endCharacter = 0;
 	int inputEndChar = 0;
@@ -1325,10 +1325,10 @@ void idSWF::RenderEditText( idRenderSystem* gui, idSWFTextInstance* textInstance
 	int curIcon = 0;
 	float yPrevBottomOffset = 0.0f;
 	float yOffset = 0;
-	
+
 	int strokeXOffsets[] = { -1, 1, -1, 1 };
 	int strokeYOffsets[] = { -1, -1, 1, 1 };
-	
+
 	idStr inputText;
 	if( inputField )
 	{
@@ -1336,19 +1336,19 @@ void idSWF::RenderEditText( idRenderSystem* gui, idSWFTextInstance* textInstance
 		{
 			idStr& text = textLines[0];
 			float left = bounds.tl.x;
-			
+
 			int startCheckIndex = textInstance->GetInputStartChar();
-			
+
 			if( startCheckIndex >= text.Length() )
 			{
 				startCheckIndex = 0;
 			}
-			
+
 			if( cursorPos < startCheckIndex && cursorPos >= 0 )
 			{
 				startCheckIndex = cursorPos;
 			}
-			
+
 			bool endFound = false;
 			int c = startCheckIndex;
 			while( c < text.Length() )
@@ -1361,14 +1361,14 @@ void idSWF::RenderEditText( idRenderSystem* gui, idSWFTextInstance* textInstance
 				{
 					glyphSkip += ( swf_textStrokeSizeGlyphSpacer.GetFloat() * textInstance->GetStrokeWeight() * glyphScale );
 				}
-				
+
 				if( left + glyphSkip > bounds.br.x )
 				{
 					if( cursorPos > c && cursorPos != endCharacter )
 					{
-					
+
 						float removeSize = 0.0f;
-						
+
 						while( removeSize < glyphSkip )
 						{
 							if( endCharacter == c )
@@ -1379,7 +1379,7 @@ void idSWF::RenderEditText( idRenderSystem* gui, idSWFTextInstance* textInstance
 							fontInfo->GetScaledGlyph( glyphScale, inputText[ endCharacter++ ], removeGlyph );
 							removeSize += removeGlyph.xSkip;
 						}
-						
+
 						left -= removeSize;
 					}
 					else
@@ -1392,26 +1392,26 @@ void idSWF::RenderEditText( idRenderSystem* gui, idSWFTextInstance* textInstance
 				inputText.AppendUTF8Char( tc );
 				left += glyphSkip;
 			}
-			
+
 			if( !endFound )
 			{
 				inputEndChar = text.Length();
 			}
-			
+
 			startCheckIndex += endCharacter;
 			textInstance->SetInputStartCharacter( startCheckIndex );
 			endCharacter = startCheckIndex;
 		}
 	}
-	
+
 	for( int t = 0; t < textLines.Num(); t++ )
 	{
-	
+
 		if( textInstance->IsSubtitle() && t > 0 )
 		{
 			break;
 		}
-		
+
 		if( t < textLine )
 		{
 			idStr& text = textLines[t];
@@ -1419,7 +1419,7 @@ void idSWF::RenderEditText( idRenderSystem* gui, idSWFTextInstance* textInstance
 			startCharacter = endCharacter;
 			endCharacter = startCharacter + text.Length();
 			overallIndex += text.Length();
-			
+
 			// find the right icon index if we scrolled passed the previous ones
 			for( int iconChar = curIcon; iconChar < tooltipIconList.Num(); ++iconChar )
 			{
@@ -1432,26 +1432,26 @@ void idSWF::RenderEditText( idRenderSystem* gui, idSWFTextInstance* textInstance
 					break;
 				}
 			}
-			
+
 			continue;
 		}
-		
+
 		if( index == maxLines )
 		{
 			break;
 		}
-		
+
 		startCharacter = endCharacter;
-		
+
 		idStr& text = textLines[textLine];
 		int lastChar = text.Length();
 		if( textInstance->IsSubtitle() )
 		{
 			lastChar = textInstance->GetSubEndIndex();
 		}
-		
+
 		textLine++;
-		
+
 		if( inputField )
 		{
 			if( inputEndChar == 0 )
@@ -1467,7 +1467,7 @@ void idSWF::RenderEditText( idRenderSystem* gui, idSWFTextInstance* textInstance
 		}
 		else
 		{
-		
+
 			if( lastChar == 0 )
 			{
 				// blank line so add space char
@@ -1478,7 +1478,7 @@ void idSWF::RenderEditText( idRenderSystem* gui, idSWFTextInstance* textInstance
 				endCharacter = startCharacter + lastChar;
 			}
 		}
-		
+
 		float width = 0.0f;
 		insertingImage = false;
 		int i = 0;
@@ -1508,38 +1508,38 @@ void idSWF::RenderEditText( idRenderSystem* gui, idSWFTextInstance* textInstance
 				}
 			}
 		}
-		
+
 		y = bounds.tl.y + ( index * linespacing );
-		
+
 		float biggestGlyphHeight = 0.0f;
 		/*for ( int image = 0; image < tooltipIconList.Num(); ++image ) {
 			if ( tooltipIconList[image].startIndex >= startCharacter && tooltipIconList[image].endIndex < endCharacter ) {
 				biggestGlyphHeight = tooltipIconList[image].imageHeight > biggestGlyphHeight ? tooltipIconList[image].imageHeight : biggestGlyphHeight;
 			}
 		}*/
-		
+
 		float yBottomOffset = 0.0f;
 		float yTopOffset = 0.0f;
-		
+
 		if( biggestGlyphHeight > 0.0f )
 		{
-		
+
 			float topSpace = 0.0f;
 			float bottomSpace = 0.0f;
-			
+
 			int idx = 0;
 			scaledGlyphInfo_t glyph;
 			fontInfo->GetScaledGlyph( glyphScale, text.UTF8Char( idx ), glyph );
-			
+
 			topSpace = ( ( biggestGlyphHeight * imageScale ) - glyph.height ) / 2.0f;
-			
+
 			bottomSpace = topSpace;
-			
+
 			if( topSpace > 0.0f && t != 0 )
 			{
 				yTopOffset += topSpace;
 			}
-			
+
 			if( bottomSpace > 0.0f )
 			{
 				yBottomOffset += bottomSpace;
@@ -1549,7 +1549,7 @@ void idSWF::RenderEditText( idRenderSystem* gui, idSWFTextInstance* textInstance
 		{
 			yBottomOffset = 0.0f;
 		}
-		
+
 		if( t != 0 )
 		{
 			if( yPrevBottomOffset > 0 || yTopOffset > 0 )
@@ -1557,10 +1557,10 @@ void idSWF::RenderEditText( idRenderSystem* gui, idSWFTextInstance* textInstance
 				yOffset += yTopOffset > yPrevBottomOffset ? yTopOffset : yPrevBottomOffset;
 			}
 		}
-		
+
 		y += yOffset;
 		yPrevBottomOffset = yBottomOffset;
-		
+
 		float extraSpace = 0.0f;
 		switch( shape->align )
 		{
@@ -1581,10 +1581,10 @@ void idSWF::RenderEditText( idRenderSystem* gui, idSWFTextInstance* textInstance
 				}
 				break;
 		}
-		
+
 		tooltipIcon_t icon;
 		insertingImage = false;
-		
+
 		// find the right icon index if we scrolled passed the previous ones
 		for( int iconChar = iconIndex; iconChar < tooltipIconList.Num(); ++iconChar )
 		{
@@ -1597,20 +1597,20 @@ void idSWF::RenderEditText( idRenderSystem* gui, idSWFTextInstance* textInstance
 				break;
 			}
 		}
-		
+
 		float baseLine = y + ( fontInfo->GetAscender( glyphScale ) );
-		
+
 		i = 0;
 		int overallLineIndex = 0;
 		idVec4 textColor = defaultColor;
 		while( i < lastChar )
 		{
-		
+
 			if( i >= text.Length() )
 			{
 				break;
 			}
-			
+
 			// Support colors
 			if( !textInstance->ignoreColor )
 			{
@@ -1632,9 +1632,9 @@ void idSWF::RenderEditText( idRenderSystem* gui, idSWFTextInstance* textInstance
 					}
 				}
 			}
-			
+
 			uint32 character = text.UTF8Char( i );
-			
+
 			if( character == '\n' )
 			{
 				c++;
@@ -1642,7 +1642,7 @@ void idSWF::RenderEditText( idRenderSystem* gui, idSWFTextInstance* textInstance
 				overallLineIndex = i;;
 				continue;
 			}
-			
+
 			// Skip a single leading space
 			if( character == ' ' && i == 1 )
 			{
@@ -1651,22 +1651,22 @@ void idSWF::RenderEditText( idRenderSystem* gui, idSWFTextInstance* textInstance
 				overallLineIndex = i;
 				continue;
 			}
-			
+
 			if( iconIndex <  tooltipIconList.Num() )
 			{
 				icon = tooltipIconList[iconIndex];
 			}
-			
+
 			if( overallIndex == icon.startIndex )
 			{
 				insertingImage = true;
-				
+
 				scaledGlyphInfo_t glyph;
 				fontInfo->GetScaledGlyph( glyphScale, character, glyph );
-				
+
 				float imageHeight = icon.imageHeight * imageScale;
 				float glyphHeight = glyph.height;
-				
+
 				float imageY = 0.0f;
 				if( icon.baseline == 0 )
 				{
@@ -1678,67 +1678,67 @@ void idSWF::RenderEditText( idRenderSystem* gui, idSWFTextInstance* textInstance
 				{
 					imageY = ( y + glyphHeight ) - ( ( icon.imageHeight * imageScale ) - ( glyphHeight ) );
 				}
-				
+
 				float imageX = x + glyph.left;
 				float imageW = icon.imageWidth * imageScale;
 				float imageH = icon.imageHeight * imageScale;
-				
+
 				idVec2 topl = matrix.Transform( idVec2( imageX, imageY ) );
 				idVec2 topr = matrix.Transform( idVec2( imageX + imageW, imageY ) );
 				idVec2 br = matrix.Transform( idVec2( imageX + imageW, imageY + imageH ) );
 				idVec2 bl = matrix.Transform( idVec2( imageX, imageY + imageH ) );
-				
+
 				float s1 = 0.0f;
 				float t1 = 0.0f;
 				float s2 = 1.0f;
 				float t2 = 1.0f;
-				
+
 				//uint32 color = gui->GetColor();
 				idVec4 imgColor = colorWhite;
 				imgColor.w = defaultColor.w;
 				gui->SetColor( imgColor );
 				DrawStretchPic( idVec4( topl.x, topl.y, s1, t1 ), idVec4( topr.x, topr.y, s2, t1 ), idVec4( br.x, br.y, s2, t2 ), idVec4( bl.x, bl.y, s1, t2 ), icon.material );
 				gui->SetColor( defaultColor );
-				
+
 				x += icon.imageWidth * imageScale;
 				x += extraSpace;
-				
+
 			}
 			else if( overallIndex == icon.endIndex )
 			{
 				insertingImage = false;
 				iconIndex++;
 			}
-			
+
 			if( insertingImage )
 			{
 				overallIndex += i - overallLineIndex;
 				overallLineIndex = i;
 				continue;
 			}
-			
+
 			// the glyphs texcoords assume nearest filtering, to get proper
 			// bilinear support we need to go an extra half texel on each side
 			scaledGlyphInfo_t glyph;
 			fontInfo->GetScaledGlyph( glyphScale, character, glyph );
-			
+
 			float glyphSkip = glyph.xSkip;
 			if( textInstance->HasStroke() )
 			{
 				glyphSkip += ( swf_textStrokeSizeGlyphSpacer.GetFloat() * textInstance->GetStrokeWeight() * glyphScale );
 			}
-			
+
 			float glyphW = glyph.width + 1.0f;	// +1 for bilinear half texel on each side
 			float glyphH = glyph.height + 1.0f;
-			
+
 			float glyphY = baseLine - glyph.top;
 			float glyphX = x + glyph.left;
-			
+
 			idVec2 topl = matrix.Transform( idVec2( glyphX, glyphY ) );
 			idVec2 topr = matrix.Transform( idVec2( glyphX + glyphW, glyphY ) );
 			idVec2 br = matrix.Transform( idVec2( glyphX + glyphW, glyphY + glyphH ) );
 			idVec2 bl = matrix.Transform( idVec2( glyphX, glyphY + glyphH ) );
-			
+
 			float s1 = glyph.s1;
 			float t1 = glyph.t1;
 			float s2 = glyph.s2;
@@ -1753,18 +1753,18 @@ void idSWF::RenderEditText( idRenderSystem* gui, idSWFTextInstance* textInstance
 				DrawStretchPic( idVec4( topl.x, topl.y, 0, 0 ), idVec4( topr.x, topr.y, 1, 0 ), idVec4( br.x, br.y, 1, 1 ), idVec4( bl.x, bl.y, 0, 1 ), white );
 				gui->SetColor( textColor );
 			}
-			
+
 			if( textInstance->GetHasDropShadow() )
 			{
-			
+
 				float dsY = glyphY + glyphScale * 2.0f;
 				float dsX = glyphX + glyphScale * 2.0f;
-				
+
 				idVec2 dstopl = matrix.Transform( idVec2( dsX, dsY ) );
 				idVec2 dstopr = matrix.Transform( idVec2( dsX + glyphW, dsY ) );
 				idVec2 dsbr = matrix.Transform( idVec2( dsX + glyphW, dsY + glyphH ) );
 				idVec2 dsbl = matrix.Transform( idVec2( dsX, dsY + glyphH ) );
-				
+
 				idVec4 dsColor = colorBlack;
 				dsColor.w = defaultColor.w;
 				gui->SetColor( dsColor );
@@ -1773,7 +1773,7 @@ void idSWF::RenderEditText( idRenderSystem* gui, idSWFTextInstance* textInstance
 			}
 			else if( textInstance->HasStroke() )
 			{
-			
+
 				idVec4 strokeColor = colorBlack;
 				strokeColor.w = textInstance->GetStrokeStrength() * defaultColor.w;
 				gui->SetColor( strokeColor );
@@ -1789,7 +1789,7 @@ void idSWF::RenderEditText( idRenderSystem* gui, idSWFTextInstance* textInstance
 				}
 				gui->SetColor( textColor );
 			}
-			
+
 			DrawStretchPic( idVec4( topl.x, topl.y, s1, t1 ), idVec4( topr.x, topr.y, s2, t1 ), idVec4( br.x, br.y, s2, t2 ), idVec4( bl.x, bl.y, s1, t2 ), glyph.material );
 			x += glyphSkip;
 			x += extraSpace;
@@ -1801,7 +1801,7 @@ void idSWF::RenderEditText( idRenderSystem* gui, idSWFTextInstance* textInstance
 			overallIndex += i - overallLineIndex;
 			overallLineIndex = i;
 		}
-		
+
 		index++;
 	}
 }
@@ -1817,7 +1817,7 @@ void idSWF::FindTooltipIcons( idStr* text )
 {
 
 	tooltipIconList.Clear();
-	
+
 	for( int i = UB_MAX_BUTTONS - 1; i >= 0; i-- )
 	{
 		//for ( userCmdString_t * ucs = userCmdStrings ; ucs->string ; ucs++ ) {
@@ -1825,15 +1825,15 @@ void idSWF::FindTooltipIcons( idStr* text )
 		if( ucs.string && idStr::FindText( text->c_str(), ucs.string, false ) != idStr::INVALID_POSITION )
 		{
 			idStr replacement;
-			
+
 			keyBindings_t bind = idKeyInput::KeyBindingsFromBinding( ucs.string, true );
 			idStr gamepad = "<";
 			gamepad.Append( bind.gamepad );
 			gamepad.Append( ">" );
-			
+
 			if( !in_useJoystick.GetBool() )
 			{
-			
+
 				if( !bind.mouse.IsEmpty() )
 				{
 					replacement.Format( "<%s>", bind.mouse.c_str() );
@@ -1858,7 +1858,7 @@ void idSWF::FindTooltipIcons( idStr* text )
 			}
 		}
 	}
-	
+
 	for( int count = 0; count < tooltipButtonImage.Num(); ++count )
 	{
 		int index = -1;
@@ -1867,9 +1867,9 @@ void idSWF::FindTooltipIcons( idStr* text )
 			tooltipIcon_t icon;
 			icon.startIndex = index;
 			icon.endIndex = index + idStr::Length( tooltipButtonImage[count].key );
-			
+
 			icon.material = declManager->FindMaterial( tooltipButtonImage[count].xbImage );
-			
+
 			if( icon.material )
 			{
 				icon.imageWidth = tooltipButtonImage[count].width;
@@ -1882,7 +1882,7 @@ void idSWF::FindTooltipIcons( idStr* text )
 				icon.imageHeight = 0;
 				icon.baseline = 0;
 			}
-			
+
 			bool inserted = false;
 			if( tooltipIconList.Num() > 0 )
 			{
@@ -1896,7 +1896,7 @@ void idSWF::FindTooltipIcons( idStr* text )
 					}
 				}
 			}
-			
+
 			if( !inserted )
 			{
 				tooltipIconList.Append( icon );
@@ -1913,31 +1913,31 @@ swfRect_t idSWF::CalcRect( const idSWFSpriteInstance* spriteInstance, const swfR
 	bounds.tl.y = renderState.matrix.ty;
 	bounds.br.x = renderState.matrix.tx;
 	bounds.br.y = renderState.matrix.ty;
-	
+
 	if( spriteInstance == NULL )
 	{
 		idLib::Warning( "%s: CalcRect: spriteInstance == NULL", filename.c_str() );
 		return bounds;
 	}
-	
+
 #if 1
 	for( int i = 0; i < spriteInstance->displayList.Num(); i++ )
 	{
 		const swfDisplayEntry_t& display = spriteInstance->displayList[i];
-		
+
 		idSWFDictionaryEntry* entry = FindDictionaryEntry( display.characterID );
 		if( entry == NULL )
 		{
 			continue;
 		}
-		
+
 		swfRenderState_t renderState2;
 		renderState2.matrix = display.matrix.Multiply( renderState.matrix );
-		
+
 		if( entry->type == SWF_DICT_SPRITE )
 		{
 			swfRect_t spriteBounds = CalcRect( display.spriteInstance, renderState2 );
-			
+
 			if( spriteBounds.tl.x < bounds.tl.x )
 			{
 				bounds.tl.x = spriteBounds.tl.x;
@@ -1946,7 +1946,7 @@ swfRect_t idSWF::CalcRect( const idSWFSpriteInstance* spriteInstance, const swfR
 			{
 				bounds.br.x = spriteBounds.br.x;
 			}
-			
+
 			if( spriteBounds.tl.y < bounds.tl.y )
 			{
 				bounds.tl.y = spriteBounds.tl.y;
@@ -1959,17 +1959,17 @@ swfRect_t idSWF::CalcRect( const idSWFSpriteInstance* spriteInstance, const swfR
 		else if( entry->type == SWF_DICT_SHAPE )
 		{
 			const idSWFShape* shape = entry->shape;
-			
+
 			for( int i = 0; i < shape->fillDraws.Num(); i++ )
 			{
 				const idSWFShapeDrawFill& fill = shape->fillDraws[i];
-				
+
 				for( int j = 0; j < fill.startVerts.Num(); j++ )
 				{
 					const idVec2& xy = fill.startVerts[j];
-					
+
 					idVec2 p = renderState.matrix.Transform( xy );//.Scale( scaleToVirtual );
-					
+
 					if( p.x < bounds.tl.x )
 					{
 						bounds.tl.x = p.x;
@@ -1978,7 +1978,7 @@ swfRect_t idSWF::CalcRect( const idSWFSpriteInstance* spriteInstance, const swfR
 					{
 						bounds.br.x = p.x;
 					}
-					
+
 					if( p.y < bounds.tl.y )
 					{
 						bounds.tl.y = p.y;
@@ -2004,21 +2004,21 @@ swfRect_t idSWF::CalcRect( const idSWFSpriteInstance* spriteInstance, const swfR
 		}
 	}
 #endif
-	
+
 	return bounds;
 }
 
 void idSWF::DrawRect( idRenderSystem* gui, const swfRect_t& rect, const idVec4& color )
 {
 	renderSystem->SetColor( color );
-	
+
 	float x = rect.tl.x;
 	float y = rect.tl.y;
 	float w = fabs( rect.br.x - rect.tl.x );
 	float h = fabs( rect.br.y - rect.tl.y );
-	
+
 	float size = 1;
-	
+
 	DrawStretchPic( x, y, size, h, 0, 0, 0, 0, white );
 	DrawStretchPic( x + w - size, y, size, h, 0, 0, 0, 0, white );
 	DrawStretchPic( x, y, w, size, 0, 0, 0, 0, white );
@@ -2035,9 +2035,9 @@ int idSWF::DrawText( idRenderSystem* gui, float x, float y, float scale, idVec4 
 		return idDeviceContext::DrawText( x, y, scale, color, text, adjust, limit, style, cursor );
 	}
 	*/
-	
+
 	idStr drawText = text;
-	
+
 	if( drawText.Length() == 0 )
 	{
 		return 0;
@@ -2046,16 +2046,16 @@ int idSWF::DrawText( idRenderSystem* gui, float x, float y, float scale, idVec4 
 	{
 		return 0;
 	}
-	
+
 	const uint32 currentColor = PackColor( color );
 	uint32 currentColorNativeByteOrder = LittleLong( currentColor );
-	
+
 	int len = drawText.Length();
 	if( limit > 0 && len > limit )
 	{
 		len = limit;
 	}
-	
+
 	int charIndex = 0;
 	while( charIndex < drawText.Length() )
 	{
@@ -2079,10 +2079,10 @@ int idSWF::DrawText( idRenderSystem* gui, float x, float y, float scale, idVec4 
 			currentColorNativeByteOrder = LittleLong( PackColor( newColor ) );
 			continue;
 		}
-		
+
 		scaledGlyphInfo_t glyphInfo;
 		debugFont->GetScaledGlyph( scale, textChar, glyphInfo );
-		
+
 		// PaintChar( x, y, glyphInfo );
 		float drawY = y - glyphInfo.top;
 		float drawX = x + glyphInfo.left;
@@ -2092,12 +2092,12 @@ int idSWF::DrawText( idRenderSystem* gui, float x, float y, float scale, idVec4 
 		float t = glyphInfo.t1;
 		float s2 = glyphInfo.s2;
 		float t2 = glyphInfo.t2;
-		
+
 		float xOffset = 0;
 		float yOffset = 0;
-		
+
 		//idDrawVert* verts = gui->AllocTris( fill.startVerts.Num(), fill.indices.Ptr(), fill.indices.Num(), material, renderState.stereoDepth );
-		
+
 		//if( !ClippedCoords( &drawX, &drawY, &w, &h, &s, &t, &s2, &t2 ) )
 		{
 			float x1 = xOffset + drawX * scaleToVirtual.x;
@@ -2113,21 +2113,21 @@ int idSWF::DrawText( idRenderSystem* gui, float x, float y, float scale, idVec4 
 				verts[0].SetTexCoord( s, t );
 				verts[0].SetNativeOrderColor( currentColorNativeByteOrder );
 				verts[0].ClearColor2();
-				
+
 				verts[1].xyz[0] = x2;
 				verts[1].xyz[1] = y1;
 				verts[1].xyz[2] = 0.0f;
 				verts[1].SetTexCoord( s2, t );
 				verts[1].SetNativeOrderColor( currentColorNativeByteOrder );
 				verts[1].ClearColor2();
-				
+
 				verts[2].xyz[0] = x2;
 				verts[2].xyz[1] = y2;
 				verts[2].xyz[2] = 0.0f;
 				verts[2].SetTexCoord( s2, t2 );
 				verts[2].SetNativeOrderColor( currentColorNativeByteOrder );
 				verts[2].ClearColor2();
-				
+
 				verts[3].xyz[0] = x1;
 				verts[3].xyz[1] = y2;
 				verts[3].xyz[2] = 0.0f;
@@ -2136,7 +2136,7 @@ int idSWF::DrawText( idRenderSystem* gui, float x, float y, float scale, idVec4 
 				verts[3].ClearColor2();
 			}
 		}
-		
+
 		x += glyphInfo.xSkip + adjust;
 	}
 	return drawText.Length();
@@ -2150,19 +2150,19 @@ int idSWF::DrawText( idRenderSystem* gui, const char* text, float textScale, int
 	float		y = 0.0f;
 	float		textWidth = 0.0f;
 	float		textWidthAtLastBreak = 0.0f;
-	
+
 	float		charSkip = idMath::Ftoi( debugFont->GetMaxCharWidth( textScale ) ) + 1;
 	float		lineSkip = idMath::Ftoi( debugFont->GetMaxCharWidth( textScale ) );
-	
+
 	bool		lineBreak = false;
 	bool		wordBreak = false;
-	
+
 	float		rectWidth = fabs( rectDraw.br.x - rectDraw.tl.x );
 	float		rectHeight = fabs( rectDraw.br.y - rectDraw.tl.y );
-	
+
 	idStr drawText = text;
 	idStr textBuffer;
-	
+
 	if( !calcOnly && !( text && *text ) )
 	{
 		//if( cursor == 0 )
@@ -2172,18 +2172,18 @@ int idSWF::DrawText( idRenderSystem* gui, const char* text, float textScale, int
 		//}
 		return idMath::Ftoi( rectWidth / charSkip );
 	}
-	
+
 	y = lineSkip + rectDraw.y();
-	
+
 	if( breaks )
 	{
 		breaks->Append( 0 );
 	}
-	
+
 	while( charIndex < drawText.Length() )
 	{
 		uint32 textChar = drawText.UTF8Char( charIndex );
-		
+
 		// See if we need to start a new line.
 		if( textChar == '\n' || textChar == '\r' || charIndex == drawText.Length() )
 		{
@@ -2199,21 +2199,21 @@ int idSWF::DrawText( idRenderSystem* gui, const char* text, float textScale, int
 				}
 			}
 		}
-		
+
 		// Check for escape colors if not then simply get the glyph width.
 		if( textChar == C_COLOR_ESCAPE && charIndex < drawText.Length() )
 		{
 			textBuffer.AppendUTF8Char( textChar );
 			textChar = drawText.UTF8Char( charIndex );
 		}
-		
+
 		// If the character isn't a new line then add it to the text buffer.
 		if( textChar != '\n' && textChar != '\r' )
 		{
 			textWidth += debugFont->GetGlyphWidth( textScale, textChar );
 			textBuffer.AppendUTF8Char( textChar );
 		}
-		
+
 		if( !lineBreak && ( textWidth > rectWidth ) )
 		{
 			// The next character will cause us to overflow, if we haven't yet found a suitable
@@ -2231,17 +2231,17 @@ int idSWF::DrawText( idRenderSystem* gui, const char* text, float textScale, int
 			lastBreak = textBuffer.Length();
 			textWidthAtLastBreak = textWidth;
 		}
-		
+
 		// We need to go to a new line
 		if( lineBreak || wordBreak )
 		{
 			float x = rectDraw.tl.x;
-			
+
 			if( textWidthAtLastBreak > 0 )
 			{
 				textWidth = textWidthAtLastBreak;
 			}
-			
+
 			// Align text if needed
 #if 0
 			if( textAlign == ALIGN_RIGHT )
@@ -2253,7 +2253,7 @@ int idSWF::DrawText( idRenderSystem* gui, const char* text, float textScale, int
 				x = rectDraw.tl.x + ( rectWidth - textWidth ) / 2;
 			}
 #endif
-			
+
 			if( wrap || lastBreak > 0 )
 			{
 				// This is a special case to handle breaking in the middle of a word.
@@ -2264,7 +2264,7 @@ int idSWF::DrawText( idRenderSystem* gui, const char* text, float textScale, int
 					cursor++;
 				}
 			}
-			
+
 			// Draw what's in the current text buffer.
 			if( !calcOnly )
 			{
@@ -2279,7 +2279,7 @@ int idSWF::DrawText( idRenderSystem* gui, const char* text, float textScale, int
 					textBuffer.Clear();
 				}
 			}
-			
+
 			if( cursor < lastBreak )
 			{
 				cursor = -1;
@@ -2288,39 +2288,39 @@ int idSWF::DrawText( idRenderSystem* gui, const char* text, float textScale, int
 			{
 				cursor -= ( lastBreak + 1 );
 			}
-			
+
 			// If wrap is disabled return at this point.
 			if( !wrap )
 			{
 				return lastBreak;
 			}
-			
+
 			// If we've hit the allowed character limit then break.
 			if( limit && count > limit )
 			{
 				break;
 			}
-			
+
 			y += lineSkip + 5;
-			
+
 			if( !calcOnly && y > rectDraw.Bottom() )
 			{
 				break;
 			}
-			
+
 			// If breaks were requested then make a note of this one.
 			if( breaks )
 			{
 				breaks->Append( drawText.Length() - charIndex );
 			}
-			
+
 			// Reset necessary parms for next line.
 			lastBreak = 0;
 			textWidth = 0;
 			textWidthAtLastBreak = 0;
 			lineBreak = false;
 			wordBreak = false;
-			
+
 			// Reassess the remaining width
 			for( int i = 0; i < textBuffer.Length(); )
 			{
@@ -2329,10 +2329,10 @@ int idSWF::DrawText( idRenderSystem* gui, const char* text, float textScale, int
 					textWidth += debugFont->GetGlyphWidth( textScale, textBuffer.UTF8Char( i ) );
 				}
 			}
-			
+
 			continue;
 		}
 	}
-	
+
 	return idMath::Ftoi( rectWidth / charSkip );
 }

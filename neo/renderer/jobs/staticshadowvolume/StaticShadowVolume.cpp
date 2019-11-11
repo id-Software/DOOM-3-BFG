@@ -39,7 +39,7 @@ void StaticShadowVolumeJob( const staticShadowVolumeParms_t* parms )
 	{
 		*const_cast< byte** >( &parms->tempCullBits ) = ( byte* )_alloca16( TEMP_CULLBITS( parms->numVerts ) );
 	}
-	
+
 	// Calculate the shadow depth bounds.
 	float shadowZMin = parms->lightZMin;
 	float shadowZMax = parms->lightZMax;
@@ -49,10 +49,10 @@ void StaticShadowVolumeJob( const staticShadowVolumeParms_t* parms )
 		shadowZMin = Max( shadowZMin, parms->lightZMin );
 		shadowZMax = Min( shadowZMax, parms->lightZMax );
 	}
-	
+
 	bool renderZFail = false;
 	int numShadowIndices = 0;
-	
+
 	// The shadow volume may be depth culled if either the shadow volume was culled to the view frustum or if the
 	// depth range of the visible part of the shadow volume is outside the depth range of the light volume.
 	if( shadowZMin < shadowZMax )
@@ -72,11 +72,11 @@ void StaticShadowVolumeJob( const staticShadowVolumeParms_t* parms )
 				renderZFail = true;
 			}
 		}
-		
+
 		// Check if we can avoid rendering the shadow volume caps.
 		numShadowIndices = ( parms->forceShadowCaps || renderZFail ) ? parms->numShadowIndicesWithCaps : parms->numShadowIndicesNoCaps;
 	}
-	
+
 	// write out the number of shadow indices
 	if( parms->numShadowIndices != NULL )
 	{

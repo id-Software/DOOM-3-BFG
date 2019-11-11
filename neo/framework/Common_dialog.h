@@ -246,7 +246,7 @@ public:
 	int						startTime;
 	int						killTime;
 	idStrStatic< 256 >		overrideMsg;
-	
+
 	idStrId					txt1;
 	idStrId					txt2;
 	idStrId					txt3;
@@ -280,7 +280,7 @@ public:
 	void	Render( bool loading );
 	void	Shutdown();
 	void	Restart();
-	
+
 	bool	IsDialogPausing()
 	{
 		return dialogPause;
@@ -297,11 +297,11 @@ public:
 	{
 		return ( messageList.Num() > 0 ) && ( !messageList[0].clear );
 	}
-	
+
 	void	ClearAllDialogHack();
 	idStr	GetDialogMsg( gameDialogMessages_t msg, idStr& message, idStr& title );
 	bool	HandleDialogEvent( const sysEvent_t* sev );
-	
+
 protected:
 	void	RemoveWaitDialogs();
 	void	ShowDialog( const idDialogInfo& info );
@@ -309,17 +309,17 @@ protected:
 	void	ActivateDialog( bool activate );
 	void	AddDialogInternal( idDialogInfo& info );
 	void	ReleaseCallBacks( int index );
-	
+
 private:
 	bool	dialogPause;
 	idSWF* 	dialog;
 	idSWF* 	saveIndicator;
 	bool	dialogShowingSaveIndicatorRequested;
 	int		dialogShowingSaveIndicatorTimeRemaining;
-	
+
 	idStaticList< idDialogInfo, MAX_DIALOGS > messageList;
 	idStaticList< idLoadScreenInfo, 16 > loadScreenInfo;
-	
+
 	int		startSaveTime;		// with stopSaveTime, useful to pass 360 TCR# 047.  Need to keep the dialog on the screen for a minimum amount of time
 	int		stopSaveTime;
 	bool	dialogInUse;		// this is to prevent an active msg getting lost during a map heap reset

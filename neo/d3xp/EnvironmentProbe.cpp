@@ -79,14 +79,14 @@ which should be used by dmap and the editor
 void idGameEdit::ParseSpawnArgsToRenderEnvprobe( const idDict* args, renderEnvironmentProbe_t* renderEnvprobe )
 {
 	idVec3	color;
-	
+
 	memset( renderEnvprobe, 0, sizeof( *renderEnvprobe ) );
-	
+
 	if( !args->GetVector( "light_origin", "", renderEnvprobe->origin ) )
 	{
 		args->GetVector( "origin", "", renderEnvprobe->origin );
 	}
-	
+
 	// check for other attributes
 	args->GetVector( "_color", "1 1 1", color );
 	renderEnvprobe->shaderParms[ SHADERPARM_RED ]	= color[0];
@@ -98,7 +98,7 @@ void idGameEdit::ParseSpawnArgsToRenderEnvprobe( const idDict* args, renderEnvir
 		// offset the start time of the shader to sync it to the game time
 		renderEnvprobe->shaderParms[ SHADERPARM_TIMEOFFSET ] = -MS2SEC( gameLocal.time );
 	}
-	
+
 	args->GetFloat( "shaderParm5", "0", renderEnvprobe->shaderParms[5] );
 	args->GetFloat( "shaderParm6", "0", renderEnvprobe->shaderParms[6] );
 	args->GetFloat( "shaderParm7", "0", renderEnvprobe->shaderParms[ SHADERPARM_MODE ] );
@@ -112,14 +112,14 @@ EnvironmentProbe::UpdateChangeableSpawnArgs
 void EnvironmentProbe::UpdateChangeableSpawnArgs( const idDict* source )
 {
 	idEntity::UpdateChangeableSpawnArgs( source );
-	
+
 	if( source )
 	{
 		source->Print();
 	}
-	
+
 	gameEdit->ParseSpawnArgsToRenderEnvprobe( source ? source : &spawnArgs, &renderEnvprobe );
-	
+
 	UpdateVisuals();
 }
 
@@ -171,18 +171,18 @@ archives object for save game file
 void EnvironmentProbe::Save( idSaveGame* savefile ) const
 {
 	savefile->WriteRenderEnvprobe( renderEnvprobe );
-	
+
 	savefile->WriteVec3( localEnvprobeOrigin );
 	savefile->WriteMat3( localEnvprobeAxis );
-	
+
 	savefile->WriteInt( levels );
 	savefile->WriteInt( currentLevel );
-	
+
 	savefile->WriteVec3( baseColor );
 	savefile->WriteInt( count );
 	savefile->WriteInt( triggercount );
 	savefile->WriteObject( lightParent );
-	
+
 	savefile->WriteVec4( fadeFrom );
 	savefile->WriteVec4( fadeTo );
 	savefile->WriteInt( fadeStart );
@@ -199,25 +199,25 @@ unarchives object from save game file
 void EnvironmentProbe::Restore( idRestoreGame* savefile )
 {
 	savefile->ReadRenderEnvprobe( renderEnvprobe );
-	
+
 	savefile->ReadVec3( localEnvprobeOrigin );
 	savefile->ReadMat3( localEnvprobeAxis );
-	
+
 	savefile->ReadInt( levels );
 	savefile->ReadInt( currentLevel );
-	
+
 	savefile->ReadVec3( baseColor );
 	savefile->ReadInt( count );
 	savefile->ReadInt( triggercount );
 	savefile->ReadObject( reinterpret_cast<idClass*&>( lightParent ) );
-	
+
 	savefile->ReadVec4( fadeFrom );
 	savefile->ReadVec4( fadeTo );
 	savefile->ReadInt( fadeStart );
 	savefile->ReadInt( fadeEnd );
-	
+
 	envprobeDefHandle = -1;
-	
+
 	SetLightLevel();
 }
 
@@ -229,19 +229,19 @@ EnvironmentProbe::Spawn
 void EnvironmentProbe::Spawn()
 {
 	bool start_off;
-	
+
 	// do the parsing the same way dmap and the editor do
 	gameEdit->ParseSpawnArgsToRenderEnvprobe( &spawnArgs, &renderEnvprobe );
-	
+
 	// we need the origin and axis relative to the physics origin/axis
 	localEnvprobeOrigin = ( renderEnvprobe.origin - GetPhysics()->GetOrigin() ) * GetPhysics()->GetAxis().Transpose();
 	localEnvprobeAxis = /*renderEnvprobe.axis * */ GetPhysics()->GetAxis().Transpose();
-	
+
 	// set the base color from the shader parms
 	baseColor.Set( renderEnvprobe.shaderParms[ SHADERPARM_RED ], renderEnvprobe.shaderParms[ SHADERPARM_GREEN ], renderEnvprobe.shaderParms[ SHADERPARM_BLUE ] );
 	previousBaseColor.Set( renderEnvprobe.shaderParms[ SHADERPARM_RED ], renderEnvprobe.shaderParms[ SHADERPARM_GREEN ], renderEnvprobe.shaderParms[ SHADERPARM_BLUE ] );
 	nextBaseColor.Set( renderEnvprobe.shaderParms[ SHADERPARM_RED ], renderEnvprobe.shaderParms[ SHADERPARM_GREEN ], renderEnvprobe.shaderParms[ SHADERPARM_BLUE ] );
-	
+
 	// set the number of light levels
 	spawnArgs.GetInt( "levels", "1", levels );
 	currentLevel = levels;
@@ -249,36 +249,36 @@ void EnvironmentProbe::Spawn()
 	{
 		gameLocal.Error( "Invalid light level set on entity #%d(%s)", entityNumber, name.c_str() );
 	}
-	
+
 	// game specific functionality, not mirrored in
 	// editor or dmap light parsing
-	
+
 	envprobeDefHandle = -1;		// no static version yet
-	
+
 	spawnArgs.GetBool( "start_off", "0", start_off );
 	if( start_off )
 	{
 		Off();
 	}
-	
+
 	// Midnight CTF
 	if( gameLocal.mpGame.IsGametypeFlagBased() && gameLocal.serverInfo.GetBool( "si_midnight" ) && !spawnArgs.GetBool( "midnight_override" ) )
 	{
 		Off();
 	}
-	
+
 	health = spawnArgs.GetInt( "health", "0" );
 	spawnArgs.GetInt( "count", "1", count );
-	
+
 	triggercount = 0;
-	
+
 	fadeFrom.Set( 1, 1, 1, 1 );
 	fadeTo.Set( 1, 1, 1, 1 );
 	fadeStart			= 0;
 	fadeEnd				= 0;
-	
+
 	PostEventMS( &EV_PostSpawn, 0 );
-	
+
 	UpdateVisuals();
 }
 
@@ -291,13 +291,13 @@ void EnvironmentProbe::SetLightLevel()
 {
 	idVec3	color;
 	float	intensity;
-	
+
 	intensity = ( float )currentLevel / ( float )levels;
 	color = baseColor * intensity;
 	renderEnvprobe.shaderParms[ SHADERPARM_RED ]	= color[ 0 ];
 	renderEnvprobe.shaderParms[ SHADERPARM_GREEN ]	= color[ 1 ];
 	renderEnvprobe.shaderParms[ SHADERPARM_BLUE ]	= color[ 2 ];
-	
+
 	PresentEnvprobeDefChange();
 }
 
@@ -372,7 +372,7 @@ void EnvironmentProbe::SetEnvprobeParm( int parmnum, float value )
 		gameLocal.Error( "shader parm index (%d) out of range", parmnum );
 		return;
 	}
-	
+
 	renderEnvprobe.shaderParms[ parmnum ] = value;
 	PresentEnvprobeDefChange();
 }
@@ -401,7 +401,7 @@ void EnvironmentProbe::On()
 	currentLevel = levels;
 	// offset the start time of the shader to sync it to the game time
 	renderEnvprobe.shaderParms[ SHADERPARM_TIMEOFFSET ] = -MS2SEC( gameLocal.time );
-	
+
 	SetLightLevel();
 	BecomeActive( TH_UPDATEVISUALS );
 }
@@ -414,7 +414,7 @@ EnvironmentProbe::Off
 void EnvironmentProbe::Off()
 {
 	currentLevel = 0;
-	
+
 	SetLightLevel();
 	BecomeActive( TH_UPDATEVISUALS );
 }
@@ -452,7 +452,7 @@ void EnvironmentProbe::FadeIn( float time )
 {
 	idVec3 color;
 	idVec4 color4;
-	
+
 	currentLevel = levels;
 	spawnArgs.GetVector( "_color", "1 1 1", color );
 	color4.Set( color.x, color.y, color.z, 1.0f );
@@ -489,14 +489,14 @@ void EnvironmentProbe::Present()
 	{
 		return;
 	}
-	
+
 	// add the model
 	idEntity::Present();
-	
+
 	// current transformation
 //	renderEnvprobe.axis	= localEnvprobeAxis * GetPhysics()->GetAxis();
 	renderEnvprobe.origin  = GetPhysics()->GetOrigin() + GetPhysics()->GetAxis() * localEnvprobeOrigin;
-	
+
 	// reference the sound for shader synced effects
 	// FIXME TODO?
 	/*
@@ -511,7 +511,7 @@ void EnvironmentProbe::Present()
 		renderEntity.referenceSound = refSound.referenceSound;
 	}
 	*/
-	
+
 	// update the renderLight and renderEntity to render the light and flare
 	PresentEnvprobeDefChange();
 }
@@ -524,7 +524,7 @@ EnvironmentProbe::Think
 void EnvironmentProbe::Think()
 {
 	idVec4 color;
-	
+
 	if( thinkFlags & TH_THINK )
 	{
 		if( fadeEnd > 0 )
@@ -542,7 +542,7 @@ void EnvironmentProbe::Think()
 			SetColor( color );
 		}
 	}
-	
+
 	RunPhysics();
 	Present();
 }
@@ -556,14 +556,14 @@ void EnvironmentProbe::ClientThink( const int curTime, const float fraction, con
 {
 
 	InterpolatePhysics( fraction );
-	
+
 	if( baseColor != nextBaseColor )
 	{
 		baseColor = Lerp( previousBaseColor, nextBaseColor, fraction );
 		SetColor( baseColor );
 		BecomeActive( TH_UPDATEVISUALS );
 	}
-	
+
 	Present();
 }
 
@@ -577,7 +577,7 @@ bool EnvironmentProbe::GetPhysicsToSoundTransform( idVec3& origin, idMat3& axis 
 	//origin = localEnvprobeOrigin + renderEnvprobe.lightCenter;
 	//axis = localLightAxis * GetPhysics()->GetAxis();
 	//return true;
-	
+
 	return false;
 }
 
@@ -635,7 +635,7 @@ void EnvironmentProbe::Event_GetEnvprobeParm( int parmnum )
 		gameLocal.Error( "shader parm index (%d) out of range", parmnum );
 		return;
 	}
-	
+
 	idThread::ReturnFloat( renderEnvprobe.shaderParms[ parmnum ] );
 }
 
@@ -713,10 +713,10 @@ void EnvironmentProbe::Event_ToggleOnOff( idEntity* activator )
 	{
 		return;
 	}
-	
+
 	// reset trigger count
 	triggercount = 0;
-	
+
 	if( !currentLevel )
 	{
 		On();
@@ -813,32 +813,32 @@ void EnvironmentProbe::WriteToSnapshot( idBitMsg& msg ) const
 {
 	GetPhysics()->WriteToSnapshot( msg );
 	WriteBindToSnapshot( msg );
-	
+
 	msg.WriteByte( currentLevel );
 	msg.WriteLong( PackColor( baseColor ) );
 	// msg.WriteBits( lightParent.GetEntityNum(), GENTITYNUM_BITS );
-	
+
 	/*	// only helps prediction
 		msg.WriteLong( PackColor( fadeFrom ) );
 		msg.WriteLong( PackColor( fadeTo ) );
 		msg.WriteLong( fadeStart );
 		msg.WriteLong( fadeEnd );
 	*/
-	
+
 	// FIXME: send renderLight.shader
 	//msg.WriteFloat( renderEnvprobe.lightRadius[0], 5, 10 );
 	//msg.WriteFloat( renderEnvprobe.lightRadius[1], 5, 10 );
 	//msg.WriteFloat( renderEnvprobe.lightRadius[2], 5, 10 );
-	
+
 	msg.WriteLong( PackColor( idVec4( renderEnvprobe.shaderParms[SHADERPARM_RED],
 									  renderEnvprobe.shaderParms[SHADERPARM_GREEN],
 									  renderEnvprobe.shaderParms[SHADERPARM_BLUE],
 									  renderEnvprobe.shaderParms[SHADERPARM_ALPHA] ) ) );
-									  
+
 	msg.WriteFloat( renderEnvprobe.shaderParms[SHADERPARM_TIMESCALE], 5, 10 );
 	msg.WriteLong( renderEnvprobe.shaderParms[SHADERPARM_TIMEOFFSET] );
 	msg.WriteShort( renderEnvprobe.shaderParms[SHADERPARM_MODE] );
-	
+
 	WriteColorToSnapshot( msg );
 }
 
@@ -852,12 +852,12 @@ void EnvironmentProbe::ReadFromSnapshot( const idBitMsg& msg )
 	idVec4	shaderColor;
 	int		oldCurrentLevel = currentLevel;
 	idVec3	oldBaseColor = baseColor;
-	
+
 	previousBaseColor = nextBaseColor;
-	
+
 	GetPhysics()->ReadFromSnapshot( msg );
 	ReadBindFromSnapshot( msg );
-	
+
 	currentLevel = msg.ReadByte();
 	if( currentLevel != oldCurrentLevel )
 	{
@@ -873,35 +873,35 @@ void EnvironmentProbe::ReadFromSnapshot( const idBitMsg& msg )
 			Off();
 		}
 	}
-	
+
 	UnpackColor( msg.ReadLong(), nextBaseColor );
-	
+
 	// lightParentEntityNum = msg.ReadBits( GENTITYNUM_BITS );
-	
+
 	/*	// only helps prediction
 		UnpackColor( msg.ReadLong(), fadeFrom );
 		UnpackColor( msg.ReadLong(), fadeTo );
 		fadeStart = msg.ReadLong();
 		fadeEnd = msg.ReadLong();
 	*/
-	
+
 	// FIXME: read renderLight.shader
 	//renderLight.lightRadius[0] = msg.ReadFloat( 5, 10 );
 	//renderLight.lightRadius[1] = msg.ReadFloat( 5, 10 );
 	//renderLight.lightRadius[2] = msg.ReadFloat( 5, 10 );
-	
+
 	UnpackColor( msg.ReadLong(), shaderColor );
 	renderEnvprobe.shaderParms[SHADERPARM_RED] = shaderColor[0];
 	renderEnvprobe.shaderParms[SHADERPARM_GREEN] = shaderColor[1];
 	renderEnvprobe.shaderParms[SHADERPARM_BLUE] = shaderColor[2];
 	renderEnvprobe.shaderParms[SHADERPARM_ALPHA] = shaderColor[3];
-	
+
 	renderEnvprobe.shaderParms[SHADERPARM_TIMESCALE] = msg.ReadFloat( 5, 10 );
 	renderEnvprobe.shaderParms[SHADERPARM_TIMEOFFSET] = msg.ReadLong();
 	renderEnvprobe.shaderParms[SHADERPARM_MODE] = msg.ReadShort();
-	
+
 	ReadColorFromSnapshot( msg );
-	
+
 	if( msg.HasChanged() )
 	{
 		if( ( currentLevel != oldCurrentLevel ) || ( previousBaseColor != nextBaseColor ) )

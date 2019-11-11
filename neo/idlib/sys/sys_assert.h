@@ -46,38 +46,38 @@ bool AssertFailed( const char* file, int line, const char* expression );
 #if defined( _DEBUG ) || defined( _lint )
 
 
-#undef assert
+	#undef assert
 
-// idassert is useful for cases where some external library (think MFC, etc.)
-// decides it's a good idea to redefine assert on us
-#define idassert( x )	(void)( ( !!( x ) ) || ( AssertFailed( __FILE__, __LINE__, #x ) ) )
+	// idassert is useful for cases where some external library (think MFC, etc.)
+	// decides it's a good idea to redefine assert on us
+	#define idassert( x )	(void)( ( !!( x ) ) || ( AssertFailed( __FILE__, __LINE__, #x ) ) )
 
-// We have the code analysis tools on the 360 compiler,
-// so let it know what our asserts are.
-// The VS ultimate editions also get it on win32, but not x86
+	// We have the code analysis tools on the 360 compiler,
+	// so let it know what our asserts are.
+	// The VS ultimate editions also get it on win32, but not x86
 
-// RB: __analysis_assume only necessary with MSVC
-#if defined(_MSC_VER)
-#define assert( x )		__analysis_assume( x ) ; idassert( x )
-#else
-#define assert( x )		idassert( x )
-#endif
-// RB end
+	// RB: __analysis_assume only necessary with MSVC
+	#if defined(_MSC_VER)
+		#define assert( x )		__analysis_assume( x ) ; idassert( x )
+	#else
+		#define assert( x )		idassert( x )
+	#endif
+	// RB end
 
-#define verify( x )		( ( x ) ? true : ( AssertFailed( __FILE__, __LINE__, #x ), false ) )
+	#define verify( x )		( ( x ) ? true : ( AssertFailed( __FILE__, __LINE__, #x ), false ) )
 
 
 #else // _DEBUG
 
-//====================== assert in release mode =======================
+	//====================== assert in release mode =======================
 
-#define idassert( x )	{ (( void )0); }
+	#define idassert( x )	{ (( void )0); }
 
-#undef assert
+	#undef assert
 
-#define assert( x )		idassert( x )
+	#define assert( x )		idassert( x )
 
-#define verify( x )		( ( x ) ? true : false )
+	#define verify( x )		( ( x ) ? true : false )
 
 #endif // _DEBUG
 
@@ -137,15 +137,15 @@ template<int x> struct compile_time_assert_test {};
 
 // ai debugging macros (designed to limit ai interruptions to non-ai programmers)
 #ifdef _DEBUG
-//#define DEBUGAI		// NOTE: uncomment for full ai debugging
+	//#define DEBUGAI		// NOTE: uncomment for full ai debugging
 #endif
 
 #ifdef DEBUGAI
-#define ASSERTAI( x )	assert( x )
-#define VERIFYAI( x )	verify( x )
+	#define ASSERTAI( x )	assert( x )
+	#define VERIFYAI( x )	verify( x )
 #else // DEBUGAI
-#define ASSERTAI( x )
-#define VERIFYAI( x )	( ( x ) ? true : false )
+	#define ASSERTAI( x )
+	#define VERIFYAI( x )	( ( x ) ? true : false )
 #endif // DEBUGAI
 
 #endif	// !__SYS_ASSERT_H__

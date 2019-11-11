@@ -139,13 +139,13 @@ public:
 	void LoadFromFile( const char* filename );
 	void WriteToFile( const char* filename );
 	void LoadFromParser( idParser& parser, const char* guiName );
-	
+
 	bool StartParsing( const char* fileName );
 	void DoneParsing()
 	{
 		currentTokenList = -1;
 	}
-	
+
 	bool IsLoaded()
 	{
 		return tokens.Num() > 0;

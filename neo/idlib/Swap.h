@@ -69,19 +69,19 @@ class idSwap
 public:
 	//#define SwapBytes( x, y )		(x) ^= (y) ^= (x) ^= (y)
 #define SwapBytes( x, y )		{ byte t = (x); (x) = (y); (y) = t; }
-	
+
 	template<class type> static void Little( type& c )
 	{
 		// byte swapping pointers is pointless because we should never store pointers on disk
 		assert( !IsPointer( c ) );
-		
+
 	}
-	
+
 	template<class type> static void Big( type& c )
 	{
 		// byte swapping pointers is pointless because we should never store pointers on disk
 		assert( !IsPointer( c ) );
-		
+
 		if( sizeof( type ) == 1 )
 		{
 		}
@@ -109,11 +109,11 @@ public:
 			assert( false );
 		}
 	}
-	
+
 	template<class type> static void LittleArray( type* c, int count )
 	{
 	}
-	
+
 	template<class type> static void BigArray( type* c, int count )
 	{
 		for( int i = 0; i < count; i++ )
@@ -121,7 +121,7 @@ public:
 			Big( c[i] );
 		}
 	}
-	
+
 	static void SixtetsForInt( byte* out, int src )
 	{
 		byte* b = ( byte* )&src;
@@ -130,7 +130,7 @@ public:
 		out[2] = ( ( b[1] & 0xf ) << 2 ) + ( ( b[2] & 0xc0 ) >> 6 );
 		out[3] = b[2] & 0x3f;
 	}
-	
+
 	static int IntForSixtets( byte* in )
 	{
 		int ret = 0;
@@ -143,7 +143,7 @@ public:
 		b[2] |= in[3];
 		return ret;
 	}
-	
+
 public:		// specializations
 #ifndef ID_SWAP_LITE // avoid dependency avalanche for SPU code
 #define SWAP_VECTOR( x ) \
@@ -165,7 +165,7 @@ public:		// specializations
 	SWAP_VECTOR( idCQuat );
 	SWAP_VECTOR( idAngles );
 	SWAP_VECTOR( idBounds );
-	
+
 	static void Little( idDrawVert& v )
 	{
 		Little( v.xyz );
@@ -206,7 +206,7 @@ public:
 		assert( size == sizeof( classType ) );
 #endif
 	}
-	
+
 	template<class type> void Little( type& c )
 	{
 		idSwap::Little( c );
@@ -214,7 +214,7 @@ public:
 		size += sizeof( type );
 #endif
 	}
-	
+
 	template<class type> void Big( type& c )
 	{
 		idSwap::Big( c );
@@ -222,7 +222,7 @@ public:
 		size += sizeof( type );
 #endif
 	}
-	
+
 	template<class type> void LittleArray( type* c, int count )
 	{
 		idSwap::LittleArray( c, count );
@@ -230,7 +230,7 @@ public:
 		size += count * sizeof( type );
 #endif
 	}
-	
+
 	template<class type> void BigArray( type* c, int count )
 	{
 		idSwap::BigArray( c, count );
@@ -238,7 +238,7 @@ public:
 		size += count * sizeof( type );
 #endif
 	}
-	
+
 #ifdef _DEBUG
 private:
 	int size;

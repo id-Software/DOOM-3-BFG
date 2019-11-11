@@ -43,23 +43,23 @@ public:
 	idBase64();
 	idBase64( const idStr& s );
 	~idBase64();
-	
+
 	void		Encode( const byte* from, int size );
 	void		Encode( const idStr& src );
 	int			DecodeLength() const; // minimum size in bytes of destination buffer for decoding
 	int			Decode( byte* to ) const; // does not append a \0 - needs a DecodeLength() bytes buffer
 	void		Decode( idStr& dest ) const; // decodes the binary content to an idStr (a bit dodgy, \0 and other non-ascii are possible in the decoded content)
 	void		Decode( idFile* dest ) const;
-	
+
 	const char*	c_str() const;
-	
+
 	void 		operator=( const idStr& s );
-	
+
 private:
 	byte* 		data;
 	int			len;
 	int			alloced;
-	
+
 	void		Init();
 	void		Release();
 	void		EnsureAlloced( int size );

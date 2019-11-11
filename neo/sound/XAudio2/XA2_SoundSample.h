@@ -38,10 +38,10 @@ class idSoundSample_XAudio2
 {
 public:
 	idSoundSample_XAudio2();
-	
+
 	// Loads and initializes the resource based on the name.
 	virtual void	 LoadResource();
-	
+
 	void			SetName( const char* n )
 	{
 		name = n;
@@ -54,13 +54,13 @@ public:
 	{
 		return timestamp;
 	}
-	
+
 	// turns it into a beep
 	void			MakeDefault();
-	
+
 	// frees all data
 	void			FreeData();
-	
+
 	int				LengthInMsec() const
 	{
 		return SamplesToMsec( NumSamples(), SampleRate() );
@@ -81,12 +81,12 @@ public:
 	{
 		return totalBufferSize;
 	}
-	
+
 	bool			IsCompressed() const
 	{
 		return ( format.basic.formatTag != idWaveFile::FORMAT_PCM );
 	}
-	
+
 	bool			IsDefault() const
 	{
 		return timestamp == FILE_NOT_FOUND_TIMESTAMP;
@@ -95,7 +95,7 @@ public:
 	{
 		return loaded;
 	}
-	
+
 	void			SetNeverPurge()
 	{
 		neverPurge = true;
@@ -104,7 +104,7 @@ public:
 	{
 		return neverPurge;
 	}
-	
+
 	void			SetLevelLoadReferenced()
 	{
 		levelLoadReferenced = true;
@@ -117,7 +117,7 @@ public:
 	{
 		return levelLoadReferenced;
 	}
-	
+
 	int				GetLastPlayedTime() const
 	{
 		return lastPlayedTime;
@@ -126,47 +126,47 @@ public:
 	{
 		lastPlayedTime = t;
 	}
-	
+
 	float			GetAmplitude( int timeMS ) const;
-	
+
 protected:
 	friend class idSoundHardware_XAudio2;
 	friend class idSoundVoice_XAudio2;
-	
+
 	~idSoundSample_XAudio2();
-	
+
 	bool			LoadWav( const idStr& name );
 	bool			LoadAmplitude( const idStr& name );
 	void			WriteAllSamples( const idStr& sampleName );
 	bool			LoadGeneratedSample( const idStr& name );
 	void			WriteGeneratedSample( idFile* fileOut );
-	
+
 	struct sampleBuffer_t
 	{
 		void* buffer;
 		int bufferSize;
 		int numSamples;
 	};
-	
+
 	idStr			name;
-	
+
 	ID_TIME_T		timestamp;
 	bool			loaded;
-	
+
 	bool			neverPurge;
 	bool			levelLoadReferenced;
 	bool			usesMapHeap;
-	
+
 	uint32			lastPlayedTime;
-	
+
 	int				totalBufferSize;	// total size of all the buffers
 	idList<sampleBuffer_t, TAG_AUDIO> buffers;
-	
+
 	int				playBegin;
 	int				playLength;
-	
+
 	idWaveFile::waveFmt_t	format;
-	
+
 	idList<byte, TAG_AMPLITUDE> amplitude;
 };
 

@@ -68,7 +68,7 @@ idTypeInfo::idTypeInfo( const char* classname, const char* superclass, idEventFu
 
 	idTypeInfo* type;
 	idTypeInfo** insert;
-	
+
 	this->classname			= classname;
 	this->superclass		= superclass;
 	this->eventCallbacks	= eventCallbacks;
@@ -81,7 +81,7 @@ idTypeInfo::idTypeInfo( const char* classname, const char* superclass, idEventFu
 	this->freeEventMap		= false;
 	typeNum					= 0;
 	lastChild				= 0;
-	
+
 	// Check if any subclasses were initialized before their superclass
 	for( type = typelist; type != NULL; type = type->next )
 	{
@@ -91,7 +91,7 @@ idTypeInfo::idTypeInfo( const char* classname, const char* superclass, idEventFu
 			type->super	= this;
 		}
 	}
-	
+
 	// Insert sorted
 	for( insert = &typelist; *insert; insert = &( *insert )->next )
 	{
@@ -136,19 +136,19 @@ void idTypeInfo::Init()
 	int						i;
 	bool*					set;
 	int						num;
-	
+
 	if( eventMap )
 	{
 		// we've already been initialized by a subclass
 		return;
 	}
-	
+
 	// make sure our superclass is initialized first
 	if( super && !super->eventMap )
 	{
 		super->Init();
 	}
-	
+
 	// add to our node hierarchy
 	if( super )
 	{
@@ -159,23 +159,23 @@ void idTypeInfo::Init()
 		node.ParentTo( classHierarchy );
 	}
 	node.SetOwner( this );
-	
+
 	// keep track of the number of children below each class
 	for( c = super; c != NULL; c = c->super )
 	{
 		c->lastChild++;
 	}
-	
+
 	// if we're not adding any new event callbacks, we can just use our superclass's table
 	if( ( !eventCallbacks || !eventCallbacks->event ) && super )
 	{
 		eventMap = super->eventMap;
 		return;
 	}
-	
+
 	// set a flag so we know to delete the eventMap table
 	freeEventMap = true;
-	
+
 	// Allocate our new table.  It has to have as many entries as there
 	// are events.  NOTE: could save some space by keeping track of the maximum
 	// event that the class responds to and doing range checking.
@@ -183,12 +183,12 @@ void idTypeInfo::Init()
 	eventMap = new( TAG_SYSTEM ) eventCallback_t[ num ];
 	memset( eventMap, 0, sizeof( eventCallback_t ) * num );
 	eventCallbackMemory += sizeof( eventCallback_t ) * num;
-	
+
 	// allocate temporary memory for flags so that the subclass's event callbacks
 	// override the superclass's event callback
 	set = new( TAG_SYSTEM ) bool[ num ];
 	memset( set, 0, sizeof( bool ) * num );
-	
+
 	// go through the inheritence order and copies the event callback function into
 	// a list indexed by the event number.  This allows fast lookups of
 	// event functions.
@@ -199,12 +199,12 @@ void idTypeInfo::Init()
 		{
 			continue;
 		}
-		
+
 		// go through each entry until we hit the NULL terminator
 		for( i = 0; def[ i ].event != NULL; i++ )
 		{
 			ev = def[ i ].event->GetEventNum();
-			
+
 			if( set[ ev ] )
 			{
 				continue;
@@ -213,7 +213,7 @@ void idTypeInfo::Init()
 			eventMap[ ev ] = def[ i ].function;
 		}
 	}
-	
+
 	delete[] set;
 }
 
@@ -274,7 +274,7 @@ idClass::CallSpawn
 void idClass::CallSpawn()
 {
 	idTypeInfo* type;
-	
+
 	type = GetType();
 	CallSpawnFunc( type );
 }
@@ -287,7 +287,7 @@ idClass::CallSpawnFunc
 classSpawnFunc_t idClass::CallSpawnFunc( idTypeInfo* cls )
 {
 	classSpawnFunc_t func;
-	
+
 	if( cls->super )
 	{
 		func = CallSpawnFunc( cls->super );
@@ -298,9 +298,9 @@ classSpawnFunc_t idClass::CallSpawnFunc( idTypeInfo* cls )
 			return func;
 		}
 	}
-	
+
 	( this->*cls->Spawn )();
-	
+
 	return cls->Spawn;
 }
 
@@ -369,16 +369,16 @@ void idClass::ListClasses_f( const idCmdArgs& args )
 {
 	int			i;
 	idTypeInfo* type;
-	
+
 	gameLocal.Printf( "%-24s %-24s %-6s %-6s\n", "Classname", "Superclass", "Type", "Subclasses" );
 	gameLocal.Printf( "----------------------------------------------------------------------\n" );
-	
+
 	for( i = 0; i < types.Num(); i++ )
 	{
 		type = types[ i ];
 		gameLocal.Printf( "%-24s %-24s %6d %6d\n", type->classname, type->superclass, type->typeNum, type->lastChild - type->typeNum );
 	}
-	
+
 	gameLocal.Printf( "...%d classes", types.Num() );
 }
 
@@ -391,13 +391,13 @@ idClass* idClass::CreateInstance( const char* name )
 {
 	const idTypeInfo*	type;
 	idClass*				obj;
-	
+
 	type = idClass::GetClass( name );
 	if( !type )
 	{
 		return NULL;
 	}
-	
+
 	obj = type->CreateInstance();
 	return obj;
 }
@@ -416,21 +416,21 @@ void idClass::Init()
 {
 	idTypeInfo*	c;
 	int			num;
-	
+
 	gameLocal.Printf( "Initializing class hierarchy\n" );
-	
+
 	if( initialized )
 	{
 		gameLocal.Printf( "...already initialized\n" );
 		return;
 	}
-	
+
 	// init the event callback tables for all the classes
 	for( c = typelist; c != NULL; c = c->next )
 	{
 		c->Init();
 	}
-	
+
 	// number the types according to the class hierarchy so we can quickly determine if a class
 	// is a subclass of another
 	num = 0;
@@ -439,10 +439,10 @@ void idClass::Init()
 		c->typeNum = num;
 		c->lastChild += num;
 	}
-	
+
 	// number of bits needed to send types over network
 	typeNumBits = idMath::BitsForInteger( num );
-	
+
 	// create a list of the types so we can do quick lookups
 	// one list in alphabetical order, one in typenum order
 	types.SetGranularity( 1 );
@@ -455,9 +455,9 @@ void idClass::Init()
 		types[ num ] = c;
 		typenums[ c->typeNum ] = c;
 	}
-	
+
 	initialized = true;
-	
+
 	gameLocal.Printf( "...%i classes, %i bytes for event callbacks\n", types.Num(), eventCallbackMemory );
 }
 
@@ -469,14 +469,14 @@ idClass::Shutdown
 void idClass::Shutdown()
 {
 	idTypeInfo*	c;
-	
+
 	for( c = typelist; c != NULL; c = c->next )
 	{
 		c->Shutdown();
 	}
 	types.Clear();
 	typenums.Clear();
-	
+
 	initialized = false;
 }
 
@@ -488,13 +488,13 @@ idClass::new
 void* idClass::operator new( size_t s )
 {
 	int* p;
-	
+
 	s += sizeof( int );
 	p = ( int* )Mem_Alloc( s, TAG_IDCLASS );
 	*p = s;
 	memused += s;
 	numobjects++;
-	
+
 	return p + 1;
 }
 
@@ -506,7 +506,7 @@ idClass::delete
 void idClass::operator delete( void* ptr )
 {
 	int* p;
-	
+
 	if( ptr )
 	{
 		p = ( ( int* )ptr ) - 1;
@@ -531,7 +531,7 @@ idTypeInfo* idClass::GetClass( const char* name )
 	int			mid;
 	int			min;
 	int			max;
-	
+
 	if( !initialized )
 	{
 		// idClass::Init hasn't been called yet, so do a slow lookup
@@ -567,7 +567,7 @@ idTypeInfo* idClass::GetClass( const char* name )
 			}
 		}
 	}
-	
+
 	return NULL;
 }
 
@@ -579,7 +579,7 @@ idClass::GetType
 idTypeInfo* idClass::GetType( const int typeNum )
 {
 	idTypeInfo* c;
-	
+
 	if( !initialized )
 	{
 		for( c = typelist; c != NULL; c = c->next )
@@ -594,7 +594,7 @@ idTypeInfo* idClass::GetType( const int typeNum )
 	{
 		return typenums[ typeNum ];
 	}
-	
+
 	return NULL;
 }
 
@@ -608,7 +608,7 @@ Returns the text classname of the object.
 const char* idClass::GetClassname() const
 {
 	idTypeInfo* type;
-	
+
 	type = GetType();
 	return type->classname;
 }
@@ -623,7 +623,7 @@ Returns the text classname of the superclass.
 const char* idClass::GetSuperclass() const
 {
 	idTypeInfo* cls;
-	
+
 	cls = GetType();
 	return cls->superclass;
 }
@@ -648,21 +648,21 @@ bool idClass::PostEventArgs( const idEventDef* ev, int time, int numargs, ... )
 	idTypeInfo*	c;
 	idEvent*		event;
 	va_list		args;
-	
+
 	assert( ev );
-	
+
 	if( !idEvent::initialized )
 	{
 		return false;
 	}
-	
+
 	c = GetType();
 	if( !c->eventMap[ ev->GetEventNum() ] )
 	{
 		// we don't respond to this event, so ignore it
 		return false;
 	}
-	
+
 	bool isReplicated = true;
 	// If this is an entity with skipReplication, we want to process the event normally even on clients.
 	if( IsType( idEntity::Type ) )
@@ -673,7 +673,7 @@ bool idClass::PostEventArgs( const idEventDef* ev, int time, int numargs, ... )
 			isReplicated = false;
 		}
 	}
-	
+
 	// we service events on the client to avoid any bad code filling up the event pool
 	// we don't want them processed usually, unless when the map is (re)loading.
 	// we allow threads to run fine, though.
@@ -681,13 +681,13 @@ bool idClass::PostEventArgs( const idEventDef* ev, int time, int numargs, ... )
 	{
 		return true;
 	}
-	
+
 	va_start( args, numargs );
 	event = idEvent::Alloc( ev, numargs, args );
 	va_end( args );
-	
+
 	event->Schedule( this, c, time );
-	
+
 	return true;
 }
 
@@ -884,10 +884,10 @@ bool idClass::ProcessEventArgs( const idEventDef* ev, int numargs, ... )
 	intptr_t	data[ D_EVENT_MAXARGS ];
 	// RB end
 	va_list		args;
-	
+
 	assert( ev );
 	assert( idEvent::initialized );
-	
+
 	c = GetType();
 	num = ev->GetEventNum();
 	if( !c->eventMap[ num ] )
@@ -895,13 +895,13 @@ bool idClass::ProcessEventArgs( const idEventDef* ev, int numargs, ... )
 		// we don't respond to this event, so ignore it
 		return false;
 	}
-	
+
 	va_start( args, numargs );
 	idEvent::CopyArgs( ev, numargs, args, data );
 	va_end( args );
-	
+
 	ProcessEventArgPtr( ev, data );
-	
+
 	return true;
 }
 
@@ -1007,24 +1007,24 @@ bool idClass::ProcessEventArgPtr( const idEventDef* ev, intptr_t* data )
 	idTypeInfo*	c;
 	int			num;
 	eventCallback_t	callback;
-	
+
 	assert( ev );
 	assert( idEvent::initialized );
-	
+
 	SetTimeState ts;
-	
+
 	if( IsType( idEntity::Type ) )
 	{
 		idEntity* ent = ( idEntity* )this;
 		ts.PushState( ent->timeGroup );
 	}
-	
+
 	if( g_debugTriggers.GetBool() && ( ev == &EV_Activate ) && IsType( idEntity::Type ) )
 	{
 		const idEntity* ent = *reinterpret_cast<idEntity**>( data );
 		gameLocal.Printf( "%d: '%s' activated by '%s'\n", gameLocal.framenum, static_cast<idEntity*>( this )->GetName(), ent ? ent->GetName() : "NULL" );
 	}
-	
+
 	c = GetType();
 	num = ev->GetEventNum();
 	if( !c->eventMap[ num ] )
@@ -1032,9 +1032,9 @@ bool idClass::ProcessEventArgPtr( const idEventDef* ev, intptr_t* data )
 		// we don't respond to this event, so ignore it
 		return false;
 	}
-	
+
 	callback = c->eventMap[ num ];
-	
+
 // RB: I tried first to get CPU_EASYARGS switch running with x86_64
 // but it caused many crashes with the Doom scripts.
 // The new Callbacks.cpp was generated with intptr_t and it works fine.
@@ -1043,16 +1043,16 @@ bool idClass::ProcessEventArgPtr( const idEventDef* ev, intptr_t* data )
 	/*
 	on ppc architecture, floats are passed in a separate set of registers
 	the function prototypes must have matching float declaration
-	
+
 	http://developer.apple.com/documentation/DeveloperTools/Conceptual/MachORuntime/2rt_powerpc_abi/chapter_9_section_5.html
 	*/
-	
+
 	switch( ev->GetFormatspecIndex() )
 	{
 		case 1 << D_EVENT_MAXARGS :
 			( this->*callback )();
 			break;
-			
+
 // generated file - see CREATE_EVENT_CODE
 #include "Callbacks.cpp"
 
@@ -1060,66 +1060,66 @@ bool idClass::ProcessEventArgPtr( const idEventDef* ev, intptr_t* data )
 			gameLocal.Warning( "Invalid formatspec on event '%s'", ev->GetName() );
 			break;
 	}
-	
+
 #else
-	
+
 	assert( D_EVENT_MAXARGS == 8 );
-	
+
 	// RB: 64 bit fixes, changed int to intptr_t
 	switch( ev->GetNumArgs() )
 	{
 		case 0 :
 			( this->*callback )();
 			break;
-	
+
 		case 1 :
 			typedef void ( idClass::*eventCallback_1_t )( const intptr_t );
 			( this->*( eventCallback_1_t )callback )( data[ 0 ] );
 			break;
-	
+
 		case 2 :
 			typedef void ( idClass::*eventCallback_2_t )( const intptr_t, const intptr_t );
 			( this->*( eventCallback_2_t )callback )( data[ 0 ], data[ 1 ] );
 			break;
-	
+
 		case 3 :
 			typedef void ( idClass::*eventCallback_3_t )( const intptr_t, const intptr_t, const intptr_t );
 			( this->*( eventCallback_3_t )callback )( data[ 0 ], data[ 1 ], data[ 2 ] );
 			break;
-	
+
 		case 4 :
 			typedef void ( idClass::*eventCallback_4_t )( const intptr_t, const intptr_t, const intptr_t, const intptr_t );
 			( this->*( eventCallback_4_t )callback )( data[ 0 ], data[ 1 ], data[ 2 ], data[ 3 ] );
 			break;
-	
+
 		case 5 :
 			typedef void ( idClass::*eventCallback_5_t )( const intptr_t, const intptr_t, const intptr_t, const intptr_t, const intptr_t );
 			( this->*( eventCallback_5_t )callback )( data[ 0 ], data[ 1 ], data[ 2 ], data[ 3 ], data[ 4 ] );
 			break;
-	
+
 		case 6 :
 			typedef void ( idClass::*eventCallback_6_t )( const intptr_t, const intptr_t, const intptr_t, const intptr_t, const intptr_t, const intptr_t );
 			( this->*( eventCallback_6_t )callback )( data[ 0 ], data[ 1 ], data[ 2 ], data[ 3 ], data[ 4 ], data[ 5 ] );
 			break;
-	
+
 		case 7 :
 			typedef void ( idClass::*eventCallback_7_t )( const intptr_t, const intptr_t, const intptr_t, const intptr_t, const intptr_t, const intptr_t, const intptr_t );
 			( this->*( eventCallback_7_t )callback )( data[ 0 ], data[ 1 ], data[ 2 ], data[ 3 ], data[ 4 ], data[ 5 ], data[ 6 ] );
 			break;
-	
+
 		case 8 :
 			typedef void ( idClass::*eventCallback_8_t )( const intptr_t, const intptr_t, const intptr_t, const intptr_t, const intptr_t, const intptr_t, const intptr_t, const intptr_t );
 			( this->*( eventCallback_8_t )callback )( data[ 0 ], data[ 1 ], data[ 2 ], data[ 3 ], data[ 4 ], data[ 5 ], data[ 6 ], data[ 7 ] );
 			break;
-	
+
 		default:
 			gameLocal.Warning( "Invalid formatspec on event '%s'", ev->GetName() );
 			break;
 	}
 	// RB end
-	
+
 #endif
-	
+
 	return true;
 }
 

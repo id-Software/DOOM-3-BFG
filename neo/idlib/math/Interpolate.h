@@ -42,7 +42,7 @@ class idInterpolate
 {
 public:
 	idInterpolate();
-	
+
 	void				Init( const int startTime, const int duration, const type& startValue, const type& endValue );
 	void				SetStartTime( int time )
 	{
@@ -60,13 +60,13 @@ public:
 	{
 		this->endValue = endValue;
 	}
-	
+
 	type				GetCurrentValue( int time ) const;
 	bool				IsDone( int time ) const
 	{
 		return ( time >= startTime + duration );
 	}
-	
+
 	int					GetStartTime() const
 	{
 		return startTime;
@@ -87,7 +87,7 @@ public:
 	{
 		return endValue;
 	}
-	
+
 private:
 	int					startTime;
 	int					duration;
@@ -161,7 +161,7 @@ class idInterpolateAccelDecelLinear
 {
 public:
 	idInterpolateAccelDecelLinear();
-	
+
 	void				Init( const int startTime, const int accelTime, const int decelTime, const int duration, const type& startValue, const type& endValue );
 	void				SetStartTime( int time )
 	{
@@ -178,14 +178,14 @@ public:
 		this->endValue = endValue;
 		Invalidate();
 	}
-	
+
 	type				GetCurrentValue( int time ) const;
 	type				GetCurrentSpeed( int time ) const;
 	bool				IsDone( int time ) const
 	{
 		return ( time >= startTime + accelTime + linearTime + decelTime );
 	}
-	
+
 	int					GetStartTime() const
 	{
 		return startTime;
@@ -214,7 +214,7 @@ public:
 	{
 		return endValue;
 	}
-	
+
 private:
 	int					startTime;
 	int					accelTime;
@@ -223,7 +223,7 @@ private:
 	type				startValue;
 	type				endValue;
 	mutable idExtrapolate<type> extrapolate;
-	
+
 	void				Invalidate();
 	void				SetPhase( int time ) const;
 };
@@ -254,12 +254,12 @@ ID_INLINE void idInterpolateAccelDecelLinear<type>::Init( const int startTime, c
 	this->decelTime = decelTime;
 	this->startValue = startValue;
 	this->endValue = endValue;
-	
+
 	if( duration <= 0 )
 	{
 		return;
 	}
-	
+
 	if( this->accelTime + this->decelTime > duration )
 	{
 		this->accelTime = this->accelTime * duration / ( this->accelTime + this->decelTime );
@@ -267,7 +267,7 @@ ID_INLINE void idInterpolateAccelDecelLinear<type>::Init( const int startTime, c
 	}
 	this->linearTime = duration - this->accelTime - this->decelTime;
 	const type speed = ( endValue - startValue ) * ( 1000.0f / ( ( float ) this->linearTime + ( this->accelTime + this->decelTime ) * 0.5f ) );
-	
+
 	if( this->accelTime )
 	{
 		extrapolate.Init( startTime, this->accelTime, startValue, ( startValue - startValue ), speed, EXTRAPOLATION_ACCELLINEAR ); //-V501
@@ -364,7 +364,7 @@ class idInterpolateAccelDecelSine
 {
 public:
 	idInterpolateAccelDecelSine();
-	
+
 	void				Init( const int startTime, const int accelTime, const int decelTime, const int duration, const type& startValue, const type& endValue );
 	void				SetStartTime( int time )
 	{
@@ -381,14 +381,14 @@ public:
 		this->endValue = endValue;
 		Invalidate();
 	}
-	
+
 	type				GetCurrentValue( int time ) const;
 	type				GetCurrentSpeed( int time ) const;
 	bool				IsDone( int time ) const
 	{
 		return ( time >= startTime + accelTime + linearTime + decelTime );
 	}
-	
+
 	int					GetStartTime() const
 	{
 		return startTime;
@@ -417,7 +417,7 @@ public:
 	{
 		return endValue;
 	}
-	
+
 private:
 	int					startTime;
 	int					accelTime;
@@ -426,7 +426,7 @@ private:
 	type				startValue;
 	type				endValue;
 	mutable idExtrapolate<type> extrapolate;
-	
+
 	void				Invalidate();
 	void				SetPhase( int time ) const;
 };
@@ -457,12 +457,12 @@ ID_INLINE void idInterpolateAccelDecelSine<type>::Init( const int startTime, con
 	this->decelTime = decelTime;
 	this->startValue = startValue;
 	this->endValue = endValue;
-	
+
 	if( duration <= 0 )
 	{
 		return;
 	}
-	
+
 	if( this->accelTime + this->decelTime > duration )
 	{
 		this->accelTime = this->accelTime * duration / ( this->accelTime + this->decelTime );
@@ -470,7 +470,7 @@ ID_INLINE void idInterpolateAccelDecelSine<type>::Init( const int startTime, con
 	}
 	this->linearTime = duration - this->accelTime - this->decelTime;
 	const type speed = ( endValue - startValue ) * ( 1000.0f / ( ( float ) this->linearTime + ( this->accelTime + this->decelTime ) * idMath::SQRT_1OVER2 ) );
-	
+
 	if( this->accelTime )
 	{
 		extrapolate.Init( startTime, this->accelTime, startValue, ( startValue - startValue ), speed, EXTRAPOLATION_ACCELSINE ); //-V501

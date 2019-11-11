@@ -113,29 +113,29 @@ class idMultiplayerGame
 public:
 
 	idMultiplayerGame();
-	
+
 	void			Shutdown();
-	
+
 	// resets everything and prepares for a match
 	void			Reset();
-	
+
 	// setup local data for a new player
 	void			SpawnPlayer( int clientNum );
-	
+
 	// checks rules and updates state of the mp game
 	void			Run();
-	
+
 	// draws mp hud, scoredboard, etc..
 	bool			Draw( int clientNum );
-	
+
 	// updates frag counts and potentially ends the match in sudden death
 	void			PlayerDeath( idPlayer* dead, idPlayer* killer, bool telefrag );
-	
+
 	void			AddChatLine( VERIFY_FORMAT_STRING const char* fmt, ... );
-	
+
 	void			WriteToSnapshot( idBitMsg& msg ) const;
 	void			ReadFromSnapshot( const idBitMsg& msg );
-	
+
 	// game state
 	typedef enum
 	{
@@ -150,11 +150,11 @@ public:
 	} gameState_t;
 	static const char* GameStateStrings[ STATE_COUNT ];
 	idMultiplayerGame::gameState_t		GetGameState() const;
-	
+
 	static const char* GlobalSoundStrings[ SND_COUNT ];
 	void			PlayGlobalSound( int toPlayerNum, snd_evt_t evt, const char* shader = NULL );
 	void			PlayTeamSound( int toTeam, snd_evt_t evt, const char* shader = NULL );	// sound that's sent only to member of toTeam team
-	
+
 	// more compact than a chat line
 	typedef enum
 	{
@@ -179,13 +179,13 @@ public:
 		MSG_COUNT
 	} msg_evt_t;
 	void			PrintMessageEvent( msg_evt_t evt, int parm1 = -1, int parm2 = -1 );
-	
+
 	void			DisconnectClient( int clientNum );
 	static void		DropWeapon_f( const idCmdArgs& args );
 	static void		MessageMode_f( const idCmdArgs& args );
 	static void		VoiceChat_f( const idCmdArgs& args );
 	static void		VoiceChatTeam_f( const idCmdArgs& args );
-	
+
 	int				NumActualClients( bool countSpectators, int* teamcount = NULL );
 	void			DropWeapon( int clientNum );
 	void			MapRestart();
@@ -198,95 +198,95 @@ public:
 	bool			IsScoreboardActive();
 	void			SetScoreboardActive( bool active );
 	void			CleanupScoreboard();
-	
+
 	void			Precache();
-	
+
 	void			ToggleSpectate();
-	
+
 	void			GetSpectateText( idPlayer* player, idStr spectatetext[ 2 ], bool scoreboard );
-	
+
 	void			ClearFrags( int clientNum );
-	
+
 	bool			CanPlay( idPlayer* p );
 	bool			WantRespawn( idPlayer* p );
-	
+
 	void			ServerWriteInitialReliableMessages( int clientNum, lobbyUserID_t lobbyUserID );
 	void			ClientReadStartState( const idBitMsg& msg );
 	void			ClientReadWarmupTime( const idBitMsg& msg );
 	void			ClientReadMatchStartedTime( const idBitMsg& msg );
 	void			ClientReadAchievementUnlock( const idBitMsg& msg );
-	
+
 	void			ServerClientConnect( int clientNum );
 	int             GetFlagPoints( int team );	// Team points in CTF
 	void			SetFlagMsg( bool b );		// allow flag event messages to be sent
 	bool			IsFlagMsgOn();		// should flag event messages go through?
-	
+
 	int             player_red_flag;            // Ent num of red flag carrier for HUD
 	int             player_blue_flag;           // Ent num of blue flag carrier for HUD
-	
+
 	void			PlayerStats( int clientNum, char* data, const int len );
-	
+
 private:
 	static const char* teamNames[];
 	static const char* skinNames[];
 	static const idVec3 skinColors[];
 	static const int	numSkins;
-	
+
 	// state vars
 	gameState_t		gameState;				// what state the current game is in
 	gameState_t		nextState;				// state to switch to when nextStateSwitch is hit
-	
+
 	mpPlayerState_t	playerState[ MAX_CLIENTS ];
-	
+
 	// keep track of clients which are willingly in spectator mode
 	// time related
 	int				nextStateSwitch;		// time next state switch
 	int				warmupEndTime;			// warmup till..
 	int				matchStartedTime;		// time current match started
-	
+
 	// tourney
 	int				currentTourneyPlayer[2];// our current set of players
 	int				lastWinner;				// plays again
-	
+
 	// warmup
 	bool			one, two, three;		// keeps count down voice from repeating
-	
+
 	// guis
 	idMenuHandler_Scoreboard* scoreboardManager;
-	
+
 	// chat data
 	mpChatLine_t	chatHistory[ NUM_CHAT_NOTIFY ];
 	int				chatHistoryIndex;
 	int				chatHistorySize;		// 0 <= x < NUM_CHAT_NOTIFY
 	bool			chatDataUpdated;
 	int				lastChatLineTime;
-	
+
 	// rankings are used by UpdateScoreboard and UpdateHud
 	int				numRankedPlayers;		// ranked players, others may be empty slots or spectators
 	idPlayer* 		rankedPlayers[MAX_CLIENTS];
-	
+
 	bool			pureReady;				// defaults to false, set to true once server game is running with pure checksums
 	int				fragLimitTimeout;
-	
+
 	int				voiceChatThrottle;
-	
+
 	int				startFragLimit;			// synchronize to clients in initial state, set on -> GAMEON
-	
+
 	idItemTeam* 	teamFlags[ 2 ];
 	int				teamPoints[ 2 ];
-	
+
 	bool			flagMsgOn;
-	
+
 private:
 	void			UpdatePlayerRanks();
 	void			GameHasBeenWon();
-	
+
 	// updates the passed gui with current score information
 	void			UpdateRankColor( idUserInterface* gui, const char* mask, int i, const idVec3& vec );
 	void			UpdateScoreboard( idMenuHandler_Scoreboard* scoreboard, idPlayer* owner );
-	
+
 	void			DrawScoreBoard( idPlayer* player );
-	
+
 	void			UpdateHud( idPlayer* player, idMenuHandler_HUD* hudManager );
 	bool			Warmup();
 	idPlayer* 		FragLimitHit();
@@ -319,20 +319,20 @@ private:
 	void			VoiceChat( const idCmdArgs& args, bool team );
 	void			DumpTourneyLine();
 	void			SuddenRespawn();
-	
+
 	void			FindTeamFlags();
-	
+
 	void			NewState_Warmup_ServerAndClient();
 	void			NewState_Countdown_ServerAndClient();
 	void			NewState_GameOn_ServerAndClient();
 	void			NewState_GameReview_ServerAndClient();
-	
+
 public:
 
 	const char* 	GetTeamName( int team ) const;
 	const char* 	GetSkinName( int skin ) const;
 	const idVec3& 	GetSkinColor( int skin ) const;
-	
+
 	idItemTeam* 	GetTeamFlag( int team );
 	flagStatus_t    GetFlagStatus( int team );
 	void			TeamScoreCTF( int team, int delta );
@@ -341,12 +341,12 @@ public:
 	int				GetFlagCarrier( int team );
 	void            UpdateScoreboardFlagStatus();
 	void			ReloadScoreboard();
-	
+
 	int				GetGameModes( const char** * gameModes, const char** * gameModesDisplay );
-	
+
 	bool            IsGametypeFlagBased();
 	bool            IsGametypeTeamBased();
-	
+
 };
 
 ID_INLINE idMultiplayerGame::gameState_t idMultiplayerGame::GetGameState() const

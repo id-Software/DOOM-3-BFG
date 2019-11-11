@@ -57,13 +57,13 @@ bool idAASLocal::EdgeSplitPoint( idVec3& split, int edgeNum, const idPlane& plan
 	const aasEdge_t* edge;
 	idVec3 v1, v2;
 	float d1, d2;
-	
+
 	edge = &file->GetEdge( edgeNum );
 	v1 = file->GetVertex( edge->vertexNum[0] );
 	v2 = file->GetVertex( edge->vertexNum[1] );
 	d1 = v1 * plane.Normal() - plane.Dist();
 	d2 = v2 * plane.Normal() - plane.Dist();
-	
+
 	//if ( (d1 < CM_CLIP_EPSILON && d2 < CM_CLIP_EPSILON) || (d1 > -CM_CLIP_EPSILON && d2 > -CM_CLIP_EPSILON) ) {
 	if( IEEE_FLT_SIGNBITSET( d1 ) == IEEE_FLT_SIGNBITSET( d2 ) )
 	{
@@ -88,7 +88,7 @@ bool idAASLocal::FloorEdgeSplitPoint( idVec3& bestSplit, int areaNum, const idPl
 	const aasFace_t* face;
 	idVec3 split;
 	float dist, bestDist;
-	
+
 	if( closest )
 	{
 		bestDist = maxWalkPathDistance;
@@ -97,23 +97,23 @@ bool idAASLocal::FloorEdgeSplitPoint( idVec3& bestSplit, int areaNum, const idPl
 	{
 		bestDist = -0.1f;
 	}
-	
+
 	area = &file->GetArea( areaNum );
-	
+
 	for( i = 0; i < area->numFaces; i++ )
 	{
 		faceNum = file->GetFaceIndex( area->firstFace + i );
 		face = &file->GetFace( abs( faceNum ) );
-		
+
 		if( !( face->flags & FACE_FLOOR ) )
 		{
 			continue;
 		}
-		
+
 		for( j = 0; j < face->numEdges; j++ )
 		{
 			edgeNum = file->GetEdgeIndex( face->firstEdge + j );
-			
+
 			if( !EdgeSplitPoint( split, abs( edgeNum ), pathPlane ) )
 			{
 				continue;
@@ -137,7 +137,7 @@ bool idAASLocal::FloorEdgeSplitPoint( idVec3& bestSplit, int areaNum, const idPl
 			}
 		}
 	}
-	
+
 	if( closest )
 	{
 		return ( bestDist < maxWalkPathDistance );
@@ -162,88 +162,88 @@ bool idAASLocal::WalkPathValid( int areaNum, const idVec3& origin, int goalAreaN
 	idReachability* reach;
 	const aasArea_t* area;
 	idVec3 p, dir;
-	
+
 	if( file == NULL )
 	{
 		endPos = goalOrigin;
 		endAreaNum = 0;
 		return true;
 	}
-	
+
 	lastAreas[0] = lastAreas[1] = lastAreas[2] = lastAreas[3] = areaNum;
 	lastAreaIndex = 0;
-	
+
 	pathPlane.SetNormal( ( goalOrigin - origin ).Cross( file->GetSettings().gravityDir ) );
 	pathPlane.Normalize();
 	pathPlane.FitThroughPoint( origin );
-	
+
 	frontPlane.SetNormal( goalOrigin - origin );
 	frontPlane.Normalize();
 	frontPlane.FitThroughPoint( origin );
-	
+
 	farPlane.SetNormal( frontPlane.Normal() );
 	farPlane.FitThroughPoint( goalOrigin );
-	
+
 	curAreaNum = areaNum;
 	lastAreaNum = curAreaNum;
-	
+
 	while( 1 )
 	{
-	
+
 		// find the furthest floor face split point on the path
 		if( !FloorEdgeSplitPoint( endPos, curAreaNum, pathPlane, frontPlane, false ) )
 		{
 			endPos = origin;
 		}
-		
+
 		// if we found a point near or further than the goal we're done
 		if( farPlane.Distance( endPos ) > -0.5f )
 		{
 			break;
 		}
-		
+
 		// if we reached the goal area we're done
 		if( curAreaNum == goalAreaNum )
 		{
 			break;
 		}
-		
+
 		frontPlane.SetDist( frontPlane.Normal() * endPos );
-		
+
 		area = &file->GetArea( curAreaNum );
-		
+
 		for( reach = area->reach; reach; reach = reach->next )
 		{
 			if( reach->travelType != TFL_WALK )
 			{
 				continue;
 			}
-			
+
 			// if the reachability goes back to a previous area
 			if( reach->toAreaNum == lastAreas[0] || reach->toAreaNum == lastAreas[1] ||
 					reach->toAreaNum == lastAreas[2] || reach->toAreaNum == lastAreas[3] )
 			{
 				continue;
 			}
-			
+
 			// if undesired travel flags are required to travel through the area
 			if( file->GetArea( reach->toAreaNum ).travelFlags & ~travelFlags )
 			{
 				continue;
 			}
-			
+
 			// don't optimize through an area near a ledge
 			if( file->GetArea( reach->toAreaNum ).flags & AREA_LEDGE )
 			{
 				continue;
 			}
-			
+
 			// find the closest floor face split point on the path
 			if( !FloorEdgeSplitPoint( p, reach->toAreaNum, pathPlane, frontPlane, true ) )
 			{
 				continue;
 			}
-			
+
 			// direction parallel to gravity
 			dir = ( file->GetSettings().gravityDir * endPos * file->GetSettings().gravityDir ) -
 				  ( file->GetSettings().gravityDir * p * file->GetSettings().gravityDir );
@@ -251,30 +251,30 @@ bool idAASLocal::WalkPathValid( int areaNum, const idVec3& origin, int goalAreaN
 			{
 				continue;
 			}
-			
+
 			// direction orthogonal to gravity
 			dir = endPos - p - dir;
 			if( dir.LengthSqr() > Square( 0.2f ) )
 			{
 				continue;
 			}
-			
+
 			break;
 		}
-		
+
 		if( !reach )
 		{
 			return false;
 		}
-		
+
 		lastAreas[lastAreaIndex] = curAreaNum;
 		lastAreaIndex = ( lastAreaIndex + 1 ) & 3;
-		
+
 		curAreaNum = reach->toAreaNum;
 	}
-	
+
 	endAreaNum = curAreaNum;
-	
+
 	return true;
 }
 
@@ -287,10 +287,10 @@ idVec3 idAASLocal::SubSampleWalkPath( int areaNum, const idVec3& origin, const i
 {
 	int i, numSamples, curAreaNum;
 	idVec3 dir, point, nextPoint, endPos;
-	
+
 	dir = end - start;
 	numSamples = ( int )( dir.Length() / walkPathSampleDistance ) + 1;
-	
+
 	point = start;
 	for( i = 1; i < numSamples; i++ )
 	{
@@ -321,37 +321,37 @@ bool idAASLocal::WalkPathToGoal( aasPath_t& path, int areaNum, const idVec3& ori
 	int i, travelTime, curAreaNum, lastAreas[4], lastAreaIndex, endAreaNum;
 	idReachability* reach = NULL;
 	idVec3 endPos;
-	
+
 	path.type = PATHTYPE_WALK;
 	path.moveGoal = origin;
 	path.moveAreaNum = areaNum;
 	path.secondaryGoal = origin;
 	path.reachability = NULL;
-	
+
 	if( file == NULL || areaNum == goalAreaNum )
 	{
 		path.moveGoal = goalOrigin;
 		return true;
 	}
-	
+
 	lastAreas[0] = lastAreas[1] = lastAreas[2] = lastAreas[3] = areaNum;
 	lastAreaIndex = 0;
-	
+
 	curAreaNum = areaNum;
-	
+
 	for( i = 0; i < maxWalkPathIterations; i++ )
 	{
-	
+
 		if( !idAASLocal::RouteToGoalArea( curAreaNum, path.moveGoal, goalAreaNum, travelFlags, travelTime, &reach ) )
 		{
 			break;
 		}
-		
+
 		if( !reach )
 		{
 			return false;
 		}
-		
+
 		// no need to check through the first area
 		if( areaNum != curAreaNum )
 		{
@@ -363,7 +363,7 @@ bool idAASLocal::WalkPathToGoal( aasPath_t& path, int areaNum, const idVec3& ori
 #endif
 				return true;
 			}
-			
+
 			if( !idAASLocal::WalkPathValid( areaNum, origin, 0, reach->start, travelFlags, endPos, endAreaNum ) )
 			{
 #if SUBSAMPLE_WALK_PATH
@@ -372,23 +372,23 @@ bool idAASLocal::WalkPathToGoal( aasPath_t& path, int areaNum, const idVec3& ori
 				return true;
 			}
 		}
-		
+
 		path.moveGoal = reach->start;
 		path.moveAreaNum = curAreaNum;
-		
+
 		if( reach->travelType != TFL_WALK )
 		{
 			break;
 		}
-		
+
 		if( !idAASLocal::WalkPathValid( areaNum, origin, 0, reach->end, travelFlags, endPos, endAreaNum ) )
 		{
 			return true;
 		}
-		
+
 		path.moveGoal = reach->end;
 		path.moveAreaNum = reach->toAreaNum;
-		
+
 		if( reach->toAreaNum == goalAreaNum )
 		{
 			if( !idAASLocal::WalkPathValid( areaNum, origin, 0, goalOrigin, travelFlags, endPos, endAreaNum ) )
@@ -402,12 +402,12 @@ bool idAASLocal::WalkPathToGoal( aasPath_t& path, int areaNum, const idVec3& ori
 			path.moveAreaNum = goalAreaNum;
 			return true;
 		}
-		
+
 		lastAreas[lastAreaIndex] = curAreaNum;
 		lastAreaIndex = ( lastAreaIndex + 1 ) & 3;
-		
+
 		curAreaNum = reach->toAreaNum;
-		
+
 		if( curAreaNum == lastAreas[0] || curAreaNum == lastAreas[1] ||
 				curAreaNum == lastAreas[2] || curAreaNum == lastAreas[3] )
 		{
@@ -415,12 +415,12 @@ bool idAASLocal::WalkPathToGoal( aasPath_t& path, int areaNum, const idVec3& ori
 			break;
 		}
 	}
-	
+
 	if( reach == NULL )
 	{
 		return false;
 	}
-	
+
 	switch( reach->travelType )
 	{
 		case TFL_WALKOFFLEDGE:
@@ -441,7 +441,7 @@ bool idAASLocal::WalkPathToGoal( aasPath_t& path, int areaNum, const idVec3& ori
 		default:
 			break;
 	}
-	
+
 	return true;
 }
 
@@ -455,24 +455,24 @@ idAASLocal::FlyPathValid
 bool idAASLocal::FlyPathValid( int areaNum, const idVec3& origin, int goalAreaNum, const idVec3& goalOrigin, int travelFlags, idVec3& endPos, int& endAreaNum ) const
 {
 	aasTrace_t trace;
-	
+
 	if( file == NULL )
 	{
 		endPos = goalOrigin;
 		endAreaNum = 0;
 		return true;
 	}
-	
+
 	file->Trace( trace, origin, goalOrigin );
-	
+
 	endPos = trace.endpos;
 	endAreaNum = trace.lastAreaNum;
-	
+
 	if( trace.fraction >= 1.0f )
 	{
 		return true;
 	}
-	
+
 	return false;
 }
 
@@ -485,10 +485,10 @@ idVec3 idAASLocal::SubSampleFlyPath( int areaNum, const idVec3& origin, const id
 {
 	int i, numSamples, curAreaNum;
 	idVec3 dir, point, nextPoint, endPos;
-	
+
 	dir = end - start;
 	numSamples = ( int )( dir.Length() / flyPathSampleDistance ) + 1;
-	
+
 	point = start;
 	for( i = 1; i < numSamples; i++ )
 	{
@@ -519,37 +519,37 @@ bool idAASLocal::FlyPathToGoal( aasPath_t& path, int areaNum, const idVec3& orig
 	int i, travelTime, curAreaNum, lastAreas[4], lastAreaIndex, endAreaNum;
 	idReachability* reach = NULL;
 	idVec3 endPos;
-	
+
 	path.type = PATHTYPE_WALK;
 	path.moveGoal = origin;
 	path.moveAreaNum = areaNum;
 	path.secondaryGoal = origin;
 	path.reachability = NULL;
-	
+
 	if( file == NULL || areaNum == goalAreaNum )
 	{
 		path.moveGoal = goalOrigin;
 		return true;
 	}
-	
+
 	lastAreas[0] = lastAreas[1] = lastAreas[2] = lastAreas[3] = areaNum;
 	lastAreaIndex = 0;
-	
+
 	curAreaNum = areaNum;
-	
+
 	for( i = 0; i < maxFlyPathIterations; i++ )
 	{
-	
+
 		if( !idAASLocal::RouteToGoalArea( curAreaNum, path.moveGoal, goalAreaNum, travelFlags, travelTime, &reach ) )
 		{
 			break;
 		}
-		
+
 		if( !reach )
 		{
 			return false;
 		}
-		
+
 		// no need to check through the first area
 		if( areaNum != curAreaNum )
 		{
@@ -560,7 +560,7 @@ bool idAASLocal::FlyPathToGoal( aasPath_t& path, int areaNum, const idVec3& orig
 #endif
 				return true;
 			}
-			
+
 			if( !idAASLocal::FlyPathValid( areaNum, origin, 0, reach->start, travelFlags, endPos, endAreaNum ) )
 			{
 #if SUBSAMPLE_FLY_PATH
@@ -569,18 +569,18 @@ bool idAASLocal::FlyPathToGoal( aasPath_t& path, int areaNum, const idVec3& orig
 				return true;
 			}
 		}
-		
+
 		path.moveGoal = reach->start;
 		path.moveAreaNum = curAreaNum;
-		
+
 		if( !idAASLocal::FlyPathValid( areaNum, origin, 0, reach->end, travelFlags, endPos, endAreaNum ) )
 		{
 			return true;
 		}
-		
+
 		path.moveGoal = reach->end;
 		path.moveAreaNum = reach->toAreaNum;
-		
+
 		if( reach->toAreaNum == goalAreaNum )
 		{
 			if( !idAASLocal::FlyPathValid( areaNum, origin, 0, goalOrigin, travelFlags, endPos, endAreaNum ) )
@@ -594,12 +594,12 @@ bool idAASLocal::FlyPathToGoal( aasPath_t& path, int areaNum, const idVec3& orig
 			path.moveAreaNum = goalAreaNum;
 			return true;
 		}
-		
+
 		lastAreas[lastAreaIndex] = curAreaNum;
 		lastAreaIndex = ( lastAreaIndex + 1 ) & 3;
-		
+
 		curAreaNum = reach->toAreaNum;
-		
+
 		if( curAreaNum == lastAreas[0] || curAreaNum == lastAreas[1] ||
 				curAreaNum == lastAreas[2] || curAreaNum == lastAreas[3] )
 		{
@@ -607,12 +607,12 @@ bool idAASLocal::FlyPathToGoal( aasPath_t& path, int areaNum, const idVec3& orig
 			break;
 		}
 	}
-	
+
 	if( reach == NULL )
 	{
 		return false;
 	}
-	
+
 	return true;
 }
 
@@ -632,11 +632,11 @@ void idAASLocal::SortWallEdges( int* edges, int numEdges ) const
 {
 	int i, j, k, numSequences;
 	wallEdge_t** sequenceFirst, **sequenceLast, *wallEdges, *wallEdge;
-	
+
 	wallEdges = ( wallEdge_t* ) _alloca16( numEdges * sizeof( wallEdge_t ) );
 	sequenceFirst = ( wallEdge_t** )_alloca16( numEdges * sizeof( wallEdge_t* ) );
 	sequenceLast = ( wallEdge_t** )_alloca16( numEdges * sizeof( wallEdge_t* ) );
-	
+
 	for( i = 0; i < numEdges; i++ )
 	{
 		wallEdges[i].edgeNum = edges[i];
@@ -646,7 +646,7 @@ void idAASLocal::SortWallEdges( int* edges, int numEdges ) const
 		sequenceLast[i] = &wallEdges[i];
 	}
 	numSequences = numEdges;
-	
+
 	for( i = 0; i < numSequences; i++ )
 	{
 		for( j = i + 1; j < numSequences; j++ )
@@ -674,7 +674,7 @@ void idAASLocal::SortWallEdges( int* edges, int numEdges ) const
 			i = -1;
 		}
 	}
-	
+
 	k = 0;
 	for( i = 0; i < numSequences; i++ )
 	{
@@ -698,43 +698,43 @@ int idAASLocal::GetWallEdges( int areaNum, const idBounds& bounds, int travelFla
 	const aasArea_t* area;
 	const aasFace_t* face1, *face2;
 	idReachability* reach;
-	
+
 	if( !file )
 	{
 		return 0;
 	}
-	
+
 	numEdges = 0;
-	
+
 	areasVisited = ( byte* ) _alloca16( file->GetNumAreas() );
 	memset( areasVisited, 0, file->GetNumAreas() * sizeof( byte ) );
 	areaQueue = ( int* ) _alloca16( file->GetNumAreas() * sizeof( int ) );
-	
+
 	queueStart = -1;
 	queueEnd = 0;
 	areaQueue[0] = areaNum;
 	areasVisited[areaNum] = true;
-	
+
 	for( curArea = areaNum; queueStart < queueEnd; curArea = areaQueue[++queueStart] )
 	{
-	
+
 		area = &file->GetArea( curArea );
-		
+
 		for( i = 0; i < area->numFaces; i++ )
 		{
 			face1Num = file->GetFaceIndex( area->firstFace + i );
 			face1 = &file->GetFace( abs( face1Num ) );
-			
+
 			if( !( face1->flags & FACE_FLOOR ) )
 			{
 				continue;
 			}
-			
+
 			for( j = 0; j < face1->numEdges; j++ )
 			{
 				edge1Num = file->GetEdgeIndex( face1->firstEdge + j );
 				absEdge1Num = abs( edge1Num );
-				
+
 				// test if the edge is shared by another floor face of this area
 				for( k = 0; k < area->numFaces; k++ )
 				{
@@ -744,12 +744,12 @@ int idAASLocal::GetWallEdges( int areaNum, const idBounds& bounds, int travelFla
 					}
 					face2Num = file->GetFaceIndex( area->firstFace + k );
 					face2 = &file->GetFace( abs( face2Num ) );
-					
+
 					if( !( face2->flags & FACE_FLOOR ) )
 					{
 						continue;
 					}
-					
+
 					for( l = 0; l < face2->numEdges; l++ )
 					{
 						edge2Num = abs( file->GetEdgeIndex( face2->firstEdge + l ) );
@@ -767,7 +767,7 @@ int idAASLocal::GetWallEdges( int areaNum, const idBounds& bounds, int travelFla
 				{
 					continue;
 				}
-				
+
 				// test if the edge is used by a reachability
 				for( reach = area->reach; reach; reach = reach->next )
 				{
@@ -783,7 +783,7 @@ int idAASLocal::GetWallEdges( int areaNum, const idBounds& bounds, int travelFla
 				{
 					continue;
 				}
-				
+
 				// test if the edge is already in the list
 				for( k = 0; k < numEdges; k++ )
 				{
@@ -796,7 +796,7 @@ int idAASLocal::GetWallEdges( int areaNum, const idBounds& bounds, int travelFla
 				{
 					continue;
 				}
-				
+
 				// add the edge to the list
 				edges[numEdges++] = edge1Num;
 				if( numEdges >= maxEdges )
@@ -805,7 +805,7 @@ int idAASLocal::GetWallEdges( int areaNum, const idBounds& bounds, int travelFla
 				}
 			}
 		}
-		
+
 		// add new areas to the queue
 		for( reach = area->reach; reach; reach = reach->next )
 		{

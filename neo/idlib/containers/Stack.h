@@ -44,10 +44,10 @@ class idStackTemplate
 {
 public:
 	idStackTemplate();
-	
+
 	void					Add( type* element );
 	type* 					Get();
-	
+
 private:
 	type* 					top;
 	type* 					bottom;
@@ -76,7 +76,7 @@ template< class type, int nextOffset >
 type* idStackTemplate<type, nextOffset>::Get()
 {
 	type* element;
-	
+
 	element = top;
 	if( element )
 	{

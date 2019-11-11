@@ -41,7 +41,7 @@ class idDeclEntityDef : public idDecl
 {
 public:
 	idDict					dict;
-	
+
 	virtual size_t			Size() const;
 	virtual const char* 	DefaultDefinition() const;
 	virtual bool			Parse( const char* text, const int textLength, bool allowBinaryVersion );

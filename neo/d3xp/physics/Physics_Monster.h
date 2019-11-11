@@ -64,12 +64,12 @@ class idPhysics_Monster : public idPhysics_Actor
 
 public:
 	CLASS_PROTOTYPE( idPhysics_Monster );
-	
+
 	idPhysics_Monster();
-	
+
 	void					Save( idSaveGame* savefile ) const;
 	void					Restore( idRestoreGame* savefile );
-	
+
 	// maximum step up the monster can take, default 18 units
 	void					SetMaxStepHeight( const float newMaxStepHeight );
 	float					GetMaxStepHeight() const;
@@ -92,63 +92,63 @@ public:
 	// enable/disable activation by impact
 	void					EnableImpact();
 	void					DisableImpact();
-	
+
 public:	// common physics interface
 	bool					Evaluate( int timeStepMSec, int endTimeMSec );
 	void					UpdateTime( int endTimeMSec );
 	int						GetTime() const;
-	
+
 	void					GetImpactInfo( const int id, const idVec3& point, impactInfo_t* info ) const;
 	void					ApplyImpulse( const int id, const idVec3& point, const idVec3& impulse );
 	void					Activate();
 	void					PutToRest();
 	bool					IsAtRest() const;
 	int						GetRestStartTime() const;
-	
+
 	void					SaveState();
 	void					RestoreState();
-	
+
 	void					SetOrigin( const idVec3& newOrigin, int id = -1 );
 	void					SetAxis( const idMat3& newAxis, int id = -1 );
-	
+
 	void					Translate( const idVec3& translation, int id = -1 );
 	void					Rotate( const idRotation& rotation, int id = -1 );
-	
+
 	void					SetLinearVelocity( const idVec3& newLinearVelocity, int id = 0 );
-	
+
 	const idVec3& 			GetLinearVelocity( int id = 0 ) const;
-	
+
 	void					SetPushed( int deltaTime );
 	const idVec3& 			GetPushedLinearVelocity( const int id = 0 ) const;
-	
+
 	void					SetMaster( idEntity* master, const bool orientated = true );
-	
+
 	void					WriteToSnapshot( idBitMsg& msg ) const;
 	void					ReadFromSnapshot( const idBitMsg& msg );
-	
+
 private:
 	// monster physics state
 	monsterPState_t			current;
 	monsterPState_t			saved;
-	
+
 	// client interpolation state
 	monsterPState_t			previous;
 	monsterPState_t			next;
-	
+
 	// properties
 	float					maxStepHeight;		// maximum step height
 	float					minFloorCosine;		// minimum cosine of floor angle
 	idVec3					delta;				// delta for next move
-	
+
 	bool					forceDeltaMove;
 	bool					fly;
 	bool					useVelocityMove;
 	bool					noImpact;			// if true do not activate when another object collides
-	
+
 	// results of last evaluate
 	monsterMoveResult_t		moveResult;
 	idEntity* 				blockingEntity;
-	
+
 private:
 	void					CheckGround( monsterPState_t& state );
 	monsterMoveResult_t		SlideMove( idVec3& start, idVec3& velocity, const idVec3& delta );

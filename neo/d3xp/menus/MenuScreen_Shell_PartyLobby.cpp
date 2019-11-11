@@ -55,24 +55,24 @@ idMenuScreen_Shell_PartyLobby::Initialize
 void idMenuScreen_Shell_PartyLobby::Initialize( idMenuHandler* data )
 {
 	idMenuScreen::Initialize( data );
-	
+
 	if( data != NULL )
 	{
 		menuGUI = data->GetGUI();
 	}
-	
+
 	SetSpritePath( "menuPartyLobby" );
-	
+
 	options = new( TAG_SWF ) idMenuWidget_DynamicList();
 	options->SetNumVisibleOptions( NUM_LOBBY_OPTIONS );
 	options->SetSpritePath( GetSpritePath(), "info", "options" );
 	options->SetWrappingAllowed( true );
 	AddChild( options );
-	
+
 	idMenuWidget_Help* const helpWidget = new( TAG_SWF ) idMenuWidget_Help();
 	helpWidget->SetSpritePath( GetSpritePath(), "info", "helpTooltip" );
 	AddChild( helpWidget );
-	
+
 	while( options->GetChildren().Num() < NUM_LOBBY_OPTIONS )
 	{
 		idMenuWidget_Button* const buttonWidget = new( TAG_SWF ) idMenuWidget_Button();
@@ -81,15 +81,15 @@ void idMenuScreen_Shell_PartyLobby::Initialize( idMenuHandler* data )
 		options->AddChild( buttonWidget );
 	}
 	options->Initialize( data );
-	
-	
+
+
 	btnBack = new( TAG_SWF ) idMenuWidget_Button();
 	btnBack->Initialize( data );
 	btnBack->SetLabel( "#str_02305" );
 	btnBack->SetSpritePath( GetSpritePath(), "info", "btnBack" );
 	btnBack->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_GO_BACK );
 	AddChild( btnBack );
-	
+
 	lobby = new( TAG_SWF ) idMenuWidget_LobbyList();
 	lobby->SetNumVisibleOptions( 8 );
 	lobby->SetSpritePath( GetSpritePath(), "options" );
@@ -104,7 +104,7 @@ void idMenuScreen_Shell_PartyLobby::Initialize( idMenuHandler* data )
 		lobby->AddChild( buttonWidget );
 	}
 	AddChild( lobby );
-	
+
 	AddEventAction( WIDGET_EVENT_SCROLL_DOWN ).Set( new( TAG_SWF ) idWidgetActionHandler( options, WIDGET_ACTION_EVENT_SCROLL_DOWN_START_REPEATER, WIDGET_EVENT_SCROLL_DOWN ) );
 	AddEventAction( WIDGET_EVENT_SCROLL_UP ).Set( new( TAG_SWF ) idWidgetActionHandler( options, WIDGET_ACTION_EVENT_SCROLL_UP_START_REPEATER, WIDGET_EVENT_SCROLL_UP ) );
 	AddEventAction( WIDGET_EVENT_SCROLL_DOWN_RELEASE ).Set( new( TAG_SWF ) idWidgetActionHandler( options, WIDGET_ACTION_EVENT_STOP_REPEATER, WIDGET_EVENT_SCROLL_DOWN_RELEASE ) );
@@ -139,7 +139,7 @@ void idMenuScreen_Shell_PartyLobby::Update()
 			}
 		}
 	}
-	
+
 	idSWFScriptObject& root = GetSWFObject()->GetRootObject();
 	if( BindSprite( root ) )
 	{
@@ -149,16 +149,16 @@ void idMenuScreen_Shell_PartyLobby::Update()
 			heading->SetText( "#str_swf_multiplayer" );	// MULTIPLAYER
 			heading->SetStrokeInfo( true, 0.75f, 1.75f );
 		}
-		
+
 		idSWFSpriteInstance* gradient = GetSprite()->GetScriptObject()->GetNestedSprite( "info", "gradient" );
 		if( gradient != NULL && heading != NULL )
 		{
 			gradient->SetXPos( heading->GetTextLength() );
 		}
 	}
-	
+
 	UpdateOptions();
-	
+
 	if( menuData != NULL && menuData->NextScreen() == SHELL_AREA_PARTY_LOBBY )
 	{
 		idMenuWidget_CommandBar* cmdBar = menuData->GetCmdBar();
@@ -172,14 +172,14 @@ void idMenuScreen_Shell_PartyLobby::Update()
 				buttonInfo->label = "#str_00395";
 			}
 			buttonInfo->action.Set( WIDGET_ACTION_GO_BACK );
-			
+
 			buttonInfo = cmdBar->GetButton( idMenuWidget_CommandBar::BUTTON_JOY1 );
 			if( menuData->GetPlatform() != 2 )
 			{
 				buttonInfo->label = "#str_SWF_SELECT";
 			}
 			buttonInfo->action.Set( WIDGET_ACTION_PRESS_FOCUSED );
-			
+
 			lobbyUserID_t luid;
 			if( isHost && CanKickSelectedPlayer( luid ) )
 			{
@@ -187,7 +187,7 @@ void idMenuScreen_Shell_PartyLobby::Update()
 				buttonInfo->label = "#str_swf_kick";
 				buttonInfo->action.Set( WIDGET_ACTION_JOY4_ON_PRESS );
 			}
-			
+
 			buttonInfo = cmdBar->GetButton( idMenuWidget_CommandBar::BUTTON_JOY3 );
 			if( menuData->GetPlatform() != 2 )
 			{
@@ -196,12 +196,12 @@ void idMenuScreen_Shell_PartyLobby::Update()
 			buttonInfo->action.Set( WIDGET_ACTION_SELECT_GAMERTAG );
 		}
 	}
-	
+
 	if( btnBack != NULL )
 	{
 		btnBack->BindSprite( root );
 	}
-	
+
 	idMenuScreen::Update();
 }
 
@@ -209,17 +209,17 @@ void idMenuScreen_Shell_PartyLobby::UpdateOptions()
 {
 
 	bool forceUpdate = false;
-	
-	
+
+
 	if( ( session->GetPartyLobbyBase().IsHost() && ( !isHost || forceUpdate ) ) && options != NULL )
 	{
-	
+
 		menuOptions.Clear();
 		idList< idStr > option;
-		
+
 		isHost = true;
 		isPeer = false;
-		
+
 		option.Append( "#str_swf_join_public" );	// Quick Match
 		menuOptions.Append( option );
 		option.Clear();
@@ -240,7 +240,7 @@ void idMenuScreen_Shell_PartyLobby::UpdateOptions()
 		option.Clear();
 		option.Append( "#str_swf_invite_friends" );	// Invite Friends
 		menuOptions.Append( option );
-		
+
 		idMenuWidget_Button* buttonWidget = NULL;
 		int index = 0;
 		options->GetChildByIndex( index ).ClearEventActions();
@@ -298,25 +298,25 @@ void idMenuScreen_Shell_PartyLobby::UpdateOptions()
 		{
 			buttonWidget->SetDescription( "#str_swf_invite_desc" );
 		}
-		
+
 		options->SetListData( menuOptions );
-		
+
 	}
 	else if( session->GetPartyLobbyBase().IsPeer() && options != NULL )
 	{
 		if( !isPeer || forceUpdate )
 		{
-		
+
 			menuOptions.Clear();
 			idList< idStr > option;
-			
+
 			idMenuWidget_Button* buttonWidget = NULL;
 			option.Append( "#str_swf_leaderboards" );	// Play With Friends
 			menuOptions.Append( option );
 			option.Clear();
 			option.Append( "#str_swf_invite_friends" );	// Play With Friends
 			menuOptions.Append( option );
-			
+
 			int index = 0;
 			options->GetChildByIndex( index ).ClearEventActions();
 			options->GetChildByIndex( index ).AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, PARTY_CMD_LEADERBOARDS, index );
@@ -333,20 +333,20 @@ void idMenuScreen_Shell_PartyLobby::UpdateOptions()
 			{
 				buttonWidget->SetDescription( "#str_swf_invite_desc" );
 			}
-			
+
 			options->SetListData( menuOptions );
-			
+
 		}
-		
+
 		isPeer = true;
 		isHost = false;
 	}
-	
+
 	if( forceUpdate )
 	{
 		options->Update();
 	}
-	
+
 }
 
 /*
@@ -359,7 +359,7 @@ void idMenuScreen_Shell_PartyLobby::ShowScreen( const mainMenuTransition_t trans
 
 	isPeer = false;
 	isHost = false;
-	
+
 	idSWFScriptObject& root = GetSWFObject()->GetRootObject();
 	if( BindSprite( root ) )
 	{
@@ -369,7 +369,7 @@ void idMenuScreen_Shell_PartyLobby::ShowScreen( const mainMenuTransition_t trans
 			waitTime->SetVisible( false );
 		}
 	}
-	
+
 	if( session->GetPartyLobbyBase().IsHost() )
 	{
 		idMatchParameters matchParameters = session->GetPartyLobbyBase().GetMatchParms();
@@ -381,12 +381,12 @@ void idMenuScreen_Shell_PartyLobby::ShowScreen( const mainMenuTransition_t trans
 		{
 			matchParameters.matchFlags &= ~MATCH_INVITE_ONLY;
 		}
-		
+
 		matchParameters.numSlots = session->GetTitleStorageInt( "MAX_PLAYERS_ALLOWED", 4 );
-		
+
 		session->UpdatePartyParms( matchParameters );
 	}
-	
+
 	idMenuScreen::ShowScreen( transitionType );
 	if( lobby != NULL )
 	{
@@ -414,7 +414,7 @@ bool idMenuScreen_Shell_PartyLobby::CanKickSelectedPlayer( lobbyUserID_t& luid )
 
 	idMatchParameters matchParameters = session->GetPartyLobbyBase().GetMatchParms();
 	const int playerId = lobby->GetFocusIndex();
-	
+
 	// can't kick yourself
 	idLobbyBase& activeLobby = session->GetPartyLobbyBase();
 	luid = activeLobby.GetLobbyUserIdByOrdinal( playerId );
@@ -422,7 +422,7 @@ bool idMenuScreen_Shell_PartyLobby::CanKickSelectedPlayer( lobbyUserID_t& luid )
 	{
 		return false;
 	}
-	
+
 	return true;
 }
 
@@ -435,7 +435,7 @@ void idMenuScreen_Shell_PartyLobby::ShowLeaderboards()
 {
 
 	const bool canPlayOnline = session->GetSignInManager().GetMasterLocalUser() != NULL && session->GetSignInManager().GetMasterLocalUser()->CanPlayOnline();
-	
+
 	if( !canPlayOnline )
 	{
 		common->Dialog().AddDialog( GDM_LEADERBOARD_ONLINE_NO_PROFILE, DIALOG_CONTINUE, NULL, NULL, true, __FUNCTION__, __LINE__, false );
@@ -458,20 +458,20 @@ bool idMenuScreen_Shell_PartyLobby::HandleAction( idWidgetAction& action, const 
 	{
 		return true;
 	}
-	
+
 	if( menuData->ActiveScreen() != SHELL_AREA_PARTY_LOBBY )
 	{
 		return false;
 	}
-	
+
 	widgetAction_t actionType = action.GetType();
 	const idSWFParmList& parms = action.GetParms();
-	
+
 	switch( actionType )
 	{
 		case WIDGET_ACTION_JOY4_ON_PRESS:
 		{
-		
+
 			idLobbyBase& activeLobby = session->GetPartyLobbyBase();
 			lobbyUserID_t luid;
 			if( CanKickSelectedPlayer( luid ) )
@@ -490,7 +490,7 @@ bool idMenuScreen_Shell_PartyLobby::HandleAction( idWidgetAction& action, const 
 				{
 					common->Dialog().ClearDialog( GDM_LEAVE_LOBBY_RET_MAIN );
 					session->Cancel();
-					
+
 					return idSWFScriptVar();
 				}
 			};
@@ -504,9 +504,9 @@ bool idMenuScreen_Shell_PartyLobby::HandleAction( idWidgetAction& action, const 
 					return idSWFScriptVar();
 				}
 			};
-			
+
 			idLobbyBase& activeLobby = session->GetActivePlatformLobbyBase();
-			
+
 			if( activeLobby.GetNumActiveLobbyUsers() > 1 )
 			{
 				common->Dialog().AddDialog( GDM_LEAVE_LOBBY_RET_MAIN, DIALOG_ACCEPT_CANCEL, new( TAG_SWF ) idSWFScriptFunction_Accept(), new( TAG_SWF ) idSWFScriptFunction_Cancel(), false );
@@ -515,71 +515,71 @@ bool idMenuScreen_Shell_PartyLobby::HandleAction( idWidgetAction& action, const 
 			{
 				session->Cancel();
 			}
-			
+
 			return true;
 		}
 		case WIDGET_ACTION_MUTE_PLAYER:
 		{
-		
+
 			if( parms.Num() != 1 )
 			{
 				return true;
 			}
-			
+
 			int index = parms[0].ToInteger();
-			
+
 			idLobbyBase& activeLobby = session->GetPartyLobbyBase();
 			lobbyUserID_t luid = activeLobby.GetLobbyUserIdByOrdinal( index );
 			if( luid.IsValid() )
 			{
 				session->ToggleLobbyUserVoiceMute( luid );
 			}
-			
+
 			return true;
 		}
 		case WIDGET_ACTION_COMMAND:
 		{
-		
+
 			if( options == NULL )
 			{
 				return true;
 			}
-			
+
 			int selectionIndex = options->GetFocusIndex();
 			if( parms.Num() > 1 )
 			{
 				selectionIndex = parms[1].ToInteger();
 			}
-			
+
 			if( selectionIndex != options->GetFocusIndex() )
 			{
 				options->SetViewIndex( options->GetViewOffset() + selectionIndex );
 				options->SetFocusIndex( selectionIndex );
 			}
-			
+
 			switch( parms[0].ToInteger() )
 			{
 				case PARTY_CMD_QUICK:
 				{
 					idMatchParameters matchParameters = idMatchParameters( session->GetPartyLobbyBase().GetMatchParms() );
-					
+
 					// Reset these to random for quick match.
 					matchParameters.gameMap =  GAME_MAP_RANDOM;
 					matchParameters.gameMode = GAME_MODE_RANDOM;
-					
+
 					// Always a public match.
 					matchParameters.matchFlags &= ~MATCH_INVITE_ONLY;
-					
+
 					session->UpdatePartyParms( matchParameters );
-					
+
 					// Update flags for game lobby.
 					matchParameters.matchFlags = DefaultPartyFlags | DefaultPublicGameFlags;
 					cvarSystem->MoveCVarsToDict( CVAR_SERVERINFO, matchParameters.serverInfo );
-					
+
 					// Force a default value for the si_timelimit and si_fraglimit for quickmatch
 					matchParameters.serverInfo.SetInt( "si_timelimit", 15 );
 					matchParameters.serverInfo.SetInt( "si_fraglimit", 10 );
-					
+
 					session->FindOrCreateMatch( matchParameters );
 					break;
 				}
@@ -591,20 +591,20 @@ bool idMenuScreen_Shell_PartyLobby::HandleAction( idWidgetAction& action, const 
 				case PARTY_CMD_CREATE:
 				{
 					idMatchParameters matchParameters = idMatchParameters( session->GetPartyLobbyBase().GetMatchParms() );
-					
+
 					const bool isInviteOnly = MatchTypeInviteOnly( matchParameters.matchFlags );
-					
+
 					matchParameters.matchFlags = DefaultPartyFlags | DefaultPrivateGameFlags;
-					
+
 					if( isInviteOnly )
 					{
 						matchParameters.matchFlags |= MATCH_INVITE_ONLY;
 					}
-					
+
 					int mode = idMath::ClampInt( -1, GAME_COUNT - 1, si_mode.GetInteger() );
 					const idList< mpMap_t > maps = common->GetMapList();
 					int map = idMath::ClampInt( -1, maps.Num() - 1, si_map.GetInteger() );
-					
+
 					matchParameters.gameMap = map;
 					matchParameters.gameMode = mode;
 					cvarSystem->MoveCVarsToDict( CVAR_SERVERINFO, matchParameters.serverInfo );
@@ -642,22 +642,22 @@ bool idMenuScreen_Shell_PartyLobby::HandleAction( idWidgetAction& action, const 
 						common->Dialog().AddDialog( GDM_CANNOT_INVITE_LOBBY_FULL, DIALOG_CONTINUE, NULL, NULL, true, __FUNCTION__, __LINE__, false );
 						return true;
 					}
-					
+
 					InvitePartyOrFriends();
 					break;
 				}
 			}
-			
+
 			return true;
 		}
 		case WIDGET_ACTION_START_REPEATER:
 		{
-		
+
 			if( options == NULL )
 			{
 				return true;
 			}
-			
+
 			if( parms.Num() == 4 )
 			{
 				int selectionIndex = parms[3].ToInteger();
@@ -676,25 +676,25 @@ bool idMenuScreen_Shell_PartyLobby::HandleAction( idWidgetAction& action, const 
 			{
 				selectionIndex = parms[0].ToInteger();
 			}
-			
+
 			if( selectionIndex != lobby->GetFocusIndex() )
 			{
 				lobby->SetViewIndex( lobby->GetViewOffset() + selectionIndex );
 				lobby->SetFocusIndex( selectionIndex );
 				return true;
 			}
-			
+
 			idLobbyBase& activeLobby = session->GetPartyLobbyBase();
 			lobbyUserID_t luid = activeLobby.GetLobbyUserIdByOrdinal( selectionIndex );
 			if( luid.IsValid() )
 			{
 				session->ShowLobbyUserGamerCardUI( luid );
 			}
-			
+
 			return true;
 		}
 	}
-	
+
 	return idMenuWidget::HandleAction( action, event, widget, forceHandled );
 }
 
@@ -710,25 +710,25 @@ void idMenuScreen_Shell_PartyLobby::UpdateLobby()
 	{
 		return;
 	}
-	
+
 	// Keep this menu in sync with the session host/peer status.
 	if( session->GetPartyLobbyBase().IsHost() && !isHost )
 	{
 		Update();
 	}
-	
+
 	if( session->GetPartyLobbyBase().IsPeer() && !isPeer )
 	{
 		Update();
 	}
-	
+
 	if( isPeer )
 	{
 		Update();
 	}
-	
+
 	UpdateOptions();
-	
+
 	// setup names for lobby;
 	if( lobby != NULL )
 	{
@@ -738,17 +738,17 @@ void idMenuScreen_Shell_PartyLobby::UpdateLobby()
 			mgr->UpdateLobby( lobby );
 			lobby->Update();
 		}
-		
+
 		if( lobby->GetNumEntries() > 0 && lobby->GetFocusIndex() >= lobby->GetNumEntries() )
 		{
 			lobby->SetFocusIndex( lobby->GetNumEntries() - 1 );
 			lobby->SetViewIndex( lobby->GetNumEntries() - 1 );
 		}
 	}
-	
+
 	if( session->GetState() == idSession::PARTY_LOBBY )
 	{
-	
+
 		if( options != NULL )
 		{
 			if( options->GetFocusIndex() >= options->GetTotalNumberOfOptions() && options->GetTotalNumberOfOptions() > 0 )
@@ -757,7 +757,7 @@ void idMenuScreen_Shell_PartyLobby::UpdateLobby()
 				options->SetFocusIndex( options->GetTotalNumberOfOptions() - 1 );
 			}
 		}
-		
+
 		idSWFTextInstance* privacy = GetSprite()->GetScriptObject()->GetNestedText( "matchInfo", "txtPrivacy" );
 		if( privacy != NULL )
 		{
@@ -767,7 +767,7 @@ void idMenuScreen_Shell_PartyLobby::UpdateLobby()
 			}
 			else
 			{
-			
+
 				idMatchParameters matchParameters = session->GetPartyLobbyBase().GetMatchParms();
 				int bitSet = ( matchParameters.matchFlags & MATCH_INVITE_ONLY );
 				bool privacySet = ( bitSet != 0 ? true : false );
@@ -783,7 +783,7 @@ void idMenuScreen_Shell_PartyLobby::UpdateLobby()
 				}
 			}
 		}
-		
+
 		idLocalUser* user = session->GetSignInManager().GetMasterLocalUser();
 		if( user != NULL && options != NULL )
 		{

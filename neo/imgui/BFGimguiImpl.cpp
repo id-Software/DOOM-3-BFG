@@ -30,13 +30,13 @@ bool ImGui::DragVec3( const char* label, idVec3& v, float v_speed,
 	bool value_changed = false;
 	ImGui::BeginGroup();
 	ImGui::PushID( label );
-	
+
 	ImGuiStyle& style = ImGui::GetStyle();
 	float wholeWidth = ImGui::CalcItemWidth() - 2.0f * style.ItemSpacing.x;
 	float spacing = style.ItemInnerSpacing.x;
 	float labelWidth = ignoreLabelWidth ? 0.0f : ( ImGui::CalcTextSize( label, NULL, true ).x + spacing );
 	float coordWidth = ( wholeWidth - labelWidth - 2.0f * spacing ) * ( 1.0f / 3.0f ); // width of one x/y/z dragfloat
-	
+
 	ImGui::PushItemWidth( coordWidth );
 	for( int i = 0; i < 3; i++ )
 	{
@@ -44,18 +44,18 @@ bool ImGui::DragVec3( const char* label, idVec3& v, float v_speed,
 		char format[64];
 		idStr::snPrintf( format, sizeof( format ), "%c: %s", "XYZ"[i], display_format );
 		value_changed |= ImGui::DragFloat( "##v", &v[i], v_speed, v_min, v_max, format, power );
-		
+
 		ImGui::PopID();
 		ImGui::SameLine( 0.0f, spacing );
 	}
 	ImGui::PopItemWidth();
 	ImGui::PopID();
-	
+
 	const char* labelEnd = strstr( label, "##" );
 	ImGui::TextUnformatted( label, labelEnd );
-	
+
 	ImGui::EndGroup();
-	
+
 	return value_changed;
 }
 
@@ -92,34 +92,34 @@ bool g_haveNewFrame = false;
 bool HandleKeyEvent( const sysEvent_t& keyEvent )
 {
 	assert( keyEvent.evType == SE_KEY );
-	
+
 	keyNum_t keyNum = static_cast<keyNum_t>( keyEvent.evValue );
 	bool pressed = keyEvent.evValue2 > 0;
-	
+
 	ImGuiIO& io = ImGui::GetIO();
-	
+
 	if( keyNum < K_JOY1 )
 	{
 		// keyboard input as direct input scancodes
 		io.KeysDown[keyNum] = pressed;
-		
+
 		io.KeyAlt = usercmdGen->KeyState( K_LALT ) == 1 || usercmdGen->KeyState( K_RALT ) == 1;
 		io.KeyCtrl = usercmdGen->KeyState( K_LCTRL ) == 1 || usercmdGen->KeyState( K_RCTRL ) == 1;
 		io.KeyShift = usercmdGen->KeyState( K_LSHIFT ) == 1 || usercmdGen->KeyState( K_RSHIFT ) == 1;
-		
+
 		return true;
 	}
 	else if( keyNum >= K_MOUSE1 && keyNum <= K_MOUSE5 )
 	{
 		int buttonIdx = keyNum - K_MOUSE1;
-		
+
 		// K_MOUSE* are contiguous, so they can be used as indexes into imgui's
 		// g_MousePressed[] - imgui even uses the same order (left, right, middle, X1, X2)
 		g_MousePressed[buttonIdx] = pressed;
-		
+
 		return true; // let's pretend we also handle mouse up events
 	}
-	
+
 	return false;
 }
 
@@ -134,7 +134,7 @@ void FillCharKeys( int* keyMap )
 	keyMap[ImGuiKey_X] = K_X;
 	keyMap[ImGuiKey_Y] = K_Y;
 	keyMap[ImGuiKey_Z] = K_Z;
-	
+
 	// try all probable keys for whether they're ImGuiKey_A/C/V/X/Y/Z
 	for( int k = K_1; k < K_RSHIFT; ++k )
 	{
@@ -155,22 +155,22 @@ void FillCharKeys( int* keyMap )
 			case 'C':
 				keyMap [ImGuiKey_C] = k;
 				break;
-				
+
 			case 'v': // fall-through
 			case 'V':
 				keyMap [ImGuiKey_V] = k;
 				break;
-				
+
 			case 'x': // fall-through
 			case 'X':
 				keyMap [ImGuiKey_X] = k;
 				break;
-				
+
 			case 'y': // fall-through
 			case 'Y':
 				keyMap [ImGuiKey_Y] = k;
 				break;
-				
+
 			case 'z': // fall-through
 			case 'Z':
 				keyMap [ImGuiKey_Z] = k;
@@ -189,12 +189,12 @@ const char* GetClipboardText( void* )
 	{
 		return NULL;
 	}
-	
+
 	static idStr clipboardBuf;
 	clipboardBuf = txt;
-	
+
 	Mem_Free( txt );
-	
+
 	return clipboardBuf.c_str();
 }
 
@@ -222,11 +222,11 @@ bool Init( int windowWidth, int windowHeight )
 	{
 		Destroy();
 	}
-	
+
 	IMGUI_CHECKVERSION();
-	
+
 	ImGui::CreateContext();
-	
+
 	ImGuiIO& io = ImGui::GetIO();
 	// Keyboard mapping. ImGui will use those indices to peek into the io.KeyDown[] array.
 	io.KeyMap[ImGuiKey_Tab] = K_TAB;
@@ -242,33 +242,33 @@ bool Init( int windowWidth, int windowHeight )
 	io.KeyMap[ImGuiKey_Backspace] = K_BACKSPACE;
 	io.KeyMap[ImGuiKey_Enter] = K_ENTER;
 	io.KeyMap[ImGuiKey_Escape] = K_ESCAPE;
-	
+
 	FillCharKeys( io.KeyMap );
-	
+
 	g_DisplaySize.x = windowWidth;
 	g_DisplaySize.y = windowHeight;
 	io.DisplaySize = g_DisplaySize;
-	
+
 	io.RenderDrawListsFn = idRenderBackend::ImGui_RenderDrawLists;
-	
+
 	// RB: FIXME double check
 	io.SetClipboardTextFn = SetClipboardText;
 	io.GetClipboardTextFn = GetClipboardText;
 	io.ClipboardUserData = NULL;
-	
+
 	// make it a bit prettier with rounded edges
 	ImGuiStyle& style = ImGui::GetStyle();
 	//style.ChildWindowRounding = 9.0f;
 	//style.FrameRounding = 4.0f;
 	//style.ScrollbarRounding = 4.0f;
 	//style.GrabRounding = 4.0f;
-	
+
 	// Setup style
 	ImGui::StyleColorsDark();
 	//ImGui::StyleColorsClassic();
-	
+
 	g_IsInit = true;
-	
+
 	return true;
 }
 
@@ -277,7 +277,7 @@ void NotifyDisplaySizeChanged( int width, int height )
 	if( g_DisplaySize.x != width || g_DisplaySize.y != height )
 	{
 		g_DisplaySize = ImVec2( ( float )width, ( float )height );
-		
+
 		if( IsInitialized() )
 		{
 			Destroy();
@@ -296,19 +296,19 @@ bool InjectSysEvent( const sysEvent_t* event )
 			assert( 0 ); // I think this shouldn't happen
 			return false;
 		}
-		
+
 		const sysEvent_t& ev = *event;
-		
+
 		switch( ev.evType )
 		{
 			case SE_KEY:
 				return HandleKeyEvent( ev );
-				
+
 			case SE_MOUSE_ABSOLUTE:
 				g_MousePos.x = ev.evValue;
 				g_MousePos.y = ev.evValue2;
 				return true;
-				
+
 			case SE_CHAR:
 				if( ev.evValue < 0x10000 )
 				{
@@ -316,11 +316,11 @@ bool InjectSysEvent( const sysEvent_t* event )
 					return true;
 				}
 				break;
-				
+
 			case SE_MOUSE_LEAVE:
 				g_MousePos = ImVec2( -1.0f, -1.0f );
 				return true;
-				
+
 			default:
 				break;
 		}
@@ -343,19 +343,19 @@ void NewFrame()
 	if( IsInitialized() && ShowWindows() )
 	{
 		ImGuiIO& io = ImGui::GetIO();
-		
+
 		// Setup display size (every frame to accommodate for window resizing)
 		io.DisplaySize = g_DisplaySize;
-		
+
 		// Setup time step
 		int	time = Sys_Milliseconds();
 		double current_time = time * 0.001;
 		io.DeltaTime = g_Time > 0.0 ? ( float )( current_time - g_Time ) : ( float )( 1.0f / 60.0f );
 		g_Time = current_time;
-		
+
 		// Setup inputs
 		io.MousePos = g_MousePos;
-		
+
 		// If a mouse press event came, always pass it as "mouse held this frame",
 		// so we don't miss click-release events that are shorter than 1 frame.
 		for( int i = 0; i < 5; ++i )
@@ -363,19 +363,19 @@ void NewFrame()
 			io.MouseDown[i] = g_MousePressed[i] || usercmdGen->KeyState( K_MOUSE1 + i ) == 1;
 			//g_MousePressed[i] = false;
 		}
-		
+
 		io.MouseWheel = g_MouseWheel;
 		g_MouseWheel = 0.0f;
-		
+
 		// Hide OS mouse cursor if ImGui is drawing it TODO: hide mousecursor?
 		// ShowCursor(io.MouseDrawCursor ? 0 : 1);
-		
+
 		ImGui::GetIO().MouseDrawCursor = UseInput();
-		
+
 		// Start the frame
 		ImGui::NewFrame();
 		g_haveNewFrame = true;
-		
+
 		if( imgui_showDemoWindow.GetBool() && !ImGuiTools::ReleaseMouseForTools() )
 		{
 			ImGuiTools::impl::SetReleaseToolMouse( true );
@@ -393,16 +393,16 @@ void Render()
 			// before idRenderSystemLocal::SwapCommandBuffers_FinishRendering()
 			NewFrame();
 		}
-		
+
 		ImGuiTools::DrawToolWindows();
-		
+
 		if( imgui_showDemoWindow.GetBool() )
 		{
 			ImGui::ShowDemoWindow();
 		}
-		
+
 		ImGui::End();
-		
+
 		ImGui::Render();
 		g_haveNewFrame = false;
 	}

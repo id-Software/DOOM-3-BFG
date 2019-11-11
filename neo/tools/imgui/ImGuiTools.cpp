@@ -74,34 +74,37 @@ void DrawToolWindows()
 {
 #if 0
 	ImGui::Begin( "Show Ingame Editors", &showToolWindows, 0 );
-	
+
 	ImGui::Checkbox( "Light", &LightEditor::showIt );
 	ImGui::SameLine();
 	ImGui::Checkbox( "Particle", &showParticlesEditor );
 #endif // 0
-	
+
 	if( LightEditor::showIt )
 	{
 		LightEditor::Draw();
 	}
-	
+
 	// TODO: other editor windows..
 	//ImGui::End();
 }
 
 void LightEditorInit( const idDict* dict, idEntity* ent )
 {
-	if( dict == NULL || ent == NULL ) return;
-	
+	if( dict == NULL || ent == NULL )
+	{
+		return;
+	}
+
 	// NOTE: we can't access idEntity (it's just a declaration), because it should
 	// be game/mod specific. but we can at least check the spawnclass from the dict.
 	idassert( idStr::Icmp( dict->GetString( "spawnclass" ), "idLight" ) == 0
 			  && "LightEditorInit() must only be called with light entities or NULL!" );
-			  
-			  
+
+
 	LightEditor::showIt = true;
 	impl::SetReleaseToolMouse( true );
-	
+
 	LightEditor::ReInit( dict, ent );
 }
 

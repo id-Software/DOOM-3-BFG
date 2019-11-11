@@ -47,14 +47,14 @@ bool idSignInManagerBase::ProcessInputEvent( const sysEvent_t* ev )
 		{
 			if( ev->GetKey() == K_JOY1 || ev->GetKey() == K_JOY9 || ev->GetKey() == K_ENTER || ev->GetKey() == K_KP_ENTER )
 			{
-			
-			
+
+
 				// Register a local user so they can use this input device only done for demos press start screen
 				// otherwise the user is registered when selecting which game to play.
 			}
 		}
 	}
-	
+
 	return false;
 }
 
@@ -87,7 +87,7 @@ idLocalUser* idSignInManagerBase::GetLocalUserByInputDevice( int index )
 			return GetLocalUserByIndex( i );	// Found it
 		}
 	}
-	
+
 	return NULL;		// Not found
 }
 
@@ -105,7 +105,7 @@ idLocalUser* idSignInManagerBase::GetLocalUserByHandle( localUserHandle_t handle
 			return GetLocalUserByIndex( i );	// Found it
 		}
 	}
-	
+
 	return NULL;		// Not found
 }
 
@@ -140,7 +140,7 @@ bool idSignInManagerBase::RemoveLocalUserByInputDevice( int index )
 			return true;
 		}
 	}
-	
+
 	return false;		// Not found
 }
 
@@ -159,7 +159,7 @@ bool idSignInManagerBase::RemoveLocalUserByHandle( localUserHandle_t handle )
 			return true;
 		}
 	}
-	
+
 	return false;		// Not found
 }
 
@@ -211,7 +211,7 @@ void idSignInManagerBase::ValidateLocalUsers( bool requireOnline )
 	for( int i = GetNumLocalUsers() - 1; i >= 0; i-- )
 	{
 		idLocalUser* localUser = GetLocalUserByIndex( i );
-		
+
 		// If this user does not have a profile, remove them.
 		// If this user is not online-capable and we require online, remove them.
 		if( !localUser->IsProfileReady() ||
@@ -234,13 +234,13 @@ bool idSignInManagerBase::RequirePersistentMaster()
 #else
 	// Non retail production builds require a persistent profile unless si_splitscreen is set
 	extern idCVar si_splitscreen;
-	
+
 	// If we are forcing splitscreen, then we won't require a profile (this is for development)
 	if( si_splitscreen.GetInteger() != 0 )
 	{
 		return false;
 	}
-	
+
 	return com_requireNonProductionSignIn.GetBool();
 #endif
 }
@@ -256,29 +256,29 @@ localUserHandle_t idSignInManagerBase::GetUniqueLocalUserHandle( const char* nam
 	MD5_CTX			ctx;
 	unsigned char	digest[16];
 	int64			clockTicks = Sys_GetClockTicks();
-	
+
 	MD5_Init( &ctx );
 	MD5_Update( &ctx, ( const unsigned char* )name, idStr::Length( name ) );
 	MD5_Update( &ctx, ( const unsigned char* )&clockTicks, sizeof( clockTicks ) );
 	MD5_Final( &ctx, ( unsigned char* )digest );
-	
+
 	// Quantize the 128 bit hash down to the number of bits needed for a localUserHandle_t
 	const int STRIDE_BYTES	= sizeof( localUserHandle_t::userHandleType_t );
 	const int NUM_LOOPS		= 16 / STRIDE_BYTES;
-	
+
 	localUserHandle_t::userHandleType_t handle = 0;
-	
+
 	for( int i = 0; i < NUM_LOOPS; i++ )
 	{
 		localUserHandle_t::userHandleType_t tempHandle = 0;
-		
+
 		for( int j = 0; j < STRIDE_BYTES; j++ )
 		{
 			tempHandle |= ( ( localUserHandle_t::userHandleType_t )digest[( i * STRIDE_BYTES ) + j ] ) << ( j * 8 );
 		}
-		
+
 		handle ^= tempHandle;
 	}
-	
+
 	return localUserHandle_t( handle );
 }

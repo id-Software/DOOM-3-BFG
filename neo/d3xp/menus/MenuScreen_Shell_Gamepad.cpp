@@ -53,14 +53,14 @@ idMenuScreen_Shell_Gamepad::Initialize
 void idMenuScreen_Shell_Gamepad::Initialize( idMenuHandler* data )
 {
 	idMenuScreen::Initialize( data );
-	
+
 	if( data != NULL )
 	{
 		menuGUI = data->GetGUI();
 	}
-	
+
 	SetSpritePath( "menuGamepad" );
-	
+
 	options = new( TAG_SWF ) idMenuWidget_DynamicList();
 	options->SetNumVisibleOptions( NUM_CONTROLS_OPTIONS );
 	options->SetSpritePath( GetSpritePath(), "info", "options" );
@@ -68,11 +68,11 @@ void idMenuScreen_Shell_Gamepad::Initialize( idMenuHandler* data )
 	options->SetControlList( true );
 	options->Initialize( data );
 	AddChild( options );
-	
+
 	idMenuWidget_Help* const helpWidget = new( TAG_SWF ) idMenuWidget_Help();
 	helpWidget->SetSpritePath( GetSpritePath(), "info", "helpTooltip" );
 	AddChild( helpWidget );
-	
+
 	btnBack = new( TAG_SWF ) idMenuWidget_Button();
 	btnBack->Initialize( data );
 	idStr controls( idLocalization::GetString( "#str_04158" ) );
@@ -81,7 +81,7 @@ void idMenuScreen_Shell_Gamepad::Initialize( idMenuHandler* data )
 	btnBack->SetSpritePath( GetSpritePath(), "info", "btnBack" );
 	btnBack->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_GO_BACK );
 	AddChild( btnBack );
-	
+
 	idMenuWidget_ControlButton* control;
 #ifndef ID_PC
 	control = new( TAG_SWF ) idMenuWidget_ControlButton();
@@ -92,7 +92,7 @@ void idMenuScreen_Shell_Gamepad::Initialize( idMenuHandler* data )
 	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, GAMEPAD_CMD_CONFIG );
 	options->AddChild( control );
 #endif
-	
+
 	control = new( TAG_SWF ) idMenuWidget_ControlButton();
 	control->SetOptionType( OPTION_SLIDER_TOGGLE );
 	control->SetLabel( "#str_swf_lefty_flip" );
@@ -101,7 +101,7 @@ void idMenuScreen_Shell_Gamepad::Initialize( idMenuHandler* data )
 	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, GAMEPAD_CMD_LEFTY );
 	control->RegisterEventObserver( helpWidget );
 	options->AddChild( control );
-	
+
 	control = new( TAG_SWF ) idMenuWidget_ControlButton();
 	control->SetOptionType( OPTION_SLIDER_TOGGLE );
 	control->SetLabel( "#str_swf_invert_gamepad" );
@@ -110,7 +110,7 @@ void idMenuScreen_Shell_Gamepad::Initialize( idMenuHandler* data )
 	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, GAMEPAD_CMD_INVERT );
 	control->RegisterEventObserver( helpWidget );
 	options->AddChild( control );
-	
+
 	control = new( TAG_SWF ) idMenuWidget_ControlButton();
 	control->SetOptionType( OPTION_SLIDER_TOGGLE );
 	control->SetLabel( "#str_swf_vibration" );
@@ -119,7 +119,7 @@ void idMenuScreen_Shell_Gamepad::Initialize( idMenuHandler* data )
 	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, GAMEPAD_CMD_VIBRATE );
 	control->RegisterEventObserver( helpWidget );
 	options->AddChild( control );
-	
+
 	control = new( TAG_SWF ) idMenuWidget_ControlButton();
 	control->SetOptionType( OPTION_SLIDER_BAR );
 	control->SetLabel( "#str_swf_hor_sens" );
@@ -128,7 +128,7 @@ void idMenuScreen_Shell_Gamepad::Initialize( idMenuHandler* data )
 	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, GAMEPAD_CMD_HOR_SENS );
 	control->RegisterEventObserver( helpWidget );
 	options->AddChild( control );
-	
+
 	control = new( TAG_SWF ) idMenuWidget_ControlButton();
 	control->SetOptionType( OPTION_SLIDER_BAR );
 	control->SetLabel( "#str_swf_vert_sens" );
@@ -137,7 +137,7 @@ void idMenuScreen_Shell_Gamepad::Initialize( idMenuHandler* data )
 	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, GAMEPAD_CMD_VERT_SENS );
 	control->RegisterEventObserver( helpWidget );
 	options->AddChild( control );
-	
+
 	control = new( TAG_SWF ) idMenuWidget_ControlButton();
 	control->SetOptionType( OPTION_SLIDER_TOGGLE );
 	control->SetLabel( "#str_swf_joy_gammaLook" );
@@ -146,7 +146,7 @@ void idMenuScreen_Shell_Gamepad::Initialize( idMenuHandler* data )
 	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, GAMEPAD_CMD_ACCELERATION );
 	control->RegisterEventObserver( helpWidget );
 	options->AddChild( control );
-	
+
 	control = new( TAG_SWF ) idMenuWidget_ControlButton();
 	control->SetOptionType( OPTION_SLIDER_TOGGLE );
 	control->SetLabel( "#str_swf_joy_mergedThreshold" );
@@ -155,7 +155,7 @@ void idMenuScreen_Shell_Gamepad::Initialize( idMenuHandler* data )
 	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, GAMEPAD_CMD_THRESHOLD );
 	control->RegisterEventObserver( helpWidget );
 	options->AddChild( control );
-	
+
 	options->AddEventAction( WIDGET_EVENT_SCROLL_DOWN ).Set( new( TAG_SWF ) idWidgetActionHandler( options, WIDGET_ACTION_EVENT_SCROLL_DOWN_START_REPEATER, WIDGET_EVENT_SCROLL_DOWN ) );
 	options->AddEventAction( WIDGET_EVENT_SCROLL_UP ).Set( new( TAG_SWF ) idWidgetActionHandler( options, WIDGET_ACTION_EVENT_SCROLL_UP_START_REPEATER, WIDGET_EVENT_SCROLL_UP ) );
 	options->AddEventAction( WIDGET_EVENT_SCROLL_DOWN_RELEASE ).Set( new( TAG_SWF ) idWidgetActionHandler( options, WIDGET_ACTION_EVENT_STOP_REPEATER, WIDGET_EVENT_SCROLL_DOWN_RELEASE ) );
@@ -187,7 +187,7 @@ void idMenuScreen_Shell_Gamepad::Update()
 				buttonInfo->label = "#str_00395";
 			}
 			buttonInfo->action.Set( WIDGET_ACTION_GO_BACK );
-			
+
 			buttonInfo = cmdBar->GetButton( idMenuWidget_CommandBar::BUTTON_JOY1 );
 			if( menuData->GetPlatform() != 2 )
 			{
@@ -196,7 +196,7 @@ void idMenuScreen_Shell_Gamepad::Update()
 			buttonInfo->action.Set( WIDGET_ACTION_PRESS_FOCUSED );
 		}
 	}
-	
+
 	idSWFScriptObject& root = GetSWFObject()->GetRootObject();
 	if( BindSprite( root ) )
 	{
@@ -206,19 +206,19 @@ void idMenuScreen_Shell_Gamepad::Update()
 			heading->SetText( "#str_swf_gamepad_heading" );	// CONTROLS
 			heading->SetStrokeInfo( true, 0.75f, 1.75f );
 		}
-		
+
 		idSWFSpriteInstance* gradient = GetSprite()->GetScriptObject()->GetNestedSprite( "info", "gradient" );
 		if( gradient != NULL && heading != NULL )
 		{
 			gradient->SetXPos( heading->GetTextLength() );
 		}
 	}
-	
+
 	if( btnBack != NULL )
 	{
 		btnBack->BindSprite( root );
 	}
-	
+
 	idMenuScreen::Update();
 }
 
@@ -245,7 +245,7 @@ void idMenuScreen_Shell_Gamepad::HideScreen( const mainMenuTransition_t transiti
 	{
 		gamepadData.CommitData();
 	}
-	
+
 	if( menuData != NULL )
 	{
 		idMenuHandler_Shell* handler = dynamic_cast< idMenuHandler_Shell* >( menuData );
@@ -254,7 +254,7 @@ void idMenuScreen_Shell_Gamepad::HideScreen( const mainMenuTransition_t transiti
 			handler->SetupPCOptions();
 		}
 	}
-	
+
 	idMenuScreen::HideScreen( transitionType );
 }
 
@@ -270,15 +270,15 @@ bool idMenuScreen_Shell_Gamepad::HandleAction( idWidgetAction& action, const idW
 	{
 		return true;
 	}
-	
+
 	if( menuData->ActiveScreen() != SHELL_AREA_GAMEPAD )
 	{
 		return false;
 	}
-	
+
 	widgetAction_t actionType = action.GetType();
 	const idSWFParmList& parms = action.GetParms();
-	
+
 	switch( actionType )
 	{
 		case WIDGET_ACTION_GO_BACK:
@@ -288,24 +288,24 @@ bool idMenuScreen_Shell_Gamepad::HandleAction( idWidgetAction& action, const idW
 		}
 		case WIDGET_ACTION_COMMAND:
 		{
-		
+
 			if( options == NULL )
 			{
 				return true;
 			}
-			
+
 			int selectionIndex = options->GetFocusIndex();
 			if( parms.Num() > 0 )
 			{
 				selectionIndex = parms[0].ToInteger();
 			}
-			
+
 			if( selectionIndex != options->GetFocusIndex() )
 			{
 				options->SetViewIndex( options->GetViewOffset() + selectionIndex );
 				options->SetFocusIndex( selectionIndex );
 			}
-			
+
 			switch( parms[0].ToInteger() )
 			{
 #ifndef ID_PC
@@ -358,17 +358,17 @@ bool idMenuScreen_Shell_Gamepad::HandleAction( idWidgetAction& action, const idW
 					break;
 				}
 			}
-			
+
 			return true;
 		}
 		case WIDGET_ACTION_START_REPEATER:
 		{
-		
+
 			if( options == NULL )
 			{
 				return true;
 			}
-			
+
 			if( parms.Num() == 4 )
 			{
 				int selectionIndex = parms[3].ToInteger();
@@ -381,7 +381,7 @@ bool idMenuScreen_Shell_Gamepad::HandleAction( idWidgetAction& action, const idW
 			break;
 		}
 	}
-	
+
 	return idMenuWidget::HandleAction( action, event, widget, forceHandled );
 }
 
@@ -415,7 +415,7 @@ idMenuScreen_Shell_Gamepad::idMenuDataSource_AudioSettings::LoadData
 void idMenuScreen_Shell_Gamepad::idMenuDataSource_GamepadSettings::LoadData()
 {
 	idPlayerProfile* profile = session->GetProfileFromMasterLocalUser();
-	
+
 	fields[ GAMEPAD_FIELD_INVERT ].SetBool( in_invertLook.GetBool() );
 	fields[ GAMEPAD_FIELD_LEFTY ].SetBool( profile ? profile->GetLeftyFlip() : false );
 	fields[ GAMEPAD_FIELD_VIBRATE ].SetBool( in_joystickRumble.GetBool() );
@@ -423,7 +423,7 @@ void idMenuScreen_Shell_Gamepad::idMenuDataSource_GamepadSettings::LoadData()
 	fields[ GAMEPAD_FIELD_VERT_SENS ].SetFloat( 100.0f * ( ( joy_pitchSpeed.GetFloat() - 60.0f ) / 200.0f ) );
 	fields[ GAMEPAD_FIELD_ACCELERATION ].SetBool( joy_gammaLook.GetBool() );
 	fields[ GAMEPAD_FIELD_THRESHOLD ].SetBool( joy_mergedThreshold.GetBool() );
-	
+
 	originalFields = fields;
 }
 
@@ -441,14 +441,14 @@ void idMenuScreen_Shell_Gamepad::idMenuDataSource_GamepadSettings::CommitData()
 	joy_pitchSpeed.SetFloat( ( ( fields[ GAMEPAD_FIELD_VERT_SENS ].ToFloat() / 100.0f ) * 200.0f ) + 60.0f );
 	joy_gammaLook.SetBool( fields[ GAMEPAD_FIELD_ACCELERATION ].ToBool() );
 	joy_mergedThreshold.SetBool( fields[ GAMEPAD_FIELD_THRESHOLD ].ToBool() );
-	
+
 	idPlayerProfile* profile = session->GetProfileFromMasterLocalUser();
 	if( profile != NULL )
 	{
 		profile->SetLeftyFlip( fields[ GAMEPAD_FIELD_LEFTY ].ToBool() );
 	}
 	cvarSystem->SetModifiedFlags( CVAR_ARCHIVE );
-	
+
 	// make the committed fields into the backup fields
 	originalFields = fields;
 }
@@ -484,36 +484,36 @@ bool idMenuScreen_Shell_Gamepad::idMenuDataSource_GamepadSettings::IsDataChanged
 	{
 		return true;
 	}
-	
+
 	if( fields[ GAMEPAD_FIELD_LEFTY ].ToBool() != originalFields[ GAMEPAD_FIELD_LEFTY ].ToBool() )
 	{
 		return true;
 	}
-	
+
 	if( fields[ GAMEPAD_FIELD_VIBRATE ].ToBool() != originalFields[ GAMEPAD_FIELD_VIBRATE ].ToBool() )
 	{
 		return true;
 	}
-	
+
 	if( fields[ GAMEPAD_FIELD_HOR_SENS ].ToFloat() != originalFields[ GAMEPAD_FIELD_HOR_SENS ].ToFloat() )
 	{
 		return true;
 	}
-	
+
 	if( fields[ GAMEPAD_FIELD_VERT_SENS ].ToFloat() != originalFields[ GAMEPAD_FIELD_VERT_SENS ].ToFloat() )
 	{
 		return true;
 	}
-	
+
 	if( fields[ GAMEPAD_FIELD_ACCELERATION ].ToBool() != originalFields[ GAMEPAD_FIELD_ACCELERATION ].ToBool() )
 	{
 		return true;
 	}
-	
+
 	if( fields[ GAMEPAD_FIELD_THRESHOLD ].ToBool() != originalFields[ GAMEPAD_FIELD_THRESHOLD ].ToBool() )
 	{
 		return true;
 	}
-	
+
 	return false;
 }

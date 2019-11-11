@@ -59,9 +59,9 @@ ID_INLINE int idCollisionModelManagerLocal::TranslateEdgeThroughEdge( idVec3& cr
 {
 
 	float d, t;
-	
+
 	/*
-	
+
 	a = start of line
 	b = end of line
 	dir = movement direction
@@ -71,64 +71,64 @@ ID_INLINE int idCollisionModelManagerLocal::TranslateEdgeThroughEdge( idVec3& cr
 	b+dir = end of line after movement
 	t = scale factor
 	solve pluecker inner product for t of line (a+t*dir : b+t*dir) and line l2
-	
+
 	v[0] = (a[0]+t*dir[0]) * (b[1]+t*dir[1]) - (b[0]+t*dir[0]) * (a[1]+t*dir[1]);
 	v[1] = (a[0]+t*dir[0]) * (b[2]+t*dir[2]) - (b[0]+t*dir[0]) * (a[2]+t*dir[2]);
 	v[2] = (a[0]+t*dir[0]) - (b[0]+t*dir[0]);
 	v[3] = (a[1]+t*dir[1]) * (b[2]+t*dir[2]) - (b[1]+t*dir[1]) * (a[2]+t*dir[2]);
 	v[4] = (a[2]+t*dir[2]) - (b[2]+t*dir[2]);
 	v[5] = (b[1]+t*dir[1]) - (a[1]+t*dir[1]);
-	
+
 	l2[0] * v[4] + l2[1] * v[5] + l2[2] * v[3] + l2[4] * v[0] + l2[5] * v[1] + l2[3] * v[2] = 0;
-	
+
 	solve t
-	
+
 	v[0] = (a[0]+t*dir[0]) * (b[1]+t*dir[1]) - (b[0]+t*dir[0]) * (a[1]+t*dir[1]);
 	v[0] = (a[0]*b[1]) + a[0]*t*dir[1] + b[1]*t*dir[0] + (t*t*dir[0]*dir[1]) -
 			((b[0]*a[1]) + b[0]*t*dir[1] + a[1]*t*dir[0] + (t*t*dir[0]*dir[1]));
 	v[0] = a[0]*b[1] + a[0]*t*dir[1] + b[1]*t*dir[0] - b[0]*a[1] - b[0]*t*dir[1] - a[1]*t*dir[0];
-	
+
 	v[1] = (a[0]+t*dir[0]) * (b[2]+t*dir[2]) - (b[0]+t*dir[0]) * (a[2]+t*dir[2]);
 	v[1] = (a[0]*b[2]) + a[0]*t*dir[2] + b[2]*t*dir[0] + (t*t*dir[0]*dir[2]) -
 			((b[0]*a[2]) + b[0]*t*dir[2] + a[2]*t*dir[0] + (t*t*dir[0]*dir[2]));
 	v[1] = a[0]*b[2] + a[0]*t*dir[2] + b[2]*t*dir[0] - b[0]*a[2] - b[0]*t*dir[2] - a[2]*t*dir[0];
-	
+
 	v[2] = (a[0]+t*dir[0]) - (b[0]+t*dir[0]);
 	v[2] = a[0] - b[0];
-	
+
 	v[3] = (a[1]+t*dir[1]) * (b[2]+t*dir[2]) - (b[1]+t*dir[1]) * (a[2]+t*dir[2]);
 	v[3] = (a[1]*b[2]) + a[1]*t*dir[2] + b[2]*t*dir[1] + (t*t*dir[1]*dir[2]) -
 			((b[1]*a[2]) + b[1]*t*dir[2] + a[2]*t*dir[1] + (t*t*dir[1]*dir[2]));
 	v[3] = a[1]*b[2] + a[1]*t*dir[2] + b[2]*t*dir[1] - b[1]*a[2] - b[1]*t*dir[2] - a[2]*t*dir[1];
-	
+
 	v[4] = (a[2]+t*dir[2]) - (b[2]+t*dir[2]);
 	v[4] = a[2] - b[2];
-	
+
 	v[5] = (b[1]+t*dir[1]) - (a[1]+t*dir[1]);
 	v[5] = b[1] - a[1];
-	
-	
+
+
 	v[0] = a[0]*b[1] + a[0]*t*dir[1] + b[1]*t*dir[0] - b[0]*a[1] - b[0]*t*dir[1] - a[1]*t*dir[0];
 	v[1] = a[0]*b[2] + a[0]*t*dir[2] + b[2]*t*dir[0] - b[0]*a[2] - b[0]*t*dir[2] - a[2]*t*dir[0];
 	v[2] = a[0] - b[0];
 	v[3] = a[1]*b[2] + a[1]*t*dir[2] + b[2]*t*dir[1] - b[1]*a[2] - b[1]*t*dir[2] - a[2]*t*dir[1];
 	v[4] = a[2] - b[2];
 	v[5] = b[1] - a[1];
-	
+
 	v[0] = (a[0]*dir[1] + b[1]*dir[0] - b[0]*dir[1] - a[1]*dir[0]) * t + a[0]*b[1] - b[0]*a[1];
 	v[1] = (a[0]*dir[2] + b[2]*dir[0] - b[0]*dir[2] - a[2]*dir[0]) * t + a[0]*b[2] - b[0]*a[2];
 	v[2] = a[0] - b[0];
 	v[3] = (a[1]*dir[2] + b[2]*dir[1] - b[1]*dir[2] - a[2]*dir[1]) * t + a[1]*b[2] - b[1]*a[2];
 	v[4] = a[2] - b[2];
 	v[5] = b[1] - a[1];
-	
+
 	l2[4] * (a[0]*dir[1] + b[1]*dir[0] - b[0]*dir[1] - a[1]*dir[0]) * t + l2[4] * (a[0]*b[1] - b[0]*a[1])
 		+ l2[5] * (a[0]*dir[2] + b[2]*dir[0] - b[0]*dir[2] - a[2]*dir[0]) * t + l2[5] * (a[0]*b[2] - b[0]*a[2])
 		+ l2[3] * (a[0] - b[0])
 		+ l2[2] * (a[1]*dir[2] + b[2]*dir[1] - b[1]*dir[2] - a[2]*dir[1]) * t + l2[2] * (a[1]*b[2] - b[1]*a[2])
 		+ l2[0] * (a[2] - b[2])
 		+ l2[1] * (b[1] - a[1]) = 0
-	
+
 	t = (- l2[4] * (a[0]*b[1] - b[0]*a[1]) -
 			l2[5] * (a[0]*b[2] - b[0]*a[2]) -
 			l2[3] * (a[0] - b[0]) -
@@ -138,11 +138,11 @@ ID_INLINE int idCollisionModelManagerLocal::TranslateEdgeThroughEdge( idVec3& cr
 				(l2[4] * (a[0]*dir[1] + b[1]*dir[0] - b[0]*dir[1] - a[1]*dir[0]) +
 				l2[5] * (a[0]*dir[2] + b[2]*dir[0] - b[0]*dir[2] - a[2]*dir[0]) +
 				l2[2] * (a[1]*dir[2] + b[2]*dir[1] - b[1]*dir[2] - a[2]*dir[1]));
-	
+
 	d = l2[4] * (a[0]*dir[1] + b[1]*dir[0] - b[0]*dir[1] - a[1]*dir[0]) +
 		l2[5] * (a[0]*dir[2] + b[2]*dir[0] - b[0]*dir[2] - a[2]*dir[0]) +
 		l2[2] * (a[1]*dir[2] + b[2]*dir[1] - b[1]*dir[2] - a[2]*dir[1]);
-	
+
 	t = - ( l2[4] * (a[0]*b[1] - b[0]*a[1]) +
 			l2[5] * (a[0]*b[2] - b[0]*a[2]) +
 			l2[3] * (a[0] - b[0]) +
@@ -150,24 +150,24 @@ ID_INLINE int idCollisionModelManagerLocal::TranslateEdgeThroughEdge( idVec3& cr
 			l2[0] * (a[2] - b[2]) +
 			l2[1] * (b[1] - a[1]));
 	t /= d;
-	
+
 	MrE pats Pluecker on the head.. good monkey
-	
+
 	edgeDir = a - b;
 	d = l2[4] * (edgeDir[0]*dir[1] - edgeDir[1]*dir[0]) +
 		l2[5] * (edgeDir[0]*dir[2] - edgeDir[2]*dir[0]) +
 		l2[2] * (edgeDir[1]*dir[2] - edgeDir[2]*dir[1]);
 	*/
-	
+
 	d = l2[4] * cross[0] + l2[5] * cross[1] + l2[2] * cross[2];
-	
+
 	if( d == 0.0f )
 	{
 		*fraction = 1.0f;
 		// no collision ever
 		return false;
 	}
-	
+
 	t = -l1.PermutedInnerProduct( l2 );
 	// if the lines cross each other to begin with
 	if( fabs( t ) < idMath::FLT_SMALLEST_NON_DENORMAL )
@@ -248,7 +248,7 @@ void idCollisionModelManagerLocal::TranslateTrmEdgeThroughPolygon( cm_traceWork_
 	cm_edge_t* edge;
 	cm_vertex_t* v1, *v2;
 	idPluecker* pl, epsPl;
-	
+
 	// check edges for a collision
 	for( i = 0; i < poly->numEdges; i++ )
 	{
@@ -293,7 +293,7 @@ void idCollisionModelManagerLocal::TranslateTrmEdgeThroughPolygon( cm_traceWork_
 		{
 			continue;
 		}
-		
+
 		// pluecker coordinate for epsilon expanded edge
 		epsPl.FromLine( tw->model->vertices[edge->vertexNum[0]].p + edge->normal * CM_CLIP_EPSILON,
 						tw->model->vertices[edge->vertexNum[1]].p + edge->normal * CM_CLIP_EPSILON );
@@ -307,12 +307,12 @@ void idCollisionModelManagerLocal::TranslateTrmEdgeThroughPolygon( cm_traceWork_
 		{
 			continue;
 		}
-		
+
 		if( f2 < 0.0f )
 		{
 			f2 = 0.0f;
 		}
-		
+
 		if( f2 < tw->trace.fraction )
 		{
 			tw->trace.fraction = f2;
@@ -367,7 +367,7 @@ float CM_TranslationPlaneFraction( const idPlane& plane, const idVec3& start, co
 		return 1.0f;
 	}
 	const float d1 = plane.Distance( start );
-	
+
 	// if completely behind the polygon
 	if( d1 <= 0.0f )
 	{
@@ -391,11 +391,11 @@ void idCollisionModelManagerLocal::TranslateTrmVertexThroughPolygon( cm_traceWor
 	int i, edgeNum;
 	float f;
 	cm_edge_t* edge;
-	
+
 	f = CM_TranslationPlaneFraction( poly->plane, v->p, v->endp );
 	if( f < tw->trace.fraction )
 	{
-	
+
 		for( i = 0; i < poly->numEdges; i++ )
 		{
 			edgeNum = poly->edges[i];
@@ -441,11 +441,11 @@ void idCollisionModelManagerLocal::TranslatePointThroughPolygon( cm_traceWork_t*
 	float f;
 	cm_edge_t* edge;
 	idPluecker pl;
-	
+
 	f = CM_TranslationPlaneFraction( poly->plane, v->p, v->endp );
 	if( f < tw->trace.fraction )
 	{
-	
+
 		for( i = 0; i < poly->numEdges; i++ )
 		{
 			edgeNum = poly->edges[i];
@@ -500,16 +500,16 @@ void idCollisionModelManagerLocal::TranslateVertexThroughTrmPolygon( cm_traceWor
 	int i, edgeNum;
 	float f;
 	cm_trmEdge_t* edge;
-	
+
 	f = CM_TranslationPlaneFraction( trmpoly->plane, v->p, endp );
 	if( f < tw->trace.fraction )
 	{
-	
+
 		for( i = 0; i < trmpoly->numEdges; i++ )
 		{
 			edgeNum = trmpoly->edges[i];
 			edge = tw->edges + abs( edgeNum );
-			
+
 			CM_SetVertexSidedness( v, pl, edge->pl, edge->bitNum );
 			if( INT32_SIGNBITSET( edgeNum ) ^ ( ( v->side >> edge->bitNum ) & 1 ) )
 			{
@@ -556,39 +556,39 @@ bool idCollisionModelManagerLocal::TranslateTrmThroughPolygon( cm_traceWork_t* t
 	cm_trmPolygon_t* bp;
 	cm_vertex_t* v;
 	cm_edge_t* e;
-	
+
 	// if already checked this polygon
 	if( p->checkcount == idCollisionModelManagerLocal::checkCount )
 	{
 		return false;
 	}
 	p->checkcount = idCollisionModelManagerLocal::checkCount;
-	
+
 	// if this polygon does not have the right contents behind it
 	if( !( p->contents & tw->contents ) )
 	{
 		return false;
 	}
-	
+
 	// if the the trace bounds do not intersect the polygon bounds
 	if( !tw->bounds.IntersectsBounds( p->bounds ) )
 	{
 		return false;
 	}
-	
+
 	// only collide with the polygon if approaching at the front
 	if( ( p->plane.Normal() * tw->dir ) > 0.0f )
 	{
 		return false;
 	}
-	
+
 	// if the polygon is too far from the first heart plane
 	d = p->bounds.PlaneDistance( tw->heartPlane1 );
 	if( idMath::Fabs( d ) > tw->maxDistFromHeartPlane1 )
 	{
 		return false;
 	}
-	
+
 	// if the polygon is too far from the second heart plane
 	d = p->bounds.PlaneDistance( tw->heartPlane2 );
 	if( idMath::Fabs( d ) > tw->maxDistFromHeartPlane2 )
@@ -596,7 +596,7 @@ bool idCollisionModelManagerLocal::TranslateTrmThroughPolygon( cm_traceWork_t* t
 		return false;
 	}
 	fraction = tw->trace.fraction;
-	
+
 	// fast point trace
 	if( tw->pointTrace )
 	{
@@ -604,7 +604,7 @@ bool idCollisionModelManagerLocal::TranslateTrmThroughPolygon( cm_traceWork_t* t
 	}
 	else
 	{
-	
+
 		// trace bounds should cross polygon plane
 		switch( tw->bounds.PlaneSide( p->plane ) )
 		{
@@ -619,7 +619,7 @@ bool idCollisionModelManagerLocal::TranslateTrmThroughPolygon( cm_traceWork_t* t
 			default:
 				return false;
 		}
-		
+
 		// calculate pluecker coordinates for the polygon edges and polygon vertices
 		for( i = 0; i < p->numEdges; i++ )
 		{
@@ -633,7 +633,7 @@ bool idCollisionModelManagerLocal::TranslateTrmThroughPolygon( cm_traceWork_t* t
 			// pluecker coordinate for edge
 			tw->polygonEdgePlueckerCache[i].FromLine( tw->model->vertices[e->vertexNum[0]].p,
 					tw->model->vertices[e->vertexNum[1]].p );
-					
+
 			v = &tw->model->vertices[e->vertexNum[INT32_SIGNBITSET( edgeNum )]];
 			// reset sidedness cache if this is the first time we encounter this vertex during this trace
 			if( v->checkcount != idCollisionModelManagerLocal::checkCount )
@@ -645,7 +645,7 @@ bool idCollisionModelManagerLocal::TranslateTrmThroughPolygon( cm_traceWork_t* t
 		}
 		// copy first to last so we can easily cycle through for the edges
 		tw->polygonVertexPlueckerCache[p->numEdges] = tw->polygonVertexPlueckerCache[0];
-		
+
 		// trace trm vertices through polygon
 		for( i = 0; i < tw->numVerts; i++ )
 		{
@@ -655,7 +655,7 @@ bool idCollisionModelManagerLocal::TranslateTrmThroughPolygon( cm_traceWork_t* t
 				idCollisionModelManagerLocal::TranslateTrmVertexThroughPolygon( tw, p, bv, i );
 			}
 		}
-		
+
 		// trace trm edges through polygon
 		for( i = 1; i <= tw->numEdges; i++ )
 		{
@@ -665,13 +665,13 @@ bool idCollisionModelManagerLocal::TranslateTrmThroughPolygon( cm_traceWork_t* t
 				idCollisionModelManagerLocal::TranslateTrmEdgeThroughPolygon( tw, p, be );
 			}
 		}
-		
+
 		// trace all polygon vertices through the trm
 		for( i = 0; i < p->numEdges; i++ )
 		{
 			edgeNum = p->edges[i];
 			e = tw->model->edges + abs( edgeNum );
-			
+
 			if( e->checkcount == idCollisionModelManagerLocal::checkCount )
 			{
 				continue;
@@ -686,7 +686,7 @@ bool idCollisionModelManagerLocal::TranslateTrmThroughPolygon( cm_traceWork_t* t
 			// got to check both vertices because we skip internal edges
 			for( k = 0; k < 2; k++ )
 			{
-			
+
 				v = tw->model->vertices + e->vertexNum[k ^ INT32_SIGNBITSET( edgeNum )];
 				// if this vertex is already checked
 				if( v->checkcount == idCollisionModelManagerLocal::checkCount )
@@ -695,18 +695,18 @@ bool idCollisionModelManagerLocal::TranslateTrmThroughPolygon( cm_traceWork_t* t
 				}
 				// set vertex check count
 				v->checkcount = idCollisionModelManagerLocal::checkCount;
-				
+
 				// if the vertex is outside the trace bounds
 				if( !tw->bounds.ContainsPoint( v->p ) )
 				{
 					continue;
 				}
-				
+
 				// vertex end point after movement
 				endp = v->p - tw->dir;
 				// pluecker coordinate for vertex movement vector
 				pl = &tw->polygonVertexPlueckerCache[i + k];
-				
+
 				for( j = 0; j < tw->numPolys; j++ )
 				{
 					bp = tw->polys + j;
@@ -718,7 +718,7 @@ bool idCollisionModelManagerLocal::TranslateTrmThroughPolygon( cm_traceWork_t* t
 			}
 		}
 	}
-	
+
 	// if there was a collision with this polygon and we are not retrieving contacts
 	if( tw->trace.fraction < fraction && !tw->getContacts )
 	{
@@ -739,7 +739,7 @@ bool idCollisionModelManagerLocal::TranslateTrmThroughPolygon( cm_traceWork_t* t
 			}
 		}
 	}
-	
+
 	return ( tw->trace.fraction == 0.0f );
 }
 
@@ -751,7 +751,7 @@ idCollisionModelManagerLocal::SetupTrm
 void idCollisionModelManagerLocal::SetupTrm( cm_traceWork_t* tw, const idTraceModel* trm )
 {
 	int i, j;
-	
+
 	// vertices
 	tw->numVerts = trm->numVerts;
 	for( i = 0; i < trm->numVerts; i++ )
@@ -791,7 +791,7 @@ idCollisionModelManagerLocal::SetupTranslationHeartPlanes
 void idCollisionModelManagerLocal::SetupTranslationHeartPlanes( cm_traceWork_t* tw )
 {
 	idVec3 dir, normal1, normal2;
-	
+
 	// calculate trace heart planes
 	dir = tw->dir;
 	dir.Normalize();
@@ -808,7 +808,7 @@ idCollisionModelManagerLocal::Translation
 ================
 */
 #ifdef _DEBUG
-static int entered = 0;
+	static int entered = 0;
 #endif
 
 void idCollisionModelManagerLocal::Translation( trace_t* results, const idVec3& start, const idVec3& end,
@@ -825,13 +825,13 @@ void idCollisionModelManagerLocal::Translation( trace_t* results, const idVec3& 
 	cm_trmEdge_t* edge;
 	cm_trmVertex_t* vert;
 	ALIGN16( static cm_traceWork_t tw );
-	
+
 	assert( ( ( byte* )&start ) < ( ( byte* )results ) || ( ( byte* )&start ) >= ( ( ( byte* )results ) + sizeof( trace_t ) ) );
 	assert( ( ( byte* )&end ) < ( ( byte* )results ) || ( ( byte* )&end ) >= ( ( ( byte* )results ) + sizeof( trace_t ) ) );
 	assert( ( ( byte* )&trmAxis ) < ( ( byte* )results ) || ( ( byte* )&trmAxis ) >= ( ( ( byte* )results ) + sizeof( trace_t ) ) );
-	
+
 	memset( results, 0, sizeof( *results ) );
-	
+
 	if( model < 0 || model > MAX_SUBMODELS || model > idCollisionModelManagerLocal::maxModels )
 	{
 		common->Printf( "idCollisionModelManagerLocal::Translation: invalid model handle\n" );
@@ -842,14 +842,14 @@ void idCollisionModelManagerLocal::Translation( trace_t* results, const idVec3& 
 		common->Printf( "idCollisionModelManagerLocal::Translation: invalid model\n" );
 		return;
 	}
-	
+
 	// if case special position test
 	if( start[0] == end[0] && start[1] == end[1] && start[2] == end[2] )
 	{
 		idCollisionModelManagerLocal::ContentsTrm( results, start, trm, trmAxis, contentMask, model, modelOrigin, modelAxis );
 		return;
 	}
-	
+
 #ifdef _DEBUG
 	bool startsolid = false;
 	// test whether or not stuck to begin with
@@ -867,9 +867,9 @@ void idCollisionModelManagerLocal::Translation( trace_t* results, const idVec3& 
 		}
 	}
 #endif
-	
+
 	idCollisionModelManagerLocal::checkCount++;
-	
+
 	tw.trace.fraction = 1.0f;
 	tw.trace.c.contents = 0;
 	tw.trace.c.type = CONTACT_NONE;
@@ -886,19 +886,19 @@ void idCollisionModelManagerLocal::Translation( trace_t* results, const idVec3& 
 	tw.start = start - modelOrigin;
 	tw.end = end - modelOrigin;
 	tw.dir = end - start;
-	
+
 	model_rotated = modelAxis.IsRotated();
 	if( model_rotated )
 	{
 		invModelAxis = modelAxis.Transpose();
 	}
-	
+
 	// if optimized point trace
 	if( !trm || ( trm->bounds[1][0] - trm->bounds[0][0] <= 0.0f &&
 				  trm->bounds[1][1] - trm->bounds[0][1] <= 0.0f &&
 				  trm->bounds[1][2] - trm->bounds[0][2] <= 0.0f ) )
 	{
-	
+
 		if( model_rotated )
 		{
 			// rotate trace instead of model
@@ -906,7 +906,7 @@ void idCollisionModelManagerLocal::Translation( trace_t* results, const idVec3& 
 			tw.end *= invModelAxis;
 			tw.dir *= invModelAxis;
 		}
-		
+
 		// trace bounds
 		for( i = 0; i < 3; i++ )
 		{
@@ -923,7 +923,7 @@ void idCollisionModelManagerLocal::Translation( trace_t* results, const idVec3& 
 		}
 		tw.extents[0] = tw.extents[1] = tw.extents[2] = CM_BOX_EPSILON;
 		tw.size.Zero();
-		
+
 		// setup trace heart planes
 		idCollisionModelManagerLocal::SetupTranslationHeartPlanes( &tw );
 		tw.maxDistFromHeartPlane1 = CM_BOX_EPSILON;
@@ -941,7 +941,7 @@ void idCollisionModelManagerLocal::Translation( trace_t* results, const idVec3& 
 		*results = tw.trace;
 		results->endpos = start + results->fraction * ( end - start );
 		results->endAxis = mat3_identity;
-		
+
 		if( results->fraction < 1.0f )
 		{
 			// rotate trace plane normal if there was a collision with a rotated model
@@ -956,7 +956,7 @@ void idCollisionModelManagerLocal::Translation( trace_t* results, const idVec3& 
 		idCollisionModelManagerLocal::numContacts = tw.numContacts;
 		return;
 	}
-	
+
 	// the trace fraction is too inaccurate to describe translations over huge distances
 	if( tw.dir.LengthSqr() > Square( CM_MAX_TRACE_DIST ) )
 	{
@@ -973,15 +973,15 @@ void idCollisionModelManagerLocal::Translation( trace_t* results, const idVec3& 
 		common->Printf( "idCollisionModelManagerLocal::Translation: huge translation\n" );
 		return;
 	}
-	
+
 	tw.pointTrace = false;
 	tw.size.Clear();
-	
+
 	// setup trm structure
 	idCollisionModelManagerLocal::SetupTrm( &tw, trm );
-	
+
 	trm_rotated = trmAxis.IsRotated();
-	
+
 	// calculate vertex positions
 	if( trm_rotated )
 	{
@@ -1004,7 +1004,7 @@ void idCollisionModelManagerLocal::Translation( trace_t* results, const idVec3& 
 			tw.vertices[i].p *= invModelAxis;
 		}
 	}
-	
+
 	// add offset to start point
 	if( trm_rotated )
 	{
@@ -1024,7 +1024,7 @@ void idCollisionModelManagerLocal::Translation( trace_t* results, const idVec3& 
 		tw.end *= invModelAxis;
 		tw.dir *= invModelAxis;
 	}
-	
+
 	// rotate trm polygon planes
 	if( trm_rotated & model_rotated )
 	{
@@ -1048,7 +1048,7 @@ void idCollisionModelManagerLocal::Translation( trace_t* results, const idVec3& 
 			poly->plane *= invModelAxis;
 		}
 	}
-	
+
 	// setup trm polygons
 	for( poly = tw.polys, i = 0; i < tw.numPolys; i++, poly++ )
 	{
@@ -1067,7 +1067,7 @@ void idCollisionModelManagerLocal::Translation( trace_t* results, const idVec3& 
 			}
 		}
 	}
-	
+
 	// setup trm vertices
 	for( vert = tw.vertices, i = 0; i < tw.numVerts; i++, vert++ )
 	{
@@ -1082,7 +1082,7 @@ void idCollisionModelManagerLocal::Translation( trace_t* results, const idVec3& 
 		// pluecker coordinate for vertex movement line
 		vert->pl.FromRay( vert->p, tw.dir );
 	}
-	
+
 	// setup trm edges
 	for( edge = tw.edges + 1, i = 1; i <= tw.numEdges; i++, edge++ )
 	{
@@ -1102,7 +1102,7 @@ void idCollisionModelManagerLocal::Translation( trace_t* results, const idVec3& 
 		// bit for vertex sidedness bit cache
 		edge->bitNum = i;
 	}
-	
+
 	// set trm plane distances
 	for( poly = tw.polys, i = 0; i < tw.numPolys; i++, poly++ )
 	{
@@ -1111,7 +1111,7 @@ void idCollisionModelManagerLocal::Translation( trace_t* results, const idVec3& 
 			poly->plane.FitThroughPoint( tw.edges[abs( poly->edges[0] )].start );
 		}
 	}
-	
+
 	// bounds for full trace, a little bit larger for epsilons
 	for( i = 0; i < 3; i++ )
 	{
@@ -1134,7 +1134,7 @@ void idCollisionModelManagerLocal::Translation( trace_t* results, const idVec3& 
 			tw.extents[i] = idMath::Fabs( tw.size[1][i] ) + CM_BOX_EPSILON;
 		}
 	}
-	
+
 	// setup trace heart planes
 	idCollisionModelManagerLocal::SetupTranslationHeartPlanes( &tw );
 	tw.maxDistFromHeartPlane1 = 0;
@@ -1160,10 +1160,10 @@ void idCollisionModelManagerLocal::Translation( trace_t* results, const idVec3& 
 	// for epsilons
 	tw.maxDistFromHeartPlane1 += CM_BOX_EPSILON;
 	tw.maxDistFromHeartPlane2 += CM_BOX_EPSILON;
-	
+
 	// trace through the model
 	idCollisionModelManagerLocal::TraceThroughModel( &tw );
-	
+
 	// if we're getting contacts
 	if( tw.getContacts )
 	{
@@ -1192,7 +1192,7 @@ void idCollisionModelManagerLocal::Translation( trace_t* results, const idVec3& 
 		*results = tw.trace;
 		results->endpos = start + results->fraction * ( end - start );
 		results->endAxis = trmAxis;
-		
+
 		if( results->fraction < 1.0f )
 		{
 			// if the fraction is tiny the actual movement could end up zero
@@ -1210,7 +1210,7 @@ void idCollisionModelManagerLocal::Translation( trace_t* results, const idVec3& 
 			results->c.dist += modelOrigin * results->c.normal;
 		}
 	}
-	
+
 #ifdef _DEBUG
 	// test for missed collisions
 	if( cm_debugCollision.GetBool() )
@@ -1222,7 +1222,7 @@ void idCollisionModelManagerLocal::Translation( trace_t* results, const idVec3& 
 			if( idCollisionModelManagerLocal::Contents( results->endpos, trm, trmAxis, -1, model, modelOrigin, modelAxis ) & contentMask )
 			{
 				trace_t tr;
-				
+
 				// test where the trm is stuck in the model
 				idCollisionModelManagerLocal::Contents( results->endpos, trm, trmAxis, -1, model, modelOrigin, modelAxis );
 				// re-run collision detection to find out where it failed

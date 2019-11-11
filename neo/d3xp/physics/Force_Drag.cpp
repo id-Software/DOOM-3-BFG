@@ -125,12 +125,12 @@ void idForce_Drag::Evaluate( int time )
 	idMat3 inertiaTensor;
 	idRotation rotation;
 	idClipModel* clipModel;
-	
+
 	if( !physics )
 	{
 		return;
 	}
-	
+
 	clipModel = physics->GetClipModel( id );
 	if( clipModel != NULL && clipModel->IsTraceModel() )
 	{
@@ -140,18 +140,18 @@ void idForce_Drag::Evaluate( int time )
 	{
 		centerOfMass.Zero();
 	}
-	
+
 	centerOfMass = physics->GetOrigin( id ) + centerOfMass * physics->GetAxis( id );
 	dragOrigin = physics->GetOrigin( id ) + p * physics->GetAxis( id );
-	
+
 	dir1 = dragPosition - centerOfMass;
 	dir2 = dragOrigin - centerOfMass;
 	l1 = dir1.Normalize();
 	l2 = dir2.Normalize();
-	
+
 	rotation.Set( centerOfMass, dir2.Cross( dir1 ), RAD2DEG( idMath::ACos( dir1 * dir2 ) ) );
 	physics->SetAngularVelocity( rotation.ToAngularVelocity() / MS2SEC( gameLocal.time - gameLocal.previousTime ), id );
-	
+
 	velocity = physics->GetLinearVelocity( id ) * damping + dir1 * ( ( l1 - l2 ) * ( 1.0f - damping ) / MS2SEC( gameLocal.time - gameLocal.previousTime ) );
 	physics->SetLinearVelocity( velocity, id );
 }

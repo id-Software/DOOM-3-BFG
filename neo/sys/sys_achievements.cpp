@@ -38,7 +38,7 @@ void idAchievementSystem::SyncAchievementBits( idLocalUser* user )
 	if( user != NULL )
 	{
 		idArray< bool, idAchievementSystem::MAX_ACHIEVEMENTS > achievements;
-		
+
 		if( GetAchievementState( user, achievements ) )
 		{
 			for( int i = 0; i < achievements.Num(); i++ )

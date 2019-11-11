@@ -39,25 +39,25 @@ idMenuScreen_Shell_Root::Initialize
 void idMenuScreen_Shell_Root::Initialize( idMenuHandler* data )
 {
 	idMenuScreen::Initialize( data );
-	
+
 	if( data != NULL )
 	{
 		menuGUI = data->GetGUI();
 	}
-	
+
 	SetSpritePath( "menuMain" );
-	
+
 	options = new( TAG_SWF ) idMenuWidget_DynamicList();
 	options->SetNumVisibleOptions( NUM_MAIN_OPTIONS );
 	options->SetSpritePath( GetSpritePath(), "info", "options" );
 	options->Initialize( data );
 	options->SetWrappingAllowed( true );
 	AddChild( options );
-	
+
 	helpWidget = new( TAG_SWF ) idMenuWidget_Help();
 	helpWidget->SetSpritePath( GetSpritePath(), "info", "helpTooltip" );
 	AddChild( helpWidget );
-	
+
 	while( options->GetChildren().Num() < NUM_MAIN_OPTIONS )
 	{
 		idMenuWidget_Button* const buttonWidget = new( TAG_SWF ) idMenuWidget_Button();
@@ -66,7 +66,7 @@ void idMenuScreen_Shell_Root::Initialize( idMenuHandler* data )
 		buttonWidget->RegisterEventObserver( helpWidget );
 		options->AddChild( buttonWidget );
 	}
-	
+
 	options->AddEventAction( WIDGET_EVENT_SCROLL_DOWN ).Set( new( TAG_SWF ) idWidgetActionHandler( options, WIDGET_ACTION_EVENT_SCROLL_DOWN_START_REPEATER, WIDGET_EVENT_SCROLL_DOWN ) );
 	options->AddEventAction( WIDGET_EVENT_SCROLL_UP ).Set( new( TAG_SWF ) idWidgetActionHandler( options, WIDGET_ACTION_EVENT_SCROLL_UP_START_REPEATER, WIDGET_EVENT_SCROLL_UP ) );
 	options->AddEventAction( WIDGET_EVENT_SCROLL_DOWN_RELEASE ).Set( new( TAG_SWF ) idWidgetActionHandler( options, WIDGET_ACTION_EVENT_STOP_REPEATER, WIDGET_EVENT_SCROLL_DOWN_RELEASE ) );
@@ -75,14 +75,14 @@ void idMenuScreen_Shell_Root::Initialize( idMenuHandler* data )
 	options->AddEventAction( WIDGET_EVENT_SCROLL_UP_LSTICK ).Set( new( TAG_SWF ) idWidgetActionHandler( options, WIDGET_ACTION_EVENT_SCROLL_UP_START_REPEATER, WIDGET_EVENT_SCROLL_UP_LSTICK ) );
 	options->AddEventAction( WIDGET_EVENT_SCROLL_DOWN_LSTICK_RELEASE ).Set( new( TAG_SWF ) idWidgetActionHandler( options, WIDGET_ACTION_EVENT_STOP_REPEATER, WIDGET_EVENT_SCROLL_DOWN_LSTICK_RELEASE ) );
 	options->AddEventAction( WIDGET_EVENT_SCROLL_UP_LSTICK_RELEASE ).Set( new( TAG_SWF ) idWidgetActionHandler( options, WIDGET_ACTION_EVENT_STOP_REPEATER, WIDGET_EVENT_SCROLL_UP_LSTICK_RELEASE ) );
-	
-	
+
+
 	AddEventAction( WIDGET_EVENT_SCROLL_RIGHT ).Set( new( TAG_SWF ) idWidgetActionHandler( this, WIDGET_ACTION_EVENT_SCROLL_RIGHT_START_REPEATER, WIDGET_EVENT_SCROLL_RIGHT ) );
 	AddEventAction( WIDGET_EVENT_SCROLL_RIGHT_RELEASE ).Set( new( TAG_SWF ) idWidgetActionHandler( this, WIDGET_ACTION_EVENT_STOP_REPEATER, WIDGET_EVENT_SCROLL_RIGHT_RELEASE ) );
 	AddEventAction( WIDGET_EVENT_SCROLL_LEFT ).Set( new( TAG_SWF ) idWidgetActionHandler( this, WIDGET_ACTION_EVENT_SCROLL_LEFT_START_REPEATER, WIDGET_EVENT_SCROLL_LEFT ) );
 	AddEventAction( WIDGET_EVENT_SCROLL_LEFT_RELEASE ).Set( new( TAG_SWF ) idWidgetActionHandler( this, WIDGET_ACTION_EVENT_STOP_REPEATER, WIDGET_EVENT_SCROLL_LEFT_RELEASE ) );
 	AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_PRESS_FOCUSED, 0 );
-	
+
 }
 
 /*
@@ -100,7 +100,7 @@ void idMenuScreen_Shell_Root::Update()
 		{
 			cmdBar->ClearAllButtons();
 			idMenuWidget_CommandBar::buttonInfo_t* buttonInfo;
-			
+
 			if( !g_demoMode.GetBool() )
 			{
 				buttonInfo = cmdBar->GetButton( idMenuWidget_CommandBar::BUTTON_JOY2 );
@@ -110,7 +110,7 @@ void idMenuScreen_Shell_Root::Update()
 				}
 				buttonInfo->action.Set( WIDGET_ACTION_GO_BACK );
 			}
-			
+
 			buttonInfo = cmdBar->GetButton( idMenuWidget_CommandBar::BUTTON_JOY1 );
 			if( menuData->GetPlatform() != 2 )
 			{
@@ -119,7 +119,7 @@ void idMenuScreen_Shell_Root::Update()
 			buttonInfo->action.Set( WIDGET_ACTION_PRESS_FOCUSED );
 		}
 	}
-	
+
 	idMenuScreen::Update();
 }
 
@@ -148,13 +148,13 @@ void idMenuScreen_Shell_Root::ShowScreen( const mainMenuTransition_t transitionT
 	{
 		idList< idList< idStr, TAG_IDLIB_LIST_MENU >, TAG_IDLIB_LIST_MENU > menuOptions;
 		idList< idStr > option;
-		
+
 		int index = 0;
-		
+
 		if( g_demoMode.GetBool() )
 		{
 			idMenuWidget_Button* buttonWidget = NULL;
-			
+
 			option.Append( "START DEMO" );	// START DEMO
 			menuOptions.Append( option );
 			options->GetChildByIndex( index ).ClearEventActions();
@@ -165,7 +165,7 @@ void idMenuScreen_Shell_Root::ShowScreen( const mainMenuTransition_t transitionT
 				buttonWidget->SetDescription( "Launch the demo" );
 			}
 			index++;
-			
+
 			if( g_demoMode.GetInteger() == 2 )
 			{
 				option.Clear();
@@ -180,7 +180,7 @@ void idMenuScreen_Shell_Root::ShowScreen( const mainMenuTransition_t transitionT
 				}
 				index++;
 			}
-			
+
 			option.Clear();
 			option.Append( "#str_swf_settings" );	// settings
 			menuOptions.Append( option );
@@ -192,7 +192,7 @@ void idMenuScreen_Shell_Root::ShowScreen( const mainMenuTransition_t transitionT
 				buttonWidget->SetDescription( "#str_02206" );
 			}
 			index++;
-			
+
 			option.Clear();
 			option.Append( "#str_swf_quit" );	// quit
 			menuOptions.Append( option );
@@ -204,13 +204,13 @@ void idMenuScreen_Shell_Root::ShowScreen( const mainMenuTransition_t transitionT
 				buttonWidget->SetDescription( "#str_01976" );
 			}
 			index++;
-			
+
 		}
 		else
 		{
-		
+
 			idMenuWidget_Button* buttonWidget = NULL;
-			
+
 #if !defined ( ID_RETAIL )
 			option.Append( "DEV" );	// DEV
 			menuOptions.Append( option );
@@ -223,7 +223,7 @@ void idMenuScreen_Shell_Root::ShowScreen( const mainMenuTransition_t transitionT
 			}
 			index++;
 #endif
-			
+
 			option.Clear();
 			option.Append( "#str_swf_campaign" );	// singleplayer
 			menuOptions.Append( option );
@@ -235,7 +235,7 @@ void idMenuScreen_Shell_Root::ShowScreen( const mainMenuTransition_t transitionT
 				buttonWidget->SetDescription( "#str_swf_campaign_desc" );
 			}
 			index++;
-			
+
 			option.Clear();
 			option.Append( "#str_swf_multiplayer" );	// multiplayer
 			menuOptions.Append( option );
@@ -247,7 +247,7 @@ void idMenuScreen_Shell_Root::ShowScreen( const mainMenuTransition_t transitionT
 				buttonWidget->SetDescription( "#str_02215" );
 			}
 			index++;
-			
+
 			option.Clear();
 			option.Append( "#str_swf_settings" );	// settings
 			menuOptions.Append( option );
@@ -259,8 +259,8 @@ void idMenuScreen_Shell_Root::ShowScreen( const mainMenuTransition_t transitionT
 				buttonWidget->SetDescription( "#str_02206" );
 			}
 			index++;
-			
-			
+
+
 			option.Clear();
 			option.Append( "#str_swf_credits" );	// credits
 			menuOptions.Append( option );
@@ -272,7 +272,7 @@ void idMenuScreen_Shell_Root::ShowScreen( const mainMenuTransition_t transitionT
 				buttonWidget->SetDescription( "#str_02219" );
 			}
 			index++;
-			
+
 			// only add quit option for PC
 			option.Clear();
 			option.Append( "#str_swf_quit" );	// quit
@@ -293,9 +293,9 @@ void idMenuScreen_Shell_Root::ShowScreen( const mainMenuTransition_t transitionT
 		idList< idList< idStr, TAG_IDLIB_LIST_MENU >, TAG_IDLIB_LIST_MENU > menuOptions;
 		options->SetListData( menuOptions );
 	}
-	
+
 	idMenuScreen::ShowScreen( transitionType );
-	
+
 	if( menuData != NULL && menuData->GetPlatform() == 2 )
 	{
 		idMenuHandler_Shell* shell = dynamic_cast< idMenuHandler_Shell* >( menuData );
@@ -352,7 +352,7 @@ void idMenuScreen_Shell_Root::HandleExitGameBtn()
 		gameDialogMessages_t msg;
 		int accept;
 	};
-	
+
 	idStaticList< idSWFScriptFunction*, 4 > callbacks;
 	idStaticList< idStrId, 4 > optionText;
 	callbacks.Append( new( TAG_SWF ) idSWFScriptFunction_QuitDialog( GDM_QUIT_GAME, 1 ) );
@@ -361,7 +361,7 @@ void idMenuScreen_Shell_Root::HandleExitGameBtn()
 	optionText.Append( idStrId( "#STR_SWF_ACCEPT" ) );
 	optionText.Append( idStrId( "#STR_SWF_CANCEL" ) );
 	optionText.Append( idStrId( "#str_swf_change_game" ) );
-	
+
 	common->Dialog().AddDynamicDialog( GDM_QUIT_GAME, callbacks, optionText, true, "" );
 }
 
@@ -376,7 +376,7 @@ int idMenuScreen_Shell_Root::GetRootIndex()
 	{
 		return options->GetFocusIndex();
 	}
-	
+
 	return 0;
 }
 
@@ -405,15 +405,15 @@ bool idMenuScreen_Shell_Root::HandleAction( idWidgetAction& action, const idWidg
 	{
 		return true;
 	}
-	
+
 	if( menuData->ActiveScreen() != SHELL_AREA_ROOT )
 	{
 		return false;
 	}
-	
+
 	widgetAction_t actionType = action.GetType();
 	const idSWFParmList& parms = action.GetParms();
-	
+
 	switch( actionType )
 	{
 		case WIDGET_ACTION_GO_BACK:
@@ -425,26 +425,26 @@ bool idMenuScreen_Shell_Root::HandleAction( idWidgetAction& action, const idWidg
 		{
 			if( menuData->GetPlatform() == 2 )
 			{
-			
+
 				idMenuHandler_Shell* shell = dynamic_cast< idMenuHandler_Shell* >( menuData );
 				if( !shell )
 				{
 					return true;
 				}
-				
+
 				idMenuWidget_MenuBar* menuBar = shell->GetMenuBar();
-				
+
 				if( !menuBar )
 				{
 					return true;
 				}
-				
+
 				const idMenuWidget_MenuButton* buttonWidget = dynamic_cast< idMenuWidget_MenuButton* >( &menuBar->GetChildByIndex( menuBar->GetFocusIndex() ) );
 				if( !buttonWidget )
 				{
 					return true;
 				}
-				
+
 				idWidgetEvent pressEvent( WIDGET_EVENT_PRESS, 0, NULL, idSWFParmList() );
 				menuBar->ReceiveEvent( pressEvent );
 				return true;
@@ -453,25 +453,25 @@ bool idMenuScreen_Shell_Root::HandleAction( idWidgetAction& action, const idWidg
 		}
 		case WIDGET_ACTION_SCROLL_HORIZONTAL:
 		{
-		
+
 			if( menuData->GetPlatform() != 2 )
 			{
 				return true;
 			}
-			
+
 			idMenuHandler_Shell* shell = dynamic_cast< idMenuHandler_Shell* >( menuData );
 			if( !shell )
 			{
 				return true;
 			}
-			
+
 			idMenuWidget_MenuBar* menuBar = shell->GetMenuBar();
-			
+
 			if( !menuBar )
 			{
 				return true;
 			}
-			
+
 			int index = menuBar->GetViewIndex();
 			const int dir = parms[0].ToInteger();
 #ifdef ID_RETAIL
@@ -488,11 +488,11 @@ bool idMenuScreen_Shell_Root::HandleAction( idWidgetAction& action, const idWidg
 			{
 				index = 0;
 			}
-			
+
 			SetRootIndex( index );
 			menuBar->SetViewIndex( index );
 			menuBar->SetFocusIndex( index );
-			
+
 			return true;
 		}
 		case WIDGET_ACTION_COMMAND:
@@ -532,12 +532,12 @@ bool idMenuScreen_Shell_Root::HandleAction( idWidgetAction& action, const idWidg
 				case ROOT_CMD_MULTIPLAYER:
 				{
 					const idLocalUser* masterUser = session->GetSignInManager().GetMasterLocalUser();
-					
+
 					if( masterUser == NULL )
 					{
 						break;
 					}
-					
+
 					if( masterUser->GetOnlineCaps() & CAP_BLOCKED_PERMISSION )
 					{
 						common->Dialog().AddDialog( GDM_ONLINE_INCORRECT_PERMISSIONS, DIALOG_CONTINUE, NULL, NULL, true, __FUNCTION__, __LINE__, false );
@@ -565,7 +565,7 @@ bool idMenuScreen_Shell_Root::HandleAction( idWidgetAction& action, const idWidg
 								return idSWFScriptVar();
 							}
 						};
-						
+
 						common->Dialog().AddDialog( GDM_PLAY_ONLINE_NO_PROFILE, DIALOG_ACCEPT_CANCEL, new( TAG_SWF ) idSWFScriptFunction_Accept(), new( TAG_SWF ) idSWFScriptFunction_Cancel(), false );
 					}
 					else
@@ -590,6 +590,6 @@ bool idMenuScreen_Shell_Root::HandleAction( idWidgetAction& action, const idWidg
 			return true;
 		}
 	}
-	
+
 	return idMenuWidget::HandleAction( action, event, widget, forceHandled );
 }

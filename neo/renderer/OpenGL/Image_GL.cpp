@@ -53,7 +53,7 @@ idImage::idImage( const char* name ) : imgName( name )
 	repeat = TR_REPEAT;
 	usage = TD_DEFAULT;
 	cubeFiles = CF_2D;
-	
+
 	referencedOutsideLevelLoad = false;
 	levelLoadReferenced = false;
 	defaulted = false;
@@ -92,16 +92,16 @@ Automatically enables 2D mapping or cube mapping if needed
 void idImage::Bind()
 {
 	RENDERLOG_PRINTF( "idImage::Bind( %s )\n", GetName() );
-	
+
 	// load the image if necessary (FIXME: not SMP safe!)
 	if( !IsLoaded() )
 	{
 		// load the image on demand here, which isn't our normal game operating mode
 		ActuallyLoadImage( true );
 	}
-	
+
 	const int texUnit = tr.backend.GetCurrentTextureUnit();
-	
+
 	// RB: added support for more types
 	tmu_t* tmu = &glcontext.tmu[texUnit];
 	// bind the texture
@@ -110,7 +110,7 @@ void idImage::Bind()
 		if( tmu->current2DMap != texnum )
 		{
 			tmu->current2DMap = texnum;
-			
+
 #if !defined(USE_GLES2) && !defined(USE_GLES3)
 			if( glConfig.directStateAccess )
 			{
@@ -129,7 +129,7 @@ void idImage::Bind()
 		if( tmu->currentCubeMap != texnum )
 		{
 			tmu->currentCubeMap = texnum;
-			
+
 #if !defined(USE_GLES2) && !defined(USE_GLES3)
 			if( glConfig.directStateAccess )
 			{
@@ -148,7 +148,7 @@ void idImage::Bind()
 		if( tmu->current2DArray != texnum )
 		{
 			tmu->current2DArray = texnum;
-			
+
 #if !defined(USE_GLES2) && !defined(USE_GLES3)
 			if( glConfig.directStateAccess )
 			{
@@ -167,7 +167,7 @@ void idImage::Bind()
 		if( tmu->current2DMap != texnum )
 		{
 			tmu->current2DMap = texnum;
-			
+
 #if !defined(USE_GLES2) && !defined(USE_GLES3)
 			if( glConfig.directStateAccess )
 			{
@@ -210,27 +210,27 @@ void idImage::CopyFramebuffer( int x, int y, int imageWidth, int imageHeight )
 			//idLib::FatalError( "%s: bad texture type %d", GetName(), opts.textureType );
 			return;
 	}
-	
+
 	glBindTexture( target, texnum );
-	
+
 #if !defined(USE_GLES2)
 	if( Framebuffer::IsDefaultFramebufferActive() )
 	{
 		glReadBuffer( GL_BACK );
 	}
 #endif
-	
+
 	opts.width = imageWidth;
 	opts.height = imageHeight;
-	
+
 #if defined(USE_GLES2)
 	glCopyTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, x, y, imageWidth, imageHeight, 0 );
 #else
 	if( r_useHDR.GetBool() && globalFramebuffers.hdrFBO->IsBound() )
 	{
-	
+
 		//if( backEnd.glState.currentFramebuffer != NULL && backEnd.glState.currentFramebuffer->IsMultiSampled() )
-	
+
 #if defined(USE_HDR_MSAA)
 		if( globalFramebuffers.hdrFBO->IsMultiSampled() )
 		{
@@ -240,11 +240,11 @@ void idImage::CopyFramebuffer( int x, int y, int imageWidth, int imageHeight )
 							   0, 0, glConfig.nativeScreenWidth, glConfig.nativeScreenHeight,
 							   GL_COLOR_BUFFER_BIT,
 							   GL_LINEAR );
-	
+
 			globalFramebuffers.hdrNonMSAAFBO->Bind();
-	
+
 			glCopyTexImage2D( target, 0, GL_RGBA16F, x, y, imageWidth, imageHeight, 0 );
-	
+
 			globalFramebuffers.hdrFBO->Bind();
 		}
 		else
@@ -258,14 +258,14 @@ void idImage::CopyFramebuffer( int x, int y, int imageWidth, int imageHeight )
 		glCopyTexImage2D( target, 0, GL_RGBA8, x, y, imageWidth, imageHeight, 0 );
 	}
 #endif
-	
+
 	// these shouldn't be necessary if the image was initialized properly
 	glTexParameterf( target, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
 	glTexParameterf( target, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-	
+
 	glTexParameterf( target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
 	glTexParameterf( target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
-	
+
 	tr.backend.pc.c_copyFrameBuffer++;
 }
 
@@ -277,11 +277,11 @@ CopyDepthbuffer
 void idImage::CopyDepthbuffer( int x, int y, int imageWidth, int imageHeight )
 {
 	glBindTexture( ( opts.textureType == TT_CUBIC ) ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, texnum );
-	
+
 	opts.width = imageWidth;
 	opts.height = imageHeight;
 	glCopyTexImage2D( GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, x, y, imageWidth, imageHeight, 0 );
-	
+
 	tr.backend.pc.c_copyFrameBuffer++;
 }
 
@@ -293,21 +293,21 @@ idImage::SubImageUpload
 void idImage::SubImageUpload( int mipLevel, int x, int y, int z, int width, int height, const void* pic, int pixelPitch )
 {
 	assert( x >= 0 && y >= 0 && mipLevel >= 0 && width >= 0 && height >= 0 && mipLevel < opts.numLevels );
-	
+
 	int compressedSize = 0;
-	
+
 	if( IsCompressed() )
 	{
 		assert( !( x & 3 ) && !( y & 3 ) );
-		
+
 		// compressed size may be larger than the dimensions due to padding to quads
 		int quadW = ( width + 3 ) & ~3;
 		int quadH = ( height + 3 ) & ~3;
 		compressedSize = quadW * quadH * BitsForFormat( opts.format ) / 8;
-		
+
 		int padW = ( opts.width + 3 ) & ~3;
 		int padH = ( opts.height + 3 ) & ~3;
-		
+
 		assert( x + width <= padW && y + height <= padH );
 		// upload the non-aligned value, OpenGL understands that there
 		// will be padding
@@ -324,7 +324,7 @@ void idImage::SubImageUpload( int mipLevel, int x, int y, int z, int width, int 
 	{
 		assert( x + width <= opts.width && y + height <= opts.height );
 	}
-	
+
 	int target;
 	int uploadTarget;
 	if( opts.textureType == TT_2D )
@@ -343,21 +343,21 @@ void idImage::SubImageUpload( int mipLevel, int x, int y, int z, int width, int 
 		target = GL_TEXTURE_2D;
 		uploadTarget = GL_TEXTURE_2D;
 	}
-	
+
 	glBindTexture( target, texnum );
-	
+
 	if( pixelPitch != 0 )
 	{
 		glPixelStorei( GL_UNPACK_ROW_LENGTH, pixelPitch );
 	}
-	
+
 	if( opts.format == FMT_RGB565 )
 	{
 #if !defined(USE_GLES3)
 		glPixelStorei( GL_UNPACK_SWAP_BYTES, GL_TRUE );
 #endif
 	}
-	
+
 #if defined(DEBUG) || defined(__ANDROID__)
 	GL_CheckErrors();
 #endif
@@ -367,7 +367,7 @@ void idImage::SubImageUpload( int mipLevel, int x, int y, int z, int width, int 
 	}
 	else
 	{
-	
+
 		// make sure the pixel store alignment is correct so that lower mips get created
 		// properly for odd shaped textures - this fixes the mip mapping issues with
 		// fonts
@@ -380,14 +380,14 @@ void idImage::SubImageUpload( int mipLevel, int x, int y, int z, int width, int 
 		{
 			glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
 		}
-		
+
 		glTexSubImage2D( uploadTarget, mipLevel, x, y, width, height, dataFormat, dataType, pic );
 	}
-	
+
 #if defined(DEBUG) || defined(__ANDROID__)
 	GL_CheckErrors();
 #endif
-	
+
 	if( opts.format == FMT_RGB565 )
 	{
 		glPixelStorei( GL_UNPACK_SWAP_BYTES, GL_FALSE );
@@ -455,7 +455,7 @@ void idImage::SetTexParameters()
 			idLib::FatalError( "%s: bad texture type %d", GetName(), opts.textureType );
 			return;
 	}
-	
+
 	// ALPHA, LUMINANCE, LUMINANCE_ALPHA, and INTENSITY have been removed
 	// in OpenGL 3.2. In order to mimic those modes, we use the swizzle operators
 	if( opts.colorFormat == CFM_GREEN_ALPHA )
@@ -500,7 +500,7 @@ void idImage::SetTexParameters()
 		glTexParameteri( target, GL_TEXTURE_SWIZZLE_B, GL_BLUE );
 		glTexParameteri( target, GL_TEXTURE_SWIZZLE_A, GL_ALPHA );
 	}
-	
+
 	switch( filter )
 	{
 		case TF_DEFAULT:
@@ -526,7 +526,7 @@ void idImage::SetTexParameters()
 		default:
 			common->FatalError( "%s: bad texture filter %d", GetName(), filter );
 	}
-	
+
 	if( glConfig.anisotropicFilterAvailable )
 	{
 		// only do aniso filtering on mip mapped images
@@ -548,7 +548,7 @@ void idImage::SetTexParameters()
 			glTexParameterf( target, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1 );
 		}
 	}
-	
+
 	// RB: disabled use of unreliable extension that can make the game look worse
 	/*
 	if( glConfig.textureLODBiasAvailable && ( usage != TD_FONT ) )
@@ -558,7 +558,7 @@ void idImage::SetTexParameters()
 	}
 	*/
 	// RB end
-	
+
 	// set the wrap/clamp modes
 	switch( repeat )
 	{
@@ -589,7 +589,7 @@ void idImage::SetTexParameters()
 		default:
 			common->FatalError( "%s: bad texture repeat %d", GetName(), repeat );
 	}
-	
+
 	// RB: added shadow compare parameters for shadow map textures
 	if( opts.format == FMT_SHADOW_ARRAY )
 	{
@@ -613,9 +613,9 @@ void idImage::AllocImage()
 {
 	GL_CheckErrors();
 	PurgeImage();
-	
+
 	int sRGB = r_useSRGB.GetInteger();
-	
+
 	switch( opts.format )
 	{
 		case FMT_RGBA8:
@@ -683,31 +683,31 @@ void idImage::AllocImage()
 			dataFormat = GL_DEPTH_COMPONENT;
 			dataType = GL_UNSIGNED_BYTE;
 			break;
-			
+
 		case FMT_SHADOW_ARRAY:
 			internalFormat = GL_DEPTH_COMPONENT;
 			dataFormat = GL_DEPTH_COMPONENT;
 			dataType = GL_UNSIGNED_BYTE;
 			break;
-			
+
 		case FMT_RGBA16F:
 			internalFormat = GL_RGBA16F;
 			dataFormat = GL_RGBA;
 			dataType = GL_UNSIGNED_BYTE;
 			break;
-			
+
 		case FMT_RGBA32F:
 			internalFormat = GL_RGBA32F;
 			dataFormat = GL_RGBA;
 			dataType = GL_UNSIGNED_BYTE;
 			break;
-			
+
 		case FMT_R32F:
 			internalFormat = GL_R32F;
 			dataFormat = GL_RED;
 			dataType = GL_UNSIGNED_BYTE;
 			break;
-			
+
 		case FMT_X16:
 			internalFormat = GL_INTENSITY16;
 			dataFormat = GL_LUMINANCE;
@@ -721,7 +721,7 @@ void idImage::AllocImage()
 		default:
 			idLib::Error( "Unhandled image format %d in %s\n", opts.format, GetName() );
 	}
-	
+
 	// if we don't have a rendering context, just return after we
 	// have filled in the parms.  We must have the values set, or
 	// an image match from a shader before OpenGL starts would miss
@@ -730,15 +730,15 @@ void idImage::AllocImage()
 	{
 		return;
 	}
-	
+
 	// generate the texture number
 	glGenTextures( 1, ( GLuint* )&texnum );
 	assert( texnum != TEXTURE_NOT_LOADED );
-	
+
 	//----------------------------------------------------
 	// allocate all the mip levels with NULL data
 	//----------------------------------------------------
-	
+
 	int numSides;
 	int target;
 	int uploadTarget;
@@ -773,9 +773,9 @@ void idImage::AllocImage()
 		target = uploadTarget = GL_TEXTURE_2D;
 		numSides = 1;
 	}
-	
+
 	glBindTexture( target, texnum );
-	
+
 	if( opts.textureType == TT_2D_ARRAY )
 	{
 		glTexImage3D( uploadTarget, 0, internalFormat, opts.width, opts.height, numSides, 0, dataFormat, GL_UNSIGNED_BYTE, NULL );
@@ -796,14 +796,14 @@ void idImage::AllocImage()
 			}
 			for( int level = 0; level < opts.numLevels; level++ )
 			{
-			
+
 				// clear out any previous error
 				GL_CheckErrors();
-				
+
 				if( IsCompressed() )
 				{
 					int compressedSize = ( ( ( w + 3 ) / 4 ) * ( ( h + 3 ) / 4 ) * int64( 16 ) * BitsForFormat( opts.format ) ) / 8;
-					
+
 					// Even though the OpenGL specification allows the 'data' pointer to be NULL, for some
 					// drivers we actually need to upload data to get it to allocate the texture.
 					// However, on 32-bit systems we may fail to allocate a large block of memory for large
@@ -812,7 +812,7 @@ void idImage::AllocImage()
 					// As of 2011-10-6 using NVIDIA hardware and drivers we have to allocate the memory with HeapAlloc
 					// with the exact size otherwise large image allocation (for instance for physical page textures)
 					// may fail on Vista 32-bit.
-					
+
 					// RB begin
 #if defined(_WIN32)
 					void* data = HeapAlloc( GetProcessHeap(), 0, compressedSize );
@@ -835,22 +835,22 @@ void idImage::AllocImage()
 				{
 					glTexImage2D( uploadTarget + side, level, internalFormat, w, h, 0, dataFormat, dataType, NULL );
 				}
-				
+
 				GL_CheckErrors();
-				
+
 				w = Max( 1, w >> 1 );
 				h = Max( 1, h >> 1 );
 			}
 		}
-		
+
 		glTexParameteri( target, GL_TEXTURE_MAX_LEVEL, opts.numLevels - 1 );
 	}
-	
+
 	// see if we messed anything up
 	GL_CheckErrors();
-	
+
 	SetTexParameters();
-	
+
 	GL_CheckErrors();
 }
 
@@ -866,7 +866,7 @@ void idImage::PurgeImage()
 		glDeleteTextures( 1, ( GLuint* )&texnum );	// this should be the ONLY place it is ever called!
 		texnum = TEXTURE_NOT_LOADED;
 	}
-	
+
 	// clear all the current binding caches, so the next bind will do a real one
 	for( int i = 0 ; i < MAX_MULTITEXTURE_UNITS ; i++ )
 	{

@@ -499,7 +499,7 @@ typedef struct st_lwVMap
 	int*           vindex;              /* array of point indexes */
 	int*           pindex;              /* array of polygon indexes */
 	float**        val;
-	
+
 	// added by duffy
 	int			offset;
 } lwVMap;

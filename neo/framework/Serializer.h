@@ -89,7 +89,7 @@ public:
 		, magic( 0 )
 #endif
 	{ }
-	
+
 	bool	IsReading()
 	{
 		return !writing;
@@ -98,7 +98,7 @@ public:
 	{
 		return writing;
 	}
-	
+
 	// SerializeRange - minSize through maxSize inclusive of all possible values
 	void	SerializeRange( int& value, int minSize, int maxSize )  	// Supports signed types
 	{
@@ -113,7 +113,7 @@ public:
 		}
 		assert( value >= minSize && value <= maxSize );
 	}
-	
+
 	// SerializeUMax - maxSize inclusive, unsigned
 	void	SerializeUMax( int& value, int maxSize )  					// Unsigned only
 	{
@@ -128,7 +128,7 @@ public:
 		}
 		assert( value <= maxSize );
 	}
-	
+
 	// SerializeUMaxNonRef - maxSize inclusive, unsigned, no reference
 	int	SerializeUMaxNonRef( int value, int maxSize )  					// Unsigned only
 	{
@@ -144,9 +144,9 @@ public:
 		assert( value <= maxSize );
 		return value;
 	}
-	
+
 	//void SerializeBitMsg( idBitMsg & inOutMsg, int numBytes ) { SanityCheck(); if ( writing ) { msg->WriteBitMsg( inOutMsg, numBytes ); } else { msg->ReadBitMsg( inOutMsg, numBytes ); } }
-	
+
 	// this is still needed to compile Rage code
 	void	SerializeBytes( void* bytes, int numBytes )
 	{
@@ -156,7 +156,7 @@ public:
 			Serialize( ( ( uint8* )bytes )[i] );
 		}
 	};
-	
+
 	bool	SerializeBoolNonRef( bool value )
 	{
 		SanityCheck();    // We return a value so we can support bit fields (can't pass by reference)
@@ -170,8 +170,8 @@ public:
 		}
 		return value;
 	}
-	
-	
+
+
 #ifdef SERIALIZE_NO_QUANT
 	template< int _max_, int _numBits_ >
 	void	SerializeQ( idVec3& value )
@@ -235,16 +235,16 @@ public:
 	}
 	void	SerializeQ( idMat3& axis, int bits = 15 );		// Default to 15 bits per component, which has almost unnoticeable quantization
 #endif
-	
+
 	void	Serialize( idMat3& axis );			// Raw 3x3 matrix serialize
 	void	SerializeC( idMat3& axis );			// Uses compressed quaternion
-	
+
 	template< typename _type_ >
 	void	SerializeListElement( const idList<_type_* >& list, const _type_*& element );
-	
+
 	void	SerializePacked( int& original );
 	void	SerializeSPacked( int& original );
-	
+
 	void	SerializeString( char* s, int bufferSize )
 	{
 		SanityCheck();
@@ -271,7 +271,7 @@ public:
 		}
 	}
 	//void	SerializeString( idStrId & s )				{ SanityCheck(); if ( writing ) { msg->WriteString(s.GetKey()); } else { idStr key; msg->ReadString( key ); s.Set( key );} }
-	
+
 	void	SerializeDelta( int32& value, const int32& base )
 	{
 		SanityCheck();
@@ -308,7 +308,7 @@ public:
 			value = msg->ReadDeltaChar( base );
 		}
 	}
-	
+
 	void	SerializeDelta( uint16& value, const uint16& base )
 	{
 		SanityCheck();
@@ -333,7 +333,7 @@ public:
 			value = msg->ReadDeltaByte( base );
 		}
 	}
-	
+
 	void	SerializeDelta( float& value, const float& base )
 	{
 		SanityCheck();
@@ -346,8 +346,8 @@ public:
 			value = msg->ReadDeltaFloat( base );
 		}
 	}
-	
-	
+
+
 	// Common types, no compression
 	void	Serialize( int64& value )
 	{
@@ -529,7 +529,7 @@ public:
 			msg->ReadVectorFloat( value );
 		}
 	}
-	
+
 	// serialize an angle, normalized to between 0 to 360 and quantized to 16 bits
 	void	SerializeAngle( float& value )
 	{
@@ -546,9 +546,9 @@ public:
 			uint16 sAngle = msg->ReadUShort();
 			value = sAngle * ( 360.0f / 65536.0f );
 		}
-		
+
 	}
-	
+
 	//void	Serialize( degrees_t & value )	{
 	//			SanityCheck();
 	//			float angle = value.Get();
@@ -589,7 +589,7 @@ public:
 	//	Serialize( value.b );
 	//	Serialize( value.a );
 	//}
-	
+
 	void	SanityCheck()
 	{
 #ifdef SERIALIZE_SANITYCHECK
@@ -617,7 +617,7 @@ public:
 		magic++;
 #endif
 	}
-	
+
 	void SerializeCheckpoint( const char* file, int line )
 	{
 #ifdef ENABLE_SERIALIZE_CHECKPOINTS
@@ -630,12 +630,12 @@ public:
 		}
 #endif
 	}
-	
+
 	idBitMsg& 	GetMsg()
 	{
 		return *msg;
 	}
-	
+
 private:
 	bool		writing;
 	idBitMsg* 	msg;
@@ -651,20 +651,20 @@ public:
 	{
 		ser = &ser_;
 		maxSizeBytes = maxSizeBytes_;
-		
+
 		startByte = ser->IsReading() ? ser->GetMsg().GetReadCount() : ser->GetMsg().GetSize();
 		startWriteBits = ser->GetMsg().GetWriteBit();
 	}
-	
+
 	~idSerializerScopedBlock()
 	{
-	
+
 		// Serialize remaining bits
 		while( ser->GetMsg().GetWriteBit() != startWriteBits )
 		{
 			ser->SerializeBoolNonRef( false );
 		}
-		
+
 		// Verify we didn't go over
 		int endByte = ser->IsReading() ? ser->GetMsg().GetReadCount() : ser->GetMsg().GetSize();
 		int sizeBytes = endByte - startByte;
@@ -673,7 +673,7 @@ public:
 			idLib::Warning( "idSerializerScopedBlock went over maxSize (%d > %d)", sizeBytes, maxSizeBytes );
 			return;
 		}
-		
+
 		// Serialize remaining bytes
 		uint8 b = 0;
 		while( sizeBytes < maxSizeBytes )
@@ -681,15 +681,15 @@ public:
 			ser->Serialize( b );
 			sizeBytes++;
 		}
-		
+
 		int finalSize = ( ( ser->IsReading() ? ser->GetMsg().GetReadCount() : ser->GetMsg().GetSize() ) - startByte );
 		verify( maxSizeBytes == finalSize );
 	}
-	
+
 private:
 	idSerializer* ser;
 	int maxSizeBytes;
-	
+
 	int startByte;
 	int startWriteBits;
 };
@@ -706,12 +706,12 @@ idSerializer::SerializeQ
 ID_INLINE void idSerializer::SerializeQ( idMat3& axis, int bits )
 {
 	SanityCheck();
-	
+
 	const float scale = ( ( 1 << ( bits - 1 ) ) - 1 );
 	if( IsWriting() )
 	{
 		idQuat quat = axis.ToQuat();
-		
+
 		int maxIndex = 0;
 		for( unsigned int i = 1; i < 4; i++ )
 		{
@@ -720,11 +720,11 @@ ID_INLINE void idSerializer::SerializeQ( idMat3& axis, int bits )
 				maxIndex = i;
 			}
 		}
-		
+
 		msg->WriteBits( maxIndex, 2 );
-		
+
 		idVec3 out;
-		
+
 		if( quat[maxIndex] < 0.0f )
 		{
 			out.x = -quat[( maxIndex + 1 ) & 3];
@@ -740,25 +740,25 @@ ID_INLINE void idSerializer::SerializeQ( idMat3& axis, int bits )
 		msg->WriteBits( idMath::Ftoi( out.x * scale ), -bits );
 		msg->WriteBits( idMath::Ftoi( out.y * scale ), -bits );
 		msg->WriteBits( idMath::Ftoi( out.z * scale ), -bits );
-		
+
 	}
 	else if( IsReading() )
 	{
 		idQuat quat;
 		idVec3 in;
-		
+
 		int maxIndex = msg->ReadBits( 2 );
-		
+
 		in.x = ( float )msg->ReadBits( -bits ) / scale;
 		in.y = ( float )msg->ReadBits( -bits ) / scale;
 		in.z = ( float )msg->ReadBits( -bits ) / scale;
-		
+
 		quat[( maxIndex + 1 ) & 3] = in.x;
 		quat[( maxIndex + 2 ) & 3] = in.y;
 		quat[( maxIndex + 3 ) & 3] = in.z;
-		
+
 		quat[maxIndex] = idMath::Sqrt( idMath::Fabs( 1.0f - in.x * in.x - in.y * in.y - in.z * in.z ) );
-		
+
 		axis = quat.ToMat3();
 	}
 }
@@ -772,7 +772,7 @@ idSerializer::Serialize
 ID_INLINE void idSerializer::Serialize( idMat3& axis )
 {
 	SanityCheck();
-	
+
 	Serialize( axis[0] );
 	Serialize( axis[1] );
 	Serialize( axis[2] );
@@ -786,11 +786,11 @@ idSerializer::SerializeC
 ID_INLINE void idSerializer::SerializeC( idMat3& axis )
 {
 	SanityCheck();
-	
+
 	if( IsWriting() )
 	{
 		idCQuat cquat = axis.ToCQuat();
-		
+
 		Serialize( cquat.x );
 		Serialize( cquat.y );
 		Serialize( cquat.z );
@@ -798,11 +798,11 @@ ID_INLINE void idSerializer::SerializeC( idMat3& axis )
 	else if( IsReading() )
 	{
 		idCQuat cquat;
-		
+
 		Serialize( cquat.x );
 		Serialize( cquat.y );
 		Serialize( cquat.z );
-		
+
 		axis = cquat.ToMat3();
 	}
 }
@@ -816,7 +816,7 @@ template< typename _type_ >
 ID_INLINE void idSerializer::SerializeListElement( const idList<_type_* >& list, const _type_*& element )
 {
 	SanityCheck();
-	
+
 	if( IsWriting() )
 	{
 		int index = list.FindIndex( const_cast<_type_*>( element ) );
@@ -843,11 +843,11 @@ Use SerializeSPacked if you anticipate lots of negative values
 ID_INLINE void idSerializer::SerializePacked( int& original )
 {
 	SanityCheck();
-	
+
 	if( IsWriting() )
 	{
 		uint32 value = original;
-		
+
 		while( true )
 		{
 			uint8 byte = value & 0x7F;
@@ -865,14 +865,14 @@ ID_INLINE void idSerializer::SerializePacked( int& original )
 		uint8 byte = 0x80;
 		uint32 value = 0;
 		int32 shift = 0;
-		
+
 		while( byte & 0x80 && shift < 32 )
 		{
 			byte = msg->ReadByte();
 			value |= ( byte & 0x7F ) << shift;
 			shift += 7;
 		}
-		
+
 		original = value;
 	}
 }
@@ -889,20 +889,20 @@ NOTE - An extra bit of the first byte is used to store the sign
 ID_INLINE void idSerializer::SerializeSPacked( int& value )
 {
 	SanityCheck();
-	
+
 	if( IsWriting() )
 	{
-	
+
 		uint32 uvalue = idMath::Abs( value );
-		
+
 		// Write the first byte specifically to handle the sign bit
 		uint8 byte = uvalue & 0x3f;
 		byte |= value < 0 ? 0x40 : 0;
 		uvalue >>= 6;
 		byte |= uvalue > 0 ? 0x80 : 0;
-		
+
 		msg->WriteByte( byte );
-		
+
 		while( uvalue > 0 )
 		{
 			uint8 byte2 = uvalue & 0x7F;
@@ -918,14 +918,14 @@ ID_INLINE void idSerializer::SerializeSPacked( int& value )
 		uint32 uvalue	= byte & 0x3f;
 		bool sgn		= ( byte & 0x40 ) ? true : false;
 		int32 shift		= 6;
-		
+
 		while( byte & 0x80 && shift < 32 )
 		{
 			byte = msg->ReadByte();		// Read byte
 			uvalue |= ( byte & 0x7F ) << shift;
 			shift += 7;
 		}
-		
+
 		value = sgn ? -( ( int )uvalue ) : uvalue;
 	}
 }

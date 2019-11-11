@@ -38,14 +38,14 @@ idMenuScreen_Shell_MatchSettings::Initialize
 void idMenuScreen_Shell_MatchSettings::Initialize( idMenuHandler* data )
 {
 	idMenuScreen::Initialize( data );
-	
+
 	if( data != NULL )
 	{
 		menuGUI = data->GetGUI();
 	}
-	
+
 	SetSpritePath( "menuMatchSettings" );
-	
+
 	options = new( TAG_SWF ) idMenuWidget_DynamicList();
 	options->SetNumVisibleOptions( NUM_GAME_OPTIONS_OPTIONS );
 	options->SetSpritePath( GetSpritePath(), "info", "options" );
@@ -53,14 +53,14 @@ void idMenuScreen_Shell_MatchSettings::Initialize( idMenuHandler* data )
 	options->SetControlList( true );
 	options->Initialize( data );
 	AddChild( options );
-	
+
 	btnBack = new( TAG_SWF ) idMenuWidget_Button();
 	btnBack->Initialize( data );
 	btnBack->SetLabel( "#str_swf_multiplayer" );
 	btnBack->SetSpritePath( GetSpritePath(), "info", "btnBack" );
 	btnBack->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_GO_BACK );
 	AddChild( btnBack );
-	
+
 	idMenuWidget_ControlButton* control;
 	control = new( TAG_SWF ) idMenuWidget_ControlButton();
 	control->SetOptionType( OPTION_SLIDER_TEXT );
@@ -69,7 +69,7 @@ void idMenuScreen_Shell_MatchSettings::Initialize( idMenuHandler* data )
 	control->SetupEvents( DEFAULT_REPEAT_TIME, options->GetChildren().Num() );
 	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_PRESS_FOCUSED, options->GetChildren().Num() );
 	options->AddChild( control );
-	
+
 	control = new( TAG_SWF ) idMenuWidget_ControlButton();
 	control->SetOptionType( OPTION_SLIDER_TEXT );
 	control->SetLabel( "#str_02049" );	// Map
@@ -77,7 +77,7 @@ void idMenuScreen_Shell_MatchSettings::Initialize( idMenuHandler* data )
 	control->SetupEvents( DEFAULT_REPEAT_TIME, options->GetChildren().Num() );
 	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_PRESS_FOCUSED, options->GetChildren().Num() );
 	options->AddChild( control );
-	
+
 	control = new( TAG_SWF ) idMenuWidget_ControlButton();
 	control->SetOptionType( OPTION_SLIDER_TEXT );
 	control->SetLabel( "#str_02183" );	// Time
@@ -85,7 +85,7 @@ void idMenuScreen_Shell_MatchSettings::Initialize( idMenuHandler* data )
 	control->SetupEvents( DEFAULT_REPEAT_TIME, options->GetChildren().Num() );
 	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_PRESS_FOCUSED, options->GetChildren().Num() );
 	options->AddChild( control );
-	
+
 	control = new( TAG_SWF ) idMenuWidget_ControlButton();
 	control->SetOptionType( OPTION_SLIDER_TEXT );
 	control->SetLabel( "#str_00100917" );	// Score
@@ -93,7 +93,7 @@ void idMenuScreen_Shell_MatchSettings::Initialize( idMenuHandler* data )
 	control->SetupEvents( DEFAULT_REPEAT_TIME, options->GetChildren().Num() );
 	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_PRESS_FOCUSED, options->GetChildren().Num() );
 	options->AddChild( control );
-	
+
 	options->AddEventAction( WIDGET_EVENT_SCROLL_DOWN ).Set( new( TAG_SWF ) idWidgetActionHandler( options, WIDGET_ACTION_EVENT_SCROLL_DOWN_START_REPEATER, WIDGET_EVENT_SCROLL_DOWN ) );
 	options->AddEventAction( WIDGET_EVENT_SCROLL_UP ).Set( new( TAG_SWF ) idWidgetActionHandler( options, WIDGET_ACTION_EVENT_SCROLL_UP_START_REPEATER, WIDGET_EVENT_SCROLL_UP ) );
 	options->AddEventAction( WIDGET_EVENT_SCROLL_DOWN_RELEASE ).Set( new( TAG_SWF ) idWidgetActionHandler( options, WIDGET_ACTION_EVENT_STOP_REPEATER, WIDGET_EVENT_SCROLL_DOWN_RELEASE ) );
@@ -125,12 +125,12 @@ void idMenuScreen_Shell_MatchSettings::Update()
 				buttonInfo->label = "#str_00395";
 			}
 			buttonInfo->action.Set( WIDGET_ACTION_GO_BACK );
-			
+
 			buttonInfo = cmdBar->GetButton( idMenuWidget_CommandBar::BUTTON_JOY1 );
 			buttonInfo->action.Set( WIDGET_ACTION_PRESS_FOCUSED );
 		}
 	}
-	
+
 	idSWFScriptObject& root = GetSWFObject()->GetRootObject();
 	if( BindSprite( root ) )
 	{
@@ -140,19 +140,19 @@ void idMenuScreen_Shell_MatchSettings::Update()
 			heading->SetText( "#str_swf_match_settings_heading" );	// SYSTEM SETTINGS
 			heading->SetStrokeInfo( true, 0.75f, 1.75f );
 		}
-		
+
 		idSWFSpriteInstance* gradient = GetSprite()->GetScriptObject()->GetNestedSprite( "info", "gradient" );
 		if( gradient != NULL && heading != NULL )
 		{
 			gradient->SetXPos( heading->GetTextLength() );
 		}
 	}
-	
+
 	if( btnBack != NULL )
 	{
 		btnBack->BindSprite( root );
 	}
-	
+
 	idMenuScreen::Update();
 }
 
@@ -193,15 +193,15 @@ bool idMenuScreen_Shell_MatchSettings::HandleAction( idWidgetAction& action, con
 	{
 		return true;
 	}
-	
+
 	if( menuData->ActiveScreen() != SHELL_AREA_MATCH_SETTINGS )
 	{
 		return false;
 	}
-	
+
 	widgetAction_t actionType = action.GetType();
 	const idSWFParmList& parms = action.GetParms();
-	
+
 	switch( actionType )
 	{
 		case WIDGET_ACTION_ADJUST_FIELD:
@@ -210,7 +210,7 @@ bool idMenuScreen_Shell_MatchSettings::HandleAction( idWidgetAction& action, con
 			{
 				widget->GetDataSource()->AdjustField( widget->GetDataSourceFieldIndex(), parms[ 0 ].ToInteger() );
 				widget->Update();
-				
+
 				if( matchData.MapChanged() )
 				{
 					idMenuWidget_ControlButton* button = dynamic_cast< idMenuWidget_ControlButton* >( &options->GetChildByIndex( 1 ) );
@@ -230,36 +230,36 @@ bool idMenuScreen_Shell_MatchSettings::HandleAction( idWidgetAction& action, con
 		}
 		case WIDGET_ACTION_PRESS_FOCUSED:
 		{
-		
+
 			if( options == NULL )
 			{
 				return true;
 			}
-			
+
 			int selectionIndex = options->GetFocusIndex();
 			if( parms.Num() > 0 )
 			{
 				selectionIndex = parms[0].ToInteger();
 			}
-			
+
 			if( selectionIndex != options->GetFocusIndex() )
 			{
 				options->SetViewIndex( options->GetViewOffset() + selectionIndex );
 				options->SetFocusIndex( selectionIndex );
 			}
-			
+
 			matchData.AdjustField( selectionIndex, 1 );
 			options->Update();
 			return true;
 		}
 		case WIDGET_ACTION_START_REPEATER:
 		{
-		
+
 			if( options == NULL )
 			{
 				return true;
 			}
-			
+
 			if( parms.Num() == 4 )
 			{
 				int selectionIndex = parms[3].ToInteger();
@@ -272,7 +272,7 @@ bool idMenuScreen_Shell_MatchSettings::HandleAction( idWidgetAction& action, con
 			break;
 		}
 	}
-	
+
 	return idMenuWidget::HandleAction( action, event, widget, forceHandled );
 }
 
@@ -311,7 +311,7 @@ void idMenuScreen_Shell_MatchSettings::idMenuDataSource_MatchSettings::LoadData(
 	fields[ MATCH_FIELD_MAP ].SetString( val );
 	GetModeName( matchParameters.gameMode, val );
 	fields[ MATCH_FIELD_MODE  ].SetString( val );
-	
+
 	int time = matchParameters.serverInfo.GetInt( "si_timeLimit" );
 	if( time == 0 )
 	{
@@ -321,10 +321,10 @@ void idMenuScreen_Shell_MatchSettings::idMenuDataSource_MatchSettings::LoadData(
 	{
 		fields[ MATCH_FIELD_TIME ].SetString( va( "%i", time ) );
 	}
-	
+
 	int fragLimit = matchParameters.serverInfo.GetInt( "si_fragLimit" );
 	fields[ MATCH_FIELD_SCORE ].SetInteger( fragLimit );
-	
+
 	originalFields = fields;
 }
 
@@ -337,7 +337,7 @@ void idMenuScreen_Shell_MatchSettings::idMenuDataSource_MatchSettings::CommitDat
 {
 
 	cvarSystem->SetModifiedFlags( CVAR_ARCHIVE );
-	
+
 	// make the committed fields into the backup fields
 	originalFields = fields;
 }
@@ -386,7 +386,7 @@ void idMenuScreen_Shell_MatchSettings::idMenuDataSource_MatchSettings::AdjustFie
 
 	const idStrList& modes = common->GetModeList();
 	const idList< mpMap_t > maps = common->GetMapList();
-	
+
 	idMatchParameters matchParameters = session->GetActivePlatformLobbyBase().GetMatchParms();
 	if( fieldIndex == MATCH_FIELD_MAP )
 	{
@@ -407,18 +407,18 @@ void idMenuScreen_Shell_MatchSettings::idMenuDataSource_MatchSettings::AdjustFie
 			}
 		}
 		session->UpdateMatchParms( matchParameters );
-		
+
 		idStr val;
 		GetMapName( matchParameters.gameMap, val );
 		si_map.SetInteger( matchParameters.gameMap );
 		fields[ MATCH_FIELD_MAP ].SetString( val );
-		
+
 	}
 	else if( fieldIndex == MATCH_FIELD_MODE )
 	{
 		// Don't allow random modes in the game lobby
 		matchParameters.gameMode += adjustAmount;
-		
+
 		if( matchParameters.gameMode < 0 )
 		{
 			matchParameters.gameMode = modes.Num() - 1;
@@ -437,21 +437,21 @@ void idMenuScreen_Shell_MatchSettings::idMenuDataSource_MatchSettings::AdjustFie
 				}
 			}
 		}
-		
+
 		session->UpdateMatchParms( matchParameters );
 		idStr val;
-		
+
 		GetModeName( matchParameters.gameMode, val );
 		si_mode.SetInteger( matchParameters.gameMode );
 		fields[ MATCH_FIELD_MODE ].SetString( val );
-		
+
 		if( updateMap )
 		{
 			GetMapName( matchParameters.gameMap, val );
 			si_map.SetInteger( matchParameters.gameMap );
 			fields[ MATCH_FIELD_MAP ].SetString( val );
 		}
-		
+
 	}
 	else if( fieldIndex == MATCH_FIELD_TIME )
 	{
@@ -464,7 +464,7 @@ void idMenuScreen_Shell_MatchSettings::idMenuDataSource_MatchSettings::AdjustFie
 		{
 			time = 0;
 		}
-		
+
 		if( time == 0 )
 		{
 			fields[ MATCH_FIELD_TIME ].SetString( "#str_02844" );	// none
@@ -473,16 +473,16 @@ void idMenuScreen_Shell_MatchSettings::idMenuDataSource_MatchSettings::AdjustFie
 		{
 			fields[ MATCH_FIELD_TIME ].SetString( va( "%i", time ) );
 		}
-		
+
 		si_timeLimit.SetInteger( time );
-		
+
 		matchParameters.serverInfo.SetInt( "si_timeLimit", si_timeLimit.GetInteger() );
 		session->UpdateMatchParms( matchParameters );
-		
+
 	}
 	else if( fieldIndex == MATCH_FIELD_SCORE )
 	{
-	
+
 		int val = fields[ fieldIndex ].ToInteger() + ( adjustAmount * 5 );
 		if( val < 5 )
 		{
@@ -492,14 +492,14 @@ void idMenuScreen_Shell_MatchSettings::idMenuDataSource_MatchSettings::AdjustFie
 		{
 			val = 5;
 		}
-		
+
 		fields[ fieldIndex ].SetInteger( val );
 		si_fragLimit.SetInteger( val );
-		
+
 		matchParameters.serverInfo.SetInt( "si_fragLimit", si_fragLimit.GetInteger() );
 		session->UpdateMatchParms( matchParameters );
 	}
-	
+
 	cvarSystem->ClearModifiedFlags( CVAR_ARCHIVE );
 }
 
@@ -515,21 +515,21 @@ bool idMenuScreen_Shell_MatchSettings::idMenuDataSource_MatchSettings::IsDataCha
 	{
 		return true;
 	}
-	
+
 	if( fields[ MATCH_FIELD_MAP ].ToString() != originalFields[ MATCH_FIELD_MAP ].ToString() )
 	{
 		return true;
 	}
-	
+
 	if( fields[ MATCH_FIELD_MODE ].ToString() != originalFields[ MATCH_FIELD_MODE ].ToString() )
 	{
 		return true;
 	}
-	
+
 	if( fields[ MATCH_FIELD_SCORE ].ToInteger() != originalFields[ MATCH_FIELD_SCORE ].ToInteger() )
 	{
 		return true;
 	}
-	
+
 	return false;
 }

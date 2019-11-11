@@ -88,22 +88,22 @@ typedef struct md3Tag_s
 typedef struct md3Surface_s
 {
 	int			ident;				//
-	
+
 	char		name[MAX_MD3PATH];	// polyset name
-	
+
 	int			flags;
 	int			numFrames;			// all surfaces in a model should have the same
-	
+
 	int			numShaders;			// all surfaces in a model should have the same
 	int			numVerts;
-	
+
 	int			numTriangles;
 	int			ofsTriangles;
-	
+
 	int			ofsShaders;			// offset from start of md3Surface_t
 	int			ofsSt;				// texture coords are common for all frames
 	int			ofsXyzNormals;		// numVerts * numFrames
-	
+
 	int			ofsEnd;				// next surface follows
 } md3Surface_t;
 
@@ -133,21 +133,21 @@ typedef struct md3Header_s
 {
 	int			ident;
 	int			version;
-	
+
 	char		name[MAX_MD3PATH];	// model name
-	
+
 	int			flags;
-	
+
 	int			numFrames;
 	int			numTags;
 	int			numSurfaces;
-	
+
 	int			numSkins;
-	
+
 	int			ofsFrames;			// offset for first frame
 	int			ofsTags;			// numFrames * numTags
 	int			ofsSurfaces;		// first surface, others follow
-	
+
 	int			ofsEnd;				// end of file
 } md3Header_t;
 

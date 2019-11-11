@@ -93,17 +93,17 @@ void RectAllocator( const idList<idVec2i>& inputSizes, idList<idVec2i>& outputPo
 	{
 		sizeRemap[i] = i;
 	}
-	
+
 	// Sort the rects from largest to smallest (it makes allocating them in the image better)
 	idSortrects sortrectsBySize;
 	sortrectsBySize.inputSizes = &inputSizes;
 	sizeRemap.SortWithTemplate( sortrectsBySize );
-	
+
 	// the largest rect goes to the top-left corner
 	outputPositions[sizeRemap[0]].Set( 0, 0 );
-	
+
 	totalSize = inputSizes[sizeRemap[0]];
-	
+
 	// For each image try to fit it at a corner of one of the already fitted images while
 	// minimizing the total area.
 	// Somewhat better allocation could be had by checking all the combinations of x and y edges
@@ -124,7 +124,7 @@ void RectAllocator( const idList<idVec2i>& inputSizes, idList<idVec2i>& outputPo
 				{
 					test[n] = outputPositions[sizeRemap[j]][n] + ( ( k >> n ) & 1 ) * inputSizes[sizeRemap[j]][n];
 				}
-				
+
 				idVec2i	newMax;
 				for( int n = 0 ; n < 2 ; n++ )
 				{
@@ -134,14 +134,14 @@ void RectAllocator( const idList<idVec2i>& inputSizes, idList<idVec2i>& outputPo
 				// allow it to be used directly as a GPU texture without re-packing
 				// FIXME: make this a parameter
 				newMax[0] = ( newMax[0] + 31 ) & ~31;
-				
+
 				// don't let an image get larger than 1024 DXT block, or PS3 crashes
 				// FIXME: pass maxSize in as a parameter
 				if( newMax[0] > 1024 || newMax[1] > 1024 )
 				{
 					continue;
 				}
-				
+
 				// if we have already found a spot that keeps the image smaller, don't bother checking here
 				// This calculation biases the rect towards more square shapes instead of
 				// allowing it to extend in one dimension for a long time.
@@ -151,13 +151,13 @@ void RectAllocator( const idList<idVec2i>& inputSizes, idList<idVec2i>& outputPo
 				{
 					continue;
 				}
-				
+
 				// if the image isn't required to grow, favor the location closest to the origin
 				if( newSize == bestSize && best.x + best.y < test.x + test.y )
 				{
 					continue;
 				}
-				
+
 				// see if this spot overlaps any already allocated rect
 				int n = 0;
 				for( ; n < i; n++ )

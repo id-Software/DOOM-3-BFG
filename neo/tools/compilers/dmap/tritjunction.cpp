@@ -113,9 +113,9 @@ struct hashVert_s*	GetHashVert( idVec3& v )
 	int		block[3];
 	int		i;
 	hashVert_t*	hv;
-	
+
 	numTotalVerts++;
-	
+
 	// snap the vert to integral values
 	for( i = 0 ; i < 3 ; i++ )
 	{
@@ -130,7 +130,7 @@ struct hashVert_s*	GetHashVert( idVec3& v )
 			block[i] = HASH_BINS - 1;
 		}
 	}
-	
+
 	// see if a vertex near enough already exists
 	// this could still fail to find a near neighbor right at the hash block boundary
 	for( hv = hashVerts[block[0]][block[1]][block[2]] ; hv ; hv = hv->next )
@@ -150,25 +150,25 @@ struct hashVert_s*	GetHashVert( idVec3& v )
 			return hv;
 		}
 	}
-	
+
 	// create a new one
 	hv = ( hashVert_t* )Mem_Alloc( sizeof( *hv ), TAG_TOOLS );
-	
+
 	hv->next = hashVerts[block[0]][block[1]][block[2]];
 	hashVerts[block[0]][block[1]][block[2]] = hv;
-	
+
 	hv->iv[0] = iv[0];
 	hv->iv[1] = iv[1];
 	hv->iv[2] = iv[2];
-	
+
 	hv->v[0] = ( float )iv[0] / SNAP_FRACTIONS;
 	hv->v[1] = ( float )iv[1] / SNAP_FRACTIONS;
 	hv->v[2] = ( float )iv[2] / SNAP_FRACTIONS;
-	
+
 	v = hv->v;
-	
+
 	numHashVerts++;
-	
+
 	return hv;
 }
 
@@ -185,12 +185,12 @@ static void HashBlocksForTri( const mapTri_t* tri, int blocks[2][3] )
 {
 	idBounds	bounds;
 	int			i;
-	
+
 	bounds.Clear();
 	bounds.AddPoint( tri->v[0].xyz );
 	bounds.AddPoint( tri->v[1].xyz );
 	bounds.AddPoint( tri->v[2].xyz );
-	
+
 	// add a 1.0 slop margin on each side
 	for( i = 0 ; i < 3 ; i++ )
 	{
@@ -203,7 +203,7 @@ static void HashBlocksForTri( const mapTri_t* tri, int blocks[2][3] )
 		{
 			blocks[0][i] = HASH_BINS - 1;
 		}
-		
+
 		blocks[1][i] = ( bounds[1][i] + 1.0 - hashBounds[0][i] ) / hashScale[i];
 		if( blocks[1][i] < 0 )
 		{
@@ -230,13 +230,13 @@ void HashTriangles( optimizeGroup_t* groupList )
 	int			vert;
 	int			i;
 	optimizeGroup_t*	group;
-	
+
 	// clear the hash tables
 	memset( hashVerts, 0, sizeof( hashVerts ) );
-	
+
 	numHashVerts = 0;
 	numTotalVerts = 0;
-	
+
 	// bound all the triangles to determine the bucket size
 	hashBounds.Clear();
 	for( group = groupList ; group ; group = group->nextGroup )
@@ -248,14 +248,14 @@ void HashTriangles( optimizeGroup_t* groupList )
 			hashBounds.AddPoint( a->v[2].xyz );
 		}
 	}
-	
+
 	// spread the bounds so it will never have a zero size
 	for( i = 0 ; i < 3 ; i++ )
 	{
 		hashBounds[0][i] = floor( hashBounds[0][i] - 1 );
 		hashBounds[1][i] = ceil( hashBounds[1][i] + 1 );
 		hashIntMins[i] = hashBounds[0][i] * SNAP_FRACTIONS;
-		
+
 		hashScale[i] = ( hashBounds[1][i] - hashBounds[0][i] ) / HASH_BINS;
 		hashIntScale[i] = hashScale[i] * SNAP_FRACTIONS;
 		if( hashIntScale[i] < 1 )
@@ -263,7 +263,7 @@ void HashTriangles( optimizeGroup_t* groupList )
 			hashIntScale[i] = 1;
 		}
 	}
-	
+
 	// add all the points to the hash buckets
 	for( group = groupList ; group ; group = group->nextGroup )
 	{
@@ -294,7 +294,7 @@ void FreeTJunctionHash()
 {
 	int			i, j, k;
 	hashVert_t*	hv, *next;
-	
+
 	for( i = 0 ; i < HASH_BINS ; i++ )
 	{
 		for( j = 0 ; j < HASH_BINS ; j++ )
@@ -334,16 +334,16 @@ static mapTri_t* FixTriangleAgainstHashVert( const mapTri_t* a, const hashVert_t
 	float		d, off;
 	const idVec3* v;
 	idPlane		plane1, plane2;
-	
+
 	v = &hv->v;
-	
+
 	// if the triangle already has this hashVert as a vert,
 	// it can't be split by it
 	if( a->hashVert[0] == hv || a->hashVert[1] == hv || a->hashVert[2] == hv )
 	{
 		return NULL;
 	}
-	
+
 	// we probably should find the edge that the vertex is closest to.
 	// it is possible to be < 1 unit away from multiple
 	// edges, but we only want to split by one of them
@@ -353,9 +353,9 @@ static mapTri_t* FixTriangleAgainstHashVert( const mapTri_t* a, const hashVert_t
 		v2 = &a->v[( i + 1 ) % 3];
 		v3 = &a->v[( i + 2 ) % 3];
 		dir = v2->xyz - v1->xyz;
-		
+
 		len = dir.Normalize();
-		
+
 		// if it is close to one of the edge vertexes, skip it
 		temp = *v - v1->xyz;
 		d = temp * dir;
@@ -363,7 +363,7 @@ static mapTri_t* FixTriangleAgainstHashVert( const mapTri_t* a, const hashVert_t
 		{
 			continue;
 		}
-		
+
 		// make sure it is on the line
 		VectorMA( v1->xyz, d, dir, temp );
 		temp = *v - temp;
@@ -372,47 +372,47 @@ static mapTri_t* FixTriangleAgainstHashVert( const mapTri_t* a, const hashVert_t
 		{
 			continue;
 		}
-		
+
 		// take the x/y/z from the splitter,
 		// but interpolate everything else from the original tri
 		split.xyz = *v;
 		frac = d / len;
-		
+
 		// RB begin
 		const idVec2 v1ST = v1->GetTexCoord();
 		const idVec2 v2ST = v2->GetTexCoord();
-		
+
 		split.SetTexCoord(	v1ST.x + frac * ( v2ST.x - v1ST.x ),
 							v1ST.y + frac * ( v2ST.y - v1ST.y ) );
-							
+
 		idVec3 splitNormal;
 		idVec3 v1Normal = v1->GetNormal();
 		idVec3 v2Normal = v2->GetNormal();
-		
+
 		splitNormal[0] = v1Normal[0] + frac * ( v2Normal[0] - v1Normal[0] );
 		splitNormal[1] = v1Normal[1] + frac * ( v2Normal[1] - v1Normal[1] );
 		splitNormal[2] = v1Normal[2] + frac * ( v2Normal[2] - v1Normal[2] );
 		splitNormal.Normalize();
-		
+
 		split.SetNormal( splitNormal );
 		// RB end
-		
+
 		// split the tri
 		new1 = CopyMapTri( a );
 		new1->v[( i + 1 ) % 3] = split;
 		new1->hashVert[( i + 1 ) % 3] = hv;
 		new1->next = NULL;
-		
+
 		new2 = CopyMapTri( a );
 		new2->v[i] = split;
 		new2->hashVert[i] = hv;
 		new2->next = new1;
-		
+
 		plane1.FromPoints( new1->hashVert[0]->v, new1->hashVert[1]->v, new1->hashVert[2]->v );
 		plane2.FromPoints( new2->hashVert[0]->v, new2->hashVert[1]->v, new2->hashVert[2]->v );
-		
+
 		d = plane1.Normal() * plane2.Normal();
-		
+
 		// if the two split triangle's normals don't face the same way,
 		// it should not be split
 		if( d <= 0 )
@@ -420,11 +420,11 @@ static mapTri_t* FixTriangleAgainstHashVert( const mapTri_t* a, const hashVert_t
 			FreeTriList( new2 );
 			continue;
 		}
-		
+
 		return new2;
 	}
-	
-	
+
+
 	return NULL;
 }
 
@@ -445,7 +445,7 @@ static mapTri_t*	FixTriangleAgainstHash( const mapTri_t* tri )
 	int				blocks[2][3];
 	int				i, j, k;
 	hashVert_t*		hv;
-	
+
 	// if this triangle is degenerate after point snapping,
 	// do nothing (this shouldn't happen, because they should
 	// be removed as they are hashed)
@@ -455,10 +455,10 @@ static mapTri_t*	FixTriangleAgainstHash( const mapTri_t* tri )
 	{
 		return NULL;
 	}
-	
+
 	fixed = CopyMapTri( tri );
 	fixed->next = NULL;
-	
+
 	HashBlocksForTri( tri, blocks );
 	for( i = blocks[0][0] ; i <= blocks[1][0] ; i++ )
 	{
@@ -492,7 +492,7 @@ static mapTri_t*	FixTriangleAgainstHash( const mapTri_t* tri )
 			}
 		}
 	}
-	
+
 	return fixed;
 }
 
@@ -505,13 +505,13 @@ CountGroupListTris
 int CountGroupListTris( const optimizeGroup_t* groupList )
 {
 	int		c;
-	
+
 	c = 0;
 	for( ; groupList ; groupList = groupList->nextGroup )
 	{
 		c += CountTriList( groupList->triList );
 	}
-	
+
 	return c;
 }
 
@@ -527,27 +527,27 @@ void	FixAreaGroupsTjunctions( optimizeGroup_t* groupList )
 	mapTri_t*		fixed;
 	int				startCount, endCount;
 	optimizeGroup_t*	group;
-	
+
 	if( dmapGlobals.noTJunc )
 	{
 		return;
 	}
-	
+
 	if( !groupList )
 	{
 		return;
 	}
-	
+
 	startCount = CountGroupListTris( groupList );
-	
+
 	if( dmapGlobals.verbose )
 	{
 		common->Printf( "----- FixAreaGroupsTjunctions -----\n" );
 		common->Printf( "%6i triangles in\n", startCount );
 	}
-	
+
 	HashTriangles( groupList );
-	
+
 	for( group = groupList ; group ; group = group->nextGroup )
 	{
 		// don't touch discrete surfaces
@@ -555,7 +555,7 @@ void	FixAreaGroupsTjunctions( optimizeGroup_t* groupList )
 		{
 			continue;
 		}
-		
+
 		newList = NULL;
 		for( tri = group->triList ; tri ; tri = tri->next )
 		{
@@ -565,7 +565,7 @@ void	FixAreaGroupsTjunctions( optimizeGroup_t* groupList )
 		FreeTriList( group->triList );
 		group->triList = newList;
 	}
-	
+
 	endCount = CountGroupListTris( groupList );
 	if( dmapGlobals.verbose )
 	{
@@ -582,7 +582,7 @@ FixEntityTjunctions
 void	FixEntityTjunctions( uEntity_t* e )
 {
 	int		i;
-	
+
 	for( i = 0 ; i < e->numAreas ; i++ )
 	{
 		FixAreaGroupsTjunctions( e->areas[i].groups );
@@ -602,15 +602,15 @@ void	FixGlobalTjunctions( uEntity_t* e )
 	int			i;
 	optimizeGroup_t*	group;
 	int			areaNum;
-	
+
 	common->Printf( "----- FixGlobalTjunctions -----\n" );
-	
+
 	// clear the hash tables
 	memset( hashVerts, 0, sizeof( hashVerts ) );
-	
+
 	numHashVerts = 0;
 	numTotalVerts = 0;
-	
+
 	// bound all the triangles to determine the bucket size
 	hashBounds.Clear();
 	for( areaNum = 0 ; areaNum < e->numAreas ; areaNum++ )
@@ -625,14 +625,14 @@ void	FixGlobalTjunctions( uEntity_t* e )
 			}
 		}
 	}
-	
+
 	// spread the bounds so it will never have a zero size
 	for( i = 0 ; i < 3 ; i++ )
 	{
 		hashBounds[0][i] = floor( hashBounds[0][i] - 1 );
 		hashBounds[1][i] = ceil( hashBounds[1][i] + 1 );
 		hashIntMins[i] = hashBounds[0][i] * SNAP_FRACTIONS;
-		
+
 		hashScale[i] = ( hashBounds[1][i] - hashBounds[0][i] ) / HASH_BINS;
 		hashIntScale[i] = hashScale[i] * SNAP_FRACTIONS;
 		if( hashIntScale[i] < 1 )
@@ -640,7 +640,7 @@ void	FixGlobalTjunctions( uEntity_t* e )
 			hashIntScale[i] = 1;
 		}
 	}
-	
+
 	// add all the points to the hash buckets
 	for( areaNum = 0 ; areaNum < e->numAreas ; areaNum++ )
 	{
@@ -651,7 +651,7 @@ void	FixGlobalTjunctions( uEntity_t* e )
 			{
 				continue;
 			}
-			
+
 			for( a = group->triList ; a ; a = a->next )
 			{
 				for( vert = 0 ; vert < 3 ; vert++ )
@@ -661,7 +661,7 @@ void	FixGlobalTjunctions( uEntity_t* e )
 			}
 		}
 	}
-	
+
 	// add all the func_static model vertexes to the hash buckets
 	// optionally inline some of the func_static models
 	if( dmapGlobals.entityNum == 0 )
@@ -679,15 +679,15 @@ void	FixGlobalTjunctions( uEntity_t* e )
 			{
 				continue;
 			}
-			
+
 			// RB: DAE support
 			if( !strstr( modelName, ".lwo" ) && !strstr( modelName, ".ase" ) && !strstr( modelName, ".ma" ) && !strstr( modelName, ".dae" ) )
 			{
 				continue;
 			}
-			
+
 			idRenderModel*	model = renderModelManager->FindModel( modelName );
-			
+
 //			common->Printf( "adding T junction verts for %s.\n", entity->mapEntity->epairs.GetString( "name" ) );
 
 			idMat3	axis;
@@ -704,14 +704,14 @@ void	FixGlobalTjunctions( uEntity_t* e )
 					axis.Identity();
 				}
 			}
-			
+
 			idVec3	origin = entity->mapEntity->epairs.GetVector( "origin" );
-			
+
 			for( i = 0 ; i < model->NumSurfaces() ; i++ )
 			{
 				const modelSurface_t* surface = model->Surface( i );
 				const srfTriangles_t* tri = surface->geometry;
-				
+
 				mapTri_t	mapTri;
 				memset( &mapTri, 0, sizeof( mapTri ) );
 				mapTri.material = surface->shader;
@@ -728,9 +728,9 @@ void	FixGlobalTjunctions( uEntity_t* e )
 			}
 		}
 	}
-	
-	
-	
+
+
+
 	// now fix each area
 	for( areaNum = 0 ; areaNum < e->numAreas ; areaNum++ )
 	{
@@ -741,7 +741,7 @@ void	FixGlobalTjunctions( uEntity_t* e )
 			{
 				continue;
 			}
-			
+
 			mapTri_t* newList = NULL;
 			for( mapTri_t* tri = group->triList ; tri ; tri = tri->next )
 			{
@@ -752,8 +752,8 @@ void	FixGlobalTjunctions( uEntity_t* e )
 			group->triList = newList;
 		}
 	}
-	
-	
+
+
 	// done
 	FreeTJunctionHash();
 }

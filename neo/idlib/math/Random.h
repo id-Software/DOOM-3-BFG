@@ -41,17 +41,17 @@ class idRandom
 {
 public:
 	idRandom( int seed = 0 );
-	
+
 	void				SetSeed( int seed );
 	int					GetSeed() const;
-	
+
 	int					RandomInt();			// random integer in the range [0, MAX_RAND]
 	int					RandomInt( int max );		// random integer in the range [0, max[
 	float				RandomFloat();		// random number in the range [0.0f, 1.0f]
 	float				CRandomFloat();		// random number in the range [-1.0f, 1.0f]
-	
+
 	static const int	MAX_RAND = 0x7fff;
-	
+
 private:
 	int					seed;
 };
@@ -110,20 +110,20 @@ class idRandom2
 public:
 	// DG: use int instead of long for 64bit compatibility in this whole class
 	idRandom2( unsigned int seed = 0 );
-	
+
 	void					SetSeed( unsigned int seed );
 	unsigned int			GetSeed() const;
-	
+
 	int						RandomInt();			// random integer in the range [0, MAX_RAND]
 	int						RandomInt( int max );		// random integer in the range [0, max]
 	float					RandomFloat();		// random number in the range [0.0f, 1.0f]
 	float					CRandomFloat();		// random number in the range [-1.0f, 1.0f]
-	
+
 	static const int		MAX_RAND = 0x7fff;
-	
+
 private:
 	unsigned int			seed;
-	
+
 	static const unsigned int	IEEE_ONE = 0x3f800000;
 	static const unsigned int	IEEE_MASK = 0x007fffff;
 };

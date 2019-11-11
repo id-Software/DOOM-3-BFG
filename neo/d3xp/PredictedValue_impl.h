@@ -137,13 +137,13 @@ bool idPredictedValue< type_ >::UpdateFromSnapshot( const type_ & valueFromSnaps
 		value = valueFromSnapshot;
 		return true;
 	}
-	
+
 	if( gameLocal.GetLastClientUsercmdMilliseconds( clientNumber ) >= clientPredictedMilliseconds )
 	{
 		value = valueFromSnapshot;
 		return true;
 	}
-	
+
 	return false;
 }
 

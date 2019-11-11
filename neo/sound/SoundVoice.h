@@ -39,33 +39,33 @@ class idSoundVoice_Base
 {
 public:
 	idSoundVoice_Base();
-	
+
 	static void InitSurround( int outputChannels, int channelMask );
-	
+
 	void		CalculateSurround( int srcChannels, float pLevelMatrix[ MAX_CHANNELS_PER_VOICE * MAX_CHANNELS_PER_VOICE ], float scale );
-	
+
 	// RB begin
 	virtual void	SetPosition( const idVec3& p )
 	{
 		position = p;
 	}
-	
+
 	virtual void	SetGain( float g )
 	{
 		gain = g;
 	}
-	
+
 	virtual void	SetPitch( float p )
 	{
 		pitch = p;
 	}
 	// RB end
-	
+
 	void		SetCenterChannel( float c )
 	{
 		centerChannel = c;
 	}
-	
+
 	void		SetInnerRadius( float r )
 	{
 		innerRadius = r;
@@ -74,15 +74,15 @@ public:
 	{
 		channelMask = mask;
 	}
-	
+
 	const idSoundSample* GetCurrentSample();
-	
+
 	// Controls the low pass filter, where 0.0f = no filtering, 1.0f = full filter
 	void		SetOcclusion( float f )
 	{
 		occlusion = f;
 	}
-	
+
 	float		GetGain()
 	{
 		return gain;
@@ -91,7 +91,7 @@ public:
 	{
 		return pitch;
 	}
-	
+
 protected:
 	idVec3		position;			// Position of the sound relative to listener
 	float		gain;				// Volume (0-1)
@@ -100,35 +100,35 @@ protected:
 	float		innerRadius;		// Anything closer than this is omni
 	float		occlusion;			// How much of this sound is occluded (0-1)
 	uint32		channelMask;		// Set to override the default channel mask
-	
+
 	// These are some setting used to do SSF_DISTANCE_BASED_STERO blending
 	float		innerSampleRangeSqr;
 	float		outerSampleRangeSqr;
-	
+
 	idList< idSoundSample*, TAG_AUDIO> samples;
-	
+
 	// These are constants which are initialized with InitSurround
 	//-------------------------------------------------------------
-	
+
 	static idVec2 speakerPositions[idWaveFile::CHANNEL_INDEX_MAX];
-	
+
 	// This is to figure out which speakers are "next to" this one
 	static int speakerLeft[idWaveFile::CHANNEL_INDEX_MAX];
 	static int speakerRight[idWaveFile::CHANNEL_INDEX_MAX];
-	
+
 	// Number of channels in the output hardware
 	static int dstChannels;
-	
+
 	// Mask indicating which speakers exist in the hardware configuration
 	static int dstMask;
-	
+
 	// dstMap maps a destination channel to a speaker
 	// invMap maps a speaker to a destination channel
 	static int dstCenter;
 	static int dstLFE;
 	static int dstMap[MAX_CHANNELS_PER_VOICE];
 	static int invMap[idWaveFile::CHANNEL_INDEX_MAX];
-	
+
 	// specifies what volume to specify for each channel when a speaker is omni
 	static float omniLevel;
 };

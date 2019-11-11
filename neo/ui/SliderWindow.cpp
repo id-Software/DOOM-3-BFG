@@ -47,14 +47,14 @@ void idSliderWindow::CommonInit()
 	stepSize = 1.0;
 	thumbMat = declManager->FindMaterial( "_default" );
 	buddyWin = NULL;
-	
+
 	cvar = NULL;
 	cvar_init = false;
 	liveUpdate = true;
-	
+
 	vertical = false;
 	scrollbar = false;
-	
+
 	verticalFlip = false;
 }
 
@@ -129,7 +129,7 @@ idWinVar* idSliderWindow::GetWinVarByName( const char* _name, bool fixup, drawWi
 	{
 		return &cvarGroup;
 	}
-	
+
 	return idWindow::GetWinVarByName( _name, fixup, owner );
 }
 
@@ -140,26 +140,26 @@ const char* idSliderWindow::HandleEvent( const sysEvent_t* event, bool* updateVi
 	{
 		return "";
 	}
-	
+
 	int key = event->evValue;
-	
+
 	if( event->evValue2 && key == K_MOUSE1 )
 	{
 		SetCapture( this );
 		RouteMouseCoords( 0.0f, 0.0f );
 		return "";
 	}
-	
+
 	if( key == K_RIGHTARROW || key == K_KP_6 || ( key == K_MOUSE2 && gui->CursorY() > thumbRect.y ) )
 	{
 		value = value + stepSize;
 	}
-	
+
 	if( key == K_LEFTARROW || key == K_KP_4 || ( key == K_MOUSE2 && gui->CursorY() < thumbRect.y ) )
 	{
 		value = value - stepSize;
 	}
-	
+
 	if( buddyWin )
 	{
 		buddyWin->HandleBuddyUpdate( this );
@@ -169,7 +169,7 @@ const char* idSliderWindow::HandleEvent( const sysEvent_t* event, bool* updateVi
 		gui->SetStateFloat( cvarStr, value );
 		UpdateCvar( false );
 	}
-	
+
 	return "";
 }
 
@@ -225,18 +225,18 @@ void idSliderWindow::SetValue( float _value )
 void idSliderWindow::Draw( int time, float x, float y )
 {
 	idVec4 color = foreColor;
-	
+
 	if( !cvar && !buddyWin )
 	{
 		return;
 	}
-	
+
 	if( !thumbWidth || !thumbHeight )
 	{
 		thumbWidth = thumbMat->GetImageWidth();
 		thumbHeight = thumbMat->GetImageHeight();
 	}
-	
+
 	UpdateCvar( true );
 	if( value > high )
 	{
@@ -246,14 +246,14 @@ void idSliderWindow::Draw( int time, float x, float y )
 	{
 		value = low;
 	}
-	
+
 	float range = high - low;
-	
+
 	if( range <= 0.0f )
 	{
 		return;
 	}
-	
+
 	float thumbPos = ( range ) ? ( value - low ) / range : 0.0;
 	if( vertical )
 	{
@@ -275,7 +275,7 @@ void idSliderWindow::Draw( int time, float x, float y )
 	}
 	thumbRect.w = thumbWidth;
 	thumbRect.h = thumbHeight;
-	
+
 	if( hover && !noEvents && Contains( gui->CursorX(), gui->CursorY() ) )
 	{
 		color = hoverColor;
@@ -289,7 +289,7 @@ void idSliderWindow::Draw( int time, float x, float y )
 		color = hoverColor;
 		hover = true;
 	}
-	
+
 	dc->DrawMaterial( thumbRect.x, thumbRect.y, thumbRect.w, thumbRect.h, thumbMat, color );
 	if( flags & WIN_FOCUS )
 	{
@@ -304,12 +304,12 @@ void idSliderWindow::DrawBackground( const idRectangle& _drawRect )
 	{
 		return;
 	}
-	
+
 	if( high - low <= 0.0f )
 	{
 		return;
 	}
-	
+
 	idRectangle r = _drawRect;
 	if( !scrollbar )
 	{
@@ -330,12 +330,12 @@ void idSliderWindow::DrawBackground( const idRectangle& _drawRect )
 const char* idSliderWindow::RouteMouseCoords( float xd, float yd )
 {
 	float pct;
-	
+
 	if( !( flags & WIN_CAPTURE ) )
 	{
 		return "";
 	}
-	
+
 	idRectangle r = drawRect;
 	r.x = actualX;
 	r.y = actualY;
@@ -395,7 +395,7 @@ const char* idSliderWindow::RouteMouseCoords( float xd, float yd )
 			value = high;
 		}
 	}
-	
+
 	if( buddyWin )
 	{
 		buddyWin->HandleBuddyUpdate( this );
@@ -405,7 +405,7 @@ const char* idSliderWindow::RouteMouseCoords( float xd, float yd )
 		gui->SetStateFloat( cvarStr, value );
 	}
 	UpdateCvar( false );
-	
+
 	return "";
 }
 
@@ -436,7 +436,7 @@ void idSliderWindow::InitCvar( )
 		cvar = NULL;
 		return;
 	}
-	
+
 	cvar = cvarSystem->Find( cvarStr );
 	if( !cvar )
 	{
@@ -483,7 +483,7 @@ idSliderWindow::RunNamedEvent
 void idSliderWindow::RunNamedEvent( const char* eventName )
 {
 	idStr event, group;
-	
+
 	if( !idStr::Cmpn( eventName, "cvar read ", 10 ) )
 	{
 		event = eventName;

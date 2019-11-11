@@ -42,7 +42,7 @@ void idMenuWidget_PDA_EmailInbox::Initialize( idMenuHandler* data )
 	idMenuWidget_ScrollBar* scrollbar = new( TAG_SWF ) idMenuWidget_ScrollBar();
 	scrollbar->SetSpritePath( GetSpritePath(), "info", "scrollbar" );
 	scrollbar->Initialize( data );
-	
+
 	emailList = new( TAG_SWF ) idMenuWidget_DynamicList();
 	emailList->SetSpritePath( GetSpritePath(), "info", "options" );
 	emailList->SetNumVisibleOptions( MAX_EMAIL_ITEMS );
@@ -58,7 +58,7 @@ void idMenuWidget_PDA_EmailInbox::Initialize( idMenuHandler* data )
 	}
 	emailList->Initialize( data );
 	emailList->AddChild( scrollbar );
-	
+
 	AddChild( emailList );
 }
 
@@ -74,36 +74,36 @@ void idMenuWidget_PDA_EmailInbox::Update()
 	{
 		return;
 	}
-	
+
 	idSWFScriptObject& root = GetSWFObject()->GetRootObject();
 	if( !BindSprite( root ) || GetSprite() == NULL )
 	{
 		return;
 	}
-	
+
 	idPlayer* player = gameLocal.GetLocalPlayer();
 	if( player == NULL )
 	{
 		return;
 	}
-	
+
 	if( pdaIndex > player->GetInventory().pdas.Num() )
 	{
 		return;
 	}
-	
+
 	const idDeclPDA* pda = player->GetInventory().pdas[ pdaIndex ];
-	
+
 	idSWFScriptObject* dataObj = GetSprite()->GetScriptObject()->GetNestedObj( "info" );
 	if( dataObj != NULL && pda != NULL )
 	{
-	
+
 		idSWFTextInstance* txtOwner = dataObj->GetNestedText( "heading", "txtOwner" );
 		if( txtOwner != NULL )
 		{
 			idStr ownerText = idLocalization::GetString( "#str_01474" );
 			ownerText.Append( ": " );
-			
+
 			if( pdaIndex == 0 )
 			{
 				ownerText.Append( session->GetLocalUserName( 0 ) );
@@ -113,7 +113,7 @@ void idMenuWidget_PDA_EmailInbox::Update()
 				ownerText.Append( pda->GetFullName() );
 			}
 			txtOwner->SetText( ownerText.c_str() );
-			
+
 			if( pdaIndex == 0 )
 			{
 				txtOwner->SetIgnoreColor( false );
@@ -123,9 +123,9 @@ void idMenuWidget_PDA_EmailInbox::Update()
 				txtOwner->SetIgnoreColor( false );
 				txtOwner->SetText( pda->GetFullName() );
 			}
-			
+
 		}
-		
+
 		if( emailList != NULL )
 		{
 			const idDeclEmail* email = NULL;
@@ -142,7 +142,7 @@ void idMenuWidget_PDA_EmailInbox::Update()
 				}
 				emailInfo.Append( emailData );
 			}
-			
+
 			emailList->SetListData( emailInfo );
 			if( emailList->BindSprite( root ) )
 			{
@@ -164,14 +164,14 @@ void idMenuWidget_PDA_EmailInbox::ObserveEvent( const idMenuWidget& widget, cons
 	{
 		return;
 	}
-	
+
 	const idMenuWidget* const listWidget = button->GetParent();
-	
+
 	if( listWidget == NULL )
 	{
 		return;
 	}
-	
+
 	switch( event.type )
 	{
 		case WIDGET_EVENT_FOCUS_ON:

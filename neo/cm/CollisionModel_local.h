@@ -278,7 +278,7 @@ typedef struct cm_traceWork_s
 	idVec3 extents;									// largest of abs(size[0]) and abs(size[1]) for BSP trace
 	int contents;									// ignore polygons that do not have any of these contents flags
 	trace_t trace;									// collision detection result
-	
+
 	bool rotation;									// true if calculating rotational collision
 	bool pointTrace;								// true if only tracing a point
 	bool positionTest;								// true if not tracing but doing a position test
@@ -286,7 +286,7 @@ typedef struct cm_traceWork_s
 	bool axisIntersectsTrm;							// true if the rotation axis intersects the trace model
 	bool getContacts;								// true if retrieving contacts
 	bool quickExit;									// set to quickly stop the collision detection calculations
-	
+
 	idVec3 origin;									// origin of rotation in model space
 	idVec3 axis;									// rotation axis in model space
 	idMat3 matrix;									// rotates axis of rotation to the z-axis
@@ -294,11 +294,11 @@ typedef struct cm_traceWork_s
 	float maxTan;									// max tangent of half the positive angle used instead of fraction
 	float radius;									// rotation radius of trm start
 	idRotation modelVertexRotation;					// inverse rotation for model vertices
-	
+
 	contactInfo_t* contacts;						// array with contacts
 	int maxContacts;								// max size of contact array
 	int numContacts;								// number of contacts found
-	
+
 	idPlane heartPlane1;							// polygons should be near anough the trace heart planes
 	float maxDistFromHeartPlane1;
 	idPlane heartPlane2;
@@ -329,7 +329,7 @@ public:
 	void			LoadMap( const idMapFile* mapFile );
 	// frees all the collision models
 	void			FreeMap();
-	
+
 	void			Preload( const char* mapName );
 	// get clip handle for model
 	cmHandle_t		LoadModel( const char* modelName );
@@ -337,7 +337,7 @@ public:
 	cmHandle_t		SetupTrmModel( const idTraceModel& trm, const idMaterial* material );
 	// create trace model from a collision model, returns true if succesfull
 	bool			TrmFromModel( const char* modelName, idTraceModel& trm );
-	
+
 	// name of the model
 	const char* 	GetModelName( cmHandle_t model ) const;
 	// bounds of the model
@@ -350,7 +350,7 @@ public:
 	bool			GetModelEdge( cmHandle_t model, int edgeNum, idVec3& start, idVec3& end ) const;
 	// get the polygon of a model
 	bool			GetModelPolygon( cmHandle_t model, int polygonNum, idFixedWinding& winding ) const;
-	
+
 	// translates a trm and reports the first collision if any
 	void			Translation( trace_t* results, const idVec3& start, const idVec3& end,
 								 const idTraceModel* trm, const idMat3& trmAxis, int contentMask,
@@ -378,7 +378,7 @@ public:
 	void			ListModels();
 	// write a collision model file for the map entity
 	bool			WriteCollisionModelForMapEntity( const idMapEntity* mapEnt, const char* filename, const bool testTraceModel = true );
-	
+
 private:			// CollisionMap_translate.cpp
 	int				TranslateEdgeThroughEdge( idVec3& cross, idPluecker& l1, idPluecker& l2, float* fraction );
 	void			TranslateTrmEdgeThroughPolygon( cm_traceWork_t* tw, cm_polygon_t* poly, cm_trmEdge_t* trmEdge );
@@ -388,7 +388,7 @@ private:			// CollisionMap_translate.cpp
 	bool			TranslateTrmThroughPolygon( cm_traceWork_t* tw, cm_polygon_t* p );
 	void			SetupTranslationHeartPlanes( cm_traceWork_t* tw );
 	void			SetupTrm( cm_traceWork_t* tw, const idTraceModel* trm );
-	
+
 private:			// CollisionMap_rotate.cpp
 	int				CollisionBetweenEdgeBounds( cm_traceWork_t* tw, const idVec3& va, const idVec3& vb,
 			const idVec3& vc, const idVec3& vd, float tanHalfAngle,
@@ -416,7 +416,7 @@ private:			// CollisionMap_rotate.cpp
 								 const float startAngle, const float endAngle, const idVec3& start,
 								 const idTraceModel* trm, const idMat3& trmAxis, int contentMask,
 								 cmHandle_t model, const idVec3& origin, const idMat3& modelAxis );
-								 
+
 private:			// CollisionMap_contents.cpp
 	bool			TestTrmVertsInBrush( cm_traceWork_t* tw, cm_brush_t* b );
 	bool			TestTrmInPolygon( cm_traceWork_t* tw, cm_polygon_t* p );
@@ -426,13 +426,13 @@ private:			// CollisionMap_contents.cpp
 	int				ContentsTrm( trace_t* results, const idVec3& start,
 								 const idTraceModel* trm, const idMat3& trmAxis, int contentMask,
 								 cmHandle_t model, const idVec3& modelOrigin, const idMat3& modelAxis );
-								 
+
 private:			// CollisionMap_trace.cpp
 	void			TraceTrmThroughNode( cm_traceWork_t* tw, cm_node_t* node );
 	void			TraceThroughAxialBSPTree_r( cm_traceWork_t* tw, cm_node_t* node, float p1f, float p2f, idVec3& p1, idVec3& p2 );
 	void			TraceThroughModel( cm_traceWork_t* tw );
 	void			RecurseProcBSP_r( trace_t* results, int parentNodeNum, int nodeNum, float p1f, float p2f, const idVec3& p1, const idVec3& p2 );
-	
+
 private:			// CollisionMap_load.cpp
 	void			Clear();
 	void			FreeTrmModelStructure();
@@ -512,7 +512,7 @@ private:			// CollisionMap_load.cpp
 	void			WriteBinaryModelToFile( cm_model_t* model, idFile* fileOut, ID_TIME_T sourceTimeStamp );
 	bool			TrmFromModel_r( idTraceModel& trm, cm_node_t* node );
 	bool			TrmFromModel( const cm_model_t* model, idTraceModel& trm );
-	
+
 private:			// CollisionMap_files.cpp
 	// writing
 	void			WriteNodes( idFile* fp, cm_node_t* node );
@@ -530,7 +530,7 @@ private:			// CollisionMap_files.cpp
 	void			ParseBrushes( idLexer* src, cm_model_t* model );
 	cm_model_t* 	ParseCollisionModel( idLexer* src );
 	bool			LoadCollisionModelFile( const char* name, unsigned int mapFileCRC );
-	
+
 private:			// CollisionMap_debug
 	int				ContentsFromString( const char* string ) const;
 	const char* 	StringFromContents( const int contents ) const;
@@ -539,7 +539,7 @@ private:			// CollisionMap_debug
 								 const idVec3& viewOrigin );
 	void			DrawNodePolygons( cm_model_t* model, cm_node_t* node, const idVec3& origin, const idMat3& axis,
 									  const idVec3& viewOrigin, const float radius );
-									  
+
 private:			// collision map data
 	idStr			mapName;
 	ID_TIME_T			mapFileTime;

@@ -37,7 +37,7 @@ idRenderEntityLocal::idRenderEntityLocal()
 {
 	memset( &parms, 0, sizeof( parms ) );
 	memset( modelMatrix, 0, sizeof( modelMatrix ) );
-	
+
 	world					= NULL;
 	index					= 0;
 	lastModifiedFrameNum	= 0;
@@ -91,7 +91,7 @@ idRenderLightLocal::idRenderLightLocal()
 {
 	memset( &parms, 0, sizeof( parms ) );
 	memset( lightProject, 0, sizeof( lightProject ) );
-	
+
 	lightHasMoved			= false;
 	world					= NULL;
 	index					= 0;
@@ -107,7 +107,7 @@ idRenderLightLocal::idRenderLightLocal()
 	foggedPortals			= NULL;
 	firstInteraction		= NULL;
 	lastInteraction			= NULL;
-	
+
 	baseLightProject.Zero();
 	inverseBaseLightProject.Zero();
 }
@@ -134,7 +134,7 @@ int idRenderLightLocal::GetIndex()
 RenderEnvprobeLocal::RenderEnvprobeLocal()
 {
 	memset( &parms, 0, sizeof( parms ) );
-	
+
 	envprobeHasMoved		= false;
 	world					= NULL;
 	index					= 0;
@@ -179,7 +179,7 @@ void idRenderEntityLocal::ReadFromDemoFile( class idDemoFile* f )
 	ent.callback = NULL;
 	ent.callbackData = NULL;
 	ent.remoteRenderView = NULL;
-	
+
 	f->ReadInt( index );
 	f->ReadInt( dynamicModelFrameCount );
 	f->ReadInt( ent.entityNum );
@@ -210,25 +210,25 @@ void idRenderEntityLocal::ReadFromDemoFile( class idDemoFile* f )
 	f->ReadBool( ent.noDynamicInteractions );
 	f->ReadBool( ent.weaponDepthHack );
 	f->ReadInt( ent.forceUpdate );
-	
+
 	const char* declName = NULL;
-	
+
 	declName = f->ReadHashString();
 	ent.customShader = ( declName[ 0 ] != 0 ) ? declManager->FindMaterial( declName ) : NULL;
-	
+
 	declName = f->ReadHashString();
 	ent.referenceShader = ( declName[ 0 ] != 0 ) ? declManager->FindMaterial( declName ) : NULL;
-	
+
 	declName = f->ReadHashString();
 	ent.customSkin = ( declName[ 0 ] != 0 ) ? declManager->FindSkin( declName ) : NULL;
-	
+
 	int soundIndex = -1;
 	f->ReadInt( soundIndex );
 	ent.referenceSound = soundIndex != -1 ? common->SW()->EmitterForIndex( soundIndex ) : NULL;
-	
+
 	const char* mdlName = f->ReadHashString();
 	ent.hModel = ( mdlName[ 0 ] != 0 ) ? renderModelManager->FindModel( mdlName ) : NULL;
-	
+
 	/*if( ent.hModel != NULL )
 	{
 		bool dynamicModel = false;
@@ -238,7 +238,7 @@ void idRenderEntityLocal::ReadFromDemoFile( class idDemoFile* f )
 			ent.hModel->ReadFromDemoFile( f );
 		}
 	}*/
-	
+
 	if( ent.numJoints > 0 )
 	{
 		ent.joints = ( idJointMat* )Mem_Alloc16( SIMD_ROUND_JOINTS( ent.numJoints ) * sizeof( ent.joints[ 0 ] ), TAG_JOINTMAT );
@@ -252,10 +252,10 @@ void idRenderEntityLocal::ReadFromDemoFile( class idDemoFile* f )
 		}
 		SIMD_INIT_LAST_JOINT( ent.joints, ent.numJoints );
 	}
-	
+
 	f->ReadInt( ent.timeGroup );
 	f->ReadInt( ent.xrayIndex );
-	
+
 	/*
 	f->ReadInt( i );
 	if( i ) {
@@ -263,7 +263,7 @@ void idRenderEntityLocal::ReadFromDemoFile( class idDemoFile* f )
 	ent.overlays->ReadFromDemoFile( f->Read );
 	}
 	*/
-	
+
 	world->UpdateEntityDef( index, &ent );
 	for( i = 0; i < MAX_RENDERENTITY_GUI; i++ )
 	{
@@ -295,9 +295,13 @@ void idRenderEntityLocal::WriteToDemoFile( class idDemoFile* f ) const
 	f->WriteVec3( parms.origin );
 	f->WriteMat3( parms.axis );
 	for( int i = 0; i < MAX_ENTITY_SHADER_PARMS; i++ )
+	{
 		f->WriteFloat( parms.shaderParms[ i ] );
+	}
 	for( int i = 0; i < MAX_RENDERENTITY_GUI; i++ )
+	{
 		f->WriteInt( ( int& )parms.gui[ i ] );
+	}
 	f->WriteInt( ( int& )parms.remoteRenderView );
 	f->WriteInt( parms.numJoints );
 	f->WriteFloat( parms.modelDepthHack );
@@ -307,12 +311,12 @@ void idRenderEntityLocal::WriteToDemoFile( class idDemoFile* f ) const
 	f->WriteBool( parms.noDynamicInteractions );
 	f->WriteBool( parms.weaponDepthHack );
 	f->WriteInt( parms.forceUpdate );
-	
+
 	f->WriteHashString( parms.customShader ? parms.customShader->GetName() : "" );
 	f->WriteHashString( parms.referenceShader ? parms.referenceShader->GetName() : "" );
 	f->WriteHashString( parms.customSkin ? parms.customSkin->GetName() : "" );
 	f->WriteInt( parms.referenceSound ? parms.referenceSound->Index() : -1 );
-	
+
 	f->WriteHashString( parms.hModel ? parms.hModel->Name() : "" );
 	/*if( parms.hModel )
 	{
@@ -322,18 +326,20 @@ void idRenderEntityLocal::WriteToDemoFile( class idDemoFile* f ) const
 			parms.hModel->WriteToDemoFile( f );
 		}
 	}*/
-	
+
 	for( int i = 0; i < parms.numJoints; i++ )
 	{
 		float* data = parms.joints[ i ].ToFloatPtr();
 		for( int j = 0; j < 12; ++j )
+		{
 			f->WriteFloat( data[ j ] );
+		}
 	}
-	
+
 	// RENDERDEMO_VERSION >= 2 ( Doom3 1.2 )
 	f->WriteInt( parms.timeGroup );
 	f->WriteInt( parms.xrayIndex );
-	
+
 #ifdef WRITE_GUIS
 	for( i = 0; i < MAX_RENDERENTITY_GUI; i++ )
 	{
@@ -348,7 +354,7 @@ void idRenderEntityLocal::WriteToDemoFile( class idDemoFile* f ) const
 		}
 	}
 #endif
-	
+
 	if( r_showDemo.GetBool() )
 	{
 		common->Printf( "write DC_UPDATE_ENTITYDEF: %i = %s\n", index, parms.hModel ? parms.hModel->Name() : "NULL" );

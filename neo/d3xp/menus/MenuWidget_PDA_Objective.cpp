@@ -41,27 +41,27 @@ void idMenuWidget_PDA_Objective::Update()
 	{
 		return;
 	}
-	
+
 	idSWFScriptObject& root = GetSWFObject()->GetRootObject();
 	if( !BindSprite( root ) || GetSprite() == NULL )
 	{
 		return;
 	}
-	
+
 	idPlayer* player = gameLocal.GetLocalPlayer();
 	if( player == NULL )
 	{
 		return;
 	}
-	
+
 	idSWFScriptObject* dataObj = GetSprite()->GetScriptObject()->GetNestedObj( "info" );
 	idSWFSpriteInstance* dataSprite = dataObj->GetSprite();
-	
+
 	if( dataObj != NULL && dataSprite != NULL )
 	{
-	
+
 		idSWFSpriteInstance* img = dataObj->GetNestedSprite( "objImg", "img" );
-		
+
 		if( player->GetInventory().objectiveNames.Num() == 0 )
 		{
 			dataSprite->StopFrame( 1 );
@@ -69,7 +69,7 @@ void idMenuWidget_PDA_Objective::Update()
 		else
 		{
 			int numObjectives = player->GetInventory().objectiveNames.Num();
-			
+
 			int objStartIndex = 0;
 			if( numObjectives == 1 )
 			{
@@ -81,13 +81,13 @@ void idMenuWidget_PDA_Objective::Update()
 				dataSprite->StopFrame( 3 );
 				objStartIndex = 1;
 			}
-			
+
 			idSWFTextInstance* txtDesc = dataObj->GetNestedText( "txtDesc" );
-			
+
 			int displayCount = 0;
 			for( int index = numObjectives - 1; displayCount < 2 && index >= 0; --index )
 			{
-			
+
 				if( img != NULL )
 				{
 					if( player->GetInventory().objectiveNames[index].screenshot == NULL )
@@ -100,10 +100,10 @@ void idMenuWidget_PDA_Objective::Update()
 						img->SetMaterial( player->GetInventory().objectiveNames[index].screenshot );
 					}
 				}
-				
+
 				idSWFSpriteInstance* objSel = dataObj->GetNestedSprite( va( "obj%d", objStartIndex - displayCount ), "sel" );
 				idSWFTextInstance* txtNote = dataObj->GetNestedText( va( "obj%d", objStartIndex - displayCount ), "txtVal" );
-				
+
 				if( objSel != NULL )
 				{
 					if( displayCount == 0 )
@@ -115,21 +115,21 @@ void idMenuWidget_PDA_Objective::Update()
 						objSel->SetVisible( false );
 					}
 				}
-				
+
 				if( txtNote != NULL )
 				{
 					txtNote->SetText( player->GetInventory().objectiveNames[index].title.c_str() );
 				}
-				
+
 				if( displayCount == 0 )
 				{
 					txtDesc->SetText( player->GetInventory().objectiveNames[index].text.c_str() );
 				}
-				
+
 				displayCount++;
 			}
 		}
-		
+
 		// Set the main objective text
 		idTarget_SetPrimaryObjective* mainObj = player->GetPrimaryObjective();
 		idSWFTextInstance* txtMainObj = dataObj->GetNestedText( "txtObj" );
@@ -159,14 +159,14 @@ void idMenuWidget_PDA_Objective::ObserveEvent( const idMenuWidget& widget, const
 	{
 		return;
 	}
-	
+
 	const idMenuWidget* const listWidget = button->GetParent();
-	
+
 	if( listWidget == NULL )
 	{
 		return;
 	}
-	
+
 	switch( event.type )
 	{
 		case WIDGET_EVENT_FOCUS_ON:

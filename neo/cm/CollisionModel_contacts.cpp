@@ -59,7 +59,7 @@ int idCollisionModelManagerLocal::Contacts( contactInfo_t* contacts, const int m
 {
 	trace_t results;
 	idVec3 end;
-	
+
 	// same as Translation but instead of storing the first collision we store all collisions as contacts
 	idCollisionModelManagerLocal::getContacts = true;
 	idCollisionModelManagerLocal::contacts = contacts;
@@ -73,6 +73,6 @@ int idCollisionModelManagerLocal::Contacts( contactInfo_t* contacts, const int m
 	}
 	idCollisionModelManagerLocal::getContacts = false;
 	idCollisionModelManagerLocal::maxContacts = 0;
-	
+
 	return idCollisionModelManagerLocal::numContacts;
 }

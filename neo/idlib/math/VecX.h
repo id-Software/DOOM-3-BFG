@@ -47,22 +47,22 @@ NOTE: due to the temporary memory pool idVecX cannot be used by multiple threads
 #define VECX_ALLOCA( n )	( (float *) _alloca16( VECX_QUAD( n ) ) )
 
 #if defined(USE_INTRINSICS)
-#define VECX_SIMD
+	#define VECX_SIMD
 #endif
 
 class idVecX
 {
 	friend class idMatX;
-	
+
 public:
 	ID_INLINE					idVecX();
 	ID_INLINE					explicit idVecX( int length );
 	ID_INLINE					explicit idVecX( int length, float* data );
 	ID_INLINE					~idVecX();
-	
+
 	ID_INLINE	float			Get( int index ) const;
 	ID_INLINE	float& 			Get( int index );
-	
+
 	ID_INLINE	float			operator[]( const int index ) const;
 	ID_INLINE	float& 			operator[]( const int index );
 	ID_INLINE	idVecX			operator-() const;
@@ -76,14 +76,14 @@ public:
 	ID_INLINE	idVecX& 		operator/=( const float a );
 	ID_INLINE	idVecX& 		operator+=( const idVecX& a );
 	ID_INLINE	idVecX& 		operator-=( const idVecX& a );
-	
+
 	friend ID_INLINE	idVecX	operator*( const float a, const idVecX& b );
-	
+
 	ID_INLINE	bool			Compare( const idVecX& a ) const;							// exact compare, no epsilon
 	ID_INLINE	bool			Compare( const idVecX& a, const float epsilon ) const;		// compare with epsilon
 	ID_INLINE	bool			operator==(	const idVecX& a ) const;						// exact compare, no epsilon
 	ID_INLINE	bool			operator!=(	const idVecX& a ) const;						// exact compare, no epsilon
-	
+
 	ID_INLINE	void			SetSize( int size );
 	ID_INLINE	void			ChangeSize( int size, bool makeZero = false );
 	ID_INLINE	int				GetSize() const
@@ -98,16 +98,16 @@ public:
 	ID_INLINE	void			Negate();
 	ID_INLINE	void			Clamp( float min, float max );
 	ID_INLINE	idVecX& 		SwapElements( int e1, int e2 );
-	
+
 	ID_INLINE	float			Length() const;
 	ID_INLINE	float			LengthSqr() const;
 	ID_INLINE	idVecX			Normalize() const;
 	ID_INLINE	float			NormalizeSelf();
-	
+
 	ID_INLINE	int				GetDimension() const;
-	
+
 	ID_INLINE	void			AddScaleAdd( const float scale, const idVecX& v0, const idVecX& v1 );
-	
+
 	ID_INLINE	const idVec3& 	SubVec3( int index ) const;
 	ID_INLINE	idVec3& 		SubVec3( int index );
 	ID_INLINE	const idVec6& 	SubVec6( int index = 0 ) const;
@@ -115,16 +115,16 @@ public:
 	ID_INLINE	const float* 	ToFloatPtr() const;
 	ID_INLINE	float* 			ToFloatPtr();
 	const char* 	ToString( int precision = 2 ) const;
-	
+
 private:
 	int				size;					// size of the vector
 	int				alloced;				// if -1 p points to data set with SetData
 	float* 			p;						// memory the vector is stored
-	
+
 	static float	temp[VECX_MAX_TEMP + 4];	// used to store intermediate results
 	static float* 	tempPtr;				// pointer to 16 byte aligned temporary memory
 	static int		tempIndex;				// index into memory pool, wraps around
-	
+
 	ID_INLINE void	SetTempSize( int size );
 };
 
@@ -228,7 +228,7 @@ idVecX::operator-
 ID_INLINE idVecX idVecX::operator-() const
 {
 	idVecX m;
-	
+
 	m.SetTempSize( size );
 #ifdef VECX_SIMD
 	ALIGN16( unsigned int signBit[4] ) = { IEEE_FLT_SIGN_MASK, IEEE_FLT_SIGN_MASK, IEEE_FLT_SIGN_MASK, IEEE_FLT_SIGN_MASK };
@@ -273,7 +273,7 @@ idVecX::operator+
 ID_INLINE idVecX idVecX::operator+( const idVecX& a ) const
 {
 	idVecX m;
-	
+
 	assert( size == a.size );
 	m.SetTempSize( size );
 #ifdef VECX_SIMD
@@ -298,7 +298,7 @@ idVecX::operator-
 ID_INLINE idVecX idVecX::operator-( const idVecX& a ) const
 {
 	idVecX m;
-	
+
 	assert( size == a.size );
 	m.SetTempSize( size );
 #ifdef VECX_SIMD
@@ -369,7 +369,7 @@ idVecX::operator*
 ID_INLINE idVecX idVecX::operator*( const float a ) const
 {
 	idVecX m;
-	
+
 	m.SetTempSize( size );
 #ifdef VECX_SIMD
 	__m128 va = _mm_load1_ps( & a );
@@ -655,7 +655,7 @@ idVecX::Random
 ID_INLINE void idVecX::Random( int seed, float l, float u )
 {
 	idRandom rnd( seed );
-	
+
 	float c = u - l;
 	for( int i = 0; i < size; i++ )
 	{
@@ -671,7 +671,7 @@ idVecX::Random
 ID_INLINE void idVecX::Random( int length, int seed, float l, float u )
 {
 	idRandom rnd( seed );
-	
+
 	SetSize( length );
 	float c = u - l;
 	for( int i = 0; i < size; i++ )
@@ -773,7 +773,7 @@ idVecX::Normalize
 ID_INLINE idVecX idVecX::Normalize() const
 {
 	idVecX m;
-	
+
 	m.SetTempSize( size );
 	float sum = 0.0f;
 	for( int i = 0; i < size; i++ )
@@ -891,11 +891,11 @@ ID_INLINE void idVecX::AddScaleAdd( const float scale, const idVecX& v0, const i
 {
 	assert( GetSize() == v0.GetSize() );
 	assert( GetSize() == v1.GetSize() );
-	
+
 	const float* v0Ptr = v0.ToFloatPtr();
 	const float* v1Ptr = v1.ToFloatPtr();
 	float* dstPtr = ToFloatPtr();
-	
+
 	for( int i = 0; i < size; i++ )
 	{
 		dstPtr[i] += scale * ( v0Ptr[i] + v1Ptr[i] );

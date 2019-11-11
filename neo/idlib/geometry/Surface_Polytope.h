@@ -44,9 +44,9 @@ class idSurface_Polytope : public idSurface
 public:
 	idSurface_Polytope();
 	explicit idSurface_Polytope( const idSurface& surface ) : idSurface( surface ) {}
-	
+
 	void				FromPlanes( const idPlane* planes, const int numPlanes );
-	
+
 	void				SetupTetrahedron( const idBounds& bounds );
 	void				SetupHexahedron( const idBounds& bounds );
 	void				SetupOctahedron( const idBounds& bounds );
@@ -54,9 +54,9 @@ public:
 	void				SetupIcosahedron( const idBounds& bounds );
 	void				SetupCylinder( const idBounds& bounds, const int numSides );
 	void				SetupCone( const idBounds& bounds, const int numSides );
-	
+
 	int					SplitPolytope( const idPlane& plane, const float epsilon, idSurface_Polytope** front, idSurface_Polytope** back ) const;
-	
+
 protected:
 
 };

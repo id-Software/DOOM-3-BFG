@@ -51,13 +51,13 @@ public:
 	virtual const char* 	DefaultDefinition() const;
 	virtual bool			Parse( const char* text, const int textLength, bool allowBinaryVersion );
 	virtual void			FreeData();
-	
+
 	const idMaterial* 		RemapShaderBySkin( const idMaterial* shader ) const;
-	
+
 	// model associations are just for the preview dialog in the editor
 	const int				GetNumModelAssociations() const;
 	const char* 			GetAssociatedModel( int index ) const;
-	
+
 private:
 	idList<skinMapping_t, TAG_IDLIB_LIST_DECL>	mappings;
 	idStrList				associatedModels;

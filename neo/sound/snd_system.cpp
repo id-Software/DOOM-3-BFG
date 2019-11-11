@@ -34,13 +34,13 @@ If you have questions concerning this license or the applicable additional terms
 idCVar s_noSound( "s_noSound", "0", CVAR_BOOL, "returns NULL for all sounds loaded and does not update the sound rendering" );
 
 #ifdef ID_RETAIL
-idCVar s_useCompression( "s_useCompression", "1", CVAR_BOOL, "Use compressed sound files (mp3/xma)" );
-idCVar s_playDefaultSound( "s_playDefaultSound", "0", CVAR_BOOL, "play a beep for missing sounds" );
-idCVar s_maxSamples( "s_maxSamples", "5", CVAR_INTEGER, "max samples to load per shader" );
+	idCVar s_useCompression( "s_useCompression", "1", CVAR_BOOL, "Use compressed sound files (mp3/xma)" );
+	idCVar s_playDefaultSound( "s_playDefaultSound", "0", CVAR_BOOL, "play a beep for missing sounds" );
+	idCVar s_maxSamples( "s_maxSamples", "5", CVAR_INTEGER, "max samples to load per shader" );
 #else
-idCVar s_useCompression( "s_useCompression", "1", CVAR_BOOL, "Use compressed sound files (mp3/xma)" );
-idCVar s_playDefaultSound( "s_playDefaultSound", "1", CVAR_BOOL, "play a beep for missing sounds" );
-idCVar s_maxSamples( "s_maxSamples", "5", CVAR_INTEGER, "max samples to load per shader" );
+	idCVar s_useCompression( "s_useCompression", "1", CVAR_BOOL, "Use compressed sound files (mp3/xma)" );
+	idCVar s_playDefaultSound( "s_playDefaultSound", "1", CVAR_BOOL, "play a beep for missing sounds" );
+	idCVar s_maxSamples( "s_maxSamples", "5", CVAR_INTEGER, "max samples to load per shader" );
 #endif
 
 idCVar preLoad_Samples( "preLoad_Samples", "1", CVAR_SYSTEM | CVAR_BOOL, "preload samples during beginlevelload" );
@@ -133,7 +133,7 @@ void idSoundSystemLocal::Restart()
 	{
 		hardware.Init();
 	}
-	
+
 	InitStreamBuffers();
 }
 
@@ -148,20 +148,20 @@ void idSoundSystemLocal::Init()
 {
 
 	idLib::Printf( "----- Initializing Sound System ------\n" );
-	
+
 	soundTime = Sys_Milliseconds();
 	random.SetSeed( soundTime );
-	
+
 	if( !s_noSound.GetBool() )
 	{
 		hardware.Init();
 		InitStreamBuffers();
 	}
-	
+
 	cmdSystem->AddCommand( "testSound", TestSound_f, 0, "tests a sound", idCmdSystem::ArgCompletion_SoundName );
 	cmdSystem->AddCommand( "s_restart", RestartSound_f, 0, "restart sound system" );
 	cmdSystem->AddCommand( "listSamples", ListSamples_f, 0, "lists all loaded sound samples" );
-	
+
 	idLib::Printf( "sound system initialized.\n" );
 	idLib::Printf( "--------------------------------------\n" );
 }
@@ -301,9 +301,9 @@ void idSoundSystemLocal::SetPlayingSoundWorld( idSoundWorld* soundWorld )
 		return;
 	}
 	idSoundWorldLocal* oldSoundWorld = currentSoundWorld;
-	
+
 	currentSoundWorld = static_cast<idSoundWorldLocal*>( soundWorld );
-	
+
 	if( oldSoundWorld != NULL )
 	{
 		oldSoundWorld->Update();
@@ -332,22 +332,22 @@ void idSoundSystemLocal::Render()
 	{
 		return;
 	}
-	
+
 	if( needsRestart )
 	{
 		needsRestart = false;
 		Restart();
 	}
-	
+
 	SCOPED_PROFILE_EVENT( "SoundSystem::Render" );
-	
+
 	if( currentSoundWorld != NULL )
 	{
 		currentSoundWorld->Update();
 	}
-	
+
 	hardware.Update();
-	
+
 	// The sound system doesn't use game time or anything like that because the sounds are decoded in real time.
 	soundTime = Sys_Milliseconds();
 }
@@ -478,12 +478,12 @@ idSoundSample* idSoundSystemLocal::LoadSample( const char* name )
 	{
 		sample->SetLevelLoadReferenced();
 	}
-	
+
 	if( cvarSystem->GetCVarBool( "fs_buildgame" ) )
 	{
 		fileSystem->AddSamplePreload( canonical );
 	}
-	
+
 	return sample;
 }
 
@@ -568,10 +568,10 @@ void idSoundSystemLocal::Preload( idPreloadManifest& manifest )
 {
 
 	idStrStatic< MAX_OSPATH > filename;
-	
+
 	int	start = Sys_Milliseconds();
 	int numLoaded = 0;
-	
+
 	idList< preloadSort_t > preloadSort;
 	preloadSort.Resize( manifest.NumResources() );
 	for( int i = 0; i < manifest.NumResources(); i++ )
@@ -597,9 +597,9 @@ void idSoundSystemLocal::Preload( idPreloadManifest& manifest )
 			}
 		}
 	}
-	
+
 	preloadSort.SortWithTemplate( idSort_Preload() );
-	
+
 	for( int i = 0; i < preloadSort.Num(); i++ )
 	{
 		const preloadSort_t& ps = preloadSort[ i ];
@@ -614,7 +614,7 @@ void idSoundSystemLocal::Preload( idPreloadManifest& manifest )
 			sample->SetLevelLoadReferenced();
 		}
 	}
-	
+
 	int	end = Sys_Milliseconds();
 	common->Printf( "%05d sounds preloaded in %5.1f seconds\n", numLoaded, ( end - start ) * 0.001 );
 	common->Printf( "----------------------------------------\n" );
@@ -629,20 +629,20 @@ void idSoundSystemLocal::EndLevelLoad()
 {
 
 	insideLevelLoad = false;
-	
+
 	common->Printf( "----- idSoundSystemLocal::EndLevelLoad -----\n" );
 	int		start = Sys_Milliseconds();
 	int		keepCount = 0;
 	int		loadCount = 0;
-	
+
 	idList< preloadSort_t > preloadSort;
 	preloadSort.Resize( samples.Num() );
-	
+
 	for( int i = 0; i < samples.Num(); i++ )
 	{
 		common->UpdateLevelLoadPacifier();
-		
-		
+
+
 		if( samples[i]->GetNeverPurge() )
 		{
 			continue;
@@ -676,12 +676,12 @@ void idSoundSystemLocal::EndLevelLoad()
 	for( int i = 0; i < preloadSort.Num(); i++ )
 	{
 		common->UpdateLevelLoadPacifier();
-		
-		
+
+
 		samples[ preloadSort[ i ].idx ]->LoadResource();
 	}
 	int	end = Sys_Milliseconds();
-	
+
 	common->Printf( "%5i sounds loaded in %5.1f seconds\n", loadCount, ( end - start ) * 0.001 );
 	common->Printf( "----------------------------------------\n" );
 }

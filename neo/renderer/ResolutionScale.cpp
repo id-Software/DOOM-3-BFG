@@ -95,7 +95,7 @@ void idResolutionScale::GetCurrentResolutionScale( float& x, float& y )
 {
 	assert( currentResolution >= MINIMUM_RESOLUTION_SCALE );
 	assert( currentResolution <= MAXIMUM_RESOLUTION_SCALE );
-	
+
 	x = MAXIMUM_RESOLUTION_SCALE;
 	y = MAXIMUM_RESOLUTION_SCALE;
 	switch( rs_enable.GetInteger() )
@@ -146,7 +146,7 @@ void idResolutionScale::SetCurrentGPUFrameTime( int microseconds )
 {
 	float old = currentResolution;
 	float milliseconds = microseconds * 0.001f;
-	
+
 	if( milliseconds > dropMilliseconds )
 	{
 		// We missed our target, so drop the resolution.
@@ -182,7 +182,7 @@ void idResolutionScale::SetCurrentGPUFrameTime( int microseconds )
 		// we are inside the target range
 		framesAboveRaise = 0;
 	}
-	
+
 	if( rs_showResolutionChanges.GetInteger() > 1 ||
 			( rs_showResolutionChanges.GetInteger() == 1 && currentResolution != old ) )
 	{

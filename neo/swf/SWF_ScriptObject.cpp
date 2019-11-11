@@ -349,7 +349,7 @@ void idSWFScriptObject::Set( const char* name, const idSWFScriptVar& value )
 			}
 		}
 	}
-	
+
 	swfNamedVar_t* variable = GetVariable( name, true );
 	if( variable->native )
 	{
@@ -385,7 +385,7 @@ void idSWFScriptObject::Set( int index, const idSWFScriptVar& value )
 			lengthVar->value = idSWFScriptVar( index + 1 );
 		}
 	}
-	
+
 	swfNamedVar_t* variable = GetVariable( index, true );
 	if( variable->native )
 	{
@@ -530,7 +530,7 @@ idSWFScriptObject::swfNamedVar_t* idSWFScriptObject::GetVariable( const char* na
 			return &variables[i];
 		}
 	}
-	
+
 	if( prototype != NULL )
 	{
 		swfNamedVar_t* variable = prototype->GetVariable( name, false );
@@ -540,7 +540,7 @@ idSWFScriptObject::swfNamedVar_t* idSWFScriptObject::GetVariable( const char* na
 			return variable;
 		}
 	}
-	
+
 	if( create )
 	{
 		swfNamedVar_t* variable = &variables.Alloc();
@@ -581,37 +581,37 @@ idSWFScriptVar idSWFScriptObject::GetNestedVar( const char* arg1, const char* ar
 {
 	const char* const args[] = { arg1, arg2, arg3, arg4, arg5, arg6 };
 	const int numArgs = sizeof( args ) / sizeof( const char* );
-	
+
 	idStaticList< const char*, numArgs > vars;
 	for( int i = 0; i < numArgs && args[ i ] != NULL; ++i )
 	{
 		vars.Append( args[ i ] );
 	}
-	
+
 	idSWFScriptObject* baseObject = this;
 	idSWFScriptVar retVal;
-	
+
 	for( int i = 0; i < vars.Num(); ++i )
 	{
 		idSWFScriptVar var = baseObject->Get( vars[ i ] );
-		
+
 		// when at the end of object path just use the latest value as result
 		if( i == vars.Num() - 1 )
 		{
 			retVal = var;
 			break;
 		}
-		
+
 		// encountered variable in path that wasn't an object
 		if( !var.IsObject() )
 		{
 			retVal = idSWFScriptVar();
 			break;
 		}
-		
+
 		baseObject = var.GetObject();
 	}
-	
+
 	return retVal;
 }
 
@@ -623,12 +623,12 @@ idSWFScriptObject::GetNestedObj
 idSWFScriptObject* idSWFScriptObject::GetNestedObj( const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5, const char* arg6 )
 {
 	idSWFScriptVar var = GetNestedVar( arg1, arg2, arg3, arg4, arg5, arg6 );
-	
+
 	if( !var.IsObject() )
 	{
 		return NULL;
 	}
-	
+
 	return var.GetObject();
 }
 
@@ -641,7 +641,7 @@ idSWFSpriteInstance* idSWFScriptObject::GetNestedSprite( const char* arg1, const
 {
 	idSWFScriptVar var = GetNestedVar( arg1, arg2, arg3, arg4, arg5, arg6 );
 	return var.ToSprite();
-	
+
 }
 
 /*
@@ -653,7 +653,7 @@ idSWFTextInstance* idSWFScriptObject::GetNestedText( const char* arg1, const cha
 {
 	idSWFScriptVar var = GetNestedVar( arg1, arg2, arg3, arg4, arg5, arg6 );
 	return var.ToText();
-	
+
 }
 
 /*
@@ -667,7 +667,7 @@ void idSWFScriptObject::PrintToConsole() const
 	{
 		idLib::Printf( "%d subelements:\n", variables.Num() );
 		int maxVarLength = 0;
-		
+
 		for( int i = 0; i < variables.Num(); ++i )
 		{
 			const idSWFScriptObject::swfNamedVar_t& nv = variables[ i ];
@@ -677,9 +677,9 @@ void idSWFScriptObject::PrintToConsole() const
 				maxVarLength = nameLength;
 			}
 		}
-		
+
 		maxVarLength += 2;	// a little extra padding
-		
+
 		const char* const fmt = va( "%%-%ds %%-10s %%-s\n", maxVarLength );
 		idLib::Printf( fmt, "Name", "Type", "Value" );
 		idLib::Printf( "------------------------------------------------------------\n" );

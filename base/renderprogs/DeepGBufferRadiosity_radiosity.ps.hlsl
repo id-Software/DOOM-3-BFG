@@ -17,17 +17,17 @@
 #define HIGH_QUALITY 0
 
 #if HIGH_QUALITY
-// Total number of direct samples to take at each pixel
-#define NUM_SAMPLES 39
+	// Total number of direct samples to take at each pixel
+	#define NUM_SAMPLES 39
 
-// This is the number of turns around the circle that the spiral pattern makes.  This should be prime to prevent
-// taps from lining up.  This particular choice was tuned for NUM_SAMPLES == 9
-#define NUM_SPIRAL_TURNS 14
+	// This is the number of turns around the circle that the spiral pattern makes.  This should be prime to prevent
+	// taps from lining up.  This particular choice was tuned for NUM_SAMPLES == 9
+	#define NUM_SPIRAL_TURNS 14
 
 #else
 
-#define NUM_SAMPLES 11
-#define NUM_SPIRAL_TURNS 7
+	#define NUM_SAMPLES 11
+	#define NUM_SPIRAL_TURNS 7
 
 #endif
 
@@ -79,16 +79,16 @@ const float projScale = 500.0;
 uniform sampler2D samp0 : register( s0 ); // view normals
 uniform sampler2D samp1 : register( s1 ); // view depth
 uniform sampler2D samp2 : register( s2 ); // colors
- 
+
 #define normal_buffer	samp0
 #define CS_Z_buffer		samp1
 #define colorBuffer		samp2
- 
+
 struct PS_IN
 {
 	float2 texcoord0 : TEXCOORD0_centroid;
 };
- 
+
 struct PS_OUT 
 {
 	float4 color : COLOR;
@@ -113,8 +113,8 @@ struct PS_OUT
 
 
 #if USE_DEPTH_PEEL
-uniform sampler2D       peeledColorBuffer;
-uniform sampler2D       peeledNormalBuffer;
+	uniform sampler2D       peeledColorBuffer;
+	uniform sampler2D       peeledNormalBuffer;
 #endif
 
 //uniform float           indirectMultiplier;
@@ -148,10 +148,10 @@ uniform sampler2D       peeledNormalBuffer;
 float reconstructCSZ( float d )
 {
 	//return clipInfo[0] / (clipInfo[1] * d + clipInfo[2]);
-	
+
 	// infinite far perspective matrix
 	return -3.0 / ( -1.0 * d + 1.0 );
-	
+
 	//d = d * 2.0 - 1.0;
 	//return -rpProjectionMatrixZ.w / ( -rpProjectionMatrixZ.z - d );
 }
@@ -163,15 +163,15 @@ float3 reconstructCSPosition( float2 S, float z )
 	//P.z = reconstructCSZ( z );
 	P.xy = ( S * rpScreenCorrectionFactor.xy ) * 2.0 - 1.0;
 	P.w = 1.0;
-	
+
 	float4 csP;
 	csP.x = dot4( P, rpModelMatrixX );
 	csP.y = dot4( P, rpModelMatrixY );
 	csP.z = dot4( P, rpModelMatrixZ );
 	csP.w = dot4( P, rpModelMatrixW );
-	
+
 	csP.xyz /= csP.w;
-	
+
 	return csP.xyz;
 }
 
@@ -195,9 +195,9 @@ void sampleBothNormals( sampler2D normalBuffer, int2 ssC, int mipLevel, out floa
 float2 tapLocation( int sampleNumber, float spinAngle, float radialJitter, out float ssR )
 {
 	// Radius relative to ssR
-	float alpha = ( float( sampleNumber ) + radialJitter) * ( 1.0 / float( NUM_SAMPLES ) );
+	float alpha = ( float( sampleNumber ) + radialJitter ) * ( 1.0 / float( NUM_SAMPLES ) );
 	float angle = alpha * ( float( NUM_SPIRAL_TURNS ) * 6.28 ) + spinAngle;
-	
+
 	ssR = alpha;
 	return float2( cos( angle ), sin( angle ) );
 }
@@ -208,10 +208,10 @@ float3 getPosition( int2 ssP, sampler2D cszBuffer )
 {
 	float3 P;
 	P.z = texelFetch( cszBuffer, ssP, 0 ).r;
-	
+
 	// Offset to pixel center
 	P = reconstructCSPosition( float2( ssP ) + float2( 0.5 ), P.z );
-	
+
 	return P;
 }
 
@@ -219,7 +219,7 @@ float3 getPosition( int2 ssP, sampler2D cszBuffer )
 void getPositions( int2 ssP, sampler2D cszBuffer, out float3 P0, out float3 P1 )
 {
 	float2 Zs = texelFetch( cszBuffer, ssP, 0 ).rg;
-	
+
 	// Offset to pixel center
 	P0 = reconstructCSPosition( float2( ssP ) + float2( 0.5 ), Zs.x );
 	P1 = reconstructCSPosition( float2( ssP ) + float2( 0.5 ), Zs.y );
@@ -236,11 +236,11 @@ void computeMipInfo( float ssR, int2 ssP, sampler2D cszBuffer, inout int mipLeve
 #else
 	mipLevel = clamp( int( floor( log2( ssR ) ) ) - LOG_MAX_OFFSET, MIN_MIP_LEVEL, MAX_MIP_LEVEL );
 #endif
-	
+
 	// We need to divide by 2^mipLevel to read the appropriately scaled coordinate from a MIP-map.
 	// Manually clamp to the texture size because texelFetch bypasses the texture unit
 	//mipP = ssP >> mipLevel;//clamp(ssP >> mipLevel, int2(0), textureSize(CS_Z_buffer, mipLevel) - int2(1));
-	
+
 	mipP = clamp( ssP >> mipLevel, int2( 0 ), textureSize( cszBuffer, mipLevel ) - int2( 1 ) );
 #else
 	mipLevel = 0;
@@ -254,18 +254,18 @@ void computeMipInfo( float ssR, int2 ssP, sampler2D cszBuffer, inout int mipLeve
 float3 getOffsetPosition( int2 ssC, float2 unitOffset, float ssR, sampler2D cszBuffer, float invCszBufferScale )
 {
 	int2 ssP = clamp( int2( ssR * unitOffset ) + ssC, int2( 0 ), int2( g3d_sz2D_colorBuffer.xy - 1 ) );
-	
+
 	int mipLevel;
 	int2 mipP;
 	computeMipInfo( ssR, ssP, cszBuffer, mipLevel, mipP );
-	
+
 	float3 P;
-	
+
 	P.z = texelFetch( cszBuffer, mipP, mipLevel ).r;
-	
+
 	// Offset to pixel center
 	P = reconstructCSPosition( ( float2( ssP ) + float2( 0.5 ) ) * invCszBufferScale, P.z );
-	
+
 	return P;
 }
 
@@ -274,13 +274,13 @@ float3 getOffsetPosition( int2 ssC, float2 unitOffset, float ssR, sampler2D cszB
 void getOffsetPositions( int2 ssC, float2 unitOffset, float ssR, sampler2D cszBuffer, out float3 P0, out float3 P1 )
 {
 	int2 ssP = clamp( int2( ssR * unitOffset ) + ssC, int2( 0 ), int2( g3d_sz2D_colorBuffer.xy - 1 ) );
-	
+
 	int mipLevel;
 	int2 mipP;
 	computeMipInfo( ssR, ssP, cszBuffer, mipLevel, mipP );
-	
+
 	float2 Zs = texelFetch( cszBuffer, mipP, mipLevel ).rg;
-	
+
 	// Offset to pixel center
 	P0 = reconstructCSPosition( ( float2( ssP ) + float2( 0.5 ) ), Zs.x );
 	P1 = reconstructCSPosition( ( float2( ssP ) + float2( 0.5 ) ), Zs.y );
@@ -306,9 +306,9 @@ void getOffsetPositionNormalAndLambertian
 	int mipLevel = 0;
 	int2 texel = ssP;
 #endif
-	
+
 	float z = texelFetch( cszBuffer, texel, mipLevel ).r;
-	
+
 	// FIXME mip map bounce/normal buffers FBOs
 #if 0
 	float3 n = sampleNormal( normalBuffer, texel, mipLevel );
@@ -318,9 +318,9 @@ void getOffsetPositionNormalAndLambertian
 	lambertian_tap = texelFetch( bounceBuffer, ssP, 0 ).rgb;
 #endif
 
-	//n_tap = normalize( n );	
+	//n_tap = normalize( n );
 	n_tap = n;
-	
+
 	// Offset to pixel center
 	Q = reconstructCSPosition( ( float2( ssP ) + float2( 0.5 ) ), z );
 }
@@ -350,7 +350,7 @@ void getOffsetPositionsNormalsAndLambertians
 	int mipLevel = 0;
 	int2 texel = ssP;
 #endif
-	
+
 	float2 Zs = texelFetch( cszBuffer, texel, mipLevel ).rg;
 #if USE_OCT16
 	sampleBothNormals( normalBuffer, texel, mipLevel, n_tap0, n_tap1 );
@@ -358,10 +358,10 @@ void getOffsetPositionsNormalsAndLambertians
 	n_tap0 = sampleNormal( normalBuffer, texel, mipLevel );
 	n_tap1 = sampleNormal( peeledNormalBuffer, texel, mipLevel );
 #endif
-	
+
 	lambertian_tap0 = texelFetch( bounceBuffer, texel, mipLevel ).rgb;
 	lambertian_tap1 = texelFetch( peeledBounceBuffer, texel, mipLevel ).rgb;
-	
+
 	// Offset to pixel center
 	Q0 = reconstructCSPosition( ( float2( ssP ) + float2( 0.5 ) ), Zs.x, projInfo );
 	Q1 = reconstructCSPosition( ( float2( ssP ) + float2( 0.5 ) ), Zs.y, projInfo );
@@ -378,9 +378,9 @@ void iiValueFromPositionsAndNormalsAndLambertian( int2 ssP, float3 X, float3 n_X
 				 && ( dot( -w_i, n_Y ) > 0.01 )
 #endif
 			   ) ? 1.0 : 0.0; // Backface check
-			   
+
 	// E = radiosity_Y * dot(w_i, n_X) * weight_Y * float(dot(YminusX, YminusX) < radius2);
-	
+
 	if( ( dot( YminusX, YminusX ) < radius2 ) && // Radius check
 			( weight_Y > 0.0 ) )
 	{
@@ -422,13 +422,13 @@ void sampleIndirectLight
 
 	// Not used yet, quality optimization in progress...
 	float visibilityWeightPeeled0, visibilityWeightPeeled1;
-	
+
 	// Offset on the unit disk, spun for this pixel
 	float ssR;
 	float2 unitOffset = tapLocation( tapIndex, randomPatternRotationAngle, radialJitter, ssR );
 	ssR *= ssDiskRadius;
 	int2 ssP = int2( ssR * unitOffset ) + ssC;
-	
+
 #if USE_DEPTH_PEEL
 	float3 E, ii_tap0, ii_tap1;
 	float weight, weight0, weight1;
@@ -438,31 +438,31 @@ void sampleIndirectLight
 	getOffsetPositionsNormalsAndLambertians( ssP, ssR, cszBuffer, bounceBuffer, peeledColorBuffer, nBuffer, peeledNormalBuffer, Q0, Q1, lambertian_tap0, lambertian_tap1, n_tap0, n_tap1 );
 	iiValueFromPositionsAndNormalsAndLambertian( ssP, C, n_C, Q0, n_tap0, lambertian_tap0, ii_tap0, weight0, visibilityWeight0 );
 	float adjustedWeight0 = weight0 * dot( ii_tap0, ii_tap0 ) + weight0;
-	
+
 	iiValueFromPositionsAndNormalsAndLambertian( ssP, C, n_C, Q1, n_tap1, lambertian_tap1, ii_tap1, weight1, visibilityWeight1 );
 	float adjustedWeight1 = weight1 * dot( ii_tap1, ii_tap1 ) + weight1;
-	
+
 	weight = ( adjustedWeight0 > adjustedWeight1 ) ? weight0 : weight1;
 	E = ( adjustedWeight0 > adjustedWeight1 ) ? ii_tap0 : ii_tap1;
-	
+
 #if COMPUTE_PEELED_LAYER
-	
+
 	float weightPeeled0, weightPeeled1;
 	float3 ii_tapPeeled0, ii_tapPeeled1;
 	iiValueFromPositionsAndNormalsAndLambertian( ssP, C_peeled, n_C_peeled, Q0, n_tap0, lambertian_tap0, ii_tapPeeled0, weightPeeled0, visibilityWeightPeeled0 );
 	iiValueFromPositionsAndNormalsAndLambertian( ssP, C_peeled, n_C_peeled, Q1, n_tap1, lambertian_tap1, ii_tapPeeled1, weightPeeled1, visibilityWeightPeeled1 );
-	
+
 	float iiMag0 = dot( ii_tapPeeled0, ii_tapPeeled0 );
 	float iiMag1 = dot( ii_tapPeeled1, ii_tapPeeled1 );
 	weightSumPeeled += iiMag0 > iiMag1 ? weightPeeled0 : weightPeeled1;
 	iiPeeled        += iiMag0 > iiMag1 ? ii_tapPeeled0 : ii_tapPeeled1;
-	
+
 #endif
-	
+
 	numSamplesUsed += weight;
-	
+
 #else
-	
+
 	float3 E;
 	float visibilityWeight;
 	float weight_Y;
@@ -472,7 +472,7 @@ void sampleIndirectLight
 	iiValueFromPositionsAndNormalsAndLambertian( ssP, C, n_C, Q, n_tap, lambertian_tap, E, weight_Y, visibilityWeight );
 	numSamplesUsed += weight_Y;
 #endif
-	
+
 	irradianceSum += E;
 	//irradianceSum += pow( E, float3( 2.2 ) ); // RB: to linear RGB
 }
@@ -481,17 +481,17 @@ void sampleIndirectLight
 void main( PS_IN fragment, out PS_OUT result )
 {
 	result.color = float4( 0.0, 0.0, 0.0, 1.0 );
-	
+
 #if 0
 	if( fragment.texcoord0.x < 0.5 )
 	{
 		discard;
 	}
 #endif
-	
+
 	// Pixel being shaded
 	int2 ssC = int2( gl_FragCoord.xy );
-	
+
 #if COMPUTE_PEELED_LAYER
 	float3 C, C_peeled;
 	getPositions( ssC, CS_Z_buffer, C, C_peeled );
@@ -502,27 +502,27 @@ void main( PS_IN fragment, out PS_OUT result )
 	float3 C_peeled = float3( 0 );
 	float3 n_C_peeled = float3( 0 );
 #endif
-	
+
 	float3 n_C = sampleNormal( normal_buffer, ssC, 0 );
 	//n_C = normalize( n_C );
-	
-	
+
+
 	// Choose the screen-space sample radius
 	// proportional to the projected area of the sphere
 	float ssDiskRadius = -projScale * radius / C.z;
-	
+
 	// Hash function used in the HPG12 AlchemyAO paper
 	float randomPatternRotationAngle = float( 3 * ssC.x ^ ssC.y + ssC.x * ssC.y ) * 10.0;
 #if TEMPORALLY_VARY_TAPS
 	randomPatternRotationAngle += rpJitterTexOffset.x;
 #endif
-	
+
 	float radialJitter = fract( sin( gl_FragCoord.x * 1e2 +
 #if TEMPORALLY_VARY_TAPS
 									 rpJitterTexOffset.x +
 #endif
 									 gl_FragCoord.y ) * 1e5 + sin( gl_FragCoord.y * 1e3 ) * 1e3 ) * 0.8 + 0.1;
-									 
+
 	float numSamplesUsed = 0.0;
 	float3 irradianceSum = float3( 0 );
 	float3 ii_peeled = float3( 0 );
@@ -531,26 +531,26 @@ void main( PS_IN fragment, out PS_OUT result )
 	{
 		sampleIndirectLight( ssC, C, n_C, C_peeled, n_C_peeled, ssDiskRadius, i, randomPatternRotationAngle, radialJitter, CS_Z_buffer, normal_buffer, colorBuffer, irradianceSum, numSamplesUsed, ii_peeled, peeledSum );
 	}
-	
+
 	const float solidAngleHemisphere = 2.0 * PI;
 	float3 E_X = irradianceSum * solidAngleHemisphere / ( numSamplesUsed + 0.00001 );
-	
+
 	indirectColor = E_X;
 	//indirectColor = pow( E_X, float3( 1.0 / 2.2 ) ); // RB: to sRGB
-	
+
 	// What is the ambient visibility of this location
 	visibility = 1.0 - numSamplesUsed / float( NUM_SAMPLES );
 	//visibility = clamp( 1 - numSamplesUsed / float( NUM_SAMPLES ), 0.0, 1.0 );
 	//visibility = pow( max( 0.0, 1.0 - sqrt( sum * ( 3.0 / float( NUM_SAMPLES ) ) ) ), intensity );
-	
+
 	//result.color = float4( visibility, visibility, visibility, 1.0 );
 	//result.color = float4( n_C * 0.5 + 0.5, 1.0 );
 	//result.color = texture( samp2, fragment.texcoord0 ).rgba;
-	
+
 #if COMPUTE_PEELED_LAYER
 	float A_peeled = 1.0 - peeledSum / float( NUM_SAMPLES );
 	float3 E_X_peeled = ii_peeled * solidAngleHemisphere / ( peeledSum + 0.00001 );
-	
+
 	indirectPeeledResult    = E_X_peeled;
 	peeledVisibility        = A_peeled;
 #endif

@@ -40,13 +40,13 @@ public:
 	void Parse( idSWFBitStream& bitstream, idSWFShape& shape, int recordType );
 	void ParseMorph( idSWFBitStream& bitstream, idSWFShape& shape );
 	void ParseFont( idSWFBitStream& bitstream, idSWFFontGlyph& shape );
-	
+
 private:
 	bool extendedCount;
 	bool rgba;
 	bool morph;
 	bool lineStyle2;
-	
+
 	struct swfSPEdge_t
 	{
 		uint16 v0;
@@ -78,8 +78,8 @@ private:
 	idList< idVec2, TAG_SWF > verts;
 	idList< swfSPDrawFill_t, TAG_SWF > fillDraws;
 	idList< swfSPDrawLine_t, TAG_SWF > lineDraws;
-	
-	
+
+
 private:
 	void ParseShapes( idSWFBitStream& bitstream1, idSWFBitStream* bitstream2, bool swap );
 	void ReadFillStyle( idSWFBitStream& bitstream );
@@ -89,7 +89,7 @@ private:
 	void TriangulateSoup( idSWFFontGlyph& shape );
 	int FindEarVert( const swfSPLineLoop_t& loop );
 	void AddUniqueVert( idSWFShapeDrawFill& drawFill, const idVec2& start, const idVec2& end );
-	
+
 };
 
 #endif // !__SWF_SHAPEPARSER_H__

@@ -75,7 +75,7 @@ public:
 	explicit idPlane( float a, float b, float c, float d );
 	explicit idPlane( const idVec3& normal, const float dist );
 	explicit idPlane( const idVec3& v0, const idVec3& v1, const idVec3& v2, bool fixDegenerate = false );
-	
+
 	float			operator[]( int index ) const;
 	float& 			operator[]( int index );
 	idPlane			operator-() const;						// flips plane
@@ -84,13 +84,13 @@ public:
 	idPlane			operator-( const idPlane& p ) const;	// subtract plane equations
 	idPlane			operator*( const float s ) const;		// scale plane
 	idPlane& 		operator*=( const idMat3& m );			// Normal() *= m
-	
+
 	bool			Compare( const idPlane& p ) const;						// exact compare, no epsilon
 	bool			Compare( const idPlane& p, const float epsilon ) const;	// compare with epsilon
 	bool			Compare( const idPlane& p, const float normalEps, const float distEps ) const;	// compare with epsilon
 	bool			operator==(	const idPlane& p ) const;					// exact compare, no epsilon
 	bool			operator!=(	const idPlane& p ) const;					// exact compare, no epsilon
-	
+
 	void			Zero();							// zero plane
 	void			SetNormal( const idVec3& normal );		// sets the normal
 	const idVec3& 	Normal() const;					// reference to const normal
@@ -101,7 +101,7 @@ public:
 	float			Dist() const;						// returns: -d
 	void			SetDist( const float dist );			// sets: d = -dist
 	int				Type() const;						// returns plane type
-	
+
 	bool			FromPoints( const idVec3& p1, const idVec3& p2, const idVec3& p3, bool fixDegenerate = true );
 	bool			FromVecs( const idVec3& dir1, const idVec3& dir2, const idVec3& p, bool fixDegenerate = true );
 	void			FitThroughPoint( const idVec3& p );	// assumes normal is valid
@@ -110,23 +110,23 @@ public:
 	idPlane& 		TranslateSelf( const idVec3& translation );
 	idPlane			Rotate( const idVec3& origin, const idMat3& axis ) const;
 	idPlane& 		RotateSelf( const idVec3& origin, const idMat3& axis );
-	
+
 	float			Distance( const idVec3& v ) const;
 	int				Side( const idVec3& v, const float epsilon = 0.0f ) const;
-	
+
 	bool			LineIntersection( const idVec3& start, const idVec3& end ) const;
 	// intersection point is start + dir * scale
 	bool			RayIntersection( const idVec3& start, const idVec3& dir, float& scale ) const;
 	bool			PlaneIntersection( const idPlane& plane, idVec3& start, idVec3& dir ) const;
-	
+
 	int				GetDimension() const;
-	
+
 	const idVec4& 	ToVec4() const;
 	idVec4& 		ToVec4();
 	const float* 	ToFloatPtr() const;
 	float* 			ToFloatPtr();
 	const char* 	ToString( int precision = 2 ) const;
-	
+
 private:
 	float			a;
 	float			b;
@@ -218,22 +218,22 @@ ID_INLINE bool idPlane::Compare( const idPlane& p, const float epsilon ) const
 	{
 		return false;
 	}
-	
+
 	if( idMath::Fabs( b - p.b ) > epsilon )
 	{
 		return false;
 	}
-	
+
 	if( idMath::Fabs( c - p.c ) > epsilon )
 	{
 		return false;
 	}
-	
+
 	if( idMath::Fabs( d - p.d ) > epsilon )
 	{
 		return false;
 	}
-	
+
 	return true;
 }
 
@@ -285,7 +285,7 @@ ID_INLINE idVec3& idPlane::Normal()
 ID_INLINE float idPlane::Normalize( bool fixDegenerate )
 {
 	float length = reinterpret_cast<idVec3*>( &a )->Normalize();
-	
+
 	if( fixDegenerate )
 	{
 		FixDegenerateNormal();
@@ -401,7 +401,7 @@ ID_INLINE int idPlane::Side( const idVec3& v, const float epsilon ) const
 ID_INLINE bool idPlane::LineIntersection( const idVec3& start, const idVec3& end ) const
 {
 	float d1, d2, fraction;
-	
+
 	d1 = Normal() * start + d;
 	d2 = Normal() * end + d;
 	if( d1 == d2 )
@@ -423,7 +423,7 @@ ID_INLINE bool idPlane::LineIntersection( const idVec3& start, const idVec3& end
 ID_INLINE bool idPlane::RayIntersection( const idVec3& start, const idVec3& dir, float& scale ) const
 {
 	float d1, d2;
-	
+
 	d1 = Normal() * start + d;
 	d2 = Normal() * dir;
 	if( d2 == 0.0f )

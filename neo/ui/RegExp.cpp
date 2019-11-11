@@ -48,12 +48,12 @@ void idRegister::SetToRegs( float* registers )
 	idVec2 v2;
 	idVec3 v3;
 	idRectangle rect;
-	
+
 	if( !enabled || var == NULL || ( var && ( var->GetDict() || !var->GetEval() ) ) )
 	{
 		return;
 	}
-	
+
 	switch( type )
 	{
 		case VEC4:
@@ -118,17 +118,17 @@ void idRegister::GetFromRegs( float* registers )
 {
 	idVec4 v;
 	idRectangle rect;
-	
+
 	if( !enabled || var == NULL || ( var && ( var->GetDict() || !var->GetEval() ) ) )
 	{
 		return;
 	}
-	
+
 	for( int i = 0; i < regCount; i++ )
 	{
 		v[i] = registers[regs[i]];
 	}
-	
+
 	switch( type )
 	{
 		case VEC4:
@@ -189,7 +189,9 @@ void idRegister::ReadFromDemoFile( idDemoFile* f )
 	f->ReadShort( type );
 	f->ReadInt( regCount );
 	for( int i = 0; i < 4; i++ )
+	{
 		f->ReadUnsignedShort( regs[i] );
+	}
 	name = f->ReadHashString();
 }
 
@@ -204,7 +206,9 @@ void idRegister::WriteToDemoFile( idDemoFile* f )
 	f->WriteShort( type );
 	f->WriteInt( regCount );
 	for( int i = 0; i < 4; i++ )
+	{
 		f->WriteUnsignedShort( regs[i] );
+	}
 	f->WriteHashString( name );
 }
 
@@ -216,16 +220,16 @@ idRegister::WriteToSaveGame
 void idRegister::WriteToSaveGame( idFile* savefile )
 {
 	int len;
-	
+
 	savefile->Write( &enabled, sizeof( enabled ) );
 	savefile->Write( &type, sizeof( type ) );
 	savefile->Write( &regCount, sizeof( regCount ) );
 	savefile->Write( &regs[0], sizeof( regs ) );
-	
+
 	len = name.Length();
 	savefile->Write( &len, sizeof( len ) );
 	savefile->Write( name.c_str(), len );
-	
+
 	var->WriteToSaveGame( savefile );
 }
 
@@ -237,16 +241,16 @@ idRegister::ReadFromSaveGame
 void idRegister::ReadFromSaveGame( idFile* savefile )
 {
 	int len;
-	
+
 	savefile->Read( &enabled, sizeof( enabled ) );
 	savefile->Read( &type, sizeof( type ) );
 	savefile->Read( &regCount, sizeof( regCount ) );
 	savefile->Read( &regs[0], sizeof( regs ) );
-	
+
 	savefile->Read( &len, sizeof( len ) );
 	name.Fill( ' ', len );
 	savefile->Read( &name[0], len );
-	
+
 	var->ReadFromSaveGame( savefile );
 }
 
@@ -280,9 +284,9 @@ idRegisterList::AddReg
 void idRegisterList::AddReg( const char* name, int type, idTokenParser* src, idWindow* win, idWinVar* var )
 {
 	idRegister* reg;
-	
+
 	reg = FindReg( name );
-	
+
 	if( reg == NULL )
 	{
 		assert( type >= 0 && type < idRegister::NUMTYPES );
@@ -403,7 +407,7 @@ idRegisterList::ReadFromSaveGame
 void idRegisterList::ReadFromDemoFile( idDemoFile* f )
 {
 	int c;
-	
+
 	f->ReadInt( c );
 	regs.DeleteContents( true );
 	for( int i = 0; i < c; i++ )
@@ -422,7 +426,7 @@ idRegisterList::ReadFromSaveGame
 void idRegisterList::WriteToDemoFile( idDemoFile* f )
 {
 	int c = regs.Num();
-	
+
 	f->WriteInt( c );
 	for( int i = 0 ; i < c; i++ )
 	{
@@ -438,10 +442,10 @@ idRegisterList::WriteToSaveGame
 void idRegisterList::WriteToSaveGame( idFile* savefile )
 {
 	int i, num;
-	
+
 	num = regs.Num();
 	savefile->Write( &num, sizeof( num ) );
-	
+
 	for( i = 0; i < num; i++ )
 	{
 		regs[i]->WriteToSaveGame( savefile );
@@ -456,7 +460,7 @@ idRegisterList::ReadFromSaveGame
 void idRegisterList::ReadFromSaveGame( idFile* savefile )
 {
 	int i, num;
-	
+
 	savefile->Read( &num, sizeof( num ) );
 	for( i = 0; i < num; i++ )
 	{

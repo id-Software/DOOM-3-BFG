@@ -45,7 +45,7 @@ public:
 	explicit idBox( const idVec3& point );
 	explicit idBox( const idBounds& bounds );
 	explicit idBox( const idBounds& bounds, const idVec3& origin, const idMat3& axis );
-	
+
 	idBox			operator+( const idVec3& t ) const;				// returns translated box
 	idBox& 			operator+=( const idVec3& t );					// translate the box
 	idBox			operator*( const idMat3& r ) const;				// returns rotated box
@@ -54,21 +54,21 @@ public:
 	idBox& 			operator+=( const idBox& a );
 	idBox			operator-( const idBox& a ) const;
 	idBox& 			operator-=( const idBox& a );
-	
+
 	bool			Compare( const idBox& a ) const;						// exact compare, no epsilon
 	bool			Compare( const idBox& a, const float epsilon ) const;	// compare with epsilon
 	bool			operator==(	const idBox& a ) const;						// exact compare, no epsilon
 	bool			operator!=(	const idBox& a ) const;						// exact compare, no epsilon
-	
+
 	void			Clear();									// inside out box
 	void			Zero();									// single point at origin
-	
+
 	const idVec3& 	GetCenter() const;						// returns center of the box
 	const idVec3& 	GetExtents() const;						// returns extents of the box
 	const idMat3& 	GetAxis() const;							// returns the axis of the box
 	float			GetVolume() const;						// returns the volume of the box
 	bool			IsCleared() const;						// returns true if box are inside out
-	
+
 	bool			AddPoint( const idVec3& v );					// add the point, returns true if the box expanded
 	bool			AddBox( const idBox& a );						// add the box, returns true if the box expanded
 	idBox			Expand( const float d ) const;					// return box expanded in all directions with the given value
@@ -77,16 +77,16 @@ public:
 	idBox& 			TranslateSelf( const idVec3& translation );		// translate this box
 	idBox			Rotate( const idMat3& rotation ) const;			// return rotated box
 	idBox& 			RotateSelf( const idMat3& rotation );			// rotate this box
-	
+
 	float			PlaneDistance( const idPlane& plane ) const;
 	int				PlaneSide( const idPlane& plane, const float epsilon = ON_EPSILON ) const;
-	
+
 	bool			ContainsPoint( const idVec3& p ) const;			// includes touching
 	bool			IntersectsBox( const idBox& a ) const;			// includes touching
 	bool			LineIntersection( const idVec3& start, const idVec3& end ) const;
 	// intersection points are (start + dir * scale1) and (start + dir * scale2)
 	bool			RayIntersection( const idVec3& start, const idVec3& dir, float& scale1, float& scale2 ) const;
-	
+
 	// tight box for a collection of points
 	void			FromPoints( const idVec3* points, const int numPoints );
 	// most tight box for a translation
@@ -95,18 +95,18 @@ public:
 	// most tight box for a rotation
 	void			FromPointRotation( const idVec3& point, const idRotation& rotation );
 	void			FromBoxRotation( const idBox& box, const idRotation& rotation );
-	
+
 	void			ToPoints( idVec3 points[8] ) const;
 	idSphere		ToSphere() const;
-	
+
 	// calculates the projection of this box onto the given axis
 	void			AxisProjection( const idVec3& dir, float& min, float& max ) const;
 	void			AxisProjection( const idMat3& ax, idBounds& bounds ) const;
-	
+
 	// calculates the silhouette of the box
 	int				GetProjectionSilhouetteVerts( const idVec3& projectionOrigin, idVec3 silVerts[6] ) const;
 	int				GetParallelProjectionSilhouetteVerts( const idVec3& projectionDir, idVec3 silVerts[6] ) const;
-	
+
 private:
 	idVec3			center;
 	idVec3			extents;

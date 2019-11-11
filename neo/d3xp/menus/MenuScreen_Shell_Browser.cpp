@@ -50,17 +50,17 @@ class idPair
 public:
 	idPair() { }
 	idPair( const T& f, const U& s ) : first( f ), second( s ) { }
-	
+
 	const bool	operator==( const idPair<T, U>& rhs ) const
 	{
 		return ( rhs.first == first ) && ( rhs.second == second );
 	}
-	
+
 	const bool	operator!=( const idPair<T, U>& rhs ) const
 	{
 		return !( *this == rhs );
 	}
-	
+
 	T first;
 	U second;
 };
@@ -98,14 +98,14 @@ idMenuScreen_Shell_GameBrowser::Initialize
 void idMenuScreen_Shell_GameBrowser::Initialize( idMenuHandler* data )
 {
 	idMenuScreen::Initialize( data );
-	
+
 	if( data != NULL )
 	{
 		menuGUI = data->GetGUI();
 	}
-	
+
 	SetSpritePath( "menuPWF" );
-	
+
 	listWidget = new idMenuWidget_GameBrowserList();
 	listWidget->SetSpritePath( GetSpritePath(), "info", "options" );
 	listWidget->SetNumVisibleOptions( NUM_SERVER_LIST_ITEMS );
@@ -119,11 +119,11 @@ void idMenuScreen_Shell_GameBrowser::Initialize( idMenuHandler* data )
 	listWidget->AddEventAction( WIDGET_EVENT_SCROLL_DOWN_LSTICK_RELEASE ).Set( WIDGET_ACTION_STOP_REPEATER );
 	listWidget->AddEventAction( WIDGET_EVENT_SCROLL_UP_LSTICK_RELEASE ).Set( WIDGET_ACTION_STOP_REPEATER );
 	AddChild( listWidget );
-	
+
 	idMenuWidget_Help* const helpWidget = new( TAG_SWF ) idMenuWidget_Help();
 	helpWidget->SetSpritePath( GetSpritePath(), "info", "helpTooltip" );
 	AddChild( helpWidget );
-	
+
 	while( listWidget->GetChildren().Num() < NUM_SERVER_LIST_ITEMS )
 	{
 		idMenuWidget_ServerButton* buttonWidget = new idMenuWidget_ServerButton;
@@ -132,7 +132,7 @@ void idMenuScreen_Shell_GameBrowser::Initialize( idMenuHandler* data )
 		buttonWidget->RegisterEventObserver( helpWidget );
 		listWidget->AddChild( buttonWidget );
 	}
-	
+
 	btnBack = new( TAG_SWF ) idMenuWidget_Button();
 	btnBack->Initialize( data );
 	btnBack->SetLabel( "#str_swf_multiplayer" );
@@ -153,7 +153,7 @@ void idMenuScreen_Shell_GameBrowser::ShowScreen( const mainMenuTransition_t tran
 	{
 		return;
 	}
-	
+
 	idSWFScriptObject& root = GetSWFObject()->GetRootObject();
 	if( BindSprite( root ) )
 	{
@@ -163,36 +163,36 @@ void idMenuScreen_Shell_GameBrowser::ShowScreen( const mainMenuTransition_t tran
 			heading->SetText( "#str_swf_pwf_heading" );	// MULTIPLAYER
 			heading->SetStrokeInfo( true, 0.75f, 1.75f );
 		}
-		
+
 		idSWFSpriteInstance* gradient = GetSprite()->GetScriptObject()->GetNestedSprite( "info", "gradient" );
 		if( gradient != NULL && heading != NULL )
 		{
 			gradient->SetXPos( heading->GetTextLength() );
 		}
 	}
-	
+
 	listWidget->ClearGames();
-	
+
 	if( mgr->GetCmdBar() != NULL )
 	{
 		idMenuWidget_CommandBar::buttonInfo_t* buttonInfo;
-		
+
 		mgr->GetCmdBar()->ClearAllButtons();
-		
+
 		buttonInfo = mgr->GetCmdBar()->GetButton( idMenuWidget_CommandBar::BUTTON_JOY2 );
 		if( menuData->GetPlatform() != 2 )
 		{
 			buttonInfo->label = "#str_00395";
 		}
 		buttonInfo->action.Set( WIDGET_ACTION_GO_BACK );
-		
+
 		buttonInfo = mgr->GetCmdBar()->GetButton( idMenuWidget_CommandBar::BUTTON_JOY3 );
 		buttonInfo->label = "#str_02276";
 		buttonInfo->action.Set( WIDGET_ACTION_COMMAND, BROWSER_COMMAND_REFRESH_SERVERS );
 	}
-	
+
 	mgr->HidePacifier();
-	
+
 	idMenuScreen::ShowScreen( transitionType );
 	UpdateServerList();
 }
@@ -209,11 +209,11 @@ void idMenuScreen_Shell_GameBrowser::HideScreen( const mainMenuTransition_t tran
 	{
 		return;
 	}
-	
+
 	mgr->HidePacifier();
-	
+
 	session->CancelListServers();
-	
+
 	idMenuScreen::HideScreen( transitionType );
 }
 
@@ -225,23 +225,23 @@ idMenuScreen_Shell_GameBrowser::UpdateServerList
 void idMenuScreen_Shell_GameBrowser::UpdateServerList()
 {
 	idMenuHandler_Shell* const mgr = dynamic_cast< idMenuHandler_Shell* >( menuData );
-	
+
 	if( mgr == NULL )
 	{
 		return;
 	}
-	
+
 	for( int i = 0; i < listWidget->GetChildren().Num(); ++i )
 	{
 		idMenuWidget& child = listWidget->GetChildByIndex( i );
 		child.SetState( WIDGET_STATE_HIDDEN );
 	}
-	
+
 	// need to show the pacifier before actually making the ListServers call, because it can fail
 	// immediately and send back an error result to SWF. Things get confused if the showLoadingPacifier
 	// then gets called after that.
 	mgr->ShowPacifier( "#str_online_mpstatus_searching" );
-	
+
 	session->ListServers( MakeCallback( this, &idMenuScreen_Shell_GameBrowser::OnServerListReady ) );
 }
 
@@ -253,14 +253,14 @@ idMenuScreen_Shell_GameBrowser::OnServerListReady
 void idMenuScreen_Shell_GameBrowser::OnServerListReady()
 {
 	idMenuHandler_Shell* const mgr = dynamic_cast< idMenuHandler_Shell* >( menuData );
-	
+
 	if( mgr == NULL )
 	{
 		return;
 	}
-	
+
 	mgr->HidePacifier();
-	
+
 	idList< idPair< serverInfo_t, int > > servers;
 	for( int i = 0; i < session->NumServers(); ++i )
 	{
@@ -272,16 +272,16 @@ void idMenuScreen_Shell_GameBrowser::OnServerListReady()
 			serverPair.second = i;
 		}
 	}
-	
+
 	servers.SortWithTemplate( idSort_PlayerGamesList() );
-	
+
 	listWidget->ClearGames();
 	for( int i = 0; i < servers.Num(); ++i )
 	{
 		idPair< serverInfo_t, int >& serverPair = servers[ i ];
 		DescribeServer( serverPair.first, serverPair.second );
 	}
-	
+
 	if( servers.Num() > 0 )
 	{
 		listWidget->Update();
@@ -297,13 +297,13 @@ void idMenuScreen_Shell_GameBrowser::OnServerListReady()
 		listWidget->SetViewIndex( 0 );
 		listWidget->SetFocusIndex( 0 );
 	}
-	
+
 	if( mgr->GetCmdBar() != NULL )
 	{
 		idMenuWidget_CommandBar::buttonInfo_t* buttonInfo;
-		
+
 		mgr->GetCmdBar()->ClearAllButtons();
-		
+
 		if( servers.Num() > 0 )
 		{
 			buttonInfo = mgr->GetCmdBar()->GetButton( idMenuWidget_CommandBar::BUTTON_JOY1 );
@@ -313,25 +313,25 @@ void idMenuScreen_Shell_GameBrowser::OnServerListReady()
 			}
 			buttonInfo->action.Set( WIDGET_ACTION_PRESS_FOCUSED );
 		}
-		
+
 		buttonInfo = mgr->GetCmdBar()->GetButton( idMenuWidget_CommandBar::BUTTON_JOY2 );
 		if( menuData->GetPlatform() != 2 )
 		{
 			buttonInfo->label = "#str_00395";
 		}
 		buttonInfo->action.Set( WIDGET_ACTION_GO_BACK );
-		
+
 		buttonInfo = mgr->GetCmdBar()->GetButton( idMenuWidget_CommandBar::BUTTON_JOY3 );
 		buttonInfo->label = "#str_02276";
 		buttonInfo->action.Set( WIDGET_ACTION_COMMAND, BROWSER_COMMAND_REFRESH_SERVERS );
-		
+
 		if( servers.Num() > 0 )
 		{
 			buttonInfo = mgr->GetCmdBar()->GetButton( idMenuWidget_CommandBar::BUTTON_JOY4 );
 			buttonInfo->label = "#str_swf_view_profile";
 			buttonInfo->action.Set( WIDGET_ACTION_COMMAND, BROWSER_COMMAND_SHOW_GAMERTAG );
 		}
-		
+
 		mgr->GetCmdBar()->Update();
 	}
 }
@@ -352,7 +352,7 @@ void idMenuScreen_Shell_GameBrowser::DescribeServer( const serverInfo_t& server,
 	int maxPlayers = 0;
 	idStrId mapName;
 	idStr modeName;
-	
+
 	const idList< mpMap_t > maps = common->GetMapList();
 	const bool isMapValid = ( server.gameMap >= 0 ) && ( server.gameMap < maps.Num() );
 	if( !isMapValid )
@@ -368,7 +368,7 @@ void idMenuScreen_Shell_GameBrowser::DescribeServer( const serverInfo_t& server,
 	else
 	{
 		mapName = common->GetMapList()[ server.gameMap ].mapName;
-		
+
 		const idStrList& modes = common->GetModeDisplayList();
 		idStr mode = idLocalization::GetString( modes[ idMath::ClampInt( 0, modes.Num() - 1, server.gameMode ) ] );
 		validMap = true;
@@ -378,7 +378,7 @@ void idMenuScreen_Shell_GameBrowser::DescribeServer( const serverInfo_t& server,
 		maxPlayers = server.maxPlayers;
 		joinable = server.joinable;
 	}
-	
+
 	listWidget->AddGame( serverName, mapName, modeName, serverIndex, players, maxPlayers, joinable, validMap );
 }
 
@@ -390,20 +390,20 @@ idMenuScreen_Shell_GameBrowser::HandleAction h
 bool idMenuScreen_Shell_GameBrowser::HandleAction( idWidgetAction& action, const idWidgetEvent& event, idMenuWidget* widget, bool forceHandle )
 {
 	idMenuHandler_Shell* const mgr = dynamic_cast< idMenuHandler_Shell* >( menuData );
-	
+
 	if( mgr == NULL )
 	{
 		return false;
 	}
-	
+
 	if( mgr->ActiveScreen() != SHELL_AREA_BROWSER )
 	{
 		return false;
 	}
-	
+
 	widgetAction_t actionType = action.GetType();
 	const idSWFParmList& parms = action.GetParms();
-	
+
 	switch( actionType )
 	{
 		case WIDGET_ACTION_GO_BACK:
@@ -439,14 +439,14 @@ bool idMenuScreen_Shell_GameBrowser::HandleAction( idWidgetAction& action, const
 			{
 				selectionIndex = parms[0].ToInteger();
 			}
-			
+
 			if( selectionIndex != listWidget->GetFocusIndex() )
 			{
 				listWidget->SetViewIndex( listWidget->GetViewOffset() + selectionIndex );
 				listWidget->SetFocusIndex( selectionIndex );
 				return true;
 			}
-			
+
 			int index = listWidget->GetServerIndex();
 			if( index != -1 )
 			{
@@ -455,6 +455,6 @@ bool idMenuScreen_Shell_GameBrowser::HandleAction( idWidgetAction& action, const
 			return true;
 		}
 	}
-	
+
 	return idMenuScreen::HandleAction( action, event, widget, forceHandle );
 }

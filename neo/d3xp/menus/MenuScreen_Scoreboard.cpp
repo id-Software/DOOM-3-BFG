@@ -42,14 +42,14 @@ idMenuScreen_Scoreboard::Initialize
 void idMenuScreen_Scoreboard::Initialize( idMenuHandler* data )
 {
 	idMenuScreen::Initialize( data );
-	
+
 	if( data != NULL )
 	{
 		menuGUI = data->GetGUI();
 	}
-	
+
 	SetSpritePath( "sbDefault" );
-	
+
 	playerList = new( TAG_SWF ) idMenuWidget_ScoreboardList();
 	playerList->SetSpritePath( GetSpritePath(), "info", "playerList" );
 	playerList->SetNumVisibleOptions( MAX_SCOREBOARD_SLOTS );
@@ -64,7 +64,7 @@ void idMenuScreen_Scoreboard::Initialize( idMenuHandler* data )
 	}
 	playerList->Initialize( data );
 	AddChild( playerList );
-	
+
 	AddEventAction( WIDGET_EVENT_SCROLL_DOWN_LSTICK ).Set( new( TAG_SWF ) idWidgetActionHandler( this, WIDGET_ACTION_EVENT_SCROLL_DOWN_START_REPEATER_VARIABLE, WIDGET_EVENT_SCROLL_DOWN_LSTICK ) );
 	AddEventAction( WIDGET_EVENT_SCROLL_UP_LSTICK ).Set( new( TAG_SWF ) idWidgetActionHandler( this, WIDGET_ACTION_EVENT_SCROLL_UP_START_REPEATER_VARIABLE, WIDGET_EVENT_SCROLL_UP_LSTICK ) );
 	AddEventAction( WIDGET_EVENT_SCROLL_DOWN_LSTICK_RELEASE ).Set( new( TAG_SWF ) idWidgetActionHandler( this, WIDGET_ACTION_EVENT_STOP_REPEATER, WIDGET_EVENT_SCROLL_DOWN_LSTICK_RELEASE ) );
@@ -90,7 +90,7 @@ void idMenuScreen_Scoreboard::Update()
 		{
 			cmdBar->ClearAllButtons();
 			idMenuWidget_CommandBar::buttonInfo_t* buttonInfo;
-			
+
 			if( gameLocal.mpGame.GetGameState() != idMultiplayerGame::GAMEREVIEW )
 			{
 				buttonInfo = cmdBar->GetButton( idMenuWidget_CommandBar::BUTTON_JOY2 );
@@ -99,12 +99,12 @@ void idMenuScreen_Scoreboard::Update()
 					buttonInfo->label = "#str_01345";
 				}
 				buttonInfo->action.Set( WIDGET_ACTION_GO_BACK );
-				
+
 				buttonInfo = cmdBar->GetButton( idMenuWidget_CommandBar::BUTTON_TAB );
 				buttonInfo->label = "";
 				buttonInfo->action.Set( WIDGET_ACTION_GO_BACK );
 			}
-			
+
 			buttonInfo = cmdBar->GetButton( idMenuWidget_CommandBar::BUTTON_JOY1 );
 			if( menuData->GetPlatform() != 2 )
 			{
@@ -113,7 +113,7 @@ void idMenuScreen_Scoreboard::Update()
 			buttonInfo->action.Set( WIDGET_ACTION_PRESS_FOCUSED );
 		}
 	}
-	
+
 	idMenuScreen::Update();
 }
 
@@ -125,20 +125,20 @@ idMenuScreen_Scoreboard::ShowScreen
 void idMenuScreen_Scoreboard::ShowScreen( const mainMenuTransition_t transitionType )
 {
 	idMenuScreen::ShowScreen( transitionType );
-	
+
 	if( GetSWFObject() )
 	{
 		idSWFScriptObject& root = GetSWFObject()->GetRootObject();
 		if( BindSprite( root ) )
 		{
-		
+
 			idSWFTextInstance* txtVal = GetSprite()->GetScriptObject()->GetNestedText( "info", "txtScoreboard" );
 			if( txtVal != NULL )
 			{
 				txtVal->SetText( "#str_02618" );
 				txtVal->SetStrokeInfo( true, 0.9f, 2.0f );
 			}
-			
+
 			txtVal = GetSprite()->GetScriptObject()->GetNestedText( "info", "txtGameType" );
 			if( txtVal != NULL )
 			{
@@ -150,7 +150,7 @@ void idMenuScreen_Scoreboard::ShowScreen( const mainMenuTransition_t transitionT
 				txtVal->SetText( mode );
 				txtVal->SetStrokeInfo( true, 0.9f, 1.8f );
 			}
-			
+
 			txtVal = GetSprite()->GetScriptObject()->GetNestedText( "info", "txtNameHeading" );
 			if( txtVal != NULL )
 			{
@@ -186,7 +186,7 @@ void idMenuScreen_Scoreboard::ShowScreen( const mainMenuTransition_t transitionT
 				txtVal->SetText( "#str_02048" );
 				txtVal->SetStrokeInfo( true, 0.75f, 1.75f );
 			}
-			
+
 			txtVal = GetSprite()->GetScriptObject()->GetNestedText( "info", "txtNameHeading2" );
 			if( txtVal != NULL )
 			{
@@ -222,10 +222,10 @@ void idMenuScreen_Scoreboard::ShowScreen( const mainMenuTransition_t transitionT
 				txtVal->SetText( "#str_02048" );
 				txtVal->SetStrokeInfo( true, 0.75f, 1.75f );
 			}
-			
+
 		}
 	}
-	
+
 }
 
 /*
@@ -265,7 +265,7 @@ void idMenuScreen_Scoreboard::UpdateGameInfo( idStr gameInfo )
 		idSWFScriptObject& root = GetSWFObject()->GetRootObject();
 		if( BindSprite( root ) )
 		{
-		
+
 			idSWFTextInstance* txtVal = GetSprite()->GetScriptObject()->GetNestedText( "info", "txtGameInfo" );
 			if( txtVal != NULL )
 			{
@@ -289,7 +289,7 @@ void idMenuScreen_Scoreboard::UpdateSpectating( idStr spectating, idStr follow )
 		idSWFScriptObject& root = GetSWFObject()->GetRootObject();
 		if( BindSprite( root ) )
 		{
-		
+
 			idSWFTextInstance* txtVal = GetSprite()->GetScriptObject()->GetNestedText( "info", "txtSpectating" );
 			if( txtVal != NULL )
 			{
@@ -297,7 +297,7 @@ void idMenuScreen_Scoreboard::UpdateSpectating( idStr spectating, idStr follow )
 				txtVal->SetText( spectating );
 				txtVal->SetStrokeInfo( true, 0.75f, 1.75f );
 			}
-			
+
 			txtVal = GetSprite()->GetScriptObject()->GetNestedText( "info", "txtFollow" );
 			if( txtVal != NULL )
 			{
@@ -321,14 +321,14 @@ void idMenuScreen_Scoreboard::UpdateTeamScores( int r, int b )
 		idSWFScriptObject& root = GetSWFObject()->GetRootObject();
 		if( BindSprite( root ) )
 		{
-		
+
 			idSWFTextInstance* txtVal = GetSprite()->GetScriptObject()->GetNestedText( "info", "txtRedScore" );
 			if( txtVal != NULL )
 			{
 				txtVal->SetText( va( "%i", r ) );
 				txtVal->SetStrokeInfo( true, 0.75f, 1.75f );
 			}
-			
+
 			txtVal = GetSprite()->GetScriptObject()->GetNestedText( "info", "txtBlueScore" );
 			if( txtVal != NULL )
 			{
@@ -351,14 +351,14 @@ void idMenuScreen_Scoreboard::UpdateHighlight()
 	{
 		return;
 	}
-	
+
 	idMenuHandler_Scoreboard* data = dynamic_cast< idMenuHandler_Scoreboard* >( menuData );
-	
+
 	int curIndex = playerList->GetViewIndex();
 	int newIndex = playerList->GetViewIndex();
 	int numRed = data->GetNumPlayers( 0 );
 	int numBlue = data->GetNumPlayers( 1 );
-	
+
 	if( numBlue == 0 )
 	{
 		if( curIndex >= numRed )
@@ -387,7 +387,7 @@ void idMenuScreen_Scoreboard::UpdateHighlight()
 			}
 		}
 	}
-	
+
 	// newIndex can be -1 if all players are spectating ( no rankedplayers )
 	if( newIndex != curIndex && newIndex != -1 )
 	{
@@ -408,10 +408,10 @@ bool idMenuScreen_Scoreboard::HandleAction( idWidgetAction& action, const idWidg
 	{
 		return true;
 	}
-	
+
 	widgetAction_t actionType = action.GetType();
 	const idSWFParmList& parms = action.GetParms();
-	
+
 	switch( actionType )
 	{
 		case WIDGET_ACTION_GO_BACK:
@@ -421,53 +421,53 @@ bool idMenuScreen_Scoreboard::HandleAction( idWidgetAction& action, const idWidg
 		}
 		case WIDGET_ACTION_MUTE_PLAYER:
 		{
-		
+
 			if( parms.Num() != 1 )
 			{
 				return true;
 			}
-			
+
 			idMenuHandler_Scoreboard* data = dynamic_cast< idMenuHandler_Scoreboard* >( menuData );
-			
+
 			if( !data )
 			{
 				return true;
 			}
 			int index = parms[0].ToInteger();
 			data->MutePlayer( index );
-			
+
 			return true;
 		}
 		case WIDGET_ACTION_PRESS_FOCUSED:
 		{
-		
+
 			if( playerList == NULL )
 			{
 				return true;
 			}
-			
+
 			int selectionIndex = playerList->GetViewIndex();
 			if( parms.Num() == 1 )
 			{
 				selectionIndex = parms[0].ToInteger();
 			}
-			
+
 			if( selectionIndex != playerList->GetFocusIndex() )
 			{
 				playerList->SetViewIndex( playerList->GetViewOffset() + selectionIndex );
 				playerList->SetFocusIndex( selectionIndex );
 			}
-			
+
 			idMenuHandler_Scoreboard* data = dynamic_cast< idMenuHandler_Scoreboard* >( menuData );
-			
+
 			if( !data )
 			{
 				return true;
 			}
-			
+
 			int numRed = data->GetNumPlayers( 0 );
 			int numBlue = data->GetNumPlayers( 1 );
-			
+
 			if( selectionIndex >= 4 && numBlue != 0 )
 			{
 				int index = numRed + ( selectionIndex - 4 );
@@ -477,40 +477,40 @@ bool idMenuScreen_Scoreboard::HandleAction( idWidgetAction& action, const idWidg
 			{
 				data->ViewPlayerProfile( selectionIndex );
 			}
-			
-			
+
+
 			return true;
 		}
 		case WIDGET_ACTION_SCROLL_VERTICAL_VARIABLE:
 		{
-		
+
 			if( parms.Num() == 0 )
 			{
 				return true;
 			}
-			
+
 			if( playerList )
 			{
-			
+
 				int dir = parms[ 0 ].ToInteger();
 				int scroll = 0;
 				int curIndex = playerList->GetFocusIndex();
-				
+
 				idMenuHandler_Scoreboard* data = dynamic_cast< idMenuHandler_Scoreboard* >( menuData );
-				
+
 				if( !data )
 				{
 					return true;
 				}
-				
+
 				int numRed = data->GetNumPlayers( 0 );
 				int numBlue = data->GetNumPlayers( 1 );
-				
+
 				if( numRed + numBlue <= 1 )
 				{
 					return true;
 				}
-				
+
 				if( dir > 0 )
 				{
 					if( numBlue == 0 )
@@ -589,7 +589,7 @@ bool idMenuScreen_Scoreboard::HandleAction( idWidgetAction& action, const idWidg
 						}
 					}
 				}
-				
+
 				if( scroll != 0 )
 				{
 					playerList->Scroll( scroll );
@@ -598,7 +598,7 @@ bool idMenuScreen_Scoreboard::HandleAction( idWidgetAction& action, const idWidg
 			return true;
 		}
 	}
-	
+
 	return idMenuWidget::HandleAction( action, event, widget, forceHandled );
 }
 
@@ -614,14 +614,14 @@ idMenuScreen_Scoreboard_CTF::Initialize
 void idMenuScreen_Scoreboard_CTF::Initialize( idMenuHandler* data )
 {
 	idMenuScreen::Initialize( data );
-	
+
 	if( data != NULL )
 	{
 		menuGUI = data->GetGUI();
 	}
-	
+
 	SetSpritePath( "sbCTF" );
-	
+
 	playerList = new( TAG_SWF ) idMenuWidget_ScoreboardList();
 	playerList->SetSpritePath( GetSpritePath(), "info", "playerList" );
 	playerList->SetNumVisibleOptions( MAX_SCOREBOARD_SLOTS );
@@ -636,7 +636,7 @@ void idMenuScreen_Scoreboard_CTF::Initialize( idMenuHandler* data )
 	}
 	playerList->Initialize( data );
 	AddChild( playerList );
-	
+
 	AddEventAction( WIDGET_EVENT_SCROLL_DOWN_LSTICK ).Set( new( TAG_SWF ) idWidgetActionHandler( this, WIDGET_ACTION_EVENT_SCROLL_DOWN_START_REPEATER_VARIABLE, WIDGET_EVENT_SCROLL_DOWN_LSTICK ) );
 	AddEventAction( WIDGET_EVENT_SCROLL_UP_LSTICK ).Set( new( TAG_SWF ) idWidgetActionHandler( this, WIDGET_ACTION_EVENT_SCROLL_UP_START_REPEATER_VARIABLE, WIDGET_EVENT_SCROLL_UP_LSTICK ) );
 	AddEventAction( WIDGET_EVENT_SCROLL_DOWN_LSTICK_RELEASE ).Set( new( TAG_SWF ) idWidgetActionHandler( this, WIDGET_ACTION_EVENT_STOP_REPEATER, WIDGET_EVENT_SCROLL_DOWN_LSTICK_RELEASE ) );
@@ -645,7 +645,7 @@ void idMenuScreen_Scoreboard_CTF::Initialize( idMenuHandler* data )
 	AddEventAction( WIDGET_EVENT_SCROLL_UP ).Set( new( TAG_SWF ) idWidgetActionHandler( this, WIDGET_ACTION_EVENT_SCROLL_UP_START_REPEATER_VARIABLE, WIDGET_EVENT_SCROLL_UP ) );
 	AddEventAction( WIDGET_EVENT_SCROLL_DOWN_RELEASE ).Set( new( TAG_SWF ) idWidgetActionHandler( this, WIDGET_ACTION_EVENT_STOP_REPEATER, WIDGET_EVENT_SCROLL_DOWN_RELEASE ) );
 	AddEventAction( WIDGET_EVENT_SCROLL_UP_RELEASE ).Set( new( TAG_SWF ) idWidgetActionHandler( this, WIDGET_ACTION_EVENT_STOP_REPEATER, WIDGET_EVENT_SCROLL_UP_RELEASE ) );
-	
+
 }
 
 //***************************************************************
@@ -660,14 +660,14 @@ idMenuScreen_Scoreboard_Team::Initialize
 void idMenuScreen_Scoreboard_Team::Initialize( idMenuHandler* data )
 {
 	idMenuScreen::Initialize( data );
-	
+
 	if( data != NULL )
 	{
 		menuGUI = data->GetGUI();
 	}
-	
+
 	SetSpritePath( "sbTeam" );
-	
+
 	playerList = new( TAG_SWF ) idMenuWidget_ScoreboardList();
 	playerList->SetSpritePath( GetSpritePath(), "info", "playerList" );
 	playerList->SetNumVisibleOptions( MAX_SCOREBOARD_SLOTS );
@@ -682,7 +682,7 @@ void idMenuScreen_Scoreboard_Team::Initialize( idMenuHandler* data )
 	}
 	playerList->Initialize( data );
 	AddChild( playerList );
-	
+
 	AddEventAction( WIDGET_EVENT_SCROLL_DOWN_LSTICK ).Set( new( TAG_SWF ) idWidgetActionHandler( this, WIDGET_ACTION_EVENT_SCROLL_DOWN_START_REPEATER_VARIABLE, WIDGET_EVENT_SCROLL_DOWN_LSTICK ) );
 	AddEventAction( WIDGET_EVENT_SCROLL_UP_LSTICK ).Set( new( TAG_SWF ) idWidgetActionHandler( this, WIDGET_ACTION_EVENT_SCROLL_UP_START_REPEATER_VARIABLE, WIDGET_EVENT_SCROLL_UP_LSTICK ) );
 	AddEventAction( WIDGET_EVENT_SCROLL_DOWN_LSTICK_RELEASE ).Set( new( TAG_SWF ) idWidgetActionHandler( this, WIDGET_ACTION_EVENT_STOP_REPEATER, WIDGET_EVENT_SCROLL_DOWN_LSTICK_RELEASE ) );
@@ -691,5 +691,5 @@ void idMenuScreen_Scoreboard_Team::Initialize( idMenuHandler* data )
 	AddEventAction( WIDGET_EVENT_SCROLL_UP ).Set( new( TAG_SWF ) idWidgetActionHandler( this, WIDGET_ACTION_EVENT_SCROLL_UP_START_REPEATER_VARIABLE, WIDGET_EVENT_SCROLL_UP ) );
 	AddEventAction( WIDGET_EVENT_SCROLL_DOWN_RELEASE ).Set( new( TAG_SWF ) idWidgetActionHandler( this, WIDGET_ACTION_EVENT_STOP_REPEATER, WIDGET_EVENT_SCROLL_DOWN_RELEASE ) );
 	AddEventAction( WIDGET_EVENT_SCROLL_UP_RELEASE ).Set( new( TAG_SWF ) idWidgetActionHandler( this, WIDGET_ACTION_EVENT_STOP_REPEATER, WIDGET_EVENT_SCROLL_UP_RELEASE ) );
-	
+
 }

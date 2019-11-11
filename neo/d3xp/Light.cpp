@@ -82,14 +82,14 @@ void idGameEdit::ParseSpawnArgsToRenderLight( const idDict* args, renderLight_t*
 	bool	gotTarget, gotUp, gotRight;
 	const char*	texture;
 	idVec3	color;
-	
+
 	memset( renderLight, 0, sizeof( *renderLight ) );
-	
+
 	if( !args->GetVector( "light_origin", "", renderLight->origin ) )
 	{
 		args->GetVector( "origin", "", renderLight->origin );
 	}
-	
+
 	gotTarget = args->GetVector( "light_target", "", renderLight->target );
 	gotUp = args->GetVector( "light_up", "", renderLight->up );
 	gotRight = args->GetVector( "light_right", "", renderLight->right );
@@ -98,7 +98,7 @@ void idGameEdit::ParseSpawnArgsToRenderLight( const idDict* args, renderLight_t*
 	{
 		renderLight->end = renderLight->target;
 	}
-	
+
 	// we should have all of the target/right/up or none of them
 	if( ( gotTarget || gotUp || gotRight ) != ( gotTarget && gotUp && gotRight ) )
 	{
@@ -106,24 +106,24 @@ void idGameEdit::ParseSpawnArgsToRenderLight( const idDict* args, renderLight_t*
 						  renderLight->origin[0], renderLight->origin[1], renderLight->origin[2] );
 		return;
 	}
-	
+
 	if( !gotTarget )
 	{
 		renderLight->pointLight = true;
-		
+
 		// allow an optional relative center of light and shadow offset
 		args->GetVector( "light_center", "0 0 0", renderLight->lightCenter );
-		
+
 		// create a point light
 		if( !args->GetVector( "light_radius", "300 300 300", renderLight->lightRadius ) )
 		{
 			float radius;
-			
+
 			args->GetFloat( "light", "300", radius );
 			renderLight->lightRadius[0] = renderLight->lightRadius[1] = renderLight->lightRadius[2] = radius;
 		}
 	}
-	
+
 	// get the rotation matrix in either full form, or single angle form
 	idAngles angles;
 	idMat3 mat;
@@ -138,14 +138,14 @@ void idGameEdit::ParseSpawnArgsToRenderLight( const idDict* args, renderLight_t*
 			mat = angles.ToMat3();
 		}
 	}
-	
+
 	// fix degenerate identity matrices
 	mat[0].FixDegenerateNormal();
 	mat[1].FixDegenerateNormal();
 	mat[2].FixDegenerateNormal();
-	
+
 	renderLight->axis = mat;
-	
+
 	// check for other attributes
 	args->GetVector( "_color", "1 1 1", color );
 	renderLight->shaderParms[ SHADERPARM_RED ]		= color[0];
@@ -157,14 +157,14 @@ void idGameEdit::ParseSpawnArgsToRenderLight( const idDict* args, renderLight_t*
 		// offset the start time of the shader to sync it to the game time
 		renderLight->shaderParms[ SHADERPARM_TIMEOFFSET ] = -MS2SEC( gameLocal.time );
 	}
-	
+
 	args->GetFloat( "shaderParm5", "0", renderLight->shaderParms[5] );
 	args->GetFloat( "shaderParm6", "0", renderLight->shaderParms[6] );
 	args->GetFloat( "shaderParm7", "0", renderLight->shaderParms[ SHADERPARM_MODE ] );
 	args->GetBool( "noshadows", "0", renderLight->noShadows );
 	args->GetBool( "nospecular", "0", renderLight->noSpecular );
 	args->GetBool( "parallel", "0", renderLight->parallel );
-	
+
 	args->GetString( "texture", "lights/squarelight1", &texture );
 	// allow this to be NULL
 	renderLight->shader = declManager->FindMaterial( texture, false );
@@ -179,7 +179,7 @@ void idLight::UpdateChangeableSpawnArgs( const idDict* source )
 {
 
 	idEntity::UpdateChangeableSpawnArgs( source );
-	
+
 	if( source )
 	{
 		source->Print();
@@ -190,9 +190,9 @@ void idLight::UpdateChangeableSpawnArgs( const idDict* source )
 	{
 		StartSoundShader( refSound.shader, SND_CHANNEL_ANY, 0, false, NULL );
 	}
-	
+
 	gameEdit->ParseSpawnArgsToRenderLight( source ? source : &spawnArgs, &renderLight );
-	
+
 	UpdateVisuals();
 }
 
@@ -246,22 +246,22 @@ archives object for save game file
 void idLight::Save( idSaveGame* savefile ) const
 {
 	savefile->WriteRenderLight( renderLight );
-	
+
 	savefile->WriteBool( renderLight.prelightModel != NULL );
-	
+
 	savefile->WriteVec3( localLightOrigin );
 	savefile->WriteMat3( localLightAxis );
-	
+
 	savefile->WriteString( brokenModel );
 	savefile->WriteInt( levels );
 	savefile->WriteInt( currentLevel );
-	
+
 	savefile->WriteVec3( baseColor );
 	savefile->WriteBool( breakOnTrigger );
 	savefile->WriteInt( count );
 	savefile->WriteInt( triggercount );
 	savefile->WriteObject( lightParent );
-	
+
 	savefile->WriteVec4( fadeFrom );
 	savefile->WriteVec4( fadeTo );
 	savefile->WriteInt( fadeStart );
@@ -279,9 +279,9 @@ unarchives object from save game file
 void idLight::Restore( idRestoreGame* savefile )
 {
 	bool hadPrelightModel;
-	
+
 	savefile->ReadRenderLight( renderLight );
-	
+
 	savefile->ReadBool( hadPrelightModel );
 	renderLight.prelightModel = renderModelManager->CheckModel( va( "_prelight_%s", name.c_str() ) );
 	if( ( renderLight.prelightModel == NULL ) && hadPrelightModel )
@@ -298,28 +298,28 @@ void idLight::Restore( idRestoreGame* savefile )
 			gameLocal.Warning( "idLight::Restore: prelightModel '_prelight_%s' not found", name.c_str() );
 		}
 	}
-	
+
 	savefile->ReadVec3( localLightOrigin );
 	savefile->ReadMat3( localLightAxis );
-	
+
 	savefile->ReadString( brokenModel );
 	savefile->ReadInt( levels );
 	savefile->ReadInt( currentLevel );
-	
+
 	savefile->ReadVec3( baseColor );
 	savefile->ReadBool( breakOnTrigger );
 	savefile->ReadInt( count );
 	savefile->ReadInt( triggercount );
 	savefile->ReadObject( reinterpret_cast<idClass*&>( lightParent ) );
-	
+
 	savefile->ReadVec4( fadeFrom );
 	savefile->ReadVec4( fadeTo );
 	savefile->ReadInt( fadeStart );
 	savefile->ReadInt( fadeEnd );
 	savefile->ReadBool( soundWasPlaying );
-	
+
 	lightDefHandle = -1;
-	
+
 	SetLightLevel();
 }
 
@@ -333,19 +333,19 @@ void idLight::Spawn()
 	bool start_off;
 	bool needBroken;
 	const char* demonic_shader;
-	
+
 	// do the parsing the same way dmap and the editor do
 	gameEdit->ParseSpawnArgsToRenderLight( &spawnArgs, &renderLight );
-	
+
 	// we need the origin and axis relative to the physics origin/axis
 	localLightOrigin = ( renderLight.origin - GetPhysics()->GetOrigin() ) * GetPhysics()->GetAxis().Transpose();
 	localLightAxis = renderLight.axis * GetPhysics()->GetAxis().Transpose();
-	
+
 	// set the base color from the shader parms
 	baseColor.Set( renderLight.shaderParms[ SHADERPARM_RED ], renderLight.shaderParms[ SHADERPARM_GREEN ], renderLight.shaderParms[ SHADERPARM_BLUE ] );
 	previousBaseColor.Set( renderLight.shaderParms[ SHADERPARM_RED ], renderLight.shaderParms[ SHADERPARM_GREEN ], renderLight.shaderParms[ SHADERPARM_BLUE ] );
 	nextBaseColor.Set( renderLight.shaderParms[ SHADERPARM_RED ], renderLight.shaderParms[ SHADERPARM_GREEN ], renderLight.shaderParms[ SHADERPARM_BLUE ] );
-	
+
 	// set the number of light levels
 	spawnArgs.GetInt( "levels", "1", levels );
 	currentLevel = levels;
@@ -353,22 +353,22 @@ void idLight::Spawn()
 	{
 		gameLocal.Error( "Invalid light level set on entity #%d(%s)", entityNumber, name.c_str() );
 	}
-	
+
 	// make sure the demonic shader is cached
 	if( spawnArgs.GetString( "mat_demonic", NULL, &demonic_shader ) )
 	{
 		declManager->FindType( DECL_MATERIAL, demonic_shader );
 	}
-	
+
 	// game specific functionality, not mirrored in
 	// editor or dmap light parsing
-	
+
 	// also put the light texture on the model, so light flares
 	// can get the current intensity of the light
 	renderEntity.referenceShader = renderLight.shader;
-	
+
 	lightDefHandle = -1;		// no static version yet
-	
+
 	// see if an optimized shadow volume exists
 	// the renderer will ignore this value after a light has been moved,
 	// but there may still be a chance to get it wrong if the game moves
@@ -379,31 +379,31 @@ void idLight::Spawn()
 		// this will return 0 if not found
 		renderLight.prelightModel = renderModelManager->CheckModel( va( "_prelight_%s", name.c_str() ) );
 	}
-	
+
 	spawnArgs.GetBool( "start_off", "0", start_off );
 	if( start_off )
 	{
 		Off();
 	}
-	
+
 	// Midnight CTF
 	if( gameLocal.mpGame.IsGametypeFlagBased() && gameLocal.serverInfo.GetBool( "si_midnight" ) && !spawnArgs.GetBool( "midnight_override" ) )
 	{
 		Off();
 	}
-	
+
 	health = spawnArgs.GetInt( "health", "0" );
 	spawnArgs.GetString( "broken", "", brokenModel );
 	spawnArgs.GetBool( "break", "0", breakOnTrigger );
 	spawnArgs.GetInt( "count", "1", count );
-	
+
 	triggercount = 0;
-	
+
 	fadeFrom.Set( 1, 1, 1, 1 );
 	fadeTo.Set( 1, 1, 1, 1 );
 	fadeStart			= 0;
 	fadeEnd				= 0;
-	
+
 	// if we have a health make light breakable
 	if( health )
 	{
@@ -412,17 +412,17 @@ void idLight::Spawn()
 		{
 			gameLocal.Error( "Breakable light without a model set on entity #%d(%s)", entityNumber, name.c_str() );
 		}
-		
+
 		fl.takedamage	= true;
-		
+
 		// see if we need to create a broken model name
 		needBroken = true;
 		if( model.Length() && !brokenModel.Length() )
 		{
 			int	pos;
-			
+
 			needBroken = false;
-			
+
 			pos = model.Find( "." );
 			if( pos < 0 )
 			{
@@ -438,7 +438,7 @@ void idLight::Spawn()
 				brokenModel += &model[ pos ];
 			}
 		}
-		
+
 		// make sure the model gets cached
 		if( !renderModelManager->CheckModel( brokenModel ) )
 		{
@@ -451,15 +451,15 @@ void idLight::Spawn()
 				brokenModel = "";
 			}
 		}
-		
+
 		GetPhysics()->SetContents( spawnArgs.GetBool( "nonsolid" ) ? 0 : CONTENTS_SOLID );
-		
+
 		// make sure the collision model gets cached
 		idClipModel::CheckModel( brokenModel );
 	}
-	
+
 	PostEventMS( &EV_PostSpawn, 0 );
-	
+
 	UpdateVisuals();
 }
 
@@ -472,7 +472,7 @@ void idLight::SetLightLevel()
 {
 	idVec3	color;
 	float	intensity;
-	
+
 	intensity = ( float )currentLevel / ( float )levels;
 	color = baseColor * intensity;
 	renderLight.shaderParms[ SHADERPARM_RED ]	= color[ 0 ];
@@ -569,7 +569,7 @@ void idLight::SetLightParm( int parmnum, float value )
 		gameLocal.Error( "shader parm index (%d) out of range", parmnum );
 		return;
 	}
-	
+
 	renderLight.shaderParms[ parmnum ] = value;
 	PresentLightDefChange();
 }
@@ -687,7 +687,7 @@ void idLight::FadeIn( float time )
 {
 	idVec3 color;
 	idVec4 color4;
-	
+
 	currentLevel = levels;
 	spawnArgs.GetVector( "_color", "1 1 1", color );
 	color4.Set( color.x, color.y, color.z, 1.0f );
@@ -712,13 +712,13 @@ idLight::BecomeBroken
 void idLight::BecomeBroken( idEntity* activator )
 {
 	const char* damageDefName;
-	
+
 	fl.takedamage = false;
-	
+
 	if( brokenModel.Length() )
 	{
 		SetModel( brokenModel );
-		
+
 		if( !spawnArgs.GetBool( "nonsolid" ) )
 		{
 			GetPhysics()->SetClipModel( new( TAG_PHYSICS_CLIP_ENTITY ) idClipModel( brokenModel.c_str() ), 1.0f );
@@ -730,30 +730,30 @@ void idLight::BecomeBroken( idEntity* activator )
 		SetModel( "" );
 		GetPhysics()->SetContents( 0 );
 	}
-	
+
 	if( common->IsServer() )
 	{
-	
+
 		ServerSendEvent( EVENT_BECOMEBROKEN, NULL, true );
-		
+
 		if( spawnArgs.GetString( "def_damage", "", &damageDefName ) )
 		{
 			idVec3 origin = renderEntity.origin + renderEntity.bounds.GetCenter() * renderEntity.axis;
 			gameLocal.RadiusDamage( origin, activator, activator, this, this, damageDefName );
 		}
-		
+
 	}
-	
+
 	ActivateTargets( activator );
-	
+
 	// offset the start time of the shader to sync it to the game time
 	renderEntity.shaderParms[ SHADERPARM_TIMEOFFSET ] = -MS2SEC( gameLocal.time );
 	renderLight.shaderParms[ SHADERPARM_TIMEOFFSET ] = -MS2SEC( gameLocal.time );
-	
+
 	// set the state parm
 	renderEntity.shaderParms[ SHADERPARM_MODE ] = 1;
 	renderLight.shaderParms[ SHADERPARM_MODE ] = 1;
-	
+
 	// if the light has a sound, either start the alternate (broken) sound, or stop the sound
 	const char* parm = spawnArgs.GetString( "snd_broken" );
 	if( refSound.shader || ( parm != NULL && *parm != '\0' ) )
@@ -766,13 +766,13 @@ void idLight::BecomeBroken( idEntity* activator )
 			refSound.referenceSound->StartSound( alternate, SND_CHANNEL_ANY, 0.0, 0 );
 		}
 	}
-	
+
 	parm = spawnArgs.GetString( "mtr_broken" );
 	if( parm != NULL && *parm != '\0' )
 	{
 		SetShader( parm );
 	}
-	
+
 	UpdateVisuals();
 }
 
@@ -806,7 +806,7 @@ void idLight::PresentModelDefChange()
 	{
 		return;
 	}
-	
+
 	// add to refresh list
 	if( modelDefHandle == -1 )
 	{
@@ -830,14 +830,14 @@ void idLight::Present()
 	{
 		return;
 	}
-	
+
 	// add the model
 	idEntity::Present();
-	
+
 	// current transformation
 	renderLight.axis	= localLightAxis * GetPhysics()->GetAxis();
 	renderLight.origin  = GetPhysics()->GetOrigin() + GetPhysics()->GetAxis() * localLightOrigin;
-	
+
 	// reference the sound for shader synced effects
 	if( lightParent )
 	{
@@ -849,7 +849,7 @@ void idLight::Present()
 		renderLight.referenceSound = refSound.referenceSound;
 		renderEntity.referenceSound = refSound.referenceSound;
 	}
-	
+
 	// update the renderLight and renderEntity to render the light and flare
 	PresentLightDefChange();
 	PresentModelDefChange();
@@ -863,7 +863,7 @@ idLight::Think
 void idLight::Think()
 {
 	idVec4 color;
-	
+
 	if( thinkFlags & TH_THINK )
 	{
 		if( fadeEnd > 0 )
@@ -881,7 +881,7 @@ void idLight::Think()
 			SetColor( color );
 		}
 	}
-	
+
 	RunPhysics();
 	Present();
 }
@@ -895,14 +895,14 @@ void idLight::ClientThink( const int curTime, const float fraction, const bool p
 {
 
 	InterpolatePhysics( fraction );
-	
+
 	if( baseColor != nextBaseColor )
 	{
 		baseColor = Lerp( previousBaseColor, nextBaseColor, fraction );
 		SetColor( baseColor );
 		BecomeActive( TH_UPDATEVISUALS );
 	}
-	
+
 	Present();
 }
 
@@ -990,7 +990,7 @@ void idLight::Event_GetLightParm( int parmnum )
 		gameLocal.Error( "shader parm index (%d) out of range", parmnum );
 		return;
 	}
-	
+
 	idThread::ReturnFloat( renderLight.shaderParms[ parmnum ] );
 }
 
@@ -1090,17 +1090,17 @@ void idLight::Event_ToggleOnOff( idEntity* activator )
 	{
 		return;
 	}
-	
+
 	// reset trigger count
 	triggercount = 0;
-	
+
 	if( breakOnTrigger )
 	{
 		BecomeBroken( activator );
 		breakOnTrigger = false;
 		return;
 	}
-	
+
 	if( !currentLevel )
 	{
 		On();
@@ -1130,12 +1130,12 @@ void idLight::Event_SetSoundHandles()
 {
 	int i;
 	idEntity* targetEnt;
-	
+
 	if( !refSound.referenceSound )
 	{
 		return;
 	}
-	
+
 	for( i = 0; i < targets.Num(); i++ )
 	{
 		targetEnt = targets[ i ].GetEntity();
@@ -1143,13 +1143,13 @@ void idLight::Event_SetSoundHandles()
 		{
 			idLight*	light = static_cast<idLight*>( targetEnt );
 			light->lightParent = this;
-			
+
 			// explicitly delete any sounds on the entity
 			light->FreeSoundEmitter( true );
-			
+
 			// manually set the refSound to this light's refSound
 			light->renderEntity.referenceSound = renderEntity.referenceSound;
-			
+
 			// update the renderEntity to the renderer
 			light->UpdateVisuals();
 		}
@@ -1196,33 +1196,33 @@ void idLight::WriteToSnapshot( idBitMsg& msg ) const
 
 	GetPhysics()->WriteToSnapshot( msg );
 	WriteBindToSnapshot( msg );
-	
+
 	msg.WriteByte( currentLevel );
 	msg.WriteLong( PackColor( baseColor ) );
 	// msg.WriteBits( lightParent.GetEntityNum(), GENTITYNUM_BITS );
-	
+
 	/*	// only helps prediction
 		msg.WriteLong( PackColor( fadeFrom ) );
 		msg.WriteLong( PackColor( fadeTo ) );
 		msg.WriteLong( fadeStart );
 		msg.WriteLong( fadeEnd );
 	*/
-	
+
 	// FIXME: send renderLight.shader
 	msg.WriteFloat( renderLight.lightRadius[0], 5, 10 );
 	msg.WriteFloat( renderLight.lightRadius[1], 5, 10 );
 	msg.WriteFloat( renderLight.lightRadius[2], 5, 10 );
-	
+
 	msg.WriteLong( PackColor( idVec4( renderLight.shaderParms[SHADERPARM_RED],
 									  renderLight.shaderParms[SHADERPARM_GREEN],
 									  renderLight.shaderParms[SHADERPARM_BLUE],
 									  renderLight.shaderParms[SHADERPARM_ALPHA] ) ) );
-									  
+
 	msg.WriteFloat( renderLight.shaderParms[SHADERPARM_TIMESCALE], 5, 10 );
 	msg.WriteLong( renderLight.shaderParms[SHADERPARM_TIMEOFFSET] );
 	//msg.WriteByte( renderLight.shaderParms[SHADERPARM_DIVERSITY] );
 	msg.WriteShort( renderLight.shaderParms[SHADERPARM_MODE] );
-	
+
 	WriteColorToSnapshot( msg );
 }
 
@@ -1236,12 +1236,12 @@ void idLight::ReadFromSnapshot( const idBitMsg& msg )
 	idVec4	shaderColor;
 	int		oldCurrentLevel = currentLevel;
 	idVec3	oldBaseColor = baseColor;
-	
+
 	previousBaseColor = nextBaseColor;
-	
+
 	GetPhysics()->ReadFromSnapshot( msg );
 	ReadBindFromSnapshot( msg );
-	
+
 	currentLevel = msg.ReadByte();
 	if( currentLevel != oldCurrentLevel )
 	{
@@ -1257,36 +1257,36 @@ void idLight::ReadFromSnapshot( const idBitMsg& msg )
 			Off();
 		}
 	}
-	
+
 	UnpackColor( msg.ReadLong(), nextBaseColor );
-	
+
 	// lightParentEntityNum = msg.ReadBits( GENTITYNUM_BITS );
-	
+
 	/*	// only helps prediction
 		UnpackColor( msg.ReadLong(), fadeFrom );
 		UnpackColor( msg.ReadLong(), fadeTo );
 		fadeStart = msg.ReadLong();
 		fadeEnd = msg.ReadLong();
 	*/
-	
+
 	// FIXME: read renderLight.shader
 	renderLight.lightRadius[0] = msg.ReadFloat( 5, 10 );
 	renderLight.lightRadius[1] = msg.ReadFloat( 5, 10 );
 	renderLight.lightRadius[2] = msg.ReadFloat( 5, 10 );
-	
+
 	UnpackColor( msg.ReadLong(), shaderColor );
 	renderLight.shaderParms[SHADERPARM_RED] = shaderColor[0];
 	renderLight.shaderParms[SHADERPARM_GREEN] = shaderColor[1];
 	renderLight.shaderParms[SHADERPARM_BLUE] = shaderColor[2];
 	renderLight.shaderParms[SHADERPARM_ALPHA] = shaderColor[3];
-	
+
 	renderLight.shaderParms[SHADERPARM_TIMESCALE] = msg.ReadFloat( 5, 10 );
 	renderLight.shaderParms[SHADERPARM_TIMEOFFSET] = msg.ReadLong();
 	//renderLight.shaderParms[SHADERPARM_DIVERSITY] = msg.ReadFloat();
 	renderLight.shaderParms[SHADERPARM_MODE] = msg.ReadShort();
-	
+
 	ReadColorFromSnapshot( msg );
-	
+
 	if( msg.HasChanged() )
 	{
 		if( ( currentLevel != oldCurrentLevel ) || ( previousBaseColor != nextBaseColor ) )

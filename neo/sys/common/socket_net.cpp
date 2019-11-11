@@ -41,32 +41,32 @@ Note that other POSIX systems may need some small changes, e.g. in Sys_InitNetwo
 
 #ifdef _WIN32
 
-#include <iptypes.h>
-#include <iphlpapi.h>
-// force these libs to be included, so users of idLib don't need to add them to every project
-#pragma comment(lib, "iphlpapi.lib" )
-#pragma comment(lib, "wsock32.lib" )
+	#include <iptypes.h>
+	#include <iphlpapi.h>
+	// force these libs to be included, so users of idLib don't need to add them to every project
+	#pragma comment(lib, "iphlpapi.lib" )
+	#pragma comment(lib, "wsock32.lib" )
 
 #else // ! _WIN32
 
-#include <signal.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/socket.h>
-#include <sys/time.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <arpa/inet.h>
-#include <netdb.h>
-#include <sys/param.h>
-#include <sys/ioctl.h>
-#include <sys/uio.h>
-#include <errno.h>
-#include <sys/select.h>
-#include <net/if.h>
-#if defined(__APPLE__) || defined(__FreeBSD__)
-#include <ifaddrs.h>
-#endif
+	#include <signal.h>
+	#include <unistd.h>
+	#include <fcntl.h>
+	#include <sys/socket.h>
+	#include <sys/time.h>
+	#include <netinet/in.h>
+	#include <netinet/tcp.h>
+	#include <arpa/inet.h>
+	#include <netdb.h>
+	#include <sys/param.h>
+	#include <sys/ioctl.h>
+	#include <sys/uio.h>
+	#include <errno.h>
+	#include <sys/select.h>
+	#include <net/if.h>
+	#if defined(__APPLE__) || defined(__FreeBSD__)
+		#include <ifaddrs.h>
+	#endif
 
 #endif // _WIN32
 
@@ -271,7 +271,7 @@ Net_NetadrToSockadr
 void Net_NetadrToSockadr( const netadr_t* a, sockaddr_in* s )
 {
 	memset( s, 0, sizeof( *s ) );
-	
+
 	if( a->type == NA_BROADCAST )
 	{
 		s->sin_family = AF_INET;
@@ -282,7 +282,7 @@ void Net_NetadrToSockadr( const netadr_t* a, sockaddr_in* s )
 		s->sin_family = AF_INET;
 		s->sin_addr.s_addr = *( ( in_addr_t* ) &a->ip );
 	}
-	
+
 	s->sin_port = htons( ( short )a->port );
 }
 
@@ -335,7 +335,7 @@ static bool Net_ExtractPort( const char* src, char* buf, int bufsize, int* port 
 		return false;
 	}
 	*p = '\0';
-	
+
 	long lport = strtol( p + 1, NULL, 10 );
 	if( lport == 0 || lport == LONG_MIN || lport == LONG_MAX )
 	{
@@ -362,12 +362,12 @@ static bool Net_StringToSockaddr( const char* s, sockaddr_in* sadr, bool doDNSRe
 	struct hostent*	h;
 	char buf[256];
 	int port;
-	
+
 	memset( sadr, 0, sizeof( *sadr ) );
-	
+
 	sadr->sin_family = AF_INET;
 	sadr->sin_port = 0;
-	
+
 	// try to remove the port first, otherwise the DNS gets confused into multiple timeouts
 	// failed or not failed, buf is expected to contain the appropriate host to resolve
 	if( Net_ExtractPort( s, buf, sizeof( buf ), &port ) )
@@ -381,7 +381,7 @@ static bool Net_StringToSockaddr( const char* s, sockaddr_in* sadr, bool doDNSRe
 		return false;
 	}
 	sadr->sin_addr.s_addr = *( in_addr_t* ) h->h_addr_list[0];
-	
+
 	return true;
 }
 
@@ -394,7 +394,7 @@ int NET_IPSocket( const char* bind_ip, int port, netadr_t* bound_to )
 {
 	SOCKET				newsocket;
 	sockaddr_in			address;
-	
+
 	if( port != PORT_ANY )
 	{
 		if( bind_ip )
@@ -406,13 +406,13 @@ int NET_IPSocket( const char* bind_ip, int port, netadr_t* bound_to )
 			idLib::Printf( "Opening IP socket: localhost:%i\n", port );
 		}
 	}
-	
+
 	if( ( newsocket = socket( AF_INET, SOCK_DGRAM, IPPROTO_UDP ) ) == INVALID_SOCKET )
 	{
 		idLib::Printf( "WARNING: UDP_OpenSocket: socket: %s\n", NET_ErrorString() );
 		return 0;
 	}
-	
+
 	// make it non-blocking
 #ifdef _WIN32 // which has no fcntl()
 	unsigned long	_true = 1;
@@ -438,7 +438,7 @@ int NET_IPSocket( const char* bind_ip, int port, netadr_t* bound_to )
 		return 0;
 	}
 #endif
-	
+
 	// make it broadcast capable
 	int i = 1;
 	if( setsockopt( newsocket, SOL_SOCKET, SO_BROADCAST, ( char* )&i, sizeof( i ) ) == SOCKET_ERROR )
@@ -447,7 +447,7 @@ int NET_IPSocket( const char* bind_ip, int port, netadr_t* bound_to )
 		closesocket( newsocket );
 		return 0;
 	}
-	
+
 	if( !bind_ip || !bind_ip[0] || !idStr::Icmp( bind_ip, "localhost" ) )
 	{
 		address.sin_addr.s_addr = INADDR_ANY;
@@ -456,7 +456,7 @@ int NET_IPSocket( const char* bind_ip, int port, netadr_t* bound_to )
 	{
 		Net_StringToSockaddr( bind_ip, &address, true );
 	}
-	
+
 	if( port == PORT_ANY )
 	{
 		address.sin_port = 0;
@@ -465,16 +465,16 @@ int NET_IPSocket( const char* bind_ip, int port, netadr_t* bound_to )
 	{
 		address.sin_port = htons( ( short )port );
 	}
-	
+
 	address.sin_family = AF_INET;
-	
+
 	if( bind( newsocket, ( const sockaddr* )&address, sizeof( address ) ) == SOCKET_ERROR )
 	{
 		idLib::Printf( "WARNING: UDP_OpenSocket: bind: %s\n", NET_ErrorString() );
 		closesocket( newsocket );
 		return 0;
 	}
-	
+
 	// if the port was PORT_ANY, we need to query again to know the real port we got bound to
 	// ( this used to be in idUDP::InitForPort )
 	if( bound_to )
@@ -488,7 +488,7 @@ int NET_IPSocket( const char* bind_ip, int port, netadr_t* bound_to )
 		}
 		Net_SockadrToNetadr( &address, bound_to );
 	}
-	
+
 	return newsocket;
 }
 
@@ -504,17 +504,17 @@ void NET_OpenSocks( int port )
 	int					len;
 	bool				rfc1929;
 	unsigned char		buf[64];
-	
+
 	usingSocks = false;
-	
+
 	idLib::Printf( "Opening connection to SOCKS server.\n" );
-	
+
 	if( ( socks_socket = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP ) ) == INVALID_SOCKET )
 	{
 		idLib::Printf( "WARNING: NET_OpenSocks: socket: %s\n", NET_ErrorString() );
 		return;
 	}
-	
+
 	h = gethostbyname( net_socksServer.GetString() );
 	if( h == NULL )
 	{
@@ -529,13 +529,13 @@ void NET_OpenSocks( int port )
 	address.sin_family = AF_INET;
 	address.sin_addr.s_addr = *( in_addr_t* )h->h_addr_list[0];
 	address.sin_port = htons( ( short )net_socksPort.GetInteger() );
-	
+
 	if( connect( socks_socket, ( sockaddr* )&address, sizeof( address ) ) == SOCKET_ERROR )
 	{
 		idLib::Printf( "NET_OpenSocks: connect: %s\n", NET_ErrorString() );
 		return;
 	}
-	
+
 	// send socks authentication handshake
 	if( *net_socksUsername.GetString() || *net_socksPassword.GetString() )
 	{
@@ -545,7 +545,7 @@ void NET_OpenSocks( int port )
 	{
 		rfc1929 = false;
 	}
-	
+
 	buf[0] = 5;		// SOCKS version
 	// method count
 	if( rfc1929 )
@@ -568,7 +568,7 @@ void NET_OpenSocks( int port )
 		idLib::Printf( "NET_OpenSocks: send: %s\n", NET_ErrorString() );
 		return;
 	}
-	
+
 	// get the response
 	len = recv( socks_socket, ( char* )buf, 64, 0 );
 	if( len == SOCKET_ERROR )
@@ -591,17 +591,17 @@ void NET_OpenSocks( int port )
 			idLib::Printf( "NET_OpenSocks: request denied\n" );
 			return;
 	}
-	
+
 	// do username/password authentication if needed
 	if( buf[1] == 2 )
 	{
 		int		ulen;
 		int		plen;
-		
+
 		// build the request
 		ulen = idStr::Length( net_socksUsername.GetString() );
 		plen = idStr::Length( net_socksPassword.GetString() );
-		
+
 		buf[0] = 1;		// username/password authentication version
 		buf[1] = ulen;
 		if( ulen )
@@ -613,14 +613,14 @@ void NET_OpenSocks( int port )
 		{
 			memcpy( &buf[3 + ulen], net_socksPassword.GetString(), plen );
 		}
-		
+
 		// send it
 		if( send( socks_socket, ( const char* )buf, 3 + ulen + plen, 0 ) == SOCKET_ERROR )
 		{
 			idLib::Printf( "NET_OpenSocks: send: %s\n", NET_ErrorString() );
 			return;
 		}
-		
+
 		// get the response
 		len = recv( socks_socket, ( char* )buf, 64, 0 );
 		if( len == SOCKET_ERROR )
@@ -639,7 +639,7 @@ void NET_OpenSocks( int port )
 			return;
 		}
 	}
-	
+
 	// send the UDP associate request
 	buf[0] = 5;		// SOCKS version
 	buf[1] = 3;		// command: UDP associate
@@ -652,7 +652,7 @@ void NET_OpenSocks( int port )
 		idLib::Printf( "NET_OpenSocks: send: %s\n", NET_ErrorString() );
 		return;
 	}
-	
+
 	// get the response
 	len = recv( socks_socket, ( char* )buf, 64, 0 );
 	if( len == SOCKET_ERROR )
@@ -680,7 +680,7 @@ void NET_OpenSocks( int port )
 	socksRelayAddr.sin_addr.s_addr = *( int* )&buf[4];
 	socksRelayAddr.sin_port = *( short* )&buf[8];
 	memset( socksRelayAddr.sin_zero, 0, sizeof( socksRelayAddr.sin_zero ) );
-	
+
 	usingSocks = true;
 }
 
@@ -694,37 +694,37 @@ bool Net_WaitForData( int netSocket, int timeout )
 	int					ret;
 	fd_set				set;
 	struct timeval		tv;
-	
+
 	if( !netSocket )
 	{
 		return false;
 	}
-	
+
 	if( timeout < 0 )
 	{
 		return true;
 	}
-	
+
 	FD_ZERO( &set );
 	FD_SET( netSocket, &set ); // TODO: winsocks may want an unsigned int for netSocket?
-	
+
 	tv.tv_sec = timeout / 1000;
 	tv.tv_usec = ( timeout % 1000 ) * 1000;
-	
+
 	ret = select( netSocket + 1, &set, NULL, NULL, &tv );
-	
+
 	if( ret == -1 )
 	{
 		idLib::Printf( "Net_WaitForData select(): %s\n", NET_ErrorString() );
 		return false;
 	}
-	
+
 	// timeout with no data
 	if( ret == 0 )
 	{
 		return false;
 	}
-	
+
 	return true;
 }
 
@@ -739,23 +739,23 @@ bool Net_GetUDPPacket( int netSocket, netadr_t& net_from, char* data, int& size,
 	sockaddr_in		from;
 	socklen_t		fromlen;
 	int				err;
-	
+
 	if( !netSocket )
 	{
 		return false;
 	}
-	
+
 	fromlen = sizeof( from );
 	ret = recvfrom( netSocket, data, maxSize, 0, ( sockaddr* )&from, &fromlen );
 	if( ret == SOCKET_ERROR )
 	{
 		err = Net_GetLastError();
-		
+
 		if( err == D3_NET_EWOULDBLOCK || err == D3_NET_ECONNRESET )
 		{
 			return false;
 		}
-		
+
 		idLib::Printf( "Net_GetUDPPacket: %s\n", NET_ErrorString() );
 		return false;
 	}
@@ -767,7 +767,7 @@ bool Net_GetUDPPacket( int netSocket, netadr_t& net_from, char* data, int& size,
 	{
 		memset( from.sin_zero, 0, sizeof( from.sin_zero ) );
 	}
-	
+
 	if( usingSocks && static_cast<unsigned int>( netSocket ) == ip_socket && memcmp( &from, &socksRelayAddr, fromlen ) == 0 )
 	{
 		if( ret < 10 || data[0] != 0 || data[1] != 0 || data[2] != 0 || data[3] != 1 )
@@ -785,20 +785,20 @@ bool Net_GetUDPPacket( int netSocket, netadr_t& net_from, char* data, int& size,
 	else
 	{
 #endif // 0
-	
+
 		Net_SockadrToNetadr( &from, &net_from );
 #if 0 // this is ugly, but else astyle is confused
 	}
 #endif
-	
+
 	if( ret > maxSize )
 	{
 		idLib::Printf( "Net_GetUDPPacket: oversize packet from %s\n", Sys_NetAdrToString( net_from ) );
 		return false;
 	}
-	
+
 	size = ret;
-	
+
 	return true;
 }
 
@@ -811,14 +811,14 @@ void Net_SendUDPPacket( int netSocket, int length, const void* data, const netad
 {
 	int				ret;
 	sockaddr_in		addr;
-	
+
 	if( !netSocket )
 	{
 		return;
 	}
-	
+
 	Net_NetadrToSockadr( &to, &addr );
-	
+
 	if( usingSocks && to.type == NA_IP )
 	{
 		socksBuf[0] = 0;	// reserved
@@ -842,7 +842,7 @@ void Net_SendUDPPacket( int netSocket, int length, const void* data, const netad
 		{
 			return;
 		}
-		
+
 		// NOTE: EWOULDBLOCK used to be silently ignored,
 		// but that means the packet will be dropped so I don't feel it's a good thing to ignore
 		idLib::Printf( "UDP sendto error - packet dropped: %s\n", NET_ErrorString() );
@@ -864,7 +864,7 @@ void Sys_InitNetworking()
 {
 
 	bool foundloopback = false;
-	
+
 #if defined(_WIN32) // DG: add win32 stuff here for socket networking code unification..
 	if( winsockInitialized )
 	{
@@ -876,26 +876,26 @@ void Sys_InitNetworking()
 		idLib::Printf( "WARNING: Winsock initialization failed, returned %d\n", r );
 		return;
 	}
-	
+
 	winsockInitialized = true;
 	idLib::Printf( "Winsock Initialized\n" );
-	
+
 	PIP_ADAPTER_INFO pAdapterInfo;
 	PIP_ADAPTER_INFO pAdapter = NULL;
 	DWORD dwRetVal = 0;
 	PIP_ADDR_STRING pIPAddrString;
 	ULONG ulOutBufLen;
-	
+
 	num_interfaces = 0;
 	foundloopback = false;
-	
+
 	pAdapterInfo = ( IP_ADAPTER_INFO* )malloc( sizeof( IP_ADAPTER_INFO ) );
 	if( !pAdapterInfo )
 	{
 		idLib::FatalError( "Sys_InitNetworking: Couldn't malloc( %d )", sizeof( IP_ADAPTER_INFO ) );
 	}
 	ulOutBufLen = sizeof( IP_ADAPTER_INFO );
-	
+
 	// Make an initial call to GetAdaptersInfo to get
 	// the necessary size into the ulOutBufLen variable
 	if( GetAdaptersInfo( pAdapterInfo, &ulOutBufLen ) == ERROR_BUFFER_OVERFLOW )
@@ -907,7 +907,7 @@ void Sys_InitNetworking()
 			idLib::FatalError( "Sys_InitNetworking: Couldn't malloc( %ld )", ulOutBufLen );
 		}
 	}
-	
+
 	if( ( dwRetVal = GetAdaptersInfo( pAdapterInfo, &ulOutBufLen ) ) != NO_ERROR )
 	{
 		// happens if you have no network connection
@@ -953,41 +953,49 @@ void Sys_InitNetworking()
 		}
 	}
 	free( pAdapterInfo );
-	
+
 #elif defined(__APPLE__) || defined(__FreeBSD__)
 	// haven't been able to clearly pinpoint which standards or RFCs define SIOCGIFCONF, SIOCGIFADDR, SIOCGIFNETMASK ioctls
 	// it seems fairly widespread, in Linux kernel ioctl, and in BSD .. so let's assume it's always available on our targets
-	
+
 	unsigned int ip, mask;
 	struct ifaddrs* ifap, *ifp;
-	
+
 	num_interfaces = 0;
-	
+
 	if( getifaddrs( &ifap ) < 0 )
 	{
 		common->FatalError( "InitNetworking: SIOCGIFCONF error - %s\n", strerror( errno ) );
 		return;
 	}
-	
+
 	for( ifp = ifap; ifp; ifp = ifp->ifa_next )
 	{
 		if( ifp->ifa_addr->sa_family != AF_INET )
+		{
 			continue;
-	
+		}
+
 		if( !( ifp->ifa_flags & IFF_UP ) )
+		{
 			continue;
-	
+		}
+
 		if( !ifp->ifa_addr )
+		{
 			continue;
-	
+		}
+
 		if( !ifp->ifa_netmask )
+		{
 			continue;
-	
+		}
+
 		// RB: 64 bit fixes, changed long to int
 		ip = ntohl( *( unsigned int* )&ifp->ifa_addr->sa_data[2] );
 		mask = ntohl( *( unsigned int* )&ifp->ifa_netmask->sa_data[2] );
 		// RB end
-	
+
 		if( ip == INADDR_LOOPBACK )
 		{
 			foundloopback = true;
@@ -1020,9 +1028,9 @@ void Sys_InitNetworking()
 	ifreq*	ifr;
 	int		ifindex;
 	unsigned int ip, mask;
-	
+
 	num_interfaces = 0;
-	
+
 	s = socket( AF_INET, SOCK_DGRAM, 0 );
 	ifc.ifc_len = MAX_INTERFACES * sizeof( ifreq );
 	ifc.ifc_buf = buf;
@@ -1065,11 +1073,11 @@ void Sys_InitNetworking()
 									( unsigned char )ifr->ifr_addr.sa_data[4],
 									( unsigned char )ifr->ifr_addr.sa_data[5] );
 				}
-	
+
 				// DG: set netint address before getting the mask
 				ip_to_addr( &ifr->ifr_addr.sa_data[2], netint[ num_interfaces ].addr );
 				// DG end
-	
+
 				if( ioctl( s, SIOCGIFNETMASK, ifr ) < 0 )
 				{
 					common->Printf( " SIOCGIFNETMASK failed: %s\n", strerror( errno ) );
@@ -1096,7 +1104,7 @@ void Sys_InitNetworking()
 		ifindex += sizeof( ifreq );
 	}
 #endif // all those operating systems..
-	
+
 	// for some retarded reason, win32 doesn't count loopback as an adapter...
 	// and because I'm extra-cautious I add this check on real operating systems as well :)
 	if( !foundloopback && num_interfaces < MAX_INTERFACES )
@@ -1124,7 +1132,9 @@ void Sys_ShutdownNetworking()
 	winsockInitialized = false;
 #endif
 	if( usingSocks )
+	{
 		closesocket( socks_socket );
+	}
 }
 
 /*
@@ -1135,12 +1145,12 @@ Sys_StringToNetAdr
 bool Sys_StringToNetAdr( const char* s, netadr_t* a, bool doDNSResolve )
 {
 	sockaddr_in sadr;
-	
+
 	if( !Net_StringToSockaddr( s, &sadr, doDNSResolve ) )
 	{
 		return false;
 	}
-	
+
 	Net_SockadrToNetadr( &sadr, a );
 	return true;
 }
@@ -1158,15 +1168,21 @@ const char* Sys_NetAdrToString( const netadr_t a )
 	static int index = 0;
 	static char buf[ 4 ][ 64 ];	// flip/flop
 	char* s;
-	
+
 	s = buf[index];
 	index = ( index + 1 ) & 3;
 	if( a.type == NA_IP || a.type == NA_LOOPBACK )
+	{
 		idStr::snPrintf( s, 64, "%i.%i.%i.%i:%i", a.ip[0], a.ip[1], a.ip[2], a.ip[3], a.port );
+	}
 	else if( a.type == NA_BROADCAST )
+	{
 		idStr::snPrintf( s, 64, "BROADCAST" );
+	}
 	else if( a.type == NA_BAD )
+	{
 		idStr::snPrintf( s, 64, "BAD_IP" );
+	}
 	else
 	{
 		idStr::snPrintf( s, 64, "WTF_UNKNOWN_IP_TYPE_%i", a.type );
@@ -1185,12 +1201,12 @@ bool Sys_IsLANAddress( const netadr_t adr )
 	{
 		return true;
 	}
-	
+
 	if( adr.type != NA_IP )
 	{
 		return false;
 	}
-	
+
 	// NOTE: this function won't work reliably for addresses on the local net
 	// that are connected through a router (i.e. no IP from that net is on any interface)
 	// However, I don't expect most people to have such setups at home and the code
@@ -1205,7 +1221,7 @@ bool Sys_IsLANAddress( const netadr_t adr )
 		p_ip = ( unsigned int* )&adr.ip[0];
 		// DG end
 		ip = ntohl( *p_ip );
-		
+
 		for( i = 0; i < num_interfaces; i++ )
 		{
 			if( ( netint[i].ip & netint[i].mask ) == ( ip & netint[i].mask ) )
@@ -1230,7 +1246,7 @@ bool Sys_CompareNetAdrBase( const netadr_t a, const netadr_t b )
 	{
 		return false;
 	}
-	
+
 	if( a.type == NA_LOOPBACK )
 	{
 		// DG: wtf is this comparison about, the comment above says "without the port"
@@ -1238,10 +1254,10 @@ bool Sys_CompareNetAdrBase( const netadr_t a, const netadr_t b )
 		{
 			return true;
 		}
-		
+
 		return false;
 	}
-	
+
 	if( a.type == NA_IP )
 	{
 		if( a.ip[0] == b.ip[0] && a.ip[1] == b.ip[1] && a.ip[2] == b.ip[2] && a.ip[3] == b.ip[3] )
@@ -1250,7 +1266,7 @@ bool Sys_CompareNetAdrBase( const netadr_t a, const netadr_t b )
 		}
 		return false;
 	}
-	
+
 	idLib::Printf( "Sys_CompareNetAdrBase: bad address type\n" );
 	return false;
 }
@@ -1330,7 +1346,7 @@ bool idUDP::InitForPort( int portNumber )
 		memset( &bound_to, 0, sizeof( bound_to ) );
 		return false;
 	}
-	
+
 	return true;
 }
 
@@ -1361,10 +1377,10 @@ bool idUDP::GetPacket( netadr_t& from, void* data, int& size, int maxSize )
 	{
 		return false;
 	}
-	
+
 	packetsRead++;
 	bytesRead += size;
-	
+
 	return true;
 	// DG end
 }
@@ -1381,12 +1397,12 @@ bool idUDP::GetPacketBlocking( netadr_t& from, void* data, int& size, int maxSiz
 	{
 		return false;
 	}
-	
+
 	if( GetPacket( from, data, size, maxSize ) )
 	{
 		return true;
 	}
-	
+
 	return false;
 }
 
@@ -1402,15 +1418,15 @@ void idUDP::SendPacket( const netadr_t to, const void* data, int size )
 		idLib::Warning( "idUDP::SendPacket: bad address type NA_BAD - ignored" );
 		return;
 	}
-	
+
 	packetsWritten++;
 	bytesWritten += size;
-	
+
 	if( silent )
 	{
 		return;
 	}
-	
+
 	Net_SendUDPPacket( netSocket, size, data, to );
 }
 

@@ -51,17 +51,17 @@ void idMenuWidget_DynamicList::Update()
 	{
 		return;
 	}
-	
+
 	idSWFScriptObject& root = GetSWFObject()->GetRootObject();
-	
+
 	if( !BindSprite( root ) )
 	{
 		return;
 	}
-	
+
 	for( int optionIndex = 0; optionIndex < GetNumVisibleOptions(); ++optionIndex )
 	{
-	
+
 		if( optionIndex >= children.Num() )
 		{
 			idSWFSpriteInstance* item = GetSprite()->GetScriptObject()->GetNestedSprite( va( "item%d", optionIndex ) );
@@ -71,14 +71,14 @@ void idMenuWidget_DynamicList::Update()
 				continue;
 			}
 		}
-		
+
 		idMenuWidget& child = GetChildByIndex( optionIndex );
 		const int childIndex = GetViewOffset() + optionIndex;
 		bool shown = false;
 		child.SetSpritePath( GetSpritePath(), va( "item%d", optionIndex ) );
 		if( child.BindSprite( root ) )
 		{
-		
+
 			if( optionIndex >= GetTotalNumberOfOptions() )
 			{
 				child.ClearSprite();
@@ -90,7 +90,7 @@ void idMenuWidget_DynamicList::Update()
 				shown = PrepareListElement( child, childIndex );
 				child.Update();
 			}
-			
+
 			if( !shown )
 			{
 				child.SetState( WIDGET_STATE_HIDDEN );
@@ -108,19 +108,19 @@ void idMenuWidget_DynamicList::Update()
 			}
 		}
 	}
-	
+
 	idSWFSpriteInstance* const upSprite = GetSprite()->GetScriptObject()->GetSprite( "upIndicator" );
 	if( upSprite != NULL )
 	{
 		upSprite->SetVisible( GetViewOffset() > 0 );
 	}
-	
+
 	idSWFSpriteInstance* const downSprite = GetSprite()->GetScriptObject()->GetSprite( "downIndicator" );
 	if( downSprite != NULL )
 	{
 		downSprite->SetVisible( GetViewOffset() + GetNumVisibleOptions() < GetTotalNumberOfOptions() );
 	}
-	
+
 }
 
 /*
@@ -135,7 +135,7 @@ int idMenuWidget_DynamicList::GetTotalNumberOfOptions() const
 	{
 		return GetChildren().Num();
 	}
-	
+
 	return listItemInfo.Num();
 }
 
@@ -152,17 +152,17 @@ bool idMenuWidget_DynamicList::PrepareListElement( idMenuWidget& widget, const i
 	{
 		return true;
 	}
-	
+
 	if( listItemInfo.Num() == 0 )
 	{
 		return true;
 	}
-	
+
 	if( childIndex > listItemInfo.Num() )
 	{
 		return false;
 	}
-	
+
 	idMenuWidget_Button* const button = dynamic_cast< idMenuWidget_Button* >( &widget );
 	if( button != NULL )
 	{
@@ -173,7 +173,7 @@ bool idMenuWidget_DynamicList::PrepareListElement( idMenuWidget& widget, const i
 			return true;
 		}
 	}
-	
+
 	return false;
 }
 
@@ -205,12 +205,12 @@ void idMenuWidget_DynamicList::Recalculate()
 {
 
 	idSWF* swf = GetSWFObject();
-	
+
 	if( swf == NULL )
 	{
 		return;
 	}
-	
+
 	idSWFScriptObject& root = swf->GetRootObject();
 	for( int i = 0; i < GetChildren().Num(); ++i )
 	{
@@ -236,14 +236,14 @@ void idMenuWidget_ScoreboardList::Update()
 	{
 		return;
 	}
-	
+
 	idSWFScriptObject& root = GetSWFObject()->GetRootObject();
-	
+
 	if( !BindSprite( root ) )
 	{
 		return;
 	}
-	
+
 	for( int optionIndex = 0; optionIndex < GetNumVisibleOptions(); ++optionIndex )
 	{
 		idMenuWidget& child = GetChildByIndex( optionIndex );
@@ -253,7 +253,7 @@ void idMenuWidget_ScoreboardList::Update()
 		if( child.BindSprite( root ) )
 		{
 			shown = PrepareListElement( child, childIndex );
-			
+
 			if( optionIndex == focusIndex && child.GetState() != WIDGET_STATE_SELECTED && child.GetState() != WIDGET_STATE_SELECTING )
 			{
 				child.SetState( WIDGET_STATE_SELECTING );
@@ -262,7 +262,7 @@ void idMenuWidget_ScoreboardList::Update()
 			{
 				child.SetState( WIDGET_STATE_NORMAL );
 			}
-			
+
 			child.Update();
 		}
 	}

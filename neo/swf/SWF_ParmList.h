@@ -48,7 +48,7 @@ public:
 	{
 		SetNum( num_ );
 	}
-	
+
 	void	Append( const idSWFScriptVar& other );
 	void	Append( idSWFScriptObject* o );
 	void	Append( idSWFScriptFunction* f );

@@ -74,10 +74,10 @@ typedef enum
 	MOVE_NONE,
 	MOVE_FACE_ENEMY,
 	MOVE_FACE_ENTITY,
-	
+
 	// commands < NUM_NONMOVING_COMMANDS don't cause a change in position
 	NUM_NONMOVING_COMMANDS,
-	
+
 	MOVE_TO_ENEMY = NUM_NONMOVING_COMMANDS,
 	MOVE_TO_ENEMYHEIGHT,
 	MOVE_TO_ENTITY,
@@ -199,10 +199,10 @@ class idMoveState
 {
 public:
 	idMoveState();
-	
+
 	void					Save( idSaveGame* savefile ) const;
 	void					Restore( idRestoreGame* savefile );
-	
+
 	moveType_t				moveType;
 	moveCommand_t			moveCommand;
 	moveStatus_t			moveStatus;
@@ -229,9 +229,9 @@ class idAASFindCover : public idAASCallback
 public:
 	idAASFindCover( const idVec3& hideFromPos );
 	~idAASFindCover();
-	
+
 	virtual bool		TestArea( const idAAS* aas, int areaNum );
-	
+
 private:
 	pvsHandle_t			hidePVS;
 	int					PVSAreas[ idEntity::MAX_PVS_AREAS ];
@@ -241,9 +241,9 @@ class idAASFindAreaOutOfRange : public idAASCallback
 {
 public:
 	idAASFindAreaOutOfRange( const idVec3& targetPos, float maxDist );
-	
+
 	virtual bool		TestArea( const idAAS* aas, int areaNum );
-	
+
 private:
 	idVec3				targetPos;
 	float				maxDistSqr;
@@ -254,9 +254,9 @@ class idAASFindAttackPosition : public idAASCallback
 public:
 	idAASFindAttackPosition( const idAI* self, const idMat3& gravityAxis, idEntity* target, const idVec3& targetPos, const idVec3& fireOffset );
 	~idAASFindAttackPosition();
-	
+
 	virtual bool		TestArea( const idAAS* aas, int areaNum );
-	
+
 private:
 	const idAI*			self;
 	idEntity*			target;
@@ -272,26 +272,26 @@ class idAI : public idActor
 {
 public:
 	CLASS_PROTOTYPE( idAI );
-	
+
 	idAI();
 	~idAI();
-	
+
 	void					Save( idSaveGame* savefile ) const;
 	void					Restore( idRestoreGame* savefile );
-	
+
 	void					Spawn();
 	void					HeardSound( idEntity* ent, const char* action );
 	idActor*					GetEnemy() const;
 	void					TalkTo( idActor* actor );
 	talkState_t				GetTalkState() const;
-	
+
 	bool					GetAimDir( const idVec3& firePos, idEntity* aimAtEnt, const idEntity* ignore, idVec3& aimDir ) const;
-	
+
 	void					TouchedByFlashlight( idActor* flashlight_owner );
-	
+
 	// Outputs a list of all monsters to the console.
 	static void				List_f( const idCmdArgs& args );
-	
+
 	// Finds a path around dynamic obstacles.
 	static bool				FindPathAroundObstacles( const idPhysics* physics, const idAAS* aas, const idEntity* ignore, const idVec3& startPos, const idVec3& seekPos, obstaclePath_t& path );
 	// Frees any nodes used for the dynamic obstacle avoidance.
@@ -302,23 +302,23 @@ public:
 	static bool				TestTrajectory( const idVec3& start, const idVec3& end, float zVel, float gravity, float time, float max_height, const idClipModel* clip, int clipmask, const idEntity* ignore, const idEntity* targetEntity, int drawtime );
 	// Finds the best collision free trajectory for a clip model.
 	static bool				PredictTrajectory( const idVec3& firePos, const idVec3& target, float projectileSpeed, const idVec3& projGravity, const idClipModel* clip, int clipmask, float max_height, const idEntity* ignore, const idEntity* targetEntity, int drawtime, idVec3& aimDir );
-	
+
 	virtual void			Gib( const idVec3& dir, const char* damageDefName );
-	
+
 protected:
 	// navigation
 	idAAS* 					aas;
 	int						travelFlags;
-	
+
 	idMoveState				move;
 	idMoveState				savedMove;
-	
+
 	float					kickForce;
 	bool					ignore_obstacles;
 	float					blockedRadius;
 	int						blockedMoveTime;
 	int						blockedAttackTime;
-	
+
 	// turning
 	float					ideal_yaw;
 	float					current_yaw;
@@ -327,10 +327,10 @@ protected:
 	float					anim_turn_yaw;
 	float					anim_turn_amount;
 	float					anim_turn_angles;
-	
+
 	// physics
 	idPhysics_Monster		physicsObj;
-	
+
 	// flying
 	jointHandle_t			flyTiltJoint;
 	float					fly_speed;
@@ -345,12 +345,12 @@ protected:
 	float					fly_pitch_scale;
 	float					fly_pitch_max;
 	float					fly_pitch;
-	
+
 	bool					allowMove;					// disables any animation movement
 	bool					allowHiddenMovement;		// allows character to still move around while hidden
 	bool					disableGravity;				// disables gravity and allows vertical movement by the animation
 	bool					af_push_moveables;			// allow the articulated figure to push moveable objects
-	
+
 	// weapon/attack vars
 	bool					lastHitCheckResult;
 	int						lastHitCheckTime;
@@ -358,7 +358,7 @@ protected:
 	float					melee_range;
 	float					projectile_height_to_distance_ratio;	// calculates the maximum height a projectile can be thrown
 	idList<idVec3, TAG_AI>			missileLaunchOffset;
-	
+
 	const idDict* 			projectileDef;
 	mutable idClipModel*		projectileClipModel;
 	float					projectileRadius;
@@ -368,7 +368,7 @@ protected:
 	idEntityPtr<idProjectile> projectile;
 	idStr					attack;
 	idVec3					homingMissileGoal;
-	
+
 	// chatter/talking
 	const idSoundShader*		chat_snd;
 	int						chat_min;
@@ -376,11 +376,11 @@ protected:
 	int						chat_time;
 	talkState_t				talk_state;
 	idEntityPtr<idActor>	talkTarget;
-	
+
 	// cinematics
 	int						num_cinematics;
 	int						current_cinematic;
-	
+
 	bool					allowJointMod;
 	idEntityPtr<idEntity>	focusEntity;
 	idVec3					currentFocusPos;
@@ -399,24 +399,24 @@ protected:
 	float					eyeFocusRate;
 	float					headFocusRate;
 	int						focusAlignTime;
-	
+
 	// special fx
 	bool					restartParticles;			// should smoke emissions restart
 	bool					useBoneAxis;				// use the bone vs the model axis
 	idList<particleEmitter_t, TAG_AI> particles;				// particle data
-	
+
 	renderLight_t			worldMuzzleFlash;			// positioned on world weapon bone
 	int						worldMuzzleFlashHandle;
 	jointHandle_t			flashJointWorld;
 	int						muzzleFlashEnd;
 	int						flashTime;
-	
+
 	// joint controllers
 	idAngles				eyeMin;
 	idAngles				eyeMax;
 	jointHandle_t			focusJoint;
 	jointHandle_t			orientationJoint;
-	
+
 	// enemy variables
 	idEntityPtr<idActor>	enemy;
 	idVec3					lastVisibleEnemyPos;
@@ -424,13 +424,13 @@ protected:
 	idVec3					lastVisibleReachableEnemyPos;
 	idVec3					lastReachableEnemyPos;
 	bool					wakeOnFlashlight;
-	
+
 	bool					spawnClearMoveables;
-	
+
 	idHashTable<funcEmitter_t> funcEmitters;
-	
+
 	idEntityPtr<idHarvestable>	harvestEnt;
-	
+
 	// script variables
 	idScriptBool			AI_TALK;
 	idScriptBool			AI_DAMAGE;
@@ -451,7 +451,7 @@ protected:
 	idScriptBool			AI_DEST_UNREACHABLE;
 	idScriptBool			AI_HIT_ENEMY;
 	idScriptBool			AI_PUSHED;
-	
+
 	//
 	// ai/ai.cpp
 	//
@@ -473,7 +473,7 @@ protected:
 	idVec3					FirstVisiblePointOnPath( const idVec3 origin, const idVec3& target, int travelFlags ) const;
 	void					CalculateAttackOffsets();
 	void					PlayCinematic();
-	
+
 	// movement
 	virtual void			ApplyImpulse( idEntity* ent, int id, const idVec3& point, const idVec3& impulse );
 	void					GetMoveDelta( const idMat3& oldaxis, const idMat3& axis, idVec3& delta );
@@ -489,11 +489,11 @@ protected:
 	void					FlyTurn();
 	void					FlyMove();
 	void					StaticMove();
-	
+
 	// damage
 	virtual bool			Pain( idEntity* inflictor, idEntity* attacker, int damage, const idVec3& dir, int location );
 	virtual void			Killed( idEntity* inflictor, idEntity* attacker, int damage, const idVec3& dir, int location );
-	
+
 	// navigation
 	void					KickObstacles( const idVec3& dir, float force, idEntity* alwaysKick );
 	bool					ReachedPos( const idVec3& pos, const moveCommand_t moveCommand ) const;
@@ -505,7 +505,7 @@ protected:
 	bool					MoveDone() const;
 	bool					EntityCanSeePos( idActor* actor, const idVec3& actorOrigin, const idVec3& pos );
 	void					BlockedFailSafe();
-	
+
 	// movement control
 	void					StopMove( moveStatus_t status );
 	bool					FaceEnemy();
@@ -522,25 +522,25 @@ protected:
 	bool					WanderAround();
 	bool					StepDirection( float dir );
 	bool					NewWanderDir( const idVec3& dest );
-	
+
 	// effects
 	const idDeclParticle*	SpawnParticlesOnJoint( particleEmitter_t& pe, const char* particleName, const char* jointName );
 	void					SpawnParticles( const char* keyName );
 	bool					ParticlesActive();
-	
+
 	// turning
 	bool					FacingIdeal();
 	void					Turn();
 	bool					TurnToward( float yaw );
 	bool					TurnToward( const idVec3& pos );
-	
+
 	// enemy management
 	void					ClearEnemy();
 	bool					EnemyPositionValid() const;
 	void					SetEnemyPosition();
 	void					UpdateEnemyPosition();
 	void					SetEnemy( idActor* newEnemy );
-	
+
 	// attacks
 	void					CreateProjectileClipModel() const;
 	idProjectile*			CreateProjectile( const idVec3& pos, const idVec3& dir );
@@ -553,7 +553,7 @@ protected:
 	void					BeginAttack( const char* name );
 	void					EndAttack();
 	void					PushWithAF();
-	
+
 	// special effects
 	void					GetMuzzle( const char* jointname, idVec3& muzzle, idMat3& axis );
 	void					InitMuzzleFlash();
@@ -562,16 +562,16 @@ protected:
 	virtual bool			UpdateAnimationControllers();
 	void					UpdateParticles();
 	void					TriggerParticles( const char* jointName );
-	
+
 	void					TriggerFX( const char* joint, const char* fx );
 	idEntity*				StartEmitter( const char* name, const char* joint, const char* particle );
 	idEntity*				GetEmitter( const char* name );
 	void					StopEmitter( const char* name );
-	
+
 	// AI script state management
 	void					LinkScriptVariables();
 	void					UpdateAIScript();
-	
+
 	//
 	// ai/ai_events.cpp
 	//
@@ -709,7 +709,7 @@ protected:
 	void					Event_MoveToPositionDirect( const idVec3& pos );
 	void					Event_AvoidObstacles( int ignore );
 	void					Event_TriggerFX( const char* joint, const char* fx );
-	
+
 	void					Event_StartEmitter( const char* name, const char* joint, const char* particle );
 	void					Event_GetEmitter( const char* name );
 	void					Event_StopEmitter( const char* name );
@@ -719,17 +719,17 @@ class idCombatNode : public idEntity
 {
 public:
 	CLASS_PROTOTYPE( idCombatNode );
-	
+
 	idCombatNode();
-	
+
 	void				Save( idSaveGame* savefile ) const;
 	void				Restore( idRestoreGame* savefile );
-	
+
 	void				Spawn();
 	bool				IsDisabled() const;
 	bool				EntityInView( idActor* actor, const idVec3& pos );
 	static void			DrawDebugInfo();
-	
+
 private:
 	float				min_dist;
 	float				max_dist;
@@ -740,7 +740,7 @@ private:
 	idVec3				cone_right;
 	idVec3				offset;
 	bool				disabled;
-	
+
 	void				Event_Activate( idEntity* activator );
 	void				Event_MarkUsed();
 };

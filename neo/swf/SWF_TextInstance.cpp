@@ -64,7 +64,7 @@ idSWFTextInstance::~idSWFTextInstance()
 	scriptObject.SetText( NULL );
 	scriptObject.Clear();
 	scriptObject.Release();
-	
+
 	subtitleTimingInfo.Clear();
 }
 
@@ -77,24 +77,24 @@ void idSWFTextInstance::Init( idSWFEditText* _editText, idSWF* _swf )
 {
 	editText = _editText;
 	swf = _swf;
-	
+
 	text = idLocalization::GetString( editText->initialText );
-	
+
 	lengthCalculated = false;
 	variable = editText->variable;
 	color = editText->color;
 	visible = true;
-	
+
 	selectionStart = -1;
 	selectionEnd = -1;
-	
+
 	scroll = 0;
 	scrollTime = 0;
 	maxscroll = 0;
 	maxLines = 0;
 	linespacing = 0;
 	glyphScale = 1.0f;
-	
+
 	shiftHeld = false;
 	tooltip = false;
 	renderMode = SWF_TEXT_RENDER_NORMAL;
@@ -107,7 +107,7 @@ void idSWFTextInstance::Init( idSWFEditText* _editText, idSWF* _swf )
 	prevReplaceIndex = 0;
 	scrollUpdate = false;
 	ignoreColor = false;
-	
+
 	isSubtitle = false;
 	subLength = 0;
 	subAlign = 0;
@@ -125,18 +125,18 @@ void idSWFTextInstance::Init( idSWFEditText* _editText, idSWF* _swf )
 	subLastWordIndex = 0;
 	subPrevLastWordIndex = 0;
 	subInitialLine = true;
-	
+
 	textLength = 0;
-	
+
 	inputTextStartChar = 0;
-	
+
 	renderDelay = swf_textRndLetterDelay.GetInteger();
 	needsSoundUpdate = false;
 	useDropShadow = false;
 	useStroke = false;
 	strokeStrength = 1.0f;
 	strokeWeight = swf_textStrokeSize.GetFloat();
-	
+
 	scriptObject.SetPrototype( &textInstanceScriptObjectPrototype );
 	scriptObject.SetText( this );
 	scriptObject.SetNoAutoDelete( true );
@@ -150,18 +150,18 @@ idSWFTextInstance::GetTextLength
 float idSWFTextInstance::GetTextLength()
 {
 	// CURRENTLY ONLY WORKS FOR SINGLE LINE TEXTFIELDS
-	
+
 	if( lengthCalculated && variable.IsEmpty() )
 	{
 		return textLength;
 	}
-	
+
 	idStr txtLengthCheck = "";
-	
+
 	float len = 0.0f;
 	if( verify( swf != NULL ) )
 	{
-	
+
 		if( !variable.IsEmpty() )
 		{
 			idSWFScriptVar var = swf->GetGlobal( variable );
@@ -179,7 +179,7 @@ float idSWFTextInstance::GetTextLength()
 		{
 			txtLengthCheck = idLocalization::GetString( text );
 		}
-		
+
 		const idSWFEditText* shape = editText;
 		idSWFDictionaryEntry* fontEntry = swf->FindDictionaryEntry( shape->fontID, SWF_DICT_FONT );
 		idSWFFont* swfFont = fontEntry->font;
@@ -187,20 +187,20 @@ float idSWFTextInstance::GetTextLength()
 		float postTrans = SWFTWIP( shape->fontHeight );
 		const idFont* fontInfo = swfFont->fontID;
 		float glyphScale = postTrans / 48.0f;
-		
+
 		int tlen = txtLengthCheck.Length();
 		int index = 0;
 		while( index < tlen )
 		{
 			scaledGlyphInfo_t glyph;
 			fontInfo->GetScaledGlyph( glyphScale, txtLengthCheck.UTF8Char( index ), glyph );
-			
+
 			len += glyph.xSkip;
 			if( useStroke )
 			{
 				len += ( swf_textStrokeSizeGlyphSpacer.GetFloat() * strokeWeight * glyphScale );
 			}
-			
+
 			if( !( shape->flags & SWF_ET_AUTOSIZE ) && len >= width )
 			{
 				len = width;
@@ -208,7 +208,7 @@ float idSWFTextInstance::GetTextLength()
 			}
 		}
 	}
-	
+
 	lengthCalculated = true;
 	textLength = len;
 	return textLength;
@@ -232,16 +232,16 @@ void idSWFTextInstance::StartParagraphText( int time )
 	rndSpotsVisible = text.Length();
 	indexArray.Clear();
 	charMultiplier = 0;
-	
+
 	text = idLocalization::GetString( text );
 	lengthCalculated = false;
-	
+
 	for( int index = 0; index < text.Length(); ++index )
 	{
 		randomtext.Append( " " );
 		indexArray.Append( index );
 	}
-	
+
 	for( int index = 0; index < indexArray.Num(); ++index )
 	{
 		int swapIndex = rnd.RandomInt( indexArray.Num() );
@@ -272,13 +272,13 @@ idStr idSWFTextInstance::GetParagraphText( int time )
 		{
 			rndTime = time;
 			needsSoundUpdate = true;
-			
+
 			if( prevReplaceIndex >= text.Length() )
 			{
 				generatingText = false;
 				return text;
 			}
-			
+
 			randomtext[prevReplaceIndex] = text[prevReplaceIndex];
 			prevReplaceIndex++;
 		}
@@ -288,7 +288,7 @@ idStr idSWFTextInstance::GetParagraphText( int time )
 		scrollUpdate = false;
 		return text;
 	}
-	
+
 	return randomtext;
 }
 
@@ -303,7 +303,7 @@ bool idSWFTextInstance::NeedsSoundPlayed()
 	{
 		return false;
 	}
-	
+
 	return needsSoundUpdate;
 }
 
@@ -322,10 +322,10 @@ void idSWFTextInstance::StartRandomText( int time )
 	rndTime = time;
 	rnd.SetSeed( time );
 	rndSpotsVisible = 0;
-	
+
 	text = idLocalization::GetString( text );
 	lengthCalculated = false;
-	
+
 	for( int index = 0; index < text.Length(); ++index )
 	{
 		if( text[index] == ' ' )
@@ -360,39 +360,39 @@ idStr idSWFTextInstance::GetRandomText( int time )
 	{
 		if( rndSpotsVisible > 0 )
 		{
-		
+
 			int waitTime = swf_textRndLetterSpeed.GetInteger();
-			
+
 			if( randomtext.Length() >= 10 )
 			{
 				waitTime = waitTime / 3;
 			}
-			
+
 			if( time - rndTime >= waitTime )
 			{
 				rndTime = time;
-				
+
 				int spotIndex = rnd.RandomInt( rndSpotsVisible );
 				int cIndex = 0;
 				for( int c = 0; c < randomtext.Length(); ++ c )
 				{
-				
+
 					if( c >= text.Length() )
 					{
 						rndSpotsVisible = 0;
 						break;
 					}
-					
+
 					if( randomtext[c] == '.' )
 					{
 						cIndex++;
 					}
-					
+
 					if( cIndex == spotIndex )
 					{
-					
+
 						bool useCaps = false;
-						
+
 						if( c - 1 >= 0 && text[c - 1] == ' ' )
 						{
 							useCaps = true;
@@ -401,7 +401,7 @@ idStr idSWFTextInstance::GetRandomText( int time )
 						{
 							useCaps = true;
 						}
-						
+
 						if( useCaps || renderMode == SWF_TEXT_RENDER_RANDOM_APPEAR_CAPS )
 						{
 							randomtext[c] = rnd.RandomInt( 'Z' - 'A' ) + 'A';
@@ -410,7 +410,7 @@ idStr idSWFTextInstance::GetRandomText( int time )
 						{
 							randomtext[c] = rnd.RandomInt( 'z' - 'a' ) + 'a';
 						}
-						
+
 						rndSpotsVisible--;
 						if( !soundClip.IsEmpty() )
 						{
@@ -450,12 +450,12 @@ idStr idSWFTextInstance::GetRandomText( int time )
 	{
 		return text;
 	}
-	
+
 	if( rndSpotsVisible == 0 && textSpotsVisible == text.Length() )
 	{
 		generatingText = false;
 	}
-	
+
 	return randomtext;
 }
 
@@ -494,13 +494,13 @@ bool idSWFTextInstance::UpdateSubtitle( int time )
 		subForceKill = true;
 		subKillTimeDelay = time + swf_subtitleExtraTime.GetInteger();
 	}
-	
+
 	if( subUpdating && !subForceKill )
 	{
 		if( ( time >= subSwitchTime && !subNeedsSwitch ) || ( !subNeedsSwitch && subInitialLine ) )
 		{
 			//idLib::Printf( "SWITCH TIME %d / %d \n", time, subSwitchTime );
-			
+
 			if( subInitialLine && subtitleTimingInfo.Num() > 0 )
 			{
 				if( subStartTime == -1 )
@@ -517,7 +517,7 @@ bool idSWFTextInstance::UpdateSubtitle( int time )
 					subInitialLine = false;
 				}
 			}
-			
+
 			if( subNextStartIndex + 1 >= text.Length( ) )
 			{
 				subForceKillQueued = true;
@@ -530,7 +530,7 @@ bool idSWFTextInstance::UpdateSubtitle( int time )
 			}
 		}
 	}
-	
+
 	if( subForceKill )
 	{
 		if( time >= subKillTimeDelay )
@@ -539,7 +539,7 @@ bool idSWFTextInstance::UpdateSubtitle( int time )
 			return false;
 		}
 	}
-	
+
 	return true;
 }
 
@@ -597,7 +597,7 @@ void idSWFTextInstance::LastWordChanged( int wordCount, int time )
 	{
 		subLastWordIndex = subPrevLastWordIndex + wordCount - 1;
 	}
-	
+
 	if( subStartTime == -1 )
 	{
 		if( subtitleTimingInfo.Num() > 0 )
@@ -609,7 +609,7 @@ void idSWFTextInstance::LastWordChanged( int wordCount, int time )
 			subStartTime = time;
 		}
 	}
-	
+
 	subSwitchTime = subStartTime + subtitleTimingInfo[subLastWordIndex].startTime;// - swf_subtitleEarlyTrans.GetInteger();
 	//idLib::Printf( "switchtime set 1 %d last word %d\n", subSwitchTime, subLastWordIndex );
 }
@@ -624,12 +624,12 @@ int idSWFTextInstance::GetApporoximateSubtitleBreak( int time )
 
 	int wordIndex = subLastWordIndex;
 	bool setSwitchTime = false;
-	
+
 	if( subStartTime == -1 )
 	{
 		subStartTime = time;
 	}
-	
+
 	if( time >= subSwitchTime )
 	{
 		subPrevLastWordIndex = subLastWordIndex;
@@ -676,7 +676,7 @@ int idSWFTextInstance::GetApporoximateSubtitleBreak( int time )
 				}
 			}
 		}
-		
+
 		if( !setSwitchTime && subtitleTimingInfo.Num() > 0 )
 		{
 			subSwitchTime = subStartTime + subtitleTimingInfo[ subtitleTimingInfo.Num() - 1 ].startTime;// - swf_subtitleEarlyTrans.GetInteger();
@@ -684,7 +684,7 @@ int idSWFTextInstance::GetApporoximateSubtitleBreak( int time )
 			subLastWordIndex = subtitleTimingInfo.Num();
 		}
 	}
-	
+
 	return subLastWordIndex;
 }
 
@@ -733,36 +733,36 @@ int idSWFTextInstance::CalcMaxScroll( int numLines )
 		maxscroll = numLines;
 		return maxscroll;
 	}
-	
+
 	const idSWFEditText* shape = editText;
 	if( !( shape->flags & SWF_ET_MULTILINE ) )
 	{
 		return 0;
 	}
-	
+
 	if( swf == NULL )
 	{
 		return 0;
 	}
-	
+
 	idSWFDictionaryEntry* fontEntry = swf->FindDictionaryEntry( shape->fontID, SWF_DICT_FONT );
 	if( fontEntry == NULL )
 	{
 		return 0;
 	}
-	
+
 	idSWFFont* swfFont = fontEntry->font;
 	if( swfFont == NULL )
 	{
 		return 0;
 	}
-	
+
 	const idFont* fontInfo = swfFont->fontID;
 	if( fontInfo == NULL )
 	{
 		return 0;
 	}
-	
+
 	idStr textCheck;
 	if( variable.IsEmpty() )
 	{
@@ -772,28 +772,28 @@ int idSWFTextInstance::CalcMaxScroll( int numLines )
 	{
 		textCheck = idLocalization::GetString( variable );
 	}
-	
+
 	if( textCheck.IsEmpty() )
 	{
 		return 0;
 	}
-	
+
 	float x = bounds.tl.x;
 	float y = bounds.tl.y;
-	
+
 	idList< idStr > textLines;
 	idStr* currentLine = &textLines.Alloc();
-	
+
 	// tracks the last breakable character we found
 	int lastbreak = 0;
 	float lastbreakX = 0;
 	int charIndex = 0;
-	
+
 	if( IsSubtitle() )
 	{
 		charIndex = GetSubStartIndex();
 	}
-	
+
 	while( charIndex < textCheck.Length() )
 	{
 		if( textCheck[ charIndex ] == '\n' )
@@ -822,7 +822,7 @@ int idSWFTextInstance::CalcMaxScroll( int numLines )
 		{
 			glyphSkip += ( swf_textStrokeSizeGlyphSpacer.GetFloat() * GetStrokeWeight() * glyphScale );
 		}
-		
+
 		if( x + glyphSkip > bounds.br.x )
 		{
 			if( shape->flags & ( SWF_ET_MULTILINE | SWF_ET_WORDWRAP ) )
@@ -869,7 +869,7 @@ int idSWFTextInstance::CalcMaxScroll( int numLines )
 			lastbreakX = x;
 		}
 	}
-	
+
 	maxscroll = textLines.Num() - maxLines;
 	if( maxscroll < 0 )
 	{
@@ -886,15 +886,15 @@ int idSWFTextInstance::CalcNumLines()
 	{
 		return 1;
 	}
-	
+
 	idSWFDictionaryEntry* fontEntry = swf->FindDictionaryEntry( shape->fontID, SWF_DICT_FONT );
 	if( fontEntry == NULL )
 	{
 		return 1;
 	}
-	
+
 	idStr textCheck;
-	
+
 	if( variable.IsEmpty() )
 	{
 		textCheck = idLocalization::GetString( text );
@@ -903,47 +903,47 @@ int idSWFTextInstance::CalcNumLines()
 	{
 		textCheck = idLocalization::GetString( variable );
 	}
-	
+
 	if( textCheck.IsEmpty() )
 	{
 		return 1;
 	}
-	
+
 	if( swf == NULL )
 	{
 		return 1;
 	}
-	
+
 	idSWFFont* swfFont = fontEntry->font;
 	float postTransformHeight = SWFTWIP( shape->fontHeight );
 	const idFont* fontInfo = swfFont->fontID;
-	
+
 	float glyphScale = postTransformHeight / 48.0f;
-	
+
 	swfRect_t bounds;
 	bounds.tl.x = ( shape->bounds.tl.x + SWFTWIP( shape->leftMargin ) );
 	bounds.br.x = ( shape->bounds.br.x - SWFTWIP( shape->rightMargin ) );
 	bounds.tl.y = ( shape->bounds.tl.y + ( 1.15f * glyphScale ) );
 	bounds.br.y = ( shape->bounds.br.y );
-	
+
 	float linespacing = fontInfo->GetAscender( 1.15f * glyphScale );
 	if( shape->leading != 0 )
 	{
 		linespacing += ( glyphScale * SWFTWIP( shape->leading ) );
 	}
-	
+
 	float x = bounds.tl.x;
 	int maxLines = idMath::Ftoi( ( bounds.br.y - bounds.tl.y ) / linespacing );
 	if( maxLines == 0 )
 	{
 		maxLines = 1;
 	}
-	
+
 	// tracks the last breakable character we found
 	int numLines = 1;
 	int lastbreak = 0;
 	int charIndex = 0;
-	
+
 	while( charIndex < textCheck.Length() )
 	{
 		if( textCheck[ charIndex ] == '\n' )
@@ -962,13 +962,13 @@ int idSWFTextInstance::CalcNumLines()
 			uint32 tc = textCheck[ charIndex++ ];
 			scaledGlyphInfo_t glyph;
 			fontInfo->GetScaledGlyph( glyphScale, tc, glyph );
-			
+
 			float glyphSkip = glyph.xSkip;
 			if( useStroke )
 			{
 				glyphSkip += ( swf_textStrokeSizeGlyphSpacer.GetFloat() * strokeWeight * glyphScale );
 			}
-			
+
 			if( x + glyphSkip > bounds.br.x )
 			{
 				if( numLines == maxLines )
@@ -996,7 +996,7 @@ int idSWFTextInstance::CalcNumLines()
 			}
 		}
 	}
-	
+
 	return numLines;
 }
 
@@ -1025,7 +1025,7 @@ idSWFScriptObject_TextInstancePrototype::idSWFScriptObject_TextInstancePrototype
 	SWF_TEXT_FUNCTION_SET( generateRnd );
 	SWF_TEXT_FUNCTION_SET( calcNumLines );
 	SWF_TEXT_FUNCTION_SET( clearTimingInfo );
-	
+
 	SWF_TEXT_NATIVE_VAR_SET( text );
 	SWF_TEXT_NATIVE_VAR_SET( _textLength );	// only works on single lines of text not multiline
 	SWF_TEXT_NATIVE_VAR_SET( autoSize );
@@ -1050,7 +1050,7 @@ idSWFScriptObject_TextInstancePrototype::idSWFScriptObject_TextInstancePrototype
 	SWF_TEXT_NATIVE_VAR_SET( subtitleAlign );
 	SWF_TEXT_NATIVE_VAR_SET( subtitleSourceID );
 	SWF_TEXT_NATIVE_VAR_SET( subtitleSpeaker );
-	
+
 	SWF_TEXT_FUNCTION_SET( subtitleSourceCheck );
 	SWF_TEXT_FUNCTION_SET( subtitleStart );
 	SWF_TEXT_FUNCTION_SET( subtitleLength );
@@ -1256,21 +1256,21 @@ SWF_TEXT_NATIVE_VAR_DEFINE_GET( _textLength )
 SWF_TEXT_NATIVE_VAR_DEFINE_SET( mode )
 {
 	SWF_TEXT_PTHIS_SET( "mode" );
-	
+
 	int mode = value.ToInteger();
-	
+
 	if( mode >= ( int )SWF_TEXT_RENDER_MODE_COUNT || mode < 0 )
 	{
 		mode = SWF_TEXT_RENDER_NORMAL;
 	}
-	
+
 	pThis->renderMode = swfTextRenderMode_t( mode );
 }
 
 SWF_TEXT_NATIVE_VAR_DEFINE_SET( scroll )
 {
 	SWF_TEXT_PTHIS_SET( "scroll" );
-	
+
 	int time = Sys_Milliseconds();
 	if( time >= pThis->scrollTime )
 	{
@@ -1288,25 +1288,25 @@ SWF_TEXT_NATIVE_VAR_DEFINE_SET( maxscroll )
 SWF_TEXT_NATIVE_VAR_DEFINE_GET( textColor )
 {
 	SWF_TEXT_PTHIS_GET( "textColor" );
-	
+
 	int r = ( pThis->color.r << 16 );
 	int g = ( pThis->color.g << 8 );
 	int b = pThis->color.b;
-	
+
 	int textColor = r | g | b;
-	
+
 	return textColor;
 }
 
 SWF_TEXT_NATIVE_VAR_DEFINE_SET( textColor )
 {
 	SWF_TEXT_PTHIS_SET( "textColor" );
-	
+
 	int textColor = value.ToInteger();
 	int r = ( textColor >> 16 ) & 0xFF;
 	int g = ( textColor >> 8 ) & 0x00FF;
 	int b = textColor & 0x0000FF;
-	
+
 	pThis->color.r = r;
 	pThis->color.g = g;
 	pThis->color.b = b;
@@ -1332,17 +1332,17 @@ SWF_TEXT_FUNCTION_DEFINE( generateRnd )
 SWF_TEXT_FUNCTION_DEFINE( calcNumLines )
 {
 	SWF_TEXT_PTHIS_FUNC( "calcNumLines" );
-	
+
 	return pThis->CalcNumLines();
 }
 
 SWF_TEXT_FUNCTION_DEFINE( onKey )
 {
 	SWF_TEXT_PTHIS_FUNC( "onKey" );
-	
+
 	int keyCode = parms[0].ToInteger();
 	bool keyDown = parms[1].ToBool();
-	
+
 	if( keyDown )
 	{
 		switch( keyCode )
@@ -1433,14 +1433,14 @@ SWF_TEXT_FUNCTION_DEFINE( onKey )
 SWF_TEXT_FUNCTION_DEFINE( onChar )
 {
 	SWF_TEXT_PTHIS_FUNC( "onChar" );
-	
+
 	int keyCode = parms[0].ToInteger();
-	
+
 	if( keyCode < 32 || keyCode == 127 )
 	{
 		return false;
 	}
-	
+
 	char letter = ( char )keyCode;
 	// assume ` is meant for the console
 	if( letter == '`' )
@@ -1455,7 +1455,7 @@ SWF_TEXT_FUNCTION_DEFINE( onChar )
 		idStr right = pThis->text.Right( Max( pThis->text.Length() - end, 0 ) );
 		pThis->text = left + right;
 		pThis->selectionStart = start;
-		
+
 		pThis->text.Clear();
 		pThis->text.Append( left );
 		pThis->text.Append( letter );
@@ -1525,22 +1525,22 @@ SWF_TEXT_FUNCTION_DEFINE( subtitleLength )
 SWF_TEXT_FUNCTION_DEFINE( subtitleSourceCheck )
 {
 	SWF_TEXT_PTHIS_FUNC( "subtitleSourceCheck" );
-	
+
 	int idCheck = parms[0].ToInteger();
-	
+
 	if( pThis->subSourceID == -1 )
 	{
 		pThis->subSourceID = idCheck;
 		return 1;
 	}
-	
+
 	if( idCheck == pThis->subSourceID )    // || pThis->subForceKill ) {
 	{
 		pThis->SubtitleComplete();
 		pThis->subSourceID = idCheck;
 		return -1;
 	}
-	
+
 	return 0;
 }
 
@@ -1602,17 +1602,17 @@ SWF_TEXT_FUNCTION_DEFINE( subLastLine )
 SWF_TEXT_FUNCTION_DEFINE( addSubtitleInfo )
 {
 	SWF_TEXT_PTHIS_FUNC( "addSubtitleInfo" );
-	
+
 	if( parms.Num() != 3 )
 	{
 		return idSWFScriptVar();
 	}
-	
+
 	subTimingWordData_t info;
 	info.phrase = parms[0].ToString();
 	info.startTime = parms[1].ToInteger();
 	info.forceBreak = parms[2].ToBool();
-	
+
 	pThis->subtitleTimingInfo.Append( info );
 	return idSWFScriptVar();
 }

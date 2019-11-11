@@ -47,24 +47,24 @@ class idProfileMgr
 public:
 	idProfileMgr();
 	~idProfileMgr();
-	
+
 	// Called the first time it's asked to load
 	void				Init( idLocalUser* user );
-	
+
 	void 				Pump();
 	idPlayerProfile* 	GetProfile();
-	
+
 private:
 	void				LoadSettingsAsync();
 	void				SaveSettingsAsync();
-	
+
 	void				OnLoadSettingsCompleted( idSaveLoadParms* parms );
 	void				OnSaveSettingsCompleted( idSaveLoadParms* parms );
-	
+
 private:
 	std::auto_ptr< idSaveGameProcessorSaveProfile >	profileSaveProcessor;
 	std::auto_ptr< idSaveGameProcessorLoadProfile >	profileLoadProcessor;
-	
+
 	idLocalUser* 						user;					// reference passed in
 	idPlayerProfile* 					profile;
 	saveGameHandle_t					handle;
@@ -79,16 +79,16 @@ class idSaveGameProcessorSaveProfile : public idSaveGameProcessorSaveFiles
 {
 public:
 	DEFINE_CLASS( idSaveGameProcessorSaveProfile );
-	
+
 	idSaveGameProcessorSaveProfile();
-	
+
 	bool			InitSaveProfile( idPlayerProfile* profile, const char* folder );
 	virtual bool	Process();
-	
+
 private:
 	idFile_SaveGame* 	profileFile;
 	idPlayerProfile* 	profile;
-	
+
 };
 
 /*
@@ -100,18 +100,18 @@ class idSaveGameProcessorLoadProfile : public idSaveGameProcessorLoadFiles
 {
 public:
 	DEFINE_CLASS( idSaveGameProcessorLoadProfile );
-	
+
 	idSaveGameProcessorLoadProfile();
 	~idSaveGameProcessorLoadProfile();
-	
+
 	bool			InitLoadProfile( idPlayerProfile* profile, const char* folder );
 	virtual bool	Process();
-	
-	
+
+
 private:
 	idFile_SaveGame* 	profileFile;
 	idPlayerProfile* 	profile;
-	
+
 };
 
 // Synchronous check, just checks if a profile exists within the savegame location

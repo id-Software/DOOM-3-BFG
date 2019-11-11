@@ -59,18 +59,18 @@ MyTaskKeyHookLL
 LRESULT CALLBACK MyTaskKeyHookLL( int nCode, WPARAM wp, LPARAM lp )
 {
 	KBDLLHOOKSTRUCT* pkh = ( KBDLLHOOKSTRUCT* ) lp;
-	
+
 	if( nCode == HC_ACTION )
 	{
 		BOOL bCtrlKeyDown = GetAsyncKeyState( VK_CONTROL ) >> ( ( sizeof( SHORT ) * 8 ) - 1 );
-		
+
 		if(	( pkh->vkCode == VK_ESCAPE && bCtrlKeyDown )				// Ctrl+Esc
 				|| ( pkh->vkCode == VK_TAB && pkh->flags & LLKHF_ALTDOWN )		// Alt+TAB
 				|| ( pkh->vkCode == VK_ESCAPE && pkh->flags & LLKHF_ALTDOWN )	// Alt+Esc
 				|| ( pkh->vkCode == VK_LWIN || pkh->vkCode == VK_RWIN )		// Start Menu
 		  )
 		{
-		
+
 			if( g_bBeep && ( wp == WM_SYSKEYDOWN || wp == WM_KEYDOWN ) )
 			{
 				MessageBeep( 0 ); // beep on downstroke if requested
@@ -102,12 +102,12 @@ IsTaskMgrDisabled
 BOOL IsTaskMgrDisabled()
 {
 	HKEY hk;
-	
+
 	if( RegOpenKey( HKEY_CURRENT_USER, KEY_DisableTaskMgr, &hk ) != ERROR_SUCCESS )
 	{
 		return FALSE; // no key ==> not disabled
 	}
-	
+
 	DWORD val = 0;
 	DWORD len = 4;
 	return RegQueryValueEx( hk, VAL_DisableTaskMgr, NULL, NULL, ( BYTE* )&val, &len ) == ERROR_SUCCESS && val == 1;
@@ -135,7 +135,7 @@ void DisableTaskKeys( BOOL bDisable, BOOL bBeep, BOOL bTaskMgr )
 		g_hHookKbdLL = NULL;
 	}
 	g_bBeep = bBeep;
-	
+
 	// task manager (Ctrl+Alt+Del)
 	if( bTaskMgr )
 	{

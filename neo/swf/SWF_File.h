@@ -38,68 +38,68 @@ public:
 		bitPos = 0;
 		NBits = 0;
 	}
-	
+
 	// Destructor that will destroy (close) the file when this wrapper class goes out of scope.
 	~idFile_SWF();
-	
+
 	// Cast to a file pointer.
 	operator idFile* () const
 	{
 		return file;
 	}
-	
+
 	// Member access operator for treating the wrapper as if it were the file, itself.
 	idFile* operator -> () const
 	{
 		return file;
 	}
-	
+
 	void ByteAlign()
 	{
 		if( bitPos > 0 )
 		{
 			WriteByte( NBits );
-			
+
 			bitPos = 0;
 			NBits = 0;
 		}
 	}
-	
-	
+
+
 	static int		BitCountS( const int64 value, bool isSigned );
 	static int		BitCountU( const int value );
 	static int		BitCountFloat( const float value );
-	
+
 	static int		EnlargeBitCountS( const int value, int numBits );
 	static int		EnlargeBitCountU( const int value, int numBits );
-	
+
 	virtual int		Write( const void* buffer, int len );
-	
+
 	void			WriteUBits( int value, int numBits );
 	void			WriteSBits( int value, int numBits );
-	
+
 	void			WriteU8( uint8 value );
 	void			WriteU16( uint16 value );
 	void			WriteU32( uint32 value );
-	
+
 	void			WriteRect( const swfRect_t& rect );
 	void			WriteMatrix( const swfMatrix_t& matrix );
 	void			WriteColorRGB( const swfColorRGB_t& color );
 	void			WriteColorRGBA( const swfColorRGBA_t& color );
 	void			WriteColorXFormRGBA( const swfColorXform_t& xcf );
-	
+
 	static int32	GetTagHeaderSize( swfTag_t tag, int32 tagLength );
 	void			WriteTagHeader( swfTag_t tag, int32 tagLength );
-	
+
 private:
 
 	void			WriteByte( byte bits );
-	
+
 	idFile*			file;	// The managed file pointer.
-	
+
 	int				bitPos;
 	int				NBits;
-	
+
 };
 
 

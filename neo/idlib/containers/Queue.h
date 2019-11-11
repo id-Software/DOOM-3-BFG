@@ -40,10 +40,10 @@ class idQueueTemplate
 {
 public:
 	idQueueTemplate();
-	
+
 	void					Add( type* element );
 	type* 					Get();
-	
+
 private:
 	type* 					first;
 	type* 					last;
@@ -76,7 +76,7 @@ template< class type, int nextOffset >
 type* idQueueTemplate<type, nextOffset>::Get()
 {
 	type* element;
-	
+
 	element = first;
 	if( element )
 	{
@@ -103,7 +103,7 @@ public:
 	{
 		next = NULL;
 	}
-	
+
 	type* 		GetNext() const
 	{
 		return next;
@@ -112,7 +112,7 @@ public:
 	{
 		this->next = next;
 	}
-	
+
 private:
 	type* 		next;
 };
@@ -128,14 +128,14 @@ class idQueue
 {
 public:
 	idQueue();
-	
+
 	void		Add( type* element );
 	type* 		RemoveFirst();
 	type* 		Peek() const;
 	bool		IsEmpty();
-	
+
 	static void	Test();
-	
+
 private:
 	type* 		first;
 	type* 		last;
@@ -181,7 +181,7 @@ template< typename type, idQueueNode<type> type::*nodePtr >
 type* idQueue<type, nodePtr>::RemoveFirst()
 {
 	type* element;
-	
+
 	element = first;
 	if( element )
 	{
@@ -231,9 +231,9 @@ void idQueue<type, nodePtr>::Test()
 	public:
 		idQueueNode<idMyType> queueNode;
 	};
-	
+
 	idQueue<idMyType, &idMyType::queueNode> myQueue;
-	
+
 	idMyType* element = new( TAG_IDLIB ) idMyType;
 	myQueue.Add( element );
 	element = myQueue.RemoveFirst();

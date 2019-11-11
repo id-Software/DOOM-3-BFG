@@ -53,11 +53,11 @@ class idPlayerProfile
 {
 	friend class idLocalUser;
 	friend class idProfileMgr;
-	
+
 public:
 	// Only have room to squeeze ~450 in doom3 right now
 	static const int MAX_PLAYER_PROFILE_STATS = 200;
-	
+
 	enum state_t
 	{
 		IDLE = 0,
@@ -72,12 +72,12 @@ protected:
 public:
 
 	virtual			~idPlayerProfile();
-	
+
 	static idPlayerProfile* CreatePlayerProfile( int deviceIndex );
-	
+
 	void			SetDefaults();
 	bool			Serialize( idSerializer& ser );
-	
+
 	const int		GetDeviceNumForProfile() const
 	{
 		return deviceNum;
@@ -100,11 +100,11 @@ public:
 	{
 		return dirty;
 	}
-	
+
 	bool			GetAchievement( const int id ) const;
 	void			SetAchievement( const int id );
 	void			ClearAchievement( const int id );
-	
+
 	int				GetDlcReleaseVersion() const
 	{
 		return dlcReleaseVersion;
@@ -113,12 +113,12 @@ public:
 	{
 		dlcReleaseVersion = version;
 	}
-	
+
 	int				GetLevel() const
 	{
 		return 0;
 	}
-	
+
 	//------------------------
 	// Config
 	//------------------------
@@ -128,13 +128,13 @@ public:
 	}
 	void			SetConfig( int config, bool save );
 	void			RestoreDefault();
-	
+
 	void			SetLeftyFlip( bool lf );
 	bool			GetLeftyFlip() const
 	{
 		return leftyFlip;
 	}
-	
+
 private:
 	void			StatSetInt( int s, int v );
 	void			StatSetFloat( int s, float v );
@@ -152,15 +152,15 @@ private:
 	{
 		dirty = isDirty;
 	}
-	
+
 	void			ExecConfig( bool save = false, bool forceDefault = false );
-	
+
 protected:
 	// Do not save:
 	state_t			state;
 	state_t			requestedState;
 	int				deviceNum;
-	
+
 	// Save:
 	uint64			achievementBits;
 	uint64			achievementBits2;
@@ -168,9 +168,9 @@ protected:
 	int				configSet;
 	bool			customConfig;
 	bool			leftyFlip;
-	
+
 	bool			dirty;		// dirty bit to indicate whether or not we need to save
-	
+
 	idStaticList< profileStatValue_t, MAX_PLAYER_PROFILE_STATS > stats;
 };
 

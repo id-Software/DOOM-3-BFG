@@ -44,7 +44,7 @@ public:
 	explicit idPluecker( const float* a );
 	explicit idPluecker( const idVec3& start, const idVec3& end );
 	explicit idPluecker( const float a1, const float a2, const float a3, const float a4, const float a5, const float a6 );
-	
+
 	float			operator[]( const int index ) const;
 	float& 			operator[]( const int index );
 	idPluecker		operator-() const;											// flips the direction
@@ -57,15 +57,15 @@ public:
 	idPluecker& 	operator/=( const float a );
 	idPluecker& 	operator+=( const idPluecker& a );
 	idPluecker& 	operator-=( const idPluecker& a );
-	
+
 	bool			Compare( const idPluecker& a ) const;						// exact compare, no epsilon
 	bool			Compare( const idPluecker& a, const float epsilon ) const;	// compare with epsilon
 	bool			operator==(	const idPluecker& a ) const;					// exact compare, no epsilon
 	bool			operator!=(	const idPluecker& a ) const;					// exact compare, no epsilon
-	
+
 	void 			Set( const float a1, const float a2, const float a3, const float a4, const float a5, const float a6 );
 	void			Zero();
-	
+
 	void			FromLine( const idVec3& start, const idVec3& end );			// pluecker from line
 	void			FromRay( const idVec3& start, const idVec3& dir );			// pluecker from ray
 	bool			FromPlanes( const idPlane& p1, const idPlane& p2 );			// pluecker from intersection of planes
@@ -74,18 +74,18 @@ public:
 	void			ToDir( idVec3& dir ) const;									// pluecker to direction
 	float			PermutedInnerProduct( const idPluecker& a ) const;			// pluecker permuted inner product
 	float			Distance3DSqr( const idPluecker& a ) const;					// pluecker line distance
-	
+
 	float			Length() const;										// pluecker length
 	float			LengthSqr() const;									// pluecker squared length
 	idPluecker		Normalize() const;									// pluecker normalize
 	float			NormalizeSelf();										// pluecker normalize
-	
+
 	int				GetDimension() const;
-	
+
 	const float* 	ToFloatPtr() const;
 	float* 			ToFloatPtr();
 	const char* 	ToString( int precision = 2 ) const;
-	
+
 private:
 	float			p[6];
 };
@@ -145,7 +145,7 @@ ID_INLINE float idPluecker::operator*( const idPluecker& a ) const
 ID_INLINE idPluecker idPluecker::operator/( const float a ) const
 {
 	float inva;
-	
+
 	assert( a != 0.0f );
 	inva = 1.0f / a;
 	return idPluecker( p[0] * inva, p[1] * inva, p[2] * inva, p[3] * inva, p[4] * inva, p[5] * inva );
@@ -175,7 +175,7 @@ ID_INLINE idPluecker& idPluecker::operator*=( const float a )
 ID_INLINE idPluecker& idPluecker::operator/=( const float a )
 {
 	float inva;
-	
+
 	assert( a != 0.0f );
 	inva = 1.0f / a;
 	p[0] *= inva;
@@ -221,32 +221,32 @@ ID_INLINE bool idPluecker::Compare( const idPluecker& a, const float epsilon ) c
 	{
 		return false;
 	}
-	
+
 	if( idMath::Fabs( p[1] - a[1] ) > epsilon )
 	{
 		return false;
 	}
-	
+
 	if( idMath::Fabs( p[2] - a[2] ) > epsilon )
 	{
 		return false;
 	}
-	
+
 	if( idMath::Fabs( p[3] - a[3] ) > epsilon )
 	{
 		return false;
 	}
-	
+
 	if( idMath::Fabs( p[4] - a[4] ) > epsilon )
 	{
 		return false;
 	}
-	
+
 	if( idMath::Fabs( p[5] - a[5] ) > epsilon )
 	{
 		return false;
 	}
-	
+
 	return true;
 }
 
@@ -299,21 +299,21 @@ ID_INLINE bool idPluecker::ToLine( idVec3& start, idVec3& end ) const
 {
 	idVec3 dir1, dir2;
 	float d;
-	
+
 	dir1[0] = p[3];
 	dir1[1] = -p[1];
 	dir1[2] = p[0];
-	
+
 	dir2[0] = -p[2];
 	dir2[1] = p[5];
 	dir2[2] = -p[4];
-	
+
 	d = dir2 * dir2;
 	if( d == 0.0f )
 	{
 		return false; // pluecker coordinate does not represent a line
 	}
-	
+
 	start = dir2.Cross( dir1 ) * ( 1.0f / d );
 	end = start + dir2;
 	return true;
@@ -323,21 +323,21 @@ ID_INLINE bool idPluecker::ToRay( idVec3& start, idVec3& dir ) const
 {
 	idVec3 dir1;
 	float d;
-	
+
 	dir1[0] = p[3];
 	dir1[1] = -p[1];
 	dir1[2] = p[0];
-	
+
 	dir[0] = -p[2];
 	dir[1] = p[5];
 	dir[2] = -p[4];
-	
+
 	d = dir * dir;
 	if( d == 0.0f )
 	{
 		return false; // pluecker coordinate does not represent a line
 	}
-	
+
 	start = dir.Cross( dir1 ) * ( 1.0f / d );
 	return true;
 }
@@ -367,7 +367,7 @@ ID_INLINE float idPluecker::LengthSqr() const
 ID_INLINE float idPluecker::NormalizeSelf()
 {
 	float l, d;
-	
+
 	l = LengthSqr();
 	if( l == 0.0f )
 	{
@@ -386,7 +386,7 @@ ID_INLINE float idPluecker::NormalizeSelf()
 ID_INLINE idPluecker idPluecker::Normalize() const
 {
 	float d;
-	
+
 	d = LengthSqr();
 	if( d == 0.0f )
 	{

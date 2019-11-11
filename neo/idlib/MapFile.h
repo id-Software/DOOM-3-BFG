@@ -62,9 +62,9 @@ public:
 	// RB: new mesh primitive to work with Blender Ngons
 	enum { TYPE_INVALID = -1, TYPE_BRUSH, TYPE_PATCH, TYPE_MESH };
 	// RB end
-	
+
 	idDict					epairs;
-	
+
 	idMapPrimitive()
 	{
 		type = TYPE_INVALID;
@@ -74,7 +74,7 @@ public:
 	{
 		return type;
 	}
-	
+
 protected:
 	int						type;
 };
@@ -83,7 +83,7 @@ protected:
 class idMapBrushSide
 {
 	friend class idMapBrush;
-	
+
 public:
 	idMapBrushSide();
 	~idMapBrushSide() { }
@@ -114,7 +114,7 @@ public:
 		mat2 = texMat[1];
 	}
 	void					GetTextureVectors( idVec4 v[2] ) const;
-	
+
 protected:
 	idStr					material;
 	idPlane					plane;
@@ -159,7 +159,7 @@ public:
 		return sides[i];
 	}
 	unsigned int			GetGeometryCRC() const;
-	
+
 protected:
 	int						numSides;
 	idList<idMapBrushSide*, TAG_IDLIB_LIST_MAP> sides;
@@ -207,7 +207,7 @@ public:
 		explicitSubdivisions = b;
 	}
 	unsigned int			GetGeometryCRC() const;
-	
+
 protected:
 	idStr					material;
 	int						horzSubdivisions;
@@ -242,43 +242,43 @@ ID_INLINE idMapPatch::idMapPatch( int maxPatchWidth, int maxPatchHeight )
 class MapPolygon
 {
 	friend class MapPolygonMesh;
-	
+
 public:
 	MapPolygon();
 	MapPolygon( int numIndexes );
 	~MapPolygon() { }
-	
+
 	const char* 			GetMaterial() const
 	{
 		return material;
 	}
-	
+
 	void					SetMaterial( const char* p )
 	{
 		material = p;
 	}
-	
+
 	void					AddIndex( int index )
 	{
 		indexes.Append( index );
 	}
-	
+
 	void					SetIndexes( const idTempArray<int>& _indexes )
 	{
 		indexes.Resize( _indexes.Num() );
-		
+
 		for( unsigned int i = 0; i < _indexes.Num(); i++ )
 		{
 			indexes[i] = _indexes[i];
 		}
 	}
-	
+
 	const idList<int>&		GetIndexes() const
 	{
 		return indexes;
 	}
-	
-	
+
+
 protected:
 	idStr					material;
 	idList<int>				indexes;		// [3..n] references to vertices for each face
@@ -303,72 +303,72 @@ public:
 		//verts.DeleteContents();
 		//polygons.DeleteContents( true );
 	}
-	
+
 	void					ConvertFromBrush( const idMapBrush* brush, int entityNum, int primitiveNum );
 	void					ConvertFromPatch( const idMapPatch* patch, int entityNum, int primitiveNum );
-	
+
 	static MapPolygonMesh*	Parse( idLexer& src, const idVec3& origin, float version = CURRENT_MAP_VERSION );
 	bool					Write( idFile* fp, int primitiveNum, const idVec3& origin ) const;
-	
+
 	static MapPolygonMesh*	ParseJSON( idLexer& src );
 	bool					WriteJSON( idFile* fp, int primitiveNum, const idVec3& origin ) const;
-	
-	
-	
+
+
+
 	int						GetNumVertices() const
 	{
 		return verts.Num();
 	}
-	
+
 	int						AddVertex( const idDrawVert& v )
 	{
 		return verts.Append( v );
 	}
-	
-	
+
+
 	int						GetNumPolygons() const
 	{
 		return polygons.Num();
 	}
-	
+
 	//int						AddPolygon( MapPolygon* face )
 	//{
 	//	return polygons.Append( face );
 	//}
-	
+
 	const MapPolygon& 			GetFace( int i ) const
 	{
 		return polygons[i];
 	}
-	
+
 	unsigned int			GetGeometryCRC() const;
-	
+
 	const idList<idDrawVert>&	GetDrawVerts() const
 	{
 		return verts;
 	}
-	
+
 	bool					IsOpaque() const
 	{
 		return opaque;
 	}
-	
+
 	bool					IsAreaportal() const;
-	
+
 	void					GetBounds( idBounds& bounds ) const;
-	
+
 private:
 	void					SetContents();
-	
+
 	int						originalType;
-	
+
 protected:
 
 	idList<idDrawVert>		verts;			// vertices can be shared between polygons
 	idList<MapPolygon>		polygons;
-	
+
 	// derived data after parsing
-	
+
 	// material surface flags
 	int						contents;
 	bool					opaque;
@@ -381,10 +381,10 @@ protected:
 class idMapEntity
 {
 	friend class			idMapFile;
-	
+
 public:
 	idDict					epairs;
-	
+
 public:
 	idMapEntity()
 	{
@@ -414,7 +414,7 @@ public:
 	}
 	unsigned int			GetGeometryCRC() const;
 	void					RemovePrimitiveData();
-	
+
 protected:
 	idList<idMapPrimitive*, TAG_IDLIB_LIST_MAP>	primitives;
 };
@@ -428,19 +428,19 @@ public:
 	{
 		entities.DeleteContents( true );
 	}
-	
+
 	// filename does not require an extension
 	// normally this will use a .reg file instead of a .map file if it exists,
 	// which is what the game and dmap want, but the editor will want to always
 	// load a .map file
 	bool					Parse( const char* filename, bool ignoreRegion = false, bool osPath = false );
 	bool					Write( const char* fileName, const char* ext, bool fromBasePath = true );
-	
+
 	// RB begin
 	bool					WriteJSON( const char* fileName, const char* ext, bool fromBasePath = true );
 	bool					ConvertToPolygonMeshFormat();
 	// RB end
-	
+
 	// get the number of entities in the map
 	int						GetNumEntities() const
 	{
@@ -469,7 +469,7 @@ public:
 	}
 	// returns true if the file on disk changed
 	bool					NeedsReload();
-	
+
 	int						AddEntity( idMapEntity* mapentity );
 	idMapEntity* 			FindEntity( const char* name );
 	void					RemoveEntity( idMapEntity* mapEnt );
@@ -480,7 +480,7 @@ public:
 	{
 		return hasPrimitiveData;
 	}
-	
+
 protected:
 	float					version;
 	ID_TIME_T					fileTime;
@@ -488,7 +488,7 @@ protected:
 	idList<idMapEntity*, TAG_IDLIB_LIST_MAP>	entities;
 	idStr					name;
 	bool					hasPrimitiveData;
-	
+
 private:
 	void					SetGeometryCRC();
 };

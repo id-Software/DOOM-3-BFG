@@ -54,22 +54,22 @@ enum utf8Encoding_t
 #define strncmp			use_idStr_Cmpn
 
 #if defined( StrCmpN )
-#undef StrCmpN
+	#undef StrCmpN
 #endif
 #define StrCmpN			use_idStr_Cmpn
 
 #if defined( strcmpi )
-#undef strcmpi
+	#undef strcmpi
 #endif
 #define strcmpi			use_idStr_Icmp
 
 #if defined( StrCmpI )
-#undef StrCmpI
+	#undef StrCmpI
 #endif
 #define StrCmpI			use_idStr_Icmp
 
 #if defined( StrCmpNI )
-#undef StrCmpNI
+	#undef StrCmpNI
 #endif
 #define StrCmpNI		use_idStr_Icmpn
 
@@ -86,7 +86,7 @@ enum utf8Encoding_t
 class idVec4;
 
 #ifndef FILE_HASH_SIZE
-#define FILE_HASH_SIZE		1024
+	#define FILE_HASH_SIZE		1024
 #endif
 
 // color escape character
@@ -140,28 +140,28 @@ public:
 	explicit idStr( const unsigned u );
 	explicit idStr( const float f );
 	~idStr();
-	
+
 	size_t				Size() const;
 	const char* 		c_str() const;
 	operator			const char* () const;
 	operator			const char* ();
-	
+
 	char				operator[]( int index ) const;
 	char& 				operator[]( int index );
-	
+
 	void				operator=( const idStr& text );
 	void				operator=( const char* text );
-	
+
 	friend idStr		operator+( const idStr& a, const idStr& b );
 	friend idStr		operator+( const idStr& a, const char* b );
 	friend idStr		operator+( const char* a, const idStr& b );
-	
+
 	friend idStr		operator+( const idStr& a, const float b );
 	friend idStr		operator+( const idStr& a, const int b );
 	friend idStr		operator+( const idStr& a, const unsigned b );
 	friend idStr		operator+( const idStr& a, const bool b );
 	friend idStr		operator+( const idStr& a, const char b );
-	
+
 	idStr& 				operator+=( const idStr& a );
 	idStr& 				operator+=( const char* a );
 	idStr& 				operator+=( const float a );
@@ -169,35 +169,35 @@ public:
 	idStr& 				operator+=( const int a );
 	idStr& 				operator+=( const unsigned a );
 	idStr& 				operator+=( const bool a );
-	
+
 	// case sensitive compare
 	friend bool			operator==( const idStr& a, const idStr& b );
 	friend bool			operator==( const idStr& a, const char* b );
 	friend bool			operator==( const char* a, const idStr& b );
-	
+
 	// case sensitive compare
 	friend bool			operator!=( const idStr& a, const idStr& b );
 	friend bool			operator!=( const idStr& a, const char* b );
 	friend bool			operator!=( const char* a, const idStr& b );
-	
+
 	// case sensitive compare
 	int					Cmp( const char* text ) const;
 	int					Cmpn( const char* text, int n ) const;
 	int					CmpPrefix( const char* text ) const;
-	
+
 	// case insensitive compare
 	int					Icmp( const char* text ) const;
 	int					Icmpn( const char* text, int n ) const;
 	int					IcmpPrefix( const char* text ) const;
-	
+
 	// case insensitive compare ignoring color
 	int					IcmpNoColor( const char* text ) const;
-	
+
 	// compares paths and makes sure folders come first
 	int					IcmpPath( const char* text ) const;
 	int					IcmpnPath( const char* text, int n ) const;
 	int					IcmpPrefixPath( const char* text ) const;
-	
+
 	int					Length() const;
 	int					Allocated() const;
 	void				Empty();
@@ -219,7 +219,7 @@ public:
 	idStr& 				RemoveColors();
 	void				CapLength( int );
 	void				Fill( const char ch, int newlen );
-	
+
 	ID_INLINE int			UTF8Length();
 	ID_INLINE uint32		UTF8Char( int& idx );
 	static int				UTF8Length( const byte* s );
@@ -237,7 +237,7 @@ public:
 	{
 		return IsValidUTF8( ( const uint8* )s, maxLen );
 	}
-	
+
 	int					Find( const char c, int start = 0, int end = -1 ) const;
 	int					Find( const char* text, bool casesensitive = true, int start = 0, int end = -1 ) const;
 	bool				Filter( const char* filter, bool casesensitive ) const;
@@ -267,7 +267,7 @@ public:
 	bool				Replace( const char* old, const char* nw );
 	bool				ReplaceChar( const char old, const char nw );
 	ID_INLINE void		CopyRange( const char* text, int start, int end );
-	
+
 	// file name methods
 	int					FileNameHash() const;						// hash key for the filename (skips extension)
 	idStr& 				BackSlashesToSlashes();					// convert slashes
@@ -285,7 +285,7 @@ public:
 	void				ExtractFileBase( idStr& dest ) const;			// copy the filename minus the extension to another string
 	void				ExtractFileExtension( idStr& dest ) const;		// copy the file extension to another string
 	bool				CheckExtension( const char* ext );
-	
+
 	// char * methods to replace library functions
 	static int			Length( const char* s );
 	static char* 		ToLower( char* s );
@@ -315,13 +315,13 @@ public:
 	static const char* 	FloatArrayToString( const float* array, const int length, const int precision );
 	static const char* 	CStyleQuote( const char* str );
 	static const char* 	CStyleUnQuote( const char* str );
-	
+
 	// hash keys
 	static int			Hash( const char* string );
 	static int			Hash( const char* string, int length );
 	static int			IHash( const char* string );					// case insensitive
 	static int			IHash( const char* string, int length );		// case insensitive
-	
+
 	// character methods
 	static char			ToLower( char c );
 	static char			ToUpper( char c );
@@ -334,47 +334,47 @@ public:
 	static bool			CharIsTab( char c );
 	static int			ColorIndex( int c );
 	static idVec4& 		ColorForIndex( int i );
-	
+
 	friend int			sprintf( idStr& dest, const char* fmt, ... );
 	friend int			vsprintf( idStr& dest, const char* fmt, va_list ap );
-	
+
 	void				ReAllocate( int amount, bool keepold );				// reallocate string data buffer
 	void				FreeData();									// free allocated string memory
-	
+
 	// format value in the given measurement with the best unit, returns the best unit
 	int					BestUnit( const char* format, float value, Measure_t measure );
 	// format value in the requested unit and measurement
 	void				SetUnit( const char* format, float value, int unit, Measure_t measure );
-	
+
 	static void			InitMemory();
 	static void			ShutdownMemory();
 	static void			PurgeMemory();
 	static void			ShowMemoryUsage_f( const idCmdArgs& args );
-	
+
 	int					DynamicMemoryUsed() const;
 	static idStr		FormatNumber( int number );
-	
+
 protected:
 	int					len;
 	char* 				data;
 	int					allocedAndFlag;	// top bit is used to store a flag that indicates if the string data is static or not
 	char				baseBuffer[ STR_ALLOC_BASE ];
-	
+
 	void				EnsureAlloced( int amount, bool keepold = true );	// ensure string data buffer is large anough
-	
+
 	// sets the data point to the specified buffer... note that this ignores makes the passed buffer empty and ignores
 	// anything currently in the idStr's dynamic buffer.  This method is intended to be called only from a derived class's constructor.
 	ID_INLINE void		SetStaticBuffer( char* buffer, const int bufferLength );
-	
+
 private:
 	// initialize string using base buffer... call ONLY FROM CONSTRUCTOR
 	ID_INLINE void		Construct();
-	
+
 	static const uint32	STATIC_BIT	= 31;
 	static const uint32	STATIC_MASK	= 1u << STATIC_BIT;
 	static const uint32	ALLOCED_MASK = STATIC_MASK - 1;
-	
-	
+
+
 	ID_INLINE int		GetAlloced() const
 	{
 		return allocedAndFlag & ALLOCED_MASK;
@@ -383,7 +383,7 @@ private:
 	{
 		allocedAndFlag = ( allocedAndFlag & STATIC_MASK ) | ( a & ALLOCED_MASK );
 	}
-	
+
 	ID_INLINE bool		IsStatic() const
 	{
 		return ( allocedAndFlag & STATIC_MASK ) != 0;
@@ -392,7 +392,7 @@ private:
 	{
 		allocedAndFlag = ( allocedAndFlag & ALLOCED_MASK ) | ( isStatic << STATIC_BIT );
 	}
-	
+
 public:
 	static const int	INVALID_POSITION = -1;
 };
@@ -481,7 +481,7 @@ ID_INLINE idStr::idStr( const idStr& text )
 {
 	Construct();
 	int l;
-	
+
 	l = text.Length();
 	EnsureAlloced( l + 1 );
 	strcpy( data, text.data );
@@ -493,7 +493,7 @@ ID_INLINE idStr::idStr( const idStr& text, int start, int end )
 	Construct();
 	int i;
 	int l;
-	
+
 	if( end > text.Length() )
 	{
 		end = text.Length();
@@ -506,20 +506,20 @@ ID_INLINE idStr::idStr( const idStr& text, int start, int end )
 	{
 		start = 0;
 	}
-	
+
 	l = end - start;
 	if( l < 0 )
 	{
 		l = 0;
 	}
-	
+
 	EnsureAlloced( l + 1 );
-	
+
 	for( i = 0; i < l; i++ )
 	{
 		data[ i ] = text[ start + i ];
 	}
-	
+
 	data[ l ] = '\0';
 	len = l;
 }
@@ -528,7 +528,7 @@ ID_INLINE idStr::idStr( const char* text )
 {
 	Construct();
 	int l;
-	
+
 	if( text )
 	{
 		// RB: 64 bit fixes,  conversion from 'size_t' to 'int', possible loss of data
@@ -547,7 +547,7 @@ ID_INLINE idStr::idStr( const char* text, int start, int end )
 	// RB: 64 bit fixes,  conversion from 'size_t' to 'int', possible loss of data
 	int l = ( int )strlen( text );
 	// RB end
-	
+
 	if( end > l )
 	{
 		end = l;
@@ -560,20 +560,20 @@ ID_INLINE idStr::idStr( const char* text, int start, int end )
 	{
 		start = 0;
 	}
-	
+
 	l = end - start;
 	if( l < 0 )
 	{
 		l = 0;
 	}
-	
+
 	EnsureAlloced( l + 1 );
-	
+
 	for( i = 0; i < l; i++ )
 	{
 		data[ i ] = text[ start + i ];
 	}
-	
+
 	data[ l ] = '\0';
 	len = l;
 }
@@ -601,7 +601,7 @@ ID_INLINE idStr::idStr( const int i )
 	Construct();
 	char text[ 64 ];
 	int l;
-	
+
 	l = sprintf( text, "%d", i );
 	EnsureAlloced( l + 1 );
 	strcpy( data, text );
@@ -613,7 +613,7 @@ ID_INLINE idStr::idStr( const unsigned u )
 	Construct();
 	char text[ 64 ];
 	int l;
-	
+
 	l = sprintf( text, "%u", u );
 	EnsureAlloced( l + 1 );
 	strcpy( data, text );
@@ -625,10 +625,16 @@ ID_INLINE idStr::idStr( const float f )
 	Construct();
 	char text[ 64 ];
 	int l;
-	
+
 	l = idStr::snPrintf( text, sizeof( text ), "%f", f );
-	while( l > 0 && text[l - 1] == '0' ) text[--l] = '\0';
-	while( l > 0 && text[l - 1] == '.' ) text[--l] = '\0';
+	while( l > 0 && text[l - 1] == '0' )
+	{
+		text[--l] = '\0';
+	}
+	while( l > 0 && text[l - 1] == '.' )
+	{
+		text[--l] = '\0';
+	}
 	EnsureAlloced( l + 1 );
 	strcpy( data, text );
 	len = l;
@@ -674,7 +680,7 @@ ID_INLINE char& idStr::operator[]( int index )
 ID_INLINE void idStr::operator=( const idStr& text )
 {
 	int l;
-	
+
 	l = text.Length();
 	EnsureAlloced( l + 1, false );
 	memcpy( data, text.data, l );
@@ -721,10 +727,10 @@ ID_INLINE idStr operator+( const idStr& a, const float b )
 {
 	char	text[ 64 ];
 	idStr	result( a );
-	
+
 	sprintf( text, "%f", b );
 	result.Append( text );
-	
+
 	return result;
 }
 
@@ -732,10 +738,10 @@ ID_INLINE idStr operator+( const idStr& a, const int b )
 {
 	char	text[ 64 ];
 	idStr	result( a );
-	
+
 	sprintf( text, "%d", b );
 	result.Append( text );
-	
+
 	return result;
 }
 
@@ -743,40 +749,40 @@ ID_INLINE idStr operator+( const idStr& a, const unsigned b )
 {
 	char	text[ 64 ];
 	idStr	result( a );
-	
+
 	sprintf( text, "%u", b );
 	result.Append( text );
-	
+
 	return result;
 }
 
 ID_INLINE idStr& idStr::operator+=( const float a )
 {
 	char text[ 64 ];
-	
+
 	sprintf( text, "%f", a );
 	Append( text );
-	
+
 	return *this;
 }
 
 ID_INLINE idStr& idStr::operator+=( const int a )
 {
 	char text[ 64 ];
-	
+
 	sprintf( text, "%d", a );
 	Append( text );
-	
+
 	return *this;
 }
 
 ID_INLINE idStr& idStr::operator+=( const unsigned a )
 {
 	char text[ 64 ];
-	
+
 	sprintf( text, "%u", a );
 	Append( text );
-	
+
 	return *this;
 }
 
@@ -955,7 +961,7 @@ ID_INLINE void idStr::Append( const idStr& text )
 {
 	int newLen;
 	int i;
-	
+
 	newLen = len + text.Length();
 	EnsureAlloced( newLen + 1 );
 	for( i = 0; i < text.len; i++ )
@@ -970,7 +976,7 @@ ID_INLINE void idStr::Append( const char* text )
 {
 	int newLen;
 	int i;
-	
+
 	if( text )
 	{
 		// RB: 64 bit fixes,  conversion from 'size_t' to 'int', possible loss of data
@@ -990,7 +996,7 @@ ID_INLINE void idStr::Append( const char* text, int l )
 {
 	int newLen;
 	int i;
-	
+
 	if( text && l )
 	{
 		newLen = len + l;
@@ -1007,7 +1013,7 @@ ID_INLINE void idStr::Append( const char* text, int l )
 ID_INLINE void idStr::Insert( const char a, int index )
 {
 	int i, l;
-	
+
 	if( index < 0 )
 	{
 		index = 0;
@@ -1016,7 +1022,7 @@ ID_INLINE void idStr::Insert( const char a, int index )
 	{
 		index = len;
 	}
-	
+
 	l = 1;
 	EnsureAlloced( len + l + 1 );
 	for( i = len; i >= index; i-- )
@@ -1030,7 +1036,7 @@ ID_INLINE void idStr::Insert( const char a, int index )
 ID_INLINE void idStr::Insert( const char* text, int index )
 {
 	int i, l;
-	
+
 	if( index < 0 )
 	{
 		index = 0;
@@ -1039,7 +1045,7 @@ ID_INLINE void idStr::Insert( const char* text, int index )
 	{
 		index = len;
 	}
-	
+
 	// RB: 64 bit fixes,  conversion from 'size_t' to 'int', possible loss of data
 	l = ( int )strlen( text );
 	// RB end
@@ -1408,14 +1414,14 @@ ID_INLINE void idStr::CopyRange( const char* text, int start, int end )
 	{
 		l = 0;
 	}
-	
+
 	EnsureAlloced( l + 1 );
-	
+
 	for( int i = 0; i < l; i++ )
 	{
 		data[ i ] = text[ start + i ];
 	}
-	
+
 	data[ l ] = '\0';
 	len = l;
 }

@@ -73,7 +73,7 @@ Encodes input (UINT4) into output (unsigned char). Assumes len is a multiple of 
 static void Encode( unsigned char* output, UINT4* input, unsigned int len )
 {
 	unsigned int i, j;
-	
+
 	for( i = 0, j = 0; j < len; i++, j += 4 )
 	{
 		output[j] = ( unsigned char )( input[i] & 0xff );
@@ -93,7 +93,7 @@ Decodes input (unsigned char) into output (UINT4). Assumes len is a multiple of 
 static void Decode( UINT4* output, const unsigned char* input, unsigned int len )
 {
 	unsigned int i, j;
-	
+
 	for( i = 0, j = 0; j < len; i++, j += 4 )
 	{
 		output[i] = ( ( UINT4 )input[j] ) | ( ( ( UINT4 )input[j + 1] ) << 8 ) | ( ( ( UINT4 )input[j + 2] ) << 16 ) | ( ( ( UINT4 )input[j + 3] ) << 24 );
@@ -112,14 +112,14 @@ routine.
 void MD5_Transform( unsigned int state[4], const unsigned char block[64] )
 {
 	unsigned int a, b, c, d, x[16];
-	
+
 	a = state[0];
 	b = state[1];
 	c = state[2];
 	d = state[3];
-	
+
 	Decode( x, block, 64 );
-	
+
 	MD5STEP( F1, a, b, c, d, x[ 0] + 0xd76aa478,  7 );
 	MD5STEP( F1, d, a, b, c, x[ 1] + 0xe8c7b756, 12 );
 	MD5STEP( F1, c, d, a, b, x[ 2] + 0x242070db, 17 );
@@ -136,7 +136,7 @@ void MD5_Transform( unsigned int state[4], const unsigned char block[64] )
 	MD5STEP( F1, d, a, b, c, x[13] + 0xfd987193, 12 );
 	MD5STEP( F1, c, d, a, b, x[14] + 0xa679438e, 17 );
 	MD5STEP( F1, b, c, d, a, x[15] + 0x49b40821, 22 );
-	
+
 	MD5STEP( F2, a, b, c, d, x[ 1] + 0xf61e2562,  5 );
 	MD5STEP( F2, d, a, b, c, x[ 6] + 0xc040b340,  9 );
 	MD5STEP( F2, c, d, a, b, x[11] + 0x265e5a51, 14 );
@@ -153,7 +153,7 @@ void MD5_Transform( unsigned int state[4], const unsigned char block[64] )
 	MD5STEP( F2, d, a, b, c, x[ 2] + 0xfcefa3f8,  9 );
 	MD5STEP( F2, c, d, a, b, x[ 7] + 0x676f02d9, 14 );
 	MD5STEP( F2, b, c, d, a, x[12] + 0x8d2a4c8a, 20 );
-	
+
 	MD5STEP( F3, a, b, c, d, x[ 5] + 0xfffa3942,  4 );
 	MD5STEP( F3, d, a, b, c, x[ 8] + 0x8771f681, 11 );
 	MD5STEP( F3, c, d, a, b, x[11] + 0x6d9d6122, 16 );
@@ -170,7 +170,7 @@ void MD5_Transform( unsigned int state[4], const unsigned char block[64] )
 	MD5STEP( F3, d, a, b, c, x[12] + 0xe6db99e5, 11 );
 	MD5STEP( F3, c, d, a, b, x[15] + 0x1fa27cf8, 16 );
 	MD5STEP( F3, b, c, d, a, x[ 2] + 0xc4ac5665, 23 );
-	
+
 	MD5STEP( F4, a, b, c, d, x[ 0] + 0xf4292244,  6 );
 	MD5STEP( F4, d, a, b, c, x[ 7] + 0x432aff97, 10 );
 	MD5STEP( F4, c, d, a, b, x[14] + 0xab9423a7, 15 );
@@ -187,12 +187,12 @@ void MD5_Transform( unsigned int state[4], const unsigned char block[64] )
 	MD5STEP( F4, d, a, b, c, x[11] + 0xbd3af235, 10 );
 	MD5STEP( F4, c, d, a, b, x[ 2] + 0x2ad7d2bb, 15 );
 	MD5STEP( F4, b, c, d, a, x[ 9] + 0xeb86d391, 21 );
-	
+
 	state[0] += a;
 	state[1] += b;
 	state[2] += c;
 	state[3] += d;
-	
+
 	// Zeroize sensitive information.
 	memset( ( POINTER )x, 0, sizeof( x ) );
 }
@@ -210,7 +210,7 @@ void MD5_Init( MD5_CTX* ctx )
 	ctx->state[1] = 0xefcdab89;
 	ctx->state[2] = 0x98badcfe;
 	ctx->state[3] = 0x10325476;
-	
+
 	ctx->bits[0] = 0;
 	ctx->bits[1] = 0;
 }
@@ -226,38 +226,38 @@ message block, and updating the context.
 void MD5_Update( MD5_CTX* context, unsigned char const* input, size_t inputLen )
 {
 	unsigned int i, index, partLen;
-	
+
 	// Compute number of bytes mod 64
 	index = ( unsigned int )( ( context->bits[0] >> 3 ) & 0x3F );
-	
+
 	// Update number of bits
 	if( ( context->bits[0] += ( ( UINT4 )inputLen << 3 ) ) < ( ( UINT4 )inputLen << 3 ) )
 	{
 		context->bits[1]++;
 	}
-	
+
 	context->bits[1] += ( ( UINT4 )inputLen >> 29 );
-	
+
 	partLen = 64 - index;
-	
+
 	// Transform as many times as possible.
 	if( inputLen >= partLen )
 	{
 		memcpy( ( POINTER )&context->in[index], ( POINTER )input, partLen );
 		MD5_Transform( context->state, context->in );
-		
+
 		for( i = partLen; i + 63 < inputLen; i += 64 )
 		{
 			MD5_Transform( context->state, &input[i] );
 		}
-		
+
 		index = 0;
 	}
 	else
 	{
 		i = 0;
 	}
-	
+
 	// Buffer remaining input
 	memcpy( ( POINTER )&context->in[index], ( POINTER )&input[i], inputLen - i );
 }
@@ -274,21 +274,21 @@ void MD5_Final( MD5_CTX* context, unsigned char digest[16] )
 {
 	unsigned char bits[8];
 	unsigned int index, padLen;
-	
+
 	// Save number of bits
 	Encode( bits, context->bits, 8 );
-	
+
 	// Pad out to 56 mod 64.
 	index = ( unsigned int )( ( context->bits[0] >> 3 ) & 0x3f );
 	padLen = ( index < 56 ) ? ( 56 - index ) : ( 120 - index );
 	MD5_Update( context, PADDING, padLen );
-	
+
 	// Append length (before padding)
 	MD5_Update( context, bits, 8 );
-	
+
 	// Store state in digest
 	Encode( digest, context->state, 16 );
-	
+
 	// Zeroize sensitive information.
 	memset( ( POINTER )context, 0, sizeof( *context ) );
 }
@@ -304,16 +304,16 @@ unsigned int MD5_BlockChecksum( const void* data, size_t length )
 	unsigned char	digest[16];
 	unsigned int	val;
 	MD5_CTX			ctx;
-	
+
 	MD5_Init( &ctx );
 	MD5_Update( &ctx, ( unsigned char* )data, length );
 	MD5_Final( &ctx, ( unsigned char* )digest );
-	
+
 	// Handle it manually to be endian-safe since we don't have access to idSwap.
 	val =	( digest[3] << 24 | digest[2] << 16 | digest[1] << 8 | digest[0] ) ^
 			( digest[7] << 24 | digest[6] << 16 | digest[5] << 8 | digest[4] ) ^
 			( digest[11] << 24 | digest[10] << 16 | digest[9] << 8 | digest[8] ) ^
 			( digest[15] << 24 | digest[14] << 16 | digest[13] << 8 | digest[12] );
-			
+
 	return val;
 }

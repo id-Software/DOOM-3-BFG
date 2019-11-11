@@ -55,7 +55,7 @@ class idEditField
 public:
 	idEditField();
 	~idEditField();
-	
+
 	void			Clear();
 	void			SetWidthInChars( int w );
 	void			SetCursor( int c );
@@ -69,7 +69,7 @@ public:
 	char* 			GetBuffer();
 	void			Draw( int x, int y, int width, bool showCursor );
 	void			SetBuffer( const char* buffer );
-	
+
 private:
 	int				cursor;
 	int				scroll;

@@ -40,7 +40,7 @@ void idToken::NumberValue()
 	int i, pow, div, c;
 	const char* p;
 	double m;
-	
+
 	assert( type == TT_NUMBER );
 	p = c_str();
 	floatvalue = 0;
@@ -176,11 +176,17 @@ void idToken::NumberValue()
 		{
 			intvalue <<= 4;
 			if( *p >= 'a' && *p <= 'f' )
+			{
 				intvalue += *p - 'a' + 10;
+			}
 			else if( *p >= 'A' && *p <= 'F' )
+			{
 				intvalue += *p - 'A' + 10;
+			}
 			else
+			{
 				intvalue += *p - '0';
+			}
 			p++;
 		}
 		floatvalue = intvalue;

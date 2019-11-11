@@ -78,33 +78,33 @@ class idThread : public idClass
 {
 private:
 	static idThread*				currentThread;
-	
+
 	idThread*					waitingForThread;
 	int							waitingFor;
 	int							waitingUntil;
 	idInterpreter				interpreter;
-	
+
 	idDict						spawnArgs;
-	
+
 	int 						threadNum;
 	idStr 						threadName;
-	
+
 	int							lastExecuteTime;
 	int							creationTime;
-	
+
 	bool						manualControl;
-	
+
 	static int					threadIndex;
 	static idList<idThread*, TAG_THREAD>	threadList;
-	
+
 	static trace_t				trace;
-	
+
 	void						Init();
 	void						Pause();
-	
+
 	void						Event_Execute();
 	void						Event_SetThreadName( const char* name );
-	
+
 	//
 	// script callable Events
 	//
@@ -189,25 +189,25 @@ private:
 	void						Event_DebugBounds( const idVec3& color, const idVec3& mins, const idVec3& maxs, const float lifetime );
 	void						Event_DrawText( const char* text, const idVec3& origin, float scale, const idVec3& color, const int align, const float lifetime );
 	void						Event_InfluenceActive();
-	
+
 public:
 	CLASS_PROTOTYPE( idThread );
-	
+
 	idThread();
 	idThread( idEntity* self, const function_t* func );
 	idThread( const function_t* func );
 	idThread( idInterpreter* source, const function_t* func, int args );
 	idThread( idInterpreter* source, idEntity* self, const function_t* func, int args );
-	
+
 	virtual						~idThread();
-	
+
 	// tells the thread manager not to delete this thread when it ends
 	void						ManualDelete();
-	
+
 	// save games
 	void						Save( idSaveGame* savefile ) const;				// archives object for save game file
 	void						Restore( idRestoreGame* savefile );				// unarchives object from save game file
-	
+
 	void						EnableDebugInfo()
 	{
 		interpreter.debug = true;
@@ -216,28 +216,28 @@ public:
 	{
 		interpreter.debug = false;
 	};
-	
+
 	void						WaitMS( int time );
 	void						WaitSec( float time );
 	void						WaitFrame();
-	
+
 	// NOTE: If this is called from within a event called by this thread, the function arguments will be invalid after calling this function.
 	void						CallFunction( const function_t*	func, bool clearStack );
-	
+
 	// NOTE: If this is called from within a event called by this thread, the function arguments will be invalid after calling this function.
 	void						CallFunction( idEntity* obj, const function_t* func, bool clearStack );
-	
+
 	void						DisplayInfo();
 	static idThread*				GetThread( int num );
 	static void					ListThreads_f( const idCmdArgs& args );
 	static void					Restart();
 	static void					ObjectMoveDone( int threadnum, idEntity* obj );
-	
+
 	static idList<idThread*>&	GetThreads();
-	
+
 	bool						IsDoneProcessing();
 	bool						IsDying();
-	
+
 	void						End();
 	static void					KillThread( const char* name );
 	static void					KillThread( int num );
@@ -275,15 +275,15 @@ public:
 	int 						GetThreadNum();
 	void						SetThreadName( const char* name );
 	const char*					GetThreadName();
-	
+
 	void						Error( VERIFY_FORMAT_STRING const char* fmt, ... ) const;
 	void						Warning( VERIFY_FORMAT_STRING const char* fmt, ... ) const;
-	
+
 	static idThread*				CurrentThread();
 	static int					CurrentThreadNum();
 	static bool					BeginMultiFrameEvent( idEntity* ent, const idEventDef* event );
 	static void					EndMultiFrameEvent( idEntity* ent, const idEventDef* event );
-	
+
 	static void					ReturnString( const char* text );
 	static void					ReturnFloat( float value );
 	static void					ReturnInt( int value );

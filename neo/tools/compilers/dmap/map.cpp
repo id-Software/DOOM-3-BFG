@@ -98,43 +98,43 @@ static void SetBrushContents( uBrush_t* b )
 	side_t*		s;
 	int			i;
 	bool	mixed;
-	
+
 	s = &b->sides[0];
 	contents = s->material->GetContentFlags();
-	
+
 	b->contentShader = s->material;
 	mixed = false;
-	
+
 	// a brush is only opaque if all sides are opaque
 	b->opaque = true;
-	
+
 	for( i = 1 ; i < b->numsides ; i++, s++ )
 	{
 		s = &b->sides[i];
-		
+
 		if( !s->material )
 		{
 			continue;
 		}
-		
+
 		c2 = s->material->GetContentFlags();
 		if( c2 != contents )
 		{
 			mixed = true;
 			contents |= c2;
 		}
-		
+
 		if( s->material->Coverage() != MC_OPAQUE )
 		{
 			b->opaque = false;
 		}
 	}
-	
+
 	if( contents & CONTENTS_AREAPORTAL )
 	{
 		c_areaportals++;
 	}
-	
+
 	b->contents = contents;
 }
 
@@ -149,7 +149,7 @@ FreeBuildBrush
 static void FreeBuildBrush()
 {
 	int		i;
-	
+
 	for( i = 0 ; i < buildBrush->numsides ; i++ )
 	{
 		if( buildBrush->sides[i].winding )
@@ -172,7 +172,7 @@ static uBrush_t* FinishBrush()
 {
 	uBrush_t*	b;
 	primitive_t*	prim;
-	
+
 	// create windings for sides and bounds for brush
 	if( !CreateBrushWindings( buildBrush ) )
 	{
@@ -180,7 +180,7 @@ static uBrush_t* FinishBrush()
 		FreeBuildBrush();
 		return NULL;
 	}
-	
+
 	if( buildBrush->contents & CONTENTS_AREAPORTAL )
 	{
 		if( dmapGlobals.num_entities != 1 )
@@ -191,24 +191,24 @@ static uBrush_t* FinishBrush()
 			return NULL;
 		}
 	}
-	
+
 	// keep it
 	b = CopyBrush( buildBrush );
-	
+
 	FreeBuildBrush();
-	
+
 	b->entitynum = dmapGlobals.num_entities - 1;
 	b->brushnum = entityPrimitive;
-	
+
 	b->original = b;
-	
+
 	prim = ( primitive_t* )Mem_Alloc( sizeof( *prim ), TAG_TOOLS );
 	memset( prim, 0, sizeof( *prim ) );
 	prim->next = uEntity->primitives;
 	uEntity->primitives = prim;
-	
+
 	prim->brush = b;
-	
+
 	return b;
 }
 
@@ -268,12 +268,12 @@ static bool RemoveDuplicateBrushPlanes( uBrush_t* b )
 {
 	int			i, j, k;
 	side_t*		sides;
-	
+
 	sides = b->sides;
-	
+
 	for( i = 1 ; i < b->numsides ; i++ )
 	{
-	
+
 		// check for a degenerate plane
 		if( sides[i].planenum == -1 )
 		{
@@ -288,7 +288,7 @@ static bool RemoveDuplicateBrushPlanes( uBrush_t* b )
 			i--;
 			continue;
 		}
-		
+
 		// check for duplication and mirroring
 		for( j = 0 ; j < i ; j++ )
 		{
@@ -305,7 +305,7 @@ static bool RemoveDuplicateBrushPlanes( uBrush_t* b )
 				i--;
 				break;
 			}
-			
+
 			if( sides[i].planenum == ( sides[j].planenum ^ 1 ) )
 			{
 				// mirror plane, brush is invalid
@@ -331,7 +331,7 @@ static void ParseBrush( const idMapBrush* mapBrush, int primitiveNum )
 	const idMapBrushSide*	ms;
 	int			i;
 	bool		fixedDegeneracies = false;
-	
+
 	buildBrush->entitynum = dmapGlobals.num_entities - 1;
 	buildBrush->brushnum = entityPrimitive;
 	buildBrush->numsides = mapBrush->GetNumSides();
@@ -339,7 +339,7 @@ static void ParseBrush( const idMapBrush* mapBrush, int primitiveNum )
 	{
 		s = &buildBrush->sides[i];
 		ms = mapBrush->GetSide( i );
-		
+
 		memset( s, 0, sizeof( *s ) );
 		s->planenum = FindFloatPlane( ms->GetPlane(), &fixedDegeneracies );
 		s->material = declManager->FindMaterial( ms->GetMaterial() );
@@ -348,22 +348,22 @@ static void ParseBrush( const idMapBrush* mapBrush, int primitiveNum )
 		s->texVec.v[0][3] -= floor( s->texVec.v[0][3] );
 		s->texVec.v[1][3] -= floor( s->texVec.v[1][3] );
 	}
-	
+
 	// if there are mirrored planes, the entire brush is invalid
 	if( !RemoveDuplicateBrushPlanes( buildBrush ) )
 	{
 		return;
 	}
-	
+
 	// get the content for the entire brush
 	SetBrushContents( buildBrush );
-	
+
 	b = FinishBrush();
 	if( !b )
 	{
 		return;
 	}
-	
+
 	if( fixedDegeneracies && dmapGlobals.verboseentities )
 	{
 		common->Warning( "brush %d has degenerate plane equations", primitiveNum );
@@ -380,25 +380,25 @@ static void ParseSurface( const idMapPatch* patch, const idSurface* surface, con
 	int				i;
 	mapTri_t*		tri;
 	primitive_t*		prim;
-	
+
 	prim = ( primitive_t* )Mem_Alloc( sizeof( *prim ), TAG_TOOLS );
 	memset( prim, 0, sizeof( *prim ) );
 	prim->next = uEntity->primitives;
 	uEntity->primitives = prim;
-	
+
 	for( i = 0; i < surface->GetNumIndexes(); i += 3 )
 	{
 		tri = AllocTri();
-		
+
 		tri->v[0] = ( *surface )[surface->GetIndexes()[i + 1]];
 		tri->v[1] = ( *surface )[surface->GetIndexes()[i + 2]];
 		tri->v[2] = ( *surface )[surface->GetIndexes()[i + 0]];
-		
+
 		tri->material = material;
 		tri->next = prim->tris;
 		prim->tris = tri;
 	}
-	
+
 	// set merge groups if needed, to prevent multiple sides from being
 	// merged into a single surface in the case of gui shaders, mirrors, and autosprites
 	if( material->IsDiscrete() )
@@ -418,18 +418,18 @@ ParsePatch
 static void ParsePatch( const idMapPatch* patch, int primitiveNum )
 {
 	const idMaterial* mat;
-	
+
 	if( dmapGlobals.noCurves )
 	{
 		return;
 	}
-	
+
 	c_numMapPatches++;
-	
+
 	mat = declManager->FindMaterial( patch->GetMaterial() );
-	
+
 	idSurface_Patch* cp = new idSurface_Patch( *patch );
-	
+
 	if( patch->GetExplicitlySubdivided() )
 	{
 		cp->SubdivideExplicit( patch->GetHorzSubdivisions(), patch->GetVertSubdivisions(), true );
@@ -438,9 +438,9 @@ static void ParsePatch( const idMapPatch* patch, int primitiveNum )
 	{
 		cp->Subdivide( DEFAULT_CURVE_MAX_ERROR, DEFAULT_CURVE_MAX_ERROR, DEFAULT_CURVE_MAX_LENGTH, true );
 	}
-	
+
 	ParseSurface( patch, cp, mat );
-	
+
 	delete cp;
 }
 
@@ -452,32 +452,32 @@ static int ParsePolygonMesh( const MapPolygonMesh* mesh, int primitiveNum, int n
 	memset( prim, 0, sizeof( *prim ) );
 	prim->next = uEntity->primitives;
 	uEntity->primitives = prim;
-	
+
 	const idList<idDrawVert>& verts = mesh->GetDrawVerts();
-	
+
 	for( int i = 0; i < mesh->GetNumPolygons(); i++ )
 	{
 		const MapPolygon& poly = mesh->GetFace( i );
-		
+
 		const idMaterial* mat = declManager->FindMaterial( poly.GetMaterial() );
-		
+
 		const idList<int>& indexes = poly.GetIndexes();
-		
+
 		//idList<int> unique;
 		//for( int j = 0; j < indexes.Num(); j++ )
 		//{
 		//	unique.AddUnique( indexes[j] );
 		//}
-		
+
 		// FIXME: avoid triangulization and use polygons
-		
+
 		// TODO use WindingToTriList instead ?
-		
+
 		for( int j = 1; j < indexes.Num() - 1; j++ )
 			//for( int j = indexes.Num() -2; j >= 1; j-- )
 		{
 			mapTri_t* tri = AllocTri();
-			
+
 #if 1
 			tri->v[0] = verts[ indexes[ j + 1] ];
 			tri->v[1] = verts[ indexes[ j + 0] ];
@@ -487,21 +487,21 @@ static int ParsePolygonMesh( const MapPolygonMesh* mesh, int primitiveNum, int n
 			tri->v[1] = verts[ indexes[ j + 0] ];
 			tri->v[0] = verts[ indexes[ 0 ] ];
 #endif
-			
+
 			idPlane plane;
 			plane.FromPoints( tri->v[0].xyz, tri->v[1].xyz, tri->v[2].xyz );
-			
+
 			bool fixedDegeneracies = false;
 			tri->planeNum = FindFloatPlane( plane, &fixedDegeneracies );
-			
+
 			tri->polygonId = numPolygons + i;
-			
+
 			tri->material = mat;
 			tri->next = prim->bsptris;
 			prim->bsptris = tri;
-			
+
 			tri->originalMapMesh = mesh;
-			
+
 			// set merge groups if needed, to prevent multiple sides from being
 			// merged into a single surface in the case of gui shaders, mirrors, and autosprites
 			if( mat->IsDiscrete() )
@@ -513,7 +513,7 @@ static int ParsePolygonMesh( const MapPolygonMesh* mesh, int primitiveNum, int n
 			}
 		}
 	}
-	
+
 	return mesh->GetNumPolygons();
 }
 // RB end
@@ -526,18 +526,18 @@ ProcessMapEntity
 static bool	ProcessMapEntity( idMapEntity* mapEnt )
 {
 	idMapPrimitive*	prim;
-	
+
 	uEntity = &dmapGlobals.uEntities[dmapGlobals.num_entities];
 	memset( uEntity, 0, sizeof( *uEntity ) );
 	uEntity->mapEntity = mapEnt;
 	dmapGlobals.num_entities++;
-	
+
 	int numPolygons = 0;
-	
+
 	for( entityPrimitive = 0; entityPrimitive < mapEnt->GetNumPrimitives(); entityPrimitive++ )
 	{
 		prim = mapEnt->GetPrimitive( entityPrimitive );
-		
+
 		if( prim->GetType() == idMapPrimitive::TYPE_BRUSH )
 		{
 			ParseBrush( static_cast<idMapBrush*>( prim ), entityPrimitive );
@@ -553,13 +553,13 @@ static bool	ProcessMapEntity( idMapEntity* mapEnt )
 		}
 		// RB end
 	}
-	
+
 	// never put an origin on the world, even if the editor left one there
 	if( dmapGlobals.num_entities != 1 )
 	{
 		uEntity->mapEntity->epairs.GetVector( "origin", "", uEntity->origin );
 	}
-	
+
 	return true;
 }
 
@@ -574,7 +574,7 @@ static void CreateMapLight( const idMapEntity* mapEnt )
 {
 	mapLight_t*	light;
 	bool	dynamic;
-	
+
 	// designers can add the "noPrelight" flag to signal that
 	// the lights will move around, so we don't want
 	// to bother chopping up the surfaces under it or creating
@@ -584,33 +584,33 @@ static void CreateMapLight( const idMapEntity* mapEnt )
 	{
 		return;
 	}
-	
+
 	light = new mapLight_t;
 	light->name[0] = '\0';
 	light->shadowTris = NULL;
-	
+
 	// parse parms exactly as the game do
 	// use the game's epair parsing code so
 	// we can use the same renderLight generation
 	gameEdit->ParseSpawnArgsToRenderLight( &mapEnt->epairs, &light->def.parms );
-	
+
 	R_DeriveLightData( &light->def );
-	
+
 	// RB begin
 	idRenderMatrix::GetFrustumPlanes( light->frustumPlanes, light->def.baseLightProject, true, true );
-	
+
 	// the DOOM 3 frustum planes point outside the frustum
 	for( int i = 0; i < 6; i++ )
 	{
 		light->frustumPlanes[i] = -light->frustumPlanes[i];
 	}
 	// RB end
-	
+
 	// get the name for naming the shadow surfaces
 	const char*	name;
-	
+
 	mapEnt->epairs.GetString( "name", "", &name );
-	
+
 	idStr::Copynz( light->name, name, sizeof( light->name ) );
 	if( !light->name[0] )
 	{
@@ -623,9 +623,9 @@ static void CreateMapLight( const idMapEntity* mapEnt )
 	R_RenderLightFrustum( light->parms, light->frustum );
 	light->lightShader = light->parms.shader;
 #endif
-	
+
 	dmapGlobals.mapLights.Append( light );
-	
+
 }
 
 /*
@@ -639,7 +639,7 @@ static void CreateMapLights( const idMapFile* dmapFile )
 	int		i;
 	const idMapEntity* mapEnt;
 	const char*	value;
-	
+
 	for( i = 0 ; i < dmapFile->GetNumEntities() ; i++ )
 	{
 		mapEnt = dmapFile->GetEntity( i );
@@ -648,9 +648,9 @@ static void CreateMapLights( const idMapFile* dmapFile )
 		{
 			CreateMapLight( mapEnt );
 		}
-		
+
 	}
-	
+
 }
 
 /*
@@ -665,10 +665,10 @@ bool LoadDMapFile( const char* filename )
 	int			brushes, triSurfs;
 	int			i;
 	int			size;
-	
+
 	common->Printf( "--- LoadDMapFile ---\n" );
 	common->Printf( "loading %s\n", filename );
-	
+
 	// load and parse the map file into canonical form
 	dmapGlobals.dmapFile = new idMapFile();
 	if( !dmapGlobals.dmapFile->Parse( filename ) )
@@ -678,33 +678,33 @@ bool LoadDMapFile( const char* filename )
 		common->Warning( "Couldn't load map file: '%s'", filename );
 		return false;
 	}
-	
+
 	dmapGlobals.mapPlanes.Clear();
 	dmapGlobals.mapPlanes.SetGranularity( 1024 );
-	
+
 	// process the canonical form into utility form
 	dmapGlobals.num_entities = 0;
 	c_numMapPatches = 0;
 	c_areaportals = 0;
-	
+
 	size = dmapGlobals.dmapFile->GetNumEntities() * sizeof( dmapGlobals.uEntities[0] );
 	dmapGlobals.uEntities = ( uEntity_t* )Mem_Alloc( size, TAG_TOOLS );
 	memset( dmapGlobals.uEntities, 0, size );
-	
+
 	// allocate a very large temporary brush for building
 	// the brushes as they are loaded
 	buildBrush = AllocBrush( MAX_BUILD_SIDES );
-	
+
 	for( i = 0 ; i < dmapGlobals.dmapFile->GetNumEntities() ; i++ )
 	{
 		ProcessMapEntity( dmapGlobals.dmapFile->GetEntity( i ) );
 	}
-	
+
 	CreateMapLights( dmapGlobals.dmapFile );
-	
+
 	brushes = 0;
 	triSurfs = 0;
-	
+
 	mapBounds.Clear();
 	for( prim = dmapGlobals.uEntities[0].primitives ; prim ; prim = prim->next )
 	{
@@ -726,12 +726,12 @@ bool LoadDMapFile( const char* filename )
 				mapBounds.AddPoint( tri->v[1].xyz );
 				mapBounds.AddPoint( tri->v[2].xyz );
 			}
-			
+
 			triSurfs++;
 		}
 		// RB end
 	}
-	
+
 	common->Printf( "%5i total world brushes\n", brushes );
 	common->Printf( "%5i total world triSurfs\n", triSurfs );
 	common->Printf( "%5i patches\n", c_numMapPatches );
@@ -740,7 +740,7 @@ bool LoadDMapFile( const char* filename )
 	common->Printf( "%5i areaportals\n", c_areaportals );
 	common->Printf( "size: %5.0f,%5.0f,%5.0f to %5.0f,%5.0f,%5.0f\n", mapBounds[0][0], mapBounds[0][1], mapBounds[0][2],
 					mapBounds[1][0], mapBounds[1][1], mapBounds[1][2] );
-					
+
 	return true;
 }
 
@@ -752,7 +752,7 @@ FreeOptimizeGroupList
 void FreeOptimizeGroupList( optimizeGroup_t* groups )
 {
 	optimizeGroup_t*	next;
-	
+
 	for( ; groups ; groups = next )
 	{
 		next = groups->nextGroup;
@@ -769,62 +769,62 @@ FreeDMapFile
 void FreeDMapFile()
 {
 	int		i, j;
-	
+
 	FreeBrush( buildBrush );
 	buildBrush = NULL;
-	
+
 	// free the entities and brushes
 	for( i = 0 ; i < dmapGlobals.num_entities ; i++ )
 	{
 		uEntity_t*	ent;
 		primitive_t*	prim, *nextPrim;
-		
+
 		ent = &dmapGlobals.uEntities[i];
-		
+
 		FreeTree( ent->tree );
-		
+
 		// free primitives
 		for( prim = ent->primitives ; prim ; prim = nextPrim )
 		{
 			nextPrim = prim->next;
-			
+
 			if( prim->brush )
 			{
 				FreeBrush( prim->brush );
 			}
-			
+
 			if( prim->tris )
 			{
 				FreeTriList( prim->tris );
 			}
-			
+
 			if( prim->bsptris )
 			{
 				FreeTriList( prim->bsptris );
 			}
-			
+
 			Mem_Free( prim );
 		}
-		
+
 		// free area surfaces
 		if( ent->areas )
 		{
 			for( j = 0 ; j < ent->numAreas ; j++ )
 			{
 				uArea_t*	area;
-				
+
 				area = &ent->areas[j];
 				FreeOptimizeGroupList( area->groups );
-				
+
 			}
 			Mem_Free( ent->areas );
 		}
 	}
-	
+
 	Mem_Free( dmapGlobals.uEntities );
-	
+
 	dmapGlobals.num_entities = 0;
-	
+
 	// free the map lights
 	for( i = 0; i < dmapGlobals.mapLights.Num(); i++ )
 	{

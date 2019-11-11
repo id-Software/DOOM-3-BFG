@@ -62,32 +62,32 @@ bool idPhysics_Parametric::TestIfAtRest() const
 	{
 		return true;
 	}
-	
+
 	if( !current.linearExtrapolation.IsDone( current.time ) )
 	{
 		return false;
 	}
-	
+
 	if( !current.angularExtrapolation.IsDone( current.time ) )
 	{
 		return false;
 	}
-	
+
 	if( !current.linearInterpolation.IsDone( current.time ) )
 	{
 		return false;
 	}
-	
+
 	if( !current.angularInterpolation.IsDone( current.time ) )
 	{
 		return false;
 	}
-	
+
 	if( current.spline != NULL && !current.spline->IsDone( current.time ) )
 	{
 		return false;
 	}
-	
+
 	return true;
 }
 
@@ -124,15 +124,15 @@ idPhysics_Parametric::idPhysics_Parametric()
 	current.angularInterpolation.Init( 0, 0, 0, 0, ang_zero, ang_zero );
 	current.spline = NULL;
 	current.splineInterpolate.Init( 0, 1, 1, 2, 0, 0 );
-	
+
 	saved = current;
-	
+
 	isPusher = false;
 	pushFlags = 0;
 	clipModel = NULL;
 	isBlocked = false;
 	memset( &pushResults, 0, sizeof( pushResults ) );
-	
+
 	hasMaster = false;
 	isOrientated = false;
 }
@@ -171,37 +171,37 @@ void idPhysics_Parametric_SavePState( idSaveGame* savefile, const parametricPSta
 	savefile->WriteMat3( state.axis );
 	savefile->WriteVec3( state.localOrigin );
 	savefile->WriteAngles( state.localAngles );
-	
+
 	savefile->WriteInt( ( int )state.linearExtrapolation.GetExtrapolationType() );
 	savefile->WriteFloat( state.linearExtrapolation.GetStartTime() );
 	savefile->WriteFloat( state.linearExtrapolation.GetDuration() );
 	savefile->WriteVec3( state.linearExtrapolation.GetStartValue() );
 	savefile->WriteVec3( state.linearExtrapolation.GetBaseSpeed() );
 	savefile->WriteVec3( state.linearExtrapolation.GetSpeed() );
-	
+
 	savefile->WriteInt( ( int )state.angularExtrapolation.GetExtrapolationType() );
 	savefile->WriteFloat( state.angularExtrapolation.GetStartTime() );
 	savefile->WriteFloat( state.angularExtrapolation.GetDuration() );
 	savefile->WriteAngles( state.angularExtrapolation.GetStartValue() );
 	savefile->WriteAngles( state.angularExtrapolation.GetBaseSpeed() );
 	savefile->WriteAngles( state.angularExtrapolation.GetSpeed() );
-	
+
 	savefile->WriteFloat( state.linearInterpolation.GetStartTime() );
 	savefile->WriteFloat( state.linearInterpolation.GetAcceleration() );
 	savefile->WriteFloat( state.linearInterpolation.GetDeceleration() );
 	savefile->WriteFloat( state.linearInterpolation.GetDuration() );
 	savefile->WriteVec3( state.linearInterpolation.GetStartValue() );
 	savefile->WriteVec3( state.linearInterpolation.GetEndValue() );
-	
+
 	savefile->WriteFloat( state.angularInterpolation.GetStartTime() );
 	savefile->WriteFloat( state.angularInterpolation.GetAcceleration() );
 	savefile->WriteFloat( state.angularInterpolation.GetDeceleration() );
 	savefile->WriteFloat( state.angularInterpolation.GetDuration() );
 	savefile->WriteAngles( state.angularInterpolation.GetStartValue() );
 	savefile->WriteAngles( state.angularInterpolation.GetEndValue() );
-	
+
 	// spline is handled by owner
-	
+
 	savefile->WriteFloat( state.splineInterpolate.GetStartTime() );
 	savefile->WriteFloat( state.splineInterpolate.GetAcceleration() );
 	savefile->WriteFloat( state.splineInterpolate.GetDuration() );
@@ -221,7 +221,7 @@ void idPhysics_Parametric_RestorePState( idRestoreGame* savefile, parametricPSta
 	float startTime, duration, accelTime, decelTime, startValue, endValue;
 	idVec3 linearStartValue, linearBaseSpeed, linearSpeed, startPos, endPos;
 	idAngles angularStartValue, angularBaseSpeed, angularSpeed, startAng, endAng;
-	
+
 	savefile->ReadInt( state.time );
 	savefile->ReadInt( state.atRest );
 	savefile->ReadBool( state.useSplineAngles );
@@ -230,52 +230,52 @@ void idPhysics_Parametric_RestorePState( idRestoreGame* savefile, parametricPSta
 	savefile->ReadMat3( state.axis );
 	savefile->ReadVec3( state.localOrigin );
 	savefile->ReadAngles( state.localAngles );
-	
+
 	savefile->ReadInt( ( int& )etype );
 	savefile->ReadFloat( startTime );
 	savefile->ReadFloat( duration );
 	savefile->ReadVec3( linearStartValue );
 	savefile->ReadVec3( linearBaseSpeed );
 	savefile->ReadVec3( linearSpeed );
-	
+
 	state.linearExtrapolation.Init( startTime, duration, linearStartValue, linearBaseSpeed, linearSpeed, etype );
-	
+
 	savefile->ReadInt( ( int& )etype );
 	savefile->ReadFloat( startTime );
 	savefile->ReadFloat( duration );
 	savefile->ReadAngles( angularStartValue );
 	savefile->ReadAngles( angularBaseSpeed );
 	savefile->ReadAngles( angularSpeed );
-	
+
 	state.angularExtrapolation.Init( startTime, duration, angularStartValue, angularBaseSpeed, angularSpeed, etype );
-	
+
 	savefile->ReadFloat( startTime );
 	savefile->ReadFloat( accelTime );
 	savefile->ReadFloat( decelTime );
 	savefile->ReadFloat( duration );
 	savefile->ReadVec3( startPos );
 	savefile->ReadVec3( endPos );
-	
+
 	state.linearInterpolation.Init( startTime, accelTime, decelTime, duration, startPos, endPos );
-	
+
 	savefile->ReadFloat( startTime );
 	savefile->ReadFloat( accelTime );
 	savefile->ReadFloat( decelTime );
 	savefile->ReadFloat( duration );
 	savefile->ReadAngles( startAng );
 	savefile->ReadAngles( endAng );
-	
+
 	state.angularInterpolation.Init( startTime, accelTime, decelTime, duration, startAng, endAng );
-	
+
 	// spline is handled by owner
-	
+
 	savefile->ReadFloat( startTime );
 	savefile->ReadFloat( accelTime );
 	savefile->ReadFloat( duration );
 	savefile->ReadFloat( decelTime );
 	savefile->ReadFloat( startValue );
 	savefile->ReadFloat( endValue );
-	
+
 	state.splineInterpolate.Init( startTime, accelTime, decelTime, duration, startValue, endValue );
 }
 
@@ -289,14 +289,14 @@ void idPhysics_Parametric::Save( idSaveGame* savefile ) const
 
 	idPhysics_Parametric_SavePState( savefile, current );
 	idPhysics_Parametric_SavePState( savefile, saved );
-	
+
 	savefile->WriteBool( isPusher );
 	savefile->WriteClipModel( clipModel );
 	savefile->WriteInt( pushFlags );
-	
+
 	savefile->WriteTrace( pushResults );
 	savefile->WriteBool( isBlocked );
-	
+
 	savefile->WriteBool( hasMaster );
 	savefile->WriteBool( isOrientated );
 }
@@ -311,14 +311,14 @@ void idPhysics_Parametric::Restore( idRestoreGame* savefile )
 
 	idPhysics_Parametric_RestorePState( savefile, current );
 	idPhysics_Parametric_RestorePState( savefile, saved );
-	
+
 	savefile->ReadBool( isPusher );
 	savefile->ReadClipModel( clipModel );
 	savefile->ReadInt( pushFlags );
-	
+
 	savefile->ReadTrace( pushResults );
 	savefile->ReadBool( isBlocked );
-	
+
 	savefile->ReadBool( hasMaster );
 	savefile->ReadBool( isOrientated );
 }
@@ -511,7 +511,7 @@ void idPhysics_Parametric::SetClipModel( idClipModel* model, float density, int 
 
 	assert( self );
 	assert( model );
-	
+
 	if( clipModel && clipModel != model && freeOld )
 	{
 		delete clipModel;
@@ -624,17 +624,17 @@ bool idPhysics_Parametric::Evaluate( int timeStepMSec, int endTimeMSec )
 	idVec3 oldLocalOrigin, oldOrigin, masterOrigin;
 	idAngles oldLocalAngles, oldAngles;
 	idMat3 oldAxis, masterAxis;
-	
+
 	isBlocked = false;
 	oldLocalOrigin = current.localOrigin;
 	oldOrigin = current.origin;
 	oldLocalAngles = current.localAngles;
 	oldAngles = current.angles;
 	oldAxis = current.axis;
-	
+
 	current.localOrigin.Zero();
 	current.localAngles.Zero();
-	
+
 	if( current.spline != NULL )
 	{
 		float length = current.splineInterpolate.GetCurrentValue( endTimeMSec );
@@ -653,7 +653,7 @@ bool idPhysics_Parametric::Evaluate( int timeStepMSec, int endTimeMSec )
 	{
 		current.localOrigin += current.linearExtrapolation.GetCurrentValue( endTimeMSec );
 	}
-	
+
 	if( current.angularInterpolation.GetDuration() != 0 )
 	{
 		current.localAngles += current.angularInterpolation.GetCurrentValue( endTimeMSec );
@@ -662,12 +662,12 @@ bool idPhysics_Parametric::Evaluate( int timeStepMSec, int endTimeMSec )
 	{
 		current.localAngles += current.angularExtrapolation.GetCurrentValue( endTimeMSec );
 	}
-	
+
 	current.localAngles.Normalize360();
 	current.origin = current.localOrigin;
 	current.angles = current.localAngles;
 	current.axis = current.localAngles.ToMat3();
-	
+
 	if( hasMaster )
 	{
 		self->GetMasterPosition( masterOrigin, masterAxis );
@@ -685,10 +685,10 @@ bool idPhysics_Parametric::Evaluate( int timeStepMSec, int endTimeMSec )
 			current.origin += masterOrigin;
 		}
 	}
-	
+
 	if( isPusher )
 	{
-	
+
 		gameLocal.push.ClipPush( pushResults, self, pushFlags, oldOrigin, oldAxis, current.origin, current.axis );
 		if( pushResults.fraction < 1.0f )
 		{
@@ -704,22 +704,22 @@ bool idPhysics_Parametric::Evaluate( int timeStepMSec, int endTimeMSec )
 			isBlocked = true;
 			return false;
 		}
-		
+
 		current.angles = current.axis.ToAngles();
 	}
-	
+
 	if( clipModel )
 	{
 		clipModel->Link( gameLocal.clip, self, 0, current.origin, current.axis );
 	}
-	
+
 	current.time = endTimeMSec;
-	
+
 	if( TestIfAtRest() )
 	{
 		Rest();
 	}
-	
+
 	return ( current.origin != oldOrigin || current.axis != oldAxis );
 }
 
@@ -735,19 +735,19 @@ bool idPhysics_Parametric::Interpolate( const float fraction )
 	{
 		return false;
 	}
-	
+
 	idVec3 oldOrigin = current.origin;
 	idMat3 oldAxis = current.axis;
-	
+
 	const bool hasChanged = InterpolatePhysicsState( current, previous, next, fraction );
-	
+
 	gameLocal.push.ClipPush( pushResults, self, pushFlags, oldOrigin, oldAxis, current.origin, current.axis );
-	
+
 	if( clipModel )
 	{
 		clipModel->Link( gameLocal.clip, self, 0, current.origin, current.axis );
 	}
-	
+
 	return hasChanged;
 }
 
@@ -759,7 +759,7 @@ idPhysics_Parametric::UpdateTime
 void idPhysics_Parametric::UpdateTime( int endTimeMSec )
 {
 	int timeLeap = endTimeMSec - current.time;
-	
+
 	current.time = endTimeMSec;
 	// move the trajectory start times to sync the trajectory with the current endTime
 	current.linearExtrapolation.SetStartTime( current.linearExtrapolation.GetStartTime() + timeLeap );
@@ -832,7 +832,7 @@ void idPhysics_Parametric::RestoreState()
 {
 
 	current = saved;
-	
+
 	if( clipModel )
 	{
 		clipModel->Link( gameLocal.clip, self, 0, current.origin, current.axis );
@@ -848,10 +848,10 @@ void idPhysics_Parametric::SetOrigin( const idVec3& newOrigin, int id )
 {
 	idVec3 masterOrigin;
 	idMat3 masterAxis;
-	
+
 	current.linearExtrapolation.SetStartValue( newOrigin );
 	current.linearInterpolation.SetStartValue( newOrigin );
-	
+
 	current.localOrigin = current.linearExtrapolation.GetCurrentValue( current.time );
 	if( hasMaster )
 	{
@@ -878,12 +878,12 @@ void idPhysics_Parametric::SetAxis( const idMat3& newAxis, int id )
 {
 	idVec3 masterOrigin;
 	idMat3 masterAxis;
-	
+
 	current.localAngles = newAxis.ToAngles();
-	
+
 	current.angularExtrapolation.SetStartValue( current.localAngles );
 	current.angularInterpolation.SetStartValue( current.localAngles );
-	
+
 	current.localAngles = current.angularExtrapolation.GetCurrentValue( current.time );
 	if( hasMaster && isOrientated )
 	{
@@ -973,11 +973,11 @@ void idPhysics_Parametric::SetAngularVelocity( const idVec3& newAngularVelocity,
 	idRotation rotation;
 	idVec3 vec;
 	float angle;
-	
+
 	vec = newAngularVelocity;
 	angle = vec.Normalize();
 	rotation.Set( vec3_origin, vec, ( float ) RAD2DEG( angle ) );
-	
+
 	SetAngularExtrapolation( extrapolation_t( EXTRAPOLATION_LINEAR | EXTRAPOLATION_NOSTOP ), gameLocal.time, 0, current.angles, rotation.ToAngles(), ang_zero );
 	current.angularInterpolation.Init( 0, 0, 0, 0, ang_zero, ang_zero );
 	Activate();
@@ -991,7 +991,7 @@ idPhysics_Parametric::GetLinearVelocity
 const idVec3& idPhysics_Parametric::GetLinearVelocity( int id ) const
 {
 	static idVec3 curLinearVelocity;
-	
+
 	curLinearVelocity = current.linearExtrapolation.GetCurrentSpeed( gameLocal.time );
 	return curLinearVelocity;
 }
@@ -1005,7 +1005,7 @@ const idVec3& idPhysics_Parametric::GetAngularVelocity( int id ) const
 {
 	static idVec3 curAngularVelocity;
 	idAngles angles;
-	
+
 	angles = current.angularExtrapolation.GetCurrentSpeed( gameLocal.time );
 	curAngularVelocity = angles.ToAngularVelocity();
 	return curAngularVelocity;
@@ -1096,12 +1096,12 @@ void idPhysics_Parametric::SetMaster( idEntity* master, const bool orientated )
 {
 	idVec3 masterOrigin;
 	idMat3 masterAxis;
-	
+
 	if( master )
 	{
 		if( !hasMaster )
 		{
-		
+
 			// transform from world space to master space
 			self->GetMasterPosition( masterOrigin, masterAxis );
 			current.localOrigin = ( current.origin - masterOrigin ) * masterAxis.Transpose();
@@ -1113,7 +1113,7 @@ void idPhysics_Parametric::SetMaster( idEntity* master, const bool orientated )
 			{
 				current.localAngles = current.axis.ToAngles();
 			}
-			
+
 			current.linearExtrapolation.SetStartValue( current.localOrigin );
 			current.angularExtrapolation.SetStartValue( current.localAngles );
 			hasMaster = true;
@@ -1188,7 +1188,7 @@ void idPhysics_Parametric::WriteToSnapshot( idBitMsg& msg ) const
 {
 
 	const idQuat currentQuat = current.axis.ToQuat();
-	
+
 	WriteFloatArray( msg, current.origin );
 	WriteFloatArray( msg, currentQuat );
 }
@@ -1202,10 +1202,10 @@ void idPhysics_Parametric::ReadFromSnapshot( const idBitMsg& msg )
 {
 
 	previous = next;
-	
+
 	next.origin = ReadFloatArray< idVec3 >( msg );
 	next.axis = ReadFloatArray< idQuat >( msg );
-	
+
 	if( self->GetNumSnapshotsReceived() <= 1 )
 	{
 		current.origin = next.origin;

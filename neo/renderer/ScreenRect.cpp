@@ -61,7 +61,7 @@ void idScreenRect::AddPoint( float x, float y )
 {
 	int	ix = idMath::Ftoi( x );
 	int iy = idMath::Ftoi( y );
-	
+
 	if( ix < x1 )
 	{
 		x1 = ix;

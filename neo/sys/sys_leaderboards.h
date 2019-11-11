@@ -124,7 +124,7 @@ struct column_t
 {
 	column_t( int64 value_ ) : value( value_ ) {}
 	column_t() {}
-	
+
 	int64				value;
 };
 
@@ -184,14 +184,14 @@ public:
 		idStr		name;
 		int64		rank;
 		idArray<int64, MAX_LEADERBOARD_COLUMNS> 	columns;
-		
+
 		long		user_id;
 //		CSteamID	user_id;
 	};
-	
+
 	idLeaderboardCallback() : def( NULL ), startIndex( -1 ), localIndex( -1 ), numRowsInLeaderboard( -1 ), errorCode( LEADERBOARD_ERROR_NONE ) { }
 	virtual idLeaderboardCallback* Clone() const = 0;
-	
+
 	// Used by the platform handlers to set data
 	void 							ResetRows()
 	{
@@ -221,7 +221,7 @@ public:
 	{
 		this->errorCode = errorCode;
 	}
-	
+
 	// Used in user callback for information retrieval
 	const leaderboardDefinition_t* 	GetDef() const
 	{
@@ -247,7 +247,7 @@ public:
 	{
 		return this->errorCode;
 	}
-	
+
 protected:
 	const leaderboardDefinition_t* 	def;					// leaderboard def
 	int								startIndex;				// where the first row starts in the online leaderboard
