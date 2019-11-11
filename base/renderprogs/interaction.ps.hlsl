@@ -96,7 +96,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	half3 halfAngleVector = normalize( lightVector + viewVector );
 	half hdotN = clamp( dot3( halfAngleVector, localNormal ), 0.0, 1.0 );
 
-#if 0 //defined(USE_PBR)
+#if 1 //defined(USE_PBR)
 		
 #if 0 //defined(USE_METALNESS)
 	const half metallic = specMapSRGB.g;
@@ -165,7 +165,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	//half3 diffuseColor = mix( diffuseMap, F0, metal ) * rpDiffuseModifier.xyz;
 	half3 diffuseBRDF = diffuseColor * lambert * sRGBToLinearRGB( rpDiffuseModifier.xyz );
 		
-	result.color.xyz = ( diffuseBRDF + specularBRDF ) * lightColor * fragment.color.rgb * shadow;
+	result.color.xyz = ( diffuseBRDF + specularBRDF ) * lightColor * fragment.color.rgb;
 	result.color.w = 1.0;
 	
 #else

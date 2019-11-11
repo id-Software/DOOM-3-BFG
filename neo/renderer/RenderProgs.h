@@ -255,7 +255,7 @@ public:
 	void	SetRenderParm( renderParm_t rp, const float* value );
 	void	SetRenderParms( renderParm_t rp, const float* values, int numValues );
 	
-	int		FindShader( const char* name, rpStage_t stage, const char* nameOutSuffix, uint32 features, bool builtin );
+	int		FindShader( const char* name, rpStage_t stage, const char* nameOutSuffix, uint32 features, bool builtin, vertexLayoutType_t vertexLayout = LAYOUT_DRAW_VERT );
 	
 	void	BindProgram( int progIndex );
 	
@@ -656,7 +656,7 @@ private:
 	void		LoadShader( int index, rpStage_t stage );
 	
 	idStr		StripDeadCode( const idStr& in, const char* name, const idStrList& compileMacros, bool builtin );
-	idStr		ConvertCG2GLSL( const idStr& in, const char* name, rpStage_t stage, idStr& layout, bool vkGLSL, bool hasGPUSkinning );
+	idStr		ConvertCG2GLSL( const idStr& in, const char* name, rpStage_t stage, idStr& outLayout, bool vkGLSL, bool hasGPUSkinning, vertexLayoutType_t vertexLayout );
 	
 	enum
 	{
@@ -775,12 +775,14 @@ private:
 		shader_t() :
 			shaderFeatures( 0 ),
 			builtin( false ),
+			vertexLayout( LAYOUT_DRAW_VERT ),
 			module( VK_NULL_HANDLE ) {}
 		idStr				name;
 		idStr				nameOutSuffix;
 		uint32				shaderFeatures;		// RB: Cg compile macros
 		bool				builtin;			// RB: part of the core shaders built into the executable
 		rpStage_t			stage;
+		vertexLayoutType_t	vertexLayout;
 		VkShaderModule		module;
 		idList<rpBinding_t>	bindings;
 		idList<int>			parmIndices;

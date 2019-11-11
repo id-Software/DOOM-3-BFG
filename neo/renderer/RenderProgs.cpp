@@ -214,13 +214,13 @@ void idRenderProgManager::Init()
 		int vIndex = -1;
 		if( builtins[ i ].stages & SHADER_STAGE_VERTEX )
 		{
-			vIndex = FindShader( builtins[ i ].name, SHADER_STAGE_VERTEX, builtins[i].nameOutSuffix, shaderFeatures, true );
+			vIndex = FindShader( builtins[ i ].name, SHADER_STAGE_VERTEX, builtins[i].nameOutSuffix, shaderFeatures, true, builtins[i].layout );
 		}
 		
 		int fIndex = -1;
 		if( builtins[ i ].stages & SHADER_STAGE_FRAGMENT )
 		{
-			fIndex = FindShader( builtins[ i ].name, SHADER_STAGE_FRAGMENT, builtins[i].nameOutSuffix, shaderFeatures, true );
+			fIndex = FindShader( builtins[ i ].name, SHADER_STAGE_FRAGMENT, builtins[i].nameOutSuffix, shaderFeatures, true, builtins[i].layout );
 		}
 		
 		//idLib::Printf( "Loading GLSL program %i %i %i\n", i, vIndex, fIndex );
@@ -318,7 +318,7 @@ void idRenderProgManager::Shutdown()
 idRenderProgManager::FindVertexShader
 ================================================================================================
 */
-int idRenderProgManager::FindShader( const char* name, rpStage_t stage, const char* nameOutSuffix, uint32 features, bool builtin )
+int idRenderProgManager::FindShader( const char* name, rpStage_t stage, const char* nameOutSuffix, uint32 features, bool builtin, vertexLayoutType_t vertexLayout )
 {
 	idStr shaderName( name );
 	shaderName.StripFileExtension();
@@ -340,6 +340,7 @@ int idRenderProgManager::FindShader( const char* name, rpStage_t stage, const ch
 	shader.shaderFeatures = features;
 	shader.builtin = builtin;
 	shader.stage = stage;
+	shader.vertexLayout = vertexLayout;
 	
 	int index = shaders.Append( shader );
 	LoadShader( index, stage );

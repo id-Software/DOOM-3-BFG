@@ -276,7 +276,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	half3 halfAngleVector = normalize( lightVector + viewVector );
 	half hdotN = clamp( dot3( halfAngleVector, localNormal ), 0.0, 1.0 );
 
-#if 0 //defined(USE_PBR)
+#if 1 //defined(USE_PBR)
 		
 #if 0 //defined(USE_METALNESS)
 	const half metallic = specMapSRGB.g;

@@ -2224,19 +2224,6 @@ void idRenderBackend::DrawFlickerBox()
 	clearRect.rect.extent = extent;
 	
 	vkCmdClearAttachments( vkcontext.commandBuffer[ vkcontext.frameParity ], 1, &attachment, 1, &clearRect );
-	
-	/*
-	if( tr.frameCount & 1 )
-	{
-		glClearColor( 1, 0, 0, 1 );
-	}
-	else
-	{
-		glClearColor( 0, 1, 0, 1 );
-	}
-	glScissor( 0, 0, 256, 256 );
-	glClear( GL_COLOR_BUFFER_BIT );
-	*/
 }
 
 /*
@@ -2345,7 +2332,7 @@ void idRenderBackend::DrawStencilShadowPass( const drawSurf_t* drawSurf, const b
 		const uint64 frameNum = ( int )( vbHandle >> VERTCACHE_FRAME_SHIFT ) & VERTCACHE_FRAME_MASK;
 		if( frameNum != ( ( vertexCache.currentFrame - 1 ) & VERTCACHE_FRAME_MASK ) )
 		{
-			idLib::Warning( "RB_DrawElementsWithCounters, vertexBuffer == NULL" );
+			idLib::Warning( "DrawStencilShadowPass, vertexBuffer == NULL" );
 			return;
 		}
 		vertexBuffer = &vertexCache.frameData[ vertexCache.drawListNum ].vertexBuffer;
@@ -2364,12 +2351,12 @@ void idRenderBackend::DrawStencilShadowPass( const drawSurf_t* drawSurf, const b
 		const uint64 frameNum = ( int )( ibHandle >> VERTCACHE_FRAME_SHIFT ) & VERTCACHE_FRAME_MASK;
 		if( frameNum != ( ( vertexCache.currentFrame - 1 ) & VERTCACHE_FRAME_MASK ) )
 		{
-			idLib::Warning( "RB_DrawElementsWithCounters, indexBuffer == NULL" );
+			idLib::Warning( "DrawStencilShadowPass, indexBuffer == NULL" );
 			return;
 		}
 		indexBuffer = &vertexCache.frameData[ vertexCache.drawListNum ].indexBuffer;
 	}
-	int indexOffset = ( int )( ibHandle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
+	const uint64 indexOffset = ( int )( ibHandle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
 	
 	RENDERLOG_PRINTF( "Binding Buffers(%d): %p:%i %p:%i\n", drawSurf->numIndexes, vertexBuffer, vertOffset, indexBuffer, indexOffset );
 	

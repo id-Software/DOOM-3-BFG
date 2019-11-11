@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013-2015 Robert Beckebans
+Copyright (C) 2013-2019 Robert Beckebans
 Copyright (C) 2016-2017 Dustin Land
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
@@ -682,7 +682,6 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 	pc.c_drawIndexes += surf->numIndexes;
 }
 
-
 /*
 =========================================================================================================
 
@@ -715,6 +714,94 @@ void idRenderBackend::GL_EndFrame()
 	glColorMask( 1, 1, 1, 1 );
 	
 	glFlush();
+}
+
+/*
+=============
+GL_BlockingSwapBuffers
+
+We want to exit this with the GPU idle, right at vsync
+=============
+*/
+void idRenderBackend::GL_BlockingSwapBuffers()
+{
+	RENDERLOG_PRINTF( "***************** GL_BlockingSwapBuffers *****************\n\n\n" );
+	
+	const int beforeFinish = Sys_Milliseconds();
+	
+	if( !glConfig.syncAvailable )
+	{
+		glFinish();
+	}
+	
+	const int beforeSwap = Sys_Milliseconds();
+	if( r_showSwapBuffers.GetBool() && beforeSwap - beforeFinish > 1 )
+	{
+		common->Printf( "%i msec to glFinish\n", beforeSwap - beforeFinish );
+	}
+	
+	GLimp_SwapBuffers();
+	
+	const int beforeFence = Sys_Milliseconds();
+	if( r_showSwapBuffers.GetBool() && beforeFence - beforeSwap > 1 )
+	{
+		common->Printf( "%i msec to swapBuffers\n", beforeFence - beforeSwap );
+	}
+	
+	if( glConfig.syncAvailable )
+	{
+		swapIndex ^= 1;
+		
+		if( glIsSync( renderSync[swapIndex] ) )
+		{
+			glDeleteSync( renderSync[swapIndex] );
+		}
+		// draw something tiny to ensure the sync is after the swap
+		const int start = Sys_Milliseconds();
+		glScissor( 0, 0, 1, 1 );
+		glEnable( GL_SCISSOR_TEST );
+		glClear( GL_COLOR_BUFFER_BIT );
+		renderSync[swapIndex] = glFenceSync( GL_SYNC_GPU_COMMANDS_COMPLETE, 0 );
+		const int end = Sys_Milliseconds();
+		if( r_showSwapBuffers.GetBool() && end - start > 1 )
+		{
+			common->Printf( "%i msec to start fence\n", end - start );
+		}
+		
+		GLsync	syncToWaitOn;
+		if( r_syncEveryFrame.GetBool() )
+		{
+			syncToWaitOn = renderSync[swapIndex];
+		}
+		else
+		{
+			syncToWaitOn = renderSync[!swapIndex];
+		}
+		
+		if( glIsSync( syncToWaitOn ) )
+		{
+			for( GLenum r = GL_TIMEOUT_EXPIRED; r == GL_TIMEOUT_EXPIRED; )
+			{
+				r = glClientWaitSync( syncToWaitOn, GL_SYNC_FLUSH_COMMANDS_BIT, 1000 * 1000 );
+			}
+		}
+	}
+	
+	const int afterFence = Sys_Milliseconds();
+	if( r_showSwapBuffers.GetBool() && afterFence - beforeFence > 1 )
+	{
+		common->Printf( "%i msec to wait on fence\n", afterFence - beforeFence );
+	}
+	
+	const int64 exitBlockTime = Sys_Microseconds();
+	
+	static int64 prevBlockTime;
+	if( r_showSwapBuffers.GetBool() && prevBlockTime )
+	{
+		const int delta = ( int )( exitBlockTime - prevBlockTime );
+		common->Printf( "blockToBlock: %i\n", delta );
+	}
+	prevBlockTime = exitBlockTime;
 }
 
 /*
@@ -1427,6 +1514,76 @@ void idRenderBackend::CheckCVars()
 	// RB end
 }
 
+/*
+============================================================================
+
+RENDER BACK END THREAD FUNCTIONS
+
+============================================================================
+*/
+
+/*
+=============
+idRenderBackend::DrawFlickerBox
+=============
+*/
+void idRenderBackend::DrawFlickerBox()
+{
+	if( !r_drawFlickerBox.GetBool() )
+	{
+		return;
+	}
+	if( tr.frameCount & 1 )
+	{
+		glClearColor( 1, 0, 0, 1 );
+	}
+	else
+	{
+		glClearColor( 0, 1, 0, 1 );
+	}
+	glScissor( 0, 0, 256, 256 );
+	glClear( GL_COLOR_BUFFER_BIT );
+}
+
+/*
+=============
+idRenderBackend::SetBuffer
+=============
+*/
+void idRenderBackend::SetBuffer( const void* data )
+{
+	// see which draw buffer we want to render the frame to
+	
+	const setBufferCommand_t* cmd = ( const setBufferCommand_t* )data;
+	
+	RENDERLOG_PRINTF( "---------- RB_SetBuffer ---------- to buffer # %d\n", cmd->buffer );
+	
+	GL_Scissor( 0, 0, tr.GetWidth(), tr.GetHeight() );
+	
+	// clear screen for debugging
+	// automatically enable this with several other debug tools
+	// that might leave unrendered portions of the screen
+	if( r_clear.GetFloat() || idStr::Length( r_clear.GetString() ) != 1 || r_singleArea.GetBool() || r_showOverDraw.GetBool() )
+	{
+		float c[3];
+		if( sscanf( r_clear.GetString(), "%f %f %f", &c[0], &c[1], &c[2] ) == 3 )
+		{
+			GL_Clear( true, false, false, 0, c[0], c[1], c[2], 1.0f, true );
+		}
+		else if( r_clear.GetInteger() == 2 )
+		{
+			GL_Clear( true, false, false, 0, 0.0f, 0.0f,  0.0f, 1.0f, true );
+		}
+		else if( r_showOverDraw.GetBool() )
+		{
+			GL_Clear( true, false, false, 0, 1.0f, 1.0f, 1.0f, 1.0f, true );
+		}
+		else
+		{
+			GL_Clear( true, false, false, 0, 0.4f, 0.0f, 0.25f, 1.0f, true );
+		}
+	}
+}
 
 /*
 ==============================================================================================
@@ -1435,12 +1592,11 @@ STENCIL SHADOW RENDERING
 
 ==============================================================================================
 */
-extern idCVar r_useStencilShadowPreload;
 
 /*
-==================
+=====================
 idRenderBackend::DrawStencilShadowPass
-==================
+=====================
 */
 void idRenderBackend::DrawStencilShadowPass( const drawSurf_t* drawSurf, const bool renderZPass )
 {
@@ -1476,7 +1632,7 @@ void idRenderBackend::DrawStencilShadowPass( const drawSurf_t* drawSurf, const b
 			idLib::Warning( "DrawStencilShadowPass, vertexBuffer == NULL" );
 			return;
 		}
-		vertexBuffer = &vertexCache.frameData[vertexCache.drawListNum].vertexBuffer;
+		vertexBuffer = &vertexCache.frameData[ vertexCache.drawListNum ].vertexBuffer;
 	}
 	const int vertOffset = ( int )( vbHandle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
 	
@@ -1495,7 +1651,7 @@ void idRenderBackend::DrawStencilShadowPass( const drawSurf_t* drawSurf, const b
 			idLib::Warning( "DrawStencilShadowPass, indexBuffer == NULL" );
 			return;
 		}
-		indexBuffer = &vertexCache.frameData[vertexCache.drawListNum].indexBuffer;
+		indexBuffer = &vertexCache.frameData[ vertexCache.drawListNum ].indexBuffer;
 	}
 	const uint64 indexOffset = ( int )( ibHandle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
 	
@@ -1628,166 +1784,6 @@ void idRenderBackend::DrawStencilShadowPass( const drawSurf_t* drawSurf, const b
 	}
 }
 
-
-
-/*
-============================================================================
-
-RENDER BACK END THREAD FUNCTIONS
-
-============================================================================
-*/
-
-/*
-=============
-idRenderBackend::DrawFlickerBox
-=============
-*/
-void idRenderBackend::DrawFlickerBox()
-{
-	if( !r_drawFlickerBox.GetBool() )
-	{
-		return;
-	}
-	if( tr.frameCount & 1 )
-	{
-		glClearColor( 1, 0, 0, 1 );
-	}
-	else
-	{
-		glClearColor( 0, 1, 0, 1 );
-	}
-	glScissor( 0, 0, 256, 256 );
-	glClear( GL_COLOR_BUFFER_BIT );
-}
-
-/*
-=============
-idRenderBackend::SetBuffer
-=============
-*/
-void idRenderBackend::SetBuffer( const void* data )
-{
-	// see which draw buffer we want to render the frame to
-	
-	const setBufferCommand_t* cmd = ( const setBufferCommand_t* )data;
-	
-	RENDERLOG_PRINTF( "---------- RB_SetBuffer ---------- to buffer # %d\n", cmd->buffer );
-	
-	GL_Scissor( 0, 0, tr.GetWidth(), tr.GetHeight() );
-	
-	// clear screen for debugging
-	// automatically enable this with several other debug tools
-	// that might leave unrendered portions of the screen
-	if( r_clear.GetFloat() || idStr::Length( r_clear.GetString() ) != 1 || r_singleArea.GetBool() || r_showOverDraw.GetBool() )
-	{
-		float c[3];
-		if( sscanf( r_clear.GetString(), "%f %f %f", &c[0], &c[1], &c[2] ) == 3 )
-		{
-			GL_Clear( true, false, false, 0, c[0], c[1], c[2], 1.0f, true );
-		}
-		else if( r_clear.GetInteger() == 2 )
-		{
-			GL_Clear( true, false, false, 0, 0.0f, 0.0f,  0.0f, 1.0f, true );
-		}
-		else if( r_showOverDraw.GetBool() )
-		{
-			GL_Clear( true, false, false, 0, 1.0f, 1.0f, 1.0f, 1.0f, true );
-		}
-		else
-		{
-			GL_Clear( true, false, false, 0, 0.4f, 0.0f, 0.25f, 1.0f, true );
-		}
-	}
-}
-
-/*
-=============
-GL_BlockingSwapBuffers
-
-We want to exit this with the GPU idle, right at vsync
-=============
-*/
-void idRenderBackend::GL_BlockingSwapBuffers()
-{
-	RENDERLOG_PRINTF( "***************** GL_BlockingSwapBuffers *****************\n\n\n" );
-	
-	const int beforeFinish = Sys_Milliseconds();
-	
-	if( !glConfig.syncAvailable )
-	{
-		glFinish();
-	}
-	
-	const int beforeSwap = Sys_Milliseconds();
-	if( r_showSwapBuffers.GetBool() && beforeSwap - beforeFinish > 1 )
-	{
-		common->Printf( "%i msec to glFinish\n", beforeSwap - beforeFinish );
-	}
-	
-	GLimp_SwapBuffers();
-	
-	const int beforeFence = Sys_Milliseconds();
-	if( r_showSwapBuffers.GetBool() && beforeFence - beforeSwap > 1 )
-	{
-		common->Printf( "%i msec to swapBuffers\n", beforeFence - beforeSwap );
-	}
-	
-	if( glConfig.syncAvailable )
-	{
-		swapIndex ^= 1;
-		
-		if( glIsSync( renderSync[swapIndex] ) )
-		{
-			glDeleteSync( renderSync[swapIndex] );
-		}
-		// draw something tiny to ensure the sync is after the swap
-		const int start = Sys_Milliseconds();
-		glScissor( 0, 0, 1, 1 );
-		glEnable( GL_SCISSOR_TEST );
-		glClear( GL_COLOR_BUFFER_BIT );
-		renderSync[swapIndex] = glFenceSync( GL_SYNC_GPU_COMMANDS_COMPLETE, 0 );
-		const int end = Sys_Milliseconds();
-		if( r_showSwapBuffers.GetBool() && end - start > 1 )
-		{
-			common->Printf( "%i msec to start fence\n", end - start );
-		}
-		
-		GLsync	syncToWaitOn;
-		if( r_syncEveryFrame.GetBool() )
-		{
-			syncToWaitOn = renderSync[swapIndex];
-		}
-		else
-		{
-			syncToWaitOn = renderSync[!swapIndex];
-		}
-		
-		if( glIsSync( syncToWaitOn ) )
-		{
-			for( GLenum r = GL_TIMEOUT_EXPIRED; r == GL_TIMEOUT_EXPIRED; )
-			{
-				r = glClientWaitSync( syncToWaitOn, GL_SYNC_FLUSH_COMMANDS_BIT, 1000 * 1000 );
-			}
-		}
-	}
-	
-	const int afterFence = Sys_Milliseconds();
-	if( r_showSwapBuffers.GetBool() && afterFence - beforeFence > 1 )
-	{
-		common->Printf( "%i msec to wait on fence\n", afterFence - beforeFence );
-	}
-	
-	const int64 exitBlockTime = Sys_Microseconds();
-	
-	static int64 prevBlockTime;
-	if( r_showSwapBuffers.GetBool() && prevBlockTime )
-	{
-		const int delta = ( int )( exitBlockTime - prevBlockTime );
-		common->Printf( "blockToBlock: %i\n", delta );
-	}
-	prevBlockTime = exitBlockTime;
-}
 
 /*
 =============
