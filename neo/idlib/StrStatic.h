@@ -43,7 +43,7 @@ public:
 		len = text.Length();
 		memcpy( data, text.data, len + 1 );
 	}
-	
+
 	// all idStr operators are overloaded and the idStr default constructor is called so that the
 	// static buffer can be initialized in the body of the constructor before the data is ever
 	// copied.

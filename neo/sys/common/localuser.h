@@ -46,7 +46,14 @@ public:
 	static const int MAX_GAMERTAG_CHARS = 16;	// max number of UTF-8 characters to show
 	
 	idLocalUserWin() : inputDevice( 0 ) {}
-	
+
+  idLocalUserWin& operator=(idLocalUserWin&& other)
+  {
+    gamertag = std::move(other.gamertag);
+    inputDevice = other.inputDevice;
+    return *this;
+  }
+
 	//==========================================================================================
 	// idLocalUser interface
 	//==========================================================================================

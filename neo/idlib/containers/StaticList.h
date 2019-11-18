@@ -601,7 +601,7 @@ ID_INLINE bool idStaticList<type, size>::RemoveIndex( int index )
 	num--;
 	for( i = index; i < num; i++ )
 	{
-		list[ i ] = list[ i + 1 ];
+		list[ i ] = std::move(list[ i + 1 ]);
 	}
 	
 	return true;
