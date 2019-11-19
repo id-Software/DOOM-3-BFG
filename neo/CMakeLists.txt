@@ -309,17 +309,21 @@ if(USE_VULKAN)
 
 	else()
 		# override Glslang build options
+		
+		# options required by November 2018 release
 		SET_OPTION(ENABLE_SPVREMAPPER OFF)
 		SET_OPTION(ENABLE_GLSLANG_BINARIES OFF)
 		SET_OPTION(ENABLE_HLSL OFF)
 		SET_OPTION(ENABLE_OPT ON)
 		SET_OPTION(SPIRV_SKIP_EXECUTABLES ON)
+		
+		# options required by November 2019 release
+		#SET_OPTION(ENABLE_PCH OFF)
+		#SET_OPTION(ENABLE_CTEST OFF)
+		#SET_OPTION(BUILD_EXTERNAL OFF)
+		#SET_OPTION(SKIP_GLSLANG_INSTALL ON)
 	
-		#option(ENABLE_AMD_EXTENSIONS "Enables support of AMD-specific extensions" ON)
-		#option(ENABLE_NV_EXTENSIONS "Enables support of Nvidia-specific extensions" ON)
-		#option(ENABLE_OPT "Enables spirv-opt capability if present" ON)
-	
-		set(GLSLANG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs/glslang)
+		set(GLSLANG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/extern/glslang)
 		add_subdirectory(${GLSLANG_DIR})
 	
 		include_directories(${GLSLANG_DIR}/glslang)
