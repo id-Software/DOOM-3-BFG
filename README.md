@@ -166,8 +166,11 @@ any other Steam features.
 The RBDOOM-3-BFG Edition GPL Source Code release includes functionality for rendering Bink Videos through FFmpeg or libbinkdec.
 
 ### Back End Rendering of Stencil Shadows
-The Doom 3 BFG Edition GPL Source Code release does not include functionality enabling rendering
+The RBOOM-3-BFG Edition GPL Source Code release includes functionality enabling rendering
 of stencil shadows via the "depth fail" method, a functionality commonly known as "Carmack's Reverse".
+
+This method was patented by Creative Labs and has finally expired on 2019-10-13.
+(see https://patents.google.com/patent/US6384822B1/en for expiration status)
 
 ---
 ## License <a name="license"></a>

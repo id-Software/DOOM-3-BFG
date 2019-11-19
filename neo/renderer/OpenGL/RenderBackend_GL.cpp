@@ -1614,7 +1614,9 @@ void idRenderBackend::DrawStencilShadowPass( const drawSurf_t* drawSurf, const b
 	}
 	else
 	{
-		// Z-fail
+		// Z-fail (Carmack's Reverse)
+		glStencilOpSeparate( GL_FRONT, GL_KEEP, GL_DECR, GL_KEEP );
+		glStencilOpSeparate( GL_BACK, GL_KEEP, GL_INCR, GL_KEEP );
 	}
 
 	// get vertex buffer
