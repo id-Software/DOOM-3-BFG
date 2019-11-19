@@ -236,6 +236,18 @@ void idImage::CreateSampler()
 	switch( filter )
 	{
 		case TF_DEFAULT:
+			createInfo.minFilter = VK_FILTER_LINEAR;
+			createInfo.magFilter = VK_FILTER_LINEAR;
+			createInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+
+			// RB: enable anisotropic filtering
+			if( r_maxAnisotropicFiltering.GetInteger() > 0 )
+			{
+				createInfo.anisotropyEnable = VK_TRUE;
+				createInfo.maxAnisotropy = r_maxAnisotropicFiltering.GetInteger();
+			}
+			break;
+
 		case TF_LINEAR:
 			createInfo.minFilter = VK_FILTER_LINEAR;
 			createInfo.magFilter = VK_FILTER_LINEAR;

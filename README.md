@@ -40,7 +40,7 @@ I started this project in 2012 and focused on making this code being future proo
 * Win64 support and Visual Studio support up to VS 2019
 * OS X support
 * OpenAL Soft sound backend primarily developed for Linux but works on Windows as well
-* Bink video support through libbinkdec or FFmpeg (thanks to Daniel Gibson)
+* Bink video support through libbinkdec (thanks to Daniel Gibson) or FFmpeg (thanks to Carl Kenner)
 * PNG image support
 * Soft shadows using PCF hardware shadow mapping
 	The implementation uses sampler2DArrayShadow and PCF which usually
@@ -163,7 +163,7 @@ Steam.  This includes roaming profiles, achievements, leaderboards, matchmaking,
 any other Steam features.
 
 ### Bink Video playback
-The RBDOOM-3-BFG Edition GPL Source Code release includes functionality for rendering Bink Videos through FFmpeg.
+The RBDOOM-3-BFG Edition GPL Source Code release includes functionality for rendering Bink Videos through FFmpeg or libbinkdec.
 
 ### Back End Rendering of Stencil Shadows
 The Doom 3 BFG Edition GPL Source Code release does not include functionality enabling rendering

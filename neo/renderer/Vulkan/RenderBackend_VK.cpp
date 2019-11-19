@@ -600,7 +600,7 @@ static void CreateLogicalDeviceAndQueues()
 	deviceFeatures.depthBiasClamp = VK_TRUE;
 	deviceFeatures.depthBounds = VK_TRUE;
 	deviceFeatures.fillModeNonSolid = VK_TRUE;
-	//deviceFeatures.samplerAnisotropy = vkcontext.physicalDeviceFeatures.samplerAnisotropy; // RB
+	deviceFeatures.samplerAnisotropy = vkcontext.physicalDeviceFeatures.samplerAnisotropy; // RB
 
 	VkDeviceCreateInfo info = {};
 	info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -2081,6 +2081,10 @@ See if some cvars that we watch have changed
 void idRenderBackend::CheckCVars()
 {
 	// TODO
+	if( r_useShadowMapping.GetBool() )
+	{
+		r_useShadowMapping.SetBool( false );
+	}
 
 	/*
 	// gamma stuff
