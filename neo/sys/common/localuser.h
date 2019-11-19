@@ -47,12 +47,12 @@ public:
 
 	idLocalUserWin() : inputDevice( 0 ) {}
 
-  idLocalUserWin& operator=(idLocalUserWin&& other)
-  {
-    gamertag = std::move(other.gamertag);
-    inputDevice = other.inputDevice;
-    return *this;
-  }
+	idLocalUserWin& operator=( idLocalUserWin&& other )
+	{
+		gamertag = std::move( other.gamertag );
+		inputDevice = other.inputDevice;
+		return *this;
+	}
 
 	//==========================================================================================
 	// idLocalUser interface

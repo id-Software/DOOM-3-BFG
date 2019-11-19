@@ -48,8 +48,8 @@ public:
 	idProfileMgr();
 	~idProfileMgr();
 
-  // Not copyable because we use unique_ptrs.
-  idProfileMgr& operator=(const idProfileMgr&) = delete;
+	// Not copyable because we use unique_ptrs.
+	idProfileMgr& operator=( const idProfileMgr& ) = delete;
 
 	// Called the first time it's asked to load
 	void				Init( idLocalUser* user );
