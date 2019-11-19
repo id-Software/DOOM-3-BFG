@@ -209,7 +209,7 @@ public:
 
 typedef idStaticList< idSaveGameDetails, MAX_SAVEGAMES > saveGameDetailsList_t;
 
-// Making a auto_ptr to handle lifetime issues better
+// Making a unique_ptr to handle lifetime issues better
 typedef idList< idFile_SaveGame*, TAG_SAVEGAMES > saveFileEntryList_t;
 
 /*
