@@ -224,7 +224,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	}
 	
 	shadow *= stepSize;
-#else
+#elif 1
 	
 	const float2 poissonDisk[12] = float2[](
 	float2(0.6111618, 0.1050905),
@@ -269,7 +269,9 @@ void main( PS_IN fragment, out PS_OUT result )
 
    shadow *= stepSize;
 
-	//float shadow = texture( samp5, shadowTexcoord.xywz );
+#else
+
+	float shadow = texture( samp5, shadowTexcoord.xywz );
 #endif
 
 

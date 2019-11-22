@@ -1992,6 +1992,16 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 
 	const bool hdrIsActive = ( r_useHDR.GetBool() && globalFramebuffers.hdrFBO != NULL && globalFramebuffers.hdrFBO->IsBound() );
 
+	if( !fillGbuffer )
+	{
+		if( r_forceAmbient.GetFloat() <= 0 || r_skipAmbient.GetBool() )
+		{
+			// clear gbuffer
+			GL_Clear( true, false, false, 0, 0.0f, 0.0f, 0.0f, 1.0f, false );
+			return;
+		}
+	}
+
 	/*
 	if( fillGbuffer )
 	{
@@ -2034,8 +2044,15 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 
 	idVec4 ambientColor;
 	float ambientBoost = 1.0f;
-	ambientBoost += r_useSSAO.GetBool() ? 0.2f : 0.0f;
-	ambientBoost *= r_useHDR.GetBool() ? 1.1f : 1.0f;
+
+	if( !r_usePBR.GetBool() )
+	{
+		ambientBoost += r_useSSAO.GetBool() ? 0.2f : 0.0f;
+		ambientBoost *= r_useHDR.GetBool() ? 1.1f : 1.0f;
+	}
+
+	bool useIBL = r_usePBR.GetBool() && !fillGbuffer;
+
 	ambientColor.x = r_forceAmbient.GetFloat() * ambientBoost;
 	ambientColor.y = r_forceAmbient.GetFloat() * ambientBoost;
 	ambientColor.z = r_forceAmbient.GetFloat() * ambientBoost;
@@ -2101,33 +2118,36 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 			else
 #endif
 			{
-#if 1
-				// draw Quake 4 style ambient
-				if( drawSurf->jointCache )
+				if( useIBL )
 				{
-					renderProgManager.BindShader_ImageBasedLightingSkinned();
+					// draw Quake 4 style ambient
+					if( drawSurf->jointCache )
+					{
+						renderProgManager.BindShader_ImageBasedLightingSkinned();
+					}
+					else
+					{
+						renderProgManager.BindShader_ImageBasedLighting();
+					}
+
+					GL_SelectTexture( INTERACTION_TEXUNIT_AMBIENT_CUBE1 );
+					globalImages->defaultUACIrradianceCube->Bind();
+
+					GL_SelectTexture( INTERACTION_TEXUNIT_SPECULAR_CUBE1 );
+					globalImages->defaultUACRadianceCube->Bind();
 				}
 				else
 				{
-					renderProgManager.BindShader_ImageBasedLighting();
+					// draw Quake 4 style ambient
+					if( drawSurf->jointCache )
+					{
+						renderProgManager.BindShader_AmbientLightingSkinned();
+					}
+					else
+					{
+						renderProgManager.BindShader_AmbientLighting();
+					}
 				}
-
-				GL_SelectTexture( INTERACTION_TEXUNIT_AMBIENT_CUBE1 );
-				globalImages->defaultUACIrradianceCube->Bind();
-
-				GL_SelectTexture( INTERACTION_TEXUNIT_SPECULAR_CUBE1 );
-				globalImages->defaultUACRadianceCube->Bind();
-#else
-				// draw Quake 4 style ambient
-				if( drawSurf->jointCache )
-				{
-					renderProgManager.BindShader_AmbientLightingSkinned();
-				}
-				else
-				{
-					renderProgManager.BindShader_AmbientLighting();
-				}
-#endif
 			}
 		}
 
@@ -2292,7 +2312,7 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 					// draw any previous interaction
 					if( inter.bumpImage != NULL )
 					{
-						DrawSingleInteraction( &inter, !fillGbuffer );
+						DrawSingleInteraction( &inter, useIBL );
 					}
 					inter.bumpImage = surfaceStage->texture.image;
 					inter.diffuseImage = NULL;
@@ -2313,7 +2333,7 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 					// draw any previous interaction
 					if( inter.diffuseImage != NULL )
 					{
-						DrawSingleInteraction( &inter, !fillGbuffer );
+						DrawSingleInteraction( &inter, useIBL );
 					}
 
 					inter.diffuseImage = surfaceStage->texture.image;
@@ -2333,7 +2353,7 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 					// draw any previous interaction
 					if( inter.specularImage != NULL )
 					{
-						DrawSingleInteraction( &inter, !fillGbuffer );
+						DrawSingleInteraction( &inter, useIBL );
 					}
 					inter.specularImage = surfaceStage->texture.image;
 					inter.vertexColor = surfaceStage->vertexColor;
@@ -2345,7 +2365,7 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 		}
 
 		// draw the final interaction
-		DrawSingleInteraction( &inter, !fillGbuffer );
+		DrawSingleInteraction( &inter, useIBL );
 
 		renderLog.CloseBlock();
 	}

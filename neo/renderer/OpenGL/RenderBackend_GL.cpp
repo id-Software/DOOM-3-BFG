@@ -1491,10 +1491,23 @@ void idRenderBackend::CheckCVars()
 		}
 	}
 
-	if( r_useHDR.IsModified() || r_useHalfLambertLighting.IsModified() )
+	if( r_usePBR.IsModified() || r_useHDR.IsModified() || r_useHalfLambertLighting.IsModified() )
 	{
+		bool needShaderReload = false;
+
+		if( r_usePBR.GetBool() && r_useHalfLambertLighting.GetBool() )
+		{
+			r_useHalfLambertLighting.SetBool( false );
+
+			needShaderReload = true;
+		}
+
+		needShaderReload |= r_useHDR.IsModified();
+
+		r_usePBR.ClearModified();
 		r_useHDR.ClearModified();
 		r_useHalfLambertLighting.ClearModified();
+
 		renderProgManager.KillAllShaders();
 		renderProgManager.LoadAllShaders();
 	}
@@ -1598,6 +1611,8 @@ STENCIL SHADOW RENDERING
 idRenderBackend::DrawStencilShadowPass
 =====================
 */
+extern idCVar r_useStencilShadowPreload;
+
 void idRenderBackend::DrawStencilShadowPass( const drawSurf_t* drawSurf, const bool renderZPass )
 {
 	if( renderZPass )

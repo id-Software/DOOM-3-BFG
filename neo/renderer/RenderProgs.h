@@ -839,11 +839,13 @@ private:
 			progId( INVALID_PROGID ),
 			shaderFeatures( 0 ),
 			builtin( false ),
+			vertexLayout( LAYOUT_DRAW_VERT ),
 			uniformArray( -1 ) {}
 		idStr			name;
 		idStr			nameOutSuffix;
 		uint32			shaderFeatures;		// RB: Cg compile macros
 		bool			builtin;			// RB: part of the core shaders built into the executable
+		vertexLayoutType_t	vertexLayout;
 		rpStage_t		stage;
 		uint			progId;
 		int				uniformArray;
