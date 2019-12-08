@@ -228,6 +228,9 @@ This project's GitHub.net Git repository can be checked out through Git with the
 	
 		> sudo pacman -S sdl2 openal cmake
 
+	On openSUSE
+		> sudo zypper install cmake libSDL2-devel openal-soft-devel
+
 2. Generate the Makefiles using CMake:
 
 	> cd neo/
