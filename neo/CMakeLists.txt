@@ -3,6 +3,12 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 project(RBDoom3BFG)
 
+option(FORCE_COLOR_OUTPUT
+		"Always produce ANSI-colored output (GNU/Clang only)." OFF)
+
+option(COMPILE_COMMANDS
+		"Generate compile_commands.json" OFF)
+
 option(USE_MFC_TOOLS
 		"Compile the built-in MFC based tools" OFF)
 		
@@ -67,7 +73,19 @@ endif()
 if(UNIX)
 	set(OPENAL TRUE)
 endif()
-		
+
+if(COMPILE_COMMANDS)
+	set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+endif()
+
+if (FORCE_COLOR_OUTPUT)
+	if (CMAKE_COMPILER_IS_GNUCC)
+		add_compile_options(-fdiagnostics-color=always)
+	elseif(CMAKE_C_COMPILER_ID STREQUAL "Clang")
+		add_compile_options(-fcolor-diagnostics)
+	endif ()
+endif ()
+
 if(MSVC)
 	#message(STATUS CMAKE_ROOT: ${CMAKE_ROOT})
 	
@@ -93,11 +111,9 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
 	CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
 	CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
 	if(COMPILER_SUPPORTS_CXX11)
-		set(CMAKE_CXX_STANDARD 11)
-		set(CMAKE_CXX_STANDARD_REQUIRED ON)
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 	elseif(COMPILER_SUPPORTS_CXX0X)
-		set(CMAKE_CXX_STANDARD 0x)
-		set(CMAKE_CXX_STANDARD_REQUIRED ON)
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 	else()
 		message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
 	endif()
