@@ -395,9 +395,10 @@ static int CompileGLSLtoSPIRV( const char* filename, const idStr& dataGLSL, cons
 }
 #else
 
-#include <glslang/public/ShaderLang.h>
+#include <glslang/Public/ShaderLang.h>
 #include <glslang/Include/ResourceLimits.h>
-#include <glslang/SPIRV/GlslangToSpv.h>
+#include <SPIRV/GlslangToSpv.h>
+
 //#include <glslang/StandAlone/DirStackFileIncluder.h>
 
 namespace glslang
@@ -581,7 +582,7 @@ static int CompileGLSLtoSPIRV( const char* filename, const idStr& dataGLSL, cons
 		idLib::Printf( "%s\n", shader.getInfoDebugLog() );
 	}
 
-	// All that’s left to do now is to convert the program’s intermediate representation into SpirV:
+	// All thatï¿½s left to do now is to convert the programï¿½s intermediate representation into SpirV:
 	std::vector<unsigned int>	spirV;
 	spv::SpvBuildLogger			logger;
 	glslang::SpvOptions			spvOptions;

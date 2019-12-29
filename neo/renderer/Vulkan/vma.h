@@ -1956,6 +1956,7 @@ template<typename T, typename AllocatorT>
 class VmaList
 {
 public:
+    class const_iterator;
 	class iterator
 	{
 	public:
@@ -2031,7 +2032,7 @@ public:
 		}
 
 		friend class VmaList<T, AllocatorT>;
-		friend class VmaList<T, AllocatorT>:: const_iterator;
+		friend class VmaList<T, AllocatorT>::const_iterator;
 	};
 
 	class const_iterator

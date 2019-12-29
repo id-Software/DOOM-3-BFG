@@ -439,7 +439,7 @@ static void CreateSurface()
 	createInfo.connection = info.connection;
 	createInfo.window = info.window;
 
-	ID_VK_CHECK( vkCreateXcbSurfaceKHR( info.inst, &createInfo, NULL, &info.surface ) );
+	ID_VK_CHECK( vkCreateXcbSurfaceKHR( vkcontext.instance, &createInfo, NULL, &vkcontext.surface ) );
 #endif  // _WIN32
 
 
@@ -554,22 +554,22 @@ static void SelectPhysicalDevice()
 			switch( gpu.props.vendorID )
 			{
 				case 0x8086:
-					idLib::Printf( "Vendor: Intel\n", i );
+					idLib::Printf( "Vendor: Intel\n");
 					glConfig.vendor = VENDOR_INTEL;
 					break;
 
 				case 0x10DE:
-					idLib::Printf( "Vendor: NVIDIA\n", i );
+					idLib::Printf( "Vendor: NVIDIA\n");
 					glConfig.vendor = VENDOR_NVIDIA;
 					break;
 
 				case 0x1002:
-					idLib::Printf( "Vendor: AMD\n", i );
+					idLib::Printf( "Vendor: AMD\n");
 					glConfig.vendor = VENDOR_AMD;
 					break;
 
 				default:
-					idLib::Printf( "Vendor: Unknown (0x%x)\n", i, gpu.props.vendorID );
+					idLib::Printf( "Vendor: Unknown (0x%x)\n", gpu.props.vendorID );
 			}
 
 			return;
@@ -966,7 +966,7 @@ static void CreateRenderTargets()
 									VK_IMAGE_TILING_OPTIMAL,
 									VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT );
 	}
-
+    idLib::Printf( "renderSystem->GetWidth()/GetHeight() %ix%i\n", renderSystem->GetWidth(), renderSystem->GetHeight() );
 	idImageOpts depthOptions;
 	depthOptions.format = FMT_DEPTH;
 	depthOptions.width = renderSystem->GetWidth();

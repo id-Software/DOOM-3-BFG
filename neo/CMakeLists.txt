@@ -328,7 +328,16 @@ if(USE_VULKAN)
 	
 	add_definitions(-DUSE_VULKAN)
 	include_directories($ENV{VULKAN_SDK}/Include)
-	
+
+	find_package(XCB)
+	if(NOT XCB_FOUND)
+		message(FATAL_ERROR "Could not find XCB library!")
+	else()
+		message(STATUS ${XCB_LIBRARIES})
+	endif()
+
+	include_directories(${XCB_INCLUDE_DIRS})
+
 	if(SPIRV_SHADERC)
 		add_definitions(-DSPIRV_SHADERC)
 
@@ -343,7 +352,7 @@ if(USE_VULKAN)
 		
 		# options required by November 2018 release
 		SET_OPTION(ENABLE_SPVREMAPPER OFF)
-		SET_OPTION(ENABLE_GLSLANG_BINARIES OFF)
+		SET_OPTION(ENABLE_GLSLANG_BINARIES ON)
 		SET_OPTION(ENABLE_HLSL OFF)
 		SET_OPTION(ENABLE_OPT ON)
 		SET_OPTION(SPIRV_SKIP_EXECUTABLES ON)
@@ -357,7 +366,7 @@ if(USE_VULKAN)
 		set(GLSLANG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/extern/glslang)
 		add_subdirectory(${GLSLANG_DIR})
 	
-		include_directories(${GLSLANG_DIR}/glslang)
+		include_directories(${GLSLANG_DIR})
 	endif()
 
 else()
@@ -1618,9 +1627,9 @@ else()
             
             set(Vulkan_LIBRARIES
                 ${Vulkan_LIBRARY}
+				${XCB_LIBRARIES}
                 glslang
                 SPIRV
-		xcb
                 )
                 
             if(ENABLE_GLSLANG_BINARIES)
@@ -1719,6 +1728,7 @@ else()
 
 		target_link_libraries(RBDoom3BFG
 			idlib
+			${Vulkan_LIBRARIES}
 			${OPENGL_LIBRARIES}
 			pthread
 			${RT_LIBRARY}

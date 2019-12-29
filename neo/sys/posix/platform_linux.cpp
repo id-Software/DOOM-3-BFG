@@ -571,6 +571,10 @@ static void createWindow(size_t winWidth, size_t winHeight)
     /* map the window to the screen and flush the stream to the server */
     xcb_map_window(info.connection, info.window);
     xcb_flush(info.connection);
+
+    glConfig.nativeScreenWidth = winWidth;
+    glConfig.nativeScreenHeight = winHeight;
+
 }
 #endif
 
@@ -595,7 +599,7 @@ int main( int argc, const char** argv )
     /* Create the window if using Vulkan */
     xcb_generic_event_t *event;
     xcb_client_message_event_t *cm;
-    createWindow(1920, 1080);
+    createWindow(1600, 900);
 #endif
 
 	Posix_EarlyInit( );

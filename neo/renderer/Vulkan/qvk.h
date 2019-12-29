@@ -33,6 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 #if defined( USE_VULKAN )
 
 //#define VK_USE_PLATFORM_XLIB_KHR
+
 #define VK_USE_PLATFORM_XCB_KHR
 #define USE_AMD_ALLOCATOR
 

@@ -73,12 +73,14 @@ assert_sizeof( uint64,	8 );
 #define MAX_UNSIGNED_TYPE( x )	( ( ( ( 1U << ( ( sizeof( x ) - 1 ) * 8 ) ) - 1 ) << 8 ) | 255U )
 #define MIN_UNSIGNED_TYPE( x )	0
 
+
 template< typename _type_ >
 bool IsSignedType( const _type_ t )
 {
 	return _type_( -1 ) < 0;
 }
 
+#if !defined(USE_AMD_ALLOCATOR)
 template<class T> T	Max( T x, T y )
 {
 	return ( x > y ) ? x : y;
@@ -87,7 +89,7 @@ template<class T> T	Min( T x, T y )
 {
 	return ( x < y ) ? x : y;
 }
-
+#endif // USE_AMD_ALLOCATOR
 
 class idFile;
 
