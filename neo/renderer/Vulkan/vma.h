@@ -766,6 +766,7 @@ remove them if not needed.
 #include <cassert> // for assert
 #include <algorithm> // for min, max
 #include <mutex> // for std::mutex
+#include <string.h>
 
 #if !defined(_WIN32)
 	#include <malloc.h> // for aligned_alloc()

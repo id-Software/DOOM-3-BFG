@@ -30,6 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include "../../idlib/precompiled.h"
+#include <GL/glew.h>
 
 // DG: SDL.h somehow needs the following functions, so #undef those silly
 //     "don't use" #defines from Str.h
@@ -100,6 +101,10 @@ GLimp_Init
 */
 bool GLimp_Init( glimpParms_t parms )
 {
+    #ifdef USE_VULKAN
+    return true;
+    #endif
+
 	common->Printf( "Initializing OpenGL subsystem\n" );
 
 	GLimp_PreInit(); // DG: make sure SDL is initialized
@@ -479,6 +484,10 @@ GLimp_SetScreenParms
 */
 bool GLimp_SetScreenParms( glimpParms_t parms )
 {
+#ifdef USE_VULKAN
+    return true;
+#endif
+
 #if SDL_VERSION_ATLEAST(2, 0, 0)
 	if( parms.fullScreen > 0 || parms.fullScreen == -2 )
 	{
@@ -556,7 +565,12 @@ GLimp_Shutdown
 */
 void GLimp_Shutdown()
 {
+#ifdef USE_VULKAN
+	common->Printf( "Shutting down Vulkan subsystem\n" );
+    return;
+#else
 	common->Printf( "Shutting down OpenGL subsystem\n" );
+#endif
 
 #if SDL_VERSION_ATLEAST(2, 0, 0)
 	if( context )
@@ -578,6 +592,7 @@ void GLimp_Shutdown()
 GLimp_SwapBuffers
 ===================
 */
+#ifndef USE_VULKAN
 void GLimp_SwapBuffers()
 {
 #if SDL_VERSION_ATLEAST(2, 0, 0)
@@ -586,6 +601,7 @@ void GLimp_SwapBuffers()
 	SDL_GL_SwapBuffers();
 #endif
 }
+#endif
 
 /*
 =================
@@ -594,6 +610,7 @@ GLimp_SetGamma
 */
 void GLimp_SetGamma( unsigned short red[256], unsigned short green[256], unsigned short blue[256] )
 {
+#ifndef USE_VULKAN
 	if( !window )
 	{
 		common->Warning( "GLimp_SetGamma called without window" );
@@ -606,6 +623,7 @@ void GLimp_SetGamma( unsigned short red[256], unsigned short green[256], unsigne
 	if( SDL_SetGammaRamp( red, green, blue ) )
 #endif
 		common->Warning( "Couldn't set gamma ramp: %s", SDL_GetError() );
+#endif
 }
 
 /*
