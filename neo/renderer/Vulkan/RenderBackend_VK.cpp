@@ -31,6 +31,10 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "precompiled.h"
 
+#ifdef __linux__
+#include "../../sys/posix/posix_public.h"
+#endif
+
 #include "../RenderCommon.h"
 #include "../RenderBackend.h"
 #include "Staging_VK.h"
@@ -53,7 +57,7 @@ static const int g_numInstanceExtensions = 2;
 static const char* g_instanceExtensions[ g_numInstanceExtensions ] =
 {
 	VK_KHR_SURFACE_EXTENSION_NAME,
-	VK_KHR_WIN32_SURFACE_EXTENSION_NAME
+    VK_KHR_XCB_SURFACE_EXTENSION_NAME
 };
 
 static const int g_numDebugInstanceExtensions = 1;
@@ -301,6 +305,8 @@ static void EnumeratePhysicalDevices()
 	uint32 numDevices = 0;
 	ID_VK_CHECK( vkEnumeratePhysicalDevices( vkcontext.instance, &numDevices, NULL ) );
 	ID_VK_VALIDATE( numDevices > 0, "vkEnumeratePhysicalDevices returned zero devices." );
+
+    idLib::Printf("found %u devices\n", numDevices);
 	
 	idList< VkPhysicalDevice > devices;
 	devices.SetNum( numDevices );
@@ -312,11 +318,15 @@ static void EnumeratePhysicalDevices()
 	
 	for( uint32 i = 0; i < numDevices; ++i )
 	{
+        idLib::Printf("Iterating over gpu %u\n", i);
 		gpuInfo_t& gpu = vkcontext.gpus[ i ];
+        idLib::Printf("have gpuInfo_t ref at %p\n", &vkcontext.gpus[i]);
 		gpu.device = devices[ i ];
+        idLib::Printf("set gpu.device\n");
 		
 		// get Queue family properties
 		{
+            idLib::Printf("Getting queue family props...\n");
 			uint32 numQueues = 0;
 			vkGetPhysicalDeviceQueueFamilyProperties( gpu.device, &numQueues, NULL );
 			ID_VK_VALIDATE( numQueues > 0, "vkGetPhysicalDeviceQueueFamilyProperties returned zero queues." );
@@ -328,6 +338,7 @@ static void EnumeratePhysicalDevices()
 		
 		// grab available Vulkan extensions
 		{
+            idLib::Printf("Getting available vulkan extensions...\n");
 			uint32 numExtension;
 			ID_VK_CHECK( vkEnumerateDeviceExtensionProperties( gpu.device, NULL, &numExtension, NULL ) );
 			ID_VK_VALIDATE( numExtension > 0, "vkEnumerateDeviceExtensionProperties returned zero extensions." );
@@ -422,10 +433,11 @@ static void CreateSurface()
 	VkXcbSurfaceCreateInfoKHR createInfo = {};
 	createInfo.sType = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;
 	createInfo.pNext = NULL;
+    createInfo.flags = 0;
 	createInfo.connection = info.connection;
 	createInfo.window = info.window;
 	
-	ID_VK_CHECK( vkCreateXcbSurfaceKHR( info.inst, &createInfo, NULL, &info.surface ) );
+	ID_VK_CHECK( vkCreateXcbSurfaceKHR( vkcontext.instance, &createInfo, NULL, &vkcontext.surface ) );
 #endif  // _WIN32
 	
 	
@@ -540,22 +552,22 @@ static void SelectPhysicalDevice()
 			switch( gpu.props.vendorID )
 			{
 				case 0x8086:
-					idLib::Printf( "Vendor: Intel\n", i );
+					idLib::Printf( "Vendor: Intel\n");
 					glConfig.vendor = VENDOR_INTEL;
 					break;
 					
 				case 0x10DE:
-					idLib::Printf( "Vendor: NVIDIA\n", i );
+					idLib::Printf( "Vendor: NVIDIA\n");
 					glConfig.vendor = VENDOR_NVIDIA;
 					break;
 					
 				case 0x1002:
-					idLib::Printf( "Vendor: AMD\n", i );
+					idLib::Printf( "Vendor: AMD\n");
 					glConfig.vendor = VENDOR_AMD;
 					break;
 					
 				default:
-					idLib::Printf( "Vendor: Unknown (0x%x)\n", i, gpu.props.vendorID );
+					idLib::Printf( "Vendor: Unknown (0x%x)\n", gpu.props.vendorID );
 			}
 			
 			return;
@@ -1276,30 +1288,38 @@ void idRenderBackend::Init()
 	glConfig.driverType = GLDRV_VULKAN;
 	glConfig.gpuSkinningAvailable = true;
 	
+	idLib::Printf( "Creating Vulkan Instance...\n" );
 	// create the Vulkan instance and enable validation layers
 	CreateVulkanInstance();
 	
 	// create the windowing interface
-#ifdef _WIN32
+//#ifdef _WIN32
+	idLib::Printf( "Creating Vulkan Surface...\n" );
 	CreateSurface();
-#endif
+//#endif
 	
 	// Enumerate physical devices and get their properties
+	idLib::Printf( "Enumerating physical devices and their properties...\n" );
 	EnumeratePhysicalDevices();
 	
 	// Find queue family/families supporting graphics and present.
+	idLib::Printf( "Selecting physical device...\n" );
 	SelectPhysicalDevice();
 	
 	// Create logical device and queues
+	idLib::Printf( "Creating logical device and queues...\n" );
 	CreateLogicalDeviceAndQueues();
 	
 	// Create semaphores for image acquisition and rendering completion
+	idLib::Printf( "Creating semaphores...\n" );
 	CreateSemaphores();
 	
 	// Create Command Pool
+	idLib::Printf( "Creating command pool...\n" );
 	CreateCommandPool();
 	
 	// Create Command Buffer
+	idLib::Printf( "Creating command buffer...\n" );
 	CreateCommandBuffer();
 	
 	// setup the allocator
@@ -1319,21 +1339,27 @@ void idRenderBackend::Init()
 #endif
 	
 	// Start the Staging Manager
+	idLib::Printf( "Creating staging manager...\n" );
 	stagingManager.Init();
 	
 	// Create Swap Chain
+	idLib::Printf( "Creating swapchain...\n" );
 	CreateSwapChain();
 	
 	// Create Render Targets
+	idLib::Printf( "Creating render targets...\n" );
 	CreateRenderTargets();
 	
 	// Create Render Pass
+	idLib::Printf( "Creating render pass...\n" );
 	CreateRenderPass();
 	
 	// Create Pipeline Cache
+	idLib::Printf( "Creating pipeline cache...\n" );
 	CreatePipelineCache();
 	
 	// Create Frame Buffers
+	idLib::Printf( "Creating frame buffers...\n" );
 	CreateFrameBuffers();
 	
 	// init RenderProg Manager
@@ -2355,4 +2381,11 @@ void Framebuffer::Check()
 void Framebuffer::CheckFramebuffers()
 {
 	// TODO
+}
+
+void idRenderBackend::ImGui_RenderDrawLists( ImDrawData* draw_data )
+{
+	// TODO
+
+	renderProgManager.Unbind();
 }

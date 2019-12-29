@@ -29,6 +29,9 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __SWF_SPRITES_H__
 #define __SWF_SPRITES_H__
 
+#undef Bool
+#include "rapidjson/document.h"
+
 /*
 ================================================
 What the swf file format calls a "sprite" is known as a "movie clip" in Flash

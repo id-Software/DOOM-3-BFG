@@ -610,11 +610,11 @@ CONSOLE_COMMAND( Vulkan_PrintHeapInfo, "Print out the heap information for this 
 {
 	VkPhysicalDeviceMemoryProperties& props = vkcontext.gpu->memProps;
 	
-	idLib::Printf( "Heaps %lu\n------------------------\n", props.memoryHeapCount );
+	idLib::Printf( "Heaps %u\n------------------------\n", props.memoryHeapCount );
 	for( uint32 i = 0; i < props.memoryHeapCount; ++i )
 	{
 		VkMemoryHeap heap = props.memoryHeaps[ i ];
-		idLib::Printf( "id=%d, size=%llu, flags=", i, heap.size );
+		idLib::Printf( "id=%d, size=%lu, flags=", i, heap.size );
 		if( heap.flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT )
 		{
 			idLib::Printf( "DEVICE_LOCAL" );
@@ -657,8 +657,8 @@ CONSOLE_COMMAND( Vulkan_PrintHeapInfo, "Print out the heap information for this 
 			
 			if( properties.Length() > 0 )
 			{
-				idLib::Printf( "memory_type=%lu\n", j );
-				idLib::Printf( properties.c_str() );
+				idLib::Printf( "memory_type=%u\n", j );
+				idLib::Printf( "%s", properties.c_str() );
 			}
 		}
 		

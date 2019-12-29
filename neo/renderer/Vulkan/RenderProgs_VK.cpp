@@ -343,8 +343,8 @@ CompileGLSLtoSPIRV
 
 #include <glslang/public/ShaderLang.h>
 #include <glslang/Include/ResourceLimits.h>
-#include <SPIRV/GlslangToSpv.h>
-#include <StandAlone/DirStackFileIncluder.h>
+#include <glslang/SPIRV/GlslangToSpv.h>
+//#include <glslang/StandAlone/DirStackFileIncluder.h>
 
 namespace glslang
 {
@@ -352,7 +352,7 @@ namespace glslang
 // These are the default resources for TBuiltInResources, used for both
 //  - parsing this string for the case where the user didn't supply one,
 //  - dumping out a template for user construction of a config file.
-#if 0
+#if 1
 extern const TBuiltInResource DefaultTBuiltInResource;
 #else
 const TBuiltInResource DefaultTBuiltInResource =

@@ -315,10 +315,10 @@ if(USE_VULKAN)
 	#option(ENABLE_NV_EXTENSIONS "Enables support of Nvidia-specific extensions" ON)
 	#option(ENABLE_OPT "Enables spirv-opt capability if present" ON)
 	
-	set(GLSLANG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs/glslang)
-	add_subdirectory(${GLSLANG_DIR})
+    #set(GLSLANG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs/glslang)
+    #add_subdirectory(${GLSLANG_DIR})
 	
-	include_directories(${GLSLANG_DIR}/glslang)
+    #include_directories(${GLSLANG_DIR}/glslang)
 
 else()
 
@@ -1321,6 +1321,7 @@ if(MSVC)
 			${Vulkan_LIBRARY}
 			glslang
 			SPIRV
+            xcb
 			)
 			
 		if(ENABLE_GLSLANG_BINARIES)

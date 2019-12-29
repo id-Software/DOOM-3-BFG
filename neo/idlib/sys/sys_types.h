@@ -118,9 +118,9 @@ struct idNullPtr
 //#endif
 
 // C99 Standard
-#ifndef nullptr
-#define nullptr	idNullPtr()
-#endif
+//#ifndef nullptr
+//#define nullptr	idNullPtr()
+//#endif
 
 #ifndef BIT
 #define BIT( num )				( 1ULL << ( num ) )
