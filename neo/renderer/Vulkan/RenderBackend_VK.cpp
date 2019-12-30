@@ -345,8 +345,7 @@ static void EnumeratePhysicalDevices()
 			vkGetPhysicalDeviceQueueFamilyProperties( gpu.device, &numQueues, gpu.queueFamilyProps.Ptr() );
 			ID_VK_VALIDATE( numQueues > 0, "vkGetPhysicalDeviceQueueFamilyProperties returned zero queues." );
 		}
-		// Eric: Bypass this since on linux we use SDL_Vulkan_GetInstanceExtensions to query for extensions.
-#if defined(__linux__)
+
 		// grab available Vulkan extensions
 		{
             idLib::Printf("Getting available vulkan extensions...\n");
@@ -364,7 +363,6 @@ static void EnumeratePhysicalDevices()
 			}
 #endif // 0
 		}
-#endif // __linux__
 
 		// grab surface specific information
 		ID_VK_CHECK( vkGetPhysicalDeviceSurfaceCapabilitiesKHR( gpu.device, vkcontext.surface, &gpu.surfaceCaps ) );
