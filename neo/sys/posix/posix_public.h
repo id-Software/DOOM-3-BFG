@@ -72,7 +72,8 @@ enum clk_id_t { CLOCK_REALTIME, CLOCK_MONOTONIC, CLOCK_MONOTONIC_RAW };
 int clock_gettime( clk_id_t clock, struct timespec* tp );
 #endif
 
-#ifdef USE_VULKAN
+// Eric: Not used on Linux since using SDL2
+#if 0 //defined(USE_VULKAN)
 /* Struct that holds global xcb state for vulkan */
 typedef struct _posixInfo {
     xcb_connection_t *connection;

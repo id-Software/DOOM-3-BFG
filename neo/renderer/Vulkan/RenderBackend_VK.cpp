@@ -31,7 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "precompiled.h"
 
-#ifdef __linux__
+#if 0 // defined(__linux__)
 #include "../../sys/posix/posix_public.h"
 #endif
 
@@ -51,14 +51,14 @@ idCVar r_syncEveryFrame( "r_syncEveryFrame", "1", CVAR_BOOL, "Don't let the GPU 
 
 idCVar r_vkEnableValidationLayers( "r_vkEnableValidationLayers", "0", CVAR_BOOL | CVAR_INIT, "" );
 
-vulkanContext_t vkcontext;
-
+#if defined(_WIN32)
 static const int g_numInstanceExtensions = 2;
 static const char* g_instanceExtensions[ g_numInstanceExtensions ] =
 {
 	VK_KHR_SURFACE_EXTENSION_NAME,
-    VK_KHR_XCB_SURFACE_EXTENSION_NAME
+    VK_KHR_WIN32_SURFACE_EXTENSION_NAME
 };
+#endif
 
 static const int g_numDebugInstanceExtensions = 1;
 static const char* g_debugInstanceExtensions[ g_numDebugInstanceExtensions ] =
@@ -234,6 +234,7 @@ static void ValidateValidationLayers()
 		}
 	}
 }
+
 /*
 =============
 CreateVulkanInstance
@@ -253,16 +254,17 @@ static void CreateVulkanInstance()
 	createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 	createInfo.pApplicationInfo = &appInfo;
 
-	const bool enableLayers = r_vkEnableValidationLayers.GetBool();
+	const bool enableLayers = true; // r_vkEnableValidationLayers.GetBool(); EW: Testing
 
 	vkcontext.instanceExtensions.Clear();
 	vkcontext.deviceExtensions.Clear();
 	vkcontext.validationLayers.Clear();
-
+#if defined(_WIN32)
 	for( int i = 0; i < g_numInstanceExtensions; ++i )
 	{
 		vkcontext.instanceExtensions.Append( g_instanceExtensions[ i ] );
 	}
+#endif
 
 	for( int i = 0; i < g_numDeviceExtensions; ++i )
 	{
@@ -283,9 +285,15 @@ static void CreateVulkanInstance()
 
 		ValidateValidationLayers();
 	}
-
+#if defined(__linux__)
+	auto extensions = get_required_extensions(sdlInstanceExtensions, enableLayers);
+	createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
+	createInfo.ppEnabledExtensionNames = extensions.data();
+#else
 	createInfo.enabledExtensionCount = vkcontext.instanceExtensions.Num();
 	createInfo.ppEnabledExtensionNames = vkcontext.instanceExtensions.Ptr();
+#endif
+
 	createInfo.enabledLayerCount = vkcontext.validationLayers.Num();
 	createInfo.ppEnabledLayerNames = vkcontext.validationLayers.Ptr();
 
@@ -337,7 +345,8 @@ static void EnumeratePhysicalDevices()
 			vkGetPhysicalDeviceQueueFamilyProperties( gpu.device, &numQueues, gpu.queueFamilyProps.Ptr() );
 			ID_VK_VALIDATE( numQueues > 0, "vkGetPhysicalDeviceQueueFamilyProperties returned zero queues." );
 		}
-
+		// Eric: Bypass this since on linux we use SDL_Vulkan_GetInstanceExtensions to query for extensions.
+#if defined(__linux__)
 		// grab available Vulkan extensions
 		{
             idLib::Printf("Getting available vulkan extensions...\n");
@@ -348,14 +357,14 @@ static void EnumeratePhysicalDevices()
 			gpu.extensionProps.SetNum( numExtension );
 			ID_VK_CHECK( vkEnumerateDeviceExtensionProperties( gpu.device, NULL, &numExtension, gpu.extensionProps.Ptr() ) );
 			ID_VK_VALIDATE( numExtension > 0, "vkEnumerateDeviceExtensionProperties returned zero extensions." );
-
 #if 0
 			for( uint32 j = 0; j < numExtension; j++ )
 			{
 				idLib::Printf( "Found Vulkan Extension '%s' on device %d\n", gpu.extensionProps[j].extensionName, i );
 			}
-#endif
+#endif // 0
 		}
+#endif // __linux__
 
 		// grab surface specific information
 		ID_VK_CHECK( vkGetPhysicalDeviceSurfaceCapabilitiesKHR( gpu.device, vkcontext.surface, &gpu.surfaceCaps ) );
@@ -432,6 +441,11 @@ static void CreateSurface()
 	ID_VK_CHECK( vkCreateWaylandSurfaceKHR( info.inst, &createInfo, NULL, &info.surface ) );
 
 #else
+#if defined(__linux__)
+    if(!SDL_Vulkan_CreateSurface(vkcontext.vkwindow, vkcontext.instance, &vkcontext.surface)) {
+        idLib::FatalError("Error while creating Vulkan surface: %s", SDL_GetError());
+    }
+#else
 	VkXcbSurfaceCreateInfoKHR createInfo = {};
 	createInfo.sType = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;
 	createInfo.pNext = NULL;
@@ -440,11 +454,11 @@ static void CreateSurface()
 	createInfo.window = info.window;
 
 	ID_VK_CHECK( vkCreateXcbSurfaceKHR( vkcontext.instance, &createInfo, NULL, &vkcontext.surface ) );
+#endif // __linux__
+
 #endif  // _WIN32
 
-
 }
-
 
 /*
 =============
@@ -554,22 +568,22 @@ static void SelectPhysicalDevice()
 			switch( gpu.props.vendorID )
 			{
 				case 0x8086:
-					idLib::Printf( "Vendor: Intel\n");
+					idLib::Printf( "Device[%i] : Vendor: Intel \n", i);
 					glConfig.vendor = VENDOR_INTEL;
 					break;
 
 				case 0x10DE:
-					idLib::Printf( "Vendor: NVIDIA\n");
+					idLib::Printf( "Device[%i] : Vendor: NVIDIA\n", i);
 					glConfig.vendor = VENDOR_NVIDIA;
 					break;
 
 				case 0x1002:
-					idLib::Printf( "Vendor: AMD\n");
+					idLib::Printf( "Device[%i] : Vendor: AMD\n", i);
 					glConfig.vendor = VENDOR_AMD;
 					break;
 
 				default:
-					idLib::Printf( "Vendor: Unknown (0x%x)\n", gpu.props.vendorID );
+					idLib::Printf( "Device[%i] : Vendor: Unknown (0x%x)\n", i, gpu.props.vendorID );
 			}
 
 			return;
@@ -710,14 +724,20 @@ static VkExtent2D ChooseSurfaceExtent( VkSurfaceCapabilitiesKHR& caps )
 {
 	VkExtent2D extent;
 
-	if( caps.currentExtent.width == -1 )
+    int width;
+    int height;
+    SDL_Vulkan_GetDrawableSize(vkcontext.vkwindow, &width, &height);
+    width = CLAMP(width, caps.minImageExtent.width, caps.maxImageExtent.width);
+    height = CLAMP(height, caps.minImageExtent.height, caps.maxImageExtent.height);
+
+    if( caps.currentExtent.width == -1 )
 	{
-		extent.width = glConfig.nativeScreenWidth;
-		extent.height = glConfig.nativeScreenHeight;
+		extent.width = width;
+		extent.height = height;
 	}
 	else
 	{
-		extent = caps.currentExtent;
+        extent = caps.currentExtent;
 	}
 
 	return extent;
@@ -966,7 +986,7 @@ static void CreateRenderTargets()
 									VK_IMAGE_TILING_OPTIMAL,
 									VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT );
 	}
-    idLib::Printf( "renderSystem->GetWidth()/GetHeight() %ix%i\n", renderSystem->GetWidth(), renderSystem->GetHeight() );
+
 	idImageOpts depthOptions;
 	depthOptions.format = FMT_DEPTH;
 	depthOptions.width = renderSystem->GetWidth();
@@ -1275,8 +1295,13 @@ void idRenderBackend::Init()
 		idLib::FatalError( "R_InitVulkan called while active" );
 	}
 
+	
 	// DG: make sure SDL has setup video so getting supported modes in R_SetNewMode() works
-	GLimp_PreInit();
+#if defined(__linux__) && defined(USE_VULKAN)
+    VKimp_PreInit();
+#else
+    GLimp_PreInit();
+#endif
 	// DG end
 
 	R_SetNewMode( true );
@@ -1447,7 +1472,11 @@ void idRenderBackend::Shutdown()
 	ClearContext();
 
 	// destroy main window
+#if defined(__linux__) && defined(USE_VULKAN)
+    VKimp_Shutdown();
+#else
 	GLimp_Shutdown();
+#endif
 }
 
 

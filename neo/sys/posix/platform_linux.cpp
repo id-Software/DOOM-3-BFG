@@ -49,7 +49,7 @@ static int cmdargc = 0;
 	#include <mcheck.h>
 #endif
 
-#ifdef USE_VULKAN
+#if 0 // defined(USE_VULKAN)
 #include <xcb/xcb.h>
 #endif
 
@@ -519,7 +519,7 @@ void Sys_ReLaunch()
 	// DG end
 }
 
-#ifdef USE_VULKAN
+#if 0 //defined(USE_VULKAN)
 /* Declare the global posixInfo */
 posixInfo info;
 
@@ -566,7 +566,7 @@ static void createWindow(size_t winWidth, size_t winHeight)
     /* Set some properties, such as the window name, maybe? */
     xcb_change_property(info.connection, XCB_PROP_MODE_REPLACE,
                         info.window, XCB_ATOM_WM_NAME, XCB_ATOM_STRING,
-                        8, 7, "vkDOOM3");
+                        8, 7, "vkRBDoom3BFG");
 
     /* map the window to the screen and flush the stream to the server */
     xcb_map_window(info.connection, info.window);
@@ -595,11 +595,11 @@ int main( int argc, const char** argv )
 	Sys_Printf( "memory consistency checking enabled\n" );
 #endif
 
-#ifdef USE_VULKAN
+#if 0 // defined(USE_VULKAN)
     /* Create the window if using Vulkan */
     xcb_generic_event_t *event;
     xcb_client_message_event_t *cm;
-    createWindow(1600, 900);
+    createWindow(1280, 720);
 #endif
 
 	Posix_EarlyInit( );
@@ -618,7 +618,7 @@ int main( int argc, const char** argv )
 
 	while( 1 )
 	{
-#ifdef USE_VULKAN
+#if 0 //defined(USE_VULKAN)
         /* I'm not 100% sure if intercepting these xcb events interferes with
          * SDL's input handling or not, but I suspect that it's necessary
          * to pump some event loop.  We'll see */

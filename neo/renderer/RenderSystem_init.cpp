@@ -351,6 +351,7 @@ void R_SetNewMode( const bool fullInit )
 				r_fullscreen.SetInteger( 1 );
 				R_GetModeListForDisplay( r_fullscreen.GetInteger() - 1, modeList );
 			}
+
 			if( modeList.Num() < 1 )
 			{
 				idLib::Printf( "Going to safe mode because mode list failed." );
@@ -412,7 +413,11 @@ void R_SetNewMode( const bool fullInit )
 		if( fullInit )
 		{
 			// create the context as well as setting up the window
-			if( GLimp_Init( parms ) )
+#if defined(__linux__) && defined(USE_VULKAN)
+            if( VKimp_Init( parms ) )
+#else
+            if( GLimp_Init( parms ) )
+#endif
 			{
 				// it worked
 
@@ -425,7 +430,11 @@ void R_SetNewMode( const bool fullInit )
 		else
 		{
 			// just rebuild the window
+#if defined(__linux__) && defined(USE_VULKAN)
+            if(VKimp_SetScreenParms( parms ))
+#else
 			if( GLimp_SetScreenParms( parms ) )
+#endif
 			{
 				// it worked
 
@@ -1699,8 +1708,11 @@ void R_SetColorMappings()
 		int inf = idMath::Ftoi( 0xffff * pow( j / 255.0f, invg ) + 0.5f );
 		tr.gammaTable[i] = idMath::ClampInt( 0, 0xFFFF, inf );
 	}
-
+#if defined(__linux__) && defined(USE_VULKAN)
+	VKimp_SetGamma( tr.gammaTable, tr.gammaTable, tr.gammaTable);
+#else
 	GLimp_SetGamma( tr.gammaTable, tr.gammaTable, tr.gammaTable );
+#endif
 }
 
 /*

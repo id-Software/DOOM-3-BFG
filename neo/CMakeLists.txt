@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8) # Eric: These are rookie numbers, you need to bump those numbers up.
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 project(RBDoom3BFG)
@@ -85,6 +85,13 @@ if (FORCE_COLOR_OUTPUT)
 		add_compile_options(-fcolor-diagnostics)
 	endif ()
 endif ()
+
+# Eric: Hard dependency on SDL2 for the Vulkan renderer on Linux
+if(UNIX)
+	if(USE_VULKAN)
+		SET(SDL2 ON)
+	endif()
+endif()
 
 if(MSVC)
 	#message(STATUS CMAKE_ROOT: ${CMAKE_ROOT})
@@ -318,8 +325,7 @@ if(USE_VULKAN)
 		message( STATUS "Using module to find Vulkan" )
 		find_package(Vulkan)
 	endif()
-	
-	
+
 	if(NOT Vulkan_FOUND)
 		message(FATAL_ERROR "Could not find Vulkan library!")
 	else()
@@ -329,14 +335,15 @@ if(USE_VULKAN)
 	add_definitions(-DUSE_VULKAN)
 	include_directories($ENV{VULKAN_SDK}/Include)
 
-	find_package(XCB)
-	if(NOT XCB_FOUND)
-		message(FATAL_ERROR "Could not find XCB library!")
-	else()
-		message(STATUS ${XCB_LIBRARIES})
+	# Eric: For use with SDL2/Vulkan
+	if(UNIX)
+		find_package(X11_XCB)
+		if(X11_XCB_FOUND)
+			add_definitions(-DHAVE_X11_XCB)
+			list(APPEND SUBSYSTEMS [X11])
+			include_directories(${X11_XCB_INCLUDE_DIRS})
+		endif()
 	endif()
-
-	include_directories(${XCB_INCLUDE_DIRS})
 
 	if(SPIRV_SHADERC)
 		add_definitions(-DSPIRV_SHADERC)
@@ -548,7 +555,6 @@ file(GLOB MINIZIP_INCLUDES libs/zlib/minizip/*.h)
 file(GLOB MINIZIP_SOURCES libs/zlib/minizip/*.c libs/zlib/minizip/*.cpp)
 	
 
-	
 set(FREETYPE_SOURCES
 	libs/freetype/src/autofit/autofit.c
 	libs/freetype/src/bdf/bdf.c
@@ -1004,6 +1010,16 @@ file(GLOB COMMON_SOURCES sys/common/*.cpp)
 file(GLOB SDL_INCLUDES sys/sdl/*.h)
 file(GLOB SDL_SOURCES sys/sdl/*.cpp)
 
+# Eric: Utilize either the Vulkan or GL implementation of SDL
+if(UNIX)
+	if(USE_VULKAN)
+		get_filename_component(sdl_glimp_cpp_full_path ${CMAKE_CURRENT_SOURCE_DIR}/sys/sdl/sdl_glimp.cpp ABSOLUTE)
+		list(REMOVE_ITEM SDL_SOURCES "${sdl_glimp_cpp_full_path}")
+	else()
+		get_filename_component(sdl_vkimp_cpp_full_path ${CMAKE_CURRENT_SOURCE_DIR}/sys/sdl/sdl_vkimp.cpp ABSOLUTE)
+		list(REMOVE_ITEM SDL_SOURCES "${sdl_vkimp_cpp_full_path}")
+	endif()
+endif()
 
 source_group("aas" FILES ${AAS_INCLUDES})
 source_group("aas" FILES ${AAS_SOURCES})
@@ -1627,11 +1643,11 @@ else()
             
             set(Vulkan_LIBRARIES
                 ${Vulkan_LIBRARY}
-				${XCB_LIBRARIES}
+				${X11_XCB_LIBRARIES}
                 glslang
                 SPIRV
                 )
-                
+
             if(ENABLE_GLSLANG_BINARIES)
                 list(APPEND Vulkan_LIBRARIES glslang-default-resource-limits)
             endif()
@@ -1710,7 +1726,7 @@ else()
 		# make sure this is run after creating idlib
 		add_dependencies(precomp_header_rbdoom3bfg idlib)
 	endif()
-	
+
 	add_executable(RBDoom3BFG WIN32 ${RBDOOM3_SOURCES})
 
 	if (USE_PRECOMPILED_HEADERS)
@@ -1739,7 +1755,7 @@ else()
             ${PNG_LIBRARY}
             ${JPEG_LIBRARY}
             ${GLEW_LIBRARY}
-	    ${CMAKE_DL_LIBS}
+	    	${CMAKE_DL_LIBS}
 			)
 	endif()
     
