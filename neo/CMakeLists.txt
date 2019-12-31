@@ -3,6 +3,12 @@ set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 project(RBDoom3BFG)
 
+option(FORCE_COLOR_OUTPUT
+		"Always produce ANSI-colored output (GNU/Clang only)." OFF)
+
+option(COMPILE_COMMANDS
+		"Generate compile_commands.json" OFF)
+
 option(USE_MFC_TOOLS
 		"Compile the built-in MFC based tools" OFF)
 		
@@ -67,7 +73,19 @@ endif()
 if(UNIX)
 	set(OPENAL TRUE)
 endif()
-		
+
+if(COMPILE_COMMANDS)
+	set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+endif()
+
+if (FORCE_COLOR_OUTPUT)
+	if (CMAKE_COMPILER_IS_GNUCC)
+		add_compile_options(-fdiagnostics-color=always)
+	elseif(CMAKE_C_COMPILER_ID STREQUAL "Clang")
+		add_compile_options(-fcolor-diagnostics)
+	endif ()
+endif ()
+
 if(MSVC)
 	#message(STATUS CMAKE_ROOT: ${CMAKE_ROOT})
 	
@@ -93,12 +111,15 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
 	CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
 	CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
 	if(COMPILER_SUPPORTS_CXX11)
-		add_definitions(-std=c++11)
+		set(CMAKE_CXX_STANDARD 11)
 	elseif(COMPILER_SUPPORTS_CXX0X)
-		add_definitions(-std=c++0x)
+		set(CMAKE_CXX_STANDARD 0x)
 	else()
 		message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
 	endif()
+	set(CMAKE_CXX_STANDARD_REQUIRED ON)
+	set(CMAKE_CXX_EXTENSIONS OFF)
+
 	if(CPU_TYPE)
 		add_definitions(-DCPUSTRING="${CPU_TYPE}")
 	endif()
@@ -142,7 +163,7 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
 	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3 -ffast-math -fno-unsafe-math-optimizations -fomit-frame-pointer")
 	set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} -g -O3 -ffast-math -fno-unsafe-math-optimizations -fomit-frame-pointer")
 	set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -Os -ffast-math -fno-unsafe-math-optimizations -fomit-frame-pointer")
-	
+
 	set(CMAKE_CXX_FLAGS_DEBUG ${CMAKE_C_FLAGS_DEBUG})
 	#set(CMAKE_CXX_FLAGS_DEBUGALL ${CMAKE_C_FLAGS_DEBUGALL})
 	#set(CMAKE_CXX_FLAGS_PROFILE ${CMAKE_C_FLAGS_PROFILE})
@@ -377,7 +398,6 @@ else (RAPIDJSON_FOUND)
 endif (RAPIDJSON_FOUND)
 
 
-	
 add_subdirectory(idlib)
 
 file(GLOB AAS_INCLUDES aas/*.h)
@@ -516,9 +536,7 @@ endif()
 
 file(GLOB MINIZIP_INCLUDES libs/zlib/minizip/*.h)
 file(GLOB MINIZIP_SOURCES libs/zlib/minizip/*.c libs/zlib/minizip/*.cpp)
-	
 
-	
 set(FREETYPE_SOURCES
 	libs/freetype/src/autofit/autofit.c
 	libs/freetype/src/bdf/bdf.c
@@ -743,7 +761,6 @@ file(GLOB GAMED3XP_PHYSICS_SOURCES d3xp/physics/*.cpp)
 
 file(GLOB GAMED3XP_SCRIPT_INCLUDES d3xp/script/*.h)
 file(GLOB GAMED3XP_SCRIPT_SOURCES d3xp/script/*.cpp)
-
 
 file(GLOB COMPILER_INCLUDES tools/compilers/*.h)
 
@@ -978,14 +995,18 @@ file(GLOB SDL_SOURCES sys/sdl/*.cpp)
 source_group("aas" FILES ${AAS_INCLUDES})
 source_group("aas" FILES ${AAS_SOURCES})
 
+
 source_group("cm" FILES ${CM_INCLUDES})
 source_group("cm" FILES ${CM_SOURCES})
+
 
 source_group("framework" FILES ${FRAMEWORK_INCLUDES})
 source_group("framework" FILES ${FRAMEWORK_SOURCES})
 
+
 source_group("imgui" FILES ${FRAMEWORK_IMGUI_INCLUDES})
 source_group("imgui" FILES ${FRAMEWORK_IMGUI_SOURCES})
+
 
 source_group("renderer" FILES ${RENDERER_INCLUDES})
 source_group("renderer" FILES ${RENDERER_SOURCES})
@@ -1018,6 +1039,7 @@ source_group("renderer\\SMAA" FILES ${RENDERER_SMAA_INCLUDES})
 
 source_group("renderer\\Shaders" FILES ${SHADERS})
 
+
 source_group("libs\\irrxml" FILES ${IRRXML_INCLUDES})
 source_group("libs\\irrxml" FILES ${IRRXML_SOURCES})
 
@@ -1046,6 +1068,7 @@ source_group("libs\\rapidjson" FILES ${RAPIDJSON_INCLUDES})
 
 source_group("libs\\freetype" FILES ${FREETYPE_SOURCES})
 
+
 source_group("sound" FILES ${SOUND_INCLUDES})
 source_group("sound" FILES ${SOUND_SOURCES})
 
@@ -1061,14 +1084,18 @@ source_group("sound\\stub" FILES ${STUBAUDIO_SOURCES})
 source_group("libs\\oggvorbis" FILES ${OGGVORBIS_INCLUDES})
 source_group("libs\\oggvorbis" FILES ${OGGVORBIS_SOURCES})
 
+
 source_group("ui" FILES ${UI_INCLUDES})
 source_group("ui" FILES ${UI_SOURCES})
+
 
 source_group("swf" FILES ${SWF_INCLUDES})
 source_group("swf" FILES ${SWF_SOURCES})
 
+
 source_group("sys" FILES ${SYS_INCLUDES})
 source_group("sys" FILES ${SYS_SOURCES})
+
 
 source_group("doomclassic" FILES ${DOOMCLASSIC_INCLUDES})
 source_group("doomclassic" FILES ${DOOMCLASSIC_SOURCES})
@@ -1076,6 +1103,7 @@ source_group("doomclassic" FILES ${DOOMCLASSIC_SOURCES})
 source_group("doomclassic" FILES ${DOOMCLASSIC_STUBAUDIO_SOURCES})
 source_group("doomclassic" FILES ${DOOMCLASSIC_OPENAL_SOURCES})
 source_group("doomclassic" FILES ${DOOMCLASSIC_XAUDIO2_SOURCES})
+
 
 source_group("libs\\timidity" FILES ${TIMIDITY_INCLUDES})
 source_group("libs\\timidity" FILES ${TIMIDITY_SOURCES})
@@ -1101,8 +1129,6 @@ source_group("game-d3xp\\physics" FILES ${GAMED3XP_PHYSICS_SOURCES})
 
 source_group("game-d3xp\\script" FILES ${GAMED3XP_SCRIPT_INCLUDES})
 source_group("game-d3xp\\script" FILES ${GAMED3XP_SCRIPT_SOURCES})
-
-
 
 
 source_group("sys\\win32" FILES ${WIN32_INCLUDES})
@@ -1532,7 +1558,6 @@ if(MSVC)
 	endif()
 	
 else()
-
 	list(APPEND RBDOOM3_SOURCES
 		${SYS_INCLUDES} ${SYS_SOURCES})
 	
@@ -1613,7 +1638,7 @@ else()
 	endif()
 
 	list(REMOVE_DUPLICATES RBDOOM3_SOURCES)
-	
+
 	if(USE_PRECOMPILED_HEADERS) 	
 		set(RBDOOM3_PRECOMPILED_SOURCES ${RBDOOM3_SOURCES})
 		list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${TIMIDITY_SOURCES} ${JPEG_SOURCES} ${PNG_SOURCES} ${ZLIB_SOURCES} ${GLEW_SOURCES} ${BINKDEC_SOURCES} ${IMGUI_SOURCES})
@@ -1638,17 +1663,17 @@ else()
 
 		# precompiled magic for GCC/clang, adapted from https://gist.github.com/573926
 		STRING(TOUPPER "CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE}" _flags_var_name)
-		SET(_compiler_FLAGS ${${_flags_var_name}})
+		SET(_compiler_FLAGS "${${_flags_var_name}} -std=c++${CMAKE_CXX_STANDARD}")
 		GET_DIRECTORY_PROPERTY(_directory_flags INCLUDE_DIRECTORIES)
 		FOREACH(item ${_directory_flags})
 			LIST(APPEND _compiler_FLAGS " -I${item}")
 		ENDFOREACH(item)
 	endif()
-		
+
 	GET_DIRECTORY_PROPERTY(_directory_flags DEFINITIONS)
 	LIST(APPEND _compiler_FLAGS ${_directory_flags})
 	SEPARATE_ARGUMENTS(_compiler_FLAGS)
-	
+
 	if(USE_PRECOMPILED_HEADERS)
 		# we need to recreate the precompiled header for RBDoom3BFG 
 		# (i.e. can't use the one created for idlib before)
@@ -1710,5 +1735,5 @@ else()
 	    ${CMAKE_DL_LIBS}
 			)
 	endif()
-    
+
 endif()

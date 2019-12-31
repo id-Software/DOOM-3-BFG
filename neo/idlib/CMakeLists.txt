@@ -117,7 +117,7 @@ else()
 	if (USE_PRECOMPILED_HEADERS)
 	# precompiled magic for GCC/clang, adapted from https://gist.github.com/573926
 	STRING(TOUPPER "CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE}" _flags_var_name)
-	SET(_compiler_FLAGS ${${_flags_var_name}})
+	SET(_compiler_FLAGS "${${_flags_var_name}} -std=c++${CMAKE_CXX_STANDARD}")
 	GET_DIRECTORY_PROPERTY(_directory_flags INCLUDE_DIRECTORIES)
 	FOREACH(item ${_directory_flags})
 		LIST(APPEND _compiler_FLAGS " -I${item}")
