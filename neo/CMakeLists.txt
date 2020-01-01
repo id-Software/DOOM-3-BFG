@@ -333,7 +333,7 @@ if(USE_VULKAN)
 	endif()
 	
 	add_definitions(-DUSE_VULKAN)
-	include_directories($ENV{VULKAN_SDK}/Include)
+	include_directories($ENV{VULKAN_SDK}/include)
 
 	# Eric: For use with SDL2/Vulkan
 	if(UNIX)
@@ -343,6 +343,9 @@ if(USE_VULKAN)
 			list(APPEND SUBSYSTEMS [X11])
 			include_directories(${X11_XCB_INCLUDE_DIRS})
 		endif()
+		add_definitions(-DVK_USE_PLATFORM_XLIB_KHR)
+	elseif(WIN32)
+		add_definitions(-DVK_USE_PLATFORM_WIN32_KHR)
 	endif()
 
 	if(SPIRV_SHADERC)
