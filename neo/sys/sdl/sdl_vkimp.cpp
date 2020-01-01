@@ -265,11 +265,11 @@ bool VKimp_Init( glimpParms_t parms )
 
 		if( !window )
 		{
-			common->DPrintf( "Couldn't set GL mode %d/%d/%d: %s",
+			common->DPrintf( "Couldn't set Vulkan mode %d/%d/%d: %s",
 							 channelcolorbits, tdepthbits, tstencilbits, SDL_GetError() );
 			continue;
 		}
-		vkcontext.vkwindow = window;
+		vkcontext.sdlWindow = window;
 		// RB begin
 		SDL_GetWindowSize( window, &glConfig.nativeScreenWidth, &glConfig.nativeScreenHeight );
 		// RB end
@@ -298,7 +298,7 @@ bool VKimp_Init( glimpParms_t parms )
 
 	if( !window )
 	{
-		common->Printf( "No usable GL mode found: %s", SDL_GetError() );
+		common->Printf( "No usable VK mode found: %s", SDL_GetError() );
 		return false;
 	}
 

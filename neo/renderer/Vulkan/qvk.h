@@ -32,9 +32,20 @@ If you have questions concerning this license or the applicable additional terms
 
 #if defined( USE_VULKAN )
 
-// #define VK_USE_PLATFORM_XLIB_KHR
+#if defined(VK_USE_PLATFORM_WIN32_KHR)
+#include <Windows.h>
+#elif defined(VK_USE_PLATFORM_XCB_KHR)
+#include <xcb/xcb.h>
+#include <dlfcn.h>
+#include <cstdlib>
 
-#define VK_USE_PLATFORM_XCB_KHR
+#elif defined(VK_USE_PLATFORM_XLIB_KHR)
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <dlfcn.h>
+#include <cstdlib>
+#endif
+
 #define USE_AMD_ALLOCATOR
 
 #include <vulkan/vulkan.h>

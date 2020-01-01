@@ -254,7 +254,7 @@ static void CreateVulkanInstance()
 	createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 	createInfo.pApplicationInfo = &appInfo;
 
-	const bool enableLayers = true; // r_vkEnableValidationLayers.GetBool(); EW: Testing
+	const bool enableLayers = r_vkEnableValidationLayers.GetBool();
 
 	vkcontext.instanceExtensions.Clear();
 	vkcontext.deviceExtensions.Clear();
@@ -440,7 +440,7 @@ static void CreateSurface()
 
 #else
 #if defined(__linux__)
-    if(!SDL_Vulkan_CreateSurface(vkcontext.vkwindow, vkcontext.instance, &vkcontext.surface)) {
+    if(!SDL_Vulkan_CreateSurface(vkcontext.sdlWindow, vkcontext.instance, &vkcontext.surface)) {
         idLib::FatalError("Error while creating Vulkan surface: %s", SDL_GetError());
     }
 #else
@@ -724,7 +724,7 @@ static VkExtent2D ChooseSurfaceExtent( VkSurfaceCapabilitiesKHR& caps )
 
     int width;
     int height;
-    SDL_Vulkan_GetDrawableSize(vkcontext.vkwindow, &width, &height);
+    SDL_Vulkan_GetDrawableSize(vkcontext.sdlWindow, &width, &height);
     width = CLAMP(width, caps.minImageExtent.width, caps.maxImageExtent.width);
     height = CLAMP(height, caps.minImageExtent.height, caps.maxImageExtent.height);
 
@@ -825,7 +825,8 @@ DestroySwapChain
 */
 static void DestroySwapChain()
 {
-	for( uint32 i = 0; i < NUM_FRAME_DATA; ++i )
+
+    for( uint32 i = 0; i < NUM_FRAME_DATA; ++i )
 	{
 		vkDestroyImageView( vkcontext.device, vkcontext.swapchainViews[ i ], NULL );
 	}
@@ -984,11 +985,21 @@ static void CreateRenderTargets()
 									VK_IMAGE_TILING_OPTIMAL,
 									VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT );
 	}
+    idImageOpts depthOptions;
+    depthOptions.format = FMT_DEPTH;
 
-	idImageOpts depthOptions;
-	depthOptions.format = FMT_DEPTH;
-	depthOptions.width = renderSystem->GetWidth();
+    // Eric: See if this fixes resizing
+#if defined(__linux__)
+    gpuInfo_t& gpu = *vkcontext.gpu;
+    VkExtent2D extent = ChooseSurfaceExtent( gpu.surfaceCaps );
+
+    depthOptions.width = extent.width;
+    depthOptions.height = extent.height;
+#else
+    depthOptions.width = renderSystem->GetWidth();
 	depthOptions.height = renderSystem->GetHeight();
+#endif
+
 	depthOptions.numLevels = 1;
 	depthOptions.samples = static_cast< textureSamples_t >( vkcontext.sampleCount );
 
@@ -1736,7 +1747,24 @@ idRenderBackend::GL_StartFrame
 */
 void idRenderBackend::GL_StartFrame()
 {
-	ID_VK_CHECK( vkAcquireNextImageKHR( vkcontext.device, vkcontext.swapchain, UINT64_MAX, vkcontext.acquireSemaphores[ vkcontext.frameParity ], VK_NULL_HANDLE, &vkcontext.currentSwapIndex ) );
+    // Eric: Since VK_SUBOPTIMAL_KHR is not a hard fault and VK_ERROR_OUT_OF_DATE_KHR means the window is being resized (or other stuff) handle them instead of killing the app.
+    VkResult result = vkAcquireNextImageKHR( vkcontext.device, vkcontext.swapchain, UINT64_MAX, vkcontext.acquireSemaphores[ vkcontext.frameParity ], VK_NULL_HANDLE, &vkcontext.currentSwapIndex );
+    switch (result) {
+        case VK_SUCCESS:
+        case VK_SUBOPTIMAL_KHR:
+            break;
+        case VK_ERROR_OUT_OF_DATE_KHR:
+            DestroySwapChain();
+            CreateSwapChain();
+            return;
+            // return on_window_size_changed();
+            break;
+        default:
+            idLib::FatalError("VK: %s - %s", VK_ErrorToString(result),
+                              "vkAcquireNextImageKHR( vkcontext.device, vkcontext.swapchain, UINT64_MAX, vkcontext.acquireSemaphores[ vkcontext.frameParity ], VK_NULL_HANDLE, &vkcontext.currentSwapIndex )");
+            return;
+    }
+	// ID_VK_CHECK( vkAcquireNextImageKHR( vkcontext.device, vkcontext.swapchain, UINT64_MAX, vkcontext.acquireSemaphores[ vkcontext.frameParity ], VK_NULL_HANDLE, &vkcontext.currentSwapIndex ) );
 
 	idImage::EmptyGarbage();
 
@@ -1857,7 +1885,26 @@ void idRenderBackend::GL_BlockingSwapBuffers()
 	presentInfo.pSwapchains = &vkcontext.swapchain;
 	presentInfo.pImageIndices = &vkcontext.currentSwapIndex;
 
-	ID_VK_CHECK( vkQueuePresentKHR( vkcontext.presentQueue, &presentInfo ) );
+	// Eric: // Eric: Since VK_SUBOPTIMAL_KHR and VK_ERROR_OUT_OF_DATE_KHR here means
+	// the window is being resized (or other stuff) handle them instead of killing the app.
+    VkResult result = vkQueuePresentKHR( vkcontext.presentQueue, &presentInfo );
+    switch (result) {
+        case VK_SUCCESS:
+            break;
+        case VK_ERROR_OUT_OF_DATE_KHR:
+        case VK_SUBOPTIMAL_KHR:
+            // return on_window_size_changed(); Eric: Handle resizing the window.
+            DestroySwapChain();
+            CreateSwapChain();
+            return;
+            break;
+        default:
+            idLib::FatalError("VK: %s - %s", VK_ErrorToString(result),
+                              "vkQueuePresentKHR( vkcontext.presentQueue, &presentInfo )");
+            return;
+    }
+
+	// ID_VK_CHECK( vkQueuePresentKHR( vkcontext.presentQueue, &presentInfo ) );
 
 	// RB: at this time the image is presented on the screen
 
