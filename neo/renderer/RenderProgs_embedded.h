@@ -263,9 +263,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"#define BRANCH\n"
 		"#define IFANY\n"
 		"\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/skinning.inc.hlsl",
 		"/*\n"
@@ -345,9 +345,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"result.position.y = dot4( modelPosition, rpMVPmatrixY );\n"
 		"result.position.z = dot4( modelPosition, rpMVPmatrixZ );\n"
 		"result.position.w = dot4( modelPosition, rpMVPmatrixW );\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/SMAA.inc.hlsl",
 		"/**\n"
@@ -1733,9 +1733,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"//-----------------------------------------------------------------------------\n"
 		"#endif // SMAA_INCLUDE_PS\n"
 		"\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/BRDF.inc.hlsl",
 		"/*\n"
@@ -1879,9 +1879,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"\n"
 		"\n"
 		"\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/ambient_lighting.ps.hlsl",
 		"/*\n"
@@ -1983,9 +1983,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.color.w = fragment.color.a;\n"
 		"}\n"
 		"\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/ambient_lighting.vs.hlsl",
 		"/*\n"
@@ -2187,9 +2187,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.color = ( swizzleColor( vertex.color ) * rpVertexColorModulate ) + rpVertexColorAdd;\n"
 		"#endif\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/ambient_lighting_IBL.ps.hlsl",
 		"/*\n"
@@ -2372,9 +2372,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.color.w = fragment.color.a;\n"
 		"}\n"
 		"\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/ambient_lighting_IBL.vs.hlsl",
 		"/*\n"
@@ -2563,9 +2563,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.color = ( swizzleColor( vertex.color ) * rpVertexColorModulate ) + rpVertexColorAdd;\n"
 		"#endif\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/AmbientOcclusion_AO.ps.hlsl",
 		"/**\n"
@@ -2664,14 +2664,14 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"// *INDENT-OFF*\n"
 		"uniform sampler2D samp0 : register( s0 ); // view normal/roughness\n"
 		"uniform sampler2D samp1 : register( s1 ); // view depth\n"
-		" \n"
+		"\n"
 		"#define CS_Z_buffer		samp1\n"
-		" \n"
+		"\n"
 		"struct PS_IN\n"
 		"{\n"
 		"	float2 texcoord0 : TEXCOORD0_centroid;\n"
 		"};\n"
-		" \n"
+		"\n"
 		"struct PS_OUT \n"
 		"{\n"
 		"	float4 color : COLOR;\n"
@@ -2692,10 +2692,10 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"{\n"
 		"	// Round to the nearest 1/256.0\n"
 		"	float temp = floor( key * 256.0 );\n"
-		"	\n"
+		"\n"
 		"	// Integer part\n"
 		"	p.x = temp * ( 1.0 / 256.0 );\n"
-		"	\n"
+		"\n"
 		"	// Fractional part\n"
 		"	p.y = key * 256.0 - temp;\n"
 		"}\n"
@@ -2719,15 +2719,15 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	P.z = z * 2.0 - 1.0;\n"
 		"	P.xy = ( S * rpScreenCorrectionFactor.xy ) * 2.0 - 1.0;\n"
 		"	P.w = 1.0;\n"
-		"	\n"
+		"\n"
 		"	float4 csP;\n"
 		"	csP.x = dot4( P, rpModelMatrixX );\n"
 		"	csP.y = dot4( P, rpModelMatrixY );\n"
 		"	csP.z = dot4( P, rpModelMatrixZ );\n"
 		"	csP.w = dot4( P, rpModelMatrixW );\n"
-		"	\n"
+		"\n"
 		"	csP.xyz /= csP.w;\n"
-		"	\n"
+		"\n"
 		"	return csP.xyz;\n"
 		"}\n"
 		"\n"
@@ -2747,7 +2747,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	// Radius relative to ssR\n"
 		"	float alpha = ( float( sampleNumber ) + 0.5 ) * ( 1.0 / float( NUM_SAMPLES ) );\n"
 		"	float angle = alpha * ( float( NUM_SPIRAL_TURNS ) * 6.28 ) + spinAngle;\n"
-		"	\n"
+		"\n"
 		"	ssR = alpha;\n"
 		"	return float2( cos( angle ), sin( angle ) );\n"
 		"}\n"
@@ -2758,10 +2758,10 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"{\n"
 		"	float3 P;\n"
 		"	P.z = texelFetch( cszBuffer, ssP, 0 ).r;\n"
-		"	\n"
+		"\n"
 		"	// Offset to pixel center\n"
 		"	P = reconstructCSPosition( float2( ssP ) + float2( 0.5 ), P.z );\n"
-		"	\n"
+		"\n"
 		"	return P;\n"
 		"}\n"
 		"\n"
@@ -2774,13 +2774,13 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"#else\n"
 		"	mipLevel = clamp( int( floor( log2( ssR ) ) ) - LOG_MAX_OFFSET, 0, MAX_MIP_LEVEL );\n"
 		"#endif\n"
-		"	\n"
+		"\n"
 		"	// We need to divide by 2^mipLevel to read the appropriately scaled coordinate from a MIP-map.\n"
 		"	// Manually clamp to the texture size because texelFetch bypasses the texture unit\n"
-		"	\n"
+		"\n"
 		"	// used in newer radiosity\n"
 		"	//mipP = ssP >> mipLevel;\n"
-		"	\n"
+		"\n"
 		"	mipP = clamp( ssP >> mipLevel, int2( 0 ), textureSize( cszBuffer, mipLevel ) - int2( 1 ) );\n"
 		"}\n"
 		"\n"
@@ -2789,13 +2789,13 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"float3 getOffsetPosition( int2 issC, float2 unitOffset, float ssR, sampler2D cszBuffer, float invCszBufferScale )\n"
 		"{\n"
 		"	int2 ssP = int2( ssR * unitOffset ) + issC;\n"
-		"	\n"
+		"\n"
 		"	float3 P;\n"
-		"	\n"
+		"\n"
 		"	int mipLevel;\n"
 		"	int2 mipP;\n"
 		"	computeMipInfo( ssR, ssP, cszBuffer, mipLevel, mipP );\n"
-		"	\n"
+		"\n"
 		"#if USE_MIPMAPS\n"
 		"	// RB: this is the key for fast ambient occlusion - use a hierarchical depth buffer\n"
 		"	// for more information see McGuire12SAO.pdf - Scalable Ambient Obscurance\n"
@@ -2804,11 +2804,11 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"#else\n"
 		"	P.z = texelFetch( cszBuffer, ssP, 0 ).r;\n"
 		"#endif\n"
-		"	\n"
+		"\n"
 		"	// Offset to pixel center\n"
 		"	P = reconstructCSPosition( float2( ssP ) + float2( 0.5 ), P.z );\n"
 		"	//P = reconstructCSPosition( ( float2( ssP ) + float2( 0.5 ) ) * invCszBufferScale, P.z );\n"
-		"	\n"
+		"\n"
 		"	return P;\n"
 		"}\n"
 		"\n"
@@ -2818,7 +2818,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	// Note large epsilon to avoid overdarkening within cracks\n"
 		"	//  Assumes the desired result is intensity/radius^6 in main()\n"
 		"	// return float(vv < radius2) * max((vn - bias) / (epsilon + vv), 0.0) * radius2 * 0.6;\n"
-		"	\n"
+		"\n"
 		"	// B: Smoother transition to zero (lowers contrast, smoothing out corners). [Recommended]\n"
 		"#if HIGH_QUALITY\n"
 		"	// Epsilon inside the sqrt for rsqrt operation\n"
@@ -2830,13 +2830,13 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	float f = max( radius2 - vv, 0.0 );\n"
 		"	return f * f * f * max( ( vn - bias ) / ( epsilon + vv ), 0.0 );\n"
 		"#endif\n"
-		"	\n"
+		"\n"
 		"	// C: Medium contrast (which looks better at high radii), no division.  Note that the\n"
 		"	// contribution still falls off with radius^2, but we've adjusted the rate in a way that is\n"
 		"	// more computationally efficient and happens to be aesthetically pleasing.  Assumes\n"
 		"	// division by radius^6 in main()\n"
 		"	//return 4.0 * max(1.0 - vv * invRadius2, 0.0) * max(vn - bias, 0.0);\n"
-		"	\n"
+		"\n"
 		"	// D: Low contrast, no division operation\n"
 		"	//return 2.0 * float(vv < radius * radius) * max(vn - bias, 0.0);\n"
 		"}\n"
@@ -2849,7 +2849,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	float vv = dot( v, v );\n"
 		"	float vn = dot( v, n_C );\n"
 		"	const float epsilon = 0.001;\n"
-		"	\n"
+		"\n"
 		"	// Without the angular adjustment term, surfaces seen head on have less AO\n"
 		"	return fallOffFunction( vv, vn, epsilon ) * lerp( 1.0, max( 0.0, 1.5 * n_C.z ), 0.35 );\n"
 		"}\n"
@@ -2871,19 +2871,19 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	// Offset on the unit disk, spun for this pixel\n"
 		"	float ssR;\n"
 		"	float2 unitOffset = tapLocation( tapIndex, randomPatternRotationAngle, ssR );\n"
-		"	\n"
+		"\n"
 		"	// Ensure that the taps are at least 1 pixel away\n"
 		"	ssR = max( 0.75, ssR * ssDiskRadius );\n"
-		"	\n"
+		"\n"
 		"#if (CS_Z_PACKED_TOGETHER != 0)\n"
 		"	vec3 Q0, Q1;\n"
 		"	getOffsetPositions( ssC, unitOffset, ssR, cszBuffer, Q0, Q1 );\n"
-		"	\n"
+		"\n"
 		"	return max( aoValueFromPositionsAndNormal( C, n_C, Q0 ), aoValueFromPositionsAndNormal( C, n_C, Q1 ) );\n"
 		"#else\n"
 		"	// The occluding point in camera space\n"
 		"	vec3 Q = getOffsetPosition( issC, unitOffset, ssR, cszBuffer, invCszBufferScale );\n"
-		"	\n"
+		"\n"
 		"	return aoValueFromPositionsAndNormal( C, n_C, Q );\n"
 		"#endif\n"
 		"}\n"
@@ -2896,29 +2896,29 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"void main( PS_IN fragment, out PS_OUT result )\n"
 		"{\n"
 		"	result.color = float4( 1.0, 0.0, 0.0, 1.0 );\n"
-		"	\n"
+		"\n"
 		"#if 0\n"
 		"	if( fragment.texcoord0.x < 0.5 )\n"
 		"	{\n"
 		"		discard;\n"
 		"	}\n"
 		"#endif\n"
-		"	\n"
+		"\n"
 		"	// Pixel being shaded\n"
 		"	//float2 ssC = fragment.texcoord0;\n"
 		"	//int2 issC = int2( ssC.x * rpScreenCorrectionFactor.z, ssC.y * rpScreenCorrectionFactor.w );\n"
-		"	\n"
+		"\n"
 		"	int2 ssP = int2( gl_FragCoord.xy );\n"
-		"	\n"
+		"\n"
 		"	// World space point being shaded\n"
 		"	vec3 C = getPosition( ssP, CS_Z_buffer );\n"
-		"	\n"
+		"\n"
 		"	//float z = length( C - rpGlobalEyePos.xyz );\n"
 		"	//bilateralKey = CSZToKey( C.z );\n"
 		"	//packKey( CSZToKey( C.z ), bilateralKey );\n"
-		"	\n"
+		"\n"
 		"	//float key = CSZToKey( C.z );\n"
-		"	\n"
+		"\n"
 		"#if 0\n"
 		"	if( key >= 1.0 )\n"
 		"	{\n"
@@ -2926,21 +2926,21 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"		return;\n"
 		"	}\n"
 		"#endif\n"
-		"	\n"
+		"\n"
 		"	visibility = 0.0;\n"
-		"	\n"
+		"\n"
 		"#if 1\n"
 		"	float3 n_C = sampleNormal( samp0, ssP, 0 );\n"
-		"	\n"
+		"\n"
 		"	if( length( n_C ) < 0.01 )\n"
 		"	{\n"
 		"		visibility = 1.0;\n"
 		"		return;\n"
 		"	}\n"
-		"	\n"
+		"\n"
 		"	n_C = normalize( n_C );\n"
 		"	//n_C = -n_C;\n"
-		"	\n"
+		"\n"
 		"#else\n"
 		"	// Reconstruct normals from positions.\n"
 		"	float3 n_C = reconstructNonUnitCSFaceNormal( C );\n"
@@ -2959,18 +2959,18 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"		n_C = normalize( -n_C );\n"
 		"	}\n"
 		"#endif\n"
-		"	\n"
+		"\n"
 		"	// Hash function used in the HPG12 AlchemyAO paper\n"
 		"	float randomPatternRotationAngle = float( ( ( 3 * ssP.x ) ^ ( ssP.y + ssP.x * ssP.y ) )\n"
 		"#if TEMPORALLY_VARY_TAPS\n"
 		"									   + rpJitterTexOffset.x\n"
 		"#endif\n"
 		"											) * 10.0;\n"
-		"											\n"
+		"\n"
 		"	// Choose the screen-space sample radius\n"
 		"	// proportional to the projected area of the sphere\n"
 		"	float ssDiskRadius = -projScale * radius / C.z;\n"
-		"	\n"
+		"\n"
 		"#if 1\n"
 		"	if( ssDiskRadius <= MIN_RADIUS )\n"
 		"	{\n"
@@ -2979,19 +2979,19 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"		return;\n"
 		"	}\n"
 		"#endif\n"
-		"	\n"
+		"\n"
 		"#if USE_DEPTH_PEEL == 1\n"
 		"#if DIFFERENT_DEPTH_RESOLUTIONS == 1\n"
 		"	float unpeeledToPeeledScale = 1.0 / peeledToUnpeeledScale;\n"
 		"#endif\n"
 		"#endif\n"
-		"	\n"
+		"\n"
 		"	float sum = 0.0;\n"
 		"	for( int i = 0; i < NUM_SAMPLES; ++i )\n"
 		"	{\n"
 		"		sum += sampleAO( ssP, C, n_C, ssDiskRadius, i, randomPatternRotationAngle, CS_Z_buffer, 1.0 );\n"
 		"	}\n"
-		"	\n"
+		"\n"
 		"#if HIGH_QUALITY\n"
 		"	float A = pow( max( 0.0, 1.0 - sqrt( sum * ( 3.0 / float( NUM_SAMPLES ) ) ) ), intensity );\n"
 		"#else\n"
@@ -3000,14 +3000,14 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	// (x^0.2 + 1.2 * x^4)/2.2\n"
 		"	//A = ( pow( A, 0.2 ) + 1.2 * A * A * A * A ) / 2.2;\n"
 		"#endif\n"
-		"	\n"
+		"\n"
 		"	// Visualize random spin distribution\n"
 		"	//A = mod(randomPatternRotationAngle / (2 * 3.141592653589), 1.0);\n"
-		"	\n"
+		"\n"
 		"	// Fade in as the radius reaches 2 pixels\n"
 		"	visibility = lerp( 1.0, A, saturate( ssDiskRadius - MIN_RADIUS ) );\n"
 		"	//visibility = A;\n"
-		"	\n"
+		"\n"
 		"#if defined(BRIGHTPASS)\n"
 		"	//result.color = float4( visibility, bilateralKey, 0.0, 1.0 );\n"
 		"	//result.color = float4( bilateralKey, bilateralKey, bilateralKey, 1.0 );\n"
@@ -3018,9 +3018,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"#endif\n"
 		"}\n"
 		"\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/AmbientOcclusion_AO.vs.hlsl",
 		"/*\n"
@@ -3070,9 +3070,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.position = vertex.position;\n"
 		"	result.texcoord0 = vertex.texcoord;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/AmbientOcclusion_blur.ps.hlsl",
 		"/**\n"
@@ -3099,16 +3099,16 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"uniform sampler2D samp0 : register( s0 ); // view normals\n"
 		"uniform sampler2D samp1 : register( s1 ); // view depth\n"
 		"uniform sampler2D samp2 : register( s2 ); // view AO\n"
-		" \n"
+		"\n"
 		"#define normal_buffer	samp0\n"
 		"#define cszBuffer		samp1\n"
 		"#define source			samp2 \n"
-		" \n"
+		"\n"
 		"struct PS_IN\n"
 		"{\n"
 		"	float2 texcoord0 : TEXCOORD0_centroid;\n"
 		"};\n"
-		" \n"
+		"\n"
 		"struct PS_OUT \n"
 		"{\n"
 		"	float4 color : COLOR;\n"
@@ -3164,7 +3164,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"//uniform int2       axis;\n"
 		"\n"
 		"#if USE_OCT16\n"
-		"#include <oct.glsl>\n"
+		"	#include <oct.glsl>\n"
 		"#endif\n"
 		"\n"
 		"float3 sampleNormal( sampler2D normalBuffer, int2 ssC, int mipLevel )\n"
@@ -3194,10 +3194,10 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"float reconstructCSZ( float d )\n"
 		"{\n"
 		"	//return clipInfo[0] / (clipInfo[1] * d + clipInfo[2]);\n"
-		"	\n"
+		"\n"
 		"	// infinite far perspective matrix\n"
 		"	return -3.0 / ( -1.0 * d + 1.0 );\n"
-		"	\n"
+		"\n"
 		"	//d = d * 2.0 - 1.0;\n"
 		"	//return -rpProjectionMatrixZ.w / ( -rpProjectionMatrixZ.z - d );\n"
 		"}\n"
@@ -3208,15 +3208,15 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	P.z = z * 2.0 - 1.0;\n"
 		"	P.xy = ( S * rpScreenCorrectionFactor.xy ) * 2.0 - 1.0;\n"
 		"	P.w = 1.0;\n"
-		"	\n"
+		"\n"
 		"	float4 csP;\n"
 		"	csP.x = dot4( P, rpModelMatrixX );\n"
 		"	csP.y = dot4( P, rpModelMatrixY );\n"
 		"	csP.z = dot4( P, rpModelMatrixZ );\n"
 		"	csP.w = dot4( P, rpModelMatrixW );\n"
-		"	\n"
+		"\n"
 		"	csP.xyz /= csP.w;\n"
-		"	\n"
+		"\n"
 		"	return csP.xyz;\n"
 		"}\n"
 		"\n"
@@ -3227,14 +3227,14 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"#else\n"
 		"	float key = texelFetch( cszBuffer, ssP, 0 ).r;\n"
 		"#endif\n"
-		"	\n"
+		"\n"
 		"#if 0\n"
 		"	key = reconstructCSZ( key );\n"
 		"#else\n"
 		"	float3 P = reconstructCSPosition( float2( ssP ) + float2( 0.5 ), key );\n"
 		"	key = P.z;\n"
 		"#endif\n"
-		"	\n"
+		"\n"
 		"	key = clamp( key * ( 1.0 / FAR_PLANE_Z ), 0.0, 1.0 );\n"
 		"	return key;\n"
 		"}\n"
@@ -3251,10 +3251,10 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"{\n"
 		"	float3 P;\n"
 		"	P.z = texelFetch( cszBuffer, ssP, 0 ).r;\n"
-		"	\n"
+		"\n"
 		"	// Offset to pixel center\n"
 		"	P = reconstructCSPosition( float2( ssP ) + float2( 0.5 ), P.z );\n"
-		"	\n"
+		"\n"
 		"	return P;\n"
 		"}\n"
 		"\n"
@@ -3262,42 +3262,42 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"{\n"
 		"	// range domain (the \"bilateral\" weight). As depth difference increases, decrease weight.\n"
 		"	float depthWeight = max( 0.0, 1.0 - ( EDGE_SHARPNESS * 2000.0 ) * abs( tapKey - key ) );\n"
-		"	\n"
+		"\n"
 		"	float k_normal = 1.0;\n"
 		"	float k_plane = 1.0;\n"
-		"	\n"
+		"\n"
 		"	// Prevents blending over creases.\n"
 		"	float normalWeight = 1.0;\n"
 		"	float planeWeight = 1.0;\n"
-		"	\n"
+		"\n"
 		"#if USE_NORMALS\n"
 		"	float3 tapN_C = sampleNormal( normal_buffer, tapLoc, 0 );\n"
 		"	depthWeight = 1.0;\n"
-		"	\n"
+		"\n"
 		"	float normalError = 1.0 - dot( tapN_C, n_C ) * k_normal;\n"
 		"	normalWeight = max( ( 1.0 - EDGE_SHARPNESS * normalError ), 0.00 );\n"
-		"	\n"
+		"\n"
 		"	float lowDistanceThreshold2 = 0.001;\n"
-		"	\n"
+		"\n"
 		"	//float3 tapC = positionFromKey( tapKey, tapLoc, projInfo );\n"
 		"	float3 tapC = getPosition( tapLoc, cszBuffer );\n"
-		"	\n"
+		"\n"
 		"	// Change in position in camera space\n"
 		"	float3 dq = C - tapC;\n"
-		"	\n"
+		"\n"
 		"	// How far away is this point from the original sample\n"
 		"	// in camera space? (Max value is unbounded)\n"
 		"	float distance2 = dot( dq, dq );\n"
-		"	\n"
+		"\n"
 		"	// How far off the expected plane (on the perpendicular) is this point?  Max value is unbounded.\n"
 		"	float planeError = max( abs( dot( dq, tapN_C ) ), abs( dot( dq, n_C ) ) );\n"
-		"	\n"
+		"\n"
 		"	planeWeight = ( distance2 < lowDistanceThreshold2 ) ? 1.0 :\n"
 		"				  pow( max( 0.0, 1.0 - EDGE_SHARPNESS * 2.0 * k_plane * planeError / sqrt( distance2 ) ), 2.0 );\n"
-		"				  \n"
-		"				  \n"
+		"\n"
+		"\n"
 		"#endif\n"
-		"				  \n"
+		"\n"
 		"	return depthWeight * normalWeight * planeWeight;\n"
 		"}\n"
 		"\n"
@@ -3346,9 +3346,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"//#endif\n"
 		"\n"
 		"	int2 ssC = int2( gl_FragCoord.xy );\n"
-		"	\n"
+		"\n"
 		"	float4 temp = texelFetch( source, ssC, 0 );\n"
-		"	\n"
+		"\n"
 		"#if 0\n"
 		"	if( fragment.texcoord0.x < 0.75 )\n"
 		"	{\n"
@@ -3356,7 +3356,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"		return;\n"
 		"	}\n"
 		"#endif\n"
-		"	\n"
+		"\n"
 		"#if 0\n"
 		"	float key = getKey( ssC );\n"
 		"	float3 C = positionFromKey( key, ssC );\n"
@@ -3364,9 +3364,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	float3 C = getPosition( ssC, cszBuffer );\n"
 		"	float key = CSZToKey( C.z );\n"
 		"#endif\n"
-		"	\n"
+		"\n"
 		"	VALUE_TYPE sum = temp.VALUE_COMPONENTS;\n"
-		"	\n"
+		"\n"
 		"	if( key == 1.0 )\n"
 		"	{\n"
 		"		// Sky pixel (if you aren't using depth keying, disable this test)\n"
@@ -3376,18 +3376,18 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"#endif\n"
 		"		return;\n"
 		"	}\n"
-		"	\n"
+		"\n"
 		"	// Base weight for falloff.  Increase this for more blurriness,\n"
 		"	// decrease it for better edge discrimination\n"
 		"	float BASE = kernel[0];\n"
 		"	float totalWeight = BASE;\n"
 		"	sum *= totalWeight;\n"
-		"	\n"
+		"\n"
 		"	float3 n_C;\n"
 		"#if USE_NORMALS\n"
 		"	n_C = sampleNormal( normal_buffer, ssC, 0 );\n"
 		"#endif\n"
-		"	\n"
+		"\n"
 		"#if MDB_WEIGHTS == 0\n"
 		"	for( int r = -R; r <= R; ++r )\n"
 		"	{\n"
@@ -3397,35 +3397,35 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"		{\n"
 		"			int2 tapLoc = ssC + int2( rpJitterTexScale.xy ) * ( r * SCALE );\n"
 		"			temp = texelFetch( source, tapLoc, 0 );\n"
-		"			\n"
-		"			\n"
+		"\n"
+		"\n"
 		"			float tapKey = getKey( tapLoc );\n"
 		"			VALUE_TYPE value  = temp.VALUE_COMPONENTS;\n"
-		"			\n"
+		"\n"
 		"			// spatial domain: offset kernel tap\n"
 		"			float weight = 0.3 + kernel[abs( r )];\n"
-		"			\n"
+		"\n"
 		"			float bilateralWeight = calculateBilateralWeight( key, tapKey, tapLoc, n_C, C );\n"
-		"			\n"
+		"\n"
 		"			weight *= bilateralWeight;\n"
 		"			sum += value * weight;\n"
 		"			totalWeight += weight;\n"
 		"		}\n"
 		"	}\n"
 		"#else\n"
-		"	\n"
+		"\n"
 		"	float lastBilateralWeight = 9999.0;\n"
 		"	for( int r = -1; r >= -R; --r )\n"
 		"	{\n"
 		"		int2 tapLoc = ssC + int2( rpJitterTexScale.xy ) * ( r * SCALE );\n"
 		"		temp = texelFetch( source, tapLoc, 0 );\n"
 		"		float      tapKey = getKey( tapLoc );\n"
-		"	\n"
+		"\n"
 		"		VALUE_TYPE value  = temp.VALUE_COMPONENTS;\n"
-		"	\n"
+		"\n"
 		"		// spatial domain: offset kernel tap\n"
 		"		float weight = 0.3 + kernel[abs( r )];\n"
-		"	\n"
+		"\n"
 		"		// range domain (the \"bilateral\" weight). As depth difference increases, decrease weight.\n"
 		"		float bilateralWeight = calculateBilateralWeight( key, tapKey, tapLoc, n_C, C );\n"
 		"		bilateralWeight = min( lastBilateralWeight, bilateralWeight );\n"
@@ -3434,7 +3434,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"		sum += value * weight;\n"
 		"		totalWeight += weight;\n"
 		"	}\n"
-		"	\n"
+		"\n"
 		"	lastBilateralWeight = 9999.0;\n"
 		"	for( int r = 1; r <= R; ++r )\n"
 		"	{\n"
@@ -3442,10 +3442,10 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"		temp = texelFetch( source, tapLoc, 0 );\n"
 		"		float      tapKey = getKey( tapLoc );\n"
 		"		VALUE_TYPE value  = temp.VALUE_COMPONENTS;\n"
-		"	\n"
+		"\n"
 		"		// spatial domain: offset kernel tap\n"
 		"		float weight = 0.3 + kernel[abs( r )];\n"
-		"	\n"
+		"\n"
 		"		// range domain (the \"bilateral\" weight). As depth difference increases, decrease weight.\n"
 		"		float bilateralWeight = calculateBilateralWeight( key, tapKey, tapLoc, n_C, C );\n"
 		"		bilateralWeight = min( lastBilateralWeight, bilateralWeight );\n"
@@ -3455,18 +3455,18 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"		totalWeight += weight;\n"
 		"	}\n"
 		"#endif\n"
-		"	\n"
+		"\n"
 		"	const float epsilon = 0.0001;\n"
 		"	aoResult = sum / ( totalWeight + epsilon );\n"
-		"	\n"
+		"\n"
 		"#if defined(BRIGHTPASS)\n"
 		"	result.color = float4( aoResult, aoResult, aoResult, 1.0 );\n"
 		"#endif\n"
 		"}\n"
 		"\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/AmbientOcclusion_blur.vs.hlsl",
 		"/*\n"
@@ -3516,9 +3516,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.position = vertex.position;\n"
 		"	result.texcoord0 = vertex.texcoord;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/AmbientOcclusion_minify.ps.hlsl",
 		"/**\n"
@@ -3542,12 +3542,12 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"\n"
 		"// *INDENT-OFF*\n"
 		"uniform sampler2D samp0 : register( s0 ); // zbuffer\n"
-		" \n"
+		"\n"
 		"struct PS_IN\n"
 		"{\n"
 		"	float2 texcoord0 : TEXCOORD0_centroid;\n"
 		"};\n"
-		" \n"
+		"\n"
 		"struct PS_OUT \n"
 		"{\n"
 		"	float4 color : COLOR;\n"
@@ -3559,18 +3559,18 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"//#expect USE_PEELED_DEPTH_BUFFER \"binary\"\n"
 		"\n"
 		"#if 0 //( USE_PEELED_DEPTH_BUFFER != 0 )\n"
-		"#define mask rg\n"
+		"	#define mask rg\n"
 		"#else\n"
-		"#define mask r\n"
+		"	#define mask r\n"
 		"#endif\n"
 		"\n"
 		"float reconstructCSZ( float d )\n"
 		"{\n"
 		"	//return clipInfo[0] / (clipInfo[1] * d + clipInfo[2]);\n"
-		"	\n"
+		"\n"
 		"	// infinite far perspective matrix\n"
 		"	return -3.0 / ( -1.0 * d + 1.0 );\n"
-		"	\n"
+		"\n"
 		"	//d = d * 2.0 - 1.0;\n"
 		"	//return -rpProjectionMatrixZ.w / ( -rpProjectionMatrixZ.z - d );\n"
 		"}\n"
@@ -3585,17 +3585,17 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"#else\n"
 		"	//int2 ssP = int2( gl_FragCoord.xy );\n"
 		"	int2 ssP = int2( fragment.texcoord0 * rpScreenCorrectionFactor.zw );\n"
-		"	\n"
+		"\n"
 		"	int previousMIPNumber = int( rpJitterTexScale.x );\n"
-		"	\n"
+		"\n"
 		"	// Rotated grid subsampling to avoid XY directional bias or Z precision bias while downsampling.\n"
 		"	// On DX9, the bit-and can be implemented with floating-point modulo\n"
 		"	//result.color.mask = texture( samp0, clamp( ssP * 2 + int2( ssP.y & 1, ssP.x & 1 ), int2( 0 ), textureSize( samp0, previousMIPNumber ) - int2( 1 ) ) * rpScreenCorrectionFactor.xy, previousMIPNumber ).mask;\n"
 		"	result.color.mask = texelFetch( samp0, clamp( ssP * 2 + int2( ssP.y & 1, ssP.x & 1 ), int2( 0 ), textureSize( samp0, previousMIPNumber ) - int2( 1 ) ), previousMIPNumber ).mask;\n"
 		"	//result.color.mask = texelFetch2D( samp0, int3( ssP * 2 + int2( ( ssP.y & 1 ) ^ 1, ( ssP.x & 1 ) ^ 1 ), 0 ) );\n"
-		"	\n"
+		"\n"
 		"	// result.color.mask = texelFetch( samp0, ssP, 0 ).r;\n"
-		"	\n"
+		"\n"
 		"	//float2 ssC = float2( ssP * 2 + int2( ( ssP.y & 1 ) ^ 1, ( ssP.x & 1 ) ^ 1 ) ) * rpScreenCorrectionFactor.xy;\n"
 		"	//float2 ssC = float2( ssP ) * rpScreenCorrectionFactor.xy;\n"
 		"	//float2 ssC = fragment.texcoord0;\n"
@@ -3604,9 +3604,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"#endif\n"
 		"}\n"
 		"\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/AmbientOcclusion_minify.vs.hlsl",
 		"/*\n"
@@ -3656,9 +3656,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.position = vertex.position;\n"
 		"	result.texcoord0 = vertex.texcoord;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/bink.ps.hlsl",
 		"/*\n"
@@ -3724,9 +3724,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"		\n"
 		"	result.color = sRGBAToLinearRGBA( color );\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/bink.vs.hlsl",
 		"/*\n"
@@ -3780,9 +3780,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"\n"
 		"	result.texcoord0 = vertex.texcoord;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/bink_gui.ps.hlsl",
 		"/*\n"
@@ -3851,9 +3851,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.color.xyz = color.xyz * color.w;\n"
 		"	result.color.w = color.w;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/bink_gui.vs.hlsl",
 		"/*\n"
@@ -3914,9 +3914,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.color =  swizzleColor( vertex.color );\n"
 		"}\n"
 		"\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/blendLight.ps.hlsl",
 		"/*\n"
@@ -3966,9 +3966,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.color = idtex2Dproj( samp0, fragment.texcoord0 ) * tex2D( samp1, fragment.texcoord1 ) * rpColor;\n"
 		"}\n"
 		"\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/blendLight.vs.hlsl",
 		"/*\n"
@@ -4031,9 +4031,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.texcoord1.y = 0.5;\n"
 		"}\n"
 		"\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/bloodorb1_capture.ps.hlsl",
 		"/*\n"
@@ -4088,9 +4088,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"\n"
 		"	result.color = lerp( accumSample, currentRenderSample, maskSample.a );\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/bloodorb1_capture.vs.hlsl",
 		"/*\n"
@@ -4152,9 +4152,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	// pass through texcoords	\n"
 		"	result.texcoord1 = vertex.texcoord;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/bloodorb2_capture.ps.hlsl",
 		"/*\n"
@@ -4215,9 +4215,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"\n"
 		"	result.color = lerp( accumSample, currentRenderSample, maskSample.a );\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/bloodorb2_capture.vs.hlsl",
 		"/*\n"
@@ -4289,9 +4289,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	// pass through for currentrender\n"
 		"	result.texcoord2 = vertex.texcoord;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/bloodorb3_capture.ps.hlsl",
 		"/*\n"
@@ -4364,9 +4364,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	accumColor = lerp( accumColor, currentRenderSample, maskSample.a );\n"
 		"	result.color = accumColor;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/bloodorb3_capture.vs.hlsl",
 		"/*\n"
@@ -4445,9 +4445,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	const float4 colorFactor = rpUser2;\n"
 		"	result.texcoord4 = colorFactor.xx;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/bloodorb_draw.ps.hlsl",
 		"/*\n"
@@ -4501,9 +4501,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"\n"
 		"	result.color = lerp( accumSample, currentRenderSample, maskSample.a );\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/bloodorb_draw.vs.hlsl",
 		"/*\n"
@@ -4558,9 +4558,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	// pass through texcoords\n"
 		"	result.texcoord0 = vertex.texcoord;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/bumpyenvironment.ps.hlsl",
 		"/*\n"
@@ -4639,9 +4639,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.color = float4( sRGBToLinearRGB( envMap.xyz ), 1.0f ) * fragment.color;\n"
 		"}\n"
 		"\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/bumpyenvironment.vs.hlsl",
 		"/*\n"
@@ -4724,9 +4724,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"\n"
 		"	result.color = rpColor;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/bumpyenvironment_skinned.ps.hlsl",
 		"/*\n"
@@ -4806,9 +4806,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.color = float4( sRGBToLinearRGB( envMap.xyz ), 1.0f ) * fragment.color;\n"
 		"}\n"
 		"\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/bumpyenvironment_skinned.vs.hlsl",
 		"/*\n"
@@ -4949,9 +4949,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"\n"
 		"	result.color = rpColor;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/color.ps.hlsl",
 		"/*\n"
@@ -4993,9 +4993,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"void main( out PS_OUT result ) {\n"
 		"	result.color = rpColor;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/color.vs.hlsl",
 		"/*\n"
@@ -5097,9 +5097,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.position.w = dot4( vertex.position, rpMVPmatrixW );\n"
 		"#endif\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/colorProcess.ps.hlsl",
 		"/*\n"
@@ -5150,9 +5150,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.color = lerp( src, target, fragment.texcoord0.z );\n"
 		"}\n"
 		"\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/colorProcess.vs.hlsl",
 		"/*\n"
@@ -5189,11 +5189,12 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"uniform float4 rpUser1 : register(c129); //rpTargetHue\n"
 		"\n"
 		"struct VS_IN {\n"
-		"	float4 position : POSITION;\n"
-		"	float2 texcoord : TEXCOORD0;\n"
-		"	float4 normal : NORMAL;\n"
-		"	float4 tangent : TANGENT;\n"
-		"	float4 color : COLOR0;\n"
+		"    float4 position : POSITION;\n"
+		"    float2 texcoord : TEXCOORD0;\n"
+		"    float4 normal : NORMAL;\n"
+		"    float4 tangent : TANGENT;\n"
+		"    float4 color : COLOR0;\n"
+		"    float4 color2 : COLOR1;\n"
 		"};\n"
 		"\n"
 		"struct VS_OUT {\n"
@@ -5217,9 +5218,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"}\n"
 		"\n"
 		"\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/DeepGBufferRadiosity_radiosity.ps.hlsl",
 		"\n"
@@ -5241,17 +5242,17 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"#define HIGH_QUALITY 0\n"
 		"\n"
 		"#if HIGH_QUALITY\n"
-		"// Total number of direct samples to take at each pixel\n"
-		"#define NUM_SAMPLES 39\n"
+		"	// Total number of direct samples to take at each pixel\n"
+		"	#define NUM_SAMPLES 39\n"
 		"\n"
-		"// This is the number of turns around the circle that the spiral pattern makes.  This should be prime to prevent\n"
-		"// taps from lining up.  This particular choice was tuned for NUM_SAMPLES == 9\n"
-		"#define NUM_SPIRAL_TURNS 14\n"
+		"	// This is the number of turns around the circle that the spiral pattern makes.  This should be prime to prevent\n"
+		"	// taps from lining up.  This particular choice was tuned for NUM_SAMPLES == 9\n"
+		"	#define NUM_SPIRAL_TURNS 14\n"
 		"\n"
 		"#else\n"
 		"\n"
-		"#define NUM_SAMPLES 11\n"
-		"#define NUM_SPIRAL_TURNS 7\n"
+		"	#define NUM_SAMPLES 11\n"
+		"	#define NUM_SPIRAL_TURNS 7\n"
 		"\n"
 		"#endif\n"
 		"\n"
@@ -5303,16 +5304,16 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"uniform sampler2D samp0 : register( s0 ); // view normals\n"
 		"uniform sampler2D samp1 : register( s1 ); // view depth\n"
 		"uniform sampler2D samp2 : register( s2 ); // colors\n"
-		" \n"
+		"\n"
 		"#define normal_buffer	samp0\n"
 		"#define CS_Z_buffer		samp1\n"
 		"#define colorBuffer		samp2\n"
-		" \n"
+		"\n"
 		"struct PS_IN\n"
 		"{\n"
 		"	float2 texcoord0 : TEXCOORD0_centroid;\n"
 		"};\n"
-		" \n"
+		"\n"
 		"struct PS_OUT \n"
 		"{\n"
 		"	float4 color : COLOR;\n"
@@ -5337,8 +5338,8 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"\n"
 		"\n"
 		"#if USE_DEPTH_PEEL\n"
-		"uniform sampler2D       peeledColorBuffer;\n"
-		"uniform sampler2D       peeledNormalBuffer;\n"
+		"	uniform sampler2D       peeledColorBuffer;\n"
+		"	uniform sampler2D       peeledNormalBuffer;\n"
 		"#endif\n"
 		"\n"
 		"//uniform float           indirectMultiplier;\n"
@@ -5372,10 +5373,10 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"float reconstructCSZ( float d )\n"
 		"{\n"
 		"	//return clipInfo[0] / (clipInfo[1] * d + clipInfo[2]);\n"
-		"	\n"
+		"\n"
 		"	// infinite far perspective matrix\n"
 		"	return -3.0 / ( -1.0 * d + 1.0 );\n"
-		"	\n"
+		"\n"
 		"	//d = d * 2.0 - 1.0;\n"
 		"	//return -rpProjectionMatrixZ.w / ( -rpProjectionMatrixZ.z - d );\n"
 		"}\n"
@@ -5387,15 +5388,15 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	//P.z = reconstructCSZ( z );\n"
 		"	P.xy = ( S * rpScreenCorrectionFactor.xy ) * 2.0 - 1.0;\n"
 		"	P.w = 1.0;\n"
-		"	\n"
+		"\n"
 		"	float4 csP;\n"
 		"	csP.x = dot4( P, rpModelMatrixX );\n"
 		"	csP.y = dot4( P, rpModelMatrixY );\n"
 		"	csP.z = dot4( P, rpModelMatrixZ );\n"
 		"	csP.w = dot4( P, rpModelMatrixW );\n"
-		"	\n"
+		"\n"
 		"	csP.xyz /= csP.w;\n"
-		"	\n"
+		"\n"
 		"	return csP.xyz;\n"
 		"}\n"
 		"\n"
@@ -5419,9 +5420,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"float2 tapLocation( int sampleNumber, float spinAngle, float radialJitter, out float ssR )\n"
 		"{\n"
 		"	// Radius relative to ssR\n"
-		"	float alpha = ( float( sampleNumber ) + radialJitter) * ( 1.0 / float( NUM_SAMPLES ) );\n"
+		"	float alpha = ( float( sampleNumber ) + radialJitter ) * ( 1.0 / float( NUM_SAMPLES ) );\n"
 		"	float angle = alpha * ( float( NUM_SPIRAL_TURNS ) * 6.28 ) + spinAngle;\n"
-		"	\n"
+		"\n"
 		"	ssR = alpha;\n"
 		"	return float2( cos( angle ), sin( angle ) );\n"
 		"}\n"
@@ -5432,10 +5433,10 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"{\n"
 		"	float3 P;\n"
 		"	P.z = texelFetch( cszBuffer, ssP, 0 ).r;\n"
-		"	\n"
+		"\n"
 		"	// Offset to pixel center\n"
 		"	P = reconstructCSPosition( float2( ssP ) + float2( 0.5 ), P.z );\n"
-		"	\n"
+		"\n"
 		"	return P;\n"
 		"}\n"
 		"\n"
@@ -5443,7 +5444,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"void getPositions( int2 ssP, sampler2D cszBuffer, out float3 P0, out float3 P1 )\n"
 		"{\n"
 		"	float2 Zs = texelFetch( cszBuffer, ssP, 0 ).rg;\n"
-		"	\n"
+		"\n"
 		"	// Offset to pixel center\n"
 		"	P0 = reconstructCSPosition( float2( ssP ) + float2( 0.5 ), Zs.x );\n"
 		"	P1 = reconstructCSPosition( float2( ssP ) + float2( 0.5 ), Zs.y );\n"
@@ -5460,11 +5461,11 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"#else\n"
 		"	mipLevel = clamp( int( floor( log2( ssR ) ) ) - LOG_MAX_OFFSET, MIN_MIP_LEVEL, MAX_MIP_LEVEL );\n"
 		"#endif\n"
-		"	\n"
+		"\n"
 		"	// We need to divide by 2^mipLevel to read the appropriately scaled coordinate from a MIP-map.\n"
 		"	// Manually clamp to the texture size because texelFetch bypasses the texture unit\n"
 		"	//mipP = ssP >> mipLevel;//clamp(ssP >> mipLevel, int2(0), textureSize(CS_Z_buffer, mipLevel) - int2(1));\n"
-		"	\n"
+		"\n"
 		"	mipP = clamp( ssP >> mipLevel, int2( 0 ), textureSize( cszBuffer, mipLevel ) - int2( 1 ) );\n"
 		"#else\n"
 		"	mipLevel = 0;\n"
@@ -5478,18 +5479,18 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"float3 getOffsetPosition( int2 ssC, float2 unitOffset, float ssR, sampler2D cszBuffer, float invCszBufferScale )\n"
 		"{\n"
 		"	int2 ssP = clamp( int2( ssR * unitOffset ) + ssC, int2( 0 ), int2( g3d_sz2D_colorBuffer.xy - 1 ) );\n"
-		"	\n"
+		"\n"
 		"	int mipLevel;\n"
 		"	int2 mipP;\n"
 		"	computeMipInfo( ssR, ssP, cszBuffer, mipLevel, mipP );\n"
-		"	\n"
+		"\n"
 		"	float3 P;\n"
-		"	\n"
+		"\n"
 		"	P.z = texelFetch( cszBuffer, mipP, mipLevel ).r;\n"
-		"	\n"
+		"\n"
 		"	// Offset to pixel center\n"
 		"	P = reconstructCSPosition( ( float2( ssP ) + float2( 0.5 ) ) * invCszBufferScale, P.z );\n"
-		"	\n"
+		"\n"
 		"	return P;\n"
 		"}\n"
 		"\n"
@@ -5498,13 +5499,13 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"void getOffsetPositions( int2 ssC, float2 unitOffset, float ssR, sampler2D cszBuffer, out float3 P0, out float3 P1 )\n"
 		"{\n"
 		"	int2 ssP = clamp( int2( ssR * unitOffset ) + ssC, int2( 0 ), int2( g3d_sz2D_colorBuffer.xy - 1 ) );\n"
-		"	\n"
+		"\n"
 		"	int mipLevel;\n"
 		"	int2 mipP;\n"
 		"	computeMipInfo( ssR, ssP, cszBuffer, mipLevel, mipP );\n"
-		"	\n"
+		"\n"
 		"	float2 Zs = texelFetch( cszBuffer, mipP, mipLevel ).rg;\n"
-		"	\n"
+		"\n"
 		"	// Offset to pixel center\n"
 		"	P0 = reconstructCSPosition( ( float2( ssP ) + float2( 0.5 ) ), Zs.x );\n"
 		"	P1 = reconstructCSPosition( ( float2( ssP ) + float2( 0.5 ) ), Zs.y );\n"
@@ -5530,9 +5531,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	int mipLevel = 0;\n"
 		"	int2 texel = ssP;\n"
 		"#endif\n"
-		"	\n"
+		"\n"
 		"	float z = texelFetch( cszBuffer, texel, mipLevel ).r;\n"
-		"	\n"
+		"\n"
 		"	// FIXME mip map bounce/normal buffers FBOs\n"
 		"#if 0\n"
 		"	float3 n = sampleNormal( normalBuffer, texel, mipLevel );\n"
@@ -5542,9 +5543,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	lambertian_tap = texelFetch( bounceBuffer, ssP, 0 ).rgb;\n"
 		"#endif\n"
 		"\n"
-		"	//n_tap = normalize( n );	\n"
+		"	//n_tap = normalize( n );\n"
 		"	n_tap = n;\n"
-		"	\n"
+		"\n"
 		"	// Offset to pixel center\n"
 		"	Q = reconstructCSPosition( ( float2( ssP ) + float2( 0.5 ) ), z );\n"
 		"}\n"
@@ -5574,7 +5575,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	int mipLevel = 0;\n"
 		"	int2 texel = ssP;\n"
 		"#endif\n"
-		"	\n"
+		"\n"
 		"	float2 Zs = texelFetch( cszBuffer, texel, mipLevel ).rg;\n"
 		"#if USE_OCT16\n"
 		"	sampleBothNormals( normalBuffer, texel, mipLevel, n_tap0, n_tap1 );\n"
@@ -5582,10 +5583,10 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	n_tap0 = sampleNormal( normalBuffer, texel, mipLevel );\n"
 		"	n_tap1 = sampleNormal( peeledNormalBuffer, texel, mipLevel );\n"
 		"#endif\n"
-		"	\n"
+		"\n"
 		"	lambertian_tap0 = texelFetch( bounceBuffer, texel, mipLevel ).rgb;\n"
 		"	lambertian_tap1 = texelFetch( peeledBounceBuffer, texel, mipLevel ).rgb;\n"
-		"	\n"
+		"\n"
 		"	// Offset to pixel center\n"
 		"	Q0 = reconstructCSPosition( ( float2( ssP ) + float2( 0.5 ) ), Zs.x, projInfo );\n"
 		"	Q1 = reconstructCSPosition( ( float2( ssP ) + float2( 0.5 ) ), Zs.y, projInfo );\n"
@@ -5602,9 +5603,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"				 && ( dot( -w_i, n_Y ) > 0.01 )\n"
 		"#endif\n"
 		"			   ) ? 1.0 : 0.0; // Backface check\n"
-		"			   \n"
+		"\n"
 		"	// E = radiosity_Y * dot(w_i, n_X) * weight_Y * float(dot(YminusX, YminusX) < radius2);\n"
-		"	\n"
+		"\n"
 		"	if( ( dot( YminusX, YminusX ) < radius2 ) && // Radius check\n"
 		"			( weight_Y > 0.0 ) )\n"
 		"	{\n"
@@ -5646,13 +5647,13 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"\n"
 		"	// Not used yet, quality optimization in progress...\n"
 		"	float visibilityWeightPeeled0, visibilityWeightPeeled1;\n"
-		"	\n"
+		"\n"
 		"	// Offset on the unit disk, spun for this pixel\n"
 		"	float ssR;\n"
 		"	float2 unitOffset = tapLocation( tapIndex, randomPatternRotationAngle, radialJitter, ssR );\n"
 		"	ssR *= ssDiskRadius;\n"
 		"	int2 ssP = int2( ssR * unitOffset ) + ssC;\n"
-		"	\n"
+		"\n"
 		"#if USE_DEPTH_PEEL\n"
 		"	float3 E, ii_tap0, ii_tap1;\n"
 		"	float weight, weight0, weight1;\n"
@@ -5662,31 +5663,31 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	getOffsetPositionsNormalsAndLambertians( ssP, ssR, cszBuffer, bounceBuffer, peeledColorBuffer, nBuffer, peeledNormalBuffer, Q0, Q1, lambertian_tap0, lambertian_tap1, n_tap0, n_tap1 );\n"
 		"	iiValueFromPositionsAndNormalsAndLambertian( ssP, C, n_C, Q0, n_tap0, lambertian_tap0, ii_tap0, weight0, visibilityWeight0 );\n"
 		"	float adjustedWeight0 = weight0 * dot( ii_tap0, ii_tap0 ) + weight0;\n"
-		"	\n"
+		"\n"
 		"	iiValueFromPositionsAndNormalsAndLambertian( ssP, C, n_C, Q1, n_tap1, lambertian_tap1, ii_tap1, weight1, visibilityWeight1 );\n"
 		"	float adjustedWeight1 = weight1 * dot( ii_tap1, ii_tap1 ) + weight1;\n"
-		"	\n"
+		"\n"
 		"	weight = ( adjustedWeight0 > adjustedWeight1 ) ? weight0 : weight1;\n"
 		"	E = ( adjustedWeight0 > adjustedWeight1 ) ? ii_tap0 : ii_tap1;\n"
-		"	\n"
+		"\n"
 		"#if COMPUTE_PEELED_LAYER\n"
-		"	\n"
+		"\n"
 		"	float weightPeeled0, weightPeeled1;\n"
 		"	float3 ii_tapPeeled0, ii_tapPeeled1;\n"
 		"	iiValueFromPositionsAndNormalsAndLambertian( ssP, C_peeled, n_C_peeled, Q0, n_tap0, lambertian_tap0, ii_tapPeeled0, weightPeeled0, visibilityWeightPeeled0 );\n"
 		"	iiValueFromPositionsAndNormalsAndLambertian( ssP, C_peeled, n_C_peeled, Q1, n_tap1, lambertian_tap1, ii_tapPeeled1, weightPeeled1, visibilityWeightPeeled1 );\n"
-		"	\n"
+		"\n"
 		"	float iiMag0 = dot( ii_tapPeeled0, ii_tapPeeled0 );\n"
 		"	float iiMag1 = dot( ii_tapPeeled1, ii_tapPeeled1 );\n"
 		"	weightSumPeeled += iiMag0 > iiMag1 ? weightPeeled0 : weightPeeled1;\n"
 		"	iiPeeled        += iiMag0 > iiMag1 ? ii_tapPeeled0 : ii_tapPeeled1;\n"
-		"	\n"
+		"\n"
 		"#endif\n"
-		"	\n"
+		"\n"
 		"	numSamplesUsed += weight;\n"
-		"	\n"
+		"\n"
 		"#else\n"
-		"	\n"
+		"\n"
 		"	float3 E;\n"
 		"	float visibilityWeight;\n"
 		"	float weight_Y;\n"
@@ -5696,7 +5697,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	iiValueFromPositionsAndNormalsAndLambertian( ssP, C, n_C, Q, n_tap, lambertian_tap, E, weight_Y, visibilityWeight );\n"
 		"	numSamplesUsed += weight_Y;\n"
 		"#endif\n"
-		"	\n"
+		"\n"
 		"	irradianceSum += E;\n"
 		"	//irradianceSum += pow( E, float3( 2.2 ) ); // RB: to linear RGB\n"
 		"}\n"
@@ -5705,17 +5706,17 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"void main( PS_IN fragment, out PS_OUT result )\n"
 		"{\n"
 		"	result.color = float4( 0.0, 0.0, 0.0, 1.0 );\n"
-		"	\n"
+		"\n"
 		"#if 0\n"
 		"	if( fragment.texcoord0.x < 0.5 )\n"
 		"	{\n"
 		"		discard;\n"
 		"	}\n"
 		"#endif\n"
-		"	\n"
+		"\n"
 		"	// Pixel being shaded\n"
 		"	int2 ssC = int2( gl_FragCoord.xy );\n"
-		"	\n"
+		"\n"
 		"#if COMPUTE_PEELED_LAYER\n"
 		"	float3 C, C_peeled;\n"
 		"	getPositions( ssC, CS_Z_buffer, C, C_peeled );\n"
@@ -5726,27 +5727,27 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	float3 C_peeled = float3( 0 );\n"
 		"	float3 n_C_peeled = float3( 0 );\n"
 		"#endif\n"
-		"	\n"
+		"\n"
 		"	float3 n_C = sampleNormal( normal_buffer, ssC, 0 );\n"
 		"	//n_C = normalize( n_C );\n"
-		"	\n"
-		"	\n"
+		"\n"
+		"\n"
 		"	// Choose the screen-space sample radius\n"
 		"	// proportional to the projected area of the sphere\n"
 		"	float ssDiskRadius = -projScale * radius / C.z;\n"
-		"	\n"
+		"\n"
 		"	// Hash function used in the HPG12 AlchemyAO paper\n"
 		"	float randomPatternRotationAngle = float( 3 * ssC.x ^ ssC.y + ssC.x * ssC.y ) * 10.0;\n"
 		"#if TEMPORALLY_VARY_TAPS\n"
 		"	randomPatternRotationAngle += rpJitterTexOffset.x;\n"
 		"#endif\n"
-		"	\n"
+		"\n"
 		"	float radialJitter = fract( sin( gl_FragCoord.x * 1e2 +\n"
 		"#if TEMPORALLY_VARY_TAPS\n"
 		"									 rpJitterTexOffset.x +\n"
 		"#endif\n"
 		"									 gl_FragCoord.y ) * 1e5 + sin( gl_FragCoord.y * 1e3 ) * 1e3 ) * 0.8 + 0.1;\n"
-		"									 \n"
+		"\n"
 		"	float numSamplesUsed = 0.0;\n"
 		"	float3 irradianceSum = float3( 0 );\n"
 		"	float3 ii_peeled = float3( 0 );\n"
@@ -5755,34 +5756,34 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	{\n"
 		"		sampleIndirectLight( ssC, C, n_C, C_peeled, n_C_peeled, ssDiskRadius, i, randomPatternRotationAngle, radialJitter, CS_Z_buffer, normal_buffer, colorBuffer, irradianceSum, numSamplesUsed, ii_peeled, peeledSum );\n"
 		"	}\n"
-		"	\n"
+		"\n"
 		"	const float solidAngleHemisphere = 2.0 * PI;\n"
 		"	float3 E_X = irradianceSum * solidAngleHemisphere / ( numSamplesUsed + 0.00001 );\n"
-		"	\n"
+		"\n"
 		"	indirectColor = E_X;\n"
 		"	//indirectColor = pow( E_X, float3( 1.0 / 2.2 ) ); // RB: to sRGB\n"
-		"	\n"
+		"\n"
 		"	// What is the ambient visibility of this location\n"
 		"	visibility = 1.0 - numSamplesUsed / float( NUM_SAMPLES );\n"
 		"	//visibility = clamp( 1 - numSamplesUsed / float( NUM_SAMPLES ), 0.0, 1.0 );\n"
 		"	//visibility = pow( max( 0.0, 1.0 - sqrt( sum * ( 3.0 / float( NUM_SAMPLES ) ) ) ), intensity );\n"
-		"	\n"
+		"\n"
 		"	//result.color = float4( visibility, visibility, visibility, 1.0 );\n"
 		"	//result.color = float4( n_C * 0.5 + 0.5, 1.0 );\n"
 		"	//result.color = texture( samp2, fragment.texcoord0 ).rgba;\n"
-		"	\n"
+		"\n"
 		"#if COMPUTE_PEELED_LAYER\n"
 		"	float A_peeled = 1.0 - peeledSum / float( NUM_SAMPLES );\n"
 		"	float3 E_X_peeled = ii_peeled * solidAngleHemisphere / ( peeledSum + 0.00001 );\n"
-		"	\n"
+		"\n"
 		"	indirectPeeledResult    = E_X_peeled;\n"
 		"	peeledVisibility        = A_peeled;\n"
 		"#endif\n"
 		"}\n"
 		"\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/DeepGBufferRadiosity_radiosity.vs.hlsl",
 		"/*\n"
@@ -5832,9 +5833,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.position = vertex.position;\n"
 		"	result.texcoord0 = vertex.texcoord;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/DeepGBufferRadiosity_blur.ps.hlsl",
 		"/**\n"
@@ -6216,9 +6217,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	blurResult = sum / ( totalWeight + epsilon );\n"
 		"}\n"
 		"\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/DeepGBufferRadiosity_blur.vs.hlsl",
 		"/*\n"
@@ -6268,9 +6269,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.position = vertex.position;\n"
 		"	result.texcoord0 = vertex.texcoord;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/debug_shadowmap.ps.hlsl",
 		"/*\n"
@@ -6325,9 +6326,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"\n"
 		"	result.color = texture( samp0, tc );// * rpColor;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/debug_shadowmap.vs.hlsl",
 		"/*\n"
@@ -6388,9 +6389,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"		result.texcoord0.y = dot4( vertex.texcoord.xy, rpTextureMatrixT );\n"
 		"	}\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/depth.ps.hlsl",
 		"/*\n"
@@ -6431,9 +6432,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"void main( out PS_OUT result ) {\n"
 		"	result.color = float4( 0.0, 0.0, 0.0, 1.0 );\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/depth.vs.hlsl",
 		"/*\n"
@@ -6480,9 +6481,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.position.z = dot4( vertex.position, rpMVPmatrixZ );\n"
 		"	result.position.w = dot4( vertex.position, rpMVPmatrixW );\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/depth_skinned.ps.hlsl",
 		"/*\n"
@@ -6523,9 +6524,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"void main( out PS_OUT result ) {\n"
 		"	result.color = float4( 0.0, 0.0, 0.0, 1.0 );\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/depth_skinned.vs.hlsl",
 		"/*\n"
@@ -6562,9 +6563,12 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"uniform matrices_ubo { float4 matrices[408]; };\n"
 		"\n"
 		"struct VS_IN {\n"
-		"	float4 position : POSITION;\n"
-		"	float4 color : COLOR0;\n"
-		"	float4 color2 : COLOR1;\n"
+		"    float4 position : POSITION;\n"
+		"    float2 texcoord : TEXCOORD0;\n"
+		"    float4 normal : NORMAL;\n"
+		"    float4 tangent : TANGENT;\n"
+		"    float4 color : COLOR0;\n"
+		"    float4 color2 : COLOR1;\n"
 		"};\n"
 		"\n"
 		"struct VS_OUT {\n"
@@ -6614,9 +6618,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.position.z = dot4( modelPosition, rpMVPmatrixZ );\n"
 		"	result.position.w = dot4( modelPosition, rpMVPmatrixW );\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/enviroSuit.ps.hlsl",
 		"/*\n"
@@ -6676,9 +6680,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.color = tex2D( samp0, screenTexCoord );\n"
 		"\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/enviroSuit.vs.hlsl",
 		"/*\n"
@@ -6743,9 +6747,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	const float4 deformMagnitude = rpUser1;\n"
 		"	result.color = deformMagnitude;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/environment.ps.hlsl",
 		"/*\n"
@@ -6805,9 +6809,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.color = float4( sRGBToLinearRGB( envMap.xyz ), 1.0f ) * fragment.color;\n"
 		"}\n"
 		"\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/environment.vs.hlsl",
 		"/*\n"
@@ -6870,9 +6874,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.color = sRGBAToLinearRGBA( rpColor );\n"
 		"}\n"
 		"\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/environment_skinned.ps.hlsl",
 		"/*\n"
@@ -6932,9 +6936,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.color = float4( sRGBToLinearRGB( envMap.xyz ), 1.0f ) * fragment.color;\n"
 		"}\n"
 		"\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/environment_skinned.vs.hlsl",
 		"/*\n"
@@ -6971,11 +6975,12 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"uniform matrices_ubo { float4 matrices[408]; };\n"
 		"\n"
 		"struct VS_IN {\n"
-		"	float4 position : POSITION;\n"
-		"	float2 texcoord : TEXCOORD0;\n"
-		"	float4 normal : NORMAL;\n"
-		"	float4 color : COLOR0;\n"
-		"	float4 color2 : COLOR1;\n"
+		"    float4 position : POSITION;\n"
+		"    float2 texcoord : TEXCOORD0;\n"
+		"    float4 normal : NORMAL;\n"
+		"    float4 tangent : TANGENT;\n"
+		"    float4 color : COLOR0;\n"
+		"    float4 color2 : COLOR1;\n"
 		"};\n"
 		"\n"
 		"struct VS_OUT {\n"
@@ -7044,9 +7049,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.color = rpColor;\n"
 		"}\n"
 		"\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/fog.ps.hlsl",
 		"/*\n"
@@ -7097,9 +7102,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"}\n"
 		"\n"
 		"\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/fog.vs.hlsl",
 		"/*\n"
@@ -7159,9 +7164,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.texcoord1.y = dot4( vertex.position, rpTexGen1T );\n"
 		"}\n"
 		"\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/fog_skinned.ps.hlsl",
 		"/*\n"
@@ -7212,9 +7217,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"}\n"
 		"\n"
 		"\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/fog_skinned.vs.hlsl",
 		"/*\n"
@@ -7251,10 +7256,12 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"uniform matrices_ubo { float4 matrices[408]; };\n"
 		"\n"
 		"struct VS_IN {\n"
-		"	float4 position : POSITION;\n"
-		"	float2 texcoord : TEXCOORD0;\n"
-		"	float4 color : COLOR0;\n"
-		"	float4 color2 : COLOR1;\n"
+		"    float4 position : POSITION;\n"
+		"    float2 texcoord : TEXCOORD0;\n"
+		"    float4 normal : NORMAL;\n"
+		"    float4 tangent : TANGENT;\n"
+		"    float4 color : COLOR0;\n"
+		"    float4 color2 : COLOR1;\n"
 		"};\n"
 		"\n"
 		"struct VS_OUT {\n"
@@ -7315,9 +7322,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.texcoord1.y = dot4( modelPosition, rpTexGen1T );\n"
 		"}\n"
 		"\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/fxaa.ps.hlsl",
 		"/*\n"
@@ -7430,9 +7437,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"											\n"
 		"	result.color = colorSample;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/fxaa.vs.hlsl",
 		"/*\n"
@@ -7482,9 +7489,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.position = vertex.position;\n"
 		"	result.texcoord0 =  vertex.texcoord;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/gbuffer.ps.hlsl",
 		"/*\n"
@@ -7570,9 +7577,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.color.a = 1.0;\n"
 		"}\n"
 		"\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/gbuffer.vs.hlsl",
 		"/*\n"
@@ -7754,9 +7761,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.color = ( swizzleColor( vertex.color ) * rpVertexColorModulate ) + rpVertexColorAdd;\n"
 		"#endif\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/gui.ps.hlsl",
 		"/*\n"
@@ -7807,9 +7814,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.color.xyz = color.xyz * color.w;\n"
 		"	result.color.w = color.w;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/gui.vs.hlsl",
 		"/*\n"
@@ -7870,9 +7877,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.color =  swizzleColor( vertex.color );\n"
 		"}\n"
 		"\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/hdr_glare_chromatic.ps.hlsl",
 		"/*\n"
@@ -8004,9 +8011,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	//result.color = float4( sumColor / sumSpectrum, 1.0 );\n"
 		"}\n"
 		"\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/hdr_glare_chromatic.vs.hlsl",
 		"/*\n"
@@ -8061,9 +8068,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	//result.position.w = dot4( vertex.position, rpMVPmatrixW );\n"
 		"	result.texcoord0 =  vertex.texcoord;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/heatHazeWithMask.ps.hlsl",
 		"/*\n"
@@ -8132,9 +8139,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"\n"
 		"	result.color = ( tex2D( samp0, screenTexCoord ) );\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/heatHazeWithMask.vs.hlsl",
 		"/*\n"
@@ -8226,9 +8233,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	const float4 deformMagnitude = rpUser1;\n"
 		"	result.texcoord2 = x * deformMagnitude;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/heatHazeWithMaskAndVertex.ps.hlsl",
 		"/*\n"
@@ -8299,9 +8306,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"\n"
 		"	result.color = ( tex2D( samp0, screenTexCoord ) );\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/heatHazeWithMaskAndVertex.vs.hlsl",
 		"/*\n"
@@ -8395,9 +8402,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.texcoord2 = x * deformMagnitude;\n"
 		"	result.color = swizzleColor( vertex.color );\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/heathaze.ps.hlsl",
 		"/*\n"
@@ -8458,9 +8465,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	// load the screen render\n"
 		"	result.color = ( tex2D( samp0, screenTexCoord.xy ) );\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/heathaze.vs.hlsl",
 		"/*\n"
@@ -8550,9 +8557,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	const float4 deformMagnitude = rpUser1;\n"
 		"	result.texcoord1 = x * deformMagnitude;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/interaction.ps.hlsl",
 		"/*\n"
@@ -8653,7 +8660,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	half3 halfAngleVector = normalize( lightVector + viewVector );\n"
 		"	half hdotN = clamp( dot3( halfAngleVector, localNormal ), 0.0, 1.0 );\n"
 		"\n"
-		"#if 0 //defined(USE_PBR)\n"
+		"#if 1 //defined(USE_PBR)\n"
 		"		\n"
 		"#if 0 //defined(USE_METALNESS)\n"
 		"	const half metallic = specMapSRGB.g;\n"
@@ -8722,7 +8729,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	//half3 diffuseColor = mix( diffuseMap, F0, metal ) * rpDiffuseModifier.xyz;\n"
 		"	half3 diffuseBRDF = diffuseColor * lambert * sRGBToLinearRGB( rpDiffuseModifier.xyz );\n"
 		"		\n"
-		"	result.color.xyz = ( diffuseBRDF + specularBRDF ) * lightColor * fragment.color.rgb * shadow;\n"
+		"	result.color.xyz = ( diffuseBRDF + specularBRDF ) * lightColor * fragment.color.rgb;\n"
 		"	result.color.w = 1.0;\n"
 		"	\n"
 		"#else\n"
@@ -8751,9 +8758,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"#endif\n"
 		"}\n"
 		"\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/interaction.vs.hlsl",
 		"/*\n"
@@ -8951,9 +8958,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.color = ( swizzleColor( vertex.color ) * rpVertexColorModulate ) + rpVertexColorAdd;\n"
 		"#endif\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/interactionAmbient.ps.hlsl",
 		"/*\n"
@@ -9055,9 +9062,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.color.w = 1.0;\n"
 		"}\n"
 		"\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/interactionAmbient.vs.hlsl",
 		"/*\n"
@@ -9173,9 +9180,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	//# for 1.0-color : env[16] = -1, env[17] = 1	\n"
 		"	result.color = ( swizzleColor( vertex.color ) * rpVertexColorModulate ) + rpVertexColorAdd;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/interactionAmbient_skinned.ps.hlsl",
 		"/*\n"
@@ -9278,9 +9285,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.color.w = 1.0;\n"
 		"}\n"
 		"\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/interactionAmbient_skinned.vs.hlsl",
 		"/*\n"
@@ -9455,9 +9462,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	//# for 1.0-color : env[16] = -1, env[17] = 1	\n"
 		"	result.color = ( swizzleColor( vertex.color ) * rpVertexColorModulate ) + rpVertexColorAdd;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/interactionSM.ps.hlsl",
 		"/*\n"
@@ -9686,7 +9693,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	}\n"
 		"	\n"
 		"	shadow *= stepSize;\n"
-		"#else\n"
+		"#elif 1\n"
 		"	\n"
 		"	const float2 poissonDisk[12] = float2[](\n"
 		"	float2(0.6111618, 0.1050905),\n"
@@ -9731,14 +9738,16 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"\n"
 		"   shadow *= stepSize;\n"
 		"\n"
-		"	//float shadow = texture( samp5, shadowTexcoord.xywz );\n"
+		"#else\n"
+		"\n"
+		"	float shadow = texture( samp5, shadowTexcoord.xywz );\n"
 		"#endif\n"
 		"\n"
 		"\n"
 		"	half3 halfAngleVector = normalize( lightVector + viewVector );\n"
 		"	half hdotN = clamp( dot3( halfAngleVector, localNormal ), 0.0, 1.0 );\n"
 		"\n"
-		"#if 0 //defined(USE_PBR)\n"
+		"#if 1 //defined(USE_PBR)\n"
 		"		\n"
 		"#if 0 //defined(USE_METALNESS)\n"
 		"	const half metallic = specMapSRGB.g;\n"
@@ -9837,9 +9846,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"#endif\n"
 		"}\n"
 		"\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/interactionSM.vs.hlsl",
 		"/*\n"
@@ -10060,9 +10069,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.color = ( swizzleColor( vertex.color ) * rpVertexColorModulate ) + rpVertexColorAdd;\n"
 		"#endif\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/motionBlur.ps.hlsl",
 		"/*\n"
@@ -10159,9 +10168,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.color = float4( sum * invScale, 1.0 );\n"
 		"}\n"
 		"\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/motionBlur.vs.hlsl",
 		"/*\n"
@@ -10208,9 +10217,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.position = vertex.position;\n"
 		"	result.texcoord0 = vertex.texcoord;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/postprocess.ps.hlsl",
 		"/*\n"
@@ -10247,13 +10256,13 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"// *INDENT-OFF*\n"
 		"uniform sampler2D samp0		: register(s0);\n"
 		"uniform sampler2D samp1		: register(s1);\n"
-		" \n"
+		"\n"
 		"struct PS_IN\n"
 		"{\n"
 		"	float4 position : VPOS;\n"
 		"	float2 texcoord0 : TEXCOORD0_centroid;\n"
 		"};\n"
-		" \n"
+		"\n"
 		"struct PS_OUT\n"
 		"{\n"
 		"	float4 color : COLOR;\n"
@@ -10278,7 +10287,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"{\n"
 		"	//return pow( abs( b ), 2.2 ) < 0.5 ? ( 2.0 * a * b ) : float3( 1.0, 1.0, 1.0 ) - float3( 2.0, 2.0, 2.0 ) * ( float3( 1.0, 1.0, 1.0 ) - a ) * ( 1.0 - b );\n"
 		"	//return abs( b ) < 0.5 ? ( 2.0 * a * b ) : float3( 1.0, 1.0, 1.0 ) - float3( 2.0, 2.0, 2.0 ) * ( float3( 1.0, 1.0, 1.0 ) - a ) * ( 1.0 - b );\n"
-		"	\n"
+		"\n"
 		"	return float3(\n"
 		"			   b.x < 0.5 ? ( 2.0 * a.x * b.x ) : ( 1.0 - 2.0 * ( 1.0 - a.x ) * ( 1.0 - b.x ) ),\n"
 		"			   b.y < 0.5 ? ( 2.0 * a.y * b.y ) : ( 1.0 - 2.0 * ( 1.0 - a.y ) * ( 1.0 - b.y ) ),\n"
@@ -10293,19 +10302,19 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	const float3 yellowFilter = float3( 1.6, 1.6, 0.05 );\n"
 		"	const float3 redOrangeFilter = float3( 1.05, 0.62, 0.0 );\n"
 		"	const float3 greenFilter = float3( 0.3, 1.0, 0.0 );\n"
-		"	\n"
+		"\n"
 		"	float2 redNegativeMul   = color.rg * ( 1.0 / ( Technicolor_RedNegativeAmount * Technicolor_Power ) );\n"
 		"	float2 greenNegativeMul = color.rg * ( 1.0 / ( Technicolor_GreenNegativeAmount * Technicolor_Power ) );\n"
 		"	float2 blueNegativeMul  = color.rb * ( 1.0 / ( Technicolor_BlueNegativeAmount * Technicolor_Power ) );\n"
-		"	\n"
+		"\n"
 		"	float redNegative   = dot( redOrangeFilter.rg, redNegativeMul );\n"
 		"	float greenNegative = dot( greenFilter.rg, greenNegativeMul );\n"
 		"	float blueNegative  = dot( magentaFilter.rb, blueNegativeMul );\n"
-		"	\n"
+		"\n"
 		"	float3 redOutput   = float3( redNegative ) + cyanFilter;\n"
 		"	float3 greenOutput = float3( greenNegative ) + magentaFilter;\n"
 		"	float3 blueOutput  = float3( blueNegative ) + yellowFilter;\n"
-		"	\n"
+		"\n"
 		"	float3 result = redOutput * greenOutput * blueOutput;\n"
 		"	color.rgb = lerp( color.rgb, result, Technicolor_Amount );\n"
 		"}\n"
@@ -10314,14 +10323,14 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"void VibrancePass( inout float4 color )\n"
 		"{\n"
 		"	const float3 vibrance = Vibrance_RGB_Balance * Vibrance;\n"
-		"	\n"
+		"\n"
 		"	float Y = dot( LUMINANCE_SRGB, color );\n"
-		"	\n"
+		"\n"
 		"	float minColor = min( color.r, min( color.g, color.b ) );\n"
 		"	float maxColor = max( color.r, max( color.g, color.b ) );\n"
-		"	\n"
+		"\n"
 		"	float colorSat = maxColor - minColor;\n"
-		"	\n"
+		"\n"
 		"	color.rgb = lerp( float3( Y ), color.rgb, ( 1.0 + ( vibrance * ( 1.0 - ( sign( vibrance ) * colorSat ) ) ) ) );\n"
 		"}\n"
 		"\n"
@@ -10332,19 +10341,19 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	//float4 jitterTC = ( fragment.position * ( 1.0 / 128.0 ) ) + rpJitterTexOffset;\n"
 		"	//float2 jitterTC = fragment.position.xy * 2.0;\n"
 		"	//jitterTC.x *= rpWindowCoord.y / rpWindowCoord.x;\n"
-		"	\n"
+		"\n"
 		"	float4 noiseColor = tex2D( samp1, fragment.position.xy + jitterTC.xy );\n"
 		"	float Y = noiseColor.r;\n"
 		"	//float Y = dot( LUMINANCE_VECTOR, noiseColor );\n"
 		"	//noiseColor.rgb = float3( Y, Y, Y );\n"
-		"	\n"
+		"\n"
 		"	float exposureFactor = 1.0;\n"
 		"	exposureFactor = sqrt( exposureFactor );\n"
 		"	const float noiseIntensity = 1.7; //rpScreenCorrectionFactor.z;\n"
-		"	\n"
+		"\n"
 		"	float t = lerp( 3.5 * noiseIntensity, 1.13 * noiseIntensity, exposureFactor );\n"
 		"	color.rgb = overlay( color.rgb, lerp( float3( 0.5 ), noiseColor.rgb, t ) );\n"
-		"	\n"
+		"\n"
 		"	//color.rgb = noiseColor.rgb;\n"
 		"	//color.rgb = lerp( color.rgb, noiseColor.rgb, 0.3 );\n"
 		"}\n"
@@ -10353,28 +10362,28 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"void main( PS_IN fragment, out PS_OUT result )\n"
 		"{\n"
 		"	float2 tCoords = fragment.texcoord0;\n"
-		"	\n"
+		"\n"
 		"	// base color with tone mapping and other post processing applied\n"
 		"	float4 color = tex2D( samp0, tCoords );\n"
-		"	\n"
+		"\n"
 		"#if USE_TECHNICOLOR\n"
 		"	TechnicolorPass( color );\n"
 		"#endif\n"
-		"	\n"
+		"\n"
 		"#if USE_VIBRANCE\n"
 		"	VibrancePass( color );\n"
 		"#endif\n"
-		"	\n"
+		"\n"
 		"#if USE_FILMGRAIN\n"
 		"	FilmgrainPass( color );\n"
 		"#endif\n"
-		"	\n"
+		"\n"
 		"	result.color = color;\n"
 		"}\n"
 		"\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/postprocess.vs.hlsl",
 		"/*\n"
@@ -10429,9 +10438,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	//result.position.w = dot4( vertex.position, rpMVPmatrixW );\n"
 		"	result.texcoord0 =  vertex.texcoord;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/screen.ps.hlsl",
 		"/*\n"
@@ -10486,9 +10495,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.color = color;\n"
 		"}\n"
 		"\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/screen.vs.hlsl",
 		"/*\n"
@@ -10543,9 +10552,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	//result.position.w = dot4( vertex.position, rpMVPmatrixW );\n"
 		"	result.texcoord0 =  vertex.texcoord;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/shadow.ps.hlsl",
 		"/*\n"
@@ -10586,9 +10595,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"void main( out PS_OUT result ) {\n"
 		"	result.color = rpColor;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/shadow.vs.hlsl",
 		"/*\n"
@@ -10638,9 +10647,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.position.z = dot4( vPos, rpMVPmatrixZ );\n"
 		"	result.position.w = dot4( vPos, rpMVPmatrixW );\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/shadowDebug.ps.hlsl",
 		"/*\n"
@@ -10681,9 +10690,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"void main( out PS_OUT result ) {\n"
 		"	result.color = rpColor;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/shadowDebug.vs.hlsl",
 		"/*\n"
@@ -10733,9 +10742,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.position.z = dot4( vPos, rpMVPmatrixZ );\n"
 		"	result.position.w = dot4( vPos, rpMVPmatrixW );\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/shadowDebug_skinned.ps.hlsl",
 		"/*\n"
@@ -10776,9 +10785,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"void main( out PS_OUT result ) {\n"
 		"	result.color = rpColor;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/shadowDebug_skinned.vs.hlsl",
 		"/*\n"
@@ -10873,9 +10882,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.position.z = dot4( vPos, rpMVPmatrixZ );\n"
 		"	result.position.w = dot4( vPos, rpMVPmatrixW );\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/shadow_skinned.ps.hlsl",
 		"/*\n"
@@ -10916,9 +10925,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"void main( out PS_OUT result ) {\n"
 		"	result.color = rpColor;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/shadow_skinned.vs.hlsl",
 		"/*\n"
@@ -11013,9 +11022,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.position.z = dot4( vPos, rpMVPmatrixZ );\n"
 		"	result.position.w = dot4( vPos, rpMVPmatrixW );\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/simpleshade.ps.hlsl",
 		"/*\n"
@@ -11080,9 +11089,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.color.xyz = _float3( dot3( normal, L ) * 0.75 );\n"
 		"	result.color.w = 1.0;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/simpleshade.vs.hlsl",
 		"/*\n"
@@ -11138,9 +11147,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.position = position;\n"
 		"	result.texcoord0 = position;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/skybox.ps.hlsl",
 		"/*\n"
@@ -11189,9 +11198,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.color = sRGBAToLinearRGBA( texCUBE( samp0, fragment.texcoord0 ) ) * fragment.color;\n"
 		"}\n"
 		"\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/skybox.vs.hlsl",
 		"/*\n"
@@ -11249,9 +11258,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.color = ( swizzleColor( vertex.color ) * rpVertexColorModulate ) + rpVertexColorAdd;\n"
 		"}\n"
 		"\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/SMAA_blending_weight_calc.ps.hlsl",
 		"/*\n"
@@ -11339,9 +11348,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.color = color;\n"
 		"}\n"
 		"\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/SMAA_blending_weight_calc.vs.hlsl",
 		"/*\n"
@@ -11416,9 +11425,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"\n"
 		"	result.texcoord4.st = pixcoord;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/SMAA_edge_detection.ps.hlsl",
 		"/*\n"
@@ -11497,9 +11506,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.color = color;\n"
 		"}\n"
 		"\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/SMAA_edge_detection.vs.hlsl",
 		"/*\n"
@@ -11571,9 +11580,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.texcoord2 = offset[1];\n"
 		"	result.texcoord3 = offset[2];\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/SMAA_final.ps.hlsl",
 		"/*\n"
@@ -11650,9 +11659,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.color = color;\n"
 		"}\n"
 		"\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/SMAA_final.vs.hlsl",
 		"/*\n"
@@ -11717,9 +11726,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	\n"
 		"	result.texcoord1 = offset;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/stereoDeGhost.ps.hlsl",
 		"/*\n"
@@ -11761,9 +11770,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"void main( out PS_OUT result ) {\n"
 		"	result.color = rpColor;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/stereoDeGhost.vs.hlsl",
 		"/*\n"
@@ -11814,9 +11823,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.position.z = dot4( vertex.position, rpMVPmatrixZ );\n"
 		"	result.position.w = dot4( vertex.position, rpMVPmatrixW );\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/stereoInterlace.ps.hlsl",
 		"/*\n"
@@ -11868,9 +11877,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"        result.color = tex2D( samp1, vec2( fragment.texcoord0 ) );\n"
 		"    }\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/stereoInterlace.vs.hlsl",
 		"/*\n"
@@ -11921,9 +11930,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"\n"
 		"	result.texcoord0 = vertex.texcoord;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/stereoWarp.ps.hlsl",
 		"/*\n"
@@ -12001,9 +12010,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.color = tex2D( samp0, warped );\n"
 		"}\n"
 		"\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/stereoWarp.vs.hlsl",
 		"/*\n"
@@ -12053,9 +12062,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.position.w = dot4( vertex.position, rpMVPmatrixW );\n"
 		"	result.texcoord0 = vertex.texcoord;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/texture.ps.hlsl",
 		"/*\n"
@@ -12104,9 +12113,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	//result.color = textureLod( samp0, fragment.texcoord0, 2.0 ) * rpColor;\n"
 		"	//result.color = float4( 0.0, 1.0, 0.0, 1.0 ) * rpColor;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/texture.vs.hlsl",
 		"/*\n"
@@ -12167,9 +12176,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"		result.texcoord0.y = dot4( vertex.texcoord.xy, rpTextureMatrixT );\n"
 		"	}\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/texture_color.ps.hlsl",
 		"/*\n"
@@ -12219,9 +12228,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	clip( color.a - rpAlphaTest.x );\n"
 		"	result.color = sRGBAToLinearRGBA( color );\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/texture_color.vs.hlsl",
 		"/*\n"
@@ -12286,9 +12295,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	float4 vertexColor = ( swizzleColor( vertex.color ) * rpVertexColorModulate ) + rpVertexColorAdd;\n"
 		"	result.color =  vertexColor * rpColor;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/texture_color_skinned.ps.hlsl",
 		"/*\n"
@@ -12338,9 +12347,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	clip( color.a - rpAlphaTest.x );\n"
 		"	result.color = sRGBAToLinearRGBA( color );\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/texture_color_skinned.vs.hlsl",
 		"/*\n"
@@ -12377,10 +12386,12 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"uniform matrices_ubo { float4 matrices[408]; };\n"
 		"\n"
 		"struct VS_IN {\n"
-		"	float4 position : POSITION;\n"
-		"	float2 texcoord : TEXCOORD0;\n"
-		"	float4 color : COLOR0;\n"
-		"	float4 color2 : COLOR1;\n"
+		"    float4 position : POSITION;\n"
+		"    float2 texcoord : TEXCOORD0;\n"
+		"    float4 normal : NORMAL;\n"
+		"    float4 tangent : TANGENT;\n"
+		"    float4 color : COLOR0;\n"
+		"    float4 color2 : COLOR1;\n"
 		"};\n"
 		"\n"
 		"struct VS_OUT {\n"
@@ -12444,9 +12455,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	float4 vertexColor = ( swizzleColor( vertex.color ) * rpVertexColorModulate ) + rpVertexColorAdd;\n"
 		"	result.color =  vertexColor * rpColor;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/texture_color_texgen.ps.hlsl",
 		"/*\n"
@@ -12501,9 +12512,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"\n"
 		"	result.color = sRGBAToLinearRGBA( texSample ) * fragment.color;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/texture_color_texgen.vs.hlsl",
 		"/*\n"
@@ -12572,9 +12583,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	float4 vertexColor = ( swizzleColor( vertex.color ) * rpVertexColorModulate ) + rpVertexColorAdd;\n"
 		"	result.color =  vertexColor * rpColor;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/tonemap.ps.hlsl",
 		"/*\n"
@@ -12798,9 +12809,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"#endif\n"
 		"}\n"
 		"\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/tonemap.vs.hlsl",
 		"/*\n"
@@ -12855,9 +12866,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	//result.position.w = dot4( vertex.position, rpMVPmatrixW );\n"
 		"	result.texcoord0 =  vertex.texcoord;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/vertex_color.ps.hlsl",
 		"/*\n"
@@ -12907,9 +12918,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"{\n"
 		"	result.color = sRGBAToLinearRGBA( fragment.color );\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/vertex_color.vs.hlsl",
 		"/*\n"
@@ -12967,9 +12978,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	\n"
 		"	result.color =  swizzleColor( vertex.color );\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/wobblesky.ps.hlsl",
 		"/*\n"
@@ -13018,9 +13029,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.color = sRGBAToLinearRGBA( texCUBE( samp0, fragment.texcoord0 ) ) * fragment.color;\n"
 		"}\n"
 		"\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/wobblesky.vs.hlsl",
 		"/*\n"
@@ -13081,9 +13092,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.color = ( swizzleColor( vertex.color ) * rpVertexColorModulate ) + rpVertexColorAdd;\n"
 		"}\n"
 		"\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/zcullReconstruct.ps.hlsl",
 		"/*\n"
@@ -13125,9 +13136,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.depth = 1;\n"
 		"	result.color = float4( 0.0, 0.0, 0.0, 0.0 );\n"
 		"}\n"
-
+		
 	},
-
+	
 	{
 		"renderprogs/zcullReconstruct.vs.hlsl",
 		"/*\n"
@@ -13172,9 +13183,9 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	result.position = vertex.position;\n"
 		"	result.position.z = -1.0;\n"
 		"}\n"
-
+		
 	},
-
+	
 	{0, 0},
-
+	
 };
