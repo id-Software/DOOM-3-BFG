@@ -51,6 +51,8 @@ idCVar r_syncEveryFrame( "r_syncEveryFrame", "1", CVAR_BOOL, "Don't let the GPU 
 
 idCVar r_vkEnableValidationLayers( "r_vkEnableValidationLayers", "0", CVAR_BOOL | CVAR_INIT, "" );
 
+vulkanContext_t vkcontext;
+
 #if defined(_WIN32)
 static const int g_numInstanceExtensions = 2;
 static const char* g_instanceExtensions[ g_numInstanceExtensions ] =
@@ -723,11 +725,15 @@ static VkExtent2D ChooseSurfaceExtent( VkSurfaceCapabilitiesKHR& caps )
 {
 	VkExtent2D extent;
 
-	int width;
-	int height;
+	int width = glConfig.nativeScreenWidth;
+	int height = glConfig.nativeScreenHeight;
+
+#if defined(__linux__)
 	SDL_Vulkan_GetDrawableSize( vkcontext.sdlWindow, &width, &height );
-	width = CLAMP( width, caps.minImageExtent.width, caps.maxImageExtent.width );
-	height = CLAMP( height, caps.minImageExtent.height, caps.maxImageExtent.height );
+
+	width = idMath::ClampInt( caps.minImageExtent.width, caps.maxImageExtent.width, width );
+	height = idMath::ClampInt( caps.minImageExtent.height, caps.maxImageExtent.height, height );
+#endif
 
 	if( caps.currentExtent.width == -1 )
 	{

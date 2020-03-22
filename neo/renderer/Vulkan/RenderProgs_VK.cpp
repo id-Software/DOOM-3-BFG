@@ -407,7 +407,8 @@ namespace glslang
 // These are the default resources for TBuiltInResources, used for both
 //  - parsing this string for the case where the user didn't supply one,
 //  - dumping out a template for user construction of a config file.
-#if 1
+#if 0
+// RB: if you want to use this then you need to compile GLSLANG with ENABLE_GLSLANG_BINARIES ON
 extern const TBuiltInResource DefaultTBuiltInResource;
 #else
 

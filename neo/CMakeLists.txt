@@ -362,7 +362,7 @@ if(USE_VULKAN)
 		
 		# options required by November 2018 release
 		SET_OPTION(ENABLE_SPVREMAPPER OFF)
-		SET_OPTION(ENABLE_GLSLANG_BINARIES ON)
+		SET_OPTION(ENABLE_GLSLANG_BINARIES OFF)
 		SET_OPTION(ENABLE_HLSL OFF)
 		SET_OPTION(ENABLE_OPT ON)
 		SET_OPTION(SPIRV_SKIP_EXECUTABLES ON)
@@ -376,7 +376,7 @@ if(USE_VULKAN)
 		set(GLSLANG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/extern/glslang)
 		add_subdirectory(${GLSLANG_DIR})
 	
-		include_directories(${GLSLANG_DIR})
+		include_directories(${GLSLANG_DIR}/glslang)
 	endif()
 
 else()
