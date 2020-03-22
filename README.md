@@ -107,20 +107,22 @@ Left: No post processing except HDR tone mapping. Right: r_useFilmicPostProcessi
 ---
 ## ".plan" <a name=".plan"></a>
 
+* ~~Fix GPU Skinning with Vulkan~~
+* ~~Fix the lighting with stencil shadows with Vulkan~~
+* Finish adapting the Vulkan renderer backend based on Dustin Land's vkDOOM3
+* Port all the extras like HDR, Shadow Mapping and Post Processing to Vulkan
+* Use ImGui to show renderer stats like com_showFPS 2 and more detailed renderer stats
+* Get ImGui to run with Vulkan and show the Vulkan memory fragmentation with it live
+
 * Finish PBR texture support
-* Add IBL lighting and [Light probe interpolation using tetrahedral tessellations](https://gdcvault.com/play/1015312/Light-Probe-Interpolation-Using-Tetrahedral)
+* Finish partly integrated IBL lighting and [Light probe interpolation using tetrahedral tessellations](https://gdcvault.com/play/1015312/Light-Probe-Interpolation-Using-Tetrahedral)
 * Generate IBL probes on the GPU through compute shaders
 * Add Screen Space Reflections
-* Finish adapting the Vulkan renderer backend based on Dustin Land's vkDOOM3
-* Fix GPU Skinning with Vulkan
-* Fix the lighting with stencil shadows with Vulkan
-* Port all the extras like HDR, Shadow Mapping and Post Processing to Vulkan
-* Get ImGui to run with Vulkan and show the Vulkan memory fragmentation with it live
 * Evaluate Blender 2.8 as a complete replacement for D3Radiant and update the scripts for it
 
 ---
 ## May or may not ".plan" <a name=".plan2"></a>
-
+* Add a DX12 Ultimate renderer backend
 * Add [Volumetric Lighting](http://www.alexandre-pestana.com/volumetric-lights/)
 * Give Mara's and McGuire's DeepGBuffer Screen Space Global Illumination a second try with Christoph Schieds' A-SVGF realtime denoising because A-SVGF works really well in Q2RTX
 * Port Virtual Texturing support from [IcedTech](https://github.com/jmarshall23/IcedTech)
@@ -131,7 +133,6 @@ Left: No post processing except HDR tone mapping. Right: r_useFilmicPostProcessi
 * Imrpove SMAAA with Temporal Anti-Aliasing (SMAA T2x)
 * Replace collision detection and physics with PhysX 4.1
 * Add glTF 2.0 support for static models and animations because it is the new JPG of 3D ;)
-* Replace sound system with [SoLoud](https://github.com/jarikomppa/soloud)
 
 ---
 ## General Notes <a name="notes"></a>

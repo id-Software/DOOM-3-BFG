@@ -14,16 +14,27 @@ Thank you for downloading RBDOOM-3-BFG.
 
 _______________________________________
 
-TBD in early 2020 - RBDOOM-3-BFG 1.3.0
+TBD - Changes since RBDOOM-3-BFG 1.2.0
 _______________________________
 
-- Finish Vulkan renderer backend
+- Fixed GPU Skinning with Vulkan
 
-- Fix GPU Skinning with Vulkan
+- Fixed the lighting with stencil shadows with Vulkan and added Carmarck's Rerverse optimization
 
-- Fix the lighting with stencil shadows with Vulkan
+- Added anisotropic filtering to Vulkan
 
-- Port HDR and Shadow Mapping to Vulkan
+- Added Git submodule glslang 7.10.2984 -> stable release Nov 15, 2018
+
+- Changed light interaction shaders to use PBR GGX Cook-Torrance specular contribution. The roughness input is estimated by the D3 glossmap if no PBR texture is provided
+
+- PBR texture support ground work is done. Only a few bits are left to be enabled.
+
+- Extended ambient pass to support Image Based Lighting using a single fixed cubemap at the moment (r_useIBL)
+
+- Turned off Half-Lambert lighting hack in favor of IBL
+
+- Vulkan version builds on Linux. Big thanks to Eric Womer for helping out the SDL part.
+
 
 
 
