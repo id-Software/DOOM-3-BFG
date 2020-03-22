@@ -186,14 +186,16 @@ See docs/CODE_LICENSE_EXCEPTIONS.md for all parts of the code The parts that are
 
 This project's GitHub.net Git repository can be checked out through Git with the following instruction set: 
 
-	> git clone https://github.com/RobertBeckebans/RBDOOM-3-BFG.git
+	> git clone --recursive https://github.com/RobertBeckebans/RBDOOM-3-BFG.git
+
+The paramter --recursive is only required if you want to build RBDOOM-3-BFG with Vulkan support.
 
 
 
 ---
 ## Compiling on Windows <a name="compile_windows"></a>
 
-1. Download and install the Visual C++ 2013 Express Edition.
+1. Download and install the Visual Studio 2017 Community Edition.
 
 2. Download the DirectX SDK (June 2010) here: (Only for Windows 7 builds)
 	http://www.microsoft.com/en-us/download/details.aspx?id=6812

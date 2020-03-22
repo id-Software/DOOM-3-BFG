@@ -122,7 +122,7 @@ class idDrawVert
 
 public:
 	idVec3				xyz;			// 12 bytes
-private:
+//private:
 	// RB: don't let the old tools code mess with these values
 	halfFloat_t			st[2];			// 4 bytes
 	byte				normal[4];		// 4 bytes
