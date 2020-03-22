@@ -230,7 +230,7 @@ void idRenderProgManager::Init()
 
 	r_useHalfLambertLighting.ClearModified();
 	r_useHDR.ClearModified();
-	r_usePBR.ClearModified();
+	r_useIBL.ClearModified();
 
 	uniforms.SetNum( RENDERPARM_TOTAL, vec4_zero );
 

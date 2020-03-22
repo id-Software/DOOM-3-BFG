@@ -1118,7 +1118,7 @@ extern idCVar r_ssaoDebug;
 extern idCVar r_ssaoFiltering;
 extern idCVar r_useHierarchicalDepthBuffer;
 
-extern idCVar r_usePBR;
+extern idCVar r_useIBL;
 
 extern idCVar r_exposure;
 // RB end
