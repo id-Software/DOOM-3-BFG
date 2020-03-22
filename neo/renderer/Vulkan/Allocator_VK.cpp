@@ -438,7 +438,7 @@ void idVulkanBlock::Free( vulkanAllocation_t& allocation )
 
 	if( current == NULL )
 	{
-		idLib::Warning( "idVulkanBlock::Free: Tried to free an unknown allocation. %p - %lu", this, allocation.id );
+		idLib::Warning( "idVulkanBlock::Free: Tried to free an unknown allocation. %p - %u", this, allocation.id );
 		return;
 	}
 
@@ -492,21 +492,21 @@ void idVulkanBlock::Print()
 		count++;
 	}
 
-	idLib::Printf( "Type Index: %lu\n", memoryTypeIndex );
+	idLib::Printf( "Type Index: %u\n", memoryTypeIndex );
 	idLib::Printf( "Usage:      %s\n", memoryUsageStrings[ usage ] );
 	idLib::Printf( "Count:      %d\n", count );
-	idLib::Printf( "Size:       %llu\n", size );
-	idLib::Printf( "Allocated:  %llu\n", allocated );
-	idLib::Printf( "Next Block: %lu\n", nextBlockId );
+	idLib::Printf( "Size:       %lu\n", size );
+	idLib::Printf( "Allocated:  %lu\n", allocated );
+	idLib::Printf( "Next Block: %u\n", nextBlockId );
 	idLib::Printf( "------------------------\n" );
 
 	for( chunk_t* current = head; current != NULL; current = current->next )
 	{
 		idLib::Printf( "{\n" );
 
-		idLib::Printf( "\tId:     %lu\n", current->id );
-		idLib::Printf( "\tSize:   %llu\n", current->size );
-		idLib::Printf( "\tOffset: %llu\n", current->offset );
+		idLib::Printf( "\tId:     %u\n", current->id );
+		idLib::Printf( "\tSize:   %lu\n", current->size );
+		idLib::Printf( "\tOffset: %lu\n", current->offset );
 		idLib::Printf( "\tType:   %s\n", allocationTypeStrings[ current->type ] );
 
 		idLib::Printf( "}\n" );
@@ -679,7 +679,7 @@ void idVulkanAllocator::Print()
 {
 	idLib::Printf( "Device Local MB: %d\n", int( deviceLocalMemoryBytes / 1024 * 1024 ) );
 	idLib::Printf( "Host Visible MB: %d\n", int( hostVisibleMemoryBytes / 1024 * 1024 ) );
-	idLib::Printf( "Buffer Granularity: %llu\n", bufferImageGranularity );
+	idLib::Printf( "Buffer Granularity: %lu\n", bufferImageGranularity );
 	idLib::Printf( "\n" );
 
 	for( int i = 0; i < VK_MAX_MEMORY_TYPES; ++i )
@@ -698,11 +698,11 @@ CONSOLE_COMMAND( Vulkan_PrintHeapInfo, "Print out the heap information for this 
 {
 	VkPhysicalDeviceMemoryProperties& props = vkcontext.gpu->memProps;
 
-	idLib::Printf( "Heaps %lu\n------------------------\n", props.memoryHeapCount );
+	idLib::Printf( "Heaps %u\n------------------------\n", props.memoryHeapCount );
 	for( uint32 i = 0; i < props.memoryHeapCount; ++i )
 	{
 		VkMemoryHeap heap = props.memoryHeaps[ i ];
-		idLib::Printf( "id=%d, size=%llu, flags=", i, heap.size );
+		idLib::Printf( "id=%d, size=%lu, flags=", i, heap.size );
 		if( heap.flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT )
 		{
 			idLib::Printf( "DEVICE_LOCAL" );
@@ -745,8 +745,8 @@ CONSOLE_COMMAND( Vulkan_PrintHeapInfo, "Print out the heap information for this 
 
 			if( properties.Length() > 0 )
 			{
-				idLib::Printf( "memory_type=%lu\n", j );
-				idLib::Printf( properties.c_str() );
+				idLib::Printf( "memory_type=%u\n", j );
+				idLib::Printf( "%s", properties.c_str() );
 			}
 		}
 

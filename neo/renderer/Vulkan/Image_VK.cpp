@@ -567,7 +567,8 @@ void idImage::AllocImage()
 	ID_VK_CHECK( vkBindImageMemory( vkcontext.device, image, allocation.deviceMemory, allocation.offset ) );
 #endif
 
-	idLib::Printf( "Vulkan Image alloc '%s': %p\n", GetName(), image );
+	// Eric: disable for now to clean the terminal output
+	// idLib::Printf( "Vulkan Image alloc '%s': %p\n", GetName(), image );
 
 	// Create Image View
 	VkImageViewCreateInfo viewCreateInfo = {};

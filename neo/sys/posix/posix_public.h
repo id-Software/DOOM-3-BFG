@@ -31,6 +31,12 @@ If you have questions concerning this license or the applicable additional terms
 
 #include <signal.h>
 
+#ifdef USE_VULKAN
+#include <xcb/xcb.h>
+#endif
+
+extern glconfig_t glConfig;
+
 void		Posix_QueEvent( sysEventType_t type, int value, int value2, int ptrLength, void* ptr );
 const char*	Posix_Cwd();
 
@@ -64,6 +70,21 @@ double 		MeasureClockTicks();
 #ifdef __APPLE__
 enum clk_id_t { CLOCK_REALTIME, CLOCK_MONOTONIC, CLOCK_MONOTONIC_RAW };
 int clock_gettime( clk_id_t clock, struct timespec* tp );
+#endif
+
+// Eric: Not used on Linux since using SDL2
+#if 0 //defined(USE_VULKAN)
+/* Struct that holds global xcb state for vulkan */
+typedef struct _posixInfo {
+    xcb_connection_t *connection;
+    xcb_window_t window;
+    xcb_screen_t *screen;
+    xcb_atom_t wmProtocols;
+    xcb_atom_t wmDeleteWin;
+} posixInfo;
+
+extern posixInfo info; 
+
 #endif
 
 #endif

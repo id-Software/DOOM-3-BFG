@@ -22,16 +22,16 @@
 
 #pragma warning( disable: 4244 )	// warning C4244: conversion from 'double' to 'float', possible loss of data
 
-template<class T> T	Max( T x, T y )
+template<class T> T	VMax( T x, T y )
 {
 	return ( x > y ) ? x : y;
 }
-template<class T> T	Min( T x, T y )
+template<class T> T	VMin( T x, T y )
 {
 	return ( x < y ) ? x : y;
 }
 
 #define VMA_IMPLEMENTATION
-#define VMA_MAX( v1, v2 ) Max( (v1), (v2) )
-#define VMA_MIN( v1, v2 ) Min( (v1), (v2) )
+#define VMA_MAX( v1, v2 ) VMax( (v1), (v2) )
+#define VMA_MIN( v1, v2 ) VMin( (v1), (v2) )
 #include "vma.h"

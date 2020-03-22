@@ -395,10 +395,11 @@ static int CompileGLSLtoSPIRV( const char* filename, const idStr& dataGLSL, cons
 }
 #else
 
-#include <glslang/public/ShaderLang.h>
+#include <glslang/Public/ShaderLang.h>
 #include <glslang/Include/ResourceLimits.h>
 #include <SPIRV/GlslangToSpv.h>
-#include <StandAlone/DirStackFileIncluder.h>
+
+//#include <glslang/StandAlone/DirStackFileIncluder.h>
 
 namespace glslang
 {
@@ -406,7 +407,7 @@ namespace glslang
 // These are the default resources for TBuiltInResources, used for both
 //  - parsing this string for the case where the user didn't supply one,
 //  - dumping out a template for user construction of a config file.
-#if 0
+#if 1
 extern const TBuiltInResource DefaultTBuiltInResource;
 #else
 
@@ -581,7 +582,7 @@ static int CompileGLSLtoSPIRV( const char* filename, const idStr& dataGLSL, cons
 		idLib::Printf( "%s\n", shader.getInfoDebugLog() );
 	}
 
-	// All that’s left to do now is to convert the program’s intermediate representation into SpirV:
+	// All thatï¿½s left to do now is to convert the programï¿½s intermediate representation into SpirV:
 	std::vector<unsigned int>	spirV;
 	spv::SpvBuildLogger			logger;
 	glslang::SpvOptions			spvOptions;

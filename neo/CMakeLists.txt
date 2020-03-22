@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8) # Eric: These are rookie numbers, you need to bump those numbers up.
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 project(RBDoom3BFG)
@@ -86,6 +86,13 @@ if (FORCE_COLOR_OUTPUT)
 	endif ()
 endif ()
 
+# Eric: Hard dependency on SDL2 for the Vulkan renderer on Linux
+if(UNIX)
+	if(USE_VULKAN)
+		SET(SDL2 ON)
+	endif()
+endif()
+
 if(MSVC)
 	#message(STATUS CMAKE_ROOT: ${CMAKE_ROOT})
 	
@@ -163,7 +170,7 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
 	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3 -ffast-math -fno-unsafe-math-optimizations -fomit-frame-pointer")
 	set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} -g -O3 -ffast-math -fno-unsafe-math-optimizations -fomit-frame-pointer")
 	set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -Os -ffast-math -fno-unsafe-math-optimizations -fomit-frame-pointer")
-
+	
 	set(CMAKE_CXX_FLAGS_DEBUG ${CMAKE_C_FLAGS_DEBUG})
 	#set(CMAKE_CXX_FLAGS_DEBUGALL ${CMAKE_C_FLAGS_DEBUGALL})
 	#set(CMAKE_CXX_FLAGS_PROFILE ${CMAKE_C_FLAGS_PROFILE})
@@ -318,8 +325,7 @@ if(USE_VULKAN)
 		message( STATUS "Using module to find Vulkan" )
 		find_package(Vulkan)
 	endif()
-	
-	
+
 	if(NOT Vulkan_FOUND)
 		message(FATAL_ERROR "Could not find Vulkan library!")
 	else()
@@ -327,8 +333,21 @@ if(USE_VULKAN)
 	endif()
 	
 	add_definitions(-DUSE_VULKAN)
-	include_directories($ENV{VULKAN_SDK}/Include)
-	
+	include_directories($ENV{VULKAN_SDK}/include)
+
+	# Eric: For use with SDL2/Vulkan
+	if(UNIX)
+		find_package(X11_XCB)
+		if(X11_XCB_FOUND)
+			add_definitions(-DHAVE_X11_XCB)
+			list(APPEND SUBSYSTEMS [X11])
+			include_directories(${X11_XCB_INCLUDE_DIRS})
+		endif()
+		add_definitions(-DVK_USE_PLATFORM_XLIB_KHR)
+	elseif(WIN32)
+		add_definitions(-DVK_USE_PLATFORM_WIN32_KHR)
+	endif()
+
 	if(SPIRV_SHADERC)
 		add_definitions(-DSPIRV_SHADERC)
 
@@ -343,7 +362,7 @@ if(USE_VULKAN)
 		
 		# options required by November 2018 release
 		SET_OPTION(ENABLE_SPVREMAPPER OFF)
-		SET_OPTION(ENABLE_GLSLANG_BINARIES OFF)
+		SET_OPTION(ENABLE_GLSLANG_BINARIES ON)
 		SET_OPTION(ENABLE_HLSL OFF)
 		SET_OPTION(ENABLE_OPT ON)
 		SET_OPTION(SPIRV_SKIP_EXECUTABLES ON)
@@ -357,7 +376,7 @@ if(USE_VULKAN)
 		set(GLSLANG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/extern/glslang)
 		add_subdirectory(${GLSLANG_DIR})
 	
-		include_directories(${GLSLANG_DIR}/glslang)
+		include_directories(${GLSLANG_DIR})
 	endif()
 
 else()
@@ -398,6 +417,7 @@ else (RAPIDJSON_FOUND)
 endif (RAPIDJSON_FOUND)
 
 
+	
 add_subdirectory(idlib)
 
 file(GLOB AAS_INCLUDES aas/*.h)
@@ -536,6 +556,7 @@ endif()
 
 file(GLOB MINIZIP_INCLUDES libs/zlib/minizip/*.h)
 file(GLOB MINIZIP_SOURCES libs/zlib/minizip/*.c libs/zlib/minizip/*.cpp)
+	
 
 set(FREETYPE_SOURCES
 	libs/freetype/src/autofit/autofit.c
@@ -761,6 +782,7 @@ file(GLOB GAMED3XP_PHYSICS_SOURCES d3xp/physics/*.cpp)
 
 file(GLOB GAMED3XP_SCRIPT_INCLUDES d3xp/script/*.h)
 file(GLOB GAMED3XP_SCRIPT_SOURCES d3xp/script/*.cpp)
+
 
 file(GLOB COMPILER_INCLUDES tools/compilers/*.h)
 
@@ -991,22 +1013,28 @@ file(GLOB COMMON_SOURCES sys/common/*.cpp)
 file(GLOB SDL_INCLUDES sys/sdl/*.h)
 file(GLOB SDL_SOURCES sys/sdl/*.cpp)
 
+# Eric: Utilize either the Vulkan or GL implementation of SDL
+if(UNIX)
+	if(USE_VULKAN)
+		get_filename_component(sdl_glimp_cpp_full_path ${CMAKE_CURRENT_SOURCE_DIR}/sys/sdl/sdl_glimp.cpp ABSOLUTE)
+		list(REMOVE_ITEM SDL_SOURCES "${sdl_glimp_cpp_full_path}")
+	else()
+		get_filename_component(sdl_vkimp_cpp_full_path ${CMAKE_CURRENT_SOURCE_DIR}/sys/sdl/sdl_vkimp.cpp ABSOLUTE)
+		list(REMOVE_ITEM SDL_SOURCES "${sdl_vkimp_cpp_full_path}")
+	endif()
+endif()
 
 source_group("aas" FILES ${AAS_INCLUDES})
 source_group("aas" FILES ${AAS_SOURCES})
 
-
 source_group("cm" FILES ${CM_INCLUDES})
 source_group("cm" FILES ${CM_SOURCES})
-
 
 source_group("framework" FILES ${FRAMEWORK_INCLUDES})
 source_group("framework" FILES ${FRAMEWORK_SOURCES})
 
-
 source_group("imgui" FILES ${FRAMEWORK_IMGUI_INCLUDES})
 source_group("imgui" FILES ${FRAMEWORK_IMGUI_SOURCES})
-
 
 source_group("renderer" FILES ${RENDERER_INCLUDES})
 source_group("renderer" FILES ${RENDERER_SOURCES})
@@ -1039,7 +1067,6 @@ source_group("renderer\\SMAA" FILES ${RENDERER_SMAA_INCLUDES})
 
 source_group("renderer\\Shaders" FILES ${SHADERS})
 
-
 source_group("libs\\irrxml" FILES ${IRRXML_INCLUDES})
 source_group("libs\\irrxml" FILES ${IRRXML_SOURCES})
 
@@ -1068,7 +1095,6 @@ source_group("libs\\rapidjson" FILES ${RAPIDJSON_INCLUDES})
 
 source_group("libs\\freetype" FILES ${FREETYPE_SOURCES})
 
-
 source_group("sound" FILES ${SOUND_INCLUDES})
 source_group("sound" FILES ${SOUND_SOURCES})
 
@@ -1084,18 +1110,14 @@ source_group("sound\\stub" FILES ${STUBAUDIO_SOURCES})
 source_group("libs\\oggvorbis" FILES ${OGGVORBIS_INCLUDES})
 source_group("libs\\oggvorbis" FILES ${OGGVORBIS_SOURCES})
 
-
 source_group("ui" FILES ${UI_INCLUDES})
 source_group("ui" FILES ${UI_SOURCES})
-
 
 source_group("swf" FILES ${SWF_INCLUDES})
 source_group("swf" FILES ${SWF_SOURCES})
 
-
 source_group("sys" FILES ${SYS_INCLUDES})
 source_group("sys" FILES ${SYS_SOURCES})
-
 
 source_group("doomclassic" FILES ${DOOMCLASSIC_INCLUDES})
 source_group("doomclassic" FILES ${DOOMCLASSIC_SOURCES})
@@ -1103,7 +1125,6 @@ source_group("doomclassic" FILES ${DOOMCLASSIC_SOURCES})
 source_group("doomclassic" FILES ${DOOMCLASSIC_STUBAUDIO_SOURCES})
 source_group("doomclassic" FILES ${DOOMCLASSIC_OPENAL_SOURCES})
 source_group("doomclassic" FILES ${DOOMCLASSIC_XAUDIO2_SOURCES})
-
 
 source_group("libs\\timidity" FILES ${TIMIDITY_INCLUDES})
 source_group("libs\\timidity" FILES ${TIMIDITY_SOURCES})
@@ -1129,6 +1150,8 @@ source_group("game-d3xp\\physics" FILES ${GAMED3XP_PHYSICS_SOURCES})
 
 source_group("game-d3xp\\script" FILES ${GAMED3XP_SCRIPT_INCLUDES})
 source_group("game-d3xp\\script" FILES ${GAMED3XP_SCRIPT_SOURCES})
+
+
 
 
 source_group("sys\\win32" FILES ${WIN32_INCLUDES})
@@ -1558,6 +1581,7 @@ if(MSVC)
 	endif()
 	
 else()
+
 	list(APPEND RBDOOM3_SOURCES
 		${SYS_INCLUDES} ${SYS_SOURCES})
 	
@@ -1622,10 +1646,11 @@ else()
             
             set(Vulkan_LIBRARIES
                 ${Vulkan_LIBRARY}
+				${X11_XCB_LIBRARIES}
                 glslang
                 SPIRV
                 )
-                
+
             if(ENABLE_GLSLANG_BINARIES)
                 list(APPEND Vulkan_LIBRARIES glslang-default-resource-limits)
             endif()
@@ -1638,7 +1663,7 @@ else()
 	endif()
 
 	list(REMOVE_DUPLICATES RBDOOM3_SOURCES)
-
+	
 	if(USE_PRECOMPILED_HEADERS) 	
 		set(RBDOOM3_PRECOMPILED_SOURCES ${RBDOOM3_SOURCES})
 		list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${TIMIDITY_SOURCES} ${JPEG_SOURCES} ${PNG_SOURCES} ${ZLIB_SOURCES} ${GLEW_SOURCES} ${BINKDEC_SOURCES} ${IMGUI_SOURCES})
@@ -1669,11 +1694,11 @@ else()
 			LIST(APPEND _compiler_FLAGS " -I${item}")
 		ENDFOREACH(item)
 	endif()
-
+		
 	GET_DIRECTORY_PROPERTY(_directory_flags DEFINITIONS)
 	LIST(APPEND _compiler_FLAGS ${_directory_flags})
 	SEPARATE_ARGUMENTS(_compiler_FLAGS)
-
+	
 	if(USE_PRECOMPILED_HEADERS)
 		# we need to recreate the precompiled header for RBDoom3BFG 
 		# (i.e. can't use the one created for idlib before)
@@ -1704,7 +1729,7 @@ else()
 		# make sure this is run after creating idlib
 		add_dependencies(precomp_header_rbdoom3bfg idlib)
 	endif()
-	
+
 	add_executable(RBDoom3BFG WIN32 ${RBDOOM3_SOURCES})
 
 	if (USE_PRECOMPILED_HEADERS)
@@ -1722,6 +1747,7 @@ else()
 
 		target_link_libraries(RBDoom3BFG
 			idlib
+			${Vulkan_LIBRARIES}
 			${OPENGL_LIBRARIES}
 			pthread
 			${RT_LIBRARY}
@@ -1732,8 +1758,8 @@ else()
             ${PNG_LIBRARY}
             ${JPEG_LIBRARY}
             ${GLEW_LIBRARY}
-	    ${CMAKE_DL_LIBS}
+	    	${CMAKE_DL_LIBS}
 			)
 	endif()
-
+    
 endif()
