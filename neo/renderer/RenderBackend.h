@@ -148,9 +148,9 @@ struct gpuInfo_t
 
 struct vulkanContext_t
 {
-    // Eric: If on linux, use this to pass SDL_Window pointer to the SDL_Vulkan_* methods not in sdl_vkimp.cpp file.
+	// Eric: If on linux, use this to pass SDL_Window pointer to the SDL_Vulkan_* methods not in sdl_vkimp.cpp file.
 #if defined(__linux__)
-    SDL_Window* sdlWindow = nullptr;
+	SDL_Window* sdlWindow = nullptr;
 #endif
 	uint64							frameCounter;
 	uint32							frameParity;

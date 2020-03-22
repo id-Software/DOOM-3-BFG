@@ -1956,7 +1956,7 @@ template<typename T, typename AllocatorT>
 class VmaList
 {
 public:
-    class const_iterator;
+	class const_iterator;
 	class iterator
 	{
 	public:

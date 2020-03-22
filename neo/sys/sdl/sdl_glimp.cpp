@@ -101,9 +101,9 @@ GLimp_Init
 */
 bool GLimp_Init( glimpParms_t parms )
 {
-    #ifdef USE_VULKAN
-    return true;
-    #endif
+#ifdef USE_VULKAN
+	return true;
+#endif
 
 	common->Printf( "Initializing OpenGL subsystem\n" );
 
@@ -485,7 +485,7 @@ GLimp_SetScreenParms
 bool GLimp_SetScreenParms( glimpParms_t parms )
 {
 #ifdef USE_VULKAN
-    return true;
+	return true;
 #endif
 
 #if SDL_VERSION_ATLEAST(2, 0, 0)
@@ -567,7 +567,7 @@ void GLimp_Shutdown()
 {
 #ifdef USE_VULKAN
 	common->Printf( "Shutting down Vulkan subsystem\n" );
-    return;
+	return;
 #else
 	common->Printf( "Shutting down OpenGL subsystem\n" );
 #endif

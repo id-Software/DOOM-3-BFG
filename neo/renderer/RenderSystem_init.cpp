@@ -414,9 +414,9 @@ void R_SetNewMode( const bool fullInit )
 		{
 			// create the context as well as setting up the window
 #if defined(__linux__) && defined(USE_VULKAN)
-            if( VKimp_Init( parms ) )
+			if( VKimp_Init( parms ) )
 #else
-            if( GLimp_Init( parms ) )
+			if( GLimp_Init( parms ) )
 #endif
 			{
 				// it worked
@@ -431,7 +431,7 @@ void R_SetNewMode( const bool fullInit )
 		{
 			// just rebuild the window
 #if defined(__linux__) && defined(USE_VULKAN)
-            if(VKimp_SetScreenParms( parms ))
+			if( VKimp_SetScreenParms( parms ) )
 #else
 			if( GLimp_SetScreenParms( parms ) )
 #endif
@@ -1709,7 +1709,7 @@ void R_SetColorMappings()
 		tr.gammaTable[i] = idMath::ClampInt( 0, 0xFFFF, inf );
 	}
 #if defined(__linux__) && defined(USE_VULKAN)
-	VKimp_SetGamma( tr.gammaTable, tr.gammaTable, tr.gammaTable);
+	VKimp_SetGamma( tr.gammaTable, tr.gammaTable, tr.gammaTable );
 #else
 	GLimp_SetGamma( tr.gammaTable, tr.gammaTable, tr.gammaTable );
 #endif

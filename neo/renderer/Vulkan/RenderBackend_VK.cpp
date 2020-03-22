@@ -32,7 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 
 #if 0 // defined(__linux__)
-#include "../../sys/posix/posix_public.h"
+	#include "../../sys/posix/posix_public.h"
 #endif
 
 #include "../RenderCommon.h"
@@ -56,7 +56,7 @@ static const int g_numInstanceExtensions = 2;
 static const char* g_instanceExtensions[ g_numInstanceExtensions ] =
 {
 	VK_KHR_SURFACE_EXTENSION_NAME,
-    VK_KHR_WIN32_SURFACE_EXTENSION_NAME
+	VK_KHR_WIN32_SURFACE_EXTENSION_NAME
 };
 #endif
 
@@ -286,8 +286,8 @@ static void CreateVulkanInstance()
 		ValidateValidationLayers();
 	}
 #if defined(__linux__)
-	auto extensions = get_required_extensions(sdlInstanceExtensions, enableLayers);
-	createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
+	auto extensions = get_required_extensions( sdlInstanceExtensions, enableLayers );
+	createInfo.enabledExtensionCount = static_cast<uint32_t>( extensions.size() );
 	createInfo.ppEnabledExtensionNames = extensions.data();
 #else
 	createInfo.enabledExtensionCount = vkcontext.instanceExtensions.Num();
@@ -316,7 +316,7 @@ static void EnumeratePhysicalDevices()
 	ID_VK_CHECK( vkEnumeratePhysicalDevices( vkcontext.instance, &numDevices, NULL ) );
 	ID_VK_VALIDATE( numDevices > 0, "vkEnumeratePhysicalDevices returned zero devices." );
 
-    idLib::Printf("found %u devices\n", numDevices);
+	idLib::Printf( "found %u devices\n", numDevices );
 
 	idList< VkPhysicalDevice > devices;
 	devices.SetNum( numDevices );
@@ -328,15 +328,15 @@ static void EnumeratePhysicalDevices()
 
 	for( uint32 i = 0; i < numDevices; ++i )
 	{
-        idLib::Printf("Iterating over gpu %u\n", i);
+		idLib::Printf( "Iterating over gpu %u\n", i );
 		gpuInfo_t& gpu = vkcontext.gpus[ i ];
-        idLib::Printf("have gpuInfo_t ref at %p\n", &vkcontext.gpus[i]);
+		idLib::Printf( "have gpuInfo_t ref at %p\n", &vkcontext.gpus[i] );
 		gpu.device = devices[ i ];
-        idLib::Printf("set gpu.device\n");
+		idLib::Printf( "set gpu.device\n" );
 
 		// get Queue family properties
 		{
-            idLib::Printf("Getting queue family props...\n");
+			idLib::Printf( "Getting queue family props...\n" );
 			uint32 numQueues = 0;
 			vkGetPhysicalDeviceQueueFamilyProperties( gpu.device, &numQueues, NULL );
 			ID_VK_VALIDATE( numQueues > 0, "vkGetPhysicalDeviceQueueFamilyProperties returned zero queues." );
@@ -348,7 +348,7 @@ static void EnumeratePhysicalDevices()
 
 		// grab available Vulkan extensions
 		{
-            idLib::Printf("Getting available vulkan extensions...\n");
+			idLib::Printf( "Getting available vulkan extensions...\n" );
 			uint32 numExtension;
 			ID_VK_CHECK( vkEnumerateDeviceExtensionProperties( gpu.device, NULL, &numExtension, NULL ) );
 			ID_VK_VALIDATE( numExtension > 0, "vkEnumerateDeviceExtensionProperties returned zero extensions." );
@@ -440,14 +440,15 @@ static void CreateSurface()
 
 #else
 #if defined(__linux__)
-    if(!SDL_Vulkan_CreateSurface(vkcontext.sdlWindow, vkcontext.instance, &vkcontext.surface)) {
-        idLib::FatalError("Error while creating Vulkan surface: %s", SDL_GetError());
-    }
+	if( !SDL_Vulkan_CreateSurface( vkcontext.sdlWindow, vkcontext.instance, &vkcontext.surface ) )
+	{
+		idLib::FatalError( "Error while creating Vulkan surface: %s", SDL_GetError() );
+	}
 #else
 	VkXcbSurfaceCreateInfoKHR createInfo = {};
 	createInfo.sType = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;
 	createInfo.pNext = NULL;
-    createInfo.flags = 0;
+	createInfo.flags = 0;
 	createInfo.connection = info.connection;
 	createInfo.window = info.window;
 
@@ -566,17 +567,17 @@ static void SelectPhysicalDevice()
 			switch( gpu.props.vendorID )
 			{
 				case 0x8086:
-					idLib::Printf( "Device[%i] : Vendor: Intel \n", i);
+					idLib::Printf( "Device[%i] : Vendor: Intel \n", i );
 					glConfig.vendor = VENDOR_INTEL;
 					break;
 
 				case 0x10DE:
-					idLib::Printf( "Device[%i] : Vendor: NVIDIA\n", i);
+					idLib::Printf( "Device[%i] : Vendor: NVIDIA\n", i );
 					glConfig.vendor = VENDOR_NVIDIA;
 					break;
 
 				case 0x1002:
-					idLib::Printf( "Device[%i] : Vendor: AMD\n", i);
+					idLib::Printf( "Device[%i] : Vendor: AMD\n", i );
 					glConfig.vendor = VENDOR_AMD;
 					break;
 
@@ -722,20 +723,20 @@ static VkExtent2D ChooseSurfaceExtent( VkSurfaceCapabilitiesKHR& caps )
 {
 	VkExtent2D extent;
 
-    int width;
-    int height;
-    SDL_Vulkan_GetDrawableSize(vkcontext.sdlWindow, &width, &height);
-    width = CLAMP(width, caps.minImageExtent.width, caps.maxImageExtent.width);
-    height = CLAMP(height, caps.minImageExtent.height, caps.maxImageExtent.height);
+	int width;
+	int height;
+	SDL_Vulkan_GetDrawableSize( vkcontext.sdlWindow, &width, &height );
+	width = CLAMP( width, caps.minImageExtent.width, caps.maxImageExtent.width );
+	height = CLAMP( height, caps.minImageExtent.height, caps.maxImageExtent.height );
 
-    if( caps.currentExtent.width == -1 )
+	if( caps.currentExtent.width == -1 )
 	{
 		extent.width = width;
 		extent.height = height;
 	}
 	else
 	{
-        extent = caps.currentExtent;
+		extent = caps.currentExtent;
 	}
 
 	return extent;
@@ -826,7 +827,7 @@ DestroySwapChain
 static void DestroySwapChain()
 {
 
-    for( uint32 i = 0; i < NUM_FRAME_DATA; ++i )
+	for( uint32 i = 0; i < NUM_FRAME_DATA; ++i )
 	{
 		vkDestroyImageView( vkcontext.device, vkcontext.swapchainViews[ i ], NULL );
 	}
@@ -985,18 +986,18 @@ static void CreateRenderTargets()
 									VK_IMAGE_TILING_OPTIMAL,
 									VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT );
 	}
-    idImageOpts depthOptions;
-    depthOptions.format = FMT_DEPTH;
+	idImageOpts depthOptions;
+	depthOptions.format = FMT_DEPTH;
 
-    // Eric: See if this fixes resizing
+	// Eric: See if this fixes resizing
 #if defined(__linux__)
-    gpuInfo_t& gpu = *vkcontext.gpu;
-    VkExtent2D extent = ChooseSurfaceExtent( gpu.surfaceCaps );
+	gpuInfo_t& gpu = *vkcontext.gpu;
+	VkExtent2D extent = ChooseSurfaceExtent( gpu.surfaceCaps );
 
-    depthOptions.width = extent.width;
-    depthOptions.height = extent.height;
+	depthOptions.width = extent.width;
+	depthOptions.height = extent.height;
 #else
-    depthOptions.width = renderSystem->GetWidth();
+	depthOptions.width = renderSystem->GetWidth();
 	depthOptions.height = renderSystem->GetHeight();
 #endif
 
@@ -1304,12 +1305,12 @@ void idRenderBackend::Init()
 		idLib::FatalError( "R_InitVulkan called while active" );
 	}
 
-	
+
 	// DG: make sure SDL has setup video so getting supported modes in R_SetNewMode() works
 #if defined(__linux__) && defined(USE_VULKAN)
-    VKimp_PreInit();
+	VKimp_PreInit();
 #else
-    GLimp_PreInit();
+	GLimp_PreInit();
 #endif
 	// DG end
 
@@ -1482,7 +1483,7 @@ void idRenderBackend::Shutdown()
 
 	// destroy main window
 #if defined(__linux__) && defined(USE_VULKAN)
-    VKimp_Shutdown();
+	VKimp_Shutdown();
 #else
 	GLimp_Shutdown();
 #endif
@@ -1747,23 +1748,24 @@ idRenderBackend::GL_StartFrame
 */
 void idRenderBackend::GL_StartFrame()
 {
-    // Eric: Since VK_SUBOPTIMAL_KHR is not a hard fault and VK_ERROR_OUT_OF_DATE_KHR means the window is being resized (or other stuff) handle them instead of killing the app.
-    VkResult result = vkAcquireNextImageKHR( vkcontext.device, vkcontext.swapchain, UINT64_MAX, vkcontext.acquireSemaphores[ vkcontext.frameParity ], VK_NULL_HANDLE, &vkcontext.currentSwapIndex );
-    switch (result) {
-        case VK_SUCCESS:
-        case VK_SUBOPTIMAL_KHR:
-            break;
-        case VK_ERROR_OUT_OF_DATE_KHR:
-            DestroySwapChain();
-            CreateSwapChain();
-            return;
-            // return on_window_size_changed();
-            break;
-        default:
-            idLib::FatalError("VK: %s - %s", VK_ErrorToString(result),
-                              "vkAcquireNextImageKHR( vkcontext.device, vkcontext.swapchain, UINT64_MAX, vkcontext.acquireSemaphores[ vkcontext.frameParity ], VK_NULL_HANDLE, &vkcontext.currentSwapIndex )");
-            return;
-    }
+	// Eric: Since VK_SUBOPTIMAL_KHR is not a hard fault and VK_ERROR_OUT_OF_DATE_KHR means the window is being resized (or other stuff) handle them instead of killing the app.
+	VkResult result = vkAcquireNextImageKHR( vkcontext.device, vkcontext.swapchain, UINT64_MAX, vkcontext.acquireSemaphores[ vkcontext.frameParity ], VK_NULL_HANDLE, &vkcontext.currentSwapIndex );
+	switch( result )
+	{
+		case VK_SUCCESS:
+		case VK_SUBOPTIMAL_KHR:
+			break;
+		case VK_ERROR_OUT_OF_DATE_KHR:
+			DestroySwapChain();
+			CreateSwapChain();
+			return;
+			// return on_window_size_changed();
+			break;
+		default:
+			idLib::FatalError( "VK: %s - %s", VK_ErrorToString( result ),
+							   "vkAcquireNextImageKHR( vkcontext.device, vkcontext.swapchain, UINT64_MAX, vkcontext.acquireSemaphores[ vkcontext.frameParity ], VK_NULL_HANDLE, &vkcontext.currentSwapIndex )" );
+			return;
+	}
 	// ID_VK_CHECK( vkAcquireNextImageKHR( vkcontext.device, vkcontext.swapchain, UINT64_MAX, vkcontext.acquireSemaphores[ vkcontext.frameParity ], VK_NULL_HANDLE, &vkcontext.currentSwapIndex ) );
 
 	idImage::EmptyGarbage();
@@ -1887,22 +1889,23 @@ void idRenderBackend::GL_BlockingSwapBuffers()
 
 	// Eric: // Eric: Since VK_SUBOPTIMAL_KHR and VK_ERROR_OUT_OF_DATE_KHR here means
 	// the window is being resized (or other stuff) handle them instead of killing the app.
-    VkResult result = vkQueuePresentKHR( vkcontext.presentQueue, &presentInfo );
-    switch (result) {
-        case VK_SUCCESS:
-            break;
-        case VK_ERROR_OUT_OF_DATE_KHR:
-        case VK_SUBOPTIMAL_KHR:
-            // return on_window_size_changed(); Eric: Handle resizing the window.
-            DestroySwapChain();
-            CreateSwapChain();
-            return;
-            break;
-        default:
-            idLib::FatalError("VK: %s - %s", VK_ErrorToString(result),
-                              "vkQueuePresentKHR( vkcontext.presentQueue, &presentInfo )");
-            return;
-    }
+	VkResult result = vkQueuePresentKHR( vkcontext.presentQueue, &presentInfo );
+	switch( result )
+	{
+		case VK_SUCCESS:
+			break;
+		case VK_ERROR_OUT_OF_DATE_KHR:
+		case VK_SUBOPTIMAL_KHR:
+			// return on_window_size_changed(); Eric: Handle resizing the window.
+			DestroySwapChain();
+			CreateSwapChain();
+			return;
+			break;
+		default:
+			idLib::FatalError( "VK: %s - %s", VK_ErrorToString( result ),
+							   "vkQueuePresentKHR( vkcontext.presentQueue, &presentInfo )" );
+			return;
+	}
 
 	// ID_VK_CHECK( vkQueuePresentKHR( vkcontext.presentQueue, &presentInfo ) );
 

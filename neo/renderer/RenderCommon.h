@@ -1193,7 +1193,7 @@ struct glimpParms_t
 
 #define CLAMP(x, lo, hi)    ((x) < (lo) ? (lo) : (x) > (hi) ? (hi) : (x))
 // Helper function for using SDL2 and Vulkan on Linux.
-std::vector<const char*> get_required_extensions(const std::vector<const char*>& instanceExtensions, bool enableValidationLayers);
+std::vector<const char*> get_required_extensions( const std::vector<const char*>& instanceExtensions, bool enableValidationLayers );
 
 const std::vector<const char*> sdlInstanceExtensions = {};
 
@@ -1220,8 +1220,8 @@ void		VKimp_Shutdown();
 // These are now taken as 16 bit values, so we can take full advantage
 // of dacs with >8 bits of precision
 void		VKimp_SetGamma( unsigned short red[256],
-                            unsigned short green[256],
-                            unsigned short blue[256] );
+							unsigned short green[256],
+							unsigned short blue[256] );
 #else
 // DG: R_GetModeListForDisplay is called before GLimp_Init(), but SDL needs SDL_Init() first.
 // So add PreInit for platforms that need it, others can just stub it.

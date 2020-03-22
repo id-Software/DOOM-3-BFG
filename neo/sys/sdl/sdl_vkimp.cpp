@@ -71,35 +71,39 @@ static SDL_Window* window = nullptr;
 
 // Eric: Integrate this into RBDoom3BFG's source code ecosystem.
 // Helper function for using SDL2 and Vulkan on Linux.
-std::vector<const char*> get_required_extensions(const std::vector<const char*>& instanceExtensions, bool enableValidationLayers)
+std::vector<const char*> get_required_extensions( const std::vector<const char*>& instanceExtensions, bool enableValidationLayers )
 {
-    uint32_t                 sdlCount = 0;
-    std::vector<const char*> sdlInstanceExtensions;
+	uint32_t                 sdlCount = 0;
+	std::vector<const char*> sdlInstanceExtensions;
 
-    SDL_Vulkan_GetInstanceExtensions(nullptr, &sdlCount, nullptr);
-    sdlInstanceExtensions.resize(sdlCount);
-    SDL_Vulkan_GetInstanceExtensions(nullptr, &sdlCount, sdlInstanceExtensions.data());
+	SDL_Vulkan_GetInstanceExtensions( nullptr, &sdlCount, nullptr );
+	sdlInstanceExtensions.resize( sdlCount );
+	SDL_Vulkan_GetInstanceExtensions( nullptr, &sdlCount, sdlInstanceExtensions.data() );
 
-    if (enableValidationLayers) {
-        idLib::Printf("\nNumber of availiable instance extensions\t%i\n", sdlCount);
-        idLib::Printf( "Available Extension List: \n");
-        for (auto ext : sdlInstanceExtensions) {
-            idLib::Printf( "\t%s\n", ext);
-        }
-    }
+	if( enableValidationLayers )
+	{
+		idLib::Printf( "\nNumber of availiable instance extensions\t%i\n", sdlCount );
+		idLib::Printf( "Available Extension List: \n" );
+		for( auto ext : sdlInstanceExtensions )
+		{
+			idLib::Printf( "\t%s\n", ext );
+		}
+	}
 
-    if (enableValidationLayers) {
-        sdlInstanceExtensions.push_back("VK_EXT_debug_report");
-        sdlInstanceExtensions.push_back("VK_EXT_debug_utils");
+	if( enableValidationLayers )
+	{
+		sdlInstanceExtensions.push_back( "VK_EXT_debug_report" );
+		sdlInstanceExtensions.push_back( "VK_EXT_debug_utils" );
 
-        idLib::Printf("Number of active instance extensions\t%zu\n",sdlInstanceExtensions.size());
-        idLib::Printf( "Active Extension List: \n");
-        for (auto const& ext : sdlInstanceExtensions) {
-            idLib::Printf("\t%s\n",ext);
-        }
-    }
+		idLib::Printf( "Number of active instance extensions\t%zu\n", sdlInstanceExtensions.size() );
+		idLib::Printf( "Active Extension List: \n" );
+		for( auto const& ext : sdlInstanceExtensions )
+		{
+			idLib::Printf( "\t%s\n", ext );
+		}
+	}
 
-    return sdlInstanceExtensions;
+	return sdlInstanceExtensions;
 }
 
 /*
@@ -133,7 +137,7 @@ bool VKimp_Init( glimpParms_t parms )
 
 	common->Printf( "Initializing Vulkan subsystem\n" );
 
-    VKimp_PreInit(); // DG: make sure SDL is initialized
+	VKimp_PreInit(); // DG: make sure SDL is initialized
 
 	// DG: make window resizable
 	Uint32 flags = SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE;
@@ -458,7 +462,7 @@ VKimp_Shutdown
 */
 void VKimp_Shutdown()
 {
-    common->Printf( "Shutting down Vulkan subsystem\n" );
+	common->Printf( "Shutting down Vulkan subsystem\n" );
 
 	if( window )
 	{

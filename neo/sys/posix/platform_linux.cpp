@@ -50,7 +50,7 @@ static int cmdargc = 0;
 #endif
 
 #if 0 // defined(USE_VULKAN)
-#include <xcb/xcb.h>
+	#include <xcb/xcb.h>
 #endif
 
 /*
@@ -523,57 +523,59 @@ void Sys_ReLaunch()
 /* Declare the global posixInfo */
 posixInfo info;
 
-static void createWindow(size_t winWidth, size_t winHeight)
+static void createWindow( size_t winWidth, size_t winHeight )
 {
-    /* establish the connection with DISPLAYNAME as NULL,
-     * this will leverage the DISPLAY env var */
-    int screenp = 0;  /* which "screen" to use */
-    info.connection = xcb_connect(NULL, &screenp);
+	/* establish the connection with DISPLAYNAME as NULL,
+	 * this will leverage the DISPLAY env var */
+	int screenp = 0;  /* which "screen" to use */
+	info.connection = xcb_connect( NULL, &screenp );
 
-    /* Check for errors */
-    int xcbErr = xcb_connection_has_error(info.connection);
+	/* Check for errors */
+	int xcbErr = xcb_connection_has_error( info.connection );
 
-    if (xcbErr) {
-        common->Printf("Failed to connect to X server using XCB.");
-        exit(-1);
-    }
+	if( xcbErr )
+	{
+		common->Printf( "Failed to connect to X server using XCB." );
+		exit( -1 );
+	}
 
-    /* Setup the window, iterating through screens */
-    const struct xcb_setup_t *xcbSetup = NULL;
-    xcbSetup = xcb_get_setup(info.connection);
+	/* Setup the window, iterating through screens */
+	const struct xcb_setup_t* xcbSetup = NULL;
+	xcbSetup = xcb_get_setup( info.connection );
 
-    xcb_screen_iterator_t scrIter = xcb_setup_roots_iterator(xcbSetup);
+	xcb_screen_iterator_t scrIter = xcb_setup_roots_iterator( xcbSetup );
 
-    for (int screen = screenp; screen > 0; --screen) {
-        xcb_screen_next(&scrIter);
-    }
+	for( int screen = screenp; screen > 0; --screen )
+	{
+		xcb_screen_next( &scrIter );
+	}
 
-    info.screen = scrIter.data;
+	info.screen = scrIter.data;
 
-    /* Now generate the xid used for our window */
-    info.window = xcb_generate_id(info.connection);
+	/* Now generate the xid used for our window */
+	info.window = xcb_generate_id( info.connection );
 
-    /* Register events, creating background pixel */
-    uint32_t eventMask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
-    uint32_t valueList[] = { info.screen->black_pixel, 0 };
+	/* Register events, creating background pixel */
+	uint32_t eventMask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
+	uint32_t valueList[] = { info.screen->black_pixel, 0 };
 
-    /* Create the window, finally */
-    xcb_create_window(info.connection, XCB_COPY_FROM_PARENT, info.window,
-                      info.screen->root, 0, 0, winWidth, winHeight, 0, 
-                      XCB_WINDOW_CLASS_INPUT_OUTPUT, info.screen->root_visual,
-                      eventMask, valueList);
+	/* Create the window, finally */
+	xcb_create_window( info.connection, XCB_COPY_FROM_PARENT, info.window,
+					   info.screen->root, 0, 0, winWidth, winHeight, 0,
+					   XCB_WINDOW_CLASS_INPUT_OUTPUT, info.screen->root_visual,
+					   eventMask, valueList );
 
-    /* Set some properties, such as the window name, maybe? */
-    xcb_change_property(info.connection, XCB_PROP_MODE_REPLACE,
-                        info.window, XCB_ATOM_WM_NAME, XCB_ATOM_STRING,
-                        8, 7, "vkRBDoom3BFG");
+	/* Set some properties, such as the window name, maybe? */
+	xcb_change_property( info.connection, XCB_PROP_MODE_REPLACE,
+						 info.window, XCB_ATOM_WM_NAME, XCB_ATOM_STRING,
+						 8, 7, "vkRBDoom3BFG" );
 
-    /* map the window to the screen and flush the stream to the server */
-    xcb_map_window(info.connection, info.window);
-    xcb_flush(info.connection);
+	/* map the window to the screen and flush the stream to the server */
+	xcb_map_window( info.connection, info.window );
+	xcb_flush( info.connection );
 
-    glConfig.nativeScreenWidth = winWidth;
-    glConfig.nativeScreenHeight = winHeight;
+	glConfig.nativeScreenWidth = winWidth;
+	glConfig.nativeScreenHeight = winHeight;
 
 }
 #endif
@@ -596,10 +598,10 @@ int main( int argc, const char** argv )
 #endif
 
 #if 0 // defined(USE_VULKAN)
-    /* Create the window if using Vulkan */
-    xcb_generic_event_t *event;
-    xcb_client_message_event_t *cm;
-    createWindow(1280, 720);
+	/* Create the window if using Vulkan */
+	xcb_generic_event_t* event;
+	xcb_client_message_event_t* cm;
+	createWindow( 1280, 720 );
 #endif
 
 	Posix_EarlyInit( );
@@ -619,11 +621,11 @@ int main( int argc, const char** argv )
 	while( 1 )
 	{
 #if 0 //defined(USE_VULKAN)
-        /* I'm not 100% sure if intercepting these xcb events interferes with
-         * SDL's input handling or not, but I suspect that it's necessary
-         * to pump some event loop.  We'll see */
-        /*event = xcb_wait_for_event(info.connection);
-        free(event); */
+		/* I'm not 100% sure if intercepting these xcb events interferes with
+		 * SDL's input handling or not, but I suspect that it's necessary
+		 * to pump some event loop.  We'll see */
+		/*event = xcb_wait_for_event(info.connection);
+		free(event); */
 #endif
 		common->Frame();
 	}
