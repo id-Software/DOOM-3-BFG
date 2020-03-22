@@ -43,7 +43,7 @@ public:
 	idBounds();
 	explicit idBounds( const idVec3& mins, const idVec3& maxs );
 	explicit idBounds( const idVec3& point );
-	
+
 	const idVec3& 	operator[]( const int index ) const;
 	idVec3& 		operator[]( const int index );
 	idBounds		operator+( const idVec3& t ) const;				// returns translated bounds
@@ -54,21 +54,21 @@ public:
 	idBounds& 		operator+=( const idBounds& a );
 	idBounds		operator-( const idBounds& a ) const;
 	idBounds& 		operator-=( const idBounds& a );
-	
+
 	bool			Compare( const idBounds& a ) const;							// exact compare, no epsilon
 	bool			Compare( const idBounds& a, const float epsilon ) const;	// compare with epsilon
 	bool			operator==(	const idBounds& a ) const;						// exact compare, no epsilon
 	bool			operator!=(	const idBounds& a ) const;						// exact compare, no epsilon
-	
+
 	void			Clear();									// inside out bounds
 	void			Zero();									// single point at origin
-	
+
 	idVec3			GetCenter() const;						// returns center of bounds
 	float			GetRadius() const;						// returns the radius relative to the bounds origin
 	float			GetRadius( const idVec3& center ) const;		// returns the radius relative to the given center
 	float			GetVolume() const;						// returns the volume of the bounds
 	bool			IsCleared() const;						// returns true if bounds are inside out
-	
+
 	bool			AddPoint( const idVec3& v );					// add the point, returns true if the bounds expanded
 	bool			AddBounds( const idBounds& a );					// add the bounds, returns true if the bounds expanded
 	idBounds		Intersect( const idBounds& a ) const;			// return intersection of this bounds with the given bounds
@@ -79,16 +79,16 @@ public:
 	idBounds& 		TranslateSelf( const idVec3& translation );		// translate this bounds
 	idBounds		Rotate( const idMat3& rotation ) const;			// return rotated bounds
 	idBounds& 		RotateSelf( const idMat3& rotation );			// rotate this bounds
-	
+
 	float			PlaneDistance( const idPlane& plane ) const;
 	int				PlaneSide( const idPlane& plane, const float epsilon = ON_EPSILON ) const;
-	
+
 	bool			ContainsPoint( const idVec3& p ) const;			// includes touching
 	bool			IntersectsBounds( const idBounds& a ) const;	// includes touching
 	bool			LineIntersection( const idVec3& start, const idVec3& end ) const;
 	// intersection point is start + dir * scale
 	bool			RayIntersection( const idVec3& start, const idVec3& dir, float& scale ) const;
-	
+
 	// most tight bounds for the given transformed bounds
 	void			FromTransformedBounds( const idBounds& bounds, const idVec3& origin, const idMat3& axis );
 	// most tight bounds for a point set
@@ -99,18 +99,18 @@ public:
 	// most tight bounds for a rotation
 	void			FromPointRotation( const idVec3& point, const idRotation& rotation );
 	void			FromBoundsRotation( const idBounds& bounds, const idVec3& origin, const idMat3& axis, const idRotation& rotation );
-	
+
 	void			ToPoints( idVec3 points[8] ) const;
 	idSphere		ToSphere() const;
-	
+
 	void			AxisProjection( const idVec3& dir, float& min, float& max ) const;
 	void			AxisProjection( const idVec3& origin, const idMat3& axis, const idVec3& dir, float& min, float& max ) const;
-	
+
 	int				GetDimension() const;
-	
+
 	const float* 	ToFloatPtr() const;
 	float* 			ToFloatPtr();
-	
+
 private:
 	idVec3			b[2];
 };
@@ -441,15 +441,15 @@ ID_INLINE void idBounds::AxisProjection( const idVec3& dir, float& min, float& m
 {
 	float d1, d2;
 	idVec3 center, extents;
-	
+
 	center = ( b[0] + b[1] ) * 0.5f;
 	extents = b[1] - center;
-	
+
 	d1 = dir * center;
 	d2 = idMath::Fabs( extents[0] * dir[0] ) +
 		 idMath::Fabs( extents[1] * dir[1] ) +
 		 idMath::Fabs( extents[2] * dir[2] );
-		 
+
 	min = d1 - d2;
 	max = d1 + d2;
 }
@@ -458,16 +458,16 @@ ID_INLINE void idBounds::AxisProjection( const idVec3& origin, const idMat3& axi
 {
 	float d1, d2;
 	idVec3 center, extents;
-	
+
 	center = ( b[0] + b[1] ) * 0.5f;
 	extents = b[1] - center;
 	center = origin + center * axis;
-	
+
 	d1 = dir * center;
 	d2 = idMath::Fabs( extents[0] * ( dir * axis[0] ) ) +
 		 idMath::Fabs( extents[1] * ( dir * axis[1] ) ) +
 		 idMath::Fabs( extents[2] * ( dir * axis[2] ) );
-		 
+
 	min = d1 - d2;
 	max = d1 + d2;
 }

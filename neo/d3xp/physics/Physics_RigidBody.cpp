@@ -40,9 +40,9 @@ const float STOP_SPEED		= 10.0f;
 #undef RB_TIMINGS
 
 #ifdef RB_TIMINGS
-static int lastTimerReset = 0;
-static int numRigidBodies = 0;
-static idTimer timer_total, timer_collision;
+	static int lastTimerReset = 0;
+	static int numRigidBodies = 0;
+	static idTimer timer_total, timer_collision;
 #endif
 
 
@@ -65,7 +65,7 @@ void RigidBodyDerivatives( const float t, const void* clientData, const float* s
 	} *d = ( struct rigidBodyDerivatives_s* ) derivatives;
 	idVec3 angularVelocity;
 	idMat3 inverseWorldInertiaTensor;
-	
+
 	inverseWorldInertiaTensor = s->orientation * p->inverseInertiaTensor * s->orientation.Transpose();
 	angularVelocity = inverseWorldInertiaTensor * s->angularMomentum;
 	// derivatives
@@ -85,24 +85,24 @@ idPhysics_RigidBody::Integrate
 void idPhysics_RigidBody::Integrate( float deltaTime, rigidBodyPState_t& next_ )
 {
 	idVec3 position;
-	
+
 	position = current.i.position;
 	current.i.position += centerOfMass * current.i.orientation;
-	
+
 	current.i.orientation.TransposeSelf();
-	
+
 	integrator->Evaluate( ( float* ) &current.i, ( float* ) &next_.i, 0, deltaTime );
 	next_.i.orientation.OrthoNormalizeSelf();
-	
+
 	// apply gravity
 	next_.i.linearMomentum += deltaTime * gravityVector * mass;
-	
+
 	current.i.orientation.TransposeSelf();
 	next_.i.orientation.TransposeSelf();
-	
+
 	current.i.position = position;
 	next_.i.position -= centerOfMass * next_.i.orientation;
-	
+
 	next_.atRest = current.atRest;
 }
 
@@ -121,11 +121,11 @@ bool idPhysics_RigidBody::CollisionImpulse( const trace_t& collision, idVec3& im
 	float impulseNumerator, impulseDenominator, vel;
 	impactInfo_t info;
 	idEntity* ent;
-	
+
 	// get info from other entity involved
 	ent = gameLocal.entities[collision.c.entityNum];
 	ent->GetImpactInfo( self, collision.c.id, collision.c.point, &info );
-	
+
 	// collision point relative to the body center of mass
 	r = collision.c.point - ( current.i.position + centerOfMass * current.i.orientation );
 	// the velocity at the collision point
@@ -135,10 +135,10 @@ bool idPhysics_RigidBody::CollisionImpulse( const trace_t& collision, idVec3& im
 	velocity = linearVelocity + angularVelocity.Cross( r );
 	// subtract velocity of other entity
 	velocity -= info.velocity;
-	
+
 	// velocity in normal direction
 	vel = velocity * collision.c.normal;
-	
+
 	if( vel > -STOP_SPEED )
 	{
 		impulseNumerator = STOP_SPEED;
@@ -153,18 +153,18 @@ bool idPhysics_RigidBody::CollisionImpulse( const trace_t& collision, idVec3& im
 		impulseDenominator += info.invMass + ( ( info.invInertiaTensor * info.position.Cross( collision.c.normal ) ).Cross( info.position ) * collision.c.normal );
 	}
 	impulse = ( impulseNumerator / impulseDenominator ) * collision.c.normal;
-	
+
 	// update linear and angular momentum with impulse
 	current.i.linearMomentum += impulse;
 	current.i.angularMomentum += r.Cross( impulse );
-	
+
 	// if no movement at all don't blow up
 	if( collision.fraction < 0.0001f )
 	{
 		current.i.linearMomentum *= 0.5f;
 		current.i.angularMomentum *= 0.5f;
 	}
-	
+
 	// callback to self to let the entity know about the collision
 	return self->Collide( collision, velocity );
 }
@@ -183,7 +183,7 @@ bool idPhysics_RigidBody::CheckForCollisions( const float deltaTime, rigidBodyPS
 	idMat3 axis;
 	idRotation rotation;
 	bool collided = false;
-	
+
 #ifdef TEST_COLLISION_DETECTION
 	bool startsolid;
 	if( gameLocal.clip.Contents( current.i.position, clipModel, current.i.orientation, clipMask, self ) )
@@ -191,11 +191,11 @@ bool idPhysics_RigidBody::CheckForCollisions( const float deltaTime, rigidBodyPS
 		startsolid = true;
 	}
 #endif
-	
+
 	TransposeMultiply( current.i.orientation, next_.i.orientation, axis );
 	rotation = axis.ToRotation();
 	rotation.SetOrigin( current.i.position );
-	
+
 	// if there was a collision
 	if( gameLocal.clip.Motion( collision, current.i.position, next_.i.position, rotation, clipModel, current.i.orientation, clipMask, self ) )
 	{
@@ -206,7 +206,7 @@ bool idPhysics_RigidBody::CheckForCollisions( const float deltaTime, rigidBodyPS
 		next_.i.angularMomentum = current.i.angularMomentum;
 		collided = true;
 	}
-	
+
 #ifdef TEST_COLLISION_DETECTION
 	if( gameLocal.clip.Contents( next.i.position, clipModel, next_.i.orientation, clipMask, self ) )
 	{
@@ -234,35 +234,35 @@ void idPhysics_RigidBody::ContactFriction( float deltaTime )
 	idMat3 inverseWorldInertiaTensor;
 	idVec3 linearVelocity, angularVelocity;
 	idVec3 massCenter, r, velocity, normal, impulse, normalVelocity;
-	
+
 	inverseWorldInertiaTensor = current.i.orientation.Transpose() * inverseInertiaTensor * current.i.orientation;
-	
+
 	massCenter = current.i.position + centerOfMass * current.i.orientation;
-	
+
 	for( i = 0; i < contacts.Num(); i++ )
 	{
-	
+
 		r = contacts[i].point - massCenter;
-		
+
 		// calculate velocity at contact point
 		linearVelocity = inverseMass * current.i.linearMomentum;
 		angularVelocity = inverseWorldInertiaTensor * current.i.angularMomentum;
 		velocity = linearVelocity + angularVelocity.Cross( r );
-		
+
 		// velocity along normal vector
 		normalVelocity = ( velocity * contacts[i].normal ) * contacts[i].normal;
-		
+
 		// calculate friction impulse
 		normal = -( velocity - normalVelocity );
 		magnitude = normal.Normalize();
 		impulseNumerator = contactFriction * magnitude;
 		impulseDenominator = inverseMass + ( ( inverseWorldInertiaTensor * r.Cross( normal ) ).Cross( r ) * normal );
 		impulse = ( impulseNumerator / impulseDenominator ) * normal;
-		
+
 		// apply friction impulse
 		current.i.linearMomentum += impulse;
 		current.i.angularMomentum += r.Cross( impulse );
-		
+
 		// if moving towards the surface at the contact point
 		if( normalVelocity * contacts[i].normal < 0.0f )
 		{
@@ -271,7 +271,7 @@ void idPhysics_RigidBody::ContactFriction( float deltaTime )
 			impulseNumerator = normal.Normalize();
 			impulseDenominator = inverseMass + ( ( inverseWorldInertiaTensor * r.Cross( normal ) ).Cross( r ) * normal );
 			impulse = ( impulseNumerator / impulseDenominator ) * normal;
-			
+
 			// apply impulse
 			current.i.linearMomentum += impulse;
 			current.i.angularMomentum += r.Cross( impulse );
@@ -294,18 +294,18 @@ bool idPhysics_RigidBody::TestIfAtRest() const
 	idVec3 v, av, normal, point;
 	idMat3 inverseWorldInertiaTensor;
 	idFixedWinding contactWinding;
-	
+
 	if( current.atRest >= 0 )
 	{
 		return true;
 	}
-	
+
 	// need at least 3 contact points to come to rest
 	if( contacts.Num() < 3 )
 	{
 		return false;
 	}
-	
+
 	// get average contact plane normal
 	normal.Zero();
 	for( i = 0; i < contacts.Num(); i++ )
@@ -314,13 +314,13 @@ bool idPhysics_RigidBody::TestIfAtRest() const
 	}
 	normal /= ( float ) contacts.Num();
 	normal.Normalize();
-	
+
 	// if on a too steep surface
 	if( ( normal * gravityNormal ) > -0.7f )
 	{
 		return false;
 	}
-	
+
 	// create bounds for contact points
 	contactWinding.Clear();
 	for( i = 0; i < contacts.Num(); i++ )
@@ -329,30 +329,30 @@ bool idPhysics_RigidBody::TestIfAtRest() const
 		point = contacts[i].point - ( contacts[i].point * gravityNormal ) * gravityNormal;
 		contactWinding.AddToConvexHull( point, gravityNormal );
 	}
-	
+
 	// need at least 3 contact points to come to rest
 	if( contactWinding.GetNumPoints() < 3 )
 	{
 		return false;
 	}
-	
+
 	// center of mass in world space
 	point = current.i.position + centerOfMass * current.i.orientation;
 	point -= ( point * gravityNormal ) * gravityNormal;
-	
+
 	// if the point is not inside the winding
 	if( !contactWinding.PointInside( gravityNormal, point, 0 ) )
 	{
 		return false;
 	}
-	
+
 	// linear velocity of body
 	v = inverseMass * current.i.linearMomentum;
 	// linear velocity in gravity direction
 	gv = v * gravityNormal;
 	// linear velocity orthogonal to gravity direction
 	v -= gv * gravityNormal;
-	
+
 	// if too much velocity orthogonal to gravity direction
 	if( v.Length() > STOP_SPEED )
 	{
@@ -363,17 +363,17 @@ bool idPhysics_RigidBody::TestIfAtRest() const
 	{
 		return false;
 	}
-	
+
 	// calculate rotational velocity
 	inverseWorldInertiaTensor = current.i.orientation * inverseInertiaTensor * current.i.orientation.Transpose();
 	av = inverseWorldInertiaTensor * current.i.angularMomentum;
-	
+
 	// if too much rotational velocity
 	if( av.LengthSqr() > STOP_SPEED )
 	{
 		return false;
 	}
-	
+
 	return true;
 }
 
@@ -388,12 +388,12 @@ void idPhysics_RigidBody::DropToFloorAndRest()
 {
 	idVec3 down;
 	trace_t tr;
-	
+
 	if( testSolid )
 	{
-	
+
 		testSolid = false;
-		
+
 		if( gameLocal.clip.Contents( current.i.position, clipModel, current.i.orientation, clipMask, self ) )
 		{
 			gameLocal.DWarning( "rigid body in solid for entity '%s' type '%s' at (%s)",
@@ -403,13 +403,13 @@ void idPhysics_RigidBody::DropToFloorAndRest()
 			return;
 		}
 	}
-	
+
 	// put the body on the floor
 	down = current.i.position + gravityNormal * 128.0f;
 	gameLocal.clip.Translation( tr, current.i.position, down, clipModel, current.i.orientation, clipMask, self );
 	current.i.position = tr.endpos;
 	clipModel->Link( gameLocal.clip, self, clipModel->GetId(), tr.endpos, current.i.orientation );
-	
+
 	// if on the floor already
 	if( tr.fraction == 0.0f )
 	{
@@ -444,12 +444,12 @@ void idPhysics_RigidBody::DebugDraw()
 	{
 		collisionModelManager->DrawModel( clipModel->Handle(), clipModel->GetOrigin(), clipModel->GetAxis(), vec3_origin, 0.0f );
 	}
-	
+
 	if( rb_showMass.GetBool() )
 	{
 		gameRenderWorld->DrawText( va( "\n%1.2f", mass ), current.i.position, 0.08f, colorCyan, gameLocal.GetLocalPlayer()->viewAngles.ToMat3(), 1 );
 	}
-	
+
 	if( rb_showInertia.GetBool() )
 	{
 		idMat3& I = inertiaTensor;
@@ -459,7 +459,7 @@ void idPhysics_RigidBody::DebugDraw()
 									   I[2].x, I[2].y, I[2].z ),
 								   current.i.position, 0.05f, colorCyan, gameLocal.GetLocalPlayer()->viewAngles.ToMat3(), 1 );
 	}
-	
+
 	if( rb_showVelocity.GetBool() )
 	{
 		DrawVelocity( clipModel->GetId(), 0.1f, 4.0f );
@@ -479,34 +479,34 @@ idPhysics_RigidBody::idPhysics_RigidBody()
 	SetBouncyness( 0.6f );
 	SetFriction( 0.6f, 0.6f, 0.0f );
 	clipModel = NULL;
-	
+
 	current.atRest = -1;
 	current.lastTimeStep = 0.0f;
-	
+
 	current.i.position.Zero();
 	current.i.orientation.Identity();
-	
+
 	current.i.linearMomentum.Zero();
 	current.i.angularMomentum.Zero();
-	
+
 	saved = current;
-	
+
 	mass = 1.0f;
 	inverseMass = 1.0f;
 	centerOfMass.Zero();
 	inertiaTensor.Identity();
 	inverseInertiaTensor.Identity();
-	
+
 	// use the least expensive euler integrator
 	integrator = new( TAG_PHYSICS ) idODE_Euler( sizeof( rigidBodyIState_t ) / sizeof( float ), RigidBodyDerivatives, this );
-	
+
 	dropToFloor = false;
 	noImpact = false;
 	noContact = false;
-	
+
 	hasMaster = false;
 	isOrientated = false;
-	
+
 #ifdef RB_TIMINGS
 	lastTimerReset = 0;
 #endif
@@ -541,7 +541,7 @@ void idPhysics_RigidBody_SavePState( idSaveGame* savefile, const rigidBodyPState
 	savefile->WriteVec6( state.pushVelocity );
 	savefile->WriteVec3( state.externalForce );
 	savefile->WriteVec3( state.externalTorque );
-	
+
 	savefile->WriteVec3( state.i.position );
 	savefile->WriteMat3( state.i.orientation );
 	savefile->WriteVec3( state.i.linearMomentum );
@@ -562,7 +562,7 @@ void idPhysics_RigidBody_RestorePState( idRestoreGame* savefile, rigidBodyPState
 	savefile->ReadVec6( state.pushVelocity );
 	savefile->ReadVec3( state.externalForce );
 	savefile->ReadVec3( state.externalTorque );
-	
+
 	savefile->ReadVec3( state.i.position );
 	savefile->ReadMat3( state.i.orientation );
 	savefile->ReadVec3( state.i.linearMomentum );
@@ -579,24 +579,24 @@ void idPhysics_RigidBody::Save( idSaveGame* savefile ) const
 
 	idPhysics_RigidBody_SavePState( savefile, current );
 	idPhysics_RigidBody_SavePState( savefile, saved );
-	
+
 	savefile->WriteFloat( linearFriction );
 	savefile->WriteFloat( angularFriction );
 	savefile->WriteFloat( contactFriction );
 	savefile->WriteFloat( bouncyness );
 	savefile->WriteClipModel( clipModel );
-	
+
 	savefile->WriteFloat( mass );
 	savefile->WriteFloat( inverseMass );
 	savefile->WriteVec3( centerOfMass );
 	savefile->WriteMat3( inertiaTensor );
 	savefile->WriteMat3( inverseInertiaTensor );
-	
+
 	savefile->WriteBool( dropToFloor );
 	savefile->WriteBool( testSolid );
 	savefile->WriteBool( noImpact );
 	savefile->WriteBool( noContact );
-	
+
 	savefile->WriteBool( hasMaster );
 	savefile->WriteBool( isOrientated );
 }
@@ -611,24 +611,24 @@ void idPhysics_RigidBody::Restore( idRestoreGame* savefile )
 
 	idPhysics_RigidBody_RestorePState( savefile, current );
 	idPhysics_RigidBody_RestorePState( savefile, saved );
-	
+
 	savefile->ReadFloat( linearFriction );
 	savefile->ReadFloat( angularFriction );
 	savefile->ReadFloat( contactFriction );
 	savefile->ReadFloat( bouncyness );
 	savefile->ReadClipModel( clipModel );
-	
+
 	savefile->ReadFloat( mass );
 	savefile->ReadFloat( inverseMass );
 	savefile->ReadVec3( centerOfMass );
 	savefile->ReadMat3( inertiaTensor );
 	savefile->ReadMat3( inverseInertiaTensor );
-	
+
 	savefile->ReadBool( dropToFloor );
 	savefile->ReadBool( testSolid );
 	savefile->ReadBool( noImpact );
 	savefile->ReadBool( noContact );
-	
+
 	savefile->ReadBool( hasMaster );
 	savefile->ReadBool( isOrientated );
 }
@@ -644,22 +644,22 @@ void idPhysics_RigidBody::SetClipModel( idClipModel* model, const float density,
 {
 	int minIndex;
 	idMat3 inertiaScale;
-	
+
 	assert( self );
 	assert( model );					// we need a clip model
 	assert( model->IsTraceModel() );	// and it should be a trace model
 	assert( density > 0.0f );			// density should be valid
-	
+
 	if( clipModel && clipModel != model && freeOld )
 	{
 		delete clipModel;
 	}
 	clipModel = model;
 	clipModel->Link( gameLocal.clip, self, 0, current.i.position, current.i.orientation );
-	
+
 	// get mass properties from the trace model
 	clipModel->GetMassProperties( density, mass, centerOfMass, inertiaTensor );
-	
+
 	// check whether or not the clip model has valid mass properties
 	if( mass <= 0.0f || IEEE_FLT_IS_NAN( mass ) )
 	{
@@ -669,14 +669,14 @@ void idPhysics_RigidBody::SetClipModel( idClipModel* model, const float density,
 		centerOfMass.Zero();
 		inertiaTensor.Identity();
 	}
-	
+
 	// check whether or not the inertia tensor is balanced
 	minIndex = Min3Index( inertiaTensor[0][0], inertiaTensor[1][1], inertiaTensor[2][2] );
 	inertiaScale.Identity();
 	inertiaScale[0][0] = inertiaTensor[0][0] / inertiaTensor[minIndex][minIndex];
 	inertiaScale[1][1] = inertiaTensor[1][1] / inertiaTensor[minIndex][minIndex];
 	inertiaScale[2][2] = inertiaTensor[2][2] / inertiaTensor[minIndex][minIndex];
-	
+
 	if( inertiaScale[0][0] > MAX_INERTIA_SCALE || inertiaScale[1][1] > MAX_INERTIA_SCALE || inertiaScale[2][2] > MAX_INERTIA_SCALE )
 	{
 		gameLocal.DWarning( "idPhysics_RigidBody::SetClipModel: unbalanced inertia tensor for entity '%s' type '%s'",
@@ -686,10 +686,10 @@ void idPhysics_RigidBody::SetClipModel( idClipModel* model, const float density,
 		inertiaScale[( minIndex + 2 ) % 3][( minIndex + 2 ) % 3] = min / inertiaTensor[( minIndex + 2 ) % 3][( minIndex + 2 ) % 3];
 		inertiaTensor *= inertiaScale;
 	}
-	
+
 	inverseMass = 1.0f / mass;
 	inverseInertiaTensor = inertiaTensor.Inverse() * ( 1.0f / 6.0f );
-	
+
 	current.i.linearMomentum.Zero();
 	current.i.angularMomentum.Zero();
 }
@@ -907,10 +907,10 @@ bool idPhysics_RigidBody::Evaluate( int timeStepMSec, int endTimeMSec )
 	idMat3 oldAxis, masterAxis;
 	float timeStep;
 	bool collided, cameToRest = false;
-	
+
 	timeStep = MS2SEC( timeStepMSec );
 	current.lastTimeStep = timeStep;
-	
+
 	if( hasMaster )
 	{
 		oldOrigin = current.i.position;
@@ -930,17 +930,17 @@ bool idPhysics_RigidBody::Evaluate( int timeStepMSec, int endTimeMSec )
 		current.i.angularMomentum = inertiaTensor * ( ( current.i.orientation * oldAxis.Transpose() ).ToAngularVelocity() / timeStep );
 		current.externalForce.Zero();
 		current.externalTorque.Zero();
-		
+
 		return ( current.i.position != oldOrigin || current.i.orientation != oldAxis );
 	}
-	
+
 	// if the body is at rest
 	if( current.atRest >= 0 || timeStep <= 0.0f )
 	{
 		DebugDraw();
 		return false;
 	}
-	
+
 	// if putting the body to rest
 	if( dropToFloor )
 	{
@@ -949,36 +949,36 @@ bool idPhysics_RigidBody::Evaluate( int timeStepMSec, int endTimeMSec )
 		current.externalTorque.Zero();
 		return true;
 	}
-	
+
 #ifdef RB_TIMINGS
 	timer_total.Start();
 #endif
-	
+
 	// move the rigid body velocity into the frame of a pusher
 //	current.i.linearMomentum -= current.pushVelocity.SubVec3( 0 ) * mass;
 //	current.i.angularMomentum -= current.pushVelocity.SubVec3( 1 ) * inertiaTensor;
 
 	clipModel->Unlink();
-	
+
 	next_step = current;
-	
+
 	// calculate next position and orientation
 	Integrate( timeStep, next_step );
-	
+
 #ifdef RB_TIMINGS
 	timer_collision.Start();
 #endif
-	
+
 	// check for collisions from the current to the next state
 	collided = CheckForCollisions( timeStep, next_step, collision );
-	
+
 #ifdef RB_TIMINGS
 	timer_collision.Stop();
 #endif
-	
+
 	// set the new state
 	current = next_step;
-	
+
 	if( collided )
 	{
 		// apply collision impulse
@@ -987,25 +987,25 @@ bool idPhysics_RigidBody::Evaluate( int timeStepMSec, int endTimeMSec )
 			current.atRest = gameLocal.time;
 		}
 	}
-	
+
 	// update the position of the clip model
 	clipModel->Link( gameLocal.clip, self, clipModel->GetId(), current.i.position, current.i.orientation );
-	
+
 	DebugDraw();
-	
+
 	if( !noContact )
 	{
-	
+
 #ifdef RB_TIMINGS
 		timer_collision.Start();
 #endif
 		// get contacts
 		EvaluateContacts();
-		
+
 #ifdef RB_TIMINGS
 		timer_collision.Stop();
 #endif
-		
+
 		// check if the body has come to rest
 		if( TestIfAtRest() )
 		{
@@ -1019,12 +1019,12 @@ bool idPhysics_RigidBody::Evaluate( int timeStepMSec, int endTimeMSec )
 			ContactFriction( timeStep );
 		}
 	}
-	
+
 	if( current.atRest < 0 )
 	{
 		ActivateContactEntities();
 	}
-	
+
 	if( collided )
 	{
 		// if the rigid body didn't come to rest or the other entity is not at rest
@@ -1035,26 +1035,26 @@ bool idPhysics_RigidBody::Evaluate( int timeStepMSec, int endTimeMSec )
 			ent->ApplyImpulse( self, collision.c.id, collision.c.point, -impulse );
 		}
 	}
-	
+
 	// move the rigid body velocity back into the world frame
 //	current.i.linearMomentum += current.pushVelocity.SubVec3( 0 ) * mass;
 //	current.i.angularMomentum += current.pushVelocity.SubVec3( 1 ) * inertiaTensor;
 	current.pushVelocity.Zero();
-	
+
 	current.lastTimeStep = timeStep;
 	current.externalForce.Zero();
 	current.externalTorque.Zero();
-	
+
 	if( IsOutsideWorld() )
 	{
 		gameLocal.Warning( "rigid body moved outside world bounds for entity '%s' type '%s' at (%s)",
 						   self->name.c_str(), self->GetType()->classname, current.i.position.ToString( 0 ) );
 		Rest();
 	}
-	
+
 #ifdef RB_TIMINGS
 	timer_total.Stop();
-	
+
 	if( rb_showTimings->integer == 1 )
 	{
 		gameLocal.Printf( "%12s: t %1.4f cd %1.4f\n",
@@ -1080,7 +1080,7 @@ bool idPhysics_RigidBody::Evaluate( int timeStepMSec, int endTimeMSec )
 		timer_collision.Clear();
 	}
 #endif
-	
+
 	return true;
 }
 
@@ -1098,7 +1098,7 @@ bool idPhysics_RigidBody::Interpolate( const float fraction )
 	{
 		return false;
 	}
-	
+
 	if( self->GetInterpolationBehavior() == idEntity::USE_LATEST_SNAP_ONLY )
 	{
 		current = next;
@@ -1111,7 +1111,7 @@ bool idPhysics_RigidBody::Interpolate( const float fraction )
 		current.i.linearMomentum = Lerp( previous.i.linearMomentum, next.i.linearMomentum, fraction );
 		return true;
 	}
-	
+
 	return false;
 }
 
@@ -1154,11 +1154,11 @@ void idPhysics_RigidBody::GetImpactInfo( const int id, const idVec3& point, impa
 {
 	idVec3 linearVelocity, angularVelocity;
 	idMat3 inverseWorldInertiaTensor;
-	
+
 	linearVelocity = inverseMass * current.i.linearMomentum;
 	inverseWorldInertiaTensor = current.i.orientation.Transpose() * inverseInertiaTensor * current.i.orientation;
 	angularVelocity = inverseWorldInertiaTensor * current.i.angularMomentum;
-	
+
 	info->invMass = inverseMass;
 	info->invInertiaTensor = inverseWorldInertiaTensor;
 	info->position = point - ( current.i.position + centerOfMass * current.i.orientation );
@@ -1245,9 +1245,9 @@ idPhysics_RigidBody::RestoreState
 void idPhysics_RigidBody::RestoreState()
 {
 	current = saved;
-	
+
 	clipModel->Link( gameLocal.clip, self, clipModel->GetId(), current.i.position, current.i.orientation );
-	
+
 	EvaluateContacts();
 }
 
@@ -1260,7 +1260,7 @@ void idPhysics_RigidBody::SetOrigin( const idVec3& newOrigin, int id )
 {
 	idVec3 masterOrigin;
 	idMat3 masterAxis;
-	
+
 	current.localOrigin = newOrigin;
 	if( hasMaster )
 	{
@@ -1271,9 +1271,9 @@ void idPhysics_RigidBody::SetOrigin( const idVec3& newOrigin, int id )
 	{
 		current.i.position = newOrigin;
 	}
-	
+
 	clipModel->Link( gameLocal.clip, self, clipModel->GetId(), current.i.position, clipModel->GetAxis() );
-	
+
 	Activate();
 }
 
@@ -1286,7 +1286,7 @@ void idPhysics_RigidBody::SetAxis( const idMat3& newAxis, int id )
 {
 	idVec3 masterOrigin;
 	idMat3 masterAxis;
-	
+
 	current.localAxis = newAxis;
 	if( hasMaster && isOrientated )
 	{
@@ -1297,9 +1297,9 @@ void idPhysics_RigidBody::SetAxis( const idMat3& newAxis, int id )
 	{
 		current.i.orientation = newAxis;
 	}
-	
+
 	clipModel->Link( gameLocal.clip, self, clipModel->GetId(), clipModel->GetOrigin(), current.i.orientation );
-	
+
 	Activate();
 }
 
@@ -1313,9 +1313,9 @@ void idPhysics_RigidBody::Translate( const idVec3& translation, int id )
 
 	current.localOrigin += translation;
 	current.i.position += translation;
-	
+
 	clipModel->Link( gameLocal.clip, self, clipModel->GetId(), current.i.position, clipModel->GetAxis() );
-	
+
 	Activate();
 }
 
@@ -1328,10 +1328,10 @@ void idPhysics_RigidBody::Rotate( const idRotation& rotation, int id )
 {
 	idVec3 masterOrigin;
 	idMat3 masterAxis;
-	
+
 	current.i.orientation *= rotation.ToMat3();
 	current.i.position *= rotation;
-	
+
 	if( hasMaster )
 	{
 		self->GetMasterPosition( masterOrigin, masterAxis );
@@ -1343,9 +1343,9 @@ void idPhysics_RigidBody::Rotate( const idRotation& rotation, int id )
 		current.localAxis = current.i.orientation;
 		current.localOrigin = current.i.position;
 	}
-	
+
 	clipModel->Link( gameLocal.clip, self, clipModel->GetId(), current.i.position, current.i.orientation );
-	
+
 	Activate();
 }
 
@@ -1412,7 +1412,7 @@ const idVec3& idPhysics_RigidBody::GetAngularVelocity( int id ) const
 {
 	static idVec3 curAngularVelocity;
 	idMat3 inverseWorldInertiaTensor;
-	
+
 	inverseWorldInertiaTensor = current.i.orientation.Transpose() * inverseInertiaTensor * current.i.orientation;
 	curAngularVelocity = inverseWorldInertiaTensor * current.i.angularMomentum;
 	return curAngularVelocity;
@@ -1525,11 +1525,11 @@ bool idPhysics_RigidBody::EvaluateContacts()
 {
 	idVec6 dir;
 	int num;
-	
+
 	ClearContacts();
-	
+
 	contacts.SetNum( 10 );
-	
+
 	dir.SubVec3( 0 ) = current.i.linearMomentum + current.lastTimeStep * gravityVector * mass;
 	dir.SubVec3( 1 ) = current.i.angularMomentum;
 	dir.SubVec3( 0 ).Normalize();
@@ -1537,9 +1537,9 @@ bool idPhysics_RigidBody::EvaluateContacts()
 	num = gameLocal.clip.Contacts( &contacts[0], 10, clipModel->GetOrigin(),
 								   dir, CONTACT_EPSILON, clipModel, clipModel->GetAxis(), clipMask, self );
 	contacts.SetNum( num );
-	
+
 	AddContactEntitiesForContacts();
-	
+
 	return ( contacts.Num() != 0 );
 }
 
@@ -1551,9 +1551,9 @@ idPhysics_RigidBody::SetPushed
 void idPhysics_RigidBody::SetPushed( int deltaTime )
 {
 	idRotation rotation;
-	
+
 	rotation = ( saved.i.orientation * current.i.orientation ).ToRotation();
-	
+
 	// velocity with which the af is pushed
 	current.pushVelocity.SubVec3( 0 ) += ( current.i.position - saved.i.position ) / ( deltaTime * idMath::M_MS2SEC );
 	current.pushVelocity.SubVec3( 1 ) += rotation.GetVec() * -DEG2RAD( rotation.GetAngle() ) / ( deltaTime * idMath::M_MS2SEC );
@@ -1588,7 +1588,7 @@ void idPhysics_RigidBody::SetMaster( idEntity* master, const bool orientated )
 {
 	idVec3 masterOrigin;
 	idMat3 masterAxis;
-	
+
 	if( master )
 	{
 		if( !hasMaster )
@@ -1640,9 +1640,9 @@ idPhysics_RigidBody::WriteToSnapshot
 void idPhysics_RigidBody::WriteToSnapshot( idBitMsg& msg ) const
 {
 	idCQuat quat, localQuat;
-	
+
 	quat = current.i.orientation.ToCQuat();
-	
+
 	msg.WriteFloat( current.i.position[0] );
 	msg.WriteFloat( current.i.position[1] );
 	msg.WriteFloat( current.i.position[2] );
@@ -1662,9 +1662,9 @@ idPhysics_RigidBody::ReadFromSnapshot
 void idPhysics_RigidBody::ReadFromSnapshot( const idBitMsg& msg )
 {
 	idCQuat quat, localQuat;
-	
+
 	previous = next;
-	
+
 	next.i.position[0] = msg.ReadFloat();
 	next.i.position[1] = msg.ReadFloat();
 	next.i.position[2] = msg.ReadFloat();
@@ -1674,15 +1674,15 @@ void idPhysics_RigidBody::ReadFromSnapshot( const idBitMsg& msg )
 	next.i.linearMomentum[0] = msg.ReadFloat( RB_MOMENTUM_EXPONENT_BITS, RB_MOMENTUM_MANTISSA_BITS );
 	next.i.linearMomentum[1] = msg.ReadFloat( RB_MOMENTUM_EXPONENT_BITS, RB_MOMENTUM_MANTISSA_BITS );
 	next.i.linearMomentum[2] = msg.ReadFloat( RB_MOMENTUM_EXPONENT_BITS, RB_MOMENTUM_MANTISSA_BITS );
-	
+
 	next.i.orientation = quat.ToMat3();
-	
+
 	// Make sure to initially set them up. Dont try to interpolate yet.
 	if( self->GetNumSnapshotsReceived() <= 1 )
 	{
 		current = next;
 	}
-	
+
 	if( clipModel )
 	{
 		clipModel->Link( gameLocal.clip, self, clipModel->GetId(), next.i.position, next.i.orientation );

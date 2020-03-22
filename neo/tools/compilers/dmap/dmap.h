@@ -33,7 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 typedef struct primitive_s
 {
 	struct primitive_s* next;
-	
+
 	// only one of these will be non-NULL
 	struct bspbrush_s* 	brush;
 	struct mapTri_s* 	tris;
@@ -50,11 +50,11 @@ typedef struct
 typedef struct
 {
 	idMapEntity* 		mapEntity;		// points into mapFile_t data
-	
+
 	idVec3				origin;
 	primitive_t* 		primitives;
 	struct tree_s* 		tree;
-	
+
 	int					numAreas;
 	uArea_t* 			areas;
 } uEntity_t;
@@ -64,21 +64,21 @@ typedef struct
 typedef struct mapTri_s
 {
 	struct mapTri_s* 	next;
-	
+
 	const idMaterial* 	material;
 	void* 				mergeGroup;		// we want to avoid merging triangles
-	
+
 	// RB begin
 	int					polygonId;		// n-gon number from original face used for area portal construction
-	
+
 	const MapPolygonMesh*	originalMapMesh;
 //	idWinding* 			visibleHull;	// also clipped to the solid parts of the world
 
 	// RB end
-	
+
 	// from different fixed groups, like guiSurfs and mirrors
 	int					planeNum;			// not set universally, just in some areas
-	
+
 	idDrawVert			v[3];
 	const struct hashVert_s* hashVert[3];
 	struct optVertex_s* optVert[3];
@@ -120,10 +120,10 @@ typedef struct
 typedef struct side_s
 {
 	int					planenum;
-	
+
 	const idMaterial* 	material;
 	textureVectors_t	texVec;
-	
+
 	idWinding* 			winding;		// only clipped to the other sides of the brush
 	idWinding* 			visibleHull;	// also clipped to the solid parts of the world
 } side_t;
@@ -133,16 +133,16 @@ typedef struct bspbrush_s
 {
 	struct bspbrush_s* 	next;
 	struct bspbrush_s* 	original;	// chopped up brushes will reference the originals
-	
+
 	int					entitynum;			// editor numbering for messages
 	int					brushnum;			// editor numbering for messages
-	
+
 	const idMaterial* 	contentShader;	// one face's shader will determine the volume attributes
-	
+
 	int					contents;
 	bool				opaque;
 	int					outputNumber;		// set when the brush is written to the file list
-	
+
 	idBounds			bounds;
 	int					numsides;
 	side_t				sides[6];			// variably sized
@@ -162,23 +162,23 @@ typedef struct node_s
 	int					planenum;	// -1 = leaf node
 	struct node_s* 		parent;
 	idBounds			bounds;		// valid after portalization
-	
+
 	// nodes only
 	struct node_s* 		children[2];
 	int					nodeNumber;	// set after pruning
-	
+
 	// leafs only
 	bool				opaque;		// view can never be inside
-	
+
 	// RB: needed for areaportal construction
 	uBrush_t* 			brushlist;	// fragments of all brushes in this leaf
 	mapTri_t*			areaPortalTris;
 	// --
-	
+
 	int					area;		// determined by flood filling up to areaportals
 	int					occupied;	// 1 or greater can reach entity
 	uEntity_t* 			occupant;	// for leak file testing
-	
+
 	struct uPortal_s* 	portals;	// also on nodes during construction
 } node_t;
 
@@ -207,7 +207,7 @@ typedef struct
 	idRenderLightLocal	def;
 	char				name[MAX_QPATH];		// for naming the shadow volume surface and interactions
 	srfTriangles_t*		shadowTris;
-	
+
 	idPlane				frustumPlanes[6];		// RB: should be calculated after R_DeriveLightData()
 } mapLight_t;
 
@@ -216,9 +216,9 @@ typedef struct
 typedef struct optimizeGroup_s
 {
 	struct optimizeGroup_s*	nextGroup;
-	
+
 	idBounds			bounds;			// set in CarveGroupsByLight
-	
+
 	// all of these must match to add a triangle to the triList
 	bool				smoothed;				// curves will never merge with brushes
 	int					planeNum;
@@ -230,9 +230,9 @@ typedef struct optimizeGroup_s
 	// groups will not be combined into model surfaces
 	// after optimization
 	textureVectors_t	texVec;
-	
+
 	bool				surfaceEmited;
-	
+
 	mapTri_t* 			triList;
 	mapTri_t* 			regeneratedTris;	// after each island optimization
 	idVec3				axis[2];			// orthogonal to the plane, so optimization can be 2D
@@ -264,20 +264,20 @@ typedef struct
 {
 	// mapFileBase will contain the qpath without any extension: "maps/test_box"
 	char		mapFileBase[1024];
-	
+
 	idMapFile*	dmapFile;
-	
+
 	idPlaneSet	mapPlanes;
-	
+
 	int			num_entities;
 	uEntity_t*	uEntities;
-	
+
 	int			entityNum;
-	
+
 	idList<mapLight_t*>	mapLights;
-	
+
 	bool	verbose;
-	
+
 	bool	glview;
 	bool	noOptimize;
 	bool	verboseentities;
@@ -291,10 +291,10 @@ typedef struct
 	bool	noLightCarve;		// extra triangle subdivision by light frustums
 	shadowOptLevel_t	shadowOptLevel;
 	bool	noShadow;			// don't create optimized shadow volumes
-	
+
 	idBounds	drawBounds;
 	bool	drawflag;
-	
+
 	int		totalShadowTriangles;
 	int		totalShadowVerts;
 } dmapGlobals_t;
@@ -309,7 +309,7 @@ int FindFloatPlane( const idPlane& plane, bool* fixedDegeneracies = NULL );
 // brush.cpp
 
 #ifndef CLIP_EPSILON
-#define	CLIP_EPSILON	0.1f
+	#define	CLIP_EPSILON	0.1f
 #endif
 
 #define	PSIDE_FRONT			1
@@ -371,7 +371,7 @@ struct interAreaPortal_t
 {
 	int				area0, area1;
 	side_t*			side = NULL;
-	
+
 	// RB begin
 	int				polygonId;
 	idFixedWinding	w;

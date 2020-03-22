@@ -43,14 +43,14 @@ class idSoundEngineCallback : public IXAudio2EngineCallback
 {
 public:
 	idSoundHardware_XAudio2* hardware;
-	
+
 private:
 	// Called by XAudio2 just before an audio processing pass begins.
 	STDMETHOD_( void, OnProcessingPassStart )( THIS ) {}
-	
+
 	// Called just after an audio processing pass ends.
 	STDMETHOD_( void, OnProcessingPassEnd )( THIS ) {}
-	
+
 	// Called in the event of a critical system error which requires XAudio2
 	// to be closed down and restarted.  The error code is given in Error.
 	STDMETHOD_( void, OnCriticalError )( THIS_ HRESULT Error );
@@ -66,21 +66,21 @@ class idSoundHardware_XAudio2
 {
 public:
 	idSoundHardware_XAudio2();
-	
+
 	void			Init();
 	void			Shutdown();
-	
+
 	void 			Update();
-	
+
 	idSoundVoice* 	AllocateVoice( const idSoundSample* leadinSample, const idSoundSample* loopingSample );
 	void			FreeVoice( idSoundVoice* voice );
-	
+
 	// video playback needs this
 	IXAudio2* 		GetIXAudio2() const
 	{
 		return pXAudio2;
 	};
-	
+
 	int				GetNumZombieVoices() const
 	{
 		return zombieVoices.Num();
@@ -89,26 +89,26 @@ public:
 	{
 		return freeVoices.Num();
 	}
-	
+
 protected:
 	friend class idSoundSample_XAudio2;
 	friend class idSoundVoice_XAudio2;
-	
+
 private:
 	IXAudio2* pXAudio2;
 	IXAudio2MasteringVoice* pMasterVoice;
 	IXAudio2SubmixVoice* pSubmixVoice;
-	
+
 	idSoundEngineCallback	soundEngineCallback;
 	int					lastResetTime;
-	
+
 	int					outputChannels;
 	int					channelMask;
-	
+
 	idDebugGraph* 		vuMeterRMS;
 	idDebugGraph* 		vuMeterPeak;
 	int					vuMeterPeakTimes[ 8 ];
-	
+
 	// Can't stop and start a voice on the same frame, so we have to double this to handle the worst case scenario of stopping all voices and starting a full new set
 	idStaticList<idSoundVoice_XAudio2, MAX_HARDWARE_VOICES * 2 > voices;
 	idStaticList<idSoundVoice_XAudio2*, MAX_HARDWARE_VOICES * 2 > zombieVoices;

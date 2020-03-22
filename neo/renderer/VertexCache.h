@@ -79,22 +79,22 @@ public:
 	void			Init( int uniformBufferOffsetAlignment );
 	void			Shutdown();
 	void			PurgeAll();
-	
+
 	// call on loading a new map
 	void			FreeStaticData();
-	
+
 	// this data is only valid for one frame of rendering
 	vertCacheHandle_t	AllocVertex( const void* data, int num, size_t size = sizeof( idDrawVert ) );
 	vertCacheHandle_t	AllocIndex( const void* data, int num, size_t size = sizeof( triIndex_t ) );
 	vertCacheHandle_t	AllocJoint( const void* data, int num, size_t size = sizeof( idJointMat ) );
-	
+
 	// this data is valid until the next map load
 	vertCacheHandle_t	AllocStaticVertex( const void* data, int bytes );
 	vertCacheHandle_t	AllocStaticIndex( const void* data, int bytes );
-	
+
 	byte* 			MappedVertexBuffer( vertCacheHandle_t handle );
 	byte* 			MappedIndexBuffer( vertCacheHandle_t handle );
-	
+
 	// Returns false if it's been purged
 	// This can only be called by the front end, the back end should only be looking at
 	// vertCacheHandle_t that are already validated.
@@ -103,29 +103,29 @@ public:
 	{
 		return ( handle & VERTCACHE_STATIC ) != 0;
 	}
-	
+
 	// vb/ib is a temporary reference -- don't store it
 	bool			GetVertexBuffer( vertCacheHandle_t handle, idVertexBuffer* vb );
 	bool			GetIndexBuffer( vertCacheHandle_t handle, idIndexBuffer* ib );
 	bool			GetJointBuffer( vertCacheHandle_t handle, idUniformBuffer* jb );
-	
+
 	void			BeginBackEnd();
-	
+
 public:
 	int				currentFrame;	// for determining the active buffers
 	int				listNum;		// currentFrame % NUM_FRAME_DATA
 	int				drawListNum;	// (currentFrame-1) % NUM_FRAME_DATA
-	
+
 	geoBufferSet_t	staticData;
 	geoBufferSet_t	frameData[ NUM_FRAME_DATA ];
-	
+
 	int				uniformBufferOffsetAlignment;
-	
+
 	// High water marks for the per-frame buffers
 	int				mostUsedVertex;
 	int				mostUsedIndex;
 	int				mostUsedJoint;
-	
+
 	// Try to make room for <bytes> bytes
 	vertCacheHandle_t	ActuallyAlloc( geoBufferSet_t& vcs, const void* data, int bytes, cacheType_t type );
 };

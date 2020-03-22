@@ -70,31 +70,31 @@ bool idDeclPDA::Parse( const char* text, const int textLength, bool allowBinaryV
 {
 	idLexer src;
 	idToken token;
-	
+
 	idStr baseStrId = va( "#str_%s_pda_", GetName() );
-	
+
 	src.LoadMemory( text, textLength, GetFileName(), GetLineNum() );
 	src.SetFlags( DECL_LEXER_FLAGS );
 	src.SkipUntilString( "{" );
-	
+
 	// scan through, identifying each individual parameter
 	while( 1 )
 	{
-	
+
 		if( !src.ReadToken( &token ) )
 		{
 			break;
 		}
-		
+
 		if( token == "}" )
 		{
 			break;
 		}
-		
+
 		if( !token.Icmp( "name" ) )
 		{
 			src.ReadToken( &token );
-			
+
 			if( g_useOldPDAStrings.GetBool() )
 			{
 				pdaName = token;
@@ -105,11 +105,11 @@ bool idDeclPDA::Parse( const char* text, const int textLength, bool allowBinaryV
 			}
 			continue;
 		}
-		
+
 		if( !token.Icmp( "fullname" ) )
 		{
 			src.ReadToken( &token );
-			
+
 			if( g_useOldPDAStrings.GetBool() )
 			{
 				fullName = token;
@@ -120,14 +120,14 @@ bool idDeclPDA::Parse( const char* text, const int textLength, bool allowBinaryV
 			}
 			continue;
 		}
-		
+
 		if( !token.Icmp( "icon" ) )
 		{
 			src.ReadToken( &token );
 			icon = token;
 			continue;
 		}
-		
+
 		if( !token.Icmp( "id" ) )
 		{
 			src.ReadToken( &token );
@@ -141,7 +141,7 @@ bool idDeclPDA::Parse( const char* text, const int textLength, bool allowBinaryV
 			}
 			continue;
 		}
-		
+
 		if( !token.Icmp( "post" ) )
 		{
 			src.ReadToken( &token );
@@ -155,7 +155,7 @@ bool idDeclPDA::Parse( const char* text, const int textLength, bool allowBinaryV
 			}
 			continue;
 		}
-		
+
 		if( !token.Icmp( "title" ) )
 		{
 			src.ReadToken( &token );
@@ -169,7 +169,7 @@ bool idDeclPDA::Parse( const char* text, const int textLength, bool allowBinaryV
 			}
 			continue;
 		}
-		
+
 		if( !token.Icmp( "security" ) )
 		{
 			src.ReadToken( &token );
@@ -183,36 +183,36 @@ bool idDeclPDA::Parse( const char* text, const int textLength, bool allowBinaryV
 			}
 			continue;
 		}
-		
+
 		if( !token.Icmp( "pda_email" ) )
 		{
 			src.ReadToken( &token );
 			emails.Append( static_cast<const idDeclEmail*>( declManager->FindType( DECL_EMAIL, token ) ) );
 			continue;
 		}
-		
+
 		if( !token.Icmp( "pda_audio" ) )
 		{
 			src.ReadToken( &token );
 			audios.Append( static_cast<const idDeclAudio*>( declManager->FindType( DECL_AUDIO, token ) ) );
 			continue;
 		}
-		
+
 		if( !token.Icmp( "pda_video" ) )
 		{
 			src.ReadToken( &token );
 			videos.Append( static_cast<const idDeclVideo*>( declManager->FindType( DECL_VIDEO, token ) ) );
 			continue;
 		}
-		
+
 	}
-	
+
 	if( src.HadError() )
 	{
 		src.Warning( "PDA decl '%s' had a parse error", GetName() );
 		return false;
 	}
-	
+
 	originalVideos = videos.Num();
 	originalEmails = emails.Num();
 	return true;
@@ -319,28 +319,28 @@ bool idDeclEmail::Parse( const char* _text, const int textLength, bool allowBina
 {
 	idLexer src;
 	idToken token;
-	
+
 	idStr baseStrId = va( "#str_%s_email_", GetName() );
-	
+
 	src.LoadMemory( _text, textLength, GetFileName(), GetLineNum() );
 	src.SetFlags( LEXFL_NOSTRINGCONCAT | LEXFL_ALLOWPATHNAMES |	LEXFL_ALLOWMULTICHARLITERALS | LEXFL_ALLOWBACKSLASHSTRINGCONCAT | LEXFL_NOFATALERRORS );
 	src.SkipUntilString( "{" );
-	
+
 	text = "";
 	// scan through, identifying each individual parameter
 	while( 1 )
 	{
-	
+
 		if( !src.ReadToken( &token ) )
 		{
 			break;
 		}
-		
+
 		if( token == "}" )
 		{
 			break;
 		}
-		
+
 		if( !token.Icmp( "subject" ) )
 		{
 			src.ReadToken( &token );
@@ -354,7 +354,7 @@ bool idDeclEmail::Parse( const char* _text, const int textLength, bool allowBina
 			}
 			continue;
 		}
-		
+
 		if( !token.Icmp( "to" ) )
 		{
 			src.ReadToken( &token );
@@ -368,7 +368,7 @@ bool idDeclEmail::Parse( const char* _text, const int textLength, bool allowBina
 			}
 			continue;
 		}
-		
+
 		if( !token.Icmp( "from" ) )
 		{
 			src.ReadToken( &token );
@@ -382,7 +382,7 @@ bool idDeclEmail::Parse( const char* _text, const int textLength, bool allowBina
 			}
 			continue;
 		}
-		
+
 		if( !token.Icmp( "date" ) )
 		{
 			src.ReadToken( &token );
@@ -396,7 +396,7 @@ bool idDeclEmail::Parse( const char* _text, const int textLength, bool allowBina
 			}
 			continue;
 		}
-		
+
 		if( !token.Icmp( "text" ) )
 		{
 			src.ReadToken( &token );
@@ -416,7 +416,7 @@ bool idDeclEmail::Parse( const char* _text, const int textLength, bool allowBina
 			continue;
 		}
 	}
-	
+
 	if( src.HadError() )
 	{
 		src.Warning( "Email decl '%s' had a parse error", GetName() );
@@ -490,27 +490,27 @@ bool idDeclVideo::Parse( const char* text, const int textLength, bool allowBinar
 {
 	idLexer src;
 	idToken token;
-	
+
 	idStr baseStrId = va( "#str_%s_video_", GetName() );
-	
+
 	src.LoadMemory( text, textLength, GetFileName(), GetLineNum() );
 	src.SetFlags( LEXFL_NOSTRINGCONCAT | LEXFL_ALLOWPATHNAMES |	LEXFL_ALLOWMULTICHARLITERALS | LEXFL_ALLOWBACKSLASHSTRINGCONCAT | LEXFL_NOFATALERRORS );
 	src.SkipUntilString( "{" );
-	
+
 	// scan through, identifying each individual parameter
 	while( 1 )
 	{
-	
+
 		if( !src.ReadToken( &token ) )
 		{
 			break;
 		}
-		
+
 		if( token == "}" )
 		{
 			break;
 		}
-		
+
 		if( !token.Icmp( "name" ) )
 		{
 			src.ReadToken( &token );
@@ -524,21 +524,21 @@ bool idDeclVideo::Parse( const char* text, const int textLength, bool allowBinar
 			}
 			continue;
 		}
-		
+
 		if( !token.Icmp( "preview" ) )
 		{
 			src.ReadToken( &token );
 			preview = declManager->FindMaterial( token );
 			continue;
 		}
-		
+
 		if( !token.Icmp( "video" ) )
 		{
 			src.ReadToken( &token );
 			video = declManager->FindMaterial( token );
 			continue;
 		}
-		
+
 		if( !token.Icmp( "info" ) )
 		{
 			src.ReadToken( &token );
@@ -552,16 +552,16 @@ bool idDeclVideo::Parse( const char* text, const int textLength, bool allowBinar
 			}
 			continue;
 		}
-		
+
 		if( !token.Icmp( "audio" ) )
 		{
 			src.ReadToken( &token );
 			audio = declManager->FindSound( token );
 			continue;
 		}
-		
+
 	}
-	
+
 	if( src.HadError() )
 	{
 		src.Warning( "Video decl '%s' had a parse error", GetName() );
@@ -633,27 +633,27 @@ bool idDeclAudio::Parse( const char* text, const int textLength, bool allowBinar
 {
 	idLexer src;
 	idToken token;
-	
+
 	idStr baseStrId = va( "#str_%s_audio_", GetName() );
-	
+
 	src.LoadMemory( text, textLength, GetFileName(), GetLineNum() );
 	src.SetFlags( LEXFL_NOSTRINGCONCAT | LEXFL_ALLOWPATHNAMES |	LEXFL_ALLOWMULTICHARLITERALS | LEXFL_ALLOWBACKSLASHSTRINGCONCAT | LEXFL_NOFATALERRORS );
 	src.SkipUntilString( "{" );
-	
+
 	// scan through, identifying each individual parameter
 	while( 1 )
 	{
-	
+
 		if( !src.ReadToken( &token ) )
 		{
 			break;
 		}
-		
+
 		if( token == "}" )
 		{
 			break;
 		}
-		
+
 		if( !token.Icmp( "name" ) )
 		{
 			src.ReadToken( &token );
@@ -667,14 +667,14 @@ bool idDeclAudio::Parse( const char* text, const int textLength, bool allowBinar
 			}
 			continue;
 		}
-		
+
 		if( !token.Icmp( "audio" ) )
 		{
 			src.ReadToken( &token );
 			audio = declManager->FindSound( token );
 			continue;
 		}
-		
+
 		if( !token.Icmp( "info" ) )
 		{
 			src.ReadToken( &token );
@@ -689,7 +689,7 @@ bool idDeclAudio::Parse( const char* text, const int textLength, bool allowBinar
 			continue;
 		}
 	}
-	
+
 	if( src.HadError() )
 	{
 		src.Warning( "Audio decl '%s' had a parse error", GetName() );

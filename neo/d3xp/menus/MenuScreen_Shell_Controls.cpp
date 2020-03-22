@@ -48,14 +48,14 @@ idMenuScreen_Shell_Controls::Initialize
 void idMenuScreen_Shell_Controls::Initialize( idMenuHandler* data )
 {
 	idMenuScreen::Initialize( data );
-	
+
 	if( data != NULL )
 	{
 		menuGUI = data->GetGUI();
 	}
-	
+
 	SetSpritePath( "menuControls" );
-	
+
 	options = new( TAG_SWF ) idMenuWidget_DynamicList();
 	options->SetNumVisibleOptions( NUM_CONTROLS_OPTIONS );
 	options->SetSpritePath( GetSpritePath(), "info", "options" );
@@ -63,18 +63,18 @@ void idMenuScreen_Shell_Controls::Initialize( idMenuHandler* data )
 	options->SetControlList( true );
 	options->Initialize( data );
 	AddChild( options );
-	
+
 	idMenuWidget_Help* const helpWidget = new( TAG_SWF ) idMenuWidget_Help();
 	helpWidget->SetSpritePath( GetSpritePath(), "info", "helpTooltip" );
 	AddChild( helpWidget );
-	
+
 	btnBack = new( TAG_SWF ) idMenuWidget_Button();
 	btnBack->Initialize( data );
 	btnBack->SetLabel( "#str_swf_settings" );
 	btnBack->SetSpritePath( GetSpritePath(), "info", "btnBack" );
 	btnBack->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_GO_BACK );
 	AddChild( btnBack );
-	
+
 	idMenuWidget_ControlButton* control;
 	control = new( TAG_SWF ) idMenuWidget_ControlButton();
 	control->SetOptionType( OPTION_BUTTON_TEXT );
@@ -83,7 +83,7 @@ void idMenuScreen_Shell_Controls::Initialize( idMenuHandler* data )
 	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, CONTROLS_CMD_BINDINGS );
 	control->RegisterEventObserver( helpWidget );
 	options->AddChild( control );
-	
+
 	control = new( TAG_SWF ) idMenuWidget_ControlButton();
 	control->SetOptionType( OPTION_BUTTON_TEXT );
 	control->SetLabel( "#str_swf_gamepad" );	// Gamepad
@@ -91,7 +91,7 @@ void idMenuScreen_Shell_Controls::Initialize( idMenuHandler* data )
 	control->RegisterEventObserver( helpWidget );
 	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, CONTROLS_CMD_GAMEPAD );
 	options->AddChild( control );
-	
+
 	control = new( TAG_SWF ) idMenuWidget_ControlButton();
 	control->SetOptionType( OPTION_SLIDER_TOGGLE );
 	control->SetLabel( "#str_swf_gamepad_enabled" );	// Gamepad Enabled
@@ -100,7 +100,7 @@ void idMenuScreen_Shell_Controls::Initialize( idMenuHandler* data )
 	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, CONTROLS_CMD_GAMEPAD_ENABLED );
 	control->RegisterEventObserver( helpWidget );
 	options->AddChild( control );
-	
+
 	control = new( TAG_SWF ) idMenuWidget_ControlButton();
 	control->SetOptionType( OPTION_SLIDER_TOGGLE );
 	control->SetLabel( "#str_swf_invert_mouse" );	// Invert Mouse
@@ -109,7 +109,7 @@ void idMenuScreen_Shell_Controls::Initialize( idMenuHandler* data )
 	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, CONTROLS_CMD_INVERT );
 	control->RegisterEventObserver( helpWidget );
 	options->AddChild( control );
-	
+
 	control = new( TAG_SWF ) idMenuWidget_ControlButton();
 	control->SetOptionType( OPTION_SLIDER_BAR );
 	control->SetLabel( "#str_swf_mouse_sens" );	// Mouse Sensitivity
@@ -118,7 +118,7 @@ void idMenuScreen_Shell_Controls::Initialize( idMenuHandler* data )
 	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, CONTROLS_CMD_MOUSE_SENS );
 	control->RegisterEventObserver( helpWidget );
 	options->AddChild( control );
-	
+
 	options->AddEventAction( WIDGET_EVENT_SCROLL_DOWN ).Set( new( TAG_SWF ) idWidgetActionHandler( options, WIDGET_ACTION_EVENT_SCROLL_DOWN_START_REPEATER, WIDGET_EVENT_SCROLL_DOWN ) );
 	options->AddEventAction( WIDGET_EVENT_SCROLL_UP ).Set( new( TAG_SWF ) idWidgetActionHandler( options, WIDGET_ACTION_EVENT_SCROLL_UP_START_REPEATER, WIDGET_EVENT_SCROLL_UP ) );
 	options->AddEventAction( WIDGET_EVENT_SCROLL_DOWN_RELEASE ).Set( new( TAG_SWF ) idWidgetActionHandler( options, WIDGET_ACTION_EVENT_STOP_REPEATER, WIDGET_EVENT_SCROLL_DOWN_RELEASE ) );
@@ -150,7 +150,7 @@ void idMenuScreen_Shell_Controls::Update()
 				buttonInfo->label = "#str_00395";
 			}
 			buttonInfo->action.Set( WIDGET_ACTION_GO_BACK );
-			
+
 			buttonInfo = cmdBar->GetButton( idMenuWidget_CommandBar::BUTTON_JOY1 );
 			if( menuData->GetPlatform() != 2 )
 			{
@@ -159,7 +159,7 @@ void idMenuScreen_Shell_Controls::Update()
 			buttonInfo->action.Set( WIDGET_ACTION_PRESS_FOCUSED );
 		}
 	}
-	
+
 	idSWFScriptObject& root = GetSWFObject()->GetRootObject();
 	if( BindSprite( root ) )
 	{
@@ -171,19 +171,19 @@ void idMenuScreen_Shell_Controls::Update()
 			heading->SetText( controls );	// CONTROLS
 			heading->SetStrokeInfo( true, 0.75f, 1.75f );
 		}
-		
+
 		idSWFSpriteInstance* gradient = GetSprite()->GetScriptObject()->GetNestedSprite( "info", "gradient" );
 		if( gradient != NULL && heading != NULL )
 		{
 			gradient->SetXPos( heading->GetTextLength() );
 		}
 	}
-	
+
 	if( btnBack != NULL )
 	{
 		btnBack->BindSprite( root );
 	}
-	
+
 	idMenuScreen::Update();
 }
 
@@ -210,7 +210,7 @@ void idMenuScreen_Shell_Controls::HideScreen( const mainMenuTransition_t transit
 	{
 		controlData.CommitData();
 	}
-	
+
 	if( menuData != NULL )
 	{
 		idMenuHandler_Shell* handler = dynamic_cast< idMenuHandler_Shell* >( menuData );
@@ -219,7 +219,7 @@ void idMenuScreen_Shell_Controls::HideScreen( const mainMenuTransition_t transit
 			handler->SetupPCOptions();
 		}
 	}
-	
+
 	idMenuScreen::HideScreen( transitionType );
 }
 
@@ -235,15 +235,15 @@ bool idMenuScreen_Shell_Controls::HandleAction( idWidgetAction& action, const id
 	{
 		return true;
 	}
-	
+
 	if( menuData->ActiveScreen() != SHELL_AREA_CONTROLS )
 	{
 		return false;
 	}
-	
+
 	widgetAction_t actionType = action.GetType();
 	const idSWFParmList& parms = action.GetParms();
-	
+
 	switch( actionType )
 	{
 		case WIDGET_ACTION_GO_BACK:
@@ -251,27 +251,27 @@ bool idMenuScreen_Shell_Controls::HandleAction( idWidgetAction& action, const id
 			menuData->SetNextScreen( SHELL_AREA_SETTINGS, MENU_TRANSITION_SIMPLE );
 			return true;
 		}
-		
+
 		case WIDGET_ACTION_COMMAND:
 		{
-		
+
 			if( options == NULL )
 			{
 				return true;
 			}
-			
+
 			int selectionIndex = options->GetFocusIndex();
 			if( parms.Num() > 0 )
 			{
 				selectionIndex = parms[0].ToInteger();
 			}
-			
+
 			if( selectionIndex != options->GetFocusIndex() )
 			{
 				options->SetViewIndex( options->GetViewOffset() + selectionIndex );
 				options->SetFocusIndex( selectionIndex );
 			}
-			
+
 			switch( parms[0].ToInteger() )
 			{
 				case CONTROLS_CMD_BINDINGS:
@@ -312,17 +312,17 @@ bool idMenuScreen_Shell_Controls::HandleAction( idWidgetAction& action, const id
 					break;
 				}
 			}
-			
+
 			return true;
 		}
 		case WIDGET_ACTION_START_REPEATER:
 		{
-		
+
 			if( options == NULL )
 			{
 				return true;
 			}
-			
+
 			if( parms.Num() == 4 )
 			{
 				int selectionIndex = parms[3].ToInteger();
@@ -335,7 +335,7 @@ bool idMenuScreen_Shell_Controls::HandleAction( idWidgetAction& action, const id
 			break;
 		}
 	}
-	
+
 	return idMenuWidget::HandleAction( action, event, widget, forceHandled );
 }
 
@@ -369,7 +369,7 @@ void idMenuScreen_Shell_Controls::idMenuDataSource_ControlSettings::LoadData()
 	float mouseSpeed = ( ( in_mouseSpeed.GetFloat() - 0.25f ) / ( 4.0f - 0.25 ) ) * 100.0f;
 	fields[ CONTROLS_FIELD_MOUSE_SENS ].SetFloat( mouseSpeed );
 	fields[ CONTROLS_FIELD_GAMEPAD_ENABLED ].SetBool( in_useJoystick.GetBool() );
-	
+
 	originalFields = fields;
 }
 
@@ -385,9 +385,9 @@ void idMenuScreen_Shell_Controls::idMenuDataSource_ControlSettings::CommitData()
 	float mouseSpeed = 0.25f + ( ( 4.0f - 0.25 ) * ( fields[ CONTROLS_FIELD_MOUSE_SENS ].ToFloat() / 100.0f ) );
 	in_mouseSpeed.SetFloat( mouseSpeed );
 	in_useJoystick.SetBool( fields[ CONTROLS_FIELD_GAMEPAD_ENABLED ].ToBool() );
-	
+
 	cvarSystem->SetModifiedFlags( CVAR_ARCHIVE );
-	
+
 	// make the committed fields into the backup fields
 	originalFields = fields;
 }
@@ -422,16 +422,16 @@ bool idMenuScreen_Shell_Controls::idMenuDataSource_ControlSettings::IsDataChange
 	{
 		return true;
 	}
-	
+
 	if( fields[ CONTROLS_FIELD_MOUSE_SENS ].ToFloat() != originalFields[ CONTROLS_FIELD_MOUSE_SENS ].ToFloat() )
 	{
 		return true;
 	}
-	
+
 	if( fields[ CONTROLS_FIELD_GAMEPAD_ENABLED ].ToFloat() != originalFields[ CONTROLS_FIELD_GAMEPAD_ENABLED ].ToFloat() )
 	{
 		return true;
 	}
-	
+
 	return false;
 }

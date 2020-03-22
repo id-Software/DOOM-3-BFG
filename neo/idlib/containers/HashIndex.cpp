@@ -39,7 +39,7 @@ idHashIndex::Init
 void idHashIndex::Init( const int initialHashSize, const int initialIndexSize )
 {
 	assert( idMath::IsPowerOfTwo( initialHashSize ) );
-	
+
 	hashSize = initialHashSize;
 	hash = INVALID_INDEX;
 	indexSize = initialIndexSize;
@@ -57,7 +57,7 @@ idHashIndex::Allocate
 void idHashIndex::Allocate( const int newHashSize, const int newIndexSize )
 {
 	assert( idMath::IsPowerOfTwo( newHashSize ) );
-	
+
 	Free();
 	hashSize = newHashSize;
 	hash = new( TAG_IDLIB_HASH ) int[hashSize];
@@ -97,12 +97,12 @@ idHashIndex::ResizeIndex
 void idHashIndex::ResizeIndex( const int newIndexSize )
 {
 	int* oldIndexChain, mod, newSize;
-	
+
 	if( newIndexSize <= indexSize )
 	{
 		return;
 	}
-	
+
 	mod = newIndexSize % granularity;
 	if( !mod )
 	{
@@ -112,13 +112,13 @@ void idHashIndex::ResizeIndex( const int newIndexSize )
 	{
 		newSize = newIndexSize + granularity - mod;
 	}
-	
+
 	if( indexChain == INVALID_INDEX )
 	{
 		indexSize = newSize;
 		return;
 	}
-	
+
 	oldIndexChain = indexChain;
 	indexChain = new( TAG_IDLIB_HASH ) int[newSize];
 	memcpy( indexChain, oldIndexChain, indexSize * sizeof( int ) );
@@ -135,12 +135,12 @@ idHashIndex::GetSpread
 int idHashIndex::GetSpread() const
 {
 	int i, index, totalItems, *numHashItems, average, error, e;
-	
+
 	if( hash == INVALID_INDEX )
 	{
 		return 100;
 	}
-	
+
 	totalItems = 0;
 	numHashItems = new( TAG_IDLIB_HASH ) int[hashSize];
 	for( i = 0; i < hashSize; i++ )

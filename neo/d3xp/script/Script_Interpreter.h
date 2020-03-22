@@ -49,27 +49,27 @@ private:
 	prstack_t			callStack[ MAX_STACK_DEPTH ];
 	int 				callStackDepth;
 	int 				maxStackDepth;
-	
+
 	byte				localstack[ LOCALSTACK_SIZE ];
 	int 				localstackUsed;
 	int 				localstackBase;
 	int 				maxLocalstackUsed;
-	
+
 	const function_t*	currentFunction;
 	int 				instructionPointer;
-	
+
 	int					popParms;
 	const idEventDef*	multiFrameEvent;
 	idEntity*			eventEntity;
-	
+
 	idThread*			thread;
-	
+
 	void				PopParms( int numParms );
 	void				PushString( const char* string );
 	// RB begin
 	// RB: 64 bit fix, changed int to intptr_t
 	void				Push( intptr_t value );
-	
+
 	// RB: added PushVector for new E_EVENT_SIZEOF_VEC
 	void				PushVector( const idVec3& vector );
 	// RB end
@@ -81,51 +81,51 @@ private:
 	idEntity*			GetEntity( int entnum ) const;
 	idScriptObject*		GetScriptObject( int entnum ) const;
 	void				NextInstruction( int position );
-	
+
 	void				LeaveFunction( idVarDef* returnDef );
 	void				CallEvent( const function_t* func, int argsize );
 	void				CallSysEvent( const function_t* func, int argsize );
-	
+
 public:
 	bool				doneProcessing;
 	bool				threadDying;
 	bool				terminateOnExit;
 	bool				debug;
-	
+
 	idInterpreter();
-	
+
 	// save games
 	void				Save( idSaveGame* savefile ) const;				// archives object for save game file
 	void				Restore( idRestoreGame* savefile );				// unarchives object from save game file
-	
+
 	void				SetThread( idThread* pThread );
-	
+
 	void				StackTrace() const;
-	
+
 	int					CurrentLine() const;
 	const char*			CurrentFile() const;
-	
+
 	void				Error( VERIFY_FORMAT_STRING const char* fmt, ... ) const;
 	void				Warning( VERIFY_FORMAT_STRING const char* fmt, ... ) const;
 	void				DisplayInfo() const;
-	
+
 	bool				BeginMultiFrameEvent( idEntity* ent, const idEventDef* event );
 	void				EndMultiFrameEvent( idEntity* ent, const idEventDef* event );
 	bool				MultiFrameEventInProgress() const;
-	
+
 	void				ThreadCall( idInterpreter* source, const function_t* func, int args );
 	void				EnterFunction( const function_t* func, bool clearStack );
 	void				EnterObjectFunction( idEntity* self, const function_t* func, bool clearStack );
-	
+
 	bool				Execute();
 	void				Reset();
-	
+
 	bool				GetRegisterValue( const char* name, idStr& out, int scopeDepth );
 	int					GetCallstackDepth() const;
 	const prstack_t*		GetCallstack() const;
 	const function_t*	GetCurrentFunction() const;
 	idThread*			GetThread() const;
-	
+
 };
 
 /*
@@ -140,7 +140,7 @@ ID_INLINE void idInterpreter::PopParms( int numParms )
 	{
 		Error( "locals stack underflow\n" );
 	}
-	
+
 	localstackUsed -= numParms;
 }
 
@@ -202,7 +202,7 @@ idInterpreter::FloatToString
 ID_INLINE const char* idInterpreter::FloatToString( float value )
 {
 	static char	text[ 32 ];
-	
+
 	if( value == ( float )( int )value )
 	{
 		sprintf( text, "%d", ( int )value );

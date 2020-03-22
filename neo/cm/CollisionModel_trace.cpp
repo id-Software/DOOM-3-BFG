@@ -57,7 +57,7 @@ void idCollisionModelManagerLocal::TraceTrmThroughNode( cm_traceWork_t* tw, cm_n
 {
 	cm_polygonRef_t* pref;
 	cm_brushRef_t* bref;
-	
+
 	// position test
 	if( tw->positionTest )
 	{
@@ -127,22 +127,22 @@ void idCollisionModelManagerLocal::TraceThroughAxialBSPTree_r( cm_traceWork_t* t
 	idVec3		mid;
 	int			side;
 	float		midf;
-	
+
 	if( !node )
 	{
 		return;
 	}
-	
+
 	if( tw->quickExit )
 	{
 		return;		// stop immediately
 	}
-	
+
 	if( tw->trace.fraction <= p1f )
 	{
 		return;		// already hit something nearer
 	}
-	
+
 	// if we need to test this node for collisions
 	if( node->polygons || ( tw->positionTest && node->brushes ) )
 	{
@@ -175,13 +175,13 @@ void idCollisionModelManagerLocal::TraceThroughAxialBSPTree_r( cm_traceWork_t* t
 		idCollisionModelManagerLocal::TraceThroughAxialBSPTree_r( tw, node->children[0], p1f, p2f, p1, p2 );
 		return;
 	}
-	
+
 	if( t1 < -offset && t2 < -offset )
 	{
 		idCollisionModelManagerLocal::TraceThroughAxialBSPTree_r( tw, node->children[1], p1f, p2f, p1, p2 );
 		return;
 	}
-	
+
 	if( t1 < t2 )
 	{
 		idist = 1.0f / ( t1 - t2 );
@@ -202,7 +202,7 @@ void idCollisionModelManagerLocal::TraceThroughAxialBSPTree_r( cm_traceWork_t* t
 		frac = 1.0f;
 		frac2 = 0.0f;
 	}
-	
+
 	// move up to the node
 	if( frac < 0.0f )
 	{
@@ -212,16 +212,16 @@ void idCollisionModelManagerLocal::TraceThroughAxialBSPTree_r( cm_traceWork_t* t
 	{
 		frac = 1.0f;
 	}
-	
+
 	midf = p1f + ( p2f - p1f ) * frac;
-	
+
 	mid[0] = p1[0] + frac * ( p2[0] - p1[0] );
 	mid[1] = p1[1] + frac * ( p2[1] - p1[1] );
 	mid[2] = p1[2] + frac * ( p2[2] - p1[2] );
-	
+
 	idCollisionModelManagerLocal::TraceThroughAxialBSPTree_r( tw, node->children[side], p1f, midf, p1, mid );
-	
-	
+
+
 	// go past the node
 	if( frac2 < 0.0f )
 	{
@@ -231,13 +231,13 @@ void idCollisionModelManagerLocal::TraceThroughAxialBSPTree_r( cm_traceWork_t* t
 	{
 		frac2 = 1.0f;
 	}
-	
+
 	midf = p1f + ( p2f - p1f ) * frac2;
-	
+
 	mid[0] = p1[0] + frac2 * ( p2[0] - p1[0] );
 	mid[1] = p1[1] + frac2 * ( p2[1] - p1[1] );
 	mid[2] = p1[2] + frac2 * ( p2[2] - p1[2] );
-	
+
 	idCollisionModelManagerLocal::TraceThroughAxialBSPTree_r( tw, node->children[side ^ 1], midf, p2f, mid, p2 );
 }
 
@@ -252,7 +252,7 @@ void idCollisionModelManagerLocal::TraceThroughModel( cm_traceWork_t* tw )
 	int i, numSteps;
 	idVec3 start, end;
 	idRotation rot;
-	
+
 	if( !tw->rotation )
 	{
 		// trace through spatial subdivision and then through leafs

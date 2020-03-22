@@ -42,7 +42,7 @@ class idListGUI
 {
 public:
 	virtual				~idListGUI() { }
-	
+
 	virtual void		Config( idUserInterface* pGUI, const char* name ) = 0;
 	virtual void		Add( int id, const idStr& s ) = 0;
 	// use the element count as index for the ids

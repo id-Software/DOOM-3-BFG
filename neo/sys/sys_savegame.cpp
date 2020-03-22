@@ -49,7 +49,7 @@ void Sys_ExecuteSavegameCommandAsync( idSaveLoadParms* savegameParms )
 		idLib::Error( "Programming Error with [%s]", __FUNCTION__ );
 		return;
 	}
-	
+
 	if( !saveGame_enable.GetBool() )
 	{
 		idLib::Warning( "Savegames are disabled (saveGame_enable = 0). Skipping physical save to media." );
@@ -57,7 +57,7 @@ void Sys_ExecuteSavegameCommandAsync( idSaveLoadParms* savegameParms )
 		savegameParms->callbackSignal.Raise();
 		return;
 	}
-	
+
 	Sys_ExecuteSavegameCommandAsyncImpl( savegameParms );
 }
 
@@ -108,26 +108,26 @@ idStr GetSaveGameErrorString( int errorMask )
 	idStr errorString;
 	bool continueProcessing = errorMask > 0;
 	int localError = errorMask;
-	
+
 	for( int i = 0; i < SAVEGAME_E_NUM && continueProcessing; ++i )
 	{
 		int mask = ( 1 << i );
-		
+
 		if( localError & mask )
 		{
 			localError ^= mask;	// turn off this error so we can quickly see if we are done
-			
+
 			continueProcessing = localError > 0;
-			
+
 			errorString.Append( saveGameErrorStrings[i] );
-			
+
 			if( continueProcessing )
 			{
 				errorString.Append( ", " );
 			}
 		}
 	}
-	
+
 	return errorString;
 }
 
@@ -145,18 +145,18 @@ const idStr& GetSaveFolder( idSaveGameManager::packageType_t type )
 {
 	static bool initialized = false;
 	static idStrStatic<MAX_FOLDER_NAME_LENGTH>	saveFolder[idSaveGameManager::PACKAGE_NUM];
-	
+
 	if( !initialized )
 	{
 		initialized = true;
-		
+
 		idStr ps3Header = "";
-		
+
 		saveFolder[idSaveGameManager::PACKAGE_GAME].Format( "%s%s", ps3Header.c_str(), SAVEGAME_GAME_DIRECTORY_PREFIX );
 		saveFolder[idSaveGameManager::PACKAGE_PROFILE].Format( "%s%s", ps3Header.c_str(), SAVEGAME_PROFILE_DIRECTORY_PREFIX );
 		saveFolder[idSaveGameManager::PACKAGE_RAW].Format( "%s%s", ps3Header.c_str(), SAVEGAME_RAW_DIRECTORY_PREFIX );
 	}
-	
+
 	return saveFolder[type];
 }
 
@@ -172,8 +172,8 @@ idStr AddSaveFolderPrefix( const char* folder, idSaveGameManager::packageType_t 
 {
 	idStr dir = GetSaveFolder( type );
 	dir.Append( folder );
-	
-	
+
+
 	return dir;
 }
 
@@ -203,19 +203,19 @@ returns false when catastrophic error occurs, not when damaged
 bool SavegameReadDetailsFromFile( idFile* file, idSaveGameDetails& details )
 {
 	details.damaged = false;
-	
+
 	// Read the DETAIL file for the enumerated data
 	if( !details.descriptors.ReadFromIniFile( file ) )
 	{
 		details.damaged = true;
 	}
-	
+
 	bool ignoreChecksum = details.descriptors.GetBool( "ignore_checksum", false );
 	if( !ignoreChecksum )
 	{
 		// Get the checksum from the dict
 		int readChecksum = details.descriptors.GetInt( SAVEGAME_DETAIL_FIELD_CHECKSUM, 0 );
-		
+
 		// Calculate checksum
 		details.descriptors.Delete( SAVEGAME_DETAIL_FIELD_CHECKSUM );
 		int checksum = ( int )details.descriptors.Checksum();
@@ -224,7 +224,7 @@ bool SavegameReadDetailsFromFile( idFile* file, idSaveGameDetails& details )
 			details.damaged = true;
 		}
 	}
-	
+
 	return true;
 }
 
@@ -261,7 +261,7 @@ idSaveLoadParms::idSaveLoadParms()
 	// These are not done when we set defaults because SetDefaults is called internally within the execution of the processor and
 	// these are set once and shouldn't be touched until the processor is re-initialized
 	cancelled = false;
-	
+
 	Init();
 }
 
@@ -312,7 +312,7 @@ void idSaveLoadParms::Init()
 	errorCode = SAVEGAME_E_NONE;
 	inputDeviceId = -1;
 	skipErrorDialogMask = 0;
-	
+
 	// These are not done when we set defaults because SetDefaults is called internally within the execution of the processor and
 	// these are set once and shouldn't be touched until the processor is re-initialized
 	// cancelled = false;
@@ -328,10 +328,10 @@ void idSaveLoadParms::SetDefaults( int newInputDevice )
 	// These are pulled out so SetDefaults() isn't called during global instantiation of objects that have savegame processors
 	// in them that then require a session reference.
 	Init();
-	
+
 	// fill in the user information (inputDeviceId & userId) from the master user
 	idLocalUser* user = NULL;
-	
+
 	if( newInputDevice != -1 )
 	{
 		user = session->GetSignInManager().GetLocalUserByInputDevice( newInputDevice );
@@ -340,7 +340,7 @@ void idSaveLoadParms::SetDefaults( int newInputDevice )
 	{
 		user = session->GetSignInManager().GetMasterLocalUser();
 	}
-	
+
 	if( user != NULL )
 	{
 		idLocalUserWin* userWin = static_cast< idLocalUserWin* >( user );
@@ -363,7 +363,7 @@ void idSaveLoadParms::CancelSaveGameFilePipelines()
 		{
 			idFile_SaveGamePipelined* file = dynamic_cast< idFile_SaveGamePipelined* >( files[i] );
 			assert( file != NULL );
-			
+
 			if( file->GetMode() == idFile_SaveGamePipelined::WRITE )
 			{
 				// Notify the save game file that all writes failed which will cause all
@@ -425,14 +425,14 @@ bool idSaveGameProcessor::Init()
 		idLib::Warning( "[%s] Someone is trying to execute this processor twice, this is really bad!", this->Name() );
 		return false;
 	}
-	
+
 	parms.ResetCancelled();
 	parms.SetDefaults();
 	savegameLogicTestIterator = 0;
 	working = false;
 	init = true;
 	completedCallbacks.Clear();
-	
+
 	return true;
 }
 
@@ -499,12 +499,12 @@ idSaveGameManager::ExecuteProcessor
 saveGameHandle_t idSaveGameManager::ExecuteProcessor( idSaveGameProcessor* processor )
 {
 	idLib::PrintfIf( saveGame_verbose.GetBool(), "[%s] : %s\n", __FUNCTION__, processor->Name() );
-	
+
 	// may not be running yet, but if we've init'd successfuly, the IsWorking() call should return true if this
 	// method has been called.  You have problems when callees are asking if the processor is done working by using IsWorking()
 	// the next frame after they've executed the processor.
 	processor->working = true;
-	
+
 	if( this->processor != NULL )
 	{
 		if( !verify( this->processor != processor ) )
@@ -522,16 +522,16 @@ saveGameHandle_t idSaveGameManager::ExecuteProcessor( idSaveGameProcessor* proce
 			}
 		}
 	}
-	
+
 	processorQueue.Append( processor );
-	
+
 	// Don't allow processors to start sub-processors.
 	// They need to manage their own internal state.
 	assert( idLib::IsMainThread() );
-	
+
 	Sys_InterlockedIncrement( submittedProcessorHandle );
 	processor->parms.handle = submittedProcessorHandle;
-	
+
 	return submittedProcessorHandle;
 }
 
@@ -547,16 +547,16 @@ saveGameHandle_t idSaveGameManager::ExecuteProcessorAndWait( idSaveGameProcessor
 	{
 		return 0;
 	}
-	
+
 	while( !IsSaveGameCompletedFromHandle( handle ) )
 	{
 		Pump();
 		Sys_Sleep( 10 );
 	}
-	
+
 	// One more pump to get the completed callback
 	//Pump();
-	
+
 	return handle;
 }
 
@@ -574,10 +574,10 @@ to bail out nicely.  Something like canceling a disc swap during a loading disc 
 void idSaveGameManager::WaitForAllProcessors( bool overrideSimpleProcessorCheck )
 {
 	assert( idLib::IsMainThread() );
-	
+
 	while( IsWorking() || ( processorQueue.Num() > 0 ) )
 	{
-	
+
 		if( !overrideSimpleProcessorCheck )
 		{
 			// BEFORE WE WAIT, and potentially hang everything, make sure processors about to be executed won't sit and
@@ -595,7 +595,7 @@ void idSaveGameManager::WaitForAllProcessors( bool overrideSimpleProcessorCheck 
 				break;
 			}
 		}
-		
+
 		saveThread.WaitForThread();
 		Pump();
 	}
@@ -609,9 +609,9 @@ idSaveGameManager::CancelAllProcessors
 void idSaveGameManager::CancelAllProcessors( const bool forceCancelInFlightProcessor )
 {
 	assert( idLib::IsMainThread() );
-	
+
 	cancel = true;
-	
+
 	if( forceCancelInFlightProcessor )
 	{
 		if( processor != NULL )
@@ -619,7 +619,7 @@ void idSaveGameManager::CancelAllProcessors( const bool forceCancelInFlightProce
 			processor->GetSignal().Raise();
 		}
 	}
-	
+
 	Pump();	// must be called from the main thread
 	Clear();
 	cancel = false;
@@ -652,7 +652,7 @@ bool idSaveGameManager::DeviceSelectorWaitingOnSaveRetry()
 	{
 		return false;
 	}
-	
+
 	return ( idStr::Icmp( retryFolder, "GAME-autosave" ) == 0 );
 }
 
@@ -711,7 +711,7 @@ void idSaveGameManager::ShowRetySaveDialog( const char* folder, const int64 byte
 
 	idStaticList< idSWFScriptFunction*, 4 > callbacks;
 	idStaticList< idStrId, 4 > optionText;
-	
+
 	class idSWFScriptFunction_Continue : public idSWFScriptFunction_RefCounted
 	{
 	public:
@@ -722,12 +722,12 @@ void idSaveGameManager::ShowRetySaveDialog( const char* folder, const int64 byte
 			return idSWFScriptVar();
 		}
 	};
-	
+
 	callbacks.Append( new( TAG_SWF ) idSWFScriptFunction_Continue() );
 	optionText.Append( idStrId( "#str_dlg_continue_without_saving" ) );
-	
-	
-	
+
+
+
 	// build custom space required string
 	// #str_dlg_space_required ~= "There is insufficient storage available.  Please free %s and try again."
 	idStr format = idStrId( "#str_dlg_space_required" ).GetLocalizedString();
@@ -743,7 +743,7 @@ void idSaveGameManager::ShowRetySaveDialog( const char* folder, const int64 byte
 		size = va( "%.0f KB", ( roundUp + ( float ) bytes ) / 1024.0f );
 	}
 	idStr msg = va( format.c_str(), size.c_str() );
-	
+
 	common->Dialog().AddDynamicDialog( GDM_INSUFFICENT_STORAGE_SPACE, callbacks, optionText, true, msg, true );
 }
 
@@ -758,7 +758,7 @@ void idSaveGameManager::CancelWithHandle( const saveGameHandle_t& handle )
 	{
 		return;
 	}
-	
+
 	// check processor in flight first
 	if( processor != NULL )
 	{
@@ -768,7 +768,7 @@ void idSaveGameManager::CancelWithHandle( const saveGameHandle_t& handle )
 			return;
 		}
 	}
-	
+
 	// remove from queue
 	for( int i = 0; i < processorQueue.Num(); ++i )
 	{
@@ -793,10 +793,10 @@ void idSaveGameManager::StartNextProcessor()
 	{
 		return;
 	}
-	
+
 	idSaveGameProcessor* nextProcessor = NULL;
 	int index = 0;
-	
+
 	// pick off the first simple processor
 	for( int i = 0; i < processorQueue.Num(); ++i )
 	{
@@ -806,14 +806,14 @@ void idSaveGameManager::StartNextProcessor()
 			break;
 		}
 	}
-	
+
 	if( processorQueue.Num() > 0 )
 	{
 		nextProcessor = processorQueue[index];
-		
-		
+
+
 		Sys_InterlockedIncrement( executingProcessorHandle );
-		
+
 		processorQueue.RemoveIndex( index );
 		processor = nextProcessor;
 		processor->parms.callbackSignal.Raise();	// signal that the thread is ready for work
@@ -831,7 +831,7 @@ void idSaveGameManager::FinishProcessor( idSaveGameProcessor* localProcessor )
 
 	assert( localProcessor != NULL );
 	idLib::PrintfIf( saveGame_verbose.GetBool(), "[%s] : %s, %d ms\n", __FUNCTION__, localProcessor->Name(), Sys_Milliseconds() - startTime );
-	
+
 	// This will delete from the files set for auto-deletion
 	// Don't remove files not set for auto-deletion, they may be used outside of the savegame manager by game-side callbacks for example
 	for( int i = ( localProcessor->parms.files.Num() - 1 ); i >= 0; --i )
@@ -842,7 +842,7 @@ void idSaveGameManager::FinishProcessor( idSaveGameProcessor* localProcessor )
 			localProcessor->parms.files.RemoveIndexFast( i );
 		}
 	}
-	
+
 	localProcessor->init = false;
 	localProcessor = NULL;
 }
@@ -888,25 +888,25 @@ void idSaveGameManager::Pump()
 		// START
 		// ------------------------------------
 		StartNextProcessor();
-		
+
 		if( !IsWorking() )
 		{
 			return;
 		}
-		
+
 		continueProcessing = true;
 	}
-	
+
 	if( cancel )
 	{
 		processor->parms.AbortSaveGameFilePipeline();
 	}
-	
+
 	// Quickly checks to see if the savegame thread is done, otherwise, exit and continue frame commands
 	if( processor->IsThreadFinished() )
 	{
 		idLib::PrintfIf( saveGame_verbose.GetBool(), "%s waited on processor [%s], error = 0x%08X, %s\n", __FUNCTION__, processor->Name(), processor->GetError(), GetSaveGameErrorString( processor->GetError() ).c_str() );
-		
+
 		if( !cancel && continueProcessing )
 		{
 			// Check for available storage unit
@@ -918,18 +918,18 @@ void idSaveGameManager::Pump()
 					processor->parms.errorCode = SAVEGAME_E_UNABLE_TO_SELECT_STORAGE_DEVICE;
 				}
 			}
-			
+
 			// Execute Process() on the processor, if there was an error in a previous Process() call, give the
 			// processor the chance to validate that error and either clean itself up or convert it to another error or none.
 			if( processor->GetError() == SAVEGAME_E_NONE || processor->ValidateLastError() )
 			{
 				idLib::PrintfIf( saveGame_verbose.GetBool(), "%s calling %s::Process(), error = 0x%08X, %s\n", __FUNCTION__, processor->Name(), processor->GetError(), GetSaveGameErrorString( processor->GetError() ).c_str() );
-				
+
 				// ------------------------------------
 				// PROCESS
 				// ------------------------------------
 				continueProcessing = processor->Process();
-				
+
 				// If we don't return here, the completedCallback will be executed before it's done with it's async operation
 				// during it's last process stage.
 				return;
@@ -939,11 +939,11 @@ void idSaveGameManager::Pump()
 				continueProcessing = false;
 			}
 		}
-		
+
 		// This section does specific post-processing for each of the save commands
 		if( !continueProcessing )
 		{
-		
+
 			// Clear out details if we detect corruption but keep directory/slot information
 			for( int i = 0; i < processor->parms.detailList.Num(); ++i )
 			{
@@ -953,10 +953,10 @@ void idSaveGameManager::Pump()
 					details.descriptors.Clear();
 				}
 			}
-			
+
 			idLib::PrintfIf( saveGame_verbose.GetBool(), "%s calling %s::CompletedCallback()\n", __FUNCTION__, processor->Name() );
 			processor->working = false;
-			
+
 			// This ensures that the savegame manager will believe the processor is done when there is a potentially
 			// catastrophic thing that will happen within CompletedCallback which might try to sync all threads
 			// The most common case of this is executing a map change (which we no longer do).
@@ -964,19 +964,19 @@ void idSaveGameManager::Pump()
 			// cleanup the old processor within FinishProcessor()
 			idSaveGameProcessor* localProcessor = processor;
 			processor = NULL;
-			
+
 			// ------------------------------------
 			// COMPLETEDCALLBACK
 			// At this point, the handle will be completed
 			// ------------------------------------
 			Sys_InterlockedIncrement( lastExecutedProcessorHandle );
-			
+
 			for( int i = 0; i < localProcessor->completedCallbacks.Num(); i++ )
 			{
 				localProcessor->completedCallbacks[i]->Call();
 			}
 			localProcessor->completedCallbacks.DeleteContents( true );
-			
+
 			// ------------------------------------
 			// FINISHPROCESSOR
 			// ------------------------------------
@@ -987,11 +987,11 @@ void idSaveGameManager::Pump()
 	{
 		// Hack for the PS3 threading hang
 		idLib::PrintfIf( saveGame_verbose.GetBool(), "----- PROCESSOR TIMEOUT ----- (%s)\n", processor->Name() );
-		
+
 		idSaveGameProcessor* tempProcessor = processor;
-		
+
 		CancelAllProcessors( true );
-		
+
 		class idSWFScriptFunction_TryAgain : public idSWFScriptFunction_RefCounted
 		{
 		public:
@@ -1010,7 +1010,7 @@ void idSaveGameManager::Pump()
 			idSaveGameManager* manager;
 			idSaveGameProcessor* processor;
 		};
-		
+
 		idStaticList< idSWFScriptFunction*, 4 > callbacks;
 		idStaticList< idStrId, 4 > optionText;
 		callbacks.Append( new( TAG_SWF ) idSWFScriptFunction_TryAgain( this, tempProcessor ) );

@@ -42,14 +42,14 @@ class idAASReach
 
 public:
 	bool					Build( const idMapFile* mapFile, idAASFileLocal* file );
-	
+
 private:
 	const idMapFile* 		mapFile;
 	idAASFileLocal* 		file;
 	int						numReachabilities;
 	bool					allowSwimReachabilities;
 	bool					allowFlyReachabilities;
-	
+
 private:	// reachability
 	void					FlagReachableAreas( idAASFileLocal* file );
 	bool					ReachabilityExists( int fromAreaNum, int toAreaNum );
@@ -62,7 +62,7 @@ private:	// reachability
 	void					Reachability_EqualFloorHeight( int areaNum );
 	bool					Reachability_Step_Barrier_WaterJump_WalkOffLedge( int fromAreaNum, int toAreaNum );
 	void					Reachability_WalkOffLedge( int areaNum );
-	
+
 };
 
 #endif /* !__AASREACH_H__ */

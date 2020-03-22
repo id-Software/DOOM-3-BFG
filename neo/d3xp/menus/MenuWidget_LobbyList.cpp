@@ -41,14 +41,14 @@ void idMenuWidget_LobbyList::Update()
 	{
 		return;
 	}
-	
+
 	idSWFScriptObject& root = GetSWFObject()->GetRootObject();
-	
+
 	if( !BindSprite( root ) )
 	{
 		return;
 	}
-	
+
 	for( int i = 0; i < headings.Num(); ++i )
 	{
 		idSWFTextInstance* txtHeading = GetSprite()->GetScriptObject()->GetNestedText( va( "heading%d", i ) );
@@ -58,7 +58,7 @@ void idMenuWidget_LobbyList::Update()
 			txtHeading->SetStrokeInfo( true, 0.75f, 1.75f );
 		}
 	}
-	
+
 	for( int optionIndex = 0; optionIndex < GetNumVisibleOptions(); ++optionIndex )
 	{
 		bool shown = false;
@@ -96,14 +96,14 @@ bool idMenuWidget_LobbyList::PrepareListElement( idMenuWidget& widget, const int
 	{
 		return false;
 	}
-	
+
 	if( !button->IsValid() )
 	{
 		return false;
 	}
-	
+
 	return true;
-	
+
 }
 
 /*
@@ -132,14 +132,14 @@ void idMenuWidget_LobbyList::SetEntryData( int index, idStr name, voiceStateDisp
 	{
 		return;
 	}
-	
+
 	idMenuWidget& child = GetChildByIndex( index );
 	idMenuWidget_LobbyButton* const button = dynamic_cast< idMenuWidget_LobbyButton* >( &child );
-	
+
 	if( button == NULL )
 	{
 		return;
 	}
-	
+
 	button->SetButtonInfo( name, voiceState );
 }

@@ -45,17 +45,17 @@ void idSWF::DefineFont2( idSWFBitStream& bitstream )
 	}
 	uint8 flags = bitstream.ReadU8();
 	uint8 language = bitstream.ReadU8();
-	
+
 	char fontName[257];
 	uint8 fontNameLength = bitstream.ReadU8();
 	memcpy( fontName, bitstream.ReadData( fontNameLength ), fontNameLength );
 	fontName[ fontNameLength ] = 0;
-	
+
 	entry->font->fontID = renderSystem->RegisterFont( fontName );
-	
+
 	uint16 numGlyphs = bitstream.ReadU16();
 	entry->font->glyphs.SetNum( numGlyphs );
-	
+
 	if( flags & BIT( 3 ) )
 	{
 		// 32 bit offsets
@@ -174,13 +174,13 @@ void idSWF::DefineTextX( idSWFBitStream& bitstream, bool rgba )
 		return;
 	}
 	idSWFText* text = entry->text;
-	
+
 	bitstream.ReadRect( text->bounds );
 	bitstream.ReadMatrix( text->matrix );
-	
+
 	uint8 glyphBits = bitstream.ReadU8();
 	uint8 advanceBits = bitstream.ReadU8();
-	
+
 	while( true )
 	{
 		uint8 flags = bitstream.ReadU8();
@@ -189,7 +189,7 @@ void idSWF::DefineTextX( idSWFBitStream& bitstream, bool rgba )
 			break;
 		}
 		idSWFTextRecord& textRecord = text->textRecords.Alloc();
-		
+
 		if( flags & BIT( 3 ) )
 		{
 			textRecord.fontID = bitstream.ReadU16();
@@ -310,7 +310,7 @@ void idSWF::DefineEditText( idSWFBitStream& bitstream )
 	{
 		const char* text = bitstream.ReadString();
 		idStr initialText;
-		
+
 		// convert html tags if necessary
 		for( int i = 0; text[i] != 0; i++ )
 		{

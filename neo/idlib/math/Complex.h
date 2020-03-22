@@ -42,55 +42,55 @@ class idComplex
 public:
 	float				r;		// real part
 	float				i;		// imaginary part
-	
+
 	idComplex();
 	idComplex( const float r, const float i );
-	
+
 	void 				Set( const float r, const float i );
 	void				Zero();
-	
+
 	float				operator[]( int index ) const;
 	float& 				operator[]( int index );
-	
+
 	idComplex			operator-() const;
 	idComplex& 			operator=( const idComplex& a );
-	
+
 	idComplex			operator*( const idComplex& a ) const;
 	idComplex			operator/( const idComplex& a ) const;
 	idComplex			operator+( const idComplex& a ) const;
 	idComplex			operator-( const idComplex& a ) const;
-	
+
 	idComplex& 			operator*=( const idComplex& a );
 	idComplex& 			operator/=( const idComplex& a );
 	idComplex& 			operator+=( const idComplex& a );
 	idComplex& 			operator-=( const idComplex& a );
-	
+
 	idComplex			operator*( const float a ) const;
 	idComplex			operator/( const float a ) const;
 	idComplex			operator+( const float a ) const;
 	idComplex			operator-( const float a ) const;
-	
+
 	idComplex& 			operator*=( const float a );
 	idComplex& 			operator/=( const float a );
 	idComplex& 			operator+=( const float a );
 	idComplex& 			operator-=( const float a );
-	
+
 	friend idComplex	operator*( const float a, const idComplex& b );
 	friend idComplex	operator/( const float a, const idComplex& b );
 	friend idComplex	operator+( const float a, const idComplex& b );
 	friend idComplex	operator-( const float a, const idComplex& b );
-	
+
 	bool				Compare( const idComplex& a ) const;						// exact compare, no epsilon
 	bool				Compare( const idComplex& a, const float epsilon ) const;	// compare with epsilon
 	bool				operator==(	const idComplex& a ) const;						// exact compare, no epsilon
 	bool				operator!=(	const idComplex& a ) const;						// exact compare, no epsilon
-	
+
 	idComplex			Reciprocal() const;
 	idComplex			Sqrt() const;
 	float				Abs() const;
-	
+
 	int					GetDimension() const;
-	
+
 	const float* 		ToFloatPtr() const;
 	float* 				ToFloatPtr();
 	const char* 		ToString( int precision = 2 ) const;
@@ -314,7 +314,7 @@ ID_INLINE idComplex idComplex::Reciprocal() const
 ID_INLINE idComplex idComplex::Sqrt() const
 {
 	float x, y, w;
-	
+
 	if( r == 0.0f && i == 0.0f )
 	{
 		return idComplex( 0.0f, 0.0f );

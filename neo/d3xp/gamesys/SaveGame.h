@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2015 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -40,18 +41,18 @@ class idSaveGame
 public:
 	idSaveGame( idFile* savefile, idFile* stringFile, int inVersion );
 	~idSaveGame();
-	
+
 	void					Close();
-	
+
 	void					WriteDecls();
-	
+
 	void					AddObject( const idClass* obj );
 	void					Resize( const int count )
 	{
 		objects.Resize( count );
 	}
 	void					WriteObjectList();
-	
+
 	void					Write( const void* buffer, int len );
 	void					WriteInt( const int value );
 	void					WriteJoint( const jointHandle_t value );
@@ -82,6 +83,7 @@ public:
 	void					WriteUserInterface( const idUserInterface* ui, bool unique );
 	void					WriteRenderEntity( const renderEntity_t& renderEntity );
 	void					WriteRenderLight( const renderLight_t& renderLight );
+	void					WriteRenderEnvprobe( const renderEnvironmentProbe_t& renderEnvprobe ); // RB
 	void					WriteRefSound( const refSound_t& refSound );
 	void					WriteRenderView( const renderView_t& view );
 	void					WriteUsercmd( const usercmd_t& usercmd );
@@ -90,39 +92,39 @@ public:
 	void					WriteTraceModel( const idTraceModel& trace );
 	void					WriteClipModel( const class idClipModel* clipModel );
 	void					WriteSoundCommands();
-	
+
 	void					WriteBuildNumber( const int value );
-	
+
 	int						GetBuildNumber() const
 	{
 		return version;
 	}
-	
+
 	int						GetCurrentSaveSize() const
 	{
 		return file->Length();
 	}
-	
+
 private:
 	idFile* 				file;
 	idFile* 				stringFile;
 	idCompressor* 			compressor;
-	
+
 	idList<const idClass*>	objects;
 	int						version;
-	
+
 	void					CallSave_r( const idTypeInfo* cls, const idClass* obj );
-	
+
 	struct stringTableIndex_s
 	{
 		idStr		string;
 		int			offset;
 	};
-	
+
 	idHashIndex						stringHash;
 	idList< stringTableIndex_s >	stringTable;
 	int								curStringTableOffset;
-	
+
 };
 
 class idRestoreGame
@@ -130,15 +132,15 @@ class idRestoreGame
 public:
 	idRestoreGame( idFile* savefile, idFile* stringTableFile, int saveVersion );
 	~idRestoreGame();
-	
+
 	void					ReadDecls();
-	
+
 	void					CreateObjects();
 	void					RestoreObjects();
 	void					DeleteObjects();
-	
+
 	void					Error( VERIFY_FORMAT_STRING const char* fmt, ... );
-	
+
 	void					Read( void* buffer, int len );
 	void					ReadInt( int& value );
 	void					ReadJoint( jointHandle_t& value );
@@ -169,6 +171,7 @@ public:
 	void					ReadUserInterface( idUserInterface*& ui );
 	void					ReadRenderEntity( renderEntity_t& renderEntity );
 	void					ReadRenderLight( renderLight_t& renderLight );
+	void					ReadRenderEnvprobe( renderEnvironmentProbe_t& renderEnvprobe ); // RB
 	void					ReadRefSound( refSound_t& refSound );
 	void					ReadRenderView( renderView_t& view );
 	void					ReadUsercmd( usercmd_t& usercmd );
@@ -177,20 +180,20 @@ public:
 	void					ReadTraceModel( idTraceModel& trace );
 	void					ReadClipModel( idClipModel*& clipModel );
 	void					ReadSoundCommands();
-	
+
 	//						Used to retrieve the saved game buildNumber from within class Restore methods
 	int						GetBuildNumber() const
 	{
 		return version;
 	}
-	
+
 private:
 	idFile* 		file;
 	idFile* 		stringFile;
 	idList<idClass*, TAG_SAVEGAMES>		objects;
 	int						version;
 	int						stringTableOffset;
-	
+
 	void					CallRestore_r( const idTypeInfo* cls, idClass* obj );
 };
 

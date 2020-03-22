@@ -197,11 +197,11 @@ typedef struct VmaDeviceMemoryCallbacks
 typedef enum VmaAllocatorFlagBits
 {
 	/** \brief Allocator and all objects created from it will not be synchronized internally, so you must guarantee they are used from only one thread at a time or synchronized externally by you.
-	
+
 	Using this flag may increase performance because internal mutexes are not used.
 	*/
 	VMA_ALLOCATOR_EXTERNALLY_SYNCHRONIZED_BIT = 0x00000001,
-	
+
 	VMA_ALLOCATOR_FLAG_BITS_MAX_ENUM = 0x7FFFFFFF
 } VmaAllocatorFlagBits;
 typedef VkFlags VmaAllocatorFlags;
@@ -338,31 +338,31 @@ typedef enum VmaMemoryUsage
 typedef enum VmaMemoryRequirementFlagBits
 {
 	/** \brief Set this flag if the allocation should have its own memory block.
-	
+
 	Use it for special, big resources, like fullscreen images used as attachments.
-	
+
 	This flag must also be used for host visible resources that you want to map
 	simultaneously because otherwise they might end up as regions of the same
 	VkDeviceMemory, while mapping same VkDeviceMemory multiple times is illegal.
 	*/
 	VMA_MEMORY_REQUIREMENT_OWN_MEMORY_BIT = 0x00000001,
-	
+
 	/** \brief Set this flag to only try to allocate from existing VkDeviceMemory blocks and never create new such block.
-	
+
 	If new allocation cannot be placed in any of the existing blocks, allocation
 	fails with VK_ERROR_OUT_OF_DEVICE_MEMORY error.
-	
+
 	It makes no sense to set VMA_MEMORY_REQUIREMENT_OWN_MEMORY_BIT and
 	VMA_MEMORY_REQUIREMENT_NEVER_ALLOCATE_BIT at the same time. */
 	VMA_MEMORY_REQUIREMENT_NEVER_ALLOCATE_BIT = 0x00000002,
 	/** \brief Set to use a memory that will be persistently mapped and retrieve pointer to it.
-	
+
 	Pointer to mapped memory will be returned through VmaAllocationInfo::pMappedData. You cannot
 	map the memory on your own as multiple maps of a single VkDeviceMemory are
 	illegal.
 	*/
 	VMA_MEMORY_REQUIREMENT_PERSISTENT_MAP_BIT = 0x00000004,
-	
+
 	VMA_MEMORY_REQUIREMENT_FLAG_BITS_MAX_ENUM = 0x7FFFFFFF
 } VmaMemoryRequirementFlagBits;
 typedef VkFlags VmaMemoryRequirementFlags;
@@ -371,16 +371,16 @@ typedef struct VmaMemoryRequirements
 {
 	VmaMemoryRequirementFlags flags;
 	/** \brief Intended usage of memory.
-	
+
 	Leave VMA_MEMORY_USAGE_UNKNOWN if you specify requiredFlags. You can also use both.
 	*/
 	VmaMemoryUsage usage;
 	/** \brief Flags that must be set in a Memory Type chosen for an allocation.
-	
+
 	Leave 0 if you specify requirement via usage. */
 	VkMemoryPropertyFlags requiredFlags;
 	/** \brief Flags that preferably should be set in a Memory Type chosen for an allocation.
-	
+
 	Set to 0 if no additional flags are prefered and only requiredFlags should be used.
 	If not 0, it must be a superset or equal to requiredFlags. */
 	VkMemoryPropertyFlags preferredFlags;
@@ -422,35 +422,35 @@ VK_DEFINE_HANDLE( VmaAllocation )
 typedef struct VmaAllocationInfo
 {
 	/** \brief Memory type index that this allocation was allocated from.
-	
+
 	It never changes.
 	*/
 	uint32_t memoryType;
 	/** \brief Handle to Vulkan memory object.
-	
+
 	Same memory object can be shared by multiple allocations.
-	
+
 	It can change after call to vmaDefragment() if this allocation is passed to the function.
 	*/
 	VkDeviceMemory deviceMemory;
 	/** \brief Offset into deviceMemory object to the beginning of this allocation, in bytes. (deviceMemory, offset) pair is unique to this allocation.
-	
+
 	It can change after call to vmaDefragment() if this allocation is passed to the function.
 	*/
 	VkDeviceSize offset;
 	/** \brief Size of this allocation, in bytes.
-	
+
 	It never changes.
 	*/
 	VkDeviceSize size;
 	/** \brief Pointer to the beginning of this allocation as mapped data. Null if this alloaction is not persistently mapped.
-	
+
 	It can change after call to vmaUnmapPersistentlyMappedMemory(), vmaMapPersistentlyMappedMemory().
 	It can also change after call to vmaDefragment() if this allocation is passed to the function.
 	*/
 	void* pMappedData;
 	/** \brief Custom general-purpose pointer that was passed as VmaMemoryRequirements::pUserData or set using vmaSetAllocationUserData().
-	
+
 	It can change after call to vmaSetAllocationUserData() for this allocation.
 	*/
 	void* pUserData;
@@ -561,12 +561,12 @@ VkResult vmaMapPersistentlyMappedMemory( VmaAllocator allocator );
 typedef struct VmaDefragmentationInfo
 {
 	/** \brief Maximum total numbers of bytes that can be copied while moving allocations to different places.
-	
+
 	Default is VK_WHOLE_SIZE, which means no limit.
 	*/
 	VkDeviceSize maxBytesToMove;
 	/** \brief Maximum number of allocations that can be moved to different place.
-	
+
 	Default is UINT32_MAX, which means no limit.
 	*/
 	uint32_t maxAllocationsToMove;
@@ -742,21 +742,21 @@ Set it to 0 or undefined to make the library using its own implementation of
 the containers.
 */
 #if VMA_USE_STL_CONTAINERS
-#define VMA_USE_STL_VECTOR 1
-#define VMA_USE_STL_UNORDERED_MAP 1
-#define VMA_USE_STL_LIST 1
+	#define VMA_USE_STL_VECTOR 1
+	#define VMA_USE_STL_UNORDERED_MAP 1
+	#define VMA_USE_STL_LIST 1
 #endif
 
 #if VMA_USE_STL_VECTOR
-#include <vector>
+	#include <vector>
 #endif
 
 #if VMA_USE_STL_UNORDERED_MAP
-#include <unordered_map>
+	#include <unordered_map>
 #endif
 
 #if VMA_USE_STL_LIST
-#include <list>
+	#include <list>
 #endif
 
 /*
@@ -766,79 +766,80 @@ remove them if not needed.
 #include <cassert> // for assert
 #include <algorithm> // for min, max
 #include <mutex> // for std::mutex
+#include <string.h>
 
 #if !defined(_WIN32)
-#include <malloc.h> // for aligned_alloc()
+	#include <malloc.h> // for aligned_alloc()
 #endif
 
 // Normal assert to check for programmer's errors, especially in Debug configuration.
 #ifndef VMA_ASSERT
-#ifdef _DEBUG
-#define VMA_ASSERT(expr)         assert(expr)
-#else
-#define VMA_ASSERT(expr)
-#endif
+	#ifdef _DEBUG
+		#define VMA_ASSERT(expr)         assert(expr)
+	#else
+		#define VMA_ASSERT(expr)
+	#endif
 #endif
 
 // Assert that will be called very often, like inside data structures e.g. operator[].
 // Making it non-empty can make program slow.
 #ifndef VMA_HEAVY_ASSERT
-#ifdef _DEBUG
-#define VMA_HEAVY_ASSERT(expr)   //VMA_ASSERT(expr)
-#else
-#define VMA_HEAVY_ASSERT(expr)
-#endif
+	#ifdef _DEBUG
+		#define VMA_HEAVY_ASSERT(expr)   //VMA_ASSERT(expr)
+	#else
+		#define VMA_HEAVY_ASSERT(expr)
+	#endif
 #endif
 
 #ifndef VMA_NULL
-// Value used as null pointer. Define it to e.g.: nullptr, NULL, 0, (void*)0.
-#define VMA_NULL   nullptr
+	// Value used as null pointer. Define it to e.g.: nullptr, NULL, 0, (void*)0.
+	#define VMA_NULL   nullptr
 #endif
 
 #ifndef VMA_ALIGN_OF
-#define VMA_ALIGN_OF(type)       (__alignof(type))
+	#define VMA_ALIGN_OF(type)       (__alignof(type))
 #endif
 
 #ifndef VMA_SYSTEM_ALIGNED_MALLOC
-#if defined(_WIN32)
-#define VMA_SYSTEM_ALIGNED_MALLOC(size, alignment)   (_aligned_malloc((size), (alignment)))
-#else
-#define VMA_SYSTEM_ALIGNED_MALLOC(size, alignment)   (aligned_alloc((alignment), (size) ))
-#endif
+	#if defined(_WIN32)
+		#define VMA_SYSTEM_ALIGNED_MALLOC(size, alignment)   (_aligned_malloc((size), (alignment)))
+	#else
+		#define VMA_SYSTEM_ALIGNED_MALLOC(size, alignment)   (aligned_alloc((alignment), (size) ))
+	#endif
 #endif
 
 #ifndef VMA_SYSTEM_FREE
-#if defined(_WIN32)
-#define VMA_SYSTEM_FREE(ptr)   _aligned_free(ptr)
-#else
-#define VMA_SYSTEM_FREE(ptr)   free(ptr)
-#endif
+	#if defined(_WIN32)
+		#define VMA_SYSTEM_FREE(ptr)   _aligned_free(ptr)
+	#else
+		#define VMA_SYSTEM_FREE(ptr)   free(ptr)
+	#endif
 #endif
 
 #ifndef VMA_MIN
-#define VMA_MIN(v1, v2)    (std::min((v1), (v2)))
+	#define VMA_MIN(v1, v2)    (std::min((v1), (v2)))
 #endif
 
 #ifndef VMA_MAX
-#define VMA_MAX(v1, v2)    (std::max((v1), (v2)))
+	#define VMA_MAX(v1, v2)    (std::max((v1), (v2)))
 #endif
 
 #ifndef VMA_SWAP
-#define VMA_SWAP(v1, v2)   std::swap((v1), (v2))
+	#define VMA_SWAP(v1, v2)   std::swap((v1), (v2))
 #endif
 
 #ifndef VMA_SORT
-#define VMA_SORT(beg, end, cmp)  std::sort(beg, end, cmp)
+	#define VMA_SORT(beg, end, cmp)  std::sort(beg, end, cmp)
 #endif
 
 #ifndef VMA_DEBUG_LOG
-#define VMA_DEBUG_LOG(format, ...)
-/*
-#define VMA_DEBUG_LOG(format, ...) do { \
-    printf(format, __VA_ARGS__); \
-    printf("\n"); \
-} while(false)
-*/
+	#define VMA_DEBUG_LOG(format, ...)
+	/*
+	#define VMA_DEBUG_LOG(format, ...) do { \
+	printf(format, __VA_ARGS__); \
+	printf("\n"); \
+	} while(false)
+	*/
 #endif
 
 // Define this macro to 1 to enable functions: vmaBuildStatsString, vmaFreeStatsString.
@@ -874,74 +875,74 @@ private:
 #endif
 
 #ifndef VMA_BEST_FIT
-/**
-Main parameter for function assessing how good is a free suballocation for a new
-allocation request.
+	/**
+	Main parameter for function assessing how good is a free suballocation for a new
+	allocation request.
 
-- Set to 1 to use Best-Fit algorithm - prefer smaller blocks, as close to the
-  size of requested allocations as possible.
-- Set to 0 to use Worst-Fit algorithm - prefer larger blocks, as large as
-  possible.
+	- Set to 1 to use Best-Fit algorithm - prefer smaller blocks, as close to the
+	size of requested allocations as possible.
+	- Set to 0 to use Worst-Fit algorithm - prefer larger blocks, as large as
+	possible.
 
-Experiments in special testing environment showed that Best-Fit algorithm is
-better.
-*/
-#define VMA_BEST_FIT (1)
+	Experiments in special testing environment showed that Best-Fit algorithm is
+	better.
+	*/
+	#define VMA_BEST_FIT (1)
 #endif
 
 #ifndef VMA_DEBUG_ALWAYS_OWN_MEMORY
-/**
-Every object will have its own allocation.
-Define to 1 for debugging purposes only.
-*/
-#define VMA_DEBUG_ALWAYS_OWN_MEMORY (0)
+	/**
+	Every object will have its own allocation.
+	Define to 1 for debugging purposes only.
+	*/
+	#define VMA_DEBUG_ALWAYS_OWN_MEMORY (0)
 #endif
 
 #ifndef VMA_DEBUG_ALIGNMENT
-/**
-Minimum alignment of all suballocations, in bytes.
-Set to more than 1 for debugging purposes only. Must be power of two.
-*/
-#define VMA_DEBUG_ALIGNMENT (1)
+	/**
+	Minimum alignment of all suballocations, in bytes.
+	Set to more than 1 for debugging purposes only. Must be power of two.
+	*/
+	#define VMA_DEBUG_ALIGNMENT (1)
 #endif
 
 #ifndef VMA_DEBUG_MARGIN
-/**
-Minimum margin between suballocations, in bytes.
-Set nonzero for debugging purposes only.
-*/
-#define VMA_DEBUG_MARGIN (0)
+	/**
+	Minimum margin between suballocations, in bytes.
+	Set nonzero for debugging purposes only.
+	*/
+	#define VMA_DEBUG_MARGIN (0)
 #endif
 
 #ifndef VMA_DEBUG_GLOBAL_MUTEX
-/**
-Set this to 1 for debugging purposes only, to enable single mutex protecting all
-entry calls to the library. Can be useful for debugging multithreading issues.
-*/
-#define VMA_DEBUG_GLOBAL_MUTEX (0)
+	/**
+	Set this to 1 for debugging purposes only, to enable single mutex protecting all
+	entry calls to the library. Can be useful for debugging multithreading issues.
+	*/
+	#define VMA_DEBUG_GLOBAL_MUTEX (0)
 #endif
 
 #ifndef VMA_DEBUG_MIN_BUFFER_IMAGE_GRANULARITY
-/**
-Minimum value for VkPhysicalDeviceLimits::bufferImageGranularity.
-Set to more than 1 for debugging purposes only. Must be power of two.
-*/
-#define VMA_DEBUG_MIN_BUFFER_IMAGE_GRANULARITY (1)
+	/**
+	Minimum value for VkPhysicalDeviceLimits::bufferImageGranularity.
+	Set to more than 1 for debugging purposes only. Must be power of two.
+	*/
+	#define VMA_DEBUG_MIN_BUFFER_IMAGE_GRANULARITY (1)
 #endif
 
 #ifndef VMA_SMALL_HEAP_MAX_SIZE
-/// Maximum size of a memory heap in Vulkan to consider it "small".
-#define VMA_SMALL_HEAP_MAX_SIZE (512 * 1024 * 1024)
+	/// Maximum size of a memory heap in Vulkan to consider it "small".
+	#define VMA_SMALL_HEAP_MAX_SIZE (512 * 1024 * 1024)
 #endif
 
 #ifndef VMA_DEFAULT_LARGE_HEAP_BLOCK_SIZE
-/// Default size of a block allocated as single VkDeviceMemory from a "large" heap.
-#define VMA_DEFAULT_LARGE_HEAP_BLOCK_SIZE (256 * 1024 * 1024)
+	/// Default size of a block allocated as single VkDeviceMemory from a "large" heap.
+	#define VMA_DEFAULT_LARGE_HEAP_BLOCK_SIZE (256 * 1024 * 1024)
 #endif
 
 #ifndef VMA_DEFAULT_SMALL_HEAP_BLOCK_SIZE
-/// Default size of a block allocated as single VkDeviceMemory from a "small" heap.
-#define VMA_DEFAULT_SMALL_HEAP_BLOCK_SIZE (64 * 1024 * 1024)
+	/// Default size of a block allocated as single VkDeviceMemory from a "small" heap.
+	#define VMA_DEFAULT_SMALL_HEAP_BLOCK_SIZE (64 * 1024 * 1024)
 #endif
 
 /*******************************************************************************
@@ -1066,7 +1067,7 @@ static inline bool VmaIsBufferImageGranularityConflict(
 	{
 		VMA_SWAP( suballocType1, suballocType2 );
 	}
-	
+
 	switch( suballocType1 )
 	{
 		case VMA_SUBALLOCATION_TYPE_FREE:
@@ -1105,7 +1106,7 @@ public:
 			m_pMutex->Lock();
 		}
 	}
-	
+
 	~VmaMutexLock()
 	{
 		if( m_pMutex )
@@ -1113,16 +1114,16 @@ public:
 			m_pMutex->Unlock();
 		}
 	}
-	
+
 private:
 	VMA_MUTEX* m_pMutex;
 };
 
 #if VMA_DEBUG_GLOBAL_MUTEX
-static VMA_MUTEX gDebugGlobalMutex;
-#define VMA_DEBUG_GLOBAL_MUTEX_LOCK VmaMutexLock debugGlobalMutexLock(gDebugGlobalMutex);
+	static VMA_MUTEX gDebugGlobalMutex;
+	#define VMA_DEBUG_GLOBAL_MUTEX_LOCK VmaMutexLock debugGlobalMutexLock(gDebugGlobalMutex);
 #else
-#define VMA_DEBUG_GLOBAL_MUTEX_LOCK
+	#define VMA_DEBUG_GLOBAL_MUTEX_LOCK
 #endif
 
 // Minimum size of a free suballocation to register it in the free suballocation collection.
@@ -1232,10 +1233,10 @@ class VmaStlAllocator
 public:
 	const VkAllocationCallbacks* const m_pCallbacks;
 	typedef T value_type;
-	
+
 	VmaStlAllocator( const VkAllocationCallbacks* pCallbacks ) : m_pCallbacks( pCallbacks ) { }
 	template<typename U> VmaStlAllocator( const VmaStlAllocator<U>& src ) : m_pCallbacks( src.m_pCallbacks ) { }
-	
+
 	T* allocate( size_t n )
 	{
 		return VmaAllocateArray<T>( m_pCallbacks, n );
@@ -1244,7 +1245,7 @@ public:
 	{
 		VmaFree( m_pCallbacks, p );
 	}
-	
+
 	template<typename U>
 	bool operator==( const VmaStlAllocator<U>& rhs ) const
 	{
@@ -1255,7 +1256,7 @@ public:
 	{
 		return m_pCallbacks != rhs.m_pCallbacks;
 	}
-	
+
 	VmaStlAllocator& operator=( const VmaStlAllocator& x ) = delete;
 };
 
@@ -1291,7 +1292,7 @@ public:
 		m_Capacity( 0 )
 	{
 	}
-	
+
 	VmaVector( size_t count, const AllocatorT& allocator ) :
 		m_Allocator( allocator ),
 		m_pArray( count ? ( T* )VmaAllocateArray<T>( allocator->m_pCallbacks, count ) : VMA_NULL ),
@@ -1299,7 +1300,7 @@ public:
 		m_Capacity( count )
 	{
 	}
-	
+
 	VmaVector( const VmaVector<T, AllocatorT>& src ) :
 		m_Allocator( src.m_Allocator ),
 		m_pArray( src.m_Count ? ( T* )VmaAllocateArray<T>( src->m_pCallbacks, src.m_Count ) : VMA_NULL ),
@@ -1311,17 +1312,17 @@ public:
 			memcpy( m_pArray, src.m_pArray, m_Count * sizeof( T ) );
 		}
 	}
-	
+
 	~VmaVector()
 	{
 		VmaFree( m_Allocator.m_pCallbacks, m_pArray );
 	}
-	
+
 	VmaVector& operator=( const VmaVector<T, AllocatorT>& rhs )
 	{
 		if( &rhs != this )
 		{
-			Resize( rhs.m_Count );
+			resize( rhs.m_Count );
 			if( m_Count != 0 )
 			{
 				memcpy( m_pArray, rhs.m_pArray, m_Count * sizeof( T ) );
@@ -1329,7 +1330,7 @@ public:
 		}
 		return *this;
 	}
-	
+
 	bool empty() const
 	{
 		return m_Count == 0;
@@ -1346,7 +1347,7 @@ public:
 	{
 		return m_pArray;
 	}
-	
+
 	T& operator[]( size_t index )
 	{
 		VMA_HEAVY_ASSERT( index < m_Count );
@@ -1357,7 +1358,7 @@ public:
 		VMA_HEAVY_ASSERT( index < m_Count );
 		return m_pArray[index];
 	}
-	
+
 	T& front()
 	{
 		VMA_HEAVY_ASSERT( m_Count > 0 );
@@ -1378,16 +1379,16 @@ public:
 		VMA_HEAVY_ASSERT( m_Count > 0 );
 		return m_pArray[m_Count - 1];
 	}
-	
+
 	void reserve( size_t newCapacity, bool freeMemory = false )
 	{
 		newCapacity = VMA_MAX( newCapacity, m_Count );
-		
+
 		if( ( newCapacity < m_Capacity ) && !freeMemory )
 		{
 			newCapacity = m_Capacity;
 		}
-		
+
 		if( newCapacity != m_Capacity )
 		{
 			T* const newArray = newCapacity ? VmaAllocateArray<T>( m_Allocator, newCapacity ) : VMA_NULL;
@@ -1400,7 +1401,7 @@ public:
 			m_pArray = newArray;
 		}
 	}
-	
+
 	void resize( size_t newCount, bool freeMemory = false )
 	{
 		size_t newCapacity = m_Capacity;
@@ -1412,7 +1413,7 @@ public:
 		{
 			newCapacity = newCount;
 		}
-		
+
 		if( newCapacity != m_Capacity )
 		{
 			T* const newArray = newCapacity ? VmaAllocateArray<T>( m_Allocator.m_pCallbacks, newCapacity ) : VMA_NULL;
@@ -1425,15 +1426,15 @@ public:
 			m_Capacity = newCapacity;
 			m_pArray = newArray;
 		}
-		
+
 		m_Count = newCount;
 	}
-	
+
 	void clear( bool freeMemory = false )
 	{
 		resize( 0, freeMemory );
 	}
-	
+
 	void insert( size_t index, const T& src )
 	{
 		VMA_HEAVY_ASSERT( index <= m_Count );
@@ -1445,7 +1446,7 @@ public:
 		}
 		m_pArray[index] = src;
 	}
-	
+
 	void remove( size_t index )
 	{
 		VMA_HEAVY_ASSERT( index < m_Count );
@@ -1456,33 +1457,33 @@ public:
 		}
 		resize( oldCount - 1 );
 	}
-	
+
 	void push_back( const T& src )
 	{
 		const size_t newIndex = size();
 		resize( newIndex + 1 );
 		m_pArray[newIndex] = src;
 	}
-	
+
 	void pop_back()
 	{
 		VMA_HEAVY_ASSERT( m_Count > 0 );
 		resize( size() - 1 );
 	}
-	
+
 	void push_front( const T& src )
 	{
 		insert( 0, src );
 	}
-	
+
 	void pop_front()
 	{
 		VMA_HEAVY_ASSERT( m_Count > 0 );
 		remove( 0 );
 	}
-	
+
 	typedef T* iterator;
-	
+
 	iterator begin()
 	{
 		return m_pArray;
@@ -1491,7 +1492,7 @@ public:
 	{
 		return m_pArray + m_Count;
 	}
-	
+
 private:
 	AllocatorT m_Allocator;
 	T* m_pArray;
@@ -1530,24 +1531,24 @@ public:
 	void Clear();
 	T* Alloc();
 	void Free( T* ptr );
-	
+
 private:
 	union Item
 	{
 		uint32_t NextFreeIndex;
 		T Value;
 	};
-	
+
 	struct ItemBlock
 	{
 		Item* pItems;
 		uint32_t FirstFreeIndex;
 	};
-	
+
 	const VkAllocationCallbacks* m_pAllocationCallbacks;
 	size_t m_ItemsPerBlock;
 	VmaVector< ItemBlock, VmaStlAllocator<ItemBlock> > m_ItemBlocks;
-	
+
 	ItemBlock& CreateNewBlock();
 };
 
@@ -1570,7 +1571,9 @@ template<typename T>
 void VmaPoolAllocator<T>::Clear()
 {
 	for( size_t i = m_ItemBlocks.size(); i--; )
+	{
 		vma_delete_array( m_pAllocationCallbacks, m_ItemBlocks[i].pItems, m_ItemsPerBlock );
+	}
 	m_ItemBlocks.clear();
 }
 
@@ -1588,7 +1591,7 @@ T* VmaPoolAllocator<T>::Alloc()
 			return &pItem->Value;
 		}
 	}
-	
+
 	// No block has free item: Create new one and use it.
 	ItemBlock& newBlock = CreateNewBlock();
 	Item* const pItem = &newBlock.pItems[0];
@@ -1603,11 +1606,11 @@ void VmaPoolAllocator<T>::Free( T* ptr )
 	for( size_t i = 0; i < m_ItemBlocks.size(); ++i )
 	{
 		ItemBlock& block = m_ItemBlocks[i];
-		
+
 		// Casting to union.
 		Item* pItemPtr;
 		memcpy( &pItemPtr, &ptr, sizeof( pItemPtr ) );
-		
+
 		// Check if pItemPtr is in address range of this block.
 		if( ( pItemPtr >= block.pItems ) && ( pItemPtr < block.pItems + m_ItemsPerBlock ) )
 		{
@@ -1627,12 +1630,14 @@ typename VmaPoolAllocator<T>::ItemBlock& VmaPoolAllocator<T>::CreateNewBlock()
 	{
 		vma_new_array( m_pAllocationCallbacks, Item, m_ItemsPerBlock ), 0
 	};
-	
+
 	m_ItemBlocks.push_back( newBlock );
-	
+
 	// Setup singly-linked list of all free items in this block.
 	for( uint32_t i = 0; i < m_ItemsPerBlock - 1; ++i )
+	{
 		newBlock.pItems[i].NextFreeIndex = i + 1;
+	}
 	newBlock.pItems[m_ItemsPerBlock - 1].NextFreeIndex = UINT32_MAX;
 	return m_ItemBlocks.back();
 }
@@ -1660,11 +1665,11 @@ class VmaRawList
 {
 public:
 	typedef VmaListItem<T> ItemType;
-	
+
 	VmaRawList( const VkAllocationCallbacks* pAllocationCallbacks );
 	~VmaRawList();
 	void Clear();
-	
+
 	size_t GetCount() const
 	{
 		return m_Count;
@@ -1673,7 +1678,7 @@ public:
 	{
 		return m_Count == 0;
 	}
-	
+
 	ItemType* Front()
 	{
 		return m_pFront;
@@ -1690,31 +1695,31 @@ public:
 	{
 		return m_pBack;
 	}
-	
+
 	ItemType* PushBack();
 	ItemType* PushFront();
 	ItemType* PushBack( const T& value );
 	ItemType* PushFront( const T& value );
 	void PopBack();
 	void PopFront();
-	
+
 	// Item can be null - it means PushBack.
 	ItemType* InsertBefore( ItemType* pItem );
 	// Item can be null - it means PushFront.
 	ItemType* InsertAfter( ItemType* pItem );
-	
+
 	ItemType* InsertBefore( ItemType* pItem, const T& value );
 	ItemType* InsertAfter( ItemType* pItem, const T& value );
-	
+
 	void Remove( ItemType* pItem );
-	
+
 private:
 	const VkAllocationCallbacks* const m_pAllocationCallbacks;
 	VmaPoolAllocator<ItemType> m_ItemAllocator;
 	ItemType* m_pFront;
 	ItemType* m_pBack;
 	size_t m_Count;
-	
+
 	// Declared not defined, to block copy constructor and assignment operator.
 	VmaRawList( const VmaRawList<T>& src );
 	VmaRawList<T>& operator=( const VmaRawList<T>& rhs );
@@ -1850,7 +1855,7 @@ void VmaRawList<T>::Remove( ItemType* pItem )
 {
 	VMA_HEAVY_ASSERT( pItem != VMA_NULL );
 	VMA_HEAVY_ASSERT( m_Count > 0 );
-	
+
 	if( pItem->pPrev != VMA_NULL )
 	{
 		pItem->pPrev->pNext = pItem->pNext;
@@ -1860,7 +1865,7 @@ void VmaRawList<T>::Remove( ItemType* pItem )
 		VMA_HEAVY_ASSERT( m_pFront == pItem );
 		m_pFront = pItem->pNext;
 	}
-	
+
 	if( pItem->pNext != VMA_NULL )
 	{
 		pItem->pNext->pPrev = pItem->pPrev;
@@ -1870,7 +1875,7 @@ void VmaRawList<T>::Remove( ItemType* pItem )
 		VMA_HEAVY_ASSERT( m_pBack == pItem );
 		m_pBack = pItem->pPrev;
 	}
-	
+
 	m_ItemAllocator.Free( pItem );
 	--m_Count;
 }
@@ -1898,7 +1903,9 @@ VmaListItem<T>* VmaRawList<T>::InsertBefore( ItemType* pItem )
 		return newItem;
 	}
 	else
+	{
 		return PushBack();
+	}
 }
 
 template<typename T>
@@ -1924,7 +1931,9 @@ VmaListItem<T>* VmaRawList<T>::InsertAfter( ItemType* pItem )
 		return newItem;
 	}
 	else
+	{
 		return PushFront();
+	}
 }
 
 template<typename T>
@@ -1947,6 +1956,7 @@ template<typename T, typename AllocatorT>
 class VmaList
 {
 public:
+	class const_iterator;
 	class iterator
 	{
 	public:
@@ -1955,7 +1965,7 @@ public:
 			m_pItem( VMA_NULL )
 		{
 		}
-		
+
 		T& operator*() const
 		{
 			VMA_HEAVY_ASSERT( m_pItem != VMA_NULL );
@@ -1966,7 +1976,7 @@ public:
 			VMA_HEAVY_ASSERT( m_pItem != VMA_NULL );
 			return &m_pItem->Value;
 		}
-		
+
 		iterator& operator++()
 		{
 			VMA_HEAVY_ASSERT( m_pItem != VMA_NULL );
@@ -1986,7 +1996,7 @@ public:
 			}
 			return *this;
 		}
-		
+
 		iterator operator++( int )
 		{
 			iterator result = *this;
@@ -1999,7 +2009,7 @@ public:
 			--*this;
 			return result;
 		}
-		
+
 		bool operator==( const iterator& rhs ) const
 		{
 			VMA_HEAVY_ASSERT( m_pList == rhs.m_pList );
@@ -2010,21 +2020,21 @@ public:
 			VMA_HEAVY_ASSERT( m_pList == rhs.m_pList );
 			return m_pItem != rhs.m_pItem;
 		}
-		
+
 	private:
 		VmaRawList<T>* m_pList;
 		VmaListItem<T>* m_pItem;
-		
+
 		iterator( VmaRawList<T>* pList, VmaListItem<T>* pItem ) :
 			m_pList( pList ),
 			m_pItem( pItem )
 		{
 		}
-		
+
 		friend class VmaList<T, AllocatorT>;
-		friend class VmaList<T, AllocatorT>:: const_iterator;
+		friend class VmaList<T, AllocatorT>::const_iterator;
 	};
-	
+
 	class const_iterator
 	{
 	public:
@@ -2033,13 +2043,13 @@ public:
 			m_pItem( VMA_NULL )
 		{
 		}
-		
+
 		const_iterator( const iterator& src ) :
 			m_pList( src.m_pList ),
 			m_pItem( src.m_pItem )
 		{
 		}
-		
+
 		const T& operator*() const
 		{
 			VMA_HEAVY_ASSERT( m_pItem != VMA_NULL );
@@ -2050,7 +2060,7 @@ public:
 			VMA_HEAVY_ASSERT( m_pItem != VMA_NULL );
 			return &m_pItem->Value;
 		}
-		
+
 		const_iterator& operator++()
 		{
 			VMA_HEAVY_ASSERT( m_pItem != VMA_NULL );
@@ -2070,7 +2080,7 @@ public:
 			}
 			return *this;
 		}
-		
+
 		const_iterator operator++( int )
 		{
 			const_iterator result = *this;
@@ -2083,7 +2093,7 @@ public:
 			--*this;
 			return result;
 		}
-		
+
 		bool operator==( const const_iterator& rhs ) const
 		{
 			VMA_HEAVY_ASSERT( m_pList == rhs.m_pList );
@@ -2094,22 +2104,22 @@ public:
 			VMA_HEAVY_ASSERT( m_pList == rhs.m_pList );
 			return m_pItem != rhs.m_pItem;
 		}
-		
+
 	private:
 		const_iterator( const VmaRawList<T>* pList, const VmaListItem<T>* pItem ) :
 			m_pList( pList ),
 			m_pItem( pItem )
 		{
 		}
-		
+
 		const VmaRawList<T>* m_pList;
 		const VmaListItem<T>* m_pItem;
-		
+
 		friend class VmaList<T, AllocatorT>;
 	};
-	
+
 	VmaList( const AllocatorT& allocator ) : m_RawList( allocator.m_pCallbacks ) { }
-	
+
 	bool empty() const
 	{
 		return m_RawList.IsEmpty();
@@ -2118,7 +2128,7 @@ public:
 	{
 		return m_RawList.GetCount();
 	}
-	
+
 	iterator begin()
 	{
 		return iterator( &m_RawList, m_RawList.Front() );
@@ -2127,7 +2137,7 @@ public:
 	{
 		return iterator( &m_RawList, VMA_NULL );
 	}
-	
+
 	const_iterator cbegin() const
 	{
 		return const_iterator( &m_RawList, m_RawList.Front() );
@@ -2136,7 +2146,7 @@ public:
 	{
 		return const_iterator( &m_RawList, VMA_NULL );
 	}
-	
+
 	void clear()
 	{
 		m_RawList.Clear();
@@ -2153,7 +2163,7 @@ public:
 	{
 		return iterator( &m_RawList, m_RawList.InsertBefore( it.m_pItem, value ) );
 	}
-	
+
 private:
 	VmaRawList<T> m_RawList;
 };
@@ -2177,7 +2187,7 @@ struct VmaPair
 {
 	T1 first;
 	T2 second;
-	
+
 	VmaPair() : first(), second() { }
 	VmaPair( const T1& firstSrc, const T2& secondSrc ) : first( firstSrc ), second( secondSrc ) { }
 };
@@ -2191,9 +2201,9 @@ class VmaMap
 public:
 	typedef VmaPair<KeyT, ValueT> PairType;
 	typedef PairType* iterator;
-	
+
 	VmaMap( const VmaStlAllocator<PairType>& allocator ) : m_Vector( allocator ) { }
-	
+
 	iterator begin()
 	{
 		return m_Vector.begin();
@@ -2202,11 +2212,11 @@ public:
 	{
 		return m_Vector.end();
 	}
-	
+
 	void insert( const PairType& pair );
 	iterator find( const KeyT& key );
 	void erase( iterator it );
-	
+
 private:
 	VmaVector< PairType, VmaStlAllocator<PairType> > m_Vector;
 };
@@ -2290,12 +2300,12 @@ public:
 		ALLOCATION_TYPE_BLOCK,
 		ALLOCATION_TYPE_OWN,
 	};
-	
+
 	VmaAllocation_T()
 	{
 		memset( this, 0, sizeof( VmaAllocation_T ) );
 	}
-	
+
 	void InitBlockAllocation(
 		VmaBlock* block,
 		VkDeviceSize offset,
@@ -2314,7 +2324,7 @@ public:
 		m_BlockAllocation.m_Block = block;
 		m_BlockAllocation.m_Offset = offset;
 	}
-	
+
 	void ChangeBlockAllocation(
 		VmaBlock* block,
 		VkDeviceSize offset )
@@ -2324,7 +2334,7 @@ public:
 		m_BlockAllocation.m_Block = block;
 		m_BlockAllocation.m_Offset = offset;
 	}
-	
+
 	void InitOwnAllocation(
 		uint32_t memoryTypeIndex,
 		VkDeviceMemory hMemory,
@@ -2346,7 +2356,7 @@ public:
 		m_OwnAllocation.m_PersistentMap = persistentMap;
 		m_OwnAllocation.m_pMappedData = pMappedData;
 	}
-	
+
 	ALLOCATION_TYPE GetType() const
 	{
 		return m_Type;
@@ -2371,7 +2381,7 @@ public:
 	{
 		return m_SuballocationType;
 	}
-	
+
 	VmaBlock* GetBlock() const
 	{
 		VMA_ASSERT( m_Type == ALLOCATION_TYPE_BLOCK );
@@ -2385,7 +2395,7 @@ public:
 	uint32_t GetMemoryTypeIndex() const;
 	VMA_BLOCK_VECTOR_TYPE GetBlockVectorType() const;
 	void* GetMappedData() const;
-	
+
 	VkResult OwnAllocMapPersistentlyMappedMemory( VkDevice hDevice )
 	{
 		VMA_ASSERT( m_Type == ALLOCATION_TYPE_OWN );
@@ -2405,21 +2415,21 @@ public:
 			m_OwnAllocation.m_pMappedData = VMA_NULL;
 		}
 	}
-	
+
 private:
 	VkDeviceSize m_Alignment;
 	VkDeviceSize m_Size;
 	void* m_pUserData;
 	ALLOCATION_TYPE m_Type;
 	VmaSuballocationType m_SuballocationType;
-	
+
 	// Allocation out of VmaBlock.
 	struct BlockAllocation
 	{
 		VmaBlock* m_Block;
 		VkDeviceSize m_Offset;
 	};
-	
+
 	// Allocation for an object that has its own private VkDeviceMemory.
 	struct OwnAllocation
 	{
@@ -2428,7 +2438,7 @@ private:
 		bool m_PersistentMap;
 		void* m_pMappedData;
 	};
-	
+
 	union
 	{
 		// Allocation out of VmaBlock.
@@ -2475,14 +2485,14 @@ public:
 	// Suballocations that are free and have size greater than certain threshold.
 	// Sorted by size, ascending.
 	VmaVector< VmaSuballocationList::iterator, VmaStlAllocator< VmaSuballocationList::iterator > > m_FreeSuballocationsBySize;
-	
+
 	VmaBlock( VmaAllocator hAllocator );
-	
+
 	~VmaBlock()
 	{
 		VMA_ASSERT( m_hMemory == VK_NULL_HANDLE );
 	}
-	
+
 	// Always call after construction.
 	void Init(
 		uint32_t newMemoryTypeIndex,
@@ -2493,10 +2503,10 @@ public:
 		void* pMappedData );
 	// Always call before destruction.
 	void Destroy( VmaAllocator allocator );
-	
+
 	// Validates all data structures inside this object. If not valid, returns false.
 	bool Validate() const;
-	
+
 	// Tries to find a place for suballocation with given parameters inside this allocation.
 	// If succeeded, fills pAllocationRequest and returns true.
 	// If failed, returns false.
@@ -2506,7 +2516,7 @@ public:
 		VkDeviceSize allocAlignment,
 		VmaSuballocationType allocType,
 		VmaAllocationRequest* pAllocationRequest );
-		
+
 	// Checks if requested suballocation with given parameters can be placed in given pFreeSuballocItem.
 	// If yes, fills pOffset and returns true. If no, returns false.
 	bool CheckAllocation(
@@ -2516,24 +2526,24 @@ public:
 		VmaSuballocationType allocType,
 		VmaSuballocationList::const_iterator freeSuballocItem,
 		VkDeviceSize* pOffset ) const;
-		
+
 	// Returns true if this allocation is empty - contains only single free suballocation.
 	bool IsEmpty() const;
-	
+
 	// Makes actual allocation based on request. Request must already be checked
 	// and valid.
 	void Alloc(
 		const VmaAllocationRequest& request,
 		VmaSuballocationType type,
 		VkDeviceSize allocSize );
-		
+
 	// Frees suballocation assigned to given memory region.
 	void Free( const VmaAllocation allocation );
-	
+
 #if VMA_STATS_STRING_ENABLED
 	void PrintDetailedMap( class VmaStringBuilder& sb ) const;
 #endif
-	
+
 private:
 	// Given free suballocation, it merges it with following one, which must also be free.
 	void MergeFreeWithNext( VmaSuballocationList::iterator item );
@@ -2562,32 +2572,32 @@ struct VmaBlockVector
 {
 	// Incrementally sorted by sumFreeSize, ascending.
 	VmaVector< VmaBlock*, VmaStlAllocator<VmaBlock*> > m_Blocks;
-	
+
 	VmaBlockVector( VmaAllocator hAllocator );
 	~VmaBlockVector();
-	
+
 	bool IsEmpty() const
 	{
 		return m_Blocks.empty();
 	}
-	
+
 	// Finds and removes given block from vector.
 	void Remove( VmaBlock* pBlock );
-	
+
 	// Performs single step in sorting m_Blocks. They may not be fully sorted
 	// after this call.
 	void IncrementallySortBlocks();
-	
+
 	// Adds statistics of this BlockVector to pStats.
 	void AddStats( VmaStats* pStats, uint32_t memTypeIndex, uint32_t memHeapIndex ) const;
-	
+
 #if VMA_STATS_STRING_ENABLED
 	void PrintDetailedMap( class VmaStringBuilder& sb ) const;
 #endif
-	
+
 	void UnmapPersistentlyMappedMemory();
 	VkResult MapPersistentlyMappedMemory();
-	
+
 private:
 	VmaAllocator m_hAllocator;
 };
@@ -2605,39 +2615,39 @@ struct VmaAllocator_T
 	// Non-zero when we are inside UnmapPersistentlyMappedMemory...MapPersistentlyMappedMemory.
 	// Counter to allow nested calls to these functions.
 	uint32_t m_UnmapPersistentlyMappedMemoryCounter;
-	
+
 	VkPhysicalDeviceProperties m_PhysicalDeviceProperties;
 	VkPhysicalDeviceMemoryProperties m_MemProps;
-	
+
 	VmaBlockVector* m_pBlockVectors[VK_MAX_MEMORY_TYPES][VMA_BLOCK_VECTOR_TYPE_COUNT];
 	/* There can be at most one allocation that is completely empty - a
 	hysteresis to avoid pessimistic case of alternating creation and destruction
 	of a VkDeviceMemory. */
 	bool m_HasEmptyBlock[VK_MAX_MEMORY_TYPES];
 	VMA_MUTEX m_BlocksMutex[VK_MAX_MEMORY_TYPES];
-	
+
 	// Each vector is sorted by memory (handle value).
 	typedef VmaVector< VmaAllocation, VmaStlAllocator<VmaAllocation> > AllocationVectorType;
 	AllocationVectorType* m_pOwnAllocations[VK_MAX_MEMORY_TYPES][VMA_BLOCK_VECTOR_TYPE_COUNT];
 	VMA_MUTEX m_OwnAllocationsMutex[VK_MAX_MEMORY_TYPES];
-	
+
 	VmaAllocator_T( const VmaAllocatorCreateInfo* pCreateInfo );
 	~VmaAllocator_T();
-	
+
 	const VkAllocationCallbacks* GetAllocationCallbacks() const
 	{
 		return m_AllocationCallbacksSpecified ? &m_AllocationCallbacks : 0;
 	}
-	
+
 	VkDeviceSize GetPreferredBlockSize( uint32_t memTypeIndex ) const;
-	
+
 	VkDeviceSize GetBufferImageGranularity() const
 	{
 		return VMA_MAX(
 				   static_cast<VkDeviceSize>( VMA_DEBUG_MIN_BUFFER_IMAGE_GRANULARITY ),
 				   m_PhysicalDeviceProperties.limits.bufferImageGranularity );
 	}
-	
+
 	uint32_t GetMemoryHeapCount() const
 	{
 		return m_MemProps.memoryHeapCount;
@@ -2646,45 +2656,45 @@ struct VmaAllocator_T
 	{
 		return m_MemProps.memoryTypeCount;
 	}
-	
+
 	// Main allocation function.
 	VkResult AllocateMemory(
 		const VkMemoryRequirements& vkMemReq,
 		const VmaMemoryRequirements& vmaMemReq,
 		VmaSuballocationType suballocType,
 		VmaAllocation* pAllocation );
-		
+
 	// Main deallocation function.
 	void FreeMemory( const VmaAllocation allocation );
-	
+
 	void CalculateStats( VmaStats* pStats );
-	
+
 #if VMA_STATS_STRING_ENABLED
 	void PrintDetailedMap( class VmaStringBuilder& sb );
 #endif
-	
+
 	void UnmapPersistentlyMappedMemory();
 	VkResult MapPersistentlyMappedMemory();
-	
+
 	VkResult Defragment(
 		VmaAllocation* pAllocations,
 		size_t allocationCount,
 		VkBool32* pAllocationsChanged,
 		const VmaDefragmentationInfo* pDefragmentationInfo,
 		VmaDefragmentationStats* pDefragmentationStats );
-		
+
 	static void GetAllocationInfo( VmaAllocation hAllocation, VmaAllocationInfo* pAllocationInfo );
-	
+
 private:
 	VkPhysicalDevice m_PhysicalDevice;
-	
+
 	VkResult AllocateMemoryOfType(
 		const VkMemoryRequirements& vkMemReq,
 		const VmaMemoryRequirements& vmaMemReq,
 		uint32_t memTypeIndex,
 		VmaSuballocationType suballocType,
 		VmaAllocation* pAllocation );
-		
+
 	// Allocates and registers new VkDeviceMemory specifically for single allocation.
 	VkResult AllocateOwnMemory(
 		VkDeviceSize size,
@@ -2693,7 +2703,7 @@ private:
 		bool map,
 		void* pUserData,
 		VmaAllocation* pAllocation );
-		
+
 	// Tries to free pMemory as Own Memory. Returns true if found and freed.
 	void FreeOwnMemory( VmaAllocation allocation );
 };
@@ -2739,7 +2749,9 @@ static void vma_delete_array( VmaAllocator hAllocator, T* ptr, size_t count )
 	if( ptr != VMA_NULL )
 	{
 		for( size_t i = count; i--; )
+		{
 			ptr[i].~T();
+		}
 		VmaFree( hAllocator, ptr );
 	}
 }
@@ -2761,7 +2773,7 @@ public:
 	{
 		return m_Data.data();
 	}
-	
+
 	void Add( char ch )
 	{
 		m_Data.push_back( ch );
@@ -2782,7 +2794,7 @@ public:
 		Add( "null" );
 	}
 	void AddString( const char* pStr );
-	
+
 private:
 	VmaVector< char, VmaStlAllocator<char> > m_Data;
 };
@@ -2972,7 +2984,7 @@ void VmaBlock::Init(
 	void* pMappedData )
 {
 	VMA_ASSERT( m_hMemory == VK_NULL_HANDLE );
-	
+
 	m_MemoryTypeIndex = newMemoryTypeIndex;
 	m_BlockVectorType = newBlockVectorType;
 	m_hMemory = newMemory;
@@ -2981,15 +2993,15 @@ void VmaBlock::Init(
 	m_pMappedData = pMappedData;
 	m_FreeCount = 1;
 	m_SumFreeSize = newSize;
-	
+
 	m_Suballocations.clear();
 	m_FreeSuballocationsBySize.clear();
-	
+
 	VmaSuballocation suballoc = {};
 	suballoc.offset = 0;
 	suballoc.size = newSize;
 	suballoc.type = VMA_SUBALLOCATION_TYPE_FREE;
-	
+
 	m_Suballocations.push_back( suballoc );
 	VmaSuballocationList::iterator suballocItem = m_Suballocations.end();
 	--suballocItem;
@@ -3004,13 +3016,13 @@ void VmaBlock::Destroy( VmaAllocator allocator )
 		vkUnmapMemory( allocator->m_hDevice, m_hMemory );
 		m_pMappedData = VMA_NULL;
 	}
-	
+
 	// Callback.
 	if( allocator->m_DeviceMemoryCallbacks.pfnFree != VMA_NULL )
 	{
 		( *allocator->m_DeviceMemoryCallbacks.pfnFree )( allocator, m_MemoryTypeIndex, m_hMemory, m_Size );
 	}
-	
+
 	vkFreeMemory( allocator->m_hDevice, m_hMemory, allocator->GetAllocationCallbacks() );
 	m_hMemory = VK_NULL_HANDLE;
 }
@@ -3023,7 +3035,7 @@ bool VmaBlock::Validate() const
 	{
 		return false;
 	}
-	
+
 	// Expected offset of new suballocation as calculates from previous ones.
 	VkDeviceSize calculatedOffset = 0;
 	// Expected number of free suballocations as calculated from traversing their list.
@@ -3035,19 +3047,19 @@ bool VmaBlock::Validate() const
 	size_t freeSuballocationsToRegister = 0;
 	// True if previous visisted suballocation was free.
 	bool prevFree = false;
-	
+
 	for( VmaSuballocationList::const_iterator suballocItem = m_Suballocations.cbegin();
 			suballocItem != m_Suballocations.cend();
 			++suballocItem )
 	{
 		const VmaSuballocation& subAlloc = *suballocItem;
-		
+
 		// Actual offset of this suballocation doesn't match expected one.
 		if( subAlloc.offset != calculatedOffset )
 		{
 			return false;
 		}
-		
+
 		const bool currFree = ( subAlloc.type == VMA_SUBALLOCATION_TYPE_FREE );
 		// Two adjacent free suballocations are invalid. They should be merged.
 		if( prevFree && currFree )
@@ -3055,7 +3067,7 @@ bool VmaBlock::Validate() const
 			return false;
 		}
 		prevFree = currFree;
-		
+
 		if( currFree )
 		{
 			calculatedSumFreeSize += subAlloc.size;
@@ -3065,22 +3077,22 @@ bool VmaBlock::Validate() const
 				++freeSuballocationsToRegister;
 			}
 		}
-		
+
 		calculatedOffset += subAlloc.size;
 	}
-	
+
 	// Number of free suballocations registered in m_FreeSuballocationsBySize doesn't
 	// match expected one.
 	if( m_FreeSuballocationsBySize.size() != freeSuballocationsToRegister )
 	{
 		return false;
 	}
-	
+
 	VkDeviceSize lastSize = 0;
 	for( size_t i = 0; i < m_FreeSuballocationsBySize.size(); ++i )
 	{
 		VmaSuballocationList::iterator suballocItem = m_FreeSuballocationsBySize[i];
-		
+
 		// Only free suballocations can be registered in m_FreeSuballocationsBySize.
 		if( suballocItem->type != VMA_SUBALLOCATION_TYPE_FREE )
 		{
@@ -3091,10 +3103,10 @@ bool VmaBlock::Validate() const
 		{
 			return false;
 		}
-		
+
 		lastSize = suballocItem->size;
 	}
-	
+
 	// Check if totals match calculacted values.
 	return
 		( calculatedOffset == m_Size ) &&
@@ -3123,13 +3135,13 @@ bool VmaBlock::CreateAllocationRequest(
 	VMA_ASSERT( allocType != VMA_SUBALLOCATION_TYPE_FREE );
 	VMA_ASSERT( pAllocationRequest != VMA_NULL );
 	VMA_HEAVY_ASSERT( Validate() );
-	
+
 	// There is not enough total free space in this allocation to fullfill the request: Early return.
 	if( m_SumFreeSize < allocSize )
 	{
 		return false;
 	}
-	
+
 	// Old brute-force algorithm, linearly searching suballocations.
 	/*
 	uint32_t suitableSuballocationsFound = 0;
@@ -3158,7 +3170,7 @@ bool VmaBlock::CreateAllocationRequest(
 	    }
 	}
 	*/
-	
+
 	// New algorithm, efficiently searching freeSuballocationsBySize.
 	const size_t freeSuballocCount = m_FreeSuballocationsBySize.size();
 	if( freeSuballocCount > 0 )
@@ -3200,7 +3212,7 @@ bool VmaBlock::CreateAllocationRequest(
 			}
 		}
 	}
-	
+
 	return false;
 }
 
@@ -3216,29 +3228,29 @@ bool VmaBlock::CheckAllocation(
 	VMA_ASSERT( allocType != VMA_SUBALLOCATION_TYPE_FREE );
 	VMA_ASSERT( freeSuballocItem != m_Suballocations.cend() );
 	VMA_ASSERT( pOffset != VMA_NULL );
-	
+
 	const VmaSuballocation& suballoc = *freeSuballocItem;
 	VMA_ASSERT( suballoc.type == VMA_SUBALLOCATION_TYPE_FREE );
-	
+
 	// Size of this suballocation is too small for this request: Early return.
 	if( suballoc.size < allocSize )
 	{
 		return false;
 	}
-	
+
 	// Start from offset equal to beginning of this suballocation.
 	*pOffset = suballoc.offset;
-	
+
 	// Apply VMA_DEBUG_MARGIN at the beginning.
 	if( ( VMA_DEBUG_MARGIN > 0 ) && freeSuballocItem != m_Suballocations.cbegin() )
 	{
 		*pOffset += VMA_DEBUG_MARGIN;
 	}
-	
+
 	// Apply alignment.
 	const VkDeviceSize alignment = VMA_MAX( allocAlignment, static_cast<VkDeviceSize>( VMA_DEBUG_ALIGNMENT ) );
 	*pOffset = VmaAlignUp( *pOffset, alignment );
-	
+
 	// Check previous suballocations for BufferImageGranularity conflicts.
 	// Make bigger alignment if necessary.
 	if( bufferImageGranularity > 1 )
@@ -3259,29 +3271,31 @@ bool VmaBlock::CheckAllocation(
 			}
 			else
 				// Already on previous page.
+			{
 				break;
+			}
 		}
 		if( bufferImageGranularityConflict )
 		{
 			*pOffset = VmaAlignUp( *pOffset, bufferImageGranularity );
 		}
 	}
-	
+
 	// Calculate padding at the beginning based on current offset.
 	const VkDeviceSize paddingBegin = *pOffset - suballoc.offset;
-	
+
 	// Calculate required margin at the end if this is not last suballocation.
 	VmaSuballocationList::const_iterator next = freeSuballocItem;
 	++next;
 	const VkDeviceSize requiredEndMargin =
 		( next != m_Suballocations.cend() ) ? VMA_DEBUG_MARGIN : 0;
-		
+
 	// Fail if requested size plus margin before and after is bigger than size of this suballocation.
 	if( paddingBegin + allocSize + requiredEndMargin > suballoc.size )
 	{
 		return false;
 	}
-	
+
 	// Check next suballocations for BufferImageGranularity conflicts.
 	// If conflict exists, allocation cannot be made here.
 	if( bufferImageGranularity > 1 )
@@ -3306,7 +3320,7 @@ bool VmaBlock::CheckAllocation(
 			++nextSuballocItem;
 		}
 	}
-	
+
 	// All tests passed: Success. pOffset is already filled.
 	return true;
 }
@@ -3330,15 +3344,15 @@ void VmaBlock::Alloc(
 	const VkDeviceSize paddingBegin = request.offset - suballoc.offset;
 	VMA_ASSERT( suballoc.size >= paddingBegin + allocSize );
 	const VkDeviceSize paddingEnd = suballoc.size - paddingBegin - allocSize;
-	
+
 	// Unregister this free suballocation from m_FreeSuballocationsBySize and update
 	// it to become used.
 	UnregisterFreeSuballocation( request.freeSuballocationItem );
-	
+
 	suballoc.offset = request.offset;
 	suballoc.size = allocSize;
 	suballoc.type = type;
-	
+
 	// If there are any free bytes remaining at the end, insert new free suballocation after current one.
 	if( paddingEnd )
 	{
@@ -3352,7 +3366,7 @@ void VmaBlock::Alloc(
 			m_Suballocations.insert( next, paddingSuballoc );
 		RegisterFreeSuballocation( paddingEndItem );
 	}
-	
+
 	// If there are any free bytes remaining at the beginning, insert new free suballocation before current one.
 	if( paddingBegin )
 	{
@@ -3364,7 +3378,7 @@ void VmaBlock::Alloc(
 			m_Suballocations.insert( request.freeSuballocationItem, paddingSuballoc );
 		RegisterFreeSuballocation( paddingBeginItem );
 	}
-	
+
 	// Update totals.
 	m_FreeCount = m_FreeCount - 1;
 	if( paddingBegin > 0 )
@@ -3383,22 +3397,22 @@ void VmaBlock::FreeSuballocation( VmaSuballocationList::iterator suballocItem )
 	// Change this suballocation to be marked as free.
 	VmaSuballocation& suballoc = *suballocItem;
 	suballoc.type = VMA_SUBALLOCATION_TYPE_FREE;
-	
+
 	// Update totals.
 	++m_FreeCount;
 	m_SumFreeSize += suballoc.size;
-	
+
 	// Merge with previous and/or next suballocation if it's also free.
 	bool mergeWithNext = false;
 	bool mergeWithPrev = false;
-	
+
 	VmaSuballocationList::iterator nextItem = suballocItem;
 	++nextItem;
 	if( ( nextItem != m_Suballocations.end() ) && ( nextItem->type == VMA_SUBALLOCATION_TYPE_FREE ) )
 	{
 		mergeWithNext = true;
 	}
-	
+
 	VmaSuballocationList::iterator prevItem = suballocItem;
 	if( suballocItem != m_Suballocations.begin() )
 	{
@@ -3408,13 +3422,13 @@ void VmaBlock::FreeSuballocation( VmaSuballocationList::iterator suballocItem )
 			mergeWithPrev = true;
 		}
 	}
-	
+
 	if( mergeWithNext )
 	{
 		UnregisterFreeSuballocation( nextItem );
 		MergeFreeWithNext( suballocItem );
 	}
-	
+
 	if( mergeWithPrev )
 	{
 		UnregisterFreeSuballocation( prevItem );
@@ -3422,7 +3436,9 @@ void VmaBlock::FreeSuballocation( VmaSuballocationList::iterator suballocItem )
 		RegisterFreeSuballocation( prevItem );
 	}
 	else
+	{
 		RegisterFreeSuballocation( suballocItem );
+	}
 }
 
 void VmaBlock::Free( const VmaAllocation allocation )
@@ -3456,7 +3472,7 @@ void VmaBlock::PrintDetailedMap( class VmaStringBuilder& sb ) const
 	sb.Add( ",\n\t\t\t\"FreeSuballocations\": " );
 	sb.AddNumber( m_FreeCount );
 	sb.Add( ",\n\t\t\t\"SuballocationList\": [" );
-	
+
 	size_t i = 0;
 	for( VmaSuballocationList::const_iterator suballocItem = m_Suballocations.cbegin();
 			suballocItem != m_Suballocations.cend();
@@ -3477,7 +3493,7 @@ void VmaBlock::PrintDetailedMap( class VmaStringBuilder& sb ) const
 		sb.AddNumber( suballocItem->offset );
 		sb.Add( " }" );
 	}
-	
+
 	sb.Add( "\n\t\t\t]\n\t\t}" );
 }
 
@@ -3487,12 +3503,12 @@ void VmaBlock::MergeFreeWithNext( VmaSuballocationList::iterator item )
 {
 	VMA_ASSERT( item != m_Suballocations.end() );
 	VMA_ASSERT( item->type == VMA_SUBALLOCATION_TYPE_FREE );
-	
+
 	VmaSuballocationList::iterator nextItem = item;
 	++nextItem;
 	VMA_ASSERT( nextItem != m_Suballocations.end() );
 	VMA_ASSERT( nextItem->type == VMA_SUBALLOCATION_TYPE_FREE );
-	
+
 	item->size += nextItem->size;
 	--m_FreeCount;
 	m_Suballocations.erase( nextItem );
@@ -3502,7 +3518,7 @@ void VmaBlock::RegisterFreeSuballocation( VmaSuballocationList::iterator item )
 {
 	VMA_ASSERT( item->type == VMA_SUBALLOCATION_TYPE_FREE );
 	VMA_ASSERT( item->size > 0 );
-	
+
 	if( item->size >= VMA_MIN_FREE_SUBALLOCATION_SIZE_TO_REGISTER )
 	{
 		if( m_FreeSuballocationsBySize.empty() )
@@ -3526,7 +3542,7 @@ void VmaBlock::UnregisterFreeSuballocation( VmaSuballocationList::iterator item 
 {
 	VMA_ASSERT( item->type == VMA_SUBALLOCATION_TYPE_FREE );
 	VMA_ASSERT( item->size > 0 );
-	
+
 	if( item->size >= VMA_MIN_FREE_SUBALLOCATION_SIZE_TO_REGISTER )
 	{
 		VmaSuballocationList::iterator* const it = VmaBinaryFindFirstNotLess(
@@ -3559,19 +3575,19 @@ static void InitStatInfo( VmaStatInfo& outInfo )
 static void CalcAllocationStatInfo( VmaStatInfo& outInfo, const VmaBlock& alloc )
 {
 	outInfo.AllocationCount = 1;
-	
+
 	const uint32_t rangeCount = ( uint32_t )alloc.m_Suballocations.size();
 	outInfo.SuballocationCount = rangeCount - alloc.m_FreeCount;
 	outInfo.UnusedRangeCount = alloc.m_FreeCount;
-	
+
 	outInfo.UnusedBytes = alloc.m_SumFreeSize;
 	outInfo.UsedBytes = alloc.m_Size - outInfo.UnusedBytes;
-	
+
 	outInfo.SuballocationSizeMin = UINT64_MAX;
 	outInfo.SuballocationSizeMax = 0;
 	outInfo.UnusedRangeSizeMin = UINT64_MAX;
 	outInfo.UnusedRangeSizeMax = 0;
-	
+
 	for( VmaSuballocationList::const_iterator suballocItem = alloc.m_Suballocations.cbegin();
 			suballocItem != alloc.m_Suballocations.cend();
 			++suballocItem )
@@ -3733,19 +3749,19 @@ class VmaDefragmentator
 	VMA_BLOCK_VECTOR_TYPE m_BlockVectorType;
 	VkDeviceSize m_BytesMoved;
 	uint32_t m_AllocationsMoved;
-	
+
 	struct AllocationInfo
 	{
 		VmaAllocation m_hAllocation;
 		VkBool32* m_pChanged;
-		
+
 		AllocationInfo() :
 			m_hAllocation( VK_NULL_HANDLE ),
 			m_pChanged( VMA_NULL )
 		{
 		}
 	};
-	
+
 	struct AllocationInfoSizeGreater
 	{
 		bool operator()( const AllocationInfo& lhs, const AllocationInfo& rhs ) const
@@ -3753,16 +3769,16 @@ class VmaDefragmentator
 			return lhs.m_hAllocation->GetSize() > rhs.m_hAllocation->GetSize();
 		}
 	};
-	
+
 	// Used between AddAllocation and Defragment.
 	VmaVector< AllocationInfo, VmaStlAllocator<AllocationInfo> > m_Allocations;
-	
+
 	struct BlockInfo
 	{
 		VmaBlock* m_pBlock;
 		bool m_HasNonMovableAllocations;
 		VmaVector< AllocationInfo, VmaStlAllocator<AllocationInfo> > m_Allocations;
-		
+
 		BlockInfo( const VkAllocationCallbacks* pAllocationCallbacks ) :
 			m_pBlock( VMA_NULL ),
 			m_HasNonMovableAllocations( true ),
@@ -3770,7 +3786,7 @@ class VmaDefragmentator
 			m_pMappedDataForDefragmentation( VMA_NULL )
 		{
 		}
-		
+
 		void CalcHasNonMovableAllocations()
 		{
 			const size_t blockAllocCount =
@@ -3778,12 +3794,12 @@ class VmaDefragmentator
 			const size_t defragmentAllocCount = m_Allocations.size();
 			m_HasNonMovableAllocations = blockAllocCount != defragmentAllocCount;
 		}
-		
+
 		void SortAllocationsBySizeDescecnding()
 		{
 			VMA_SORT( m_Allocations.begin(), m_Allocations.end(), AllocationInfoSizeGreater() );
 		}
-		
+
 		VkResult EnsureMapping( VkDevice hDevice, void** ppMappedData )
 		{
 			// It has already been mapped for defragmentation.
@@ -3792,7 +3808,7 @@ class VmaDefragmentator
 				*ppMappedData = m_pMappedDataForDefragmentation;
 				return VK_SUCCESS;
 			}
-			
+
 			// It is persistently mapped.
 			if( m_pBlock->m_PersistentMap )
 			{
@@ -3800,13 +3816,13 @@ class VmaDefragmentator
 				*ppMappedData = m_pBlock->m_pMappedData;
 				return VK_SUCCESS;
 			}
-			
+
 			// Map on first usage.
 			VkResult res = vkMapMemory( hDevice, m_pBlock->m_hMemory, 0, VK_WHOLE_SIZE, 0, &m_pMappedDataForDefragmentation );
 			*ppMappedData = m_pMappedDataForDefragmentation;
 			return res;
 		}
-		
+
 		void Unmap( VkDevice hDevice )
 		{
 			if( m_pMappedDataForDefragmentation != VMA_NULL )
@@ -3814,12 +3830,12 @@ class VmaDefragmentator
 				vkUnmapMemory( hDevice, m_pBlock->m_hMemory );
 			}
 		}
-		
+
 	private:
 		// Not null if mapped for defragmentation only, not persistently mapped.
 		void* m_pMappedDataForDefragmentation;
 	};
-	
+
 	struct BlockPointerLess
 	{
 		bool operator()( const BlockInfo* pLhsBlockInfo, const VmaBlock* pRhsBlock ) const
@@ -3831,7 +3847,7 @@ class VmaDefragmentator
 			return pLhsBlockInfo->m_pBlock < pRhsBlockInfo->m_pBlock;
 		}
 	};
-	
+
 	// 1. Blocks with some non-movable allocations go first.
 	// 2. Blocks with smaller sumFreeSize go first.
 	struct BlockInfoCompareMoveDestination
@@ -3853,18 +3869,18 @@ class VmaDefragmentator
 			return false;
 		}
 	};
-	
+
 	typedef VmaVector< BlockInfo*, VmaStlAllocator<BlockInfo*> > BlockInfoVector;
 	BlockInfoVector m_Blocks;
-	
+
 	VkResult DefragmentRound(
 		VkDeviceSize maxBytesToMove,
 		uint32_t maxAllocationsToMove );
-		
+
 	static bool MoveMakesSense(
 		size_t dstBlockIndex, VkDeviceSize dstOffset,
 		size_t srcBlockIndex, VkDeviceSize srcOffset );
-		
+
 public:
 	VmaDefragmentator(
 		VkDevice hDevice,
@@ -3872,9 +3888,9 @@ public:
 		VkDeviceSize bufferImageGranularity,
 		uint32_t memTypeIndex,
 		VMA_BLOCK_VECTOR_TYPE blockVectorType );
-		
+
 	~VmaDefragmentator();
-	
+
 	VkDeviceSize GetBytesMoved() const
 	{
 		return m_BytesMoved;
@@ -3883,9 +3899,9 @@ public:
 	{
 		return m_AllocationsMoved;
 	}
-	
+
 	void AddAllocation( VmaAllocation hAlloc, VkBool32* pChanged );
-	
+
 	VkResult Defragment(
 		VmaBlockVector* pBlockVector,
 		VkDeviceSize maxBytesToMove,
@@ -3934,7 +3950,7 @@ VkResult VmaDefragmentator::DefragmentRound(
 	{
 		return VK_SUCCESS;
 	}
-	
+
 	size_t srcBlockIndex = m_Blocks.size() - 1;
 	size_t srcAllocIndex = SIZE_MAX;
 	for( ;; )
@@ -3962,15 +3978,15 @@ VkResult VmaDefragmentator::DefragmentRound(
 				srcAllocIndex = m_Blocks[srcBlockIndex]->m_Allocations.size() - 1;
 			}
 		}
-		
+
 		BlockInfo* pSrcBlockInfo = m_Blocks[srcBlockIndex];
 		AllocationInfo& allocInfo = pSrcBlockInfo->m_Allocations[srcAllocIndex];
-		
+
 		const VkDeviceSize size = allocInfo.m_hAllocation->GetSize();
 		const VkDeviceSize srcOffset = allocInfo.m_hAllocation->GetOffset();
 		const VkDeviceSize alignment = allocInfo.m_hAllocation->GetAlignment();
 		const VmaSuballocationType suballocType = allocInfo.m_hAllocation->GetSuballocationType();
-		
+
 		// 2. Try to find new place for this allocation in preceding or current block.
 		for( size_t dstBlockIndex = 0; dstBlockIndex <= srcBlockIndex; ++dstBlockIndex )
 		{
@@ -3991,48 +4007,48 @@ VkResult VmaDefragmentator::DefragmentRound(
 				{
 					return VK_INCOMPLETE;
 				}
-				
+
 				void* pDstMappedData = VMA_NULL;
 				VkResult res = pDstBlockInfo->EnsureMapping( m_hDevice, &pDstMappedData );
 				if( res != VK_SUCCESS )
 				{
 					return res;
 				}
-				
+
 				void* pSrcMappedData = VMA_NULL;
 				res = pSrcBlockInfo->EnsureMapping( m_hDevice, &pSrcMappedData );
 				if( res != VK_SUCCESS )
 				{
 					return res;
 				}
-				
+
 				// THE PLACE WHERE ACTUAL DATA COPY HAPPENS.
 				memcpy(
 					reinterpret_cast<char*>( pDstMappedData ) + dstAllocRequest.offset,
 					reinterpret_cast<char*>( pSrcMappedData ) + srcOffset,
 					size );
-					
+
 				pDstBlockInfo->m_pBlock->Alloc( dstAllocRequest, suballocType, size );
 				pSrcBlockInfo->m_pBlock->Free( allocInfo.m_hAllocation );
-				
+
 				allocInfo.m_hAllocation->ChangeBlockAllocation( pDstBlockInfo->m_pBlock, dstAllocRequest.offset );
-				
+
 				if( allocInfo.m_pChanged != VMA_NULL )
 				{
 					*allocInfo.m_pChanged = VK_TRUE;
 				}
-				
+
 				++m_AllocationsMoved;
 				m_BytesMoved += size;
-				
+
 				VmaVectorRemove( pSrcBlockInfo->m_Allocations, srcAllocIndex );
-				
+
 				break;
 			}
 		}
-		
+
 		// If not processed, this allocInfo remains in pBlockInfo->m_Allocations for next round.
-		
+
 		if( srcAllocIndex > 0 )
 		{
 			--srcAllocIndex;
@@ -4061,7 +4077,7 @@ VkResult VmaDefragmentator::Defragment(
 	{
 		return VK_SUCCESS;
 	}
-	
+
 	// Create block info for each block.
 	const size_t blockCount = pBlockVector->m_Blocks.size();
 	for( size_t blockIndex = 0; blockIndex < blockCount; ++blockIndex )
@@ -4070,10 +4086,10 @@ VkResult VmaDefragmentator::Defragment(
 		pBlockInfo->m_pBlock = pBlockVector->m_Blocks[blockIndex];
 		m_Blocks.push_back( pBlockInfo );
 	}
-	
+
 	// Sort them by m_pBlock pointer value.
 	VMA_SORT( m_Blocks.begin(), m_Blocks.end(), BlockPointerLess() );
-	
+
 	// Move allocation infos from m_Allocations to appropriate m_Blocks[i].m_Allocations.
 	for( size_t allocIndex = 0, allocCount = m_Allocations.size(); allocIndex < allocCount; ++allocIndex )
 	{
@@ -4090,30 +4106,30 @@ VkResult VmaDefragmentator::Defragment(
 		}
 	}
 	m_Allocations.clear();
-	
+
 	for( size_t blockIndex = 0; blockIndex < blockCount; ++blockIndex )
 	{
 		BlockInfo* pBlockInfo = m_Blocks[blockIndex];
 		pBlockInfo->CalcHasNonMovableAllocations();
 		pBlockInfo->SortAllocationsBySizeDescecnding();
 	}
-	
+
 	// Sort m_Blocks this time by the main criterium, from most "destination" to most "source" blocks.
 	VMA_SORT( m_Blocks.begin(), m_Blocks.end(), BlockInfoCompareMoveDestination() );
-	
+
 	// Execute defragmentation round (the main part).
 	VkResult result = VK_SUCCESS;
 	for( size_t round = 0; ( round < 2 ) && ( result == VK_SUCCESS ); ++round )
 	{
 		result = DefragmentRound( maxBytesToMove, maxAllocationsToMove );
 	}
-	
+
 	// Unmap blocks that were mapped for defragmentation.
 	for( size_t blockIndex = 0; blockIndex < blockCount; ++blockIndex )
 	{
 		m_Blocks[blockIndex]->Unmap( m_hDevice );
 	}
-	
+
 	return result;
 }
 
@@ -4151,29 +4167,29 @@ VmaAllocator_T::VmaAllocator_T( const VmaAllocatorCreateInfo* pCreateInfo ) :
 	m_UnmapPersistentlyMappedMemoryCounter( 0 )
 {
 	VMA_ASSERT( pCreateInfo->physicalDevice && pCreateInfo->device );
-	
+
 	memset( &m_DeviceMemoryCallbacks, 0 , sizeof( m_DeviceMemoryCallbacks ) );
 	memset( &m_MemProps, 0, sizeof( m_MemProps ) );
 	memset( &m_PhysicalDeviceProperties, 0, sizeof( m_PhysicalDeviceProperties ) );
-	
+
 	memset( &m_pBlockVectors, 0, sizeof( m_pBlockVectors ) );
 	memset( &m_HasEmptyBlock, 0, sizeof( m_HasEmptyBlock ) );
 	memset( &m_pOwnAllocations, 0, sizeof( m_pOwnAllocations ) );
-	
+
 	if( pCreateInfo->pDeviceMemoryCallbacks != VMA_NULL )
 	{
 		m_DeviceMemoryCallbacks.pfnAllocate = pCreateInfo->pDeviceMemoryCallbacks->pfnAllocate;
 		m_DeviceMemoryCallbacks.pfnFree = pCreateInfo->pDeviceMemoryCallbacks->pfnFree;
 	}
-	
+
 	m_PreferredLargeHeapBlockSize = ( pCreateInfo->preferredLargeHeapBlockSize != 0 ) ?
 									pCreateInfo->preferredLargeHeapBlockSize : static_cast<VkDeviceSize>( VMA_DEFAULT_LARGE_HEAP_BLOCK_SIZE );
 	m_PreferredSmallHeapBlockSize = ( pCreateInfo->preferredSmallHeapBlockSize != 0 ) ?
 									pCreateInfo->preferredSmallHeapBlockSize : static_cast<VkDeviceSize>( VMA_DEFAULT_SMALL_HEAP_BLOCK_SIZE );
-									
+
 	vkGetPhysicalDeviceProperties( m_PhysicalDevice, &m_PhysicalDeviceProperties );
 	vkGetPhysicalDeviceMemoryProperties( m_PhysicalDevice, &m_MemProps );
-	
+
 	for( size_t i = 0; i < GetMemoryTypeCount(); ++i )
 	{
 		for( size_t j = 0; j < VMA_BLOCK_VECTOR_TYPE_COUNT; ++j )
@@ -4212,7 +4228,7 @@ VkResult VmaAllocator_T::AllocateMemoryOfType(
 {
 	VMA_ASSERT( pAllocation != VMA_NULL );
 	VMA_DEBUG_LOG( "  AllocateMemory: MemoryTypeIndex=%u, Size=%llu", memTypeIndex, vkMemReq.size );
-	
+
 	const VkDeviceSize preferredBlockSize = GetPreferredBlockSize( memTypeIndex );
 	// Heuristics: Allocate own memory if requested size if greater than half of preferred block size.
 	const bool ownMemory =
@@ -4220,7 +4236,7 @@ VkResult VmaAllocator_T::AllocateMemoryOfType(
 		VMA_DEBUG_ALWAYS_OWN_MEMORY ||
 		( ( vmaMemReq.flags & VMA_MEMORY_REQUIREMENT_NEVER_ALLOCATE_BIT ) == 0 &&
 		  vkMemReq.size > preferredBlockSize / 2 );
-		  
+
 	if( ownMemory )
 	{
 		if( ( vmaMemReq.flags & VMA_MEMORY_REQUIREMENT_NEVER_ALLOCATE_BIT ) != 0 )
@@ -4241,11 +4257,11 @@ VkResult VmaAllocator_T::AllocateMemoryOfType(
 	else
 	{
 		uint32_t blockVectorType = VmaMemoryRequirementFlagsToBlockVectorType( vmaMemReq.flags );
-		
+
 		VmaMutexLock lock( m_BlocksMutex[memTypeIndex], m_UseMutex );
 		VmaBlockVector* const blockVector = m_pBlockVectors[memTypeIndex][blockVectorType];
 		VMA_ASSERT( blockVector );
-		
+
 		// 1. Search existing allocations.
 		// Forward order - prefer blocks with smallest amount of free space.
 		for( size_t allocIndex = 0; allocIndex < blockVector->m_Blocks.size(); ++allocIndex )
@@ -4281,7 +4297,7 @@ VkResult VmaAllocator_T::AllocateMemoryOfType(
 				return VK_SUCCESS;
 			}
 		}
-		
+
 		// 2. Create new Allocation.
 		if( ( vmaMemReq.flags & VMA_MEMORY_REQUIREMENT_NEVER_ALLOCATE_BIT ) != 0 )
 		{
@@ -4337,9 +4353,9 @@ VkResult VmaAllocator_T::AllocateMemoryOfType(
 					return res;
 				}
 			}
-			
+
 			// New VkDeviceMemory successfully created.
-			
+
 			// Map memory if needed.
 			void* pMappedData = VMA_NULL;
 			const bool persistentMap = ( vmaMemReq.flags & VMA_MEMORY_REQUIREMENT_PERSISTENT_MAP_BIT ) != 0;
@@ -4353,13 +4369,13 @@ VkResult VmaAllocator_T::AllocateMemoryOfType(
 					return res;
 				}
 			}
-			
+
 			// Callback.
 			if( m_DeviceMemoryCallbacks.pfnAllocate != VMA_NULL )
 			{
 				( *m_DeviceMemoryCallbacks.pfnAllocate )( this, memTypeIndex, mem, allocInfo.allocationSize );
 			}
-			
+
 			// Create new Allocation for it.
 			VmaBlock* const pBlock = vma_new( this, VmaBlock )( this );
 			pBlock->Init(
@@ -4369,9 +4385,9 @@ VkResult VmaAllocator_T::AllocateMemoryOfType(
 				allocInfo.allocationSize,
 				persistentMap,
 				pMappedData );
-				
+
 			blockVector->m_Blocks.push_back( pBlock );
-			
+
 			// Allocate from pBlock. Because it is empty, dstAllocRequest can be trivially filled.
 			VmaAllocationRequest allocRequest = {};
 			allocRequest.freeSuballocationItem = pBlock->m_Suballocations.begin();
@@ -4401,11 +4417,11 @@ VkResult VmaAllocator_T::AllocateOwnMemory(
 	VmaAllocation* pAllocation )
 {
 	VMA_ASSERT( pAllocation );
-	
+
 	VkMemoryAllocateInfo allocInfo = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO };
 	allocInfo.memoryTypeIndex = memTypeIndex;
 	allocInfo.allocationSize = size;
-	
+
 	// Allocate VkDeviceMemory.
 	VkDeviceMemory hMemory = VK_NULL_HANDLE;
 	VkResult res = vkAllocateMemory( m_hDevice, &allocInfo, GetAllocationCallbacks(), &hMemory );
@@ -4414,7 +4430,7 @@ VkResult VmaAllocator_T::AllocateOwnMemory(
 		VMA_DEBUG_LOG( "    vkAllocateMemory FAILED" );
 		return res;
 	}
-	
+
 	void* pMappedData = nullptr;
 	if( map )
 	{
@@ -4429,16 +4445,16 @@ VkResult VmaAllocator_T::AllocateOwnMemory(
 			}
 		}
 	}
-	
+
 	// Callback.
 	if( m_DeviceMemoryCallbacks.pfnAllocate != VMA_NULL )
 	{
 		( *m_DeviceMemoryCallbacks.pfnAllocate )( this, memTypeIndex, hMemory, size );
 	}
-	
+
 	*pAllocation = vma_new( this, VmaAllocation_T )();
 	( *pAllocation )->InitOwnAllocation( memTypeIndex, hMemory, suballocType, map, pMappedData, size, pUserData );
-	
+
 	// Register it in m_pOwnAllocations.
 	{
 		VmaMutexLock lock( m_OwnAllocationsMutex[memTypeIndex], m_UseMutex );
@@ -4453,9 +4469,9 @@ VkResult VmaAllocator_T::AllocateOwnMemory(
 										 VmaPointerLess() ) - pOwnAllocationsBeg;
 		VmaVectorInsert( *pOwnAllocations, indexToInsert, *pAllocation );
 	}
-	
+
 	VMA_DEBUG_LOG( "    Allocated OwnMemory MemoryTypeIndex=#%u", memTypeIndex );
-	
+
 	return VK_SUCCESS;
 }
 
@@ -4471,7 +4487,7 @@ VkResult VmaAllocator_T::AllocateMemory(
 		VMA_ASSERT( 0 && "Specifying VMA_MEMORY_REQUIREMENT_OWN_MEMORY_BIT together with VMA_MEMORY_REQUIREMENT_NEVER_ALLOCATE_BIT makes no sense." );
 		return VK_ERROR_OUT_OF_DEVICE_MEMORY;
 	}
-	
+
 	// Bit mask of memory Vulkan types acceptable for this allocation.
 	uint32_t memoryTypeBits = vkMemReq.memoryTypeBits;
 	uint32_t memTypeIndex = UINT32_MAX;
@@ -4514,30 +4530,32 @@ VkResult VmaAllocator_T::AllocateMemory(
 	}
 	// Can't find any single memory type maching requirements. res is VK_ERROR_FEATURE_NOT_PRESENT.
 	else
+	{
 		return res;
+	}
 }
 
 void VmaAllocator_T::FreeMemory( const VmaAllocation allocation )
 {
 	VMA_ASSERT( allocation );
-	
+
 	if( allocation->GetType() == VmaAllocation_T::ALLOCATION_TYPE_BLOCK )
 	{
 		VmaBlock* pBlockToDelete = VMA_NULL;
-		
+
 		const uint32_t memTypeIndex = allocation->GetMemoryTypeIndex();
 		const VMA_BLOCK_VECTOR_TYPE blockVectorType = allocation->GetBlockVectorType();
 		{
 			VmaMutexLock lock( m_BlocksMutex[memTypeIndex], m_UseMutex );
-			
+
 			VmaBlockVector* pBlockVector = m_pBlockVectors[memTypeIndex][blockVectorType];
 			VmaBlock* pBlock = allocation->GetBlock();
-			
+
 			pBlock->Free( allocation );
 			VMA_HEAVY_ASSERT( pBlock->Validate() );
-			
+
 			VMA_DEBUG_LOG( "  Freed from MemoryTypeIndex=%u", memTypeIndex );
-			
+
 			// pBlock became empty after this deallocation.
 			if( pBlock->IsEmpty() )
 			{
@@ -4564,7 +4582,7 @@ void VmaAllocator_T::FreeMemory( const VmaAllocation allocation )
 			pBlockToDelete->Destroy( this );
 			vma_delete( this, pBlockToDelete );
 		}
-		
+
 		vma_delete( this, allocation );
 	}
 	else // VmaAllocation_T::ALLOCATION_TYPE_OWN
@@ -4577,10 +4595,14 @@ void VmaAllocator_T::CalculateStats( VmaStats* pStats )
 {
 	InitStatInfo( pStats->total );
 	for( size_t i = 0; i < VK_MAX_MEMORY_TYPES; ++i )
+	{
 		InitStatInfo( pStats->memoryType[i] );
+	}
 	for( size_t i = 0; i < VK_MAX_MEMORY_HEAPS; ++i )
+	{
 		InitStatInfo( pStats->memoryHeap[i] );
-		
+	}
+
 	for( uint32_t memTypeIndex = 0; memTypeIndex < GetMemoryTypeCount(); ++memTypeIndex )
 	{
 		VmaMutexLock allocationsLock( m_BlocksMutex[memTypeIndex], m_UseMutex );
@@ -4592,12 +4614,16 @@ void VmaAllocator_T::CalculateStats( VmaStats* pStats )
 			pBlockVector->AddStats( pStats, memTypeIndex, heapIndex );
 		}
 	}
-	
+
 	VmaPostprocessCalcStatInfo( pStats->total );
 	for( size_t i = 0; i < GetMemoryTypeCount(); ++i )
+	{
 		VmaPostprocessCalcStatInfo( pStats->memoryType[i] );
+	}
 	for( size_t i = 0; i < GetMemoryHeapCount(); ++i )
+	{
 		VmaPostprocessCalcStatInfo( pStats->memoryHeap[i] );
+	}
 }
 
 static const uint32_t VMA_VENDOR_ID_AMD = 4098;
@@ -4624,7 +4650,7 @@ void VmaAllocator_T::UnmapPersistentlyMappedMemory()
 							hAlloc->OwnAllocUnmapPersistentlyMappedMemory( m_hDevice );
 						}
 					}
-					
+
 					// Process normal Allocations.
 					{
 						VmaMutexLock lock( m_BlocksMutex[memTypeIndex], m_UseMutex );
@@ -4661,7 +4687,7 @@ VkResult VmaAllocator_T::MapPersistentlyMappedMemory()
 							hAlloc->OwnAllocMapPersistentlyMappedMemory( m_hDevice );
 						}
 					}
-					
+
 					// Process normal Allocations.
 					{
 						VmaMutexLock lock( m_BlocksMutex[memTypeIndex], m_UseMutex );
@@ -4678,7 +4704,9 @@ VkResult VmaAllocator_T::MapPersistentlyMappedMemory()
 		return finalResult;
 	}
 	else
+	{
 		return VK_SUCCESS;
+	}
 }
 
 VkResult VmaAllocator_T::Defragment(
@@ -4696,13 +4724,13 @@ VkResult VmaAllocator_T::Defragment(
 	{
 		memset( pDefragmentationStats, 0, sizeof( *pDefragmentationStats ) );
 	}
-	
+
 	if( m_UnmapPersistentlyMappedMemoryCounter > 0 )
 	{
 		VMA_DEBUG_LOG( "ERROR: Cannot defragment when inside vmaUnmapPersistentlyMappedMemory." );
 		return VK_ERROR_MEMORY_MAP_FAILED;
 	}
-	
+
 	// Initialize defragmentators per memory type.
 	const VkDeviceSize bufferImageGranularity = GetBufferImageGranularity();
 	VmaDefragmentator* pDefragmentators[VK_MAX_MEMORY_TYPES][VMA_BLOCK_VECTOR_TYPE_COUNT];
@@ -4723,7 +4751,7 @@ VkResult VmaAllocator_T::Defragment(
 			}
 		}
 	}
-	
+
 	// Dispatch pAllocations among defragmentators.
 	for( size_t allocIndex = 0; allocIndex < allocationCount; ++allocIndex )
 	{
@@ -4744,9 +4772,9 @@ VkResult VmaAllocator_T::Defragment(
 		}
 		// else ALLOCATION_TYPE_OWN: skip this allocation, nothing to defragment.
 	}
-	
+
 	VkResult result = VK_SUCCESS;
-	
+
 	// Main processing.
 	VkDeviceSize maxBytesToMove = SIZE_MAX;
 	uint32_t maxAllocationsToMove = UINT32_MAX;
@@ -4763,16 +4791,16 @@ VkResult VmaAllocator_T::Defragment(
 		if( ( m_MemProps.memoryTypes[memTypeIndex].propertyFlags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT ) != 0 )
 		{
 			VmaMutexLock lock( m_BlocksMutex[memTypeIndex], m_UseMutex );
-			
+
 			for( uint32_t blockVectorType = 0;
 					( blockVectorType < VMA_BLOCK_VECTOR_TYPE_COUNT ) && ( result == VK_SUCCESS );
 					++blockVectorType )
 			{
 				VmaBlockVector* pBlockVector = m_pBlockVectors[memTypeIndex][blockVectorType];
-				
+
 				// Defragment.
 				result = pDefragmentators[memTypeIndex][blockVectorType]->Defragment( pBlockVector, maxBytesToMove, maxAllocationsToMove );
-				
+
 				// Accumulate statistics.
 				if( pDefragmentationStats != VMA_NULL )
 				{
@@ -4785,7 +4813,7 @@ VkResult VmaAllocator_T::Defragment(
 					maxBytesToMove -= bytesMoved;
 					maxAllocationsToMove -= allocationsMoved;
 				}
-				
+
 				// Free empty blocks.
 				for( size_t blockIndex = pBlockVector->m_Blocks.size(); blockIndex--; )
 				{
@@ -4797,13 +4825,13 @@ VkResult VmaAllocator_T::Defragment(
 							++pDefragmentationStats->deviceMemoryBlocksFreed;
 							pDefragmentationStats->bytesFreed += pBlock->m_Size;
 						}
-						
+
 						VmaVectorRemove( pBlockVector->m_Blocks, blockIndex );
 						pBlock->Destroy( this );
 						vma_delete( this, pBlock );
 					}
 				}
-				
+
 				// All block vector types processed: we can be sure that all empty allocations have been freed.
 				if( blockVectorType == VMA_BLOCK_VECTOR_TYPE_COUNT - 1 )
 				{
@@ -4812,7 +4840,7 @@ VkResult VmaAllocator_T::Defragment(
 			}
 		}
 	}
-	
+
 	// Destroy defragmentators.
 	for( uint32_t memTypeIndex = GetMemoryTypeCount(); memTypeIndex--; )
 	{
@@ -4821,7 +4849,7 @@ VkResult VmaAllocator_T::Defragment(
 			vma_delete( this, pDefragmentators[memTypeIndex][blockVectorType] );
 		}
 	}
-	
+
 	return result;
 }
 
@@ -4838,7 +4866,7 @@ void VmaAllocator_T::GetAllocationInfo( VmaAllocation hAllocation, VmaAllocation
 void VmaAllocator_T::FreeOwnMemory( VmaAllocation allocation )
 {
 	VMA_ASSERT( allocation && allocation->GetType() == VmaAllocation_T::ALLOCATION_TYPE_OWN );
-	
+
 	const uint32_t memTypeIndex = allocation->GetMemoryTypeIndex();
 	{
 		VmaMutexLock lock( m_OwnAllocationsMutex[memTypeIndex], m_UseMutex );
@@ -4861,24 +4889,24 @@ void VmaAllocator_T::FreeOwnMemory( VmaAllocation allocation )
 			VMA_ASSERT( 0 );
 		}
 	}
-	
+
 	VkDeviceMemory hMemory = allocation->GetMemory();
-	
+
 	// Callback.
 	if( m_DeviceMemoryCallbacks.pfnFree != VMA_NULL )
 	{
 		( *m_DeviceMemoryCallbacks.pfnFree )( this, memTypeIndex, hMemory, allocation->GetSize() );
 	}
-	
+
 	if( allocation->GetMappedData() != VMA_NULL )
 	{
 		vkUnmapMemory( m_hDevice, hMemory );
 	}
-	
+
 	vkFreeMemory( m_hDevice, hMemory, GetAllocationCallbacks() );
-	
+
 	VMA_DEBUG_LOG( "    Freed OwnMemory MemoryTypeIndex=%u", memTypeIndex );
-	
+
 	vma_delete( this, allocation );
 }
 
@@ -4911,7 +4939,7 @@ void VmaAllocator_T::PrintDetailedMap( VmaStringBuilder& sb )
 					sb.Add( " Mapped" );
 				}
 				sb.Add( "\": [" );
-				
+
 				for( size_t i = 0; i < pOwnAllocVector->size(); ++i )
 				{
 					const VmaAllocation hAlloc = ( *pOwnAllocVector )[i];
@@ -4928,7 +4956,7 @@ void VmaAllocator_T::PrintDetailedMap( VmaStringBuilder& sb )
 					sb.AddString( VMA_SUBALLOCATION_TYPE_NAMES[hAlloc->GetSuballocationType()] );
 					sb.Add( " }" );
 				}
-				
+
 				sb.Add( "\n\t]" );
 			}
 		}
@@ -4937,7 +4965,7 @@ void VmaAllocator_T::PrintDetailedMap( VmaStringBuilder& sb )
 	{
 		sb.Add( "\n}" );
 	}
-	
+
 	{
 		bool allocationsStarted = false;
 		for( size_t memTypeIndex = 0; memTypeIndex < GetMemoryTypeCount(); ++memTypeIndex )
@@ -4962,9 +4990,9 @@ void VmaAllocator_T::PrintDetailedMap( VmaStringBuilder& sb )
 						sb.Add( " Mapped" );
 					}
 					sb.Add( "\": [" );
-					
+
 					m_pBlockVectors[memTypeIndex][blockVectorType]->PrintDetailedMap( sb );
-					
+
 					sb.Add( "\n\t]" );
 				}
 			}
@@ -4986,10 +5014,10 @@ static VkResult AllocateMemoryForImage(
 	VmaAllocation* pAllocation )
 {
 	VMA_ASSERT( allocator && ( image != VK_NULL_HANDLE ) && pMemoryRequirements && pAllocation );
-	
+
 	VkMemoryRequirements vkMemReq = {};
 	vkGetImageMemoryRequirements( allocator->m_hDevice, image, &vkMemReq );
-	
+
 	return allocator->AllocateMemory(
 			   vkMemReq,
 			   *pMemoryRequirements,
@@ -5065,15 +5093,15 @@ void vmaBuildStatsString(
 {
 	VMA_ASSERT( allocator && ppStatsString );
 	VMA_DEBUG_GLOBAL_MUTEX_LOCK
-	
+
 	VmaStringBuilder sb( allocator );
 	{
 		VmaStats stats;
 		allocator->CalculateStats( &stats );
-		
+
 		sb.Add( "{\n\"Total\": " );
 		VmaPrintStatInfo( sb, stats.total );
-		
+
 		for( uint32_t heapIndex = 0; heapIndex < allocator->GetMemoryHeapCount(); ++heapIndex )
 		{
 			sb.Add( ",\n\"Heap " );
@@ -5094,7 +5122,7 @@ void vmaBuildStatsString(
 				sb.Add( ",\n\t\"Stats:\": " );
 				VmaPrintStatInfo( sb, stats.memoryHeap[heapIndex] );
 			}
-			
+
 			for( uint32_t typeIndex = 0; typeIndex < allocator->GetMemoryTypeCount(); ++typeIndex )
 			{
 				if( allocator->m_MemProps.memoryTypes[typeIndex].heapIndex == heapIndex )
@@ -5140,7 +5168,7 @@ void vmaBuildStatsString(
 		}
 		sb.Add( "\n}\n" );
 	}
-	
+
 	const size_t len = sb.GetLength();
 	char* const pChars = vma_new_array( allocator, char, len + 1 );
 	if( len > 0 )
@@ -5176,7 +5204,7 @@ VkResult vmaFindMemoryTypeIndex(
 	VMA_ASSERT( allocator != VK_NULL_HANDLE );
 	VMA_ASSERT( pMemoryRequirements != VMA_NULL );
 	VMA_ASSERT( pMemoryTypeIndex != VMA_NULL );
-	
+
 	uint32_t requiredFlags = pMemoryRequirements->requiredFlags;
 	uint32_t preferredFlags = pMemoryRequirements->preferredFlags;
 	if( preferredFlags == 0 )
@@ -5185,7 +5213,7 @@ VkResult vmaFindMemoryTypeIndex(
 	}
 	// preferredFlags, if not 0, must be a superset of requiredFlags.
 	VMA_ASSERT( ( requiredFlags & ~preferredFlags ) == 0 );
-	
+
 	// Convert usage to requiredFlags and preferredFlags.
 	switch( pMemoryRequirements->usage )
 	{
@@ -5208,12 +5236,12 @@ VkResult vmaFindMemoryTypeIndex(
 		default:
 			break;
 	}
-	
+
 	if( ( pMemoryRequirements->flags & VMA_MEMORY_REQUIREMENT_PERSISTENT_MAP_BIT ) != 0 )
 	{
 		requiredFlags |= VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
 	}
-	
+
 	*pMemoryTypeIndex = UINT32_MAX;
 	uint32_t minCost = UINT32_MAX;
 	for( uint32_t memTypeIndex = 0, memTypeBit = 1;
@@ -5254,22 +5282,22 @@ VkResult vmaAllocateMemory(
 	VmaAllocationInfo* pAllocationInfo )
 {
 	VMA_ASSERT( allocator && pVkMemoryRequirements && pVmaMemoryRequirements && pAllocation );
-	
+
 	VMA_DEBUG_LOG( "vmaAllocateMemory" );
-	
+
 	VMA_DEBUG_GLOBAL_MUTEX_LOCK
-	
+
 	VkResult result = allocator->AllocateMemory(
 						  *pVkMemoryRequirements,
 						  *pVmaMemoryRequirements,
 						  VMA_SUBALLOCATION_TYPE_UNKNOWN,
 						  pAllocation );
-						  
+
 	if( pAllocationInfo && result == VK_SUCCESS )
 	{
 		allocator->GetAllocationInfo( *pAllocation, pAllocationInfo );
 	}
-	
+
 	return result;
 }
 
@@ -5281,25 +5309,25 @@ VkResult vmaAllocateMemoryForBuffer(
 	VmaAllocationInfo* pAllocationInfo )
 {
 	VMA_ASSERT( allocator && buffer != VK_NULL_HANDLE && pMemoryRequirements && pAllocation );
-	
+
 	VMA_DEBUG_LOG( "vmaAllocateMemoryForBuffer" );
-	
+
 	VMA_DEBUG_GLOBAL_MUTEX_LOCK
-	
+
 	VkMemoryRequirements vkMemReq = {};
 	vkGetBufferMemoryRequirements( allocator->m_hDevice, buffer, &vkMemReq );
-	
+
 	VkResult result = allocator->AllocateMemory(
 						  vkMemReq,
 						  *pMemoryRequirements,
 						  VMA_SUBALLOCATION_TYPE_BUFFER,
 						  pAllocation );
-						  
+
 	if( pAllocationInfo && result == VK_SUCCESS )
 	{
 		allocator->GetAllocationInfo( *pAllocation, pAllocationInfo );
 	}
-	
+
 	return result;
 }
 
@@ -5311,23 +5339,23 @@ VkResult vmaAllocateMemoryForImage(
 	VmaAllocationInfo* pAllocationInfo )
 {
 	VMA_ASSERT( allocator && image != VK_NULL_HANDLE && pMemoryRequirements && pAllocation );
-	
+
 	VMA_DEBUG_LOG( "vmaAllocateMemoryForImage" );
-	
+
 	VMA_DEBUG_GLOBAL_MUTEX_LOCK
-	
+
 	VkResult result = AllocateMemoryForImage(
 						  allocator,
 						  image,
 						  pMemoryRequirements,
 						  VMA_SUBALLOCATION_TYPE_IMAGE_UNKNOWN,
 						  pAllocation );
-						  
+
 	if( pAllocationInfo && result == VK_SUCCESS )
 	{
 		allocator->GetAllocationInfo( *pAllocation, pAllocationInfo );
 	}
-	
+
 	return result;
 }
 
@@ -5336,11 +5364,11 @@ void vmaFreeMemory(
 	VmaAllocation allocation )
 {
 	VMA_ASSERT( allocator && allocation );
-	
+
 	VMA_DEBUG_LOG( "vmaFreeMemory" );
-	
+
 	VMA_DEBUG_GLOBAL_MUTEX_LOCK
-	
+
 	allocator->FreeMemory( allocation );
 }
 
@@ -5350,9 +5378,9 @@ void vmaGetAllocationInfo(
 	VmaAllocationInfo* pAllocationInfo )
 {
 	VMA_ASSERT( allocator && allocation && pAllocationInfo );
-	
+
 	VMA_DEBUG_GLOBAL_MUTEX_LOCK
-	
+
 	allocator->GetAllocationInfo( allocation, pAllocationInfo );
 }
 
@@ -5362,9 +5390,9 @@ void vmaSetAllocationUserData(
 	void* pUserData )
 {
 	VMA_ASSERT( allocator && allocation );
-	
+
 	VMA_DEBUG_GLOBAL_MUTEX_LOCK
-	
+
 	allocation->SetUserData( pUserData );
 }
 
@@ -5374,9 +5402,9 @@ VkResult vmaMapMemory(
 	void** ppData )
 {
 	VMA_ASSERT( allocator && allocation && ppData );
-	
+
 	VMA_DEBUG_GLOBAL_MUTEX_LOCK
-	
+
 	return vkMapMemory( allocator->m_hDevice, allocation->GetMemory(),
 						allocation->GetOffset(), allocation->GetSize(), 0, ppData );
 }
@@ -5386,27 +5414,27 @@ void vmaUnmapMemory(
 	VmaAllocation allocation )
 {
 	VMA_ASSERT( allocator && allocation );
-	
+
 	VMA_DEBUG_GLOBAL_MUTEX_LOCK
-	
+
 	vkUnmapMemory( allocator->m_hDevice, allocation->GetMemory() );
 }
 
 void vmaUnmapPersistentlyMappedMemory( VmaAllocator allocator )
 {
 	VMA_ASSERT( allocator );
-	
+
 	VMA_DEBUG_GLOBAL_MUTEX_LOCK
-	
+
 	allocator->UnmapPersistentlyMappedMemory();
 }
 
 VkResult vmaMapPersistentlyMappedMemory( VmaAllocator allocator )
 {
 	VMA_ASSERT( allocator );
-	
+
 	VMA_DEBUG_GLOBAL_MUTEX_LOCK
-	
+
 	return allocator->MapPersistentlyMappedMemory();
 }
 
@@ -5419,11 +5447,11 @@ VkResult vmaDefragment(
 	VmaDefragmentationStats* pDefragmentationStats )
 {
 	VMA_ASSERT( allocator && pAllocations );
-	
+
 	VMA_DEBUG_LOG( "vmaDefragment" );
-	
+
 	VMA_DEBUG_GLOBAL_MUTEX_LOCK
-	
+
 	return allocator->Defragment( pAllocations, allocationCount, pAllocationsChanged, pDefragmentationInfo, pDefragmentationStats );
 }
 
@@ -5436,14 +5464,14 @@ VkResult vmaCreateBuffer(
 	VmaAllocationInfo* pAllocationInfo )
 {
 	VMA_ASSERT( allocator && pCreateInfo && pMemoryRequirements && pBuffer && pAllocation );
-	
+
 	VMA_DEBUG_LOG( "vmaCreateBuffer" );
-	
+
 	VMA_DEBUG_GLOBAL_MUTEX_LOCK
-	
+
 	*pBuffer = VK_NULL_HANDLE;
 	*pAllocation = VK_NULL_HANDLE;
-	
+
 	// 1. Create VkBuffer.
 	VkResult res = vkCreateBuffer( allocator->m_hDevice, pCreateInfo, allocator->GetAllocationCallbacks(), pBuffer );
 	if( res >= 0 )
@@ -5451,7 +5479,7 @@ VkResult vmaCreateBuffer(
 		// 2. vkGetBufferMemoryRequirements.
 		VkMemoryRequirements vkMemReq = {};
 		vkGetBufferMemoryRequirements( allocator->m_hDevice, *pBuffer, &vkMemReq );
-		
+
 		// 3. Allocate memory using allocator.
 		res = allocator->AllocateMemory(
 				  vkMemReq,
@@ -5490,13 +5518,13 @@ void vmaDestroyBuffer(
 	if( buffer != VK_NULL_HANDLE )
 	{
 		VMA_ASSERT( allocator );
-		
+
 		VMA_DEBUG_LOG( "vmaDestroyBuffer" );
-		
+
 		VMA_DEBUG_GLOBAL_MUTEX_LOCK
-		
+
 		vkDestroyBuffer( allocator->m_hDevice, buffer, allocator->GetAllocationCallbacks() );
-		
+
 		allocator->FreeMemory( allocation );
 	}
 }
@@ -5510,14 +5538,14 @@ VkResult vmaCreateImage(
 	VmaAllocationInfo* pAllocationInfo )
 {
 	VMA_ASSERT( allocator && pCreateInfo && pMemoryRequirements && pImage && pAllocation );
-	
+
 	VMA_DEBUG_LOG( "vmaCreateImage" );
-	
+
 	VMA_DEBUG_GLOBAL_MUTEX_LOCK
-	
+
 	*pImage = VK_NULL_HANDLE;
 	*pAllocation = VK_NULL_HANDLE;
-	
+
 	// 1. Create VkImage.
 	VkResult res = vkCreateImage( allocator->m_hDevice, pCreateInfo, allocator->GetAllocationCallbacks(), pImage );
 	if( res >= 0 )
@@ -5526,7 +5554,7 @@ VkResult vmaCreateImage(
 		VmaSuballocationType suballocType = pCreateInfo->tiling == VK_IMAGE_TILING_OPTIMAL ?
 											VMA_SUBALLOCATION_TYPE_IMAGE_OPTIMAL :
 											VMA_SUBALLOCATION_TYPE_IMAGE_LINEAR;
-											
+
 		// 2. Allocate memory using allocator.
 		res = AllocateMemoryForImage( allocator, *pImage, pMemoryRequirements, suballocType, pAllocation );
 		if( res >= 0 )
@@ -5561,13 +5589,13 @@ void vmaDestroyImage(
 	if( image != VK_NULL_HANDLE )
 	{
 		VMA_ASSERT( allocator );
-		
+
 		VMA_DEBUG_LOG( "vmaDestroyImage" );
-		
+
 		VMA_DEBUG_GLOBAL_MUTEX_LOCK
-		
+
 		vkDestroyImage( allocator->m_hDevice, image, allocator->GetAllocationCallbacks() );
-		
+
 		allocator->FreeMemory( allocation );
 	}
 }

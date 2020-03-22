@@ -59,16 +59,16 @@ bool idSaveGameProcessorLoadFiles::InitLoadFiles( const char* folder_, const sav
 	{
 		return false;
 	}
-	
+
 	parms.directory = AddSaveFolderPrefix( folder_, type );
 	parms.description.slotName = folder_;
 	parms.mode = SAVEGAME_MBF_LOAD;
-	
+
 	for( int i = 0; i < files.Num(); ++i )
 	{
 		parms.files.Append( files[i] );
 	}
-	
+
 	return true;
 }
 
@@ -105,11 +105,11 @@ bool idSaveGameProcessorDelete::InitDelete( const char* folder_, idSaveGameManag
 	{
 		return false;
 	}
-	
+
 	parms.description.slotName = folder_;
 	parms.directory = AddSaveFolderPrefix( folder_, type );
 	parms.mode = SAVEGAME_MBF_DELETE_FOLDER;
-	
+
 	return true;
 }
 
@@ -124,7 +124,7 @@ bool idSaveGameProcessorDelete::Process()
 	// This will populate an idFile_Memory with the contents of the save game
 	// This will not initialize the game, only load the file from the file-system
 	Sys_ExecuteSavegameCommandAsync( &parms );
-	
+
 	return false;
 }
 
@@ -147,13 +147,13 @@ bool idSaveGameProcessorSaveFiles::InitSave( const char* folder, const saveFileE
 	{
 		return false;
 	}
-	
+
 	if( files.Num() == 0 )
 	{
 		idLib::Warning( "No files to save." );
 		return false;
 	}
-	
+
 	// Setup save system
 	parms.directory = AddSaveFolderPrefix( folder, type );
 	parms.mode = SAVEGAME_MBF_SAVE;	// do NOT delete the existing files
@@ -161,11 +161,11 @@ bool idSaveGameProcessorSaveFiles::InitSave( const char* folder, const saveFileE
 	{
 		parms.files.Append( files[i] );
 	}
-	
-	
+
+
 	this->parms.description = descriptionForPS3;
 	parms.description.slotName = folder;
-	
+
 	return true;
 }
 
@@ -180,7 +180,7 @@ bool idSaveGameProcessorSaveFiles::Process()
 	// This will start a worker thread for async operation.
 	// It will always signal when it's completed.
 	Sys_ExecuteSavegameCommandAsync( &parms );
-	
+
 	return false;
 }
 
@@ -198,12 +198,12 @@ idSaveGameProcessorEnumerateGames::Process
 bool idSaveGameProcessorEnumerateGames::Process()
 {
 	parms.mode = SAVEGAME_MBF_ENUMERATE | SAVEGAME_MBF_READ_DETAILS;
-	
+
 	// Platform-specific implementation
 	// This will start a worker thread for async operation.
 	// It will always signal when it's completed.
 	Sys_ExecuteSavegameCommandAsync( &parms );
-	
+
 	return false;
 }
 
@@ -217,31 +217,31 @@ idSessionLocal::SaveGameSync
 saveGameHandle_t idSessionLocal::SaveGameSync( const char* name, const saveFileEntryList_t& files, const idSaveGameDetails& description )
 {
 	saveGameHandle_t handle = 0;
-	
+
 	// serialize the description file behind their back...
 	saveFileEntryList_t filesWithDetails( files );
 	idFile_SaveGame* gameDetailsFile = new( TAG_SAVEGAMES ) idFile_SaveGame( SAVEGAME_DETAILS_FILENAME, SAVEGAMEFILE_TEXT | SAVEGAMEFILE_AUTO_DELETE );
 	gameDetailsFile->MakeWritable();
 	description.descriptors.WriteToIniFile( gameDetailsFile );
 	filesWithDetails.Append( gameDetailsFile );
-	
+
 	if( processorSaveFiles->InitSave( name, filesWithDetails, description ) )
 	{
 		processorSaveFiles->AddCompletedCallback( MakeCallback( this, &idSessionLocal::OnSaveCompleted, &processorSaveFiles->GetParmsNonConst() ) );
 		handle = GetSaveGameManager().ExecuteProcessorAndWait( processorSaveFiles );
 	}
-	
+
 	// Errors within the process of saving are handled in OnSaveCompleted()
 	// so that asynchronous save errors are handled the same was as synchronous.
 	if( handle == 0 )
 	{
 		idSaveLoadParms& parms = processorSaveFiles->GetParmsNonConst();
 		parms.errorCode = SAVEGAME_E_UNKNOWN;
-		
+
 		// Uniform error handling
 		OnSaveCompleted( &parms );
 	}
-	
+
 	return handle;
 }
 
@@ -253,7 +253,7 @@ idSessionLocal::SaveGameAsync
 saveGameHandle_t idSessionLocal::SaveGameAsync( const char* name, const saveFileEntryList_t& files, const idSaveGameDetails& description )
 {
 	saveGameHandle_t handle = 0;
-	
+
 	// Done this way so we know it will be shutdown properly on early exit or exception
 	struct local_t
 	{
@@ -267,33 +267,33 @@ saveGameHandle_t idSessionLocal::SaveGameAsync( const char* name, const saveFile
 		}
 		idSaveLoadParms* parms;
 	} local( &processorSaveFiles->GetParmsNonConst() );
-	
+
 	// serialize the description file behind their back...
 	saveFileEntryList_t filesWithDetails( files );
 	idFile_SaveGame* gameDetailsFile = new( TAG_SAVEGAMES ) idFile_SaveGame( SAVEGAME_DETAILS_FILENAME, SAVEGAMEFILE_TEXT | SAVEGAMEFILE_AUTO_DELETE );
 	gameDetailsFile->MakeWritable();
 	description.descriptors.WriteToIniFile( gameDetailsFile );
 	filesWithDetails.Append( gameDetailsFile );
-	
+
 	if( processorSaveFiles->InitSave( name, filesWithDetails, description ) )
 	{
 		processorSaveFiles->AddCompletedCallback( MakeCallback( this, &idSessionLocal::OnSaveCompleted, &processorSaveFiles->GetParmsNonConst() ) );
 		handle = GetSaveGameManager().ExecuteProcessor( processorSaveFiles );
 	}
-	
+
 	// Errors within the process of saving are handled in OnSaveCompleted()
 	// so that asynchronous save errors are handled the same was as synchronous.
 	if( handle == 0 )
 	{
 		idSaveLoadParms& parms = processorSaveFiles->GetParmsNonConst();
 		parms.errorCode = SAVEGAME_E_UNKNOWN;
-		
+
 		common->Dialog().ShowSaveIndicator( false );
 		// Uniform error handling
 		OnSaveCompleted( &parms );
 	}
-	
-	
+
+
 	return handle;
 }
 
@@ -305,19 +305,19 @@ idSessionLocal::OnSaveCompleted
 void idSessionLocal::OnSaveCompleted( idSaveLoadParms* parms )
 {
 	idLocalUser* master = session->GetSignInManager().GetMasterLocalUser();
-	
+
 	if( parms->GetError() != SAVEGAME_E_INSUFFICIENT_ROOM )
 	{
 		// if savegame completeed we can clear retry info
 		GetSaveGameManager().ClearRetryInfo();
 	}
-	
+
 	// Only turn off the indicator if we're not also going to save the profile settings
 	if( master != NULL && master->GetProfile() != NULL && !master->GetProfile()->IsDirty() )
 	{
 		common->Dialog().ShowSaveIndicator( false );
 	}
-	
+
 	if( parms->GetError() == SAVEGAME_E_NONE )
 	{
 		// Save the profile any time we save the game
@@ -325,7 +325,7 @@ void idSessionLocal::OnSaveCompleted( idSaveLoadParms* parms )
 		{
 			master->GetProfile()->SaveSettings( false );
 		}
-		
+
 		// Update the enumerated savegames
 		saveGameDetailsList_t& detailList = session->GetSaveGameManager().GetEnumeratedSavegamesNonConst();
 		idSaveGameDetails* details = detailList.Find( parms->description );
@@ -340,7 +340,7 @@ void idSessionLocal::OnSaveCompleted( idSaveLoadParms* parms )
 			*details = parms->description;
 		}
 	}
-	
+
 	// Error handling and additional processing
 	common->OnSaveCompleted( *parms );
 }
@@ -356,13 +356,13 @@ saveGameHandle_t idSessionLocal::LoadGameSync( const char* name, saveFileEntryLi
 {
 	idSaveLoadParms& parms = processorLoadFiles->GetParmsNonConst();
 	saveGameHandle_t handle = 0;
-	
+
 	{
 		// Put in a local block so everything will go in the global heap before the map change, but the heap is
 		// automatically popped out on early return or exception
 		// You cannot be in the global heap during a map change...
 		//idScopedGlobalHeap everythingGoesInTheGlobalHeap;
-		
+
 		// Done this way so we know it will be shutdown properly on early exit or exception
 		struct local_t
 		{
@@ -378,17 +378,17 @@ saveGameHandle_t idSessionLocal::LoadGameSync( const char* name, saveFileEntryLi
 				// Shutdown background renderer or loadscreen
 				{
 				}
-				
+
 				common->OnLoadCompleted( *parms );
 			}
 			idSaveLoadParms* parms;
 		} local( &parms );
-		
+
 		// Read the details file when loading games
 		saveFileEntryList_t	filesWithDetails( files );
 		std::unique_ptr< idFile_SaveGame > gameDetailsFile( new( TAG_SAVEGAMES ) idFile_SaveGame( SAVEGAME_DETAILS_FILENAME, SAVEGAMEFILE_TEXT ) );
 		filesWithDetails.Append( gameDetailsFile.get() );
-		
+
 		// Check the cached save details from the enumeration and make sure we don't load a save from a newer version of the game!
 		const saveGameDetailsList_t details = GetSaveGameManager().GetEnumeratedSavegames();
 		for( int i = 0; i < details.Num(); ++i )
@@ -402,29 +402,29 @@ saveGameHandle_t idSessionLocal::LoadGameSync( const char* name, saveFileEntryLi
 				}
 			}
 		}
-		
+
 		// Synchronous load
 		if( processorLoadFiles->InitLoadFiles( name, filesWithDetails ) )
 		{
 			handle = GetSaveGameManager().ExecuteProcessorAndWait( processorLoadFiles );
 		}
-		
+
 		if( handle == 0 )
 		{
 			parms.errorCode = SAVEGAME_E_UNKNOWN;
 		}
-		
+
 		if( parms.GetError() != SAVEGAME_E_NONE )
 		{
 			return 0;
 		}
-		
+
 		// Checks the description file to see if corrupted or if it's from a newer savegame
 		if( !LoadGameCheckDescriptionFile( parms ) )
 		{
 			return 0;
 		}
-		
+
 		// Checks to see if loaded map is from a DLC map and if that DLC is active
 		if( !IsDLCAvailable( parms.description.GetMapName() ) )
 		{
@@ -432,9 +432,9 @@ saveGameHandle_t idSessionLocal::LoadGameSync( const char* name, saveFileEntryLi
 			return 0;
 		}
 	}
-	
+
 	common->OnLoadFilesCompleted( parms );
-	
+
 	return handle;
 }
 
@@ -455,7 +455,7 @@ idSessionLocal::EnumerateSaveGamesSync
 saveGameHandle_t idSessionLocal::EnumerateSaveGamesSync()
 {
 	saveGameHandle_t handle = 0;
-	
+
 	// Done this way so we know it will be shutdown properly on early exit or exception
 	struct local_t
 	{
@@ -473,27 +473,27 @@ saveGameHandle_t idSessionLocal::EnumerateSaveGamesSync()
 			}
 		}
 	} local;
-	
+
 	// flush the old enumerated list
 	GetSaveGameManager().GetEnumeratedSavegamesNonConst().Clear();
-	
+
 	if( processorEnumerate->Init() )
 	{
 		processorEnumerate->AddCompletedCallback( MakeCallback( this, &idSessionLocal::OnEnumerationCompleted, &processorEnumerate->GetParmsNonConst() ) );
 		handle = GetSaveGameManager().ExecuteProcessorAndWait( processorEnumerate );
 	}
-	
+
 	// Errors within the process of saving are handled in OnEnumerationCompleted()
 	// so that asynchronous save errors are handled the same was as synchronous.
 	if( handle == 0 )
 	{
 		idSaveLoadParms& parms = processorEnumerate->GetParmsNonConst();
 		parms.errorCode = SAVEGAME_E_UNKNOWN;
-		
+
 		// Uniform error handling
 		OnEnumerationCompleted( &parms );
 	}
-	
+
 	return handle;
 }
 
@@ -505,27 +505,27 @@ idSessionLocal::EnumerateSaveGamesAsync
 saveGameHandle_t idSessionLocal::EnumerateSaveGamesAsync()
 {
 	saveGameHandle_t handle = 0;
-	
+
 	// flush the old enumerated list
 	GetSaveGameManager().GetEnumeratedSavegamesNonConst().Clear();
-	
+
 	if( processorEnumerate->Init() )
 	{
 		processorEnumerate->AddCompletedCallback( MakeCallback( this, &idSessionLocal::OnEnumerationCompleted, &processorEnumerate->GetParmsNonConst() ) );
 		handle = GetSaveGameManager().ExecuteProcessor( processorEnumerate );
 	}
-	
+
 	// Errors within the process of saving are handled in OnEnumerationCompleted()
 	// so that asynchronous save errors are handled the same was as synchronous.
 	if( handle == 0 )
 	{
 		idSaveLoadParms& parms = processorEnumerate->GetParmsNonConst();
 		parms.errorCode = SAVEGAME_E_UNKNOWN;
-		
+
 		// Uniform error handling
 		OnEnumerationCompleted( &parms );
 	}
-	
+
 	return handle;
 }
 
@@ -545,7 +545,7 @@ void idSessionLocal::OnEnumerationCompleted( idSaveLoadParms* parms )
 	// idStrStatic properly!
 	// parms->detailList.Sort( idSort_EnumeratedSavegames );
 	std::sort( parms->detailList.Ptr(), parms->detailList.Ptr() + parms->detailList.Num() );
-	
+
 	if( parms->GetError() == SAVEGAME_E_NONE )
 	{
 		// Copy into the maintained list
@@ -553,24 +553,24 @@ void idSessionLocal::OnEnumerationCompleted( idSaveLoadParms* parms )
 		//mem.PushHeap();
 		detailsList = parms->detailList;	// copies new list into the savegame manager's reference
 		//mem.PopHeap();
-		
+
 		// The platform-specific implementations don't know about the prefixes
 		// If we don't do this here, we will end up with slots like: GAME-GAME-GAME-GAME-AUTOSAVE...
 		for( int i = 0; i < detailsList.Num(); i++ )
 		{
 			idSaveGameDetails& details = detailsList[i];
-			
+
 			const idStr original = details.slotName;
 			const idStr stripped = RemoveSaveFolderPrefix( original, idSaveGameManager::PACKAGE_GAME );
 			details.slotName = stripped;
 		}
-		
+
 		if( saveGame_verbose.GetBool() )
 		{
 			OutputDetailList( detailsList );
 		}
 	}
-	
+
 	common->OnEnumerationCompleted( *parms );
 }
 
@@ -582,7 +582,7 @@ idSessionLocal::DeleteSaveGameSync
 saveGameHandle_t idSessionLocal::DeleteSaveGameSync( const char* name )
 {
 	saveGameHandle_t handle = 0;
-	
+
 	// Done this way so we know it will be shutdown properly on early exit or exception
 	struct local_t
 	{
@@ -600,24 +600,24 @@ saveGameHandle_t idSessionLocal::DeleteSaveGameSync( const char* name )
 			}
 		}
 	} local;
-	
+
 	if( processorDelete->InitDelete( name ) )
 	{
 		processorDelete->AddCompletedCallback( MakeCallback( this, &idSessionLocal::OnDeleteCompleted, &processorDelete->GetParmsNonConst() ) );
 		handle = GetSaveGameManager().ExecuteProcessorAndWait( processorDelete );
 	}
-	
+
 	// Errors within the process of saving are handled in OnDeleteCompleted()
 	// so that asynchronous save errors are handled the same was as synchronous.
 	if( handle == 0 )
 	{
 		idSaveLoadParms& parms = processorDelete->GetParmsNonConst();
 		parms.errorCode = SAVEGAME_E_UNKNOWN;
-		
+
 		// Uniform error handling
 		OnDeleteCompleted( &parms );
 	}
-	
+
 	return handle;
 }
 
@@ -635,18 +635,18 @@ saveGameHandle_t idSessionLocal::DeleteSaveGameAsync( const char* name )
 		common->Dialog().ShowSaveIndicator( true );
 		handle = GetSaveGameManager().ExecuteProcessor( processorDelete );
 	}
-	
+
 	// Errors within the process of saving are handled in OnDeleteCompleted()
 	// so that asynchronous save errors are handled the same was as synchronous.
 	if( handle == 0 )
 	{
 		idSaveLoadParms& parms = processorDelete->GetParmsNonConst();
 		parms.errorCode = SAVEGAME_E_UNKNOWN;
-		
+
 		// Uniform error handling
 		OnDeleteCompleted( &parms );
 	}
-	
+
 	return handle;
 }
 
@@ -658,14 +658,14 @@ idSessionLocal::OnDeleteCompleted
 void idSessionLocal::OnDeleteCompleted( idSaveLoadParms* parms )
 {
 	common->Dialog().ShowSaveIndicator( false );
-	
+
 	if( parms->GetError() == SAVEGAME_E_NONE )
 	{
 		// Update the enumerated list
 		saveGameDetailsList_t& details = session->GetSaveGameManager().GetEnumeratedSavegamesNonConst();
 		details.Remove( parms->description );
 	}
-	
+
 	common->OnDeleteCompleted( *parms );
 }
 
@@ -709,7 +709,7 @@ bool idSessionLocal::LoadGameCheckDiscNumber( idSaveLoadParms& parms )
 {
 #if 0
 	idStr mapName = parms.description.GetMapName();
-	
+
 	assert( !discSwapStateMgr->IsWorking() );
 	discSwapStateMgr->Init( &parms.callbackSignal, idDiscSwapStateManager::DISC_SWAP_COMMAND_LOAD );
 	//// TODO_KC this is probably broken now...
@@ -719,18 +719,18 @@ bool idSessionLocal::LoadGameCheckDiscNumber( idSaveLoadParms& parms )
 	//discSwapStateMgr->instanceFileName = instanceFileName;
 	discSwapStateMgr->user = session->GetSignInManager().GetMasterLocalUser();
 	discSwapStateMgr->map = mapName;
-	
+
 	discSwapStateMgr->Pump();
 	while( discSwapStateMgr->IsWorking() )
 	{
 		Sys_Sleep( 15 );
 		// process input and render
-		
+
 		discSwapStateMgr->Pump();
 	}
-	
+
 	idDiscSwapStateManager::discSwapStateError_t discSwapError = discSwapStateMgr->GetError();
-	
+
 	if( discSwapError == idDiscSwapStateManager::DSSE_CANCEL )
 	{
 		parms.errorCode = SAVEGAME_E_CANCELLED;
@@ -748,13 +748,13 @@ bool idSessionLocal::LoadGameCheckDiscNumber( idSaveLoadParms& parms )
 	{
 		parms.errorCode = SAVEGAME_E_DISC_SWAP;
 	}
-	
+
 	if( parms.errorCode == SAVEGAME_E_UNKNOWN )
 	{
 		parms.errorCode = SAVEGAME_E_DISC_SWAP;
 	}
 #endif
-	
+
 	return ( parms.GetError() == SAVEGAME_E_NONE );
 }
 
@@ -771,10 +771,10 @@ bool idSessionLocal::LoadGameCheckDescriptionFile( idSaveLoadParms& parms )
 		parms.errorCode = SAVEGAME_E_FILE_NOT_FOUND;
 		return false;
 	}
-	
+
 	assert( *detailsFile != NULL );
 	( *detailsFile )->MakeReadOnly();
-	
+
 	if( !SavegameReadDetailsFromFile( *detailsFile, parms.description ) )
 	{
 		parms.errorCode = SAVEGAME_E_CORRUPTED;
@@ -786,7 +786,7 @@ bool idSessionLocal::LoadGameCheckDescriptionFile( idSaveLoadParms& parms )
 			parms.errorCode = SAVEGAME_E_INCOMPATIBLE_NEWER_VERSION;
 		}
 	}
-	
+
 	return ( parms.GetError() == SAVEGAME_E_NONE );
 }
 
@@ -805,14 +805,14 @@ CONSOLE_COMMAND( testSavegameDeleteAll, "delete all savegames without confirmati
 		idLib::Printf( "Invalid session.\n" );
 		return;
 	}
-	
+
 	idSaveLoadParms parms;
-	
+
 	parms.SetDefaults();
 	parms.mode = SAVEGAME_MBF_DELETE_ALL_FOLDERS | SAVEGAME_MBF_NO_COMPRESS;
-	
+
 	Sys_ExecuteSavegameCommandAsync( &parms );
-	
+
 	parms.callbackSignal.Wait();
 	idLib::Printf( "Completed process.\n" );
 	idLib::Printf( "Error = 0x%08X, %s\n", parms.GetError(), GetSaveGameErrorString( parms.GetError() ).c_str() );
@@ -825,20 +825,20 @@ CONSOLE_COMMAND( testSavegameDelete, "deletes a savegames without confirmation",
 		idLib::Printf( "Invalid session.\n" );
 		return;
 	}
-	
+
 	if( args.Argc() != 2 )
 	{
 		idLib::Printf( "Usage: testSavegameDelete <folder (without 'GAMES-')>\n" );
 		return;
 	}
-	
+
 	idStr folder = args.Argv( 1 );
 	idSaveGameProcessorDelete testDeleteSaveGamesProc;
 	if( testDeleteSaveGamesProc.InitDelete( folder ) )
 	{
 		session->GetSaveGameManager().ExecuteProcessorAndWait( &testDeleteSaveGamesProc );
 	}
-	
+
 	idLib::Printf( "Completed process.\n" );
 	idLib::Printf( "Error = 0x%08X, %s\n", testDeleteSaveGamesProc.GetParms().GetError(), GetSaveGameErrorString( testDeleteSaveGamesProc.GetParms().GetError() ).c_str() );
 }
@@ -850,25 +850,25 @@ CONSOLE_COMMAND( testSavegameEnumerateFiles, "enumerates all the files in a fold
 		idLib::Printf( "Invalid session.\n" );
 		return;
 	}
-	
+
 	idStr folder = session->GetCurrentSaveSlot();
 	if( args.Argc() > 1 )
 	{
 		folder = args.Argv( 1 );
 	}
-	
+
 	idLib::Printf( "Testing folder: %s\n\n", folder.c_str() );
-	
+
 	idSaveLoadParms parms;
 	parms.SetDefaults();
 	parms.mode = SAVEGAME_MBF_ENUMERATE_FILES;
-	
+
 	// Platform-specific implementation
 	// This will start a worker thread for async operation.
 	// It will always signal when it's completed.
 	Sys_ExecuteSavegameCommandAsync( &parms );
 	parms.callbackSignal.Wait();
-	
+
 	for( int i = 0; i < parms.files.Num(); i++ )
 	{
 		idLib::Printf( S_COLOR_YELLOW "\t%d: %s\n" S_COLOR_DEFAULT, i, parms.files[i]->GetName() );
@@ -902,14 +902,14 @@ CONSOLE_COMMAND( testSavegameEnumerate, "enumerates the savegames available", 0 
 		idLib::Printf( "Invalid session.\n" );
 		return;
 	}
-	
+
 	saveGameHandle_t handle = session->EnumerateSaveGamesSync();
 	if( handle == 0 )
 	{
 		idLib::Printf( "Error enumerating.\n" );
 		return;
 	}
-	
+
 	const saveGameDetailsList_t	gameList = session->GetSaveGameManager().GetEnumeratedSavegames();
 	idLib::Printf( "Savegames found: %d\n\n", gameList.Num() );
 	OutputDetailList( gameList );
@@ -930,7 +930,7 @@ CONSOLE_COMMAND( testSaveGameOutputEnumeratedSavegames, "outputs the list of sav
 		idLib::Printf( "Invalid session.\n" );
 		return;
 	}
-	
+
 	const saveGameDetailsList_t& savegames = session->GetSaveGameManager().GetEnumeratedSavegames();
 	OutputDetailList( savegames );
 }
@@ -942,7 +942,7 @@ CONSOLE_COMMAND( testSavegameGetCurrentSlot, "returns the current slot in use", 
 		idLib::Printf( "Invalid session.\n" );
 		return;
 	}
-	
+
 	idLib::Printf( "Current slot: %s\n", session->GetCurrentSaveSlot() );
 }
 
@@ -953,15 +953,15 @@ CONSOLE_COMMAND( testSavegameSetCurrentSlot, "returns the current slot in use", 
 		idLib::Printf( "Invalid session.\n" );
 		return;
 	}
-	
+
 	if( args.Argc() != 2 )
 	{
 		idLib::Printf( "Usage: testSavegameSetCurrentSlot name\n" );
 		return;
 	}
-	
+
 	const char* slot = args.Argv( 1 );
-	
+
 	session->SetCurrentSaveSlot( slot );
 	idLib::Printf( "Current slot: %s\n", session->GetCurrentSaveSlot() );
 }

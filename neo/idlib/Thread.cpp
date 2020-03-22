@@ -82,18 +82,18 @@ bool idSysThread::StartThread( const char* name_, core_t core, xthreadPriority p
 	{
 		return false;
 	}
-	
+
 	name = name_;
-	
+
 	isTerminating = false;
-	
+
 	if( threadHandle )
 	{
 		Sys_DestroyThread( threadHandle );
 	}
-	
+
 	threadHandle = Sys_CreateThread( ( xthread_t )ThreadProc, this, priority, name, core, stackSize, false );
-	
+
 	isRunning = true;
 	return true;
 }
@@ -109,13 +109,13 @@ bool idSysThread::StartWorkerThread( const char* name_, core_t core, xthreadPrio
 	{
 		return false;
 	}
-	
+
 	isWorker = true;
-	
+
 	bool result = StartThread( name_, core, priority, stackSize );
-	
+
 	signalWorkerDone.Wait( idSysSignal::WAIT_INFINITE );
-	
+
 	return result;
 }
 
@@ -210,7 +210,7 @@ idSysThread::ThreadProc
 int idSysThread::ThreadProc( idSysThread* thread )
 {
 	int retVal = 0;
-	
+
 	try
 	{
 		if( thread->isWorker )
@@ -231,12 +231,12 @@ int idSysThread::ThreadProc( idSysThread* thread )
 					thread->signalMoreWorkToDo.Wait( idSysSignal::WAIT_INFINITE );
 					continue;
 				}
-				
+
 				if( thread->isTerminating )
 				{
 					break;
 				}
-				
+
 				retVal = thread->Run();
 			}
 			thread->signalWorkerDone.Raise();
@@ -249,13 +249,13 @@ int idSysThread::ThreadProc( idSysThread* thread )
 	catch( idException& ex )
 	{
 		idLib::Warning( "Fatal error in thread %s: %s", thread->GetName(), ex.GetError() );
-		
+
 		// We don't handle threads terminating unexpectedly very well, so just terminate the whole process
 		exit( 0 );
 	}
-	
+
 	thread->isRunning = false;
-	
+
 	return retVal;
 }
 

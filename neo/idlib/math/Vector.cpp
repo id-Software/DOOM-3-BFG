@@ -91,7 +91,7 @@ idVec3::ToYaw
 float idVec3::ToYaw() const
 {
 	float yaw;
-	
+
 	if( ( y == 0.0f ) && ( x == 0.0f ) )
 	{
 		yaw = 0.0f;
@@ -104,7 +104,7 @@ float idVec3::ToYaw() const
 			yaw += 360.0f;
 		}
 	}
-	
+
 	return yaw;
 }
 
@@ -117,7 +117,7 @@ float idVec3::ToPitch() const
 {
 	float	forward;
 	float	pitch;
-	
+
 	if( ( x == 0.0f ) && ( y == 0.0f ) )
 	{
 		if( z > 0.0f )
@@ -138,7 +138,7 @@ float idVec3::ToPitch() const
 			pitch += 360.0f;
 		}
 	}
-	
+
 	return pitch;
 }
 
@@ -152,7 +152,7 @@ idAngles idVec3::ToAngles() const
 	float forward;
 	float yaw;
 	float pitch;
-	
+
 	if( ( x == 0.0f ) && ( y == 0.0f ) )
 	{
 		yaw = 0.0f;
@@ -172,7 +172,7 @@ idAngles idVec3::ToAngles() const
 		{
 			yaw += 360.0f;
 		}
-		
+
 		forward = ( float )idMath::Sqrt( x * x + y * y );
 		pitch = RAD2DEG( atan2( z, forward ) );
 		if( pitch < 0.0f )
@@ -180,7 +180,7 @@ idAngles idVec3::ToAngles() const
 			pitch += 360.0f;
 		}
 	}
-	
+
 	return idAngles( -pitch, yaw, 0.0f );
 }
 
@@ -194,7 +194,7 @@ idPolar3 idVec3::ToPolar() const
 	float forward;
 	float yaw;
 	float pitch;
-	
+
 	if( ( x == 0.0f ) && ( y == 0.0f ) )
 	{
 		yaw = 0.0f;
@@ -214,7 +214,7 @@ idPolar3 idVec3::ToPolar() const
 		{
 			yaw += 360.0f;
 		}
-		
+
 		forward = ( float )idMath::Sqrt( x * x + y * y );
 		pitch = RAD2DEG( atan2( z, forward ) );
 		if( pitch < 0.0f )
@@ -234,7 +234,7 @@ idMat3 idVec3::ToMat3() const
 {
 	idMat3	mat;
 	float	d;
-	
+
 	mat[0] = *this;
 	d = x * x + y * y;
 	if( !d )
@@ -251,7 +251,7 @@ idMat3 idVec3::ToMat3() const
 		mat[1][2] = 0.0f;
 	}
 	mat[2] = Cross( mat[1] );
-	
+
 	return mat;
 }
 
@@ -301,7 +301,7 @@ Vectors are expected to be normalized.
 void idVec3::SLerp( const idVec3& v1, const idVec3& v2, const float t )
 {
 	float omega, cosom, sinom, scale0, scale1;
-	
+
 	if( t <= 0.0f )
 	{
 		( *this ) = v1;
@@ -312,7 +312,7 @@ void idVec3::SLerp( const idVec3& v1, const idVec3& v2, const float t )
 		( *this ) = v2;
 		return;
 	}
-	
+
 	cosom = v1 * v2;
 	if( ( 1.0f - cosom ) > LERP_DELTA )
 	{
@@ -326,7 +326,7 @@ void idVec3::SLerp( const idVec3& v1, const idVec3& v2, const float t )
 		scale0 = 1.0f - t;
 		scale1 = t;
 	}
-	
+
 	( *this ) = ( v1 * scale0 + v2 * scale1 );
 }
 

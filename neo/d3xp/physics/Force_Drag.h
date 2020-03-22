@@ -42,7 +42,7 @@ class idForce_Drag : public idForce
 
 public:
 	CLASS_PROTOTYPE( idForce_Drag );
-	
+
 	idForce_Drag();
 	virtual				~idForce_Drag();
 	// initialize the drag force
@@ -55,16 +55,16 @@ public:
 	const idVec3& 		GetDragPosition() const;
 	// get the position on the dragged physics object
 	const idVec3		GetDraggedPosition() const;
-	
+
 public: // common force interface
 	virtual void		Evaluate( int time );
 	virtual void		RemovePhysics( const idPhysics* phys );
-	
+
 private:
 
 	// properties
 	float				damping;
-	
+
 	// positioning
 	idPhysics* 			physics;		// physics object
 	int					id;				// clip model id of physics object

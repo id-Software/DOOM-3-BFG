@@ -42,19 +42,19 @@ class idSurface_SweptSpline : public idSurface
 public:
 	idSurface_SweptSpline();
 	~idSurface_SweptSpline();
-	
+
 	void					SetSpline( idCurve_Spline<idVec4>* spline );
 	void					SetSweptSpline( idCurve_Spline<idVec4>* sweptSpline );
 	void					SetSweptCircle( const float radius );
-	
+
 	void					Tessellate( const int splineSubdivisions, const int sweptSplineSubdivisions );
-	
+
 	void					Clear();
-	
+
 protected:
 	idCurve_Spline<idVec4>* spline;
 	idCurve_Spline<idVec4>* sweptSpline;
-	
+
 	void					GetFrame( const idMat3& previousFrame, const idVec3 dir, idMat3& newFrame );
 };
 

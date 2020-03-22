@@ -32,9 +32,12 @@ If you have questions concerning this license or the applicable additional terms
 uniform matrices_ubo { float4 matrices[408]; };
 
 struct VS_IN {
-	float4 position : POSITION;
-	float4 color : COLOR0;
-	float4 color2 : COLOR1;
+    float4 position : POSITION;
+    float2 texcoord : TEXCOORD0;
+    float4 normal : NORMAL;
+    float4 tangent : TANGENT;
+    float4 color : COLOR0;
+    float4 color2 : COLOR1;
 };
 
 struct VS_OUT {

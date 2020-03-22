@@ -39,14 +39,14 @@ float idDeclTable::TableLookup( float index ) const
 {
 	int iIndex;
 	float iFrac;
-	
+
 	int domain = values.Num() - 1;
-	
+
 	if( domain <= 1 )
 	{
 		return 1.0f;
 	}
-	
+
 	if( clamp )
 	{
 		index *= ( domain - 1 );
@@ -64,24 +64,24 @@ float idDeclTable::TableLookup( float index ) const
 	else
 	{
 		index *= domain;
-		
+
 		if( index < 0 )
 		{
 			index += domain * idMath::Ceil( -index / domain );
 		}
-		
+
 		iIndex = idMath::Ftoi( idMath::Floor( index ) );
 		iFrac = index - iIndex;
 		iIndex = iIndex % domain;
 	}
-	
+
 	if( !snap )
 	{
 		// we duplicated the 0 index at the end at creation time, so we
 		// don't need to worry about wrapping the filter
 		return values[iIndex] * ( 1.0f - iFrac ) + values[iIndex + 1] * iFrac;
 	}
-	
+
 	return values[iIndex];
 }
 
@@ -127,27 +127,27 @@ bool idDeclTable::Parse( const char* text, const int textLength, bool allowBinar
 	idLexer src;
 	idToken token;
 	float v;
-	
+
 	src.LoadMemory( text, textLength, GetFileName(), GetLineNum() );
 	src.SetFlags( DECL_LEXER_FLAGS );
 	src.SkipUntilString( "{" );
-	
+
 	snap = false;
 	clamp = false;
 	values.Clear();
-	
+
 	while( 1 )
 	{
 		if( !src.ReadToken( &token ) )
 		{
 			break;
 		}
-		
+
 		if( token == "}" )
 		{
 			break;
 		}
-		
+
 		if( token.Icmp( "snap" ) == 0 )
 		{
 			snap = true;
@@ -158,11 +158,11 @@ bool idDeclTable::Parse( const char* text, const int textLength, bool allowBinar
 		}
 		else if( token.Icmp( "{" ) == 0 )
 		{
-		
+
 			while( 1 )
 			{
 				bool errorFlag;
-				
+
 				v = src.ParseFloat( &errorFlag );
 				if( errorFlag )
 				{
@@ -170,9 +170,9 @@ bool idDeclTable::Parse( const char* text, const int textLength, bool allowBinar
 					MakeDefault();
 					return false;
 				}
-				
+
 				values.Append( v );
-				
+
 				src.ReadToken( &token );
 				if( token == "}" )
 				{
@@ -186,7 +186,7 @@ bool idDeclTable::Parse( const char* text, const int textLength, bool allowBinar
 				MakeDefault();
 				return false;
 			}
-			
+
 		}
 		else
 		{
@@ -195,11 +195,11 @@ bool idDeclTable::Parse( const char* text, const int textLength, bool allowBinar
 			return false;
 		}
 	}
-	
+
 	// copy the 0 element to the end, so lerping doesn't
 	// need to worry about the wrap case
 	float val = values[0];		// template bug requires this to not be in the Append()?
 	values.Append( val );
-	
+
 	return true;
 }

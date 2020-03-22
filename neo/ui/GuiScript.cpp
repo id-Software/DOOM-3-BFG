@@ -183,7 +183,7 @@ void Script_ResetTime( idWindow* window, idList<idGSWinVar, TAG_OLD_UI>* src )
 	{
 		return;
 	}
-	
+
 	if( win != NULL && win->win != NULL )
 	{
 		win->win->ResetTime( atoi( *parm ) );
@@ -255,7 +255,7 @@ void Script_Transition( idWindow* window, idList<idGSWinVar, TAG_OLD_UI>* src )
 			ac = atof( *acv );
 			dc = atof( *dcv );
 		}
-		
+
 		if( vec4 )
 		{
 			vec4->SetEval( false );
@@ -344,7 +344,7 @@ idGuiScript::WriteToSaveGame
 void idGuiScript::WriteToSaveGame( idFile* savefile )
 {
 	int i;
-	
+
 	if( ifList )
 	{
 		ifList->WriteToSaveGame( savefile );
@@ -353,9 +353,9 @@ void idGuiScript::WriteToSaveGame( idFile* savefile )
 	{
 		elseList->WriteToSaveGame( savefile );
 	}
-	
+
 	savefile->Write( &conditionReg, sizeof( conditionReg ) );
-	
+
 	for( i = 0; i < parms.Num(); i++ )
 	{
 		if( parms[i].own )
@@ -373,7 +373,7 @@ idGuiScript::ReadFromSaveGame
 void idGuiScript::ReadFromSaveGame( idFile* savefile )
 {
 	int i;
-	
+
 	if( ifList )
 	{
 		ifList->ReadFromSaveGame( savefile );
@@ -382,9 +382,9 @@ void idGuiScript::ReadFromSaveGame( idFile* savefile )
 	{
 		elseList->ReadFromSaveGame( savefile );
 	}
-	
+
 	savefile->Read( &conditionReg, sizeof( conditionReg ) );
-	
+
 	for( i = 0; i < parms.Num(); i++ )
 	{
 		if( parms[i].own )
@@ -402,7 +402,7 @@ idGuiScript::Parse
 bool idGuiScript::Parse( idTokenParser* src )
 {
 	int i;
-	
+
 	// first token should be function call
 	// then a potentially variable set of parms
 	// ended with a ;
@@ -412,9 +412,9 @@ bool idGuiScript::Parse( idTokenParser* src )
 		src->Error( "Unexpected end of file" );
 		return false;
 	}
-	
+
 	handler	= NULL;
-	
+
 	for( i = 0; i < scriptCommandCount ; i++ )
 	{
 		if( idStr::Icmp( token, commandList[i].name ) == 0 )
@@ -423,7 +423,7 @@ bool idGuiScript::Parse( idTokenParser* src )
 			break;
 		}
 	}
-	
+
 	if( handler == NULL )
 	{
 		src->Error( "Uknown script call %s", token.c_str() );
@@ -438,18 +438,18 @@ bool idGuiScript::Parse( idTokenParser* src )
 			src->Error( "Unexpected end of file" );
 			return false;
 		}
-		
+
 		if( idStr::Icmp( token, ";" ) == 0 )
 		{
 			break;
 		}
-		
+
 		if( idStr::Icmp( token, "}" ) == 0 )
 		{
 			src->UnreadToken( &token );
 			break;
 		}
-		
+
 		idWinStr* str = new( TAG_OLD_UI ) idWinStr();
 		*str = token;
 		idGSWinVar wv;
@@ -457,7 +457,7 @@ bool idGuiScript::Parse( idTokenParser* src )
 		wv.var = str;
 		parms.Append( wv );
 	}
-	
+
 	//
 	//  verify min/max params
 	if( handler && ( parms.Num() < commandList[i].mMinParms || parms.Num() > commandList[i].mMaxParms ) )
@@ -465,7 +465,7 @@ bool idGuiScript::Parse( idTokenParser* src )
 		src->Error( "incorrect number of parameters for script %s", commandList[i].name );
 	}
 	//
-	
+
 	return true;
 }
 
@@ -522,7 +522,7 @@ void idGuiScript::FixupParms( idWindow* win )
 			delete parms[0].var;
 			parms[0].var = dest;
 			parms[0].own = false;
-			
+
 			if( dynamic_cast<idWinBackground*>( dest ) != NULL )
 			{
 				precacheBackground = true;
@@ -538,7 +538,7 @@ void idGuiScript::FixupParms( idWindow* win )
 			idWinStr* str = dynamic_cast<idWinStr*>( parms[i].var );
 			if( idStr::Icmpn( *str, "gui::", 5 ) == 0 )
 			{
-			
+
 				//  always use a string here, no point using a float if it is one
 				//  FIXME: This creates duplicate variables, while not technically a problem since they
 				//  are all bound to the same guiDict, it does consume extra memory and is generally a bad thing
@@ -548,7 +548,7 @@ void idGuiScript::FixupParms( idWindow* win )
 				delete parms[i].var;
 				parms[i].var = defvar;
 				parms[i].own = false;
-				
+
 				//dest = win->GetWinVarByName(*str, true);
 				//if (dest) {
 				//	delete parms[i].var;
@@ -585,7 +585,7 @@ void idGuiScript::FixupParms( idWindow* win )
 				idToken token;
 				idParser parser( LEXFL_NOSTRINGCONCAT | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_ALLOWBACKSLASHSTRINGCONCAT );
 				parser.LoadMemory( str->c_str(), str->Length(), "command" );
-				
+
 				while( parser.ReadToken( &token ) )
 				{
 					if( token.Icmp( "play" ) == 0 )
@@ -607,12 +607,12 @@ void idGuiScript::FixupParms( idWindow* win )
 		}
 		idWinStr* str = dynamic_cast<idWinStr*>( parms[0].var );
 		assert( str );
-		
+
 		//
 		drawWin_t* destowner;
 		idWinVar* dest = win->GetWinVarByName( *str, true, &destowner );
 		//
-		
+
 		if( dest )
 		{
 			delete parms[0].var;
@@ -623,20 +623,20 @@ void idGuiScript::FixupParms( idWindow* win )
 		{
 			common->Warning( "Window %s in gui %s: a transition does not have a valid destination var %s", win->GetName(), win->GetGui()->GetSourceFile(), str->c_str() );
 		}
-		
+
 		//
 		//  support variables as parameters
 		int c;
 		for( c = 1; c < 3; c ++ )
 		{
 			str = dynamic_cast<idWinStr*>( parms[c].var );
-			
+
 			idWinVec4* v4 = new( TAG_OLD_UI ) idWinVec4;
 			parms[c].var = v4;
 			parms[c].own = true;
-			
+
 			drawWin_t* owner = NULL;
-			
+
 			if( ( *str[0] ) == '$' )
 			{
 				dest = win->GetWinVarByName( ( const char* )( *str ) + 1, true, &owner );
@@ -645,7 +645,7 @@ void idGuiScript::FixupParms( idWindow* win )
 			{
 				dest = NULL;
 			}
-			
+
 			if( dest )
 			{
 				idWindow* ownerparent;
@@ -654,7 +654,7 @@ void idGuiScript::FixupParms( idWindow* win )
 				{
 					ownerparent = owner->simp ? owner->simp->GetParent() : owner->win->GetParent();
 					destparent  = destowner->simp ? destowner->simp->GetParent() : destowner->win->GetParent();
-					
+
 					// If its the rectangle they are referencing then adjust it
 					if( ownerparent && destparent &&
 							( dest == ( owner->simp ? owner->simp->GetWinVarByName( "rect" ) : owner->win->GetWinVarByName( "rect" ) ) ) )
@@ -679,7 +679,7 @@ void idGuiScript::FixupParms( idWindow* win )
 			{
 				v4->Set( *str );
 			}
-			
+
 			delete str;
 		}
 		//
@@ -733,7 +733,7 @@ idGuiScriptList::WriteToSaveGame
 void idGuiScriptList::WriteToSaveGame( idFile* savefile )
 {
 	int i;
-	
+
 	for( i = 0; i < list.Num(); i++ )
 	{
 		list[i]->WriteToSaveGame( savefile );
@@ -748,7 +748,7 @@ idGuiScriptList::ReadFromSaveGame
 void idGuiScriptList::ReadFromSaveGame( idFile* savefile )
 {
 	int i;
-	
+
 	for( i = 0; i < list.Num(); i++ )
 	{
 		list[i]->ReadFromSaveGame( savefile );

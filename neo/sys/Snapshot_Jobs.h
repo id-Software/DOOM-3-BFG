@@ -76,10 +76,10 @@ struct ALIGNTYPE16 objParms_t
 {
 	// Input
 	uint8				visIndex;
-	
+
 	objJobState_t		newState;
 	objJobState_t		oldState;
-	
+
 	// Output
 	objHeader_t*			destHeader;
 	uint8* 				dest;
@@ -122,7 +122,7 @@ struct ALIGNTYPE16 lzwParm_t
 	int						baseSequence;
 	bool					saveDictionary;
 	bool					fragmented;				// This lzw stream should continue where the last one left off
-	
+
 	// In/Out
 	lzwInOutData_t* 		ioData;					// In/Out
 };

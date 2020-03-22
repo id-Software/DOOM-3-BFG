@@ -38,17 +38,17 @@ class idRegister
 public:
 	idRegister();
 	idRegister( const char* p, int t );
-	
+
 	enum REGTYPE { VEC4 = 0, FLOAT, BOOL, INT, STRING, VEC2, VEC3, RECTANGLE, NUMTYPES } ;
 	static int REGCOUNT[NUMTYPES];
-	
+
 	bool				enabled;
 	short				type;
 	idStr				name;
 	int					regCount;
 	unsigned short		regs[4];
 	idWinVar* 			var;
-	
+
 	void				SetToRegs( float* registers );
 	void				GetFromRegs( float* registers );
 	void				CopyRegs( idRegister* src );
@@ -90,10 +90,10 @@ public:
 
 	idRegisterList();
 	~idRegisterList();
-	
+
 	void				AddReg( const char* name, int type, idTokenParser* src, idWindow* win, idWinVar* var );
 	void				AddReg( const char* name, int type, idVec4 data, idWindow* win, idWinVar* var );
-	
+
 	idRegister* 		FindReg( const char* name );
 	void				SetToRegs( float* registers );
 	void				GetFromRegs( float* registers );
@@ -102,7 +102,7 @@ public:
 	void				WriteToDemoFile( idDemoFile* f );
 	void				WriteToSaveGame( idFile* savefile );
 	void				ReadFromSaveGame( idFile* savefile );
-	
+
 private:
 	idList<idRegister*>	regs;
 	idHashIndex			regHash;

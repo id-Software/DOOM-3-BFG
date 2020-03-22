@@ -29,6 +29,9 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __SWF_SPRITES_H__
 #define __SWF_SPRITES_H__
 
+#undef Bool
+#include "rapidjson/document.h"
+
 /*
 ================================================
 What the swf file format calls a "sprite" is known as a "movie clip" in Flash
@@ -41,65 +44,65 @@ class idSWFSprite
 public:
 	idSWFSprite( class idSWF* swf );
 	~idSWFSprite();
-	
+
 	void	Load( idSWFBitStream& bitstream, bool parseDictionary );
-	
+
 	void	Read( idFile* f );
 	void	Write( idFile* f );
-	
+
 	// RB begin
 	void	ReadJSON( rapidjson::Value& entry );
-	
+
 	void	WriteJSON( idFile* f, int characterID );
 	void	WriteJSON_PlaceObject2( idFile* f, idSWFBitStream& bitstream, int characterID, int commandID, const char* indentPrefix = "" );
 	void	WriteJSON_PlaceObject3( idFile* f, idSWFBitStream& bitstream, int characterID, int commandID, const char* indentPrefix = "" );
 	void	WriteJSON_RemoveObject2( idFile* f, idSWFBitStream& bitstream, int characterID, int commandID, const char* indentPrefix = "" );
 	void	WriteJSON_DoAction( idFile* f, idSWFBitStream& bitstream, int characterID, int commandID, const char* indentPrefix = "" );
-	
+
 	void	WriteSWF( idFile_SWF& f, int characterID );
-	
+
 	uint16	GetFrameCount()
 	{
 		return frameCount;
 	}
 	// RB end
-	
+
 	class idSWF* GetSWF()
 	{
 		return swf;
 	}
-	
+
 private:
 	friend class idSWFSpriteInstance;
 	friend class idSWFScriptFunction_Script;
-	
+
 	class idSWF* swf;	// this is required so things can access the dictionary, it would be kind of nice if we just had an idSWFDictionary pointer instead
-	
+
 	uint16	frameCount;
-	
+
 	// frameOffsets contains offsets into the commands list for each frame
 	// the first command for frame 3 is frameOffsets[2] and the last command is frameOffsets[3]
 	idList< uint32, TAG_SWF >	frameOffsets;
-	
+
 	struct swfFrameLabel_t
 	{
 		idStr frameLabel;
 		uint32 frameNum;
 	};
 	idList< swfFrameLabel_t, TAG_SWF > frameLabels;
-	
+
 	struct swfSpriteCommand_t
 	{
 		swfTag_t		tag;
 		idSWFBitStream	stream;
 	};
 	idList< swfSpriteCommand_t, TAG_SWF > commands;
-	
+
 	//// [ES-BrianBugh 1/16/10] - There can be multiple DoInitAction tags, and all need to be executed.
 	idList<idSWFBitStream, TAG_SWF> doInitActions;
-	
+
 	byte* commandBuffer;
-	
+
 };
 
 #endif // !__SWF_SPRITES_H__

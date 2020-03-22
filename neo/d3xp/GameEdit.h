@@ -42,14 +42,14 @@ class idCursor3D : public idEntity
 {
 public:
 	CLASS_PROTOTYPE( idCursor3D );
-	
+
 	idCursor3D();
 	~idCursor3D();
-	
+
 	void					Spawn();
 	void					Present();
 	void					Think();
-	
+
 	idForce_Drag			drag;
 	idVec3					draggedPosition;
 };
@@ -68,7 +68,7 @@ class idDragEntity
 public:
 	idDragEntity();
 	~idDragEntity();
-	
+
 	void					Clear();
 	void					Update( idPlayer* player );
 	void					SetSelected( idEntity* ent );
@@ -79,7 +79,7 @@ public:
 	void					DeleteSelected();
 	void					BindSelected();
 	void					UnbindSelected();
-	
+
 private:
 	idEntityPtr<idEntity>	dragEnt;			// entity being dragged
 	jointHandle_t			joint;				// joint being dragged
@@ -89,7 +89,7 @@ private:
 	idStr					bodyName;			// name of the body being dragged
 	idCursor3D* 			cursor;				// cursor entity
 	idEntityPtr<idEntity>	selected;			// last dragged entity
-	
+
 	void					StopDrag();
 };
 

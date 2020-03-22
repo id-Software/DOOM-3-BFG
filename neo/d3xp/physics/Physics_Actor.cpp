@@ -76,14 +76,14 @@ void idPhysics_Actor::Save( idSaveGame* savefile ) const
 
 	savefile->WriteClipModel( clipModel );
 	savefile->WriteMat3( clipModelAxis );
-	
+
 	savefile->WriteFloat( mass );
 	savefile->WriteFloat( invMass );
-	
+
 	savefile->WriteObject( masterEntity );
 	savefile->WriteFloat( masterYaw );
 	savefile->WriteFloat( masterDeltaYaw );
-	
+
 	groundEntityPtr.Save( savefile );
 }
 
@@ -97,14 +97,14 @@ void idPhysics_Actor::Restore( idRestoreGame* savefile )
 
 	savefile->ReadClipModel( clipModel );
 	savefile->ReadMat3( clipModelAxis );
-	
+
 	savefile->ReadFloat( mass );
 	savefile->ReadFloat( invMass );
-	
+
 	savefile->ReadObject( reinterpret_cast<idClass*&>( masterEntity ) );
 	savefile->ReadFloat( masterYaw );
 	savefile->ReadFloat( masterDeltaYaw );
-	
+
 	groundEntityPtr.Restore( savefile );
 }
 
@@ -126,7 +126,7 @@ void idPhysics_Actor::SetClipModelAxis()
 		clipModelAxis[2].NormalVectors( clipModelAxis[0], clipModelAxis[1] );
 		clipModelAxis[1] = -clipModelAxis[1];
 	}
-	
+
 	if( clipModel )
 	{
 		clipModel->Link( gameLocal.clip, self, 0, clipModel->GetOrigin(), clipModelAxis );
@@ -174,7 +174,7 @@ void idPhysics_Actor::SetClipModel( idClipModel* model, const float density, int
 	assert( model );					// a clip model is required
 	assert( model->IsTraceModel() );	// and it should be a trace model
 	assert( density > 0.0f );			// density should be valid
-	
+
 	if( clipModel && clipModel != model && freeOld )
 	{
 		delete clipModel;
@@ -419,6 +419,6 @@ bool idPhysics_Actor::EvaluateContacts()
 	ClearContacts();
 	AddGroundContacts( clipModel );
 	AddContactEntitiesForContacts();
-	
+
 	return ( contacts.Num() != 0 );
 }

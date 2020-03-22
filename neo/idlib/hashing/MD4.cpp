@@ -90,7 +90,7 @@ static unsigned char PADDING[64] =
 static void Encode( unsigned char* output, UINT4* input, unsigned int len )
 {
 	unsigned int i, j;
-	
+
 	for( i = 0, j = 0; j < len; i++, j += 4 )
 	{
 		output[j] = ( unsigned char )( input[i] & 0xff );
@@ -104,7 +104,7 @@ static void Encode( unsigned char* output, UINT4* input, unsigned int len )
 static void Decode( UINT4* output, const unsigned char* input, unsigned int len )
 {
 	unsigned int i, j;
-	
+
 	for( i = 0, j = 0; j < len; i++, j += 4 )
 	{
 		output[i] = ( ( UINT4 )input[j] ) | ( ( ( UINT4 )input[j + 1] ) << 8 ) | ( ( ( UINT4 )input[j + 2] ) << 16 ) | ( ( ( UINT4 )input[j + 3] ) << 24 );
@@ -115,9 +115,9 @@ static void Decode( UINT4* output, const unsigned char* input, unsigned int len 
 static void MD4_Transform( UINT4 state[4], const unsigned char block[64] )
 {
 	UINT4 a = state[0], b = state[1], c = state[2], d = state[3], x[16];
-	
+
 	Decode( x, block, 64 );
-	
+
 	/* Round 1 */
 	FF( a, b, c, d, x[ 0], S11 ); 			/* 1 */
 	FF( d, a, b, c, x[ 1], S12 ); 			/* 2 */
@@ -135,7 +135,7 @@ static void MD4_Transform( UINT4 state[4], const unsigned char block[64] )
 	FF( d, a, b, c, x[13], S12 ); 			/* 14 */
 	FF( c, d, a, b, x[14], S13 ); 			/* 15 */
 	FF( b, c, d, a, x[15], S14 ); 			/* 16 */
-	
+
 	/* Round 2 */
 	GG( a, b, c, d, x[ 0], S21 ); 			/* 17 */
 	GG( d, a, b, c, x[ 4], S22 ); 			/* 18 */
@@ -153,7 +153,7 @@ static void MD4_Transform( UINT4 state[4], const unsigned char block[64] )
 	GG( d, a, b, c, x[ 7], S22 ); 			/* 30 */
 	GG( c, d, a, b, x[11], S23 ); 			/* 31 */
 	GG( b, c, d, a, x[15], S24 ); 			/* 32 */
-	
+
 	/* Round 3 */
 	HH( a, b, c, d, x[ 0], S31 );			/* 33 */
 	HH( d, a, b, c, x[ 8], S32 ); 			/* 34 */
@@ -171,12 +171,12 @@ static void MD4_Transform( UINT4 state[4], const unsigned char block[64] )
 	HH( d, a, b, c, x[11], S32 ); 			/* 46 */
 	HH( c, d, a, b, x[ 7], S33 ); 			/* 47 */
 	HH( b, c, d, a, x[15], S34 );			/* 48 */
-	
+
 	state[0] += a;
 	state[1] += b;
 	state[2] += c;
 	state[3] += d;
-	
+
 	/* Zeroize sensitive information.*/
 	memset( ( POINTER )x, 0, sizeof( x ) );
 }
@@ -185,7 +185,7 @@ static void MD4_Transform( UINT4 state[4], const unsigned char block[64] )
 void MD4_Init( MD4_CTX* context )
 {
 	context->count[0] = context->count[1] = 0;
-	
+
 	/* Load magic initialization constants.*/
 	context->state[0] = 0x67452301;
 	context->state[1] = 0xefcdab89;
@@ -197,38 +197,38 @@ void MD4_Init( MD4_CTX* context )
 void MD4_Update( MD4_CTX* context, const unsigned char* input, unsigned int inputLen )
 {
 	unsigned int i, index, partLen;
-	
+
 	/* Compute number of bytes mod 64 */
 	index = ( unsigned int )( ( context->count[0] >> 3 ) & 0x3F );
-	
+
 	/* Update number of bits */
 	if( ( context->count[0] += ( ( UINT4 )inputLen << 3 ) ) < ( ( UINT4 )inputLen << 3 ) )
 	{
 		context->count[1]++;
 	}
-	
+
 	context->count[1] += ( ( UINT4 )inputLen >> 29 );
-	
+
 	partLen = 64 - index;
-	
+
 	/* Transform as many times as possible.*/
 	if( inputLen >= partLen )
 	{
 		memcpy( ( POINTER )&context->buffer[index], ( POINTER )input, partLen );
 		MD4_Transform( context->state, context->buffer );
-		
+
 		for( i = partLen; i + 63 < inputLen; i += 64 )
 		{
 			MD4_Transform( context->state, &input[i] );
 		}
-		
+
 		index = 0;
 	}
 	else
 	{
 		i = 0;
 	}
-	
+
 	/* Buffer remaining input */
 	memcpy( ( POINTER )&context->buffer[index], ( POINTER )&input[i], inputLen - i );
 }
@@ -238,21 +238,21 @@ void MD4_Final( MD4_CTX* context, unsigned char digest[16] )
 {
 	unsigned char bits[8];
 	unsigned int index, padLen;
-	
+
 	/* Save number of bits */
 	Encode( bits, context->count, 8 );
-	
+
 	/* Pad out to 56 mod 64.*/
 	index = ( unsigned int )( ( context->count[0] >> 3 ) & 0x3f );
 	padLen = ( index < 56 ) ? ( 56 - index ) : ( 120 - index );
 	MD4_Update( context, PADDING, padLen );
-	
+
 	/* Append length (before padding) */
 	MD4_Update( context, bits, 8 );
-	
+
 	/* Store state in digest */
 	Encode( digest, context->state, 16 );
-	
+
 	/* Zeroize sensitive information.*/
 	memset( ( POINTER )context, 0, sizeof( *context ) );
 }
@@ -268,13 +268,13 @@ unsigned int MD4_BlockChecksum( const void* data, int length )
 	unsigned int	digest[4];
 	unsigned int	val;
 	MD4_CTX			ctx;
-	
+
 	MD4_Init( &ctx );
 	MD4_Update( &ctx, ( unsigned char* )data, length );
 	MD4_Final( &ctx, ( unsigned char* )digest );
-	
+
 	val = digest[0] ^ digest[1] ^ digest[2] ^ digest[3];
-	
+
 	return val;
 }
 // RB end

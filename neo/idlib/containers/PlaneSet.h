@@ -46,9 +46,9 @@ public:
 		idList<idPlane>::Clear();
 		hash.Free();
 	}
-	
+
 	int						FindPlane( const idPlane& plane, const float normalEps, const float distEps );
-	
+
 private:
 	idHashIndex				hash;
 };
@@ -56,9 +56,9 @@ private:
 ID_INLINE int idPlaneSet::FindPlane( const idPlane& plane, const float normalEps, const float distEps )
 {
 	int i, border, hashKey;
-	
+
 	assert( distEps <= 0.125f );
-	
+
 	hashKey = ( int )( idMath::Fabs( plane.Dist() ) * 0.125f );
 	for( border = -1; border <= 1; border++ )
 	{
@@ -70,7 +70,7 @@ ID_INLINE int idPlaneSet::FindPlane( const idPlane& plane, const float normalEps
 			}
 		}
 	}
-	
+
 	if( plane.Type() >= PLANETYPE_NEGX && plane.Type() < PLANETYPE_TRUEAXIAL )
 	{
 		Append( -plane );

@@ -49,11 +49,11 @@ class idRotation
 	friend class idAngles;
 	friend class idQuat;
 	friend class idMat3;
-	
+
 public:
 	idRotation();
 	idRotation( const idVec3& rotationOrigin, const idVec3& rotationVec, const float rotationAngle );
-	
+
 	void				Set( const idVec3& rotationOrigin, const idVec3& rotationVec, const float rotationAngle );
 	void				SetOrigin( const idVec3& rotationOrigin );
 	void				SetVec( const idVec3& rotationVec );					// has to be normalized
@@ -64,29 +64,29 @@ public:
 	const idVec3& 		GetOrigin() const;
 	const idVec3& 		GetVec() const;
 	float				GetAngle() const;
-	
+
 	idRotation			operator-() const;										// flips rotation
 	idRotation			operator*( const float s ) const;						// scale rotation
 	idRotation			operator/( const float s ) const;						// scale rotation
 	idRotation& 		operator*=( const float s );							// scale rotation
 	idRotation& 		operator/=( const float s );							// scale rotation
 	idVec3				operator*( const idVec3& v ) const;						// rotate vector
-	
+
 	friend idRotation	operator*( const float s, const idRotation& r );		// scale rotation
 	friend idVec3		operator*( const idVec3& v, const idRotation& r );		// rotate vector
 	friend idVec3& 		operator*=( idVec3& v, const idRotation& r );			// rotate vector
-	
+
 	idAngles			ToAngles() const;
 	idQuat				ToQuat() const;
 	const idMat3& 		ToMat3() const;
 	idMat4				ToMat4() const;
 	idVec3				ToAngularVelocity() const;
-	
+
 	void				RotatePoint( idVec3& point ) const;
-	
+
 	void				Normalize180();
 	void				Normalize360();
-	
+
 private:
 	idVec3				origin;			// origin of rotation
 	idVec3				vec;			// normalized vector to rotate around

@@ -46,7 +46,11 @@ static int cmdargc = 0;
 // DG end
 
 #ifdef ID_MCHECK
-#include <mcheck.h>
+	#include <mcheck.h>
+#endif
+
+#if 0 // defined(USE_VULKAN)
+	#include <xcb/xcb.h>
 #endif
 
 /*
@@ -59,7 +63,7 @@ const char* Sys_EXEPath()
 	static char	buf[ 1024 ];
 	idStr		linkpath;
 	int			len;
-	
+
 	buf[ 0 ] = '\0';
 	sprintf( linkpath, "/proc/%d/exe", getpid() );
 	len = readlink( linkpath.c_str(), buf, sizeof( buf ) );
@@ -102,15 +106,15 @@ double Sys_ClockTicksPerSecond()
 {
 	static bool		init = false;
 	static double	ret;
-	
+
 	int		fd, len, pos, end;
 	char	buf[ 4096 ];
-	
+
 	if( init )
 	{
 		return ret;
 	}
-	
+
 	fd = open( "/proc/cpuinfo", O_RDONLY );
 	if( fd == -1 )
 	{
@@ -170,26 +174,26 @@ void Sys_CPUCount( int& numLogicalCPUCores, int& numPhysicalCPUCores, int& numCP
 {
 	static bool		init = false;
 	static double	ret;
-	
+
 	static int		s_numLogicalCPUCores;
 	static int		s_numPhysicalCPUCores;
 	static int		s_numCPUPackages;
-	
+
 	int		fd, len, pos, end;
 	char	buf[ 4096 ];
 	char	number[100];
-	
+
 	if( init )
 	{
 		numPhysicalCPUCores = s_numPhysicalCPUCores;
 		numLogicalCPUCores = s_numLogicalCPUCores;
 		numCPUPackages = s_numCPUPackages;
 	}
-	
+
 	s_numPhysicalCPUCores = 1;
 	s_numLogicalCPUCores = 1;
 	s_numCPUPackages = 1;
-	
+
 	fd = open( "/proc/cpuinfo", O_RDONLY );
 	if( fd != -1 )
 	{
@@ -207,9 +211,9 @@ void Sys_CPUCount( int& numLogicalCPUCores, int& numPhysicalCPUCores, int& numCP
 					idStr::Copynz( number, buf + pos, sizeof( number ) );
 					assert( ( end - pos ) > 0 && ( end - pos ) < sizeof( number ) );
 					number[ end - pos ] = '\0';
-					
+
 					int processor = atoi( number );
-					
+
 					if( ( processor ) > s_numPhysicalCPUCores )
 					{
 						s_numPhysicalCPUCores = processor;
@@ -230,9 +234,9 @@ void Sys_CPUCount( int& numLogicalCPUCores, int& numPhysicalCPUCores, int& numCP
 					idStr::Copynz( number, buf + pos, sizeof( number ) );
 					assert( ( end - pos ) > 0 && ( end - pos ) < sizeof( number ) );
 					number[ end - pos ] = '\0';
-					
+
 					int coreId = atoi( number );
-					
+
 					if( ( coreId ) > s_numLogicalCPUCores )
 					{
 						s_numLogicalCPUCores = coreId;
@@ -244,14 +248,14 @@ void Sys_CPUCount( int& numLogicalCPUCores, int& numPhysicalCPUCores, int& numCP
 					break;
 				}
 			}
-			
+
 			pos = strchr( buf + pos, '\n' ) - buf + 1;
 		}
 	}
-	
+
 	common->Printf( "/proc/cpuinfo CPU processors: %d\n", s_numPhysicalCPUCores );
 	common->Printf( "/proc/cpuinfo CPU logical cores: %d\n", s_numLogicalCPUCores );
-	
+
 	numPhysicalCPUCores = s_numPhysicalCPUCores;
 	numLogicalCPUCores = s_numLogicalCPUCores;
 	numCPUPackages = s_numCPUPackages;
@@ -350,7 +354,7 @@ void Sys_FPU_SetDAZ( bool enable )
 {
 	/*
 	DWORD dwData;
-	
+
 	_asm {
 		movzx	ecx, byte ptr enable
 		and		ecx, 1
@@ -374,7 +378,7 @@ void Sys_FPU_SetFTZ( bool enable )
 {
 	/*
 	DWORD dwData;
-	
+
 	_asm {
 		movzx	ecx, byte ptr enable
 		and		ecx, 1
@@ -439,15 +443,17 @@ void Sys_ReLaunch()
 	// NOTE: this function used to have parameters: the commandline arguments, but as one string..
 	//       for Linux/Unix we want one char* per argument so we'll just add the friggin'
 	//       " +set com_skipIntroVideos 1" to the other commandline arguments in this function.
-	
+
 	int ret = fork();
 	if( ret < 0 )
+	{
 		idLib::Error( "Sys_ReLaunch(): Couldn't fork(), reason: %s ", strerror( errno ) );
-		
+	}
+
 	if( ret == 0 )
 	{
 		// child process
-		
+
 		// get our own session so we don't depend on the (soon to be killed)
 		// parent process anymore - else we'll freeze
 		pid_t sId = setsid();
@@ -455,7 +461,7 @@ void Sys_ReLaunch()
 		{
 			idLib::Error( "Sys_ReLaunch(): setsid() failed! Reason: %s ", strerror( errno ) );
 		}
-		
+
 		// close all FDs (except for stdin/out/err) so we don't leak FDs
 		DIR* devfd = opendir( "/dev/fd" );
 		if( devfd != NULL )
@@ -468,37 +474,41 @@ void Sys_ReLaunch()
 				char* endptr = NULL;
 				long int fd = strtol( filename, &endptr, 0 );
 				if( endptr != filename && fd > STDERR_FILENO )
+				{
 					close( fd );
+				}
 			}
 		}
 		else
 		{
 			idLib::Warning( "Sys_ReLaunch(): Couldn't open /dev/fd/ - will leak file descriptors. Reason: %s", strerror( errno ) );
 		}
-		
+
 		// + 3 because "+set" "com_skipIntroVideos" "1" - and note that while we'll skip
 		// one (the first) cmdargv argument, we need one more pointer for NULL at the end.
 		int argc = cmdargc + 3;
 		const char** argv = ( const char** )calloc( argc, sizeof( char* ) );
-		
+
 		int i;
 		for( i = 0; i < cmdargc - 1; ++i )
-			argv[i] = cmdargv[i + 1]; // ignore cmdargv[0] == executable name
-			
+		{
+			argv[i] = cmdargv[i + 1];    // ignore cmdargv[0] == executable name
+		}
+
 		// add +set com_skipIntroVideos 1
 		argv[i++] = "+set";
 		argv[i++] = "com_skipIntroVideos";
 		argv[i++] = "1";
 		// execv expects NULL terminated array
 		argv[i] = NULL;
-		
+
 		const char* exepath = Sys_EXEPath();
-		
+
 		errno = 0;
 		execv( exepath, ( char** )argv );
 		// we only get here if execv() fails, else the executable is restarted
 		idLib::Error( "Sys_ReLaunch(): WTF exec() failed! Reason: %s ", strerror( errno ) );
-		
+
 	}
 	else
 	{
@@ -508,6 +518,67 @@ void Sys_ReLaunch()
 	}
 	// DG end
 }
+
+#if 0 //defined(USE_VULKAN)
+/* Declare the global posixInfo */
+posixInfo info;
+
+static void createWindow( size_t winWidth, size_t winHeight )
+{
+	/* establish the connection with DISPLAYNAME as NULL,
+	 * this will leverage the DISPLAY env var */
+	int screenp = 0;  /* which "screen" to use */
+	info.connection = xcb_connect( NULL, &screenp );
+
+	/* Check for errors */
+	int xcbErr = xcb_connection_has_error( info.connection );
+
+	if( xcbErr )
+	{
+		common->Printf( "Failed to connect to X server using XCB." );
+		exit( -1 );
+	}
+
+	/* Setup the window, iterating through screens */
+	const struct xcb_setup_t* xcbSetup = NULL;
+	xcbSetup = xcb_get_setup( info.connection );
+
+	xcb_screen_iterator_t scrIter = xcb_setup_roots_iterator( xcbSetup );
+
+	for( int screen = screenp; screen > 0; --screen )
+	{
+		xcb_screen_next( &scrIter );
+	}
+
+	info.screen = scrIter.data;
+
+	/* Now generate the xid used for our window */
+	info.window = xcb_generate_id( info.connection );
+
+	/* Register events, creating background pixel */
+	uint32_t eventMask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
+	uint32_t valueList[] = { info.screen->black_pixel, 0 };
+
+	/* Create the window, finally */
+	xcb_create_window( info.connection, XCB_COPY_FROM_PARENT, info.window,
+					   info.screen->root, 0, 0, winWidth, winHeight, 0,
+					   XCB_WINDOW_CLASS_INPUT_OUTPUT, info.screen->root_visual,
+					   eventMask, valueList );
+
+	/* Set some properties, such as the window name, maybe? */
+	xcb_change_property( info.connection, XCB_PROP_MODE_REPLACE,
+						 info.window, XCB_ATOM_WM_NAME, XCB_ATOM_STRING,
+						 8, 7, "vkRBDoom3BFG" );
+
+	/* map the window to the screen and flush the stream to the server */
+	xcb_map_window( info.connection, info.window );
+	xcb_flush( info.connection );
+
+	glConfig.nativeScreenWidth = winWidth;
+	glConfig.nativeScreenHeight = winHeight;
+
+}
+#endif
 
 /*
 ===============
@@ -525,9 +596,16 @@ int main( int argc, const char** argv )
 	mcheck( abrt_func );
 	Sys_Printf( "memory consistency checking enabled\n" );
 #endif
-	
+
+#if 0 // defined(USE_VULKAN)
+	/* Create the window if using Vulkan */
+	xcb_generic_event_t* event;
+	xcb_client_message_event_t* cm;
+	createWindow( 1280, 720 );
+#endif
+
 	Posix_EarlyInit( );
-	
+
 	if( argc > 1 )
 	{
 		common->Init( argc - 1, &argv[1], NULL );
@@ -536,11 +614,19 @@ int main( int argc, const char** argv )
 	{
 		common->Init( 0, NULL, NULL );
 	}
-	
+
 	Posix_LateInit( );
-	
+
+
 	while( 1 )
 	{
+#if 0 //defined(USE_VULKAN)
+		/* I'm not 100% sure if intercepting these xcb events interferes with
+		 * SDL's input handling or not, but I suspect that it's necessary
+		 * to pump some event loop.  We'll see */
+		/*event = xcb_wait_for_event(info.connection);
+		free(event); */
+#endif
 		common->Frame();
 	}
 }

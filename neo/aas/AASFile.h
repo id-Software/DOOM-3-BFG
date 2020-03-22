@@ -257,17 +257,17 @@ public:
 	int							tt_startCrouching;
 	int							tt_waterJump;
 	int							tt_startWalkOffLedge;
-	
+
 public:
 	idAASSettings();
-	
+
 	bool						FromFile( const idStr& fileName );
 	bool						FromParser( idLexer& src );
 	bool						FromDict( const char* name, const idDict* dict );
 	bool						WriteToFile( idFile* fp ) const;
 	bool						ValidForBounds( const idBounds& bounds ) const;
 	bool						ValidEntity( const char* classname ) const;
-	
+
 private:
 	bool						ParseBool( idLexer& src, bool& b );
 	bool						ParseInt( idLexer& src, int& i );
@@ -305,7 +305,7 @@ class idAASFile
 {
 public:
 	virtual 					~idAASFile() {}
-	
+
 	const char* 				GetName() const
 	{
 		return name.c_str();
@@ -314,7 +314,7 @@ public:
 	{
 		return crc;
 	}
-	
+
 	int							GetNumPlanes() const
 	{
 		return planeList.Num();
@@ -403,12 +403,12 @@ public:
 	{
 		return clusters[index];
 	}
-	
+
 	const idAASSettings& 		GetSettings() const
 	{
 		return settings;
 	}
-	
+
 	void						SetPortalMaxTravelTime( int index, int time )
 	{
 		portals[index].maxAreaTravelTime = time;
@@ -421,26 +421,26 @@ public:
 	{
 		areas[index].travelFlags &= ~flag;
 	}
-	
+
 	virtual idVec3				EdgeCenter( int edgeNum ) const = 0;
 	virtual idVec3				FaceCenter( int faceNum ) const = 0;
 	virtual idVec3				AreaCenter( int areaNum ) const = 0;
-	
+
 	virtual idBounds			EdgeBounds( int edgeNum ) const = 0;
 	virtual idBounds			FaceBounds( int faceNum ) const = 0;
 	virtual idBounds			AreaBounds( int areaNum ) const = 0;
-	
+
 	virtual int					PointAreaNum( const idVec3& origin ) const = 0;
 	virtual int					PointReachableAreaNum( const idVec3& origin, const idBounds& searchBounds, const int areaFlags, const int excludeTravelFlags ) const = 0;
 	virtual int					BoundsReachableAreaNum( const idBounds& bounds, const int areaFlags, const int excludeTravelFlags ) const = 0;
 	virtual void				PushPointIntoAreaNum( int areaNum, idVec3& point ) const = 0;
 	virtual bool				Trace( aasTrace_t& trace, const idVec3& start, const idVec3& end ) const = 0;
 	virtual void				PrintInfo() const = 0;
-	
+
 protected:
 	idStr						name;
 	unsigned int				crc;
-	
+
 	idPlaneSet					planeList;
 	idList<aasVertex_t, TAG_AAS>			vertices;
 	idList<aasEdge_t, TAG_AAS>			edges;

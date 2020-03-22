@@ -48,33 +48,33 @@ class idRenderContext
 public:
 	idRenderContext() : depthHackValue( 0.0f ), weaponDepthHackValue( 1.0f ) {}
 	virtual			~idRenderContext() {};
-	
+
 	void			InitContext();
 	void			Shutdown();
 	void			PrepareSwap();
 	void			SwapBuffers( bool forceVsync = false );
 	void			SetGamma( unsigned short red[256], unsigned short green[256], unsigned short blue[256] );
-	
+
 	hdmi3DState_t	GetHDMI3DState();
 	void			EnableHDMI3D( const bool enable );
-	
+
 	// Back End Rendering
 	void			ExecuteBackendCommands( const emptyCommand_t* cmds );
 	void			Clear( float r, float g, float b, float a );
 	void			InitGraphicsAPIWrapper();
-	
+
 	// Debug Tools
 	void			RenderDebugTools( drawSurf_t** drawSurfs, int numDrawSurfs );
-	
+
 	void			SetWrapperContext( const wrapperContext_t& context );
 	void			SetWrapperConfig( const wrapperConfig_t& config );
-	
+
 	// Texture Resolves
 	void			ResolveTargetColor( idImage* image );
 	void			ResolveTargetDepth( idImage* image );
 	void			ResolveTargetColor( idImage* image, int srcMinX, int srcMinY, int srcMaxX, int srcMaxY, int dstX, int dstY );
 	void			ResolveTargetDepth( idImage* image, int srcMinX, int srcMinY, int srcMaxX, int srcMaxY, int dstX, int dstY );
-	
+
 	void			SetDepthHackValue( float depth )
 	{
 		depthHackValue = depth;
@@ -91,12 +91,12 @@ public:
 	{
 		return weaponDepthHackValue;
 	}
-	
+
 	uint64			GetGPUFrameMicroSec() const
 	{
 		return GPUFrameMicroSec;
 	}
-	
+
 private:
 	float			depthHackValue;
 	float			weaponDepthHackValue;

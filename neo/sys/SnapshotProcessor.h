@@ -37,12 +37,12 @@ class idSnapshotProcessor
 {
 public:
 	static const int INITIAL_SNAP_SEQUENCE = 42;
-	
+
 	idSnapshotProcessor();
 	~idSnapshotProcessor();
-	
+
 	void Reset( bool cstor = false );
-	
+
 	// TrySetPendingSnapshot Sets the currently pending snap.
 	// No new snaps will be sent until this snap has been fully sent.
 	// Returns true of the newly supplied snapshot was accepted (there were no pending snaps)
@@ -78,7 +78,7 @@ public:
 	{
 		return hasPendingSnap;
 	}
-	
+
 	idSnapShot* GetBaseState()
 	{
 		return &baseState;
@@ -87,7 +87,7 @@ public:
 	{
 		return &pendingSnap;
 	}
-	
+
 	int GetSnapSequence()
 	{
 		return snapSequence;
@@ -100,77 +100,77 @@ public:
 	{
 		return lastFullSnapBaseSequence;
 	}
-	
+
 	// This is used to ack the latest delta we have.  If we have no deltas, we sent -1 to make sure
 	// Server knows we don't want to ack, since we are as up to date as we can be
 	int GetLastAppendedSequence()
 	{
 		return deltas.Num() == 0 ? -1 : deltas.ItemSequence( deltas.Num() - 1 );
 	}
-	
+
 	int	GetSnapQueueSize()
 	{
 		return deltas.Num();
 	}
-	
+
 	bool IsBusyConfirmingPartialSnap();
-	
+
 	void AddSnapObjTemplate( int objID, idBitMsg& msg );
-	
+
 	static const int MAX_SNAPSHOT_QUEUE		= 64;
-	
+
 private:
 
 	// Internal commands to set up, and flush the compressors
 	static const int MAX_SNAP_SIZE			= idPacketProcessor::MAX_MSG_SIZE;
 	static const int MAX_SNAPSHOT_QUEUE_MEM	= 64 * 1024;	// 64k
-	
+
 	// sequence number of the last snapshot we sent/received
 	// on the server, the sequencing is different for each network peer (net_verboseSnapshot 1)
 	// on the jobbed snapshot compression path, the sequence is incremented in NewLZWStream and pulled into this in idSnapshotProcessor::GetPendingSnapDelta
 	int				snapSequence;
 	int				baseSequence;
 	int				lastFullSnapBaseSequence;		// Latest base sequence number that is a full snap
-	
+
 	idSnapShot		baseState;			// known snapshot base on the client
 	idDataQueue< MAX_SNAPSHOT_QUEUE, MAX_SNAPSHOT_QUEUE_MEM >	deltas;		// list of unacknowledged snapshot deltas
-	
+
 	idSnapShot		pendingSnap;		// Current snap waiting to be fully sent
 	bool			hasPendingSnap;		// true if pendingSnap is still waiting to be sent
-	
+
 	struct jobMemory_t
 	{
 		static const int MAX_LZW_DELTAS		= 1;			// FIXME: cleanup the old multiple delta support completely
-		
+
 		// @TODO this is a hack fix to allow online to load into coop (where there are lots of entities).
 		// The real solution should be coming soon.
 		// Doom MP: we encountered the same problem, going from 1024 to 4096 as well until a better solution is in place
 		// (initial, useless, exchange of func_statics is killing us)
 		static const int MAX_OBJ_PARMS		= 4096;
-		
+
 		static const int MAX_LZW_PARMS		= 32;
 		static const int MAX_OBJ_HEADERS	= 256;
 		static const int MAX_LZW_MEM		= 1024 * 8;		// 8k in the byte * lzwMem buffers, must be <= PS3_DMA_MAX
-		
+
 		// Parm memory to jobs
 		idArray<objParms_t, MAX_OBJ_PARMS>		objParms;
 		idArray<objHeader_t, MAX_OBJ_HEADERS>	headers;
 		idArray<lzwParm_t, MAX_LZW_PARMS>		lzwParms;
-		
+
 		// Output memory from jobs
 		idArray<lzwDelta_t, MAX_LZW_DELTAS>	lzwDeltas;			// Info about each pending delta output from jobs
 		idArray<byte, MAX_LZW_MEM>		lzwMem;				// Memory for output from lzw jobs
-		
+
 		lzwInOutData_t	lzwInOutData;						// In/Out data used so lzw data can persist across lzw jobs
 	};
-	
+
 	jobMemory_t* 	jobMemory;
-	
+
 	idSnapShot		submittedState;
-	
+
 	idSnapShot		templateStates;			// holds default snapshot states for some newly spawned object
 	idSnapShot		submittedTemplateStates;
-	
+
 	int				partialBaseSequence;
 };
 

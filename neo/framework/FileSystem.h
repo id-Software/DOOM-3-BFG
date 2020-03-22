@@ -88,7 +88,7 @@ public:
 	{
 		return list;
 	}
-	
+
 private:
 	idStr					basePath;
 	idStrList				list;
@@ -167,17 +167,17 @@ public:
 	virtual void			CloseFile( idFile* f ) = 0;
 	// look for a dynamic module
 	virtual void			FindDLL( const char* basename, char dllPath[ MAX_OSPATH ] ) = 0;
-	
+
 	// don't use for large copies - allocates a single memory block for the copy
 	virtual void			CopyFile( const char* fromOSPath, const char* toOSPath ) = 0;
-	
+
 	// look for a file in the loaded paks or the addon paks
 	// if the file is found in addons, FS's internal structures are ready for a reloadEngine
 	virtual findFile_t		FindFile( const char* path ) = 0;
-	
+
 	// ignore case and seperator char distinctions
 	virtual bool			FilenameCompare( const char* s1, const char* s2 ) const = 0;
-	
+
 	// This is just handy
 	ID_TIME_T				GetTimestamp( const char* relativePath )
 	{
@@ -189,12 +189,12 @@ public:
 		ReadFile( relativePath, NULL, &timestamp );
 		return timestamp;
 	}
-	
+
 	// Returns length of file, -1 if no file exists
 	virtual int				GetFileLength( const char* relativePath ) = 0;
-	
+
 	virtual sysFolder_t		IsFolder( const char* relativePath, const char* basePath = "fs_basepath" ) = 0;
-	
+
 	// resource tracking and related things
 	virtual void			EnableBackgroundCache( bool enable ) = 0;
 	virtual void			BeginLevelLoad( const char* name, char* _blockBuffer, int _blockBufferSize ) = 0;
@@ -216,7 +216,7 @@ public:
 	virtual void			AddAnimPreload( const char* resName ) = 0;
 	virtual void			AddParticlePreload( const char* resName ) = 0;
 	virtual void			AddCollisionPreload( const char* resName ) = 0;
-	
+
 };
 
 extern idFileSystem* 		fileSystem;

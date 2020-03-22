@@ -168,7 +168,7 @@ keyname_t keynames[] =
 	NAMEKEY( APPS, "#str_07032" ),
 	NAMEKEY2( POWER ),
 	NAMEKEY2( SLEEP ),
-	
+
 	// DG: adding names for keys from cegui/directinput I added in enum keyNum_t in sys_public.h
 	//     (they're really valid directinput scancodes, they just haven't been handled before in d3bfg)
 	NAMEKEY2( OEM_102 ),
@@ -192,9 +192,9 @@ keyname_t keynames[] =
 	NAMEKEY2( MAIL ),
 	NAMEKEY2( MEDIASELECT ),
 	// DG end
-	
+
 	// --
-	
+
 	NAMEKEY( MOUSE1, "#str_07054" ),
 	NAMEKEY( MOUSE2, "#str_07055" ),
 	NAMEKEY( MOUSE3, "#str_07056" ),
@@ -203,7 +203,7 @@ keyname_t keynames[] =
 	NAMEKEY( MOUSE6, "#str_07059" ),
 	NAMEKEY( MOUSE7, "#str_07060" ),
 	NAMEKEY( MOUSE8, "#str_07061" ),
-	
+
 	// DG: some more mouse buttons
 	NAMEKEY2( MOUSE9 ),
 	NAMEKEY2( MOUSE10 ),
@@ -214,10 +214,10 @@ keyname_t keynames[] =
 	NAMEKEY2( MOUSE15 ),
 	NAMEKEY2( MOUSE16 ),
 	// DG end
-	
+
 	NAMEKEY( MWHEELDOWN, "#str_07132" ),
 	NAMEKEY( MWHEELUP, "#str_07131" ),
-	
+
 	NAMEKEY( JOY1, "#str_07062" ),
 	NAMEKEY( JOY2, "#str_07063" ),
 	NAMEKEY( JOY3, "#str_07064" ),
@@ -234,25 +234,25 @@ keyname_t keynames[] =
 	NAMEKEY( JOY14, "#str_07075" ),
 	NAMEKEY( JOY15, "#str_07076" ),
 	NAMEKEY( JOY16, "#str_07077" ),
-	
+
 	NAMEKEY2( JOY_DPAD_UP ),
 	NAMEKEY2( JOY_DPAD_DOWN ),
 	NAMEKEY2( JOY_DPAD_LEFT ),
 	NAMEKEY2( JOY_DPAD_RIGHT ),
-	
+
 	NAMEKEY2( JOY_STICK1_UP ),
 	NAMEKEY2( JOY_STICK1_DOWN ),
 	NAMEKEY2( JOY_STICK1_LEFT ),
 	NAMEKEY2( JOY_STICK1_RIGHT ),
-	
+
 	NAMEKEY2( JOY_STICK2_UP ),
 	NAMEKEY2( JOY_STICK2_DOWN ),
 	NAMEKEY2( JOY_STICK2_LEFT ),
 	NAMEKEY2( JOY_STICK2_RIGHT ),
-	
+
 	NAMEKEY2( JOY_TRIGGER1 ),
 	NAMEKEY2( JOY_TRIGGER2 ),
-	
+
 	//------------------------
 	// Aliases to make it easier to bind or to support old configs
 	//------------------------
@@ -262,7 +262,7 @@ keyname_t keynames[] =
 	ALIASKEY( "SHIFT", LSHIFT ),
 	ALIASKEY( "MENU", APPS ),
 	ALIASKEY( "COMMAND", LALT ),
-	
+
 	ALIASKEY( "KP_HOME", KP_7 ),
 	ALIASKEY( "KP_UPARROW", KP_8 ),
 	ALIASKEY( "KP_PGUP", KP_9 ),
@@ -274,7 +274,7 @@ keyname_t keynames[] =
 	ALIASKEY( "KP_INS", KP_0 ),
 	ALIASKEY( "KP_DEL", KP_DOT ),
 	ALIASKEY( "KP_NUMLOCK", NUMLOCK ),
-	
+
 	ALIASKEY( "-", MINUS ),
 	ALIASKEY( "=", EQUALS ),
 	ALIASKEY( "[", LBRACKET ),
@@ -283,7 +283,7 @@ keyname_t keynames[] =
 	ALIASKEY( "/", SLASH ),
 	ALIASKEY( ",", COMMA ),
 	ALIASKEY( ".", PERIOD ),
-	
+
 	{K_NONE, NULL, NULL}
 };
 
@@ -350,7 +350,7 @@ bool idKeyInput::IsDown( int keynum )
 	{
 		return false;
 	}
-	
+
 	return keys[keynum].down;
 }
 
@@ -366,7 +366,7 @@ keyNum_t idKeyInput::StringToKeyNum( const char* str )
 	{
 		return K_NONE;
 	}
-	
+
 	// scan for a text match
 	for( keyname_t* kn = keynames; kn->name; kn++ )
 	{
@@ -375,7 +375,7 @@ keyNum_t idKeyInput::StringToKeyNum( const char* str )
 			return kn->keynum;
 		}
 	}
-	
+
 	return K_NONE;
 }
 
@@ -413,7 +413,7 @@ const char* idKeyInput::LocalizedKeyName( keyNum_t keynum )
 		// On the PC, we want to turn the scan code in to a key label that matches the currently selected keyboard layout
 		unsigned char keystate[256] = { 0 };
 		WCHAR temp[5];
-		
+
 		int scancode = ( int )keynum;
 		int vkey = MapVirtualKey( keynum, MAPVK_VSC_TO_VK_EX );
 		int result = -1;
@@ -430,20 +430,20 @@ const char* idKeyInput::LocalizedKeyName( keyNum_t keynum )
 		}
 	}
 #else // DG: for !Windows I introduced Sys_GetKeyName() to get key label for current keyboard layout
-	
+
 	const char* ret = nullptr;
-	
+
 	if( keynum < K_JOY1 ) // only for keyboard keys, not joystick or mouse
 	{
 		ret = Sys_GetKeyName( keynum );
 	}
-	
+
 	if( ret != NULL )
 	{
 		return ret;
 	}
 #endif
-	
+
 	// check for a key string
 	for( keyname_t* kn = keynames; kn->name; kn++ )
 	{
@@ -467,16 +467,16 @@ void idKeyInput::SetBinding( int keynum, const char* binding )
 	{
 		return;
 	}
-	
+
 	// Clear out all button states so we aren't stuck forever thinking this key is held down
 	usercmdGen->Clear();
-	
+
 	// allocate memory for new binding
 	keys[keynum].binding = binding;
-	
+
 	// find the action for the async command generation
 	keys[keynum].usercmdAction = usercmdGen->CommandStringUsercmdData( binding );
-	
+
 	// consider this like modifying an archived cvar, so the
 	// file write will be triggered at the next oportunity
 	cvarSystem->SetModifiedFlags( CVAR_ARCHIVE );
@@ -494,7 +494,7 @@ const char* idKeyInput::GetBinding( int keynum )
 	{
 		return "";
 	}
-	
+
 	return keys[ keynum ].binding;
 }
 
@@ -516,13 +516,13 @@ Key_Unbind_f
 void Key_Unbind_f( const idCmdArgs& args )
 {
 	int		b;
-	
+
 	if( args.Argc() != 2 )
 	{
 		common->Printf( "unbind <key> : remove commands from a key\n" );
 		return;
 	}
-	
+
 	b = idKeyInput::StringToKeyNum( args.Argv( 1 ) );
 	if( b == -1 )
 	{
@@ -560,9 +560,9 @@ void Key_Bind_f( const idCmdArgs& args )
 {
 	int			i, c, b;
 	char		cmd[MAX_STRING_CHARS];
-	
+
 	c = args.Argc();
-	
+
 	if( c < 2 )
 	{
 		common->Printf( "bind <key> [command] : attach a command to a key\n" );
@@ -574,7 +574,7 @@ void Key_Bind_f( const idCmdArgs& args )
 		common->Printf( "\"%s\" isn't a valid key\n", args.Argv( 1 ) );
 		return;
 	}
-	
+
 	if( c == 2 )
 	{
 		if( keys[b].binding.Length() )
@@ -587,7 +587,7 @@ void Key_Bind_f( const idCmdArgs& args )
 		}
 		return;
 	}
-	
+
 	// copy the rest of the command line
 	cmd[0] = 0;		// start out with a null string
 	for( i = 2; i < c; i++ )
@@ -598,7 +598,7 @@ void Key_Bind_f( const idCmdArgs& args )
 			strcat( cmd, " " );
 		}
 	}
-	
+
 	idKeyInput::SetBinding( b, cmd );
 }
 
@@ -638,7 +638,7 @@ Writes lines containing "bind key value"
 void idKeyInput::WriteBindings( idFile* f )
 {
 	f->Printf( "unbindall\n" );
-	
+
 	for( int i = 0; i < K_LAST_KEY; i++ )
 	{
 		if( keys[i].binding.Length() )
@@ -675,7 +675,7 @@ const char* idKeyInput::KeysFromBinding( const char* bind )
 {
 	static char keyName[MAX_STRING_CHARS];
 	keyName[0] = 0;
-	
+
 	if( bind && *bind )
 	{
 		for( int i = 0; i < K_LAST_KEY; i++ )
@@ -710,7 +710,7 @@ keyBindings_t idKeyInput::KeyBindingsFromBinding( const char* bind, bool firstOn
 	idStr keyboard;
 	idStr mouse;
 	idStr gamepad;
-	
+
 	if( bind && *bind )
 	{
 		for( int i = 0; i < K_LAST_KEY; i++ )
@@ -792,12 +792,12 @@ keyBindings_t idKeyInput::KeyBindingsFromBinding( const char* bind, bool firstOn
 			}
 		}
 	}
-	
+
 	keyBindings_t bindings;
 	bindings.gamepad = gamepad;
 	bindings.mouse = mouse;
 	bindings.keyboard = keyboard;
-	
+
 	return bindings;
 }
 
@@ -847,7 +847,7 @@ idKeyInput::NumBinds
 int idKeyInput::NumBinds( const char* binding )
 {
 	int count = 0;
-	
+
 	if( binding && *binding )
 	{
 		for( int i = 0; i < K_LAST_KEY; i++ )
@@ -901,7 +901,7 @@ bool idKeyInput::ExecKeyBinding( int keynum )
 	{
 		return false;
 	}
-	
+
 	// send the bound action
 	if( keys[keynum].binding.Length() )
 	{
@@ -926,7 +926,7 @@ void idKeyInput::ClearStates()
 		}
 		keys[i].down = false;
 	}
-	
+
 	// clear the usercommand states
 	usercmdGen->Clear();
 }
@@ -940,7 +940,7 @@ void idKeyInput::Init()
 {
 
 	keys = new( TAG_SYSTEM ) idKey[K_LAST_KEY];
-	
+
 	// register our functions
 	cmdSystem->AddCommand( "bind", Key_Bind_f, CMD_FL_SYSTEM, "binds a command to a key", idKeyInput::ArgCompletion_KeyName );
 	cmdSystem->AddCommand( "bindunbindtwo", Key_BindUnBindTwo_f, CMD_FL_SYSTEM, "binds a key but unbinds it first if there are more than two binds" );

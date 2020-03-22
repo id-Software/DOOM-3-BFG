@@ -61,7 +61,7 @@ void idDebugGraph::Init( int numBars )
 {
 	bars.SetNum( numBars );
 	labels.Clear();
-	
+
 	for( int i = 0; i < numBars; i++ )
 	{
 		bars[i].value = 0.0f;
@@ -130,21 +130,21 @@ void idDebugGraph::Render( idRenderSystem* gui )
 	{
 		return;
 	}
-	
+
 	gui->DrawFilled( bgColor, position.x, position.y, position.z, position.w );
-	
+
 	if( bars.Num() == 0 )
 	{
 		return;
 	}
-	
+
 	if( sideways )
 	{
 		float barWidth = position.z - border * 2.0f;
 		float barHeight = ( ( position.w - border ) / ( float )bars.Num() );
 		float barLeft = position.x + border;
 		float barTop = position.y + border;
-		
+
 		for( int i = 0; i < bars.Num(); i++ )
 		{
 			idVec4 rect( vec4_zero );
@@ -187,7 +187,7 @@ void idDebugGraph::Render( idRenderSystem* gui )
 		float barLeft = position.x + border;
 		float barTop = position.y + border;
 		float barBottom = barTop + barHeight;
-		
+
 		for( int i = 0; i < grid.Num(); i++ )
 		{
 			idVec4 rect( position.x, barBottom - barHeight * grid[i].value, position.z, 1.0f );

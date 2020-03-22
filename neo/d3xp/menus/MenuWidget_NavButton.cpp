@@ -41,15 +41,15 @@ void idMenuWidget_NavButton::Update()
 	{
 		return;
 	}
-	
+
 	if( btnLabel.IsEmpty() )
 	{
 		GetSprite()->SetVisible( false );
 		return;
 	}
-	
+
 	GetSprite()->SetVisible( true );
-	
+
 	idSWFScriptObject* const spriteObject = GetSprite()->GetScriptObject();
 	idSWFTextInstance* const text = spriteObject->GetNestedText( "txtVal" );
 	if( text != NULL )
@@ -57,9 +57,9 @@ void idMenuWidget_NavButton::Update()
 		text->SetText( btnLabel.c_str() );
 		text->SetStrokeInfo( true, 0.7f, 1.25f );
 	}
-	
+
 	GetSprite()->SetXPos( xPos );
-	
+
 	if( navState == NAV_WIDGET_SELECTED )
 	{
 		idSWFSpriteInstance* backing = GetSprite()->GetScriptObject()->GetNestedSprite( "backing" );
@@ -68,25 +68,25 @@ void idMenuWidget_NavButton::Update()
 			backing->SetXPos( text->GetTextLength() + 53.0f );
 		}
 	}
-	
+
 	//
 	// events
 	//
-	
+
 	idSWFScriptObject* textObj = spriteObject->GetNestedObj( "txtVal" );
-	
+
 	if( textObj != NULL )
 	{
-	
+
 		textObj->Set( "onPress", new( TAG_SWF ) WrapWidgetSWFEvent( this, WIDGET_EVENT_PRESS, 0 ) );
 		textObj->Set( "onRelease", new( TAG_SWF ) WrapWidgetSWFEvent( this, WIDGET_EVENT_RELEASE, 0 ) );
-		
+
 		idSWFScriptObject* hitBox = spriteObject->GetObject( "hitBox" );
 		if( hitBox == NULL )
 		{
 			hitBox = textObj;
 		}
-		
+
 		hitBox->Set( "onRollOver", new( TAG_SWF ) WrapWidgetSWFEvent( this, WIDGET_EVENT_ROLL_OVER, 0 ) );
 		hitBox->Set( "onRollOut", new( TAG_SWF ) WrapWidgetSWFEvent( this, WIDGET_EVENT_ROLL_OUT, 0 ) );
 	}
@@ -101,7 +101,7 @@ bool idMenuWidget_NavButton::ExecuteEvent( const idWidgetEvent& event )
 {
 
 	bool handled = false;
-	
+
 	//// do nothing at all if it's disabled
 	if( GetState() != WIDGET_STATE_DISABLED )
 	{
@@ -124,9 +124,9 @@ bool idMenuWidget_NavButton::ExecuteEvent( const idWidgetEvent& event )
 			}
 		}
 	}
-	
+
 	idMenuWidget::ExecuteEvent( event );
-	
+
 	return handled;
 }
 
@@ -146,60 +146,60 @@ void idMenuWidget_MenuButton::Update()
 	{
 		return;
 	}
-	
+
 	if( btnLabel.IsEmpty() )
 	{
 		GetSprite()->SetVisible( false );
 		return;
 	}
-	
+
 	GetSprite()->SetVisible( true );
-	
+
 	idSWFScriptObject* const spriteObject = GetSprite()->GetScriptObject();
 	idSWFTextInstance* const text = spriteObject->GetNestedText( "txtVal" );
 	if( text != NULL )
 	{
 		text->SetText( btnLabel.c_str() );
 		text->SetStrokeInfo( true, 0.7f, 1.25f );
-		
+
 		idSWFSpriteInstance* selBar = spriteObject->GetNestedSprite( "sel", "bar" );
 		idSWFSpriteInstance* hoverBar = spriteObject->GetNestedSprite( "hover", "bar" );
-		
+
 		if( selBar != NULL )
 		{
 			selBar->SetXPos( text->GetTextLength() / 2.0f );
 			selBar->SetScale( 100.0f * ( text->GetTextLength() / 300.0f ), 100.0f );
 		}
-		
+
 		if( hoverBar != NULL )
 		{
 			hoverBar->SetXPos( text->GetTextLength() / 2.0f );
 			hoverBar->SetScale( 100.0f * ( text->GetTextLength() / 352.0f ), 100.0f );
 		}
-		
+
 		idSWFSpriteInstance* hitBox = spriteObject->GetNestedSprite( "hitBox" );
 		if( hitBox != NULL )
 		{
 			hitBox->SetScale( 100.0f * ( text->GetTextLength() / 235 ), 100.0f );
 		}
 	}
-	
+
 	GetSprite()->SetXPos( xPos );
-	
+
 	idSWFScriptObject* textObj = spriteObject->GetNestedObj( "txtVal" );
-	
+
 	if( textObj != NULL )
 	{
-	
+
 		textObj->Set( "onPress", new( TAG_SWF ) WrapWidgetSWFEvent( this, WIDGET_EVENT_PRESS, 0 ) );
 		textObj->Set( "onRelease", new( TAG_SWF ) WrapWidgetSWFEvent( this, WIDGET_EVENT_RELEASE, 0 ) );
-		
+
 		idSWFScriptObject* hitBox = spriteObject->GetObject( "hitBox" );
 		if( hitBox == NULL )
 		{
 			hitBox = textObj;
 		}
-		
+
 		hitBox->Set( "onRollOver", new( TAG_SWF ) WrapWidgetSWFEvent( this, WIDGET_EVENT_ROLL_OVER, 0 ) );
 		hitBox->Set( "onRollOut", new( TAG_SWF ) WrapWidgetSWFEvent( this, WIDGET_EVENT_ROLL_OUT, 0 ) );
 	}

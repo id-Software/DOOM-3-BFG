@@ -98,7 +98,7 @@ struct leaderboardDefinition_t
 		checkAgainstCurrent( false )
 	{
 	}
-	
+
 	leaderboardDefinition_t( int id_, int numColumns_, const columnDef_t* columnDefs_, rankOrder_t rankOrder_, bool supportsAttachments_, bool checkAgainstCurrent_ ) :
 		id( id_ ),
 		numColumns( numColumns_ ),
@@ -108,7 +108,7 @@ struct leaderboardDefinition_t
 		checkAgainstCurrent( checkAgainstCurrent_ )
 	{
 	}
-	
+
 	int32				id;
 	int32				numColumns;
 	const columnDef_t* 	columnDefs;
@@ -122,7 +122,7 @@ struct column_t
 {
 	column_t( int64 value_ ) : value( value_ ) {}
 	column_t() {}
-	
+
 	int64				value;
 };
 

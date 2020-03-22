@@ -48,12 +48,12 @@ public:
 	idHashIndex();
 	idHashIndex( const int initialHashSize, const int initialIndexSize );
 	~idHashIndex();
-	
+
 	// returns total size of allocated memory
 	size_t			Allocated() const;
 	// returns total size of allocated memory including size of hash index type
 	size_t			Size() const;
-	
+
 	idHashIndex& 	operator=( const idHashIndex& other );
 	// add an index to the hash, assumes the index has not yet been added to the hash
 	void			Add( const int key, const int index );
@@ -63,7 +63,7 @@ public:
 	int				First( const int key ) const;
 	// get the next index from the hash, returns -1 if at the end of the hash chain
 	int				Next( const int index ) const;
-	
+
 	// For porting purposes...
 	int				GetFirst( const int key ) const
 	{
@@ -73,7 +73,7 @@ public:
 	{
 		return Next( index );
 	}
-	
+
 	// insert an entry into the index and add it to the hash, increasing all indexes >= index
 	void			InsertIndex( const int key, const int index );
 	// remove an entry from the index and remove it from the hash, decreasing all indexes >= index
@@ -102,7 +102,7 @@ public:
 	int				GenerateKey( const int n1, const int n2 ) const;
 	// returns a key for a single integer
 	int				GenerateKey( const int n ) const;
-	
+
 private:
 	int				hashSize;
 	int* 			hash;
@@ -111,9 +111,9 @@ private:
 	int				granularity;
 	int				hashMask;
 	int				lookupMask;
-	
+
 	static int		INVALID_INDEX[1];
-	
+
 	void			Init( const int initialHashSize, const int initialIndexSize );
 	void			Allocate( const int newHashSize, const int newIndexSize );
 };
@@ -178,7 +178,7 @@ ID_INLINE idHashIndex& idHashIndex::operator=( const idHashIndex& other )
 	granularity = other.granularity;
 	hashMask = other.hashMask;
 	lookupMask = other.lookupMask;
-	
+
 	if( other.lookupMask == 0 )
 	{
 		hashSize = other.hashSize;
@@ -208,7 +208,7 @@ ID_INLINE idHashIndex& idHashIndex::operator=( const idHashIndex& other )
 		memcpy( hash, other.hash, hashSize * sizeof( hash[0] ) );
 		memcpy( indexChain, other.indexChain, indexSize * sizeof( indexChain[0] ) );
 	}
-	
+
 	return *this;
 }
 
@@ -220,7 +220,7 @@ idHashIndex::Add
 ID_INLINE void idHashIndex::Add( const int key, const int index )
 {
 	int h;
-	
+
 	assert( index >= 0 );
 	if( hash == INVALID_INDEX )
 	{
@@ -243,7 +243,7 @@ idHashIndex::Remove
 ID_INLINE void idHashIndex::Remove( const int key, const int index )
 {
 	int k = key & hashMask;
-	
+
 	if( hash == INVALID_INDEX )
 	{
 		return;
@@ -295,7 +295,7 @@ idHashIndex::InsertIndex
 ID_INLINE void idHashIndex::InsertIndex( const int key, const int index )
 {
 	int i, max;
-	
+
 	if( hash != INVALID_INDEX )
 	{
 		max = index;
@@ -342,7 +342,7 @@ idHashIndex::RemoveIndex
 ID_INLINE void idHashIndex::RemoveIndex( const int key, const int index )
 {
 	int i, max;
-	
+
 	Remove( key, index );
 	if( hash != INVALID_INDEX )
 	{

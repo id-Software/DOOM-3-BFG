@@ -45,9 +45,9 @@ public:
 	virtual const char* 	DefaultDefinition() const;
 	virtual bool			Parse( const char* text, const int textLength, bool allowBinaryVersion );
 	virtual void			FreeData();
-	
+
 	float					TableLookup( float index ) const;
-	
+
 private:
 	bool					clamp;
 	bool					snap;

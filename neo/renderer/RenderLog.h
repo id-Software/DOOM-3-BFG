@@ -35,7 +35,7 @@ Contains the RenderLog declaration.
 */
 
 #if defined(ID_RETAIL) && !defined(ID_RETAIL_INTERNAL)
-#define STUB_RENDER_LOG
+	#define STUB_RENDER_LOG
 #endif
 
 enum renderLogMainBlock_t
@@ -83,7 +83,7 @@ class idRenderLog
 {
 public:
 	idRenderLog();
-	
+
 	void		StartFrame();
 	void		EndFrame();
 	void		Close();
@@ -91,21 +91,21 @@ public:
 	{
 		return activeLevel;    // returns greater than 1 for more detailed logging
 	}
-	
+
 	// The label must be a constant string literal and may not point to a temporary.
 	void		OpenMainBlock( renderLogMainBlock_t block );
 	void		CloseMainBlock();
-	
+
 	void		OpenBlock( const char* label );
 	void		CloseBlock();
-	
+
 	void		Indent( renderLogIndentLabel_t label = RENDER_LOG_INDENT_DEFAULT );
 	void		Outdent( renderLogIndentLabel_t label = RENDER_LOG_INDENT_DEFAULT );
-	
+
 	void		Printf( VERIFY_FORMAT_STRING const char* fmt, ... );
-	
+
 	static const int		MAX_LOG_LEVELS = 20;
-	
+
 	int						activeLevel;
 	renderLogIndentLabel_t	indentLabel[MAX_LOG_LEVELS];
 	char					indentString[MAX_LOG_LEVELS * 4];
@@ -120,12 +120,12 @@ public:
 		int		startDraws;
 		int		startIndexes;
 	};
-	
+
 	uint64					frameStartTime;
 	uint64					closeBlockTime;
 	logStats_t				logStats[MAX_LOG_LEVELS];
 	int						logLevel;
-	
+
 	void					LogOpenBlock( renderLogIndentLabel_t label, const char* fmt, ... );
 	void					LogCloseBlock( renderLogIndentLabel_t label );
 };
@@ -178,7 +178,7 @@ class idRenderLog
 {
 public:
 	idRenderLog() {}
-	
+
 	void		StartFrame() {}
 	void		EndFrame() {}
 	void		Close() {}
@@ -186,16 +186,16 @@ public:
 	{
 		return 0;
 	}
-	
+
 	void		OpenBlock( const char* label );
 	void		CloseBlock();
 	void		OpenMainBlock( renderLogMainBlock_t block ) {}
 	void		CloseMainBlock() {}
 	void		Indent( renderLogIndentLabel_t label = RENDER_LOG_INDENT_DEFAULT ) {}
 	void		Outdent( renderLogIndentLabel_t label = RENDER_LOG_INDENT_DEFAULT ) {}
-	
+
 	void		Printf( VERIFY_FORMAT_STRING const char* fmt, ... ) {}
-	
+
 	int			activeLevel;
 };
 

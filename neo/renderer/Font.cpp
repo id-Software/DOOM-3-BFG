@@ -52,30 +52,30 @@ idFont::RemapFont
 idFont* idFont::RemapFont( const char* baseName )
 {
 	idStr cleanName = baseName;
-	
+
 	if( cleanName == DEFAULT_FONT )
 	{
 		return NULL;
 	}
-	
+
 	const char* remapped = idLocalization::FindString( "#font_" + cleanName );
 	if( remapped != NULL )
 	{
 		return renderSystem->RegisterFont( remapped );
 	}
-	
+
 	const char* wildcard = idLocalization::FindString( "#font_*" );
 	if( wildcard != NULL && cleanName.Icmp( wildcard ) != 0 )
 	{
 		return renderSystem->RegisterFont( wildcard );
 	}
-	
+
 	// Note single | so both sides are always executed
 	if( cleanName.ReplaceChar( ' ', '_' ) | cleanName.ReplaceChar( '-', '_' ) )
 	{
 		return renderSystem->RegisterFont( cleanName );
 	}
-	
+
 	return NULL;
 }
 
@@ -98,7 +98,7 @@ idFont::idFont( const char* n ) : name( n )
 {
 	fontInfo = NULL;
 	alias = RemapFont( n );
-	
+
 	if( alias != NULL )
 	{
 		// Make sure we don't have a circular reference
@@ -111,7 +111,7 @@ idFont::idFont( const char* n ) : name( n )
 		}
 		return;
 	}
-	
+
 	if( !LoadFont() )
 	{
 		if( name.Icmp( DEFAULT_FONT ) == 0 )
@@ -193,10 +193,10 @@ bool idFont::LoadFont()
 	{
 		return false;
 	}
-	
+
 	const int FONT_INFO_VERSION = 42;
 	const int FONT_INFO_MAGIC = ( FONT_INFO_VERSION | ( 'i' << 24 ) | ( 'd' << 16 ) | ( 'f' << 8 ) );
-	
+
 	uint32 version = 0;
 	fd->ReadBig( version );
 	if( version != FONT_INFO_MAGIC )
@@ -205,24 +205,24 @@ bool idFont::LoadFont()
 		delete fd;
 		return false;
 	}
-	
+
 	fontInfo = new( TAG_FONT ) fontInfo_t;
-	
+
 	short pointSize = 0;
-	
+
 	fd->ReadBig( pointSize );
 	assert( pointSize == 48 );
-	
+
 	fd->ReadBig( fontInfo->ascender );
 	fd->ReadBig( fontInfo->descender );
-	
+
 	fd->ReadBig( fontInfo->numGlyphs );
-	
+
 	fontInfo->glyphData = ( glyphInfo_t* )Mem_Alloc( sizeof( glyphInfo_t ) * fontInfo->numGlyphs, TAG_FONT );
 	fontInfo->charIndex = ( uint32* )Mem_Alloc( sizeof( uint32 ) * fontInfo->numGlyphs, TAG_FONT );
-	
+
 	fd->Read( fontInfo->glyphData, fontInfo->numGlyphs * sizeof( glyphInfo_t ) );
-	
+
 	for( int i = 0; i < fontInfo->numGlyphs; i++ )
 	{
 		idSwap::Little( fontInfo->glyphData[i].width );
@@ -233,10 +233,10 @@ bool idFont::LoadFont()
 		idSwap::Little( fontInfo->glyphData[i].s );
 		idSwap::Little( fontInfo->glyphData[i].t );
 	}
-	
+
 	fd->Read( fontInfo->charIndex, fontInfo->numGlyphs * sizeof( uint32 ) );
 	idSwap::LittleArray( fontInfo->charIndex, fontInfo->numGlyphs );
-	
+
 	memset( fontInfo->ascii, -1, sizeof( fontInfo->ascii ) );
 	for( int i = 0; i < fontInfo->numGlyphs; i++ )
 	{
@@ -250,13 +250,13 @@ bool idFont::LoadFont()
 			break;
 		}
 	}
-	
+
 	idStr fontTextureName = fontName;
 	fontTextureName.SetFileExtension( "tga" );
-	
+
 	fontInfo->material = declManager->FindMaterial( fontTextureName );
 	fontInfo->material->SetSort( SS_GUI );
-	
+
 	// Load the old glyph data because we want our new fonts to fit in the old glyph metrics
 	int pointSizes[3] = { 12, 24, 48 };
 	float scales[3] = { 4.0f, 2.0f, 1.0f };

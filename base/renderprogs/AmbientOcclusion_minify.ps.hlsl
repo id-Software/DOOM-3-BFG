@@ -19,12 +19,12 @@
 
 // *INDENT-OFF*
 uniform sampler2D samp0 : register( s0 ); // zbuffer
- 
+
 struct PS_IN
 {
 	float2 texcoord0 : TEXCOORD0_centroid;
 };
- 
+
 struct PS_OUT 
 {
 	float4 color : COLOR;
@@ -36,18 +36,18 @@ struct PS_OUT
 //#expect USE_PEELED_DEPTH_BUFFER "binary"
 
 #if 0 //( USE_PEELED_DEPTH_BUFFER != 0 )
-#define mask rg
+	#define mask rg
 #else
-#define mask r
+	#define mask r
 #endif
 
 float reconstructCSZ( float d )
 {
 	//return clipInfo[0] / (clipInfo[1] * d + clipInfo[2]);
-	
+
 	// infinite far perspective matrix
 	return -3.0 / ( -1.0 * d + 1.0 );
-	
+
 	//d = d * 2.0 - 1.0;
 	//return -rpProjectionMatrixZ.w / ( -rpProjectionMatrixZ.z - d );
 }
@@ -62,17 +62,17 @@ void main( PS_IN fragment, out PS_OUT result )
 #else
 	//int2 ssP = int2( gl_FragCoord.xy );
 	int2 ssP = int2( fragment.texcoord0 * rpScreenCorrectionFactor.zw );
-	
+
 	int previousMIPNumber = int( rpJitterTexScale.x );
-	
+
 	// Rotated grid subsampling to avoid XY directional bias or Z precision bias while downsampling.
 	// On DX9, the bit-and can be implemented with floating-point modulo
 	//result.color.mask = texture( samp0, clamp( ssP * 2 + int2( ssP.y & 1, ssP.x & 1 ), int2( 0 ), textureSize( samp0, previousMIPNumber ) - int2( 1 ) ) * rpScreenCorrectionFactor.xy, previousMIPNumber ).mask;
 	result.color.mask = texelFetch( samp0, clamp( ssP * 2 + int2( ssP.y & 1, ssP.x & 1 ), int2( 0 ), textureSize( samp0, previousMIPNumber ) - int2( 1 ) ), previousMIPNumber ).mask;
 	//result.color.mask = texelFetch2D( samp0, int3( ssP * 2 + int2( ( ssP.y & 1 ) ^ 1, ( ssP.x & 1 ) ^ 1 ), 0 ) );
-	
+
 	// result.color.mask = texelFetch( samp0, ssP, 0 ).r;
-	
+
 	//float2 ssC = float2( ssP * 2 + int2( ( ssP.y & 1 ) ^ 1, ( ssP.x & 1 ) ^ 1 ) ) * rpScreenCorrectionFactor.xy;
 	//float2 ssC = float2( ssP ) * rpScreenCorrectionFactor.xy;
 	//float2 ssC = fragment.texcoord0;

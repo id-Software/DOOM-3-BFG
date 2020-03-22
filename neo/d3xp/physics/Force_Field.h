@@ -56,10 +56,10 @@ class idForce_Field : public idForce
 
 public:
 	CLASS_PROTOTYPE( idForce_Field );
-	
+
 	void				Save( idSaveGame* savefile ) const;
 	void				Restore( idRestoreGame* savefile );
-	
+
 	idForce_Field();
 	virtual				~idForce_Field();
 	// uniform constant force
@@ -87,10 +87,10 @@ public:
 	}
 	// clip model describing the extents of the force field
 	void				SetClipModel( idClipModel* clipModel );
-	
+
 public: // common force interface
 	virtual void		Evaluate( int time );
-	
+
 private:
 	// force properties
 	forceFieldType		type;

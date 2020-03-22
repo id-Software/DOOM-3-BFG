@@ -45,14 +45,14 @@ idMenuScreen_Shell_GameOptions::Initialize
 void idMenuScreen_Shell_GameOptions::Initialize( idMenuHandler* data )
 {
 	idMenuScreen::Initialize( data );
-	
+
 	if( data != NULL )
 	{
 		menuGUI = data->GetGUI();
 	}
-	
+
 	SetSpritePath( "menuGameOptions" );
-	
+
 	options = new( TAG_SWF ) idMenuWidget_DynamicList();
 	options->SetNumVisibleOptions( NUM_GAME_OPTIONS_OPTIONS );
 	options->SetSpritePath( GetSpritePath(), "info", "options" );
@@ -60,16 +60,16 @@ void idMenuScreen_Shell_GameOptions::Initialize( idMenuHandler* data )
 	options->SetControlList( true );
 	options->Initialize( data );
 	AddChild( options );
-	
+
 	btnBack = new( TAG_SWF ) idMenuWidget_Button();
 	btnBack->Initialize( data );
 	btnBack->SetLabel( "#str_swf_settings" );
 	btnBack->SetSpritePath( GetSpritePath(), "info", "btnBack" );
 	btnBack->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_GO_BACK );
 	AddChild( btnBack );
-	
+
 	idMenuWidget_ControlButton* control;
-	
+
 	control = new( TAG_SWF ) idMenuWidget_ControlButton();
 	control->SetOptionType( OPTION_SLIDER_TEXT );
 	control->SetLabel( "#str_swf_fov" );
@@ -77,7 +77,7 @@ void idMenuScreen_Shell_GameOptions::Initialize( idMenuHandler* data )
 	control->SetupEvents( DEFAULT_REPEAT_TIME, options->GetChildren().Num() );
 	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_PRESS_FOCUSED, options->GetChildren().Num() );
 	options->AddChild( control );
-	
+
 	control = new( TAG_SWF ) idMenuWidget_ControlButton();
 	control->SetOptionType( OPTION_SLIDER_TOGGLE );
 	control->SetLabel( "#str_swf_checkpoints" );
@@ -85,7 +85,7 @@ void idMenuScreen_Shell_GameOptions::Initialize( idMenuHandler* data )
 	control->SetupEvents( DEFAULT_REPEAT_TIME, options->GetChildren().Num() );
 	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_PRESS_FOCUSED, options->GetChildren().Num() );
 	options->AddChild( control );
-	
+
 	control = new( TAG_SWF ) idMenuWidget_ControlButton();
 	control->SetOptionType( OPTION_SLIDER_TOGGLE );
 	control->SetLabel( "#str_02135" );	// Auto Weapon Switch
@@ -93,7 +93,7 @@ void idMenuScreen_Shell_GameOptions::Initialize( idMenuHandler* data )
 	control->SetupEvents( DEFAULT_REPEAT_TIME, options->GetChildren().Num() );
 	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_PRESS_FOCUSED, options->GetChildren().Num() );
 	options->AddChild( control );
-	
+
 	control = new( TAG_SWF ) idMenuWidget_ControlButton();
 	control->SetOptionType( OPTION_SLIDER_TOGGLE );
 	control->SetLabel( "#str_02134" );	// Auto Weapon Reload
@@ -101,7 +101,7 @@ void idMenuScreen_Shell_GameOptions::Initialize( idMenuHandler* data )
 	control->SetupEvents( DEFAULT_REPEAT_TIME, options->GetChildren().Num() );
 	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_PRESS_FOCUSED, options->GetChildren().Num() );
 	options->AddChild( control );
-	
+
 	control = new( TAG_SWF ) idMenuWidget_ControlButton();
 	control->SetOptionType( OPTION_SLIDER_TOGGLE );
 	control->SetLabel( "#str_swf_aim_assist" );	// Aim Assist
@@ -109,7 +109,7 @@ void idMenuScreen_Shell_GameOptions::Initialize( idMenuHandler* data )
 	control->SetupEvents( DEFAULT_REPEAT_TIME, options->GetChildren().Num() );
 	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_PRESS_FOCUSED, options->GetChildren().Num() );
 	options->AddChild( control );
-	
+
 	control = new( TAG_SWF ) idMenuWidget_ControlButton();
 	control->SetOptionType( OPTION_SLIDER_TOGGLE );
 	control->SetLabel( "#str_04102" );	// Always Run
@@ -117,7 +117,7 @@ void idMenuScreen_Shell_GameOptions::Initialize( idMenuHandler* data )
 	control->SetupEvents( DEFAULT_REPEAT_TIME, options->GetChildren().Num() );
 	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_PRESS_FOCUSED, options->GetChildren().Num() );
 	options->AddChild( control );
-	
+
 	control = new( TAG_SWF ) idMenuWidget_ControlButton();
 	control->SetOptionType( OPTION_SLIDER_TOGGLE );
 	control->SetLabel( "#str_swf_flashlight_shadows" );
@@ -125,7 +125,7 @@ void idMenuScreen_Shell_GameOptions::Initialize( idMenuHandler* data )
 	control->SetupEvents( DEFAULT_REPEAT_TIME, options->GetChildren().Num() );
 	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_PRESS_FOCUSED, options->GetChildren().Num() );
 	options->AddChild( control );
-	
+
 	control = new( TAG_SWF )idMenuWidget_ControlButton();
 	control->SetOptionType( OPTION_SLIDER_TOGGLE );
 	control->SetLabel( "Muzzle Flashes" );
@@ -133,7 +133,7 @@ void idMenuScreen_Shell_GameOptions::Initialize( idMenuHandler* data )
 	control->SetupEvents( DEFAULT_REPEAT_TIME, options->GetChildren().Num() );
 	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_PRESS_FOCUSED, options->GetChildren().Num() );
 	options->AddChild( control );
-	
+
 	options->AddEventAction( WIDGET_EVENT_SCROLL_DOWN ).Set( new( TAG_SWF ) idWidgetActionHandler( options, WIDGET_ACTION_EVENT_SCROLL_DOWN_START_REPEATER, WIDGET_EVENT_SCROLL_DOWN ) );
 	options->AddEventAction( WIDGET_EVENT_SCROLL_UP ).Set( new( TAG_SWF ) idWidgetActionHandler( options, WIDGET_ACTION_EVENT_SCROLL_UP_START_REPEATER, WIDGET_EVENT_SCROLL_UP ) );
 	options->AddEventAction( WIDGET_EVENT_SCROLL_DOWN_RELEASE ).Set( new( TAG_SWF ) idWidgetActionHandler( options, WIDGET_ACTION_EVENT_STOP_REPEATER, WIDGET_EVENT_SCROLL_DOWN_RELEASE ) );
@@ -165,12 +165,12 @@ void idMenuScreen_Shell_GameOptions::Update()
 				buttonInfo->label = "#str_00395";
 			}
 			buttonInfo->action.Set( WIDGET_ACTION_GO_BACK );
-			
+
 			buttonInfo = cmdBar->GetButton( idMenuWidget_CommandBar::BUTTON_JOY1 );
 			buttonInfo->action.Set( WIDGET_ACTION_PRESS_FOCUSED );
 		}
 	}
-	
+
 	idSWFScriptObject& root = GetSWFObject()->GetRootObject();
 	if( BindSprite( root ) )
 	{
@@ -180,19 +180,19 @@ void idMenuScreen_Shell_GameOptions::Update()
 			heading->SetText( "#str_02129" );	// SYSTEM SETTINGS
 			heading->SetStrokeInfo( true, 0.75f, 1.75f );
 		}
-		
+
 		idSWFSpriteInstance* gradient = GetSprite()->GetScriptObject()->GetNestedSprite( "info", "gradient" );
 		if( gradient != NULL && heading != NULL )
 		{
 			gradient->SetXPos( heading->GetTextLength() );
 		}
 	}
-	
+
 	if( btnBack != NULL )
 	{
 		btnBack->BindSprite( root );
 	}
-	
+
 	idMenuScreen::Update();
 }
 
@@ -233,15 +233,15 @@ bool idMenuScreen_Shell_GameOptions::HandleAction( idWidgetAction& action, const
 	{
 		return true;
 	}
-	
+
 	if( menuData->ActiveScreen() != SHELL_AREA_GAME_OPTIONS )
 	{
 		return false;
 	}
-	
+
 	widgetAction_t actionType = action.GetType();
 	const idSWFParmList& parms = action.GetParms();
-	
+
 	switch( actionType )
 	{
 		case WIDGET_ACTION_GO_BACK:
@@ -251,27 +251,27 @@ bool idMenuScreen_Shell_GameOptions::HandleAction( idWidgetAction& action, const
 		}
 		case WIDGET_ACTION_PRESS_FOCUSED:
 		{
-		
+
 			if( options == NULL )
 			{
 				return true;
 			}
-			
+
 			int selectionIndex = options->GetFocusIndex();
 			if( parms.Num() > 0 )
 			{
 				selectionIndex = parms[0].ToInteger();
 			}
-			
+
 			if( selectionIndex != options->GetFocusIndex() )
 			{
 				options->SetViewIndex( options->GetViewOffset() + selectionIndex );
 				options->SetFocusIndex( selectionIndex );
 			}
-			
+
 			systemData.AdjustField( selectionIndex, 1 );
 			options->Update();
-			
+
 			return true;
 		}
 		case WIDGET_ACTION_START_REPEATER:
@@ -288,7 +288,7 @@ bool idMenuScreen_Shell_GameOptions::HandleAction( idWidgetAction& action, const
 			break;
 		}
 	}
-	
+
 	return idMenuWidget::HandleAction( action, event, widget, forceHandled );
 }
 
@@ -343,7 +343,7 @@ void idMenuScreen_Shell_GameOptions::idMenuDataSource_GameSettings::CommitData()
 
 	g_fov.SetFloat( fields[ GAME_FIELD_FOV ].ToFloat() );
 	g_gun_x.SetFloat( Lerp( MIN_FOV_GUN, MAX_FOV_GUN, ( fields[ GAME_FIELD_FOV ].ToFloat() - MIN_FOV ) / ( MAX_FOV - MIN_FOV ) ) );
-	
+
 	g_checkpoints.SetBool( fields[ GAME_FIELD_CHECKPOINTS ].ToBool() );
 	ui_autoSwitch.SetBool( fields[ GAME_FIELD_AUTO_SWITCH ].ToBool() );
 	ui_autoReload.SetBool( fields[ GAME_FIELD_AUTO_RELOAD ].ToBool() );
@@ -351,9 +351,9 @@ void idMenuScreen_Shell_GameOptions::idMenuDataSource_GameSettings::CommitData()
 	in_alwaysRun.SetBool( fields[ GAME_FIELD_ALWAYS_SPRINT ].ToBool() );
 	g_weaponShadows.SetBool( fields[ GAME_FIELD_FLASHLIGHT_SHADOWS ].ToBool() );
 	g_muzzleFlash.SetBool( fields[ GAME_FIELD_MUZZLE_FLASHES ].ToBool() );
-	
+
 	cvarSystem->SetModifiedFlags( CVAR_ARCHIVE );
-	
+
 	// make the committed fields into the backup fields
 	originalFields = fields;
 }
@@ -387,37 +387,37 @@ bool idMenuScreen_Shell_GameOptions::idMenuDataSource_GameSettings::IsDataChange
 	{
 		return true;
 	}
-	
+
 	if( fields[ GAME_FIELD_CHECKPOINTS ].ToBool() != originalFields[ GAME_FIELD_CHECKPOINTS ].ToBool() )
 	{
 		return true;
 	}
-	
+
 	if( fields[ GAME_FIELD_AUTO_SWITCH ].ToBool() != originalFields[ GAME_FIELD_AUTO_SWITCH ].ToBool() )
 	{
 		return true;
 	}
-	
+
 	if( fields[ GAME_FIELD_AUTO_RELOAD ].ToBool() != originalFields[ GAME_FIELD_AUTO_RELOAD ].ToBool() )
 	{
 		return true;
 	}
-	
+
 	if( fields[ GAME_FIELD_AIM_ASSIST ].ToBool() != originalFields[ GAME_FIELD_AIM_ASSIST ].ToBool() )
 	{
 		return true;
 	}
-	
+
 	if( fields[ GAME_FIELD_ALWAYS_SPRINT ].ToBool() != originalFields[ GAME_FIELD_ALWAYS_SPRINT ].ToBool() )
 	{
 		return true;
 	}
-	
+
 	if( fields[ GAME_FIELD_FLASHLIGHT_SHADOWS ].ToBool() != originalFields[ GAME_FIELD_FLASHLIGHT_SHADOWS ].ToBool() )
 	{
 		return true;
 	}
-	
+
 	if( fields[ GAME_FIELD_MUZZLE_FLASHES ].ToBool() != originalFields[ GAME_FIELD_MUZZLE_FLASHES ].ToBool() )
 	{
 		return true;

@@ -46,29 +46,29 @@ public:
 		cacheHash.SetGranularity( 4096 );
 	}
 	~idFileManifest() {}
-	
+
 	bool LoadManifest( const char* fileName );
 	bool LoadManifestFromFile( idFile* file );
 	void WriteManifestFile( const char* fileName );
-	
+
 	int NumFiles()
 	{
 		return cacheTable.Num();
 	}
-	
+
 	int FindFile( const char* fileName );
-	
+
 	const idStr& GetFileNameByIndex( int idx ) const;
-	
-	
+
+
 	const char* GetManifestName()
 	{
 		return filename;
 	}
-	
+
 	void RemoveAll( const char* filename );
 	void AddFile( const char* filename );
-	
+
 	void PopulateList( idStaticList< idStr, 16384 >& dest )
 	{
 		dest.Clear();
@@ -77,7 +77,7 @@ public:
 			dest.Append( cacheTable[ i ] );
 		}
 	}
-	
+
 	void Print()
 	{
 		idLib::Printf( "dump for manifest %s\n", GetManifestName() );
@@ -91,7 +91,7 @@ public:
 			}
 		}
 	}
-	
+
 private:
 	idStrList cacheTable;
 	idHashIndex	cacheHash;
@@ -165,14 +165,14 @@ struct preloadEntry_s
 		outFile->WriteString( resourceName );
 		imgData.Write( outFile );
 	}
-	
+
 	void Read( idFile* inFile )
 	{
 		inFile->ReadBig( resType );
 		inFile->ReadString( resourceName );
 		imgData.Read( inFile );
 	}
-	
+
 	int				resType;		// type
 	idStr			resourceName;	// resource name
 	imagePreload_s	imgData;		// image specific data
@@ -200,10 +200,10 @@ public:
 		entries.SetGranularity( 2048 );
 	}
 	~idPreloadManifest() {}
-	
+
 	bool LoadManifest( const char* fileName );
 	bool LoadManifestFromFile( idFile* file );
-	
+
 	void WriteManifest( const char* fileName );
 	void WriteManifestToFile( idFile* outFile )
 	{
@@ -219,32 +219,32 @@ public:
 			entries[ i ].Write( outFile );
 		}
 	}
-	
+
 	int NumResources() const
 	{
 		return entries.Num();
 	}
-	
+
 	const preloadEntry_s& GetPreloadByIndex( int idx ) const
 	{
 		return entries[ idx ];
 	}
-	
+
 	const idStr& GetResourceNameByIndex( int idx ) const
 	{
 		return entries[ idx ].resourceName;
 	}
-	
+
 	const char* GetManifestName() const
 	{
 		return filename;
 	}
-	
+
 	void Add( const preloadEntry_s& p )
 	{
 		entries.AddUnique( p );
 	}
-	
+
 	void AddSample( const char* _resourceName )
 	{
 		static preloadEntry_s pe;
@@ -291,12 +291,12 @@ public:
 		pe.imgData.cubeMap = _cube;
 		entries.Append( pe );
 	}
-	
+
 	void Clear()
 	{
 		entries.Clear();
 	}
-	
+
 	int FindResource( const char* name )
 	{
 		for( int i = 0; i < entries.Num(); i++ )
@@ -308,7 +308,7 @@ public:
 		}
 		return -1;
 	}
-	
+
 	void Print()
 	{
 		idLib::Printf( "dump for preload manifest %s\n", GetManifestName() );

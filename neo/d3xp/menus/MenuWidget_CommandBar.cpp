@@ -85,27 +85,27 @@ void idMenuWidget_CommandBar::Update()
 	{
 		return;
 	}
-	
+
 	idSWFScriptObject& root = GetSWFObject()->GetRootObject();
-	
+
 	if( !BindSprite( root ) )
 	{
 		return;
 	}
-	
+
 	const int BASE_PADDING			= 35;
 	const int PER_BUTTON_PADDING	= 65;
 	const int ALIGNMENT_SCALE		= ( GetAlignment() == LEFT ) ? 1 : -1;
-	
+
 	int xPos = ALIGNMENT_SCALE * BASE_PADDING;
-	
+
 	// Setup the button order.
 	idStaticList< button_t, MAX_BUTTONS > buttonOrder;
 	for( int i = 0; i < buttonOrder.Max(); ++i )
 	{
 		buttonOrder.Append( static_cast< button_t >( i ) );
 	}
-	
+
 	// NOTE: Special consideration is done for JPN PS3 where the standard accept button is
 	// swapped with the standard back button.  i.e. In US: X = Accept, O = Back, but in JPN
 	// X = Back, O = Accept.
@@ -114,15 +114,15 @@ void idMenuWidget_CommandBar::Update()
 		buttonOrder[ BUTTON_JOY2 ] = BUTTON_JOY1;
 		buttonOrder[ BUTTON_JOY1 ] = BUTTON_JOY2;
 	}
-	
+
 	// FIXME: handle animating in of the button bar?
 	GetSprite()->SetVisible( true );
-	
+
 	idStr shortcutName;
 	for( int i = 0; i < buttonOrder.Num(); ++i )
 	{
 		const char* const buttonName = BUTTON_NAMES[ buttonOrder[ i ] ];
-		
+
 		idSWFSpriteInstance* const buttonSprite = GetSprite()->GetScriptObject()->GetSprite( buttonName );
 		if( buttonSprite == NULL )
 		{
@@ -138,19 +138,19 @@ void idMenuWidget_CommandBar::Update()
 		{
 			continue;
 		}
-		
+
 		if( buttons[ i ].action.GetType() != WIDGET_ACTION_NONE )
 		{
 			idSWFScriptObject* const shortcutKeys = GetSWFObject()->GetGlobal( "shortcutKeys" ).GetObject();
 			if( verify( shortcutKeys != NULL ) )
 			{
 				buttonSprite->GetScriptObject()->Set( "onPress", new WrapWidgetSWFEvent( this, WIDGET_EVENT_COMMAND, i ) );
-				
+
 				// bind the main action - need to use all caps here because shortcuts are stored that way
 				shortcutName = buttonName;
 				shortcutName.ToUpper();
 				shortcutKeys->Set( shortcutName, buttonSprite->GetScriptObject() );
-				
+
 				// Some other keys have additional bindings. Remember that the button here is
 				// actually the virtual button, and the physical button could be swapped based
 				// on the UseCircleForAccept business on JPN PS3.
@@ -174,7 +174,7 @@ void idMenuWidget_CommandBar::Update()
 					}
 				}
 			}
-			
+
 			if( buttons[ i ].label.IsEmpty() )
 			{
 				buttonSprite->SetVisible( false );
@@ -198,7 +198,7 @@ void idMenuWidget_CommandBar::Update()
 				// RB: 64 bit fixes, changed NULL to 0
 				buttonSprite->GetScriptObject()->Set( "onPress", 0 );
 				// RB end
-				
+
 				// bind the main action - need to use all caps here because shortcuts are stored that way
 				shortcutName = buttonName;
 				shortcutName.ToUpper();

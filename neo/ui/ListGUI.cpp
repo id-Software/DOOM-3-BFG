@@ -39,12 +39,12 @@ idListGUILocal::StateChanged
 void idListGUILocal::StateChanged()
 {
 	int i;
-	
+
 	if( !m_stateUpdates )
 	{
 		return;
 	}
-	
+
 	for( i = 0; i < Num(); i++ )
 	{
 		m_pGUI->SetStateString( va( "%s_item_%i", m_name.c_str(), i ), ( *this )[i].c_str() );

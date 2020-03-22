@@ -59,7 +59,7 @@ const char* Sys_EXEPath()
 {
 	static char path[1024];
 	uint32_t size = sizeof( path );
-	
+
 	if( _NSGetExecutablePath( path, &size ) != 0 )
 	{
 		Sys_Printf( "buffer too small to store exe path, need size %u\n", size );
@@ -99,14 +99,14 @@ double Sys_ClockTicksPerSecond()
 	static double	ret;
 	size_t len = sizeof( ret );
 	int status;
-	
+
 	if( init )
 	{
 		return ret;
 	}
-	
+
 	status = sysctlbyname( "hw.cpufrequency", &ret, &len, NULL, 0 );
-	
+
 	if( status == -1 )
 	{
 		common->Printf( "couldn't read systclbyname\n" );
@@ -115,10 +115,10 @@ double Sys_ClockTicksPerSecond()
 		common->Printf( "measured CPU frequency: %g MHz\n", ret / 1000000.0 );
 		return ret;
 	}
-	
+
 	common->Printf( "CPU frequency: %g MHz\n", ret / 1000000.0 );
 	init = true;
-	
+
 	return ret;
 }
 
@@ -135,31 +135,31 @@ numCPUPackages		- the total number of packages (physical processors)
 void Sys_CPUCount( int& numLogicalCPUCores, int& numPhysicalCPUCores, int& numCPUPackages )
 {
 	static bool		init = false;
-	
+
 	static int		s_numLogicalCPUCores;
 	static int		s_numPhysicalCPUCores;
 	static int		s_numCPUPackages;
-	
+
 	size_t len = sizeof( s_numPhysicalCPUCores );
-	
+
 	if( init )
 	{
 		numPhysicalCPUCores = s_numPhysicalCPUCores;
 		numLogicalCPUCores = s_numLogicalCPUCores;
 		numCPUPackages = s_numCPUPackages;
 	}
-	
+
 	s_numPhysicalCPUCores = 1;
 	s_numLogicalCPUCores = 1;
 	s_numCPUPackages = 1;
-	
-	
+
+
 	sysctlbyname( "hw.physicalcpu", &s_numPhysicalCPUCores, &len, NULL, 0 );
 	sysctlbyname( "hw.logicalcpu", &s_numLogicalCPUCores, &len, NULL, 0 );
-	
+
 	common->Printf( "CPU processors: %d\n", s_numPhysicalCPUCores );
 	common->Printf( "CPU logical cores: %d\n", s_numLogicalCPUCores );
-	
+
 	numPhysicalCPUCores = s_numPhysicalCPUCores;
 	numLogicalCPUCores = s_numLogicalCPUCores;
 	numCPUPackages = s_numCPUPackages;
@@ -258,7 +258,7 @@ void Sys_FPU_SetDAZ( bool enable )
 {
 	/*
 	DWORD dwData;
-	
+
 	_asm {
 		movzx	ecx, byte ptr enable
 		and		ecx, 1
@@ -282,7 +282,7 @@ void Sys_FPU_SetFTZ( bool enable )
 {
 	/*
 	DWORD dwData;
-	
+
 	_asm {
 		movzx	ecx, byte ptr enable
 		and		ecx, 1
@@ -320,15 +320,17 @@ void Sys_ReLaunch()
 	// NOTE: this function used to have parameters: the commandline arguments, but as one string..
 	//       for Linux/Unix we want one char* per argument so we'll just add the friggin'
 	//       " +set com_skipIntroVideos 1" to the other commandline arguments in this function.
-	
+
 	int ret = fork();
 	if( ret < 0 )
+	{
 		idLib::Error( "Sys_ReLaunch(): Couldn't fork(), reason: %s ", strerror( errno ) );
-		
+	}
+
 	if( ret == 0 )
 	{
 		// child process
-		
+
 		// get our own session so we don't depend on the (soon to be killed)
 		// parent process anymore - else we'll freeze
 		pid_t sId = setsid();
@@ -336,7 +338,7 @@ void Sys_ReLaunch()
 		{
 			idLib::Error( "Sys_ReLaunch(): setsid() failed! Reason: %s ", strerror( errno ) );
 		}
-		
+
 		// close all FDs (except for stdin/out/err) so we don't leak FDs
 		DIR* devfd = opendir( "/dev/fd" );
 		if( devfd != NULL )
@@ -349,37 +351,41 @@ void Sys_ReLaunch()
 				char* endptr = NULL;
 				long int fd = strtol( filename, &endptr, 0 );
 				if( endptr != filename && fd > STDERR_FILENO )
+				{
 					close( fd );
+				}
 			}
 		}
 		else
 		{
 			idLib::Warning( "Sys_ReLaunch(): Couldn't open /dev/fd/ - will leak file descriptors. Reason: %s", strerror( errno ) );
 		}
-		
+
 		// + 3 because "+set" "com_skipIntroVideos" "1" - and note that while we'll skip
 		// one (the first) cmdargv argument, we need one more pointer for NULL at the end.
 		int argc = cmdargc + 3;
 		const char** argv = ( const char** )calloc( argc, sizeof( char* ) );
-		
+
 		int i;
 		for( i = 0; i < cmdargc - 1; ++i )
-			argv[i] = cmdargv[i + 1]; // ignore cmdargv[0] == executable name
-			
+		{
+			argv[i] = cmdargv[i + 1];    // ignore cmdargv[0] == executable name
+		}
+
 		// add +set com_skipIntroVideos 1
 		argv[i++] = "+set";
 		argv[i++] = "com_skipIntroVideos";
 		argv[i++] = "1";
 		// execv expects NULL terminated array
 		argv[i] = NULL;
-		
+
 		const char* exepath = Sys_EXEPath();
-		
+
 		errno = 0;
 		execv( exepath, ( char** )argv );
 		// we only get here if execv() fails, else the executable is restarted
 		idLib::Error( "Sys_ReLaunch(): WTF exec() failed! Reason: %s ", strerror( errno ) );
-		
+
 	}
 	else
 	{
@@ -418,7 +424,7 @@ int clock_gettime( clk_id_t clock, struct timespec* tp )
 			tp->tv_nsec = tm.tv_nsec;
 			break;
 		}
-		
+
 		case CLOCK_REALTIME:
 		default:
 		{
@@ -446,9 +452,9 @@ int main( int argc, const char** argv )
 	cmdargc = argc;
 	cmdargv = argv;
 	// DG end
-	
+
 	Posix_EarlyInit( );
-	
+
 	if( argc > 1 )
 	{
 		common->Init( argc - 1, &argv[1], NULL );
@@ -457,9 +463,9 @@ int main( int argc, const char** argv )
 	{
 		common->Init( 0, NULL, NULL );
 	}
-	
+
 	Posix_LateInit( );
-	
+
 	while( 1 )
 	{
 		common->Frame();

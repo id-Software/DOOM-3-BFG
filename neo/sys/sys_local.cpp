@@ -45,7 +45,7 @@ idSys* 				sys = &sysLocal;
 void idSysLocal::DebugPrintf( const char* fmt, ... )
 {
 	va_list argptr;
-	
+
 	va_start( argptr, fmt );
 	Sys_DebugVPrintf( fmt, argptr );
 	va_end( argptr );
@@ -162,7 +162,7 @@ const char* Sys_TimeStampToStr( ID_TIME_T timeStamp )
 {
 	static char timeString[MAX_STRING_CHARS];
 	timeString[0] = '\0';
-	
+
 	time_t ts = ( time_t )timeStamp;
 	tm*	time = localtime( &ts );
 	if( time == NULL )
@@ -170,9 +170,9 @@ const char* Sys_TimeStampToStr( ID_TIME_T timeStamp )
 		// String separated to prevent detection of trigraphs
 		return "??" "/" "??" "/" "???? ??:??";
 	}
-	
+
 	idStr out;
-	
+
 	idStr lang = cvarSystem->GetCVarString( "sys_lang" );
 	if( lang.Icmp( ID_LANG_ENGLISH ) == 0 )
 	{
@@ -220,7 +220,7 @@ const char* Sys_TimeStampToStr( ID_TIME_T timeStamp )
 		out += va( "%02d", time->tm_min );
 	}
 	idStr::Copynz( timeString, out, sizeof( timeString ) );
-	
+
 	return timeString;
 }
 
@@ -232,19 +232,19 @@ Sys_SecToStr
 const char* Sys_SecToStr( int sec )
 {
 	static char timeString[MAX_STRING_CHARS];
-	
+
 	int weeks = sec / ( 3600 * 24 * 7 );
 	sec -= weeks * ( 3600 * 24 * 7 );
-	
+
 	int days = sec / ( 3600 * 24 );
 	sec -= days * ( 3600 * 24 );
-	
+
 	int hours = sec / 3600;
 	sec -= hours * 3600;
-	
+
 	int min = sec / 60;
 	sec -= min * 60;
-	
+
 	if( weeks > 0 )
 	{
 		sprintf( timeString, "%dw, %dd, %d:%02d:%02d", weeks, days, hours, min, sec );
@@ -257,7 +257,7 @@ const char* Sys_SecToStr( int sec )
 	{
 		sprintf( timeString, "%d:%02d:%02d", hours, min, sec );
 	}
-	
+
 	return timeString;
 }
 
@@ -285,30 +285,30 @@ const char* Sys_DefaultLanguage()
 	//   FIGS	EU
 	//  E		UK
 	// JE    	Japan
-	
+
 	// If japanese exists, default to japanese
 	// else if english exists, defaults to english
 	// otherwise, french
-	
+
 	if( !fileSystem->UsingResourceFiles() )
 	{
 		return ID_LANG_ENGLISH;
 	}
-	
+
 	idStr fileName;
-	
+
 	//D3XP: Instead of just loading a single lang file for each language
 	//we are going to load all files that begin with the language name
 	//similar to the way pak files work. So you can place english001.lang
 	//to add new strings to the english language dictionary
 	idFileList* langFiles;
 	langFiles = fileSystem->ListFilesTree( "strings", ".lang", true );
-	
+
 	idStrList langList = langFiles->GetList();
-	
+
 	// Loop through the list and filter
 	idStrList currentLangList = langList;
-	
+
 	idStr temp;
 	for( int i = 0; i < currentLangList.Num(); i++ )
 	{
@@ -317,7 +317,7 @@ const char* Sys_DefaultLanguage()
 		temp = temp.Left( temp.Length() - strlen( ".lang" ) );
 		currentLangList[i] = temp;
 	}
-	
+
 	if( currentLangList.Num() <= 0 )
 	{
 		// call it English if no lang files exist
@@ -358,10 +358,10 @@ const char* Sys_DefaultLanguage()
 			sys_lang.SetString( currentLangList[0] );
 		}
 	}
-	
+
 	fileSystem->FreeFileList( langFiles );
-	
+
 	return sys_lang.GetString();// ID_LANG_ENGLISH;
-	
-	
+
+
 }

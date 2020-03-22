@@ -11,12 +11,12 @@ public:
 	}
 	bool Append( int sequence, const byte* b1, int b1Len, const byte* b2 = NULL, int b2Len = 0 );
 	void RemoveOlderThan( int sequence );
-	
+
 	int GetDataLength() const
 	{
 		return dataLength;
 	}
-	
+
 	int Num() const
 	{
 		return items.Num();
@@ -33,14 +33,14 @@ public:
 	{
 		return &data[items[i].dataOffset];
 	}
-	
+
 	void Clear()
 	{
 		dataLength = 0;
 		items.Clear();
 		memset( data, 0, sizeof( data ) );
 	}
-	
+
 private:
 	struct msgItem_t
 	{

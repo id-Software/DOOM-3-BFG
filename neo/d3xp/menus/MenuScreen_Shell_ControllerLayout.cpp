@@ -68,14 +68,14 @@ idMenuScreen_Shell_ControllerLayout::Initialize
 void idMenuScreen_Shell_ControllerLayout::Initialize( idMenuHandler* data )
 {
 	idMenuScreen::Initialize( data );
-	
+
 	if( data != NULL )
 	{
 		menuGUI = data->GetGUI();
 	}
-	
+
 	SetSpritePath( "menuControllerLayout" );
-	
+
 	options = new( TAG_SWF ) idMenuWidget_DynamicList();
 	options->SetNumVisibleOptions( NUM_LAYOUT_OPTIONS );
 	options->SetSpritePath( GetSpritePath(), "info", "controlInfo", "options" );
@@ -83,14 +83,14 @@ void idMenuScreen_Shell_ControllerLayout::Initialize( idMenuHandler* data )
 	options->SetControlList( true );
 	options->Initialize( data );
 	AddChild( options );
-	
+
 	btnBack = new( TAG_SWF ) idMenuWidget_Button();
 	btnBack->Initialize( data );
 	btnBack->SetLabel( "#str_swf_gamepad_heading" );	// CONTROLS
 	btnBack->SetSpritePath( GetSpritePath(), "info", "btnBack" );
 	btnBack->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_GO_BACK );
 	AddChild( btnBack );
-	
+
 	idMenuWidget_ControlButton* control = new( TAG_SWF ) idMenuWidget_ControlButton();
 	control->SetOptionType( OPTION_BUTTON_FULL_TEXT_SLIDER );
 	control->SetLabel( "CONTROL LAYOUT" );	// Auto Weapon Reload
@@ -121,12 +121,12 @@ void idMenuScreen_Shell_ControllerLayout::Update()
 				buttonInfo->label = "#str_00395";
 			}
 			buttonInfo->action.Set( WIDGET_ACTION_GO_BACK );
-			
+
 			buttonInfo = cmdBar->GetButton( idMenuWidget_CommandBar::BUTTON_JOY1 );
 			buttonInfo->action.Set( WIDGET_ACTION_PRESS_FOCUSED );
 		}
 	}
-	
+
 	idSWFScriptObject& root = GetSWFObject()->GetRootObject();
 	if( BindSprite( root ) )
 	{
@@ -136,19 +136,19 @@ void idMenuScreen_Shell_ControllerLayout::Update()
 			heading->SetText( "#str_swf_controller_layout" );	// CONTROLLER LAYOUT
 			heading->SetStrokeInfo( true, 0.75f, 1.75f );
 		}
-		
+
 		idSWFSpriteInstance* gradient = GetSprite()->GetScriptObject()->GetNestedSprite( "info", "gradient" );
 		if( gradient != NULL && heading != NULL )
 		{
 			gradient->SetXPos( heading->GetTextLength() );
 		}
-		
+
 		if( menuData != NULL )
 		{
 			idSWFSpriteInstance* layout = NULL;
-			
+
 			layout = GetSprite()->GetScriptObject()->GetNestedSprite( "info", "controlInfo", "layout360" );
-			
+
 			if( layout != NULL )
 			{
 				if( menuData->GetPlatform( true ) == 2 )
@@ -162,14 +162,14 @@ void idMenuScreen_Shell_ControllerLayout::Update()
 			}
 		}
 	}
-	
+
 	if( btnBack != NULL )
 	{
 		btnBack->BindSprite( root );
 	}
-	
-	
-	
+
+
+
 	idMenuScreen::Update();
 }
 
@@ -182,23 +182,23 @@ void idMenuScreen_Shell_ControllerLayout::ShowScreen( const mainMenuTransition_t
 {
 	layoutData.LoadData();
 	idMenuScreen::ShowScreen( transitionType );
-	
+
 	if( GetSprite() != NULL )
 	{
-	
+
 		idSWFSpriteInstance* layout360 = NULL;
 		idSWFSpriteInstance* layoutPS3 = NULL;
-		
+
 		layout360 = GetSprite()->GetScriptObject()->GetNestedSprite( "info", "controlInfo", "layout360" );
 		layoutPS3 = GetSprite()->GetScriptObject()->GetNestedSprite( "info", "controlInfo", "layoutPS3" );
-		
+
 		if( layout360 != NULL && layoutPS3 != NULL )
 		{
 			layout360->SetVisible( true );
 			layoutPS3->SetVisible( false );
 		}
 	}
-	
+
 	UpdateBindingInfo();
 }
 
@@ -225,17 +225,17 @@ void idMenuScreen_Shell_ControllerLayout::UpdateBindingInfo()
 	{
 		return;
 	}
-	
+
 	for( int i = 0; i < numGamepadBinds; ++i )
 	{
-	
+
 		const char* txtField = gamepadBinds[i].textField;
 		int keyNum = gamepadBinds[i].keyNum;
-		
+
 		idSWFTextInstance* txtVal = NULL;
-		
+
 		txtVal = GetSprite()->GetScriptObject()->GetNestedText( "info", "controlInfo", "layout360", txtField );
-		
+
 		if( txtVal != NULL )
 		{
 			const char* binding = idKeyInput::GetBinding( keyNum );
@@ -273,15 +273,15 @@ bool idMenuScreen_Shell_ControllerLayout::HandleAction( idWidgetAction& action, 
 	{
 		return true;
 	}
-	
+
 	if( menuData->ActiveScreen() != SHELL_AREA_CONTROLLER_LAYOUT )
 	{
 		return false;
 	}
-	
+
 	widgetAction_t actionType = action.GetType();
 	const idSWFParmList& parms = action.GetParms();
-	
+
 	switch( actionType )
 	{
 		case WIDGET_ACTION_GO_BACK:
@@ -295,19 +295,19 @@ bool idMenuScreen_Shell_ControllerLayout::HandleAction( idWidgetAction& action, 
 			{
 				return true;
 			}
-			
+
 			if( options == NULL )
 			{
 				return true;
 			}
-			
+
 			int selectionIndex = parms[0].ToInteger();
 			if( selectionIndex != options->GetFocusIndex() )
 			{
 				options->SetViewIndex( options->GetViewOffset() + selectionIndex );
 				options->SetFocusIndex( selectionIndex );
 			}
-			
+
 			layoutData.AdjustField( selectionIndex, 1 );
 			options->Update();
 			UpdateBindingInfo();
@@ -315,12 +315,12 @@ bool idMenuScreen_Shell_ControllerLayout::HandleAction( idWidgetAction& action, 
 		}
 		case WIDGET_ACTION_START_REPEATER:
 		{
-		
+
 			if( options == NULL )
 			{
 				return true;
 			}
-			
+
 			if( parms.Num() == 4 )
 			{
 				int selectionIndex = parms[3].ToInteger();
@@ -343,7 +343,7 @@ bool idMenuScreen_Shell_ControllerLayout::HandleAction( idWidgetAction& action, 
 			return true;
 		}
 	}
-	
+
 	return idMenuWidget::HandleAction( action, event, widget, forceHandled );
 }
 
@@ -371,11 +371,11 @@ void idMenuScreen_Shell_ControllerLayout::idMenuDataSource_LayoutSettings::LoadD
 	{
 		return;
 	}
-	
+
 	int configSet = profile->GetConfig();
-	
+
 	fields[ LAYOUT_FIELD_LAYOUT ].SetString( idLocalization::GetString( va( "#str_swf_config_360_%i", configSet ) ) );
-	
+
 	originalFields = fields;
 }
 
@@ -391,7 +391,7 @@ void idMenuScreen_Shell_ControllerLayout::idMenuDataSource_LayoutSettings::Commi
 	{
 		cvarSystem->SetModifiedFlags( CVAR_ARCHIVE );
 	}
-	
+
 	// make the committed fields into the backup fields
 	originalFields = fields;
 }
@@ -409,9 +409,9 @@ void idMenuScreen_Shell_ControllerLayout::idMenuDataSource_LayoutSettings::Adjus
 	{
 		return;
 	}
-	
+
 	int configSet = profile->GetConfig();
-	
+
 	if( fieldIndex == LAYOUT_FIELD_LAYOUT )
 	{
 		configSet += adjustAmount;
@@ -424,11 +424,11 @@ void idMenuScreen_Shell_ControllerLayout::idMenuDataSource_LayoutSettings::Adjus
 			configSet = 0;
 		}
 	}
-	
+
 	fields[ LAYOUT_FIELD_LAYOUT ].SetString( idLocalization::GetString( va( "#str_swf_config_360_%i", configSet ) ) );
-	
+
 	profile->SetConfig( configSet, false );
-	
+
 }
 
 /*
@@ -439,11 +439,11 @@ idMenuScreen_Shell_ControllerLayout::idMenuDataSource_AudioSettings::IsDataChang
 bool idMenuScreen_Shell_ControllerLayout::idMenuDataSource_LayoutSettings::IsDataChanged() const
 {
 	bool hasLocalChanges = false;
-	
+
 	if( fields[ LAYOUT_FIELD_LAYOUT ].ToString() != originalFields[ LAYOUT_FIELD_LAYOUT ].ToString() )
 	{
 		return true;
 	}
-	
+
 	return hasLocalChanges;
 }

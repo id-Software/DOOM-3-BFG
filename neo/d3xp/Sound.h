@@ -41,22 +41,22 @@ class idSound : public idEntity
 {
 public:
 	CLASS_PROTOTYPE( idSound );
-	
+
 	idSound();
-	
+
 	void			Save( idSaveGame* savefile ) const;
 	void			Restore( idRestoreGame* savefile );
-	
+
 	virtual void	UpdateChangeableSpawnArgs( const idDict* source );
-	
+
 	void			Spawn();
-	
+
 	void			ToggleOnOff( idEntity* other, idEntity* activator );
 	void			Think();
 	void			SetSound( const char* sound, int channel = SND_CHANNEL_ANY );
-	
+
 	virtual void	ShowEditingDialog();
-	
+
 private:
 	float			lastSoundVol;
 	float			soundVol;
@@ -66,7 +66,7 @@ private:
 	idVec3			shakeTranslate;
 	idAngles		shakeRotate;
 	int				playingUntilTime;
-	
+
 	void			Event_Trigger( idEntity* activator );
 	void			Event_Timer();
 	void			Event_On();

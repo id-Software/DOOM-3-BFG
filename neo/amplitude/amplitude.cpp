@@ -102,16 +102,16 @@ int WAVE_ReadHeader( FILE* f )
 		unsigned int size;
 		unsigned int format;
 	} header;
-	
+
 	fread( &header, sizeof( header ), 1, f );
 	Swap( header.id );
 	Swap( header.format );
-	
+
 	if( header.id != 'RIFF' || header.format != 'WAVE' || header.size < 4 )
 	{
 		return 0;
 	}
-	
+
 	return header.size;
 }
 
@@ -119,7 +119,7 @@ int WAVE_ReadChunks( FILE* f, unsigned int fileSize, chunk_t* chunks, int maxChu
 {
 	unsigned int offset = ftell( f );
 	int numChunks = 0;
-	
+
 	while( offset < fileSize )
 	{
 		struct chuckHeader_t
@@ -133,21 +133,21 @@ int WAVE_ReadChunks( FILE* f, unsigned int fileSize, chunk_t* chunks, int maxChu
 		}
 		Swap( chunkHeader.id );
 		offset += sizeof( chunkHeader );
-		
+
 		if( numChunks == maxChunks )
 		{
 			return maxChunks + 1;
 		}
-		
+
 		chunks[numChunks].id = chunkHeader.id;
 		chunks[numChunks].size = chunkHeader.size;
 		chunks[numChunks].offset = offset;
 		numChunks++;
-		
+
 		offset += chunkHeader.size;
 		fseek( f, offset, SEEK_SET );
 	}
-	
+
 	return numChunks;
 }
 
@@ -160,10 +160,10 @@ bool Process( FILE* in, FILE* out )
 		printf( "Header invalid\n" );
 		return false;
 	}
-	
+
 	static const int MAX_CHUNKS = 32;
 	chunk_t chunks[MAX_CHUNKS] = {};
-	
+
 	int numChunks = WAVE_ReadChunks( in, headerSize + 8, chunks, MAX_CHUNKS );
 	if( numChunks == 0 )
 	{
@@ -175,7 +175,7 @@ bool Process( FILE* in, FILE* out )
 		printf( "Too many chunks\n" );
 		return false;
 	}
-	
+
 	format_t format;
 	bool foundFormat = false;
 	unsigned int dataOffset = 0;
@@ -241,7 +241,7 @@ bool Process( FILE* in, FILE* out )
 		return false;
 	}
 	unsigned int numSamples = dataSize / expectedSampleSize;
-	
+
 	void* inputData = malloc( dataSize );
 	if( inputData == NULL )
 	{
@@ -250,7 +250,7 @@ bool Process( FILE* in, FILE* out )
 	}
 	fseek( in, dataOffset, SEEK_SET );
 	fread( inputData, dataSize, 1, in );
-	
+
 	int numOutputSamples = 1 + ( numSamples * SAMPLE_RATE / format.samplesPerSec );
 	float* min = ( float* )malloc( numOutputSamples * sizeof( float ) );
 	float* max = ( float* )malloc( numOutputSamples * sizeof( float ) );
@@ -269,7 +269,7 @@ bool Process( FILE* in, FILE* out )
 		max[i] = -1.0f;
 		min[i] = 1.0f;
 	}
-	
+
 	if( format.bitsPerSample == 16 )
 	{
 		short* sdata = ( short* )inputData;
@@ -344,12 +344,12 @@ bool Process( FILE* in, FILE* out )
 		}
 	}
 	fwrite( outputData, numOutputSamples, 1, out );
-	
+
 	free( inputData );
 	free( min );
 	free( max );
 	free( outputData );
-	
+
 	printf( "Success\n" );
 	return true;
 }
@@ -363,9 +363,9 @@ int main( int argc, char* argv[] )
 		return E_ARGS;
 	}
 	const char* inputFileName = argv[1];
-	
+
 	printf( "Processing %s: ", inputFileName );
-	
+
 	FILE* in = NULL;
 	if( fopen_s( &in, inputFileName, "rb" ) != 0 )
 	{
@@ -388,24 +388,24 @@ int main( int argc, char* argv[] )
 		printf( "Filename too long\n" );
 		return E_ARGS;
 	}
-	
+
 	FILE* out = NULL;
 	if( fopen_s( &out, outputFileName, "wb" ) != 0 )
 	{
 		printf( "Could not open output file %s\n", outputFileName );
 		return E_OPEN_OUT;
 	}
-	
+
 	bool success = Process( in, out );
-	
+
 	fclose( in );
 	fclose( out );
-	
+
 	if( !success )
 	{
 		remove( outputFileName );
 		return E_PROCESSING;
 	}
-	
+
 	return E_OK;
 }

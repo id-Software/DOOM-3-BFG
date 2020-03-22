@@ -43,7 +43,7 @@ int idPolynomial::Laguer( const idComplex* coef, const int degree, idComplex& x 
 	int i, j;
 	float abx, abp, abm, err;
 	idComplex dx, cx, b, d, f, g, s, gps, gms, g2;
-	
+
 	for( i = 1; i <= MAX_ITERATIONS; i++ )
 	{
 		b = coef[degree];
@@ -107,13 +107,13 @@ int idPolynomial::GetRoots( idComplex* roots ) const
 {
 	int i, j;
 	idComplex x, b, c, *coef;
-	
+
 	coef = ( idComplex* ) _alloca16( ( degree + 1 ) * sizeof( idComplex ) );
 	for( i = 0; i <= degree; i++ )
 	{
 		coef[i].Set( coefficient[i], 0.0f );
 	}
-	
+
 	for( i = degree - 1; i >= 0; i-- )
 	{
 		x.Zero();
@@ -131,7 +131,7 @@ int idPolynomial::GetRoots( idComplex* roots ) const
 			b = x * b + c;
 		}
 	}
-	
+
 	for( i = 0; i <= degree; i++ )
 	{
 		coef[i].Set( coefficient[i], 0.0f );
@@ -140,7 +140,7 @@ int idPolynomial::GetRoots( idComplex* roots ) const
 	{
 		Laguer( coef, degree, roots[i] );
 	}
-	
+
 	for( i = 1; i < degree; i++ )
 	{
 		x = roots[i];
@@ -154,7 +154,7 @@ int idPolynomial::GetRoots( idComplex* roots ) const
 		}
 		roots[j + 1] = x;
 	}
-	
+
 	return degree;
 }
 
@@ -167,7 +167,7 @@ int idPolynomial::GetRoots( float* roots ) const
 {
 	int i, num;
 	idComplex* complexRoots;
-	
+
 	switch( degree )
 	{
 		case 0:
@@ -181,16 +181,16 @@ int idPolynomial::GetRoots( float* roots ) const
 		case 4:
 			return GetRoots4( coefficient[4], coefficient[3], coefficient[2], coefficient[1], coefficient[0], roots );
 	}
-	
+
 	// The Abel-Ruffini theorem states that there is no general solution
 	// in radicals to polynomial equations of degree five or higher.
 	// A polynomial equation can be solved by radicals if and only if
 	// its Galois group is a solvable group.
-	
+
 	complexRoots = ( idComplex* ) _alloca16( degree * sizeof( idComplex ) );
-	
+
 	GetRoots( complexRoots );
-	
+
 	for( num = i = 0; i < degree; i++ )
 	{
 		if( complexRoots[i].i == 0.0f )
@@ -223,7 +223,7 @@ void idPolynomial::Test()
 	float roots[4], value;
 	idComplex complexRoots[4], complexValue;
 	idPolynomial p;
-	
+
 	p = idPolynomial( -5.0f, 4.0f );
 	num = p.GetRoots( roots );
 	for( i = 0; i < num; i++ )
@@ -231,7 +231,7 @@ void idPolynomial::Test()
 		value = p.GetValue( roots[i] );
 		assert( idMath::Fabs( value ) < 1e-4f );
 	}
-	
+
 	p = idPolynomial( -5.0f, 4.0f, 3.0f );
 	num = p.GetRoots( roots );
 	for( i = 0; i < num; i++ )
@@ -239,7 +239,7 @@ void idPolynomial::Test()
 		value = p.GetValue( roots[i] );
 		assert( idMath::Fabs( value ) < 1e-4f );
 	}
-	
+
 	p = idPolynomial( 1.0f, 4.0f, 3.0f, -2.0f );
 	num = p.GetRoots( roots );
 	for( i = 0; i < num; i++ )
@@ -247,7 +247,7 @@ void idPolynomial::Test()
 		value = p.GetValue( roots[i] );
 		assert( idMath::Fabs( value ) < 1e-4f );
 	}
-	
+
 	p = idPolynomial( 5.0f, 4.0f, 3.0f, -2.0f );
 	num = p.GetRoots( roots );
 	for( i = 0; i < num; i++ )
@@ -255,7 +255,7 @@ void idPolynomial::Test()
 		value = p.GetValue( roots[i] );
 		assert( idMath::Fabs( value ) < 1e-4f );
 	}
-	
+
 	p = idPolynomial( -5.0f, 4.0f, 3.0f, 2.0f, 1.0f );
 	num = p.GetRoots( roots );
 	for( i = 0; i < num; i++ )
@@ -263,7 +263,7 @@ void idPolynomial::Test()
 		value = p.GetValue( roots[i] );
 		assert( idMath::Fabs( value ) < 1e-4f );
 	}
-	
+
 	p = idPolynomial( 1.0f, 4.0f, 3.0f, -2.0f );
 	num = p.GetRoots( complexRoots );
 	for( i = 0; i < num; i++ )
@@ -271,7 +271,7 @@ void idPolynomial::Test()
 		complexValue = p.GetValue( complexRoots[i] );
 		assert( idMath::Fabs( complexValue.r ) < 1e-4f && idMath::Fabs( complexValue.i ) < 1e-4f );
 	}
-	
+
 	p = idPolynomial( 5.0f, 4.0f, 3.0f, -2.0f );
 	num = p.GetRoots( complexRoots );
 	for( i = 0; i < num; i++ )

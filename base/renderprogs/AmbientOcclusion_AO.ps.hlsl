@@ -94,14 +94,14 @@ const float projScale = 500.0;
 // *INDENT-OFF*
 uniform sampler2D samp0 : register( s0 ); // view normal/roughness
 uniform sampler2D samp1 : register( s1 ); // view depth
- 
+
 #define CS_Z_buffer		samp1
- 
+
 struct PS_IN
 {
 	float2 texcoord0 : TEXCOORD0_centroid;
 };
- 
+
 struct PS_OUT 
 {
 	float4 color : COLOR;
@@ -122,10 +122,10 @@ void packKey( float key, out float2 p )
 {
 	// Round to the nearest 1/256.0
 	float temp = floor( key * 256.0 );
-	
+
 	// Integer part
 	p.x = temp * ( 1.0 / 256.0 );
-	
+
 	// Fractional part
 	p.y = key * 256.0 - temp;
 }
@@ -149,15 +149,15 @@ float3 reconstructCSPosition( float2 S, float z )
 	P.z = z * 2.0 - 1.0;
 	P.xy = ( S * rpScreenCorrectionFactor.xy ) * 2.0 - 1.0;
 	P.w = 1.0;
-	
+
 	float4 csP;
 	csP.x = dot4( P, rpModelMatrixX );
 	csP.y = dot4( P, rpModelMatrixY );
 	csP.z = dot4( P, rpModelMatrixZ );
 	csP.w = dot4( P, rpModelMatrixW );
-	
+
 	csP.xyz /= csP.w;
-	
+
 	return csP.xyz;
 }
 
@@ -177,7 +177,7 @@ float2 tapLocation( int sampleNumber, float spinAngle, out float ssR )
 	// Radius relative to ssR
 	float alpha = ( float( sampleNumber ) + 0.5 ) * ( 1.0 / float( NUM_SAMPLES ) );
 	float angle = alpha * ( float( NUM_SPIRAL_TURNS ) * 6.28 ) + spinAngle;
-	
+
 	ssR = alpha;
 	return float2( cos( angle ), sin( angle ) );
 }
@@ -188,10 +188,10 @@ float3 getPosition( int2 ssP, sampler2D cszBuffer )
 {
 	float3 P;
 	P.z = texelFetch( cszBuffer, ssP, 0 ).r;
-	
+
 	// Offset to pixel center
 	P = reconstructCSPosition( float2( ssP ) + float2( 0.5 ), P.z );
-	
+
 	return P;
 }
 
@@ -204,13 +204,13 @@ void computeMipInfo( float ssR, int2 ssP, sampler2D cszBuffer, out int mipLevel,
 #else
 	mipLevel = clamp( int( floor( log2( ssR ) ) ) - LOG_MAX_OFFSET, 0, MAX_MIP_LEVEL );
 #endif
-	
+
 	// We need to divide by 2^mipLevel to read the appropriately scaled coordinate from a MIP-map.
 	// Manually clamp to the texture size because texelFetch bypasses the texture unit
-	
+
 	// used in newer radiosity
 	//mipP = ssP >> mipLevel;
-	
+
 	mipP = clamp( ssP >> mipLevel, int2( 0 ), textureSize( cszBuffer, mipLevel ) - int2( 1 ) );
 }
 
@@ -219,13 +219,13 @@ void computeMipInfo( float ssR, int2 ssP, sampler2D cszBuffer, out int mipLevel,
 float3 getOffsetPosition( int2 issC, float2 unitOffset, float ssR, sampler2D cszBuffer, float invCszBufferScale )
 {
 	int2 ssP = int2( ssR * unitOffset ) + issC;
-	
+
 	float3 P;
-	
+
 	int mipLevel;
 	int2 mipP;
 	computeMipInfo( ssR, ssP, cszBuffer, mipLevel, mipP );
-	
+
 #if USE_MIPMAPS
 	// RB: this is the key for fast ambient occlusion - use a hierarchical depth buffer
 	// for more information see McGuire12SAO.pdf - Scalable Ambient Obscurance
@@ -234,11 +234,11 @@ float3 getOffsetPosition( int2 issC, float2 unitOffset, float ssR, sampler2D csz
 #else
 	P.z = texelFetch( cszBuffer, ssP, 0 ).r;
 #endif
-	
+
 	// Offset to pixel center
 	P = reconstructCSPosition( float2( ssP ) + float2( 0.5 ), P.z );
 	//P = reconstructCSPosition( ( float2( ssP ) + float2( 0.5 ) ) * invCszBufferScale, P.z );
-	
+
 	return P;
 }
 
@@ -248,7 +248,7 @@ float fallOffFunction( float vv, float vn, float epsilon )
 	// Note large epsilon to avoid overdarkening within cracks
 	//  Assumes the desired result is intensity/radius^6 in main()
 	// return float(vv < radius2) * max((vn - bias) / (epsilon + vv), 0.0) * radius2 * 0.6;
-	
+
 	// B: Smoother transition to zero (lowers contrast, smoothing out corners). [Recommended]
 #if HIGH_QUALITY
 	// Epsilon inside the sqrt for rsqrt operation
@@ -260,13 +260,13 @@ float fallOffFunction( float vv, float vn, float epsilon )
 	float f = max( radius2 - vv, 0.0 );
 	return f * f * f * max( ( vn - bias ) / ( epsilon + vv ), 0.0 );
 #endif
-	
+
 	// C: Medium contrast (which looks better at high radii), no division.  Note that the
 	// contribution still falls off with radius^2, but we've adjusted the rate in a way that is
 	// more computationally efficient and happens to be aesthetically pleasing.  Assumes
 	// division by radius^6 in main()
 	//return 4.0 * max(1.0 - vv * invRadius2, 0.0) * max(vn - bias, 0.0);
-	
+
 	// D: Low contrast, no division operation
 	//return 2.0 * float(vv < radius * radius) * max(vn - bias, 0.0);
 }
@@ -279,7 +279,7 @@ float aoValueFromPositionsAndNormal( float3 C, float3 n_C, float3 Q )
 	float vv = dot( v, v );
 	float vn = dot( v, n_C );
 	const float epsilon = 0.001;
-	
+
 	// Without the angular adjustment term, surfaces seen head on have less AO
 	return fallOffFunction( vv, vn, epsilon ) * lerp( 1.0, max( 0.0, 1.5 * n_C.z ), 0.35 );
 }
@@ -301,19 +301,19 @@ float sampleAO( int2 issC, in float3 C, in float3 n_C, in float ssDiskRadius, in
 	// Offset on the unit disk, spun for this pixel
 	float ssR;
 	float2 unitOffset = tapLocation( tapIndex, randomPatternRotationAngle, ssR );
-	
+
 	// Ensure that the taps are at least 1 pixel away
 	ssR = max( 0.75, ssR * ssDiskRadius );
-	
+
 #if (CS_Z_PACKED_TOGETHER != 0)
 	vec3 Q0, Q1;
 	getOffsetPositions( ssC, unitOffset, ssR, cszBuffer, Q0, Q1 );
-	
+
 	return max( aoValueFromPositionsAndNormal( C, n_C, Q0 ), aoValueFromPositionsAndNormal( C, n_C, Q1 ) );
 #else
 	// The occluding point in camera space
 	vec3 Q = getOffsetPosition( issC, unitOffset, ssR, cszBuffer, invCszBufferScale );
-	
+
 	return aoValueFromPositionsAndNormal( C, n_C, Q );
 #endif
 }
@@ -326,29 +326,29 @@ const float MIN_RADIUS = 3.0; // pixels
 void main( PS_IN fragment, out PS_OUT result )
 {
 	result.color = float4( 1.0, 0.0, 0.0, 1.0 );
-	
+
 #if 0
 	if( fragment.texcoord0.x < 0.5 )
 	{
 		discard;
 	}
 #endif
-	
+
 	// Pixel being shaded
 	//float2 ssC = fragment.texcoord0;
 	//int2 issC = int2( ssC.x * rpScreenCorrectionFactor.z, ssC.y * rpScreenCorrectionFactor.w );
-	
+
 	int2 ssP = int2( gl_FragCoord.xy );
-	
+
 	// World space point being shaded
 	vec3 C = getPosition( ssP, CS_Z_buffer );
-	
+
 	//float z = length( C - rpGlobalEyePos.xyz );
 	//bilateralKey = CSZToKey( C.z );
 	//packKey( CSZToKey( C.z ), bilateralKey );
-	
+
 	//float key = CSZToKey( C.z );
-	
+
 #if 0
 	if( key >= 1.0 )
 	{
@@ -356,21 +356,21 @@ void main( PS_IN fragment, out PS_OUT result )
 		return;
 	}
 #endif
-	
+
 	visibility = 0.0;
-	
+
 #if 1
 	float3 n_C = sampleNormal( samp0, ssP, 0 );
-	
+
 	if( length( n_C ) < 0.01 )
 	{
 		visibility = 1.0;
 		return;
 	}
-	
+
 	n_C = normalize( n_C );
 	//n_C = -n_C;
-	
+
 #else
 	// Reconstruct normals from positions.
 	float3 n_C = reconstructNonUnitCSFaceNormal( C );
@@ -389,18 +389,18 @@ void main( PS_IN fragment, out PS_OUT result )
 		n_C = normalize( -n_C );
 	}
 #endif
-	
+
 	// Hash function used in the HPG12 AlchemyAO paper
 	float randomPatternRotationAngle = float( ( ( 3 * ssP.x ) ^ ( ssP.y + ssP.x * ssP.y ) )
 #if TEMPORALLY_VARY_TAPS
 									   + rpJitterTexOffset.x
 #endif
 											) * 10.0;
-											
+
 	// Choose the screen-space sample radius
 	// proportional to the projected area of the sphere
 	float ssDiskRadius = -projScale * radius / C.z;
-	
+
 #if 1
 	if( ssDiskRadius <= MIN_RADIUS )
 	{
@@ -409,19 +409,19 @@ void main( PS_IN fragment, out PS_OUT result )
 		return;
 	}
 #endif
-	
+
 #if USE_DEPTH_PEEL == 1
 #if DIFFERENT_DEPTH_RESOLUTIONS == 1
 	float unpeeledToPeeledScale = 1.0 / peeledToUnpeeledScale;
 #endif
 #endif
-	
+
 	float sum = 0.0;
 	for( int i = 0; i < NUM_SAMPLES; ++i )
 	{
 		sum += sampleAO( ssP, C, n_C, ssDiskRadius, i, randomPatternRotationAngle, CS_Z_buffer, 1.0 );
 	}
-	
+
 #if HIGH_QUALITY
 	float A = pow( max( 0.0, 1.0 - sqrt( sum * ( 3.0 / float( NUM_SAMPLES ) ) ) ), intensity );
 #else
@@ -430,14 +430,14 @@ void main( PS_IN fragment, out PS_OUT result )
 	// (x^0.2 + 1.2 * x^4)/2.2
 	//A = ( pow( A, 0.2 ) + 1.2 * A * A * A * A ) / 2.2;
 #endif
-	
+
 	// Visualize random spin distribution
 	//A = mod(randomPatternRotationAngle / (2 * 3.141592653589), 1.0);
-	
+
 	// Fade in as the radius reaches 2 pixels
 	visibility = lerp( 1.0, A, saturate( ssDiskRadius - MIN_RADIUS ) );
 	//visibility = A;
-	
+
 #if defined(BRIGHTPASS)
 	//result.color = float4( visibility, bilateralKey, 0.0, 1.0 );
 	//result.color = float4( bilateralKey, bilateralKey, bilateralKey, 1.0 );

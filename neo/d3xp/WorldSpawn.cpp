@@ -60,25 +60,25 @@ void idWorldspawn::Spawn()
 	idThread*			thread;
 	const function_t*	func;
 	const idKeyValue*	kv;
-	
+
 	assert( gameLocal.world == NULL );
 	gameLocal.world = this;
-	
+
 	g_gravity.SetFloat( spawnArgs.GetFloat( "gravity", va( "%f", DEFAULT_GRAVITY ) ) );
-	
+
 	// disable stamina on hell levels
 	if( spawnArgs.GetBool( "no_stamina" ) )
 	{
 		pm_stamina.SetFloat( 0.0f );
 	}
-	
+
 	// load script
 	scriptname = gameLocal.GetMapName();
 	scriptname.SetFileExtension( ".script" );
 	if( fileSystem->ReadFile( scriptname, NULL, NULL ) > 0 )
 	{
 		gameLocal.program.CompileFile( scriptname );
-		
+
 		// call the main function by default
 		func = gameLocal.program.FindFunction( "main" );
 		if( func != NULL )
@@ -87,7 +87,7 @@ void idWorldspawn::Spawn()
 			thread->DelayedStart( 0 );
 		}
 	}
-	
+
 	// call any functions specified in worldspawn
 	kv = spawnArgs.MatchPrefix( "call" );
 	while( kv != NULL )
@@ -97,7 +97,7 @@ void idWorldspawn::Spawn()
 		{
 			gameLocal.Error( "Function '%s' not found in script for '%s' key on worldspawn", kv->GetValue().c_str(), kv->GetKey().c_str() );
 		}
-		
+
 		thread = new idThread( func );
 		thread->DelayedStart( 0 );
 		kv = spawnArgs.MatchPrefix( "call", kv );
@@ -121,9 +121,9 @@ idWorldspawn::Restore
 void idWorldspawn::Restore( idRestoreGame* savefile )
 {
 	assert( gameLocal.world == this );
-	
+
 	g_gravity.SetFloat( spawnArgs.GetFloat( "gravity", va( "%f", DEFAULT_GRAVITY ) ) );
-	
+
 	// disable stamina on hell levels
 	if( spawnArgs.GetBool( "no_stamina" ) )
 	{

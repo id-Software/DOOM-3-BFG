@@ -50,27 +50,27 @@ If you have questions concerning this license or the applicable additional terms
 
 // RB begin
 #if defined(__MINGW32__)
-//#include <sal.h> 	// RB: missing __analysis_assume
-#include <malloc.h> // DG: _alloca16 needs that
+	//#include <sal.h> 	// RB: missing __analysis_assume
+	#include <malloc.h> // DG: _alloca16 needs that
 
-#ifndef __analysis_assume
-#define __analysis_assume( x )
-#endif
+	#ifndef __analysis_assume
+		#define __analysis_assume( x )
+	#endif
 
 #elif defined(__linux__)
-#include <malloc.h> // DG: _alloca16 needs that
-#include <signal.h>
-// RB end
-// Yamagi begin
+	#include <malloc.h> // DG: _alloca16 needs that
+	#include <signal.h>
+	// RB end
+	// Yamagi begin
 #elif defined(__FreeBSD__)
-#include <signal.h>
+	#include <signal.h>
 #endif
 // Yamagi end
 
 #ifdef _MSC_VER
-#include <intrin.h>
-#pragma warning( disable : 4100 )	// unreferenced formal parameter
-#pragma warning( disable : 4127 )	// conditional expression is constant
+	#include <intrin.h>
+	#pragma warning( disable : 4100 )	// unreferenced formal parameter
+	#pragma warning( disable : 4127 )	// conditional expression is constant
 #endif
 
 
@@ -82,8 +82,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "ParallelJobList.h"
 
 #if _MSC_VER >= 1600
-#undef NULL
-#define NULL 0
+	#undef NULL
+	#define NULL 0
 #endif
 
 #endif // !__PARALLELJOBLIST_JOBHEADERS_H__

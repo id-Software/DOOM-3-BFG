@@ -86,18 +86,18 @@ class idRenderModelOverlay
 public:
 	idRenderModelOverlay();
 	~idRenderModelOverlay();
-	
+
 	void						ReUse();
-	
+
 	void						AddDeferredOverlay( const overlayProjectionParms_t& localParms );
 	void						CreateDeferredOverlays( const idRenderModel* model );
-	
+
 	unsigned int				GetNumOverlayDrawSurfs();
 	struct drawSurf_t* 			CreateOverlayDrawSurf( const struct viewEntity_t* space, const idRenderModel* baseModel, unsigned int index );
-	
+
 	void						ReadFromDemoFile( class idDemoFile* f );
 	void						WriteToDemoFile( class idDemoFile* f ) const;
-	
+
 	int							index;
 	int							demoSerialWrite;
 	int							demoSerialCurrent;
@@ -105,14 +105,14 @@ private:
 	overlay_t					overlays[MAX_OVERLAYS];
 	unsigned int				firstOverlay;
 	unsigned int				nextOverlay;
-	
+
 	overlayProjectionParms_t	deferredOverlays[MAX_DEFERRED_OVERLAYS];
 	unsigned int				firstDeferredOverlay;
 	unsigned int				nextDeferredOverlay;
-	
+
 	const idMaterial* 			overlayMaterials[MAX_OVERLAYS];
 	unsigned int				numOverlayMaterials;
-	
+
 	void						CreateOverlay( const idRenderModel* model, const idPlane localTextureAxis[2], const idMaterial* material );
 	void						FreeOverlay( overlay_t& overlay );
 };

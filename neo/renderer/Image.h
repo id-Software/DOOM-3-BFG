@@ -47,52 +47,52 @@ The internal *Texture Format Types*, ::textureFormat_t, are:
 enum textureFormat_t
 {
 	FMT_NONE,
-	
+
 	//------------------------
 	// Standard color image formats
 	//------------------------
-	
+
 	FMT_RGBA8,			// 32 bpp
 	FMT_XRGB8,			// 32 bpp
-	
+
 	//------------------------
 	// Alpha channel only
 	//------------------------
-	
+
 	// Alpha ends up being the same as L8A8 in our current implementation, because straight
 	// alpha gives 0 for color, but we want 1.
 	FMT_ALPHA,
-	
+
 	//------------------------
 	// Luminance replicates the value across RGB with a constant A of 255
 	// Intensity replicates the value across RGBA
 	//------------------------
-	
+
 	FMT_L8A8,			// 16 bpp
 	FMT_LUM8,			//  8 bpp
 	FMT_INT8,			//  8 bpp
-	
+
 	//------------------------
 	// Compressed texture formats
 	//------------------------
-	
+
 	FMT_DXT1,			// 4 bpp
 	FMT_DXT5,			// 8 bpp
-	
+
 	//------------------------
 	// Depth buffer formats
 	//------------------------
-	
+
 	FMT_DEPTH,			// 24 bpp
-	
+
 	//------------------------
 	//
 	//------------------------
-	
+
 	FMT_X16,			// 16 bpp
 	FMT_Y16_X16,		// 32 bpp
 	FMT_RGB565,			// 16 bpp
-	
+
 	// RB: don't change above for legacy .bimage compatibility
 	FMT_ETC1_RGB8_OES,	// 4 bpp
 	FMT_SHADOW_ARRAY,	// 32 bpp * 6
@@ -124,7 +124,7 @@ enum textureColor_t
 	CFM_NORMAL_DXT5,		// XY format and use the fast DXT5 compressor
 	CFM_YCOCG_DXT5,			// convert RGBA to CoCg_Y format
 	CFM_GREEN_ALPHA,		// Copy the alpha channel to green
-	
+
 	// RB: don't change above for legacy .bimage compatibility
 	CFM_YCOCG_RGBA8,
 	// RB end
@@ -139,13 +139,13 @@ class idImageOpts
 {
 public:
 	idImageOpts();
-	
+
 	bool	operator==( const idImageOpts& opts );
-	
+
 	//---------------------------------------------------
 	// these determine the physical memory size and layout
 	//---------------------------------------------------
-	
+
 	textureType_t		textureType;
 	textureFormat_t		format;
 	textureColor_t		colorFormat;
@@ -173,7 +173,7 @@ ID_INLINE idImageOpts::idImageOpts()
 	textureType		= TT_2D;
 	gammaMips		= false;
 	readback		= false;
-	
+
 };
 
 /*
@@ -216,6 +216,10 @@ typedef enum
 	TD_COVERAGE,			// coverage map for fill depth pass when YCoCG is used
 	TD_DEPTH,				// depth buffer copy for motion blur
 	// RB begin
+	TD_SPECULAR_PBR_RMAO,	// may be compressed, and always zeros the alpha channel, linear RGB R = roughness, G = metal, B = ambient occlusion
+	TD_SPECULAR_PBR_RMAOD,	// may be compressed, alpha channel contains displacement map
+	TD_HIGHQUALITY_CUBE,	// motorsep - Uncompressed cubemap texture (RGB colorspace)
+	TD_LOWQUALITY_CUBE,		// motorsep - Compressed cubemap texture (RGB colorspace DXT5)
 	TD_SHADOW_ARRAY,		// 2D depth buffer array for shadow mapping
 	TD_RGBA16F,
 	TD_RGBA32F,
@@ -245,46 +249,46 @@ enum imageFileType_t
 class idImage
 {
 	friend class Framebuffer;
-	
+
 public:
 	idImage( const char* name );
 	~idImage();
-	
+
 	const char* 	GetName() const
 	{
 		return imgName;
 	}
-	
+
 	// Makes this image active on the current GL texture unit.
 	// automatically enables or disables cube mapping
 	// May perform file loading if the image was not preloaded.
 	void		Bind();
-	
+
 	// RB begin
 	void		GenerateShadowArray( int width, int height, textureFilter_t filter, textureRepeat_t repeat, textureUsage_t usage );
 	// RB end
-	
+
 	void		CopyFramebuffer( int x, int y, int width, int height );
 	void		CopyDepthbuffer( int x, int y, int width, int height );
-	
+
 	void		UploadScratch( const byte* pic, int width, int height );
-	
+
 	// estimates size of the GL image based on dimensions and storage type
 	int			StorageSize() const;
-	
+
 	// print a one line summary of the image
 	void		Print() const;
-	
+
 	// check for changed timestamp on disk and reload if necessary
 	void		Reload( bool force );
-	
+
 	void		AddReference()
 	{
 		refCount++;
 	};
-	
+
 	void		MakeDefault();	// fill with a grid pattern
-	
+
 	const idImageOpts& 	GetOpts() const
 	{
 		return opts;
@@ -297,7 +301,7 @@ public:
 	{
 		return opts.height;
 	}
-	
+
 	void		SetReferencedOutsideLevelLoad()
 	{
 		referencedOutsideLevelLoad = true;
@@ -307,14 +311,14 @@ public:
 		levelLoadReferenced = true;
 	}
 	void		ActuallyLoadImage( bool fromBackEnd );
-	
+
 	//---------------------------------------------
 	// Platform specific implementations
 	//---------------------------------------------
-	
+
 #if defined( USE_VULKAN )
 	static void	EmptyGarbage();
-	
+
 	VkImage		GetImage() const
 	{
 		return image;
@@ -332,13 +336,13 @@ public:
 		return sampler;
 	}
 #endif
-	
+
 	void		AllocImage( const idImageOpts& imgOpts, textureFilter_t filter, textureRepeat_t repeat );
-	
+
 	// Deletes the texture object, but leaves the structure so it can be reloaded
 	// or resized.
 	void		PurgeImage();
-	
+
 	// z is 0 for 2D textures, 0 - 5 for cube maps, and 0 - uploadDepth for 3D textures. Only
 	// one plane at a time of 3D textures can be uploaded. The data is assumed to be correct for
 	// the format, either bytes, halfFloats, floats, or DXT compressed. The data is assumed to
@@ -348,27 +352,32 @@ public:
 	void		SubImageUpload( int mipLevel, int destX, int destY, int destZ,
 								int width, int height, const void* data,
 								int pixelPitch = 0 );
-								
+
 	// SetPixel is assumed to be a fast memory write on consoles, degenerating to a
 	// SubImageUpload on PCs.  Used to update the page mapping images.
 	// We could remove this now, because the consoles don't use the intermediate page mapping
 	// textures now that they can pack everything into the virtual page table images.
 	void		SetPixel( int mipLevel, int x, int y, const void* data, int dataSize );
-	
+
 	// some scratch images are dynamically resized based on the display window size.  This
 	// simply purges the image and recreates it if the sizes are different, so it should not be
 	// done under any normal circumstances, and probably not at all on consoles.
 	void		Resize( int width, int height );
-	
+
 	bool		IsCompressed() const
 	{
 		return ( opts.format == FMT_DXT1 || opts.format == FMT_DXT5 );
 	}
-	
+
+	textureUsage_t GetUsage() const
+	{
+		return usage;
+	}
+
 	bool				IsLoaded() const;
-	
+
 	static void	GetGeneratedName( idStr& _name, const textureUsage_t& _usage, const cubeFiles_t& _cube );
-	
+
 	// used by callback functions to specify the actual data
 	// data goes from the bottom to the top line of the image, as OpenGL expects it
 	// These perform an implicit Bind() on the current texture unit
@@ -379,12 +388,12 @@ public:
 							   textureRepeat_t repeat,
 							   textureUsage_t usage,
 							   textureSamples_t samples = SAMPLE_1 );
-							   
+
 	void		GenerateCubeImage( const byte* pic[6], int size,
 								   textureFilter_t filter, textureUsage_t usage );
-								   
+
 	void		SetTexParameters();	// update aniso and trilinear
-	
+
 	// DG: added for imgui integration (to be used with ImGui::Image() etc)
 	void*		GetImGuiTextureID()
 	{
@@ -393,49 +402,54 @@ public:
 			// load the image on demand here, which isn't our normal game operating mode
 			ActuallyLoadImage( true );
 		}
-		
+
+#if defined( USE_VULKAN )
+		return ( void* )( intptr_t )image;
+#else
 		return ( void* )( intptr_t )texnum;
+#endif
+
 	}
 	// DG end
-	
+
 private:
 	friend class idImageManager;
-	
+
 	void		DeriveOpts();
 	void		AllocImage();
 	void		SetSamplerState( textureFilter_t tf, textureRepeat_t tr );
-	
+
 	// parameters that define this image
 	idStr				imgName;				// game path, including extension (except for cube maps), may be an image program
 	cubeFiles_t			cubeFiles;				// If this is a cube map, and if so, what kind
 	void	( *generatorFunction )( idImage* image );	// NULL for files
 	textureUsage_t		usage;					// Used to determine the type of compression to use
 	idImageOpts			opts;					// Parameters that determine the storage method
-	
+
 	// Sampler settings
 	textureFilter_t		filter;
 	textureRepeat_t		repeat;
-	
+
 	bool				referencedOutsideLevelLoad;
 	bool				levelLoadReferenced;	// for determining if it needs to be purged
 	bool				defaulted;				// true if the default image was generated because a file couldn't be loaded
 	ID_TIME_T			sourceFileTime;			// the most recent of all images used in creation, for reloadImages command
 	ID_TIME_T			binaryFileTime;			// the time stamp of the binary file
-	
+
 	int					refCount;				// overall ref count
-	
+
 	static const uint32 TEXTURE_NOT_LOADED = 0xFFFFFFFF;
-	
+
 #if defined( USE_VULKAN )
 	void				CreateSampler();
-	
+
 	bool				bIsSwapChainImage;
 	VkFormat			internalFormat;
 	VkImage				image;
 	VkImageView			view;
 	VkImageLayout		layout;
 	VkSampler			sampler;
-	
+
 #if defined( USE_AMD_ALLOCATOR )
 	VmaAllocation		allocation;
 	static idList< VmaAllocation >		allocationGarbage[ NUM_FRAME_DATA ];
@@ -443,14 +457,14 @@ private:
 	vulkanAllocation_t	allocation;
 	static idList< vulkanAllocation_t > allocationGarbage[ NUM_FRAME_DATA ];
 #endif
-	
+
 	static int						garbageIndex;
 	static idList< VkImage >		imageGarbage[ NUM_FRAME_DATA ];
 	static idList< VkImageView >	viewGarbage[ NUM_FRAME_DATA ];
 	static idList< VkSampler >		samplerGarbage[ NUM_FRAME_DATA ];
 #else
 	GLuint				texnum;				// gl texture binding
-	
+
 	// we could derive these in subImageUpload each time if necessary
 	GLuint				internalFormat;
 	GLuint				dataFormat;
@@ -475,10 +489,10 @@ public:
 		insideLevelLoad = false;
 		preloadingMapImages = false;
 	}
-	
+
 	void				Init();
 	void				Shutdown();
-	
+
 	// If the exact combination of parameters has been asked for already, an existing
 	// image will be returned, otherwise a new image will be created.
 	// Be careful not to use the same image file with different filter / repeat / etc parameters
@@ -488,42 +502,42 @@ public:
 	// Will automatically execute image programs if needed.
 	idImage* 			ImageFromFile( const char* name,
 									   textureFilter_t filter, textureRepeat_t repeat, textureUsage_t usage, cubeFiles_t cubeMap = CF_2D );
-									   
+
 	// look for a loaded image, whatever the parameters
 	idImage* 			GetImage( const char* name ) const;
-	
+
 	// look for a loaded image, whatever the parameters
 	idImage* 			GetImageWithParameters( const char* name, textureFilter_t filter, textureRepeat_t repeat, textureUsage_t usage, cubeFiles_t cubeMap ) const;
-	
+
 	// The callback will be issued immediately, and later if images are reloaded or vid_restart
 	// The callback function should call one of the idImage::Generate* functions to fill in the data
 	idImage* 			ImageFromFunction( const char* name, void ( *generatorFunction )( idImage* image ) );
-	
+
 	// scratch images are for internal renderer use.  ScratchImage names should always begin with an underscore
 	idImage* 			ScratchImage( const char* name, idImageOpts* imgOpts, textureFilter_t filter, textureRepeat_t repeat, textureUsage_t usage );
-	
+
 	// These images are for internal renderer use.  Names should start with "_".
 	idImage* 			ScratchImage( const char* name, const idImageOpts& opts );
-	
+
 	// purges all the images before a vid_restart
 	void				PurgeAllImages();
-	
+
 	// reloads all apropriate images after a vid_restart
 	void				ReloadImages( bool all );
-	
+
 	// Called only by renderSystem::BeginLevelLoad
 	void				BeginLevelLoad();
-	
+
 	// Called only by renderSystem::EndLevelLoad
 	void				EndLevelLoad();
-	
+
 	void				Preload( const idPreloadManifest& manifest, const bool& mapPreload );
-	
+
 	// Loads unloaded level images
 	int					LoadLevelImages( bool pacifier );
-	
+
 	void				PrintMemInfo( MemInfo_t* mi );
-	
+
 	// built-in images
 	void				CreateIntrinsicImages();
 	idImage* 			defaultImage;
@@ -559,6 +573,9 @@ public:
 	idImage*			ambientOcclusionImage[2];		// contain AO and bilateral filtering keys
 	idImage*			hierarchicalZbufferImage;		// zbuffer with mip maps to accelerate screen space ray tracing
 	idImage*			imguiFontImage;
+
+	idImage*			defaultUACIrradianceCube;
+	idImage*			defaultUACRadianceCube;
 	// RB end
 	idImage* 			scratchImage;
 	idImage* 			scratchImage2;
@@ -567,18 +584,18 @@ public:
 	idImage* 			currentDepthImage;				// for motion blur
 	idImage* 			originalCurrentRenderImage;		// currentRenderImage before any changes for stereo rendering
 	idImage* 			loadingIconImage;				// loading icon must exist always
-	idImage* 			hellLoadingIconImage;				// loading icon must exist always
-	
+	idImage* 			hellLoadingIconImage;			// loading icon must exist always
+
 	//--------------------------------------------------------
-	
+
 	idImage* 			AllocImage( const char* name );
 	idImage* 			AllocStandaloneImage( const char* name );
-	
+
 	bool				ExcludePreloadImage( const char* name );
-	
+
 	idList<idImage*, TAG_IDLIB_LIST_IMAGE>	images;
 	idHashIndex			imageHash;
-	
+
 	bool				insideLevelLoad;			// don't actually load images now
 	bool				preloadingMapImages;		// unless this is set
 };

@@ -45,7 +45,7 @@ class idVectorSet : public idList<type>
 public:
 	idVectorSet();
 	idVectorSet( const type& mins, const type& maxs, const int boxHashSize, const int initialSize );
-	
+
 	// returns total size of allocated memory
 	size_t					Allocated() const
 	{
@@ -56,13 +56,13 @@ public:
 	{
 		return sizeof( *this ) + Allocated();
 	}
-	
+
 	void					Init( const type& mins, const type& maxs, const int boxHashSize, const int initialSize );
 	void					ResizeIndex( const int newSize );
 	void					Clear();
-	
+
 	int						FindVector( const type& v, const float epsilon );
-	
+
 private:
 	idHashIndex				hash;
 	type					mins;
@@ -92,16 +92,16 @@ ID_INLINE void idVectorSet<type, dimension>::Init( const type& mins, const type&
 {
 	int i;
 	float boxSize;
-	
+
 	idList<type>::AssureSize( initialSize );
 	idList<type>::SetNum( 0 );
-	
+
 	hash.Clear( idMath::IPow( boxHashSize, dimension ), initialSize );
-	
+
 	this->mins = mins;
 	this->maxs = maxs;
 	this->boxHashSize = boxHashSize;
-	
+
 	for( i = 0; i < dimension; i++ )
 	{
 		boxSize = ( maxs[i] - mins[i] ) / ( float ) boxHashSize;
@@ -128,23 +128,23 @@ template< class type, int dimension >
 ID_INLINE int idVectorSet<type, dimension>::FindVector( const type& v, const float epsilon )
 {
 	int i, j, k, hashKey, partialHashKey[dimension];
-	
+
 	for( i = 0; i < dimension; i++ )
 	{
 		assert( epsilon <= boxHalfSize[i] );
 		partialHashKey[i] = ( int )( ( v[i] - mins[i] - boxHalfSize[i] ) * boxInvSize[i] );
 	}
-	
+
 	for( i = 0; i < ( 1 << dimension ); i++ )
 	{
-	
+
 		hashKey = 0;
 		for( j = 0; j < dimension; j++ )
 		{
 			hashKey *= boxHashSize;
 			hashKey += partialHashKey[j] + ( ( i >> j ) & 1 );
 		}
-		
+
 		for( j = hash.First( hashKey ); j >= 0; j = hash.Next( j ) )
 		{
 			const type& lv = ( *this )[j];
@@ -161,20 +161,20 @@ ID_INLINE int idVectorSet<type, dimension>::FindVector( const type& v, const flo
 			}
 		}
 	}
-	
+
 	hashKey = 0;
 	for( i = 0; i < dimension; i++ )
 	{
 		hashKey *= boxHashSize;
 		hashKey += ( int )( ( v[i] - mins[i] ) * boxInvSize[i] );
 	}
-	
+
 	hash.Add( hashKey, idList<type>::Num() );
-	
+
 	// RB: compile fix for Fedora 17
 	this->Append( v );
 	// RB end
-	
+
 	return idList<type>::Num() - 1;
 }
 
@@ -195,7 +195,7 @@ class idVectorSubset
 public:
 	idVectorSubset();
 	idVectorSubset( const type& mins, const type& maxs, const int boxHashSize, const int initialSize );
-	
+
 	// returns total size of allocated memory
 	size_t					Allocated() const
 	{
@@ -206,13 +206,13 @@ public:
 	{
 		return sizeof( *this ) + Allocated();
 	}
-	
+
 	void					Init( const type& mins, const type& maxs, const int boxHashSize, const int initialSize );
 	void					Clear();
-	
+
 	// returns either vectorNum or an index to a previously found vector
 	int						FindVector( const type* vectorList, const int vectorNum, const float epsilon );
-	
+
 private:
 	idHashIndex				hash;
 	type					mins;
@@ -242,13 +242,13 @@ ID_INLINE void idVectorSubset<type, dimension>::Init( const type& mins, const ty
 {
 	int i;
 	float boxSize;
-	
+
 	hash.Clear( idMath::IPow( boxHashSize, dimension ), initialSize );
-	
+
 	this->mins = mins;
 	this->maxs = maxs;
 	this->boxHashSize = boxHashSize;
-	
+
 	for( i = 0; i < dimension; i++ )
 	{
 		boxSize = ( maxs[i] - mins[i] ) / ( float ) boxHashSize;
@@ -269,23 +269,23 @@ ID_INLINE int idVectorSubset<type, dimension>::FindVector( const type* vectorLis
 {
 	int i, j, k, hashKey, partialHashKey[dimension];
 	const type& v = vectorList[vectorNum];
-	
+
 	for( i = 0; i < dimension; i++ )
 	{
 		assert( epsilon <= boxHalfSize[i] );
 		partialHashKey[i] = ( int )( ( v[i] - mins[i] - boxHalfSize[i] ) * boxInvSize[i] );
 	}
-	
+
 	for( i = 0; i < ( 1 << dimension ); i++ )
 	{
-	
+
 		hashKey = 0;
 		for( j = 0; j < dimension; j++ )
 		{
 			hashKey *= boxHashSize;
 			hashKey += partialHashKey[j] + ( ( i >> j ) & 1 );
 		}
-		
+
 		for( j = hash.First( hashKey ); j >= 0; j = hash.Next( j ) )
 		{
 			const type& lv = vectorList[j];
@@ -302,14 +302,14 @@ ID_INLINE int idVectorSubset<type, dimension>::FindVector( const type* vectorLis
 			}
 		}
 	}
-	
+
 	hashKey = 0;
 	for( i = 0; i < dimension; i++ )
 	{
 		hashKey *= boxHashSize;
 		hashKey += ( int )( ( v[i] - mins[i] ) * boxInvSize[i] );
 	}
-	
+
 	hash.Add( hashKey, vectorNum );
 	return vectorNum;
 }

@@ -36,9 +36,9 @@ class idSliderWindow : public idWindow
 public:
 	idSliderWindow( idUserInterfaceLocal* gui );
 	virtual				~idSliderWindow();
-	
+
 	void				InitWithDefaults( const char* _name, const idRectangle& rect, const idVec4& foreColor, const idVec4& matColor, const char* _background, const char* thumbShader, bool _vertical, bool _scrollbar );
-	
+
 	void				SetRange( float _low, float _high, float _step );
 	float				GetLow()
 	{
@@ -48,13 +48,13 @@ public:
 	{
 		return high;
 	}
-	
+
 	void				SetValue( float _value );
 	float				GetValue()
 	{
 		return value;
 	};
-	
+
 	virtual size_t		Allocated()
 	{
 		return idWindow::Allocated();
@@ -67,9 +67,9 @@ public:
 	virtual const char* RouteMouseCoords( float xd, float yd );
 	virtual void		Activate( bool activate, idStr& act );
 	virtual void		SetBuddy( idWindow* buddy );
-	
+
 	void				RunNamedEvent( const char* eventName );
-	
+
 private:
 	virtual bool		ParseInternalVar( const char* name, idTokenParser* src );
 	void				CommonInit();
@@ -78,7 +78,7 @@ private:
 	// false: write to the cvar system
 	// force == true overrides liveUpdate 0
 	void				UpdateCvar( bool read, bool force = false );
-	
+
 	idWinFloat			value;
 	float				low;
 	float				high;
@@ -93,7 +93,7 @@ private:
 	bool				scrollbar;
 	idWindow* 			buddyWin;
 	idStr				thumbShader;
-	
+
 	idWinStr			cvarStr;
 	idCVar* 			cvar;
 	bool				cvar_init;

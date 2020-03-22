@@ -84,7 +84,7 @@ void idCursor3D::Present()
 		return;
 	}
 	BecomeInactive( TH_UPDATEVISUALS );
-	
+
 	const idVec3& origin = GetPhysics()->GetOrigin();
 	const idMat3& axis = GetPhysics()->GetAxis();
 	gameRenderWorld->DebugArrow( colorYellow, origin + axis[1] * -5.0f + axis[2] * 5.0f, origin, 2 );
@@ -185,24 +185,24 @@ void idDragEntity::Update( idPlayer* player )
 	idAngles angles;
 	jointHandle_t newJoint = INVALID_JOINT;
 	idStr newBodyName;
-	
+
 	player->GetViewPos( viewPoint, viewAxis );
-	
+
 	// if no entity selected for dragging
 	if( !dragEnt.GetEntity() )
 	{
-	
+
 		if( player->usercmd.buttons & BUTTON_ATTACK )
 		{
-		
+
 			gameLocal.clip.TracePoint( trace, viewPoint, viewPoint + viewAxis[0] * MAX_DRAG_TRACE_DISTANCE, ( CONTENTS_SOLID | CONTENTS_RENDERMODEL | CONTENTS_BODY ), player );
 			if( trace.fraction < 1.0f )
 			{
-			
+
 				newEnt = gameLocal.entities[ trace.c.entityNum ];
 				if( newEnt )
 				{
-				
+
 					if( newEnt->GetBindMaster() )
 					{
 						if( newEnt->GetBindJoint() )
@@ -215,22 +215,22 @@ void idDragEntity::Update( idPlayer* player )
 						}
 						newEnt = newEnt->GetBindMaster();
 					}
-					
+
 					if( newEnt->IsType( idAFEntity_Base::Type ) && static_cast<idAFEntity_Base*>( newEnt )->IsActiveAF() )
 					{
 						idAFEntity_Base* af = static_cast<idAFEntity_Base*>( newEnt );
-						
+
 						// joint being dragged
 						newJoint = CLIPMODEL_ID_TO_JOINT_HANDLE( trace.c.id );
 						// get the body id from the trace model id which might be a joint handle
 						trace.c.id = af->BodyForClipModelId( trace.c.id );
 						// get the name of the body being dragged
 						newBodyName = af->GetAFPhysics()->GetBody( trace.c.id )->GetName();
-						
+
 					}
 					else if( !newEnt->IsType( idWorldspawn::Type ) )
 					{
-					
+
 						if( trace.c.id < 0 )
 						{
 							newJoint = CLIPMODEL_ID_TO_JOINT_HANDLE( trace.c.id );
@@ -240,11 +240,11 @@ void idDragEntity::Update( idPlayer* player )
 							newJoint = INVALID_JOINT;
 						}
 						newBodyName = "";
-						
+
 					}
 					else
 					{
-					
+
 						newJoint = INVALID_JOINT;
 						newEnt = NULL;
 					}
@@ -256,22 +256,22 @@ void idDragEntity::Update( idPlayer* player )
 					joint = newJoint;
 					id = trace.c.id;
 					bodyName = newBodyName;
-					
+
 					if( !cursor )
 					{
 						cursor = ( idCursor3D* )gameLocal.SpawnEntityType( idCursor3D::Type );
 					}
-					
+
 					idPhysics* phys = dragEnt.GetEntity()->GetPhysics();
 					localPlayerPoint = ( trace.c.point - viewPoint ) * viewAxis.Transpose();
 					origin = phys->GetOrigin( id );
 					axis = phys->GetAxis( id );
 					localEntityPoint = ( trace.c.point - origin ) * axis.Transpose();
-					
+
 					cursor->drag.Init( g_dragDamping.GetFloat() );
 					cursor->drag.SetPhysics( phys, id, localEntityPoint );
 					cursor->Show();
-					
+
 					if( phys->IsType( idPhysics_AF::Type ) ||
 							phys->IsType( idPhysics_RigidBody::Type ) ||
 							phys->IsType( idPhysics_Monster::Type ) )
@@ -282,26 +282,26 @@ void idDragEntity::Update( idPlayer* player )
 			}
 		}
 	}
-	
+
 	// if there is an entity selected for dragging
 	idEntity* drag = dragEnt.GetEntity();
 	if( drag )
 	{
-	
+
 		if( !( player->usercmd.buttons & BUTTON_ATTACK ) )
 		{
 			StopDrag();
 			return;
 		}
-		
+
 		cursor->SetOrigin( viewPoint + localPlayerPoint * viewAxis );
 		cursor->SetAxis( viewAxis );
-		
+
 		cursor->drag.SetDragPosition( cursor->GetPhysics()->GetOrigin() );
-		
+
 		renderEntity_t* renderEntity = drag->GetRenderEntity();
 		idAnimator* dragAnimator = drag->GetAnimator();
-		
+
 		if( joint != INVALID_JOINT && renderEntity != NULL && dragAnimator != NULL )
 		{
 			dragAnimator->GetJointTransform( joint, gameLocal.time, cursor->draggedPosition, axis );
@@ -314,7 +314,7 @@ void idDragEntity::Update( idPlayer* player )
 			gameRenderWorld->DrawText( va( "%s\n%s\n%s", drag->GetName(), drag->GetType()->classname, bodyName.c_str() ), cursor->GetPhysics()->GetOrigin(), 0.1f, colorWhite, viewAxis, 1 );
 		}
 	}
-	
+
 	// if there is a selected entity
 	if( selected.GetEntity() && g_dragShowSelection.GetBool() )
 	{
@@ -363,17 +363,17 @@ void idDragEntity::BindSelected()
 	idStr key, value, bindBodyName;
 	const idKeyValue* kv;
 	idAFEntity_Base* af;
-	
+
 	af = static_cast<idAFEntity_Base*>( dragEnt.GetEntity() );
-	
+
 	if( !af || !af->IsType( idAFEntity_Base::Type ) || !af->IsActiveAF() )
 	{
 		return;
 	}
-	
+
 	bindBodyName = af->GetAFPhysics()->GetBody( id )->GetName();
 	largestNum = 1;
-	
+
 	// parse all the bind constraints
 	kv = af->spawnArgs.MatchPrefix( "bindConstraint ", NULL );
 	while( kv )
@@ -387,12 +387,12 @@ void idDragEntity::BindSelected()
 				largestNum = num + 1;
 			}
 		}
-		
+
 		lexer.LoadMemory( kv->GetValue(), kv->GetValue().Length(), kv->GetKey() );
 		lexer.ReadToken( &type );
 		lexer.ReadToken( &bodyName );
 		lexer.FreeSource();
-		
+
 		// if there already exists a bind constraint for this body
 		if( bodyName.Icmp( bindBodyName ) == 0 )
 		{
@@ -400,13 +400,13 @@ void idDragEntity::BindSelected()
 			af->spawnArgs.Delete( kv->GetKey() );
 			kv = NULL;
 		}
-		
+
 		kv = af->spawnArgs.MatchPrefix( "bindConstraint ", kv );
 	}
-	
+
 	sprintf( key, "bindConstraint bind%d", largestNum );
 	sprintf( value, "ballAndSocket %s %s", bindBodyName.c_str(), af->GetAnimator()->GetJointName( joint ) );
-	
+
 	af->spawnArgs.Set( key, value );
 	af->spawnArgs.Set( "bind", "worldspawn" );
 	af->Bind( gameLocal.world, true );
@@ -421,17 +421,17 @@ void idDragEntity::UnbindSelected()
 {
 	const idKeyValue* kv;
 	idAFEntity_Base* af;
-	
+
 	af = static_cast<idAFEntity_Base*>( selected.GetEntity() );
-	
+
 	if( !af || !af->IsType( idAFEntity_Base::Type ) || !af->IsActiveAF() )
 	{
 		return;
 	}
-	
+
 	// unbind the selected entity
 	af->Unbind();
-	
+
 	// delete all the bind constraints
 	kv = selected.GetEntity()->spawnArgs.MatchPrefix( "bindConstraint ", NULL );
 	while( kv )
@@ -439,7 +439,7 @@ void idDragEntity::UnbindSelected()
 		selected.GetEntity()->spawnArgs.Delete( kv->GetKey() );
 		kv = selected.GetEntity()->spawnArgs.MatchPrefix( "bindConstraint ", NULL );
 	}
-	
+
 	// delete any bind information
 	af->spawnArgs.Delete( "bind" );
 	af->spawnArgs.Delete( "bindToJoint" );
@@ -475,20 +475,20 @@ bool idEditEntities::SelectEntity( const idVec3& origin, const idVec3& dir, cons
 {
 	idVec3		end;
 	idEntity*	ent;
-	
+
 	if( !g_editEntityMode.GetInteger() || selectableEntityClasses.Num() == 0 )
 	{
 		return false;
 	}
-	
+
 	if( gameLocal.time < nextSelectTime )
 	{
 		return true;
 	}
 	nextSelectTime = gameLocal.time + 300;
-	
+
 	end = origin + dir * 4096.0f;
-	
+
 	ent = NULL;
 	for( int i = 0; i < selectableEntityClasses.Num(); i++ )
 	{
@@ -544,7 +544,7 @@ idEditEntities::ClearSelectedEntities
 void idEditEntities::ClearSelectedEntities()
 {
 	int i, count;
-	
+
 	count = selectedEntities.Num();
 	for( i = 0; i < count; i++ )
 	{
@@ -604,15 +604,15 @@ idEditEntities::DisplayEntities
 void idEditEntities::DisplayEntities()
 {
 	idEntity* ent;
-	
+
 	if( !gameLocal.GetLocalPlayer() )
 	{
 		return;
 	}
-	
+
 	selectableEntityClasses.Clear();
 	selectedTypeInfo_t sit;
-	
+
 	switch( g_editEntityMode.GetInteger() )
 	{
 		case 1:
@@ -656,27 +656,27 @@ void idEditEntities::DisplayEntities()
 		default:
 			return;
 	}
-	
+
 	idBounds viewBounds( gameLocal.GetLocalPlayer()->GetPhysics()->GetOrigin() );
 	idBounds viewTextBounds( gameLocal.GetLocalPlayer()->GetPhysics()->GetOrigin() );
 	idMat3 axis = gameLocal.GetLocalPlayer()->viewAngles.ToMat3();
-	
+
 	viewBounds.ExpandSelf( 512 );
 	viewTextBounds.ExpandSelf( 128 );
-	
+
 	idStr textKey;
-	
+
 	for( ent = gameLocal.spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next() )
 	{
-	
+
 		idVec4 color;
-		
+
 		textKey = "";
 		if( !EntityIsSelectable( ent, &color, &textKey ) )
 		{
 			continue;
 		}
-		
+
 		bool drawArrows = false;
 		if( ent->GetType() == &idAFEntity_Base::Type )
 		{
@@ -704,12 +704,12 @@ void idEditEntities::DisplayEntities()
 				drawArrows = true;
 			}
 		}
-		
+
 		if( !viewBounds.ContainsPoint( ent->GetPhysics()->GetOrigin() ) )
 		{
 			continue;
 		}
-		
+
 		gameRenderWorld->DebugBounds( color, idBounds( ent->GetPhysics()->GetOrigin() ).Expand( 8 ) );
 		if( drawArrows )
 		{
@@ -733,7 +733,7 @@ void idEditEntities::DisplayEntities()
 			gameRenderWorld->DebugArrow( colorBlue, start, end, 2 );
 			gameRenderWorld->DrawText( "z-", end + idVec3( 0, 0, -4 ), 0.15f, colorWhite, axis );
 		}
-		
+
 		if( textKey.Length() )
 		{
 			const char* text = ent->spawnArgs.GetString( textKey );
@@ -767,7 +767,7 @@ int idGameEdit::GetSelectedEntities( idEntity* list[], int max )
 {
 	int num = 0;
 	idEntity* ent;
-	
+
 	for( ent = gameLocal.spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next() )
 	{
 		if( ent->fl.selected )
@@ -807,7 +807,7 @@ idGameEdit::ClearEntitySelection
 void idGameEdit::ClearEntitySelection()
 {
 	idEntity* ent;
-	
+
 	for( ent = gameLocal.spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next() )
 	{
 		ent->fl.selected = false;
@@ -869,7 +869,7 @@ const char* idGameEdit::GetUniqueEntityName( const char* classname ) const
 {
 	int			id;
 	static char	name[1024];
-	
+
 	// can only have MAX_GENTITIES, so if we have a spot available, we're guaranteed to find one
 	for( id = 0; id < MAX_GENTITIES; id++ )
 	{
@@ -879,7 +879,7 @@ const char* idGameEdit::GetUniqueEntityName( const char* classname ) const
 			return name;
 		}
 	}
-	
+
 	// id == MAX_GENTITIES + 1, which can't be in use if we get here
 	idStr::snPrintf( name, sizeof( name ), "%s_%d", classname, id );
 	return name;
@@ -1002,7 +1002,7 @@ void idGameEdit::EntityChangeSpawnArgs( idEntity* ent, const idDict* newArgs )
 		for( int i = 0 ; i < newArgs->GetNumKeyVals() ; i ++ )
 		{
 			const idKeyValue* kv = newArgs->GetKeyVal( i );
-			
+
 			if( kv->GetValue().Length() > 0 )
 			{
 				ent->spawnArgs.Set( kv->GetKey() , kv->GetValue() );
@@ -1185,7 +1185,7 @@ void idGameEdit::MapCopyDictToEntity( const char* name, const idDict* dict ) con
 				const idKeyValue* kv = dict->GetKeyVal( i );
 				const char* key = kv->GetKey();
 				const char* val = kv->GetValue();
-				
+
 				// DG: if val is "", delete key from the entity
 				//     => same behavior as EntityChangeSpawnArgs()
 				if( val[0] == '\0' )

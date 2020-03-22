@@ -42,7 +42,7 @@ void idTimer::InitBaseClockTicks() const
 	idTimer timer;
 	double ct, b;
 	int i;
-	
+
 	base = 0.0;
 	b = -1.0;
 	for( i = 0; i < 1000; i++ )

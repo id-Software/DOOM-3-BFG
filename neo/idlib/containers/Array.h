@@ -56,25 +56,25 @@ public:
 	{
 		return numElements;
 	}
-	
+
 	// returns the number of bytes the array takes up
 	int				ByteSize() const
 	{
 		return sizeof( ptr );
 	}
-	
+
 	// memset the entire array to zero
 	void			Zero()
 	{
 		memset( ptr, 0, sizeof( ptr ) );
 	}
-	
+
 	// memset the entire array to a specific value
 	void			Memset( const char fill )
 	{
 		memset( ptr, fill, numElements * sizeof( *ptr ) );
 	}
-	
+
 	// array operators
 	const T_& 		operator[]( int index ) const
 	{
@@ -86,7 +86,7 @@ public:
 		assert( ( unsigned )index < ( unsigned )numElements );
 		return ptr[index];
 	}
-	
+
 	// returns a pointer to the list
 	const T_* 		Ptr() const
 	{
@@ -96,7 +96,7 @@ public:
 	{
 		return ptr;
 	}
-	
+
 private:
 	T_				ptr[numElements];
 };

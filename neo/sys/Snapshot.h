@@ -43,12 +43,12 @@ public:
 	idSnapShot();
 	idSnapShot( const idSnapShot& other );
 	~idSnapShot();
-	
+
 	void operator=( const idSnapShot& other );
-	
+
 	// clears the snapshot
 	void Clear();
-	
+
 	int  GetTime() const
 	{
 		return time;
@@ -57,7 +57,7 @@ public:
 	{
 		time = t;
 	}
-	
+
 	int  GetRecvTime() const
 	{
 		return recvTime;
@@ -66,14 +66,14 @@ public:
 	{
 		recvTime = t;
 	}
-	
+
 	// Loads only sequence and baseSequence values from the compressed stream
 	static void PeekDeltaSequence( const char* deltaMem, int deltaSize, int& sequence, int& baseSequence );
-	
+
 	// Reads a new object state packet, which is assumed to be delta compressed against this snapshot
 	bool ReadDeltaForJob( const char* deltaMem, int deltaSize, int visIndex, idSnapShot* templateStates );
 	bool ReadDelta( idFile* file, int visIndex );
-	
+
 	// Writes an object state packet which is delta compressed against the old snapshot
 	struct objectBuffer_t
 	{
@@ -108,7 +108,7 @@ public:
 			return data[i];
 		}
 		void operator=( const objectBuffer_t& other );
-		
+
 		// (not making private because of idSnapshot)
 		void _AddRef();
 		void _Release();
@@ -116,7 +116,7 @@ public:
 		byte* 			data;
 		objectSize_t	size;
 	};
-	
+
 	struct objectState_t
 	{
 		objectState_t() :
@@ -129,7 +129,7 @@ public:
 			createdFromTemplate( false )
 		{ }
 		void Print( const char* name );
-		
+
 		uint16			objectNum;
 		objectBuffer_t	buffer;
 		uint32			visMask;
@@ -139,7 +139,7 @@ public:
 		int				expectedSequence;
 		bool			createdFromTemplate;
 	};
-	
+
 	struct submitDeltaJobsInfo_t
 	{
 		objParms_t* 		objParms;				// Start of object parms
@@ -150,20 +150,20 @@ public:
 		int					maxObjMemory;			// Max memory (which will dictate when syncs need to occur)
 		lzwParm_t* 			lzwParms;				// Start of lzw parms
 		int					maxDeltaParms;			// Max lzw parms (which will dictate how many syncs we can have)
-		
+
 		idSnapShot* 		oldSnap;				// snap we are comparing this snap to (to produce a delta)
 		int					visIndex;
 		int					baseSequence;
-		
+
 		idSnapShot* 		templateStates;			// states for new snapObj that arent in old states
-		
+
 		lzwInOutData_t* 	lzwInOutData;
 	};
-	
+
 	void SubmitWriteDeltaToJobs( const submitDeltaJobsInfo_t& submitDeltaJobInfo );
-	
+
 	bool WriteDelta( idSnapShot& old, int visIndex, idFile* file, int maxLength, int optimalLength = 0 );
-	
+
 	// Adds an object to the state, overwrites any existing object with the same number
 	objectState_t* S_AddObject( int objectNum, uint32 visMask, const idBitMsg& msg, const char* tag = NULL )
 	{
@@ -176,56 +176,56 @@ public:
 	objectState_t* S_AddObject( int objectNum, uint32 visMask, const char* buffer, int size, const char* tag = NULL );
 	bool CopyObject( const idSnapShot& oldss, int objectNum, bool forceStale = false );
 	int CompareObject( const idSnapShot* oldss, int objectNum, int start = 0, int end = 0, int oldStart = 0 );
-	
+
 	// returns the number of objects in this snapshot
 	int NumObjects() const
 	{
 		return objectStates.Num();
 	}
-	
+
 	// Returns the object number of the specified object, also fills the bitmsg
 	int GetObjectMsgByIndex( int i, idBitMsg& msg, bool ignoreIfStale = false ) const;
-	
+
 	// returns true if the object was found in the snapshot
 	bool GetObjectMsgByID( int objectNum, idBitMsg& msg, bool ignoreIfStale = false )
 	{
 		return GetObjectMsgByIndex( FindObjectIndexByID( objectNum ), msg, ignoreIfStale ) == objectNum;
 	}
-	
+
 	// returns the object index or -1 if it's not found
 	int FindObjectIndexByID( int objectNum ) const;
-	
+
 	// returns the object by id, or NULL if not found
 	objectState_t* 	FindObjectByID( int objectNum ) const;
-	
+
 	// Returns whether or not an object is stale
 	bool ObjectIsStaleByIndex( int i ) const;
-	
+
 	int ObjectChangedCountByIndex( int i ) const;
-	
+
 	// clears the empty states from the snapshot snapshot
 	void CleanupEmptyStates();
-	
+
 	void PrintReport();
-	
+
 	void UpdateExpectedSeq( int newSeq );
-	
+
 	void			ApplyToExistingState( int objId, idBitMsg& msg );
 	objectState_t* 	GetTemplateState( int objNum, idSnapShot* templateStates, objectState_t* newState = NULL );
-	
+
 	void	RemoveObject( int objId );
-	
+
 private:
 
 	idList< objectState_t*, TAG_IDLIB_LIST_SNAPSHOT>							objectStates;
 	idBlockAlloc< objectState_t, 16, TAG_NETWORKING >	allocatedObjs;
-	
+
 	int													time;
 	int													recvTime;
-	
+
 	int				BinarySearch( int objectNum ) const;
 	objectState_t& 	FindOrCreateObjectByID( int objectNum );					// objIndex is optional parm for returning the index of the obj
-	
+
 	void			SubmitObjectJob(	const submitDeltaJobsInfo_t& 	submitDeltaJobsInfo,		// Struct containing parameters originally passed in to SubmitWriteDeltaToJobs
 										objectState_t* 					newState,					// New obj state (can be NULL, which means deleted)
 										objectState_t* 					oldState,					// Old obj state (can be NULL, which means new)
@@ -241,7 +241,7 @@ private:
 		lzwParm_t*&					curlzwParm,			// Current delta parm
 		bool							saveDictionary		// If true, this is the first of several calls which will be appended
 	);
-	
+
 	void WriteObject( idFile* file, int visIndex, objectState_t* newState, objectState_t* oldState, int& lastobjectNum );
 	void FreeObjectState( int index );
 };

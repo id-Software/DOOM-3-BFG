@@ -158,11 +158,11 @@ bool idLangDict::Load( const byte* buffer, const int bufferLen, const char* name
 		// let whoever called us deal with the failure (so sys_lang can be reset)
 		return false;
 	}
-	
+
 	idLib::Printf( "Reading %s", name );
-	
+
 	bool utf8 = false;
-	
+
 	// in all but retail builds, ensure that the byte-order mark is NOT MISSING so that
 	// we can avoid debugging UTF-8 code
 #ifndef ID_RETAIL
@@ -187,7 +187,7 @@ bool idLangDict::Load( const byte* buffer, const int bufferLen, const char* name
 		utf8 = true;
 	}
 #endif
-	
+
 	if( utf8 )
 	{
 		idLib::Printf( " as UTF-8\n" );
@@ -196,13 +196,13 @@ bool idLangDict::Load( const byte* buffer, const int bufferLen, const char* name
 	{
 		idLib::Printf( " as ASCII\n" );
 	}
-	
+
 	idStr tempKey;
 	idStr tempVal;
-	
+
 	int line = 0;
 	int numStrings = 0;
-	
+
 	int i = 0;
 	while( i < bufferLen )
 	{
@@ -245,7 +245,7 @@ bool idLangDict::Load( const byte* buffer, const int bufferLen, const char* name
 				idLib::FatalError( "%s File ended while reading key at line %d", name, line );
 			}
 			tempKey.CopyRange( ( char* )buffer, keyStart, keyEnd );
-			
+
 			int valStart = -1;
 			while( i < bufferLen )
 			{
@@ -331,14 +331,14 @@ bool idLangDict::Load( const byte* buffer, const int bufferLen, const char* name
 			numStrings++;
 		}
 	}
-	
+
 	idLib::Printf( "%i strings read\n", numStrings );
-	
+
 	// get rid of any waste due to geometric list growth
 	//mem.PushHeap();
 	keyVals.Condense();
 	//mem.PopHeap();
-	
+
 	return true;
 }
 
@@ -449,12 +449,12 @@ const char* idLangDict::FindString_r( const char* str, int& depth ) const
 		idLib::Warning( "String '%s', indirection depth > %d", str, MAX_REDIRECTION_DEPTH );
 		return NULL;
 	}
-	
+
 	if( str == NULL || str[0] == '\0' )
 	{
 		return NULL;
 	}
-	
+
 	int index = FindStringIndex( str );
 	if( index < 0 )
 	{
@@ -505,12 +505,12 @@ bool idLangDict::DeleteString( const int idx )
 	{
 		return false;
 	}
-	
+
 	//mem.PushHeap();
 	blockAlloc.Free( keyVals[idx].value );
 	keyVals[idx].value = NULL;
 	//mem.PopHeap();
-	
+
 	return true;
 }
 
@@ -539,7 +539,7 @@ bool idLangDict::RenameStringKey( const char* oldKey, const char* newKey )
 		keyIndex.Add( newHash, index );
 	}
 	//mem.PopHeap();
-	
+
 	return true;
 }
 

@@ -44,11 +44,11 @@ bool idPluecker::FromPlanes( const idPlane& p1, const idPlane& p2 )
 	p[0] = -( p1[2] * -p2[3] - p2[2] * -p1[3] );
 	p[1] = -( p2[1] * -p1[3] - p1[1] * -p2[3] );
 	p[2] = p1[1] * p2[2] - p2[1] * p1[2];
-	
+
 	p[3] = -( p1[0] * -p2[3] - p2[0] * -p1[3] );
 	p[4] = p1[0] * p2[1] - p2[0] * p1[1];
 	p[5] = p1[0] * p2[2] - p2[0] * p1[2];
-	
+
 	return ( p[2] != 0.0f || p[5] != 0.0f || p[4] != 0.0f );
 }
 
@@ -64,7 +64,7 @@ float idPluecker::Distance3DSqr( const idPluecker& a ) const
 {
 	float d, s;
 	idVec3 dir;
-	
+
 	dir[0] = -a.p[5] *  p[4] -  a.p[4] * -p[5];
 	dir[1] =  a.p[4] *  p[2] -  a.p[2] *  p[4];
 	dir[2] =  a.p[2] * -p[5] - -a.p[5] *  p[2];

@@ -29,16 +29,16 @@ If you have questions concerning this license or the applicable additional terms
 
 // RB: missing __analysis_assume
 #if defined(__MINGW32__)
-#include <sal.h>
+	#include <sal.h>
 #endif
 // RB end
 
 #include "ParallelJobList_JobHeaders.h"
 
 #ifdef _WIN32
-#include <windows.h> // for DebugBreak
+	#include <windows.h> // for DebugBreak
 #else // POSIX for raise()
-#include <signal.h>
+	#include <signal.h>
 #endif
 
 /*
@@ -68,7 +68,7 @@ bool SpursEmulationAssertFailed( const char* filename, int line, const char* exp
 		raise( SIGTRAP );
 		// DG: end
 #endif // _WIN32
-		
+
 	}
 	return true;
 }

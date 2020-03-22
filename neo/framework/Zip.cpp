@@ -108,13 +108,13 @@ bool idZipBuilder::Build( const char* zipPath, const char* folder, bool cleanFol
 {
 	zipFileName = zipPath;
 	sourceFolderName = folder;
-	
+
 	if( !CreateZipFile( false ) )
 	{
 		// don't clean the folder if the zip fails
 		return false;
 	}
-	
+
 	if( cleanFolder )
 	{
 		CleanSourceFolder();
@@ -138,13 +138,13 @@ bool idZipBuilder::Update( const char* zipPath, const char* folder, bool cleanFo
 	}
 	zipFileName = zipPath;
 	sourceFolderName = folder;
-	
+
 	if( !CreateZipFile( true ) )
 	{
 		// don't clean the folder if the zip fails
 		return false;
 	}
-	
+
 	if( cleanFolder )
 	{
 		CleanSourceFolder();
@@ -176,7 +176,7 @@ bool idZipBuilder::GetFileTime( const idStr& filename, unsigned long* dostime ) 
 	}
 #endif
 	// RB end
-	
+
 	return false;
 }
 
@@ -246,15 +246,15 @@ bool idZipBuilder::CreateZipFile( bool appendFiles )
 		idLib::Warning( "[%s] - invalid parameters!", __FUNCTION__ );
 		return false;
 	}
-	
+
 	// need to clear the filesystem's zip cache before we can open and write
 	//fileSystem->ClearZipCache();
-	
+
 	idLib::Printf( "Building zip file: '%s'\n", zipFileName.c_str() );
-	
+
 	sourceFolderName.StripTrailing( "\\" );
 	sourceFolderName.StripTrailing( "/" );
-	
+
 #if 0
 	// attempt to check the file out
 	if( !Sys_IsFileWritable( zipFileName ) )
@@ -269,7 +269,7 @@ bool idZipBuilder::CreateZipFile( bool appendFiles )
 		}
 	}
 #endif
-	
+
 	// if not appending, set the file size to zero to "create it from scratch"
 	if( !appendFiles )
 	{
@@ -285,19 +285,19 @@ bool idZipBuilder::CreateZipFile( bool appendFiles )
 	{
 		idLib::PrintfIf( zip_verbosity.GetBool(), "Appending to zip file: '%s'\n", zipFileName.c_str() );
 	}
-	
+
 	// enumerate the files to zip up in the source folder
 	idStrStatic< MAX_OSPATH > relPath;
 	relPath =
 		fileSystem->OSPathToRelativePath( sourceFolderName );
 	idFileList* files = fileSystem->ListFilesTree( relPath, "*.*" );
-	
+
 	// check to make sure that at least one file will be added to the package
 	int atLeastOneFilteredFile = false;
 	for( int i = 0; i < files->GetNumFiles(); i++ )
 	{
 		idStr filename = files->GetFile( i );
-		
+
 		if( !IsFiltered( filename ) )
 		{
 			atLeastOneFilteredFile = true;
@@ -310,7 +310,7 @@ bool idZipBuilder::CreateZipFile( bool appendFiles )
 		idLib::Printf( "Skipping zip creation/modification, no additional changes need to be made...\n" );
 		return true;
 	}
-	
+
 	// open the zip file
 	zipFile zf = zipOpen( zipFileName, appendFiles ? APPEND_STATUS_ADDINZIP : 0 );
 	if( zf == NULL )
@@ -318,43 +318,43 @@ bool idZipBuilder::CreateZipFile( bool appendFiles )
 		idLib::Warning( "[%s] - error opening file '%s'!", __FUNCTION__, zipFileName.c_str() );
 		return false;
 	}
-	
+
 	// add the files to the zip file
 	for( int i = 0; i < files->GetNumFiles(); i++ )
 	{
-	
+
 		// add each file to the zip file
 		zip_fileinfo zi;
 		memset( &zi, 0, sizeof( zip_fileinfo ) );
-		
+
 		idStr filename = files->GetFile( i );
-		
+
 		if( IsFiltered( filename ) )
 		{
 			idLib::PrintfIf( zip_verbosity.GetBool(), "...Skipping: '%s'\n", filename.c_str() );
 			continue;
 		}
-		
+
 		idStr filenameInZip = filename;
 		filenameInZip.Strip( relPath );
 		filenameInZip.StripLeading( "/" );
-		
+
 		idStrStatic< MAX_OSPATH > ospath;
 		ospath = fileSystem->RelativePathToOSPath( filename );
 		GetFileTime( ospath, &zi.dosDate );
-		
+
 		idLib::PrintfIf( zip_verbosity.GetBool(), "...Adding: '%s' ", filenameInZip.c_str() );
-		
+
 		int compressionMethod = Z_DEFLATED;
 		if( IsUncompressed( filenameInZip ) )
 		{
 			compressionMethod = 0;
 		}
-		
+
 		int errcode = zipOpenNewFileInZip3( zf, filenameInZip, &zi, NULL, 0, NULL, 0, NULL /* comment*/,
 											compressionMethod,	DEFAULT_COMPRESSION_LEVEL, 0, -MAX_WBITS, DEF_MEM_LEVEL,
 											Z_DEFAULT_STRATEGY, NULL /*password*/, 0 /*fileCRC*/ );
-											
+
 		if( errcode != ZIP_OK )
 		{
 			idLib::Warning( "Error opening file in zipfile!" );
@@ -369,7 +369,7 @@ bool idZipBuilder::CreateZipFile( bool appendFiles )
 				idLib::Warning( "Error opening source file!" );
 				continue;
 			}
-			
+
 			// copy the file data into the zip file
 			idTempArray<byte> buffer( DEFAULT_WRITEBUFFERSIZE );
 			size_t total = 0;
@@ -388,7 +388,7 @@ bool idZipBuilder::CreateZipFile( bool appendFiles )
 			}
 			assert( total == ( size_t )src.Length() );
 		}
-		
+
 		errcode = zipCloseFileInZip( zf );
 		if( errcode != ZIP_OK )
 		{
@@ -397,13 +397,13 @@ bool idZipBuilder::CreateZipFile( bool appendFiles )
 		}
 		idLib::PrintfIf( zip_verbosity.GetBool(), "\n" );
 	}
-	
+
 	// free the file list
 	if( files != NULL )
 	{
 		fileSystem->FreeFileList( files );
 	}
-	
+
 	// close the zip file
 	int closeError = zipClose( zf, NULL );
 	if( closeError != ZIP_OK )
@@ -411,15 +411,15 @@ bool idZipBuilder::CreateZipFile( bool appendFiles )
 		idLib::Warning( "[%s] - error closing file '%s'!", __FUNCTION__, zipFileName.c_str() );
 		return false;
 	}
-	
+
 	idLib::Printf( "Done.\n" );
-	
+
 	return true;
 #else
-	
+
 	return false;
 #endif
-	
+
 }
 
 /*
@@ -444,19 +444,19 @@ bool idZipBuilder::CreateZipFileFromFiles( const idList< idFile_Memory* >& srcFi
 		idLib::Warning( "[%s] - invalid parameters!", __FUNCTION__ );
 		return false;
 	}
-	
+
 	// need to clear the filesystem's zip cache before we can open and write
 	//fileSystem->ClearZipCache();
-	
+
 	idLib::Printf( "Building zip file: '%s'\n", zipFileName.c_str() );
-	
+
 	// do not allow overwrite as this should be a tempfile attempt to check the file out
 	if( !Sys_IsFileWritable( zipFileName ) )
 	{
 		idLib::PrintfIf( zip_verbosity.GetBool(), "File %s not writable, cannot proceed.\n", zipFileName.c_str() );
 		return false;
 	}
-	
+
 	// open the zip file
 	zipFile zf = zipOpen( zipFileName, 0 );
 	if( zf == NULL )
@@ -464,30 +464,30 @@ bool idZipBuilder::CreateZipFileFromFiles( const idList< idFile_Memory* >& srcFi
 		idLib::Warning( "[%s] - error opening file '%s'!", __FUNCTION__, zipFileName.c_str() );
 		return false;
 	}
-	
+
 	// add the files to the zip file
 	for( int i = 0; i < srcFiles.Num(); i++ )
 	{
-	
+
 		// add each file to the zip file
 		zip_fileinfo zi;
 		memset( &zi, 0, sizeof( zip_fileinfo ) );
-		
+
 		idFile_Memory* src = srcFiles[i];
 		src->MakeReadOnly();
-		
+
 		idLib::PrintfIf( zip_verbosity.GetBool(), "...Adding: '%s' ", src->GetName() );
-		
+
 		int compressionMethod = Z_DEFLATED;
 		if( IsUncompressed( src->GetName() ) )
 		{
 			compressionMethod = 0;
 		}
-		
+
 		int errcode = zipOpenNewFileInZip3( zf, src->GetName(), &zi, NULL, 0, NULL, 0, NULL /* comment*/,
 											compressionMethod,	DEFAULT_COMPRESSION_LEVEL, 0, -MAX_WBITS, DEF_MEM_LEVEL,
 											Z_DEFAULT_STRATEGY, NULL /*password*/, 0 /*fileCRC*/ );
-											
+
 		if( errcode != ZIP_OK )
 		{
 			idLib::Warning( "Error opening file in zipfile!" );
@@ -513,7 +513,7 @@ bool idZipBuilder::CreateZipFileFromFiles( const idList< idFile_Memory* >& srcFi
 			}
 			assert( total == ( size_t )src->Length() );
 		}
-		
+
 		errcode = zipCloseFileInZip( zf );
 		if( errcode != ZIP_OK )
 		{
@@ -522,7 +522,7 @@ bool idZipBuilder::CreateZipFileFromFiles( const idList< idFile_Memory* >& srcFi
 		}
 		idLib::PrintfIf( zip_verbosity.GetBool(), "\n" );
 	}
-	
+
 	// close the zip file
 	int closeError = zipClose( zf, zipFileName );
 	if( closeError != ZIP_OK )
@@ -530,9 +530,9 @@ bool idZipBuilder::CreateZipFileFromFiles( const idList< idFile_Memory* >& srcFi
 		idLib::Warning( "[%s] - error closing file '%s'!", __FUNCTION__, zipFileName.c_str() );
 		return false;
 	}
-	
+
 	idLib::PrintfIf( zip_verbosity.GetBool(), "Done.\n" );
-	
+
 	return true;
 }
 
@@ -546,14 +546,14 @@ this folder is assumed to be a path under FSPATH_BASE
 zipFile idZipBuilder::CreateZipFile( const char* name )
 {
 	idLib::Printf( "Creating zip file: '%s'\n", name );
-	
+
 	// do not allow overwrite as this should be a tempfile attempt to check the file out
 	if( !Sys_IsFileWritable( name ) )
 	{
 		idLib::PrintfIf( zip_verbosity.GetBool(), "File %s not writable, cannot proceed.\n", name );
 		return NULL;
 	}
-	
+
 	// open the zip file
 	zipFile zf = zipOpen( name, 0 );
 	if( zf == NULL )
@@ -575,22 +575,22 @@ bool idZipBuilder::AddFile( zipFile zf, idFile_Memory* src, bool deleteFile )
 	// add each file to the zip file
 	zip_fileinfo zi;
 	memset( &zi, 0, sizeof( zip_fileinfo ) );
-	
-	
+
+
 	src->MakeReadOnly();
-	
+
 	idLib::PrintfIf( zip_verbosity.GetBool(), "...Adding: '%s' ", src->GetName() );
-	
+
 	int compressionMethod = Z_DEFLATED;
 	if( IsUncompressed( src->GetName() ) )
 	{
 		compressionMethod = Z_NO_COMPRESSION;
 	}
-	
+
 	int errcode = zipOpenNewFileInZip3( zf, src->GetName(), &zi, NULL, 0, NULL, 0, NULL /* comment*/,
 										compressionMethod,	DEFAULT_COMPRESSION_LEVEL, 0, -MAX_WBITS, DEF_MEM_LEVEL,
 										Z_DEFAULT_STRATEGY, NULL /*password*/, 0 /*fileCRC*/ );
-										
+
 	if( errcode != ZIP_OK )
 	{
 		idLib::Warning( "Error opening file in zipfile!" );
@@ -621,7 +621,7 @@ bool idZipBuilder::AddFile( zipFile zf, idFile_Memory* src, bool deleteFile )
 		}
 		assert( total == ( size_t )src->Length() );
 	}
-	
+
 	errcode = zipCloseFileInZip( zf );
 	if( errcode != ZIP_OK )
 	{
@@ -671,16 +671,16 @@ void idZipBuilder::CleanSourceFolder()
 #if 0
 //#ifdef ID_PC_WIN
 	idStrList deletedFiles;
-	
+
 	// make sure this is a valid path, we don't want to go nuking
 	// some user path  or something else unintentionally
 	idStr ospath = sourceFolderName;
 	ospath.SlashesToBackSlashes();
 	ospath.ToLower();
-	
+
 	char relPath[MAX_OSPATH];
 	fileSystem->OSPathToRelativePath( ospath, relPath, MAX_OSPATH );
-	
+
 	// get the game's base path
 	idStr basePath = fileSystem->GetBasePathStr( FSPATH_BASE );
 	basePath.AppendPath( BASE_GAMEDIR );
@@ -710,7 +710,7 @@ void idZipBuilder::CleanSourceFolder()
 				idLib::Printf( "\t...%s\n", files->GetFile( i ) );
 			}
 			fileSystem->RemoveFile( files->GetFile( i ) );
-			
+
 			char ospath2[MAX_OSPATH];
 			fileSystem->RelativePathToOSPath( files->GetFile( i ), ospath2, MAX_OSPATH );
 			deletedFiles.Append( ospath2 );
@@ -723,7 +723,7 @@ void idZipBuilder::CleanSourceFolder()
 		idLib::Printf( "Warning: idZipBuilder::CleanSourceFolder - Non-standard path: '%s'!\n", ospath.c_str() );
 		return;
 	}
-	
+
 	// figure out which deleted files need to be removed from source control, and then remove those files
 	idStrList filesToRemoveFromSourceControl;
 	for( int i = 0; i < deletedFiles.Num(); i++ )
@@ -738,7 +738,7 @@ void idZipBuilder::CleanSourceFolder()
 	{
 		idLib::sourceControl->Delete( filesToRemoveFromSourceControl );
 	}
-	
+
 #endif
 }
 
@@ -797,7 +797,7 @@ idZipBuilder::CombineFiles
 idFile_Memory* idZipBuilder::CombineFiles( const idList< idFile_Memory* >& srcFiles )
 {
 	idFile_Memory* destFile = NULL;
-	
+
 #if 0
 //#ifdef ID_PC
 
@@ -806,33 +806,33 @@ idFile_Memory* idZipBuilder::CombineFiles( const idList< idFile_Memory* >& srcFi
 	const char* tempName = "temp.tmp";
 	fileSystem->RelativePathToOSPath( tempName, ospath, MAX_OSPATH, FSPATH_SAVE );
 	fileSystem->RemoveFile( ospath );
-	
+
 	// combine src files into dest filename just specified
 	idZipBuilder zip;
 	zip.zipFileName = ospath;
 	bool ret = zip.CreateZipFileFromFiles( srcFiles );
-	
+
 	// read the temp file created into a memory file to return
 	if( ret )
 	{
 		destFile = new idFile_Memory();
-		
+
 		if( !destFile->Load( tempName, ospath ) )
 		{
 			assert( false && "couldn't read the combined file" );
 			delete destFile;
 			destFile = NULL;
 		}
-		
+
 		// delete the temp file
 		fileSystem->RemoveFile( ospath );
-		
+
 		// make the new file readable
 		destFile->MakeReadOnly();
 	}
-	
+
 #endif
-	
+
 	return destFile;
 }
 
@@ -842,18 +842,18 @@ CONSOLE_COMMAND( testZipBuilderCombineFiles, "test routine for memory zip file b
 	idList< idFile_Memory* > list;
 	const char* 	testString = "test";
 	int				numFiles = 2;
-	
+
 	if( args.Argc() > 2 )
 	{
 		idLib::Printf( "usage: testZipBuilderExtractFiles [numFiles]\n" );
 		return;
 	}
-	
+
 	for( int arg = 1; arg < args.Argc(); arg++ )
 	{
 		numFiles = atoi( args.Argv( arg ) );
 	}
-	
+
 	// allocate all the test files
 	for( int i = 0; i < numFiles; i++ )
 	{
@@ -863,21 +863,21 @@ CONSOLE_COMMAND( testZipBuilderCombineFiles, "test routine for memory zip file b
 		file->WriteString( str );
 		list.Append( file );
 	}
-	
+
 	// combine the files into a single memory file
 	idZipBuilder zip;
 	idFile_Memory* file = zip.CombineFiles( list );
 	if( file != NULL )
 	{
 		file->MakeReadOnly();
-		
+
 		char ospath[MAX_OSPATH];
 		const char* tempName = "temp.zip";
 		fileSystem->RelativePathToOSPath( tempName, ospath, MAX_OSPATH, FSPATH_SAVE );
-		
+
 		// remove previous file if it exists
 		fileSystem->RemoveFile( ospath );
-		
+
 		if( file->Save( tempName, ospath ) )
 		{
 			idLib::PrintfIf( zip_verbosity.GetBool(), va( "File written: %s.\n", ospath ) );
@@ -886,10 +886,10 @@ CONSOLE_COMMAND( testZipBuilderCombineFiles, "test routine for memory zip file b
 		{
 			idLib::Error( "Could not save the file." );
 		}
-		
+
 		delete file;
 	}
-	
+
 	list.DeleteContents();
 #endif
 	// Now look at the temp.zip, unzip it to see if it works
@@ -903,25 +903,25 @@ idZipBuilder::ExtractFiles
 bool idZipBuilder::ExtractFiles( idFile_Memory*& srcFile, idList< idFile_Memory* >& destFiles )
 {
 	bool ret = false;
-	
+
 #if 0
 //#ifdef ID_PC
 
 	destFiles.Clear();
-	
+
 	// write the memory file to temp storage so we can unzip it without refactoring the unzip routines
 	char ospath[MAX_OSPATH];
 	const char* tempName = "temp.tmp";
 	fileSystem->RelativePathToOSPath( tempName, ospath, MAX_OSPATH, FSPATH_SAVE );
 	ret = srcFile->Save( tempName, ospath );
 	assert( ret && "couldn't create temp file" );
-	
+
 	if( ret )
 	{
-	
+
 		idLib::PrintfIf( zip_verbosity.GetBool(), "Opening archive %s:\n", ospath );
 		unzFile zip = unzOpen( ospath );
-		
+
 		int numFiles = 0;
 		int result = unzGoToFirstFile( zip );
 		while( result == UNZ_OK )
@@ -930,9 +930,9 @@ bool idZipBuilder::ExtractFiles( idFile_Memory*& srcFile, idList< idFile_Memory*
 			unz_file_info curFileInfo;
 			char fileName[MAX_OSPATH];
 			unzGetCurrentFileInfo( zip, &curFileInfo, fileName, MAX_OSPATH, NULL, 0, NULL, 0 );
-			
+
 			idLib::PrintfIf( zip_verbosity.GetBool(), "%d: %s, size: %d \\ %d\n", numFiles, fileName, curFileInfo.compressed_size, curFileInfo.uncompressed_size );
-			
+
 			// create a buffer big enough to hold the entire uncompressed file
 			void* buff = Mem_Alloc( curFileInfo.uncompressed_size, TAG_TEMP );
 			result = unzOpenCurrentFile( zip );
@@ -941,25 +941,25 @@ bool idZipBuilder::ExtractFiles( idFile_Memory*& srcFile, idList< idFile_Memory*
 				result = unzReadCurrentFile( zip, buff, curFileInfo.uncompressed_size );
 				unzCloseCurrentFile( zip );
 			}
-			
+
 			// create the new memory file
 			idFile_Memory* outFile = new idFile_Memory( fileName );
 			outFile->SetReadOnlyData( ( const char* )buff, curFileInfo.uncompressed_size );
-			
+
 			destFiles.Append( outFile );
-			
+
 			result = unzGoToNextFile( zip );
 		}
-		
+
 		// close it so we can delete the zip file and create a new one
 		unzClose( zip );
-		
+
 		// delete the temp zipfile
 		fileSystem->RemoveFile( ospath );
 	}
-	
+
 #endif
-	
+
 	return ret;
 }
 
@@ -972,18 +972,18 @@ CONSOLE_COMMAND( testZipBuilderExtractFiles, "test routine for memory zip file e
 	int				numFiles = 2;
 	bool			overallSuccess = true;
 	bool			success = true;
-	
+
 	if( args.Argc() > 2 )
 	{
 		idLib::Printf( "usage: testZipBuilderExtractFiles [numFiles]\n" );
 		return;
 	}
-	
+
 	for( int arg = 1; arg < args.Argc(); arg++ )
 	{
 		numFiles = atoi( args.Argv( arg ) );
 	}
-	
+
 	// create a temp.zip file with string files
 	{
 		// allocate all the test files
@@ -995,63 +995,63 @@ CONSOLE_COMMAND( testZipBuilderExtractFiles, "test routine for memory zip file e
 			file->WriteString( str );
 			list.Append( file );
 		}
-		
+
 		// combine the files into a single memory file
 		idZipBuilder zip;
 		zipfile = zip.CombineFiles( list );
-		
+
 		success = ( zipfile != NULL );
 		overallSuccess &= success;
 		idLib::Printf( "Zip file created: %s\n", success ? "^2PASS" : "^1FAIL" );
-		
+
 		// destroy all the test files
 		list.DeleteContents();
 	}
-	
+
 	// unzip the file into separate memory files
 	if( overallSuccess )
 	{
-	
+
 		// extract all the test files using the single zip file from above
 		idZipBuilder zip;
 		if( !zip.ExtractFiles( zipfile, list ) )
 		{
 			idLib::Error( "Could not extract files." );
 		}
-		
+
 		success = ( list.Num() == numFiles );
 		overallSuccess &= success;
 		idLib::Printf( "Number of files: %s\n", success ? "^2PASS" : "^1FAIL" );
-		
+
 		for( int i = 0; i < list.Num(); i++ )
 		{
 			idStr str;
 			idFile_Memory* file = list[i];
 			file->MakeReadOnly();
 			file->ReadString( str );
-			
+
 			idStr filename = va( "%s%d.txt", testString, i + 1 );
 			idStr contents = va( "%s%d", testString, i + 1 );
-			
+
 			// test the filename
 			bool nameSuccess = ( file->GetName() == filename );
 			overallSuccess &= nameSuccess;
-			
+
 			// test the string
 			bool contentSuccess = ( str == contents );
 			overallSuccess &= contentSuccess;
-			
+
 			idLib::Printf( "Extraction of file, %s: %s^0, contents check: %s\n", filename.c_str(), nameSuccess ? "^2PASS" : "^1FAIL", contentSuccess ? "^2PASS" : "^1FAIL" );
 		}
-		
+
 		list.DeleteContents();
 	}
-	
+
 	if( zipfile != NULL )
 	{
 		delete zipfile;
 	}
-	
+
 	idLib::Printf( "[%s] overall tests: %s\n", __FUNCTION__, overallSuccess ? "^2PASS" : "^1FAIL" );
 #endif
 }

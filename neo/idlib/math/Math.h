@@ -38,11 +38,11 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #ifdef INFINITY
-#undef INFINITY
+	#undef INFINITY
 #endif
 
 #ifdef FLT_EPSILON
-#undef FLT_EPSILON
+	#undef FLT_EPSILON
 #endif
 
 #define DEG2RAD(a)				( (a) * idMath::M_DEG2RAD )
@@ -359,50 +359,50 @@ class idMath
 public:
 
 	static void					Init();
-	
+
 	static float				InvSqrt( float x );			// inverse square root with 32 bits precision, returns huge number when x == 0.0
 	static float				InvSqrt16( float x );		// inverse square root with 16 bits precision, returns huge number when x == 0.0
-	
+
 	static float				Sqrt( float x );			// square root with 32 bits precision
 	static float				Sqrt16( float x );			// square root with 16 bits precision
-	
+
 	static float				Sin( float a );				// sine with 32 bits precision
 	static float				Sin16( float a );			// sine with 16 bits precision, maximum absolute error is 2.3082e-09
-	
+
 	static float				Cos( float a );				// cosine with 32 bits precision
 	static float				Cos16( float a );			// cosine with 16 bits precision, maximum absolute error is 2.3082e-09
-	
+
 	static void					SinCos( float a, float& s, float& c );		// sine and cosine with 32 bits precision
 	static void					SinCos16( float a, float& s, float& c );	// sine and cosine with 16 bits precision
-	
+
 	static float				Tan( float a );				// tangent with 32 bits precision
 	static float				Tan16( float a );			// tangent with 16 bits precision, maximum absolute error is 1.8897e-08
-	
+
 	static float				ASin( float a );			// arc sine with 32 bits precision, input is clamped to [-1, 1] to avoid a silent NaN
 	static float				ASin16( float a );			// arc sine with 16 bits precision, maximum absolute error is 6.7626e-05
-	
+
 	static float				ACos( float a );			// arc cosine with 32 bits precision, input is clamped to [-1, 1] to avoid a silent NaN
 	static float				ACos16( float a );			// arc cosine with 16 bits precision, maximum absolute error is 6.7626e-05
-	
+
 	static float				ATan( float a );			// arc tangent with 32 bits precision
 	static float				ATan16( float a );			// arc tangent with 16 bits precision, maximum absolute error is 1.3593e-08
-	
+
 	static float				ATan( float y, float x );	// arc tangent with 32 bits precision
 	static float				ATan16( float y, float x );	// arc tangent with 16 bits precision, maximum absolute error is 1.3593e-08
-	
+
 	static float				Pow( float x, float y );	// x raised to the power y with 32 bits precision
 	static float				Pow16( float x, float y );	// x raised to the power y with 16 bits precision
-	
+
 	static float				Exp( float f );				// e raised to the power f with 32 bits precision
 	static float				Exp16( float f );			// e raised to the power f with 16 bits precision
-	
+
 	static float				Log( float f );				// natural logarithm with 32 bits precision
 	static float				Log16( float f );			// natural logarithm with 16 bits precision
-	
+
 	static int					IPow( int x, int y );		// integral x raised to the power y
 	static int					ILog2( float f );			// integral base-2 logarithm of the floating point value
 	static int					ILog2( int i );				// integral base-2 logarithm of the integer value
-	
+
 	static int					BitsForFloat( float f );	// minumum number of bits required to represent ceil( f )
 	static int					BitsForInteger( int i );	// minumum number of bits required to represent i
 	static int					MaskForFloatSign( float f );// returns 0x00000000 if x >= 0.0f and returns 0xFFFFFFFF if x <= -0.0f
@@ -412,37 +412,37 @@ public:
 	static bool					IsPowerOfTwo( int x );		// returns true if x is a power of 2
 	static int					BitCount( int x );			// returns the number of 1 bits in x
 	static int					BitReverse( int x );		// returns the bit reverse of x
-	
+
 	static int					Abs( int x );				// returns the absolute value of the integer value (for reference only)
 	static float				Fabs( float f );			// returns the absolute value of the floating point value
 	static float				Floor( float f );			// returns the largest integer that is less than or equal to the given value
 	static float				Ceil( float f );			// returns the smallest integer that is greater than or equal to the given value
 	static float				Rint( float f );			// returns the nearest integer
-	
+
 	static float				Frac( float f );			// f - Floor( f )
-	
+
 	static int					Ftoi( float f );			// float to int conversion
 	static char					Ftoi8( float f );			// float to char conversion
 	static short				Ftoi16( float f );			// float to short conversion
 	static unsigned short		Ftoui16( float f );			// float to unsigned short conversion
 	static byte					Ftob( float f );			// float to byte conversion, the result is clamped to the range [0-255]
-	
+
 	static signed char			ClampChar( int i );
 	static signed short			ClampShort( int i );
 	static int					ClampInt( int min, int max, int value );
 	static float				ClampFloat( float min, float max, float value );
-	
+
 	static float				AngleNormalize360( float angle );
 	static float				AngleNormalize180( float angle );
 	static float				AngleDelta( float angle1, float angle2 );
-	
+
 	static int					FloatToBits( float f, int exponentBits, int mantissaBits );
 	static float				BitsToFloat( int i, int exponentBits, int mantissaBits );
-	
+
 	static int					FloatHash( const float* array, const int numFloats );
-	
+
 	static float				LerpToWithScale( const float cur, const float dest, const float scale );
-	
+
 	static const float			PI;							// pi
 	static const float			TWO_PI;						// pi * 2
 	static const float			HALF_PI;					// pi / 2
@@ -461,7 +461,7 @@ public:
 	static const float			INFINITY;					// huge number which should be larger than any valid number used
 	static const float			FLT_EPSILON;				// smallest positive number such that 1.0+FLT_EPSILON != 1.0
 	static const float			FLT_SMALLEST_NON_DENORMAL;	// smallest non-denormal 32-bit floating point value
-	
+
 #if defined(USE_INTRINSICS)
 	static const __m128				SIMD_SP_zero;
 	static const __m128				SIMD_SP_255;
@@ -474,7 +474,7 @@ public:
 	static const __m128				SIMD_SP_rsqrt_c0;
 	static const __m128				SIMD_SP_rsqrt_c1;
 #endif
-	
+
 private:
 	enum
 	{
@@ -486,13 +486,13 @@ private:
 		SQRT_TABLE_SIZE			= ( 2 << LOOKUP_BITS ),
 		LOOKUP_MASK				= ( SQRT_TABLE_SIZE - 1 )
 	};
-	
+
 	union _flint
 	{
 		dword					i;
 		float					f;
 	};
-	
+
 	static dword				iSqrt[SQRT_TABLE_SIZE];
 	static bool					initialized;
 };
@@ -511,7 +511,7 @@ ID_INLINE float idMath::InvSqrt( float x )
 {
 
 	return ( x > FLT_SMALLEST_NON_DENORMAL ) ? sqrtf( 1.0f / x ) : INFINITY;
-	
+
 }
 
 /*
@@ -572,7 +572,7 @@ idMath::Sin16
 ID_INLINE float idMath::Sin16( float a )
 {
 	float s;
-	
+
 	if( ( a < 0.0f ) || ( a >= TWO_PI ) )
 	{
 		a -= floorf( a * ONEOVER_TWOPI ) * TWO_PI;
@@ -625,7 +625,7 @@ idMath::Cos16
 ID_INLINE float idMath::Cos16( float a )
 {
 	float s, d;
-	
+
 	if( ( a < 0.0f ) || ( a >= TWO_PI ) )
 	{
 		a -= floorf( a * ONEOVER_TWOPI ) * TWO_PI;
@@ -705,7 +705,7 @@ idMath::SinCos16
 ID_INLINE void idMath::SinCos16( float a, float& s, float& c )
 {
 	float t, d;
-	
+
 	if( ( a < 0.0f ) || ( a >= TWO_PI ) )
 	{
 		a -= floorf( a * ONEOVER_TWOPI ) * TWO_PI;
@@ -772,7 +772,7 @@ ID_INLINE float idMath::Tan16( float a )
 {
 	float s;
 	bool reciprocal;
-	
+
 	if( ( a < 0.0f ) || ( a >= PI ) )
 	{
 		a -= floorf( a * ONEOVER_PI ) * PI;
@@ -975,7 +975,7 @@ idMath::ATan16
 ID_INLINE float idMath::ATan16( float y, float x )
 {
 	assert( fabs( y ) > idMath::FLT_SMALLEST_NON_DENORMAL || fabs( x ) > idMath::FLT_SMALLEST_NON_DENORMAL );
-	
+
 	float a, s;
 	if( fabsf( y ) > fabsf( x ) )
 	{
@@ -1393,7 +1393,7 @@ idMath::Ftoui16
 ID_INLINE unsigned short idMath::Ftoui16( float f )
 {
 	// TO DO - SSE ??
-	
+
 	// The converted result is clamped to the range [-32768,32767].
 	int i = C_FLOAT_TO_INT( f );
 	if( i < 0 )
@@ -1416,7 +1416,7 @@ ID_INLINE byte idMath::Ftob( float f )
 {
 	// If a converted result is negative the value (0) is returned and if the
 	// converted result is larger than the maximum byte the value (255) is returned.
-	
+
 #if defined(USE_INTRINSICS)
 	__m128 x = _mm_load_ss( &f );
 	x = _mm_max_ss( x, SIMD_SP_zero );
@@ -1549,7 +1549,7 @@ ID_INLINE int idMath::FloatHash( const float* array, const int numFloats )
 {
 	int i, hash = 0;
 	const int* ptr;
-	
+
 	ptr = reinterpret_cast<const int*>( array );
 	for( i = 0; i < numFloats; i++ )
 	{

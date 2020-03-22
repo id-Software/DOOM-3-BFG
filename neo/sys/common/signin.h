@@ -41,7 +41,7 @@ public:
 
 	idSignInManagerWin() : dlcVersionChecked( false ) {}
 	virtual ~idSignInManagerWin() {}
-	
+
 	//==========================================================================================
 	// idSignInManagerBase interface
 	//==========================================================================================
@@ -61,9 +61,9 @@ public:
 	}
 	virtual void					RemoveLocalUserByIndex( int index );
 	virtual void					RegisterLocalUser( int inputDevice );		// Register a local user to the passed in controller
-	
+
 	bool							CreateNewUser( winUserState_t& state );
-	
+
 private:
 	idStaticList< idLocalUserWin, MAX_INPUT_DEVICES >	localUsers;
 	bool												dlcVersionChecked;

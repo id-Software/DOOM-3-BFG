@@ -46,7 +46,7 @@ enum jobListId_t
 	JOBLIST_RENDERER_FRONTEND	= 0,
 	JOBLIST_RENDERER_BACKEND	= 1,
 	JOBLIST_UTILITY				= 9,			// won't print over-time warnings
-	
+
 	MAX_JOBLISTS				= 32			// the editor may cause quite a few to be allocated
 };
 
@@ -89,7 +89,7 @@ public:
 	void					AddJob( jobRun_t function, void* data );
 	CellSpursJob128* 		AddJobSPURS();
 	void					InsertSyncPoint( jobSyncType_t syncType );
-	
+
 	// Submit the jobs in this list.
 	void					Submit( idParallelJobList* waitForJobList = NULL, int parallelism = JOBLIST_PARALLELISM_DEFAULT );
 	// Wait for the jobs in this list to finish. Will spin in place if any jobs are not done.
@@ -98,7 +98,7 @@ public:
 	bool					TryWait();
 	// returns true if the job list has been submitted.
 	bool					IsSubmitted() const;
-	
+
 	// Get the number of jobs executed in this job list.
 	unsigned int			GetNumExecutedJobs() const;
 	// Get the number of sync points.
@@ -119,7 +119,7 @@ public:
 	uint64					GetUnitProcessingTimeMicroSec( int unit ) const;
 	// Time the given unit wasted while processing this job list.
 	uint64					GetUnitWastedTimeMicroSec( int unit ) const;
-	
+
 	// Get the job list ID
 	jobListId_t				GetId() const;
 	// Get the color for profiling.
@@ -127,11 +127,11 @@ public:
 	{
 		return this->color;
 	}
-	
+
 private:
 	class idParallelJobList_Threads* 	jobListThreads;
 	const idColor* 						color;
-	
+
 	idParallelJobList( jobListId_t id, jobListPriority_t priority, unsigned int maxJobs, unsigned int maxSyncs, const idColor* color );
 	~idParallelJobList();
 };
@@ -148,19 +148,19 @@ class idParallelJobManager
 {
 public:
 	virtual						~idParallelJobManager() {}
-	
+
 	virtual void				Init() = 0;
 	virtual void				Shutdown() = 0;
-	
+
 	virtual idParallelJobList* 	AllocJobList( jobListId_t id, jobListPriority_t priority, unsigned int maxJobs, unsigned int maxSyncs, const idColor* color ) = 0;
 	virtual void				FreeJobList( idParallelJobList* jobList ) = 0;
-	
+
 	virtual int					GetNumJobLists() const = 0;
 	virtual int					GetNumFreeJobLists() const = 0;
 	virtual idParallelJobList* 	GetJobList( int index ) = 0;
-	
+
 	virtual int					GetNumProcessingUnits() = 0;
-	
+
 	virtual void				WaitForAllJobLists() = 0;
 };
 

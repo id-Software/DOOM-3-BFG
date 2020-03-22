@@ -70,16 +70,16 @@ idPacketProcessor::FinalizeRead
 int idPacketProcessor::FinalizeRead( idBitMsg& inMsg, idBitMsg& outMsg, int& userValue )
 {
 	userValue = 0;
-	
+
 	idInnerPacketHeader header;
 	header.ReadFromMsg( inMsg );
-	
+
 	if( !verify( header.Type() != PACKET_TYPE_FRAGMENTED ) )  		// We shouldn't be fragmented at this point
 	{
 		idLib::Printf( "Received invalid fragmented packet.\n" );
 		return RETURN_TYPE_NONE;
 	}
-	
+
 	if( header.Type() == PACKET_TYPE_RELIABLE_ACK )
 	{
 		// Handle reliable ack
@@ -87,7 +87,7 @@ int idPacketProcessor::FinalizeRead( idBitMsg& inMsg, idBitMsg& outMsg, int& use
 		reliable.RemoveOlderThan( reliableSequence + 1 );
 		header.ReadFromMsg( inMsg );								// Read the new header, since the reliable ack sits on top the actual header of the message
 	}
-	
+
 	if( header.Type() == PACKET_TYPE_OOB )
 	{
 		// out-of-band packet
@@ -101,38 +101,38 @@ int idPacketProcessor::FinalizeRead( idBitMsg& inMsg, idBitMsg& outMsg, int& use
 			idLib::Printf( "In-band packet expected, received type %i instead.\n", header.Type() );
 			return RETURN_TYPE_NONE;
 		}
-		
+
 		// Reset number of reliables received (NOTE - This means you MUST unload all reliables as they are received)
 		numReliable = 0;
-		
+
 		// Handle reliable portion of in-band packets
 		int numReliableRecv = header.Value();
 		int bufferPos = 0;
-		
+
 		if( numReliableRecv > 0 )
 		{
 			// Byte align msg
 			inMsg.ReadByteAlign();
-			
+
 			int compressedSize = inMsg.ReadShort();
-			
+
 			lzwCompressionData_t	lzwData;
 			idLZWCompressor			lzwCompressor( &lzwData );
-			
+
 			lzwCompressor.Start( ( uint8* )inMsg.GetReadData() + inMsg.GetReadCount(), compressedSize );		// Read from msg
-			
+
 			int reliableSequence = 0;
-			
+
 			lzwCompressor.ReadAgnostic< int >( reliableSequence );
-			
+
 			for( int r = 0; r < numReliableRecv; r++ )
 			{
 				uint8 uncompMem[ MAX_MSG_SIZE ];
-				
+
 				uint16 reliableDataLength = 0;
 				lzwCompressor.ReadAgnostic< uint16 >( reliableDataLength );
 				lzwCompressor.Read( uncompMem, reliableDataLength );
-				
+
 				if( reliableSequence + r > reliableSequenceRecv )  		// Only accept newer reliable msg's than we've currently already received
 				{
 					if( !verify( bufferPos + reliableDataLength <= sizeof( reliableBuffer ) ) )
@@ -158,25 +158,25 @@ int idPacketProcessor::FinalizeRead( idBitMsg& inMsg, idBitMsg& outMsg, int& use
 						idLib::Printf( "Ignoring reliable msg %i because %i was already acked\n", ( reliableSequence + r ), reliableSequenceRecv );
 					}
 				}
-				
+
 				if( !verify( lzwCompressor.IsOverflowed() == false ) )
 				{
 					idLib::Printf( "lzwCompressor.IsOverflowed() == true.\n" );
 					return RETURN_TYPE_NONE;
 				}
 			}
-			
+
 			inMsg.SetReadCount( inMsg.GetReadCount() + compressedSize );
-			
+
 			QueueReliableAck( reliableSequence + numReliableRecv - 1 );
 		}
 	}
-	
+
 	// Load actual msg
 	outMsg.BeginWriting();
 	outMsg.WriteData( inMsg.GetReadData() + inMsg.GetReadCount(), inMsg.GetRemainingData() );
 	outMsg.SetSize( inMsg.GetRemainingData() );
-	
+
 	return ( header.Type() == PACKET_TYPE_OOB ) ? RETURN_TYPE_OOB : RETURN_TYPE_INBAND;
 }
 
@@ -201,7 +201,7 @@ bool idPacketProcessor::CanSendMoreData() const
 	{
 		return true;
 	}
-	
+
 	return ( outgoingRateBytes <= net_maxRate.GetInteger() * 1024 );
 }
 
@@ -213,7 +213,7 @@ idPacketProcessor::UpdateOutgoingRate
 void idPacketProcessor::UpdateOutgoingRate( const int time, const int size )
 {
 	outgoingBytes += size;
-	
+
 	// update outgoing rate variables
 	if( time > outgoingRateTime )
 	{
@@ -223,10 +223,10 @@ void idPacketProcessor::UpdateOutgoingRate( const int time, const int size )
 			outgoingRateBytes = 0.0f;
 		}
 	}
-	
+
 	outgoingRateTime = time;
 	outgoingRateBytes += size;
-	
+
 	// compute an average bandwidth at intervals
 	if( time - lastOutgoingRateTime > BANDWIDTH_AVERAGE_PERIOD )
 	{
@@ -244,7 +244,7 @@ idPacketProcessor::UpdateIncomingRate
 void idPacketProcessor::UpdateIncomingRate( const int time, const int size )
 {
 	incomingBytes += size;
-	
+
 	// update incoming rate variables
 	if( time > incomingRateTime )
 	{
@@ -256,7 +256,7 @@ void idPacketProcessor::UpdateIncomingRate( const int time, const int size )
 	}
 	incomingRateTime = time;
 	incomingRateBytes += size;
-	
+
 	// compute an average bandwidth at intervals
 	if( time - lastIncomingRateTime > BANDWIDTH_AVERAGE_PERIOD )
 	{
@@ -281,17 +281,17 @@ bool idPacketProcessor::ProcessOutgoing( const int time, const idBitMsg& msg, bo
 		idLib::Warning( "ProcessOutgoing: fragmentedSend == true!" );
 		return false;
 	}
-	
+
 	if( !verify( unsentMsg.GetRemainingData() == 0 ) )
 	{
 		idLib::Warning( "ProcessOutgoing: unsentMsg.GetRemainingData() > 0!" );
 		return false;
 	}
-	
+
 	// Build the full msg to send, which could include reliable data
 	unsentMsg.InitWrite( unsentBuffer, sizeof( unsentBuffer ) );
 	unsentMsg.BeginWriting();
-	
+
 	// Ack reliables if we need to (NOTE - We will send this ack on both the in-band and out-of-band channels)
 	if( queuedReliableAck >= 0 )
 	{
@@ -300,7 +300,7 @@ bool idPacketProcessor::ProcessOutgoing( const int time, const idBitMsg& msg, bo
 		unsentMsg.WriteLong( queuedReliableAck );
 		queuedReliableAck = -1;
 	}
-	
+
 	if( isOOB )
 	{
 		if( msg.GetSize() + unsentMsg.GetSize() > MAX_OOB_MSG_SIZE )  		// Fragmentation not allowed for out-of-band msg's
@@ -322,12 +322,12 @@ bool idPacketProcessor::ProcessOutgoing( const int time, const idBitMsg& msg, bo
 		{
 			// Byte align unsentMsg
 			unsentMsg.WriteByteAlign();
-			
+
 			lzwCompressionData_t	lzwData;
 			idLZWCompressor			lzwCompressor( &lzwData );
-			
+
 			lzwCompressor.Start( unsentMsg.GetWriteData() + unsentMsg.GetSize() + 2, unsentMsg.GetRemainingSpace() - 2 );		// Write to compressed mem, not exceeding MAX_MSG_SIZE (+2 to reserve space for compressed size)
-			
+
 			int uncompressedSize = 4;
 			lzwCompressor.WriteAgnostic< int >( reliable.ItemSequence( 0 ) );
 			for( int i = 0; i < reliable.Num(); i++ )
@@ -336,36 +336,36 @@ bool idPacketProcessor::ProcessOutgoing( const int time, const idBitMsg& msg, bo
 				lzwCompressor.Write( reliable.ItemData( i ), reliable.ItemLength( i ) );
 				uncompressedSize += 2 + reliable.ItemLength( i );
 			}
-			
+
 			lzwCompressor.End();
-			
+
 			if( lzwCompressor.IsOverflowed() )
 			{
 				idLib::Error( "reliable msg compressor overflow." );
 			}
-			
+
 			unsentMsg.WriteShort( lzwCompressor.Length() );
 			unsentMsg.SetSize( unsentMsg.GetSize() + lzwCompressor.Length() );
-			
+
 			if( net_showReliableCompression.GetBool() )
 			{
 				static int totalUncompressed = 0;
 				static int totalCompressed = 0;
-				
+
 				totalUncompressed += uncompressedSize;
 				totalCompressed += lzwCompressor.Length();
-				
+
 				float ratio1 = ( float )lzwCompressor.Length() / ( float )uncompressedSize;
 				float ratio2 = ( float )totalCompressed / ( float )totalUncompressed;
-				
+
 				idLib::Printf( "Uncompressed: %i, Compressed: %i, TotalUncompressed: %i, TotalCompressed: %i, (%2.2f / %2.2f )\n", uncompressedSize, lzwCompressor.Length(), totalUncompressed, totalCompressed, ratio1, ratio2 );
 			}
 		}
 	}
-	
+
 	// Fill up with actual msg
 	unsentMsg.WriteData( msg.GetReadData(), msg.GetSize() );
-	
+
 	if( unsentMsg.GetSize() > MAX_PACKET_SIZE )
 	{
 		if( isOOB )
@@ -374,7 +374,7 @@ bool idPacketProcessor::ProcessOutgoing( const int time, const idBitMsg& msg, bo
 		}
 		fragmentedSend = true;
 	}
-	
+
 	return true;
 }
 
@@ -386,20 +386,20 @@ idPacketProcessor::GetSendFragment
 bool idPacketProcessor::GetSendFragment( const int time, sessionId_t sessionID, idBitMsg& outMsg )
 {
 	lastSendTime = time;
-	
+
 	if( unsentMsg.GetRemainingData() <= 0 )
 	{
 		return false;	// Nothing to send
 	}
-	
+
 	outMsg.BeginWriting();
-	
-	
+
+
 	idOuterPacketHeader	outerHeader( sessionID );
-	
+
 	// Write outer packet header to the msg
 	outerHeader.WriteToMsg( outMsg );
-	
+
 	if( !fragmentedSend )
 	{
 		// Simple case, no fragments to sent
@@ -411,10 +411,10 @@ bool idPacketProcessor::GetSendFragment( const int time, sessionId_t sessionID, 
 		int currentSize = idMath::ClampInt( 0, MAX_PACKET_SIZE, unsentMsg.GetRemainingData() );
 		assert( currentSize > 0 );
 		assert( unsentMsg.GetRemainingData() - currentSize >= 0 );
-		
+
 		// See if we'll have more fragments once we subtract off how much we're about to write
 		bool moreFragments = ( unsentMsg.GetRemainingData() - currentSize > 0 ) ? true : false;
-		
+
 		if( !unsentMsg.GetReadCount() )  		// If this is the first read, then we know it's the first fragment
 		{
 			assert( moreFragments );			// If we have a first, we must have more or something went wrong
@@ -426,23 +426,23 @@ bool idPacketProcessor::GetSendFragment( const int time, sessionId_t sessionID, 
 			idInnerPacketHeader header( PACKET_TYPE_FRAGMENTED, moreFragments ? FRAGMENT_MIDDLE : FRAGMENT_END );
 			header.WriteToMsg( outMsg );
 		}
-		
+
 		outMsg.WriteLong( fragmentSequence );
 		outMsg.WriteData( unsentMsg.GetReadData() + unsentMsg.GetReadCount(), currentSize );
 		unsentMsg.ReadData( NULL, currentSize );
-		
+
 		assert( moreFragments == unsentMsg.GetRemainingData() > 0 );
 		fragmentedSend = moreFragments;
-		
+
 		fragmentSequence++;				// Advance sequence
-		
+
 		fragmentAccumulator++;			// update the counter for the net debug hud
 	}
-	
-	
+
+
 	// The caller needs to send this packet, so assume he did, and update rates
 	UpdateOutgoingRate( time, outMsg.GetSize() );
-	
+
 	return true;
 }
 
@@ -454,44 +454,44 @@ idPacketProcessor::ProcessIncoming
 int idPacketProcessor::ProcessIncoming( int time, sessionId_t expectedSessionID, idBitMsg& msg, idBitMsg& out, int& userData, const int peerNum )
 {
 	assert( msg.GetSize() <= MAX_FINAL_PACKET_SIZE );
-	
+
 	UpdateIncomingRate( time, msg.GetSize() );
-	
-	
+
+
 	idOuterPacketHeader outerHeader;
 	outerHeader.ReadFromMsg( msg );
-	
+
 	sessionId_t sessionID = outerHeader.GetSessionID();
 	assert( sessionID == expectedSessionID );
-	
+
 	if( !verify( sessionID != SESSION_ID_CONNECTIONLESS_PARTY && sessionID != SESSION_ID_CONNECTIONLESS_GAME && sessionID != SESSION_ID_CONNECTIONLESS_GAME_STATE ) )
 	{
 		idLib::Printf( "Expected non connectionless ID, but got a connectionless one\n" );
 		return RETURN_TYPE_NONE;
 	}
-	
+
 	if( sessionID != expectedSessionID )
 	{
 		idLib::Printf( "Expected session id: %8x but got %8x instead\n", expectedSessionID, sessionID );
 		return RETURN_TYPE_NONE;
 	}
-	
+
 	int c, b;
 	msg.SaveReadState( c, b );
-	
+
 	idInnerPacketHeader header;
 	header.ReadFromMsg( msg );
-	
+
 	if( header.Type() != PACKET_TYPE_FRAGMENTED )
 	{
 		// Non fragmented
 		msg.RestoreReadState( c, b );		// Reset since we took a byte to check the type
 		return FinalizeRead( msg, out, userData );
 	}
-	
+
 	// Decode fragmented packet
 	int readSequence = msg.ReadLong();	// Read sequence of fragment
-	
+
 	if( header.Value() == FRAGMENT_START )
 	{
 		msgWritePos = 0;				// Reset msg reconstruction write pos
@@ -500,22 +500,22 @@ int idPacketProcessor::ProcessIncoming( int time, sessionId_t expectedSessionID,
 	{
 		droppedFrags++;
 		idLib::Printf( "Dropped Fragments - PeerNum: %i FragmentSeq: %i, ReadSeq: %i, Total: %i\n", peerNum, fragmentSequence, readSequence, droppedFrags );
-		
+
 		// If this is the middle or end, make sure we are reading in fragmentSequence
 		fragmentSequence = -1;
 		return RETURN_TYPE_NONE;		// Out of sequence
 	}
 	fragmentSequence = readSequence;
 	assert( msg.GetRemainingData() > 0 );
-	
+
 	if( !verify( msgWritePos + msg.GetRemainingData() < sizeof( msgBuffer ) ) )
 	{
 		idLib::Error( "ProcessIncoming: Fragmented msg buffer overflow." );
 	}
-	
+
 	memcpy( msgBuffer + msgWritePos, msg.GetReadData() + msg.GetReadCount(), msg.GetRemainingData() );
 	msgWritePos += msg.GetRemainingData();
-	
+
 	if( header.Value() == FRAGMENT_END )
 	{
 		// Done reconstructing the msg
@@ -523,12 +523,12 @@ int idPacketProcessor::ProcessIncoming( int time, sessionId_t expectedSessionID,
 		msg.SetSize( msgWritePos );
 		return FinalizeRead( msg, out, userData );
 	}
-	
+
 	if( !verify( header.Value() == FRAGMENT_START || header.Value() == FRAGMENT_MIDDLE ) )
 	{
 		idLib::Printf( "ProcessIncoming: Invalid packet.\n" );
 	}
-	
+
 	// If we get here, this is part (either beginning or end) of a fragmented packet.
 	// We return RETURN_TYPE_NONE to let the caller know they don't need to do anything yet.
 	return RETURN_TYPE_NONE;
@@ -542,20 +542,20 @@ idPacketProcessor::ProcessConnectionlessOutgoing
 bool idPacketProcessor::ProcessConnectionlessOutgoing( idBitMsg& msg, idBitMsg& out, int lobbyType, int userData )
 {
 	sessionId_t sessionID = lobbyType + 1;
-	
-	
+
+
 	// Write outer header
 	idOuterPacketHeader outerHeader( sessionID );
 	outerHeader.WriteToMsg( out );
-	
+
 	// Write inner header
 	idInnerPacketHeader header( PACKET_TYPE_OOB, userData );
 	header.WriteToMsg( out );
-	
+
 	// Write msg
 	out.WriteData( msg.GetReadData(), msg.GetSize() );
-	
-	
+
+
 	return true;
 }
 
@@ -569,31 +569,31 @@ bool idPacketProcessor::ProcessConnectionlessIncoming( idBitMsg& msg, idBitMsg& 
 
 	idOuterPacketHeader outerHeader;
 	outerHeader.ReadFromMsg( msg );
-	
+
 	sessionId_t sessionID = outerHeader.GetSessionID();
-	
+
 	if( sessionID != SESSION_ID_CONNECTIONLESS_PARTY && sessionID != SESSION_ID_CONNECTIONLESS_GAME && sessionID != SESSION_ID_CONNECTIONLESS_GAME_STATE )
 	{
 		// Not a connectionless msg (this can happen if a previously connected peer keeps sending data for whatever reason)
 		idLib::Printf( "ProcessConnectionlessIncoming: Invalid session ID - %d\n", sessionID );
 		return false;
 	}
-	
+
 	idInnerPacketHeader header;
 	header.ReadFromMsg( msg );
-	
+
 	if( header.Type() != PACKET_TYPE_OOB )
 	{
 		idLib::Printf( "ProcessConnectionlessIncoming: header.Type() != PACKET_TYPE_OOB\n" );
 		return false;		// Only out-of-band packets supported for connectionless
 	}
-	
+
 	userData = header.Value();
-	
+
 	out.BeginWriting();
 	out.WriteData( msg.GetReadData() + msg.GetReadCount(), msg.GetRemainingData() );
 	out.SetSize( msg.GetRemainingData() );
-	
+
 	return true;
 }
 
@@ -610,10 +610,10 @@ idPacketProcessor::sessionId_t idPacketProcessor::GetSessionID( idBitMsg& msg )
 	// Read outer header
 	idOuterPacketHeader outerHeader;
 	outerHeader.ReadFromMsg( msg );
-	
+
 	// Get session ID
 	sessionID = outerHeader.GetSessionID();
-	
+
 	msg.RestoreReadState( c, b );
 	return sessionID;
 }
@@ -669,8 +669,8 @@ void idPacketProcessor::VerifyEmptyReliableQueue( byte keepMsgBelowThis, byte re
 			RELIABLE_VERBOSE( "dropping %d\n", peek );
 		}
 	}
-	
+
 	assert( reliable.Num() == clean.Num() );
-	
+
 	reliable = clean;
 }

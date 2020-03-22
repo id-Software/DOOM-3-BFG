@@ -72,7 +72,7 @@ struct swfRect_t
 	swfRect_t();
 	idVec2 tl;
 	idVec2 br;
-	
+
 	// RB: helpers
 	swfRect_t( float x, float y, float w, float h )
 	{
@@ -81,27 +81,27 @@ struct swfRect_t
 		br.x = x + w;
 		br.y = y + h;
 	}
-	
+
 	float x() const
 	{
 		return tl.x;
 	}
-	
+
 	float y() const
 	{
 		return tl.y;
 	}
-	
+
 	float w() const
 	{
 		return fabs( br.x - tl.x );
 	}
-	
+
 	float h() const
 	{
 		return fabs( br.y - tl.y );
 	}
-	
+
 	float Bottom() const
 	{
 		return br.y;
@@ -128,18 +128,18 @@ struct swfMatrix_t
 		ty = a.ty;
 		return *this;
 	}
-	
+
 	// RB begin
 	bool operator==( const swfMatrix_t& a )
 	{
 		return ( xx == a.xx && yy == a.yy && xy == a.xy && yx == a.yx && tx == a.tx && ty == a.ty );
-		
+
 	}
-	
+
 	bool operator!=( const swfMatrix_t& a )
 	{
 		return !( xx == a.xx && yy == a.yy && xy == a.xy && yx == a.yx && tx == a.tx && ty == a.ty );
-		
+
 	}
 	// RB end
 };

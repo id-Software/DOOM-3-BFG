@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #define __SYS_INTRIINSICS_H__
 
 #if defined(USE_INTRINSICS)
-#include <emmintrin.h>
+	#include <emmintrin.h>
 #endif
 /*
 ================================================================================================
@@ -200,22 +200,22 @@ ID_INLINE_EXTERN int CACHE_LINE_CLEAR_OVERFLOW_COUNT( int size )
 */
 
 #if !defined( R_SHUFFLE_D )
-#define R_SHUFFLE_D( x, y, z, w )	(( (w) & 3 ) << 6 | ( (z) & 3 ) << 4 | ( (y) & 3 ) << 2 | ( (x) & 3 ))
+	#define R_SHUFFLE_D( x, y, z, w )	(( (w) & 3 ) << 6 | ( (z) & 3 ) << 4 | ( (y) & 3 ) << 2 | ( (x) & 3 ))
 #endif
 
 // DG: _CRT_ALIGN seems to be MSVC specific, so provide implementation..
 #ifndef _CRT_ALIGN
-#if defined(__GNUC__) // also applies for clang
-#define _CRT_ALIGN(x) __attribute__ ((__aligned__ (x)))
-#elif defined(_MSC_VER) // also for MSVC, just to be sure
-#define _CRT_ALIGN(x) __declspec(align(x))
-#endif
+	#if defined(__GNUC__) // also applies for clang
+		#define _CRT_ALIGN(x) __attribute__ ((__aligned__ (x)))
+	#elif defined(_MSC_VER) // also for MSVC, just to be sure
+		#define _CRT_ALIGN(x) __declspec(align(x))
+	#endif
 #endif
 // DG: make sure __declspec(intrin_type) is only used on MSVC (it's not available on GCC etc
 #ifdef _MSC_VER
-#define DECLSPEC_INTRINTYPE __declspec( intrin_type )
+	#define DECLSPEC_INTRINTYPE __declspec( intrin_type )
 #else
-#define DECLSPEC_INTRINTYPE
+	#define DECLSPEC_INTRINTYPE
 #endif
 // DG end
 

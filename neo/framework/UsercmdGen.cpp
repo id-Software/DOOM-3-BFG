@@ -123,13 +123,13 @@ userCmdString_t	userCmdStrings[] =
 	{ "_lookDown",		UB_LOOKDOWN },
 	{ "_moveLeft",		UB_MOVELEFT },
 	{ "_moveRight",		UB_MOVERIGHT },
-	
+
 	{ "_attack",		UB_ATTACK },
 	{ "_speed",			UB_SPEED },
 	{ "_zoom",			UB_ZOOM },
 	{ "_showScores",	UB_SHOWSCORES },
 	{ "_use",			UB_USE },
-	
+
 	{ "_impulse0",		UB_IMPULSE0 },
 	{ "_impulse1",		UB_IMPULSE1 },
 	{ "_impulse2",		UB_IMPULSE2 },
@@ -162,7 +162,7 @@ userCmdString_t	userCmdStrings[] =
 	{ "_impulse29",		UB_IMPULSE29 },
 	{ "_impulse30",		UB_IMPULSE30 },
 	{ "_impulse31",		UB_IMPULSE31 },
-	
+
 	{ NULL,				UB_NONE },
 };
 
@@ -171,7 +171,7 @@ class buttonState_t
 public:
 	int		on;
 	bool	held;
-	
+
 	buttonState_t()
 	{
 		Clear();
@@ -223,37 +223,37 @@ class idUsercmdGenLocal : public idUsercmdGen
 {
 public:
 	idUsercmdGenLocal();
-	
+
 	void			Init();
-	
+
 	void			InitForNewMap();
-	
+
 	void			Shutdown();
-	
+
 	void			Clear();
-	
+
 	void			ClearAngles();
-	
+
 	void			InhibitUsercmd( inhibit_t subsystem, bool inhibit );
-	
+
 	int				CommandStringUsercmdData( const char* cmdString );
-	
+
 	void			BuildCurrentUsercmd( int deviceNum );
-	
+
 	usercmd_t		GetCurrentUsercmd()
 	{
 		return cmd;
 	};
-	
+
 	void			MouseState( int* x, int* y, int* button, bool* down );
-	
+
 	int				ButtonState( int key );
 	int				KeyState( int key );
-	
+
 private:
 	void			MakeCurrent();
 	void			InitCurrent();
-	
+
 	bool			Inhibited();
 	void			AdjustAngles();
 	void			KeyMove();
@@ -263,44 +263,44 @@ private:
 	void			JoystickMove2();
 	void			MouseMove();
 	void			CmdButtons();
-	
+
 	void			AimAssist();
-	
+
 	void			Mouse();
 	void			Keyboard();
 	void			Joystick( int deviceNum );
-	
+
 	void			Key( int keyNum, bool down );
-	
+
 	idVec3			viewangles;
 	int				impulseSequence;
 	int				impulse;
-	
+
 	buttonState_t	toggled_crouch;
 	buttonState_t	toggled_run;
 	buttonState_t	toggled_zoom;
-	
+
 	int				buttonState[UB_MAX_BUTTONS];
 	bool			keyState[K_LAST_KEY];
-	
+
 	int				inhibitCommands;	// true when in console or menu locally
-	
+
 	bool			initialized;
-	
+
 	usercmd_t		cmd;		// the current cmd being built
-	
+
 	int				continuousMouseX, continuousMouseY;	// for gui event generatioin, never zerod
 	int				mouseButton;						// for gui event generatioin
 	bool			mouseDown;
-	
+
 	int				mouseDx, mouseDy;	// added to by mouse events
 	float			joystickAxis[MAX_JOYSTICK_AXIS];	// set by joystick events
-	
+
 	int				pollTime;
 	int				lastPollTime;
 	float			lastLookValuePitch;
 	float			lastLookValueYaw;
-	
+
 	static idCVar	in_yawSpeed;
 	static idCVar	in_pitchSpeed;
 	static idCVar	in_angleSpeedKey;
@@ -337,20 +337,20 @@ idUsercmdGenLocal::idUsercmdGenLocal
 idUsercmdGenLocal::idUsercmdGenLocal()
 {
 	initialized = false;
-	
+
 	pollTime = 0;
 	lastPollTime = 0;
 	lastLookValuePitch = 0.0f;
 	lastLookValueYaw = 0.0f;
-	
+
 	impulseSequence = 0;
 	impulse = 0;
-	
+
 	toggled_crouch.Clear();
 	toggled_run.Clear();
 	toggled_zoom.Clear();
 	toggled_run.on = false;
-	
+
 	ClearAngles();
 	Clear();
 }
@@ -430,15 +430,15 @@ Moves the local angle positions
 void idUsercmdGenLocal::AdjustAngles()
 {
 	float speed = MS2SEC( 16 );
-	
+
 	if( toggled_run.on || ( in_alwaysRun.GetBool() && common->IsMultiplayer() ) )
 	{
 		speed *= in_angleSpeedKey.GetFloat();
 	}
-	
+
 	viewangles[YAW] -= speed * in_yawSpeed.GetFloat() * ButtonState( UB_LOOKRIGHT );
 	viewangles[YAW] += speed * in_yawSpeed.GetFloat() * ButtonState( UB_LOOKLEFT );
-	
+
 	viewangles[PITCH] -= speed * in_pitchSpeed.GetFloat() * ButtonState( UB_LOOKUP );
 	viewangles[PITCH] += speed * in_pitchSpeed.GetFloat() * ButtonState( UB_LOOKDOWN );
 }
@@ -454,13 +454,13 @@ void idUsercmdGenLocal::KeyMove()
 {
 	int forward = 0;
 	int side = 0;
-	
+
 	side += KEY_MOVESPEED * ButtonState( UB_MOVERIGHT );
 	side -= KEY_MOVESPEED * ButtonState( UB_MOVELEFT );
-	
+
 	forward += KEY_MOVESPEED * ButtonState( UB_MOVEFORWARD );
 	forward -= KEY_MOVESPEED * ButtonState( UB_MOVEBACK );
-	
+
 	cmd.forwardmove += idMath::ClampChar( forward );
 	cmd.rightmove += idMath::ClampChar( side );
 }
@@ -476,10 +476,10 @@ void idUsercmdGenLocal::MouseMove()
 	static int	history[8][2];
 	static int	historyCounter;
 	int			i;
-	
+
 	history[historyCounter & 7][0] = mouseDx;
 	history[historyCounter & 7][1] = mouseDy;
-	
+
 	// allow mouse movement to be smoothed together
 	int smooth = m_smooth.GetInteger();
 	if( smooth < 1 )
@@ -499,26 +499,26 @@ void idUsercmdGenLocal::MouseMove()
 	}
 	mx /= smooth;
 	my /= smooth;
-	
+
 	historyCounter++;
-	
+
 	if( idMath::Fabs( mx ) > 1000 || idMath::Fabs( my ) > 1000 )
 	{
 		Sys_DebugPrintf( "idUsercmdGenLocal::MouseMove: Ignoring ridiculous mouse delta.\n" );
 		mx = my = 0;
 	}
-	
+
 	mx *= sensitivity.GetFloat();
 	my *= sensitivity.GetFloat();
-	
+
 	if( m_showMouseRate.GetBool() )
 	{
 		Sys_DebugPrintf( "[%3i %3i  = %5.1f %5.1f] ", mouseDx, mouseDy, mx, my );
 	}
-	
+
 	mouseDx = 0;
 	mouseDy = 0;
-	
+
 	viewangles[YAW] -= m_yaw.GetFloat() * mx * in_mouseSpeed.GetFloat();
 	viewangles[PITCH] += m_pitch.GetFloat() * in_mouseSpeed.GetFloat() * ( in_mouseInvertLook.GetBool() ? -my : my );
 }
@@ -543,7 +543,7 @@ void idUsercmdGenLocal::CircleToSquare( float& axis_x, float& axis_y ) const
 		flip_y = true;
 		axis_y *= -1.0f;
 	}
-	
+
 	// swap the two axes so we project against the vertical line X = 1
 	bool swap = false;
 	if( axis_y > axis_x )
@@ -553,13 +553,13 @@ void idUsercmdGenLocal::CircleToSquare( float& axis_x, float& axis_y ) const
 		axis_y = tmp;
 		swap = true;
 	}
-	
+
 	if( axis_x < 0.001f )
 	{
 		// on one of the axes where no correction is needed
 		return;
 	}
-	
+
 	// length (max 1.0f at the unit circle)
 	float len = idMath::Sqrt( axis_x * axis_x + axis_y * axis_y );
 	if( len > 1.0f )
@@ -568,12 +568,12 @@ void idUsercmdGenLocal::CircleToSquare( float& axis_x, float& axis_y ) const
 	}
 	// thales
 	float axis_y_us = axis_y / axis_x;
-	
+
 	// use a power curve to shift the correction to happen closer to the unit circle
 	float correctionRatio = Square( len );
 	axis_x += correctionRatio * ( len - axis_x );
 	axis_y += correctionRatio * ( axis_y_us - axis_y );
-	
+
 	// go back through the symmetries
 	if( swap )
 	{
@@ -618,7 +618,7 @@ void idUsercmdGenLocal::HandleJoystickAxis( int keyNum, float unclampedValue, fl
 		value = idMath::Fabs( ( unclampedValue + threshold ) / ( 1.0f - threshold ) );
 		pressed = true;
 	}
-	
+
 	int action = idKeyInput::GetUsercmdAction( keyNum );
 	if( action >= UB_ATTACK )
 	{
@@ -629,7 +629,7 @@ void idUsercmdGenLocal::HandleJoystickAxis( int keyNum, float unclampedValue, fl
 	{
 		return;
 	}
-	
+
 	float lookValue = 0.0f;
 	if( joy_gammaLook.GetBool() )
 	{
@@ -639,13 +639,13 @@ void idUsercmdGenLocal::HandleJoystickAxis( int keyNum, float unclampedValue, fl
 	{
 		lookValue = idMath::Pow( value, joy_powerScale.GetFloat() );
 	}
-	
+
 	idGame* game = common->Game();
 	if( game != NULL )
 	{
 		lookValue *= game->GetAimAssistSensitivity();
 	}
-	
+
 	switch( action )
 	{
 		case UB_MOVEFORWARD:
@@ -679,7 +679,7 @@ void idUsercmdGenLocal::HandleJoystickAxis( int keyNum, float unclampedValue, fl
 				lookValue = Min( lookValue, ( pollTime - lastPollTime ) * joy_deltaPerMSLook.GetFloat() + lastLookValuePitch );
 				lastLookValuePitch = lookValue;
 			}
-			
+
 			float invertPitch = in_invertLook.GetBool() ? -1.0f : 1.0f;
 			viewangles[PITCH] -= MS2SEC( pollTime - lastPollTime ) * lookValue * joy_pitchSpeed.GetFloat() * invertPitch;
 			break;
@@ -691,7 +691,7 @@ void idUsercmdGenLocal::HandleJoystickAxis( int keyNum, float unclampedValue, fl
 				lookValue = Min( lookValue, ( pollTime - lastPollTime ) * joy_deltaPerMSLook.GetFloat() + lastLookValuePitch );
 				lastLookValuePitch = lookValue;
 			}
-			
+
 			float invertPitch = in_invertLook.GetBool() ? -1.0f : 1.0f;
 			viewangles[PITCH] += MS2SEC( pollTime - lastPollTime ) * lookValue * joy_pitchSpeed.GetFloat() * invertPitch;
 			break;
@@ -728,25 +728,25 @@ void idUsercmdGenLocal::JoystickMove()
 {
 	float threshold = joy_deadZone.GetFloat();
 	float triggerThreshold = joy_triggerThreshold.GetFloat();
-	
+
 	float axis_y = joystickAxis[ AXIS_LEFT_Y ];
 	float axis_x = joystickAxis[ AXIS_LEFT_X ];
 	CircleToSquare( axis_x, axis_y );
-	
+
 	HandleJoystickAxis( K_JOY_STICK1_UP, axis_y, threshold, false );
 	HandleJoystickAxis( K_JOY_STICK1_DOWN, axis_y, threshold, true );
 	HandleJoystickAxis( K_JOY_STICK1_LEFT, axis_x, threshold, false );
 	HandleJoystickAxis( K_JOY_STICK1_RIGHT, axis_x, threshold, true );
-	
+
 	axis_y = joystickAxis[ AXIS_RIGHT_Y ];
 	axis_x = joystickAxis[ AXIS_RIGHT_X ];
 	CircleToSquare( axis_x, axis_y );
-	
+
 	HandleJoystickAxis( K_JOY_STICK2_UP, axis_y, threshold, false );
 	HandleJoystickAxis( K_JOY_STICK2_DOWN, axis_y, threshold, true );
 	HandleJoystickAxis( K_JOY_STICK2_LEFT, axis_x, threshold, false );
 	HandleJoystickAxis( K_JOY_STICK2_RIGHT, axis_x, threshold, true );
-	
+
 	HandleJoystickAxis( K_JOY_TRIGGER1, joystickAxis[ AXIS_LEFT_TRIG ], triggerThreshold, true );
 	HandleJoystickAxis( K_JOY_TRIGGER2, joystickAxis[ AXIS_RIGHT_TRIG ], triggerThreshold, true );
 }
@@ -776,7 +776,7 @@ idVec2 JoypadFunction(
 	{
 		return idVec2( 0.0f, 0.0f );
 	}
-	
+
 	idVec2	threshed;
 	if( !mergedThreshold )
 	{
@@ -804,31 +804,31 @@ idVec2 JoypadFunction(
 		// on the pad
 		const float	rawLength = raw.Length();
 		const float	afterThreshold = Max( 0.0f, rawLength - threshold );
-		
+
 		idVec2 rawDir = raw;
 		rawDir.Normalize();
-		
+
 		threshed = rawDir * afterThreshold;
 	}
-	
+
 	// threshold and range reduce the range of raw values, but we
 	// scale them back up to the full 0.0 - 1.0 range
 	const float rangeScale = 1.0f / ( range - threshold );
 	idVec2 reScaled = threshed * rangeScale;
-	
+
 	const float rescaledLen = reScaled.Length();
-	
+
 	// if inside the deadband area, return a solid 0,0
 	if( rescaledLen <= 0.0f )
 	{
 		return idVec2( 0.0f, 0.0f );
 	}
-	
+
 	reScaled.Normalize();
-	
+
 	// apply the acceleration
 	float accelerated;
-	
+
 	if( shape == FUNC_EXPONENTIAL )
 	{
 		accelerated = idMath::Pow( 1.04712854805f, rescaledLen * 100.0f ) * 0.01f;
@@ -842,12 +842,12 @@ idVec2 JoypadFunction(
 	{
 		accelerated = rescaledLen;
 	}
-	
+
 	// optionally slow down for aim-assist
 	const float aimAssisted = accelerated * aimAssistScale;
-	
+
 	const float clamped = ( aimAssisted > 1.0f ) ? 1.0f : aimAssisted;
-	
+
 	return reScaled * clamped;
 }
 
@@ -861,9 +861,9 @@ Draws axis and threshold / range rings into an RGBA image
 void	DrawJoypadTexture(
 	const int	size,
 	byte	image[],
-	
+
 	const idVec2 raw,
-	
+
 	const float threshold,
 	const float range,
 	const transferFunction_t shape,
@@ -876,9 +876,9 @@ void	DrawJoypadTexture(
 	{
 		clamped[i] = Max( -1.0f, Min( raw[i], 1.0f ) );
 	}
-	
+
 	const int halfSize = size / 2;
-	
+
 	// find the offsets that will give certain values for
 	// the rings
 	static const int NUM_RINGS = 5;
@@ -888,7 +888,7 @@ void	DrawJoypadTexture(
 	for( int i = 1 ; i < size ; i++ )
 	{
 		const float	v = ( float )i / ( size - 1 );
-		
+
 		const idVec2 mapped = JoypadFunction(
 								  idVec2( v, 0.0f ), 1.0f, threshold, range, shape, mergedThreshold );
 		if( mapped.x > ringValue[ ringNum ] )
@@ -901,14 +901,14 @@ void	DrawJoypadTexture(
 			}
 		}
 	}
-	
+
 	memset( image, 0, size * size * 4 );
 #define PLOT(x,y) ((int *)image)[(int)(y)*size+(int)(x)]=0xffffffff
 #define CPLOT(x,y) ((int *)image)[(int)(halfSize+y)*size+(int)(halfSize+x)]=0xffffffff
-	
+
 	int	clampedX = halfSize + Min( halfSize - 1, ( int )( halfSize * clamped.x ) );
 	int	clampedY = halfSize + Min( halfSize - 1, ( int )( halfSize * clamped.y ) );
-	
+
 	// draw the box edge outline and center lines
 	for( int i = 0 ; i < size ; i++ )
 	{
@@ -929,14 +929,14 @@ void	DrawJoypadTexture(
 			PLOT( i, halfSize + iThresh );
 			PLOT( size - 1 - i, halfSize - iThresh );
 			PLOT( size - 1 - i, halfSize + iThresh );
-			
+
 			PLOT( halfSize - iThresh, i );
 			PLOT( halfSize + iThresh, i );
 			PLOT( halfSize - iThresh, size - 1 - i );
 			PLOT( halfSize + iThresh, size - 1 - i );
 		}
 	}
-	
+
 	// I'm not going to bother writing a proper circle drawing algorithm...
 	const int octantPoints = size * 2;
 	float rad = 0.0f;
@@ -966,7 +966,7 @@ void	DrawJoypadTexture(
 			CPLOT( -iy, -ix );
 		}
 	}
-	
+
 #undef PLOT
 }
 
@@ -985,7 +985,7 @@ void DrawJoypadTexture( const int size, byte image[] )
 	const float range =				joy_range.GetFloat();
 	const bool mergedThreshold =	joy_mergedThreshold.GetBool();
 	const transferFunction_t shape = ( transferFunction_t )joy_gammaLook.GetInteger();
-	
+
 	DrawJoypadTexture( size, image, lastLookJoypad, threshold, range, shape, mergedThreshold );
 }
 
@@ -1004,13 +1004,13 @@ void idUsercmdGenLocal::JoystickMove2()
 	const bool mergedThreshold =	joy_mergedThreshold.GetBool();
 	const float pitchSpeed =		joy_pitchSpeed.GetFloat();
 	const float yawSpeed =			joy_yawSpeed.GetFloat();
-	
+
 	idGame* game = common->Game();
 	const float aimAssist = game != NULL ? game->GetAimAssistSensitivity() : 1.0f;
-	
+
 	idVec2 leftRaw( joystickAxis[ AXIS_LEFT_X ], joystickAxis[ AXIS_LEFT_Y ] );
 	idVec2 rightRaw( joystickAxis[ AXIS_RIGHT_X ], joystickAxis[ AXIS_RIGHT_Y ] );
-	
+
 	// optional stick swap
 	if( idKeyInput::GetUsercmdAction( K_JOY_STICK1_LEFT ) == UB_LOOKLEFT )
 	{
@@ -1018,30 +1018,30 @@ void idUsercmdGenLocal::JoystickMove2()
 		leftRaw = rightRaw;
 		rightRaw = temp;
 	}
-	
+
 	// optional invert look by inverting the right Y axis
 	if( invertLook )
 	{
 		rightRaw.y = -rightRaw.y;
 	}
-	
+
 	// save for visualization
 	lastLookJoypad = rightRaw;
-	
+
 	idVec2 leftMapped = JoypadFunction( leftRaw, 1.0f, threshold, range, shape, mergedThreshold );
 	idVec2 rightMapped = JoypadFunction( rightRaw, aimAssist, threshold, range, shape, mergedThreshold );
-	
+
 	// because idPhysics_Player::CmdScale scales mvoement values down so that 1,1 = sqrt(2), sqrt(2),
 	// we need to expand our circular values out to a square
 	CircleToSquare( leftMapped.x, leftMapped.y );
-	
+
 	// add on top of mouse / keyboard move values
 	cmd.forwardmove = idMath::ClampChar( cmd.forwardmove + KEY_MOVESPEED * -leftMapped.y );
 	cmd.rightmove = idMath::ClampChar( cmd.rightmove + KEY_MOVESPEED * leftMapped.x );
-	
+
 	viewangles[PITCH] += MS2SEC( pollTime - lastPollTime ) * rightMapped.y * pitchSpeed;
 	viewangles[YAW] += MS2SEC( pollTime - lastPollTime ) * -rightMapped.x * yawSpeed;
-	
+
 	const float triggerThreshold = joy_triggerThreshold.GetFloat();
 	HandleJoystickAxis( K_JOY_TRIGGER1, joystickAxis[ AXIS_LEFT_TRIG ], triggerThreshold, true );
 	HandleJoystickAxis( K_JOY_TRIGGER2, joystickAxis[ AXIS_RIGHT_TRIG ], triggerThreshold, true );
@@ -1055,31 +1055,31 @@ idUsercmdGenLocal::CmdButtons
 void idUsercmdGenLocal::CmdButtons()
 {
 	cmd.buttons = 0;
-	
+
 	// check the attack button
 	if( ButtonState( UB_ATTACK ) )
 	{
 		cmd.buttons |= BUTTON_ATTACK;
 	}
-	
+
 	// check the use button
 	if( ButtonState( UB_USE ) )
 	{
 		cmd.buttons |= BUTTON_USE;
 	}
-	
+
 	// check the run button
 	if( toggled_run.on || ( in_alwaysRun.GetBool() && common->IsMultiplayer() ) )
 	{
 		cmd.buttons |= BUTTON_RUN;
 	}
-	
+
 	// check the zoom button
 	if( toggled_zoom.on )
 	{
 		cmd.buttons |= BUTTON_ZOOM;
 	}
-	
+
 	if( ButtonState( UB_MOVEUP ) )
 	{
 		cmd.buttons |= BUTTON_JUMP;
@@ -1115,17 +1115,17 @@ creates the current command for this frame
 void idUsercmdGenLocal::MakeCurrent()
 {
 	idVec3 oldAngles = viewangles;
-	
+
 	if( !Inhibited() )
 	{
 		// update toggled key states
 		toggled_crouch.SetKeyState( ButtonState( UB_MOVEDOWN ), in_toggleCrouch.GetBool() );
 		toggled_run.SetKeyState( ButtonState( UB_SPEED ), in_toggleRun.GetBool() && common->IsMultiplayer() );
 		toggled_zoom.SetKeyState( ButtonState( UB_ZOOM ), in_toggleZoom.GetBool() );
-		
+
 		// get basic movement from mouse
 		MouseMove();
-		
+
 		// get basic movement from joystick and set key bits
 		// must be done before CmdButtons!
 		if( joy_newCode.GetBool() )
@@ -1136,19 +1136,19 @@ void idUsercmdGenLocal::MakeCurrent()
 		{
 			JoystickMove();
 		}
-		
+
 		// keyboard angle adjustment
 		AdjustAngles();
-		
+
 		// set button bits
 		CmdButtons();
-		
+
 		// get basic movement from keyboard
 		KeyMove();
-		
+
 		// aim assist
 		AimAssist();
-		
+
 		// check to make sure the angles haven't wrapped
 		if( viewangles[PITCH] - oldAngles[PITCH] > 90 )
 		{
@@ -1164,18 +1164,18 @@ void idUsercmdGenLocal::MakeCurrent()
 		mouseDx = 0;
 		mouseDy = 0;
 	}
-	
+
 	for( int i = 0; i < 3; i++ )
 	{
 		cmd.angles[i] = ANGLE2SHORT( viewangles[i] );
 	}
-	
+
 	cmd.mx = continuousMouseX;
 	cmd.my = continuousMouseY;
-	
+
 	impulseSequence = cmd.impulseSequence;
 	impulse = cmd.impulse;
-	
+
 }
 
 /*
@@ -1187,13 +1187,13 @@ void idUsercmdGenLocal::AimAssist()
 {
 	// callback to the game to update the aim assist for the current device
 	idAngles aimAssistAngles( 0.0f, 0.0f, 0.0f );
-	
+
 	idGame* game = common->Game();
 	if( game != NULL )
 	{
 		game->GetAimAssistAngles( aimAssistAngles );
 	}
-	
+
 	viewangles[YAW] += aimAssistAngles.yaw;
 	viewangles[PITCH] += aimAssistAngles.pitch;
 	viewangles[ROLL] += aimAssistAngles.roll;
@@ -1240,12 +1240,12 @@ void idUsercmdGenLocal::InitForNewMap()
 {
 	impulseSequence = 0;
 	impulse = 0;
-	
+
 	toggled_crouch.Clear();
 	toggled_run.Clear();
 	toggled_zoom.Clear();
 	toggled_run.on = false;
-	
+
 	Clear();
 	ClearAngles();
 }
@@ -1271,9 +1271,9 @@ void idUsercmdGenLocal::Clear()
 	memset( buttonState, 0, sizeof( buttonState ) );
 	memset( keyState, false, sizeof( keyState ) );
 	memset( joystickAxis, 0, sizeof( joystickAxis ) );
-	
+
 	inhibitCommands = false;
-	
+
 	mouseDx = mouseDy = 0;
 	mouseButton = 0;
 	mouseDown = false;
@@ -1308,9 +1308,9 @@ void idUsercmdGenLocal::Key( int keyNum, bool down )
 		return;
 	}
 	keyState[ keyNum ] = down;
-	
+
 	int action = idKeyInput::GetUsercmdAction( keyNum );
-	
+
 	if( down )
 	{
 		buttonState[ action ]++;
@@ -1342,9 +1342,9 @@ idUsercmdGenLocal::Mouse
 void idUsercmdGenLocal::Mouse()
 {
 	int	mouseEvents[MAX_MOUSE_EVENTS][2];
-	
+
 	int numEvents = Sys_PollMouseInputEvents( mouseEvents );
-	
+
 	// Study each of the buffer elements and process them.
 	for( int i = 0; i < numEvents; i++ )
 	{
@@ -1360,7 +1360,7 @@ void idUsercmdGenLocal::Mouse()
 			case M_ACTION6:
 			case M_ACTION7:
 			case M_ACTION8:
-			
+
 			// DG: support some more mouse buttons
 			case M_ACTION9:
 			case M_ACTION10:
@@ -1386,7 +1386,7 @@ void idUsercmdGenLocal::Mouse()
 			{
 				// DG: this seems like a good place to inject mousewheel deltas into ImGui
 				ImGuiHook::InjectMouseWheel( value );
-				
+
 				int key = value < 0 ? K_MWHEELDOWN : K_MWHEELUP;
 				value = abs( value );
 				while( value-- > 0 )
@@ -1413,7 +1413,7 @@ void idUsercmdGenLocal::Keyboard()
 {
 
 	int numEvents = Sys_PollKeyboardInputEvents();
-	
+
 	// Study each of the buffer elements and process them.
 	for( int i = 0; i < numEvents; i++ )
 	{
@@ -1424,7 +1424,7 @@ void idUsercmdGenLocal::Keyboard()
 			Key( key, state );
 		}
 	}
-	
+
 	Sys_EndKeyboardInputEvents();
 }
 
@@ -1436,7 +1436,7 @@ idUsercmdGenLocal::Joystick
 void idUsercmdGenLocal::Joystick( int deviceNum )
 {
 	int numEvents = Sys_PollJoystickInputEvents( deviceNum );
-	
+
 //	if(numEvents) {
 //		common->Printf("idUsercmdGenLocal::Joystick: numEvents = %i\n", numEvents);
 //	}
@@ -1470,7 +1470,7 @@ void idUsercmdGenLocal::Joystick( int deviceNum )
 			}
 		}
 	}
-	
+
 	Sys_EndJoystickInputEvents();
 }
 
@@ -1500,24 +1500,24 @@ void idUsercmdGenLocal::BuildCurrentUsercmd( int deviceNum )
 	{
 		lastPollTime = pollTime - 100;
 	}
-	
+
 	// initialize current usercmd
 	InitCurrent();
-	
+
 	// process the system mouse events
 	Mouse();
-	
+
 	// process the system keyboard events
 	Keyboard();
-	
+
 	// process the system joystick events
 	if( deviceNum >= 0 && in_useJoystick.GetBool() )
 	{
 		Joystick( deviceNum );
 	}
-	
+
 	// create the usercmd
 	MakeCurrent();
-	
+
 	lastPollTime = pollTime;
 }

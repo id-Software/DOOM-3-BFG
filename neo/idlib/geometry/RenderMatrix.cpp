@@ -41,7 +41,7 @@ If you have questions concerning this license or the applicable additional terms
 //			so there is no need for unaligned loads and stores everywhere
 
 #ifdef _lint
-#undef ID_WIN_X86_SSE2_INTRIN
+	#undef ID_WIN_X86_SSE2_INTRIN
 #endif
 
 //lint -e438	// the non-SSE code isn't lint friendly, either
@@ -51,7 +51,14 @@ If you have questions concerning this license or the applicable additional terms
 #define RENDER_MATRIX_INFINITY				1e30f	// NOTE: cannot initiaize a vec_float4 with idMath::INFINITY on the SPU
 #define RENDER_MATRIX_PROJECTION_EPSILON	0.1f
 
-#define CLIP_SPACE_OGL		// the OpenGL clip space Z is in the range [-1, 1]
+//#define CLIP_SPACE_OGL		// the OpenGL clip space Z is in the range [-1, 1]
+
+// RB: Vulkan requires the clip space Z is in the range [0, 1]
+// This change is especially important for all kinds of light bounding box -> clip space transformations so
+// the depth bounding tests clipping tests work properly
+#if defined( USE_VULKAN )
+	#define CLIP_SPACE_D3D	1
+#endif
 
 /*
 ================================================================================================
@@ -560,7 +567,7 @@ static int GetBoxFrontBits_SSE2( const __m128& b0, const __m128& b1, const __m12
 	const __m128 dir1 = _mm_sub_ps( b1, viewOrigin );
 	const __m128 d0 = _mm_cmplt_ps( dir0, _mm_setzero_ps() );
 	const __m128 d1 = _mm_cmplt_ps( dir1, _mm_setzero_ps() );
-	
+
 	int frontBits = _mm_movemask_ps( d0 ) | ( _mm_movemask_ps( d1 ) << 3 );
 	return frontBits;
 }
@@ -602,17 +609,17 @@ void idRenderMatrix::CreateFromOriginAxis( const idVec3& origin, const idMat3& a
 	out[0][1] = axis[1][0];
 	out[0][2] = axis[2][0];
 	out[0][3] = origin[0];
-	
+
 	out[1][0] = axis[0][1];
 	out[1][1] = axis[1][1];
 	out[1][2] = axis[2][1];
 	out[1][3] = origin[1];
-	
+
 	out[2][0] = axis[0][2];
 	out[2][1] = axis[1][2];
 	out[2][2] = axis[2][2];
 	out[2][3] = origin[2];
-	
+
 	out[3][0] = 0.0f;
 	out[3][1] = 0.0f;
 	out[3][2] = 0.0f;
@@ -630,17 +637,17 @@ void idRenderMatrix::CreateFromOriginAxisScale( const idVec3& origin, const idMa
 	out[0][1] = axis[1][0] * scale[1];
 	out[0][2] = axis[2][0] * scale[2];
 	out[0][3] = origin[0];
-	
+
 	out[1][0] = axis[0][1] * scale[0];
 	out[1][1] = axis[1][1] * scale[1];
 	out[1][2] = axis[2][1] * scale[2];
 	out[1][3] = origin[1];
-	
+
 	out[2][0] = axis[0][2] * scale[0];
 	out[2][1] = axis[1][2] * scale[1];
 	out[2][2] = axis[2][2] * scale[2];
 	out[2][3] = origin[2];
-	
+
 	out[3][0] = 0.0f;
 	out[3][1] = 0.0f;
 	out[3][2] = 0.0f;
@@ -660,17 +667,17 @@ void idRenderMatrix::CreateViewMatrix( const idVec3& origin, const idMat3& axis,
 	out[0][1] = -axis[1][1];
 	out[0][2] = -axis[1][2];
 	out[0][3] = origin[0] * axis[1][0] + origin[1] * axis[1][1] + origin[2] * axis[1][2];
-	
+
 	out[1][0] = axis[2][0];
 	out[1][1] = axis[2][1];
 	out[1][2] = axis[2][2];
 	out[1][3] = -( origin[0] * axis[2][0] + origin[1] * axis[2][1] + origin[2] * axis[2][2] );
-	
+
 	out[2][0] = -axis[0][0];
 	out[2][1] = -axis[0][1];
 	out[2][2] = -axis[0][2];
 	out[2][3] = origin[0] * axis[0][0] + origin[1] * axis[0][1] + origin[2] * axis[0][2];
-	
+
 	out[3][0] = 0.0f;
 	out[3][1] = 0.0f;
 	out[3][2] = 0.0f;
@@ -688,17 +695,17 @@ void idRenderMatrix::CreateProjectionMatrix( float xMin, float xMax, float yMin,
 {
 	const float width  = xMax - xMin;
 	const float height = yMax - yMin;
-	
+
 	out[0][0] = 2.0f * zNear / width;
 	out[0][1] = 0.0f;
 	out[0][2] = ( xMax + xMin ) / width;	// normally 0
 	out[0][3] = 0.0f;
-	
+
 	out[1][0] = 0.0f;
 	out[1][1] = 2.0f * zNear / height;
 	out[1][2] = ( yMax + yMin ) / height;	// normally 0
 	out[1][3] = 0.0f;
-	
+
 	if( zFar <= zNear )
 	{
 		// this is the far-plane-at-infinity formulation
@@ -725,7 +732,7 @@ void idRenderMatrix::CreateProjectionMatrix( float xMin, float xMax, float yMin,
 		out[2][3] = -( 2.0f * zFar * zNear ) / ( zFar - zNear );
 #endif
 	}
-	
+
 	out[3][0] = 0.0f;
 	out[3][1] = 0.0f;
 	out[3][2] = -1.0f;
@@ -744,16 +751,16 @@ void idRenderMatrix::CreateProjectionMatrixFov( float xFovDegrees, float yFovDeg
 {
 	float xMax = zNear * idMath::Tan( DEG2RAD( xFovDegrees ) * 0.5f );
 	float xMin = -xMax;
-	
+
 	float yMax = zNear * idMath::Tan( DEG2RAD( yFovDegrees ) * 0.5f );
 	float yMin = -yMax;
-	
+
 	xMin += xOffset;
 	xMax += xOffset;
-	
+
 	yMin += yOffset;
 	yMax += yOffset;
-	
+
 	CreateProjectionMatrix( xMin, xMax, yMin, yMax, zNear, zFar, out );
 }
 
@@ -768,78 +775,78 @@ The result matrix will transform the unit-cube to exactly cover the bounds.
 void idRenderMatrix::OffsetScaleForBounds( const idRenderMatrix& src, const idBounds& bounds, idRenderMatrix& out )
 {
 	assert( &src != &out );
-	
+
 #if defined(USE_INTRINSICS)
 	__m128 b0 = _mm_loadu_bounds_0( bounds );
 	__m128 b1 = _mm_loadu_bounds_1( bounds );
-	
+
 	__m128 offset = _mm_mul_ps( _mm_add_ps( b1, b0 ), vector_float_half );
 	__m128 scale  = _mm_mul_ps( _mm_sub_ps( b1, b0 ), vector_float_half );
-	
+
 	scale = _mm_or_ps( scale, vector_float_last_one );
-	
+
 	__m128 a0 = _mm_loadu_ps( src.m + 0 * 4 );
 	__m128 a1 = _mm_loadu_ps( src.m + 1 * 4 );
 	__m128 a2 = _mm_loadu_ps( src.m + 2 * 4 );
 	__m128 a3 = _mm_loadu_ps( src.m + 3 * 4 );
-	
+
 	__m128 d0 = _mm_mul_ps( a0, offset );
 	__m128 d1 = _mm_mul_ps( a1, offset );
 	__m128 d2 = _mm_mul_ps( a2, offset );
 	__m128 d3 = _mm_mul_ps( a3, offset );
-	
+
 	__m128 s0 = _mm_unpacklo_ps( d0, d2 );		// a0, c0, a1, c1
 	__m128 s1 = _mm_unpackhi_ps( d0, d2 );		// a2, c2, a3, c3
 	__m128 s2 = _mm_unpacklo_ps( d1, d3 );		// b0, d0, b1, d1
 	__m128 s3 = _mm_unpackhi_ps( d1, d3 );		// b2, d2, b3, d3
-	
+
 	__m128 t0 = _mm_unpacklo_ps( s0, s2 );		// a0, b0, c0, d0
 	__m128 t1 = _mm_unpackhi_ps( s0, s2 );		// a1, b1, c1, d1
 	__m128 t2 = _mm_unpacklo_ps( s1, s3 );		// a2, b2, c2, d2
-	
+
 	t0 = _mm_add_ps( t0, t1 );
 	t0 = _mm_add_ps( t0, t2 );
-	
+
 	__m128 n0 = _mm_and_ps( _mm_splat_ps( t0, 0 ), vector_float_keep_last );
 	__m128 n1 = _mm_and_ps( _mm_splat_ps( t0, 1 ), vector_float_keep_last );
 	__m128 n2 = _mm_and_ps( _mm_splat_ps( t0, 2 ), vector_float_keep_last );
 	__m128 n3 = _mm_and_ps( _mm_splat_ps( t0, 3 ), vector_float_keep_last );
-	
+
 	a0 = _mm_madd_ps( a0, scale, n0 );
 	a1 = _mm_madd_ps( a1, scale, n1 );
 	a2 = _mm_madd_ps( a2, scale, n2 );
 	a3 = _mm_madd_ps( a3, scale, n3 );
-	
+
 	_mm_storeu_ps( out.m + 0 * 4, a0 );
 	_mm_storeu_ps( out.m + 1 * 4, a1 );
 	_mm_storeu_ps( out.m + 2 * 4, a2 );
 	_mm_storeu_ps( out.m + 3 * 4, a3 );
-	
+
 #else
-	
+
 	const idVec3 offset = ( bounds[1] + bounds[0] ) * 0.5f;
 	const idVec3 scale = ( bounds[1] - bounds[0] ) * 0.5f;
-	
+
 	out[0][0] = src[0][0] * scale[0];
 	out[0][1] = src[0][1] * scale[1];
 	out[0][2] = src[0][2] * scale[2];
 	out[0][3] = src[0][3] + src[0][0] * offset[0] + src[0][1] * offset[1] + src[0][2] * offset[2];
-	
+
 	out[1][0] = src[1][0] * scale[0];
 	out[1][1] = src[1][1] * scale[1];
 	out[1][2] = src[1][2] * scale[2];
 	out[1][3] = src[1][3] + src[1][0] * offset[0] + src[1][1] * offset[1] + src[1][2] * offset[2];
-	
+
 	out[2][0] = src[2][0] * scale[0];
 	out[2][1] = src[2][1] * scale[1];
 	out[2][2] = src[2][2] * scale[2];
 	out[2][3] = src[2][3] + src[2][0] * offset[0] + src[2][1] * offset[1] + src[2][2] * offset[2];
-	
+
 	out[3][0] = src[3][0] * scale[0];
 	out[3][1] = src[3][1] * scale[1];
 	out[3][2] = src[3][2] * scale[2];
 	out[3][3] = src[3][3] + src[3][0] * offset[0] + src[3][1] * offset[1] + src[3][2] * offset[2];
-	
+
 #endif
 }
 
@@ -854,63 +861,63 @@ The result matrix will transform the bounds to exactly cover the unit-cube.
 void idRenderMatrix::InverseOffsetScaleForBounds( const idRenderMatrix& src, const idBounds& bounds, idRenderMatrix& out )
 {
 	assert( &src != &out );
-	
+
 #if defined(USE_INTRINSICS)
 	__m128 b0 = _mm_loadu_bounds_0( bounds );
 	__m128 b1 = _mm_loadu_bounds_1( bounds );
-	
+
 	__m128 offset = _mm_mul_ps( _mm_add_ps( b1, b0 ), vector_float_neg_half );
 	__m128 scale  = _mm_mul_ps( _mm_sub_ps( b0, b1 ), vector_float_neg_half );
-	
+
 	scale = _mm_max_ps( scale, vector_float_smallest_non_denorm );
-	
+
 	__m128 rscale = _mm_rcp32_ps( scale );
-	
+
 	offset = _mm_mul_ps( offset, rscale );
-	
+
 	__m128 d0 = _mm_and_ps( _mm_splat_ps( offset, 0 ), vector_float_keep_last );
 	__m128 d1 = _mm_and_ps( _mm_splat_ps( offset, 1 ), vector_float_keep_last );
 	__m128 d2 = _mm_and_ps( _mm_splat_ps( offset, 2 ), vector_float_keep_last );
-	
+
 	__m128 a0 = _mm_loadu_ps( src.m + 0 * 4 );
 	__m128 a1 = _mm_loadu_ps( src.m + 1 * 4 );
 	__m128 a2 = _mm_loadu_ps( src.m + 2 * 4 );
 	__m128 a3 = _mm_loadu_ps( src.m + 3 * 4 );
-	
+
 	a0 = _mm_madd_ps( a0, _mm_splat_ps( rscale, 0 ), d0 );
 	a1 = _mm_madd_ps( a1, _mm_splat_ps( rscale, 1 ), d1 );
 	a2 = _mm_madd_ps( a2, _mm_splat_ps( rscale, 2 ), d2 );
-	
+
 	_mm_storeu_ps( out.m + 0 * 4, a0 );
 	_mm_storeu_ps( out.m + 1 * 4, a1 );
 	_mm_storeu_ps( out.m + 2 * 4, a2 );
 	_mm_storeu_ps( out.m + 3 * 4, a3 );
-	
+
 #else
-	
+
 	const idVec3 offset = -0.5f * ( bounds[1] + bounds[0] );
 	const idVec3 scale = 2.0f / ( bounds[1] - bounds[0] );
-	
+
 	out[0][0] = scale[0] * src[0][0];
 	out[0][1] = scale[0] * src[0][1];
 	out[0][2] = scale[0] * src[0][2];
 	out[0][3] = scale[0] * ( src[0][3] + offset[0] );
-	
+
 	out[1][0] = scale[1] * src[1][0];
 	out[1][1] = scale[1] * src[1][1];
 	out[1][2] = scale[1] * src[1][2];
 	out[1][3] = scale[1] * ( src[1][3] + offset[1] );
-	
+
 	out[2][0] = scale[2] * src[2][0];
 	out[2][1] = scale[2] * src[2][1];
 	out[2][2] = scale[2] * src[2][2];
 	out[2][3] = scale[2] * ( src[2][3] + offset[2] );
-	
+
 	out[3][0] = src[3][0];
 	out[3][1] = src[3][1];
 	out[3][2] = src[3][2];
 	out[3][3] = src[3][3];
-	
+
 #endif
 }
 
@@ -922,28 +929,28 @@ idRenderMatrix::Transpose
 void idRenderMatrix::Transpose( const idRenderMatrix& src, idRenderMatrix& out )
 {
 	assert( &src != &out );
-	
+
 #if defined(USE_INTRINSICS)
 	const __m128 a0 = _mm_loadu_ps( src.m + 0 * 4 );
 	const __m128 a1 = _mm_loadu_ps( src.m + 1 * 4 );
 	const __m128 a2 = _mm_loadu_ps( src.m + 2 * 4 );
 	const __m128 a3 = _mm_loadu_ps( src.m + 3 * 4 );
-	
+
 	const __m128 r0 = _mm_unpacklo_ps( a0, a2 );
 	const __m128 r1 = _mm_unpackhi_ps( a0, a2 );
 	const __m128 r2 = _mm_unpacklo_ps( a1, a3 );
 	const __m128 r3 = _mm_unpackhi_ps( a1, a3 );
-	
+
 	const __m128 t0 = _mm_unpacklo_ps( r0, r2 );
 	const __m128 t1 = _mm_unpackhi_ps( r0, r2 );
 	const __m128 t2 = _mm_unpacklo_ps( r1, r3 );
 	const __m128 t3 = _mm_unpackhi_ps( r1, r3 );
-	
+
 	_mm_storeu_ps( out.m + 0 * 4, t0 );
 	_mm_storeu_ps( out.m + 1 * 4, t1 );
 	_mm_storeu_ps( out.m + 2 * 4, t2 );
 	_mm_storeu_ps( out.m + 3 * 4, t3 );
-	
+
 #else
 	out.m[ 0] = src.m[ 0];
 	out.m[ 1] = src.m[ 4];
@@ -976,39 +983,39 @@ void idRenderMatrix::Multiply( const idRenderMatrix& a, const idRenderMatrix& b,
 	__m128 a1 = _mm_loadu_ps( a.m + 1 * 4 );
 	__m128 a2 = _mm_loadu_ps( a.m + 2 * 4 );
 	__m128 a3 = _mm_loadu_ps( a.m + 3 * 4 );
-	
+
 	__m128 b0 = _mm_loadu_ps( b.m + 0 * 4 );
 	__m128 b1 = _mm_loadu_ps( b.m + 1 * 4 );
 	__m128 b2 = _mm_loadu_ps( b.m + 2 * 4 );
 	__m128 b3 = _mm_loadu_ps( b.m + 3 * 4 );
-	
+
 	__m128 t0 = _mm_mul_ps( _mm_splat_ps( a0, 0 ), b0 );
 	__m128 t1 = _mm_mul_ps( _mm_splat_ps( a1, 0 ), b0 );
 	__m128 t2 = _mm_mul_ps( _mm_splat_ps( a2, 0 ), b0 );
 	__m128 t3 = _mm_mul_ps( _mm_splat_ps( a3, 0 ), b0 );
-	
+
 	t0 = _mm_madd_ps( _mm_splat_ps( a0, 1 ), b1, t0 );
 	t1 = _mm_madd_ps( _mm_splat_ps( a1, 1 ), b1, t1 );
 	t2 = _mm_madd_ps( _mm_splat_ps( a2, 1 ), b1, t2 );
 	t3 = _mm_madd_ps( _mm_splat_ps( a3, 1 ), b1, t3 );
-	
+
 	t0 = _mm_madd_ps( _mm_splat_ps( a0, 2 ), b2, t0 );
 	t1 = _mm_madd_ps( _mm_splat_ps( a1, 2 ), b2, t1 );
 	t2 = _mm_madd_ps( _mm_splat_ps( a2, 2 ), b2, t2 );
 	t3 = _mm_madd_ps( _mm_splat_ps( a3, 2 ), b2, t3 );
-	
+
 	t0 = _mm_madd_ps( _mm_splat_ps( a0, 3 ), b3, t0 );
 	t1 = _mm_madd_ps( _mm_splat_ps( a1, 3 ), b3, t1 );
 	t2 = _mm_madd_ps( _mm_splat_ps( a2, 3 ), b3, t2 );
 	t3 = _mm_madd_ps( _mm_splat_ps( a3, 3 ), b3, t3 );
-	
+
 	_mm_storeu_ps( out.m + 0 * 4, t0 );
 	_mm_storeu_ps( out.m + 1 * 4, t1 );
 	_mm_storeu_ps( out.m + 2 * 4, t2 );
 	_mm_storeu_ps( out.m + 3 * 4, t3 );
-	
+
 #else
-	
+
 	/*
 	for ( int i = 0 ; i < 4 ; i++ ) {
 		for ( int j = 0 ; j < 4 ; j++ ) {
@@ -1020,27 +1027,27 @@ void idRenderMatrix::Multiply( const idRenderMatrix& a, const idRenderMatrix& b,
 		}
 	}
 	*/
-	
+
 	out.m[0 * 4 + 0] = a.m[0 * 4 + 0] * b.m[0 * 4 + 0] + a.m[0 * 4 + 1] * b.m[1 * 4 + 0] + a.m[0 * 4 + 2] * b.m[2 * 4 + 0] + a.m[0 * 4 + 3] * b.m[3 * 4 + 0];
 	out.m[0 * 4 + 1] = a.m[0 * 4 + 0] * b.m[0 * 4 + 1] + a.m[0 * 4 + 1] * b.m[1 * 4 + 1] + a.m[0 * 4 + 2] * b.m[2 * 4 + 1] + a.m[0 * 4 + 3] * b.m[3 * 4 + 1];
 	out.m[0 * 4 + 2] = a.m[0 * 4 + 0] * b.m[0 * 4 + 2] + a.m[0 * 4 + 1] * b.m[1 * 4 + 2] + a.m[0 * 4 + 2] * b.m[2 * 4 + 2] + a.m[0 * 4 + 3] * b.m[3 * 4 + 2];
 	out.m[0 * 4 + 3] = a.m[0 * 4 + 0] * b.m[0 * 4 + 3] + a.m[0 * 4 + 1] * b.m[1 * 4 + 3] + a.m[0 * 4 + 2] * b.m[2 * 4 + 3] + a.m[0 * 4 + 3] * b.m[3 * 4 + 3];
-	
+
 	out.m[1 * 4 + 0] = a.m[1 * 4 + 0] * b.m[0 * 4 + 0] + a.m[1 * 4 + 1] * b.m[1 * 4 + 0] + a.m[1 * 4 + 2] * b.m[2 * 4 + 0] + a.m[1 * 4 + 3] * b.m[3 * 4 + 0];
 	out.m[1 * 4 + 1] = a.m[1 * 4 + 0] * b.m[0 * 4 + 1] + a.m[1 * 4 + 1] * b.m[1 * 4 + 1] + a.m[1 * 4 + 2] * b.m[2 * 4 + 1] + a.m[1 * 4 + 3] * b.m[3 * 4 + 1];
 	out.m[1 * 4 + 2] = a.m[1 * 4 + 0] * b.m[0 * 4 + 2] + a.m[1 * 4 + 1] * b.m[1 * 4 + 2] + a.m[1 * 4 + 2] * b.m[2 * 4 + 2] + a.m[1 * 4 + 3] * b.m[3 * 4 + 2];
 	out.m[1 * 4 + 3] = a.m[1 * 4 + 0] * b.m[0 * 4 + 3] + a.m[1 * 4 + 1] * b.m[1 * 4 + 3] + a.m[1 * 4 + 2] * b.m[2 * 4 + 3] + a.m[1 * 4 + 3] * b.m[3 * 4 + 3];
-	
+
 	out.m[2 * 4 + 0] = a.m[2 * 4 + 0] * b.m[0 * 4 + 0] + a.m[2 * 4 + 1] * b.m[1 * 4 + 0] + a.m[2 * 4 + 2] * b.m[2 * 4 + 0] + a.m[2 * 4 + 3] * b.m[3 * 4 + 0];
 	out.m[2 * 4 + 1] = a.m[2 * 4 + 0] * b.m[0 * 4 + 1] + a.m[2 * 4 + 1] * b.m[1 * 4 + 1] + a.m[2 * 4 + 2] * b.m[2 * 4 + 1] + a.m[2 * 4 + 3] * b.m[3 * 4 + 1];
 	out.m[2 * 4 + 2] = a.m[2 * 4 + 0] * b.m[0 * 4 + 2] + a.m[2 * 4 + 1] * b.m[1 * 4 + 2] + a.m[2 * 4 + 2] * b.m[2 * 4 + 2] + a.m[2 * 4 + 3] * b.m[3 * 4 + 2];
 	out.m[2 * 4 + 3] = a.m[2 * 4 + 0] * b.m[0 * 4 + 3] + a.m[2 * 4 + 1] * b.m[1 * 4 + 3] + a.m[2 * 4 + 2] * b.m[2 * 4 + 3] + a.m[2 * 4 + 3] * b.m[3 * 4 + 3];
-	
+
 	out.m[3 * 4 + 0] = a.m[3 * 4 + 0] * b.m[0 * 4 + 0] + a.m[3 * 4 + 1] * b.m[1 * 4 + 0] + a.m[3 * 4 + 2] * b.m[2 * 4 + 0] + a.m[3 * 4 + 3] * b.m[3 * 4 + 0];
 	out.m[3 * 4 + 1] = a.m[3 * 4 + 0] * b.m[0 * 4 + 1] + a.m[3 * 4 + 1] * b.m[1 * 4 + 1] + a.m[3 * 4 + 2] * b.m[2 * 4 + 1] + a.m[3 * 4 + 3] * b.m[3 * 4 + 1];
 	out.m[3 * 4 + 2] = a.m[3 * 4 + 0] * b.m[0 * 4 + 2] + a.m[3 * 4 + 1] * b.m[1 * 4 + 2] + a.m[3 * 4 + 2] * b.m[2 * 4 + 2] + a.m[3 * 4 + 3] * b.m[3 * 4 + 2];
 	out.m[3 * 4 + 3] = a.m[3 * 4 + 0] * b.m[0 * 4 + 3] + a.m[3 * 4 + 1] * b.m[1 * 4 + 3] + a.m[3 * 4 + 2] * b.m[2 * 4 + 3] + a.m[3 * 4 + 3] * b.m[3 * 4 + 3];
-	
+
 #endif
 }
 
@@ -1067,24 +1074,24 @@ bool idRenderMatrix::Inverse( const idRenderMatrix& src, idRenderMatrix& out )
 	const __m128 r1 = _mm_loadu_ps( src.m + 1 * 4 );
 	const __m128 r2 = _mm_loadu_ps( src.m + 2 * 4 );
 	const __m128 r3 = _mm_loadu_ps( src.m + 3 * 4 );
-	
+
 	// rXuY = row X rotated up by Y floats.
 	const __m128 r0u1 = _mm_perm_ps( r0, _MM_SHUFFLE( 2, 1, 0, 3 ) );
 	const __m128 r0u2 = _mm_perm_ps( r0, _MM_SHUFFLE( 1, 0, 3, 2 ) );
 	const __m128 r0u3 = _mm_perm_ps( r0, _MM_SHUFFLE( 0, 3, 2, 1 ) );
-	
+
 	const __m128 r1u1 = _mm_perm_ps( r1, _MM_SHUFFLE( 2, 1, 0, 3 ) );
 	const __m128 r1u2 = _mm_perm_ps( r1, _MM_SHUFFLE( 1, 0, 3, 2 ) );
 	const __m128 r1u3 = _mm_perm_ps( r1, _MM_SHUFFLE( 0, 3, 2, 1 ) );
-	
+
 	const __m128 r2u1 = _mm_perm_ps( r2, _MM_SHUFFLE( 2, 1, 0, 3 ) );
 	const __m128 r2u2 = _mm_perm_ps( r2, _MM_SHUFFLE( 1, 0, 3, 2 ) );
 	const __m128 r2u3 = _mm_perm_ps( r2, _MM_SHUFFLE( 0, 3, 2, 1 ) );
-	
+
 	const __m128 r3u1 = _mm_perm_ps( r3, _MM_SHUFFLE( 2, 1, 0, 3 ) );
 	const __m128 r3u2 = _mm_perm_ps( r3, _MM_SHUFFLE( 1, 0, 3, 2 ) );
 	const __m128 r3u3 = _mm_perm_ps( r3, _MM_SHUFFLE( 0, 3, 2, 1 ) );
-	
+
 	const __m128 m_r2u2_r3u3      						= _mm_mul_ps( r2u2, r3u3 );
 	const __m128 m_r1u1_r2u2_r3u3 						= _mm_mul_ps( r1u1, m_r2u2_r3u3 );
 	const __m128 m_r2u3_r3u1							= _mm_mul_ps( r2u3, r3u1 );
@@ -1098,7 +1105,7 @@ bool idRenderMatrix::Inverse( const idRenderMatrix& src, idRenderMatrix& out )
 	const __m128 m_r2u2_r3u1							= _mm_perm_ps( m_r2u3_r3u2, _MM_SHUFFLE( 0, 3, 2, 1 ) );
 	const __m128 neg_part_det3x3_r0						= _mm_madd_ps( r1u3, m_r2u2_r3u1, a_m_r1u2_r2u1_r3u3_m_r1u1_r2u3_r3u2 );
 	const __m128 det3x3_r0 								= _mm_sub_ps( pos_part_det3x3_r0, neg_part_det3x3_r0 );
-	
+
 	const __m128 m_r0u1_r2u2_r3u3 						= _mm_mul_ps( r0u1, m_r2u2_r3u3 );
 	const __m128 a_m_r0u2_r2u3_r3u1_m_r0u1_r2u2_r3u3	= _mm_madd_ps( r0u2, m_r2u3_r3u1, m_r0u1_r2u2_r3u3 );
 	const __m128 pos_part_det3x3_r1						= _mm_madd_ps( r0u3, m_r2u1_r3u2, a_m_r0u2_r2u3_r3u1_m_r0u1_r2u2_r3u3 );
@@ -1106,7 +1113,7 @@ bool idRenderMatrix::Inverse( const idRenderMatrix& src, idRenderMatrix& out )
 	const __m128 a_m_r0u2_r2u1_r3u3_m_r0u1_r2u3_r3u2	= _mm_madd_ps( r0u2, m_r2u1_r3u3, m_r0u1_r2u3_r3u2 );
 	const __m128 neg_part_det3x3_r1						= _mm_madd_ps( r0u3, m_r2u2_r3u1, a_m_r0u2_r2u1_r3u3_m_r0u1_r2u3_r3u2 );
 	const __m128 det3x3_r1 								= _mm_sub_ps( pos_part_det3x3_r1, neg_part_det3x3_r1 );
-	
+
 	const __m128 m_r0u1_r1u2      						= _mm_mul_ps( r0u1, r1u2 );
 	const __m128 m_r0u1_r1u2_r2u3 						= _mm_mul_ps( m_r0u1_r1u2, r2u3 );
 	const __m128 m_r0u2_r1u3							= _mm_perm_ps( m_r0u1_r1u2, _MM_SHUFFLE( 2, 1, 0, 3 ) );
@@ -1120,7 +1127,7 @@ bool idRenderMatrix::Inverse( const idRenderMatrix& src, idRenderMatrix& out )
 	const __m128 m_r0u3_r1u2							= _mm_perm_ps( m_r0u2_r1u1, _MM_SHUFFLE( 2, 1, 0, 3 ) );
 	const __m128 neg_part_det3x3_r3						= _mm_madd_ps( m_r0u3_r1u2, r2u1, a_m_r0u2_r1u1_r2u3_m_r0u1_r1u3_r2u2 );
 	const __m128 det3x3_r3 								= _mm_sub_ps( pos_part_det3x3_r3, neg_part_det3x3_r3 );
-	
+
 	const __m128 m_r0u1_r1u2_r3u3 						= _mm_mul_ps( m_r0u1_r1u2, r3u3 );
 	const __m128 a_m_r0u2_r1u3_r3u1_m_r0u1_r1u2_r3u3	= _mm_madd_ps( m_r0u2_r1u3, r3u1, m_r0u1_r1u2_r3u3 );
 	const __m128 pos_part_det3x3_r2						= _mm_madd_ps( m_r0u3_r1u1, r3u2, a_m_r0u2_r1u3_r3u1_m_r0u1_r1u2_r3u3 );
@@ -1128,52 +1135,52 @@ bool idRenderMatrix::Inverse( const idRenderMatrix& src, idRenderMatrix& out )
 	const __m128 a_m_r0u2_r1u1_r3u3_m_r0u1_r1u3_r3u2	= _mm_madd_ps( m_r0u2_r1u1, r3u3, m_r0u1_r1u3_r3u2 );
 	const __m128 neg_part_det3x3_r2						= _mm_madd_ps( m_r0u3_r1u2, r3u1, a_m_r0u2_r1u1_r3u3_m_r0u1_r1u3_r3u2 );
 	const __m128 det3x3_r2 								= _mm_sub_ps( pos_part_det3x3_r2, neg_part_det3x3_r2 );
-	
+
 	const __m128 c_zero		= _mm_setzero_ps();
 	const __m128 c_mask		= _mm_cmpeq_ps( c_zero, c_zero );
 	const __m128 c_signmask	= _mm_castsi128_ps( _mm_slli_epi32( _mm_castps_si128( c_mask ), 31 ) );
 	const __m128 c_znzn		= _mm_unpacklo_ps( c_zero, c_signmask );
 	const __m128 c_nznz		= _mm_unpacklo_ps( c_signmask, c_zero );
-	
+
 	const __m128 cofactor_r0 = _mm_xor_ps( det3x3_r0, c_znzn );
 	const __m128 cofactor_r1 = _mm_xor_ps( det3x3_r1, c_nznz );
 	const __m128 cofactor_r2 = _mm_xor_ps( det3x3_r2, c_znzn );
 	const __m128 cofactor_r3 = _mm_xor_ps( det3x3_r3, c_nznz );
-	
+
 	const __m128 dot0	= _mm_mul_ps( r0, cofactor_r0 );
 	const __m128 dot1 	= _mm_add_ps( dot0, _mm_perm_ps( dot0, _MM_SHUFFLE( 2, 1, 0, 3 ) ) );
 	const __m128 det	= _mm_add_ps( dot1, _mm_perm_ps( dot1, _MM_SHUFFLE( 1, 0, 3, 2 ) ) );
-	
+
 	const __m128 absDet	= _mm_andnot_ps( c_signmask, det );
 	if( _mm_movemask_ps( _mm_cmplt_ps( absDet, vector_float_inverse_epsilon ) ) & 15 )
 	{
 		return false;
 	}
-	
+
 	const __m128 rcpDet	= _mm_rcp32_ps( det );
-	
+
 	const __m128 hi_part_r0_r2 = _mm_unpacklo_ps( cofactor_r0, cofactor_r2 );
 	const __m128 lo_part_r0_r2 = _mm_unpackhi_ps( cofactor_r0, cofactor_r2 );
 	const __m128 hi_part_r1_r3 = _mm_unpacklo_ps( cofactor_r1, cofactor_r3 );
 	const __m128 lo_part_r1_r3 = _mm_unpackhi_ps( cofactor_r1, cofactor_r3 );
-	
+
 	const __m128 adjoint_r0    = _mm_unpacklo_ps( hi_part_r0_r2, hi_part_r1_r3 );
 	const __m128 adjoint_r1    = _mm_unpackhi_ps( hi_part_r0_r2, hi_part_r1_r3 );
 	const __m128 adjoint_r2    = _mm_unpacklo_ps( lo_part_r0_r2, lo_part_r1_r3 );
 	const __m128 adjoint_r3    = _mm_unpackhi_ps( lo_part_r0_r2, lo_part_r1_r3 );
-	
+
 	_mm_storeu_ps( out.m + 0 * 4, _mm_mul_ps( adjoint_r0, rcpDet ) );
 	_mm_storeu_ps( out.m + 1 * 4, _mm_mul_ps( adjoint_r1, rcpDet ) );
 	_mm_storeu_ps( out.m + 2 * 4, _mm_mul_ps( adjoint_r2, rcpDet ) );
 	_mm_storeu_ps( out.m + 3 * 4, _mm_mul_ps( adjoint_r3, rcpDet ) );
-	
+
 #else
-	
+
 	const int FRL = 4;
-	
+
 	// 84+4+16 = 104 multiplications
 	//			   1 division
-	
+
 	// 2x2 sub-determinants required to calculate 4x4 determinant
 	const float det2_01_01 = src.m[0 * FRL + 0] * src.m[1 * FRL + 1] - src.m[0 * FRL + 1] * src.m[1 * FRL + 0];
 	const float det2_01_02 = src.m[0 * FRL + 0] * src.m[1 * FRL + 2] - src.m[0 * FRL + 2] * src.m[1 * FRL + 0];
@@ -1181,22 +1188,22 @@ bool idRenderMatrix::Inverse( const idRenderMatrix& src, idRenderMatrix& out )
 	const float det2_01_12 = src.m[0 * FRL + 1] * src.m[1 * FRL + 2] - src.m[0 * FRL + 2] * src.m[1 * FRL + 1];
 	const float det2_01_13 = src.m[0 * FRL + 1] * src.m[1 * FRL + 3] - src.m[0 * FRL + 3] * src.m[1 * FRL + 1];
 	const float det2_01_23 = src.m[0 * FRL + 2] * src.m[1 * FRL + 3] - src.m[0 * FRL + 3] * src.m[1 * FRL + 2];
-	
+
 	// 3x3 sub-determinants required to calculate 4x4 determinant
 	const float det3_201_012 = src.m[2 * FRL + 0] * det2_01_12 - src.m[2 * FRL + 1] * det2_01_02 + src.m[2 * FRL + 2] * det2_01_01;
 	const float det3_201_013 = src.m[2 * FRL + 0] * det2_01_13 - src.m[2 * FRL + 1] * det2_01_03 + src.m[2 * FRL + 3] * det2_01_01;
 	const float det3_201_023 = src.m[2 * FRL + 0] * det2_01_23 - src.m[2 * FRL + 2] * det2_01_03 + src.m[2 * FRL + 3] * det2_01_02;
 	const float det3_201_123 = src.m[2 * FRL + 1] * det2_01_23 - src.m[2 * FRL + 2] * det2_01_13 + src.m[2 * FRL + 3] * det2_01_12;
-	
+
 	const float det = ( - det3_201_123 * src.m[3 * FRL + 0] + det3_201_023 * src.m[3 * FRL + 1] - det3_201_013 * src.m[3 * FRL + 2] + det3_201_012 * src.m[3 * FRL + 3] );
-	
+
 	if( idMath::Fabs( det ) < RENDER_MATRIX_INVERSE_EPSILON )
 	{
 		return false;
 	}
-	
+
 	const float rcpDet = 1.0f / det;
-	
+
 	// remaining 2x2 sub-determinants
 	const float det2_03_01 = src.m[0 * FRL + 0] * src.m[3 * FRL + 1] - src.m[0 * FRL + 1] * src.m[3 * FRL + 0];
 	const float det2_03_02 = src.m[0 * FRL + 0] * src.m[3 * FRL + 2] - src.m[0 * FRL + 2] * src.m[3 * FRL + 0];
@@ -1204,52 +1211,52 @@ bool idRenderMatrix::Inverse( const idRenderMatrix& src, idRenderMatrix& out )
 	const float det2_03_12 = src.m[0 * FRL + 1] * src.m[3 * FRL + 2] - src.m[0 * FRL + 2] * src.m[3 * FRL + 1];
 	const float det2_03_13 = src.m[0 * FRL + 1] * src.m[3 * FRL + 3] - src.m[0 * FRL + 3] * src.m[3 * FRL + 1];
 	const float det2_03_23 = src.m[0 * FRL + 2] * src.m[3 * FRL + 3] - src.m[0 * FRL + 3] * src.m[3 * FRL + 2];
-	
+
 	const float det2_13_01 = src.m[1 * FRL + 0] * src.m[3 * FRL + 1] - src.m[1 * FRL + 1] * src.m[3 * FRL + 0];
 	const float det2_13_02 = src.m[1 * FRL + 0] * src.m[3 * FRL + 2] - src.m[1 * FRL + 2] * src.m[3 * FRL + 0];
 	const float det2_13_03 = src.m[1 * FRL + 0] * src.m[3 * FRL + 3] - src.m[1 * FRL + 3] * src.m[3 * FRL + 0];
 	const float det2_13_12 = src.m[1 * FRL + 1] * src.m[3 * FRL + 2] - src.m[1 * FRL + 2] * src.m[3 * FRL + 1];
 	const float det2_13_13 = src.m[1 * FRL + 1] * src.m[3 * FRL + 3] - src.m[1 * FRL + 3] * src.m[3 * FRL + 1];
 	const float det2_13_23 = src.m[1 * FRL + 2] * src.m[3 * FRL + 3] - src.m[1 * FRL + 3] * src.m[3 * FRL + 2];
-	
+
 	// remaining 3x3 sub-determinants
 	const float det3_203_012 = src.m[2 * FRL + 0] * det2_03_12 - src.m[2 * FRL + 1] * det2_03_02 + src.m[2 * FRL + 2] * det2_03_01;
 	const float det3_203_013 = src.m[2 * FRL + 0] * det2_03_13 - src.m[2 * FRL + 1] * det2_03_03 + src.m[2 * FRL + 3] * det2_03_01;
 	const float det3_203_023 = src.m[2 * FRL + 0] * det2_03_23 - src.m[2 * FRL + 2] * det2_03_03 + src.m[2 * FRL + 3] * det2_03_02;
 	const float det3_203_123 = src.m[2 * FRL + 1] * det2_03_23 - src.m[2 * FRL + 2] * det2_03_13 + src.m[2 * FRL + 3] * det2_03_12;
-	
+
 	const float det3_213_012 = src.m[2 * FRL + 0] * det2_13_12 - src.m[2 * FRL + 1] * det2_13_02 + src.m[2 * FRL + 2] * det2_13_01;
 	const float det3_213_013 = src.m[2 * FRL + 0] * det2_13_13 - src.m[2 * FRL + 1] * det2_13_03 + src.m[2 * FRL + 3] * det2_13_01;
 	const float det3_213_023 = src.m[2 * FRL + 0] * det2_13_23 - src.m[2 * FRL + 2] * det2_13_03 + src.m[2 * FRL + 3] * det2_13_02;
 	const float det3_213_123 = src.m[2 * FRL + 1] * det2_13_23 - src.m[2 * FRL + 2] * det2_13_13 + src.m[2 * FRL + 3] * det2_13_12;
-	
+
 	const float det3_301_012 = src.m[3 * FRL + 0] * det2_01_12 - src.m[3 * FRL + 1] * det2_01_02 + src.m[3 * FRL + 2] * det2_01_01;
 	const float det3_301_013 = src.m[3 * FRL + 0] * det2_01_13 - src.m[3 * FRL + 1] * det2_01_03 + src.m[3 * FRL + 3] * det2_01_01;
 	const float det3_301_023 = src.m[3 * FRL + 0] * det2_01_23 - src.m[3 * FRL + 2] * det2_01_03 + src.m[3 * FRL + 3] * det2_01_02;
 	const float det3_301_123 = src.m[3 * FRL + 1] * det2_01_23 - src.m[3 * FRL + 2] * det2_01_13 + src.m[3 * FRL + 3] * det2_01_12;
-	
+
 	out.m[0 * FRL + 0] = - det3_213_123 * rcpDet;
 	out.m[1 * FRL + 0] = + det3_213_023 * rcpDet;
 	out.m[2 * FRL + 0] = - det3_213_013 * rcpDet;
 	out.m[3 * FRL + 0] = + det3_213_012 * rcpDet;
-	
+
 	out.m[0 * FRL + 1] = + det3_203_123 * rcpDet;
 	out.m[1 * FRL + 1] = - det3_203_023 * rcpDet;
 	out.m[2 * FRL + 1] = + det3_203_013 * rcpDet;
 	out.m[3 * FRL + 1] = - det3_203_012 * rcpDet;
-	
+
 	out.m[0 * FRL + 2] = + det3_301_123 * rcpDet;
 	out.m[1 * FRL + 2] = - det3_301_023 * rcpDet;
 	out.m[2 * FRL + 2] = + det3_301_013 * rcpDet;
 	out.m[3 * FRL + 2] = - det3_301_012 * rcpDet;
-	
+
 	out.m[0 * FRL + 3] = - det3_201_123 * rcpDet;
 	out.m[1 * FRL + 3] = + det3_201_023 * rcpDet;
 	out.m[2 * FRL + 3] = - det3_201_013 * rcpDet;
 	out.m[3 * FRL + 3] = + det3_201_012 * rcpDet;
-	
+
 #endif
-	
+
 	return true;
 }
 
@@ -1262,7 +1269,7 @@ void idRenderMatrix::InverseByTranspose( const idRenderMatrix& src, idRenderMatr
 {
 	assert( &src != &out );
 	assert( src.IsAffineTransform( 0.01f ) );
-	
+
 	out[0][0] = src[0][0];
 	out[1][0] = src[0][1];
 	out[2][0] = src[0][2];
@@ -1293,10 +1300,10 @@ This is only for tools where more precision is needed.
 bool idRenderMatrix::InverseByDoubles( const idRenderMatrix& src, idRenderMatrix& out )
 {
 	const int FRL = 4;
-	
+
 	// 84+4+16 = 104 multiplications
 	//			   1 division
-	
+
 	// 2x2 sub-determinants required to calculate 4x4 determinant
 	const double det2_01_01 = ( double )src.m[0 * FRL + 0] * ( double )src.m[1 * FRL + 1] - ( double )src.m[0 * FRL + 1] * ( double )src.m[1 * FRL + 0];
 	const double det2_01_02 = ( double )src.m[0 * FRL + 0] * ( double )src.m[1 * FRL + 2] - ( double )src.m[0 * FRL + 2] * ( double )src.m[1 * FRL + 0];
@@ -1304,17 +1311,17 @@ bool idRenderMatrix::InverseByDoubles( const idRenderMatrix& src, idRenderMatrix
 	const double det2_01_12 = ( double )src.m[0 * FRL + 1] * ( double )src.m[1 * FRL + 2] - ( double )src.m[0 * FRL + 2] * ( double )src.m[1 * FRL + 1];
 	const double det2_01_13 = ( double )src.m[0 * FRL + 1] * ( double )src.m[1 * FRL + 3] - ( double )src.m[0 * FRL + 3] * ( double )src.m[1 * FRL + 1];
 	const double det2_01_23 = ( double )src.m[0 * FRL + 2] * ( double )src.m[1 * FRL + 3] - ( double )src.m[0 * FRL + 3] * ( double )src.m[1 * FRL + 2];
-	
+
 	// 3x3 sub-determinants required to calculate 4x4 determinant
 	const double det3_201_012 = ( double )src.m[2 * FRL + 0] * det2_01_12 - ( double )src.m[2 * FRL + 1] * det2_01_02 + ( double )src.m[2 * FRL + 2] * det2_01_01;
 	const double det3_201_013 = ( double )src.m[2 * FRL + 0] * det2_01_13 - ( double )src.m[2 * FRL + 1] * det2_01_03 + ( double )src.m[2 * FRL + 3] * det2_01_01;
 	const double det3_201_023 = ( double )src.m[2 * FRL + 0] * det2_01_23 - ( double )src.m[2 * FRL + 2] * det2_01_03 + ( double )src.m[2 * FRL + 3] * det2_01_02;
 	const double det3_201_123 = ( double )src.m[2 * FRL + 1] * det2_01_23 - ( double )src.m[2 * FRL + 2] * det2_01_13 + ( double )src.m[2 * FRL + 3] * det2_01_12;
-	
+
 	const double det = ( - det3_201_123 * ( double )src.m[3 * FRL + 0] + det3_201_023 * ( double )src.m[3 * FRL + 1] - det3_201_013 * ( double )src.m[3 * FRL + 2] + det3_201_012 * ( double )src.m[3 * FRL + 3] );
-	
+
 	const double rcpDet = 1.0f / det;
-	
+
 	// remaining 2x2 sub-determinants
 	const double det2_03_01 = ( double )src.m[0 * FRL + 0] * ( double )src.m[3 * FRL + 1] - ( double )src.m[0 * FRL + 1] * ( double )src.m[3 * FRL + 0];
 	const double det2_03_02 = ( double )src.m[0 * FRL + 0] * ( double )src.m[3 * FRL + 2] - ( double )src.m[0 * FRL + 2] * ( double )src.m[3 * FRL + 0];
@@ -1322,50 +1329,50 @@ bool idRenderMatrix::InverseByDoubles( const idRenderMatrix& src, idRenderMatrix
 	const double det2_03_12 = ( double )src.m[0 * FRL + 1] * ( double )src.m[3 * FRL + 2] - ( double )src.m[0 * FRL + 2] * ( double )src.m[3 * FRL + 1];
 	const double det2_03_13 = ( double )src.m[0 * FRL + 1] * ( double )src.m[3 * FRL + 3] - ( double )src.m[0 * FRL + 3] * ( double )src.m[3 * FRL + 1];
 	const double det2_03_23 = ( double )src.m[0 * FRL + 2] * ( double )src.m[3 * FRL + 3] - ( double )src.m[0 * FRL + 3] * ( double )src.m[3 * FRL + 2];
-	
+
 	const double det2_13_01 = ( double )src.m[1 * FRL + 0] * ( double )src.m[3 * FRL + 1] - ( double )src.m[1 * FRL + 1] * ( double )src.m[3 * FRL + 0];
 	const double det2_13_02 = ( double )src.m[1 * FRL + 0] * ( double )src.m[3 * FRL + 2] - ( double )src.m[1 * FRL + 2] * ( double )src.m[3 * FRL + 0];
 	const double det2_13_03 = ( double )src.m[1 * FRL + 0] * ( double )src.m[3 * FRL + 3] - ( double )src.m[1 * FRL + 3] * ( double )src.m[3 * FRL + 0];
 	const double det2_13_12 = ( double )src.m[1 * FRL + 1] * ( double )src.m[3 * FRL + 2] - ( double )src.m[1 * FRL + 2] * ( double )src.m[3 * FRL + 1];
 	const double det2_13_13 = ( double )src.m[1 * FRL + 1] * ( double )src.m[3 * FRL + 3] - ( double )src.m[1 * FRL + 3] * ( double )src.m[3 * FRL + 1];
 	const double det2_13_23 = ( double )src.m[1 * FRL + 2] * ( double )src.m[3 * FRL + 3] - ( double )src.m[1 * FRL + 3] * ( double )src.m[3 * FRL + 2];
-	
+
 	// remaining 3x3 sub-determinants
 	const double det3_203_012 = ( double )src.m[2 * FRL + 0] * det2_03_12 - ( double )src.m[2 * FRL + 1] * det2_03_02 + ( double )src.m[2 * FRL + 2] * det2_03_01;
 	const double det3_203_013 = ( double )src.m[2 * FRL + 0] * det2_03_13 - ( double )src.m[2 * FRL + 1] * det2_03_03 + ( double )src.m[2 * FRL + 3] * det2_03_01;
 	const double det3_203_023 = ( double )src.m[2 * FRL + 0] * det2_03_23 - ( double )src.m[2 * FRL + 2] * det2_03_03 + ( double )src.m[2 * FRL + 3] * det2_03_02;
 	const double det3_203_123 = ( double )src.m[2 * FRL + 1] * det2_03_23 - ( double )src.m[2 * FRL + 2] * det2_03_13 + ( double )src.m[2 * FRL + 3] * det2_03_12;
-	
+
 	const double det3_213_012 = ( double )src.m[2 * FRL + 0] * det2_13_12 - ( double )src.m[2 * FRL + 1] * det2_13_02 + ( double )src.m[2 * FRL + 2] * det2_13_01;
 	const double det3_213_013 = ( double )src.m[2 * FRL + 0] * det2_13_13 - ( double )src.m[2 * FRL + 1] * det2_13_03 + ( double )src.m[2 * FRL + 3] * det2_13_01;
 	const double det3_213_023 = ( double )src.m[2 * FRL + 0] * det2_13_23 - ( double )src.m[2 * FRL + 2] * det2_13_03 + ( double )src.m[2 * FRL + 3] * det2_13_02;
 	const double det3_213_123 = ( double )src.m[2 * FRL + 1] * det2_13_23 - ( double )src.m[2 * FRL + 2] * det2_13_13 + ( double )src.m[2 * FRL + 3] * det2_13_12;
-	
+
 	const double det3_301_012 = ( double )src.m[3 * FRL + 0] * det2_01_12 - ( double )src.m[3 * FRL + 1] * det2_01_02 + ( double )src.m[3 * FRL + 2] * det2_01_01;
 	const double det3_301_013 = ( double )src.m[3 * FRL + 0] * det2_01_13 - ( double )src.m[3 * FRL + 1] * det2_01_03 + ( double )src.m[3 * FRL + 3] * det2_01_01;
 	const double det3_301_023 = ( double )src.m[3 * FRL + 0] * det2_01_23 - ( double )src.m[3 * FRL + 2] * det2_01_03 + ( double )src.m[3 * FRL + 3] * det2_01_02;
 	const double det3_301_123 = ( double )src.m[3 * FRL + 1] * det2_01_23 - ( double )src.m[3 * FRL + 2] * det2_01_13 + ( double )src.m[3 * FRL + 3] * det2_01_12;
-	
+
 	out.m[0 * FRL + 0] = ( float )( - det3_213_123 * rcpDet );
 	out.m[1 * FRL + 0] = ( float )( + det3_213_023 * rcpDet );
 	out.m[2 * FRL + 0] = ( float )( - det3_213_013 * rcpDet );
 	out.m[3 * FRL + 0] = ( float )( + det3_213_012 * rcpDet );
-	
+
 	out.m[0 * FRL + 1] = ( float )( + det3_203_123 * rcpDet );
 	out.m[1 * FRL + 1] = ( float )( - det3_203_023 * rcpDet );
 	out.m[2 * FRL + 1] = ( float )( + det3_203_013 * rcpDet );
 	out.m[3 * FRL + 1] = ( float )( - det3_203_012 * rcpDet );
-	
+
 	out.m[0 * FRL + 2] = ( float )( + det3_301_123 * rcpDet );
 	out.m[1 * FRL + 2] = ( float )( - det3_301_023 * rcpDet );
 	out.m[2 * FRL + 2] = ( float )( + det3_301_013 * rcpDet );
 	out.m[3 * FRL + 2] = ( float )( - det3_301_012 * rcpDet );
-	
+
 	out.m[0 * FRL + 3] = ( float )( - det3_201_123 * rcpDet );
 	out.m[1 * FRL + 3] = ( float )( + det3_201_023 * rcpDet );
 	out.m[2 * FRL + 3] = ( float )( - det3_201_013 * rcpDet );
 	out.m[3 * FRL + 3] = ( float )( + det3_201_012 * rcpDet );
-	
+
 	return true;
 }
 
@@ -1381,14 +1388,14 @@ void DeterminantIsNegative( bool& negativeDeterminant, const __m128& r0, const _
 	const __m128 r1u1 = _mm_perm_ps( r1, _MM_SHUFFLE( 2, 1, 0, 3 ) );
 	const __m128 r1u2 = _mm_perm_ps( r1, _MM_SHUFFLE( 1, 0, 3, 2 ) );
 	const __m128 r1u3 = _mm_perm_ps( r1, _MM_SHUFFLE( 0, 3, 2, 1 ) );
-	
+
 	const __m128 r2u2 = _mm_perm_ps( r2, _MM_SHUFFLE( 1, 0, 3, 2 ) );
 	const __m128 r2u3 = _mm_perm_ps( r2, _MM_SHUFFLE( 0, 3, 2, 1 ) );
-	
+
 	const __m128 r3u1 = _mm_perm_ps( r3, _MM_SHUFFLE( 2, 1, 0, 3 ) );
 	const __m128 r3u2 = _mm_perm_ps( r3, _MM_SHUFFLE( 1, 0, 3, 2 ) );
 	const __m128 r3u3 = _mm_perm_ps( r3, _MM_SHUFFLE( 0, 3, 2, 1 ) );
-	
+
 	const __m128 m_r2u2_r3u3      						= _mm_mul_ps( r2u2, r3u3 );
 	const __m128 m_r1u1_r2u2_r3u3 						= _mm_mul_ps( r1u1, m_r2u2_r3u3 );
 	const __m128 m_r2u3_r3u1							= _mm_mul_ps( r2u3, r3u1 );
@@ -1402,20 +1409,20 @@ void DeterminantIsNegative( bool& negativeDeterminant, const __m128& r0, const _
 	const __m128 m_r2u2_r3u1							= _mm_perm_ps( m_r2u3_r3u2, _MM_SHUFFLE( 0, 3, 2, 1 ) );
 	const __m128 neg_part_det3x3_r0						= _mm_madd_ps( r1u3, m_r2u2_r3u1, a_m_r1u2_r2u1_r3u3_m_r1u1_r2u3_r3u2 );
 	const __m128 det3x3_r0 								= _mm_sub_ps( pos_part_det3x3_r0, neg_part_det3x3_r0 );
-	
+
 	const __m128 c_zero		= _mm_setzero_ps();
 	const __m128 c_mask		= _mm_cmpeq_ps( c_zero, c_zero );
 	const __m128 c_signmask	= _mm_castsi128_ps( _mm_slli_epi32( _mm_castps_si128( c_mask ), 31 ) );
 	const __m128 c_znzn		= _mm_unpacklo_ps( c_zero, c_signmask );
-	
+
 	const __m128 cofactor_r0 = _mm_xor_ps( det3x3_r0, c_znzn );
-	
+
 	const __m128 dot0	= _mm_mul_ps( r0, cofactor_r0 );
 	const __m128 dot1 	= _mm_add_ps( dot0, _mm_perm_ps( dot0, _MM_SHUFFLE( 2, 1, 0, 3 ) ) );
 	const __m128 det	= _mm_add_ps( dot1, _mm_perm_ps( dot1, _MM_SHUFFLE( 1, 0, 3, 2 ) ) );
-	
+
 	const __m128 result	= _mm_cmpgt_ps( c_zero, det );
-	
+
 	negativeDeterminant	= _mm_movemask_ps( result ) & 1;
 }
 
@@ -1431,15 +1438,15 @@ void DeterminantIsNegative( bool& negativeDeterminant, const float* row0, const 
 	const float det2_01_12 = row0[1] * row1[2] - row0[2] * row1[1];
 	const float det2_01_13 = row0[1] * row1[3] - row0[3] * row1[1];
 	const float det2_01_23 = row0[2] * row1[3] - row0[3] * row1[2];
-	
+
 	// 3x3 sub-determinants required to calculate 4x4 determinant
 	const float det3_201_012 = row2[0] * det2_01_12 - row2[1] * det2_01_02 + row2[2] * det2_01_01;
 	const float det3_201_013 = row2[0] * det2_01_13 - row2[1] * det2_01_03 + row2[3] * det2_01_01;
 	const float det3_201_023 = row2[0] * det2_01_23 - row2[2] * det2_01_03 + row2[3] * det2_01_02;
 	const float det3_201_123 = row2[1] * det2_01_23 - row2[2] * det2_01_13 + row2[3] * det2_01_12;
-	
+
 	const float det = ( - det3_201_123 * row3[0] + det3_201_023 * row3[1] - det3_201_013 * row3[2] + det3_201_012 * row3[3] );
-	
+
 	negativeDeterminant = ( det < 0.0f );
 }
 
@@ -1456,13 +1463,13 @@ void idRenderMatrix::CopyMatrix( const idRenderMatrix& matrix, idVec4& row0, idV
 	assert_16_byte_aligned( row1.ToFloatPtr() );
 	assert_16_byte_aligned( row2.ToFloatPtr() );
 	assert_16_byte_aligned( row3.ToFloatPtr() );
-	
+
 #if defined(USE_INTRINSICS)
 	const __m128 r0 = _mm_loadu_ps( matrix.m + 0 * 4 );
 	const __m128 r1 = _mm_loadu_ps( matrix.m + 1 * 4 );
 	const __m128 r2 = _mm_loadu_ps( matrix.m + 2 * 4 );
 	const __m128 r3 = _mm_loadu_ps( matrix.m + 3 * 4 );
-	
+
 	_mm_store_ps( row0.ToFloatPtr(), r0 );
 	_mm_store_ps( row1.ToFloatPtr(), r1 );
 	_mm_store_ps( row2.ToFloatPtr(), r2 );
@@ -1498,18 +1505,18 @@ void idRenderMatrix::SetMVP( const idRenderMatrix& mvp, idVec4& row0, idVec4& ro
 	assert_16_byte_aligned( row1.ToFloatPtr() );
 	assert_16_byte_aligned( row2.ToFloatPtr() );
 	assert_16_byte_aligned( row3.ToFloatPtr() );
-	
+
 #if defined(USE_INTRINSICS)
 	const __m128 r0 = _mm_loadu_ps( mvp.m + 0 * 4 );
 	const __m128 r1 = _mm_loadu_ps( mvp.m + 1 * 4 );
 	const __m128 r2 = _mm_loadu_ps( mvp.m + 2 * 4 );
 	const __m128 r3 = _mm_loadu_ps( mvp.m + 3 * 4 );
-	
+
 	_mm_store_ps( row0.ToFloatPtr(), r0 );
 	_mm_store_ps( row1.ToFloatPtr(), r1 );
 	_mm_store_ps( row2.ToFloatPtr(), r2 );
 	_mm_store_ps( row3.ToFloatPtr(), r3 );
-	
+
 	DeterminantIsNegative( negativeDeterminant, r0, r1, r2, r3 );
 #else
 	row0[0] = mvp.m[ 0];
@@ -1528,9 +1535,9 @@ void idRenderMatrix::SetMVP( const idRenderMatrix& mvp, idVec4& row0, idVec4& ro
 	row3[1] = mvp.m[13];
 	row3[2] = mvp.m[14];
 	row3[3] = mvp.m[15];
-	
+
 	DeterminantIsNegative( negativeDeterminant, mvp[0], mvp[1], mvp[2], mvp[3] );
-	
+
 #endif
 }
 
@@ -1545,83 +1552,83 @@ void idRenderMatrix::SetMVPForBounds( const idRenderMatrix& mvp, const idBounds&
 	assert_16_byte_aligned( row1.ToFloatPtr() );
 	assert_16_byte_aligned( row2.ToFloatPtr() );
 	assert_16_byte_aligned( row3.ToFloatPtr() );
-	
+
 #if defined(USE_INTRINSICS)
-	
+
 	__m128 b0 = _mm_loadu_bounds_0( bounds );
 	__m128 b1 = _mm_loadu_bounds_1( bounds );
-	
+
 	__m128 offset = _mm_mul_ps( _mm_add_ps( b1, b0 ), vector_float_half );
 	__m128 scale  = _mm_mul_ps( _mm_sub_ps( b1, b0 ), vector_float_half );
-	
+
 	scale = _mm_or_ps( scale, vector_float_last_one );
-	
+
 	__m128 r0 = _mm_loadu_ps( mvp.m + 0 * 4 );
 	__m128 r1 = _mm_loadu_ps( mvp.m + 1 * 4 );
 	__m128 r2 = _mm_loadu_ps( mvp.m + 2 * 4 );
 	__m128 r3 = _mm_loadu_ps( mvp.m + 3 * 4 );
-	
+
 	__m128 d0 = _mm_mul_ps( r0, offset );
 	__m128 d1 = _mm_mul_ps( r1, offset );
 	__m128 d2 = _mm_mul_ps( r2, offset );
 	__m128 d3 = _mm_mul_ps( r3, offset );
-	
+
 	__m128 s0 = _mm_unpacklo_ps( d0, d2 );		// a0, c0, a1, c1
 	__m128 s1 = _mm_unpackhi_ps( d0, d2 );		// a2, c2, a3, c3
 	__m128 s2 = _mm_unpacklo_ps( d1, d3 );		// b0, d0, b1, d1
 	__m128 s3 = _mm_unpackhi_ps( d1, d3 );		// b2, d2, b3, d3
-	
+
 	__m128 t0 = _mm_unpacklo_ps( s0, s2 );		// a0, b0, c0, d0
 	__m128 t1 = _mm_unpackhi_ps( s0, s2 );		// a1, b1, c1, d1
 	__m128 t2 = _mm_unpacklo_ps( s1, s3 );		// a2, b2, c2, d2
-	
+
 	t0 = _mm_add_ps( t0, t1 );
 	t0 = _mm_add_ps( t0, t2 );
-	
+
 	__m128 n0 = _mm_and_ps( _mm_splat_ps( t0, 0 ), vector_float_keep_last );
 	__m128 n1 = _mm_and_ps( _mm_splat_ps( t0, 1 ), vector_float_keep_last );
 	__m128 n2 = _mm_and_ps( _mm_splat_ps( t0, 2 ), vector_float_keep_last );
 	__m128 n3 = _mm_and_ps( _mm_splat_ps( t0, 3 ), vector_float_keep_last );
-	
+
 	r0 = _mm_madd_ps( r0, scale, n0 );
 	r1 = _mm_madd_ps( r1, scale, n1 );
 	r2 = _mm_madd_ps( r2, scale, n2 );
 	r3 = _mm_madd_ps( r3, scale, n3 );
-	
+
 	_mm_store_ps( row0.ToFloatPtr(), r0 );
 	_mm_store_ps( row1.ToFloatPtr(), r1 );
 	_mm_store_ps( row2.ToFloatPtr(), r2 );
 	_mm_store_ps( row3.ToFloatPtr(), r3 );
-	
+
 	DeterminantIsNegative( negativeDeterminant, r0, r1, r2, r3 );
-	
+
 #else
-	
+
 	const idVec3 offset = ( bounds[1] + bounds[0] ) * 0.5f;
 	const idVec3 scale = ( bounds[1] - bounds[0] ) * 0.5f;
-	
+
 	row0[0] = mvp[0][0] * scale[0];
 	row0[1] = mvp[0][1] * scale[1];
 	row0[2] = mvp[0][2] * scale[2];
 	row0[3] = mvp[0][3] + mvp[0][0] * offset[0] + mvp[0][1] * offset[1] + mvp[0][2] * offset[2];
-	
+
 	row1[0] = mvp[1][0] * scale[0];
 	row1[1] = mvp[1][1] * scale[1];
 	row1[2] = mvp[1][2] * scale[2];
 	row1[3] = mvp[1][3] + mvp[1][0] * offset[0] + mvp[1][1] * offset[1] + mvp[1][2] * offset[2];
-	
+
 	row2[0] = mvp[2][0] * scale[0];
 	row2[1] = mvp[2][1] * scale[1];
 	row2[2] = mvp[2][2] * scale[2];
 	row2[3] = mvp[2][3] + mvp[2][0] * offset[0] + mvp[2][1] * offset[1] + mvp[2][2] * offset[2];
-	
+
 	row3[0] = mvp[3][0] * scale[0];
 	row3[1] = mvp[3][1] * scale[1];
 	row3[2] = mvp[3][2] * scale[2];
 	row3[3] = mvp[3][3] + mvp[3][0] * offset[0] + mvp[3][1] * offset[1] + mvp[3][2] * offset[2];
-	
+
 	DeterminantIsNegative( negativeDeterminant, row0.ToFloatPtr(), row1.ToFloatPtr(), row2.ToFloatPtr(), row3.ToFloatPtr() );
-	
+
 #endif
 }
 
@@ -1636,70 +1643,70 @@ void idRenderMatrix::SetMVPForInverseProject( const idRenderMatrix& mvp, const i
 	assert_16_byte_aligned( row1.ToFloatPtr() );
 	assert_16_byte_aligned( row2.ToFloatPtr() );
 	assert_16_byte_aligned( row3.ToFloatPtr() );
-	
+
 #if defined(USE_INTRINSICS)
-	
+
 	__m128 r0 = _mm_loadu_ps( mvp.m + 0 * 4 );
 	__m128 r1 = _mm_loadu_ps( mvp.m + 1 * 4 );
 	__m128 r2 = _mm_loadu_ps( mvp.m + 2 * 4 );
 	__m128 r3 = _mm_loadu_ps( mvp.m + 3 * 4 );
-	
+
 	__m128 p0 = _mm_loadu_ps( inverseProject.m + 0 * 4 );
 	__m128 p1 = _mm_loadu_ps( inverseProject.m + 1 * 4 );
 	__m128 p2 = _mm_loadu_ps( inverseProject.m + 2 * 4 );
 	__m128 p3 = _mm_loadu_ps( inverseProject.m + 3 * 4 );
-	
+
 	__m128 t0 = _mm_mul_ps( _mm_splat_ps( r0, 0 ), p0 );
 	__m128 t1 = _mm_mul_ps( _mm_splat_ps( r1, 0 ), p0 );
 	__m128 t2 = _mm_mul_ps( _mm_splat_ps( r2, 0 ), p0 );
 	__m128 t3 = _mm_mul_ps( _mm_splat_ps( r3, 0 ), p0 );
-	
+
 	t0 = _mm_madd_ps( _mm_splat_ps( r0, 1 ), p1, t0 );
 	t1 = _mm_madd_ps( _mm_splat_ps( r1, 1 ), p1, t1 );
 	t2 = _mm_madd_ps( _mm_splat_ps( r2, 1 ), p1, t2 );
 	t3 = _mm_madd_ps( _mm_splat_ps( r3, 1 ), p1, t3 );
-	
+
 	t0 = _mm_madd_ps( _mm_splat_ps( r0, 2 ), p2, t0 );
 	t1 = _mm_madd_ps( _mm_splat_ps( r1, 2 ), p2, t1 );
 	t2 = _mm_madd_ps( _mm_splat_ps( r2, 2 ), p2, t2 );
 	t3 = _mm_madd_ps( _mm_splat_ps( r3, 2 ), p2, t3 );
-	
+
 	t0 = _mm_madd_ps( _mm_splat_ps( r0, 3 ), p3, t0 );
 	t1 = _mm_madd_ps( _mm_splat_ps( r1, 3 ), p3, t1 );
 	t2 = _mm_madd_ps( _mm_splat_ps( r2, 3 ), p3, t2 );
 	t3 = _mm_madd_ps( _mm_splat_ps( r3, 3 ), p3, t3 );
-	
+
 	_mm_store_ps( row0.ToFloatPtr(), t0 );
 	_mm_store_ps( row1.ToFloatPtr(), t1 );
 	_mm_store_ps( row2.ToFloatPtr(), t2 );
 	_mm_store_ps( row3.ToFloatPtr(), t3 );
-	
+
 	DeterminantIsNegative( negativeDeterminant, t0, t1, t2, t3 );
-	
+
 #else
-	
+
 	row0[0] = mvp.m[0 * 4 + 0] * inverseProject.m[0 * 4 + 0] + mvp.m[0 * 4 + 1] * inverseProject.m[1 * 4 + 0] + mvp.m[0 * 4 + 2] * inverseProject.m[2 * 4 + 0] + mvp.m[0 * 4 + 3] * inverseProject.m[3 * 4 + 0];
 	row0[1] = mvp.m[0 * 4 + 0] * inverseProject.m[0 * 4 + 1] + mvp.m[0 * 4 + 1] * inverseProject.m[1 * 4 + 1] + mvp.m[0 * 4 + 2] * inverseProject.m[2 * 4 + 1] + mvp.m[0 * 4 + 3] * inverseProject.m[3 * 4 + 1];
 	row0[2] = mvp.m[0 * 4 + 0] * inverseProject.m[0 * 4 + 2] + mvp.m[0 * 4 + 1] * inverseProject.m[1 * 4 + 2] + mvp.m[0 * 4 + 2] * inverseProject.m[2 * 4 + 2] + mvp.m[0 * 4 + 3] * inverseProject.m[3 * 4 + 2];
 	row0[3] = mvp.m[0 * 4 + 0] * inverseProject.m[0 * 4 + 3] + mvp.m[0 * 4 + 1] * inverseProject.m[1 * 4 + 3] + mvp.m[0 * 4 + 2] * inverseProject.m[2 * 4 + 3] + mvp.m[0 * 4 + 3] * inverseProject.m[3 * 4 + 3];
-	
+
 	row1[0] = mvp.m[1 * 4 + 0] * inverseProject.m[0 * 4 + 0] + mvp.m[1 * 4 + 1] * inverseProject.m[1 * 4 + 0] + mvp.m[1 * 4 + 2] * inverseProject.m[2 * 4 + 0] + mvp.m[1 * 4 + 3] * inverseProject.m[3 * 4 + 0];
 	row1[1] = mvp.m[1 * 4 + 0] * inverseProject.m[0 * 4 + 1] + mvp.m[1 * 4 + 1] * inverseProject.m[1 * 4 + 1] + mvp.m[1 * 4 + 2] * inverseProject.m[2 * 4 + 1] + mvp.m[1 * 4 + 3] * inverseProject.m[3 * 4 + 1];
 	row1[2] = mvp.m[1 * 4 + 0] * inverseProject.m[0 * 4 + 2] + mvp.m[1 * 4 + 1] * inverseProject.m[1 * 4 + 2] + mvp.m[1 * 4 + 2] * inverseProject.m[2 * 4 + 2] + mvp.m[1 * 4 + 3] * inverseProject.m[3 * 4 + 2];
 	row1[3] = mvp.m[1 * 4 + 0] * inverseProject.m[0 * 4 + 3] + mvp.m[1 * 4 + 1] * inverseProject.m[1 * 4 + 3] + mvp.m[1 * 4 + 2] * inverseProject.m[2 * 4 + 3] + mvp.m[1 * 4 + 3] * inverseProject.m[3 * 4 + 3];
-	
+
 	row2[0] = mvp.m[2 * 4 + 0] * inverseProject.m[0 * 4 + 0] + mvp.m[2 * 4 + 1] * inverseProject.m[1 * 4 + 0] + mvp.m[2 * 4 + 2] * inverseProject.m[2 * 4 + 0] + mvp.m[2 * 4 + 3] * inverseProject.m[3 * 4 + 0];
 	row2[1] = mvp.m[2 * 4 + 0] * inverseProject.m[0 * 4 + 1] + mvp.m[2 * 4 + 1] * inverseProject.m[1 * 4 + 1] + mvp.m[2 * 4 + 2] * inverseProject.m[2 * 4 + 1] + mvp.m[2 * 4 + 3] * inverseProject.m[3 * 4 + 1];
 	row2[2] = mvp.m[2 * 4 + 0] * inverseProject.m[0 * 4 + 2] + mvp.m[2 * 4 + 1] * inverseProject.m[1 * 4 + 2] + mvp.m[2 * 4 + 2] * inverseProject.m[2 * 4 + 2] + mvp.m[2 * 4 + 3] * inverseProject.m[3 * 4 + 2];
 	row2[3] = mvp.m[2 * 4 + 0] * inverseProject.m[0 * 4 + 3] + mvp.m[2 * 4 + 1] * inverseProject.m[1 * 4 + 3] + mvp.m[2 * 4 + 2] * inverseProject.m[2 * 4 + 3] + mvp.m[2 * 4 + 3] * inverseProject.m[3 * 4 + 3];
-	
+
 	row3[0] = mvp.m[3 * 4 + 0] * inverseProject.m[0 * 4 + 0] + mvp.m[3 * 4 + 1] * inverseProject.m[1 * 4 + 0] + mvp.m[3 * 4 + 2] * inverseProject.m[2 * 4 + 0] + mvp.m[3 * 4 + 3] * inverseProject.m[3 * 4 + 0];
 	row3[1] = mvp.m[3 * 4 + 0] * inverseProject.m[0 * 4 + 1] + mvp.m[3 * 4 + 1] * inverseProject.m[1 * 4 + 1] + mvp.m[3 * 4 + 2] * inverseProject.m[2 * 4 + 1] + mvp.m[3 * 4 + 3] * inverseProject.m[3 * 4 + 1];
 	row3[2] = mvp.m[3 * 4 + 0] * inverseProject.m[0 * 4 + 2] + mvp.m[3 * 4 + 1] * inverseProject.m[1 * 4 + 2] + mvp.m[3 * 4 + 2] * inverseProject.m[2 * 4 + 2] + mvp.m[3 * 4 + 3] * inverseProject.m[3 * 4 + 2];
 	row3[3] = mvp.m[3 * 4 + 0] * inverseProject.m[0 * 4 + 3] + mvp.m[3 * 4 + 1] * inverseProject.m[1 * 4 + 3] + mvp.m[3 * 4 + 2] * inverseProject.m[2 * 4 + 3] + mvp.m[3 * 4 + 3] * inverseProject.m[3 * 4 + 3];
-	
+
 	DeterminantIsNegative( negativeDeterminant, row0.ToFloatPtr(), row1.ToFloatPtr(), row2.ToFloatPtr(), row3.ToFloatPtr() );
-	
+
 #endif
 }
 
@@ -1722,7 +1729,7 @@ bool idRenderMatrix::CullPointToMVPbits( const idRenderMatrix& mvp, const idVec3
 	{
 		c[i] = p[0] * mvp[i][0] + p[1] * mvp[i][1] + p[2] * mvp[i][2] + mvp[i][3];
 	}
-	
+
 	const float minW = zeroToOne ? 0.0f : -c[3];
 	const float maxW = c[3];
 #if defined( CLIP_SPACE_D3D )	// the D3D clip space Z is in the range [0,1] so always compare Z vs zero whether 'zeroToOne' is true or false
@@ -1730,7 +1737,7 @@ bool idRenderMatrix::CullPointToMVPbits( const idRenderMatrix& mvp, const idVec3
 #else
 	const float minZ = minW;
 #endif
-	
+
 	int bits = 0;
 	if( c[0] > minW )
 	{
@@ -1756,10 +1763,10 @@ bool idRenderMatrix::CullPointToMVPbits( const idRenderMatrix& mvp, const idVec3
 	{
 		bits |= ( 1 << 5 );
 	}
-	
+
 	// store out a bit set for each side where the point is outside the clip space
 	*outBits = ( byte )( bits ^ 63 );
-	
+
 	// if any bits weren't set, the point is completely off one side of the frustum
 	return ( bits != 63 );
 }
@@ -1786,52 +1793,52 @@ bool idRenderMatrix::CullBoundsToMVPbits( const idRenderMatrix& mvp, const idBou
 	__m128 mvp1 = _mm_loadu_ps( mvp[1] );
 	__m128 mvp2 = _mm_loadu_ps( mvp[2] );
 	__m128 mvp3 = _mm_loadu_ps( mvp[3] );
-	
+
 	__m128 minMul = zeroToOne ? vector_float_zero : vector_float_neg_one;
-	
+
 	__m128 b0 = _mm_loadu_bounds_0( bounds );
 	__m128 b1 = _mm_loadu_bounds_1( bounds );
-	
+
 	// take the four points on the X-Y plane
 	__m128 vxy = _mm_unpacklo_ps( b0, b1 );						// min X, max X, min Y, max Y
 	__m128 vx = _mm_perm_ps( vxy, _MM_SHUFFLE( 1, 0, 1, 0 ) );	// min X, max X, min X, max X
 	__m128 vy = _mm_perm_ps( vxy, _MM_SHUFFLE( 3, 3, 2, 2 ) );	// min Y, min Y, max Y, max Y
-	
+
 	__m128 vz0 = _mm_splat_ps( b0, 2 );							// min Z, min Z, min Z, min Z
 	__m128 vz1 = _mm_splat_ps( b1, 2 );							// max Z, max Z, max Z, max Z
-	
+
 	// compute four partial X,Y,Z,W values
 	__m128 parx = _mm_splat_ps( mvp0, 3 );
 	__m128 pary = _mm_splat_ps( mvp1, 3 );
 	__m128 parz = _mm_splat_ps( mvp2, 3 );
 	__m128 parw = _mm_splat_ps( mvp3, 3 );
-	
+
 	parx = _mm_madd_ps( vx, _mm_splat_ps( mvp0, 0 ), parx );
 	pary = _mm_madd_ps( vx, _mm_splat_ps( mvp1, 0 ), pary );
 	parz = _mm_madd_ps( vx, _mm_splat_ps( mvp2, 0 ), parz );
 	parw = _mm_madd_ps( vx, _mm_splat_ps( mvp3, 0 ), parw );
-	
+
 	parx = _mm_madd_ps( vy, _mm_splat_ps( mvp0, 1 ), parx );
 	pary = _mm_madd_ps( vy, _mm_splat_ps( mvp1, 1 ), pary );
 	parz = _mm_madd_ps( vy, _mm_splat_ps( mvp2, 1 ), parz );
 	parw = _mm_madd_ps( vy, _mm_splat_ps( mvp3, 1 ), parw );
-	
+
 	// compute full X,Y,Z,W values
 	__m128 mvp0Z = _mm_splat_ps( mvp0, 2 );
 	__m128 mvp1Z = _mm_splat_ps( mvp1, 2 );
 	__m128 mvp2Z = _mm_splat_ps( mvp2, 2 );
 	__m128 mvp3Z = _mm_splat_ps( mvp3, 2 );
-	
+
 	__m128 x0 = _mm_madd_ps( vz0, mvp0Z, parx );
 	__m128 y0 = _mm_madd_ps( vz0, mvp1Z, pary );
 	__m128 z0 = _mm_madd_ps( vz0, mvp2Z, parz );
 	__m128 w0 = _mm_madd_ps( vz0, mvp3Z, parw );
-	
+
 	__m128 x1 = _mm_madd_ps( vz1, mvp0Z, parx );
 	__m128 y1 = _mm_madd_ps( vz1, mvp1Z, pary );
 	__m128 z1 = _mm_madd_ps( vz1, mvp2Z, parz );
 	__m128 w1 = _mm_madd_ps( vz1, mvp3Z, parw );
-	
+
 	__m128 maxW0 = w0;
 	__m128 maxW1 = w1;
 	__m128 minW0 = _mm_mul_ps( w0, minMul );
@@ -1843,47 +1850,47 @@ bool idRenderMatrix::CullBoundsToMVPbits( const idRenderMatrix& mvp, const idBou
 	__m128 minZ0 = minW0;
 	__m128 minZ1 = minW1;
 #endif
-	
+
 	__m128 cullBits0 = _mm_cmpgt_ps( x0, minW0 );
 	__m128 cullBits1 = _mm_cmpgt_ps( maxW0, x0 );
 	__m128 cullBits2 = _mm_cmpgt_ps( y0, minW0 );
 	__m128 cullBits3 = _mm_cmpgt_ps( maxW0, y0 );
 	__m128 cullBits4 = _mm_cmpgt_ps( z0, minZ0 );	// NOTE: using minZ0
 	__m128 cullBits5 = _mm_cmpgt_ps( maxW0, z0 );
-	
+
 	cullBits0 = _mm_or_ps( cullBits0, _mm_cmpgt_ps( x1, minW1 ) );
 	cullBits1 = _mm_or_ps( cullBits1, _mm_cmpgt_ps( maxW1, x1 ) );
 	cullBits2 = _mm_or_ps( cullBits2, _mm_cmpgt_ps( y1, minW1 ) );
 	cullBits3 = _mm_or_ps( cullBits3, _mm_cmpgt_ps( maxW1, y1 ) );
 	cullBits4 = _mm_or_ps( cullBits4, _mm_cmpgt_ps( z1, minZ1 ) );	// NOTE: using minZ1
 	cullBits5 = _mm_or_ps( cullBits5, _mm_cmpgt_ps( maxW1, z1 ) );
-	
+
 	cullBits0 = _mm_and_ps( cullBits0, vector_float_mask0 );
 	cullBits1 = _mm_and_ps( cullBits1, vector_float_mask1 );
 	cullBits2 = _mm_and_ps( cullBits2, vector_float_mask2 );
 	cullBits3 = _mm_and_ps( cullBits3, vector_float_mask3 );
 	cullBits4 = _mm_and_ps( cullBits4, vector_float_mask4 );
 	cullBits5 = _mm_and_ps( cullBits5, vector_float_mask5 );
-	
+
 	cullBits0 = _mm_or_ps( cullBits0, cullBits1 );
 	cullBits2 = _mm_or_ps( cullBits2, cullBits3 );
 	cullBits4 = _mm_or_ps( cullBits4, cullBits5 );
 	cullBits0 = _mm_or_ps( cullBits0, cullBits2 );
 	cullBits0 = _mm_or_ps( cullBits0, cullBits4 );
-	
+
 	cullBits0 = _mm_or_ps( cullBits0, _mm_perm_ps( cullBits0, _MM_SHUFFLE( 1, 0, 3, 2 ) ) );
 	cullBits0 = _mm_or_ps( cullBits0, _mm_perm_ps( cullBits0, _MM_SHUFFLE( 0, 1, 0, 1 ) ) );
-	
+
 	int bits = _mm_cvtsi128_si32( ( const __m128i& )cullBits0 );
-	
+
 	*outBits = ( byte )( bits ^ 63 );
-	
+
 	return ( bits != 63 );
-	
+
 #else
-	
+
 	int bits = 0;
-	
+
 	idVec3 v;
 	for( int x = 0; x < 2; x++ )
 	{
@@ -1894,13 +1901,13 @@ bool idRenderMatrix::CullBoundsToMVPbits( const idRenderMatrix& mvp, const idBou
 			for( int z = 0; z < 2; z++ )
 			{
 				v[2] = bounds[z][2];
-	
+
 				idVec4 c;
 				for( int i = 0; i < 4; i++ )
 				{
 					c[i] = v[0] * mvp[i][0] + v[1] * mvp[i][1] + v[2] * mvp[i][2] + mvp[i][3];
 				}
-	
+
 				const float minW = zeroToOne ? 0.0f : -c[3];
 				const float maxW = c[3];
 #if defined( CLIP_SPACE_D3D )	// the D3D clip space Z is in the range [0,1] so always compare Z vs zero whether 'zeroToOne' is true or false
@@ -1908,7 +1915,7 @@ bool idRenderMatrix::CullBoundsToMVPbits( const idRenderMatrix& mvp, const idBou
 #else
 				const float minZ = minW;
 #endif
-	
+
 				if( c[0] > minW )
 				{
 					bits |= ( 1 << 0 );
@@ -1936,13 +1943,13 @@ bool idRenderMatrix::CullBoundsToMVPbits( const idRenderMatrix& mvp, const idBou
 			}
 		}
 	}
-	
+
 	// store out a bit set for each side where the bounds is outside the clip space
 	*outBits = ( byte )( bits ^ 63 );
-	
+
 	// if any bits weren't set, the bounds is completely off one side of the frustum
 	return ( bits != 63 );
-	
+
 #endif
 }
 
@@ -1966,34 +1973,34 @@ frustum plane, but only while also being behind another one.
 bool idRenderMatrix::CullExtrudedBoundsToMVPbits( const idRenderMatrix& mvp, const idBounds& bounds, const idVec3& extrudeDirection, const idPlane& clipPlane, byte* outBits, bool zeroToOne )
 {
 	assert( idMath::Fabs( extrudeDirection * clipPlane.Normal() ) >= idMath::FLT_SMALLEST_NON_DENORMAL );
-	
+
 #if defined(USE_INTRINSICS)
-	
+
 	__m128 mvp0 = _mm_loadu_ps( mvp[0] );
 	__m128 mvp1 = _mm_loadu_ps( mvp[1] );
 	__m128 mvp2 = _mm_loadu_ps( mvp[2] );
 	__m128 mvp3 = _mm_loadu_ps( mvp[3] );
-	
+
 	__m128 minMul = zeroToOne ? vector_float_zero : vector_float_neg_one;
-	
+
 	__m128 b0 = _mm_loadu_bounds_0( bounds );
 	__m128 b1 = _mm_loadu_bounds_1( bounds );
-	
+
 	// take the four points on the X-Y plane
 	__m128 vxy = _mm_unpacklo_ps( b0, b1 );						// min X, max X, min Y, max Y
 	__m128 vx = _mm_perm_ps( vxy, _MM_SHUFFLE( 1, 0, 1, 0 ) );	// min X, max X, min X, max X
 	__m128 vy = _mm_perm_ps( vxy, _MM_SHUFFLE( 3, 3, 2, 2 ) );	// min Y, min Y, max Y, max Y
-	
+
 	__m128 vz0 = _mm_splat_ps( b0, 2 );							// min Z, min Z, min Z, min Z
 	__m128 vz1 = _mm_splat_ps( b1, 2 );							// max Z, max Z, max Z, max Z
-	
+
 	__m128 cullBits0;
 	__m128 cullBits1;
 	__m128 cullBits2;
 	__m128 cullBits3;
 	__m128 cullBits4;
 	__m128 cullBits5;
-	
+
 	// calculate the cull bits for the bounding box corners
 	{
 		// compute four partial X,Y,Z,W values
@@ -2001,33 +2008,33 @@ bool idRenderMatrix::CullExtrudedBoundsToMVPbits( const idRenderMatrix& mvp, con
 		__m128 pary = _mm_splat_ps( mvp1, 3 );
 		__m128 parz = _mm_splat_ps( mvp2, 3 );
 		__m128 parw = _mm_splat_ps( mvp3, 3 );
-		
+
 		parx = _mm_madd_ps( vx, _mm_splat_ps( mvp0, 0 ), parx );
 		pary = _mm_madd_ps( vx, _mm_splat_ps( mvp1, 0 ), pary );
 		parz = _mm_madd_ps( vx, _mm_splat_ps( mvp2, 0 ), parz );
 		parw = _mm_madd_ps( vx, _mm_splat_ps( mvp3, 0 ), parw );
-		
+
 		parx = _mm_madd_ps( vy, _mm_splat_ps( mvp0, 1 ), parx );
 		pary = _mm_madd_ps( vy, _mm_splat_ps( mvp1, 1 ), pary );
 		parz = _mm_madd_ps( vy, _mm_splat_ps( mvp2, 1 ), parz );
 		parw = _mm_madd_ps( vy, _mm_splat_ps( mvp3, 1 ), parw );
-		
+
 		// compute full X,Y,Z,W values
 		__m128 mvp0Z = _mm_splat_ps( mvp0, 2 );
 		__m128 mvp1Z = _mm_splat_ps( mvp1, 2 );
 		__m128 mvp2Z = _mm_splat_ps( mvp2, 2 );
 		__m128 mvp3Z = _mm_splat_ps( mvp3, 2 );
-		
+
 		__m128 x0 = _mm_madd_ps( vz0, mvp0Z, parx );
 		__m128 y0 = _mm_madd_ps( vz0, mvp1Z, pary );
 		__m128 z0 = _mm_madd_ps( vz0, mvp2Z, parz );
 		__m128 w0 = _mm_madd_ps( vz0, mvp3Z, parw );
-		
+
 		__m128 x1 = _mm_madd_ps( vz1, mvp0Z, parx );
 		__m128 y1 = _mm_madd_ps( vz1, mvp1Z, pary );
 		__m128 z1 = _mm_madd_ps( vz1, mvp2Z, parz );
 		__m128 w1 = _mm_madd_ps( vz1, mvp3Z, parw );
-		
+
 		__m128 maxW0 = w0;
 		__m128 maxW1 = w1;
 		__m128 minW0 = _mm_mul_ps( w0, minMul );
@@ -2039,14 +2046,14 @@ bool idRenderMatrix::CullExtrudedBoundsToMVPbits( const idRenderMatrix& mvp, con
 		__m128 minZ0 = minW0;
 		__m128 minZ1 = minW1;
 #endif
-		
+
 		cullBits0 = _mm_cmpgt_ps( x0, minW0 );
 		cullBits1 = _mm_cmpgt_ps( maxW0, x0 );
 		cullBits2 = _mm_cmpgt_ps( y0, minW0 );
 		cullBits3 = _mm_cmpgt_ps( maxW0, y0 );
 		cullBits4 = _mm_cmpgt_ps( z0, minZ0 );	// NOTE: using minZ0
 		cullBits5 = _mm_cmpgt_ps( maxW0, z0 );
-		
+
 		cullBits0 = _mm_or_ps( cullBits0, _mm_cmpgt_ps( x1, minW1 ) );
 		cullBits1 = _mm_or_ps( cullBits1, _mm_cmpgt_ps( maxW1, x1 ) );
 		cullBits2 = _mm_or_ps( cullBits2, _mm_cmpgt_ps( y1, minW1 ) );
@@ -2054,88 +2061,88 @@ bool idRenderMatrix::CullExtrudedBoundsToMVPbits( const idRenderMatrix& mvp, con
 		cullBits4 = _mm_or_ps( cullBits4, _mm_cmpgt_ps( z1, minZ1 ) );	// NOTE: using minZ1
 		cullBits5 = _mm_or_ps( cullBits5, _mm_cmpgt_ps( maxW1, z1 ) );
 	}
-	
+
 	// calculate and include the cull bits for the extruded bounding box corners
 	{
 		__m128 clipX = _mm_splat_ps( _mm_load_ss( clipPlane.ToFloatPtr() + 0 ), 0 );
 		__m128 clipY = _mm_splat_ps( _mm_load_ss( clipPlane.ToFloatPtr() + 1 ), 0 );
 		__m128 clipZ = _mm_splat_ps( _mm_load_ss( clipPlane.ToFloatPtr() + 2 ), 0 );
 		__m128 clipW = _mm_splat_ps( _mm_load_ss( clipPlane.ToFloatPtr() + 3 ), 0 );
-		
+
 		__m128 extrudeX = _mm_splat_ps( _mm_load_ss( extrudeDirection.ToFloatPtr() + 0 ), 0 );
 		__m128 extrudeY = _mm_splat_ps( _mm_load_ss( extrudeDirection.ToFloatPtr() + 1 ), 0 );
 		__m128 extrudeZ = _mm_splat_ps( _mm_load_ss( extrudeDirection.ToFloatPtr() + 2 ), 0 );
-		
+
 		__m128 closing = _mm_madd_ps( clipX, extrudeX, _mm_madd_ps( clipY, extrudeY, _mm_mul_ps( clipZ, extrudeZ ) ) );
 		__m128 invClosing = _mm_rcp32_ps( closing );
 		invClosing = _mm_xor_ps( invClosing, vector_float_sign_bit );
-		
+
 		__m128 dt = _mm_madd_ps( clipX, vx, _mm_madd_ps( clipY, vy, clipW ) );
 		__m128 d0 = _mm_madd_ps( clipZ, vz0, dt );
 		__m128 d1 = _mm_madd_ps( clipZ, vz1, dt );
-		
+
 		d0 = _mm_mul_ps( d0, invClosing );
 		d1 = _mm_mul_ps( d1, invClosing );
-		
+
 		__m128 vx0 = _mm_madd_ps( extrudeX, d0, vx );
 		__m128 vx1 = _mm_madd_ps( extrudeX, d1, vx );
-		
+
 		__m128 vy0 = _mm_madd_ps( extrudeY, d0, vy );
 		__m128 vy1 = _mm_madd_ps( extrudeY, d1, vy );
-		
+
 		vz0 = _mm_madd_ps( extrudeZ, d0, vz0 );
 		vz1 = _mm_madd_ps( extrudeZ, d1, vz1 );
-		
+
 		__m128 mvp0X = _mm_splat_ps( mvp0, 0 );
 		__m128 mvp1X = _mm_splat_ps( mvp1, 0 );
 		__m128 mvp2X = _mm_splat_ps( mvp2, 0 );
 		__m128 mvp3X = _mm_splat_ps( mvp3, 0 );
-		
+
 		__m128 mvp0W = _mm_splat_ps( mvp0, 3 );
 		__m128 mvp1W = _mm_splat_ps( mvp1, 3 );
 		__m128 mvp2W = _mm_splat_ps( mvp2, 3 );
 		__m128 mvp3W = _mm_splat_ps( mvp3, 3 );
-		
+
 		__m128 x0 = _mm_madd_ps( vx0, mvp0X, mvp0W );
 		__m128 y0 = _mm_madd_ps( vx0, mvp1X, mvp1W );
 		__m128 z0 = _mm_madd_ps( vx0, mvp2X, mvp2W );
 		__m128 w0 = _mm_madd_ps( vx0, mvp3X, mvp3W );
-		
+
 		__m128 x1 = _mm_madd_ps( vx1, mvp0X, mvp0W );
 		__m128 y1 = _mm_madd_ps( vx1, mvp1X, mvp1W );
 		__m128 z1 = _mm_madd_ps( vx1, mvp2X, mvp2W );
 		__m128 w1 = _mm_madd_ps( vx1, mvp3X, mvp3W );
-		
+
 		__m128 mvp0Y = _mm_splat_ps( mvp0, 1 );
 		__m128 mvp1Y = _mm_splat_ps( mvp1, 1 );
 		__m128 mvp2Y = _mm_splat_ps( mvp2, 1 );
 		__m128 mvp3Y = _mm_splat_ps( mvp3, 1 );
-		
+
 		x0 = _mm_madd_ps( vy0, mvp0Y, x0 ); //-V537
 		y0 = _mm_madd_ps( vy0, mvp1Y, y0 );
 		z0 = _mm_madd_ps( vy0, mvp2Y, z0 ); //-V537
 		w0 = _mm_madd_ps( vy0, mvp3Y, w0 );
-		
+
 		x1 = _mm_madd_ps( vy1, mvp0Y, x1 ); //-V537
 		y1 = _mm_madd_ps( vy1, mvp1Y, y1 );
 		z1 = _mm_madd_ps( vy1, mvp2Y, z1 ); //-V537
 		w1 = _mm_madd_ps( vy1, mvp3Y, w1 );
-		
+
 		__m128 mvp0Z = _mm_splat_ps( mvp0, 2 );
 		__m128 mvp1Z = _mm_splat_ps( mvp1, 2 );
 		__m128 mvp2Z = _mm_splat_ps( mvp2, 2 );
 		__m128 mvp3Z = _mm_splat_ps( mvp3, 2 );
-		
+
 		x0 = _mm_madd_ps( vz0, mvp0Z, x0 );
 		y0 = _mm_madd_ps( vz0, mvp1Z, y0 ); //-V537
 		z0 = _mm_madd_ps( vz0, mvp2Z, z0 );
 		w0 = _mm_madd_ps( vz0, mvp3Z, w0 );
-		
+
 		x1 = _mm_madd_ps( vz1, mvp0Z, x1 );
 		y1 = _mm_madd_ps( vz1, mvp1Z, y1 ); //-V537
 		z1 = _mm_madd_ps( vz1, mvp2Z, z1 );
 		w1 = _mm_madd_ps( vz1, mvp3Z, w1 );
-		
+
 		__m128 maxW0 = w0;
 		__m128 maxW1 = w1;
 		__m128 minW0 = _mm_mul_ps( w0, minMul );
@@ -2147,14 +2154,14 @@ bool idRenderMatrix::CullExtrudedBoundsToMVPbits( const idRenderMatrix& mvp, con
 		__m128 minZ0 = minW0;
 		__m128 minZ1 = minW1;
 #endif
-		
+
 		cullBits0 = _mm_or_ps( cullBits0, _mm_cmpgt_ps( x0, minW0 ) );
 		cullBits1 = _mm_or_ps( cullBits1, _mm_cmpgt_ps( maxW0, x0 ) );
 		cullBits2 = _mm_or_ps( cullBits2, _mm_cmpgt_ps( y0, minW0 ) );
 		cullBits3 = _mm_or_ps( cullBits3, _mm_cmpgt_ps( maxW0, y0 ) );
 		cullBits4 = _mm_or_ps( cullBits4, _mm_cmpgt_ps( z0, minZ0 ) );	// NOTE: using minZ0
 		cullBits5 = _mm_or_ps( cullBits5, _mm_cmpgt_ps( maxW0, z0 ) );
-		
+
 		cullBits0 = _mm_or_ps( cullBits0, _mm_cmpgt_ps( x1, minW1 ) );
 		cullBits1 = _mm_or_ps( cullBits1, _mm_cmpgt_ps( maxW1, x1 ) );
 		cullBits2 = _mm_or_ps( cullBits2, _mm_cmpgt_ps( y1, minW1 ) );
@@ -2162,36 +2169,36 @@ bool idRenderMatrix::CullExtrudedBoundsToMVPbits( const idRenderMatrix& mvp, con
 		cullBits4 = _mm_or_ps( cullBits4, _mm_cmpgt_ps( z1, minZ1 ) );	// NOTE: using minZ1
 		cullBits5 = _mm_or_ps( cullBits5, _mm_cmpgt_ps( maxW1, z1 ) );
 	}
-	
+
 	cullBits0 = _mm_and_ps( cullBits0, vector_float_mask0 );
 	cullBits1 = _mm_and_ps( cullBits1, vector_float_mask1 );
 	cullBits2 = _mm_and_ps( cullBits2, vector_float_mask2 );
 	cullBits3 = _mm_and_ps( cullBits3, vector_float_mask3 );
 	cullBits4 = _mm_and_ps( cullBits4, vector_float_mask4 );
 	cullBits5 = _mm_and_ps( cullBits5, vector_float_mask5 );
-	
+
 	cullBits0 = _mm_or_ps( cullBits0, cullBits1 );
 	cullBits2 = _mm_or_ps( cullBits2, cullBits3 );
 	cullBits4 = _mm_or_ps( cullBits4, cullBits5 );
 	cullBits0 = _mm_or_ps( cullBits0, cullBits2 );
 	cullBits0 = _mm_or_ps( cullBits0, cullBits4 );
-	
+
 	cullBits0 = _mm_or_ps( cullBits0, _mm_perm_ps( cullBits0, _MM_SHUFFLE( 1, 0, 3, 2 ) ) );
 	cullBits0 = _mm_or_ps( cullBits0, _mm_perm_ps( cullBits0, _MM_SHUFFLE( 0, 1, 0, 1 ) ) );
-	
+
 	int bits = _mm_cvtsi128_si32( ( const __m128i& )cullBits0 );
-	
+
 	*outBits = ( byte )( bits ^ 63 );
-	
+
 	return ( bits != 63 );
-	
+
 #else
-	
+
 	int bits = 0;
-	
+
 	float closing = extrudeDirection * clipPlane.Normal();
 	float invClosing = -1.0f / closing;
-	
+
 	idVec3 v;
 	for( int x = 0; x < 2; x++ )
 	{
@@ -2202,10 +2209,10 @@ bool idRenderMatrix::CullExtrudedBoundsToMVPbits( const idRenderMatrix& mvp, con
 			for( int z = 0; z < 2; z++ )
 			{
 				v[2] = bounds[z][2];
-	
+
 				for( int extrude = 0; extrude <= 1; extrude++ )
 				{
-	
+
 					idVec3 test;
 					if( extrude )
 					{
@@ -2216,13 +2223,13 @@ bool idRenderMatrix::CullExtrudedBoundsToMVPbits( const idRenderMatrix& mvp, con
 					{
 						test = v;
 					}
-	
+
 					idVec4 c;
 					for( int i = 0; i < 4; i++ )
 					{
 						c[i] = test[0] * mvp[i][0] + test[1] * mvp[i][1] + test[2] * mvp[i][2] + mvp[i][3];
 					}
-	
+
 					const float minW = zeroToOne ? 0.0f : -c[3];
 					const float maxW = c[3];
 #if defined( CLIP_SPACE_D3D )	// the D3D clip space Z is in the range [0,1] so always compare Z vs zero whether 'zeroToOne' is true or false
@@ -2230,7 +2237,7 @@ bool idRenderMatrix::CullExtrudedBoundsToMVPbits( const idRenderMatrix& mvp, con
 #else
 					const float minZ = minW;
 #endif
-	
+
 					if( c[0] > minW )
 					{
 						bits |= ( 1 << 0 );
@@ -2259,13 +2266,13 @@ bool idRenderMatrix::CullExtrudedBoundsToMVPbits( const idRenderMatrix& mvp, con
 			}
 		}
 	}
-	
+
 	// store out a bit set for each side where the bounds is outside the clip space
 	*outBits = ( byte )( bits ^ 63 );
-	
+
 	// if any bits weren't set, the bounds is completely off one side of the frustum
 	return ( bits != 63 );
-	
+
 #endif
 }
 
@@ -2291,142 +2298,142 @@ void idRenderMatrix::ProjectedBounds( idBounds& projected, const idRenderMatrix&
 	__m128 mvp1 = _mm_loadu_ps( mvp[1] );
 	__m128 mvp2 = _mm_loadu_ps( mvp[2] );
 	__m128 mvp3 = _mm_loadu_ps( mvp[3] );
-	
+
 	__m128 b0 = _mm_loadu_bounds_0( bounds );
 	__m128 b1 = _mm_loadu_bounds_1( bounds );
-	
+
 	// take the four points on the X-Y plane
 	__m128 vxy = _mm_unpacklo_ps( b0, b1 );						// min X, max X, min Y, max Y
 	__m128 vx = _mm_perm_ps( vxy, _MM_SHUFFLE( 1, 0, 1, 0 ) );	// min X, max X, min X, max X
 	__m128 vy = _mm_perm_ps( vxy, _MM_SHUFFLE( 3, 3, 2, 2 ) );	// min Y, min Y, max Y, max Y
-	
+
 	__m128 vz0 = _mm_splat_ps( b0, 2 );							// min Z, min Z, min Z, min Z
 	__m128 vz1 = _mm_splat_ps( b1, 2 );							// max Z, max Z, max Z, max Z
-	
+
 	// compute four partial X,Y,Z,W values
 	__m128 parx = _mm_splat_ps( mvp0, 3 );
 	__m128 pary = _mm_splat_ps( mvp1, 3 );
 	__m128 parz = _mm_splat_ps( mvp2, 3 );
 	__m128 parw = _mm_splat_ps( mvp3, 3 );
-	
+
 	parx = _mm_madd_ps( vx, _mm_splat_ps( mvp0, 0 ), parx );
 	pary = _mm_madd_ps( vx, _mm_splat_ps( mvp1, 0 ), pary );
 	parz = _mm_madd_ps( vx, _mm_splat_ps( mvp2, 0 ), parz );
 	parw = _mm_madd_ps( vx, _mm_splat_ps( mvp3, 0 ), parw );
-	
+
 	parx = _mm_madd_ps( vy, _mm_splat_ps( mvp0, 1 ), parx );
 	pary = _mm_madd_ps( vy, _mm_splat_ps( mvp1, 1 ), pary );
 	parz = _mm_madd_ps( vy, _mm_splat_ps( mvp2, 1 ), parz );
 	parw = _mm_madd_ps( vy, _mm_splat_ps( mvp3, 1 ), parw );
-	
+
 	// compute full X,Y,Z,W values
 	__m128 mvp0Z = _mm_splat_ps( mvp0, 2 );
 	__m128 mvp1Z = _mm_splat_ps( mvp1, 2 );
 	__m128 mvp2Z = _mm_splat_ps( mvp2, 2 );
 	__m128 mvp3Z = _mm_splat_ps( mvp3, 2 );
-	
+
 	__m128 x0 = _mm_madd_ps( vz0, mvp0Z, parx );
 	__m128 y0 = _mm_madd_ps( vz0, mvp1Z, pary );
 	__m128 z0 = _mm_madd_ps( vz0, mvp2Z, parz );
 	__m128 w0 = _mm_madd_ps( vz0, mvp3Z, parw );
-	
+
 	__m128 x1 = _mm_madd_ps( vz1, mvp0Z, parx );
 	__m128 y1 = _mm_madd_ps( vz1, mvp1Z, pary );
 	__m128 z1 = _mm_madd_ps( vz1, mvp2Z, parz );
 	__m128 w1 = _mm_madd_ps( vz1, mvp3Z, parw );
-	
+
 	__m128 s0 = _mm_cmpgt_ps( vector_float_smallest_non_denorm, w0 );
 	__m128 s1 = _mm_cmpgt_ps( vector_float_smallest_non_denorm, w1 );
-	
+
 	w0 = _mm_sel_ps( w0, vector_float_one, s0 );
 	w1 = _mm_sel_ps( w1, vector_float_one, s1 );
-	
+
 	__m128 rw0 = _mm_rcp32_ps( w0 );
 	__m128 rw1 = _mm_rcp32_ps( w1 );
-	
+
 	x0 = _mm_mul_ps( x0, rw0 );
 	y0 = _mm_mul_ps( y0, rw0 );
 	z0 = _mm_mul_ps( z0, rw0 );
-	
+
 	x1 = _mm_mul_ps( x1, rw1 );
 	y1 = _mm_mul_ps( y1, rw1 );
 	z1 = _mm_mul_ps( z1, rw1 );
-	
+
 	__m128 minX = _mm_min_ps( x0, x1 );
 	__m128 minY = _mm_min_ps( y0, y1 );
 	__m128 minZ = _mm_min_ps( z0, z1 );
-	
+
 	__m128 maxX = _mm_max_ps( x0, x1 );
 	__m128 maxY = _mm_max_ps( y0, y1 );
 	__m128 maxZ = _mm_max_ps( z0, z1 );
-	
+
 	minX = _mm_min_ps( minX, _mm_perm_ps( minX, _MM_SHUFFLE( 1, 0, 3, 2 ) ) );
 	minY = _mm_min_ps( minY, _mm_perm_ps( minY, _MM_SHUFFLE( 1, 0, 3, 2 ) ) );
 	minZ = _mm_min_ps( minZ, _mm_perm_ps( minZ, _MM_SHUFFLE( 1, 0, 3, 2 ) ) );
-	
+
 	minX = _mm_min_ps( minX, _mm_perm_ps( minX, _MM_SHUFFLE( 2, 3, 0, 1 ) ) );
 	minY = _mm_min_ps( minY, _mm_perm_ps( minY, _MM_SHUFFLE( 2, 3, 0, 1 ) ) );
 	minZ = _mm_min_ps( minZ, _mm_perm_ps( minZ, _MM_SHUFFLE( 2, 3, 0, 1 ) ) );
-	
+
 	maxX = _mm_max_ps( maxX, _mm_perm_ps( maxX, _MM_SHUFFLE( 1, 0, 3, 2 ) ) );
 	maxY = _mm_max_ps( maxY, _mm_perm_ps( maxY, _MM_SHUFFLE( 1, 0, 3, 2 ) ) );
 	maxZ = _mm_max_ps( maxZ, _mm_perm_ps( maxZ, _MM_SHUFFLE( 1, 0, 3, 2 ) ) );
-	
+
 	maxX = _mm_max_ps( maxX, _mm_perm_ps( maxX, _MM_SHUFFLE( 2, 3, 0, 1 ) ) );
 	maxY = _mm_max_ps( maxY, _mm_perm_ps( maxY, _MM_SHUFFLE( 2, 3, 0, 1 ) ) );
 	maxZ = _mm_max_ps( maxZ, _mm_perm_ps( maxZ, _MM_SHUFFLE( 2, 3, 0, 1 ) ) );
-	
+
 	s0 = _mm_or_ps( s0, s1 );
 	s0 = _mm_or_ps( s0, _mm_perm_ps( s0, _MM_SHUFFLE( 1, 0, 3, 2 ) ) );
 	s0 = _mm_or_ps( s0, _mm_perm_ps( s0, _MM_SHUFFLE( 2, 3, 0, 1 ) ) );
-	
+
 	minX = _mm_sel_ps( minX, vector_float_neg_infinity, s0 );
 	minY = _mm_sel_ps( minY, vector_float_neg_infinity, s0 );
 	minZ = _mm_sel_ps( minZ, vector_float_neg_infinity, s0 );
-	
+
 	maxX = _mm_sel_ps( maxX, vector_float_pos_infinity, s0 );
 	maxY = _mm_sel_ps( maxY, vector_float_pos_infinity, s0 );
 	// NOTE: maxZ is valid either way
-	
+
 	if( windowSpace )
 	{
 		minX = _mm_madd_ps( minX, vector_float_half, vector_float_half );
 		maxX = _mm_madd_ps( maxX, vector_float_half, vector_float_half );
-		
+
 		minY = _mm_madd_ps( minY, vector_float_half, vector_float_half );
 		maxY = _mm_madd_ps( maxY, vector_float_half, vector_float_half );
-		
+
 #if !defined( CLIP_SPACE_D3D )	// the D3D clip space Z is already in the range [0,1]
 		minZ = _mm_madd_ps( minZ, vector_float_half, vector_float_half );
 		maxZ = _mm_madd_ps( maxZ, vector_float_half, vector_float_half );
 #endif
-		
+
 		minX = _mm_max_ps( _mm_min_ps( minX, vector_float_one ), vector_float_zero );
 		maxX = _mm_max_ps( _mm_min_ps( maxX, vector_float_one ), vector_float_zero );
-		
+
 		minY = _mm_max_ps( _mm_min_ps( minY, vector_float_one ), vector_float_zero );
 		maxY = _mm_max_ps( _mm_min_ps( maxY, vector_float_one ), vector_float_zero );
-		
+
 		minZ = _mm_max_ps( _mm_min_ps( minZ, vector_float_one ), vector_float_zero );
 		maxZ = _mm_max_ps( _mm_min_ps( maxZ, vector_float_one ), vector_float_zero );
 	}
-	
+
 	_mm_store_ss( & projected[0].x, minX );
 	_mm_store_ss( & projected[0].y, minY );
 	_mm_store_ss( & projected[0].z, minZ );
-	
+
 	_mm_store_ss( & projected[1].x, maxX );
 	_mm_store_ss( & projected[1].y, maxY );
 	_mm_store_ss( & projected[1].z, maxZ );
-	
+
 #else
-	
+
 	for( int i = 0; i < 3; i++ )
 	{
 		projected[0][i] = RENDER_MATRIX_INFINITY;
 		projected[1][i] = - RENDER_MATRIX_INFINITY;
 	}
-	
+
 	idVec3 v;
 	for( int x = 0; x < 2; x++ )
 	{
@@ -2437,12 +2444,12 @@ void idRenderMatrix::ProjectedBounds( idBounds& projected, const idRenderMatrix&
 			for( int z = 0; z < 2; z++ )
 			{
 				v[2] = bounds[z][2];
-	
+
 				float tx = v[0] * mvp[0][0] + v[1] * mvp[0][1] + v[2] * mvp[0][2] + mvp[0][3];
 				float ty = v[0] * mvp[1][0] + v[1] * mvp[1][1] + v[2] * mvp[1][2] + mvp[1][3];
 				float tz = v[0] * mvp[2][0] + v[1] * mvp[2][1] + v[2] * mvp[2][2] + mvp[2][3];
 				float tw = v[0] * mvp[3][0] + v[1] * mvp[3][1] + v[2] * mvp[3][2] + mvp[3][3];
-	
+
 				if( tw <= idMath::FLT_SMALLEST_NON_DENORMAL )
 				{
 					projected[0][0] = -RENDER_MATRIX_INFINITY;
@@ -2453,49 +2460,49 @@ void idRenderMatrix::ProjectedBounds( idBounds& projected, const idRenderMatrix&
 					// NOTE: projected[1][1] is still valid
 					continue;
 				}
-	
+
 				float rw = 1.0f / tw;
-	
+
 				tx = tx * rw;
 				ty = ty * rw;
 				tz = tz * rw;
-	
+
 				projected[0][0] = Min( projected[0][0], tx );
 				projected[0][1] = Min( projected[0][1], ty );
 				projected[0][2] = Min( projected[0][2], tz );
-	
+
 				projected[1][0] = Max( projected[1][0], tx );
 				projected[1][1] = Max( projected[1][1], ty );
 				projected[1][2] = Max( projected[1][2], tz );
 			}
 		}
 	}
-	
+
 	if( windowSpace )
 	{
 		// convert to window coords
 		projected[0][0] = projected[0][0] * 0.5f + 0.5f;
 		projected[1][0] = projected[1][0] * 0.5f + 0.5f;
-	
+
 		projected[0][1] = projected[0][1] * 0.5f + 0.5f;
 		projected[1][1] = projected[1][1] * 0.5f + 0.5f;
-	
+
 #if !defined( CLIP_SPACE_D3D )	// the D3D clip space Z is already in the range [0,1]
 		projected[0][2] = projected[0][2] * 0.5f + 0.5f;
 		projected[1][2] = projected[1][2] * 0.5f + 0.5f;
 #endif
-	
+
 		// clamp to [0, 1] range
 		projected[0][0] = idMath::ClampFloat( 0.0f, 1.0f, projected[0][0] );
 		projected[1][0] = idMath::ClampFloat( 0.0f, 1.0f, projected[1][0] );
-	
+
 		projected[0][1] = idMath::ClampFloat( 0.0f, 1.0f, projected[0][1] );
 		projected[1][1] = idMath::ClampFloat( 0.0f, 1.0f, projected[1][1] );
-	
+
 		projected[0][2] = idMath::ClampFloat( 0.0f, 1.0f, projected[0][2] );
 		projected[1][2] = idMath::ClampFloat( 0.0f, 1.0f, projected[1][2] );
 	}
-	
+
 #endif
 }
 
@@ -2529,71 +2536,71 @@ void idRenderMatrix::ProjectedNearClippedBounds( idBounds& projected, const idRe
 	      | {D}      | {B}       Y
 	      |/         |/         +
 	      3---{C}----2
-	
+
 		    - X +
 	*/
-	
+
 #if defined(USE_INTRINSICS)
-	
+
 	const __m128 mvp0 = _mm_loadu_ps( mvp[0] );
 	const __m128 mvp1 = _mm_loadu_ps( mvp[1] );
 	const __m128 mvp2 = _mm_loadu_ps( mvp[2] );
 	const __m128 mvp3 = _mm_loadu_ps( mvp[3] );
-	
+
 	const __m128 b0 = _mm_loadu_bounds_0( bounds );
 	const __m128 b1 = _mm_loadu_bounds_1( bounds );
-	
+
 	// take the four points on the X-Y plane
 	const __m128 vxy = _mm_unpacklo_ps( b0, b1 );						// min X, max X, min Y, max Y
 	const __m128 vx = _mm_perm_ps( vxy, _MM_SHUFFLE( 1, 0, 1, 0 ) );	// min X, max X, min X, max X
 	const __m128 vy = _mm_perm_ps( vxy, _MM_SHUFFLE( 3, 3, 2, 2 ) );	// min Y, min Y, max Y, max Y
-	
+
 	const __m128 vz0 = _mm_splat_ps( b0, 2 );							// min Z, min Z, min Z, min Z
 	const __m128 vz1 = _mm_splat_ps( b1, 2 );							// max Z, max Z, max Z, max Z
-	
+
 	// compute four partial X,Y,Z,W values
 	__m128 parx = _mm_splat_ps( mvp0, 3 );
 	__m128 pary = _mm_splat_ps( mvp1, 3 );
 	__m128 parz = _mm_splat_ps( mvp2, 3 );
 	__m128 parw = _mm_splat_ps( mvp3, 3 );
-	
+
 	parx = _mm_madd_ps( vx, _mm_splat_ps( mvp0, 0 ), parx );
 	pary = _mm_madd_ps( vx, _mm_splat_ps( mvp1, 0 ), pary );
 	parz = _mm_madd_ps( vx, _mm_splat_ps( mvp2, 0 ), parz );
 	parw = _mm_madd_ps( vx, _mm_splat_ps( mvp3, 0 ), parw );
-	
+
 	parx = _mm_madd_ps( vy, _mm_splat_ps( mvp0, 1 ), parx );
 	pary = _mm_madd_ps( vy, _mm_splat_ps( mvp1, 1 ), pary );
 	parz = _mm_madd_ps( vy, _mm_splat_ps( mvp2, 1 ), parz );
 	parw = _mm_madd_ps( vy, _mm_splat_ps( mvp3, 1 ), parw );
-	
+
 	// compute full X,Y,Z,W values
 	const __m128 mvp0Z = _mm_splat_ps( mvp0, 2 );
 	const __m128 mvp1Z = _mm_splat_ps( mvp1, 2 );
 	const __m128 mvp2Z = _mm_splat_ps( mvp2, 2 );
 	const __m128 mvp3Z = _mm_splat_ps( mvp3, 2 );
-	
+
 	const __m128 x_0123 = _mm_madd_ps( vz0, mvp0Z, parx );
 	const __m128 y_0123 = _mm_madd_ps( vz0, mvp1Z, pary );
 	const __m128 z_0123 = _mm_madd_ps( vz0, mvp2Z, parz );
 	const __m128 w_0123 = _mm_madd_ps( vz0, mvp3Z, parw );
-	
+
 	const __m128 x_4567 = _mm_madd_ps( vz1, mvp0Z, parx );
 	const __m128 y_4567 = _mm_madd_ps( vz1, mvp1Z, pary );
 	const __m128 z_4567 = _mm_madd_ps( vz1, mvp2Z, parz );
 	const __m128 w_4567 = _mm_madd_ps( vz1, mvp3Z, parw );
-	
+
 	// rotate the X,Y,Z,W values up by one
 	const __m128 x_1230 = _mm_perm_ps( x_0123, _MM_SHUFFLE( 0, 3, 2, 1 ) );
 	const __m128 y_1230 = _mm_perm_ps( y_0123, _MM_SHUFFLE( 0, 3, 2, 1 ) );
 	const __m128 z_1230 = _mm_perm_ps( z_0123, _MM_SHUFFLE( 0, 3, 2, 1 ) );
 	const __m128 w_1230 = _mm_perm_ps( w_0123, _MM_SHUFFLE( 0, 3, 2, 1 ) );
-	
+
 	const __m128 x_5674 = _mm_perm_ps( x_4567, _MM_SHUFFLE( 0, 3, 2, 1 ) );
 	const __m128 y_5674 = _mm_perm_ps( y_4567, _MM_SHUFFLE( 0, 3, 2, 1 ) );
 	const __m128 z_5674 = _mm_perm_ps( z_4567, _MM_SHUFFLE( 0, 3, 2, 1 ) );
 	const __m128 w_5674 = _mm_perm_ps( w_4567, _MM_SHUFFLE( 0, 3, 2, 1 ) );
-	
+
 #if defined( CLIP_SPACE_D3D )	// the D3D near plane is at Z=0 instead of Z=-1
 	const __m128 d_0123 = z_0123;
 	const __m128 d_4567 = z_4567;
@@ -2605,199 +2612,199 @@ void idRenderMatrix::ProjectedNearClippedBounds( idBounds& projected, const idRe
 	const __m128 d_1230 = _mm_add_ps( z_1230, w_1230 );
 	const __m128 d_5674 = _mm_add_ps( z_5674, w_5674 );
 #endif
-	
+
 	const __m128 deltaABCD = _mm_sub_ps( d_0123, d_1230 );
 	const __m128 deltaEFGH = _mm_sub_ps( d_4567, d_5674 );
 	const __m128 deltaIJKL = _mm_sub_ps( d_0123, d_4567 );
-	
+
 	const __m128 maskABCD = _mm_cmpgt_ps( _mm_and_ps( deltaABCD, vector_float_abs_mask ), vector_float_smallest_non_denorm );
 	const __m128 maskEFGH = _mm_cmpgt_ps( _mm_and_ps( deltaEFGH, vector_float_abs_mask ), vector_float_smallest_non_denorm );
 	const __m128 maskIJKL = _mm_cmpgt_ps( _mm_and_ps( deltaIJKL, vector_float_abs_mask ), vector_float_smallest_non_denorm );
-	
+
 	const __m128 fractionABCD = _mm_and_ps( _mm_div32_ps( d_0123, _mm_sel_ps( vector_float_one, deltaABCD, maskABCD ) ), maskABCD );
 	const __m128 fractionEFGH = _mm_and_ps( _mm_div32_ps( d_4567, _mm_sel_ps( vector_float_one, deltaEFGH, maskEFGH ) ), maskEFGH );
 	const __m128 fractionIJKL = _mm_and_ps( _mm_div32_ps( d_0123, _mm_sel_ps( vector_float_one, deltaIJKL, maskIJKL ) ), maskIJKL );
-	
+
 	const __m128 clipABCD = _mm_and_ps( _mm_cmpgt_ps( fractionABCD, vector_float_zero ), _mm_cmpgt_ps( vector_float_one, fractionABCD ) );
 	const __m128 clipEFGH = _mm_and_ps( _mm_cmpgt_ps( fractionEFGH, vector_float_zero ), _mm_cmpgt_ps( vector_float_one, fractionEFGH ) );
 	const __m128 clipIJKL = _mm_and_ps( _mm_cmpgt_ps( fractionIJKL, vector_float_zero ), _mm_cmpgt_ps( vector_float_one, fractionIJKL ) );
-	
+
 	const __m128 intersectionABCD_x = _mm_madd_ps( fractionABCD, _mm_sub_ps( x_1230, x_0123 ), x_0123 );
 	const __m128 intersectionABCD_y = _mm_madd_ps( fractionABCD, _mm_sub_ps( y_1230, y_0123 ), y_0123 );
 	const __m128 intersectionABCD_z = _mm_madd_ps( fractionABCD, _mm_sub_ps( z_1230, z_0123 ), z_0123 );
 	const __m128 intersectionABCD_w = _mm_madd_ps( fractionABCD, _mm_sub_ps( w_1230, w_0123 ), w_0123 );
-	
+
 	const __m128 intersectionEFGH_x = _mm_madd_ps( fractionEFGH, _mm_sub_ps( x_5674, x_4567 ), x_4567 );
 	const __m128 intersectionEFGH_y = _mm_madd_ps( fractionEFGH, _mm_sub_ps( y_5674, y_4567 ), y_4567 );
 	const __m128 intersectionEFGH_z = _mm_madd_ps( fractionEFGH, _mm_sub_ps( z_5674, z_4567 ), z_4567 );
 	const __m128 intersectionEFGH_w = _mm_madd_ps( fractionEFGH, _mm_sub_ps( w_5674, w_4567 ), w_4567 );
-	
+
 	const __m128 intersectionIJKL_x = _mm_madd_ps( fractionIJKL, _mm_sub_ps( x_4567, x_0123 ), x_0123 );
 	const __m128 intersectionIJKL_y = _mm_madd_ps( fractionIJKL, _mm_sub_ps( y_4567, y_0123 ), y_0123 );
 	const __m128 intersectionIJKL_z = _mm_madd_ps( fractionIJKL, _mm_sub_ps( z_4567, z_0123 ), z_0123 );
 	const __m128 intersectionIJKL_w = _mm_madd_ps( fractionIJKL, _mm_sub_ps( w_4567, w_0123 ), w_0123 );
-	
+
 	const __m128 mask_0123 = _mm_cmpgt_ps( vector_float_zero, d_0123 );
 	const __m128 mask_1230 = _mm_cmpgt_ps( vector_float_zero, d_1230 );
 	const __m128 mask_4567 = _mm_cmpgt_ps( vector_float_zero, d_4567 );
 	const __m128 mask_5674 = _mm_cmpgt_ps( vector_float_zero, d_5674 );
-	
+
 	const __m128 maskABCD_0123 = _mm_and_ps( clipABCD, mask_0123 );
 	const __m128 maskABCD_1230 = _mm_and_ps( clipABCD, mask_1230 );
 	const __m128 maskEFGH_4567 = _mm_and_ps( clipEFGH, mask_4567 );
 	const __m128 maskEFGH_5674 = _mm_and_ps( clipEFGH, mask_5674 );
 	const __m128 maskIJKL_0123 = _mm_and_ps( clipIJKL, mask_0123 );
 	const __m128 maskIJKL_4567 = _mm_and_ps( clipIJKL, mask_4567 );
-	
+
 	__m128 edgeVertsABCD_x0 = _mm_sel_ps( x_0123, intersectionABCD_x, maskABCD_0123 );
 	__m128 edgeVertsABCD_y0 = _mm_sel_ps( y_0123, intersectionABCD_y, maskABCD_0123 );
 	__m128 edgeVertsABCD_z0 = _mm_sel_ps( z_0123, intersectionABCD_z, maskABCD_0123 );
 	__m128 edgeVertsABCD_w0 = _mm_sel_ps( w_0123, intersectionABCD_w, maskABCD_0123 );
-	
+
 	__m128 edgeVertsABCD_x1 = _mm_sel_ps( x_1230, intersectionABCD_x, maskABCD_1230 );
 	__m128 edgeVertsABCD_y1 = _mm_sel_ps( y_1230, intersectionABCD_y, maskABCD_1230 );
 	__m128 edgeVertsABCD_z1 = _mm_sel_ps( z_1230, intersectionABCD_z, maskABCD_1230 );
 	__m128 edgeVertsABCD_w1 = _mm_sel_ps( w_1230, intersectionABCD_w, maskABCD_1230 );
-	
+
 	__m128 edgeVertsEFGH_x0 = _mm_sel_ps( x_4567, intersectionEFGH_x, maskEFGH_4567 );
 	__m128 edgeVertsEFGH_y0 = _mm_sel_ps( y_4567, intersectionEFGH_y, maskEFGH_4567 );
 	__m128 edgeVertsEFGH_z0 = _mm_sel_ps( z_4567, intersectionEFGH_z, maskEFGH_4567 );
 	__m128 edgeVertsEFGH_w0 = _mm_sel_ps( w_4567, intersectionEFGH_w, maskEFGH_4567 );
-	
+
 	__m128 edgeVertsEFGH_x1 = _mm_sel_ps( x_5674, intersectionEFGH_x, maskEFGH_5674 );
 	__m128 edgeVertsEFGH_y1 = _mm_sel_ps( y_5674, intersectionEFGH_y, maskEFGH_5674 );
 	__m128 edgeVertsEFGH_z1 = _mm_sel_ps( z_5674, intersectionEFGH_z, maskEFGH_5674 );
 	__m128 edgeVertsEFGH_w1 = _mm_sel_ps( w_5674, intersectionEFGH_w, maskEFGH_5674 );
-	
+
 	__m128 edgeVertsIJKL_x0 = _mm_sel_ps( x_0123, intersectionIJKL_x, maskIJKL_0123 );
 	__m128 edgeVertsIJKL_y0 = _mm_sel_ps( y_0123, intersectionIJKL_y, maskIJKL_0123 );
 	__m128 edgeVertsIJKL_z0 = _mm_sel_ps( z_0123, intersectionIJKL_z, maskIJKL_0123 );
 	__m128 edgeVertsIJKL_w0 = _mm_sel_ps( w_0123, intersectionIJKL_w, maskIJKL_0123 );
-	
+
 	__m128 edgeVertsIJKL_x1 = _mm_sel_ps( x_4567, intersectionIJKL_x, maskIJKL_4567 );
 	__m128 edgeVertsIJKL_y1 = _mm_sel_ps( y_4567, intersectionIJKL_y, maskIJKL_4567 );
 	__m128 edgeVertsIJKL_z1 = _mm_sel_ps( z_4567, intersectionIJKL_z, maskIJKL_4567 );
 	__m128 edgeVertsIJKL_w1 = _mm_sel_ps( w_4567, intersectionIJKL_w, maskIJKL_4567 );
-	
+
 	const __m128 maskABCD_w0 = _mm_cmpgt_ps( edgeVertsABCD_w0, vector_float_smallest_non_denorm );
 	const __m128 maskABCD_w1 = _mm_cmpgt_ps( edgeVertsABCD_w1, vector_float_smallest_non_denorm );
 	const __m128 maskEFGH_w0 = _mm_cmpgt_ps( edgeVertsEFGH_w0, vector_float_smallest_non_denorm );
 	const __m128 maskEFGH_w1 = _mm_cmpgt_ps( edgeVertsEFGH_w1, vector_float_smallest_non_denorm );
 	const __m128 maskIJKL_w0 = _mm_cmpgt_ps( edgeVertsIJKL_w0, vector_float_smallest_non_denorm );
 	const __m128 maskIJKL_w1 = _mm_cmpgt_ps( edgeVertsIJKL_w1, vector_float_smallest_non_denorm );
-	
+
 	edgeVertsABCD_w0 = _mm_rcp32_ps( _mm_sel_ps( vector_float_one, edgeVertsABCD_w0, maskABCD_w0 ) );
 	edgeVertsABCD_w1 = _mm_rcp32_ps( _mm_sel_ps( vector_float_one, edgeVertsABCD_w1, maskABCD_w1 ) );
 	edgeVertsEFGH_w0 = _mm_rcp32_ps( _mm_sel_ps( vector_float_one, edgeVertsEFGH_w0, maskEFGH_w0 ) );
 	edgeVertsEFGH_w1 = _mm_rcp32_ps( _mm_sel_ps( vector_float_one, edgeVertsEFGH_w1, maskEFGH_w1 ) );
 	edgeVertsIJKL_w0 = _mm_rcp32_ps( _mm_sel_ps( vector_float_one, edgeVertsIJKL_w0, maskIJKL_w0 ) );
 	edgeVertsIJKL_w1 = _mm_rcp32_ps( _mm_sel_ps( vector_float_one, edgeVertsIJKL_w1, maskIJKL_w1 ) );
-	
+
 	edgeVertsABCD_x0 = _mm_mul_ps( edgeVertsABCD_x0, edgeVertsABCD_w0 );
 	edgeVertsABCD_x1 = _mm_mul_ps( edgeVertsABCD_x1, edgeVertsABCD_w1 );
 	edgeVertsEFGH_x0 = _mm_mul_ps( edgeVertsEFGH_x0, edgeVertsEFGH_w0 );
 	edgeVertsEFGH_x1 = _mm_mul_ps( edgeVertsEFGH_x1, edgeVertsEFGH_w1 );
 	edgeVertsIJKL_x0 = _mm_mul_ps( edgeVertsIJKL_x0, edgeVertsIJKL_w0 );
 	edgeVertsIJKL_x1 = _mm_mul_ps( edgeVertsIJKL_x1, edgeVertsIJKL_w1 );
-	
+
 	edgeVertsABCD_y0 = _mm_mul_ps( edgeVertsABCD_y0, edgeVertsABCD_w0 );
 	edgeVertsABCD_y1 = _mm_mul_ps( edgeVertsABCD_y1, edgeVertsABCD_w1 );
 	edgeVertsEFGH_y0 = _mm_mul_ps( edgeVertsEFGH_y0, edgeVertsEFGH_w0 );
 	edgeVertsEFGH_y1 = _mm_mul_ps( edgeVertsEFGH_y1, edgeVertsEFGH_w1 );
 	edgeVertsIJKL_y0 = _mm_mul_ps( edgeVertsIJKL_y0, edgeVertsIJKL_w0 );
 	edgeVertsIJKL_y1 = _mm_mul_ps( edgeVertsIJKL_y1, edgeVertsIJKL_w1 );
-	
+
 	edgeVertsABCD_z0 = _mm_mul_ps( edgeVertsABCD_z0, edgeVertsABCD_w0 );
 	edgeVertsABCD_z1 = _mm_mul_ps( edgeVertsABCD_z1, edgeVertsABCD_w1 );
 	edgeVertsEFGH_z0 = _mm_mul_ps( edgeVertsEFGH_z0, edgeVertsEFGH_w0 );
 	edgeVertsEFGH_z1 = _mm_mul_ps( edgeVertsEFGH_z1, edgeVertsEFGH_w1 );
 	edgeVertsIJKL_z0 = _mm_mul_ps( edgeVertsIJKL_z0, edgeVertsIJKL_w0 );
 	edgeVertsIJKL_z1 = _mm_mul_ps( edgeVertsIJKL_z1, edgeVertsIJKL_w1 );
-	
+
 	const __m128 posInf = vector_float_pos_infinity;
 	const __m128 negInf = vector_float_neg_infinity;
-	
+
 	const __m128 minX0 = _mm_min_ps( _mm_sel_ps( posInf, edgeVertsABCD_x0, maskABCD_w0 ), _mm_sel_ps( posInf, edgeVertsABCD_x1, maskABCD_w1 ) );
 	const __m128 minX1 = _mm_min_ps( _mm_sel_ps( posInf, edgeVertsEFGH_x0, maskEFGH_w0 ), _mm_sel_ps( posInf, edgeVertsEFGH_x1, maskEFGH_w1 ) );
 	const __m128 minX2 = _mm_min_ps( _mm_sel_ps( posInf, edgeVertsIJKL_x0, maskIJKL_w0 ), _mm_sel_ps( posInf, edgeVertsIJKL_x1, maskIJKL_w1 ) );
-	
+
 	const __m128 minY0 = _mm_min_ps( _mm_sel_ps( posInf, edgeVertsABCD_y0, maskABCD_w0 ), _mm_sel_ps( posInf, edgeVertsABCD_y1, maskABCD_w1 ) );
 	const __m128 minY1 = _mm_min_ps( _mm_sel_ps( posInf, edgeVertsEFGH_y0, maskEFGH_w0 ), _mm_sel_ps( posInf, edgeVertsEFGH_y1, maskEFGH_w1 ) );
 	const __m128 minY2 = _mm_min_ps( _mm_sel_ps( posInf, edgeVertsIJKL_y0, maskIJKL_w0 ), _mm_sel_ps( posInf, edgeVertsIJKL_y1, maskIJKL_w1 ) );
-	
+
 	const __m128 minZ0 = _mm_min_ps( _mm_sel_ps( posInf, edgeVertsABCD_z0, maskABCD_w0 ), _mm_sel_ps( posInf, edgeVertsABCD_z1, maskABCD_w1 ) );
 	const __m128 minZ1 = _mm_min_ps( _mm_sel_ps( posInf, edgeVertsEFGH_z0, maskEFGH_w0 ), _mm_sel_ps( posInf, edgeVertsEFGH_z1, maskEFGH_w1 ) );
 	const __m128 minZ2 = _mm_min_ps( _mm_sel_ps( posInf, edgeVertsIJKL_z0, maskIJKL_w0 ), _mm_sel_ps( posInf, edgeVertsIJKL_z1, maskIJKL_w1 ) );
-	
+
 	const __m128 maxX0 = _mm_max_ps( _mm_sel_ps( negInf, edgeVertsABCD_x0, maskABCD_w0 ), _mm_sel_ps( negInf, edgeVertsABCD_x1, maskABCD_w1 ) );
 	const __m128 maxX1 = _mm_max_ps( _mm_sel_ps( negInf, edgeVertsEFGH_x0, maskEFGH_w0 ), _mm_sel_ps( negInf, edgeVertsEFGH_x1, maskEFGH_w1 ) );
 	const __m128 maxX2 = _mm_max_ps( _mm_sel_ps( negInf, edgeVertsIJKL_x0, maskIJKL_w0 ), _mm_sel_ps( negInf, edgeVertsIJKL_x1, maskIJKL_w1 ) );
-	
+
 	const __m128 maxY0 = _mm_max_ps( _mm_sel_ps( negInf, edgeVertsABCD_y0, maskABCD_w0 ), _mm_sel_ps( negInf, edgeVertsABCD_y1, maskABCD_w1 ) );
 	const __m128 maxY1 = _mm_max_ps( _mm_sel_ps( negInf, edgeVertsEFGH_y0, maskEFGH_w0 ), _mm_sel_ps( negInf, edgeVertsEFGH_y1, maskEFGH_w1 ) );
 	const __m128 maxY2 = _mm_max_ps( _mm_sel_ps( negInf, edgeVertsIJKL_y0, maskIJKL_w0 ), _mm_sel_ps( negInf, edgeVertsIJKL_y1, maskIJKL_w1 ) );
-	
+
 	const __m128 maxZ0 = _mm_max_ps( _mm_sel_ps( negInf, edgeVertsABCD_z0, maskABCD_w0 ), _mm_sel_ps( negInf, edgeVertsABCD_z1, maskABCD_w1 ) );
 	const __m128 maxZ1 = _mm_max_ps( _mm_sel_ps( negInf, edgeVertsEFGH_z0, maskEFGH_w0 ), _mm_sel_ps( negInf, edgeVertsEFGH_z1, maskEFGH_w1 ) );
 	const __m128 maxZ2 = _mm_max_ps( _mm_sel_ps( negInf, edgeVertsIJKL_z0, maskIJKL_w0 ), _mm_sel_ps( negInf, edgeVertsIJKL_z1, maskIJKL_w1 ) );
-	
+
 	__m128 minX = _mm_min_ps( minX0, _mm_min_ps( minX1, minX2 ) );
 	__m128 minY = _mm_min_ps( minY0, _mm_min_ps( minY1, minY2 ) );
 	__m128 minZ = _mm_min_ps( minZ0, _mm_min_ps( minZ1, minZ2 ) );
-	
+
 	__m128 maxX = _mm_max_ps( maxX0, _mm_max_ps( maxX1, maxX2 ) );
 	__m128 maxY = _mm_max_ps( maxY0, _mm_max_ps( maxY1, maxY2 ) );
 	__m128 maxZ = _mm_max_ps( maxZ0, _mm_max_ps( maxZ1, maxZ2 ) );
-	
+
 	minX = _mm_min_ps( minX, _mm_perm_ps( minX, _MM_SHUFFLE( 1, 0, 3, 2 ) ) );
 	minY = _mm_min_ps( minY, _mm_perm_ps( minY, _MM_SHUFFLE( 1, 0, 3, 2 ) ) );
 	minZ = _mm_min_ps( minZ, _mm_perm_ps( minZ, _MM_SHUFFLE( 1, 0, 3, 2 ) ) );
-	
+
 	minX = _mm_min_ps( minX, _mm_perm_ps( minX, _MM_SHUFFLE( 2, 3, 0, 1 ) ) );
 	minY = _mm_min_ps( minY, _mm_perm_ps( minY, _MM_SHUFFLE( 2, 3, 0, 1 ) ) );
 	minZ = _mm_min_ps( minZ, _mm_perm_ps( minZ, _MM_SHUFFLE( 2, 3, 0, 1 ) ) );
-	
+
 	maxX = _mm_max_ps( maxX, _mm_perm_ps( maxX, _MM_SHUFFLE( 1, 0, 3, 2 ) ) );
 	maxY = _mm_max_ps( maxY, _mm_perm_ps( maxY, _MM_SHUFFLE( 1, 0, 3, 2 ) ) );
 	maxZ = _mm_max_ps( maxZ, _mm_perm_ps( maxZ, _MM_SHUFFLE( 1, 0, 3, 2 ) ) );
-	
+
 	maxX = _mm_max_ps( maxX, _mm_perm_ps( maxX, _MM_SHUFFLE( 2, 3, 0, 1 ) ) );
 	maxY = _mm_max_ps( maxY, _mm_perm_ps( maxY, _MM_SHUFFLE( 2, 3, 0, 1 ) ) );
 	maxZ = _mm_max_ps( maxZ, _mm_perm_ps( maxZ, _MM_SHUFFLE( 2, 3, 0, 1 ) ) );
-	
+
 	if( windowSpace )
 	{
 		minX = _mm_madd_ps( minX, vector_float_half, vector_float_half );
 		maxX = _mm_madd_ps( maxX, vector_float_half, vector_float_half );
-		
+
 		minY = _mm_madd_ps( minY, vector_float_half, vector_float_half );
 		maxY = _mm_madd_ps( maxY, vector_float_half, vector_float_half );
-		
+
 #if !defined( CLIP_SPACE_D3D )	// the D3D clip space Z is already in the range [0,1]
 		minZ = _mm_madd_ps( minZ, vector_float_half, vector_float_half );
 		maxZ = _mm_madd_ps( maxZ, vector_float_half, vector_float_half );
 #endif
-		
+
 		minX = _mm_max_ps( _mm_min_ps( minX, vector_float_one ), vector_float_zero );
 		maxX = _mm_max_ps( _mm_min_ps( maxX, vector_float_one ), vector_float_zero );
-		
+
 		minY = _mm_max_ps( _mm_min_ps( minY, vector_float_one ), vector_float_zero );
 		maxY = _mm_max_ps( _mm_min_ps( maxY, vector_float_one ), vector_float_zero );
-		
+
 		minZ = _mm_max_ps( _mm_min_ps( minZ, vector_float_one ), vector_float_zero );
 		maxZ = _mm_max_ps( _mm_min_ps( maxZ, vector_float_one ), vector_float_zero );
 	}
-	
+
 	_mm_store_ss( & projected[0].x, minX );
 	_mm_store_ss( & projected[0].y, minY );
 	_mm_store_ss( & projected[0].z, minZ );
-	
+
 	_mm_store_ss( & projected[1].x, maxX );
 	_mm_store_ss( & projected[1].y, maxY );
 	_mm_store_ss( & projected[1].z, maxZ );
-	
+
 #elif 1
-	
+
 	{
 		const idVec3 points[8] =
 		{
@@ -2810,7 +2817,7 @@ void idRenderMatrix::ProjectedNearClippedBounds( idBounds& projected, const idRe
 			idVec3( bounds[1][0], bounds[1][1], bounds[1][2] ),
 			idVec3( bounds[0][0], bounds[1][1], bounds[1][2] )
 		};
-	
+
 		idVec4 projectedPoints[8];
 		for( int i = 0; i < 8; i++ )
 		{
@@ -2820,7 +2827,7 @@ void idRenderMatrix::ProjectedNearClippedBounds( idBounds& projected, const idRe
 			projectedPoints[i].z = v[0] * mvp[2][0] + v[1] * mvp[2][1] + v[2] * mvp[2][2] + mvp[2][3];
 			projectedPoints[i].w = v[0] * mvp[3][0] + v[1] * mvp[3][1] + v[2] * mvp[3][2] + mvp[3][3];
 		}
-	
+
 		const idVec4& p0 = projectedPoints[0];
 		const idVec4& p1 = projectedPoints[1];
 		const idVec4& p2 = projectedPoints[2];
@@ -2829,7 +2836,7 @@ void idRenderMatrix::ProjectedNearClippedBounds( idBounds& projected, const idRe
 		const idVec4& p5 = projectedPoints[5];
 		const idVec4& p6 = projectedPoints[6];
 		const idVec4& p7 = projectedPoints[7];
-	
+
 #if defined( CLIP_SPACE_D3D )	// the D3D near plane is at Z=0 instead of Z=-1
 		const float d0 = p0.z;
 		const float d1 = p1.z;
@@ -2849,161 +2856,161 @@ void idRenderMatrix::ProjectedNearClippedBounds( idBounds& projected, const idRe
 		const float d6 = p6.z + p6.w;
 		const float d7 = p7.z + p7.w;
 #endif
-	
+
 		const float deltaA = d0 - d1;
 		const float deltaB = d1 - d2;
 		const float deltaC = d2 - d3;
 		const float deltaD = d3 - d0;
-	
+
 		const float deltaE = d4 - d5;
 		const float deltaF = d5 - d6;
 		const float deltaG = d6 - d7;
 		const float deltaH = d7 - d4;
-	
+
 		const float deltaI = d0 - d4;
 		const float deltaJ = d1 - d5;
 		const float deltaK = d2 - d6;
 		const float deltaL = d3 - d7;
-	
+
 		const float fractionA = ( fabs( deltaA ) > idMath::FLT_SMALLEST_NON_DENORMAL ) ? ( d0 / deltaA ) : 0.0f;
 		const float fractionB = ( fabs( deltaB ) > idMath::FLT_SMALLEST_NON_DENORMAL ) ? ( d1 / deltaB ) : 0.0f;
 		const float fractionC = ( fabs( deltaC ) > idMath::FLT_SMALLEST_NON_DENORMAL ) ? ( d2 / deltaC ) : 0.0f;
 		const float fractionD = ( fabs( deltaD ) > idMath::FLT_SMALLEST_NON_DENORMAL ) ? ( d3 / deltaD ) : 0.0f;
-	
+
 		const float fractionE = ( fabs( deltaE ) > idMath::FLT_SMALLEST_NON_DENORMAL ) ? ( d4 / deltaE ) : 0.0f;
 		const float fractionF = ( fabs( deltaF ) > idMath::FLT_SMALLEST_NON_DENORMAL ) ? ( d5 / deltaF ) : 0.0f;
 		const float fractionG = ( fabs( deltaG ) > idMath::FLT_SMALLEST_NON_DENORMAL ) ? ( d6 / deltaG ) : 0.0f;
 		const float fractionH = ( fabs( deltaH ) > idMath::FLT_SMALLEST_NON_DENORMAL ) ? ( d7 / deltaH ) : 0.0f;
-	
+
 		const float fractionI = ( fabs( deltaI ) > idMath::FLT_SMALLEST_NON_DENORMAL ) ? ( d0 / deltaI ) : 0.0f;
 		const float fractionJ = ( fabs( deltaJ ) > idMath::FLT_SMALLEST_NON_DENORMAL ) ? ( d1 / deltaJ ) : 0.0f;
 		const float fractionK = ( fabs( deltaK ) > idMath::FLT_SMALLEST_NON_DENORMAL ) ? ( d2 / deltaK ) : 0.0f;
 		const float fractionL = ( fabs( deltaL ) > idMath::FLT_SMALLEST_NON_DENORMAL ) ? ( d3 / deltaL ) : 0.0f;
-	
+
 		const bool clipA = ( fractionA > 0.0f && fractionA < 1.0f );
 		const bool clipB = ( fractionB > 0.0f && fractionB < 1.0f );
 		const bool clipC = ( fractionC > 0.0f && fractionC < 1.0f );
 		const bool clipD = ( fractionD > 0.0f && fractionD < 1.0f );
-	
+
 		const bool clipE = ( fractionE > 0.0f && fractionE < 1.0f );
 		const bool clipF = ( fractionF > 0.0f && fractionF < 1.0f );
 		const bool clipG = ( fractionG > 0.0f && fractionG < 1.0f );
 		const bool clipH = ( fractionH > 0.0f && fractionH < 1.0f );
-	
+
 		const bool clipI = ( fractionI > 0.0f && fractionI < 1.0f );
 		const bool clipJ = ( fractionJ > 0.0f && fractionJ < 1.0f );
 		const bool clipK = ( fractionK > 0.0f && fractionK < 1.0f );
 		const bool clipL = ( fractionL > 0.0f && fractionL < 1.0f );
-	
+
 		const idVec4 intersectionA = p0 + fractionA * ( p1 - p0 );
 		const idVec4 intersectionB = p1 + fractionB * ( p2 - p1 );
 		const idVec4 intersectionC = p2 + fractionC * ( p3 - p2 );
 		const idVec4 intersectionD = p3 + fractionD * ( p0 - p3 );
-	
+
 		const idVec4 intersectionE = p4 + fractionE * ( p5 - p4 );
 		const idVec4 intersectionF = p5 + fractionF * ( p6 - p5 );
 		const idVec4 intersectionG = p6 + fractionG * ( p7 - p6 );
 		const idVec4 intersectionH = p7 + fractionH * ( p4 - p7 );
-	
+
 		const idVec4 intersectionI = p0 + fractionI * ( p4 - p0 );
 		const idVec4 intersectionJ = p1 + fractionJ * ( p5 - p1 );
 		const idVec4 intersectionK = p2 + fractionK * ( p6 - p2 );
 		const idVec4 intersectionL = p3 + fractionL * ( p7 - p3 );
-	
+
 		idVec4 edgeVerts[24];
-	
+
 		edgeVerts[ 0] = ( clipA && d0 < 0.0f ) ? intersectionA : p0;
 		edgeVerts[ 2] = ( clipB && d1 < 0.0f ) ? intersectionB : p1;
 		edgeVerts[ 4] = ( clipC && d2 < 0.0f ) ? intersectionC : p2;
 		edgeVerts[ 6] = ( clipD && d3 < 0.0f ) ? intersectionD : p3;
-	
+
 		edgeVerts[ 1] = ( clipA && d1 < 0.0f ) ? intersectionA : p1;
 		edgeVerts[ 3] = ( clipB && d2 < 0.0f ) ? intersectionB : p2;
 		edgeVerts[ 5] = ( clipC && d3 < 0.0f ) ? intersectionC : p3;
 		edgeVerts[ 7] = ( clipD && d0 < 0.0f ) ? intersectionD : p0;
-	
+
 		edgeVerts[ 8] = ( clipE && d4 < 0.0f ) ? intersectionE : p4;
 		edgeVerts[10] = ( clipF && d5 < 0.0f ) ? intersectionF : p5;
 		edgeVerts[12] = ( clipG && d6 < 0.0f ) ? intersectionG : p6;
 		edgeVerts[14] = ( clipH && d7 < 0.0f ) ? intersectionH : p7;
-	
+
 		edgeVerts[ 9] = ( clipE && d5 < 0.0f ) ? intersectionE : p5;
 		edgeVerts[11] = ( clipF && d6 < 0.0f ) ? intersectionF : p6;
 		edgeVerts[13] = ( clipG && d7 < 0.0f ) ? intersectionG : p7;
 		edgeVerts[15] = ( clipH && d4 < 0.0f ) ? intersectionH : p4;
-	
+
 		edgeVerts[16] = ( clipI && d0 < 0.0f ) ? intersectionI : p0;
 		edgeVerts[18] = ( clipJ && d1 < 0.0f ) ? intersectionJ : p1;
 		edgeVerts[20] = ( clipK && d2 < 0.0f ) ? intersectionK : p2;
 		edgeVerts[22] = ( clipL && d3 < 0.0f ) ? intersectionL : p3;
-	
+
 		edgeVerts[17] = ( clipI && d4 < 0.0f ) ? intersectionI : p4;
 		edgeVerts[19] = ( clipJ && d5 < 0.0f ) ? intersectionJ : p5;
 		edgeVerts[21] = ( clipK && d6 < 0.0f ) ? intersectionK : p6;
 		edgeVerts[23] = ( clipL && d7 < 0.0f ) ? intersectionL : p7;
-	
+
 		idBounds projBnds;
 		for( int i = 0; i < 3; i++ )
 		{
 			projBnds[0][i] = RENDER_MATRIX_INFINITY;
 			projBnds[1][i] = - RENDER_MATRIX_INFINITY;
 		}
-	
+
 		for( int i = 0; i < 24; i++ )
 		{
 			const idVec4& v = edgeVerts[i];
-	
+
 			if( v.w <= idMath::FLT_SMALLEST_NON_DENORMAL )
 			{
 				continue;
 			}
-	
+
 			const float rw = 1.0f / v.w;
-	
+
 			const float px = v.x * rw;
 			const float py = v.y * rw;
 			const float pz = v.z * rw;
-	
+
 			projBnds[0][0] = Min( projBnds[0][0], px );
 			projBnds[0][1] = Min( projBnds[0][1], py );
 			projBnds[0][2] = Min( projBnds[0][2], pz );
-	
+
 			projBnds[1][0] = Max( projBnds[1][0], px );
 			projBnds[1][1] = Max( projBnds[1][1], py );
 			projBnds[1][2] = Max( projBnds[1][2], pz );
 		}
-	
+
 		if( windowSpace )
 		{
 			// convert to window coords
 			projBnds[0][0] = projBnds[0][0] * 0.5f + 0.5f;
 			projBnds[1][0] = projBnds[1][0] * 0.5f + 0.5f;
-	
+
 			projBnds[0][1] = projBnds[0][1] * 0.5f + 0.5f;
 			projBnds[1][1] = projBnds[1][1] * 0.5f + 0.5f;
-	
+
 #if !defined( CLIP_SPACE_D3D )	// the D3D clip space Z is already in the range [0,1]
 			projBnds[0][2] = projBnds[0][2] * 0.5f + 0.5f;
 			projBnds[1][2] = projBnds[1][2] * 0.5f + 0.5f;
 #endif
-	
+
 			// clamp to [0, 1] range
 			projBnds[0][0] = idMath::ClampFloat( 0.0f, 1.0f, projBnds[0][0] );
 			projBnds[1][0] = idMath::ClampFloat( 0.0f, 1.0f, projBnds[1][0] );
-	
+
 			projBnds[0][1] = idMath::ClampFloat( 0.0f, 1.0f, projBnds[0][1] );
 			projBnds[1][1] = idMath::ClampFloat( 0.0f, 1.0f, projBnds[1][1] );
-	
+
 			projBnds[0][2] = idMath::ClampFloat( 0.0f, 1.0f, projBnds[0][2] );
 			projBnds[1][2] = idMath::ClampFloat( 0.0f, 1.0f, projBnds[1][2] );
 		}
-	
+
 		assert( projected[0].Compare( projBnds[0], 0.01f ) );
 		assert( projected[1].Compare( projBnds[1], 0.01f ) );
 	}
-	
+
 #else
-	
+
 	const idVec3 points[8] =
 	{
 		idVec3( bounds[0][0], bounds[0][1], bounds[0][2] ),
@@ -3015,7 +3022,7 @@ void idRenderMatrix::ProjectedNearClippedBounds( idBounds& projected, const idRe
 		idVec3( bounds[1][0], bounds[1][1], bounds[1][2] ),
 		idVec3( bounds[0][0], bounds[1][1], bounds[1][2] )
 	};
-	
+
 	idVec4 projectedPoints[8];
 	for( int i = 0; i < 8; i++ )
 	{
@@ -3025,7 +3032,7 @@ void idRenderMatrix::ProjectedNearClippedBounds( idBounds& projected, const idRe
 		projectedPoints[i].z = v[0] * mvp[2][0] + v[1] * mvp[2][1] + v[2] * mvp[2][2] + mvp[2][3];
 		projectedPoints[i].w = v[0] * mvp[3][0] + v[1] * mvp[3][1] + v[2] * mvp[3][2] + mvp[3][3];
 	}
-	
+
 	idVec4 edgeVerts[24];
 	for( int i = 0; i < 3; i++ )
 	{
@@ -3036,7 +3043,7 @@ void idRenderMatrix::ProjectedNearClippedBounds( idBounds& projected, const idRe
 		{
 			const idVec4 p0 = projectedPoints[offset0 + ( ( j + 0 ) & 3 )];
 			const idVec4 p1 = projectedPoints[offset1 + ( ( j + offset3 ) & 3 )];
-	
+
 #if defined( CLIP_SPACE_D3D )	// the D3D near plane is at Z=0 instead of Z=-1
 			const float d0 = p0.z;
 			const float d1 = p1.z;
@@ -3048,67 +3055,67 @@ void idRenderMatrix::ProjectedNearClippedBounds( idBounds& projected, const idRe
 			const float fraction = idMath::Fabs( delta ) > idMath::FLT_SMALLEST_NON_DENORMAL ? ( d0 / delta ) : 1.0f;
 			const bool clip = ( fraction > 0.0f && fraction < 1.0f );
 			const idVec4 intersection = p0 + fraction * ( p1 - p0 );
-	
+
 			edgeVerts[i * 8 + j * 2 + 0] = ( clip && d0 < 0.0f ) ? intersection : p0;
 			edgeVerts[i * 8 + j * 2 + 1] = ( clip && d1 < 0.0f ) ? intersection : p1;
 		}
 	}
-	
+
 	for( int i = 0; i < 3; i++ )
 	{
 		projected[0][i] = RENDER_MATRIX_INFINITY;
 		projected[1][i] = - RENDER_MATRIX_INFINITY;
 	}
-	
+
 	for( int i = 0; i < 24; i++ )
 	{
 		const idVec4& v = edgeVerts[i];
-	
+
 		if( v.w <= idMath::FLT_SMALLEST_NON_DENORMAL )
 		{
 			continue;
 		}
-	
+
 		const float rw = 1.0f / v.w;
-	
+
 		const float px = v.x * rw;
 		const float py = v.y * rw;
 		const float pz = v.z * rw;
-	
+
 		projected[0][0] = Min( projected[0][0], px );
 		projected[0][1] = Min( projected[0][1], py );
 		projected[0][2] = Min( projected[0][2], pz );
-	
+
 		projected[1][0] = Max( projected[1][0], px );
 		projected[1][1] = Max( projected[1][1], py );
 		projected[1][2] = Max( projected[1][2], pz );
 	}
-	
+
 	if( windowSpace )
 	{
 		// convert to window coords
 		projected[0][0] = projected[0][0] * 0.5f + 0.5f;
 		projected[1][0] = projected[1][0] * 0.5f + 0.5f;
-	
+
 		projected[0][1] = projected[0][1] * 0.5f + 0.5f;
 		projected[1][1] = projected[1][1] * 0.5f + 0.5f;
-	
+
 #if !defined( CLIP_SPACE_D3D )	// the D3D clip space Z is already in the range [0,1]
 		projected[0][2] = projected[0][2] * 0.5f + 0.5f;
 		projected[1][2] = projected[1][2] * 0.5f + 0.5f;
 #endif
-	
+
 		// clamp to [0, 1] range
 		projected[0][0] = idMath::ClampFloat( 0.0f, 1.0f, projected[0][0] );
 		projected[1][0] = idMath::ClampFloat( 0.0f, 1.0f, projected[1][0] );
-	
+
 		projected[0][1] = idMath::ClampFloat( 0.0f, 1.0f, projected[0][1] );
 		projected[1][1] = idMath::ClampFloat( 0.0f, 1.0f, projected[1][1] );
-	
+
 		projected[0][2] = idMath::ClampFloat( 0.0f, 1.0f, projected[0][2] );
 		projected[1][2] = idMath::ClampFloat( 0.0f, 1.0f, projected[1][2] );
 	}
-	
+
 #endif
 }
 
@@ -3125,14 +3132,14 @@ static idVec3 LocalViewOriginFromMVP( const idRenderMatrix& mvp )
 	const float nearY = mvp[3][1] + mvp[2][1];
 	const float nearZ = mvp[3][2] + mvp[2][2];
 	const float s = idMath::InvSqrt( nearX * nearX + nearY * nearY + nearZ * nearZ );
-	
+
 	idRenderMatrix inverseMVP;
 	idRenderMatrix::Inverse( mvp, inverseMVP );
 	const float invW = 1.0f / inverseMVP[3][3];
 	const float x = ( inverseMVP[0][3] - nearX * s ) * invW;
 	const float y = ( inverseMVP[1][3] - nearY * s ) * invW;
 	const float z = ( inverseMVP[2][3] - nearZ * s ) * invW;
-	
+
 	return idVec3( x, y, z );
 }
 
@@ -3177,16 +3184,16 @@ static void ClipHomogeneousPolygonToSide_SSE2( idVec4* __restrict newPoints, idV
 		const int axis, const __m128& sign, const __m128& offset )
 {
 	assert( newPoints != points );
-	
+
 	const __m128 side = _mm_mul_ps( sign, offset );
 	__m128i mask = _mm_sub_epi32( vector_int_0123, _mm_shuffle_epi32( _mm_cvtsi32_si128( numPoints ), 0 ) );
 	__m128i index = _mm_setzero_si128();
-	
+
 	ALIGNTYPE16 unsigned short indices[16 * 2];
 	ALIGNTYPE16 float clipFractions[16];
-	
+
 	int localNumPoint = numPoints;
-	
+
 	for( int i = 0; i < localNumPoint; i += 4 )
 	{
 		const int i0 = ( i + 0 ) & ( ( i + 0 - localNumPoint ) >> 31 );
@@ -3194,29 +3201,29 @@ static void ClipHomogeneousPolygonToSide_SSE2( idVec4* __restrict newPoints, idV
 		const int i2 = ( i + 2 ) & ( ( i + 2 - localNumPoint ) >> 31 );
 		const int i3 = ( i + 3 ) & ( ( i + 3 - localNumPoint ) >> 31 );
 		const int i4 = ( i + 4 ) & ( ( i + 4 - localNumPoint ) >> 31 );
-		
+
 		const __m128 p0A = _mm_load_ss( &points[i0][axis] );
 		const __m128 p1A = _mm_load_ss( &points[i1][axis] );
 		const __m128 p2A = _mm_load_ss( &points[i2][axis] );
 		const __m128 p3A = _mm_load_ss( &points[i3][axis] );
 		const __m128 p4A = _mm_load_ss( &points[i4][axis] );
-		
+
 		const __m128 p0W = _mm_load_ss( &points[i0][3] );
 		const __m128 p1W = _mm_load_ss( &points[i1][3] );
 		const __m128 p2W = _mm_load_ss( &points[i2][3] );
 		const __m128 p3W = _mm_load_ss( &points[i3][3] );
 		const __m128 p4W = _mm_load_ss( &points[i4][3] );
-		
+
 		const __m128 t0 = _mm_unpacklo_ps( p0A, p2A );
 		const __m128 t1 = _mm_unpacklo_ps( p1A, p3A );
 		const __m128 pa0 = _mm_unpacklo_ps( t0, t1 );
 		const __m128 pa1 = _mm_sld_ps( pa0, p4A, 4 );
-		
+
 		const __m128 r0 = _mm_unpacklo_ps( p0W, p2W );
 		const __m128 r1 = _mm_unpacklo_ps( p1W, p3W );
 		const __m128 pw0 = _mm_unpacklo_ps( r0, r1 );
 		const __m128 pw1 = _mm_sld_ps( pw0, p4W, 4 );
-		
+
 		{
 			const __m128 bside0 = _mm_cmpgt_ps( _mm_mul_ps( offset, pw0 ), _mm_mul_ps( sign, pa0 ) );
 			const __m128 bside1 = _mm_cmpgt_ps( _mm_mul_ps( offset, pw1 ), _mm_mul_ps( sign, pa1 ) );
@@ -3227,7 +3234,7 @@ static void ClipHomogeneousPolygonToSide_SSE2( idVec4* __restrict newPoints, idV
 			const __m128i interleavedSide1 = _mm_unpackhi_epi32( side0, xorSide );
 			const __m128i packedSide = _mm_packs_epi32( interleavedSide0, interleavedSide1 );
 			const __m128i packedMaskedSide = _mm_and_si128( packedSide, _mm_srai_epi32( mask, 31 ) );
-			
+
 			index = _mm_add_epi16( index, _mm_slli_si128( packedMaskedSide,  2 ) );
 			index = _mm_add_epi16( index, _mm_slli_si128( packedMaskedSide,  4 ) );
 			index = _mm_add_epi16( index, _mm_slli_si128( packedMaskedSide,  6 ) );
@@ -3235,15 +3242,15 @@ static void ClipHomogeneousPolygonToSide_SSE2( idVec4* __restrict newPoints, idV
 			index = _mm_add_epi16( index, _mm_slli_si128( packedMaskedSide, 10 ) );
 			index = _mm_add_epi16( index, _mm_slli_si128( packedMaskedSide, 12 ) );
 			index = _mm_add_epi16( index, _mm_slli_si128( packedMaskedSide, 14 ) );
-			
+
 			_mm_store_si128( ( __m128i* )&indices[i * 2], index );
-			
+
 			mask = _mm_add_epi32( mask, vector_int_4 );
 			index = _mm_add_epi16( index, packedMaskedSide );
 			index = _mm_shufflehi_epi16( index, _MM_SHUFFLE( 3, 3, 3, 3 ) );
 			index = _mm_shuffle_epi32( index, _MM_SHUFFLE( 3, 3, 3, 3 ) );
 		}
-		
+
 		{
 			const __m128 d0 = _mm_nmsub_ps( pw0, side, pa0 );
 			const __m128 d1 = _mm_nmsub_ps( pw1, side, pa1 );
@@ -3255,13 +3262,13 @@ static void ClipHomogeneousPolygonToSide_SSE2( idVec4* __restrict newPoints, idV
 			const __m128 fractionClamped0 = _mm_sel_ps( fraction, vector_float_one, clamp );
 			const __m128 fractionClamped1 = _mm_max_ps( fractionClamped0, vector_float_zero );
 			const __m128 fractionClamped2 = _mm_min_ps( fractionClamped1, vector_float_one );
-			
+
 			_mm_store_ps( &clipFractions[i], fractionClamped2 );
 		}
 	}
-	
+
 	numPoints = _mm_cvtsi128_si32( index ) & 0xFFFF;
-	
+
 	for( int i = 0; i < localNumPoint; i += 4 )
 	{
 		const int i0 = ( i + 0 ) & ( ( i + 0 - localNumPoint ) >> 31 );
@@ -3269,20 +3276,20 @@ static void ClipHomogeneousPolygonToSide_SSE2( idVec4* __restrict newPoints, idV
 		const int i2 = ( i + 2 ) & ( ( i + 2 - localNumPoint ) >> 31 );
 		const int i3 = ( i + 3 ) & ( ( i + 3 - localNumPoint ) >> 31 );
 		const int i4 = ( i + 4 ) & ( ( i + 4 - localNumPoint ) >> 31 );
-		
+
 		const __m128 p0 = _mm_load_ps( points[i0].ToFloatPtr() );
 		const __m128 p1 = _mm_load_ps( points[i1].ToFloatPtr() );
 		const __m128 p2 = _mm_load_ps( points[i2].ToFloatPtr() );
 		const __m128 p3 = _mm_load_ps( points[i3].ToFloatPtr() );
 		const __m128 p4 = _mm_load_ps( points[i4].ToFloatPtr() );
-		
+
 		const __m128 fraction = _mm_load_ps( &clipFractions[i] );
-		
+
 		const __m128 c0 = _mm_madd_ps( _mm_splat_ps( fraction, 0 ), _mm_sub_ps( p1, p0 ), p0 );
 		const __m128 c1 = _mm_madd_ps( _mm_splat_ps( fraction, 1 ), _mm_sub_ps( p2, p1 ), p1 );
 		const __m128 c2 = _mm_madd_ps( _mm_splat_ps( fraction, 2 ), _mm_sub_ps( p3, p2 ), p2 );
 		const __m128 c3 = _mm_madd_ps( _mm_splat_ps( fraction, 3 ), _mm_sub_ps( p4, p3 ), p3 );
-		
+
 		_mm_store_ps( newPoints[indices[i * 2 + 0]].ToFloatPtr(), p0 );
 		_mm_store_ps( newPoints[indices[i * 2 + 1]].ToFloatPtr(), c0 );
 		_mm_store_ps( newPoints[indices[i * 2 + 2]].ToFloatPtr(), p1 );
@@ -3305,7 +3312,7 @@ static int ClipHomogeneousPolygonToUnitCube_SSE2( idVec4* points, int numPoints 
 {
 	assert( numPoints < 16 - 6 );
 	ALIGNTYPE16 idVec4 newPoints[16 * 2];
-	
+
 #if defined( CLIP_SPACE_D3D )	// the D3D near plane is at Z=0 instead of Z=-1
 	ClipHomogeneousPolygonToSide_SSE2( newPoints, points, numPoints, 2, vector_float_neg_one, vector_float_zero );	// near
 #else
@@ -3348,12 +3355,12 @@ Clips a polygon with homogeneous coordinates to the axis aligned plane[axis] = s
 static int ClipHomogeneousPolygonToSide_Generic( idVec4* __restrict newPoints, idVec4* __restrict points, int numPoints, int axis, float sign, float offset )
 {
 	assert( newPoints != points );
-	
+
 	assert( numPoints < 16 );
 	int sides[16];
-	
+
 	const float side = sign * offset;
-	
+
 	// calculate the plane side for each original point and calculate all potential new points
 	for( int i = 0; i < numPoints; i++ )
 	{
@@ -3362,10 +3369,10 @@ static int ClipHomogeneousPolygonToSide_Generic( idVec4* __restrict newPoints, i
 		newPoints[i * 2 + 0] = points[i];
 		newPoints[i * 2 + 1] = ClipHomogeneousLineToSide( points[i], points[j], axis, side );
 	};
-	
+
 	// repeat the first side at the end to avoid having to wrap around
 	sides[numPoints] = sides[0];
-	
+
 	// compact the array of points
 	int numNewPoints = 0;
 	for( int i = 0; i < numPoints; i++ )
@@ -3379,7 +3386,7 @@ static int ClipHomogeneousPolygonToSide_Generic( idVec4* __restrict newPoints, i
 			newPoints[numNewPoints++] = newPoints[i * 2 + 1];
 		}
 	}
-	
+
 	assert( numNewPoints <= 16 );
 	return numNewPoints;
 }
@@ -3395,7 +3402,7 @@ static int ClipHomogeneousPolygonToUnitCube_Generic( idVec4* points, int numPoin
 {
 	assert( numPoints < 16 - 6 );
 	ALIGNTYPE16 idVec4 newPoints[2 * 16];	// the C clip code temporarily doubles the points
-	
+
 #if defined( CLIP_SPACE_D3D )	// the D3D near plane is at Z=0 instead of Z=-1
 	numPoints = ClipHomogeneousPolygonToSide_Generic( newPoints, points, numPoints, 2, -1.0f, 0.0f );	// near
 #else
@@ -3435,28 +3442,28 @@ void idRenderMatrix::ProjectedFullyClippedBounds( idBounds& projected, const idR
 	const __m128 mvp1 = _mm_loadu_ps( mvp[1] );
 	const __m128 mvp2 = _mm_loadu_ps( mvp[2] );
 	const __m128 mvp3 = _mm_loadu_ps( mvp[3] );
-	
+
 	const __m128 t0 = _mm_unpacklo_ps( mvp0, mvp2 );	// mvp[0][0], mvp[2][0], mvp[0][1], mvp[2][1]
 	const __m128 t1 = _mm_unpackhi_ps( mvp0, mvp2 );	// mvp[0][2], mvp[2][2], mvp[0][3], mvp[2][3]
 	const __m128 t2 = _mm_unpacklo_ps( mvp1, mvp3 );	// mvp[1][0], mvp[3][0], mvp[1][1], mvp[3][1]
 	const __m128 t3 = _mm_unpackhi_ps( mvp1, mvp3 );	// mvp[1][2], mvp[3][2], mvp[1][3], mvp[3][3]
-	
+
 	const __m128 mvpX = _mm_unpacklo_ps( t0, t2 );		// mvp[0][0], mvp[1][0], mvp[2][0], mvp[3][0]
 	const __m128 mvpY = _mm_unpackhi_ps( t0, t2 );		// mvp[0][1], mvp[1][1], mvp[2][1], mvp[3][1]
 	const __m128 mvpZ = _mm_unpacklo_ps( t1, t3 );		// mvp[0][2], mvp[1][2], mvp[2][2], mvp[3][2]
 	const __m128 mvpW = _mm_unpackhi_ps( t1, t3 );		// mvp[0][3], mvp[1][3], mvp[2][3], mvp[3][3]
-	
+
 	const __m128 b0 = _mm_loadu_bounds_0( bounds );
 	const __m128 b1 = _mm_loadu_bounds_1( bounds );
-	
+
 	const __m128 b0X = _mm_splat_ps( b0, 0 );
 	const __m128 b0Y = _mm_splat_ps( b0, 1 );
 	const __m128 b0Z = _mm_splat_ps( b0, 2 );
-	
+
 	const __m128 b1X = _mm_splat_ps( b1, 0 );
 	const __m128 b1Y = _mm_splat_ps( b1, 1 );
 	const __m128 b1Z = _mm_splat_ps( b1, 2 );
-	
+
 	const __m128 p0 = _mm_madd_ps( b0X, mvpX, _mm_madd_ps( b0Y, mvpY, _mm_madd_ps( b0Z, mvpZ, mvpW ) ) );
 	const __m128 p1 = _mm_madd_ps( b1X, mvpX, _mm_madd_ps( b0Y, mvpY, _mm_madd_ps( b0Z, mvpZ, mvpW ) ) );
 	const __m128 p2 = _mm_madd_ps( b1X, mvpX, _mm_madd_ps( b1Y, mvpY, _mm_madd_ps( b0Z, mvpZ, mvpW ) ) );
@@ -3465,7 +3472,7 @@ void idRenderMatrix::ProjectedFullyClippedBounds( idBounds& projected, const idR
 	const __m128 p5 = _mm_madd_ps( b1X, mvpX, _mm_madd_ps( b0Y, mvpY, _mm_madd_ps( b1Z, mvpZ, mvpW ) ) );
 	const __m128 p6 = _mm_madd_ps( b1X, mvpX, _mm_madd_ps( b1Y, mvpY, _mm_madd_ps( b1Z, mvpZ, mvpW ) ) );
 	const __m128 p7 = _mm_madd_ps( b0X, mvpX, _mm_madd_ps( b1Y, mvpY, _mm_madd_ps( b1Z, mvpZ, mvpW ) ) );
-	
+
 	ALIGNTYPE16 idVec4 projectedPoints[8];
 	_mm_store_ps( projectedPoints[0].ToFloatPtr(), p0 );
 	_mm_store_ps( projectedPoints[1].ToFloatPtr(), p1 );
@@ -3475,7 +3482,7 @@ void idRenderMatrix::ProjectedFullyClippedBounds( idBounds& projected, const idR
 	_mm_store_ps( projectedPoints[5].ToFloatPtr(), p5 );
 	_mm_store_ps( projectedPoints[6].ToFloatPtr(), p6 );
 	_mm_store_ps( projectedPoints[7].ToFloatPtr(), p7 );
-	
+
 	ALIGNTYPE16 idVec4 clippedPoints[6 * 16];
 	int numClippedPoints = 0;
 	for( int i = 0; i < 6; i++ )
@@ -3486,106 +3493,106 @@ void idRenderMatrix::ProjectedFullyClippedBounds( idBounds& projected, const idR
 		_mm_store_ps( clippedPoints[numClippedPoints + 3].ToFloatPtr(), _mm_load_ps( projectedPoints[boxPolygonVertices[i][3]].ToFloatPtr() ) );
 		numClippedPoints += ClipHomogeneousPolygonToUnitCube_SSE2( &clippedPoints[numClippedPoints], 4 );
 	}
-	
+
 	// repeat the first clipped point at the end to get a multiple of 4 clipped points
 	const __m128 point0 = _mm_load_ps( clippedPoints[0].ToFloatPtr() );
 	for( int i = numClippedPoints; ( i & 3 ) != 0; i++ )
 	{
 		_mm_store_ps( clippedPoints[i].ToFloatPtr(), point0 );
 	}
-	
+
 	// test if the center of the near clip plane is inside the given bounding box
 	const idVec3 localNearClipCenter = LocalNearClipCenterFromMVP( mvp );
 	const bool inside = bounds.Expand( RENDER_MATRIX_PROJECTION_EPSILON ).ContainsPoint( localNearClipCenter );
-	
+
 	__m128 minX = vector_float_pos_infinity;
 	__m128 minY = vector_float_pos_infinity;
 	__m128 minZ = inside ? vector_float_neg_one : vector_float_pos_infinity;
-	
+
 	__m128 maxX = vector_float_neg_infinity;
 	__m128 maxY = vector_float_neg_infinity;
 	__m128 maxZ = vector_float_neg_infinity;
-	
+
 	for( int i = 0; i < numClippedPoints; i += 4 )
 	{
 		const __m128 cp0 = _mm_load_ps( clippedPoints[i + 0].ToFloatPtr() );
 		const __m128 cp1 = _mm_load_ps( clippedPoints[i + 1].ToFloatPtr() );
 		const __m128 cp2 = _mm_load_ps( clippedPoints[i + 2].ToFloatPtr() );
 		const __m128 cp3 = _mm_load_ps( clippedPoints[i + 3].ToFloatPtr() );
-		
+
 		const __m128 s0 = _mm_unpacklo_ps( cp0, cp2 );		// cp0[0], cp2[0], cp0[1], cp2[1]
 		const __m128 s1 = _mm_unpackhi_ps( cp0, cp2 );		// cp0[2], cp2[2], cp0[3], cp2[3]
 		const __m128 s2 = _mm_unpacklo_ps( cp1, cp3 );		// cp1[0], cp3[0], cp1[1], cp3[1]
 		const __m128 s3 = _mm_unpackhi_ps( cp1, cp3 );		// cp1[2], cp3[2], cp1[3], cp3[3]
-		
+
 		const __m128 cpX = _mm_unpacklo_ps( s0, s2 );		// cp0[0], cp1[0], cp2[0], cp3[0]
 		const __m128 cpY = _mm_unpackhi_ps( s0, s2 );		// cp0[1], cp1[1], cp2[1], cp3[1]
 		const __m128 cpZ = _mm_unpacklo_ps( s1, s3 );		// cp0[2], cp1[2], cp2[2], cp3[2]
 		const __m128 cpW = _mm_unpackhi_ps( s1, s3 );		// cp0[3], cp1[3], cp2[3], cp3[3]
-		
+
 		const __m128 rW = _mm_rcp32_ps( cpW );
 		const __m128 rX = _mm_mul_ps( cpX, rW );
 		const __m128 rY = _mm_mul_ps( cpY, rW );
 		const __m128 rZ = _mm_mul_ps( cpZ, rW );
-		
+
 		minX = _mm_min_ps( minX, rX );
 		minY = _mm_min_ps( minY, rY );
 		minZ = _mm_min_ps( minZ, rZ );
-		
+
 		maxX = _mm_max_ps( maxX, rX );
 		maxY = _mm_max_ps( maxY, rY );
 		maxZ = _mm_max_ps( maxZ, rZ );
 	}
-	
+
 	minX = _mm_min_ps( minX, _mm_perm_ps( minX, _MM_SHUFFLE( 1, 0, 3, 2 ) ) );
 	minY = _mm_min_ps( minY, _mm_perm_ps( minY, _MM_SHUFFLE( 1, 0, 3, 2 ) ) );
 	minZ = _mm_min_ps( minZ, _mm_perm_ps( minZ, _MM_SHUFFLE( 1, 0, 3, 2 ) ) );
-	
+
 	minX = _mm_min_ps( minX, _mm_perm_ps( minX, _MM_SHUFFLE( 2, 3, 0, 1 ) ) );
 	minY = _mm_min_ps( minY, _mm_perm_ps( minY, _MM_SHUFFLE( 2, 3, 0, 1 ) ) );
 	minZ = _mm_min_ps( minZ, _mm_perm_ps( minZ, _MM_SHUFFLE( 2, 3, 0, 1 ) ) );
-	
+
 	maxX = _mm_max_ps( maxX, _mm_perm_ps( maxX, _MM_SHUFFLE( 1, 0, 3, 2 ) ) );
 	maxY = _mm_max_ps( maxY, _mm_perm_ps( maxY, _MM_SHUFFLE( 1, 0, 3, 2 ) ) );
 	maxZ = _mm_max_ps( maxZ, _mm_perm_ps( maxZ, _MM_SHUFFLE( 1, 0, 3, 2 ) ) );
-	
+
 	maxX = _mm_max_ps( maxX, _mm_perm_ps( maxX, _MM_SHUFFLE( 2, 3, 0, 1 ) ) );
 	maxY = _mm_max_ps( maxY, _mm_perm_ps( maxY, _MM_SHUFFLE( 2, 3, 0, 1 ) ) );
 	maxZ = _mm_max_ps( maxZ, _mm_perm_ps( maxZ, _MM_SHUFFLE( 2, 3, 0, 1 ) ) );
-	
+
 	if( windowSpace )
 	{
 		minX = _mm_madd_ps( minX, vector_float_half, vector_float_half );
 		maxX = _mm_madd_ps( maxX, vector_float_half, vector_float_half );
-		
+
 		minY = _mm_madd_ps( minY, vector_float_half, vector_float_half );
 		maxY = _mm_madd_ps( maxY, vector_float_half, vector_float_half );
-		
+
 #if !defined( CLIP_SPACE_D3D )	// the D3D clip space Z is already in the range [0,1]
 		minZ = _mm_madd_ps( minZ, vector_float_half, vector_float_half );
 		maxZ = _mm_madd_ps( maxZ, vector_float_half, vector_float_half );
 #endif
-		
+
 		minX = _mm_max_ps( _mm_min_ps( minX, vector_float_one ), vector_float_zero );
 		maxX = _mm_max_ps( _mm_min_ps( maxX, vector_float_one ), vector_float_zero );
-		
+
 		minY = _mm_max_ps( _mm_min_ps( minY, vector_float_one ), vector_float_zero );
 		maxY = _mm_max_ps( _mm_min_ps( maxY, vector_float_one ), vector_float_zero );
-		
+
 		minZ = _mm_max_ps( _mm_min_ps( minZ, vector_float_one ), vector_float_zero );
 		maxZ = _mm_max_ps( _mm_min_ps( maxZ, vector_float_one ), vector_float_zero );
 	}
-	
+
 	_mm_store_ss( & projected[0].x, minX );
 	_mm_store_ss( & projected[0].y, minY );
 	_mm_store_ss( & projected[0].z, minZ );
-	
+
 	_mm_store_ss( & projected[1].x, maxX );
 	_mm_store_ss( & projected[1].y, maxY );
 	_mm_store_ss( & projected[1].z, maxZ );
-	
+
 #else
-	
+
 	const idVec3 points[8] =
 	{
 		idVec3( bounds[0][0], bounds[0][1], bounds[0][2] ),
@@ -3597,7 +3604,7 @@ void idRenderMatrix::ProjectedFullyClippedBounds( idBounds& projected, const idR
 		idVec3( bounds[1][0], bounds[1][1], bounds[1][2] ),
 		idVec3( bounds[0][0], bounds[1][1], bounds[1][2] )
 	};
-	
+
 	idVec4 projectedPoints[8];
 	for( int i = 0; i < 8; i++ )
 	{
@@ -3607,7 +3614,7 @@ void idRenderMatrix::ProjectedFullyClippedBounds( idBounds& projected, const idR
 		projectedPoints[i].z = v[0] * mvp[2][0] + v[1] * mvp[2][1] + v[2] * mvp[2][2] + mvp[2][3];
 		projectedPoints[i].w = v[0] * mvp[3][0] + v[1] * mvp[3][1] + v[2] * mvp[3][2] + mvp[3][3];
 	}
-	
+
 	idVec4 clippedPoints[6 * 16];
 	int numClippedPoints = 0;
 	for( int i = 0; i < 6; i++ )
@@ -3618,11 +3625,11 @@ void idRenderMatrix::ProjectedFullyClippedBounds( idBounds& projected, const idR
 		clippedPoints[numClippedPoints + 3] = projectedPoints[boxPolygonVertices[i][3]];
 		numClippedPoints += ClipHomogeneousPolygonToUnitCube_Generic( &clippedPoints[numClippedPoints], 4 );
 	}
-	
+
 	// test if the center of the near clip plane is inside the given bounding box
 	const idVec3 localNearClipCenter = LocalNearClipCenterFromMVP( mvp );
 	const bool inside = bounds.Expand( RENDER_MATRIX_PROJECTION_EPSILON ).ContainsPoint( localNearClipCenter );
-	
+
 	for( int i = 0; i < 3; i++ )
 	{
 		projected[0][i] = RENDER_MATRIX_INFINITY;
@@ -3632,53 +3639,53 @@ void idRenderMatrix::ProjectedFullyClippedBounds( idBounds& projected, const idR
 	{
 		projected[0][2] = -1.0f;
 	}
-	
+
 	for( int i = 0; i < numClippedPoints; i++ )
 	{
 		const idVec4& c = clippedPoints[i];
-	
+
 		assert( c.w > idMath::FLT_SMALLEST_NON_DENORMAL );
-	
+
 		const float rw = 1.0f / c.w;
-	
+
 		const float px = c.x * rw;
 		const float py = c.y * rw;
 		const float pz = c.z * rw;
-	
+
 		projected[0][0] = Min( projected[0][0], px );
 		projected[0][1] = Min( projected[0][1], py );
 		projected[0][2] = Min( projected[0][2], pz );
-	
+
 		projected[1][0] = Max( projected[1][0], px );
 		projected[1][1] = Max( projected[1][1], py );
 		projected[1][2] = Max( projected[1][2], pz );
 	}
-	
+
 	if( windowSpace )
 	{
 		// convert to window coords
 		projected[0][0] = projected[0][0] * 0.5f + 0.5f;
 		projected[1][0] = projected[1][0] * 0.5f + 0.5f;
-	
+
 		projected[0][1] = projected[0][1] * 0.5f + 0.5f;
 		projected[1][1] = projected[1][1] * 0.5f + 0.5f;
-	
+
 #if !defined( CLIP_SPACE_D3D )	// the D3D clip space Z is already in the range [0,1]
 		projected[0][2] = projected[0][2] * 0.5f + 0.5f;
 		projected[1][2] = projected[1][2] * 0.5f + 0.5f;
 #endif
-	
+
 		// clamp to [0, 1] range
 		projected[0][0] = idMath::ClampFloat( 0.0f, 1.0f, projected[0][0] );
 		projected[1][0] = idMath::ClampFloat( 0.0f, 1.0f, projected[1][0] );
-	
+
 		projected[0][1] = idMath::ClampFloat( 0.0f, 1.0f, projected[0][1] );
 		projected[1][1] = idMath::ClampFloat( 0.0f, 1.0f, projected[1][1] );
-	
+
 		projected[0][2] = idMath::ClampFloat( 0.0f, 1.0f, projected[0][2] );
 		projected[1][2] = idMath::ClampFloat( 0.0f, 1.0f, projected[1][2] );
 	}
-	
+
 #endif
 }
 
@@ -3698,57 +3705,57 @@ void idRenderMatrix::DepthBoundsForBounds( float& min, float& max, const idRende
 
 	__m128 mvp2 = _mm_loadu_ps( mvp[2] );
 	__m128 mvp3 = _mm_loadu_ps( mvp[3] );
-	
+
 	__m128 b0 = _mm_loadu_bounds_0( bounds );
 	__m128 b1 = _mm_loadu_bounds_1( bounds );
-	
+
 	// take the four points on the X-Y plane
 	__m128 vxy = _mm_unpacklo_ps( b0, b1 );						// min X, max X, min Y, max Y
 	__m128 vx = _mm_perm_ps( vxy, _MM_SHUFFLE( 1, 0, 1, 0 ) );	// min X, max X, min X, max X
 	__m128 vy = _mm_perm_ps( vxy, _MM_SHUFFLE( 3, 3, 2, 2 ) );	// min Y, min Y, max Y, max Y
-	
+
 	__m128 vz0 = _mm_splat_ps( b0, 2 );							// min Z, min Z, min Z, min Z
 	__m128 vz1 = _mm_splat_ps( b1, 2 );							// max Z, max Z, max Z, max Z
-	
+
 	// compute four partial Z,W values
 	__m128 parz = _mm_splat_ps( mvp2, 3 );
 	__m128 parw = _mm_splat_ps( mvp3, 3 );
-	
+
 	parz = _mm_madd_ps( vx, _mm_splat_ps( mvp2, 0 ), parz );
 	parw = _mm_madd_ps( vx, _mm_splat_ps( mvp3, 0 ), parw );
-	
+
 	parw = _mm_madd_ps( vy, _mm_splat_ps( mvp3, 1 ), parw );
 	parz = _mm_madd_ps( vy, _mm_splat_ps( mvp2, 1 ), parz );
-	
+
 	__m128 z0 = _mm_madd_ps( vz0, _mm_splat_ps( mvp2, 2 ), parz );
 	__m128 w0 = _mm_madd_ps( vz0, _mm_splat_ps( mvp3, 2 ), parw );
-	
+
 	__m128 z1 = _mm_madd_ps( vz1, _mm_splat_ps( mvp2, 2 ), parz );
 	__m128 w1 = _mm_madd_ps( vz1, _mm_splat_ps( mvp3, 2 ), parw );
-	
+
 	__m128 s0 = _mm_cmpgt_ps( vector_float_smallest_non_denorm, w0 );
 	w0 = _mm_or_ps( w0, _mm_and_ps( vector_float_smallest_non_denorm, s0 ) );
-	
+
 	__m128 rw0 = _mm_rcp32_ps( w0 );
 	z0 = _mm_mul_ps( z0, rw0 );
 	z0 = _mm_sel_ps( z0, vector_float_neg_infinity, s0 );
-	
+
 	__m128 s1 = _mm_cmpgt_ps( vector_float_smallest_non_denorm, w1 );
 	w1 = _mm_or_ps( w1, _mm_and_ps( vector_float_smallest_non_denorm, s1 ) );
-	
+
 	__m128 rw1 = _mm_rcp32_ps( w1 );
 	z1 = _mm_mul_ps( z1, rw1 );
 	z1 = _mm_sel_ps( z1, vector_float_neg_infinity, s1 );
-	
+
 	__m128 minv = _mm_min_ps( z0, z1 );
 	__m128 maxv = _mm_max_ps( z0, z1 );
-	
+
 	minv = _mm_min_ps( minv, _mm_perm_ps( minv, _MM_SHUFFLE( 1, 0, 3, 2 ) ) );
 	minv = _mm_min_ps( minv, _mm_perm_ps( minv, _MM_SHUFFLE( 2, 3, 0, 1 ) ) );
-	
+
 	maxv = _mm_max_ps( maxv, _mm_perm_ps( maxv, _MM_SHUFFLE( 1, 0, 3, 2 ) ) );
 	maxv = _mm_max_ps( maxv, _mm_perm_ps( maxv, _MM_SHUFFLE( 2, 3, 0, 1 ) ) );
-	
+
 	if( windowSpace )
 	{
 #if !defined( CLIP_SPACE_D3D )	// the D3D clip space Z is already in the range [0,1]
@@ -3758,15 +3765,15 @@ void idRenderMatrix::DepthBoundsForBounds( float& min, float& max, const idRende
 		minv = _mm_max_ps( minv, vector_float_zero );
 		maxv = _mm_min_ps( maxv, vector_float_one );
 	}
-	
+
 	_mm_store_ss( & min, minv );
 	_mm_store_ss( & max, maxv );
-	
+
 #else
-	
+
 	float localMin = RENDER_MATRIX_INFINITY;
 	float localMax = - RENDER_MATRIX_INFINITY;
-	
+
 	idVec3 v;
 	for( int x = 0; x < 2; x++ )
 	{
@@ -3777,10 +3784,10 @@ void idRenderMatrix::DepthBoundsForBounds( float& min, float& max, const idRende
 			for( int z = 0; z < 2; z++ )
 			{
 				v[2] = bounds[z][2];
-	
+
 				float tz = v[0] * mvp[2][0] + v[1] * mvp[2][1] + v[2] * mvp[2][2] + mvp[2][3];
 				float tw = v[0] * mvp[3][0] + v[1] * mvp[3][1] + v[2] * mvp[3][2] + mvp[3][3];
-	
+
 				if( tw > idMath::FLT_SMALLEST_NON_DENORMAL )
 				{
 					tz = tz / tw;
@@ -3789,13 +3796,13 @@ void idRenderMatrix::DepthBoundsForBounds( float& min, float& max, const idRende
 				{
 					tz = -RENDER_MATRIX_INFINITY;
 				}
-	
+
 				localMin = Min( localMin, tz );
 				localMax = Max( localMax, tz );
 			}
 		}
 	}
-	
+
 	if( windowSpace )
 	{
 		// convert to window coords
@@ -3807,7 +3814,7 @@ void idRenderMatrix::DepthBoundsForBounds( float& min, float& max, const idRende
 		min = Max( min, 0.0f );
 		max = Min( max, 1.0f );
 	}
-	
+
 #endif
 }
 
@@ -3825,150 +3832,150 @@ The extruded bounding box is not clipped to the MVP so the depth bounds may not 
 void idRenderMatrix::DepthBoundsForExtrudedBounds( float& min, float& max, const idRenderMatrix& mvp, const idBounds& bounds, const idVec3& extrudeDirection, const idPlane& clipPlane, bool windowSpace )
 {
 	assert( idMath::Fabs( extrudeDirection * clipPlane.Normal() ) >= idMath::FLT_SMALLEST_NON_DENORMAL );
-	
+
 #if defined(USE_INTRINSICS)
-	
+
 	__m128 mvp2 = _mm_loadu_ps( mvp[2] );
 	__m128 mvp3 = _mm_loadu_ps( mvp[3] );
-	
+
 	__m128 b0 = _mm_loadu_bounds_0( bounds );
 	__m128 b1 = _mm_loadu_bounds_1( bounds );
-	
+
 	// take the four points on the X-Y plane
 	__m128 vxy = _mm_unpacklo_ps( b0, b1 );						// min X, max X, min Y, max Y
 	__m128 vx = _mm_perm_ps( vxy, _MM_SHUFFLE( 1, 0, 1, 0 ) );	// min X, max X, min X, max X
 	__m128 vy = _mm_perm_ps( vxy, _MM_SHUFFLE( 3, 3, 2, 2 ) );	// min Y, min Y, max Y, max Y
-	
+
 	__m128 vz0 = _mm_splat_ps( b0, 2 );							// min Z, min Z, min Z, min Z
 	__m128 vz1 = _mm_splat_ps( b1, 2 );							// max Z, max Z, max Z, max Z
-	
+
 	__m128 minv;
 	__m128 maxv;
-	
+
 	// calculate the min/max depth values for the bounding box corners
 	{
 		// compute four partial Z,W values
 		__m128 parz = _mm_splat_ps( mvp2, 3 );
 		__m128 parw = _mm_splat_ps( mvp3, 3 );
-		
+
 		parz = _mm_madd_ps( vx, _mm_splat_ps( mvp2, 0 ), parz );
 		parw = _mm_madd_ps( vx, _mm_splat_ps( mvp3, 0 ), parw );
-		
+
 		parw = _mm_madd_ps( vy, _mm_splat_ps( mvp3, 1 ), parw );
 		parz = _mm_madd_ps( vy, _mm_splat_ps( mvp2, 1 ), parz );
-		
+
 		__m128 z0 = _mm_madd_ps( vz0, _mm_splat_ps( mvp2, 2 ), parz );
 		__m128 w0 = _mm_madd_ps( vz0, _mm_splat_ps( mvp3, 2 ), parw );
-		
+
 		__m128 z1 = _mm_madd_ps( vz1, _mm_splat_ps( mvp2, 2 ), parz );
 		__m128 w1 = _mm_madd_ps( vz1, _mm_splat_ps( mvp3, 2 ), parw );
-		
+
 		__m128 s0 = _mm_cmpgt_ps( vector_float_smallest_non_denorm, w0 );
 		w0 = _mm_or_ps( w0, _mm_and_ps( vector_float_smallest_non_denorm, s0 ) );
-		
+
 		__m128 rw0 = _mm_rcp32_ps( w0 );
 		z0 = _mm_mul_ps( z0, rw0 );
 		z0 = _mm_sel_ps( z0, vector_float_neg_infinity, s0 );
-		
+
 		__m128 s1 = _mm_cmpgt_ps( vector_float_smallest_non_denorm, w1 );
 		w1 = _mm_or_ps( w1, _mm_and_ps( vector_float_smallest_non_denorm, s1 ) );
-		
+
 		__m128 rw1 = _mm_rcp32_ps( w1 );
 		z1 = _mm_mul_ps( z1, rw1 );
 		z1 = _mm_sel_ps( z1, vector_float_neg_infinity, s1 );
-		
+
 		minv = _mm_min_ps( z0, z1 );
 		maxv = _mm_max_ps( z0, z1 );
 	}
-	
+
 	// calculate and include the min/max depth value for the extruded bounding box corners
 	{
 		__m128 clipX = _mm_splat_ps( _mm_load_ss( clipPlane.ToFloatPtr() + 0 ), 0 );
 		__m128 clipY = _mm_splat_ps( _mm_load_ss( clipPlane.ToFloatPtr() + 1 ), 0 );
 		__m128 clipZ = _mm_splat_ps( _mm_load_ss( clipPlane.ToFloatPtr() + 2 ), 0 );
 		__m128 clipW = _mm_splat_ps( _mm_load_ss( clipPlane.ToFloatPtr() + 3 ), 0 );
-		
+
 		__m128 extrudeX = _mm_splat_ps( _mm_load_ss( extrudeDirection.ToFloatPtr() + 0 ), 0 );
 		__m128 extrudeY = _mm_splat_ps( _mm_load_ss( extrudeDirection.ToFloatPtr() + 1 ), 0 );
 		__m128 extrudeZ = _mm_splat_ps( _mm_load_ss( extrudeDirection.ToFloatPtr() + 2 ), 0 );
-		
+
 		__m128 closing = _mm_madd_ps( clipX, extrudeX, _mm_madd_ps( clipY, extrudeY, _mm_mul_ps( clipZ, extrudeZ ) ) );
 		__m128 invClosing = _mm_rcp32_ps( closing );
 		invClosing = _mm_xor_ps( invClosing, vector_float_sign_bit );
-		
+
 		__m128 dt = _mm_madd_ps( clipX, vx, _mm_madd_ps( clipY, vy, clipW ) );
 		__m128 d0 = _mm_madd_ps( clipZ, vz0, dt );
 		__m128 d1 = _mm_madd_ps( clipZ, vz1, dt );
-		
+
 		d0 = _mm_mul_ps( d0, invClosing );
 		d1 = _mm_mul_ps( d1, invClosing );
-		
+
 		__m128 vx0 = _mm_madd_ps( extrudeX, d0, vx );
 		__m128 vx1 = _mm_madd_ps( extrudeX, d1, vx );
-		
+
 		__m128 vy0 = _mm_madd_ps( extrudeY, d0, vy );
 		__m128 vy1 = _mm_madd_ps( extrudeY, d1, vy );
-		
+
 		vz0 = _mm_madd_ps( extrudeZ, d0, vz0 );
 		vz1 = _mm_madd_ps( extrudeZ, d1, vz1 );
-		
+
 		__m128 mvp2X = _mm_splat_ps( mvp2, 0 );
 		__m128 mvp3X = _mm_splat_ps( mvp3, 0 );
-		
+
 		__m128 mvp2W = _mm_splat_ps( mvp2, 3 );
 		__m128 mvp3W = _mm_splat_ps( mvp3, 3 );
-		
+
 		__m128 z0 = _mm_madd_ps( vx0, mvp2X, mvp2W );
 		__m128 w0 = _mm_madd_ps( vx0, mvp3X, mvp3W );
-		
+
 		__m128 z1 = _mm_madd_ps( vx1, mvp2X, mvp2W );
 		__m128 w1 = _mm_madd_ps( vx1, mvp3X, mvp3W );
-		
+
 		__m128 mvp2Y = _mm_splat_ps( mvp2, 1 );
 		__m128 mvp3Y = _mm_splat_ps( mvp3, 1 );
-		
+
 		z0 = _mm_madd_ps( vy0, mvp2Y, z0 );
 		w0 = _mm_madd_ps( vy0, mvp3Y, w0 );
-		
+
 		z1 = _mm_madd_ps( vy1, mvp2Y, z1 );
 		w1 = _mm_madd_ps( vy1, mvp3Y, w1 );
-		
+
 		__m128 mvp2Z = _mm_splat_ps( mvp2, 2 );
 		__m128 mvp3Z = _mm_splat_ps( mvp3, 2 );
-		
+
 		z0 = _mm_madd_ps( vz0, mvp2Z, z0 );
 		w0 = _mm_madd_ps( vz0, mvp3Z, w0 );
-		
+
 		z1 = _mm_madd_ps( vz1, mvp2Z, z1 );
 		w1 = _mm_madd_ps( vz1, mvp3Z, w1 );
-		
+
 		__m128 s0 = _mm_cmpgt_ps( vector_float_smallest_non_denorm, w0 );
 		w0 = _mm_or_ps( w0, _mm_and_ps( vector_float_smallest_non_denorm, s0 ) );
-		
+
 		__m128 rw0 = _mm_rcp32_ps( w0 );
 		z0 = _mm_mul_ps( z0, rw0 );
 		z0 = _mm_sel_ps( z0, vector_float_neg_infinity, s0 );
-		
+
 		__m128 s1 = _mm_cmpgt_ps( vector_float_smallest_non_denorm, w1 );
 		w1 = _mm_or_ps( w1, _mm_and_ps( vector_float_smallest_non_denorm, s1 ) );
-		
+
 		__m128 rw1 = _mm_rcp32_ps( w1 );
 		z1 = _mm_mul_ps( z1, rw1 );
 		z1 = _mm_sel_ps( z1, vector_float_neg_infinity, s1 );
-		
+
 		minv = _mm_min_ps( minv, z0 );
 		maxv = _mm_max_ps( maxv, z0 );
-		
+
 		minv = _mm_min_ps( minv, z1 );
 		maxv = _mm_max_ps( maxv, z1 );
 	}
-	
+
 	minv = _mm_min_ps( minv, _mm_perm_ps( minv, _MM_SHUFFLE( 1, 0, 3, 2 ) ) );
 	minv = _mm_min_ps( minv, _mm_perm_ps( minv, _MM_SHUFFLE( 2, 3, 0, 1 ) ) );
-	
+
 	maxv = _mm_max_ps( maxv, _mm_perm_ps( maxv, _MM_SHUFFLE( 1, 0, 3, 2 ) ) );
 	maxv = _mm_max_ps( maxv, _mm_perm_ps( maxv, _MM_SHUFFLE( 2, 3, 0, 1 ) ) );
-	
+
 	if( windowSpace )
 	{
 #if !defined( CLIP_SPACE_D3D )	// the D3D clip space Z is already in the range [0,1]
@@ -3978,18 +3985,18 @@ void idRenderMatrix::DepthBoundsForExtrudedBounds( float& min, float& max, const
 		minv = _mm_max_ps( minv, vector_float_zero );
 		maxv = _mm_min_ps( maxv, vector_float_one );
 	}
-	
+
 	_mm_store_ss( & min, minv );
 	_mm_store_ss( & max, maxv );
-	
+
 #else
-	
+
 	const float closing = extrudeDirection * clipPlane.Normal();
 	const float invClosing = -1.0f / closing;
-	
+
 	float localMin = RENDER_MATRIX_INFINITY;
 	float localMax = - RENDER_MATRIX_INFINITY;
-	
+
 	idVec3 v;
 	for( int x = 0; x < 2; x++ )
 	{
@@ -4000,10 +4007,10 @@ void idRenderMatrix::DepthBoundsForExtrudedBounds( float& min, float& max, const
 			for( int z = 0; z < 2; z++ )
 			{
 				v[2] = bounds[z][2];
-	
+
 				for( int extrude = 0; extrude <= 1; extrude++ )
 				{
-	
+
 					idVec3 test;
 					if( extrude )
 					{
@@ -4014,10 +4021,10 @@ void idRenderMatrix::DepthBoundsForExtrudedBounds( float& min, float& max, const
 					{
 						test = v;
 					}
-	
+
 					float tz = test[0] * mvp[2][0] + test[1] * mvp[2][1] + test[2] * mvp[2][2] + mvp[2][3];
 					float tw = test[0] * mvp[3][0] + test[1] * mvp[3][1] + test[2] * mvp[3][2] + mvp[3][3];
-	
+
 					if( tw > idMath::FLT_SMALLEST_NON_DENORMAL )
 					{
 						tz = tz / tw;
@@ -4026,14 +4033,14 @@ void idRenderMatrix::DepthBoundsForExtrudedBounds( float& min, float& max, const
 					{
 						tz = -RENDER_MATRIX_INFINITY;
 					}
-	
+
 					localMin = Min( localMin, tz );
 					localMax = Max( localMax, tz );
 				}
 			}
 		}
 	}
-	
+
 	if( windowSpace )
 	{
 		// convert to window coords
@@ -4045,7 +4052,7 @@ void idRenderMatrix::DepthBoundsForExtrudedBounds( float& min, float& max, const
 		min = Max( min, 0.0f );
 		max = Min( max, 1.0f );
 	}
-	
+
 #endif
 }
 
@@ -4061,28 +4068,28 @@ static bool PointInsideInfiniteShadow( const idBounds& occluderBounds, const idV
 {
 	// Expand the bounds with an epsilon.
 	const idBounds expandedBounds = occluderBounds.Expand( epsilon );
-	
+
 	// If the point is inside the bounding box then the point
 	// is also inside the shadow projection.
 	if( expandedBounds.ContainsPoint( localPoint ) )
 	{
 		return true;
 	}
-	
+
 	// If the light is inside the bounding box then the shadow is projected
 	// in all directions and any point is inside the infinte shadow projection.
 	if( expandedBounds.ContainsPoint( localPoint ) )
 	{
 		return true;
 	}
-	
+
 	// If the line from localLightOrigin to localPoint intersects the
 	// bounding box then the point is inside the infinite shadow projection.
 	if( expandedBounds.LineIntersection( localLightOrigin, localPoint ) )
 	{
 		return true;
 	}
-	
+
 	// The point is definitely not inside the projected shadow.
 	return false;
 }
@@ -4113,36 +4120,36 @@ void idRenderMatrix::DepthBoundsForShadowBounds( float& min, float& max, const i
 	const __m128 mvp1 = _mm_loadu_ps( mvp[1] );
 	const __m128 mvp2 = _mm_loadu_ps( mvp[2] );
 	const __m128 mvp3 = _mm_loadu_ps( mvp[3] );
-	
+
 	const __m128 t0 = _mm_unpacklo_ps( mvp0, mvp2 );	// mvp[0][0], mvp[2][0], mvp[0][1], mvp[2][1]
 	const __m128 t1 = _mm_unpackhi_ps( mvp0, mvp2 );	// mvp[0][2], mvp[2][2], mvp[0][3], mvp[2][3]
 	const __m128 t2 = _mm_unpacklo_ps( mvp1, mvp3 );	// mvp[1][0], mvp[3][0], mvp[1][1], mvp[3][1]
 	const __m128 t3 = _mm_unpackhi_ps( mvp1, mvp3 );	// mvp[1][2], mvp[3][2], mvp[1][3], mvp[3][3]
-	
+
 	const __m128 mvpX = _mm_unpacklo_ps( t0, t2 );		// mvp[0][0], mvp[1][0], mvp[2][0], mvp[3][0]
 	const __m128 mvpY = _mm_unpackhi_ps( t0, t2 );		// mvp[0][1], mvp[1][1], mvp[2][1], mvp[3][1]
 	const __m128 mvpZ = _mm_unpacklo_ps( t1, t3 );		// mvp[0][2], mvp[1][2], mvp[2][2], mvp[3][2]
 	const __m128 mvpW = _mm_unpackhi_ps( t1, t3 );		// mvp[0][3], mvp[1][3], mvp[2][3], mvp[3][3]
-	
+
 	const __m128 b0 = _mm_loadu_bounds_0( bounds );
 	const __m128 b1 = _mm_loadu_bounds_1( bounds );
-	
+
 	const __m128 lightOriginX = _mm_load_ss( localLightOrigin.ToFloatPtr() + 0 );
 	const __m128 lightOriginY = _mm_load_ss( localLightOrigin.ToFloatPtr() + 1 );
 	const __m128 lightOriginZ = _mm_load_ss( localLightOrigin.ToFloatPtr() + 2 );
 	const __m128 lightOrigin = _mm_unpacklo_ps( _mm_unpacklo_ps( lightOriginX, lightOriginZ ), lightOriginY );
-	
+
 	// calculate the front facing polygon bits
 	int frontBits = GetBoxFrontBits_SSE2( b0, b1, lightOrigin );
-	
+
 	const __m128 b0X = _mm_splat_ps( b0, 0 );
 	const __m128 b0Y = _mm_splat_ps( b0, 1 );
 	const __m128 b0Z = _mm_splat_ps( b0, 2 );
-	
+
 	const __m128 b1X = _mm_splat_ps( b1, 0 );
 	const __m128 b1Y = _mm_splat_ps( b1, 1 );
 	const __m128 b1Z = _mm_splat_ps( b1, 2 );
-	
+
 	// bounding box corners
 	const __m128 np0 = _mm_madd_ps( b0X, mvpX, _mm_madd_ps( b0Y, mvpY, _mm_madd_ps( b0Z, mvpZ, mvpW ) ) );
 	const __m128 np1 = _mm_madd_ps( b1X, mvpX, _mm_madd_ps( b0Y, mvpY, _mm_madd_ps( b0Z, mvpZ, mvpW ) ) );
@@ -4152,7 +4159,7 @@ void idRenderMatrix::DepthBoundsForShadowBounds( float& min, float& max, const i
 	const __m128 np5 = _mm_madd_ps( b1X, mvpX, _mm_madd_ps( b0Y, mvpY, _mm_madd_ps( b1Z, mvpZ, mvpW ) ) );
 	const __m128 np6 = _mm_madd_ps( b1X, mvpX, _mm_madd_ps( b1Y, mvpY, _mm_madd_ps( b1Z, mvpZ, mvpW ) ) );
 	const __m128 np7 = _mm_madd_ps( b0X, mvpX, _mm_madd_ps( b1Y, mvpY, _mm_madd_ps( b1Z, mvpZ, mvpW ) ) );
-	
+
 	ALIGNTYPE16 idVec4 projectedNearPoints[8];
 	_mm_store_ps( projectedNearPoints[0].ToFloatPtr(), np0 );
 	_mm_store_ps( projectedNearPoints[1].ToFloatPtr(), np1 );
@@ -4162,20 +4169,20 @@ void idRenderMatrix::DepthBoundsForShadowBounds( float& min, float& max, const i
 	_mm_store_ps( projectedNearPoints[5].ToFloatPtr(), np5 );
 	_mm_store_ps( projectedNearPoints[6].ToFloatPtr(), np6 );
 	_mm_store_ps( projectedNearPoints[7].ToFloatPtr(), np7 );
-	
+
 	// subtract the light position from the bounding box
 	const __m128 lightX = _mm_splat_ps( lightOriginX, 0 );
 	const __m128 lightY = _mm_splat_ps( lightOriginY, 0 );
 	const __m128 lightZ = _mm_splat_ps( lightOriginZ, 0 );
-	
+
 	const __m128 d0X = _mm_sub_ps( b0X, lightX );
 	const __m128 d0Y = _mm_sub_ps( b0Y, lightY );
 	const __m128 d0Z = _mm_sub_ps( b0Z, lightZ );
-	
+
 	const __m128 d1X = _mm_sub_ps( b1X, lightX );
 	const __m128 d1Y = _mm_sub_ps( b1Y, lightY );
 	const __m128 d1Z = _mm_sub_ps( b1Z, lightZ );
-	
+
 	// bounding box corners projected to infinity from the light position
 	const __m128 fp0 = _mm_madd_ps( d0X, mvpX, _mm_madd_ps( d0Y, mvpY, _mm_mul_ps( d0Z, mvpZ ) ) );
 	const __m128 fp1 = _mm_madd_ps( d1X, mvpX, _mm_madd_ps( d0Y, mvpY, _mm_mul_ps( d0Z, mvpZ ) ) );
@@ -4185,7 +4192,7 @@ void idRenderMatrix::DepthBoundsForShadowBounds( float& min, float& max, const i
 	const __m128 fp5 = _mm_madd_ps( d1X, mvpX, _mm_madd_ps( d0Y, mvpY, _mm_mul_ps( d1Z, mvpZ ) ) );
 	const __m128 fp6 = _mm_madd_ps( d1X, mvpX, _mm_madd_ps( d1Y, mvpY, _mm_mul_ps( d1Z, mvpZ ) ) );
 	const __m128 fp7 = _mm_madd_ps( d0X, mvpX, _mm_madd_ps( d1Y, mvpY, _mm_mul_ps( d1Z, mvpZ ) ) );
-	
+
 	ALIGNTYPE16 idVec4 projectedFarPoints[8];
 	_mm_store_ps( projectedFarPoints[0].ToFloatPtr(), fp0 );
 	_mm_store_ps( projectedFarPoints[1].ToFloatPtr(), fp1 );
@@ -4195,10 +4202,10 @@ void idRenderMatrix::DepthBoundsForShadowBounds( float& min, float& max, const i
 	_mm_store_ps( projectedFarPoints[5].ToFloatPtr(), fp5 );
 	_mm_store_ps( projectedFarPoints[6].ToFloatPtr(), fp6 );
 	_mm_store_ps( projectedFarPoints[7].ToFloatPtr(), fp7 );
-	
+
 	ALIGNTYPE16 idVec4 clippedPoints[( 6 + 12 ) * 16];
 	int numClippedPoints = 0;
-	
+
 	// clip the front facing bounding box polygons at the near cap
 	const frontPolygons_t& frontPolygons = boxFrontPolygonsForFrontBits[frontBits];
 	for( int i = 0; i < frontPolygons.count; i++ )
@@ -4210,7 +4217,7 @@ void idRenderMatrix::DepthBoundsForShadowBounds( float& min, float& max, const i
 		_mm_store_ps( clippedPoints[numClippedPoints + 3].ToFloatPtr(), _mm_load_ps( projectedNearPoints[boxPolygonVertices[polygon][3]].ToFloatPtr() ) );
 		numClippedPoints += ClipHomogeneousPolygonToUnitCube_SSE2( &clippedPoints[numClippedPoints], 4 );
 	}
-	
+
 	// clip the front facing bounding box polygons projected to the far cap
 	for( int i = 0; i < frontPolygons.count; i++ )
 	{
@@ -4221,7 +4228,7 @@ void idRenderMatrix::DepthBoundsForShadowBounds( float& min, float& max, const i
 		_mm_store_ps( clippedPoints[numClippedPoints + 3].ToFloatPtr(), _mm_load_ps( projectedFarPoints[boxPolygonVertices[polygon][3]].ToFloatPtr() ) );
 		numClippedPoints += ClipHomogeneousPolygonToUnitCube_SSE2( &clippedPoints[numClippedPoints], 4 );
 	}
-	
+
 	// clip the silhouette edge polygons that stretch to infinity
 	const silhouetteEdges_t& silhouetteEdges = boxSilhouetteEdgesForFrontBits[frontBits];
 	for( int i = 0; i < silhouetteEdges.count; i++ )
@@ -4233,63 +4240,63 @@ void idRenderMatrix::DepthBoundsForShadowBounds( float& min, float& max, const i
 		_mm_store_ps( clippedPoints[numClippedPoints + 3].ToFloatPtr(), _mm_load_ps( projectedFarPoints[boxEdgeVertices[edge][0]].ToFloatPtr() ) );
 		numClippedPoints += ClipHomogeneousPolygonToUnitCube_SSE2( &clippedPoints[numClippedPoints], 4 );
 	}
-	
+
 	// repeat the first clipped point at the end to get a multiple of 4 clipped points
 	const __m128 point0 = _mm_load_ps( clippedPoints[0].ToFloatPtr() );
 	for( int i = numClippedPoints; ( i & 3 ) != 0; i++ )
 	{
 		_mm_store_ps( clippedPoints[i].ToFloatPtr(), point0 );
 	}
-	
+
 	// test if the center of the near clip plane is inside the infinite shadow volume
 	const idVec3 localNearClipCenter = LocalNearClipCenterFromMVP( mvp );
 	const bool inside = PointInsideInfiniteShadow( bounds, localLightOrigin, localNearClipCenter, RENDER_MATRIX_PROJECTION_EPSILON );
-	
+
 	__m128 minZ = inside ? vector_float_neg_one : vector_float_pos_infinity;
 	__m128 maxZ = vector_float_neg_infinity;
-	
+
 	for( int i = 0; i < numClippedPoints; i += 4 )
 	{
 		const __m128 cp0 = _mm_load_ps( clippedPoints[i + 0].ToFloatPtr() );
 		const __m128 cp1 = _mm_load_ps( clippedPoints[i + 1].ToFloatPtr() );
 		const __m128 cp2 = _mm_load_ps( clippedPoints[i + 2].ToFloatPtr() );
 		const __m128 cp3 = _mm_load_ps( clippedPoints[i + 3].ToFloatPtr() );
-		
+
 		const __m128 s1 = _mm_unpackhi_ps( cp0, cp2 );		// cp0[2], cp2[2], cp0[3], cp2[3]
 		const __m128 s3 = _mm_unpackhi_ps( cp1, cp3 );		// cp1[2], cp3[2], cp1[3], cp3[3]
-		
+
 		const __m128 cpZ = _mm_unpacklo_ps( s1, s3 );		// cp0[2], cp1[2], cp2[2], cp3[2]
 		const __m128 cpW = _mm_unpackhi_ps( s1, s3 );		// cp0[3], cp1[3], cp2[3], cp3[3]
-		
+
 		const __m128 rW = _mm_rcp32_ps( cpW );
 		const __m128 rZ = _mm_mul_ps( cpZ, rW );
-		
+
 		minZ = _mm_min_ps( minZ, rZ );
 		maxZ = _mm_max_ps( maxZ, rZ );
 	}
-	
+
 	minZ = _mm_min_ps( minZ, _mm_perm_ps( minZ, _MM_SHUFFLE( 1, 0, 3, 2 ) ) );
 	minZ = _mm_min_ps( minZ, _mm_perm_ps( minZ, _MM_SHUFFLE( 2, 3, 0, 1 ) ) );
-	
+
 	maxZ = _mm_max_ps( maxZ, _mm_perm_ps( maxZ, _MM_SHUFFLE( 1, 0, 3, 2 ) ) );
 	maxZ = _mm_max_ps( maxZ, _mm_perm_ps( maxZ, _MM_SHUFFLE( 2, 3, 0, 1 ) ) );
-	
+
 	if( windowSpace )
 	{
 #if !defined( CLIP_SPACE_D3D )	// the D3D clip space Z is already in the range [0,1]
 		minZ = _mm_madd_ps( minZ, vector_float_half, vector_float_half );
 		maxZ = _mm_madd_ps( maxZ, vector_float_half, vector_float_half );
 #endif
-		
+
 		minZ = _mm_max_ps( _mm_min_ps( minZ, vector_float_one ), vector_float_zero );
 		maxZ = _mm_max_ps( _mm_min_ps( maxZ, vector_float_one ), vector_float_zero );
 	}
-	
+
 	_mm_store_ss( & min, minZ );
 	_mm_store_ss( & max, maxZ );
-	
+
 #else
-	
+
 	const idVec3 points[8] =
 	{
 		idVec3( bounds[0][0], bounds[0][1], bounds[0][2] ),
@@ -4301,10 +4308,10 @@ void idRenderMatrix::DepthBoundsForShadowBounds( float& min, float& max, const i
 		idVec3( bounds[1][0], bounds[1][1], bounds[1][2] ),
 		idVec3( bounds[0][0], bounds[1][1], bounds[1][2] )
 	};
-	
+
 	// calculate the front facing polygon bits
 	int frontBits = GetBoxFrontBits_Generic( bounds, localLightOrigin );
-	
+
 	// bounding box corners
 	ALIGNTYPE16 idVec4 projectedNearPoints[8];
 	for( int i = 0; i < 8; i++ )
@@ -4315,7 +4322,7 @@ void idRenderMatrix::DepthBoundsForShadowBounds( float& min, float& max, const i
 		projectedNearPoints[i].z = v[0] * mvp[2][0] + v[1] * mvp[2][1] + v[2] * mvp[2][2] + mvp[2][3];
 		projectedNearPoints[i].w = v[0] * mvp[3][0] + v[1] * mvp[3][1] + v[2] * mvp[3][2] + mvp[3][3];
 	}
-	
+
 	// bounding box corners projected to infinity from the light position
 	ALIGNTYPE16 idVec4 projectedFarPoints[8];
 	for( int i = 0; i < 8; i++ )
@@ -4326,10 +4333,10 @@ void idRenderMatrix::DepthBoundsForShadowBounds( float& min, float& max, const i
 		projectedFarPoints[i].z = v[0] * mvp[2][0] + v[1] * mvp[2][1] + v[2] * mvp[2][2];
 		projectedFarPoints[i].w = v[0] * mvp[3][0] + v[1] * mvp[3][1] + v[2] * mvp[3][2];
 	}
-	
+
 	ALIGNTYPE16 idVec4 clippedPoints[( 6 + 12 ) * 16];
 	int numClippedPoints = 0;
-	
+
 	// clip the front facing bounding box polygons at the near cap
 	const frontPolygons_t& frontPolygons = boxFrontPolygonsForFrontBits[frontBits];
 	for( int i = 0; i < frontPolygons.count; i++ )
@@ -4341,7 +4348,7 @@ void idRenderMatrix::DepthBoundsForShadowBounds( float& min, float& max, const i
 		clippedPoints[numClippedPoints + 3] = projectedNearPoints[boxPolygonVertices[polygon][3]];
 		numClippedPoints += ClipHomogeneousPolygonToUnitCube_Generic( &clippedPoints[numClippedPoints], 4 );
 	}
-	
+
 	// clip the front facing bounding box polygons projected to the far cap
 	for( int i = 0; i < frontPolygons.count; i++ )
 	{
@@ -4352,7 +4359,7 @@ void idRenderMatrix::DepthBoundsForShadowBounds( float& min, float& max, const i
 		clippedPoints[numClippedPoints + 3] = projectedFarPoints[boxPolygonVertices[polygon][3]];
 		numClippedPoints += ClipHomogeneousPolygonToUnitCube_Generic( &clippedPoints[numClippedPoints], 4 );
 	}
-	
+
 	// clip the silhouette edge polygons that stretch to infinity
 	const silhouetteEdges_t& silhouetteEdges = boxSilhouetteEdgesForFrontBits[frontBits];
 	for( int i = 0; i < silhouetteEdges.count; i++ )
@@ -4364,27 +4371,27 @@ void idRenderMatrix::DepthBoundsForShadowBounds( float& min, float& max, const i
 		clippedPoints[numClippedPoints + 3] = projectedFarPoints[boxEdgeVertices[edge][0]];
 		numClippedPoints += ClipHomogeneousPolygonToUnitCube_Generic( &clippedPoints[numClippedPoints], 4 );
 	}
-	
+
 	// test if the center of the near clip plane is inside the infinite shadow volume
 	const idVec3 localNearClipCenter = LocalNearClipCenterFromMVP( mvp );
 	const bool inside = PointInsideInfiniteShadow( bounds, localLightOrigin, localNearClipCenter, RENDER_MATRIX_PROJECTION_EPSILON );
-	
+
 	min = inside ? -1.0f : RENDER_MATRIX_INFINITY;
 	max = - RENDER_MATRIX_INFINITY;
-	
+
 	for( int i = 0; i < numClippedPoints; i++ )
 	{
 		const idVec4& c = clippedPoints[i];
-	
+
 		assert( c.w > idMath::FLT_SMALLEST_NON_DENORMAL );
-	
+
 		const float rw = 1.0f / c.w;
 		const float pz = c.z * rw;
-	
+
 		min = Min( min, pz );
 		max = Max( max, pz );
 	}
-	
+
 	if( windowSpace )
 	{
 		// convert to window coords
@@ -4396,7 +4403,7 @@ void idRenderMatrix::DepthBoundsForShadowBounds( float& min, float& max, const i
 		min = idMath::ClampFloat( 0.0f, 1.0f, min );
 		max = idMath::ClampFloat( 0.0f, 1.0f, max );
 	}
-	
+
 #endif
 }
 
@@ -4415,7 +4422,7 @@ void idRenderMatrix::GetFrustumPlanes( idPlane planes[6], const idRenderMatrix& 
 	//			zeroToOne = false and CLIP_SPACE_D3D is defined because
 	//			this code may be called for non-MVP matrices.
 	const bool isZeroOneZ = false;
-	
+
 	if( zeroToOne )
 	{
 		// left: inside(p) = p * frustum[0] > 0
@@ -4423,13 +4430,13 @@ void idRenderMatrix::GetFrustumPlanes( idPlane planes[6], const idRenderMatrix& 
 		planes[0][1] = frustum[0][1];
 		planes[0][2] = frustum[0][2];
 		planes[0][3] = frustum[0][3];
-		
+
 		// bottom: inside(p) = p * frustum[1] > 0
 		planes[2][0] = frustum[1][0];
 		planes[2][1] = frustum[1][1];
 		planes[2][2] = frustum[1][2];
 		planes[2][3] = frustum[1][3];
-		
+
 		// near: inside(p) = p * frustum[2] > 0
 		planes[4][0] = frustum[2][0];
 		planes[4][1] = frustum[2][1];
@@ -4443,38 +4450,38 @@ void idRenderMatrix::GetFrustumPlanes( idPlane planes[6], const idRenderMatrix& 
 		planes[0][1] = frustum[3][1] + frustum[0][1];
 		planes[0][2] = frustum[3][2] + frustum[0][2];
 		planes[0][3] = frustum[3][3] + frustum[0][3];
-		
+
 		// bottom: inside(p) = p * frustum[1] > -( p * frustum[3] )
 		planes[2][0] = frustum[3][0] + frustum[1][0];
 		planes[2][1] = frustum[3][1] + frustum[1][1];
 		planes[2][2] = frustum[3][2] + frustum[1][2];
 		planes[2][3] = frustum[3][3] + frustum[1][3];
-		
+
 		// near: inside(p) = p * frustum[2] > -( p * frustum[3] )
 		planes[4][0] = isZeroOneZ ? ( frustum[2][0] ) : ( frustum[3][0] + frustum[2][0] );
 		planes[4][1] = isZeroOneZ ? ( frustum[2][1] ) : ( frustum[3][1] + frustum[2][1] );
 		planes[4][2] = isZeroOneZ ? ( frustum[2][2] ) : ( frustum[3][2] + frustum[2][2] );
 		planes[4][3] = isZeroOneZ ? ( frustum[2][3] ) : ( frustum[3][3] + frustum[2][3] );
 	}
-	
+
 	// right: inside(p) = p * frustum[0] < p * frustum[3]
 	planes[1][0] = frustum[3][0] - frustum[0][0];
 	planes[1][1] = frustum[3][1] - frustum[0][1];
 	planes[1][2] = frustum[3][2] - frustum[0][2];
 	planes[1][3] = frustum[3][3] - frustum[0][3];
-	
+
 	// top: inside(p) = p * frustum[1] < p * frustum[3]
 	planes[3][0] = frustum[3][0] - frustum[1][0];
 	planes[3][1] = frustum[3][1] - frustum[1][1];
 	planes[3][2] = frustum[3][2] - frustum[1][2];
 	planes[3][3] = frustum[3][3] - frustum[1][3];
-	
+
 	// far: inside(p) = p * frustum[2] < p * frustum[3]
 	planes[5][0] = frustum[3][0] - frustum[2][0];
 	planes[5][1] = frustum[3][1] - frustum[2][1];
 	planes[5][2] = frustum[3][2] - frustum[2][2];
 	planes[5][3] = frustum[3][3] - frustum[2][3];
-	
+
 	// optionally normalize the planes
 	if( normalize )
 	{
@@ -4497,82 +4504,82 @@ idRenderMatrix::GetFrustumCorners
 void idRenderMatrix::GetFrustumCorners( frustumCorners_t& corners, const idRenderMatrix& frustumTransform, const idBounds& frustumBounds )
 {
 	assert_16_byte_aligned( &corners );
-	
+
 #if defined(USE_INTRINSICS)
-	
+
 	__m128 mvp0 = _mm_loadu_ps( frustumTransform[0] );
 	__m128 mvp1 = _mm_loadu_ps( frustumTransform[1] );
 	__m128 mvp2 = _mm_loadu_ps( frustumTransform[2] );
 	__m128 mvp3 = _mm_loadu_ps( frustumTransform[3] );
-	
+
 	__m128 b0 = _mm_loadu_bounds_0( frustumBounds );
 	__m128 b1 = _mm_loadu_bounds_1( frustumBounds );
-	
+
 	// take the four points on the X-Y plane
 	__m128 vxy = _mm_unpacklo_ps( b0, b1 );						// min X, max X, min Y, max Y
 	__m128 vx = _mm_perm_ps( vxy, _MM_SHUFFLE( 1, 0, 1, 0 ) );	// min X, max X, min X, max X
 	__m128 vy = _mm_perm_ps( vxy, _MM_SHUFFLE( 3, 3, 2, 2 ) );	// min Y, min Y, max Y, max Y
-	
+
 	__m128 vz0 = _mm_splat_ps( b0, 2 );							// min Z, min Z, min Z, min Z
 	__m128 vz1 = _mm_splat_ps( b1, 2 );							// max Z, max Z, max Z, max Z
-	
+
 	// compute four partial X,Y,Z,W values
 	__m128 parx = _mm_splat_ps( mvp0, 3 );
 	__m128 pary = _mm_splat_ps( mvp1, 3 );
 	__m128 parz = _mm_splat_ps( mvp2, 3 );
 	__m128 parw = _mm_splat_ps( mvp3, 3 );
-	
+
 	parx = _mm_madd_ps( vx, _mm_splat_ps( mvp0, 0 ), parx );
 	pary = _mm_madd_ps( vx, _mm_splat_ps( mvp1, 0 ), pary );
 	parz = _mm_madd_ps( vx, _mm_splat_ps( mvp2, 0 ), parz );
 	parw = _mm_madd_ps( vx, _mm_splat_ps( mvp3, 0 ), parw );
-	
+
 	parx = _mm_madd_ps( vy, _mm_splat_ps( mvp0, 1 ), parx );
 	pary = _mm_madd_ps( vy, _mm_splat_ps( mvp1, 1 ), pary );
 	parz = _mm_madd_ps( vy, _mm_splat_ps( mvp2, 1 ), parz );
 	parw = _mm_madd_ps( vy, _mm_splat_ps( mvp3, 1 ), parw );
-	
+
 	__m128 mvp0Z = _mm_splat_ps( mvp0, 2 );
 	__m128 mvp1Z = _mm_splat_ps( mvp1, 2 );
 	__m128 mvp2Z = _mm_splat_ps( mvp2, 2 );
 	__m128 mvp3Z = _mm_splat_ps( mvp3, 2 );
-	
+
 	__m128 x0 = _mm_madd_ps( vz0, mvp0Z, parx );
 	__m128 y0 = _mm_madd_ps( vz0, mvp1Z, pary );
 	__m128 z0 = _mm_madd_ps( vz0, mvp2Z, parz );
 	__m128 w0 = _mm_madd_ps( vz0, mvp3Z, parw );
-	
+
 	__m128 x1 = _mm_madd_ps( vz1, mvp0Z, parx );
 	__m128 y1 = _mm_madd_ps( vz1, mvp1Z, pary );
 	__m128 z1 = _mm_madd_ps( vz1, mvp2Z, parz );
 	__m128 w1 = _mm_madd_ps( vz1, mvp3Z, parw );
-	
+
 	__m128 s0 = _mm_cmpgt_ps( vector_float_smallest_non_denorm, w0 );
 	__m128 s1 = _mm_cmpgt_ps( vector_float_smallest_non_denorm, w1 );
-	
+
 	w0 = _mm_sel_ps( w0, vector_float_one, s0 );
 	w1 = _mm_sel_ps( w1, vector_float_one, s1 );
-	
+
 	__m128 rw0 = _mm_rcp32_ps( w0 );
 	__m128 rw1 = _mm_rcp32_ps( w1 );
-	
+
 	x0 = _mm_mul_ps( x0, rw0 );
 	y0 = _mm_mul_ps( y0, rw0 );
 	z0 = _mm_mul_ps( z0, rw0 );
-	
+
 	x1 = _mm_mul_ps( x1, rw1 );
 	y1 = _mm_mul_ps( y1, rw1 );
 	z1 = _mm_mul_ps( z1, rw1 );
-	
+
 	_mm_store_ps( corners.x + 0, x0 );
 	_mm_store_ps( corners.x + 4, x1 );
 	_mm_store_ps( corners.y + 0, y0 );
 	_mm_store_ps( corners.y + 4, y1 );
 	_mm_store_ps( corners.z + 0, z0 );
 	_mm_store_ps( corners.z + 4, z1 );
-	
+
 #else
-	
+
 	idVec3 v;
 	for( int x = 0; x < 2; x++ )
 	{
@@ -4583,23 +4590,23 @@ void idRenderMatrix::GetFrustumCorners( frustumCorners_t& corners, const idRende
 			for( int z = 0; z < 2; z++ )
 			{
 				v[2] = frustumBounds[z][2];
-	
+
 				float tx = v[0] * frustumTransform[0][0] + v[1] * frustumTransform[0][1] + v[2] * frustumTransform[0][2] + frustumTransform[0][3];
 				float ty = v[0] * frustumTransform[1][0] + v[1] * frustumTransform[1][1] + v[2] * frustumTransform[1][2] + frustumTransform[1][3];
 				float tz = v[0] * frustumTransform[2][0] + v[1] * frustumTransform[2][1] + v[2] * frustumTransform[2][2] + frustumTransform[2][3];
 				float tw = v[0] * frustumTransform[3][0] + v[1] * frustumTransform[3][1] + v[2] * frustumTransform[3][2] + frustumTransform[3][3];
-	
+
 				assert( tw > idMath::FLT_SMALLEST_NON_DENORMAL );
-	
+
 				float rw = 1.0f / tw;
-	
+
 				corners.x[( z << 2 ) | ( y << 1 ) | ( x << 0 )] = tx * rw;
 				corners.y[( z << 2 ) | ( y << 1 ) | ( x << 0 )] = ty * rw;
 				corners.z[( z << 2 ) | ( y << 1 ) | ( x << 0 )] = tz * rw;
 			}
 		}
 	}
-	
+
 #endif
 }
 
@@ -4611,41 +4618,41 @@ idRenderMatrix::CullFrustumCornersToPlane
 frustumCull_t idRenderMatrix::CullFrustumCornersToPlane( const frustumCorners_t& corners, const idPlane& plane )
 {
 	assert_16_byte_aligned( &corners );
-	
+
 #if defined(USE_INTRINSICS)
-	
+
 	__m128 vp = _mm_loadu_ps( plane.ToFloatPtr() );
-	
+
 	__m128 x0 = _mm_load_ps( corners.x + 0 );
 	__m128 y0 = _mm_load_ps( corners.y + 0 );
 	__m128 z0 = _mm_load_ps( corners.z + 0 );
-	
+
 	__m128 x1 = _mm_load_ps( corners.x + 4 );
 	__m128 y1 = _mm_load_ps( corners.y + 4 );
 	__m128 z1 = _mm_load_ps( corners.z + 4 );
-	
+
 	__m128 p0 = _mm_splat_ps( vp, 0 );
 	__m128 p1 = _mm_splat_ps( vp, 1 );
 	__m128 p2 = _mm_splat_ps( vp, 2 );
 	__m128 p3 = _mm_splat_ps( vp, 3 );
-	
+
 	__m128 d0 = _mm_madd_ps( x0, p0, _mm_madd_ps( y0, p1, _mm_madd_ps( z0, p2, p3 ) ) );
 	__m128 d1 = _mm_madd_ps( x1, p0, _mm_madd_ps( y1, p1, _mm_madd_ps( z1, p2, p3 ) ) );
-	
+
 	int b0 = _mm_movemask_ps( d0 );
 	int b1 = _mm_movemask_ps( d1 );
-	
+
 	unsigned int front = ( ( unsigned int ) - ( ( b0 & b1 ) ^ 15 ) ) >> 31;
 	unsigned int back = ( ( unsigned int ) - ( b0 | b1 ) ) >> 31;
-	
+
 	compile_time_assert( FRUSTUM_CULL_FRONT == 1 );
 	compile_time_assert( FRUSTUM_CULL_BACK == 2 );
 	compile_time_assert( FRUSTUM_CULL_CROSS == 3 );
-	
+
 	return ( frustumCull_t )( front | ( back << 1 ) );
-	
+
 #else
-	
+
 	bool front = false;
 	bool back = false;
 	for( int i = 0; i < 8; i++ )
@@ -4672,6 +4679,6 @@ frustumCull_t idRenderMatrix::CullFrustumCornersToPlane( const frustumCorners_t&
 	{
 		return FRUSTUM_CULL_BACK;
 	}
-	
+
 #endif
 }

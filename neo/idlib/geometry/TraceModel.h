@@ -97,7 +97,7 @@ public:
 	idVec3				offset;			// offset to center of model
 	idBounds			bounds;			// bounds of model
 	bool				isConvex;		// true when model is convex
-	
+
 public:
 	idTraceModel();
 	// axial bounding box
@@ -106,7 +106,7 @@ public:
 	idTraceModel( const idBounds& cylBounds, const int numSides );
 	// bone
 	idTraceModel( const float length, const float width );
-	
+
 	// axial box
 	void				SetupBox( const idBounds& boxBounds );
 	void				SetupBox( const float size );
@@ -146,13 +146,13 @@ public:
 	int					GetParallelProjectionSilhouetteEdges( const idVec3& projectionDir, int silEdges[MAX_TRACEMODEL_EDGES] ) const;
 	// calculate mass properties assuming an uniform density
 	void				GetMassProperties( const float density, float& mass, idVec3& centerOfMass, idMat3& inertiaTensor ) const;
-	
+
 private:
 	void				InitBox();
 	void				InitOctahedron();
 	void				InitDodecahedron();
 	void				InitBone();
-	
+
 	void				ProjectionIntegrals( int polyNum, int a, int b, struct projectionIntegrals_s& integrals ) const;
 	void				PolygonIntegrals( int polyNum, int a, int b, int c, struct polygonIntegrals_s& integrals ) const;
 	void				VolumeIntegrals( struct volumeIntegrals_s& integrals ) const;

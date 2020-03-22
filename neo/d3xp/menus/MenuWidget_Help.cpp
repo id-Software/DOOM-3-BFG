@@ -60,14 +60,14 @@ void idMenuWidget_Help::Update()
 	{
 		return;
 	}
-	
+
 	idSWFScriptObject& root = GetSWFObject()->GetRootObject();
-	
+
 	if( !BindSprite( root ) )
 	{
 		return;
 	}
-	
+
 	const idStr& msg = ( lastHoveredMessage.Length() > 0 ) ? lastHoveredMessage : lastFocusedMessage;
 	if( msg.Length() > 0 && !hideMessage )
 	{
@@ -80,7 +80,7 @@ void idMenuWidget_Help::Update()
 		{
 			GetSprite()->PlayFrame( "show" );
 		}
-		
+
 		idSWFScriptObject* const textObject = GetSprite()->GetScriptObject()->GetNestedObj( "txtOption", "txtValue" );
 		if( textObject != NULL )
 		{
@@ -113,7 +113,7 @@ void idMenuWidget_Help::ObserveEvent( const idMenuWidget& widget, const idWidget
 	{
 		return;
 	}
-	
+
 	switch( event.type )
 	{
 		case WIDGET_EVENT_FOCUS_ON:

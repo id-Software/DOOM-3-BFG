@@ -47,14 +47,14 @@ idMenuHandler::idMenuHandler()
 	platform = 0;
 	gui = NULL;
 	cmdBar = NULL;
-	
+
 	for( int index = 0; index < MAX_SCREEN_AREAS; ++index )
 	{
 		menuScreens[ index ] = NULL;
 	}
-	
+
 	sounds.SetNum( NUM_GUI_SOUNDS );
-	
+
 }
 
 /*
@@ -76,9 +76,9 @@ void idMenuHandler::Initialize( const char* swfFile, idSoundWorld* sw )
 {
 	Cleanup();
 	gui = new idSWF( swfFile, sw );
-	
+
 	platform = 2;
-	
+
 }
 
 /*
@@ -106,12 +106,12 @@ idMenuWidget* idMenuHandler::GetChildFromIndex( int index )
 	{
 		return NULL;
 	}
-	
+
 	if( index > children.Num() )
 	{
 		return NULL;
 	}
-	
+
 	return children[ index ];
 }
 
@@ -127,7 +127,7 @@ int idMenuHandler::GetPlatform( bool realPlatform )
 	{
 		return 0;
 	}
-	
+
 	return platform;
 }
 
@@ -143,25 +143,25 @@ void idMenuHandler::PlaySound( menuSounds_t type, int channel )
 	{
 		return;
 	}
-	
+
 	if( type >= sounds.Num() )
 	{
 		return;
 	}
-	
+
 	if( sounds[ type ].IsEmpty() )
 	{
 		return;
 	}
-	
+
 	int c = SCHANNEL_ANY;
 	if( channel != -1 )
 	{
 		c = channel;
 	}
-	
+
 	gui->PlaySound( sounds[ type ], c );
-	
+
 }
 
 /*
@@ -187,7 +187,7 @@ void idMenuHandler::Cleanup()
 		children[ index ]->Release();
 	}
 	children.Clear();
-	
+
 	for( int index = 0; index < MAX_SCREEN_AREAS; ++index )
 	{
 		if( menuScreens[ index ] != NULL )
@@ -195,7 +195,7 @@ void idMenuHandler::Cleanup()
 			menuScreens[ index ]->Release();
 		}
 	}
-	
+
 	delete gui;
 	gui = NULL;
 }
@@ -221,7 +221,7 @@ bool idMenuHandler::IsActive()
 	{
 		return false;
 	}
-	
+
 	return gui->IsActive();
 }
 
@@ -237,14 +237,14 @@ void idMenuHandler::ActivateMenu( bool show )
 	{
 		return;
 	}
-	
+
 	if( !show )
 	{
 		gui->Activate( show );
 		return;
 	}
-	
-	
+
+
 	class idSWFScriptFunction_updateMenuDisplay : public idSWFScriptFunction_RefCounted
 	{
 	public:
@@ -260,14 +260,14 @@ void idMenuHandler::ActivateMenu( bool show )
 				int screen = parms[0].ToInteger();
 				handler->UpdateMenuDisplay( screen );
 			}
-			
+
 			return idSWFScriptVar();
 		}
 	private:
 		idSWF* gui;
 		idMenuHandler* handler;
 	};
-	
+
 	class idSWFScriptFunction_activateMenu : public idSWFScriptFunction_RefCounted
 	{
 	public:
@@ -281,16 +281,16 @@ void idMenuHandler::ActivateMenu( bool show )
 			{
 				handler->TriggerMenu();
 			}
-			
+
 			return idSWFScriptVar();
 		}
 	private:
 		idMenuHandler* handler;
 	};
-	
+
 	gui->SetGlobal( "updateMenuDisplay", new( TAG_SWF ) idSWFScriptFunction_updateMenuDisplay( gui, this ) );
 	gui->SetGlobal( "activateMenus", new( TAG_SWF ) idSWFScriptFunction_activateMenu( this ) );
-	
+
 	gui->Activate( show );
 }
 
@@ -303,7 +303,7 @@ void idMenuHandler::Update()
 {
 
 	PumpWidgetActionRepeater();
-	
+
 	if( gui != NULL && gui->IsActive() )
 	{
 		gui->Render( renderSystem, Sys_Milliseconds() );
@@ -338,9 +338,9 @@ void idMenuHandler::UpdateMenuDisplay( int menu )
 	{
 		menuScreens[ menu ]->Update();
 	}
-	
+
 	UpdateChildren();
-	
+
 }
 
 /*
@@ -355,7 +355,7 @@ bool idMenuHandler::HandleGuiEvent( const sysEvent_t* sev )
 	{
 		return gui->HandleEvent( sev );
 	}
-	
+
 	return false;
 }
 
@@ -369,7 +369,7 @@ bool idMenuHandler::HandleAction( idWidgetAction& action, const idWidgetEvent& e
 
 	widgetAction_t actionType = action.GetType();
 	const idSWFParmList& parms = action.GetParms();
-	
+
 	switch( actionType )
 	{
 		case WIDGET_ACTION_ADJUST_FIELD:
@@ -419,7 +419,7 @@ bool idMenuHandler::HandleAction( idWidgetAction& action, const idWidgetEvent& e
 			return true;
 		}
 	}
-	
+
 	if( !widget->GetHandlerIsParent() )
 	{
 		for( int index = 0; index < children.Num(); ++index )
@@ -433,7 +433,7 @@ bool idMenuHandler::HandleAction( idWidgetAction& action, const idWidgetEvent& e
 			}
 		}
 	}
-	
+
 	return false;
 }
 
@@ -448,7 +448,7 @@ void idMenuHandler::StartWidgetActionRepeater( idMenuWidget* widget, const idWid
 	{
 		return;	// don't attempt to reactivate an already active repeater
 	}
-	
+
 	actionRepeater.isActive = true;
 	actionRepeater.action = action;
 	actionRepeater.widget = widget;
@@ -456,7 +456,7 @@ void idMenuHandler::StartWidgetActionRepeater( idMenuWidget* widget, const idWid
 	actionRepeater.numRepetitions = 0;
 	actionRepeater.nextRepeatTime = 0;
 	actionRepeater.screenIndex = activeScreen;	// repeaters are cleared between screens
-	
+
 	if( action.GetParms().Num() == 2 )
 	{
 		actionRepeater.repeatDelay = action.GetParms()[ 1 ].ToInteger();
@@ -465,7 +465,7 @@ void idMenuHandler::StartWidgetActionRepeater( idMenuWidget* widget, const idWid
 	{
 		actionRepeater.repeatDelay = DEFAULT_REPEAT_TIME;
 	}
-	
+
 	// do the first event immediately
 	PumpWidgetActionRepeater();
 }
@@ -481,18 +481,18 @@ void idMenuHandler::PumpWidgetActionRepeater()
 	{
 		return;
 	}
-	
+
 	if( activeScreen != actionRepeater.screenIndex || nextScreen != activeScreen )    // || common->IsDialogActive() ) {
 	{
 		actionRepeater.isActive = false;
 		return;
 	}
-	
+
 	if( actionRepeater.nextRepeatTime > Sys_Milliseconds() )
 	{
 		return;
 	}
-	
+
 	// need to hold down longer on the first iteration before we continue to scroll
 	if( actionRepeater.numRepetitions == 0 )
 	{
@@ -502,7 +502,7 @@ void idMenuHandler::PumpWidgetActionRepeater()
 	{
 		actionRepeater.nextRepeatTime = Sys_Milliseconds() + actionRepeater.repeatDelay;
 	}
-	
+
 	if( verify( actionRepeater.widget != NULL ) )
 	{
 		actionRepeater.widget->HandleAction( actionRepeater.action, actionRepeater.event, actionRepeater.widget );

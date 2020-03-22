@@ -47,7 +47,7 @@ struct stagingBuffer_t
 		fence( VK_NULL_HANDLE ),
 		offset( 0 ),
 		data( NULL ) {}
-		
+
 	bool				submitted;
 	VkCommandBuffer		commandBuffer;
 	VkBuffer			buffer;
@@ -61,23 +61,23 @@ class idVulkanStagingManager
 public:
 	idVulkanStagingManager();
 	~idVulkanStagingManager();
-	
+
 	void			Init();
 	void			Shutdown();
-	
+
 	byte* 			Stage( const int size, const int alignment, VkCommandBuffer& commandBuffer, VkBuffer& buffer, int& bufferOffset );
 	void			Flush();
-	
+
 private:
 	void			Wait( stagingBuffer_t& stage );
-	
+
 private:
 	int				maxBufferSize;
 	int				currentBuffer;
 	byte* 			mappedData;
 	VkDeviceMemory	memory;
 	VkCommandPool	commandPool;
-	
+
 	stagingBuffer_t buffers[ NUM_FRAME_DATA ];
 };
 

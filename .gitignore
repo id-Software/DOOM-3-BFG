@@ -1,6 +1,8 @@
 build*
 eclipse*
 neo/ipch
+*~
+*.gch
 
 Doom3BFG.exe
 base/_common.crc
@@ -35,3 +37,5 @@ GTAGS
 HTML/
 neo/.kdev4
 neo/neo.kdev4
+neo/.idea/
+neo/cmake-build-*/

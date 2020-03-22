@@ -98,7 +98,7 @@ public:
 		angles[1] = 0;
 		angles[2] = 0;
 	}
-	
+
 	// Syncronized
 	short		angles[3];						// view angles
 	signed char	forwardmove;					// forward/backward movement
@@ -107,18 +107,18 @@ public:
 	int			clientGameMilliseconds;			// time this usercmd was sent from the client
 	int			serverGameMilliseconds;			// interpolated server time this was applied on
 	uint16		fireCount;						// number of times we've fired
-	
+
 	// Not syncronized
 	byte		impulse;						// impulse command
 	byte		impulseSequence;				// incremented every time there's a new impulse
-	
+
 	short		mx;								// mouse delta x
 	short		my;								// mouse delta y
-	
+
 	// Clients are authoritative on their positions
 	idVec3		pos;
 	float		speedSquared;
-	
+
 public:
 	void		Serialize( class idSerializer& s, const usercmd_t& base );
 	void		ByteSwap();						// on big endian systems, byte swap the shorts and ints
@@ -134,7 +134,7 @@ typedef enum
 typedef enum
 {
 	UB_NONE,
-	
+
 	UB_MOVEUP,
 	UB_MOVEDOWN,
 	UB_LOOKLEFT,
@@ -145,13 +145,13 @@ typedef enum
 	UB_LOOKDOWN,
 	UB_MOVELEFT,
 	UB_MOVERIGHT,
-	
+
 	UB_ATTACK,
 	UB_SPEED,
 	UB_ZOOM,
 	UB_SHOWSCORES,
 	UB_USE,
-	
+
 	UB_IMPULSE0,
 	UB_IMPULSE1,
 	UB_IMPULSE2,
@@ -184,7 +184,7 @@ typedef enum
 	UB_IMPULSE29,
 	UB_IMPULSE30,
 	UB_IMPULSE31,
-	
+
 	UB_MAX_BUTTONS
 } usercmdButton_t;
 
@@ -198,41 +198,41 @@ class idUsercmdGen
 {
 public:
 	virtual				~idUsercmdGen() {}
-	
+
 	// Sets up all the cvars and console commands.
 	virtual	void		Init() = 0;
-	
+
 	// Prepares for a new map.
 	virtual void		InitForNewMap() = 0;
-	
+
 	// Shut down.
 	virtual void		Shutdown() = 0;
-	
+
 	// Clears all key states and face straight.
 	virtual	void		Clear() = 0;
-	
+
 	// Clears view angles.
 	virtual void		ClearAngles() = 0;
-	
+
 	// When the console is down or the menu is up, only emit default usercmd, so the player isn't moving around.
 	// Each subsystem (session and game) may want an inhibit will OR the requests.
 	virtual void		InhibitUsercmd( inhibit_t subsystem, bool inhibit ) = 0;
-	
+
 	// Set a value that can safely be referenced by UsercmdInterrupt() for each key binding.
 	virtual	int			CommandStringUsercmdData( const char* cmdString ) = 0;
-	
+
 	// Continuously modified, never reset. For full screen guis.
 	virtual void		MouseState( int* x, int* y, int* button, bool* down ) = 0;
-	
+
 	// Directly sample a button.
 	virtual int			ButtonState( int key ) = 0;
-	
+
 	// Directly sample a keystate.
 	virtual int			KeyState( int key ) = 0;
-	
+
 	// called at vsync time
 	virtual void		BuildCurrentUsercmd( int deviceNum ) = 0;
-	
+
 	// return the current usercmd
 	virtual usercmd_t	GetCurrentUsercmd() = 0;
 };
@@ -252,7 +252,7 @@ public:
 	{
 		SetDefaults();
 	}
-	
+
 	void SetDefaults()
 	{
 		for( int i = 0; i < cmdBuffer.Num(); ++i )
@@ -262,16 +262,16 @@ public:
 		writeFrame.Zero();
 		readFrame.Memset( -1 );
 	}
-	
+
 	// Set to 128 for now
 	// Temp fix for usercmds overflowing  Correct fix is to process usercmds as they come in (like q3), rather then buffer them up.
 	static const int USERCMD_BUFFER_SIZE = 128;
-	
+
 	//usercmd_t	cmdBuffer[ USERCMD_BUFFER_SIZE ][ MAX_PLAYERS ];
 	id2DArray< usercmd_t, USERCMD_BUFFER_SIZE, MAX_PLAYERS >::type	cmdBuffer;
 	idArray< int, MAX_PLAYERS >			writeFrame;	//"where we write to next"
 	idArray< int, MAX_PLAYERS >			readFrame;	//"the last frame we read"
-	
+
 	void PutUserCmdForPlayer( int playerIndex, const usercmd_t& cmd )
 	{
 		cmdBuffer[ writeFrame[ playerIndex ] % USERCMD_BUFFER_SIZE ][ playerIndex ] = cmd;
@@ -282,7 +282,7 @@ public:
 		}
 		writeFrame[ playerIndex ]++;
 	}
-	
+
 	void ResetPlayer( int playerIndex )
 	{
 		for( int i = 0; i < USERCMD_BUFFER_SIZE; i++ )
@@ -292,7 +292,7 @@ public:
 		writeFrame[ playerIndex ] = 0;
 		readFrame[ playerIndex ] = -1;
 	}
-	
+
 	bool HasUserCmdForPlayer( int playerIndex, int buffer = 0 ) const
 	{
 		// return true if the last frame we read from (+ buffer) is < the last frame we wrote to
@@ -300,7 +300,7 @@ public:
 		bool hasCmd = ( readFrame[ playerIndex ] + buffer < writeFrame[playerIndex] - 1 );
 		return hasCmd;
 	}
-	
+
 	bool HasUserCmdForClientTimeBuffer( int playerIndex, int millisecondBuffer )
 	{
 		// return true if there is at least one command in addition to enough
@@ -309,29 +309,29 @@ public:
 		{
 			return HasUserCmdForPlayer( playerIndex );
 		}
-		
+
 		if( GetNumUnreadFrames( playerIndex ) < 2 )
 		{
 			return false;
 		}
-		
+
 		const int index = readFrame[ playerIndex ] + 1;
 		const usercmd_t& firstCmd = cmdBuffer[ index % USERCMD_BUFFER_SIZE ][ playerIndex ];
 		const usercmd_t& lastCmd = NewestUserCmdForPlayer( playerIndex );
-		
+
 		const int timeDelta = lastCmd.clientGameMilliseconds - firstCmd.clientGameMilliseconds;
-		
+
 		const bool isTimeGreaterThanBuffer = timeDelta > millisecondBuffer;
-		
+
 		return isTimeGreaterThanBuffer;
 	}
-	
+
 	const usercmd_t& NewestUserCmdForPlayer( int playerIndex )
 	{
 		int index = Max( writeFrame[ playerIndex ] - 1, 0 );
 		return cmdBuffer[ index % USERCMD_BUFFER_SIZE ][ playerIndex ];
 	}
-	
+
 	const usercmd_t& GetUserCmdForPlayer( int playerIndex )
 	{
 		//Get the next cmd we should process (not necessarily the newest)
@@ -339,32 +339,32 @@ public:
 		//We want to:
 		// A) never skip over a cmd (unless we call MakeReadPtrCurrentForPlayer() ).
 		// B) never get ahead of the writeFrame
-		
+
 		//try to increment before reading (without this we may read the same input twice
 		//and be a frame behind our writes in the case of)
 		if( readFrame[ playerIndex ] < writeFrame[ playerIndex ] - 1 )
 		{
 			readFrame[ playerIndex ]++;
 		}
-		
+
 		//grab the next command in the readFrame buffer
 		int index = readFrame[ playerIndex ];
 		usercmd_t& result = cmdBuffer[ index % USERCMD_BUFFER_SIZE ][ playerIndex ];
 		return result;
 	}
-	
+
 	int GetNextUserCmdClientTime( int playerIndex ) const
 	{
 		if( !HasUserCmdForPlayer( playerIndex ) )
 		{
 			return 0;
 		}
-		
+
 		const int index = readFrame[ playerIndex ] + 1;
 		const usercmd_t& cmd = cmdBuffer[ index % USERCMD_BUFFER_SIZE ][ playerIndex ];
 		return cmd.clientGameMilliseconds;
 	}
-	
+
 	// Hack to let the player inject his position into the correct usercmd.
 	usercmd_t& GetWritableUserCmdForPlayer( int playerIndex )
 	{
@@ -373,31 +373,31 @@ public:
 		//We want to:
 		// A) never skip over a cmd (unless we call MakeReadPtrCurrentForPlayer() ).
 		// B) never get ahead of the writeFrame
-		
+
 		//try to increment before reading (without this we may read the same input twice
 		//and be a frame behind our writes in the case of)
 		if( readFrame[ playerIndex ] < writeFrame[ playerIndex ] - 1 )
 		{
 			readFrame[ playerIndex ]++;
 		}
-		
+
 		//grab the next command in the readFrame buffer
 		int index = readFrame[ playerIndex ];
 		usercmd_t& result = cmdBuffer[ index % USERCMD_BUFFER_SIZE ][ playerIndex ];
 		return result;
 	}
-	
+
 	void MakeReadPtrCurrentForPlayer( int playerIndex )
 	{
 		//forces us to the head of our read buffer. As if we have processed every cmd available to us and now HasUserCmdForPlayer() returns FALSE
 		//Note we do -1 to point us to the last written cmd.
 		//If a read before the next write, you will get the last write. (not garbage)
 		//If a write is made before the next read, you *will* get the new write ( b/c GetUserCmdForPlayer pre increments)
-		
+
 		//After calling this, HasUserCmdForPlayer() will return FALSE;
 		readFrame[ playerIndex ] = writeFrame[ playerIndex ] - 1;
 	}
-	
+
 	void SkipBufferedCmdsForPlayer( int playerIndex )
 	{
 		// Similar to MakeReadPtrCurrentForPlayer, except:
@@ -405,18 +405,18 @@ public:
 		// Also, If there are no fresh frames, we wont roll the readFrame back
 		readFrame[ playerIndex ] = Max( readFrame[ playerIndex ], writeFrame[ playerIndex ] - 2 );
 	}
-	
+
 	int GetNumUnreadFrames( int playerIndex )
 	{
 		return ( writeFrame[ playerIndex ] - 1 ) - readFrame[ playerIndex ];
 	}
-	
+
 	int GetPlayerCmds( int user, usercmd_t** buffer, const int bufferSize )
 	{
 		// Fallback to getting cmds from the userCmdMgr
 		int start = Max( writeFrame[user] - Min( bufferSize, USERCMD_BUFFER_SIZE ), 0 );
 		int numCmds = writeFrame[user] - start;
-		
+
 		for( int i = 0; i < numCmds; i++ )
 		{
 			int index = ( start + i ) % USERCMD_BUFFER_SIZE;

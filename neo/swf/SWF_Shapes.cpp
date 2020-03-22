@@ -41,7 +41,7 @@ void idSWF::DefineShape( idSWFBitStream& bitstream )
 	{
 		return;
 	}
-	
+
 	idSWFShapeParser swfShapeParser;
 	swfShapeParser.Parse( bitstream, *entry->shape, 1 );
 }
@@ -59,7 +59,7 @@ void idSWF::DefineShape2( idSWFBitStream& bitstream )
 	{
 		return;
 	}
-	
+
 	idSWFShapeParser swfShapeParser;
 	swfShapeParser.Parse( bitstream, *entry->shape, 2 );
 }
@@ -77,7 +77,7 @@ void idSWF::DefineShape3( idSWFBitStream& bitstream )
 	{
 		return;
 	}
-	
+
 	idSWFShapeParser swfShapeParser;
 	swfShapeParser.Parse( bitstream, *entry->shape, 3 );
 }
@@ -95,7 +95,7 @@ void idSWF::DefineShape4( idSWFBitStream& bitstream )
 	{
 		return;
 	}
-	
+
 	idSWFShapeParser swfShapeParser;
 	swfShapeParser.Parse( bitstream, *entry->shape, 4 );
 }
@@ -114,7 +114,7 @@ void idSWF::DefineMorphShape( idSWFBitStream& bitstream )
 	{
 		return;
 	}
-	
+
 	idSWFShapeParser swfShapeParser;
 	swfShapeParser.ParseMorph( bitstream, *entry->shape );
 }

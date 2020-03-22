@@ -62,7 +62,7 @@ double Sys_GetClockTicks()
 	// RB begin
 #if defined(_MSC_VER)
 	unsigned long lo, hi;
-	
+
 	__asm
 	{
 		push ebx
@@ -74,10 +74,10 @@ double Sys_GetClockTicks()
 		pop ebx
 	}
 	return ( double ) lo + ( double ) 0xFFFFFFFF * hi;
-	
+
 #elif defined(__GNUC__) && defined( __i386__ )
 	unsigned long lo, hi;
-	
+
 	__asm__ __volatile__(
 		"push %%ebx\n"			\
 		"xor %%eax,%%eax\n"		\
@@ -105,22 +105,22 @@ double Sys_ClockTicksPerSecond()
 {
 	static double ticks = 0;
 #if 0
-	
+
 	if( !ticks )
 	{
 		LARGE_INTEGER li;
 		QueryPerformanceFrequency( &li );
 		ticks = li.QuadPart;
 	}
-	
+
 #else
-	
+
 	if( !ticks )
 	{
 		HKEY hKey;
 		LPBYTE ProcSpeed;
 		DWORD buflen, ret;
-	
+
 		if( !RegOpenKeyEx( HKEY_LOCAL_MACHINE, "HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0", 0, KEY_READ, &hKey ) )
 		{
 			ProcSpeed = 0;
@@ -142,7 +142,7 @@ double Sys_ClockTicksPerSecond()
 			}
 		}
 	}
-	
+
 #endif
 	return ticks;
 }
@@ -185,34 +185,34 @@ Sys_GetCPUId
 cpuid_t Sys_GetCPUId()
 {
 	int flags;
-	
+
 	// check for an AMD
 	flags = CPUID_GENERIC;
-	
+
 	// check for Multi Media Extensions
 	if( SDL_HasMMX() )
 	{
 		flags |= CPUID_MMX;
 	}
-	
+
 	// check for 3DNow!
 	if( SDL_Has3DNow() )
 	{
 		flags |= CPUID_3DNOW;
 	}
-	
+
 	// check for Streaming SIMD Extensions
 	if( SDL_HasSSE() )
 	{
 		flags |= CPUID_SSE | CPUID_FTZ;
 	}
-	
+
 	// check for Streaming SIMD Extensions 2
 	if( SDL_HasSSE2() )
 	{
 		flags |= CPUID_SSE2;
 	}
-	
+
 	// check for Streaming SIMD Extensions 3 aka Prescott's New Instructions
 #if 0 //SDL_VERSION_ATLEAST(2,0,0)
 	if( SDL_HasSSE3() )
@@ -220,27 +220,27 @@ cpuid_t Sys_GetCPUId()
 		flags |= CPUID_SSE3;
 	}
 #endif
-	
+
 	/*
 	// check for Hyper-Threading Technology
 	if( HasHTT() )
 	{
 		flags |= CPUID_HTT;
 	}
-	
+
 	// check for Conditional Move (CMOV) and fast floating point comparison (FCOMI) instructions
 	if( HasCMOV() )
 	{
 		flags |= CPUID_CMOV;
 	}
-	
+
 	// check for Denormals-Are-Zero mode
 	if( HasDAZ() )
 	{
 		flags |= CPUID_DAZ;
 	}
 	*/
-	
+
 	return ( cpuid_t )flags;
 }
 
@@ -308,7 +308,7 @@ Sys_FPU_PrintStateFlags
 int Sys_FPU_PrintStateFlags( char* ptr, int ctrl, int stat, int tags, int inof, int inse, int opof, int opse )
 {
 	int i, length = 0;
-	
+
 	length += sprintf( ptr + length,	"CTRL = %08x\n"
 					   "STAT = %08x\n"
 					   "TAGS = %08x\n"
@@ -318,7 +318,7 @@ int Sys_FPU_PrintStateFlags( char* ptr, int ctrl, int stat, int tags, int inof, 
 					   "OPSE = %08x\n"
 					   "\n",
 					   ctrl, stat, tags, inof, inse, opof, opse );
-					   
+
 	length += sprintf( ptr + length, "Control Word:\n" );
 	for( i = 0; controlWordFlags[i].name[0]; i++ )
 	{
@@ -326,7 +326,7 @@ int Sys_FPU_PrintStateFlags( char* ptr, int ctrl, int stat, int tags, int inof, 
 	}
 	length += sprintf( ptr + length, "  %-30s = %s\n", "Precision control", precisionControlField[( ctrl >> 8 ) & 3] );
 	length += sprintf( ptr + length, "  %-30s = %s\n", "Rounding control", roundingControlField[( ctrl >> 10 ) & 3] );
-	
+
 	length += sprintf( ptr + length, "Status Word:\n" );
 	for( i = 0; statusWordFlags[i].name[0]; i++ )
 	{
@@ -334,7 +334,7 @@ int Sys_FPU_PrintStateFlags( char* ptr, int ctrl, int stat, int tags, int inof, 
 	}
 	length += sprintf( ptr + length, "  %-30s = %d%d%d%d\n", "Condition code", ( stat >> 8 ) & 1, ( stat >> 9 ) & 1, ( stat >> 10 ) & 1, ( stat >> 14 ) & 1 );
 	length += sprintf( ptr + length, "  %-30s = %d\n", "Top of stack pointer", ( stat >> 11 ) & 7 );
-	
+
 	return length;
 }
 
@@ -389,12 +389,12 @@ Sys_FPU_SetPrecision
 void Sys_FPU_SetPrecision( int precision )
 {
 	// TODO
-	
+
 	/*
 	short precisionBitTable[4] = { 0, 1, 3, 0 };
 	short precisionBits = precisionBitTable[precision & 3] << 8;
 	short precisionMask = ~( ( 1 << 9 ) | ( 1 << 8 ) );
-	
+
 	__asm {
 		mov			eax, statePtr
 		mov			cx, precisionBits
@@ -416,12 +416,12 @@ Sys_FPU_SetRounding
 void Sys_FPU_SetRounding( int rounding )
 {
 	// TODO
-	
+
 	/*
 	short roundingBitTable[4] = { 0, 1, 2, 3 };
 	short roundingBits = roundingBitTable[rounding & 3] << 10;
 	short roundingMask = ~( ( 1 << 11 ) | ( 1 << 10 ) );
-	
+
 	__asm {
 		mov			eax, statePtr
 		mov			cx, roundingBits
@@ -444,7 +444,7 @@ void Sys_FPU_SetDAZ( bool enable )
 {
 	/*
 	DWORD dwData;
-	
+
 	_asm {
 		movzx	ecx, byte ptr enable
 		and		ecx, 1
@@ -468,7 +468,7 @@ void Sys_FPU_SetFTZ( bool enable )
 {
 	/*
 	DWORD dwData;
-	
+
 	_asm {
 		movzx	ecx, byte ptr enable
 		and		ecx, 1

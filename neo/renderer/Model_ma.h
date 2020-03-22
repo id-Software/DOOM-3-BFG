@@ -71,36 +71,36 @@ typedef struct
 
 	//Transform to be applied
 	maTransform_t*			transform;
-	
+
 	//Verts
 	int						numVertexes;
 	idVec3* 				vertexes;
 	int						numVertTransforms;
 	idVec4* 				vertTransforms;
 	int						nextVertTransformIndex;
-	
+
 	//Texture Coordinates
 	int						numTVertexes;
 	idVec2* 				tvertexes;
-	
+
 	//Edges
 	int						numEdges;
 	idVec3* 				edges;
-	
+
 	//Colors
 	int						numColors;
 	byte*					colors;
-	
+
 	//Faces
 	int						numFaces;
 	maFace_t* 				faces;
-	
+
 	//Normals
 	int						numNormals;
 	idVec3* 				normals;
 	bool					normalsParsed;
 	int						nextNormal;
-	
+
 } maMesh_t;
 
 typedef struct
@@ -116,7 +116,7 @@ typedef struct
 	char					name[128];
 	int						materialRef;
 	char					materialName[128];
-	
+
 	maMesh_t				mesh;
 } maObject_t;
 
@@ -130,10 +130,10 @@ typedef struct
 typedef struct maMaterialNode_s
 {
 	char					name[128];
-	
+
 	maMaterialNode_s*		child;
 	maFileNode_t*				file;
-	
+
 } maMaterialNode_t;
 
 typedef struct maModel_s
@@ -142,11 +142,11 @@ typedef struct maModel_s
 	idList<maMaterial_t*, TAG_MODEL>		materials;
 	idList<maObject_t*, TAG_MODEL>		objects;
 	idHashTable<maTransform_t*> transforms;
-	
+
 	//Material Resolution
 	idHashTable<maFileNode_t*>		fileNodes;
 	idHashTable<maMaterialNode_t*>	materialNodes;
-	
+
 } maModel_t;
 
 maModel_t*	MA_Load( const char* fileName );

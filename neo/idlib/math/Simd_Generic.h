@@ -41,16 +41,16 @@ class idSIMD_Generic : public idSIMDProcessor
 {
 public:
 	virtual const char* VPCALL GetName() const;
-	
+
 	virtual void VPCALL MinMax( float& min,			float& max,				const float* src,		const int count );
 	virtual	void VPCALL MinMax( idVec2& min,		idVec2& max,			const idVec2* src,		const int count );
 	virtual void VPCALL MinMax( idVec3& min,		idVec3& max,			const idVec3* src,		const int count );
 	virtual	void VPCALL MinMax( idVec3& min,		idVec3& max,			const idDrawVert* src,	const int count );
 	virtual	void VPCALL MinMax( idVec3& min,		idVec3& max,			const idDrawVert* src,	const triIndex_t* indexes,		const int count );
-	
+
 	virtual void VPCALL Memcpy( void* dst,			const void* src,		const int count );
 	virtual void VPCALL Memset( void* dst,			const int val,			const int count );
-	
+
 	virtual void VPCALL BlendJoints( idJointQuat* joints, const idJointQuat* blendJoints, const float lerp, const int* index, const int numJoints );
 	virtual void VPCALL BlendJointsFast( idJointQuat* joints, const idJointQuat* blendJoints, const float lerp, const int* index, const int numJoints );
 	virtual void VPCALL ConvertJointQuatsToJointMats( idJointMat* jointMats, const idJointQuat* jointQuats, const int numJoints );

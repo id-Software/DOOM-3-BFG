@@ -67,7 +67,7 @@ void GLimp_TestSwapBuffers( const idCmdArgs& args )
 	static const int MAX_FRAMES = 5;
 	uint64	timestamps[MAX_FRAMES];
 	glDisable( GL_SCISSOR_TEST );
-	
+
 	int frameMilliseconds = 16;
 	for( int swapInterval = 2 ; swapInterval >= -1 ; swapInterval-- )
 	{
@@ -91,7 +91,7 @@ void GLimp_TestSwapBuffers( const idCmdArgs& args )
 			glFinish();
 			timestamps[i] = Sys_Microseconds();
 		}
-		
+
 		idLib::Printf( "\nswapinterval %i\n", swapInterval );
 		for( int i = 1 ; i < MAX_FRAMES ; i++ )
 		{
@@ -110,7 +110,7 @@ static void GLimp_SaveGamma()
 {
 	HDC			hDC;
 	BOOL		success;
-	
+
 	hDC = GetDC( GetDesktopWindow() );
 	success = GetDeviceGammaRamp( hDC, win32.oldHardwareGamma );
 	common->DPrintf( "...getting default gamma ramp: %s\n", success ? "success" : "failed" );
@@ -126,14 +126,14 @@ static void GLimp_RestoreGamma()
 {
 	HDC hDC;
 	BOOL success;
-	
+
 	// if we never read in a reasonable looking
 	// table, don't write it out
 	if( win32.oldHardwareGamma[0][255] == 0 )
 	{
 		return;
 	}
-	
+
 	hDC = GetDC( GetDesktopWindow() );
 	success = SetDeviceGammaRamp( hDC, win32.oldHardwareGamma );
 	common->DPrintf( "...restoring hardware gamma: %s\n", success ? "success" : "failed" );
@@ -152,19 +152,19 @@ void GLimp_SetGamma( unsigned short red[256], unsigned short green[256], unsigne
 {
 	unsigned short table[3][256];
 	int i;
-	
+
 	if( !win32.hDC )
 	{
 		return;
 	}
-	
+
 	for( i = 0; i < 256; i++ )
 	{
 		table[0][i] = red[i];
 		table[1][i] = green[i];
 		table[2][i] = blue[i];
 	}
-	
+
 	if( !SetDeviceGammaRamp( win32.hDC, table ) )
 	{
 		common->Printf( "WARNING: SetDeviceGammaRamp failed.\n" );
@@ -200,12 +200,12 @@ LONG WINAPI FakeWndProc(
 	{
 		PostQuitMessage( 0 );
 	}
-	
+
 	if( uMsg != WM_CREATE )
 	{
 		return DefWindowProc( hWnd, uMsg, wParam, lParam );
 	}
-	
+
 	const static PIXELFORMATDESCRIPTOR pfd =
 	{
 		sizeof( PIXELFORMATDESCRIPTOR ),
@@ -227,20 +227,20 @@ LONG WINAPI FakeWndProc(
 	int		pixelFormat;
 	HDC hDC;
 	HGLRC hGLRC;
-	
+
 	hDC = GetDC( hWnd );
-	
+
 	// Set up OpenGL
 	pixelFormat = ChoosePixelFormat( hDC, &pfd );
 	SetPixelFormat( hDC, pixelFormat, &pfd );
 	hGLRC = wglCreateContext( hDC );
 	wglMakeCurrent( hDC, hGLRC );
-	
+
 	// free things
 	wglMakeCurrent( NULL, NULL );
 	wglDeleteContext( hGLRC );
 	ReleaseDC( hWnd, hDC );
-	
+
 	return DefWindowProc( hWnd, uMsg, wParam, lParam );
 }
 
@@ -262,7 +262,7 @@ void GLW_CheckWGLExtensions( HDC hDC )
 	{
 		common->Printf( "Using GLEW %s\n", glewGetString( GLEW_VERSION ) );
 	}
-	
+
 	if( WGLEW_ARB_extensions_string )
 	{
 		glConfig.wgl_extensions_string = ( const char* ) wglGetExtensionsStringARB( hDC );
@@ -271,14 +271,14 @@ void GLW_CheckWGLExtensions( HDC hDC )
 	{
 		glConfig.wgl_extensions_string = "";
 	}
-	
+
 	// WGL_EXT_swap_control
 	//wglSwapIntervalEXT = ( PFNWGLSWAPINTERVALEXTPROC ) GLimp_ExtensionPointer( "wglSwapIntervalEXT" );
 	r_swapInterval.SetModified();	// force a set next frame
-	
+
 	// WGL_EXT_swap_control_tear
 	glConfig.swapControlTearAvailable = WGLEW_EXT_swap_control_tear != 0;
-	
+
 	// FIXME
 	// WGLEW_ARB_pixel_format
 }
@@ -294,7 +294,7 @@ static void GLW_GetWGLExtensionsWithFakeWindow()
 {
 	HWND	hWnd;
 	MSG		msg;
-	
+
 	// Create a window for the sole purpose of getting
 	// a valid context to get the wglextensions
 	hWnd = CreateWindow( WIN32_FAKE_WINDOW_CLASS_NAME, GAME_NAME,
@@ -307,14 +307,14 @@ static void GLW_GetWGLExtensionsWithFakeWindow()
 	{
 		common->FatalError( "GLW_GetWGLExtensionsWithFakeWindow: Couldn't create fake window" );
 	}
-	
+
 	HDC hDC = GetDC( hWnd );
 	HGLRC gRC = wglCreateContext( hDC );
 	wglMakeCurrent( hDC, gRC );
 	GLW_CheckWGLExtensions( hDC );
 	wglDeleteContext( gRC );
 	ReleaseDC( hWnd, hDC );
-	
+
 	DestroyWindow( hWnd );
 	while( GetMessage( &msg, NULL, 0, 0 ) )
 	{
@@ -343,14 +343,14 @@ static HGLRC CreateOpenGLContextOnDC( const HDC hdc, const bool debugContext )
 {
 	int useCoreProfile = r_useOpenGL45.GetInteger();
 	HGLRC m_hrc = NULL;
-	
+
 	// RB: for GLintercept 1.2.0 or otherwise we can't diff the framebuffers using the XML log
 	if( !WGLEW_ARB_create_context || useCoreProfile == 0 )
 	{
 		return wglCreateContext( hdc );
 	}
 	// RB end
-	
+
 	for( int i = 0; i < 2; i++ )
 	{
 		const int glMajorVersion = ( useCoreProfile != 0 ) ? 4 : 5;
@@ -366,12 +366,12 @@ static HGLRC CreateOpenGLContextOnDC( const HDC hdc, const bool debugContext )
 			glProfileMask,					glProfile,
 			0
 		};
-		
+
 		m_hrc = wglCreateContextAttribsARB( hdc, 0, attribs );
 		if( m_hrc != NULL )
 		{
 			idLib::Printf( "created OpenGL %d.%d context\n", glMajorVersion, glMinorVersion );
-			
+
 			if( useCoreProfile == 2 )
 			{
 				glConfig.driverType = GLDRV_OPENGL32_CORE_PROFILE;
@@ -384,14 +384,14 @@ static HGLRC CreateOpenGLContextOnDC( const HDC hdc, const bool debugContext )
 			{
 				glConfig.driverType = GLDRV_OPENGL3X;
 			}
-			
+
 			break;
 		}
-		
+
 		idLib::Printf( "failed to create OpenGL %d.%d context\n", glMajorVersion, glMinorVersion );
 		useCoreProfile = 0;	// fall back to OpenGL 2.0
 	}
-	
+
 	if( m_hrc == NULL )
 	{
 		int	err = GetLastError();
@@ -408,7 +408,7 @@ static HGLRC CreateOpenGLContextOnDC( const HDC hdc, const bool debugContext )
 				break;
 		}
 	}
-	
+
 	return m_hrc;
 }
 
@@ -436,7 +436,7 @@ static int GLW_ChoosePixelFormat( const HDC hdc, const int multisamples, const b
 		WGL_STEREO_ARB, ( stereo3D ? TRUE : FALSE ),
 		0, 0
 	};
-	
+
 	int	pixelFormat;
 	UINT numFormats;
 	if( !wglChoosePixelFormatARB( hdc, iAttributes, fAttributes, 1, &pixelFormat, &numFormats ) )
@@ -477,16 +477,16 @@ static bool GLW_InitDriver( glimpParms_t parms )
 		0,								// reserved
 		0, 0, 0							// layer masks ignored
 	};
-	
+
 	common->Printf( "Initializing OpenGL driver\n" );
-	
+
 	//
 	// get a DC for our window if we don't already have one allocated
 	//
 	if( win32.hDC == NULL )
 	{
 		common->Printf( "...getting DC: " );
-		
+
 		if( ( win32.hDC = GetDC( win32.hWnd ) ) == NULL )
 		{
 			common->Printf( "^3failed^0\n" );
@@ -494,7 +494,7 @@ static bool GLW_InitDriver( glimpParms_t parms )
 		}
 		common->Printf( "succeeded\n" );
 	}
-	
+
 	// the multisample path uses the wgl
 	if( WGLEW_ARB_pixel_format )
 	{
@@ -504,7 +504,7 @@ static bool GLW_InitDriver( glimpParms_t parms )
 	{
 		// this is the "classic" choose pixel format path
 		common->Printf( "Using classic ChoosePixelFormat\n" );
-		
+
 		// eventually we may need to have more fallbacks, but for
 		// now, ask for everything
 		if( parms.stereo )
@@ -512,7 +512,7 @@ static bool GLW_InitDriver( glimpParms_t parms )
 			common->Printf( "...attempting to use stereo\n" );
 			src.dwFlags |= PFD_STEREO;
 		}
-		
+
 		//
 		// choose, set, and describe our desired pixel format.  If we're
 		// using a minidriver then we need to bypass the GDI functions,
@@ -525,26 +525,26 @@ static bool GLW_InitDriver( glimpParms_t parms )
 		}
 		common->Printf( "...PIXELFORMAT %d selected\n", win32.pixelformat );
 	}
-	
+
 	// get the full info
 	DescribePixelFormat( win32.hDC, win32.pixelformat, sizeof( win32.pfd ), &win32.pfd );
 	glConfig.colorBits = win32.pfd.cColorBits;
 	glConfig.depthBits = win32.pfd.cDepthBits;
 	glConfig.stencilBits = win32.pfd.cStencilBits;
-	
+
 	// XP seems to set this incorrectly
 	if( !glConfig.stencilBits )
 	{
 		glConfig.stencilBits = 8;
 	}
-	
+
 	// the same SetPixelFormat is used either way
 	if( SetPixelFormat( win32.hDC, win32.pixelformat, &win32.pfd ) == FALSE )
 	{
 		common->Printf( "...^3SetPixelFormat failed^0\n", win32.hDC );
 		return false;
 	}
-	
+
 	//
 	// startup the OpenGL subsystem by creating a context and making it current
 	//
@@ -556,7 +556,7 @@ static bool GLW_InitDriver( glimpParms_t parms )
 		return false;
 	}
 	common->Printf( "succeeded\n" );
-	
+
 	common->Printf( "...making context current: " );
 	if( !wglMakeCurrent( win32.hDC, win32.hGLRC ) )
 	{
@@ -566,7 +566,7 @@ static bool GLW_InitDriver( glimpParms_t parms )
 		return false;
 	}
 	common->Printf( "succeeded\n" );
-	
+
 	return true;
 }
 #endif
@@ -579,7 +579,7 @@ GLW_CreateWindowClasses
 static void GLW_CreateWindowClasses()
 {
 	WNDCLASS wc;
-	
+
 	//
 	// register the window class if necessary
 	//
@@ -587,9 +587,9 @@ static void GLW_CreateWindowClasses()
 	{
 		return;
 	}
-	
+
 	memset( &wc, 0, sizeof( wc ) );
-	
+
 	wc.style         = 0;
 	wc.lpfnWndProc   = ( WNDPROC ) MainWndProc;
 	wc.cbClsExtra    = 0;
@@ -600,13 +600,13 @@ static void GLW_CreateWindowClasses()
 	wc.hbrBackground = ( struct HBRUSH__* )COLOR_GRAYTEXT;
 	wc.lpszMenuName  = 0;
 	wc.lpszClassName = WIN32_WINDOW_CLASS_NAME;
-	
+
 	if( !RegisterClass( &wc ) )
 	{
 		common->FatalError( "GLW_CreateWindow: could not register window class" );
 	}
 	common->Printf( "...registered window class\n" );
-	
+
 #if !defined(USE_VULKAN)
 	// now register the fake window class that is only used
 	// to get wgl extensions
@@ -620,14 +620,14 @@ static void GLW_CreateWindowClasses()
 	wc.hbrBackground = ( struct HBRUSH__* )COLOR_GRAYTEXT;
 	wc.lpszMenuName  = 0;
 	wc.lpszClassName = WIN32_FAKE_WINDOW_CLASS_NAME;
-	
+
 	if( !RegisterClass( &wc ) )
 	{
 		common->FatalError( "GLW_CreateWindow: could not register window class" );
 	}
 	common->Printf( "...registered fake window class\n" );
 #endif
-	
+
 	win32.windowClassRegistered = true;
 }
 
@@ -668,13 +668,13 @@ static idStr GetDeviceName( const int deviceNum )
 	{
 		return idStr();
 	}
-	
+
 	// get the monitor for this display
 	if( !( device.StateFlags & DISPLAY_DEVICE_ATTACHED_TO_DESKTOP ) )
 	{
 		return idStr();
 	}
-	
+
 	return idStr( device.DeviceName );
 }
 
@@ -690,7 +690,7 @@ static bool GetDisplayCoordinates( const int deviceNum, int& x, int& y, int& wid
 	{
 		return false;
 	}
-	
+
 	DISPLAY_DEVICE	device = {};
 	device.cb = sizeof( device );
 	if( !EnumDisplayDevices(
@@ -701,7 +701,7 @@ static bool GetDisplayCoordinates( const int deviceNum, int& x, int& y, int& wid
 	{
 		return false;
 	}
-	
+
 	DISPLAY_DEVICE	monitor;
 	monitor.cb = sizeof( monitor );
 	if( !EnumDisplayDevices(
@@ -712,14 +712,14 @@ static bool GetDisplayCoordinates( const int deviceNum, int& x, int& y, int& wid
 	{
 		return false;
 	}
-	
+
 	DEVMODE	devmode;
 	devmode.dmSize = sizeof( devmode );
 	if( !EnumDisplaySettings( deviceName.c_str(), ENUM_CURRENT_SETTINGS, &devmode ) )
 	{
 		return false;
 	}
-	
+
 	common->Printf( "display device: %i\n", deviceNum );
 	common->Printf( "  DeviceName  : %s\n", device.DeviceName );
 	common->Printf( "  DeviceString: %s\n", device.DeviceString );
@@ -738,13 +738,13 @@ static bool GetDisplayCoordinates( const int deviceNum, int& x, int& y, int& wid
 	common->Printf( "          dmPelsHeight      : %i\n", devmode.dmPelsHeight );
 	common->Printf( "          dmDisplayFlags    : 0x%x\n", devmode.dmDisplayFlags );
 	common->Printf( "          dmDisplayFrequency: %i\n", devmode.dmDisplayFrequency );
-	
+
 	x = devmode.dmPosition.x;
 	y = devmode.dmPosition.y;
 	width = devmode.dmPelsWidth;
 	height = devmode.dmPelsHeight;
 	displayHz = devmode.dmDisplayFrequency;
-	
+
 	return true;
 }
 
@@ -804,14 +804,14 @@ void DumpAllDisplayDevices()
 		{
 			break;
 		}
-		
+
 		common->Printf( "display device: %i\n", deviceNum );
 		common->Printf( "  DeviceName  : %s\n", device.DeviceName );
 		common->Printf( "  DeviceString: %s\n", device.DeviceString );
 		common->Printf( "  StateFlags  : 0x%x\n", device.StateFlags );
 		common->Printf( "  DeviceID    : %s\n", device.DeviceID );
 		common->Printf( "  DeviceKey   : %s\n", device.DeviceKey );
-		
+
 		for( int monitorNum = 0 ; ; monitorNum++ )
 		{
 			DISPLAY_DEVICE	monitor = {};
@@ -824,13 +824,13 @@ void DumpAllDisplayDevices()
 			{
 				break;
 			}
-			
+
 			common->Printf( "      DeviceName  : %s\n", monitor.DeviceName );
 			common->Printf( "      DeviceString: %s\n", monitor.DeviceString );
 			common->Printf( "      StateFlags  : 0x%x\n", monitor.StateFlags );
 			common->Printf( "      DeviceID    : %s\n", monitor.DeviceID );
 			common->Printf( "      DeviceKey   : %s\n", monitor.DeviceKey );
-			
+
 			DEVMODE	currentDevmode = {};
 			if( !EnumDisplaySettings( device.DeviceName, ENUM_CURRENT_SETTINGS, &currentDevmode ) )
 			{
@@ -839,7 +839,7 @@ void DumpAllDisplayDevices()
 			common->Printf( "          -------------------\n" );
 			common->Printf( "          ENUM_CURRENT_SETTINGS\n" );
 			PrintDevMode( currentDevmode );
-			
+
 			DEVMODE	registryDevmode = {};
 			if( !EnumDisplaySettings( device.DeviceName, ENUM_REGISTRY_SETTINGS, &registryDevmode ) )
 			{
@@ -848,16 +848,16 @@ void DumpAllDisplayDevices()
 			common->Printf( "          -------------------\n" );
 			common->Printf( "          ENUM_CURRENT_SETTINGS\n" );
 			PrintDevMode( registryDevmode );
-			
+
 			for( int modeNum = 0 ; ; modeNum++ )
 			{
 				DEVMODE	devmode = {};
-				
+
 				if( !EnumDisplaySettings( device.DeviceName, modeNum, &devmode ) )
 				{
 					break;
 				}
-				
+
 				if( devmode.dmBitsPerPel != 32 )
 				{
 					continue;
@@ -901,9 +901,9 @@ R_GetModeListForDisplay
 bool R_GetModeListForDisplay( const int requestedDisplayNum, idList<vidMode_t>& modeList )
 {
 	modeList.Clear();
-	
+
 	bool	verbose = false;
-	
+
 	for( int displayNum = requestedDisplayNum; ; displayNum++ )
 	{
 		DISPLAY_DEVICE	device;
@@ -916,13 +916,13 @@ bool R_GetModeListForDisplay( const int requestedDisplayNum, idList<vidMode_t>& 
 		{
 			return false;
 		}
-		
+
 		// get the monitor for this display
 		if( !( device.StateFlags & DISPLAY_DEVICE_ATTACHED_TO_DESKTOP ) )
 		{
 			continue;
 		}
-		
+
 		DISPLAY_DEVICE	monitor;
 		monitor.cb = sizeof( monitor );
 		if( !EnumDisplayDevices(
@@ -933,10 +933,10 @@ bool R_GetModeListForDisplay( const int requestedDisplayNum, idList<vidMode_t>& 
 		{
 			continue;
 		}
-		
+
 		DEVMODE	devmode;
 		devmode.dmSize = sizeof( devmode );
-		
+
 		if( verbose )
 		{
 			common->Printf( "display device: %i\n", displayNum );
@@ -951,14 +951,14 @@ bool R_GetModeListForDisplay( const int requestedDisplayNum, idList<vidMode_t>& 
 			common->Printf( "      DeviceID    : %s\n", monitor.DeviceID );
 			common->Printf( "      DeviceKey   : %s\n", monitor.DeviceKey );
 		}
-		
+
 		for( int modeNum = 0 ; ; modeNum++ )
 		{
 			if( !EnumDisplaySettings( device.DeviceName, modeNum, &devmode ) )
 			{
 				break;
 			}
-			
+
 			if( devmode.dmBitsPerPel != 32 )
 			{
 				continue;
@@ -990,12 +990,12 @@ bool R_GetModeListForDisplay( const int requestedDisplayNum, idList<vidMode_t>& 
 			mode.displayHz = devmode.dmDisplayFrequency;
 			modeList.AddUnique( mode );
 		}
-		
+
 		if( modeList.Num() > 0 )
 		{
 			// sort with lowest resolution first
 			modeList.SortWithTemplate( idSort_VidMode() );
-			
+
 			return true;
 		}
 	}
@@ -1037,22 +1037,22 @@ static bool GLW_GetWindowDimensions( const glimpParms_t parms, int& x, int& y, i
 	else
 	{
 		RECT	r;
-		
+
 		// adjust width and height for window border
 		r.bottom = parms.height;
 		r.left = 0;
 		r.top = 0;
 		r.right = parms.width;
-		
+
 		AdjustWindowRect( &r, WINDOW_STYLE | WS_SYSMENU, FALSE );
-		
+
 		w = r.right - r.left;
 		h = r.bottom - r.top;
-		
+
 		x = parms.x;
 		y = parms.y;
 	}
-	
+
 	return true;
 }
 
@@ -1072,7 +1072,7 @@ static bool GLW_CreateWindow( glimpParms_t parms )
 	{
 		return false;
 	}
-	
+
 	int				stylebits;
 	int				exstyle;
 	if( parms.fullScreen != 0 )
@@ -1085,7 +1085,7 @@ static bool GLW_CreateWindow( glimpParms_t parms )
 		exstyle = 0;
 		stylebits = WINDOW_STYLE | WS_SYSMENU;
 	}
-	
+
 	win32.hWnd = CreateWindowEx(
 					 exstyle,
 					 WIN32_WINDOW_CLASS_NAME,
@@ -1096,19 +1096,19 @@ static bool GLW_CreateWindow( glimpParms_t parms )
 					 NULL,
 					 win32.hInstance,
 					 NULL );
-					 
+
 	if( !win32.hWnd )
 	{
 		common->Printf( "^3GLW_CreateWindow() - Couldn't create window^0\n" );
 		return false;
 	}
-	
+
 	::SetTimer( win32.hWnd, 0, 100, NULL );
-	
+
 	ShowWindow( win32.hWnd, SW_SHOW );
 	UpdateWindow( win32.hWnd );
 	common->Printf( "...created window @ %d,%d (%dx%d)\n", x, y, w, h );
-	
+
 	// makeCurrent NULL frees the DC, so get another
 	win32.hDC = GetDC( win32.hWnd );
 	if( !win32.hDC )
@@ -1116,7 +1116,7 @@ static bool GLW_CreateWindow( glimpParms_t parms )
 		common->Printf( "^3GLW_CreateWindow() - GetDC()failed^0\n" );
 		return false;
 	}
-	
+
 #if !defined(USE_VULKAN)
 	// Check to see if we can get a stereo pixel format, even if we aren't going to use it,
 	// so the menu option can be
@@ -1128,7 +1128,7 @@ static bool GLW_CreateWindow( glimpParms_t parms )
 	{
 		glConfig.stereoPixelFormatAvailable = false;
 	}
-	
+
 	if( !GLW_InitDriver( parms ) )
 	{
 		ShowWindow( win32.hWnd, SW_HIDE );
@@ -1137,12 +1137,12 @@ static bool GLW_CreateWindow( glimpParms_t parms )
 		return false;
 	}
 #endif
-	
+
 	SetForegroundWindow( win32.hWnd );
 	SetFocus( win32.hWnd );
-	
+
 	glConfig.isFullscreen = parms.fullScreen;
-	
+
 	return true;
 }
 
@@ -1197,16 +1197,16 @@ static bool GLW_ChangeDislaySettingsIfNeeded( glimpParms_t parms )
 		ChangeDisplaySettings( 0, 0 );
 		Sys_Sleep( 1000 ); // Give the driver some time to think about this change
 	}
-	
+
 	// 0 is dragable mode on desktop, -1 is borderless window on desktop
 	if( parms.fullScreen <= 0 )
 	{
 		return true;
 	}
-	
+
 	// if we are already in the right resolution, don't do a ChangeDisplaySettings
 	int x, y, width, height, displayHz;
-	
+
 	if( !GetDisplayCoordinates( parms.fullScreen - 1, x, y, width, height, displayHz ) )
 	{
 		return false;
@@ -1215,11 +1215,11 @@ static bool GLW_ChangeDislaySettingsIfNeeded( glimpParms_t parms )
 	{
 		return true;
 	}
-	
+
 	DEVMODE dm = {};
-	
+
 	dm.dmSize = sizeof( dm );
-	
+
 	dm.dmPelsWidth  = parms.width;
 	dm.dmPelsHeight = parms.height;
 	dm.dmBitsPerPel = 32;
@@ -1229,11 +1229,11 @@ static bool GLW_ChangeDislaySettingsIfNeeded( glimpParms_t parms )
 		dm.dmDisplayFrequency = parms.displayHz;
 		dm.dmFields |= DM_DISPLAYFREQUENCY;
 	}
-	
+
 	common->Printf( "...calling CDS: " );
-	
+
 	const char* const deviceName = GetDisplayName( parms.fullScreen - 1 );
-	
+
 	int		cdsRet;
 	if( ( cdsRet = ChangeDisplaySettingsEx(
 					   deviceName,
@@ -1246,7 +1246,7 @@ static bool GLW_ChangeDislaySettingsIfNeeded( glimpParms_t parms )
 		win32.cdsFullscreen = parms.fullScreen;
 		return true;
 	}
-	
+
 	common->Printf( "^3failed^0, " );
 	PrintCDSError( cdsRet );
 	return false;
@@ -1275,51 +1275,51 @@ parameters and try again.
 bool GLimp_Init( glimpParms_t parms )
 {
 	HDC		hDC;
-	
+
 #if !defined(USE_VULKAN)
 	cmdSystem->AddCommand( "testSwapBuffers", GLimp_TestSwapBuffers, CMD_FL_SYSTEM, "Times swapbuffer options" );
-	
+
 	common->Printf( "Initializing OpenGL subsystem with multisamples:%i stereo:%i fullscreen:%i\n",
 					parms.multiSamples, parms.stereo, parms.fullScreen );
 #endif
-					
+
 	// check our desktop attributes
 	hDC = GetDC( GetDesktopWindow() );
 	win32.desktopBitsPixel = GetDeviceCaps( hDC, BITSPIXEL );
 	win32.desktopWidth = GetDeviceCaps( hDC, HORZRES );
 	win32.desktopHeight = GetDeviceCaps( hDC, VERTRES );
 	ReleaseDC( GetDesktopWindow(), hDC );
-	
+
 	// we can't run in a window unless it is 32 bpp
 	if( win32.desktopBitsPixel < 32 && parms.fullScreen <= 0 )
 	{
 		common->Printf( "^3Windowed mode requires 32 bit desktop depth^0\n" );
 		return false;
 	}
-	
+
 	// save the hardware gamma so it can be
 	// restored on exit
 	GLimp_SaveGamma();
-	
+
 	// create our window classes if we haven't already
 	GLW_CreateWindowClasses();
-	
+
 #if !defined(USE_VULKAN)
 	// this will load the dll and set all our gl* function pointers,
 	// but doesn't create a window
-	
+
 	// getting the wgl extensions involves creating a fake window to get a context,
 	// which is pretty disgusting, and seems to mess with the AGP VAR allocation
 	GLW_GetWGLExtensionsWithFakeWindow();
 #endif
-	
+
 	// Optionally ChangeDisplaySettings to get a different fullscreen resolution.
 	if( !GLW_ChangeDislaySettingsIfNeeded( parms ) )
 	{
 		GLimp_Shutdown();
 		return false;
 	}
-	
+
 	// try to create a window with the correct pixel format
 	// and init the renderer context
 	if( !GLW_CreateWindow( parms ) )
@@ -1327,25 +1327,25 @@ bool GLimp_Init( glimpParms_t parms )
 		GLimp_Shutdown();
 		return false;
 	}
-	
+
 	glConfig.isFullscreen = parms.fullScreen;
 	glConfig.isStereoPixelFormat = parms.stereo;
 	glConfig.nativeScreenWidth = parms.width;
 	glConfig.nativeScreenHeight = parms.height;
 	glConfig.multisamples = parms.multiSamples;
-	
+
 	glConfig.pixelAspect = 1.0f;	// FIXME: some monitor modes may be distorted
 	// should side-by-side stereo modes be consider aspect 0.5?
-	
+
 	// get the screen size, which may not be reliable...
 	// If we use the windowDC, I get my 30" monitor, even though the window is
 	// on a 27" monitor, so get a dedicated DC for the full screen device name.
 	const idStr deviceName = GetDeviceName( Max( 0, parms.fullScreen - 1 ) );
-	
+
 	HDC deviceDC = CreateDC( deviceName.c_str(), deviceName.c_str(), NULL, NULL );
 	const int mmWide = GetDeviceCaps( win32.hDC, HORZSIZE );
 	DeleteDC( deviceDC );
-	
+
 	if( mmWide == 0 )
 	{
 		glConfig.physicalScreenWidthInCentimeters = 100.0f;
@@ -1354,7 +1354,7 @@ bool GLimp_Init( glimpParms_t parms )
 	{
 		glConfig.physicalScreenWidthInCentimeters = 0.1f * mmWide;
 	}
-	
+
 	// RB: we probably have a new OpenGL 3.2 core context so reinitialize GLEW
 #if !defined(USE_VULKAN)
 	GLenum glewResult = glewInit();
@@ -1368,7 +1368,7 @@ bool GLimp_Init( glimpParms_t parms )
 		common->Printf( "Using GLEW %s\n", glewGetString( GLEW_VERSION ) );
 	}
 #endif
-	
+
 	return true;
 }
 
@@ -1386,16 +1386,16 @@ bool GLimp_SetScreenParms( glimpParms_t parms )
 	{
 		return false;
 	}
-	
+
 	int x, y, w, h;
 	if( !GLW_GetWindowDimensions( parms, x, y, w, h ) )
 	{
 		return false;
 	}
-	
+
 	int exstyle;
 	int stylebits;
-	
+
 	if( parms.fullScreen )
 	{
 		exstyle = WS_EX_TOPMOST;
@@ -1406,18 +1406,18 @@ bool GLimp_SetScreenParms( glimpParms_t parms )
 		exstyle = 0;
 		stylebits = WINDOW_STYLE | WS_SYSMENU;
 	}
-	
+
 	SetWindowLong( win32.hWnd, GWL_STYLE, stylebits );
 	SetWindowLong( win32.hWnd, GWL_EXSTYLE, exstyle );
 	SetWindowPos( win32.hWnd, parms.fullScreen ? HWND_TOPMOST : HWND_NOTOPMOST, x, y, w, h, SWP_SHOWWINDOW );
-	
+
 	glConfig.isFullscreen = parms.fullScreen;
 	glConfig.pixelAspect = 1.0f;	// FIXME: some monitor modes may be distorted
-	
+
 	glConfig.isFullscreen = parms.fullScreen;
 	glConfig.nativeScreenWidth = parms.width;
 	glConfig.nativeScreenHeight = parms.height;
-	
+
 	return true;
 }
 
@@ -1433,19 +1433,19 @@ void GLimp_Shutdown()
 {
 	const char* success[] = { "failed", "success" };
 	int retVal;
-	
+
 #if defined(USE_VULKAN)
 	// TODO
 #else
 	common->Printf( "Shutting down OpenGL subsystem\n" );
-	
+
 	// set current context to NULL
 	//if( wglMakeCurrent )
 	{
 		retVal = wglMakeCurrent( NULL, NULL ) != 0;
 		common->Printf( "...wglMakeCurrent( NULL, NULL ): %s\n", success[retVal] );
 	}
-	
+
 	// delete HGLRC
 	if( win32.hGLRC )
 	{
@@ -1454,7 +1454,7 @@ void GLimp_Shutdown()
 		win32.hGLRC = NULL;
 	}
 #endif
-	
+
 	// release DC
 	if( win32.hDC )
 	{
@@ -1462,7 +1462,7 @@ void GLimp_Shutdown()
 		common->Printf( "...releasing DC: %s\n", success[retVal] );
 		win32.hDC   = NULL;
 	}
-	
+
 	// destroy window
 	if( win32.hWnd )
 	{
@@ -1471,7 +1471,7 @@ void GLimp_Shutdown()
 		DestroyWindow( win32.hWnd );
 		win32.hWnd = NULL;
 	}
-	
+
 	// reset display settings
 	if( win32.cdsFullscreen )
 	{
@@ -1479,7 +1479,7 @@ void GLimp_Shutdown()
 		ChangeDisplaySettings( 0, 0 );
 		win32.cdsFullscreen = 0;
 	}
-	
+
 	// restore gamma
 	GLimp_RestoreGamma();
 }
@@ -1496,7 +1496,7 @@ void GLimp_SwapBuffers()
 	if( r_swapInterval.IsModified() )
 	{
 		r_swapInterval.ClearModified();
-		
+
 		int interval = 0;
 		if( r_swapInterval.GetInteger() == 1 )
 		{
@@ -1506,13 +1506,13 @@ void GLimp_SwapBuffers()
 		{
 			interval = 1;
 		}
-		
+
 		if( WGLEW_EXT_swap_control )
 		{
 			wglSwapIntervalEXT( interval );
 		}
 	}
-	
+
 	SwapBuffers( win32.hDC );
 }
 #endif

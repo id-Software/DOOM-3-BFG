@@ -168,30 +168,30 @@ void idForce_Field::Evaluate( int time )
 	idBounds bounds;
 	idVec3 force, torque, angularVelocity;
 	idClipModel* cm, *clipModelList[ MAX_GENTITIES ];
-	
+
 	assert( clipModel );
-	
+
 	bounds.FromTransformedBounds( clipModel->GetBounds(), clipModel->GetOrigin(), clipModel->GetAxis() );
 	numClipModels = gameLocal.clip.ClipModelsTouchingBounds( bounds, -1, clipModelList, MAX_GENTITIES );
-	
+
 	for( i = 0; i < numClipModels; i++ )
 	{
 		cm = clipModelList[ i ];
-		
+
 		if( !cm->IsTraceModel() )
 		{
 			continue;
 		}
-		
+
 		idEntity* entity = cm->GetEntity();
-		
+
 		if( !entity )
 		{
 			continue;
 		}
-		
+
 		idPhysics* physics = entity->GetPhysics();
-		
+
 		if( playerOnly )
 		{
 			if( !physics->IsType( idPhysics_Player::Type ) )
@@ -206,13 +206,13 @@ void idForce_Field::Evaluate( int time )
 				continue;
 			}
 		}
-		
+
 		if( !gameLocal.clip.ContentsModel( cm->GetOrigin(), cm, cm->GetAxis(), -1,
 										   clipModel->Handle(), clipModel->GetOrigin(), clipModel->GetAxis() ) )
 		{
 			continue;
 		}
-		
+
 		switch( type )
 		{
 			case FORCEFIELD_UNIFORM:
@@ -238,7 +238,7 @@ void idForce_Field::Evaluate( int time )
 				break;
 			}
 		}
-		
+
 		if( randomTorque != 0.0f )
 		{
 			torque[0] = gameLocal.random.CRandomFloat();
@@ -249,7 +249,7 @@ void idForce_Field::Evaluate( int time )
 				torque[2] = 1.0f;
 			}
 		}
-		
+
 		switch( applyType )
 		{
 			case FORCEFIELD_APPLY_FORCE:

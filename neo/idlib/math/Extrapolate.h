@@ -53,7 +53,7 @@ class idExtrapolate
 {
 public:
 	idExtrapolate();
-	
+
 	void				Init( const int startTime, const int duration, const type& startValue, const type& baseSpeed, const type& speed, const extrapolation_t extrapolationType );
 	type				GetCurrentValue( int time ) const;
 	type				GetCurrentSpeed( int time ) const;
@@ -97,7 +97,7 @@ public:
 	{
 		return extrapolationType;
 	}
-	
+
 private:
 	extrapolation_t		extrapolationType;
 	int					startTime;
@@ -150,12 +150,12 @@ ID_INLINE type idExtrapolate<type>::GetCurrentValue( int time ) const
 	{
 		return startValue;
 	}
-	
+
 	if( !( extrapolationType &	EXTRAPOLATION_NOSTOP ) && ( time > startTime + duration ) )
 	{
 		time = startTime + duration;
 	}
-	
+
 	switch( extrapolationType & ~EXTRAPOLATION_NOSTOP )
 	{
 		case EXTRAPOLATION_NONE:
@@ -236,12 +236,12 @@ ID_INLINE type idExtrapolate<type>::GetCurrentSpeed( int time ) const
 	{
 		return ( startValue - startValue ); //-V501
 	}
-	
+
 	if( !( extrapolationType &	EXTRAPOLATION_NOSTOP ) && ( time > startTime + duration ) )
 	{
 		return ( startValue - startValue ); //-V501
 	}
-	
+
 	switch( extrapolationType & ~EXTRAPOLATION_NOSTOP )
 	{
 		case EXTRAPOLATION_NONE:

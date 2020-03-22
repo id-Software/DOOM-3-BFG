@@ -47,7 +47,7 @@ public:
 	{
 		Sys_MutexDestroy( handle );
 	}
-	
+
 	bool			Lock( bool blocking = true )
 	{
 		return Sys_MutexLock( handle, blocking );
@@ -56,10 +56,10 @@ public:
 	{
 		Sys_MutexUnlock( handle );
 	}
-	
+
 private:
 	mutexHandle_t	handle;
-	
+
 	idSysMutex( const idSysMutex& s ) {}
 	void			operator=( const idSysMutex& s ) {}
 };
@@ -81,7 +81,7 @@ public:
 	{
 		mutex->Unlock();
 	}
-	
+
 private:
 	idSysMutex* 	mutex;	// NOTE: making this a reference causes a TypeInfo crash
 };
@@ -97,7 +97,7 @@ class idSysSignal
 {
 public:
 	static const int	WAIT_INFINITE = -1;
-	
+
 	idSysSignal( bool manualReset = false )
 	{
 		Sys_SignalCreate( handle, manualReset );
@@ -106,7 +106,7 @@ public:
 	{
 		Sys_SignalDestroy( handle );
 	}
-	
+
 	void	Raise()
 	{
 		Sys_SignalRaise( handle );
@@ -115,7 +115,7 @@ public:
 	{
 		Sys_SignalClear( handle );
 	}
-	
+
 	// Wait returns true if the object is in a signalled state and
 	// returns false if the wait timed out. Wait also clears the signalled
 	// state when the signalled state is reached within the time out period.
@@ -123,10 +123,10 @@ public:
 	{
 		return Sys_SignalWait( handle, timeout );
 	}
-	
+
 private:
 	signalHandle_t		handle;
-	
+
 	idSysSignal( const idSysSignal& s ) {}
 	void				operator=( const idSysSignal& s ) {}
 };
@@ -141,43 +141,43 @@ class idSysInterlockedInteger
 {
 public:
 	idSysInterlockedInteger() : value( 0 ) {}
-	
+
 	// atomically increments the integer and returns the new value
 	int					Increment()
 	{
 		return Sys_InterlockedIncrement( value );
 	}
-	
+
 	// atomically decrements the integer and returns the new value
 	int					Decrement()
 	{
 		return Sys_InterlockedDecrement( value );
 	}
-	
+
 	// atomically adds a value to the integer and returns the new value
 	int					Add( int v )
 	{
 		return Sys_InterlockedAdd( value, ( interlockedInt_t ) v );
 	}
-	
+
 	// atomically subtracts a value from the integer and returns the new value
 	int					Sub( int v )
 	{
 		return Sys_InterlockedSub( value, ( interlockedInt_t ) v );
 	}
-	
+
 	// returns the current value of the integer
 	int					GetValue() const
 	{
 		return value;
 	}
-	
+
 	// sets a new value, Note: this operation is not atomic
 	void				SetValue( int v )
 	{
 		value = ( interlockedInt_t )v;
 	}
-	
+
 private:
 	interlockedInt_t	value;
 };
@@ -193,26 +193,26 @@ class idSysInterlockedPointer
 {
 public:
 	idSysInterlockedPointer() : ptr( NULL ) {}
-	
+
 	// atomically sets the pointer and returns the previous pointer value
 	T* 		Set( T* newPtr )
 	{
 		return ( T* ) Sys_InterlockedExchangePointer( ( void*& ) ptr, newPtr );
 	}
-	
+
 	// atomically sets the pointer to 'newPtr' only if the previous pointer is equal to 'comparePtr'
 	// ptr = ( ptr == comparePtr ) ? newPtr : ptr
 	T* 		CompareExchange( T* comparePtr, T* newPtr )
 	{
 		return ( T* ) Sys_InterlockedCompareExchangePointer( ( void*& ) ptr, comparePtr, newPtr );
 	}
-	
+
 	// returns the current value of the pointer
 	T* 		Get() const
 	{
 		return ptr;
 	}
-	
+
 private:
 	T* 		ptr;
 };
@@ -275,7 +275,7 @@ class idSysThread
 public:
 	idSysThread();
 	virtual			~idSysThread();
-	
+
 	const char* 	GetName() const
 	{
 		return name.c_str();
@@ -292,44 +292,44 @@ public:
 	{
 		return isTerminating;
 	}
-	
+
 	//------------------------
 	// Thread Start/Stop/Wait
 	//------------------------
-	
+
 	bool			StartThread( const char* name, core_t core,
 								 xthreadPriority priority = THREAD_NORMAL,
 								 int stackSize = DEFAULT_THREAD_STACK_SIZE );
-								 
+
 	bool			StartWorkerThread( const char* name, core_t core,
 									   xthreadPriority priority = THREAD_NORMAL,
 									   int stackSize = DEFAULT_THREAD_STACK_SIZE );
-									   
+
 	void			StopThread( bool wait = true );
-	
+
 	// This can be called from multiple other threads. However, in the case
 	// of a worker thread, the work being "done" has little meaning if other
 	// threads are continuously signalling more work.
 	void			WaitForThread();
-	
+
 	//------------------------
 	// Worker Thread
 	//------------------------
-	
+
 	// Signals the thread to notify work is available.
 	// This can be called from multiple other threads.
 	void			SignalWork();
-	
+
 	// Returns true if the work is done without waiting.
 	// This can be called from multiple other threads. However, the work
 	// being "done" has little meaning if other threads are continuously
 	// signalling more work.
 	bool			IsWorkDone();
-	
+
 protected:
 	// The routine that performs the work.
 	virtual int		Run();
-	
+
 private:
 	idStr			name;
 	uintptr_t		threadHandle;
@@ -340,9 +340,9 @@ private:
 	idSysSignal		signalWorkerDone;
 	idSysSignal		signalMoreWorkToDo;
 	idSysMutex		signalMutex;
-	
+
 	static int		ThreadProc( idSysThread* thread );
-	
+
 	idSysThread( const idSysThread& s ) {}
 	void			operator=( const idSysThread& s ) {}
 };
@@ -383,9 +383,9 @@ public:
 	idSysWorkerThreadGroup( const char* name, int numThreads,
 							xthreadPriority priority = THREAD_NORMAL,
 							int stackSize = DEFAULT_THREAD_STACK_SIZE );
-							
+
 	virtual			~idSysWorkerThreadGroup();
-	
+
 	int				GetNumThreads() const
 	{
 		return threadList.Num();
@@ -394,9 +394,9 @@ public:
 	{
 		return *threadList[i];
 	}
-	
+
 	void			SignalWorkAndWait();
-	
+
 private:
 	idList<threadType*, TAG_THREAD>	threadList;
 	bool					runOneThreadInline;	// use the signalling thread as one of the threads
@@ -502,11 +502,11 @@ class idSysThreadSynchronizer
 {
 public:
 	static const int	WAIT_INFINITE = -1;
-	
+
 	ID_INLINE	void			SetNumThreads( unsigned int num );
 	ID_INLINE	void			Signal( unsigned int threadNum );
 	ID_INLINE	bool			Synchronize( unsigned int threadNum, int timeout = WAIT_INFINITE );
-	
+
 private:
 	idList< idSysSignal*, TAG_THREAD >		signals;
 	idSysInterlockedInteger		busyCount;

@@ -44,16 +44,16 @@ void idMenuScreen_PDA_VideoDisks::Initialize( idMenuHandler* data )
 		menuGUI = data->GetGUI();
 	}
 	SetSpritePath( "menuVideo" );
-	
-	
+
+
 	videoDetails.SetSpritePath( GetSpritePath(), "info", "details" );
 	videoDetails.Initialize( data );
 	videoDetails.SetNoAutoFree( true );
-	
+
 	scrollbar.SetSpritePath( GetSpritePath(), "info", "videoList", "scrollbar" );
 	scrollbar.Initialize( data );
 	scrollbar.SetNoAutoFree( true );
-	
+
 	pdaVideoList.SetSpritePath( GetSpritePath(), "info", "videoList", "options" );
 	pdaVideoList.SetNumVisibleOptions( MAX_VIDEO_ITEMS );
 	pdaVideoList.SetWrappingAllowed( true );
@@ -69,10 +69,10 @@ void idMenuScreen_PDA_VideoDisks::Initialize( idMenuHandler* data )
 	}
 	pdaVideoList.Initialize( data );
 	pdaVideoList.AddChild( &scrollbar );
-	
+
 	AddChild( &pdaVideoList );
 	AddChild( &videoDetails );
-	
+
 	AddEventAction( WIDGET_EVENT_SCROLL_DOWN_LSTICK ).Set( new( TAG_SWF ) idWidgetActionHandler( &pdaVideoList, WIDGET_ACTION_EVENT_SCROLL_DOWN_START_REPEATER, WIDGET_EVENT_SCROLL_DOWN_LSTICK ) );
 	AddEventAction( WIDGET_EVENT_SCROLL_UP_LSTICK ).Set( new( TAG_SWF ) idWidgetActionHandler( &pdaVideoList, WIDGET_ACTION_EVENT_SCROLL_UP_START_REPEATER, WIDGET_EVENT_SCROLL_UP_LSTICK ) );
 	AddEventAction( WIDGET_EVENT_SCROLL_DOWN_LSTICK_RELEASE ).Set( new( TAG_SWF ) idWidgetActionHandler( &pdaVideoList, WIDGET_ACTION_EVENT_STOP_REPEATER, WIDGET_EVENT_SCROLL_DOWN_LSTICK_RELEASE ) );
@@ -83,7 +83,7 @@ void idMenuScreen_PDA_VideoDisks::Initialize( idMenuHandler* data )
 	AddEventAction( WIDGET_EVENT_SCROLL_UP_RELEASE ).Set( new( TAG_SWF ) idWidgetActionHandler( &pdaVideoList, WIDGET_ACTION_EVENT_STOP_REPEATER, WIDGET_EVENT_SCROLL_UP_RELEASE ) );
 	AddEventAction( WIDGET_EVENT_TAB_NEXT ).Set( new( TAG_SWF ) idWidgetActionHandler( this, WIDGET_ACTION_EVENT_TAB_NEXT, WIDGET_EVENT_TAB_NEXT ) );
 	AddEventAction( WIDGET_EVENT_TAB_PREV ).Set( new( TAG_SWF ) idWidgetActionHandler( this, WIDGET_ACTION_EVENT_TAB_PREV, WIDGET_EVENT_TAB_PREV ) );
-	
+
 	idMenuScreen::Initialize( data );
 }
 
@@ -96,7 +96,7 @@ void idMenuScreen_PDA_VideoDisks::Update()
 {
 
 	idPlayer* player = gameLocal.GetLocalPlayer();
-	
+
 	if( menuData != NULL )
 	{
 		idMenuWidget_CommandBar* cmdBar = dynamic_cast< idMenuWidget_CommandBar* const >( menuData->GetChildFromIndex( PDA_WIDGET_CMD_BAR ) );
@@ -104,18 +104,18 @@ void idMenuScreen_PDA_VideoDisks::Update()
 		{
 			cmdBar->ClearAllButtons();
 			idMenuWidget_CommandBar::buttonInfo_t* buttonInfo;
-			
+
 			buttonInfo = cmdBar->GetButton( idMenuWidget_CommandBar::BUTTON_JOY2 );
 			if( menuData->GetPlatform() != 2 )
 			{
 				buttonInfo->label = "#str_01345";
 			}
 			buttonInfo->action.Set( WIDGET_ACTION_GO_BACK );
-			
+
 			buttonInfo = cmdBar->GetButton( idMenuWidget_CommandBar::BUTTON_TAB );
 			buttonInfo->label = "";
 			buttonInfo->action.Set( WIDGET_ACTION_GO_BACK );
-			
+
 			if( player != NULL && player->GetInventory().videos.Num() > 0 )
 			{
 				if( player->GetVideoMaterial() == NULL )
@@ -139,24 +139,24 @@ void idMenuScreen_PDA_VideoDisks::Update()
 			}
 		}
 	}
-	
+
 	if( player != NULL )
 	{
 		//if ( pdaVideoList == NULL ) {
 		//	idMenuScreen::Update();
 		//	return;
 		//}
-		
+
 		idSWFScriptObject& root = GetSWFObject()->GetRootObject();
 		int index = pdaVideoList.GetViewIndex();
 		const idDeclVideo* video = player->GetVideo( index );
-		
+
 		if( video == NULL )
 		{
 			idMenuScreen::Update();
 			return;
 		}
-		
+
 		if( player->GetVideoMaterial() != NULL )
 		{
 			// update video material
@@ -164,7 +164,7 @@ void idMenuScreen_PDA_VideoDisks::Update()
 			{
 				idSWFSpriteInstance* videoSprite = GetSprite()->GetScriptObject()->GetNestedSprite( "info", "details", "video", "img" );
 				const idMaterial* mat = player->GetVideoMaterial();
-				
+
 				if( videoSprite != NULL && mat != NULL )
 				{
 					videoSprite->SetMaterial( mat );
@@ -180,7 +180,7 @@ void idMenuScreen_PDA_VideoDisks::Update()
 			}
 		}
 	}
-	
+
 	idMenuScreen::Update();
 }
 
@@ -208,9 +208,9 @@ void idMenuScreen_PDA_VideoDisks::ShowScreen( const mainMenuTransition_t transit
 			}
 		}
 	}
-	
+
 	pdaVideoList.SetListData( videoItems );
-	
+
 	idMenuScreen::ShowScreen( transitionType );
 }
 
@@ -227,25 +227,25 @@ void idMenuScreen_PDA_VideoDisks::ToggleVideoDiskPlay()
 	{
 		return;
 	}
-	
-	
+
+
 	int index = pdaVideoList.GetViewIndex();
 	const idDeclVideo* video = player->GetVideo( index );
-	
+
 	if( video == NULL )
 	{
 		return;
 	}
-	
+
 	if( video == activeVideo )
 	{
 		player->EndVideoDisk();
 		activeVideo = NULL;
 		return;
 	}
-	
+
 	activeVideo = video;
-	
+
 	if( player->GetVideoMaterial() == NULL )
 	{
 		player->PlayVideoDisk( video );
@@ -269,35 +269,35 @@ void idMenuScreen_PDA_VideoDisks::SelectedVideoToPlay( int index )
 	{
 		return;
 	}
-	
+
 	player->EndVideoDisk();
 	if( menuData != NULL )
 	{
 		idMenuHandler_PDA* pdaHandler = dynamic_cast< idMenuHandler_PDA* const >( menuData );
 		pdaHandler->ClearVideoPlaying();
 	}
-	
-	
+
+
 	pdaVideoList.SetViewIndex( pdaVideoList.GetViewOffset() + index );
 	pdaVideoList.SetFocusIndex( index );
 	const idDeclVideo* video = player->GetVideo( pdaVideoList.GetViewOffset() + index );
-	
+
 	if( video == NULL )
 	{
 		return;
 	}
-	
+
 	if( video == activeVideo )
 	{
 		activeVideo = NULL;
 		return;
 	}
-	
+
 	activeVideo = video;
-	
+
 	player->PlayVideoDisk( video );
-	
-	
+
+
 }
 
 /*
@@ -322,15 +322,15 @@ bool idMenuScreen_PDA_VideoDisks::HandleAction( idWidgetAction& action, const id
 	{
 		return true;
 	}
-	
+
 	if( menuData->ActiveScreen() != PDA_AREA_VIDEO_DISKS )
 	{
 		return false;
 	}
-	
+
 	widgetAction_t actionType = action.GetType();
 	const idSWFParmList& parms = action.GetParms();
-	
+
 	switch( actionType )
 	{
 		case WIDGET_ACTION_GO_BACK:
@@ -365,6 +365,6 @@ bool idMenuScreen_PDA_VideoDisks::HandleAction( idWidgetAction& action, const id
 			return true;
 		}
 	}
-	
+
 	return idMenuWidget::HandleAction( action, event, widget, forceHandled );
 }

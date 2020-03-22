@@ -47,11 +47,11 @@ public:
 	short		y1;
 	short		x2;
 	short		y2;
-	
+
 	// for depth bounds test
 	float       zmin;
 	float		zmax;
-	
+
 	// clear to backwards values
 	void		Clear();
 	bool		IsEmpty() const;
@@ -67,13 +67,13 @@ public:
 	{
 		return ( x2 - x1 + 1 ) * ( y2 - y1 + 1 );
 	}
-	
+
 	// expand by one pixel each way to fix roundoffs
 	void		Expand();
-	
+
 	// adds a point
 	void		AddPoint( float x, float y );
-	
+
 	void		Intersect( const idScreenRect& rect );
 	void		Union( const idScreenRect& rect );
 	bool		Equals( const idScreenRect& rect ) const;

@@ -53,22 +53,22 @@ idTarget_EndLevel::Spawn
 void idTarget_EndLevel::Spawn( void )
 {
 	idStr		guiName;
-	
+
 	gui = NULL;
 	noGui = spawnArgs.GetBool( "noGui" );
 	if( !noGui )
 	{
 		spawnArgs.GetString( "guiName", "guis/EndLevel.gui", guiName );
-		
+
 		if( guiName.Length() )
 		{
 			gui = idUserInterface::FindGui( guiName, true, false, true );
 		}
 	}
-	
+
 	buttonsReleased = false;
 	readyToExit = false;
-	
+
 	exitCommand = "";
 }
 
@@ -94,20 +94,20 @@ void idTarget_EndLevel::Event_Trigger( idEntity* activator )
 	{
 		return;
 	}
-	
+
 	// mark the endLevel, which will modify some game actions
 	// and pass control to us for drawing the stats and camera position
 	gameLocal.endLevel = this;
-	
+
 	// grab the activating player view position
 	idPlayer* player = ( idPlayer* )( activator );
-	
+
 	initialViewOrg = player->GetEyePosition();
 	initialViewAngles = idVec3( player->viewAngles[0], player->viewAngles[1], player->viewAngles[2] );
-	
+
 	// kill all the sounds
 	gameSoundWorld->StopAllSounds();
-	
+
 	if( noGui )
 	{
 		readyToExit = true;
@@ -126,20 +126,20 @@ void idTarget_EndLevel::Draw()
 	{
 		return;
 	}
-	
+
 	renderView_t			renderView;
-	
+
 	memset( &renderView, 0, sizeof( renderView ) );
-	
+
 	renderView.width = SCREEN_WIDTH;
 	renderView.height = SCREEN_HEIGHT;
 	renderView.x = 0;
 	renderView.y = 0;
-	
+
 	renderView.fov_x = 90;
 	renderView.fov_y = gameLocal.CalcFovY( renderView.fov_x );
 	renderView.time = gameLocal.time;
-	
+
 #if 0
 	renderView.vieworg = initialViewOrg;
 	renderView.viewaxis = idAngles( initialViewAngles ).toMat3();
@@ -147,9 +147,9 @@ void idTarget_EndLevel::Draw()
 	renderView.vieworg = renderEntity.origin;
 	renderView.viewaxis = renderEntity.axis;
 #endif
-	
+
 	gameRenderWorld->RenderScene( &renderView );
-	
+
 	// draw the gui on top of the 3D view
 	gui->Redraw( gameLocal.time );
 }
@@ -170,7 +170,7 @@ void idTarget_EndLevel::PlayerCommand( int buttons )
 	{
 		return;
 	}
-	
+
 	// we will exit at the end of the next game frame
 	readyToExit = true;
 }
@@ -186,9 +186,9 @@ const char* idTarget_EndLevel::ExitCommand()
 	{
 		return NULL;
 	}
-	
+
 	idStr nextMap;
-	
+
 	if( spawnArgs.GetString( "nextMap", "", nextMap ) )
 	{
 		sprintf( exitCommand, "map %s", nextMap.c_str() );
@@ -197,6 +197,6 @@ const char* idTarget_EndLevel::ExitCommand()
 	{
 		exitCommand = "";
 	}
-	
+
 	return exitCommand;
 }

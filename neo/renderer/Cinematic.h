@@ -72,41 +72,41 @@ class idCinematic
 public:
 	// initialize cinematic play back data
 	static void			InitCinematic();
-	
+
 	// shutdown cinematic play back data
 	static void			ShutdownCinematic();
-	
+
 	// allocates and returns a private subclass that implements the methods
 	// This should be used instead of new
 	static idCinematic*	Alloc();
-	
+
 	// frees all allocated memory
 	virtual				~idCinematic();
-	
+
 	// returns false if it failed to load
 	virtual bool		InitFromFile( const char* qpath, bool looping );
-	
+
 	// returns the length of the animation in milliseconds
 	virtual int			AnimationLength();
-	
+
 	// RB: let us know wether this video went EOF or is still active
 	virtual bool        IsPlaying() const;
 	// RB end
-	
+
 	// the pointers in cinData_t will remain valid until the next UpdateForTime() call
 	virtual cinData_t	ImageForTime( int milliseconds );
-	
+
 	// closes the file and frees all allocated memory
 	virtual void		Close();
-	
+
 	// sets the cinematic to start at that time (can be in the past)
 	virtual void		ResetTime( int time );
-	
+
 	// gets the time the cinematic started
 	virtual int			GetStartTime();
-	
+
 	virtual void		ExportToTGA( bool skipExisting = true );
-	
+
 	virtual float		GetFrameRate() const;
 };
 
@@ -127,11 +127,11 @@ public:
 		showWaveform = false;
 	}
 	~idSndWindow() {}
-	
+
 	bool				InitFromFile( const char* qpath, bool looping );
 	cinData_t			ImageForTime( int milliseconds );
 	int					AnimationLength();
-	
+
 private:
 	bool				showWaveform;
 };

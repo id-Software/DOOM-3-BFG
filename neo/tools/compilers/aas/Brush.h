@@ -64,12 +64,12 @@ class idBrushSide
 {
 
 	friend class idBrush;
-	
+
 public:
 	idBrushSide();
 	idBrushSide( const idPlane& plane, int planeNum );
 	~idBrushSide();
-	
+
 	int						GetFlags() const
 	{
 		return flags;
@@ -100,7 +100,7 @@ public:
 	}
 	idBrushSide* 			Copy() const;
 	int						Split( const idPlane& splitPlane, idBrushSide** front, idBrushSide** back ) const;
-	
+
 private:
 	int						flags;
 	int						planeNum;
@@ -121,11 +121,11 @@ class idBrush
 {
 
 	friend class idBrushList;
-	
+
 public:
 	idBrush();
 	~idBrush();
-	
+
 	int						GetFlags() const
 	{
 		return flags;
@@ -196,7 +196,7 @@ public:
 	{
 		return next;
 	}
-	
+
 private:
 	mutable idBrush* 		next;				// next brush in list
 	int						entityNum;			// entity number in editor
@@ -208,7 +208,7 @@ private:
 	int						savedPlaneSide;		// saved plane side
 	idBounds				bounds;				// brush bounds
 	idList<idBrushSide*>	sides;				// list with sides
-	
+
 private:
 	bool					CreateWindings();
 	void					BoundBrush( const idBrush* original = NULL );
@@ -228,7 +228,7 @@ class idBrushList
 public:
 	idBrushList();
 	~idBrushList();
-	
+
 	int						Num() const
 	{
 		return numBrushes;
@@ -283,7 +283,7 @@ public:
 	void					CreatePlaneList( idPlaneSet& planeList ) const;
 	// write a brush map with the brushes in the list
 	void					WriteBrushMap( const idStr& fileName, const idStr& ext ) const;
-	
+
 private:
 	idBrush* 				head;
 	idBrush* 				tail;
@@ -310,7 +310,7 @@ public:
 	}
 	void					WriteBrush( const idBrush* brush );
 	void					WriteBrushList( const idBrushList& brushList );
-	
+
 private:
 	idFile* 				fp;
 	idStr					texture;

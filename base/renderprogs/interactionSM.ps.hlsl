@@ -224,7 +224,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	}
 	
 	shadow *= stepSize;
-#else
+#elif 1
 	
 	const float2 poissonDisk[12] = float2[](
 	float2(0.6111618, 0.1050905),
@@ -269,14 +269,16 @@ void main( PS_IN fragment, out PS_OUT result )
 
    shadow *= stepSize;
 
-	//float shadow = texture( samp5, shadowTexcoord.xywz );
+#else
+
+	float shadow = texture( samp5, shadowTexcoord.xywz );
 #endif
 
 
 	half3 halfAngleVector = normalize( lightVector + viewVector );
 	half hdotN = clamp( dot3( halfAngleVector, localNormal ), 0.0, 1.0 );
 
-#if 0 //defined(USE_PBR)
+#if 1 //defined(USE_PBR)
 		
 #if 0 //defined(USE_METALNESS)
 	const half metallic = specMapSRGB.g;

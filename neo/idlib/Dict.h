@@ -51,7 +51,7 @@ Does not allocate memory until the first key/value pair is added.
 class idKeyValue
 {
 	friend class idDict;
-	
+
 public:
 	const idStr& 		GetKey() const
 	{
@@ -61,7 +61,7 @@ public:
 	{
 		return *value;
 	}
-	
+
 	size_t				Allocated() const
 	{
 		return key->Allocated() + value->Allocated();
@@ -70,12 +70,12 @@ public:
 	{
 		return sizeof( *this ) + key->Size() + value->Size();
 	}
-	
+
 	bool				operator==( const idKeyValue& kv ) const
 	{
 		return ( key == kv.key && value == kv.value );
 	}
-	
+
 private:
 	const idPoolStr* 	key;
 	const idPoolStr* 	value;
@@ -101,7 +101,7 @@ public:
 	idDict();
 	idDict( const idDict& other );	// allow declaration with assignment
 	~idDict();
-	
+
 	// set the granularity for the index
 	void				SetGranularity( int granularity );
 	// set hash size
@@ -120,13 +120,13 @@ public:
 	void				Clear();
 	// print the dict
 	void				Print() const;
-	
+
 	size_t				Allocated() const;
 	size_t				Size() const
 	{
 		return sizeof( *this ) + Allocated();
 	}
-	
+
 	void				Set( const char* key, const char* value );
 	void				SetFloat( const char* key, float val );
 	void				SetInt( const char* key, int val );
@@ -136,7 +136,7 @@ public:
 	void				SetVec4( const char* key, const idVec4& val );
 	void				SetAngles( const char* key, const idAngles& val );
 	void				SetMatrix( const char* key, const idMat3& val );
-	
+
 	// these return default values of 0.0, 0 and false
 	const char* 		GetString( const char* key, const char* defaultString = "" ) const;
 	float				GetFloat( const char* key, const char* defaultString ) const;
@@ -150,7 +150,7 @@ public:
 	idVec4				GetVec4( const char* key, const char* defaultString = NULL ) const;
 	idAngles			GetAngles( const char* key, const char* defaultString = NULL ) const;
 	idMat3				GetMatrix( const char* key, const char* defaultString = NULL ) const;
-	
+
 	bool				GetString( const char* key, const char* defaultString, const char** out ) const;
 	bool				GetString( const char* key, const char* defaultString, idStr& out ) const;
 	bool				GetFloat( const char* key, const char* defaultString, float& out ) const;
@@ -164,7 +164,7 @@ public:
 	bool				GetVec4( const char* key, const char* defaultString, idVec4& out ) const;
 	bool				GetAngles( const char* key, const char* defaultString, idAngles& out ) const;
 	bool				GetMatrix( const char* key, const char* defaultString, idMat3& out ) const;
-	
+
 	int					GetNumKeyVals() const;
 	const idKeyValue* 	GetKeyVal( int index ) const;
 	// returns the key/value pair with the given key
@@ -180,33 +180,33 @@ public:
 	const idKeyValue* 	MatchPrefix( const char* prefix, const idKeyValue* lastMatch = NULL ) const;
 	// randomly chooses one of the key/value pairs with the given key prefix and returns it's value
 	const char* 		RandomPrefix( const char* prefix, idRandom& random ) const;
-	
+
 	void				WriteToFileHandle( idFile* f ) const;
 	void				ReadFromFileHandle( idFile* f );
-	
+
 	// RB begin
 	void				WriteJSON( idFile* f, const char* prefix = "" ) const;
 	// RB end
-	
+
 	void				WriteToIniFile( idFile* f ) const;
 	bool				ReadFromIniFile( idFile* f );
-	
+
 	void				Serialize( idSerializer& ser );
-	
+
 	// returns a unique checksum for this dictionary's content
 	int					Checksum() const;
-	
+
 	static void			Init();
 	static void			Shutdown();
-	
+
 	static void			ShowMemoryUsage_f( const idCmdArgs& args );
 	static void			ListKeys_f( const idCmdArgs& args );
 	static void			ListValues_f( const idCmdArgs& args );
-	
+
 private:
 	idList<idKeyValue>	args;
 	idHashIndex			argHash;
-	
+
 	static idStrPool	globalKeys;
 	static idStrPool	globalValues;
 };

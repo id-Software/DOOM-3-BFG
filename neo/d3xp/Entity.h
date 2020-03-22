@@ -82,12 +82,12 @@ typedef enum
 	SIG_REMOVED,			// object was removed from the game
 	SIG_DAMAGE,				// object was damaged
 	SIG_BLOCKED,			// object was blocked
-	
+
 	SIG_MOVER_POS1,			// mover at position 1 (door closed)
 	SIG_MOVER_POS2,			// mover at position 2 (door open)
 	SIG_MOVER_1TO2,			// mover changing from position 1 to 2
 	SIG_MOVER_2TO1,			// mover changing from position 2 to 1
-	
+
 	NUM_SIGNALS
 } signalNum_t;
 
@@ -150,7 +150,7 @@ struct idNetEvent
 		}
 		ser.SerializeUMax( count, max );
 	}
-	
+
 public:
 	static const int	Maximum = max;
 	int		count;
@@ -162,14 +162,14 @@ typedef idNetEvent< 7 > netBoolEvent_t;
 inline void	WriteToBitMsg( const netBoolEvent_t& netEvent, idBitMsg& msg )
 {
 	msg.WriteBits( netEvent.count, idMath::BitsForInteger( netBoolEvent_t::Maximum ) );
-	
+
 	assert( netEvent.count <= netBoolEvent_t::Maximum );
 }
 
 inline void	ReadFromBitMsg( netBoolEvent_t& netEvent, const idBitMsg& msg )
 {
 	netEvent.count = msg.ReadBits( idMath::BitsForInteger( netBoolEvent_t::Maximum ) );
-	
+
 	assert( netEvent.count <= netBoolEvent_t::Maximum );
 }
 
@@ -179,34 +179,34 @@ class idEntity : public idClass
 public:
 	static const int		MAX_PVS_AREAS = 4;
 	static const uint32		INVALID_PREDICTION_KEY = 0xFFFFFFFF;
-	
+
 	int						entityNumber;			// index into the entity list
 	int						entityDefNumber;		// index into the entity def list
-	
+
 	idLinkList<idEntity>	spawnNode;				// for being linked into spawnedEntities list
 	idLinkList<idEntity>	activeNode;				// for being linked into activeEntities list
 	idLinkList<idEntity>	aimAssistNode;			// linked into gameLocal.aimAssistEntities
-	
+
 	idLinkList<idEntity>	snapshotNode;			// for being linked into snapshotEntities list
 	int						snapshotChanged;		// used to detect snapshot state changes
 	int						snapshotBits;			// number of bits this entity occupied in the last snapshot
 	bool					snapshotStale;			// Set to true if this entity is considered stale in the snapshot
-	
+
 	idStr					name;					// name of entity
 	idDict					spawnArgs;				// key/value pairs used to spawn and initialize entity
 	idScriptObject			scriptObject;			// contains all script defined data for this entity
-	
+
 	int						thinkFlags;				// TH_? flags
 	int						dormantStart;			// time that the entity was first closed off from player
 	bool					cinematic;				// during cinematics, entity will only think if cinematic is set
-	
+
 	renderView_t* 			renderView;				// for camera views from this entity
 	idEntity* 				cameraTarget;			// any remoteRenderMap shaders will use this
-	
+
 	idList< idEntityPtr<idEntity>, TAG_ENTITY >	targets;		// when this entity is activated these entities entity are activated
-	
+
 	int						health;					// FIXME: do all objects really need health?
-	
+
 	struct entityFlags_s
 	{
 		bool				notarget			: 1;	// if true never attack or target this entity
@@ -224,31 +224,31 @@ public:
 		bool				grabbed				: 1;	// if true object is currently being grabbed
 		bool				skipReplication		: 1; // don't replicate this entity over the network.
 	} fl;
-	
+
 	int						timeGroup;
-	
+
 	bool					noGrab;
-	
+
 	renderEntity_t			xrayEntity;
 	qhandle_t				xrayEntityHandle;
 	const idDeclSkin* 		xraySkin;
-	
+
 	void					DetermineTimeGroup( bool slowmo );
-	
+
 	void					SetGrabbedState( bool grabbed );
 	bool					IsGrabbed();
-	
+
 public:
 	ABSTRACT_PROTOTYPE( idEntity );
-	
+
 	idEntity();
 	~idEntity();
-	
+
 	void					Spawn();
-	
+
 	void					Save( idSaveGame* savefile ) const;
 	void					Restore( idRestoreGame* savefile );
-	
+
 	const char* 			GetEntityDefName() const;
 	void					SetName( const char* name );
 	const char* 			GetName() const;
@@ -257,11 +257,11 @@ public:
 	{
 		return entityNumber;
 	}
-	
+
 	// clients generate views based on all the player specific options,
 	// cameras have custom code, and everything else just uses the axis orientation
 	virtual renderView_t* 	GetRenderView();
-	
+
 	// thinking
 	virtual void			Think();
 	bool					CheckDormant();	// dormant == on the active list, but out of PVS
@@ -272,7 +272,7 @@ public:
 	void					BecomeInactive( int flags );
 	void					UpdatePVSAreas( const idVec3& pos );
 	void					BecomeReplicated();
-	
+
 	// visuals
 	virtual void			Present();
 	virtual renderEntity_t* GetRenderEntity();
@@ -299,13 +299,13 @@ public:
 	const int* 				GetPVSAreas();
 	void					ClearPVSAreas();
 	bool					PhysicsTeamInPVS( pvsHandle_t pvsHandle );
-	
+
 	// animation
 	virtual bool			UpdateAnimationControllers();
 	bool					UpdateRenderEntity( renderEntity_s* renderEntity, const renderView_t* renderView );
 	static bool				ModelCallback( renderEntity_s* renderEntity, const renderView_t* renderView );
 	virtual idAnimator* 	GetAnimator();	// returns animator object used by this entity
-	
+
 	// sound
 	virtual bool			CanPlayChatterSounds() const;
 	bool					StartSound( const char* soundName, const s_channelType channel, int soundShaderFlags, bool broadcast, int* length );
@@ -316,7 +316,7 @@ public:
 	int						GetListenerId() const;
 	idSoundEmitter* 		GetSoundEmitter() const;
 	void					FreeSoundEmitter( bool immediate );
-	
+
 	// entity binding
 	virtual void			PreBind();
 	virtual void			PostBind();
@@ -342,7 +342,7 @@ public:
 	idVec3					GetWorldCoordinates( const idVec3& vec ) const;
 	bool					GetMasterPosition( idVec3& masterOrigin, idMat3& masterAxis ) const;
 	void					GetWorldVelocities( idVec3& linearVelocity, idVec3& angularVelocity ) const;
-	
+
 	// physics
 	// set a new physics object to be used by this entity
 	void					SetPhysics( idPhysics* phys );
@@ -386,7 +386,7 @@ public:
 	virtual void			AddContactEntity( idEntity* ent );
 	// remove a touching entity
 	virtual void			RemoveContactEntity( idEntity* ent );
-	
+
 	// damage
 	// returns true if this entity can be damaged from the given origin
 	virtual bool			CanDamage( const idVec3& origin, idVec3& damagePoint ) const;
@@ -400,7 +400,7 @@ public:
 	virtual bool			Pain( idEntity* inflictor, idEntity* attacker, int damage, const idVec3& dir, int location );
 	// notifies this entity that is has been killed
 	virtual void			Killed( idEntity* inflictor, idEntity* attacker, int damage, const idVec3& dir, int location );
-	
+
 	// scripting
 	virtual bool			ShouldConstructScriptObjectAtSpawn() const;
 	virtual idThread* 		ConstructScriptObject();
@@ -411,56 +411,56 @@ public:
 	bool					HasSignal( signalNum_t signalnum ) const;
 	void					Signal( signalNum_t signalnum );
 	void					SignalEvent( idThread* thread, signalNum_t signalnum );
-	
+
 	// gui
 	void					TriggerGuis();
 	bool					HandleGuiCommands( idEntity* entityGui, const char* cmds );
 	virtual bool			HandleSingleGuiCommand( idEntity* entityGui, idLexer* src );
-	
+
 	// targets
 	void					FindTargets();
 	void					RemoveNullTargets();
 	void					ActivateTargets( idEntity* activator ) const;
-	
+
 	// misc
 	virtual void			Teleport( const idVec3& origin, const idAngles& angles, idEntity* destination );
 	bool					TouchTriggers() const;
 	idCurve_Spline<idVec3>* GetSpline() const;
 	virtual void			ShowEditingDialog();
-	
+
 	enum
 	{
 		EVENT_STARTSOUNDSHADER,
 		EVENT_STOPSOUNDSHADER,
 		EVENT_MAXEVENTS
 	};
-	
+
 	// Called on clients in an MP game, does the actual interpolation for the entity.
 	// This function will eventually replace ClientPredictionThink completely.
 	virtual void			ClientThink( const int curTime, const float fraction, const bool predict );
-	
+
 	virtual void			ClientPredictionThink();
 	virtual void			WriteToSnapshot( idBitMsg& msg ) const;
 	void					ReadFromSnapshot_Ex( const idBitMsg& msg );
 	virtual void			ReadFromSnapshot( const idBitMsg& msg );
 	virtual bool			ServerReceiveEvent( int event, int time, const idBitMsg& msg );
 	virtual bool			ClientReceiveEvent( int event, int time, const idBitMsg& msg );
-	
+
 	void					WriteBindToSnapshot( idBitMsg& msg ) const;
 	void					ReadBindFromSnapshot( const idBitMsg& msg );
 	void					WriteColorToSnapshot( idBitMsg& msg ) const;
 	void					ReadColorFromSnapshot( const idBitMsg& msg );
 	void					WriteGUIToSnapshot( idBitMsg& msg ) const;
 	void					ReadGUIFromSnapshot( const idBitMsg& msg );
-	
+
 	void					ServerSendEvent( int eventId, const idBitMsg* msg, bool saveEvent, lobbyUserID_t excluding = lobbyUserID_t() ) const;
 	void					ClientSendEvent( int eventId, const idBitMsg* msg ) const;
-	
+
 	void					SetUseClientInterpolation( bool use )
 	{
 		useClientInterpolation = use;
 	}
-	
+
 	void					SetSkipReplication( const bool skip )
 	{
 		fl.skipReplication = skip;
@@ -473,7 +473,7 @@ public:
 	{
 		return  GetEntityNumber() < ENTITYNUM_FIRST_NON_REPLICATED;
 	}
-	
+
 	void					CreateDeltasFromOldOriginAndAxis( const idVec3& oldOrigin, const idMat3& oldAxis );
 	void					DecayOriginAndAxisDelta();
 	uint32					GetPredictedKey()
@@ -484,14 +484,14 @@ public:
 	{
 		predictionKey = key_;
 	}
-	
+
 	void					FlagNewSnapshot();
-	
+
 	idEntity*				GetTeamChain()
 	{
 		return teamChain;
 	}
-	
+
 	// It is only safe to interpolate if this entity has received two snapshots.
 	enum interpolationBehavior_t
 	{
@@ -499,7 +499,7 @@ public:
 		USE_LATEST_SNAP_ONLY,
 		USE_INTERPOLATION
 	};
-	
+
 	interpolationBehavior_t GetInterpolationBehavior() const
 	{
 		return interpolationBehavior;
@@ -508,12 +508,12 @@ public:
 	{
 		return snapshotsReceived;
 	}
-	
+
 protected:
 	renderEntity_t			renderEntity;						// used to present a model to the renderer
 	int						modelDefHandle;						// handle to static renderer model
 	refSound_t				refSound;							// used to present sound to the audio engine
-	
+
 	idVec3					GetOriginDelta() const
 	{
 		return originDelta;
@@ -522,7 +522,7 @@ protected:
 	{
 		return axisDelta;
 	}
-	
+
 private:
 	idPhysics_Static		defaultPhysicsObj;					// default physics object
 	idPhysics* 				physics;							// physics used for this entity
@@ -534,26 +534,26 @@ private:
 	bool					useClientInterpolation;				// disables interpolation for some objects (handy for weapon world models)
 	int						numPVSAreas;						// number of renderer areas the entity covers
 	int						PVSAreas[MAX_PVS_AREAS];			// numbers of the renderer areas the entity covers
-	
+
 	signalList_t* 			signals;
-	
+
 	int						mpGUIState;							// local cache to avoid systematic SetStateInt
-	
+
 	uint32					predictionKey;						// Unique key used to sync predicted ents (projectiles) in MP.
-	
+
 	// Delta values that are set when the server or client disagree on where the render model should be. If this happens,
 	// they resolve it through DecayOriginAndAxisDelta()
 	idVec3					originDelta;
 	idMat3					axisDelta;
-	
+
 	interpolationBehavior_t	interpolationBehavior;
 	unsigned int			snapshotsReceived;
-	
+
 private:
 	void					FixupLocalizedStrings();
-	
+
 	bool					DoDormantTests();				// dormant == on the active list, but out of PVS
-	
+
 	// physics
 	// initialize the default physics
 	void					InitDefaultPhysics( const idVec3& origin, const idMat3& axis );
@@ -561,15 +561,15 @@ private:
 	void					UpdateFromPhysics( bool moveBack );
 	// get physics timestep
 	virtual int				GetPhysicsTimeStep() const;
-	
+
 	// entity binding
 	bool					InitBind( idEntity* master );		// initialize an entity binding
 	void					FinishBind();					// finish an entity binding
 	void					RemoveBinds();				// deletes any entities bound to this object
 	void					QuitTeam();					// leave the current team
-	
+
 	void					UpdatePVSAreas();
-	
+
 	// events
 	void					Event_GetName();
 	void					Event_SetName( const char* name );
@@ -663,42 +663,42 @@ class idAnimatedEntity : public idEntity
 {
 public:
 	CLASS_PROTOTYPE( idAnimatedEntity );
-	
+
 	idAnimatedEntity();
 	~idAnimatedEntity();
-	
+
 	void					Save( idSaveGame* savefile ) const;
 	void					Restore( idRestoreGame* savefile );
-	
+
 	virtual void			ClientPredictionThink();
 	virtual void			ClientThink( const int curTime, const float fraction, const bool predict );
 	virtual void			Think();
-	
+
 	void					UpdateAnimation();
-	
+
 	virtual idAnimator* 	GetAnimator();
 	virtual void			SetModel( const char* modelname );
-	
+
 	bool					GetJointWorldTransform( jointHandle_t jointHandle, int currentTime, idVec3& offset, idMat3& axis );
 	bool					GetJointTransformForAnim( jointHandle_t jointHandle, int animNum, int currentTime, idVec3& offset, idMat3& axis ) const;
-	
+
 	virtual int				GetDefaultSurfaceType() const;
 	virtual void			AddDamageEffect( const trace_t& collision, const idVec3& velocity, const char* damageDefName );
 	void					AddLocalDamageEffect( jointHandle_t jointNum, const idVec3& localPoint, const idVec3& localNormal, const idVec3& localDir, const idDeclEntityDef* def, const idMaterial* collisionMaterial );
 	void					UpdateDamageEffects();
-	
+
 	virtual bool			ClientReceiveEvent( int event, int time, const idBitMsg& msg );
-	
+
 	enum
 	{
 		EVENT_ADD_DAMAGE_EFFECT = idEntity::EVENT_MAXEVENTS,
 		EVENT_MAXEVENTS
 	};
-	
+
 protected:
 	idAnimator				animator;
 	damageEffect_t* 		damageEffects;
-	
+
 private:
 	void					Event_GetJointHandle( const char* jointname );
 	void 					Event_ClearAllJoints();
@@ -715,12 +715,12 @@ class SetTimeState
 	bool					activated;
 	bool					previousFast;
 	bool					fast;
-	
+
 public:
 	SetTimeState();
 	SetTimeState( int timeGroup );
 	~SetTimeState();
-	
+
 	void					PushState( int timeGroup );
 };
 
@@ -741,9 +741,9 @@ ID_INLINE void SetTimeState::PushState( int timeGroup )
 	// Don't mess with time in Multiplayer
 	if( !common->IsMultiplayer() )
 	{
-	
+
 		activated = true;
-		
+
 		// determine previous fast setting
 		if( gameLocal.time == gameLocal.slow.time )
 		{
@@ -753,7 +753,7 @@ ID_INLINE void SetTimeState::PushState( int timeGroup )
 		{
 			previousFast = true;
 		}
-		
+
 		// determine new fast setting
 		if( timeGroup )
 		{
@@ -763,7 +763,7 @@ ID_INLINE void SetTimeState::PushState( int timeGroup )
 		{
 			fast = false;
 		}
-		
+
 		// set correct time
 		gameLocal.SelectTimeGroup( timeGroup );
 	}

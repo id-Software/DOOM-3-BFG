@@ -41,52 +41,52 @@ void idMenuHandler_Scoreboard::Update()
 	{
 		return;
 	}
-	
+
 	if( nextScreen != activeScreen )
 	{
-	
+
 		if( nextScreen == SCOREBOARD_AREA_INVALID )
 		{
-		
+
 			if( activeScreen > SCOREBOARD_AREA_INVALID && activeScreen < SCOREBOARD_NUM_AREAS && menuScreens[ activeScreen ] != NULL )
 			{
 				menuScreens[ activeScreen ]->HideScreen( static_cast<mainMenuTransition_t>( transition ) );
 			}
-			
+
 			idMenuWidget_CommandBar* cmdBar = dynamic_cast< idMenuWidget_CommandBar* >( GetChildFromIndex( SCOREBOARD_WIDGET_CMD_BAR ) );
 			if( cmdBar != NULL )
 			{
 				cmdBar->ClearAllButtons();
 				cmdBar->Update();
 			}
-			
+
 			idSWFSpriteInstance* bg = gui->GetRootObject().GetNestedSprite( "background" );
-			
+
 			if( bg != NULL )
 			{
 				bg->PlayFrame( "rollOff" );
 			}
-			
+
 		}
 		else
 		{
-		
+
 			if( activeScreen > SCOREBOARD_AREA_INVALID && activeScreen < SCOREBOARD_NUM_AREAS && menuScreens[ activeScreen ] != NULL )
 			{
 				menuScreens[ activeScreen ]->HideScreen( static_cast<mainMenuTransition_t>( transition ) );
 			}
-			
+
 			if( nextScreen > SCOREBOARD_AREA_INVALID && nextScreen < SCOREBOARD_NUM_AREAS && menuScreens[ nextScreen ] != NULL )
 			{
 				menuScreens[ nextScreen ]->UpdateCmds();
 				menuScreens[ nextScreen ]->ShowScreen( static_cast<mainMenuTransition_t>( transition ) );
 			}
 		}
-		
+
 		transition = MENU_TRANSITION_INVALID;
 		activeScreen = nextScreen;
 	}
-	
+
 	idMenuHandler::Update();
 }
 
@@ -109,23 +109,23 @@ void idMenuHandler_Scoreboard::ActivateMenu( bool show )
 {
 
 	idMenuHandler::ActivateMenu( show );
-	
+
 	idPlayer* player = gameLocal.GetLocalPlayer();
 	if( player == NULL )
 	{
 		return;
 	}
-	
+
 	if( show )
 	{
-	
+
 		idMenuWidget_CommandBar* cmdBar = dynamic_cast< idMenuWidget_CommandBar* >( GetChildFromIndex( SCOREBOARD_WIDGET_CMD_BAR ) );
 		if( cmdBar != NULL )
 		{
 			cmdBar->ClearAllButtons();
 			cmdBar->Update();
 		}
-		
+
 		nextScreen = SCOREBOARD_AREA_INVALID;
 		activeScreen = SCOREBOARD_AREA_INVALID;
 	}
@@ -134,8 +134,8 @@ void idMenuHandler_Scoreboard::ActivateMenu( bool show )
 		activeScreen = SCOREBOARD_AREA_INVALID;
 		nextScreen = SCOREBOARD_AREA_INVALID;
 	}
-	
-	
+
+
 	class idSWFScriptFunction_activateMenu : public idSWFScriptFunction_RefCounted
 	{
 	public:
@@ -149,15 +149,15 @@ void idMenuHandler_Scoreboard::ActivateMenu( bool show )
 			{
 				handler->TriggerMenu();
 			}
-			
+
 			return idSWFScriptVar();
 		}
 	private:
 		idMenuHandler* handler;
 	};
-	
+
 	gui->SetGlobal( "activateMenus", new( TAG_SWF ) idSWFScriptFunction_activateMenu( this ) );
-	
+
 }
 
 /*
@@ -168,7 +168,7 @@ idMenuHandler_Scoreboard::Initialize
 void idMenuHandler_Scoreboard::Initialize( const char* swfFile, idSoundWorld* sw )
 {
 	idMenuHandler::Initialize( swfFile, sw );
-	
+
 	//---------------------
 	// Initialize the menus
 	//---------------------
@@ -176,15 +176,15 @@ void idMenuHandler_Scoreboard::Initialize( const char* swfFile, idSoundWorld* sw
 	menuScreens[ (screenId) ] = new className();						\
 	menuScreens[ (screenId) ]->Initialize( menuHandler );				\
 	menuScreens[ (screenId) ]->AddRef();
-	
+
 	for( int i = 0; i < SCOREBOARD_NUM_AREAS; ++i )
 	{
 		menuScreens[ i ] = NULL;
 	}
-	
+
 	BIND_SCOREBOARD_SCREEN( SCOREBOARD_AREA_DEFAULT, idMenuScreen_Scoreboard, this );
 	BIND_SCOREBOARD_SCREEN( SCOREBOARD_AREA_TEAM, idMenuScreen_Scoreboard_Team, this );
-	
+
 	//
 	// command bar
 	//
@@ -192,9 +192,9 @@ void idMenuHandler_Scoreboard::Initialize( const char* swfFile, idSoundWorld* sw
 	commandBarWidget->SetAlignment( idMenuWidget_CommandBar::LEFT );
 	commandBarWidget->SetSpritePath( "prompts" );
 	commandBarWidget->Initialize( this );
-	
+
 	AddChild( commandBarWidget );
-	
+
 	class idScoreboardGUIClose : public idSWFScriptFunction_RefCounted
 	{
 	public:
@@ -204,12 +204,12 @@ void idMenuHandler_Scoreboard::Initialize( const char* swfFile, idSoundWorld* sw
 			return idSWFScriptVar();
 		}
 	};
-	
+
 	if( gui != NULL )
 	{
 		gui->SetGlobal( "closeScoreboard", new idScoreboardGUIClose() );
 	}
-	
+
 	// precache sounds
 	// don't load gui music for the pause menu to save some memory
 	const idSoundShader* soundShader = NULL;
@@ -267,9 +267,9 @@ idMenuScreen* idMenuHandler_Scoreboard::GetMenuScreen( int index )
 	{
 		return NULL;
 	}
-	
+
 	return menuScreens[ index ];
-	
+
 }
 
 /*
@@ -284,10 +284,10 @@ bool idMenuHandler_Scoreboard::HandleAction( idWidgetAction& action, const idWid
 	{
 		return true;
 	}
-	
+
 	widgetAction_t actionType = action.GetType();
 	//const idSWFParmList & parms = action.GetParms();
-	
+
 	if( event.type == WIDGET_EVENT_COMMAND )
 	{
 		if( menuScreens[ activeScreen ] != NULL && !forceHandled )
@@ -306,7 +306,7 @@ bool idMenuHandler_Scoreboard::HandleAction( idWidgetAction& action, const idWid
 			}
 		}
 	}
-	
+
 	return idMenuHandler::HandleAction( action, event, widget, forceHandled );
 }
 
@@ -321,7 +321,7 @@ void idMenuHandler_Scoreboard::AddPlayerInfo( int index, voiceStateDisplay_t voi
 	scoreboardInfo_t info;
 	idList< idStr > values;
 	values.Append( name );
-	
+
 	if( spectateData.IsEmpty() || gameLocal.mpGame.GetGameState() == idMultiplayerGame::GAMEREVIEW )
 	{
 		values.Append( va( "%i", score ) );
@@ -330,14 +330,14 @@ void idMenuHandler_Scoreboard::AddPlayerInfo( int index, voiceStateDisplay_t voi
 	{
 		values.Append( spectateData );
 	}
-	
+
 	values.Append( va( "%i", wins ) );
 	values.Append( va( "%i", ping ) );
-	
+
 	info.index = index;
 	info.voiceState = voiceState;
 	info.values = values;
-	
+
 	if( team == 1 )
 	{
 		blueInfo.Append( info );
@@ -398,7 +398,7 @@ void idMenuHandler_Scoreboard::UpdateScoreboard( idList< mpScoreboardInfo >& dat
 			}
 		}
 	}
-	
+
 	if( nextScreen == SCOREBOARD_AREA_DEFAULT )
 	{
 		idMenuScreen_Scoreboard* screen = dynamic_cast< idMenuScreen_Scoreboard* >( menuScreens[ SCOREBOARD_AREA_DEFAULT ] );
@@ -417,20 +417,20 @@ void idMenuHandler_Scoreboard::UpdateScoreboard( idList< mpScoreboardInfo >& dat
 			screen->UpdateTeamScores( redScore, blueScore );
 		}
 	}
-	
+
 	redInfo.Clear();
 	blueInfo.Clear();
 	for( int i = 0; i < data.Num(); ++i )
 	{
 		AddPlayerInfo( data[i].playerNum, data[i].voiceState, data[i].team, data[i].name, data[i].score, data[i].wins, data[i].ping, data[i].spectateData );
 	}
-	
+
 	idList< scoreboardInfo_t, TAG_IDLIB_LIST_MENU > listItemInfo;
 	for( int i = 0; i < redInfo.Num(); ++i )
 	{
 		listItemInfo.Append( redInfo[i] );
 	}
-	
+
 	// add empty items to list
 	if( blueInfo.Num() > 0 )
 	{
@@ -440,18 +440,18 @@ void idMenuHandler_Scoreboard::UpdateScoreboard( idList< mpScoreboardInfo >& dat
 			listItemInfo.Append( info );
 		}
 	}
-	
+
 	for( int i = 0; i < blueInfo.Num(); ++i )
 	{
 		listItemInfo.Append( blueInfo[i] );
 	}
-	
+
 	while( listItemInfo.Num() < 8 )
 	{
 		scoreboardInfo_t info;
 		listItemInfo.Append( info );
 	}
-	
+
 	if( nextScreen == SCOREBOARD_AREA_DEFAULT || activationScreen == SCOREBOARD_AREA_DEFAULT )
 	{
 		idMenuScreen_Scoreboard* screen = dynamic_cast< idMenuScreen_Scoreboard* >( menuScreens[ SCOREBOARD_AREA_DEFAULT ] );
@@ -468,7 +468,7 @@ void idMenuHandler_Scoreboard::UpdateScoreboard( idList< mpScoreboardInfo >& dat
 			screen->SetPlayerData( listItemInfo );
 		}
 	}
-	
+
 	scoreboardInfo = data;
 }
 
@@ -499,7 +499,7 @@ int idMenuHandler_Scoreboard::GetNumPlayers( int team )
 	{
 		return redInfo.Num();
 	}
-	
+
 }
 
 /*
@@ -522,7 +522,7 @@ void idMenuHandler_Scoreboard::GetUserID( int slot, lobbyUserID_t& luid )
 {
 	idList< int > redList;
 	idList< int > blueList;
-	
+
 	for( int i = 0; i < scoreboardInfo.Num(); ++i )
 	{
 		if( scoreboardInfo[i].team == 1 )
@@ -534,24 +534,24 @@ void idMenuHandler_Scoreboard::GetUserID( int slot, lobbyUserID_t& luid )
 			redList.Append( scoreboardInfo[i].playerNum );
 		}
 	}
-	
+
 	idList< int > displayList;
-	
+
 	for( int i = 0; i < redList.Num(); ++i )
 	{
 		displayList.Append( redList[ i ] );
 	}
-	
+
 	for( int i = 0; i < blueList.Num(); ++i )
 	{
 		displayList.Append( blueList[ i ] );
 	}
-	
+
 	if( slot >= displayList.Num() )
 	{
 		return;
 	}
-	
+
 	luid = gameLocal.lobbyUserIDs[ displayList[ slot ] ];
 }
 

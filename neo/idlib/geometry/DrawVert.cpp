@@ -42,7 +42,7 @@ int idShadowVert::CreateShadowCache( idShadowVert* vertexCache, const idDrawVert
 		vertexCache[i * 2 + 0].xyzw[1] = verts[i].xyz[1];
 		vertexCache[i * 2 + 0].xyzw[2] = verts[i].xyz[2];
 		vertexCache[i * 2 + 0].xyzw[3] = 1.0f;
-		
+
 		vertexCache[i * 2 + 1].xyzw[0] = verts[i].xyz[0];
 		vertexCache[i * 2 + 1].xyzw[1] = verts[i].xyz[1];
 		vertexCache[i * 2 + 1].xyzw[2] = verts[i].xyz[2];
@@ -66,14 +66,14 @@ int idShadowVertSkinned::CreateShadowCache( idShadowVertSkinned* vertexCache, co
 		vertexCache[0].xyzw[3] = 1.0f;
 		*( unsigned int* )vertexCache[0].color = *( unsigned int* )verts[i].color;
 		*( unsigned int* )vertexCache[0].color2 = *( unsigned int* )verts[i].color2;
-		
+
 		vertexCache[1].xyzw[0] = verts[i].xyz[0];
 		vertexCache[1].xyzw[1] = verts[i].xyz[1];
 		vertexCache[1].xyzw[2] = verts[i].xyz[2];
 		vertexCache[1].xyzw[3] = 0.0f;
 		*( unsigned int* )vertexCache[1].color = *( unsigned int* )verts[i].color;
 		*( unsigned int* )vertexCache[1].color2 = *( unsigned int* )verts[i].color2;
-		
+
 		vertexCache += 2;
 	}
 	return numVerts * 2;

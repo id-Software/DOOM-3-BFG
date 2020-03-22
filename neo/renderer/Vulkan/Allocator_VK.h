@@ -36,6 +36,7 @@ enum vulkanMemoryUsage_t
 	VULKAN_MEMORY_USAGE_CPU_ONLY,
 	VULKAN_MEMORY_USAGE_CPU_TO_GPU,
 	VULKAN_MEMORY_USAGE_GPU_TO_CPU,
+	VULKAN_MEMORY_USAGES,
 };
 
 enum vulkanAllocationType_t
@@ -44,7 +45,8 @@ enum vulkanAllocationType_t
 	VULKAN_ALLOCATION_TYPE_BUFFER,
 	VULKAN_ALLOCATION_TYPE_IMAGE,
 	VULKAN_ALLOCATION_TYPE_IMAGE_LINEAR,
-	VULKAN_ALLOCATION_TYPE_IMAGE_OPTIMAL
+	VULKAN_ALLOCATION_TYPE_IMAGE_OPTIMAL,
+	VULKAN_ALLOCATION_TYPES,
 };
 
 uint32 FindMemoryTypeIndex( const uint32 memoryTypeBits, const vulkanMemoryUsage_t usage );
@@ -61,7 +63,7 @@ struct vulkanAllocation_t
 		data( NULL )
 	{
 	}
-	
+
 	idVulkanBlock* block;
 	uint32			id;
 	VkDeviceMemory	deviceMemory;
@@ -84,15 +86,15 @@ class idVulkanBlock
 public:
 	idVulkanBlock( const uint32 memoryTypeIndex, const VkDeviceSize size, vulkanMemoryUsage_t usage );
 	~idVulkanBlock();
-	
+
 	bool				Init();
 	void				Shutdown();
-	
+
 	bool				IsHostVisible() const
 	{
 		return usage != VULKAN_MEMORY_USAGE_GPU_ONLY;
 	}
-	
+
 	bool				Allocate(
 		const uint32 size,
 		const uint32 align,
@@ -100,20 +102,21 @@ public:
 		const vulkanAllocationType_t allocType,
 		vulkanAllocation_t& allocation );
 	void				Free( vulkanAllocation_t& allocation );
-	
+
+	void				Print();
+
 private:
 	struct chunk_t
 	{
 		uint32					id;
 		VkDeviceSize			size;
 		VkDeviceSize			offset;
-		vulkanMemoryUsage_t		usage;
 		chunk_t* 				prev;
 		chunk_t* 				next;
 		vulkanAllocationType_t	type;
 	};
 	chunk_t* 			head;
-	
+
 	uint32				nextBlockId;
 	uint32				memoryTypeIndex;
 	vulkanMemoryUsage_t	usage;
@@ -122,6 +125,8 @@ private:
 	VkDeviceSize		allocated;
 	byte* 				data;
 };
+
+typedef idArray< idList< idVulkanBlock* >, VK_MAX_MEMORY_TYPES > idVulkanBlocks;
 
 /*
 ================================================================================================
@@ -135,10 +140,10 @@ class idVulkanAllocator
 {
 public:
 	idVulkanAllocator();
-	
+
 	void					Init();
 	void					Shutdown();
-	
+
 	vulkanAllocation_t			Allocate(
 		const uint32 size,
 		const uint32 align,
@@ -147,22 +152,24 @@ public:
 		const vulkanAllocationType_t allocType );
 	void					Free( const vulkanAllocation_t allocation );
 	void					EmptyGarbage();
-	
+
+	void					Print();
+
 private:
 	int							garbageIndex;
-	
-	int							deviceLocalMemoryMB;
-	int							hostVisibleMemoryMB;
+
+	int							deviceLocalMemoryBytes;
+	int							hostVisibleMemoryBytes;
 	VkDeviceSize				bufferImageGranularity;
-	
-	idArray< idList< idVulkanBlock* >, VK_MAX_MEMORY_TYPES > blocks;
+
+	idVulkanBlocks				blocks;
 	idList<vulkanAllocation_t>	garbage[ NUM_FRAME_DATA ];
 };
 
 #if defined( USE_AMD_ALLOCATOR )
-extern VmaAllocator vmaAllocator;
+	extern VmaAllocator vmaAllocator;
 #else
-extern idVulkanAllocator vulkanAllocator;
+	extern idVulkanAllocator vulkanAllocator;
 #endif
 
 #endif

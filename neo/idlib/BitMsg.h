@@ -50,103 +50,103 @@ public:
 	{
 		InitRead( data, length );
 	}
-	
+
 	// both read & write
 	void			InitWrite( byte* data, int length );
-	
+
 	// read only
 	void			InitRead( const byte* data, int length );
-	
+
 	// get data for writing
 	byte* 			GetWriteData();
-	
+
 	// get data for reading
 	const byte* 	GetReadData() const;
-	
+
 	// get the maximum message size
 	int				GetMaxSize() const;
-	
+
 	// generate error if not set and message is overflowed
 	void			SetAllowOverflow( bool set );
-	
+
 	// returns true if the message was overflowed
 	bool			IsOverflowed() const;
-	
+
 	// size of the message in bytes
 	int				GetSize() const;
-	
+
 	// set the message size
 	void			SetSize( int size );
-	
+
 	// get current write bit
 	int				GetWriteBit() const;
-	
+
 	// set current write bit
 	void			SetWriteBit( int bit );
-	
+
 	// returns number of bits written
 	int				GetNumBitsWritten() const;
-	
+
 	// space left in bytes for writing
 	int				GetRemainingSpace() const;
-	
+
 	// space left in bits for writing
 	int				GetRemainingWriteBits() const;
-	
+
 	//------------------------
 	// Write State
 	//------------------------
-	
+
 	// save the write state
 	void			SaveWriteState( int& s, int& b, uint64& t ) const;
-	
+
 	// restore the write state
 	void			RestoreWriteState( int s, int b, uint64 t );
-	
+
 	//------------------------
 	// Reading
 	//------------------------
-	
+
 	// bytes read so far
 	int				GetReadCount() const;
-	
+
 	// set the number of bytes and bits read
 	void			SetReadCount( int bytes );
-	
+
 	// get current read bit
 	int				GetReadBit() const;
-	
+
 	// set current read bit
 	void			SetReadBit( int bit );
-	
+
 	// returns number of bits read
 	int				GetNumBitsRead() const;
-	
+
 	// number of bytes left to read
 	int				GetRemainingData() const;
-	
+
 	// number of bits left to read
 	int				GetRemainingReadBits() const;
-	
+
 	// save the read state
 	void			SaveReadState( int& c, int& b ) const;
-	
+
 	// restore the read state
 	void			RestoreReadState( int c, int b );
-	
+
 	//------------------------
 	// Writing
 	//------------------------
-	
+
 	// begin writing
 	void			BeginWriting();
-	
+
 	// write up to the next byte boundary
 	void			WriteByteAlign();
-	
+
 	// write the specified number of bits
 	void			WriteBits( int value, int numBits );
-	
+
 	void			WriteBool( bool c );
 	void			WriteChar( int8 c );
 	void			WriteByte( uint8 c );
@@ -162,7 +162,7 @@ public:
 	void			WriteString( const char* s, int maxLength = -1, bool make7Bit = true );
 	void			WriteData( const void* data, int length );
 	void			WriteNetadr( const netadr_t adr );
-	
+
 	void			WriteUNorm8( float f )
 	{
 		WriteByte( idMath::Ftob( f * 255.0f ) );
@@ -175,7 +175,7 @@ public:
 	{
 		WriteShort( idMath::Ftoi( f * 32767.0f ) );
 	}
-	
+
 	void			WriteDeltaChar( int8 oldValue, int8 newValue )
 	{
 		WriteByte( newValue - oldValue );
@@ -204,14 +204,14 @@ public:
 	{
 		WriteFloat( newValue - oldValue, exponentBits, mantissaBits );
 	}
-	
+
 	bool			WriteDeltaDict( const idDict& dict, const idDict* base );
-	
+
 	template< int _max_, int _numBits_ >
 	void			WriteQuantizedFloat( float value );
 	template< int _max_, int _numBits_ >
 	void			WriteQuantizedUFloat( float value );		// Quantize a float to a variable number of bits (assumes unsigned, uses simple quantization)
-	
+
 	template< typename T >
 	void			WriteVectorFloat( const T& v )
 	{
@@ -244,7 +244,7 @@ public:
 			WriteNorm16( v[i] );
 		}
 	}
-	
+
 	// Compress a vector to a variable number of bits (assumes signed, uses simple quantization)
 	template< typename T, int _max_, int _numBits_  >
 	void			WriteQuantizedVector( const T& v )
@@ -254,16 +254,16 @@ public:
 			WriteQuantizedFloat< _max_, _numBits_ >( v[i] );
 		}
 	}
-	
+
 	// begin reading.
 	void			BeginReading() const;
-	
+
 	// read up to the next byte boundary
 	void			ReadByteAlign() const;
-	
+
 	// read the specified number of bits
 	int				ReadBits( int numBits ) const;
-	
+
 	bool			ReadBool() const;
 	int				ReadChar() const;
 	int				ReadByte() const;
@@ -280,7 +280,7 @@ public:
 	int				ReadString( idStr& str ) const;
 	int				ReadData( void* data, int length ) const;
 	void			ReadNetadr( netadr_t* adr ) const;
-	
+
 	float			ReadUNorm8() const
 	{
 		return ReadByte() / 255.0f;
@@ -293,7 +293,7 @@ public:
 	{
 		return ReadShort() / 32767.0f;
 	}
-	
+
 	int8			ReadDeltaChar( int8 oldValue ) const
 	{
 		return oldValue + ReadByte();
@@ -323,12 +323,12 @@ public:
 		return oldValue + ReadFloat( exponentBits, mantissaBits );
 	}
 	bool			ReadDeltaDict( idDict& dict, const idDict* base ) const;
-	
+
 	template< int _max_, int _numBits_ >
 	float			ReadQuantizedFloat() const;
 	template< int _max_, int _numBits_ >
 	float			ReadQuantizedUFloat() const;
-	
+
 	template< typename T >
 	void			ReadVectorFloat( T& v ) const
 	{
@@ -369,10 +369,10 @@ public:
 			v[i] = ReadQuantizedFloat< _max_, _numBits_ >();
 		}
 	}
-	
+
 	static int		DirToBits( const idVec3& dir, int numBits );
 	static idVec3	BitsToDir( int bits, int numBits );
-	
+
 	void			SetHasChanged( bool b )
 	{
 		hasChanged = b;
@@ -381,7 +381,7 @@ public:
 	{
 		return hasChanged;
 	}
-	
+
 private:
 	byte* 			writeData;		// pointer to data for writing
 	const byte* 	readData;		// pointer to data for reading
@@ -393,9 +393,9 @@ private:
 	bool			allowOverflow;	// if false, generate error when the message is overflowed
 	bool			overflowed;		// set true if buffer size failed (with allowOverflow set)
 	bool			hasChanged;		// Hack
-	
+
 	mutable uint64	tempValue;
-	
+
 private:
 	bool			CheckOverflow( int numBits );
 	byte* 			GetByteSpace( int length );
@@ -412,13 +412,13 @@ ID_INLINE void idBitMsg::InitWrite( byte* data, int length )
 	readData = data;
 	maxSize = length;
 	curSize = 0;
-	
+
 	writeBit = 0;
 	readCount = 0;
 	readBit = 0;
 	allowOverflow = false;
 	overflowed = false;
-	
+
 	tempValue = 0;
 }
 
@@ -433,13 +433,13 @@ ID_INLINE void idBitMsg::InitRead( const byte* data, int length )
 	readData = data;
 	maxSize = length;
 	curSize = length;
-	
+
 	writeBit = 0;
 	readCount = 0;
 	readBit = 0;
 	allowOverflow = false;
 	overflowed = false;
-	
+
 	tempValue = 0;
 }
 
@@ -511,7 +511,7 @@ idBitMsg::SetSize
 ID_INLINE void idBitMsg::SetSize( int size )
 {
 	assert( writeBit == 0 );
-	
+
 	if( size > maxSize )
 	{
 		curSize = maxSize;
@@ -866,7 +866,7 @@ ID_INLINE void idBitMsg::BeginReading() const
 {
 	readCount = 0;
 	readBit = 0;
-	
+
 	writeBit = 0;
 	tempValue = 0;
 }
@@ -1145,12 +1145,12 @@ template< class _arrayType_ >
 _arrayType_ ReadFloatArray( const idBitMsg& message )
 {
 	_arrayType_ result;
-	
+
 	for( int i = 0; i < idTupleSize< _arrayType_ >::value; ++i )
 	{
 		result[i] = message.ReadFloat();
 	}
-	
+
 	return result;
 }
 
@@ -1164,12 +1164,12 @@ template< class _arrayType_ >
 _arrayType_ ReadDeltaFloatArray( const idBitMsg& message, const _arrayType_ & oldArray )
 {
 	_arrayType_ result;
-	
+
 	for( int i = 0; i < idTupleSize< _arrayType_ >::value; ++i )
 	{
 		result[i] = message.ReadDeltaFloat( oldArray[i] );
 	}
-	
+
 	return result;
 }
 

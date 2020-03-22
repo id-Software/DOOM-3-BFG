@@ -35,7 +35,7 @@ struct subTimingWordData_t
 		startTime = 0;
 		forceBreak = false;
 	}
-	
+
 	idStr phrase;
 	int startTime;
 	bool forceBreak;
@@ -46,14 +46,14 @@ class idSWFTextInstance
 public:
 	idSWFTextInstance();
 	~idSWFTextInstance();
-	
+
 	void Init( idSWFEditText* editText, idSWF* _swf );
-	
+
 	idSWFScriptObject* GetScriptObject()
 	{
 		return &scriptObject;
 	}
-	
+
 	bool	GetHasDropShadow()
 	{
 		return useDropShadow;
@@ -70,7 +70,7 @@ public:
 	{
 		return strokeWeight;
 	}
-	
+
 	// used for when text has random render mode set
 	bool	IsGeneratingRandomText()
 	{
@@ -97,11 +97,11 @@ public:
 	{
 		ignoreColor = ignore;
 	}
-	
+
 	void	SetStrokeInfo( bool use, float strength = 0.75f, float weight = 1.75f );
 	int		CalcMaxScroll( int numLines = -1 );
 	int		CalcNumLines();
-	
+
 	// subtitle functions
 	void	SwitchSubtitleText( int time );
 	bool	UpdateSubtitle( int time );
@@ -164,7 +164,7 @@ public:
 	{
 		inputTextStartChar = c;
 	}
-	
+
 	const idSWFEditText* GetEditText() const
 	{
 		return editText;
@@ -174,30 +174,30 @@ public:
 		text = val;
 		lengthCalculated = false;
 	}
-	
+
 	// Removing the private access control statement due to cl 214702
 	// Apparently MS's C++ compiler supports the newer C++ standard, and GCC supports C++03
 	// In the new C++ standard, nested members of a friend class have access to private/protected members of the class granting friendship
 	// In C++03, nested members defined in a friend class do NOT have access to private/protected members of the class granting friendship
-	
+
 	idSWFEditText* editText;
 	idSWF* 	swf;
-	
+
 	// this text instance's script object
 	idSWFScriptObject  scriptObject;
-	
+
 	idStr text;
 	idStr randomtext;
 	idStr variable;
 	swfColorRGBA_t color;
-	
+
 	bool visible;
 	bool tooltip;
-	
+
 	int selectionStart;
 	int selectionEnd;
 	bool ignoreColor;
-	
+
 	int scroll;
 	int scrollTime;
 	int maxscroll;
@@ -205,19 +205,19 @@ public:
 	float glyphScale;
 	swfRect_t bounds;
 	float linespacing;
-	
+
 	bool shiftHeld;
 	int lastInputTime;
-	
+
 	bool useDropShadow;
 	bool useStroke;
-	
+
 	float strokeStrength;
 	float strokeWeight;
-	
+
 	int		textLength;
 	bool	lengthCalculated;
-	
+
 	swfTextRenderMode_t renderMode;
 	bool		generatingText;
 	int			rndSpotsVisible;
@@ -234,7 +234,7 @@ public:
 	bool		needsSoundUpdate;
 	idList<int, TAG_SWF>	indexArray;
 	idRandom2	rnd;
-	
+
 	// used for subtitles
 	bool		isSubtitle;
 	int			subLength;
@@ -258,10 +258,10 @@ public:
 	idStr		subSpeaker;
 	bool		subWaitClear;
 	bool		subInitialLine;
-	
+
 	// input text
 	int			inputTextStartChar;
-	
+
 	idList< subTimingWordData_t, TAG_SWF > subtitleTimingInfo;
 };
 
@@ -274,7 +274,7 @@ class idSWFScriptObject_TextInstancePrototype : public idSWFScriptObject
 {
 public:
 	idSWFScriptObject_TextInstancePrototype();
-	
+
 	//----------------------------------
 	// Native Script Functions
 	//----------------------------------
@@ -285,12 +285,12 @@ public:
 		void			Release() {} \
 		idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ); \
 	} scriptFunction_##x;
-	
+
 	SWF_TEXT_FUNCTION_DECLARE( onKey );
 	SWF_TEXT_FUNCTION_DECLARE( onChar );
 	SWF_TEXT_FUNCTION_DECLARE( generateRnd );
 	SWF_TEXT_FUNCTION_DECLARE( calcNumLines );
-	
+
 	SWF_NATIVE_VAR_DECLARE( text );
 	SWF_NATIVE_VAR_DECLARE( autoSize );
 	SWF_NATIVE_VAR_DECLARE( dropShadow );
@@ -314,9 +314,9 @@ public:
 	SWF_NATIVE_VAR_DECLARE( subtitleAlign );
 	SWF_NATIVE_VAR_DECLARE( subtitleSourceID );
 	SWF_NATIVE_VAR_DECLARE( subtitleSpeaker );
-	
+
 	SWF_NATIVE_VAR_DECLARE_READONLY( _textLength );
-	
+
 	SWF_TEXT_FUNCTION_DECLARE( subtitleSourceCheck );
 	SWF_TEXT_FUNCTION_DECLARE( subtitleStart );
 	SWF_TEXT_FUNCTION_DECLARE( subtitleLength );

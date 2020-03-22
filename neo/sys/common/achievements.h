@@ -37,7 +37,7 @@ class idAchievementSystemWin : public idAchievementSystem
 {
 public:
 	idAchievementSystemWin();
-	
+
 	bool	IsInitialized();
 	void	AchievementUnlock( idLocalUser* user, const int achievementID );
 	void	AchievementLock( idLocalUser* user, const int achievementID );

@@ -41,97 +41,97 @@ class idSoundVoice_OpenAL : public idSoundVoice_Base
 public:
 	idSoundVoice_OpenAL();
 	~idSoundVoice_OpenAL();
-	
+
 	void					SetPosition( const idVec3& p )
 	{
 		idSoundVoice_Base::SetPosition( p );
-		
+
 		alSource3f( openalSource, AL_POSITION, -p.y, p.z, -p.x );
 	}
-	
+
 	void					SetGain( float gain )
 	{
 		idSoundVoice_Base::SetGain( gain );
-		
+
 		alSourcef( openalSource, AL_GAIN, ( gain ) < ( 1.0f ) ? ( gain ) : ( 1.0f ) );
 	}
-	
+
 	void		SetPitch( float p )
 	{
 		idSoundVoice_Base::SetPitch( p );
-		
+
 		alSourcef( openalSource, AL_PITCH, p );
 	}
-	
+
 	void					Create( const idSoundSample* leadinSample, const idSoundSample* loopingSample );
-	
+
 	// Start playing at a particular point in the buffer.  Does an Update() too
 	void					Start( int offsetMS, int ssFlags );
-	
+
 	// Stop playing.
 	void					Stop();
-	
+
 	// Stop consuming buffers
 	void					Pause();
-	
+
 	// Start consuming buffers again
 	void					UnPause();
-	
+
 	// Sends new position/volume/pitch information to the hardware
 	bool					Update();
-	
+
 	// returns the RMS levels of the most recently processed block of audio, SSF_FLICKER must have been passed to Start
 	float					GetAmplitude();
-	
+
 	// returns true if we can re-use this voice
 	bool					CompatibleFormat( idSoundSample_OpenAL* s );
-	
+
 	uint32					GetSampleRate() const
 	{
 		return sampleRate;
 	}
-	
+
 	// callback function
 	void					OnBufferStart( idSoundSample_OpenAL* sample, int bufferNumber );
-	
+
 private:
 	friend class idSoundHardware_OpenAL;
-	
+
 	// Returns true when all the buffers are finished processing
 	bool					IsPlaying();
-	
+
 	// Called after the voice has been stopped
 	void					FlushSourceBuffers();
-	
+
 	// Destroy the internal hardware resource
 	void					DestroyInternal();
-	
+
 	// Helper function used by the initial start as well as for looping a streamed buffer
 	int						RestartAt( int offsetSamples );
-	
+
 	// Helper function to submit a buffer
 	int						SubmitBuffer( idSoundSample_OpenAL* sample, int bufferNumber, int offset );
-	
+
 	// Adjust the voice frequency based on the new sample rate for the buffer
 	void					SetSampleRate( uint32 newSampleRate, uint32 operationSet );
-	
+
 	//IXAudio2SourceVoice* 	pSourceVoice;
 	bool					triggered;
 	ALuint					openalSource;
 	ALuint					openalStreamingOffset;
 	ALuint					openalStreamingBuffer[3];
 	ALuint					lastopenalStreamingBuffer[3];
-	
+
 	idSoundSample_OpenAL*	leadinSample;
 	idSoundSample_OpenAL*	loopingSample;
-	
+
 	// These are the fields from the sample format that matter to us for voice reuse
 	uint16					formatTag;
 	uint16					numChannels;
-	
+
 	uint32					sourceVoiceRate;
 	uint32					sampleRate;
-	
+
 	bool					hasVUMeter;
 	bool					paused;
 };

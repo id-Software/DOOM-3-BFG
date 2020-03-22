@@ -42,21 +42,21 @@ void idSWFShapeParser::Parse( idSWFBitStream& bitstream, idSWFShape& shape, int 
 	lineStyle2 = ( recordType == 4 );
 	rgba = ( recordType >= 3 );
 	morph = false;
-	
+
 	bitstream.ReadRect( shape.startBounds );
 	shape.endBounds = shape.startBounds;
-	
+
 	if( recordType == 4 )
 	{
 		swfRect_t edgeBounds;
 		bitstream.ReadRect( edgeBounds );
 		bitstream.ReadU8();	// flags (that we ignore)
 	}
-	
+
 	ReadFillStyle( bitstream );
 	ParseShapes( bitstream, NULL, false );
 	TriangulateSoup( shape );
-	
+
 	shape.lineDraws.SetNum( lineDraws.Num() );
 	for( int i = 0; i < lineDraws.Num(); i++ )
 	{
@@ -70,7 +70,7 @@ void idSWFShapeParser::Parse( idSWFBitStream& bitstream, idSWFShape& shape, int 
 			int v0 = ld.startVerts.AddUnique( verts[ spld.edges[e].start.v0 ] );
 			ld.indices.Append( v0 );
 			ld.indices.Append( v0 );
-			
+
 			// Rather then tesselating curves at run time, we do them once here by inserting a vert every 10 units
 			// It may not wind up being 10 actual pixels when rendered because the shape may have scaling applied to it
 			if( spld.edges[e].start.cp != 0xFFFF )
@@ -86,11 +86,11 @@ void idSWFShapeParser::Parse( idSWFBitStream& bitstream, idSWFShape& shape, int 
 					float c1 = t1 * t1;
 					float c2 = t0 * t1 * 2.0f;
 					float c3 = t0 * t0;
-					
+
 					idVec2	p1  = c1 * verts[ spld.edges[e].start.v0 ];
 					p1 += c2 * verts[ spld.edges[e].start.cp ];
 					p1 += c3 * verts[ spld.edges[e].start.v1 ];
-					
+
 					int v1 = ld.startVerts.AddUnique( p1 );
 					ld.indices.Append( v1 );
 					ld.indices.Append( v1 );
@@ -113,19 +113,19 @@ void idSWFShapeParser::ParseMorph( idSWFBitStream& bitstream, idSWFShape& shape 
 	lineStyle2 = false;
 	rgba = true;
 	morph = true;
-	
+
 	bitstream.ReadRect( shape.startBounds );
 	bitstream.ReadRect( shape.endBounds );
-	
+
 	uint32 offset = bitstream.ReadU32();
-	
+
 	// offset is the byte offset from the current read position to the 'endShape' record
 	// we read the entire block into 'bitstream1' which moves the read pointer of 'bitstream'
 	// to the start of the 'endShape' record
-	
+
 	idSWFBitStream bitstream1;
 	bitstream1.Load( ( byte* )bitstream.ReadData( offset ), offset, false );
-	
+
 	ReadFillStyle( bitstream1 );
 	ParseShapes( bitstream1, &bitstream, true );
 	TriangulateSoup( shape );
@@ -142,9 +142,9 @@ void idSWFShapeParser::ParseFont( idSWFBitStream& bitstream, idSWFFontGlyph& sha
 	lineStyle2 = false;
 	rgba = false;
 	morph = false;
-	
+
 	fillDraws.SetNum( 1 );
-	
+
 	ParseShapes( bitstream, NULL, true );
 	TriangulateSoup( shape );
 }
@@ -160,28 +160,28 @@ void idSWFShapeParser::ParseShapes( idSWFBitStream& bitstream1, idSWFBitStream* 
 	int32 pen1Y = 0;
 	int32 pen2X = 0;
 	int32 pen2Y = 0;
-	
+
 	uint8 fillStyle0 = 0;
 	uint8 fillStyle1 = 0;
 	uint8 lineStyle = 0;
-	
+
 	uint16 baseFillStyle = 0;
 	uint16 baseLineStyle = 0;
-	
+
 	uint8 numBits = bitstream1.ReadU8();
 	uint8 numFillBits1 = numBits >> 4;
 	uint8 numLineBits1 = numBits & 0xF;
-	
+
 	uint8 numFillBits2 = 0;
 	uint8 numLineBits2 = 0;
-	
+
 	if( bitstream2 )
 	{
 		numBits = bitstream2->ReadU8();
 		numFillBits2 = numBits >> 4;
 		numLineBits2 = numBits & 0xF;
 	}
-	
+
 	while( true )
 	{
 		if( !bitstream1.ReadBool() )
@@ -285,7 +285,7 @@ void idSWFShapeParser::ParseShapes( idSWFBitStream& bitstream1, idSWFBitStream* 
 		else
 		{
 			swfSPMorphEdge_t morphEdge;
-			
+
 			ParseEdge( bitstream1, pen1X, pen1Y, morphEdge.start );
 			if( bitstream2 )
 			{
@@ -301,7 +301,7 @@ void idSWFShapeParser::ParseShapes( idSWFBitStream& bitstream1, idSWFBitStream* 
 			{
 				morphEdge.end = morphEdge.start;
 			}
-			
+
 			// one edge may be a straight edge, and the other may be a curve
 			// in this case, we turn the straight edge into a curve by adding
 			// a control point in the middle of the line
@@ -323,7 +323,7 @@ void idSWFShapeParser::ParseShapes( idSWFBitStream& bitstream1, idSWFBitStream* 
 					morphEdge.start.cp = verts.AddUnique( ( v0 + v1 ) * 0.5f );
 				}
 			}
-			
+
 			if( lineStyle != 0 )
 			{
 				lineDraws[ baseLineStyle + lineStyle - 1 ].edges.Append( morphEdge );
@@ -358,9 +358,9 @@ void idSWFShapeParser::ParseEdge( idSWFBitStream& bitstream, int32& penX, int32&
 {
 	bool straight = bitstream.ReadBool();
 	uint8 numBits = bitstream.ReadU( 4 ) + 2;
-	
+
 	edge.v0 = verts.AddUnique( idVec2( SWFTWIP( penX ), SWFTWIP( penY ) ) );
-	
+
 	if( straight )
 	{
 		edge.cp = 0xFFFF;
@@ -389,7 +389,7 @@ void idSWFShapeParser::ParseEdge( idSWFBitStream& bitstream, int32& penX, int32&
 		penX += bitstream.ReadS( numBits );
 		penY += bitstream.ReadS( numBits );
 	}
-	
+
 	edge.v1 = verts.AddUnique( idVec2( SWFTWIP( penX ), SWFTWIP( penY ) ) );
 }
 
@@ -403,11 +403,11 @@ void idSWFShapeParser::MakeLoops()
 
 	// At this point, each fill style has an edge soup associated with it
 	// We want to turn this soup into loops of connected verts
-	
+
 	for( int i = 0; i < fillDraws.Num(); i++ )
 	{
 		swfSPDrawFill_t& fill = fillDraws[i];
-		
+
 		// first remove degenerate edges
 		for( int e = 0; e < fill.edges.Num(); e++ )
 		{
@@ -417,7 +417,7 @@ void idSWFShapeParser::MakeLoops()
 				e--;
 			}
 		}
-		
+
 		idList< int > unusedEdges;
 		unusedEdges.SetNum( fill.edges.Num() );
 		for( int e = 0; e < fill.edges.Num(); e++ )
@@ -428,15 +428,15 @@ void idSWFShapeParser::MakeLoops()
 		{
 			swfSPLineLoop_t& loop = fill.loops.Alloc();
 			loop.hole = false;
-			
+
 			int e1 = unusedEdges[ unusedEdges.Num() - 1 ];
 			unusedEdges.SetNum( unusedEdges.Num() - 1 );
-			
+
 			while( true )
 			{
 				loop.vindex1.Append( fill.edges[e1].start.v0 );
 				loop.vindex2.Append( fill.edges[e1].end.v0 );
-				
+
 				// Rather then tesselating curves at run time, we do them once here by inserting a vert every 10 units
 				// It may not wind up being 10 actual pixels when rendered because the shape may have scaling applied to it
 				if( fill.edges[e1].start.cp != 0xFFFF )
@@ -452,22 +452,22 @@ void idSWFShapeParser::MakeLoops()
 						float c1 = t1 * t1;
 						float c2 = t0 * t1 * 2.0f;
 						float c3 = t0 * t0;
-						
+
 						idVec2	p1  = c1 * verts[ fill.edges[e1].start.v0 ];
 						p1 += c2 * verts[ fill.edges[e1].start.cp ];
 						p1 += c3 * verts[ fill.edges[e1].start.v1 ];
-						
+
 						idVec2	p2  = c1 * verts[ fill.edges[e1].end.v0 ];
 						p2 += c2 * verts[ fill.edges[e1].end.cp ];
 						p2 += c3 * verts[ fill.edges[e1].end.v1 ];
-						
+
 						loop.vindex1.Append( verts.AddUnique( p1 ) );
 						loop.vindex2.Append( verts.AddUnique( p2 ) );
 					}
 				}
-				
+
 				const swfSPEdge_t& edge1 = fill.edges[e1].start;
-				
+
 				float bestNormal = FLT_MAX;
 				int beste = -1;
 				for( int e = 0; e < unusedEdges.Num(); e++ )
@@ -478,16 +478,16 @@ void idSWFShapeParser::MakeLoops()
 					{
 						continue;
 					}
-					
+
 					assert( edge1.v0 != edge2.v0 );
 					assert( edge1.v1 != edge2.v1 );
-					
+
 					const idVec2& v1 = verts[ edge1.v0 ];
 					const idVec2& v2 = verts[ edge1.v1 ];  // == edge2.v0
 					const idVec2& v3 = verts[ edge2.v1 ];
 					idVec2 a = v1 - v2;
 					idVec2 b = v3 - v2;
-					
+
 					float normal = ( a.x * b.y - a.y * b.x );
 					if( normal < bestNormal )
 					{
@@ -533,7 +533,7 @@ void idSWFShapeParser::MakeLoops()
 			float normal = ( a.x * b.y - a.y * b.x );
 			loop.hole = ( normal > 0.0f );
 		}
-		
+
 		// now we have a series of loops, which define either shapes or holes
 		// we want to merge the holes into the shapes by inserting edges
 		// this assumes shapes are either completely contained or not
@@ -566,7 +566,7 @@ void idSWFShapeParser::MakeLoops()
 			}
 			swfSPLineLoop_t& loopHole = fill.loops[ hole ];
 			const idVec2& holePoint = verts[ loopHole.vindex1[ holeVert ] ];
-			
+
 			int shape = -1;
 			for( int j = 0; j < fill.loops.Num(); j++ )
 			{
@@ -605,9 +605,9 @@ void idSWFShapeParser::MakeLoops()
 				continue;
 			}
 			swfSPLineLoop_t& loopShape = fill.loops[ shape ];
-			
+
 			// now that we have a hole and the shape it's inside, merge the two together
-			
+
 			// find the nearest vert that's on the right side of holePoint
 			float bestDist = 1e10f;
 			int shapeVert = -1;
@@ -625,7 +625,7 @@ void idSWFShapeParser::MakeLoops()
 					bestDist = dist;
 				}
 			}
-			
+
 			// connect holeVert to shapeVert
 			idList< uint16 > vindex;
 			vindex.SetNum( loopShape.vindex1.Num() + loopHole.vindex1.Num() + 1 );
@@ -647,7 +647,7 @@ void idSWFShapeParser::MakeLoops()
 				vindex.Append( loopShape.vindex1[j] );
 			}
 			loopShape.vindex1 = vindex;
-			
+
 			vindex.Clear();
 			for( int j = 0; j <= shapeVert; j++ )
 			{
@@ -666,7 +666,7 @@ void idSWFShapeParser::MakeLoops()
 				vindex.Append( loopShape.vindex2[j] );
 			}
 			loopShape.vindex2 = vindex;
-			
+
 			fill.loops.RemoveIndexFast( hole );
 		}
 	}
@@ -681,18 +681,18 @@ void idSWFShapeParser::TriangulateSoup( idSWFShape& shape )
 {
 
 	MakeLoops();
-	
+
 	// Now turn the (potentially) concave line loops into triangles by using ear clipping
-	
+
 	shape.fillDraws.SetNum( fillDraws.Num() );
 	for( int i = 0; i < fillDraws.Num(); i++ )
 	{
 		swfSPDrawFill_t& spDrawFill = fillDraws[i];
 		idSWFShapeDrawFill& drawFill = shape.fillDraws[i];
-		
+
 		swfFillStyle_t& style = spDrawFill.style;
 		drawFill.style = spDrawFill.style;
-		
+
 		for( int j = 0; j < spDrawFill.loops.Num(); j++ )
 		{
 			swfSPLineLoop_t& loop = spDrawFill.loops[j];
@@ -708,11 +708,11 @@ void idSWFShapeParser::TriangulateSoup( idSWFShape& shape )
 				int num = loop.vindex1.Num();
 				int v2 = ( v1 + 1 ) % num;
 				int v3 = ( v1 + 2 ) % num;
-				
+
 				AddUniqueVert( drawFill, verts[ loop.vindex1[ v1 ] ], verts[ loop.vindex2[ v1 ] ] );
 				AddUniqueVert( drawFill, verts[ loop.vindex1[ v2 ] ], verts[ loop.vindex2[ v2 ] ] );
 				AddUniqueVert( drawFill, verts[ loop.vindex1[ v3 ] ], verts[ loop.vindex2[ v3 ] ] );
-				
+
 				loop.vindex1.RemoveIndex( v2 );
 				loop.vindex2.RemoveIndex( v2 );
 			}
@@ -729,9 +729,9 @@ void idSWFShapeParser::TriangulateSoup( idSWFFontGlyph& shape )
 {
 
 	MakeLoops();
-	
+
 	// Now turn the (potentially) concave line loops into triangles by using ear clipping
-	
+
 	assert( fillDraws.Num() == 1 );
 	swfSPDrawFill_t& spDrawFill = fillDraws[0];
 	for( int j = 0; j < spDrawFill.loops.Num(); j++ )
@@ -749,11 +749,11 @@ void idSWFShapeParser::TriangulateSoup( idSWFFontGlyph& shape )
 			int num = loop.vindex1.Num();
 			int v2 = ( v1 + 1 ) % num;
 			int v3 = ( v1 + 2 ) % num;
-			
+
 			shape.indices.Append( shape.verts.AddUnique( verts[ loop.vindex1[ v1 ] ] ) );
 			shape.indices.Append( shape.verts.AddUnique( verts[ loop.vindex1[ v2 ] ] ) );
 			shape.indices.Append( shape.verts.AddUnique( verts[ loop.vindex1[ v3 ] ] ) );
-			
+
 			loop.vindex1.RemoveIndex( v2 );
 			loop.vindex2.RemoveIndex( v2 );
 		}
@@ -793,10 +793,10 @@ int idSWFShapeParser::FindEarVert( const swfSPLineLoop_t& loop )
 {
 	assert( loop.vindex1.Num() == loop.vindex2.Num() );
 	int num = loop.vindex1.Num();
-	
+
 	idList<earVert_t> ears;
 	ears.SetNum( num );
-	
+
 	for( int i1 = 0; i1 < num; i1++ )
 	{
 		int i2 = ( i1 + 1 ) % num;
@@ -804,17 +804,17 @@ int idSWFShapeParser::FindEarVert( const swfSPLineLoop_t& loop )
 		const idVec2& v1s = verts[ loop.vindex1[ i1 ] ];
 		const idVec2& v2s = verts[ loop.vindex1[ i2 ] ];
 		const idVec2& v3s = verts[ loop.vindex1[ i3 ] ];
-		
+
 		idVec2 a = v1s - v2s;
 		idVec2 b = v2s - v3s;
-		
+
 		ears[i1].cross = a.x * b.y - a.y * b.x;
 		ears[i1].i1 = i1;
 		ears[i1].i2 = i2;
 		ears[i1].i3 = i3;
 	}
 	ears.SortWithTemplate( idSort_Ears() );
-	
+
 	for( int i = 0; i < ears.Num(); i++ )
 	{
 		if( ears[i].cross < 0.0f )
@@ -824,28 +824,28 @@ int idSWFShapeParser::FindEarVert( const swfSPLineLoop_t& loop )
 		int i1 = ears[i].i1;
 		int i2 = ears[i].i2;
 		int i3 = ears[i].i3;
-		
+
 		const idVec2& v1s = verts[ loop.vindex1[ i1 ] ];
 		const idVec2& v2s = verts[ loop.vindex1[ i2 ] ];
 		const idVec2& v3s = verts[ loop.vindex1[ i3 ] ];
-		
+
 		const idVec2& v1e = verts[ loop.vindex2[ i1 ] ];
 		const idVec2& v2e = verts[ loop.vindex2[ i2 ] ];
 		const idVec2& v3e = verts[ loop.vindex2[ i3 ] ];
-		
+
 		idMat3 edgeEquations1;
 		edgeEquations1[0].Set( v1s.x, v1s.y, 1.0f );
 		edgeEquations1[1].Set( v2s.x, v2s.y, 1.0f );
 		edgeEquations1[2].Set( v3s.x, v3s.y, 1.0f );
-		
+
 		idMat3 edgeEquations2;
 		edgeEquations2[0].Set( v1e.x, v1e.y, 1.0f );
 		edgeEquations2[1].Set( v2e.x, v2e.y, 1.0f );
 		edgeEquations2[2].Set( v3e.x, v3e.y, 1.0f );
-		
+
 		edgeEquations1.InverseSelf();
 		edgeEquations2.InverseSelf();
-		
+
 		bool isEar = true;
 		for( int j = 0; j < num; j++ )
 		{
@@ -853,13 +853,13 @@ int idSWFShapeParser::FindEarVert( const swfSPLineLoop_t& loop )
 			{
 				continue;
 			}
-			
+
 			idVec3 p1;
 			p1.ToVec2() = verts[ loop.vindex1[j] ];
 			p1.z = 1.0f;
-			
+
 			idVec3 signs1 = p1 * edgeEquations1;
-			
+
 			bool b1x = signs1.x > 0;
 			bool b1y = signs1.y > 0;
 			bool b1z = signs1.z > 0;
@@ -869,13 +869,13 @@ int idSWFShapeParser::FindEarVert( const swfSPLineLoop_t& loop )
 				isEar = false;
 				break;
 			}
-			
+
 			idVec3 p2;
 			p2.ToVec2() = verts[ loop.vindex2[j] ];
 			p2.z = 1.0f;
-			
+
 			idVec3 signs2 = p2 * edgeEquations2;
-			
+
 			bool b2x = signs2.x > 0;
 			bool b2y = signs2.y > 0;
 			bool b2z = signs2.z > 0;
@@ -914,7 +914,7 @@ void idSWFShapeParser::AddUniqueVert( idSWFShapeDrawFill& drawFill, const idVec2
 		int index1 = drawFill.startVerts.Append( start );
 		int index2 = drawFill.endVerts.Append( end );
 		assert( index1 == index2 );
-		
+
 		drawFill.indices.Append( index1 );
 	}
 	else
@@ -935,15 +935,15 @@ void idSWFShapeParser::ReadFillStyle( idSWFBitStream& bitstream )
 	{
 		fillStyleCount = bitstream.ReadU16();
 	}
-	
+
 	for( int i = 0; i < fillStyleCount; i++ )
 	{
 		uint8 fillStyleType = bitstream.ReadU8();
-		
+
 		swfFillStyle_t& fillStyle = fillDraws.Alloc().style;
 		fillStyle.type = fillStyleType >> 4;
 		fillStyle.subType = fillStyleType & 0xF;
-		
+
 		if( fillStyle.type == 0 )
 		{
 			if( morph )
@@ -997,13 +997,13 @@ void idSWFShapeParser::ReadFillStyle( idSWFBitStream& bitstream )
 			}
 		}
 	}
-	
+
 	uint16 lineStyleCount = bitstream.ReadU8();
 	if( extendedCount && lineStyleCount == 0xFF )
 	{
 		lineStyleCount = bitstream.ReadU16();
 	}
-	
+
 	lineDraws.SetNum( lineDraws.Num() + lineStyleCount );
 	lineDraws.SetNum( 0 );
 	for( int i = 0; i < lineStyleCount; i++ )
@@ -1013,7 +1013,7 @@ void idSWFShapeParser::ReadFillStyle( idSWFBitStream& bitstream )
 		if( lineStyle2 )
 		{
 			lineStyle.endWidth = lineStyle.startWidth;
-			
+
 			uint8 startCapStyle = bitstream.ReadU( 2 );
 			uint8 joinStyle = bitstream.ReadU( 2 );
 			bool hasFillFlag = bitstream.ReadBool();

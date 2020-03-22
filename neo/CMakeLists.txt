@@ -1,7 +1,13 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8) # Eric: These are rookie numbers, you need to bump those numbers up.
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 project(RBDoom3BFG)
+
+option(FORCE_COLOR_OUTPUT
+		"Always produce ANSI-colored output (GNU/Clang only)." OFF)
+
+option(COMPILE_COMMANDS
+		"Generate compile_commands.json" OFF)
 
 option(USE_MFC_TOOLS
 		"Compile the built-in MFC based tools" OFF)
@@ -26,6 +32,9 @@ option(BINKDEC
 		
 option(USE_VULKAN
 		"Use Vulkan instead of OpenGL" OFF)
+
+option(SPIRV_SHADERC
+		"Compile SPIR-V shader byte code using shaderc instead of using Glslang directly" OFF)
 
 option(ONATIVE
 		"Optimize for the host CPU" OFF)
@@ -64,7 +73,26 @@ endif()
 if(UNIX)
 	set(OPENAL TRUE)
 endif()
-		
+
+if(COMPILE_COMMANDS)
+	set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+endif()
+
+if (FORCE_COLOR_OUTPUT)
+	if (CMAKE_COMPILER_IS_GNUCC)
+		add_compile_options(-fdiagnostics-color=always)
+	elseif(CMAKE_C_COMPILER_ID STREQUAL "Clang")
+		add_compile_options(-fcolor-diagnostics)
+	endif ()
+endif ()
+
+# Eric: Hard dependency on SDL2 for the Vulkan renderer on Linux
+if(UNIX)
+	if(USE_VULKAN)
+		SET(SDL2 ON)
+	endif()
+endif()
+
 if(MSVC)
 	#message(STATUS CMAKE_ROOT: ${CMAKE_ROOT})
 	
@@ -90,12 +118,15 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
 	CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
 	CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
 	if(COMPILER_SUPPORTS_CXX11)
-		add_definitions(-std=c++11)
+		set(CMAKE_CXX_STANDARD 11)
 	elseif(COMPILER_SUPPORTS_CXX0X)
-		add_definitions(-std=c++0x)
+		set(CMAKE_CXX_STANDARD 0x)
 	else()
 		message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
 	endif()
+	set(CMAKE_CXX_STANDARD_REQUIRED ON)
+	set(CMAKE_CXX_EXTENSIONS OFF)
+
 	if(CPU_TYPE)
 		add_definitions(-DCPUSTRING="${CPU_TYPE}")
 	endif()
@@ -294,8 +325,7 @@ if(USE_VULKAN)
 		message( STATUS "Using module to find Vulkan" )
 		find_package(Vulkan)
 	endif()
-	
-	
+
 	if(NOT Vulkan_FOUND)
 		message(FATAL_ERROR "Could not find Vulkan library!")
 	else()
@@ -303,22 +333,51 @@ if(USE_VULKAN)
 	endif()
 	
 	add_definitions(-DUSE_VULKAN)
-	include_directories($ENV{VK_SDK_PATH}/Include)
+	include_directories($ENV{VULKAN_SDK}/include)
+
+	# Eric: For use with SDL2/Vulkan
+	if(UNIX)
+		find_package(X11_XCB)
+		if(X11_XCB_FOUND)
+			add_definitions(-DHAVE_X11_XCB)
+			list(APPEND SUBSYSTEMS [X11])
+			include_directories(${X11_XCB_INCLUDE_DIRS})
+		endif()
+		add_definitions(-DVK_USE_PLATFORM_XLIB_KHR)
+	elseif(WIN32)
+		add_definitions(-DVK_USE_PLATFORM_WIN32_KHR)
+	endif()
+
+	if(SPIRV_SHADERC)
+		add_definitions(-DSPIRV_SHADERC)
+
+		if(CMAKE_CL_64)
+			link_directories($ENV{VULKAN_SDK}/Lib)
+		else()
+			link_directories($ENV{VULKAN_SDK}/Lib32)
+		endif()
+
+	else()
+		# override Glslang build options
+		
+		# options required by November 2018 release
+		SET_OPTION(ENABLE_SPVREMAPPER OFF)
+		SET_OPTION(ENABLE_GLSLANG_BINARIES OFF)
+		SET_OPTION(ENABLE_HLSL OFF)
+		SET_OPTION(ENABLE_OPT ON)
+		SET_OPTION(SPIRV_SKIP_EXECUTABLES ON)
+		
+		# options required by November 2019 release
+		#SET_OPTION(ENABLE_PCH OFF)
+		#SET_OPTION(ENABLE_CTEST OFF)
+		#SET_OPTION(BUILD_EXTERNAL OFF)
+		#SET_OPTION(SKIP_GLSLANG_INSTALL ON)
 	
-	# override Glslang build options
-	SET_OPTION(ENABLE_SPVREMAPPER OFF)
-	SET_OPTION(ENABLE_GLSLANG_BINARIES OFF)
-	SET_OPTION(ENABLE_HLSL OFF)
-	#SET_OPTION(ENABLE_OPT OFF)
+		set(GLSLANG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/extern/glslang)
+		add_subdirectory(${GLSLANG_DIR})
 	
-	#option(ENABLE_AMD_EXTENSIONS "Enables support of AMD-specific extensions" ON)
-	#option(ENABLE_NV_EXTENSIONS "Enables support of Nvidia-specific extensions" ON)
-	#option(ENABLE_OPT "Enables spirv-opt capability if present" ON)
-	
-	set(GLSLANG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs/glslang)
-	add_subdirectory(${GLSLANG_DIR})
-	
-	include_directories(${GLSLANG_DIR}/glslang)
+		include_directories(${GLSLANG_DIR}/glslang)
+	endif()
 
 else()
 
@@ -499,7 +558,6 @@ file(GLOB MINIZIP_INCLUDES libs/zlib/minizip/*.h)
 file(GLOB MINIZIP_SOURCES libs/zlib/minizip/*.c libs/zlib/minizip/*.cpp)
 	
 
-	
 set(FREETYPE_SOURCES
 	libs/freetype/src/autofit/autofit.c
 	libs/freetype/src/bdf/bdf.c
@@ -632,6 +690,7 @@ set(GAMED3XP_INCLUDES
 	d3xp/Camera.h
 	#d3xp/EndLevel.h
 	d3xp/Entity.h
+	d3xp/EnvironmentProbe.h
 	d3xp/Fx.h
 	d3xp/Game.h
 	d3xp/GameEdit.h
@@ -669,6 +728,7 @@ set(GAMED3XP_SOURCES
 	d3xp/Camera.cpp
 	#d3xp/EndLevel.cpp
 	d3xp/Entity.cpp
+	d3xp/EnvironmentProbe.cpp
 	d3xp/Fx.cpp
 	d3xp/GameEdit.cpp
 	d3xp/Game_local.cpp
@@ -953,6 +1013,16 @@ file(GLOB COMMON_SOURCES sys/common/*.cpp)
 file(GLOB SDL_INCLUDES sys/sdl/*.h)
 file(GLOB SDL_SOURCES sys/sdl/*.cpp)
 
+# Eric: Utilize either the Vulkan or GL implementation of SDL
+if(UNIX)
+	if(USE_VULKAN)
+		get_filename_component(sdl_glimp_cpp_full_path ${CMAKE_CURRENT_SOURCE_DIR}/sys/sdl/sdl_glimp.cpp ABSOLUTE)
+		list(REMOVE_ITEM SDL_SOURCES "${sdl_glimp_cpp_full_path}")
+	else()
+		get_filename_component(sdl_vkimp_cpp_full_path ${CMAKE_CURRENT_SOURCE_DIR}/sys/sdl/sdl_vkimp.cpp ABSOLUTE)
+		list(REMOVE_ITEM SDL_SOURCES "${sdl_vkimp_cpp_full_path}")
+	endif()
+endif()
 
 source_group("aas" FILES ${AAS_INCLUDES})
 source_group("aas" FILES ${AAS_SOURCES})
@@ -1319,12 +1389,16 @@ if(MSVC)
 		
 		set(Vulkan_LIBRARIES
 			${Vulkan_LIBRARY}
-			glslang
-			SPIRV
 			)
-			
-		if(ENABLE_GLSLANG_BINARIES)
-			list(APPEND Vulkan_LIBRARIES glslang-default-resource-limits)
+
+		if(SPIRV_SHADERC)
+			list(APPEND Vulkan_LIBRARIES shaderc_combined)
+		else()
+			list(APPEND Vulkan_LIBRARIES glslang SPIRV)
+
+			if(ENABLE_GLSLANG_BINARIES)
+				list(APPEND Vulkan_LIBRARIES glslang-default-resource-limits)
+			endif()
 		endif()
 		
 	else()
@@ -1572,10 +1646,11 @@ else()
             
             set(Vulkan_LIBRARIES
                 ${Vulkan_LIBRARY}
+				${X11_XCB_LIBRARIES}
                 glslang
                 SPIRV
                 )
-                
+
             if(ENABLE_GLSLANG_BINARIES)
                 list(APPEND Vulkan_LIBRARIES glslang-default-resource-limits)
             endif()
@@ -1613,7 +1688,7 @@ else()
 
 		# precompiled magic for GCC/clang, adapted from https://gist.github.com/573926
 		STRING(TOUPPER "CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE}" _flags_var_name)
-		SET(_compiler_FLAGS ${${_flags_var_name}})
+		SET(_compiler_FLAGS "${${_flags_var_name}} -std=c++${CMAKE_CXX_STANDARD}")
 		GET_DIRECTORY_PROPERTY(_directory_flags INCLUDE_DIRECTORIES)
 		FOREACH(item ${_directory_flags})
 			LIST(APPEND _compiler_FLAGS " -I${item}")
@@ -1654,7 +1729,7 @@ else()
 		# make sure this is run after creating idlib
 		add_dependencies(precomp_header_rbdoom3bfg idlib)
 	endif()
-	
+
 	add_executable(RBDoom3BFG WIN32 ${RBDOOM3_SOURCES})
 
 	if (USE_PRECOMPILED_HEADERS)
@@ -1672,6 +1747,7 @@ else()
 
 		target_link_libraries(RBDoom3BFG
 			idlib
+			${Vulkan_LIBRARIES}
 			${OPENGL_LIBRARIES}
 			pthread
 			${RT_LIBRARY}
@@ -1682,7 +1758,7 @@ else()
             ${PNG_LIBRARY}
             ${JPEG_LIBRARY}
             ${GLEW_LIBRARY}
-	    ${CMAKE_DL_LIBS}
+	    	${CMAKE_DL_LIBS}
 			)
 	endif()
     

@@ -36,9 +36,9 @@ class idFieldWindow : public idWindow
 public:
 	idFieldWindow( idUserInterfaceLocal* gui );
 	virtual ~idFieldWindow();
-	
+
 	virtual void Draw( int time, float x, float y );
-	
+
 private:
 	virtual bool ParseInternalVar( const char* name, idTokenParser* src );
 	void CommonInit();

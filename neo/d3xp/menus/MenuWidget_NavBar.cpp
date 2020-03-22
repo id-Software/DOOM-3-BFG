@@ -51,18 +51,18 @@ void idMenuWidget_NavBar::Update()
 	{
 		return;
 	}
-	
+
 	idSWFScriptObject& root = GetSWFObject()->GetRootObject();
-	
+
 	if( !BindSprite( root ) )
 	{
 		return;
 	}
-	
+
 	int rightIndex = 0;
-	
+
 	buttonPos = initialPos;
-	
+
 	for( int index = 0; index < GetNumVisibleOptions() - 1; ++index )
 	{
 		idSWFSpriteInstance* const rightOption = GetSprite()->GetScriptObject()->GetSprite( va( "optionRight%d", index ) );
@@ -70,27 +70,27 @@ void idMenuWidget_NavBar::Update()
 		idSWFSpriteInstance* const leftOption = GetSprite()->GetScriptObject()->GetSprite( va( "optionLeft%d", index ) );
 		leftOption->SetVisible( false );
 	}
-	
+
 	for( int index = 0; index < GetTotalNumberOfOptions(); ++index )
 	{
 		idMenuWidget& child = GetChildByIndex( index );
 		idMenuWidget_NavButton* const button = dynamic_cast< idMenuWidget_NavButton* >( &child );
 		button->SetLabel( "" );
 	}
-	
+
 	for( int index = 0; index < GetNumVisibleOptions(); ++index )
 	{
 		if( index < GetFocusIndex() )
 		{
 			idMenuWidget& child = GetChildByIndex( index );
 			child.SetSpritePath( GetSpritePath(), va( "optionLeft%d", index ) );
-			
+
 			if( child.BindSprite( root ) )
 			{
 				PrepareListElement( child, index );
 				child.Update();
 			}
-			
+
 		}
 		else if( index > GetFocusIndex() )
 		{
@@ -98,20 +98,20 @@ void idMenuWidget_NavBar::Update()
 			idMenuWidget& child = GetChildByIndex( rightChildIndex );
 			child.SetSpritePath( GetSpritePath(), va( "optionRight%d", rightIndex ) );
 			rightIndex++;
-			
+
 			if( child.BindSprite( root ) )
 			{
 				PrepareListElement( child, index );
 				child.Update();
 			}
-			
+
 		}
 		else
 		{
 			int mainIndex = GetTotalNumberOfOptions() - 1;
 			idMenuWidget& child = GetChildByIndex( mainIndex );
 			child.SetSpritePath( GetSpritePath(), va( "option" ) );
-			
+
 			if( child.BindSprite( root ) )
 			{
 				PrepareListElement( child, index );
@@ -157,13 +157,13 @@ bool idMenuWidget_NavBar::PrepareListElement( idMenuWidget& widget, const int na
 	{
 		return false;
 	}
-	
+
 	idMenuWidget_NavButton* const button = dynamic_cast< idMenuWidget_NavButton* >( &widget );
 	if( button == NULL || button->GetSprite() == NULL )
 	{
 		return false;
 	}
-	
+
 	button->SetLabel( headings[navIndex] );
 	idSWFTextInstance* ti = button->GetSprite()->GetScriptObject()->GetNestedText( "txtVal" );
 	if( ti != NULL )
@@ -196,7 +196,7 @@ bool idMenuWidget_NavBar::PrepareListElement( idMenuWidget& widget, const int na
 			buttonPos = buttonPos + ti->GetTextLength() + selectedSpacer;
 		}
 	}
-	
+
 	return true;
-	
+
 }

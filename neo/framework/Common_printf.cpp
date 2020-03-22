@@ -36,7 +36,7 @@ idCVar com_logFileName( "logFileName", "qconsole.log", CVAR_SYSTEM | CVAR_NOCHEA
 idCVar com_timestampPrints( "com_timestampPrints", "0", CVAR_SYSTEM, "print time with each console print, 1 = msec, 2 = sec", 0, 2, idCmdSystem::ArgCompletion_Integer<0, 2> );
 
 #ifndef ID_RETAIL
-idCVar com_printFilter( "com_printFilter", "", CVAR_SYSTEM, "only print lines that contain this, add multiple filters with a ; delimeter" );
+	idCVar com_printFilter( "com_printFilter", "", CVAR_SYSTEM, "only print lines that contain this, add multiple filters with a ; delimeter" );
 #endif
 
 /*
@@ -53,7 +53,7 @@ void idCommonLocal::BeginRedirect( char* buffer, int buffersize, void ( *flush )
 	rd_buffer = buffer;
 	rd_buffersize = buffersize;
 	rd_flush = flush;
-	
+
 	*rd_buffer = 0;
 }
 
@@ -68,7 +68,7 @@ void idCommonLocal::EndRedirect()
 	{
 		rd_flush( rd_buffer );
 	}
-	
+
 	rd_buffer = NULL;
 	rd_buffersize = 0;
 	rd_flush = NULL;
@@ -109,7 +109,7 @@ A raw string should NEVER be passed as fmt, because of "%f" type crashes.
 void idCommonLocal::VPrintf( const char* fmt, va_list args )
 {
 	static bool	logFileFailed = false;
-	
+
 	// if the cvar system is not initialized
 	if( !cvarSystem->IsInitialized() )
 	{
@@ -140,7 +140,7 @@ void idCommonLocal::VPrintf( const char* fmt, va_list args )
 		msg[sizeof( msg ) - 1] = '\0'; // avoid output garbling
 		Sys_Printf( "idCommon::VPrintf: truncated to %d characters\n", strlen( msg ) - 1 );
 	}
-	
+
 	if( rd_buffer )
 	{
 		if( ( int )( strlen( msg ) + strlen( rd_buffer ) ) > ( rd_buffersize - 1 ) )
@@ -175,8 +175,8 @@ void idCommonLocal::VPrintf( const char* fmt, va_list args )
 		}
 	}
 #endif
-	
-	
+
+
 	if( !idLib::IsMainThread() )
 	{
 		// RB: printf should be thread-safe on Linux
@@ -188,19 +188,19 @@ void idCommonLocal::VPrintf( const char* fmt, va_list args )
 		// RB end
 		return;
 	}
-	
+
 	// echo to console buffer
 	console->Print( msg );
-	
+
 	// remove any color codes
 	idStr::RemoveColors( msg );
-	
+
 	// echo to dedicated console and early console
 	Sys_Printf( "%s", msg );
-	
+
 	// print to script debugger server
 	// DebuggerServerPrint( msg );
-	
+
 #if 0	// !@#
 #if defined(_DEBUG) && defined(WIN32)
 	if( strlen( msg ) < 512 )
@@ -209,35 +209,35 @@ void idCommonLocal::VPrintf( const char* fmt, va_list args )
 	}
 #endif
 #endif
-	
+
 	// logFile
 	if( com_logFile.GetInteger() && !logFileFailed && fileSystem->IsInitialized() )
 	{
 		static bool recursing;
-		
+
 		if( !logFile && !recursing )
 		{
 			const char* fileName = com_logFileName.GetString()[0] ? com_logFileName.GetString() : "qconsole.log";
-			
+
 			// fileSystem->OpenFileWrite can cause recursive prints into here
 			recursing = true;
-			
+
 			logFile = fileSystem->OpenFileWrite( fileName );
 			if( !logFile )
 			{
 				logFileFailed = true;
 				FatalError( "failed to open log file '%s'\n", fileName );
 			}
-			
+
 			recursing = false;
-			
+
 			if( com_logFile.GetInteger() > 1 )
 			{
 				// force it to not buffer so we get valid
 				// data even if we are crashing
 				logFile->ForceFlush();
 			}
-			
+
 			time_t aclock;
 			time( &aclock );
 			struct tm* newtime = localtime( &aclock );
@@ -249,7 +249,7 @@ void idCommonLocal::VPrintf( const char* fmt, va_list args )
 			logFile->Flush();	// ForceFlush doesn't help a whole lot
 		}
 	}
-	
+
 	// don't trigger any updates if we are in the process of doing a fatal error
 	if( com_errorEntered != ERP_FATAL )
 	{
@@ -290,23 +290,23 @@ void idCommonLocal::DPrintf( const char* fmt, ... )
 {
 	va_list		argptr;
 	char		msg[MAX_PRINT_MSG_SIZE];
-	
+
 	if( !cvarSystem->IsInitialized() || !com_developer.GetBool() )
 	{
 		return;			// don't confuse non-developers with techie stuff...
 	}
-	
+
 	va_start( argptr, fmt );
 	idStr::vsnPrintf( msg, sizeof( msg ), fmt, argptr );
 	va_end( argptr );
 	msg[sizeof( msg ) - 1] = '\0';
-	
+
 	// never refresh the screen, which could cause reentrency problems
 	bool temp = com_refreshOnPrint;
 	com_refreshOnPrint = false;
-	
+
 	Printf( S_COLOR_RED"%s", msg );
-	
+
 	com_refreshOnPrint = temp;
 }
 
@@ -321,17 +321,17 @@ void idCommonLocal::DWarning( const char* fmt, ... )
 {
 	va_list		argptr;
 	char		msg[MAX_PRINT_MSG_SIZE];
-	
+
 	if( !com_developer.GetBool() )
 	{
 		return;			// don't confuse non-developers with techie stuff...
 	}
-	
+
 	va_start( argptr, fmt );
 	idStr::vsnPrintf( msg, sizeof( msg ), fmt, argptr );
 	va_end( argptr );
 	msg[sizeof( msg ) - 1] = '\0';
-	
+
 	Printf( S_COLOR_YELLOW"WARNING: %s\n", msg );
 }
 
@@ -346,19 +346,19 @@ void idCommonLocal::Warning( const char* fmt, ... )
 {
 	va_list		argptr;
 	char		msg[MAX_PRINT_MSG_SIZE];
-	
+
 	if( !idLib::IsMainThread() )
 	{
 		return;	// not thread safe!
 	}
-	
+
 	va_start( argptr, fmt );
 	idStr::vsnPrintf( msg, sizeof( msg ), fmt, argptr );
 	va_end( argptr );
 	msg[sizeof( msg ) - 1] = 0;
-	
+
 	Printf( S_COLOR_YELLOW "WARNING: " S_COLOR_RED "%s\n", msg );
-	
+
 	if( warningList.Num() < MAX_WARNING_LIST )
 	{
 		warningList.AddUnique( msg );
@@ -373,15 +373,15 @@ idCommonLocal::PrintWarnings
 void idCommonLocal::PrintWarnings()
 {
 	int i;
-	
+
 	if( !warningList.Num() )
 	{
 		return;
 	}
-	
+
 	Printf( "------------- Warnings ---------------\n" );
 	Printf( "during %s...\n", warningCaption.c_str() );
-	
+
 	for( i = 0; i < warningList.Num(); i++ )
 	{
 		Printf( S_COLOR_YELLOW "WARNING: " S_COLOR_RED "%s\n", warningList[i].c_str() );
@@ -419,16 +419,16 @@ void idCommonLocal::DumpWarnings()
 {
 	int			i;
 	idFile*		warningFile;
-	
+
 	if( !warningList.Num() )
 	{
 		return;
 	}
-	
+
 	warningFile = fileSystem->OpenFileWrite( "warnings.txt", "fs_savepath" );
 	if( warningFile )
 	{
-	
+
 		warningFile->Printf( "------------- Warnings ---------------\n\n" );
 		warningFile->Printf( "during %s...\n", warningCaption.c_str() );
 		for( i = 0; i < warningList.Num(); i++ )
@@ -444,18 +444,18 @@ void idCommonLocal::DumpWarnings()
 		{
 			warningFile->Printf( "\n%d warnings.\n", warningList.Num() );
 		}
-		
+
 		warningFile->Printf( "\n\n-------------- Errors ---------------\n\n" );
 		for( i = 0; i < errorList.Num(); i++ )
 		{
 			errorList[i].RemoveColors();
 			warningFile->Printf( "ERROR: %s", errorList[i].c_str() );
 		}
-		
+
 		warningFile->ForceFlush();
-		
+
 		fileSystem->CloseFile( warningFile );
-		
+
 		// RB begin
 #if defined(_WIN32) && !defined(_DEBUG)
 		// RB end
@@ -477,30 +477,30 @@ void idCommonLocal::Error( const char* fmt, ... )
 	static int	lastErrorTime;
 	static int	errorCount;
 	int			currentTime;
-	
+
 	errorParm_t code = ERP_DROP;
-	
+
 	// always turn this off after an error
 	com_refreshOnPrint = false;
-	
+
 	if( com_productionMode.GetInteger() == 3 )
 	{
 		Sys_Quit();
 	}
-	
+
 	// when we are running automated scripts, make sure we
 	// know if anything failed
 	if( cvarSystem->GetCVarInteger( "fs_copyfiles" ) )
 	{
 		code = ERP_FATAL;
 	}
-	
+
 	// if we don't have GL running, make it a fatal error
 	if( !renderSystem->IsOpenGLRunning() )
 	{
 		code = ERP_FATAL;
 	}
-	
+
 	// if we got a recursive error, make it fatal
 	if( com_errorEntered )
 	{
@@ -515,7 +515,7 @@ void idCommonLocal::Error( const char* fmt, ... )
 		}
 		code = ERP_FATAL;
 	}
-	
+
 	// if we are getting a solid stream of ERP_DROP, do an ERP_FATAL
 	currentTime = Sys_Milliseconds();
 	if( currentTime - lastErrorTime < 100 )
@@ -530,23 +530,23 @@ void idCommonLocal::Error( const char* fmt, ... )
 		errorCount = 0;
 	}
 	lastErrorTime = currentTime;
-	
+
 	com_errorEntered = code;
-	
+
 	va_start( argptr, fmt );
 	idStr::vsnPrintf( errorMessage, sizeof( errorMessage ), fmt, argptr );
 	va_end( argptr );
 	errorMessage[sizeof( errorMessage ) - 1] = '\0';
-	
-	
+
+
 	// copy the error message to the clip board
 	Sys_SetClipboardData( errorMessage );
-	
+
 	// add the message to the error list
 	errorList.AddUnique( errorMessage );
-	
+
 	Stop();
-	
+
 	if( code == ERP_DISCONNECT )
 	{
 		com_errorEntered = ERP_NONE;
@@ -562,14 +562,14 @@ void idCommonLocal::Error( const char* fmt, ... )
 	{
 		Printf( "********************\nERROR: %s\n********************\n", errorMessage );
 	}
-	
+
 	if( cvarSystem->GetCVarBool( "r_fullscreen" ) )
 	{
 		cmdSystem->BufferCommandText( CMD_EXEC_NOW, "vid_restart partial windowed\n" );
 	}
-	
+
 	Sys_Error( "%s", errorMessage );
-	
+
 }
 
 /*
@@ -582,7 +582,7 @@ Dump out of the game to a system dialog
 void idCommonLocal::FatalError( const char* fmt, ... )
 {
 	va_list		argptr;
-	
+
 	if( com_productionMode.GetInteger() == 3 )
 	{
 		Sys_Quit();
@@ -595,33 +595,33 @@ void idCommonLocal::FatalError( const char* fmt, ... )
 		// process immediately, which will prevent a
 		// full screen rendering window covering the
 		// error dialog
-		
+
 		Sys_Printf( "FATAL: recursed fatal error:\n%s\n", errorMessage );
-		
+
 		va_start( argptr, fmt );
 		idStr::vsnPrintf( errorMessage, sizeof( errorMessage ), fmt, argptr );
 		va_end( argptr );
 		errorMessage[sizeof( errorMessage ) - 1] = '\0';
-		
+
 		Sys_Printf( "%s\n", errorMessage );
-		
+
 		// write the console to a log file?
 		Sys_Quit();
 	}
 	com_errorEntered = ERP_FATAL;
-	
+
 	va_start( argptr, fmt );
 	idStr::vsnPrintf( errorMessage, sizeof( errorMessage ), fmt, argptr );
 	va_end( argptr );
 	errorMessage[sizeof( errorMessage ) - 1] = '\0';
-	
+
 	if( cvarSystem->GetCVarBool( "r_fullscreen" ) )
 	{
 		cmdSystem->BufferCommandText( CMD_EXEC_NOW, "vid_restart partial windowed\n" );
 	}
-	
+
 	Sys_SetFatalError( errorMessage );
-	
+
 	Sys_Error( "%s", errorMessage );
-	
+
 }

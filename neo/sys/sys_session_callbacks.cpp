@@ -51,12 +51,12 @@ bool idSessionLocalCallbacks::BecomingHost( idLobby& lobby )
 		{
 			// If we are in a game, go back to the lobby before becoming the new host of a game lobby
 			sessionLocal->SetState( idSessionLocal::STATE_GAME_LOBBY_PEER );
-			
+
 			// session mgr housekeeping that would usually be done through the standard EndMatch path
 			sessionLocal->EndMatchForMigration();
 		}
 	}
-	
+
 	return true;
 }
 
@@ -92,13 +92,13 @@ bool idSessionLocalCallbacks::BecomingPeer( idLobby& lobby )
 			// Go to the party lobby while we try to connect to the new host
 			// This isn't totally necessary but we want to end the current game now and go to some screen.
 			// When the connection goes through or fails will send the session mgr to the appropriate state (game lobby or main menu)
-			
+
 			// What happens if we got the game migration before the party migration?
 			sessionLocal->SetState( sessionLocal->GetPartyLobby().IsHost() ? idSessionLocal::STATE_PARTY_LOBBY_HOST : idSessionLocal::STATE_PARTY_LOBBY_PEER );
-			
+
 			// session mgr housekeeping that would usually be done through the standard EndMatch path
 			sessionLocal->EndMatchForMigration();
-			
+
 			return true; // return true tells the session that we want him to tell us when the connects/fails
 		}
 	}
@@ -131,9 +131,9 @@ void idSessionLocalCallbacks::FailedGameMigration( idLobby& lobby )
 	lobby.ResetAllMigrationState();
 	if( lobby.lobbyType == idLobby::TYPE_GAME )    // this check is a  redundant since we should only get this CB from the game session
 	{
-	
+
 		sessionLocal->SetState( idSessionLocal::STATE_GAME_LOBBY_HOST );
-		
+
 		// Make sure the sessions are joinable again
 		sessionLocal->EndSessions();
 	}
@@ -154,7 +154,7 @@ void idSessionLocalCallbacks::MigrationEnded( idLobby& lobby )
 			common->Dialog().ClearDialog( GDM_MIGRATING );
 			common->Dialog().ClearDialog( GDM_MIGRATING_WAITING );
 			common->Dialog().ClearDialog( GDM_MIGRATING_RELAUNCHING );
-			
+
 			if( lobby.GetNumLobbyUsers() <= 1 )
 			{
 				if( MatchTypeHasStats( lobby.parms.matchFlags ) )
@@ -180,9 +180,9 @@ void idSessionLocalCallbacks::MigrationEnded( idLobby& lobby )
 					common->Dialog().AddDialog( GDM_HOST_CONNECTION_LOST, DIALOG_ACCEPT, NULL, NULL, false, "", 0, true );			// The connection to the host has been lost.
 				}
 			}
-			
+
 			lobby.ResetAllMigrationState();
-			
+
 			// Make sure the sessions are joinable again
 			sessionLocal->EndSessions();
 		}
@@ -212,7 +212,7 @@ void idSessionLocalCallbacks::MigrationEnded( idLobby& lobby )
 				common->Dialog().ClearDialog( GDM_MIGRATING );
 				common->Dialog().ClearDialog( GDM_MIGRATING_WAITING );
 				common->Dialog().ClearDialog( GDM_MIGRATING_RELAUNCHING );
-		
+
 				FailedGameMigration( lobby );
 			}
 		}
@@ -224,7 +224,7 @@ void idSessionLocalCallbacks::MigrationEnded( idLobby& lobby )
 				common->Dialog().ClearDialog( GDM_MIGRATING );
 				common->Dialog().ClearDialog( GDM_MIGRATING_WAITING );
 				common->Dialog().ClearDialog( GDM_MIGRATING_RELAUNCHING );
-		
+
 				if( lobby.GetNumLobbyUsers() <= 1 )
 				{
 					common->Dialog().AddDialog( GDM_MIGRATING_FAILED_DISBANDED, DIALOG_ACCEPT, NULL, NULL, false, "", 0, true );		// Game has disbanded
@@ -234,9 +234,9 @@ void idSessionLocalCallbacks::MigrationEnded( idLobby& lobby )
 					//common->Dialog().AddDialog( GDM_MIGRATING_FAILED_CONNECTION, DIALOG_ACCEPT, NULL, NULL, false, "", 0, true );	// Lost connection to game
 					common->Dialog().AddDialog( GDM_HOST_CONNECTION_LOST_STATS, DIALOG_ACCEPT, NULL, NULL, false, "", 0, true );
 				}
-		
+
 				lobby.ResetAllMigrationState();
-		
+
 				// Make sure the sessions are joinable again
 				sessionLocal->EndSessions();
 			}
@@ -247,7 +247,7 @@ void idSessionLocalCallbacks::MigrationEnded( idLobby& lobby )
 	{
 		// If they didn't come from a game, and are by themselves, just show the lobby disband msg
 		common->Dialog().AddDialog( GDM_LOBBY_DISBANDED, DIALOG_ACCEPT, NULL, NULL, false, "", 0, true );				// The lobby you were previously in has disbanded
-		
+
 		// Make sure the sessions are joinable again
 		sessionLocal->EndSessions();
 	}
@@ -293,12 +293,12 @@ void idSessionLocalCallbacks::ReceivedFullSnap()
 {
 	// If we received a full snap, then we can transition into the INGAME state
 	sessionLocal->numFullSnapsReceived++;
-	
+
 	if( sessionLocal->numFullSnapsReceived < 2 )
 	{
 		return;
 	}
-	
+
 	if( sessionLocal->localState != idSessionLocal::STATE_INGAME )
 	{
 		sessionLocal->GetActingGameStateLobby().QueueReliableMessage( sessionLocal->GetActingGameStateLobby().host, idLobby::RELIABLE_IN_GAME );		// Let host know we are in game now
@@ -319,13 +319,13 @@ void idSessionLocalCallbacks::LeaveGameLobby()
 	{
 		return;
 	}
-	
+
 	// If we're the host of the party, only we are allowed to make this call
 	if( sessionLocal->GetPartyLobby().IsHost() )
 	{
 		return;
 	}
-	
+
 	sessionLocal->GetGameLobby().Shutdown();
 	sessionLocal->SetState( idSessionLocal::STATE_PARTY_LOBBY_PEER );
 }
@@ -364,19 +364,19 @@ void idSessionLocalCallbacks::ConnectAndMoveToLobby( idLobby::lobbyType_t destLo
 
 	// See if we are already in the game lobby
 	idLobby* lobby = sessionLocal->GetLobbyFromType( destLobbyType );
-	
+
 	if( lobby == NULL )
 	{
 		idLib::Printf( "RELIABLE_CONNECT_AND_MOVE_TO_LOBBY: Invalid lobby type.\n" );
 		return;
 	}
-	
+
 	if( lobby->lobbyBackend != NULL && lobby->lobbyBackend->IsOwnerOfConnectInfo( connectInfo ) )
 	{
 		idLib::Printf( "RELIABLE_CONNECT_AND_MOVE_TO_LOBBY: Already in lobby.\n" );
 		return;
 	}
-	
+
 	// See if we are in a game, or loading into a game.  If so, ignore invites from our party host
 	if( destLobbyType == idLobby::TYPE_GAME || destLobbyType == idLobby::TYPE_GAME_STATE )
 	{
@@ -386,13 +386,13 @@ void idSessionLocalCallbacks::ConnectAndMoveToLobby( idLobby::lobbyType_t destLo
 			return;
 		}
 	}
-	
+
 	// End current game lobby
 	lobby->Shutdown();
-	
+
 	// waitForPartyOk will be true if the party host wants us to wait for his ok to stay in the lobby
 	lobby->waitForPartyOk = waitForPartyOk;
-	
+
 	// Connect to new game lobby
 	sessionLocal->ConnectAndMoveToLobby( *lobby, connectInfo, true );		// Consider this an invite if party host told us to connect
 }

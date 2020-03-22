@@ -39,10 +39,10 @@ class idSoundSample_OpenAL
 {
 public:
 	idSoundSample_OpenAL();
-	
+
 	// Loads and initializes the resource based on the name.
 	virtual void	 LoadResource();
-	
+
 	void			SetName( const char* n )
 	{
 		name = n;
@@ -55,13 +55,13 @@ public:
 	{
 		return timestamp;
 	}
-	
+
 	// turns it into a beep
 	void			MakeDefault();
-	
+
 	// frees all data
 	void			FreeData();
-	
+
 	int				LengthInMsec() const
 	{
 		return SamplesToMsec( NumSamples(), SampleRate() );
@@ -82,12 +82,12 @@ public:
 	{
 		return totalBufferSize;
 	}
-	
+
 	bool			IsCompressed() const
 	{
 		return ( format.basic.formatTag != idWaveFile::FORMAT_PCM );
 	}
-	
+
 	bool			IsDefault() const
 	{
 		return timestamp == FILE_NOT_FOUND_TIMESTAMP;
@@ -96,7 +96,7 @@ public:
 	{
 		return loaded;
 	}
-	
+
 	void			SetNeverPurge()
 	{
 		neverPurge = true;
@@ -105,7 +105,7 @@ public:
 	{
 		return neverPurge;
 	}
-	
+
 	void			SetLevelLoadReferenced()
 	{
 		levelLoadReferenced = true;
@@ -118,7 +118,7 @@ public:
 	{
 		return levelLoadReferenced;
 	}
-	
+
 	int				GetLastPlayedTime() const
 	{
 		return lastPlayedTime;
@@ -127,17 +127,17 @@ public:
 	{
 		lastPlayedTime = t;
 	}
-	
+
 	float			GetAmplitude( int timeMS ) const;
-	
+
 #if 0 //defined(AL_SOFT_buffer_samples)
 	const char*		OpenALSoftChannelsName( ALenum chans ) const;
-	
+
 	const char*		OpenALSoftTypeName( ALenum type ) const;
-	
+
 	ALsizei			FramesToBytes( ALsizei size, ALenum channels, ALenum type ) const;
 	ALsizei			BytesToFrames( ALsizei size, ALenum channels, ALenum type ) const;
-	
+
 	/* Retrieves a compatible buffer format given the channel configuration and
 	 * sample type. If an alIsBufferFormatSupportedSOFT-compatible function is
 	 * provided, it will be called to find the closest-matching format from
@@ -145,66 +145,66 @@ public:
 	 * found. */
 	ALenum			GetOpenALSoftFormat( ALenum channels, ALenum type ) const;
 #endif
-	
+
 	ALenum			GetOpenALBufferFormat() const;
-	
+
 	void			CreateOpenALBuffer();
-	
+
 protected:
 	friend class idSoundHardware_OpenAL;
 	friend class idSoundVoice_OpenAL;
-	
+
 	~idSoundSample_OpenAL();
-	
+
 	bool			LoadWav( const idStr& name );
 	bool			LoadAmplitude( const idStr& name );
 	void			WriteAllSamples( const idStr& sampleName );
 	bool			LoadGeneratedSample( const idStr& name );
 	void			WriteGeneratedSample( idFile* fileOut );
-	
+
 	struct MS_ADPCM_decodeState_t
 	{
 		uint8 hPredictor;
 		int16 coef1;
 		int16 coef2;
-		
+
 		uint16 iDelta;
 		int16 iSamp1;
 		int16 iSamp2;
 	};
-	
+
 	int32			MS_ADPCM_nibble( MS_ADPCM_decodeState_t* state, int8 nybble );
 	int				MS_ADPCM_decode( uint8** audio_buf, uint32* audio_len );
-	
+
 	struct sampleBuffer_t
 	{
 		void* buffer;
 		int bufferSize;
 		int numSamples;
 	};
-	
+
 	idStr			name;
-	
+
 	ID_TIME_T		timestamp;
 	bool			loaded;
-	
+
 	bool			neverPurge;
 	bool			levelLoadReferenced;
 	bool			usesMapHeap;
-	
+
 	uint32			lastPlayedTime;
-	
+
 	int				totalBufferSize;	// total size of all the buffers
 	idList<sampleBuffer_t, TAG_AUDIO> buffers;
-	
+
 	// OpenAL buffer that contains all buffers
 	ALuint			openalBuffer;
-	
+
 	int				playBegin;
 	int				playLength;
-	
+
 	idWaveFile::waveFmt_t	format;
-	
+
 	idList<byte, TAG_AMPLITUDE> amplitude;
 };
 

@@ -47,10 +47,10 @@ idPhysics_Static::idPhysics_Static()
 	current.axis.Identity();
 	current.localOrigin.Zero();
 	current.localAxis.Identity();
-	
+
 	next = ConvertPStateToInterpolateState( current );
 	previous = next;
-	
+
 	hasMaster = false;
 	isOrientated = false;
 }
@@ -81,13 +81,13 @@ idPhysics_Static::Save
 void idPhysics_Static::Save( idSaveGame* savefile ) const
 {
 	savefile->WriteObject( self );
-	
+
 	savefile->WriteVec3( current.origin );
 	savefile->WriteMat3( current.axis );
 	savefile->WriteVec3( current.localOrigin );
 	savefile->WriteMat3( current.localAxis );
 	savefile->WriteClipModel( clipModel );
-	
+
 	savefile->WriteBool( hasMaster );
 	savefile->WriteBool( isOrientated );
 }
@@ -100,13 +100,13 @@ idPhysics_Static::Restore
 void idPhysics_Static::Restore( idRestoreGame* savefile )
 {
 	savefile->ReadObject( reinterpret_cast<idClass*&>( self ) );
-	
+
 	savefile->ReadVec3( current.origin );
 	savefile->ReadMat3( current.axis );
 	savefile->ReadVec3( current.localOrigin );
 	savefile->ReadMat3( current.localAxis );
 	savefile->ReadClipModel( clipModel );
-	
+
 	savefile->ReadBool( hasMaster );
 	savefile->ReadBool( isOrientated );
 }
@@ -130,7 +130,7 @@ idPhysics_Static::SetClipModel
 void idPhysics_Static::SetClipModel( idClipModel* model, float density, int id, bool freeOld )
 {
 	assert( self );
-	
+
 	if( clipModel && clipModel != model && freeOld )
 	{
 		delete clipModel;
@@ -253,7 +253,7 @@ idPhysics_Static::GetAbsBounds
 const idBounds& idPhysics_Static::GetAbsBounds( int id ) const
 {
 	static idBounds absBounds;
-	
+
 	if( clipModel )
 	{
 		return clipModel->GetAbsBounds();
@@ -271,13 +271,13 @@ bool idPhysics_Static::Evaluate( int timeStepMSec, int endTimeMSec )
 {
 	idVec3 masterOrigin, oldOrigin;
 	idMat3 masterAxis, oldAxis;
-	
-	
+
+
 	if( hasMaster )
 	{
 		oldOrigin = current.origin;
 		oldAxis = current.axis;
-		
+
 		self->GetMasterPosition( masterOrigin, masterAxis );
 		current.origin = masterOrigin + current.localOrigin * masterAxis;
 		if( isOrientated )
@@ -292,7 +292,7 @@ bool idPhysics_Static::Evaluate( int timeStepMSec, int endTimeMSec )
 		{
 			clipModel->Link( gameLocal.clip, self, 0, current.origin, current.axis );
 		}
-		
+
 		return ( current.origin != oldOrigin || current.axis != oldAxis );
 	}
 	return false;
@@ -311,7 +311,7 @@ bool idPhysics_Static::Interpolate( const float fraction )
 	{
 		current = InterpolateStaticPState( previous, next, fraction );
 	}
-	
+
 	return true;
 }
 
@@ -437,9 +437,9 @@ void idPhysics_Static::SetOrigin( const idVec3& newOrigin, int id )
 {
 	idVec3 masterOrigin;
 	idMat3 masterAxis;
-	
+
 	current.localOrigin = newOrigin;
-	
+
 	if( hasMaster )
 	{
 		self->GetMasterPosition( masterOrigin, masterAxis );
@@ -449,12 +449,12 @@ void idPhysics_Static::SetOrigin( const idVec3& newOrigin, int id )
 	{
 		current.origin = newOrigin;
 	}
-	
+
 	if( clipModel )
 	{
 		clipModel->Link( gameLocal.clip, self, 0, current.origin, current.axis );
 	}
-	
+
 	next = ConvertPStateToInterpolateState( current );
 	previous = next;
 }
@@ -468,9 +468,9 @@ void idPhysics_Static::SetAxis( const idMat3& newAxis, int id )
 {
 	idVec3 masterOrigin;
 	idMat3 masterAxis;
-	
+
 	current.localAxis = newAxis;
-	
+
 	if( hasMaster && isOrientated )
 	{
 		self->GetMasterPosition( masterOrigin, masterAxis );
@@ -480,12 +480,12 @@ void idPhysics_Static::SetAxis( const idMat3& newAxis, int id )
 	{
 		current.axis = newAxis;
 	}
-	
+
 	if( clipModel )
 	{
 		clipModel->Link( gameLocal.clip, self, 0, current.origin, current.axis );
 	}
-	
+
 	next = ConvertPStateToInterpolateState( current );
 	previous = next;
 }
@@ -501,7 +501,7 @@ void idPhysics_Static::Translate( const idVec3& translation, int id )
 {
 	current.localOrigin += translation;
 	current.origin += translation;
-	
+
 	if( clipModel )
 	{
 		clipModel->Link( gameLocal.clip, self, 0, current.origin, current.axis );
@@ -517,10 +517,10 @@ void idPhysics_Static::Rotate( const idRotation& rotation, int id )
 {
 	idVec3 masterOrigin;
 	idMat3 masterAxis;
-	
+
 	current.origin *= rotation;
 	current.axis *= rotation.ToMat3();
-	
+
 	if( hasMaster )
 	{
 		self->GetMasterPosition( masterOrigin, masterAxis );
@@ -532,7 +532,7 @@ void idPhysics_Static::Rotate( const idRotation& rotation, int id )
 		current.localAxis = current.axis;
 		current.localOrigin = current.origin;
 	}
-	
+
 	if( clipModel )
 	{
 		clipModel->Link( gameLocal.clip, self, 0, current.origin, current.axis );
@@ -866,7 +866,7 @@ void idPhysics_Static::SetMaster( idEntity* master, const bool orientated )
 {
 	idVec3 masterOrigin;
 	idMat3 masterAxis;
-	
+
 	if( master )
 	{
 		if( !hasMaster )
@@ -943,10 +943,10 @@ idPhysics_Static::WriteToSnapshot
 void idPhysics_Static::WriteToSnapshot( idBitMsg& msg ) const
 {
 	idCQuat quat, localQuat;
-	
+
 	quat = current.axis.ToCQuat();
 	localQuat = current.localAxis.ToCQuat();
-	
+
 	msg.WriteFloat( current.origin[0] );
 	msg.WriteFloat( current.origin[1] );
 	msg.WriteFloat( current.origin[2] );
@@ -969,9 +969,9 @@ idPhysics_Base::ReadFromSnapshot
 void idPhysics_Static::ReadFromSnapshot( const idBitMsg& msg )
 {
 	idCQuat quat, localQuat;
-	
+
 	previous = next;
-	
+
 	next = ReadStaticInterpolatePStateFromSnapshot( msg );
 }
 
@@ -988,7 +988,7 @@ staticPState_s	ConvertInterpolateStateToPState( const staticInterpolatePState_t&
 	state.localOrigin = interpolateState.localOrigin;
 	state.localAxis = interpolateState.localAxis.ToMat3();
 	state.axis = interpolateState.axis.ToMat3();
-	
+
 	return state;
 }
 
@@ -1005,7 +1005,7 @@ staticInterpolatePState_t ConvertPStateToInterpolateState( const staticPState_t&
 	interpolateState.localOrigin = state.localOrigin;
 	interpolateState.localAxis = state.localAxis.ToQuat();
 	interpolateState.axis = state.axis.ToQuat();
-	
+
 	return interpolateState;
 }
 
@@ -1017,14 +1017,14 @@ ReadStaticInterpolatePStateFromSnapshot
 staticInterpolatePState_t ReadStaticInterpolatePStateFromSnapshot( const idBitMsg& msg )
 {
 	staticInterpolatePState_t state;
-	
+
 	state.origin = ReadFloatArray< idVec3 >( msg );
 	const idCQuat cAxis = ReadFloatArray< idCQuat >( msg );
 	state.localOrigin = ReadDeltaFloatArray( msg, state.origin );
 	state.localAxis = ReadDeltaFloatArray( msg, cAxis ).ToQuat();
-	
+
 	state.axis = cAxis.ToQuat();
-	
+
 	return state;
 }
 
@@ -1036,12 +1036,12 @@ InterpolateStaticPState
 staticPState_t InterpolateStaticPState( const staticInterpolatePState_t& previous, const staticInterpolatePState_t& next, float fraction )
 {
 	staticPState_t result;
-	
+
 	result.origin = Lerp( previous.origin, next.origin, fraction );
 	result.axis = idQuat().Slerp( previous.axis, next.axis, fraction ).ToMat3();
-	
+
 	result.localOrigin = Lerp( previous.localOrigin, next.localOrigin, fraction );
 	result.localAxis = idQuat().Slerp( previous.localAxis, next.localAxis, fraction ).ToMat3();
-	
+
 	return result;
 }

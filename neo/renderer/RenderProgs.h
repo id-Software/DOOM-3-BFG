@@ -76,112 +76,112 @@ enum renderParm_t
 	RENDERPARM_WINDOWCOORD,
 	RENDERPARM_DIFFUSEMODIFIER,
 	RENDERPARM_SPECULARMODIFIER,
-	
+
 	RENDERPARM_LOCALLIGHTORIGIN,
 	RENDERPARM_LOCALVIEWORIGIN,
-	
+
 	RENDERPARM_LIGHTPROJECTION_S,
 	RENDERPARM_LIGHTPROJECTION_T,
 	RENDERPARM_LIGHTPROJECTION_Q,
 	RENDERPARM_LIGHTFALLOFF_S,
-	
+
 	RENDERPARM_BUMPMATRIX_S,
 	RENDERPARM_BUMPMATRIX_T,
-	
+
 	RENDERPARM_DIFFUSEMATRIX_S,
 	RENDERPARM_DIFFUSEMATRIX_T,
-	
+
 	RENDERPARM_SPECULARMATRIX_S,
 	RENDERPARM_SPECULARMATRIX_T,
-	
+
 	RENDERPARM_VERTEXCOLOR_MODULATE,
 	RENDERPARM_VERTEXCOLOR_ADD,
-	
+
 	// The following are new and can be in any order
-	
+
 	RENDERPARM_COLOR,
 	RENDERPARM_VIEWORIGIN,
 	RENDERPARM_GLOBALEYEPOS,
-	
+
 	RENDERPARM_MVPMATRIX_X,
 	RENDERPARM_MVPMATRIX_Y,
 	RENDERPARM_MVPMATRIX_Z,
 	RENDERPARM_MVPMATRIX_W,
-	
+
 	RENDERPARM_MODELMATRIX_X,
 	RENDERPARM_MODELMATRIX_Y,
 	RENDERPARM_MODELMATRIX_Z,
 	RENDERPARM_MODELMATRIX_W,
-	
+
 	RENDERPARM_PROJMATRIX_X,
 	RENDERPARM_PROJMATRIX_Y,
 	RENDERPARM_PROJMATRIX_Z,
 	RENDERPARM_PROJMATRIX_W,
-	
+
 	RENDERPARM_MODELVIEWMATRIX_X,
 	RENDERPARM_MODELVIEWMATRIX_Y,
 	RENDERPARM_MODELVIEWMATRIX_Z,
 	RENDERPARM_MODELVIEWMATRIX_W,
-	
+
 	RENDERPARM_TEXTUREMATRIX_S,
 	RENDERPARM_TEXTUREMATRIX_T,
-	
+
 	RENDERPARM_TEXGEN_0_S,
 	RENDERPARM_TEXGEN_0_T,
 	RENDERPARM_TEXGEN_0_Q,
 	RENDERPARM_TEXGEN_0_ENABLED,
-	
+
 	RENDERPARM_TEXGEN_1_S,
 	RENDERPARM_TEXGEN_1_T,
 	RENDERPARM_TEXGEN_1_Q,
 	RENDERPARM_TEXGEN_1_ENABLED,
-	
+
 	RENDERPARM_WOBBLESKY_X,
 	RENDERPARM_WOBBLESKY_Y,
 	RENDERPARM_WOBBLESKY_Z,
-	
+
 	RENDERPARM_OVERBRIGHT,
 	RENDERPARM_ENABLE_SKINNING,
 	RENDERPARM_ALPHA_TEST,
-	
+
 	// RB begin
 	RENDERPARM_AMBIENT_COLOR,
-	
+
 	RENDERPARM_GLOBALLIGHTORIGIN,
 	RENDERPARM_JITTERTEXSCALE,
 	RENDERPARM_JITTERTEXOFFSET,
 	RENDERPARM_CASCADEDISTANCES,
-	
+
 	RENDERPARM_SHADOW_MATRIX_0_X,	// rpShadowMatrices[6 * 4]
 	RENDERPARM_SHADOW_MATRIX_0_Y,
 	RENDERPARM_SHADOW_MATRIX_0_Z,
 	RENDERPARM_SHADOW_MATRIX_0_W,
-	
+
 	RENDERPARM_SHADOW_MATRIX_1_X,
 	RENDERPARM_SHADOW_MATRIX_1_Y,
 	RENDERPARM_SHADOW_MATRIX_1_Z,
 	RENDERPARM_SHADOW_MATRIX_1_W,
-	
+
 	RENDERPARM_SHADOW_MATRIX_2_X,
 	RENDERPARM_SHADOW_MATRIX_2_Y,
 	RENDERPARM_SHADOW_MATRIX_2_Z,
 	RENDERPARM_SHADOW_MATRIX_2_W,
-	
+
 	RENDERPARM_SHADOW_MATRIX_3_X,
 	RENDERPARM_SHADOW_MATRIX_3_Y,
 	RENDERPARM_SHADOW_MATRIX_3_Z,
 	RENDERPARM_SHADOW_MATRIX_3_W,
-	
+
 	RENDERPARM_SHADOW_MATRIX_4_X,
 	RENDERPARM_SHADOW_MATRIX_4_Y,
 	RENDERPARM_SHADOW_MATRIX_4_Z,
 	RENDERPARM_SHADOW_MATRIX_4_W,
-	
+
 	RENDERPARM_SHADOW_MATRIX_5_X,
 	RENDERPARM_SHADOW_MATRIX_5_Y,
 	RENDERPARM_SHADOW_MATRIX_5_Z,
 	RENDERPARM_SHADOW_MATRIX_5_W,
-	
+
 	RENDERPARM_USER0,
 	RENDERPARM_USER1,
 	RENDERPARM_USER2,
@@ -191,7 +191,7 @@ enum renderParm_t
 	RENDERPARM_USER6,
 	RENDERPARM_USER7,
 	// RB end
-	
+
 	RENDERPARM_TOTAL,
 };
 
@@ -200,7 +200,7 @@ enum rpStage_t
 	SHADER_STAGE_VERTEX		= BIT( 0 ),
 	SHADER_STAGE_FRAGMENT	= BIT( 1 ),
 	SHADER_STAGE_COMPUTE	= BIT( 2 ), // RB: for future use
-	
+
 	SHADER_STAGE_DEFAULT	= SHADER_STAGE_VERTEX | SHADER_STAGE_FRAGMENT
 };
 
@@ -246,354 +246,374 @@ class idRenderProgManager
 public:
 	idRenderProgManager();
 	virtual ~idRenderProgManager();
-	
+
 	void	Init();
 	void	Shutdown();
-	
+
 	void	StartFrame();
-	
+
 	void	SetRenderParm( renderParm_t rp, const float* value );
 	void	SetRenderParms( renderParm_t rp, const float* values, int numValues );
-	
-	int		FindShader( const char* name, rpStage_t stage, const char* nameOutSuffix, uint32 features, bool builtin );
-	
+
+	int		FindShader( const char* name, rpStage_t stage, const char* nameOutSuffix, uint32 features, bool builtin, vertexLayoutType_t vertexLayout = LAYOUT_DRAW_VERT );
+
 	void	BindProgram( int progIndex );
-	
+
 	void	BindShader_GUI( )
 	{
 		BindShader_Builtin( BUILTIN_GUI );
 	}
-	
+
 	void	BindShader_Color( )
 	{
 		BindShader_Builtin( BUILTIN_COLOR );
 	}
-	
+
 	// RB begin
 	void	BindShader_ColorSkinned( )
 	{
 		BindShader_Builtin( BUILTIN_COLOR_SKINNED );
 	}
-	
+
 	void	BindShader_VertexColor( )
 	{
 		BindShader_Builtin( BUILTIN_VERTEX_COLOR );
 	}
-	
+
 	void	BindShader_AmbientLighting()
 	{
 		BindShader_Builtin( BUILTIN_AMBIENT_LIGHTING );
 	}
-	
+
 	void	BindShader_AmbientLightingSkinned()
 	{
 		BindShader_Builtin( BUILTIN_AMBIENT_LIGHTING_SKINNED );
 	}
-	
+
+	void	BindShader_ImageBasedLighting()
+	{
+		BindShader_Builtin( BUILTIN_AMBIENT_LIGHTING_IBL );
+	}
+
+	void	BindShader_ImageBasedLightingSkinned()
+	{
+		BindShader_Builtin( BUILTIN_AMBIENT_LIGHTING_IBL_SKINNED );
+	}
+
+	void	BindShader_ImageBasedLighting_PBR()
+	{
+		BindShader_Builtin( BUILTIN_AMBIENT_LIGHTING_IBL_PBR );
+	}
+
+	void	BindShader_ImageBasedLightingSkinned_PBR()
+	{
+		BindShader_Builtin( BUILTIN_AMBIENT_LIGHTING_IBL_PBR_SKINNED );
+	}
+
 	void	BindShader_SmallGeometryBuffer()
 	{
 		BindShader_Builtin( BUILTIN_SMALL_GEOMETRY_BUFFER );
 	}
-	
+
 	void	BindShader_SmallGeometryBufferSkinned()
 	{
 		BindShader_Builtin( BUILTIN_SMALL_GEOMETRY_BUFFER_SKINNED );
 	}
 	// RB end
-	
+
 	void	BindShader_Texture( )
 	{
 		BindShader_Builtin( BUILTIN_TEXTURED );
 	}
-	
+
 	void	BindShader_TextureVertexColor()
 	{
 		BindShader_Builtin( BUILTIN_TEXTURE_VERTEXCOLOR );
 	};
-	
+
 	void	BindShader_TextureVertexColor_sRGB()
 	{
 		BindShader_Builtin( BUILTIN_TEXTURE_VERTEXCOLOR_SRGB );
 	};
-	
+
 	void	BindShader_TextureVertexColorSkinned()
 	{
 		BindShader_Builtin( BUILTIN_TEXTURE_VERTEXCOLOR_SKINNED );
 	};
-	
+
 	void	BindShader_TextureTexGenVertexColor()
 	{
 		BindShader_Builtin( BUILTIN_TEXTURE_TEXGEN_VERTEXCOLOR );
 	};
-	
+
 	void	BindShader_Interaction()
 	{
 		BindShader_Builtin( BUILTIN_INTERACTION );
 	}
-	
+
 	void	BindShader_InteractionSkinned()
 	{
 		BindShader_Builtin( BUILTIN_INTERACTION_SKINNED );
 	}
-	
+
 	void	BindShader_InteractionAmbient()
 	{
 		BindShader_Builtin( BUILTIN_INTERACTION_AMBIENT );
 	}
-	
+
 	void	BindShader_InteractionAmbientSkinned()
 	{
 		BindShader_Builtin( BUILTIN_INTERACTION_AMBIENT_SKINNED );
 	}
-	
+
 	// RB begin
 	void	BindShader_Interaction_ShadowMapping_Spot()
 	{
 		BindShader_Builtin( BUILTIN_INTERACTION_SHADOW_MAPPING_SPOT );
 	}
-	
+
 	void	BindShader_Interaction_ShadowMapping_Spot_Skinned()
 	{
 		BindShader_Builtin( BUILTIN_INTERACTION_SHADOW_MAPPING_SPOT_SKINNED );
 	}
-	
+
 	void	BindShader_Interaction_ShadowMapping_Point()
 	{
 		BindShader_Builtin( BUILTIN_INTERACTION_SHADOW_MAPPING_POINT );
 	}
-	
+
 	void	BindShader_Interaction_ShadowMapping_Point_Skinned()
 	{
 		BindShader_Builtin( BUILTIN_INTERACTION_SHADOW_MAPPING_POINT_SKINNED );
 	}
-	
+
 	void	BindShader_Interaction_ShadowMapping_Parallel()
 	{
 		BindShader_Builtin( BUILTIN_INTERACTION_SHADOW_MAPPING_PARALLEL );
 	}
-	
+
 	void	BindShader_Interaction_ShadowMapping_Parallel_Skinned()
 	{
 		BindShader_Builtin( BUILTIN_INTERACTION_SHADOW_MAPPING_PARALLEL_SKINNED );
 	}
 	// RB end
-	
+
 	void	BindShader_Environment()
 	{
 		BindShader_Builtin( BUILTIN_ENVIRONMENT );
 	}
-	
+
 	void	BindShader_EnvironmentSkinned()
 	{
 		BindShader_Builtin( BUILTIN_ENVIRONMENT_SKINNED );
 	}
-	
+
 	void	BindShader_BumpyEnvironment()
 	{
 		BindShader_Builtin( BUILTIN_BUMPY_ENVIRONMENT );
 	}
-	
+
 	void	BindShader_BumpyEnvironmentSkinned()
 	{
 		BindShader_Builtin( BUILTIN_BUMPY_ENVIRONMENT_SKINNED );
 	}
-	
+
 	void	BindShader_Depth()
 	{
 		BindShader_Builtin( BUILTIN_DEPTH );
 	}
-	
+
 	void	BindShader_DepthSkinned()
 	{
 		BindShader_Builtin( BUILTIN_DEPTH_SKINNED );
 	}
-	
+
 	void	BindShader_Shadow()
 	{
 		// RB: no FFP fragment rendering anymore
 		//BindShader( -1, builtinShaders[BUILTIN_SHADOW], -1, true );
-		
+
 		BindShader_Builtin( BUILTIN_SHADOW );
 		// RB end
 	}
-	
+
 	void	BindShader_ShadowSkinned()
 	{
 		// RB: no FFP fragment rendering anymore
 		//BindShader( -1, builtinShaders[BUILTIN_SHADOW_SKINNED], -1, true );
-		
+
 		BindShader_Builtin( BUILTIN_SHADOW_SKINNED );
 		// RB end
 	}
-	
+
 	void	BindShader_ShadowDebug()
 	{
 		BindShader_Builtin( BUILTIN_SHADOW_DEBUG );
 	}
-	
+
 	void	BindShader_ShadowDebugSkinned()
 	{
 		BindShader_Builtin( BUILTIN_SHADOW_DEBUG_SKINNED );
 	}
-	
+
 	void	BindShader_BlendLight()
 	{
 		BindShader_Builtin( BUILTIN_BLENDLIGHT );
 	}
-	
+
 	void	BindShader_Fog()
 	{
 		BindShader_Builtin( BUILTIN_FOG );
 	}
-	
+
 	void	BindShader_FogSkinned()
 	{
 		BindShader_Builtin( BUILTIN_FOG_SKINNED );
 	}
-	
+
 	void	BindShader_SkyBox()
 	{
 		BindShader_Builtin( BUILTIN_SKYBOX );
 	}
-	
+
 	void	BindShader_WobbleSky()
 	{
 		BindShader_Builtin( BUILTIN_WOBBLESKY );
 	}
-	
+
 	void	BindShader_StereoDeGhost()
 	{
 		BindShader_Builtin( BUILTIN_STEREO_DEGHOST );
 	}
-	
+
 	void	BindShader_StereoWarp()
 	{
 		BindShader_Builtin( BUILTIN_STEREO_WARP );
 	}
-	
+
 	void	BindShader_StereoInterlace()
 	{
 		BindShader_Builtin( BUILTIN_STEREO_INTERLACE );
 	}
-	
+
 	void	BindShader_PostProcess()
 	{
 		BindShader_Builtin( BUILTIN_POSTPROCESS );
 	}
-	
+
 	void	BindShader_Screen()
 	{
 		BindShader_Builtin( BUILTIN_SCREEN );
 	}
-	
+
 	void	BindShader_Tonemap()
 	{
 		BindShader_Builtin( BUILTIN_TONEMAP );
 	}
-	
+
 	void	BindShader_Brightpass()
 	{
 		BindShader_Builtin( BUILTIN_BRIGHTPASS );
 	}
-	
+
 	void	BindShader_HDRGlareChromatic()
 	{
 		BindShader_Builtin( BUILTIN_HDR_GLARE_CHROMATIC );
 	}
-	
+
 	void	BindShader_HDRDebug()
 	{
 		BindShader_Builtin( BUILTIN_HDR_DEBUG );
 	}
-	
+
 	void	BindShader_SMAA_EdgeDetection()
 	{
 		BindShader_Builtin( BUILTIN_SMAA_EDGE_DETECTION );
 	}
-	
+
 	void	BindShader_SMAA_BlendingWeightCalculation()
 	{
 		BindShader_Builtin( BUILTIN_SMAA_BLENDING_WEIGHT_CALCULATION );
 	}
-	
+
 	void	BindShader_SMAA_NeighborhoodBlending()
 	{
 		BindShader_Builtin( BUILTIN_SMAA_NEIGHBORHOOD_BLENDING );
 	}
-	
+
 	void	BindShader_AmbientOcclusion()
 	{
 		BindShader_Builtin( BUILTIN_AMBIENT_OCCLUSION );
 	}
-	
+
 	void	BindShader_AmbientOcclusionAndOutput()
 	{
 		BindShader_Builtin( BUILTIN_AMBIENT_OCCLUSION_AND_OUTPUT );
 	}
-	
+
 	void	BindShader_AmbientOcclusionBlur()
 	{
 		BindShader_Builtin( BUILTIN_AMBIENT_OCCLUSION_BLUR );
 	}
-	
+
 	void	BindShader_AmbientOcclusionBlurAndOutput()
 	{
 		BindShader_Builtin( BUILTIN_AMBIENT_OCCLUSION_BLUR_AND_OUTPUT );
 	}
-	
+
 	void	BindShader_AmbientOcclusionMinify()
 	{
 		BindShader_Builtin( BUILTIN_AMBIENT_OCCLUSION_MINIFY );
 	}
-	
+
 	void	BindShader_AmbientOcclusionReconstructCSZ()
 	{
 		BindShader_Builtin( BUILTIN_AMBIENT_OCCLUSION_RECONSTRUCT_CSZ );
 	}
-	
+
 	void	BindShader_DeepGBufferRadiosity()
 	{
 		BindShader_Builtin( BUILTIN_DEEP_GBUFFER_RADIOSITY_SSGI );
 	}
-	
+
 	void	BindShader_DeepGBufferRadiosityBlur()
 	{
 		BindShader_Builtin( BUILTIN_DEEP_GBUFFER_RADIOSITY_BLUR );
 	}
-	
+
 	void	BindShader_DeepGBufferRadiosityBlurAndOutput()
 	{
 		BindShader_Builtin( BUILTIN_DEEP_GBUFFER_RADIOSITY_BLUR_AND_OUTPUT );
 	}
-	
+
 #if 0
 	void	BindShader_ZCullReconstruct()
 	{
 		BindShader_Builtin( BUILTIN_ZCULL_RECONSTRUCT );
 	}
 #endif
-	
+
 	void	BindShader_Bink()
 	{
 		BindShader_Builtin( BUILTIN_BINK );
 	}
-	
+
 	void	BindShader_BinkGUI()
 	{
 		BindShader_Builtin( BUILTIN_BINK_GUI );
 	}
-	
+
 	void	BindShader_MotionBlur()
 	{
 		BindShader_Builtin( BUILTIN_MOTION_BLUR );
 	}
-	
+
 	void	BindShader_DebugShadowMap()
 	{
 		BindShader_Builtin( BUILTIN_DEBUG_SHADOWMAP );
 	}
 	// RB end
-	
+
 	// the joints buffer should only be bound for vertex programs that use joints
 	bool		ShaderUsesJoints() const
 	{
@@ -604,40 +624,40 @@ public:
 	{
 		return renderProgs[current].optionalSkinning;
 	}
-	
+
 	// unbind the currently bound render program
 	void		Unbind();
-	
+
 	// RB begin
 	bool		IsShaderBound() const;
 	// RB end
-	
+
 	// this should only be called via the reload shader console command
 	void		LoadAllShaders();
 	void		KillAllShaders();
-	
+
 	static const int	MAX_GLSL_USER_PARMS = 8;
 	const char*	GetGLSLParmName( int rp ) const;
-	
+
 	void		SetUniformValue( const renderParm_t rp, const float* value );
 	void		CommitUniforms( uint64 stateBits );
 	void		CachePipeline( uint64 stateBits );
 	int			FindGLSLProgram( const char* name, int vIndex, int fIndex );
 	void		ZeroUniforms();
-	
+
 #if defined(USE_VULKAN)
 	void		PrintPipelines();
 	void		ClearPipelines();
 #endif
-	
+
 	static const char* FindEmbeddedSourceShader( const char* name );
-	
+
 private:
 	void		LoadShader( int index, rpStage_t stage );
-	
+
 	idStr		StripDeadCode( const idStr& in, const char* name, const idStrList& compileMacros, bool builtin );
-	idStr		ConvertCG2GLSL( const idStr& in, const char* name, rpStage_t stage, idStr& layout, bool vkGLSL, bool hasGPUSkinning );
-	
+	idStr		ConvertCG2GLSL( const idStr& in, const char* name, rpStage_t stage, idStr& outLayout, bool vkGLSL, bool hasGPUSkinning, vertexLayoutType_t vertexLayout );
+
 	enum
 	{
 		BUILTIN_GUI,
@@ -647,6 +667,10 @@ private:
 		BUILTIN_VERTEX_COLOR,
 		BUILTIN_AMBIENT_LIGHTING,
 		BUILTIN_AMBIENT_LIGHTING_SKINNED,
+		BUILTIN_AMBIENT_LIGHTING_IBL,
+		BUILTIN_AMBIENT_LIGHTING_IBL_SKINNED,
+		BUILTIN_AMBIENT_LIGHTING_IBL_PBR,
+		BUILTIN_AMBIENT_LIGHTING_IBL_PBR_SKINNED,
 		BUILTIN_SMALL_GEOMETRY_BUFFER,
 		BUILTIN_SMALL_GEOMETRY_BUFFER_SKINNED,
 		// RB end
@@ -671,14 +695,14 @@ private:
 		BUILTIN_ENVIRONMENT_SKINNED,
 		BUILTIN_BUMPY_ENVIRONMENT,
 		BUILTIN_BUMPY_ENVIRONMENT_SKINNED,
-		
+
 		BUILTIN_DEPTH,
 		BUILTIN_DEPTH_SKINNED,
 		BUILTIN_SHADOW,
 		BUILTIN_SHADOW_SKINNED,
 		BUILTIN_SHADOW_DEBUG,
 		BUILTIN_SHADOW_DEBUG_SKINNED,
-		
+
 		BUILTIN_BLENDLIGHT,
 		BUILTIN_FOG,
 		BUILTIN_FOG_SKINNED,
@@ -691,18 +715,18 @@ private:
 		BUILTIN_BRIGHTPASS,
 		BUILTIN_HDR_GLARE_CHROMATIC,
 		BUILTIN_HDR_DEBUG,
-		
+
 		BUILTIN_SMAA_EDGE_DETECTION,
 		BUILTIN_SMAA_BLENDING_WEIGHT_CALCULATION,
 		BUILTIN_SMAA_NEIGHBORHOOD_BLENDING,
-		
+
 		BUILTIN_AMBIENT_OCCLUSION,
 		BUILTIN_AMBIENT_OCCLUSION_AND_OUTPUT,
 		BUILTIN_AMBIENT_OCCLUSION_BLUR,
 		BUILTIN_AMBIENT_OCCLUSION_BLUR_AND_OUTPUT,
 		BUILTIN_AMBIENT_OCCLUSION_MINIFY,
 		BUILTIN_AMBIENT_OCCLUSION_RECONSTRUCT_CSZ,
-		
+
 		BUILTIN_DEEP_GBUFFER_RADIOSITY_SSGI,
 		BUILTIN_DEEP_GBUFFER_RADIOSITY_BLUR,
 		BUILTIN_DEEP_GBUFFER_RADIOSITY_BLUR_AND_OUTPUT,
@@ -713,9 +737,9 @@ private:
 		BUILTIN_BINK_GUI,
 		BUILTIN_STEREO_INTERLACE,
 		BUILTIN_MOTION_BLUR,
-		
+
 		BUILTIN_DEBUG_SHADOWMAP,
-		
+
 		MAX_BUILTINS
 	};
 	int builtinShaders[MAX_BUILTINS];
@@ -723,7 +747,7 @@ private:
 	{
 		BindProgram( i );
 	}
-	
+
 	enum shaderFeature_t
 	{
 		USE_GPU_SKINNING,
@@ -732,35 +756,38 @@ private:
 		BRIGHTPASS,
 		HDR_DEBUG,
 		USE_SRGB,
-		
+		USE_PBR,
+
 		MAX_SHADER_MACRO_NAMES,
 	};
-	
+
 	static const char* GLSLMacroNames[MAX_SHADER_MACRO_NAMES];
 	const char*	GetGLSLMacroName( shaderFeature_t sf ) const;
-	
+
 	bool	CompileGLSL( uint target, const char* name );
 	void	LoadGLSLProgram( const int programIndex, const int vertexShaderIndex, const int fragmentShaderIndex );
-	
+
 	static const uint INVALID_PROGID = 0xFFFFFFFF;
-	
+
 #if defined(USE_VULKAN)
 	struct shader_t
 	{
 		shader_t() :
 			shaderFeatures( 0 ),
 			builtin( false ),
+			vertexLayout( LAYOUT_DRAW_VERT ),
 			module( VK_NULL_HANDLE ) {}
 		idStr				name;
 		idStr				nameOutSuffix;
 		uint32				shaderFeatures;		// RB: Cg compile macros
 		bool				builtin;			// RB: part of the core shaders built into the executable
 		rpStage_t			stage;
+		vertexLayoutType_t	vertexLayout;
 		VkShaderModule		module;
 		idList<rpBinding_t>	bindings;
 		idList<int>			parmIndices;
 	};
-	
+
 	struct renderProg_t
 	{
 		renderProg_t() :
@@ -773,23 +800,21 @@ private:
 			vertexLayout( LAYOUT_DRAW_VERT ),
 			pipelineLayout( VK_NULL_HANDLE ),
 			descriptorSetLayout( VK_NULL_HANDLE ) {}
-			
+
 		struct pipelineState_t
 		{
 			pipelineState_t() :
 				stateBits( 0 ),
 				pipeline( VK_NULL_HANDLE )
 			{
-				memset( stencilOperations, 0xFF, sizeof( stencilOperations ) );
 			}
-			
+
 			uint64		stateBits;
 			VkPipeline	pipeline;
-			uint64		stencilOperations[ 2 ];
 		};
-		
+
 		VkPipeline GetPipeline( uint64 stateBits, VkShaderModule vertexShader, VkShaderModule fragmentShader );
-		
+
 		idStr				name;
 		uint				progId;
 		bool				usesJoints;
@@ -797,14 +822,14 @@ private:
 		bool				builtin;			// RB: part of the core shaders built into the executable
 		int					vertexShaderIndex;
 		int					fragmentShaderIndex;
-		
+
 		vertexLayoutType_t		vertexLayout;
 		VkPipelineLayout		pipelineLayout;
 		VkDescriptorSetLayout	descriptorSetLayout;
 		idList<rpBinding_t>		bindings;
 		idList<pipelineState_t>	pipelines;
 	};
-	
+
 	static void		CreateDescriptorSetLayout( const shader_t& vertexShader, const shader_t& fragmentShader, renderProg_t& renderProg );
 	void			AllocParmBlockBuffer( const idList<int>& parmIndices, idUniformBuffer& ubo );
 #else
@@ -814,17 +839,19 @@ private:
 			progId( INVALID_PROGID ),
 			shaderFeatures( 0 ),
 			builtin( false ),
+			vertexLayout( LAYOUT_DRAW_VERT ),
 			uniformArray( -1 ) {}
 		idStr			name;
 		idStr			nameOutSuffix;
 		uint32			shaderFeatures;		// RB: Cg compile macros
 		bool			builtin;			// RB: part of the core shaders built into the executable
+		vertexLayoutType_t	vertexLayout;
 		rpStage_t		stage;
 		uint			progId;
 		int				uniformArray;
 		idList<int>		uniforms;
 	};
-	
+
 	struct renderProg_t
 	{
 		renderProg_t() :
@@ -835,7 +862,7 @@ private:
 			vertexLayout( LAYOUT_UNKNOWN ),
 			vertexShaderIndex( -1 ),
 			fragmentShaderIndex( -1 ) {}
-	
+
 		idStr				name;
 		uint				progId;
 		bool				usesJoints;
@@ -846,15 +873,15 @@ private:
 		int					fragmentShaderIndex;
 	};
 #endif
-	
+
 	void							LoadShader( shader_t& shader );
-	
+
 	int											current;
 	idList<renderProg_t, TAG_RENDER>			renderProgs;
 	idList<shader_t, TAG_RENDER>				shaders;
-	
+
 	idStaticList < idVec4, RENDERPARM_TOTAL >	uniforms;
-	
+
 #if defined( USE_VULKAN )
 	int					counter;
 	int					currentData;
@@ -862,7 +889,7 @@ private:
 	int					currentParmBufferOffset;
 	VkDescriptorPool	descriptorPools[ NUM_FRAME_DATA ];
 	VkDescriptorSet		descriptorSets[ NUM_FRAME_DATA ][ MAX_DESC_SETS ];
-	
+
 	idUniformBuffer* 	parmBuffers[ NUM_FRAME_DATA ];
 #endif
 };

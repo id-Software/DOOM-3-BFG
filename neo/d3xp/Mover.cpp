@@ -169,15 +169,15 @@ idMover::Save
 void idMover::Save( idSaveGame* savefile ) const
 {
 	int i;
-	
+
 	savefile->WriteStaticObject( physicsObj );
-	
+
 	savefile->WriteInt( move.stage );
 	savefile->WriteInt( move.acceleration );
 	savefile->WriteInt( move.movetime );
 	savefile->WriteInt( move.deceleration );
 	savefile->WriteVec3( move.dir );
-	
+
 	savefile->WriteInt( rot.stage );
 	savefile->WriteInt( rot.acceleration );
 	savefile->WriteInt( rot.movetime );
@@ -185,15 +185,15 @@ void idMover::Save( idSaveGame* savefile ) const
 	savefile->WriteFloat( rot.rot.pitch );
 	savefile->WriteFloat( rot.rot.yaw );
 	savefile->WriteFloat( rot.rot.roll );
-	
+
 	savefile->WriteInt( move_thread );
 	savefile->WriteInt( rotate_thread );
-	
+
 	savefile->WriteAngles( dest_angles );
 	savefile->WriteAngles( angle_delta );
 	savefile->WriteVec3( dest_position );
 	savefile->WriteVec3( move_delta );
-	
+
 	savefile->WriteFloat( move_speed );
 	savefile->WriteInt( move_time );
 	savefile->WriteInt( deceltime );
@@ -202,23 +202,23 @@ void idMover::Save( idSaveGame* savefile ) const
 	savefile->WriteBool( useSplineAngles );
 	savefile->WriteInt( lastCommand );
 	savefile->WriteFloat( damage );
-	
+
 	savefile->WriteInt( areaPortal );
 	if( areaPortal > 0 )
 	{
 		savefile->WriteInt( gameRenderWorld->GetPortalState( areaPortal ) );
 	}
-	
+
 	savefile->WriteInt( guiTargets.Num() );
 	for( i = 0; i < guiTargets.Num(); i++ )
 	{
 		guiTargets[ i ].Save( savefile );
 	}
-	
+
 	if( splineEnt.GetEntity() && splineEnt.GetEntity()->GetSpline() )
 	{
 		idCurve_Spline<idVec3>* spline = physicsObj.GetSpline();
-		
+
 		savefile->WriteBool( true );
 		splineEnt.Save( savefile );
 		savefile->WriteInt( spline->GetTime( 0 ) );
@@ -226,7 +226,7 @@ void idMover::Save( idSaveGame* savefile ) const
 		savefile->WriteInt( physicsObj.GetSplineAcceleration() );
 		savefile->WriteInt( physicsObj.GetSplineDeceleration() );
 		savefile->WriteInt( ( int )physicsObj.UsingSplineAngles() );
-		
+
 	}
 	else
 	{
@@ -243,16 +243,16 @@ void idMover::Restore( idRestoreGame* savefile )
 {
 	int i, num;
 	bool hasSpline = false;
-	
+
 	savefile->ReadStaticObject( physicsObj );
 	RestorePhysics( &physicsObj );
-	
+
 	savefile->ReadInt( ( int& )move.stage );
 	savefile->ReadInt( move.acceleration );
 	savefile->ReadInt( move.movetime );
 	savefile->ReadInt( move.deceleration );
 	savefile->ReadVec3( move.dir );
-	
+
 	savefile->ReadInt( ( int& )rot.stage );
 	savefile->ReadInt( rot.acceleration );
 	savefile->ReadInt( rot.movetime );
@@ -260,15 +260,15 @@ void idMover::Restore( idRestoreGame* savefile )
 	savefile->ReadFloat( rot.rot.pitch );
 	savefile->ReadFloat( rot.rot.yaw );
 	savefile->ReadFloat( rot.rot.roll );
-	
+
 	savefile->ReadInt( move_thread );
 	savefile->ReadInt( rotate_thread );
-	
+
 	savefile->ReadAngles( dest_angles );
 	savefile->ReadAngles( angle_delta );
 	savefile->ReadVec3( dest_position );
 	savefile->ReadVec3( move_delta );
-	
+
 	savefile->ReadFloat( move_speed );
 	savefile->ReadInt( move_time );
 	savefile->ReadInt( deceltime );
@@ -277,7 +277,7 @@ void idMover::Restore( idRestoreGame* savefile )
 	savefile->ReadBool( useSplineAngles );
 	savefile->ReadInt( ( int& )lastCommand );
 	savefile->ReadFloat( damage );
-	
+
 	savefile->ReadInt( areaPortal );
 	if( areaPortal > 0 )
 	{
@@ -285,7 +285,7 @@ void idMover::Restore( idRestoreGame* savefile )
 		savefile->ReadInt( portalState );
 		gameLocal.SetPortalState( areaPortal, portalState );
 	}
-	
+
 	guiTargets.Clear();
 	savefile->ReadInt( num );
 	guiTargets.SetNum( num );
@@ -293,7 +293,7 @@ void idMover::Restore( idRestoreGame* savefile )
 	{
 		guiTargets[ i ].Restore( savefile );
 	}
-	
+
 	savefile->ReadBool( hasSpline );
 	if( hasSpline )
 	{
@@ -302,14 +302,14 @@ void idMover::Restore( idRestoreGame* savefile )
 		int accel;
 		int decel;
 		int useAngles;
-		
+
 		splineEnt.Restore( savefile );
 		savefile->ReadInt( starttime );
 		savefile->ReadInt( totaltime );
 		savefile->ReadInt( accel );
 		savefile->ReadInt( decel );
 		savefile->ReadInt( useAngles );
-		
+
 		PostEventMS( &EV_PostRestore, 0, starttime, totaltime, accel, decel, useAngles );
 	}
 }
@@ -322,7 +322,7 @@ idMover::Event_PostRestore
 void idMover::Event_PostRestore( int start, int total, int accel, int decel, int useSplineAng )
 {
 	idCurve_Spline<idVec3>* spline;
-	
+
 	idEntity* splineEntity = splineEnt.GetEntity();
 	if( !splineEntity )
 	{
@@ -330,12 +330,12 @@ void idMover::Event_PostRestore( int start, int total, int accel, int decel, int
 		common->Warning( "Invalid spline entity during restore\n" );
 		return;
 	}
-	
+
 	spline = splineEntity->GetSpline();
-	
+
 	spline->MakeUniform( total );
 	spline->ShiftTime( start - spline->GetTime( 0 ) );
-	
+
 	physicsObj.SetSpline( spline, accel, decel, ( useSplineAng != 0 ) );
 	physicsObj.SetLinearExtrapolation( EXTRAPOLATION_NONE, 0, 0, dest_position, vec3_origin, vec3_origin );
 }
@@ -351,17 +351,17 @@ void idMover::Spawn()
 	rotate_thread	= 0;
 	stopRotation	= false;
 	lastCommand		= MOVER_NONE;
-	
+
 	acceltime		= 1000.0f * spawnArgs.GetFloat( "accel_time", "0" );
 	deceltime		= 1000.0f * spawnArgs.GetFloat( "decel_time", "0" );
 	move_time		= 1000.0f * spawnArgs.GetFloat( "move_time", "1" );	// safe default value
 	move_speed		= spawnArgs.GetFloat( "move_speed", "0" );
-	
+
 	spawnArgs.GetFloat( "damage" , "0", damage );
-	
+
 	dest_position = GetPhysics()->GetOrigin();
 	dest_angles = GetPhysics()->GetAxis().ToAngles();
-	
+
 	physicsObj.SetSelf( this );
 	physicsObj.SetClipModel( new( TAG_PHYSICS_CLIP_MOVER ) idClipModel( GetPhysics()->GetClipModel() ), 1.0f );
 	physicsObj.SetOrigin( GetPhysics()->GetOrigin() );
@@ -378,10 +378,10 @@ void idMover::Spawn()
 	physicsObj.SetLinearExtrapolation( EXTRAPOLATION_NONE, 0, 0, dest_position, vec3_origin, vec3_origin );
 	physicsObj.SetAngularExtrapolation( EXTRAPOLATION_NONE, 0, 0, dest_angles, ang_zero, ang_zero );
 	SetPhysics( &physicsObj );
-	
+
 	// see if we are on an areaportal
 	areaPortal = gameRenderWorld->FindPortal( GetPhysics()->GetAbsBounds() );
-	
+
 	if( spawnArgs.MatchPrefix( "guiTarget" ) )
 	{
 		if( gameLocal.GameState() == GAMESTATE_STARTUP )
@@ -394,13 +394,13 @@ void idMover::Spawn()
 			FindGuiTargets();
 		}
 	}
-	
+
 	health = spawnArgs.GetInt( "health" );
 	if( health )
 	{
 		fl.takedamage = true;
 	}
-	
+
 }
 
 /*
@@ -474,17 +474,17 @@ idMover::VectorForDir
 void idMover::VectorForDir( float angle, idVec3& vec )
 {
 	idAngles ang;
-	
+
 	switch( ( int )angle )
 	{
 		case DIR_UP :
 			vec.Set( 0, 0, 1 );
 			break;
-			
+
 		case DIR_DOWN :
 			vec.Set( 0, 0, -1 );
 			break;
-			
+
 		case DIR_LEFT :
 			physicsObj.GetLocalAngles( ang );
 			ang.pitch	= 0;
@@ -492,7 +492,7 @@ void idMover::VectorForDir( float angle, idVec3& vec )
 			ang.yaw		+= 90;
 			vec			= ang.ToForward();
 			break;
-			
+
 		case DIR_RIGHT :
 			physicsObj.GetLocalAngles( ang );
 			ang.pitch	= 0;
@@ -500,14 +500,14 @@ void idMover::VectorForDir( float angle, idVec3& vec )
 			ang.yaw		-= 90;
 			vec			= ang.ToForward();
 			break;
-			
+
 		case DIR_FORWARD :
 			physicsObj.GetLocalAngles( ang );
 			ang.pitch	= 0;
 			ang.roll	= 0;
 			vec			= ang.ToForward();
 			break;
-			
+
 		case DIR_BACK :
 			physicsObj.GetLocalAngles( ang );
 			ang.pitch	= 0;
@@ -515,36 +515,36 @@ void idMover::VectorForDir( float angle, idVec3& vec )
 			ang.yaw		+= 180;
 			vec			= ang.ToForward();
 			break;
-			
+
 		case DIR_REL_UP :
 			vec.Set( 0, 0, 1 );
 			break;
-			
+
 		case DIR_REL_DOWN :
 			vec.Set( 0, 0, -1 );
 			break;
-			
+
 		case DIR_REL_LEFT :
 			physicsObj.GetLocalAngles( ang );
 			ang.ToVectors( NULL, &vec );
 			vec *= -1;
 			break;
-			
+
 		case DIR_REL_RIGHT :
 			physicsObj.GetLocalAngles( ang );
 			ang.ToVectors( NULL, &vec );
 			break;
-			
+
 		case DIR_REL_FORWARD :
 			physicsObj.GetLocalAngles( ang );
 			vec = ang.ToForward();
 			break;
-			
+
 		case DIR_REL_BACK :
 			physicsObj.GetLocalAngles( ang );
 			vec = ang.ToForward() * -1;
 			break;
-			
+
 		default:
 			ang.Set( 0, angle, 0 );
 			vec = GetWorldVector( ang.ToForward() );
@@ -573,7 +573,7 @@ void idMover::ClientThink( const int curTime, const float fraction, const bool p
 	// HACK. because I'm not sure all the other stuff this will screw up.
 	// There was a reason we weren't fully interpolating movers ( Which would evaluate bound objects ).
 	// I just cant remember what it was.
-	
+
 	// Evaluating the Team will update the parts that bound to the entity.
 	// but because we interpolate the master, we don't want to run evaluate on the mover itself.
 	// sending in true to the interpolatePhysicsOnly will run the TeamChain Evaluate, but only on
@@ -587,7 +587,7 @@ void idMover::ClientThink( const int curTime, const float fraction, const bool p
 	{
 		InterpolatePhysicsOnly( fraction );
 	}
-	
+
 	Present();
 }
 
@@ -691,11 +691,11 @@ void idMover::DoneMoving()
 		// set our final position so that we get rid of any numerical inaccuracy
 		physicsObj.SetLinearExtrapolation( EXTRAPOLATION_NONE, 0, 0, dest_position, vec3_origin, vec3_origin );
 	}
-	
+
 	lastCommand	= MOVER_NONE;
 	idThread::ObjectMoveDone( move_thread, this );
 	move_thread = 0;
-	
+
 	StopSound( SND_CHANNEL_BODY, false );
 }
 
@@ -741,11 +741,11 @@ idMover::Event_UpdateMove
 void idMover::Event_UpdateMove()
 {
 	idVec3	org;
-	
+
 	physicsObj.GetLocalOrigin( org );
-	
+
 	UpdateMoveSound( move.stage );
-	
+
 	switch( move.stage )
 	{
 		case ACCELERATION_STAGE:
@@ -810,19 +810,19 @@ void idMover::BeginMove( idThread* thread )
 	int			totalacceltime;
 	int			at;
 	int			dt;
-	
+
 	lastCommand	= MOVER_MOVING;
 	move_thread = 0;
-	
+
 	physicsObj.GetLocalOrigin( org );
-	
+
 	move_delta = dest_position - org;
 	if( move_delta.Compare( vec3_zero ) )
 	{
 		DoneMoving();
 		return;
 	}
-	
+
 	// scale times up to whole physics frames
 	at = idPhysics::SnapTimeToPhysicsFrame( acceltime );
 	move_time += at - acceltime;
@@ -830,14 +830,14 @@ void idMover::BeginMove( idThread* thread )
 	dt = idPhysics::SnapTimeToPhysicsFrame( deceltime );
 	move_time += dt - deceltime;
 	deceltime = dt;
-	
+
 	// if we're moving at a specific speed, we need to calculate the move time
 	if( move_speed )
 	{
 		dist = move_delta.Length();
-		
+
 		totalacceltime = acceltime + deceltime;
-		
+
 		// calculate the distance we'll move during acceleration and deceleration
 		acceldist = totalacceltime * 0.5f * 0.001f * move_speed;
 		if( acceldist >= dist )
@@ -851,10 +851,10 @@ void idMover::BeginMove( idThread* thread )
 			move_time = totalacceltime + 1000.0f * ( dist - acceldist ) / move_speed;
 		}
 	}
-	
+
 	// scale time up to a whole physics frames
 	move_time = idPhysics::SnapTimeToPhysicsFrame( move_time );
-	
+
 	if( acceltime )
 	{
 		stage = ACCELERATION_STAGE;
@@ -867,10 +867,10 @@ void idMover::BeginMove( idThread* thread )
 	{
 		stage = LINEAR_STAGE;
 	}
-	
+
 	at = acceltime;
 	dt = deceltime;
-	
+
 	if( at + dt > move_time )
 	{
 		// there's no real correct way to handle this, so we just scale
@@ -878,15 +878,15 @@ void idMover::BeginMove( idThread* thread )
 		at = idPhysics::SnapTimeToPhysicsFrame( at * move_time / ( at + dt ) );
 		dt = move_time - at;
 	}
-	
+
 	move_delta = move_delta * ( 1000.0f / ( ( float ) move_time - ( at + dt ) * 0.5f ) );
-	
+
 	move.stage			= stage;
 	move.acceleration	= at;
 	move.movetime		= move_time - at - dt;
 	move.deceleration	= dt;
 	move.dir			= move_delta;
-	
+
 	ProcessEvent( &EV_ReachedPos );
 }
 
@@ -918,7 +918,7 @@ void idMover::DoneRotating()
 	lastCommand	= MOVER_NONE;
 	idThread::ObjectMoveDone( rotate_thread, this );
 	rotate_thread = 0;
-	
+
 	StopSound( SND_CHANNEL_BODY, false );
 }
 
@@ -964,11 +964,11 @@ idMover::Event_UpdateRotation
 void idMover::Event_UpdateRotation()
 {
 	idAngles	ang;
-	
+
 	physicsObj.GetLocalAngles( ang );
-	
+
 	UpdateRotationSound( rot.stage );
-	
+
 	switch( rot.stage )
 	{
 		case ACCELERATION_STAGE:
@@ -998,7 +998,7 @@ void idMover::Event_UpdateRotation()
 			{
 				physicsObj.SetAngularExtrapolation( EXTRAPOLATION_LINEAR, gameLocal.slow.time, rot.movetime, ang, rot.rot, ang_zero );
 			}
-			
+
 			if( rot.deceleration )
 			{
 				rot.stage = DECELERATION_STAGE;
@@ -1030,12 +1030,12 @@ void idMover::Event_UpdateRotation()
 				// keep our angular velocity constant
 				physicsObj.SetAngularExtrapolation( extrapolation_t( EXTRAPOLATION_LINEAR | EXTRAPOLATION_NOSTOP ), gameLocal.slow.time, 0, ang, rot.rot, ang_zero );
 			}
-			
+
 			if( g_debugMover.GetBool() )
 			{
 				gameLocal.Printf( "%d: '%s' rotation done\n", gameLocal.slow.time, name.c_str() );
 			}
-			
+
 			DoneRotating();
 			break;
 		}
@@ -1053,10 +1053,10 @@ void idMover::BeginRotation( idThread* thread, bool stopwhendone )
 	idAngles	ang;
 	int			at;
 	int			dt;
-	
+
 	lastCommand	= MOVER_ROTATING;
 	rotate_thread = 0;
-	
+
 	// rotation always uses move_time so that if a move was started before the rotation,
 	// the rotation will take the same amount of time as the move.  If no move has been
 	// started and no time is set, the rotation takes 1 second.
@@ -1064,7 +1064,7 @@ void idMover::BeginRotation( idThread* thread, bool stopwhendone )
 	{
 		move_time = 1;
 	}
-	
+
 	physicsObj.GetLocalAngles( ang );
 	angle_delta = dest_angles - ang;
 	if( angle_delta == ang_zero )
@@ -1076,7 +1076,7 @@ void idMover::BeginRotation( idThread* thread, bool stopwhendone )
 		DoneRotating();
 		return;
 	}
-	
+
 	// scale times up to whole physics frames
 	at = idPhysics::SnapTimeToPhysicsFrame( acceltime );
 	move_time += at - acceltime;
@@ -1085,7 +1085,7 @@ void idMover::BeginRotation( idThread* thread, bool stopwhendone )
 	move_time += dt - deceltime;
 	deceltime = dt;
 	move_time = idPhysics::SnapTimeToPhysicsFrame( move_time );
-	
+
 	if( acceltime )
 	{
 		stage = ACCELERATION_STAGE;
@@ -1098,10 +1098,10 @@ void idMover::BeginRotation( idThread* thread, bool stopwhendone )
 	{
 		stage = LINEAR_STAGE;
 	}
-	
+
 	at = acceltime;
 	dt = deceltime;
-	
+
 	if( at + dt > move_time )
 	{
 		// there's no real correct way to handle this, so we just scale
@@ -1109,17 +1109,17 @@ void idMover::BeginRotation( idThread* thread, bool stopwhendone )
 		at = idPhysics::SnapTimeToPhysicsFrame( at * move_time / ( at + dt ) );
 		dt = move_time - at;
 	}
-	
+
 	angle_delta = angle_delta * ( 1000.0f / ( ( float ) move_time - ( at + dt ) * 0.5f ) );
-	
+
 	stopRotation = stopwhendone || ( dt != 0 );
-	
+
 	rot.stage			= stage;
 	rot.acceleration	= at;
 	rot.movetime		= move_time - at - dt;
 	rot.deceleration	= dt;
 	rot.rot				= angle_delta;
-	
+
 	ProcessEvent( &EV_ReachedAng );
 }
 
@@ -1171,7 +1171,7 @@ void idMover::Event_SetMoveSpeed( float speed )
 	{
 		gameLocal.Error( "Cannot set speed less than or equal to 0." );
 	}
-	
+
 	move_speed = speed;
 	move_time = 0;			// move_time is calculated for each move when move_speed is non-0
 }
@@ -1187,7 +1187,7 @@ void idMover::Event_SetMoveTime( float time )
 	{
 		gameLocal.Error( "Cannot set time less than or equal to 0." );
 	}
-	
+
 	move_speed = 0;
 	move_time = SEC2MS( time );
 }
@@ -1203,7 +1203,7 @@ void idMover::Event_SetAccellerationTime( float time )
 	{
 		gameLocal.Error( "Cannot set acceleration time less than 0." );
 	}
-	
+
 	acceltime = SEC2MS( time );
 }
 
@@ -1218,7 +1218,7 @@ void idMover::Event_SetDecelerationTime( float time )
 	{
 		gameLocal.Error( "Cannot set deceleration time less than 0." );
 	}
-	
+
 	deceltime = SEC2MS( time );
 }
 
@@ -1234,7 +1234,7 @@ void idMover::Event_MoveTo( idEntity* ent )
 		gameLocal.Warning( "Entity not found" );
 		return;
 	}
-	
+
 	dest_position = GetLocalCoordinates( ent->GetPhysics()->GetOrigin() );
 	BeginMove( idThread::CurrentThread() );
 }
@@ -1269,11 +1269,11 @@ void idMover::Event_MoveDir( float angle, float distance )
 {
 	idVec3 dir;
 	idVec3 org;
-	
+
 	physicsObj.GetLocalOrigin( org );
 	VectorForDir( angle, dir );
 	dest_position = org + dir * distance;
-	
+
 	BeginMove( idThread::CurrentThread() );
 }
 
@@ -1287,38 +1287,38 @@ void idMover::Event_MoveAccelerateTo( float speed, float time )
 	float v;
 	idVec3 org, dir;
 	int at;
-	
+
 	if( time < 0 )
 	{
 		gameLocal.Error( "idMover::Event_MoveAccelerateTo: cannot set acceleration time less than 0." );
 	}
-	
+
 	dir = physicsObj.GetLinearVelocity();
 	v = dir.Normalize();
-	
+
 	// if not moving already
 	if( v == 0.0f )
 	{
 		gameLocal.Error( "idMover::Event_MoveAccelerateTo: not moving." );
 	}
-	
+
 	// if already moving faster than the desired speed
 	if( v >= speed )
 	{
 		return;
 	}
-	
+
 	at = idPhysics::SnapTimeToPhysicsFrame( SEC2MS( time ) );
-	
+
 	lastCommand	= MOVER_MOVING;
-	
+
 	physicsObj.GetLocalOrigin( org );
-	
+
 	move.stage			= ACCELERATION_STAGE;
 	move.acceleration	= at;
 	move.movetime		= 0;
 	move.deceleration	= 0;
-	
+
 	StartSound( "snd_accel", SND_CHANNEL_BODY2, 0, false, NULL );
 	StartSound( "snd_move", SND_CHANNEL_BODY, 0, false, NULL );
 	physicsObj.SetLinearExtrapolation( EXTRAPOLATION_ACCELLINEAR, gameLocal.slow.time, move.acceleration, org, dir * ( speed - v ), dir * v );
@@ -1334,38 +1334,38 @@ void idMover::Event_MoveDecelerateTo( float speed, float time )
 	float v;
 	idVec3 org, dir;
 	int dt;
-	
+
 	if( time < 0 )
 	{
 		gameLocal.Error( "idMover::Event_MoveDecelerateTo: cannot set deceleration time less than 0." );
 	}
-	
+
 	dir = physicsObj.GetLinearVelocity();
 	v = dir.Normalize();
-	
+
 	// if not moving already
 	if( v == 0.0f )
 	{
 		gameLocal.Error( "idMover::Event_MoveDecelerateTo: not moving." );
 	}
-	
+
 	// if already moving slower than the desired speed
 	if( v <= speed )
 	{
 		return;
 	}
-	
+
 	dt = idPhysics::SnapTimeToPhysicsFrame( SEC2MS( time ) );
-	
+
 	lastCommand	= MOVER_MOVING;
-	
+
 	physicsObj.GetLocalOrigin( org );
-	
+
 	move.stage			= DECELERATION_STAGE;
 	move.acceleration	= 0;
 	move.movetime		= 0;
 	move.deceleration	= dt;
-	
+
 	StartSound( "snd_decel", SND_CHANNEL_BODY2, 0, false, NULL );
 	StartSound( "snd_move", SND_CHANNEL_BODY, 0, false, NULL );
 	physicsObj.SetLinearExtrapolation( EXTRAPOLATION_DECELLINEAR, gameLocal.slow.time, move.deceleration, org, dir * ( v - speed ), dir * speed );
@@ -1379,20 +1379,20 @@ idMover::Event_RotateDownTo
 void idMover::Event_RotateDownTo( int axis, float angle )
 {
 	idAngles ang;
-	
+
 	if( ( axis < 0 ) || ( axis > 2 ) )
 	{
 		gameLocal.Error( "Invalid axis" );
 	}
-	
+
 	physicsObj.GetLocalAngles( ang );
-	
+
 	dest_angles[ axis ] = angle;
 	if( dest_angles[ axis ] > ang[ axis ] )
 	{
 		dest_angles[ axis ] -= 360;
 	}
-	
+
 	BeginRotation( idThread::CurrentThread(), true );
 }
 
@@ -1404,20 +1404,20 @@ idMover::Event_RotateUpTo
 void idMover::Event_RotateUpTo( int axis, float angle )
 {
 	idAngles ang;
-	
+
 	if( ( axis < 0 ) || ( axis > 2 ) )
 	{
 		gameLocal.Error( "Invalid axis" );
 	}
-	
+
 	physicsObj.GetLocalAngles( ang );
-	
+
 	dest_angles[ axis ] = angle;
 	if( dest_angles[ axis ] < ang[ axis ] )
 	{
 		dest_angles[ axis ] += 360;
 	}
-	
+
 	BeginRotation( idThread::CurrentThread(), true );
 }
 
@@ -1440,15 +1440,15 @@ idMover::Event_Rotate
 void idMover::Event_Rotate( idAngles& angles )
 {
 	idAngles ang;
-	
+
 	if( rotate_thread )
 	{
 		DoneRotating();
 	}
-	
+
 	physicsObj.GetLocalAngles( ang );
 	dest_angles = ang + angles * ( move_time - ( acceltime + deceltime ) / 2 ) * 0.001f;
-	
+
 	BeginRotation( idThread::CurrentThread(), false );
 }
 
@@ -1460,15 +1460,15 @@ idMover::Event_RotateOnce
 void idMover::Event_RotateOnce( idAngles& angles )
 {
 	idAngles ang;
-	
+
 	if( rotate_thread )
 	{
 		DoneRotating();
 	}
-	
+
 	physicsObj.GetLocalAngles( ang );
 	dest_angles = ang + angles;
-	
+
 	BeginRotation( idThread::CurrentThread(), true );
 }
 
@@ -1480,7 +1480,7 @@ idMover::Event_Bob
 void idMover::Event_Bob( float speed, float phase, idVec3& depth )
 {
 	idVec3 org;
-	
+
 	physicsObj.GetLocalOrigin( org );
 	physicsObj.SetLinearExtrapolation( extrapolation_t( EXTRAPOLATION_DECELSINE | EXTRAPOLATION_NOSTOP ), speed * 1000 * phase, speed * 500, org, depth * 2.0f, vec3_origin );
 }
@@ -1494,7 +1494,7 @@ void idMover::Event_Sway( float speed, float phase, idAngles& depth )
 {
 	idAngles ang, angSpeed;
 	float duration;
-	
+
 	physicsObj.GetLocalAngles( ang );
 	assert( speed > 0.0f );
 	duration = idMath::Sqrt( depth[0] * depth[0] + depth[1] * depth[1] + depth[2] * depth[2] ) / speed;
@@ -1591,7 +1591,7 @@ void idMover::Event_RemoveInitialSplineAngles()
 {
 	idCurve_Spline<idVec3>* spline;
 	idAngles ang;
-	
+
 	spline = physicsObj.GetSpline();
 	if( !spline )
 	{
@@ -1609,24 +1609,24 @@ idMover::Event_StartSpline
 void idMover::Event_StartSpline( idEntity* splineEntity )
 {
 	idCurve_Spline<idVec3>* spline;
-	
+
 	if( !splineEntity )
 	{
 		return;
 	}
-	
+
 	// Needed for savegames
 	splineEnt = splineEntity;
-	
+
 	spline = splineEntity->GetSpline();
 	if( !spline )
 	{
 		return;
 	}
-	
+
 	lastCommand = MOVER_SPLINE;
 	move_thread = 0;
-	
+
 	if( acceltime + deceltime > move_time )
 	{
 		acceltime = move_time / 2;
@@ -1636,10 +1636,10 @@ void idMover::Event_StartSpline( idEntity* splineEntity )
 	move.acceleration	= acceltime;
 	move.movetime		= move_time;
 	move.deceleration	= deceltime;
-	
+
 	spline->MakeUniform( move_time );
 	spline->ShiftTime( gameLocal.slow.time - spline->GetTime( 0 ) );
-	
+
 	physicsObj.SetSpline( spline, move.acceleration, move.deceleration, useSplineAngles );
 	physicsObj.SetLinearExtrapolation( EXTRAPOLATION_NONE, 0, 0, dest_position, vec3_origin, vec3_origin );
 }
@@ -1723,13 +1723,13 @@ void idMover::ReadFromSnapshot( const idBitMsg& msg )
 {
 	moveStage_t oldMoveStage = move.stage;
 	moveStage_t oldRotStage = rot.stage;
-	
+
 	physicsObj.ReadFromSnapshot( msg );
 	move.stage = ( moveStage_t ) msg.ReadBits( 3 );
 	rot.stage = ( moveStage_t ) msg.ReadBits( 3 );
 	ReadBindFromSnapshot( msg );
 	ReadGUIFromSnapshot( msg );
-	
+
 	if( msg.HasChanged() )
 	{
 		if( move.stage != oldMoveStage )
@@ -1832,9 +1832,9 @@ idElevator::Save
 void idElevator::Save( idSaveGame* savefile ) const
 {
 	int i;
-	
+
 	savefile->WriteInt( ( int )state );
-	
+
 	savefile->WriteInt( floorInfo.Num() );
 	for( i = 0; i < floorInfo.Num(); i++ )
 	{
@@ -1842,7 +1842,7 @@ void idElevator::Save( idSaveGame* savefile ) const
 		savefile->WriteString( floorInfo[ i ].door );
 		savefile->WriteInt( floorInfo[ i ].floor );
 	}
-	
+
 	savefile->WriteInt( currentFloor );
 	savefile->WriteInt( pendingFloor );
 	savefile->WriteInt( lastFloor );
@@ -1860,21 +1860,21 @@ idElevator::Restore
 void idElevator::Restore( idRestoreGame* savefile )
 {
 	int i, num;
-	
+
 	savefile->ReadInt( ( int& )state );
-	
+
 	savefile->ReadInt( num );
 	for( i = 0; i < num; i++ )
 	{
 		floorInfo_s floor;
-		
+
 		savefile->ReadVec3( floor.pos );
 		savefile->ReadString( floor.door );
 		savefile->ReadInt( floor.floor );
-		
+
 		floorInfo.Append( floor );
 	}
-	
+
 	savefile->ReadInt( currentFloor );
 	savefile->ReadInt( pendingFloor );
 	savefile->ReadInt( lastFloor );
@@ -1893,15 +1893,15 @@ void idElevator::Spawn()
 {
 	idStr str;
 	int len1;
-	
+
 	lastFloor = 0;
 	currentFloor = 0;
 	pendingFloor = spawnArgs.GetInt( "floor", "1" );
 	SetGuiStates( ( pendingFloor == 1 ) ? guiBinaryMoverStates[0] : guiBinaryMoverStates[1] );
-	
+
 	returnTime = spawnArgs.GetFloat( "returnTime" );
 	returnFloor = spawnArgs.GetInt( "returnFloor" );
-	
+
 	len1 = strlen( "floorPos_" );
 	const idKeyValue* kv = spawnArgs.MatchPrefix( "floorPos_", NULL );
 	while( kv )
@@ -1933,24 +1933,24 @@ void idElevator::Event_Touch( idEntity* other, trace_t* trace )
 	{
 		return;
 	}
-	
+
 	if( gameLocal.slow.time < lastTouchTime + 2000 )
 	{
 		return;
 	}
-	
+
 	if( !other->IsType( idPlayer::Type ) )
 	{
 		return;
 	}
-	
+
 	lastTouchTime = gameLocal.slow.time;
-	
+
 	if( thinkFlags & TH_PHYSICS )
 	{
 		return;
 	}
-	
+
 	int triggerFloor = spawnArgs.GetInt( "triggerFloor" );
 	if( spawnArgs.GetBool( "trigger" ) && triggerFloor != currentFloor )
 	{
@@ -1986,7 +1986,7 @@ void idElevator::Think()
 				door->SetCompanion( doorent );
 			}
 		}
-		
+
 		Event_GotoFloor( pendingFloor );
 		DisableAllDoors();
 		SetGuiStates( ( pendingFloor == 1 ) ? guiBinaryMoverStates[0] : guiBinaryMoverStates[1] );
@@ -2072,22 +2072,22 @@ idElevator::HandleSingleGuiCommand
 bool idElevator::HandleSingleGuiCommand( idEntity* entityGui, idLexer* src )
 {
 	idToken token;
-	
+
 	if( controlsDisabled )
 	{
 		return false;
 	}
-	
+
 	if( !src->ReadToken( &token ) )
 	{
 		return false;
 	}
-	
+
 	if( token == ";" )
 	{
 		return false;
 	}
-	
+
 	if( token.Icmp( "changefloor" ) == 0 )
 	{
 		if( src->ReadToken( &token ) )
@@ -2106,7 +2106,7 @@ bool idElevator::HandleSingleGuiCommand( idEntity* entityGui, idLexer* src )
 			return true;
 		}
 	}
-	
+
 	src->UnreadToken( &token );
 	return false;
 }
@@ -2228,7 +2228,7 @@ idDoor* idElevator::GetDoor( const char* name )
 	idEntity*	ent;
 	idEntity*	master;
 	idDoor*		doorEnt;
-	
+
 	doorEnt = NULL;
 	if( name && *name )
 	{
@@ -2250,7 +2250,7 @@ idDoor* idElevator::GetDoor( const char* name )
 			}
 		}
 	}
-	
+
 	return doorEnt;
 }
 
@@ -2456,7 +2456,7 @@ idMover_Binary::~idMover_Binary
 idMover_Binary::~idMover_Binary()
 {
 	idMover_Binary* mover;
-	
+
 	// if this is the mover master
 	if( this == moveMaster )
 	{
@@ -2488,44 +2488,44 @@ idMover_Binary::Save
 void idMover_Binary::Save( idSaveGame* savefile ) const
 {
 	int i;
-	
+
 	savefile->WriteVec3( pos1 );
 	savefile->WriteVec3( pos2 );
 	savefile->WriteInt( ( moverState_t )moverState );
-	
+
 	savefile->WriteObject( moveMaster );
 	savefile->WriteObject( activateChain );
-	
+
 	savefile->WriteInt( soundPos1 );
 	savefile->WriteInt( sound1to2 );
 	savefile->WriteInt( sound2to1 );
 	savefile->WriteInt( soundPos2 );
 	savefile->WriteInt( soundLoop );
-	
+
 	savefile->WriteFloat( wait );
 	savefile->WriteFloat( damage );
-	
+
 	savefile->WriteInt( duration );
 	savefile->WriteInt( accelTime );
 	savefile->WriteInt( decelTime );
-	
+
 	activatedBy.Save( savefile );
-	
+
 	savefile->WriteInt( stateStartTime );
 	savefile->WriteString( team );
 	savefile->WriteBool( enabled );
-	
+
 	savefile->WriteInt( move_thread );
 	savefile->WriteInt( updateStatus );
-	
+
 	savefile->WriteInt( buddies.Num() );
 	for( i = 0; i < buddies.Num(); i++ )
 	{
 		savefile->WriteString( buddies[ i ] );
 	}
-	
+
 	savefile->WriteStaticObject( physicsObj );
-	
+
 	savefile->WriteInt( areaPortal );
 	if( areaPortal )
 	{
@@ -2533,7 +2533,7 @@ void idMover_Binary::Save( idSaveGame* savefile ) const
 	}
 	savefile->WriteBool( blocked );
 	savefile->WriteBool( playerOnly );
-	
+
 	savefile->WriteInt( guiTargets.Num() );
 	for( i = 0; i < guiTargets.Num(); i++ )
 	{
@@ -2550,47 +2550,47 @@ void idMover_Binary::Restore( idRestoreGame* savefile )
 {
 	int		i, num, portalState;
 	idStr	temp;
-	
+
 	savefile->ReadVec3( pos1 );
 	savefile->ReadVec3( pos2 );
 	savefile->ReadInt( ( int& )moverState );
-	
+
 	savefile->ReadObject( reinterpret_cast<idClass*&>( moveMaster ) );
 	savefile->ReadObject( reinterpret_cast<idClass*&>( activateChain ) );
-	
+
 	savefile->ReadInt( soundPos1 );
 	savefile->ReadInt( sound1to2 );
 	savefile->ReadInt( sound2to1 );
 	savefile->ReadInt( soundPos2 );
 	savefile->ReadInt( soundLoop );
-	
+
 	savefile->ReadFloat( wait );
 	savefile->ReadFloat( damage );
-	
+
 	savefile->ReadInt( duration );
 	savefile->ReadInt( accelTime );
 	savefile->ReadInt( decelTime );
-	
+
 	activatedBy.Restore( savefile );
-	
+
 	savefile->ReadInt( stateStartTime );
-	
+
 	savefile->ReadString( team );
 	savefile->ReadBool( enabled );
-	
+
 	savefile->ReadInt( move_thread );
 	savefile->ReadInt( updateStatus );
-	
+
 	savefile->ReadInt( num );
 	for( i = 0; i < num; i++ )
 	{
 		savefile->ReadString( temp );
 		buddies.Append( temp );
 	}
-	
+
 	savefile->ReadStaticObject( physicsObj );
 	RestorePhysics( &physicsObj );
-	
+
 	savefile->ReadInt( areaPortal );
 	if( areaPortal )
 	{
@@ -2599,7 +2599,7 @@ void idMover_Binary::Restore( idRestoreGame* savefile )
 	}
 	savefile->ReadBool( blocked );
 	savefile->ReadBool( playerOnly );
-	
+
 	guiTargets.Clear();
 	savefile->ReadInt( num );
 	guiTargets.SetNum( num );
@@ -2623,27 +2623,27 @@ void idMover_Binary::Spawn()
 {
 	idEntity*	ent;
 	const char*	temp;
-	
+
 	move_thread		= 0;
 	enabled			= true;
 	areaPortal		= 0;
-	
+
 	activateChain = NULL;
-	
+
 	spawnArgs.GetFloat( "wait", "0", wait );
-	
+
 	spawnArgs.GetInt( "updateStatus", "0", updateStatus );
-	
+
 	const idKeyValue* kv = spawnArgs.MatchPrefix( "buddy", NULL );
 	while( kv )
 	{
 		buddies.Append( kv->GetValue() );
 		kv = spawnArgs.MatchPrefix( "buddy", kv );
 	}
-	
+
 	spawnArgs.GetString( "team", "", &temp );
 	team = temp;
-	
+
 	if( !team.Length() )
 	{
 		ent = this;
@@ -2664,13 +2664,13 @@ void idMover_Binary::Spawn()
 		}
 	}
 	moveMaster = static_cast<idMover_Binary*>( ent );
-	
+
 	// create a physics team for the binary mover parts
 	if( ent != this )
 	{
 		JoinTeam( ent );
 	}
-	
+
 	physicsObj.SetSelf( this );
 	physicsObj.SetClipModel( new( TAG_PHYSICS_CLIP_MOVER ) idClipModel( GetPhysics()->GetClipModel() ), 1.0f );
 	physicsObj.SetOrigin( GetPhysics()->GetOrigin() );
@@ -2687,22 +2687,22 @@ void idMover_Binary::Spawn()
 	physicsObj.SetLinearExtrapolation( EXTRAPOLATION_NONE, 0, 0, GetPhysics()->GetOrigin(), vec3_origin, vec3_origin );
 	physicsObj.SetAngularExtrapolation( EXTRAPOLATION_NONE, 0, 0, GetPhysics()->GetAxis().ToAngles(), ang_zero, ang_zero );
 	SetPhysics( &physicsObj );
-	
+
 	if( moveMaster != this )
 	{
 		JoinActivateTeam( moveMaster );
 	}
-	
+
 	idBounds soundOrigin;
 	idMover_Binary* slave;
-	
+
 	soundOrigin.Clear();
 	for( slave = moveMaster; slave != NULL; slave = slave->activateChain )
 	{
 		soundOrigin += slave->GetPhysics()->GetAbsBounds();
 	}
 	moveMaster->refSound.origin = soundOrigin.GetCenter();
-	
+
 	if( spawnArgs.MatchPrefix( "guiTarget" ) )
 	{
 		if( gameLocal.GameState() == GAMESTATE_STARTUP )
@@ -2794,12 +2794,12 @@ idMover_Binary::SetMoverState
 void idMover_Binary::SetMoverState( moverState_t newstate, int time )
 {
 	idVec3 	delta;
-	
+
 	moverState = newstate;
 	move_thread = 0;
-	
+
 	UpdateMoverSound( newstate );
-	
+
 	stateStartTime = time;
 	switch( moverState )
 	{
@@ -2857,7 +2857,7 @@ in the same amount of time
 void idMover_Binary::MatchActivateTeam( moverState_t newstate, int time )
 {
 	idMover_Binary* slave;
-	
+
 	for( slave = this; slave != NULL; slave = slave->activateChain )
 	{
 		slave->SetMoverState( newstate, time );
@@ -2894,7 +2894,7 @@ All entities in a mover team will be bound
 void idMover_Binary::BindTeam( idEntity* bindTo )
 {
 	idMover_Binary* slave;
-	
+
 	for( slave = this; slave != NULL; slave = slave->activateChain )
 	{
 		slave->Bind( bindTo, true );
@@ -2924,7 +2924,7 @@ Set all entities in a mover team to be enabled
 void idMover_Binary::Event_Enable()
 {
 	idMover_Binary* slave;
-	
+
 	for( slave = moveMaster; slave != NULL; slave = slave->activateChain )
 	{
 		slave->Enable( false );
@@ -2941,7 +2941,7 @@ Set all entities in a mover team to be disabled
 void idMover_Binary::Event_Disable()
 {
 	idMover_Binary* slave;
-	
+
 	for( slave = moveMaster; slave != NULL; slave = slave->activateChain )
 	{
 		slave->Enable( false );
@@ -2958,7 +2958,7 @@ Sets the portal associtated with this mover to be open
 void idMover_Binary::Event_OpenPortal()
 {
 	idMover_Binary* slave;
-	
+
 	for( slave = moveMaster; slave != NULL; slave = slave->activateChain )
 	{
 		if( slave->areaPortal )
@@ -2982,7 +2982,7 @@ Sets the portal associtated with this mover to be closed
 void idMover_Binary::Event_ClosePortal()
 {
 	idMover_Binary* slave;
-	
+
 	for( slave = moveMaster; slave != NULL; slave = slave->activateChain )
 	{
 		if( !slave->IsHidden() )
@@ -3022,27 +3022,27 @@ void idMover_Binary::Event_Reached_BinaryMover()
 		// reached pos2
 		idThread::ObjectMoveDone( move_thread, this );
 		move_thread = 0;
-		
+
 		if( moveMaster == this )
 		{
 			StartSound( "snd_opened", SND_CHANNEL_ANY, 0, false, NULL );
 		}
-		
+
 		SetMoverState( MOVER_POS2, gameLocal.slow.time );
-		
+
 		SetGuiStates( guiBinaryMoverStates[MOVER_POS2] );
-		
+
 		UpdateBuddies( 1 );
-		
+
 		if( enabled && wait >= 0 && !spawnArgs.GetBool( "toggle" ) )
 		{
 			// return to pos1 after a delay
 			PostEventSec( &EV_Mover_ReturnToPos1, wait );
 		}
-		
+
 		// fire targets
 		ActivateTargets( moveMaster->GetActivator() );
-		
+
 		SetBlocked( false );
 	}
 	else if( moverState == MOVER_2TO1 )
@@ -3050,19 +3050,19 @@ void idMover_Binary::Event_Reached_BinaryMover()
 		// reached pos1
 		idThread::ObjectMoveDone( move_thread, this );
 		move_thread = 0;
-		
+
 		SetMoverState( MOVER_POS1, gameLocal.slow.time );
-		
+
 		SetGuiStates( guiBinaryMoverStates[MOVER_POS1] );
-		
+
 		UpdateBuddies( 0 );
-		
+
 		// close areaportals
 		if( moveMaster == this )
 		{
 			ProcessEvent( &EV_Mover_ClosePortal );
 		}
-		
+
 		if( enabled && wait >= 0 && spawnArgs.GetBool( "continuous" ) )
 		{
 			PostEventSec( &EV_Activate, wait, this );
@@ -3084,22 +3084,22 @@ void idMover_Binary::GotoPosition1()
 {
 	idMover_Binary* slave;
 	int	partial;
-	
+
 	// only the master should control this
 	if( moveMaster != this )
 	{
 		moveMaster->GotoPosition1();
 		return;
 	}
-	
+
 	SetGuiStates( guiBinaryMoverStates[MOVER_2TO1] );
-	
+
 	if( ( moverState == MOVER_POS1 ) || ( moverState == MOVER_2TO1 ) )
 	{
 		// already there, or on the way
 		return;
 	}
-	
+
 	if( moverState == MOVER_POS2 )
 	{
 		for( slave = this; slave != NULL; slave = slave->activateChain )
@@ -3109,7 +3109,7 @@ void idMover_Binary::GotoPosition1()
 		ProcessEvent( &EV_Mover_ReturnToPos1 );
 		return;
 	}
-	
+
 	// only partway up before reversing
 	if( moverState == MOVER_1TO2 )
 	{
@@ -3137,32 +3137,32 @@ idMover_Binary::GotoPosition2
 void idMover_Binary::GotoPosition2()
 {
 	int	partial;
-	
+
 	// only the master should control this
 	if( moveMaster != this )
 	{
 		moveMaster->GotoPosition2();
 		return;
 	}
-	
+
 	SetGuiStates( guiBinaryMoverStates[MOVER_1TO2] );
-	
+
 	if( ( moverState == MOVER_POS2 ) || ( moverState == MOVER_1TO2 ) )
 	{
 		// already there, or on the way
 		return;
 	}
-	
+
 	if( moverState == MOVER_POS1 )
 	{
 		MatchActivateTeam( MOVER_1TO2, gameLocal.slow.time );
-		
+
 		// open areaportal
 		ProcessEvent( &EV_Mover_OpenPortal );
 		return;
 	}
-	
-	
+
+
 	// only partway up before reversing
 	if( moverState == MOVER_2TO1 )
 	{
@@ -3190,7 +3190,7 @@ idMover_Binary::UpdateBuddies
 void idMover_Binary::UpdateBuddies( int val )
 {
 	int i, c;
-	
+
 	if( updateStatus == 2 )
 	{
 		c = buddies.Num();
@@ -3217,7 +3217,7 @@ void idMover_Binary::SetGuiStates( const char* state )
 	{
 		SetGuiState( "movestate", state );
 	}
-	
+
 	idMover_Binary* mb = activateChain;
 	while( mb )
 	{
@@ -3242,38 +3242,38 @@ void idMover_Binary::Use_BinaryMover( idEntity* activator )
 		moveMaster->Use_BinaryMover( activator );
 		return;
 	}
-	
+
 	if( !enabled )
 	{
 		return;
 	}
-	
+
 	activatedBy = activator;
-	
+
 	if( moverState == MOVER_POS1 )
 	{
 		// FIXME: start moving 1 ms later, because if this was player
 		// triggered, gameLocal.time hasn't been advanced yet
 		MatchActivateTeam( MOVER_1TO2, gameLocal.slow.time + 1 );
-		
+
 		SetGuiStates( guiBinaryMoverStates[MOVER_1TO2] );
 		// open areaportal
 		ProcessEvent( &EV_Mover_OpenPortal );
 		return;
 	}
-	
+
 	// if all the way up, just delay before coming down
 	if( moverState == MOVER_POS2 )
 	{
 		idMover_Binary* slave;
-		
+
 		if( wait == -1 )
 		{
 			return;
 		}
-		
+
 		SetGuiStates( guiBinaryMoverStates[MOVER_2TO1] );
-		
+
 		for( slave = this; slave != NULL; slave = slave->activateChain )
 		{
 			slave->CancelEvents( &EV_Mover_ReturnToPos1 );
@@ -3281,14 +3281,14 @@ void idMover_Binary::Use_BinaryMover( idEntity* activator )
 		}
 		return;
 	}
-	
+
 	// only partway down before reversing
 	if( moverState == MOVER_2TO1 )
 	{
 		GotoPosition2();
 		return;
 	}
-	
+
 	// only partway up before reversing
 	if( moverState == MOVER_1TO2 )
 	{
@@ -3349,7 +3349,7 @@ key/val will be set to any renderEntity->gui's on the list
 void idMover_Binary::SetGuiState( const char* key, const char* val ) const
 {
 	int i;
-	
+
 	for( i = 0; i < guiTargets.Num(); i++ )
 	{
 		idEntity* ent = guiTargets[ i ].GetEntity();
@@ -3403,15 +3403,15 @@ void idMover_Binary::InitSpeed( idVec3& mpos1, idVec3& mpos2, float mspeed, floa
 	idVec3		move;
 	float		distance;
 	float		speed;
-	
+
 	pos1		= mpos1;
 	pos2		= mpos2;
-	
+
 	accelTime	= idPhysics::SnapTimeToPhysicsFrame( SEC2MS( maccelTime ) );
 	decelTime	= idPhysics::SnapTimeToPhysicsFrame( SEC2MS( mdecelTime ) );
-	
+
 	speed		= mspeed ? mspeed : 100;
-	
+
 	// calculate time to reach second position from speed
 	move = pos2 - pos1;
 	distance = move.Length();
@@ -3420,13 +3420,13 @@ void idMover_Binary::InitSpeed( idVec3& mpos1, idVec3& mpos2, float mspeed, floa
 	{
 		duration = 1;
 	}
-	
+
 	moverState = MOVER_POS1;
-	
+
 	physicsObj.SetLinearExtrapolation( EXTRAPOLATION_NONE, 0, 0, pos1, vec3_origin, vec3_origin );
 	physicsObj.SetLinearInterpolation( 0, 0, 0, 0, vec3_origin, vec3_origin );
 	SetOrigin( pos1 );
-	
+
 	PostEventMS( &EV_Mover_InitGuiTargets, 0 );
 }
 
@@ -3442,22 +3442,22 @@ void idMover_Binary::InitTime( idVec3& mpos1, idVec3& mpos2, float mtime, float 
 
 	pos1		= mpos1;
 	pos2		= mpos2;
-	
+
 	accelTime	= idPhysics::SnapTimeToPhysicsFrame( SEC2MS( maccelTime ) );
 	decelTime	= idPhysics::SnapTimeToPhysicsFrame( SEC2MS( mdecelTime ) );
-	
+
 	duration	= idPhysics::SnapTimeToPhysicsFrame( SEC2MS( mtime ) );
 	if( duration <= 0 )
 	{
 		duration = 1;
 	}
-	
+
 	moverState = MOVER_POS1;
-	
+
 	physicsObj.SetLinearExtrapolation( EXTRAPOLATION_NONE, 0, 0, pos1, vec3_origin, vec3_origin );
 	physicsObj.SetLinearInterpolation( 0, 0, 0, 0, vec3_origin, vec3_origin );
 	SetOrigin( pos1 );
-	
+
 	PostEventMS( &EV_Mover_InitGuiTargets, 0 );
 }
 
@@ -3527,11 +3527,11 @@ idMover_Binary::ReadFromSnapshot
 void idMover_Binary::ReadFromSnapshot( const idBitMsg& msg )
 {
 	moverState_t oldMoverState = moverState;
-	
+
 	physicsObj.ReadFromSnapshot( msg );
 	moverState = ( moverState_t ) msg.ReadBits( 3 );
 	ReadBindFromSnapshot( msg );
-	
+
 	if( msg.HasChanged() )
 	{
 		if( moverState != oldMoverState )
@@ -3648,18 +3648,18 @@ void idDoor::Save( idSaveGame* savefile ) const
 	savefile->WriteBool( aas_area_closed );
 	savefile->WriteString( buddyStr );
 	savefile->WriteInt( nextSndTriggerTime );
-	
+
 	savefile->WriteVec3( localTriggerOrigin );
 	savefile->WriteMat3( localTriggerAxis );
-	
+
 	savefile->WriteString( requires );
 	savefile->WriteInt( removeItem );
 	savefile->WriteString( syncLock );
 	savefile->WriteInt( normalAxisIndex );
-	
+
 	savefile->WriteClipModel( trigger );
 	savefile->WriteClipModel( sndTrigger );
-	
+
 	savefile->WriteObject( companionDoor );
 }
 
@@ -3678,18 +3678,18 @@ void idDoor::Restore( idRestoreGame* savefile )
 	SetAASAreaState( aas_area_closed );
 	savefile->ReadString( buddyStr );
 	savefile->ReadInt( nextSndTriggerTime );
-	
+
 	savefile->ReadVec3( localTriggerOrigin );
 	savefile->ReadMat3( localTriggerAxis );
-	
+
 	savefile->ReadString( requires );
 	savefile->ReadInt( removeItem );
 	savefile->ReadString( syncLock );
 	savefile->ReadInt( normalAxisIndex );
-	
+
 	savefile->ReadClipModel( trigger );
 	savefile->ReadClipModel( sndTrigger );
-	
+
 	savefile->ReadObject( reinterpret_cast<idClass*&>( companionDoor ) );
 }
 
@@ -3709,7 +3709,7 @@ void idDoor::Spawn()
 	bool		start_open;
 	float		time;
 	float		speed;
-	
+
 	// get the direction to move
 	if( !spawnArgs.GetFloat( "movedir", "0", dir ) )
 	{
@@ -3719,41 +3719,41 @@ void idDoor::Spawn()
 		spawnArgs.GetFloat( "angle", "0", dir );
 	}
 	GetMovedir( dir, movedir );
-	
+
 	// default speed of 400
 	spawnArgs.GetFloat( "speed", "400", speed );
-	
+
 	// default wait of 2 seconds
 	spawnArgs.GetFloat( "wait", "3", wait );
-	
+
 	// default lip of 8 units
 	spawnArgs.GetFloat( "lip", "8", lip );
-	
+
 	// by default no damage
 	spawnArgs.GetFloat( "damage", "0", damage );
-	
+
 	// trigger size
 	spawnArgs.GetFloat( "triggersize", "120", triggersize );
-	
+
 	spawnArgs.GetBool( "crusher", "0", crusher );
 	spawnArgs.GetBool( "start_open", "0", start_open );
 	spawnArgs.GetBool( "no_touch", "0", noTouch );
 	spawnArgs.GetBool( "player_only", "0", playerOnly );
-	
+
 	// expects syncLock to be a door that must be closed before this door will open
 	spawnArgs.GetString( "syncLock", "", syncLock );
-	
+
 	spawnArgs.GetString( "buddy", "", buddyStr );
-	
+
 	spawnArgs.GetString( "requires", "", requires );
 	spawnArgs.GetInt( "removeItem", "0", removeItem );
-	
+
 	// ever separate piece of a door is considered solid when other team mates push entities
 	fl.solidForTeam = true;
-	
+
 	// first position at start
 	pos1 = GetPhysics()->GetOrigin();
-	
+
 	// calculate second position
 	abs_movedir[0] = idMath::Fabs( movedir[ 0 ] );
 	abs_movedir[1] = idMath::Fabs( movedir[ 1 ] );
@@ -3761,14 +3761,14 @@ void idDoor::Spawn()
 	size = GetPhysics()->GetAbsBounds()[1] - GetPhysics()->GetAbsBounds()[0];
 	distance = ( abs_movedir * size ) - lip;
 	pos2 = pos1 + distance * movedir;
-	
+
 	// if "start_open", reverse position 1 and 2
 	if( start_open )
 	{
 		// post it after EV_SpawnBind
 		PostEventMS( &EV_Door_StartOpen, 1 );
 	}
-	
+
 	if( spawnArgs.GetFloat( "time", "1", time ) )
 	{
 		InitTime( pos1, pos2, time, 0, 0 );
@@ -3777,7 +3777,7 @@ void idDoor::Spawn()
 	{
 		InitSpeed( pos1, pos2, speed, 0, 0 );
 	}
-	
+
 	if( moveMaster == this )
 	{
 		if( health )
@@ -3788,7 +3788,7 @@ void idDoor::Spawn()
 		{
 			// non touch/shoot doors
 			PostEventMS( &EV_Mover_MatchTeam, 0, moverState, gameLocal.slow.time );
-			
+
 			const char* sndtemp = spawnArgs.GetString( "snd_locked" );
 			if( spawnArgs.GetInt( "locked" ) && sndtemp && *sndtemp )
 			{
@@ -3801,37 +3801,37 @@ void idDoor::Spawn()
 			PostEventMS( &EV_Door_SpawnDoorTrigger, 0 );
 		}
 	}
-	
+
 	// see if we are on an areaportal
 	areaPortal = gameRenderWorld->FindPortal( GetPhysics()->GetAbsBounds() );
 	if( !start_open )
 	{
 		// start closed
 		ProcessEvent( &EV_Mover_ClosePortal );
-		
+
 		if( playerOnly )
 		{
 			gameLocal.SetAASAreaState( GetPhysics()->GetAbsBounds(), AREACONTENTS_CLUSTERPORTAL, true );
 		}
 	}
-	
+
 	int locked = spawnArgs.GetInt( "locked" );
 	if( locked )
 	{
 		// make sure all members of the team get locked
 		PostEventMS( &EV_Door_Lock, 0, locked );
 	}
-	
+
 	if( spawnArgs.GetBool( "continuous" ) )
 	{
 		PostEventSec( &EV_Activate, spawnArgs.GetFloat( "delay" ), this );
 	}
-	
+
 	// sounds have a habit of stuttering when portals close, so make them unoccluded
 	refSound.parms.soundShaderFlags |= SSF_NO_OCCLUSION;
-	
+
 	companionDoor = NULL;
-	
+
 	enabled = true;
 	blocked = false;
 }
@@ -3845,9 +3845,9 @@ void idDoor::ClientThink( const int curTime, const float fraction, const bool pr
 {
 	idVec3 masterOrigin;
 	idMat3 masterAxis;
-	
+
 	idMover_Binary::ClientThink( curTime, fraction, predict );
-	
+
 	if( thinkFlags & TH_PHYSICS )
 	{
 		// update trigger position
@@ -3874,9 +3874,9 @@ void idDoor::Think()
 {
 	idVec3 masterOrigin;
 	idMat3 masterAxis;
-	
+
 	idMover_Binary::Think();
-	
+
 	if( thinkFlags & TH_PHYSICS )
 	{
 		// update trigger position
@@ -3937,7 +3937,7 @@ void idDoor::Hide()
 	idMover_Binary* master;
 	idDoor* slaveDoor;
 	idDoor* companion;
-	
+
 	master = GetMoveMaster();
 	if( this != master )
 	{
@@ -3986,7 +3986,7 @@ void idDoor::Show()
 	idMover_Binary* master;
 	idDoor* slaveDoor;
 	idDoor* companion;
-	
+
 	master = GetMoveMaster();
 	if( this != master )
 	{
@@ -4033,12 +4033,12 @@ void idDoor::GetLocalTriggerPosition( const idClipModel* trigger )
 {
 	idVec3 origin;
 	idMat3 axis;
-	
+
 	if( !trigger )
 	{
 		return;
 	}
-	
+
 	GetMasterPosition( origin, axis );
 	localTriggerOrigin = ( trigger->GetOrigin() - origin ) * axis.Transpose();
 	localTriggerAxis = trigger->GetAxis() * axis.Transpose();
@@ -4097,7 +4097,7 @@ idDoor::Lock
 void idDoor::Lock( int f )
 {
 	idMover_Binary* other;
-	
+
 	// lock all the doors on the team
 	for( other = moveMaster; other != NULL; other = other->GetActivateChain() )
 	{
@@ -4127,7 +4127,7 @@ void idDoor::Lock( int f )
 			}
 		}
 	}
-	
+
 	if( f )
 	{
 		Close();
@@ -4175,7 +4175,7 @@ bool idDoor::AllowPlayerOnly( idEntity* ent )
 	{
 		return false;
 	}
-	
+
 	return true;
 }
 
@@ -4191,10 +4191,10 @@ void idDoor::CalcTriggerBounds( float size, idBounds& bounds )
 	idMover_Binary*	other;
 	int				i;
 	int				best;
-	
+
 	// find the bounds of everything on the team
 	bounds = GetPhysics()->GetAbsBounds();
-	
+
 	fl.takedamage = true;
 	for( other = activateChain; other != NULL; other = other->GetActivateChain() )
 	{
@@ -4202,12 +4202,12 @@ void idDoor::CalcTriggerBounds( float size, idBounds& bounds )
 		{
 			// find the bounds of everything on the team
 			bounds.AddBounds( other->GetPhysics()->GetAbsBounds() );
-			
+
 			// set all of the slaves as shootable
 			other->fl.takedamage = true;
 		}
 	}
-	
+
 	// find the thinnest axis, which will be the one we expand
 	best = 0;
 	for( i = 1 ; i < 3 ; i++ )
@@ -4235,13 +4235,13 @@ void idDoor::Event_StartOpen()
 {
 	float time;
 	float speed;
-	
+
 	// if "start_open", reverse position 1 and 2
 	pos1 = pos2;
 	pos2 = GetPhysics()->GetOrigin();
-	
+
 	spawnArgs.GetFloat( "speed", "400", speed );
-	
+
 	if( spawnArgs.GetFloat( "time", "1", time ) )
 	{
 		InitTime( pos1, pos2, time, 0, 0 );
@@ -4265,13 +4265,13 @@ void idDoor::Event_SpawnDoorTrigger()
 	idBounds		bounds;
 	idMover_Binary*	other;
 	bool			toggle;
-	
+
 	if( trigger )
 	{
 		// already have a trigger, so don't spawn a new one.
 		return;
 	}
-	
+
 	// check if any of the doors are marked as toggled
 	toggle = false;
 	for( other = moveMaster; other != NULL; other = other->GetActivateChain() )
@@ -4282,7 +4282,7 @@ void idDoor::Event_SpawnDoorTrigger()
 			break;
 		}
 	}
-	
+
 	if( toggle )
 	{
 		// mark them all as toggled
@@ -4296,22 +4296,22 @@ void idDoor::Event_SpawnDoorTrigger()
 		// don't spawn trigger
 		return;
 	}
-	
+
 	const char* sndtemp = spawnArgs.GetString( "snd_locked" );
 	if( spawnArgs.GetInt( "locked" ) && sndtemp != NULL && *sndtemp != '\0' )
 	{
 		PostEventMS( &EV_Door_SpawnSoundTrigger, 0 );
 	}
-	
+
 	CalcTriggerBounds( triggersize, bounds );
-	
+
 	// create a trigger clip model
 	trigger = new( TAG_PHYSICS_CLIP_MOVER ) idClipModel( idTraceModel( bounds ) );
 	trigger->Link( gameLocal.clip, this, 255, GetPhysics()->GetOrigin(), mat3_identity );
 	trigger->SetContents( CONTENTS_TRIGGER );
-	
+
 	GetLocalTriggerPosition( trigger );
-	
+
 	MatchActivateTeam( moverState, gameLocal.slow.time );
 }
 
@@ -4325,19 +4325,19 @@ Spawn a sound trigger to activate locked sound if it exists.
 void idDoor::Event_SpawnSoundTrigger()
 {
 	idBounds bounds;
-	
+
 	if( sndTrigger )
 	{
 		return;
 	}
-	
+
 	CalcTriggerBounds( triggersize * 0.5f, bounds );
-	
+
 	// create a trigger clip model
 	sndTrigger = new( TAG_PHYSICS_CLIP_MOVER ) idClipModel( idTraceModel( bounds ) );
 	sndTrigger->Link( gameLocal.clip, this, 254, GetPhysics()->GetOrigin(), mat3_identity );
 	sndTrigger->SetContents( CONTENTS_TRIGGER );
-	
+
 	GetLocalTriggerPosition( sndTrigger );
 }
 
@@ -4386,15 +4386,15 @@ idDoor::Blocked_Door
 void idDoor::Event_TeamBlocked( idEntity* blockedEntity, idEntity* blockingEntity )
 {
 	SetBlocked( true );
-	
+
 	if( crusher )
 	{
 		return;		// crushers don't reverse
 	}
-	
+
 	// reverse direction
 	Use_BinaryMover( moveMaster->GetActivator() );
-	
+
 	if( companionDoor )
 	{
 		companionDoor->ProcessEvent( &EV_TeamBlocked, blockedEntity, blockingEntity );
@@ -4434,17 +4434,17 @@ void idDoor::Event_Touch( idEntity* other, trace_t* trace )
 	idVec3		contact, translate;
 	idVec3		planeaxis1, planeaxis2, normal;
 	idBounds	bounds;
-	
+
 	if( common->IsClient() )
 	{
 		return;
 	}
-	
+
 	if( !enabled )
 	{
 		return;
 	}
-	
+
 	if( trigger && trace->c.id == trigger->GetId() )
 	{
 		if( !IsNoTouch() && !IsLocked() && GetMoverState() != MOVER_1TO2 )
@@ -4475,9 +4475,9 @@ void idDoor::Event_SpectatorTouch( idEntity* other, trace_t* trace )
 	idVec3		contact, translate, normal;
 	idBounds	bounds;
 	idPlayer*	p;
-	
+
 	assert( other && other->IsType( idPlayer::Type ) && static_cast< idPlayer* >( other )->spectating );
-	
+
 	p = static_cast< idPlayer* >( other );
 	// avoid flicker when stopping right at clip box boundaries
 	if( p->lastSpectateTeleport > gameLocal.slow.time - 1000 )
@@ -4513,7 +4513,7 @@ idDoor::Event_Activate
 void idDoor::Event_Activate( idEntity* activator )
 {
 	int old_lock;
-	
+
 	if( spawnArgs.GetInt( "locked" ) )
 	{
 		if( !trigger )
@@ -4529,7 +4529,7 @@ void idDoor::Event_Activate( idEntity* activator )
 				buddy->UpdateVisuals();
 			}
 		}
-		
+
 		old_lock = spawnArgs.GetInt( "locked" );
 		Lock( 0 );
 		if( old_lock == 2 )
@@ -4537,7 +4537,7 @@ void idDoor::Event_Activate( idEntity* activator )
 			return;
 		}
 	}
-	
+
 	if( syncLock.Length() )
 	{
 		idEntity* sync = gameLocal.FindEntity( syncLock );
@@ -4549,12 +4549,12 @@ void idDoor::Event_Activate( idEntity* activator )
 			}
 		}
 	}
-	
+
 	ActivateTargets( activator );
-	
+
 	renderEntity.shaderParms[ SHADERPARM_MODE ] = 1;
 	UpdateVisuals();
-	
+
 	Use_BinaryMover( activator );
 }
 
@@ -4596,7 +4596,7 @@ idDoor::Event_IsOpen
 void idDoor::Event_IsOpen()
 {
 	bool state;
-	
+
 	state = IsOpen();
 	idThread::ReturnFloat( state );
 }
@@ -4622,7 +4622,7 @@ void idDoor::Event_OpenPortal()
 {
 	idMover_Binary* slave;
 	idDoor* slaveDoor;
-	
+
 	for( slave = this; slave != NULL; slave = slave->GetActivateChain() )
 	{
 		if( slave->IsType( idDoor::Type ) )
@@ -4648,7 +4648,7 @@ void idDoor::Event_ClosePortal()
 {
 	idMover_Binary* slave;
 	idDoor* slaveDoor;
-	
+
 	for( slave = this; slave != NULL; slave = slave->GetActivateChain() )
 	{
 		if( !slave->IsHidden() )
@@ -4744,27 +4744,27 @@ void idPlat::Spawn()
 	float	accel;
 	float	decel;
 	bool	noTouch;
-	
+
 	spawnArgs.GetFloat( "speed", "100", speed );
 	spawnArgs.GetFloat( "damage", "0", damage );
 	spawnArgs.GetFloat( "wait", "1", wait );
 	spawnArgs.GetFloat( "lip", "8", lip );
 	spawnArgs.GetFloat( "accel_time", "0.25", accel );
 	spawnArgs.GetFloat( "decel_time", "0.25", decel );
-	
+
 	// create second position
 	if( !spawnArgs.GetFloat( "height", "0", height ) )
 	{
 		height = ( GetPhysics()->GetBounds()[1][2] - GetPhysics()->GetBounds()[0][2] ) - lip;
 	}
-	
+
 	spawnArgs.GetBool( "no_touch", "0", noTouch );
-	
+
 	// pos1 is the rest (bottom) position, pos2 is the top
 	pos2 = GetPhysics()->GetOrigin();
 	pos1 = pos2;
 	pos1[2] -= height;
-	
+
 	if( spawnArgs.GetFloat( "time", "1", time ) )
 	{
 		InitTime( pos1, pos2, time, accel, decel );
@@ -4773,10 +4773,10 @@ void idPlat::Spawn()
 	{
 		InitSpeed( pos1, pos2, speed, accel, decel );
 	}
-	
+
 	SetMoverState( MOVER_POS1, gameLocal.slow.time );
 	UpdateVisuals();
-	
+
 	// spawn the trigger if one hasn't been custom made
 	if( !noTouch )
 	{
@@ -4796,7 +4796,7 @@ void idPlat::RunPhysics_NoBlocking()
 	idEntity* 	part = NULL, *blockedPart = NULL, *blockingEntity = NULL;
 	trace_t		results;
 	bool		moved;
-	
+
 	// don't run physics if not enabled
 	if( !( thinkFlags & TH_PHYSICS ) )
 	{
@@ -4807,7 +4807,7 @@ void idPlat::RunPhysics_NoBlocking()
 		}
 		return;
 	}
-	
+
 	/*
 	// if this entity is a team slave don't do anything because the team master will handle everything
 	if ( teamMaster && teamMaster != this ) {
@@ -4816,10 +4816,10 @@ void idPlat::RunPhysics_NoBlocking()
 	*/
 	startTime = gameLocal.previousTime;
 	endTime = gameLocal.time;
-	
+
 	gameLocal.push.InitSavingPushedEntityPositions();
 	blockedPart = NULL;
-	
+
 	// save the physics state of the whole team and disable the team for collision detection
 	for( part = this; part != NULL; part = part->GetTeamChain() )
 	{
@@ -4832,18 +4832,18 @@ void idPlat::RunPhysics_NoBlocking()
 			part->GetPhysics()->SaveState();
 		}
 	}
-	
-	
+
+
 	// move the whole team
 	for( part = this; part != NULL; part = part->GetTeamChain() )
 	{
-	
+
 		if( part->GetPhysics() )
 		{
-		
+
 			// run physics
 			moved = part->GetPhysics()->Evaluate( endTime - startTime, endTime );
-			
+
 			// check if the object is blocked
 			blockingEntity = part->GetPhysics()->GetBlockingEntity();
 			if( blockingEntity )
@@ -4851,13 +4851,13 @@ void idPlat::RunPhysics_NoBlocking()
 				blockedPart = part;
 				break;
 			}
-			
+
 			// if moved or forced to update the visual position and orientation from the physics
 			if( moved || part->fl.forcePhysicsUpdate )
 			{
 				part->UpdateVisuals();
 			}
-			
+
 			// update any animation controllers here so an entity bound
 			// to a joint of this entity gets the correct position
 			if( part->UpdateAnimationControllers() )
@@ -4866,7 +4866,7 @@ void idPlat::RunPhysics_NoBlocking()
 			}
 		}
 	}
-	
+
 	// enable the whole team for collision detection
 	for( part = this; part != NULL; part = part->GetTeamChain() )
 	{
@@ -4878,7 +4878,7 @@ void idPlat::RunPhysics_NoBlocking()
 			}
 		}
 	}
-	
+
 	// set pushed
 	for( i = 0; i < gameLocal.push.GetNumPushedEntities(); i++ )
 	{
@@ -4895,22 +4895,22 @@ idPlat::ClientThink
 void idPlat::ClientThink( const int curTime, const float fraction, const bool predict )
 {
 	InterpolatePhysicsOnly( fraction );
-	
+
 	Present();
-	
-	
-	
+
+
+
 	//idMover_Binary::ClientThink( curTime, fraction, predict );
-	
+
 	/*
 	idVec3 masterOrigin;
 	idMat3 masterAxis;
-	
+
 	// Dont bother with blocking entities on clients.. host tells us our move state.
 	RunPhysics_NoBlocking();
-	
+
 	Present();
-	
+
 	if ( thinkFlags & TH_PHYSICS ) {
 		// update trigger position
 		if ( GetMasterPosition( masterOrigin, masterAxis ) ) {
@@ -4931,9 +4931,9 @@ void idPlat::Think()
 {
 	idVec3 masterOrigin;
 	idMat3 masterAxis;
-	
+
 	idMover_Binary::Think();
-	
+
 	if( thinkFlags & TH_PHYSICS )
 	{
 		// update trigger position
@@ -4977,12 +4977,12 @@ void idPlat::GetLocalTriggerPosition( const idClipModel* trigger )
 {
 	idVec3 origin;
 	idMat3 axis;
-	
+
 	if( !trigger )
 	{
 		return;
 	}
-	
+
 	GetMasterPosition( origin, axis );
 	localTriggerOrigin = ( trigger->GetOrigin() - origin ) * axis.Transpose();
 	localTriggerAxis = trigger->GetAxis() * axis.Transpose();
@@ -4998,20 +4998,20 @@ void idPlat::SpawnPlatTrigger( idVec3& pos )
 	idBounds		bounds;
 	idVec3			tmin;
 	idVec3			tmax;
-	
+
 	// the middle trigger will be a thin trigger just
 	// above the starting position
-	
+
 	bounds = GetPhysics()->GetBounds();
-	
+
 	tmin[0] = bounds[0][0] + 33;
 	tmin[1] = bounds[0][1] + 33;
 	tmin[2] = bounds[0][2];
-	
+
 	tmax[0] = bounds[1][0] - 33;
 	tmax[1] = bounds[1][1] - 33;
 	tmax[2] = bounds[1][2] + 8;
-	
+
 	if( tmax[0] <= tmin[0] )
 	{
 		tmin[0] = ( bounds[0][0] + bounds[1][0] ) * 0.5f;
@@ -5022,7 +5022,7 @@ void idPlat::SpawnPlatTrigger( idVec3& pos )
 		tmin[1] = ( bounds[0][1] + bounds[1][1] ) * 0.5f;
 		tmax[1] = tmin[1] + 1;
 	}
-	
+
 	trigger = new( TAG_PHYSICS_CLIP_MOVER ) idClipModel( idTraceModel( idBounds( tmin, tmax ) ) );
 	trigger->Link( gameLocal.clip, this, 255, GetPhysics()->GetOrigin(), mat3_identity );
 	trigger->SetContents( CONTENTS_TRIGGER );
@@ -5039,12 +5039,12 @@ void idPlat::Event_Touch( idEntity* other, trace_t* trace )
 	{
 		return;
 	}
-	
+
 	if( !other->IsType( idPlayer::Type ) )
 	{
 		return;
 	}
-	
+
 	if( ( GetMoverState() == MOVER_POS1 ) && trigger && ( trace->c.id == trigger->GetId() ) && ( other->health > 0 ) )
 	{
 		Use_BinaryMover( other );
@@ -5150,7 +5150,7 @@ void idMover_Periodic::Think()
 	{
 		return;
 	}
-	
+
 	RunPhysics();
 	Present();
 }
@@ -5197,7 +5197,7 @@ void idMover_Periodic::ReadFromSnapshot( const idBitMsg& msg )
 {
 	physicsObj.ReadFromSnapshot( msg );
 	ReadBindFromSnapshot( msg );
-	
+
 	if( msg.HasChanged() )
 	{
 		UpdateVisuals();
@@ -5246,7 +5246,7 @@ void idRotater::Spawn()
 	physicsObj.SetLinearExtrapolation( EXTRAPOLATION_NONE, gameLocal.slow.time, 0, GetPhysics()->GetOrigin(), vec3_origin, vec3_origin );
 	physicsObj.SetAngularExtrapolation( extrapolation_t( EXTRAPOLATION_LINEAR | EXTRAPOLATION_NOSTOP ), gameLocal.slow.time, 0, GetPhysics()->GetAxis().ToAngles(), ang_zero, ang_zero );
 	SetPhysics( &physicsObj );
-	
+
 	if( spawnArgs.GetBool( "start_on" ) )
 	{
 		ProcessEvent( &EV_Activate, this );
@@ -5284,18 +5284,18 @@ void idRotater::Event_Activate( idEntity* activator )
 	bool		x_axis;
 	bool		y_axis;
 	idAngles	delta;
-	
+
 	activatedBy = activator;
-	
+
 	delta.Zero();
-	
+
 	if( !spawnArgs.GetBool( "rotate" ) )
 	{
 		spawnArgs.Set( "rotate", "1" );
 		spawnArgs.GetFloat( "speed", "100", speed );
 		spawnArgs.GetBool( "x_axis", "0", x_axis );
 		spawnArgs.GetBool( "y_axis", "0", y_axis );
-		
+
 		// set the axis of rotation
 		if( x_axis )
 		{
@@ -5314,7 +5314,7 @@ void idRotater::Event_Activate( idEntity* activator )
 	{
 		spawnArgs.Set( "rotate", "0" );
 	}
-	
+
 	physicsObj.SetAngularExtrapolation( extrapolation_t( EXTRAPOLATION_LINEAR | EXTRAPOLATION_NOSTOP ), gameLocal.slow.time, 0, physicsObj.GetAxis().ToAngles(), delta, ang_zero );
 }
 
@@ -5352,13 +5352,13 @@ void idBobber::Spawn()
 	bool	x_axis;
 	bool	y_axis;
 	idVec3	delta;
-	
+
 	spawnArgs.GetFloat( "speed", "4", speed );
 	spawnArgs.GetFloat( "height", "32", height );
 	spawnArgs.GetFloat( "phase", "0", phase );
 	spawnArgs.GetBool( "x_axis", "0", x_axis );
 	spawnArgs.GetBool( "y_axis", "0", y_axis );
-	
+
 	// set the axis of bobbing
 	delta = vec3_origin;
 	if( x_axis )
@@ -5373,7 +5373,7 @@ void idBobber::Spawn()
 	{
 		delta[ 2 ] = height;
 	}
-	
+
 	physicsObj.SetSelf( this );
 	physicsObj.SetClipModel( new( TAG_PHYSICS_CLIP_MOVER ) idClipModel( GetPhysics()->GetClipModel() ), 1.0f );
 	physicsObj.SetOrigin( GetPhysics()->GetOrigin() );
@@ -5419,10 +5419,10 @@ void idPendulum::Spawn()
 	float	freq;
 	float	length;
 	float	phase;
-	
+
 	spawnArgs.GetFloat( "speed", "30", speed );
 	spawnArgs.GetFloat( "phase", "0", phase );
-	
+
 	if( spawnArgs.GetFloat( "freq", "", freq ) )
 	{
 		if( freq <= 0.0f )
@@ -5438,10 +5438,10 @@ void idPendulum::Spawn()
 		{
 			length = 8;
 		}
-		
+
 		freq = 1 / ( idMath::TWO_PI ) * idMath::Sqrt( g_gravity.GetFloat() / ( 3 * length ) );
 	}
-	
+
 	physicsObj.SetSelf( this );
 	physicsObj.SetClipModel( new( TAG_PHYSICS_CLIP_MOVER ) idClipModel( GetPhysics()->GetClipModel() ), 1.0f );
 	physicsObj.SetOrigin( GetPhysics()->GetOrigin() );
@@ -5489,7 +5489,7 @@ void idRiser::Spawn()
 	physicsObj.SetClipModel( new( TAG_PHYSICS_CLIP_MOVER ) idClipModel( GetPhysics()->GetClipModel() ), 1.0f );
 	physicsObj.SetOrigin( GetPhysics()->GetOrigin() );
 	physicsObj.SetAxis( GetPhysics()->GetAxis() );
-	
+
 	physicsObj.SetClipMask( MASK_SOLID );
 	if( !spawnArgs.GetBool( "solid", "1" ) )
 	{
@@ -5521,13 +5521,13 @@ void idRiser::Event_Activate( idEntity* activator )
 		float	time;
 		float	height;
 		idVec3	delta;
-		
+
 		spawnArgs.GetFloat( "time", "4", time );
 		spawnArgs.GetFloat( "height", "32", height );
-		
+
 		delta = vec3_origin;
 		delta[ 2 ] = height;
-		
+
 		physicsObj.SetLinearExtrapolation( EXTRAPOLATION_LINEAR, gameLocal.slow.time, time * 1000, physicsObj.GetOrigin(), delta, vec3_origin );
 	}
 }

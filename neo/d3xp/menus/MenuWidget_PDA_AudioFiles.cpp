@@ -50,11 +50,11 @@ void idMenuWidget_PDA_AudioFiles::Initialize( idMenuHandler* data )
 {
 
 	idMenuWidget_DynamicList* pdaAudioList = new( TAG_SWF ) idMenuWidget_DynamicList();
-	
+
 	pdaAudioList->SetSpritePath( GetSpritePath(), "info", "options" );
 	pdaAudioList->SetNumVisibleOptions( MAX_AUDIO_ITEMS );
 	pdaAudioList->SetWrappingAllowed( true );
-	
+
 	while( pdaAudioList->GetChildren().Num() < MAX_AUDIO_ITEMS )
 	{
 		idMenuWidget_Button* const buttonWidget = new( TAG_SWF ) idMenuWidget_Button();
@@ -63,7 +63,7 @@ void idMenuWidget_PDA_AudioFiles::Initialize( idMenuHandler* data )
 		pdaAudioList->AddChild( buttonWidget );
 	}
 	pdaAudioList->Initialize( data );
-	
+
 	AddChild( pdaAudioList );
 }
 
@@ -79,30 +79,30 @@ void idMenuWidget_PDA_AudioFiles::Update()
 	{
 		return;
 	}
-	
+
 	idSWFScriptObject& root = GetSWFObject()->GetRootObject();
 	if( !BindSprite( root ) || GetSprite() == NULL )
 	{
 		return;
 	}
-	
+
 	idPlayer* player = gameLocal.GetLocalPlayer();
 	if( player == NULL )
 	{
 		return;
 	}
-	
+
 	if( pdaIndex > player->GetInventory().pdas.Num() )
 	{
 		return;
 	}
-	
+
 	const idDeclPDA* pda = player->GetInventory().pdas[ pdaIndex ];
-	
+
 	idSWFScriptObject* dataObj = GetSprite()->GetScriptObject()->GetNestedObj( "info" );
 	if( dataObj != NULL && pda != NULL )
 	{
-	
+
 		idSWFTextInstance* txtOwner = dataObj->GetNestedText( "txtOwner" );
 		if( txtOwner != NULL )
 		{
@@ -111,7 +111,7 @@ void idMenuWidget_PDA_AudioFiles::Update()
 			ownerText.Append( pda->GetFullName() );
 			txtOwner->SetText( ownerText.c_str() );
 		}
-		
+
 		idMenuWidget_DynamicList* const audioList = dynamic_cast< idMenuWidget_DynamicList* >( &GetChildByIndex( 0 ) );
 		if( audioList != NULL )
 		{
@@ -142,7 +142,7 @@ void idMenuWidget_PDA_AudioFiles::Update()
 					audioFileNames.Append( audioName );
 				}
 			}
-			
+
 			audioList->SetListData( audioFileNames );
 			if( audioList->BindSprite( root ) )
 			{
@@ -150,7 +150,7 @@ void idMenuWidget_PDA_AudioFiles::Update()
 			}
 		}
 	}
-	
+
 	//idSWFSpriteInstance * dataSprite = dataObj->GetSprite();
 }
 
@@ -166,14 +166,14 @@ void idMenuWidget_PDA_AudioFiles::ObserveEvent( const idMenuWidget& widget, cons
 	{
 		return;
 	}
-	
+
 	const idMenuWidget* const listWidget = button->GetParent();
-	
+
 	if( listWidget == NULL )
 	{
 		return;
 	}
-	
+
 	switch( event.type )
 	{
 		case WIDGET_EVENT_FOCUS_ON:

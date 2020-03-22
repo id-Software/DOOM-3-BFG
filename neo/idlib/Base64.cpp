@@ -46,10 +46,10 @@ void idBase64::Encode( const byte* from, int size )
 	int i, j;
 	unsigned int w; // DG: use int instead of long for 64bit compatibility
 	byte* to;
-	
+
 	EnsureAlloced( 4 * ( size + 3 ) / 3 + 2 ); // ratio and padding + trailing \0
 	to = data;
-	
+
 	w = 0;
 	i = 0;
 	while( size > 0 )
@@ -77,7 +77,7 @@ void idBase64::Encode( const byte* from, int size )
 			i = 0;
 		}
 	}
-	
+
 	*to++ = '\0';
 	len = to - data;
 }
@@ -107,7 +107,7 @@ int idBase64::Decode( byte* to ) const
 	static char base64_to_sixtet[256];
 	static int tab_init = 0;
 	byte* from = data;
-	
+
 	if( !tab_init )
 	{
 		memset( base64_to_sixtet, 0, 256 );
@@ -117,7 +117,7 @@ int idBase64::Decode( byte* to ) const
 		}
 		tab_init = 1;
 	}
-	
+
 	w = 0;
 	i = 0;
 	n = 0;
@@ -197,7 +197,7 @@ void idBase64_TestBase64()
 	idLib::common->Printf( "%s -> %s\n", src.c_str(), dest.c_str() );
 	dest.Decode( src );
 	idLib::common->Printf( "%s -> %s\n", dest.c_str(), src.c_str() );
-	
+
 	idDict src_dict;
 	src_dict.SetFloat( "float", 0.5f );
 	src_dict.SetBool( "bool", true );
@@ -206,7 +206,7 @@ void idBase64_TestBase64()
 	src_dict.WriteToFileHandle( &src_fmem );
 	dest.Encode( ( const byte* )src_fmem.GetDataPtr(), src_fmem.Length() );
 	idLib::common->Printf( "idDict encoded to %s\n", dest.c_str() );
-	
+
 	// now decode to another stream and build back
 	idFile_Memory dest_fmem( "build_back" );
 	dest.Decode( &dest_fmem );
@@ -215,7 +215,7 @@ void idBase64_TestBase64()
 	dest_dict.ReadFromFileHandle( &dest_fmem );
 	idLib::common->Printf( "idDict reconstructed after base64 decode\n" );
 	dest_dict.Print();
-	
+
 	// test idDict read from file - from python generated files, see idDict.py
 	idFile* file = idLib::fileSystem->OpenFileRead( "idDict.test" );
 	if( file )
@@ -232,7 +232,7 @@ void idBase64_TestBase64()
 	{
 		idLib::common->Printf( "idDict.test not found\n" );
 	}
-	
+
 	idBase64 base64_src;
 	void* buffer;
 	if( idLib::fileSystem->ReadFile( "idDict.base64.test", &buffer ) != -1 )

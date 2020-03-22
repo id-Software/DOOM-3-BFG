@@ -29,10 +29,10 @@ If you have questions concerning this license or the applicable additional terms
 #define __SYS_SAVEGAME_H__
 
 #ifdef OUTPUT_FUNC
-#undef OUTPUT_FUNC
+	#undef OUTPUT_FUNC
 #endif
 #ifdef OUTPUT_FUNC_EXIT
-#undef OUTPUT_FUNC_EXIT
+	#undef OUTPUT_FUNC_EXIT
 #endif
 #define OUTPUT_FUNC()				idLib::PrintfIf( saveGame_verbose.GetBool(), "[%s] Enter\n", __FUNCTION__ )
 #define OUTPUT_FUNC_EXIT()			idLib::PrintfIf( saveGame_verbose.GetBool(), "[%s] Exit\n", __FUNCTION__ )
@@ -94,7 +94,7 @@ enum saveGameError_t
 	SAVEGAME_E_PROFILE_TOO_BIG					= BIT( 11 ),
 	SAVEGAME_E_DISC_SWAP						= BIT( 12 ),
 	SAVEGAME_E_INCOMPATIBLE_NEWER_VERSION		= BIT( 13 ),
-	
+
 	SAVEGAME_E_BITS_USED						= 14,
 	SAVEGAME_E_NUM								= SAVEGAME_E_BITS_USED + 1	// because we're counting "none"
 };
@@ -150,7 +150,7 @@ public:
 	{
 		Clear();
 	}
-	
+
 	void	Clear();
 	bool	operator==( const idSaveGameDetails& other ) const
 	{
@@ -170,7 +170,7 @@ public:
 	{
 		return date > other.date;
 	}
-	
+
 	idStr	GetMapName() const
 	{
 		return descriptors.GetString( SAVEGAME_DETAIL_FIELD_MAP, "" );
@@ -199,7 +199,7 @@ public:
 	{
 		return descriptors.GetInt( SAVEGAME_DETAIL_FIELD_SAVE_VERSION, 0 );
 	}
-	
+
 public:
 	idDict				descriptors;						// [in] Descriptors available to be shown on the save/load screen.  Each game can define their own, e.g. Difficulty, level, map, score, time.
 	bool				damaged;							// [out]
@@ -222,7 +222,7 @@ class idSaveLoadParms
 public:
 	idSaveLoadParms();
 	~idSaveLoadParms();
-	
+
 	void						ResetCancelled();
 	void						Init();
 	void						SetDefaults( int inputDevice = -1 );	// doesn't clear out things that should be persistent across entire processor
@@ -240,22 +240,22 @@ public:
 	{
 		return handle;
 	}
-	
+
 public:
 	idStrStatic< MAX_FOLDER_NAME_LENGTH >		directory;			// [in] real directory of the savegame package
 	idStrStatic< MAX_FILENAME_LENGTH_PATTERN >	pattern;			// [in] pattern to use while enumerating/deleting files within a savegame folder
 	idStrStatic< MAX_FILENAME_LENGTH_PATTERN >	postPattern;		// [in] pattern at the end of the file to use while enumerating/deleting files within a savegame folder
-	
+
 	int									mode;						// [in] SAVE, LOAD, ENUM, DELETE, etc.
 	idSaveGameDetails					description;				// [in/out] in: description used to serialize into game.details file, out: if SAVEGAME_MBF_READ_DETAILS used with certain modes, item 0 contains the read details
 	saveFileEntryList_t					files;						// [in/out] in: files to be saved, out: objects loaded, for SAVEGAME_MBF_ENUMERATE_FILES, it contains a listing of the filenames only
 	saveGameDetailsList_t				detailList;					// [out] listing of the enumerated savegames used only with SAVEGAME_MBF_ENUMERATE
-	
+
 	int									errorCode;					// [out] combination of saveGameError_t bits
 	int									handledErrorCodes;			// [out] combination of saveGameError_t bits
 	int64								requiredSpaceInBytes;		// [out] when fails for insufficient space, this is populated with additional space required
 	int									skipErrorDialogMask;
-	
+
 	// ----------------------
 	// Internal vars
 	// ----------------------
@@ -264,7 +264,7 @@ public:
 	savegameUserId_t					userId;						// [internal] to get the proper user during every step
 	int									inputDeviceId;				// [internal] consoles will use this to segregate each player's files
 	saveGameHandle_t					handle;
-	
+
 private:
 	// Don't allow copies
 	idSaveLoadParms( const idSaveLoadParms& s ) {}
@@ -291,8 +291,8 @@ struct saveGameThreadArgs_t
 		saveLoadParms( NULL )
 	{
 	}
-	
-	
+
+
 	idSaveLoadParms* 		saveLoadParms;
 };
 
@@ -305,13 +305,13 @@ class idSaveGameThread : public idSysThread
 {
 public:
 	idSaveGameThread() : cancel( false ) {}
-	
+
 	int		Run();
 	void	CancelOperations()
 	{
 		cancel = true;
 	}
-	
+
 private:
 	int		Save();
 	int		Load();
@@ -320,7 +320,7 @@ private:
 	int		DeleteAll();
 	int		DeleteFiles();
 	int		EnumerateFiles();
-	
+
 public:
 	saveGameThreadArgs_t	data;
 	volatile bool			cancel;
@@ -334,20 +334,20 @@ idSaveGameProcessor
 class idSaveGameProcessor
 {
 	friend class idSaveGameManager;
-	
+
 public:
 	DEFINE_CLASS( idSaveGameProcessor );
 	static const int MAX_COMPLETED_CALLBACKS = 5;
-	
+
 	idSaveGameProcessor();
 	virtual					~idSaveGameProcessor() { }
-	
+
 	//------------------------
 	// Virtuals
 	//------------------------
 	// Basic init
 	virtual bool			Init();
-	
+
 	// This method should returns true if the processor has additional sub-states to
 	// manage.  The saveGameManager will retain the current state and Process() will be called again. When this method
 	// returns false Process() will not be called again. For example, during save, you might want to load other files
@@ -356,7 +356,7 @@ public:
 	{
 		return false;
 	}
-	
+
 	// Gives each processor to validate an error returned from the previous process call.
 	// This is useful when processors have a multi-stage Process() and expect some benign errors like
 	// deleting a savegame folder before copying into it.
@@ -364,7 +364,7 @@ public:
 	{
 		return false;
 	}
-	
+
 	// Processors need to override this if they will eventually reset the map.
 	// If it could possibly reset the map through any of its stages, including kicking off another processor in completed callback, return false.
 	// We will force non-simple processors to execute last and won't block the map heap reset due if non-simple processors are still executing.
@@ -372,13 +372,13 @@ public:
 	{
 		return true;
 	}
-	
+
 	// This is a fail-safe to catch a timing issue on the PS3 where the nextmap processor could sometimes hang during a level transition
 	virtual bool			ShouldTimeout() const
 	{
 		return false;
 	}
-	
+
 	//------------------------
 	// Commands
 	//------------------------
@@ -388,7 +388,7 @@ public:
 		parms.cancelled = true;
 		parms.errorCode = SAVEGAME_E_CANCELLED;
 	}
-	
+
 	//------------------------
 	// Accessors
 	//------------------------
@@ -397,31 +397,31 @@ public:
 	{
 		return parms.callbackSignal;
 	}
-	
+
 	// Returns error status
 	const int& 				GetError() const
 	{
 		return parms.errorCode;
 	}
-	
+
 	// Returns the processor's save/load parms
 	const idSaveLoadParms& GetParms() const
 	{
 		return parms;
 	}
-	
+
 	// Returns the processor's save/load parms
 	idSaveLoadParms& 		GetParmsNonConst()
 	{
 		return parms;
 	}
-	
+
 	// Returns if this processor is currently working
 	bool					IsWorking() const
 	{
 		return working;
 	}
-	
+
 	// This is a way to tell the processor which errors shouldn't be handled by the processor or system.
 	void					SetSkipSystemErrorDialogMask( const int errorMask )
 	{
@@ -431,31 +431,31 @@ public:
 	{
 		return parms.skipErrorDialogMask;
 	}
-	
+
 	// Returns the handle given by execution
 	saveGameHandle_t		GetHandle() const
 	{
 		return parms.GetHandle();
 	}
-	
+
 	// These can be overridden by game code, like the GUI, when the processor is done executing.
 	// Game classes like the GUI can create a processor derived from a game's Save processor impl and simply use
 	// this method to know when everything is done.  It eases the burden of constantly checking the working flag.
 	// This will be called back within the game thread during SaveGameManager::Pump().
 	void					AddCompletedCallback( const idCallback& callback );
-	
+
 private:
 	// Returns whether or not the thread is finished operating, should only be called by the savegame manager
 	bool					IsThreadFinished();
-	
+
 protected:
 	idSaveLoadParms		parms;
 	int					savegameLogicTestIterator;
-	
+
 private:
 	bool				init;
 	bool				working;
-	
+
 	idStaticList< idCallback*, MAX_COMPLETED_CALLBACKS >	completedCallbacks;
 };
 
@@ -482,15 +482,15 @@ public:
 		PACKAGE_RAW,
 		PACKAGE_NUM
 	};
-	
+
 	const static int MAX_SAVEGAME_DIRECTORY_DEPTH = 5;
-	
+
 	explicit				idSaveGameManager();
 	~idSaveGameManager();
-	
+
 	// Called within main game thread
 	void					Pump();
-	
+
 	// Has the storage device been selected yet?  This is only an issue on the 360, and primarily for development purposes
 	bool					IsStorageAvailable() const
 	{
@@ -500,36 +500,36 @@ public:
 	{
 		storageAvailable = available;
 	}
-	
+
 	// Check to see if a processor is set within the manager
 	bool					IsWorking() const;
-	
+
 	// Assign a processor to the manager.  The processor should belong in game-side code
 	// This queues up processors and executes them serially
 	// Returns whether or not the processor is immediately executed
 	saveGameHandle_t		ExecuteProcessor( idSaveGameProcessor* processor );
-	
+
 	// Synchronous version, CompletedCallback is NOT called.
 	saveGameHandle_t		ExecuteProcessorAndWait( idSaveGameProcessor* processor );
-	
+
 	// Lets the currently processing queue finish, but clears the processor queue
 	void					Clear();
-	
+
 	void					WaitForAllProcessors( bool overrideSimpleProcessorCheck = false );
-	
+
 	const bool				IsCancelled() const
 	{
 		return cancel;
 	}
 	void					CancelAllProcessors( const bool forceCancelInFlightProcessor );
-	
+
 	void					CancelToTerminate();
-	
+
 	idSaveGameThread& 		GetSaveGameThread()
 	{
 		return saveThread;
 	}
-	
+
 	bool					IsSaveGameCompletedFromHandle( const saveGameHandle_t& handle ) const
 	{
 		return handle <= lastExecutedProcessorHandle || handle == 0;    // last case should never be reached since it would be also be true in first case, this is just to show intent
@@ -542,7 +542,7 @@ public:
 	void					RetrySave();
 	// This will cause the processor to cancel execution, the completion callback will be called
 	void					CancelWithHandle( const saveGameHandle_t& handle );
-	
+
 	const saveGameDetailsList_t& GetEnumeratedSavegames() const
 	{
 		return enumeratedSaveGames;
@@ -551,16 +551,16 @@ public:
 	{
 		return enumeratedSaveGames;
 	}
-	
+
 private:
 	// These are to make sure that all processors start and finish in the same way without a lot of code duplication.
 	// We need to make sure that we adhere to PS3 system combination initialization issues.
 	void					StartNextProcessor();
 	void					FinishProcessor( idSaveGameProcessor* processor );
-	
+
 	// Calls start on the processor after it's been assigned
 	void					Start();
-	
+
 private:
 	idSaveGameProcessor* 						processor;
 	idStaticList< idSaveGameProcessor*, 4 >	processorQueue;

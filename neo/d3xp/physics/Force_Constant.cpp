@@ -121,14 +121,14 @@ idForce_Constant::Evaluate
 void idForce_Constant::Evaluate( int time )
 {
 	idVec3 p;
-	
+
 	if( !physics )
 	{
 		return;
 	}
-	
+
 	p = physics->GetOrigin( id ) + point * physics->GetAxis( id );
-	
+
 	physics->AddForce( id, p, force );
 }
 

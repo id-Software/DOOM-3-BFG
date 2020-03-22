@@ -133,7 +133,7 @@ private:
 	T* t;
 	void ( T::*f )( A1 );
 	A1 a1;
-	
+
 	// hack to get to compile on the 360 with reference arguments
 	// with this on the PC, the MakeCallback function fails compilation because it's returning a copy
 	// therefore, the Arg1 callbacks can't have arguments that are references

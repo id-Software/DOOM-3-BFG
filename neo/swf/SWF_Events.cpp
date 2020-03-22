@@ -45,12 +45,12 @@ idSWFScriptObject* idSWF::HitTest( idSWFSpriteInstance* spriteInstance, const sw
 			return NULL;
 		}
 	}
-	
+
 	if( !spriteInstance->isVisible )
 	{
 		return NULL;
 	}
-	
+
 	if( spriteInstance->scriptObject->HasValidProperty( "onRelease" )
 			|| spriteInstance->scriptObject->HasValidProperty( "onPress" )
 			|| spriteInstance->scriptObject->HasValidProperty( "onRollOver" )
@@ -60,13 +60,13 @@ idSWFScriptObject* idSWF::HitTest( idSWFSpriteInstance* spriteInstance, const sw
 	{
 		parentObject = spriteInstance->scriptObject;
 	}
-	
+
 	// rather than returning the first object we find, we actually want to return the last object we find
 	idSWFScriptObject* returnObject = NULL;
-	
+
 	float xOffset = spriteInstance->xOffset;
 	float yOffset = spriteInstance->yOffset;
-	
+
 	for( int i = 0; i < spriteInstance->displayList.Num(); i++ )
 	{
 		const swfDisplayEntry_t& display = spriteInstance->displayList[i];
@@ -78,7 +78,7 @@ idSWFScriptObject* idSWF::HitTest( idSWFSpriteInstance* spriteInstance, const sw
 		swfRenderState_t renderState2;
 		renderState2.matrix = display.matrix.Multiply( renderState.matrix );
 		renderState2.ratio = display.ratio;
-		
+
 		if( entry->type == SWF_DICT_SPRITE )
 		{
 			idSWFScriptObject* object = HitTest( display.spriteInstance, renderState2, x, y, parentObject );
@@ -98,16 +98,16 @@ idSWFScriptObject* idSWF::HitTest( idSWFSpriteInstance* spriteInstance, const sw
 					idVec2 xy1 = renderState2.matrix.Transform( fill.startVerts[fill.indices[k + 0]] );
 					idVec2 xy2 = renderState2.matrix.Transform( fill.startVerts[fill.indices[k + 1]] );
 					idVec2 xy3 = renderState2.matrix.Transform( fill.startVerts[fill.indices[k + 2]] );
-					
+
 					idMat3 edgeEquations;
 					edgeEquations[0].Set( xy1.x + xOffset, xy1.y + yOffset, 1.0f );
 					edgeEquations[1].Set( xy2.x + xOffset, xy2.y + yOffset, 1.0f );
 					edgeEquations[2].Set( xy3.x + xOffset, xy3.y + yOffset, 1.0f );
 					edgeEquations.InverseSelf();
-					
+
 					idVec3 p( x, y, 1.0f );
 					idVec3 signs = p * edgeEquations;
-					
+
 					bool bx = signs.x > 0;
 					bool by = signs.y > 0;
 					bool bz = signs.z > 0;
@@ -130,7 +130,7 @@ idSWFScriptObject* idSWF::HitTest( idSWFSpriteInstance* spriteInstance, const sw
 		else if( entry->type == SWF_DICT_EDITTEXT )
 		{
 			idSWFScriptObject* editObject = NULL;
-			
+
 			if( display.textInstance->scriptObject.HasProperty( "onRelease" ) || display.textInstance->scriptObject.HasProperty( "onPress" ) )
 			{
 				// if the edit box itself can be clicked, then we want to return it when it's clicked on
@@ -141,30 +141,30 @@ idSWFScriptObject* idSWF::HitTest( idSWFSpriteInstance* spriteInstance, const sw
 				// otherwise, we want to return the parent object
 				editObject = parentObject;
 			}
-			
+
 			if( editObject == NULL )
 			{
 				continue;
 			}
-			
+
 			if( display.textInstance->text.IsEmpty() )
 			{
 				continue;
 			}
-			
+
 			const idSWFEditText* shape = entry->edittext;
 			const idSWFEditText* text = display.textInstance->GetEditText();
 			float textLength = display.textInstance->GetTextLength();
-			
+
 			float lengthDiff = fabs( shape->bounds.br.x - shape->bounds.tl.x ) - textLength;
-			
+
 			idVec3 tl;
 			idVec3 tr;
 			idVec3 br;
 			idVec3 bl;
-			
+
 			float topOffset = 0.0f;
-			
+
 			if( text->align == SWF_ET_ALIGN_LEFT )
 			{
 				tl.ToVec2() = renderState2.matrix.Transform( idVec2( shape->bounds.tl.x  + xOffset, shape->bounds.tl.y + topOffset + yOffset ) );
@@ -194,21 +194,21 @@ idSWFScriptObject* idSWF::HitTest( idSWFSpriteInstance* spriteInstance, const sw
 				br.ToVec2() = renderState2.matrix.Transform( idVec2( shape->bounds.br.x + xOffset, shape->bounds.br.y + topOffset + yOffset ) );
 				bl.ToVec2() = renderState2.matrix.Transform( idVec2( shape->bounds.tl.x + xOffset, shape->bounds.br.y + topOffset + yOffset ) );
 			}
-			
+
 			tl.z = 1.0f;
 			tr.z = 1.0f;
 			br.z = 1.0f;
 			bl.z = 1.0f;
-			
+
 			idMat3 edgeEquations;
 			edgeEquations[0] = tl;
 			edgeEquations[1] = tr;
 			edgeEquations[2] = br;
 			edgeEquations.InverseSelf();
-			
+
 			idVec3 p( x, y, 1.0f );
 			idVec3 signs = p * edgeEquations;
-			
+
 			bool bx = signs.x > 0;
 			bool by = signs.y > 0;
 			bool bz = signs.z > 0;
@@ -217,13 +217,13 @@ idSWFScriptObject* idSWF::HitTest( idSWFSpriteInstance* spriteInstance, const sw
 				// point inside top right triangle
 				returnObject = editObject;
 			}
-			
+
 			edgeEquations[0] = tl;
 			edgeEquations[1] = br;
 			edgeEquations[2] = bl;
 			edgeEquations.InverseSelf();
 			signs = p * edgeEquations;
-			
+
 			bx = signs.x > 0;
 			by = signs.y > 0;
 			bz = signs.z > 0;
@@ -256,7 +256,7 @@ bool idSWF::HandleEvent( const sysEvent_t* event )
 			idSWFScriptVar var;
 			if( event->evValue2 )
 			{
-			
+
 				idSWFScriptVar waitInput = globals->Get( "waitInput" );
 				if( waitInput.IsFunction() )
 				{
@@ -270,13 +270,13 @@ bool idSWF::HandleEvent( const sysEvent_t* event )
 				{
 					useMouse = true;
 				}
-				
+
 				idSWFScriptObject* hitObject = HitTest( mainspriteInstance, swfRenderState_t(), mouseX, mouseY, NULL );
 				if( hitObject != NULL )
 				{
 					mouseObject = hitObject;
 					mouseObject->AddRef();
-					
+
 					var = hitObject->Get( "onPress" );
 					if( var.IsFunction() )
 					{
@@ -286,7 +286,7 @@ bool idSWF::HandleEvent( const sysEvent_t* event )
 						parms.Clear();
 						return true;
 					}
-					
+
 					var = hitObject->Get( "onDrag" );
 					if( var.IsFunction() )
 					{
@@ -299,11 +299,11 @@ bool idSWF::HandleEvent( const sysEvent_t* event )
 						return true;
 					}
 				}
-				
+
 				idSWFParmList parms;
 				parms.Append( hitObject );
 				Invoke( "setHitObject", parms );
-				
+
 			}
 			else
 			{
@@ -324,13 +324,13 @@ bool idSWF::HandleEvent( const sysEvent_t* event )
 					hoverObject->Release();
 					hoverObject = NULL;
 				}
-				
+
 				if( var.IsFunction() )
 				{
 					return true;
 				}
 			}
-			
+
 			return false;
 		}
 		const char* keyName = idKeyInput::KeyNumToString( ( keyNum_t )event->evValue );
@@ -378,7 +378,7 @@ bool idSWF::HandleEvent( const sysEvent_t* event )
 				}
 				return false;
 			}
-			
+
 			idSWFScriptVar useFunction = globals->Get( "useFunction" );
 			if( useFunction.IsFunction() && event->evValue2 )
 			{
@@ -388,7 +388,7 @@ bool idSWF::HandleEvent( const sysEvent_t* event )
 					useFunction.GetFunction()->Call( NULL, idSWFParmList() );
 				}
 			}
-			
+
 			idSWFScriptVar waitInput = globals->Get( "waitInput" );
 			if( waitInput.IsFunction() )
 			{
@@ -404,14 +404,14 @@ bool idSWF::HandleEvent( const sysEvent_t* event )
 			{
 				useMouse = true;
 			}
-			
+
 			idSWFScriptVar focusWindow = globals->Get( "focusWindow" );
 			if( focusWindow.IsObject() )
 			{
 				idSWFScriptVar onKey = focusWindow.GetObject()->Get( "onKey" );
 				if( onKey.IsFunction() )
 				{
-				
+
 					// make sure we don't send an onRelease event unless we have already sent that object an onPress
 					idSWFScriptObject* object = focusWindow.GetObject();
 					bool wasPressed = object->Get( "_kpressed" ).ToBool();
@@ -457,7 +457,7 @@ bool idSWF::HandleEvent( const sysEvent_t* event )
 	{
 		mouseEnabled = true;
 		isMouseInClientArea = true;
-		
+
 		// Mouse position in screen space needs to be converted to SWF space
 		if( event->evType == SE_MOUSE_ABSOLUTE )
 		{
@@ -468,22 +468,22 @@ bool idSWF::HandleEvent( const sysEvent_t* event )
 			float invScale = 1.0f / scale;
 			float tx = 0.5f * ( sysWidth - ( frameWidth * scale ) );
 			float ty = 0.5f * ( sysHeight - ( frameHeight * scale ) );
-			
+
 			mouseX = idMath::Ftoi( ( static_cast<float>( event->evValue ) - tx ) * invScale );
 			mouseY = idMath::Ftoi( ( static_cast<float>( event->evValue2 ) - ty ) * invScale );
 		}
 		else
 		{
-		
+
 			mouseX += event->evValue;
 			mouseY += event->evValue2;
-			
+
 			mouseX = Max( Min( mouseX, idMath::Ftoi( frameWidth + renderBorder ) ), idMath::Ftoi( 0.0f - renderBorder ) );
 			mouseY = Max( Min( mouseY, idMath::Ftoi( frameHeight ) ), 0 );
 		}
-		
+
 		bool retVal = false;
-		
+
 		idSWFScriptObject* hitObject = HitTest( mainspriteInstance, swfRenderState_t(), mouseX, mouseY, NULL );
 		if( hitObject != NULL )
 		{
@@ -493,7 +493,7 @@ bool idSWF::HandleEvent( const sysEvent_t* event )
 		{
 			hasHitObject = false;
 		}
-		
+
 		if( hitObject != hoverObject )
 		{
 			// First check to see if we should call onRollOut on our previous hoverObject

@@ -91,9 +91,9 @@ public:
 	void				DrawPVS( const idBounds& source, const pvsType_t type = PVS_NORMAL ) const;
 	// visualize the PVS the handle points to
 	void				DrawCurrentPVS( const pvsHandle_t handle, const idVec3& source ) const;
-	
+
 	bool				CheckAreasForPortalSky( const pvsHandle_t handle, const idVec3& origin );
-	
+
 private:
 	int					numAreas;
 	int					numPortals;
@@ -109,7 +109,7 @@ private:
 	int					areaVisLongs;   // DG: Note: these are really ints now..
 	struct pvsPortal_s* pvsPortals;
 	struct pvsArea_s* 	pvsAreas;
-	
+
 private:
 	int					GetPortalCount() const;
 	void				CreatePVSData();

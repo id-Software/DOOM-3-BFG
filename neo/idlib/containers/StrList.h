@@ -140,13 +140,13 @@ ID_INLINE size_t idStrList::Size() const
 {
 	size_t s;
 	int i;
-	
+
 	s = sizeof( *this );
 	for( i = 0; i < Num(); i++ )
 	{
 		s += ( *this )[ i ].Size();
 	}
-	
+
 	return s;
 }
 

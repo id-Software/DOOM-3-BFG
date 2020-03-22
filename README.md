@@ -40,7 +40,7 @@ I started this project in 2012 and focused on making this code being future proo
 * Win64 support and Visual Studio support up to VS 2019
 * OS X support
 * OpenAL Soft sound backend primarily developed for Linux but works on Windows as well
-* Bink video support through libbinkdec or FFmpeg (thanks to Daniel Gibson)
+* Bink video support through libbinkdec (thanks to Daniel Gibson) or FFmpeg (thanks to Carl Kenner)
 * PNG image support
 * Soft shadows using PCF hardware shadow mapping
 	The implementation uses sampler2DArrayShadow and PCF which usually
@@ -107,20 +107,22 @@ Left: No post processing except HDR tone mapping. Right: r_useFilmicPostProcessi
 ---
 ## ".plan" <a name=".plan"></a>
 
+* ~~Fix GPU Skinning with Vulkan~~
+* ~~Fix the lighting with stencil shadows with Vulkan~~
+* Finish adapting the Vulkan renderer backend based on Dustin Land's vkDOOM3
+* Port all the extras like HDR, Shadow Mapping and Post Processing to Vulkan
+* Use ImGui to show renderer stats like com_showFPS 2 and more detailed renderer stats
+* Get ImGui to run with Vulkan and show the Vulkan memory fragmentation with it live
+
 * Finish PBR texture support
-* Add IBL lighting and [Light probe interpolation using tetrahedral tessellations](https://gdcvault.com/play/1015312/Light-Probe-Interpolation-Using-Tetrahedral)
+* Finish partly integrated IBL lighting and [Light probe interpolation using tetrahedral tessellations](https://gdcvault.com/play/1015312/Light-Probe-Interpolation-Using-Tetrahedral)
 * Generate IBL probes on the GPU through compute shaders
 * Add Screen Space Reflections
-* Finish adapting the Vulkan renderer backend based on Dustin Land's vkDOOM3
-* Fix GPU Skinning with Vulkan
-* Fix the lighting with stencil shadows with Vulkan
-* Port all the extras like HDR, Shadow Mapping and Post Processing to Vulkan
-* Get ImGui to run with Vulkan and show the Vulkan memory fragmentation with it live
 * Evaluate Blender 2.8 as a complete replacement for D3Radiant and update the scripts for it
 
 ---
 ## May or may not ".plan" <a name=".plan2"></a>
-
+* Add a DX12 Ultimate renderer backend
 * Add [Volumetric Lighting](http://www.alexandre-pestana.com/volumetric-lights/)
 * Give Mara's and McGuire's DeepGBuffer Screen Space Global Illumination a second try with Christoph Schieds' A-SVGF realtime denoising because A-SVGF works really well in Q2RTX
 * Port Virtual Texturing support from [IcedTech](https://github.com/jmarshall23/IcedTech)
@@ -131,7 +133,6 @@ Left: No post processing except HDR tone mapping. Right: r_useFilmicPostProcessi
 * Imrpove SMAAA with Temporal Anti-Aliasing (SMAA T2x)
 * Replace collision detection and physics with PhysX 4.1
 * Add glTF 2.0 support for static models and animations because it is the new JPG of 3D ;)
-* Replace sound system with [SoLoud](https://github.com/jarikomppa/soloud)
 
 ---
 ## General Notes <a name="notes"></a>
@@ -163,11 +164,14 @@ Steam.  This includes roaming profiles, achievements, leaderboards, matchmaking,
 any other Steam features.
 
 ### Bink Video playback
-The RBDOOM-3-BFG Edition GPL Source Code release includes functionality for rendering Bink Videos through FFmpeg.
+The RBDOOM-3-BFG Edition GPL Source Code release includes functionality for rendering Bink Videos through FFmpeg or libbinkdec.
 
 ### Back End Rendering of Stencil Shadows
-The Doom 3 BFG Edition GPL Source Code release does not include functionality enabling rendering
+The RBOOM-3-BFG Edition GPL Source Code release includes functionality enabling rendering
 of stencil shadows via the "depth fail" method, a functionality commonly known as "Carmack's Reverse".
+
+This method was patented by Creative Labs and has finally expired on 2019-10-13.
+(see https://patents.google.com/patent/US6384822B1/en for expiration status)
 
 ---
 ## License <a name="license"></a>
@@ -182,14 +186,16 @@ See docs/CODE_LICENSE_EXCEPTIONS.md for all parts of the code The parts that are
 
 This project's GitHub.net Git repository can be checked out through Git with the following instruction set: 
 
-	> git clone https://github.com/RobertBeckebans/RBDOOM-3-BFG.git
+	> git clone --recursive https://github.com/RobertBeckebans/RBDOOM-3-BFG.git
+
+The paramter --recursive is only required if you want to build RBDOOM-3-BFG with Vulkan support.
 
 
 
 ---
 ## Compiling on Windows <a name="compile_windows"></a>
 
-1. Download and install the Visual C++ 2013 Express Edition.
+1. Download and install the Visual Studio 2017 Community Edition.
 
 2. Download the DirectX SDK (June 2010) here: (Only for Windows 7 builds)
 	http://www.microsoft.com/en-us/download/details.aspx?id=6812

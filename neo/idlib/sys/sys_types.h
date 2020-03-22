@@ -73,12 +73,14 @@ assert_sizeof( uint64,	8 );
 #define MAX_UNSIGNED_TYPE( x )	( ( ( ( 1U << ( ( sizeof( x ) - 1 ) * 8 ) ) - 1 ) << 8 ) | 255U )
 #define MIN_UNSIGNED_TYPE( x )	0
 
+
 template< typename _type_ >
 bool IsSignedType( const _type_ t )
 {
 	return _type_( -1 ) < 0;
 }
 
+#if !defined(USE_AMD_ALLOCATOR)
 template<class T> T	Max( T x, T y )
 {
 	return ( x > y ) ? x : y;
@@ -87,7 +89,7 @@ template<class T> T	Min( T x, T y )
 {
 	return ( x < y ) ? x : y;
 }
-
+#endif // USE_AMD_ALLOCATOR
 
 class idFile;
 
@@ -96,13 +98,13 @@ struct idNullPtr
 	// one pointer member initialized to zero so you can pass NULL as a vararg
 	void* value;
 	constexpr idNullPtr() : value( 0 ) { }
-	
+
 	// implicit conversion to all pointer types
 	template<typename T1> constexpr operator T1* () const
 	{
 		return 0;
 	}
-	
+
 	// implicit conversion to all pointer to member types
 	template<typename T1, typename T2> constexpr operator T1 T2::* () const
 	{
@@ -118,16 +120,16 @@ struct idNullPtr
 //#endif
 
 // C99 Standard
-#ifndef nullptr
-#define nullptr	idNullPtr()
-#endif
+//#ifndef nullptr
+//#define nullptr	idNullPtr()
+//#endif
 
 #ifndef BIT
-#define BIT( num )				( 1ULL << ( num ) )
+	#define BIT( num )				( 1ULL << ( num ) )
 #endif
 
 #ifndef NUMBITS
-#define NUMBITS( _type_ )		( sizeof( _type_ ) * 8 )
+	#define NUMBITS( _type_ )		( sizeof( _type_ ) * 8 )
 #endif
 
 #define	MAX_STRING_CHARS		1024		// max length of a static string
@@ -142,13 +144,13 @@ const float	MAX_ENTITY_COORDINATE = 64000.0f;
 
 #if 1
 
-typedef unsigned short triIndex_t;
-#define GL_INDEX_TYPE		GL_UNSIGNED_SHORT
+	typedef unsigned short triIndex_t;
+	#define GL_INDEX_TYPE		GL_UNSIGNED_SHORT
 
 #else
 
-typedef unsigned int triIndex_t;
-#define GL_INDEX_TYPE		GL_UNSIGNED_INT
+	typedef unsigned int triIndex_t;
+	#define GL_INDEX_TYPE		GL_UNSIGNED_INT
 
 #endif
 
@@ -159,14 +161,14 @@ ID_INLINE void WriteIndexPair( triIndex_t* dest, const triIndex_t a, const triIn
 }
 
 #if defined(_DEBUG) || defined(_lint)
-#define NODEFAULT	default: assert( 0 )
+	#define NODEFAULT	default: assert( 0 )
 #else
-#ifdef _MSVC
-#define NODEFAULT	default: __assume( 0 )
-#else // not _MSVC
-// TODO: is that __assume an important optimization? if so, is there a gcc equivalent?
-#define NODEFAULT
-#endif
+	#ifdef _MSVC
+		#define NODEFAULT	default: __assume( 0 )
+	#else // not _MSVC
+		// TODO: is that __assume an important optimization? if so, is there a gcc equivalent?
+		#define NODEFAULT
+	#endif
 #endif
 
 /*

@@ -47,76 +47,76 @@ public:
 
 	Framebuffer( const char* name, int width, int height );
 	virtual ~Framebuffer();
-	
+
 	static void				Init();
 	static void				Shutdown();
-	
+
 	static void				CheckFramebuffers();
-	
+
 	// deletes OpenGL object but leaves structure intact for reloading
 	void					PurgeFramebuffer();
-	
+
 	void					Bind();
 	bool					IsBound();
 	static void				Unbind();
 	static bool				IsDefaultFramebufferActive();
-	
+
 	void					AddColorBuffer( int format, int index, int multiSamples = 0 );
 	void					AddDepthBuffer( int format, int multiSamples = 0 );
-	
+
 	void					AttachImage2D( int target, const idImage* image, int index, int mipmapLod = 0 );
 	void					AttachImage3D( const idImage* image );
 	void					AttachImageDepth( int target, const idImage* image );
 	void					AttachImageDepthLayer( const idImage* image, int layer );
-	
+
 	// check for OpenGL errors
 	void					Check();
 	uint32_t				GetFramebuffer() const
 	{
 		return frameBuffer;
 	}
-	
+
 	int						GetWidth() const
 	{
 		return width;
 	}
-	
+
 	int						GetHeight() const
 	{
 		return height;
 	}
-	
+
 	bool					IsMultiSampled() const
 	{
 		return msaaSamples;
 	}
-	
+
 	void					Resize( int width_, int height_ )
 	{
 		width = width_;
 		height = height_;
 	}
-	
+
 private:
 	idStr					fboName;
-	
+
 	// FBO object
 	uint32_t				frameBuffer;
-	
+
 	uint32_t				colorBuffers[16];
 	int						colorFormat;
-	
+
 	uint32_t				depthBuffer;
 	int						depthFormat;
-	
+
 	uint32_t				stencilBuffer;
 	int						stencilFormat;
-	
+
 	int						width;
 	int						height;
-	
+
 	bool					msaaSamples;
-	
+
 	static idList<Framebuffer*>	framebuffers;
 };
 

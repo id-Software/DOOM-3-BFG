@@ -58,36 +58,36 @@ class idBrittleFracture : public idEntity
 
 public:
 	CLASS_PROTOTYPE( idBrittleFracture );
-	
+
 	idBrittleFracture();
 	virtual						~idBrittleFracture();
-	
+
 	void						Save( idSaveGame* savefile ) const;
 	void						Restore( idRestoreGame* savefile );
-	
+
 	void						Spawn();
-	
+
 	virtual void				Present();
 	virtual void				Think();
 	virtual void				ApplyImpulse( idEntity* ent, int id, const idVec3& point, const idVec3& impulse );
 	virtual void				AddForce( idEntity* ent, int id, const idVec3& point, const idVec3& force );
 	virtual void				AddDamageEffect( const trace_t& collision, const idVec3& velocity, const char* damageDefName );
 	virtual void				Killed( idEntity* inflictor, idEntity* attacker, int damage, const idVec3& dir, int location );
-	
+
 	void						ProjectDecal( const idVec3& point, const idVec3& dir, const int time, const char* damageDefName );
 	bool						IsBroken() const;
-	
+
 	enum
 	{
 		EVENT_PROJECT_DECAL = idEntity::EVENT_MAXEVENTS,
 		EVENT_SHATTER,
 		EVENT_MAXEVENTS
 	};
-	
+
 	virtual void				ClientThink( const int curTime, const float fraction, const bool predict );
 	virtual void				ClientPredictionThink();
 	virtual bool				ClientReceiveEvent( int event, int time, const idBitMsg& msg );
-	
+
 private:
 	// setttings
 	const idMaterial* 			material;
@@ -103,7 +103,7 @@ private:
 	float						friction;
 	float						bouncyness;
 	idStr						fxFracture;
-	
+
 	struct fractureEvent_s
 	{
 		int				eventType;
@@ -114,20 +114,20 @@ private:
 	bool						processStoredEvents;
 	idRenderModel* 				defaultRenderModel;
 	bool						isXraySurface;
-	
+
 	// state
 	idPhysics_StaticMulti		physicsObj;
 	idList<shard_t*, TAG_PHYSICS_BRITTLE>	shards;
 	idBounds					bounds;
 	bool						disableFracture;
-	
+
 	// for rendering
 	mutable int					lastRenderEntityUpdate;
 	mutable bool				changed;
-	
+
 	bool						UpdateRenderEntity( renderEntity_s* renderEntity, const renderView_t* renderView ) const;
 	static bool					ModelCallback( renderEntity_s* renderEntity, const renderView_t* renderView );
-	
+
 	void						AddShard( idClipModel* clipModel, idFixedWinding& w );
 	void						RemoveShard( int index );
 	void						DropShard( shard_t* shard, const idVec3& point, const idVec3& dir, const float impulse, const int time );
@@ -137,7 +137,7 @@ private:
 	void						Fracture_r( idFixedWinding& w, idRandom2& random );
 	void						CreateFractures( const idRenderModel* renderModel );
 	void						FindNeighbours();
-	
+
 	void						Event_Activate( idEntity* activator );
 	void						Event_Touch( idEntity* other, trace_t* trace );
 };

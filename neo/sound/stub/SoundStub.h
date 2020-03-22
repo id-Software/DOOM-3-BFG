@@ -47,41 +47,41 @@ class idSoundVoice : public idSoundVoice_Base
 {
 public:
 	void					Create( const idSoundSample* leadinSample, const idSoundSample* loopingSample ) {}
-	
+
 	// Start playing at a particular point in the buffer.  Does an Update() too
 	void					Start( int offsetMS, int ssFlags ) {}
-	
+
 	// Stop playing.
 	void					Stop() {}
-	
+
 	// Stop consuming buffers
 	void					Pause() {}
 	// Start consuming buffers again
 	void					UnPause() {}
-	
+
 	// Sends new position/volume/pitch information to the hardware
 	bool					Update()
 	{
 		return false;
 	}
-	
+
 	// returns the RMS levels of the most recently processed block of audio, SSF_FLICKER must have been passed to Start
 	float					GetAmplitude()
 	{
 		return 0.0f;
 	}
-	
+
 	// returns true if we can re-use this voice
 	bool					CompatibleFormat( idSoundSample* s )
 	{
 		return false;
 	}
-	
+
 	uint32					GetSampleRate() const
 	{
 		return 0;
 	}
-	
+
 	// callback function
 	void					OnBufferStart( idSoundSample* sample, int bufferNumber ) {}
 };
@@ -90,35 +90,35 @@ class idSoundHardware
 {
 public:
 	idSoundHardware() {}
-	
+
 	void			Init() {}
 	void			Shutdown() {}
-	
+
 	void 			Update() {}
-	
+
 	// FIXME: this is a bad name when having multiple sound backends... and maybe it's not even needed
 	void* 		GetIXAudio2() const // NOTE: originally this returned IXAudio2*, but that was casted to void later anyway
 	{
 		return NULL;
 	}
-	
+
 	idSoundVoice* 	AllocateVoice( const idSoundSample* leadinSample, const idSoundSample* loopingSample )
 	{
 		return NULL;
 	}
-	
+
 	void			FreeVoice( idSoundVoice* voice ) {}
-	
+
 	int				GetNumZombieVoices() const
 	{
 		return 0;
 	}
-	
+
 	int				GetNumFreeVoices() const
 	{
 		return 0;
 	}
-	
+
 };
 
 // ok, this one isn't really a stub, because it seems to be XAudio-independent,
@@ -127,12 +127,12 @@ class idSoundSample
 {
 public:
 	idSoundSample();
-	
+
 	~idSoundSample(); // destructor should be public so lists of  soundsamples can be destroyed etc
-	
+
 	// Loads and initializes the resource based on the name.
 	virtual void	 LoadResource();
-	
+
 	void			SetName( const char* n )
 	{
 		name = n;
@@ -145,13 +145,13 @@ public:
 	{
 		return timestamp;
 	}
-	
+
 	// turns it into a beep
 	void			MakeDefault();
-	
+
 	// frees all data
 	void			FreeData();
-	
+
 	int				LengthInMsec() const
 	{
 		return SamplesToMsec( NumSamples(), SampleRate() );
@@ -172,12 +172,12 @@ public:
 	{
 		return totalBufferSize;
 	}
-	
+
 	bool			IsCompressed() const
 	{
 		return ( format.basic.formatTag != idWaveFile::FORMAT_PCM );
 	}
-	
+
 	bool			IsDefault() const
 	{
 		return timestamp == FILE_NOT_FOUND_TIMESTAMP;
@@ -186,7 +186,7 @@ public:
 	{
 		return loaded;
 	}
-	
+
 	void			SetNeverPurge()
 	{
 		neverPurge = true;
@@ -195,7 +195,7 @@ public:
 	{
 		return neverPurge;
 	}
-	
+
 	void			SetLevelLoadReferenced()
 	{
 		levelLoadReferenced = true;
@@ -208,7 +208,7 @@ public:
 	{
 		return levelLoadReferenced;
 	}
-	
+
 	int				GetLastPlayedTime() const
 	{
 		return lastPlayedTime;
@@ -217,48 +217,48 @@ public:
 	{
 		lastPlayedTime = t;
 	}
-	
+
 	float			GetAmplitude( int timeMS ) const;
-	
+
 protected:
 
 	/*
 		friend class idSoundHardware_XAudio2;
 		friend class idSoundVoice_XAudio2;
 	*/
-	
+
 	bool			LoadWav( const idStr& name );
 	bool			LoadAmplitude( const idStr& name );
 	void			WriteAllSamples( const idStr& sampleName );
 	bool			LoadGeneratedSample( const idStr& name );
 	void			WriteGeneratedSample( idFile* fileOut );
-	
+
 	struct sampleBuffer_t
 	{
 		void* buffer;
 		int bufferSize;
 		int numSamples;
 	};
-	
+
 	idStr			name;
-	
+
 	ID_TIME_T		timestamp;
 	bool			loaded;
-	
+
 	bool			neverPurge;
 	bool			levelLoadReferenced;
 	bool			usesMapHeap;
-	
+
 	uint32			lastPlayedTime;
-	
+
 	int				totalBufferSize;	// total size of all the buffers
 	idList<sampleBuffer_t, TAG_AUDIO> buffers;
-	
+
 	int				playBegin;
 	int				playLength;
-	
+
 	idWaveFile::waveFmt_t	format;
-	
+
 	idList<byte, TAG_AMPLITUDE> amplitude;
 };
 

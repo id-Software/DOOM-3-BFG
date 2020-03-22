@@ -34,7 +34,7 @@ class idUserInterfaceLocal : public idUserInterface
 public:
 	idUserInterfaceLocal();
 	virtual						~idUserInterfaceLocal();
-	
+
 	virtual const char* 		Name() const;
 	virtual const char* 		Comment() const;
 	virtual bool				IsInteractive() const;
@@ -49,13 +49,13 @@ public:
 	virtual void				SetStateBool( const char* varName, const bool value );
 	virtual void				SetStateInt( const char* varName, const int value );
 	virtual void				SetStateFloat( const char* varName, const float value );
-	
+
 	// Gets a gui state variable
 	virtual const char*			GetStateString( const char* varName, const char* defaultString = "" ) const;
 	virtual bool				GetStateBool( const char* varName, const char* defaultString = "0" ) const;
 	virtual int					GetStateInt( const char* varName, const char* defaultString = "0" ) const;
 	virtual float				GetStateFloat( const char* varName, const char* defaultString = "0" ) const;
-	
+
 	virtual void				StateChanged( int time, bool redraw );
 	virtual const char* 		Activate( bool activate, int time );
 	virtual void				Trigger( int time );
@@ -73,7 +73,7 @@ public:
 		uniqued = b;
 	};
 	virtual void				SetCursor( float x, float y );
-	
+
 	virtual float				CursorX()
 	{
 		return cursorX;
@@ -82,14 +82,14 @@ public:
 	{
 		return cursorY;
 	}
-	
+
 	size_t						Size();
-	
+
 	idDict* 					GetStateDict()
 	{
 		return &state;
 	}
-	
+
 	const char* 				GetSourceFile() const
 	{
 		return source;
@@ -98,7 +98,7 @@ public:
 	{
 		return timeStamp;
 	}
-	
+
 	idWindow* 					GetDesktop() const
 	{
 		return desktop;
@@ -119,7 +119,7 @@ public:
 	{
 		time = _time;
 	}
-	
+
 	void						ClearRefs()
 	{
 		refs = 0;
@@ -132,7 +132,7 @@ public:
 	{
 		return refs;
 	}
-	
+
 	void						RecurseSetKeyBindingNames( idWindow* window );
 	idStr&						GetPendingCmd()
 	{
@@ -142,28 +142,28 @@ public:
 	{
 		return returnCmd;
 	};
-	
+
 private:
 	bool						active;
 	bool						loading;
 	bool						interactive;
 	bool						uniqued;
-	
+
 	idDict						state;
 	idWindow* 					desktop;
 	idWindow* 					bindHandler;
-	
+
 	idStr						source;
 	idStr						activateStr;
 	idStr						pendingCmd;
 	idStr						returnCmd;
 	ID_TIME_T						timeStamp;
-	
+
 	float						cursorX;
 	float						cursorY;
-	
+
 	int							time;
-	
+
 	int							refs;
 };
 
@@ -172,7 +172,7 @@ private:
 class idUserInterfaceManagerLocal : public idUserInterfaceManager
 {
 	friend class idUserInterfaceLocal;
-	
+
 public:
 	virtual void				Init();
 	virtual void				Shutdown();
@@ -200,10 +200,10 @@ private:
 	idRectangle					screenRect;
 	idDeviceContext				dcOld;
 	idDeviceContextOptimized	dcOptimized;
-	
+
 	idList<idUserInterfaceLocal*> guis;
 	idList<idUserInterfaceLocal*> demoGuis;
-	
+
 	idTokenParser				mapParser;
 };
 

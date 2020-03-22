@@ -38,14 +38,14 @@ idMenuScreen_Shell_NewGame::Initialize
 void idMenuScreen_Shell_NewGame::Initialize( idMenuHandler* data )
 {
 	idMenuScreen::Initialize( data );
-	
+
 	if( data != NULL )
 	{
 		menuGUI = data->GetGUI();
 	}
-	
+
 	SetSpritePath( "menuNewGame" );
-	
+
 	options = new( TAG_SWF ) idMenuWidget_DynamicList();
 	idList< idList< idStr, TAG_IDLIB_LIST_MENU >, TAG_IDLIB_LIST_MENU > menuOptions;
 	idList< idStr > option;
@@ -57,12 +57,12 @@ void idMenuScreen_Shell_NewGame::Initialize( idMenuHandler* data )
 	option.Clear();
 	option.Append( "#str_swf_lost_episodes" );	// lost episodes
 	menuOptions.Append( option );
-	
+
 	options->SetListData( menuOptions );
 	options->SetNumVisibleOptions( NUM_NEW_GAME_OPTIONS );
 	options->SetSpritePath( GetSpritePath(), "info", "options" );
 	options->SetWrappingAllowed( true );
-	
+
 	while( options->GetChildren().Num() < NUM_NEW_GAME_OPTIONS )
 	{
 		idMenuWidget_Button* const buttonWidget = new( TAG_SWF ) idMenuWidget_Button();
@@ -71,17 +71,17 @@ void idMenuScreen_Shell_NewGame::Initialize( idMenuHandler* data )
 		options->AddChild( buttonWidget );
 	}
 	options->Initialize( data );
-	
+
 	AddChild( options );
-	
+
 	btnBack = new( TAG_SWF ) idMenuWidget_Button();
 	btnBack->Initialize( data );
 	btnBack->SetLabel( "#str_swf_campaign" );
 	btnBack->SetSpritePath( GetSpritePath(), "info", "btnBack" );
 	btnBack->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_GO_BACK );
-	
+
 	AddChild( btnBack );
-	
+
 	options->AddEventAction( WIDGET_EVENT_SCROLL_DOWN ).Set( new( TAG_SWF ) idWidgetActionHandler( options, WIDGET_ACTION_EVENT_SCROLL_DOWN_START_REPEATER, WIDGET_EVENT_SCROLL_DOWN ) );
 	options->AddEventAction( WIDGET_EVENT_SCROLL_UP ).Set( new( TAG_SWF ) idWidgetActionHandler( options, WIDGET_ACTION_EVENT_SCROLL_UP_START_REPEATER, WIDGET_EVENT_SCROLL_UP ) );
 	options->AddEventAction( WIDGET_EVENT_SCROLL_DOWN_RELEASE ).Set( new( TAG_SWF ) idWidgetActionHandler( options, WIDGET_ACTION_EVENT_STOP_REPEATER, WIDGET_EVENT_SCROLL_DOWN_RELEASE ) );
@@ -113,7 +113,7 @@ void idMenuScreen_Shell_NewGame::Update()
 				buttonInfo->label = "#str_00395";
 			}
 			buttonInfo->action.Set( WIDGET_ACTION_GO_BACK );
-			
+
 			buttonInfo = cmdBar->GetButton( idMenuWidget_CommandBar::BUTTON_JOY1 );
 			if( menuData->GetPlatform() != 2 )
 			{
@@ -122,7 +122,7 @@ void idMenuScreen_Shell_NewGame::Update()
 			buttonInfo->action.Set( WIDGET_ACTION_PRESS_FOCUSED );
 		}
 	}
-	
+
 	idSWFScriptObject& root = GetSWFObject()->GetRootObject();
 	if( BindSprite( root ) )
 	{
@@ -132,19 +132,19 @@ void idMenuScreen_Shell_NewGame::Update()
 			heading->SetText( "#str_02207" );	// NEW GAME
 			heading->SetStrokeInfo( true, 0.75f, 1.75f );
 		}
-		
+
 		idSWFSpriteInstance* gradient = GetSprite()->GetScriptObject()->GetNestedSprite( "info", "gradient" );
 		if( gradient != NULL && heading != NULL )
 		{
 			gradient->SetXPos( heading->GetTextLength() );
 		}
 	}
-	
+
 	if( btnBack != NULL )
 	{
 		btnBack->BindSprite( root );
 	}
-	
+
 	idMenuScreen::Update();
 }
 
@@ -183,10 +183,10 @@ bool idMenuScreen_Shell_NewGame::HandleAction( idWidgetAction& action, const idW
 			return false;
 		}
 	}
-	
+
 	widgetAction_t actionType = action.GetType();
 	const idSWFParmList& parms = action.GetParms();
-	
+
 	switch( actionType )
 	{
 		case WIDGET_ACTION_GO_BACK:
@@ -203,29 +203,29 @@ bool idMenuScreen_Shell_NewGame::HandleAction( idWidgetAction& action, const idW
 			{
 				return true;
 			}
-			
+
 			int selectionIndex = options->GetViewIndex();
 			if( parms.Num() == 1 )
 			{
 				selectionIndex = parms[0].ToInteger();
 			}
-			
+
 			if( selectionIndex != options->GetFocusIndex() )
 			{
 				options->SetViewIndex( selectionIndex );
 				options->SetFocusIndex( selectionIndex );
 			}
-			
+
 			idMenuHandler_Shell* shell = dynamic_cast< idMenuHandler_Shell* >( menuData );
 			if( shell != NULL )
 			{
 				shell->SetNewGameType( selectionIndex );
 				menuData->SetNextScreen( SHELL_AREA_DIFFICULTY, MENU_TRANSITION_SIMPLE );
 			}
-			
+
 			return true;
 		}
 	}
-	
+
 	return idMenuWidget::HandleAction( action, event, widget, forceHandled );
 }

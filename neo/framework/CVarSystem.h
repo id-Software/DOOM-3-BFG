@@ -120,7 +120,7 @@ public:
 	{
 		assert( typeid( this ) != typeid( idCVar ) );
 	}
-	
+
 	// Always use one of the following constructors.
 	idCVar( const char* name, const char* value, int flags, const char* description,
 			argCompletion_t valueCompletion = NULL );
@@ -128,9 +128,9 @@ public:
 			float valueMin, float valueMax, argCompletion_t valueCompletion = NULL );
 	idCVar( const char* name, const char* value, int flags, const char* description,
 			const char** valueStrings, argCompletion_t valueCompletion = NULL );
-			
+
 	virtual					~idCVar() {}
-	
+
 	const char* 			GetName() const
 	{
 		return internalVar->name;
@@ -159,7 +159,7 @@ public:
 	{
 		return valueCompletion;
 	}
-	
+
 	bool					IsModified() const
 	{
 		return ( internalVar->flags & CVAR_MODIFIED ) != 0;
@@ -172,7 +172,7 @@ public:
 	{
 		internalVar->flags &= ~CVAR_MODIFIED;
 	}
-	
+
 	const char* 			GetDefaultString() const
 	{
 		return internalVar->InternalGetResetString();
@@ -193,7 +193,7 @@ public:
 	{
 		return internalVar->floatValue;
 	}
-	
+
 	void					SetString( const char* value )
 	{
 		internalVar->InternalSetString( value );
@@ -210,14 +210,14 @@ public:
 	{
 		internalVar->InternalSetFloat( value );
 	}
-	
+
 	void					SetInternalVar( idCVar* cvar )
 	{
 		internalVar = cvar;
 	}
-	
+
 	static void				RegisterStaticVars();
-	
+
 protected:
 	const char* 			name;					// name
 	const char* 			value;					// value
@@ -231,21 +231,21 @@ protected:
 	float					floatValue;				// atof( value )
 	idCVar* 				internalVar;			// internal cvar
 	idCVar* 				next;					// next statically declared cvar
-	
+
 private:
 	void					Init( const char* name, const char* value, int flags, const char* description,
 								  float valueMin, float valueMax, const char** valueStrings, argCompletion_t valueCompletion );
-								  
+
 	virtual void			InternalSetString( const char* newValue ) {}
 	virtual void			InternalSetBool( const bool newValue ) {}
 	virtual void			InternalSetInteger( const int newValue ) {}
 	virtual void			InternalSetFloat( const float newValue ) {}
-	
+
 	virtual const char* 	InternalGetResetString() const
 	{
 		return value;
 	}
-	
+
 	static idCVar* 			staticVars;
 };
 
@@ -284,52 +284,52 @@ class idCVarSystem
 {
 public:
 	virtual					~idCVarSystem() {}
-	
+
 	virtual void			Init() = 0;
 	virtual void			Shutdown() = 0;
 	virtual bool			IsInitialized() const = 0;
-	
+
 	// Registers a CVar.
 	virtual void			Register( idCVar* cvar ) = 0;
-	
+
 	// Finds the CVar with the given name.
 	// Returns NULL if there is no CVar with the given name.
 	virtual idCVar* 		Find( const char* name ) = 0;
-	
+
 	// Sets the value of a CVar by name.
 	virtual void			SetCVarString( const char* name, const char* value, int flags = 0 ) = 0;
 	virtual void			SetCVarBool( const char* name, const bool value, int flags = 0 ) = 0;
 	virtual void			SetCVarInteger( const char* name, const int value, int flags = 0 ) = 0;
 	virtual void			SetCVarFloat( const char* name, const float value, int flags = 0 ) = 0;
-	
+
 	// Gets the value of a CVar by name.
 	virtual const char* 	GetCVarString( const char* name ) const = 0;
 	virtual bool			GetCVarBool( const char* name ) const = 0;
 	virtual int				GetCVarInteger( const char* name ) const = 0;
 	virtual float			GetCVarFloat( const char* name ) const = 0;
-	
+
 	// Called by the command system when argv(0) doesn't match a known command.
 	// Returns true if argv(0) is a variable reference and prints or changes the CVar.
 	virtual bool			Command( const idCmdArgs& args ) = 0;
-	
+
 	// Command and argument completion using callback for each valid string.
 	virtual void			CommandCompletion( void( *callback )( const char* s ) ) = 0;
 	virtual void			ArgCompletion( const char* cmdString, void( *callback )( const char* s ) ) = 0;
-	
+
 	// Sets/gets/clears modified flags that tell what kind of CVars have changed.
 	virtual void			SetModifiedFlags( int flags ) = 0;
 	virtual int				GetModifiedFlags() const = 0;
 	virtual void			ClearModifiedFlags( int flags ) = 0;
-	
+
 	// Resets variables with one of the given flags set.
 	virtual void			ResetFlaggedVariables( int flags ) = 0;
-	
+
 	// Removes auto-completion from the flagged variables.
 	virtual void			RemoveFlaggedAutoCompletion( int flags ) = 0;
-	
+
 	// Writes variables with one of the given flags set to the given file.
 	virtual void			WriteFlaggedVariables( int flags, const char* setCmd, idFile* f ) const = 0;
-	
+
 	// Moves CVars to and from dictionaries.
 	virtual void			MoveCVarsToDict( int flags, idDict& dict, bool onlyModified = false ) const = 0;
 	virtual void			SetCVarsFromDict( const idDict& dict ) = 0;

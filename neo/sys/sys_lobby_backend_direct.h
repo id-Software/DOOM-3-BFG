@@ -37,7 +37,7 @@ class idLobbyBackendDirect : public idLobbyBackend
 {
 public:
 	idLobbyBackendDirect();
-	
+
 	// idLobbyBackend interface
 	virtual void				StartHosting( const idMatchParameters& p, float skillLevel, lobbyBackendType_t type );
 	virtual void				StartFinding( const idMatchParameters& p, int numPartyUsers, float skillLevel );
@@ -58,13 +58,13 @@ public:
 	{
 		return state;
 	}
-	
+
 	virtual void				BecomeHost( int numInvites );
 	virtual void				FinishBecomeHost();
-	
+
 	virtual void			RegisterUser( lobbyUser_t* user, bool isLocal );
 	virtual void			UnregisterUser( lobbyUser_t* user, bool isLocal );
-	
+
 private:
 
 	lobbyBackendState_t		state;
