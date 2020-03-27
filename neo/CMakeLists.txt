@@ -25,10 +25,10 @@ option(OPENAL
 		"Use OpenAL soft instead of XAudio2" OFF)
 
 option(FFMPEG
-		"Use FMPEG to render Bink videos" OFF)
+		"Use FMPEG to render Bink videos" ON)
 
 option(BINKDEC
-		"Use included libbinkdec to render Bink videos" ON)
+		"Use included libbinkdec to render Bink videos" OFF)
 		
 option(USE_VULKAN
 		"Use Vulkan instead of OpenGL" OFF)
