@@ -1,111 +1,107 @@
-This is a FFmpeg win64 shared build by Kyle Schwarz.
+Zeranoe FFmpeg Builds <http://ffmpeg.zeranoe.com/builds/>
 
-Zeranoe's FFmpeg Builds Home Page: <http://ffmpeg.zeranoe.com/builds/>
+Build: ffmpeg-4.2.2-win64-shared
 
-FFmpeg version: 20151105-git-c878082
-  libavutil      54. 30.100 / 54. 30.100
-  libavcodec     56. 57.100 / 56. 57.100
-  libavformat    56. 40.101 / 56. 40.101
-  libavdevice    56.  4.100 / 56.  4.100
-  libavfilter     5. 32.100 /  5. 32.100
-  libswscale      3.  1.101 /  3.  1.101
-  libswresample   1.  2.101 /  1.  2.101
-  libpostproc    53.  3.100 / 53.  3.100
-
-This FFmpeg build was configured with:
-  --disable-static
-  --enable-shared
+Configuration:
   --enable-gpl
   --enable-version3
-  --disable-w32threads
-  --enable-avisynth
-  --enable-bzlib
+  --enable-sdl2
   --enable-fontconfig
-  --enable-frei0r
   --enable-gnutls
   --enable-iconv
   --enable-libass
+  --enable-libdav1d
   --enable-libbluray
-  --enable-libbs2b
-  --enable-libcaca
-  --enable-libdcadec
   --enable-libfreetype
-  --enable-libgme
-  --enable-libgsm
-  --enable-libilbc
-  --enable-libmodplug
   --enable-libmp3lame
   --enable-libopencore-amrnb
   --enable-libopencore-amrwb
   --enable-libopenjpeg
   --enable-libopus
-  --enable-librtmp
-  --enable-libschroedinger
+  --enable-libshine
+  --enable-libsnappy
   --enable-libsoxr
-  --enable-libspeex
   --enable-libtheora
   --enable-libtwolame
-  --enable-libvidstab
-  --enable-libvo-aacenc
-  --enable-libvo-amrwbenc
-  --enable-libvorbis
   --enable-libvpx
   --enable-libwavpack
   --enable-libwebp
   --enable-libx264
   --enable-libx265
-  --enable-libxavs
-  --enable-libxvid
+  --enable-libxml2
+  --enable-libzimg
   --enable-lzma
-  --enable-decklink
   --enable-zlib
+  --enable-gmp
+  --enable-libvidstab
+  --enable-libvorbis
+  --enable-libvo-amrwbenc
+  --enable-libmysofa
+  --enable-libspeex
+  --enable-libxvid
+  --enable-libaom
+  --enable-libmfx
+  --enable-amf
+  --enable-ffnvcodec
+  --enable-cuvid
+  --enable-d3d11va
+  --enable-nvenc
+  --enable-nvdec
+  --enable-dxva2
+  --enable-avisynth
+  --enable-libopenmpt
 
-This build was compiled with the following external libraries:
-  bzip2 1.0.6 <http://bzip.org/>
-  Fontconfig 2.11.94 <http://freedesktop.org/wiki/Software/fontconfig>
-  Frei0r 20130909-git-10d8360 <http://frei0r.dyne.org/>
-  GnuTLS 3.3.16 <http://gnutls.org/>
-  libiconv 1.14 <http://gnu.org/software/libiconv/>
-  libass 0.13.0 <https://github.com/libass/libass>
-  libbluray 0.9.0 <http://videolan.org/developers/libbluray.html>
-  libbs2b 3.1.0 <http://bs2b.sourceforge.net/>
-  libcaca 0.99.beta18 <http://caca.zoy.org/wiki/libcaca>
-  dcadec 20150506-git-98fb3b6 <https://github.com/foo86/dcadec>
-  FreeType 2.6.1 <http://freetype.sourceforge.net/>
-  Game Music Emu 0.6.0 <https://bitbucket.org/mpyne/game-music-emu/wiki/Home>
-  GSM 1.0.13-4 <http://packages.debian.org/source/squeeze/libgsm>
-  iLBC 20141214-git-ef04ebe <https://github.com/dekkers/libilbc/>
-  Modplug-XMMS 0.8.8.5 <http://modplug-xmms.sourceforge.net/>
-  LAME 3.99.5 <http://lame.sourceforge.net/>
-  OpenCORE AMR 0.1.3 <http://sourceforge.net/projects/opencore-amr/>
-  OpenJPEG 1.5.2 <https://github.com/uclouvain/openjpeg>
-  Opus 1.1 <http://opus-codec.org/>
-  RTMPDump 20140707-git-a1900c3 <http://rtmpdump.mplayerhq.hu/>
-  Schroedinger 1.0.11 <http://diracvideo.org/>
-  libsoxr 0.1.2 <http://sourceforge.net/projects/soxr/>
-  Speex 1.2rc2 <http://speex.org/>
-  Theora 1.1.1 <http://theora.org/>
-  TwoLAME 0.3.13 <http://twolame.org/>
-  vid.stab 0.98 <http://public.hronopik.de/vid.stab/>
-  VisualOn AAC 0.1.3 <https://github.com/mstorsjo/vo-aacenc>
-  VisualOn AMR-WB 0.1.2 <https://github.com/mstorsjo/vo-amrwbenc>
-  Vorbis 1.3.5 <http://vorbis.com/>
-  vpx 1.4.0 <http://webmproject.org/>
-  WavPack 4.75.0 <http://wavpack.com/>
-  WebP 0.4.3 <https://developers.google.com/speed/webp/>
-  x264 20151011-git-7599210 <http://videolan.org/developers/x264.html>
-  x265 1.8 <http://x265.org/>
-  XAVS svn-r55 <http://xavs.sourceforge.net/>
-  Xvid 1.3.4 <http://xvid.org/>
-  XZ Utils 5.2.2 <http://tukaani.org/xz>
-  zlib 1.2.8 <http://zlib.net/>
+Libraries:
+  SDL               20200120-cb4dae5  <https://libsdl.org>
+  Fontconfig        2.13.92           <http://freedesktop.org/wiki/Software/fontconfig>
+  GnuTLS            3.6.11.1          <https://gnutls.org/>
+  libiconv          1.16              <http://gnu.org/software/libiconv>
+  libass            0.14.0            <https://github.com/libass/libass>
+  dav1d             20200115-010eae8  <https://code.videolan.org/videolan/dav1d>
+  libbluray         20191112-137974c  <https://www.videolan.org/developers/libbluray.html>
+  FreeType          2.10.1            <http://freetype.sourceforge.net>
+  LAME              3.100             <http://lame.sourceforge.net>
+  OpenCORE AMR      20170731-07a5be4  <https://sourceforge.net/projects/opencore-amr>
+  OpenJPEG          20200113-b63a433  <https://github.com/uclouvain/openjpeg>
+  Opus              20200119-6d29f51  <https://opus-codec.org>
+  shine             20190420-76ea4f0  <https://github.com/savonet/shine>
+  Snappy            1.1.7             <https://github.com/google/snappy>
+  libsoxr           20180224-945b592  <http://sourceforge.net/projects/soxr>
+  Theora            20171023-e5d205b  <http://theora.org>
+  TwoLAME           0.4.0             <http://twolame.org>
+  vpx               20200118-b78d3b2  <http://webmproject.org>
+  WavPack           5.2.0             <http://wavpack.com>
+  WebP              20200106-0fa56f3  <https://developers.google.com/speed/webp>
+  x264              20191127-1771b55  <https://www.videolan.org/developers/x264.html>
+  x265              20200120-acc5d16  <https://bitbucket.org/multicoreware/x265/wiki/Home>
+  libxml2           2.9.10            <http://xmlsoft.org>
+  z.lib             20191204-9ae36d7  <https://github.com/sekrit-twc/zimg>
+  XZ Utils          5.2.4             <http://tukaani.org/xz>
+  zlib              1.2.11            <http://zlib.net>
+  GMP               6.1.2             <https://gmplib.org>
+  vid.stab          20190213-aeabc8d  <http://public.hronopik.de/vid.stab>
+  Vorbis            20190128-9eadecc  <http://vorbis.com>
+  VisualOn AMR-WB   20141107-3b3fcd0  <https://sourceforge.net/projects/opencore-amr>
+  libmysofa         20190907-e07edb3  <https://github.com/hoene/libmysofa>
+  Speex             20190808-58ac1d4  <http://speex.org>
+  Xvid              1.3.5             <https://labs.xvid.com>
+  aom               20200120-412efe2  <https://aomedia.googlesource.com/aom>
+  libmfx            1.28              <https://software.intel.com/en-us/media-sdk>
+  AMF               20191216-acbd877  <https://gpuopen.com/gaming-product/advanced-media-framework>
+  nv-codec-headers  20191126-250292d  <https://git.videolan.org/?p=ffmpeg/nv-codec-headers.git>
+  OpenMPT           20191010-51cb021  <https://openmpt.org>
 
-The source code for this FFmpeg build can be found at: <http://ffmpeg.zeranoe.com/builds/source/>
+Copyright (C) 2020 Kyle Schwarz
 
-This build was compiled on Debian 8.2 (64-bit): <http://www.debian.org/>
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
-GCC 5.2.0 was used to compile this FFmpeg build: <http://gcc.gnu.org/>
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-This build was compiled using the MinGW-w64 toolchain: <http://mingw-w64.sourceforge.net/>
-
-Licenses for each library can be found in the 'licenses' folder.
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.

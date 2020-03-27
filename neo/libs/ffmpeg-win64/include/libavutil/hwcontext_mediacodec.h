@@ -1,7 +1,4 @@
 /*
- * Filter graphs
- * copyright (c) 2007 Bobby Bingham
- *
  * This file is part of FFmpeg.
  *
  * FFmpeg is free software; you can redistribute it and/or
@@ -19,10 +16,21 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#ifndef AVFILTER_AVFILTERGRAPH_H
-#define AVFILTER_AVFILTERGRAPH_H
+#ifndef AVUTIL_HWCONTEXT_MEDIACODEC_H
+#define AVUTIL_HWCONTEXT_MEDIACODEC_H
 
-#include "avfilter.h"
-#include "libavutil/log.h"
+/**
+ * MediaCodec details.
+ *
+ * Allocated as AVHWDeviceContext.hwctx
+ */
+typedef struct AVMediaCodecDeviceContext {
+    /**
+     * android/view/Surface handle, to be filled by the user.
+     *
+     * This is the default surface used by decoders on this device.
+     */
+    void *surface;
+} AVMediaCodecDeviceContext;
 
-#endif /* AVFILTER_AVFILTERGRAPH_H */
+#endif /* AVUTIL_HWCONTEXT_MEDIACODEC_H */
