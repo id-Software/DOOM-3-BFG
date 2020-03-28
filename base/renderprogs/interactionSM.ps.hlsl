@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
-Copyright (C) 2013-2014 Robert Beckebans
+Copyright (C) 2013-2020 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
 
@@ -280,7 +280,7 @@ void main( PS_IN fragment, out PS_OUT result )
 
 #if 1 //defined(USE_PBR)
 		
-#if 0 //defined(USE_METALNESS)
+#if 1 //defined(USE_METALNESS)
 	const half metallic = specMapSRGB.g;
 	const half roughness = specMapSRGB.r;
 	const half glossiness = 1.0 - roughness;
@@ -321,7 +321,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	half ldotH = clamp( dot3( lightVector, halfAngleVector ), 0.0, 1.0 );
 	
 	// compensate r_lightScale 3 * 2
-	half3 reflectColor = specMap.rgb * rpSpecularModifier.rgb * 1.0;// * 0.5;
+	half3 reflectColor = specularColor * rpSpecularModifier.rgb * 1.0;// * 0.5;
 	
 	// cheap approximation by ARM with only one division
 	// http://community.arm.com/servlet/JiveServlet/download/96891546-19496/siggraph2015-mmg-renaldas-slides.pdf

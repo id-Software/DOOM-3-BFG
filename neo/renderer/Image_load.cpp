@@ -241,35 +241,6 @@ void idImage::AllocImage( const idImageOpts& imgOpts, textureFilter_t tf, textur
 }
 
 /*
-
-
-		// foresthale 2014-05-30: give a nice progress display when binarizing
-		commonLocal.LoadPacifierBinarizeFilename( GetName() , "generated image" );
-		if( opts.numLevels > 1 )
-		{
-			commonLocal.LoadPacifierBinarizeProgressTotal( opts.width * opts.height * 4 / 3 );
-		}
-		else
-		{
-			commonLocal.LoadPacifierBinarizeProgressTotal( opts.width * opts.height );
-		}
-
-		commonLocal.LoadPacifierBinarizeEnd();
-
-
-	// foresthale 2014-05-30: give a nice progress display when binarizing
-	commonLocal.LoadPacifierBinarizeFilename( GetName(), "generated cube image" );
-	if( opts.numLevels > 1 )
-	{
-		commonLocal.LoadPacifierBinarizeProgressTotal( opts.width * opts.width * 6 * 4 / 3 );
-	}
-	else
-	{
-		commonLocal.LoadPacifierBinarizeProgressTotal( opts.width * opts.width * 6 );
-	}
-
-	commonLocal.LoadPacifierBinarizeEnd();
-
 ===============
 GetGeneratedName
 
@@ -314,6 +285,12 @@ void idImage::ActuallyLoadImage( bool fromBackEnd )
 		return;
 	}
 
+	// RB: the following does not load the source images from disk because pic is NULL
+	// but it tries to get the timestamp to see if we have a newer file than the one in the compressed .bimage
+
+	// TODO also check for alternative names like .png suffices or _rmao.png or even _rmaod.png files
+	// to support the PBR code path
+
 	if( com_productionMode.GetInteger() != 0 )
 	{
 		sourceFileTime = FILE_NOT_FOUND_TIMESTAMP;
@@ -349,6 +326,7 @@ void idImage::ActuallyLoadImage( bool fromBackEnd )
 	idStrStatic< MAX_OSPATH > generatedName = GetName();
 	GetGeneratedName( generatedName, usage, cubeFiles );
 
+	// RB: try to load the .bimage and skip if sourceFileTime is newer
 	idBinaryImage im( generatedName );
 	binaryFileTime = im.LoadFromGeneratedFile( sourceFileTime );
 
@@ -417,6 +395,8 @@ void idImage::ActuallyLoadImage( bool fromBackEnd )
 	}
 	else
 	{
+		// RB: try to read the source image from disk
+
 		idStr binarizeReason = "binarize: unknown reason";
 		if( binaryFileTime == FILE_NOT_FOUND_TIMESTAMP )
 		{
@@ -540,11 +520,14 @@ void idImage::ActuallyLoadImage( bool fromBackEnd )
 				commonLocal.LoadPacifierBinarizeProgressTotal( opts.width * opts.width * 6 );
 			}
 
+			// RB: convert to compressed DXT or whatever choosen target format
 			im.Load2DFromMemory( opts.width, opts.height, pic, opts.numLevels, opts.format, opts.colorFormat, opts.gammaMips );
 			commonLocal.LoadPacifierBinarizeEnd();
 
 			Mem_Free( pic );
 		}
+
+		// RB: write the compressed .bimage which contains the optimized GPU format
 		binaryFileTime = im.WriteGeneratedFile( sourceFileTime );
 	}
 

@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
-Copyright (C) 2013-2019 Robert Beckebans
+Copyright (C) 2013-2020 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
 
@@ -60,7 +60,8 @@ void main( PS_IN fragment, out PS_OUT result ) {
 //	half4 lightFalloff =	idtex2Dproj( samp1, fragment.texcoord2 );
 //	half4 lightProj	=		idtex2Dproj( samp2, fragment.texcoord3 );
 	half4 YCoCG =			tex2D( samp2, fragment.texcoord1.xy );
-	half4 specMap =			tex2D( samp1, fragment.texcoord2.xy );
+	half4 specMapSRGB =		tex2D( samp1, fragment.texcoord2.xy );
+	half4 specMap =			sRGBAToLinearRGBA( specMapSRGB );
 
 	//half3 lightVector = normalize( fragment.texcoord0.xyz );
 	half3 diffuseMap = sRGBToLinearRGB( ConvertYCoCgToRGB( YCoCG ) );
@@ -99,10 +100,11 @@ void main( PS_IN fragment, out PS_OUT result ) {
 	float3 reflectionVector = globalNormal * dot3( globalEye, globalNormal );
 	reflectionVector = ( reflectionVector * 2.0f ) - globalEye;
 	
-#if defined(USE_PBR)
+#if 1 //defined(USE_PBR)
 		
-	const half metallic = specMap.g;
-	const half roughness = specMap.r;
+#if 1 //defined(USE_METALNESS)
+	const half metallic = specMapSRGB.g;
+	const half roughness = specMapSRGB.r;
 	const half glossiness = 1.0 - roughness;
 
 	// the vast majority of real-world materials (anything not metal or gems) have F(0°)
@@ -116,11 +118,21 @@ void main( PS_IN fragment, out PS_OUT result ) {
 	
 	half3 diffuseColor = baseColor * ( 1.0 - metallic );
 	half3 specularColor = lerp( dielectricColor, baseColor, metallic );
+#else
+	// HACK calculate roughness from D3 gloss maps
+	float Y = dot( LUMINANCE_SRGB.rgb, specMapSRGB.rgb );
 	
-	//diffuseColor = half3( 1.0 );
-	float3 diffuseLight = ( texCUBE( samp7, globalNormal ).rgb ) * diffuseColor * ( rpDiffuseModifier.xyz ) * 1.5f;
+	//const float glossiness = clamp( 1.0 - specMapSRGB.r, 0.0, 0.98 );
+	const float glossiness = clamp( pow( Y, 1.0 / 2.0 ), 0.0, 0.98 );
 	
-	//specularColor = half3( 0.0 );
+	const float roughness = 1.0 - glossiness;
+	
+	half3 diffuseColor = diffuseMap;
+	half3 specularColor = specMap.rgb;
+
+#endif
+	
+	float3 diffuseLight = ( texCUBE( samp7, globalNormal ).rgb ) * diffuseColor * ( rpDiffuseModifier.xyz ) * 3.5f;
 	
 	float mip = clamp( ( roughness * 7.0 ) + 3.0, 0.0, 10.0 );
 	float3 envColor = ( textureLod( samp8, reflectionVector, mip ).rgb ) * ( rpSpecularModifier.xyz ) * 1.0f;
@@ -129,11 +141,9 @@ void main( PS_IN fragment, out PS_OUT result ) {
 	
 #else
 	
-	half4 specMapSRGB = specMap;
-	specMap = sRGBAToLinearRGBA( specMap );
-	
-	//float3 diffuseLight = sRGBToLinearRGB( texCUBE( samp7, globalNormal ).rgb ) * diffuseMap.rgb * ( rpDiffuseModifier.xyz ) * 3.5f;
-    float3 diffuseLight = ( texCUBE( samp7, globalNormal ).rgb ) * diffuseMap.rgb * ( rpDiffuseModifier.xyz ) * 3.5f;
+	// non PBR path
+
+	float3 diffuseLight = ( texCUBE( samp7, globalNormal ).rgb ) * diffuseMap.rgb * ( rpDiffuseModifier.xyz ) * 3.5f;
 	//float3 diffuseLight = diffuseMap.rgb * ( rpDiffuseModifier.xyz ) * 1.5f;
 
 	// HACK calculate roughness from D3 gloss maps
