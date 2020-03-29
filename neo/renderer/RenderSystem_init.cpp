@@ -747,7 +747,7 @@ void R_ReadTiledPixels( int width, int height, byte* buffer, renderView_t* ref =
 	//commonLocal.WaitGameThread();
 
 	// discard anything currently on the list
-	tr.SwapCommandBuffers( NULL, NULL, NULL, NULL );
+	tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
 
 	int originalNativeWidth = glConfig.nativeScreenWidth;
 	int originalNativeHeight = glConfig.nativeScreenHeight;
@@ -765,7 +765,7 @@ void R_ReadTiledPixels( int width, int height, byte* buffer, renderView_t* ref =
 			// foresthale 2014-03-01: fixed custom screenshot resolution by doing a more direct render path
 #ifdef BUGFIXEDSCREENSHOTRESOLUTION
 			// discard anything currently on the list
-			tr.SwapCommandBuffers( NULL, NULL, NULL, NULL );
+			tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
 			if( ref )
 			{
 				// ref is only used by envShot, Event_camShot, etc to grab screenshots of things in the world,
@@ -778,13 +778,13 @@ void R_ReadTiledPixels( int width, int height, byte* buffer, renderView_t* ref =
 				commonLocal.Draw();
 			}
 			// this should exit right after vsync, with the GPU idle and ready to draw
-			const emptyCommand_t* cmd = tr.SwapCommandBuffers( NULL, NULL, NULL, NULL );
+			const emptyCommand_t* cmd = tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
 
 			// get the GPU busy with new commands
 			tr.RenderCommandBuffers( cmd );
 
 			// discard anything currently on the list (this triggers SwapBuffers)
-			tr.SwapCommandBuffers( NULL, NULL, NULL, NULL );
+			tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
 #else
 			// foresthale 2014-03-01: note: ref is always NULL in every call path to this function
 			if( ref )
@@ -835,7 +835,7 @@ void R_ReadTiledPixels( int width, int height, byte* buffer, renderView_t* ref =
 	// foresthale 2014-03-01: fixed custom screenshot resolution by doing a more direct render path
 #ifdef BUGFIXEDSCREENSHOTRESOLUTION
 	// discard anything currently on the list
-	tr.SwapCommandBuffers( NULL, NULL, NULL, NULL );
+	tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
 
 	glConfig.nativeScreenWidth = originalNativeWidth;
 	glConfig.nativeScreenHeight = originalNativeHeight;
@@ -2302,7 +2302,7 @@ void idRenderSystemLocal::Init()
 	bInitialized = true;
 
 	// make sure the command buffers are ready to accept the first screen update
-	SwapCommandBuffers( NULL, NULL, NULL, NULL );
+	SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
 
 	common->Printf( "renderSystem initialized.\n" );
 	common->Printf( "--------------------------------------\n" );

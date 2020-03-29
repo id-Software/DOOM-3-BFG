@@ -1420,6 +1420,12 @@ void R_AddModels()
 
 	for( viewEntity_t* vEntity = tr.viewDef->viewEntitys; vEntity != NULL; vEntity = vEntity->next )
 	{
+		// RB
+		if( vEntity->drawSurfs != NULL )
+		{
+			tr.pc.c_visibleViewEntities++;
+		}
+
 		for( drawSurf_t* ds = vEntity->drawSurfs; ds != NULL; )
 		{
 			drawSurf_t* next = ds->nextOnLight;
@@ -1434,6 +1440,7 @@ void R_AddModels()
 			}
 			ds = next;
 		}
+
 		vEntity->drawSurfs = NULL;
 	}
 }

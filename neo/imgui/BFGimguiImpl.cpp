@@ -206,7 +206,7 @@ void SetClipboardText( void*, const char* text )
 
 bool ShowWindows()
 {
-	return ( ImGuiTools::AreEditorsActive() || imgui_showDemoWindow.GetBool() );
+	return ( ImGuiTools::AreEditorsActive() || imgui_showDemoWindow.GetBool() || com_showFPS.GetInteger() > 0 );
 }
 
 bool UseInput()
@@ -340,7 +340,7 @@ bool InjectMouseWheel( int delta )
 
 void NewFrame()
 {
-	if( IsInitialized() && ShowWindows() )
+	if( !g_haveNewFrame && IsInitialized() && ShowWindows() )
 	{
 		ImGuiIO& io = ImGui::GetIO();
 
@@ -351,6 +351,12 @@ void NewFrame()
 		int	time = Sys_Milliseconds();
 		double current_time = time * 0.001;
 		io.DeltaTime = g_Time > 0.0 ? ( float )( current_time - g_Time ) : ( float )( 1.0f / 60.0f );
+
+		if( io.DeltaTime <= 0.0F )
+		{
+			io.DeltaTime = ( 1.0f / 60.0f );
+		}
+
 		g_Time = current_time;
 
 		// Setup inputs
@@ -381,6 +387,23 @@ void NewFrame()
 			ImGuiTools::impl::SetReleaseToolMouse( true );
 		}
 	}
+}
+
+bool IsReadyToRender()
+{
+	if( IsInitialized() && ShowWindows() )
+	{
+		if( !g_haveNewFrame )
+		{
+			// for screenshots etc, where we didn't go through idCommonLocal::Frame()
+			// before idRenderSystemLocal::SwapCommandBuffers_FinishRendering()
+			NewFrame();
+		}
+
+		return true;
+	}
+
+	return false;
 }
 
 void Render()

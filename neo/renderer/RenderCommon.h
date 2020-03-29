@@ -695,35 +695,7 @@ const idMaterial* R_RemapShaderBySkin( const idMaterial* shader, const idDeclSki
 //====================================================
 
 
-/*
-** performanceCounters_t
-*/
-struct performanceCounters_t
-{
-	int		c_box_cull_in;
-	int		c_box_cull_out;
-	int		c_createInteractions;	// number of calls to idInteraction::CreateInteraction
-	int		c_createShadowVolumes;
-	int		c_generateMd5;
-	int		c_entityDefCallbacks;
-	int		c_alloc;			// counts for R_StaticAllc/R_StaticFree
-	int		c_free;
-	int		c_visibleViewEntities;
-	int		c_shadowViewEntities;
-	int		c_viewLights;
-	int		c_numViews;			// number of total views rendered
-	int		c_deformedSurfaces;	// idMD5Mesh::GenerateSurface
-	int		c_deformedVerts;	// idMD5Mesh::GenerateSurface
-	int		c_deformedIndexes;	// idMD5Mesh::GenerateSurface
-	int		c_tangentIndexes;	// R_DeriveTangents()
-	int		c_entityUpdates;
-	int		c_lightUpdates;
-	int		c_envprobeUpdates;
-	int		c_entityReferences;
-	int		c_lightReferences;
-	int		c_guiSurfs;
-	int		frontEndMicroSec;	// sum of time in all RE_RenderScene's in a frame
-};
+
 
 enum vertexLayoutType_t
 {
@@ -806,9 +778,9 @@ public:
 	virtual void			WriteDemoPics();
 	virtual void			WriteEndFrame();
 	virtual void			DrawDemoPics();
-	virtual const emptyCommand_t* 	SwapCommandBuffers( uint64* frontEndMicroSec, uint64* backEndMicroSec, uint64* shadowMicroSec, uint64* gpuMicroSec );
+	virtual const emptyCommand_t* 	SwapCommandBuffers( uint64* frontEndMicroSec, uint64* backEndMicroSec, uint64* shadowMicroSec, uint64* gpuMicroSec, backEndCounters_t* bc, performanceCounters_t* pc );
 
-	virtual void			SwapCommandBuffers_FinishRendering( uint64* frontEndMicroSec, uint64* backEndMicroSec, uint64* shadowMicroSec, uint64* gpuMicroSec );
+	virtual void			SwapCommandBuffers_FinishRendering( uint64* frontEndMicroSec, uint64* backEndMicroSec, uint64* shadowMicroSec, uint64* gpuMicroSec, backEndCounters_t* bc, performanceCounters_t* pc );
 	virtual const emptyCommand_t* 	SwapCommandBuffers_FinishCommandBuffers();
 
 	virtual void			RenderCommandBuffers( const emptyCommand_t* commandBuffers );

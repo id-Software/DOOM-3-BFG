@@ -25,6 +25,9 @@ bool	InjectMouseWheel( int delta );
 // (but ideally after getting all new events)
 void	NewFrame();
 
+// call this to enable custom ImGui windows which are not editors
+bool	IsReadyToRender();
+
 // call this once per frame (at the end) - it'll render all ImGui::* commands
 // since NewFrame()
 void	Render();

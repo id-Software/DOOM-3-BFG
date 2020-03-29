@@ -434,7 +434,7 @@ void idCommonLocal::UpdateScreen( bool captureToImage, bool releaseMouse )
 	}
 
 	// this should exit right after vsync, with the GPU idle and ready to draw
-	const emptyCommand_t* cmd = renderSystem->SwapCommandBuffers( &time_frontend, &time_backend, &time_shadows, &time_gpu );
+	const emptyCommand_t* cmd = renderSystem->SwapCommandBuffers( &time_frontend, &time_backend, &time_shadows, &time_gpu, &stats_backend, &stats_frontend );
 
 	// get the GPU busy with new commands
 	renderSystem->RenderCommandBuffers( cmd );
@@ -620,7 +620,7 @@ void idCommonLocal::Frame()
 		// foresthale 2014-05-12: also check com_editors as many of them are not particularly thread-safe (editLights for example)
 		if( com_smp.GetInteger() > 0 && com_editors == 0 )
 		{
-			renderCommands = renderSystem->SwapCommandBuffers( &time_frontend, &time_backend, &time_shadows, &time_gpu );
+			renderCommands = renderSystem->SwapCommandBuffers( &time_frontend, &time_backend, &time_shadows, &time_gpu, &stats_backend, &stats_frontend );
 		}
 		else if( com_smp.GetInteger() < 0 )
 		{
@@ -631,7 +631,7 @@ void idCommonLocal::Frame()
 		{
 			// the GPU will stay idle through command generation for minimal
 			// input latency
-			renderSystem->SwapCommandBuffers_FinishRendering( &time_frontend, &time_backend, &time_shadows, &time_gpu );
+			renderSystem->SwapCommandBuffers_FinishRendering( &time_frontend, &time_backend, &time_shadows, &time_gpu, &stats_backend, &stats_frontend );
 		}
 		frameTiming.finishSyncTime = Sys_Microseconds();
 
@@ -853,7 +853,7 @@ void idCommonLocal::Frame()
 		if( !com_smp.GetInteger() < 0 )
 		{
 			// RB: this is the same as Doom 3 renderSystem->EndFrame()
-			renderSystem->SwapCommandBuffers_FinishRendering( &time_frontend, &time_backend, &time_shadows, &time_gpu );
+			renderSystem->SwapCommandBuffers_FinishRendering( &time_frontend, &time_backend, &time_shadows, &time_gpu, &stats_backend, &stats_frontend );
 		}
 		else if( com_smp.GetInteger() == 0 || com_editors != 0 )
 		{

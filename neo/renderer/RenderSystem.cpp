@@ -32,6 +32,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 
 #include "RenderCommon.h"
+#include "../framework/Common_local.h"
+#include "../imgui/BFGimgui.h"
 
 idRenderSystemLocal	tr;
 idRenderSystem* renderSystem = &tr;
@@ -610,10 +612,13 @@ const emptyCommand_t* idRenderSystemLocal::SwapCommandBuffers(
 	uint64* frontEndMicroSec,
 	uint64* backEndMicroSec,
 	uint64* shadowMicroSec,
-	uint64* gpuMicroSec )
+	uint64* gpuMicroSec,
+	backEndCounters_t* bc,
+	performanceCounters_t* pc
+)
 {
 
-	SwapCommandBuffers_FinishRendering( frontEndMicroSec, backEndMicroSec, shadowMicroSec, gpuMicroSec );
+	SwapCommandBuffers_FinishRendering( frontEndMicroSec, backEndMicroSec, shadowMicroSec, gpuMicroSec, bc, pc );
 
 	return SwapCommandBuffers_FinishCommandBuffers();
 }
@@ -623,11 +628,15 @@ const emptyCommand_t* idRenderSystemLocal::SwapCommandBuffers(
 idRenderSystemLocal::SwapCommandBuffers_FinishRendering
 =====================
 */
+#define	FPS_FRAMES	6
 void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 	uint64* frontEndMicroSec,
 	uint64* backEndMicroSec,
 	uint64* shadowMicroSec,
-	uint64* gpuMicroSec )
+	uint64* gpuMicroSec,
+	backEndCounters_t* bc,
+	performanceCounters_t* pc
+)
 {
 	SCOPED_PROFILE_EVENT( "SwapCommandBuffers" );
 
@@ -640,7 +649,6 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 	{
 		return;
 	}
-
 
 	// After coming back from an autoswap, we won't have anything to render
 	//if( frameData && frameData->cmdHead->next != NULL )
@@ -677,15 +685,28 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 	// save out timing information
 	if( frontEndMicroSec != NULL )
 	{
-		*frontEndMicroSec = pc.frontEndMicroSec;
+		*frontEndMicroSec = this->pc.frontEndMicroSec;
 	}
+
 	if( backEndMicroSec != NULL )
 	{
 		*backEndMicroSec = backend.pc.totalMicroSec;
 	}
+
 	if( shadowMicroSec != NULL )
 	{
 		*shadowMicroSec = backend.pc.shadowMicroSec;
+	}
+
+	// RB: TODO clean up the above and just pass entire backend and performance stats before they get cleared
+	if( bc != NULL )
+	{
+		*bc = backend.pc;
+	}
+
+	if( pc != NULL )
+	{
+		*pc = this->pc;
 	}
 
 	// print any other statistics and clear all of them

@@ -31,6 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "ConsoleHistory.h"
 #include "../renderer/ResolutionScale.h"
 #include "Common_local.h"
+#include "../imgui/BFGimgui.h"
 
 #define	CON_TEXTSIZE			0x30000
 #define	NUM_CON_TIMES			4
@@ -215,11 +216,17 @@ float idConsoleLocal::DrawFPS( float y )
 	static int index;
 	static int previous;
 
+#if !defined( USE_VULKAN )
+	bool renderImGuiPerfWindow = ImGuiHook::IsReadyToRender() && ( com_showFPS.GetInteger() == 1 );
+#endif
+
 	// don't use serverTime, because that will be drifting to
 	// correct for internet lag changes, timescales, timedemos, etc
 	int t = Sys_Milliseconds();
 	int frameTime = t - previous;
 	previous = t;
+
+	int fps = 0;
 
 	previousTimes[index % FPS_FRAMES] = frameTime;
 	index++;
@@ -235,13 +242,20 @@ float idConsoleLocal::DrawFPS( float y )
 		{
 			total = 1;
 		}
-		int fps = 1000000 * FPS_FRAMES / total;
+		fps = 1000000 * FPS_FRAMES / total;
 		fps = ( fps + 500 ) / 1000;
 
 		const char* s = va( "%ifps", fps );
 		int w = strlen( s ) * BIGCHAR_WIDTH;
 
+#if defined( USE_VULKAN )
 		renderSystem->DrawBigStringExt( LOCALSAFE_RIGHT - w, idMath::Ftoi( y ) + 2, s, colorWhite, true );
+#else
+		if( com_showFPS.GetInteger() == 2 )
+		{
+			renderSystem->DrawBigStringExt( LOCALSAFE_RIGHT - w, idMath::Ftoi( y ) + 2, s, colorWhite, true );
+		}
+#endif
 	}
 
 	y += BIGCHAR_HEIGHT + 4;
@@ -253,12 +267,6 @@ float idConsoleLocal::DrawFPS( float y )
 	}
 	// DG end
 
-	// print the resolution scale so we can tell when we are at reduced resolution
-	idStr resolutionText;
-	resolutionScale.GetConsoleText( resolutionText );
-	int w = resolutionText.Length() * BIGCHAR_WIDTH;
-	renderSystem->DrawBigStringExt( LOCALSAFE_RIGHT - w, idMath::Ftoi( y ) + 2, resolutionText.c_str(), colorWhite, true );
-
 	const int gameThreadTotalTime = commonLocal.GetGameThreadTotalTime();
 	const int gameThreadGameTime = commonLocal.GetGameThreadGameTime();
 	const int gameThreadRenderTime = commonLocal.GetGameThreadRenderTime();
@@ -267,6 +275,91 @@ float idConsoleLocal::DrawFPS( float y )
 	const int rendererGPUIdleTime = commonLocal.GetRendererIdleMicroseconds();
 	const int rendererGPUTime = commonLocal.GetRendererGPUMicroseconds();
 	const int maxTime = 16;
+
+#if !defined( USE_VULKAN )
+
+#if 1
+	// RB: use ImGui to show more detailed stats about the scene loads
+	if( ImGuiHook::IsReadyToRender() )
+	{
+		int32 statsWindowWidth = 550;
+		int32 statsWindowHeight = 290;
+
+		ImVec2 pos;
+		pos.x = renderSystem->GetWidth() - statsWindowWidth;
+		pos.y = 0;
+
+		ImGui::SetNextWindowPos( pos );
+		ImGui::SetNextWindowSize( ImVec2( statsWindowWidth, statsWindowHeight ) );
+
+		ImGui::Begin( "Performance Stats" );
+
+		//ImGui::Text( "Render API: OpenGL" );
+
+		ImGui::TextColored( ImVec4( 0.00f, 1.00f, 0.00f, 1.00f ), "GENERAL: views:%i draws:%i tris:%i (shdw:%i)",
+							commonLocal.stats_frontend.c_numViews,
+							commonLocal.stats_backend.c_drawElements + commonLocal.stats_backend.c_shadowElements,
+							( commonLocal.stats_backend.c_drawIndexes + commonLocal.stats_backend.c_shadowIndexes ) / 3,
+							commonLocal.stats_backend.c_shadowIndexes / 3 );
+
+		ImGui::Text( "DYNAMIC: callback:%i md5:%i dfrmVerts:%i dfrmTris:%i tangTris:%i guis:%i",
+					 commonLocal.stats_frontend.c_entityDefCallbacks,
+					 commonLocal.stats_frontend.c_generateMd5,
+					 commonLocal.stats_frontend.c_deformedVerts,
+					 commonLocal.stats_frontend.c_deformedIndexes / 3,
+					 commonLocal.stats_frontend.c_tangentIndexes / 3,
+					 commonLocal.stats_frontend.c_guiSurfs
+				   );
+
+		//ImGui::Text( "Cull: %i box in %i box out\n",
+		//					commonLocal.stats_frontend.c_box_cull_in, commonLocal.stats_frontend.c_box_cull_out );
+
+		ImGui::Text( "ADDMODEL: callback:%i createInteractions:%i createShadowVolumes:%i",
+					 commonLocal.stats_frontend.c_entityDefCallbacks,
+					 commonLocal.stats_frontend.c_createInteractions,
+					 commonLocal.stats_frontend.c_createShadowVolumes );
+
+		ImGui::Text( "viewEntities:%i  shadowEntities:%i  viewLights:%i\n",	commonLocal.stats_frontend.c_visibleViewEntities,
+					 commonLocal.stats_frontend.c_shadowViewEntities,
+					 commonLocal.stats_frontend.c_viewLights );
+
+		ImGui::Text( "UPDATES: entityUpdates:%i  entityRefs:%i  lightUpdates:%i  lightRefs:%i\n",
+					 commonLocal.stats_frontend.c_entityUpdates, commonLocal.stats_frontend.c_entityReferences,
+					 commonLocal.stats_frontend.c_lightUpdates, commonLocal.stats_frontend.c_lightReferences );
+
+		//ImGui::Text( "frameData: %i (%i)\n", frameData->frameMemoryAllocated.GetValue(), frameData->highWaterAllocated );
+
+		ImGui::Spacing();
+		ImGui::Spacing();
+		ImGui::Spacing();
+
+		ImGui::TextColored( ImVec4( 0.00f, 1.00f, 1.00f, 1.00f ), "Average FPS %i", fps );
+
+		ImGui::Spacing();
+
+		ImVec4 colorWhite( 1.0f, 1.0f, 1.0f, 1.0f );
+		ImVec4 colorRed( 1.0f, 0.0f, 0.0f, 1.0f );
+
+		ImGui::TextColored( gameThreadTotalTime > maxTime ? colorRed : colorWhite,			"G+RF:    %4d ms", gameThreadTotalTime );
+		ImGui::TextColored( gameThreadGameTime > maxTime ? colorRed : colorWhite,			"G:       %4d ms", gameThreadGameTime );
+		ImGui::TextColored( gameThreadRenderTime > maxTime ? colorRed : colorWhite,			"RF:      %4d ms", gameThreadRenderTime );
+		ImGui::TextColored( rendererBackEndTime > maxTime * 1000 ? colorRed : colorWhite,	"RB:      %4d ms", int( rendererBackEndTime ) );
+		ImGui::TextColored( rendererShadowsTime > maxTime * 1000 ? colorRed : colorWhite,	"SHADOWS: %4d ms", int( rendererShadowsTime ) );
+		ImGui::TextColored( rendererGPUIdleTime > maxTime * 1000 ? colorRed : colorWhite,	"IDLE:    %4d ms", int( rendererGPUIdleTime ) );
+		ImGui::TextColored( rendererGPUTime > maxTime * 1000 ? colorRed : colorWhite,		"GPU:     %4d ms", int( rendererGPUTime ) );
+
+		ImGui::End();
+	}
+#endif
+
+	return y;
+#else
+
+	// print the resolution scale so we can tell when we are at reduced resolution
+	idStr resolutionText;
+	resolutionScale.GetConsoleText( resolutionText );
+	int w = resolutionText.Length() * BIGCHAR_WIDTH;
+	renderSystem->DrawBigStringExt( LOCALSAFE_RIGHT - w, idMath::Ftoi( y ) + 2, resolutionText.c_str(), colorWhite, true );
 
 	y += SMALLCHAR_HEIGHT + 4;
 	idStr timeStr;
@@ -305,6 +398,7 @@ float idConsoleLocal::DrawFPS( float y )
 	renderSystem->DrawSmallStringExt( LOCALSAFE_RIGHT - w, idMath::Ftoi( y ) + 2, timeStr.c_str(), colorWhite, false );
 
 	return y + BIGCHAR_HEIGHT + 4;
+#endif
 }
 
 /*
@@ -1322,6 +1416,7 @@ void idConsoleLocal::Draw( bool forceFullScreen )
 	float lefty = LOCALSAFE_TOP;
 	float righty = LOCALSAFE_TOP;
 	float centery = LOCALSAFE_TOP;
+
 	if( com_showFPS.GetBool() )
 	{
 		righty = DrawFPS( righty );
@@ -1330,6 +1425,7 @@ void idConsoleLocal::Draw( bool forceFullScreen )
 	{
 		righty = DrawMemoryUsage( righty );
 	}
+
 	DrawOverlayText( lefty, righty, centery );
 	DrawDebugGraphs();
 }

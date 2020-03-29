@@ -140,6 +140,8 @@ struct frameTiming_t
 
 class idCommonLocal : public idCommon
 {
+	friend class idConsoleLocal;
+
 public:
 	idCommonLocal();
 
@@ -297,26 +299,32 @@ public:
 	{
 		return gameThread.GetThreadTotalTime();
 	}
+
 	int		GetGameThreadGameTime() const
 	{
 		return gameThread.GetThreadGameTime();
 	}
+
 	int		GetGameThreadRenderTime() const
 	{
 		return gameThread.GetThreadRenderTime();
 	}
+
 	int		GetRendererBackEndMicroseconds() const
 	{
 		return time_backend;
 	}
+
 	int		GetRendererShadowsMicroseconds() const
 	{
 		return time_shadows;
 	}
+
 	int		GetRendererIdleMicroseconds() const
 	{
 		return mainFrameTiming.startRenderTime - mainFrameTiming.finishSyncTime;
 	}
+
 	int		GetRendererGPUMicroseconds() const
 	{
 		return time_gpu;
@@ -534,6 +542,10 @@ private:
 	uint64				time_backend;			// renderer backend time
 	uint64				time_shadows;			// renderer backend waiting for shadow volumes to be created
 	uint64				time_gpu;				// total gpu time, at least for PC
+
+	// RB: r_speeds counters
+	backEndCounters_t		stats_backend;
+	performanceCounters_t	stats_frontend;
 
 	// Used during loading screens
 	int					lastPacifierSessionTime;

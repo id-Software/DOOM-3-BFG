@@ -57,25 +57,6 @@ enum stencilFace_t
 	STENCIL_FACE_NUM
 };
 
-struct backEndCounters_t
-{
-	int		c_surfaces;
-	int		c_shaders;
-
-	int		c_drawElements;
-	int		c_drawIndexes;
-
-	int		c_shadowElements;
-	int		c_shadowIndexes;
-
-	int		c_copyFrameBuffer;
-
-	float	c_overDraw;
-
-	int		totalMicroSec;		// total microseconds for backend run
-	int		shadowMicroSec;
-};
-
 struct gfxImpParms_t
 {
 	int		x;				// ignored in fullscreen
