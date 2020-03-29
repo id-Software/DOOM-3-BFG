@@ -63,6 +63,7 @@ public:
 	{
 		threadTime = inTime;
 	}
+
 	int				GetThreadTotalTime() const
 	{
 		return threadTime;
@@ -310,22 +311,22 @@ public:
 		return gameThread.GetThreadRenderTime();
 	}
 
-	int		GetRendererBackEndMicroseconds() const
+	uint64		GetRendererBackEndMicroseconds() const
 	{
 		return time_backend;
 	}
 
-	int		GetRendererShadowsMicroseconds() const
+	uint64		GetRendererShadowsMicroseconds() const
 	{
 		return time_shadows;
 	}
 
-	int		GetRendererIdleMicroseconds() const
+	uint64 	GetRendererIdleMicroseconds() const
 	{
 		return mainFrameTiming.startRenderTime - mainFrameTiming.finishSyncTime;
 	}
 
-	int		GetRendererGPUMicroseconds() const
+	uint64		GetRendererGPUMicroseconds() const
 	{
 		return time_gpu;
 	}

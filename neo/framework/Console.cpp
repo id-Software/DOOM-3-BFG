@@ -267,14 +267,19 @@ float idConsoleLocal::DrawFPS( float y )
 	}
 	// DG end
 
-	const int gameThreadTotalTime = commonLocal.GetGameThreadTotalTime();
-	const int gameThreadGameTime = commonLocal.GetGameThreadGameTime();
-	const int gameThreadRenderTime = commonLocal.GetGameThreadRenderTime();
-	const int rendererBackEndTime = commonLocal.GetRendererBackEndMicroseconds();
-	const int rendererShadowsTime = commonLocal.GetRendererShadowsMicroseconds();
-	const int rendererGPUIdleTime = commonLocal.GetRendererIdleMicroseconds();
-	const int rendererGPUTime = commonLocal.GetRendererGPUMicroseconds();
-	const int maxTime = 16;
+	//const uint64 gameThreadTotalTime = commonLocal.GetGameThreadTotalTime();
+	//const uint64 gameThreadGameTime = commonLocal.GetGameThreadGameTime();
+	//const uint64 gameThreadRenderTime = commonLocal.GetGameThreadRenderTime();
+
+	const uint64 gameThreadTotalTime	= commonLocal.mainFrameTiming.finishDrawTime - commonLocal.mainFrameTiming.startGameTime;
+	const uint64 gameThreadGameTime		= commonLocal.mainFrameTiming.finishGameTime - commonLocal.mainFrameTiming.startGameTime;
+	const uint64 gameThreadRenderTime	= commonLocal.mainFrameTiming.finishDrawTime - commonLocal.mainFrameTiming.finishGameTime;
+
+	const uint64 rendererBackEndTime = commonLocal.GetRendererBackEndMicroseconds();
+	const uint64 rendererShadowsTime = commonLocal.GetRendererShadowsMicroseconds();
+	const uint64 rendererGPUIdleTime = commonLocal.GetRendererIdleMicroseconds();
+	const uint64 rendererGPUTime = commonLocal.GetRendererGPUMicroseconds();
+	const int maxTime = 16 * 1000;
 
 #if !defined( USE_VULKAN )
 
@@ -340,13 +345,13 @@ float idConsoleLocal::DrawFPS( float y )
 		ImVec4 colorWhite( 1.0f, 1.0f, 1.0f, 1.0f );
 		ImVec4 colorRed( 1.0f, 0.0f, 0.0f, 1.0f );
 
-		ImGui::TextColored( gameThreadTotalTime > maxTime ? colorRed : colorWhite,			"G+RF:    %4d ms", gameThreadTotalTime );
-		ImGui::TextColored( gameThreadGameTime > maxTime ? colorRed : colorWhite,			"G:       %4d ms", gameThreadGameTime );
-		ImGui::TextColored( gameThreadRenderTime > maxTime ? colorRed : colorWhite,			"RF:      %4d ms", gameThreadRenderTime );
-		ImGui::TextColored( rendererBackEndTime > maxTime * 1000 ? colorRed : colorWhite,	"RB:      %4d ms", int( rendererBackEndTime ) );
-		ImGui::TextColored( rendererShadowsTime > maxTime * 1000 ? colorRed : colorWhite,	"SHADOWS: %4d ms", int( rendererShadowsTime ) );
-		ImGui::TextColored( rendererGPUIdleTime > maxTime * 1000 ? colorRed : colorWhite,	"IDLE:    %4d ms", int( rendererGPUIdleTime ) );
-		ImGui::TextColored( rendererGPUTime > maxTime * 1000 ? colorRed : colorWhite,		"GPU:     %4d ms", int( rendererGPUTime ) );
+		ImGui::TextColored( gameThreadTotalTime > maxTime ? colorRed : colorWhite,	"G+RF:    %5llu us", gameThreadTotalTime );
+		ImGui::TextColored( gameThreadGameTime > maxTime ? colorRed : colorWhite,	"G:       %5llu us", gameThreadGameTime );
+		ImGui::TextColored( gameThreadRenderTime > maxTime ? colorRed : colorWhite,	"RF:      %5llu us", gameThreadRenderTime );
+		ImGui::TextColored( rendererBackEndTime > maxTime ? colorRed : colorWhite,	"RB:      %5llu us", rendererBackEndTime );
+		ImGui::TextColored( rendererShadowsTime > maxTime ? colorRed : colorWhite,	"SHADOWS: %5llu us", rendererShadowsTime );
+		ImGui::TextColored( rendererGPUIdleTime > maxTime ? colorRed : colorWhite,	"IDLE:    %5llu us", rendererGPUIdleTime );
+		ImGui::TextColored( rendererGPUTime > maxTime ? colorRed : colorWhite,		"GPU:     %5llu us", rendererGPUTime );
 
 		ImGui::End();
 	}
