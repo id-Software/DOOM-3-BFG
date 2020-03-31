@@ -584,7 +584,7 @@ CONSOLE_COMMAND( exportMapToOBJ, "Convert .map file to .obj/.mtl ", idCmdSystem:
 
 
 
-CONSOLE_COMMAND( convertMap, "Convert .map file to new map format with polygons instead of brushes ", idCmdSystem::ArgCompletion_MapNameNoJson )
+CONSOLE_COMMAND( convertMap, "Convert .map file to new map format with polygons instead of brushes", idCmdSystem::ArgCompletion_MapNameNoJson )
 {
 	common->SetRefreshOnPrint( true );
 
@@ -627,7 +627,7 @@ CONSOLE_COMMAND( convertMap, "Convert .map file to new map format with polygons 
 }
 
 
-CONSOLE_COMMAND( convertMapToJSON, "Convert .map file to new map format with polygons instead of brushes ", idCmdSystem::ArgCompletion_MapNameNoJson )
+CONSOLE_COMMAND( convertMapToJSON, "Convert .map file to new .json map format with polygons instead of brushes", idCmdSystem::ArgCompletion_MapNameNoJson )
 {
 	common->SetRefreshOnPrint( true );
 

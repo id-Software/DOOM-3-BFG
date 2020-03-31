@@ -33,8 +33,9 @@ _______________________________
 
 - Turned off Half-Lambert lighting hack in favor of IBL
 
-- Vulkan version builds on Linux. Big thanks to Eric Womer for helping out the SDL part.
+- Vulkan version builds on Linux. Big thanks to Eric Womer for helping out with the SDL 2 part
 
+- com_showFPS 1 uses ImGui to show more detailed renderer stats like the console prints with r_speeds
 
 
 

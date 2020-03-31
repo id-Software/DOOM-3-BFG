@@ -744,7 +744,7 @@ void R_ReadTiledPixels( int width, int height, byte* buffer, renderView_t* ref =
 	}
 
 	// make sure the game / draw thread has completed
-	//commonLocal.WaitGameThread();
+	commonLocal.WaitGameThread();
 
 	// discard anything currently on the list
 	tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
