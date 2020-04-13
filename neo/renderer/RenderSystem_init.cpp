@@ -941,6 +941,7 @@ void idRenderSystemLocal::TakeScreenshot( int width, int height, const char* fil
 		R_StaticFree( shortBuffer );
 		r_jitter.SetBool( false );
 	}
+
 	if( exten == PNG )
 	{
 		R_WritePNG( finalFileName, buffer, 3, width, height, false, "fs_basepath" );

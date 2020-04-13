@@ -976,13 +976,19 @@ retry:
 						//idLib::Warning( "image %s failed to load, using %s instead", origName.c_str(), name.c_str());
 						break;
 					}
+
+					if( !pic && timestamp && *timestamp != FILE_NOT_FOUND_TIMESTAMP )
+					{
+						// we are only interested in the timestamp and we got one
+						break;
+					}
 				}
 			}
 		}
 
 		if( pbrImageLookup )
 		{
-			if( ( pic && *pic == NULL ) || ( timestamp && *timestamp == FILE_NOT_FOUND_TIMESTAMP ) )
+			if( ( pic && *pic == NULL ) || ( !pic && timestamp && *timestamp == FILE_NOT_FOUND_TIMESTAMP ) )
 			{
 				name = origName;
 				name.ExtractFileExtension( ext );
@@ -991,9 +997,9 @@ retry:
 				goto retry;
 			}
 
-			if( pic && *pic != NULL )
+			if( ( pic && *pic != NULL ) || ( !pic && timestamp && *timestamp != FILE_NOT_FOUND_TIMESTAMP ) )
 			{
-				idLib::Printf( "PBR hack: using '%s' instead of '%s'", name.c_str(), origName.c_str() );
+				idLib::Printf( "PBR hack: using '%s' instead of '%s'\n", name.c_str(), origName.c_str() );
 				*usage = TD_SPECULAR_PBR_RMAO;
 			}
 		}
