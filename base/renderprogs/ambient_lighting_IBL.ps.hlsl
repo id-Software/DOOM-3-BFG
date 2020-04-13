@@ -102,7 +102,7 @@ void main( PS_IN fragment, out PS_OUT result ) {
 	
 #if 1 //defined(USE_PBR)
 		
-#if 1 //defined(USE_METALNESS)
+#if defined(USE_PBR)
 	const half metallic = specMapSRGB.g;
 	const half roughness = specMapSRGB.r;
 	const half glossiness = 1.0 - roughness;
@@ -118,6 +118,9 @@ void main( PS_IN fragment, out PS_OUT result ) {
 	
 	half3 diffuseColor = baseColor * ( 1.0 - metallic );
 	half3 specularColor = lerp( dielectricColor, baseColor, metallic );
+
+	diffuseColor = half3( 0.0, 0.0, 0.0 );
+	specularColor = half3( 0.0, 1.0, 0.0 );
 #else
 	// HACK calculate roughness from D3 gloss maps
 	float Y = dot( LUMINANCE_SRGB.rgb, specMapSRGB.rgb );
@@ -130,6 +133,8 @@ void main( PS_IN fragment, out PS_OUT result ) {
 	half3 diffuseColor = diffuseMap;
 	half3 specularColor = specMap.rgb;
 
+	diffuseColor = half3( 0.0, 0.0, 0.0 );
+	specularColor = half3( 1.0, 0.0, 0.0 );
 #endif
 	
 	float3 diffuseLight = ( texCUBE( samp7, globalNormal ).rgb ) * diffuseColor * ( rpDiffuseModifier.xyz ) * 3.5f;

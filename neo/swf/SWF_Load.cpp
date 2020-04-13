@@ -914,7 +914,7 @@ bool idSWF::LoadJSON( const char* filename )
 			byte* imageData = NULL;
 			int width, height;
 			ID_TIME_T timestamp;
-			R_LoadImage( imageName.c_str(), &imageData, &width, &height, &timestamp, false );
+			R_LoadImage( imageName.c_str(), &imageData, &width, &height, &timestamp, false, NULL );
 			if( imageData != NULL )
 			{
 				LoadImage( i, imageData, width, height );

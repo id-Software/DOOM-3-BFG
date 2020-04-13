@@ -1495,7 +1495,7 @@ void R_MakeAmbientMap_f( const idCmdArgs& args )
 		common->Printf( "loading %s\n", fullname.c_str() );
 		const bool captureToImage = false;
 		common->UpdateScreen( captureToImage );
-		R_LoadImage( fullname, &buffers[i], &width, &height, NULL, true );
+		R_LoadImage( fullname, &buffers[i], &width, &height, NULL, true, NULL );
 		if( !buffers[i] )
 		{
 			common->Printf( "failed.\n" );
@@ -1609,7 +1609,7 @@ void R_TransformCubemap( const char* orgDirection[6], const char* orgDir, const 
 		common->Printf( "loading %s\n", fullname.c_str() );
 		const bool captureToImage = false;
 		common->UpdateScreen( captureToImage );
-		R_LoadImage( fullname, &buffers[i], &width, &height, NULL, true );
+		R_LoadImage( fullname, &buffers[i], &width, &height, NULL, true, NULL );
 
 		//check if the buffer is troublesome
 		if( !buffers[i] )

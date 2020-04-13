@@ -654,7 +654,7 @@ void R_CombineCubeImages_f( const idCmdArgs& args )
 			sprintf( filename, "%s%i%04i.tga", baseName.c_str(), orderRemap[side], frameNum );
 
 			idLib::Printf( "reading %s\n", filename );
-			R_LoadImage( filename, &pics[side], &width, &height, NULL, true );
+			R_LoadImage( filename, &pics[side], &width, &height, NULL, true, NULL );
 
 			if( !pics[side] )
 			{

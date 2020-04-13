@@ -892,7 +892,7 @@ If pic is NULL, the image won't actually be loaded, it will just find the
 timestamp.
 =================
 */
-void R_LoadImage( const char* cname, byte** pic, int* width, int* height, ID_TIME_T* timestamp, bool makePowerOf2 )
+void R_LoadImage( const char* cname, byte** pic, int* width, int* height, ID_TIME_T* timestamp, bool makePowerOf2, textureUsage_t* usage )
 {
 	idStr name = cname;
 
@@ -925,9 +925,32 @@ void R_LoadImage( const char* cname, byte** pic, int* width, int* height, ID_TIM
 	name.ExtractFileExtension( ext );
 	idStr origName = name;
 
-// RB begin
+	// RB begin
+
+	// PBR HACK - look for the same file name that provides a _rmao[d] suffix and prefer it
+	// if it is available, otherwise
+	bool pbrImageLookup = false;
+	if( usage && *usage == TD_SPECULAR )
+	{
+		name.StripFileExtension();
+
+		if( name.StripTrailingOnce( "_s" ) )
+		{
+			name += "_rmao";
+		}
+
+		ext = "png";
+		name.DefaultFileExtension( ".png" );
+
+		pbrImageLookup = true;
+	}
+
+retry:
+
+	// try
 	if( !ext.IsEmpty() )
 	{
+		// try only the image with the specified extension: default .tga
 		int i;
 		for( i = 0; i < numImageLoaders; i++ )
 		{
@@ -940,9 +963,9 @@ void R_LoadImage( const char* cname, byte** pic, int* width, int* height, ID_TIM
 
 		if( i < numImageLoaders )
 		{
-			if( pic && *pic == NULL )
+			if( ( pic && *pic == NULL ) || ( timestamp && *timestamp == FILE_NOT_FOUND_TIMESTAMP ) )
 			{
-				// image with the specified extension was not found so try all formats
+				// image with the specified extension was not found so try all extensions
 				for( i = 0; i < numImageLoaders; i++ )
 				{
 					name.SetFileExtension( imageLoaders[i].ext );
@@ -950,14 +973,32 @@ void R_LoadImage( const char* cname, byte** pic, int* width, int* height, ID_TIM
 
 					if( pic && *pic != NULL )
 					{
-						//common->Warning("image %s failed to load, using %s instead", origName.c_str(), name.c_str());
+						//idLib::Warning( "image %s failed to load, using %s instead", origName.c_str(), name.c_str());
 						break;
 					}
 				}
 			}
 		}
+
+		if( pbrImageLookup )
+		{
+			if( ( pic && *pic == NULL ) || ( timestamp && *timestamp == FILE_NOT_FOUND_TIMESTAMP ) )
+			{
+				name = origName;
+				name.ExtractFileExtension( ext );
+
+				pbrImageLookup = false;
+				goto retry;
+			}
+
+			if( pic && *pic != NULL )
+			{
+				idLib::Printf( "PBR hack: using '%s' instead of '%s'", name.c_str(), origName.c_str() );
+				*usage = TD_SPECULAR_PBR_RMAO;
+			}
+		}
 	}
-// RB end
+	// RB end
 
 	if( ( width && *width < 1 ) || ( height && *height < 1 ) )
 	{
