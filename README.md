@@ -126,16 +126,18 @@ Left: No post processing except HDR tone mapping. Right: r_useFilmicPostProcessi
 
 * ~~Fix GPU Skinning with Vulkan~~
 * ~~Fix the lighting with stencil shadows with Vulkan~~
-* Finish adapting the Vulkan renderer backend based on Dustin Land's vkDOOM3
-* Port all the extras like HDR, Shadow Mapping and Post Processing to Vulkan
+* ~~Finish adapting the Vulkan renderer backend based on Dustin Land's vkDOOM3~~
+* Port all the RBDOOM-3-BFG specific extras like HDR, Shadow Mapping and Post Processing to Vulkan
 * ~~Use ImGui to show renderer stats like com_showFPS 1 and more detailed renderer stats~~
-* Get ImGui to run with Vulkan and show the Vulkan memory fragmentation with it live
+* Get ImGui to run with Vulkan and visualize the Vulkan memory fragmentation based on AMD's VMA library
 
 * Finish PBR texture support
 * Finish partly integrated IBL lighting and [Light probe interpolation using tetrahedral tessellations](https://gdcvault.com/play/1015312/Light-Probe-Interpolation-Using-Tetrahedral)
 * Generate IBL probes on the GPU through compute shaders
 * Add Screen Space Reflections
 * Evaluate Blender 2.8 as a complete replacement for D3Radiant and update the scripts for it
+* Add glTF 2.0 support for static models and animations because it is the new JPG of 3D ;)
+* Improve SMAA with Temporal Anti-Aliasing (SMAA T2x)
 
 ---
 # May or may not ".plan" <a name=".plan2"></a>
@@ -147,9 +149,7 @@ Left: No post processing except HDR tone mapping. Right: r_useFilmicPostProcessi
 * Add texture compression based on [Basis Universal GPU Texture and Texture Video Compression Codec](https://github.com/binomialLLC/basis_universal)
 * Scrap complex and complicated multipass forward shading with a simpler forward+ solution
 * Rip & Tear renderer backend with modern approaches by [The-Forge](https://github.com/ConfettiFX/The-Forge)
-* Improve SMAA with Temporal Anti-Aliasing (SMAA T2x)
 * Replace collision detection and physics with PhysX 4.1
-* Add glTF 2.0 support for static models and animations because it is the new JPG of 3D ;)
 
 ---
 # General Notes <a name="notes"></a>
@@ -385,6 +385,7 @@ dmap -glview <mapfile>                 | DMap option that exports the BSP areas 
 convertMapToJSON <mapfile>             | Command: Convert .map file to new .json map format with polygons instead of brushes. This was easy because the original .map format is only an array of entities and each entity has a simple dictionary for its values. This JSON format contains all level data and can be imported and exported to Blender without loosing any data. The new DMap can also compile map files with the .json suffix like regular maps.
 
 <img src="https://i.imgur.com/2k9IvJC.png" width="384">
+<img src="https://i.imgur.com/MnUVKcl.png" width="384">
 ____
 
 # Known Issues <a name="issues"></a>
