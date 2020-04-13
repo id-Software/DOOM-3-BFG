@@ -14,7 +14,7 @@ Thank you for downloading RBDOOM-3-BFG.
 
 _______________________________________
 
-TBD - Changes since RBDOOM-3-BFG 1.2.0
+TBD mid 2020 - Changes since RBDOOM-3-BFG 1.2.0
 _______________________________
 
 - Fixed GPU Skinning with Vulkan
@@ -36,6 +36,8 @@ _______________________________
 - Vulkan version builds on Linux. Big thanks to Eric Womer for helping out with the SDL 2 part
 
 - com_showFPS 1 uses ImGui to show more detailed renderer stats like the console prints with r_speeds
+
+- Removed 32bit support: FFmpeg and OpenAL libraries are only distributed as Win64 versions, 32bit CMakes files are gone
 
 
 

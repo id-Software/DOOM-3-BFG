@@ -1342,32 +1342,9 @@ endif()
 include_directories(
 			.
 			idlib
-			#libs/curl/include
-			#libs/openal/include
-			#libs/freetype/include
             )
-			
-#link_directories(
-#			${CMAKE_CURRENT_SOURCE_DIR}/libs/curl/lib
-#			${CMAKE_CURRENT_SOURCE_DIR}/libs/openal/lib)
 
 if(MSVC)
-
-	# if(MSVC_VERSION EQUAL 1700)
-		# set(DirectX_LIBRARIES
-			# dinput8
-			# dsound
-			# dxguid
-			# #dxerr
-			# Xinput
-			# xaudio2.lib
-			# )
-		
-		# if(NOT OPENAL)
-			# list(APPEND DirectX_LIBRARIES xaudio2.lib)
-		# endif()
-		
-	# else()
 	
 	if(WINDOWS10)
 		set(DirectX_LIBRARIES
@@ -1430,10 +1407,10 @@ if(MSVC)
 			OpenAL32)
 			
 		if(CMAKE_CL_64)
-			install(FILES libs/openal-soft/lib/win64/OpenAL64.dll DESTINATION .)
+			install(FILES libs/openal-soft/lib/bin/win64/OpenAL32.dll DESTINATION .)
 		else()
-			install(FILES libs/openal-soft/lib/win32/OpenAL32.dll DESTINATION .)
-			install(FILES libs/openal-soft/lib/win32/OpenAL32.pdb DESTINATION .)
+			install(FILES libs/openal-soft/lib/bin/win32/OpenAL32.dll DESTINATION .)
+			install(FILES libs/openal-soft/lib/bin/win32/OpenAL32.pdb DESTINATION .)
 		endif()
 	else()
 		list(APPEND RBDOOM3_INCLUDES ${XAUDIO2_INCLUDES})

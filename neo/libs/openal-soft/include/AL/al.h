@@ -363,7 +363,7 @@ typedef void ALvoid;
 /** No error. */
 #define AL_NO_ERROR                              0
 
-/** Invalid name parameter passed to AL call. */
+/** Invalid name paramater passed to AL call. */
 #define AL_INVALID_NAME                          0xA001
 
 /** Invalid enum parameter passed to AL call. */

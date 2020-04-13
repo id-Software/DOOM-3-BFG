@@ -60,7 +60,7 @@ I started this project in 2012 and focused on making this code being future proo
 * Flexible build system using CMake allowing to add optional features like Vulkan rendering, FFmpeg for videos or OpenAL for sound
 * Linux support for both GCC and Clang with a proper SDL 2 OS layer including gamepad support
 * Win64 support and Visual Studio support up to VS 2019
-* MacOS X support (might be outdated due to Apple's latest API restrictions)
+* ~~MacOS X support~~ (might be outdated due to Apple's latest API restrictions)
 * OpenAL Soft sound backend primarily developed for Linux but works on Windows as well
 * Sourcecode cleanup using the Artistic Style C++ beautifier to ensure the Git diffs and logs are clean
 * Fixed tons of warnings using the Clang compiler
@@ -274,7 +274,7 @@ Existing repositories can be updated manually:
 ---
 # Installation, Getting the Game Data, Running the Game <a name="installation"></a>
 
-If you use the prebuilt `Win32` or `Win64` binaries then simply extract them to your
+If you use the prebuilt `Win64` binaries then simply extract them to your
 `C:\Program Files (x86)\Steam\SteamApps\common\Doom 3 BFG Edition\` directory and run RBDoom3BFG.exe.
 
 ---
