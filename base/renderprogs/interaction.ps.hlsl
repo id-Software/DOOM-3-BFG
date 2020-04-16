@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
-Copyright (C) 2013-2014 Robert Beckebans
+Copyright (C) 2013-2020 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
 
@@ -30,23 +30,23 @@ If you have questions concerning this license or the applicable additional terms
 #include "global.inc.hlsl"
 #include "BRDF.inc.hlsl"
 
-uniform sampler2D samp0 : register(s0); // texture 1 is the per-surface normal map
-uniform sampler2D samp1 : register(s1); // texture 3 is the per-surface specular or roughness/metallic/AO mixer map
-uniform sampler2D samp2 : register(s2); // texture 2 is the per-surface baseColor map 
-uniform sampler2D samp3 : register(s3); // texture 4 is the light falloff texture
-uniform sampler2D samp4 : register(s4); // texture 5 is the light projection texture
+uniform sampler2D				samp0 : register(s0); // texture 1 is the per-surface normal map
+uniform sampler2D				samp1 : register(s1); // texture 3 is the per-surface specular or roughness/metallic/AO mixer map
+uniform sampler2D				samp2 : register(s2); // texture 2 is the per-surface baseColor map 
+uniform sampler2D				samp3 : register(s3); // texture 4 is the light falloff texture
+uniform sampler2D				samp4 : register(s4); // texture 5 is the light projection texture
 
 struct PS_IN
 {
-	half4 position	: VPOS;
-	half4 texcoord0	: TEXCOORD0_centroid;
-	half4 texcoord1	: TEXCOORD1_centroid;
-	half4 texcoord2	: TEXCOORD2_centroid;
-	half4 texcoord3	: TEXCOORD3_centroid;
-	half4 texcoord4	: TEXCOORD4_centroid;
-	half4 texcoord5	: TEXCOORD5_centroid;
-	half4 texcoord6	: TEXCOORD6_centroid;
-	half4 color		: COLOR0;
+	half4 position		: VPOS;
+	half4 texcoord0		: TEXCOORD0_centroid;
+	half4 texcoord1		: TEXCOORD1_centroid;
+	half4 texcoord2		: TEXCOORD2_centroid;
+	half4 texcoord3		: TEXCOORD3_centroid;
+	half4 texcoord4		: TEXCOORD4_centroid;
+	half4 texcoord5		: TEXCOORD5_centroid;
+	half4 texcoord6		: TEXCOORD6_centroid;
+	half4 color			: COLOR0;
 };
 
 struct PS_OUT
@@ -96,9 +96,9 @@ void main( PS_IN fragment, out PS_OUT result )
 	half3 halfAngleVector = normalize( lightVector + viewVector );
 	half hdotN = clamp( dot3( halfAngleVector, localNormal ), 0.0, 1.0 );
 
-#if 1 //defined(USE_PBR)
+#if 1
 		
-#if 1 //defined(USE_METALNESS)
+#if defined( USE_PBR )
 	const half metallic = specMapSRGB.g;
 	const half roughness = specMapSRGB.r;
 	const half glossiness = 1.0 - roughness;

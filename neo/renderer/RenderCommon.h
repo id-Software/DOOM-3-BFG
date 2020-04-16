@@ -552,6 +552,8 @@ struct viewDef_t
 // simple interaction shader
 struct drawInteraction_t
 {
+	const viewLight_t*	vLight;
+
 	const drawSurf_t* 	surf;
 
 	idImage* 			bumpImage;
@@ -561,8 +563,6 @@ struct drawInteraction_t
 	idVec4				diffuseColor;	// may have a light color baked into it
 	idVec4				specularColor;	// may have a light color baked into it
 	stageVertexColor_t	vertexColor;	// applies to both diffuse and specular
-
-	int					ambientLight;	// use tr.ambientNormalMap instead of normalization cube map
 
 	// these are loaded into the vertex program
 	idVec4				bumpMatrix[2];
@@ -1091,6 +1091,7 @@ extern idCVar r_ssaoFiltering;
 extern idCVar r_useHierarchicalDepthBuffer;
 
 extern idCVar r_useIBL;
+extern idCVar r_pbrDebug;
 
 extern idCVar r_exposure;
 // RB end

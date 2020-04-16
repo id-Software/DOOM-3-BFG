@@ -396,6 +396,59 @@ public:
 	{
 		BindShader_Builtin( BUILTIN_INTERACTION_SHADOW_MAPPING_PARALLEL_SKINNED );
 	}
+
+	// PBR variantes
+
+	void	BindShader_PBR_Interaction()
+	{
+		BindShader_Builtin( BUILTIN_PBR_INTERACTION );
+	}
+
+	void	BindShader_PBR_InteractionSkinned()
+	{
+		BindShader_Builtin( BUILTIN_PBR_INTERACTION_SKINNED );
+	}
+
+	void	BindShader_PBR_InteractionAmbient()
+	{
+		BindShader_Builtin( BUILTIN_PBR_INTERACTION_AMBIENT );
+	}
+
+	void	BindShader_PBR_InteractionAmbientSkinned()
+	{
+		BindShader_Builtin( BUILTIN_PBR_INTERACTION_AMBIENT_SKINNED );
+	}
+
+	// RB begin
+	void	BindShader_PBR_Interaction_ShadowMapping_Spot()
+	{
+		BindShader_Builtin( BUILTIN_PBR_INTERACTION_SHADOW_MAPPING_SPOT );
+	}
+
+	void	BindShader_PBR_Interaction_ShadowMapping_Spot_Skinned()
+	{
+		BindShader_Builtin( BUILTIN_PBR_INTERACTION_SHADOW_MAPPING_SPOT_SKINNED );
+	}
+
+	void	BindShader_PBR_Interaction_ShadowMapping_Point()
+	{
+		BindShader_Builtin( BUILTIN_PBR_INTERACTION_SHADOW_MAPPING_POINT );
+	}
+
+	void	BindShader_PBR_Interaction_ShadowMapping_Point_Skinned()
+	{
+		BindShader_Builtin( BUILTIN_PBR_INTERACTION_SHADOW_MAPPING_POINT_SKINNED );
+	}
+
+	void	BindShader_PBR_Interaction_ShadowMapping_Parallel()
+	{
+		BindShader_Builtin( BUILTIN_PBR_INTERACTION_SHADOW_MAPPING_PARALLEL );
+	}
+
+	void	BindShader_PBR_Interaction_ShadowMapping_Parallel_Skinned()
+	{
+		BindShader_Builtin( BUILTIN_PBR_INTERACTION_SHADOW_MAPPING_PARALLEL_SKINNED );
+	}
 	// RB end
 
 	void	BindShader_Environment()
@@ -690,6 +743,18 @@ private:
 		BUILTIN_INTERACTION_SHADOW_MAPPING_POINT_SKINNED,
 		BUILTIN_INTERACTION_SHADOW_MAPPING_PARALLEL,
 		BUILTIN_INTERACTION_SHADOW_MAPPING_PARALLEL_SKINNED,
+
+		BUILTIN_PBR_INTERACTION,
+		BUILTIN_PBR_INTERACTION_SKINNED,
+		BUILTIN_PBR_INTERACTION_AMBIENT,
+		BUILTIN_PBR_INTERACTION_AMBIENT_SKINNED,
+
+		BUILTIN_PBR_INTERACTION_SHADOW_MAPPING_SPOT,
+		BUILTIN_PBR_INTERACTION_SHADOW_MAPPING_SPOT_SKINNED,
+		BUILTIN_PBR_INTERACTION_SHADOW_MAPPING_POINT,
+		BUILTIN_PBR_INTERACTION_SHADOW_MAPPING_POINT_SKINNED,
+		BUILTIN_PBR_INTERACTION_SHADOW_MAPPING_PARALLEL,
+		BUILTIN_PBR_INTERACTION_SHADOW_MAPPING_PARALLEL_SKINNED,
 		// RB end
 		BUILTIN_ENVIRONMENT,
 		BUILTIN_ENVIRONMENT_SKINNED,

@@ -1273,43 +1273,64 @@ void idRenderBackend::SetupInteractionStage( const shaderStage_t* surfaceStage, 
 idRenderBackend::DrawSingleInteraction
 =================
 */
-void idRenderBackend::DrawSingleInteraction( drawInteraction_t* din, bool useIBL )
+void idRenderBackend::DrawSingleInteraction( drawInteraction_t* din, bool useFastPath, bool useIBL, bool setInteractionShader )
 {
-	if( din->bumpImage == NULL )
+	if( !useFastPath )
 	{
-		// stage wasn't actually an interaction
-		return;
+		if( din->bumpImage == NULL )
+		{
+			// stage wasn't actually an interaction
+			return;
+		}
+
+		if( din->diffuseImage == NULL || r_skipDiffuse.GetBool() )
+		{
+			// this isn't a YCoCg black, but it doesn't matter, because
+			// the diffuseColor will also be 0
+			din->diffuseImage = globalImages->blackImage;
+		}
+		if( din->specularImage == NULL || r_skipSpecular.GetBool() || ( din->vLight && din->vLight->lightShader->IsAmbientLight() ) )
+		{
+			din->specularImage = globalImages->blackImage;
+		}
+		if( r_skipBump.GetBool() )
+		{
+			din->bumpImage = globalImages->flatNormalMap;
+		}
+
+		// if we wouldn't draw anything, don't call the Draw function
+		const bool diffuseIsBlack = ( din->diffuseImage == globalImages->blackImage )
+									|| ( ( din->diffuseColor[0] <= 0 ) && ( din->diffuseColor[1] <= 0 ) && ( din->diffuseColor[2] <= 0 ) );
+		const bool specularIsBlack = ( din->specularImage == globalImages->blackImage )
+									 || ( ( din->specularColor[0] <= 0 ) && ( din->specularColor[1] <= 0 ) && ( din->specularColor[2] <= 0 ) );
+		if( diffuseIsBlack && specularIsBlack )
+		{
+			return;
+		}
+
+		// bump matrix
+		SetVertexParm( RENDERPARM_BUMPMATRIX_S, din->bumpMatrix[0].ToFloatPtr() );
+		SetVertexParm( RENDERPARM_BUMPMATRIX_T, din->bumpMatrix[1].ToFloatPtr() );
+
+		// diffuse matrix
+		SetVertexParm( RENDERPARM_DIFFUSEMATRIX_S, din->diffuseMatrix[0].ToFloatPtr() );
+		SetVertexParm( RENDERPARM_DIFFUSEMATRIX_T, din->diffuseMatrix[1].ToFloatPtr() );
+
+		// specular matrix
+		SetVertexParm( RENDERPARM_SPECULARMATRIX_S, din->specularMatrix[0].ToFloatPtr() );
+		SetVertexParm( RENDERPARM_SPECULARMATRIX_T, din->specularMatrix[1].ToFloatPtr() );
+
+		RB_SetVertexColorParms( din->vertexColor );
+
+		SetFragmentParm( RENDERPARM_DIFFUSEMODIFIER, din->diffuseColor.ToFloatPtr() );
+		SetFragmentParm( RENDERPARM_SPECULARMODIFIER, din->specularColor.ToFloatPtr() );
 	}
 
-	if( din->diffuseImage == NULL || r_skipDiffuse.GetBool() )
-	{
-		// this isn't a YCoCg black, but it doesn't matter, because
-		// the diffuseColor will also be 0
-		din->diffuseImage = globalImages->blackImage;
-	}
-	if( din->specularImage == NULL || r_skipSpecular.GetBool() || din->ambientLight )
-	{
-		din->specularImage = globalImages->blackImage;
-	}
-	if( r_skipBump.GetBool() )
-	{
-		din->bumpImage = globalImages->flatNormalMap;
-	}
+	const textureUsage_t specUsage = din->specularImage->GetUsage();
 
-	// if we wouldn't draw anything, don't call the Draw function
-	const bool diffuseIsBlack = ( din->diffuseImage == globalImages->blackImage )
-								|| ( ( din->diffuseColor[0] <= 0 ) && ( din->diffuseColor[1] <= 0 ) && ( din->diffuseColor[2] <= 0 ) );
-	const bool specularIsBlack = ( din->specularImage == globalImages->blackImage )
-								 || ( ( din->specularColor[0] <= 0 ) && ( din->specularColor[1] <= 0 ) && ( din->specularColor[2] <= 0 ) );
-	if( diffuseIsBlack && specularIsBlack )
-	{
-		return;
-	}
-
+	// RB begin
 	if( useIBL )
 	{
-		const textureUsage_t specUsage = din->specularImage->GetUsage();
-
 		if( specUsage == TD_SPECULAR_PBR_RMAO || specUsage == TD_SPECULAR_PBR_RMAOD )
 		{
 			// PBR path with roughness, metal and AO
@@ -1333,24 +1354,154 @@ void idRenderBackend::DrawSingleInteraction( drawInteraction_t* din, bool useIBL
 				renderProgManager.BindShader_ImageBasedLighting();
 			}
 		}
+
+		GL_SelectTexture( INTERACTION_TEXUNIT_AMBIENT_CUBE1 );
+		globalImages->defaultUACIrradianceCube->Bind();
+
+		GL_SelectTexture( INTERACTION_TEXUNIT_SPECULAR_CUBE1 );
+		globalImages->defaultUACRadianceCube->Bind();
 	}
+	else if( setInteractionShader )
+	{
+		if( specUsage == TD_SPECULAR_PBR_RMAO || specUsage == TD_SPECULAR_PBR_RMAOD )
+		{
+			// PBR path with roughness, metal and AO
+			// select the render prog
 
-	// bump matrix
-	SetVertexParm( RENDERPARM_BUMPMATRIX_S, din->bumpMatrix[0].ToFloatPtr() );
-	SetVertexParm( RENDERPARM_BUMPMATRIX_T, din->bumpMatrix[1].ToFloatPtr() );
+			if( din->vLight->lightShader->IsAmbientLight() )
+			{
+				if( din->surf->jointCache )
+				{
+					renderProgManager.BindShader_PBR_InteractionAmbientSkinned();
+				}
+				else
+				{
+					renderProgManager.BindShader_PBR_InteractionAmbient();
+				}
+			}
+			else
+			{
+				if( r_useShadowMapping.GetBool() && din->vLight->globalShadows )
+				{
+					// RB: we have shadow mapping enabled and shadow maps so do a shadow compare
 
-	// diffuse matrix
-	SetVertexParm( RENDERPARM_DIFFUSEMATRIX_S, din->diffuseMatrix[0].ToFloatPtr() );
-	SetVertexParm( RENDERPARM_DIFFUSEMATRIX_T, din->diffuseMatrix[1].ToFloatPtr() );
+					if( din->vLight->parallel )
+					{
+						if( din->surf->jointCache )
+						{
+							renderProgManager.BindShader_PBR_Interaction_ShadowMapping_Parallel_Skinned();
+						}
+						else
+						{
+							renderProgManager.BindShader_PBR_Interaction_ShadowMapping_Parallel();
+						}
+					}
+					else if( din->vLight->pointLight )
+					{
+						if( din->surf->jointCache )
+						{
+							renderProgManager.BindShader_PBR_Interaction_ShadowMapping_Point_Skinned();
+						}
+						else
+						{
+							renderProgManager.BindShader_PBR_Interaction_ShadowMapping_Point();
+						}
+					}
+					else
+					{
+						if( din->surf->jointCache )
+						{
+							renderProgManager.BindShader_PBR_Interaction_ShadowMapping_Spot_Skinned();
+						}
+						else
+						{
+							renderProgManager.BindShader_PBR_Interaction_ShadowMapping_Spot();
+						}
+					}
+				}
+				else
+				{
+					if( din->surf->jointCache )
+					{
+						renderProgManager.BindShader_PBR_InteractionSkinned();
+					}
+					else
+					{
+						renderProgManager.BindShader_PBR_Interaction();
+					}
+				}
+			}
+		}
+		else
+		{
+			// only oldschool D3 gloss maps provided
 
-	// specular matrix
-	SetVertexParm( RENDERPARM_SPECULARMATRIX_S, din->specularMatrix[0].ToFloatPtr() );
-	SetVertexParm( RENDERPARM_SPECULARMATRIX_T, din->specularMatrix[1].ToFloatPtr() );
+			if( din->vLight->lightShader->IsAmbientLight() )
+			{
+				if( din->surf->jointCache )
+				{
+					renderProgManager.BindShader_InteractionAmbientSkinned();
+				}
+				else
+				{
+					renderProgManager.BindShader_InteractionAmbient();
+				}
+			}
+			else
+			{
+				if( r_useShadowMapping.GetBool() && din->vLight->globalShadows )
+				{
+					// RB: we have shadow mapping enabled and shadow maps so do a shadow compare
 
-	RB_SetVertexColorParms( din->vertexColor );
-
-	SetFragmentParm( RENDERPARM_DIFFUSEMODIFIER, din->diffuseColor.ToFloatPtr() );
-	SetFragmentParm( RENDERPARM_SPECULARMODIFIER, din->specularColor.ToFloatPtr() );
+					if( din->vLight->parallel )
+					{
+						if( din->surf->jointCache )
+						{
+							renderProgManager.BindShader_Interaction_ShadowMapping_Parallel_Skinned();
+						}
+						else
+						{
+							renderProgManager.BindShader_Interaction_ShadowMapping_Parallel();
+						}
+					}
+					else if( din->vLight->pointLight )
+					{
+						if( din->surf->jointCache )
+						{
+							renderProgManager.BindShader_Interaction_ShadowMapping_Point_Skinned();
+						}
+						else
+						{
+							renderProgManager.BindShader_Interaction_ShadowMapping_Point();
+						}
+					}
+					else
+					{
+						if( din->surf->jointCache )
+						{
+							renderProgManager.BindShader_Interaction_ShadowMapping_Spot_Skinned();
+						}
+						else
+						{
+							renderProgManager.BindShader_Interaction_ShadowMapping_Spot();
+						}
+					}
+				}
+				else
+				{
+					if( din->surf->jointCache )
+					{
+						renderProgManager.BindShader_InteractionSkinned();
+					}
+					else
+					{
+						renderProgManager.BindShader_Interaction();
+					}
+				}
+			}
+		}
+	}
+	// RB end
 
 	// texture 0 will be the per-surface bump map
 	GL_SelectTexture( INTERACTION_TEXUNIT_BUMP );
@@ -1450,7 +1601,7 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 	const float* lightRegs = vLight->shaderRegisters;
 
 	drawInteraction_t inter = {};
-	inter.ambientLight = lightShader->IsAmbientLight();
+	inter.vLight = vLight;
 
 	//---------------------------------
 	// Split out the complex surfaces from the fast-path surfaces
@@ -1625,71 +1776,6 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 		{
 			const drawSurf_t* const surf = allSurfaces[ sortedSurfNum ];
 
-			// select the render prog
-			if( lightShader->IsAmbientLight() )
-			{
-				if( surf->jointCache )
-				{
-					renderProgManager.BindShader_InteractionAmbientSkinned();
-				}
-				else
-				{
-					renderProgManager.BindShader_InteractionAmbient();
-				}
-			}
-			else
-			{
-				if( r_useShadowMapping.GetBool() && vLight->globalShadows )
-				{
-					// RB: we have shadow mapping enabled and shadow maps so do a shadow compare
-
-					if( vLight->parallel )
-					{
-						if( surf->jointCache )
-						{
-							renderProgManager.BindShader_Interaction_ShadowMapping_Parallel_Skinned();
-						}
-						else
-						{
-							renderProgManager.BindShader_Interaction_ShadowMapping_Parallel();
-						}
-					}
-					else if( vLight->pointLight )
-					{
-						if( surf->jointCache )
-						{
-							renderProgManager.BindShader_Interaction_ShadowMapping_Point_Skinned();
-						}
-						else
-						{
-							renderProgManager.BindShader_Interaction_ShadowMapping_Point();
-						}
-					}
-					else
-					{
-						if( surf->jointCache )
-						{
-							renderProgManager.BindShader_Interaction_ShadowMapping_Spot_Skinned();
-						}
-						else
-						{
-							renderProgManager.BindShader_Interaction_ShadowMapping_Spot();
-						}
-					}
-				}
-				else
-				{
-					if( surf->jointCache )
-					{
-						renderProgManager.BindShader_InteractionSkinned();
-					}
-					else
-					{
-						renderProgManager.BindShader_Interaction();
-					}
-				}
-			}
-
 			const idMaterial* surfaceShader = surf->material;
 			const float* surfaceRegs = surf->shaderRegisters;
 
@@ -1825,19 +1911,11 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 			{
 				renderLog.OpenBlock( surf->material->GetName() );
 
-				// texture 0 will be the per-surface bump map
-				GL_SelectTexture( INTERACTION_TEXUNIT_BUMP );
-				surfaceShader->GetFastPathBumpImage()->Bind();
+				inter.bumpImage = surfaceShader->GetFastPathBumpImage();
+				inter.specularImage = surfaceShader->GetFastPathSpecularImage();
+				inter.diffuseImage = surfaceShader->GetFastPathDiffuseImage();
 
-				// texture 1 is the per-surface specular map
-				GL_SelectTexture( INTERACTION_TEXUNIT_SPECULARMIX );
-				surfaceShader->GetFastPathSpecularImage()->Bind();
-
-				// texture 2 is the per-surface diffuse map
-				GL_SelectTexture( INTERACTION_TEXUNIT_BASECOLOR );
-				surfaceShader->GetFastPathDiffuseImage()->Bind();
-
-				DrawElementsWithCounters( surf );
+				DrawSingleInteraction( &inter, true, false, true );
 
 				renderLog.CloseBlock();
 				continue;
@@ -1885,7 +1963,7 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 						// draw any previous interaction
 						if( inter.bumpImage != NULL )
 						{
-							DrawSingleInteraction( &inter, false );
+							DrawSingleInteraction( &inter, false, false, true );
 						}
 						inter.bumpImage = surfaceStage->texture.image;
 						inter.diffuseImage = NULL;
@@ -1903,7 +1981,7 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 						// draw any previous interaction
 						if( inter.diffuseImage != NULL )
 						{
-							DrawSingleInteraction( &inter, false );
+							DrawSingleInteraction( &inter, false, false, true );
 						}
 						inter.diffuseImage = surfaceStage->texture.image;
 						inter.vertexColor = surfaceStage->vertexColor;
@@ -1921,7 +1999,7 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 						// draw any previous interaction
 						if( inter.specularImage != NULL )
 						{
-							DrawSingleInteraction( &inter, false );
+							DrawSingleInteraction( &inter, false, false, true );
 						}
 						inter.specularImage = surfaceStage->texture.image;
 						inter.vertexColor = surfaceStage->vertexColor;
@@ -1933,7 +2011,7 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 			}
 
 			// draw the final interaction
-			DrawSingleInteraction( &inter, false );
+			DrawSingleInteraction( &inter, false, false, true );
 
 			renderLog.CloseBlock();
 		}
@@ -2118,9 +2196,11 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 			else
 #endif
 			{
+#if 0
 				if( useIBL )
 				{
 					// draw Quake 4 style ambient
+					/*
 					if( drawSurf->jointCache )
 					{
 						renderProgManager.BindShader_ImageBasedLightingSkinned();
@@ -2129,6 +2209,7 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 					{
 						renderProgManager.BindShader_ImageBasedLighting();
 					}
+					*/
 
 					GL_SelectTexture( INTERACTION_TEXUNIT_AMBIENT_CUBE1 );
 					globalImages->defaultUACIrradianceCube->Bind();
@@ -2137,7 +2218,10 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 					globalImages->defaultUACRadianceCube->Bind();
 				}
 				else
+#endif
 				{
+					// TODO support PBR textures
+
 					// draw Quake 4 style ambient
 					if( drawSurf->jointCache )
 					{
@@ -2240,24 +2324,22 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 		}
 		*/
 
+		drawInteraction_t inter = {};
+		inter.surf = drawSurf;
+
+		inter.diffuseColor[0] = inter.diffuseColor[1] = inter.diffuseColor[2] = inter.diffuseColor[3] = 1;
+		inter.specularColor[0] = inter.specularColor[1] = inter.specularColor[2] = inter.specularColor[3] = 0;
+
 		// check for the fast path
 		if( surfaceMaterial->GetFastPathBumpImage() && !r_skipInteractionFastPath.GetBool() )
 		{
 			renderLog.OpenBlock( surfaceMaterial->GetName() );
 
-			// texture 0 will be the per-surface bump map
-			GL_SelectTexture( INTERACTION_TEXUNIT_BUMP );
-			surfaceMaterial->GetFastPathBumpImage()->Bind();
+			inter.bumpImage = surfaceMaterial->GetFastPathBumpImage();
+			inter.specularImage = surfaceMaterial->GetFastPathSpecularImage();
+			inter.diffuseImage = surfaceMaterial->GetFastPathDiffuseImage();
 
-			// texture 1 is the per-surface specular map
-			GL_SelectTexture( INTERACTION_TEXUNIT_SPECULARMIX );
-			surfaceMaterial->GetFastPathSpecularImage()->Bind();
-
-			// texture 2 is the per-surface diffuse map
-			GL_SelectTexture( INTERACTION_TEXUNIT_BASECOLOR );
-			surfaceMaterial->GetFastPathDiffuseImage()->Bind();
-
-			DrawElementsWithCounters( drawSurf );
+			DrawSingleInteraction( &inter, true, useIBL, false );
 
 			renderLog.CloseBlock();
 			continue;
@@ -2267,20 +2349,14 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 
 		//bool drawSolid = false;
 
+		inter.bumpImage = NULL;
+		inter.specularImage = NULL;
+		inter.diffuseImage = NULL;
 
 		// we may have multiple alpha tested stages
 		// if the only alpha tested stages are condition register omitted,
 		// draw a normal opaque surface
 		bool didDraw = false;
-
-		drawInteraction_t inter = {};
-		inter.surf = drawSurf;
-		inter.bumpImage = NULL;
-		inter.specularImage = NULL;
-		inter.diffuseImage = NULL;
-
-		inter.diffuseColor[0] = inter.diffuseColor[1] = inter.diffuseColor[2] = inter.diffuseColor[3] = 1;
-		inter.specularColor[0] = inter.specularColor[1] = inter.specularColor[2] = inter.specularColor[3] = 0;
 
 		// perforated surfaces may have multiple alpha tested stages
 		for( stage = 0; stage < surfaceMaterial->GetNumStages(); stage++ )
@@ -2312,7 +2388,7 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 					// draw any previous interaction
 					if( inter.bumpImage != NULL )
 					{
-						DrawSingleInteraction( &inter, useIBL );
+						DrawSingleInteraction( &inter, false, useIBL, false );
 					}
 					inter.bumpImage = surfaceStage->texture.image;
 					inter.diffuseImage = NULL;
@@ -2333,7 +2409,7 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 					// draw any previous interaction
 					if( inter.diffuseImage != NULL )
 					{
-						DrawSingleInteraction( &inter, useIBL );
+						DrawSingleInteraction( &inter, false, useIBL, false );
 					}
 
 					inter.diffuseImage = surfaceStage->texture.image;
@@ -2353,7 +2429,7 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 					// draw any previous interaction
 					if( inter.specularImage != NULL )
 					{
-						DrawSingleInteraction( &inter, useIBL );
+						DrawSingleInteraction( &inter, false, useIBL, false );
 					}
 					inter.specularImage = surfaceStage->texture.image;
 					inter.vertexColor = surfaceStage->vertexColor;
@@ -2365,7 +2441,7 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 		}
 
 		// draw the final interaction
-		DrawSingleInteraction( &inter, useIBL );
+		DrawSingleInteraction( &inter, false, useIBL, false );
 
 		renderLog.CloseBlock();
 	}
@@ -3354,7 +3430,6 @@ void idRenderBackend::DrawInteractions( const viewDef_t* _viewDef )
 	renderLog.OpenBlock( "RB_DrawInteractions" );
 
 	GL_SelectTexture( 0 );
-
 
 	const bool useLightDepthBounds = r_useLightDepthBounds.GetBool() && !r_useShadowMapping.GetBool();
 

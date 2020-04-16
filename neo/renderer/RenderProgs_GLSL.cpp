@@ -511,6 +511,11 @@ idStr idRenderProgManager::StripDeadCode( const idStr& in, const char* name, con
 		src.AddDefine( "USE_LINEAR_RGB" );
 	}
 
+	if( r_pbrDebug.GetBool() )
+	{
+		src.AddDefine( "DEBUG_PBR" );
+	}
+
 	// SMAA configuration
 	src.AddDefine( "SMAA_GLSL_3" );
 	src.AddDefine( "SMAA_RT_METRICS rpScreenCorrectionFactor " );

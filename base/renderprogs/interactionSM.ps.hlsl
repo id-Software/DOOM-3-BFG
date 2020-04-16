@@ -30,15 +30,13 @@ If you have questions concerning this license or the applicable additional terms
 #include "global.inc.hlsl"
 #include "BRDF.inc.hlsl"
 
-uniform sampler2D               samp0 : register(s0); // texture 1 is the per-surface normal map
-uniform sampler2D               samp1 : register(s1); // texture 3 is the per-surface specular or roughness/metallic/AO mixer map
-uniform sampler2D               samp2 : register(s2); // texture 2 is the per-surface baseColor map 
-uniform sampler2D               samp3 : register(s3); // texture 4 is the light falloff texture
-uniform sampler2D               samp4 : register(s4); // texture 5 is the light projection texture
+uniform sampler2D				samp0 : register(s0); // texture 1 is the per-surface normal map
+uniform sampler2D				samp1 : register(s1); // texture 3 is the per-surface specular or roughness/metallic/AO mixer map
+uniform sampler2D				samp2 : register(s2); // texture 2 is the per-surface baseColor map 
+uniform sampler2D				samp3 : register(s3); // texture 4 is the light falloff texture
+uniform sampler2D				samp4 : register(s4); // texture 5 is the light projection texture
 uniform sampler2DArrayShadow	samp5 : register(s5); // texture 6 is the shadowmap array
 uniform sampler2D				samp6 : register(s6); // texture 7 is the jitter texture 
-
-
 
 struct PS_IN
 {
@@ -278,9 +276,9 @@ void main( PS_IN fragment, out PS_OUT result )
 	half3 halfAngleVector = normalize( lightVector + viewVector );
 	half hdotN = clamp( dot3( halfAngleVector, localNormal ), 0.0, 1.0 );
 
-#if 1 //defined(USE_PBR)
+#if 1
 		
-#if 1 //defined(USE_METALNESS)
+#if defined( USE_PBR )
 	const half metallic = specMapSRGB.g;
 	const half roughness = specMapSRGB.r;
 	const half glossiness = 1.0 - roughness;

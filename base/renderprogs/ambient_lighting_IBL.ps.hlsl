@@ -55,7 +55,8 @@ struct PS_OUT {
 	half4 color : COLOR;
 };
 
-void main( PS_IN fragment, out PS_OUT result ) {
+void main( PS_IN fragment, out PS_OUT result )
+{
 	half4 bumpMap =			tex2D( samp0, fragment.texcoord0.xy );
 //	half4 lightFalloff =	idtex2Dproj( samp1, fragment.texcoord2 );
 //	half4 lightProj	=		idtex2Dproj( samp2, fragment.texcoord3 );
@@ -100,9 +101,8 @@ void main( PS_IN fragment, out PS_OUT result ) {
 	float3 reflectionVector = globalNormal * dot3( globalEye, globalNormal );
 	reflectionVector = ( reflectionVector * 2.0f ) - globalEye;
 	
-#if 1 //defined(USE_PBR)
-		
-#if defined(USE_PBR)
+
+#if defined( USE_PBR )
 	const half metallic = specMapSRGB.g;
 	const half roughness = specMapSRGB.r;
 	const half glossiness = 1.0 - roughness;
@@ -119,8 +119,11 @@ void main( PS_IN fragment, out PS_OUT result ) {
 	half3 diffuseColor = baseColor * ( 1.0 - metallic );
 	half3 specularColor = lerp( dielectricColor, baseColor, metallic );
 
+#if defined( DEBUG_PBR )
 	diffuseColor = half3( 0.0, 0.0, 0.0 );
 	specularColor = half3( 0.0, 1.0, 0.0 );
+#endif
+
 #else
 	// HACK calculate roughness from D3 gloss maps
 	float Y = dot( LUMINANCE_SRGB.rgb, specMapSRGB.rgb );
@@ -133,8 +136,11 @@ void main( PS_IN fragment, out PS_OUT result ) {
 	half3 diffuseColor = diffuseMap;
 	half3 specularColor = specMap.rgb;
 
+#if defined( DEBUG_PBR )
 	diffuseColor = half3( 0.0, 0.0, 0.0 );
 	specularColor = half3( 1.0, 0.0, 0.0 );
+#endif
+
 #endif
 	
 	float3 diffuseLight = ( texCUBE( samp7, globalNormal ).rgb ) * diffuseColor * ( rpDiffuseModifier.xyz ) * 3.5f;
@@ -144,27 +150,6 @@ void main( PS_IN fragment, out PS_OUT result ) {
 	
 	float3 specularLight = envColor * specularColor;
 	
-#else
-	
-	// non PBR path
-
-	float3 diffuseLight = ( texCUBE( samp7, globalNormal ).rgb ) * diffuseMap.rgb * ( rpDiffuseModifier.xyz ) * 3.5f;
-	//float3 diffuseLight = diffuseMap.rgb * ( rpDiffuseModifier.xyz ) * 1.5f;
-
-	// HACK calculate roughness from D3 gloss maps
-	float Y = dot( LUMINANCE_SRGB.rgb, specMapSRGB.rgb );
-	
-	//const float glossiness = clamp( 1.0 - specMapSRGB.r, 0.0, 0.98 );
-	const float glossiness = clamp( pow( Y, 1.0 / 2.0 ), 0.0, 0.98 );
-	
-	const float roughness = 1.0 - glossiness;
-	
-	float mip = clamp( ( roughness * 7.0 ) + 0.0, 0.0, 10.0 );
-	float3 envColor = ( textureLod( samp8, reflectionVector, mip ).rgb ) * ( rpSpecularModifier.xyz ) * 0.5f;
-	
-	float3 specularLight = envColor * specMap.rgb;
-	
-#endif
 
 	// add glossy fresnel
 	half hDotN = saturate( dot3( globalEye, globalNormal ) );
