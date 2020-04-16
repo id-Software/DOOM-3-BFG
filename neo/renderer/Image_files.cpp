@@ -761,6 +761,9 @@ static void LoadPNG( const char* filename, unsigned char** pic, int* width, int*
 
 	R_StaticFree( rowPointers );
 	Mem_Free( fbuffer );
+
+	// RB: PNG needs to be flipped to match the .tga behavior
+	R_VerticalFlip( *pic, *width, *height );
 }
 
 
