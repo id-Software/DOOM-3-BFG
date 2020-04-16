@@ -143,10 +143,10 @@ void main( PS_IN fragment, out PS_OUT result )
 
 #endif
 	
-	float3 diffuseLight = ( texCUBE( samp7, globalNormal ).rgb ) * diffuseColor * ( rpDiffuseModifier.xyz ) * 3.5f;
+	float3 diffuseLight = ( texCUBE( samp7, globalNormal ).rgb ) * diffuseColor * ( rpDiffuseModifier.xyz ) * 3.5;
 	
-	float mip = clamp( ( roughness * 7.0 ) + 3.0, 0.0, 10.0 );
-	float3 envColor = ( textureLod( samp8, reflectionVector, mip ).rgb ) * ( rpSpecularModifier.xyz ) * 1.0f;
+	float mip = clamp( ( roughness * 7.0 ) + 0.0, 0.0, 10.0 );
+	float3 envColor = ( textureLod( samp8, reflectionVector, mip ).rgb ) * ( rpSpecularModifier.xyz ) * 0.5;
 	
 	float3 specularLight = envColor * specularColor;
 	

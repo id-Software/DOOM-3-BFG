@@ -282,6 +282,16 @@ void NotifyDisplaySizeChanged( int width, int height )
 		{
 			Destroy();
 			Init( width, height );
+
+			// reuse the default ImGui font
+			idImage* image = globalImages->GetImage( "_imguiFont" );
+
+			ImGuiIO& io = ImGui::GetIO();
+
+			byte* pixels = NULL;
+			io.Fonts->GetTexDataAsRGBA32( &pixels, &width, &height );
+
+			io.Fonts->TexID = ( void* )( intptr_t )image->GetImGuiTextureID();
 		}
 	}
 }
@@ -437,6 +447,7 @@ void Destroy()
 	{
 		ImGui::DestroyContext();
 		g_IsInit = false;
+		g_haveNewFrame = false;
 	}
 }
 
