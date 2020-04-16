@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013-2017 Robert Beckebans
+Copyright (C) 2013-2020 Robert Beckebans
 Copyright (C) 2014-2016 Kot in Action Creative Artel
 Copyright (C) 2016-2017 Dustin Land
 
@@ -319,6 +319,16 @@ void idImage::ActuallyLoadImage( bool fromBackEnd )
 			R_LoadImageProgram( GetName(), NULL, NULL, NULL, &sourceFileTime, &usage );
 		}
 	}
+
+	// RB: PBR HACK - RMAO maps should end with _rmao insted of _s
+	if( usage == TD_SPECULAR_PBR_RMAO )
+	{
+		if( imgName.StripTrailingOnce( "_s" ) )
+		{
+			imgName += "_rmao";
+		}
+	}
+	// RB end
 
 	// Figure out opts.colorFormat and opts.format so we can make sure the binary image is up to date
 	DeriveOpts();

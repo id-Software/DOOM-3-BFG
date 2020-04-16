@@ -381,9 +381,9 @@ exportScriptEvents                     | Command: Generates a new script/doom_ev
 exportDeclsToJSON                      | Command: Exports all entity and model defs to exported/entities.json for usage in Blender
 postLoadExportModels                   | Cvar: Export models after loading to OBJ model format. Set it to 1 before loading a map.
 exportMapToOBJ                         | Command: Convert .map file to .obj/.mtl
-swf_exportAtlas                        | Cvar: Set to 1 at startup to dump the Flash images to exported/swf/
-swf_exportSWF                          | Cvar: Set to 1 at startup to dump the Flash .bswf files as .swf (WIP)
-swf_exportJSON                         | Cvar: Set to 1 at startup to dump the Flash .bswf files as .json. Can be reimported into the engine and imported into Blender for inspection
+postLoadExportFlashAtlas               | Cvar: Set to 1 at startup to dump the Flash images to exported/swf/
+postLoadExportFlashToSWF               | Cvar: Set to 1 at startup to dump the Flash .bswf files as .swf (WIP)
+postLoadExportFlashToJSON              | Cvar: Set to 1 at startup to dump the Flash .bswf files as .json. Can be reimported into the engine and imported into Blender for inspection
 swf_show                               | Cvar: Draws the bounding box of instanced Flash sprites in red and their names
 dmap <mapfile>                         | Command: Compiles a .map to its corresponding BSP .proc, Collision .cm files and Area Awareness System (AI navigation) .aas files. Just type dmap to list all options
 dmap -glview <mapfile>                 | DMap option that exports the BSP areas and portals to .obj for debugging purposes
