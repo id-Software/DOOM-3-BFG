@@ -69,6 +69,8 @@ int BitsForFormat( textureFormat_t format )
 			return 4;
 		case FMT_SHADOW_ARRAY:
 			return ( 32 * 6 );
+		case FMT_RG16F:
+			return 32;
 		case FMT_RGBA16F:
 			return 64;
 		case FMT_RGBA32F:
@@ -112,6 +114,10 @@ ID_INLINE void idImage::DeriveOpts()
 
 			case TD_SHADOW_ARRAY:
 				opts.format = FMT_SHADOW_ARRAY;
+				break;
+
+			case TD_RG16F:
+				opts.format = FMT_RG16F;
 				break;
 
 			case TD_RGBA16F:
@@ -630,6 +636,7 @@ void idImage::Print() const
 			// RB begin
 			NAME_FORMAT( ETC1_RGB8_OES );
 			NAME_FORMAT( SHADOW_ARRAY );
+			NAME_FORMAT( RG16F );
 			NAME_FORMAT( RGBA16F );
 			NAME_FORMAT( RGBA32F );
 			NAME_FORMAT( R32F );

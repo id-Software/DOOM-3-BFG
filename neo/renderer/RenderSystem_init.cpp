@@ -1497,7 +1497,7 @@ idVec2 IntegrateBRDF( float NdotV, float roughness, int sampleCount )
 
 void R_MakeBrdfLut_f( const idCmdArgs& args )
 {
-	int			outSize = 32;
+	int			outSize = 256;
 	int			width = 0, height = 0;
 
 	//if( args.Argc() != 2 )
@@ -1519,6 +1519,9 @@ void R_MakeBrdfLut_f( const idCmdArgs& args )
 	int ldrBufferSize = outSize * outSize * 4;
 	byte* ldrBuffer = ( byte* )Mem_Alloc( ldrBufferSize, TAG_TEMP );
 
+	int hdrBufferSize = outSize * outSize * 2 * sizeof( halfFloat_t );
+	halfFloat_t* hdrBuffer = ( halfFloat_t* )Mem_Alloc( hdrBufferSize, TAG_TEMP );
+
 	CommandlineProgressBar progressBar( outSize * outSize );
 
 	int	start = Sys_Milliseconds();
@@ -1538,18 +1541,23 @@ void R_MakeBrdfLut_f( const idCmdArgs& args )
 			ldrBuffer[( y * outSize + x ) * 4 + 2] = 0;
 			ldrBuffer[( y * outSize + x ) * 4 + 3] = 255;
 
+			halfFloat_t half1 = F32toF16( output.x );
+			halfFloat_t half2 = F32toF16( output.y );
+
+			hdrBuffer[( y * outSize + x ) * 2 + 0] = half1;
+			hdrBuffer[( y * outSize + x ) * 2 + 1] = half2;
+			//hdrBuffer[( y * outSize + x ) * 4 + 2] = 0;
+			//hdrBuffer[( y * outSize + x ) * 4 + 3] = 1;
+
 			progressBar.Increment();
 		}
-
-		//const bool captureToImage = false;
-		//common->UpdateScreen( captureToImage );
 	}
 
 	idStr fullname = "env/_brdfLut.png";
 	idLib::Printf( "writing %s\n", fullname.c_str() );
 
-	//R_WriteTGA( fullname, outBuffer, outSize, outSize, false, "fs_basepath" );
 	R_WritePNG( fullname, ldrBuffer, 4, outSize, outSize, true, "fs_basepath" );
+	//R_WriteEXR( "env/_brdfLut.exr", hdrBuffer, 4, outSize, outSize, "fs_basepath" );
 
 
 	idFileLocal headerFile( fileSystem->OpenFileWrite( "env/Image_brdfLut.h", "fs_basepath" ) );
@@ -1558,27 +1566,24 @@ void R_MakeBrdfLut_f( const idCmdArgs& args )
 #ifndef BRDFLUT_TEX_H
 #define BRDFLUT_TEX_H
 
-#define BRDFLUT_TEX_WIDTH 512
-#define BRDFLUT_TEX_HEIGHT 512
+#define BRDFLUT_TEX_WIDTH 256
+#define BRDFLUT_TEX_HEIGHT 256
 #define BRDFLUT_TEX_PITCH (BRDFLUT_TEX_WIDTH * 2)
 #define BRDFLUT_TEX_SIZE (BRDFLUT_TEX_WIDTH * BRDFLUT_TEX_PITCH)
 
-/**
-	* Stored in R8G8 format. Load it in the following format:
-	*  - DX9:  D3DFMT_A8L8
-	*  - DX10: DXGI_FORMAT_R8G8_UNORM
-	*/
+// Stored in R16G16F format
 static const unsigned char brfLutTexBytes[] =
 {
 )";
 
 	headerFile->Printf( "%s\n", intro );
 
-	for( int i = 0; i < ldrBufferSize; i++ )
+	const byte* hdrBytes = (const byte* ) hdrBuffer;
+	for( int i = 0; i < hdrBufferSize; i++ )
 	{
-		byte b = ldrBuffer[i];
+		byte b = hdrBytes[i];
 
-		if( i < ( ldrBufferSize - 1 ) )
+		if( i < ( hdrBufferSize - 1 ) )
 		{
 			headerFile->Printf( "0x%02hhx, ", b );
 		}
@@ -1599,6 +1604,7 @@ static const unsigned char brfLutTexBytes[] =
 	common->Printf( "%s integrated in %5.1f seconds\n\n", fullname.c_str(), ( end - start ) * 0.001f );
 
 	Mem_Free( ldrBuffer );
+	Mem_Free( hdrBuffer );
 }
 
 /*

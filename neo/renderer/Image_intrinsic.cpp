@@ -861,7 +861,7 @@ static void R_CreateBrdfLutImage( idImage* image )
 	}
 #endif
 
-	image->GenerateImage( ( byte* )brfLutTexBytes, BRDFLUT_TEX_WIDTH, BRDFLUT_TEX_HEIGHT, TF_LINEAR, TR_CLAMP, TD_LOOKUP_TABLE_RGBA );
+	image->GenerateImage( ( byte* )brfLutTexBytes, BRDFLUT_TEX_WIDTH, BRDFLUT_TEX_HEIGHT, TF_LINEAR, TR_CLAMP, TD_RG16F );
 }
 
 // RB end

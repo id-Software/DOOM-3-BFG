@@ -472,7 +472,7 @@ void idImage::SetTexParameters()
 		glTexParameteri( target, GL_TEXTURE_SWIZZLE_B, GL_RED );
 		glTexParameteri( target, GL_TEXTURE_SWIZZLE_A, GL_ONE );
 	}
-	else if( opts.format == FMT_L8A8 )
+	else if( opts.format == FMT_L8A8 )//|| opts.format == FMT_RG16F )
 	{
 		glTexParameteri( target, GL_TEXTURE_SWIZZLE_R, GL_RED );
 		glTexParameteri( target, GL_TEXTURE_SWIZZLE_G, GL_RED );
@@ -690,10 +690,16 @@ void idImage::AllocImage()
 			dataType = GL_UNSIGNED_BYTE;
 			break;
 
+		case FMT_RG16F:
+			internalFormat = GL_RG16F;
+			dataFormat = GL_RG;
+			dataType = GL_HALF_FLOAT;
+			break;
+
 		case FMT_RGBA16F:
 			internalFormat = GL_RGBA16F;
 			dataFormat = GL_RGBA;
-			dataType = GL_UNSIGNED_BYTE;
+			dataType = GL_HALF_FLOAT;
 			break;
 
 		case FMT_RGBA32F:

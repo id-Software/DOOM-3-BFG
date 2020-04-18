@@ -96,7 +96,7 @@ enum textureFormat_t
 	// RB: don't change above for legacy .bimage compatibility
 	FMT_ETC1_RGB8_OES,	// 4 bpp
 	FMT_SHADOW_ARRAY,	// 32 bpp * 6
-	//FMT_RG16F,			// 32 bpp
+	FMT_RG16F,			// 32 bpp
 	FMT_RGBA16F,		// 64 bpp
 	FMT_RGBA32F,		// 128 bpp
 	FMT_R32F,			// 32 bpp
@@ -222,6 +222,7 @@ typedef enum
 	TD_HIGHQUALITY_CUBE,	// motorsep - Uncompressed cubemap texture (RGB colorspace)
 	TD_LOWQUALITY_CUBE,		// motorsep - Compressed cubemap texture (RGB colorspace DXT5)
 	TD_SHADOW_ARRAY,		// 2D depth buffer array for shadow mapping
+	TD_RG16F,
 	TD_RGBA16F,
 	TD_RGBA32F,
 	TD_R32F,
@@ -479,6 +480,7 @@ void	R_WriteTGA( const char* filename, const byte* data, int width, int height, 
 
 // RB begin
 void	R_WritePNG( const char* filename, const byte* data, int bytesPerPixel, int width, int height, bool flipVertical = false, const char* basePath = "fs_savepath" );
+void	R_WriteEXR( const char* filename, const void* data, int channelsPerPixel, int width, int height, const char* basePath = "fs_savepath" );
 // RB end
 
 class idImageManager
