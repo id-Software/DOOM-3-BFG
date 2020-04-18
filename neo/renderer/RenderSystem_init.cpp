@@ -1404,18 +1404,18 @@ inline idVec2 Hammersley2D( uint i, uint N )
 	return idVec2( float( i ) / float( N ), RadicalInverse_VdC( i ) );
 }
 
-idVec3 ImportanceSampleGGX( const idVec2& Xi, float roughness, const idVec3& N )
+idVec3 ImportanceSampleGGX( const idVec2& Xi, const idVec3& N, float roughness )
 {
 	float a = roughness * roughness;
 
 	// cosinus distributed direction (Z-up or tangent space) from the hammersley point xi
 	float Phi = 2 * idMath::PI * Xi.x;
-	float cosTheta = sqrt( ( 1 - Xi.y ) / ( 1 + ( a * a - 1 ) * Xi.y ) );
-	float sinTheta = sqrt( 1 - cosTheta * cosTheta );
+	float cosTheta = idMath::Sqrt( ( 1 - Xi.y ) / ( 1 + ( a * a - 1 ) * Xi.y ) );
+	float sinTheta = idMath::Sqrt( 1 - cosTheta * cosTheta );
 
 	idVec3 H;
-	H.x = sinTheta * cos( Phi );
-	H.y = sinTheta * sin( Phi );
+	H.x = sinTheta * idMath::Cos( Phi );
+	H.y = sinTheta * idMath::Sin( Phi );
 	H.z = cosTheta;
 
 	// rotate from tangent space to world space along N
@@ -1424,7 +1424,181 @@ idVec3 ImportanceSampleGGX( const idVec2& Xi, float roughness, const idVec3& N )
 	tangentX.Normalize();
 	idVec3 tangentY = N.Cross( tangentX );
 
-	return tangentX * H.x + tangentY * H.y + N * H.z;
+	idVec3 sampleVec = tangentX * H.x + tangentY * H.y + N * H.z;
+	sampleVec.Normalize();
+
+	return sampleVec;
+}
+
+float Geometry_SchlickGGX( float NdotV, float roughness )
+{
+	// note that we use a different k for IBL
+	float a = roughness;
+	float k = ( a * a ) / 2.0;
+
+	float nom = NdotV;
+	float denom = NdotV * ( 1.0 - k ) + k;
+
+	return nom / denom;
+}
+
+float Geometry_Smith( idVec3 N, idVec3 V, idVec3 L, float roughness )
+{
+	float NdotV = Max( ( N * V ), 0.0f );
+	float NdotL = Max( ( N * L ), 0.0f );
+
+	float ggx2 = Geometry_SchlickGGX( NdotV, roughness );
+	float ggx1 = Geometry_SchlickGGX( NdotL, roughness );
+
+	return ggx1 * ggx2;
+}
+
+idVec2 IntegrateBRDF( float NdotV, float roughness, int sampleCount )
+{
+	idVec3 V;
+	V.x = sqrt( 1.0 - NdotV * NdotV );
+	V.y = 0.0;
+	V.z = NdotV;
+
+	float A = 0.0;
+	float B = 0.0;
+
+	idVec3 N( 0.0f, 0.0f, 1.0f );
+	for( int i = 0; i < sampleCount; ++i )
+	{
+		// generates a sample vector that's biased towards the
+		// preferred alignment direction (importance sampling).
+		idVec2 Xi = Hammersley2D( i, sampleCount );
+
+		idVec3 H = ImportanceSampleGGX( Xi, N, roughness );
+		idVec3 L = ( 2.0 * ( V * H ) * H - V );
+		L.Normalize();
+
+		float NdotL = Max( L.z, 0.0f );
+		float NdotH = Max( H.z, 0.0f );
+		float VdotH = Max( ( V * H ), 0.0f );
+
+		if( NdotL > 0.0 )
+		{
+			float G = Geometry_Smith( N, V, L, roughness );
+			float G_Vis = ( G * VdotH ) / ( NdotH * NdotV );
+			float Fc = idMath::Pow( 1.0 - VdotH, 5.0 );
+
+			A += ( 1.0 - Fc ) * G_Vis;
+			B += Fc * G_Vis;
+		}
+	}
+
+	A /= float( sampleCount );
+	B /= float( sampleCount );
+
+	return idVec2( A, B );
+}
+
+void R_MakeBrdfLut_f( const idCmdArgs& args )
+{
+	int			outSize = 32;
+	int			width = 0, height = 0;
+
+	//if( args.Argc() != 2 )
+	//{
+	//	common->Printf( "USAGE: makeBrdfLut [size]\n" );
+	//	return;
+	//}
+
+	//if( args.Argc() == 2 )
+	//{
+	//	outSize = atoi( args.Argv( 1 ) );
+	//}
+
+	bool pacifier = true;
+
+	// resample with hemispherical blending
+	int	samples = 1024;
+
+	int ldrBufferSize = outSize * outSize * 4;
+	byte* ldrBuffer = ( byte* )Mem_Alloc( ldrBufferSize, TAG_TEMP );
+
+	CommandlineProgressBar progressBar( outSize * outSize );
+
+	int	start = Sys_Milliseconds();
+
+	for( int x = 0 ; x < outSize ; x++ )
+	{
+		float NdotV = ( x + 0.5f ) / outSize;
+
+		for( int y = 0 ; y < outSize ; y++ )
+		{
+			float roughness = ( y + 0.5f ) / outSize;
+
+			idVec2 output = IntegrateBRDF( NdotV, roughness, samples );
+
+			ldrBuffer[( y * outSize + x ) * 4 + 0] = byte( output.x * 255 );
+			ldrBuffer[( y * outSize + x ) * 4 + 1] = byte( output.y * 255 );
+			ldrBuffer[( y * outSize + x ) * 4 + 2] = 0;
+			ldrBuffer[( y * outSize + x ) * 4 + 3] = 255;
+
+			progressBar.Increment();
+		}
+
+		//const bool captureToImage = false;
+		//common->UpdateScreen( captureToImage );
+	}
+
+	idStr fullname = "env/_brdfLut.png";
+	idLib::Printf( "writing %s\n", fullname.c_str() );
+
+	//R_WriteTGA( fullname, outBuffer, outSize, outSize, false, "fs_basepath" );
+	R_WritePNG( fullname, ldrBuffer, 4, outSize, outSize, true, "fs_basepath" );
+
+
+	idFileLocal headerFile( fileSystem->OpenFileWrite( "env/Image_brdfLut.h", "fs_basepath" ) );
+
+	static const char* intro = R"(
+#ifndef BRDFLUT_TEX_H
+#define BRDFLUT_TEX_H
+
+#define BRDFLUT_TEX_WIDTH 512
+#define BRDFLUT_TEX_HEIGHT 512
+#define BRDFLUT_TEX_PITCH (BRDFLUT_TEX_WIDTH * 2)
+#define BRDFLUT_TEX_SIZE (BRDFLUT_TEX_WIDTH * BRDFLUT_TEX_PITCH)
+
+/**
+	* Stored in R8G8 format. Load it in the following format:
+	*  - DX9:  D3DFMT_A8L8
+	*  - DX10: DXGI_FORMAT_R8G8_UNORM
+	*/
+static const unsigned char brfLutTexBytes[] =
+{
+)";
+
+	headerFile->Printf( "%s\n", intro );
+
+	for( int i = 0; i < ldrBufferSize; i++ )
+	{
+		byte b = ldrBuffer[i];
+
+		if( i < ( ldrBufferSize - 1 ) )
+		{
+			headerFile->Printf( "0x%02hhx, ", b );
+		}
+		else
+		{
+			headerFile->Printf( "0x%02hhx", b );
+		}
+
+		if( i % 12 == 0 )
+		{
+			headerFile->Printf( "\n" );
+		}
+	}
+	headerFile->Printf( "\n};\n#endif\n" );
+
+	int	end = Sys_Milliseconds();
+
+	common->Printf( "%s integrated in %5.1f seconds\n\n", fullname.c_str(), ( end - start ) * 0.001f );
+
+	Mem_Free( ldrBuffer );
 }
 
 /*
@@ -1450,7 +1624,7 @@ void R_MakeAmbientMap_f( const idCmdArgs& args )
 
 	if( args.Argc() != 2 && args.Argc() != 3 )
 	{
-		common->Printf( "USAGE: ambientshot <basename> [size]\n" );
+		common->Printf( "USAGE: makeAmbientMap <basename> [size]\n" );
 		return;
 	}
 	baseName = args.Argv( 1 );
@@ -1540,7 +1714,7 @@ void R_MakeAmbientMap_f( const idCmdArgs& args )
 					for( int s = 0 ; s < samples ; s++ )
 					{
 						idVec2 Xi = Hammersley2D( s, samples );
-						idVec3 test = ImportanceSampleGGX( Xi, roughness, dir );
+						idVec3 test = ImportanceSampleGGX( Xi, dir, roughness );
 
 						byte	result[4];
 						//test = dir;
@@ -1968,6 +2142,7 @@ void R_InitCommands()
 	cmdSystem->AddCommand( "touchGui", R_TouchGui_f, CMD_FL_RENDERER, "touches a gui" );
 	cmdSystem->AddCommand( "screenshot", R_ScreenShot_f, CMD_FL_RENDERER, "takes a screenshot" );
 	cmdSystem->AddCommand( "envshot", R_EnvShot_f, CMD_FL_RENDERER, "takes an environment shot" );
+	cmdSystem->AddCommand( "makeBrfdLut", R_MakeBrdfLut_f, CMD_FL_RENDERER | CMD_FL_CHEAT, "make a GGX BRDF lookup table" ); // RB
 	cmdSystem->AddCommand( "makeAmbientMap", R_MakeAmbientMap_f, CMD_FL_RENDERER | CMD_FL_CHEAT, "makes an ambient map" );
 	cmdSystem->AddCommand( "envToSky", R_TransformEnvToSkybox_f, CMD_FL_RENDERER | CMD_FL_CHEAT, "transforms environment textures to sky box textures" );
 	cmdSystem->AddCommand( "skyToEnv", R_TransformSkyboxToEnv_f, CMD_FL_RENDERER | CMD_FL_CHEAT, "transforms sky box textures to environment textures" );

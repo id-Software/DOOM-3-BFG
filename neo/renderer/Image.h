@@ -96,6 +96,7 @@ enum textureFormat_t
 	// RB: don't change above for legacy .bimage compatibility
 	FMT_ETC1_RGB8_OES,	// 4 bpp
 	FMT_SHADOW_ARRAY,	// 32 bpp * 6
+	//FMT_RG16F,			// 32 bpp
 	FMT_RGBA16F,		// 64 bpp
 	FMT_RGBA32F,		// 128 bpp
 	FMT_R32F,			// 32 bpp
@@ -574,6 +575,7 @@ public:
 	idImage*			hierarchicalZbufferImage;		// zbuffer with mip maps to accelerate screen space ray tracing
 	idImage*			imguiFontImage;
 
+	idImage*			brdfLutImage;
 	idImage*			defaultUACIrradianceCube;
 	idImage*			defaultUACRadianceCube;
 	// RB end

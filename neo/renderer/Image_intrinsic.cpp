@@ -35,6 +35,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "RenderCommon.h"
 #include "SMAA/AreaTex.h"
 #include "SMAA/SearchTex.h"
+#include "Image_brdfLut.h"
 
 #define	DEFAULT_SIZE	16
 
@@ -764,8 +765,6 @@ static void R_CreateSMAAAreaImage( idImage* image )
 {
 	static byte	data[AREATEX_HEIGHT][AREATEX_WIDTH][4];
 
-	idRandom2 random( Sys_Milliseconds() );
-
 	for( int x = 0; x < AREATEX_WIDTH; x++ )
 	{
 		for( int y = 0; y < AREATEX_HEIGHT; y++ )
@@ -790,8 +789,6 @@ static void R_CreateSMAAAreaImage( idImage* image )
 static void R_CreateSMAASearchImage( idImage* image )
 {
 	static byte	data[SEARCHTEX_HEIGHT][SEARCHTEX_WIDTH][4];
-
-	idRandom2 random( Sys_Milliseconds() );
 
 	for( int x = 0; x < SEARCHTEX_WIDTH; x++ )
 	{
@@ -838,6 +835,33 @@ static void R_CreateImGuiFontImage( idImage* image )
 	// Cleanup (don't clear the input data if you want to append new fonts later)
 	//io.Fonts->ClearInputData();
 	//io.Fonts->ClearTexData();
+}
+
+static void R_CreateBrdfLutImage( idImage* image )
+{
+#if 0
+	static byte	data[BRDFLUT_TEX_HEIGHT][BRDFLUT_TEX_WIDTH][4];
+
+	for( int x = 0; x < BRDFLUT_TEX_WIDTH; x++ )
+	{
+		for( int y = 0; y < BRDFLUT_TEX_HEIGHT; y++ )
+		{
+#if 0
+			data[AREATEX_HEIGHT - y][x][0] = areaTexBytes[ y * AREATEX_PITCH + x * 2 + 0 ];
+			data[AREATEX_HEIGHT - y][x][1] = areaTexBytes[ y * AREATEX_PITCH + x * 2 + 1 ];
+			data[AREATEX_HEIGHT - y][x][2] = 0;
+			data[AREATEX_HEIGHT - y][x][3] = 1;
+#else
+			data[y][x][0] = brfLutTexBytes[ y * BRDFLUT_TEX_PITCH + x * 2 + 0 ];
+			data[y][x][1] = brfLutTexBytes[ y * BRDFLUT_TEX_PITCH + x * 2 + 1 ];
+			data[y][x][2] = 0;
+			data[y][x][3] = 1;
+#endif
+		}
+	}
+#endif
+
+	image->GenerateImage( ( byte* )brfLutTexBytes, BRDFLUT_TEX_WIDTH, BRDFLUT_TEX_HEIGHT, TF_LINEAR, TR_CLAMP, TD_LOOKUP_TABLE_RGBA );
 }
 
 // RB end
@@ -904,6 +928,8 @@ void idImageManager::CreateIntrinsicImages()
 	hierarchicalZbufferImage = ImageFromFunction( "_cszBuffer", R_HierarchicalZBufferImage_ResNative );
 
 	imguiFontImage = ImageFromFunction( "_imguiFont", R_CreateImGuiFontImage );
+
+	brdfLutImage = globalImages->ImageFromFunction( "_brdfLut", R_CreateBrdfLutImage );
 	// RB end
 
 	// scratchImage is used for screen wipes/doublevision etc..
@@ -920,8 +946,10 @@ void idImageManager::CreateIntrinsicImages()
 	loadingIconImage = ImageFromFile( "textures/loadingicon2", TF_DEFAULT, TR_CLAMP, TD_DEFAULT, CF_2D );
 	hellLoadingIconImage = ImageFromFile( "textures/loadingicon3", TF_DEFAULT, TR_CLAMP, TD_DEFAULT, CF_2D );
 
+	// RB begin
 	defaultUACIrradianceCube = ImageFromFile( "env/testmap_1_amb", TF_DEFAULT, TR_CLAMP, TD_HIGHQUALITY_CUBE, CF_NATIVE );
 	defaultUACRadianceCube = ImageFromFile( "env/testmap_1_spec", TF_DEFAULT, TR_CLAMP, TD_HIGHQUALITY_CUBE, CF_NATIVE );
+	// RB end
 
 	release_assert( loadingIconImage->referencedOutsideLevelLoad );
 	release_assert( hellLoadingIconImage->referencedOutsideLevelLoad );
