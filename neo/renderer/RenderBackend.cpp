@@ -1204,8 +1204,8 @@ const int INTERACTION_TEXUNIT_SHADOWMAPS	= 5;
 const int INTERACTION_TEXUNIT_JITTER		= 6;
 
 #if defined( USE_VULKAN )
-	const int INTERACTION_TEXUNIT_AMBIENT_CUBE1 = 3;
-	const int INTERACTION_TEXUNIT_SPECULAR_CUBE1 = 4;
+	const int INTERACTION_TEXUNIT_AMBIENT_CUBE1 = 4;
+	const int INTERACTION_TEXUNIT_SPECULAR_CUBE1 = 5;
 #else
 	const int INTERACTION_TEXUNIT_AMBIENT_CUBE1 = 7;
 	const int INTERACTION_TEXUNIT_SPECULAR_CUBE1 = 8;
@@ -1354,6 +1354,9 @@ void idRenderBackend::DrawSingleInteraction( drawInteraction_t* din, bool useFas
 				renderProgManager.BindShader_ImageBasedLighting();
 			}
 		}
+
+		GL_SelectTexture( INTERACTION_TEXUNIT_FALLOFF );
+		globalImages->brdfLutImage->Bind();
 
 		GL_SelectTexture( INTERACTION_TEXUNIT_AMBIENT_CUBE1 );
 		globalImages->defaultUACIrradianceCube->Bind();
@@ -1701,7 +1704,8 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 	}
 	// RB end
 
-	float lightScale = r_useHDR.GetBool() ? 3.0f : r_lightScale.GetFloat();
+	//float lightScale = r_useHDR.GetBool() ? 3.0f : r_lightScale.GetFloat();
+	float lightScale = r_lightScale.GetFloat();
 
 	for( int lightStageNum = 0; lightStageNum < lightShader->GetNumStages(); lightStageNum++ )
 	{
@@ -1718,6 +1722,7 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 			lightScale * lightRegs[ lightStage->color.registers[1] ],
 			lightScale * lightRegs[ lightStage->color.registers[2] ],
 			lightRegs[ lightStage->color.registers[3] ] );
+
 		// apply the world-global overbright and the 2x factor for specular
 		const idVec4 diffuseColor = lightColor;
 		const idVec4 specularColor = lightColor * 2.0f;
@@ -2116,6 +2121,7 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 
 	const float lightScale = 1.0f; //r_lightScale.GetFloat();
 	const idVec4 lightColor = colorWhite * lightScale;
+
 	// apply the world-global overbright and the 2x factor for specular
 	const idVec4 diffuseColor = lightColor;
 	const idVec4 specularColor = lightColor * 2.0f;
