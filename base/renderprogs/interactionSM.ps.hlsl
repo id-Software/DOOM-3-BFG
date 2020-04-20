@@ -222,6 +222,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	}
 	
 	shadow *= stepSize;
+
 #elif 1
 	
 	const float2 poissonDisk[12] = float2[](
