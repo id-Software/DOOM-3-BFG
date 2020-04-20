@@ -136,6 +136,60 @@ static void R_BlackImage( idImage* image )
 						  TF_DEFAULT, TR_REPEAT, TD_DEFAULT );
 }
 
+static void R_CyanImage( idImage* image )
+{
+	byte	data[DEFAULT_SIZE][DEFAULT_SIZE][4];
+
+	for( int x = 0; x < DEFAULT_SIZE; x++ )
+	{
+		for( int y = 0; y < DEFAULT_SIZE; y++ )
+		{
+			data[y][x][0] = byte( colorCyan.x * 255 );
+			data[y][x][1] = byte( colorCyan.y * 255 );
+			data[y][x][2] = byte( colorCyan.z * 255 );
+			data[y][x][3] = byte( colorCyan.w * 255 );
+		}
+	}
+
+	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE, TF_DEFAULT, TR_REPEAT, TD_DIFFUSE );
+}
+
+static void R_ChromeSpecImage( idImage* image )
+{
+	byte	data[DEFAULT_SIZE][DEFAULT_SIZE][4];
+
+	for( int x = 0; x < DEFAULT_SIZE; x++ )
+	{
+		for( int y = 0; y < DEFAULT_SIZE; y++ )
+		{
+			data[y][x][0] = 0;
+			data[y][x][1] = 255;
+			data[y][x][2] = 255;
+			data[y][x][3] = 255;
+		}
+	}
+
+	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE, TF_DEFAULT, TR_REPEAT, TD_SPECULAR_PBR_RMAO );
+}
+
+static void R_PlasticSpecImage( idImage* image )
+{
+	byte	data[DEFAULT_SIZE][DEFAULT_SIZE][4];
+
+	for( int x = 0; x < DEFAULT_SIZE; x++ )
+	{
+		for( int y = 0; y < DEFAULT_SIZE; y++ )
+		{
+			data[y][x][0] = 0;
+			data[y][x][1] = 0;
+			data[y][x][2] = 255;
+			data[y][x][3] = 255;
+		}
+	}
+
+	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE, TF_DEFAULT, TR_REPEAT, TD_SPECULAR_PBR_RMAO );
+}
+
 static void R_RGBA8Image( idImage* image )
 {
 	byte	data[DEFAULT_SIZE][DEFAULT_SIZE][4];
@@ -877,6 +931,7 @@ void idImageManager::CreateIntrinsicImages()
 	defaultImage = ImageFromFunction( "_default", R_DefaultImage );
 	whiteImage = ImageFromFunction( "_white", R_WhiteImage );
 	blackImage = ImageFromFunction( "_black", R_BlackImage );
+	cyanImage = ImageFromFunction( "_cyan", R_CyanImage );
 	flatNormalMap = ImageFromFunction( "_flat", R_FlatNormalImage );
 	alphaNotchImage = ImageFromFunction( "_alphaNotch", R_AlphaNotchImage );
 	fogImage = ImageFromFunction( "_fog", R_FogImage );
@@ -929,7 +984,9 @@ void idImageManager::CreateIntrinsicImages()
 
 	imguiFontImage = ImageFromFunction( "_imguiFont", R_CreateImGuiFontImage );
 
-	brdfLutImage = globalImages->ImageFromFunction( "_brdfLut", R_CreateBrdfLutImage );
+	chromeSpecImage = ImageFromFunction( "_chromeSpec", R_ChromeSpecImage );
+	plasticSpecImage = ImageFromFunction( "_plasticSpec", R_PlasticSpecImage );
+	brdfLutImage = ImageFromFunction( "_brdfLut", R_CreateBrdfLutImage );
 	// RB end
 
 	// scratchImage is used for screen wipes/doublevision etc..

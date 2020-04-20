@@ -2512,6 +2512,17 @@ void idMaterial::ParseMaterial( idLexer& src )
 			newSrc.FreeSource();
 			continue;
 		}
+		// RB: rmaomap for stage shortcut
+		else if( !token.Icmp( "rmaomap" ) || !token.Icmp( "reflectionmap" )  || !token.Icmp( "pbrmap" ) )
+		{
+			str = R_ParsePastImageProgram( src );
+			idStr::snPrintf( buffer, sizeof( buffer ), "blend rmaomap\nmap %s\n}\n", str );
+			newSrc.LoadMemory( buffer, strlen( buffer ), "rmaomap" );
+			newSrc.SetFlags( LEXFL_NOFATALERRORS | LEXFL_NOSTRINGCONCAT | LEXFL_NOSTRINGESCAPECHARS | LEXFL_ALLOWPATHNAMES );
+			ParseStage( newSrc, trpDefault );
+			newSrc.FreeSource();
+			continue;
+		}
 		// normalmap for stage shortcut
 		else if( !token.Icmp( "bumpmap" ) || !token.Icmp( "normalmap" ) )
 		{
