@@ -305,7 +305,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	const float roughness = 1.0 - glossiness;
 	
 	half3 diffuseColor = diffuseMap;
-	half3 specularColor = specMap.rgb;
+	half3 specularColor = specMapSRGB.rgb; // RB: should be linear but it looks too flat
 #endif
 
 		
