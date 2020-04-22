@@ -5801,6 +5801,7 @@ void idRenderBackend::MotionBlur()
 
 	GL_SelectTexture( 0 );
 	globalImages->currentRenderImage->Bind();
+
 	GL_SelectTexture( 1 );
 	globalImages->currentDepthImage->Bind();
 
@@ -6066,13 +6067,15 @@ void idRenderBackend::PostProcess( const void* data )
 		{
 			jitterTexOffset[0] = ( rand() & 255 ) / 255.0;
 			jitterTexOffset[1] = ( rand() & 255 ) / 255.0;
+			jitterTexOffset[2] = Sys_Milliseconds() / 1000.0f;
 		}
 		else
 		{
 			jitterTexOffset[0] = 0;
 			jitterTexOffset[1] = 0;
+			jitterTexOffset[2] = 0.0f;
 		}
-		jitterTexOffset[2] = 0.0f;
+
 		jitterTexOffset[3] = 0.0f;
 		SetFragmentParm( RENDERPARM_JITTERTEXOFFSET, jitterTexOffset ); // rpJitterTexOffset
 
