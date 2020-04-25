@@ -2,10 +2,10 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2013-2020 Robert Beckebans
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "global.inc.hlsl"
 #include "BRDF.inc.hlsl"
 
+// *INDENT-OFF*
 uniform sampler2D samp0 : register(s0); // texture 1 is the per-surface normal map
 uniform sampler2D samp1 : register(s1); // texture 3 is the per-surface specular or roughness/metallic/AO mixer map
 uniform sampler2D samp2 : register(s2); // texture 2 is the per-surface baseColor map 
@@ -39,7 +40,8 @@ uniform sampler2D samp4 : register(s4); // texture 5 is unused
 uniform samplerCUBE	samp7 : register(s7); // texture 6 is the irradiance cube map
 uniform samplerCUBE	samp8 : register(s8); // texture 7 is the radiance cube map
 
-struct PS_IN {
+struct PS_IN 
+{
 	half4 position	: VPOS;
 	half4 texcoord0	: TEXCOORD0_centroid;
 	half4 texcoord1	: TEXCOORD1_centroid;
@@ -51,9 +53,11 @@ struct PS_IN {
 	half4 color		: COLOR0;
 };
 
-struct PS_OUT {
+struct PS_OUT
+{
 	half4 color : COLOR;
 };
+// *INDENT-ON*
 
 void main( PS_IN fragment, out PS_OUT result )
 {
@@ -82,15 +86,15 @@ void main( PS_IN fragment, out PS_OUT result )
 	//half3 specularContribution = _half3( pow( abs( hDotN ), specularPower ) );
 
 	//half3 diffuseColor = diffuseMap * ( rpDiffuseModifier.xyz ) * 1.5f;
-	//half3 specularColor = specMap.xyz * specularContribution * ( rpSpecularModifier.xyz ); 
-	
+	//half3 specularColor = specMap.xyz * specularContribution * ( rpSpecularModifier.xyz );
+
 	// RB: http://developer.valvesoftware.com/wiki/Half_Lambert
 	//float halfLdotN = dot3( localNormal, lightVector ) * 0.5 + 0.5;
 	//halfLdotN *= halfLdotN;
-	
+
 	// traditional very dark Lambert light model used in Doom 3
 	//float ldotN = dot3( localNormal, lightVector );
-	
+
 	float3 globalNormal;
 	globalNormal.x = dot3( localNormal, fragment.texcoord4 );
 	globalNormal.y = dot3( localNormal, fragment.texcoord5 );
@@ -100,7 +104,8 @@ void main( PS_IN fragment, out PS_OUT result )
 
 	float3 reflectionVector = globalNormal * dot3( globalEye, globalNormal );
 	reflectionVector = ( reflectionVector * 2.0f ) - globalEye;
-	
+
+	half vDotN = saturate( dot3( globalEye, globalNormal ) );
 
 #if defined( USE_PBR )
 	const half metallic = specMapSRGB.g;
@@ -109,15 +114,18 @@ void main( PS_IN fragment, out PS_OUT result )
 
 	// the vast majority of real-world materials (anything not metal or gems) have F(0°)
 	// values in a very narrow range (~0.02 - 0.08)
-	
+
 	// approximate non-metals with linear RGB 0.04 which is 0.08 * 0.5 (default in UE4)
 	const half3 dielectricColor = half3( 0.04 );
-	
+
 	// derive diffuse and specular from albedo(m) base color
 	const half3 baseColor = diffuseMap;
-	
+
 	half3 diffuseColor = baseColor * ( 1.0 - metallic );
 	half3 specularColor = lerp( dielectricColor, baseColor, metallic );
+
+	float3 kS = Fresnel_SchlickRoughness( specularColor, vDotN, roughness );
+	float3 kD = ( float3( 1.0, 1.0, 1.0 ) - kS ) * ( 1.0 - metallic );
 
 #if defined( DEBUG_PBR )
 	diffuseColor = half3( 0.0, 0.0, 0.0 );
@@ -127,14 +135,19 @@ void main( PS_IN fragment, out PS_OUT result )
 #else
 	// HACK calculate roughness from D3 gloss maps
 	float Y = dot( LUMINANCE_SRGB.rgb, specMapSRGB.rgb );
-	
+
 	//const float glossiness = clamp( 1.0 - specMapSRGB.r, 0.0, 0.98 );
 	const float glossiness = clamp( pow( Y, 1.0 / 2.0 ), 0.0, 0.98 );
-	
+
 	const float roughness = 1.0 - glossiness;
-	
+
 	half3 diffuseColor = diffuseMap;
 	half3 specularColor = specMap.rgb;
+
+	float3 kS = Fresnel_SchlickRoughness( specularColor, vDotN, roughness );
+
+	// metalness is missing
+	float3 kD = ( float3( 1.0, 1.0, 1.0 ) - kS );
 
 #if defined( DEBUG_PBR )
 	diffuseColor = half3( 0.0, 0.0, 0.0 );
@@ -142,32 +155,43 @@ void main( PS_IN fragment, out PS_OUT result )
 #endif
 
 #endif
-	
-	float3 diffuseLight = ( texCUBE( samp7, globalNormal ).rgb ) * diffuseColor * ( rpDiffuseModifier.xyz ) * 3.5;
-	
-	float mip = clamp( ( roughness * 7.0 ) + 0.0, 0.0, 10.0 );
-	float3 envColor = ( textureLod( samp8, reflectionVector, mip ).rgb ) * ( rpSpecularModifier.xyz ) * 0.5;
-	
-	float3 specularLight = envColor * specularColor;
-	
 
-	// add glossy fresnel
-	half hDotN = saturate( dot3( globalEye, globalNormal ) );
-	
-	half3 specularColor2 = half3( 0.0 );
-	float3 glossyFresnel = Fresnel_Glossy( specularColor2, roughness, hDotN );
-	
-	// horizon fade
+	float3 ao = float3( 1.0, 1.0, 1.0 );
+
+	// evaluate diffuse IBL
+
+	float3 irradiance = texCUBE( samp7, globalNormal ).rgb;
+	float3 diffuseLight = ( kD * irradiance * diffuseColor ) * ( rpDiffuseModifier.xyz * 3.0 );
+
+	// evaluate specular IBL
+
+	// should be 4.0
+	const float MAX_REFLECTION_LOD = 10.0;
+	float mip = clamp( ( roughness * MAX_REFLECTION_LOD ) + 0.0, 0.0, 10.0 );
+	float3 radiance = textureLod( samp8, reflectionVector, mip ).rgb;
+
+	// our LUT is upside down
+	float2 envBRDF  = texture( samp3, float2( max( vDotN, 0.0 ), roughness ) ).rg;
+	//float2 envBRDF  = texture( samp3, float2( max( vDotN, 0.0), 1.0 - roughness ) ).rg;
+
+#if 0
+	result.color.rgb = float3( envBRDF.x, envBRDF.y, 0.0 );
+	result.color.w = fragment.color.a;
+	return;
+#endif
+
+	float3 specularLight = radiance * ( kS * envBRDF.x + float3( envBRDF.y ) ) * ( rpSpecularModifier.xyz * 0.75 );
+
+#if 0
+	// Marmoset Horizon Fade trick
 	const half horizonFade = 1.3;
 	half horiz = saturate( 1.0 + horizonFade * saturate( dot3( reflectionVector, globalNormal ) ) );
 	horiz *= horiz;
 	//horiz = clamp( horiz, 0.0, 1.0 );
-	
-	//specularLight = glossyFresnel * envColor;
-	specularLight += glossyFresnel * envColor * ( rpSpecularModifier.xyz ) * 0.9 * horiz;
+#endif
 
 	half3 lightColor = sRGBToLinearRGB( rpAmbientColor.rgb );
-	
+
 	//result.color.rgb = diffuseLight;
 	//result.color.rgb = diffuseLight * lightColor;
 	//result.color.rgb = specularLight;

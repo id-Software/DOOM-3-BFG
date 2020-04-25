@@ -1704,8 +1704,8 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 	}
 	// RB end
 
-	//float lightScale = r_useHDR.GetBool() ? 3.0f : r_lightScale.GetFloat();
-	float lightScale = r_lightScale.GetFloat();
+	float lightScale = r_useHDR.GetBool() ? r_lightScale.GetFloat() * 0.666f : r_lightScale.GetFloat();
+	//float lightScale = r_lightScale.GetFloat();
 
 	for( int lightStageNum = 0; lightStageNum < lightShader->GetNumStages(); lightStageNum++ )
 	{

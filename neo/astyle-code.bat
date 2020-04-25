@@ -4,6 +4,7 @@ astyle.exe -v --formatted --options=astyle-options.ini --exclude="libs" --exclud
 astyle.exe -v --formatted --options=astyle-options.ini --recursive libs/imgui/*.h
 astyle.exe -v --formatted --options=astyle-options.ini --recursive libs/imgui/*.cpp
 
+astyle.exe -v -Q --options=astyle-options.ini ../base/renderprogs/ambient_lighting_IBL.ps.hlsl
 astyle.exe -v -Q --options=astyle-options.ini ../base/renderprogs/postprocess.ps.hlsl
 astyle.exe -v -Q --options=astyle-options.ini ../base/renderprogs/AmbientOcclusion_AO.ps.hlsl
 astyle.exe -v -Q --options=astyle-options.ini ../base/renderprogs/AmbientOcclusion_blur.ps.hlsl

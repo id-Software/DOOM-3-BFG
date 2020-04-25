@@ -47,6 +47,7 @@ struct PS_OUT
 // *INDENT-ON*
 
 #define USE_CHROMATIC_ABERRATION			1
+#define Chromatic_Amount					0.075
 
 #define USE_TECHNICOLOR						0		// [0 or 1]
 
@@ -146,7 +147,7 @@ float3 SpectrumOffset( float t )
 
 void ChromaticAberrationPass( inout float4 color )
 {
-	float amount = 0.1;  //color.a * 1.0; //rpUser0.x;
+	float amount = Chromatic_Amount; //color.a * 1.0; //rpUser0.x;
 
 	float3 sum = float3( 0.0 );
 	float3 sumColor = float3( 0.0 );
