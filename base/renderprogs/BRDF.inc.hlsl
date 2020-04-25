@@ -69,7 +69,7 @@ half3 Fresnel_SchlickRoughness( half3 specularColor, half vDotN, half roughness 
 // Sébastien Lagarde proposes an empirical approach to derive the specular occlusion term from the diffuse occlusion term in [Lagarde14].
 // The result does not have any physical basis but produces visually pleasant results.
 // See Sébastien Lagarde and Charles de Rousiers. 2014. Moving Frostbite to PBR.
-float ComputeSpecularAO( float vDotN, float ao, float roughness)
+float ComputeSpecularAO( float vDotN, float ao, float roughness )
 {
     return clamp( pow( vDotN + ao, exp2( -16.0 * roughness - 1.0) ) - 1.0 + ao, 0.0, 1.0 );
 }

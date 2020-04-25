@@ -1198,14 +1198,14 @@ GENERAL INTERACTION RENDERING
 const int INTERACTION_TEXUNIT_BUMP			= 0;
 const int INTERACTION_TEXUNIT_SPECULARMIX	= 1;
 const int INTERACTION_TEXUNIT_BASECOLOR		= 2;
-const int INTERACTION_TEXUNIT_FALLOFF		= 3;
-const int INTERACTION_TEXUNIT_PROJECTION	= 4;
+const int INTERACTION_TEXUNIT_FALLOFF		= 3;	// RB: also _brdfLut
+const int INTERACTION_TEXUNIT_PROJECTION	= 4;	// RB: also SSAO render target
 const int INTERACTION_TEXUNIT_SHADOWMAPS	= 5;
 const int INTERACTION_TEXUNIT_JITTER		= 6;
 
 #if defined( USE_VULKAN )
-	const int INTERACTION_TEXUNIT_AMBIENT_CUBE1 = 4;
-	const int INTERACTION_TEXUNIT_SPECULAR_CUBE1 = 5;
+	const int INTERACTION_TEXUNIT_AMBIENT_CUBE1 = 5;
+	const int INTERACTION_TEXUNIT_SPECULAR_CUBE1 = 6;
 #else
 	const int INTERACTION_TEXUNIT_AMBIENT_CUBE1 = 7;
 	const int INTERACTION_TEXUNIT_SPECULAR_CUBE1 = 8;
@@ -1357,6 +1357,17 @@ void idRenderBackend::DrawSingleInteraction( drawInteraction_t* din, bool useFas
 
 		GL_SelectTexture( INTERACTION_TEXUNIT_FALLOFF );
 		globalImages->brdfLutImage->Bind();
+
+		GL_SelectTexture( INTERACTION_TEXUNIT_PROJECTION );
+		if( !r_useSSAO.GetBool() )
+		{
+			globalImages->whiteImage->Bind();
+			//globalImages->brdfLutImage->Bind();
+		}
+		else
+		{
+			globalImages->ambientOcclusionImage[0]->Bind();
+		}
 
 		GL_SelectTexture( INTERACTION_TEXUNIT_AMBIENT_CUBE1 );
 		globalImages->defaultUACIrradianceCube->Bind();
@@ -2186,9 +2197,10 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 		//}
 		//else
 		{
-#if 1
 			if( fillGbuffer )
 			{
+				// TODO support PBR textures and store roughness in the alpha channel
+
 				// fill geometry buffer with normal/roughness information
 				if( drawSurf->jointCache )
 				{
@@ -2200,43 +2212,18 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 				}
 			}
 			else
-#endif
 			{
-#if 0
-				if( useIBL )
+
+				// TODO support PBR textures
+
+				// draw Quake 4 style ambient
+				if( drawSurf->jointCache )
 				{
-					// draw Quake 4 style ambient
-					/*
-					if( drawSurf->jointCache )
-					{
-						renderProgManager.BindShader_ImageBasedLightingSkinned();
-					}
-					else
-					{
-						renderProgManager.BindShader_ImageBasedLighting();
-					}
-					*/
-
-					GL_SelectTexture( INTERACTION_TEXUNIT_AMBIENT_CUBE1 );
-					globalImages->defaultUACIrradianceCube->Bind();
-
-					GL_SelectTexture( INTERACTION_TEXUNIT_SPECULAR_CUBE1 );
-					globalImages->defaultUACRadianceCube->Bind();
+					renderProgManager.BindShader_AmbientLightingSkinned();
 				}
 				else
-#endif
 				{
-					// TODO support PBR textures
-
-					// draw Quake 4 style ambient
-					if( drawSurf->jointCache )
-					{
-						renderProgManager.BindShader_AmbientLightingSkinned();
-					}
-					else
-					{
-						renderProgManager.BindShader_AmbientLighting();
-					}
+					renderProgManager.BindShader_AmbientLighting();
 				}
 			}
 		}
@@ -4725,7 +4712,7 @@ void idRenderBackend::Bloom( const viewDef_t* _viewDef )
 }
 
 
-void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef )
+void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef, bool downModulateScreen )
 {
 #if !defined(USE_VULKAN)
 	if( !_viewDef->viewEntitys || _viewDef->is2Dgui )
@@ -4891,32 +4878,52 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 
 	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS | GLS_CULL_TWOSIDED );
 
-	if( r_ssaoFiltering.GetBool() )
+
+	if( downModulateScreen )
+	{
+		if( r_ssaoFiltering.GetBool() )
+		{
+			globalFramebuffers.ambientOcclusionFBO[0]->Bind();
+
+			glClearColor( 0, 0, 0, 0 );
+			glClear( GL_COLOR_BUFFER_BIT );
+
+			renderProgManager.BindShader_AmbientOcclusion();
+		}
+		else
+		{
+			if( r_ssaoDebug.GetInteger() <= 0 )
+			{
+				GL_State( GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO | GLS_ALPHAMASK | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
+			}
+
+			if( hdrIsActive )
+			{
+				globalFramebuffers.hdrFBO->Bind();
+			}
+			else
+			{
+				Framebuffer::Unbind();
+			}
+
+			renderProgManager.BindShader_AmbientOcclusionAndOutput();
+		}
+	}
+	else
 	{
 		globalFramebuffers.ambientOcclusionFBO[0]->Bind();
 
 		glClearColor( 0, 0, 0, 0 );
 		glClear( GL_COLOR_BUFFER_BIT );
 
-		renderProgManager.BindShader_AmbientOcclusion();
-	}
-	else
-	{
-		if( r_ssaoDebug.GetInteger() <= 0 )
+		if( r_ssaoFiltering.GetBool() )
 		{
-			GL_State( GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO | GLS_ALPHAMASK | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
-		}
-
-		if( hdrIsActive )
-		{
-			globalFramebuffers.hdrFBO->Bind();
+			renderProgManager.BindShader_AmbientOcclusion();
 		}
 		else
 		{
-			Framebuffer::Unbind();
+			renderProgManager.BindShader_AmbientOcclusionAndOutput();
 		}
-
-		renderProgManager.BindShader_AmbientOcclusionAndOutput();
 	}
 
 	float screenCorrectionParm[4];
@@ -4996,18 +5003,25 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 #endif
 
 		// AO blur Y
-		if( hdrIsActive )
+		if( downModulateScreen )
 		{
-			globalFramebuffers.hdrFBO->Bind();
+			if( hdrIsActive )
+			{
+				globalFramebuffers.hdrFBO->Bind();
+			}
+			else
+			{
+				Framebuffer::Unbind();
+			}
+
+			if( r_ssaoDebug.GetInteger() <= 0 )
+			{
+				GL_State( GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
+			}
 		}
 		else
 		{
-			Framebuffer::Unbind();
-		}
-
-		if( r_ssaoDebug.GetInteger() <= 0 )
-		{
-			GL_State( GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
+			globalFramebuffers.ambientOcclusionFBO[0]->Bind();
 		}
 
 		renderProgManager.BindShader_AmbientOcclusionBlurAndOutput();
@@ -5023,6 +5037,19 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 		globalImages->ambientOcclusionImage[1]->Bind();
 
 		DrawElementsWithCounters( &unitSquareSurface );
+	}
+
+	if( !downModulateScreen )
+	{
+		// go back to main scene render target
+		if( hdrIsActive )
+		{
+			globalFramebuffers.hdrFBO->Bind();
+		}
+		else
+		{
+			Framebuffer::Unbind();
+		}
 	}
 
 	renderProgManager.Unbind();
@@ -5520,7 +5547,12 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 	AmbientPass( drawSurfs, numDrawSurfs, true );
 
 	//-------------------------------------------------
-	// fill the depth buffer and the color buffer with precomputed Q3A style lighting
+	// build hierarchical depth buffer and SSAO render target
+	//-------------------------------------------------
+	DrawScreenSpaceAmbientOcclusion( _viewDef, false );
+
+	//-------------------------------------------------
+	// render static lighting and consider SSAO results
 	//-------------------------------------------------
 	AmbientPass( drawSurfs, numDrawSurfs, false );
 
@@ -5541,7 +5573,7 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 	//-------------------------------------------------
 	// darken the scene using the screen space ambient occlusion
 	//-------------------------------------------------
-	DrawScreenSpaceAmbientOcclusion( _viewDef );
+	//DrawScreenSpaceAmbientOcclusion( _viewDef );
 	//RB_SSGI( _viewDef );
 
 	//-------------------------------------------------
