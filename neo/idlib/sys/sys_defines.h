@@ -40,7 +40,11 @@ If you have questions concerning this license or the applicable additional terms
 // Win32
 #if defined(WIN32) || defined(_WIN32)
 
-	#define	CPUSTRING						"x86"
+	#if defined(_WIN64)
+		#define	CPUSTRING						"x64"
+	#else
+		#define	CPUSTRING						"x86"
+	#endif
 
 	#define	BUILD_STRING					"win-" CPUSTRING
 
