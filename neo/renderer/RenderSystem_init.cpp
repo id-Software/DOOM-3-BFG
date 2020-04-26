@@ -296,8 +296,8 @@ idCVar r_ssaoDebug( "r_ssaoDebug", "0", CVAR_RENDERER | CVAR_INTEGER, "" );
 idCVar r_ssaoFiltering( "r_ssaoFiltering", "1", CVAR_RENDERER | CVAR_BOOL, "" );
 idCVar r_useHierarchicalDepthBuffer( "r_useHierarchicalDepthBuffer", "1", CVAR_RENDERER | CVAR_BOOL, "" );
 
-idCVar r_useIBL( "r_useIBL", "0", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_BOOL, "use Image Based Lighting for ambient lighting (PBR)" );
-idCVar r_pbrDebug( "r_pbrDebug", "0", CVAR_RENDERER | CVAR_INTEGER, "show which materials have PBR support (green = PBR, red = oldschool D3), requires reloadShaders" );
+idCVar r_usePBR( "r_usePBR", "1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_BOOL, "use PBR and Image Based Lighting instead of old Quake 4 style ambient lighting" );
+idCVar r_pbrDebug( "r_pbrDebug", "0", CVAR_RENDERER | CVAR_INTEGER, "show which materials have PBR support (green = PBR, red = oldschool D3)" );
 
 idCVar r_exposure( "r_exposure", "0.5", CVAR_ARCHIVE | CVAR_RENDERER | CVAR_FLOAT, "HDR exposure or LDR brightness [0.0 .. 1.0]", 0.0f, 1.0f );
 // RB end

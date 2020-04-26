@@ -124,13 +124,13 @@ void main( PS_IN fragment, out PS_OUT result )
 	half3 diffuseColor = baseColor * ( 1.0 - metallic );
 	half3 specularColor = lerp( dielectricColor, baseColor, metallic );
 
-	float3 kS = Fresnel_SchlickRoughness( specularColor, vDotN, roughness );
-	float3 kD = ( float3( 1.0, 1.0, 1.0 ) - kS ) * ( 1.0 - metallic );
-
 #if defined( DEBUG_PBR )
 	diffuseColor = half3( 0.0, 0.0, 0.0 );
 	specularColor = half3( 0.0, 1.0, 0.0 );
 #endif
+
+	float3 kS = Fresnel_SchlickRoughness( specularColor, vDotN, roughness );
+	float3 kD = ( float3( 1.0, 1.0, 1.0 ) - kS ) * ( 1.0 - metallic );
 
 #else
 	// HACK calculate roughness from D3 gloss maps
@@ -144,15 +144,15 @@ void main( PS_IN fragment, out PS_OUT result )
 	half3 diffuseColor = diffuseMap;
 	half3 specularColor = specMap.rgb;
 
-	float3 kS = Fresnel_SchlickRoughness( specularColor, vDotN, roughness );
-
-	// metalness is missing
-	float3 kD = ( float3( 1.0, 1.0, 1.0 ) - kS );
-
 #if defined( DEBUG_PBR )
 	diffuseColor = half3( 0.0, 0.0, 0.0 );
 	specularColor = half3( 1.0, 0.0, 0.0 );
 #endif
+
+	float3 kS = Fresnel_SchlickRoughness( specularColor, vDotN, roughness );
+
+	// NOTE: metalness is missing
+	float3 kD = ( float3( 1.0, 1.0, 1.0 ) - kS );
 
 #endif
 
