@@ -2140,13 +2140,13 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 	idVec4 ambientColor;
 	float ambientBoost = 1.0f;
 
-	if( !r_useIBL.GetBool() )
+	if( !r_usePBR.GetBool() )
 	{
 		ambientBoost += r_useSSAO.GetBool() ? 0.2f : 0.0f;
 		ambientBoost *= r_useHDR.GetBool() ? 1.1f : 1.0f;
 	}
 
-	bool useIBL = r_useIBL.GetBool() && !fillGbuffer;
+	bool useIBL = r_usePBR.GetBool() && !fillGbuffer;
 
 	ambientColor.x = r_forceAmbient.GetFloat() * ambientBoost;
 	ambientColor.y = r_forceAmbient.GetFloat() * ambientBoost;
