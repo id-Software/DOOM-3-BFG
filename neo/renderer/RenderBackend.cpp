@@ -5,7 +5,7 @@ Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2014 Carl Kenner
 Copyright (C) 2016-2017 Dustin Land
-Copyright (C) 2013-2019 Robert Beckebans
+Copyright (C) 2013-2020 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -1692,14 +1692,17 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 		{
 			jitterTexOffset[0] = ( rand() & 255 ) / 255.0;
 			jitterTexOffset[1] = ( rand() & 255 ) / 255.0;
+
+			jitterTexOffset[2] = Sys_Milliseconds() / 1000.0f;
+			jitterTexOffset[3] = tr.frameCount % 64;
 		}
 		else
 		{
 			jitterTexOffset[0] = 0;
 			jitterTexOffset[1] = 0;
+			jitterTexOffset[2] = 0.0f;
+			jitterTexOffset[3] = 0.0f;
 		}
-		jitterTexOffset[2] = 0.0f;
-		jitterTexOffset[3] = 0.0f;
 		SetFragmentParm( RENDERPARM_JITTERTEXOFFSET, jitterTexOffset ); // rpJitterTexOffset
 
 		if( vLight->parallel )
@@ -1760,6 +1763,8 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 
 			// texture 6 will be the jitter texture for soft shadowing
 			GL_SelectTexture( INTERACTION_TEXUNIT_JITTER );
+			globalImages->blueNoiseImage256->Bind();
+			/*
 			if( r_shadowMapSamples.GetInteger() == 16 )
 			{
 				globalImages->jitterImage16->Bind();
@@ -1772,6 +1777,7 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 			{
 				globalImages->jitterImage1->Bind();
 			}
+			*/
 		}
 
 		// force the light textures to not use anisotropic filtering, which is wasted on them
@@ -6080,16 +6086,16 @@ void idRenderBackend::PostProcess( const void* data )
 		globalImages->currentRenderImage->Bind();
 
 		GL_SelectTexture( 1 );
-		globalImages->grainImage1->Bind();
+		globalImages->blueNoiseImage256->Bind();
 
 		renderProgManager.BindShader_PostProcess();
 
-		const static int GRAIN_SIZE = 128;
+		const static int BLUENOISE_SIZE = 256;
 
 		// screen power of two correction factor
 		float screenCorrectionParm[4];
-		screenCorrectionParm[0] = 1.0f / GRAIN_SIZE;
-		screenCorrectionParm[1] = 1.0f / GRAIN_SIZE;
+		screenCorrectionParm[0] = 1.0f / BLUENOISE_SIZE;
+		screenCorrectionParm[1] = 1.0f / BLUENOISE_SIZE;
 		screenCorrectionParm[2] = 1.0f;
 		screenCorrectionParm[3] = 1.0f;
 		SetFragmentParm( RENDERPARM_SCREENCORRECTIONFACTOR, screenCorrectionParm ); // rpScreenCorrectionFactor
@@ -6099,16 +6105,18 @@ void idRenderBackend::PostProcess( const void* data )
 		{
 			jitterTexOffset[0] = ( rand() & 255 ) / 255.0;
 			jitterTexOffset[1] = ( rand() & 255 ) / 255.0;
+
 			jitterTexOffset[2] = Sys_Milliseconds() / 1000.0f;
+			jitterTexOffset[3] = tr.frameCount % 64;
 		}
 		else
 		{
 			jitterTexOffset[0] = 0;
 			jitterTexOffset[1] = 0;
 			jitterTexOffset[2] = 0.0f;
+			jitterTexOffset[3] = 0.0f;
 		}
 
-		jitterTexOffset[3] = 0.0f;
 		SetFragmentParm( RENDERPARM_JITTERTEXOFFSET, jitterTexOffset ); // rpJitterTexOffset
 
 		// Draw

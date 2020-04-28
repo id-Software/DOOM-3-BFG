@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
-Copyright (C) 2013-2016 Robert Beckebans
+Copyright (C) 2013-2020 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
 
@@ -248,3 +248,27 @@ static float2 vposToScreenPosTexCoord( float2 vpos ) { return vpos.xy * rpWindow
 
 #define BRANCH
 #define IFANY
+
+
+//note: works for structured patterns too
+// [0;1[
+float RemapNoiseTriErp( const float v )
+{
+	float r2 = 0.5 * v;
+	float f1 = sqrt( r2 );
+	float f2 = 1.0 - sqrt( r2 - 0.25 );
+	return ( v < 0.5 ) ? f1 : f2;
+}
+
+//note: returns [-intensity;intensity[, magnitude of 2x intensity
+//note: from "NEXT GENERATION POST PROCESSING IN CALL OF DUTY: ADVANCED WARFARE"
+//      http://advances.realtimerendering.com/s2014/index.html
+float InterleavedGradientNoise( float2 uv )
+{
+	
+	const float3 magic = float3( 0.06711056, 0.00583715, 52.9829189 );
+	float rnd = fract( magic.z * fract( dot( uv, magic.xy ) ) );
+
+	return rnd;
+}
+

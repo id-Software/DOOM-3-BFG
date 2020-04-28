@@ -559,6 +559,7 @@ public:
 	idImage*			jitterImage16;
 	idImage*			grainImage1;
 	idImage*			randomImage256;
+	idImage*			blueNoiseImage256;
 	idImage*			currentRenderHDRImage;
 #if defined(USE_HDR_MSAA)
 	idImage*			currentRenderHDRImageNoMSAA;

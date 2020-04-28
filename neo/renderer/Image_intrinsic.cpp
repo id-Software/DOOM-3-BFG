@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013-2015 Robert Beckebans
+Copyright (C) 2013-2020 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -36,6 +36,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "SMAA/AreaTex.h"
 #include "SMAA/SearchTex.h"
 #include "Image_brdfLut.h"
+#include "Image_blueNoiseVC_1M.h" // 256^2 R8 data
+//#include "Image_blueNoiseVC_2.h" // 512^2 RGB8 data
 
 #define	DEFAULT_SIZE	16
 
@@ -679,6 +681,30 @@ static void R_CreateRandom256Image( idImage* image )
 	image->GenerateImage( ( byte* )data, 256, 256, TF_NEAREST, TR_REPEAT, TD_LOOKUP_TABLE_RGBA );
 }
 
+// RB
+static void R_CreateBlueNoise256Image( idImage* image )
+{
+	static byte	data[BLUENOISE_TEX_HEIGHT][BLUENOISE_TEX_WIDTH][4];
+
+	for( int x = 0; x < BLUENOISE_TEX_WIDTH; x++ )
+	{
+		for( int y = 0; y < BLUENOISE_TEX_HEIGHT; y++ )
+		{
+#if 0
+			data[x][y][0] = blueNoiseTexBytes[ y * BLUENOISE_TEX_PITCH + x * 3 + 0 ];
+			data[x][y][1] = blueNoiseTexBytes[ y * BLUENOISE_TEX_PITCH + x * 3 + 1 ];
+			data[x][y][2] = blueNoiseTexBytes[ y * BLUENOISE_TEX_PITCH + x * 3 + 2 ];
+#else
+			data[x][y][0] = blueNoiseTexBytes[ y * BLUENOISE_TEX_PITCH + x ];
+			data[x][y][1] = blueNoiseTexBytes[ y * BLUENOISE_TEX_PITCH + x ];
+			data[x][y][2] = blueNoiseTexBytes[ y * BLUENOISE_TEX_PITCH + x ];
+#endif
+			data[x][y][3] = 1;
+		}
+	}
+
+	image->GenerateImage( ( byte* )data, BLUENOISE_TEX_WIDTH, BLUENOISE_TEX_HEIGHT, TF_NEAREST, TR_REPEAT, TD_LOOKUP_TABLE_RGBA );
+}
 
 
 static void R_CreateHeatmap5ColorsImage( idImage* image )
@@ -951,6 +977,7 @@ void idImageManager::CreateIntrinsicImages()
 	jitterImage16 = globalImages->ImageFromFunction( "_jitter16", R_CreateJitterImage16 );
 
 	randomImage256 = globalImages->ImageFromFunction( "_random256", R_CreateRandom256Image );
+	blueNoiseImage256 = globalImages->ImageFromFunction( "_blueNoise256", R_CreateBlueNoise256Image );
 
 	currentRenderHDRImage = globalImages->ImageFromFunction( "_currentRenderHDR", R_HDR_RGBA16FImage_ResNative );
 #if defined(USE_HDR_MSAA)

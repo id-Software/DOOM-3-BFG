@@ -59,6 +59,20 @@ struct PS_OUT
 	half4 color : COLOR;
 };
 
+
+float BlueNoise( float2 n, float x )
+{
+    float noise = tex2D( samp6, ( n.xy / 256.0 ) ).r;
+    
+    noise = fract( noise + 0.61803398875 * rpJitterTexOffset.z * x );
+    
+    noise = RemapNoiseTriErp( noise );
+    
+    //noise = noise * 2.0 - 1.0;
+    
+    return noise;
+}
+
 void main( PS_IN fragment, out PS_OUT result )
 {
 	half4 bumpMap =			tex2D( samp0, fragment.texcoord1.xy );
@@ -223,7 +237,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	
 	shadow *= stepSize;
 
-#elif 1
+#elif 0
 	
 	const float2 poissonDisk[12] = float2[](
 	float2(0.6111618, 0.1050905),
@@ -268,6 +282,57 @@ void main( PS_IN fragment, out PS_OUT result )
 
    shadow *= stepSize;
 
+   
+ #elif 1
+	
+    const float2 poissonDisk[12] = float2[](
+	float2(0.6111618, 0.1050905),
+	float2(0.1088336, 0.1127091),
+	float2(0.3030421, -0.6292974),
+	float2(0.4090526, 0.6716492),
+	float2(-0.1608387, -0.3867823),
+	float2(0.7685862, -0.6118501),
+	float2(-0.1935026, -0.856501),
+	float2(-0.4028573, 0.07754025),
+	float2(-0.6411021, -0.4748057),
+	float2(-0.1314865, 0.8404058),
+	float2(-0.7005203, 0.4596822),
+	float2(-0.9713828, -0.06329931) );
+	
+	float shadow = 0.0;
+	
+	// RB: casting a float to int and using it as index can really kill the performance ...
+	float numSamples = 6.0; //int(rpScreenCorrectionFactor.w);
+	float stepSize = 1.0 / numSamples;
+	
+	//float4 jitterTC = ( fragment.position * rpScreenCorrectionFactor ) + rpJitterTexOffset;
+	//float random = tex2D( samp6, jitterTC.xy ).x;
+    
+    float random = BlueNoise( fragment.position.xy * 1.0, 100.0 );
+    
+    //float random = InterleavedGradientNoise( fragment.position.xy );
+        
+    random *= PI;
+	
+	float2 rot;
+	rot.x = cos( random );
+	rot.y = sin( random );
+	
+	float shadowTexelSize = rpScreenCorrectionFactor.z * rpJitterTexScale.x;
+    for( int i = 0; i < 6; i++ )
+    {
+        float2 jitter = poissonDisk[i];
+		float2 jitterRotated;
+		jitterRotated.x = jitter.x * rot.x - jitter.y * rot.y;
+		jitterRotated.y = jitter.x * rot.y + jitter.y * rot.x;
+        
+		float4 shadowTexcoordJittered = float4( shadowTexcoord.xy + jitterRotated * shadowTexelSize, shadowTexcoord.z, shadowTexcoord.w );
+       
+        shadow += texture( samp5, shadowTexcoordJittered.xywz);
+    }
+
+   shadow *= stepSize;
+    
 #else
 
 	float shadow = texture( samp5, shadowTexcoord.xywz );
@@ -307,7 +372,8 @@ void main( PS_IN fragment, out PS_OUT result )
 	half3 diffuseColor = diffuseMap;
 	half3 specularColor = specMapSRGB.rgb; // RB: should be linear but it looks too flat
 #endif
-
+    
+    //diffuseColor = half3( 1.0 );
 		
 	// RB: compensate r_lightScale 3 and the division of Pi
 	//lambert *= 1.3;

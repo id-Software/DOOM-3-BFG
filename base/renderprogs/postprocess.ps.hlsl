@@ -32,7 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 
 // *INDENT-OFF*
 uniform sampler2D samp0		: register(s0);
-uniform sampler2D samp1		: register(s1);
+uniform sampler2D samp1		: register(s1); // blue noise 256
 
 struct PS_IN
 {
@@ -234,48 +234,58 @@ float PhotoLuma( float3 c )
 	return dot( c, photoLuma );
 }
 
-//note: works for structured patterns too
-// [0;1[
-float RemapNoiseTriErp( const float v )
+
+
+float BlueNoise( float2 n, float x )
 {
-	float r2 = 0.5 * v;
-	float f1 = sqrt( r2 );
-	float f2 = 1.0 - sqrt( r2 - 0.25 );
-	return ( v < 0.5 ) ? f1 : f2;
+	float noise = tex2D( samp1, ( n.xy / 512.0 ) * 1.0 ).r;
+
+	noise = fract( noise + 0.61803398875 * rpJitterTexOffset.z * x );
+
+	//noise = InterleavedGradientNoise( n );
+
+	noise = RemapNoiseTriErp( noise );
+
+	noise = noise * 2.0 - 1.0;
+
+	return noise;
 }
 
-#if 1
+float3 BlueNoise3( float2 n, float x )
+{
+	float3 noise = tex2D( samp1, ( n.xy / 512.0 ) * 1.0 ).rgb;
+
+	noise = fract( noise + 0.61803398875 * rpJitterTexOffset.z * x );
+
+	noise.x = RemapNoiseTriErp( noise.x );
+	noise.y = RemapNoiseTriErp( noise.y );
+	noise.z = RemapNoiseTriErp( noise.z );
+
+	noise = noise * 2.0 - 1.0;
+
+	return noise;
+}
+
+
 float Noise( float2 n, float x )
 {
-	// golden ratio
-	n += x;// * 1.61803398875;
+	n += x;
+
+#if 1
 	return fract( sin( dot( n.xy, float2( 12.9898, 78.233 ) ) ) * 43758.5453 ) * 2.0 - 1.0;
-}
-
 #else
+	//return BlueNoise( n, 55.0 );
+	return BlueNoise( n, 1.0 );
 
-//note: returns [-intensity;intensity[, magnitude of 2x intensity
-//note: from "NEXT GENERATION POST PROCESSING IN CALL OF DUTY: ADVANCED WARFARE"
-//      http://advances.realtimerendering.com/s2014/index.html
-//float InterleavedGradientNoise( vec2 uv )
-float Noise( float2 uv, float x )
-{
-	// RB: golden ratio
-	uv += x;// * 1.61803398875;
-
-	const float3 magic = vec3( 0.06711056, 0.00583715, 52.9829189 );
-	float rnd = fract( magic.z * fract( dot( uv, magic.xy ) ) );
-
-	//rnd = RemapNoiseTriErp(rnd) * 2.0 - 0.5;
-
-	return rnd;
-}
+	//return InterleavedGradientNoise( n ) * 2.0 - 1.0;
 #endif
+}
 
 // Step 1 in generation of the dither source texture.
 float Step1( float2 uv, float n )
 {
 	float a = 1.0, b = 2.0, c = -12.0, t = 1.0;
+
 	return ( 1.0 / ( a * 4.0 + b * 4.0 - c ) ) * (
 			   Noise( uv + float2( -1.0, -1.0 ) * t, n ) * a +
 			   Noise( uv + float2( 0.0, -1.0 ) * t, n ) * b +
@@ -293,6 +303,7 @@ float Step1( float2 uv, float n )
 float Step2( float2 uv, float n )
 {
 	float a = 1.0, b = 2.0, c = -2.0, t = 1.0;
+
 	return ( 1.0 / ( a * 4.0 + b * 4.0 - c ) ) * (
 			   Step1( uv + float2( -1.0, -1.0 ) * t, n ) * a +
 			   Step1( uv + float2( 0.0, -1.0 ) * t, n ) * b +
@@ -309,31 +320,53 @@ float Step2( float2 uv, float n )
 // Used for stills.
 float3 Step3( float2 uv )
 {
+#if 1
 	float a = Step2( uv, 0.07 );
 	float b = Step2( uv, 0.11 );
 	float c = Step2( uv, 0.13 );
-#if 0
-	// Monochrome can look better on stills.
-	return float3( a );
-#else
+
 	return float3( a, b, c );
+#else
+	//float a = BlueNoise( uv, 0.07 );
+	//float b = BlueNoise( uv, 0.11 );
+	//float c = BlueNoise( uv, 0.13 );
+
+	//float a = 1.0, b = 2.0, c = -12.0;
+	//return ( 1.0 / ( a * 4.0 + b * 4.0 - c ) ) * float3( BlueNoise( uv, 0.0 ) );
+	return BlueNoise3( uv, 0.0 );
 #endif
 }
 
 // Used for temporal dither.
 float3 Step3T( float2 uv )
 {
+#if 1
 	float a = Step2( uv, 0.07 * fract( rpJitterTexOffset.z ) );
 	float b = Step2( uv, 0.11 * fract( rpJitterTexOffset.z ) );
 	float c = Step2( uv, 0.13 * fract( rpJitterTexOffset.z ) );
+
 	return float3( a, b, c );
+#else
+	float a = BlueNoise( uv + 0.07, 1.0 );
+	float b = BlueNoise( uv + 0.11, 1.0 );
+	float c = BlueNoise( uv + 0.13, 1.0 );
+
+	//return BlueNoise3( uv + 0.07, 1.0 );
+	return float3( a, b, c );
+
+	//float a = 1.0, b = 2.0, c = -2.0, d = -12.0;
+
+	//float3 step2 = ( 1.0 / ( a * 4.0 + b * 4.0 - c ) ) * BlueNoise3( uv, 55.0 );
+	//return step2 * ( 1.0 / ( a * 4.0 + b * 4.0 - d ) ) * BlueNoise3( uv, 55.0 );
+#endif
 }
+
 
 #define STEPS 12.0
 
 void DitheringPass( inout float4 fragColor )
 {
-	float2 uv = fragment.position.xy;
+	float2 uv = fragment.position.xy * 1.0;
 	float2 uv2 = fragment.texcoord0;
 	//float2 uv3 = float2( uv2.x, 1.0 - uv2.y );
 
