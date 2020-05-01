@@ -55,9 +55,9 @@ I started this project in 2012 and focused on making this code being future proo
 	really good which should give you stable 100 fps on todays hardware (2014).
 * Changed light interaction shaders to use Half-Lambert lighting like in Half-Life 2 to 
 	make the game less dark. https://developer.valvesoftware.com/wiki/Half_Lambert
-* True 64 bit HDR lighting with adaptive tone mapping and gamma-correct rendering in linear RGB space
+* True internal 64 bit HDR lighting with filmic ACES tone mapping and gamma-correct rendering in linear RGB space
 * Enhanced Subpixel Morphological Antialiasing. For more information see "Anti-Aliasing Methods in CryENGINE 3" and the docs at http://www.iryoku.com/smaa/
-* Filmic post process effects like Technicolor color grading and film grain
+* Filmic post process effects like Chromatic Aberration and Dithering
 * Additional ambient render pass to make the game less dark similar to the Quake 4 r_forceAmbient technique
 * Screen Space Ambient Occlusion http://graphics.cs.williams.edu/papers/SAOHPG12/
 * Fixed Bink video playback through libbinkdec (thanks to Daniel Gibson) or FFmpeg (thanks to Carl Kenner)

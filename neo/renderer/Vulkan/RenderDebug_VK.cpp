@@ -547,7 +547,117 @@ Display a single image over most of the screen
 */
 void idRenderBackend::DBG_TestImage()
 {
+	idImage*	image = NULL;
+	idImage* imageCr = NULL;
+	idImage* imageCb = NULL;
+	int		max;
+	float	w, h;
 
+	image = tr.testImage;
+	if( !image )
+	{
+		return;
+	}
+
+	if( tr.testVideo )
+	{
+		cinData_t	cin;
+
+		cin = tr.testVideo->ImageForTime( viewDef->renderView.time[1] - tr.testVideoStartTime );
+		if( cin.imageY != NULL )
+		{
+			image = cin.imageY;
+			imageCr = cin.imageCr;
+			imageCb = cin.imageCb;
+		}
+		else
+		{
+			tr.testImage = NULL;
+			return;
+		}
+		w = 0.25;
+		h = 0.25;
+	}
+	else
+	{
+		max = image->GetUploadWidth() > image->GetUploadHeight() ? image->GetUploadWidth() : image->GetUploadHeight();
+
+		w = 0.25 * image->GetUploadWidth() / max;
+		h = 0.25 * image->GetUploadHeight() / max;
+
+		w *= ( float )renderSystem->GetHeight() / renderSystem->GetWidth();
+	}
+
+	// Set State
+	GL_State( GLS_DEPTHFUNC_ALWAYS | GLS_CULL_TWOSIDED | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO );
+
+	// Set Parms
+	float texS[4] = { 1.0f, 0.0f, 0.0f, 0.0f };
+	float texT[4] = { 0.0f, 1.0f, 0.0f, 0.0f };
+	renderProgManager.SetRenderParm( RENDERPARM_TEXTUREMATRIX_S, texS );
+	renderProgManager.SetRenderParm( RENDERPARM_TEXTUREMATRIX_T, texT );
+
+	float texGenEnabled[4] = { 0, 0, 0, 0 };
+	renderProgManager.SetRenderParm( RENDERPARM_TEXGEN_0_ENABLED, texGenEnabled );
+
+	// not really necessary but just for clarity
+	const float screenWidth = 1.0f;
+	const float screenHeight = 1.0f;
+	const float halfScreenWidth = screenWidth * 0.5f;
+	const float halfScreenHeight = screenHeight * 0.5f;
+
+	float scale[16] = { 0 };
+	scale[0] = w; // scale
+	scale[5] = h; // scale
+	scale[12] = halfScreenWidth - ( halfScreenWidth * w ); // translate
+	scale[13] = halfScreenHeight - ( halfScreenHeight * h ); // translate
+	scale[10] = 1.0f;
+	scale[15] = 1.0f;
+
+	// RB: orthographic projection is changed for Vulkan
+	float ortho[16] = { 0 };
+	ortho[0] = 2.0f / screenWidth;
+	ortho[5] = 2.0f / screenHeight;
+	ortho[10] = -1.0f;
+	ortho[12] = -1.0f;
+	ortho[13] = -1.0f;
+	ortho[14] = 0.0f;
+	ortho[15] = 1.0f;
+
+	float finalOrtho[16];
+	R_MatrixMultiply( scale, ortho, finalOrtho );
+
+	float projMatrixTranspose[16];
+	R_MatrixTranspose( finalOrtho, projMatrixTranspose );
+	renderProgManager.SetRenderParms( RENDERPARM_MVPMATRIX_X, projMatrixTranspose, 4 );
+
+	// Set Color
+	GL_Color( 1, 1, 1, 1 );
+
+	// Bind the Texture
+	if( ( imageCr != NULL ) && ( imageCb != NULL ) )
+	{
+		GL_SelectTexture( 0 );
+		image->Bind();
+
+		GL_SelectTexture( 1 );
+		imageCr->Bind();
+
+		GL_SelectTexture( 2 );
+		imageCb->Bind();
+
+		renderProgManager.BindShader_Bink();
+	}
+	else
+	{
+		GL_SelectTexture( 0 );
+		image->Bind();
+
+		renderProgManager.BindShader_Texture();
+	}
+
+	// Draw!
+	DrawElementsWithCounters( &testImageSurface );
 }
 
 // RB begin
@@ -588,7 +698,15 @@ idRenderBackend::DBG_RenderDebugTools
 */
 void idRenderBackend::DBG_RenderDebugTools( drawSurf_t** drawSurfs, int numDrawSurfs )
 {
+	// don't do much if this was a 2D rendering
+	if( !viewDef->viewEntitys )
+	{
+		DBG_TestImage();
+		DBG_ShowLines();
+		return;
+	}
 
+	// TODO
 }
 
 /*

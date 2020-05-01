@@ -13,7 +13,6 @@ RBDOOM-3-BFG Release Notes - https://github.com/RobertBeckebans/RBDOOM-3-BFG
 Thank you for downloading RBDOOM-3-BFG.
 
 
-
 _______________________________________
 
 TBD mid 2020 - Changes since RBDOOM-3-BFG 1.2.0
@@ -52,6 +51,8 @@ The main goal is that the new content looks the same in RBDOOM-3-BFG as in Blend
 
 * Added HACK to look for PBR reflection maps with the suffix _rmao if a specular map was specified and ends with _s.tga. This allows to override the materials with PBR textures without touching the material .mtr files.
 
+* Fixed ambient lights being too bright in HDR mode
+
 [VULKAN]
 
 * Fixed GPU Skinning with Vulkan
@@ -73,6 +74,8 @@ The main goal is that the new content looks the same in RBDOOM-3-BFG as in Blend
 * Removed 32bit support: FFmpeg and OpenAL libraries are only distributed as Win64 versions, 32bit CMakes files are gone
 
 * Added Blue Noise based Filmic Dithering by Timothy Lottes and Chromatic Aberration
+
+* Improved Shadow Mapping performance by reducing the number of taps from 12 to 6 and keeping a good quality using dithering the result with Blue Noise magic by Alan Wolfe
 
 * Artistic Style C++ beautifier configuration has slightly changed to work closer to Clang Format's behaviour
 
@@ -106,9 +109,9 @@ This is a maintenance release without Vulkan support even though it contains a l
 * Added in-engine Flash debugging tools and new console variables.
   These tools help to analyse the id Tech view of Flash and what SWF tags are supported and how they are interpreted
   by id Tech's own ActionScript 2 interpreter
-	- swf_exportAtlas
-	- swf_exportSWF
-	- swf_exportJSON
+	- postLoadExportAtlas
+	- postLoadExportSWF
+	- postLoadExportJSON
 	- swf_show : Draws the bounding box of instanced Flash sprites in red and their names
 
 * Added Steel Storm 2 Engine render demo fixes
