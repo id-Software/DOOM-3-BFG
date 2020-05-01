@@ -89,6 +89,9 @@ static VkFormat VK_GetFormatFromTextureFormat( const textureFormat_t format )
 		//case FMT_SHADOW_ARRAY:	// 32 bpp * 6
 		//	return VK_FORMAT_
 
+		case FMT_RG16F:
+			return VK_FORMAT_R16G16_SFLOAT;
+
 		// we might want to use UNORM instead of SFLOAT
 		// however this is intended to be used for the HDR lights buffer which should be allowed to go beyond 1.0
 		case FMT_RGBA16F:
