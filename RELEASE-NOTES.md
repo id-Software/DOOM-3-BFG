@@ -1,9 +1,11 @@
+```
     ____   ____   ____                           _____  ____   ______ ______
    / __ \ / __ ) / __ \ ____   ____   ____ ___  |__  / / __ ) / ____// ____/
   / /_/ // __  |/ / / // __ \ / __ \ / __ `__ \  /_ < / __  |/ /_   / / __  
  / _, _// /_/ // /_/ // /_/ // /_/ // / / / / /___/ // /_/ // __/  / /_/ /  
 /_/ |_|/_____//_____/ \____/ \____//_/ /_/ /_//____//_____//_/     \____/   
 _________________________________________
+```
 
 
 RBDOOM-3-BFG Release Notes - https://github.com/RobertBeckebans/RBDOOM-3-BFG
@@ -61,6 +63,8 @@ The main goal is that the new content looks the same in RBDOOM-3-BFG as in Blend
 * Added Git submodule glslang 7.10.2984 -> stable release Nov 15, 2018
 
 * Vulkan version builds on Linux. Big thanks to Eric Womer for helping out with the SDL 2 part
+
+* Fixed Bink video playback with Vulkan
 
 [MISCELLANEOUS]
 

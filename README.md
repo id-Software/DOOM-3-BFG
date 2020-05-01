@@ -1,5 +1,13 @@
-RBDOOM-3-BFG Readme - https://github.com/RobertBeckebans/RBDOOM-3-BFG
+```
+    ____   ____   ____                           _____  ____   ______ ______
+   / __ \ / __ ) / __ \ ____   ____   ____ ___  |__  / / __ ) / ____// ____/
+  / /_/ // __  |/ / / // __ \ / __ \ / __ `__ \  /_ < / __  |/ /_   / / __  
+ / _, _// /_/ // /_/ // /_/ // /_/ // / / / / /___/ // /_/ // __/  / /_/ /  
+/_/ |_|/_____//_____/ \____/ \____//_/ /_/ /_//____//_____//_/     \____/   
+_________________________________________
+```
 
+RBDOOM-3-BFG Readme - https://github.com/RobertBeckebans/RBDOOM-3-BFG
 
 <img src="https://i.imgur.com/jEmcriO.png">
 
@@ -402,7 +410,6 @@ convertMapToJSON <mapfile>             | Command: Convert .map file to new .json
 * [HDR] MSAA anti-aliasing modes don't work with HDR: Use SMAA
 * [HDR] HDR causes problems with the grabber gun
 * [HDR] HDR darkens the screen when you get hit by an enemy
-* [Vulkan] Video playback does not work
 * [Vulkan] Shadow Mapping is not supported yet
 * [Vulkan] HDR is not supported yet
 * [Vulkan] Post processing and SMAA is not supported yet

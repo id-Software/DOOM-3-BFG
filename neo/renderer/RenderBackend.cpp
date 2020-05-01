@@ -563,12 +563,6 @@ void idRenderBackend::BindVariableStageImage( const textureStage_t* texture, con
 {
 	if( texture->cinematic )
 	{
-#if defined(USE_VULKAN)
-
-		// FIXME upload of video image sub resources
-		GL_SelectTexture( 0 );
-		globalImages->defaultImage->Bind();
-#else
 		cinData_t cin;
 
 		if( r_skipDynamicTextures.GetBool() )
@@ -627,7 +621,6 @@ void idRenderBackend::BindVariableStageImage( const textureStage_t* texture, con
 			// SWF GUI case is handled better, too
 			renderProgManager.BindShader_TextureVertexColor();
 		}
-#endif
 	}
 	else
 	{
