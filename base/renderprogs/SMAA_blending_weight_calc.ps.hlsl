@@ -38,7 +38,7 @@ If you have questions concerning this license or the applicable additional terms
 uniform sampler2D samp0		: register(s0);		// _smaaEdges
 uniform sampler2D samp1		: register(s1);		// _smaaArea
 uniform sampler2D samp2		: register(s2);		// _smaaSearch
- 
+
 struct PS_IN
 {
 	float4 position : VPOS;
@@ -48,7 +48,7 @@ struct PS_IN
 	float4 texcoord3 : TEXCOORD3_centroid;
 	float4 texcoord4 : TEXCOORD4_centroid;
 };
- 
+
 struct PS_OUT
 {
 	float4 color : COLOR;
@@ -59,25 +59,25 @@ struct PS_OUT
 void main( PS_IN fragment, out PS_OUT result )
 {
 	float2 texcoord = fragment.texcoord0;
-	
+
 	float4 offset[3];
 	offset[0] = fragment.texcoord1;
 	offset[1] = fragment.texcoord2;
 	offset[2] = fragment.texcoord3;
 
 	float2 pixcoord = fragment.texcoord4.st;
-	
+
 	// TODO
 	//float4 subsampleIndices = float4( 1.0, 1.0, 1.0, 0.0 );
 	float4 subsampleIndices = float4( 0.0, 0.0, 0.0, 0.0 );
-	
+
 	float4 color = SMAABlendingWeightCalculationPS( texcoord,
-                                       pixcoord,
-                                       offset,
-                                       samp0,
-                                       samp1,
-                                       samp2,
-                                       subsampleIndices );
+				   pixcoord,
+				   offset,
+				   samp0,
+				   samp1,
+				   samp2,
+				   subsampleIndices );
 
 	//color = float4( texcoord.s, texcoord.t, 0.0, 1.0 );
 	result.color = color;

@@ -3,9 +3,9 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013 Robert Beckebans 
+Copyright (C) 2013 Robert Beckebans
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -35,6 +35,7 @@ uniform matrices_ubo { float4 matrices[408]; };
 #endif
 // RB end
 
+// *INDENT-OFF*
 uniform float4 rpUser0 : register(c128); // rpScroll
 uniform	float4 rpUser1 : register(c129); // rpDeformMagnitude
 
@@ -53,10 +54,12 @@ struct VS_OUT {
 	float4 texcoord1	: TEXCOORD1;
 	float4 texcoord2	: TEXCOORD2;
 };
+// *INDENT-ON*
 
-void main( VS_IN vertex, out VS_OUT result ) {
+void main( VS_IN vertex, out VS_OUT result )
+{
 
-	#include "skinning.inc.hlsl"
+#include "skinning.inc.hlsl"
 
 	// texture 0 takes the texture coordinates unmodified
 	result.texcoord0 = float4( vertex.texcoord.xy, 0, 0 );
@@ -69,12 +72,12 @@ void main( VS_IN vertex, out VS_OUT result ) {
 	float4 vec = float4( 0, 1, 0, 1 );
 	vec.z  = dot4( modelPosition, rpModelViewMatrixZ );
 
-	// magicProjectionAdjust is a magic scalar that scales the projection since we changed from 
-	// using the X axis to the Y axis to calculate R1.  It is an approximation to closely match 
+	// magicProjectionAdjust is a magic scalar that scales the projection since we changed from
+	// using the X axis to the Y axis to calculate R1.  It is an approximation to closely match
 	// what the original game did
 	const float magicProjectionAdjust = 0.43f;
-	float x = dot4 ( vec, rpProjectionMatrixY ) * magicProjectionAdjust;
-	float w = dot4 ( vec, rpProjectionMatrixW );
+	float x = dot4( vec, rpProjectionMatrixY ) * magicProjectionAdjust;
+	float w = dot4( vec, rpProjectionMatrixW );
 
 	// don't let the recip get near zero for polygons that cross the view plane
 	w = max( w, 1.0 );

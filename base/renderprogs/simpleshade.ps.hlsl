@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -28,6 +28,9 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "global.inc.hlsl"
 
+// *INDENT-OFF*
+uniform sampler2D	samp0 : register(s0);
+
 struct PS_IN {
 	float4 position		: VPOS;
 	float4 texcoord0	: TEXCOORD0_centroid;
@@ -36,8 +39,7 @@ struct PS_IN {
 struct PS_OUT {
 	float4 color : COLOR;
 };
-
-uniform sampler2D	samp0 : register(s0);
+// *INDENT-OFF*
 
 static float2 screenPosToTexcoord( float2 pos, float4 bias_scale ) { return ( pos * bias_scale.zw + bias_scale.xy ); }
 
@@ -45,7 +47,7 @@ void main( PS_IN fragment, out PS_OUT result ) {
 	const float renderWidth = 1280.0f;
 	const float renderHeight = 720.0f;
 	const float4 positionToViewTexture = float4( 0.5f / renderWidth, 0.5f / renderHeight, 1.0f / renderWidth, 1.0f / renderHeight );
-	
+
 	float interpolatedZOverW = ( 1.0 - ( fragment.texcoord0.z / fragment.texcoord0.w ) );
 
 	float3 pos;

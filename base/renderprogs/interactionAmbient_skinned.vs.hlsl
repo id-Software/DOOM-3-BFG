@@ -2,10 +2,10 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2014 Robert Beckebans
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 
 uniform matrices_ubo { float4 matrices[408]; };
 
+// *INDENT-OFF*
 struct VS_IN {
 	float4 position : POSITION;
 	float2 texcoord : TEXCOORD0;
@@ -50,8 +51,10 @@ struct VS_OUT {
 	float4 texcoord6	: TEXCOORD6;
 	float4 color		: COLOR0;
 };
+// *INDENT-ON*
 
-void main( VS_IN vertex, out VS_OUT result ) {
+void main( VS_IN vertex, out VS_OUT result )
+{
 
 	float4 vNormal = vertex.normal * 2.0 - 1.0;
 	float4 vTangent = vertex.tangent * 2.0 - 1.0;
@@ -68,25 +71,25 @@ void main( VS_IN vertex, out VS_OUT result ) {
 	const float w3 = vertex.color2.w;
 
 	float4 matX, matY, matZ;	// must be float4 for vec4
-	int joint = int(vertex.color.x * 255.1 * 3.0);
-	matX = matrices[int(joint+0)] * w0;
-	matY = matrices[int(joint+1)] * w0;
-	matZ = matrices[int(joint+2)] * w0;
+	int joint = int( vertex.color.x * 255.1 * 3.0 );
+	matX = matrices[int( joint + 0 )] * w0;
+	matY = matrices[int( joint + 1 )] * w0;
+	matZ = matrices[int( joint + 2 )] * w0;
 
-	joint = int(vertex.color.y * 255.1 * 3.0);
-	matX += matrices[int(joint+0)] * w1;
-	matY += matrices[int(joint+1)] * w1;
-	matZ += matrices[int(joint+2)] * w1;
+	joint = int( vertex.color.y * 255.1 * 3.0 );
+	matX += matrices[int( joint + 0 )] * w1;
+	matY += matrices[int( joint + 1 )] * w1;
+	matZ += matrices[int( joint + 2 )] * w1;
 
-	joint = int(vertex.color.z * 255.1 * 3.0);
-	matX += matrices[int(joint+0)] * w2;
-	matY += matrices[int(joint+1)] * w2;
-	matZ += matrices[int(joint+2)] * w2;
+	joint = int( vertex.color.z * 255.1 * 3.0 );
+	matX += matrices[int( joint + 0 )] * w2;
+	matY += matrices[int( joint + 1 )] * w2;
+	matZ += matrices[int( joint + 2 )] * w2;
 
-	joint = int(vertex.color.w * 255.1 * 3.0);
-	matX += matrices[int(joint+0)] * w3;
-	matY += matrices[int(joint+1)] * w3;
-	matZ += matrices[int(joint+2)] * w3;
+	joint = int( vertex.color.w * 255.1 * 3.0 );
+	matX += matrices[int( joint + 0 )] * w3;
+	matY += matrices[int( joint + 1 )] * w3;
+	matZ += matrices[int( joint + 2 )] * w3;
 
 	float3 normal;
 	normal.x = dot3( matX, vNormal );
@@ -154,7 +157,7 @@ void main( VS_IN vertex, out VS_OUT result ) {
 
 	//# calculate normalized vector to viewer in R1
 	float4 toView = normalize( rpLocalViewOrigin - modelPosition );
-	
+
 	//# add together to become the half angle vector in object space (non-normalized)
 	float4 halfAngleVector = toLight + toView;
 
@@ -167,6 +170,6 @@ void main( VS_IN vertex, out VS_OUT result ) {
 	//# generate the vertex color, which can be 1.0, color, or 1.0 - color
 	//# for 1.0 : env[16] = 0, env[17] = 1
 	//# for color : env[16] = 1, env[17] = 0
-	//# for 1.0-color : env[16] = -1, env[17] = 1	
+	//# for 1.0-color : env[16] = -1, env[17] = 1
 	result.color = ( swizzleColor( vertex.color ) * rpVertexColorModulate ) + rpVertexColorAdd;
 }

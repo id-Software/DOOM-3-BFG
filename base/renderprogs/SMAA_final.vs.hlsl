@@ -2,10 +2,10 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2015 Robert Beckebans
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 #define SMAA_INCLUDE_PS 0
 #include "SMAA.inc.hlsl"
 
+// *INDENT-OFF*
 struct VS_IN 
 {
 	float4 position : POSITION;
@@ -48,6 +49,7 @@ struct VS_OUT
 	float2 texcoord0 : TEXCOORD0;
 	float4 texcoord1 : TEXCOORD1;
 };
+// *INDENT-ON*
 
 void main( VS_IN vertex, out VS_OUT result )
 {
@@ -57,6 +59,6 @@ void main( VS_IN vertex, out VS_OUT result )
 
 	float4 offset;
 	SMAANeighborhoodBlendingVS( vertex.texcoord, offset );
-	
+
 	result.texcoord1 = offset;
 }

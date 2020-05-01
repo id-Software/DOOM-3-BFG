@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -36,6 +36,7 @@ the optics.
 
 */
 
+// *INDENT-OFF*
 uniform sampler2D samp0 : register(s0);
 
 struct PS_IN {
@@ -46,12 +47,14 @@ struct PS_IN {
 struct PS_OUT {
 	float4 color : COLOR;
 };
+// *INDENT-ON*
 
-void main( PS_IN fragment, out PS_OUT result ) {
-    const float screenWarp_range   = 1.45;
+void main( PS_IN fragment, out PS_OUT result )
+{
+	const float screenWarp_range   = 1.45;
 
-    const vec2    warpCenter = vec2( 0.5, 0.5 );
-    vec2    centeredTexcoord = fragment.texcoord0.xy - warpCenter;
+	const vec2    warpCenter = vec2( 0.5, 0.5 );
+	vec2    centeredTexcoord = fragment.texcoord0.xy - warpCenter;
 
 	float	radialLength = length( centeredTexcoord );
 	vec2	radialDir = normalize( centeredTexcoord );
@@ -61,14 +64,14 @@ void main( PS_IN fragment, out PS_OUT result ) {
 	float	scaledRadialLength = radialLength * range;
 	float	tanScaled = tan( scaledRadialLength );
 
-    float   rescaleValue = tan( 0.5 * range );
+	float   rescaleValue = tan( 0.5 * range );
 
-    // If radialLength was 0.5, we want rescaled to also come out
-    // as 0.5, so the edges of the rendered image are at the edges
-    // of the warped image.
+	// If radialLength was 0.5, we want rescaled to also come out
+	// as 0.5, so the edges of the rendered image are at the edges
+	// of the warped image.
 	float	rescaled = tanScaled / rescaleValue;
 
-    vec2	warped = warpCenter + vec2( 0.5, 0.5 ) * radialDir * rescaled;
+	vec2	warped = warpCenter + vec2( 0.5, 0.5 ) * radialDir * rescaled;
 
 	result.color = tex2D( samp0, warped );
 }

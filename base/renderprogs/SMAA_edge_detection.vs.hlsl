@@ -2,10 +2,10 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2015 Robert Beckebans
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 #define SMAA_INCLUDE_PS 0
 #include "SMAA.inc.hlsl"
 
+// *INDENT-OFF*
 struct VS_IN 
 {
 	float4 position : POSITION;
@@ -50,6 +51,7 @@ struct VS_OUT
 	float4 texcoord2 : TEXCOORD2;
 	float4 texcoord3 : TEXCOORD3;
 };
+// *INDENT-ON*
 
 void main( VS_IN vertex, out VS_OUT result )
 {
@@ -57,12 +59,12 @@ void main( VS_IN vertex, out VS_OUT result )
 
 	float2 texcoord = vertex.texcoord;
 	//float2 texcoord = float2( vertex.texcoord.s, 1.0 - vertex.texcoord.t );
-	
+
 	result.texcoord0 = texcoord;
 
 	float4 offset[3];
 	SMAAEdgeDetectionVS( texcoord, offset );
-	
+
 	result.texcoord1 = offset[0];
 	result.texcoord2 = offset[1];
 	result.texcoord3 = offset[2];

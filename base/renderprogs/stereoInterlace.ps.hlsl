@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "global.inc.hlsl"
 
+// *INDENT-OFF*
 uniform sampler2D samp0 : register(s0);
 uniform sampler2D samp1 : register(s1);
 
@@ -38,12 +39,17 @@ struct PS_IN {
 struct PS_OUT {
 	float4 color : COLOR;
 };
+// *INDENT-ON*
 
-void main( PS_IN fragment, out PS_OUT result ) {
-    // texcoords will run from 0 to 1 across the entire screen
-    if ( fract( fragment.position.y * 0.5 ) < 0.5 ) {
-        result.color = tex2D( samp0, vec2( fragment.texcoord0 ) );
-    } else {
-        result.color = tex2D( samp1, vec2( fragment.texcoord0 ) );
-    }
+void main( PS_IN fragment, out PS_OUT result )
+{
+	// texcoords will run from 0 to 1 across the entire screen
+	if( fract( fragment.position.y * 0.5 ) < 0.5 )
+	{
+		result.color = tex2D( samp0, vec2( fragment.texcoord0 ) );
+	}
+	else
+	{
+		result.color = tex2D( samp1, vec2( fragment.texcoord0 ) );
+	}
 }

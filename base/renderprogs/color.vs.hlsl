@@ -2,10 +2,10 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2013-2014 Robert Beckebans
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 uniform matrices_ubo { float4 matrices[408]; };
 #endif
 
+// *INDENT-OFF*
 struct VS_IN {
 	float4 position : POSITION;
 	float2 texcoord : TEXCOORD0;
@@ -45,6 +46,7 @@ struct VS_IN {
 struct VS_OUT {
 	float4 position : POSITION;
 };
+// *INDENT-ON*
 
 void main( VS_IN vertex, out VS_OUT result )
 {
@@ -60,25 +62,25 @@ void main( VS_IN vertex, out VS_OUT result )
 	const float w3 = vertex.color2.w;
 
 	float4 matX, matY, matZ;	// must be float4 for vec4
-	int joint = int(vertex.color.x * 255.1 * 3.0);
-	matX = matrices[int(joint+0)] * w0;
-	matY = matrices[int(joint+1)] * w0;
-	matZ = matrices[int(joint+2)] * w0;
+	int joint = int( vertex.color.x * 255.1 * 3.0 );
+	matX = matrices[int( joint + 0 )] * w0;
+	matY = matrices[int( joint + 1 )] * w0;
+	matZ = matrices[int( joint + 2 )] * w0;
 
-	joint = int(vertex.color.y * 255.1 * 3.0);
-	matX += matrices[int(joint+0)] * w1;
-	matY += matrices[int(joint+1)] * w1;
-	matZ += matrices[int(joint+2)] * w1;
+	joint = int( vertex.color.y * 255.1 * 3.0 );
+	matX += matrices[int( joint + 0 )] * w1;
+	matY += matrices[int( joint + 1 )] * w1;
+	matZ += matrices[int( joint + 2 )] * w1;
 
-	joint = int(vertex.color.z * 255.1 * 3.0);
-	matX += matrices[int(joint+0)] * w2;
-	matY += matrices[int(joint+1)] * w2;
-	matZ += matrices[int(joint+2)] * w2;
+	joint = int( vertex.color.z * 255.1 * 3.0 );
+	matX += matrices[int( joint + 0 )] * w2;
+	matY += matrices[int( joint + 1 )] * w2;
+	matZ += matrices[int( joint + 2 )] * w2;
 
-	joint = int(vertex.color.w * 255.1 * 3.0);
-	matX += matrices[int(joint+0)] * w3;
-	matY += matrices[int(joint+1)] * w3;
-	matZ += matrices[int(joint+2)] * w3;
+	joint = int( vertex.color.w * 255.1 * 3.0 );
+	matX += matrices[int( joint + 0 )] * w3;
+	matY += matrices[int( joint + 1 )] * w3;
+	matZ += matrices[int( joint + 2 )] * w3;
 
 	float4 modelPosition;
 	modelPosition.x = dot4( matX, vertex.position );

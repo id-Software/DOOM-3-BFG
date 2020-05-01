@@ -2,10 +2,10 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2014-2015 Robert Beckebans
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "global.inc.hlsl"
 
+// *INDENT-OFF*
 uniform sampler2D samp0		: register(s0);
 
 struct PS_IN
@@ -41,6 +42,7 @@ struct PS_OUT
 {
 	float4 color : COLOR;
 };
+// *INDENT-ON*
 
 float linterp( float t )
 {
@@ -65,63 +67,63 @@ float3 spectrumoffset( float t )
 void main( PS_IN fragment, out PS_OUT result )
 {
 	float2 st = fragment.texcoord0;
-	
+
 	// base color with tone mapping applied
 	float4 color = tex2D( samp0, st );
-	
-	const float gaussFact[9] = float[9](0.13298076, 0.12579441, 0.10648267, 0.08065691, 0.05467002, 0.03315905, 0.01799699, 0.00874063, 0.00379866);
-	
+
+	const float gaussFact[9] = float[9]( 0.13298076, 0.12579441, 0.10648267, 0.08065691, 0.05467002, 0.03315905, 0.01799699, 0.00874063, 0.00379866 );
+
 	const float3 chromaticOffsets[9] = float3[](
-	float3(0.5, 0.5, 0.5), // w
-	float3(0.8, 0.3, 0.3),
+										   float3( 0.5, 0.5, 0.5 ), // w
+										   float3( 0.8, 0.3, 0.3 ),
 //	float3(1.0, 0.2, 0.2), // r
-	float3(0.5, 0.2, 0.8),
-	float3(0.2, 0.2, 1.0), // b
-	float3(0.2, 0.3, 0.9),
-	float3(0.2, 0.9, 0.2), // g
-	float3(0.3, 0.5, 0.3),
-	float3(0.3, 0.5, 0.3),
-	float3(0.3, 0.5, 0.3)
-	//float3(0.3, 0.5, 0.3)
-	);
-	
+										   float3( 0.5, 0.2, 0.8 ),
+										   float3( 0.2, 0.2, 1.0 ), // b
+										   float3( 0.2, 0.3, 0.9 ),
+										   float3( 0.2, 0.9, 0.2 ), // g
+										   float3( 0.3, 0.5, 0.3 ),
+										   float3( 0.3, 0.5, 0.3 ),
+										   float3( 0.3, 0.5, 0.3 )
+										   //float3(0.3, 0.5, 0.3)
+									   );
+
 	float3 sumColor = float3( 0.0 );
 	float3 sumSpectrum = float3( 0.0 );
 
 	const int tap = 4;
 	const int samples = 9;
-	
+
 	float scale = 13.0; // bloom width
 	const float weightScale = 2.3; // bloom strength
-	
+
 	for( int i = 0; i < samples; i++ )
-    {
-	    //float t = ( ( float( 4 + ( i ) ) ) / ( float( samples ) - 1.0 ) );
+	{
+		//float t = ( ( float( 4 + ( i ) ) ) / ( float( samples ) - 1.0 ) );
 		//float t = log2( float( i ) / ( float( samples ) - 1.0 ) );
 		//float t = ( float( i ) / ( float( samples ) - 1.0 ) );
-		
+
 		//float3 so = spectrumoffset( t );
 		float3 so = chromaticOffsets[ i ];
 		float4 color = tex2D( samp0, st + float2( float( i ), 0 ) * rpWindowCoord.xy * scale );
-			
+
 		float weight = gaussFact[ i ];
 		sumColor += color.rgb * ( so.rgb * weight * weightScale );
 	}
-	
+
 #if 1
 	for( int i = 1; i < samples; i++ )
-    {
-	    //float t = ( ( float( 4 + ( i ) ) ) / ( float( samples ) - 1.0 ) );
-		
+	{
+		//float t = ( ( float( 4 + ( i ) ) ) / ( float( samples ) - 1.0 ) );
+
 		//float3 so = spectrumoffset( t );
 		float3 so = chromaticOffsets[ i ];
 		float4 color = tex2D( samp0, st + float2( float( -i ), 0 ) * rpWindowCoord.xy * scale );
-			
+
 		float weight = gaussFact[ i ];
 		sumColor += color.rgb * ( so.rgb * weight * weightScale );
 	}
 #endif
-	
+
 	result.color = float4( sumColor, 1.0 );
 	//result.color = float4( sumColor / float(samples), 1.0 );
 	//result.color = float4( sumColor / sumSpectrum, 1.0 );

@@ -2,10 +2,10 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2013-2020 Robert Beckebans
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+// *INDENT-OFF*
 uniform float4 rpScreenCorrectionFactor	:	register(c0);
 uniform float4 rpWindowCoord			:	register(c1);
 uniform float4 rpDiffuseModifier		:	register(c2);
@@ -119,9 +120,11 @@ static float dot3( float4 a, float4 b ) { return dot( a.xyz, b.xyz ); }
 static float dot4( float4 a, float4 b ) { return dot( a, b ); }
 static float dot4( float2 a, float4 b ) { return dot( float4( a, 0, 1 ), b ); }
 
+// *INDENT-ON*
+
 // RB begin
 #ifndef PI
-#define PI	3.14159265358979323846
+	#define PI	3.14159265358979323846
 #endif
 
 #define DEG2RAD( a )				( ( a ) * PI / 180.0f )
@@ -174,16 +177,17 @@ half4 LinearRGBToSRGB( half4 rgba )
 // ----------------------
 // YCoCg Color Conversion
 // ----------------------
-static const half4 matrixRGB1toCoCg1YX = half4(  0.50,  0.0, -0.50, 0.50196078 );	// Co
+static const half4 matrixRGB1toCoCg1YX = half4( 0.50,  0.0, -0.50, 0.50196078 );	// Co
 static const half4 matrixRGB1toCoCg1YY = half4( -0.25,  0.5, -0.25, 0.50196078 );	// Cg
-static const half4 matrixRGB1toCoCg1YZ = half4(  0.0,   0.0,  0.0,  1.0 );			// 1.0
-static const half4 matrixRGB1toCoCg1YW = half4(  0.25,  0.5,  0.25, 0.0 );			// Y
+static const half4 matrixRGB1toCoCg1YZ = half4( 0.0,   0.0,  0.0,  1.0 );			// 1.0
+static const half4 matrixRGB1toCoCg1YW = half4( 0.25,  0.5,  0.25, 0.0 );			// Y
 
-static const half4 matrixCoCg1YtoRGB1X = half4(  1.0, -1.0,  0.0,        1.0 );
-static const half4 matrixCoCg1YtoRGB1Y = half4(  0.0,  1.0, -0.50196078, 1.0 ); // -0.5 * 256.0 / 255.0
+static const half4 matrixCoCg1YtoRGB1X = half4( 1.0, -1.0,  0.0,        1.0 );
+static const half4 matrixCoCg1YtoRGB1Y = half4( 0.0,  1.0, -0.50196078, 1.0 );  // -0.5 * 256.0 / 255.0
 static const half4 matrixCoCg1YtoRGB1Z = half4( -1.0, -1.0,  1.00392156, 1.0 ); // +1.0 * 256.0 / 255.0
 
-static half3 ConvertYCoCgToRGB( half4 YCoCg ) {
+static half3 ConvertYCoCgToRGB( half4 YCoCg )
+{
 	half3 rgbColor;
 
 	YCoCg.z = ( YCoCg.z * 31.875 ) + 1.0;			//z = z * 255.0/8.0 + 1.0
@@ -195,7 +199,8 @@ static half3 ConvertYCoCgToRGB( half4 YCoCg ) {
 	return rgbColor;
 }
 
-static float2 CenterScale( float2 inTC, float2 centerScale ) {
+static float2 CenterScale( float2 inTC, float2 centerScale )
+{
 	float scaleX = centerScale.x;
 	float scaleY = centerScale.y;
 	float4 tc0 = float4( scaleX, 0, 0, 0.5 - ( 0.5f * scaleX ) );
@@ -207,7 +212,8 @@ static float2 CenterScale( float2 inTC, float2 centerScale ) {
 	return finalTC;
 }
 
-static float2 Rotate2D( float2 inTC, float2 cs ) {
+static float2 Rotate2D( float2 inTC, float2 cs )
+{
 	float sinValue = cs.y;
 	float cosValue = cs.x;
 
@@ -221,8 +227,9 @@ static float2 Rotate2D( float2 inTC, float2 cs ) {
 }
 
 // better noise function available at https://github.com/ashima/webgl-noise
-float rand( float2 co ) {
-    return frac( sin( dot( co.xy, float2( 12.9898, 78.233 ) ) ) * 43758.5453 );
+float rand( float2 co )
+{
+	return frac( sin( dot( co.xy, float2( 12.9898, 78.233 ) ) ) * 43758.5453 );
 }
 
 #define square( x )		( x * x )
@@ -238,13 +245,19 @@ static const half4 LUMINANCE_LINEAR = half4( 0.299, 0.587, 0.144, 0.0 );
 #define _float4( x )	float4( x )
 
 #define VPOS WPOS
-static float4 idtex2Dproj( sampler2D samp, float4 texCoords ) { return tex2Dproj( samp, texCoords.xyw ); }
-static float4 swizzleColor( float4 c )
-{ 
-	return c;
-	//return sRGBAToLinearRGBA( c ); 
+static float4 idtex2Dproj( sampler2D samp, float4 texCoords )
+{
+	return tex2Dproj( samp, texCoords.xyw );
 }
-static float2 vposToScreenPosTexCoord( float2 vpos ) { return vpos.xy * rpWindowCoord.xy; }
+static float4 swizzleColor( float4 c )
+{
+	return c;
+	//return sRGBAToLinearRGBA( c );
+}
+static float2 vposToScreenPosTexCoord( float2 vpos )
+{
+	return vpos.xy * rpWindowCoord.xy;
+}
 
 #define BRANCH
 #define IFANY
@@ -265,7 +278,7 @@ float RemapNoiseTriErp( const float v )
 //      http://advances.realtimerendering.com/s2014/index.html
 float InterleavedGradientNoise( float2 uv )
 {
-	
+
 	const float3 magic = float3( 0.06711056, 0.00583715, 52.9829189 );
 	float rnd = fract( magic.z * fract( dot( uv, magic.xy ) ) );
 

@@ -2,10 +2,10 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2013-2020 Robert Beckebans
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "global.inc.hlsl"
 #include "BRDF.inc.hlsl"
 
+// *INDENT-OFF*
 uniform sampler2D				samp0 : register(s0); // texture 1 is the per-surface normal map
 uniform sampler2D				samp1 : register(s1); // texture 3 is the per-surface specular or roughness/metallic/AO mixer map
 uniform sampler2D				samp2 : register(s2); // texture 2 is the per-surface baseColor map 
@@ -58,26 +59,26 @@ struct PS_OUT
 {
 	half4 color : COLOR;
 };
-
+// *INDENT-ON*
 
 float BlueNoise( float2 n, float x )
 {
-    float noise = tex2D( samp6, ( n.xy / 256.0 ) ).r;
-    
-    noise = fract( noise + 0.61803398875 * rpJitterTexOffset.z * x );
-    
-    noise = RemapNoiseTriErp( noise );
-    
-    //noise = noise * 2.0 - 1.0;
-    
-    return noise;
+	float noise = tex2D( samp6, ( n.xy / 256.0 ) ).r;
+
+	noise = fract( noise + 0.61803398875 * rpJitterTexOffset.z * x );
+
+	noise = RemapNoiseTriErp( noise );
+
+	//noise = noise * 2.0 - 1.0;
+
+	return noise;
 }
 
 void main( PS_IN fragment, out PS_OUT result )
 {
 	half4 bumpMap =			tex2D( samp0, fragment.texcoord1.xy );
 	half4 lightFalloff =	( idtex2Dproj( samp3, fragment.texcoord2 ) );
-	half4 lightProj	=		( idtex2Dproj( samp4, fragment.texcoord3 ) );
+	half4 lightProj	=	( idtex2Dproj( samp4, fragment.texcoord3 ) );
 	half4 YCoCG =			tex2D( samp2, fragment.texcoord4.xy );
 	half4 specMapSRGB =		tex2D( samp1, fragment.texcoord5.xy );
 	half4 specMap =			sRGBAToLinearRGBA( specMapSRGB );
@@ -96,7 +97,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	// RB end
 	localNormal.z = sqrt( abs( dot( localNormal.xy, localNormal.xy ) - 0.25 ) );
 	localNormal = normalize( localNormal );
-	
+
 	// traditional very dark Lambert light model used in Doom 3
 	half ldotN = saturate( dot3( localNormal, lightVector ) );
 
@@ -116,10 +117,10 @@ void main( PS_IN fragment, out PS_OUT result )
 	// shadow mapping
 	//
 	int shadowIndex = 0;
-	
+
 #if defined( LIGHT_POINT )
 	float3 toLightGlobal = normalize( fragment.texcoord8.xyz );
-	
+
 	float axis[6];
 	axis[0] = -toLightGlobal.x;
 	axis[1] =  toLightGlobal.x;
@@ -139,9 +140,9 @@ void main( PS_IN fragment, out PS_OUT result )
 #endif // #if defined( POINTLIGHT )
 
 #if defined( LIGHT_PARALLEL )
-	
+
 	float viewZ = -fragment.texcoord9.z;
-	
+
 	shadowIndex = 4;
 	for( int i = 0; i < 4; i++ )
 	{
@@ -152,7 +153,7 @@ void main( PS_IN fragment, out PS_OUT result )
 		}
 	}
 #endif
-	
+
 #if 0
 	if( shadowIndex == 0 )
 	{
@@ -178,33 +179,33 @@ void main( PS_IN fragment, out PS_OUT result )
 	{
 		result.color = float4( 0.0, 1.0, 1.0, 1.0 );
 	}
-	
+
 	//result.color.xyz *= lightColor;
 	return;
 #endif
-	
+
 	float4 shadowMatrixX = rpShadowMatrices[ int ( shadowIndex * 4 + 0 ) ];
 	float4 shadowMatrixY = rpShadowMatrices[ int ( shadowIndex * 4 + 1 ) ];
 	float4 shadowMatrixZ = rpShadowMatrices[ int ( shadowIndex * 4 + 2 ) ];
 	float4 shadowMatrixW = rpShadowMatrices[ int ( shadowIndex * 4 + 3 ) ];
-	
+
 	float4 modelPosition = float4( fragment.texcoord7.xyz, 1.0 );
 	float4 shadowTexcoord;
 	shadowTexcoord.x = dot4( modelPosition, shadowMatrixX );
 	shadowTexcoord.y = dot4( modelPosition, shadowMatrixY );
 	shadowTexcoord.z = dot4( modelPosition, shadowMatrixZ );
 	shadowTexcoord.w = dot4( modelPosition, shadowMatrixW );
-	
+
 	//float bias = 0.005 * tan( acos( ldotN ) );
 	//bias = clamp( bias, 0, 0.01 );
 	float bias = 0.001;
-	
+
 	shadowTexcoord.xyz /= shadowTexcoord.w;
-	
+
 	shadowTexcoord.z = shadowTexcoord.z * rpScreenCorrectionFactor.w;
 	//shadowTexcoord.z = shadowTexcoord.z * 0.999991;
 	//shadowTexcoord.z = shadowTexcoord.z - bias;
-	shadowTexcoord.w = float(shadowIndex);
+	shadowTexcoord.w = float( shadowIndex );
 
 #if 0
 	result.color.xyz = float3( shadowTexcoord.z, shadowTexcoord.z, shadowTexcoord.z );
@@ -213,126 +214,126 @@ void main( PS_IN fragment, out PS_OUT result )
 #endif
 
 	// multiple taps
-	
+
 #if 0
 	float4 base = shadowTexcoord;
-	
+
 	base.xy += rpJitterTexScale.xy * -0.5;
-	
+
 	float shadow = 0.0;
-	
+
 	//float stepSize = 1.0 / 16.0;
 	float numSamples = 16;
 	float stepSize = 1.0 / numSamples;
-	
+
 	float4 jitterTC = ( fragment.position * rpScreenCorrectionFactor ) + rpJitterTexOffset;
 	for( float i = 0.0; i < numSamples; i += 1.0 )
 	{
 		float4 jitter = base + tex2D( samp6, jitterTC.xy ) * rpJitterTexScale;
 		jitter.zw = shadowTexcoord.zw;
-	
+
 		shadow += texture( samp5, jitter.xywz );
 		jitterTC.x += stepSize;
 	}
-	
+
 	shadow *= stepSize;
 
 #elif 0
-	
+
 	const float2 poissonDisk[12] = float2[](
-	float2(0.6111618, 0.1050905),
-	float2(0.1088336, 0.1127091),
-	float2(0.3030421, -0.6292974),
-	float2(0.4090526, 0.6716492),
-	float2(-0.1608387, -0.3867823),
-	float2(0.7685862, -0.6118501),
-	float2(-0.1935026, -0.856501),
-	float2(-0.4028573, 0.07754025),
-	float2(-0.6411021, -0.4748057),
-	float2(-0.1314865, 0.8404058),
-	float2(-0.7005203, 0.4596822),
-	float2(-0.9713828, -0.06329931) );
-	
+									   float2( 0.6111618, 0.1050905 ),
+									   float2( 0.1088336, 0.1127091 ),
+									   float2( 0.3030421, -0.6292974 ),
+									   float2( 0.4090526, 0.6716492 ),
+									   float2( -0.1608387, -0.3867823 ),
+									   float2( 0.7685862, -0.6118501 ),
+									   float2( -0.1935026, -0.856501 ),
+									   float2( -0.4028573, 0.07754025 ),
+									   float2( -0.6411021, -0.4748057 ),
+									   float2( -0.1314865, 0.8404058 ),
+									   float2( -0.7005203, 0.4596822 ),
+									   float2( -0.9713828, -0.06329931 ) );
+
 	float shadow = 0.0;
-	
+
 	// RB: casting a float to int and using it as index can really kill the performance ...
 	float numSamples = 12.0; //int(rpScreenCorrectionFactor.w);
 	float stepSize = 1.0 / numSamples;
-	
+
 	float4 jitterTC = ( fragment.position * rpScreenCorrectionFactor ) + rpJitterTexOffset;
 	float4 random = tex2D( samp6, jitterTC.xy ) * PI;
 	//float4 random = fragment.position;
-	
+
 	float2 rot;
 	rot.x = cos( random.x );
 	rot.y = sin( random.x );
-	
+
 	float shadowTexelSize = rpScreenCorrectionFactor.z * rpJitterTexScale.x;
-    for( int i = 0; i < 12; i++ )
-    {
-        float2 jitter = poissonDisk[i];
+	for( int i = 0; i < 12; i++ )
+	{
+		float2 jitter = poissonDisk[i];
 		float2 jitterRotated;
 		jitterRotated.x = jitter.x * rot.x - jitter.y * rot.y;
 		jitterRotated.y = jitter.x * rot.y + jitter.y * rot.x;
-        
+
 		float4 shadowTexcoordJittered = float4( shadowTexcoord.xy + jitterRotated * shadowTexelSize, shadowTexcoord.z, shadowTexcoord.w );
-       
-        shadow += texture( samp5, shadowTexcoordJittered.xywz);
-    }
 
-   shadow *= stepSize;
+		shadow += texture( samp5, shadowTexcoordJittered.xywz );
+	}
 
-   
- #elif 1
-	
-    const float2 poissonDisk[12] = float2[](
-	float2(0.6111618, 0.1050905),
-	float2(0.1088336, 0.1127091),
-	float2(0.3030421, -0.6292974),
-	float2(0.4090526, 0.6716492),
-	float2(-0.1608387, -0.3867823),
-	float2(0.7685862, -0.6118501),
-	float2(-0.1935026, -0.856501),
-	float2(-0.4028573, 0.07754025),
-	float2(-0.6411021, -0.4748057),
-	float2(-0.1314865, 0.8404058),
-	float2(-0.7005203, 0.4596822),
-	float2(-0.9713828, -0.06329931) );
-	
+	shadow *= stepSize;
+
+
+#elif 1
+
+	const float2 poissonDisk[12] = float2[](
+									   float2( 0.6111618, 0.1050905 ),
+									   float2( 0.1088336, 0.1127091 ),
+									   float2( 0.3030421, -0.6292974 ),
+									   float2( 0.4090526, 0.6716492 ),
+									   float2( -0.1608387, -0.3867823 ),
+									   float2( 0.7685862, -0.6118501 ),
+									   float2( -0.1935026, -0.856501 ),
+									   float2( -0.4028573, 0.07754025 ),
+									   float2( -0.6411021, -0.4748057 ),
+									   float2( -0.1314865, 0.8404058 ),
+									   float2( -0.7005203, 0.4596822 ),
+									   float2( -0.9713828, -0.06329931 ) );
+
 	float shadow = 0.0;
-	
+
 	// RB: casting a float to int and using it as index can really kill the performance ...
 	float numSamples = 6.0; //int(rpScreenCorrectionFactor.w);
 	float stepSize = 1.0 / numSamples;
-	
+
 	//float4 jitterTC = ( fragment.position * rpScreenCorrectionFactor ) + rpJitterTexOffset;
 	//float random = tex2D( samp6, jitterTC.xy ).x;
-    
-    float random = BlueNoise( fragment.position.xy * 1.0, 100.0 );
-    
-    //float random = InterleavedGradientNoise( fragment.position.xy );
-        
-    random *= PI;
-	
+
+	float random = BlueNoise( fragment.position.xy * 1.0, 100.0 );
+
+	//float random = InterleavedGradientNoise( fragment.position.xy );
+
+	random *= PI;
+
 	float2 rot;
 	rot.x = cos( random );
 	rot.y = sin( random );
-	
+
 	float shadowTexelSize = rpScreenCorrectionFactor.z * rpJitterTexScale.x;
-    for( int i = 0; i < 6; i++ )
-    {
-        float2 jitter = poissonDisk[i];
+	for( int i = 0; i < 6; i++ )
+	{
+		float2 jitter = poissonDisk[i];
 		float2 jitterRotated;
 		jitterRotated.x = jitter.x * rot.x - jitter.y * rot.y;
 		jitterRotated.y = jitter.x * rot.y + jitter.y * rot.x;
-        
-		float4 shadowTexcoordJittered = float4( shadowTexcoord.xy + jitterRotated * shadowTexelSize, shadowTexcoord.z, shadowTexcoord.w );
-       
-        shadow += texture( samp5, shadowTexcoordJittered.xywz);
-    }
 
-   shadow *= stepSize;
-    
+		float4 shadowTexcoordJittered = float4( shadowTexcoord.xy + jitterRotated * shadowTexelSize, shadowTexcoord.z, shadowTexcoord.w );
+
+		shadow += texture( samp5, shadowTexcoordJittered.xywz );
+	}
+
+	shadow *= stepSize;
+
 #else
 
 	float shadow = texture( samp5, shadowTexcoord.xywz );
@@ -343,7 +344,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	half hdotN = clamp( dot3( halfAngleVector, localNormal ), 0.0, 1.0 );
 
 #if 1
-		
+
 #if defined( USE_PBR )
 	const half metallic = specMapSRGB.g;
 	const half roughness = specMapSRGB.r;
@@ -351,85 +352,85 @@ void main( PS_IN fragment, out PS_OUT result )
 
 	// the vast majority of real-world materials (anything not metal or gems) have F(0°)
 	// values in a very narrow range (~0.02 - 0.08)
-	
+
 	// approximate non-metals with linear RGB 0.04 which is 0.08 * 0.5 (default in UE4)
 	const half3 dielectricColor = half3( 0.04 );
-	
+
 	// derive diffuse and specular from albedo(m) base color
 	const half3 baseColor = diffuseMap;
-	
+
 	half3 diffuseColor = baseColor * ( 1.0 - metallic );
 	half3 specularColor = lerp( dielectricColor, baseColor, metallic );
 #else
 	// HACK calculate roughness from D3 gloss maps
 	float Y = dot( LUMINANCE_SRGB.rgb, specMapSRGB.rgb );
-	
+
 	//const float glossiness = clamp( 1.0 - specMapSRGB.r, 0.0, 0.98 );
 	const float glossiness = clamp( pow( Y, 1.0 / 2.0 ), 0.0, 0.98 );
-	
+
 	const float roughness = 1.0 - glossiness;
-	
+
 	half3 diffuseColor = diffuseMap;
 	half3 specularColor = specMapSRGB.rgb; // RB: should be linear but it looks too flat
 #endif
-    
-    //diffuseColor = half3( 1.0 );
-		
+
+	//diffuseColor = half3( 1.0 );
+
 	// RB: compensate r_lightScale 3 and the division of Pi
 	//lambert *= 1.3;
-	
+
 	// rpDiffuseModifier contains light color multiplier
 	half3 lightColor = sRGBToLinearRGB( lightProj.xyz * lightFalloff.xyz );// * rpDiffuseModifier.xyz;
-	
+
 	half vdotN = clamp( dot3( viewVector, localNormal ), 0.0, 1.0 );
 	half vdotH = clamp( dot3( viewVector, halfAngleVector ), 0.0, 1.0 );
 	half ldotH = clamp( dot3( lightVector, halfAngleVector ), 0.0, 1.0 );
-	
+
 	// compensate r_lightScale 3 * 2
 	half3 reflectColor = specularColor * rpSpecularModifier.rgb * 1.0;// * 0.5;
-	
+
 	// cheap approximation by ARM with only one division
 	// http://community.arm.com/servlet/JiveServlet/download/96891546-19496/siggraph2015-mmg-renaldas-slides.pdf
 	// page 26
-	
+
 	float rr = roughness * roughness;
 	float rrrr = rr * rr;
-	
+
 	// disney GGX
 	float D = ( hdotN * hdotN ) * ( rrrr - 1.0 ) + 1.0;
 	float VFapprox = ( ldotH * ldotH ) * ( roughness + 0.5 );
 	half3 specularBRDF = ( rrrr / ( 4.0 * PI * D * D * VFapprox ) ) * ldotN * reflectColor;
 	//specularBRDF = half3( 0.0 );
-	
+
 #if 0
 	result.color = float4( _half3( VFapprox ), 1.0 );
 	return;
 #endif
-	
+
 	// see http://seblagarde.wordpress.com/2012/01/08/pi-or-not-to-pi-in-game-lighting-equation/
 	//lambert /= PI;
-	
+
 	//half3 diffuseColor = mix( diffuseMap, F0, metal ) * rpDiffuseModifier.xyz;
 	half3 diffuseBRDF = diffuseColor * lambert * sRGBToLinearRGB( rpDiffuseModifier.xyz );
-		
+
 	result.color.xyz = ( diffuseBRDF + specularBRDF ) * lightColor * fragment.color.rgb * shadow;
 	result.color.w = 1.0;
-	
+
 #else
-	
+
 	/*
 	OLD Blinn Phong
 	*/
 
 	const half specularPower = 10.0f;
-	
+
 	// RB: added abs
 	half3 specularContribution = _half3( pow( hdotN, specularPower ) );
 
 	half3 diffuseColor = diffuseMap * sRGBToLinearRGB( rpDiffuseModifier.xyz );
 	half3 specularColor = specMap.xyz * specularContribution * sRGBToLinearRGB( rpSpecularModifier.xyz );
 	half3 lightColor = sRGBToLinearRGB( lightProj.xyz * lightFalloff.xyz );
-	
+
 	/*
 	half rim =  1.0f - saturate( hdotN );
 	half rimPower = 16.0f;

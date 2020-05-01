@@ -3,9 +3,9 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013-2014 Robert Beckebans 
+Copyright (C) 2013-2014 Robert Beckebans
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "global.inc.hlsl"
 
+// *INDENT-OFF*
 uniform sampler2D	samp0 : register(s0); // texture 0 is _current Render
 uniform sampler2D	samp1 : register(s1); // texture 1 is the per-surface bump map
 
@@ -41,8 +42,10 @@ struct PS_IN {
 struct PS_OUT {
 	float4 color : COLOR;
 };
+// *INDENT-ON*
 
-void main( PS_IN fragment, out PS_OUT result ) {
+void main( PS_IN fragment, out PS_OUT result )
+{
 
 	// load the filtered normal map and convert to -1 to 1 range
 	float4 bumpMap = ( tex2D( samp1, fragment.texcoord0.xy ) * 2.0f ) - 1.0f;

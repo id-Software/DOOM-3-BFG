@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "global.inc.hlsl"
 
+// *INDENT-OFF*
 uniform sampler2D samp0 : register(s0); // texture 1 is the per-surface normal map
 uniform sampler2D samp1 : register(s1); // texture 3 is the per-surface specular or roughness/metallic/AO mixer map
 uniform sampler2D samp2 : register(s2); // texture 2 is the per-surface baseColor map 
@@ -48,8 +49,10 @@ struct PS_IN {
 struct PS_OUT {
 	half4 color : COLOR;
 };
+// *INDENT-ON*
 
-void main( PS_IN fragment, out PS_OUT result ) {
+void main( PS_IN fragment, out PS_OUT result )
+{
 	half4 bumpMap =			tex2D( samp0, fragment.texcoord1.xy );
 	half4 lightFalloff =	idtex2Dproj( samp3, fragment.texcoord2 );
 	half4 lightProj	=		idtex2Dproj( samp4, fragment.texcoord3 );
@@ -70,7 +73,7 @@ void main( PS_IN fragment, out PS_OUT result ) {
 	// RB end
 	localNormal.z = sqrt( abs( dot( localNormal.xy, localNormal.xy ) - 0.25 ) );
 	localNormal = normalize( localNormal );
-	
+
 	// traditional very dark Lambert light model used in Doom 3
 	half ldotN = saturate( dot3( localNormal, lightVector ) );
 
@@ -83,7 +86,7 @@ void main( PS_IN fragment, out PS_OUT result ) {
 #else
 	half lambert = ldotN;
 #endif
-	
+
 	const half specularPower = 10.0f;
 	half hDotN = dot3( normalize( fragment.texcoord6.xyz ), localNormal );
 	// RB: added abs

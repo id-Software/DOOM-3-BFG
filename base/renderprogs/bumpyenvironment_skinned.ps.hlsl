@@ -2,10 +2,10 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2013 Robert Beckebans
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "global.inc.hlsl"
 
+// *INDENT-OFF*
 uniform samplerCUBE	samp0 : register(s0); // texture 0 is the cube map
 uniform sampler2D	samp1 : register(s1); // normal map
 
@@ -45,11 +46,13 @@ struct PS_IN {
 struct PS_OUT {
 	float4 color : COLOR;
 };
+// *INDENT-ON*
 
-void main( PS_IN fragment, out PS_OUT result ) {
+void main( PS_IN fragment, out PS_OUT result )
+{
 
 	float4 bump = tex2D( samp1, fragment.texcoord0 ) * 2.0f - 1.0f;
-	
+
 	// RB begin
 	float3 localNormal;
 #if defined(GLES2)

@@ -2,10 +2,10 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2013-2020 Robert Beckebans
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "global.inc.hlsl"
 #include "BRDF.inc.hlsl"
 
+// *INDENT-OFF*
 uniform sampler2D				samp0 : register(s0); // texture 1 is the per-surface normal map
 uniform sampler2D				samp1 : register(s1); // texture 3 is the per-surface specular or roughness/metallic/AO mixer map
 uniform sampler2D				samp2 : register(s2); // texture 2 is the per-surface baseColor map 
@@ -53,12 +54,13 @@ struct PS_OUT
 {
 	half4 color : COLOR;
 };
+// *INDENT-ON*
 
 void main( PS_IN fragment, out PS_OUT result )
 {
 	half4 bumpMap =			tex2D( samp0, fragment.texcoord1.xy );
 	half4 lightFalloff =	( idtex2Dproj( samp3, fragment.texcoord2 ) );
-	half4 lightProj	=		( idtex2Dproj( samp4, fragment.texcoord3 ) );
+	half4 lightProj	=	( idtex2Dproj( samp4, fragment.texcoord3 ) );
 	half4 YCoCG =			tex2D( samp2, fragment.texcoord4.xy );
 	half4 specMapSRGB =		tex2D( samp1, fragment.texcoord5.xy );
 	half4 specMap =			sRGBAToLinearRGBA( specMapSRGB );
@@ -77,7 +79,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	// RB end
 	localNormal.z = sqrt( abs( dot( localNormal.xy, localNormal.xy ) - 0.25 ) );
 	localNormal = normalize( localNormal );
-	
+
 	// traditional very dark Lambert light model used in Doom 3
 	half ldotN = saturate( dot3( localNormal, lightVector ) );
 
@@ -97,7 +99,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	half hdotN = clamp( dot3( halfAngleVector, localNormal ), 0.0, 1.0 );
 
 #if 1
-		
+
 #if defined( USE_PBR )
 	const half metallic = specMapSRGB.g;
 	const half roughness = specMapSRGB.r;
@@ -105,84 +107,84 @@ void main( PS_IN fragment, out PS_OUT result )
 
 	// the vast majority of real-world materials (anything not metal or gems) have F(0°)
 	// values in a very narrow range (~0.02 - 0.08)
-	
+
 	// approximate non-metals with linear RGB 0.04 which is 0.08 * 0.5 (default in UE4)
 	const half3 dielectricColor = half3( 0.04 );
-	
+
 	// derive diffuse and specular from albedo(m) base color
 	const half3 baseColor = diffuseMap;
-	
+
 	half3 diffuseColor = baseColor * ( 1.0 - metallic );
 	half3 specularColor = lerp( dielectricColor, baseColor, metallic );
 #else
 	// HACK calculate roughness from D3 gloss maps
 	float Y = dot( LUMINANCE_SRGB.rgb, specMapSRGB.rgb );
-	
+
 	//const float glossiness = clamp( 1.0 - specMapSRGB.r, 0.0, 0.98 );
 	const float glossiness = clamp( pow( Y, 1.0 / 2.0 ), 0.0, 0.98 );
-	
+
 	const float roughness = 1.0 - glossiness;
-	
+
 	half3 diffuseColor = diffuseMap;
-    half3 specularColor = specMapSRGB.rgb; // RB: should be linear but it looks too flat
+	half3 specularColor = specMapSRGB.rgb; // RB: should be linear but it looks too flat
 #endif
 
-		
+
 	// RB: compensate r_lightScale 3 and the division of Pi
 	//lambert *= 1.3;
-	
+
 	// rpDiffuseModifier contains light color multiplier
 	half3 lightColor = sRGBToLinearRGB( lightProj.xyz * lightFalloff.xyz );// * rpDiffuseModifier.xyz;
-	
+
 	half vdotN = clamp( dot3( viewVector, localNormal ), 0.0, 1.0 );
 	half vdotH = clamp( dot3( viewVector, halfAngleVector ), 0.0, 1.0 );
 	half ldotH = clamp( dot3( lightVector, halfAngleVector ), 0.0, 1.0 );
-	
+
 	// compensate r_lightScale 3 * 2
 	half3 reflectColor = specularColor * rpSpecularModifier.rgb * 1.0;// * 0.5;
-	
+
 	// cheap approximation by ARM with only one division
 	// http://community.arm.com/servlet/JiveServlet/download/96891546-19496/siggraph2015-mmg-renaldas-slides.pdf
 	// page 26
-	
+
 	float rr = roughness * roughness;
 	float rrrr = rr * rr;
-	
+
 	// disney GGX
 	float D = ( hdotN * hdotN ) * ( rrrr - 1.0 ) + 1.0;
 	float VFapprox = ( ldotH * ldotH ) * ( roughness + 0.5 );
 	half3 specularBRDF = ( rrrr / ( 4.0 * PI * D * D * VFapprox ) ) * ldotN * reflectColor;
 	//specularBRDF = half3( 0.0 );
-	
+
 #if 0
 	result.color = float4( _half3( VFapprox ), 1.0 );
 	return;
 #endif
-	
+
 	// see http://seblagarde.wordpress.com/2012/01/08/pi-or-not-to-pi-in-game-lighting-equation/
 	//lambert /= PI;
-	
+
 	//half3 diffuseColor = mix( diffuseMap, F0, metal ) * rpDiffuseModifier.xyz;
 	half3 diffuseBRDF = diffuseColor * lambert * sRGBToLinearRGB( rpDiffuseModifier.xyz );
-		
+
 	result.color.xyz = ( diffuseBRDF + specularBRDF ) * lightColor * fragment.color.rgb;
 	result.color.w = 1.0;
-	
+
 #else
-	
+
 	/*
 	OLD Blinn Phong
 	*/
 
 	const half specularPower = 10.0f;
-	
+
 	// RB: added abs
 	half3 specularContribution = _half3( pow( hdotN, specularPower ) );
 
 	half3 diffuseColor = diffuseMap * sRGBToLinearRGB( rpDiffuseModifier.xyz );
 	half3 specularColor = specMap.xyz * specularContribution * sRGBToLinearRGB( rpSpecularModifier.xyz );
 	half3 lightColor = sRGBToLinearRGB( lightProj.xyz * lightFalloff.xyz );
-	
+
 	/*
 	half rim =  1.0f - saturate( hdotN );
 	half rimPower = 16.0f;

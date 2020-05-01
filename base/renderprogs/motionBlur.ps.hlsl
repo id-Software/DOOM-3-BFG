@@ -2,10 +2,10 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2014 Robert Beckebans
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "global.inc.hlsl"
 
+// *INDENT-OFF*
 uniform sampler2D samp0 : register(s0);   // view color
 uniform sampler2D samp1 : register(s1);   // view depth
 
@@ -39,16 +40,20 @@ struct PS_IN {
 struct PS_OUT {
 	float4 color : COLOR;
 };
+// *INDENT-ON*
 
-void main( PS_IN fragment, out PS_OUT result ) {
+void main( PS_IN fragment, out PS_OUT result )
+{
 #if 0
-    if ( fragment.texcoord0.x < 0.5 ) {
-    // only draw on half the screen for comparison
-        discard;
-    }
+	if( fragment.texcoord0.x < 0.5 )
+	{
+		// only draw on half the screen for comparison
+		discard;
+	}
 #endif
 	// don't motion blur the hands, which were drawn with alpha = 0
-	if ( tex2D( samp0, fragment.texcoord0 ).w == 0.0 ) {
+	if( tex2D( samp0, fragment.texcoord0 ).w == 0.0 )
+	{
 		discard;
 	}
 
@@ -80,7 +85,8 @@ void main( PS_IN fragment, out PS_OUT result ) {
 	float goodSamples = 0.0;
 	float samples = rpOverbright.x;
 
-	for ( float i = 0.0 ; i < samples ; i = i + 1.0 ) {
+	for( float i = 0.0 ; i < samples ; i = i + 1.0 )
+	{
 		float2 pos = fragment.texcoord0 + delta * ( ( i / ( samples - 1.0 ) ) - 0.5 );
 		float4 color = tex2D( samp0, pos );
 		// only take the values that are not part of the weapon

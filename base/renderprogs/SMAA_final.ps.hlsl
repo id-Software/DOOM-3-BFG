@@ -37,14 +37,14 @@ If you have questions concerning this license or the applicable additional terms
 uniform sampler2D samp0		: register(s0);		// _currentColor
 uniform sampler2D samp1		: register(s1);		// _smaaBlend
 //uniform sampler2D samp2		: register(s1);		// _velocity
- 
+
 struct PS_IN
 {
 	float4 position : VPOS;
 	float2 texcoord0 : TEXCOORD0_centroid;
 	float4 texcoord1 : TEXCOORD1_centroid;
 };
- 
+
 struct PS_OUT
 {
 	float4 color : COLOR;
@@ -55,18 +55,18 @@ struct PS_OUT
 void main( PS_IN fragment, out PS_OUT result )
 {
 	float2 texcoord = fragment.texcoord0;
-	
+
 	float4 offset = fragment.texcoord1;
 
-	float4 color = SMAANeighborhoodBlendingPS(texcoord,
-                                  offset,
-                                  samp0,
-                                  samp1
-                                  #if SMAA_REPROJECTION
-                                  , SMAATexture2D(velocityTex)
-                                  #endif
-                                  );
-	
+	float4 color = SMAANeighborhoodBlendingPS( texcoord,
+				   offset,
+				   samp0,
+				   samp1
+#if SMAA_REPROJECTION
+				   , SMAATexture2D( velocityTex )
+#endif
+											 );
+
 	//color = tex2D( samp1, texcoord );
 	//color = float4( samp1 );
 	result.color = color;

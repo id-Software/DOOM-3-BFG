@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "global.inc.hlsl"
 
+// *INDENT-OFF*
 uniform float4 rpUser0 : register(c128); //rpFraction
 uniform float4 rpUser1 : register(c129); //rpTargetHue
 
@@ -45,15 +46,17 @@ struct VS_OUT {
 	float4 color 		: COLOR0;
 	float3 texcoord0	: TEXCOORD0;
 };
+// *INDENT-ON*
 
-void main( VS_IN vertex, out VS_OUT result ) {
+void main( VS_IN vertex, out VS_OUT result )
+{
 	result.position.x = dot4( vertex.position, rpMVPmatrixX );
 	result.position.y = dot4( vertex.position, rpMVPmatrixY );
 	result.position.z = dot4( vertex.position, rpMVPmatrixZ );
 	result.position.w = dot4( vertex.position, rpMVPmatrixW );
-	
+
 	result.color = rpUser1; // targetHue
-	
+
 	result.texcoord0.x = vertex.texcoord.x;
 	result.texcoord0.y = 1.0f - vertex.texcoord.y;
 

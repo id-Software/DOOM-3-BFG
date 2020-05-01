@@ -2,10 +2,10 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2013 Robert Beckebans
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 
 // User Renderparms start at 128 as per renderprogs.h
 
+// *INDENT-OFF*
 uniform float4 rpUser0 : register(c128); // rpScroll
 uniform	float4 rpUser1 : register(c129); // rpDeformMagnitude
 
@@ -54,10 +55,12 @@ struct VS_OUT {
 	float4 texcoord0	: TEXCOORD0;
 	float4 texcoord1	: TEXCOORD1;
 };
+// *INDENT-ON*
 
-void main( VS_IN vertex, out VS_OUT result ) {
+void main( VS_IN vertex, out VS_OUT result )
+{
 
-	#include "skinning.inc.hlsl"
+#include "skinning.inc.hlsl"
 
 	//texture 0 takes the texture coordinates and adds a scroll
 	const float4 textureScroll = rpUser0;
@@ -67,8 +70,8 @@ void main( VS_IN vertex, out VS_OUT result ) {
 	float4	vec = float4( 0, 1, 0, 1 );
 	vec.z = dot4( modelPosition, rpModelViewMatrixZ ); // this is the modelview matrix
 
-	// magicProjectionAdjust is a magic scalar that scales the projection since we changed from 
-	// using the X axis to the Y axis to calculate x.  It is an approximation to closely match 
+	// magicProjectionAdjust is a magic scalar that scales the projection since we changed from
+	// using the X axis to the Y axis to calculate x.  It is an approximation to closely match
 	// what the original game did
 	const float magicProjectionAdjust = 0.43f;
 	float x = dot4( vec, rpProjectionMatrixY ) * magicProjectionAdjust;
