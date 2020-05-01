@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013-2020 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -57,7 +58,8 @@ void main( PS_IN fragment, out PS_OUT result )
 	half4 lightFalloff =	idtex2Dproj( samp3, fragment.texcoord2 );
 	half4 lightProj	=		idtex2Dproj( samp4, fragment.texcoord3 );
 	half4 YCoCG =			tex2D( samp2, fragment.texcoord4.xy );
-	half4 specMap =			sRGBAToLinearRGBA( tex2D( samp1, fragment.texcoord5.xy ) );
+	half4 specMapSRGB =		tex2D( samp1, fragment.texcoord5.xy );
+	half4 specMap =			sRGBAToLinearRGBA( specMapSRGB );
 
 	const half3 ambientLightVector = half3( 0.5f, 9.5f - 0.385f, 0.8925f );
 	half3 lightVector = normalize( ambientLightVector );
@@ -94,7 +96,7 @@ void main( PS_IN fragment, out PS_OUT result )
 
 	half3 diffuseColor = diffuseMap * sRGBToLinearRGB( rpDiffuseModifier.xyz );
 	half3 specularColor = specMap.xyz * specularContribution * sRGBToLinearRGB( rpSpecularModifier.xyz );
-	half3 lightColor = 1.0 * lightProj.xyz * lightFalloff.xyz;
+	half3 lightColor = sRGBToLinearRGB( lightProj.xyz * lightFalloff.xyz );
 
 	result.color.xyz = ( diffuseColor + specularColor ) * lightColor * fragment.color.xyz;
 	result.color.w = 1.0;

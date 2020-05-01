@@ -179,7 +179,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	const half specularPower = 10.0f;
 
 	// RB: added abs
-	half3 specularContribution = _half3( pow( hdotN, specularPower ) );
+	half3 specularContribution = _half3( pow( abs( hDotN ), specularPower ) );
 
 	half3 diffuseColor = diffuseMap * sRGBToLinearRGB( rpDiffuseModifier.xyz );
 	half3 specularColor = specMap.xyz * specularContribution * sRGBToLinearRGB( rpSpecularModifier.xyz );
