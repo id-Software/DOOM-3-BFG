@@ -98,8 +98,6 @@ void main( PS_IN fragment, out PS_OUT result )
 	half3 halfAngleVector = normalize( lightVector + viewVector );
 	half hdotN = clamp( dot3( halfAngleVector, localNormal ), 0.0, 1.0 );
 
-#if 1
-
 #if defined( USE_PBR )
 	const half metallic = specMapSRGB.g;
 	const half roughness = specMapSRGB.r;
@@ -165,33 +163,8 @@ void main( PS_IN fragment, out PS_OUT result )
 	//lambert /= PI;
 
 	//half3 diffuseColor = mix( diffuseMap, F0, metal ) * rpDiffuseModifier.xyz;
-	half3 diffuseBRDF = diffuseColor * lambert * sRGBToLinearRGB( rpDiffuseModifier.xyz );
+	half3 diffuseBRDF = diffuseColor * lambert * ( rpDiffuseModifier.xyz );
 
 	result.color.xyz = ( diffuseBRDF + specularBRDF ) * lightColor * fragment.color.rgb;
 	result.color.w = 1.0;
-
-#else
-
-	/*
-	OLD Blinn Phong
-	*/
-
-	const half specularPower = 10.0f;
-
-	// RB: added abs
-	half3 specularContribution = _half3( pow( abs( hDotN ), specularPower ) );
-
-	half3 diffuseColor = diffuseMap * sRGBToLinearRGB( rpDiffuseModifier.xyz );
-	half3 specularColor = specMap.xyz * specularContribution * sRGBToLinearRGB( rpSpecularModifier.xyz );
-	half3 lightColor = sRGBToLinearRGB( lightProj.xyz * lightFalloff.xyz );
-
-	/*
-	half rim =  1.0f - saturate( hdotN );
-	half rimPower = 16.0f;
-	half3 rimColor = diffuseColor * lightProj.xyz * lightFalloff.xyz * 1.0f * pow( rim, rimPower ) * fragment.color.rgb;// * halfLdotN;
-	*/
-
-	result.color.xyz = ( diffuseColor + specularColor ) * lambert * lightColor * fragment.color.rgb; // + rimColor;
-	result.color.w = 1.0;
-#endif
 }

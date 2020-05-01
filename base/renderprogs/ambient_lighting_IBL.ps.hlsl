@@ -62,13 +62,10 @@ struct PS_OUT
 void main( PS_IN fragment, out PS_OUT result )
 {
 	half4 bumpMap =			tex2D( samp0, fragment.texcoord0.xy );
-//	half4 lightFalloff =	idtex2Dproj( samp1, fragment.texcoord2 );
-//	half4 lightProj	=		idtex2Dproj( samp2, fragment.texcoord3 );
 	half4 YCoCG =			tex2D( samp2, fragment.texcoord1.xy );
 	half4 specMapSRGB =		tex2D( samp1, fragment.texcoord2.xy );
 	half4 specMap =			sRGBAToLinearRGBA( specMapSRGB );
 
-	//half3 lightVector = normalize( fragment.texcoord0.xyz );
 	half3 diffuseMap = sRGBToLinearRGB( ConvertYCoCgToRGB( YCoCG ) );
 
 	half3 localNormal;
@@ -79,21 +76,6 @@ void main( PS_IN fragment, out PS_OUT result )
 #endif
 	localNormal.z = sqrt( abs( dot( localNormal.xy, localNormal.xy ) - 0.25 ) );
 	localNormal = normalize( localNormal );
-
-	//const half specularPower = 10.0f;
-	//half hDotN = dot3( normalize( fragment.texcoord6.xyz ), localNormal );
-	// RB: added abs
-	//half3 specularContribution = _half3( pow( abs( hDotN ), specularPower ) );
-
-	//half3 diffuseColor = diffuseMap * ( rpDiffuseModifier.xyz ) * 1.5f;
-	//half3 specularColor = specMap.xyz * specularContribution * ( rpSpecularModifier.xyz );
-
-	// RB: http://developer.valvesoftware.com/wiki/Half_Lambert
-	//float halfLdotN = dot3( localNormal, lightVector ) * 0.5 + 0.5;
-	//halfLdotN *= halfLdotN;
-
-	// traditional very dark Lambert light model used in Doom 3
-	//float ldotN = dot3( localNormal, lightVector );
 
 	float3 globalNormal;
 	globalNormal.x = dot3( localNormal, fragment.texcoord4 );
@@ -205,8 +187,6 @@ void main( PS_IN fragment, out PS_OUT result )
 	//result.color.rgb = specularLight;
 	result.color.rgb = ( diffuseLight + specularLight ) * lightColor * fragment.color.rgb;
 	//result.color.rgb = localNormal.xyz * 0.5 + 0.5;
-	//result.color.xyz = ( ( diffuseColor + specularColor ) * halfLdotN * lightColor ) * fragment.color.rgb;
-	//result.color = ( ( diffuseColor + specularColor ) * halfLdotN * lightColor + rimColor ) * fragment.color.rgba;
 	//result.color.rgb = float3( ao );
 	result.color.w = fragment.color.a;
 }
