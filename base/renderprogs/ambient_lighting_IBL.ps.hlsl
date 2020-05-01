@@ -31,14 +31,14 @@ If you have questions concerning this license or the applicable additional terms
 #include "BRDF.inc.hlsl"
 
 // *INDENT-OFF*
-uniform sampler2D samp0 : register(s0); // texture 1 is the per-surface normal map
-uniform sampler2D samp1 : register(s1); // texture 3 is the per-surface specular or roughness/metallic/AO mixer map
+uniform sampler2D samp0 : register(s0); // texture 0 is the per-surface normal map
+uniform sampler2D samp1 : register(s1); // texture 1 is the per-surface specular or roughness/metallic/AO mixer map
 uniform sampler2D samp2 : register(s2); // texture 2 is the per-surface baseColor map 
-uniform sampler2D samp3 : register(s3); // texture 4 is the BRDF LUT
-uniform sampler2D samp4 : register(s4); // texture 5 is SSAO
+uniform sampler2D samp3 : register(s3); // texture 3 is the BRDF LUT
+uniform sampler2D samp4 : register(s4); // texture 4 is SSAO
 
-uniform samplerCUBE	samp7 : register(s7); // texture 6 is the irradiance cube map
-uniform samplerCUBE	samp8 : register(s8); // texture 7 is the radiance cube map
+uniform samplerCUBE	samp7 : register(s7); // texture 7 is the irradiance cube map
+uniform samplerCUBE	samp8 : register(s8); // texture 8 is the radiance cube map
 
 struct PS_IN 
 {
@@ -169,13 +169,14 @@ void main( PS_IN fragment, out PS_OUT result )
 	// evaluate diffuse IBL
 
 	float3 irradiance = texCUBE( samp7, globalNormal ).rgb;
-	float3 diffuseLight = ( kD * irradiance * diffuseColor ) * ao * ( rpDiffuseModifier.xyz * 3.0 );
+	float3 diffuseLight = ( kD * irradiance * diffuseColor ) * ao * ( rpDiffuseModifier.xyz * 1.0 );
 
 	// evaluate specular IBL
 
-	// should be 4.0
+	// should be 8 = numMips - 1, 256^2 = 9 mips
 	const float MAX_REFLECTION_LOD = 10.0;
-	float mip = clamp( ( roughness * MAX_REFLECTION_LOD ) + 0.0, 0.0, 10.0 );
+	float mip = clamp( ( roughness * MAX_REFLECTION_LOD ), 0.0, MAX_REFLECTION_LOD );
+	//float mip = 0.0;
 	float3 radiance = textureLod( samp8, reflectionVector, mip ).rgb;
 
 	float2 envBRDF  = texture( samp3, float2( max( vDotN, 0.0 ), roughness ) ).rg;
@@ -187,7 +188,7 @@ void main( PS_IN fragment, out PS_OUT result )
 #endif
 
 	float specAO = ComputeSpecularAO( vDotN, ao, roughness );
-	float3 specularLight = radiance * ( kS * envBRDF.x + float3( envBRDF.y ) ) * specAO * ( rpSpecularModifier.xyz * 0.75 );
+	float3 specularLight = radiance * ( kS * envBRDF.x + float3( envBRDF.y ) ) * specAO * ( rpSpecularModifier.xyz * 0.5 );
 
 #if 0
 	// Marmoset Horizon Fade trick

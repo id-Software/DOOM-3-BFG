@@ -236,6 +236,10 @@ void idImage::CreateSampler()
 	createInfo.compareEnable = ( opts.format == FMT_DEPTH );
 	createInfo.compareOp = ( opts.format == FMT_DEPTH ) ? VK_COMPARE_OP_LESS_OR_EQUAL : VK_COMPARE_OP_NEVER;
 
+	// RB: support textureLod
+	createInfo.minLod = 0.0f;
+	createInfo.maxLod = opts.numLevels;
+
 	switch( filter )
 	{
 		case TF_DEFAULT:
