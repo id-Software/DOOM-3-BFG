@@ -621,6 +621,7 @@ PNG LOADING
 
 extern "C"
 {
+#include <string.h>
 #include <png.h>
 
 
@@ -636,9 +637,16 @@ extern "C"
 
 	static void	png_ReadData( png_structp pngPtr, png_bytep data, png_size_t length )
 	{
+#if PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR <= 4
 		memcpy( data, ( byte* )pngPtr->io_ptr, length );
 
 		pngPtr->io_ptr = ( ( byte* ) pngPtr->io_ptr ) + length;
+#else
+		// There is a get_io_ptr but not a set_io_ptr.. Therefore we need some tmp storage here.
+		byte **ioptr = (byte **)png_get_io_ptr(pngPtr);
+		memcpy( data, *ioptr, length );
+		*ioptr += length;
+#endif
 	}
 
 }
@@ -651,6 +659,9 @@ LoadPNG
 static void LoadPNG( const char* filename, unsigned char** pic, int* width, int* height, ID_TIME_T* timestamp )
 {
 	byte*	fbuffer;
+#if PNG_LIBPNG_VER_MAJOR > 1 || PNG_LIBPNG_VER_MINOR > 4
+	byte*   readptr;
+#endif
 
 	if( !pic )
 	{
@@ -683,7 +694,12 @@ static void LoadPNG( const char* filename, unsigned char** pic, int* width, int*
 		common->Error( "LoadPNG( %s ): png_create_info_struct failed", filename );
 	}
 
+#if PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR <= 4
 	png_set_read_fn( pngPtr, fbuffer, png_ReadData );
+#else
+	readptr = fbuffer;
+	png_set_read_fn( pngPtr, &readptr, png_ReadData );
+#endif
 
 	png_set_sig_bytes( pngPtr, 0 );
 
@@ -770,10 +786,14 @@ extern "C"
 	static int png_compressedSize = 0;
 	static void	png_WriteData( png_structp pngPtr, png_bytep data, png_size_t length )
 	{
+#if PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR <= 4
 		memcpy( ( byte* )pngPtr->io_ptr, data, length );
-
 		pngPtr->io_ptr = ( ( byte* ) pngPtr->io_ptr ) + length;
-
+#else
+		byte **ioptr = (byte**)png_get_io_ptr(pngPtr);
+		memcpy( *ioptr, data, length );
+		*ioptr += length;
+#endif
 		png_compressedSize += length;
 	}
 
@@ -802,7 +822,12 @@ void R_WritePNG( const char* filename, const byte* data, int bytesPerPixel, int 
 
 	png_compressedSize = 0;
 	byte* buffer = ( byte* ) Mem_Alloc( width * height * bytesPerPixel, TAG_TEMP );
+#if PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR <= 4
 	png_set_write_fn( pngPtr, buffer, png_WriteData, png_FlushData );
+#else
+	byte* ioptr  = buffer;
+	png_set_write_fn( pngPtr, &ioptr, png_WriteData, png_FlushData );
+#endif
 
 	if( bytesPerPixel == 4 )
 	{
