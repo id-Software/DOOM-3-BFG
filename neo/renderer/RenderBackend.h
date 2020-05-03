@@ -160,6 +160,9 @@ struct vulkanContext_t
 	idList< const char* >			deviceExtensions;
 	idList< const char* >			validationLayers;
 
+	bool							debugMarkerSupportAvailable;
+	bool							debugUtilsSupportAvailable;
+
 	// selected GPU
 	gpuInfo_t* 						gpu;
 

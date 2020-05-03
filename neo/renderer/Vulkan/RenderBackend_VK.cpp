@@ -3,8 +3,8 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013-2019 Robert Beckebans
 Copyright (C) 2016-2017 Dustin Land
+Copyright (C) 2018-2020 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -31,9 +31,21 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "precompiled.h"
 
-#if 0 // defined(__linux__)
-	#include "../../sys/posix/posix_public.h"
-#endif
+// VK_EXT_debug_marker
+PFN_vkDebugMarkerSetObjectTagEXT	qvkDebugMarkerSetObjectTagEXT = VK_NULL_HANDLE;
+PFN_vkDebugMarkerSetObjectNameEXT	qvkDebugMarkerSetObjectNameEXT = VK_NULL_HANDLE;
+PFN_vkCmdDebugMarkerBeginEXT		qvkCmdDebugMarkerBeginEXT = VK_NULL_HANDLE;
+PFN_vkCmdDebugMarkerEndEXT			qvkCmdDebugMarkerEndEXT = VK_NULL_HANDLE;
+PFN_vkCmdDebugMarkerInsertEXT		qvkCmdDebugMarkerInsertEXT = VK_NULL_HANDLE;
+
+// VK_EXT_debug_utils
+PFN_vkQueueBeginDebugUtilsLabelEXT	qvkQueueBeginDebugUtilsLabelEXT = VK_NULL_HANDLE;
+PFN_vkQueueEndDebugUtilsLabelEXT	qvkQueueEndDebugUtilsLabelEXT = VK_NULL_HANDLE;
+PFN_vkCmdBeginDebugUtilsLabelEXT	qvkCmdBeginDebugUtilsLabelEXT = VK_NULL_HANDLE;
+PFN_vkCmdEndDebugUtilsLabelEXT		qvkCmdEndDebugUtilsLabelEXT = VK_NULL_HANDLE;
+PFN_vkCmdInsertDebugUtilsLabelEXT	qvkCmdInsertDebugUtilsLabelEXT = VK_NULL_HANDLE;
+
+
 
 #include "../RenderCommon.h"
 #include "../RenderBackend.h"
@@ -66,12 +78,6 @@ static const int g_numDebugInstanceExtensions = 1;
 static const char* g_debugInstanceExtensions[ g_numDebugInstanceExtensions ] =
 {
 	VK_EXT_DEBUG_REPORT_EXTENSION_NAME
-};
-
-static const int g_numDeviceExtensions = 1;
-static const char* g_deviceExtensions[ g_numDeviceExtensions ] =
-{
-	VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
 
 static const int g_numValidationLayers = 1;
@@ -268,11 +274,6 @@ static void CreateVulkanInstance()
 	}
 #endif
 
-	for( int i = 0; i < g_numDeviceExtensions; ++i )
-	{
-		vkcontext.deviceExtensions.Append( g_deviceExtensions[ i ] );
-	}
-
 	if( enableLayers )
 	{
 		for( int i = 0; i < g_numDebugInstanceExtensions; ++i )
@@ -466,6 +467,7 @@ static void CreateSurface()
 CheckPhysicalDeviceExtensionSupport
 =============
 */
+/*
 static bool CheckPhysicalDeviceExtensionSupport( gpuInfo_t& gpu, idList< const char* >& requiredExt )
 {
 	int required = requiredExt.Num();
@@ -485,6 +487,89 @@ static bool CheckPhysicalDeviceExtensionSupport( gpuInfo_t& gpu, idList< const c
 
 	return available == required;
 }
+*/
+
+/*
+=============
+PopulateDeviceExtensions
+=============
+*/
+static void PopulateDeviceExtensions( const idList< VkExtensionProperties >& extensionProps, idList< const char* >& extensions )
+{
+	extensions.Clear();
+	extensions.Append( VK_KHR_SWAPCHAIN_EXTENSION_NAME );
+
+	const int numExtensions = extensionProps.Num();
+	const bool enableLayers = r_vkEnableValidationLayers.GetBool();
+
+	for( int i = 0; i < numExtensions; ++i )
+	{
+		//idLib::Printf( "Checking Vulkan device extension [%s]\n", extensionProps[ i ].extensionName );
+
+		if( idStr::Icmp( extensionProps[ i ].extensionName, VK_EXT_DEBUG_MARKER_EXTENSION_NAME ) == 0 && enableLayers )
+		{
+			extensions.AddUnique( VK_EXT_DEBUG_MARKER_EXTENSION_NAME );
+			continue;
+		}
+
+		if( idStr::Icmp( extensionProps[ i ].extensionName, VK_EXT_DEBUG_UTILS_EXTENSION_NAME ) == 0 && enableLayers )
+		{
+			extensions.AddUnique( VK_EXT_DEBUG_UTILS_EXTENSION_NAME );
+			continue;
+		}
+	}
+}
+
+/*
+=============
+CheckDeviceExtensionSupport
+=============
+*/
+static bool CheckDeviceExtensionSupport( const idList< VkExtensionProperties >& extensionProps, const idList< const char* >& requiredExt )
+{
+	int required = requiredExt.Num();
+	int available = 0;
+
+	for( int i = 0; i < requiredExt.Num(); ++i )
+	{
+		for( int j = 0; j < extensionProps.Num(); ++j )
+		{
+			if( idStr::Icmp( requiredExt[ i ], extensionProps[ j ].extensionName ) == 0 )
+			{
+				available++;
+				break;
+			}
+		}
+	}
+
+	return available == required;
+}
+
+/*
+=============
+EnableDeviceExtensionFeatures
+=============
+*/
+static void EnableDeviceExtensionFeatures( const idList< const char* >& extensions )
+{
+	vkcontext.debugMarkerSupportAvailable = false;
+	vkcontext.debugUtilsSupportAvailable = false;
+
+	for( int i = 0; i < extensions.Num(); ++i )
+	{
+		if( idStr::Icmp( extensions[ i ], VK_EXT_DEBUG_MARKER_EXTENSION_NAME ) == 0 )
+		{
+			idLib::Printf( "Using Vulkan device extension [%s]\n", VK_EXT_DEBUG_MARKER_EXTENSION_NAME );
+			vkcontext.debugMarkerSupportAvailable = true;
+		}
+
+		if( idStr::Icmp( extensions[ i ], VK_EXT_DEBUG_UTILS_EXTENSION_NAME ) == 0 )
+		{
+			idLib::Printf( "Using Vulkan device extension [%s]\n", VK_EXT_DEBUG_UTILS_EXTENSION_NAME );
+			vkcontext.debugUtilsSupportAvailable = true;
+		}
+	}
+}
 
 /*
 =============
@@ -499,10 +584,10 @@ static void SelectPhysicalDevice()
 	{
 		gpuInfo_t& gpu = vkcontext.gpus[ i ];
 
-		int graphicsIdx = -1;
-		int presentIdx = -1;
+		idList< const char* > extensions;
+		PopulateDeviceExtensions( gpu.extensionProps, extensions );
 
-		if( !CheckPhysicalDeviceExtensionSupport( gpu, vkcontext.deviceExtensions ) )
+		if( !CheckDeviceExtensionSupport( gpu.extensionProps, extensions ) )
 		{
 			continue;
 		}
@@ -516,6 +601,9 @@ static void SelectPhysicalDevice()
 		{
 			continue;
 		}
+
+		int graphicsIdx = -1;
+		int presentIdx = -1;
 
 		// Find graphics queue family
 		for( int j = 0; j < gpu.queueFamilyProps.Num(); ++j )
@@ -560,6 +648,9 @@ static void SelectPhysicalDevice()
 			vkcontext.presentFamilyIdx = presentIdx;
 			vkcontext.physicalDevice = gpu.device;
 			vkcontext.gpu = &gpu;
+			vkcontext.deviceExtensions = extensions;
+
+			EnableDeviceExtensionFeatures( vkcontext.deviceExtensions );
 
 			vkGetPhysicalDeviceFeatures( vkcontext.physicalDevice, &vkcontext.physicalDeviceFeatures );
 
@@ -651,6 +742,30 @@ static void CreateLogicalDeviceAndQueues()
 
 	vkGetDeviceQueue( vkcontext.device, vkcontext.graphicsFamilyIdx, 0, &vkcontext.graphicsQueue );
 	vkGetDeviceQueue( vkcontext.device, vkcontext.presentFamilyIdx, 0, &vkcontext.presentQueue );
+
+	if( vkcontext.debugMarkerSupportAvailable )
+	{
+		qvkDebugMarkerSetObjectTagEXT = ( PFN_vkDebugMarkerSetObjectTagEXT ) vkGetDeviceProcAddr( vkcontext.device, "vkDebugMarkerSetObjectTagEXT" );
+		qvkDebugMarkerSetObjectNameEXT = ( PFN_vkDebugMarkerSetObjectNameEXT ) vkGetDeviceProcAddr( vkcontext.device, "vkDebugMarkerSetObjectNameEXT" );
+
+		qvkCmdDebugMarkerBeginEXT = ( PFN_vkCmdDebugMarkerBeginEXT )vkGetDeviceProcAddr( vkcontext.device, "vkCmdDebugMarkerBeginEXT" );
+		qvkCmdDebugMarkerEndEXT = ( PFN_vkCmdDebugMarkerEndEXT )vkGetDeviceProcAddr( vkcontext.device, "vkCmdDebugMarkerEndEXT" );
+		qvkCmdDebugMarkerInsertEXT = ( PFN_vkCmdDebugMarkerInsertEXT ) vkGetDeviceProcAddr( vkcontext.device, "vkCmdDebugMarkerInsertEXT" );
+
+		// TODO
+
+		//VK_RegisterObjectForDebug( reinterpret_cast< uint64 >( vkcontext.graphicsQueue ), "graphics_queue", VK_DEBUG_REPORT_OBJECT_TYPE_QUEUE_EXT );
+		//VK_RegisterObjectForDebug( reinterpret_cast< uint64 >( vkcontext.presentQueue ), "present_queue", VK_DEBUG_REPORT_OBJECT_TYPE_QUEUE_EXT );
+	}
+
+	if( vkcontext.debugUtilsSupportAvailable )
+	{
+		qvkQueueBeginDebugUtilsLabelEXT = ( PFN_vkQueueBeginDebugUtilsLabelEXT )vkGetDeviceProcAddr( vkcontext.device, "vkQueueBeginDebugUtilsLabelEXT" );
+		qvkQueueEndDebugUtilsLabelEXT = ( PFN_vkQueueEndDebugUtilsLabelEXT )vkGetDeviceProcAddr( vkcontext.device, "vkQueueEndDebugUtilsLabelEXT" );
+		qvkCmdBeginDebugUtilsLabelEXT = ( PFN_vkCmdBeginDebugUtilsLabelEXT )vkGetDeviceProcAddr( vkcontext.device, "vkCmdBeginDebugUtilsLabelEXT" );
+		qvkCmdEndDebugUtilsLabelEXT = ( PFN_vkCmdEndDebugUtilsLabelEXT )vkGetDeviceProcAddr( vkcontext.device, "vkCmdEndDebugUtilsLabelEXT" );
+		qvkCmdInsertDebugUtilsLabelEXT = ( PFN_vkCmdInsertDebugUtilsLabelEXT )vkGetDeviceProcAddr( vkcontext.device, "vkCmdInsertDebugUtilsLabelEXT" );
+	}
 }
 
 /*

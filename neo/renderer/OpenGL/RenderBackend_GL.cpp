@@ -333,6 +333,17 @@ static void R_CheckPortableExtensions()
 		common->Printf( "X..%s not found\n", "GL_GREMEDY_string_marker" );
 	}
 
+	// KHR_debug
+	glConfig.khronosDebugAvailable = GLEW_KHR_debug != 0;
+	if( glConfig.khronosDebugAvailable )
+	{
+		common->Printf( "...using %s\n", "GLEW_KHR_debug" );
+	}
+	else
+	{
+		common->Printf( "X..%s not found\n", "GLEW_KHR_debug" );
+	}
+
 	// GL_ARB_framebuffer_object
 	glConfig.framebufferObjectAvailable = GLEW_ARB_framebuffer_object != 0;
 	if( glConfig.framebufferObjectAvailable )

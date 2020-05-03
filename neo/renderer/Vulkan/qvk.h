@@ -79,6 +79,19 @@ static const int MAX_DESC_SET_UNIFORMS		= 48;
 static const int MAX_IMAGE_PARMS			= 16;
 static const int MAX_UBO_PARMS				= 2;
 
+// VK_EXT_debug_marker
+extern PFN_vkDebugMarkerSetObjectTagEXT		qvkDebugMarkerSetObjectTagEXT;
+extern PFN_vkDebugMarkerSetObjectNameEXT	qvkDebugMarkerSetObjectNameEXT;
+extern PFN_vkCmdDebugMarkerBeginEXT			qvkCmdDebugMarkerBeginEXT;
+extern PFN_vkCmdDebugMarkerEndEXT			qvkCmdDebugMarkerEndEXT;
+extern PFN_vkCmdDebugMarkerInsertEXT		qvkCmdDebugMarkerInsertEXT;
+
+// VK_EXT_debug_utils
+extern PFN_vkQueueBeginDebugUtilsLabelEXT	qvkQueueBeginDebugUtilsLabelEXT;
+extern PFN_vkQueueEndDebugUtilsLabelEXT		qvkQueueEndDebugUtilsLabelEXT;
+extern PFN_vkCmdBeginDebugUtilsLabelEXT		qvkCmdBeginDebugUtilsLabelEXT;
+extern PFN_vkCmdEndDebugUtilsLabelEXT		qvkCmdEndDebugUtilsLabelEXT;
+extern PFN_vkCmdInsertDebugUtilsLabelEXT	qvkCmdInsertDebugUtilsLabelEXT;
 
 #endif
 

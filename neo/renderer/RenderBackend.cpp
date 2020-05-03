@@ -930,7 +930,7 @@ void idRenderBackend::FillDepthBufferGeneric( const drawSurf_t* const* drawSurfs
 			color[3] = 1.0f;
 		}
 
-		renderLog.OpenBlock( shader->GetName() );
+		renderLog.OpenBlock( shader->GetName(), colorMdGrey );
 
 		bool drawSolid = false;
 		if( shader->Coverage() == MC_OPAQUE )
@@ -1095,7 +1095,7 @@ void idRenderBackend::FillDepthBufferFast( drawSurf_t** drawSurfs, int numDrawSu
 	}
 
 	renderLog.OpenMainBlock( MRB_FILL_DEPTH_BUFFER );
-	renderLog.OpenBlock( "RB_FillDepthBufferFast" );
+	renderLog.OpenBlock( "Render_FillDepthBufferFast", colorBlue );
 
 	// force MVP change on first surface
 	currentSpace = NULL;
@@ -1150,7 +1150,7 @@ void idRenderBackend::FillDepthBufferFast( drawSurf_t** drawSurfs, int numDrawSu
 			currentSpace = surf->space;
 		}
 
-		renderLog.OpenBlock( shader->GetName() );
+		renderLog.OpenBlock( shader->GetName(), colorMdGrey );
 
 		if( surf->jointCache )
 		{
@@ -1924,7 +1924,7 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 			// check for the fast path
 			if( surfaceShader->GetFastPathBumpImage() && !r_skipInteractionFastPath.GetBool() )
 			{
-				renderLog.OpenBlock( surf->material->GetName() );
+				renderLog.OpenBlock( surf->material->GetName(), colorMdGrey );
 
 				inter.bumpImage = surfaceShader->GetFastPathBumpImage();
 				inter.specularImage = surfaceShader->GetFastPathSpecularImage();
@@ -1936,7 +1936,7 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 				continue;
 			}
 
-			renderLog.OpenBlock( surf->material->GetName() );
+			renderLog.OpenBlock( surf->material->GetName(), colorMdGrey );
 
 			inter.bumpImage = NULL;
 			inter.specularImage = NULL;
@@ -2106,7 +2106,7 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 	*/
 
 	renderLog.OpenMainBlock( MRB_AMBIENT_PASS );
-	renderLog.OpenBlock( "RB_AmbientPass" );
+	renderLog.OpenBlock( "Render_AmbientPass", colorBlue );
 
 	// RB: not needed
 	// GL_StartDepthPass( backEnd.viewDef->scissor );
@@ -2326,7 +2326,7 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 		// check for the fast path
 		if( surfaceMaterial->GetFastPathBumpImage() && !r_skipInteractionFastPath.GetBool() )
 		{
-			renderLog.OpenBlock( surfaceMaterial->GetName() );
+			renderLog.OpenBlock( surfaceMaterial->GetName(), colorMdGrey );
 
 			inter.bumpImage = surfaceMaterial->GetFastPathBumpImage();
 			inter.specularImage = surfaceMaterial->GetFastPathSpecularImage();
@@ -2338,7 +2338,7 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 			continue;
 		}
 
-		renderLog.OpenBlock( surfaceMaterial->GetName() );
+		renderLog.OpenBlock( surfaceMaterial->GetName(), colorMdGrey );
 
 		//bool drawSolid = false;
 
@@ -2677,7 +2677,7 @@ mask to be used by the following stencil shadow and draw interaction passes.
 */
 void idRenderBackend::StencilSelectLight( const viewLight_t* vLight )
 {
-	renderLog.OpenBlock( "Stencil Select" );
+	renderLog.OpenBlock( "Stencil Select", colorPink );
 
 	// enable the light scissor
 	if( !currentScissor.Equals( vLight->scissorRect ) && r_useScissor.GetBool() )
@@ -3420,7 +3420,7 @@ void idRenderBackend::DrawInteractions( const viewDef_t* _viewDef )
 	}
 
 	renderLog.OpenMainBlock( MRB_DRAW_INTERACTIONS );
-	renderLog.OpenBlock( "RB_DrawInteractions" );
+	renderLog.OpenBlock( "Render_Interactions", colorYellow );
 
 	GL_SelectTexture( 0 );
 
@@ -3447,7 +3447,7 @@ void idRenderBackend::DrawInteractions( const viewDef_t* _viewDef )
 		}
 
 		const idMaterial* lightShader = vLight->lightShader;
-		renderLog.OpenBlock( lightShader->GetName() );
+		renderLog.OpenBlock( lightShader->GetName(), colorMdGrey );
 
 		// set the depth bounds for the whole light
 		if( useLightDepthBounds )
@@ -3494,14 +3494,14 @@ void idRenderBackend::DrawInteractions( const viewDef_t* _viewDef )
 
 			if( vLight->localInteractions != NULL )
 			{
-				renderLog.OpenBlock( "Local Light Interactions" );
+				renderLog.OpenBlock( "Local Light Interactions", colorPurple );
 				RenderInteractions( vLight->localInteractions, vLight, GLS_DEPTHFUNC_EQUAL, false, useLightDepthBounds );
 				renderLog.CloseBlock();
 			}
 
 			if( vLight->globalInteractions != NULL )
 			{
-				renderLog.OpenBlock( "Global Light Interactions" );
+				renderLog.OpenBlock( "Global Light Interactions", colorPurple );
 				RenderInteractions( vLight->globalInteractions, vLight, GLS_DEPTHFUNC_EQUAL, false, useLightDepthBounds );
 				renderLog.CloseBlock();
 			}
@@ -3547,28 +3547,28 @@ void idRenderBackend::DrawInteractions( const viewDef_t* _viewDef )
 
 			if( vLight->globalShadows != NULL )
 			{
-				renderLog.OpenBlock( "Global Light Shadows" );
+				renderLog.OpenBlock( "Global Light Shadows", colorBrown );
 				StencilShadowPass( vLight->globalShadows, vLight );
 				renderLog.CloseBlock();
 			}
 
 			if( vLight->localInteractions != NULL )
 			{
-				renderLog.OpenBlock( "Local Light Interactions" );
+				renderLog.OpenBlock( "Local Light Interactions", colorPurple );
 				RenderInteractions( vLight->localInteractions, vLight, GLS_DEPTHFUNC_EQUAL, performStencilTest, useLightDepthBounds );
 				renderLog.CloseBlock();
 			}
 
 			if( vLight->localShadows != NULL )
 			{
-				renderLog.OpenBlock( "Local Light Shadows" );
+				renderLog.OpenBlock( "Local Light Shadows", colorBrown );
 				StencilShadowPass( vLight->localShadows, vLight );
 				renderLog.CloseBlock();
 			}
 
 			if( vLight->globalInteractions != NULL )
 			{
-				renderLog.OpenBlock( "Global Light Interactions" );
+				renderLog.OpenBlock( "Global Light Interactions", colorPurple );
 				RenderInteractions( vLight->globalInteractions, vLight, GLS_DEPTHFUNC_EQUAL, performStencilTest, useLightDepthBounds );
 				renderLog.CloseBlock();
 			}
@@ -3577,7 +3577,7 @@ void idRenderBackend::DrawInteractions( const viewDef_t* _viewDef )
 
 		if( vLight->translucentInteractions != NULL && !r_skipTranslucent.GetBool() )
 		{
-			renderLog.OpenBlock( "Translucent Interactions" );
+			renderLog.OpenBlock( "Translucent Interactions", colorCyan );
 
 			// Disable the depth bounds test because translucent surfaces don't work with
 			// the depth bounds tests since they did not write depth during the depth pass.
@@ -3645,7 +3645,7 @@ int idRenderBackend::DrawShaderPasses( const drawSurf_t* const* const drawSurfs,
 		return numDrawSurfs;
 	}
 
-	renderLog.OpenBlock( "RB_DrawShaderPasses" );
+	renderLog.OpenBlock( "Render_GenericShaderPasses", colorBlue );
 
 	GL_SelectTexture( 0 );
 
@@ -3703,7 +3703,7 @@ int idRenderBackend::DrawShaderPasses( const drawSurf_t* const* const drawSurfs,
 			continue;
 		}
 
-		renderLog.OpenBlock( shader->GetName() );
+		renderLog.OpenBlock( shader->GetName(), colorMdGrey );
 
 		// determine the stereoDepth offset
 		// guiStereoScreenOffset will always be zero for 3D views, so the !=
@@ -3833,7 +3833,7 @@ int idRenderBackend::DrawShaderPasses( const drawSurf_t* const* const drawSurfs,
 				{
 					continue;
 				}
-				renderLog.OpenBlock( "New Shader Stage" );
+				renderLog.OpenBlock( "Custom Renderproc Shader Stage", colorRed );
 
 				GL_State( stageGLState );
 
@@ -3913,7 +3913,7 @@ int idRenderBackend::DrawShaderPasses( const drawSurf_t* const* const drawSurfs,
 
 			stageVertexColor_t svc = pStage->vertexColor;
 
-			renderLog.OpenBlock( "Old Shader Stage" );
+			renderLog.OpenBlock( "Standard Shader Stage", colorGreen );
 			GL_Color( color );
 
 			if( surf->space->isGuiSurface )
@@ -4105,7 +4105,7 @@ void idRenderBackend::BlendLight( const drawSurf_t* drawSurfs, const drawSurf_t*
 	{
 		return;
 	}
-	renderLog.OpenBlock( vLight->lightShader->GetName() );
+	renderLog.OpenBlock( vLight->lightShader->GetName(), colorPink );
 
 	const idMaterial* lightShader = vLight->lightShader;
 	const float*	 regs = vLight->shaderRegisters;
@@ -4242,7 +4242,7 @@ idRenderBackend::FogPass
 */
 void idRenderBackend::FogPass( const drawSurf_t* drawSurfs,  const drawSurf_t* drawSurfs2, const viewLight_t* vLight )
 {
-	renderLog.OpenBlock( vLight->lightShader->GetName() );
+	renderLog.OpenBlock( vLight->lightShader->GetName(), colorCyan );
 
 	// find the current color and density of the fog
 	const idMaterial* lightShader = vLight->lightShader;
@@ -4346,7 +4346,7 @@ void idRenderBackend::FogAllLights()
 		return;
 	}
 	renderLog.OpenMainBlock( MRB_FOG_ALL_LIGHTS );
-	renderLog.OpenBlock( "RB_FogAllLights" );
+	renderLog.OpenBlock( "Render_FogAllLights", colorBlue );
 
 	// force fog plane to recalculate
 	currentSpace = NULL;
@@ -4726,13 +4726,14 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 		return;
 	}
 
-	// FIXME very expensive to enable this in subviews
+	// skip this in subviews because it is very expensive
 	if( _viewDef->isSubview )
 	{
 		return;
 	}
 
-	RENDERLOG_PRINTF( "---------- RB_SSAO() ----------\n" );
+	renderLog.OpenMainBlock( MRB_SSAO_PASS );
+	renderLog.OpenBlock( "Render_SSAO", colorBlue );
 
 #if 0
 	GL_CheckErrors();
@@ -4820,6 +4821,8 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 	// build hierarchical depth buffer
 	if( r_useHierarchicalDepthBuffer.GetBool() )
 	{
+		renderLog.OpenBlock( "Render_HiZ", colorDkGrey );
+
 		renderProgManager.BindShader_AmbientOcclusionMinify();
 
 		glClearColor( 0, 0, 0, 1 );
@@ -4859,17 +4862,18 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 			jitterTexScale[2] = 0;
 			jitterTexScale[3] = 0;
 			SetFragmentParm( RENDERPARM_JITTERTEXSCALE, jitterTexScale ); // rpJitterTexScale
-#if 1
+
 			float screenCorrectionParm[4];
 			screenCorrectionParm[0] = 1.0f / width;
 			screenCorrectionParm[1] = 1.0f / height;
 			screenCorrectionParm[2] = width;
 			screenCorrectionParm[3] = height;
 			SetFragmentParm( RENDERPARM_SCREENCORRECTIONFACTOR, screenCorrectionParm ); // rpScreenCorrectionFactor
-#endif
 
 			DrawElementsWithCounters( &unitSquareSurface );
 		}
+
+		renderLog.CloseBlock();
 	}
 
 	// set the window clipping
@@ -4877,7 +4881,6 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 	GL_Scissor( 0, 0, screenWidth, screenHeight );
 
 	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS | GLS_CULL_TWOSIDED );
-
 
 	if( downModulateScreen )
 	{
@@ -5055,6 +5058,9 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 	renderProgManager.Unbind();
 
 	GL_State( GLS_DEFAULT );
+
+	renderLog.CloseBlock();
+	renderLog.CloseMainBlock();
 
 	//GL_CheckErrors();
 #endif
@@ -5444,7 +5450,7 @@ idRenderBackend::DrawViewInternal
 */
 void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int stereoEye )
 {
-	renderLog.OpenBlock( "RB_DrawViewInternal" );
+	renderLog.OpenBlock( "Render_DrawViewInternal", colorRed );
 
 	//-------------------------------------------------
 	// guis can wind up referencing purged images that need to be loaded.

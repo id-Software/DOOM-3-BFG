@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013 Robert Beckebans
+Copyright (C) 2013-2020 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -47,21 +47,27 @@ const char* renderLogMainBlockLabels[] =
 	ASSERT_ENUM_STRING( MRB_NONE,							0 ),
 	ASSERT_ENUM_STRING( MRB_BEGIN_DRAWING_VIEW,				1 ),
 	ASSERT_ENUM_STRING( MRB_FILL_DEPTH_BUFFER,				2 ),
-	ASSERT_ENUM_STRING( MRB_AMBIENT_PASS,					3 ), // RB
-	ASSERT_ENUM_STRING( MRB_DRAW_INTERACTIONS,				4 ),
-	ASSERT_ENUM_STRING( MRB_DRAW_SHADER_PASSES,				5 ),
-	ASSERT_ENUM_STRING( MRB_FOG_ALL_LIGHTS,					6 ),
-	ASSERT_ENUM_STRING( MRB_DRAW_SHADER_PASSES_POST,		7 ),
-	ASSERT_ENUM_STRING( MRB_DRAW_DEBUG_TOOLS,				8 ),
-	ASSERT_ENUM_STRING( MRB_CAPTURE_COLORBUFFER,			9 ),
-	ASSERT_ENUM_STRING( MRB_POSTPROCESS,					10 ),
-	ASSERT_ENUM_STRING( MRB_GPU_SYNC,						11 ),
-	ASSERT_ENUM_STRING( MRB_END_FRAME,						12 ),
-	ASSERT_ENUM_STRING( MRB_BINK_FRAME,						13 ),
-	ASSERT_ENUM_STRING( MRB_BINK_NEXT_FRAME,				14 ),
-	ASSERT_ENUM_STRING( MRB_TOTAL,							15 ),
-	ASSERT_ENUM_STRING( MRB_MAX,							16 )
+	ASSERT_ENUM_STRING( MRB_FILL_GEOMETRY_BUFFER,			3 ), // RB
+	ASSERT_ENUM_STRING( MRB_SSAO_PASS,						4 ), // RB
+	ASSERT_ENUM_STRING( MRB_AMBIENT_PASS,					5 ), // RB
+	ASSERT_ENUM_STRING( MRB_DRAW_INTERACTIONS,				6 ),
+	ASSERT_ENUM_STRING( MRB_DRAW_SHADER_PASSES,				7 ),
+	ASSERT_ENUM_STRING( MRB_FOG_ALL_LIGHTS,					8 ),
+	ASSERT_ENUM_STRING( MRB_DRAW_SHADER_PASSES_POST,		9 ),
+	ASSERT_ENUM_STRING( MRB_DRAW_DEBUG_TOOLS,				10 ),
+	ASSERT_ENUM_STRING( MRB_CAPTURE_COLORBUFFER,			11 ),
+	ASSERT_ENUM_STRING( MRB_POSTPROCESS,					12 ),
+	ASSERT_ENUM_STRING( MRB_GPU_SYNC,						13 ),
+	ASSERT_ENUM_STRING( MRB_END_FRAME,						14 ),
+	ASSERT_ENUM_STRING( MRB_BINK_FRAME,						15 ),
+	ASSERT_ENUM_STRING( MRB_BINK_NEXT_FRAME,				16 ),
+	ASSERT_ENUM_STRING( MRB_TOTAL,							17 ),
+	ASSERT_ENUM_STRING( MRB_MAX,							18 )
 };
+
+#if !defined(USE_VULKAN)
+	static GLuint		renderLogMainBlockTimeQueryIds[MRB_MAX];
+#endif
 
 extern uint64 Sys_Microseconds();
 /*
@@ -103,8 +109,45 @@ PC_BeginNamedEvent
 FIXME: this is not thread safe on the PC
 ========================
 */
-void PC_BeginNamedEvent( const char* szName, ... )
+void PC_BeginNamedEvent( const char* szName, const idVec4& color )
 {
+#if defined( USE_VULKAN )
+
+	// start an annotated group of calls under the this name
+	if( vkcontext.debugMarkerSupportAvailable )
+	{
+		VkDebugMarkerMarkerInfoEXT  label = {};
+		label.sType = VK_STRUCTURE_TYPE_DEBUG_MARKER_MARKER_INFO_EXT;
+		label.pMarkerName = szName;
+		label.color[0] = color.x;
+		label.color[1] = color.y;
+		label.color[2] = color.z;
+		label.color[3] = color.w;
+
+		qvkCmdDebugMarkerBeginEXT( vkcontext.commandBuffer[ vkcontext.frameParity ], &label );
+	}
+	else if( vkcontext.debugUtilsSupportAvailable )
+	{
+		VkDebugUtilsLabelEXT label = {};
+		label.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
+		label.pLabelName = szName;
+		label.color[0] = color.x;
+		label.color[1] = color.y;
+		label.color[2] = color.z;
+		label.color[3] = color.w;
+
+		qvkCmdBeginDebugUtilsLabelEXT( vkcontext.commandBuffer[ vkcontext.frameParity ], &label );
+	}
+#else
+	// RB: colors are not supported in OpenGL
+
+	// only do this if RBDOOM-3-BFG was started by RenderDoc or some similar tool
+	if( glConfig.gremedyStringMarkerAvailable && glConfig.khronosDebugAvailable )
+	{
+		glPushDebugGroup( GL_DEBUG_SOURCE_APPLICATION_ARB, 0, GLsizei( strlen( szName ) ), szName );
+	}
+#endif
+
 #if 0
 	if( !r_pix.GetBool() )
 	{
@@ -150,6 +193,23 @@ PC_EndNamedEvent
 */
 void PC_EndNamedEvent()
 {
+#if defined( USE_VULKAN )
+	if( vkcontext.debugMarkerSupportAvailable )
+	{
+		qvkCmdDebugMarkerEndEXT( vkcontext.commandBuffer[ vkcontext.frameParity ] );
+	}
+	else if( vkcontext.debugUtilsSupportAvailable )
+	{
+		qvkCmdEndDebugUtilsLabelEXT( vkcontext.commandBuffer[ vkcontext.frameParity ] );
+	}
+#else
+	// only do this if RBDOOM-3-BFG was started by RenderDoc or some similar tool
+	if( glConfig.gremedyStringMarkerAvailable && glConfig.khronosDebugAvailable )
+	{
+		glPopDebugGroup();
+	}
+#endif
+
 #if 0
 	if( !r_pix.GetBool() )
 	{
@@ -529,14 +589,67 @@ void idRenderLog::LogCloseBlock( renderLogIndentLabel_t label )
 
 #else	// !STUB_RENDER_LOG
 
+// RB begin
+/*
+========================
+idRenderLog::idRenderLog
+========================
+*/
+idRenderLog::idRenderLog()
+{
+#if !defined(USE_VULKAN)
+	memset( renderLogMainBlockTimeQueryIds, 0, sizeof( renderLogMainBlockTimeQueryIds ) );
+#endif
+}
+
+#if 0
+
+/*
+========================
+idRenderLog::OpenMainBlock
+========================
+*/
+void idRenderLog::OpenMainBlock( renderLogMainBlock_t block )
+{
+#if defined( USE_VULKAN )
+	// TODO
+#else
+	if( glConfig.timerQueryAvailable )
+	{
+		if( renderLogMainBlockTimeQueryIds[block] == 0 )
+		{
+			glGenQueries( 1, &renderLogMainBlockTimeQueryIds[block] );
+		}
+
+		glBeginQuery( GL_TIME_ELAPSED_EXT, renderLogMainBlockTimeQueryIds[block] );
+	}
+#endif
+}
+
+/*
+========================
+idRenderLog::CloseMainBlock
+========================
+*/
+void idRenderLog::CloseMainBlock()
+{
+#if defined( USE_VULKAN )
+	// TODO
+#else
+	glEndQuery( GL_TIME_ELAPSED_EXT );
+#endif
+}
+
+#endif
+
 /*
 ========================
 idRenderLog::OpenBlock
 ========================
 */
-void idRenderLog::OpenBlock( const char* label )
+void idRenderLog::OpenBlock( const char* label, const idVec4& color )
 {
-	PC_BeginNamedEvent( label );
+	PC_BeginNamedEvent( label, color );
 }
 
 /*
@@ -548,5 +661,6 @@ void idRenderLog::CloseBlock()
 {
 	PC_EndNamedEvent();
 }
+// RB end
 
 #endif // !STUB_RENDER_LOG

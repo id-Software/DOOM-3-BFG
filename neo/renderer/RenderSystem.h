@@ -209,6 +209,7 @@ struct glconfig_t
 
 	// RB begin
 	bool				gremedyStringMarkerAvailable;
+	bool				khronosDebugAvailable;
 	bool				vertexHalfFloatAvailable;
 
 	bool				framebufferObjectAvailable;
