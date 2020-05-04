@@ -838,6 +838,7 @@ public:
 
 	const idMaterial* 		whiteMaterial;
 	const idMaterial* 		charSetMaterial;
+	const idMaterial*		imgGuiMaterial; // RB
 	const idMaterial* 		defaultPointLight;
 	const idMaterial* 		defaultProjectedLight;
 	const idMaterial* 		defaultMaterial;

@@ -56,7 +56,7 @@ I started this project in 2012 and focused on making this code being future proo
 * Changed light interaction shaders to use Half-Lambert lighting like in Half-Life 2 to 
 	make the game less dark. https://developer.valvesoftware.com/wiki/Half_Lambert
 * True internal 64 bit HDR lighting with filmic ACES tone mapping and gamma-correct rendering in linear RGB space
-* Enhanced Subpixel Morphological Antialiasing. For more information see "Anti-Aliasing Methods in CryENGINE 3" and the docs at http://www.iryoku.com/smaa/
+* Enhanced Subpixel Morphological Antialiasing as a cheap alternative for MSAA. For more information see "Anti-Aliasing Methods in CryENGINE 3" and the docs at http://www.iryoku.com/smaa/
 * Filmic post process effects like Chromatic Aberration and Dithering
 * Additional ambient render pass to make the game less dark similar to the Quake 4 r_forceAmbient technique
 * Screen Space Ambient Occlusion http://graphics.cs.williams.edu/papers/SAOHPG12/
@@ -135,11 +135,11 @@ Left: No post processing except HDR tone mapping. Right: r_useFilmicPostProcessi
 * ~~Fix GPU Skinning with Vulkan~~
 * ~~Fix the lighting with stencil shadows with Vulkan~~
 * ~~Finish adapting the Vulkan renderer backend based on Dustin Land's vkDOOM3~~
-* Port all the RBDOOM-3-BFG specific extras like HDR, Shadow Mapping and Post Processing to Vulkan
 * ~~Use ImGui to show renderer stats like com_showFPS 1 and more detailed renderer stats~~
-* Get ImGui to run with Vulkan and visualize the Vulkan memory fragmentation based on AMD's VMA library
-
-* Finish PBR texture support
+* ~~Get ImGui to run with Vulkan~~
+* Visualize the Vulkan memory fragmentation based on AMD's VMA library with ImGui
+* Port all the RBDOOM-3-BFG specific extras like HDR, Shadow Mapping and Post Processing to Vulkan
+* ~~Finish PBR texture support~~
 * Finish partly integrated IBL lighting and [Light probe interpolation using tetrahedral tessellations](https://gdcvault.com/play/1015312/Light-Probe-Interpolation-Using-Tetrahedral)
 * Generate IBL probes on the GPU through compute shaders
 * Add Screen Space Reflections

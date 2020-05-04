@@ -209,16 +209,16 @@ void idConsoleLocal::DrawTextRightAlign( float x, float& y, const char* text, ..
 idConsoleLocal::DrawFPS
 ==================
 */
-#define	FPS_FRAMES	6
+#define	FPS_FRAMES	90
 float idConsoleLocal::DrawFPS( float y )
 {
-	static int previousTimes[FPS_FRAMES];
+	static float previousTimes[FPS_FRAMES];
+	static float previousTimesNormalized[FPS_FRAMES];
 	static int index;
 	static int previous;
+	static int valuesOffset = 0;
 
-#if !defined( USE_VULKAN )
 	bool renderImGuiPerfWindow = ImGuiHook::IsReadyToRender() && ( com_showFPS.GetInteger() == 1 );
-#endif
 
 	// don't use serverTime, because that will be drifting to
 	// correct for internet lag changes, timescales, timedemos, etc
@@ -228,7 +228,11 @@ float idConsoleLocal::DrawFPS( float y )
 
 	int fps = 0;
 
+	const float milliSecondsPerFrame = 1000.0f / com_engineHz_latched;
+
 	previousTimes[index % FPS_FRAMES] = frameTime;
+	previousTimesNormalized[index % FPS_FRAMES] = frameTime / milliSecondsPerFrame;
+	valuesOffset = ( valuesOffset + 1 ) % FPS_FRAMES;
 	index++;
 	if( index > FPS_FRAMES )
 	{
@@ -248,14 +252,10 @@ float idConsoleLocal::DrawFPS( float y )
 		const char* s = va( "%ifps", fps );
 		int w = strlen( s ) * BIGCHAR_WIDTH;
 
-#if defined( USE_VULKAN )
-		renderSystem->DrawBigStringExt( LOCALSAFE_RIGHT - w, idMath::Ftoi( y ) + 2, s, colorWhite, true );
-#else
 		if( com_showFPS.GetInteger() == 2 )
 		{
 			renderSystem->DrawBigStringExt( LOCALSAFE_RIGHT - w, idMath::Ftoi( y ) + 2, s, colorWhite, true );
 		}
-#endif
 	}
 
 	y += BIGCHAR_HEIGHT + 4;
@@ -281,14 +281,13 @@ float idConsoleLocal::DrawFPS( float y )
 	const uint64 rendererGPUTime = commonLocal.GetRendererGPUMicroseconds();
 	const int maxTime = 16 * 1000;
 
-#if !defined( USE_VULKAN )
-
 #if 1
+
 	// RB: use ImGui to show more detailed stats about the scene loads
 	if( ImGuiHook::IsReadyToRender() )
 	{
 		int32 statsWindowWidth = 550;
-		int32 statsWindowHeight = 290;
+		int32 statsWindowHeight = 320; // 290 without the frame plot
 
 		ImVec2 pos;
 		pos.x = renderSystem->GetWidth() - statsWindowWidth;
@@ -297,40 +296,83 @@ float idConsoleLocal::DrawFPS( float y )
 		ImGui::SetNextWindowPos( pos );
 		ImGui::SetNextWindowSize( ImVec2( statsWindowWidth, statsWindowHeight ) );
 
+		static ImVec4 colorBlack	= ImVec4( 0.00f, 0.00f, 0.00f, 1.00f );
+		static ImVec4 colorWhite	= ImVec4( 1.00f, 1.00f, 1.00f, 1.00f );
+		static ImVec4 colorRed		= ImVec4( 1.00f, 0.00f, 0.00f, 1.00f );
+		static ImVec4 colorGreen	= ImVec4( 0.00f, 1.00f, 0.00f, 1.00f );
+		static ImVec4 colorBlue		= ImVec4( 0.00f, 0.00f, 1.00f, 1.00f );
+		static ImVec4 colorYellow	= ImVec4( 1.00f, 1.00f, 0.00f, 1.00f );
+		static ImVec4 colorMagenta	= ImVec4( 1.00f, 0.00f, 1.00f, 1.00f );
+		static ImVec4 colorCyan		= ImVec4( 0.00f, 1.00f, 1.00f, 1.00f );
+		static ImVec4 colorOrange	= ImVec4( 1.00f, 0.50f, 0.00f, 1.00f );
+		static ImVec4 colorPurple	= ImVec4( 0.60f, 0.00f, 0.60f, 1.00f );
+		static ImVec4 colorPink		= ImVec4( 0.73f, 0.40f, 0.48f, 1.00f );
+		static ImVec4 colorBrown	= ImVec4( 0.40f, 0.35f, 0.08f, 1.00f );
+		static ImVec4 colorLtGrey	= ImVec4( 0.75f, 0.75f, 0.75f, 1.00f );
+		static ImVec4 colorMdGrey	= ImVec4( 0.50f, 0.50f, 0.50f, 1.00f );
+		static ImVec4 colorDkGrey	= ImVec4( 0.25f, 0.25f, 0.25f, 1.00f );
+
 		ImGui::Begin( "Performance Stats" );
 
-		//ImGui::Text( "Render API: OpenGL" );
+#if defined( USE_VULKAN )
+		const char* API = "Vulkan";
+#else
+		const char* API = "OpenGL";
+#endif
 
-		ImGui::TextColored( ImVec4( 0.00f, 1.00f, 0.00f, 1.00f ), "GENERAL: views:%i draws:%i tris:%i (shdw:%i)",
+		extern idCVar r_antiAliasing;
+		static const int aaNumValues = 5;
+		static const char* aaValues[aaNumValues] =
+		{
+			"None",
+			"SMAA 1X",
+			"MSAA 2X",
+			"MSAA 4X",
+			"MSAA 8X"
+		};
+
+		compile_time_assert( aaNumValues == ( ANTI_ALIASING_MSAA_8X + 1 ) );
+
+		const char* aaMode = aaValues[ r_antiAliasing.GetInteger() ];
+
+		idStr resolutionText;
+		resolutionScale.GetConsoleText( resolutionText );
+
+		int width = renderSystem->GetWidth();
+		int height = renderSystem->GetHeight();
+
+		ImGui::TextColored( colorGreen, "API: %s, AA[%i, %i]: %s, %s", API, width, height, aaMode, resolutionText.c_str() );
+
+		ImGui::TextColored( colorYellow, "GENERAL: views:%i draws:%i tris:%i (shdw:%i)",
 							commonLocal.stats_frontend.c_numViews,
 							commonLocal.stats_backend.c_drawElements + commonLocal.stats_backend.c_shadowElements,
 							( commonLocal.stats_backend.c_drawIndexes + commonLocal.stats_backend.c_shadowIndexes ) / 3,
 							commonLocal.stats_backend.c_shadowIndexes / 3 );
 
-		ImGui::Text( "DYNAMIC: callback:%i md5:%i dfrmVerts:%i dfrmTris:%i tangTris:%i guis:%i",
-					 commonLocal.stats_frontend.c_entityDefCallbacks,
-					 commonLocal.stats_frontend.c_generateMd5,
-					 commonLocal.stats_frontend.c_deformedVerts,
-					 commonLocal.stats_frontend.c_deformedIndexes / 3,
-					 commonLocal.stats_frontend.c_tangentIndexes / 3,
-					 commonLocal.stats_frontend.c_guiSurfs
-				   );
+		ImGui::TextColored( colorLtGrey, "DYNAMIC: callback:%i md5:%i dfrmVerts:%i dfrmTris:%i tangTris:%i guis:%i",
+							commonLocal.stats_frontend.c_entityDefCallbacks,
+							commonLocal.stats_frontend.c_generateMd5,
+							commonLocal.stats_frontend.c_deformedVerts,
+							commonLocal.stats_frontend.c_deformedIndexes / 3,
+							commonLocal.stats_frontend.c_tangentIndexes / 3,
+							commonLocal.stats_frontend.c_guiSurfs
+						  );
 
 		//ImGui::Text( "Cull: %i box in %i box out\n",
 		//					commonLocal.stats_frontend.c_box_cull_in, commonLocal.stats_frontend.c_box_cull_out );
 
-		ImGui::Text( "ADDMODEL: callback:%i createInteractions:%i createShadowVolumes:%i",
-					 commonLocal.stats_frontend.c_entityDefCallbacks,
-					 commonLocal.stats_frontend.c_createInteractions,
-					 commonLocal.stats_frontend.c_createShadowVolumes );
+		ImGui::TextColored( colorLtGrey, "ADDMODEL: callback:%i createInteractions:%i createShadowVolumes:%i",
+							commonLocal.stats_frontend.c_entityDefCallbacks,
+							commonLocal.stats_frontend.c_createInteractions,
+							commonLocal.stats_frontend.c_createShadowVolumes );
 
-		ImGui::Text( "viewEntities:%i  shadowEntities:%i  viewLights:%i\n",	commonLocal.stats_frontend.c_visibleViewEntities,
-					 commonLocal.stats_frontend.c_shadowViewEntities,
-					 commonLocal.stats_frontend.c_viewLights );
+		ImGui::TextColored( colorLtGrey, "viewEntities:%i  shadowEntities:%i  viewLights:%i\n",	commonLocal.stats_frontend.c_visibleViewEntities,
+							commonLocal.stats_frontend.c_shadowViewEntities,
+							commonLocal.stats_frontend.c_viewLights );
 
-		ImGui::Text( "UPDATES: entityUpdates:%i  entityRefs:%i  lightUpdates:%i  lightRefs:%i\n",
-					 commonLocal.stats_frontend.c_entityUpdates, commonLocal.stats_frontend.c_entityReferences,
-					 commonLocal.stats_frontend.c_lightUpdates, commonLocal.stats_frontend.c_lightReferences );
+		ImGui::TextColored( colorLtGrey, "UPDATES: entityUpdates:%i  entityRefs:%i  lightUpdates:%i  lightRefs:%i\n",
+							commonLocal.stats_frontend.c_entityUpdates, commonLocal.stats_frontend.c_entityReferences,
+							commonLocal.stats_frontend.c_lightUpdates, commonLocal.stats_frontend.c_lightReferences );
 
 		//ImGui::Text( "frameData: %i (%i)\n", frameData->frameMemoryAllocated.GetValue(), frameData->highWaterAllocated );
 
@@ -338,12 +380,16 @@ float idConsoleLocal::DrawFPS( float y )
 		ImGui::Spacing();
 		ImGui::Spacing();
 
-		ImGui::TextColored( ImVec4( 0.00f, 1.00f, 1.00f, 1.00f ), "Average FPS %i", fps );
+		//ImGui::TextColored( colorCyan, "Average FPS %i", fps );
+
+		{
+			const char* overlay = va( "Average FPS %i", fps );
+
+			ImGui::PlotLines( "Relative\nFrametime ms", previousTimesNormalized, FPS_FRAMES, valuesOffset, overlay, -10.0f, 10.0f, ImVec2( 0, 50 ) );
+		}
 
 		ImGui::Spacing();
 
-		ImVec4 colorWhite( 1.0f, 1.0f, 1.0f, 1.0f );
-		ImVec4 colorRed( 1.0f, 0.0f, 0.0f, 1.0f );
 
 		ImGui::TextColored( gameThreadTotalTime > maxTime ? colorRed : colorWhite,	"G+RF:    %5llu us", gameThreadTotalTime );
 		ImGui::TextColored( gameThreadGameTime > maxTime ? colorRed : colorWhite,	"G:       %5llu us", gameThreadGameTime );
@@ -355,7 +401,6 @@ float idConsoleLocal::DrawFPS( float y )
 
 		ImGui::End();
 	}
-#endif
 
 	return y;
 #else

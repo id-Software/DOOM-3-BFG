@@ -653,8 +653,10 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 	// After coming back from an autoswap, we won't have anything to render
 	//if( frameData && frameData->cmdHead->next != NULL )
 	{
+#if !defined( USE_VULKAN )
 		// RB: FIXME move this elsewhere
 		ImGuiHook::Render();
+#endif
 
 		// wait for our fence to hit, which means the swap has actually happened
 		// We must do this before clearing any resources the GPU may be using
@@ -734,6 +736,12 @@ const emptyCommand_t* idRenderSystemLocal::SwapCommandBuffers_FinishCommandBuffe
 	{
 		return NULL;
 	}
+
+	// RB: general GUI system path to treat ImGui surfaces in the renderer frontend like SWF
+	// this calls io.RenderDrawListsFn
+#if defined( USE_VULKAN )
+	ImGuiHook::Render();
+#endif
 
 	// close any gui drawing
 	guiModel->EmitFullScreen();

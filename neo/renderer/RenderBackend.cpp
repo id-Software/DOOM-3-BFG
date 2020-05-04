@@ -5413,8 +5413,11 @@ void idRenderBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
 				break;
 
 			case RC_POST_PROCESS:
+			{
+				// apply optional post processing
 				PostProcess( cmds );
 				break;
+			}
 
 			default:
 				common->Error( "RB_ExecuteBackEndCommands: bad commandId" );
@@ -5423,9 +5426,6 @@ void idRenderBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
 	}
 
 	DrawFlickerBox();
-
-	// RB
-	//ImGuiHook::Render();
 
 	GL_EndFrame();
 
@@ -6129,5 +6129,5 @@ void idRenderBackend::PostProcess( const void* data )
 
 #endif
 
-	renderLog.CloseBlock();
+	//renderLog.CloseBlock();
 }

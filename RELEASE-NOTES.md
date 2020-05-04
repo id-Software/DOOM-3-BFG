@@ -67,6 +67,8 @@ The main goal is that the new content looks the same in RBDOOM-3-BFG as in Blend
 
 * Fixed Bink video playback with Vulkan
 
+* ImGui runs with Vulkan by skipping all Vulkan implementation details for it and rendering ImGui on a higher level like the Flash GUI
+
 [MISCELLANEOUS]
 
 * com_showFPS 1 uses ImGui to show more detailed renderer stats like the console prints with r_speeds
