@@ -663,7 +663,12 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 		backend.GL_BlockingSwapBuffers();
 	}
 
-#if !defined(USE_VULKAN)
+#if defined(USE_VULKAN)
+	if( gpuMicroSec != NULL )
+	{
+		*gpuMicroSec = backend.pc.gpuMicroSec;
+	}
+#else
 	// read back the start and end timer queries from the previous frame
 	if( glConfig.timerQueryAvailable )
 	{
@@ -675,6 +680,7 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 		{
 			glGetQueryObjectui64vEXT( tr.timerQueryId, GL_QUERY_RESULT, &drawingTimeNanoseconds );
 		}
+
 		if( gpuMicroSec != NULL )
 		{
 			*gpuMicroSec = drawingTimeNanoseconds / 1000;
@@ -692,12 +698,12 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 
 	if( backEndMicroSec != NULL )
 	{
-		*backEndMicroSec = backend.pc.totalMicroSec;
+		*backEndMicroSec = backend.pc.cpuTotalMicroSec;
 	}
 
 	if( shadowMicroSec != NULL )
 	{
-		*shadowMicroSec = backend.pc.shadowMicroSec;
+		*shadowMicroSec = backend.pc.cpuShadowMicroSec;
 	}
 
 	// RB: TODO clean up the above and just pass entire backend and performance stats before they get cleared

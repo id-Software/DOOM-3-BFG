@@ -206,7 +206,7 @@ void SetClipboardText( void*, const char* text )
 
 bool ShowWindows()
 {
-	return ( ImGuiTools::AreEditorsActive() || imgui_showDemoWindow.GetBool() || com_showFPS.GetInteger() > 0 );
+	return ( ImGuiTools::AreEditorsActive() || imgui_showDemoWindow.GetBool() || com_showFPS.GetInteger() > 1 );
 }
 
 bool UseInput()

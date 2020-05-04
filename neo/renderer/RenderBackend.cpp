@@ -1636,7 +1636,7 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 			}
 			uint64 end = Sys_Microseconds();
 
-			pc.shadowMicroSec += end - start;
+			pc.cpuShadowMicroSec += end - start;
 		}
 
 		const idMaterial* surfaceShader = walk->material;
@@ -2569,7 +2569,7 @@ void idRenderBackend::StencilShadowPass( const drawSurf_t* drawSurfs, const view
 			}
 			uint64 end = Sys_Microseconds();
 
-			pc.shadowMicroSec += end - start;
+			pc.cpuShadowMicroSec += end - start;
 		}
 
 		if( drawSurf->numIndexes == 0 )
@@ -3219,7 +3219,7 @@ void idRenderBackend::ShadowMapPass( const drawSurf_t* drawSurfs, const viewLigh
 			}
 			uint64 end = Sys_Microseconds();
 
-			pc.shadowMicroSec += end - start;
+			pc.cpuShadowMicroSec += end - start;
 		}
 #endif
 
@@ -5431,7 +5431,7 @@ void idRenderBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
 
 	// stop rendering on this thread
 	uint64 backEndFinishTime = Sys_Microseconds();
-	pc.totalMicroSec = backEndFinishTime - backEndStartTime;
+	pc.cpuTotalMicroSec = backEndFinishTime - backEndStartTime;
 
 	if( r_debugRenderToTexture.GetInteger() == 1 )
 	{

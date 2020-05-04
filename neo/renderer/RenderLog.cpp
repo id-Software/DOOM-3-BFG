@@ -44,7 +44,7 @@ static const int LOG_LEVEL_EVERYTHING	= 2;
 
 const char* renderLogMainBlockLabels[] =
 {
-	ASSERT_ENUM_STRING( MRB_NONE,							0 ),
+	ASSERT_ENUM_STRING( MRB_GPU_TIME,						0 ),
 	ASSERT_ENUM_STRING( MRB_BEGIN_DRAWING_VIEW,				1 ),
 	ASSERT_ENUM_STRING( MRB_FILL_DEPTH_BUFFER,				2 ),
 	ASSERT_ENUM_STRING( MRB_FILL_GEOMETRY_BUFFER,			3 ), // RB
@@ -57,15 +57,12 @@ const char* renderLogMainBlockLabels[] =
 	ASSERT_ENUM_STRING( MRB_DRAW_DEBUG_TOOLS,				10 ),
 	ASSERT_ENUM_STRING( MRB_CAPTURE_COLORBUFFER,			11 ),
 	ASSERT_ENUM_STRING( MRB_POSTPROCESS,					12 ),
-	ASSERT_ENUM_STRING( MRB_GPU_SYNC,						13 ),
-	ASSERT_ENUM_STRING( MRB_END_FRAME,						14 ),
-	ASSERT_ENUM_STRING( MRB_BINK_FRAME,						15 ),
-	ASSERT_ENUM_STRING( MRB_BINK_NEXT_FRAME,				16 ),
-	ASSERT_ENUM_STRING( MRB_TOTAL,							17 ),
-	ASSERT_ENUM_STRING( MRB_MAX,							18 )
+	ASSERT_ENUM_STRING( MRB_TOTAL,							13 )
 };
 
-#if !defined(USE_VULKAN)
+#if defined( USE_VULKAN )
+	compile_time_assert( NUM_TIMESTAMP_QUERIES >= ( MRB_TOTAL_QUERIES ) );
+#else
 	static GLuint		renderLogMainBlockTimeQueryIds[MRB_MAX];
 #endif
 
@@ -93,7 +90,7 @@ struct pixEvent_t
 
 idCVar r_pix( "r_pix", "0", CVAR_INTEGER, "print GPU/CPU event timing" );
 
-#if !defined(USE_VULKAN)
+#if !defined( USE_VULKAN )
 	static const int	MAX_PIX_EVENTS = 256;
 	// defer allocation of this until needed, so we don't waste lots of memory
 	pixEvent_t* 		pixEvents;	// [MAX_PIX_EVENTS]
@@ -602,7 +599,7 @@ idRenderLog::idRenderLog()
 #endif
 }
 
-#if 0
+#if 1
 
 /*
 ========================
@@ -612,8 +609,20 @@ idRenderLog::OpenMainBlock
 void idRenderLog::OpenMainBlock( renderLogMainBlock_t block )
 {
 #if defined( USE_VULKAN )
-	// TODO
+	mainBlock = block;
+
+	if( vkcontext.queryIndex[ vkcontext.frameParity ] >= ( NUM_TIMESTAMP_QUERIES - 1 ) )
+	{
+		return;
+	}
+
+	VkCommandBuffer commandBuffer = vkcontext.commandBuffer[ vkcontext.frameParity ];
+	VkQueryPool queryPool = vkcontext.queryPools[ vkcontext.frameParity ];
+
+	uint32 queryIndex = vkcontext.queryAssignedIndex[ vkcontext.frameParity ][ mainBlock * 2 + 0 ] = vkcontext.queryIndex[ vkcontext.frameParity ]++;
+	vkCmdWriteTimestamp( commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, queryPool, queryIndex );
 #else
+	/*
 	if( glConfig.timerQueryAvailable )
 	{
 		if( renderLogMainBlockTimeQueryIds[block] == 0 )
@@ -623,6 +632,7 @@ void idRenderLog::OpenMainBlock( renderLogMainBlock_t block )
 
 		glBeginQuery( GL_TIME_ELAPSED_EXT, renderLogMainBlockTimeQueryIds[block] );
 	}
+	*/
 #endif
 }
 
@@ -634,9 +644,19 @@ idRenderLog::CloseMainBlock
 void idRenderLog::CloseMainBlock()
 {
 #if defined( USE_VULKAN )
-	// TODO
+
+	if( vkcontext.queryIndex[ vkcontext.frameParity ] >= ( NUM_TIMESTAMP_QUERIES - 1 ) )
+	{
+		return;
+	}
+
+	VkCommandBuffer commandBuffer = vkcontext.commandBuffer[ vkcontext.frameParity ];
+	VkQueryPool queryPool = vkcontext.queryPools[ vkcontext.frameParity ];
+
+	uint32 queryIndex = vkcontext.queryAssignedIndex[ vkcontext.frameParity ][ mainBlock * 2 + 1 ] = vkcontext.queryIndex[ vkcontext.frameParity ]++;
+	vkCmdWriteTimestamp( commandBuffer, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, queryPool, queryIndex );
 #else
-	glEndQuery( GL_TIME_ELAPSED_EXT );
+	//glEndQuery( GL_TIME_ELAPSED_EXT );
 #endif
 }
 

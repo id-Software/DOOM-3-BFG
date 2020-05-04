@@ -109,9 +109,7 @@ enum antiAliasingMode_t
 	ANTI_ALIASING_MSAA_8X
 };
 
-/*
-** performanceCounters_t
-*/
+// CPU counters and timers
 struct performanceCounters_t
 {
 	int		c_box_cull_in;
@@ -136,9 +134,11 @@ struct performanceCounters_t
 	int		c_entityReferences;
 	int		c_lightReferences;
 	int		c_guiSurfs;
-	int		frontEndMicroSec;	// sum of time in all RE_RenderScene's in a frame
+
+	uint64	frontEndMicroSec;	// sum of time in all RE_RenderScene's in a frame
 };
 
+// CPU & GPU counters and timers
 struct backEndCounters_t
 {
 	int		c_surfaces;
@@ -154,8 +154,16 @@ struct backEndCounters_t
 
 	float	c_overDraw;
 
-	int		totalMicroSec;		// total microseconds for backend run
-	int		shadowMicroSec;
+	uint64	cpuTotalMicroSec;		// total microseconds for backend run
+	uint64	cpuShadowMicroSec;
+	uint64	gpuDepthMicroSec;
+	uint64	gpuScreenSpaceAmbientOcclusionMicroSec;
+	uint64	gpuScreenSpaceReflectionsMicroSec;
+	uint64	gpuAmbientPassMicroSec;
+	uint64	gpuInteractionsMicroSec;
+	uint64	gpuShaderPassMicroSec;
+	uint64	gpuPostProcessingMicroSec;
+	uint64	gpuMicroSec;
 };
 // RB end
 

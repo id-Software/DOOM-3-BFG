@@ -78,6 +78,7 @@ static const int MAX_DESC_SET_WRITES		= 32;
 static const int MAX_DESC_SET_UNIFORMS		= 48;
 static const int MAX_IMAGE_PARMS			= 16;
 static const int MAX_UBO_PARMS				= 2;
+static const int NUM_TIMESTAMP_QUERIES		= 32;
 
 // VK_EXT_debug_marker
 extern PFN_vkDebugMarkerSetObjectTagEXT		qvkDebugMarkerSetObjectTagEXT;

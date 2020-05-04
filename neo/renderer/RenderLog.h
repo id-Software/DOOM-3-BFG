@@ -41,7 +41,8 @@ Contains the RenderLog declaration.
 
 enum renderLogMainBlock_t
 {
-	MRB_NONE,
+	// each block will require to allocate 2 GPU query timestamps
+	MRB_GPU_TIME,
 	MRB_BEGIN_DRAWING_VIEW,
 	MRB_FILL_DEPTH_BUFFER,
 	MRB_FILL_GEOMETRY_BUFFER,
@@ -54,12 +55,9 @@ enum renderLogMainBlock_t
 	MRB_DRAW_DEBUG_TOOLS,
 	MRB_CAPTURE_COLORBUFFER,
 	MRB_POSTPROCESS,
-	MRB_GPU_SYNC,
-	MRB_END_FRAME,
-	MRB_BINK_FRAME,
-	MRB_BINK_NEXT_FRAME,
 	MRB_TOTAL,
-	MRB_MAX
+
+	MRB_TOTAL_QUERIES = MRB_TOTAL * 2,
 };
 
 // these are used to make sure each Indent() is properly paired with an Outdent()
@@ -182,6 +180,9 @@ performance rendering in retail builds.
 */
 class idRenderLog
 {
+private:
+	renderLogMainBlock_t mainBlock;
+
 public:
 	idRenderLog();
 
@@ -195,8 +196,8 @@ public:
 
 	void		OpenBlock( const char* label, const idVec4& color = colorBlack );
 	void		CloseBlock();
-	void		OpenMainBlock( renderLogMainBlock_t block ) {}
-	void		CloseMainBlock() {}
+	void		OpenMainBlock( renderLogMainBlock_t block );// {}
+	void		CloseMainBlock();// {}
 	void		Indent( renderLogIndentLabel_t label = RENDER_LOG_INDENT_DEFAULT ) {}
 	void		Outdent( renderLogIndentLabel_t label = RENDER_LOG_INDENT_DEFAULT ) {}
 

@@ -330,6 +330,44 @@ public:
 	{
 		return time_gpu;
 	}
+
+	// RB begin
+	uint64		GetRendererGpuEarlyZMicroseconds() const
+	{
+		return stats_backend.gpuDepthMicroSec;
+	}
+
+	uint64		GetRendererGpuSSAOMicroseconds() const
+	{
+		return stats_backend.gpuScreenSpaceAmbientOcclusionMicroSec;
+	}
+
+	uint64		GetRendererGpuSSRMicroseconds() const
+	{
+		return stats_backend.gpuScreenSpaceReflectionsMicroSec;
+	}
+
+	uint64		GetRendererGpuAmbientPassMicroseconds() const
+	{
+		return stats_backend.gpuAmbientPassMicroSec;
+	}
+
+	uint64		GetRendererGpuInteractionsMicroseconds() const
+	{
+		return stats_backend.gpuInteractionsMicroSec;
+	}
+
+	uint64		GetRendererGpuShaderPassMicroseconds() const
+	{
+		return stats_backend.gpuShaderPassMicroSec;
+	}
+
+	uint64		GetRendererGpuPostProcessingMicroseconds() const
+	{
+		return stats_backend.gpuPostProcessingMicroSec;
+	}
+	// RB end
+
 	// foresthale 2014-05-30: a special binarize pacifier has to be shown in
 	// some cases, which includes filename and ETA information, note that
 	// the progress function takes 0-1 float, not 0-100, and can be called

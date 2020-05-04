@@ -1014,7 +1014,23 @@ static void CreateSemaphores()
 	}
 }
 
+/*
+===============
+idRenderBackend::CreateQueryPool
+===============
+*/
+static void CreateQueryPool()
+{
+	VkQueryPoolCreateInfo createInfo = {};
+	createInfo.sType = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO;
+	createInfo.queryType = VK_QUERY_TYPE_TIMESTAMP;
+	createInfo.queryCount = NUM_TIMESTAMP_QUERIES;
 
+	for( int i = 0; i < NUM_FRAME_DATA; ++i )
+	{
+		ID_VK_CHECK( vkCreateQueryPool( vkcontext.device, &createInfo, NULL, &vkcontext.queryPools[ i ] ) );
+	}
+}
 
 /*
 =============
@@ -1390,8 +1406,17 @@ static void ClearContext()
 	vkcontext.frameBuffers.Zero();
 	vkcontext.acquireSemaphores.Zero();
 	vkcontext.renderCompleteSemaphores.Zero();
+
 	vkcontext.currentImageParm = 0;
 	vkcontext.imageParms.Zero();
+
+	vkcontext.queryIndex.Zero();
+	for( int i = 0; i < NUM_FRAME_DATA; ++i )
+	{
+		vkcontext.queryAssignedIndex[ i ].Zero();
+		vkcontext.queryResults[ i ].Zero();
+	}
+	vkcontext.queryPools.Zero();
 }
 
 /*
@@ -1445,8 +1470,8 @@ void idRenderBackend::Init()
 	glConfig.driverType = GLDRV_VULKAN;
 	glConfig.gpuSkinningAvailable = true;
 
-	idLib::Printf( "Creating Vulkan Instance...\n" );
 	// create the Vulkan instance and enable validation layers
+	idLib::Printf( "Creating Vulkan Instance...\n" );
 	CreateVulkanInstance();
 
 	// create the windowing interface
@@ -1469,6 +1494,10 @@ void idRenderBackend::Init()
 	// Create semaphores for image acquisition and rendering completion
 	idLib::Printf( "Creating semaphores...\n" );
 	CreateSemaphores();
+
+	// Create Query Pool
+	idLib::Printf( "Creating query pool...\n" );
+	CreateQueryPool();
 
 	// Create Command Pool
 	idLib::Printf( "Creating command pool...\n" );
@@ -1570,6 +1599,12 @@ void idRenderBackend::Shutdown()
 
 	// Destroy Command Pool
 	vkDestroyCommandPool( vkcontext.device, vkcontext.commandPool, NULL );
+
+	// Destroy Query Pools
+	for( int i = 0; i < NUM_FRAME_DATA; ++i )
+	{
+		vkDestroyQueryPool( vkcontext.device, vkcontext.queryPools[ i ], NULL );
+	}
 
 	// Destroy Semaphores
 	for( int i = 0; i < NUM_FRAME_DATA; ++i )
@@ -1896,20 +1931,108 @@ void idRenderBackend::GL_StartFrame()
 #endif
 	stagingManager.Flush();
 
+	// reset descriptor pool
 	renderProgManager.StartFrame();
 
+	// fetch GPU timer queries of last frame
+	VkQueryPool queryPool = vkcontext.queryPools[ vkcontext.frameParity ];
+	idArray< uint64, NUM_TIMESTAMP_QUERIES >& results = vkcontext.queryResults[ vkcontext.frameParity ];
+	idArray< uint32, MRB_TOTAL_QUERIES >& assignedIndex = vkcontext.queryAssignedIndex[ vkcontext.frameParity ];
 
+	if( assignedIndex[ MRB_GPU_TIME + 1 ] > 0 )
+	{
+		int lastValidQuery = assignedIndex[ MRB_GPU_TIME + 1 ];
+		int numQueries = lastValidQuery + 1;
+
+		if( numQueries <= NUM_TIMESTAMP_QUERIES )
+		{
+			vkGetQueryPoolResults( vkcontext.device, queryPool, MRB_GPU_TIME, numQueries,
+								   results.ByteSize(), results.Ptr(), sizeof( uint64 ), VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WAIT_BIT );
+
+			const uint64 gpuStart = results[ assignedIndex[ MRB_GPU_TIME * 2 + 0 ] ];
+			const uint64 gpuEnd = results[ assignedIndex[ MRB_GPU_TIME * 2 + 1 ]  ];
+			const uint64 tick = ( 1000 * 1000 * 1000 ) / vkcontext.gpu->props.limits.timestampPeriod;
+			pc.gpuMicroSec = ( ( gpuEnd - gpuStart ) * 1000 * 1000 ) / tick;
+
+			if( assignedIndex[ MRB_FILL_DEPTH_BUFFER * 2 + 1 ] > 0 )
+			{
+				const uint64 gpuStart = results[ assignedIndex[ MRB_FILL_DEPTH_BUFFER * 2 + 0 ] ];
+				const uint64 gpuEnd = results[ assignedIndex[ MRB_FILL_DEPTH_BUFFER * 2 + 1 ]  ];
+				const uint64 tick = ( 1000 * 1000 * 1000 ) / vkcontext.gpu->props.limits.timestampPeriod;
+				pc.gpuDepthMicroSec = ( ( gpuEnd - gpuStart ) * 1000 * 1000 ) / tick;
+			}
+
+			if( assignedIndex[ MRB_SSAO_PASS * 2 + 1 ] > 0 )
+			{
+				const uint64 gpuStart = results[ assignedIndex[ MRB_SSAO_PASS * 2 + 0 ] ];
+				const uint64 gpuEnd = results[ assignedIndex[ MRB_SSAO_PASS * 2 + 1 ]  ];
+				const uint64 tick = ( 1000 * 1000 * 1000 ) / vkcontext.gpu->props.limits.timestampPeriod;
+				pc.gpuScreenSpaceAmbientOcclusionMicroSec = ( ( gpuEnd - gpuStart ) * 1000 * 1000 ) / tick;
+			}
+
+			if( assignedIndex[ MRB_AMBIENT_PASS * 2 + 1 ] > 0 )
+			{
+				const uint64 gpuStart = results[ assignedIndex[ MRB_AMBIENT_PASS * 2 + 0 ] ];
+				const uint64 gpuEnd = results[ assignedIndex[ MRB_AMBIENT_PASS * 2 + 1 ]  ];
+				const uint64 tick = ( 1000 * 1000 * 1000 ) / vkcontext.gpu->props.limits.timestampPeriod;
+				pc.gpuAmbientPassMicroSec = ( ( gpuEnd - gpuStart ) * 1000 * 1000 ) / tick;
+			}
+
+			if( assignedIndex[ MRB_DRAW_INTERACTIONS * 2 + 1 ] > 0 )
+			{
+				const uint64 gpuStart = results[ assignedIndex[ MRB_DRAW_INTERACTIONS * 2 + 0 ] ];
+				const uint64 gpuEnd = results[ assignedIndex[ MRB_DRAW_INTERACTIONS * 2 + 1 ]  ];
+				const uint64 tick = ( 1000 * 1000 * 1000 ) / vkcontext.gpu->props.limits.timestampPeriod;
+				pc.gpuInteractionsMicroSec = ( ( gpuEnd - gpuStart ) * 1000 * 1000 ) / tick;
+			}
+
+			if( assignedIndex[ MRB_DRAW_SHADER_PASSES * 2 + 1 ] > 0 )
+			{
+				const uint64 gpuStart = results[ assignedIndex[ MRB_DRAW_SHADER_PASSES * 2 + 0 ] ];
+				const uint64 gpuEnd = results[ assignedIndex[ MRB_DRAW_SHADER_PASSES * 2 + 1 ]  ];
+				const uint64 tick = ( 1000 * 1000 * 1000 ) / vkcontext.gpu->props.limits.timestampPeriod;
+				pc.gpuShaderPassMicroSec = ( ( gpuEnd - gpuStart ) * 1000 * 1000 ) / tick;
+			}
+
+			if( assignedIndex[ MRB_POSTPROCESS * 2 + 1 ] > 0 )
+			{
+				const uint64 gpuStart = results[ assignedIndex[ MRB_POSTPROCESS * 2 + 0 ] ];
+				const uint64 gpuEnd = results[ assignedIndex[ MRB_POSTPROCESS * 2 + 1 ]  ];
+				const uint64 tick = ( 1000 * 1000 * 1000 ) / vkcontext.gpu->props.limits.timestampPeriod;
+				pc.gpuPostProcessingMicroSec = ( ( gpuEnd - gpuStart ) * 1000 * 1000 ) / tick;
+			}
+		}
+	}
+
+	// reset query indices for current frame
+	vkcontext.queryIndex[ vkcontext.frameParity ] = 0;
+
+	for( int i = 0; i < MRB_TOTAL_QUERIES; i++ )
+	{
+		vkcontext.queryAssignedIndex[ vkcontext.frameParity ][ i ] = 0;
+	}
+
+	VkCommandBuffer commandBuffer = vkcontext.commandBuffer[ vkcontext.frameParity ];
+
+	// begin command buffer
 	VkCommandBufferBeginInfo commandBufferBeginInfo = {};
 	commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-	ID_VK_CHECK( vkBeginCommandBuffer( vkcontext.commandBuffer[ vkcontext.frameParity ], &commandBufferBeginInfo ) );
+	ID_VK_CHECK( vkBeginCommandBuffer( commandBuffer, &commandBufferBeginInfo ) );
 
+	// reset timer queries
+	vkCmdResetQueryPool( commandBuffer, queryPool, 0, NUM_TIMESTAMP_QUERIES );
+
+	uint32 queryIndex = vkcontext.queryAssignedIndex[ vkcontext.frameParity ][ MRB_GPU_TIME * 2 + 0 ] = vkcontext.queryIndex[ vkcontext.frameParity ]++;
+	vkCmdWriteTimestamp( commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, queryPool, queryIndex );
+
+	// begin initial render pass
 	VkRenderPassBeginInfo renderPassBeginInfo = {};
 	renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 	renderPassBeginInfo.renderPass = vkcontext.renderPass;
 	renderPassBeginInfo.framebuffer = vkcontext.frameBuffers[ vkcontext.currentSwapIndex ];
 	renderPassBeginInfo.renderArea.extent = vkcontext.swapchainExtent;
 
-	vkCmdBeginRenderPass( vkcontext.commandBuffer[ vkcontext.frameParity ], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE );
+	vkCmdBeginRenderPass( commandBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE );
 }
 
 /*
@@ -1920,6 +2043,9 @@ idRenderBackend::GL_EndFrame
 void idRenderBackend::GL_EndFrame()
 {
 	VkCommandBuffer commandBuffer = vkcontext.commandBuffer[ vkcontext.frameParity ];
+
+	uint32 queryIndex = vkcontext.queryAssignedIndex[ vkcontext.frameParity ][ MRB_GPU_TIME * 2 + 1 ] = vkcontext.queryIndex[ vkcontext.frameParity ]++;
+	vkCmdWriteTimestamp( commandBuffer, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, vkcontext.queryPools[ vkcontext.frameParity ], queryIndex );
 
 	vkCmdEndRenderPass( commandBuffer );
 

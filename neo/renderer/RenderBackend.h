@@ -4,7 +4,7 @@
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2016-2017 Dustin Land
-Copyright (C) 2017-2019 Robert Beckebans
+Copyright (C) 2017-2020 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -31,7 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __RENDERER_BACKEND_H__
 #define __RENDERER_BACKEND_H__
 
-
+#include "RenderLog.h"
 
 bool			GL_CheckErrors_( const char* filename, int line );
 #if 1 // !defined(RETAIL)
@@ -204,6 +204,14 @@ struct vulkanContext_t
 
 	int											currentImageParm;
 	idArray< idImage*, MAX_IMAGE_PARMS >		imageParms;
+
+	//typedef uint32 QueryTuple[2];
+
+	// GPU timestamp queries
+	idArray< uint32, NUM_FRAME_DATA >									queryIndex;
+	idArray< idArray< uint32, MRB_TOTAL_QUERIES >, NUM_FRAME_DATA >		queryAssignedIndex;
+	idArray< idArray< uint64, NUM_TIMESTAMP_QUERIES >, NUM_FRAME_DATA >	queryResults;
+	idArray< VkQueryPool, NUM_FRAME_DATA >		queryPools;
 };
 
 extern vulkanContext_t vkcontext;
