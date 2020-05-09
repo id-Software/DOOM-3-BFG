@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013-2020 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -30,6 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 
 #include "RenderCommon.h"
+#include "../../libs/imgui/imgui.h"
 
 const float idGuiModel::STEREO_DEPTH_NEAR = 0.0f;
 const float idGuiModel::STEREO_DEPTH_MID  = 0.5f;
@@ -330,6 +332,76 @@ void idGuiModel::EmitFullScreen()
 	// add the command to draw this view
 	R_AddDrawViewCmd( viewDef, true );
 }
+
+// RB begin
+/*
+================
+idGuiModel::ImGui_RenderDrawLists
+================
+*/
+void idGuiModel::EmitImGui( ImDrawData* drawData )
+{
+	// NOTE: this implementation does not support scissor clipping for the indivudal draw commands
+	// but it is sufficient for things like com_showFPS
+
+	const float sysWidth = renderSystem->GetWidth();
+	const float sysHeight = renderSystem->GetHeight();
+
+	idVec2 scaleToVirtual( ( float )renderSystem->GetVirtualWidth() / sysWidth, ( float )renderSystem->GetVirtualHeight() / sysHeight );
+
+	for( int a = 0; a < drawData->CmdListsCount; a++ )
+	{
+		const ImDrawList* cmd_list = drawData->CmdLists[a];
+		const ImDrawIdx* indexBufferOffset = &cmd_list->IdxBuffer.front();
+
+		int numVerts = cmd_list->VtxBuffer.size();
+
+		for( int b = 0; b < cmd_list->CmdBuffer.size(); b++ )
+		{
+			const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[b];
+
+			int numIndexes = pcmd->ElemCount;
+
+			// TODO support more than just the imGui Font texture
+			// but we can live with the current solution because ImGui is only meant to draw a few bars and timers
+
+			//glBindTexture( GL_TEXTURE_2D, ( GLuint )( intptr_t )pcmd->TextureId )
+
+			//const idMaterial* material = declManager->FindMaterial( texture name of pcmd->TextureId );
+
+			idDrawVert* verts = renderSystem->AllocTris( numVerts, indexBufferOffset, numIndexes, tr.imgGuiMaterial, STEREO_DEPTH_TYPE_NONE );
+			if( verts == NULL )
+			{
+				continue;
+			}
+
+			if( pcmd->UserCallback )
+			{
+				pcmd->UserCallback( cmd_list, pcmd );
+			}
+			else
+			{
+				for( int j = 0; j < numVerts; j++ )
+				{
+					const ImDrawVert* imVert = &cmd_list->VtxBuffer[j];
+
+					ALIGNTYPE16 idDrawVert tempVert;
+
+					//tempVert.xyz = idVec3( imVert->pos.x, imVert->pos.y, 0.0f );
+					tempVert.xyz.ToVec2() = idVec2( imVert->pos.x, imVert->pos.y ).Scale( scaleToVirtual );
+					tempVert.xyz.z = 0.0f;
+					tempVert.SetTexCoord( imVert->uv.x, imVert->uv.y );
+					tempVert.SetColor( imVert->col );
+
+					WriteDrawVerts16( &verts[j], &tempVert, 1 );
+				}
+			}
+
+			indexBufferOffset += pcmd->ElemCount;
+		}
+	}
+}
+// RB end
 
 /*
 =============

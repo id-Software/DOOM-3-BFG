@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013-2020 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -37,6 +38,11 @@ struct guiModelSurface_t
 
 class idRenderMatrix;
 
+namespace ImGui
+{
+struct ImDrawData;
+}
+
 class idGuiModel
 {
 public:
@@ -52,6 +58,9 @@ public:
 
 	void		EmitToCurrentView( float modelMatrix[16], bool depthHack );
 	void		EmitFullScreen();
+
+	// RB
+	void		EmitImGui( ImDrawData* drawData );
 
 	// the returned pointer will be in write-combined memory, so only make contiguous
 	// 32 bit writes and never read from it.

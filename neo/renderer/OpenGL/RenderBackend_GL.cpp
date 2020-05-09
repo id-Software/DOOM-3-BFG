@@ -2185,16 +2185,19 @@ IMGUI RENDERING
 
 ==============================================================================================
 */
-#include "../../libs/imgui/imgui.h"
+#if !IMGUI_BFGUI
 
-int          g_ShaderHandle = 0, g_VertHandle = 0, g_FragHandle = 0;
-int          g_AttribLocationTex = 0, g_AttribLocationProjMtx = 0;
-int          g_AttribLocationPosition = 0, g_AttribLocationUV = 0, g_AttribLocationColor = 0;
-unsigned int g_VboHandle = 0, g_VaoHandle = 0, g_ElementsHandle = 0;
+	#include "../../libs/imgui/imgui.h"
+
+	int          g_ShaderHandle = 0, g_VertHandle = 0, g_FragHandle = 0;
+	int          g_AttribLocationTex = 0, g_AttribLocationProjMtx = 0;
+	int          g_AttribLocationPosition = 0, g_AttribLocationUV = 0, g_AttribLocationColor = 0;
+	unsigned int g_VboHandle = 0, g_VaoHandle = 0, g_ElementsHandle = 0;
+#endif
 
 void idRenderBackend::ImGui_Init()
 {
-#if 1
+#if !IMGUI_BFGUI
 	const GLchar* vertex_shader =
 		"#version 330\n"
 		"uniform mat4 ProjMtx;\n"
@@ -2260,6 +2263,7 @@ void idRenderBackend::ImGui_Init()
 
 void idRenderBackend::ImGui_Shutdown()
 {
+#if !IMGUI_BFGUI
 	if( g_VaoHandle )
 	{
 		glDeleteVertexArrays( 1, &g_VaoHandle );
@@ -2286,13 +2290,19 @@ void idRenderBackend::ImGui_Shutdown()
 	g_ShaderHandle = 0;
 
 	//ImGui::GetIO().Fonts->TexID = 0;
+#endif
 }
 
 // This is the main rendering function that you have to implement and provide to ImGui (via setting up 'RenderDrawListsFn' in the ImGuiIO structure)
-// If text or lines are blurry when integrating ImGui in your engine:
-// - in your Render function, try translating your projection matrix by (0.5f,0.5f) or (0.375f,0.375f)
+
 void idRenderBackend::ImGui_RenderDrawLists( ImDrawData* draw_data )
 {
+#if IMGUI_BFGUI
+
+	tr.guiModel->EmitImGui( draw_data );
+
+#else
+
 	// Setup render state: alpha-blending enabled, no face culling, no depth testing, scissor enabled
 	GLint last_program, last_texture, polygon_mode[2];
 	glGetIntegerv( GL_CURRENT_PROGRAM, &last_program );
@@ -2387,4 +2397,6 @@ void idRenderBackend::ImGui_RenderDrawLists( ImDrawData* draw_data )
 	glBindTexture( GL_TEXTURE_2D, last_texture );
 
 	renderProgManager.Unbind();
+
+#endif
 }

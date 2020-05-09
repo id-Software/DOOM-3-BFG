@@ -2812,8 +2812,6 @@ IMGUI RENDERING
 
 ==============================================================================================
 */
-#include "../../libs/imgui/imgui.h"
-
 void idRenderBackend::ImGui_Init()
 {
 	// not needed
@@ -2825,68 +2823,7 @@ void idRenderBackend::ImGui_Shutdown()
 }
 
 // This is the main rendering function that you have to implement and provide to ImGui (via setting up 'RenderDrawListsFn' in the ImGuiIO structure)
-
-// TODO move this out of the renderer backend for Vulkan because it is called in the renderer frontend
-// NOTE: this implementation does not support scissor clipping for the indivudal draw commands
-// but it is sufficient for things like com_showFPS
 void idRenderBackend::ImGui_RenderDrawLists( ImDrawData* draw_data )
 {
-
-	const float sysWidth = renderSystem->GetWidth();
-	const float sysHeight = renderSystem->GetHeight();
-
-	idVec2 scaleToVirtual( ( float )renderSystem->GetVirtualWidth() / sysWidth, ( float )renderSystem->GetVirtualHeight() / sysHeight );
-
-	for( int a = 0; a < draw_data->CmdListsCount; a++ )
-	{
-		const ImDrawList* cmd_list = draw_data->CmdLists[a];
-		const ImDrawIdx* indexBufferOffset = &cmd_list->IdxBuffer.front();
-
-		int numVerts = cmd_list->VtxBuffer.size();
-
-		for( int b = 0; b < cmd_list->CmdBuffer.size(); b++ )
-		{
-			const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[b];
-
-			int numIndexes = pcmd->ElemCount;
-
-
-			// TODO support more than just the imGui Font texture
-			// but we can live with the current solution because ImGui is only meant to draw a few bars and timers
-
-			//glBindTexture( GL_TEXTURE_2D, ( GLuint )( intptr_t )pcmd->TextureId )
-
-			//const idMaterial* material = declManager->FindMaterial( texture name of pcmd->TextureId );
-
-			idDrawVert* verts = renderSystem->AllocTris( numVerts, indexBufferOffset, numIndexes, tr.imgGuiMaterial, STEREO_DEPTH_TYPE_NONE );
-			if( verts == NULL )
-			{
-				continue;
-			}
-
-			if( pcmd->UserCallback )
-			{
-				pcmd->UserCallback( cmd_list, pcmd );
-			}
-			else
-			{
-				for( int j = 0; j < numVerts; j++ )
-				{
-					const ImDrawVert* imVert = &cmd_list->VtxBuffer[j];
-
-					ALIGNTYPE16 idDrawVert tempVert;
-
-					//tempVert.xyz = idVec3( imVert->pos.x, imVert->pos.y, 0.0f );
-					tempVert.xyz.ToVec2() = idVec2( imVert->pos.x, imVert->pos.y ).Scale( scaleToVirtual );
-					tempVert.xyz.z = 0.0f;
-					tempVert.SetTexCoord( imVert->uv.x, imVert->uv.y );
-					tempVert.SetColor( imVert->col );
-
-					WriteDrawVerts16( &verts[j], &tempVert, 1 );
-				}
-			}
-
-			indexBufferOffset += pcmd->ElemCount;
-		}
-	}
+	tr.guiModel->EmitImGui( draw_data );
 }

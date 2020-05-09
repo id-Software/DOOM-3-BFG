@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013-2016 Robert Beckebans
+Copyright (C) 2013-2020 Robert Beckebans
 Copyright (C) 2014-2016 Kot in Action Creative Artel
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
@@ -657,8 +657,7 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 	// After coming back from an autoswap, we won't have anything to render
 	//if( frameData && frameData->cmdHead->next != NULL )
 	{
-#if !defined( USE_VULKAN )
-		// RB: FIXME move this elsewhere
+#if !defined( USE_VULKAN ) && !defined( IMGUI_BFGUI )
 		ImGuiHook::Render();
 #endif
 
@@ -804,7 +803,7 @@ const emptyCommand_t* idRenderSystemLocal::SwapCommandBuffers_FinishCommandBuffe
 
 	// RB: general GUI system path to treat ImGui surfaces in the renderer frontend like SWF
 	// this calls io.RenderDrawListsFn
-#if defined( USE_VULKAN )
+#if defined( USE_VULKAN ) || IMGUI_BFGUI
 	ImGuiHook::Render();
 #endif
 
