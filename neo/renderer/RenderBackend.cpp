@@ -3414,7 +3414,7 @@ idRenderBackend::DrawInteractions
 */
 void idRenderBackend::DrawInteractions( const viewDef_t* _viewDef )
 {
-	if( r_skipInteractions.GetBool() )
+	if( r_skipInteractions.GetBool() || viewDef->viewLights == NULL )
 	{
 		return;
 	}
@@ -5978,7 +5978,8 @@ void idRenderBackend::PostProcess( const void* data )
 		return;
 	}
 
-	RENDERLOG_PRINTF( "---------- RB_PostProcess() ----------\n" );
+	renderLog.OpenMainBlock( MRB_POSTPROCESS );
+	renderLog.OpenBlock( "Render_PostProcessing", colorBlue );
 
 // FIXME
 #if !defined(USE_VULKAN)
@@ -6077,7 +6078,6 @@ void idRenderBackend::PostProcess( const void* data )
 #endif
 	}
 
-#if 1
 	if( r_useFilmicPostProcessEffects.GetBool() )
 	{
 		globalImages->currentRenderImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
@@ -6122,12 +6122,12 @@ void idRenderBackend::PostProcess( const void* data )
 		// Draw
 		DrawElementsWithCounters( &unitSquareSurface );
 	}
-#endif
 
 	GL_SelectTexture( 0 );
 	renderProgManager.Unbind();
 
 #endif
 
-	//renderLog.CloseBlock();
+	renderLog.CloseBlock();
+	renderLog.CloseMainBlock();
 }

@@ -220,13 +220,15 @@ extern vulkanContext_t vkcontext;
 
 struct glContext_t
 {
-//	bool		bAnisotropicFilterAvailable;
-//	bool		bTextureLODBiasAvailable;
-
-//	float		maxTextureAnisotropy;
+	uint64		frameCounter;
+	uint32		frameParity;
 
 	tmu_t		tmu[ MAX_MULTITEXTURE_UNITS ];
 	uint64		stencilOperations[ STENCIL_FACE_NUM ];
+
+	// for GL_TIME_ELAPSED_EXT queries
+	GLuint		renderLogMainBlockTimeQueryIds[ NUM_FRAME_DATA ][ MRB_TOTAL_QUERIES ];
+	uint32		renderLogMainBlockTimeQueryIssued[ NUM_FRAME_DATA ][ MRB_TOTAL_QUERIES ];
 };
 
 extern glContext_t glcontext;

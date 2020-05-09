@@ -62,8 +62,6 @@ const char* renderLogMainBlockLabels[] =
 
 #if defined( USE_VULKAN )
 	compile_time_assert( NUM_TIMESTAMP_QUERIES >= ( MRB_TOTAL_QUERIES ) );
-#else
-	static GLuint		renderLogMainBlockTimeQueryIds[MRB_MAX];
 #endif
 
 extern uint64 Sys_Microseconds();
@@ -594,9 +592,6 @@ idRenderLog::idRenderLog
 */
 idRenderLog::idRenderLog()
 {
-#if !defined(USE_VULKAN)
-	memset( renderLogMainBlockTimeQueryIds, 0, sizeof( renderLogMainBlockTimeQueryIds ) );
-#endif
 }
 
 #if 1
@@ -608,9 +603,9 @@ idRenderLog::OpenMainBlock
 */
 void idRenderLog::OpenMainBlock( renderLogMainBlock_t block )
 {
-#if defined( USE_VULKAN )
 	mainBlock = block;
 
+#if defined( USE_VULKAN )
 	if( vkcontext.queryIndex[ vkcontext.frameParity ] >= ( NUM_TIMESTAMP_QUERIES - 1 ) )
 	{
 		return;
@@ -621,18 +616,19 @@ void idRenderLog::OpenMainBlock( renderLogMainBlock_t block )
 
 	uint32 queryIndex = vkcontext.queryAssignedIndex[ vkcontext.frameParity ][ mainBlock * 2 + 0 ] = vkcontext.queryIndex[ vkcontext.frameParity ]++;
 	vkCmdWriteTimestamp( commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, queryPool, queryIndex );
+
 #else
-	/*
+
 	if( glConfig.timerQueryAvailable )
 	{
-		if( renderLogMainBlockTimeQueryIds[block] == 0 )
+		if( glcontext.renderLogMainBlockTimeQueryIds[ glcontext.frameParity ][ block * 2 ] == 0 )
 		{
-			glGenQueries( 1, &renderLogMainBlockTimeQueryIds[block] );
+			glCreateQueries( GL_TIMESTAMP, 2, &glcontext.renderLogMainBlockTimeQueryIds[ glcontext.frameParity ][ block * 2 ] );
 		}
 
-		glBeginQuery( GL_TIME_ELAPSED_EXT, renderLogMainBlockTimeQueryIds[block] );
+		glQueryCounter( glcontext.renderLogMainBlockTimeQueryIds[ glcontext.frameParity ][ block * 2 + 0 ], GL_TIMESTAMP );
+		glcontext.renderLogMainBlockTimeQueryIssued[ glcontext.frameParity ][ block * 2 + 0 ]++;
 	}
-	*/
 #endif
 }
 
@@ -655,8 +651,14 @@ void idRenderLog::CloseMainBlock()
 
 	uint32 queryIndex = vkcontext.queryAssignedIndex[ vkcontext.frameParity ][ mainBlock * 2 + 1 ] = vkcontext.queryIndex[ vkcontext.frameParity ]++;
 	vkCmdWriteTimestamp( commandBuffer, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, queryPool, queryIndex );
+
 #else
-	//glEndQuery( GL_TIME_ELAPSED_EXT );
+
+	if( glConfig.timerQueryAvailable )
+	{
+		glQueryCounter( glcontext.renderLogMainBlockTimeQueryIds[ glcontext.frameParity ][ mainBlock * 2 + 1 ], GL_TIMESTAMP );
+		glcontext.renderLogMainBlockTimeQueryIssued[ glcontext.frameParity ][ mainBlock * 2 + 1 ]++;
+	}
 #endif
 }
 

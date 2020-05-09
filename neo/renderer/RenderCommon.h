@@ -882,8 +882,6 @@ public:
 
 	idRenderBackend			backend;
 
-	unsigned				timerQueryId;		// for GL_TIME_ELAPSED_EXT queries
-
 private:
 	bool					bInitialized;
 };

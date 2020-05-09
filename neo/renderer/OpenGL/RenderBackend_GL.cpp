@@ -319,8 +319,10 @@ static void R_CheckPortableExtensions()
 	// GL_ARB_occlusion_query
 	glConfig.occlusionQueryAvailable = GLEW_ARB_occlusion_query != 0;
 
-	// GL_ARB_timer_query
-	glConfig.timerQueryAvailable = ( GLEW_ARB_timer_query != 0 || GLEW_EXT_timer_query != 0 ) && ( glConfig.vendor != VENDOR_INTEL || r_skipIntelWorkarounds.GetBool() ) && glConfig.driverType != GLDRV_OPENGL_MESA;
+	// GL_ARB_timer_query using the DSA interface
+	//glConfig.timerQueryAvailable = ( GLEW_ARB_timer_query != 0 || GLEW_EXT_timer_query != 0 ) && ( glConfig.vendor != VENDOR_INTEL || r_skipIntelWorkarounds.GetBool() ) && glConfig.driverType != GLDRV_OPENGL_MESA;
+
+	glConfig.timerQueryAvailable = ( GLEW_ARB_direct_state_access != 0 && GLEW_ARB_timer_query != 0 );
 
 	// GREMEDY_string_marker
 	glConfig.gremedyStringMarkerAvailable = GLEW_GREMEDY_string_marker != 0;
@@ -752,6 +754,11 @@ void idRenderBackend::GL_BlockingSwapBuffers()
 	}
 
 	GLimp_SwapBuffers();
+
+	// RB: at this time the image is presented on the screen
+
+	glcontext.frameCounter++;
+	glcontext.frameParity = glcontext.frameCounter % NUM_FRAME_DATA;
 
 	const int beforeFence = Sys_Milliseconds();
 	if( r_showSwapBuffers.GetBool() && beforeFence - beforeSwap > 1 )
@@ -1825,8 +1832,14 @@ idRenderBackend::idRenderBackend
 */
 idRenderBackend::idRenderBackend()
 {
+	glcontext.frameCounter = 0;
+	glcontext.frameParity = 0;
+
 	memset( glcontext.tmu, 0, sizeof( glcontext.tmu ) );
 	memset( glcontext.stencilOperations, 0, sizeof( glcontext.stencilOperations ) );
+
+	memset( glcontext.renderLogMainBlockTimeQueryIds, 0, sizeof( glcontext.renderLogMainBlockTimeQueryIds ) );
+	memset( glcontext.renderLogMainBlockTimeQueryIssued, 0, sizeof( glcontext.renderLogMainBlockTimeQueryIssued ) );
 }
 
 /*
@@ -2162,7 +2175,7 @@ void idRenderBackend::StereoRenderExecuteBackEndCommands( const emptyCommand_t* 
 
 	// stop rendering on this thread
 	uint64 backEndFinishTime = Sys_Microseconds();
-	pc.totalMicroSec = backEndFinishTime - backEndStartTime;
+	pc.cpuTotalMicroSec = backEndFinishTime - backEndStartTime;
 }
 
 /*
