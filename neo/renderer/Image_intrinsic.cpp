@@ -267,6 +267,11 @@ static void R_SMAAImage_ResNative( idImage* image )
 	image->GenerateImage( NULL, renderSystem->GetWidth(), renderSystem->GetHeight(), TF_LINEAR, TR_CLAMP, TD_LOOKUP_TABLE_RGBA );
 }
 
+static void R_SSAOImage_ResHalf( idImage* image )
+{
+	image->GenerateImage( NULL, renderSystem->GetWidth() / 2, renderSystem->GetHeight() / 2, TF_LINEAR, TR_CLAMP, TD_LOOKUP_TABLE_RGBA );
+}
+
 static void R_HierarchicalZBufferImage_ResNative( idImage* image )
 {
 	image->GenerateImage( NULL, renderSystem->GetWidth(), renderSystem->GetHeight(), TF_NEAREST_MIPMAP, TR_CLAMP, TD_R32F );

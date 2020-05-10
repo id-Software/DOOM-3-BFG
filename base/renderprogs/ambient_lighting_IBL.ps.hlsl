@@ -143,7 +143,7 @@ void main( PS_IN fragment, out PS_OUT result )
 
 	// calculate the screen texcoord in the 0.0 to 1.0 range
 	//float2 screenTexCoord = vposToScreenPosTexCoord( fragment.position.xy );
-	float2 screenTexCoord = fragment.position.xy * rpScreenCorrectionFactor.xy;
+	float2 screenTexCoord = fragment.position.xy * rpWindowCoord.xy;
 
 	float ao = tex2D( samp4, screenTexCoord ).r;
 	//diffuseColor.rgb *= ao;

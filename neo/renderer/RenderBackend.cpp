@@ -2057,6 +2057,8 @@ idRenderBackend::AmbientPass
 */
 void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDrawSurfs, bool fillGbuffer )
 {
+	const bool hdrIsActive = ( r_useHDR.GetBool() && globalFramebuffers.hdrFBO != NULL && globalFramebuffers.hdrFBO->IsBound() );
+
 	if( fillGbuffer )
 	{
 		if( !r_useSSGI.GetBool() && !r_useSSAO.GetBool() )
@@ -2068,6 +2070,8 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 	{
 		if( r_forceAmbient.GetFloat() <= 0 || r_skipAmbient.GetBool() )
 		{
+			// clear gbuffer
+			GL_Clear( true, false, false, 0, 0.0f, 0.0f, 0.0f, 1.0f, false );
 			return;
 		}
 	}
@@ -2083,17 +2087,41 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 		return;
 	}
 
-	const bool hdrIsActive = ( r_useHDR.GetBool() && globalFramebuffers.hdrFBO != NULL && globalFramebuffers.hdrFBO->IsBound() );
-
-	if( !fillGbuffer )
+	if( !fillGbuffer && r_useSSAO.GetBool() && r_ssaoDebug.GetBool() )
 	{
-		if( r_forceAmbient.GetFloat() <= 0 || r_skipAmbient.GetBool() )
-		{
-			// clear gbuffer
-			GL_Clear( true, false, false, 0, 0.0f, 0.0f, 0.0f, 1.0f, false );
-			return;
-		}
+		GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
+
+		// We just want to do a quad pass - so make sure we disable any texgen and
+		// set the texture matrix to the identity so we don't get anomalies from
+		// any stale uniform data being present from a previous draw call
+		const float texS[4] = { 1.0f, 0.0f, 0.0f, 0.0f };
+		const float texT[4] = { 0.0f, 1.0f, 0.0f, 0.0f };
+		renderProgManager.SetRenderParm( RENDERPARM_TEXTUREMATRIX_S, texS );
+		renderProgManager.SetRenderParm( RENDERPARM_TEXTUREMATRIX_T, texT );
+
+		// disable any texgen
+		const float texGenEnabled[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+		renderProgManager.SetRenderParm( RENDERPARM_TEXGEN_0_ENABLED, texGenEnabled );
+
+		currentSpace = NULL;
+		RB_SetMVP( renderMatrix_identity );
+
+		renderProgManager.BindShader_Texture();
+		GL_Color( 1, 1, 1, 1 );
+
+		GL_SelectTexture( 0 );
+		globalImages->ambientOcclusionImage[0]->Bind();
+
+		DrawElementsWithCounters( &unitSquareSurface );
+
+		renderProgManager.Unbind();
+		GL_State( GLS_DEFAULT );
+
+		SetFragmentParm( RENDERPARM_ALPHA_TEST, vec4_zero.ToFloatPtr() );
+
+		return;
 	}
+
 
 	/*
 	if( fillGbuffer )
@@ -4877,8 +4905,11 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 	}
 
 	// set the window clipping
-	GL_Viewport( 0, 0, screenWidth, screenHeight );
-	GL_Scissor( 0, 0, screenWidth, screenHeight );
+	int aoScreenWidth = globalFramebuffers.ambientOcclusionFBO[0]->GetWidth();
+	int aoScreenHeight = globalFramebuffers.ambientOcclusionFBO[0]->GetHeight();
+
+	GL_Viewport( 0, 0, aoScreenWidth, aoScreenHeight );
+	GL_Scissor( 0, 0, aoScreenWidth, aoScreenHeight );
 
 	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS | GLS_CULL_TWOSIDED );
 
@@ -4930,11 +4961,19 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 	}
 
 	float screenCorrectionParm[4];
-	screenCorrectionParm[0] = 1.0f / screenWidth;
-	screenCorrectionParm[1] = 1.0f / screenHeight;
-	screenCorrectionParm[2] = screenWidth;
-	screenCorrectionParm[3] = screenHeight;
+	screenCorrectionParm[0] = float( screenWidth ) / aoScreenWidth;
+	screenCorrectionParm[1] = float( screenHeight ) / aoScreenHeight;
+	screenCorrectionParm[2] = 0.0f;
+	screenCorrectionParm[3] = 1.0f;
 	SetFragmentParm( RENDERPARM_SCREENCORRECTIONFACTOR, screenCorrectionParm ); // rpScreenCorrectionFactor
+
+	// window coord to 0.0 to 1.0 conversion
+	float windowCoordParm[4];
+	windowCoordParm[0] = 1.0f / aoScreenWidth;
+	windowCoordParm[1] = 1.0f / aoScreenHeight;
+	windowCoordParm[2] = aoScreenWidth;
+	windowCoordParm[3] = aoScreenHeight;
+	SetFragmentParm( RENDERPARM_WINDOWCOORD, windowCoordParm ); // rpWindowCoord
 
 #if 0
 	// RB: set unprojection matrices so we can convert zbuffer values back to camera and world spaces
@@ -4950,7 +4989,6 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 	//SetVertexParms( RENDERPARM_MODELMATRIX_X, viewDef->unprojectionToWorldRenderMatrix[0], 4 );
 #endif
 	SetVertexParms( RENDERPARM_MODELMATRIX_X, viewDef->unprojectionToCameraRenderMatrix[0], 4 );
-
 
 	float jitterTexOffset[4];
 	if( r_shadowMapRandomizeJitter.GetBool() )
@@ -4987,7 +5025,6 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 		float jitterTexScale[4];
 
 		// AO blur X
-#if 1
 		globalFramebuffers.ambientOcclusionFBO[1]->Bind();
 
 		renderProgManager.BindShader_AmbientOcclusionBlur();
@@ -5003,7 +5040,6 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 		globalImages->ambientOcclusionImage[0]->Bind();
 
 		DrawElementsWithCounters( &unitSquareSurface );
-#endif
 
 		// AO blur Y
 		if( downModulateScreen )
@@ -5055,7 +5091,13 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 		}
 	}
 
+	//
+	// reset state
+	//
 	renderProgManager.Unbind();
+
+	GL_Viewport( 0, 0, screenWidth, screenHeight );
+	GL_Scissor( 0, 0, screenWidth, screenHeight );
 
 	GL_State( GLS_DEFAULT );
 

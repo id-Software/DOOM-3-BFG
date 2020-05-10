@@ -129,7 +129,7 @@ float3 reconstructCSPosition( float2 S, float z )
 {
 	float4 P;
 	P.z = z * 2.0 - 1.0;
-	P.xy = ( S * rpScreenCorrectionFactor.xy ) * 2.0 - 1.0;
+	P.xy = ( S * rpWindowCoord.xy ) * 2.0 - 1.0;
 	P.w = 1.0;
 
 	float4 csP;
@@ -269,6 +269,9 @@ void main( PS_IN fragment, out PS_OUT result )
 //#endif
 
 	int2 ssC = int2( gl_FragCoord.xy );
+
+	//float2 ssF = fragment.texcoord0 * rpScreenCorrectionFactor.xy;
+	//int2 ssC = int2( ssF.x * rpWindowCoord.z, ssF.y * rpWindowCoord.w );
 
 	float4 temp = texelFetch( source, ssC, 0 );
 

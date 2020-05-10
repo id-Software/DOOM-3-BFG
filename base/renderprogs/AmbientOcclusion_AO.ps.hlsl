@@ -147,7 +147,7 @@ float3 reconstructCSPosition( float2 S, float z )
 {
 	float4 P;
 	P.z = z * 2.0 - 1.0;
-	P.xy = ( S * rpScreenCorrectionFactor.xy ) * 2.0 - 1.0;
+	P.xy = ( S * rpWindowCoord.xy ) * 2.0 - 1.0;
 	P.w = 1.0;
 
 	float4 csP;
@@ -335,10 +335,10 @@ void main( PS_IN fragment, out PS_OUT result )
 #endif
 
 	// Pixel being shaded
-	//float2 ssC = fragment.texcoord0;
-	//int2 issC = int2( ssC.x * rpScreenCorrectionFactor.z, ssC.y * rpScreenCorrectionFactor.w );
+	float2 ssC = fragment.texcoord0 * rpScreenCorrectionFactor.xy;
+	int2 ssP = int2( ssC.x * rpWindowCoord.z, ssC.y * rpWindowCoord.w );
 
-	int2 ssP = int2( gl_FragCoord.xy );
+	//int2 ssP = int2( gl_FragCoord.xy );
 
 	// World space point being shaded
 	vec3 C = getPosition( ssP, CS_Z_buffer );
