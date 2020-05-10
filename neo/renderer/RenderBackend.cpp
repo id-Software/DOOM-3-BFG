@@ -1681,18 +1681,16 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 		SetFragmentParm( RENDERPARM_JITTERTEXSCALE, jitterTexScale ); // rpJitterTexScale
 
 		float jitterTexOffset[4];
+		jitterTexOffset[0] = 1.0f / globalImages->blueNoiseImage256->GetUploadWidth();
+		jitterTexOffset[1] = 1.0f / globalImages->blueNoiseImage256->GetUploadWidth();
+
 		if( r_shadowMapRandomizeJitter.GetBool() )
 		{
-			jitterTexOffset[0] = ( rand() & 255 ) / 255.0;
-			jitterTexOffset[1] = ( rand() & 255 ) / 255.0;
-
 			jitterTexOffset[2] = Sys_Milliseconds() / 1000.0f;
 			jitterTexOffset[3] = tr.frameCount % 64;
 		}
 		else
 		{
-			jitterTexOffset[0] = 0;
-			jitterTexOffset[1] = 0;
 			jitterTexOffset[2] = 0.0f;
 			jitterTexOffset[3] = 0.0f;
 		}
@@ -4990,7 +4988,6 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 #endif
 	SetVertexParms( RENDERPARM_MODELMATRIX_X, viewDef->unprojectionToCameraRenderMatrix[0], 4 );
 
-	const static int BLUENOISE_SIZE = 256;
 	const float jitterSampleScale = 1.0f;
 
 	float jitterTexScale[4];
@@ -5001,13 +4998,13 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 	SetFragmentParm( RENDERPARM_JITTERTEXSCALE, jitterTexScale ); // rpJitterTexScale
 
 	float jitterTexOffset[4];
-	jitterTexOffset[0] = 1.0f / BLUENOISE_SIZE;
-	jitterTexOffset[1] = 1.0f / BLUENOISE_SIZE;
+	jitterTexOffset[0] = 1.0f / globalImages->blueNoiseImage256->GetUploadWidth();
+	jitterTexOffset[1] = 1.0f / globalImages->blueNoiseImage256->GetUploadHeight();
 
 	if( r_shadowMapRandomizeJitter.GetBool() )
 	{
 		jitterTexOffset[2] = Sys_Milliseconds() / 1000.0f;
-		jitterTexOffset[3] = tr.frameCount % 64;
+		jitterTexOffset[3] = tr.frameCount % 256;
 	}
 	else
 	{
@@ -6147,29 +6144,17 @@ void idRenderBackend::PostProcess( const void* data )
 
 		renderProgManager.BindShader_PostProcess();
 
-		const static int BLUENOISE_SIZE = 256;
-
-		// screen power of two correction factor
-		float screenCorrectionParm[4];
-		screenCorrectionParm[0] = 1.0f / BLUENOISE_SIZE;
-		screenCorrectionParm[1] = 1.0f / BLUENOISE_SIZE;
-		screenCorrectionParm[2] = 1.0f;
-		screenCorrectionParm[3] = 1.0f;
-		SetFragmentParm( RENDERPARM_SCREENCORRECTIONFACTOR, screenCorrectionParm ); // rpScreenCorrectionFactor
-
 		float jitterTexOffset[4];
+		jitterTexOffset[0] = 1.0f / globalImages->blueNoiseImage256->GetUploadWidth();
+		jitterTexOffset[1] = 1.0f / globalImages->blueNoiseImage256->GetUploadHeight();
+
 		if( r_shadowMapRandomizeJitter.GetBool() )
 		{
-			jitterTexOffset[0] = ( rand() & 255 ) / 255.0;
-			jitterTexOffset[1] = ( rand() & 255 ) / 255.0;
-
 			jitterTexOffset[2] = Sys_Milliseconds() / 1000.0f;
-			jitterTexOffset[3] = tr.frameCount % 64;
+			jitterTexOffset[3] = tr.frameCount % 256;
 		}
 		else
 		{
-			jitterTexOffset[0] = 0;
-			jitterTexOffset[1] = 0;
 			jitterTexOffset[2] = 0.0f;
 			jitterTexOffset[3] = 0.0f;
 		}

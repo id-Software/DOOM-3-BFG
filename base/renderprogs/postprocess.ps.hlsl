@@ -46,7 +46,7 @@ struct PS_OUT
 };
 // *INDENT-ON*
 
-#define USE_CHROMATIC_ABERRATION			1
+#define USE_CHROMATIC_ABERRATION			0
 #define Chromatic_Amount					0.075
 
 #define USE_TECHNICOLOR						0		// [0 or 1]
@@ -238,7 +238,7 @@ float PhotoLuma( float3 c )
 
 float BlueNoise( float2 n, float x )
 {
-	float noise = tex2D( samp1, ( n.xy / 512.0 ) * 1.0 ).r;
+	float noise = tex2D( samp1, ( n.xy * rpJitterTexOffset.xy ) * 1.0 ).r;
 
 	noise = fract( noise + 0.61803398875 * rpJitterTexOffset.z * x );
 
@@ -253,15 +253,17 @@ float BlueNoise( float2 n, float x )
 
 float3 BlueNoise3( float2 n, float x )
 {
-	float3 noise = tex2D( samp1, ( n.xy / 512.0 ) * 1.0 ).rgb;
+	float2 uv = n.xy * rpJitterTexOffset.xy;
 
-	noise = fract( noise + 0.61803398875 * rpJitterTexOffset.z * x );
+	float3 noise = tex2D( samp1, uv ).rgb;
 
-	noise.x = RemapNoiseTriErp( noise.x );
-	noise.y = RemapNoiseTriErp( noise.y );
-	noise.z = RemapNoiseTriErp( noise.z );
+	noise = fract( noise + c_goldenRatioConjugate * rpJitterTexOffset.w * x );
 
-	noise = noise * 2.0 - 1.0;
+	//noise.x = RemapNoiseTriErp( noise.x );
+	//noise.y = RemapNoiseTriErp( noise.y );
+	//noise.z = RemapNoiseTriErp( noise.z );
+
+	//noise = noise * 2.0 - 1.0;
 
 	return noise;
 }
@@ -320,44 +322,44 @@ float Step2( float2 uv, float n )
 // Used for stills.
 float3 Step3( float2 uv )
 {
-#if 1
+#if 0
 	float a = Step2( uv, 0.07 );
 	float b = Step2( uv, 0.11 );
 	float c = Step2( uv, 0.13 );
 
 	return float3( a, b, c );
 #else
-	//float a = BlueNoise( uv, 0.07 );
-	//float b = BlueNoise( uv, 0.11 );
-	//float c = BlueNoise( uv, 0.13 );
+	float3 noise = BlueNoise3( uv, 0.0 );
 
-	//float a = 1.0, b = 2.0, c = -12.0;
-	//return ( 1.0 / ( a * 4.0 + b * 4.0 - c ) ) * float3( BlueNoise( uv, 0.0 ) );
-	return BlueNoise3( uv, 0.0 );
+	noise.x = RemapNoiseTriErp( noise.x );
+	noise.y = RemapNoiseTriErp( noise.y );
+	noise.z = RemapNoiseTriErp( noise.z );
+
+	noise = noise * 2.0 - 1.0;
+
+	return noise;
 #endif
 }
 
 // Used for temporal dither.
 float3 Step3T( float2 uv )
 {
-#if 1
+#if 0
 	float a = Step2( uv, 0.07 * fract( rpJitterTexOffset.z ) );
 	float b = Step2( uv, 0.11 * fract( rpJitterTexOffset.z ) );
 	float c = Step2( uv, 0.13 * fract( rpJitterTexOffset.z ) );
 
 	return float3( a, b, c );
 #else
-	float a = BlueNoise( uv + 0.07, 1.0 );
-	float b = BlueNoise( uv + 0.11, 1.0 );
-	float c = BlueNoise( uv + 0.13, 1.0 );
+	float3 noise = BlueNoise3( uv, 1.0 );
 
-	//return BlueNoise3( uv + 0.07, 1.0 );
-	return float3( a, b, c );
+	noise.x = RemapNoiseTriErp( noise.x );
+	noise.y = RemapNoiseTriErp( noise.y );
+	noise.z = RemapNoiseTriErp( noise.z );
 
-	//float a = 1.0, b = 2.0, c = -2.0, d = -12.0;
+	noise = noise * 2.0 - 1.0;
 
-	//float3 step2 = ( 1.0 / ( a * 4.0 + b * 4.0 - c ) ) * BlueNoise3( uv, 55.0 );
-	//return step2 * ( 1.0 / ( a * 4.0 + b * 4.0 - d ) ) * BlueNoise3( uv, 55.0 );
+	return noise;
 #endif
 }
 
@@ -368,12 +370,10 @@ void DitheringPass( inout float4 fragColor )
 {
 	float2 uv = fragment.position.xy * 1.0;
 	float2 uv2 = fragment.texcoord0;
-	//float2 uv3 = float2( uv2.x, 1.0 - uv2.y );
 
 	float3 color = fragColor.rgb;
-	//float3 color = tex2D(samp0, uv2).rgb;
 
-#if 0
+#if 1
 // BOTTOM: Show bands.
 	if( uv2.y >= 0.975 )
 	{
@@ -450,6 +450,205 @@ void DitheringPass( inout float4 fragColor )
 
 
 
+#define ANIMATE_NOISE 1
+#define TARGET_BITS 4 // 2^3 = 8 dithered to this many bits
+#define DITHER_IN_LINEAR_SPACE 0
+
+//----------------------------------------------------------------------------------------
+
+/*
+Items of note!
+
+* The blue noise texture sampling should be set to "nearest" (not mip map!) and repeat
+
+* you should calculate the uv to use based on the pixel coordinate and the size of the blue noise texture.
+ * aka you should tile the blue noise texture across the screen.
+ * blue noise actually tiles really well unlike white noise.
+
+* A blue noise texture is "low discrepancy over space" which means there are fewer visible patterns than white noise
+ * it also gives more even coverage vs white noise. no clumps or voids.
+
+* In an attempt to make it also blue noise over time, you can add the golden ratio and frac it.
+ * that makes it lower discrepancy over time, but makes it less good over space.
+ * thanks to r4unit for that tip! https://twitter.com/R4_Unit
+
+* Animating the noise in this demo makes the noise basically disappear imo, it's really nice!
+
+For more information:
+
+What the heck is blue nois:
+https://blog.demofox.org/2018/01/30/what-the-heck-is-blue-noise/
+
+Low discrepancy sequences:
+https://blog.demofox.org/2017/05/29/when-random-numbers-are-too-random-low-discrepancy-sequences/
+
+You can get your own blue noise textures here:
+http://momentsingraphics.de/?p=127
+
+*/
+void DitheringPassDemoFox( inout float4 fragColor )
+{
+	// texture color
+	float2 uv = fragment.position.xy;
+	float2 uv2 = fragment.texcoord0;
+	float3 fg = fragColor.rgb;
+
+	float3 color = fg;
+
+#if 1
+	// TOP: show bands
+	if( uv2.y >= 0.975 )
+	{
+		color = float3( uv2.x );
+		color = floor( color * STEPS + Step3( uv ) * 4.0 ) * ( 1.0 / ( STEPS - 1.0 ) );
+	}
+	else if( uv2.y >= 0.95 )
+	{
+		color = float3( uv2.x );
+		color = floor( color * STEPS ) * ( 1.0 / ( STEPS - 1.0 ) );
+	}
+	else if( uv2.y >= 0.925 )
+	{
+		color = float3( uv2.x );
+		color = floor( color * STEPS + Step3T( uv ) * 4.0 ) * ( 1.0 / ( STEPS - 1.0 ) );
+	}
+	// BOTTOM: show dither texture
+	else if( uv2.y >= 0.9 )
+	{
+		color = Step3( uv ).rgb;
+	}
+	else
+#endif
+	{
+		// right of the screen is dithered using white noise to a fewer number of bits per color channel
+		if( uv2.x > 3.0 / 4.0 )
+		{
+			// get white noise "random" number
+#if ANIMATE_NOISE
+			float3 whiteNoise = Hash33( float3( uv, rpJitterTexOffset.w / 256.0 ) );
+#else
+			float3 whiteNoise = Hash33( float3( uv, 0.0 ) );
+#endif
+
+			// dither to the specified number of bits, using sRGB conversions if desired
+#if DITHER_IN_LINEAR_SPACE
+			fg = pow( fg, float3( 2.2 ) );
+#endif
+
+			float scale = exp2( float( TARGET_BITS ) ) - 1.0;
+			color = floor( fg * scale + whiteNoise ) / scale;
+
+#if DITHER_IN_LINEAR_SPACE
+			color = pow( col, 1.0 / float3( 2.2 ) );
+#endif
+		}
+		// middle right of the screen is dithered using blue noise to a fewer number of bits per color channel
+		else if( uv2.x > 2.0 / 4.0 )
+		{
+			float3 blueNoise = BlueNoise3( uv, 1.0 );
+
+			// dither to the specified number of bits, using sRGB conversions if desired
+#if DITHER_IN_LINEAR_SPACE
+			fg = pow( fg, float3( 2.2 ) );
+#endif
+
+			float scale = exp2( float( TARGET_BITS ) ) - 1.0;
+			color = floor( fg * scale + blueNoise ) / scale;
+
+#if DITHER_IN_LINEAR_SPACE
+			color = pow( color, 1.0 / float3( 2.2 ) );
+#endif
+		}
+		// middle left of the screen is quantized but not dithered
+		else if( uv2.x > 1.0 / 4.0 )
+		{
+			// dither to the specified number of bits, using sRGB conversions if desired
+#if DITHER_IN_LINEAR_SPACE
+			fg = pow( fg, float3( 2.2 ) );
+#endif
+
+			float scale = exp2( float( TARGET_BITS ) ) - 1.0;
+			color = floor( fg * scale + 0.5f ) / scale;
+
+#if DITHER_IN_LINEAR_SPACE
+			color = pow( color, 1.0 / float3( 2.2 ) );
+#endif
+		}
+		// left side of screen is left alone for comparison
+		else
+		{
+			color = fg;
+		}
+
+		if( abs( uv2.x - 1.0 / 4.0 ) < 0.001 || abs( uv2.x - 2.0 / 4.0 ) < 0.001 || abs( uv2.x - 3.0 / 4.0 ) < 0.001 )
+		{
+			color = float3( 0.0, 1.0, 0.0 );
+		}
+	}
+
+	fragColor.rgb = color;
+}
+
+void DitheringPassSlim( inout float4 fragColor )
+{
+	// texture color
+	float2 uv = fragment.position.xy;
+	float2 uv2 = fragment.texcoord0;
+	float3 fg = fragColor.rgb;
+
+	float3 color = fg;
+
+#if 0
+	if( uv2.y >= 0.975 )
+	{
+		// source signal
+		color = float3( uv2.x );
+	}
+	else if( uv2.y >= 0.95 )
+	{
+		color = float3( uv2.x );
+
+		// quantized signal
+		float scale = exp2( float( TARGET_BITS ) ) - 1.0;
+		color = floor( color * scale + 0.0f ) / scale;
+	}
+	else if( uv2.y >= 0.925 )
+	{
+		// dithered quantized signal
+		color = float3( uv2.x );
+		color = floor( color * STEPS + Step3T( uv ) * 4.0 ) * ( 1.0 / ( STEPS - 1.0 ) );
+	}
+	else if( uv2.y >= 0.9 )
+	{
+		// dither texture
+		color = Step3( uv ).rgb;
+	}
+	else
+#endif
+	{
+		float3 noise = BlueNoise3( uv, 1.0 );
+
+		//noise.x = RemapNoiseTriErp( noise.x );
+		//noise.y = RemapNoiseTriErp( noise.y );
+		//noise.z = RemapNoiseTriErp( noise.z );
+
+		// dither to the specified number of bits, using sRGB conversions if desired
+#if DITHER_IN_LINEAR_SPACE
+		fg = pow( fg, float3( 2.2 ) );
+#endif
+
+		float scale = exp2( float( TARGET_BITS ) ) - 1.0;
+		color = floor( fg * scale + noise ) / scale;
+
+#if DITHER_IN_LINEAR_SPACE
+		color = pow( color, 1.0 / float3( 2.2 ) );
+#endif
+	}
+
+	fragColor.rgb = color;
+}
+
+
 void main( PS_IN fragment, out PS_OUT result )
 {
 	float2 tCoords = fragment.texcoord0;
@@ -470,7 +669,7 @@ void main( PS_IN fragment, out PS_OUT result )
 #endif
 
 #if USE_DITHERING
-	DitheringPass( color );
+	DitheringPassSlim( color );
 #endif
 
 	result.color = color;

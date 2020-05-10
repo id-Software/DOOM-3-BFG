@@ -285,3 +285,17 @@ float InterleavedGradientNoise( float2 uv )
 	return rnd;
 }
 
+// RB: the golden ratio is useful to animate Blue noise
+const float c_goldenRatioConjugate = 0.61803398875;
+
+
+// RB: very efficient white noise without sine https://www.shadertoy.com/view/4djSRW
+#define HASHSCALE3 float3(443.897, 441.423, 437.195)
+
+float3 Hash33( float3 p3 )
+{
+	p3 = fract( p3 * HASHSCALE3 );
+	p3 += dot( p3, p3.yxz + 19.19 );
+	return fract( ( p3.xxy + p3.yxx ) * p3.zyx );
+}
+

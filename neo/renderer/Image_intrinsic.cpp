@@ -36,8 +36,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "SMAA/AreaTex.h"
 #include "SMAA/SearchTex.h"
 #include "Image_brdfLut.h"
-#include "Image_blueNoiseVC_1M.h" // 256^2 R8 data
-//#include "Image_blueNoiseVC_2.h" // 512^2 RGB8 data
+//#include "Image_blueNoiseVC_1M.h" // 256^2 R8 data
+#include "Image_blueNoiseVC_2.h" // 512^2 RGB8 data
 
 #define	DEFAULT_SIZE	16
 
@@ -695,7 +695,7 @@ static void R_CreateBlueNoise256Image( idImage* image )
 	{
 		for( int y = 0; y < BLUENOISE_TEX_HEIGHT; y++ )
 		{
-#if 0
+#if 1
 			data[x][y][0] = blueNoiseTexBytes[ y * BLUENOISE_TEX_PITCH + x * 3 + 0 ];
 			data[x][y][1] = blueNoiseTexBytes[ y * BLUENOISE_TEX_PITCH + x * 3 + 1 ];
 			data[x][y][2] = blueNoiseTexBytes[ y * BLUENOISE_TEX_PITCH + x * 3 + 2 ];

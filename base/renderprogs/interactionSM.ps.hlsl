@@ -63,11 +63,13 @@ struct PS_OUT
 
 float BlueNoise( float2 n, float x )
 {
-	float noise = tex2D( samp6, ( n.xy / 256.0 ) ).r;
+	float2 uv = n.xy * rpJitterTexOffset.xy;
 
-	noise = fract( noise + 0.61803398875 * rpJitterTexOffset.z * x );
+	float noise = tex2D( samp6, uv ).r;
 
-	noise = RemapNoiseTriErp( noise );
+	noise = fract( noise + c_goldenRatioConjugate * rpJitterTexOffset.w * x );
+
+	//noise = RemapNoiseTriErp( noise );
 
 	//noise = noise * 2.0 - 1.0;
 
@@ -309,7 +311,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	//float4 jitterTC = ( fragment.position * rpScreenCorrectionFactor ) + rpJitterTexOffset;
 	//float random = tex2D( samp6, jitterTC.xy ).x;
 
-	float random = BlueNoise( fragment.position.xy * 1.0, 100.0 );
+	float random = BlueNoise( fragment.position.xy, 100.0 );
 
 	//float random = InterleavedGradientNoise( fragment.position.xy );
 
@@ -372,6 +374,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	half3 specularColor = specMapSRGB.rgb; // RB: should be linear but it looks too flat
 #endif
 
+	//diffuseColor = half3( 1.0 );
 
 	// RB: compensate r_lightScale 3 and the division of Pi
 	//lambert *= 1.3;
