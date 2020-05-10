@@ -79,6 +79,8 @@ The main goal is that the new content looks the same in RBDOOM-3-BFG as in Blend
 
 * Improved Shadow Mapping performance by reducing the number of taps from 12 to 6 and keeping a good quality using dithering the result with Blue Noise magic by Alan Wolfe
 
+* Improved Screen Space Ambient Occlusion performance by enhancing the quality with Blue Noise and skipping the expensive extra bilateral filtering pass
+
 * Updated idRenderLog to support RenderDoc and Nvidia's Nsight and only issue OpenGL or Vulkan debug commands if the debug extensions are detected. Reference: https://devblogs.nvidia.com/best-practices-gpu-performance-events/
 
 * Artistic Style C++ beautifier configuration has slightly changed to work closer to Clang Format's behaviour

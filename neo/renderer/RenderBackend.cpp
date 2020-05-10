@@ -2068,7 +2068,7 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 	}
 	else
 	{
-		if( r_forceAmbient.GetFloat() <= 0 || r_skipAmbient.GetBool() )
+		if( r_forceAmbient.GetFloat() <= 0 )//|| r_skipAmbient.GetBool() )
 		{
 			// clear gbuffer
 			GL_Clear( true, false, false, 0, 0.0f, 0.0f, 0.0f, 1.0f, false );
@@ -4990,19 +4990,31 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 #endif
 	SetVertexParms( RENDERPARM_MODELMATRIX_X, viewDef->unprojectionToCameraRenderMatrix[0], 4 );
 
+	const static int BLUENOISE_SIZE = 256;
+	const float jitterSampleScale = 1.0f;
+
+	float jitterTexScale[4];
+	jitterTexScale[0] = r_shadowMapJitterScale.GetFloat() * jitterSampleScale;	// TODO shadow buffer size fraction shadowMapSize / maxShadowMapSize
+	jitterTexScale[1] = r_shadowMapJitterScale.GetFloat() * jitterSampleScale;
+	jitterTexScale[2] = -r_shadowMapBiasScale.GetFloat();
+	jitterTexScale[3] = 0.0f;
+	SetFragmentParm( RENDERPARM_JITTERTEXSCALE, jitterTexScale ); // rpJitterTexScale
+
 	float jitterTexOffset[4];
+	jitterTexOffset[0] = 1.0f / BLUENOISE_SIZE;
+	jitterTexOffset[1] = 1.0f / BLUENOISE_SIZE;
+
 	if( r_shadowMapRandomizeJitter.GetBool() )
 	{
-		jitterTexOffset[0] = ( rand() & 255 ) / 255.0;
-		jitterTexOffset[1] = ( rand() & 255 ) / 255.0;
+		jitterTexOffset[2] = Sys_Milliseconds() / 1000.0f;
+		jitterTexOffset[3] = tr.frameCount % 64;
 	}
 	else
 	{
-		jitterTexOffset[0] = 0;
-		jitterTexOffset[1] = 0;
+		jitterTexOffset[2] = 0.0f;
+		jitterTexOffset[3] = 0.0f;
 	}
-	jitterTexOffset[2] = viewDef->renderView.time[0] * 0.001f;
-	jitterTexOffset[3] = 0.0f;
+
 	SetFragmentParm( RENDERPARM_JITTERTEXOFFSET, jitterTexOffset ); // rpJitterTexOffset
 
 	GL_SelectTexture( 0 );
@@ -5017,6 +5029,9 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 	{
 		globalImages->currentDepthImage->Bind();
 	}
+
+	GL_SelectTexture( 2 );
+	globalImages->blueNoiseImage256->Bind();
 
 	DrawElementsWithCounters( &unitSquareSurface );
 

@@ -303,7 +303,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	float shadow = 0.0;
 
 	// RB: casting a float to int and using it as index can really kill the performance ...
-	float numSamples = 6.0; //int(rpScreenCorrectionFactor.w);
+	float numSamples = 6.0;
 	float stepSize = 1.0 / numSamples;
 
 	//float4 jitterTC = ( fragment.position * rpScreenCorrectionFactor ) + rpJitterTexOffset;

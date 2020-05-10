@@ -94,6 +94,7 @@ const float projScale = 500.0;
 // *INDENT-OFF*
 uniform sampler2D samp0 : register( s0 ); // view normal/roughness
 uniform sampler2D samp1 : register( s1 ); // view depth
+uniform sampler2D samp2	: register( s2 ); // blue noise 256
 
 #define CS_Z_buffer		samp1
 
@@ -109,7 +110,22 @@ struct PS_OUT
 // *INDENT-ON*
 
 
+float BlueNoise( float2 n, float x )
+{
+	float noise = tex2D( samp2, ( n.xy / 256.0 ) ).r;
 
+#if TEMPORALLY_VARY_TAPS
+	noise = fract( noise + 0.61803398875 * rpJitterTexOffset.z * x );
+#else
+	noise = fract( noise );
+#endif
+
+	noise = RemapNoiseTriErp( noise );
+
+	//noise = noise * 2.0 - 1.0;
+
+	return noise;
+}
 
 /** Used for packing Z into the GB channels */
 // float CSZToKey( float z )
@@ -390,12 +406,19 @@ void main( PS_IN fragment, out PS_OUT result )
 	}
 #endif
 
+#if 1
+	float randomPatternRotationAngle = BlueNoise( ssP.xy, 10.0 ) * 10.0;
+	//float randomPatternRotationAngle = InterleavedGradientNoise( ssP.xy ) * 10.0;
+#else
+
 	// Hash function used in the HPG12 AlchemyAO paper
 	float randomPatternRotationAngle = float( ( ( 3 * ssP.x ) ^ ( ssP.y + ssP.x * ssP.y ) )
 #if TEMPORALLY_VARY_TAPS
-									   + rpJitterTexOffset.x
+									   + rpJitterTexOffset.z
 #endif
 											) * 10.0;
+
+#endif
 
 	// Choose the screen-space sample radius
 	// proportional to the projected area of the sphere

@@ -2697,7 +2697,7 @@ void idRenderBackend::DBG_TestImage()
 	}
 
 	// Set State
-	GL_State( GLS_DEPTHFUNC_ALWAYS | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO );
+	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS | GLS_CULL_TWOSIDED );
 
 	// Set Parms
 	float texS[4] = { 1.0f, 0.0f, 0.0f, 0.0f };
@@ -2708,6 +2708,7 @@ void idRenderBackend::DBG_TestImage()
 	float texGenEnabled[4] = { 0, 0, 0, 0 };
 	renderProgManager.SetRenderParm( RENDERPARM_TEXGEN_0_ENABLED, texGenEnabled );
 
+#if 1
 	// not really necessary but just for clarity
 	const float screenWidth = 1.0f;
 	const float screenHeight = 1.0f;
@@ -2716,7 +2717,7 @@ void idRenderBackend::DBG_TestImage()
 
 	float scale[16] = { 0 };
 	scale[0] = w; // scale
-	scale[5] = h; // scale
+	scale[5] = -h; // scale
 	scale[12] = halfScreenWidth - ( halfScreenWidth * w ); // translate
 	scale[13] = halfScreenHeight - ( halfScreenHeight * h ); // translate
 	scale[10] = 1.0f;
@@ -2737,11 +2738,10 @@ void idRenderBackend::DBG_TestImage()
 	float projMatrixTranspose[16];
 	R_MatrixTranspose( finalOrtho, projMatrixTranspose );
 	renderProgManager.SetRenderParms( RENDERPARM_MVPMATRIX_X, projMatrixTranspose, 4 );
-
-//	glMatrixMode( GL_PROJECTION );
-//	glLoadMatrixf( finalOrtho );
-//	glMatrixMode( GL_MODELVIEW );
-//	glLoadIdentity();
+#else
+	// draw texture over entire screen
+	RB_SetMVP( renderMatrix_identity );
+#endif
 
 	// Set Color
 	GL_Color( 1, 1, 1, 1 );
@@ -2767,6 +2767,7 @@ void idRenderBackend::DBG_TestImage()
 
 	// Draw!
 	DrawElementsWithCounters( &testImageSurface );
+	//DrawElementsWithCounters( &unitSquareSurface );
 }
 
 // RB begin
