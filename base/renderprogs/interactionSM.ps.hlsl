@@ -4,6 +4,7 @@
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2013-2020 Robert Beckebans
+Copyright (C) 2020 Panos Karabelas
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -74,6 +75,19 @@ float BlueNoise( float2 n, float x )
 	//noise = noise * 2.0 - 1.0;
 
 	return noise;
+}
+
+float2 VogelDiskSample( float sampleIndex, float samplesCount, float phi )
+{
+	float goldenAngle = 2.4f;
+
+	float r = sqrt( sampleIndex + 0.5f ) / sqrt( samplesCount );
+	float theta = sampleIndex * goldenAngle + phi;
+
+	float sine = sin( theta );
+	float cosine = cos( theta );
+
+	return float2( r * cosine, r * sine );
 }
 
 void main( PS_IN fragment, out PS_OUT result )
@@ -228,7 +242,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	float numSamples = 16;
 	float stepSize = 1.0 / numSamples;
 
-	float4 jitterTC = ( fragment.position * rpScreenCorrectionFactor ) + rpJitterTexOffset;
+	float2 jitterTC = ( fragment.position.xy * rpScreenCorrectionFactor.xy ) + rpJitterTexOffset.ww;
 	for( float i = 0.0; i < numSamples; i += 1.0 )
 	{
 		float4 jitter = base + tex2D( samp6, jitterTC.xy ) * rpJitterTexScale;
@@ -240,7 +254,10 @@ void main( PS_IN fragment, out PS_OUT result )
 
 	shadow *= stepSize;
 
+
 #elif 0
+
+	// Poisson Disk with White Noise used for years int RBDOOM-3-BFG
 
 	const float2 poissonDisk[12] = float2[](
 									   float2( 0.6111618, 0.1050905 ),
@@ -285,8 +302,11 @@ void main( PS_IN fragment, out PS_OUT result )
 
 	shadow *= stepSize;
 
-
 #elif 1
+
+#if 0
+
+	// Poisson Disk with animated Blue Noise or Interleaved Gradient Noise
 
 	const float2 poissonDisk[12] = float2[](
 									   float2( 0.6111618, 0.1050905 ),
@@ -305,15 +325,11 @@ void main( PS_IN fragment, out PS_OUT result )
 	float shadow = 0.0;
 
 	// RB: casting a float to int and using it as index can really kill the performance ...
-	float numSamples = 6.0;
+	float numSamples = 12.0;
 	float stepSize = 1.0 / numSamples;
 
-	//float4 jitterTC = ( fragment.position * rpScreenCorrectionFactor ) + rpJitterTexOffset;
-	//float random = tex2D( samp6, jitterTC.xy ).x;
-
-	float random = BlueNoise( fragment.position.xy, 100.0 );
-
-	//float random = InterleavedGradientNoise( fragment.position.xy );
+	float random = BlueNoise( fragment.position.xy, 1.0 );
+	//float random = InterleavedGradientNoiseAnim( fragment.position.xy, rpJitterTexOffset.w );
 
 	random *= PI;
 
@@ -322,7 +338,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	rot.y = sin( random );
 
 	float shadowTexelSize = rpScreenCorrectionFactor.z * rpJitterTexScale.x;
-	for( int i = 0; i < 6; i++ )
+	for( int i = 0; i < 12; i++ )
 	{
 		float2 jitter = poissonDisk[i];
 		float2 jitterRotated;
@@ -335,6 +351,34 @@ void main( PS_IN fragment, out PS_OUT result )
 	}
 
 	shadow *= stepSize;
+
+#else
+
+	// Vogel Disk Sampling
+	// https://twitter.com/panoskarabelas1/status/1222663889659355140
+
+	// this approach is more dynamic and can be controlled by r_shadowMapSamples
+
+	float shadow = 0.0;
+
+	float numSamples = rpJitterTexScale.w;
+	float stepSize = 1.0 / numSamples;
+
+	float vogelPhi = BlueNoise( fragment.position.xy, 1.0 );
+	//float vogelPhi = InterleavedGradientNoiseAnim( fragment.position.xy, rpJitterTexOffset.w );
+
+	float shadowTexelSize = rpScreenCorrectionFactor.z * rpJitterTexScale.x;
+	for( float i = 0; i < numSamples; i += 1.0 )
+	{
+		float2 jitter = VogelDiskSample( i, numSamples, vogelPhi );
+
+		float4 shadowTexcoordJittered = float4( shadowTexcoord.xy + jitter * shadowTexelSize, shadowTexcoord.z, shadowTexcoord.w );
+
+		shadow += texture( samp5, shadowTexcoordJittered.xywz );
+	}
+
+	shadow *= stepSize;
+#endif
 
 #else
 
@@ -374,7 +418,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	half3 specularColor = specMapSRGB.rgb; // RB: should be linear but it looks too flat
 #endif
 
-	//diffuseColor = half3( 1.0 );
+	diffuseColor = half3( 1.0 );
 
 	// RB: compensate r_lightScale 3 and the division of Pi
 	//lambert *= 1.3;

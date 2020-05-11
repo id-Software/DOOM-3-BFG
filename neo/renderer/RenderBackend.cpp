@@ -1677,7 +1677,7 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 		jitterTexScale[0] = r_shadowMapJitterScale.GetFloat() * jitterSampleScale;	// TODO shadow buffer size fraction shadowMapSize / maxShadowMapSize
 		jitterTexScale[1] = r_shadowMapJitterScale.GetFloat() * jitterSampleScale;
 		jitterTexScale[2] = -r_shadowMapBiasScale.GetFloat();
-		jitterTexScale[3] = 0.0f;
+		jitterTexScale[3] = shadowMapSamples;
 		SetFragmentParm( RENDERPARM_JITTERTEXSCALE, jitterTexScale ); // rpJitterTexScale
 
 		float jitterTexOffset[4];

@@ -278,6 +278,16 @@ float RemapNoiseTriErp( const float v )
 //      http://advances.realtimerendering.com/s2014/index.html
 float InterleavedGradientNoise( float2 uv )
 {
+	const float3 magic = float3( 0.06711056, 0.00583715, 52.9829189 );
+	float rnd = fract( magic.z * fract( dot( uv, magic.xy ) ) );
+
+	return rnd;
+}
+
+// this noise, including the 5.58... scrolling constant are from Jorge Jimenez
+float InterleavedGradientNoiseAnim( float2 uv, float frameIndex )
+{
+	uv += ( frameIndex * 5.588238f );
 
 	const float3 magic = float3( 0.06711056, 0.00583715, 52.9829189 );
 	float rnd = fract( magic.z * fract( dot( uv, magic.xy ) ) );
