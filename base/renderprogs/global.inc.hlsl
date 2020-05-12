@@ -172,6 +172,32 @@ half4 LinearRGBToSRGB( half4 rgba )
 }
 
 
+float Linear1( float c )
+{
+	return ( c <= 0.04045 ) ? c / 12.92 : pow( ( c + 0.055 ) / 1.055, 2.4 );
+}
+
+float3 Linear3( float3 c )
+{
+	return float3( Linear1( c.r ), Linear1( c.g ), Linear1( c.b ) );
+}
+
+float Srgb1( float c )
+{
+	return ( c < 0.0031308 ? c * 12.92 : 1.055 * pow( c, 0.41666 ) - 0.055 );
+}
+
+float3 Srgb3( float3 c )
+{
+	return float3( Srgb1( c.r ), Srgb1( c.g ), Srgb1( c.b ) );
+}
+
+static const float3 photoLuma = float3( 0.2126, 0.7152, 0.0722 );
+float PhotoLuma( float3 c )
+{
+	return dot( c, photoLuma );
+}
+
 // RB end
 
 // ----------------------
@@ -309,3 +335,36 @@ float3 Hash33( float3 p3 )
 	return fract( ( p3.xxy + p3.yxx ) * p3.zyx );
 }
 
+static float3 ditherRGB( float3 c, float2 uvSeed )
+{
+	// uniform noise
+	//float3 whiteNoise = Hash33( float3( uvSeed, rpJitterTexOffset.w ) );
+
+	//float3 whiteNoise = float3( InterleavedGradientNoise( uvSeed ) );
+	float3 whiteNoise = float3( InterleavedGradientNoiseAnim( uvSeed, rpJitterTexOffset.w ) );
+
+
+	// triangular noise [-0.5;1.5[
+
+#if 1
+	whiteNoise.x = RemapNoiseTriErp( whiteNoise.x );
+	whiteNoise = whiteNoise * 2.0 - 0.5;
+#endif
+
+	whiteNoise = float3( whiteNoise.x );
+
+
+	// quantize/truncate color and dither the result
+	//float scale = exp2( float( TARGET_BITS ) ) - 1.0;
+
+	// lets assume 2^3 bits = 8
+	float scale = 255.0;
+
+	float3 color = floor( c * scale + whiteNoise ) / scale;
+
+#if defined( USE_LINEAR_RGB )
+
+#endif
+
+	return color;
+}

@@ -46,7 +46,7 @@ struct PS_OUT
 };
 // *INDENT-ON*
 
-#define USE_CHROMATIC_ABERRATION			0
+#define USE_CHROMATIC_ABERRATION			1
 #define Chromatic_Amount					0.075
 
 #define USE_TECHNICOLOR						0		// [0 or 1]
@@ -62,6 +62,11 @@ struct PS_OUT
 #define	Vibrance_RGB_Balance				float3( 1.0, 1.0, 1.0 )
 
 #define USE_DITHERING 						1
+#define Dithering_QuantizationSteps         8.0 // 8.0 = 2 ^ 3 quantization bits
+#define Dithering_NoiseBoost                1.0
+#define Dithering_Wide                      1.0
+#define DITHER_IN_LINEAR_SPACE              0
+#define DITHER_GENERATE_NOISE               0
 
 float3 overlay( float3 a, float3 b )
 {
@@ -208,31 +213,7 @@ void ChromaticAberrationPass( inout float4 color )
 
 //-----------------------------------------------------------------------
 
-float Linear1( float c )
-{
-	return ( c <= 0.04045 ) ? c / 12.92 : pow( ( c + 0.055 ) / 1.055, 2.4 );
-}
 
-float3 Linear3( float3 c )
-{
-	return float3( Linear1( c.r ), Linear1( c.g ), Linear1( c.b ) );
-}
-
-float Srgb1( float c )
-{
-	return ( c < 0.0031308 ? c * 12.92 : 1.055 * pow( c, 0.41666 ) - 0.055 );
-}
-
-float3 Srgb3( float3 c )
-{
-	return float3( Srgb1( c.r ), Srgb1( c.g ), Srgb1( c.b ) );
-}
-
-float3 photoLuma = float3( 0.2126, 0.7152, 0.0722 );
-float PhotoLuma( float3 c )
-{
-	return dot( c, photoLuma );
-}
 
 
 
@@ -306,7 +287,11 @@ float Step2( float2 uv, float n )
 {
 	float a = 1.0, b = 2.0, c = -2.0, t = 1.0;
 
+#if DITHER_IN_LINEAR_SPACE
 	return ( 1.0 / ( a * 4.0 + b * 4.0 - c ) ) * (
+#else
+	return ( 4.0 / ( a * 4.0 + b * 4.0 - c ) ) * (
+#endif
 			   Step1( uv + float2( -1.0, -1.0 ) * t, n ) * a +
 			   Step1( uv + float2( 0.0, -1.0 ) * t, n ) * b +
 			   Step1( uv + float2( 1.0, -1.0 ) * t, n ) * a +
@@ -322,7 +307,7 @@ float Step2( float2 uv, float n )
 // Used for stills.
 float3 Step3( float2 uv )
 {
-#if 0
+#if DITHER_GENERATE_NOISE
 	float a = Step2( uv, 0.07 );
 	float b = Step2( uv, 0.11 );
 	float c = Step2( uv, 0.13 );
@@ -331,11 +316,13 @@ float3 Step3( float2 uv )
 #else
 	float3 noise = BlueNoise3( uv, 0.0 );
 
+#if 1
 	noise.x = RemapNoiseTriErp( noise.x );
 	noise.y = RemapNoiseTriErp( noise.y );
 	noise.z = RemapNoiseTriErp( noise.z );
 
 	noise = noise * 2.0 - 1.0;
+#endif
 
 	return noise;
 #endif
@@ -344,7 +331,7 @@ float3 Step3( float2 uv )
 // Used for temporal dither.
 float3 Step3T( float2 uv )
 {
-#if 0
+#if DITHER_GENERATE_NOISE
 	float a = Step2( uv, 0.07 * fract( rpJitterTexOffset.z ) );
 	float b = Step2( uv, 0.11 * fract( rpJitterTexOffset.z ) );
 	float c = Step2( uv, 0.13 * fract( rpJitterTexOffset.z ) );
@@ -353,18 +340,18 @@ float3 Step3T( float2 uv )
 #else
 	float3 noise = BlueNoise3( uv, 1.0 );
 
+#if 1
 	noise.x = RemapNoiseTriErp( noise.x );
 	noise.y = RemapNoiseTriErp( noise.y );
 	noise.z = RemapNoiseTriErp( noise.z );
 
 	noise = noise * 2.0 - 1.0;
+#endif
 
 	return noise;
 #endif
 }
 
-
-#define STEPS 12.0
 
 void DitheringPass( inout float4 fragColor )
 {
@@ -373,31 +360,39 @@ void DitheringPass( inout float4 fragColor )
 
 	float3 color = fragColor.rgb;
 
-#if 1
+#if 0
 // BOTTOM: Show bands.
 	if( uv2.y >= 0.975 )
 	{
+		// quantized signal
 		color = float3( uv2.x );
-		color = floor( color * STEPS + Step3( uv ) * 4.0 ) * ( 1.0 / ( STEPS - 1.0 ) );
+
+		// dithered still
+		//color = floor( color * Dithering_QuantizationSteps + Step3( uv ) * Dithering_NoiseBoost ) * ( 1.0 / ( Dithering_QuantizationSteps - 1.0 ) );
 	}
 	else if( uv2.y >= 0.95 )
 	{
+		// quantized signal
 		color = float3( uv2.x );
-		color = floor( color * STEPS ) * ( 1.0 / ( STEPS - 1.0 ) );
+		color = floor( color * Dithering_QuantizationSteps ) * ( 1.0 / ( Dithering_QuantizationSteps - 1.0 ) );
 	}
 	else if( uv2.y >= 0.925 )
 	{
+		// quantized signal dithered temporally
 		color = float3( uv2.x );
-		color = floor( color * STEPS + Step3T( uv ) * 4.0 ) * ( 1.0 / ( STEPS - 1.0 ) );
+		color = floor( color * Dithering_QuantizationSteps + Step3( uv ) * Dithering_NoiseBoost ) * ( 1.0 / ( Dithering_QuantizationSteps - 1.0 ) );
 	}
 	// TOP: Show dither texture.
 	else if( uv2.y >= 0.9 )
 	{
-		color = Step3( uv ) * 1.0 + 0.5;
+		color = Step3( uv ) * ( 0.25 * Dithering_NoiseBoost ) + 0.5;
 	}
 	else
 #endif
 	{
+
+#if DITHER_IN_LINEAR_SPACE
+
 		color = Linear3( color );
 
 		// Add grain in linear space.
@@ -406,13 +401,13 @@ void DitheringPass( inout float4 fragColor )
 #if 1
 		// Too expensive.
 		// Helps understand the fast solutions.
-		float3 amount = Linear3( Srgb3( color ) + ( 4.0 / STEPS ) ) - color;
+		float3 amount = Linear3( Srgb3( color ) + ( Dithering_NoiseBoost / Dithering_QuantizationSteps ) ) - color;
 #else
 		// Less too expensive.
 		float luma = PhotoLuma( color );
 
 		// Implement this as a texture lookup table.
-		float amount = Linear1( Srgb1( luma ) + ( 4.0 / STEPS ) ) - luma;
+		float amount = Linear1( Srgb1( luma ) + ( Dithering_NoiseBoost / Dithering_QuantizationSteps ) ) - luma;
 #endif
 
 #else
@@ -422,227 +417,43 @@ void DitheringPass( inout float4 fragColor )
 		// For HDR need saturate() around luma.
 		float luma = PhotoLuma( color );
 		float amount = mix(
-						   Linear1( 4.0 / STEPS ),
-						   Linear1( ( 4.0 / STEPS ) + 1.0 ) - 1.0,
+						   Linear1( Dithering_NoiseBoost / Dithering_QuantizationSteps ),
+						   Linear1( ( Dithering_NoiseBoost / Dithering_QuantizationSteps ) + 1.0 ) - 1.0,
 						   luma );
 #else
 		// Hack 2 (slower?).
 		// For HDR need saturate() around color in mix().
 		float3 amount = mix(
-							float3( Linear1( 4.0 / STEPS ) ),
-							float3( Linear1( ( 4.0 / STEPS ) + 1.0 ) - 1.0 ),
+							float3( Linear1( Dithering_NoiseBoost / Dithering_QuantizationSteps ) ),
+							float3( Linear1( ( Dithering_NoiseBoost / Dithering_QuantizationSteps ) + 1.0 ) - 1.0 ),
 							color );
 #endif
 
 #endif
-		color += Step3T( uv ) * amount;
+		color += Step3T( uv ) * amount;// * Dithering_NoiseBoost;
 
 		// The following represents hardware linear->sRGB xform
 		// which happens on sRGB formatted render targets,
 		// except using a lot less bits/pixel.
 		color = max( float3( 0.0 ), color );
 		color = Srgb3( color );
-		color = floor( color * STEPS ) * ( 1.0 / ( STEPS - 1.0 ) );
-	}
+		color = floor( color * Dithering_QuantizationSteps ) * ( 1.0 / ( Dithering_QuantizationSteps - 1.0 ) );
 
-	fragColor.rgb = color;
-}
-
-
-
-#define ANIMATE_NOISE 1
-#define TARGET_BITS 4 // 2^3 = 8 dithered to this many bits
-#define DITHER_IN_LINEAR_SPACE 0
-
-//----------------------------------------------------------------------------------------
-
-/*
-Items of note!
-
-* The blue noise texture sampling should be set to "nearest" (not mip map!) and repeat
-
-* you should calculate the uv to use based on the pixel coordinate and the size of the blue noise texture.
- * aka you should tile the blue noise texture across the screen.
- * blue noise actually tiles really well unlike white noise.
-
-* A blue noise texture is "low discrepancy over space" which means there are fewer visible patterns than white noise
- * it also gives more even coverage vs white noise. no clumps or voids.
-
-* In an attempt to make it also blue noise over time, you can add the golden ratio and frac it.
- * that makes it lower discrepancy over time, but makes it less good over space.
- * thanks to r4unit for that tip! https://twitter.com/R4_Unit
-
-* Animating the noise in this demo makes the noise basically disappear imo, it's really nice!
-
-For more information:
-
-What the heck is blue nois:
-https://blog.demofox.org/2018/01/30/what-the-heck-is-blue-noise/
-
-Low discrepancy sequences:
-https://blog.demofox.org/2017/05/29/when-random-numbers-are-too-random-low-discrepancy-sequences/
-
-You can get your own blue noise textures here:
-http://momentsingraphics.de/?p=127
-
-*/
-void DitheringPassDemoFox( inout float4 fragColor )
-{
-	// texture color
-	float2 uv = fragment.position.xy;
-	float2 uv2 = fragment.texcoord0;
-	float3 fg = fragColor.rgb;
-
-	float3 color = fg;
-
-#if 1
-	// TOP: show bands
-	if( uv2.y >= 0.975 )
-	{
-		color = float3( uv2.x );
-		color = floor( color * STEPS + Step3( uv ) * 4.0 ) * ( 1.0 / ( STEPS - 1.0 ) );
-	}
-	else if( uv2.y >= 0.95 )
-	{
-		color = float3( uv2.x );
-		color = floor( color * STEPS ) * ( 1.0 / ( STEPS - 1.0 ) );
-	}
-	else if( uv2.y >= 0.925 )
-	{
-		color = float3( uv2.x );
-		color = floor( color * STEPS + Step3T( uv ) * 4.0 ) * ( 1.0 / ( STEPS - 1.0 ) );
-	}
-	// BOTTOM: show dither texture
-	else if( uv2.y >= 0.9 )
-	{
-		color = Step3( uv ).rgb;
-	}
-	else
-#endif
-	{
-		// right of the screen is dithered using white noise to a fewer number of bits per color channel
-		if( uv2.x > 3.0 / 4.0 )
-		{
-			// get white noise "random" number
-#if ANIMATE_NOISE
-			float3 whiteNoise = Hash33( float3( uv, rpJitterTexOffset.w / 256.0 ) );
 #else
-			float3 whiteNoise = Hash33( float3( uv, 0.0 ) );
-#endif
-
-			// dither to the specified number of bits, using sRGB conversions if desired
-#if DITHER_IN_LINEAR_SPACE
-			fg = pow( fg, float3( 2.2 ) );
-#endif
-
-			float scale = exp2( float( TARGET_BITS ) ) - 1.0;
-			color = floor( fg * scale + whiteNoise ) / scale;
-
-#if DITHER_IN_LINEAR_SPACE
-			color = pow( col, 1.0 / float3( 2.2 ) );
-#endif
-		}
-		// middle right of the screen is dithered using blue noise to a fewer number of bits per color channel
-		else if( uv2.x > 2.0 / 4.0 )
-		{
-			float3 blueNoise = BlueNoise3( uv, 1.0 );
-
-			// dither to the specified number of bits, using sRGB conversions if desired
-#if DITHER_IN_LINEAR_SPACE
-			fg = pow( fg, float3( 2.2 ) );
-#endif
-
-			float scale = exp2( float( TARGET_BITS ) ) - 1.0;
-			color = floor( fg * scale + blueNoise ) / scale;
-
-#if DITHER_IN_LINEAR_SPACE
-			color = pow( color, 1.0 / float3( 2.2 ) );
-#endif
-		}
-		// middle left of the screen is quantized but not dithered
-		else if( uv2.x > 1.0 / 4.0 )
-		{
-			// dither to the specified number of bits, using sRGB conversions if desired
-#if DITHER_IN_LINEAR_SPACE
-			fg = pow( fg, float3( 2.2 ) );
-#endif
-
-			float scale = exp2( float( TARGET_BITS ) ) - 1.0;
-			color = floor( fg * scale + 0.5f ) / scale;
-
-#if DITHER_IN_LINEAR_SPACE
-			color = pow( color, 1.0 / float3( 2.2 ) );
-#endif
-		}
-		// left side of screen is left alone for comparison
-		else
-		{
-			color = fg;
-		}
-
-		if( abs( uv2.x - 1.0 / 4.0 ) < 0.001 || abs( uv2.x - 2.0 / 4.0 ) < 0.001 || abs( uv2.x - 3.0 / 4.0 ) < 0.001 )
-		{
-			color = float3( 0.0, 1.0, 0.0 );
-		}
-	}
-
-	fragColor.rgb = color;
-}
-
-void DitheringPassSlim( inout float4 fragColor )
-{
-	// texture color
-	float2 uv = fragment.position.xy;
-	float2 uv2 = fragment.texcoord0;
-	float3 fg = fragColor.rgb;
-
-	float3 color = fg;
 
 #if 0
-	if( uv2.y >= 0.975 )
-	{
-		// source signal
-		color = float3( uv2.x );
-	}
-	else if( uv2.y >= 0.95 )
-	{
-		color = float3( uv2.x );
-
-		// quantized signal
-		float scale = exp2( float( TARGET_BITS ) ) - 1.0;
-		color = floor( color * scale + 0.0f ) / scale;
-	}
-	else if( uv2.y >= 0.925 )
-	{
-		// dithered quantized signal
-		color = float3( uv2.x );
-		color = floor( color * STEPS + Step3T( uv ) * 4.0 ) * ( 1.0 / ( STEPS - 1.0 ) );
-	}
-	else if( uv2.y >= 0.9 )
-	{
-		// dither texture
-		color = Step3( uv ).rgb;
-	}
-	else
+		if( uv2.x <= 0.5 )
+		{
+			// quantized but not dithered
+			color = floor( 0.5 + color * ( Dithering_QuantizationSteps + Dithering_Wide - 1.0 ) + ( -Dithering_Wide * 0.5 ) ) * ( 1.0 / ( Dithering_QuantizationSteps - 1.0 ) );
+		}
+		else
 #endif
-	{
-		float3 noise = BlueNoise3( uv, 1.0 );
-
-		//noise.x = RemapNoiseTriErp( noise.x );
-		//noise.y = RemapNoiseTriErp( noise.y );
-		//noise.z = RemapNoiseTriErp( noise.z );
-
-		// dither to the specified number of bits, using sRGB conversions if desired
-#if DITHER_IN_LINEAR_SPACE
-		fg = pow( fg, float3( 2.2 ) );
+		{
+			color = floor( 0.5 + color * ( Dithering_QuantizationSteps + Dithering_Wide - 1.0 ) + ( -Dithering_Wide * 0.5 ) + Step3T( uv ) * ( Dithering_Wide ) ) * ( 1.0 / ( Dithering_QuantizationSteps - 1.0 ) );
+		}
 #endif
 
-		float scale = exp2( float( TARGET_BITS ) ) - 1.0;
-		color = floor( fg * scale + noise ) / scale;
-
-#if DITHER_IN_LINEAR_SPACE
-		color = pow( color, 1.0 / float3( 2.2 ) );
-#endif
 	}
 
 	fragColor.rgb = color;
@@ -669,7 +480,7 @@ void main( PS_IN fragment, out PS_OUT result )
 #endif
 
 #if USE_DITHERING
-	DitheringPassSlim( color );
+	DitheringPass( color );
 #endif
 
 	result.color = color;

@@ -71,8 +71,7 @@ float BlueNoise( float2 n, float x )
 	noise = fract( noise + c_goldenRatioConjugate * rpJitterTexOffset.w * x );
 
 	//noise = RemapNoiseTriErp( noise );
-
-	//noise = noise * 2.0 - 1.0;
+	//noise = noise * 2.0 - 0.5;
 
 	return noise;
 }
@@ -94,7 +93,7 @@ void main( PS_IN fragment, out PS_OUT result )
 {
 	half4 bumpMap =			tex2D( samp0, fragment.texcoord1.xy );
 	half4 lightFalloff =	( idtex2Dproj( samp3, fragment.texcoord2 ) );
-	half4 lightProj	=	( idtex2Dproj( samp4, fragment.texcoord3 ) );
+	half4 lightProj	= ( idtex2Dproj( samp4, fragment.texcoord3 ) );
 	half4 YCoCG =			tex2D( samp2, fragment.texcoord4.xy );
 	half4 specMapSRGB =		tex2D( samp1, fragment.texcoord5.xy );
 	half4 specMap =			sRGBAToLinearRGBA( specMapSRGB );
@@ -418,13 +417,20 @@ void main( PS_IN fragment, out PS_OUT result )
 	half3 specularColor = specMapSRGB.rgb; // RB: should be linear but it looks too flat
 #endif
 
-	diffuseColor = half3( 1.0 );
+	//diffuseColor = half3( 1.0 );
 
 	// RB: compensate r_lightScale 3 and the division of Pi
 	//lambert *= 1.3;
 
 	// rpDiffuseModifier contains light color multiplier
-	half3 lightColor = sRGBToLinearRGB( lightProj.xyz * lightFalloff.xyz );// * rpDiffuseModifier.xyz;
+	half3 lightColor = sRGBToLinearRGB( lightProj.xyz * lightFalloff.xyz );
+	//lightColor = ditherRGB( lightColor, fragment.position.xy );
+	//lightColor *= sRGBToLinearRGB( lightFalloff.xyz );// * rpDiffuseModifier.xyz;
+
+	//lightColor = ditherRGB( lightColor, fragment.position.xy );
+
+
+	//lightColor = ditherRGB( lightColor, fragment.position.xy * rpWindowCoord.xy );
 
 	half vdotN = clamp( dot3( viewVector, localNormal ), 0.0, 1.0 );
 	half vdotH = clamp( dot3( viewVector, halfAngleVector ), 0.0, 1.0 );

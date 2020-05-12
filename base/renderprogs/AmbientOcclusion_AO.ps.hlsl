@@ -112,7 +112,7 @@ struct PS_OUT
 
 float BlueNoise( float2 n, float x )
 {
-	float noise = tex2D( samp2, ( n.xy / 256.0 ) ).r;
+	float noise = tex2D( samp2, n.xy * rpJitterTexOffset.xy ).r;
 
 #if TEMPORALLY_VARY_TAPS
 	noise = fract( noise + 0.61803398875 * rpJitterTexOffset.z * x );
@@ -120,9 +120,8 @@ float BlueNoise( float2 n, float x )
 	noise = fract( noise );
 #endif
 
-	noise = RemapNoiseTriErp( noise );
-
-	//noise = noise * 2.0 - 1.0;
+	//noise = RemapNoiseTriErp( noise );
+	//noise = noise * 2.0 - 0.5;
 
 	return noise;
 }
