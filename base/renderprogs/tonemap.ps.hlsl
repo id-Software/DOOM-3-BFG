@@ -69,6 +69,8 @@ float3 ACESFilm( float3 x )
 	return saturate( ( x * ( a * x + b ) ) / ( x * ( c * x + d ) + e ) );
 }
 
+#define USE_DITHERING 0
+
 void main( PS_IN fragment, out PS_OUT result )
 {
 	float2 tCoords = fragment.texcoord0;
@@ -91,6 +93,14 @@ void main( PS_IN fragment, out PS_OUT result )
 	color.r = pow( color.r, gamma );
 	color.g = pow( color.g, gamma );
 	color.b = pow( color.b, gamma );
+#endif
+
+#if USE_DITHERING
+
+	const float quantSteps = 256.0;
+
+	// dither
+	color.rgb = ditherRGB( color.rgb, fragment.position.xy, quantSteps );
 #endif
 
 #if defined(BRIGHTPASS)
@@ -197,7 +207,16 @@ void main( PS_IN fragment, out PS_OUT result )
 	color.rgb *= clamp( B, 0.0, 1.0 );
 #endif
 
-#if 1
+#if USE_DITHERING
+	// The following represents hardware linear->sRGB xform
+	// which happens on sRGB formatted render targets,
+	// except using a lot less bits/pixel.
+	color.rgb = max( float3( 0.0 ), color.rgb );
+	color.rgb = Srgb3( color.rgb );
+	color.rgb = floor( color.rgb * quantSteps ) * ( 1.0 / ( quantSteps - 1.0 ) );
+
+#else
+
 	// convert from linear RGB to sRGB
 
 	//float hdrGamma = 2.2;
@@ -205,6 +224,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	color.r = pow( color.r, gamma );
 	color.g = pow( color.g, gamma );
 	color.b = pow( color.b, gamma );
+
 #endif
 
 #if defined(HDR_DEBUG)

@@ -335,36 +335,77 @@ float3 Hash33( float3 p3 )
 	return fract( ( p3.xxy + p3.yxx ) * p3.zyx );
 }
 
-static float3 ditherRGB( float3 c, float2 uvSeed )
+static float3 ditherRGB( float3 color, float2 uvSeed, float quantSteps )
 {
 	// uniform noise
-	//float3 whiteNoise = Hash33( float3( uvSeed, rpJitterTexOffset.w ) );
+	//float3 noise = Hash33( float3( uvSeed, rpJitterTexOffset.w ) );
 
-	//float3 whiteNoise = float3( InterleavedGradientNoise( uvSeed ) );
-	float3 whiteNoise = float3( InterleavedGradientNoiseAnim( uvSeed, rpJitterTexOffset.w ) );
+	//float3 noise = float3( InterleavedGradientNoise( uvSeed ) );
+	float3 noise = float3( InterleavedGradientNoiseAnim( uvSeed, rpJitterTexOffset.w ) );
 
 
 	// triangular noise [-0.5;1.5[
 
 #if 1
-	whiteNoise.x = RemapNoiseTriErp( whiteNoise.x );
-	whiteNoise = whiteNoise * 2.0 - 0.5;
+	noise.x = RemapNoiseTriErp( noise.x );
+	noise = noise * 2.0 - 0.5;
 #endif
 
-	whiteNoise = float3( whiteNoise.x );
+	noise = float3( noise.x );
 
 
 	// quantize/truncate color and dither the result
 	//float scale = exp2( float( TARGET_BITS ) ) - 1.0;
 
 	// lets assume 2^3 bits = 8
-	float scale = 255.0;
+	//float scale = 7.0;
+	//const float quantSteps = 8.0;
+	float scale = quantSteps - 1.0;
 
-	float3 color = floor( c * scale + whiteNoise ) / scale;
+	// apply dither
+	color += noise / ( quantSteps );
+
+	color = floor( color * scale ) / scale;
+
+	//float3 color = c + whiteNoise / 255.0;
 
 #if defined( USE_LINEAR_RGB )
 
 #endif
+
+	return color;
+}
+
+static float3 ditherChromaticBlueNoise( float3 color, float2 n, sampler2D blueTex )
+{
+	// uniform noise
+	//float3 noise = Hash33( float3( n, rpJitterTexOffset.w ) );
+
+	//float3 noise = float3( InterleavedGradientNoise( n ) );
+	//float3 noise = float3( InterleavedGradientNoiseAnim( n, rpJitterTexOffset.w ) );
+
+	// uv is screen position / sizeof blue noise image
+	float2 uv = n.xy * rpJitterTexOffset.xy;
+	float3 noise = tex2D( blueTex, uv ).rgb;
+
+	// rpJitterTexOffset.w is frameTime % 64
+	noise = fract( noise + c_goldenRatioConjugate * rpJitterTexOffset.w );
+
+	// triangular noise [-0.5;1.5[
+	noise.x = RemapNoiseTriErp( noise.x );
+	noise = noise * 2.0 - 0.5;
+
+	//noise = float3( noise.x );
+
+	// quantize/truncate color and dither the result
+	//float scale = exp2( float( TARGET_BITS ) ) - 1.0;
+
+	// lets assume 2^3 bits = 8
+	float quantSteps = 255.0;
+
+	//float3 color = floor( c * scale + noise ) / scale;
+
+	color = floor( 0.5 + color * quantSteps - 0.5 + noise ) * ( 1.0 / ( quantSteps - 1.0 ) );
 
 	return color;
 }

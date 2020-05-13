@@ -77,6 +77,8 @@ The main goal is that the new content looks the same in RBDOOM-3-BFG as in Blend
 
 * Added Blue Noise based Filmic Dithering by Timothy Lottes and Chromatic Aberration
 
+* Added Contrast Adaptive Sharpening (AMD) from Just Marshal (IcedTech)
+
 * Improved Shadow Mapping quality with Vogel Disk Sampling by Panos Karabelas and using dithering the result with Blue Noise magic by Alan Wolfe
 
 * Improved Screen Space Ambient Occlusion performance by enhancing the quality with Blue Noise and skipping the expensive extra bilateral filtering pass

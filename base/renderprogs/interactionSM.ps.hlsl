@@ -424,9 +424,15 @@ void main( PS_IN fragment, out PS_OUT result )
 
 	// rpDiffuseModifier contains light color multiplier
 	half3 lightColor = sRGBToLinearRGB( lightProj.xyz * lightFalloff.xyz );
-	//lightColor = ditherRGB( lightColor, fragment.position.xy );
-	//lightColor *= sRGBToLinearRGB( lightFalloff.xyz );// * rpDiffuseModifier.xyz;
 
+	//lightFalloff.xyz = ditherRGB( lightFalloff.xyz, fragment.texcoord2.xy );
+	//lightProj.xyz = ditherRGB( lightProj.xyz, fragment.texcoord3.xy );
+
+	//half3 lightColor = sRGBToLinearRGB( lightProj.xyz * lightFalloff.xyz );
+
+	//lightColor = ditherChromaticBlueNoise( lightColor, fragment.position.xy, samp6 );
+
+	//lightColor *= sRGBToLinearRGB( lightFalloff.xyz );// * rpDiffuseModifier.xyz;
 	//lightColor = ditherRGB( lightColor, fragment.position.xy );
 
 
@@ -463,6 +469,10 @@ void main( PS_IN fragment, out PS_OUT result )
 	//half3 diffuseColor = mix( diffuseMap, F0, metal ) * rpDiffuseModifier.xyz;
 	half3 diffuseBRDF = diffuseColor * lambert * ( rpDiffuseModifier.xyz );
 
-	result.color.xyz = ( diffuseBRDF + specularBRDF ) * lightColor * fragment.color.rgb * shadow;
-	result.color.w = 1.0;
+	float3 color = ( diffuseBRDF + specularBRDF ) * lightColor * fragment.color.rgb * shadow;
+
+	//color = ditherChromaticBlueNoise( color, fragment.position.xy, samp6 );
+
+	result.color.rgb = color;
+	result.color.a = 1.0;
 }

@@ -5,6 +5,7 @@ Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2015-2020 Robert Beckebans
 Copyright (C) 2014 Timothy Lottes (AMD)
+Copyright (C) 2019 Justin Marshal (IcedTech)
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -61,7 +62,9 @@ struct PS_OUT
 #define Vibrance							0.5	// [-1.00 to 1.00]
 #define	Vibrance_RGB_Balance				float3( 1.0, 1.0, 1.0 )
 
-#define USE_DITHERING 						1
+#define USE_CAS                             1
+
+#define USE_DITHERING 						0
 #define Dithering_QuantizationSteps         8.0 // 8.0 = 2 ^ 3 quantization bits
 #define Dithering_NoiseBoost                1.0
 #define Dithering_Wide                      1.0
@@ -460,6 +463,107 @@ void DitheringPass( inout float4 fragColor )
 }
 
 
+float Min3( float x, float y, float z )
+{
+	return min( x, min( y, z ) );
+}
+
+float Max3( float x, float y, float z )
+{
+	return max( x, max( y, z ) );
+}
+
+
+float rcp( float v )
+{
+	return 1.0 / v;
+}
+
+void ContrastAdaptiveSharpeningPass( inout float4 fragColor )
+{
+	float2 texcoord = fragment.texcoord0;
+	float Sharpness = 1;
+
+	// fetch a 3x3 neighborhood around the pixel 'e',
+	//  a b c
+	//  d(e)f
+	//  g h i
+	int2 bufferSize = textureSize( samp0, 0 );
+	float pixelX = ( 1.0 / bufferSize.x );
+	float pixelY = ( 1.0 / bufferSize.y );
+
+	float3 a = tex2D( samp0, texcoord + float2( -pixelX, -pixelY ) ).rgb;
+	float3 b = tex2D( samp0, texcoord + float2( 0.0, -pixelY ) ).rgb;
+	float3 c = tex2D( samp0, texcoord + float2( pixelX, -pixelY ) ).rgb;
+	float3 d = tex2D( samp0, texcoord + float2( -pixelX, 0.0 ) ).rgb;
+	float3 e = tex2D( samp0, texcoord ).rgb;
+	float3 f = tex2D( samp0, texcoord + float2( pixelX, 0.0 ) ).rgb;
+	float3 g = tex2D( samp0, texcoord + float2( -pixelX, pixelY ) ).rgb;
+	float3 h = tex2D( samp0, texcoord + float2( 0.0, pixelY ) ).rgb;
+	float3 i = tex2D( samp0, texcoord + float2( pixelX, pixelY ) ).rgb;
+
+	// Soft min and max.
+	//  a b c             b
+	//  d e f * 0.5  +  d e f * 0.5
+	//  g h i             h
+	// These are 2.0x bigger (factored out the extra multiply).
+	float mnR = Min3( Min3( d.r, e.r, f.r ), b.r, h.r );
+	float mnG = Min3( Min3( d.g, e.g, f.g ), b.g, h.g );
+	float mnB = Min3( Min3( d.b, e.b, f.b ), b.b, h.b );
+
+	float mnR2 = Min3( Min3( mnR, a.r, c.r ), g.r, i.r );
+	float mnG2 = Min3( Min3( mnG, a.g, c.g ), g.g, i.g );
+	float mnB2 = Min3( Min3( mnB, a.b, c.b ), g.b, i.b );
+	mnR = mnR + mnR2;
+	mnG = mnG + mnG2;
+	mnB = mnB + mnB2;
+
+	float mxR = Max3( Max3( d.r, e.r, f.r ), b.r, h.r );
+	float mxG = Max3( Max3( d.g, e.g, f.g ), b.g, h.g );
+	float mxB = Max3( Max3( d.b, e.b, f.b ), b.b, h.b );
+
+	float mxR2 = Max3( Max3( mxR, a.r, c.r ), g.r, i.r );
+	float mxG2 = Max3( Max3( mxG, a.g, c.g ), g.g, i.g );
+	float mxB2 = Max3( Max3( mxB, a.b, c.b ), g.b, i.b );
+	mxR = mxR + mxR2;
+	mxG = mxG + mxG2;
+	mxB = mxB + mxB2;
+
+	// Smooth minimum distance to signal limit divided by smooth max.
+	float rcpMR = rcp( mxR );
+	float rcpMG = rcp( mxG );
+	float rcpMB = rcp( mxB );
+
+	float ampR = saturate( min( mnR, 2.0 - mxR ) * rcpMR );
+	float ampG = saturate( min( mnG, 2.0 - mxG ) * rcpMG );
+	float ampB = saturate( min( mnB, 2.0 - mxB ) * rcpMB );
+
+	// Shaping amount of sharpening.
+	ampR = sqrt( ampR );
+	ampG = sqrt( ampG );
+	ampB = sqrt( ampB );
+
+	// Filter shape.
+	//  0 w 0
+	//  w 1 w
+	//  0 w 0
+	float peak = -rcp( lerp( 8.0, 5.0, saturate( Sharpness ) ) );
+
+	float wR = ampR * peak;
+	float wG = ampG * peak;
+	float wB = ampB * peak;
+
+	float rcpWeightR = rcp( 1.0 + 4.0 * wR );
+	float rcpWeightG = rcp( 1.0 + 4.0 * wG );
+	float rcpWeightB = rcp( 1.0 + 4.0 * wB );
+
+	float3 outColor = float3( saturate( ( b.r * wR + d.r * wR + f.r * wR + h.r * wR + e.r ) * rcpWeightR ),
+							  saturate( ( b.g * wG + d.g * wG + f.g * wG + h.g * wG + e.g ) * rcpWeightG ),
+							  saturate( ( b.b * wB + d.b * wB + f.b * wB + h.b * wB + e.b ) * rcpWeightB ) );
+
+	fragColor.rgb = outColor;
+}
+
 void main( PS_IN fragment, out PS_OUT result )
 {
 	float2 tCoords = fragment.texcoord0;
@@ -477,6 +581,10 @@ void main( PS_IN fragment, out PS_OUT result )
 
 #if USE_VIBRANCE
 	VibrancePass( color );
+#endif
+
+#if USE_CAS
+	ContrastAdaptiveSharpeningPass( color );
 #endif
 
 #if USE_DITHERING
