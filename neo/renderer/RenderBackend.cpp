@@ -2057,23 +2057,6 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 {
 	const bool hdrIsActive = ( r_useHDR.GetBool() && globalFramebuffers.hdrFBO != NULL && globalFramebuffers.hdrFBO->IsBound() );
 
-	if( fillGbuffer )
-	{
-		if( !r_useSSGI.GetBool() && !r_useSSAO.GetBool() )
-		{
-			return;
-		}
-	}
-	else
-	{
-		if( r_forceAmbient.GetFloat() <= 0 )//|| r_skipAmbient.GetBool() )
-		{
-			// clear gbuffer
-			GL_Clear( true, false, false, 0, 0.0f, 0.0f, 0.0f, 1.0f, false );
-			return;
-		}
-	}
-
 	if( numDrawSurfs == 0 )
 	{
 		return;
@@ -2083,6 +2066,12 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 	if( viewDef->viewEntitys == NULL )
 	{
 		return;
+	}
+
+	if( !fillGbuffer )
+	{
+		// clear gbuffer
+		GL_Clear( true, false, false, 0, 0.0f, 0.0f, 0.0f, 1.0f, false );
 	}
 
 	if( !fillGbuffer && r_useSSAO.GetBool() && r_ssaoDebug.GetBool() )
@@ -2142,16 +2131,10 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 
 	// draw all the subview surfaces, which will already be at the start of the sorted list,
 	// with the general purpose path
-	//GL_State( GLS_DEFAULT );
+	GL_State( GLS_DEFAULT );
 
-	//if( fillGbuffer )
-	{
-		GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_EQUAL );
-	}
-	//else
-	//{
-	//	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHMASK | GLS_DEPTHFUNC_EQUAL );
-	//}
+	// RB: even use additive blending to blend the normals
+	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHMASK | GLS_DEPTHFUNC_EQUAL );
 
 	GL_Color( colorWhite );
 
@@ -2465,10 +2448,9 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 		renderLog.CloseBlock();
 	}
 
+	// disable blending
+	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_EQUAL );
 	SetFragmentParm( RENDERPARM_ALPHA_TEST, vec4_zero.ToFloatPtr() );
-
-	renderLog.CloseBlock();
-	renderLog.CloseMainBlock();
 
 	GL_SelectTexture( 0 );
 
@@ -2494,6 +2476,9 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 	}
 
 	renderProgManager.Unbind();
+
+	renderLog.CloseBlock();
+	renderLog.CloseMainBlock();
 }
 
 // RB end
@@ -4761,81 +4746,6 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 	renderLog.OpenMainBlock( MRB_SSAO_PASS );
 	renderLog.OpenBlock( "Render_SSAO", colorBlue );
 
-#if 0
-	GL_CheckErrors();
-
-	// clear the alpha buffer and draw only the hands + weapon into it so
-	// we can avoid blurring them
-	glClearColor( 0, 0, 0, 1 );
-	GL_State( GLS_COLORMASK | GLS_DEPTHMASK );
-	glClear( GL_COLOR_BUFFER_BIT );
-	GL_Color( 0, 0, 0, 0 );
-
-
-	GL_SelectTexture( 0 );
-	globalImages->blackImage->Bind();
-	backEnd.currentSpace = NULL;
-
-	drawSurf_t** drawSurfs = ( drawSurf_t** )&backEnd.viewDef->drawSurfs[0];
-	for( int surfNum = 0; surfNum < backEnd.viewDef->numDrawSurfs; surfNum++ )
-	{
-		const drawSurf_t* surf = drawSurfs[ surfNum ];
-
-		if( !surf->space->weaponDepthHack && !surf->space->skipMotionBlur && !surf->material->HasSubview() )
-		{
-			// Apply motion blur to this object
-			continue;
-		}
-
-		const idMaterial* shader = surf->material;
-		if( shader->Coverage() == MC_TRANSLUCENT )
-		{
-			// muzzle flash, etc
-			continue;
-		}
-
-		// set mvp matrix
-		if( surf->space != backEnd.currentSpace )
-		{
-			RB_SetMVP( surf->space->mvp );
-			backEnd.currentSpace = surf->space;
-		}
-
-		// this could just be a color, but we don't have a skinned color-only prog
-		if( surf->jointCache )
-		{
-			renderProgManager.BindShader_TextureVertexColorSkinned();
-		}
-		else
-		{
-			renderProgManager.BindShader_TextureVertexColor();
-		}
-
-		// draw it solid
-		RB_DrawElementsWithCounters( surf );
-	}
-	GL_State( GLS_DEPTHFUNC_ALWAYS );
-
-	// copy off the color buffer and the depth buffer for the motion blur prog
-	// we use the viewport dimensions for copying the buffers in case resolution scaling is enabled.
-	const idScreenRect& viewport = backEnd.viewDef->viewport;
-	globalImages->currentRenderImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
-
-	// in stereo rendering, each eye needs to get a separate previous frame mvp
-	int mvpIndex = ( backEnd.viewDef->renderView.viewEyeBuffer == 1 ) ? 1 : 0;
-
-	// derive the matrix to go from current pixels to previous frame pixels
-	idRenderMatrix	inverseMVP;
-	idRenderMatrix::Inverse( backEnd.viewDef->worldSpace.mvp, inverseMVP );
-
-	idRenderMatrix	motionMatrix;
-	idRenderMatrix::Multiply( backEnd.prevMVP[mvpIndex], inverseMVP, motionMatrix );
-
-	backEnd.prevMVP[mvpIndex] = backEnd.viewDef->worldSpace.mvp;
-
-	RB_SetMVP( motionMatrix );
-#endif
-
 	currentSpace = &viewDef->worldSpace;
 	RB_SetMVP( viewDef->worldSpace.mvp );
 
@@ -4851,7 +4761,7 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 
 		renderProgManager.BindShader_AmbientOcclusionMinify();
 
-		glClearColor( 0, 0, 0, 1 );
+		GL_Color( 0, 0, 0, 1 );
 
 		GL_SelectTexture( 0 );
 		//globalImages->currentDepthImage->Bind();
@@ -4861,10 +4771,12 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 			int width = globalFramebuffers.csDepthFBO[i]->GetWidth();
 			int height = globalFramebuffers.csDepthFBO[i]->GetHeight();
 
+			globalFramebuffers.csDepthFBO[i]->Bind();
+
 			GL_Viewport( 0, 0, width, height );
 			GL_Scissor( 0, 0, width, height );
 
-			globalFramebuffers.csDepthFBO[i]->Bind();
+			GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS | GLS_CULL_TWOSIDED );
 
 			glClear( GL_COLOR_BUFFER_BIT );
 
@@ -4909,7 +4821,7 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 	GL_Viewport( 0, 0, aoScreenWidth, aoScreenHeight );
 	GL_Scissor( 0, 0, aoScreenWidth, aoScreenHeight );
 
-	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS | GLS_CULL_TWOSIDED );
+
 
 	if( downModulateScreen )
 	{
@@ -4944,6 +4856,8 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 	else
 	{
 		globalFramebuffers.ambientOcclusionFBO[0]->Bind();
+
+		GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS | GLS_CULL_TWOSIDED );
 
 		glClearColor( 0, 0, 0, 0 );
 		glClear( GL_COLOR_BUFFER_BIT );
