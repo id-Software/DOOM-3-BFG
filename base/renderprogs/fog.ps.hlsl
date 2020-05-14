@@ -45,6 +45,6 @@ struct PS_OUT {
 
 void main( PS_IN fragment, out PS_OUT result )
 {
-	result.color = tex2D( samp0, fragment.texcoord0 ) * tex2D( samp1, fragment.texcoord1 ) * sRGBAToLinearRGBA( rpColor );
+	result.color = sRGBAToLinearRGBA( tex2D( samp0, fragment.texcoord0 ) * tex2D( samp1, fragment.texcoord1 ) * rpColor );
 }
 

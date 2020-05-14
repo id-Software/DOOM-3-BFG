@@ -47,7 +47,7 @@ struct PS_OUT
 };
 // *INDENT-ON*
 
-#define USE_CHROMATIC_ABERRATION			1
+#define USE_CHROMATIC_ABERRATION			0
 #define Chromatic_Amount					0.075
 
 #define USE_TECHNICOLOR						0		// [0 or 1]
@@ -175,9 +175,36 @@ void ChromaticAberrationPass( inout float4 color )
 		sumColor += so * tex2D( samp0, BarrelDistortion( fragment.texcoord0, ( 0.5 * amount * t ) ) ).rgb;
 	}
 
-	color.rgb = ( sumColor / sum );
-	//color.rgb = lerp(color.rgb, (sumColor / sum), Technicolor_Amount);
+	float3 outColor = ( sumColor / sum );
+	color.rgb = lerp( color.rgb, outColor, Technicolor_Amount );
 }
+
+void ChromaticAberrationPass2( inout float4 color )
+{
+	float amount = 6.0;
+
+	float2 uv = fragment.texcoord0;
+
+	//float2 texel = 1.0 / rpWindowCoord.zw;
+	float2 texel = 1.0 / float2( 1920.0, 1080.0 );
+
+	float2 coords = ( uv - 0.5 ) * 2.0;
+	float coordDot = dot( coords, coords );
+
+	float2 precompute = amount * coordDot * coords;
+	float2 uvR = uv - texel.xy * precompute;
+	float2 uvB = uv + texel.xy * precompute;
+
+	float3 outColor;
+	outColor.r = tex2D( samp0, uvR ).r;
+	outColor.g = tex2D( samp0, uv ).g;
+	outColor.b = tex2D( samp0, uvB ).b;
+
+	color.rgb = lerp( color.rgb, outColor, Technicolor_Amount );
+}
+
+
+
 
 
 
@@ -479,7 +506,7 @@ float rcp( float v )
 	return 1.0 / v;
 }
 
-void ContrastAdaptiveSharpeningPass( inout float4 fragColor )
+void ContrastAdaptiveSharpeningPass( inout float4 color )
 {
 	float2 texcoord = fragment.texcoord0;
 	float Sharpness = 1;
@@ -561,7 +588,8 @@ void ContrastAdaptiveSharpeningPass( inout float4 fragColor )
 							  saturate( ( b.g * wG + d.g * wG + f.g * wG + h.g * wG + e.g ) * rcpWeightG ),
 							  saturate( ( b.b * wB + d.b * wB + f.b * wB + h.b * wB + e.b ) * rcpWeightB ) );
 
-	fragColor.rgb = outColor;
+	color.rgb = outColor;
+	//color.rgb = lerp( color.rgb, outColor, Technicolor_Amount );
 }
 
 void main( PS_IN fragment, out PS_OUT result )
@@ -571,8 +599,12 @@ void main( PS_IN fragment, out PS_OUT result )
 	// base color with tone mapping and other post processing applied
 	float4 color = tex2D( samp0, tCoords );
 
+#if USE_CAS
+	ContrastAdaptiveSharpeningPass( color );
+#endif
+
 #if USE_CHROMATIC_ABERRATION
-	ChromaticAberrationPass( color );
+	ChromaticAberrationPass2( color );
 #endif
 
 #if USE_TECHNICOLOR
@@ -581,10 +613,6 @@ void main( PS_IN fragment, out PS_OUT result )
 
 #if USE_VIBRANCE
 	VibrancePass( color );
-#endif
-
-#if USE_CAS
-	ContrastAdaptiveSharpeningPass( color );
 #endif
 
 #if USE_DITHERING

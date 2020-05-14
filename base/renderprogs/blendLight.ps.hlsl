@@ -45,5 +45,5 @@ struct PS_OUT {
 
 void main( PS_IN fragment, out PS_OUT result )
 {
-	result.color = idtex2Dproj( samp0, fragment.texcoord0 ) * tex2D( samp1, fragment.texcoord1 ) * rpColor;
+	result.color = sRGBAToLinearRGBA( idtex2Dproj( samp0, fragment.texcoord0 ) * tex2D( samp1, fragment.texcoord1 ) * rpColor );
 }
