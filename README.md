@@ -408,8 +408,8 @@ convertMapToJSON <mapfile>             | Command: Convert .map file to new .json
 * Some shadows might almost disappear due to the shadow filtering
 * [HDR] HDR does not work with old-school stencil shadows
 * [HDR] MSAA anti-aliasing modes don't work with HDR: Use SMAA
-* [HDR] HDR causes problems with the grabber gun
-* [HDR] HDR darkens the screen when you get hit by an enemy
+* ~~[HDR] HDR causes problems with the grabber gun~~
+* ~~[HDR] HDR darkens the screen when you get hit by an enemy~~
 * [Vulkan] Shadow Mapping is not supported yet
 * [Vulkan] HDR is not supported yet
 * [Vulkan] Post processing and SMAA is not supported yet

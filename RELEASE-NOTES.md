@@ -51,7 +51,11 @@ The main goal is that the new content looks the same in RBDOOM-3-BFG as in Blend
 
 * Added HACK to look for PBR reflection maps with the suffix _rmao if a specular map was specified and ends with _s.tga. This allows to override the materials with PBR textures without touching the material .mtr files.
 
-* Fixed ambient lights being too bright in HDR mode
+* Fixed ambient lights, 3D GUIs and fog being too bright in HDR mode
+
+* Fixed darkening of the screen in HDR mode when you get hit by an enemy
+
+* Fixed ellipse bug when using Grabber gun in HDR mode #407
 
 [VULKAN]
 
@@ -77,7 +81,7 @@ The main goal is that the new content looks the same in RBDOOM-3-BFG as in Blend
 
 * Added Blue Noise based Filmic Dithering by Timothy Lottes and Chromatic Aberration
 
-* Added Contrast Adaptive Sharpening (AMD) from Just Marshal (IcedTech)
+* Added Contrast Adaptive Sharpening (AMD) by Justin Marshal (IcedTech)
 
 * Improved Shadow Mapping quality with Vogel Disk Sampling by Panos Karabelas and using dithering the result with Blue Noise magic by Alan Wolfe
 

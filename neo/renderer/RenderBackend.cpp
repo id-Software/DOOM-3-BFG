@@ -2068,11 +2068,13 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 		return;
 	}
 
+	/*
 	if( !fillGbuffer )
 	{
 		// clear gbuffer
 		GL_Clear( true, false, false, 0, 0.0f, 0.0f, 0.0f, 1.0f, false );
 	}
+	*/
 
 	if( !fillGbuffer && r_useSSAO.GetBool() && r_ssaoDebug.GetBool() )
 	{
@@ -2109,19 +2111,15 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 		return;
 	}
 
+	renderLog.OpenMainBlock( MRB_AMBIENT_PASS );
+	renderLog.OpenBlock( "Render_AmbientPass", colorBlue );
 
-	/*
 	if( fillGbuffer )
 	{
 		globalFramebuffers.geometryBufferFBO->Bind();
 
-		glClearColor( 0, 0, 0, 0 );
-		glClear( GL_COLOR_BUFFER_BIT );
+		GL_Clear( true, false, false, 0, 0.0f, 0.0f, 0.0f, 1.0f, false );
 	}
-	*/
-
-	renderLog.OpenMainBlock( MRB_AMBIENT_PASS );
-	renderLog.OpenBlock( "Render_AmbientPass", colorBlue );
 
 	// RB: not needed
 	// GL_StartDepthPass( backEnd.viewDef->scissor );
@@ -2133,8 +2131,12 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 	// with the general purpose path
 	GL_State( GLS_DEFAULT );
 
+#define BLEND_NORMALS 1
+
 	// RB: even use additive blending to blend the normals
-	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHMASK | GLS_DEPTHFUNC_EQUAL );
+	//GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHMASK | GLS_DEPTHFUNC_EQUAL );
+
+	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_EQUAL );
 
 	GL_Color( colorWhite );
 
@@ -2390,6 +2392,18 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 					// draw any previous interaction
 					if( inter.bumpImage != NULL )
 					{
+#if BLEND_NORMALS
+						if( inter.vertexColor == SVC_IGNORE )
+						{
+							GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_EQUAL );
+						}
+						else
+						{
+							// RB: this is a bit hacky: use additive blending to blend the normals
+							GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHMASK | GLS_DEPTHFUNC_EQUAL );
+						}
+#endif
+
 						DrawSingleInteraction( &inter, false, useIBL, false );
 					}
 					inter.bumpImage = surfaceStage->texture.image;
@@ -2411,6 +2425,18 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 					// draw any previous interaction
 					if( inter.diffuseImage != NULL )
 					{
+#if BLEND_NORMALS
+						if( inter.vertexColor == SVC_IGNORE )
+						{
+							GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_EQUAL );
+						}
+						else
+						{
+							// RB: this is a bit hacky: use additive blending to blend the normals
+							GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHMASK | GLS_DEPTHFUNC_EQUAL );
+						}
+#endif
+
 						DrawSingleInteraction( &inter, false, useIBL, false );
 					}
 
@@ -2431,6 +2457,18 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 					// draw any previous interaction
 					if( inter.specularImage != NULL )
 					{
+#if BLEND_NORMALS
+						if( inter.vertexColor == SVC_IGNORE )
+						{
+							GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_EQUAL );
+						}
+						else
+						{
+							// RB: this is a bit hacky: use additive blending to blend the normals
+							GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHMASK | GLS_DEPTHFUNC_EQUAL );
+						}
+#endif
+
 						DrawSingleInteraction( &inter, false, useIBL, false );
 					}
 					inter.specularImage = surfaceStage->texture.image;
@@ -2443,6 +2481,18 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 		}
 
 		// draw the final interaction
+#if BLEND_NORMALS
+		if( inter.vertexColor == SVC_IGNORE )
+		{
+			GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_EQUAL );
+		}
+		else
+		{
+			// RB: this is a bit hacky: use additive blending to blend the normals
+			GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE | GLS_DEPTHMASK | GLS_DEPTHFUNC_EQUAL );
+		}
+#endif
+
 		DrawSingleInteraction( &inter, false, useIBL, false );
 
 		renderLog.CloseBlock();
@@ -2456,14 +2506,7 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 
 	if( fillGbuffer )
 	{
-		// FIXME: this copies RGBA16F into _currentNormals if HDR is enabled
-		const idScreenRect& viewport = viewDef->viewport;
-		globalImages->currentNormalsImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
-
-		//GL_Clear( true, false, false, STENCIL_SHADOW_TEST_VALUE, 0.0f, 0.0f, 0.0f, 1.0f, false );
-
-
-		/*
+		// go back to main render target
 		if( hdrIsActive )
 		{
 			globalFramebuffers.hdrFBO->Bind();
@@ -2472,7 +2515,6 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 		{
 			Framebuffer::Unbind();
 		}
-		*/
 	}
 
 	renderProgManager.Unbind();

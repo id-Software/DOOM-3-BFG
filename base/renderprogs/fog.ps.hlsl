@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2020 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -45,6 +46,14 @@ struct PS_OUT {
 
 void main( PS_IN fragment, out PS_OUT result )
 {
-	result.color = sRGBAToLinearRGBA( tex2D( samp0, fragment.texcoord0 ) * tex2D( samp1, fragment.texcoord1 ) * rpColor );
+	float4 c = tex2D( samp0, fragment.texcoord0 ) * tex2D( samp1, fragment.texcoord1 ) * rpColor;
+
+#if defined( USE_LINEAR_RGB )
+	c = clamp( c, 0.0, 1.0 );
+
+	c = float4( Linear1( c.r ), Linear1( c.g ), Linear1( c.b ), Linear1( c.a ) );
+#endif
+
+	result.color = c;
 }
 

@@ -132,7 +132,7 @@ struct globalFramebuffers_t
 	Framebuffer*				bloomRenderFBO[MAX_BLOOM_BUFFERS];
 	Framebuffer*				ambientOcclusionFBO[MAX_SSAO_BUFFERS];
 	Framebuffer*				csDepthFBO[MAX_HIERARCHICAL_ZBUFFERS];
-//	Framebuffer*				geometryBufferFBO;
+	Framebuffer*				geometryBufferFBO;
 	Framebuffer*				smaaEdgesFBO;
 	Framebuffer*				smaaBlendFBO;
 };

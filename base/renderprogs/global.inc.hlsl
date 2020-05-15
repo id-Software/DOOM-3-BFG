@@ -130,47 +130,10 @@ static float dot4( float2 a, float4 b ) { return dot( float4( a, 0, 1 ), b ); }
 #define DEG2RAD( a )				( ( a ) * PI / 180.0f )
 #define RAD2DEG( a )				( ( a ) * 180.0f / PI )
 
+
 // ----------------------
 // sRGB <-> Linear RGB Color Conversion
 // ----------------------
-
-half3 sRGBToLinearRGB( half3 rgb )
-{
-#if defined( USE_LINEAR_RGB ) && !defined( USE_SRGB )
-	return max( pow( rgb, half3( 2.2 ) ), half3( 0.0 ) );
-#else
-	return rgb;
-#endif
-}
-
-half4 sRGBAToLinearRGBA( half4 rgba )
-{
-#if defined( USE_LINEAR_RGB ) && !defined( USE_SRGB )
-	return float4( max( pow( rgba.rgb, half3( 2.2 ) ), half3( 0.0 ) ), rgba.a );
-#else
-	return rgba;
-#endif
-}
-
-half3 LinearRGBToSRGB( half3 rgb )
-{
-#if defined( USE_LINEAR_RGB ) && !defined( USE_SRGB )
-	return pow( rgb, half3( 1.0 ) / half3( 2.2 ) );
-#else
-	return rgb;
-#endif
-}
-
-half4 LinearRGBToSRGB( half4 rgba )
-{
-#if defined( USE_LINEAR_RGB ) && !defined( USE_SRGB )
-	rgba.rgb = pow( rgba.rgb, half3( 1.0 ) / half3( 2.2 ) );
-	return rgba; //pow( rgba, half4( 1.0 ) / half4( 2.2 ) );
-#else
-	return rgba;
-#endif
-}
-
 
 float Linear1( float c )
 {
@@ -197,6 +160,53 @@ float PhotoLuma( float3 c )
 {
 	return dot( c, photoLuma );
 }
+
+float3 sRGBToLinearRGB( float3 c )
+{
+#if defined( USE_LINEAR_RGB ) && !defined( USE_SRGB )
+	c = clamp( c, 0.0, 1.0 );
+
+	return Linear3( c );
+#else
+	return c;
+#endif
+}
+
+float4 sRGBAToLinearRGBA( float4 c )
+{
+#if defined( USE_LINEAR_RGB ) && !defined( USE_SRGB )
+	c = clamp( c, 0.0, 1.0 );
+
+	return float4( Linear1( c.r ), Linear1( c.g ), Linear1( c.b ), Linear1( c.a ) );
+#else
+	return c;
+#endif
+}
+
+float3 LinearRGBToSRGB( float3 c )
+{
+#if defined( USE_LINEAR_RGB ) && !defined( USE_SRGB )
+	c = clamp( c, 0.0, 1.0 );
+
+	return Srgb3( c );
+#else
+	return c;
+#endif
+}
+
+float4 LinearRGBToSRGB( float4 c )
+{
+#if defined( USE_LINEAR_RGB ) && !defined( USE_SRGB )
+	c = clamp( c, 0.0, 1.0 );
+
+	return float4( Srgb1( c.r ), Srgb1( c.g ), Srgb1( c.b ), c.a );
+#else
+	return c;
+#endif
+}
+
+
+
 
 // RB end
 
