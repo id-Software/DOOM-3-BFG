@@ -234,10 +234,31 @@ public:
 	//--------------------------
 	// RenderWorld_portals.cpp
 
+	// if we hit this many planes, we will just stop cropping the
+	// view down, which is still correct, just conservative
+	static const int MAX_PORTAL_PLANES	= 20;
+
+	struct portalStack_t
+	{
+		const portal_t* 		p;
+		const portalStack_t* 	next;
+		// positive side is outside the visible frustum
+		int						numPortalPlanes;
+		idPlane					portalPlanes[MAX_PORTAL_PLANES + 1];
+		idScreenRect			rect;
+	};
+
 	bool					CullEntityByPortals( const idRenderEntityLocal* entity, const portalStack_t* ps );
 	void					AddAreaViewEntities( int areaNum, const portalStack_t* ps );
+
 	bool					CullLightByPortals( const idRenderLightLocal* light, const portalStack_t* ps );
 	void					AddAreaViewLights( int areaNum, const portalStack_t* ps );
+
+	// RB begin
+	bool					CullEnvprobeByPortals( const RenderEnvprobeLocal* probe, const portalStack_t* ps );
+	void					AddAreaViewEnvprobes( int areaNum, const portalStack_t* ps );
+	// RB end
+
 	void					AddAreaToView( int areaNum, const portalStack_t* ps );
 	idScreenRect			ScreenRectFromWinding( const idWinding* w, const viewEntity_t* space );
 	bool					PortalIsFoggedOut( const portal_t* p );

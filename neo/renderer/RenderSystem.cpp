@@ -941,7 +941,6 @@ In split screen mode the rendering size is also smaller.
 */
 void idRenderSystemLocal::PerformResolutionScaling( int& newWidth, int& newHeight )
 {
-
 	float xScale = 1.0f;
 	float yScale = 1.0f;
 	resolutionScale.GetCurrentResolutionScale( xScale, yScale );
@@ -1057,7 +1056,7 @@ void idRenderSystemLocal::CaptureRenderToImage( const char* imageName, bool clea
 			common->Printf( "write DC_CAPTURE_RENDER: %s\n", imageName );
 		}
 	}
-	idImage*	 image = globalImages->GetImage( imageName );
+	idImage* image = globalImages->GetImage( imageName );
 	if( image == NULL )
 	{
 		image = globalImages->AllocImage( imageName );
@@ -1093,6 +1092,7 @@ void idRenderSystemLocal::CaptureRenderToFile( const char* fileName, bool fixAlp
 
 	guiModel->EmitFullScreen();
 	guiModel->Clear();
+
 	RenderCommandBuffers( frameData->cmdHead );
 
 #if !defined(USE_VULKAN)

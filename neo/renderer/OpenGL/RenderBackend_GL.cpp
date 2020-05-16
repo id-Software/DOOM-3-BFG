@@ -1931,6 +1931,7 @@ void idRenderBackend::StereoRenderExecuteBackEndCommands( const emptyCommand_t* 
 			{
 				case RC_NOP:
 					break;
+
 				case RC_DRAW_VIEW_GUI:
 				case RC_DRAW_VIEW_3D:
 				{
@@ -1950,12 +1951,15 @@ void idRenderBackend::StereoRenderExecuteBackEndCommands( const emptyCommand_t* 
 					}
 				}
 				break;
+
 				case RC_SET_BUFFER:
 					SetBuffer( cmds );
 					break;
+
 				case RC_COPY_RENDER:
 					CopyRender( cmds );
 					break;
+
 				case RC_POST_PROCESS:
 				{
 					postProcessCommand_t* cmd = ( postProcessCommand_t* )cmds;

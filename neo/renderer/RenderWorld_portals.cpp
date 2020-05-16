@@ -414,6 +414,7 @@ void idRenderWorldLocal::AddAreaToView( int areaNum, const portalStack_t* ps )
 	// add the models and lights, using more precise culling to the planes
 	AddAreaViewEntities( areaNum, ps );
 	AddAreaViewLights( areaNum, ps );
+	AddAreaViewEnvprobes( areaNum, ps ); // RB
 }
 
 /*
@@ -759,6 +760,7 @@ void idRenderWorldLocal::FindViewLightsAndEntities()
 	// clear the visible lightDef and entityDef lists
 	tr.viewDef->viewLights = NULL;
 	tr.viewDef->viewEntitys = NULL;
+	tr.viewDef->viewEnvprobes = NULL; // RB
 
 	// all areas are initially not visible, but each portal
 	// chain that leads to them will expand the visible rectangle

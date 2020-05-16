@@ -47,12 +47,12 @@ struct PS_OUT
 };
 // *INDENT-ON*
 
-#define USE_CHROMATIC_ABERRATION			0
+#define USE_CHROMATIC_ABERRATION			1
 #define Chromatic_Amount					0.075
 
 #define USE_TECHNICOLOR						0		// [0 or 1]
 
-#define Technicolor_Amount					0.5		// [0.00 to 1.00]
+#define Technicolor_Amount					1.0		// [0.00 to 1.00]
 #define Technicolor_Power					4.0		// [0.00 to 8.00]
 #define Technicolor_RedNegativeAmount		0.88	// [0.00 to 1.00]
 #define Technicolor_GreenNegativeAmount		0.88	// [0.00 to 1.00]
@@ -62,9 +62,9 @@ struct PS_OUT
 #define Vibrance							0.5	// [-1.00 to 1.00]
 #define	Vibrance_RGB_Balance				float3( 1.0, 1.0, 1.0 )
 
-#define USE_CAS                             1
+#define USE_CAS                             0
 
-#define USE_DITHERING 						0
+#define USE_DITHERING 						1
 #define Dithering_QuantizationSteps         8.0 // 8.0 = 2 ^ 3 quantization bits
 #define Dithering_NoiseBoost                1.0
 #define Dithering_Wide                      1.0
@@ -604,7 +604,7 @@ void main( PS_IN fragment, out PS_OUT result )
 #endif
 
 #if USE_CHROMATIC_ABERRATION
-	ChromaticAberrationPass2( color );
+	ChromaticAberrationPass( color );
 #endif
 
 #if USE_TECHNICOLOR

@@ -175,6 +175,7 @@ idCVar r_screenFraction( "r_screenFraction", "100", CVAR_RENDERER | CVAR_INTEGER
 idCVar r_usePortals( "r_usePortals", "1", CVAR_RENDERER | CVAR_BOOL, " 1 = use portals to perform area culling, otherwise draw everything" );
 idCVar r_singleLight( "r_singleLight", "-1", CVAR_RENDERER | CVAR_INTEGER, "suppress all but one light" );
 idCVar r_singleEntity( "r_singleEntity", "-1", CVAR_RENDERER | CVAR_INTEGER, "suppress all but one entity" );
+idCVar r_singleEnvprobe( "r_singleEnvprobe", "-1", CVAR_RENDERER | CVAR_INTEGER, "suppress all but one environment probe" );
 idCVar r_singleSurface( "r_singleSurface", "-1", CVAR_RENDERER | CVAR_INTEGER, "suppress all but one surface on each entity" );
 idCVar r_singleArea( "r_singleArea", "0", CVAR_RENDERER | CVAR_BOOL, "only draw the portal area the view is actually in" );
 idCVar r_orderIndexes( "r_orderIndexes", "1", CVAR_RENDERER | CVAR_BOOL, "perform index reorganization to optimize vertex use" );
@@ -1210,7 +1211,6 @@ void R_EnvShot_f( const idCmdArgs& args )
 
 	for( i = 0 ; i < 6 ; i++ )
 	{
-
 		ref = primary.renderView;
 
 		extension = envDirection[ i ];
@@ -1219,7 +1219,7 @@ void R_EnvShot_f( const idCmdArgs& args )
 		ref.viewaxis = axis[i];
 		fullname.Format( "env/%s%s", baseName, extension );
 
-		tr.TakeScreenshot( size, size, fullname, blends, &ref, TGA );
+		tr.TakeScreenshot( size, size, fullname, blends, &ref, PNG );
 	}
 
 	// restore the original resolution, axis and fov
@@ -1851,7 +1851,6 @@ to skybox textures ( forward, back, left, right, up, down)
 */
 void R_TransformEnvToSkybox_f( const idCmdArgs& args )
 {
-
 	if( args.Argc() != 2 )
 	{
 		common->Printf( "USAGE: envToSky <basename>\n" );

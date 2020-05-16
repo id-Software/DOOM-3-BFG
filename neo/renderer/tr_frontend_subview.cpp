@@ -321,7 +321,6 @@ static void R_RemoteRender( const drawSurf_t* surf, textureStage_t* stage )
 	parms->isSubview = true;
 	parms->isMirror = false;
 
-
 	tr.CropRenderSize( stageWidth, stageHeight );
 
 	tr.GetCroppedViewport( &parms->viewport );
@@ -512,9 +511,11 @@ bool R_GenerateSurfaceSubview( const drawSurf_t* drawSurf )
 				case DI_REMOTE_RENDER:
 					R_RemoteRender( drawSurf, const_cast<textureStage_t*>( &stage->texture ) );
 					break;
+
 				case DI_MIRROR_RENDER:
 					R_MirrorRender( drawSurf, const_cast<textureStage_t*>( &stage->texture ), scissor );
 					break;
+
 				case DI_XRAY_RENDER:
 					R_XrayRender( drawSurf, const_cast<textureStage_t*>( &stage->texture ), scissor );
 					break;
@@ -541,6 +542,61 @@ bool R_GenerateSurfaceSubview( const drawSurf_t* drawSurf )
 	R_RenderView( parms );
 
 	return true;
+}
+
+/*
+=================
+R_EnvironmentProbeRender
+=================
+*/
+static void R_EnvironmentProbeRender( const RenderEnvprobeLocal* )
+{
+#if 0
+	// remote views can be reused in a single frame
+	//if( stage->dynamicFrameCount == tr.frameCount )
+	//{
+	//	return;
+	//}
+
+	// issue a new view command
+	// copy the viewport size from the original
+	viewDef_t* parms = ( viewDef_t* )R_FrameAlloc( sizeof( *parms ) );
+	*parms = *tr.viewDef;
+	parms->renderView.viewID = 0;	// clear to allow player bodies to show up, and suppress view weapons
+
+	parms->isSubview = true;
+	//parms->isXraySubview = true;
+
+	if( parms == NULL )
+	{
+		return;
+	}
+
+	int stageWidth = 256;
+	int stageHeight = 256;
+
+	tr.CropRenderSize( stageWidth, stageHeight );
+
+	tr.GetCroppedViewport( &parms->viewport );
+
+	parms->scissor.x1 = 0;
+	parms->scissor.y1 = 0;
+	parms->scissor.x2 = parms->viewport.x2 - parms->viewport.x1;
+	parms->scissor.y2 = parms->viewport.y2 - parms->viewport.y1;
+
+	parms->superView = tr.viewDef;
+	//parms->subviewSurface = surf;
+
+	// generate render commands for it
+	R_RenderView( parms );
+
+	// copy this rendering to the image
+	//stage->dynamicFrameCount = tr.frameCount;
+	//stage->image = globalImages->scratchImage2;
+
+	tr.CaptureRenderToImage( globalImages->scratchImage2->GetName(), true );
+	tr.UnCrop();
+#endif
 }
 
 /*
@@ -582,6 +638,26 @@ bool R_GenerateSubViews( const drawSurf_t* const drawSurfs[], const int numDrawS
 			subviews = true;
 		}
 	}
+
+	// RB: generate subviews for environment probes that need an update
+	if( tr.viewDef->areaNum != -1 )
+	{
+		// go through each visible probe
+		int numViewProbes = 0;
+
+		for( viewEnvprobe_t* vProbe = tr.viewDef->viewEnvprobes; vProbe != NULL; vProbe = vProbe->next )
+		{
+			numViewProbes++;
+
+			if( !vProbe->envprobeDef->irradianceImage )
+			{
+				R_EnvironmentProbeRender( vProbe->envprobeDef );
+
+				subviews = true;
+			}
+		}
+	}
+	// RB end
 
 	return subviews;
 }

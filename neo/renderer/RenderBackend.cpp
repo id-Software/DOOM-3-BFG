@@ -4398,6 +4398,7 @@ void idRenderBackend::FogAllLights()
 	{
 		return;
 	}
+
 	renderLog.OpenMainBlock( MRB_FOG_ALL_LIGHTS );
 	renderLog.OpenBlock( "Render_FogAllLights", colorBlue );
 

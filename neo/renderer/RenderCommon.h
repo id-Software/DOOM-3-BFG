@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2012-2016 Robert Beckebans
+Copyright (C) 2012-2020 Robert Beckebans
 Copyright (C) 2014-2016 Kot in Action Creative Artel
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
@@ -98,6 +98,7 @@ SURFACES
 class idRenderWorldLocal;
 struct viewEntity_t;
 struct viewLight_t;
+struct viewEnvprobe_t;
 
 // drawSurf_t structures command the back end to render surfaces
 // a given srfTriangles_t may be used with multiple viewEntity_t,
@@ -269,9 +270,20 @@ public:
 	bool						archived;				// for demo writing
 
 	// derived information
+	idPlane						lightProject[4];		// old style light projection where Z and W are flipped and projected lights lightProject[3] is divided by ( zNear + zFar )
+	idRenderMatrix				baseLightProject;		// global xyz1 to projected light strq
+	idRenderMatrix				inverseBaseLightProject;// transforms the zero-to-one cube to exactly cover the light in world space
+
 	areaReference_t* 			references;				// each area the light is present in will have a lightRef
 	//idInteraction* 			firstInteraction;		// doubly linked list
 	//idInteraction* 			lastInteraction;
+
+	idImage* 					irradianceImage;		// cubemap image used for diffuse IBL by backend
+	idImage* 					radianceImage;			// cubemap image used for specular IBL by backend
+
+	// temporary helpers
+	int							viewCount;				// if == tr.viewCount, the envprobe is on the viewDef->viewEnvprobes list
+	viewEnvprobe_t* 			viewEnvprobe;
 };
 // RB end
 
@@ -441,6 +453,34 @@ struct viewEntity_t
 	dynamicShadowVolumeParms_t* 	dynamicShadowVolumes;
 };
 
+// RB: viewEnvprobes are allocated on the frame temporary stack memory
+// a viewEnvprobe contains everything that the back end needs out of an RenderEnvprobeLocal,
+// which the front end may be modifying simultaniously if running in SMP mode.
+
+// this structure will be especially helpful when we switch RBDOOM-3-BFG to forward cluster shading
+// because then we can evaluate all viewEnvprobes properly in each pixel shader along with all other lighting information
+struct viewEnvprobe_t
+{
+	viewEnvprobe_t* 		next;
+
+	// back end should NOT reference the lightDef, because it can change when running SMP
+	RenderEnvprobeLocal* 	envprobeDef;
+
+	// for scissor clipping, local inside renderView viewport
+	// scissorRect.Empty() is true if the viewEntity_t was never actually
+	// seen through any portals
+	idScreenRect			scissorRect;
+
+	// R_AddSingleEnvprobe() determined that the light isn't actually needed
+	bool					removeFromList;
+
+	idVec3					globalOrigin;				// global envprobe origin used by backend
+
+	idRenderMatrix			inverseBaseLightProject;	// the matrix for deforming the 'zeroOneCubeModel' to exactly cover the light volume in world space
+	idImage* 				irradianceImage;			// cubemap image used for diffuse IBL by backend
+	idImage* 				radianceImage;				// cubemap image used for specular IBL by backend
+};
+// RB end
 
 const int	MAX_CLIP_PLANES	= 1;				// we may expand this to six for some subview issues
 
@@ -529,7 +569,7 @@ struct viewDef_t
 	int					numDrawSurfs;			// it is allocated in frame temporary memory
 	int					maxDrawSurfs;			// may be resized
 
-	viewLight_t*			viewLights;			// chain of all viewLights effecting view
+	viewLight_t*		viewLights;				// chain of all viewLights effecting view
 	viewEntity_t* 		viewEntitys;			// chain of all viewEntities effecting view, including off screen ones casting shadows
 	// we use viewEntities as a check to see if a given view consists solely
 	// of 2D rendering, which we can optimize in certain ways.  A 2D view will
@@ -547,6 +587,15 @@ struct viewDef_t
 	// crossing a closed door.  This is used to avoid drawing interactions
 	// when the light is behind a closed door.
 	bool* 				connectedAreas;
+
+	// RB: collect environment probes like lights
+	viewEnvprobe_t*		viewEnvprobes;
+
+	// RB: nearest probe for now
+	idRenderMatrix		inverseBaseEnvProbeProject;	// the matrix for deforming the 'zeroOneCubeModel' to exactly cover the environent probe volume in world space
+	idImage* 			irradianceImage;			// cubemap image used for diffuse IBL by backend
+	idImage* 			radianceImage;				// cubemap image used for specular IBL by backend
+	// RB end
 };
 
 
@@ -1026,6 +1075,7 @@ extern idCVar r_testGammaBias;				// draw a grid pattern to test gamma levels
 
 extern idCVar r_singleLight;				// suppress all but one light
 extern idCVar r_singleEntity;				// suppress all but one entity
+extern idCVar r_singleEnvprobe;				// suppress all but one envprobe
 extern idCVar r_singleArea;					// only draw the portal area the view is actually in
 extern idCVar r_singleSurface;				// suppress all but one surface on each entity
 extern idCVar r_shadowPolygonOffset;		// bias value added to depth test for stencil shadow drawing
