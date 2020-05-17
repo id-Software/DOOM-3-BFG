@@ -655,6 +655,7 @@ void idRenderBackend::PrepareStageTexturing( const shaderStage_t* pStage,  const
 			// per-pixel reflection mapping with bump mapping
 			GL_SelectTexture( 1 );
 			bumpStage->texture.image->Bind();
+
 			GL_SelectTexture( 0 );
 
 			RENDERLOG_PRINTF( "TexGen: TG_REFLECT_CUBE: Bumpy Environment\n" );

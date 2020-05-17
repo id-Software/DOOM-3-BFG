@@ -57,6 +57,11 @@ viewEnvprobe_t* R_SetEnvprobeDefViewEnvprobe( RenderEnvprobeLocal* probe )
 	// and the scissor will be reduced in R_AddSingleEnvprobe based on the screen space projection
 	vProbe->scissorRect.Clear();
 
+	// copy data used by backend
+	// RB: this would normaly go into R_AddSingleEnvprobe
+	vProbe->globalOrigin = probe->parms.origin;
+	vProbe->inverseBaseLightProject = probe->inverseBaseLightProject;
+
 	// link the view light
 	vProbe->next = tr.viewDef->viewEnvprobes;
 	tr.viewDef->viewEnvprobes = vProbe;

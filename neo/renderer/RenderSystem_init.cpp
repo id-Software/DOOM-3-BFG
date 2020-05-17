@@ -299,6 +299,7 @@ idCVar r_useHierarchicalDepthBuffer( "r_useHierarchicalDepthBuffer", "1", CVAR_R
 
 idCVar r_usePBR( "r_usePBR", "1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_BOOL, "use PBR and Image Based Lighting instead of old Quake 4 style ambient lighting" );
 idCVar r_pbrDebug( "r_pbrDebug", "0", CVAR_RENDERER | CVAR_INTEGER, "show which materials have PBR support (green = PBR, red = oldschool D3)" );
+idCVar r_showViewEnvprobes( "r_showViewEnvprobes", "0", CVAR_RENDERER | CVAR_INTEGER, "1 = displays the bounding boxes of all view environment probes, 2 = show irradiance" );
 
 idCVar r_exposure( "r_exposure", "0.5", CVAR_ARCHIVE | CVAR_RENDERER | CVAR_FLOAT, "HDR exposure or LDR brightness [0.0 .. 1.0]", 0.0f, 1.0f );
 // RB end
@@ -2475,6 +2476,7 @@ void idRenderSystemLocal::Init()
 	if( zeroOneCubeTriangles == NULL )
 	{
 		zeroOneCubeTriangles = R_MakeZeroOneCubeTris();
+		R_DeriveTangents( zeroOneCubeTriangles ); // RB: we need normals for debugging reflections
 	}
 	// make sure the tr.testImageTriangles data is current in the vertex / index cache
 	if( testImageTriangles == NULL )
