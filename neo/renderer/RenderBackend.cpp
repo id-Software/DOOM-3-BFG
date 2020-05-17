@@ -1363,11 +1363,26 @@ void idRenderBackend::DrawSingleInteraction( drawInteraction_t* din, bool useFas
 			globalImages->ambientOcclusionImage[0]->Bind();
 		}
 
+		// TODO bind the 3 closest probes
 		GL_SelectTexture( INTERACTION_TEXUNIT_AMBIENT_CUBE1 );
-		globalImages->defaultUACIrradianceCube->Bind();
+		if( viewDef->irradianceImage )
+		{
+			viewDef->irradianceImage->Bind();
+		}
+		else
+		{
+			globalImages->defaultUACIrradianceCube->Bind();
+		}
 
 		GL_SelectTexture( INTERACTION_TEXUNIT_SPECULAR_CUBE1 );
-		globalImages->defaultUACRadianceCube->Bind();
+		if( viewDef->radianceImage )
+		{
+			viewDef->radianceImage->Bind();
+		}
+		else
+		{
+			globalImages->defaultUACRadianceCube->Bind();
+		}
 	}
 	else if( setInteractionShader )
 	{

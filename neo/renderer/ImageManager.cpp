@@ -445,7 +445,7 @@ idImage*	idImageManager::ImageFromFile( const char* _name, textureFilter_t filte
 	image->levelLoadReferenced = true;
 
 	// load it if we aren't in a level preload
-	if( !insideLevelLoad || preloadingMapImages )
+	if( ( !insideLevelLoad || preloadingMapImages ) && idLib::IsMainThread() )
 	{
 		image->referencedOutsideLevelLoad = ( !insideLevelLoad && !preloadingMapImages );
 		image->ActuallyLoadImage( false );	// load is from front end

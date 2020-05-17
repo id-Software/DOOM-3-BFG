@@ -441,6 +441,7 @@ void idImage::ActuallyLoadImage( bool fromBackEnd )
 			if( !R_LoadCubeImages( GetName(), cubeFiles, pics, &size, &sourceFileTime ) || size == 0 )
 			{
 				idLib::Warning( "Couldn't load cube image: %s", GetName() );
+				defaulted = true; // RB
 				return;
 			}
 

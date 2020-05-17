@@ -1760,15 +1760,12 @@ void idRenderBackend::DBG_ShowViewEnvprobes()
 		GL_SelectTexture( 0 );
 		if( r_showViewEnvprobes.GetInteger() >= 2 )
 		{
-			globalImages->defaultUACIrradianceCube->Bind();
+			vProbe->irradianceImage->Bind();
 		}
 		else
 		{
-			globalImages->defaultUACRadianceCube->Bind();
+			vProbe->radianceImage->Bind();
 		}
-
-		//GL_SelectTexture( 1 );
-		//globalImages->flatNormalMap->Bind();
 
 		DrawElementsWithCounters( &zeroOneCubeSurface );
 	}

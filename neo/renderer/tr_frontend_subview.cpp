@@ -640,6 +640,7 @@ bool R_GenerateSubViews( const drawSurf_t* const drawSurfs[], const int numDrawS
 	}
 
 	// RB: generate subviews for environment probes that need an update
+#if 0
 	if( tr.viewDef->areaNum != -1 )
 	{
 		// go through each visible probe
@@ -657,6 +658,7 @@ bool R_GenerateSubViews( const drawSurf_t* const drawSurfs[], const int numDrawS
 			}
 		}
 	}
+#endif
 	// RB end
 
 	return subviews;

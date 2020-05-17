@@ -94,7 +94,8 @@ void idImage::Bind()
 	RENDERLOG_PRINTF( "idImage::Bind( %s )\n", GetName() );
 
 	// load the image if necessary (FIXME: not SMP safe!)
-	if( !IsLoaded() )
+	// RB: don't try again if last time failed
+	if( !IsLoaded() && !defaulted )
 	{
 		// load the image on demand here, which isn't our normal game operating mode
 		ActuallyLoadImage( true );

@@ -760,39 +760,19 @@ ENVPROBE DEFS
 
 void R_DeriveEnvprobeData( RenderEnvprobeLocal* probe )
 {
-	// TODO get images
+	idStr basename = tr.primaryWorld->mapName;
+	basename.StripFileExtension();
 
+	idStr fullname;
 
-	/*
-	light->falloffImage = light->lightShader->LightFalloffImage();
+	int probeIndex = tr.primaryWorld->envprobeDefs.Num() - 1;
 
-	if( light->falloffImage == NULL )
-	{
-		// use the falloff from the default shader of the correct type
-		const idMaterial* defaultShader;
+	// TODO get preconvolved cubemaps
+	fullname.Format( "env/%s/envprobe%i_amb", basename.c_str(), probeIndex );
+	probe->irradianceImage = globalImages->ImageFromFile( fullname, TF_DEFAULT, TR_CLAMP, TD_HIGHQUALITY_CUBE, CF_NATIVE );
 
-		if( light->parms.pointLight )
-		{
-			defaultShader = tr.defaultPointLight;
-
-			// Touch the default shader. to make sure it's decl has been parsed ( it might have been purged ).
-			declManager->Touch( static_cast< const idDecl*>( defaultShader ) );
-
-			light->falloffImage = defaultShader->LightFalloffImage();
-
-		}
-		else
-		{
-			// projected lights by default don't diminish with distance
-			defaultShader = tr.defaultProjectedLight;
-
-			// Touch the light shader. to make sure it's decl has been parsed ( it might have been purged ).
-			declManager->Touch( static_cast< const idDecl*>( defaultShader ) );
-
-			light->falloffImage = defaultShader->LightFalloffImage();
-		}
-	}
-	*/
+	fullname.Format( "env/%s/envprobe%i_spec", basename.c_str(), probeIndex );
+	probe->radianceImage = globalImages->ImageFromFile( fullname, TF_DEFAULT, TR_CLAMP, TD_HIGHQUALITY_CUBE, CF_NATIVE );
 
 	// ------------------------------------
 	// compute the light projection matrix
