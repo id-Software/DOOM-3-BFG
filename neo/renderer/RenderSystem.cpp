@@ -244,6 +244,7 @@ idRenderSystemLocal::idRenderSystemLocal
 idRenderSystemLocal::idRenderSystemLocal() :
 	unitSquareTriangles( NULL ),
 	zeroOneCubeTriangles( NULL ),
+	zeroOneSphereTriangles( NULL ),
 	testImageTriangles( NULL ),
 	bInitialized( false )
 {
@@ -821,6 +822,7 @@ const emptyCommand_t* idRenderSystemLocal::SwapCommandBuffers_FinishCommandBuffe
 	// allocated at the start of the buffer memory to the backEnd referenced locations
 	backend.unitSquareSurface = tr.unitSquareSurface_;
 	backend.zeroOneCubeSurface = tr.zeroOneCubeSurface_;
+	backend.zeroOneSphereSurface = tr.zeroOneSphereSurface_;
 	backend.testImageSurface = tr.testImageSurface_;
 
 	// use the other buffers next frame, because another CPU
@@ -845,6 +847,7 @@ const emptyCommand_t* idRenderSystemLocal::SwapCommandBuffers_FinishCommandBuffe
 	//------------------------------
 	R_InitDrawSurfFromTri( tr.unitSquareSurface_, *tr.unitSquareTriangles );
 	R_InitDrawSurfFromTri( tr.zeroOneCubeSurface_, *tr.zeroOneCubeTriangles );
+	R_InitDrawSurfFromTri( tr.zeroOneSphereSurface_, *tr.zeroOneSphereTriangles );
 	R_InitDrawSurfFromTri( tr.testImageSurface_, *tr.testImageTriangles );
 
 	// Reset render crop to be the full screen

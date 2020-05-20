@@ -446,6 +446,7 @@ public:
 	// surfaces used for code-based drawing
 	drawSurf_t			unitSquareSurface;
 	drawSurf_t			zeroOneCubeSurface;
+	drawSurf_t			zeroOneSphereSurface; // RB
 	drawSurf_t			testImageSurface;
 
 private:

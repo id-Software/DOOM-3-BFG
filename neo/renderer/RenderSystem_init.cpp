@@ -1673,6 +1673,12 @@ void idRenderSystemLocal::Clear()
 		zeroOneCubeTriangles = NULL;
 	}
 
+	if( zeroOneSphereTriangles != NULL )
+	{
+		Mem_Free( zeroOneSphereTriangles );
+		zeroOneSphereTriangles = NULL;
+	}
+
 	if( testImageTriangles != NULL )
 	{
 		Mem_Free( testImageTriangles );
@@ -1826,6 +1832,72 @@ static srfTriangles_t* R_MakeZeroOneCubeTris()
 	return tri;
 }
 
+// RB begin
+static srfTriangles_t* R_MakeZeroOneSphereTris()
+{
+	srfTriangles_t* tri = ( srfTriangles_t* )Mem_ClearedAlloc( sizeof( *tri ), TAG_RENDER_TOOLS );
+
+	const float radius = 1.0f;
+	const int rings = 20.0f;
+	const int sectors = 20.0f;
+
+	tri->numVerts = ( rings * sectors );
+	tri->numIndexes = ( ( rings - 1 ) * sectors ) * 6;
+
+	const int indexSize = tri->numIndexes * sizeof( tri->indexes[0] );
+	const int allocatedIndexBytes = ALIGN( indexSize, 16 );
+	tri->indexes = ( triIndex_t* )Mem_Alloc( allocatedIndexBytes, TAG_RENDER_TOOLS );
+
+	const int vertexSize = tri->numVerts * sizeof( tri->verts[0] );
+	const int allocatedVertexBytes =  ALIGN( vertexSize, 16 );
+	tri->verts = ( idDrawVert* )Mem_ClearedAlloc( allocatedVertexBytes, TAG_RENDER_TOOLS );
+
+	idDrawVert* verts = tri->verts;
+
+	float const R = 1.0f / ( float )( rings - 1 );
+	float const S = 1.0f / ( float )( sectors - 1 );
+
+	int numTris = 0;
+	int numVerts = 0;
+	for( int r = 0; r < rings; ++r )
+	{
+		for( int s = 0; s < sectors; ++s )
+		{
+			const float y = sin( -idMath::HALF_PI +  idMath::PI * r * R );
+			const float x = cos( 2 * idMath::PI * s * S ) * sin( idMath::PI * r * R );
+			const float z = sin( 2 * idMath::PI * s * S ) * sin( idMath::PI * r * R );
+
+			verts[ numVerts ].SetTexCoord( s * S, r * R );
+			verts[ numVerts ].xyz = idVec3( x, y, z ) * radius;
+			verts[ numVerts ].SetNormal( -x, -y, -z );
+			verts[ numVerts ].SetColor( 0xffffffff );
+			numVerts++;
+
+			if( r < ( rings - 1 ) )
+			{
+				int curRow = r * sectors;
+				int nextRow = ( r + 1 ) * sectors;
+				int nextS = ( s + 1 ) % sectors;
+
+				tri->indexes[( numTris * 3 ) + 2] = ( curRow + s );
+				tri->indexes[( numTris * 3 ) + 1] = ( nextRow + s );
+				tri->indexes[( numTris * 3 ) + 0] = ( nextRow + nextS );
+
+				numTris += 1;
+
+				tri->indexes[( numTris * 3 ) + 2] = ( curRow + s );
+				tri->indexes[( numTris * 3 ) + 1] = ( nextRow + nextS );
+				tri->indexes[( numTris * 3 ) + 0] = ( curRow + nextS );
+
+				numTris += 1;
+			}
+		}
+	}
+
+	return tri;
+}
+// RB end
+
 /*
 ================
 R_MakeTestImageTriangles
@@ -1934,12 +2006,21 @@ void idRenderSystemLocal::Init()
 	{
 		unitSquareTriangles = R_MakeFullScreenTris();
 	}
+
 	// make sure the tr.zeroOneCubeTriangles data is current in the vertex / index cache
 	if( zeroOneCubeTriangles == NULL )
 	{
 		zeroOneCubeTriangles = R_MakeZeroOneCubeTris();
 		R_DeriveTangents( zeroOneCubeTriangles ); // RB: we need normals for debugging reflections
 	}
+
+	// RB make sure the tr.zeroOneSphereTriangles data is current in the vertex / index cache
+	if( zeroOneSphereTriangles == NULL )
+	{
+		zeroOneSphereTriangles = R_MakeZeroOneSphereTris();
+		//R_DeriveTangents( zeroOneSphereTriangles );
+	}
+
 	// make sure the tr.testImageTriangles data is current in the vertex / index cache
 	if( testImageTriangles == NULL )
 	{

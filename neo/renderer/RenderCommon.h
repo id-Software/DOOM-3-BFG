@@ -922,6 +922,7 @@ public:
 
 	srfTriangles_t* 		unitSquareTriangles;
 	srfTriangles_t* 		zeroOneCubeTriangles;
+	srfTriangles_t* 		zeroOneSphereTriangles;
 	srfTriangles_t* 		testImageTriangles;
 
 	// these are allocated at buffer swap time, but
@@ -929,6 +930,7 @@ public:
 	// which are copied over from the frame that was just swapped.
 	drawSurf_t				unitSquareSurface_;
 	drawSurf_t				zeroOneCubeSurface_;
+	drawSurf_t				zeroOneSphereSurface_;
 	drawSurf_t				testImageSurface_;
 
 	idParallelJobList* 		frontEndJobList;

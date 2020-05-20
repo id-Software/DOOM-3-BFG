@@ -1767,7 +1767,7 @@ void idRenderBackend::DBG_ShowViewEnvprobes()
 			vProbe->radianceImage->Bind();
 		}
 
-		DrawElementsWithCounters( &zeroOneCubeSurface );
+		DrawElementsWithCounters( &zeroOneSphereSurface );
 	}
 }
 
