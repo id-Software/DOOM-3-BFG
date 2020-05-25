@@ -2084,6 +2084,14 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 		return;
 	}
 
+#if defined( USE_VULKAN )
+	if( fillGbuffer )
+	{
+		return;
+	}
+#endif
+
+
 	/*
 	if( !fillGbuffer )
 	{
@@ -3858,7 +3866,7 @@ int idRenderBackend::DrawShaderPasses( const drawSurf_t* const* const drawSurfs,
 		if( shader->TestMaterialFlag( MF_POLYGONOFFSET ) )
 		{
 			GL_PolygonOffset( r_offsetFactor.GetFloat(), r_offsetUnits.GetFloat() * shader->GetPolygonOffset() );
-			surfGLState = GLS_POLYGON_OFFSET;
+			surfGLState |= GLS_POLYGON_OFFSET;
 		}
 
 		for( int stage = 0; stage < shader->GetNumStages(); stage++ )
