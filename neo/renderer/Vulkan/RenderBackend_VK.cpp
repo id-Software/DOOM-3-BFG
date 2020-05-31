@@ -2571,7 +2571,7 @@ IMGUI RENDERING
 
 ==============================================================================================
 */
-#include "../../libs/imgui/imgui.h"
+#include "libs/imgui/imgui.h"
 
 void idRenderBackend::ImGui_Init()
 {
