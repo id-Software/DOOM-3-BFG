@@ -131,16 +131,36 @@ For ARB_debug_output
 */
 // RB: added const to userParam
 static void CALLBACK DebugCallback( unsigned int source, unsigned int type,
-									unsigned int id, unsigned int severity, int length, const char* message, const void* userParam )
+									unsigned int id, unsigned int severity, int length, const char* msg, const void* userParam )
 {
+	char	s[1024];
+
 	// it probably isn't safe to do an idLib::Printf at this point
+
+	const char* severityStr = "Severity: Unkown";
+	switch( severity )
+	{
+		case GL_DEBUG_SEVERITY_HIGH:
+			severityStr = "Severity: High";
+			break;
+
+		case GL_DEBUG_SEVERITY_MEDIUM:
+			severityStr = "Severity: Medium";
+			break;
+
+		case GL_DEBUG_SEVERITY_LOW:
+			severityStr = "Severity: High";
+			break;
+	}
+
+	idStr::snPrintf( s, sizeof( s ), "[OpenGL] Debug: [ %s ] Code %d, %d : '%s'\n", severityStr, source, type, msg );
 
 	// RB: printf should be thread safe on Linux
 #if defined(_WIN32)
-	OutputDebugString( message );
+	OutputDebugString( s );
 	OutputDebugString( "\n" );
 #else
-	printf( "%s\n", message );
+	printf( "%s\n", s );
 #endif
 	// RB end
 }
