@@ -262,14 +262,14 @@ void Sys_CPUCount( int& numLogicalCPUCores, int& numPhysicalCPUCores, int& numCP
 
 			pos = strchr( buf + pos, '\n' ) - buf + 1;
 		}
-		if( CPUCoresIsFound == false && SiblingsIsFound == false)
+		if( CPUCoresIsFound == false && SiblingsIsFound == false )
 		{
 			common->Printf( "failed parsing /proc/cpuinfo\n" );
 			common->Printf( "alternative method used\n" );
-			s_numPhysicalCPUCores = sysconf(_SC_NPROCESSORS_CONF); // _SC_NPROCESSORS_ONLN may not be reliable on Android
+			s_numPhysicalCPUCores = sysconf( _SC_NPROCESSORS_CONF ); // _SC_NPROCESSORS_ONLN may not be reliable on Android
 			s_numLogicalCPUCores = s_numPhysicalCPUCores; // hack for CPU without Hyper-Threading (HT) technology
 		}
-		else if( CPUCoresIsFound == true && SiblingsIsFound == false)
+		else if( CPUCoresIsFound == true && SiblingsIsFound == false )
 		{
 			s_numLogicalCPUCores = s_numPhysicalCPUCores; // hack for CPU without Hyper-Threading (HT) technology
 		}
@@ -278,7 +278,7 @@ void Sys_CPUCount( int& numLogicalCPUCores, int& numPhysicalCPUCores, int& numCP
 	{
 		common->Printf( "failed to read /proc/cpuinfo\n" );
 		common->Printf( "alternative method used\n" );
-		s_numPhysicalCPUCores = sysconf(_SC_NPROCESSORS_CONF); // _SC_NPROCESSORS_ONLN may not be reliable on Android
+		s_numPhysicalCPUCores = sysconf( _SC_NPROCESSORS_CONF ); // _SC_NPROCESSORS_ONLN may not be reliable on Android
 		s_numLogicalCPUCores = s_numPhysicalCPUCores; // hack for CPU without Hyper-Threading (HT) technology
 	}
 

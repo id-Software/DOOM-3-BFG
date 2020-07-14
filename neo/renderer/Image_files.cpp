@@ -643,7 +643,7 @@ extern "C"
 		pngPtr->io_ptr = ( ( byte* ) pngPtr->io_ptr ) + length;
 #else
 		// There is a get_io_ptr but not a set_io_ptr.. Therefore we need some tmp storage here.
-		byte **ioptr = (byte **)png_get_io_ptr(pngPtr);
+		byte** ioptr = ( byte** )png_get_io_ptr( pngPtr );
 		memcpy( data, *ioptr, length );
 		*ioptr += length;
 #endif
@@ -794,7 +794,7 @@ extern "C"
 		memcpy( ( byte* )pngPtr->io_ptr, data, length );
 		pngPtr->io_ptr = ( ( byte* ) pngPtr->io_ptr ) + length;
 #else
-		byte **ioptr = (byte**)png_get_io_ptr(pngPtr);
+		byte** ioptr = ( byte** )png_get_io_ptr( pngPtr );
 		memcpy( *ioptr, data, length );
 		*ioptr += length;
 #endif
