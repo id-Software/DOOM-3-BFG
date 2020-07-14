@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "precompiled.h"
 
-#include "../../libs/imgui/imgui.h"
+#include "libs/imgui/imgui.h"
 
 #include "RenderCommon.h"
 #include "SMAA/AreaTex.h"
