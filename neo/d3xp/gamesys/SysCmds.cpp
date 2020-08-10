@@ -25,14 +25,14 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
-
+#pragma once
 #pragma hdrstop
 #include "../../idlib/precompiled.h"
 
 
 #include "../Game_local.h"
 
-#include "TypeInfo.h"
+#include <typeinfo>
 
 /*
 ==================
@@ -130,7 +130,7 @@ void Cmd_ListSpawnArgs_f( const idCmdArgs &args ) {
 
 	for ( i = 0; i < ent->spawnArgs.GetNumKeyVals(); i++ ) {
 		const idKeyValue *kv = ent->spawnArgs.GetKeyVal( i );
-		gameLocal.Printf( "\"%s\"  "S_COLOR_WHITE"\"%s\"\n", kv->GetKey().c_str(), kv->GetValue().c_str() );
+		gameLocal.Printf( "\"%s\"  %s\"%s\"\n", kv->GetKey().c_str(), S_COLOR_WHITE, kv->GetValue().c_str() );
 	}
 }
 

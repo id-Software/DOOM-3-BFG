@@ -29,6 +29,11 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __WIN_LOCAL_H__
 #define __WIN_LOCAL_H__
 
+#define _WIN32_WINNT 0x0A00
+
+#define _USING_V110_SDK71_
+#define _ATL_XP_TARGETING
+
 #include <windows.h>
 #include "../../renderer/OpenGL/wglext.h"		// windows OpenGL extensions
 #include "win_input.h"

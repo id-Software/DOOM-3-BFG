@@ -61,6 +61,9 @@
     <Filter Include="Renderer\Jobs\PreLightShadowVolume">
       <UniqueIdentifier>{de864e31-e19e-41ac-8186-9b27d6c29c03}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Renderer\DX12">
+      <UniqueIdentifier>{c9c9c14c-da58-4c05-a12c-a4a621a17791}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cm\CollisionModel.h">
