@@ -368,7 +368,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	//float vogelPhi = InterleavedGradientNoiseAnim( fragment.position.xy, rpJitterTexOffset.w );
 
 	float shadowTexelSize = rpScreenCorrectionFactor.z * rpJitterTexScale.x;
-	for( float i = 0; i < numSamples; i += 1.0 )
+	for( float i = 0.0; i < numSamples; i += 1.0 )
 	{
 		float2 jitter = VogelDiskSample( i, numSamples, vogelPhi );
 

@@ -10316,7 +10316,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"	//float vogelPhi = InterleavedGradientNoiseAnim( fragment.position.xy, rpJitterTexOffset.w );\n"
 		"\n"
 		"	float shadowTexelSize = rpScreenCorrectionFactor.z * rpJitterTexScale.x;\n"
-		"	for( float i = 0; i < numSamples; i += 1.0 )\n"
+		"	for( float i = 0.0; i < numSamples; i += 1.0 )\n"
 		"	{\n"
 		"		float2 jitter = VogelDiskSample( i, numSamples, vogelPhi );\n"
 		"\n"
