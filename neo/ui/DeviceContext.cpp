@@ -31,7 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "DeviceContext.h"
 
-#include "../../libs/imgui/imgui.h"
+#include "libs/imgui/imgui.h"
 #include "../renderer/GuiModel.h"
 
 extern idCVar in_useJoystick;
