@@ -264,11 +264,9 @@ double Sys_GetClockTicks()
 #else
 //#error unsupported CPU
 // RB begin
-	struct timespec now;
-
-	clock_gettime( CLOCK_MONOTONIC, &now );
-
-	return now.tv_sec * 1000000000LL + now.tv_nsec;
+    uint32_t lo, hi;
+    __asm__ __volatile__ ( "rdtsc" : "=a" (lo), "=d" (hi));
+    return ( ( ( uint64_t )hi ) << 32 ) | lo;
 // RB end
 #endif
 }
