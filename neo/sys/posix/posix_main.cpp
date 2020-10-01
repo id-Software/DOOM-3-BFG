@@ -261,14 +261,20 @@ double Sys_GetClockTicks()
 		"pop %%ebx\n"
 		: "=r"( lo ), "=r"( hi ) );
 	return ( double ) lo + ( double ) 0xFFFFFFFF * hi;
-#else
-//#error unsupported CPU
 // RB begin
+#elif defined( __x86_64__ )
     uint32_t lo, hi;
     __asm__ __volatile__ ( "rdtsc" : "=a" (lo), "=d" (hi));
     return ( ( ( uint64_t )hi ) << 32 ) | lo;
-// RB end
+#else
+    //#error unsupported CPU
+    struct timespec now;
+
+    clock_gettime( CLOCK_MONOTONIC, &now );
+
+    return now.tv_sec * 1000000000LL + now.tv_nsec;
 #endif
+// RB end
 }
 
 /*
