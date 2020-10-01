@@ -257,7 +257,7 @@ Existing repositories can be updated manually:
 	
 	On Fedora
 		
-		> yum install cmake SDL-devel openal-devel
+		> yum install cmake SDL-devel openal-devel ffmpeg-devel
 	
 	On ArchLinux 
 	
