@@ -683,9 +683,9 @@ public:
 	virtual void			Init();
 	virtual void			Shutdown();
 	virtual void			ResetGuiModels();
-	virtual void			InitOpenGL();
-	virtual void			ShutdownOpenGL();
-	virtual bool			IsOpenGLRunning() const;
+	virtual void			InitGL();
+	virtual void			ShutdownGL();
+	virtual bool			IsGLRunning() const;
 	virtual bool			IsFullScreen() const;
 	virtual stereo3DMode_t	GetStereo3DMode() const;
 	virtual bool			HasQuadBufferSupport() const;
@@ -734,7 +734,6 @@ public:
 	virtual void			TakeScreenshot( int width, int height, const char *fileName, int downSample, renderView_t *ref );
 	virtual void			CropRenderSize( int width, int height );
 	virtual void			CaptureRenderToImage( const char *imageName, bool clearColorAfterCopy = false );
-	virtual void			CaptureRenderToFile( const char *fileName, bool fixAlpha );
 	virtual void			UnCrop();
 	virtual bool			UploadImage( const char *imageName, const byte *data, int width, int height );
 
@@ -970,7 +969,7 @@ INITIALIZATION
 */
 
 void R_Init();
-void R_InitOpenGL();
+void R_InitDX12();
 
 void R_SetColorMappings();
 

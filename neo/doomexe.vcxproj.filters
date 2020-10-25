@@ -540,6 +540,12 @@
     <ClInclude Include="renderer\GLMatrix.h">
       <Filter>Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="renderer\DX12\d3dx12.h">
+      <Filter>Renderer\DX12</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\DX12\dx12renderer.h">
+      <Filter>Renderer\DX12</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cm\CollisionModel_contacts.cpp">
@@ -1138,6 +1144,12 @@
     </ClCompile>
     <ClCompile Include="sys\win32\win_session_local.cpp">
       <Filter>Sys\Win32</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\DX12\dx12renderer.cpp">
+      <Filter>Renderer\DX12</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\DX12\dx12_GraphicsAPIWrapper.cpp">
+      <Filter>Renderer\DX12</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

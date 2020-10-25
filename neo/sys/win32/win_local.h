@@ -35,7 +35,6 @@ If you have questions concerning this license or the applicable additional terms
 #define _ATL_XP_TARGETING
 
 #include <windows.h>
-#include "../../renderer/OpenGL/wglext.h"		// windows OpenGL extensions
 #include "win_input.h"
 
 // WGL_ARB_extensions_string

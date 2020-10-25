@@ -34,6 +34,8 @@ If you have questions concerning this license or the applicable additional terms
 // Vista OpenGL wrapper check
 #include "../sys/win32/win_local.h"
 
+DX12Renderer* dxRenderer = nullptr;
+
 // DeviceContext bypasses RenderSystem to work directly with this
 idGuiModel * tr_guiModel;
 
@@ -754,6 +756,8 @@ idStr extensions_string;
 ==================
 R_InitOpenGL
 
+TODO: REWRITE
+
 This function is responsible for initializing a valid OpenGL subsystem
 for rendering.  This is done by calling the system specific GLimp_Init,
 which gives us a working OGL subsystem, then setting all necessary openGL
@@ -766,9 +770,13 @@ all renderSystem functions will still operate properly, notably the material
 and model information functions.
 ==================
 */
-void R_InitOpenGL() {
+void R_InitDX12() {
+	common->Printf("----- R_InitDX12 -----\n");
 
-	common->Printf( "----- R_InitOpenGL -----\n" );
+	dxRenderer->OnInit();
+	r_initialized = true;
+
+	/*common->Printf( "----- R_InitOpenGL -----\n" );
 
 	if ( R_IsInitialized() ) {
 		common->FatalError( "R_InitOpenGL called while active" );
@@ -858,7 +866,7 @@ void R_InitOpenGL() {
 				cmdSystem->BufferCommandText( CMD_EXEC_APPEND, "vid_restart\n" );
 			}
 		}
-	}
+	}*/
 }
 
 /*
@@ -1708,81 +1716,6 @@ void R_VidRestart_f( const idCmdArgs &args ) {
 
 	// set the mode without re-initializing the context
 	R_SetNewMode( false );
-
-#if 0
-	bool full = true;
-	bool forceWindow = false;
-	for ( int i = 1 ; i < args.Argc() ; i++ ) {
-		if ( idStr::Icmp( args.Argv( i ), "partial" ) == 0 ) {
-			full = false;
-			continue;
-		}
-		if ( idStr::Icmp( args.Argv( i ), "windowed" ) == 0 ) {
-			forceWindow = true;
-			continue;
-		}
-	}
-
-	// this could take a while, so give them the cursor back ASAP
-	Sys_GrabMouseCursor( false );
-
-	// dump ambient caches
-	renderModelManager->FreeModelVertexCaches();
-
-	// free any current world interaction surfaces and vertex caches
-	R_FreeDerivedData();
-
-	// make sure the defered frees are actually freed
-	R_ToggleSmpFrame();
-	R_ToggleSmpFrame();
-
-	// free the vertex caches so they will be regenerated again
-	vertexCache.PurgeAll();
-
-	// sound and input are tied to the window we are about to destroy
-
-	if ( full ) {
-		// free all of our texture numbers
-		Sys_ShutdownInput();
-		globalImages->PurgeAllImages();
-		// free the context and close the window
-		GLimp_Shutdown();
-		r_initialized = false;
-
-		// create the new context and vertex cache
-		bool latch = cvarSystem->GetCVarBool( "r_fullscreen" );
-		if ( forceWindow ) {
-			cvarSystem->SetCVarBool( "r_fullscreen", false );
-		}
-		R_InitOpenGL();
-		cvarSystem->SetCVarBool( "r_fullscreen", latch );
-
-		// regenerate all images
-		globalImages->ReloadImages( true );
-	} else {
-		glimpParms_t parms;
-		parms.width = glConfig.nativeScreenWidth;
-		parms.height = glConfig.nativeScreenHeight;
-		parms.fullScreen = ( forceWindow ) ? false : r_fullscreen.GetInteger();
-		parms.displayHz = r_displayRefresh.GetInteger();
-		parms.multiSamples = r_multiSamples.GetInteger();
-		parms.stereo = false;
-		GLimp_SetScreenParms( parms );
-	}
-
-
-
-	// make sure the regeneration doesn't use anything no longer valid
-	tr.viewCount++;
-	tr.viewDef = NULL;
-
-	// check for problems
-	int err = qglGetError();
-	if ( err != GL_NO_ERROR ) {
-		common->Printf( "glGetError() = 0x%x\n", err );
-	}
-#endif
-
 }
 
 /*
@@ -2232,7 +2165,7 @@ void idRenderSystemLocal::Shutdown() {
 
 	Clear();
 
-	ShutdownOpenGL();
+	ShutdownDX12();
 }
 
 /*
@@ -2346,13 +2279,15 @@ void idRenderSystemLocal::ResetFonts() {
 }
 /*
 ========================
-idRenderSystemLocal::InitOpenGL
+idRenderSystemLocal::InitDX12
 ========================
 */
-void idRenderSystemLocal::InitOpenGL() {
+void idRenderSystemLocal::InitGL() {
 	// if OpenGL isn't started, start it now
 	if ( !R_IsInitialized() ) {
-		R_InitOpenGL();
+		// TODO: Find the screen size.
+		dxRenderer = new DX12Renderer(win32.hWnd, 1092, 1080);
+		R_InitDX12();
 
 		// Reloading images here causes the rendertargets to get deleted. Figure out how to handle this properly on 360
 		globalImages->ReloadImages( true );
@@ -2366,10 +2301,10 @@ void idRenderSystemLocal::InitOpenGL() {
 
 /*
 ========================
-idRenderSystemLocal::ShutdownOpenGL
+idRenderSystemLocal::ShutdownDX12
 ========================
 */
-void idRenderSystemLocal::ShutdownOpenGL() {
+void idRenderSystemLocal::ShutdownGL() {
 	// free the context and close the window
 	R_ShutdownFrameData();
 	GLimp_Shutdown();
@@ -2378,10 +2313,10 @@ void idRenderSystemLocal::ShutdownOpenGL() {
 
 /*
 ========================
-idRenderSystemLocal::IsOpenGLRunning
+idRenderSystemLocal::IsGLRunning
 ========================
 */
-bool idRenderSystemLocal::IsOpenGLRunning() const {
+bool idRenderSystemLocal::IsGLRunning() const {
 	return R_IsInitialized();
 }
 

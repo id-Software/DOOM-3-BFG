@@ -103,9 +103,10 @@ struct idNullPtr {
 //#endif
 
 // C99 Standard
-#ifndef nullptr
+// TODO: REMOVE
+/*#ifndef nullptr
 		#define nullptr	idNullPtr()		
-#endif
+#endif*/
 
 #ifndef BIT
 #define BIT( num )				( 1ULL << ( num ) )

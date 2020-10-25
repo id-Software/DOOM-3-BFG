@@ -106,13 +106,15 @@
     <ClCompile>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</TreatWarningAsError>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(DXSDK_DIR)\Include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">_INLINEDEBUG;%(PreprocessorDefinitions);USE_DX12</PreprocessorDefinitions>
     </ClCompile>
     <ClCompile>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</TreatWarningAsError>
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</TreatWarningAsError>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(DXSDK_DIR)\Include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">$(DXSDK_DIR)\Include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">NDEBUG;%(PreprocessorDefinitions);ID_RETAIL</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">NDEBUG;%(PreprocessorDefinitions);ID_RETAIL;USE_DX12</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NDEBUG;%(PreprocessorDefinitions);USE_DX12</PreprocessorDefinitions>
     </ClCompile>
     <ImageXex />
     <ImageXex />
@@ -179,6 +181,8 @@
     <ClInclude Include="renderer\BufferObject.h" />
     <ClInclude Include="renderer\Cinematic.h" />
     <ClInclude Include="renderer\Color\ColorSpace.h" />
+    <ClInclude Include="renderer\DX12\d3dx12.h" />
+    <ClInclude Include="renderer\DX12\dx12renderer.h" />
     <ClInclude Include="renderer\DXT\DXTCodec.h" />
     <ClInclude Include="renderer\DXT\DXTCodec_local.h" />
     <ClInclude Include="renderer\Font.h" />
@@ -206,10 +210,26 @@
     <ClInclude Include="renderer\ModelDecal.h" />
     <ClInclude Include="renderer\ModelManager.h" />
     <ClInclude Include="renderer\ModelOverlay.h" />
-    <ClInclude Include="renderer\OpenGL\glext.h" />
-    <ClInclude Include="renderer\OpenGL\qgl.h" />
-    <ClInclude Include="renderer\OpenGL\qgl_linked.h" />
-    <ClInclude Include="renderer\OpenGL\wglext.h" />
+    <ClInclude Include="renderer\OpenGL\glext.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="renderer\OpenGL\qgl.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="renderer\OpenGL\qgl_linked.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="renderer\OpenGL\wglext.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="renderer\RenderContext.h" />
     <ClInclude Include="renderer\RenderLog.h" />
     <ClInclude Include="renderer\RenderProgs.h" />
@@ -352,6 +372,8 @@
     <ClCompile Include="renderer\BufferObject.cpp" />
     <ClCompile Include="renderer\Cinematic.cpp" />
     <ClCompile Include="renderer\Color\ColorSpace.cpp" />
+    <ClCompile Include="renderer\DX12\dx12renderer.cpp" />
+    <ClCompile Include="renderer\DX12\dx12_GraphicsAPIWrapper.cpp" />
     <ClCompile Include="renderer\DXT\DXTDecoder.cpp" />
     <ClCompile Include="renderer\DXT\DXTEncoder.cpp" />
     <ClCompile Include="renderer\DXT\DXTEncoder_SSE2.cpp" />
@@ -399,9 +421,21 @@
     <ClCompile Include="renderer\ModelDecal.cpp" />
     <ClCompile Include="renderer\ModelManager.cpp" />
     <ClCompile Include="renderer\ModelOverlay.cpp" />
-    <ClCompile Include="renderer\OpenGL\gl_GraphicsAPIWrapper.cpp" />
-    <ClCompile Include="renderer\OpenGL\gl_image.cpp" />
-    <ClCompile Include="renderer\OpenGL\gl_backend.cpp" />
+    <ClCompile Include="renderer\OpenGL\gl_GraphicsAPIWrapper.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="renderer\OpenGL\gl_image.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="renderer\OpenGL\gl_backend.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="renderer\RenderProgs.cpp" />
     <ClCompile Include="renderer\RenderProgs_GLSL.cpp" />
     <ClCompile Include="renderer\RenderWorld_defs.cpp" />
@@ -484,7 +518,11 @@
     <ClCompile Include="sys\win32\win_localuser.cpp" />
     <ClCompile Include="sys\win32\win_main.cpp" />
     <ClCompile Include="sys\win32\win_net.cpp" />
-    <ClCompile Include="sys\win32\win_qgl.cpp" />
+    <ClCompile Include="sys\win32\win_qgl.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="sys\win32\win_savegame.cpp" />
     <ClCompile Include="sys\win32\win_session_local.cpp" />
     <ClCompile Include="sys\win32\win_shared.cpp" />
