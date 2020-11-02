@@ -186,6 +186,7 @@
     <ClInclude Include="renderer\DXT\DXTCodec.h" />
     <ClInclude Include="renderer\DXT\DXTCodec_local.h" />
     <ClInclude Include="renderer\Font.h" />
+    <ClInclude Include="renderer\GLFunction.h" />
     <ClInclude Include="renderer\GLMatrix.h" />
     <ClInclude Include="renderer\GLState.h" />
     <ClInclude Include="renderer\GraphicsAPIWrapper.h" />
@@ -369,11 +370,25 @@
     <ClCompile Include="renderer\AutoRender.cpp" />
     <ClCompile Include="renderer\AutoRenderBink.cpp" />
     <ClCompile Include="renderer\BinaryImage.cpp" />
-    <ClCompile Include="renderer\BufferObject.cpp" />
+    <ClCompile Include="renderer\BufferObject.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="renderer\Cinematic.cpp" />
     <ClCompile Include="renderer\Color\ColorSpace.cpp" />
     <ClCompile Include="renderer\DX12\dx12renderer.cpp" />
+    <ClCompile Include="renderer\DX12\dx12_backend.cpp" />
+    <ClCompile Include="renderer\DX12\dx12_BufferObject.cpp" />
+    <ClCompile Include="renderer\DX12\dx12_GLFunctions.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="renderer\DX12\dx12_GraphicsAPIWrapper.cpp" />
+    <ClCompile Include="renderer\DX12\dx12_image.cpp" />
+    <ClCompile Include="renderer\DX12\dx12_ImageLoad.cpp" />
+    <ClCompile Include="renderer\DX12\dx12_RenderProgs.cpp" />
     <ClCompile Include="renderer\DXT\DXTDecoder.cpp" />
     <ClCompile Include="renderer\DXT\DXTEncoder.cpp" />
     <ClCompile Include="renderer\DXT\DXTEncoder_SSE2.cpp" />
@@ -383,7 +398,11 @@
     <ClCompile Include="renderer\Image_files.cpp" />
     <ClCompile Include="renderer\ImageManager.cpp" />
     <ClCompile Include="renderer\Image_intrinsic.cpp" />
-    <ClCompile Include="renderer\Image_load.cpp" />
+    <ClCompile Include="renderer\Image_load.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="renderer\Image_process.cpp" />
     <ClCompile Include="renderer\Image_program.cpp" />
     <ClCompile Include="renderer\Interaction.cpp" />
@@ -437,7 +456,11 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="renderer\RenderProgs.cpp" />
-    <ClCompile Include="renderer\RenderProgs_GLSL.cpp" />
+    <ClCompile Include="renderer\RenderProgs_GLSL.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="renderer\RenderWorld_defs.cpp" />
     <ClCompile Include="renderer\ResolutionScale.cpp" />
     <ClCompile Include="renderer\RenderEntity.cpp" />
@@ -449,8 +472,16 @@
     <ClCompile Include="renderer\RenderWorld_load.cpp" />
     <ClCompile Include="renderer\RenderWorld_portals.cpp" />
     <ClCompile Include="renderer\ScreenRect.cpp" />
-    <ClCompile Include="renderer\tr_backend_draw.cpp" />
-    <ClCompile Include="renderer\tr_backend_rendertools.cpp" />
+    <ClCompile Include="renderer\tr_backend_draw.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="renderer\tr_backend_rendertools.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="renderer\tr_frontend_addlights.cpp" />
     <ClCompile Include="renderer\tr_frontend_addmodels.cpp" />
     <ClCompile Include="renderer\tr_frontend_deform.cpp" />
@@ -513,7 +544,6 @@
     <ClCompile Include="sys\sys_voicechat.cpp" />
     <ClCompile Include="sys\win32\win_achievements.cpp" />
     <ClCompile Include="sys\win32\win_cpu.cpp" />
-    <ClCompile Include="sys\win32\win_glimp.cpp" />
     <ClCompile Include="sys\win32\win_input.cpp" />
     <ClCompile Include="sys\win32\win_localuser.cpp" />
     <ClCompile Include="sys\win32\win_main.cpp" />

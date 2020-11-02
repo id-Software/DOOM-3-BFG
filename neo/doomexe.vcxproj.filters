@@ -546,6 +546,9 @@
     <ClInclude Include="renderer\DX12\dx12renderer.h">
       <Filter>Renderer\DX12</Filter>
     </ClInclude>
+    <ClInclude Include="renderer\GLFunction.h">
+      <Filter>Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cm\CollisionModel_contacts.cpp">
@@ -792,9 +795,6 @@
       <Filter>Sys\Win32</Filter>
     </ClCompile>
     <ClCompile Include="sys\win32\win_wndproc.cpp">
-      <Filter>Sys\Win32</Filter>
-    </ClCompile>
-    <ClCompile Include="sys\win32\win_glimp.cpp">
       <Filter>Sys\Win32</Filter>
     </ClCompile>
     <ClCompile Include="sys\win32\win_input.cpp">
@@ -1149,6 +1149,24 @@
       <Filter>Renderer\DX12</Filter>
     </ClCompile>
     <ClCompile Include="renderer\DX12\dx12_GraphicsAPIWrapper.cpp">
+      <Filter>Renderer\DX12</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\DX12\dx12_RenderProgs.cpp">
+      <Filter>Renderer\DX12</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\DX12\dx12_backend.cpp">
+      <Filter>Renderer\DX12</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\DX12\dx12_BufferObject.cpp">
+      <Filter>Renderer\DX12</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\DX12\dx12_ImageLoad.cpp">
+      <Filter>Renderer\DX12</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\DX12\dx12_GLFunctions.cpp">
+      <Filter>Renderer\DX12</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\DX12\dx12_image.cpp">
       <Filter>Renderer\DX12</Filter>
     </ClCompile>
   </ItemGroup>

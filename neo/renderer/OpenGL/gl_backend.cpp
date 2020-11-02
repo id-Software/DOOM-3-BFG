@@ -48,7 +48,6 @@ idCVar r_syncEveryFrame( "r_syncEveryFrame", "1", CVAR_BOOL, "Don't let the GPU 
 static int		swapIndex;		// 0 or 1 into renderSync
 static GLsync	renderSync[2];
 
-void GLimp_SwapBuffers();
 void RB_SetMVP( const idRenderMatrix & mvp );
 
 /*
@@ -129,7 +128,8 @@ const void GL_BlockingSwapBuffers() {
 		common->Printf( "%i msec to glFinish\n", beforeSwap - beforeFinish );
 	}
 
-	GLimp_SwapBuffers();
+	// TODO: Check if this will be an issue.
+	//GLimp_SwapBuffers();
 
 	const int beforeFence = Sys_Milliseconds();
 	if ( r_showSwapBuffers.GetBool() && beforeFence - beforeSwap > 1 ) {

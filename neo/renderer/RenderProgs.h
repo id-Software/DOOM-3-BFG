@@ -120,7 +120,7 @@ enum renderParm_t {
 
 struct glslUniformLocation_t {
 	int		parmIndex;
-	GLint	uniformIndex;
+	int		uniformIndex;
 };
 
 
@@ -195,17 +195,23 @@ public:
 	void	LoadAllShaders();
 	void	KillAllShaders();
 
-	static const int	MAX_GLSL_USER_PARMS = 8;
-	const char*	GetGLSLParmName( int rp ) const;
+	static const int	MAX_SHADER_USER_PARMS = 8; // TODO: Changed from MAX_GLSL_USER_PARAMS
+
+	void		SetUniformValue(const renderParm_t rp, const float* value);
+	/*const char*	GetGLSLParmName( int rp ) const;
 	int			GetGLSLCurrentProgram() const { return currentRenderProgram; }
 	void		SetUniformValue( const renderParm_t rp, const float * value );
 	void		CommitUniforms();
 	int			FindGLSLProgram( const char* name, int vIndex, int fIndex );
-	void		ZeroUniforms();
+	void		ZeroUniforms();*/
+
+	int		FindProgram(const char* name, int vIndex, int fIndex); // TODO: Find the program in the list.
 
 protected:
 	void	LoadVertexShader( int index );
 	void	LoadFragmentShader( int index );
+
+	void	LoadProgram(const int programIndex, const int vertexShaderIndex, const int fragmentShaderIndex); // TODO: Build the shader program.
 
 	enum {
 		BUILTIN_GUI,
@@ -250,45 +256,32 @@ protected:
 	int builtinShaders[MAX_BUILTINS];
 	void BindShader_Builtin( int i ) { BindShader( builtinShaders[i], builtinShaders[i] ); }
 
-	GLuint	LoadShader( GLenum target, const char * name, const char * startToken );
-	bool	CompileGLSL( GLenum target, const char * name );
-	GLuint	LoadGLSLShader( GLenum target, const char * name, idList<int> & uniforms );
-	void	LoadGLSLProgram( const int programIndex, const int vertexShaderIndex, const int fragmentShaderIndex );
-
-	static const GLuint INVALID_PROGID = 0xFFFFFFFF;
-
 	struct vertexShader_t {
-					vertexShader_t() : progId( INVALID_PROGID ), usesJoints( false ), optionalSkinning( false ) {}
+					vertexShader_t() : usesJoints( false ), optionalSkinning( false ) {}
 		idStr		name;
-		GLuint		progId;
 		bool		usesJoints;
 		bool		optionalSkinning;
 		idList<int>	uniforms;
 	};
 	struct fragmentShader_t {
-					fragmentShader_t() : progId( INVALID_PROGID ) {}
+					fragmentShader_t() {}
 		idStr		name;
-		GLuint		progId;
 		idList<int>	uniforms;
 	};
 
-	struct glslProgram_t {
-		glslProgram_t() :	progId( INVALID_PROGID ),
-							vertexShaderIndex( -1 ),
-							fragmentShaderIndex( -1 ),
-							vertexUniformArray( -1 ),
-							fragmentUniformArray( -1 ) {}
+	struct hlslProgram_t {
+		hlslProgram_t() :	vertexShaderIndex( -1 ),
+							fragmentShaderIndex( -1 ) {}
 		idStr		name;
-		GLuint		progId;
 		int			vertexShaderIndex;
 		int			fragmentShaderIndex;
-		GLint		vertexUniformArray;
-		GLint		fragmentUniformArray;
+		/*GLint		vertexUniformArray;
+		GLint		fragmentUniformArray;*/
 		idList<glslUniformLocation_t> uniformLocations;
 	};
 	int	currentRenderProgram;
-	idList<glslProgram_t, TAG_RENDER> glslPrograms;
-	idStaticList<idVec4, RENDERPARM_USER + MAX_GLSL_USER_PARMS> glslUniforms;
+	idList<hlslProgram_t, TAG_RENDER> glslPrograms;
+	idStaticList<idVec4, RENDERPARM_USER + MAX_SHADER_USER_PARMS> glslUniforms;
 
 
 	int				currentVertexShader;

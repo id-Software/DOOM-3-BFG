@@ -1,10 +1,11 @@
 {
   "ExpandedNodes": [
     "",
-    "\\dx12test",
     "\\dx12test\\framework",
-    "\\neo\\framework"
+    "\\neo",
+    "\\neo\\framework",
+    "\\neo\\renderer"
   ],
-  "SelectedNode": "\\neo",
+  "SelectedNode": "\\neo\\external.vcxproj",
   "PreviewInSolutionExplorer": false
 }

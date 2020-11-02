@@ -88,7 +88,7 @@ static const int	MAX_PIX_EVENTS = 256;
 pixEvent_t *		pixEvents;	// [MAX_PIX_EVENTS]
 int					numPixEvents;
 int					numPixLevels;
-static GLuint		timeQueryIds[MAX_PIX_EVENTS];
+//static GLuint		timeQueryIds[MAX_PIX_EVENTS];
 
 /*
 ========================

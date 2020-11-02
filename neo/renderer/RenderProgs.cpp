@@ -31,7 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "tr_local.h"
 
-
+extern DX12Renderer* dxRenderer;
 
 idRenderProgManager renderProgManager;
 
@@ -75,42 +75,42 @@ void idRenderProgManager::Init() {
 	}
 	struct builtinShaders_t {
 		int index;
-		const char * name;
+		const char* name;
 	} builtins[] = {
-		{ BUILTIN_GUI, "gui.vfp" },
-		{ BUILTIN_COLOR, "color.vfp" },
-		{ BUILTIN_SIMPLESHADE, "simpleshade.vfp" },
-		{ BUILTIN_TEXTURED, "texture.vfp" },
-		{ BUILTIN_TEXTURE_VERTEXCOLOR, "texture_color.vfp" },
-		{ BUILTIN_TEXTURE_VERTEXCOLOR_SKINNED, "texture_color_skinned.vfp" },
-		{ BUILTIN_TEXTURE_TEXGEN_VERTEXCOLOR, "texture_color_texgen.vfp" },
-		{ BUILTIN_INTERACTION, "interaction.vfp" },
-		{ BUILTIN_INTERACTION_SKINNED, "interaction_skinned.vfp" },
-		{ BUILTIN_INTERACTION_AMBIENT, "interactionAmbient.vfp" },
-		{ BUILTIN_INTERACTION_AMBIENT_SKINNED, "interactionAmbient_skinned.vfp" },
-		{ BUILTIN_ENVIRONMENT, "environment.vfp" },
-		{ BUILTIN_ENVIRONMENT_SKINNED, "environment_skinned.vfp" },
-		{ BUILTIN_BUMPY_ENVIRONMENT, "bumpyEnvironment.vfp" },
-		{ BUILTIN_BUMPY_ENVIRONMENT_SKINNED, "bumpyEnvironment_skinned.vfp" },
+		{ BUILTIN_GUI, "gui" },
+		{ BUILTIN_COLOR, "color" },
+		{ BUILTIN_SIMPLESHADE, "simpleshade" },
+		{ BUILTIN_TEXTURED, "texture" },
+		{ BUILTIN_TEXTURE_VERTEXCOLOR, "texture_color" },
+		{ BUILTIN_TEXTURE_VERTEXCOLOR_SKINNED, "texture_color_skinned" },
+		{ BUILTIN_TEXTURE_TEXGEN_VERTEXCOLOR, "texture_color_texgen" },
+		{ BUILTIN_INTERACTION, "interaction" },
+		{ BUILTIN_INTERACTION_SKINNED, "interaction_skinned" },
+		{ BUILTIN_INTERACTION_AMBIENT, "interactionAmbient" },
+		{ BUILTIN_INTERACTION_AMBIENT_SKINNED, "interactionAmbient_skinned" },
+		{ BUILTIN_ENVIRONMENT, "environment" },
+		{ BUILTIN_ENVIRONMENT_SKINNED, "environment_skinned" },
+		{ BUILTIN_BUMPY_ENVIRONMENT, "bumpyEnvironment" },
+		{ BUILTIN_BUMPY_ENVIRONMENT_SKINNED, "bumpyEnvironment_skinned" },
 
-		{ BUILTIN_DEPTH, "depth.vfp" },
-		{ BUILTIN_DEPTH_SKINNED, "depth_skinned.vfp" },
-		{ BUILTIN_SHADOW_DEBUG, "shadowDebug.vfp" },
-		{ BUILTIN_SHADOW_DEBUG_SKINNED, "shadowDebug_skinned.vfp" },
+		{ BUILTIN_DEPTH, "depth" },
+		{ BUILTIN_DEPTH_SKINNED, "depth_skinned" },
+		{ BUILTIN_SHADOW_DEBUG, "shadowDebug" },
+		{ BUILTIN_SHADOW_DEBUG_SKINNED, "shadowDebug_skinned" },
 
-		{ BUILTIN_BLENDLIGHT, "blendlight.vfp" },
-		{ BUILTIN_FOG, "fog.vfp" },
-		{ BUILTIN_FOG_SKINNED, "fog_skinned.vfp" },
-		{ BUILTIN_SKYBOX, "skybox.vfp" },
-		{ BUILTIN_WOBBLESKY, "wobblesky.vfp" },
-		{ BUILTIN_POSTPROCESS, "postprocess.vfp" },
-		{ BUILTIN_STEREO_DEGHOST, "stereoDeGhost.vfp" },
-		{ BUILTIN_STEREO_WARP, "stereoWarp.vfp" },
-		{ BUILTIN_ZCULL_RECONSTRUCT, "zcullReconstruct.vfp" },
-		{ BUILTIN_BINK, "bink.vfp" },
-		{ BUILTIN_BINK_GUI, "bink_gui.vfp" },
-		{ BUILTIN_STEREO_INTERLACE, "stereoInterlace.vfp" },
-		{ BUILTIN_MOTION_BLUR, "motionBlur.vfp" },
+		{ BUILTIN_BLENDLIGHT, "blendlight" },
+		{ BUILTIN_FOG, "fog" },
+		{ BUILTIN_FOG_SKINNED, "fog_skinned" },
+		{ BUILTIN_SKYBOX, "skybox" },
+		{ BUILTIN_WOBBLESKY, "wobblesky" },
+		{ BUILTIN_POSTPROCESS, "postprocess" },
+		{ BUILTIN_STEREO_DEGHOST, "stereoDeGhost" },
+		{ BUILTIN_STEREO_WARP, "stereoWarp" },
+		{ BUILTIN_ZCULL_RECONSTRUCT, "zcullReconstruct" },
+		{ BUILTIN_BINK, "bink" },
+		{ BUILTIN_BINK_GUI, "bink_gui" },
+		{ BUILTIN_STEREO_INTERLACE, "stereoInterlace" },
+		{ BUILTIN_MOTION_BLUR, "motionBlur" },
 	};
 	int numBuiltins = sizeof( builtins ) / sizeof( builtins[0] );
 	vertexShaders.SetNum( numBuiltins );
@@ -123,17 +123,17 @@ void idRenderProgManager::Init() {
 		builtinShaders[builtins[i].index] = i;
 		LoadVertexShader( i );
 		LoadFragmentShader( i );
-		LoadGLSLProgram( i, i, i );
+		LoadProgram( i, i, i );
 	}
 
 	// Special case handling for fastZ shaders
 	builtinShaders[BUILTIN_SHADOW] = FindVertexShader( "shadow.vp" );
 	builtinShaders[BUILTIN_SHADOW_SKINNED] = FindVertexShader( "shadow_skinned.vp" );
 
-	FindGLSLProgram( "shadow.vp", builtinShaders[BUILTIN_SHADOW], -1 );
-	FindGLSLProgram( "shadow_skinned.vp", builtinShaders[BUILTIN_SHADOW_SKINNED], -1 );
+	FindProgram( "shadow.vp", builtinShaders[BUILTIN_SHADOW], -1 );
+	FindProgram( "shadow_skinned.vp", builtinShaders[BUILTIN_SHADOW_SKINNED], -1 );
 
-	glslUniforms.SetNum( RENDERPARM_USER + MAX_GLSL_USER_PARMS, vec4_zero );
+	glslUniforms.SetNum( RENDERPARM_USER + MAX_SHADER_USER_PARMS, vec4_zero );
 
 	vertexShaders[builtinShaders[BUILTIN_TEXTURE_VERTEXCOLOR_SKINNED]].usesJoints = true;
 	vertexShaders[builtinShaders[BUILTIN_INTERACTION_SKINNED]].usesJoints = true;
@@ -162,7 +162,7 @@ void idRenderProgManager::LoadAllShaders() {
 	}
 
 	for ( int i = 0; i < glslPrograms.Num(); ++i ) {
-		LoadGLSLProgram( i, glslPrograms[i].vertexShaderIndex, glslPrograms[i].fragmentShaderIndex );
+		LoadProgram( i, glslPrograms[i].vertexShaderIndex, glslPrograms[i].fragmentShaderIndex );
 	}
 }
 
@@ -173,6 +173,8 @@ idRenderProgManager::KillAllShaders()
 */
 void idRenderProgManager::KillAllShaders() {
 	Unbind();
+	// TODO: Implement Kill all shaders
+	/*
 	for ( int i = 0; i < vertexShaders.Num(); i++ ) {
 		if ( vertexShaders[i].progId != INVALID_PROGID ) {
 			qglDeleteShader( vertexShaders[i].progId );
@@ -191,6 +193,7 @@ void idRenderProgManager::KillAllShaders() {
 			glslPrograms[i].progId = INVALID_PROGID;
 		}
 	}
+	*/
 }
 
 /*
@@ -261,10 +264,12 @@ idRenderProgManager::LoadVertexShader
 ================================================================================================
 */
 void idRenderProgManager::LoadVertexShader( int index ) {
-	if ( vertexShaders[index].progId != INVALID_PROGID ) {
+	// TODO: Change to load the vertex shader binary.
+
+	/*if ( vertexShaders[index].progId != INVALID_PROGID ) {
 		return; // Already loaded
 	}
-	vertexShaders[index].progId = ( GLuint ) LoadGLSLShader( GL_VERTEX_SHADER, vertexShaders[index].name, vertexShaders[index].uniforms );
+	vertexShaders[index].progId = ( GLuint ) LoadGLSLShader( GL_VERTEX_SHADER, vertexShaders[index].name, vertexShaders[index].uniforms );*/
 }
 
 /*
@@ -273,10 +278,12 @@ idRenderProgManager::LoadFragmentShader
 ================================================================================================
 */
 void idRenderProgManager::LoadFragmentShader( int index ) {
-	if ( fragmentShaders[index].progId != INVALID_PROGID ) {
+	// TODO: Change to load the fragmentshader binary.
+
+	/*if ( fragmentShaders[index].progId != INVALID_PROGID ) {
 		return; // Already loaded
 	}
-	fragmentShaders[index].progId = ( GLuint ) LoadGLSLShader( GL_FRAGMENT_SHADER, fragmentShaders[index].name, fragmentShaders[index].uniforms );
+	fragmentShaders[index].progId = ( GLuint ) LoadGLSLShader( GL_FRAGMENT_SHADER, fragmentShaders[index].name, fragmentShaders[index].uniforms );*/
 }
 
 /*
@@ -284,6 +291,8 @@ void idRenderProgManager::LoadFragmentShader( int index ) {
 idRenderProgManager::LoadShader
 ================================================================================================
 */
+// TODO: Change to loading the chader binary.
+/*
 GLuint idRenderProgManager::LoadShader( GLenum target, const char * name, const char * startToken ) {
 
 	idStr fullPath = "renderprogs\\gl\\";
@@ -357,6 +366,7 @@ GLuint idRenderProgManager::LoadShader( GLenum target, const char * name, const 
 	fileSystem->FreeFile( fileBuffer );
 	return progId;
 }
+*/
 
 /*
 ================================================================================================
@@ -369,12 +379,16 @@ void idRenderProgManager::BindShader( int vIndex, int fIndex ) {
 	}
 	currentVertexShader = vIndex;
 	currentFragmentShader = fIndex;
+
+	// TODO: Bind these shaders to the program.
+	/* 
 	// vIndex denotes the GLSL program
 	if ( vIndex >= 0 && vIndex < glslPrograms.Num() ) {
 		currentRenderProgram = vIndex;
 		RENDERLOG_PRINTF( "Binding GLSL Program %s\n", glslPrograms[vIndex].name.c_str() );
 		qglUseProgram( glslPrograms[vIndex].progId );
-	}
+	}*
+	*/
 }
 
 /*
@@ -383,10 +397,11 @@ idRenderProgManager::Unbind
 ================================================================================================
 */
 void idRenderProgManager::Unbind() {
+	// TODO: Implement
 	currentVertexShader = -1;
 	currentFragmentShader = -1;
 
-	qglUseProgram( 0 );
+	//qglUseProgram( 0 );
 }
 
 /*
@@ -406,6 +421,7 @@ idRenderProgManager::SetRenderParm
 ================================================================================================
 */
 void idRenderProgManager::SetRenderParm( renderParm_t rp, const float * value ) {
-	SetUniformValue( rp, value );
+	// TODO: Set the property.
+	//SetUniformValue( rp, value );
 }
 

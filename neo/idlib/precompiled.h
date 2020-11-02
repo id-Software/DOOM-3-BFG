@@ -82,6 +82,7 @@ const int MAX_EXPRESSION_REGISTERS = 4096;
 
 // renderer
 #include "../renderer/DX12/dx12renderer.h"
+#include "../renderer/GLFunction.h"
 #include "../renderer/Cinematic.h"
 #include "../renderer/Material.h"
 #include "../renderer/BufferObject.h"

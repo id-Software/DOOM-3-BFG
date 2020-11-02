@@ -150,7 +150,7 @@ public:
 
 	void		SetTexParameters();	// update aniso and trilinear
 
-	bool		IsLoaded() const { return texnum != TEXTURE_NOT_LOADED; }
+	bool		IsLoaded() const { return textureResource.GetAddressOf() == NULL; }
 
 	static void			GetGeneratedName( idStr &_name, const textureUsage_t &_usage, const cubeFiles_t &_cube );
 
@@ -179,23 +179,11 @@ private:
 
 	int					refCount;				// overall ref count
 
-	static const GLuint TEXTURE_NOT_LOADED = 0xFFFFFFFF;
 
-	GLuint				texnum;				// gl texture binding
-
-	// we could derive these in subImageUpload each time if necessary
-	GLuint				internalFormat;
-	GLuint				dataFormat;
-	GLuint				dataType;
-
-
+	ComPtr<ID3D12Resource> textureResource;
 };
 
 ID_INLINE idImage::idImage( const char * name ) : imgName( name ) {
-	texnum = TEXTURE_NOT_LOADED;
-	internalFormat = 0;
-	dataFormat = 0;
-	dataType = 0;
 	generatorFunction = NULL;
 	filter = TF_DEFAULT;
 	repeat = TR_REPEAT;

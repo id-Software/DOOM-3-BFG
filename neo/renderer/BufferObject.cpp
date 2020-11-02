@@ -33,7 +33,7 @@ idCVar r_showBuffers( "r_showBuffers", "0", CVAR_INTEGER, "" );
 
 
 //static const GLenum bufferUsage = GL_STATIC_DRAW_ARB;
-static const GLenum bufferUsage = GL_DYNAMIC_DRAW_ARB;
+//static const GLenum bufferUsage = GL_DYNAMIC_DRAW_ARB;
 
 /*
 ==================
@@ -53,7 +53,6 @@ bool IsWriteCombined( void * base ) {
 }
 
 
-
 /*
 ================================================================================================
 
@@ -61,16 +60,6 @@ bool IsWriteCombined( void * base ) {
 
 ================================================================================================
 */
-
-/*
-========================
-UnbindBufferObjects
-========================
-*/
-void UnbindBufferObjects() {
-	qglBindBufferARB( GL_ARRAY_BUFFER_ARB, 0 );
-	qglBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, 0 );
-}
 
 #ifdef ID_WIN_X86_SSE2_INTRIN
 
@@ -149,88 +138,6 @@ idVertexBuffer::~idVertexBuffer() {
 	FreeBufferObject();
 }
 
-/*
-========================
-idVertexBuffer::AllocBufferObject
-========================
-*/
-bool idVertexBuffer::AllocBufferObject( const void * data, int allocSize ) {
-	assert( apiObject == NULL );
-	assert_16_byte_aligned( data );
-
-	if ( allocSize <= 0 ) {
-		idLib::Error( "idVertexBuffer::AllocBufferObject: allocSize = %i", allocSize );
-	}
-
-	size = allocSize;
-
-	bool allocationFailed = false;
-
-	int numBytes = GetAllocedSize();
-
-
-	// clear out any previous error
-	qglGetError();
-
-	GLuint bufferObject = 0xFFFF;
-	qglGenBuffersARB( 1, & bufferObject );
-	if ( bufferObject == 0xFFFF ) {
-		idLib::FatalError( "idVertexBuffer::AllocBufferObject: failed" );
-	}
-	qglBindBufferARB( GL_ARRAY_BUFFER_ARB, bufferObject );
-
-	// these are rewritten every frame
-	qglBufferDataARB( GL_ARRAY_BUFFER_ARB, numBytes, NULL, bufferUsage );
-	apiObject = reinterpret_cast< void * >( bufferObject );
-
-	GLenum err = qglGetError();
-	if ( err == GL_OUT_OF_MEMORY ) {
-		idLib::Warning( "idVertexBuffer::AllocBufferObject: allocation failed" );
-		allocationFailed = true;
-	}
-
-
-	if ( r_showBuffers.GetBool() ) {
-		idLib::Printf( "vertex buffer alloc %p, api %p (%i bytes)\n", this, GetAPIObject(), GetSize() );
-	}
-
-	// copy the data
-	if ( data != NULL ) {
-		Update( data, allocSize );
-	}
-
-	return !allocationFailed;
-}
-
-/*
-========================
-idVertexBuffer::FreeBufferObject
-========================
-*/
-void idVertexBuffer::FreeBufferObject() {
-	if ( IsMapped() ) {
-		UnmapBuffer();
-	}
-
-	// if this is a sub-allocation inside a larger buffer, don't actually free anything.
-	if ( OwnsBuffer() == false ) {
-		ClearWithoutFreeing();
-		return;
-	}
-
-	if ( apiObject == NULL ) {
-		return;
-	}
-
-	if ( r_showBuffers.GetBool() ) {
-		idLib::Printf( "vertex buffer free %p, api %p (%i bytes)\n", this, GetAPIObject(), GetSize() );
-	}
-
-	GLuint bufferObject = reinterpret_cast< GLuint >( apiObject );
-	qglDeleteBuffersARB( 1, & bufferObject );
-
-	ClearWithoutFreeing();
-}
 
 /*
 ========================

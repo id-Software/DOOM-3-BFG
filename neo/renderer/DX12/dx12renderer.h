@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __DX12_RENDERER_H__
+#define __DX12_RENDERER_H__
 
 #include <wrl.h>
 #include "./d3dx12.h"
@@ -105,3 +106,5 @@ private:
 };
 
 extern DX12Renderer* dxRenderer;
+
+#endif

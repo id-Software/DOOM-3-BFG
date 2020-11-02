@@ -92,6 +92,9 @@ void RB_DrawBounds( const idBounds &bounds ) {
 	if ( bounds.IsCleared() ) {
 		return;
 	}
+	//TODO: RB_DrawBounds
+
+	/*
 	qglBegin( GL_LINE_LOOP );
 	qglVertex3f( bounds[0][0], bounds[0][1], bounds[0][2] );
 	qglVertex3f( bounds[0][0], bounds[1][1], bounds[0][2] );
@@ -118,6 +121,7 @@ void RB_DrawBounds( const idBounds &bounds ) {
 	qglVertex3f( bounds[1][0], bounds[1][1], bounds[0][2] );
 	qglVertex3f( bounds[1][0], bounds[1][1], bounds[1][2] );
 	qglEnd();
+	*/
 }
 
 
@@ -127,11 +131,12 @@ RB_SimpleSurfaceSetup
 ================
 */
 static void RB_SimpleSurfaceSetup( const drawSurf_t *drawSurf ) {
+	// TODO: RB_SimpleSurfaceSetup
 	// change the matrix if needed
-	if ( drawSurf->space != backEnd.currentSpace ) {
+	/*if ( drawSurf->space != backEnd.currentSpace ) {
 		qglLoadMatrixf( drawSurf->space->modelViewMatrix );
 		backEnd.currentSpace = drawSurf->space;
-	}
+	}*/
 
 	// change the scissor if needed
 	if ( !backEnd.currentScissor.Equals( drawSurf->scissorRect ) && r_useScissor.GetBool() ) {
@@ -151,8 +156,8 @@ RB_SimpleWorldSetup
 static void RB_SimpleWorldSetup() {
 	backEnd.currentSpace = &backEnd.viewDef->worldSpace;
 
-
-	qglLoadMatrixf( backEnd.viewDef->worldSpace.modelViewMatrix );
+	// TODO: Implement
+	//qglLoadMatrixf( backEnd.viewDef->worldSpace.modelViewMatrix );
 
 	GL_Scissor( backEnd.viewDef->viewport.x1 + backEnd.viewDef->scissor.x1,
 				backEnd.viewDef->viewport.y1 + backEnd.viewDef->scissor.y1,
@@ -172,7 +177,8 @@ stenciling will matter.
 =================
 */
 void RB_PolygonClear() {
-	qglPushMatrix();
+	// TODO: Implement
+	/*qglPushMatrix();
 	qglPushAttrib( GL_ALL_ATTRIB_BITS  );
 	qglLoadIdentity();
 	qglDisable( GL_TEXTURE_2D );
@@ -186,7 +192,7 @@ void RB_PolygonClear() {
 	qglVertex3f( -20, 20, -10 );
 	qglEnd();
 	qglPopAttrib();
-	qglPopMatrix();
+	qglPopMatrix();*/
 }
 
 /*
@@ -215,7 +221,9 @@ void RB_ScanStencilBuffer() {
 	memset( counts, 0, sizeof( counts ) );
 
 	stencilReadback = (byte *)R_StaticAlloc( renderSystem->GetWidth() * renderSystem->GetHeight(), TAG_RENDER_TOOLS );
-	qglReadPixels( 0, 0, renderSystem->GetWidth(), renderSystem->GetHeight(), GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, stencilReadback );
+
+	// TODO: Implement
+	//qglReadPixels( 0, 0, renderSystem->GetWidth(), renderSystem->GetHeight(), GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, stencilReadback );
 
 	for ( i = 0; i < renderSystem->GetWidth() * renderSystem->GetHeight(); i++ ) {
 		counts[ stencilReadback[i] ]++;
@@ -247,7 +255,9 @@ static void RB_CountStencilBuffer() {
 
 
 	stencilReadback = (byte *)R_StaticAlloc( renderSystem->GetWidth() * renderSystem->GetHeight(), TAG_RENDER_TOOLS );
-	qglReadPixels( 0, 0, renderSystem->GetWidth(), renderSystem->GetHeight(), GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, stencilReadback );
+	
+	// TODO: Implement
+	//qglReadPixels( 0, 0, renderSystem->GetWidth(), renderSystem->GetHeight(), GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, stencilReadback );
 
 	count = 0;
 	for ( i = 0; i < renderSystem->GetWidth() * renderSystem->GetHeight(); i++ ) {
@@ -286,7 +296,8 @@ static void R_ColorByStencilBuffer() {
 	GL_Clear( true, false, false, 0, 1.0f, 1.0f, 1.0f, 1.0f );
 
 	// now draw color for each stencil value
-	qglStencilOp( GL_KEEP, GL_KEEP, GL_KEEP );
+	// TODO: Implement
+	/*qglStencilOp( GL_KEEP, GL_KEEP, GL_KEEP );
 	for ( i = 0; i < 6; i++ ) {
 		GL_Color( colors[i] );
 		renderProgManager.BindShader_Color();
@@ -294,7 +305,7 @@ static void R_ColorByStencilBuffer() {
 		RB_PolygonClear();
 	}
 
-	qglStencilFunc( GL_ALWAYS, 0, 255 );
+	qglStencilFunc( GL_ALWAYS, 0, 255 );*/
 }
 
 //======================================================================
@@ -392,7 +403,8 @@ static void RB_ShowIntensity() {
 	}
 
 	colorReadback = (byte *)R_StaticAlloc( renderSystem->GetWidth() * renderSystem->GetHeight() * 4, TAG_RENDER_TOOLS );
-	qglReadPixels( 0, 0, renderSystem->GetWidth(), renderSystem->GetHeight(), GL_RGBA, GL_UNSIGNED_BYTE, colorReadback );
+	// TODO: Implement
+	//qglReadPixels( 0, 0, renderSystem->GetWidth(), renderSystem->GetHeight(), GL_RGBA, GL_UNSIGNED_BYTE, colorReadback );
 
 	c = renderSystem->GetWidth() * renderSystem->GetHeight() * 4;
 	for ( i = 0; i < c; i+=4 ) {
@@ -415,7 +427,7 @@ static void RB_ShowIntensity() {
 	}
 
 	// draw it back to the screen
-	qglLoadIdentity();
+	/*qglLoadIdentity();
 	qglMatrixMode( GL_PROJECTION );
 	GL_State( GLS_DEPTHFUNC_ALWAYS );
 	qglPushMatrix();
@@ -427,7 +439,7 @@ static void RB_ShowIntensity() {
 	globalImages->BindNull();
 	qglMatrixMode( GL_MODELVIEW );
 
-	qglDrawPixels( renderSystem->GetWidth(), renderSystem->GetHeight(), GL_RGBA , GL_UNSIGNED_BYTE, colorReadback );
+	qglDrawPixels( renderSystem->GetWidth(), renderSystem->GetHeight(), GL_RGBA , GL_UNSIGNED_BYTE, colorReadback );*/
 
 	R_StaticFree( colorReadback );
 }
@@ -446,8 +458,8 @@ static void RB_ShowDepthBuffer() {
 	if ( !r_showDepth.GetBool() ) {
 		return;
 	}
-
-	qglPushMatrix();
+	// TODO: Implement
+	/*qglPushMatrix();
 	qglLoadIdentity();
 	qglMatrixMode( GL_PROJECTION );
 	qglPushMatrix();
@@ -456,7 +468,7 @@ static void RB_ShowDepthBuffer() {
 	qglRasterPos2f( 0, 0 );
 	qglPopMatrix();
 	qglMatrixMode( GL_MODELVIEW );
-	qglPopMatrix();
+	qglPopMatrix();*/
 
 	GL_State( GLS_DEPTHFUNC_ALWAYS );
 	GL_Color( 1, 1, 1 );
@@ -465,7 +477,7 @@ static void RB_ShowDepthBuffer() {
 	depthReadback = R_StaticAlloc( renderSystem->GetWidth() * renderSystem->GetHeight()*4, TAG_RENDER_TOOLS );
 	memset( depthReadback, 0, renderSystem->GetWidth() * renderSystem->GetHeight()*4 );
 
-	qglReadPixels( 0, 0, renderSystem->GetWidth(), renderSystem->GetHeight(), GL_DEPTH_COMPONENT , GL_FLOAT, depthReadback );
+	//qglReadPixels( 0, 0, renderSystem->GetWidth(), renderSystem->GetHeight(), GL_DEPTH_COMPONENT , GL_FLOAT, depthReadback );
 
 #if 0
 	for ( i = 0; i < renderSystem->GetWidth() * renderSystem->GetHeight(); i++ ) {
@@ -476,7 +488,7 @@ static void RB_ShowDepthBuffer() {
 	}
 #endif
 
-	qglDrawPixels( renderSystem->GetWidth(), renderSystem->GetHeight(), GL_RGBA , GL_UNSIGNED_BYTE, depthReadback );
+	//qglDrawPixels( renderSystem->GetWidth(), renderSystem->GetHeight(), GL_RGBA , GL_UNSIGNED_BYTE, depthReadback );
 	R_StaticFree( depthReadback );
 }
 
@@ -559,9 +571,10 @@ static void RB_EnterWeaponDepthHack() {
 	matrix[10] *= modelDepthHack;
 	matrix[14] *= modelDepthHack;
 
-	qglMatrixMode( GL_PROJECTION );
+	// TODO: Implement
+	/*qglMatrixMode( GL_PROJECTION );
 	qglLoadMatrixf( matrix );
-	qglMatrixMode( GL_MODELVIEW );
+	qglMatrixMode( GL_MODELVIEW );*/
 }
 
 /*
@@ -576,9 +589,10 @@ static void RB_EnterModelDepthHack( float depth ) {
 
 	matrix[14] -= depth;
 
-	qglMatrixMode( GL_PROJECTION );
+	// TODO: Implement
+	/*qglMatrixMode( GL_PROJECTION );
 	qglLoadMatrixf( matrix );
-	qglMatrixMode( GL_MODELVIEW );
+	qglMatrixMode( GL_MODELVIEW );*/
 }
 
 /*
@@ -587,6 +601,7 @@ RB_LeaveDepthHack
 ===============
 */
 static void RB_LeaveDepthHack() {
+	// TODO: Implement
 	qglMatrixMode( GL_PROJECTION );
 	qglLoadMatrixf( backEnd.viewDef->projectionMatrix );
 	qglMatrixMode( GL_MODELVIEW );

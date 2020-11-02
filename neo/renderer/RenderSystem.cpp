@@ -115,13 +115,14 @@ void idRenderSystemLocal::RenderCommandBuffers( const emptyCommand_t * const cmd
 	// draw 2D graphics
 	if ( !r_skipBackEnd.GetBool() ) {
 		if ( glConfig.timerQueryAvailable ) {
-			if ( tr.timerQueryId == 0 ) {
+			// TODO: Implement Query timer.
+			/*if ( tr.timerQueryId == 0 ) {
 				qglGenQueriesARB( 1, & tr.timerQueryId );
 			}
 			qglBeginQueryARB( GL_TIME_ELAPSED_EXT, tr.timerQueryId );
 			RB_ExecuteBackEndCommands( cmdHead );
 			qglEndQueryARB( GL_TIME_ELAPSED_EXT );
-			qglFlush();
+			qglFlush();*/
 		} else {
 			RB_ExecuteBackEndCommands( cmdHead );
 		}
@@ -233,7 +234,8 @@ static void R_CheckCvars() {
 		}
 	}
 
-	extern idCVar r_useSeamlessCubeMap;
+	// TODO: Implement seamless cubemap.
+	/*extern idCVar r_useSeamlessCubeMap;
 	if ( r_useSeamlessCubeMap.IsModified() ) {
 		r_useSeamlessCubeMap.ClearModified();
 		if ( glConfig.seamlessCubeMapAvailable ) {
@@ -243,9 +245,10 @@ static void R_CheckCvars() {
 				qglDisable( GL_TEXTURE_CUBE_MAP_SEAMLESS );
 			}
 		}
-	}
+	}*/
 
-	extern idCVar r_useSRGB;
+	// TODO: Implement Use SRGB
+	/*extern idCVar r_useSRGB;
 	if ( r_useSRGB.IsModified() ) {
 		r_useSRGB.ClearModified();
 		if ( glConfig.sRGBFramebufferAvailable ) {
@@ -255,19 +258,20 @@ static void R_CheckCvars() {
 				qglDisable( GL_FRAMEBUFFER_SRGB );
 			}
 		}
-	}
+	}*/
 
 
-	if ( r_multiSamples.IsModified() ) {
+	//TODO: Impliment multisampling.
+	/*if ( r_multiSamples.IsModified() ) {
 		if ( r_multiSamples.GetInteger() > 0 ) {
 			qglEnable( GL_MULTISAMPLE_ARB );
 		} else {
 			qglDisable( GL_MULTISAMPLE_ARB );
 		}
-	}
+	}*/
 
 	// check for changes to logging state
-	GLimp_EnableLogging( r_logFile.GetInteger() != 0 );
+	//GLimp_EnableLogging( r_logFile.GetInteger() != 0 );
 }
 
 /*
@@ -653,7 +657,8 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 	if ( glConfig.timerQueryAvailable ) {
 		uint64 drawingTimeNanoseconds = 0;
 		if ( tr.timerQueryId != 0 ) {
-			qglGetQueryObjectui64vEXT( tr.timerQueryId, GL_QUERY_RESULT, &drawingTimeNanoseconds );
+			// TODO: Implement GetQueryObjectUI64vEXT
+			//qglGetQueryObjectui64vEXT( tr.timerQueryId, GL_QUERY_RESULT, &drawingTimeNanoseconds );
 		}
 		if ( gpuMicroSec != NULL ) {
 			*gpuMicroSec = drawingTimeNanoseconds / 1000;
@@ -761,7 +766,7 @@ const emptyCommand_t * idRenderSystemLocal::SwapCommandBuffers_FinishCommandBuff
 
 	setBufferCommand_t * cmd2 = (setBufferCommand_t *)R_GetCommandBuffer( sizeof( *cmd2 ) );
 	cmd2->commandId = RC_SET_BUFFER;
-	cmd2->buffer = (int)GL_BACK;
+	//cmd2->buffer = (int)GL_BACK; // TODO: Create back buffer enum
 
 	// the old command buffer can now be rendered, while the new one can
 	// be built in parallel
@@ -927,6 +932,8 @@ void idRenderSystemLocal::CaptureRenderToImage( const char *imageName, bool clea
 
 	guiModel->Clear();
 }
+
+
 
 /*
 ==============

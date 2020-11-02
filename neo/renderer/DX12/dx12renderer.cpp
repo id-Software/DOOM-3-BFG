@@ -1,9 +1,11 @@
-#include "dx12renderer.h"
+#pragma hdrstop
+
+#include "../../idlib/precompiled.h"
 
 #include <comdef.h>
 
 // TODO: Remove when we have the ID reader
-#include "../ByteFileReader.h"
+/*#include "../ByteFileReader.h"*/
 
 void FailMessage(LPCSTR message) {
 	OutputDebugString(message);
@@ -170,7 +172,8 @@ void DX12Renderer::LoadPipeline() {
 }
 
 void DX12Renderer::LoadShader(const wchar_t* vsPath, const wchar_t* psPath, const IID &riid, void** ppPipelineState) {
-	auto vsFile = ReadBinaryFile(vsPath);
+	//TODO: FIX
+	/*auto vsFile = ReadBinaryFile(vsPath);
 	auto psFile = ReadBinaryFile(psPath);
 
 	// Define the vertex input layout
@@ -201,7 +204,7 @@ void DX12Renderer::LoadShader(const wchar_t* vsPath, const wchar_t* psPath, cons
 	psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
 	psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
 	psoDesc.SampleDesc.Count = 1;
-	ThrowIfFailed(m_device->CreateGraphicsPipelineState(&psoDesc, riid, ppPipelineState));
+	ThrowIfFailed(m_device->CreateGraphicsPipelineState(&psoDesc, riid, ppPipelineState));*/
 }
 
 void DX12Renderer::LoadAssets() {
