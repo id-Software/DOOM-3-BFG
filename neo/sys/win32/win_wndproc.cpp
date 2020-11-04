@@ -42,6 +42,7 @@ extern idCVar r_windowX;
 extern idCVar r_windowY;
 extern idCVar r_windowWidth;
 extern idCVar r_windowHeight;
+extern DX12Renderer dxRenderer;
 
 static void WIN_DisableAltTab() {
 	if ( s_alttab_disabled || win32.win_allowAltTab.GetBool() ) {
@@ -197,9 +198,13 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam ) {
 				WIN_EnableAltTab();
 			}
 
+			// Startup dx12
+			// TODO: Startup properly.
+			dxRenderer.OnHWNDInit(hWnd);
+
 			// do the OpenGL setup
-			void GLW_WM_CREATE( HWND hWnd );
-			GLW_WM_CREATE( hWnd );
+			//void GLW_WM_CREATE( HWND hWnd );
+			//GLW_WM_CREATE( hWnd );
 
 			break;
 

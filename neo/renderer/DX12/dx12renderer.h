@@ -37,9 +37,10 @@ struct StoredModel
 
 class DX12Renderer {
 public:
-	DX12Renderer(HWND hwnd, UINT width, UINT height);
+	DX12Renderer(UINT width, UINT height);
 	~DX12Renderer();
 
+	virtual void OnHWNDInit(HWND hWnd);
 	virtual void OnInit();
 	virtual void OnResize(UINT width, UINT height);
 	virtual void OnUpdate();
@@ -54,7 +55,6 @@ public:
 private:
 	UINT m_width = 0;
 	UINT m_height = 0;
-	HWND m_hwnd;
 	FLOAT m_aspectRatio = 1.0f;
     FLOAT m_FoV = 90.0f;
 
@@ -105,6 +105,6 @@ private:
 
 };
 
-extern DX12Renderer* dxRenderer;
+extern DX12Renderer dxRenderer;
 
 #endif

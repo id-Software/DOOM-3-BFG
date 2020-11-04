@@ -3,7 +3,7 @@
 
 #include "../tr_local.h"
 
-extern DX12Renderer* dxRenderer;
+extern DX12Renderer dxRenderer;
 
 void GL_SelectTexture(int uint) {
 	// TODO: Setup texture select.
@@ -14,11 +14,11 @@ void GL_Cull(int cullType) {
 }
 
 void GL_Scissor(int x /* left*/, int y /* bottom */, int w, int h) {
-	dxRenderer->UpdateScissorRect(x, h - y, x + w, y);
+	dxRenderer.UpdateScissorRect(x, h - y, x + w, y);
 }
 
 void GL_Viewport(int x /* left */, int y /* bottom */, int w, int h) {
-	dxRenderer->UpdateViewport(x, h - y, x + w, y);
+	dxRenderer.UpdateViewport(x, h - y, x + w, y);
 }
 
 void GL_PolygonOffset(float scale, float bias) {

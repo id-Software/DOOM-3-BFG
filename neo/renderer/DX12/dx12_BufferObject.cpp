@@ -285,6 +285,62 @@ void idVertexBuffer::ClearWithoutFreeing() {
 }
 
 /*
+========================
+idVertexBuffer::AllocBufferObject
+========================
+*/
+bool idVertexBuffer::AllocBufferObject(const void* data, int allocSize) {
+	// TODO: Implement
+	assert(apiObject == NULL);
+	assert_16_byte_aligned(data);
+
+	if (allocSize <= 0) {
+		idLib::Error("idVertexBuffer::AllocBufferObject: allocSize = %i", allocSize);
+	}
+
+	size = allocSize;
+
+	bool allocationFailed = false;
+
+	//int numBytes = GetAllocedSize();
+
+	//// TODO: Implement AllocBufferObject
+
+	//// clear out any previous error
+	////qglGetError();
+
+	////GLuint bufferObject = 0xFFFF;
+	////qglGenBuffersARB(1, &bufferObject);
+	////if (bufferObject == 0xFFFF) {
+	////	GLenum error = qglGetError();
+	////	idLib::FatalError("idIndexBuffer::AllocBufferObject: failed - GL_Error %d", error);
+	////}
+	////qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, bufferObject);
+
+	////// these are rewritten every frame
+	////qglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, numBytes, NULL, bufferUsage);
+	////apiObject = reinterpret_cast<void*>(bufferObject);
+
+	////GLenum err = qglGetError();
+	////if (err == GL_OUT_OF_MEMORY) {
+	////	idLib::Warning("idIndexBuffer:AllocBufferObject: allocation failed");
+	////	allocationFailed = true;
+	////}
+
+
+	//if (r_showBuffers.GetBool()) {
+	//	idLib::Printf("index buffer alloc %p, api %p (%i bytes)\n", this, GetAPIObject(), GetSize());
+	//}
+
+	//// copy the data
+	//if (data != NULL) {
+	//	Update(data, allocSize);
+	//}
+
+	return !allocationFailed;
+}
+
+/*
 ================================================================================================
 
 	idIndexBuffer
@@ -775,4 +831,9 @@ void idJointBuffer::Swap(idJointBuffer& other) {
 	SwapValues(other.numJoints, numJoints);
 	SwapValues(other.offsetInOtherBuffer, offsetInOtherBuffer);
 	SwapValues(other.apiObject, apiObject);
+}
+
+
+void UnbindBufferObjects() {
+	//TODO: Implement
 }

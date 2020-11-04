@@ -380,6 +380,7 @@
     <ClCompile Include="renderer\DX12\dx12renderer.cpp" />
     <ClCompile Include="renderer\DX12\dx12_backend.cpp" />
     <ClCompile Include="renderer\DX12\dx12_BufferObject.cpp" />
+    <ClCompile Include="renderer\DX12\dx12_RenderTools.cpp" />
     <ClCompile Include="renderer\DX12\dx12_GLFunctions.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">true</ExcludedFromBuild>

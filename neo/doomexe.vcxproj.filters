@@ -1169,6 +1169,9 @@
     <ClCompile Include="renderer\DX12\dx12_image.cpp">
       <Filter>Renderer\DX12</Filter>
     </ClCompile>
+    <ClCompile Include="renderer\DX12\dx12_RenderTools.cpp">
+      <Filter>Renderer\DX12</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sys\win32\rc\res\doom.ico">

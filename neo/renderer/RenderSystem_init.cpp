@@ -34,7 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 // Vista OpenGL wrapper check
 #include "../sys/win32/win_local.h"
 
-DX12Renderer* dxRenderer = nullptr;
+extern DX12Renderer dxRenderer;
 
 // DeviceContext bypasses RenderSystem to work directly with this
 idGuiModel * tr_guiModel;
@@ -373,7 +373,7 @@ and model information functions.
 void R_InitDX12() {
 	common->Printf("----- R_InitDX12 -----\n");
 
-	dxRenderer->OnInit();
+	dxRenderer.OnInit();
 	r_initialized = true;
 
 	/*common->Printf( "----- R_InitOpenGL -----\n" );
@@ -1264,7 +1264,8 @@ void GfxInfo_f( const idCmdArgs &args ) {
 	common->Printf( "-------\n" );
 
 	// WGL_EXT_swap_interval
-	typedef BOOL (WINAPI * PFNWGLSWAPINTERVALEXTPROC) (int interval);
+	// TODO: Implement for DX12
+	/*typedef BOOL (WINAPI * PFNWGLSWAPINTERVALEXTPROC) (int interval);
 	extern	PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT;
 
 	if ( r_swapInterval.GetInteger() && wglSwapIntervalEXT != NULL ) {
@@ -1279,7 +1280,7 @@ void GfxInfo_f( const idCmdArgs &args ) {
 		idLib::Printf( "OpenGl quad buffer stereo pixel available but not selected\n" );
 	} else {
 		idLib::Printf( "OpenGl quad buffer stereo pixel format not available\n" );
-	}
+	}*/
 
 	idLib::Printf( "Stereo mode: " );
 	switch ( renderSystem->GetStereo3DMode() ) {
@@ -1889,7 +1890,6 @@ void idRenderSystemLocal::InitGL() {
 	// if OpenGL isn't started, start it now
 	if ( !R_IsInitialized() ) {
 		// TODO: Find the screen size.
-		dxRenderer = new DX12Renderer(win32.hWnd, 1092, 1080);
 		R_InitDX12();
 
 		// Reloading images here causes the rendertargets to get deleted. Figure out how to handle this properly on 360
@@ -1954,11 +1954,11 @@ int idRenderSystemLocal::GetHeight() const {
 	if ( glConfig.stereo3Dmode == STEREO3D_HDMI_720 ) {
 		return 720;
 	}
-	extern idCVar stereoRender_warp;
-	if ( glConfig.stereo3Dmode == STEREO3D_SIDE_BY_SIDE && stereoRender_warp.GetBool() ) {
-		// for the Rift, render a square aspect view that will be symetric for the optics
-		return glConfig.nativeScreenWidth >> 1;
-	}
+	//extern idCVar stereoRender_warp;
+	//if ( glConfig.stereo3Dmode == STEREO3D_SIDE_BY_SIDE && stereoRender_warp.GetBool() ) {
+	//	// for the Rift, render a square aspect view that will be symetric for the optics
+	//	return glConfig.nativeScreenWidth >> 1;
+	//}
 	if ( glConfig.stereo3Dmode == STEREO3D_INTERLACED || glConfig.stereo3Dmode == STEREO3D_TOP_AND_BOTTOM_COMPRESSED ) {
 		return glConfig.nativeScreenHeight >> 1;
 	}

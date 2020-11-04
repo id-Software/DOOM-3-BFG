@@ -31,7 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "tr_local.h"
 
-extern DX12Renderer* dxRenderer;
+extern DX12Renderer dxRenderer;
 
 idRenderProgManager renderProgManager;
 
