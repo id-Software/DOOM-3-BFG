@@ -119,8 +119,8 @@ double Sys_ClockTicksPerSecond()
 
 	ret = MeasureClockTicks();
 	init = true;
-    common->Printf( "measured CPU frequency: %g MHz\n", ret / 1000000.0 );
-    return ret;
+	common->Printf( "measured CPU frequency: %g MHz\n", ret / 1000000.0 );
+	return ret;
 }
 
 /*
