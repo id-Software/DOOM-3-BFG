@@ -112,57 +112,15 @@ double Sys_ClockTicksPerSecond()
 	static bool		init = false;
 	static double	ret;
 
-	int		fd, len, pos, end;
-	char	buf[ 4096 ];
-
 	if( init )
 	{
 		return ret;
 	}
 
-	fd = open( "/proc/cpuinfo", O_RDONLY );
-	if( fd == -1 )
-	{
-		common->Printf( "couldn't read /proc/cpuinfo\n" );
-		ret = MeasureClockTicks();
-		init = true;
-		common->Printf( "measured CPU frequency: %g MHz\n", ret / 1000000.0 );
-		return ret;
-	}
-	len = read( fd, buf, 4096 );
-	close( fd );
-	pos = 0;
-	while( pos < len )
-	{
-		if( !idStr::Cmpn( buf + pos, "cpu MHz", 7 ) )
-		{
-			pos = strchr( buf + pos, ':' ) - buf + 2;
-			end = strchr( buf + pos, '\n' ) - buf;
-			if( pos < len && end < len )
-			{
-				buf[end] = '\0';
-				ret = atof( buf + pos );
-			}
-			else
-			{
-				common->Printf( "failed parsing /proc/cpuinfo\n" );
-				ret = MeasureClockTicks();
-				init = true;
-				common->Printf( "measured CPU frequency: %g MHz\n", ret / 1000000.0 );
-				return ret;
-			}
-			common->Printf( "/proc/cpuinfo CPU frequency: %g MHz\n", ret );
-			ret *= 1000000;
-			init = true;
-			return ret;
-		}
-		pos = strchr( buf + pos, '\n' ) - buf + 1;
-	}
-	common->Printf( "failed parsing /proc/cpuinfo\n" );
 	ret = MeasureClockTicks();
 	init = true;
-	common->Printf( "measured CPU frequency: %g MHz\n", ret / 1000000.0 );
-	return ret;
+    common->Printf( "measured CPU frequency: %g MHz\n", ret / 1000000.0 );
+    return ret;
 }
 
 /*
