@@ -66,7 +66,11 @@ if (CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)|(amd64)|(AMD64)")
 	set(CPU_OPTIMIZATION "-mmmx -msse -msse2" CACHE STRING "Which CPU specific optimitations should be used beside the compiler's default?")
 endif()
 
-option(USE_INTRINSICS "Compile using intrinsics (e.g mmx, sse, msse2)" ON)
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "(powerpc|ppc)64le")
+	option(USE_INTRINSICS "Compile using intrinsics (e.g mmx, sse, msse2)" OFF)
+else()
+	option(USE_INTRINSICS "Compile using intrinsics (e.g mmx, sse, msse2)" ON)
+endif()
 
 if(FFMPEG AND BINKDEC)
 	message(FATAL_ERROR "Only one of FFMPEG and BINKDEC (or neither) can be enabled at a time")

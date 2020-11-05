@@ -117,6 +117,8 @@ If you have questions concerning this license or the applicable additional terms
 			#define CPUSTRING						"e2k"
 		#elif defined(__aarch64__) || defined(__ARM64__) || defined(_M_ARM64)
 			#define CPUSTRING 						"aarch64"
+		#elif defined(__powerpc64__)
+			#define CPUSTRING						"ppc64"
 		#else
 			#error unknown CPU
 		#endif
