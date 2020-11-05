@@ -223,7 +223,11 @@ void idMatX::CopyLowerToUpperTriangle()
 	const __m128 mask2 = __m128c( _mm_set_epi32( 0, -1, -1, -1 ) );
 	const __m128 mask3 = __m128c( _mm_set_epi32( -1, -1, -1, -1 ) );
 
-	const __m128 bottomMask[2] = { __m128c( _mm_set1_epi32( 0 ) ), __m128c( _mm_set1_epi32( -1 ) ) };
+	// const __m128 bottomMask[2] = { __m128c( _mm_set1_epi32( 0 ) ), __m128c( _mm_set1_epi32( -1 ) ) };
+	// compilers (e.g. MCST lcc, Intel icc) that use the C++ Front End from EDG (Edison Design Group) have a bug
+	// - no suitable conversion function from "__m128c" to "float"
+	// an explicit type conversion is used as a solution to this bug
+	const __m128 bottomMask[2] = { (__m128) __m128c( _mm_set1_epi32( 0 ) ), (__m128) __m128c( _mm_set1_epi32( -1 ) ) };
 
 	float* __restrict basePtr = ToFloatPtr();
 
