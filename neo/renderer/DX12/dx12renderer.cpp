@@ -7,11 +7,12 @@
 // TODO: Remove when we have the ID reader
 /*#include "../ByteFileReader.h"*/
 
-DX12Renderer dxRenderer(1920, 1080);
+DX12Renderer dxRenderer;
+extern idCommon* common;
 
 void FailMessage(LPCSTR message) {
 	OutputDebugString(message);
-	throw std::exception((char*)(wchar_t*)message);
+	common->Error(message);
 }
 
 void ThrowIfFailed(HRESULT hr)
@@ -44,13 +45,12 @@ void GetHardwareAdapter(IDXGIFactory4* pFactory, IDXGIAdapter1** ppAdapter) {
 	}
 }
 
-DX12Renderer::DX12Renderer(UINT width, UINT height) :
+DX12Renderer::DX12Renderer() :
 	m_frameIndex(0),
 	m_rtvDescriptorSize(0),
-	m_width(width),
-	m_height(height),
-	m_viewport(0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height)),
-	m_scissorRect(0, 0, static_cast<LONG>(width), static_cast<LONG>(height))
+	m_width(512),
+	m_height(512),
+	m_fullScreen(0)
 {
 }
 
@@ -58,9 +58,68 @@ DX12Renderer::~DX12Renderer() {
 	OnDestroy();
 }
 
-void DX12Renderer::OnHWNDInit(HWND hWnd) {
+bool DX12Renderer::Init(UINT width, UINT height, int fullscreen) {
+#if defined(_DEBUG)
+	{
+		ComPtr<ID3D12Debug> debugController;
+		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)))) {
+			debugController->EnableDebugLayer();
+		}
+	}
+#endif
+
 	ComPtr<IDXGIFactory4> factory;
 	ThrowIfFailed(CreateDXGIFactory1(IID_PPV_ARGS(&factory)));
+
+	// TODO: Try to enable a WARP adapter
+	{
+		ComPtr<IDXGIAdapter1> hardwareAdapter;
+		GetHardwareAdapter(factory.Get(), &hardwareAdapter);
+
+		ThrowIfFailed(D3D12CreateDevice(hardwareAdapter.Get(), D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(&m_device)));
+	}
+
+	return SetScreenParams(width, height, fullscreen);
+}
+
+void DX12Renderer::OnCreateWindow(HWND hWnd) {
+	LoadPipeline(hWnd);
+	//LoadAssets();
+}
+
+void DX12Renderer::LoadPipeline(HWND hWnd) {
+
+	ComPtr<IDXGIFactory4> factory;
+	ThrowIfFailed(CreateDXGIFactory1(IID_PPV_ARGS(&factory)));
+
+	// Describe and create the command queue
+	D3D12_COMMAND_QUEUE_DESC queueDesc = {};
+	queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+
+	ThrowIfFailed(m_device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_commandQueue)));
+
+	
+
+	// Create Descriptor Heaps
+	{
+		// Describe and create a render target view (RTV) descriptor
+		D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
+		rtvHeapDesc.NumDescriptors = FrameCount;
+		rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+		rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+		ThrowIfFailed(m_device->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&m_rtvHeap)));
+
+		m_rtvDescriptorSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+
+		// Describe and create a depth-stencil view (DSV) descriptor
+		D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
+		dsvHeapDesc.NumDescriptors = 1;
+		dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+		dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+		ThrowIfFailed(m_device->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(&m_dsvHeap)));
+
+	}
 
 	// Describe and create the swap chain
 	DXGI_SWAP_CHAIN_DESC swapChainDesc = {};
@@ -121,62 +180,6 @@ void DX12Renderer::OnHWNDInit(HWND hWnd) {
 	}
 
 	ThrowIfFailed(m_device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator)));
-}
-
-void DX12Renderer::OnInit() {
-	LoadPipeline();
-	LoadAssets();
-}
-
-void DX12Renderer::LoadPipeline() {
-#if defined(_DEBUG)
-	{
-		ComPtr<ID3D12Debug> debugController;
-		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)))) {
-			debugController->EnableDebugLayer();
-		}
-	}
-#endif
-
-	ComPtr<IDXGIFactory4> factory;
-	ThrowIfFailed(CreateDXGIFactory1(IID_PPV_ARGS(&factory)));
-
-	// TODO: Try to enable a WARP adapter
-	{
-		ComPtr<IDXGIAdapter1> hardwareAdapter;
-		GetHardwareAdapter(factory.Get(), &hardwareAdapter);
-
-		ThrowIfFailed(D3D12CreateDevice(hardwareAdapter.Get(), D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(&m_device)));
-	}
-
-	// Describe and create the command queue
-	D3D12_COMMAND_QUEUE_DESC queueDesc = {};
-	queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
-	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
-
-	ThrowIfFailed(m_device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_commandQueue)));
-
-	
-
-	// Create Descriptor Heaps
-	{
-		// Describe and create a render target view (RTV) descriptor
-		D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
-		rtvHeapDesc.NumDescriptors = FrameCount;
-		rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-		rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-		ThrowIfFailed(m_device->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&m_rtvHeap)));
-
-		m_rtvDescriptorSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-
-		// Describe and create a depth-stencil view (DSV) descriptor
-		D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
-		dsvHeapDesc.NumDescriptors = 1;
-		dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
-		dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-		ThrowIfFailed(m_device->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(&m_dsvHeap)));
-
-	}
 }
 
 void DX12Renderer::LoadShader(const wchar_t* vsPath, const wchar_t* psPath, const IID &riid, void** ppPipelineState) {
@@ -245,32 +248,6 @@ void DX12Renderer::LoadAssets() {
 	ThrowIfFailed(m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator.Get(), m_uvState.Get(), IID_PPV_ARGS(&m_commandList)));
 	ThrowIfFailed(m_commandList->Close());
 
-	// TODO: REMOVE ONCE WE HAVE THE ABILITY TO LOAD MAPS
-	Vertex cubeVertecies[8] = {
-		{ XMFLOAT4(-1.0f, -1.0f, -1.0f, 1.0f), XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f) }, // 0
-		{ XMFLOAT4(-1.0f,  1.0f, -1.0f, 1.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) }, // 1
-		{ XMFLOAT4(1.0f,  1.0f, -1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f) }, // 2
-		{ XMFLOAT4(1.0f, -1.0f, -1.0f, 1.0f), XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f) }, // 3
-		{ XMFLOAT4(-1.0f, -1.0f,  1.0f, 1.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f) }, // 4
-		{ XMFLOAT4(-1.0f,  1.0f,  1.0f, 1.0f), XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f) }, // 5
-		{ XMFLOAT4(1.0f,  1.0f,  1.0f, 1.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) }, // 6
-		{ XMFLOAT4(1.0f, -1.0f,  1.0f, 1.0f), XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f) }  // 7
-	};
-
-	WORD cubeIndecies[36] = {
-		0, 1, 2, 0, 2, 3,
-		4, 6, 5, 4, 7, 6,
-		4, 5, 1, 4, 1, 0,
-		3, 2, 6, 3, 6, 7,
-		1, 5, 6, 1, 6, 2,
-		4, 0, 3, 4, 3, 7
-	};
-
-	const UINT vertexBufferSize = sizeof(cubeVertecies);
-
-	// TODO: Change to the default upload heap
-	GenerateStoredModel(&m_testModel, cubeVertecies, vertexBufferSize, cubeIndecies, sizeof(cubeIndecies), _countof(cubeIndecies));
-
 	// Create the synchronization objects
 	{
 		ThrowIfFailed(m_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
@@ -287,51 +264,63 @@ void DX12Renderer::LoadAssets() {
 	}
 }
 
-void DX12Renderer::GenerateStoredModel(StoredModel* model, const Vertex* vertecies, const UINT vertexSize, const WORD* indecies, const UINT indexSize, UINT indexCount) {
-	//TODO: Register only 1 heap location to store the data.
-
-	model->indexCount = indexCount;
-
-	// Create the Vertex Buffer
+DX12VertexBuffer* DX12Renderer::AllocVertexBuffer(DX12VertexBuffer* buffer, UINT numBytes) {
 	ThrowIfFailed(m_device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 		D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Buffer(vertexSize),
+		&CD3DX12_RESOURCE_DESC::Buffer(numBytes),
 		D3D12_RESOURCE_STATE_GENERIC_READ,
 		nullptr,
-		IID_PPV_ARGS(&model->vertexBuffer)
+		IID_PPV_ARGS(&buffer->vertexBuffer)
 	));
 
-	UpdateCommittedResource(model->vertexBuffer, vertecies, vertexSize);
+	buffer->vertexBufferView.BufferLocation = buffer->vertexBuffer->GetGPUVirtualAddress();
+	buffer->vertexBufferView.StrideInBytes = sizeof(idDrawVert); // TODO: Change to Doom vertex structure
+	buffer->vertexBufferView.SizeInBytes = numBytes;
 
-	model->vertexBufferView.BufferLocation = model->vertexBuffer->GetGPUVirtualAddress();
-	model->vertexBufferView.StrideInBytes = sizeof(Vertex);
-	model->vertexBufferView.SizeInBytes = vertexSize;
-
-	// Create the Index Buffer
-	ThrowIfFailed(m_device->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
-		D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Buffer(indexSize),
-		D3D12_RESOURCE_STATE_GENERIC_READ,
-		nullptr,
-		IID_PPV_ARGS(&model->indexBuffer)
-	));
-
-	UpdateCommittedResource(model->indexBuffer, indecies, indexSize);
-
-	model->indexBufferView.BufferLocation = model->indexBuffer->GetGPUVirtualAddress();
-	model->indexBufferView.Format = DXGI_FORMAT_R16_UINT;
-	model->indexBufferView.SizeInBytes = indexSize;
-
+	return buffer;
 }
 
-void DX12Renderer::UpdateCommittedResource(ComPtr<ID3D12Resource> resource, const void* data, size_t size) {
-	UINT8* pDataBegin;
-	D3D12_RANGE readRange = { 0, 0 };
-	ThrowIfFailed(resource->Map(0, &readRange, reinterpret_cast<void**>(&pDataBegin)));
-	memcpy(pDataBegin, data, size);
-	resource->Unmap(0, nullptr);
+void DX12Renderer::FreeVertexBuffer(DX12VertexBuffer* buffer) {
+	buffer->vertexBuffer->Release();
+}
+
+DX12IndexBuffer* DX12Renderer::AllocIndexBuffer(DX12IndexBuffer* buffer, UINT numBytes) {
+	ThrowIfFailed(m_device->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+		D3D12_HEAP_FLAG_NONE,
+		&CD3DX12_RESOURCE_DESC::Buffer(numBytes),
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(&buffer->indexBuffer)
+	));
+
+	buffer->indexBufferView.BufferLocation = buffer->indexBuffer->GetGPUVirtualAddress();
+	buffer->indexBufferView.Format = DXGI_FORMAT_R16_UINT;
+	buffer->indexBufferView.SizeInBytes = numBytes;
+
+	return buffer;
+}
+
+void DX12Renderer::FreeIndexBuffer(DX12IndexBuffer* buffer) {
+	buffer->indexBuffer->Release();
+}
+
+DX12JointBuffer* DX12Renderer::AllocJointBuffer(DX12JointBuffer* buffer, UINT numBytes) {
+	ThrowIfFailed(m_device->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+		D3D12_HEAP_FLAG_NONE,
+		&CD3DX12_RESOURCE_DESC::Buffer(numBytes),
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(&buffer->jointBuffer)
+	));
+
+	return buffer;
+}
+
+void DX12Renderer::FreeJointBuffer(DX12JointBuffer* buffer) {
+	buffer->jointBuffer->Release();
 }
 
 void DX12Renderer::WaitForPreviousFrame() {
@@ -390,14 +379,14 @@ void DX12Renderer::PopulateCommandList() {
 	m_commandList->SetGraphicsRoot32BitConstants(0, sizeof(XMMATRIX) / 4, &mvpMatrix, 0);
 
 	// TODO: CHANGE TO ITEMS
-	m_commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	/*m_commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	m_commandList->IASetVertexBuffers(0, 1, &m_testModel.vertexBufferView);
 	m_commandList->IASetIndexBuffer(&m_testModel.indexBufferView);
 
 	// Draw the model
-	m_commandList->DrawIndexedInstanced(m_testModel.indexCount, 1, 0, 0, 0);
+	m_commandList->DrawIndexedInstanced(m_testModel.indexCount, 1, 0, 0, 0);*/
 
-	// Oresent the backbuffer
+	// present the backbuffer
 	m_commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 
 	ThrowIfFailed(m_commandList->Close());
@@ -409,14 +398,19 @@ void DX12Renderer::OnDestroy() {
 	CloseHandle(m_fenceEvent);
 }
 
-void DX12Renderer::OnResize(UINT width, UINT height)
+bool DX12Renderer::SetScreenParams(UINT width, UINT height, int fullscreen)
 {
+	// TODO: Resize buffers as needed.
+
 	m_width = width;
 	m_height = height;
+	m_fullScreen = fullscreen;
 	m_aspectRatio = static_cast<FLOAT>(width) / static_cast<FLOAT>(height);
 
 	UpdateViewport(0.0f, 0.0f, width, height);
 	UpdateScissorRect(0, 0, static_cast<LONG>(width), static_cast<LONG>(height));
+
+	return true;
 }
 
 void DX12Renderer::UpdateViewport(FLOAT topLeftX, FLOAT topLeftY, FLOAT width, FLOAT height, FLOAT minDepth, FLOAT maxDepth) {
@@ -450,4 +444,9 @@ void DX12Renderer::OnUpdate() {
 
 	// Update the projection matrix.
 	m_projMat = DirectX::XMMatrixPerspectiveFovLH(XMConvertToRadians(m_FoV), m_aspectRatio, 0.1f, 100.0f);
+}
+
+void DX12Renderer::ReadPixels(int x, int y, int width, int height, UINT readBuffer, byte* buffer) {
+	// TODO: Implement
+	common->Warning("Read Pixels not yet implemented.");
 }

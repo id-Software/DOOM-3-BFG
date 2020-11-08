@@ -13,6 +13,9 @@
 #pragma comment (lib, "dxgi.lib")
 #pragma comment (lib, "dxcompiler.lib")
 
+#define BUFFER_RGB 0x01
+#define BUFFER_STENCIL 0x02
+
 using namespace DirectX;
 using namespace Microsoft::WRL;
 
@@ -25,24 +28,33 @@ struct Vertex
 	XMFLOAT4 colour;
 };
 
-struct StoredModel
+struct DX12VertexBuffer
 {
-	XMMATRIX modelMat;
 	ComPtr<ID3D12Resource> vertexBuffer;
-	ComPtr<ID3D12Resource> indexBuffer;
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
+};
+
+struct DX12IndexBuffer
+{
+	ComPtr<ID3D12Resource> indexBuffer;
 	D3D12_INDEX_BUFFER_VIEW indexBufferView;
 	UINT indexCount;
 };
 
+struct DX12JointBuffer
+{
+	// TODO: Check if any of this is correct.
+	ComPtr<ID3D12Resource> jointBuffer;
+};
+
 class DX12Renderer {
 public:
-	DX12Renderer(UINT width, UINT height);
+	DX12Renderer();
 	~DX12Renderer();
 
-	virtual void OnHWNDInit(HWND hWnd);
-	virtual void OnInit();
-	virtual void OnResize(UINT width, UINT height);
+	virtual void OnCreateWindow(HWND hWnd);
+	virtual bool Init(UINT width, UINT height, int fullscreen);
+	virtual bool SetScreenParams(UINT width, UINT height, int fullscreen);
 	virtual void OnUpdate();
 	virtual void OnRender();
 	virtual void OnDestroy();
@@ -50,11 +62,22 @@ public:
 	void UpdateViewport(FLOAT topLeftX, FLOAT topLeftY, FLOAT width, FLOAT height, FLOAT minDepth = D3D12_MIN_DEPTH, FLOAT maxDepth = D3D12_MAX_DEPTH);
 	void UpdateScissorRect(LONG left, LONG top, LONG right, LONG bottom);
 
+	void ReadPixels(int x, int y, int width, int height, UINT readBuffer, byte* buffer);
 
+	DX12VertexBuffer* AllocVertexBuffer(DX12VertexBuffer* buffer, UINT numBytes);
+	void FreeVertexBuffer(DX12VertexBuffer* buffer);
 
+	DX12IndexBuffer* AllocIndexBuffer(DX12IndexBuffer* buffer, UINT numBytes);
+	void FreeIndexBuffer(DX12IndexBuffer* buffer);
+
+	DX12JointBuffer* AllocJointBuffer(DX12JointBuffer* buffer, UINT numBytes);
+	void FreeJointBuffer(DX12JointBuffer* buffer);
 private:
-	UINT m_width = 0;
-	UINT m_height = 0;
+	UINT m_width;
+	UINT m_height;
+	int m_fullScreen; // 0 = windowed, otherwise 1 based monitor number to go full screen on
+						// -1 = borderless window for spanning multiple displays
+
 	FLOAT m_aspectRatio = 1.0f;
     FLOAT m_FoV = 90.0f;
 
@@ -86,19 +109,12 @@ private:
     XMMATRIX m_modelMat;
 	XMMATRIX m_viewMat;
 	XMMATRIX m_projMat;
-	StoredModel m_testModel;
 
-	void LoadPipeline();
+	void LoadPipeline(HWND hWnd);
 	void LoadAssets();
 	void LoadShader(const wchar_t* vsPath, const wchar_t* psPath, const IID& riid, void** ppPipelineStatee);
 
     void WaitForPreviousFrame();
-
-	// Model functions
-	void GenerateStoredModel(StoredModel* model, const Vertex* vertecies, const UINT vertexSize, const WORD* indecies, const UINT indexSize, UINT indexCount);
-
-    // Heap functions
-    void UpdateCommittedResource(ComPtr<ID3D12Resource> resource, const void* data, size_t size);
 
     // Render functions
     void PopulateCommandList();

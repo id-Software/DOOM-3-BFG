@@ -317,22 +317,21 @@ void R_SetNewMode( const bool fullInit ) {
 		}
 
 		if ( fullInit ) {
-			// TODO: Find another setup.
 			// create the context as well as setting up the window
-			/*if ( GLimp_Init( parms ) ) {
+			if ( dxRenderer.Init( parms.width, parms.height, parms.fullScreen ) ) {
 				// it worked
 				break;
-			}*/
+			}
 		} else {
 			// just rebuild the window
-			/*if ( GLimp_SetScreenParms( parms ) ) {
+			if ( dxRenderer.SetScreenParams( parms.width, parms.height, parms.fullScreen ) ) {
 				// it worked
 				break;
-			}*/
+			}
 		}
 
 		if ( i == 2 ) {
-			common->FatalError( "Unable to initialize OpenGL" );
+			common->FatalError( "Unable to initialize DX12" );
 		}
 
 		if ( i == 0 ) {
@@ -373,23 +372,18 @@ and model information functions.
 void R_InitDX12() {
 	common->Printf("----- R_InitDX12 -----\n");
 
-	dxRenderer.OnInit();
-	r_initialized = true;
-
-	/*common->Printf( "----- R_InitOpenGL -----\n" );
-
-	if ( R_IsInitialized() ) {
-		common->FatalError( "R_InitOpenGL called while active" );
+	if (R_IsInitialized()) {
+		common->FatalError("R_InitOpenGL called while active");
 	}
 
-	R_SetNewMode( true );
-
+	R_SetNewMode(true);
 
 	// input and sound systems need to be tied to the new window
-	Sys_InitInput();
+	Sys_InitInput();	
 
 	// get our config strings
-	glConfig.vendor_string = (const char *)qglGetString( GL_VENDOR );
+	// TODO: Setup glconfig properties
+	/*glConfig.vendor_string = (const char *)qglGetString( GL_VENDOR );
 	glConfig.renderer_string = (const char *)qglGetString( GL_RENDERER );
 	glConfig.version_string = (const char *)qglGetString( GL_VERSION );
 	glConfig.shading_language_string = (const char *)qglGetString( GL_SHADING_LANGUAGE_VERSION );
@@ -428,12 +422,9 @@ void R_InitDX12() {
 	// stubbed or broken drivers may have reported 0...
 	if ( glConfig.maxTextureSize <= 0 ) {
 		glConfig.maxTextureSize = 256;
-	}
+	}*/
 
 	r_initialized = true;
-
-	// recheck all the extensions (FIXME: this might be dangerous)
-	R_CheckPortableExtensions();
 
 	renderProgManager.Init();
 
@@ -449,7 +440,8 @@ void R_InitDX12() {
 	R_SetColorMappings();
 
 	static bool glCheck = false;
-	if ( !glCheck && win32.osversion.dwMajorVersion == 6 ) {
+	// TODO: Enable OS version checking.
+	/*if ( !glCheck && win32.osversion.dwMajorVersion == 6 ) {
 		glCheck = true;
 		if ( !idStr::Icmp( glConfig.vendor_string, "Microsoft" ) && idStr::FindText( glConfig.renderer_string, "OpenGL-D3D" ) != -1 ) {
 			if ( cvarSystem->GetCVarBool( "r_fullscreen" ) ) {
@@ -764,8 +756,8 @@ void R_ReadTiledPixels( int width, int height, byte *buffer, renderView_t *ref =
 			}
 
 			// TODO: Implement
-			/*qglReadBuffer( GL_FRONT );
-			qglReadPixels( 0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, temp ); */
+			/*qglReadBuffer( GL_FRONT );*/
+			dxRenderer.ReadPixels(0, 0, w, h, BUFFER_RGB, temp);
 
 			int	row = ( w * 3 + 3 ) & ~3;		// OpenGL pads to dword boundaries
 
@@ -983,7 +975,7 @@ void R_StencilShot() {
 	idTempArray< byte > byteBuffer( pix );
 
 	// TODO: Implement
-	//qglReadPixels( 0, 0, width, height, GL_STENCIL_INDEX , GL_UNSIGNED_BYTE, byteBuffer.Ptr() ); 
+	dxRenderer.ReadPixels(0, 0, width, height, BUFFER_STENCIL, byteBuffer.Ptr());
 
 	for ( i = 0 ; i < pix ; i++ ) {
 		buffer[18+i*3] =
@@ -1221,6 +1213,7 @@ void R_SetColorMappings() {
 		tr.gammaTable[i] = idMath::ClampInt( 0, 0xFFFF, inf );
 	}
 
+	// TODO: Implement gamma
 	//GLimp_SetGamma( tr.gammaTable, tr.gammaTable, tr.gammaTable );
 }
 
@@ -1230,6 +1223,7 @@ GfxInfo_f
 ================
 */
 void GfxInfo_f( const idCmdArgs &args ) {
+	// TODO: Implement get graphics info
 	common->Printf( "CPU: %s\n", Sys_GetProcessorString() );
 
 	const char *fsstrings[] =
