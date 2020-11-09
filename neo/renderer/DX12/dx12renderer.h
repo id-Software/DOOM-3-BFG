@@ -52,8 +52,7 @@ public:
 	DX12Renderer();
 	~DX12Renderer();
 
-	virtual void OnCreateWindow(HWND hWnd);
-	virtual bool Init(UINT width, UINT height, int fullscreen);
+	virtual void Init(HWND hWnd);
 	virtual bool SetScreenParams(UINT width, UINT height, int fullscreen);
 	virtual void OnUpdate();
 	virtual void OnRender();

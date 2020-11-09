@@ -1011,7 +1011,7 @@ struct glimpParms_t {
 	int			multiSamples;
 };
 
-//bool		GLimp_Init( glimpParms_t parms );
+bool		GLimp_Init( glimpParms_t parms );
 // If the desired mode can't be set satisfactorily, false will be returned.
 // If succesful, sets glConfig.nativeScreenWidth, glConfig.nativeScreenHeight, and glConfig.pixelAspect
 
@@ -1021,7 +1021,7 @@ struct glimpParms_t {
 //bool		GLimp_SetScreenParms( glimpParms_t parms );
 // will set up gl up with the new parms
 
-//void		GLimp_Shutdown();
+void		GLimp_Shutdown();
 // Destroys the rendering context, closes the window, resets the resolution,
 // and resets the gamma ramps.
 

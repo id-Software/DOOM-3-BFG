@@ -234,7 +234,7 @@ void Sys_Error( const char *error, ... ) {
 
 	Sys_ShutdownInput();
 
-	//GLimp_Shutdown();
+	GLimp_Shutdown();
 
 	extern idCVar com_productionMode;
 	if ( com_productionMode.GetInteger() == 0 ) {

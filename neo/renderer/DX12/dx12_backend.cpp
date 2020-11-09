@@ -105,8 +105,43 @@ void RB_DrawViewInternal(const viewDef_t* viewDef, const int stereoEye) {
 
 }
 
-void RB_DrawView(const void* data, const int stereoEy) {
-	// TODO: Draw view
+void RB_DrawView(const void* data, const int stereoEye) {
+	const drawSurfsCommand_t* cmd = (const drawSurfsCommand_t*)data;
+	backEnd.viewDef = cmd->viewDef;
+
+	backEnd.currentRenderCopied = false;
+
+	// if there aren't any drawsurfs, do nothing
+	if (!backEnd.viewDef->numDrawSurfs) {
+		return;
+	}
+
+	// skip render bypasses everything that has models, assuming
+	// them to be 3D views, but leaves 2D rendering visible
+	if (r_skipRender.GetBool() && backEnd.viewDef->viewEntitys) {
+		return;
+	}
+
+	if (r_skipRenderContext.GetBool() && backEnd.viewDef->viewEntitys) {
+		// TODO: Implement skipping the render context.
+	}
+
+	backEnd.pc.c_surfaces += backEnd.viewDef->numDrawSurfs;
+
+	//TODO: Implement
+	// RB_ShowOverdraw();
+
+	// render the scene
+	RB_DrawViewInternal(cmd->viewDef, stereoEye);
+
+	//TODO: Implemnt
+	//RB_MotionBlur();
+
+	// restore the context for 2D drawing if we were stubbing it out
+	if (r_skipRenderContext.GetBool() && backEnd.viewDef->viewEntitys) {
+		//GLimp_ActivateContext();
+		GL_SetDefaultState();
+	}
 }
 
 void RB_CopyRender(const void* data) {
@@ -135,12 +170,13 @@ void RB_ExecuteBackEndCommands(const emptyCommand_t* cmds) {
 
 	GL_SetDefaultState();
 
-	// TODO: switch backbuffer mode to "BACK"
+	// TODO: switch culling mode to "BACK"
 
 	for (; cmds != NULL; cmds = (const emptyCommand_t*)cmds->next) {
 		switch (cmds->commandId) {
 		case RC_NOP:
 			break;
+		case RC_DRAW_VIEW_GUI:
 		case RC_DRAW_VIEW_3D:
 			RB_DrawView(cmds, 0);
 			if (((const drawSurfsCommand_t*)cmds)->viewDef->viewEntitys) {

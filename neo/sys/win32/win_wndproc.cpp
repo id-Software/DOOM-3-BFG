@@ -199,7 +199,7 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam ) {
 			}
 
 			// Startup dx12
-			dxRenderer.OnCreateWindow(hWnd);
+			dxRenderer.Init(hWnd);
 
 			break;
 

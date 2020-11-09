@@ -58,7 +58,12 @@ DX12Renderer::~DX12Renderer() {
 	OnDestroy();
 }
 
-bool DX12Renderer::Init(UINT width, UINT height, int fullscreen) {
+void DX12Renderer::Init(HWND hWnd) {
+	LoadPipeline(hWnd);
+	//LoadAssets();
+}
+
+void DX12Renderer::LoadPipeline(HWND hWnd) {
 #if defined(_DEBUG)
 	{
 		ComPtr<ID3D12Debug> debugController;
@@ -78,19 +83,6 @@ bool DX12Renderer::Init(UINT width, UINT height, int fullscreen) {
 
 		ThrowIfFailed(D3D12CreateDevice(hardwareAdapter.Get(), D3D_FEATURE_LEVEL_12_1, IID_PPV_ARGS(&m_device)));
 	}
-
-	return SetScreenParams(width, height, fullscreen);
-}
-
-void DX12Renderer::OnCreateWindow(HWND hWnd) {
-	LoadPipeline(hWnd);
-	//LoadAssets();
-}
-
-void DX12Renderer::LoadPipeline(HWND hWnd) {
-
-	ComPtr<IDXGIFactory4> factory;
-	ThrowIfFailed(CreateDXGIFactory1(IID_PPV_ARGS(&factory)));
 
 	// Describe and create the command queue
 	D3D12_COMMAND_QUEUE_DESC queueDesc = {};

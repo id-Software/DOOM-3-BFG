@@ -316,18 +316,13 @@ void R_SetNewMode( const bool fullInit ) {
 			parms.stereo = false;
 		}
 
-		if ( fullInit ) {
+		if (fullInit) {
 			// create the context as well as setting up the window
-			if ( dxRenderer.Init( parms.width, parms.height, parms.fullScreen ) ) {
-				// it worked
-				break;
-			}
-		} else {
-			// just rebuild the window
-			if ( dxRenderer.SetScreenParams( parms.width, parms.height, parms.fullScreen ) ) {
-				// it worked
-				break;
-			}
+			GLimp_Init(parms);
+		}
+		if ( dxRenderer.SetScreenParams( parms.width, parms.height, parms.fullScreen ) ) {
+			// it worked
+			break;
 		}
 
 		if ( i == 2 ) {
@@ -1905,7 +1900,7 @@ idRenderSystemLocal::ShutdownDX12
 void idRenderSystemLocal::ShutdownGL() {
 	// free the context and close the window
 	R_ShutdownFrameData();
-	//GLimp_Shutdown(); // TODO: Check into this.
+	GLimp_Shutdown();
 	r_initialized = false;
 }
 
