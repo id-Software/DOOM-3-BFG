@@ -257,31 +257,35 @@ protected:
 	void BindShader_Builtin( int i ) { BindShader( builtinShaders[i], builtinShaders[i] ); }
 
 	struct vertexShader_t {
-					vertexShader_t() : usesJoints( false ), optionalSkinning( false ) {}
+					vertexShader_t() : usesJoints( false ), optionalSkinning( false ), apiObject(NULL) {}
 		idStr		name;
 		bool		usesJoints;
 		bool		optionalSkinning;
 		idList<int>	uniforms;
+		void*		apiObject;
 	};
 	struct fragmentShader_t {
-					fragmentShader_t() {}
+					fragmentShader_t() : apiObject(NULL) {}
 		idStr		name;
 		idList<int>	uniforms;
+		void*		apiObject;
 	};
 
 	struct hlslProgram_t {
 		hlslProgram_t() :	vertexShaderIndex( -1 ),
-							fragmentShaderIndex( -1 ) {}
+							fragmentShaderIndex( -1 ),
+							shaderObject(NULL) {}
 		idStr		name;
 		int			vertexShaderIndex;
 		int			fragmentShaderIndex;
+		void*		shaderObject;
 		/*GLint		vertexUniformArray;
 		GLint		fragmentUniformArray;*/
 		idList<glslUniformLocation_t> uniformLocations;
 	};
 	int	currentRenderProgram;
-	idList<hlslProgram_t, TAG_RENDER> glslPrograms;
-	idStaticList<idVec4, RENDERPARM_USER + MAX_SHADER_USER_PARMS> glslUniforms;
+	idList<hlslProgram_t, TAG_RENDER> shaderPrograms;
+	idStaticList<idVec4, RENDERPARM_USER + MAX_SHADER_USER_PARMS> shaderUniforms;
 
 
 	int				currentVertexShader;

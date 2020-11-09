@@ -64,6 +64,9 @@
     <Filter Include="Renderer\DX12">
       <UniqueIdentifier>{c9c9c14c-da58-4c05-a12c-a4a621a17791}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{4691cec9-dae7-45dc-a842-8d1cba4550d9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cm\CollisionModel.h">
@@ -1179,6 +1182,276 @@
     </None>
     <None Include="sys\win32\rc\res\doom3bfg.bin">
       <Filter>Sys\RC\res</Filter>
+    </None>
+    <None Include="..\base\renderprogs\bink.pixel">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\bink.vertex">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\bink_gui.pixel">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\bink_gui.vertex">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\blendLight.pixel">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\blendLight.vertex">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\bloodorb_draw.pixel">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\bloodorb_draw.vertex">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\bloodorb1_capture.pixel">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\bloodorb1_capture.vertex">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\bloodorb2_capture.pixel">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\bloodorb2_capture.vertex">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\bloodorb3_capture.pixel">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\bloodorb3_capture.vertex">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\bumpyenvironment.pixel">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\bumpyenvironment.vertex">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\bumpyenvironment_skinned.pixel">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\bumpyenvironment_skinned.vertex">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\color.pixel">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\color.vertex">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\colorProcess.pixel">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\colorProcess.vertex">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\depth.pixel">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\depth.vertex">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\depth_skinned.pixel">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\depth_skinned.vertex">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\environment.pixel">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\environment.vertex">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\environment_skinned.pixel">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\environment_skinned.vertex">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\enviroSuit.pixel">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\enviroSuit.vertex">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\fog.pixel">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\fog.vertex">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\fog_skinned.pixel">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\fog_skinned.vertex">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\fxaa.pixel">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\fxaa.vertex">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\global.inc">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\gui.pixel">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\gui.vertex">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\heathaze.pixel">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\heathaze.vertex">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\heatHazeWithMask.pixel">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\heatHazeWithMask.vertex">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\heatHazeWithMaskAndVertex.pixel">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\heatHazeWithMaskAndVertex.vertex">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\interaction.pixel">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\interaction.vertex">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\interaction_skinned.pixel">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\interaction_skinned.vertex">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\interactionAmbient.pixel">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\interactionAmbient.vertex">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\interactionAmbient_skinned.pixel">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\interactionAmbient_skinned.vertex">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\motionBlur.pixel">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\motionBlur.vertex">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\postprocess.pixel">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\postprocess.vertex">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\shadow.pixel">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\shadow.vertex">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\shadow_skinned.pixel">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\shadow_skinned.vertex">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\shadowDebug.pixel">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\shadowDebug.vertex">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\shadowDebug_skinned.pixel">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\shadowDebug_skinned.vertex">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\simpleshade.pixel">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\simpleshade.vertex">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\skinning.inc">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\skybox.pixel">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\skybox.vertex">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\stereoDeGhost.pixel">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\stereoDeGhost.vertex">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\stereoInterlace.pixel">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\stereoInterlace.vertex">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\stereoWarp.pixel">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\stereoWarp.vertex">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\texture.pixel">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\texture.vertex">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\texture_color.pixel">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\texture_color.vertex">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\texture_color_skinned.pixel">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\texture_color_skinned.vertex">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\texture_color_texgen.pixel">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\texture_color_texgen.vertex">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\wobblesky.pixel">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\wobblesky.vertex">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\zcullReconstruct.pixel">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\base\renderprogs\zcullReconstruct.vertex">
+      <Filter>Shaders</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

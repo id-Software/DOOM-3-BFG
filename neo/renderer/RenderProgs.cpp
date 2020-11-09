@@ -115,7 +115,7 @@ void idRenderProgManager::Init() {
 	int numBuiltins = sizeof( builtins ) / sizeof( builtins[0] );
 	vertexShaders.SetNum( numBuiltins );
 	fragmentShaders.SetNum( numBuiltins );
-	glslPrograms.SetNum( numBuiltins );
+	shaderPrograms.SetNum( numBuiltins );
 
 	for ( int i = 0; i < numBuiltins; i++ ) {
 		vertexShaders[i].name = builtins[i].name;
@@ -133,7 +133,7 @@ void idRenderProgManager::Init() {
 	FindProgram( "shadow.vp", builtinShaders[BUILTIN_SHADOW], -1 );
 	FindProgram( "shadow_skinned.vp", builtinShaders[BUILTIN_SHADOW_SKINNED], -1 );
 
-	glslUniforms.SetNum( RENDERPARM_USER + MAX_SHADER_USER_PARMS, vec4_zero );
+	shaderUniforms.SetNum( RENDERPARM_USER + MAX_SHADER_USER_PARMS, vec4_zero );
 
 	vertexShaders[builtinShaders[BUILTIN_TEXTURE_VERTEXCOLOR_SKINNED]].usesJoints = true;
 	vertexShaders[builtinShaders[BUILTIN_INTERACTION_SKINNED]].usesJoints = true;
@@ -161,8 +161,8 @@ void idRenderProgManager::LoadAllShaders() {
 		LoadFragmentShader( i );
 	}
 
-	for ( int i = 0; i < glslPrograms.Num(); ++i ) {
-		LoadProgram( i, glslPrograms[i].vertexShaderIndex, glslPrograms[i].fragmentShaderIndex );
+	for ( int i = 0; i < shaderPrograms.Num(); ++i ) {
+		LoadProgram( i, shaderPrograms[i].vertexShaderIndex, shaderPrograms[i].fragmentShaderIndex );
 	}
 }
 
@@ -253,37 +253,6 @@ int idRenderProgManager::FindFragmentShader( const char * name ) {
 	LoadFragmentShader( index );
 	currentFragmentShader = index;
 	return index;
-}
-
-
-
-
-/*
-================================================================================================
-idRenderProgManager::LoadVertexShader
-================================================================================================
-*/
-void idRenderProgManager::LoadVertexShader( int index ) {
-	// TODO: Change to load the vertex shader binary.
-
-	/*if ( vertexShaders[index].progId != INVALID_PROGID ) {
-		return; // Already loaded
-	}
-	vertexShaders[index].progId = ( GLuint ) LoadGLSLShader( GL_VERTEX_SHADER, vertexShaders[index].name, vertexShaders[index].uniforms );*/
-}
-
-/*
-================================================================================================
-idRenderProgManager::LoadFragmentShader
-================================================================================================
-*/
-void idRenderProgManager::LoadFragmentShader( int index ) {
-	// TODO: Change to load the fragmentshader binary.
-
-	/*if ( fragmentShaders[index].progId != INVALID_PROGID ) {
-		return; // Already loaded
-	}
-	fragmentShaders[index].progId = ( GLuint ) LoadGLSLShader( GL_FRAGMENT_SHADER, fragmentShaders[index].name, fragmentShaders[index].uniforms );*/
 }
 
 /*

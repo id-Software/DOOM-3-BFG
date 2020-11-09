@@ -60,7 +60,7 @@ DX12Renderer::~DX12Renderer() {
 
 void DX12Renderer::Init(HWND hWnd) {
 	LoadPipeline(hWnd);
-	//LoadAssets();
+	LoadAssets();
 }
 
 void DX12Renderer::LoadPipeline(HWND hWnd) {
@@ -174,12 +174,9 @@ void DX12Renderer::LoadPipeline(HWND hWnd) {
 	ThrowIfFailed(m_device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator)));
 }
 
-void DX12Renderer::LoadShader(const wchar_t* vsPath, const wchar_t* psPath, const IID &riid, void** ppPipelineState) {
-	//TODO: FIX
-	/*auto vsFile = ReadBinaryFile(vsPath);
-	auto psFile = ReadBinaryFile(psPath);
-
+void DX12Renderer::LoadPipelineState(const DX12CompiledShader* vertexShader, const DX12CompiledShader* pixelShader, const IID& riid, void** ppPipelineState) {
 	// Define the vertex input layout
+	// TODO: Change to the uniforms.
 	D3D12_INPUT_ELEMENT_DESC inputElementDescs[] = {
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
@@ -192,13 +189,11 @@ void DX12Renderer::LoadShader(const wchar_t* vsPath, const wchar_t* psPath, cons
 		featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_0;
 	}
 
-	
-
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
 	psoDesc.InputLayout = { inputElementDescs, _countof(inputElementDescs) };
 	psoDesc.pRootSignature = m_rootsSignature.Get();
-	psoDesc.VS = { vsFile.data(), vsFile.size() };
-	psoDesc.PS = { psFile.data(), psFile.size() };
+	psoDesc.VS = { vertexShader->data, vertexShader->size };
+	psoDesc.PS = { pixelShader->data, pixelShader->size };
 	psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 	psoDesc.SampleMask = UINT_MAX;
@@ -207,7 +202,7 @@ void DX12Renderer::LoadShader(const wchar_t* vsPath, const wchar_t* psPath, cons
 	psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
 	psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
 	psoDesc.SampleDesc.Count = 1;
-	ThrowIfFailed(m_device->CreateGraphicsPipelineState(&psoDesc, riid, ppPipelineState));*/
+	ThrowIfFailed(m_device->CreateGraphicsPipelineState(&psoDesc, riid, ppPipelineState));
 }
 
 void DX12Renderer::LoadAssets() {
@@ -232,9 +227,6 @@ void DX12Renderer::LoadAssets() {
 		ThrowIfFailed(D3DX12SerializeVersionedRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1_1, &signature, &error));
 		ThrowIfFailed(m_device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&m_rootsSignature)));
 	}
-
-	// Create Shaders
-	LoadShader(L"./test_vert.cso", L"./test_frag.cso", IID_PPV_ARGS(&m_uvState));
 
 	// Create the Command List
 	ThrowIfFailed(m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator.Get(), m_uvState.Get(), IID_PPV_ARGS(&m_commandList)));

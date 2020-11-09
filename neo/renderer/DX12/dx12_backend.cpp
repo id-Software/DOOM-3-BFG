@@ -16,6 +16,15 @@ idCVar r_useLightStencilSelect("r_useLightStencilSelect", "0", CVAR_RENDERER | C
 
 bool R_GetModeListForDisplay(const int displayNum, idList<vidMode_t>& modeList) {
 	// TODO: Implement
+	for (int i = 0; i <= displayNum; ++i) {
+		vidMode_t mode;
+		mode.displayHz = 60;
+		mode.height = 600;
+		mode.width = 800;
+
+		modeList.Append(mode);
+	}
+
 	return true;
 }
 

@@ -41,6 +41,12 @@ struct DX12IndexBuffer
 	UINT indexCount;
 };
 
+struct DX12CompiledShader
+{
+	byte* data;
+	UINT size;
+};
+
 struct DX12JointBuffer
 {
 	// TODO: Check if any of this is correct.
@@ -63,6 +69,10 @@ public:
 
 	void ReadPixels(int x, int y, int width, int height, UINT readBuffer, byte* buffer);
 
+	// Shaders
+	void LoadPipelineState(const DX12CompiledShader* vertexShader, const DX12CompiledShader* pixelShader, const IID& riid, void** ppPipelineState);
+
+	// Buffers
 	DX12VertexBuffer* AllocVertexBuffer(DX12VertexBuffer* buffer, UINT numBytes);
 	void FreeVertexBuffer(DX12VertexBuffer* buffer);
 
@@ -95,9 +105,6 @@ private:
     ComPtr<ID3D12DescriptorHeap> m_dsvHeap;
 	ComPtr<ID3D12Resource> m_depthBuffer;
 
-	// Shaders
-	ComPtr<ID3D12PipelineState> m_uvState;
-
 	// Synchronization
 	UINT m_frameIndex;
     HANDLE m_fenceEvent;
@@ -111,7 +118,6 @@ private:
 
 	void LoadPipeline(HWND hWnd);
 	void LoadAssets();
-	void LoadShader(const wchar_t* vsPath, const wchar_t* psPath, const IID& riid, void** ppPipelineStatee);
 
     void WaitForPreviousFrame();
 
