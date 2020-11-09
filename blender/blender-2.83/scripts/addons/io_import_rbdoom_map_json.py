@@ -120,7 +120,7 @@ def import_map( filename ):
             """
             radius = get_vector( ent, "light_radius" )
             print( radius.magnitude )
-            lightData.distance = radius.length
+            lightData.energy = radius.magnitude * 750.0
             lightData.use_nodes = True
 
             # create new object with our lamp datablock
@@ -302,11 +302,11 @@ def import_map( filename ):
                     for ( tex, groupName ) in groupDict:
                         if mat == tex:
                             group = None
-                            if groupName in bpy.data.groups:
-                                group = bpy.data.groups[ groupName ]
-                                group.objects.link( ob )
+                            if groupName in bpy.data.collections:
+                                collection = bpy.data.collections[ groupName ]
+                                collection.objects.link( meshObj )
                             else:
-                                bpy.ops.group.create( name = groupName )
+                                bpy.ops.collection.create( name = groupName )
                             
                 
                     
@@ -383,8 +383,9 @@ def unregister():
     bpy.types.INFO_MT_file_import.remove( menu_func_import )
 
 if __name__ == "__main__":
-    #register()
+    register()
     
     # test for fast iteration
-    filename = 'C:/Projects/RBDOOM-3-BFG/base/maps/testmaps/test_box.json'
-    import_map( filename )
+    #filename = 'C:/Projects/RBDOOM-3-BFG/base/maps/testmaps/test_box.json'
+    #filename = 'C:/Projects/RBDOOM-3-BFG/base/maps/game/pdas.json'
+    #import_map( filename )
