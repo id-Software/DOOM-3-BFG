@@ -248,8 +248,7 @@ void DX12Renderer::LoadPipeline(HWND hWnd) {
 
 void DX12Renderer::LoadPipelineState(const DX12CompiledShader* vertexShader, const DX12CompiledShader* pixelShader, const IID& riid, void** ppPipelineState) {
 	// Define the vertex input layout
-	// TODO: Change to the uniforms.
-	D3D12_INPUT_ELEMENT_DESC inputElementDescs[] = {
+	const D3D12_INPUT_ELEMENT_DESC inputElementDescs[] = {
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT , 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 20, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
@@ -431,11 +430,9 @@ void DX12Renderer::BeginDraw() {
 
 	// Indicate that we will be rendering to the back buffer
 	m_commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
+	
 	m_commandList->RSSetViewports(1, &m_viewport);
 	m_commandList->RSSetScissorRects(1, &m_scissorRect);
-
-	// Indicate that we will be rendering to the back buffer
-	m_commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
 
 	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), m_frameIndex, m_rtvDescriptorSize);
 	m_commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
@@ -483,6 +480,7 @@ void DX12Renderer::Clear(bool color, bool depth, bool stencil, byte stencilValue
 	}
 
 	if (stencil) {
+		// TODO: Implement stencil first.
 		clearFlags |= D3D12_CLEAR_FLAG_STENCIL;
 	}
 
@@ -548,6 +546,9 @@ bool DX12Renderer::SetScreenParams(UINT width, UINT height, int fullscreen)
 	m_fullScreen = fullscreen;
 	m_aspectRatio = static_cast<FLOAT>(width) / static_cast<FLOAT>(height);
 
+	// TODO: Find the correct window.
+	//m_swapChain->SetFullscreenState(true, NULL);
+
 	UpdateViewport(0.0f, 0.0f, width, height);
 	UpdateScissorRect(0, 0, static_cast<LONG>(width), static_cast<LONG>(height));
 
@@ -569,6 +570,10 @@ void DX12Renderer::UpdateScissorRect(LONG left, LONG top, LONG right, LONG botto
 	m_scissorRect.top = top;
 	m_scissorRect.right = right;
 	m_scissorRect.bottom = bottom;
+
+	if (m_isDrawing) {
+		m_commandList->RSSetScissorRects(1, &m_scissorRect);
+	}
 }
 
 void DX12Renderer::OnUpdate() {

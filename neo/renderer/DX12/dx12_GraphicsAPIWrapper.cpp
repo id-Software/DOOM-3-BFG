@@ -41,6 +41,13 @@ void GL_GetDepthPassRect(idScreenRect& rect) {
 	rect.Clear();
 }
 
+void GL_Color(float* color) {
+	if (color == NULL) {
+		return;
+	}
+	GL_Color(color[0], color[1], color[2], color[3]);
+}
+
 void GL_Color(float r, float g, float b) {
 	GL_Color(r, g, b, 1.0f);
 }
@@ -55,7 +62,7 @@ void GL_Color(float r, float g, float b, float a) {
 }
 
 void GL_Clear(bool color, bool depth, bool stencil, byte stencilValue, float r, float g, float b, float a) {
-	float colorRGBA[4] = { 1.0f, g, b, a };
+	float colorRGBA[4] = { r, g, b, a };
 	dxRenderer.Clear(color, depth, stencil, stencilValue, colorRGBA);
 }
 
