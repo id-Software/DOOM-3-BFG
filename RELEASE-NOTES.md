@@ -15,7 +15,7 @@ Thank you for downloading RBDOOM-3-BFG.
 
 _______________________________________
 
-TBD mid 2020 - Changes since RBDOOM-3-BFG 1.2.0
+TBD end 2020 - Changes since RBDOOM-3-BFG 1.2.0
 _______________________________
 
 RBDOOM-3-BFG 1.3.0 is mainly a Phyiscally Based Rendering Update.
@@ -92,6 +92,8 @@ The main goal is that the new content looks the same in RBDOOM-3-BFG as in Blend
 * Artistic Style C++ beautifier configuration has slightly changed to work closer to Clang Format's behaviour
 
 * Updated documentation regarding modding support in the README
+
+* Bumped the static vertex cache limit of 31 MB to roughly ~ 128 MB to help with some custom models and maps by the Doom 3 community
 
 
 
