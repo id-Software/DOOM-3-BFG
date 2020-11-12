@@ -325,6 +325,45 @@ macro(SET_OPTION option value)
 endmacro()
 
 if(USE_VULKAN)
+
+	# RB: moved this above the general Vulkan part so glslang does not include Vulkan SDK headers
+	# which causes all kinds of weird segmentation faults because struct sizes don't match
+
+	if(SPIRV_SHADERC)
+		add_definitions(-DSPIRV_SHADERC)
+
+		if(CMAKE_CL_64)
+			link_directories($ENV{VULKAN_SDK}/Lib)
+		else()
+			link_directories($ENV{VULKAN_SDK}/Lib32)
+		endif()
+
+	else()
+		# override Glslang build options
+		
+		# options required by November 2018 release
+		SET_OPTION(ENABLE_SPVREMAPPER ON)
+		SET_OPTION(ENABLE_GLSLANG_BINARIES OFF)
+		SET_OPTION(ENABLE_HLSL OFF)
+		SET_OPTION(ENABLE_OPT ON)
+		SET_OPTION(SPIRV_SKIP_EXECUTABLES ON)
+		
+		# options required by July 2020 release
+		SET_OPTION(ENABLE_PCH OFF)
+		SET_OPTION(ENABLE_CTEST OFF)
+		SET_OPTION(BUILD_EXTERNAL OFF)
+		SET_OPTION(SKIP_GLSLANG_INSTALL ON)
+
+		#add_definitions(-DGLSLANG_MINOR_VERSION=13)
+	
+		set(GLSLANG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/extern/glslang)
+		add_subdirectory(${GLSLANG_DIR})
+	
+		include_directories(${GLSLANG_DIR}/glslang)
+		
+		#link_directories($ENV{VULKAN_SDK}/Lib)
+	endif()
+
 	# Use FindVulkan module added with CMAKE 3.7
 	if(NOT CMAKE_VERSION VERSION_LESS 3.7.0)
 		message( STATUS "Using module to find Vulkan" )
@@ -353,36 +392,7 @@ if(USE_VULKAN)
 		add_definitions(-DVK_USE_PLATFORM_WIN32_KHR)
 	endif()
 
-	if(SPIRV_SHADERC)
-		add_definitions(-DSPIRV_SHADERC)
-
-		if(CMAKE_CL_64)
-			link_directories($ENV{VULKAN_SDK}/Lib)
-		else()
-			link_directories($ENV{VULKAN_SDK}/Lib32)
-		endif()
-
-	else()
-		# override Glslang build options
-		
-		# options required by November 2018 release
-		SET_OPTION(ENABLE_SPVREMAPPER OFF)
-		SET_OPTION(ENABLE_GLSLANG_BINARIES OFF)
-		SET_OPTION(ENABLE_HLSL OFF)
-		SET_OPTION(ENABLE_OPT ON)
-		SET_OPTION(SPIRV_SKIP_EXECUTABLES ON)
-		
-		# options required by November 2019 release
-		#SET_OPTION(ENABLE_PCH OFF)
-		#SET_OPTION(ENABLE_CTEST OFF)
-		#SET_OPTION(BUILD_EXTERNAL OFF)
-		#SET_OPTION(SKIP_GLSLANG_INSTALL ON)
 	
-		set(GLSLANG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/extern/glslang)
-		add_subdirectory(${GLSLANG_DIR})
-	
-		include_directories(${GLSLANG_DIR}/glslang)
-	endif()
 
 else()
 
