@@ -111,7 +111,63 @@ void RB_DrawElementsWithCounters(const drawSurf_t* surf) {
 }
 
 void RB_DrawViewInternal(const viewDef_t* viewDef, const int stereoEye) {
+	renderLog.OpenBlock("RB_DrawViewInternal");
 
+	//-------------------------------------------------
+	// guis can wind up referencing purged images that need to be loaded.
+	// this used to be in the gui emit code, but now that it can be running
+	// in a separate thread, it must not try to load images, so do it here.
+	//-------------------------------------------------
+	drawSurf_t** drawSurfs = (drawSurf_t**)&viewDef->drawSurfs[0];
+	const int numDrawSurfs = viewDef->numDrawSurfs;
+
+	for (int i = 0; i < numDrawSurfs; i++) {
+		const drawSurf_t* ds = viewDef->drawSurfs[i];
+		if (ds->material != NULL) {
+			const_cast<idMaterial*>(ds->material)->EnsureNotPurged();
+		}
+	}
+
+	//-------------------------------------------------
+	// RB_BeginDrawingView
+	//
+	// Any mirrored or portaled views have already been drawn, so prepare
+	// to actually render the visible surfaces for this view
+	//
+	// clear the z buffer, set the projection matrix, etc
+	//-------------------------------------------------
+
+	// set the window clipping
+	GL_Viewport(viewDef->viewport.x1,
+		viewDef->viewport.y1,
+		viewDef->viewport.x2 + 1 - viewDef->viewport.x1,
+		viewDef->viewport.y2 + 1 - viewDef->viewport.y1);
+
+	// the scissor may be smaller than the viewport for subviews
+	GL_Scissor(backEnd.viewDef->viewport.x1 + viewDef->scissor.x1,
+		backEnd.viewDef->viewport.y1 + viewDef->scissor.y1,
+		viewDef->scissor.x2 + 1 - viewDef->scissor.x1,
+		viewDef->scissor.y2 + 1 - viewDef->scissor.y1);
+	backEnd.currentScissor = viewDef->scissor;
+
+	backEnd.glState.faceCulling = -1;		// force face culling to set next time
+
+	// ensures that depth writes are enabled for the depth clear
+	GL_State(GLS_DEFAULT); //TODO: We need to properly implement this
+
+	dxRenderer.BeginDraw();
+
+	// Clear the depth buffer and clear the stencil to 128 for stencil shadows as well as gui masking
+	GL_Clear(false, true, true, STENCIL_SHADOW_TEST_VALUE, 0.0f, 0.0f, 0.0f, 0.0f); //TODO: We need to properly implement this.
+
+	// normal face culling
+	GL_Cull(CT_FRONT_SIDED); //TODO: We need to implement this.
+
+	//TODO: Implement the rest.
+
+	dxRenderer.EndDraw();
+
+	renderLog.CloseBlock();
 }
 
 void RB_DrawView(const void* data, const int stereoEye) {
@@ -196,6 +252,7 @@ void RB_ExecuteBackEndCommands(const emptyCommand_t* cmds) {
 			}
 			break;
 		case RC_SET_BUFFER:
+			dxRenderer.PresentBackbuffer();
 			c_setBuffers++;
 			break;
 		case RC_COPY_RENDER:

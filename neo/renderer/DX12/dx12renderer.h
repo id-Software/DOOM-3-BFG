@@ -44,13 +44,18 @@ struct DX12IndexBuffer
 struct DX12CompiledShader
 {
 	byte* data;
-	UINT size;
+	size_t size;
 };
 
 struct DX12JointBuffer
 {
 	// TODO: Check if any of this is correct.
 	ComPtr<ID3D12Resource> jointBuffer;
+};
+
+enum eShader {
+	VERTEX,
+	PIXEL
 };
 
 class DX12Renderer {
@@ -61,7 +66,6 @@ public:
 	virtual void Init(HWND hWnd);
 	virtual bool SetScreenParams(UINT width, UINT height, int fullscreen);
 	virtual void OnUpdate();
-	virtual void OnRender();
 	virtual void OnDestroy();
 
 	void UpdateViewport(FLOAT topLeftX, FLOAT topLeftY, FLOAT width, FLOAT height, FLOAT minDepth = D3D12_MIN_DEPTH, FLOAT maxDepth = D3D12_MAX_DEPTH);
@@ -81,6 +85,12 @@ public:
 
 	DX12JointBuffer* AllocJointBuffer(DX12JointBuffer* buffer, UINT numBytes);
 	void FreeJointBuffer(DX12JointBuffer* buffer);
+
+	// Draw commands
+	void BeginDraw();
+	void Clear(bool color, bool depth, bool stencil, byte stencilValue, float* colorRGBA);
+	void EndDraw();
+	void PresentBackbuffer();
 private:
 	UINT m_width;
 	UINT m_height;
@@ -89,6 +99,8 @@ private:
 
 	FLOAT m_aspectRatio = 1.0f;
     FLOAT m_FoV = 90.0f;
+
+	bool m_isDrawing = false;
 
 	// Pipeline
 	CD3DX12_VIEWPORT m_viewport;

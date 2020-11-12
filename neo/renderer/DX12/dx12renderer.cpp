@@ -10,6 +10,78 @@
 DX12Renderer dxRenderer;
 extern idCommon* common;
 
+static const char* HLSLParmNames[] = {
+	"rpScreenCorrectionFactor",
+	"rpWindowCoord",
+	"rpDiffuseModifier",
+	"rpSpecularModifier",
+
+	"rpLocalLightOrigin",
+	"rpLocalViewOrigin",
+
+	"rpLightProjectionS",
+	"rpLightProjectionT",
+	"rpLightProjectionQ",
+	"rpLightFalloffS",
+
+	"rpBumpMatrixS",
+	"rpBumpMatrixT",
+
+	"rpDiffuseMatrixS",
+	"rpDiffuseMatrixT",
+
+	"rpSpecularMatrixS",
+	"rpSpecularMatrixT",
+
+	"rpVertexColorModulate",
+	"rpVertexColorAdd",
+
+	"rpColor",
+	"rpViewOrigin",
+	"rpGlobalEyePos",
+
+	"rpMVPmatrixX",
+	"rpMVPmatrixY",
+	"rpMVPmatrixZ",
+	"rpMVPmatrixW",
+
+	"rpModelMatrixX",
+	"rpModelMatrixY",
+	"rpModelMatrixZ",
+	"rpModelMatrixW",
+
+	"rpProjectionMatrixX",
+	"rpProjectionMatrixY",
+	"rpProjectionMatrixZ",
+	"rpProjectionMatrixW",
+
+	"rpModelViewMatrixX",
+	"rpModelViewMatrixY",
+	"rpModelViewMatrixZ",
+	"rpModelViewMatrixW",
+
+	"rpTextureMatrixS",
+	"rpTextureMatrixT",
+
+	"rpTexGen0S",
+	"rpTexGen0T",
+	"rpTexGen0Q",
+	"rpTexGen0Enabled",
+
+	"rpTexGen1S",
+	"rpTexGen1T",
+	"rpTexGen1Q",
+	"rpTexGen1Enabled",
+
+	"rpWobbleSkyX",
+	"rpWobbleSkyY",
+	"rpWobbleSkyZ",
+
+	"rpOverbright",
+	"rpEnableSkinning",
+	"rpAlphaTest"
+};
+
 void FailMessage(LPCSTR message) {
 	OutputDebugString(message);
 	common->Error(message);
@@ -179,7 +251,11 @@ void DX12Renderer::LoadPipelineState(const DX12CompiledShader* vertexShader, con
 	// TODO: Change to the uniforms.
 	D3D12_INPUT_ELEMENT_DESC inputElementDescs[] = {
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT , 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 20, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 32, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 44, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "COLOR", 1, DXGI_FORMAT_R32G32B32_FLOAT , 0, 56, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 	};
 
 	D3D12_FEATURE_DATA_ROOT_SIGNATURE featureData = {};
@@ -202,7 +278,7 @@ void DX12Renderer::LoadPipelineState(const DX12CompiledShader* vertexShader, con
 	psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
 	psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
 	psoDesc.SampleDesc.Count = 1;
-	ThrowIfFailed(m_device->CreateGraphicsPipelineState(&psoDesc, riid, ppPipelineState));
+	ThrowIfFailed(m_device->CreateGraphicsPipelineState(&psoDesc, riid, ppPipelineState));	
 }
 
 void DX12Renderer::LoadAssets() {
@@ -216,11 +292,18 @@ void DX12Renderer::LoadAssets() {
 			D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS |
 			D3D12_ROOT_SIGNATURE_FLAG_DENY_PIXEL_SHADER_ROOT_ACCESS;
 
-		CD3DX12_ROOT_PARAMETER1 rootParameters[1];
-		rootParameters[0].InitAsConstants((sizeof(XMMATRIX) / 4) * 2, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
+		const int paramCount = _countof(HLSLParmNames);
+		CD3DX12_ROOT_PARAMETER1 rootParameters[paramCount];
+
+
+		// Register all constants in global.inc
+		for (UINT i = 0; i < paramCount; ++i) {
+			rootParameters[i].InitAsConstants(1, i, 0, D3D12_SHADER_VISIBILITY_ALL);
+		}
+		//rootParameters[0].InitAsConstants((sizeof(XMMATRIX) / 4) * 2, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
 
 		CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc;
-		rootSignatureDesc.Init_1_1(_countof(rootParameters), rootParameters, 0, nullptr, rootSignatureFlags);
+		rootSignatureDesc.Init_1_1(paramCount, rootParameters, 0, nullptr, rootSignatureFlags);
 
 		ComPtr<ID3DBlob> signature;
 		ComPtr<ID3DBlob> error;
@@ -229,7 +312,7 @@ void DX12Renderer::LoadAssets() {
 	}
 
 	// Create the Command List
-	ThrowIfFailed(m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator.Get(), m_uvState.Get(), IID_PPV_ARGS(&m_commandList)));
+	ThrowIfFailed(m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator.Get(), nullptr, IID_PPV_ARGS(&m_commandList)));
 	ThrowIfFailed(m_commandList->Close());
 
 	// Create the synchronization objects
@@ -323,7 +406,7 @@ void DX12Renderer::WaitForPreviousFrame() {
 	m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
 }
 
-void DX12Renderer::OnRender() {
+/*void DX12Renderer::OnRender() {
 	PopulateCommandList();
 
 	// Execute the command list
@@ -334,12 +417,86 @@ void DX12Renderer::OnRender() {
 	ThrowIfFailed(m_swapChain->Present(1, 0));
 
 	WaitForPreviousFrame();
+}*/
+
+void DX12Renderer::BeginDraw() {
+	if (m_isDrawing) {
+		return;
+	}
+
+	m_isDrawing = true;
+	ThrowIfFailed(m_commandAllocator->Reset()); //TODO: Change to warning
+	ThrowIfFailed(m_commandList->Reset(m_commandAllocator.Get(), nullptr));
+	m_commandList->SetGraphicsRootSignature(m_rootsSignature.Get());
+
+	// Indicate that we will be rendering to the back buffer
+	m_commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
+	m_commandList->RSSetViewports(1, &m_viewport);
+	m_commandList->RSSetScissorRects(1, &m_scissorRect);
+
+	// Indicate that we will be rendering to the back buffer
+	m_commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
+
+	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), m_frameIndex, m_rtvDescriptorSize);
+	m_commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
+}
+
+void DX12Renderer::EndDraw() {
+	if (!m_isDrawing) {
+		return;
+	}
+
+	// present the backbuffer
+	m_commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
+
+	ThrowIfFailed(m_commandList->Close());
+
+	// Execute the command list
+	ID3D12CommandList* ppCommandLists[] = { m_commandList.Get() };
+	m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+
+	m_isDrawing = false;
+}
+
+void DX12Renderer::PresentBackbuffer() {
+	// Present the frame
+	ThrowIfFailed(m_swapChain->Present(1, 0));
+
+	WaitForPreviousFrame();
+}
+
+void DX12Renderer::Clear(bool color, bool depth, bool stencil, byte stencilValue, float* colorRGBA) {
+	if (!m_isDrawing) {
+		return;
+	}
+
+	uint8 clearFlags = 0;
+	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), m_frameIndex, m_rtvDescriptorSize);
+	
+
+	if (color) {
+		m_commandList->ClearRenderTargetView(rtvHandle, colorRGBA, 0, nullptr);
+	}
+
+	if (depth) {
+		clearFlags |= D3D12_CLEAR_FLAG_DEPTH;
+	}
+
+	if (stencil) {
+		clearFlags |= D3D12_CLEAR_FLAG_STENCIL;
+	}
+
+	if (clearFlags > 0) {
+		CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
+		m_commandList->ClearDepthStencilView(dsvHandle, static_cast<D3D12_CLEAR_FLAGS>(clearFlags), 0.0f, stencilValue, 0, nullptr);
+	}
 }
 
 void DX12Renderer::PopulateCommandList() {
 	ThrowIfFailed(m_commandAllocator->Reset());
 
-	ThrowIfFailed(m_commandList->Reset(m_commandAllocator.Get(), m_uvState.Get()));
+
+	//ThrowIfFailed(m_commandList->Reset(m_commandAllocator.Get(), m_uvState.Get()));
 
 	m_commandList->SetGraphicsRootSignature(m_rootsSignature.Get());
 	m_commandList->RSSetViewports(1, &m_viewport);

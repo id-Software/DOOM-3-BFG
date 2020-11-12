@@ -3,6 +3,29 @@
 
 #include "../tr_local.h"
 
+void LoadHLSLShader(DX12CompiledShader* shader, const char* name, eShader shaderType) {
+	idStr inFile;
+	inFile.Format("renderprogs\\hlsl\\%s", name);
+	inFile.StripFileExtension();
+
+	switch (shaderType) {
+	case VERTEX:
+		inFile += ".vcso";
+		break;
+
+	case PIXEL:
+		inFile += ".pcso";
+		break;
+
+	default:
+		inFile += ".cso";
+	}
+
+	void* data = NULL;
+	shader->size = fileSystem->ReadFile(inFile.c_str(), &data);
+	shader->data = static_cast<byte*>(data);
+}
+
 void idRenderProgManager::SetUniformValue(const renderParm_t rp, const float* value) {
 	// TODO: SetUniformValue
 }
@@ -33,7 +56,12 @@ void idRenderProgManager::LoadProgram(const int programIndex, const int vertexSh
 	DX12CompiledShader* vertexShader = (vertexShaderIndex != -1) ? static_cast<DX12CompiledShader*>(vertexShaders[vertexShaderIndex].apiObject) : NULL;
 	DX12CompiledShader* fragmentShader = (fragmentShaderIndex != -1) ? static_cast<DX12CompiledShader*>(fragmentShaders[fragmentShaderIndex].apiObject) : NULL;
 
-	ComPtr<ID3D12PipelineState>* renderProgram; // Change this to list pointer
+	if (vertexShader == NULL || fragmentShader == NULL || vertexShader->data == NULL || fragmentShader->data == NULL) {
+		common->Warning("Could not build shader %s.", vertexShaders[vertexShaderIndex].name.c_str());
+		return;
+	}
+
+	ComPtr<ID3D12PipelineState> renderProgram;
 	dxRenderer.LoadPipelineState(vertexShader, fragmentShader, IID_PPV_ARGS(&renderProgram));
 
 	// TODO: Implement the uniforms and binders.
@@ -41,7 +69,7 @@ void idRenderProgManager::LoadProgram(const int programIndex, const int vertexSh
 	idStr programName = vertexShaders[vertexShaderIndex].name;
 	programName.StripFileExtension();
 	prog.name = programName;
-	prog.shaderObject = renderProgram;
+	prog.shaderObject = renderProgram.GetAddressOf();
 	prog.fragmentShaderIndex = fragmentShaderIndex;
 	prog.vertexShaderIndex = vertexShaderIndex;
 }
@@ -52,12 +80,16 @@ idRenderProgManager::LoadVertexShader
 ================================================================================================
 */
 void idRenderProgManager::LoadVertexShader(int index) {
-	// TODO: Change to load the vertex shader binary.
-
-	/*if ( vertexShaders[index].progId != INVALID_PROGID ) {
+	if ( vertexShaders[index].apiObject != NULL ) {
 		return; // Already loaded
 	}
-	vertexShaders[index].progId = ( GLuint ) LoadGLSLShader( GL_VERTEX_SHADER, vertexShaders[index].name, vertexShaders[index].uniforms );*/
+
+	DX12CompiledShader* shader = (DX12CompiledShader*)malloc(sizeof(DX12CompiledShader));
+
+	LoadHLSLShader(shader, vertexShaders[index].name, VERTEX);
+
+	vertexShaders[index].apiObject = shader;
+	//vertexShaders[index].progId = ( GLuint ) LoadGLSLShader( GL_VERTEX_SHADER, vertexShaders[index].name, vertexShaders[index].uniforms );*/
 }
 
 /*
@@ -66,10 +98,15 @@ idRenderProgManager::LoadFragmentShader
 ================================================================================================
 */
 void idRenderProgManager::LoadFragmentShader(int index) {
-	// TODO: Change to load the fragmentshader binary.
-
-	/*if ( fragmentShaders[index].progId != INVALID_PROGID ) {
+	if (fragmentShaders[index].apiObject != NULL) {
 		return; // Already loaded
 	}
-	fragmentShaders[index].progId = ( GLuint ) LoadGLSLShader( GL_FRAGMENT_SHADER, fragmentShaders[index].name, fragmentShaders[index].uniforms );*/
+
+	DX12CompiledShader* shader = (DX12CompiledShader*)malloc(sizeof(DX12CompiledShader));
+
+	LoadHLSLShader(shader, fragmentShaders[index].name, PIXEL);
+
+	fragmentShaders[index].apiObject = shader;
+
+	//fragmentShaders[index].progId = ( GLuint ) LoadGLSLShader( GL_FRAGMENT_SHADER, fragmentShaders[index].name, fragmentShaders[index].uniforms );
 }

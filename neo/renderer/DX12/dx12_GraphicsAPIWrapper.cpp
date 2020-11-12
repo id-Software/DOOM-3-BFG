@@ -55,7 +55,8 @@ void GL_Color(float r, float g, float b, float a) {
 }
 
 void GL_Clear(bool color, bool depth, bool stencil, byte stencilValue, float r, float g, float b, float a) {
-	// TODO: set the renderer to run the clear commands for the different buffers.
+	float colorRGBA[4] = { 1.0f, g, b, a };
+	dxRenderer.Clear(color, depth, stencil, stencilValue, colorRGBA);
 }
 
 void GL_SetDefaultState() {

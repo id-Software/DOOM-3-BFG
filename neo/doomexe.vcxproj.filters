@@ -1300,12 +1300,6 @@
     <None Include="..\base\renderprogs\global.inc">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="..\base\renderprogs\gui.pixel">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="..\base\renderprogs\gui.vertex">
-      <Filter>Shaders</Filter>
-    </None>
     <None Include="..\base\renderprogs\heathaze.pixel">
       <Filter>Shaders</Filter>
     </None>
@@ -1361,9 +1355,6 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="..\base\renderprogs\shadow.pixel">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="..\base\renderprogs\shadow.vertex">
       <Filter>Shaders</Filter>
     </None>
     <None Include="..\base\renderprogs\shadow_skinned.pixel">
@@ -1458,5 +1449,16 @@
     <ResourceCompile Include="sys\win32\rc\doom.rc">
       <Filter>Sys\RC</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="..\base\renderprogs\shadow.vertex">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\base\renderprogs\gui.vertex">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\base\renderprogs\gui.pixel">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

@@ -33,6 +33,13 @@ SamplerState MeshTextureSampler
     AddressV = Wrap;
 };
 
+SamplerState GuiTextureSampler 
+{
+	Filter = MIN_MAG_MIP_LINEAR;
+    AddressU = Wrap;
+    AddressV = Wrap;
+};
+
 uniform float4 rpScreenCorrectionFactor	:	register(c0);
 uniform float4 rpWindowCoord			:	register(c1);
 uniform float4 rpDiffuseModifier		:	register(c2);

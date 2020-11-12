@@ -38,10 +38,10 @@ struct VS_IN {
 };
 
 struct VS_OUT {
-	float4 position : POSITION;
 	float2 texcoord0 : TEXCOORD0;
 	float4 texcoord1 : TEXCOORD1;
 	float4 color : COLOR0;
+	float4 position : SV_POSITION;
 };
 
 void main( VS_IN vertex, out VS_OUT result ) {
