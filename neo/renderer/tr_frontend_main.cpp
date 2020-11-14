@@ -542,11 +542,11 @@ void R_RenderView( viewDef_t* parms )
 	// RB: find closest environment probe
 	if( tr.viewDef->areaNum != -1 && !tr.viewDef->isSubview )
 	{
-		float bestDist = 90000.0f;
+		float bestDist = 900000.0f;
 
 		for( viewEnvprobe_t* vProbe = tr.viewDef->viewEnvprobes; vProbe != NULL; vProbe = vProbe->next )
 		{
-			float dist = ( tr.viewDef->renderView.vieworg  - vProbe->globalOrigin ).LengthSqr();
+			float dist = ( tr.viewDef->renderView.vieworg - vProbe->globalOrigin ).Length();
 			if( dist < bestDist )
 			{
 				tr.viewDef->irradianceImage = vProbe->irradianceImage;
