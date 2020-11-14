@@ -3,8 +3,9 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2014-2016 Robert Beckebans
 Copyright (C) 2014-2016 Kot in Action Creative Artel
+Copyright (C) 2016-2017 Dustin Land
+Copyright (C) 2014-2020 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -44,7 +45,7 @@ If you have questions concerning this license or the applicable additional terms
 typedef uint16	word;
 typedef uint32	dword;
 
-// macros required by gimp-dds code:
+// LordHavoc: macros required by gimp-dds code:
 #ifndef MIN
 	#ifdef __GNUC__
 		#define MIN(a, b)  ({decltype(a) _a=(a); decltype(b) _b=(b); _a < _b ? _a : _b;})
@@ -1172,11 +1173,24 @@ int NormalDistanceDXT1( const int* vector, const int* normalized )
 		movd		result, xmm0
 	}
 	return result;
-#else // not _MSC_VERSION && defined(_M_IX86)
-	// DG: alternative implementation for non-MSVC builds
-	return 0; // FIXME: implementation!!
-	// DG end
-#endif // _MSC_VERSION && defined(_M_IX86)
+#else
+	float floatNormal[3];
+	byte intNormal[4];
+	floatNormal[0] = vector[0] * ( 2.0f / 255.0f ) - 1.0f;
+	floatNormal[1] = vector[1] * ( 2.0f / 255.0f ) - 1.0f;
+	floatNormal[2] = vector[2] * ( 2.0f / 255.0f ) - 1.0f;
+	float rcplen = idMath::InvSqrt( floatNormal[0] * floatNormal[0] + floatNormal[1] * floatNormal[1] + floatNormal[2] * floatNormal[2] );
+	floatNormal[0] *= rcplen;
+	floatNormal[1] *= rcplen;
+	floatNormal[2] *= rcplen;
+	intNormal[0] = idMath::Ftob( ( floatNormal[0] + 1.0f ) * ( 255.0f / 2.0f ) + 0.5f );
+	intNormal[1] = idMath::Ftob( ( floatNormal[1] + 1.0f ) * ( 255.0f / 2.0f ) + 0.5f );
+	intNormal[2] = idMath::Ftob( ( floatNormal[2] + 1.0f ) * ( 255.0f / 2.0f ) + 0.5f );
+	int result =	( ( intNormal[ 0 ] - normalized[ 0 ] ) * ( intNormal[ 0 ] - normalized[ 0 ] ) ) +
+					( ( intNormal[ 1 ] - normalized[ 1 ] ) * ( intNormal[ 1 ] - normalized[ 1 ] ) ) +
+					( ( intNormal[ 2 ] - normalized[ 2 ] ) * ( intNormal[ 2 ] - normalized[ 2 ] ) );
+	return result;
+#endif
 }
 
 /*
@@ -1237,11 +1251,33 @@ int NormalDistanceDXT5( const int* vector, const int* normalized )
 		movd		result, xmm0
 	}
 	return result;
-#else // not _MSC_VER && defined(_M_IX86)
-	// DG: alternative implementation for non-MSVC builds
-	return 0; // FIXME: implementation!!
-	// DG end
-#endif // _MSC_VER && defined(_M_IX86)
+#else
+#if 0	// object-space
+	const int c0 = 0;
+	const int c1 = 1;
+	const int c2 = 3;
+#else
+	const int c0 = 1;
+	const int c1 = 2;
+	const int c2 = 3;
+#endif
+	float floatNormal[3];
+	byte intNormal[4];
+	floatNormal[0] = vector[c0] / 255.0f * 2.0f - 1.0f;
+	floatNormal[1] = vector[c1] / 255.0f * 2.0f - 1.0f;
+	floatNormal[2] = vector[c2] / 255.0f * 2.0f - 1.0f;
+	float rcplen = idMath::InvSqrt( floatNormal[0] * floatNormal[0] + floatNormal[1] * floatNormal[1] + floatNormal[2] * floatNormal[2] );
+	floatNormal[0] *= rcplen;
+	floatNormal[1] *= rcplen;
+	floatNormal[2] *= rcplen;
+	intNormal[c0] = idMath::Ftob( ( floatNormal[0] + 1.0f ) / 2.0f * 255.0f + 0.5f );
+	intNormal[c1] = idMath::Ftob( ( floatNormal[1] + 1.0f ) / 2.0f * 255.0f + 0.5f );
+	intNormal[c2] = idMath::Ftob( ( floatNormal[2] + 1.0f ) / 2.0f * 255.0f + 0.5f );
+	int result =	( ( intNormal[ c0 ] - normalized[ c0 ] ) * ( intNormal[ c0 ] - normalized[ c0 ] ) ) +
+					( ( intNormal[ c1 ] - normalized[ c1 ] ) * ( intNormal[ c1 ] - normalized[ c1 ] ) ) +
+					( ( intNormal[ c2 ] - normalized[ c2 ] ) * ( intNormal[ c2 ] - normalized[ c2 ] ) );
+	return result;
+#endif
 }
 
 /*
@@ -2446,6 +2482,8 @@ void idDxtEncoder::ScaleYCoCg( byte* colorBlock ) const
 	}
 }
 
+// LordHavoc begin
+
 /*
 ========================
 idDxtEncoder::ExtractBlockGimpDDS
@@ -2801,6 +2839,7 @@ void idDxtEncoder::EncodeYCoCgBlockGimpDDS( byte* dst, byte* block )
 	PUTL32( dst + 4, mask );
 }
 
+// LordHavoc end
 
 /*
 ========================
@@ -5633,15 +5672,17 @@ void idDxtEncoder::ConvertImageDXN1_DXT1( const byte* inBuf, byte* outBuf, int w
 			// get the min/max
 			byte min = 255;
 			byte max = 0;
-			for( int i = 0; i < 16; i++ )
+
+			// Dustin: corrected iteration
+			for( int k = 0; k < 16; k++ )
 			{
-				if( values[i] < min )
+				if( values[k] < min )
 				{
-					min = values[i];
+					min = values[k];
 				}
-				if( values[i] > max )
+				if( values[k] > max )
 				{
-					max = values[i];
+					max = values[k];
 				}
 			}
 
