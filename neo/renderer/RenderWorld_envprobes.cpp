@@ -780,7 +780,7 @@ void R_MakeAmbientMap( const char* baseName, const char* suffix, int outSize, fl
 						total[2] += result[2];
 					}
 
-#if 1
+#if 0
 					outBuffer[( y * outSize + x ) * 4 + 0] = total[0] / samples;
 					outBuffer[( y * outSize + x ) * 4 + 1] = total[1] / samples;
 					outBuffer[( y * outSize + x ) * 4 + 2] = total[2] / samples;
@@ -788,7 +788,7 @@ void R_MakeAmbientMap( const char* baseName, const char* suffix, int outSize, fl
 #else
 					outBuffer[( y * outSize + x ) * 4 + 0] = byte( ( dir.x * 0.5f + 0.5f ) * 255 );
 					outBuffer[( y * outSize + x ) * 4 + 1] = byte( ( dir.y * 0.5f + 0.5f ) * 255 );
-					outBuffer[( y * outSize + x ) * 4 + 2] = 0;
+					outBuffer[( y * outSize + x ) * 4 + 2] = byte( ( dir.z * 0.5f + 0.5f ) * 255 );
 					outBuffer[( y * outSize + x ) * 4 + 3] = 255;
 #endif
 

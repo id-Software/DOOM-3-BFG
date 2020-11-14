@@ -381,7 +381,7 @@ void idVec3::FromOctahedral( const idVec2& o )
 {
 	x = o.x;
 	y = o.y;
-	z = 1.0f - idMath::Fabs( o.x ) - idMath::Fabs( o.y );
+	z = 1.0f - ( idMath::Fabs( o.x ) + idMath::Fabs( o.y ) );
 
 	if( z < 0.0f )
 	{
