@@ -31,8 +31,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "tr_local.h"
 
-extern DX12Renderer dxRenderer;
-
 idRenderProgManager renderProgManager;
 
 /*
@@ -339,29 +337,6 @@ GLuint idRenderProgManager::LoadShader( GLenum target, const char * name, const 
 
 /*
 ================================================================================================
-idRenderProgManager::BindShader
-================================================================================================
-*/
-void idRenderProgManager::BindShader( int vIndex, int fIndex ) {
-	if ( currentVertexShader == vIndex && currentFragmentShader == fIndex ) {
-		return;
-	}
-	currentVertexShader = vIndex;
-	currentFragmentShader = fIndex;
-
-	// TODO: Bind these shaders to the program.
-	/* 
-	// vIndex denotes the GLSL program
-	if ( vIndex >= 0 && vIndex < glslPrograms.Num() ) {
-		currentRenderProgram = vIndex;
-		RENDERLOG_PRINTF( "Binding GLSL Program %s\n", glslPrograms[vIndex].name.c_str() );
-		qglUseProgram( glslPrograms[vIndex].progId );
-	}*
-	*/
-}
-
-/*
-================================================================================================
 idRenderProgManager::Unbind
 ================================================================================================
 */
@@ -382,15 +357,5 @@ void idRenderProgManager::SetRenderParms( renderParm_t rp, const float * value, 
 	for ( int i = 0; i < num; i++ ) {
 		SetRenderParm( (renderParm_t)(rp + i), value + ( i * 4 ) );
 	}
-}
-
-/*
-================================================================================================
-idRenderProgManager::SetRenderParm
-================================================================================================
-*/
-void idRenderProgManager::SetRenderParm( renderParm_t rp, const float * value ) {
-	// TODO: Set the property.
-	//SetUniformValue( rp, value );
 }
 

@@ -3,6 +3,8 @@
 
 #include "../tr_local.h"
 
+ComPtr<ID3D12PipelineState> pipelineStates[53]; //TODO: Get this from a property.
+
 void LoadHLSLShader(DX12CompiledShader* shader, const char* name, eShader shaderType) {
 	idStr inFile;
 	inFile.Format("renderprogs\\hlsl\\%s", name);
@@ -61,15 +63,14 @@ void idRenderProgManager::LoadProgram(const int programIndex, const int vertexSh
 		return;
 	}
 
-	ComPtr<ID3D12PipelineState> renderProgram;
-	dxRenderer.LoadPipelineState(vertexShader, fragmentShader, IID_PPV_ARGS(&renderProgram));
+	dxRenderer.LoadPipelineState(vertexShader, fragmentShader, IID_PPV_ARGS(&pipelineStates[programIndex]));
 
 	// TODO: Implement the uniforms and binders.
 
 	idStr programName = vertexShaders[vertexShaderIndex].name;
 	programName.StripFileExtension();
 	prog.name = programName;
-	prog.shaderObject = renderProgram.GetAddressOf();
+	prog.shaderObject = pipelineStates[programIndex].GetAddressOf();
 	prog.fragmentShaderIndex = fragmentShaderIndex;
 	prog.vertexShaderIndex = vertexShaderIndex;
 }
@@ -109,4 +110,38 @@ void idRenderProgManager::LoadFragmentShader(int index) {
 	fragmentShaders[index].apiObject = shader;
 
 	//fragmentShaders[index].progId = ( GLuint ) LoadGLSLShader( GL_FRAGMENT_SHADER, fragmentShaders[index].name, fragmentShaders[index].uniforms );
+}
+
+/*
+================================================================================================
+idRenderProgManager::BindShader
+================================================================================================
+*/
+void idRenderProgManager::BindShader(int vIndex, int fIndex) {
+	if (currentVertexShader == vIndex && currentFragmentShader == fIndex) {
+		return;
+	}
+	currentVertexShader = vIndex;
+	currentFragmentShader = fIndex;
+
+	// vIndex denotes the GLSL program
+	if (vIndex >= 0 && vIndex < shaderPrograms.Num()) {
+		if (shaderPrograms[vIndex].shaderObject == NULL) {
+			common->Warning("RenderState %s has not been loaded.", shaderPrograms[vIndex].name.c_str());
+		}
+
+		currentRenderProgram = vIndex;
+		RENDERLOG_PRINTF("Binding RenderState %s\n", shaderPrograms[vIndex].name.c_str());
+		dxRenderer.SetActivePipelineState(static_cast<ID3D12PipelineState**>(shaderPrograms[vIndex].shaderObject));
+	}
+}
+
+/*
+================================================================================================
+idRenderProgManager::SetRenderParm
+================================================================================================
+*/
+void idRenderProgManager::SetRenderParm(renderParm_t rp, const float* value) {
+	// TODO: Set the property.
+	dxRenderer.Uniform4f(rp, value);
 }

@@ -40,75 +40,78 @@ SamplerState GuiTextureSampler
     AddressV = Wrap;
 };
 
-uniform float4 rpScreenCorrectionFactor	:	register(c0);
-uniform float4 rpWindowCoord			:	register(c1);
-uniform float4 rpDiffuseModifier		:	register(c2);
-uniform float4 rpSpecularModifier		:	register(c3);
+struct SceneConstants {
+	float4 rpScreenCorrectionFactor;
+	float4 rpWindowCoord;
+	float4 rpDiffuseModifier;
+	float4 rpSpecularModifier;
 
-uniform float4 rpLocalLightOrigin		:	register(c4);
-uniform float4 rpLocalViewOrigin		:	register(c5);
+	float4 rpLocalLightOrigin;
+	float4 rpLocalViewOrigin;
 
-uniform float4 rpLightProjectionS		:	register(c6);
-uniform float4 rpLightProjectionT		:	register(c7);
-uniform float4 rpLightProjectionQ		:	register(c8);
-uniform float4 rpLightFalloffS			:	register(c9);
+	float4 rpLightProjectionS;
+	float4 rpLightProjectionT;
+	float4 rpLightProjectionQ;
+	float4 rpLightFalloffS;
 
-uniform float4 rpBumpMatrixS			:	register(c10);
-uniform float4 rpBumpMatrixT			:	register(c11);
+	float4 rpBumpMatrixS;
+	float4 rpBumpMatrixT;
 
-uniform float4 rpDiffuseMatrixS			:	register(c12);
-uniform float4 rpDiffuseMatrixT			:	register(c13);
+	float4 rpDiffuseMatrixS;
+	float4 rpDiffuseMatrixT;
 
-uniform float4 rpSpecularMatrixS		:	register(c14);
-uniform float4 rpSpecularMatrixT		:	register(c15);
+	float4 rpSpecularMatrixS;
+	float4 rpSpecularMatrixT;
 
-uniform float4 rpVertexColorModulate	:	register(c16);
-uniform float4 rpVertexColorAdd			:	register(c17);
+	float4 rpVertexColorModulate;
+	float4 rpVertexColorAdd;
 
-uniform float4 rpColor					:	register(c18);
-uniform float4 rpViewOrigin				:	register(c19);
-uniform float4 rpGlobalEyePos			:	register(c20);
+	float4 rpColor;
+	float4 rpViewOrigin;
+	float4 rpGlobalEyePos;
 
-uniform float4 rpMVPmatrixX				:	register(c21);
-uniform float4 rpMVPmatrixY				:	register(c22);
-uniform float4 rpMVPmatrixZ				:	register(c23);
-uniform float4 rpMVPmatrixW				:	register(c24);
+	float4 rpMVPmatrixX;
+	float4 rpMVPmatrixY;
+	float4 rpMVPmatrixZ;
+	float4 rpMVPmatrixW;
 
-uniform float4 rpModelMatrixX			:	register(c25);
-uniform float4 rpModelMatrixY			:	register(c26);
-uniform float4 rpModelMatrixZ			:	register(c27);
-uniform float4 rpModelMatrixW			:	register(c28);
+	float4 rpModelMatrixX;
+	float4 rpModelMatrixY;
+	float4 rpModelMatrixZ;
+	float4 rpModelMatrixW;
 
-uniform float4 rpProjectionMatrixX		:	register(c29);
-uniform float4 rpProjectionMatrixY		:	register(c30);
-uniform float4 rpProjectionMatrixZ		:	register(c31);
-uniform float4 rpProjectionMatrixW		:	register(c32);
+	float4 rpProjectionMatrixX;
+	float4 rpProjectionMatrixY;
+	float4 rpProjectionMatrixZ;
+	float4 rpProjectionMatrixW;
 
-uniform float4 rpModelViewMatrixX		:	register(c33);
-uniform float4 rpModelViewMatrixY		:	register(c34);
-uniform float4 rpModelViewMatrixZ		:	register(c35);
-uniform float4 rpModelViewMatrixW		:	register(c36);
+	float4 rpModelViewMatrixX;
+	float4 rpModelViewMatrixY;
+	float4 rpModelViewMatrixZ;
+	float4 rpModelViewMatrixW;
 
-uniform float4 rpTextureMatrixS			:	register(c37);
-uniform float4 rpTextureMatrixT			:	register(c38);
+	float4 rpTextureMatrixS;
+	float4 rpTextureMatrixT;
 
-uniform float4 rpTexGen0S				:	register(c39);
-uniform float4 rpTexGen0T				:	register(c40);
-uniform float4 rpTexGen0Q				:	register(c41);
-uniform float4 rpTexGen0Enabled			:	register(c42);
+	float4 rpTexGen0S;
+	float4 rpTexGen0T;
+	float4 rpTexGen0Q;
+	float4 rpTexGen0Enabled;
 
-uniform float4 rpTexGen1S				:	register(c43);
-uniform float4 rpTexGen1T				:	register(c44);
-uniform float4 rpTexGen1Q				:	register(c45);
-uniform float4 rpTexGen1Enabled			:	register(c46);
+	float4 rpTexGen1S;
+	float4 rpTexGen1T;
+	float4 rpTexGen1Q;
+	float4 rpTexGen1Enabled;
 
-uniform float4 rpWobbleSkyX				:	register(c47);
-uniform float4 rpWobbleSkyY				:	register(c48);
-uniform float4 rpWobbleSkyZ				:	register(c49);
+	float4 rpWobbleSkyX;
+	float4 rpWobbleSkyY;
+	float4 rpWobbleSkyZ;
 
-uniform float4 rpOverbright				:	register(c50);
-uniform float4 rpEnableSkinning			:	register(c51);
-uniform float4 rpAlphaTest				:	register(c52);
+	float4 rpOverbright;
+	float4 rpEnableSkinning;
+	float4 rpAlphaTest;
+};
+ConstantBuffer<SceneConstants> sceneConstants : register(b0, space0);
 
 static float dot2( float2 a, float2 b ) { return dot( a, b ); }
 static float dot3( float3 a, float3 b ) { return dot( a, b ); }
@@ -183,7 +186,7 @@ float rand( float2 co ) {
 #define VPOS WPOS
 static float4 idtex2Dproj( sampler2D samp, float4 texCoords ) { return tex2Dproj( samp, texCoords ); } //TODO: old data = texCoords.xyw ); }
 static float4 swizzleColor( float4 c ) { return c; }
-static float2 vposToScreenPosTexCoord( float2 vpos ) { return vpos.xy * rpWindowCoord.xy; }
+static float2 vposToScreenPosTexCoord( float2 vpos ) { return vpos.xy * sceneConstants.rpWindowCoord.xy; }
 
 
 #define BRANCH

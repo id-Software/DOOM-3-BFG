@@ -21,7 +21,6 @@ using namespace Microsoft::WRL;
 
 const UINT FrameCount = 2;
 
-
 struct Vertex
 {
 	XMFLOAT4 position;
@@ -75,6 +74,9 @@ public:
 
 	// Shaders
 	void LoadPipelineState(const DX12CompiledShader* vertexShader, const DX12CompiledShader* pixelShader, const IID& riid, void** ppPipelineState);
+	void SetActivePipelineState(ID3D12PipelineState** pipelineState);
+
+	void Uniform4f(UINT index, const float* uniform);
 
 	// Buffers
 	DX12VertexBuffer* AllocVertexBuffer(DX12VertexBuffer* buffer, UINT numBytes);
@@ -91,6 +93,8 @@ public:
 	void Clear(bool color, bool depth, bool stencil, byte stencilValue, float* colorRGBA);
 	void EndDraw();
 	void PresentBackbuffer();
+	void UpdateConstantBuffer();
+	void DrawModel(DX12VertexBuffer* vertexBuffer, UINT vertexOffset, DX12IndexBuffer* indexBuffer, UINT indexOffset, UINT indexCount);
 private:
 	UINT m_width;
 	UINT m_height;
@@ -116,6 +120,12 @@ private:
     ComPtr<ID3D12GraphicsCommandList> m_commandList;
     ComPtr<ID3D12DescriptorHeap> m_dsvHeap;
 	ComPtr<ID3D12Resource> m_depthBuffer;
+
+	ComPtr<ID3D12DescriptorHeap> m_cbvHeap[FrameCount];
+	ComPtr<ID3D12Resource> m_cbvUploadHeap[FrameCount];
+	XMFLOAT4 m_constantBuffer[53];
+	UINT8* m_constantBufferGPUAddress[FrameCount];
+	ID3D12PipelineState* m_activePipelineState = nullptr;
 
 	// Synchronization
 	UINT m_frameIndex;

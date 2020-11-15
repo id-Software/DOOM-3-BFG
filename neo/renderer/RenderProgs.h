@@ -211,7 +211,7 @@ protected:
 	void	LoadVertexShader( int index );
 	void	LoadFragmentShader( int index );
 
-	void	LoadProgram(const int programIndex, const int vertexShaderIndex, const int fragmentShaderIndex); // TODO: Build the shader program.
+	void	LoadProgram(const int programIndex, const int vertexShaderIndex, const int fragmentShaderIndex);
 
 	enum {
 		BUILTIN_GUI,
