@@ -358,6 +358,11 @@ void idVec3::ProjectSelfOntoSphere( const float radius )
 // A Survey of Efficient Representations for Independent Unit Vectors, Journal of Computer Graphics Techniques (JCGT), vol. 3, no. 2, 1-30, 2014
 // Available online http://jcgt.org/published/0003/02/01/
 
+inline float signNotZero( float k )
+{
+	return ( k >= 0.0f ) ? 1.0f : -1.0f;
+}
+
 idVec2 idVec3::ToOctahedral() const
 {
 	const float L1norm = idMath::Fabs( x ) + idMath::Fabs( x ) + idMath::Fabs( x );
@@ -365,8 +370,8 @@ idVec2 idVec3::ToOctahedral() const
 	idVec2 result;
 	if( z < 0.0f )
 	{
-		result.x = ( 1.0f - idMath::Fabs( y ) ) * ( x >= 0.0f ) ? 1.0f : -1.0f;
-		result.y = ( 1.0f - idMath::Fabs( x ) ) * ( y >= 0.0f ) ? 1.0f : -1.0f;
+		result.x = ( 1.0f - idMath::Fabs( y ) ) * signNotZero( x );
+		result.y = ( 1.0f - idMath::Fabs( x ) ) * signNotZero( y );
 	}
 	else
 	{
@@ -386,8 +391,8 @@ void idVec3::FromOctahedral( const idVec2& o )
 	if( z < 0.0f )
 	{
 		float oldX = x;
-		x = ( 1.0f - idMath::Fabs( y ) ) * ( oldX >= 0.0f ) ? 1.0f : -1.0f;
-		y = ( 1.0f - idMath::Fabs( oldX ) ) * ( y >= 0.0f ) ? 1.0f : -1.0f;
+		x = ( 1.0f - idMath::Fabs( y ) ) * signNotZero( oldX );
+		y = ( 1.0f - idMath::Fabs( oldX ) ) * signNotZero( y );
 	}
 
 	Normalize();

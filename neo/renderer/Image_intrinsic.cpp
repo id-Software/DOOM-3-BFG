@@ -1041,8 +1041,8 @@ void idImageManager::CreateIntrinsicImages()
 	hellLoadingIconImage = ImageFromFile( "textures/loadingicon3", TF_DEFAULT, TR_CLAMP, TD_DEFAULT, CF_2D );
 
 	// RB begin
-	defaultUACIrradianceCube = ImageFromFile( "env/UAC1_amb", TF_DEFAULT, TR_CLAMP, TD_LOOKUP_TABLE_RGB1, CF_2D );
-	defaultUACRadianceCube = ImageFromFile( "env/UAC1_spec", TF_DEFAULT, TR_CLAMP, TD_LOOKUP_TABLE_RGB1, CF_2D );
+	defaultUACIrradianceCube = ImageFromFile( "env/UAC2_amb", TF_DEFAULT, TR_CLAMP, TD_LOOKUP_TABLE_RGB1, CF_2D );
+	defaultUACRadianceCube = ImageFromFile( "env/UAC2_spec", TF_DEFAULT, TR_CLAMP, TD_LOOKUP_TABLE_RGB1, CF_2D );
 	// RB end
 
 	release_assert( loadingIconImage->referencedOutsideLevelLoad );

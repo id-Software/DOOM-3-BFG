@@ -69,27 +69,27 @@ struct PS_OUT
     Available online http://jcgt.org/published/0003/02/01/
 */
 
-float signNotZero( in float k )
+float signNotZeroFloat( float k )
 {
 	return ( k >= 0.0 ) ? 1.0 : -1.0;
 }
 
 
-float2 signNotZero( in float2 v )
+float2 signNotZero( float2 v )
 {
-	return float2( signNotZero( v.x ), signNotZero( v.y ) );
+	return float2( signNotZeroFloat( v.x ), signNotZeroFloat( v.y ) );
 }
 
 /** Assumes that v is a unit vector. The result is an octahedral vector on the [-1, +1] square. */
-float2 octEncode( in float3 v )
+float2 octEncode( float3 v )
 {
 	float l1norm = abs( v.x ) + abs( v.y ) + abs( v.z );
-	float2 result = v.xy * ( 1.0 / l1norm );
+	float2 oct = v.xy * ( 1.0 / l1norm );
 	if( v.z < 0.0 )
 	{
-		result = ( 1.0 - abs( result.yx ) ) * signNotZero( result.xy );
+		oct = ( 1.0 - abs( oct.yx ) ) * signNotZero( oct.xy );
 	}
-	return result;
+	return oct;
 }
 
 
@@ -127,6 +127,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	globalNormal.x = dot3( localNormal, fragment.texcoord4 );
 	globalNormal.y = dot3( localNormal, fragment.texcoord5 );
 	globalNormal.z = dot3( localNormal, fragment.texcoord6 );
+	globalNormal = normalize( globalNormal );
 
 	float3 globalEye = normalize( fragment.texcoord3.xyz );
 
@@ -199,7 +200,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	float2 normalizedOctCoord = octEncode( globalNormal );
 	float2 normalizedOctCoordZeroOne = ( normalizedOctCoord + float2( 1.0 ) ) * 0.5;
 
-	float3 irradiance = tex2D( samp7, normalizedOctCoord ).rgb;
+	float3 irradiance = tex2D( samp7, normalizedOctCoordZeroOne ).rgb;
 	float3 diffuseLight = ( kD * irradiance * diffuseColor ) * ao * ( rpDiffuseModifier.xyz * 1.0 );
 
 	// evaluate specular IBL
@@ -213,6 +214,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	normalizedOctCoordZeroOne = ( normalizedOctCoord + float2( 1.0 ) ) * 0.5;
 
 	float3 radiance = textureLod( samp8, normalizedOctCoordZeroOne, mip ).rgb;
+	//radiance = float3( 0.0 );
 
 	float2 envBRDF  = texture( samp3, float2( max( vDotN, 0.0 ), roughness ) ).rg;
 

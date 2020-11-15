@@ -938,7 +938,7 @@ CONSOLE_COMMAND( generateEnvironmentProbes, "Generate environment probes", NULL 
 	axis[5][2][1] = 1;
 
 	//--------------------------------------------
-	// CAPTURE SCENE LIGHTING
+	// CAPTURE SCENE LIGHTING TO CUBEMAPS
 	//--------------------------------------------
 
 	// let's get the game window to a "size" resolution
@@ -975,6 +975,7 @@ CONSOLE_COMMAND( generateEnvironmentProbes, "Generate environment probes", NULL 
 			ref.viewaxis = axis[j];
 			fullname.Format( "env/%s/envprobe%i%s", baseName.c_str(), i, extension );
 
+			// TODO capture resolved HDR data without bloom aka _currentRender in 16bit float HDR RGB
 			tr.TakeScreenshot( size, size, fullname, blends, &ref, PNG );
 			//tr.CaptureRenderToFile( fullname, false );
 		}
