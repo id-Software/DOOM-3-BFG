@@ -95,6 +95,8 @@ public:
 	void PresentBackbuffer();
 	void UpdateConstantBuffer();
 	void DrawModel(DX12VertexBuffer* vertexBuffer, UINT vertexOffset, DX12IndexBuffer* indexBuffer, UINT indexOffset, UINT indexCount);
+
+	void SetCullMode(int cullType);
 private:
 	UINT m_width;
 	UINT m_height;
@@ -143,8 +145,8 @@ private:
 
     void WaitForPreviousFrame();
 
-    // Render functions
-    void PopulateCommandList();
+	bool CreateBackBuffer();
+
 
 };
 

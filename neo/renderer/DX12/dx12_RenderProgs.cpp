@@ -29,7 +29,7 @@ void LoadHLSLShader(DX12CompiledShader* shader, const char* name, eShader shader
 }
 
 void idRenderProgManager::SetUniformValue(const renderParm_t rp, const float* value) {
-	// TODO: SetUniformValue
+	dxRenderer.Uniform4f(rp, value);
 }
 
 int idRenderProgManager::FindProgram(const char* name, int vIndex, int fIndex) {

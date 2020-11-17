@@ -167,22 +167,6 @@ void DX12Renderer::LoadPipeline(HWND hWnd) {
 
 	// Create Descriptor Heaps
 	{
-		// Describe and create a render target view (RTV) descriptor
-		D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
-		rtvHeapDesc.NumDescriptors = FrameCount;
-		rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-		rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-		ThrowIfFailed(m_device->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&m_rtvHeap)));
-
-		m_rtvDescriptorSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-
-		// Describe and create a depth-stencil view (DSV) descriptor
-		D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
-		dsvHeapDesc.NumDescriptors = 1;
-		dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
-		dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-		ThrowIfFailed(m_device->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(&m_dsvHeap)));
-
 		// Describe and create the constant buffer view (CBV) descriptor for each frame
 		for (UINT frameIndex = 0; frameIndex < FrameCount; ++frameIndex) {
 			D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc = {};
@@ -215,16 +199,13 @@ void DX12Renderer::LoadPipeline(HWND hWnd) {
 
 	m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
 
+	if (!CreateBackBuffer()) {
+		common->FatalError("Could not initailze backbuffer.");
+	}
+
 	// Create Frame Resources
 	{
-		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart());
-
 		for (UINT frameIndex = 0; frameIndex < FrameCount; ++frameIndex) {
-			// Create RTV for each frame
-			ThrowIfFailed(m_swapChain->GetBuffer(frameIndex, IID_PPV_ARGS(&m_renderTargets[frameIndex])));
-			m_device->CreateRenderTargetView(m_renderTargets[frameIndex].Get(), nullptr, rtvHandle);
-			rtvHandle.Offset(1, m_rtvDescriptorSize);
-
 			// Create the Constant buffer heap for each frame
 			ThrowIfFailed(m_device->CreateCommittedResource(
 				&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
@@ -242,49 +223,85 @@ void DX12Renderer::LoadPipeline(HWND hWnd) {
 			m_device->CreateConstantBufferView(&cbvDesc, m_cbvHeap[frameIndex]->GetCPUDescriptorHandleForHeapStart());
 
 			ZeroMemory(&m_constantBuffer, sizeof(m_constantBuffer));
-
-			CD3DX12_RANGE readRange(0, 0);
-			ThrowIfFailed(m_cbvUploadHeap[frameIndex]->Map(0, &readRange, reinterpret_cast<void**>(&m_constantBufferGPUAddress[frameIndex])));
-			memcpy(m_constantBufferGPUAddress[frameIndex], &m_constantBuffer, sizeof(m_constantBuffer));
 		}
 
 		// TODO: Add the ability to resize this buffer.
 
-		// Create the DSV
-		D3D12_CLEAR_VALUE clearValue = {};
-		clearValue.Format = DXGI_FORMAT_D32_FLOAT;
-		clearValue.DepthStencil = { 1.0f, 0 };
-
-		ThrowIfFailed(m_device->CreateCommittedResource(
-			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-			D3D12_HEAP_FLAG_NONE,
-			&CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, m_width, m_height, 1, 0, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL),
-			D3D12_RESOURCE_STATE_DEPTH_WRITE,
-			&clearValue,
-			IID_PPV_ARGS(&m_depthBuffer)
-		));
-
-		D3D12_DEPTH_STENCIL_VIEW_DESC dsv = {};
-		dsv.Format = DXGI_FORMAT_D32_FLOAT;
-		dsv.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
-		dsv.Texture2D.MipSlice = 0;
-		dsv.Flags = D3D12_DSV_FLAG_NONE;
-
-		m_device->CreateDepthStencilView(m_depthBuffer.Get(), &dsv, m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
+		
 	}
 
 	ThrowIfFailed(m_device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator)));
+}
+
+bool DX12Renderer::CreateBackBuffer() {
+	// Describe and create a render target view (RTV) descriptor
+	D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
+	rtvHeapDesc.NumDescriptors = FrameCount;
+	rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+	rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+	if (FAILED(m_device->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&m_rtvHeap)))) {
+		return false;
+	}
+
+	m_rtvDescriptorSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+
+	// Describe and create a depth-stencil view (DSV) descriptor
+	D3D12_DESCRIPTOR_HEAP_DESC dsvHeapDesc = {};
+	dsvHeapDesc.NumDescriptors = 1;
+	dsvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+	dsvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+	if (FAILED(m_device->CreateDescriptorHeap(&dsvHeapDesc, IID_PPV_ARGS(&m_dsvHeap)))) {
+		return false;
+	}
+
+	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart());
+
+	for (UINT frameIndex = 0; frameIndex < FrameCount; ++frameIndex) {
+		// Create RTV for each frame
+		if (FAILED(m_swapChain->GetBuffer(frameIndex, IID_PPV_ARGS(&m_renderTargets[frameIndex])))) {
+			return false;
+		}
+
+		m_device->CreateRenderTargetView(m_renderTargets[frameIndex].Get(), nullptr, rtvHandle);
+		rtvHandle.Offset(1, m_rtvDescriptorSize);
+	}
+
+	// Create the DSV
+	D3D12_CLEAR_VALUE clearValue = {};
+	clearValue.Format = DXGI_FORMAT_D32_FLOAT;
+	clearValue.DepthStencil = { 1.0f, 0 };
+
+	if (FAILED(m_device->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+		D3D12_HEAP_FLAG_NONE,
+		&CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, m_width, m_height, 1, 0, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL),
+		D3D12_RESOURCE_STATE_DEPTH_WRITE,
+		&clearValue,
+		IID_PPV_ARGS(&m_depthBuffer)
+	))) {
+		return false;
+	}
+
+	D3D12_DEPTH_STENCIL_VIEW_DESC dsv = {};
+	dsv.Format = DXGI_FORMAT_D32_FLOAT;
+	dsv.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+	dsv.Texture2D.MipSlice = 0;
+	dsv.Flags = D3D12_DSV_FLAG_NONE;
+
+	m_device->CreateDepthStencilView(m_depthBuffer.Get(), &dsv, m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
+
+	return true;
 }
 
 void DX12Renderer::LoadPipelineState(const DX12CompiledShader* vertexShader, const DX12CompiledShader* pixelShader, const IID& riid, void** ppPipelineState) {
 	// Define the vertex input layout
 	const D3D12_INPUT_ELEMENT_DESC inputElementDescs[] = {
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT , 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 20, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		{ "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 32, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		{ "COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT , 0, 44, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		{ "COLOR", 1, DXGI_FORMAT_R32G32B32_FLOAT , 0, 56, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R16G16_FLOAT , 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_B8G8R8A8_UNORM , 0, 16, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "TANGENT", 0, DXGI_FORMAT_B8G8R8A8_UNORM , 0, 20, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "COLOR", 0, DXGI_FORMAT_B8G8R8A8_UNORM , 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+		{ "COLOR", 1, DXGI_FORMAT_B8G8R8A8_UNORM , 0, 28, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 	};
 
 	D3D12_FEATURE_DATA_ROOT_SIGNATURE featureData = {};
@@ -293,6 +310,9 @@ void DX12Renderer::LoadPipelineState(const DX12CompiledShader* vertexShader, con
 	{
 		featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_0;
 	}
+
+	CD3DX12_RASTERIZER_DESC rasterizerDesc(D3D12_DEFAULT);
+	rasterizerDesc.CullMode = D3D12_CULL_MODE_FRONT; // As we are reversed from opengl
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
 	psoDesc.InputLayout = { inputElementDescs, _countof(inputElementDescs) };
@@ -308,6 +328,28 @@ void DX12Renderer::LoadPipelineState(const DX12CompiledShader* vertexShader, con
 	psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
 	psoDesc.SampleDesc.Count = 1;
 	ThrowIfFailed(m_device->CreateGraphicsPipelineState(&psoDesc, riid, ppPipelineState));	
+
+	// Create the DSV
+	D3D12_CLEAR_VALUE clearValue = {};
+	clearValue.Format = DXGI_FORMAT_D32_FLOAT;
+	clearValue.DepthStencil = { 1.0f, 0 };
+
+	ThrowIfFailed(m_device->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+		D3D12_HEAP_FLAG_NONE,
+		&CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, m_width, m_height, 1, 0, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL),
+		D3D12_RESOURCE_STATE_DEPTH_WRITE,
+		&clearValue,
+		IID_PPV_ARGS(&m_depthBuffer)
+	));
+
+	D3D12_DEPTH_STENCIL_VIEW_DESC dsv = {};
+	dsv.Format = DXGI_FORMAT_D32_FLOAT;
+	dsv.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+	dsv.Texture2D.MipSlice = 0;
+	dsv.Flags = D3D12_DSV_FLAG_NONE;
+
+	m_device->CreateDepthStencilView(m_depthBuffer.Get(), &dsv, m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
 }
 
 void DX12Renderer::SetActivePipelineState(ID3D12PipelineState** pPipelineState) {
@@ -337,7 +379,6 @@ void DX12Renderer::LoadAssets() {
 		CD3DX12_ROOT_PARAMETER1 rootParameters[1];
 
 		// Setup the constant descriptors
-		//CD3DX12_DESCRIPTOR_RANGE1 descriptorRange(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 53, 0);
 		rootParameters[0].InitAsConstantBufferView(0);
 
 
@@ -460,12 +501,17 @@ void DX12Renderer::BeginDraw() {
 
 	// Indicate that we will be rendering to the back buffer
 	m_commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
-	
+
 	m_commandList->RSSetViewports(1, &m_viewport);
 	m_commandList->RSSetScissorRects(1, &m_scissorRect);
 
 	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), m_frameIndex, m_rtvDescriptorSize);
-	m_commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
+	CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
+	m_commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
+
+	m_commandList->SetDescriptorHeaps(1, m_cbvHeap[m_frameIndex].GetAddressOf());
+
+	//m_commandList->SetGraphicsRootDescriptorTable(0, m_cbvHeap[m_frameIndex]->GetGPUDescriptorHandleForHeapStart());
 }
 
 void DX12Renderer::EndDraw() {
@@ -502,11 +548,20 @@ void DX12Renderer::DrawModel(DX12VertexBuffer* vertexBuffer, UINT vertexOffset, 
 	m_commandList->IASetIndexBuffer(&indecies);
 
 	// Draw the model
-	m_commandList->DrawIndexedInstanced(indexCount, 1, indexOffset, vertexOffset, 0);
+	m_commandList->DrawIndexedInstanced(indexCount, 1, indexOffset, vertexOffset, 0); // TODO: Multiply by 16 for index?
 }
 
 void DX12Renderer::UpdateConstantBuffer() {
-	memcpy(m_constantBufferGPUAddress[m_frameIndex], &m_constantBuffer, sizeof(m_constantBuffer));
+	// TODO: Check for better way to do this.
+	UINT8* buffer;
+	CD3DX12_RANGE readRange(0, 0);
+	ThrowIfFailed(m_cbvUploadHeap[m_frameIndex]->Map(0, &readRange, reinterpret_cast<void**>(&buffer)));
+	memcpy(buffer, &m_constantBuffer, sizeof(m_constantBuffer));
+	m_cbvUploadHeap[m_frameIndex]->Unmap(0, nullptr);
+
+	if (m_isDrawing) {
+		m_commandList->SetGraphicsRootConstantBufferView(0, m_cbvUploadHeap[m_frameIndex]->GetGPUVirtualAddress());
+	}
 }
 
 void DX12Renderer::Clear(bool color, bool depth, bool stencil, byte stencilValue, float* colorRGBA) {
@@ -555,8 +610,46 @@ bool DX12Renderer::SetScreenParams(UINT width, UINT height, int fullscreen)
 	// TODO: Find the correct window.
 	//m_swapChain->SetFullscreenState(true, NULL);
 
-	UpdateViewport(0.0f, 0.0f, width, height);
-	UpdateScissorRect(0, 0, static_cast<LONG>(width), static_cast<LONG>(height));
+	if (m_device && m_swapChain && m_commandAllocator) {
+		WaitForPreviousFrame();
+
+		if (FAILED(m_commandAllocator->Reset())) {
+			return false;
+		}
+
+		if (FAILED(m_commandList->Reset(m_commandAllocator.Get(), nullptr))) {
+			return false;
+		}
+
+		for (int frameIndex = 0; frameIndex < FrameCount; ++frameIndex) {
+			m_renderTargets[frameIndex].Reset();
+		}
+
+		if (FAILED(m_swapChain->ResizeBuffers(FrameCount, width, height, DXGI_FORMAT_R8G8B8A8_UNORM, NULL))) {
+			return false;
+		}
+
+		m_frameIndex = 0;
+		if (!CreateBackBuffer()) {
+			return false;
+		}
+
+		UpdateViewport(0.0f, 0.0f, width, height);
+		UpdateScissorRect(0, 0, static_cast<LONG>(width), static_cast<LONG>(height));
+
+		if (FAILED(m_commandList->Close())) {
+			return false;
+		}
+
+		ID3D12CommandList* ppCommandLists[] = { m_commandList.Get() };
+		m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+	}
+	else {
+		UpdateViewport(0.0f, 0.0f, width, height);
+		UpdateScissorRect(0, 0, static_cast<LONG>(width), static_cast<LONG>(height));
+	}
+
+	
 
 	return true;
 }
@@ -601,4 +694,8 @@ void DX12Renderer::OnUpdate() {
 void DX12Renderer::ReadPixels(int x, int y, int width, int height, UINT readBuffer, byte* buffer) {
 	// TODO: Implement
 	common->Warning("Read Pixels not yet implemented.");
+}
+
+void DX12Renderer::SetCullMode(int cullType) {
+	// TODO: implement
 }

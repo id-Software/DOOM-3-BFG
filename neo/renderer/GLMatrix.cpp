@@ -452,6 +452,7 @@ void R_SetupProjectionMatrix( viewDef_t *viewDef ) {
 	viewDef->projectionMatrix[2*4+3] = -1.0f;
 	viewDef->projectionMatrix[3*4+3] = 0.0f;
 
+	//TODO: use this flipped projection for directx rendering
 	if ( viewDef->renderView.flipProjection ) {
 		viewDef->projectionMatrix[1*4+1] = -viewDef->projectionMatrix[1*4+1];
 		viewDef->projectionMatrix[1*4+3] = -viewDef->projectionMatrix[1*4+3];

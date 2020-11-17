@@ -2183,9 +2183,9 @@ void RB_DrawElementsWithCounters(const drawSurf_t* surf) {
 
 	dxRenderer.UpdateConstantBuffer(); // Set our constants
 	dxRenderer.DrawModel(reinterpret_cast<DX12VertexBuffer*>(vertexBuffer->GetAPIObject()), 
-		vertOffset, 
+		vertOffset / sizeof(idDrawVert),
 		reinterpret_cast<DX12IndexBuffer*>(indexBuffer->GetAPIObject()), 
-		indexOffset,
+		indexOffset >> 1, // TODO: Figure out why we need to divide by 2. Is it because we are going from an int to a short?
 		r_singleTriangle.GetBool() ? 3 : surf->numIndexes);
 
 	/*if (backEnd.glState.currentIndexBuffer != (GLuint)indexBuffer->GetAPIObject() || !r_useStateCaching.GetBool()) {
@@ -2310,7 +2310,7 @@ void RB_DrawViewInternal(const viewDef_t* viewDef, const int stereoEye) {
 	//-------------------------------------------------
 	// fill the depth buffer and clear color buffer to black except on subviews
 	//-------------------------------------------------
-	RB_FillDepthBufferFast(drawSurfs, numDrawSurfs);
+	RB_FillDepthBufferFast(drawSurfs, numDrawSurfs); //TODO: Implement
 
 	//-------------------------------------------------
 	// main light renderer

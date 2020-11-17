@@ -247,12 +247,12 @@ void idGuiModel::EmitFullScreen() {
 
 	viewDef->projectionMatrix[2*4+0] = 0.0f;
 	viewDef->projectionMatrix[2*4+1] = 0.0f;
-	viewDef->projectionMatrix[2*4+2] = -2.0f;
+	viewDef->projectionMatrix[2*4+2] = 2.0f; //mpm1: remmoved negative for direct x
 	viewDef->projectionMatrix[2*4+3] = 0.0f;
 
 	viewDef->projectionMatrix[3*4+0] = -1.0f;
 	viewDef->projectionMatrix[3*4+1] = 1.0f;
-	viewDef->projectionMatrix[3*4+2] = -1.0f;
+	viewDef->projectionMatrix[3*4+2] = 1.0f; //mpm1: Removed minus symbol for direct x
 	viewDef->projectionMatrix[3*4+3] = 1.0f;
 
 	// make a tech5 renderMatrix for faster culling
