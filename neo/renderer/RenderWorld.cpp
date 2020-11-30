@@ -1242,6 +1242,23 @@ exitPortal_t idRenderWorldLocal::GetPortal( int areaNum, int portalNum )
 }
 
 /*
+===================
+RB: idRenderWorldLocal::AreaBounds
+===================
+*/
+idBounds idRenderWorldLocal::AreaBounds( int areaNum ) const
+{
+	if( areaNum < 0 || areaNum > numPortalAreas )
+	{
+		common->Error( "idRenderWorld::GetPortal: areaNum > numAreas" );
+	}
+
+	portalArea_t* area = &portalAreas[areaNum];
+
+	return area->globalBounds;
+}
+
+/*
 ===============
 idRenderWorldLocal::PointInAreaNum
 

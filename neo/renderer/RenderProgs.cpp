@@ -153,6 +153,9 @@ void idRenderProgManager::Init()
 
 		{ BUILTIN_PBR_INTERACTION_SHADOW_MAPPING_PARALLEL, "interactionSM", "_parallel_PBR", BIT( LIGHT_PARALLEL ) | BIT( USE_PBR ), false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
 		{ BUILTIN_PBR_INTERACTION_SHADOW_MAPPING_PARALLEL_SKINNED, "interactionSM", "_parallel_skinned_PBR", BIT( USE_GPU_SKINNING ) | BIT( LIGHT_PARALLEL ) | BIT( USE_PBR ), true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+
+		{ BUILTIN_OCTAHEDRON, "octahedron", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_OCTAHEDRON_SKINNED, "octahedron", "_skinned", BIT( USE_GPU_SKINNING ), true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
 		// RB end
 
 		{ BUILTIN_ENVIRONMENT, "environment", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
@@ -269,6 +272,7 @@ void idRenderProgManager::Init()
 		renderProgs[builtinShaders[BUILTIN_SHADOW_DEBUG_SKINNED]].usesJoints = true;
 		renderProgs[builtinShaders[BUILTIN_FOG_SKINNED]].usesJoints = true;
 		// RB begin
+		renderProgs[builtinShaders[BUILTIN_OCTAHEDRON_SKINNED]].usesJoints = true;
 		renderProgs[builtinShaders[BUILTIN_AMBIENT_LIGHTING_SKINNED]].usesJoints = true;
 		renderProgs[builtinShaders[BUILTIN_AMBIENT_LIGHTING_IBL_SKINNED]].usesJoints = true;
 		renderProgs[builtinShaders[BUILTIN_AMBIENT_LIGHTING_IBL_PBR_SKINNED]].usesJoints = true;
