@@ -2,6 +2,7 @@
 #define __DX12_RENDERER_H__
 
 #include <wrl.h>
+#include <initguid.h>
 #include "./d3dx12.h"
 #include <dxgi1_6.h>
 #include <DirectXMath.h>
@@ -9,6 +10,7 @@
 #include <dxcapi.h>
 #include <DirectXMath.h>
 
+#pragma comment (lib, "dxguid.lib")
 #pragma comment (lib, "d3d12.lib")
 #pragma comment (lib, "dxgi.lib")
 #pragma comment (lib, "dxcompiler.lib")
@@ -46,6 +48,12 @@ struct DX12CompiledShader
 	size_t size;
 };
 
+struct DX12TextureBuffer
+{
+	ComPtr<ID3D12Resource> textureBuffer;
+	CD3DX12_RESOURCE_DESC textureDesc;
+};
+
 struct DX12JointBuffer
 {
 	// TODO: Check if any of this is correct.
@@ -64,7 +72,6 @@ public:
 
 	virtual void Init(HWND hWnd);
 	virtual bool SetScreenParams(UINT width, UINT height, int fullscreen);
-	virtual void OnUpdate();
 	virtual void OnDestroy();
 
 	void UpdateViewport(FLOAT topLeftX, FLOAT topLeftY, FLOAT width, FLOAT height, FLOAT minDepth = D3D12_MIN_DEPTH, FLOAT maxDepth = D3D12_MAX_DEPTH);
@@ -88,6 +95,12 @@ public:
 	DX12JointBuffer* AllocJointBuffer(DX12JointBuffer* buffer, UINT numBytes);
 	void FreeJointBuffer(DX12JointBuffer* buffer);
 
+	// Textures
+	void SetActiveTextureRegister(UINT index);
+	DX12TextureBuffer* AllocTextureBuffer(DX12TextureBuffer* buffer, const idStr* name);
+	void SetTextureContent(const DX12TextureBuffer* buffer, const UINT bytesPerRow, const size_t imageSize, const void* image);
+	void SetTexture(const DX12TextureBuffer* buffer);
+
 	// Draw commands
 	void BeginDraw();
 	void Clear(bool color, bool depth, bool stencil, byte stencilValue, float* colorRGBA);
@@ -107,6 +120,7 @@ private:
     FLOAT m_FoV = 90.0f;
 
 	bool m_isDrawing = false;
+	bool m_initialized = false;
 
 	// Pipeline
 	CD3DX12_VIEWPORT m_viewport;
@@ -135,10 +149,9 @@ private:
     ComPtr<ID3D12Fence> m_fence;
     UINT16 m_fenceValue;
 
-    // TODO: Temp objects
-    XMMATRIX m_modelMat;
-	XMMATRIX m_viewMat;
-	XMMATRIX m_projMat;
+	// Textures
+	ComPtr<ID3D12Resource> m_textureBufferUploadHeap;
+	UINT m_activeTextureRegister;
 
 	void LoadPipeline(HWND hWnd);
 	void LoadAssets();

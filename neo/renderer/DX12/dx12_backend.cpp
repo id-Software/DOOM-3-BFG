@@ -19,8 +19,8 @@ bool R_GetModeListForDisplay(const int displayNum, idList<vidMode_t>& modeList) 
 	for (int i = 0; i <= displayNum; ++i) {
 		vidMode_t mode;
 		mode.displayHz = 60;
-		mode.height = 600;
-		mode.width = 800;
+		mode.height = 1080;
+		mode.width = 1920;
 
 		modeList.Append(mode);
 	}

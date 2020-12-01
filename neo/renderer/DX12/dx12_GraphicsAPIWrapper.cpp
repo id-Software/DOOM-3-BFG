@@ -6,7 +6,7 @@
 extern DX12Renderer dxRenderer;
 
 void GL_SelectTexture(int uint) {
-	// TODO: Setup texture select.
+	dxRenderer.SetActiveTextureRegister(uint);
 }
 
 void GL_Cull(int cullType) {

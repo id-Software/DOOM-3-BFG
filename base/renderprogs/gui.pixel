@@ -28,7 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "global.inc"
 
-//uniform Texture2D<float4> samp0 : register(t0);
+uniform Texture2D<float4> samp0 : register(t0);
 
 struct PS_IN {
 	float2 texcoord0 : TEXCOORD0_centroid;
@@ -42,7 +42,7 @@ struct PS_OUT {
 };
 
 void main( PS_IN fragment, out PS_OUT result ) {
-	float4 color = float4(fragment.texcoord0.r, fragment.texcoord0.g, 0.0, 1.0) + fragment.color + fragment.texcoord1;//( samp0.Sample( GuiTextureSampler, fragment.texcoord0 ) * fragment.color ) + fragment.texcoord1;
+	float4 color = ( samp0.Sample( baseSampler, fragment.texcoord0 ) * fragment.color ) + fragment.texcoord1;
 	result.color.xyz = color.xyz * color.w;
 	result.color.w = color.w;
 }

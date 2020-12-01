@@ -42,6 +42,9 @@ idImage::SubImageUpload
 ========================
 */
 void idImage::SubImageUpload(int mipLevel, int x, int y, int z, int width, int height, const void* pic, int pixelPitch) const {
+	if (mipLevel > 0) {
+		return;
+	}
 	assert(x >= 0 && y >= 0 && mipLevel >= 0 && width >= 0 && height >= 0 && mipLevel < opts.numLevels);
 
 	int compressedSize = 0;
@@ -72,34 +75,41 @@ void idImage::SubImageUpload(int mipLevel, int x, int y, int z, int width, int h
 		assert(x + width <= opts.width && y + height <= opts.height);
 	}
 
-	int target;
-	int uploadTarget;
+	//int target;
+	//int uploadTarget;
+	int numSides;
 	// TODO: Implement
-//	if (opts.textureType == TT_2D) {
-//		target = GL_TEXTURE_2D;
-//		uploadTarget = GL_TEXTURE_2D;
-//	}
-//	else if (opts.textureType == TT_CUBIC) {
-//		target = GL_TEXTURE_CUBE_MAP_EXT;
-//		uploadTarget = GL_TEXTURE_CUBE_MAP_POSITIVE_X_EXT + z;
-//	}
-//	else {
-//		assert(!"invalid opts.textureType");
-//		target = GL_TEXTURE_2D;
-//		uploadTarget = GL_TEXTURE_2D;
-//	}
-//
-//	qglBindTexture(target, texnum);
-//
-//	if (pixelPitch != 0) {
-//		qglPixelStorei(GL_UNPACK_ROW_LENGTH, pixelPitch);
-//	}
-//	if (opts.format == FMT_RGB565) {
-//		glPixelStorei(GL_UNPACK_SWAP_BYTES, GL_TRUE);
-//	}
-//#ifdef DEBUG
-//	GL_CheckErrors();
-//#endif
+	if (opts.textureType == TT_2D) {
+		//target = GL_TEXTURE_2D;
+		//uploadTarget = GL_TEXTURE_2D;
+		numSides = 1;
+	}
+	else if (opts.textureType == TT_CUBIC) {
+		//target = GL_TEXTURE_CUBE_MAP_EXT;
+		//uploadTarget = GL_TEXTURE_CUBE_MAP_POSITIVE_X_EXT + z;
+		numSides = 6;
+	}
+	else {
+		assert(!"invalid opts.textureType");
+		//target = GL_TEXTURE_2D;
+		//uploadTarget = GL_TEXTURE_2D;
+		numSides = 1;
+	}
+
+	//TODO: Load by the x or y coordinate.
+	UINT bytePitch = pixelPitch == 0 ? width * (BitsForFormat(opts.format) / 8) : pixelPitch * (BitsForFormat(opts.format) / 8);
+	dxRenderer.SetTextureContent(&textureResource, bytePitch, width * height * BitsForFormat(opts.format) / 8, pic);
+	//TODO: Implement
+	/*if (pixelPitch != 0) {
+		qglPixelStorei(GL_UNPACK_ROW_LENGTH, pixelPitch);
+	}
+	if (opts.format == FMT_RGB565) {
+		glPixelStorei(GL_UNPACK_SWAP_BYTES, GL_TRUE);
+	}
+#ifdef DEBUG
+	GL_CheckErrors();
+#endif*/
+
 //	if (IsCompressed()) {
 //		qglCompressedTexSubImage2DARB(uploadTarget, mipLevel, x, y, width, height, internalFormat, compressedSize, pic);
 //	}
@@ -297,170 +307,195 @@ This should not be done during normal game-play, if you can avoid it.
 void idImage::AllocImage() {
 	GL_CheckErrors();
 	PurgeImage();
+	
+	//----------------------------------------------------
+	// allocate all the mip levels with NULL data
+	//----------------------------------------------------
 
-	// TODO: Implement
+	int numSides;
+	uint width = opts.width;
+	uint height = opts.height;
 
-//	switch (opts.format) {
-//	case FMT_RGBA8:
-//		internalFormat = GL_RGBA8;
-//		dataFormat = GL_RGBA;
-//		dataType = GL_UNSIGNED_BYTE;
-//		break;
-//	case FMT_XRGB8:
-//		internalFormat = GL_RGB;
-//		dataFormat = GL_RGBA;
-//		dataType = GL_UNSIGNED_BYTE;
-//		break;
-//	case FMT_RGB565:
-//		internalFormat = GL_RGB;
-//		dataFormat = GL_RGB;
-//		dataType = GL_UNSIGNED_SHORT_5_6_5;
-//		break;
-//	case FMT_ALPHA:
-//#if defined( USE_CORE_PROFILE )
-//		internalFormat = GL_R8;
-//		dataFormat = GL_RED;
-//#else
-//		internalFormat = GL_ALPHA8;
-//		dataFormat = GL_ALPHA;
-//#endif
-//		dataType = GL_UNSIGNED_BYTE;
-//		break;
-//	case FMT_L8A8:
-//#if defined( USE_CORE_PROFILE )
-//		internalFormat = GL_RG8;
-//		dataFormat = GL_RG;
-//#else
-//		internalFormat = GL_LUMINANCE8_ALPHA8;
-//		dataFormat = GL_LUMINANCE_ALPHA;
-//#endif
-//		dataType = GL_UNSIGNED_BYTE;
-//		break;
-//	case FMT_LUM8:
-//#if defined( USE_CORE_PROFILE )
-//		internalFormat = GL_R8;
-//		dataFormat = GL_RED;
-//#else
-//		internalFormat = GL_LUMINANCE8;
-//		dataFormat = GL_LUMINANCE;
-//#endif
-//		dataType = GL_UNSIGNED_BYTE;
-//		break;
-//	case FMT_INT8:
-//#if defined( USE_CORE_PROFILE )
-//		internalFormat = GL_R8;
-//		dataFormat = GL_RED;
-//#else
-//		internalFormat = GL_INTENSITY8;
-//		dataFormat = GL_LUMINANCE;
-//#endif
-//		dataType = GL_UNSIGNED_BYTE;
-//		break;
-//	case FMT_DXT1:
-//		internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
-//		dataFormat = GL_RGBA;
-//		dataType = GL_UNSIGNED_BYTE;
-//		break;
-//	case FMT_DXT5:
-//		internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
-//		dataFormat = GL_RGBA;
-//		dataType = GL_UNSIGNED_BYTE;
-//		break;
-//	case FMT_DEPTH:
-//		internalFormat = GL_DEPTH_COMPONENT;
-//		dataFormat = GL_DEPTH_COMPONENT;
-//		dataType = GL_UNSIGNED_BYTE;
-//		break;
-//	case FMT_X16:
-//		internalFormat = GL_INTENSITY16;
-//		dataFormat = GL_LUMINANCE;
-//		dataType = GL_UNSIGNED_SHORT;
-//		break;
-//	case FMT_Y16_X16:
-//		internalFormat = GL_LUMINANCE16_ALPHA16;
-//		dataFormat = GL_LUMINANCE_ALPHA;
-//		dataType = GL_UNSIGNED_SHORT;
-//		break;
-//	default:
-//		idLib::Error("Unhandled image format %d in %s\n", opts.format, GetName());
-//	}
-//
-//	// if we don't have a rendering context, just return after we
-//	// have filled in the parms.  We must have the values set, or
-//	// an image match from a shader before OpenGL starts would miss
-//	// the generated texture
-//	if (!R_IsInitialized()) {
-//		return;
-//	}
-//
-//	// generate the texture number
-//	qglGenTextures(1, (GLuint*)&texnum);
-//	assert(texnum != TEXTURE_NOT_LOADED);
-//
-//	//----------------------------------------------------
-//	// allocate all the mip levels with NULL data
-//	//----------------------------------------------------
-//
-//	int numSides;
-//	int target;
-//	int uploadTarget;
-//	if (opts.textureType == TT_2D) {
-//		target = uploadTarget = GL_TEXTURE_2D;
-//		numSides = 1;
-//	}
-//	else if (opts.textureType == TT_CUBIC) {
-//		target = GL_TEXTURE_CUBE_MAP_EXT;
-//		uploadTarget = GL_TEXTURE_CUBE_MAP_POSITIVE_X_EXT;
-//		numSides = 6;
-//	}
-//	else {
-//		assert(!"opts.textureType");
-//		target = uploadTarget = GL_TEXTURE_2D;
-//		numSides = 1;
-//	}
-//
-//	qglBindTexture(target, texnum);
-//
-//	for (int side = 0; side < numSides; side++) {
-//		int w = opts.width;
-//		int h = opts.height;
-//		if (opts.textureType == TT_CUBIC) {
-//			h = w;
-//		}
-//		for (int level = 0; level < opts.numLevels; level++) {
-//
-//			// clear out any previous error
-//			GL_CheckErrors();
-//
-//			if (IsCompressed()) {
-//				int compressedSize = (((w + 3) / 4) * ((h + 3) / 4) * int64(16) * BitsForFormat(opts.format)) / 8;
-//
-//				// Even though the OpenGL specification allows the 'data' pointer to be NULL, for some
-//				// drivers we actually need to upload data to get it to allocate the texture.
-//				// However, on 32-bit systems we may fail to allocate a large block of memory for large
-//				// textures. We handle this case by using HeapAlloc directly and allowing the allocation
-//				// to fail in which case we simply pass down NULL to glCompressedTexImage2D and hope for the best.
-//				// As of 2011-10-6 using NVIDIA hardware and drivers we have to allocate the memory with HeapAlloc
-//				// with the exact size otherwise large image allocation (for instance for physical page textures)
-//				// may fail on Vista 32-bit.
-//				void* data = HeapAlloc(GetProcessHeap(), 0, compressedSize);
-//				qglCompressedTexImage2DARB(uploadTarget + side, level, internalFormat, w, h, 0, compressedSize, data);
-//				if (data != NULL) {
-//					HeapFree(GetProcessHeap(), 0, data);
-//				}
-//			}
-//			else {
-//				qglTexImage2D(uploadTarget + side, level, internalFormat, w, h, 0, dataFormat, dataType, NULL);
-//			}
-//
-//			GL_CheckErrors();
-//
-//			w = Max(1, w >> 1);
-//			h = Max(1, h >> 1);
-//		}
-//	}
-//
-//	qglTexParameteri(target, GL_TEXTURE_MAX_LEVEL, opts.numLevels - 1);
+	//int target;
+	//int uploadTarget;
+	if (opts.textureType == TT_2D) {
+		//textureDesc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_UNKNOWN, opts.width, opts.height);
+		//target = uploadTarget = GL_TEXTURE_2D;
+		numSides = 1;
+	}
+	else if (opts.textureType == TT_CUBIC) {
+		//textureDesc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_UNKNOWN, opts.width, opts.height, 1U, 0U, 6U);
+		//target = GL_TEXTURE_CUBE_MAP_EXT;
+		//uploadTarget = GL_TEXTURE_CUBE_MAP_POSITIVE_X_EXT;
+		numSides = 6;
+	}
+	else {
+		assert(!"opts.textureType");
+		//textureDesc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_UNKNOWN, opts.width, opts.height);
+		numSides = 1;
+	}
+
+	if (IsCompressed()) {
+		width = (width + 3) & ~0x03;
+		height = (height + 3) & ~0x03;
+	}
+
+	//TODO: Check if this is needed.
+	/*for (int side = 0; side < numSides; side++) {
+		int w = opts.width;
+		int h = opts.height;
+		if (opts.textureType == TT_CUBIC) {
+			h = w;
+		}
+		for (int level = 0; level < opts.numLevels; level++) {
+
+			// clear out any previous error
+			GL_CheckErrors();
+
+			if (IsCompressed()) {
+				int compressedSize = (((w + 3) / 4) * ((h + 3) / 4) * int64(16) * BitsForFormat(opts.format)) / 8;
+
+				// Even though the OpenGL specification allows the 'data' pointer to be NULL, for some
+				// drivers we actually need to upload data to get it to allocate the texture.
+				// However, on 32-bit systems we may fail to allocate a large block of memory for large
+				// textures. We handle this case by using HeapAlloc directly and allowing the allocation
+				// to fail in which case we simply pass down NULL to glCompressedTexImage2D and hope for the best.
+				// As of 2011-10-6 using NVIDIA hardware and drivers we have to allocate the memory with HeapAlloc
+				// with the exact size otherwise large image allocation (for instance for physical page textures)
+				// may fail on Vista 32-bit.
+				void* data = HeapAlloc(GetProcessHeap(), 0, compressedSize);
+				qglCompressedTexImage2DARB(uploadTarget + side, level, internalFormat, w, h, 0, compressedSize, data);
+				if (data != NULL) {
+					HeapFree(GetProcessHeap(), 0, data);
+				}
+			}
+			else {
+				//qglTexImage2D(uploadTarget + side, level, internalFormat, w, h, 0, dataFormat, dataType, NULL);
+			}
+
+			GL_CheckErrors();
+
+			w = Max(1, w >> 1);
+			h = Max(1, h >> 1);
+		}
+	}*/
+
+	CD3DX12_RESOURCE_DESC textureDesc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_UNKNOWN, width, height, numSides, opts.numLevels);
+
+	// Set texture format/
+	switch (opts.format) {
+	case FMT_RGBA8:
+		textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UINT;
+		/*internalFormat = GL_RGBA8;
+		dataFormat = GL_RGBA;
+		dataType = GL_UNSIGNED_BYTE;*/
+		break;
+	case FMT_XRGB8:
+		textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UINT;
+		/*internalFormat = GL_RGB;
+		dataFormat = GL_RGBA;
+		dataType = GL_UNSIGNED_BYTE;*/
+		break;
+	case FMT_RGB565:
+		textureDesc.Format = DXGI_FORMAT_B5G6R5_UNORM;
+		/*internalFormat = GL_RGB;
+		dataFormat = GL_RGB;
+		dataType = GL_UNSIGNED_SHORT_5_6_5;*/
+		break;
+	case FMT_ALPHA:
+#if defined( USE_CORE_PROFILE )
+		textureDesc.Format = DXGI_FORMAT_R8_UINT;
+		/*internalFormat = GL_R8;
+		dataFormat = GL_RED;*/
+#else
+		textureDesc.Format = DXGI_FORMAT_A8_UNORM;
+		/*internalFormat = GL_ALPHA8;
+		dataFormat = GL_ALPHA;*/
+#endif
+		//dataType = GL_UNSIGNED_BYTE;
+		break;
+	case FMT_L8A8:
+#if defined( USE_CORE_PROFILE )
+		textureDesc.Format = DXGI_FORMAT_R8G8_UINT;
+		/*internalFormat = GL_RG8;
+		dataFormat = GL_RG;*/
+#else
+		textureDesc.Format = DXGI_FORMAT_A8_UNORM;
+		/*internalFormat = GL_LUMINANCE8_ALPHA8;
+		dataFormat = GL_LUMINANCE_ALPHA;*/
+#endif
+		//dataType = GL_UNSIGNED_BYTE;
+		break;
+	case FMT_LUM8:
+#if defined( USE_CORE_PROFILE )
+		textureDesc.Format = DXGI_FORMAT_R8_UINT;
+		/*internalFormat = GL_R8;
+		dataFormat = GL_RED;*/
+#else
+		textureDesc.Format = DXGI_FORMAT_A8_UNORM;
+		/*internalFormat = GL_LUMINANCE8;
+		dataFormat = GL_LUMINANCE;*/
+#endif
+		//dataType = GL_UNSIGNED_BYTE;
+		break;
+	case FMT_INT8:
+#if defined( USE_CORE_PROFILE )
+		textureDesc.Format = DXGI_FORMAT_R8_UINT;
+		/*internalFormat = GL_R8;
+		dataFormat = GL_RED;*/
+#else
+		textureDesc.Format = DXGI_FORMAT_R8_UINT;
+		/*internalFormat = GL_INTENSITY8;
+		dataFormat = GL_LUMINANCE;*/
+#endif
+		//dataType = GL_UNSIGNED_BYTE;
+		break;
+	case FMT_DXT1:
+		textureDesc.Format = DXGI_FORMAT_BC1_UNORM;
+		/*internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+		dataFormat = GL_RGBA;
+		dataType = GL_UNSIGNED_BYTE;*/
+		break;
+	case FMT_DXT5:
+		textureDesc.Format = DXGI_FORMAT_BC3_UNORM_SRGB;
+		/*internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+		dataFormat = GL_RGBA;
+		dataType = GL_UNSIGNED_BYTE;*/
+		break;
+	case FMT_DEPTH:
+		textureDesc.Format = DXGI_FORMAT_D32_FLOAT;
+		/*internalFormat = GL_DEPTH_COMPONENT;
+		dataFormat = GL_DEPTH_COMPONENT;
+		dataType = GL_UNSIGNED_BYTE;*/
+		break;
+	/*case FMT_X16:
+		internalFormat = GL_INTENSITY16;
+		dataFormat = GL_LUMINANCE;
+		dataType = GL_UNSIGNED_SHORT;
+		break;
+	case FMT_Y16_X16:
+		internalFormat = GL_LUMINANCE16_ALPHA16;
+		dataFormat = GL_LUMINANCE_ALPHA;
+		dataType = GL_UNSIGNED_SHORT;
+		break;*/
+	default:
+		idLib::Error("Unhandled image format %d in %s\n", opts.format, GetName());
+	}
+
+	// if we don't have a rendering context, just return after we
+	// have filled in the parms.  We must have the values set, or
+	// an image match from a shader before OpenGL starts would miss
+	// the generated texture
+	if (!R_IsInitialized()) {
+		return;
+	}
+
+	// Allocate the texture
+	textureResource.textureDesc = textureDesc;
+	
+	if (dxRenderer.AllocTextureBuffer(&textureResource, &imgName) == nullptr) {
+		return;
+	}
 
 	// see if we messed anything up
 	GL_CheckErrors();
@@ -476,6 +511,9 @@ idImage::PurgeImage
 ========================
 */
 void idImage::PurgeImage() {
+	if (textureResource.textureBuffer != NULL) {
+		//textureResource.textureBuffer->Release();
+	}
 	// TODO: Implement
 	//if (texnum != TEXTURE_NOT_LOADED) {
 	//	qglDeleteTextures(1, (GLuint*)&texnum);	// this should be the ONLY place it is ever called!

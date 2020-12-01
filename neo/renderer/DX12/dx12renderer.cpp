@@ -97,6 +97,19 @@ void ThrowIfFailed(HRESULT hr)
 	}
 }
 
+bool WarnIfFailed(HRESULT hr)
+{
+	if (FAILED(hr))
+	{
+		_com_error err(hr);
+		// Set a breakpoint on this line to catch DirectX API errors
+		common->Warning(err.ErrorMessage());
+		return false;
+	}
+
+	return true;
+}
+
 void GetHardwareAdapter(IDXGIFactory4* pFactory, IDXGIAdapter1** ppAdapter) {
 	*ppAdapter = nullptr;
 
@@ -133,11 +146,14 @@ DX12Renderer::~DX12Renderer() {
 void DX12Renderer::Init(HWND hWnd) {
 	LoadPipeline(hWnd);
 	LoadAssets();
+
+	m_initialized = true;
 }
 
 void DX12Renderer::LoadPipeline(HWND hWnd) {
 #if defined(_DEBUG)
 	{
+
 		ComPtr<ID3D12Debug> debugController;
 		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)))) {
 			debugController->EnableDebugLayer();
@@ -224,10 +240,6 @@ void DX12Renderer::LoadPipeline(HWND hWnd) {
 
 			ZeroMemory(&m_constantBuffer, sizeof(m_constantBuffer));
 		}
-
-		// TODO: Add the ability to resize this buffer.
-
-		
 	}
 
 	ThrowIfFailed(m_device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator)));
@@ -367,37 +379,6 @@ void DX12Renderer::Uniform4f(UINT index, const float* uniform) {
 }
 
 void DX12Renderer::LoadAssets() {
-	// Create Empty Root Signature
-	{
-		// Generate the root signature
-		D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags =
-			D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
-			D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
-			D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
-			D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
-
-		CD3DX12_ROOT_PARAMETER1 rootParameters[1];
-
-		// Setup the constant descriptors
-		rootParameters[0].InitAsConstantBufferView(0);
-
-
-		// Register all constants in global.inc
-		//rootParameters[0].InitAsConstants((sizeof(XMMATRIX) / 4) * 2, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
-
-		CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc;
-		rootSignatureDesc.Init_1_1(1, rootParameters, 0, nullptr, rootSignatureFlags);
-
-		ComPtr<ID3DBlob> signature;
-		ComPtr<ID3DBlob> error;
-		ThrowIfFailed(D3DX12SerializeVersionedRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1_1, &signature, &error));
-		ThrowIfFailed(m_device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&m_rootsSignature)));
-	}
-
-	// Create the Command List
-	ThrowIfFailed(m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator.Get(), NULL, IID_PPV_ARGS(&m_commandList)));
-	ThrowIfFailed(m_commandList->Close());
-
 	// Create the synchronization objects
 	{
 		ThrowIfFailed(m_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
@@ -411,6 +392,59 @@ void DX12Renderer::LoadAssets() {
 
 		// Wait for the command list to execute
 		WaitForPreviousFrame();
+	}
+
+	// Create Empty Root Signature
+	{
+		// Generate the root signature
+		D3D12_ROOT_SIGNATURE_FLAGS rootSignatureFlags =
+			D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT |
+			D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
+			D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
+			D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
+
+		CD3DX12_ROOT_PARAMETER1 rootParameters[2];
+
+		// Setup the constant descriptors
+		rootParameters[0].InitAsConstantBufferView(0);
+
+		// Setup the descriptor table
+		CD3DX12_DESCRIPTOR_RANGE1 descriptorTableRanges[1];
+		descriptorTableRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
+		rootParameters[1].InitAsDescriptorTable(1, &descriptorTableRanges[0]);
+
+		CD3DX12_STATIC_SAMPLER_DESC staticSampler[1];
+		staticSampler[0].Init(0, D3D12_FILTER_ANISOTROPIC);
+
+		// Register all constants in global.inc
+		//rootParameters[0].InitAsConstants((sizeof(XMMATRIX) / 4) * 2, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
+
+		CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc;
+		rootSignatureDesc.Init_1_1(2, rootParameters, 1, &staticSampler[0], rootSignatureFlags);
+
+		ComPtr<ID3DBlob> signature;
+		ComPtr<ID3DBlob> error;
+		ThrowIfFailed(D3DX12SerializeVersionedRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1_1, &signature, &error));
+		ThrowIfFailed(m_device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&m_rootsSignature)));
+	}
+
+	// Create the Command List
+	ThrowIfFailed(m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator.Get(), NULL, IID_PPV_ARGS(&m_commandList)));
+	ThrowIfFailed(m_commandList->Close());
+
+	{
+		// Create the texture upload heap.
+		//TODO: Find a better way and size for textures
+		// For now we will assume that the max texture resolution is 1024x1024 32bit pixels
+		UINT64 textureUploadBufferSize = ((((1024 * 4) + 255) & ~256) * (1024 - 1)) + (1024 * 4);
+		ThrowIfFailed(m_device->CreateCommittedResource(
+			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+			D3D12_HEAP_FLAG_NONE,
+			&CD3DX12_RESOURCE_DESC::Buffer(textureUploadBufferSize),
+			D3D12_RESOURCE_STATE_GENERIC_READ,
+			nullptr,
+			IID_PPV_ARGS(&m_textureBufferUploadHeap)));
+		m_textureBufferUploadHeap->SetName(L"Texture Buffer Upload Resource Heap");
 	}
 }
 
@@ -490,7 +524,7 @@ void DX12Renderer::WaitForPreviousFrame() {
 }
 
 void DX12Renderer::BeginDraw() {
-	if (m_isDrawing) {
+	if (m_isDrawing || !m_initialized) {
 		return;
 	}
 
@@ -675,22 +709,6 @@ void DX12Renderer::UpdateScissorRect(LONG left, LONG top, LONG right, LONG botto
 	}
 }
 
-void DX12Renderer::OnUpdate() {
-	// Update the model matrix.
-	float angle = static_cast<float>(0.0);
-	const XMVECTOR rotationAxis = XMVectorSet(0, 1, 1, 0);
-	m_modelMat = DirectX::XMMatrixIdentity();// DirectX::XMMatrixRotationAxis(rotationAxis, XMConvertToRadians(angle));
-
-	// Update the view matrix.
-	const XMVECTOR eyePosition = XMVectorSet(0, 0, -10, 1);
-	const XMVECTOR focusPoint = XMVectorSet(0, 0, 0, 1);
-	const XMVECTOR upDirection = XMVectorSet(0, 1, 0, 0);
-	m_viewMat = DirectX::XMMatrixLookAtLH(eyePosition, focusPoint, upDirection);
-
-	// Update the projection matrix.
-	m_projMat = DirectX::XMMatrixPerspectiveFovLH(XMConvertToRadians(m_FoV), m_aspectRatio, 0.1f, 100.0f);
-}
-
 void DX12Renderer::ReadPixels(int x, int y, int width, int height, UINT readBuffer, byte* buffer) {
 	// TODO: Implement
 	common->Warning("Read Pixels not yet implemented.");
@@ -698,4 +716,86 @@ void DX12Renderer::ReadPixels(int x, int y, int width, int height, UINT readBuff
 
 void DX12Renderer::SetCullMode(int cullType) {
 	// TODO: implement
+}
+
+// Texture functions
+void DX12Renderer::SetActiveTextureRegister(UINT index) {
+	if (index < 5) {
+		m_activeTextureRegister = index;
+	}
+}
+
+DX12TextureBuffer* DX12Renderer::AllocTextureBuffer(DX12TextureBuffer* buffer, const idStr* name) {
+	// Create the buffer object.
+	if (!WarnIfFailed(m_device->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+		D3D12_HEAP_FLAG_NONE,
+		&buffer->textureDesc,
+		D3D12_RESOURCE_STATE_COPY_DEST,
+		nullptr,
+		IID_PPV_ARGS(&buffer->textureBuffer)))) {
+		return nullptr;
+	}
+
+	
+	wchar_t wname[256];
+	mbstowcs(wname, name->c_str(), name->Length() + 1);
+
+	buffer->textureBuffer->SetName(wname);
+
+	// Create the Shader Resource View
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvDesc.Format = buffer->textureDesc.Format;
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = buffer->textureDesc.MipLevels;
+
+	for (UINT frameIndex = 0; frameIndex < FrameCount; ++frameIndex) {
+		m_device->CreateShaderResourceView(buffer->textureBuffer.Get(), &srvDesc, m_cbvHeap[frameIndex]->GetCPUDescriptorHandleForHeapStart());
+	}
+
+
+	return buffer;
+}
+
+void DX12Renderer::SetTextureContent(const DX12TextureBuffer* buffer, const UINT bytesPerRow, const size_t imageSize, const void* image) {
+	D3D12_SUBRESOURCE_DATA textureData = {};
+	textureData.pData = image;
+	textureData.RowPitch = bytesPerRow;
+	textureData.SlicePitch = bytesPerRow * buffer->textureDesc.Height;
+
+	bool runCommandList = !m_isDrawing;
+
+	if (runCommandList) {
+		WaitForPreviousFrame();
+
+		if (FAILED(m_commandAllocator->Reset())) {
+			common->Warning("Could not reset command allocator.");
+			return;
+		}
+
+		if (FAILED(m_commandList->Reset(m_commandAllocator.Get(), nullptr))) {
+			common->Warning("Could not reset command list.");
+			return;
+		}
+	}
+
+	UpdateSubresources(m_commandList.Get(), buffer->textureBuffer.Get(), m_textureBufferUploadHeap.Get(), 0, 0, 1, &textureData);
+
+	if (runCommandList) {
+		if (FAILED(m_commandList->Close())) {
+			common->Warning("Could not close command list.");
+		}
+	}
+}
+
+void DX12Renderer::SetTexture(const DX12TextureBuffer* buffer) {
+	if (m_isDrawing) {
+		D3D12_GPU_VIRTUAL_ADDRESS addr = buffer->textureBuffer->GetGPUVirtualAddress();
+
+		if (addr != NULL) {
+			m_commandList->SetComputeRootShaderResourceView(m_activeTextureRegister, addr);
+		}
+	}
+	//m_commandList->
 }

@@ -113,6 +113,8 @@ struct SceneConstants {
 };
 ConstantBuffer<SceneConstants> sceneConstants : register(b0, space0);
 
+SamplerState baseSampler : register(s0, space0); 
+
 static float dot2( float2 a, float2 b ) { return dot( a, b ); }
 static float dot3( float3 a, float3 b ) { return dot( a, b ); }
 static float dot3( float3 a, float4 b ) { return dot( a, b.xyz ); }
