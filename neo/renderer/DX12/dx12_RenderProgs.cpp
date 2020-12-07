@@ -65,14 +65,16 @@ void idRenderProgManager::LoadProgram(const int programIndex, const int vertexSh
 
 	dxRenderer.LoadPipelineState(vertexShader, fragmentShader, IID_PPV_ARGS(&pipelineStates[programIndex]));
 
-	// TODO: Implement the uniforms and binders.
-
 	idStr programName = vertexShaders[vertexShaderIndex].name;
 	programName.StripFileExtension();
 	prog.name = programName;
 	prog.shaderObject = pipelineStates[programIndex].GetAddressOf();
 	prog.fragmentShaderIndex = fragmentShaderIndex;
 	prog.vertexShaderIndex = vertexShaderIndex;
+
+	wchar_t resourceName[64];
+	wsprintfW(resourceName, L"Shader: %hs", programName.c_str());
+	pipelineStates[programIndex]->SetName(resourceName);
 }
 
 /*

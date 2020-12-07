@@ -179,18 +179,18 @@ void DX12Renderer::LoadPipeline(HWND hWnd) {
 
 	ThrowIfFailed(m_device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_commandQueue)));
 
-	
-
 	// Create Descriptor Heaps
 	{
 		// Describe and create the constant buffer view (CBV) descriptor for each frame
 		for (UINT frameIndex = 0; frameIndex < FrameCount; ++frameIndex) {
 			D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc = {};
-			cbvHeapDesc.NumDescriptors = 1;
+			cbvHeapDesc.NumDescriptors = 6; // 1 CBV and 5 Shader Resource View
 			cbvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 			cbvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 			ThrowIfFailed(m_device->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(&m_cbvHeap[frameIndex])));
 		}
+
+		m_cbvHeapIncrementor = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	}
 
 	// Describe and create the swap chain
@@ -232,11 +232,19 @@ void DX12Renderer::LoadPipeline(HWND hWnd) {
 				IID_PPV_ARGS(&m_cbvUploadHeap[frameIndex])
 			));
 
+			WCHAR uploadHeapName[20];
+			wsprintfW(uploadHeapName, L"CBV Upload Heap %d", frameIndex);
+			m_cbvUploadHeap[frameIndex]->SetName(uploadHeapName);
+
 			// Create the constant buffer view
 			D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
 			cbvDesc.BufferLocation = m_cbvUploadHeap[frameIndex]->GetGPUVirtualAddress();
 			cbvDesc.SizeInBytes = (sizeof(m_constantBuffer) + 255) & ~255; // Size is required to be 256 byte aligned
 			m_device->CreateConstantBufferView(&cbvDesc, m_cbvHeap[frameIndex]->GetCPUDescriptorHandleForHeapStart());
+
+			WCHAR heapName[20];
+			wsprintfW(heapName, L"CBV Heap %d", frameIndex);
+			m_cbvHeap[frameIndex]->SetName(heapName);
 
 			ZeroMemory(&m_constantBuffer, sizeof(m_constantBuffer));
 		}
@@ -276,6 +284,11 @@ bool DX12Renderer::CreateBackBuffer() {
 
 		m_device->CreateRenderTargetView(m_renderTargets[frameIndex].Get(), nullptr, rtvHandle);
 		rtvHandle.Offset(1, m_rtvDescriptorSize);
+
+		WCHAR nameDest[16];
+		wsprintfW(nameDest, L"Render Target %d", frameIndex);
+
+		m_renderTargets[frameIndex]->SetName(static_cast<LPCWSTR>(nameDest));
 	}
 
 	// Create the DSV
@@ -410,7 +423,7 @@ void DX12Renderer::LoadAssets() {
 
 		// Setup the descriptor table
 		CD3DX12_DESCRIPTOR_RANGE1 descriptorTableRanges[1];
-		descriptorTableRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
+		descriptorTableRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 5, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE, 1/* m_cbvHeapIncrementor*/);
 		rootParameters[1].InitAsDescriptorTable(1, &descriptorTableRanges[0]);
 
 		CD3DX12_STATIC_SAMPLER_DESC staticSampler[1];
@@ -432,11 +445,17 @@ void DX12Renderer::LoadAssets() {
 	ThrowIfFailed(m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator.Get(), NULL, IID_PPV_ARGS(&m_commandList)));
 	ThrowIfFailed(m_commandList->Close());
 
+	m_commandList->SetName(L"Main Graphics Command List");
+
 	{
 		// Create the texture upload heap.
 		//TODO: Find a better way and size for textures
 		// For now we will assume that the max texture resolution is 1024x1024 32bit pixels
-		UINT64 textureUploadBufferSize = ((((1024 * 4) + 255) & ~256) * (1024 - 1)) + (1024 * 4);
+		const UINT bWidth = 1920;
+		const UINT bHeight = 1080;
+		const UINT bBytesPerRow = bWidth * 4;
+		const UINT64 textureUploadBufferSize = (((bBytesPerRow + 255) & ~256) * (bHeight - 1)) + bBytesPerRow;
+
 		ThrowIfFailed(m_device->CreateCommittedResource(
 			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
 			D3D12_HEAP_FLAG_NONE,
@@ -444,6 +463,7 @@ void DX12Renderer::LoadAssets() {
 			D3D12_RESOURCE_STATE_GENERIC_READ,
 			nullptr,
 			IID_PPV_ARGS(&m_textureBufferUploadHeap)));
+
 		m_textureBufferUploadHeap->SetName(L"Texture Buffer Upload Resource Heap");
 	}
 }
@@ -630,6 +650,7 @@ void DX12Renderer::OnDestroy() {
 	WaitForPreviousFrame();
 
 	CloseHandle(m_fenceEvent);
+	m_initialized = false;
 }
 
 bool DX12Renderer::SetScreenParams(UINT width, UINT height, int fullscreen)
@@ -725,46 +746,50 @@ void DX12Renderer::SetActiveTextureRegister(UINT index) {
 	}
 }
 
-DX12TextureBuffer* DX12Renderer::AllocTextureBuffer(DX12TextureBuffer* buffer, const idStr* name) {
+DX12TextureBuffer* DX12Renderer::AllocTextureBuffer(DX12TextureBuffer* buffer, D3D12_RESOURCE_DESC* textureDesc, const idStr* name) {
 	// Create the buffer object.
 	if (!WarnIfFailed(m_device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 		D3D12_HEAP_FLAG_NONE,
-		&buffer->textureDesc,
+		textureDesc,
 		D3D12_RESOURCE_STATE_COPY_DEST,
 		nullptr,
 		IID_PPV_ARGS(&buffer->textureBuffer)))) {
 		return nullptr;
 	}
 
-	
+	// Add a name to the property.
 	wchar_t wname[256];
-	mbstowcs(wname, name->c_str(), name->Length() + 1);
-
+	wsprintfW(wname, L"Texture: %hs", name->c_str());
 	buffer->textureBuffer->SetName(wname);
 
 	// Create the Shader Resource View
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	srvDesc.Format = buffer->textureDesc.Format;
+	srvDesc.Format = textureDesc->Format;
 	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-	srvDesc.Texture2D.MipLevels = buffer->textureDesc.MipLevels;
+	srvDesc.Texture2D.MipLevels = textureDesc->MipLevels;
 
-	for (UINT frameIndex = 0; frameIndex < FrameCount; ++frameIndex) {
-		m_device->CreateShaderResourceView(buffer->textureBuffer.Get(), &srvDesc, m_cbvHeap[frameIndex]->GetCPUDescriptorHandleForHeapStart());
-	}
-
+	buffer->textureView = srvDesc;
 
 	return buffer;
 }
 
-void DX12Renderer::SetTextureContent(const DX12TextureBuffer* buffer, const UINT bytesPerRow, const size_t imageSize, const void* image) {
+void DX12Renderer::FreeTextureBuffer(DX12TextureBuffer* buffer) {
+	if (buffer != nullptr) {
+		//delete(buffer);
+	}
+}
+
+void DX12Renderer::SetTextureContent(const DX12TextureBuffer* buffer, const UINT mipLevel, const UINT bytesPerRow, const size_t imageSize, const void* image) {
+
+
 	D3D12_SUBRESOURCE_DATA textureData = {};
 	textureData.pData = image;
 	textureData.RowPitch = bytesPerRow;
-	textureData.SlicePitch = bytesPerRow * buffer->textureDesc.Height;
+	textureData.SlicePitch = imageSize;
 
-	bool runCommandList = !m_isDrawing;
+	const bool runCommandList = !m_isDrawing;
 
 	if (runCommandList) {
 		WaitForPreviousFrame();
@@ -779,23 +804,27 @@ void DX12Renderer::SetTextureContent(const DX12TextureBuffer* buffer, const UINT
 			return;
 		}
 	}
+	
+	UpdateSubresources(m_commandList.Get(), buffer->textureBuffer.Get(), m_textureBufferUploadHeap.Get(), 0, mipLevel, 1, &textureData);
 
-	UpdateSubresources(m_commandList.Get(), buffer->textureBuffer.Get(), m_textureBufferUploadHeap.Get(), 0, 0, 1, &textureData);
+	m_commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(buffer->textureBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
 
 	if (runCommandList) {
 		if (FAILED(m_commandList->Close())) {
 			common->Warning("Could not close command list.");
 		}
+
+		// Execute the command list
+		ID3D12CommandList* ppCommandLists[] = { m_commandList.Get() };
+		m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 	}
 }
 
 void DX12Renderer::SetTexture(const DX12TextureBuffer* buffer) {
 	if (m_isDrawing) {
-		D3D12_GPU_VIRTUAL_ADDRESS addr = buffer->textureBuffer->GetGPUVirtualAddress();
-
-		if (addr != NULL) {
-			m_commandList->SetComputeRootShaderResourceView(m_activeTextureRegister, addr);
-		}
+		CD3DX12_CPU_DESCRIPTOR_HANDLE textureHandle(m_cbvHeap[m_frameIndex]->GetCPUDescriptorHandleForHeapStart(), 1 + m_activeTextureRegister, m_cbvHeapIncrementor);
+		m_device->CreateShaderResourceView(buffer->textureBuffer.Get(), &buffer->textureView, textureHandle);
+		//CD3DX12_GPU_DESCRIPTOR_HANDLE textureHandle(m_cbvHeap[m_frameIndex]->GetGPUDescriptorHandleForHeapStart(), 1 + buffer->textureIndex, m_cbvHeapIncrementor);
+		//m_commandList->SetGraphicsRootShaderResourceView(m_activeTextureRegister, textureHandle.ptr);
 	}
-	//m_commandList->
 }

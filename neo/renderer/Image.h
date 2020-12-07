@@ -150,7 +150,7 @@ public:
 
 	void		SetTexParameters();	// update aniso and trilinear
 
-	bool		IsLoaded() const { return textureResource.textureBuffer.GetAddressOf() == NULL; }
+	bool		IsLoaded() const;
 
 	static void			GetGeneratedName( idStr &_name, const textureUsage_t &_usage, const cubeFiles_t &_cube );
 
@@ -180,7 +180,7 @@ private:
 	int					refCount;				// overall ref count
 
 
-	DX12TextureBuffer textureResource; // TODO: Make this more generic
+	void* textureResource = nullptr; // TODO: Make this more generic
 };
 
 ID_INLINE idImage::idImage( const char * name ) : imgName( name ) {

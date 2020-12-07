@@ -18,10 +18,13 @@
 #define BUFFER_RGB 0x01
 #define BUFFER_STENCIL 0x02
 
+#define MAX_TEXTURE_COUNT 100;
+
 using namespace DirectX;
 using namespace Microsoft::WRL;
 
 const UINT FrameCount = 2;
+
 
 struct Vertex
 {
@@ -51,7 +54,7 @@ struct DX12CompiledShader
 struct DX12TextureBuffer
 {
 	ComPtr<ID3D12Resource> textureBuffer;
-	CD3DX12_RESOURCE_DESC textureDesc;
+	D3D12_SHADER_RESOURCE_VIEW_DESC textureView;
 };
 
 struct DX12JointBuffer
@@ -97,8 +100,9 @@ public:
 
 	// Textures
 	void SetActiveTextureRegister(UINT index);
-	DX12TextureBuffer* AllocTextureBuffer(DX12TextureBuffer* buffer, const idStr* name);
-	void SetTextureContent(const DX12TextureBuffer* buffer, const UINT bytesPerRow, const size_t imageSize, const void* image);
+	DX12TextureBuffer* AllocTextureBuffer(DX12TextureBuffer* buffer, D3D12_RESOURCE_DESC* textureDesc, const idStr* name);
+	void FreeTextureBuffer(DX12TextureBuffer* buffer);
+	void SetTextureContent(const DX12TextureBuffer* buffer, const UINT mipLevel, const UINT bytesPerRow, const size_t imageSize, const void* image);
 	void SetTexture(const DX12TextureBuffer* buffer);
 
 	// Draw commands
@@ -139,6 +143,7 @@ private:
 
 	ComPtr<ID3D12DescriptorHeap> m_cbvHeap[FrameCount];
 	ComPtr<ID3D12Resource> m_cbvUploadHeap[FrameCount];
+	UINT m_cbvHeapIncrementor;
 	XMFLOAT4 m_constantBuffer[53];
 	UINT8* m_constantBufferGPUAddress[FrameCount];
 	ID3D12PipelineState* m_activePipelineState = nullptr;

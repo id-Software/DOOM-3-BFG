@@ -42,9 +42,6 @@ idImage::SubImageUpload
 ========================
 */
 void idImage::SubImageUpload(int mipLevel, int x, int y, int z, int width, int height, const void* pic, int pixelPitch) const {
-	if (mipLevel > 0) {
-		return;
-	}
 	assert(x >= 0 && y >= 0 && mipLevel >= 0 && width >= 0 && height >= 0 && mipLevel < opts.numLevels);
 
 	int compressedSize = 0;
@@ -98,7 +95,8 @@ void idImage::SubImageUpload(int mipLevel, int x, int y, int z, int width, int h
 
 	//TODO: Load by the x or y coordinate.
 	UINT bytePitch = pixelPitch == 0 ? width * (BitsForFormat(opts.format) / 8) : pixelPitch * (BitsForFormat(opts.format) / 8);
-	dxRenderer.SetTextureContent(&textureResource, bytePitch, width * height * BitsForFormat(opts.format) / 8, pic);
+	dxRenderer.SetTextureContent(static_cast<DX12TextureBuffer*>(textureResource), mipLevel, bytePitch, bytePitch * height, pic);
+
 	//TODO: Implement
 	/*if (pixelPitch != 0) {
 		qglPixelStorei(GL_UNPACK_ROW_LENGTH, pixelPitch);
@@ -451,7 +449,7 @@ void idImage::AllocImage() {
 		//dataType = GL_UNSIGNED_BYTE;
 		break;
 	case FMT_DXT1:
-		textureDesc.Format = DXGI_FORMAT_BC1_UNORM;
+		textureDesc.Format = DXGI_FORMAT_BC1_UNORM_SRGB;
 		/*internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
 		dataFormat = GL_RGBA;
 		dataType = GL_UNSIGNED_BYTE;*/
@@ -491,9 +489,9 @@ void idImage::AllocImage() {
 	}
 
 	// Allocate the texture
-	textureResource.textureDesc = textureDesc;
+	textureResource = dxRenderer.AllocTextureBuffer(new DX12TextureBuffer(), &textureDesc, &imgName);
 	
-	if (dxRenderer.AllocTextureBuffer(&textureResource, &imgName) == nullptr) {
+	if (textureResource == nullptr) {
 		return;
 	}
 
@@ -511,9 +509,11 @@ idImage::PurgeImage
 ========================
 */
 void idImage::PurgeImage() {
-	if (textureResource.textureBuffer != NULL) {
-		//textureResource.textureBuffer->Release();
+	if (IsLoaded()) {
+		dxRenderer.FreeTextureBuffer(static_cast<DX12TextureBuffer*>(textureResource));
+		textureResource = nullptr;
 	}
+
 	// TODO: Implement
 	//if (texnum != TEXTURE_NOT_LOADED) {
 	//	qglDeleteTextures(1, (GLuint*)&texnum);	// this should be the ONLY place it is ever called!
@@ -538,4 +538,12 @@ void idImage::Resize(int width, int height) {
 	opts.width = width;
 	opts.height = height;
 	AllocImage();
+}
+
+bool idImage::IsLoaded() const {
+	if (textureResource != nullptr) {
+		return static_cast<DX12TextureBuffer*>(textureResource)->textureBuffer.GetAddressOf() != NULL;
+	}
+
+	return false;
 }

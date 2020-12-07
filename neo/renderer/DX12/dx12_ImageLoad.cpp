@@ -453,7 +453,7 @@ void idImage::Bind() {
 	tmu_t* tmu = &backEnd.glState.tmu[texUnit];
 	// TODO: bind the texture
 	if (opts.textureType == TT_2D) {
-		dxRenderer.SetTexture(&textureResource);
+		dxRenderer.SetTexture(static_cast<DX12TextureBuffer*>(textureResource));
 		/*if (tmu->current2DMap != texnum) {
 			tmu->current2DMap = texnum;
 			qglBindMultiTextureEXT(GL_TEXTURE0_ARB + texUnit, GL_TEXTURE_2D, texnum);
