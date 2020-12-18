@@ -184,13 +184,14 @@ void DX12Renderer::LoadPipeline(HWND hWnd) {
 		// Describe and create the constant buffer view (CBV) descriptor for each frame
 		for (UINT frameIndex = 0; frameIndex < FrameCount; ++frameIndex) {
 			D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc = {};
-			cbvHeapDesc.NumDescriptors = 6; // 1 CBV and 5 Shader Resource View
+			cbvHeapDesc.NumDescriptors = MAX_DESCRIPTOR_COUNT * MAX_HEAP_OBJECT_COUNT; 
 			cbvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 			cbvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 			ThrowIfFailed(m_device->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(&m_cbvHeap[frameIndex])));
 		}
 
 		m_cbvHeapIncrementor = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
 	}
 
 	// Describe and create the swap chain
@@ -232,6 +233,7 @@ void DX12Renderer::LoadPipeline(HWND hWnd) {
 				IID_PPV_ARGS(&m_cbvUploadHeap[frameIndex])
 			));
 
+			// TODO: Create the CBV View for each object.
 			WCHAR uploadHeapName[20];
 			wsprintfW(uploadHeapName, L"CBV Upload Heap %d", frameIndex);
 			m_cbvUploadHeap[frameIndex]->SetName(uploadHeapName);
@@ -251,6 +253,7 @@ void DX12Renderer::LoadPipeline(HWND hWnd) {
 	}
 
 	ThrowIfFailed(m_device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator)));
+	m_commandAllocator->SetName(L"Main Command Allocator");
 }
 
 bool DX12Renderer::CreateBackBuffer() {
@@ -416,24 +419,22 @@ void DX12Renderer::LoadAssets() {
 			D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
 			D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
 
-		CD3DX12_ROOT_PARAMETER1 rootParameters[2];
+		CD3DX12_ROOT_PARAMETER1 rootParameters[1];
 
 		// Setup the constant descriptors
-		rootParameters[0].InitAsConstantBufferView(0);
+		//rootParameters[0].InitAsConstantBufferView(0);
 
 		// Setup the descriptor table
-		CD3DX12_DESCRIPTOR_RANGE1 descriptorTableRanges[1];
-		descriptorTableRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 5, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE, 1/* m_cbvHeapIncrementor*/);
-		rootParameters[1].InitAsDescriptorTable(1, &descriptorTableRanges[0]);
+		CD3DX12_DESCRIPTOR_RANGE1 descriptorTableRanges[2];
+		descriptorTableRanges[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE, 0);
+		descriptorTableRanges[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 5, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE, 1/* m_cbvHeapIncrementor*/);
+		rootParameters[0].InitAsDescriptorTable(2, &descriptorTableRanges[0]);
 
 		CD3DX12_STATIC_SAMPLER_DESC staticSampler[1];
 		staticSampler[0].Init(0, D3D12_FILTER_ANISOTROPIC);
 
-		// Register all constants in global.inc
-		//rootParameters[0].InitAsConstants((sizeof(XMMATRIX) / 4) * 2, 0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
-
 		CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc;
-		rootSignatureDesc.Init_1_1(2, rootParameters, 1, &staticSampler[0], rootSignatureFlags);
+		rootSignatureDesc.Init_1_1(1, rootParameters, 1, &staticSampler[0], rootSignatureFlags);
 
 		ComPtr<ID3DBlob> signature;
 		ComPtr<ID3DBlob> error;
@@ -548,6 +549,8 @@ void DX12Renderer::BeginDraw() {
 		return;
 	}
 
+	WaitForPreviousFrame();
+
 	m_isDrawing = true;
 	ThrowIfFailed(m_commandAllocator->Reset()); //TODO: Change to warning
 	ThrowIfFailed(m_commandList->Reset(m_commandAllocator.Get(), m_activePipelineState));
@@ -565,7 +568,7 @@ void DX12Renderer::BeginDraw() {
 
 	m_commandList->SetDescriptorHeaps(1, m_cbvHeap[m_frameIndex].GetAddressOf());
 
-	//m_commandList->SetGraphicsRootDescriptorTable(0, m_cbvHeap[m_frameIndex]->GetGPUDescriptorHandleForHeapStart());
+	m_commandList->SetGraphicsRootDescriptorTable(0, m_cbvHeap[m_frameIndex]->GetGPUDescriptorHandleForHeapStart());
 }
 
 void DX12Renderer::EndDraw() {
@@ -614,7 +617,7 @@ void DX12Renderer::UpdateConstantBuffer() {
 	m_cbvUploadHeap[m_frameIndex]->Unmap(0, nullptr);
 
 	if (m_isDrawing) {
-		m_commandList->SetGraphicsRootConstantBufferView(0, m_cbvUploadHeap[m_frameIndex]->GetGPUVirtualAddress());
+		//m_commandList->SetGraphicsRootConstantBufferView(0, m_cbvUploadHeap[m_frameIndex]->GetGPUVirtualAddress());
 	}
 }
 
@@ -669,10 +672,12 @@ bool DX12Renderer::SetScreenParams(UINT width, UINT height, int fullscreen)
 		WaitForPreviousFrame();
 
 		if (FAILED(m_commandAllocator->Reset())) {
+			common->Warning("DX12Renderer::SetScreenParams: Error resetting command allocator.");
 			return false;
 		}
 
 		if (FAILED(m_commandList->Reset(m_commandAllocator.Get(), nullptr))) {
+			common->Warning("DX12Renderer::SetScreenParams: Error resetting command list.");
 			return false;
 		}
 
@@ -771,17 +776,19 @@ DX12TextureBuffer* DX12Renderer::AllocTextureBuffer(DX12TextureBuffer* buffer, D
 	srvDesc.Texture2D.MipLevels = textureDesc->MipLevels;
 
 	buffer->textureView = srvDesc;
+	buffer->usageState = D3D12_RESOURCE_STATE_COPY_DEST;
 
 	return buffer;
 }
 
 void DX12Renderer::FreeTextureBuffer(DX12TextureBuffer* buffer) {
 	if (buffer != nullptr) {
-		//delete(buffer);
+		WaitForPreviousFrame();
+		delete(buffer);
 	}
 }
 
-void DX12Renderer::SetTextureContent(const DX12TextureBuffer* buffer, const UINT mipLevel, const UINT bytesPerRow, const size_t imageSize, const void* image) {
+void DX12Renderer::SetTextureContent(DX12TextureBuffer* buffer, const UINT mipLevel, const UINT bytesPerRow, const size_t imageSize, const void* image) {
 
 
 	D3D12_SUBRESOURCE_DATA textureData = {};
@@ -805,9 +812,15 @@ void DX12Renderer::SetTextureContent(const DX12TextureBuffer* buffer, const UINT
 		}
 	}
 	
+	if (buffer->usageState == D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE) {
+		m_commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(buffer->textureBuffer.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COPY_DEST));
+		buffer->usageState = D3D12_RESOURCE_STATE_COPY_DEST;
+	}
+
 	UpdateSubresources(m_commandList.Get(), buffer->textureBuffer.Get(), m_textureBufferUploadHeap.Get(), 0, mipLevel, 1, &textureData);
 
 	m_commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(buffer->textureBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
+	buffer->usageState = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 
 	if (runCommandList) {
 		if (FAILED(m_commandList->Close())) {

@@ -18,7 +18,11 @@
 #define BUFFER_RGB 0x01
 #define BUFFER_STENCIL 0x02
 
-#define MAX_TEXTURE_COUNT 100;
+// TODO: We will separate the CBV and materials into two separate heap objects. This will allow us to define objects positional properties differently from the material properties.
+#define MAX_TEXTURE_COUNT 100
+#define MAX_DESCRIPTOR_COUNT 8 // 1 CBV and 5 Shader Resource View, 2 extra to keep this as a power of 2
+#define MAX_DESCRIPTOR_TWO_POWER 3
+#define MAX_HEAP_OBJECT_COUNT 512
 
 using namespace DirectX;
 using namespace Microsoft::WRL;
@@ -55,6 +59,7 @@ struct DX12TextureBuffer
 {
 	ComPtr<ID3D12Resource> textureBuffer;
 	D3D12_SHADER_RESOURCE_VIEW_DESC textureView;
+	D3D12_RESOURCE_STATES usageState;
 };
 
 struct DX12JointBuffer
@@ -102,7 +107,7 @@ public:
 	void SetActiveTextureRegister(UINT index);
 	DX12TextureBuffer* AllocTextureBuffer(DX12TextureBuffer* buffer, D3D12_RESOURCE_DESC* textureDesc, const idStr* name);
 	void FreeTextureBuffer(DX12TextureBuffer* buffer);
-	void SetTextureContent(const DX12TextureBuffer* buffer, const UINT mipLevel, const UINT bytesPerRow, const size_t imageSize, const void* image);
+	void SetTextureContent(DX12TextureBuffer* buffer, const UINT mipLevel, const UINT bytesPerRow, const size_t imageSize, const void* image);
 	void SetTexture(const DX12TextureBuffer* buffer);
 
 	// Draw commands
@@ -144,6 +149,7 @@ private:
 	ComPtr<ID3D12DescriptorHeap> m_cbvHeap[FrameCount];
 	ComPtr<ID3D12Resource> m_cbvUploadHeap[FrameCount];
 	UINT m_cbvHeapIncrementor;
+	UINT m_cbvHeapIndex;
 	XMFLOAT4 m_constantBuffer[53];
 	UINT8* m_constantBufferGPUAddress[FrameCount];
 	ID3D12PipelineState* m_activePipelineState = nullptr;

@@ -94,8 +94,10 @@ void idImage::SubImageUpload(int mipLevel, int x, int y, int z, int width, int h
 	}
 
 	//TODO: Load by the x or y coordinate.
-	UINT bytePitch = pixelPitch == 0 ? width * (BitsForFormat(opts.format) / 8) : pixelPitch * (BitsForFormat(opts.format) / 8);
-	dxRenderer.SetTextureContent(static_cast<DX12TextureBuffer*>(textureResource), mipLevel, bytePitch, bytePitch * height, pic);
+	UINT8 bytesForFormat = BitsForFormat(opts.format) / 8;
+	UINT bytePitch = pixelPitch == 0 ? width * bytesForFormat : pixelPitch * bytesForFormat;
+	UINT imageSize = IsCompressed() ? compressedSize : bytePitch * height;
+	dxRenderer.SetTextureContent(static_cast<DX12TextureBuffer*>(textureResource), mipLevel, bytePitch, imageSize, pic);
 
 	//TODO: Implement
 	/*if (pixelPitch != 0) {
@@ -449,13 +451,13 @@ void idImage::AllocImage() {
 		//dataType = GL_UNSIGNED_BYTE;
 		break;
 	case FMT_DXT1:
-		textureDesc.Format = DXGI_FORMAT_BC1_UNORM_SRGB;
+		textureDesc.Format = DXGI_FORMAT_BC1_UNORM;
 		/*internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
 		dataFormat = GL_RGBA;
 		dataType = GL_UNSIGNED_BYTE;*/
 		break;
 	case FMT_DXT5:
-		textureDesc.Format = DXGI_FORMAT_BC3_UNORM_SRGB;
+		textureDesc.Format = DXGI_FORMAT_BC3_UNORM;
 		/*internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
 		dataFormat = GL_RGBA;
 		dataType = GL_UNSIGNED_BYTE;*/
