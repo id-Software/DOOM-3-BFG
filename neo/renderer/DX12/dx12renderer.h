@@ -19,7 +19,7 @@
 #define BUFFER_STENCIL 0x02
 
 // TODO: We will separate the CBV and materials into two separate heap objects. This will allow us to define objects positional properties differently from the material properties.
-#define MAX_TEXTURE_COUNT 100
+#define TEXTURE_REGISTER_COUNT 5
 #define MAX_DESCRIPTOR_COUNT 8 // 1 CBV and 5 Shader Resource View, 2 extra to keep this as a power of 2
 #define MAX_DESCRIPTOR_TWO_POWER 3
 #define MAX_HEAP_OBJECT_COUNT 512
@@ -104,7 +104,7 @@ public:
 	void FreeJointBuffer(DX12JointBuffer* buffer);
 
 	// Textures
-	void SetActiveTextureRegister(UINT index);
+	void SetActiveTextureRegister(UINT8 index);
 	DX12TextureBuffer* AllocTextureBuffer(DX12TextureBuffer* buffer, D3D12_RESOURCE_DESC* textureDesc, const idStr* name);
 	void FreeTextureBuffer(DX12TextureBuffer* buffer);
 	void SetTextureContent(DX12TextureBuffer* buffer, const UINT mipLevel, const UINT bytesPerRow, const size_t imageSize, const void* image);
@@ -115,7 +115,8 @@ public:
 	void Clear(bool color, bool depth, bool stencil, byte stencilValue, float* colorRGBA);
 	void EndDraw();
 	void PresentBackbuffer();
-	void UpdateConstantBuffer();
+	UINT StartSurfaceSettings(); // Starts a new heap entry for the surface.
+	void EndSurfaceSettings(); // Records the the surface entry into the heap.
 	void DrawModel(DX12VertexBuffer* vertexBuffer, UINT vertexOffset, DX12IndexBuffer* indexBuffer, UINT indexOffset, UINT indexCount);
 
 	void SetCullMode(int cullType);
@@ -162,7 +163,7 @@ private:
 
 	// Textures
 	ComPtr<ID3D12Resource> m_textureBufferUploadHeap;
-	UINT m_activeTextureRegister;
+	UINT8 m_activeTextureRegister;
 
 	void LoadPipeline(HWND hWnd);
 	void LoadAssets();

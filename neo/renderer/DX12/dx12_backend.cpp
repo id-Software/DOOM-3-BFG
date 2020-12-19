@@ -1517,8 +1517,10 @@ static int RB_DrawShaderPasses(const drawSurf_t* const* const drawSurfs, const i
 
 	renderLog.OpenBlock("RB_DrawShaderPasses");
 
-	GL_SelectTexture(1);
-	globalImages->BindNull();
+	//TODO: Reset textures for each surface.
+
+	/*GL_SelectTexture(1);
+	globalImages->BindNull();*/
 
 	GL_SelectTexture(0);
 
@@ -1529,6 +1531,7 @@ static int RB_DrawShaderPasses(const drawSurf_t* const* const drawSurfs, const i
 	for (; i < numDrawSurfs; i++) {
 		const drawSurf_t* surf = drawSurfs[i];
 		const idMaterial* shader = surf->material;
+		UINT gpuIndex = -1;
 
 		if (!shader->HasAmbient()) {
 			continue;
@@ -1654,6 +1657,7 @@ static int RB_DrawShaderPasses(const drawSurf_t* const* const drawSurfs, const i
 				}
 				renderLog.OpenBlock("New Shader Stage");
 
+				gpuIndex = dxRenderer.StartSurfaceSettings();
 				GL_State(stageGLState);
 
 				renderProgManager.BindShader(newStage->glslProgram, newStage->glslProgram);
@@ -1732,6 +1736,7 @@ static int RB_DrawShaderPasses(const drawSurf_t* const* const drawSurfs, const i
 				continue;
 			}
 
+			gpuIndex = dxRenderer.StartSurfaceSettings();
 			stageVertexColor_t svc = pStage->vertexColor;
 
 			renderLog.OpenBlock("Old Shader Stage");
@@ -2181,7 +2186,7 @@ void RB_DrawElementsWithCounters(const drawSurf_t* surf) {
 
 	const triIndex_t* test = (triIndex_t*)indexOffset;
 
-	dxRenderer.UpdateConstantBuffer(); // Set our constants
+	dxRenderer.EndSurfaceSettings();
 	dxRenderer.DrawModel(reinterpret_cast<DX12VertexBuffer*>(vertexBuffer->GetAPIObject()), 
 		vertOffset / sizeof(idDrawVert),
 		reinterpret_cast<DX12IndexBuffer*>(indexBuffer->GetAPIObject()), 
