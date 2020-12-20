@@ -94,8 +94,7 @@ void idImage::SubImageUpload(int mipLevel, int x, int y, int z, int width, int h
 	}
 
 	//TODO: Load by the x or y coordinate.
-	UINT8 bytesForFormat = BitsForFormat(opts.format) / 8;
-	UINT bytePitch = pixelPitch == 0 ? width * bytesForFormat : pixelPitch * bytesForFormat;
+	UINT bytePitch = ((pixelPitch == 0 ? width : pixelPitch) * BitsForFormat(opts.format)) / (IsCompressed() ? 2 : 8);
 	UINT imageSize = IsCompressed() ? compressedSize : bytePitch * height;
 	dxRenderer.SetTextureContent(static_cast<DX12TextureBuffer*>(textureResource), mipLevel, bytePitch, imageSize, pic);
 
