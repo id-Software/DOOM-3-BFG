@@ -83,6 +83,8 @@ return
 	"interactionSM.vs.hlsl",
 	"motionBlur.ps.hlsl",
 	"motionBlur.vs.hlsl",
+	"octahedron.ps.hlsl",
+	"octahedron.vs.hlsl",
 	"postprocess.ps.hlsl",
 	"postprocess.vs.hlsl",
 	"screen.ps.hlsl",

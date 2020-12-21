@@ -198,6 +198,7 @@ void idRenderWorldLocal::AddAreaViewEnvprobes( int areaNum, const portalStack_t*
 			continue;
 		}
 
+#if 0
 		// check for being closed off behind a door
 		// a light that doesn't cast shadows will still light even if it is behind a door
 		if( r_useLightAreaCulling.GetBool() //&& !envprobe->LightCastsShadows()
@@ -213,6 +214,7 @@ void idRenderWorldLocal::AddAreaViewEnvprobes( int areaNum, const portalStack_t*
 			// still be visible through others
 			continue;
 		}
+#endif
 
 		viewEnvprobe_t* vProbe = R_SetEnvprobeDefViewEnvprobe( probe );
 
@@ -654,13 +656,14 @@ void R_MakeAmbientMap( const char* baseName, const char* suffix, int outSize, fl
 	for( int i = 0 ; i < 6 ; i++ )
 	{
 		fullname.Format( "env/%s%s.png", baseName, envDirection[i] );
-		common->Printf( "loading %s\n", fullname.c_str() );
+
 		const bool captureToImage = false;
 		common->UpdateScreen( captureToImage );
+		
 		R_LoadImage( fullname, &buffers[i], &width, &height, NULL, true, NULL );
 		if( !buffers[i] )
 		{
-			common->Printf( "failed.\n" );
+			common->Printf( "loading %s failed.\n", fullname.c_str() );
 			for( i-- ; i >= 0 ; i-- )
 			{
 				Mem_Free( buffers[i] );
@@ -672,7 +675,7 @@ void R_MakeAmbientMap( const char* baseName, const char* suffix, int outSize, fl
 	bool pacifier = true;
 
 	// resample with hemispherical blending
-	int	samples = 1;
+	int	samples = 1000;
 
 	byte*	outBuffer = ( byte* )_alloca( outSize * outSize * 4 );
 
@@ -744,72 +747,68 @@ void R_MakeAmbientMap( const char* baseName, const char* suffix, int outSize, fl
 
 		const float invDstSize = 1.0f / float( outSize );
 
-		//for( int i = 0 ; i < 6 ; i++ )
+		for( int x = 0 ; x < outSize ; x++ )
 		{
-			for( int x = 0 ; x < outSize ; x++ )
+			for( int y = 0 ; y < outSize ; y++ )
 			{
-				for( int y = 0 ; y < outSize ; y++ )
+				idVec3	dir;
+				float	total[3];
+
+				// convert UV coord from [0, 1] to [-1, 1] space
+				const float u = 2.0f * x * invDstSize - 1.0f;
+				const float v = 2.0f * y * invDstSize - 1.0f;
+
+				idVec2 octCoord = NormalizedOctCoord( x, y, outSize );
+
+				// convert UV coord to 3D direction
+				dir.FromOctahedral( octCoord );
+
+				total[0] = total[1] = total[2] = 0; 
+
+				//float roughness = map ? 0.1 : 0.95;		// small for specular, almost hemisphere for ambient
+
+				for( int s = 0 ; s < samples ; s++ )
 				{
-					idVec3	dir;
-					float	total[3];
+					idVec2 Xi = Hammersley2D( s, samples );
+					idVec3 test = ImportanceSampleGGX( Xi, dir, roughness );
 
-					// convert UV coord from [0, 1] to [-1, 1] space
-					const float u = 2.0f * x * invDstSize - 1.0f;
-					const float v = 2.0f * y * invDstSize - 1.0f;
-
-					//idVec2 octCoord( u, v );
-					idVec2 octCoord = NormalizedOctCoord( x, y, outSize );
-
-					// convert UV coord to 3D direction
-					dir.FromOctahedral( octCoord );
-
-					total[0] = total[1] = total[2] = 0; 
-
-					//float roughness = map ? 0.1 : 0.95;		// small for specular, almost hemisphere for ambient
-
-					for( int s = 0 ; s < samples ; s++ )
-					{
-						idVec2 Xi = Hammersley2D( s, samples );
-						idVec3 test = ImportanceSampleGGX( Xi, dir, roughness );
-
-						byte	result[4];
-						//test = dir;
-						R_SampleCubeMap( test, width, buffers, result );
-						total[0] += result[0];
-						total[1] += result[1];
-						total[2] += result[2];
-					}
+					byte	result[4];
+					//test = dir;
+					R_SampleCubeMap( test, width, buffers, result );
+					total[0] += result[0];
+					total[1] += result[1];
+					total[2] += result[2];
+				}
 
 #if 1
-					outBuffer[( y * outSize + x ) * 4 + 0] = total[0] / samples;
-					outBuffer[( y * outSize + x ) * 4 + 1] = total[1] / samples;
-					outBuffer[( y * outSize + x ) * 4 + 2] = total[2] / samples;
-					outBuffer[( y * outSize + x ) * 4 + 3] = 255;
+				outBuffer[( y * outSize + x ) * 4 + 0] = total[0] / samples;
+				outBuffer[( y * outSize + x ) * 4 + 1] = total[1] / samples;
+				outBuffer[( y * outSize + x ) * 4 + 2] = total[2] / samples;
+				outBuffer[( y * outSize + x ) * 4 + 3] = 255;
 #else
-					outBuffer[( y * outSize + x ) * 4 + 0] = byte( ( dir.x * 0.5f + 0.5f ) * 255 );
-					outBuffer[( y * outSize + x ) * 4 + 1] = byte( ( dir.y * 0.5f + 0.5f ) * 255 );
-					outBuffer[( y * outSize + x ) * 4 + 2] = byte( ( dir.z * 0.5f + 0.5f ) * 255 );
-					outBuffer[( y * outSize + x ) * 4 + 3] = 255;
+				outBuffer[( y * outSize + x ) * 4 + 0] = byte( ( dir.x * 0.5f + 0.5f ) * 255 );
+				outBuffer[( y * outSize + x ) * 4 + 1] = byte( ( dir.y * 0.5f + 0.5f ) * 255 );
+				outBuffer[( y * outSize + x ) * 4 + 2] = byte( ( dir.z * 0.5f + 0.5f ) * 255 );
+				outBuffer[( y * outSize + x ) * 4 + 3] = 255;
 #endif
 
-					progressBar.Increment();
-				}
+				progressBar.Increment();
 			}
+		}
 
 			
-			fullname.Format( "env/%s%s.png", baseName, suffix );
-			//common->Printf( "writing %s\n", fullname.c_str() );
+		fullname.Format( "env/%s%s.png", baseName, suffix );
+		//common->Printf( "writing %s\n", fullname.c_str() );
 
-			const bool captureToImage = false;
-			common->UpdateScreen( captureToImage );
+		const bool captureToImage = false;
+		common->UpdateScreen( captureToImage );
 
-			//R_WriteTGA( fullname, outBuffer, outSize, outSize, false, "fs_basepath" );
-			R_WritePNG( fullname, outBuffer, 4, outSize, outSize, true, "fs_basepath" );
-		}
+		//R_WriteTGA( fullname, outBuffer, outSize, outSize, false, "fs_basepath" );
+		R_WritePNG( fullname, outBuffer, 4, outSize, outSize, true, "fs_basepath" );
 
 		int	end = Sys_Milliseconds();
 
-		common->Printf( "env/%s convolved  in %5.1f seconds\n\n", baseName, ( end - start ) * 0.001f );
+		common->Printf( "env/%s convolved in %5.1f seconds\n\n", baseName, ( end - start ) * 0.001f );
 	}
 #endif
 
@@ -995,6 +994,9 @@ CONSOLE_COMMAND( generateEnvironmentProbes, "Generate environment probes", NULL 
 	//--------------------------------------------
 	// CONVOLVE CUBEMAPS
 	//--------------------------------------------
+
+	int	start = Sys_Milliseconds();
+
 	for( int i = 0; i < tr.primaryWorld->envprobeDefs.Num(); i++ )
 	{
 		RenderEnvprobeLocal* def = tr.primaryWorld->envprobeDefs[i];
@@ -1008,5 +1010,9 @@ CONSOLE_COMMAND( generateEnvironmentProbes, "Generate environment probes", NULL 
 		R_MakeAmbientMap( fullname.c_str(), "_amb", IRRADIANCE_CUBEMAP_SIZE, 0.95f );
 		R_MakeAmbientMap( fullname.c_str(), "_spec", RADIANCE_CUBEMAP_SIZE, 0.1f );
 	}
+
+	int	end = Sys_Milliseconds();
+
+	common->Printf( "convolved probes in %5.1f seconds\n\n", ( end - start ) * 0.001f );
 }
 
