@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2012-2016 Robert Beckebans
+Copyright (C) 2012-2020 Robert Beckebans
 Copyright (C) 2014-2016 Kot in Action Creative Artel
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
@@ -283,7 +283,7 @@ void idRenderModelStatic::MakeDefaultModel()
 	tri->generateNormals = true;
 
 	AddSurface( surf );
-	FinishSurfaces();
+	FinishSurfaces( false );
 }
 
 /*
@@ -311,28 +311,30 @@ void idRenderModelStatic::InitFromFile( const char* fileName )
 
 	// FIXME: load new .proc map format
 
+	ID_TIME_T sourceTimeStamp;
+
 	name.ExtractFileExtension( extension );
 
 	if( extension.Icmp( "ase" ) == 0 )
 	{
-		loaded		= LoadASE( name );
+		loaded		= LoadASE( name, &sourceTimeStamp );
 		reloadable	= true;
 	}
 // RB: added dae
 	else if( extension.Icmp( "dae" ) == 0 )
 	{
-		loaded		= LoadDAE( name );
+		loaded		= LoadDAE( name, &sourceTimeStamp );
 		reloadable	= true;
 	}
 // RB end
 	else if( extension.Icmp( "lwo" ) == 0 )
 	{
-		loaded		= LoadLWO( name );
+		loaded		= LoadLWO( name, &sourceTimeStamp );
 		reloadable	= true;
 	}
 	else if( extension.Icmp( "ma" ) == 0 )
 	{
-		loaded		= LoadMA( name );
+		loaded		= LoadMA( name, &sourceTimeStamp );
 		reloadable	= true;
 	}
 	else
@@ -351,8 +353,19 @@ void idRenderModelStatic::InitFromFile( const char* fileName )
 	// it is now available for use
 	purged = false;
 
+	// RB: this is 1.1.2016 10:00 AM
+	// a useful tool for this is https://www.unixtime.de/
+	const ID_TIME_T min2016 = 1451638800;
+
+	bool useMikktspace = false;
+	if( sourceTimeStamp > min2016 )
+	{
+		// HACK: assume this is a newer asset not by id Software and its normalmaps are baked using the mikktspace standard
+		useMikktspace = true;
+	}
+
 	// create the bounds for culling and dynamic surface creation
-	FinishSurfaces();
+	FinishSurfaces( useMikktspace );
 }
 
 /*
@@ -1126,7 +1139,7 @@ Extends the bounds of deformed surfaces so they don't cull incorrectly at screen
 
 ================
 */
-void idRenderModelStatic::FinishSurfaces()
+void idRenderModelStatic::FinishSurfaces( bool useMikktspace )
 {
 	int			i;
 	int			totalVerts, totalIndexes;
@@ -1215,7 +1228,9 @@ void idRenderModelStatic::FinishSurfaces()
 	{
 		const modelSurface_t*	surf = &surfaces[i];
 
-		R_CleanupTriangles( surf->geometry, surf->geometry->generateNormals, true, surf->shader->UseUnsmoothedTangents() );
+		bool mikktspace = useMikktspace || surf->shader->UseMikkTSpace();
+
+		R_CleanupTriangles( surf->geometry, surf->geometry->generateNormals, true, surf->shader->UseUnsmoothedTangents(), mikktspace );
 		if( surf->shader->SurfaceCastsShadow() )
 		{
 			totalVerts += surf->geometry->numVerts;
@@ -3176,7 +3191,7 @@ bool idRenderModelStatic::ConvertMAToModelSurfaces( const struct maModel_s* ma )
 idRenderModelStatic::LoadASE
 =================
 */
-bool idRenderModelStatic::LoadASE( const char* fileName )
+bool idRenderModelStatic::LoadASE( const char* fileName, ID_TIME_T* sourceTimeStamp )
 {
 	aseModel_t* ase;
 
@@ -3185,6 +3200,9 @@ bool idRenderModelStatic::LoadASE( const char* fileName )
 	{
 		return false;
 	}
+
+	// RB
+	*sourceTimeStamp = ase->timeStamp;
 
 	ConvertASEToModelSurfaces( ase );
 
@@ -3198,7 +3216,7 @@ bool idRenderModelStatic::LoadASE( const char* fileName )
 idRenderModelStatic::LoadLWO
 =================
 */
-bool idRenderModelStatic::LoadLWO( const char* fileName )
+bool idRenderModelStatic::LoadLWO( const char* fileName, ID_TIME_T* sourceTimeStamp )
 {
 	unsigned int failID;
 	int failPos;
@@ -3209,6 +3227,9 @@ bool idRenderModelStatic::LoadLWO( const char* fileName )
 	{
 		return false;
 	}
+
+	// RB
+	*sourceTimeStamp = fileSystem->GetTimestamp( fileName );
 
 	ConvertLWOToModelSurfaces( lwo );
 
@@ -3222,7 +3243,7 @@ bool idRenderModelStatic::LoadLWO( const char* fileName )
 idRenderModelStatic::LoadMA
 =================
 */
-bool idRenderModelStatic::LoadMA( const char* fileName )
+bool idRenderModelStatic::LoadMA( const char* fileName, ID_TIME_T* sourceTimeStamp )
 {
 	maModel_t* ma;
 
@@ -3232,6 +3253,9 @@ bool idRenderModelStatic::LoadMA( const char* fileName )
 		return false;
 	}
 
+	// RB
+	*sourceTimeStamp = ma->timeStamp;
+
 	ConvertMAToModelSurfaces( ma );
 
 	MA_Free( ma );
@@ -3240,7 +3264,7 @@ bool idRenderModelStatic::LoadMA( const char* fileName )
 }
 
 // RB: added COLLADA support
-bool idRenderModelStatic::LoadDAE( const char* fileName )
+bool idRenderModelStatic::LoadDAE( const char* fileName, ID_TIME_T* sourceTimeStamp )
 {
 	bool loaded = false;
 
@@ -3251,7 +3275,7 @@ bool idRenderModelStatic::LoadDAE( const char* fileName )
 		idTimer timer;
 		timer.Start();
 
-		ColladaParser parser( fileName );
+		ColladaParser parser( fileName, sourceTimeStamp );
 
 		loaded = ConvertDAEToModelSurfaces( &parser );
 
@@ -3368,7 +3392,9 @@ void idRenderModelStatic::ReadFromDemoFile( class idDemoFile* f )
 
 		this->AddSurface( surf );
 	}
-	this->FinishSurfaces();
+
+	// RB: don't use mikktspace here because it is slower
+	this->FinishSurfaces( false );
 }
 
 /*

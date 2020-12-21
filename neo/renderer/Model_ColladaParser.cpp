@@ -57,7 +57,7 @@ using namespace Collada;
 
 // ------------------------------------------------------------------------------------------------
 // Constructor to be privately used by Importer
-ColladaParser::ColladaParser( const char* pFile )
+ColladaParser::ColladaParser( const char* pFile, ID_TIME_T* sourceTimeStamp )
 	: mFileName( pFile )
 {
 	mRootNode = NULL;
@@ -73,6 +73,8 @@ ColladaParser::ColladaParser( const char* pFile )
 	{
 		ThrowException( "Collada: Unable to open file." );
 	}
+
+	*sourceTimeStamp = mReader->getTimestamp();
 
 	// start reading
 	ReadContents();

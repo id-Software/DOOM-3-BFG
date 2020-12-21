@@ -91,6 +91,7 @@ I started this project in 2012 and focused on making this code being future proo
 
 * Merged LordHavoc's image compression progress bar which shows up in the map loading screen
   when loading and compressing new images from mods
+* Added support for Mikkelsen tangent space standard for new assets (thanks to Stephen Pridham)
 	
 If you want to start mod from a directory, you should first specify your mod directory adding the following command to the launcher:
 
