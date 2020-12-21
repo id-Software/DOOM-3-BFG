@@ -194,7 +194,7 @@ public:
 	// Creates the duplicated back side geometry for two sided, alpha tested, lit materials
 	// This does not need to be called if none of the surfaces added with AddSurface require
 	// light interaction, and all the triangles are already well formed.
-	virtual void				FinishSurfaces() = 0;
+	virtual void				FinishSurfaces( bool useMikktspace ) = 0;
 
 	// frees all the data, but leaves the class around for dangling references,
 	// which can regenerate the data with LoadModel()

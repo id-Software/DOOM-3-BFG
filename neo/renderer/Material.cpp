@@ -112,6 +112,7 @@ void idMaterial::CommonInit()
 	hasSubview = false;
 	allowOverlays = true;
 	unsmoothedTangents = false;
+	mikktspace = false; // RB
 	gui = NULL;
 	memset( deformRegisters, 0, sizeof( deformRegisters ) );
 	editorAlpha = 1.0;
@@ -2416,6 +2417,12 @@ void idMaterial::ParseMaterial( idLexer& src )
 		else if( !token.Icmp( "unsmoothedTangents" ) )
 		{
 			unsmoothedTangents = true;
+			continue;
+		}
+		// RB: mikktspace
+		else if( !token.Icmp( "mikktspace" ) )
+		{
+			mikktspace = true;
 			continue;
 		}
 		// lightFallofImage <imageprogram>

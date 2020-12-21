@@ -64,7 +64,7 @@ class ColladaParser
 
 protected:
 	/** Constructor from XML file */
-	ColladaParser( const char* pFile );
+	ColladaParser( const char* pFile, ID_TIME_T* sourceTimeStamp );
 
 	/** Destructor */
 	~ColladaParser();

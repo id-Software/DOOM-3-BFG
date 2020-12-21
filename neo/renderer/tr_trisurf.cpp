@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2020 Stephen Pridham (Mikkelsen tangent space support)
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -122,7 +123,7 @@ is highly uneven.
 // method of calculating tangent spaces for the original game's normal maps, disable mikktspace before
 // loading in the model.
 // see http://www.mikktspace.com/
-idCVar r_useMikktspace( "r_useMikktspace", "1", CVAR_RENDERER | CVAR_BOOL, "Use the mikktspace standard to derive tangents" );
+//idCVar r_useMikktspace( "r_useMikktspace", "1", CVAR_RENDERER | CVAR_BOOL, "Use the mikktspace standard to derive tangents" );
 
 static void* mkAlloc( int bytes );
 static void mkFree( void* mem );
@@ -1049,13 +1050,13 @@ Derives the tangent space for the given triangles using the Mikktspace standard.
 Normals must be calculated beforehand.
 ============
 */
-static void R_DeriveMikktspaceTangents( srfTriangles_t* tri )
+static bool R_DeriveMikktspaceTangents( srfTriangles_t* tri )
 {
 	SMikkTSpaceContext context;
 	SetUpMikkTSpaceContext( &context );
 	context.m_pUserData = tri;
-	genTangSpaceDefault( &context );
-	tri->tangentsCalculated = true;
+
+	return ( genTangSpaceDefault( &context ) != 0 );
 }
 
 /*
@@ -1357,14 +1358,20 @@ to save space or speed transforms?
 this version only handles bilateral symetry
 =================
 */
-void R_DeriveTangentsWithoutNormals( srfTriangles_t* tri )
+void R_DeriveTangentsWithoutNormals( srfTriangles_t* tri, bool useMikktspace )
 {
 	// SP begin
-	if( r_useMikktspace.GetBool() )
+	if( useMikktspace )
 	{
-		R_DeriveMikktspaceTangents( tri );
-
-		return;
+		if( !R_DeriveMikktspaceTangents( tri ) )
+		{
+			idLib::Warning( "Mikkelsen tangent space calculation failed" );
+		}
+		else
+		{
+			tri->tangentsCalculated = true;
+			return;
+		}
 	}
 	// SP End
 
@@ -1975,7 +1982,7 @@ R_CleanupTriangles
 FIXME: allow createFlat and createSmooth normals, as well as explicit
 =================
 */
-void R_CleanupTriangles( srfTriangles_t* tri, bool createNormals, bool identifySilEdges, bool useUnsmoothedTangents )
+void R_CleanupTriangles( srfTriangles_t* tri, bool createNormals, bool identifySilEdges, bool useUnsmoothedTangents, bool useMikktspace )
 {
 	R_RangeCheckIndexes( tri );
 
@@ -2008,7 +2015,7 @@ void R_CleanupTriangles( srfTriangles_t* tri, bool createNormals, bool identifyS
 	}
 	else if( !createNormals )
 	{
-		R_DeriveTangentsWithoutNormals( tri );
+		R_DeriveTangentsWithoutNormals( tri, useMikktspace );
 	}
 	else
 	{

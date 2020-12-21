@@ -72,7 +72,7 @@ public:
 	virtual void				TouchData();
 	virtual void				InitEmpty( const char* name );
 	virtual void				AddSurface( modelSurface_t surface );
-	virtual void				FinishSurfaces();
+	virtual void				FinishSurfaces( bool useMikktspace );
 	virtual void				FreeVertexCache();
 	virtual const char* 		Name() const;
 	virtual void				Print() const;
@@ -115,10 +115,10 @@ public:
 
 	void						MakeDefaultModel();
 
-	bool						LoadASE( const char* fileName );
-	bool						LoadDAE( const char* fileName ); // RB
-	bool						LoadLWO( const char* fileName );
-	bool						LoadMA( const char* filename );
+	bool						LoadASE( const char* fileName, ID_TIME_T* sourceTimeStamp );
+	bool						LoadDAE( const char* fileName, ID_TIME_T* sourceTimeStamp ); // RB
+	bool						LoadLWO( const char* fileName, ID_TIME_T* sourceTimeStamp );
+	bool						LoadMA( const char* filename, ID_TIME_T* sourceTimeStamp );
 
 	bool						ConvertDAEToModelSurfaces( const ColladaParser* dae ); // RB
 	bool						ConvertASEToModelSurfaces( const struct aseModel_s* ase );
