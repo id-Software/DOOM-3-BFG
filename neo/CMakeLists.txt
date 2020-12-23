@@ -251,8 +251,8 @@ elseif(MSVC)
 					-D_CRT_SECURE_NO_DEPRECATE
 					-D_CRT_NONSTDC_NO_DEPRECATE
 					-D_CRT_SECURE_NO_WARNINGS
-                                        -D_MBCS
-                                       #-DUSE_OPENAL
+					-D_MBCS
+					#-DUSE_OPENAL
 					-DUSE_EXCEPTIONS)
         ## Check for Version ##
         if( WINRT OR WINDOWS10 ) # Windows RT

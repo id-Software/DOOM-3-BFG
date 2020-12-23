@@ -3,6 +3,8 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2014-2016 Robert Beckebans
+Copyright (C) 2014-2016 Kot in Action Creative Artel
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -137,11 +139,32 @@ idSessionLocal::idSessionLocal
 */
 idSessionLocal::~idSessionLocal()
 {
-	delete processorSaveFiles;
-	delete processorLoadFiles;
-	delete processorDelete;
-	delete processorEnumerate;
-	delete sessionCallbacks;
+	// foresthale 2014-06-08: check before deleting these, the deletes were likely done in Shutdown already
+	if( processorSaveFiles )
+	{
+		delete processorSaveFiles;
+		processorSaveFiles = NULL;
+	}
+	if( processorLoadFiles )
+	{
+		delete processorLoadFiles;
+		processorLoadFiles = NULL;
+	}
+	if( processorDelete )
+	{
+		delete processorDelete;
+		processorDelete = NULL;
+	}
+	if( processorEnumerate )
+	{
+		delete processorEnumerate;
+		processorEnumerate = NULL;
+	}
+	if( sessionCallbacks )
+	{
+		delete sessionCallbacks;
+		sessionCallbacks = NULL;
+	}
 }
 
 
@@ -1583,11 +1606,20 @@ idSessionLocal::~idSession
 */
 idSession::~idSession()
 {
-	delete signInManager;
+	if( signInManager )
+	{
+		delete signInManager;
+	}
 	signInManager = NULL;
-	delete saveGameManager;
+	if( saveGameManager )
+	{
+		delete saveGameManager;
+	}
 	saveGameManager = NULL;
-	delete dedicatedServerSearch;
+	if( dedicatedServerSearch )
+	{
+		delete dedicatedServerSearch;
+	}
 	dedicatedServerSearch = NULL;
 }
 
@@ -1618,6 +1650,48 @@ idSessionLocal::Shutdown
 */
 void idSessionLocal::Shutdown()
 {
+	// foresthale 2014-05-28: shut down saveGameManager early because the thread it owns will be terminated before the dtor is reached
+	if( signInManager )
+	{
+		delete signInManager;
+	}
+	signInManager = NULL;
+	if( saveGameManager )
+	{
+		delete saveGameManager;
+	}
+	saveGameManager = NULL;
+	if( dedicatedServerSearch )
+	{
+		delete dedicatedServerSearch;
+	}
+	dedicatedServerSearch = NULL;
+	// foresthale 2014-06-08: delete these before we get to the dtor to prevent doexit crashes
+	if( processorSaveFiles )
+	{
+		delete processorSaveFiles;
+		processorSaveFiles = NULL;
+	}
+	if( processorLoadFiles )
+	{
+		delete processorLoadFiles;
+		processorLoadFiles = NULL;
+	}
+	if( processorDelete )
+	{
+		delete processorDelete;
+		processorDelete = NULL;
+	}
+	if( processorEnumerate )
+	{
+		delete processorEnumerate;
+		processorEnumerate = NULL;
+	}
+	if( sessionCallbacks )
+	{
+		delete sessionCallbacks;
+		sessionCallbacks = NULL;
+	}
 }
 
 /*

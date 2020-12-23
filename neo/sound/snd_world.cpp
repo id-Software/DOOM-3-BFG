@@ -935,9 +935,11 @@ void idSoundWorldLocal::ProcessDemoCommand( idDemoFile* readDemo )
 			break;
 		}
 		case SCMD_STATE:
+		{
 			ReadFromSaveGame( readDemo );
 			UnPause();
 			break;
+		}
 		case SCMD_PLACE_LISTENER:
 		{
 			idVec3	origin;
