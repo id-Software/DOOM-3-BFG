@@ -339,7 +339,7 @@ void idSWF::WriteSwfImageAtlas( const char* filename )
 	}
 
 	// the TGA is only for examination during development
-	R_WritePNG( filename, swfAtlas.Ptr(), 4, atlasWidth, atlasHeight, false, "fs_basepath" );
+	R_WriteTGA( filename, swfAtlas.Ptr(), atlasWidth, atlasHeight, false, "fs_basepath" );
 }
 
 /*
