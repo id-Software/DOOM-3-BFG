@@ -343,7 +343,9 @@ static void ParseBrush( const idMapBrush* mapBrush, int primitiveNum )
 		memset( s, 0, sizeof( *s ) );
 		s->planenum = FindFloatPlane( ms->GetPlane(), &fixedDegeneracies );
 		s->material = declManager->FindMaterial( ms->GetMaterial() );
+
 		ms->GetTextureVectors( s->texVec.v );
+
 		// remove any integral shift, which will help with grouping
 		s->texVec.v[0][3] -= floor( s->texVec.v[0][3] );
 		s->texVec.v[1][3] -= floor( s->texVec.v[1][3] );

@@ -106,27 +106,30 @@ bool idDeclEntityDef::Parse( const char* text, const int textLength, bool allowB
 	// find all of the dicts first, because copying inherited values will modify the dict
 	idList<const idDeclEntityDef*> defList;
 
-	while( 1 )
+	if( !( com_editors & EDITOR_EXPORTDEFS ) )
 	{
-		const idKeyValue* kv;
-		kv = dict.MatchPrefix( "inherit", NULL );
-		if( !kv )
+		while( 1 )
 		{
-			break;
-		}
+			const idKeyValue* kv;
+			kv = dict.MatchPrefix( "inherit", NULL );
+			if( !kv )
+			{
+				break;
+			}
 
-		const idDeclEntityDef* copy = static_cast<const idDeclEntityDef*>( declManager->FindType( DECL_ENTITYDEF, kv->GetValue(), false ) );
-		if( !copy )
-		{
-			src.Warning( "Unknown entityDef '%s' inherited by '%s'", kv->GetValue().c_str(), GetName() );
-		}
-		else
-		{
-			defList.Append( copy );
-		}
+			const idDeclEntityDef* copy = static_cast<const idDeclEntityDef*>( declManager->FindType( DECL_ENTITYDEF, kv->GetValue(), false ) );
+			if( !copy )
+			{
+				src.Warning( "Unknown entityDef '%s' inherited by '%s'", kv->GetValue().c_str(), GetName() );
+			}
+			else
+			{
+				defList.Append( copy );
+			}
 
-		// delete this key/value pair
-		dict.Delete( kv->GetKey() );
+			// delete this key/value pair
+			dict.Delete( kv->GetKey() );
+		}
 	}
 
 	// now copy over the inherited key / value pairs
@@ -137,7 +140,7 @@ bool idDeclEntityDef::Parse( const char* text, const int textLength, bool allowB
 
 	// precache all referenced media
 	// do this as long as we arent in modview
-	if( !( com_editors & ( EDITOR_AAS ) ) )
+	if( !( com_editors & ( EDITOR_AAS | EDITOR_EXPORTDEFS ) ) )
 	{
 		game->CacheDictionaryMedia( &dict );
 	}

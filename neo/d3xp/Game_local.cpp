@@ -1882,11 +1882,13 @@ void idGameLocal::CacheDictionaryMedia( const idDict* dict )
 		if( kv->GetValue().Length() )
 		{
 			declManager->MediaPrint( "Precaching model %s\n", kv->GetValue().c_str() );
+
 			// precache model/animations
 			if( declManager->FindType( DECL_MODELDEF, kv->GetValue(), false ) == NULL )
 			{
 				// precache the render model
 				renderModelManager->FindModel( kv->GetValue() );
+
 				// precache .cm files only
 				collisionModelManager->LoadModel( kv->GetValue() );
 			}

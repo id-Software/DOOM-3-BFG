@@ -128,7 +128,8 @@ typedef enum
 	EDITOR_PARTICLE				= BIT( 8 ),
 	EDITOR_PDA					= BIT( 9 ),
 	EDITOR_AAS					= BIT( 10 ),
-	EDITOR_MATERIAL				= BIT( 11 )
+	EDITOR_MATERIAL				= BIT( 11 ),
+	EDITOR_EXPORTDEFS			= BIT( 12 ), // RB
 } toolFlag_t;
 
 #define STRTABLE_ID				"#str_"
