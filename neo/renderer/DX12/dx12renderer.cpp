@@ -120,6 +120,8 @@ void GetHardwareAdapter(IDXGIFactory4* pFactory, IDXGIAdapter1** ppAdapter) {
 			break;
 		}
 
+		//TODO: Select the appropriate monitor.
+
 		// Check to see if the adapter supports Direct3D 12
 		if (SUCCEEDED(D3D12CreateDevice(pAdapter, D3D_FEATURE_LEVEL_12_1, _uuidof(ID3D12Device), nullptr))) {
 			*ppAdapter = pAdapter;
@@ -204,7 +206,7 @@ void DX12Renderer::LoadPipeline(HWND hWnd) {
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	swapChainDesc.OutputWindow = hWnd;
 	swapChainDesc.SampleDesc.Count = 1;
-	swapChainDesc.Windowed = TRUE;
+	swapChainDesc.Windowed = FALSE; //TODO: Change to option
 
 	ComPtr<IDXGISwapChain> swapChain;
 	ThrowIfFailed(factory->CreateSwapChain(m_commandQueue.Get(), &swapChainDesc, &swapChain));
@@ -333,16 +335,8 @@ bool DX12Renderer::CreateBackBuffer() {
 	return true;
 }
 
-void DX12Renderer::LoadPipelineState(const DX12CompiledShader* vertexShader, const DX12CompiledShader* pixelShader, const IID& riid, void** ppPipelineState) {
-	// Define the vertex input layout
-	const D3D12_INPUT_ELEMENT_DESC inputElementDescs[] = {
-		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R16G16_FLOAT , 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		{ "NORMAL", 0, DXGI_FORMAT_B8G8R8A8_UNORM , 0, 16, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		{ "TANGENT", 0, DXGI_FORMAT_B8G8R8A8_UNORM , 0, 20, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		{ "COLOR", 0, DXGI_FORMAT_B8G8R8A8_UNORM , 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		{ "COLOR", 1, DXGI_FORMAT_B8G8R8A8_UNORM , 0, 28, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-	};
+void DX12Renderer::LoadPipelineState(D3D12_GRAPHICS_PIPELINE_STATE_DESC* psoDesc, ID3D12PipelineState** ppPipelineState) {
+	assert(ppPipelineState != NULL);
 
 	D3D12_FEATURE_DATA_ROOT_SIGNATURE featureData = {};
 	featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_1;
@@ -351,53 +345,17 @@ void DX12Renderer::LoadPipelineState(const DX12CompiledShader* vertexShader, con
 		featureData.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_0;
 	}
 
-	CD3DX12_RASTERIZER_DESC rasterizerDesc(D3D12_DEFAULT);
-	rasterizerDesc.CullMode = D3D12_CULL_MODE_FRONT; // As we are reversed from opengl
+	psoDesc->pRootSignature = m_rootsSignature.Get();
 
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
-	psoDesc.InputLayout = { inputElementDescs, _countof(inputElementDescs) };
-	psoDesc.pRootSignature = m_rootsSignature.Get();
-	psoDesc.VS = { vertexShader->data, vertexShader->size };
-	psoDesc.PS = { pixelShader->data, pixelShader->size };
-	psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-	psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-	psoDesc.SampleMask = UINT_MAX;
-	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-	psoDesc.NumRenderTargets = 1;
-	psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-	psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-	psoDesc.SampleDesc.Count = 1;
-	ThrowIfFailed(m_device->CreateGraphicsPipelineState(&psoDesc, riid, ppPipelineState));	
-
-	// Create the DSV
-	D3D12_CLEAR_VALUE clearValue = {};
-	clearValue.Format = DXGI_FORMAT_D32_FLOAT;
-	clearValue.DepthStencil = { 1.0f, 0 };
-
-	ThrowIfFailed(m_device->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
-		D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, m_width, m_height, 1, 0, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL),
-		D3D12_RESOURCE_STATE_DEPTH_WRITE,
-		&clearValue,
-		IID_PPV_ARGS(&m_depthBuffer)
-	));
-
-	D3D12_DEPTH_STENCIL_VIEW_DESC dsv = {};
-	dsv.Format = DXGI_FORMAT_D32_FLOAT;
-	dsv.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
-	dsv.Texture2D.MipSlice = 0;
-	dsv.Flags = D3D12_DSV_FLAG_NONE;
-
-	m_device->CreateDepthStencilView(m_depthBuffer.Get(), &dsv, m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
+	ThrowIfFailed(m_device->CreateGraphicsPipelineState(psoDesc, IID_PPV_ARGS(ppPipelineState)));	
 }
 
-void DX12Renderer::SetActivePipelineState(ID3D12PipelineState** pPipelineState) {
-	if (pPipelineState != NULL  && *pPipelineState != NULL && *pPipelineState != m_activePipelineState) {
-		m_activePipelineState = *pPipelineState;
+void DX12Renderer::SetActivePipelineState(ID3D12PipelineState* pPipelineState) {
+	if (pPipelineState != NULL  && pPipelineState != m_activePipelineState) {
+		m_activePipelineState = pPipelineState;
 
-		if (m_isDrawing && pPipelineState != NULL) {
-			m_commandList->SetPipelineState(*pPipelineState);
+		if (m_isDrawing) {
+			m_commandList->SetPipelineState(pPipelineState);
 		}
 	}
 }
@@ -764,10 +722,6 @@ void DX12Renderer::UpdateScissorRect(LONG left, LONG top, LONG right, LONG botto
 void DX12Renderer::ReadPixels(int x, int y, int width, int height, UINT readBuffer, byte* buffer) {
 	// TODO: Implement
 	common->Warning("Read Pixels not yet implemented.");
-}
-
-void DX12Renderer::SetCullMode(int cullType) {
-	// TODO: implement
 }
 
 // Texture functions

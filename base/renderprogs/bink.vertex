@@ -37,15 +37,15 @@ struct VS_IN {
 };
 
 struct VS_OUT {
-	float4 position : POSITION;
+	float4 position : SV_POSITION;
 	float2 texcoord0 : TEXCOORD0;
 };
 
 void main( VS_IN vertex, out VS_OUT result ) {
-	result.position.x = dot4( vertex.position, rpMVPmatrixX );
-	result.position.y = dot4( vertex.position, rpMVPmatrixY );
-	result.position.z = dot4( vertex.position, rpMVPmatrixZ );
-	result.position.w = dot4( vertex.position, rpMVPmatrixW );
+	result.position.x = dot4( vertex.position, sceneConstants.rpMVPmatrixX );
+	result.position.y = dot4( vertex.position, sceneConstants.rpMVPmatrixY );
+	result.position.z = dot4( vertex.position, sceneConstants.rpMVPmatrixZ );
+	result.position.w = dot4( vertex.position, sceneConstants.rpMVPmatrixW );
 
 	result.texcoord0 = vertex.texcoord;
 }

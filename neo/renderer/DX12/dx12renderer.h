@@ -88,8 +88,8 @@ public:
 	void ReadPixels(int x, int y, int width, int height, UINT readBuffer, byte* buffer);
 
 	// Shaders
-	void LoadPipelineState(const DX12CompiledShader* vertexShader, const DX12CompiledShader* pixelShader, const IID& riid, void** ppPipelineState);
-	void SetActivePipelineState(ID3D12PipelineState** pipelineState);
+	void LoadPipelineState(D3D12_GRAPHICS_PIPELINE_STATE_DESC* psoDesc, ID3D12PipelineState** ppPipelineState);
+	void SetActivePipelineState(ID3D12PipelineState* pipelineState);
 
 	void Uniform4f(UINT index, const float* uniform);
 
@@ -119,7 +119,6 @@ public:
 	void EndSurfaceSettings(); // Records the the surface entry into the heap.
 	void DrawModel(DX12VertexBuffer* vertexBuffer, UINT vertexOffset, DX12IndexBuffer* indexBuffer, UINT indexOffset, UINT indexCount);
 
-	void SetCullMode(int cullType);
 private:
 	UINT m_width;
 	UINT m_height;

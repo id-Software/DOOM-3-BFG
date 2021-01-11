@@ -463,7 +463,7 @@ static void RB_BindVariableStageImage(const textureStage_t* texture, const float
 			// because the shaders may have already been set - we need to make sure we are not using a bink shader which would 
 			// display incorrectly.  We may want to get rid of RB_BindVariableStageImage and inline the code so that the
 			// SWF GUI case is handled better, too
-			renderProgManager.BindShader_TextureVertexColor();
+			renderProgManager.BindShader_TextureVertexColor(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO); // TODO: Evaluate
 		}
 	}
 	else {
@@ -492,6 +492,7 @@ static void RB_PrepareStageTexturing(const shaderStage_t* pStage, const drawSurf
 		const shaderStage_t* bumpStage = surf->material->GetBumpStage();
 		if (bumpStage != NULL) {
 			// per-pixel reflection mapping with bump mapping
+			// TODO: Note this for futer RTX reflections
 			GL_SelectTexture(1);
 			bumpStage->texture.image->Bind();
 			GL_SelectTexture(0);
@@ -628,38 +629,6 @@ static void RB_PrepareStageTexturing(const shaderStage_t* pStage, const drawSurf
 	}
 
 	SetVertexParm(RENDERPARM_TEXGEN_0_ENABLED, useTexGenParm);
-}
-
-/*
-================
-RB_FinishStageTexturing
-================
-*/
-static void RB_FinishStageTexturing(const shaderStage_t* pStage, const drawSurf_t* surf) {
-
-	if (pStage->texture.cinematic) {
-		// unbind the extra bink textures
-		GL_SelectTexture(1);
-		globalImages->BindNull();
-		GL_SelectTexture(2);
-		globalImages->BindNull();
-		GL_SelectTexture(0);
-	}
-
-	if (pStage->texture.texgen == TG_REFLECT_CUBE) {
-		// see if there is also a bump map specified
-		const shaderStage_t* bumpStage = surf->material->GetBumpStage();
-		if (bumpStage != NULL) {
-			// per-pixel reflection mapping with bump mapping
-			GL_SelectTexture(1);
-			globalImages->BindNull();
-			GL_SelectTexture(0);
-		}
-		else {
-			// per-pixel reflection mapping without bump mapping
-		}
-		renderProgManager.Unbind();
-	}
 }
 
 /*
@@ -1660,7 +1629,7 @@ static int RB_DrawShaderPasses(const drawSurf_t* const* const drawSurfs, const i
 				gpuIndex = dxRenderer.StartSurfaceSettings();
 				GL_State(stageGLState);
 
-				renderProgManager.BindShader(newStage->glslProgram, newStage->glslProgram);
+				renderProgManager.BindShader(newStage->glslProgram, newStage->glslProgram, stageGLState);
 
 				for (int j = 0; j < newStage->numVertexParms; j++) {
 					float parm[4];
@@ -1768,7 +1737,7 @@ static int RB_DrawShaderPasses(const drawSurf_t* const* const drawSurfs, const i
 							renderProgManager.BindShader_TextureVertexColorSkinned();
 						}
 						else {
-							renderProgManager.BindShader_TextureVertexColor();
+							renderProgManager.BindShader_TextureVertexColor(stageGLState);
 						}
 					}
 				}
@@ -1784,7 +1753,7 @@ static int RB_DrawShaderPasses(const drawSurf_t* const* const drawSurfs, const i
 					renderProgManager.BindShader_TextureVertexColorSkinned();
 				}
 				else {
-					renderProgManager.BindShader_TextureVertexColor();
+					renderProgManager.BindShader_TextureVertexColor(stageGLState);
 				}
 			}
 
@@ -1806,8 +1775,6 @@ static int RB_DrawShaderPasses(const drawSurf_t* const* const drawSurfs, const i
 
 			// draw it
 			RB_DrawElementsWithCounters(surf);
-
-			RB_FinishStageTexturing(pStage, surf);
 
 			// unset privatePolygonOffset if necessary
 			if (pStage->privatePolygonOffset) {

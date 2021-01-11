@@ -179,7 +179,7 @@ void idAutoRender::RenderBackground() {
 	// set matrix
 	renderProgManager.SetRenderParms( RENDERPARM_MVPMATRIX_X, mvpMatrix, 4 );
 
-	renderProgManager.BindShader_TextureVertexColor();
+	renderProgManager.BindShader_TextureVertexColor(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO);
 
 	RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
 }
@@ -273,7 +273,7 @@ void idAutoRender::RenderLoadingIcon( float fracX, float fracY, float size, floa
 	float texGenEnabled[4] = { 0, 0, 0, 0 };
 	renderProgManager.SetRenderParm( RENDERPARM_TEXGEN_0_ENABLED, texGenEnabled );
 
-	renderProgManager.BindShader_TextureVertexColor();
+	renderProgManager.BindShader_TextureVertexColor(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO);
 
 	RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
 }

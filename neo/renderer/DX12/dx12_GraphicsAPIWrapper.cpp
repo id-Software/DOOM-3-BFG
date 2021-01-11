@@ -10,8 +10,7 @@ void GL_SelectTexture(int uint) {
 }
 
 void GL_Cull(int cullType) {
-
-	// TODO: Flip the culling as needed.
+	// This function no longer works. Cull mode will be set on the pipeline state object.
 }
 
 void GL_Scissor(int x, int y, int w, int h) {
@@ -102,47 +101,47 @@ void GL_State(uint64 stateBits, bool forceGlState) {
 	//
 	// check blend bits
 	//
-	//if (diff & (GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS)) {
-	//	GLenum srcFactor = GL_ONE;
-	//	GLenum dstFactor = GL_ZERO;
+	if (diff & (GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS)) {
+		D3D12_BLEND srcFactor = D3D12_BLEND_ONE;
+		D3D12_BLEND dstFactor = D3D12_BLEND_ZERO;
 
-	//	switch (stateBits & GLS_SRCBLEND_BITS) {
-	//	case GLS_SRCBLEND_ZERO:					srcFactor = GL_ZERO; break;
-	//	case GLS_SRCBLEND_ONE:					srcFactor = GL_ONE; break;
-	//	case GLS_SRCBLEND_DST_COLOR:			srcFactor = GL_DST_COLOR; break;
-	//	case GLS_SRCBLEND_ONE_MINUS_DST_COLOR:	srcFactor = GL_ONE_MINUS_DST_COLOR; break;
-	//	case GLS_SRCBLEND_SRC_ALPHA:			srcFactor = GL_SRC_ALPHA; break;
-	//	case GLS_SRCBLEND_ONE_MINUS_SRC_ALPHA:	srcFactor = GL_ONE_MINUS_SRC_ALPHA; break;
-	//	case GLS_SRCBLEND_DST_ALPHA:			srcFactor = GL_DST_ALPHA; break;
-	//	case GLS_SRCBLEND_ONE_MINUS_DST_ALPHA:	srcFactor = GL_ONE_MINUS_DST_ALPHA; break;
-	//	default:
-	//		assert(!"GL_State: invalid src blend state bits\n");
-	//		break;
-	//	}
+		switch (stateBits & GLS_SRCBLEND_BITS) {
+		case GLS_SRCBLEND_ZERO:					srcFactor = D3D12_BLEND_ZERO; break;
+		case GLS_SRCBLEND_ONE:					srcFactor = D3D12_BLEND_ONE; break;
+		case GLS_SRCBLEND_DST_COLOR:			srcFactor = D3D12_BLEND_DEST_COLOR; break;
+		case GLS_SRCBLEND_ONE_MINUS_DST_COLOR:	srcFactor = D3D12_BLEND_INV_DEST_COLOR; break;
+		case GLS_SRCBLEND_SRC_ALPHA:			srcFactor = D3D12_BLEND_SRC_ALPHA; break;
+		case GLS_SRCBLEND_ONE_MINUS_SRC_ALPHA:	srcFactor = D3D12_BLEND_INV_SRC_ALPHA; break;
+		case GLS_SRCBLEND_DST_ALPHA:			srcFactor = D3D12_BLEND_DEST_ALPHA; break;
+		case GLS_SRCBLEND_ONE_MINUS_DST_ALPHA:	srcFactor = D3D12_BLEND_INV_DEST_ALPHA; break;
+		default:
+			assert(!"GL_State: invalid src blend state bits\n");
+			break;
+		}
 
-	//	switch (stateBits & GLS_DSTBLEND_BITS) {
-	//	case GLS_DSTBLEND_ZERO:					dstFactor = GL_ZERO; break;
-	//	case GLS_DSTBLEND_ONE:					dstFactor = GL_ONE; break;
-	//	case GLS_DSTBLEND_SRC_COLOR:			dstFactor = GL_SRC_COLOR; break;
-	//	case GLS_DSTBLEND_ONE_MINUS_SRC_COLOR:	dstFactor = GL_ONE_MINUS_SRC_COLOR; break;
-	//	case GLS_DSTBLEND_SRC_ALPHA:			dstFactor = GL_SRC_ALPHA; break;
-	//	case GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA:	dstFactor = GL_ONE_MINUS_SRC_ALPHA; break;
-	//	case GLS_DSTBLEND_DST_ALPHA:			dstFactor = GL_DST_ALPHA; break;
-	//	case GLS_DSTBLEND_ONE_MINUS_DST_ALPHA:  dstFactor = GL_ONE_MINUS_DST_ALPHA; break;
-	//	default:
-	//		assert(!"GL_State: invalid dst blend state bits\n");
-	//		break;
-	//	}
+		switch (stateBits & GLS_DSTBLEND_BITS) {
+		case GLS_DSTBLEND_ZERO:					dstFactor = D3D12_BLEND_ZERO; break;
+		case GLS_DSTBLEND_ONE:					dstFactor = D3D12_BLEND_ONE; break;
+		case GLS_DSTBLEND_SRC_COLOR:			dstFactor = D3D12_BLEND_SRC_COLOR; break;
+		case GLS_DSTBLEND_ONE_MINUS_SRC_COLOR:	dstFactor = D3D12_BLEND_INV_SRC_COLOR; break;
+		case GLS_DSTBLEND_SRC_ALPHA:			dstFactor = D3D12_BLEND_SRC_ALPHA; break;
+		case GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA:	dstFactor = D3D12_BLEND_INV_SRC_ALPHA; break;
+		case GLS_DSTBLEND_DST_ALPHA:			dstFactor = D3D12_BLEND_DEST_ALPHA; break;
+		case GLS_DSTBLEND_ONE_MINUS_DST_ALPHA:  dstFactor = D3D12_BLEND_INV_DEST_ALPHA; break;
+		default:
+			assert(!"GL_State: invalid dst blend state bits\n");
+			break;
+		}
 
-	//	// Only actually update GL's blend func if blending is enabled.
-	//	if (srcFactor == GL_ONE && dstFactor == GL_ZERO) {
-	//		qglDisable(GL_BLEND);
-	//	}
-	//	else {
-	//		qglEnable(GL_BLEND);
-	//		qglBlendFunc(srcFactor, dstFactor);
-	//	}
-	//}
+		// Only actually update GL's blend func if blending is enabled.
+		if (srcFactor == D3D12_BLEND_ONE && dstFactor == D3D12_BLEND_ZERO) {
+			//qglDisable(GL_BLEND);
+		}
+		else {
+			//qglEnable(GL_BLEND);
+			//qglBlendFunc(srcFactor, dstFactor);
+		}
+	}
 
 	//
 	// check depthmask
