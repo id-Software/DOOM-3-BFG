@@ -5,67 +5,65 @@
 
 #include <unordered_map>
 
-//ComPtr<ID3D12PipelineState> pipelineStates[53]; //TODO: Get this from a property.
-
 D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineDescriptors[53];
 std::unordered_map<int32, ID3D12PipelineState*> pipelineStateMap(128);
 
-
-D3D12_CULL_MODE CalculateCullMode(const int programIndex) {
-	common->Warning("Cull mode is not calculated for program %d.", programIndex);
+D3D12_CULL_MODE CalculateCullMode(const int cullType) {
+	switch (cullType) {
+	case CT_FRONT_SIDED:
+		return D3D12_CULL_MODE_BACK;
+	case CT_BACK_SIDED:
+		return D3D12_CULL_MODE_FRONT;
+	}
 
 	return D3D12_CULL_MODE_NONE;
 }
 
 D3D12_BLEND_DESC CalculateBlendMode(uint64 stateBits) {
 	D3D12_BLEND_DESC blendDesc = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+	D3D12_BLEND srcFactor = D3D12_BLEND_ONE;
+	D3D12_BLEND dstFactor = D3D12_BLEND_ZERO;
 
-	if (stateBits & GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS) {
-		D3D12_BLEND srcFactor = D3D12_BLEND_ONE;
-		D3D12_BLEND dstFactor = D3D12_BLEND_ZERO;
-
-		switch (stateBits & GLS_SRCBLEND_BITS) {
-		case GLS_SRCBLEND_ZERO:					srcFactor = D3D12_BLEND_ZERO; break;
-		case GLS_SRCBLEND_ONE:					srcFactor = D3D12_BLEND_ONE; break;
-		case GLS_SRCBLEND_DST_COLOR:			srcFactor = D3D12_BLEND_DEST_COLOR; break;
-		case GLS_SRCBLEND_ONE_MINUS_DST_COLOR:	srcFactor = D3D12_BLEND_INV_DEST_COLOR; break;
-		case GLS_SRCBLEND_SRC_ALPHA:			srcFactor = D3D12_BLEND_SRC_ALPHA; break;
-		case GLS_SRCBLEND_ONE_MINUS_SRC_ALPHA:	srcFactor = D3D12_BLEND_INV_SRC_ALPHA; break;
-		case GLS_SRCBLEND_DST_ALPHA:			srcFactor = D3D12_BLEND_DEST_ALPHA; break;
-		case GLS_SRCBLEND_ONE_MINUS_DST_ALPHA:	srcFactor = D3D12_BLEND_INV_DEST_ALPHA; break;
-		default:
-			assert(!"GL_State: invalid src blend state bits\n");
-			break;
-		}
-
-		switch (stateBits & GLS_DSTBLEND_BITS) {
-		case GLS_DSTBLEND_ZERO:					dstFactor = D3D12_BLEND_ZERO; break;
-		case GLS_DSTBLEND_ONE:					dstFactor = D3D12_BLEND_ONE; break;
-		case GLS_DSTBLEND_SRC_COLOR:			dstFactor = D3D12_BLEND_SRC_COLOR; break;
-		case GLS_DSTBLEND_ONE_MINUS_SRC_COLOR:	dstFactor = D3D12_BLEND_INV_SRC_COLOR; break;
-		case GLS_DSTBLEND_SRC_ALPHA:			dstFactor = D3D12_BLEND_SRC_ALPHA; break;
-		case GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA:	dstFactor = D3D12_BLEND_INV_SRC_ALPHA; break;
-		case GLS_DSTBLEND_DST_ALPHA:			dstFactor = D3D12_BLEND_DEST_ALPHA; break;
-		case GLS_DSTBLEND_ONE_MINUS_DST_ALPHA:  dstFactor = D3D12_BLEND_INV_DEST_ALPHA; break;
-		default:
-			assert(!"GL_State: invalid dst blend state bits\n");
-			break;
-		}
-
-		blendDesc.RenderTarget[0].SrcBlend = srcFactor;
-		blendDesc.RenderTarget[0].DestBlend = dstFactor;
-		blendDesc.AlphaToCoverageEnable = TRUE;
+	switch (stateBits & GLS_SRCBLEND_BITS) {
+	case GLS_SRCBLEND_ZERO:					srcFactor = D3D12_BLEND_ZERO; break;
+	case GLS_SRCBLEND_ONE:					srcFactor = D3D12_BLEND_ONE; break;
+	case GLS_SRCBLEND_DST_COLOR:			srcFactor = D3D12_BLEND_DEST_COLOR; break;
+	case GLS_SRCBLEND_ONE_MINUS_DST_COLOR:	srcFactor = D3D12_BLEND_INV_DEST_COLOR; break;
+	case GLS_SRCBLEND_SRC_ALPHA:			srcFactor = D3D12_BLEND_SRC_ALPHA; break;
+	case GLS_SRCBLEND_ONE_MINUS_SRC_ALPHA:	srcFactor = D3D12_BLEND_INV_SRC_ALPHA; break;
+	case GLS_SRCBLEND_DST_ALPHA:			srcFactor = D3D12_BLEND_DEST_ALPHA; break;
+	case GLS_SRCBLEND_ONE_MINUS_DST_ALPHA:	srcFactor = D3D12_BLEND_INV_DEST_ALPHA; break;
+	default:
+		assert(!"GL_State: invalid src blend state bits\n");
+		break;
 	}
+
+	switch (stateBits & GLS_DSTBLEND_BITS) {
+	case GLS_DSTBLEND_ZERO:					dstFactor = D3D12_BLEND_ZERO; break;
+	case GLS_DSTBLEND_ONE:					dstFactor = D3D12_BLEND_ONE; break;
+	case GLS_DSTBLEND_SRC_COLOR:			dstFactor = D3D12_BLEND_SRC_COLOR; break;
+	case GLS_DSTBLEND_ONE_MINUS_SRC_COLOR:	dstFactor = D3D12_BLEND_INV_SRC_COLOR; break;
+	case GLS_DSTBLEND_SRC_ALPHA:			dstFactor = D3D12_BLEND_SRC_ALPHA; break;
+	case GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA:	dstFactor = D3D12_BLEND_INV_SRC_ALPHA; break;
+	case GLS_DSTBLEND_DST_ALPHA:			dstFactor = D3D12_BLEND_DEST_ALPHA; break;
+	case GLS_DSTBLEND_ONE_MINUS_DST_ALPHA:  dstFactor = D3D12_BLEND_INV_DEST_ALPHA; break;
+	default:
+		assert(!"GL_State: invalid dst blend state bits\n");
+		break;
+	}
+
+	blendDesc.RenderTarget[0].SrcBlend = srcFactor;
+	blendDesc.RenderTarget[0].DestBlend = dstFactor;
+		
+	//blendDesc.AlphaToCoverageEnable = TRUE:
 
 	return blendDesc;
 }
 
-void LoadStagePipelineState(int parentState, uint64 glState) {
-	//TODO: Move this directly into the regular load function.
-
+void LoadStagePipelineState(int parentState, glstate_t state) {
 	// Generate the state index
-	// (Blend State) & (shader index << 6)
-	int32 stateIndex = (glState & 0x00000003F) | (parentState << 6);
+	// (Blend State) | (cullType << 6) | (shader index << 8)
+	int32 stateIndex = (state.glStateBits & 0x00000003F) | (state.faceCulling << 6) | (parentState << 8);
 	const auto result = pipelineStateMap.find(stateIndex);
 
 	if (result == pipelineStateMap.end()) {
@@ -84,9 +82,8 @@ void LoadStagePipelineState(int parentState, uint64 glState) {
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = pipelineDescriptors[parentState];
 		psoDesc.InputLayout = { inputElementDescs, _countof(inputElementDescs) };
 
-		// TODO: Calculate Cull type
-		
-		psoDesc.BlendState = CalculateBlendMode(glState);
+		psoDesc.RasterizerState.CullMode = CalculateCullMode(state.faceCulling);
+		psoDesc.BlendState = CalculateBlendMode(state.glStateBits);
 
 		ID3D12PipelineState* renderState;
 		dxRenderer.LoadPipelineState(&psoDesc, &renderState);
@@ -169,7 +166,8 @@ void idRenderProgManager::LoadProgram(const int programIndex, const int vertexSh
 	}
 
 	CD3DX12_RASTERIZER_DESC rasterizerState(D3D12_DEFAULT);
-	rasterizerState.CullMode = CalculateCullMode(programIndex); // Default front and back.
+	rasterizerState.FrontCounterClockwise = TRUE; // This is done to match the opengl direction.
+	rasterizerState.CullMode = D3D12_CULL_MODE_NONE; // Default front and back.
 
 	CD3DX12_BLEND_DESC blendState(D3D12_DEFAULT); // TODO: set the blend state. We need to load these pipeline states for entire materials and not just programs.
 
@@ -231,16 +229,12 @@ idRenderProgManager::BindShader
 ================================================================================================
 */
 void idRenderProgManager::BindShader(int vIndex, int fIndex) {
-	BindShader(vIndex, fIndex, GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO);
-}
-
-void idRenderProgManager::BindShader(int vIndex, int fIndex, uint64 glState) {
-	if (currentVertexShader == vIndex && currentFragmentShader == fIndex && currentGLState == glState) {
+	if (currentVertexShader == vIndex && currentFragmentShader == fIndex) {
 		return;
 	}
+
 	currentVertexShader = vIndex;
 	currentFragmentShader = fIndex;
-	currentGLState = glState;
 
 	// vIndex denotes the GLSL program
 	if (vIndex >= 0 && vIndex < shaderPrograms.Num()) {
@@ -252,7 +246,7 @@ void idRenderProgManager::BindShader(int vIndex, int fIndex, uint64 glState) {
 		currentRenderProgram = vIndex;
 		RENDERLOG_PRINTF("Binding RenderState %s\n", shaderPrograms[vIndex].name.c_str());
 
-		LoadStagePipelineState(vIndex, glState);
+		LoadStagePipelineState(vIndex, backEnd.glState);
 	}
 	else {
 		common->Warning("Shader index is out of range.");

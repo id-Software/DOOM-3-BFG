@@ -1183,12 +1183,6 @@
     <None Include="sys\win32\rc\res\doom3bfg.bin">
       <Filter>Sys\RC\res</Filter>
     </None>
-    <None Include="..\base\renderprogs\bink_gui.pixel">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="..\base\renderprogs\bink_gui.vertex">
-      <Filter>Shaders</Filter>
-    </None>
     <None Include="..\base\renderprogs\blendLight.pixel">
       <Filter>Shaders</Filter>
     </None>
@@ -1458,6 +1452,12 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="..\base\renderprogs\bink.vertex">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\base\renderprogs\bink_gui.pixel">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\base\renderprogs\bink_gui.vertex">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

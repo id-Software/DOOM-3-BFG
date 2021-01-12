@@ -28,12 +28,12 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "global.inc"
 
-uniform Texture2D samp0 : register(s0); // Y
-uniform Texture2D samp1 : register(s1); // Cr
-uniform Texture2D samp2 : register(s2); // Cb
+uniform Texture2D<float> samp0 : register(t0); // Y
+uniform Texture2D<float> samp1 : register(t1); // Cr
+uniform Texture2D<float> samp2 : register(t2); // Cb
 
 struct PS_IN {
-	float4 position : VPOS;
+	float4 position : SV_POSITION;
 	float2 texcoord0 : TEXCOORD0_centroid;
 	float4 texcoord1 : TEXCOORD1_centroid;
 	float4 color : COLOR0;
@@ -49,9 +49,9 @@ void main( PS_IN fragment, out PS_OUT result ) {
 	const float3 adj = float3( -0.87065506, 0.529705048f, -1.081668854f );
 	const float3 YScalar = float3( 1.164123535f, 1.164123535f, 1.164123535f );
 
-	float Y = samp0.Sample( MeshTextureSampler, fragment.texcoord0.xy ).x;
-	float Cr = samp1.Sample( MeshTextureSampler, fragment.texcoord0.xy ).x;
-	float Cb = samp2.Sample( MeshTextureSampler, fragment.texcoord0.xy ).x;
+	float Y = samp0.Sample( baseSampler, fragment.texcoord0.xy ).x;
+	float Cr = samp1.Sample( baseSampler, fragment.texcoord0.xy ).x;
+	float Cb = samp2.Sample( baseSampler, fragment.texcoord0.xy ).x;
 
 	float3 p = ( YScalar * Y );
 	p += ( crc * Cr ) + ( crb * Cb ) + adj;

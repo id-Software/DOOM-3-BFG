@@ -145,12 +145,11 @@ public:
 	int		FindFragmentShader( const char * name );
 
 	void	BindShader( int vIndex, int fIndex );
-	void	BindShader(int vIndex, int fIndex, uint64 glState);
 
 	void	BindShader_GUI( ) { BindShader_Builtin( BUILTIN_GUI ); }
 	void	BindShader_Color( ) { BindShader_Builtin( BUILTIN_COLOR ); }
 	void	BindShader_Texture( ) { BindShader_Builtin( BUILTIN_TEXTURED ); }
-	void	BindShader_TextureVertexColor(uint64 glState) { BindShader_Builtin_Staged( BUILTIN_TEXTURE_VERTEXCOLOR, glState ); };
+	void	BindShader_TextureVertexColor( ) { BindShader_Builtin( BUILTIN_TEXTURE_VERTEXCOLOR ); };
 	void	BindShader_TextureVertexColorSkinned() { BindShader_Builtin( BUILTIN_TEXTURE_VERTEXCOLOR_SKINNED ); };
 	void	BindShader_TextureTexGenVertexColor() { BindShader_Builtin( BUILTIN_TEXTURE_TEXGEN_VERTEXCOLOR ); };
 	void	BindShader_Interaction()  { BindShader_Builtin( BUILTIN_INTERACTION ); }
@@ -256,7 +255,6 @@ protected:
 	};
 	int builtinShaders[MAX_BUILTINS];
 	void BindShader_Builtin( int i ) { BindShader( builtinShaders[i], builtinShaders[i] ); }
-	void BindShader_Builtin_Staged(int i, uint64 glState ) { BindShader(builtinShaders[i], builtinShaders[i], glState); }
 
 	struct vertexShader_t {
 					vertexShader_t() : usesJoints( false ), optionalSkinning( false ), apiObject(NULL) {}
@@ -292,7 +290,6 @@ protected:
 
 	int				currentVertexShader;
 	int				currentFragmentShader;
-	uint64			currentGLState;
 	idList<vertexShader_t, TAG_RENDER> vertexShaders;
 	idList<fragmentShader_t, TAG_RENDER> fragmentShaders;
 };

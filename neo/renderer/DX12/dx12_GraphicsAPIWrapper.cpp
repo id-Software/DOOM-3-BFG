@@ -10,7 +10,8 @@ void GL_SelectTexture(int uint) {
 }
 
 void GL_Cull(int cullType) {
-	// This function no longer works. Cull mode will be set on the pipeline state object.
+	// Set the state. This will be hashed into a program key and used to load the program state.
+	backEnd.glState.faceCulling = cullType;
 }
 
 void GL_Scissor(int x, int y, int w, int h) {
@@ -101,7 +102,7 @@ void GL_State(uint64 stateBits, bool forceGlState) {
 	//
 	// check blend bits
 	//
-	if (diff & (GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS)) {
+	/*if (diff & (GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS)) {
 		D3D12_BLEND srcFactor = D3D12_BLEND_ONE;
 		D3D12_BLEND dstFactor = D3D12_BLEND_ZERO;
 
@@ -141,7 +142,7 @@ void GL_State(uint64 stateBits, bool forceGlState) {
 			//qglEnable(GL_BLEND);
 			//qglBlendFunc(srcFactor, dstFactor);
 		}
-	}
+	}*/
 
 	//
 	// check depthmask

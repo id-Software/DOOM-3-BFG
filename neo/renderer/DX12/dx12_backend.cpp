@@ -463,7 +463,7 @@ static void RB_BindVariableStageImage(const textureStage_t* texture, const float
 			// because the shaders may have already been set - we need to make sure we are not using a bink shader which would 
 			// display incorrectly.  We may want to get rid of RB_BindVariableStageImage and inline the code so that the
 			// SWF GUI case is handled better, too
-			renderProgManager.BindShader_TextureVertexColor(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO); // TODO: Evaluate
+			renderProgManager.BindShader_TextureVertexColor(); // TODO: Evaluate
 		}
 	}
 	else {
@@ -1629,7 +1629,7 @@ static int RB_DrawShaderPasses(const drawSurf_t* const* const drawSurfs, const i
 				gpuIndex = dxRenderer.StartSurfaceSettings();
 				GL_State(stageGLState);
 
-				renderProgManager.BindShader(newStage->glslProgram, newStage->glslProgram, stageGLState);
+				renderProgManager.BindShader(newStage->glslProgram, newStage->glslProgram);
 
 				for (int j = 0; j < newStage->numVertexParms; j++) {
 					float parm[4];
@@ -1737,7 +1737,7 @@ static int RB_DrawShaderPasses(const drawSurf_t* const* const drawSurfs, const i
 							renderProgManager.BindShader_TextureVertexColorSkinned();
 						}
 						else {
-							renderProgManager.BindShader_TextureVertexColor(stageGLState);
+							renderProgManager.BindShader_TextureVertexColor();
 						}
 					}
 				}
@@ -1753,7 +1753,7 @@ static int RB_DrawShaderPasses(const drawSurf_t* const* const drawSurfs, const i
 					renderProgManager.BindShader_TextureVertexColorSkinned();
 				}
 				else {
-					renderProgManager.BindShader_TextureVertexColor(stageGLState);
+					renderProgManager.BindShader_TextureVertexColor();
 				}
 			}
 
