@@ -1073,6 +1073,12 @@ idMD5Anim::CheckModelHierarchy
 */
 void idMD5Anim::CheckModelHierarchy( const idRenderModel* model ) const
 {
+	// RB
+	if( com_editors & EDITOR_EXPORTDEFS )
+	{
+		return;
+	}
+
 	if( jointInfo.Num() != model->NumJoints() )
 	{
 		if( !fileSystem->InProductionMode() )

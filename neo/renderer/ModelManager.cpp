@@ -37,6 +37,7 @@ idCVar preload_MapModels( "preload_MapModels", "1", CVAR_SYSTEM | CVAR_BOOL, "pr
 
 // RB begin
 idCVar postLoadExportModels( "postLoadExportModels", "0", CVAR_BOOL | CVAR_RENDERER, "export models after loading to OBJ model format" );
+idCVar postLoadExportModelName( "postLoadExportModelName", "", CVAR_SYSTEM | CVAR_RENDERER, "" );
 // RB end
 
 class idRenderModelManagerLocal : public idRenderModelManager
@@ -330,7 +331,27 @@ idRenderModel* idRenderModelManagerLocal::GetModel( const char* _modelName, bool
 				// in memory as well
 				model->TouchData();
 			}
+
 			model->SetLevelLoadReferenced( true );
+
+			// RB ugly HACK set postLoadExportModelName for exportFGB
+			if( postLoadExportModels.GetBool() && ( model != defaultModel && model != beamModel && model != spriteModel ) )
+			{
+				idStrStatic< MAX_OSPATH > exportedFileName;
+
+				exportedFileName = "exported/rendermodels/";
+
+				if( com_editors & EDITOR_EXPORTDEFS )
+				{
+					exportedFileName = "_tb/";
+				}
+
+				exportedFileName.AppendPath( canonical );
+				exportedFileName.SetFileExtension( ".obj" );
+
+				postLoadExportModelName.SetString( exportedFileName );
+			}
+
 			return model;
 		}
 	}
@@ -367,7 +388,6 @@ idRenderModel* idRenderModelManagerLocal::GetModel( const char* _modelName, bool
 
 	if( model != NULL )
 	{
-
 		generatedFileName = "generated/rendermodels/";
 		generatedFileName.AppendPath( canonical );
 		generatedFileName.SetFileExtension( va( "b%s", extension.c_str() ) );
@@ -447,11 +467,20 @@ idRenderModel* idRenderModelManagerLocal::GetModel( const char* _modelName, bool
 		idStrStatic< MAX_OSPATH > exportedFileName;
 
 		exportedFileName = "exported/rendermodels/";
+
+		if( com_editors & EDITOR_EXPORTDEFS )
+		{
+			exportedFileName = "_tb/";
+		}
+
 		exportedFileName.AppendPath( canonical );
 		exportedFileName.SetFileExtension( ".obj" );
 
 		ID_TIME_T sourceTimeStamp = fileSystem->GetTimestamp( canonical );
 		ID_TIME_T timeStamp = fileSystem->GetTimestamp( exportedFileName );
+
+		// ugly HACK
+		postLoadExportModelName.SetString( exportedFileName );
 
 		// TODO only update if generated has changed
 

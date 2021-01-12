@@ -2066,6 +2066,7 @@ typedef struct evar_s
 void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 {
 	extern idCVar postLoadExportModels;
+	extern idCVar postLoadExportModelName;
 
 	// avoid media cache
 	com_editors |= EDITOR_EXPORTDEFS;
@@ -2322,8 +2323,6 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 							  int32( bounds[1].x ), int32( bounds[1].y ), int32( bounds[1].z ) );
 			}
 
-			file->Printf( "= %s : \"%s\"\n", decl->GetName(), text.c_str() );
-
 			// collect editor specific spawn flags
 			idList<evar_t> evars;
 
@@ -2341,8 +2340,6 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 					kv = decl->dict.MatchPrefix( EvarPrefixes[i].prefix, kv );
 				}
 			}
-
-			file->Printf( "[\n" );
 
 			idDict dictToWrite;
 
@@ -2396,7 +2393,7 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 				}
 			}
 
-#if 1
+			// add editor_vars that aren't already covered by the default vars
 			for( int i = 0; i < evars.Num(); i++ )
 			{
 				const evar_t* ev = &evars[ i ];
@@ -2407,7 +2404,47 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 					dictToWrite.Set( ev->name, ev->desc );
 				}
 			}
-#endif
+
+			// export models as OBJ
+			bool writeModel = false;
+			idStrStatic< MAX_OSPATH > exportedModelFileName;
+
+			kv = dictToWrite.MatchPrefix( "model" );
+			while( kv )
+			{
+				if( kv->GetValue().Length() )
+				{
+					declManager->MediaPrint( "Precaching model %s\n", kv->GetValue().c_str() );
+
+					// precache model/animations
+					const idDecl* modelDef = declManager->FindType( DECL_MODELDEF, kv->GetValue(), false );
+					if( modelDef == NULL )
+					{
+						// there is no modelDef so use direct path
+						renderModelManager->FindModel( kv->GetValue() );
+					}
+
+					// HACK
+					writeModel = true;
+
+					exportedModelFileName = postLoadExportModelName.GetString();
+					//exportedFileName = "_tb/";
+					//exportedFileName.AppendPath( modelDef->GetModelName() );
+					//exportedFileName.SetFileExtension( ".obj" );
+
+					//dictToWrite.Set( kv->GetKey(), exportedFileName );
+				}
+
+				kv = dictToWrite.MatchPrefix( "model", kv );
+			}
+
+			if( writeModel )
+			{
+				file->Printf( "model({ \"path\": \"%s\" }) ", exportedModelFileName.c_str() );
+			}
+
+			file->Printf( "= %s : \"%s\"\n", decl->GetName(), text.c_str() );
+			file->Printf( "[\n" );
 
 			for( int i = 0; i < dictToWrite.GetNumKeyVals(); i++ )
 			{
@@ -2483,16 +2520,7 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 
 			file->Printf( "]\n\n" );
 
-			/*
-			if( i == ( count - 1 ) )
-			{
-				file->Printf( "\t\t}\n" );
-			}
-			else
-			{
-				file->Printf( "\t\t},\n" );
-			}
-			*/
+
 		}
 
 		file->Flush();
@@ -2507,8 +2535,6 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 	com_editors &= ~EDITOR_EXPORTDEFS;
 
 	postLoadExportModels.SetBool( false );
-
-
 
 	declManagerLocal.Reload( true );
 }
