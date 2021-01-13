@@ -59,7 +59,7 @@ public:
 	}
 
 	// RB begin
-	virtual void				ExportOBJ( idFile* objFile, idFile* mtlFile, ID_TIME_T* _timeStamp = NULL ) const;
+	virtual void				ExportOBJ( idFile* objFile, idFile* mtlFile, ID_TIME_T* _timeStamp = NULL );
 	// RB end
 
 	virtual void				PartialInitFromFile( const char* fileName );
@@ -232,6 +232,10 @@ public:
 	{
 		return true;
 	}
+
+	// RB begin
+	virtual void				ExportOBJ( idFile* objFile, idFile* mtlFile, ID_TIME_T* _timeStamp = NULL );
+	// RB end
 
 private:
 	idList<idMD5Joint, TAG_MODEL>	joints;

@@ -1607,3 +1607,38 @@ int	idRenderModelMD5::Memory() const
 	}
 	return total;
 }
+
+
+// RB begin
+void idRenderModelMD5::ExportOBJ( idFile* objFile, idFile* mtlFile, ID_TIME_T* _timeStamp )
+{
+	if( objFile == NULL || mtlFile == NULL )
+	{
+		common->Printf( "Failed to ExportOBJ\n" );
+		return;
+	}
+
+	renderEntity_t			ent;
+
+	memset( &ent, 0, sizeof( ent ) );
+
+	ent.bounds.Clear();
+	ent.suppressSurfaceInViewID = 0;
+
+	ent.numJoints = NumJoints();
+	if( ent.numJoints > 0 )
+	{
+		ent.joints = ( idJointMat* )Mem_Alloc16( SIMD_ROUND_JOINTS( ent.numJoints ) * sizeof( *ent.joints ), TAG_JOINTMAT );
+
+		SIMD_INIT_LAST_JOINT( ent.joints, ent.numJoints );
+
+		idRenderModel* newmodel = InstantiateDynamicModel( &ent, NULL, NULL );
+		newmodel->ExportOBJ( objFile, mtlFile, _timeStamp );
+
+		Mem_Free16( ent.joints );
+		ent.joints = NULL;
+
+		delete newmodel;
+	}
+}
+// RB end

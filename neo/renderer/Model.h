@@ -173,7 +173,7 @@ public:
 	virtual bool				SupportsBinaryModel() = 0;
 
 	// RB begin
-	virtual void				ExportOBJ( idFile* objFile, idFile* mtlFile, ID_TIME_T* _timeStamp = NULL ) const = 0;
+	virtual void				ExportOBJ( idFile* objFile, idFile* mtlFile, ID_TIME_T* _timeStamp = NULL ) = 0;
 	// RB end
 
 	// renderBump uses this to load the very high poly count models, skipping the
