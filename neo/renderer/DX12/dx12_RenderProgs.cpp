@@ -6,7 +6,7 @@
 #include <unordered_map>
 
 D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineDescriptors[53];
-std::unordered_map<int32, ID3D12PipelineState*> pipelineStateMap(128);
+std::unordered_map<int64, ID3D12PipelineState*> pipelineStateMap(128);
 
 D3D12_CULL_MODE CalculateCullMode(const int cullType) {
 	switch (cullType) {
@@ -17,6 +17,98 @@ D3D12_CULL_MODE CalculateCullMode(const int cullType) {
 	}
 
 	return D3D12_CULL_MODE_NONE;
+}
+
+D3D12_DEPTH_STENCIL_DESC CalculateDepthStencilMode(uint64 stateBits) {
+	D3D12_DEPTH_STENCIL_DESC dsDesc = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+
+	//TODO: FIX!!. For now we are disabling the depth test:
+	dsDesc.DepthEnable = false;
+
+	// Check if we should enable the depth mask
+	if (stateBits & GLS_DEPTHMASK) {
+		dsDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+	}
+	else {
+		dsDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+	}
+
+	// Calculate the stencil
+	if (stateBits & (GLS_STENCIL_FUNC_BITS | GLS_STENCIL_OP_BITS)) {
+		dsDesc.StencilEnable = true;
+	}
+	else {
+		dsDesc.StencilEnable = false;
+	}
+
+	if (stateBits & (GLS_STENCIL_FUNC_BITS | GLS_STENCIL_FUNC_REF_BITS | GLS_STENCIL_FUNC_MASK_BITS)) {
+		uint8 ref = static_cast<uint8>((stateBits & GLS_STENCIL_FUNC_REF_BITS) >> GLS_STENCIL_FUNC_REF_SHIFT);
+		uint8 mask = static_cast<uint8>((stateBits & GLS_STENCIL_FUNC_MASK_BITS) >> GLS_STENCIL_FUNC_MASK_SHIFT);
+		D3D12_COMPARISON_FUNC func = D3D12_COMPARISON_FUNC_NEVER;
+		
+		// TODO: Double check that this is correct.
+		dsDesc.StencilReadMask = mask & ref;
+		dsDesc.StencilWriteMask = mask & ref;
+
+		switch (stateBits & GLS_STENCIL_FUNC_BITS) {
+			case GLS_STENCIL_FUNC_NEVER:		func = D3D12_COMPARISON_FUNC_NEVER; break;
+			case GLS_STENCIL_FUNC_LESS:			func = D3D12_COMPARISON_FUNC_LESS; break;
+			case GLS_STENCIL_FUNC_EQUAL:		func = D3D12_COMPARISON_FUNC_EQUAL; break;
+			case GLS_STENCIL_FUNC_LEQUAL:		func = D3D12_COMPARISON_FUNC_LESS_EQUAL; break;
+			case GLS_STENCIL_FUNC_GREATER:		func = D3D12_COMPARISON_FUNC_GREATER; break;
+			case GLS_STENCIL_FUNC_NOTEQUAL:		func = D3D12_COMPARISON_FUNC_NOT_EQUAL; break;
+			case GLS_STENCIL_FUNC_GEQUAL:		func = D3D12_COMPARISON_FUNC_GREATER_EQUAL; break;
+			case GLS_STENCIL_FUNC_ALWAYS:		func = D3D12_COMPARISON_FUNC_ALWAYS; break;
+		}
+
+		dsDesc.FrontFace.StencilFunc = func;
+		dsDesc.BackFace.StencilFunc = func;
+	}
+
+	if (stateBits & (GLS_STENCIL_OP_FAIL_BITS | GLS_STENCIL_OP_ZFAIL_BITS | GLS_STENCIL_OP_PASS_BITS)) {
+		D3D12_STENCIL_OP sFail = D3D12_STENCIL_OP_KEEP;
+		D3D12_STENCIL_OP zFail = D3D12_STENCIL_OP_KEEP;
+		D3D12_STENCIL_OP pass = D3D12_STENCIL_OP_KEEP;
+
+		switch (stateBits & GLS_STENCIL_OP_FAIL_BITS) {
+			case GLS_STENCIL_OP_FAIL_KEEP:		sFail = D3D12_STENCIL_OP_KEEP; break;
+			case GLS_STENCIL_OP_FAIL_ZERO:		sFail = D3D12_STENCIL_OP_ZERO; break;
+			case GLS_STENCIL_OP_FAIL_REPLACE:	sFail = D3D12_STENCIL_OP_REPLACE; break;
+			case GLS_STENCIL_OP_FAIL_INCR:		sFail = D3D12_STENCIL_OP_INCR_SAT; break;
+			case GLS_STENCIL_OP_FAIL_DECR:		sFail = D3D12_STENCIL_OP_DECR_SAT; break;
+			case GLS_STENCIL_OP_FAIL_INVERT:	sFail = D3D12_STENCIL_OP_INVERT; break;
+			case GLS_STENCIL_OP_FAIL_INCR_WRAP: sFail = D3D12_STENCIL_OP_INCR; break;
+			case GLS_STENCIL_OP_FAIL_DECR_WRAP: sFail = D3D12_STENCIL_OP_DECR; break;
+		}
+
+		switch (stateBits & GLS_STENCIL_OP_ZFAIL_BITS) {
+			case GLS_STENCIL_OP_ZFAIL_KEEP:		zFail = D3D12_STENCIL_OP_KEEP; break;
+			case GLS_STENCIL_OP_ZFAIL_ZERO:		zFail = D3D12_STENCIL_OP_ZERO; break;
+			case GLS_STENCIL_OP_ZFAIL_REPLACE:	zFail = D3D12_STENCIL_OP_REPLACE; break;
+			case GLS_STENCIL_OP_ZFAIL_INCR:		zFail = D3D12_STENCIL_OP_INCR_SAT; break;
+			case GLS_STENCIL_OP_ZFAIL_DECR:		zFail = D3D12_STENCIL_OP_DECR_SAT; break;
+			case GLS_STENCIL_OP_ZFAIL_INVERT:	zFail = D3D12_STENCIL_OP_INVERT; break;
+			case GLS_STENCIL_OP_ZFAIL_INCR_WRAP: zFail = D3D12_STENCIL_OP_INCR; break;
+			case GLS_STENCIL_OP_ZFAIL_DECR_WRAP: zFail = D3D12_STENCIL_OP_DECR; break;
+		}
+
+		switch (stateBits & GLS_STENCIL_OP_PASS_BITS) {
+			case GLS_STENCIL_OP_PASS_KEEP:		pass = D3D12_STENCIL_OP_KEEP; break;
+			case GLS_STENCIL_OP_PASS_ZERO:		pass = D3D12_STENCIL_OP_ZERO; break;
+			case GLS_STENCIL_OP_PASS_REPLACE:	pass = D3D12_STENCIL_OP_REPLACE; break;
+			case GLS_STENCIL_OP_PASS_INCR:		pass = D3D12_STENCIL_OP_INCR_SAT; break;
+			case GLS_STENCIL_OP_PASS_DECR:		pass = D3D12_STENCIL_OP_DECR_SAT; break;
+			case GLS_STENCIL_OP_PASS_INVERT:	pass = D3D12_STENCIL_OP_INVERT; break;
+			case GLS_STENCIL_OP_PASS_INCR_WRAP: pass = D3D12_STENCIL_OP_INCR; break;
+			case GLS_STENCIL_OP_PASS_DECR_WRAP: pass = D3D12_STENCIL_OP_DECR; break;
+		}
+
+		dsDesc.FrontFace.StencilFailOp = dsDesc.BackFace.StencilFailOp = sFail;
+		dsDesc.FrontFace.StencilDepthFailOp = dsDesc.BackFace.StencilDepthFailOp = zFail;
+		dsDesc.FrontFace.StencilPassOp = dsDesc.BackFace.StencilPassOp = pass;
+	}
+
+	return dsDesc;
 }
 
 D3D12_BLEND_DESC CalculateBlendMode(uint64 stateBits) {
@@ -54,16 +146,16 @@ D3D12_BLEND_DESC CalculateBlendMode(uint64 stateBits) {
 
 	blendDesc.RenderTarget[0].SrcBlend = srcFactor;
 	blendDesc.RenderTarget[0].DestBlend = dstFactor;
-		
-	//blendDesc.AlphaToCoverageEnable = TRUE:
+	blendDesc.RenderTarget[0].BlendEnable = !(srcFactor == D3D12_BLEND_ONE && dstFactor == D3D12_BLEND_ZERO);
 
 	return blendDesc;
 }
 
 void LoadStagePipelineState(int parentState, glstate_t state) {
+	// TODO: Add the stencil state to the index.
 	// Generate the state index
 	// (Blend State) | (cullType << 6) | (shader index << 8)
-	int32 stateIndex = (state.glStateBits & 0x00000003F) | (state.faceCulling << 6) | (parentState << 8);
+	int64 stateIndex = (state.glStateBits & 0x00000003F) | (state.faceCulling << 6) | (parentState << 8);
 	const auto result = pipelineStateMap.find(stateIndex);
 
 	if (result == pipelineStateMap.end()) {
@@ -84,12 +176,15 @@ void LoadStagePipelineState(int parentState, glstate_t state) {
 
 		psoDesc.RasterizerState.CullMode = CalculateCullMode(state.faceCulling);
 		psoDesc.BlendState = CalculateBlendMode(state.glStateBits);
+		psoDesc.DepthStencilState = CalculateDepthStencilMode(state.glStateBits);
+
+		// TODO: Enable colour mask.
 
 		ID3D12PipelineState* renderState;
 		dxRenderer.LoadPipelineState(&psoDesc, &renderState);
 
 		wchar_t resourceName[64];
-		wsprintfW(resourceName, L"Shader: %x", stateIndex);
+		wsprintfW(resourceName, L"Shader: 0x%x", stateIndex);
 		renderState->SetName(resourceName);
 
 		pipelineStateMap.insert({ stateIndex, renderState });
@@ -180,7 +275,7 @@ void idRenderProgManager::LoadProgram(const int programIndex, const int vertexSh
 	psoDesc->PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	psoDesc->NumRenderTargets = 1;
 	psoDesc->RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-	psoDesc->DSVFormat = DXGI_FORMAT_D32_FLOAT;
+	psoDesc->DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	psoDesc->SampleDesc.Count = 1;
 
 	prog.shaderObject = psoDesc;

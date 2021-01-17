@@ -310,13 +310,13 @@ bool DX12Renderer::CreateBackBuffer() {
 
 	// Create the DSV
 	D3D12_CLEAR_VALUE clearValue = {};
-	clearValue.Format = DXGI_FORMAT_D32_FLOAT;
+	clearValue.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	clearValue.DepthStencil = { 1.0f, 0 };
 
 	if (FAILED(m_device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
 		D3D12_HEAP_FLAG_NONE,
-		&CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, m_width, m_height, 1, 0, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL),
+		&CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D24_UNORM_S8_UINT, m_width, m_height, 1, 0, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL),
 		D3D12_RESOURCE_STATE_DEPTH_WRITE,
 		&clearValue,
 		IID_PPV_ARGS(&m_depthBuffer)
@@ -325,7 +325,7 @@ bool DX12Renderer::CreateBackBuffer() {
 	}
 
 	D3D12_DEPTH_STENCIL_VIEW_DESC dsv = {};
-	dsv.Format = DXGI_FORMAT_D32_FLOAT;
+	dsv.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	dsv.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
 	dsv.Texture2D.MipSlice = 0;
 	dsv.Flags = D3D12_DSV_FLAG_NONE;

@@ -70,8 +70,16 @@ void GL_Clear(bool color, bool depth, bool stencil, byte stencilValue, float r, 
 void GL_SetDefaultState() {
 	RENDERLOG_PRINTF("--- GL_SetDefaultState ---\n");
 
-	// TODO: Set the default graphics state.
-	RENDERLOG_PRINTF("TODO: Set the default graphics state.\n");
+	// make sure our GL state vector is set correctly
+	memset(&backEnd.glState, 0, sizeof(backEnd.glState));
+	GL_State(0, true);
+
+	// These are changed by GL_Cull
+	GL_Cull(CT_TWO_SIDED);
+
+	if (r_useScissor.GetBool()) {
+		GL_Scissor(0, 0, renderSystem->GetWidth(), renderSystem->GetHeight());
+	}
 }
 
 void GL_State(uint64 stateBits, bool forceGlState) {
