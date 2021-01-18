@@ -84,6 +84,7 @@ public:
 
 	void UpdateViewport(FLOAT topLeftX, FLOAT topLeftY, FLOAT width, FLOAT height, FLOAT minDepth = D3D12_MIN_DEPTH, FLOAT maxDepth = D3D12_MAX_DEPTH);
 	void UpdateScissorRect(LONG left, LONG top, LONG right, LONG bottom);
+	void UpdateStencilRef(UINT ref);
 
 	void ReadPixels(int x, int y, int width, int height, UINT readBuffer, byte* buffer);
 
@@ -153,6 +154,7 @@ private:
 	XMFLOAT4 m_constantBuffer[53];
 	UINT8* m_constantBufferGPUAddress[FrameCount];
 	ID3D12PipelineState* m_activePipelineState = nullptr;
+	UINT m_stencilRef = 0;
 
 	// Synchronization
 	UINT m_frameIndex;

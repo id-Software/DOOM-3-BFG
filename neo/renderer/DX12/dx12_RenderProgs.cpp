@@ -5,6 +5,11 @@
 
 #include <unordered_map>
 
+// Masking constants used to generate the hash code from the GLState object
+static const uint64 STATE_TO_HASH_MASK = ~(0ull | GLS_STENCIL_FUNC_REF_BITS);
+static const uint64 HASH_FACE_CULL_SHIFT = GLS_STENCIL_FUNC_REF_SHIFT;
+static const uint64 HASH_PARENT_INDEX_SHIFT = HASH_FACE_CULL_SHIFT + 2;
+
 D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineDescriptors[53];
 std::unordered_map<int64, ID3D12PipelineState*> pipelineStateMap(128);
 
@@ -19,7 +24,15 @@ D3D12_CULL_MODE CalculateCullMode(const int cullType) {
 	return D3D12_CULL_MODE_NONE;
 }
 
-D3D12_DEPTH_STENCIL_DESC CalculateDepthStencilMode(uint64 stateBits) {
+D3D12_FILL_MODE CalculateFillMode(const uint64 stateBits) {
+	if (stateBits & GLS_POLYMODE_LINE) {
+		return D3D12_FILL_MODE_WIREFRAME;
+	}
+
+	return D3D12_FILL_MODE_SOLID;
+}
+
+D3D12_DEPTH_STENCIL_DESC CalculateDepthStencilMode(const uint64 stateBits) {
 	D3D12_DEPTH_STENCIL_DESC dsDesc = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 
 	//TODO: FIX!!. For now we are disabling the depth test:
@@ -42,13 +55,11 @@ D3D12_DEPTH_STENCIL_DESC CalculateDepthStencilMode(uint64 stateBits) {
 	}
 
 	if (stateBits & (GLS_STENCIL_FUNC_BITS | GLS_STENCIL_FUNC_REF_BITS | GLS_STENCIL_FUNC_MASK_BITS)) {
-		uint8 ref = static_cast<uint8>((stateBits & GLS_STENCIL_FUNC_REF_BITS) >> GLS_STENCIL_FUNC_REF_SHIFT);
-		uint8 mask = static_cast<uint8>((stateBits & GLS_STENCIL_FUNC_MASK_BITS) >> GLS_STENCIL_FUNC_MASK_SHIFT);
+		const UINT mask = UINT((stateBits & GLS_STENCIL_FUNC_MASK_BITS) >> GLS_STENCIL_FUNC_MASK_SHIFT);
 		D3D12_COMPARISON_FUNC func = D3D12_COMPARISON_FUNC_NEVER;
 		
-		// TODO: Double check that this is correct.
-		dsDesc.StencilReadMask = mask & ref;
-		dsDesc.StencilWriteMask = mask & ref;
+		dsDesc.StencilReadMask = mask;
+		dsDesc.StencilWriteMask = mask;
 
 		switch (stateBits & GLS_STENCIL_FUNC_BITS) {
 			case GLS_STENCIL_FUNC_NEVER:		func = D3D12_COMPARISON_FUNC_NEVER; break;
@@ -111,51 +122,59 @@ D3D12_DEPTH_STENCIL_DESC CalculateDepthStencilMode(uint64 stateBits) {
 	return dsDesc;
 }
 
-D3D12_BLEND_DESC CalculateBlendMode(uint64 stateBits) {
+D3D12_BLEND_DESC CalculateBlendMode(const uint64 stateBits) {
 	D3D12_BLEND_DESC blendDesc = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 	D3D12_BLEND srcFactor = D3D12_BLEND_ONE;
 	D3D12_BLEND dstFactor = D3D12_BLEND_ZERO;
 
+	// Set the blend mode
 	switch (stateBits & GLS_SRCBLEND_BITS) {
-	case GLS_SRCBLEND_ZERO:					srcFactor = D3D12_BLEND_ZERO; break;
-	case GLS_SRCBLEND_ONE:					srcFactor = D3D12_BLEND_ONE; break;
-	case GLS_SRCBLEND_DST_COLOR:			srcFactor = D3D12_BLEND_DEST_COLOR; break;
-	case GLS_SRCBLEND_ONE_MINUS_DST_COLOR:	srcFactor = D3D12_BLEND_INV_DEST_COLOR; break;
-	case GLS_SRCBLEND_SRC_ALPHA:			srcFactor = D3D12_BLEND_SRC_ALPHA; break;
-	case GLS_SRCBLEND_ONE_MINUS_SRC_ALPHA:	srcFactor = D3D12_BLEND_INV_SRC_ALPHA; break;
-	case GLS_SRCBLEND_DST_ALPHA:			srcFactor = D3D12_BLEND_DEST_ALPHA; break;
-	case GLS_SRCBLEND_ONE_MINUS_DST_ALPHA:	srcFactor = D3D12_BLEND_INV_DEST_ALPHA; break;
-	default:
-		assert(!"GL_State: invalid src blend state bits\n");
-		break;
+		case GLS_SRCBLEND_ZERO:					srcFactor = D3D12_BLEND_ZERO; break;
+		case GLS_SRCBLEND_ONE:					srcFactor = D3D12_BLEND_ONE; break;
+		case GLS_SRCBLEND_DST_COLOR:			srcFactor = D3D12_BLEND_DEST_COLOR; break;
+		case GLS_SRCBLEND_ONE_MINUS_DST_COLOR:	srcFactor = D3D12_BLEND_INV_DEST_COLOR; break;
+		case GLS_SRCBLEND_SRC_ALPHA:			srcFactor = D3D12_BLEND_SRC_ALPHA; break;
+		case GLS_SRCBLEND_ONE_MINUS_SRC_ALPHA:	srcFactor = D3D12_BLEND_INV_SRC_ALPHA; break;
+		case GLS_SRCBLEND_DST_ALPHA:			srcFactor = D3D12_BLEND_DEST_ALPHA; break;
+		case GLS_SRCBLEND_ONE_MINUS_DST_ALPHA:	srcFactor = D3D12_BLEND_INV_DEST_ALPHA; break;
+		default:
+			assert(!"GL_State: invalid src blend state bits\n");
+			break;
 	}
 
 	switch (stateBits & GLS_DSTBLEND_BITS) {
-	case GLS_DSTBLEND_ZERO:					dstFactor = D3D12_BLEND_ZERO; break;
-	case GLS_DSTBLEND_ONE:					dstFactor = D3D12_BLEND_ONE; break;
-	case GLS_DSTBLEND_SRC_COLOR:			dstFactor = D3D12_BLEND_SRC_COLOR; break;
-	case GLS_DSTBLEND_ONE_MINUS_SRC_COLOR:	dstFactor = D3D12_BLEND_INV_SRC_COLOR; break;
-	case GLS_DSTBLEND_SRC_ALPHA:			dstFactor = D3D12_BLEND_SRC_ALPHA; break;
-	case GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA:	dstFactor = D3D12_BLEND_INV_SRC_ALPHA; break;
-	case GLS_DSTBLEND_DST_ALPHA:			dstFactor = D3D12_BLEND_DEST_ALPHA; break;
-	case GLS_DSTBLEND_ONE_MINUS_DST_ALPHA:  dstFactor = D3D12_BLEND_INV_DEST_ALPHA; break;
-	default:
-		assert(!"GL_State: invalid dst blend state bits\n");
-		break;
+		case GLS_DSTBLEND_ZERO:					dstFactor = D3D12_BLEND_ZERO; break;
+		case GLS_DSTBLEND_ONE:					dstFactor = D3D12_BLEND_ONE; break;
+		case GLS_DSTBLEND_SRC_COLOR:			dstFactor = D3D12_BLEND_SRC_COLOR; break;
+		case GLS_DSTBLEND_ONE_MINUS_SRC_COLOR:	dstFactor = D3D12_BLEND_INV_SRC_COLOR; break;
+		case GLS_DSTBLEND_SRC_ALPHA:			dstFactor = D3D12_BLEND_SRC_ALPHA; break;
+		case GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA:	dstFactor = D3D12_BLEND_INV_SRC_ALPHA; break;
+		case GLS_DSTBLEND_DST_ALPHA:			dstFactor = D3D12_BLEND_DEST_ALPHA; break;
+		case GLS_DSTBLEND_ONE_MINUS_DST_ALPHA:  dstFactor = D3D12_BLEND_INV_DEST_ALPHA; break;
+		default:
+			assert(!"GL_State: invalid dst blend state bits\n");
+			break;
 	}
 
 	blendDesc.RenderTarget[0].SrcBlend = srcFactor;
 	blendDesc.RenderTarget[0].DestBlend = dstFactor;
 	blendDesc.RenderTarget[0].BlendEnable = !(srcFactor == D3D12_BLEND_ONE && dstFactor == D3D12_BLEND_ZERO);
 
+	// Set the colour masking
+	blendDesc.RenderTarget[0].RenderTargetWriteMask =
+		((stateBits & GLS_REDMASK) ? 0x0F : D3D12_COLOR_WRITE_ENABLE_RED) |
+		((stateBits & GLS_GREENMASK) ? 0x0F : D3D12_COLOR_WRITE_ENABLE_GREEN) |
+		((stateBits & GLS_BLUEMASK) ? 0x0F : D3D12_COLOR_WRITE_ENABLE_BLUE) |
+		((stateBits & GLS_ALPHAMASK) ? 0x0F : D3D12_COLOR_WRITE_ENABLE_ALPHA);
+
+
 	return blendDesc;
 }
 
 void LoadStagePipelineState(int parentState, glstate_t state) {
-	// TODO: Add the stencil state to the index.
-	// Generate the state index
-	// (Blend State) | (cullType << 6) | (shader index << 8)
-	int64 stateIndex = (state.glStateBits & 0x00000003F) | (state.faceCulling << 6) | (parentState << 8);
+	// Combine the glStateBits with teh faceCulling and parentState index values.
+	// We do not need the stecil ref value as this will be set through the command list. This gives us 8 useable bits.
+	int64 stateIndex = (state.glStateBits & STATE_TO_HASH_MASK) | (state.faceCulling << HASH_FACE_CULL_SHIFT) | (parentState << HASH_PARENT_INDEX_SHIFT);
 	const auto result = pipelineStateMap.find(stateIndex);
 
 	if (result == pipelineStateMap.end()) {
@@ -175,11 +194,11 @@ void LoadStagePipelineState(int parentState, glstate_t state) {
 		psoDesc.InputLayout = { inputElementDescs, _countof(inputElementDescs) };
 
 		psoDesc.RasterizerState.CullMode = CalculateCullMode(state.faceCulling);
+		psoDesc.RasterizerState.FillMode = CalculateFillMode(state.glStateBits);
 		psoDesc.BlendState = CalculateBlendMode(state.glStateBits);
 		psoDesc.DepthStencilState = CalculateDepthStencilMode(state.glStateBits);
 
-		// TODO: Enable colour mask.
-
+		// TODO: Setup Polygon offset
 		ID3D12PipelineState* renderState;
 		dxRenderer.LoadPipelineState(&psoDesc, &renderState);
 

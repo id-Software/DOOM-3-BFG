@@ -532,6 +532,8 @@ void DX12Renderer::BeginDraw() {
 	m_commandList->RSSetViewports(1, &m_viewport);
 	m_commandList->RSSetScissorRects(1, &m_scissorRect);
 
+	m_commandList->OMSetStencilRef(m_stencilRef);
+
 	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), m_frameIndex, m_rtvDescriptorSize);
 	CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
 	m_commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
@@ -716,6 +718,16 @@ void DX12Renderer::UpdateScissorRect(LONG left, LONG top, LONG right, LONG botto
 
 	if (m_isDrawing) {
 		m_commandList->RSSetScissorRects(1, &m_scissorRect);
+	}
+}
+
+void DX12Renderer::UpdateStencilRef(UINT ref) {
+	if (m_stencilRef != ref) {
+		m_stencilRef = ref;
+
+		if (m_isDrawing) {
+			m_commandList->OMSetStencilRef(ref);
+		}
 	}
 }
 

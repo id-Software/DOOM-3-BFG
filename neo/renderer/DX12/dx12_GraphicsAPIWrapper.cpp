@@ -95,6 +95,11 @@ void GL_State(uint64 stateBits, bool forceGlState) {
 		return;
 	}
 
+	if (diff & (GLS_STENCIL_FUNC_BITS | GLS_STENCIL_FUNC_REF_BITS | GLS_STENCIL_FUNC_MASK_BITS)) {
+		UINT ref = UINT((stateBits & GLS_STENCIL_FUNC_REF_BITS) >> GLS_STENCIL_FUNC_REF_SHIFT);
+		dxRenderer.UpdateStencilRef(ref);
+	}
+
 	//
 	// check depthFunc bits
 	//
