@@ -73,6 +73,8 @@ enum eShader {
 	PIXEL
 };
 
+void DX12_ActivatePipelineState();
+
 class DX12Renderer {
 public:
 	DX12Renderer();

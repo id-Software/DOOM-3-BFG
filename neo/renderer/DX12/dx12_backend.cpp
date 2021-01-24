@@ -227,6 +227,7 @@ on the 360.
 =====================
 */
 static void RB_FillDepthBufferFast(drawSurf_t** drawSurfs, int numDrawSurfs) {
+	GL_State(GLS_DEFAULT);
 }
 
 /*
@@ -1493,8 +1494,8 @@ static int RB_DrawShaderPasses(const drawSurf_t* const* const drawSurfs, const i
 
 	//TODO: Reset textures for each surface.
 
-	/*GL_SelectTexture(1);
-	globalImages->BindNull();*/
+	GL_SelectTexture(1);
+	globalImages->BindNull();
 
 	GL_SelectTexture(0);
 

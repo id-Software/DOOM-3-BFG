@@ -10,6 +10,8 @@ static const uint64 STATE_TO_HASH_MASK = ~(0ull | GLS_STENCIL_FUNC_REF_BITS);
 static const uint64 HASH_FACE_CULL_SHIFT = GLS_STENCIL_FUNC_REF_SHIFT;
 static const uint64 HASH_PARENT_INDEX_SHIFT = HASH_FACE_CULL_SHIFT + 2;
 
+static int activePipelineState = 0;
+
 D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineDescriptors[53];
 std::unordered_map<int64, ID3D12PipelineState*> pipelineStateMap(128);
 
@@ -162,10 +164,10 @@ D3D12_BLEND_DESC CalculateBlendMode(const uint64 stateBits) {
 
 	// Set the colour masking
 	blendDesc.RenderTarget[0].RenderTargetWriteMask =
-		((stateBits & GLS_REDMASK) ? D3D12_COLOR_WRITE_ENABLE_RED : 0) |
-		((stateBits & GLS_GREENMASK) ? D3D12_COLOR_WRITE_ENABLE_GREEN : 0) |
-		((stateBits & GLS_BLUEMASK) ? D3D12_COLOR_WRITE_ENABLE_BLUE : 0) |
-		((stateBits & GLS_ALPHAMASK) ? D3D12_COLOR_WRITE_ENABLE_ALPHA : 0);
+		((stateBits & GLS_REDMASK) ? 0 : D3D12_COLOR_WRITE_ENABLE_RED) |
+		((stateBits & GLS_GREENMASK) ? 0 : D3D12_COLOR_WRITE_ENABLE_GREEN) |
+		((stateBits & GLS_BLUEMASK) ? 0 : D3D12_COLOR_WRITE_ENABLE_BLUE) |
+		((stateBits & GLS_ALPHAMASK) ? 0 : D3D12_COLOR_WRITE_ENABLE_ALPHA);
 
 	// TODO: Setup alpha testing
 
@@ -215,6 +217,10 @@ void LoadStagePipelineState(int parentState, glstate_t state) {
 	else {
 		dxRenderer.SetActivePipelineState(result->second);
 	}
+}
+
+void DX12_ActivatePipelineState() {
+	LoadStagePipelineState(activePipelineState, backEnd.glState);
 }
 
 void LoadHLSLShader(DX12CompiledShader* shader, const char* name, eShader shaderType) {
@@ -362,7 +368,7 @@ void idRenderProgManager::BindShader(int vIndex, int fIndex) {
 		currentRenderProgram = vIndex;
 		RENDERLOG_PRINTF("Binding RenderState %s\n", shaderPrograms[vIndex].name.c_str());
 
-		LoadStagePipelineState(vIndex, backEnd.glState);
+		activePipelineState = vIndex;
 	}
 	else {
 		common->Warning("Shader index is out of range.");

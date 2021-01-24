@@ -573,6 +573,8 @@ UINT DX12Renderer::StartSurfaceSettings() {
 void DX12Renderer::EndSurfaceSettings() {
 	assert(m_isDrawing);
 
+	DX12_ActivatePipelineState();
+
 	// Copy the CBV value to the upload heap
 	UINT8* buffer;
 	CD3DX12_RANGE readRange(0, 0);
