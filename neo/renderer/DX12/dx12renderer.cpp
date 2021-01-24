@@ -311,7 +311,7 @@ bool DX12Renderer::CreateBackBuffer() {
 	// Create the DSV
 	D3D12_CLEAR_VALUE clearValue = {};
 	clearValue.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	clearValue.DepthStencil = { 1.0f, 0 };
+	clearValue.DepthStencil = { 0.0f, 128 };
 
 	if (FAILED(m_device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
