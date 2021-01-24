@@ -162,11 +162,12 @@ D3D12_BLEND_DESC CalculateBlendMode(const uint64 stateBits) {
 
 	// Set the colour masking
 	blendDesc.RenderTarget[0].RenderTargetWriteMask =
-		((stateBits & GLS_REDMASK) ? 0x0F : D3D12_COLOR_WRITE_ENABLE_RED) |
-		((stateBits & GLS_GREENMASK) ? 0x0F : D3D12_COLOR_WRITE_ENABLE_GREEN) |
-		((stateBits & GLS_BLUEMASK) ? 0x0F : D3D12_COLOR_WRITE_ENABLE_BLUE) |
-		((stateBits & GLS_ALPHAMASK) ? 0x0F : D3D12_COLOR_WRITE_ENABLE_ALPHA);
+		((stateBits & GLS_REDMASK) ? D3D12_COLOR_WRITE_ENABLE_RED : 0) |
+		((stateBits & GLS_GREENMASK) ? D3D12_COLOR_WRITE_ENABLE_GREEN : 0) |
+		((stateBits & GLS_BLUEMASK) ? D3D12_COLOR_WRITE_ENABLE_BLUE : 0) |
+		((stateBits & GLS_ALPHAMASK) ? D3D12_COLOR_WRITE_ENABLE_ALPHA : 0);
 
+	// TODO: Setup alpha testing
 
 	return blendDesc;
 }
@@ -197,8 +198,9 @@ void LoadStagePipelineState(int parentState, glstate_t state) {
 		psoDesc.RasterizerState.FillMode = CalculateFillMode(state.glStateBits);
 		psoDesc.BlendState = CalculateBlendMode(state.glStateBits);
 		psoDesc.DepthStencilState = CalculateDepthStencilMode(state.glStateBits);
+		
+		// TODO: Setup Polygon offset (depth bias)
 
-		// TODO: Setup Polygon offset
 		ID3D12PipelineState* renderState;
 		dxRenderer.LoadPipelineState(&psoDesc, &renderState);
 

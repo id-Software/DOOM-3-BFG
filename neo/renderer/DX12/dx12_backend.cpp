@@ -70,6 +70,11 @@ static const float zero[4] = { 0, 0, 0, 0 };
 static const float one[4] = { 1, 1, 1, 1 };
 static const float negOne[4] = { -1, -1, -1, -1 };
 
+void RB_SetBuffer() {
+	// TODO: Implement
+	GL_Clear(true, false, false, STENCIL_SHADOW_MASK_VALUE, 0, 0, 0, 1.0f);
+}
+
 /*
 ================
 RB_SetVertexColorParms
@@ -2238,8 +2243,6 @@ void RB_DrawViewInternal(const viewDef_t* viewDef, const int stereoEye) {
 	// ensures that depth writes are enabled for the depth clear
 	GL_State(GLS_DEFAULT); //TODO: We need to properly implement this
 
-	dxRenderer.BeginDraw();
-
 	// Clear the depth buffer and clear the stencil to 128 for stencil shadows as well as gui masking
 	GL_Clear(false, true, true, STENCIL_SHADOW_TEST_VALUE, 0.0f, 0.0f, 0.0f, 0.0f); //TODO: We need to properly implement this.
 
@@ -2361,10 +2364,7 @@ void RB_DrawViewInternal(const viewDef_t* viewDef, const int stereoEye) {
 		renderLog.OpenMainBlock(MRB_DRAW_SHADER_PASSES_POST);
 		RB_DrawShaderPasses(drawSurfs + processed, numDrawSurfs - processed, 0.0f /* definitely not a gui */, stereoEye);
 		renderLog.CloseMainBlock();
-	}
-
-	dxRenderer.EndDraw();
-	
+	}	
 
 	renderLog.CloseBlock();
 }
@@ -2406,8 +2406,6 @@ void RB_DrawView(const void* data, const int stereoEye) {
 		//GLimp_ActivateContext();
 		GL_SetDefaultState();
 	}
-
-	dxRenderer.PresentBackbuffer();
 }
 
 void RB_CopyRender(const void* data) {
@@ -2434,9 +2432,8 @@ void RB_ExecuteBackEndCommands(const emptyCommand_t* cmds) {
 
 	uint64 backEndStartTime = Sys_Microseconds();
 
+	dxRenderer.BeginDraw();
 	GL_SetDefaultState();
-
-	// TODO: switch culling mode to "BACK"
 
 	for (; cmds != NULL; cmds = (const emptyCommand_t*)cmds->next) {
 		switch (cmds->commandId) {
@@ -2454,6 +2451,7 @@ void RB_ExecuteBackEndCommands(const emptyCommand_t* cmds) {
 			break;
 		case RC_SET_BUFFER:
 			c_setBuffers++;
+			RB_SetBuffer();
 			break;
 		case RC_COPY_RENDER:
 			RB_CopyRender(cmds);
@@ -2470,9 +2468,10 @@ void RB_ExecuteBackEndCommands(const emptyCommand_t* cmds) {
 
 	// TODO: reset the color mask
 
-	// TODO: Flush the results.
-
 	// stop rendering on this thread
+	dxRenderer.EndDraw();
+	dxRenderer.PresentBackbuffer();
+
 	uint64 backEndFinishTime = Sys_Microseconds();
 	backEnd.pc.totalMicroSec = backEndFinishTime - backEndStartTime;
 
