@@ -368,7 +368,7 @@ void idRenderProgManager::BindShader(int vIndex, int fIndex) {
 	// vIndex denotes the GLSL program
 	if (vIndex >= 0 && vIndex < shaderPrograms.Num()) {
 		if (shaderPrograms[vIndex].shaderObject == NULL) {
-			common->Warning("RenderState %s has not been loaded.", shaderPrograms[vIndex].name.c_str());
+			common->Warning("RenderState %s has not been loaded.", vertexShaders[vIndex].name.c_str());
 			return;
 		}
 
