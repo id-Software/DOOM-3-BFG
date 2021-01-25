@@ -37,8 +37,7 @@ D3D12_FILL_MODE CalculateFillMode(const uint64 stateBits) {
 D3D12_DEPTH_STENCIL_DESC CalculateDepthStencilMode(const uint64 stateBits) {
 	D3D12_DEPTH_STENCIL_DESC dsDesc = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 
-	//TODO: FIX!!. For now we are disabling the depth test:
-	dsDesc.DepthEnable = false;
+	dsDesc.DepthEnable = true;
 
 	// Check if we should enable the depth mask
 	if (stateBits & GLS_DEPTHMASK) {
@@ -46,6 +45,14 @@ D3D12_DEPTH_STENCIL_DESC CalculateDepthStencilMode(const uint64 stateBits) {
 	}
 	else {
 		dsDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+	}
+
+	switch (stateBits & GLS_DEPTHFUNC_BITS) {
+		//TODO: Check if this needs to be reversed.
+		case GLS_DEPTHFUNC_EQUAL:	dsDesc.DepthFunc = D3D12_COMPARISON_FUNC_EQUAL; break;
+		case GLS_DEPTHFUNC_ALWAYS:	dsDesc.DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS; break;
+		case GLS_DEPTHFUNC_LESS:	dsDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL; break;
+		case GLS_DEPTHFUNC_GREATER:	dsDesc.DepthFunc = D3D12_COMPARISON_FUNC_GREATER_EQUAL; break;
 	}
 
 	// Calculate the stencil

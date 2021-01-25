@@ -311,7 +311,7 @@ bool DX12Renderer::CreateBackBuffer() {
 	// Create the DSV
 	D3D12_CLEAR_VALUE clearValue = {};
 	clearValue.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	clearValue.DepthStencil = { 0.0f, 128 };
+	clearValue.DepthStencil = { 1.0f, 128 };
 
 	if (FAILED(m_device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
@@ -633,7 +633,7 @@ void DX12Renderer::Clear(bool color, bool depth, bool stencil, byte stencilValue
 
 	if (clearFlags > 0) {
 		CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
-		m_commandList->ClearDepthStencilView(dsvHandle, static_cast<D3D12_CLEAR_FLAGS>(clearFlags), 0.0f, stencilValue, 0, nullptr);
+		m_commandList->ClearDepthStencilView(dsvHandle, static_cast<D3D12_CLEAR_FLAGS>(clearFlags), 1.0f, stencilValue, 0, nullptr);
 	}
 }
 

@@ -2144,7 +2144,7 @@ void RB_DrawElementsWithCounters(const drawSurf_t* surf) {
 	}
 
 	// TODO: Add joint support
-	/*if (surf->jointCache) {
+	if (surf->jointCache) {
 		idJointBuffer jointBuffer;
 		if (!vertexCache.GetJointBuffer(surf->jointCache, &jointBuffer)) {
 			idLib::Warning("RB_DrawElementsWithCounters, jointBuffer == NULL");
@@ -2152,10 +2152,11 @@ void RB_DrawElementsWithCounters(const drawSurf_t* surf) {
 		}
 		assert((jointBuffer.GetOffset() & (glConfig.uniformBufferOffsetAlignment - 1)) == 0);
 
-		
-		const GLuint ubo = reinterpret_cast<GLuint>(jointBuffer.GetAPIObject());
-		qglBindBufferRange(GL_UNIFORM_BUFFER, 0, ubo, jointBuffer.GetOffset(), jointBuffer.GetNumJoints() * sizeof(idJointMat));
-	}*/
+		// TODO: Bind Joint buffer.
+
+		//const GLuint ubo = reinterpret_cast<GLuint>(jointBuffer.GetAPIObject());
+		//qglBindBufferRange(GL_UNIFORM_BUFFER, 0, ubo, jointBuffer.GetOffset(), jointBuffer.GetNumJoints() * sizeof(idJointMat));
+	}
 
 	const triIndex_t* test = (triIndex_t*)indexOffset;
 
