@@ -539,7 +539,7 @@ void DX12Renderer::BeginDraw() {
 	m_commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
 
 	// Setup the initial heap location
-	m_cbvHeapIndex = -1;
+	m_cbvHeapIndex = 0;
 	m_commandList->SetDescriptorHeaps(1, m_cbvHeap[m_frameIndex].GetAddressOf());
 }
 

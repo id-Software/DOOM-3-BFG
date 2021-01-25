@@ -412,12 +412,14 @@ void R_InitDX12() {
 	// OpenGL driver constants
 	GLint temp;
 	qglGetIntegerv( GL_MAX_TEXTURE_SIZE, &temp );
-	glConfig.maxTextureSize = temp;
+	glConfig.maxTextureSize = temp;*/
 
 	// stubbed or broken drivers may have reported 0...
 	if ( glConfig.maxTextureSize <= 0 ) {
 		glConfig.maxTextureSize = 256;
-	}*/
+	}
+
+	glConfig.uniformBufferOffsetAlignment = 256;
 
 	r_initialized = true;
 
