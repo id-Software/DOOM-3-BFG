@@ -165,12 +165,13 @@ Left: No post processing except HDR tone mapping. Right: r_useFilmicPostProcessi
 
 A short summary of the file layout:
 
-Directory                     | Description
-:---------------------------- | :------------------------------------------------
-RBDOOM-3-BFG/base/            | Doom 3 BFG media directory ( models, textures, sounds, maps, etc. )
-RBDOOM-3-BFG/neo/             | RBDOOM-3-BFG source code ( renderer, game code for multiple games, OS layer, etc. )
-RBDOOM-3-BFG/build/           | Build folder for CMake
-RBDOOM-3-BFG/blender/         | Blender scripts for modding
+Directory                       | Description
+:-----------------------------  | :------------------------------------------------
+RBDOOM-3-BFG/base/              | Doom 3 BFG media directory ( models, textures, sounds, maps, etc. )
+RBDOOM-3-BFG/neo/               | RBDOOM-3-BFG source code ( renderer, game code for multiple games, OS layer, etc. )
+RBDOOM-3-BFG/build/             | Build folder for CMake
+RBDOOM-3-BFG/tools/blender/     | Blender scripts for level mapping
+RBDOOM-3-BFG/tools/trenchbroom  | TrenchBroom level editor for mapping
 
 This release does not contain any game data, the game data is still
 covered by the original EULA and must be obeyed as usual.
@@ -387,7 +388,8 @@ r_useFilmicPostProcessing              | Apply several post process effects to m
 Name                              | Description
 :--------------------------------------| :------------------------------------------------
 exportScriptEvents                     | Command: Generates a new script/doom_events.script that reflects all registered class events in the idClass C++ system. The gamecode still needs to be extended to add the original comments of the events
-exportDeclsToJSON                      | Command: Exports all entity and model defs to exported/entities.json for usage in Blender
+exportEntityDefsToBlender              | Command: Exports all entity and model defs to exported/entities.json for usage in Blender
+exportEntityFGD                        | Command: Exports all entity defs to exported/_tb/*.fgd for usage in TrenchBroom
 postLoadExportModels                   | Cvar: Export models after loading to OBJ model format. Set it to 1 before loading a map.
 exportMapToOBJ                         | Command: Convert .map file to .obj/.mtl
 postLoadExportFlashAtlas               | Cvar: Set to 1 at startup to dump the Flash images to exported/swf/
