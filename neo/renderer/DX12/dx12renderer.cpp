@@ -436,6 +436,8 @@ void DX12Renderer::LoadAssets() {
 			IID_PPV_ARGS(&m_textureBufferUploadHeap)));
 
 		m_textureBufferUploadHeap->SetName(L"Texture Buffer Upload Resource Heap");
+
+		std::fill(m_activeTextures, m_activeTextures + TEXTURE_REGISTER_COUNT, static_cast<DX12TextureBuffer*>(nullptr));
 	}
 }
 
@@ -571,6 +573,9 @@ UINT DX12Renderer::StartSurfaceSettings() {
 }
 
 void DX12Renderer::EndSurfaceSettings() {
+	// TODO: Define separate CBV for location data and Textures
+	// TODO: add a check if we need to update tehCBV and Texture data.
+
 	assert(m_isDrawing);
 
 	DX12_ActivatePipelineState();
@@ -582,6 +587,14 @@ void DX12Renderer::EndSurfaceSettings() {
 	ThrowIfFailed(m_cbvUploadHeap[m_frameIndex]->Map(0, &readRange, reinterpret_cast<void**>(&buffer)));
 	memcpy(&buffer[offset], &m_constantBuffer, sizeof(m_constantBuffer));
 	m_cbvUploadHeap[m_frameIndex]->Unmap(0, nullptr);
+
+	// Copy the Textures
+	const DX12TextureBuffer* currentTexture;
+	for (UINT index = 0; index < TEXTURE_REGISTER_COUNT && (currentTexture = m_activeTextures[index]) != nullptr; ++index) {
+		UINT descriptorIndex = (m_cbvHeapIndex << MAX_DESCRIPTOR_TWO_POWER) + 1 + index; // (Descriptor Table Location) + (CBV Location) + (Texture Register Offset)
+		CD3DX12_CPU_DESCRIPTOR_HANDLE textureHandle(m_cbvHeap[m_frameIndex]->GetCPUDescriptorHandleForHeapStart(), descriptorIndex, m_cbvHeapIncrementor);
+		m_device->CreateShaderResourceView(currentTexture->textureBuffer.Get(), &currentTexture->textureView, textureHandle);
+	}
 
 	// Define the Descriptor Table to use.
 	UINT descriptorIndex = m_cbvHeapIndex << MAX_DESCRIPTOR_TWO_POWER; // Descriptor Table Location
@@ -828,7 +841,5 @@ void DX12Renderer::SetTextureContent(DX12TextureBuffer* buffer, const UINT mipLe
 }
 
 void DX12Renderer::SetTexture(const DX12TextureBuffer* buffer) {
-	UINT descriptorIndex = (m_cbvHeapIndex << MAX_DESCRIPTOR_TWO_POWER) + 1 + m_activeTextureRegister; // (Descriptor Table Location) + (CBV Location) + (Texture Register Offset)
-	CD3DX12_CPU_DESCRIPTOR_HANDLE textureHandle(m_cbvHeap[m_frameIndex]->GetCPUDescriptorHandleForHeapStart(), descriptorIndex, m_cbvHeapIncrementor);
-	m_device->CreateShaderResourceView(buffer->textureBuffer.Get(), &buffer->textureView, textureHandle);
+	m_activeTextures[m_activeTextureRegister] = buffer;
 }

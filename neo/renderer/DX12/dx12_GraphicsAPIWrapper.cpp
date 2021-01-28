@@ -9,6 +9,10 @@ void GL_SelectTexture(int uint) {
 	dxRenderer.SetActiveTextureRegister(uint);
 }
 
+void GL_BlindNull() {
+	dxRenderer.SetTexture(nullptr);
+}
+
 void GL_Cull(int cullType) {
 	// Set the state. This will be hashed into a program key and used to load the program state.
 	backEnd.glState.faceCulling = cullType;

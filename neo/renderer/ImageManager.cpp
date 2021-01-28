@@ -657,7 +657,7 @@ BindNull
 */
 void idImageManager::BindNull() {
 	RENDERLOG_PRINTF( "BindNull()\n" );
-
+	GL_BlindNull();
 }
 
 /*

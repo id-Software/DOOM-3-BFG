@@ -1306,24 +1306,6 @@
     <None Include="..\base\renderprogs\heatHazeWithMaskAndVertex.vertex">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="..\base\renderprogs\interaction.pixel">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="..\base\renderprogs\interaction.vertex">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="..\base\renderprogs\interaction_skinned.pixel">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="..\base\renderprogs\interaction_skinned.vertex">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="..\base\renderprogs\interactionAmbient.pixel">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="..\base\renderprogs\interactionAmbient.vertex">
-      <Filter>Shaders</Filter>
-    </None>
     <None Include="..\base\renderprogs\interactionAmbient_skinned.pixel">
       <Filter>Shaders</Filter>
     </None>
@@ -1458,6 +1440,24 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="..\base\renderprogs\bink_gui.vertex">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\base\renderprogs\interaction.vertex">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\base\renderprogs\interaction.pixel">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\base\renderprogs\interaction_skinned.vertex">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\base\renderprogs\interactionAmbient.pixel">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\base\renderprogs\interactionAmbient.vertex">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\base\renderprogs\interaction_skinned.pixel">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

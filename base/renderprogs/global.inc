@@ -179,14 +179,14 @@ float rand( float2 co ) {
 
 
 #define _half2( x )		half2( x )
-#define _half3( x )		half3( x )
+#define _half3( x )		half3( x, x, x )
 #define _half4( x )		half4( x )
 #define _float2( x )	float2( x )
 #define _float3( x )	float3( x )
 #define _float4( x )	float4( x )
 
 #define VPOS WPOS
-static float4 idtex2Dproj( sampler2D samp, float4 texCoords ) { return tex2Dproj( samp, texCoords ); } //TODO: old data = texCoords.xyw ); }
+static float4 idtex2Dproj( Texture2D<float4> samp, half4 texCoords ) { return samp.Sample( baseSampler, texCoords.xy / texCoords.w ); } //TODO: old data = texCoords.xyw ); }
 static float4 swizzleColor( float4 c ) { return c; }
 static float2 vposToScreenPosTexCoord( float2 vpos ) { return vpos.xy * sceneConstants.rpWindowCoord.xy; }
 

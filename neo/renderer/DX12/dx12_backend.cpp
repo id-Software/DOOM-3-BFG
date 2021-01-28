@@ -1494,8 +1494,6 @@ static int RB_DrawShaderPasses(const drawSurf_t* const* const drawSurfs, const i
 
 	renderLog.OpenBlock("RB_DrawShaderPasses");
 
-	//TODO: Reset textures for each surface.
-
 	GL_SelectTexture(1);
 	globalImages->BindNull();
 
@@ -1713,7 +1711,6 @@ static int RB_DrawShaderPasses(const drawSurf_t* const* const drawSurfs, const i
 				continue;
 			}
 
-			gpuIndex = dxRenderer.StartSurfaceSettings();
 			stageVertexColor_t svc = pStage->vertexColor;
 
 			renderLog.OpenBlock("Old Shader Stage");
@@ -2100,6 +2097,9 @@ static void RB_FogAllLights() {
 }
 
 void RB_DrawElementsWithCounters(const drawSurf_t* surf) {
+	// Connect to a new surfae renderer
+	const UINT gpuIndex = dxRenderer.StartSurfaceSettings();
+
 	// get vertex buffer
 	const vertCacheHandle_t vbHandle = surf->ambientCache;
 	idVertexBuffer* vertexBuffer;

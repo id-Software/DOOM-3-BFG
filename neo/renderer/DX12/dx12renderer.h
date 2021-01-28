@@ -22,7 +22,7 @@
 #define TEXTURE_REGISTER_COUNT 5
 #define MAX_DESCRIPTOR_COUNT 8 // 1 CBV and 5 Shader Resource View, 2 extra to keep this as a power of 2
 #define MAX_DESCRIPTOR_TWO_POWER 3
-#define MAX_HEAP_OBJECT_COUNT 512
+#define MAX_HEAP_OBJECT_COUNT 16384
 
 using namespace DirectX;
 using namespace Microsoft::WRL;
@@ -167,6 +167,7 @@ private:
 	// Textures
 	ComPtr<ID3D12Resource> m_textureBufferUploadHeap;
 	UINT8 m_activeTextureRegister;
+	const DX12TextureBuffer* m_activeTextures[TEXTURE_REGISTER_COUNT];
 
 	void LoadPipeline(HWND hWnd);
 	void LoadAssets();

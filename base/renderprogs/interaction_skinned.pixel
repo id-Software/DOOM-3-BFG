@@ -28,14 +28,14 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "global.inc"
 
-uniform sampler2D	samp0 : register(s0); // texture 1 is the per-surface bump map
-uniform sampler2D	samp1 : register(s1); // texture 2 is the light falloff texture
-uniform sampler2D	samp2 : register(s2); // texture 3 is the light projection texture
-uniform sampler2D	samp3 : register(s3); // texture 4 is the per-surface diffuse map
-uniform sampler2D	samp4 : register(s4); // texture 5 is the per-surface specular map
+uniform Texture2D<float4>	samp0 : register(t0); // texture 1 is the per-surface bump map
+uniform Texture2D<float4>	samp1 : register(t1); // texture 2 is the light falloff texture
+uniform Texture2D<float4>	samp2 : register(t2); // texture 3 is the light projection texture
+uniform Texture2D<float4>	samp3 : register(t3); // texture 4 is the per-surface diffuse map
+uniform Texture2D<float4>	samp4 : register(t4); // texture 5 is the per-surface specular map
 
 struct PS_IN {
-	half4 position	: VPOS;
+	half4 position	: SV_POSITION;
 	half4 texcoord0	: TEXCOORD0_centroid;
 	half4 texcoord1	: TEXCOORD1_centroid;
 	half4 texcoord2	: TEXCOORD2_centroid;
@@ -47,15 +47,15 @@ struct PS_IN {
 };
 
 struct PS_OUT {
-	half4 color : COLOR;
+	half4 color : SV_TARGET;
 };
 
 void main( PS_IN fragment, out PS_OUT result ) {
-	half4 bumpMap =			tex2D( samp0, fragment.texcoord1.xy );
+	half4 bumpMap =			samp0.Sample(baseSampler, fragment.texcoord1.xy );
 	half4 lightFalloff =	idtex2Dproj( samp1, fragment.texcoord2 );
 	half4 lightProj	=		idtex2Dproj( samp2, fragment.texcoord3 );
-	half4 YCoCG =			tex2D( samp3, fragment.texcoord4.xy );
-	half4 specMap =			tex2D( samp4, fragment.texcoord5.xy );
+	half4 YCoCG =			samp3.Sample(baseSampler, fragment.texcoord4.xy );
+	half4 specMap =			samp4.Sample(baseSampler, fragment.texcoord5.xy );
 
 	half3 lightVector = normalize( fragment.texcoord0.xyz );
 	half3 diffuseMap = ConvertYCoCgToRGB( YCoCG );
@@ -69,8 +69,8 @@ void main( PS_IN fragment, out PS_OUT result ) {
 	half hDotN = dot3( normalize( fragment.texcoord6.xyz ), localNormal );
 	half3 specularContribution = _half3( pow( hDotN, specularPower ) );
 
-	half3 diffuseColor = diffuseMap * rpDiffuseModifier.xyz;
-	half3 specularColor = specMap.xyz * specularContribution * rpSpecularModifier.xyz;
+	half3 diffuseColor = diffuseMap * sceneConstants.rpDiffuseModifier.xyz;
+	half3 specularColor = specMap.xyz * specularContribution * sceneConstants.rpSpecularModifier.xyz;
 	half3 lightColor = dot3( lightVector, localNormal ) * lightProj.xyz * lightFalloff.xyz;
 
 	result.color.xyz = ( diffuseColor + specularColor ) * lightColor * fragment.color.xyz;
