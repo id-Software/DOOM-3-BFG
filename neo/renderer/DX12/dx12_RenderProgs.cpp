@@ -205,6 +205,8 @@ void LoadStagePipelineState(int parentState, glstate_t state) {
 
 		psoDesc.RasterizerState.CullMode = CalculateCullMode(state.faceCulling);
 		psoDesc.RasterizerState.FillMode = CalculateFillMode(state.glStateBits);
+		psoDesc.RasterizerState.DepthClipEnable = FALSE;
+
 		psoDesc.BlendState = CalculateBlendMode(state.glStateBits);
 		psoDesc.DepthStencilState = CalculateDepthStencilMode(state.glStateBits);
 		

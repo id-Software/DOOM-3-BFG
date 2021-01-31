@@ -18,6 +18,8 @@
 #define BUFFER_RGB 0x01
 #define BUFFER_STENCIL 0x02
 
+#define COMMAND_LIST_COUNT 5
+
 // TODO: We will separate the CBV and materials into two separate heap objects. This will allow us to define objects positional properties differently from the material properties.
 #define TEXTURE_REGISTER_COUNT 5
 #define MAX_DESCRIPTOR_COUNT 8 // 1 CBV and 5 Shader Resource View, 2 extra to keep this as a power of 2
@@ -28,7 +30,6 @@ using namespace DirectX;
 using namespace Microsoft::WRL;
 
 const UINT FrameCount = 2;
-
 
 struct Vertex
 {
@@ -84,7 +85,7 @@ public:
 	virtual bool SetScreenParams(UINT width, UINT height, int fullscreen);
 	virtual void OnDestroy();
 
-	void UpdateViewport(FLOAT topLeftX, FLOAT topLeftY, FLOAT width, FLOAT height, FLOAT minDepth = D3D12_MIN_DEPTH, FLOAT maxDepth = D3D12_MAX_DEPTH);
+	void UpdateViewport(FLOAT topLeftX, FLOAT topLeftY, FLOAT width, FLOAT height, FLOAT minDepth = -1.0f, FLOAT maxDepth = 0.0f); // Used to put us into right hand depth space.
 	void UpdateScissorRect(LONG left, LONG top, LONG right, LONG bottom);
 	void UpdateStencilRef(UINT ref);
 
@@ -114,10 +115,13 @@ public:
 	void SetTexture(const DX12TextureBuffer* buffer);
 
 	// Draw commands
-	void BeginDraw();
+	void BeginDraw(UINT startingCommandList);
 	void Clear(bool color, bool depth, bool stencil, byte stencilValue, float* colorRGBA);
 	void EndDraw();
 	void PresentBackbuffer();
+	void StartCommandList(UINT index);
+	void SelectCommandList(UINT index);
+	void ExecuteCommandList(UINT startIndex, const UINT commandListCount);
 	UINT StartSurfaceSettings(); // Starts a new heap entry for the surface.
 	void EndSurfaceSettings(); // Records the the surface entry into the heap.
 	void DrawModel(DX12VertexBuffer* vertexBuffer, UINT vertexOffset, DX12IndexBuffer* indexBuffer, UINT indexOffset, UINT indexCount);
@@ -145,7 +149,7 @@ private:
 	ComPtr<ID3D12Resource> m_renderTargets[FrameCount];
 	ComPtr<ID3D12CommandAllocator> m_commandAllocator;
 	ComPtr<ID3D12RootSignature> m_rootsSignature;
-    ComPtr<ID3D12GraphicsCommandList> m_commandList;
+    ComPtr<ID3D12GraphicsCommandList> m_commandList[COMMAND_LIST_COUNT];
     ComPtr<ID3D12DescriptorHeap> m_dsvHeap;
 	ComPtr<ID3D12Resource> m_depthBuffer;
 
@@ -156,6 +160,8 @@ private:
 	XMFLOAT4 m_constantBuffer[53];
 	UINT8* m_constantBufferGPUAddress[FrameCount];
 	ID3D12PipelineState* m_activePipelineState = nullptr;
+	UINT m_activeCommandListIndex = 0;
+	ID3D12GraphicsCommandList* m_activeCommandList = nullptr;
 	UINT m_stencilRef = 0;
 
 	// Synchronization
@@ -168,6 +174,9 @@ private:
 	ComPtr<ID3D12Resource> m_textureBufferUploadHeap;
 	UINT8 m_activeTextureRegister;
 	const DX12TextureBuffer* m_activeTextures[TEXTURE_REGISTER_COUNT];
+
+	void ThrowIfFailed(HRESULT hr);
+	bool WarnIfFailed(HRESULT hr);
 
 	void LoadPipeline(HWND hWnd);
 	void LoadAssets();

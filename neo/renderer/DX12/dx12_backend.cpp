@@ -211,6 +211,382 @@ static void RB_BakeTextureMatrixIntoTexgen(idPlane lightProject[3], const float*
 }
 
 /*
+================
+RB_FinishStageTexturing
+================
+*/
+static void RB_FinishStageTexturing(const shaderStage_t* pStage, const drawSurf_t* surf) {
+
+	if (pStage->texture.cinematic) {
+		// unbind the extra bink textures
+		GL_SelectTexture(1);
+		globalImages->BindNull();
+		GL_SelectTexture(2);
+		globalImages->BindNull();
+		GL_SelectTexture(0);
+	}
+
+	if (pStage->texture.texgen == TG_REFLECT_CUBE) {
+		// see if there is also a bump map specified
+		const shaderStage_t* bumpStage = surf->material->GetBumpStage();
+		if (bumpStage != NULL) {
+			// per-pixel reflection mapping with bump mapping
+			GL_SelectTexture(1);
+			globalImages->BindNull();
+			GL_SelectTexture(0);
+		}
+		else {
+			// per-pixel reflection mapping without bump mapping
+		}
+		renderProgManager.Unbind();
+	}
+}
+
+/*
+================
+RB_PrepareStageTexturing
+================
+*/
+static void RB_PrepareStageTexturing(const shaderStage_t* pStage, const drawSurf_t* surf) {
+	float useTexGenParm[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+
+	// set the texture matrix if needed
+	RB_LoadShaderTextureMatrix(surf->shaderRegisters, &pStage->texture);
+
+	// texgens
+	if (pStage->texture.texgen == TG_REFLECT_CUBE) {
+
+		// see if there is also a bump map specified
+		const shaderStage_t* bumpStage = surf->material->GetBumpStage();
+		if (bumpStage != NULL) {
+			// per-pixel reflection mapping with bump mapping
+			// TODO: Note this for futer RTX reflections
+			GL_SelectTexture(1);
+			bumpStage->texture.image->Bind();
+			GL_SelectTexture(0);
+
+			RENDERLOG_PRINTF("TexGen: TG_REFLECT_CUBE: Bumpy Environment\n");
+			if (surf->jointCache) {
+				renderProgManager.BindShader_BumpyEnvironmentSkinned();
+			}
+			else {
+				renderProgManager.BindShader_BumpyEnvironment();
+			}
+		}
+		else {
+			RENDERLOG_PRINTF("TexGen: TG_REFLECT_CUBE: Environment\n");
+			if (surf->jointCache) {
+				renderProgManager.BindShader_EnvironmentSkinned();
+			}
+			else {
+				renderProgManager.BindShader_Environment();
+			}
+		}
+
+	}
+	else if (pStage->texture.texgen == TG_SKYBOX_CUBE) {
+
+		renderProgManager.BindShader_SkyBox();
+
+	}
+	else if (pStage->texture.texgen == TG_WOBBLESKY_CUBE) {
+
+		const int* parms = surf->material->GetTexGenRegisters();
+
+		float wobbleDegrees = surf->shaderRegisters[parms[0]] * (idMath::PI / 180.0f);
+		float wobbleSpeed = surf->shaderRegisters[parms[1]] * (2.0f * idMath::PI / 60.0f);
+		float rotateSpeed = surf->shaderRegisters[parms[2]] * (2.0f * idMath::PI / 60.0f);
+
+		idVec3 axis[3];
+		{
+			// very ad-hoc "wobble" transform
+			float s, c;
+			idMath::SinCos(wobbleSpeed * backEnd.viewDef->renderView.time[0] * 0.001f, s, c);
+
+			float ws, wc;
+			idMath::SinCos(wobbleDegrees, ws, wc);
+
+			axis[2][0] = ws * c;
+			axis[2][1] = ws * s;
+			axis[2][2] = wc;
+
+			axis[1][0] = -s * s * ws;
+			axis[1][2] = -s * ws * ws;
+			axis[1][1] = idMath::Sqrt(idMath::Fabs(1.0f - (axis[1][0] * axis[1][0] + axis[1][2] * axis[1][2])));
+
+			// make the second vector exactly perpendicular to the first
+			axis[1] -= (axis[2] * axis[1]) * axis[2];
+			axis[1].Normalize();
+
+			// construct the third with a cross
+			axis[0].Cross(axis[1], axis[2]);
+		}
+
+		// add the rotate
+		float rs, rc;
+		idMath::SinCos(rotateSpeed * backEnd.viewDef->renderView.time[0] * 0.001f, rs, rc);
+
+		float transform[12];
+		transform[0 * 4 + 0] = axis[0][0] * rc + axis[1][0] * rs;
+		transform[0 * 4 + 1] = axis[0][1] * rc + axis[1][1] * rs;
+		transform[0 * 4 + 2] = axis[0][2] * rc + axis[1][2] * rs;
+		transform[0 * 4 + 3] = 0.0f;
+
+		transform[1 * 4 + 0] = axis[1][0] * rc - axis[0][0] * rs;
+		transform[1 * 4 + 1] = axis[1][1] * rc - axis[0][1] * rs;
+		transform[1 * 4 + 2] = axis[1][2] * rc - axis[0][2] * rs;
+		transform[1 * 4 + 3] = 0.0f;
+
+		transform[2 * 4 + 0] = axis[2][0];
+		transform[2 * 4 + 1] = axis[2][1];
+		transform[2 * 4 + 2] = axis[2][2];
+		transform[2 * 4 + 3] = 0.0f;
+
+		SetVertexParms(RENDERPARM_WOBBLESKY_X, transform, 3);
+		renderProgManager.BindShader_WobbleSky();
+
+	}
+	else if ((pStage->texture.texgen == TG_SCREEN) || (pStage->texture.texgen == TG_SCREEN2)) {
+
+		useTexGenParm[0] = 1.0f;
+		useTexGenParm[1] = 1.0f;
+		useTexGenParm[2] = 1.0f;
+		useTexGenParm[3] = 1.0f;
+
+		float mat[16];
+		R_MatrixMultiply(surf->space->modelViewMatrix, backEnd.viewDef->projectionMatrix, mat);
+
+		RENDERLOG_PRINTF("TexGen : %s\n", (pStage->texture.texgen == TG_SCREEN) ? "TG_SCREEN" : "TG_SCREEN2");
+		renderLog.Indent();
+
+		float plane[4];
+		plane[0] = mat[0 * 4 + 0];
+		plane[1] = mat[1 * 4 + 0];
+		plane[2] = mat[2 * 4 + 0];
+		plane[3] = mat[3 * 4 + 0];
+		SetVertexParm(RENDERPARM_TEXGEN_0_S, plane);
+		RENDERLOG_PRINTF("TEXGEN_S = %4.3f, %4.3f, %4.3f, %4.3f\n", plane[0], plane[1], plane[2], plane[3]);
+
+		plane[0] = mat[0 * 4 + 1];
+		plane[1] = mat[1 * 4 + 1];
+		plane[2] = mat[2 * 4 + 1];
+		plane[3] = mat[3 * 4 + 1];
+		SetVertexParm(RENDERPARM_TEXGEN_0_T, plane);
+		RENDERLOG_PRINTF("TEXGEN_T = %4.3f, %4.3f, %4.3f, %4.3f\n", plane[0], plane[1], plane[2], plane[3]);
+
+		plane[0] = mat[0 * 4 + 3];
+		plane[1] = mat[1 * 4 + 3];
+		plane[2] = mat[2 * 4 + 3];
+		plane[3] = mat[3 * 4 + 3];
+		SetVertexParm(RENDERPARM_TEXGEN_0_Q, plane);
+		RENDERLOG_PRINTF("TEXGEN_Q = %4.3f, %4.3f, %4.3f, %4.3f\n", plane[0], plane[1], plane[2], plane[3]);
+
+		renderLog.Outdent();
+
+	}
+	else if (pStage->texture.texgen == TG_DIFFUSE_CUBE) {
+
+		// As far as I can tell, this is never used
+		idLib::Warning("Using Diffuse Cube! Please contact Brian!");
+
+	}
+	else if (pStage->texture.texgen == TG_GLASSWARP) {
+
+		// As far as I can tell, this is never used
+		idLib::Warning("Using GlassWarp! Please contact Brian!");
+	}
+
+	SetVertexParm(RENDERPARM_TEXGEN_0_ENABLED, useTexGenParm);
+}
+
+/*
+==================
+RB_FillDepthBufferGeneric
+==================
+*/
+static void RB_FillDepthBufferGeneric(const drawSurf_t* const* drawSurfs, int numDrawSurfs) {
+	for (int i = 0; i < numDrawSurfs; i++) {
+		const drawSurf_t* drawSurf = drawSurfs[i];
+		const idMaterial* shader = drawSurf->material;
+
+		// translucent surfaces don't put anything in the depth buffer and don't
+		// test against it, which makes them fail the mirror clip plane operation
+		if (shader->Coverage() == MC_TRANSLUCENT) {
+			continue;
+		}
+
+		// get the expressions for conditionals / color / texcoords
+		const float* regs = drawSurf->shaderRegisters;
+
+		// if all stages of a material have been conditioned off, don't do anything
+		int stage = 0;
+		for (; stage < shader->GetNumStages(); stage++) {
+			const shaderStage_t* pStage = shader->GetStage(stage);
+			// check the stage enable condition
+			if (regs[pStage->conditionRegister] != 0) {
+				break;
+			}
+		}
+		if (stage == shader->GetNumStages()) {
+			continue;
+		}
+
+		// change the matrix if needed
+		if (drawSurf->space != backEnd.currentSpace) {
+			RB_SetMVP(drawSurf->space->mvp);
+
+			backEnd.currentSpace = drawSurf->space;
+		}
+
+		uint64 surfGLState = 0;
+
+		// set polygon offset if necessary
+		if (shader->TestMaterialFlag(MF_POLYGONOFFSET)) {
+			surfGLState |= GLS_POLYGON_OFFSET;
+			GL_PolygonOffset(r_offsetFactor.GetFloat(), r_offsetUnits.GetFloat() * shader->GetPolygonOffset());
+		}
+
+		// subviews will just down-modulate the color buffer
+		float color[4];
+		if (shader->GetSort() == SS_SUBVIEW) {
+			surfGLState |= GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO | GLS_DEPTHFUNC_LESS;
+			color[0] = 1.0f;
+			color[1] = 1.0f;
+			color[2] = 1.0f;
+			color[3] = 1.0f;
+		}
+		else {
+			// others just draw black
+			color[0] = 0.0f;
+			color[1] = 0.0f;
+			color[2] = 0.0f;
+			color[3] = 1.0f;
+		}
+
+		renderLog.OpenBlock(shader->GetName());
+
+		bool drawSolid = false;
+		if (shader->Coverage() == MC_OPAQUE) {
+			drawSolid = true;
+		}
+		else if (shader->Coverage() == MC_PERFORATED) {
+			// we may have multiple alpha tested stages
+			// if the only alpha tested stages are condition register omitted,
+			// draw a normal opaque surface
+			bool didDraw = false;
+
+			// perforated surfaces may have multiple alpha tested stages
+			for (stage = 0; stage < shader->GetNumStages(); stage++) {
+				const shaderStage_t* pStage = shader->GetStage(stage);
+
+				if (!pStage->hasAlphaTest) {
+					continue;
+				}
+
+				// check the stage enable condition
+				if (regs[pStage->conditionRegister] == 0) {
+					continue;
+				}
+
+				// if we at least tried to draw an alpha tested stage,
+				// we won't draw the opaque surface
+				didDraw = true;
+
+				// set the alpha modulate
+				color[3] = regs[pStage->color.registers[3]];
+
+				// skip the entire stage if alpha would be black
+				if (color[3] <= 0.0f) {
+					continue;
+				}
+
+				uint64 stageGLState = surfGLState;
+
+				// set privatePolygonOffset if necessary
+				if (pStage->privatePolygonOffset) {
+					GL_PolygonOffset(r_offsetFactor.GetFloat(), r_offsetUnits.GetFloat() * pStage->privatePolygonOffset);
+					stageGLState |= GLS_POLYGON_OFFSET;
+				}
+
+				GL_Color(color);
+
+#ifdef USE_CORE_PROFILE
+				GL_State(stageGLState);
+				idVec4 alphaTestValue(regs[pStage->alphaTestRegister]);
+				SetFragmentParm(RENDERPARM_ALPHA_TEST, alphaTestValue.ToFloatPtr());
+#else
+				GL_State(stageGLState | GLS_ALPHATEST_FUNC_GREATER | GLS_ALPHATEST_MAKE_REF(idMath::Ftob(255.0f * regs[pStage->alphaTestRegister])));
+#endif
+
+				if (drawSurf->jointCache) {
+					renderProgManager.BindShader_TextureVertexColorSkinned();
+				}
+				else {
+					renderProgManager.BindShader_TextureVertexColor();
+				}
+
+				RB_SetVertexColorParms(SVC_IGNORE);
+
+				// bind the texture
+				GL_SelectTexture(0);
+				pStage->texture.image->Bind();
+
+				// set texture matrix and texGens
+				RB_PrepareStageTexturing(pStage, drawSurf);
+
+				// must render with less-equal for Z-Cull to work properly
+				assert((GL_GetCurrentState() & GLS_DEPTHFUNC_BITS) == GLS_DEPTHFUNC_LESS);
+
+				// draw it
+				RB_DrawElementsWithCounters(drawSurf);
+
+				// clean up
+				RB_FinishStageTexturing(pStage, drawSurf);
+
+				// unset privatePolygonOffset if necessary
+				if (pStage->privatePolygonOffset) {
+					GL_PolygonOffset(r_offsetFactor.GetFloat(), r_offsetUnits.GetFloat() * shader->GetPolygonOffset());
+				}
+			}
+
+			if (!didDraw) {
+				drawSolid = true;
+			}
+		}
+
+		// draw the entire surface solid
+		if (drawSolid) {
+			if (shader->GetSort() == SS_SUBVIEW) {
+				renderProgManager.BindShader_Color();
+				GL_Color(color);
+				GL_State(surfGLState);
+			}
+			else {
+				if (drawSurf->jointCache) {
+					renderProgManager.BindShader_DepthSkinned();
+				}
+				else {
+					renderProgManager.BindShader_Depth();
+				}
+				GL_State(surfGLState | GLS_ALPHAMASK);
+			}
+
+			// must render with less-equal for Z-Cull to work properly
+			assert((GL_GetCurrentState() & GLS_DEPTHFUNC_BITS) == GLS_DEPTHFUNC_LESS);
+
+			// draw it
+			RB_DrawElementsWithCounters(drawSurf);
+		}
+
+		renderLog.CloseBlock();
+	}
+
+#ifdef USE_CORE_PROFILE
+	SetFragmentParm(RENDERPARM_ALPHA_TEST, vec4_zero.ToFloatPtr());
+#endif
+}
+
+/*
 =====================
 RB_FillDepthBufferFast
 
@@ -229,7 +605,95 @@ on the 360.
 =====================
 */
 static void RB_FillDepthBufferFast(drawSurf_t** drawSurfs, int numDrawSurfs) {
+	// TODO: Run this on it's own commandList so we can fill the rest while running.
+	if (numDrawSurfs == 0) {
+		return;
+	}
+
+	// if we are just doing 2D rendering, no need to fill the depth buffer
+	if (backEnd.viewDef->viewEntitys == NULL) {
+		return;
+	}
+
+	renderLog.OpenMainBlock(MRB_FILL_DEPTH_BUFFER);
+	renderLog.OpenBlock("RB_FillDepthBufferFast");
+
+	GL_StartDepthPass(backEnd.viewDef->scissor);
+
+	// force MVP change on first surface
+	backEnd.currentSpace = NULL;
+
+	// draw all the subview surfaces, which will already be at the start of the sorted list,
+	// with the general purpose path
 	GL_State(GLS_DEFAULT);
+
+	int	surfNum;
+	for (surfNum = 0; surfNum < numDrawSurfs; surfNum++) {
+		if (drawSurfs[surfNum]->material->GetSort() != SS_SUBVIEW) {
+			break;
+		}
+		RB_FillDepthBufferGeneric(&drawSurfs[surfNum], 1);
+	}
+
+	const drawSurf_t** perforatedSurfaces = (const drawSurf_t**)_alloca(numDrawSurfs * sizeof(drawSurf_t*));
+	int numPerforatedSurfaces = 0;
+
+	// draw all the opaque surfaces and build up a list of perforated surfaces that
+	// we will defer drawing until all opaque surfaces are done
+	GL_State(GLS_DEFAULT);
+
+	// continue checking past the subview surfaces
+	for (; surfNum < numDrawSurfs; surfNum++) {
+		const drawSurf_t* surf = drawSurfs[surfNum];
+		const idMaterial* shader = surf->material;
+
+		// translucent surfaces don't put anything in the depth buffer
+		if (shader->Coverage() == MC_TRANSLUCENT) {
+			continue;
+		}
+		if (shader->Coverage() == MC_PERFORATED) {
+			// save for later drawing
+			perforatedSurfaces[numPerforatedSurfaces] = surf;
+			numPerforatedSurfaces++;
+			continue;
+		}
+
+		// set polygon offset?
+
+		// set mvp matrix
+		if (surf->space != backEnd.currentSpace) {
+			RB_SetMVP(surf->space->mvp);
+			backEnd.currentSpace = surf->space;
+		}
+
+		renderLog.OpenBlock(shader->GetName());
+
+		if (surf->jointCache) {
+			renderProgManager.BindShader_DepthSkinned();
+		}
+		else {
+			renderProgManager.BindShader_Depth();
+		}
+
+		// must render with less-equal for Z-Cull to work properly
+		assert((GL_GetCurrentState() & GLS_DEPTHFUNC_BITS) == GLS_DEPTHFUNC_LESS);
+
+		// draw it solid
+		RB_DrawElementsWithCounters(surf);
+
+		renderLog.CloseBlock();
+	}
+
+	// draw all perforated surfaces with the general code path
+	if (numPerforatedSurfaces > 0) {
+		RB_FillDepthBufferGeneric(perforatedSurfaces, numPerforatedSurfaces);
+	}
+
+	// Allow platform specific data to be collected after the depth pass.
+	GL_FinishDepthPass();
+
+	renderLog.CloseBlock();
+	renderLog.CloseMainBlock();
 }
 
 /*
@@ -480,163 +944,6 @@ static void RB_BindVariableStageImage(const textureStage_t* texture, const float
 			texture->image->Bind();
 		}
 	}
-}
-
-/*
-================
-RB_PrepareStageTexturing
-================
-*/
-static void RB_PrepareStageTexturing(const shaderStage_t* pStage, const drawSurf_t* surf) {
-	float useTexGenParm[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-
-	// set the texture matrix if needed
-	RB_LoadShaderTextureMatrix(surf->shaderRegisters, &pStage->texture);
-
-	// texgens
-	if (pStage->texture.texgen == TG_REFLECT_CUBE) {
-
-		// see if there is also a bump map specified
-		const shaderStage_t* bumpStage = surf->material->GetBumpStage();
-		if (bumpStage != NULL) {
-			// per-pixel reflection mapping with bump mapping
-			// TODO: Note this for futer RTX reflections
-			GL_SelectTexture(1);
-			bumpStage->texture.image->Bind();
-			GL_SelectTexture(0);
-
-			RENDERLOG_PRINTF("TexGen: TG_REFLECT_CUBE: Bumpy Environment\n");
-			if (surf->jointCache) {
-				renderProgManager.BindShader_BumpyEnvironmentSkinned();
-			}
-			else {
-				renderProgManager.BindShader_BumpyEnvironment();
-			}
-		}
-		else {
-			RENDERLOG_PRINTF("TexGen: TG_REFLECT_CUBE: Environment\n");
-			if (surf->jointCache) {
-				renderProgManager.BindShader_EnvironmentSkinned();
-			}
-			else {
-				renderProgManager.BindShader_Environment();
-			}
-		}
-
-	}
-	else if (pStage->texture.texgen == TG_SKYBOX_CUBE) {
-
-		renderProgManager.BindShader_SkyBox();
-
-	}
-	else if (pStage->texture.texgen == TG_WOBBLESKY_CUBE) {
-
-		const int* parms = surf->material->GetTexGenRegisters();
-
-		float wobbleDegrees = surf->shaderRegisters[parms[0]] * (idMath::PI / 180.0f);
-		float wobbleSpeed = surf->shaderRegisters[parms[1]] * (2.0f * idMath::PI / 60.0f);
-		float rotateSpeed = surf->shaderRegisters[parms[2]] * (2.0f * idMath::PI / 60.0f);
-
-		idVec3 axis[3];
-		{
-			// very ad-hoc "wobble" transform
-			float s, c;
-			idMath::SinCos(wobbleSpeed * backEnd.viewDef->renderView.time[0] * 0.001f, s, c);
-
-			float ws, wc;
-			idMath::SinCos(wobbleDegrees, ws, wc);
-
-			axis[2][0] = ws * c;
-			axis[2][1] = ws * s;
-			axis[2][2] = wc;
-
-			axis[1][0] = -s * s * ws;
-			axis[1][2] = -s * ws * ws;
-			axis[1][1] = idMath::Sqrt(idMath::Fabs(1.0f - (axis[1][0] * axis[1][0] + axis[1][2] * axis[1][2])));
-
-			// make the second vector exactly perpendicular to the first
-			axis[1] -= (axis[2] * axis[1]) * axis[2];
-			axis[1].Normalize();
-
-			// construct the third with a cross
-			axis[0].Cross(axis[1], axis[2]);
-		}
-
-		// add the rotate
-		float rs, rc;
-		idMath::SinCos(rotateSpeed * backEnd.viewDef->renderView.time[0] * 0.001f, rs, rc);
-
-		float transform[12];
-		transform[0 * 4 + 0] = axis[0][0] * rc + axis[1][0] * rs;
-		transform[0 * 4 + 1] = axis[0][1] * rc + axis[1][1] * rs;
-		transform[0 * 4 + 2] = axis[0][2] * rc + axis[1][2] * rs;
-		transform[0 * 4 + 3] = 0.0f;
-
-		transform[1 * 4 + 0] = axis[1][0] * rc - axis[0][0] * rs;
-		transform[1 * 4 + 1] = axis[1][1] * rc - axis[0][1] * rs;
-		transform[1 * 4 + 2] = axis[1][2] * rc - axis[0][2] * rs;
-		transform[1 * 4 + 3] = 0.0f;
-
-		transform[2 * 4 + 0] = axis[2][0];
-		transform[2 * 4 + 1] = axis[2][1];
-		transform[2 * 4 + 2] = axis[2][2];
-		transform[2 * 4 + 3] = 0.0f;
-
-		SetVertexParms(RENDERPARM_WOBBLESKY_X, transform, 3);
-		renderProgManager.BindShader_WobbleSky();
-
-	}
-	else if ((pStage->texture.texgen == TG_SCREEN) || (pStage->texture.texgen == TG_SCREEN2)) {
-
-		useTexGenParm[0] = 1.0f;
-		useTexGenParm[1] = 1.0f;
-		useTexGenParm[2] = 1.0f;
-		useTexGenParm[3] = 1.0f;
-
-		float mat[16];
-		R_MatrixMultiply(surf->space->modelViewMatrix, backEnd.viewDef->projectionMatrix, mat);
-
-		RENDERLOG_PRINTF("TexGen : %s\n", (pStage->texture.texgen == TG_SCREEN) ? "TG_SCREEN" : "TG_SCREEN2");
-		renderLog.Indent();
-
-		float plane[4];
-		plane[0] = mat[0 * 4 + 0];
-		plane[1] = mat[1 * 4 + 0];
-		plane[2] = mat[2 * 4 + 0];
-		plane[3] = mat[3 * 4 + 0];
-		SetVertexParm(RENDERPARM_TEXGEN_0_S, plane);
-		RENDERLOG_PRINTF("TEXGEN_S = %4.3f, %4.3f, %4.3f, %4.3f\n", plane[0], plane[1], plane[2], plane[3]);
-
-		plane[0] = mat[0 * 4 + 1];
-		plane[1] = mat[1 * 4 + 1];
-		plane[2] = mat[2 * 4 + 1];
-		plane[3] = mat[3 * 4 + 1];
-		SetVertexParm(RENDERPARM_TEXGEN_0_T, plane);
-		RENDERLOG_PRINTF("TEXGEN_T = %4.3f, %4.3f, %4.3f, %4.3f\n", plane[0], plane[1], plane[2], plane[3]);
-
-		plane[0] = mat[0 * 4 + 3];
-		plane[1] = mat[1 * 4 + 3];
-		plane[2] = mat[2 * 4 + 3];
-		plane[3] = mat[3 * 4 + 3];
-		SetVertexParm(RENDERPARM_TEXGEN_0_Q, plane);
-		RENDERLOG_PRINTF("TEXGEN_Q = %4.3f, %4.3f, %4.3f, %4.3f\n", plane[0], plane[1], plane[2], plane[3]);
-
-		renderLog.Outdent();
-
-	}
-	else if (pStage->texture.texgen == TG_DIFFUSE_CUBE) {
-
-		// As far as I can tell, this is never used
-		idLib::Warning("Using Diffuse Cube! Please contact Brian!");
-
-	}
-	else if (pStage->texture.texgen == TG_GLASSWARP) {
-
-		// As far as I can tell, this is never used
-		idLib::Warning("Using GlassWarp! Please contact Brian!");
-	}
-
-	SetVertexParm(RENDERPARM_TEXGEN_0_ENABLED, useTexGenParm);
 }
 
 /*
@@ -1342,6 +1649,10 @@ static void RB_DrawInteractions() {
 		return;
 	}
 
+	dxRenderer.StartCommandList(0);
+	dxRenderer.StartCommandList(1);
+	UINT commandIndex = 1;
+
 	renderLog.OpenMainBlock(MRB_DRAW_INTERACTIONS);
 	renderLog.OpenBlock("RB_DrawInteractions");
 
@@ -1354,6 +1665,9 @@ static void RB_DrawInteractions() {
 	// for each light, perform shadowing and adding
 	//
 	for (const viewLight_t* vLight = backEnd.viewDef->viewLights; vLight != NULL; vLight = vLight->next) {
+		commandIndex = (commandIndex + 1) % 2;
+		dxRenderer.SelectCommandList(commandIndex);
+
 		// do fogging later
 		if (vLight->lightShader->IsFogLight()) {
 			continue;
@@ -1470,6 +1784,8 @@ static void RB_DrawInteractions() {
 	if (useLightDepthBounds) {
 		GL_DepthBoundsTest(0.0f, 0.0f);
 	}
+
+	dxRenderer.ExecuteCommandList(0, 2);
 
 	renderLog.CloseBlock();
 	renderLog.CloseMainBlock();
@@ -2251,7 +2567,7 @@ void RB_DrawViewInternal(const viewDef_t* viewDef, const int stereoEye) {
 	GL_Clear(false, true, true, STENCIL_SHADOW_TEST_VALUE, 0.0f, 0.0f, 0.0f, 0.0f); //TODO: We need to properly implement this.
 
 	// normal face culling
-	GL_Cull(CT_FRONT_SIDED); //TODO: We need to implement this.
+	GL_Cull(CT_FRONT_SIDED);
 
 	// TODO: Implement
 	//------------------------------------
@@ -2289,12 +2605,14 @@ void RB_DrawViewInternal(const viewDef_t* viewDef, const int stereoEye) {
 	//-------------------------------------------------
 	// fill the depth buffer and clear color buffer to black except on subviews
 	//-------------------------------------------------
-	RB_FillDepthBufferFast(drawSurfs, numDrawSurfs); //TODO: Implement
+	RB_FillDepthBufferFast(drawSurfs, numDrawSurfs);
+	dxRenderer.ExecuteCommandList(2, 1);
 
 	//-------------------------------------------------
 	// main light renderer
 	//-------------------------------------------------
 	RB_DrawInteractions();
+	dxRenderer.StartCommandList(2);
 
 	//-------------------------------------------------
 	// now draw any non-light dependent shading passes
@@ -2313,12 +2631,16 @@ void RB_DrawViewInternal(const viewDef_t* viewDef, const int stereoEye) {
 		processed = RB_DrawShaderPasses(drawSurfs, numDrawSurfs, guiScreenOffset, stereoEye);
 		renderLog.CloseMainBlock();
 	}
+	dxRenderer.ExecuteCommandList(2, 1);
+	dxRenderer.StartCommandList(3);
 
 	//-------------------------------------------------
 	// fog and blend lights, drawn after emissive surfaces
 	// so they are properly dimmed down
 	//-------------------------------------------------
 	RB_FogAllLights();
+	dxRenderer.ExecuteCommandList(3, 1);
+	dxRenderer.StartCommandList(4);
 
 	//-------------------------------------------------
 		// capture the depth for the motion blur before rendering any post process surfaces that may contribute to the depth
@@ -2436,7 +2758,7 @@ void RB_ExecuteBackEndCommands(const emptyCommand_t* cmds) {
 
 	uint64 backEndStartTime = Sys_Microseconds();
 
-	dxRenderer.BeginDraw();
+	dxRenderer.BeginDraw(2);
 	GL_SetDefaultState();
 
 	for (; cmds != NULL; cmds = (const emptyCommand_t*)cmds->next) {

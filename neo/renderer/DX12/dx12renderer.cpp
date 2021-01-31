@@ -87,29 +87,6 @@ void FailMessage(LPCSTR message) {
 	common->Error(message);
 }
 
-void ThrowIfFailed(HRESULT hr)
-{
-	if (FAILED(hr))
-	{
-		_com_error err(hr);
-		// Set a breakpoint on this line to catch DirectX API errors
-		FailMessage(err.ErrorMessage());
-	}
-}
-
-bool WarnIfFailed(HRESULT hr)
-{
-	if (FAILED(hr))
-	{
-		_com_error err(hr);
-		// Set a breakpoint on this line to catch DirectX API errors
-		common->Warning(err.ErrorMessage());
-		return false;
-	}
-
-	return true;
-}
-
 void GetHardwareAdapter(IDXGIFactory4* pFactory, IDXGIAdapter1** ppAdapter) {
 	*ppAdapter = nullptr;
 
@@ -143,6 +120,30 @@ DX12Renderer::DX12Renderer() :
 
 DX12Renderer::~DX12Renderer() {
 	OnDestroy();
+}
+
+void DX12Renderer::ThrowIfFailed(HRESULT hr)
+{
+	if (FAILED(hr))
+	{
+		_com_error err(hr);
+		_com_error errDev(m_device->GetDeviceRemovedReason());
+		// Set a breakpoint on this line to catch DirectX API errors
+		FailMessage(err.ErrorMessage());
+	}
+}
+
+bool DX12Renderer::WarnIfFailed(HRESULT hr)
+{
+	if (FAILED(hr))
+	{
+		_com_error err(hr);
+		// Set a breakpoint on this line to catch DirectX API errors
+		common->Warning(err.ErrorMessage());
+		return false;
+	}
+
+	return true;
 }
 
 void DX12Renderer::Init(HWND hWnd) {
@@ -355,7 +356,7 @@ void DX12Renderer::SetActivePipelineState(ID3D12PipelineState* pPipelineState) {
 		m_activePipelineState = pPipelineState;
 
 		if (m_isDrawing) {
-			m_commandList->SetPipelineState(pPipelineState);
+			m_activeCommandList->SetPipelineState(pPipelineState);
 		}
 	}
 }
@@ -412,11 +413,16 @@ void DX12Renderer::LoadAssets() {
 		ThrowIfFailed(m_device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&m_rootsSignature)));
 	}
 
-	// Create the Command List
-	ThrowIfFailed(m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator.Get(), NULL, IID_PPV_ARGS(&m_commandList)));
-	ThrowIfFailed(m_commandList->Close());
+	// Create the Command Lists
+	for (int cmdList = 0; cmdList < COMMAND_LIST_COUNT; ++cmdList) {
+		ThrowIfFailed(m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator.Get(), NULL, IID_PPV_ARGS(&m_commandList[cmdList])));
+		ThrowIfFailed(m_commandList[cmdList]->Close());
 
-	m_commandList->SetName(L"Main Graphics Command List");
+		WCHAR nameDest[16];
+		wsprintfW(nameDest, L"Command List %d", cmdList);
+
+		m_commandList[cmdList]->SetName(static_cast<LPCWSTR>(nameDest));
+	}
 
 	{
 		// Create the texture upload heap.
@@ -516,7 +522,48 @@ void DX12Renderer::WaitForPreviousFrame() {
 	m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
 }
 
-void DX12Renderer::BeginDraw() {
+void DX12Renderer::StartCommandList(UINT index) {
+	SelectCommandList(index);
+
+	ThrowIfFailed(m_activeCommandList->Reset(m_commandAllocator.Get(), m_activePipelineState));
+	m_activeCommandList->SetGraphicsRootSignature(m_rootsSignature.Get());
+
+	// Indicate that we will be rendering to the back buffer
+	m_activeCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
+
+	m_activeCommandList->RSSetViewports(1, &m_viewport);
+	m_activeCommandList->RSSetScissorRects(1, &m_scissorRect);
+
+	m_activeCommandList->OMSetStencilRef(m_stencilRef);
+
+	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), m_frameIndex, m_rtvDescriptorSize);
+	CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
+	m_activeCommandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
+
+	// Setup the initial heap location
+	m_cbvHeapIndex = 0;
+	m_activeCommandList->SetDescriptorHeaps(1, m_cbvHeap[m_frameIndex].GetAddressOf());
+}
+
+void DX12Renderer::SelectCommandList(UINT index) {
+	assert(index < COMMAND_LIST_COUNT);
+
+	m_activeCommandListIndex = index;
+	m_activeCommandList = m_commandList[index].Get();
+}
+
+void DX12Renderer::ExecuteCommandList(UINT startIndex, const UINT commandListCount) {
+	//TODO: Implement better version.
+	ID3D12CommandList* ppCommandLists[COMMAND_LIST_COUNT];
+	for (int i = 0; i < commandListCount; ++i) {
+		ThrowIfFailed(m_commandList[startIndex + i]->Close());
+		ppCommandLists[i] = m_commandList[startIndex + i].Get();
+	}
+
+	m_commandQueue->ExecuteCommandLists(commandListCount, ppCommandLists);
+}
+
+void DX12Renderer::BeginDraw(UINT startingCommandList) {
 	if (m_isDrawing || !m_initialized) {
 		return;
 	}
@@ -525,24 +572,7 @@ void DX12Renderer::BeginDraw() {
 
 	m_isDrawing = true;
 	ThrowIfFailed(m_commandAllocator->Reset()); //TODO: Change to warning
-	ThrowIfFailed(m_commandList->Reset(m_commandAllocator.Get(), m_activePipelineState));
-	m_commandList->SetGraphicsRootSignature(m_rootsSignature.Get());
-
-	// Indicate that we will be rendering to the back buffer
-	m_commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
-
-	m_commandList->RSSetViewports(1, &m_viewport);
-	m_commandList->RSSetScissorRects(1, &m_scissorRect);
-
-	m_commandList->OMSetStencilRef(m_stencilRef);
-
-	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), m_frameIndex, m_rtvDescriptorSize);
-	CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
-	m_commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
-
-	// Setup the initial heap location
-	m_cbvHeapIndex = 0;
-	m_commandList->SetDescriptorHeaps(1, m_cbvHeap[m_frameIndex].GetAddressOf());
+	StartCommandList(startingCommandList);
 }
 
 void DX12Renderer::EndDraw() {
@@ -551,13 +581,9 @@ void DX12Renderer::EndDraw() {
 	}
 
 	// present the backbuffer
-	m_commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
+	m_activeCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_frameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 
-	ThrowIfFailed(m_commandList->Close());
-
-	// Execute the command list
-	ID3D12CommandList* ppCommandLists[] = { m_commandList.Get() };
-	m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+	ExecuteCommandList(m_activeCommandListIndex, 1);
 
 	m_isDrawing = false;
 }
@@ -565,7 +591,7 @@ void DX12Renderer::EndDraw() {
 UINT DX12Renderer::StartSurfaceSettings() {
 	assert(m_isDrawing);
 
-	++m_cbvHeapIndex;
+	//++m_cbvHeapIndex;
 
 	assert(m_cbvHeapIndex < MAX_HEAP_OBJECT_COUNT);
 
@@ -599,7 +625,9 @@ void DX12Renderer::EndSurfaceSettings() {
 	// Define the Descriptor Table to use.
 	UINT descriptorIndex = m_cbvHeapIndex << MAX_DESCRIPTOR_TWO_POWER; // Descriptor Table Location
 	CD3DX12_GPU_DESCRIPTOR_HANDLE descriptorTableHandle(m_cbvHeap[m_frameIndex]->GetGPUDescriptorHandleForHeapStart(), descriptorIndex, m_cbvHeapIncrementor);
-	m_commandList->SetGraphicsRootDescriptorTable(0, descriptorTableHandle);
+	m_activeCommandList->SetGraphicsRootDescriptorTable(0, descriptorTableHandle);
+
+	++m_cbvHeapIndex;
 }
 
 void DX12Renderer::PresentBackbuffer() {
@@ -614,12 +642,12 @@ void DX12Renderer::DrawModel(DX12VertexBuffer* vertexBuffer, UINT vertexOffset, 
 
 	D3D12_INDEX_BUFFER_VIEW indecies = indexBuffer->indexBufferView;
 
-	m_commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	m_commandList->IASetVertexBuffers(0, 1, &vertecies);
-	m_commandList->IASetIndexBuffer(&indecies);
+	m_activeCommandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	m_activeCommandList->IASetVertexBuffers(0, 1, &vertecies);
+	m_activeCommandList->IASetIndexBuffer(&indecies);
 
 	// Draw the model
-	m_commandList->DrawIndexedInstanced(indexCount, 1, indexOffset, vertexOffset, 0); // TODO: Multiply by 16 for index?
+	m_activeCommandList->DrawIndexedInstanced(indexCount, 1, indexOffset, vertexOffset, 0); // TODO: Multiply by 16 for index?
 }
 
 void DX12Renderer::Clear(bool color, bool depth, bool stencil, byte stencilValue, float* colorRGBA) {
@@ -632,7 +660,7 @@ void DX12Renderer::Clear(bool color, bool depth, bool stencil, byte stencilValue
 	
 
 	if (color) {
-		m_commandList->ClearRenderTargetView(rtvHandle, colorRGBA, 0, nullptr);
+		m_activeCommandList->ClearRenderTargetView(rtvHandle, colorRGBA, 0, nullptr);
 	}
 
 	if (depth) {
@@ -646,7 +674,7 @@ void DX12Renderer::Clear(bool color, bool depth, bool stencil, byte stencilValue
 
 	if (clearFlags > 0) {
 		CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle(m_dsvHeap->GetCPUDescriptorHandleForHeapStart());
-		m_commandList->ClearDepthStencilView(dsvHandle, static_cast<D3D12_CLEAR_FLAGS>(clearFlags), 1.0f, stencilValue, 0, nullptr);
+		m_activeCommandList->ClearDepthStencilView(dsvHandle, static_cast<D3D12_CLEAR_FLAGS>(clearFlags), 1.0f, stencilValue, 0, nullptr);
 	}
 }
 
@@ -669,15 +697,17 @@ bool DX12Renderer::SetScreenParams(UINT width, UINT height, int fullscreen)
 	// TODO: Find the correct window.
 	//m_swapChain->SetFullscreenState(true, NULL);
 
+	// TODO: HANDLE THIS WHILE DRAWING.
 	if (m_device && m_swapChain && m_commandAllocator) {
 		WaitForPreviousFrame();
+		SelectCommandList(0);
 
 		if (FAILED(m_commandAllocator->Reset())) {
 			common->Warning("DX12Renderer::SetScreenParams: Error resetting command allocator.");
 			return false;
 		}
 
-		if (FAILED(m_commandList->Reset(m_commandAllocator.Get(), nullptr))) {
+		if (FAILED(m_activeCommandList->Reset(m_commandAllocator.Get(), nullptr))) {
 			common->Warning("DX12Renderer::SetScreenParams: Error resetting command list.");
 			return false;
 		}
@@ -698,11 +728,11 @@ bool DX12Renderer::SetScreenParams(UINT width, UINT height, int fullscreen)
 		UpdateViewport(0.0f, 0.0f, width, height);
 		UpdateScissorRect(0, 0, static_cast<LONG>(width), static_cast<LONG>(height));
 
-		if (FAILED(m_commandList->Close())) {
+		if (FAILED(m_activeCommandList->Close())) {
 			return false;
 		}
 
-		ID3D12CommandList* ppCommandLists[] = { m_commandList.Get() };
+		ID3D12CommandList* ppCommandLists[] = { m_activeCommandList };
 		m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 	}
 	else {
@@ -732,7 +762,7 @@ void DX12Renderer::UpdateScissorRect(LONG left, LONG top, LONG right, LONG botto
 	m_scissorRect.bottom = bottom;
 
 	if (m_isDrawing) {
-		m_commandList->RSSetScissorRects(1, &m_scissorRect);
+		m_activeCommandList->RSSetScissorRects(1, &m_scissorRect);
 	}
 }
 
@@ -741,7 +771,7 @@ void DX12Renderer::UpdateStencilRef(UINT ref) {
 		m_stencilRef = ref;
 
 		if (m_isDrawing) {
-			m_commandList->OMSetStencilRef(ref);
+			m_activeCommandList->OMSetStencilRef(ref);
 		}
 	}
 }
@@ -813,29 +843,29 @@ void DX12Renderer::SetTextureContent(DX12TextureBuffer* buffer, const UINT mipLe
 			return;
 		}
 
-		if (FAILED(m_commandList->Reset(m_commandAllocator.Get(), nullptr))) {
+		if (FAILED(m_activeCommandList->Reset(m_commandAllocator.Get(), nullptr))) {
 			common->Warning("Could not reset command list.");
 			return;
 		}
 	}
 	
 	if (buffer->usageState == D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE) {
-		m_commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(buffer->textureBuffer.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COPY_DEST));
+		m_activeCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(buffer->textureBuffer.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COPY_DEST));
 		buffer->usageState = D3D12_RESOURCE_STATE_COPY_DEST;
 	}
 
-	UpdateSubresources(m_commandList.Get(), buffer->textureBuffer.Get(), m_textureBufferUploadHeap.Get(), 0, mipLevel, 1, &textureData);
+	UpdateSubresources(m_activeCommandList, buffer->textureBuffer.Get(), m_textureBufferUploadHeap.Get(), 0, mipLevel, 1, &textureData);
 
-	m_commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(buffer->textureBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
+	m_activeCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(buffer->textureBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
 	buffer->usageState = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 
 	if (runCommandList) {
-		if (FAILED(m_commandList->Close())) {
+		if (FAILED(m_activeCommandList->Close())) {
 			common->Warning("Could not close command list.");
 		}
 
 		// Execute the command list
-		ID3D12CommandList* ppCommandLists[] = { m_commandList.Get() };
+		ID3D12CommandList* ppCommandLists[] = { m_activeCommandList };
 		m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 	}
 }
