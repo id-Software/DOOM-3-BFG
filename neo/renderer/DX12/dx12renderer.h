@@ -15,6 +15,9 @@
 #pragma comment (lib, "dxgi.lib")
 #pragma comment (lib, "dxcompiler.lib")
 
+// Use D3D clip space.
+#define CLIP_SPACE_D3D
+
 #define BUFFER_RGB 0x01
 #define BUFFER_STENCIL 0x02
 
@@ -85,7 +88,7 @@ public:
 	virtual bool SetScreenParams(UINT width, UINT height, int fullscreen);
 	virtual void OnDestroy();
 
-	void UpdateViewport(FLOAT topLeftX, FLOAT topLeftY, FLOAT width, FLOAT height, FLOAT minDepth = -1.0f, FLOAT maxDepth = 0.0f); // Used to put us into right hand depth space.
+	void UpdateViewport(FLOAT topLeftX, FLOAT topLeftY, FLOAT width, FLOAT height, FLOAT minDepth = D3D12_DEFAULT_VIEWPORT_MIN_DEPTH, FLOAT maxDepth = D3D12_DEFAULT_VIEWPORT_MAX_DEPTH); // Used to put us into right hand depth space.
 	void UpdateScissorRect(LONG left, LONG top, LONG right, LONG bottom);
 	void UpdateStencilRef(UINT ref);
 
@@ -115,13 +118,12 @@ public:
 	void SetTexture(const DX12TextureBuffer* buffer);
 
 	// Draw commands
-	void BeginDraw(UINT startingCommandList);
+	void BeginDraw();
 	void Clear(bool color, bool depth, bool stencil, byte stencilValue, float* colorRGBA);
 	void EndDraw();
 	void PresentBackbuffer();
-	void StartCommandList(UINT index);
-	void SelectCommandList(UINT index);
-	void ExecuteCommandList(UINT startIndex, const UINT commandListCount);
+	void ResetCommandList(bool waitForBackBuffer = false);
+	void ExecuteCommandList();
 	UINT StartSurfaceSettings(); // Starts a new heap entry for the surface.
 	void EndSurfaceSettings(); // Records the the surface entry into the heap.
 	void DrawModel(DX12VertexBuffer* vertexBuffer, UINT vertexOffset, DX12IndexBuffer* indexBuffer, UINT indexOffset, UINT indexCount);
@@ -149,7 +151,7 @@ private:
 	ComPtr<ID3D12Resource> m_renderTargets[FrameCount];
 	ComPtr<ID3D12CommandAllocator> m_commandAllocator;
 	ComPtr<ID3D12RootSignature> m_rootsSignature;
-    ComPtr<ID3D12GraphicsCommandList> m_commandList[COMMAND_LIST_COUNT];
+    ComPtr<ID3D12GraphicsCommandList> m_commandList;
     ComPtr<ID3D12DescriptorHeap> m_dsvHeap;
 	ComPtr<ID3D12Resource> m_depthBuffer;
 
@@ -160,8 +162,6 @@ private:
 	XMFLOAT4 m_constantBuffer[53];
 	UINT8* m_constantBufferGPUAddress[FrameCount];
 	ID3D12PipelineState* m_activePipelineState = nullptr;
-	UINT m_activeCommandListIndex = 0;
-	ID3D12GraphicsCommandList* m_activeCommandList = nullptr;
 	UINT m_stencilRef = 0;
 
 	// Synchronization

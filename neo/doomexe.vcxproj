@@ -648,8 +648,30 @@
     <None Include="..\base\renderprogs\color.vertex" />
     <None Include="..\base\renderprogs\colorProcess.pixel" />
     <None Include="..\base\renderprogs\colorProcess.vertex" />
-    <None Include="..\base\renderprogs\depth.pixel" />
-    <None Include="..\base\renderprogs\depth.vertex" />
+    <FxCompile Include="..\base\renderprogs\depth.pixel">
+      <FileType>Document</FileType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.1</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">5.1</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.1</ShaderModel>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)/hlsl/%(Filename).ocso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">$(OutDir)/hlsl/%(Filename).ocso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)/hlsl/%(Filename).ocso</ObjectFileOutput>
+    </FxCompile>
+    <FxCompile Include="..\base\renderprogs\depth.vertex">
+      <FileType>Document</FileType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">5.1</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">5.1</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">5.1</ShaderModel>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)/hlsl/%(Filename).vcso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">$(OutDir)/hlsl/%(Filename).vcso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)/hlsl/%(Filename).vcso</ObjectFileOutput>
+    </FxCompile>
     <None Include="..\base\renderprogs\depth_skinned.pixel" />
     <None Include="..\base\renderprogs\depth_skinned.vertex" />
     <None Include="..\base\renderprogs\environment.pixel" />

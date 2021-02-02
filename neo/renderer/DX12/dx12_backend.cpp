@@ -1649,10 +1649,6 @@ static void RB_DrawInteractions() {
 		return;
 	}
 
-	dxRenderer.StartCommandList(0);
-	dxRenderer.StartCommandList(1);
-	UINT commandIndex = 1;
-
 	renderLog.OpenMainBlock(MRB_DRAW_INTERACTIONS);
 	renderLog.OpenBlock("RB_DrawInteractions");
 
@@ -1665,9 +1661,6 @@ static void RB_DrawInteractions() {
 	// for each light, perform shadowing and adding
 	//
 	for (const viewLight_t* vLight = backEnd.viewDef->viewLights; vLight != NULL; vLight = vLight->next) {
-		commandIndex = (commandIndex + 1) % 2;
-		dxRenderer.SelectCommandList(commandIndex);
-
 		// do fogging later
 		if (vLight->lightShader->IsFogLight()) {
 			continue;
@@ -1679,6 +1672,10 @@ static void RB_DrawInteractions() {
 		if (vLight->localInteractions == NULL && vLight->globalInteractions == NULL && vLight->translucentInteractions == NULL) {
 			continue;
 		}
+
+		// Set command list.
+		dxRenderer.ExecuteCommandList();
+		dxRenderer.ResetCommandList();
 
 		const idMaterial* lightShader = vLight->lightShader;
 		renderLog.OpenBlock(lightShader->GetName());
@@ -1784,8 +1781,6 @@ static void RB_DrawInteractions() {
 	if (useLightDepthBounds) {
 		GL_DepthBoundsTest(0.0f, 0.0f);
 	}
-
-	dxRenderer.ExecuteCommandList(0, 2);
 
 	renderLog.CloseBlock();
 	renderLog.CloseMainBlock();
@@ -2606,13 +2601,13 @@ void RB_DrawViewInternal(const viewDef_t* viewDef, const int stereoEye) {
 	// fill the depth buffer and clear color buffer to black except on subviews
 	//-------------------------------------------------
 	RB_FillDepthBufferFast(drawSurfs, numDrawSurfs);
-	dxRenderer.ExecuteCommandList(2, 1);
 
 	//-------------------------------------------------
 	// main light renderer
 	//-------------------------------------------------
 	RB_DrawInteractions();
-	dxRenderer.StartCommandList(2);
+	dxRenderer.ExecuteCommandList();
+	dxRenderer.ResetCommandList();
 
 	//-------------------------------------------------
 	// now draw any non-light dependent shading passes
@@ -2630,17 +2625,16 @@ void RB_DrawViewInternal(const viewDef_t* viewDef, const int stereoEye) {
 		}
 		processed = RB_DrawShaderPasses(drawSurfs, numDrawSurfs, guiScreenOffset, stereoEye);
 		renderLog.CloseMainBlock();
+
+		dxRenderer.ExecuteCommandList();
+		dxRenderer.ResetCommandList();
 	}
-	dxRenderer.ExecuteCommandList(2, 1);
-	dxRenderer.StartCommandList(3);
 
 	//-------------------------------------------------
 	// fog and blend lights, drawn after emissive surfaces
 	// so they are properly dimmed down
 	//-------------------------------------------------
 	RB_FogAllLights();
-	dxRenderer.ExecuteCommandList(3, 1);
-	dxRenderer.StartCommandList(4);
 
 	//-------------------------------------------------
 		// capture the depth for the motion blur before rendering any post process surfaces that may contribute to the depth
@@ -2758,7 +2752,7 @@ void RB_ExecuteBackEndCommands(const emptyCommand_t* cmds) {
 
 	uint64 backEndStartTime = Sys_Microseconds();
 
-	dxRenderer.BeginDraw(2);
+	dxRenderer.BeginDraw();
 	GL_SetDefaultState();
 
 	for (; cmds != NULL; cmds = (const emptyCommand_t*)cmds->next) {
