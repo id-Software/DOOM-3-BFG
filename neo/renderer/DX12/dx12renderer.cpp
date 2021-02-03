@@ -554,7 +554,8 @@ void DX12Renderer::ExecuteCommandList() {
 	}
 
 	//TODO: Implement version for multiple command lists
-	m_commandList->Close();
+	WarnIfFailed(m_commandList->Close());
+
 	ID3D12CommandList* ppCommandLists[] = { m_commandList.Get() };
 	m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 }
@@ -687,9 +688,9 @@ void DX12Renderer::OnDestroy() {
 
 bool DX12Renderer::SetScreenParams(UINT width, UINT height, int fullscreen)
 {
-	if (m_width == width && m_height == height && m_fullScreen == fullscreen) {
+	/*if (m_width == width && m_height == height && m_fullScreen == fullscreen) {
 		return true;
-	}
+	}*/
 	// TODO: Resize buffers as needed.
 
 	m_width = width;
@@ -702,15 +703,17 @@ bool DX12Renderer::SetScreenParams(UINT width, UINT height, int fullscreen)
 
 	// TODO: HANDLE THIS WHILE DRAWING.
 	if (m_device && m_swapChain && m_commandAllocator) {
-		WaitForPreviousFrame();
-		if (FAILED(m_commandAllocator->Reset())) {
-			common->Warning("DX12Renderer::SetScreenParams: Error resetting command allocator.");
-			return false;
-		}
+		if (!m_isDrawing) {
+			WaitForPreviousFrame();
+			if (FAILED(m_commandAllocator->Reset())) {
+				common->Warning("DX12Renderer::SetScreenParams: Error resetting command allocator.");
+				return false;
+			}
 
-		if (FAILED(m_commandList->Reset(m_commandAllocator.Get(), nullptr))) {
-			common->Warning("DX12Renderer::SetScreenParams: Error resetting command list.");
-			return false;
+			if (FAILED(m_commandList->Reset(m_commandAllocator.Get(), nullptr))) {
+				common->Warning("DX12Renderer::SetScreenParams: Error resetting command list.");
+				return false;
+			}
 		}
 
 		for (int frameIndex = 0; frameIndex < FrameCount; ++frameIndex) {
@@ -729,12 +732,15 @@ bool DX12Renderer::SetScreenParams(UINT width, UINT height, int fullscreen)
 		UpdateViewport(0.0f, 0.0f, width, height);
 		UpdateScissorRect(0, 0, static_cast<LONG>(width), static_cast<LONG>(height));
 
-		if (FAILED(m_commandList->Close())) {
-			return false;
-		}
 
-		ID3D12CommandList* ppCommandLists[] = { m_commandList.Get() };
-		m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+		if (!m_isDrawing) {
+			if (FAILED(m_commandList->Close())) {
+				return false;
+			}
+
+			ID3D12CommandList* ppCommandLists[] = { m_commandList.Get() };
+			m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+		}
 	}
 	else {
 		UpdateViewport(0.0f, 0.0f, width, height);

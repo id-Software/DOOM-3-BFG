@@ -1674,8 +1674,8 @@ static void RB_DrawInteractions() {
 		}
 
 		// Set command list.
-		dxRenderer.ExecuteCommandList();
-		dxRenderer.ResetCommandList();
+		//dxRenderer.ExecuteCommandList();
+		//dxRenderer.ResetCommandList();
 
 		const idMaterial* lightShader = vLight->lightShader;
 		renderLog.OpenBlock(lightShader->GetName());
@@ -2480,6 +2480,9 @@ void RB_DrawElementsWithCounters(const drawSurf_t* surf) {
 		indexOffset >> 1, // TODO: Figure out why we need to divide by 2. Is it because we are going from an int to a short?
 		r_singleTriangle.GetBool() ? 3 : surf->numIndexes);
 
+	dxRenderer.ExecuteCommandList();
+	dxRenderer.ResetCommandList();
+
 	/*if (backEnd.glState.currentIndexBuffer != (GLuint)indexBuffer->GetAPIObject() || !r_useStateCaching.GetBool()) {
 		qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, (GLuint)indexBuffer->GetAPIObject());
 		backEnd.glState.currentIndexBuffer = (GLuint)indexBuffer->GetAPIObject();
@@ -2606,8 +2609,8 @@ void RB_DrawViewInternal(const viewDef_t* viewDef, const int stereoEye) {
 	// main light renderer
 	//-------------------------------------------------
 	RB_DrawInteractions();
-	dxRenderer.ExecuteCommandList();
-	dxRenderer.ResetCommandList();
+	//dxRenderer.ExecuteCommandList();
+	//dxRenderer.ResetCommandList();
 
 	//-------------------------------------------------
 	// now draw any non-light dependent shading passes
@@ -2626,8 +2629,8 @@ void RB_DrawViewInternal(const viewDef_t* viewDef, const int stereoEye) {
 		processed = RB_DrawShaderPasses(drawSurfs, numDrawSurfs, guiScreenOffset, stereoEye);
 		renderLog.CloseMainBlock();
 
-		dxRenderer.ExecuteCommandList();
-		dxRenderer.ResetCommandList();
+		//dxRenderer.ExecuteCommandList();
+		//dxRenderer.ResetCommandList();
 	}
 
 	//-------------------------------------------------
