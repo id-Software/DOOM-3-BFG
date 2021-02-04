@@ -896,7 +896,7 @@ CONSOLE_COMMAND( generateEnvironmentProbes, "Generate environment probes", NULL 
 	cvarSystem->SetCVarInteger( "r_windowHeight", res_h );
 	R_SetNewMode( false ); // the same as "vid_restart"
 
-	common->Printf( "Wrote a env set with the name %s\n", baseName );
+    common->Printf( "Wrote a env set with the name %s\n", baseName.c_str() );
 
 	//--------------------------------------------
 	// CONVOLVE CUBEMAPS
