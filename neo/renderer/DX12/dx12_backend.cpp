@@ -2567,7 +2567,6 @@ void RB_DrawViewInternal(const viewDef_t* viewDef, const int stereoEye) {
 	// normal face culling
 	GL_Cull(CT_FRONT_SIDED);
 
-	// TODO: Implement
 	//------------------------------------
 	// sets variables that can be used by all programs
 	//------------------------------------

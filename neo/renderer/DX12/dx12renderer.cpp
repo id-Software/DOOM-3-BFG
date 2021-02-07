@@ -98,6 +98,8 @@ void GetHardwareAdapter(IDXGIFactory4* pFactory, IDXGIAdapter1** ppAdapter) {
 		}
 
 		//TODO: Select the appropriate monitor.
+		DXGI_ADAPTER_DESC1 desc;
+		pAdapter->GetDesc1(&desc);
 
 		// Check to see if the adapter supports Direct3D 12
 		if (SUCCEEDED(D3D12CreateDevice(pAdapter, D3D_FEATURE_LEVEL_12_1, _uuidof(ID3D12Device), nullptr))) {
@@ -607,10 +609,13 @@ void DX12Renderer::EndSurfaceSettings() {
 
 	DX12_ActivatePipelineState();
 
+	const UINT descriptorIndex = m_cbvHeapIndex << MAX_DESCRIPTOR_TWO_POWER;
+	UINT currentDescriptorIndex = descriptorIndex;
+	
 	// Copy the CBV value to the upload heap
 	UINT8* buffer;
 	CD3DX12_RANGE readRange(0, 0);
-	UINT offset = ((sizeof(m_constantBuffer) + 255) & ~255) * m_cbvHeapIndex; // Each entry is 256 byte aligned.
+	UINT offset = ((sizeof(m_constantBuffer) + 255) & ~255)* m_cbvHeapIndex; // Each entry is 256 byte aligned.
 	ThrowIfFailed(m_cbvUploadHeap[m_frameIndex]->Map(0, &readRange, reinterpret_cast<void**>(&buffer)));
 	memcpy(&buffer[offset], &m_constantBuffer, sizeof(m_constantBuffer));
 	m_cbvUploadHeap[m_frameIndex]->Unmap(0, nullptr);
@@ -618,14 +623,15 @@ void DX12Renderer::EndSurfaceSettings() {
 	// Copy the Textures
 	const DX12TextureBuffer* currentTexture;
 	for (UINT index = 0; index < TEXTURE_REGISTER_COUNT && (currentTexture = m_activeTextures[index]) != nullptr; ++index) {
-		UINT descriptorIndex = (m_cbvHeapIndex << MAX_DESCRIPTOR_TWO_POWER) + 1 + index; // (Descriptor Table Location) + (CBV Location) + (Texture Register Offset)
-		CD3DX12_CPU_DESCRIPTOR_HANDLE textureHandle(m_cbvHeap[m_frameIndex]->GetCPUDescriptorHandleForHeapStart(), descriptorIndex, m_cbvHeapIncrementor);
+		++currentDescriptorIndex;
+
+		//UINT descriptorIndex = (m_cbvHeapIndex << MAX_DESCRIPTOR_TWO_POWER) + 1 + index; // (Descriptor Table Location) + (CBV Location) + (Texture Register Offset)
+		CD3DX12_CPU_DESCRIPTOR_HANDLE textureHandle(m_cbvHeap[m_frameIndex]->GetCPUDescriptorHandleForHeapStart(), currentDescriptorIndex, m_cbvHeapIncrementor);
 		m_device->CreateShaderResourceView(currentTexture->textureBuffer.Get(), &currentTexture->textureView, textureHandle);
 	}
 
 	// Define the Descriptor Table to use.
-	UINT descriptorIndex = m_cbvHeapIndex << MAX_DESCRIPTOR_TWO_POWER; // Descriptor Table Location
-	CD3DX12_GPU_DESCRIPTOR_HANDLE descriptorTableHandle(m_cbvHeap[m_frameIndex]->GetGPUDescriptorHandleForHeapStart(), descriptorIndex, m_cbvHeapIncrementor);
+	const CD3DX12_GPU_DESCRIPTOR_HANDLE descriptorTableHandle(m_cbvHeap[m_frameIndex]->GetGPUDescriptorHandleForHeapStart(), descriptorIndex, m_cbvHeapIncrementor);
 	m_commandList->SetGraphicsRootDescriptorTable(0, descriptorTableHandle);
 
 	++m_cbvHeapIndex;
