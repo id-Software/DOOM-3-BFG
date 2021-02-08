@@ -1236,7 +1236,7 @@ static VkPipeline CreateGraphicsPipeline(
 		depthStencilState.depthTestEnable = VK_TRUE;
 		depthStencilState.depthWriteEnable = ( stateBits & GLS_DEPTHMASK ) == 0;
 		depthStencilState.depthCompareOp = depthCompareOp;
-		depthStencilState.depthBoundsTestEnable = ( stateBits & GLS_DEPTH_TEST_MASK ) != 0;
+		depthStencilState.depthBoundsTestEnable = vkcontext.physicalDeviceFeatures.depthBounds && ( stateBits & GLS_DEPTH_TEST_MASK ) != 0;
 		depthStencilState.minDepthBounds = 0.0f;
 		depthStencilState.maxDepthBounds = 1.0f;
 		depthStencilState.stencilTestEnable = ( stateBits & ( GLS_STENCIL_FUNC_BITS | GLS_STENCIL_OP_BITS | GLS_SEPARATE_STENCIL ) ) != 0;
