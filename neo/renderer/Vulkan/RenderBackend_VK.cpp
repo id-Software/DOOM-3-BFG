@@ -714,7 +714,7 @@ static void CreateLogicalDeviceAndQueues()
 	VkPhysicalDeviceFeatures deviceFeatures = {};
 	deviceFeatures.textureCompressionBC = VK_TRUE;
 	deviceFeatures.imageCubeArray = VK_TRUE;
-	deviceFeatures.depthClamp = VK_TRUE;
+	deviceFeatures.depthClamp = VK_FALSE;
 	deviceFeatures.depthBiasClamp = VK_TRUE;
 	deviceFeatures.depthBounds = vkcontext.physicalDeviceFeatures.depthBounds;
 	deviceFeatures.fillModeNonSolid = VK_TRUE;
