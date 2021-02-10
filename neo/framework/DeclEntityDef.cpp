@@ -106,6 +106,7 @@ bool idDeclEntityDef::Parse( const char* text, const int textLength, bool allowB
 	// find all of the dicts first, because copying inherited values will modify the dict
 	idList<const idDeclEntityDef*> defList;
 
+	// RB: don't grab properties of inherited parent when exporting to FGD
 	if( !( com_editors & EDITOR_EXPORTDEFS ) )
 	{
 		while( 1 )

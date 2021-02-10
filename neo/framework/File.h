@@ -413,6 +413,7 @@ private:
 	byte* 				resourceBuffer;		// if using the temp save memory
 };
 #endif
+
 /*
 ================================================
 idFileLocal is a FileStream wrapper that automatically closes a file when the

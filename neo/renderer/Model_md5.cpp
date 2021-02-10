@@ -1628,7 +1628,7 @@ void idRenderModelMD5::ExportOBJ( idFile* objFile, idFile* mtlFile, ID_TIME_T* _
 	ent.numJoints = NumJoints();
 	if( ent.numJoints > 0 )
 	{
-		ent.joints = ( idJointMat* )Mem_Alloc16( SIMD_ROUND_JOINTS( ent.numJoints ) * sizeof( *ent.joints ), TAG_JOINTMAT );
+		ent.joints = ( idJointMat* )Mem_ClearedAlloc( SIMD_ROUND_JOINTS( ent.numJoints ) * sizeof( *ent.joints ), TAG_JOINTMAT );
 
 		SIMD_INIT_LAST_JOINT( ent.joints, ent.numJoints );
 
