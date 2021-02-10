@@ -415,6 +415,9 @@ public:
 	// returns one portal from an area
 	virtual exitPortal_t	GetPortal( int areaNum, int portalNum ) = 0;
 
+	// RB: returns the AABB of a BSP area
+	virtual	idBounds		AreaBounds( int areaNum ) const = 0;
+
 	//-------------- Tracing  -----------------
 
 	// Checks a ray trace against any gui surfaces in an entity, returning the

@@ -198,6 +198,7 @@ void idRenderWorldLocal::AddAreaViewEnvprobes( int areaNum, const portalStack_t*
 			continue;
 		}
 
+#if 0
 		// check for being closed off behind a door
 		// a light that doesn't cast shadows will still light even if it is behind a door
 		if( r_useLightAreaCulling.GetBool() //&& !envprobe->LightCastsShadows()
@@ -213,6 +214,7 @@ void idRenderWorldLocal::AddAreaViewEnvprobes( int areaNum, const portalStack_t*
 			// still be visible through others
 			continue;
 		}
+#endif
 
 		viewEnvprobe_t* vProbe = R_SetEnvprobeDefViewEnvprobe( probe );
 
@@ -594,6 +596,20 @@ static const unsigned char brfLutTexBytes[] =
 	Mem_Free( hdrBuffer );
 }
 
+
+// Compute normalized oct coord, mapping top left of top left pixel to (-1,-1)
+idVec2 NormalizedOctCoord( int x, int y, const int probeSideLength )
+{
+	const int margin = 0;
+
+	int probeWithBorderSide = probeSideLength + margin;
+
+	idVec2 octFragCoord = idVec2( ( x - margin ) % probeWithBorderSide, ( y - margin ) % probeWithBorderSide );
+	
+	// Add back the half pixel to get pixel center normalized coordinates
+	return ( idVec2( octFragCoord ) + idVec2( 0.5f, 0.5f ) ) * ( 2.0f / float( probeSideLength ) ) - idVec2( 1.0f, 1.0f );
+}
+
 /*
 ==================
 R_MakeAmbientMap_f
@@ -640,13 +656,14 @@ void R_MakeAmbientMap( const char* baseName, const char* suffix, int outSize, fl
 	for( int i = 0 ; i < 6 ; i++ )
 	{
 		fullname.Format( "env/%s%s.png", baseName, envDirection[i] );
-		common->Printf( "loading %s\n", fullname.c_str() );
+
 		const bool captureToImage = false;
 		common->UpdateScreen( captureToImage );
+		
 		R_LoadImage( fullname, &buffers[i], &width, &height, NULL, true, NULL );
 		if( !buffers[i] )
 		{
-			common->Printf( "failed.\n" );
+			common->Printf( "loading %s failed.\n", fullname.c_str() );
 			for( i-- ; i >= 0 ; i-- )
 			{
 				Mem_Free( buffers[i] );
@@ -662,7 +679,7 @@ void R_MakeAmbientMap( const char* baseName, const char* suffix, int outSize, fl
 
 	byte*	outBuffer = ( byte* )_alloca( outSize * outSize * 4 );
 
-	//for( int map = 0 ; map < 2 ; map++ )
+#if 0
 	{
 		CommandlineProgressBar progressBar( outSize * outSize * 6 );
 
@@ -719,6 +736,81 @@ void R_MakeAmbientMap( const char* baseName, const char* suffix, int outSize, fl
 
 		common->Printf( "env/%s convolved  in %5.1f seconds\n\n", baseName, ( end - start ) * 0.001f );
 	}
+#else
+	{
+
+		// output an octahedron probe
+
+		CommandlineProgressBar progressBar( outSize * outSize );
+
+		int	start = Sys_Milliseconds();
+
+		const float invDstSize = 1.0f / float( outSize );
+
+		for( int x = 0 ; x < outSize ; x++ )
+		{
+			for( int y = 0 ; y < outSize ; y++ )
+			{
+				idVec3	dir;
+				float	total[3];
+
+				// convert UV coord from [0, 1] to [-1, 1] space
+				const float u = 2.0f * x * invDstSize - 1.0f;
+				const float v = 2.0f * y * invDstSize - 1.0f;
+
+				idVec2 octCoord = NormalizedOctCoord( x, y, outSize );
+
+				// convert UV coord to 3D direction
+				dir.FromOctahedral( octCoord );
+
+				total[0] = total[1] = total[2] = 0; 
+
+				//float roughness = map ? 0.1 : 0.95;		// small for specular, almost hemisphere for ambient
+
+				for( int s = 0 ; s < samples ; s++ )
+				{
+					idVec2 Xi = Hammersley2D( s, samples );
+					idVec3 test = ImportanceSampleGGX( Xi, dir, roughness );
+
+					byte	result[4];
+					//test = dir;
+					R_SampleCubeMap( test, width, buffers, result );
+					total[0] += result[0];
+					total[1] += result[1];
+					total[2] += result[2];
+				}
+
+#if 1
+				outBuffer[( y * outSize + x ) * 4 + 0] = total[0] / samples;
+				outBuffer[( y * outSize + x ) * 4 + 1] = total[1] / samples;
+				outBuffer[( y * outSize + x ) * 4 + 2] = total[2] / samples;
+				outBuffer[( y * outSize + x ) * 4 + 3] = 255;
+#else
+				outBuffer[( y * outSize + x ) * 4 + 0] = byte( ( dir.x * 0.5f + 0.5f ) * 255 );
+				outBuffer[( y * outSize + x ) * 4 + 1] = byte( ( dir.y * 0.5f + 0.5f ) * 255 );
+				outBuffer[( y * outSize + x ) * 4 + 2] = byte( ( dir.z * 0.5f + 0.5f ) * 255 );
+				outBuffer[( y * outSize + x ) * 4 + 3] = 255;
+#endif
+
+				progressBar.Increment();
+			}
+		}
+
+			
+		fullname.Format( "env/%s%s.png", baseName, suffix );
+		//common->Printf( "writing %s\n", fullname.c_str() );
+
+		const bool captureToImage = false;
+		common->UpdateScreen( captureToImage );
+
+		//R_WriteTGA( fullname, outBuffer, outSize, outSize, false, "fs_basepath" );
+		R_WritePNG( fullname, outBuffer, 4, outSize, outSize, true, "fs_basepath" );
+
+		int	end = Sys_Milliseconds();
+
+		common->Printf( "env/%s convolved in %5.1f seconds\n\n", baseName, ( end - start ) * 0.001f );
+	}
+#endif
 
 	for( int i = 0 ; i < 6 ; i++ )
 	{
@@ -752,7 +844,7 @@ CONSOLE_COMMAND( makeAmbientMap, "Saves out env/<basename>_amb_ft.tga, etc", NUL
 	}
 	baseName = args.Argv( 1 );
 
-	if( args.Argc() == 3 )
+	if( args.Argc() >= 3 )
 	{
 		outSize = atoi( args.Argv( 2 ) );
 	}
@@ -845,7 +937,7 @@ CONSOLE_COMMAND( generateEnvironmentProbes, "Generate environment probes", NULL 
 	axis[5][2][1] = 1;
 
 	//--------------------------------------------
-	// CAPTURE SCENE LIGHTING
+	// CAPTURE SCENE LIGHTING TO CUBEMAPS
 	//--------------------------------------------
 
 	// let's get the game window to a "size" resolution
@@ -882,6 +974,7 @@ CONSOLE_COMMAND( generateEnvironmentProbes, "Generate environment probes", NULL 
 			ref.viewaxis = axis[j];
 			fullname.Format( "env/%s/envprobe%i%s", baseName.c_str(), i, extension );
 
+			// TODO capture resolved HDR data without bloom aka _currentRender in 16bit float HDR RGB
 			tr.TakeScreenshot( size, size, fullname, blends, &ref, PNG );
 			//tr.CaptureRenderToFile( fullname, false );
 		}
@@ -901,6 +994,9 @@ CONSOLE_COMMAND( generateEnvironmentProbes, "Generate environment probes", NULL 
 	//--------------------------------------------
 	// CONVOLVE CUBEMAPS
 	//--------------------------------------------
+
+	int	start = Sys_Milliseconds();
+
 	for( int i = 0; i < tr.primaryWorld->envprobeDefs.Num(); i++ )
 	{
 		RenderEnvprobeLocal* def = tr.primaryWorld->envprobeDefs[i];
@@ -914,5 +1010,9 @@ CONSOLE_COMMAND( generateEnvironmentProbes, "Generate environment probes", NULL 
 		R_MakeAmbientMap( fullname.c_str(), "_amb", IRRADIANCE_CUBEMAP_SIZE, 0.95f );
 		R_MakeAmbientMap( fullname.c_str(), "_spec", RADIANCE_CUBEMAP_SIZE, 0.1f );
 	}
+
+	int	end = Sys_Milliseconds();
+
+	common->Printf( "convolved probes in %5.1f seconds\n\n", ( end - start ) * 0.001f );
 }
 

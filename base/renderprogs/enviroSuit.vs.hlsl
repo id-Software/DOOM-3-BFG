@@ -26,7 +26,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#include "global.inc.hlsl"
+#include "renderprogs/global.inc.hlsl"
+
 
 // User Renderparms start at 128 as per renderprogs.h
 

@@ -65,6 +65,9 @@ typedef struct portalArea_s
 	int				areaNum;
 	int				connectedAreaNum[NUM_PORTAL_ATTRIBUTES];	// if two areas have matching connectedAreaNum, they are
 	// not separated by a portal with the apropriate PS_BLOCK_* blockingBits
+
+	idBounds		globalBounds;	// RB: AABB of the BSP area used for light grid density
+
 	int				viewCount;		// set by R_FindViewLightsAndEntities
 	portal_t* 		portals;		// never changes after load
 	areaReference_t	entityRefs;		// head/tail of doubly linked list, may change
@@ -143,6 +146,7 @@ public:
 	virtual int				BoundsInAreas( const idBounds& bounds, int* areas, int maxAreas ) const;
 	virtual	int				NumPortalsInArea( int areaNum );
 	virtual exitPortal_t	GetPortal( int areaNum, int portalNum );
+	virtual	idBounds		AreaBounds( int areaNum ) const; // RB
 
 	virtual	guiPoint_t		GuiTrace( qhandle_t entityHandle, const idVec3 start, const idVec3 end ) const;
 	virtual bool			ModelTrace( modelTrace_t& trace, qhandle_t entityHandle, const idVec3& start, const idVec3& end, const float radius ) const;

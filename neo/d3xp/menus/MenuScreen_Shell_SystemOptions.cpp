@@ -33,7 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 const static int NUM_SYSTEM_OPTIONS_OPTIONS = 8;
 
 extern idCVar r_antiAliasing;
-extern idCVar r_motionBlur;
+extern idCVar r_useFilmicPostProcessing;
 extern idCVar r_swapInterval;
 extern idCVar s_volume_dB;
 extern idCVar r_exposure; // RB: use this to control HDR exposure or brightness in LDR mode
@@ -106,10 +106,10 @@ void idMenuScreen_Shell_SystemOptions::Initialize( idMenuHandler* data )
 
 	control = new( TAG_SWF ) idMenuWidget_ControlButton();
 	control->SetOptionType( OPTION_SLIDER_TEXT );
-	control->SetLabel( "#str_swf_motionblur" );
-	control->SetDataSource( &systemData, idMenuDataSource_SystemSettings::SYSTEM_FIELD_MOTIONBLUR );
+	control->SetLabel( "Filmic VFX" );
+	control->SetDataSource( &systemData, idMenuDataSource_SystemSettings::SYSTEM_FIELD_POSTFX );
 	control->SetupEvents( DEFAULT_REPEAT_TIME, options->GetChildren().Num() );
-	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, idMenuDataSource_SystemSettings::SYSTEM_FIELD_MOTIONBLUR );
+	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, idMenuDataSource_SystemSettings::SYSTEM_FIELD_POSTFX );
 	options->AddChild( control );
 
 	// RB begin
@@ -392,7 +392,7 @@ void idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::LoadData
 {
 	originalFramerate = com_engineHz.GetInteger();
 	originalAntialias = r_antiAliasing.GetInteger();
-	originalMotionBlur = r_motionBlur.GetInteger();
+	originalPostProcessing = r_useFilmicPostProcessing.GetInteger();
 	originalVsync = r_swapInterval.GetInteger();
 	originalBrightness = r_exposure.GetFloat();
 	originalVolume = s_volume_dB.GetFloat();
@@ -522,11 +522,12 @@ void idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::AdjustFi
 			r_antiAliasing.SetInteger( AdjustOption( r_antiAliasing.GetInteger(), values, numValues, adjustAmount ) );
 			break;
 		}
-		case SYSTEM_FIELD_MOTIONBLUR:
+		case SYSTEM_FIELD_POSTFX:
 		{
-			static const int numValues = 5;
-			static const int values[numValues] = { 0, 2, 3, 4, 5 };
-			r_motionBlur.SetInteger( AdjustOption( r_motionBlur.GetInteger(), values, numValues, adjustAmount ) );
+			static const int numValues = 2;
+			static const int values[numValues] = { 0, 1 };
+			//static const int values[numValues] = { 0, 2, 3, 4, 5 };
+			r_useFilmicPostProcessing.SetInteger( AdjustOption( r_useFilmicPostProcessing.GetInteger(), values, numValues, adjustAmount ) );
 			break;
 		}
 		// RB begin
@@ -634,12 +635,16 @@ idSWFScriptVar idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings
 
 			return values[ r_antiAliasing.GetInteger() ];
 		}
-		case SYSTEM_FIELD_MOTIONBLUR:
-			if( r_motionBlur.GetInteger() == 0 )
+		case SYSTEM_FIELD_POSTFX:
+			if( r_useFilmicPostProcessing.GetInteger() > 0 )
+			{
+				return "#str_swf_enabled";
+			}
+			else
 			{
 				return "#str_swf_disabled";
 			}
-			return va( "%dx", idMath::IPow( 2, r_motionBlur.GetInteger() ) );
+		//return va( "%dx", idMath::IPow( 2, r_motionBlur.GetInteger() ) );
 		// RB begin
 		case SYSTEM_FIELD_SHADOWMAPPING:
 			if( r_useShadowMapping.GetInteger() == 1 )
@@ -678,7 +683,7 @@ bool idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::IsDataCh
 	{
 		return true;
 	}
-	if( originalMotionBlur != r_motionBlur.GetInteger() )
+	if( originalPostProcessing != r_useFilmicPostProcessing.GetInteger() )
 	{
 		return true;
 	}
