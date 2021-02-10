@@ -3,7 +3,7 @@ return
 	-- includes
 	"global.inc.hlsl",
 	"skinning.inc.hlsl",
-	"SMAA.inc.hlsl",
+	"builtin/post/SMAA.inc.hlsl",
 	"BRDF.inc.hlsl",
 	
 	-- shaders

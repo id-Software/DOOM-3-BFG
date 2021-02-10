@@ -34,8 +34,8 @@ If you have questions concerning this license or the applicable additional terms
 uniform sampler2D samp0 : register(s0); // texture 1 is the per-surface normal map
 uniform sampler2D samp1 : register(s1); // texture 3 is the per-surface specular or roughness/metallic/AO mixer map
 uniform sampler2D samp2 : register(s2); // texture 2 is the per-surface baseColor map 
-uniform sampler2D samp3 : register(s3); // texture 4 is the light falloff texture
-uniform sampler2D samp4 : register(s4); // texture 5 is the light projection texture
+uniform sampler2D samp3 : register(s3); // texture 3 is the BRDF LUT
+uniform sampler2D samp4 : register(s4); // texture 4 is SSAO
 
 struct PS_IN {
 	half4 position	: VPOS;
@@ -79,7 +79,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	// RB: added abs
 	half3 specularContribution = _half3( pow( abs( hDotN ), specularPower ) );
 
-	half3 diffuseColor = diffuseMap * ( rpDiffuseModifier.xyz ) * 1.5f;
+	half3 diffuseColor = diffuseMap * ( rpDiffuseModifier.xyz * 0.5f );
 	half3 specularColor = specMap.xyz * specularContribution * ( rpSpecularModifier.xyz );
 
 	// RB: http://developer.valvesoftware.com/wiki/Half_Lambert
