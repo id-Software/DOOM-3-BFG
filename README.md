@@ -380,7 +380,7 @@ r_useHDR [0 or 1]                      | Use High Dynamic Range lighting
 r_hdrAutoExposure [0 or 1]             | Adaptive tonemapping with HDR. This allows to have very bright or very dark scenes but the camera will adapt to it so the scene won't loose details
 r_exposure [0 .. 1]                    | Default 0.5, Controls brightness and affects HDR exposure key. This is what you change in the video brightness options
 r_useSSAO [0 .. 1]                     | Use Screen Space Ambient Occlusion to darken the corners in the scene
-r_useFilmicPostProcessEffects          | Apply several post process effects to mimic a filmic look
+r_useFilmicPostProcessing              | Apply several post process effects to mimic a filmic look
 
 ## Modding Support
 Name                              | Description

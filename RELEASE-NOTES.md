@@ -95,6 +95,8 @@ The main goal is that the new content looks the same in RBDOOM-3-BFG as in Blend
 
 * Bumped the static vertex cache limit of 31 MB to roughly ~ 128 MB to help with some custom models and maps by the Doom 3 community
 
+* Renamed r_useFilmicPostProcessEffects to r_useFilmicPostProcessing
+
 
 
 _______________________________________
