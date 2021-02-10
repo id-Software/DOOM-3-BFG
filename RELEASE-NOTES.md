@@ -97,6 +97,8 @@ The main goal is that the new content looks the same in RBDOOM-3-BFG as in Blend
 
 * Renamed r_useFilmicPostProcessEffects to r_useFilmicPostProcessing
 
+* Replaced Motion Blur System Option with Filmic VFX (r_useFilmicPostProcessing)
+
 
 
 _______________________________________

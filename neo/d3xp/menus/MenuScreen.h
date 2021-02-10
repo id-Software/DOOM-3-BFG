@@ -1362,10 +1362,9 @@ public:
 			SYSTEM_FIELD_FRAMERATE,
 			SYSTEM_FIELD_VSYNC,
 			SYSTEM_FIELD_ANTIALIASING,
-			SYSTEM_FIELD_MOTIONBLUR,
 			// RB begin
+			SYSTEM_FIELD_POSTFX,
 			SYSTEM_FIELD_SHADOWMAPPING,
-			//SYSTEM_FIELD_LODBIAS,
 			// RB end
 			SYSTEM_FIELD_BRIGHTNESS,
 			SYSTEM_FIELD_VOLUME,
@@ -1394,7 +1393,7 @@ public:
 	private:
 		int originalFramerate;
 		int originalAntialias;
-		int originalMotionBlur;
+		int originalPostProcessing;
 		int originalVsync;
 		float originalBrightness;
 		float originalVolume;
