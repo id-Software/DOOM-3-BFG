@@ -11,9 +11,6 @@ option(COMPILE_COMMANDS
 
 option(USE_MFC_TOOLS
 		"Compile the built-in MFC based tools" OFF)
-		
-option(MONOLITH
-		"Embed game logic into main executable" ON)
 
 option(USE_PRECOMPILED_HEADERS
 		"Use precompiled headers during build" ON)
@@ -801,7 +798,6 @@ file(GLOB GAMED3XP_PHYSICS_SOURCES d3xp/physics/*.cpp)
 file(GLOB GAMED3XP_SCRIPT_INCLUDES d3xp/script/*.h)
 file(GLOB GAMED3XP_SCRIPT_SOURCES d3xp/script/*.cpp)
 
-
 file(GLOB COMPILER_INCLUDES tools/compilers/*.h)
 
 file(GLOB COMPILER_AAS_INCLUDES tools/compilers/aas/*.h)
@@ -1293,6 +1289,14 @@ set(RBDOOM3_INCLUDES
 			${TOOLS_INCLUDES}
 			${IMGUI_EDITOR_INCLUDES}
 			${IMGUI_EDITOR_LIGHT_INCLUDES}
+			
+			${GAMED3XP_INCLUDES}
+			${GAMED3XP_AI_INCLUDES} 
+			${GAMED3XP_ANIM_INCLUDES} 
+			${GAMED3XP_GAMESYS_INCLUDES} 
+			${GAMED3XP_MENUS_INCLUDES}
+			${GAMED3XP_PHYSICS_INCLUDES}
+			${GAMED3XP_SCRIPT_INCLUDES}
 			)
 			
 set(RBDOOM3_SOURCES
@@ -1331,6 +1335,14 @@ set(RBDOOM3_SOURCES
 			
 			${IMGUI_EDITOR_SOURCES}
 			${IMGUI_EDITOR_LIGHT_SOURCES}
+			
+			${GAMED3XP_SOURCES}
+			${GAMED3XP_AI_SOURCES}
+			${GAMED3XP_ANIM_SOURCES}
+			${GAMED3XP_GAMESYS_SOURCES}
+			${GAMED3XP_MENUS_SOURCES}
+			${GAMED3XP_PHYSICS_SOURCES}
+			${GAMED3XP_SCRIPT_SOURCES}
 			)
 
 add_definitions(-DUSE_DOOMCLASSIC)
@@ -1340,27 +1352,6 @@ add_definitions(-D__DOOM__
 				#-DFT2_BUILD_LIBRARY
 				)
 				
-if(MONOLITH)
-	list(APPEND RBDOOM3_INCLUDES
-		${GAMED3XP_INCLUDES}
-		${GAMED3XP_AI_INCLUDES} 
-		${GAMED3XP_ANIM_INCLUDES} 
-		${GAMED3XP_GAMESYS_INCLUDES} 
-		${GAMED3XP_MENUS_INCLUDES}
-		${GAMED3XP_PHYSICS_INCLUDES}
-		${GAMED3XP_SCRIPT_INCLUDES})
-		
-	list(APPEND RBDOOM3_SOURCES
-		${GAMED3XP_SOURCES}
-		${GAMED3XP_AI_SOURCES}
-		${GAMED3XP_ANIM_SOURCES}
-		${GAMED3XP_GAMESYS_SOURCES}
-		${GAMED3XP_MENUS_SOURCES}
-		${GAMED3XP_PHYSICS_SOURCES}
-		${GAMED3XP_SCRIPT_SOURCES})
-else()
-	add_definitions(-D__DOOM_DLL__)
-endif()
 
 include_directories(
 			.
@@ -1521,15 +1512,19 @@ if(MSVC)
 		list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/jobs/staticshadowvolume/StaticShadowVolume.cpp)
 		list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/jobs/ShadowShared.cpp)
 		list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/RenderLog.cpp)
-		list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/framework/precompiled.cpp)
 		list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/renderer/Vulkan/vma.cpp)
+		#list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES d3xp/gamesys/Class.cpp)
+		list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/framework/precompiled.cpp)
+	
+		foreach( src_file ${RBDOOM3_PRECOMPILED_SOURCES} )
+			message(STATUS "-include precompiled.h for ${src_file}")
+		endforeach()
 	
 		set_source_files_properties(
 		${RBDOOM3_PRECOMPILED_SOURCES}
 		PROPERTIES
 		COMPILE_FLAGS "/Yuprecompiled.h"
 		OBJECT_DEPENDS "precompiled.pch"
-
 		)
 		
 		set_source_files_properties(framework/precompiled.cpp
