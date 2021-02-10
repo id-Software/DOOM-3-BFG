@@ -27,7 +27,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#include "global.inc.hlsl"
+#include "renderprogs/global.inc.hlsl"
+
 
 // RB: no GPU skinning with ES 2.0
 #if defined(USE_GPU_SKINNING)
@@ -59,7 +60,8 @@ struct VS_OUT {
 void main( VS_IN vertex, out VS_OUT result )
 {
 
-#include "skinning.inc.hlsl"
+#include "renderprogs/skinning.inc.hlsl"
+
 
 	// texture 0 takes the texture coordinates unmodified
 	result.texcoord0 = float4( vertex.texcoord.xy, 0, 0 );

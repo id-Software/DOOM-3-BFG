@@ -27,7 +27,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#include "global.inc.hlsl"
+#include "renderprogs/global.inc.hlsl"
+
 
 // User Renderparms start at 128 as per renderprogs.h
 
@@ -60,7 +61,8 @@ struct VS_OUT {
 void main( VS_IN vertex, out VS_OUT result )
 {
 
-#include "skinning.inc.hlsl"
+#include "renderprogs/skinning.inc.hlsl"
+
 
 	//texture 0 takes the texture coordinates and adds a scroll
 	const float4 textureScroll = rpUser0;

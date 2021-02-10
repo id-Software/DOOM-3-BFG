@@ -26,7 +26,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#include "global.inc.hlsl"
+#include "renderprogs/global.inc.hlsl"
+
 
 // *INDENT-OFF*
 uniform sampler2D samp0 : register(s0); //_accum
