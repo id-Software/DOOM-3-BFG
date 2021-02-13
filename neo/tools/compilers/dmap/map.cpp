@@ -346,6 +346,20 @@ static void ParseBrush( const idMapBrush* mapBrush, int primitiveNum )
 
 		ms->GetTextureVectors( s->texVec.v );
 
+		// RB: Valve 220 projection support
+		s->texValve220 = ( ms->GetProjectionType() == idMapBrushSide::PROJECTION_VALVE220 );
+
+		// RB: TODO
+		//s->texSize = ms->GetTextureSize();
+
+		idImage* image = s->material->GetEditorImage();
+		if( image != NULL )
+		{
+			s->texSize.x = image->GetUploadWidth();
+			s->texSize.y = image->GetUploadHeight();
+		}
+		// RB end
+
 		// remove any integral shift, which will help with grouping
 		s->texVec.v[0][3] -= floor( s->texVec.v[0][3] );
 		s->texVec.v[1][3] -= floor( s->texVec.v[1][3] );

@@ -2094,6 +2094,7 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 	idStrList filenames;
 	filenames.AddUnique( "all" );
 	filenames.AddUnique( "slim" );
+	filenames.AddUnique( "multiplayer" );
 
 	idStrList ignoreList;
 
@@ -2217,6 +2218,24 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 				}
 			}
 
+			// filter multiplayer entities
+			bool multiplayer = ( idStr::FindText( decl->GetName(), "_mp", false ) != -1 ||
+								 idStr::FindText( decl->GetName(), "_coop", false ) != -1 );
+
+			if( f == 2 )
+			{
+				if( !multiplayer )
+				{
+					continue;
+				}
+			}
+			else
+			{
+				if( multiplayer )
+				{
+					continue;
+				}
+			}
 
 
 			//

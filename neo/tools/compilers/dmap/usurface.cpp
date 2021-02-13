@@ -238,6 +238,13 @@ mapTri_t* TriListForSide( const side_t* s, const idWinding* w )
 				st.x = ( dv->xyz * s->texVec.v[0].ToVec3() ) + s->texVec.v[0][3];
 				st.y = ( dv->xyz * s->texVec.v[1].ToVec3() ) + s->texVec.v[1][3];
 
+				// RB: support Valve 220 projection
+				if( s->texValve220 )
+				{
+					st.x /= s->texSize[0];
+					st.y /= s->texSize[1];
+				}
+
 				dv->SetTexCoord( st );
 
 				// copy normal
@@ -285,6 +292,14 @@ mapTri_t* TriListForSide( const side_t* s, const idWinding* w )
 				idVec2 st;
 				st.x = ( dv->xyz * s->texVec.v[0].ToVec3() ) + s->texVec.v[0][3];
 				st.y = ( dv->xyz * s->texVec.v[1].ToVec3() ) + s->texVec.v[1][3];
+
+				// RB: support Valve 220 projection
+				if( s->texValve220 )
+				{
+					st.x /= s->texSize[0];
+					st.y /= s->texSize[1];
+				}
+
 				dv->SetTexCoord( st );
 
 				// copy normal

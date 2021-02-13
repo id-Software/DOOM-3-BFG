@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2015 Robert Beckebans
+Copyright (C) 2015-2021 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -87,6 +87,7 @@ class idMapBrushSide
 public:
 	idMapBrushSide();
 	~idMapBrushSide() { }
+
 	const char* 			GetMaterial() const
 	{
 		return material;
@@ -115,11 +116,33 @@ public:
 	}
 	void					GetTextureVectors( idVec4 v[2] ) const;
 
+	// RB: support Valve 220 projection by TrenchBroom
+	enum ProjectionType
+	{
+		PROJECTION_BP		= 0,
+		PROJECTION_VALVE220	= 1
+	};
+
+	ProjectionType			GetProjectionType() const
+	{
+		return projection;
+	}
+
+	const idVec2i&			GetTextureSize() const
+	{
+		return texSize;
+	}
+	// RB end
+
 protected:
 	idStr					material;
 	idPlane					plane;
 	idVec3					texMat[2];
 	idVec3					origin;
+	ProjectionType			projection;
+	idVec4					texValve[ 2 ]; // alternative texture coordinate mapping
+	idVec2i					texSize;
+
 };
 
 ID_INLINE idMapBrushSide::idMapBrushSide()
@@ -128,6 +151,12 @@ ID_INLINE idMapBrushSide::idMapBrushSide()
 	texMat[0].Zero();
 	texMat[1].Zero();
 	origin.Zero();
+
+	projection = PROJECTION_BP;
+	texValve[0].Zero();
+	texValve[1].Zero();
+	texSize[0] = 32;
+	texSize[1] = 32;
 }
 
 
@@ -145,6 +174,7 @@ public:
 	}
 	static idMapBrush* 		Parse( idLexer& src, const idVec3& origin, bool newFormat = true, float version = CURRENT_MAP_VERSION );
 	static idMapBrush* 		ParseQ3( idLexer& src, const idVec3& origin );
+	static idMapBrush* 		ParseValve220( idLexer& src, const idVec3& origin ); // RB
 	bool					Write( idFile* fp, int primitiveNum, const idVec3& origin ) const;
 	int						GetNumSides() const
 	{
