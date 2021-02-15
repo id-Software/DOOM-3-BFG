@@ -2089,7 +2089,23 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 
 	defsSorted.SortWithTemplate( idSort_CompareEntityDefEntity() );
 
-	postLoadExportModels.SetBool( true );
+	bool exportModels = false;
+
+	if( !idStr::Icmp( args.Argv( 1 ), "models" ) )
+	{
+		exportModels = true;
+		common->Printf( "exporting entity decls to FGDs with models:\n" );
+	}
+	else
+	{
+		exportModels = false;
+		common->Printf( "exporting entity decls to FGDs:\n" );
+	}
+
+	if( exportModels )
+	{
+		postLoadExportModels.SetBool( true );
+	}
 
 	idStrList filenames;
 	filenames.AddUnique( "all" );
@@ -2159,7 +2175,7 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 			totalEntitiesCount++;
 
 			// only include entityDefs with "editor_" values in them
-			if( f > 0 && !decl->dict.MatchPrefix( "editor_" ) )
+			if( /*f > 0 &&*/ !decl->dict.MatchPrefix( "editor_" ) )
 			{
 				bool parentHasEditorKeys = false;
 
@@ -2363,6 +2379,22 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 			}
 
 			idDict dictToWrite;
+
+			if( idStr::Icmp( decl->GetName(), "light" ) == 0 )
+			{
+				// entityDef light
+
+				// add missing property to control the radius
+
+				evar_t ev;
+				ev.fullname = "editor_int light";
+				ev.name = "light";
+				ev.desc = "light radius";
+				ev.type = EVAR_INT;
+				evars.Append( ev );
+
+				dictToWrite.Set( "light", "300" );
+			}
 
 			for( int i = 0; i < decl->dict.GetNumKeyVals(); i++ )
 			{
@@ -2573,7 +2605,10 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 
 	com_editors &= ~EDITOR_EXPORTDEFS;
 
-	postLoadExportModels.SetBool( false );
+	if( exportModels )
+	{
+		postLoadExportModels.SetBool( false );
+	}
 
 	//declManagerLocal.Reload( true );
 	common->FatalError( "Exporting successful, need to restart manually" );
