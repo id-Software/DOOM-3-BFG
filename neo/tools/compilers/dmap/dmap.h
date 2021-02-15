@@ -207,8 +207,6 @@ typedef struct tree_s
 typedef struct
 {
 	idRenderLightLocal	def;
-	char				name[MAX_QPATH];		// for naming the shadow volume surface and interactions
-	srfTriangles_t*		shadowTris;
 
 	idPlane				frustumPlanes[6];		// RB: should be calculated after R_DeriveLightData()
 } mapLight_t;

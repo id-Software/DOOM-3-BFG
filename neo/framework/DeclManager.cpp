@@ -2384,10 +2384,10 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 				}
 
 				// TODO FIXME cinematic md5camera animations
-				if( kv->GetKey().IcmpPrefix( "anim" ) == 0 )
-				{
-					continue;
-				}
+				//if( kv->GetKey().IcmpPrefix( "anim" ) == 0 )
+				//{
+				//	continue;
+				//}
 
 				// is it an editor var or a regular spawn argument?
 				evar_t* ev = nullptr;
@@ -2497,7 +2497,12 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 				}
 
 				idStr cleanKey = kv->GetKey();
-				cleanKey.ReplaceChar( ' ', '_' );
+				cleanKey.ReplaceChar( ' ', '.' );
+
+				if( cleanKey.Icmp( "color" ) == 0 )
+				{
+					cleanKey = "_color";
+				}
 
 				// don't print the descriptive editor var itself yet
 				if( ev )
