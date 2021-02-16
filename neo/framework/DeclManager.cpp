@@ -2396,6 +2396,21 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 				dictToWrite.Set( "light", "300" );
 			}
 
+			if( idStr::Icmp( decl->GetName(), "light" ) == 0 ||
+					idStr::Icmp( decl->GetName(), "func_static" ) == 0 )
+			{
+				// entities with dynamic models
+
+				evar_t ev;
+				ev.fullname = "editor_model model";
+				ev.name = "model";
+				ev.desc = "Model Selection (ex mapobjects/model.obj)";
+				ev.type = EVAR_MODEL;
+				evars.Append( ev );
+
+				//dictToWrite.Set( "model", "" );
+			}
+
 			for( int i = 0; i < decl->dict.GetNumKeyVals(); i++ )
 			{
 				kv = decl->dict.GetKeyVal( i );
@@ -2462,7 +2477,8 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 			bool writeModel = false;
 			idStrStatic< MAX_OSPATH > exportedModelFileName;
 
-			if( idStr::Icmp( decl->GetName(), "light" ) != 0 )
+			if( idStr::Icmp( decl->GetName(), "light" ) != 0 &&
+					idStr::Icmp( decl->GetName(), "func_static" ) != 0 )
 			{
 				//kv = dictToWrite.MatchPrefix( "model" );
 				//while( kv )
@@ -2507,6 +2523,11 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 			if( writeModel && !exportedModelFileName.IsEmpty() )
 			{
 				file->Printf( "model({ \"path\": \"%s\" }) ", exportedModelFileName.c_str() );
+			}
+			else if( idStr::Icmp( decl->GetName(), "func_static" ) == 0 )
+			{
+				// dynamic model case
+				file->Printf( "model({ \"path\" : model }) " );
 			}
 
 			file->Printf( "= %s : \"%s\"\n", decl->GetName(), text.c_str() );
