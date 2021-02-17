@@ -77,14 +77,15 @@ I started this project in 2012 and focused on making this code being future proo
 ## Modding Support
 * RBDOOM-3-BFG allows mod editing and has many tiny fixes so custom content can be put into mod directories and the engine accepts it like vanilla Doom 3. DOOM 3 BFG wasn't designed for actual development or modding support. Many things like reading anything outside of the packed resource files was not supported. I also fixed many things in the renderer like r_showTris.
 * PNG image support
-* Collada .dae model support in addition to .ase and .lwo for static map models
+* Collada .DAE model support in addition to .ase and .lwo for static map models
+* Wavefront OBJ model support
 * Added back dmap and aas compilers (mapping tools, thanks to Pat Raynor)
 * Added in-engine Flash debugging tools and new console variables.
   These tools help to analyse the id Tech view of Flash and what SWF tags are supported and how they are interpreted
   by id Tech's own ActionScript 2 interpreter
-	- swf_exportAtlas
-	- swf_exportSWF
-	- swf_exportJSON
+	- postLoadExportFlashAtlas
+    - postLoadExportFlashToSWF
+    - postLoadExportFlashToJSON
 	- swf_show : Draws the bounding box of instanced Flash sprites in red and their names
 
 * Added Steel Storm 2 Engine render demo fixes
@@ -133,6 +134,7 @@ Left: No post processing except HDR tone mapping. Right: r_useFilmicPostProcessi
 ---
 # ".plan" <a name=".plan"></a>
 
+* If you want to see what is planned or in progress in a Trello style manner look here: [RBDOOM-3-BFG projects](https://github.com/RobertBeckebans/RBDOOM-3-BFG/projects)
 * ~~Fix GPU Skinning with Vulkan~~
 * ~~Fix the lighting with stencil shadows with Vulkan~~
 * ~~Finish adapting the Vulkan renderer backend based on Dustin Land's vkDOOM3~~
@@ -374,31 +376,30 @@ Anyway:
 
 
 ## Gaming Related
-Name                              | Description
+Name                                   | Description
 :--------------------------------------| :------------------------------------------------
 r_antiAliasing                         | Different Anti-Aliasing modes
 r_useShadowMapping [0 or 1]            | Use soft shadow mapping instead of hard stencil shadows
-r_useHDR [0 or 1]                      | Use High Dynamic Range lighting
 r_hdrAutoExposure [0 or 1]             | Adaptive tonemapping with HDR. This allows to have very bright or very dark scenes but the camera will adapt to it so the scene won't loose details
 r_exposure [0 .. 1]                    | Default 0.5, Controls brightness and affects HDR exposure key. This is what you change in the video brightness options
 r_useSSAO [0 .. 1]                     | Use Screen Space Ambient Occlusion to darken the corners in the scene
-r_useFilmicPostProcessing              | Apply several post process effects to mimic a filmic look
+r_useFilmicPostProcessing [0, 1]       | Apply several post process effects to mimic a filmic look
 
 ## Modding Support
 Name                              | Description
 :--------------------------------------| :------------------------------------------------
 exportScriptEvents                     | Command: Generates a new script/doom_events.script that reflects all registered class events in the idClass C++ system. The gamecode still needs to be extended to add the original comments of the events
+exportFGD `[models]`                             | Command: Exports all entity defs to exported/_tb/*.fgd for usage in TrenchBroom
 exportEntityDefsToBlender              | Command: Exports all entity and model defs to exported/entities.json for usage in Blender
-exportEntityFGD                        | Command: Exports all entity defs to exported/_tb/*.fgd for usage in TrenchBroom
 postLoadExportModels                   | Cvar: Export models after loading to OBJ model format. Set it to 1 before loading a map.
 exportMapToOBJ                         | Command: Convert .map file to .obj/.mtl
 postLoadExportFlashAtlas               | Cvar: Set to 1 at startup to dump the Flash images to exported/swf/
 postLoadExportFlashToSWF               | Cvar: Set to 1 at startup to dump the Flash .bswf files as .swf (WIP)
 postLoadExportFlashToJSON              | Cvar: Set to 1 at startup to dump the Flash .bswf files as .json. Can be reimported into the engine and imported into Blender for inspection
 swf_show                               | Cvar: Draws the bounding box of instanced Flash sprites in red and their names
-dmap <mapfile>                         | Command: Compiles a .map to its corresponding BSP .proc, Collision .cm files and Area Awareness System (AI navigation) .aas files. Just type dmap to list all options
-dmap -glview <mapfile>                 | DMap option that exports the BSP areas and portals to .obj for debugging purposes
-convertMapToJSON <mapfile>             | Command: Convert .map file to new .json map format with polygons instead of brushes. This was easy because the original .map format is only an array of entities and each entity has a simple dictionary for its values. This JSON format contains all level data and can be imported and exported to Blender without loosing any data. The new DMap can also compile map files with the .json suffix like regular maps. 
+dmap mapfile                           | Command: Compiles a .map to its corresponding BSP .proc, Collision .cm files and Area Awareness System (AI navigation) .aas files. Just type dmap to list all options
+dmap `[glfile]` mapfile                    | DMap option that exports the BSP areas and portals to .obj for debugging purposes
+convertMapToJSON mapfile               | Command: Convert .map file to new .json map format with polygons instead of brushes. This was easy because the original .map format is only an array of entities and each entity has a simple dictionary for its values. This JSON format contains all level data and can be imported and exported to Blender without loosing any data. The new DMap can also compile map files with the .json suffix like regular maps. 
 <img src="https://i.imgur.com/2k9IvJC.png" width="384"> <img src="https://i.imgur.com/MnUVKcl.png" width="384">
 
 

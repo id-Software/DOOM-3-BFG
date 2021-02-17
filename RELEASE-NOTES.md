@@ -15,10 +15,10 @@ Thank you for downloading RBDOOM-3-BFG.
 
 _______________________________________
 
-TBD end 2020 - Changes since RBDOOM-3-BFG 1.2.0
+TBD Q1/2021 - Changes since RBDOOM-3-BFG 1.2.0
 _______________________________
 
-RBDOOM-3-BFG 1.3.0 is mainly a Phyiscally Based Rendering Update.
+RBDOOM-3-BFG 1.3.0 adds PBR rendering and TrenchBroom mapping support.
 
 Implementing Phyiscally Based Rendering (PBR) in Doom 3 is a challenge and comes with a few compromises because the Doom 3 content was designed to work with the hardware constraints in 2004 and that even meant to run on a Geforce 3.
 
@@ -73,6 +73,15 @@ The main goal is that the new content looks the same in RBDOOM-3-BFG as in Blend
 
 * ImGui runs with Vulkan by skipping all Vulkan implementation details for it and rendering ImGui on a higher level like the Flash GUI
 
+[TRENCHBROOM]
+
+* idMapFile and dmap were changed to support the Valve 220 .map format to aid mapping with TrenchBroom
+
+* Added exportFGD [models] console command which exports all def/*.def entityDef declarations to base/exported/_tb/ as Forge Game Data files. TrenchBroom has native support to read those files https://developer.valvesoftware.com/wiki/FGD.
+Using the models argument will also export all needed models by entity declarations to base/_tb/ as Wavefront OBJ files.
+
+* To make it easier getting static models from Blender/Maya/3D Studio Max into TrenchBroom and the engine Wavefront OBJ model support has been ported from IcedTech
+
 [MISCELLANEOUS]
 
 * com_showFPS 1 uses ImGui to show more detailed renderer stats like the console prints with r_speeds
@@ -81,7 +90,7 @@ The main goal is that the new content looks the same in RBDOOM-3-BFG as in Blend
 
 * Added Blue Noise based Filmic Dithering by Timothy Lottes and Chromatic Aberration
 
-* Added Contrast Adaptive Sharpening (AMD) by Justin Marshal (IcedTech)
+* Added Contrast Adaptive Sharpening (AMD) by Justin Marshall (IcedTech)
 
 * Improved Shadow Mapping quality with Vogel Disk Sampling by Panos Karabelas and using dithering the result with Blue Noise magic by Alan Wolfe
 
@@ -100,6 +109,8 @@ The main goal is that the new content looks the same in RBDOOM-3-BFG as in Blend
 * Renamed r_useFilmicPostProcessEffects to r_useFilmicPostProcessing
 
 * Replaced Motion Blur System Option with Filmic VFX (r_useFilmicPostProcessing)
+
+* Windows builds still require OpenGL 4.5 but they run in compatibility profile instead of core profile
 
 
 

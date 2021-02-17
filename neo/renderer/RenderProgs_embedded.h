@@ -7289,7 +7289,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.\n"
 		"Copyright (C) 2015-2020 Robert Beckebans\n"
 		"Copyright (C) 2014 Timothy Lottes (AMD)\n"
-		"Copyright (C) 2019 Justin Marshal (IcedTech)\n"
+		"Copyright (C) 2019 Justin Marshall (IcedTech)\n"
 		"\n"
 		"This file is part of the Doom 3 BFG Edition GPL Source Code (\"Doom 3 BFG Edition Source Code\").\n"
 		"\n"
