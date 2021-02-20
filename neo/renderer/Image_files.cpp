@@ -1227,7 +1227,6 @@ retry:
 	*/
 }
 
-
 /*
 =======================
 R_LoadCubeImages
@@ -1281,6 +1280,7 @@ bool R_LoadCubeImages( const char* imgName, cubeFiles_t extensions, byte* pics[6
 		{
 			R_LoadImageProgram( fullName, &pics[i], &width, &height, &thisTime );
 		}
+
 		if( thisTime == FILE_NOT_FOUND_TIMESTAMP )
 		{
 			break;

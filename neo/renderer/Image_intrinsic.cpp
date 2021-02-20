@@ -956,6 +956,7 @@ static void R_CreateBrdfLutImage( idImage* image )
 
 // RB end
 
+
 /*
 ================
 idImageManager::CreateIntrinsicImages

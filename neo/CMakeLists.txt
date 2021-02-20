@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8) # Eric: These are rookie numbers, you need to bump those numbers up.
+cmake_minimum_required(VERSION 3.2)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 project(RBDoom3BFG)

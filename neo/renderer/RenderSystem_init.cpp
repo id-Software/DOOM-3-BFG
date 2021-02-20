@@ -313,7 +313,6 @@ const char* skyDirection[6] = { "_forward", "_back", "_left", "_right", "_up", "
 
 
 
-
 /*
 =============================
 R_SetNewMode

@@ -542,7 +542,7 @@ void R_RenderView( viewDef_t* parms )
 	// RB: find closest environment probe
 	if( tr.viewDef->areaNum != -1 && !tr.viewDef->isSubview )
 	{
-		float bestDist = 900000.0f;
+		float bestDist = idMath::INFINITY;
 
 		for( viewEnvprobe_t* vProbe = tr.viewDef->viewEnvprobes; vProbe != NULL; vProbe = vProbe->next )
 		{

@@ -471,6 +471,7 @@ static void R_CheckPortableExtensions()
 }
 // RB end
 
+
 idStr extensions_string;
 
 /*

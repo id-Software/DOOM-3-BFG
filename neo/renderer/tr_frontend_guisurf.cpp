@@ -158,18 +158,19 @@ static void R_RenderGuiSurf( idUserInterface* gui, const drawSurf_t* drawSurf )
 	float guiModelMatrix[16];
 	float modelMatrix[16];
 
-	guiModelMatrix[0 * 4 + 0] = axis[0][0] * ( 1.0f / 640.0f );
-	guiModelMatrix[1 * 4 + 0] = axis[1][0] * ( 1.0f / 480.0f );
+	guiModelMatrix[0 * 4 + 0] = axis[0][0] * ( 1.0f / SCREEN_WIDTH );
+	guiModelMatrix[1 * 4 + 0] = axis[1][0] * ( 1.0f / SCREEN_HEIGHT );
 	guiModelMatrix[2 * 4 + 0] = axis[2][0];
 	guiModelMatrix[3 * 4 + 0] = origin[0];
 
-	guiModelMatrix[0 * 4 + 1] = axis[0][1] * ( 1.0f / 640.0f );
-	guiModelMatrix[1 * 4 + 1] = axis[1][1] * ( 1.0f / 480.0f );
+	guiModelMatrix[0 * 4 + 1] = axis[0][1] * ( 1.0f / SCREEN_WIDTH );
+	guiModelMatrix[1 * 4 + 1] = axis[1][1] * ( 1.0f / SCREEN_HEIGHT );
 	guiModelMatrix[2 * 4 + 1] = axis[2][1];
 	guiModelMatrix[3 * 4 + 1] = origin[1];
 
-	guiModelMatrix[0 * 4 + 2] = axis[0][2] * ( 1.0f / 640.0f );
-	guiModelMatrix[1 * 4 + 2] = axis[1][2] * ( 1.0f / 480.0f );
+	guiModelMatrix[0 * 4 + 2] = axis[0][2] * ( 1.0f / SCREEN_WIDTH );
+	guiModelMatrix[1 * 4 + 2] = axis[1][2] * ( 1.0f / SCREEN_HEIGHT );
+
 	guiModelMatrix[2 * 4 + 2] = axis[2][2];
 	guiModelMatrix[3 * 4 + 2] = origin[2];
 
@@ -204,15 +205,14 @@ void R_AddInGameGuis( const drawSurf_t* const drawSurfs[], const int numDrawSurf
 	for( int i = 0; i < numDrawSurfs; i++ )
 	{
 		const drawSurf_t* drawSurf = drawSurfs[i];
-
-		idUserInterface*	gui = drawSurf->material->GlobalGui();
+		idUserInterface* gui = drawSurf->material->GlobalGui();
 
 		int guiNum = drawSurf->material->GetEntityGui() - 1;
 		if( guiNum >= 0 && guiNum < MAX_RENDERENTITY_GUI )
 		{
 			if( drawSurf->space->entityDef != NULL )
 			{
-				gui = drawSurf->space->entityDef->parms.gui[ guiNum ];
+				gui = drawSurf->space->entityDef->parms.gui[guiNum];
 			}
 		}
 

@@ -558,7 +558,7 @@ void idCommonLocal::Frame()
 				|| ( game && game->InhibitControls() && !IsPlayingDoomClassic() ) || ImGuiTools::ReleaseMouseForTools() )
 #else
 		if( com_pause.GetInteger() || console->Active() || Dialog().IsDialogActive() || session->IsSystemUIShowing()
-				|| ( game && game->InhibitControls() ) )
+				|| ( game && game->InhibitControls() ) ||  ImGuiTools::ReleaseMouseForTools() )
 #endif
 			// RB end, DG end
 		{

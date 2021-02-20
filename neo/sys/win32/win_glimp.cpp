@@ -1059,7 +1059,6 @@ static bool GLW_GetWindowDimensions( const glimpParms_t parms, int& x, int& y, i
 	return true;
 }
 
-
 /*
 =======================
 GLW_CreateWindow

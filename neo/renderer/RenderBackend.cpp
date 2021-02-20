@@ -2078,6 +2078,11 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 		return;
 	}
 
+	if( !drawSurfs )
+	{
+		return;
+	}
+
 	// if we are just doing 2D rendering, no need to fill the depth buffer
 	if( viewDef->viewEntitys == NULL )
 	{

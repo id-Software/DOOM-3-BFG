@@ -1287,6 +1287,7 @@ void idGameLocal::PopulateEnvironmentProbes()
 	const idDict* envProbeDef = gameLocal.FindEntityDefDict( "env_probe", false );
 	if( !envProbeDef )
 	{
+		Printf( "entityDef env_probe missing in base/def/" );
 		return;
 	}
 
