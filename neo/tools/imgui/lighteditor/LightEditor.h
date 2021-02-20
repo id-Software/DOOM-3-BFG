@@ -60,11 +60,6 @@ public:
 #if 0 // FIXME: unused, delete?
 	bool		fog;
 	idVec4		fogDensity;
-
-	bool		strobe;
-	float		strobeSpeed;
-	bool		rotate;
-	float		rotateSpeed;
 #endif // 0
 
 	idVec3		lightRadius;
@@ -86,8 +81,10 @@ public:
 class LightEditor
 {
 private:
-	idStr title;
-	idStr entityName;
+	idStr	title;
+	idStr	entityName;
+	idVec3	entityPos;
+
 	LightInfo original;
 	LightInfo cur; // current status of the light
 

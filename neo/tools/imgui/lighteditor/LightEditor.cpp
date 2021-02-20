@@ -324,17 +324,19 @@ void LightEditor::Init( const idDict* dict, idEntity* light )
 		original.FromDict( dict );
 		cur.FromDict( dict );
 
+		gameEdit->EntityGetOrigin( light, entityPos );
+
 		const char* name = dict->GetString( "name", NULL );
 		if( name )
 		{
 			entityName = name;
-			title.Format( "Light Editor: %s", name );
+			title.Format( "Light Editor: %s at (%s)", name, entityPos.ToString() );
 		}
 		else
 		{
-			idassert( 0 && "LightEditor::Init(): Given entity has no 'name' property?!" );
+			//idassert( 0 && "LightEditor::Init(): Given entity has no 'name' property?!" );
 			entityName = ""; // TODO: generate name or handle gracefully or something?
-			title.Format( "Light Editor: <unnamed> light" );
+			title.Format( "Light Editor: <unnamed> light at (%s)", entityPos.ToString() );
 		}
 
 		currentTextureIndex = 0;
@@ -359,14 +361,20 @@ void LightEditor::Init( const idDict* dict, idEntity* light )
 			currentStyleIndex = original.lightStyle + 1;
 		}
 	}
+
 	this->lightEntity = light;
 }
 
 void LightEditor::Reset()
 {
 	title = "Light Editor: no Light selected!";
+	entityPos.x = idMath::INFINITY;
+	entityPos.y = idMath::INFINITY;
+	entityPos.z = idMath::INFINITY;
+
 	original.Defaults();
 	cur.Defaults();
+
 	lightEntity = NULL;
 	currentTextureIndex = 0;
 	currentTexture = NULL;
@@ -520,21 +528,13 @@ void LightEditor::SaveChanges()
 	{
 		gameEdit->MapCopyDictToEntity( entityName, &d );
 	}
-	else
+	else if( entityPos.x != idMath::INFINITY )
 	{
-		assert( 0 && "FIXME: implement LightEditor::SaveChanges() properly for entities without names (new ones?)" );
-
-#if 0 // TODO: I'm not quite sure about this, we prolly need to set a name before anyway for TempApplyChanges()
-		entityName = "light_42"; // FIXME: generate unique name!!
-		title.Format( "Light Editor: %s", entityName );
-
+		entityName = gameEdit->GetUniqueEntityName( "light" );
 		d.Set( "name", entityName );
 
-		d.Set( "classname", "light" );
-		d.Set( "spawnclass", "idLight" );
-
-		gameEdit->MapAddEntity( &d );
-#endif // 0
+		// RB: this is really HACKY
+		gameEdit->MapCopyDictToEntityAtOrigin( entityPos, &d );
 	}
 
 	gameEdit->MapSave();

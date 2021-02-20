@@ -1600,6 +1600,31 @@ idMapEntity* idMapFile::FindEntity( const char* name )
 
 /*
 ===============
+RB idMapFile::FindEntityAtOrigin
+===============
+*/
+idMapEntity* idMapFile::FindEntityAtOrigin( const idVec3& org )
+{
+	idBounds bo( org );
+	bo.ExpandSelf( 0.125f );
+
+	for( int i = 0; i < entities.Num(); i++ )
+	{
+		idMapEntity* ent = entities[i];
+
+		idVec3 entPos;
+		ent->epairs.GetVector( "origin", "", entPos );
+
+		if( bo.ContainsPoint( entPos ) )
+		{
+			return ent;
+		}
+	}
+	return NULL;
+}
+
+/*
+===============
 idMapFile::RemoveEntity
 ===============
 */

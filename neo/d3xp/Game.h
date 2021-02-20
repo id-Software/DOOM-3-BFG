@@ -245,7 +245,7 @@ public:
 
 	// Animation system calls for non-game based skeletal rendering.
 	virtual idRenderModel* 		ANIM_GetModelFromEntityDef( const char* classname );
-	virtual const idVec3&		 ANIM_GetModelOffsetFromEntityDef( const char* classname );
+	virtual const idVec3&		ANIM_GetModelOffsetFromEntityDef( const char* classname );
 	virtual idRenderModel* 		ANIM_GetModelFromEntityDef( const idDict* args );
 	virtual idRenderModel* 		ANIM_GetModelFromName( const char* modelName );
 	virtual const idMD5Anim* 	ANIM_GetAnimFromEntityDef( const char* classname, const char* animname );
@@ -305,6 +305,7 @@ public:
 	virtual void				MapSave( const char* path = NULL ) const;
 	virtual void				MapSetEntityKeyVal( const char* name, const char* key, const char* val ) const ;
 	virtual void				MapCopyDictToEntity( const char* name, const idDict* dict ) const;
+	virtual void				MapCopyDictToEntityAtOrigin( const idVec3& org, const idDict* dict ) const;
 	virtual int					MapGetUniqueMatchingKeyVals( const char* key, const char* list[], const int max ) const;
 	virtual void				MapAddEntity( const idDict* dict ) const;
 	virtual int					MapGetEntitiesMatchingClassWithString( const char* classname, const char* match, const char* list[], const int max ) const;

@@ -502,6 +502,7 @@ public:
 
 	int						AddEntity( idMapEntity* mapentity );
 	idMapEntity* 			FindEntity( const char* name );
+	idMapEntity*			FindEntityAtOrigin( const idVec3& org ); // RB
 	void					RemoveEntity( idMapEntity* mapEnt );
 	void					RemoveEntities( const char* classname );
 	void					RemoveAllEntities();
