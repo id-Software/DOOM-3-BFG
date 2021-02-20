@@ -718,6 +718,8 @@ private:
 	void					ShowTargets();
 	void					RunDebugInfo();
 
+	void					RunSharedThink();
+
 	void					InitScriptForMap();
 	void					SetScriptFPS( const float com_engineHz );
 	void					SpawnPlayer( int clientNum );

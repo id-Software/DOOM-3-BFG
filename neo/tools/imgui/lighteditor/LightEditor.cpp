@@ -4,6 +4,7 @@
 Doom 3 GPL Source Code
 Copyright (C) 1999-2011 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2015 Daniel Gibson
+Copyright (C) 2020-2021 Robert Beckebans
 
 This file is part of the Doom 3 GPL Source Code ("Doom 3 Source Code").
 
@@ -68,9 +69,9 @@ void LightInfo::Defaults()
 	lightRadius.Zero();
 	castShadows = true;
 	castSpecular = true;
-	castDiffuse = true;
 	hasCenter = false;
 	isParallel = false;
+	lightStyle = -1;
 }
 
 
@@ -95,7 +96,6 @@ void LightInfo::DefaultProjected()
 
 void LightInfo::FromDict( const idDict* e )
 {
-
 	lightRadius.Zero();
 	lightTarget.Zero();
 	lightRight.Zero();
@@ -106,7 +106,6 @@ void LightInfo::FromDict( const idDict* e )
 
 	castShadows = !e->GetBool( "noshadows" );
 	castSpecular = !e->GetBool( "nospecular" );
-	castDiffuse = !e->GetBool( "nodiffuse" );
 	fallOff = e->GetFloat( "falloff" );
 	strTexture = e->GetString( "texture" );
 
@@ -176,6 +175,9 @@ void LightInfo::FromDict( const idDict* e )
 			hasCenter = true;
 		}
 	}
+
+	// RB: Quake 1 light styles
+	lightStyle = e->GetInt( "style", -1 );
 }
 
 // the returned idDict is supposed to be used by idGameEdit::EntityChangeSpawnArgs()
@@ -190,7 +192,6 @@ void LightInfo::ToDict( idDict* e )
 
 	e->Set( "noshadows", ( !castShadows ) ? "1" : "0" );
 	e->Set( "nospecular", ( !castSpecular ) ? "1" : "0" );
-	e->Set( "nodiffuse", ( !castDiffuse ) ? "1" : "0" );
 
 	e->SetFloat( "falloff", fallOff );
 
@@ -265,6 +266,16 @@ void LightInfo::ToDict( idDict* e )
 		e->Set( "light_center", DELETE_VAL );
 		e->Set( "parallel", DELETE_VAL );
 	}
+
+	// RB: Quake 1 light styles
+	if( lightStyle != -1 )
+	{
+		e->SetInt( "style", lightStyle );
+	}
+	else
+	{
+		e->Set( "style", DELETE_VAL );
+	}
 }
 
 LightInfo::LightInfo()
@@ -303,10 +314,14 @@ void LightEditor::Init( const idDict* dict, idEntity* light )
 		LoadLightTextures();
 	}
 
+	if( styleNames.Num() == 0 )
+	{
+		LoadLightStyles();
+	}
+
 	if( dict )
 	{
 		original.FromDict( dict );
-		//current = original;
 		cur.FromDict( dict );
 
 		const char* name = dict->GetString( "name", NULL );
@@ -319,6 +334,7 @@ void LightEditor::Init( const idDict* dict, idEntity* light )
 		{
 			idassert( 0 && "LightEditor::Init(): Given entity has no 'name' property?!" );
 			entityName = ""; // TODO: generate name or handle gracefully or something?
+			title.Format( "Light Editor: <unnamed> light" );
 		}
 
 		currentTextureIndex = 0;
@@ -336,6 +352,12 @@ void LightEditor::Init( const idDict* dict, idEntity* light )
 				}
 			}
 		}
+
+		// RB: light styles
+		if( original.lightStyle >= 0 )
+		{
+			currentStyleIndex = original.lightStyle + 1;
+		}
 	}
 	this->lightEntity = light;
 }
@@ -348,6 +370,8 @@ void LightEditor::Reset()
 	lightEntity = NULL;
 	currentTextureIndex = 0;
 	currentTexture = NULL;
+
+	currentStyleIndex = 0;
 }
 
 namespace
@@ -365,37 +389,45 @@ public:
 void LightEditor::LoadLightTextures()
 {
 	textureNames.Clear();
+
 	int count = declManager->GetNumDecls( DECL_MATERIAL );
-	const idMaterial* mat;
+
 	for( int i = 0; i < count; i++ )
 	{
-		mat = declManager->MaterialByIndex( i, false );
+		const idMaterial* mat = declManager->MaterialByIndex( i, false );
+
 		idStr str = mat->GetName();
 		str.ToLower(); // FIXME: why? (this is from old doom3 code)
+
 		if( str.Icmpn( "lights/", strlen( "lights/" ) ) == 0 || str.Icmpn( "fogs/", strlen( "fogs/" ) ) == 0 )
 		{
 			textureNames.Append( str );
 		}
 	}
+
 	textureNames.SortWithTemplate( idSort_textureNames() );
 }
 
 // static
-bool LightEditor::TextureItemsGetter( void* data, int idx, const char** out_text )
+bool LightEditor::TextureItemsGetter( void* data, int idx, const char** outText )
 {
 	LightEditor* self = static_cast<LightEditor*>( data );
 	if( idx == 0 )
 	{
-		*out_text = "<No Texture>";
+		*outText = "<No Texture>";
 		return true;
 	}
-	--idx; // as index 0 has special purpose, the "real" index is one less
+
+	// as index 0 has special purpose, the "real" index is one less
+	--idx;
+
 	if( idx < 0 || idx >= self->textureNames.Num() )
 	{
-		*out_text = "<Invalid Index!>";
+		*outText = "<Invalid Index!>";
 		return false;
 	}
-	*out_text = self->textureNames[idx].c_str();
+
+	*outText = self->textureNames[idx].c_str();
 
 	return true;
 }
@@ -403,6 +435,7 @@ bool LightEditor::TextureItemsGetter( void* data, int idx, const char** out_text
 void LightEditor::LoadCurrentTexture()
 {
 	currentTexture = NULL;
+
 	if( currentTextureIndex > 0 && cur.strTexture.Length() > 0 )
 	{
 		const idMaterial* mat = declManager->FindMaterial( cur.strTexture, false );
@@ -413,12 +446,67 @@ void LightEditor::LoadCurrentTexture()
 	}
 }
 
+void LightEditor::LoadLightStyles()
+{
+	styleNames.Clear();
+
+	const idDeclEntityDef* decl = static_cast<const idDeclEntityDef*>( declManager->FindType( DECL_ENTITYDEF, "light", false ) );
+	if( decl == NULL )
+	{
+		return;
+	}
+
+	int numStyles = decl->dict.GetInt( "num_styles", "0" );
+	if( numStyles > 0 )
+	{
+		for( int i = 0; i < numStyles; i++ )
+		{
+			idStr style = decl->dict.GetString( va( "light_style%d", i ) );
+			styleNames.Append( style );
+		}
+	}
+	else
+	{
+		// RB: it's not defined in entityDef light so use predefined Quake 1 table
+		for( int i = 0; i < 12; i++ )
+		{
+			idStr style( predef_lightstylesinfo[ i ] );
+			styleNames.Append( style );
+		}
+	}
+}
+
+// static
+bool LightEditor::StyleItemsGetter( void* data, int idx, const char** outText )
+{
+	LightEditor* self = static_cast<LightEditor*>( data );
+	if( idx == 0 )
+	{
+		*outText = "<No Lightstyle>";
+		return true;
+	}
+
+	// as index 0 has special purpose, the "real" index is one less
+	--idx;
+
+	if( idx < 0 || idx >= self->styleNames.Num() )
+	{
+		*outText = "<Invalid Index!>";
+		return false;
+	}
+
+	*outText = self->styleNames[idx].c_str();
+
+	return true;
+}
+
 void LightEditor::TempApplyChanges()
 {
 	if( lightEntity != NULL )
 	{
 		idDict d;
 		cur.ToDict( &d );
+
 		gameEdit->EntityChangeSpawnArgs( lightEntity, &d );
 		gameEdit->EntityUpdateChangeableSpawnArgs( lightEntity, NULL );
 	}
@@ -448,6 +536,7 @@ void LightEditor::SaveChanges()
 		gameEdit->MapAddEntity( &d );
 #endif // 0
 	}
+
 	gameEdit->MapSave();
 }
 
@@ -457,6 +546,7 @@ void LightEditor::CancelChanges()
 	{
 		idDict d;
 		original.ToDict( &d );
+
 		gameEdit->EntityChangeSpawnArgs( lightEntity, &d );
 		gameEdit->EntityUpdateChangeableSpawnArgs( lightEntity, NULL );
 	}
@@ -476,8 +566,7 @@ void LightEditor::DrawWindow()
 		bool changes = false;
 
 		changes |= ImGui::Checkbox( "Cast Shadows", &cur.castShadows );
-		ImGui::SameLine();
-		changes |= ImGui::Checkbox( "Cast Diffuse", &cur.castDiffuse );
+		//ImGui::SameLine();
 		changes |= ImGui::Checkbox( "Cast Specular", &cur.castSpecular );
 
 		ImGui::Spacing();
@@ -573,9 +662,20 @@ void LightEditor::DrawWindow()
 
 		ImGui::Unindent();
 
+		if( ImGui::Combo( "Style", &currentStyleIndex, StyleItemsGetter, this, styleNames.Num() + 1 ) )
+		{
+			changes = true;
+
+			// -1 because 0 is "<No Lightstyle>"
+			cur.lightStyle = ( currentStyleIndex > 0 ) ? currentStyleIndex - 1 : -1;
+		}
+
+		ImGui::Spacing();
+
 		if( ImGui::Combo( "Texture", &currentTextureIndex, TextureItemsGetter, this, textureNames.Num() + 1 ) )
 		{
 			changes = true;
+
 			// -1 because 0 is "<No Texture>"
 			cur.strTexture = ( currentTextureIndex > 0 ) ? textureNames[currentTextureIndex - 1] : "";
 			LoadCurrentTexture();
@@ -591,6 +691,8 @@ void LightEditor::DrawWindow()
 		// TODO: allow multiple lights selected at the same time + "apply different" button?
 		//       then only the changed attribute (e.g. color) would be set to all lights,
 		//       but they'd keep their other individual properties (eg radius)
+
+		ImGui::Spacing();
 
 		if( ImGui::Button( "Save to .map" ) )
 		{

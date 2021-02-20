@@ -2590,6 +2590,22 @@ void idGameLocal::RunEntityThink( idEntity& ent, idUserCmdMgr& userCmdMgr )
 
 idCVar g_recordTrace( "g_recordTrace", "0", CVAR_BOOL, "" );
 
+// jmarshall
+/*
+================
+idGameLocal::RunSharedThink
+================
+*/
+void idGameLocal::RunSharedThink( void )
+{
+	idEntity* ent;
+	for( ent = activeEntities.Next(); ent != NULL; ent = ent->activeNode.Next() )
+	{
+		ent->SharedThink();
+	}
+}
+// jmarshall end
+
 /*
 ================
 idGameLocal::RunFrame
@@ -2766,7 +2782,9 @@ void idGameLocal::RunFrame( idUserCmdMgr& cmdMgr, gameReturn_t& ret )
 			}
 
 			RunTimeGroup2( cmdMgr );
-
+// jmarshall
+			RunSharedThink();
+// jmarshall end
 			// Run catch-up for any client projectiles.
 			// This is done after the main think so that all projectiles will be up-to-date
 			// when snapshots are created.

@@ -70,9 +70,9 @@ public:
 	idVec3		lightRadius;
 	bool		castShadows;
 	bool		castSpecular;
-	bool		castDiffuse;
 	bool		hasCenter;
 	bool		isParallel;
+	int			lightStyle;
 
 	LightInfo();
 
@@ -85,6 +85,7 @@ public:
 
 class LightEditor
 {
+private:
 	idStr title;
 	idStr entityName;
 	LightInfo original;
@@ -95,6 +96,13 @@ class LightEditor
 	idList<idStr> textureNames;
 	int currentTextureIndex;
 	idImage* currentTexture;
+
+	// RB: light style support
+	idList<idStr> styleNames;
+	int currentStyleIndex;
+
+	void LoadLightStyles();
+	static bool StyleItemsGetter( void* data, int idx, const char** out_text );
 
 	void Init( const idDict* dict, idEntity* light );
 	void Reset();

@@ -367,6 +367,40 @@ typedef enum
 
 class idSoundEmitter;
 
+// RB: predefined Quake 1 light styles
+static char* predef_lightstyles[] =
+{
+	"m",
+	"mmnmmommommnonmmonqnmmo",
+	"abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba",
+	"mmmmmaaaaammmmmaaaaaabcdefgabcdefg",
+	"mamamamamama",
+	"jklmnopqrstuvwxyzyxwvutsrqponmlkj",
+	"nmonqnmomnmomomno",
+	"mmmaaaabcdefgmmmmaaaammmaamm",
+	"mmmaaammmaaammmabcdefaaaammmmabcdefmmmaaaa",
+	"aaaaaaaazzzzzzzz",
+	"mmamammmmammamamaaamammma",
+	"abcdefghijklmnopqrrqponmlkjihgfedcba"
+};
+
+static char* predef_lightstylesinfo[] =
+{
+	"Normal",
+	"Flicker A",
+	"Slow Strong Pulse",
+	"Candle A",
+	"Fast Strobe",
+	"Gentle Pulse",
+	"Flicker B",
+	"Candle B",
+	"Candle C",
+	"Slow Strobe",
+	"Fluorescent Flicker",
+	"Slow Pulse (no black)"
+};
+// RB end
+
 class idMaterial : public idDecl
 {
 public:
