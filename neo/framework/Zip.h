@@ -31,7 +31,9 @@ If you have questions concerning this license or the applicable additional terms
 #include <zlib.h>
 
 // DG: all the zip access stuff from minizip is now in minizip/zip.h
-#include "libs/zlib/minizip/zip.h"
+#ifndef TYPEINFOPROJECT
+	#include "libs/zlib/minizip/zip.h"
+#endif
 
 
 /*
@@ -71,10 +73,11 @@ public:
 	void				CleanSourceFolder();
 
 	bool				CreateZipFileFromFileList( const char* name, const idList< idFile_Memory* >& srcFiles );
-
+#ifndef TYPEINFOPROJECT
 	zipFile				CreateZipFile( const char* name );
 	bool				AddFile( zipFile zf, idFile_Memory* fm, bool deleteFile );
 	void				CloseZipFile( zipFile zf );
+#endif
 private:
 	bool				CreateZipFile( bool appendFiles );
 	bool				CreateZipFileFromFiles( const idList< idFile_Memory* >& srcFiles );

@@ -1746,7 +1746,14 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 
 		// apply the world-global overbright and the 2x factor for specular
 		const idVec4 diffuseColor = lightColor;
-		const idVec4 specularColor = lightColor * 2.0f;
+// jmarshall
+		idVec4 specularColor = lightColor * 2.0f;
+
+		if( vLight->lightDef->parms.noSpecular )
+		{
+			specularColor.Zero();
+		}
+// jmarshall end
 
 		float lightTextureMatrix[16];
 		if( lightStage->texture.hasMatrix )

@@ -1420,13 +1420,14 @@ void idCommonLocal::Init( int argc, const char* const* argv, const char* cmdline
 		AddStartupCommands();
 
 		StartMenu( true );
-
+#ifndef ID_RETAIL
 		while( Sys_Milliseconds() - legalStartTime < legalMinTime )
 		{
 			RenderSplash();
 			Sys_GenerateEvents();
 			Sys_Sleep( 10 );
 		};
+#endif
 
 		// print all warnings queued during initialization
 		PrintWarnings();

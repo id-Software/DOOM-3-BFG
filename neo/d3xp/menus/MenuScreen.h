@@ -29,7 +29,9 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __MENUSCREEN_H__
 #define __MENUSCREEN_H__
 
-#include "../../renderer/RenderCommon.h"
+#ifndef __TYPEINFOGEN__
+	#include "../../renderer/RenderCommon.h"
+#endif
 
 enum mainMenuTransition_t
 {

@@ -182,6 +182,7 @@ public:
 	virtual bool		PostReloadEngine() = 0;
 
 	// Default argument completion functions.
+	static void			ArgCompletion_DefFile( const idCmdArgs& args, void( *callback )( const char* s ) );
 	static void			ArgCompletion_Boolean( const idCmdArgs& args, void( *callback )( const char* s ) );
 	template<int min, int max>
 	static void			ArgCompletion_Integer( const idCmdArgs& args, void( *callback )( const char* s ) );
@@ -203,6 +204,10 @@ public:
 
 extern idCmdSystem* 	cmdSystem;
 
+ID_INLINE void idCmdSystem::ArgCompletion_DefFile( const idCmdArgs& args, void( *callback )( const char* s ) )
+{
+	cmdSystem->ArgCompletion_FolderExtension( args, callback, "def/", true, ".def", NULL );
+}
 
 ID_INLINE void idCmdSystem::ArgCompletion_Boolean( const idCmdArgs& args, void( *callback )( const char* s ) )
 {

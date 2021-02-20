@@ -135,7 +135,6 @@ private:
 	void			Event_On();
 	void			Event_Off();
 	void			Event_ToggleOnOff( idEntity* activator );
-	void			Event_SetSoundHandles();
 	void			Event_FadeOut( float time );
 	void			Event_FadeIn( float time );
 };

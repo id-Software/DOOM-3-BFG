@@ -126,6 +126,9 @@ idVec4	colorBrown	= idVec4( 0.40f, 0.35f, 0.08f, 1.00f );
 idVec4	colorLtGrey	= idVec4( 0.75f, 0.75f, 0.75f, 1.00f );
 idVec4	colorMdGrey	= idVec4( 0.50f, 0.50f, 0.50f, 1.00f );
 idVec4	colorDkGrey	= idVec4( 0.25f, 0.25f, 0.25f, 1.00f );
+// jmarshall
+idVec4  colorGold = idVec4( 0.68, 0.63, 0.36, 1.00f );
+// jmarshall end
 
 /*
 ================

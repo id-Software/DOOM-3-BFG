@@ -2989,7 +2989,7 @@ void idFileSystemLocal::AddGameDirectory( const char* path, const char* dir )
 			pakfile = BuildOSPath( path, dir, "" );
 			pakfile[ pakfile.Length() - 1 ] = 0;	// strip the trailing slash
 		}
-
+#ifndef TYPEINFOPROJECT
 		idStrList pakfiles;
 		ListOSFiles( pakfile, ".resources", pakfiles );
 		pakfiles.SortWithTemplate( idSort_PathStr() );
@@ -3014,6 +3014,7 @@ void idFileSystemLocal::AddGameDirectory( const char* path, const char* dir )
 				}
 			}
 		}
+#endif
 	}
 	// RB end
 }

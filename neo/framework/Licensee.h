@@ -43,6 +43,10 @@ If you have questions concerning this license or the applicable additional terms
 #define ENGINE_VERSION					"RBDOOM 3 BFG 1.3.0"	// printed in console
 // RB end
 
+// jmarshall
+#define ENGINE_BRANCH					"master"
+// jmarshall end
+
 #define	BASE_GAMEDIR					"base"
 
 #define CONFIG_FILE						"D3BFGConfig.cfg"
