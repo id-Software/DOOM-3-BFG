@@ -389,7 +389,12 @@ void Sys_CreateConsole() {
 												win32.hInstance, NULL );
 	SendMessage( s_wcd.hwndBuffer, WM_SETFONT, ( WPARAM ) s_wcd.hfBufferFont, 0 );
 
+#if defined _WIN64
+	s_wcd.SysInputLineWndProc = (WNDPROC)SetWindowLong(s_wcd.hwndInputLine, GWLP_WNDPROC, (long)InputLineWndProc);
+#else
 	s_wcd.SysInputLineWndProc = ( WNDPROC ) SetWindowLong( s_wcd.hwndInputLine, GWL_WNDPROC, ( long ) InputLineWndProc );
+#endif
+
 	SendMessage( s_wcd.hwndInputLine, WM_SETFONT, ( WPARAM ) s_wcd.hfBufferFont, 0 );
 
 // don't show it now that we have a splash screen up

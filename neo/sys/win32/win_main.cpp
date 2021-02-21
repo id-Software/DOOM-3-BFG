@@ -569,7 +569,11 @@ Sys_ListFiles
 int Sys_ListFiles( const char *directory, const char *extension, idStrList &list ) {
 	idStr		search;
 	struct _finddata_t findinfo;
+#if defined _WIN64
+	intptr_t	findhandle;
+#else
 	int			findhandle;
+#endif
 	int			flag;
 
 	if ( !extension) {
@@ -1284,12 +1288,17 @@ HackChkStk
 ====================
 */
 void HackChkStk() {
+
+#if defined _WIN64
+	//TODO: Implement
+#else
 	DWORD	old;
 	VirtualProtect( _chkstk, 6, PAGE_EXECUTE_READWRITE, &old );
 	*(byte *)_chkstk = 0xe9;
 	*(int *)((int)_chkstk+1) = (int)clrstk - (int)_chkstk - 5;
 
 	TestChkStk();
+#endif
 }
 
 /*
@@ -1384,6 +1393,15 @@ EXCEPTION_DISPOSITION __cdecl _except_handler( struct _EXCEPTION_RECORD *Excepti
 	static char msg[ 8192 ];
 	char FPUFlags[2048];
 
+#if defined _WIN64
+	Sys_FPU_PrintStateFlags(FPUFlags, ContextRecord->FltSave.ControlWord,
+		ContextRecord->FltSave.StatusWord,
+		ContextRecord->FltSave.TagWord,
+		ContextRecord->FltSave.ErrorOffset,
+		ContextRecord->FltSave.ErrorSelector,
+		ContextRecord->FltSave.DataOffset,
+		ContextRecord->FltSave.DataSelector);
+#else
 	Sys_FPU_PrintStateFlags( FPUFlags, ContextRecord->FloatSave.ControlWord,
 										ContextRecord->FloatSave.StatusWord,
 										ContextRecord->FloatSave.TagWord,
@@ -1391,6 +1409,7 @@ EXCEPTION_DISPOSITION __cdecl _except_handler( struct _EXCEPTION_RECORD *Excepti
 										ContextRecord->FloatSave.ErrorSelector,
 										ContextRecord->FloatSave.DataOffset,
 										ContextRecord->FloatSave.DataSelector );
+#endif
 
 
 	sprintf( msg, 
@@ -1423,11 +1442,19 @@ EXCEPTION_DISPOSITION __cdecl _except_handler( struct _EXCEPTION_RECORD *Excepti
 			ExceptionRecord->ExceptionCode,
 			ExceptionRecord->ExceptionAddress,
 			GetExceptionCodeInfo( ExceptionRecord->ExceptionCode ),
+#if defined _WIN64
+			ContextRecord->Rax, ContextRecord->Rbx,
+			ContextRecord->Rcx, ContextRecord->Rdx,
+			ContextRecord->Rsi, ContextRecord->Rdi,
+			ContextRecord->Rip, ContextRecord->Rsp,
+			ContextRecord->Rbp, ContextRecord->EFlags,
+#else
 			ContextRecord->Eax, ContextRecord->Ebx,
 			ContextRecord->Ecx, ContextRecord->Edx,
 			ContextRecord->Esi, ContextRecord->Edi,
 			ContextRecord->Eip, ContextRecord->Esp,
 			ContextRecord->Ebp, ContextRecord->EFlags,
+#endif
 			ContextRecord->SegCs,
 			ContextRecord->SegSs,
 			ContextRecord->SegDs,
@@ -1557,6 +1584,11 @@ I tried to get the run time to call this at every function entry, but
 ====================
 */
 static int	parmBytes;
+#if defined  _WIN64
+void clrstk() {
+	//TODO: Enable clear stack
+}
+#else
 __declspec( naked ) void clrstk() {
 	// eax = bytes to add to stack
 	__asm {
@@ -1584,6 +1616,7 @@ __declspec( naked ) void clrstk() {
         ret
 	}
 }
+#endif
 
 /*
 ==================

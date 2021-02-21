@@ -132,6 +132,14 @@ long baseClocks = 0;
 
 long saved_ebx = 0;
 
+#if defined _WIN64
+//TODO: Implement
+#define StartRecordTime( start )			\
+	start = 0
+
+#define StopRecordTime( end )				\
+	end = 1
+#else
 #define StartRecordTime( start )			\
 	__asm mov saved_ebx, ebx				\
 	__asm xor eax, eax						\
@@ -149,7 +157,7 @@ long saved_ebx = 0;
 	__asm mov ebx, saved_ebx				\
 	__asm xor eax, eax						\
 	__asm cpuid
-
+#endif
 
 #define GetBest( start, end, best )			\
 	if ( !best || end - start < best ) {	\
