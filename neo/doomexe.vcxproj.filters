@@ -1390,6 +1390,7 @@
     <None Include="..\base\renderprogs\wobblesky.vertex">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="sys\win32\rc\doom.rc">

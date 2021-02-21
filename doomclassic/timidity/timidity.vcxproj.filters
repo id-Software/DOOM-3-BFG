@@ -30,4 +30,7 @@
     <ClCompile Include="sdl_c.cpp" />
     <ClCompile Include="tables.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
 </Project>

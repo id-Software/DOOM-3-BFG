@@ -488,5 +488,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="d3xp\Game.def" />
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

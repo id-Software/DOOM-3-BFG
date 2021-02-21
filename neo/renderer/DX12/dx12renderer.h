@@ -10,6 +10,9 @@
 #include <dxcapi.h>
 #include <DirectXMath.h>
 
+// Will be automatically enabled with preprocessor symbols: USE_PIX, DBG, _DEBUG, PROFILE, or PROFILE_BUILD
+#include <pix3.h>
+
 #pragma comment (lib, "dxguid.lib")
 #pragma comment (lib, "d3d12.lib")
 #pragma comment (lib, "dxgi.lib")

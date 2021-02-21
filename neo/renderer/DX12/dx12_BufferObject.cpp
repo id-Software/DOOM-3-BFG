@@ -223,7 +223,7 @@ void* idVertexBuffer::MapBuffer(bufferMapType_t mapType) const {
 
 	if (mapType == BM_READ || mapType == BM_WRITE) { // TODO: Can we make a read only one?
 		HRESULT hr = bufferObject->vertexBuffer->Map(0, &readRange, reinterpret_cast<void**>(&buffer));
-		if (FAILED(bufferObject)) {
+		if (FAILED(hr)) {
 			common->Warning("Could not load vertex buffer.");
 			buffer = NULL;
 		}
