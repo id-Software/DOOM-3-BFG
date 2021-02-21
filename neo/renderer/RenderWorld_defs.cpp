@@ -765,7 +765,7 @@ void R_DeriveEnvprobeData( RenderEnvprobeLocal* probe )
 
 	idStr fullname;
 
-	int probeIndex = probe->world->envprobeDefs.Num() - 1;
+	int probeIndex = probe->index;// ->world->envprobeDefs.Num() - 1;
 
 	// TODO get preconvolved cubemaps
 	fullname.Format( "env/%s/envprobe%i_amb", basename.c_str(), probeIndex );
