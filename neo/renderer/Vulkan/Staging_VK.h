@@ -54,6 +54,8 @@ struct stagingBuffer_t
 	VkFence				fence;
 	VkDeviceSize		offset;
 	byte* 				data;
+
+	int stagedCommands;
 };
 
 class idVulkanStagingManager
