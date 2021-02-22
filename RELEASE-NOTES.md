@@ -4,7 +4,7 @@
   / /_/ // __  |/ / / // __ \ / __ \ / __ `__ \  /_ < / __  |/ /_   / / __  
  / _, _// /_/ // /_/ // /_/ // /_/ // / / / / /___/ // /_/ // __/  / /_/ /  
 /_/ |_|/_____//_____/ \____/ \____//_/ /_/ /_//____//_____//_/     \____/   
-_________________________________________
+_______________________________________________________________________
 ```
 
 
@@ -15,19 +15,110 @@ Thank you for downloading RBDOOM-3-BFG.
 
 _______________________________________
 
-TBD Q1/2021 - Changes since RBDOOM-3-BFG 1.2.0
+TBD Q1/2021 - RBDOOM-3-BFG 1.3.0 - Changes since RBDOOM-3-BFG 1.2.0
 _______________________________
 
-RBDOOM-3-BFG 1.3.0 adds PBR rendering and TrenchBroom mapping support.
+<img src="https://i.imgur.com/iQjLKzx.png">
 
-Implementing Phyiscally Based Rendering (PBR) in Doom 3 is a challenge and comes with a few compromises because the Doom 3 content was designed to work with the hardware constraints in 2004 and that even meant to run on a Geforce 3.
+# RBDOOM-3-BFG 1.3.0 adds PBR rendering and TrenchBroom mapping support
 
-The light rigs aren't made for PBR but it is possible to achieve a good PBR lighting even with the old content by tweaking the light formulars with a few good magic constants. However I also want to support the modding scene to allow them to create brand new PBR materials made with Substance Designer/Painter or other modern tools so multiple rendering paths have been implemented.
+## Physically Based Rendering
+
+Implementing Physically Based Rendering (PBR) in Doom 3 is a challenge and comes with a few compromises because the Doom 3 content was designed to work with the hardware constraints in 2004 and that even meant to run on a Geforce 3.
+
+The light rigs aren't made for PBR but it is possible to achieve good PBR lighting even with the old content by tweaking the light formulars with a few good magic constants. However I also want to support the modding scene to allow them to create brand new PBR materials made with Substance Designer/Painter or other modern tools so multiple rendering paths have been implemented.
+
+## Extra Ambient Pass using Image Based Lighting
 
 From an artistic point of view PBR allows artists to create textures that are based on real world measured color values and they look more or less the same in any renderer that follows the PBR guidelines and formulars.
 RBDOOM-3-BFG only supports the PBR roughness/metal workflow.
 
-The main goal is that the new content looks the same in RBDOOM-3-BFG as in Blender 2.8 with Cycles or Eevee.
+The main goal is that the new content looks the same in RBDOOM-3-BFG as in Blender 2.9 with Cycles or Eevee.
+
+To achieve the typical PBR look from an artistic point of view it also means to that it is necessary to add indirect lighting. Doom 3 and even Doom 3 BFG had no indirect lighting.
+RBDOOM-3-BFG 1.2.0 already had indirect lighting similar to Quake 4 which used a fixed light direction.
+This new version distributes automatically environment probes through the maps using the BSP area bounds.
+
+The environment probes use an octahedron encoding and the specular mipmaps are convolved using the Split Sum Approximation by Brian Karris [Epic 2013].
+
+For artists this basically means if you increase the roughness in your material then you increase the mip map level of the environment probe it samples light from and it gets blurier.
+
+<img src="https://i.imgur.com/KkPSWrc.png" width="384"> <img src="https://i.imgur.com/b5vAN44.png" width="384">
+
+<img src="https://i.imgur.com/67k9QXG.png" width="384"> <img src="https://i.imgur.com/gfBG0Gm.png" width="384">
+
+Left: No extra ambient pass. Ambient is pure black like in original Doom 3. Right: Extra ambient pass with r_forceAmbient 0.2 using local environment probe for irradiance and radiance lighting.
+
+<img src="https://i.imgur.com/ZEI4i87.png" width="384"> <img src="https://i.imgur.com/FC82oOM.png" width="384">
+
+Some examples that show additional environment lighting on all assets.
+
+<img src="https://i.imgur.com/0OOgwC9.png" width="384"> <img src="https://i.imgur.com/qL0DgcZ.png" width="384">
+
+<img src="https://i.imgur.com/5Pcomzu.png" width="384"> <img src="https://i.imgur.com/IczOpHI.png" width="384">
+
+## PBR Texture format
+
+In Doom 3 a classic simple materials looks like this:
+```
+textures/base_wall/snpanel2rust
+{
+  qer_editorimage		textures/base_wall/snpanel2rust.tga
+	
+  bumpmap           textures/base_wall/snpanel2_local.tga
+  diffusemap        textures/base_wall/snpanel2rust_d.tga
+  specularmap       textures/base_wall/snpanel2rust_s.tga
+}
+```
+
+It's usually rendered with Blinn-Phong specular with a fixed specular exponent.
+Specularmaps are more or less Gloss maps.
+
+In RBDOOM-3-BFG it uses the PBR GGX Cook-Torrence formular and you can vary the roughness along the material like in other modern engines and you usually define a texture with the _rmao suffix.
+
+RMAO Image Channels             | Description
+:-----------------------------  | :------------------------------------------------
+Red                             | Roughness
+Green                           | Metalness
+Blue                            | Ambient Occlusion
+
+Example material:
+```
+models/mapobjects/materialorb/orb
+{
+  qer_editorimage   models/mapobjects/pbr/materialorb/substance/metal04_basecolor.png
+  
+  basecolormap      models/mapobjects/pbr/materialorb/substance/metal04_basecolor.png
+  normalmap         models/mapobjects/pbr/materialorb/substance/metal04_normal.png
+  specularmap       models/mapobjects/pbr/materialorb/substance/metal04_rmao.png
+}
+```
+
+The engine will also look for _rmao.[png/tga] overrides for old materials and if it finds them it will render using a better PBR path. Oldschool specularmaps also go through a GGX pipeline but the roughness is estimated from the glossmap.
+
+The Ambient Occlusion will be mixed with the Screen Space Ambient Occlusion and will only affect indirect lighting contributed by the environment probes.
+
+## Filmic Post Processing
+
+TL;DR If you enable it then you play DOOM 3 BFG with the optics of a Zack Snyder movie.
+
+This release adds chromatic abberation and filmic dithering using Blue Noise.
+The effect is heavy and is usually aimed in Film production to mix real camera footage with CG generated content.
+
+Dithering demonstration: left side is quantized to 3 bits for each color channel. Right side is also only 3 bits but dithered with chromatic Blue Noise. The interesting fact about the dithering here is shown in the upper debug bands.
+The first top band is the original signal. The second shows just 8 blocks and if you dither the those blocks with Blue Noise then it is close to the original signal which is surprising.
+
+<img src="https://i.imgur.com/QJv2wH2.png" width="384"> <img src="https://i.imgur.com/MaXqld4.png" width="384">
+
+## TrenchBroom
+
+This release also adds experimental support for TrenchBroom. The goal of the TrenchBroom support is to make it easier to create new maps. It doesn't allow to create bezier patches so you won't be able to edit existing Doom 3 maps.
+However you can copy paste brushes and entities into your new map using the Doom 3 (Valve) configuration.
+
+TODO
+
+
+## Changelog
 
 [PBR]
 
