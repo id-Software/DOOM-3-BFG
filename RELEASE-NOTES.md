@@ -43,7 +43,7 @@ The environment probes use an octahedron encoding and the specular mipmaps are c
 
 For artists this basically means if you increase the roughness in your material then you increase the mip map level of the environment probe it samples light from and it gets blurier.
 
-<img src="https://i.imgur.com/KkPSWrc.png" width="384"> <img src="https://i.imgur.com/b5vAN44.png" width="384">
+<img src="https://i.imgur.com/KkPSWrc.png" width="384"> <img src="https://i.imgur.com/8vEJCDR.png" width="384">
 
 <img src="https://i.imgur.com/67k9QXG.png" width="384"> <img src="https://i.imgur.com/gfBG0Gm.png" width="384">
 
@@ -175,7 +175,7 @@ Using the models argument will also export all needed models by entity declarati
 
 [MISCELLANEOUS]
 
-* com_showFPS 1 uses ImGui to show more detailed renderer stats like the console prints with r_speeds
+* com_showFPS bigger than 1 uses ImGui to show more detailed renderer stats like the original console prints with r_speeds
 
 * Removed 32bit support: FFmpeg and OpenAL libraries are only distributed as Win64 versions, 32bit CMakes files are gone
 
