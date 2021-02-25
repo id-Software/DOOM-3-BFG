@@ -235,7 +235,7 @@ idCVar stereoRender_enable( "stereoRender_enable", "0", CVAR_INTEGER | CVAR_ARCH
 idCVar stereoRender_swapEyes( "stereoRender_swapEyes", "0", CVAR_BOOL | CVAR_ARCHIVE, "reverse eye adjustments" );
 idCVar stereoRender_deGhost( "stereoRender_deGhost", "0.05", CVAR_FLOAT | CVAR_ARCHIVE, "subtract from opposite eye to reduce ghosting" );
 
-idCVar r_useVirtualScreenResolution( "r_useVirtualScreenResolution", "1", CVAR_RENDERER | CVAR_BOOL | CVAR_ARCHIVE, "do 2D rendering at 640x480 and stretch to the current resolution" );
+idCVar r_useVirtualScreenResolution( "r_useVirtualScreenResolution", "0", CVAR_RENDERER | CVAR_BOOL | CVAR_ARCHIVE, "do 2D rendering at 640x480 and stretch to the current resolution" );
 
 // RB: shadow mapping parameters
 #if defined( USE_VULKAN )
@@ -1527,7 +1527,7 @@ void R_InitMaterials()
 	}
 	tr.defaultPointLight = declManager->FindMaterial( "lights/defaultPointLight" );
 	tr.defaultProjectedLight = declManager->FindMaterial( "lights/defaultProjectedLight" );
-	tr.whiteMaterial = declManager->FindMaterial( "_white" );
+	tr.whiteMaterial = declManager->FindMaterial( "_white", false );
 	tr.charSetMaterial = declManager->FindMaterial( "textures/bigchars" );
 
 	// RB: create implicit material
@@ -2308,10 +2308,12 @@ idRenderSystemLocal::GetVirtualWidth
 */
 int idRenderSystemLocal::GetVirtualWidth() const
 {
-	if( r_useVirtualScreenResolution.GetBool() )
-	{
-		return SCREEN_WIDTH;
-	}
+// jmarshall - never strech
+	//if( r_useVirtualScreenResolution.GetBool() )
+	//{
+	//	return SCREEN_WIDTH;
+	//}
+// jmarshall end
 	return glConfig.nativeScreenWidth;
 }
 
@@ -2322,10 +2324,12 @@ idRenderSystemLocal::GetVirtualHeight
 */
 int idRenderSystemLocal::GetVirtualHeight() const
 {
-	if( r_useVirtualScreenResolution.GetBool() )
-	{
-		return SCREEN_HEIGHT;
-	}
+// jmarshall - never strech
+	//if( r_useVirtualScreenResolution.GetBool() )
+	//{
+	//	return SCREEN_HEIGHT;
+	//}
+// jmarshall end
 	return glConfig.nativeScreenHeight;
 }
 
