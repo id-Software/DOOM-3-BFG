@@ -516,6 +516,10 @@ idStr idRenderProgManager::StripDeadCode( const idStr& in, const char* name, con
 		src.AddDefine( "DEBUG_PBR" );
 	}
 
+#if defined( USE_VULKAN )
+	src.AddDefine( "USE_VULKAN" );
+#endif
+
 	// SMAA configuration
 	src.AddDefine( "SMAA_GLSL_3" );
 	src.AddDefine( "SMAA_RT_METRICS rpScreenCorrectionFactor " );
