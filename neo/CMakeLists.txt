@@ -161,7 +161,11 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
 	endif()
 	
 	if(NOT CMAKE_CROSSCOMPILING AND ONATIVE)
-		add_definitions(-march=native)
+		if(CMAKE_SYSTEM_PROCESSOR MATCHES "((powerpc|ppc)64le)|(mips64)")
+			add_definitions(-mcpu=native)
+		else()
+			add_definitions(-march=native)
+		endif()
 	endif()
 
 	add_compile_options(-fno-strict-aliasing)
