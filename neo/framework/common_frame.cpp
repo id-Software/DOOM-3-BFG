@@ -255,7 +255,7 @@ void idCommonLocal::Draw()
 		// foresthale 2014-05-30: when binarizing an asset we show a special
 		// overlay indicating progress
 		renderSystem->SetColor( colorBlack );
-		renderSystem->DrawStretchPic( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 1, 1, whiteMaterial );
+		renderSystem->DrawStretchPic( 0, 0, renderSystem->GetVirtualWidth(), renderSystem->GetVirtualHeight(), 0, 0, 1, 1, whiteMaterial );
 
 		// render the loading gui (idSWF actually) if it is loaded
 		// (we want to see progress of the loading gui binarize too)
@@ -292,18 +292,18 @@ void idCommonLocal::Draw()
 
 		// draw our basic overlay
 		renderSystem->SetColor( idVec4( 0.0f, 0.0f, 0.5f, 1.0f ) );
-		renderSystem->DrawStretchPic( 0, SCREEN_HEIGHT - 48, SCREEN_WIDTH, 48, 0, 0, 1, 1, whiteMaterial );
+		renderSystem->DrawStretchPic( 0, renderSystem->GetVirtualHeight() - 48, renderSystem->GetVirtualWidth(), 48, 0, 0, 1, 1, whiteMaterial );
 		renderSystem->SetColor( idVec4( 0.0f, 0.5f, 0.8f, 1.0f ) );
-		renderSystem->DrawStretchPic( 0, SCREEN_HEIGHT - 48, loadPacifierBinarizeProgress * SCREEN_WIDTH, 32, 0, 0, 1, 1, whiteMaterial );
-		renderSystem->DrawSmallStringExt( 0, SCREEN_HEIGHT - 48, loadPacifierBinarizeFilename.c_str(), idVec4( 1.0f, 1.0f, 1.0f, 1.0f ), true );
-		renderSystem->DrawSmallStringExt( 0, SCREEN_HEIGHT - 32, va( "%s %d/%d lvls", loadPacifierBinarizeInfo.c_str(), loadPacifierBinarizeMiplevel, loadPacifierBinarizeMiplevelTotal ), idVec4( 1.0f, 1.0f, 1.0f, 1.0f ), true );
-		renderSystem->DrawSmallStringExt( 0, SCREEN_HEIGHT - 16, text, idVec4( 1.0f, 1.0f, 1.0f, 1.0f ), true );
+		renderSystem->DrawStretchPic( 0, renderSystem->GetVirtualHeight() - 48, loadPacifierBinarizeProgress * renderSystem->GetVirtualWidth(), 32, 0, 0, 1, 1, whiteMaterial );
+		renderSystem->DrawSmallStringExt( 0, renderSystem->GetVirtualHeight() - 48, loadPacifierBinarizeFilename.c_str(), idVec4( 1.0f, 1.0f, 1.0f, 1.0f ), true );
+		renderSystem->DrawSmallStringExt( 0, renderSystem->GetVirtualHeight() - 32, va( "%s %d/%d lvls", loadPacifierBinarizeInfo.c_str(), loadPacifierBinarizeMiplevel, loadPacifierBinarizeMiplevelTotal ), idVec4( 1.0f, 1.0f, 1.0f, 1.0f ), true );
+		renderSystem->DrawSmallStringExt( 0, renderSystem->GetVirtualHeight() - 16, text, idVec4( 1.0f, 1.0f, 1.0f, 1.0f ), true );
 	}
 	else if( loadGUI != NULL )
 	{
 		// foresthale 2014-05-30: showing a black background looks better than flickering in widescreen
 		renderSystem->SetColor( colorBlack );
-		renderSystem->DrawStretchPic( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 1, 1, whiteMaterial );
+		renderSystem->DrawStretchPic( 0, 0, renderSystem->GetVirtualWidth(), renderSystem->GetVirtualHeight(), 0, 0, 1, 1, whiteMaterial );
 
 		loadGUI->Render( renderSystem, Sys_Milliseconds() );
 	}
@@ -850,7 +850,7 @@ void idCommonLocal::Frame()
 		gameReturn_t ret = gameThread.RunGameAndDraw( numGameFrames, userCmdMgr, IsClient(), gameFrame - numGameFrames );
 
 		// foresthale 2014-05-12: also check com_editors as many of them are not particularly thread-safe (editLights for example)
-		if( !com_smp.GetInteger() < 0 )
+		if( com_smp.GetInteger() < 0 )
 		{
 			// RB: this is the same as Doom 3 renderSystem->EndFrame()
 			renderSystem->SwapCommandBuffers_FinishRendering( &time_frontend, &time_backend, &time_shadows, &time_gpu, &stats_backend, &stats_frontend );
