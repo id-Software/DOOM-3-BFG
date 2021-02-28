@@ -378,6 +378,12 @@ public:
 
 	bool				IsLoaded() const;
 
+	// RB
+	bool				IsDefaulted() const
+	{
+		return defaulted;
+	}
+
 	static void	GetGeneratedName( idStr& _name, const textureUsage_t& _usage, const cubeFiles_t& _cube );
 
 	// used by callback functions to specify the actual data

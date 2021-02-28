@@ -490,7 +490,10 @@ void idImage::ActuallyLoadImage( bool fromBackEnd )
 			if( pic == NULL )
 			{
 				idLib::Warning( "Couldn't load image: %s : %s", GetName(), generatedName.c_str() );
+
 				// create a default so it doesn't get continuously reloaded
+				defaulted = true; // RB
+
 				opts.width = 8;
 				opts.height = 8;
 				opts.numLevels = 1;

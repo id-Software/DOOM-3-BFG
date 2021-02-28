@@ -859,7 +859,7 @@ CONSOLE_COMMAND( makeAmbientMap, "Saves out env/<basename>_amb_ft.tga, etc", NUL
 	}
 	else
 	{
-		roughness = 0.95;
+		roughness = 0.95f;
 	}
 
 	if( roughness > 0.8f )
