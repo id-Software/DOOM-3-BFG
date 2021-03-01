@@ -228,6 +228,14 @@ idLight::idLight():
 	fadeStart			= 0;
 	fadeEnd				= 0;
 	soundWasPlaying		= false;
+
+// RB begin
+	lightStyle			= -1;
+	lightStyleFrameTime = 100;
+	lightStyleBase.Set( 300, 300, 300 );
+
+	lightStyleState.Reset();
+// RB end
 }
 
 /*
