@@ -2976,6 +2976,9 @@ idCollisionModelManagerLocal::LoadBinaryModel
 ================
 */
 cm_model_t * idCollisionModelManagerLocal::LoadBinaryModelFromFile( idFile *file, ID_TIME_T sourceTimeStamp ) {
+#if defined(_PRINT_FILE_SIZES)
+	common->Printf("Loading Collision File: %s\n", file->GetName());
+#endif
 
 	unsigned int magic = 0;
 	file->ReadBig( magic );
@@ -3027,11 +3030,23 @@ cm_model_t * idCollisionModelManagerLocal::LoadBinaryModelFromFile( idFile *file
 	}
 
 	file->ReadBig( model->polygonMemory );
+
+#if defined _WIN64
+	// Each brush contains a pointer adding 4 bits per brush.
+	model->polygonMemory += (model->numPolygons << 2);
+#endif
+
 	model->polygonBlock = (cm_polygonBlock_t *) Mem_ClearedAlloc( sizeof( cm_polygonBlock_t ) + model->polygonMemory, TAG_COLLISION );
 	model->polygonBlock->bytesRemaining = model->polygonMemory;
 	model->polygonBlock->next = ( (byte *) model->polygonBlock ) + sizeof( cm_polygonBlock_t );
 
 	file->ReadBig( model->brushMemory );
+
+#if defined _WIN64
+	// Each polygon contains a pointer adding 4 bits per brush.
+	model->brushMemory += (model->numBrushes << 2);
+#endif
+
 	model->brushBlock = (cm_brushBlock_t *) Mem_ClearedAlloc( sizeof( cm_brushBlock_t ) + model->brushMemory, TAG_COLLISION );
 	model->brushBlock->bytesRemaining = model->brushMemory;
 	model->brushBlock->next = ( (byte *) model->brushBlock ) + sizeof( cm_brushBlock_t );
@@ -3112,12 +3127,16 @@ cm_model_t * idCollisionModelManagerLocal::LoadBinaryModelFromFile( idFile *file
 	model->node = AllocNode( model, model->numNodes + 1 );
 	local::ReadNodeTree( file, model, model->node, polys, brushes );
 
+#if defined(_PRINT_FILE_SIZES)
+	common->Printf("Done reading collision file %s\n", file->GetName());
+#endif
+
 	// We should have only allocated a single block, and used every entry in the block
 	// assert( model->nodeBlocks != NULL && model->nodeBlocks->next == NULL && model->nodeBlocks->nextNode == NULL );
 	assert( model->brushRefBlocks == NULL || ( model->brushRefBlocks->next == NULL && model->brushRefBlocks->nextRef == NULL ) );
 	assert( model->polygonRefBlocks == NULL || ( model->polygonRefBlocks->next == NULL && model->polygonRefBlocks->nextRef == NULL ) );
-	assert( model->polygonBlock->bytesRemaining == 0 );
-	assert( model->brushBlock->bytesRemaining == 0 );
+	assert(model->polygonBlock->bytesRemaining == 0);
+	assert(model->brushBlock->bytesRemaining == 0);
 
 	model->usedMemory = model->numVertices * sizeof(cm_vertex_t) +
 		model->numEdges * sizeof(cm_edge_t) +

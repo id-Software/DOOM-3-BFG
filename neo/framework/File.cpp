@@ -1646,6 +1646,10 @@ int idFile_InnerResource::Read( void *buffer, int len ) {
 		}
 	}
 
+#if defined(_PRINT_FILE_SIZES)
+	common->Printf("%i, %i\n", len, length - internalFilePos);
+#endif
+	
 	internalFilePos += read;
 
 	return read;
