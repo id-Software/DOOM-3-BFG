@@ -121,9 +121,9 @@ If you have questions concerning this license or the applicable additional terms
 			#define CPUSTRING						"ppc64"
 		#elif defined(__mips64) || defined(__mips64_)
 			#define CPUSTRING						"mips64"
-		#elif defined(__riscv) || defined(__riscv__)
+		#elif defined(__riscv__) || defined(__riscv)
 			#define CPUSTRING						"riscv"
-		#elif defined(__sparc__) || defined(__sparc__)
+		#elif defined(__sparc__) || defined(__sparc)
 			#define CPUSTRING						"sparc"
 		#else
 			#error unknown CPU
