@@ -277,6 +277,29 @@ void OBJExporter::ConvertBrushToOBJ( OBJGroup& group, const idMapBrush* mapBrush
 			st.x = ( xyz * texVec[0].ToVec3() ) + texVec[0][3];
 			st.y = ( xyz * texVec[1].ToVec3() ) + texVec[1][3];
 
+			// RB: support Valve 220 projection
+			if( ( mapSide->GetProjectionType() == idMapBrushSide::PROJECTION_VALVE220 ) )
+			{
+				const idMaterial* material = declManager->FindMaterial( mapSide->GetMaterial() );
+
+				// RB: TODO
+				idVec2i texSize;
+
+				idImage* image = material->GetEditorImage();
+				if( image != NULL )
+				{
+					texSize.x = image->GetUploadWidth();
+					texSize.y = image->GetUploadHeight();
+				}
+				else
+				{
+					texSize = mapSide->GetTextureSize();
+				}
+
+				st.x /= texSize.x;
+				st.y /= texSize.y;
+			}
+
 			// flip y
 			st.y = 1.0f - st.y;
 

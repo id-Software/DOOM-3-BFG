@@ -139,8 +139,12 @@ protected:
 	idPlane					plane;
 	idVec3					texMat[2];
 	idVec3					origin;
+
+	// RB
+	idVec3					planepts[ 3 ]; // for writing back original planepts
 	ProjectionType			projection;
 	idVec4					texValve[ 2 ]; // alternative texture coordinate mapping
+	idVec2					texScale;
 	idVec2i					texSize;
 
 };
@@ -155,6 +159,8 @@ ID_INLINE idMapBrushSide::idMapBrushSide()
 	projection = PROJECTION_BP;
 	texValve[0].Zero();
 	texValve[1].Zero();
+	texScale[0] = 1.0f;
+	texScale[1] = 1.0f;
 	texSize[0] = 32;
 	texSize[1] = 32;
 }
@@ -176,6 +182,7 @@ public:
 	static idMapBrush* 		ParseQ3( idLexer& src, const idVec3& origin );
 	static idMapBrush* 		ParseValve220( idLexer& src, const idVec3& origin ); // RB
 	bool					Write( idFile* fp, int primitiveNum, const idVec3& origin ) const;
+	bool					WriteValve220( idFile* fp, int primitiveNum, const idVec3& origin ) const; // RB
 	int						GetNumSides() const
 	{
 		return sides.Num();
@@ -425,7 +432,7 @@ public:
 		primitives.DeleteContents( true );
 	}
 	static idMapEntity* 	Parse( idLexer& src, bool worldSpawn = false, float version = CURRENT_MAP_VERSION );
-	bool					Write( idFile* fp, int entityNum ) const;
+	bool					Write( idFile* fp, int entityNum, bool valve220 ) const;
 	// RB begin
 	static idMapEntity* 	ParseJSON( idLexer& src );
 	bool					WriteJSON( idFile* fp, int entityNum, int numEntities ) const;
@@ -519,6 +526,7 @@ protected:
 	idList<idMapEntity*, TAG_IDLIB_LIST_MAP>	entities;
 	idStr					name;
 	bool					hasPrimitiveData;
+	bool					valve220Format; // RB: for TrenchBroom support
 
 private:
 	void					SetGeometryCRC();
@@ -531,6 +539,7 @@ ID_INLINE idMapFile::idMapFile()
 	geometryCRC = 0;
 	entities.Resize( 1024, 256 );
 	hasPrimitiveData = false;
+	valve220Format = false;
 }
 
 #endif /* !__MAPFILE_H__ */
