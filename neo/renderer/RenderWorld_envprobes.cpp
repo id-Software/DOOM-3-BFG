@@ -954,16 +954,16 @@ CONSOLE_COMMAND( generateEnvironmentProbes, "Generate environment probes", NULL 
 		{
 			ref = primary.renderView;
 
-			extension = envDirection[ j ];
-
+			ref.rdflags = RDF_NOAMBIENT | RDF_IRRADIANCE;
 			ref.fov_x = ref.fov_y = 90;
 
 			ref.vieworg = def->parms.origin;
 			ref.viewaxis = axis[j];
+
+			extension = envDirection[ j ];
 			fullname.Format( "env/%s/envprobe%i%s", baseName.c_str(), i, extension );
 
-			// TODO capture resolved HDR data without bloom aka _currentRender in 16bit float HDR RGB
-			tr.TakeScreenshot( size, size, fullname, blends, &ref, PNG );
+			tr.TakeScreenshot( size, size, fullname, blends, &ref, EXR );
 			//tr.CaptureRenderToFile( fullname, false );
 		}
 	}

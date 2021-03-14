@@ -56,13 +56,11 @@ public:
 
 	static void				CheckFramebuffers();
 
-	// deletes OpenGL object but leaves structure intact for reloading
-	void					PurgeFramebuffer();
-
 	void					Bind();
 	bool					IsBound();
 	static void				Unbind();
 	static bool				IsDefaultFramebufferActive();
+	static Framebuffer*		GetActiveFramebuffer();
 
 	void					AddColorBuffer( int format, int index, int multiSamples = 0 );
 	void					AddDepthBuffer( int format, int multiSamples = 0 );

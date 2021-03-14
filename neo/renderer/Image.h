@@ -241,7 +241,8 @@ enum imageFileType_t
 {
 	TGA,
 	PNG,
-	JPG
+	JPG,
+	EXR,
 };
 
 #include "BinaryImage.h"

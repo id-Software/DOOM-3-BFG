@@ -378,6 +378,7 @@ void Framebuffer::Unbind()
 	{
 		glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 		glBindRenderbuffer( GL_RENDERBUFFER, 0 );
+
 		tr.backend.currentFramebuffer = NULL;
 	}
 }
@@ -385,6 +386,11 @@ void Framebuffer::Unbind()
 bool Framebuffer::IsDefaultFramebufferActive()
 {
 	return ( tr.backend.currentFramebuffer == NULL );
+}
+
+Framebuffer* Framebuffer::GetActiveFramebuffer()
+{
+	return tr.backend.currentFramebuffer;
 }
 
 void Framebuffer::AddColorBuffer( int format, int index, int multiSamples )
