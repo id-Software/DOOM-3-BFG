@@ -132,6 +132,7 @@ struct globalFramebuffers_t
 #endif
 //	Framebuffer*				hdrQuarterFBO;
 	Framebuffer*				hdr64FBO;
+	Framebuffer*				envprobeFBO;
 	Framebuffer*				bloomRenderFBO[MAX_BLOOM_BUFFERS];
 	Framebuffer*				ambientOcclusionFBO[MAX_SSAO_BUFFERS];
 	Framebuffer*				csDepthFBO[MAX_HIERARCHICAL_ZBUFFERS];

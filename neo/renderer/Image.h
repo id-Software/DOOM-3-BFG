@@ -573,6 +573,8 @@ public:
 	idImage*			currentRenderHDRImageQuarter;
 	idImage*			currentRenderHDRImage64;
 	idImage*			bloomRenderImage[2];
+	idImage*			envprobeHDRImage;
+	idImage*			envprobeDepthImage;
 	idImage*			heatmap5Image;
 	idImage*			heatmap7Image;
 	idImage*			smaaInputImage;

@@ -879,16 +879,12 @@ CONSOLE_COMMAND( generateEnvironmentProbes, "Generate environment probes", NULL 
 	idMat3			axis[6], oldAxis;
 	idVec3			oldPosition;
 	renderView_t	ref;
-	viewDef_t		primary;
 	int				blends;
 	const char*		extension;
 	int				size;
-	int				res_w, res_h, old_fov_x, old_fov_y;
+	int				old_fov_x, old_fov_y;
 
 	static const char* envDirection[6] = { "_px", "_nx", "_py", "_ny", "_pz", "_nz" };
-
-	res_w = renderSystem->GetWidth();
-	res_h = renderSystem->GetHeight();
 
 	baseName = tr.primaryWorld->mapName;
 	baseName.StripFileExtension();
@@ -902,7 +898,7 @@ CONSOLE_COMMAND( generateEnvironmentProbes, "Generate environment probes", NULL 
 		return;
 	}
 
-	primary = *tr.primaryView;
+	const viewDef_t primary = *tr.primaryView;
 
 	memset( &axis, 0, sizeof( axis ) );
 
@@ -940,14 +936,6 @@ CONSOLE_COMMAND( generateEnvironmentProbes, "Generate environment probes", NULL 
 	// CAPTURE SCENE LIGHTING TO CUBEMAPS
 	//--------------------------------------------
 
-	// let's get the game window to a "size" resolution
-	if( ( res_w != size ) || ( res_h != size ) )
-	{
-		cvarSystem->SetCVarInteger( "r_windowWidth", size );
-		cvarSystem->SetCVarInteger( "r_windowHeight", size );
-		R_SetNewMode( false ); // the same as "vid_restart"
-	} // FIXME that's a hack!!
-
 	// so we return to that axis and fov after the fact.
 	oldPosition = primary.renderView.vieworg;
 	oldAxis = primary.renderView.viewaxis;
@@ -980,7 +968,8 @@ CONSOLE_COMMAND( generateEnvironmentProbes, "Generate environment probes", NULL 
 		}
 	}
 
-	// restore the original resolution, axis and fov
+	// restore the original axis and fov
+	/*
 	ref.vieworg = oldPosition;
 	ref.viewaxis = oldAxis;
 	ref.fov_x = old_fov_x;
@@ -988,6 +977,7 @@ CONSOLE_COMMAND( generateEnvironmentProbes, "Generate environment probes", NULL 
 	cvarSystem->SetCVarInteger( "r_windowWidth", res_w );
 	cvarSystem->SetCVarInteger( "r_windowHeight", res_h );
 	R_SetNewMode( false ); // the same as "vid_restart"
+	*/
 
     common->Printf( "Wrote a env set with the name %s\n", baseName.c_str() );
 

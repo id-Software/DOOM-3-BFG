@@ -262,6 +262,16 @@ static void R_HDR_RGBA16FImage_Res64( idImage* image )
 	image->GenerateImage( NULL, 64, 64, TF_NEAREST, TR_CLAMP, TD_RGBA16F );
 }
 
+static void R_EnvprobeImage_HDR( idImage* image )
+{
+	image->GenerateImage( NULL, RADIANCE_CUBEMAP_SIZE, RADIANCE_CUBEMAP_SIZE, TF_NEAREST, TR_CLAMP, TD_RGBA16F );
+}
+
+static void R_EnvprobeImage_Depth( idImage* image )
+{
+	image->GenerateImage( NULL, RADIANCE_CUBEMAP_SIZE, RADIANCE_CUBEMAP_SIZE, TF_NEAREST, TR_CLAMP, TD_DEPTH );
+}
+
 static void R_SMAAImage_ResNative( idImage* image )
 {
 	image->GenerateImage( NULL, renderSystem->GetWidth(), renderSystem->GetHeight(), TF_LINEAR, TR_CLAMP, TD_LOOKUP_TABLE_RGBA );
@@ -996,6 +1006,9 @@ void idImageManager::CreateIntrinsicImages()
 #endif
 	currentRenderHDRImageQuarter = globalImages->ImageFromFunction( "_currentRenderHDRQuarter", R_HDR_RGBA16FImage_ResQuarter );
 	currentRenderHDRImage64 = globalImages->ImageFromFunction( "_currentRenderHDR64", R_HDR_RGBA16FImage_Res64 );
+
+	envprobeHDRImage = globalImages->ImageFromFunction( "_envprobeHDR", R_EnvprobeImage_HDR );
+	envprobeDepthImage = ImageFromFunction( "_envprobeDepth", R_EnvprobeImage_Depth );
 
 	bloomRenderImage[0] = globalImages->ImageFromFunction( "_bloomRender0", R_HDR_RGBA16FImage_ResQuarter_Linear );
 	bloomRenderImage[1] = globalImages->ImageFromFunction( "_bloomRender1", R_HDR_RGBA16FImage_ResQuarter_Linear );
