@@ -3653,7 +3653,7 @@ cm_model_t* idCollisionModelManagerLocal::LoadBinaryModelFromFile( idFile* file,
 	assert( model->polygonRefBlocks == NULL || ( model->polygonRefBlocks->next == NULL && model->polygonRefBlocks->nextRef == NULL ) );
 
 	// RB: FIXME
-#if !defined(__x86_64__) && !defined(_WIN64) && !defined(__PPC64__)
+#if !defined(__x86_64__) && !defined(_WIN64) && !defined(__PPC64__) && !defined(__e2k__) && !defined(__aarch64__) && !(defined(__mips64) || defined(__mips64_))
 	assert( model->polygonBlock->bytesRemaining == 0 );
 	assert( model->brushBlock->bytesRemaining == 0 );
 #endif
