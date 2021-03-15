@@ -184,7 +184,7 @@ byte* idVulkanStagingManager::Stage( const int size, const int alignment, VkComm
 	}
 
 	int maxCommands = r_vkStagingMaxCommands.GetInteger();
-	if ( ( maxCommands > 0 ) && ( stage->stagedCommands >= maxCommands) )
+	if( ( maxCommands > 0 ) && ( stage->stagedCommands >= maxCommands ) )
 	{
 		Flush();
 	}
