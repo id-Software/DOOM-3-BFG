@@ -268,6 +268,7 @@ Existing repositories can be updated manually:
 		> sudo pacman -S sdl2 cmake openal ffmpeg
 
 	On openSUSE
+	
 		> sudo zypper install cmake libSDL2-devel openal-soft-devel
 
 	You don't need FFmpeg to be installed. You can also turn it off by add -DFFMPEG=OFF to the CMake options.
