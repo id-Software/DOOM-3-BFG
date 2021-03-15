@@ -2405,7 +2405,7 @@ void ColladaParser::ReadPrimitives( Mesh* pMesh, idList<InputChannel>& pPerIndex
 		idToken token;
 		idLexer lexer( content, idStr::Length( content ), "indices" );
 
-		for( unsigned int a = 0; a < indices.Num(); a++ )
+		for( int a = 0; a < indices.Num(); a++ )
 		{
 			int value = lexer.ParseInt();
 
