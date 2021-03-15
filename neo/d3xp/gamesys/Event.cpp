@@ -334,7 +334,7 @@ idEvent *idEvent::Alloc( const idEventDef *evdef, int numargs, va_list args ) {
 idEvent::CopyArgs
 ================
 */
-void idEvent::CopyArgs( const idEventDef *evdef, int numargs, va_list args, int data[ D_EVENT_MAXARGS ] ) {
+void idEvent::CopyArgs( const idEventDef *evdef, int numargs, va_list args, idEventArgPtr data[ D_EVENT_MAXARGS ] ) {
 	int			i;
 	const char	*format;
 	idEventArg	*arg;
@@ -489,7 +489,7 @@ idEvent::ServiceEvents
 void idEvent::ServiceEvents() {
 	idEvent		*event;
 	int			num;
-	int			args[ D_EVENT_MAXARGS ];
+	idEventArgPtr args[ D_EVENT_MAXARGS ];
 	int			offset;
 	int			i;
 	int			numargs;
@@ -590,7 +590,7 @@ idEvent::ServiceFastEvents
 void idEvent::ServiceFastEvents() {
 	idEvent	*event;
 	int		num;
-	int			args[ D_EVENT_MAXARGS ];
+	idEventArgPtr args[ D_EVENT_MAXARGS ];
 	int			offset;
 	int			i;
 	int			numargs;

@@ -691,7 +691,7 @@ void idInterpreter::CallEvent( const function_t *func, int argsize ) {
 	varEval_t			var;
 	int 				pos;
 	int 				start;
-	int					data[ D_EVENT_MAXARGS ];
+	idEventArgPtr		data[ D_EVENT_MAXARGS ];
 	const idEventDef	*evdef;
 	const char			*format;
 
@@ -863,7 +863,7 @@ void idInterpreter::CallSysEvent( const function_t *func, int argsize ) {
 	varEval_t			source;
 	int 				pos;
 	int 				start;
-	int					data[ D_EVENT_MAXARGS ];
+	idEventArgPtr		data[ D_EVENT_MAXARGS ];
 	const idEventDef	*evdef;
 	const char			*format;
 

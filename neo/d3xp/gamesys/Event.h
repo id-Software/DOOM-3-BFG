@@ -47,6 +47,12 @@ Event are used for scheduling tasks and for linking script commands.
 
 #define MAX_EVENTS					4096
 
+#if defined(_WIN64)
+typedef long idEventArgPtr;
+#else
+typedef int idEventArgPtr;
+#endif
+
 class idClass;
 class idTypeInfo;
 
@@ -104,7 +110,7 @@ public:
 								~idEvent();
 
 	static idEvent				*Alloc( const idEventDef *evdef, int numargs, va_list args );
-	static void					CopyArgs( const idEventDef *evdef, int numargs, va_list args, int data[ D_EVENT_MAXARGS ]  );
+	static void					CopyArgs( const idEventDef *evdef, int numargs, va_list args, idEventArgPtr data[ D_EVENT_MAXARGS ] );
 	
 	void						Free();
 	void						Schedule( idClass *object, const idTypeInfo *cls, int time );
