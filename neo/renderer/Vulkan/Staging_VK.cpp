@@ -34,6 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "Staging_VK.h"
 
 idCVar r_vkUploadBufferSizeMB( "r_vkUploadBufferSizeMB", "64", CVAR_INTEGER | CVAR_INIT, "Size of gpu upload buffer." );
+idCVar r_vkStagingMaxCommands( "r_vkStagingMaxCommands", "-1", CVAR_INTEGER | CVAR_INIT, "Maximum amount of commands staged (-1 for no limit)" );
 
 /*
 ===========================================================================
@@ -182,6 +183,12 @@ byte* idVulkanStagingManager::Stage( const int size, const int alignment, VkComm
 		Flush();
 	}
 
+	int maxCommands = r_vkStagingMaxCommands.GetInteger();
+	if ( ( maxCommands > 0 ) && ( stage->stagedCommands >= maxCommands) )
+	{
+		Flush();
+	}
+
 	stage = &buffers[ currentBuffer ];
 	if( stage->submitted )
 	{
@@ -194,6 +201,8 @@ byte* idVulkanStagingManager::Stage( const int size, const int alignment, VkComm
 
 	byte* data = stage->data + stage->offset;
 	stage->offset += size;
+
+	stage->stagedCommands++;
 
 	return data;
 }
@@ -237,6 +246,7 @@ void idVulkanStagingManager::Flush()
 	vkQueueSubmit( vkcontext.graphicsQueue, 1, &submitInfo, stage.fence );
 
 	stage.submitted = true;
+	stage.stagedCommands = 0;
 
 	currentBuffer = ( currentBuffer + 1 ) % NUM_FRAME_DATA;
 }
@@ -256,6 +266,7 @@ void idVulkanStagingManager::Wait( stagingBuffer_t& stage )
 	ID_VK_CHECK( vkWaitForFences( vkcontext.device, 1, &stage.fence, VK_TRUE, UINT64_MAX ) );
 	ID_VK_CHECK( vkResetFences( vkcontext.device, 1, &stage.fence ) );
 
+	stage.stagedCommands = 0;
 	stage.offset = 0;
 	stage.submitted = false;
 
