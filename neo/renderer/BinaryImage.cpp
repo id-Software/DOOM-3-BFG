@@ -249,6 +249,15 @@ void idBinaryImage::Load2DFromMemory( int width, int height, const byte* pic_con
 				img.data[ i ] = pic[ i ];
 			}
 		}
+		else if( textureFormat == FMT_R11G11B10F )
+		{
+			// RB: copy it as it was a RGBA8 because of the same size
+			img.Alloc( scaledWidth * scaledHeight * 4 );
+			for( int i = 0; i < img.dataSize; i++ )
+			{
+				img.data[ i ] = pic[ i ];
+			}
+		}
 		else if( textureFormat == FMT_RGBA16F )
 		{
 			img.Alloc( scaledWidth * scaledHeight * 8 );

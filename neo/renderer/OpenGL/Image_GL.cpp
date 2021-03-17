@@ -725,6 +725,15 @@ void idImage::AllocImage()
 			dataFormat = GL_LUMINANCE_ALPHA;
 			dataType = GL_UNSIGNED_SHORT;
 			break;
+
+		// see http://what-when-how.com/Tutorial/topic-615ll9ug/Praise-for-OpenGL-ES-30-Programming-Guide-291.html
+		case FMT_R11G11B10F:
+			internalFormat = GL_R11F_G11F_B10F;
+			dataFormat = GL_RGB;
+			dataType = GL_UNSIGNED_INT_10F_11F_11F_REV;
+			//dataType = GL_FLOAT;
+			break;
+
 		default:
 			idLib::Error( "Unhandled image format %d in %s\n", opts.format, GetName() );
 	}

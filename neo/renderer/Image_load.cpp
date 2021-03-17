@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013-2020 Robert Beckebans
+Copyright (C) 2013-2021 Robert Beckebans
 Copyright (C) 2014-2016 Kot in Action Creative Artel
 Copyright (C) 2016-2017 Dustin Land
 
@@ -77,6 +77,8 @@ int BitsForFormat( textureFormat_t format )
 			return 128;
 		case FMT_R32F:
 			return 32;
+		case FMT_R11G11B10F:
+			return 8;
 		// RB end
 		case FMT_DEPTH:
 			return 32;
@@ -130,6 +132,10 @@ ID_INLINE void idImage::DeriveOpts()
 
 			case TD_R32F:
 				opts.format = FMT_R32F;
+				break;
+
+			case TD_R11G11B10F:
+				opts.format = FMT_R11G11B10F;
 				break;
 
 			case TD_DIFFUSE:

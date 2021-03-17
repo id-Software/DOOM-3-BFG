@@ -100,6 +100,7 @@ enum textureFormat_t
 	FMT_RGBA16F,		// 64 bpp
 	FMT_RGBA32F,		// 128 bpp
 	FMT_R32F,			// 32 bpp
+	FMT_R11G11B10F,		// 32 bpp
 	// RB end
 };
 
@@ -226,6 +227,7 @@ typedef enum
 	TD_RGBA16F,
 	TD_RGBA32F,
 	TD_R32F,
+	TD_R11G11B10F,			// memory efficient HDR RGB format with only 32bpp
 	// RB end
 } textureUsage_t;
 

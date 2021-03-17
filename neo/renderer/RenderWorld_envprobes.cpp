@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2020 Robert Beckebans
+Copyright (C) 2020-2021 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma hdrstop
 #include "precompiled.h"
+
+#include "../libs/mesa/format_r11g11b10f.h"
 
 #include "RenderCommon.h"
 
@@ -225,13 +227,13 @@ void idRenderWorldLocal::AddAreaViewEnvprobes( int areaNum, const portalStack_t*
 
 /*
 ==================
-R_SampleCubeMap
+R_SampleCubeMapHDR
 ==================
 */
 static idMat3		cubeAxis[6];
 static const char* envDirection[6] = { "_px", "_nx", "_py", "_ny", "_pz", "_nz" };
 
-void R_SampleCubeMap( const idVec3& dir, int size, byte* buffers[6], byte result[4] )
+void R_SampleCubeMapHDR( const idVec3& dir, int size, byte* buffers[6], float result[3] )
 {
 	float	adir[3];
 	int		axis, x, y;
@@ -289,10 +291,21 @@ void R_SampleCubeMap( const idVec3& dir, int size, byte* buffers[6], byte result
 		y = size - 1;
 	}
 
-	result[0] = buffers[axis][( y * size + x ) * 4 + 0];
-	result[1] = buffers[axis][( y * size + x ) * 4 + 1];
-	result[2] = buffers[axis][( y * size + x ) * 4 + 2];
-	result[3] = buffers[axis][( y * size + x ) * 4 + 3];
+	// unpack RGBA8 to 3 floats
+	union
+	{
+		uint32	i;
+		byte	b[4];
+	} tmp;
+
+	tmp.b[0] = buffers[axis][( y * size + x ) * 4 + 0];
+	tmp.b[1] = buffers[axis][( y * size + x ) * 4 + 1];
+	tmp.b[2] = buffers[axis][( y * size + x ) * 4 + 2];
+	tmp.b[3] = buffers[axis][( y * size + x ) * 4 + 3];
+
+	//uint32_t value = ( *( const uint32_t* )buffers[axis][( y * size + x ) * 4 + 0] );
+
+	r11g11b10f_to_float3( tmp.i, result );
 }
 
 class CommandlineProgressBar
@@ -655,7 +668,7 @@ void R_MakeAmbientMap( const char* baseName, const char* suffix, int outSize, fl
 	// read all of the images
 	for( int i = 0 ; i < 6 ; i++ )
 	{
-		fullname.Format( "env/%s%s.png", baseName, envDirection[i] );
+		fullname.Format( "env/%s%s.exr", baseName, envDirection[i] );
 
 		const bool captureToImage = false;
 		common->UpdateScreen( captureToImage );
@@ -677,68 +690,10 @@ void R_MakeAmbientMap( const char* baseName, const char* suffix, int outSize, fl
 	// resample with hemispherical blending
 	int	samples = 1000;
 
-	byte*	outBuffer = ( byte* )_alloca( outSize * outSize * 4 );
+	//halfFloat_t* outBuffer = ( halfFloat_t* )_alloca( outSize * outSize * 3 * sizeof( halfFloat_t ) );
+	halfFloat_t* outBuffer = ( halfFloat_t* )R_StaticAlloc( outSize * outSize * 3 * sizeof( halfFloat_t ) , TAG_IMAGE );
 
-#if 0
 	{
-		CommandlineProgressBar progressBar( outSize * outSize * 6 );
-
-		int	start = Sys_Milliseconds();
-
-		for( int i = 0 ; i < 6 ; i++ )
-		{
-			for( int x = 0 ; x < outSize ; x++ )
-			{
-				for( int y = 0 ; y < outSize ; y++ )
-				{
-					idVec3	dir;
-					float	total[3];
-
-					dir = cubeAxis[i][0] + -( -1 + 2.0 * x / ( outSize - 1 ) ) * cubeAxis[i][1] + -( -1 + 2.0 * y / ( outSize - 1 ) ) * cubeAxis[i][2];
-					dir.Normalize();
-					total[0] = total[1] = total[2] = 0;
-
-					//float roughness = map ? 0.1 : 0.95;		// small for specular, almost hemisphere for ambient
-
-					for( int s = 0 ; s < samples ; s++ )
-					{
-						idVec2 Xi = Hammersley2D( s, samples );
-						idVec3 test = ImportanceSampleGGX( Xi, dir, roughness );
-
-						byte	result[4];
-						//test = dir;
-						R_SampleCubeMap( test, width, buffers, result );
-						total[0] += result[0];
-						total[1] += result[1];
-						total[2] += result[2];
-					}
-					outBuffer[( y * outSize + x ) * 4 + 0] = total[0] / samples;
-					outBuffer[( y * outSize + x ) * 4 + 1] = total[1] / samples;
-					outBuffer[( y * outSize + x ) * 4 + 2] = total[2] / samples;
-					outBuffer[( y * outSize + x ) * 4 + 3] = 255;
-
-					progressBar.Increment();
-				}
-			}
-
-			
-			fullname.Format( "env/%s%s%s.png", baseName, suffix, envDirection[i] );
-			//common->Printf( "writing %s\n", fullname.c_str() );
-
-			const bool captureToImage = false;
-			common->UpdateScreen( captureToImage );
-
-			//R_WriteTGA( fullname, outBuffer, outSize, outSize, false, "fs_basepath" );
-			R_WritePNG( fullname, outBuffer, 4, outSize, outSize, true, "fs_basepath" );
-		}
-
-		int	end = Sys_Milliseconds();
-
-		common->Printf( "env/%s convolved  in %5.1f seconds\n\n", baseName, ( end - start ) * 0.001f );
-	}
-#else
-	{
-
 		// output an octahedron probe
 
 		CommandlineProgressBar progressBar( outSize * outSize );
@@ -763,6 +718,7 @@ void R_MakeAmbientMap( const char* baseName, const char* suffix, int outSize, fl
 				// convert UV coord to 3D direction
 				dir.FromOctahedral( octCoord );
 
+#if 1
 				total[0] = total[1] = total[2] = 0; 
 
 				//float roughness = map ? 0.1 : 0.95;		// small for specular, almost hemisphere for ambient
@@ -772,24 +728,23 @@ void R_MakeAmbientMap( const char* baseName, const char* suffix, int outSize, fl
 					idVec2 Xi = Hammersley2D( s, samples );
 					idVec3 test = ImportanceSampleGGX( Xi, dir, roughness );
 
-					byte	result[4];
+					float	result[3];
 					//test = dir;
-					R_SampleCubeMap( test, width, buffers, result );
+					
+					R_SampleCubeMapHDR( test, width, buffers, result );
+					
 					total[0] += result[0];
 					total[1] += result[1];
 					total[2] += result[2];
 				}
 
-#if 1
-				outBuffer[( y * outSize + x ) * 4 + 0] = total[0] / samples;
-				outBuffer[( y * outSize + x ) * 4 + 1] = total[1] / samples;
-				outBuffer[( y * outSize + x ) * 4 + 2] = total[2] / samples;
-				outBuffer[( y * outSize + x ) * 4 + 3] = 255;
+				outBuffer[( y * outSize + x ) * 3 + 0] = F32toF16( total[0] / samples );
+				outBuffer[( y * outSize + x ) * 3 + 1] = F32toF16( total[1] / samples );
+				outBuffer[( y * outSize + x ) * 3 + 2] = F32toF16( total[2] / samples );
 #else
-				outBuffer[( y * outSize + x ) * 4 + 0] = byte( ( dir.x * 0.5f + 0.5f ) * 255 );
-				outBuffer[( y * outSize + x ) * 4 + 1] = byte( ( dir.y * 0.5f + 0.5f ) * 255 );
-				outBuffer[( y * outSize + x ) * 4 + 2] = byte( ( dir.z * 0.5f + 0.5f ) * 255 );
-				outBuffer[( y * outSize + x ) * 4 + 3] = 255;
+				outBuffer[( y * outSize + x ) * 3 + 0] = F32toF16( ( dir.x * 0.5f + 0.5f ) );
+				outBuffer[( y * outSize + x ) * 3 + 1] = F32toF16( ( dir.y * 0.5f + 0.5f ) );
+				outBuffer[( y * outSize + x ) * 3 + 2] = F32toF16( ( dir.z * 0.5f + 0.5f ) );
 #endif
 
 				progressBar.Increment();
@@ -797,20 +752,20 @@ void R_MakeAmbientMap( const char* baseName, const char* suffix, int outSize, fl
 		}
 
 			
-		fullname.Format( "env/%s%s.png", baseName, suffix );
+		fullname.Format( "env/%s%s.exr", baseName, suffix );
 		//common->Printf( "writing %s\n", fullname.c_str() );
 
 		const bool captureToImage = false;
 		common->UpdateScreen( captureToImage );
 
 		//R_WriteTGA( fullname, outBuffer, outSize, outSize, false, "fs_basepath" );
-		R_WritePNG( fullname, outBuffer, 4, outSize, outSize, true, "fs_basepath" );
+		//R_WritePNG( fullname, outBuffer, 4, outSize, outSize, true, "fs_basepath" );
+		R_WriteEXR( fullname, (byte*)outBuffer, 3, outSize, outSize, "fs_basepath" );
 
 		int	end = Sys_Milliseconds();
 
 		common->Printf( "env/%s convolved in %5.1f seconds\n\n", baseName, ( end - start ) * 0.001f );
 	}
-#endif
 
 	for( int i = 0 ; i < 6 ; i++ )
 	{
@@ -819,6 +774,8 @@ void R_MakeAmbientMap( const char* baseName, const char* suffix, int outSize, fl
 			Mem_Free( buffers[i] );
 		}
 	}
+
+	Mem_Free( outBuffer );
 }
 
 /*
