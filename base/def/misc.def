@@ -1,0 +1,169 @@
+/***********************************************************************
+
+ miscellaneous
+
+***********************************************************************/
+
+entityDef worldspawn {
+	"editor_color"			"0 0 0"
+	"editor_mins"			"?"
+	"editor_maxs"			"?"
+
+	"editor_usage"			"Every map should have exactly one worldspawn."
+	"editor_var music"		"music wav file."
+	"editor_var gravity"	"gravity value for the level."
+	"editor_var no_stamina" "disables stamina so the player can always run"
+	"editor_var no_Weapons" "only fists and no melee attacks"
+	"editor_var def_player"	"player def to use when spawning this world"
+
+	"spawnclass"			"idWorldspawn"
+	"gravity"				"1066"
+	"name"					"world"
+}
+
+entityDef light {
+	"editor_color"				"0 1 0"
+	"editor_mins"				"-8 -8 -8"
+	"editor_maxs"				"8 8 8"
+	"editor_rotatable"			"1"
+
+	"editor_usage"				"Light source.  If health is set, light becomes breakable and turns off when shot."
+	
+	"editor_material texture"		"light shader to use."
+	"editor_color color"			"light color"
+	"editor_var shaderParm3"	"shaderParm 3"
+	"editor_var shaderParm4"	"shaderParm 4"
+	"editor_var shaderParm5"	"shaderParm 5"
+	"editor_var shaderParm6"	"shaderParm 6"
+	"editor_var shaderParm7"	"shaderParm 7"
+	"editor_var count"			"how many times light must be triggered to toggle."
+	"editor_var break"			"break when triggered."
+	"editor_model model"			"model to use."
+	"editor_model broken"			"model to use when the light is broken (defaults to model name with '_broken' appended to name)"
+	"editor_var hideModelOnBreak" "hides the model when broken"
+	"editor_var health"			"amount of damage to recieve before becoming broken.  0 is nonbreakable."
+	"editor_var target"			"entities to trigger if shot."
+	"editor_var levels"			"the number of times a light must be triggered until it turns off.  Each time it's triggered, it's dimmed to a lower level."
+	"editor_var start_off"		"causes the light to be off when the level starts."
+	"editor_var snd_broken"		"sound shader to use when broken"
+	"editor_var mtr_broken"		"material to use when broken"
+	"editor_color color_demonic"	"demonic color to use if in demonic mode."
+	"editor_material mat_demonic"	"demonic shader to use if in demonic mode."
+	"editor_var leave_demonic_mat" "leaves the demonic shader when the effect expires.. color is still reverted back."
+
+	"spawnclass"				"idLight"
+	"health"					"0"
+	"levels"					"1"
+	"start_off"					"0"
+	"count"						"1"
+	"break"						"0"
+	
+	// jmarshall: Quake 1 light styles
+	/*
+	"style"						"-1"
+	
+	"ls_frametime"				"100"
+	
+	"num_styles"				"12"
+		
+	"light_style0" 				"m"
+	"light_style1" 				"mmnmmommommnonmmonqnmmo"
+	"light_style2" 				"abcdefghijklmnopqrstuvwxyzyxwvutsrqponmlkjihgfedcba"
+	"light_style3"				"mmmmmaaaaammmmmaaaaaabcdefgabcdefg"
+	"light_style4"				"mamamamamama"
+	"light_style5"				"jklmnopqrstuvwxyzyxwvutsrqponmlkj"
+	"light_style6"				"nmonqnmomnmomomno"
+	"light_style7"				"mmmaaaabcdefgmmmmaaaammmaamm"
+	"light_style8"				"mmmaaammmaaammmabcdefaaaammmmabcdefmmmaaaa"
+	"light_style9"				"aaaaaaaazzzzzzzz"
+	"light_style10"				"mmamammmmammamamaaamammma"
+	"light_style11"				"abcdefghijklmnopqrrqponmlkjihgfedcba"
+	*/
+	// jmarshall end
+}
+
+entityDef speaker {
+	"editor_color"					"0 1 0"
+	"editor_mins"					"-8 -8 -8"
+	"editor_maxs"					"8 8 8"
+	"editor_material"				"textures/common/speaker"
+	
+
+	"editor_usage"					""
+	
+	"editor_snd s_shader"			"the sound shader or wavefile."
+	"editor_snd snd_demonic"		"demonic sound shader."
+	"editor_var overlayDemonic"		"set to 1 overlays the demonic sound instead of replacing it."
+	"editor_var s_waitfortrigger"	"play on load or play when triggered."
+	"editor_var s_volume"			"override shader volume level."
+	"editor_var s_minDistance"		"override shader minDistance."
+	"editor_var s_maxDistance"		"override shader maxDistance."
+	"editor_var s_omni"				"force omnidirectional"
+	"editor_var s_looping"			"force looping"
+	"editor_var s_occlusion"		"force no portal occlusion"
+	"editor_var s_global"			"force no falloff at all"
+	"editor_var s_shakes"			"this entity can make the screen shake when the sound is loud."
+	"editor_var wait"				"when set > 0, seconds between triggerings.  time between sounds is wait + or - random"
+	"editor_var random"				"wait variance."
+	
+	"spawnclass"					"idSound"
+}
+
+entityDef info_location {
+	"editor_color"			"1 1 0"
+	"editor_mins"			"-4 -4 -4"
+	"editor_maxs"			"4 4 4"
+
+	"editor_usage"			"Place one of these in each door-separated area for naming the gameplay sections"
+	"editor_var name"		"location name for HUD.  Cannot be the same as any other entity in the game."
+	"editor_var location"	"use this when you have two locations with the same name."
+
+	"spawnclass"			"idLocationEntity"
+}
+
+entityDef info_locationSeparator {
+	"editor_color"			"1 1 0"
+	"editor_mins"			"-16 -16 -16"
+	"editor_maxs"			"16 16 16"
+
+	"editor_usage"			"Touch a vis-portal with this to break location name flood filling without using a door"
+
+	"spawnclass"			"idLocationSeparatorEntity"
+}
+
+entityDef info_vacuum {
+	"editor_color"			"1 1 0"
+	"editor_mins"			"-4 -4 -4"
+	"editor_maxs"			"4 4 4"
+
+	"editor_usage"			"Place one of these in an outside area in each map for vacuum flooding"
+
+	"spawnclass"			"idVacuumEntity"
+}
+
+entityDef info_vacuumSeparator {
+	"editor_color"			"1 1 0"
+	"editor_mins"			"-16 -16 -16"
+	"editor_maxs"			"16 16 16"
+
+	"editor_usage"			"Touch a vis-portal with this to break air/vacuum flood filling at windows.  Trigger it to allow vacuum to flood through."
+
+	"spawnclass"			"idVacuumSeparatorEntity"
+}
+
+entityDef text {
+	"editor_color"			"1 1 0"
+	"editor_mins"			"-4 -4 -4"
+	"editor_maxs"			"4 4 4"
+	"editor_showangle"				"1"
+	"editor_rotatable"				"1"
+
+	"editor_usage"			"Used to display debug text in a level"
+	"editor_var text"		"text to print"
+	"editor_var force"		"if set to 1 prints always otherwise only in developer mode"
+	"editor_var playerOriented" "if set to 1 text always faces the player" 
+
+	"spawnclass"			"idTextEntity"
+}
+
+
