@@ -4,9 +4,6 @@
 
 #include <comdef.h>
 
-// TODO: Remove when we have the ID reader
-/*#include "../ByteFileReader.h"*/
-
 DX12Renderer dxRenderer;
 extern idCommon* common;
 
@@ -158,7 +155,6 @@ void DX12Renderer::Init(HWND hWnd) {
 void DX12Renderer::LoadPipeline(HWND hWnd) {
 #if defined(_DEBUG)
 	{
-
 		ComPtr<ID3D12Debug> debugController;
 		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)))) {
 			debugController->EnableDebugLayer();
@@ -182,7 +178,14 @@ void DX12Renderer::LoadPipeline(HWND hWnd) {
 	queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
 	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 
-	ThrowIfFailed(m_device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_commandQueue)));
+	ThrowIfFailed(m_device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_directCommandQueue)));
+
+	// Describe and create the copy command queue
+	D3D12_COMMAND_QUEUE_DESC copyQueueDesc = {};
+	queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_COPY;
+
+	ThrowIfFailed(m_device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_copyCommandQueue)));
 
 	// Create Descriptor Heaps
 	{
@@ -212,7 +215,7 @@ void DX12Renderer::LoadPipeline(HWND hWnd) {
 	swapChainDesc.Windowed = FALSE; //TODO: Change to option
 
 	ComPtr<IDXGISwapChain> swapChain;
-	ThrowIfFailed(factory->CreateSwapChain(m_commandQueue.Get(), &swapChainDesc, &swapChain));
+	ThrowIfFailed(factory->CreateSwapChain(m_directCommandQueue.Get(), &swapChainDesc, &swapChain));
 
 	ThrowIfFailed(swapChain.As(&m_swapChain));
 
@@ -269,8 +272,11 @@ void DX12Renderer::LoadPipeline(HWND hWnd) {
 		}
 	}
 
-	ThrowIfFailed(m_device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator)));
-	m_commandAllocator->SetName(L"Main Command Allocator");
+	ThrowIfFailed(m_device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_directCommandAllocator)));
+	m_directCommandAllocator->SetName(L"Main Command Allocator");
+
+	ThrowIfFailed(m_device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_COPY, IID_PPV_ARGS(&m_copyCommandAllocator)));
+	m_copyCommandAllocator->SetName(L"Main Command Allocator");
 }
 
 bool DX12Renderer::CreateBackBuffer() {
@@ -373,6 +379,9 @@ void DX12Renderer::LoadAssets() {
 		ThrowIfFailed(m_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
 		m_fenceValue = 1;
 
+		ThrowIfFailed(m_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_copyFence)));
+		m_copyFenceValue = 1;
+
 		// Create an event handle to use for the frame synchronization
 		m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
 		if (m_fenceEvent == nullptr) {
@@ -417,13 +426,24 @@ void DX12Renderer::LoadAssets() {
 
 	// Create the Command Lists
 	{
-		ThrowIfFailed(m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator.Get(), NULL, IID_PPV_ARGS(&m_commandList)));
+		ThrowIfFailed(m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_directCommandAllocator.Get(), NULL, IID_PPV_ARGS(&m_commandList)));
 		ThrowIfFailed(m_commandList->Close());
 
 		WCHAR nameDest[16];
 		wsprintfW(nameDest, L"Command List %d", 0);
 
 		m_commandList->SetName(static_cast<LPCWSTR>(nameDest));
+	}
+
+	// Create the Copy Command Lists
+	{
+		ThrowIfFailed(m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_COPY, m_copyCommandAllocator.Get(), NULL, IID_PPV_ARGS(&m_copyCommandList)));
+		ThrowIfFailed(m_copyCommandList->Close());
+
+		WCHAR nameDest[20];
+		wsprintfW(nameDest, L"Copy Command List %d", 0);
+
+		m_copyCommandList->SetName(static_cast<LPCWSTR>(nameDest));
 	}
 
 	{
@@ -512,7 +532,7 @@ void DX12Renderer::WaitForPreviousFrame() {
 	// TODO: Use a better version
 
 	const UINT64 fence = m_fenceValue;
-	ThrowIfFailed(m_commandQueue->Signal(m_fence.Get(), fence));
+	ThrowIfFailed(m_directCommandQueue->Signal(m_fence.Get(), fence));
 	++m_fenceValue;
 
 	// Wait for the frame to finish
@@ -524,12 +544,24 @@ void DX12Renderer::WaitForPreviousFrame() {
 	m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
 }
 
+void DX12Renderer::WaitForCopyToComplete() {
+	const UINT64 fence = m_copyFenceValue;
+	ThrowIfFailed(m_copyCommandQueue->Signal(m_copyFence.Get(), fence));
+	++m_copyFenceValue;
+
+	// Wait for the frame to finish
+	if (m_copyFence->GetCompletedValue() < fence) {
+		ThrowIfFailed(m_copyFence->SetEventOnCompletion(fence, m_copyFenceEvent));
+		WaitForSingleObject(m_copyFenceEvent, INFINITE);
+	}
+}
+
 void DX12Renderer::ResetCommandList(bool waitForBackBuffer) {
 	if (!m_isDrawing) {
 		return;
 	}
 
-	ThrowIfFailed(m_commandList->Reset(m_commandAllocator.Get(), m_activePipelineState));
+	ThrowIfFailed(m_commandList->Reset(m_directCommandAllocator.Get(), m_activePipelineState));
 	m_commandList->SetGraphicsRootSignature(m_rootsSignature.Get());
 
 	if (waitForBackBuffer) {
@@ -559,7 +591,7 @@ void DX12Renderer::ExecuteCommandList() {
 	WarnIfFailed(m_commandList->Close());
 
 	ID3D12CommandList* ppCommandLists[] = { m_commandList.Get() };
-	m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+	m_directCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 }
 
 void DX12Renderer::BeginDraw() {
@@ -571,7 +603,7 @@ void DX12Renderer::BeginDraw() {
 
 	m_cbvHeapIndex = 0;
 	m_isDrawing = true;
-	ThrowIfFailed(m_commandAllocator->Reset()); //TODO: Change to warning
+	ThrowIfFailed(m_directCommandAllocator->Reset()); //TODO: Change to warning
 
 	ResetCommandList(true);
 
@@ -589,6 +621,8 @@ void DX12Renderer::EndDraw() {
 	ExecuteCommandList();
 
 	m_isDrawing = false;
+
+	// TODO: Add code here to update the frame fence value. This way we always know that it should be updated here and other threads should wait for the new value.
 }
 
 UINT DX12Renderer::StartSurfaceSettings() {
@@ -708,15 +742,15 @@ bool DX12Renderer::SetScreenParams(UINT width, UINT height, int fullscreen)
 	//m_swapChain->SetFullscreenState(true, NULL);
 
 	// TODO: HANDLE THIS WHILE DRAWING.
-	if (m_device && m_swapChain && m_commandAllocator) {
+	if (m_device && m_swapChain && m_directCommandAllocator) {
 		if (!m_isDrawing) {
 			WaitForPreviousFrame();
-			if (FAILED(m_commandAllocator->Reset())) {
+			if (FAILED(m_directCommandAllocator->Reset())) {
 				common->Warning("DX12Renderer::SetScreenParams: Error resetting command allocator.");
 				return false;
 			}
 
-			if (FAILED(m_commandList->Reset(m_commandAllocator.Get(), nullptr))) {
+			if (FAILED(m_commandList->Reset(m_directCommandAllocator.Get(), nullptr))) {
 				common->Warning("DX12Renderer::SetScreenParams: Error resetting command list.");
 				return false;
 			}
@@ -738,14 +772,13 @@ bool DX12Renderer::SetScreenParams(UINT width, UINT height, int fullscreen)
 		UpdateViewport(0.0f, 0.0f, width, height);
 		UpdateScissorRect(0, 0, static_cast<LONG>(width), static_cast<LONG>(height));
 
-
 		if (!m_isDrawing) {
 			if (FAILED(m_commandList->Close())) {
 				return false;
 			}
 
 			ID3D12CommandList* ppCommandLists[] = { m_commandList.Get() };
-			m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+			m_directCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 		}
 	}
 	else {
@@ -833,54 +866,47 @@ DX12TextureBuffer* DX12Renderer::AllocTextureBuffer(DX12TextureBuffer* buffer, D
 
 void DX12Renderer::FreeTextureBuffer(DX12TextureBuffer* buffer) {
 	if (buffer != nullptr) {
+		WaitForCopyToComplete();
 		WaitForPreviousFrame();
 		delete(buffer);
 	}
 }
 
 void DX12Renderer::SetTextureContent(DX12TextureBuffer* buffer, const UINT mipLevel, const UINT bytesPerRow, const size_t imageSize, const void* image) {
-
-
 	D3D12_SUBRESOURCE_DATA textureData = {};
 	textureData.pData = image;
 	textureData.RowPitch = bytesPerRow;
 	textureData.SlicePitch = imageSize;
 
-	const bool runCommandList = !m_isDrawing;
+	WaitForCopyToComplete();
 
-	if (runCommandList) {
-		WaitForPreviousFrame();
+	if (FAILED(m_copyCommandAllocator->Reset())) {
+		common->Warning("Could not reset the copy command allocator.");
+		return;
+	}
 
-		if (FAILED(m_commandAllocator->Reset())) {
-			common->Warning("Could not reset command allocator.");
-			return;
-		}
-
-		if (FAILED(m_commandList->Reset(m_commandAllocator.Get(), nullptr))) {
-			common->Warning("Could not reset command list.");
-			return;
-		}
+	if (FAILED(m_copyCommandList->Reset(m_copyCommandAllocator.Get(), nullptr))) {
+		common->Warning("Could not reset the copy command list.");
+		return;
 	}
 	
-	if (buffer->usageState == D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE) {
-		m_commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(buffer->textureBuffer.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COPY_DEST));
+	if (buffer->usageState == D3D12_RESOURCE_STATE_COMMON) { //D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE) {
+		m_copyCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(buffer->textureBuffer.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST));
 		buffer->usageState = D3D12_RESOURCE_STATE_COPY_DEST;
 	}
 
-	UpdateSubresources(m_commandList.Get(), buffer->textureBuffer.Get(), m_textureBufferUploadHeap.Get(), 0, mipLevel, 1, &textureData);
+	UpdateSubresources(m_copyCommandList.Get(), buffer->textureBuffer.Get(), m_textureBufferUploadHeap.Get(), 0, mipLevel, 1, &textureData);
 
-	m_commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(buffer->textureBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
-	buffer->usageState = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+	m_copyCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(buffer->textureBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_COMMON));
+	buffer->usageState = D3D12_RESOURCE_STATE_COMMON;
 
-	if (runCommandList) {
-		if (FAILED(m_commandList->Close())) {
-			common->Warning("Could not close command list.");
-		}
-
-		// Execute the command list
-		ID3D12CommandList* ppCommandLists[] = { m_commandList.Get() };
-		m_commandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+	if (FAILED(m_copyCommandList->Close())) {
+		common->Warning("Could not close copy command list.");
 	}
+
+	// Execute the command list
+	ID3D12CommandList* ppCommandLists[] = { m_copyCommandList.Get() };
+	m_copyCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 }
 
 void DX12Renderer::SetTexture(const DX12TextureBuffer* buffer) {

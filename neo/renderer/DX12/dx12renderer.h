@@ -144,16 +144,21 @@ private:
 	CD3DX12_VIEWPORT m_viewport;
 	CD3DX12_RECT m_scissorRect;
 	ComPtr<ID3D12Device5> m_device;
-	ComPtr<ID3D12CommandQueue> m_commandQueue;
 	ComPtr<IDXGISwapChain3> m_swapChain;
 	ComPtr<ID3D12DescriptorHeap> m_rtvHeap;
 	UINT m_rtvDescriptorSize;
 	ComPtr<ID3D12Resource> m_renderTargets[FrameCount];
-	ComPtr<ID3D12CommandAllocator> m_commandAllocator;
 	ComPtr<ID3D12RootSignature> m_rootsSignature;
-    ComPtr<ID3D12GraphicsCommandList> m_commandList;
     ComPtr<ID3D12DescriptorHeap> m_dsvHeap;
 	ComPtr<ID3D12Resource> m_depthBuffer;
+
+	// Command List
+	ComPtr<ID3D12CommandQueue> m_directCommandQueue;
+	ComPtr<ID3D12CommandQueue> m_copyCommandQueue;
+	ComPtr<ID3D12CommandAllocator> m_directCommandAllocator;
+	ComPtr<ID3D12CommandAllocator> m_copyCommandAllocator;
+	ComPtr<ID3D12GraphicsCommandList> m_commandList;
+	ComPtr<ID3D12GraphicsCommandList> m_copyCommandList;
 
 	ComPtr<ID3D12DescriptorHeap> m_cbvHeap[FrameCount];
 	ComPtr<ID3D12Resource> m_cbvUploadHeap[FrameCount];
@@ -169,6 +174,9 @@ private:
     HANDLE m_fenceEvent;
     ComPtr<ID3D12Fence> m_fence;
     UINT16 m_fenceValue;
+	HANDLE m_copyFenceEvent;
+	ComPtr<ID3D12Fence> m_copyFence;
+	UINT16 m_copyFenceValue;
 
 	// Textures
 	ComPtr<ID3D12Resource> m_textureBufferUploadHeap;
@@ -182,6 +190,7 @@ private:
 	void LoadAssets();
 
     void WaitForPreviousFrame();
+	void WaitForCopyToComplete();
 
 	bool CreateBackBuffer();
 
