@@ -2096,6 +2096,11 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 		return;
 	}
 
+	if( viewDef->renderView.rdflags & RDF_NOAMBIENT )
+	{
+		return;
+	}
+
 #if defined( USE_VULKAN )
 	if( fillGbuffer )
 	{

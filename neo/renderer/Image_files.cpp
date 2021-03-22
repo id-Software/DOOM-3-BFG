@@ -981,6 +981,9 @@ static void LoadEXR( const char* filename, unsigned char** pic, int* width, int*
 		free( rgba );
 	}
 
+	// RB: EXR needs to be flipped to match the .tga behavior
+	//R_VerticalFlip( *pic, *width, *height );
+
 	Mem_Free( ( void* )fbuffer );
 }
 

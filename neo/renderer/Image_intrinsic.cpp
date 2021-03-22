@@ -1056,8 +1056,8 @@ void idImageManager::CreateIntrinsicImages()
 
 	// RB begin
 	// FIXME change back to TF_DEFAULT
-	defaultUACIrradianceCube = ImageFromFile( "env/UAC3_amb", TF_NEAREST, TR_CLAMP, TD_R11G11B10F, CF_2D );
-	defaultUACRadianceCube = ImageFromFile( "env/UAC3_spec", TF_NEAREST, TR_CLAMP, TD_R11G11B10F, CF_2D );
+	defaultUACIrradianceCube = ImageFromFile( "env/UAC5_amb", TF_DEFAULT, TR_CLAMP, TD_R11G11B10F, CF_2D_PACKED_MIPCHAIN );
+	defaultUACRadianceCube = ImageFromFile( "env/UAC5_spec", TF_DEFAULT, TR_CLAMP, TD_R11G11B10F, CF_2D_PACKED_MIPCHAIN );
 	// RB end
 
 	release_assert( loadingIconImage->referencedOutsideLevelLoad );

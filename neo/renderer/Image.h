@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013-2017 Robert Beckebans
+Copyright (C) 2013-2021 Robert Beckebans
 Copyright (C) 2016-2017 Dustin Land
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
@@ -236,7 +236,9 @@ typedef enum
 	CF_2D,			// not a cube map
 	CF_NATIVE,		// _px, _nx, _py, etc, directly sent to GL
 	CF_CAMERA,		// _forward, _back, etc, rotated and flipped as needed before sending to GL
-	CF_2D_ARRAY		// not a cube map but not a single 2d texture either
+	CF_PANORAMA,	// TODO latlong encoded HDRI panorama typically used by Substance or Blender
+	CF_2D_ARRAY,	// not a cube map but not a single 2d texture either
+	CF_2D_PACKED_MIPCHAIN // usually 2d but can be an octahedron, packed mipmaps into single 2d texture atlas and limited to dim^2
 } cubeFiles_t;
 
 enum imageFileType_t
@@ -642,6 +644,9 @@ void R_HorizontalFlip( byte* data, int width, int height );
 void R_VerticalFlip( byte* data, int width, int height );
 void R_RotatePic( byte* data, int width );
 void R_ApplyCubeMapTransforms( int i, byte* data, int size );
+
+idVec4 R_CalculateMipRect( uint dimensions, uint mip );
+int R_CalculateUsedAtlasPixels( int dimensions );
 
 /*
 ====================================================================

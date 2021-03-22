@@ -838,6 +838,24 @@ void R_ReadTiledPixels( int width, int height, byte* buffer, renderView_t* ref =
 				glPixelStorei( GL_PACK_ROW_LENGTH, RADIANCE_CUBEMAP_SIZE );
 				glReadPixels( 0, 0, w, h, GL_RGB, GL_HALF_FLOAT, buffer );
 
+#if 0
+				// TODO vertical flip with half floats
+				{
+					int		i, j;
+					uint64	temp;
+
+					for( i = 0 ; i < width ; i++ )
+					{
+						for( j = 0 ; j < height / 2 ; j++ )
+						{
+							temp = *( ( uint64* )buffer + j * width + i );
+							*( ( uint64* )buffer + j * width + i ) = *( ( uint64* )buffer + ( height - 1 - j ) * width + i );
+							*( ( uint64* )buffer + ( height - 1 - j ) * width + i ) = temp;
+						}
+					}
+				}
+#endif
+
 				Framebuffer::Unbind();
 			}
 			else
