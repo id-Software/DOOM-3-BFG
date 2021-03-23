@@ -522,7 +522,7 @@ R_MakeAmbientMap_f <basename> [size]
 Saves out env/<basename>_amb_ft.tga, etc
 ==================
 */
-void R_MakeAmbientMap( const char* baseName, const char* suffix, int outSize, bool specular )
+void R_MakeAmbientMap( const char* baseName, const char* suffix, int outSize, bool specular, bool deleteTempFiles )
 {
 	idStr		fullname;
 	renderView_t	ref;
@@ -734,6 +734,16 @@ void R_MakeAmbientMap( const char* baseName, const char* suffix, int outSize, bo
 	}
 
 	Mem_Free( outBuffer );
+
+	if( deleteTempFiles )
+	{
+		for( int i = 0 ; i < 6 ; i++ )
+		{
+			fullname.Format( "env/%s%s.exr", baseName, envDirection[i] );
+
+			fileSystem->RemoveFile( fullname );
+		}
+	}
 }
 
 /*
@@ -779,11 +789,11 @@ CONSOLE_COMMAND( makeAmbientMap, "Saves out env/<basename>_amb_ft.tga, etc", NUL
 
 	if( roughness > 0.8f )
 	{
-		R_MakeAmbientMap( baseName, "_amb", outSize, false );
+		R_MakeAmbientMap( baseName, "_amb", outSize, false, false );
 	}
 	else
 	{
-		R_MakeAmbientMap( baseName, "_spec", outSize, true );
+		R_MakeAmbientMap( baseName, "_spec", outSize, true, false );
 	}
 }
 
@@ -918,8 +928,8 @@ CONSOLE_COMMAND( generateEnvironmentProbes, "Generate environment probes", NULL 
 
 		fullname.Format( "%s/envprobe%i", baseName.c_str(), i );
 
-		R_MakeAmbientMap( fullname.c_str(), "_amb", IRRADIANCE_CUBEMAP_SIZE, false );
-		R_MakeAmbientMap( fullname.c_str(), "_spec", RADIANCE_CUBEMAP_SIZE, true );
+		R_MakeAmbientMap( fullname.c_str(), "_amb", IRRADIANCE_CUBEMAP_SIZE, false, false );
+		R_MakeAmbientMap( fullname.c_str(), "_spec", RADIANCE_CUBEMAP_SIZE, true, true );
 	}
 
 	int	end = Sys_Milliseconds();
