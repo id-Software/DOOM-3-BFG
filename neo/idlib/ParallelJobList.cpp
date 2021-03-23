@@ -1266,7 +1266,7 @@ extern void Sys_CPUCount( int& logicalNum, int& coreNum, int& packageNum );
 // Hyperthreading is not dead yet.  Intel's Core i7 Processor is quad-core with HT for 8 logicals.
 
 // DOOM3: We don't have that many jobs, so just set this fairly low so we don't spin up a ton of idle threads
-#define MAX_JOB_THREADS		2
+#define MAX_JOB_THREADS		32
 #define NUM_JOB_THREADS		"2"
 #define JOB_THREAD_CORES	{	CORE_ANY, CORE_ANY, CORE_ANY, CORE_ANY,	\
 								CORE_ANY, CORE_ANY, CORE_ANY, CORE_ANY,	\

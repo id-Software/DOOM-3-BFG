@@ -83,6 +83,5 @@ struct staticShadowVolumeParms_t
 
 
 void StaticShadowVolumeJob( const staticShadowVolumeParms_t* parms );
-void StaticShadowVolume_SetupSPURSHeader( CellSpursJob128* job, const staticShadowVolumeParms_t* parms );
 
 #endif // !__STATICSHADOWVOLUME_H__

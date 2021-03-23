@@ -1718,6 +1718,10 @@ void idRenderSystemLocal::Clear()
 	}
 
 	frontEndJobList = NULL;
+
+	// RB
+	envprobeJobList = NULL;
+	irradianceJobs.Clear();
 }
 
 /*
@@ -2060,6 +2064,7 @@ void idRenderSystemLocal::Init()
 	}
 
 	frontEndJobList = parallelJobManager->AllocJobList( JOBLIST_RENDERER_FRONTEND, JOBLIST_PRIORITY_MEDIUM, 2048, 0, NULL );
+	envprobeJobList = parallelJobManager->AllocJobList( JOBLIST_UTILITY, JOBLIST_PRIORITY_MEDIUM, 2048, 0, NULL ); // RB
 
 	bInitialized = true;
 

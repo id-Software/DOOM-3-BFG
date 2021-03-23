@@ -575,8 +575,6 @@ void R_MakeAmbientMap( const char* baseName, const char* suffix, int outSize, bo
 		}
 	}
 
-	bool pacifier = true;
-
 	// resample with hemispherical blending
 	int	samples = 1000;
 
@@ -746,54 +744,285 @@ void R_MakeAmbientMap( const char* baseName, const char* suffix, int outSize, bo
 	}
 }
 
-/*
-==================
-R_MakeAmbientMap_f
 
-R_MakeAmbientMap_f <basename> [size]
 
-Saves out env/<basename>_amb_ft.tga, etc
-==================
-*/
-//void R_MakeAmbientMap_f( const idCmdArgs& args )
-CONSOLE_COMMAND( makeAmbientMap, "Saves out env/<basename>_amb_ft.tga, etc", NULL )
+
+void CalculateIrradianceJob( calcEnvprobeParms_t* parms )
 {
-	const char*	baseName;
-	int			outSize;
-	float		roughness;
+	byte*		buffers[6];
 
-	if( args.Argc() != 2 && args.Argc() != 3 && args.Argc() != 4 )
+	int	start = Sys_Milliseconds();
+
+	for( int i = 0; i < 6; i++ )
 	{
-		common->Printf( "USAGE: makeAmbientMap <basename> [size]\n" );
-		return;
+		buffers[ i ] = parms->buffers[ i ];
 	}
-	baseName = args.Argv( 1 );
 
-	if( args.Argc() >= 3 )
+	const float invDstSize = 1.0f / float( parms->outHeight );
+
+	const int numMips = idMath::BitsForInteger( parms->outHeight );
+
+	// reset image to black
+	for( int x = 0; x < parms->outWidth; x++ )
 	{
-		outSize = atoi( args.Argv( 2 ) );
+		for( int y = 0; y < parms->outHeight; y++ )
+		{
+			parms->outBuffer[( y * parms->outWidth + x ) * 3 + 0] = F32toF16( 0 );
+			parms->outBuffer[( y * parms->outWidth + x ) * 3 + 1] = F32toF16( 0 );
+			parms->outBuffer[( y * parms->outWidth + x ) * 3 + 2] = F32toF16( 0 );
+		}
+	}
+
+	for( int mip = 0; mip < numMips; mip++ )
+	{
+		float roughness = ( float )mip / ( float )( numMips - 1 );
+
+		idVec4 dstRect = R_CalculateMipRect( parms->outHeight, mip );
+
+		for( int x = dstRect.x; x < ( dstRect.x + dstRect.z ); x++ )
+		{
+			for( int y = dstRect.y; y < ( dstRect.y + dstRect.w ); y++ )
+			{
+				idVec2 octCoord;
+				if( mip > 0 )
+				{
+					// move back to [0, 1] coords
+					octCoord = NormalizedOctCoord( x - dstRect.x, y - dstRect.y, dstRect.z );
+				}
+				else
+				{
+					octCoord = NormalizedOctCoord( x, y, dstRect.z );
+				}
+
+				// convert UV coord to 3D direction
+				idVec3 N;
+
+				N.FromOctahedral( octCoord );
+
+				idVec3 outColor( 0, 0, 0 );
+
+				for( int s = 0; s < parms->samples; s++ )
+				{
+					idVec2 Xi = Hammersley2D( s, parms->samples );
+					idVec3 H = ImportanceSampleGGX( Xi, N, 0.95f );
+
+					float sample[3];
+
+					R_SampleCubeMapHDR( H, parms->outHeight, buffers, sample );
+
+					outColor[0] += sample[0];
+					outColor[1] += sample[1];
+					outColor[2] += sample[2];
+				}
+
+				outColor[0] /= parms->samples;
+				outColor[1] /= parms->samples;
+				outColor[2] /= parms->samples;
+
+				parms->outBuffer[( y * parms->outWidth + x ) * 3 + 0] = F32toF16( outColor[0] );
+				parms->outBuffer[( y * parms->outWidth + x ) * 3 + 1] = F32toF16( outColor[1] );
+				parms->outBuffer[( y * parms->outWidth + x ) * 3 + 2] = F32toF16( outColor[2] );
+			}
+		}
+	}
+
+	int	end = Sys_Milliseconds();
+
+	parms->time = end - start;
+}
+
+void CalculateRadianceJob( calcEnvprobeParms_t* parms )
+{
+	byte*		buffers[6];
+
+	int	start = Sys_Milliseconds();
+
+	for( int i = 0; i < 6; i++ )
+	{
+		buffers[ i ] = parms->buffers[ i ];
+	}
+
+	const float invDstSize = 1.0f / float( parms->outHeight );
+
+	const int numMips = idMath::BitsForInteger( parms->outHeight );
+
+	// reset image to black
+	for( int x = 0; x < parms->outWidth; x++ )
+	{
+		for( int y = 0; y < parms->outHeight; y++ )
+		{
+			parms->outBuffer[( y * parms->outWidth + x ) * 3 + 0] = F32toF16( 0 );
+			parms->outBuffer[( y * parms->outWidth + x ) * 3 + 1] = F32toF16( 0 );
+			parms->outBuffer[( y * parms->outWidth + x ) * 3 + 2] = F32toF16( 0 );
+		}
+	}
+
+	for( int mip = 0; mip < numMips; mip++ )
+	{
+		float roughness = ( float )mip / ( float )( numMips - 1 );
+
+		idVec4 dstRect = R_CalculateMipRect( parms->outHeight, mip );
+
+		for( int x = dstRect.x; x < ( dstRect.x + dstRect.z ); x++ )
+		{
+			for( int y = dstRect.y; y < ( dstRect.y + dstRect.w ); y++ )
+			{
+				idVec2 octCoord;
+				if( mip > 0 )
+				{
+					// move back to [0, 1] coords
+					octCoord = NormalizedOctCoord( x - dstRect.x, y - dstRect.y, dstRect.z );
+				}
+				else
+				{
+					octCoord = NormalizedOctCoord( x, y, dstRect.z );
+				}
+
+				// convert UV coord to 3D direction
+				idVec3 N;
+
+				N.FromOctahedral( octCoord );
+
+				idVec3 outColor( 0, 0, 0 );
+
+				// RB: Split Sum approximation explanation
+
+				// Epic Games makes a further approximation by assuming the view direction
+				// (and thus the specular reflection direction) to be equal to the output sample direction ωo.
+				// This translates itself to the following code:
+				const idVec3 R = N;
+				const idVec3 V = R;
+
+				float totalWeight = 0.0f;
+
+				for( int s = 0; s < parms->samples; s++ )
+				{
+					idVec2 Xi = Hammersley2D( s, parms->samples );
+					idVec3 H = ImportanceSampleGGX( Xi, N, roughness );
+					idVec3 L = ( 2.0 * ( H * ( V * H ) ) - V );
+
+					float NdotL = Max( ( N * L ), 0.0f );
+					if( NdotL > 0.0 )
+					{
+						float sample[3];
+
+						R_SampleCubeMapHDR( H, parms->outHeight, buffers, sample );
+
+						outColor[0] += sample[0] * NdotL;
+						outColor[1] += sample[1] * NdotL;
+						outColor[2] += sample[2] * NdotL;
+
+						totalWeight += NdotL;
+					}
+				}
+
+				outColor[0] /= totalWeight;
+				outColor[1] /= totalWeight;
+				outColor[2] /= totalWeight;
+
+				parms->outBuffer[( y * parms->outWidth + x ) * 3 + 0] = F32toF16( outColor[0] );
+				parms->outBuffer[( y * parms->outWidth + x ) * 3 + 1] = F32toF16( outColor[1] );
+				parms->outBuffer[( y * parms->outWidth + x ) * 3 + 2] = F32toF16( outColor[2] );
+			}
+		}
+	}
+
+	int	end = Sys_Milliseconds();
+
+	parms->time = end - start;
+}
+
+REGISTER_PARALLEL_JOB( CalculateIrradianceJob, "CalculateIrradianceJob" );
+REGISTER_PARALLEL_JOB( CalculateRadianceJob, "CalculateRadianceJob" );
+
+
+void R_MakeAmbientMapThreaded( const char* baseName, const char* suffix, int outSize, bool specular, bool deleteTempFiles )
+{
+	idStr		fullname;
+	renderView_t	ref;
+	viewDef_t	primary;
+	byte*		buffers[6];
+	int			width = 0, height = 0;
+
+	memset( &cubeAxis, 0, sizeof( cubeAxis ) );
+	cubeAxis[0][0][0] = 1;
+	cubeAxis[0][1][2] = 1;
+	cubeAxis[0][2][1] = 1;
+
+	cubeAxis[1][0][0] = -1;
+	cubeAxis[1][1][2] = -1;
+	cubeAxis[1][2][1] = 1;
+
+	cubeAxis[2][0][1] = 1;
+	cubeAxis[2][1][0] = -1;
+	cubeAxis[2][2][2] = -1;
+
+	cubeAxis[3][0][1] = -1;
+	cubeAxis[3][1][0] = -1;
+	cubeAxis[3][2][2] = 1;
+
+	cubeAxis[4][0][2] = 1;
+	cubeAxis[4][1][0] = -1;
+	cubeAxis[4][2][1] = 1;
+
+	cubeAxis[5][0][2] = -1;
+	cubeAxis[5][1][0] = 1;
+	cubeAxis[5][2][1] = 1;
+
+	// read all of the images
+	for( int i = 0 ; i < 6 ; i++ )
+	{
+		fullname.Format( "env/%s%s.exr", baseName, envDirection[i] );
+
+		const bool captureToImage = false;
+		common->UpdateScreen( captureToImage );
+
+		R_LoadImage( fullname, &buffers[i], &width, &height, NULL, true, NULL );
+		if( !buffers[i] )
+		{
+			common->Printf( "loading %s failed.\n", fullname.c_str() );
+			for( i-- ; i >= 0 ; i-- )
+			{
+				Mem_Free( buffers[i] );
+			}
+			return;
+		}
+	}
+
+	// set up the job
+	calcEnvprobeParms_t* jobParms = new calcEnvprobeParms_t;
+
+	for( int i = 0; i < 6; i++ )
+	{
+		jobParms->buffers[ i ] = buffers[ i ];
+	}
+
+	jobParms->samples = 1000;
+	jobParms->filename.Format( "env/%s%s.exr", baseName, suffix );
+
+	jobParms->outWidth = int( outSize * 1.5f );
+	jobParms->outHeight = outSize;
+	jobParms->outBuffer = ( halfFloat_t* )R_StaticAlloc( idMath::Ceil( outSize * outSize * 3 * sizeof( halfFloat_t ) * 1.5f ), TAG_IMAGE );
+
+	tr.irradianceJobs.Append( jobParms );
+
+	if( specular )
+	{
+		tr.envprobeJobList->AddJob( ( jobRun_t )CalculateRadianceJob, jobParms );
 	}
 	else
 	{
-		outSize = 32;
+		tr.envprobeJobList->AddJob( ( jobRun_t )CalculateIrradianceJob, jobParms );
 	}
 
-	if( args.Argc() == 4 )
+	if( deleteTempFiles )
 	{
-		roughness = atof( args.Argv( 3 ) );
-	}
-	else
-	{
-		roughness = 0.95f;
-	}
+		for( int i = 0 ; i < 6 ; i++ )
+		{
+			fullname.Format( "env/%s%s.exr", baseName, envDirection[i] );
 
-	if( roughness > 0.8f )
-	{
-		R_MakeAmbientMap( baseName, "_amb", outSize, false, false );
-	}
-	else
-	{
-		R_MakeAmbientMap( baseName, "_spec", outSize, true, false );
+			fileSystem->RemoveFile( fullname );
+		}
 	}
 }
 
@@ -816,6 +1045,8 @@ CONSOLE_COMMAND( generateEnvironmentProbes, "Generate environment probes", NULL 
 		common->Printf( "No primary world loaded.\n" );
 		return;
 	}
+
+	bool useThreads = true;
 
 	baseName = tr.primaryWorld->mapName;
 	baseName.StripFileExtension();
@@ -899,16 +1130,6 @@ CONSOLE_COMMAND( generateEnvironmentProbes, "Generate environment probes", NULL 
 		}
 	}
 
-	// restore the original axis and fov
-	/*
-	ref.vieworg = oldPosition;
-	ref.viewaxis = oldAxis;
-	ref.fov_x = old_fov_x;
-	ref.fov_y = old_fov_y;
-	cvarSystem->SetCVarInteger( "r_windowWidth", res_w );
-	cvarSystem->SetCVarInteger( "r_windowHeight", res_h );
-	R_SetNewMode( false ); // the same as "vid_restart"
-	*/
 
 	common->Printf( "Wrote a env set with the name %s\n", baseName.c_str() );
 
@@ -928,8 +1149,46 @@ CONSOLE_COMMAND( generateEnvironmentProbes, "Generate environment probes", NULL 
 
 		fullname.Format( "%s/envprobe%i", baseName.c_str(), i );
 
-		R_MakeAmbientMap( fullname.c_str(), "_amb", IRRADIANCE_CUBEMAP_SIZE, false, false );
-		R_MakeAmbientMap( fullname.c_str(), "_spec", RADIANCE_CUBEMAP_SIZE, true, true );
+		if( useThreads )
+		{
+			R_MakeAmbientMapThreaded( fullname.c_str(), "_amb", IRRADIANCE_CUBEMAP_SIZE, false, false );
+			R_MakeAmbientMapThreaded( fullname.c_str(), "_spec", RADIANCE_CUBEMAP_SIZE, true, true );
+		}
+		else
+		{
+			R_MakeAmbientMap( fullname.c_str(), "_amb", IRRADIANCE_CUBEMAP_SIZE, false, false );
+			R_MakeAmbientMap( fullname.c_str(), "_spec", RADIANCE_CUBEMAP_SIZE, true, true );
+		}
+	}
+
+	if( useThreads )
+	{
+		//tr.envprobeJobList->Submit();
+		tr.envprobeJobList->Submit( NULL, JOBLIST_PARALLELISM_MAX_CORES );
+		tr.envprobeJobList->Wait();
+
+		for( int j = 0; j < tr.irradianceJobs.Num(); j++ )
+		{
+			calcEnvprobeParms_t* job = tr.irradianceJobs[ j ];
+
+			R_WriteEXR( job->filename, ( byte* )job->outBuffer, 3, job->outWidth, job->outHeight, "fs_basepath" );
+
+			common->Printf( "%s convolved in %5.1f seconds\n\n", job->filename.c_str(), job->time * 0.001f );
+
+			for( int i = 0; i < 6; i++ )
+			{
+				if( job->buffers[i] )
+				{
+					Mem_Free( job->buffers[i] );
+				}
+			}
+
+			Mem_Free( job->outBuffer );
+
+			delete job;
+		}
+
+		tr.irradianceJobs.Clear();
 	}
 
 	int	end = Sys_Milliseconds();
@@ -937,6 +1196,56 @@ CONSOLE_COMMAND( generateEnvironmentProbes, "Generate environment probes", NULL 
 	common->Printf( "convolved probes in %5.1f seconds\n\n", ( end - start ) * 0.001f );
 }
 
+/*
+==================
+R_MakeAmbientMap_f
+
+R_MakeAmbientMap_f <basename> [size]
+
+Saves out env/<basename>_amb_ft.tga, etc
+==================
+*/
+//void R_MakeAmbientMap_f( const idCmdArgs& args )
+CONSOLE_COMMAND( makeAmbientMap, "Saves out env/<basename>_amb_ft.tga, etc", NULL )
+{
+	const char*	baseName;
+	int			outSize;
+	float		roughness;
+
+	if( args.Argc() != 2 && args.Argc() != 3 && args.Argc() != 4 )
+	{
+		common->Printf( "USAGE: makeAmbientMap <basename> [size]\n" );
+		return;
+	}
+	baseName = args.Argv( 1 );
+
+	if( args.Argc() >= 3 )
+	{
+		outSize = atoi( args.Argv( 2 ) );
+	}
+	else
+	{
+		outSize = 32;
+	}
+
+	if( args.Argc() == 4 )
+	{
+		roughness = atof( args.Argv( 3 ) );
+	}
+	else
+	{
+		roughness = 0.95f;
+	}
+
+	if( roughness > 0.8f )
+	{
+		R_MakeAmbientMap( baseName, "_amb", outSize, false, false );
+	}
+	else
+	{
+		R_MakeAmbientMap( baseName, "_spec", outSize, true, false );
+	}
+}
 
 
 //void R_MakeBrdfLut_f( const idCmdArgs& args )
@@ -955,8 +1264,6 @@ CONSOLE_COMMAND( makeBrdfLUT, "make a GGX BRDF lookup table", NULL )
 	//{
 	//	outSize = atoi( args.Argv( 1 ) );
 	//}
-
-	bool pacifier = true;
 
 	// resample with hemispherical blending
 	int	samples = 1024;

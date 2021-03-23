@@ -482,6 +482,22 @@ struct viewEnvprobe_t
 	idImage* 				irradianceImage;			// cubemap image used for diffuse IBL by backend
 	idImage* 				radianceImage;				// cubemap image used for specular IBL by backend
 };
+
+struct calcEnvprobeParms_t
+{
+	// input
+	byte*							buffers[6];				// HDR R11G11B11F standard OpenGL cubemap sides
+	int								samples;
+
+	int								outWidth;
+	int								outHeight;
+
+	idStr							filename;
+
+	// output
+	halfFloat_t*					outBuffer;				// HDR R11G11B11F packed atlas
+	int								time;					// execution time in milliseconds
+};
 // RB end
 
 const int	MAX_CLIP_PLANES	= 1;				// we may expand this to six for some subview issues
@@ -934,6 +950,10 @@ public:
 	drawSurf_t				testImageSurface_;
 
 	idParallelJobList* 		frontEndJobList;
+
+	// RB irradiance and GGX background jobs
+	idParallelJobList* 		envprobeJobList;
+	idList<calcEnvprobeParms_t*> irradianceJobs;
 
 	idRenderBackend			backend;
 
