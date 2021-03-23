@@ -642,6 +642,7 @@ byte* R_MipMap( const byte* in, int width, int height );
 void R_BlendOverTexture( byte* data, int pixelCount, const byte blend[4] );
 void R_HorizontalFlip( byte* data, int width, int height );
 void R_VerticalFlip( byte* data, int width, int height );
+void R_VerticalFlipRGB16F( byte* data, int width, int height );
 void R_RotatePic( byte* data, int width );
 void R_ApplyCubeMapTransforms( int i, byte* data, int size );
 

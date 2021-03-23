@@ -528,6 +528,31 @@ void R_VerticalFlip( byte* data, int width, int height )
 	}
 }
 
+// RB: halfFloat_t helper
+struct ColorRGB16F
+{
+	uint16	red;
+	uint16	green;
+	uint16	blue;
+};
+
+void R_VerticalFlipRGB16F( byte* data, int width, int height )
+{
+	int			i, j;
+	ColorRGB16F	temp;
+
+	for( i = 0; i < width; i++ )
+	{
+		for( j = 0; j < height / 2; j++ )
+		{
+			temp = *( ( ColorRGB16F* )data + j * width + i );
+
+			*( ( ColorRGB16F* )data + j * width + i ) = *( ( ColorRGB16F* )data + ( height - 1 - j ) * width + i );
+			*( ( ColorRGB16F* )data + ( height - 1 - j ) * width + i ) = temp;
+		}
+	}
+}
+
 void R_RotatePic( byte* data, int width )
 {
 	int		i, j;
