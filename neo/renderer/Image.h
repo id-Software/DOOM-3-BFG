@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013-2017 Robert Beckebans
+Copyright (C) 2013-2021 Robert Beckebans
 Copyright (C) 2016-2017 Dustin Land
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
@@ -100,6 +100,7 @@ enum textureFormat_t
 	FMT_RGBA16F,		// 64 bpp
 	FMT_RGBA32F,		// 128 bpp
 	FMT_R32F,			// 32 bpp
+	FMT_R11G11B10F,		// 32 bpp
 	// RB end
 };
 
@@ -226,6 +227,7 @@ typedef enum
 	TD_RGBA16F,
 	TD_RGBA32F,
 	TD_R32F,
+	TD_R11G11B10F,			// memory efficient HDR RGB format with only 32bpp
 	// RB end
 } textureUsage_t;
 
@@ -234,14 +236,17 @@ typedef enum
 	CF_2D,			// not a cube map
 	CF_NATIVE,		// _px, _nx, _py, etc, directly sent to GL
 	CF_CAMERA,		// _forward, _back, etc, rotated and flipped as needed before sending to GL
-	CF_2D_ARRAY		// not a cube map but not a single 2d texture either
+	CF_PANORAMA,	// TODO latlong encoded HDRI panorama typically used by Substance or Blender
+	CF_2D_ARRAY,	// not a cube map but not a single 2d texture either
+	CF_2D_PACKED_MIPCHAIN // usually 2d but can be an octahedron, packed mipmaps into single 2d texture atlas and limited to dim^2
 } cubeFiles_t;
 
 enum imageFileType_t
 {
 	TGA,
 	PNG,
-	JPG
+	JPG,
+	EXR,
 };
 
 #include "BinaryImage.h"
@@ -395,7 +400,7 @@ public:
 							   textureFilter_t filter,
 							   textureRepeat_t repeat,
 							   textureUsage_t usage,
-							   textureSamples_t samples = SAMPLE_1 );
+							   textureSamples_t samples = SAMPLE_1, cubeFiles_t cubeFiles = CF_2D );
 
 	void		GenerateCubeImage( const byte* pic[6], int size,
 								   textureFilter_t filter, textureUsage_t usage );
@@ -573,6 +578,8 @@ public:
 	idImage*			currentRenderHDRImageQuarter;
 	idImage*			currentRenderHDRImage64;
 	idImage*			bloomRenderImage[2];
+	idImage*			envprobeHDRImage;
+	idImage*			envprobeDepthImage;
 	idImage*			heatmap5Image;
 	idImage*			heatmap7Image;
 	idImage*			smaaInputImage;
@@ -635,8 +642,12 @@ byte* R_MipMap( const byte* in, int width, int height );
 void R_BlendOverTexture( byte* data, int pixelCount, const byte blend[4] );
 void R_HorizontalFlip( byte* data, int width, int height );
 void R_VerticalFlip( byte* data, int width, int height );
+void R_VerticalFlipRGB16F( byte* data, int width, int height );
 void R_RotatePic( byte* data, int width );
 void R_ApplyCubeMapTransforms( int i, byte* data, int size );
+
+idVec4 R_CalculateMipRect( uint dimensions, uint mip );
+int R_CalculateUsedAtlasPixels( int dimensions );
 
 /*
 ====================================================================

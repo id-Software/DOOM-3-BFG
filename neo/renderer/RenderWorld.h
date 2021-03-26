@@ -235,6 +235,13 @@ typedef struct
 } renderEnvironmentProbe_t;
 // RB end
 
+
+// RB: added back refdef flags from Quake 3
+const int RDF_NOSHADOWS		= BIT( 0 ); // force renderer to use faster lighting only path
+const int RDF_NOAMBIENT		= BIT( 1 ); // don't render indirect lighting
+const int RDF_IRRADIANCE	= BIT( 2 ); // render into 256^2 HDR render target for irradiance/radiance GGX calculation
+const int RDF_UNDERWATER	= BIT( 3 ); // TODO enable automatic underwater caustics and fog
+
 typedef struct renderView_s
 {
 	// player views will set this to a non-zero integer for model suppress / allow
@@ -258,6 +265,8 @@ typedef struct renderView_s
 	// the viewEyeBuffer may be of a different polarity than stereoScreenSeparation if the eyes have been swapped
 	int						viewEyeBuffer;				// -1 = left eye, 1 = right eye, 0 = monoscopic view or GUI
 	float					stereoScreenSeparation;		// projection matrix horizontal offset, positive or negative based on camera eye
+
+	int						rdflags;			// RB: RDF_NOSHADOWS, etc
 } renderView_t;
 
 

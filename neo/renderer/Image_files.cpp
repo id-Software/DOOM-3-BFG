@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2012-2020 Robert Beckebans
+Copyright (C) 2012-2021 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -30,6 +30,18 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "precompiled.h"
 
+#undef strncmp
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "../libs/stb/stb_image.h"
+
+//#define STB_IMAGE_WRITE_IMPLEMENTATION
+//#include "../libs/stb/stb_image_write.h"
+
+#define TINYEXR_IMPLEMENTATION
+#include "../libs/tinyexr/tinyexr.h"
+
+#include "../libs/mesa/format_r11g11b10f.h"
 
 #include "RenderCommon.h"
 
@@ -755,7 +767,7 @@ static void LoadPNG( const char* filename, unsigned char** pic, int* width, int*
 
 	png_read_update_info( pngPtr, infoPtr );
 
-	byte* out = ( byte* )R_StaticAlloc( pngWidth * pngHeight * 4 );
+	byte* out = ( byte* )R_StaticAlloc( pngWidth * pngHeight * 4, TAG_IMAGE );
 
 	*pic = out;
 	*width = pngWidth;
@@ -876,6 +888,103 @@ void R_WritePNG( const char* filename, const byte* data, int bytesPerPixel, int 
 	fileSystem->WriteFile( filename, buffer, png_compressedSize, basePath );
 
 	Mem_Free( buffer );
+}
+
+/*
+=========================================================
+
+EXR LOADING
+
+Interfaces with tinyexr
+=========================================================
+*/
+
+/*
+=======================
+LoadEXR
+=======================
+*/
+static void LoadEXR( const char* filename, unsigned char** pic, int* width, int* height, ID_TIME_T* timestamp )
+{
+	if( !pic )
+	{
+		fileSystem->ReadFile( filename, NULL, timestamp );
+		return;	// just getting timestamp
+	}
+
+	*pic = NULL;
+
+	// load the file
+	const byte* fbuffer = NULL;
+	int fileSize = fileSystem->ReadFile( filename, ( void** )&fbuffer, timestamp );
+	if( !fbuffer )
+	{
+		return;
+	}
+
+	float* rgba;
+	const char* err;
+
+	{
+		int ret = LoadEXRFromMemory( &rgba, width, height, fbuffer, fileSize, &err );
+		if( ret != 0 )
+		{
+			common->Error( "LoadEXR( %s ): %s\n", filename, err );
+			return;
+		}
+	}
+
+#if 0
+	// dump file as .hdr for testing - this works
+	{
+		idStrStatic< MAX_OSPATH > hdrFileName = "test";
+		//hdrFileName.AppendPath( filename );
+		hdrFileName.SetFileExtension( ".hdr" );
+
+		int ret = stbi_write_hdr( hdrFileName.c_str(), *width, *height, 4, rgba );
+
+		if( ret == 0 )
+		{
+			return; // fail
+		}
+	}
+#endif
+
+	if( rgba )
+	{
+		int32 pixelCount = *width * *height;
+		byte* out = ( byte* )R_StaticAlloc( pixelCount * 4, TAG_IMAGE );
+
+		*pic = out;
+
+		// convert to packed R11G11B10F as uint32 for each pixel
+
+		const float* src = rgba;
+		byte* dst = out;
+		for( int i = 0; i < pixelCount; i++ )
+		{
+			// read 3 floats and ignore the alpha channel
+			float p[3];
+
+			p[0] = src[0];
+			p[1] = src[1];
+			p[2] = src[2];
+
+			// convert
+			uint32_t value = float3_to_r11g11b10f( p );
+			*( uint32_t* )dst = value;
+
+			src += 4;
+			dst += 4;
+		}
+
+		free( rgba );
+	}
+
+	// RB: EXR needs to be flipped to match the .tga behavior
+	//R_VerticalFlip( *pic, *width, *height );
+
+	Mem_Free( ( void* )fbuffer );
 }
 
 /*
@@ -1034,6 +1143,85 @@ void R_WriteEXR( const char* filename, const void* rgba16f, int channelsPerPixel
 }
 // RB end
 
+
+/*
+=========================================================
+
+HDR LOADING
+
+Interfaces with stb_image
+=========================================================
+*/
+
+
+/*
+=======================
+LoadHDR
+
+RB: load floating point data from memory and convert it into packed R11G11B10F data
+=======================
+*/
+static void LoadHDR( const char* filename, unsigned char** pic, int* width, int* height, ID_TIME_T* timestamp )
+{
+	if( !pic )
+	{
+		fileSystem->ReadFile( filename, NULL, timestamp );
+		return;	// just getting timestamp
+	}
+
+	*pic = NULL;
+
+	// load the file
+	const byte* fbuffer = NULL;
+	int fileSize = fileSystem->ReadFile( filename, ( void** )&fbuffer, timestamp );
+	if( !fbuffer )
+	{
+		return;
+	}
+
+	int32 numChannels;
+
+	float* rgba = stbi_loadf_from_memory( ( stbi_uc const* ) fbuffer, fileSize, width, height, &numChannels, 0 );
+
+	if( numChannels != 3 )
+	{
+		common->Error( "LoadHDR( %s ): HDR has not 3 channels\n", filename );
+	}
+
+	if( rgba )
+	{
+		int32 pixelCount = *width * *height;
+		byte* out = ( byte* )R_StaticAlloc( pixelCount * 4, TAG_IMAGE );
+
+		*pic = out;
+
+		// convert to packed R11G11B10F as uint32 for each pixel
+
+		const float* src = rgba;
+		byte* dst = out;
+		for( int i = 0; i < pixelCount; i++ )
+		{
+			// read 3 floats and ignore the alpha channel
+			float p[3];
+
+			p[0] = src[0];
+			p[1] = src[1];
+			p[2] = src[2];
+
+			// convert
+			uint32_t value = float3_to_r11g11b10f( p );
+			*( uint32_t* )dst = value;
+
+			src += 4;
+			dst += 4;
+		}
+
+		free( rgba );
+	}
+
+	Mem_Free( ( void* )fbuffer );
+}
+
 //===================================================================
 
 
@@ -1048,6 +1236,8 @@ static imageExtToLoader_t imageLoaders[] =
 	{"png", LoadPNG},
 	{"tga", LoadTGA},
 	{"jpg", LoadJPG},
+	{"exr", LoadEXR},
+	{"hdr", LoadHDR},
 };
 
 static const int numImageLoaders = sizeof( imageLoaders ) / sizeof( imageLoaders[0] );

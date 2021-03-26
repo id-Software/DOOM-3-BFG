@@ -133,6 +133,19 @@ void Framebuffer::Init()
 	globalFramebuffers.hdrNonMSAAFBO->Check();
 #endif
 
+	// HDR CUBEMAP CAPTURE
+
+	globalFramebuffers.envprobeFBO = new Framebuffer( "_envprobeRender", RADIANCE_CUBEMAP_SIZE, RADIANCE_CUBEMAP_SIZE );
+	globalFramebuffers.envprobeFBO->Bind();
+
+	globalFramebuffers.envprobeFBO->AddColorBuffer( GL_RGBA16F, 0 );
+	globalFramebuffers.envprobeFBO->AddDepthBuffer( GL_DEPTH24_STENCIL8 );
+
+	globalFramebuffers.envprobeFBO->AttachImage2D( GL_TEXTURE_2D, globalImages->envprobeHDRImage, 0 );
+	globalFramebuffers.envprobeFBO->AttachImageDepth( GL_TEXTURE_2D, globalImages->envprobeDepthImage );
+
+	globalFramebuffers.envprobeFBO->Check();
+
 	// HDR DOWNSCALE
 
 	globalFramebuffers.hdr64FBO = new Framebuffer( "_hdr64", 64, 64 );
@@ -365,6 +378,7 @@ void Framebuffer::Unbind()
 	{
 		glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 		glBindRenderbuffer( GL_RENDERBUFFER, 0 );
+
 		tr.backend.currentFramebuffer = NULL;
 	}
 }
@@ -372,6 +386,11 @@ void Framebuffer::Unbind()
 bool Framebuffer::IsDefaultFramebufferActive()
 {
 	return ( tr.backend.currentFramebuffer == NULL );
+}
+
+Framebuffer* Framebuffer::GetActiveFramebuffer()
+{
+	return tr.backend.currentFramebuffer;
 }
 
 void Framebuffer::AddColorBuffer( int format, int index, int multiSamples )

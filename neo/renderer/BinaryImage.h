@@ -53,6 +53,7 @@ public:
 	}
 
 	void				Load2DFromMemory( int width, int height, const byte* pic_const, int numLevels, textureFormat_t& textureFormat, textureColor_t& colorFormat, bool gammaMips );
+	void				Load2DAtlasMipchainFromMemory( int width, int height, const byte* pic_const, int numLevels, textureFormat_t& textureFormat, textureColor_t& colorFormat );
 	void				LoadCubeFromMemory( int width, const byte* pics[6], int numLevels, textureFormat_t& textureFormat, bool gammaMips );
 
 	ID_TIME_T			LoadFromGeneratedFile( ID_TIME_T sourceFileTime );

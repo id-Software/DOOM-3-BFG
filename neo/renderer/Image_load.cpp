@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013-2020 Robert Beckebans
+Copyright (C) 2013-2021 Robert Beckebans
 Copyright (C) 2014-2016 Kot in Action Creative Artel
 Copyright (C) 2016-2017 Dustin Land
 
@@ -77,6 +77,8 @@ int BitsForFormat( textureFormat_t format )
 			return 128;
 		case FMT_R32F:
 			return 32;
+		case FMT_R11G11B10F:
+			return 8;
 		// RB end
 		case FMT_DEPTH:
 			return 32;
@@ -130,6 +132,10 @@ ID_INLINE void idImage::DeriveOpts()
 
 			case TD_R32F:
 				opts.format = FMT_R32F;
+				break;
+
+			case TD_R11G11B10F:
+				opts.format = FMT_R11G11B10F;
 				break;
 
 			case TD_DIFFUSE:
@@ -313,7 +319,7 @@ void idImage::ActuallyLoadImage( bool fromBackEnd )
 		{
 			opts.textureType = TT_2D_ARRAY;
 		}
-		else if( cubeFiles != CF_2D )
+		else if( cubeFiles == CF_NATIVE || cubeFiles == CF_CAMERA )
 		{
 			opts.textureType = TT_CUBIC;
 			repeat = TR_CLAMP;
@@ -433,7 +439,7 @@ void idImage::ActuallyLoadImage( bool fromBackEnd )
 		//else if( toolUsage )
 		//	binarizeReason = va( "binarize: tool usage '%s'", generatedName.c_str() );
 
-		if( cubeFiles != CF_2D )
+		if( cubeFiles == CF_NATIVE || cubeFiles == CF_CAMERA )
 		{
 			int size;
 			byte* pics[6];
@@ -514,6 +520,13 @@ void idImage::ActuallyLoadImage( bool fromBackEnd )
 			opts.width = width;
 			opts.height = height;
 			opts.numLevels = 0;
+
+			// RB
+			if( cubeFiles == CF_2D_PACKED_MIPCHAIN )
+			{
+				opts.width = width * ( 2.0f / 3.0f );
+			}
+
 			DeriveOpts();
 
 			// foresthale 2014-05-30: give a nice progress display when binarizing
@@ -541,7 +554,14 @@ void idImage::ActuallyLoadImage( bool fromBackEnd )
 			}
 
 			// RB: convert to compressed DXT or whatever choosen target format
-			im.Load2DFromMemory( opts.width, opts.height, pic, opts.numLevels, opts.format, opts.colorFormat, opts.gammaMips );
+			if( cubeFiles == CF_2D_PACKED_MIPCHAIN )
+			{
+				im.Load2DAtlasMipchainFromMemory( width, opts.height, pic, opts.numLevels, opts.format, opts.colorFormat );
+			}
+			else
+			{
+				im.Load2DFromMemory( opts.width, opts.height, pic, opts.numLevels, opts.format, opts.colorFormat, opts.gammaMips );
+			}
 			commonLocal.LoadPacifierBinarizeEnd();
 
 			Mem_Free( pic );
@@ -644,6 +664,7 @@ void idImage::Print() const
 			NAME_FORMAT( RGBA16F );
 			NAME_FORMAT( RGBA32F );
 			NAME_FORMAT( R32F );
+			NAME_FORMAT( R11G11B10F );
 			// RB end
 			NAME_FORMAT( DEPTH );
 			NAME_FORMAT( X16 );
@@ -743,20 +764,27 @@ void idImage::Reload( bool force )
 GenerateImage
 ================
 */
-void idImage::GenerateImage( const byte* pic, int width, int height, textureFilter_t filterParm, textureRepeat_t repeatParm, textureUsage_t usageParm, textureSamples_t samples )
+void idImage::GenerateImage( const byte* pic, int width, int height, textureFilter_t filterParm, textureRepeat_t repeatParm, textureUsage_t usageParm, textureSamples_t samples, cubeFiles_t _cubeFiles )
 {
 	PurgeImage();
 
 	filter = filterParm;
 	repeat = repeatParm;
 	usage = usageParm;
-	cubeFiles = CF_2D;
+	cubeFiles = _cubeFiles;
 
 	opts.textureType = ( samples > SAMPLE_1 ) ? TT_2D_MULTISAMPLE : TT_2D;
 	opts.width = width;
 	opts.height = height;
 	opts.numLevels = 0;
 	opts.samples = samples;
+
+	// RB
+	if( cubeFiles == CF_2D_PACKED_MIPCHAIN )
+	{
+		opts.width = width * ( 2.0f / 3.0f );
+	}
+
 	DeriveOpts();
 
 	// RB: allow pic == NULL for internal framebuffer images
@@ -779,7 +807,14 @@ void idImage::GenerateImage( const byte* pic, int width, int height, textureFilt
 			commonLocal.LoadPacifierBinarizeProgressTotal( opts.width * opts.height );
 		}
 
-		im.Load2DFromMemory( width, height, pic, opts.numLevels, opts.format, opts.colorFormat, opts.gammaMips );
+		if( cubeFiles == CF_2D_PACKED_MIPCHAIN )
+		{
+			im.Load2DAtlasMipchainFromMemory( width, opts.height, pic, opts.numLevels, opts.format, opts.colorFormat );
+		}
+		else
+		{
+			im.Load2DFromMemory( width, height, pic, opts.numLevels, opts.format, opts.colorFormat, opts.gammaMips );
+		}
 
 		commonLocal.LoadPacifierBinarizeEnd();
 

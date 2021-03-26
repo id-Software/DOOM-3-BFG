@@ -80,6 +80,5 @@ struct preLightShadowVolumeParms_t
 
 
 void PreLightShadowVolumeJob( const preLightShadowVolumeParms_t* parms );
-void PreLightShadowVolume_SetupSPURSHeader( CellSpursJob128* job, const preLightShadowVolumeParms_t* parms );
 
 #endif // !__PRELIGHTSHADOWVOLUME_H__

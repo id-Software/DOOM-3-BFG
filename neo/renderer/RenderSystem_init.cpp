@@ -304,7 +304,7 @@ idCVar r_showViewEnvprobes( "r_showViewEnvprobes", "0", CVAR_RENDERER | CVAR_INT
 idCVar r_exposure( "r_exposure", "0.5", CVAR_ARCHIVE | CVAR_RENDERER | CVAR_FLOAT, "HDR exposure or LDR brightness [0.0 .. 1.0]", 0.0f, 1.0f );
 // RB end
 
-const char* fileExten[3] = { "tga", "png", "jpg" };
+const char* fileExten[4] = { "tga", "png", "jpg", "exr" };
 const char* envDirection[6] = { "_px", "_nx", "_py", "_ny", "_pz", "_nz" };
 const char* skyDirection[6] = { "_forward", "_back", "_left", "_right", "_up", "_down" };
 
@@ -731,7 +731,17 @@ void R_ReadTiledPixels( int width, int height, byte* buffer, renderView_t* ref =
 	// include extra space for OpenGL padding to word boundaries
 	int sysWidth = renderSystem->GetWidth();
 	int sysHeight = renderSystem->GetHeight();
-	byte* temp = ( byte* )R_StaticAlloc( ( sysWidth + 3 ) * sysHeight * 3 );
+
+	byte* temp = NULL;
+	if( ref && ref->rdflags & RDF_IRRADIANCE )
+	{
+		// * 2 = sizeof( half float )
+		temp = ( byte* )R_StaticAlloc( RADIANCE_CUBEMAP_SIZE * RADIANCE_CUBEMAP_SIZE * 3 * 2 );
+	}
+	else
+	{
+		temp = ( byte* )R_StaticAlloc( ( sysWidth + 3 ) * sysHeight * 3 );
+	}
 
 	// foresthale 2014-03-01: fixed custom screenshot resolution by doing a more direct render path
 #ifdef BUGFIXEDSCREENSHOTRESOLUTION
@@ -821,15 +831,29 @@ void R_ReadTiledPixels( int width, int height, byte* buffer, renderView_t* ref =
 				h = height - yo;
 			}
 
-			glReadBuffer( GL_FRONT );
-			glReadPixels( 0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, temp );
-
-			int	row = ( w * 3 + 3 ) & ~3;		// OpenGL pads to dword boundaries
-
-			for( int y = 0 ; y < h ; y++ )
+			if( ref && ref->rdflags & RDF_IRRADIANCE )
 			{
-				memcpy( buffer + ( ( yo + y )* width + xo ) * 3,
-						temp + y * row, w * 3 );
+				globalFramebuffers.envprobeFBO->Bind();
+
+				glPixelStorei( GL_PACK_ROW_LENGTH, RADIANCE_CUBEMAP_SIZE );
+				glReadPixels( 0, 0, w, h, GL_RGB, GL_HALF_FLOAT, buffer );
+
+				R_VerticalFlipRGB16F( buffer, w, h );
+
+				Framebuffer::Unbind();
+			}
+			else
+			{
+				glReadBuffer( GL_FRONT );
+				glReadPixels( 0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, temp );
+
+				int	row = ( w * 3 + 3 ) & ~3;		// OpenGL pads to dword boundaries
+
+				for( int y = 0 ; y < h ; y++ )
+				{
+					memcpy( buffer + ( ( yo + y )* width + xo ) * 3,
+							temp + y * row, w * 3 );
+				}
 			}
 		}
 	}
@@ -874,7 +898,11 @@ void idRenderSystemLocal::TakeScreenshot( int width, int height, const char* fil
 	int pix = width * height;
 	const int bufferSize = pix * 3 + 18;
 
-	if( exten == PNG )
+	if( exten == EXR )
+	{
+		buffer = ( byte* )R_StaticAlloc( pix * 3 * 2 );
+	}
+	else if( exten == PNG )
 	{
 		buffer = ( byte* )R_StaticAlloc( pix * 3 );
 	}
@@ -886,7 +914,7 @@ void idRenderSystemLocal::TakeScreenshot( int width, int height, const char* fil
 
 	if( blends <= 1 )
 	{
-		if( exten == PNG )
+		if( exten == PNG || exten == EXR )
 		{
 			R_ReadTiledPixels( width, height, buffer, ref );
 		}
@@ -944,7 +972,12 @@ void idRenderSystemLocal::TakeScreenshot( int width, int height, const char* fil
 		r_jitter.SetBool( false );
 	}
 
-	if( exten == PNG )
+	if( exten == EXR )
+	{
+		R_WriteEXR( finalFileName, buffer, 3, width, height, "fs_basepath" );
+		//R_WritePNG( finalFileName, buffer, 3, width, height, false, "fs_basepath" );
+	}
+	else if( exten == PNG )
 	{
 		R_WritePNG( finalFileName, buffer, 3, width, height, false, "fs_basepath" );
 	}
@@ -1685,6 +1718,10 @@ void idRenderSystemLocal::Clear()
 	}
 
 	frontEndJobList = NULL;
+
+	// RB
+	envprobeJobList = NULL;
+	irradianceJobs.Clear();
 }
 
 /*
@@ -2027,6 +2064,7 @@ void idRenderSystemLocal::Init()
 	}
 
 	frontEndJobList = parallelJobManager->AllocJobList( JOBLIST_RENDERER_FRONTEND, JOBLIST_PRIORITY_MEDIUM, 2048, 0, NULL );
+	envprobeJobList = parallelJobManager->AllocJobList( JOBLIST_UTILITY, JOBLIST_PRIORITY_MEDIUM, 2048, 0, NULL ); // RB
 
 	bInitialized = true;
 

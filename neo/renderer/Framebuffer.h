@@ -35,7 +35,7 @@ static const int MAX_SSAO_BUFFERS = 2;
 static const int MAX_HIERARCHICAL_ZBUFFERS = 6; // native resolution + 5 MIP LEVELS
 
 static const int RADIANCE_CUBEMAP_SIZE = 256;
-static const int IRRADIANCE_CUBEMAP_SIZE = 32;
+static const int IRRADIANCE_CUBEMAP_SIZE = 128;
 
 #if 1
 static	int shadowMapResolutions[MAX_SHADOWMAP_RESOLUTIONS] = { 2048, 1024, 512, 512, 256 };
@@ -56,13 +56,11 @@ public:
 
 	static void				CheckFramebuffers();
 
-	// deletes OpenGL object but leaves structure intact for reloading
-	void					PurgeFramebuffer();
-
 	void					Bind();
 	bool					IsBound();
 	static void				Unbind();
 	static bool				IsDefaultFramebufferActive();
+	static Framebuffer*		GetActiveFramebuffer();
 
 	void					AddColorBuffer( int format, int index, int multiSamples = 0 );
 	void					AddDepthBuffer( int format, int multiSamples = 0 );
@@ -132,6 +130,7 @@ struct globalFramebuffers_t
 #endif
 //	Framebuffer*				hdrQuarterFBO;
 	Framebuffer*				hdr64FBO;
+	Framebuffer*				envprobeFBO;
 	Framebuffer*				bloomRenderFBO[MAX_BLOOM_BUFFERS];
 	Framebuffer*				ambientOcclusionFBO[MAX_SSAO_BUFFERS];
 	Framebuffer*				csDepthFBO[MAX_HIERARCHICAL_ZBUFFERS];
