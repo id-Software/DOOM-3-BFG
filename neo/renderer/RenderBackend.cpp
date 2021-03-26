@@ -1353,15 +1353,18 @@ void idRenderBackend::DrawSingleInteraction( drawInteraction_t* din, bool useFas
 		globalImages->brdfLutImage->Bind();
 
 		GL_SelectTexture( INTERACTION_TEXUNIT_PROJECTION );
+#if defined( USE_VULKAN )
+		globalImages->whiteImage->Bind();
+#else
 		if( !r_useSSAO.GetBool() )
 		{
 			globalImages->whiteImage->Bind();
-			//globalImages->brdfLutImage->Bind();
 		}
 		else
 		{
 			globalImages->ambientOcclusionImage[0]->Bind();
 		}
+#endif
 
 		// TODO bind the 3 closest probes
 		GL_SelectTexture( INTERACTION_TEXUNIT_AMBIENT_CUBE1 );

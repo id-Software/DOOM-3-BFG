@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013-2018 Robert Beckebans
+Copyright (C) 2013-2021 Robert Beckebans
 Copyright (C) 2016-2017 Dustin Land
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 */
 #pragma hdrstop
 #include "precompiled.h"
+
+//#include "../../libs/mesa/format_r11g11b10f.h"
 
 /*
 ================================================================================================
@@ -166,14 +168,12 @@ static VkComponentMapping VK_GetComponentMappingFromTextureFormat( const texture
 			componentMapping.a = VK_COMPONENT_SWIZZLE_R;
 			break;
 
-		/*
 		case FMT_R11G11B10F:
 			componentMapping.r = VK_COMPONENT_SWIZZLE_R;
 			componentMapping.g = VK_COMPONENT_SWIZZLE_G;
 			componentMapping.b = VK_COMPONENT_SWIZZLE_B;
 			componentMapping.a = VK_COMPONENT_SWIZZLE_ONE;
 			break;
-		*/
 
 		default:
 			componentMapping.r = VK_COMPONENT_SWIZZLE_R;
@@ -678,6 +678,42 @@ void idImage::SubImageUpload( int mipLevel, int x, int y, int z, int width, int 
 			data[ i + 1 ] = imgData[ i ];
 		}
 	}
+#if 0
+	else if( opts.format == FMT_R11G11B10F )
+	{
+		// convert R11G11B10F to RGBA8 for testing
+
+		byte* imgData = ( byte* )pic;
+		for( int i = 0; i < size; i += 4 )
+		{
+			// unpack RGBA8 to 3 floats
+			union
+			{
+				uint32	i;
+				byte	b[4];
+			} tmp;
+
+			tmp.b[0] = imgData[ i + 0 ];
+			tmp.b[1] = imgData[ i + 1 ];
+			tmp.b[2] = imgData[ i + 2 ];
+			tmp.b[3] = imgData[ i + 3 ];
+
+			float hdr[3];
+			r11g11b10f_to_float3( tmp.i, hdr );
+
+			// tonemap
+			hdr[0] = hdr[0] / ( hdr[0] + 1.0f );
+			hdr[1] = hdr[1] / ( hdr[1] + 1.0f );
+			hdr[2] = hdr[2] / ( hdr[2] + 1.0f );
+
+			// tonemapped to LDR
+			data[ i + 0 ] = byte( hdr[0] * 255 );
+			data[ i + 1 ] = byte( hdr[1] * 255 );
+			data[ i + 2 ] = byte( hdr[2] * 255 );
+			data[ i + 3 ] = 255;
+		}
+	}
+#endif
 	else
 	{
 		memcpy( data, pic, size );
