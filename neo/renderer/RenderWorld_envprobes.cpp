@@ -530,31 +530,6 @@ void R_MakeAmbientMap( const char* baseName, const char* suffix, int outSize, bo
 	byte*		buffers[6];
 	int			width = 0, height = 0;
 
-	memset( &cubeAxis, 0, sizeof( cubeAxis ) );
-	cubeAxis[0][0][0] = 1;
-	cubeAxis[0][1][2] = 1;
-	cubeAxis[0][2][1] = 1;
-
-	cubeAxis[1][0][0] = -1;
-	cubeAxis[1][1][2] = -1;
-	cubeAxis[1][2][1] = 1;
-
-	cubeAxis[2][0][1] = 1;
-	cubeAxis[2][1][0] = -1;
-	cubeAxis[2][2][2] = -1;
-
-	cubeAxis[3][0][1] = -1;
-	cubeAxis[3][1][0] = -1;
-	cubeAxis[3][2][2] = 1;
-
-	cubeAxis[4][0][2] = 1;
-	cubeAxis[4][1][0] = -1;
-	cubeAxis[4][2][1] = 1;
-
-	cubeAxis[5][0][2] = -1;
-	cubeAxis[5][1][0] = 1;
-	cubeAxis[5][2][1] = 1;
-
 	// read all of the images
 	for( int i = 0 ; i < 6 ; i++ )
 	{
@@ -944,31 +919,6 @@ void R_MakeAmbientMapThreaded( const char* baseName, const char* suffix, int out
 	byte*		buffers[6];
 	int			width = 0, height = 0;
 
-	memset( &cubeAxis, 0, sizeof( cubeAxis ) );
-	cubeAxis[0][0][0] = 1;
-	cubeAxis[0][1][2] = 1;
-	cubeAxis[0][2][1] = 1;
-
-	cubeAxis[1][0][0] = -1;
-	cubeAxis[1][1][2] = -1;
-	cubeAxis[1][2][1] = 1;
-
-	cubeAxis[2][0][1] = 1;
-	cubeAxis[2][1][0] = -1;
-	cubeAxis[2][2][2] = -1;
-
-	cubeAxis[3][0][1] = -1;
-	cubeAxis[3][1][0] = -1;
-	cubeAxis[3][2][2] = 1;
-
-	cubeAxis[4][0][2] = 1;
-	cubeAxis[4][1][0] = -1;
-	cubeAxis[4][2][1] = 1;
-
-	cubeAxis[5][0][2] = -1;
-	cubeAxis[5][1][0] = 1;
-	cubeAxis[5][2][1] = 1;
-
 	// read all of the images
 	for( int i = 0 ; i < 6 ; i++ )
 	{
@@ -1030,13 +980,10 @@ CONSOLE_COMMAND( generateEnvironmentProbes, "Generate environment probes", NULL 
 {
 	idStr			fullname;
 	idStr			baseName;
-	idMat3			axis[6], oldAxis;
-	idVec3			oldPosition;
 	renderView_t	ref;
 	int				blends;
 	const char*		extension;
 	int				size;
-	int				old_fov_x, old_fov_y;
 
 	static const char* envDirection[6] = { "_px", "_nx", "_py", "_ny", "_pz", "_nz" };
 
@@ -1062,47 +1009,41 @@ CONSOLE_COMMAND( generateEnvironmentProbes, "Generate environment probes", NULL 
 
 	const viewDef_t primary = *tr.primaryView;
 
-	memset( &axis, 0, sizeof( axis ) );
+	memset( &cubeAxis, 0, sizeof( cubeAxis ) );
 
 	// +X
-	axis[0][0][0] = 1;
-	axis[0][1][2] = 1;
-	axis[0][2][1] = 1;
+	cubeAxis[0][0][0] = 1;
+	cubeAxis[0][1][2] = 1;
+	cubeAxis[0][2][1] = 1;
 
 	// -X
-	axis[1][0][0] = -1;
-	axis[1][1][2] = -1;
-	axis[1][2][1] = 1;
+	cubeAxis[1][0][0] = -1;
+	cubeAxis[1][1][2] = -1;
+	cubeAxis[1][2][1] = 1;
 
 	// +Y
-	axis[2][0][1] = 1;
-	axis[2][1][0] = -1;
-	axis[2][2][2] = -1;
+	cubeAxis[2][0][1] = 1;
+	cubeAxis[2][1][0] = -1;
+	cubeAxis[2][2][2] = -1;
 
 	// -Y
-	axis[3][0][1] = -1;
-	axis[3][1][0] = -1;
-	axis[3][2][2] = 1;
+	cubeAxis[3][0][1] = -1;
+	cubeAxis[3][1][0] = -1;
+	cubeAxis[3][2][2] = 1;
 
 	// +Z
-	axis[4][0][2] = 1;
-	axis[4][1][0] = -1;
-	axis[4][2][1] = 1;
+	cubeAxis[4][0][2] = 1;
+	cubeAxis[4][1][0] = -1;
+	cubeAxis[4][2][1] = 1;
 
 	// -Z
-	axis[5][0][2] = -1;
-	axis[5][1][0] = 1;
-	axis[5][2][1] = 1;
+	cubeAxis[5][0][2] = -1;
+	cubeAxis[5][1][0] = 1;
+	cubeAxis[5][2][1] = 1;
 
 	//--------------------------------------------
 	// CAPTURE SCENE LIGHTING TO CUBEMAPS
 	//--------------------------------------------
-
-	// so we return to that axis and fov after the fact.
-	oldPosition = primary.renderView.vieworg;
-	oldAxis = primary.renderView.viewaxis;
-	old_fov_x = primary.renderView.fov_x;
-	old_fov_y = primary.renderView.fov_y;
 
 	for( int i = 0; i < tr.primaryWorld->envprobeDefs.Num(); i++ )
 	{
@@ -1120,7 +1061,7 @@ CONSOLE_COMMAND( generateEnvironmentProbes, "Generate environment probes", NULL 
 			ref.fov_x = ref.fov_y = 90;
 
 			ref.vieworg = def->parms.origin;
-			ref.viewaxis = axis[j];
+			ref.viewaxis = cubeAxis[j];
 
 			extension = envDirection[ j ];
 			fullname.Format( "env/%s/envprobe%i%s", baseName.c_str(), i, extension );
@@ -1248,7 +1189,6 @@ CONSOLE_COMMAND( makeAmbientMap, "Saves out env/<basename>_amb_ft.tga, etc", NUL
 }
 
 
-//void R_MakeBrdfLut_f( const idCmdArgs& args )
 CONSOLE_COMMAND( makeBrdfLUT, "make a GGX BRDF lookup table", NULL )
 {
 	int			outSize = 256;
@@ -1357,4 +1297,91 @@ static const unsigned char brfLutTexBytes[] =
 
 	Mem_Free( ldrBuffer );
 	Mem_Free( hdrBuffer );
+}
+
+CONSOLE_COMMAND( makeImageHeader, "load an image and turn it into a .h file", NULL )
+{
+	byte*		buffer;
+	int			width = 0, height = 0;
+
+	if( args.Argc() < 2 )
+	{
+		common->Printf( "USAGE: makeImageHeader filename [exportname]\n" );
+		return;
+	}
+
+	idStr filename = args.Argv( 1 );
+
+	R_LoadImage( filename, &buffer, &width, &height, NULL, true, NULL );
+	if( !buffer )
+	{
+		common->Printf( "loading %s failed.\n", filename.c_str() );
+		return;
+	}
+
+	filename.StripFileExtension();
+
+	idStr exportname;
+
+	if( args.Argc() == 3 )
+	{
+		exportname.Format( "Image_%s.h", args.Argv( 2 ) );
+	}
+	else
+	{
+		exportname.Format( "Image_%s.h", filename.c_str() );
+	}
+
+	for( int i = 0; i < exportname.Length(); i++ )
+	{
+		if( exportname[ i ] == '/' )
+		{
+			exportname[ i ] = '_';
+		}
+	}
+
+	idFileLocal headerFile( fileSystem->OpenFileWrite( exportname, "fs_basepath" ) );
+
+	idStr uppername = exportname;
+	uppername.ToUpper();
+
+	for( int i = 0; i < uppername.Length(); i++ )
+	{
+		if( uppername[ i ] == '.' )
+		{
+			uppername[ i ] = '_';
+		}
+	}
+
+	headerFile->Printf( "#ifndef %s_TEX_H\n", uppername.c_str() );
+	headerFile->Printf( "#define %s_TEX_H\n\n", uppername.c_str() );
+
+	headerFile->Printf( "#define %s_TEX_WIDTH %i\n", uppername.c_str(), width );
+	headerFile->Printf( "#define %s_TEX_HEIGHT %i\n\n", uppername.c_str(), height );
+
+	headerFile->Printf( "#define static const unsigned char %s_Bytes[] = {\n", uppername.c_str() );
+
+	int bufferSize = width * height * 4;
+
+	for( int i = 0; i < bufferSize; i++ )
+	{
+		byte b = buffer[i];
+
+		if( i < ( bufferSize - 1 ) )
+		{
+			headerFile->Printf( "0x%02hhx, ", b );
+		}
+		else
+		{
+			headerFile->Printf( "0x%02hhx", b );
+		}
+
+		if( i % 12 == 0 )
+		{
+			headerFile->Printf( "\n" );
+		}
+	}
+	headerFile->Printf( "\n};\n#endif\n" );
+
+	Mem_Free( buffer );
 }
