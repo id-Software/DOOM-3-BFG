@@ -764,20 +764,27 @@ void idImage::Reload( bool force )
 GenerateImage
 ================
 */
-void idImage::GenerateImage( const byte* pic, int width, int height, textureFilter_t filterParm, textureRepeat_t repeatParm, textureUsage_t usageParm, textureSamples_t samples )
+void idImage::GenerateImage( const byte* pic, int width, int height, textureFilter_t filterParm, textureRepeat_t repeatParm, textureUsage_t usageParm, textureSamples_t samples, cubeFiles_t _cubeFiles )
 {
 	PurgeImage();
 
 	filter = filterParm;
 	repeat = repeatParm;
 	usage = usageParm;
-	cubeFiles = CF_2D;
+	cubeFiles = _cubeFiles;
 
 	opts.textureType = ( samples > SAMPLE_1 ) ? TT_2D_MULTISAMPLE : TT_2D;
 	opts.width = width;
 	opts.height = height;
 	opts.numLevels = 0;
 	opts.samples = samples;
+
+	// RB
+	if( cubeFiles == CF_2D_PACKED_MIPCHAIN )
+	{
+		opts.width = width * ( 2.0f / 3.0f );
+	}
+
 	DeriveOpts();
 
 	// RB: allow pic == NULL for internal framebuffer images
@@ -800,7 +807,14 @@ void idImage::GenerateImage( const byte* pic, int width, int height, textureFilt
 			commonLocal.LoadPacifierBinarizeProgressTotal( opts.width * opts.height );
 		}
 
-		im.Load2DFromMemory( width, height, pic, opts.numLevels, opts.format, opts.colorFormat, opts.gammaMips );
+		if( cubeFiles == CF_2D_PACKED_MIPCHAIN )
+		{
+			im.Load2DAtlasMipchainFromMemory( width, opts.height, pic, opts.numLevels, opts.format, opts.colorFormat );
+		}
+		else
+		{
+			im.Load2DFromMemory( width, height, pic, opts.numLevels, opts.format, opts.colorFormat, opts.gammaMips );
+		}
 
 		commonLocal.LoadPacifierBinarizeEnd();
 

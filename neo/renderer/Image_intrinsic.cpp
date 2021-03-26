@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013-2020 Robert Beckebans
+Copyright (C) 2013-2021 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -38,6 +38,9 @@ If you have questions concerning this license or the applicable additional terms
 #include "Image_brdfLut.h"
 //#include "Image_blueNoiseVC_1M.h" // 256^2 R8 data
 #include "Image_blueNoiseVC_2.h" // 512^2 RGB8 data
+
+#include "Image_env_UAC_lobby_amb.h"
+#include "Image_env_UAC_lobby_spec.h"
 
 #define	DEFAULT_SIZE	16
 
@@ -939,29 +942,17 @@ static void R_CreateImGuiFontImage( idImage* image )
 
 static void R_CreateBrdfLutImage( idImage* image )
 {
-#if 0
-	static byte	data[BRDFLUT_TEX_HEIGHT][BRDFLUT_TEX_WIDTH][4];
-
-	for( int x = 0; x < BRDFLUT_TEX_WIDTH; x++ )
-	{
-		for( int y = 0; y < BRDFLUT_TEX_HEIGHT; y++ )
-		{
-#if 0
-			data[AREATEX_HEIGHT - y][x][0] = areaTexBytes[ y * AREATEX_PITCH + x * 2 + 0 ];
-			data[AREATEX_HEIGHT - y][x][1] = areaTexBytes[ y * AREATEX_PITCH + x * 2 + 1 ];
-			data[AREATEX_HEIGHT - y][x][2] = 0;
-			data[AREATEX_HEIGHT - y][x][3] = 1;
-#else
-			data[y][x][0] = brfLutTexBytes[ y * BRDFLUT_TEX_PITCH + x * 2 + 0 ];
-			data[y][x][1] = brfLutTexBytes[ y * BRDFLUT_TEX_PITCH + x * 2 + 1 ];
-			data[y][x][2] = 0;
-			data[y][x][3] = 1;
-#endif
-		}
-	}
-#endif
-
 	image->GenerateImage( ( byte* )brfLutTexBytes, BRDFLUT_TEX_WIDTH, BRDFLUT_TEX_HEIGHT, TF_LINEAR, TR_CLAMP, TD_RG16F );
+}
+
+static void R_CreateEnvprobeImage_UAC_lobby_irradiance( idImage* image )
+{
+	image->GenerateImage( ( byte* )IMAGE_ENV_UAC_LOBBY_AMB_H_Bytes, IMAGE_ENV_UAC_LOBBY_AMB_H_TEX_WIDTH, IMAGE_ENV_UAC_LOBBY_AMB_H_TEX_HEIGHT, TF_DEFAULT, TR_CLAMP, TD_R11G11B10F, SAMPLE_1, CF_2D_PACKED_MIPCHAIN );
+}
+
+static void R_CreateEnvprobeImage_UAC_lobby_radiance( idImage* image )
+{
+	image->GenerateImage( ( byte* )IMAGE_ENV_UAC_LOBBY_SPEC_H_Bytes, IMAGE_ENV_UAC_LOBBY_SPEC_H_TEX_WIDTH, IMAGE_ENV_UAC_LOBBY_SPEC_H_TEX_HEIGHT, TF_DEFAULT, TR_CLAMP, TD_R11G11B10F, SAMPLE_1, CF_2D_PACKED_MIPCHAIN );
 }
 
 // RB end
@@ -1055,9 +1046,13 @@ void idImageManager::CreateIntrinsicImages()
 	hellLoadingIconImage = ImageFromFile( "textures/loadingicon3", TF_DEFAULT, TR_CLAMP, TD_DEFAULT, CF_2D );
 
 	// RB begin
-	// FIXME change back to TF_DEFAULT
+#if 0
 	defaultUACIrradianceCube = ImageFromFile( "env/UAC5_amb", TF_DEFAULT, TR_CLAMP, TD_R11G11B10F, CF_2D_PACKED_MIPCHAIN );
 	defaultUACRadianceCube = ImageFromFile( "env/UAC5_spec", TF_DEFAULT, TR_CLAMP, TD_R11G11B10F, CF_2D_PACKED_MIPCHAIN );
+#else
+	defaultUACIrradianceCube = ImageFromFunction( "_defaultUACIrradiance", R_CreateEnvprobeImage_UAC_lobby_irradiance );
+	defaultUACRadianceCube = ImageFromFunction( "_defaultUACRadiance", R_CreateEnvprobeImage_UAC_lobby_radiance );
+#endif
 	// RB end
 
 	release_assert( loadingIconImage->referencedOutsideLevelLoad );

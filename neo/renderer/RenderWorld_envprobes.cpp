@@ -1359,7 +1359,7 @@ CONSOLE_COMMAND( makeImageHeader, "load an image and turn it into a .h file", NU
 	headerFile->Printf( "#define %s_TEX_WIDTH %i\n", uppername.c_str(), width );
 	headerFile->Printf( "#define %s_TEX_HEIGHT %i\n\n", uppername.c_str(), height );
 
-	headerFile->Printf( "#define static const unsigned char %s_Bytes[] = {\n", uppername.c_str() );
+	headerFile->Printf( "static const unsigned char %s_Bytes[] = {\n", uppername.c_str() );
 
 	int bufferSize = width * height * 4;
 
