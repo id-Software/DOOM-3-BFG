@@ -2779,6 +2779,12 @@ bool Framebuffer::IsDefaultFramebufferActive()
 	return true;
 }
 
+Framebuffer* Framebuffer::GetActiveFramebuffer()
+{
+	// TODO
+	return NULL;
+}
+
 void Framebuffer::Bind()
 {
 	// TODO

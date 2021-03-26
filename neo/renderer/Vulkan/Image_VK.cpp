@@ -102,6 +102,9 @@ static VkFormat VK_GetFormatFromTextureFormat( const textureFormat_t format )
 
 		case FMT_R32F:
 			return VK_FORMAT_R32_SFLOAT;
+
+		case FMT_R11G11B10F:
+			return VK_FORMAT_B10G11R11_UFLOAT_PACK32;
 		// RB end
 
 		default:
@@ -141,24 +144,37 @@ static VkComponentMapping VK_GetComponentMappingFromTextureFormat( const texture
 			componentMapping.b = VK_COMPONENT_SWIZZLE_R;
 			componentMapping.a = VK_COMPONENT_SWIZZLE_ONE;
 			break;
+
 		case FMT_L8A8:
 			componentMapping.r = VK_COMPONENT_SWIZZLE_R;
 			componentMapping.g = VK_COMPONENT_SWIZZLE_R;
 			componentMapping.b = VK_COMPONENT_SWIZZLE_R;
 			componentMapping.a = VK_COMPONENT_SWIZZLE_G;
 			break;
+
 		case FMT_ALPHA:
 			componentMapping.r = VK_COMPONENT_SWIZZLE_ONE;
 			componentMapping.g = VK_COMPONENT_SWIZZLE_ONE;
 			componentMapping.b = VK_COMPONENT_SWIZZLE_ONE;
 			componentMapping.a = VK_COMPONENT_SWIZZLE_R;
 			break;
+
 		case FMT_INT8:
 			componentMapping.r = VK_COMPONENT_SWIZZLE_R;
 			componentMapping.g = VK_COMPONENT_SWIZZLE_R;
 			componentMapping.b = VK_COMPONENT_SWIZZLE_R;
 			componentMapping.a = VK_COMPONENT_SWIZZLE_R;
 			break;
+
+		/*
+		case FMT_R11G11B10F:
+			componentMapping.r = VK_COMPONENT_SWIZZLE_R;
+			componentMapping.g = VK_COMPONENT_SWIZZLE_G;
+			componentMapping.b = VK_COMPONENT_SWIZZLE_B;
+			componentMapping.a = VK_COMPONENT_SWIZZLE_ONE;
+			break;
+		*/
+
 		default:
 			componentMapping.r = VK_COMPONENT_SWIZZLE_R;
 			componentMapping.g = VK_COMPONENT_SWIZZLE_G;
