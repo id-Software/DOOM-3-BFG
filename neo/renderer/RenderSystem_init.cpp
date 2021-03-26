@@ -283,9 +283,9 @@ idCVar r_ldrContrastOffset( "r_ldrContrastOffset", "3", CVAR_RENDERER | CVAR_FLO
 idCVar r_useFilmicPostProcessing( "r_useFilmicPostProcessing", "1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_BOOL, "apply several post process effects to mimic a filmic look" );
 
 #if defined( USE_VULKAN )
-	idCVar r_forceAmbient( "r_forceAmbient", "0.2", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_FLOAT, "render additional ambient pass to make the game less dark", 0.0f, 0.75f );
+	idCVar r_forceAmbient( "r_forceAmbient", "0.4", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_FLOAT, "render additional ambient pass to make the game less dark", 0.0f, 0.75f );
 #else
-	idCVar r_forceAmbient( "r_forceAmbient", "0.2", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_FLOAT, "render additional ambient pass to make the game less dark", 0.0f, 0.75f );
+	idCVar r_forceAmbient( "r_forceAmbient", "0.4", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_FLOAT, "render additional ambient pass to make the game less dark", 0.0f, 0.75f );
 #endif
 
 idCVar r_useSSGI( "r_useSSGI", "0", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_BOOL, "use screen space global illumination and reflections" );
