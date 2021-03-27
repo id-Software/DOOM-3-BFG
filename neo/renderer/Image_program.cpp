@@ -187,6 +187,24 @@ static void R_InvertAlpha( byte* data, int width, int height )
 
 /*
 =================
+R_InvertGreen
+=================
+*/
+static void R_InvertGreen( byte* data, int width, int height )
+{
+	int		i;
+	int		c;
+
+	c = width * height * 4;
+
+	for( i = 0 ; i < c ; i += 4 )
+	{
+		data[i + 1] = 255 - data[i + 1];
+	}
+}
+
+/*
+=================
 R_InvertColor
 =================
 */
@@ -602,6 +620,23 @@ static bool R_ParseImageProgram_r( idLexer& src, byte** pic, int* width, int* he
 		if( pic )
 		{
 			R_InvertAlpha( *pic, *width, *height );
+		}
+
+		MatchAndAppendToken( src, ")" );
+		return true;
+	}
+
+	// RB: invertGreen to allow flipping the Y-Axis of normal maps
+	if( !token.Icmp( "invertGreen" ) )
+	{
+		MatchAndAppendToken( src, "(" );
+
+		R_ParseImageProgram_r( src, pic, width, height, timestamps, usage );
+
+		// process it
+		if( pic )
+		{
+			R_InvertGreen( *pic, *width, *height );
 		}
 
 		MatchAndAppendToken( src, ")" );
