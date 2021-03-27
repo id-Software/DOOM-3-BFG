@@ -284,15 +284,34 @@ void idGameEdit::ParseSpawnArgsToRenderEntity( const idDict* args, renderEntity_
 	// get the rotation matrix in either full form, or single angle form
 	if( !args->GetMatrix( "rotation", "1 0 0 0 1 0 0 0 1", renderEntity->axis ) )
 	{
-		angle = args->GetFloat( "angle" );
-		if( angle != 0.0f )
+		// RB: TrenchBroom interop
+		// support "angles" like in Quake 3
+		idAngles angles;
+
+		if( args->GetAngles( "angles", "0 0 0", angles ) )
 		{
-			renderEntity->axis = idAngles( 0.0f, angle, 0.0f ).ToMat3();
+			if( angles.pitch != 0.0f || angles.yaw != 0.0f || angles.roll != 0.0f )
+			{
+				renderEntity->axis = angles.ToMat3();
+			}
+			else
+			{
+				renderEntity->axis.Identity();
+			}
 		}
 		else
 		{
-			renderEntity->axis.Identity();
+			angle = args->GetFloat( "angle" );
+			if( angle != 0.0f )
+			{
+				renderEntity->axis = idAngles( 0.0f, angle, 0.0f ).ToMat3();
+			}
+			else
+			{
+				renderEntity->axis.Identity();
+			}
 		}
+		// RB end
 	}
 
 	renderEntity->referenceSound = NULL;
