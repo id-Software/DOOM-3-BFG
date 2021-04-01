@@ -616,7 +616,6 @@ idMapBrush* idMapBrush::ParseValve220( idLexer& src, const idVec3& origin )
 		planepts[2] -= origin;
 
 		side->plane.FromPoints( planepts[0], planepts[1], planepts[2] );
-		//side->plane.FromPoints( planepts[2], planepts[1], planepts[0] );
 
 		// read the material
 		if( !src.ReadTokenOnLine( &token ) )

@@ -1592,8 +1592,6 @@ void RB_SetVertexColorParms( stageVertexColor_t svc );
 #include "jobs/dynamicshadowvolume/DynamicShadowVolume.h"
 #include "GLMatrix.h"
 
-
-
 #include "BufferObject.h"
 #include "RenderProgs.h"
 #include "RenderWorld_local.h"
