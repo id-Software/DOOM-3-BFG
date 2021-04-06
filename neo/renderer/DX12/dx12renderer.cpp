@@ -84,6 +84,21 @@ void FailMessage(LPCSTR message) {
 	common->Error(message);
 }
 
+void __stdcall OnDeviceRemoved(PVOID context, BOOLEAN) {
+	ID3D12Device* removedDevice = (ID3D12Device*)context;
+	HRESULT removedReason = removedDevice->GetDeviceRemovedReason();
+
+	ComPtr<ID3D12DeviceRemovedExtendedData1> pDred;
+	removedDevice->QueryInterface(IID_PPV_ARGS(&pDred)); //TODO: Validate result
+	D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT1 DredAutoBreadcrumbsOutput;
+	D3D12_DRED_PAGE_FAULT_OUTPUT1 DredPageFaultOutput;
+	pDred->GetAutoBreadcrumbsOutput1(&DredAutoBreadcrumbsOutput); //TODO: Validate result
+	pDred->GetPageFaultAllocationOutput1(&DredPageFaultOutput); //TODO: Validate result
+
+	_com_error err(removedReason);
+	FailMessage(err.ErrorMessage());
+}
+
 void GetHardwareAdapter(IDXGIFactory4* pFactory, IDXGIAdapter1** ppAdapter) {
 	*ppAdapter = nullptr;
 
@@ -126,9 +141,11 @@ void DX12Renderer::ThrowIfFailed(HRESULT hr)
 	if (FAILED(hr))
 	{
 		_com_error err(hr);
-		_com_error errDev(m_device->GetDeviceRemovedReason());
+
 		// Set a breakpoint on this line to catch DirectX API errors
 		FailMessage(err.ErrorMessage());
+
+		throw std::exception(err.ErrorMessage());
 	}
 }
 
@@ -158,6 +175,13 @@ void DX12Renderer::LoadPipeline(HWND hWnd) {
 		ComPtr<ID3D12Debug> debugController;
 		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)))) {
 			debugController->EnableDebugLayer();
+		}
+
+		ComPtr<ID3D12DeviceRemovedExtendedDataSettings> pDredSettings;
+		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&pDredSettings)))) {
+			// Turn on auto-breadcrumbs and page fault reporting.
+			pDredSettings->SetAutoBreadcrumbsEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
+			pDredSettings->SetPageFaultEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
 		}
 	}
 #endif
@@ -272,8 +296,14 @@ void DX12Renderer::LoadPipeline(HWND hWnd) {
 		}
 	}
 
-	ThrowIfFailed(m_device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_directCommandAllocator)));
-	m_directCommandAllocator->SetName(L"Main Command Allocator");
+	// TODO: Turn into a loop for multiple frames
+	for (int frame = 0; frame < FrameCount; ++frame)  {
+		WCHAR nameDest[25];
+		wsprintfW(nameDest, L"Main Command Allocator %d", frame);
+		
+		ThrowIfFailed(m_device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_directCommandAllocator[frame])));
+		m_directCommandAllocator[frame]->SetName(nameDest);
+	}
 
 	ThrowIfFailed(m_device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_COPY, IID_PPV_ARGS(&m_copyCommandAllocator)));
 	m_copyCommandAllocator->SetName(L"Main Command Allocator");
@@ -388,7 +418,26 @@ void DX12Renderer::LoadAssets() {
 			ThrowIfFailed(HRESULT_FROM_WIN32(GetLastError()));
 		}
 
+		// Attach event for device removal
+#if defined(_DEBUG)
+		m_removeDeviceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+		if (m_removeDeviceEvent == nullptr) {
+			ThrowIfFailed(HRESULT_FROM_WIN32(GetLastError()));
+		}
+		m_fence->SetEventOnCompletion(UINT64_MAX, m_removeDeviceEvent); // This is done because all fence values are set the to  UINT64_MAX value when the device is removed.
+
+		RegisterWaitForSingleObject(
+			&m_deviceRemovedHandle,
+			m_removeDeviceEvent,
+			OnDeviceRemoved,
+			m_device.Get(),
+			INFINITE,
+			0
+		);
+#endif
+
 		// Wait for the command list to execute
+		SignalNextFrame();
 		WaitForPreviousFrame();
 	}
 
@@ -426,7 +475,7 @@ void DX12Renderer::LoadAssets() {
 
 	// Create the Command Lists
 	{
-		ThrowIfFailed(m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_directCommandAllocator.Get(), NULL, IID_PPV_ARGS(&m_commandList)));
+		ThrowIfFailed(m_device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_directCommandAllocator[m_frameIndex].Get(), NULL, IID_PPV_ARGS(&m_commandList)));
 		ThrowIfFailed(m_commandList->Close());
 
 		WCHAR nameDest[16];
@@ -528,20 +577,18 @@ void DX12Renderer::FreeJointBuffer(DX12JointBuffer* buffer) {
 	buffer->jointBuffer->Release();
 }
 
+void DX12Renderer::SignalNextFrame() {
+	ThrowIfFailed(m_directCommandQueue->Signal(m_fence.Get(), m_fenceValue));
+}
+
 void DX12Renderer::WaitForPreviousFrame() {
-	// TODO: Use a better version
+	const UINT16 fence = m_fenceValue;
 
-	const UINT64 fence = m_fenceValue;
-	ThrowIfFailed(m_directCommandQueue->Signal(m_fence.Get(), fence));
-	++m_fenceValue;
-
-	// Wait for the frame to finish
+	// Wait for the previous frame to finish
 	if (m_fence->GetCompletedValue() < fence) {
 		ThrowIfFailed(m_fence->SetEventOnCompletion(fence, m_fenceEvent));
 		WaitForSingleObject(m_fenceEvent, INFINITE);
 	}
-
-	m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
 }
 
 void DX12Renderer::WaitForCopyToComplete() {
@@ -561,7 +608,7 @@ void DX12Renderer::ResetCommandList(bool waitForBackBuffer) {
 		return;
 	}
 
-	ThrowIfFailed(m_commandList->Reset(m_directCommandAllocator.Get(), m_activePipelineState));
+	ThrowIfFailed(m_commandList->Reset(m_directCommandAllocator[m_frameIndex].Get(), m_activePipelineState));
 	m_commandList->SetGraphicsRootSignature(m_rootsSignature.Get());
 
 	if (waitForBackBuffer) {
@@ -600,14 +647,15 @@ void DX12Renderer::BeginDraw() {
 	}
 
 	WaitForPreviousFrame();
+	++m_fenceValue;
+
+	m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
 
 	m_cbvHeapIndex = 0;
 	m_isDrawing = true;
-	ThrowIfFailed(m_directCommandAllocator->Reset()); //TODO: Change to warning
+	ThrowIfFailed(m_directCommandAllocator[m_frameIndex]->Reset()); //TODO: Change to warning
 
 	ResetCommandList(true);
-
-	
 }
 
 void DX12Renderer::EndDraw() {
@@ -622,26 +670,29 @@ void DX12Renderer::EndDraw() {
 
 	m_isDrawing = false;
 
-	// TODO: Add code here to update the frame fence value. This way we always know that it should be updated here and other threads should wait for the new value.
+	SignalNextFrame();
 }
 
 UINT DX12Renderer::StartSurfaceSettings() {
 	assert(m_isDrawing);
 
-	//++m_cbvHeapIndex;
+	++m_cbvHeapIndex;
 
 	assert(m_cbvHeapIndex < MAX_HEAP_OBJECT_COUNT);
 
 	return m_cbvHeapIndex;
 }
 
-void DX12Renderer::EndSurfaceSettings() {
+bool DX12Renderer::EndSurfaceSettings() {
 	// TODO: Define separate CBV for location data and Textures
 	// TODO: add a check if we need to update tehCBV and Texture data.
 
 	assert(m_isDrawing);
 
-	DX12_ActivatePipelineState();
+	if (!DX12_ActivatePipelineState()) {
+		// We cant draw the object, so return.
+		return false;
+	}
 
 	const UINT descriptorIndex = m_cbvHeapIndex << MAX_DESCRIPTOR_TWO_POWER;
 	UINT currentDescriptorIndex = descriptorIndex;
@@ -655,13 +706,18 @@ void DX12Renderer::EndSurfaceSettings() {
 	m_cbvUploadHeap[m_frameIndex]->Unmap(0, nullptr);
 
 	// Copy the Textures
-	const DX12TextureBuffer* currentTexture;
+	DX12TextureBuffer* currentTexture;
 	for (UINT index = 0; index < TEXTURE_REGISTER_COUNT && (currentTexture = m_activeTextures[index]) != nullptr; ++index) {
 		++currentDescriptorIndex;
-
+		
+		
 		//UINT descriptorIndex = (m_cbvHeapIndex << MAX_DESCRIPTOR_TWO_POWER) + 1 + index; // (Descriptor Table Location) + (CBV Location) + (Texture Register Offset)
+		SetTexturePixelShaderState(currentTexture);
+
 		CD3DX12_CPU_DESCRIPTOR_HANDLE textureHandle(m_cbvHeap[m_frameIndex]->GetCPUDescriptorHandleForHeapStart(), currentDescriptorIndex, m_cbvHeapIncrementor);
 		m_device->CreateShaderResourceView(currentTexture->textureBuffer.Get(), &currentTexture->textureView, textureHandle);
+
+		//m_copyCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(currentTexture->textureBuffer.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_COMMON));
 	}
 
 	// Define the Descriptor Table to use.
@@ -669,6 +725,12 @@ void DX12Renderer::EndSurfaceSettings() {
 	m_commandList->SetGraphicsRootDescriptorTable(0, descriptorTableHandle);
 
 	++m_cbvHeapIndex;
+
+	return true;
+}
+
+bool DX12Renderer::IsScissorWindowValid() {
+	return m_scissorRect.right > m_scissorRect.left && m_scissorRect.bottom > m_scissorRect.top;
 }
 
 void DX12Renderer::PresentBackbuffer() {
@@ -679,6 +741,10 @@ void DX12Renderer::PresentBackbuffer() {
 }
 
 void DX12Renderer::DrawModel(DX12VertexBuffer* vertexBuffer, UINT vertexOffset, DX12IndexBuffer* indexBuffer, UINT indexOffset, UINT indexCount) {
+	if (!IsScissorWindowValid()) {
+		return;
+	}
+
 	D3D12_VERTEX_BUFFER_VIEW vertecies = vertexBuffer->vertexBufferView;
 
 	D3D12_INDEX_BUFFER_VIEW indecies = indexBuffer->indexBufferView;
@@ -742,15 +808,17 @@ bool DX12Renderer::SetScreenParams(UINT width, UINT height, int fullscreen)
 	//m_swapChain->SetFullscreenState(true, NULL);
 
 	// TODO: HANDLE THIS WHILE DRAWING.
-	if (m_device && m_swapChain && m_directCommandAllocator) {
+	if (m_device && m_swapChain && m_directCommandAllocator[m_frameIndex]) {
 		if (!m_isDrawing) {
 			WaitForPreviousFrame();
-			if (FAILED(m_directCommandAllocator->Reset())) {
+			++m_fenceValue;
+
+			if (FAILED(m_directCommandAllocator[m_frameIndex]->Reset())) {
 				common->Warning("DX12Renderer::SetScreenParams: Error resetting command allocator.");
 				return false;
 			}
 
-			if (FAILED(m_commandList->Reset(m_directCommandAllocator.Get(), nullptr))) {
+			if (FAILED(m_commandList->Reset(m_directCommandAllocator[m_frameIndex].Get(), nullptr))) {
 				common->Warning("DX12Renderer::SetScreenParams: Error resetting command list.");
 				return false;
 			}
@@ -780,6 +848,8 @@ bool DX12Renderer::SetScreenParams(UINT width, UINT height, int fullscreen)
 			ID3D12CommandList* ppCommandLists[] = { m_commandList.Get() };
 			m_directCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 		}
+
+		SignalNextFrame();
 	}
 	else {
 		UpdateViewport(0.0f, 0.0f, width, height);
@@ -860,6 +930,7 @@ DX12TextureBuffer* DX12Renderer::AllocTextureBuffer(DX12TextureBuffer* buffer, D
 
 	buffer->textureView = srvDesc;
 	buffer->usageState = D3D12_RESOURCE_STATE_COPY_DEST;
+	buffer->name = name;
 
 	return buffer;
 }
@@ -878,6 +949,38 @@ void DX12Renderer::SetTextureContent(DX12TextureBuffer* buffer, const UINT mipLe
 	textureData.RowPitch = bytesPerRow;
 	textureData.SlicePitch = imageSize;
 
+	UpdateSubresources(m_copyCommandList.Get(), buffer->textureBuffer.Get(), m_textureBufferUploadHeap.Get(), 0, mipLevel, 1, &textureData);
+}
+
+void DX12Renderer::SetTexture(DX12TextureBuffer* buffer) {
+	m_activeTextures[m_activeTextureRegister] = buffer;
+}
+
+bool DX12Renderer::SetTextureCopyState(DX12TextureBuffer* buffer) {
+	return SetTextureState(buffer, D3D12_RESOURCE_STATE_COPY_DEST, m_copyCommandList.Get());
+}
+
+bool DX12Renderer::SetTexturePixelShaderState(DX12TextureBuffer* buffer) {
+	return SetTextureState(buffer, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, m_commandList.Get());
+}
+
+bool DX12Renderer::SetTextureState(DX12TextureBuffer* buffer, const D3D12_RESOURCE_STATES usageState, ID3D12GraphicsCommandList* commandList) {
+	if (buffer == nullptr) {
+		return false;
+	}
+
+	if (buffer->usageState == usageState) {
+		return false;
+	}
+	
+	// TODO: Check for valid state transitions.
+	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(buffer->textureBuffer.Get(), buffer->usageState, usageState));
+	buffer->usageState = usageState;
+
+	return true; // STate has changed.
+}
+
+void DX12Renderer::StartTextureWrite(DX12TextureBuffer* buffer) {
 	WaitForCopyToComplete();
 
 	if (FAILED(m_copyCommandAllocator->Reset())) {
@@ -889,17 +992,13 @@ void DX12Renderer::SetTextureContent(DX12TextureBuffer* buffer, const UINT mipLe
 		common->Warning("Could not reset the copy command list.");
 		return;
 	}
-	
-	if (buffer->usageState == D3D12_RESOURCE_STATE_COMMON) { //D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE) {
-		m_copyCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(buffer->textureBuffer.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST));
-		buffer->usageState = D3D12_RESOURCE_STATE_COPY_DEST;
+
+	if (buffer != nullptr && buffer->textureBuffer != nullptr) {
+		SetTextureCopyState(buffer);
 	}
+}
 
-	UpdateSubresources(m_copyCommandList.Get(), buffer->textureBuffer.Get(), m_textureBufferUploadHeap.Get(), 0, mipLevel, 1, &textureData);
-
-	m_copyCommandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(buffer->textureBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_COMMON));
-	buffer->usageState = D3D12_RESOURCE_STATE_COMMON;
-
+void DX12Renderer::EndTextureWrite(DX12TextureBuffer* buffer) {
 	if (FAILED(m_copyCommandList->Close())) {
 		common->Warning("Could not close copy command list.");
 	}
@@ -907,8 +1006,6 @@ void DX12Renderer::SetTextureContent(DX12TextureBuffer* buffer, const UINT mipLe
 	// Execute the command list
 	ID3D12CommandList* ppCommandLists[] = { m_copyCommandList.Get() };
 	m_copyCommandQueue->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
-}
 
-void DX12Renderer::SetTexture(const DX12TextureBuffer* buffer) {
-	m_activeTextures[m_activeTextureRegister] = buffer;
+	WaitForCopyToComplete();
 }

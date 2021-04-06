@@ -62,7 +62,7 @@ D3D12_DEPTH_STENCIL_DESC CalculateDepthStencilMode(const uint64 stateBits) {
 	else {
 		dsDesc.StencilEnable = false;
 	}
-
+	
 	if (stateBits & (GLS_STENCIL_FUNC_BITS | GLS_STENCIL_FUNC_REF_BITS | GLS_STENCIL_FUNC_MASK_BITS)) {
 		const UINT mask = UINT((stateBits & GLS_STENCIL_FUNC_MASK_BITS) >> GLS_STENCIL_FUNC_MASK_SHIFT);
 		D3D12_COMPARISON_FUNC func = D3D12_COMPARISON_FUNC_NEVER;
@@ -228,8 +228,14 @@ void LoadStagePipelineState(int parentState, glstate_t state) {
 	}
 }
 
-void DX12_ActivatePipelineState() {
+bool DX12_ActivatePipelineState() {
+	if (activePipelineState < 0) {
+		return false;
+	}
+
 	LoadStagePipelineState(activePipelineState, backEnd.glState);
+
+	return true;
 }
 
 void LoadHLSLShader(DX12CompiledShader* shader, const char* name, eShader shaderType) {
@@ -371,6 +377,8 @@ void idRenderProgManager::BindShader(int vIndex, int fIndex) {
 	if (vIndex >= 0 && vIndex < shaderPrograms.Num()) {
 		if (shaderPrograms[vIndex].shaderObject == NULL) {
 			common->Warning("RenderState %s has not been loaded.", vertexShaders[vIndex].name.c_str());
+			currentRenderProgram = -1;
+			activePipelineState = -1;
 			return;
 		}
 

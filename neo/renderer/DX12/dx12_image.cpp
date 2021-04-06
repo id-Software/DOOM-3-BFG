@@ -41,6 +41,7 @@ Contains the Image implementation for OpenGL.
 idImage::SubImageUpload
 ========================
 */
+TODO: WHY ARE ALL VALUES GOING TO THE SAME MIP LEVEL?
 void idImage::SubImageUpload(int mipLevel, int x, int y, int z, int width, int height, const void* pic, int pixelPitch) const {
 	assert(x >= 0 && y >= 0 && mipLevel >= 0 && width >= 0 && height >= 0 && mipLevel < opts.numLevels);
 
@@ -144,7 +145,10 @@ idImage::SetPixel
 ========================
 */
 void idImage::SetPixel(int mipLevel, int x, int y, const void* data, int dataSize) {
+	// TODO: IS THIS EVEN USED ANYMORE? Current implementation will be very slow.
+	dxRenderer.StartTextureWrite(static_cast<DX12TextureBuffer*>(textureResource));
 	SubImageUpload(mipLevel, x, y, 0, 1, 1, data);
+	dxRenderer.EndTextureWrite(static_cast<DX12TextureBuffer*>(textureResource));
 }
 
 /*

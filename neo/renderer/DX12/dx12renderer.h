@@ -64,6 +64,7 @@ struct DX12TextureBuffer
 	ComPtr<ID3D12Resource> textureBuffer;
 	D3D12_SHADER_RESOURCE_VIEW_DESC textureView;
 	D3D12_RESOURCE_STATES usageState;
+	const idStr* name;
 };
 
 struct DX12JointBuffer
@@ -72,12 +73,25 @@ struct DX12JointBuffer
 	ComPtr<ID3D12Resource> jointBuffer;
 };
 
+// TODO: Start setting frame data to it's own object to make it easier to manage.
+struct DX12FrameDataBuffer
+{
+	// Render Data
+	ComPtr<ID3D12Resource> renderTargets;
+
+	// CBV Heap data
+	ComPtr<ID3D12DescriptorHeap> cbvHeap;
+	ComPtr<ID3D12Resource> cbvUploadHeap;
+	UINT cbvHeapIndex;
+	UINT8* m_constantBufferGPUAddress;
+};
+
 enum eShader {
 	VERTEX,
 	PIXEL
 };
 
-void DX12_ActivatePipelineState();
+bool DX12_ActivatePipelineState();
 
 class DX12Renderer {
 public:
@@ -115,7 +129,12 @@ public:
 	DX12TextureBuffer* AllocTextureBuffer(DX12TextureBuffer* buffer, D3D12_RESOURCE_DESC* textureDesc, const idStr* name);
 	void FreeTextureBuffer(DX12TextureBuffer* buffer);
 	void SetTextureContent(DX12TextureBuffer* buffer, const UINT mipLevel, const UINT bytesPerRow, const size_t imageSize, const void* image);
-	void SetTexture(const DX12TextureBuffer* buffer);
+	void SetTexture(DX12TextureBuffer* buffer);
+	void StartTextureWrite(DX12TextureBuffer* buffer);
+	void EndTextureWrite(DX12TextureBuffer* buffer);
+	bool SetTextureCopyState(DX12TextureBuffer* buffer);
+	bool SetTexturePixelShaderState(DX12TextureBuffer* buffer);
+	bool SetTextureState(DX12TextureBuffer* buffer, const D3D12_RESOURCE_STATES usageState, ID3D12GraphicsCommandList *commandList);
 
 	// Draw commands
 	void BeginDraw();
@@ -125,7 +144,7 @@ public:
 	void ResetCommandList(bool waitForBackBuffer = false);
 	void ExecuteCommandList();
 	UINT StartSurfaceSettings(); // Starts a new heap entry for the surface.
-	void EndSurfaceSettings(); // Records the the surface entry into the heap.
+	bool EndSurfaceSettings(); // Records the the surface entry into the heap.
 	void DrawModel(DX12VertexBuffer* vertexBuffer, UINT vertexOffset, DX12IndexBuffer* indexBuffer, UINT indexOffset, UINT indexCount);
 
 private:
@@ -155,7 +174,7 @@ private:
 	// Command List
 	ComPtr<ID3D12CommandQueue> m_directCommandQueue;
 	ComPtr<ID3D12CommandQueue> m_copyCommandQueue;
-	ComPtr<ID3D12CommandAllocator> m_directCommandAllocator;
+	ComPtr<ID3D12CommandAllocator> m_directCommandAllocator[FrameCount];
 	ComPtr<ID3D12CommandAllocator> m_copyCommandAllocator;
 	ComPtr<ID3D12GraphicsCommandList> m_commandList;
 	ComPtr<ID3D12GraphicsCommandList> m_copyCommandList;
@@ -181,7 +200,11 @@ private:
 	// Textures
 	ComPtr<ID3D12Resource> m_textureBufferUploadHeap;
 	UINT8 m_activeTextureRegister;
-	const DX12TextureBuffer* m_activeTextures[TEXTURE_REGISTER_COUNT];
+	DX12TextureBuffer* m_activeTextures[TEXTURE_REGISTER_COUNT];
+
+	// Device removal
+	HANDLE m_deviceRemovedHandle;
+	HANDLE m_removeDeviceEvent;
 
 	void ThrowIfFailed(HRESULT hr);
 	bool WarnIfFailed(HRESULT hr);
@@ -189,12 +212,13 @@ private:
 	void LoadPipeline(HWND hWnd);
 	void LoadAssets();
 
+	void SignalNextFrame();
     void WaitForPreviousFrame();
 	void WaitForCopyToComplete();
 
 	bool CreateBackBuffer();
 
-
+	bool IsScissorWindowValid();
 };
 
 extern DX12Renderer dxRenderer;

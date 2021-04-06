@@ -770,7 +770,7 @@ static void RB_DrawSingleInteraction(drawInteraction_t* din) {
 		// stage wasn't actually an interaction
 		return;
 	}
-
+	
 	if (din->diffuseImage == NULL || r_skipDiffuse.GetBool()) {
 		// this isn't a YCoCg black, but it doesn't matter, because
 		// the diffuseColor will also be 0
@@ -2473,15 +2473,16 @@ void RB_DrawElementsWithCounters(const drawSurf_t* surf) {
 
 	const triIndex_t* test = (triIndex_t*)indexOffset;
 
-	dxRenderer.EndSurfaceSettings();
-	dxRenderer.DrawModel(reinterpret_cast<DX12VertexBuffer*>(vertexBuffer->GetAPIObject()), 
-		vertOffset / sizeof(idDrawVert),
-		reinterpret_cast<DX12IndexBuffer*>(indexBuffer->GetAPIObject()), 
-		indexOffset >> 1, // TODO: Figure out why we need to divide by 2. Is it because we are going from an int to a short?
-		r_singleTriangle.GetBool() ? 3 : surf->numIndexes);
+	if (dxRenderer.EndSurfaceSettings()) {
+		dxRenderer.DrawModel(reinterpret_cast<DX12VertexBuffer*>(vertexBuffer->GetAPIObject()),
+			vertOffset / sizeof(idDrawVert),
+			reinterpret_cast<DX12IndexBuffer*>(indexBuffer->GetAPIObject()),
+			indexOffset >> 1, // TODO: Figure out why we need to divide by 2. Is it because we are going from an int to a short?
+			r_singleTriangle.GetBool() ? 3 : surf->numIndexes);
 
-	dxRenderer.ExecuteCommandList();
-	dxRenderer.ResetCommandList();
+		dxRenderer.ExecuteCommandList();
+		dxRenderer.ResetCommandList();
+	}
 
 	/*if (backEnd.glState.currentIndexBuffer != (GLuint)indexBuffer->GetAPIObject() || !r_useStateCaching.GetBool()) {
 		qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, (GLuint)indexBuffer->GetAPIObject());
