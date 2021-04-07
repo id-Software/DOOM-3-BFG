@@ -119,13 +119,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	float3 kD = ( float3( 1.0, 1.0, 1.0 ) - kS ) * ( 1.0 - metallic );
 
 #else
-	// HACK calculate roughness from D3 gloss maps
-	float Y = dot( LUMINANCE_SRGB.rgb, specMapSRGB.rgb );
-
-	//const float glossiness = clamp( 1.0 - specMapSRGB.r, 0.0, 0.98 );
-	const float glossiness = clamp( pow( Y, 1.0 / 2.0 ), 0.0, 0.98 );
-
-	const float roughness = 1.0 - glossiness;
+	const float roughness = EstimateLegacyRoughness( specMapSRGB.rgb );
 
 	half3 diffuseColor = diffuseMap;
 	half3 specularColor = specMap.rgb;

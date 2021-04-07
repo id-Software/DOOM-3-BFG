@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013-2020 Robert Beckebans
+Copyright (C) 2013-2021 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -117,13 +117,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	half3 diffuseColor = baseColor * ( 1.0 - metallic );
 	half3 specularColor = lerp( dielectricColor, baseColor, metallic );
 #else
-	// HACK calculate roughness from D3 gloss maps
-	float Y = dot( LUMINANCE_SRGB.rgb, specMapSRGB.rgb );
-
-	//const float glossiness = clamp( 1.0 - specMapSRGB.r, 0.0, 0.98 );
-	const float glossiness = clamp( pow( Y, 1.0 / 2.0 ), 0.0, 0.98 );
-
-	const float roughness = 1.0 - glossiness;
+	const float roughness = EstimateLegacyRoughness( specMapSRGB.rgb );
 
 	half3 diffuseColor = diffuseMap;
 	half3 specularColor = specMapSRGB.rgb; // RB: should be linear but it looks too flat
@@ -134,7 +128,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	//lambert *= 1.3;
 
 	// rpDiffuseModifier contains light color multiplier
-	half3 lightColor = sRGBToLinearRGB( lightProj.xyz * lightFalloff.xyz );// * rpDiffuseModifier.xyz;
+	half3 lightColor = sRGBToLinearRGB( lightProj.xyz * lightFalloff.xyz );
 
 	half vdotN = clamp( dot3( viewVector, localNormal ), 0.0, 1.0 );
 	half vdotH = clamp( dot3( viewVector, halfAngleVector ), 0.0, 1.0 );
@@ -153,8 +147,8 @@ void main( PS_IN fragment, out PS_OUT result )
 	// disney GGX
 	float D = ( hdotN * hdotN ) * ( rrrr - 1.0 ) + 1.0;
 	float VFapprox = ( ldotH * ldotH ) * ( roughness + 0.5 );
-	half3 specularBRDF = ( rrrr / ( 4.0 * PI * D * D * VFapprox ) ) * ldotN * reflectColor;
-	//specularBRDF = half3( 0.0 );
+	half3 specularLight = ( rrrr / ( 4.0 * PI * D * D * VFapprox ) ) * ldotN * reflectColor;
+	//specularLight = half3( 0.0 );
 
 #if 0
 	result.color = float4( _half3( VFapprox ), 1.0 );
@@ -165,8 +159,10 @@ void main( PS_IN fragment, out PS_OUT result )
 	//lambert /= PI;
 
 	//half3 diffuseColor = mix( diffuseMap, F0, metal ) * rpDiffuseModifier.xyz;
-	half3 diffuseBRDF = diffuseColor * lambert * ( rpDiffuseModifier.xyz );
+	half3 diffuseLight = diffuseColor * lambert * ( rpDiffuseModifier.xyz );
 
-	result.color.xyz = ( diffuseBRDF + specularBRDF ) * lightColor * fragment.color.rgb;
-	result.color.w = 1.0;
+	float3 color = ( diffuseLight + specularLight ) * lightColor * fragment.color.rgb;
+
+	result.color.rgb = color;
+	result.color.a = 1.0;
 }
