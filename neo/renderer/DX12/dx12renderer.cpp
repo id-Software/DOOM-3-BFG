@@ -949,22 +949,36 @@ void DX12Renderer::SetTextureContent(DX12TextureBuffer* buffer, const UINT mipLe
 	textureData.RowPitch = bytesPerRow;
 	textureData.SlicePitch = imageSize;
 
-	UpdateSubresources(m_copyCommandList.Get(), buffer->textureBuffer.Get(), m_textureBufferUploadHeap.Get(), 0, mipLevel, 1, &textureData);
+	int intermediateOffset = 0;
+	if (mipLevel > 0) {
+		UINT mipCheck = mipLevel;
+		size_t lastSize = imageSize << 2;
+
+		for (; mipCheck > 0; --mipCheck) {
+			intermediateOffset += lastSize;
+			lastSize = lastSize << 2;
+		}
+
+		intermediateOffset = (intermediateOffset + 511) & ~511;
+	}
+
+	SetTextureCopyState(buffer, mipLevel);
+	UpdateSubresources(m_copyCommandList.Get(), buffer->textureBuffer.Get(), m_textureBufferUploadHeap.Get(), intermediateOffset, mipLevel, 1, &textureData);
 }
 
 void DX12Renderer::SetTexture(DX12TextureBuffer* buffer) {
 	m_activeTextures[m_activeTextureRegister] = buffer;
 }
 
-bool DX12Renderer::SetTextureCopyState(DX12TextureBuffer* buffer) {
-	return SetTextureState(buffer, D3D12_RESOURCE_STATE_COPY_DEST, m_copyCommandList.Get());
+bool DX12Renderer::SetTextureCopyState(DX12TextureBuffer* buffer, const UINT mipLevel) {
+	return SetTextureState(buffer, D3D12_RESOURCE_STATE_COPY_DEST, m_copyCommandList.Get(), mipLevel);
 }
 
-bool DX12Renderer::SetTexturePixelShaderState(DX12TextureBuffer* buffer) {
+bool DX12Renderer::SetTexturePixelShaderState(DX12TextureBuffer* buffer, const UINT mipLevel) {
 	return SetTextureState(buffer, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, m_commandList.Get());
 }
 
-bool DX12Renderer::SetTextureState(DX12TextureBuffer* buffer, const D3D12_RESOURCE_STATES usageState, ID3D12GraphicsCommandList* commandList) {
+bool DX12Renderer::SetTextureState(DX12TextureBuffer* buffer, const D3D12_RESOURCE_STATES usageState, ID3D12GraphicsCommandList* commandList, const UINT mipLevel) {
 	if (buffer == nullptr) {
 		return false;
 	}
@@ -974,7 +988,7 @@ bool DX12Renderer::SetTextureState(DX12TextureBuffer* buffer, const D3D12_RESOUR
 	}
 	
 	// TODO: Check for valid state transitions.
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(buffer->textureBuffer.Get(), buffer->usageState, usageState));
+	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(buffer->textureBuffer.Get(), buffer->usageState, usageState, mipLevel));
 	buffer->usageState = usageState;
 
 	return true; // STate has changed.
@@ -991,10 +1005,6 @@ void DX12Renderer::StartTextureWrite(DX12TextureBuffer* buffer) {
 	if (FAILED(m_copyCommandList->Reset(m_copyCommandAllocator.Get(), nullptr))) {
 		common->Warning("Could not reset the copy command list.");
 		return;
-	}
-
-	if (buffer != nullptr && buffer->textureBuffer != nullptr) {
-		SetTextureCopyState(buffer);
 	}
 }
 

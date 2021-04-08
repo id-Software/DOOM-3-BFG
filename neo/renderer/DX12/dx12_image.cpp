@@ -41,7 +41,6 @@ Contains the Image implementation for OpenGL.
 idImage::SubImageUpload
 ========================
 */
-TODO: WHY ARE ALL VALUES GOING TO THE SAME MIP LEVEL?
 void idImage::SubImageUpload(int mipLevel, int x, int y, int z, int width, int height, const void* pic, int pixelPitch) const {
 	assert(x >= 0 && y >= 0 && mipLevel >= 0 && width >= 0 && height >= 0 && mipLevel < opts.numLevels);
 

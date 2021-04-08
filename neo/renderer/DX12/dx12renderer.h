@@ -132,9 +132,9 @@ public:
 	void SetTexture(DX12TextureBuffer* buffer);
 	void StartTextureWrite(DX12TextureBuffer* buffer);
 	void EndTextureWrite(DX12TextureBuffer* buffer);
-	bool SetTextureCopyState(DX12TextureBuffer* buffer);
-	bool SetTexturePixelShaderState(DX12TextureBuffer* buffer);
-	bool SetTextureState(DX12TextureBuffer* buffer, const D3D12_RESOURCE_STATES usageState, ID3D12GraphicsCommandList *commandList);
+	bool SetTextureCopyState(DX12TextureBuffer* buffer, const UINT mipLevel);
+	bool SetTexturePixelShaderState(DX12TextureBuffer* buffer, const UINT mipLevel = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES);
+	bool SetTextureState(DX12TextureBuffer* buffer, const D3D12_RESOURCE_STATES usageState, ID3D12GraphicsCommandList *commandList, const UINT mipLevel = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES);
 
 	// Draw commands
 	void BeginDraw();
