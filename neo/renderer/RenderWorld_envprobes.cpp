@@ -522,6 +522,7 @@ R_MakeAmbientMap_f <basename> [size]
 Saves out env/<basename>_amb_ft.tga, etc
 ==================
 */
+/*
 void R_MakeAmbientMap( const char* baseName, const char* suffix, int outSize, bool specular, bool deleteTempFiles )
 {
 	idStr		fullname;
@@ -718,7 +719,7 @@ void R_MakeAmbientMap( const char* baseName, const char* suffix, int outSize, bo
 		}
 	}
 }
-
+*/
 
 
 
@@ -911,7 +912,7 @@ REGISTER_PARALLEL_JOB( CalculateIrradianceJob, "CalculateIrradianceJob" );
 REGISTER_PARALLEL_JOB( CalculateRadianceJob, "CalculateRadianceJob" );
 
 
-void R_MakeAmbientMapThreaded( const char* baseName, const char* suffix, int outSize, bool specular, bool deleteTempFiles )
+void R_MakeAmbientMap( const char* baseName, const char* suffix, int outSize, bool specular, bool deleteTempFiles, bool useThreads )
 {
 	idStr		fullname;
 	renderView_t	ref;
@@ -956,13 +957,27 @@ void R_MakeAmbientMapThreaded( const char* baseName, const char* suffix, int out
 
 	tr.irradianceJobs.Append( jobParms );
 
-	if( specular )
+	if( useThreads )
 	{
-		tr.envprobeJobList->AddJob( ( jobRun_t )CalculateRadianceJob, jobParms );
+		if( specular )
+		{
+			tr.envprobeJobList->AddJob( ( jobRun_t )CalculateRadianceJob, jobParms );
+		}
+		else
+		{
+			tr.envprobeJobList->AddJob( ( jobRun_t )CalculateIrradianceJob, jobParms );
+		}
 	}
 	else
 	{
-		tr.envprobeJobList->AddJob( ( jobRun_t )CalculateIrradianceJob, jobParms );
+		if( specular )
+		{
+			CalculateRadianceJob( jobParms );
+		}
+		else
+		{
+			CalculateIrradianceJob( jobParms );
+		}
 	}
 
 	if( deleteTempFiles )
@@ -1090,16 +1105,8 @@ CONSOLE_COMMAND( generateEnvironmentProbes, "Generate environment probes", NULL 
 
 		fullname.Format( "%s/envprobe%i", baseName.c_str(), i );
 
-		if( useThreads )
-		{
-			R_MakeAmbientMapThreaded( fullname.c_str(), "_amb", IRRADIANCE_CUBEMAP_SIZE, false, false );
-			R_MakeAmbientMapThreaded( fullname.c_str(), "_spec", RADIANCE_CUBEMAP_SIZE, true, true );
-		}
-		else
-		{
-			R_MakeAmbientMap( fullname.c_str(), "_amb", IRRADIANCE_CUBEMAP_SIZE, false, false );
-			R_MakeAmbientMap( fullname.c_str(), "_spec", RADIANCE_CUBEMAP_SIZE, true, true );
-		}
+		R_MakeAmbientMap( fullname.c_str(), "_amb", IRRADIANCE_CUBEMAP_SIZE, false, false, useThreads );
+		R_MakeAmbientMap( fullname.c_str(), "_spec", RADIANCE_CUBEMAP_SIZE, true, true, useThreads );
 	}
 
 	if( useThreads )
@@ -1107,30 +1114,30 @@ CONSOLE_COMMAND( generateEnvironmentProbes, "Generate environment probes", NULL 
 		//tr.envprobeJobList->Submit();
 		tr.envprobeJobList->Submit( NULL, JOBLIST_PARALLELISM_MAX_CORES );
 		tr.envprobeJobList->Wait();
+	}
 
-		for( int j = 0; j < tr.irradianceJobs.Num(); j++ )
+	for( int j = 0; j < tr.irradianceJobs.Num(); j++ )
+	{
+		calcEnvprobeParms_t* job = tr.irradianceJobs[ j ];
+
+		R_WriteEXR( job->filename, ( byte* )job->outBuffer, 3, job->outWidth, job->outHeight, "fs_basepath" );
+
+		common->Printf( "%s convolved in %5.1f seconds\n\n", job->filename.c_str(), job->time * 0.001f );
+
+		for( int i = 0; i < 6; i++ )
 		{
-			calcEnvprobeParms_t* job = tr.irradianceJobs[ j ];
-
-			R_WriteEXR( job->filename, ( byte* )job->outBuffer, 3, job->outWidth, job->outHeight, "fs_basepath" );
-
-			common->Printf( "%s convolved in %5.1f seconds\n\n", job->filename.c_str(), job->time * 0.001f );
-
-			for( int i = 0; i < 6; i++ )
+			if( job->buffers[i] )
 			{
-				if( job->buffers[i] )
-				{
-					Mem_Free( job->buffers[i] );
-				}
+				Mem_Free( job->buffers[i] );
 			}
-
-			Mem_Free( job->outBuffer );
-
-			delete job;
 		}
 
-		tr.irradianceJobs.Clear();
+		Mem_Free( job->outBuffer );
+
+		delete job;
 	}
+
+	tr.irradianceJobs.Clear();
 
 	int	end = Sys_Milliseconds();
 
@@ -1146,12 +1153,10 @@ R_MakeAmbientMap_f <basename> [size]
 Saves out env/<basename>_amb_ft.tga, etc
 ==================
 */
-//void R_MakeAmbientMap_f( const idCmdArgs& args )
 CONSOLE_COMMAND( makeAmbientMap, "Saves out env/<basename>_amb_ft.tga, etc", NULL )
 {
 	const char*	baseName;
 	int			outSize;
-	float		roughness;
 
 	if( args.Argc() != 2 && args.Argc() != 3 && args.Argc() != 4 )
 	{
@@ -1169,23 +1174,7 @@ CONSOLE_COMMAND( makeAmbientMap, "Saves out env/<basename>_amb_ft.tga, etc", NUL
 		outSize = 32;
 	}
 
-	if( args.Argc() == 4 )
-	{
-		roughness = atof( args.Argv( 3 ) );
-	}
-	else
-	{
-		roughness = 0.95f;
-	}
-
-	if( roughness > 0.8f )
-	{
-		R_MakeAmbientMap( baseName, "_amb", outSize, false, false );
-	}
-	else
-	{
-		R_MakeAmbientMap( baseName, "_spec", outSize, true, false );
-	}
+	R_MakeAmbientMap( baseName, "_amb", outSize, false, false, false );
 }
 
 
