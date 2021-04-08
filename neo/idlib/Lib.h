@@ -275,6 +275,7 @@ public:
 #include "math/Curve.h"
 #include "math/Ode.h"
 #include "math/Lcp.h"
+#include "math/SphericalHarmonics.h"
 
 // bounding volumes
 #include "bv/Sphere.h"
