@@ -233,7 +233,7 @@ R_SampleCubeMapHDR
 static idMat3		cubeAxis[6];
 static const char* envDirection[6] = { "_px", "_nx", "_py", "_ny", "_pz", "_nz" };
 
-void R_SampleCubeMapHDR( const idVec3& dir, int size, byte* buffers[6], float result[3] )
+void R_SampleCubeMapHDR( const idVec3& dir, int size, byte* buffers[6], float result[3], float& u, float& v )
 {
 	float	adir[3];
 	int		axis, x, y;
@@ -291,6 +291,9 @@ void R_SampleCubeMapHDR( const idVec3& dir, int size, byte* buffers[6], float re
 		y = size - 1;
 	}
 
+	u = x;
+	v = y;
+
 	// unpack RGBA8 to 3 floats
 	union
 	{
@@ -320,7 +323,10 @@ public:
 	CommandlineProgressBar( int _expectedCount )
 	{
 		expectedCount = _expectedCount;
+	}
 
+	void Start()
+	{
 		common->Printf( "0%%  10   20   30   40   50   60   70   80   90   100%%\n" );
 		common->Printf( "|----|----|----|----|----|----|----|----|----|----|\n" );
 
@@ -363,19 +369,6 @@ public:
 // Since it is in base 2 we can use some basic bit operations to achieve this.
 // The brilliant book Hacker's Delight [warren01] provides us a a simple way to reverse the bits in a given 32bit integer. Using this, the following code then implements phi2(i)
 
-/*
-GLSL version
-
-float radicalInverse_VdC( uint bits )
-{
-	bits = (bits << 16u) | (bits >> 16u);
-	bits = ((bits & 0x55555555u) << 1u) | ((bits & 0xAAAAAAAAu) >> 1u);
-	bits = ((bits & 0x33333333u) << 2u) | ((bits & 0xCCCCCCCCu) >> 2u);
-	bits = ((bits & 0x0F0F0F0Fu) << 4u) | ((bits & 0xF0F0F0F0u) >> 4u);
-	bits = ((bits & 0x00FF00FFu) << 8u) | ((bits & 0xFF00FF00u) >> 8u);
-	return float(bits) * 2.3283064365386963e-10; // / 0x100000000
-}
-*/
 
 // RB: radical inverse implementation from the Mitsuba PBR system
 
@@ -510,218 +503,100 @@ idVec2 NormalizedOctCoord( int x, int y, const int probeSideLength )
 	return ( idVec2( octFragCoord ) + idVec2( 0.5f, 0.5f ) ) * ( 2.0f / float( probeSideLength ) ) - idVec2( 1.0f, 1.0f );
 }
 
-
-
-
 /*
-==================
-R_MakeAmbientMap_f
-
-R_MakeAmbientMap_f <basename> [size]
-
-Saves out env/<basename>_amb_ft.tga, etc
-==================
-*/
-/*
-void R_MakeAmbientMap( const char* baseName, const char* suffix, int outSize, bool specular, bool deleteTempFiles )
+static inline float LatLongTexelArea( const idVec2i& pos, const idVec2i& imageSize )
 {
-	idStr		fullname;
-	renderView_t	ref;
-	viewDef_t	primary;
-	byte*		buffers[6];
-	int			width = 0, height = 0;
+	idVec2 uv0;
+	uv0.x = pos.x / imageSize.x;
+	uv0.y = pos.y / imageSize.y;
 
-	// read all of the images
-	for( int i = 0 ; i < 6 ; i++ )
-	{
-		fullname.Format( "env/%s%s.exr", baseName, envDirection[i] );
+	idVec2 uv1;
+	uv1.x = ( pos.x + 1 ) / imageSize.x;
+	uv1.y = ( pos.y + 1 ) / imageSize.y;
 
-		const bool captureToImage = false;
-		common->UpdateScreen( captureToImage );
+	float theta0 = idMath::PI * ( uv0.x * 2.0f - 1.0f );
+	float theta1 = idMath::PI * ( uv1.x * 2.0f - 1.0f );
 
-		R_LoadImage( fullname, &buffers[i], &width, &height, NULL, true, NULL );
-		if( !buffers[i] )
-		{
-			common->Printf( "loading %s failed.\n", fullname.c_str() );
-			for( i-- ; i >= 0 ; i-- )
-			{
-				Mem_Free( buffers[i] );
-			}
-			return;
-		}
-	}
+	float phi0 = idMath::PI * ( uv0.y - 0.5f );
+	float phi1 = idMath::PI * ( uv1.y - 0.5f );
 
-	// resample with hemispherical blending
-	int	samples = 1000;
-
-	int outWidth = int( outSize * 1.5f );
-	int outHeight = outSize;
-
-	//halfFloat_t* outBuffer = ( halfFloat_t* )_alloca( outSize * outSize * 3 * sizeof( halfFloat_t ) );
-	halfFloat_t* outBuffer = ( halfFloat_t* )R_StaticAlloc( idMath::Ceil( outSize * outSize * 3 * sizeof( halfFloat_t ) * 1.5f ), TAG_IMAGE );
-
-	{
-		// output an octahedron probe
-
-		CommandlineProgressBar progressBar( R_CalculateUsedAtlasPixels( outSize ) );
-
-		int	start = Sys_Milliseconds();
-
-		const float invDstSize = 1.0f / float( outSize );
-
-		const int numMips = idMath::BitsForInteger( outSize );
-
-		// reset image to black
-		for( int x = 0; x < outWidth; x++ )
-		{
-			for( int y = 0; y < outHeight; y++ )
-			{
-				outBuffer[( y * outWidth + x ) * 3 + 0] = F32toF16( 0 );
-				outBuffer[( y * outWidth + x ) * 3 + 1] = F32toF16( 0 );
-				outBuffer[( y * outWidth + x ) * 3 + 2] = F32toF16( 0 );
-			}
-		}
-
-		for( int mip = 0; mip < numMips; mip++ )
-		{
-			float roughness = ( float )mip / ( float )( numMips - 1 );
-
-			idVec4 dstRect = R_CalculateMipRect( outSize, mip );
-
-			for( int x = dstRect.x; x < ( dstRect.x + dstRect.z ); x++ )
-			{
-				for( int y = dstRect.y; y < ( dstRect.y + dstRect.w ); y++ )
-				{
-					idVec2 octCoord;
-					if( mip > 0 )
-					{
-						// move back to [0, 1] coords
-						octCoord = NormalizedOctCoord( x - dstRect.x, y - dstRect.y, dstRect.z );
-					}
-					else
-					{
-						octCoord = NormalizedOctCoord( x, y, dstRect.z );
-					}
-
-					// convert UV coord to 3D direction
-					idVec3 N;
-
-					N.FromOctahedral( octCoord );
-
-#if 1
-					// RB: Split Sum approximation explanation
-
-					// Epic Games makes a further approximation by assuming the view direction
-					// (and thus the specular reflection direction) to be equal to the output sample direction ωo.
-					// This translates itself to the following code:
-					const idVec3 R = N;
-					const idVec3 V = R;
-
-					idVec3 prefilteredColor( 0, 0, 0 );
-
-					if( specular )
-					{
-						float totalWeight = 0.0f;
-
-						for( int s = 0; s < samples; s++ )
-						{
-							idVec2 Xi = Hammersley2D( s, samples );
-							idVec3 H = ImportanceSampleGGX( Xi, N, roughness );
-							idVec3 L = ( 2.0 * ( H * ( V * H ) ) - V );
-
-							float NdotL = Max( ( N * L ), 0.0f );
-							if( NdotL > 0.0 )
-							{
-								float sample[3];
-
-								R_SampleCubeMapHDR( H, width, buffers, sample );
-
-								prefilteredColor[0] += sample[0] * NdotL;
-								prefilteredColor[1] += sample[1] * NdotL;
-								prefilteredColor[2] += sample[2] * NdotL;
-
-								totalWeight += NdotL;
-							}
-						}
-
-						prefilteredColor[0] /= totalWeight;
-						prefilteredColor[1] /= totalWeight;
-						prefilteredColor[2] /= totalWeight;
-					}
-					else
-					{
-						for( int s = 0; s < samples; s++ )
-						{
-							idVec2 Xi = Hammersley2D( s, samples );
-							idVec3 H = ImportanceSampleGGX( Xi, N, 0.95f );
-
-							float sample[3];
-
-							R_SampleCubeMapHDR( H, width, buffers, sample );
-
-							prefilteredColor[0] += sample[0];
-							prefilteredColor[1] += sample[1];
-							prefilteredColor[2] += sample[2];
-						}
-
-						prefilteredColor[0] /= samples;
-						prefilteredColor[1] /= samples;
-						prefilteredColor[2] /= samples;
-					}
-
-					outBuffer[( y * outWidth + x ) * 3 + 0] = F32toF16( prefilteredColor[0] );
-					outBuffer[( y * outWidth + x ) * 3 + 1] = F32toF16( prefilteredColor[1] );
-					outBuffer[( y * outWidth + x ) * 3 + 2] = F32toF16( prefilteredColor[2] );
-#else
-					outBuffer[( y * outWidth + x ) * 3 + 0] = F32toF16( ( N.x * 0.5f + 0.5f ) );
-					outBuffer[( y * outWidth + x ) * 3 + 1] = F32toF16( ( N.y * 0.5f + 0.5f ) );
-					outBuffer[( y * outWidth + x ) * 3 + 2] = F32toF16( ( N.z * 0.5f + 0.5f ) );
-#endif
-
-					progressBar.Increment();
-				}
-			}
-		}
+	return abs( theta1 - theta0 ) * abs( sin( phi1 ) - sin( phi0 ) );
+}
 
 
-		fullname.Format( "env/%s%s.exr", baseName, suffix );
-		//common->Printf( "writing %s\n", fullname.c_str() );
+static inline idVec2 CartesianToLatLongTexcoord( const idVec3& p )
+{
+	// http://gl.ict.usc.edu/Data/HighResProbes
 
-		const bool captureToImage = false;
-		common->UpdateScreen( captureToImage );
+	float u = ( 1.0f + idMath::ATan( p.x, -p.z ) / idMath::PI );
+	float v = idMath::ACos( p.y ) / idMath::PI;
 
-		//R_WriteTGA( fullname, outBuffer, outSize, outSize, false, "fs_basepath" );
-		//R_WritePNG( fullname, outBuffer, 4, outSize, outSize, true, "fs_basepath" );
-		R_WriteEXR( fullname, ( byte* )outBuffer, 3, outWidth, outHeight, "fs_basepath" );
-
-		int	end = Sys_Milliseconds();
-
-		common->Printf( "env/%s convolved in %5.1f seconds\n\n", baseName, ( end - start ) * 0.001f );
-	}
-
-	for( int i = 0 ; i < 6 ; i++ )
-	{
-		if( buffers[i] )
-		{
-			Mem_Free( buffers[i] );
-		}
-	}
-
-	Mem_Free( outBuffer );
-
-	if( deleteTempFiles )
-	{
-		for( int i = 0 ; i < 6 ; i++ )
-		{
-			fullname.Format( "env/%s%s.exr", baseName, envDirection[i] );
-
-			fileSystem->RemoveFile( fullname );
-		}
-	}
+	return idVec2( u * 0.5f, v );
 }
 */
 
 
+/// http://www.mpia-hd.mpg.de/~mathar/public/mathar20051002.pdf
+/// http://www.rorydriscoll.com/2012/01/15/cubemap-texel-solid-angle/
+static inline float AreaElement( float _x, float _y )
+{
+	return atan2f( _x * _y, sqrtf( _x * _x + _y * _y + 1.0f ) );
+}
+
+/// u and v should be center adressing and in [-1.0 + invSize.. 1.0 - invSize] range.
+static inline float CubemapTexelSolidAngle( float u, float v, float _invFaceSize )
+{
+	// Specify texel area.
+	const float x0 = u - _invFaceSize;
+	const float x1 = u + _invFaceSize;
+	const float y0 = v - _invFaceSize;
+	const float y1 = v + _invFaceSize;
+
+	// Compute solid angle of texel area.
+	const float solidAngle = AreaElement( x1, y1 )
+							 - AreaElement( x0, y1 )
+							 - AreaElement( x1, y0 )
+							 + AreaElement( x0, y0 )
+							 ;
+
+	return solidAngle;
+}
+
+static inline idVec3 MapXYSToDirection( uint64 x, uint64 y, uint64 s, uint64 width, uint64 height )
+{
+	float u = ( ( x + 0.5f ) / float( width ) ) * 2.0f - 1.0f;
+	float v = ( ( y + 0.5f ) / float( height ) ) * 2.0f - 1.0f;
+	v *= -1.0f;
+
+	idVec3 dir( 0, 0, 0 );
+
+	// +x, -x, +y, -y, +z, -z
+	switch( s )
+	{
+		case 0:
+			dir = idVec3( 1.0f, v, -u );
+			break;
+		case 1:
+			dir = idVec3( -1.0f, v, u );
+			break;
+		case 2:
+			dir = idVec3( u, 1.0f, -v );
+			break;
+		case 3:
+			dir = idVec3( u, -1.0f, v );
+			break;
+		case 4:
+			dir = idVec3( u, v, 1.0f );
+			break;
+		case 5:
+			dir = idVec3( -u, v, -1.0f );
+			break;
+	}
+
+	dir.Normalize();
+
+	return dir;
+}
 
 void CalculateIrradianceJob( calcEnvprobeParms_t* parms )
 {
@@ -737,6 +612,121 @@ void CalculateIrradianceJob( calcEnvprobeParms_t* parms )
 	const float invDstSize = 1.0f / float( parms->outHeight );
 
 	const int numMips = idMath::BitsForInteger( parms->outHeight );
+
+	const idVec2i sourceImageSize( parms->outHeight, parms->outHeight );
+
+	CommandlineProgressBar progressBar( R_CalculateUsedAtlasPixels( sourceImageSize.y ) );
+	if( parms->printProgress )
+	{
+		progressBar.Start();
+	}
+
+	// build L4 Spherical Harmonics from source image
+	SphericalHarmonicsT<idVec3, 4> shRadiance;
+
+	for( int i = 0; i < shSize( 4 ); i++ )
+	{
+		shRadiance[i].Zero();
+	}
+
+#if 0
+
+	// build SH by only iterating over the octahedron
+	// RB: not used because I don't know the texel area of an octahedron pixel and the cubemap texel area is too small
+	// however it would be nice to use this because it would be 6 times faster
+
+	idVec4 dstRect = R_CalculateMipRect( parms->outHeight, 0 );
+
+	for( int x = dstRect.x; x < ( dstRect.x + dstRect.z ); x++ )
+	{
+		for( int y = dstRect.y; y < ( dstRect.y + dstRect.w ); y++ )
+		{
+			idVec2 octCoord = NormalizedOctCoord( x, y, dstRect.z );
+
+			// convert UV coord to 3D direction
+			idVec3 dir;
+
+			dir.FromOctahedral( octCoord );
+
+			float u, v;
+			idVec3 radiance;
+			R_SampleCubeMapHDR( dir, parms->outHeight, buffers, &radiance[0], u, v );
+
+			//radiance = dir * 0.5 + idVec3( 0.5f, 0.5f, 0.5f );
+
+			// convert from [0 .. size-1] to [-1.0 + invSize .. 1.0 - invSize]
+			const float uu = 2.0f * ( u * invDstSize ) - 1.0f;
+			const float vv = 2.0f * ( v * invDstSize ) - 1.0f;
+
+			float texelArea = CubemapTexelSolidAngle( uu, vv, invDstSize );
+
+			const SphericalHarmonicsT<float, 4>& sh = shEvaluate<4>( dir );
+
+			bool shValid = true;
+			for( int i = 0; i < 25; i++ )
+			{
+				if( IsNAN( sh[i] ) )
+				{
+					shValid = false;
+					break;
+				}
+			}
+
+			if( shValid )
+			{
+				shAddWeighted( shRadiance, sh, radiance * texelArea );
+			}
+		}
+	}
+
+#else
+
+	// build SH by iterating over all cubemap pixels
+
+	idVec4 dstRect = R_CalculateMipRect( parms->outHeight, 0 );
+
+	for( int side = 0; side < 6; side++ )
+	{
+		for( int x = 0; x < sourceImageSize.x; x++ )
+		{
+			for( int y = 0; y < sourceImageSize.y; y++ )
+			{
+				// convert UV coord to 3D direction
+				idVec3 dir = MapXYSToDirection( x, y, side, sourceImageSize.x, sourceImageSize.y );
+
+				float u, v;
+				idVec3 radiance;
+				R_SampleCubeMapHDR( dir, parms->outHeight, buffers, &radiance[0], u, v );
+
+				//radiance = dir * 0.5 + idVec3( 0.5f, 0.5f, 0.5f );
+
+				// convert from [0 .. size-1] to [-1.0 + invSize .. 1.0 - invSize]
+				const float uu = 2.0f * ( u * invDstSize ) - 1.0f;
+				const float vv = 2.0f * ( v * invDstSize ) - 1.0f;
+
+				float texelArea = CubemapTexelSolidAngle( uu, vv, invDstSize );
+
+				const SphericalHarmonicsT<float, 4>& sh = shEvaluate<4>( dir );
+
+				bool shValid = true;
+				for( int i = 0; i < 25; i++ )
+				{
+					if( IsNAN( sh[i] ) )
+					{
+						shValid = false;
+						break;
+					}
+				}
+
+				if( shValid )
+				{
+					shAddWeighted( shRadiance, sh, radiance * texelArea );
+				}
+			}
+		}
+	}
+
+#endif
 
 	// reset image to black
 	for( int x = 0; x < parms->outWidth; x++ )
@@ -771,33 +761,52 @@ void CalculateIrradianceJob( calcEnvprobeParms_t* parms )
 				}
 
 				// convert UV coord to 3D direction
-				idVec3 N;
+				idVec3 dir;
 
-				N.FromOctahedral( octCoord );
+				dir.FromOctahedral( octCoord );
 
 				idVec3 outColor( 0, 0, 0 );
 
+#if 1
+				// generate ambient colors by evaluating the L4 Spherical Harmonics
+				SphericalHarmonicsT<float, 4> shDirection = shEvaluate<4>( dir );
+
+				idVec3 sampleIrradianceSh = shEvaluateDiffuse<idVec3, 4>( shRadiance, dir ) / idMath::PI;
+
+				outColor[0] = Max( 0.0f, sampleIrradianceSh.x );
+				outColor[1] = Max( 0.0f, sampleIrradianceSh.y );
+				outColor[2] = Max( 0.0f, sampleIrradianceSh.z );
+#else
+				// generate ambient colors using Monte Carlo method
 				for( int s = 0; s < parms->samples; s++ )
 				{
 					idVec2 Xi = Hammersley2D( s, parms->samples );
-					idVec3 H = ImportanceSampleGGX( Xi, N, 0.95f );
+					idVec3 H = ImportanceSampleGGX( Xi, dir, 0.95f );
 
-					float sample[3];
+					float u, v;
+					idVec3 radiance;
+					R_SampleCubeMapHDR( H, parms->outHeight, buffers, &radiance[0], u, v );
 
-					R_SampleCubeMapHDR( H, parms->outHeight, buffers, sample );
-
-					outColor[0] += sample[0];
-					outColor[1] += sample[1];
-					outColor[2] += sample[2];
+					outColor[0] += radiance[0];
+					outColor[1] += radiance[1];
+					outColor[2] += radiance[2];
 				}
 
 				outColor[0] /= parms->samples;
 				outColor[1] /= parms->samples;
 				outColor[2] /= parms->samples;
+#endif
+
+				//outColor = dir * 0.5 + idVec3( 0.5f, 0.5f, 0.5f );
 
 				parms->outBuffer[( y * parms->outWidth + x ) * 3 + 0] = F32toF16( outColor[0] );
 				parms->outBuffer[( y * parms->outWidth + x ) * 3 + 1] = F32toF16( outColor[1] );
 				parms->outBuffer[( y * parms->outWidth + x ) * 3 + 2] = F32toF16( outColor[2] );
+
+				if( parms->printProgress )
+				{
+					progressBar.Increment();
+				}
 			}
 		}
 	}
@@ -822,7 +831,15 @@ void CalculateRadianceJob( calcEnvprobeParms_t* parms )
 
 	const int numMips = idMath::BitsForInteger( parms->outHeight );
 
-	// reset image to black
+	const idVec2i sourceImageSize( parms->outHeight, parms->outHeight );
+
+	CommandlineProgressBar progressBar( R_CalculateUsedAtlasPixels( sourceImageSize.y ) );
+	if( parms->printProgress )
+	{
+		progressBar.Start();
+	}
+
+	// reset output image to black
 	for( int x = 0; x < parms->outWidth; x++ )
 	{
 		for( int y = 0; y < parms->outHeight; y++ )
@@ -881,8 +898,9 @@ void CalculateRadianceJob( calcEnvprobeParms_t* parms )
 					if( NdotL > 0.0 )
 					{
 						float sample[3];
+						float u, v;
 
-						R_SampleCubeMapHDR( H, parms->outHeight, buffers, sample );
+						R_SampleCubeMapHDR( H, parms->outHeight, buffers, sample, u, v );
 
 						outColor[0] += sample[0] * NdotL;
 						outColor[1] += sample[1] * NdotL;
@@ -899,6 +917,11 @@ void CalculateRadianceJob( calcEnvprobeParms_t* parms )
 				parms->outBuffer[( y * parms->outWidth + x ) * 3 + 0] = F32toF16( outColor[0] );
 				parms->outBuffer[( y * parms->outWidth + x ) * 3 + 1] = F32toF16( outColor[1] );
 				parms->outBuffer[( y * parms->outWidth + x ) * 3 + 2] = F32toF16( outColor[2] );
+
+				if( parms->printProgress )
+				{
+					progressBar.Increment();
+				}
 			}
 		}
 	}
@@ -950,6 +973,8 @@ void R_MakeAmbientMap( const char* baseName, const char* suffix, int outSize, bo
 
 	jobParms->samples = 1000;
 	jobParms->filename.Format( "env/%s%s.exr", baseName, suffix );
+
+	jobParms->printProgress = !useThreads;
 
 	jobParms->outWidth = int( outSize * 1.5f );
 	jobParms->outHeight = outSize;

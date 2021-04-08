@@ -71,7 +71,7 @@ inline void shAddWeighted( SphericalHarmonicsT<Ta, L>& accumulatorSh, const Sphe
 {
 	for( size_t i = 0; i < shSize( L ); ++i )
 	{
-		accumulatorSh[i] += sh[i] * weight;
+		accumulatorSh[i] += ( sh[i] * weight );
 	}
 }
 
@@ -81,13 +81,13 @@ inline Ta shDot( const SphericalHarmonicsT<Ta, L>& shA, const SphericalHarmonics
 	Ta result = Ta( 0 );
 	for( size_t i = 0; i < shSize( L ); ++i )
 	{
-		result += shA[i] * shB[i];
+		result += ( shA[i] * shB[i] );
 	}
 	return result;
 }
 
 template <size_t L>
-inline SphericalHarmonicsT<float, L> shEvaluate( idVec3 p )
+inline SphericalHarmonicsT<float, L> shEvaluate( idVec3 dir )
 {
 	// From Peter-Pike Sloan's Stupid SH Tricks
 	// http://www.ppsloan.org/publications/StupidSH36.pdf
@@ -97,9 +97,9 @@ inline SphericalHarmonicsT<float, L> shEvaluate( idVec3 p )
 
 	SphericalHarmonicsT<float, L> result;
 
-	const float x = -p.x;
-	const float y = -p.y;
-	const float z = p.z;
+	const float x = dir.x;
+	const float y = dir.y;
+	const float z = dir.z;
 
 	const float x2 = x * x;
 	const float y2 = y * y;
@@ -197,11 +197,11 @@ inline SphericalHarmonicsT<T, L> shConvolveDiffuse( SphericalHarmonicsT<T, L>& s
 
 	const float A[5] =
 	{
-		pi,
-		pi * 2.0f / 3.0f,
-		pi * 1.0f / 4.0f,
+		idMath::PI,
+		idMath::PI * 2.0f / 3.0f,
+		idMath::PI * 1.0f / 4.0f,
 		0.0f,
-		-pi * 1.0f / 24.0f
+		-idMath::PI * 1.0f / 24.0f
 	};
 
 	int i = 0;
@@ -228,11 +228,11 @@ inline T shEvaluateDiffuse( const SphericalHarmonicsT<T, L>& sh, const idVec3& d
 
 	const float A[5] =
 	{
-		pi,
-		pi * 2.0f / 3.0f,
-		pi * 1.0f / 4.0f,
+		idMath::PI,
+		idMath::PI * 2.0f / 3.0f,
+		idMath::PI * 1.0f / 4.0f,
 		0.0f,
-		-pi * 1.0f / 24.0f
+		-idMath::PI * 1.0f / 24.0f
 	};
 
 	size_t i = 0;

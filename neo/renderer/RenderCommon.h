@@ -492,6 +492,8 @@ struct calcEnvprobeParms_t
 	int								outWidth;
 	int								outHeight;
 
+	bool							printProgress;
+
 	idStr							filename;
 
 	// output
