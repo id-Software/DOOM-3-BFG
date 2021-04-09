@@ -1714,12 +1714,12 @@ void idRenderBackend::DBG_ShowViewEnvprobes()
 
 	GL_State( GLS_DEFAULT | GLS_CULL_TWOSIDED );
 
-	renderProgManager.BindShader_Octahedron();
-
 	int count = 0;
 	for( viewEnvprobe_t* vProbe = viewDef->viewEnvprobes; vProbe != NULL; vProbe = vProbe->next )
 	{
 		count++;
+
+		renderProgManager.BindShader_Octahedron();
 
 		GL_State( GLS_DEPTHFUNC_ALWAYS | GLS_DEPTHMASK );
 		GL_Color( 1.0f, 1.0f, 1.0f );
@@ -1768,6 +1768,22 @@ void idRenderBackend::DBG_ShowViewEnvprobes()
 		}
 
 		DrawElementsWithCounters( &zeroOneSphereSurface );
+
+		// non-hidden lines
+#if 0
+		if( r_showViewEnvprobes.GetInteger() >= 3 )
+		{
+			renderProgManager.BindShader_Color();
+
+			GL_State( GLS_DEPTHFUNC_ALWAYS | GLS_POLYMODE_LINE | GLS_DEPTHMASK );
+			GL_Color( 1.0f, 1.0f, 1.0f );
+
+			idRenderMatrix invProjectMVPMatrix;
+			idRenderMatrix::Multiply( viewDef->worldSpace.mvp, vProbe->inverseBaseProbeProject, invProjectMVPMatrix );
+			RB_SetMVP( invProjectMVPMatrix );
+			DrawElementsWithCounters( &zeroOneCubeSurface );
+		}
+#endif
 	}
 }
 

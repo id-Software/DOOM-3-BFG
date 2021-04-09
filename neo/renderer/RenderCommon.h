@@ -271,8 +271,8 @@ public:
 
 	// derived information
 	//idPlane						lightProject[4];		// old style light projection where Z and W are flipped and projected lights lightProject[3] is divided by ( zNear + zFar )
-	idRenderMatrix				baseLightProject;		// global xyz1 to projected light strq
-	idRenderMatrix				inverseBaseLightProject;// transforms the zero-to-one cube to exactly cover the light in world space
+	//idRenderMatrix				baseLightProject;		// global xyz1 to projected light strq
+	idRenderMatrix				inverseBaseProbeProject;// transforms the zero-to-one cube to exactly cover the light in world space
 
 	idBounds					globalProbeBounds;
 
@@ -477,8 +477,9 @@ struct viewEnvprobe_t
 	bool					removeFromList;
 
 	idVec3					globalOrigin;				// global envprobe origin used by backend
+	idBounds				globalProbeBounds;
 
-	idRenderMatrix			inverseBaseLightProject;	// the matrix for deforming the 'zeroOneCubeModel' to exactly cover the light volume in world space
+	idRenderMatrix			inverseBaseProbeProject;	// the matrix for deforming the 'zeroOneCubeModel' to exactly cover the light volume in world space
 	idImage* 				irradianceImage;			// cubemap image used for diffuse IBL by backend
 	idImage* 				radianceImage;				// cubemap image used for specular IBL by backend
 };
@@ -612,6 +613,7 @@ struct viewDef_t
 	viewEnvprobe_t*		viewEnvprobes;
 
 	// RB: nearest probe for now
+	idBounds			globalProbeBounds;
 	idRenderMatrix		inverseBaseEnvProbeProject;	// the matrix for deforming the 'zeroOneCubeModel' to exactly cover the environent probe volume in world space
 	idImage* 			irradianceImage;			// cubemap image used for diffuse IBL by backend
 	idImage* 			radianceImage;				// cubemap image used for specular IBL by backend

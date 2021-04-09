@@ -62,7 +62,8 @@ viewEnvprobe_t* R_SetEnvprobeDefViewEnvprobe( RenderEnvprobeLocal* probe )
 	// copy data used by backend
 	// RB: this would normaly go into R_AddSingleEnvprobe
 	vProbe->globalOrigin = probe->parms.origin;
-	vProbe->inverseBaseLightProject = probe->inverseBaseLightProject;
+	vProbe->globalProbeBounds = probe->globalProbeBounds;
+	vProbe->inverseBaseProbeProject = probe->inverseBaseProbeProject;
 
 	//if( probe->irradianceImage->IsLoaded() )
 	{
@@ -104,7 +105,7 @@ bool idRenderWorldLocal::CullEnvprobeByPortals( const RenderEnvprobeLocal* probe
 	if( r_useLightPortalCulling.GetInteger() == 1 )
 	{
 		ALIGNTYPE16 frustumCorners_t corners;
-		idRenderMatrix::GetFrustumCorners( corners, probe->inverseBaseLightProject, bounds_zeroOneCube );
+		idRenderMatrix::GetFrustumCorners( corners, probe->inverseBaseProbeProject, bounds_zeroOneCube );
 		for( int i = 0; i < ps->numPortalPlanes; i++ )
 		{
 			if( idRenderMatrix::CullFrustumCornersToPlane( corners, ps->portalPlanes[i] ) == FRUSTUM_CULL_FRONT )
@@ -113,66 +114,6 @@ bool idRenderWorldLocal::CullEnvprobeByPortals( const RenderEnvprobeLocal* probe
 			}
 		}
 
-	}
-	else if( r_useLightPortalCulling.GetInteger() >= 2 )
-	{
-
-		idPlane frustumPlanes[6];
-		idRenderMatrix::GetFrustumPlanes( frustumPlanes, probe->baseLightProject, true, true );
-
-		// exact clip of light faces against all planes
-		for( int i = 0; i < 6; i++ )
-		{
-			// the light frustum planes face inward, so the planes that have the
-			// view origin on the positive side will be the "back" faces of the light,
-			// which must have some fragment inside the the portal stack planes to be visible
-			if( frustumPlanes[i].Distance( tr.viewDef->renderView.vieworg ) <= 0.0f )
-			{
-				continue;
-			}
-
-			// calculate a winding for this frustum side
-			idFixedWinding w;
-			w.BaseForPlane( frustumPlanes[i] );
-			for( int j = 0; j < 6; j++ )
-			{
-				if( j == i )
-				{
-					continue;
-				}
-				if( !w.ClipInPlace( frustumPlanes[j], ON_EPSILON ) )
-				{
-					break;
-				}
-			}
-			if( w.GetNumPoints() <= 2 )
-			{
-				continue;
-			}
-
-			assert( ps->numPortalPlanes <= MAX_PORTAL_PLANES );
-			assert( w.GetNumPoints() + ps->numPortalPlanes < MAX_POINTS_ON_WINDING );
-
-			// now clip the winding against each of the portalStack planes
-			// skip the last plane which is the last portal itself
-			for( int j = 0; j < ps->numPortalPlanes - 1; j++ )
-			{
-				if( !w.ClipInPlace( -ps->portalPlanes[j], ON_EPSILON ) )
-				{
-					break;
-				}
-			}
-
-			if( w.GetNumPoints() > 2 )
-			{
-				// part of the winding is visible through the portalStack,
-				// so the light is not culled
-				return false;
-			}
-		}
-
-		// nothing was visible
-		return true;
 	}
 
 	return false;

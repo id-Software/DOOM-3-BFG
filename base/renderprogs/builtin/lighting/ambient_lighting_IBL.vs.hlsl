@@ -53,6 +53,7 @@ struct VS_OUT {
 	float4 texcoord4	: TEXCOORD4;
 	float4 texcoord5	: TEXCOORD5;
 	float4 texcoord6	: TEXCOORD6;
+	float4 texcoord7	: TEXCOORD7;
 	float4 color		: COLOR0;
 };
 // *INDENT-ON*
@@ -157,6 +158,8 @@ void main( VS_IN vertex, out VS_OUT result )
 	result.texcoord2.y = dot4( vertex.texcoord.xy, rpSpecularMatrixT );
 
 	//# calculate normalized vector to viewer in R1
+	//result.texcoord3 = modelPosition;
+
 	float4 toEye = normalize( rpLocalViewOrigin - modelPosition );
 
 	result.texcoord3.x = dot3( toEye, rpModelMatrixX );
@@ -174,6 +177,13 @@ void main( VS_IN vertex, out VS_OUT result )
 	result.texcoord4.z = dot3( normal, rpModelMatrixX );
 	result.texcoord5.z = dot3( normal, rpModelMatrixY );
 	result.texcoord6.z = dot3( normal, rpModelMatrixZ );
+
+	float4 worldPosition;
+	worldPosition.x = dot4( modelPosition, rpModelMatrixX );
+	worldPosition.y = dot4( modelPosition, rpModelMatrixY );
+	worldPosition.z = dot4( modelPosition, rpModelMatrixZ );
+	worldPosition.w = dot4( modelPosition, rpModelMatrixW );
+	result.texcoord7 = worldPosition;
 
 #if defined( USE_GPU_SKINNING )
 	// for joint transformation of the tangent space, we use color and

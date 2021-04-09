@@ -544,6 +544,8 @@ void R_RenderView( viewDef_t* parms )
 	{
 		float bestDist = idMath::INFINITY;
 
+		tr.viewDef->globalProbeBounds.Clear();
+
 		tr.viewDef->irradianceImage = globalImages->defaultUACIrradianceCube;
 		tr.viewDef->radianceImage = globalImages->defaultUACRadianceCube;
 
@@ -554,6 +556,7 @@ void R_RenderView( viewDef_t* parms )
 			{
 				if( vProbe->irradianceImage->IsLoaded() && !vProbe->irradianceImage->IsDefaulted() )
 				{
+					tr.viewDef->globalProbeBounds = vProbe->globalProbeBounds;
 					tr.viewDef->irradianceImage = vProbe->irradianceImage;
 					tr.viewDef->radianceImage = vProbe->radianceImage;
 

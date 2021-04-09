@@ -775,83 +775,67 @@ void R_DeriveEnvprobeData( RenderEnvprobeLocal* probe )
 	probe->radianceImage = globalImages->ImageFromFile( fullname, TF_DEFAULT, TR_CLAMP, TD_R11G11B10F, CF_2D_PACKED_MIPCHAIN );
 
 	// ------------------------------------
-	// compute the light projection matrix
+	// compute the probe projection matrix
 	// ------------------------------------
 
-	idRenderMatrix localProject;
-	float zScale = 1.0f;
-	float radius = 300.0f; // TODO
+	// determine the areaNum for the envprobe origin, which may let us
+	// cull the envprobe if it is behind a closed door
+	int areaNum = probe->world->PointInArea( probe->parms.origin );
 
-	// An environemt probe uses a box projection like a point light.
-	// This projects into the 0.0 - 1.0 texture range instead of -1.0 to 1.0 clip space range.
-	localProject.Zero();
-	localProject[0][0] = 0.5f / radius;
-	localProject[1][1] = 0.5f / radius;
-	localProject[2][2] = 0.5f / radius;
-	localProject[0][3] = 0.5f;
-	localProject[1][3] = 0.5f;
-	localProject[2][3] = 0.5f;
-	localProject[3][3] = 1.0f;	// identity perspective
+	// HACK: this should be in the gamecode and set by the entity properties
+	probe->globalProbeBounds = probe->world->AreaBounds( areaNum );
 
-	// set the old style light projection where Z and W are flipped and
-	// for projected lights lightProject[3] is divided by ( zNear + zFar )
-	/*
-	light->lightProject[0][0] = localProject[0][0];
-	light->lightProject[0][1] = localProject[0][1];
-	light->lightProject[0][2] = localProject[0][2];
-	light->lightProject[0][3] = localProject[0][3];
-
-	light->lightProject[1][0] = localProject[1][0];
-	light->lightProject[1][1] = localProject[1][1];
-	light->lightProject[1][2] = localProject[1][2];
-	light->lightProject[1][3] = localProject[1][3];
-
-	light->lightProject[2][0] = localProject[3][0];
-	light->lightProject[2][1] = localProject[3][1];
-	light->lightProject[2][2] = localProject[3][2];
-	light->lightProject[2][3] = localProject[3][3];
-
-	light->lightProject[3][0] = localProject[2][0] * zScale;
-	light->lightProject[3][1] = localProject[2][1] * zScale;
-	light->lightProject[3][2] = localProject[2][2] * zScale;
-	light->lightProject[3][3] = localProject[2][3] * zScale;
-
-	// transform the lightProject
-	float lightTransform[16];
-	R_AxisToModelMatrix( light->parms.axis, light->parms.origin, lightTransform );
-	for( int i = 0; i < 4; i++ )
-	{
-		idPlane temp = light->lightProject[i];
-		R_LocalPlaneToGlobal( lightTransform, temp, light->lightProject[i] );
-	}
-	*/
-
-	// Rotate and translate the light projection by the light matrix.
-	// 99% of lights remain axis aligned in world space.
 	idMat3 axis;
 	axis.Identity();
 
-	idRenderMatrix lightMatrix;
-	idRenderMatrix::CreateFromOriginAxis( probe->parms.origin, axis, lightMatrix );
+	idRenderMatrix modelRenderMatrix;
+	idRenderMatrix::CreateFromOriginAxis( vec3_origin, axis, modelRenderMatrix );
 
-	idRenderMatrix inverseLightMatrix;
-	if( !idRenderMatrix::Inverse( lightMatrix, inverseLightMatrix ) )
+	// render from mins to maxs for debug rendering
+	//idRenderMatrix::CreateFromOriginAxis( probe->globalProbeBounds[0], axis, modelRenderMatrix );
+
+	idRenderMatrix inverseModelMatrix;
+	if( !idRenderMatrix::Inverse( modelRenderMatrix, inverseModelMatrix ) )
 	{
 		idLib::Warning( "lightMatrix invert failed" );
 	}
 
-	// 'baseLightProject' goes from global space -> light local space -> light projective space
-	idRenderMatrix::Multiply( localProject, inverseLightMatrix, probe->baseLightProject );
+	// move local bounds to center
+	idBounds localBounds;
 
-	// Invert the light projection so we can deform zero-to-one cubes into
-	// the light model and calculate global bounds.
-	if( !idRenderMatrix::Inverse( probe->baseLightProject, probe->inverseBaseLightProject ) )
+#if 0
+	idVec3 corners[8];
+	probe->globalProbeBounds.ToPoints( corners );
+
+	idVec3 corners2[8];
+	for( int i = 0; i < 8; i++ )
 	{
-		idLib::Warning( "baseLightProject invert failed" );
+		idVec4 p( corners[i].x, corners[i].y, corners[i].z, 1.0f );
+		idVec4 o;
+
+		inverseModelMatrix.TransformPoint( p, o );
+
+		corners2[i].Set( o.x, o.y, o.z );
 	}
 
-	// calculate the global light bounds by inverse projecting the zero to one cube with the 'inverseBaseLightProject'
-	idRenderMatrix::ProjectedBounds( probe->globalProbeBounds, probe->inverseBaseLightProject, bounds_zeroOneCube, false );
+	localBounds.FromPoints( corners2, 8 );
+#else
+	//idVec3 center = probe->globalProbeBounds.GetCenter();
+
+	// offset it so it sits on 0 0 0
+	//center += center;
+
+	localBounds[0] = probe->globalProbeBounds[0] * 2;
+	localBounds[1] = probe->globalProbeBounds[1] * 2;
+
+	//idRenderMatrix::CreateFromOriginAxis( -probe->globalProbeBounds[0] * 2, axis, modelRenderMatrix );
+#endif
+
+	// calculate the matrix that transforms the unit cube to exactly cover the model in world space
+	idRenderMatrix::OffsetScaleForBounds( modelRenderMatrix, localBounds, probe->inverseBaseProbeProject );
+
+	// calculate the global model bounds by inverse projecting the unit cube with the 'inverseBaseModelProject'
+	//idRenderMatrix::ProjectedBounds( probe->globalProbeBounds, probe->inverseBaseProbeProject, bounds_unitCube, false );
 }
 
 void R_CreateEnvprobeRefs( RenderEnvprobeLocal* probe )
