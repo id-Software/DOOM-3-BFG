@@ -320,12 +320,12 @@ float shFindWindowingLambda( const SphericalHarmonicsT<float, L>& sh, float maxL
 
 	for( int l = 1; l <= ( int )L; ++l )
 	{
-		tableL[l] = float( sqr( l ) * sqr( l + 1 ) );
+		tableL[l] = float( Square( l ) * Square( l + 1 ) );
 
 		float B = 0.0f;
 		for( int m = -1; m <= l; ++m )
 		{
-			B += sqr( sh.at( l, m ) );
+			B += Square( sh.at( l, m ) );
 		}
 		tableB[l] = B;
 	}
@@ -345,16 +345,16 @@ float shFindWindowingLambda( const SphericalHarmonicsT<float, L>& sh, float maxL
 
 	float lambda = 0.0f;
 
-	const u32 iterationLimit = 10000000;
-	for( u32 i = 0; i < iterationLimit; ++i )
+	const uint32_t iterationLimit = 10000000;
+	for( uint32_t i = 0; i < iterationLimit; ++i )
 	{
 		float f = 0.0f;
 		float fd = 0.0f;
 
 		for( int l = 1; l <= ( int )L; ++l )
 		{
-			f += tableL[l] * tableB[l] / sqr( 1.0f + lambda * tableL[l] );
-			fd += ( 2.0f * sqr( tableL[l] ) * tableB[l] ) / cube( 1.0f + lambda * tableL[l] );
+			f += tableL[l] * tableB[l] / Square( 1.0f + lambda * tableL[l] );
+			fd += ( 2.0f * Square( tableL[l] ) * tableB[l] ) / Cube( 1.0f + lambda * tableL[l] );
 		}
 
 		f = targetSquaredLaplacian - f;
@@ -362,7 +362,7 @@ float shFindWindowingLambda( const SphericalHarmonicsT<float, L>& sh, float maxL
 		float delta = -f / fd;
 		lambda += delta;
 
-		if( abs( delta ) < 1e-6f )
+		if( idMath::Fabs( delta ) < 1e-6f )
 		{
 			break;
 		}
