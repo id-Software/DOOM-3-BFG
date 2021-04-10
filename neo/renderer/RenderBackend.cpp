@@ -1337,7 +1337,7 @@ void idRenderBackend::DrawSingleInteraction( drawInteraction_t* din, bool useFas
 		probeMaxs[2] = viewDef->globalProbeBounds[1][2];
 		probeMaxs[3] = 0.0f;
 
-		idVec3& center = viewDef->globalProbeBounds.GetCenter();
+		idVec3 center = viewDef->globalProbeBounds.GetCenter();
 		probeCenter.Set( center.x, center.y, center.z, 1.0f );
 
 		SetVertexParm( RENDERPARM_WOBBLESKY_X, probeMins.ToFloatPtr() );
