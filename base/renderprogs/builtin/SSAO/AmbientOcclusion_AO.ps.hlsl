@@ -407,7 +407,7 @@ void main( PS_IN fragment, out PS_OUT result )
 #endif
 
 #if 1
-	float randomPatternRotationAngle = BlueNoise( ssP.xy, 10.0 ) * 10.0;
+	float randomPatternRotationAngle = BlueNoise( float2( ssP.xy ), 10.0 ) * 10.0;
 	//float randomPatternRotationAngle = InterleavedGradientNoise( ssP.xy ) * 10.0;
 #else
 

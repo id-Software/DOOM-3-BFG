@@ -166,7 +166,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	float3 rayStart = fragment.texcoord7.xyz;
 
 	// we can't start inside the box so move this outside and use the reverse path
-	rayStart += reflectionVector * 10000;
+	rayStart += reflectionVector * 10000.0;
 
 	if( AABBRayIntersection( bounds, rayStart, -reflectionVector, hitScale ) )
 	{
