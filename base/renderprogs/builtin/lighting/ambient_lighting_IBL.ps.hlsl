@@ -168,7 +168,8 @@ void main( PS_IN fragment, out PS_OUT result )
 	// we can't start inside the box so move this outside and use the reverse path
 	rayStart += reflectionVector * 10000.0;
 
-	if( AABBRayIntersection( bounds, rayStart, -reflectionVector, hitScale ) )
+	// only do a box <-> ray intersection test if we use a local cubemap
+	if( ( rpWobbleSkyX.w > 0.0 ) && AABBRayIntersection( bounds, rayStart, -reflectionVector, hitScale ) )
 	{
 		float3 hitPoint = rayStart - reflectionVector * hitScale;
 

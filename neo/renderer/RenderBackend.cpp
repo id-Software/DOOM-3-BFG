@@ -1330,7 +1330,7 @@ void idRenderBackend::DrawSingleInteraction( drawInteraction_t* din, bool useFas
 		probeMins[0] = viewDef->globalProbeBounds[0][0];
 		probeMins[1] = viewDef->globalProbeBounds[0][1];
 		probeMins[2] = viewDef->globalProbeBounds[0][2];
-		probeMins[3] = viewDef->globalProbeBounds.IsCleared() ? 1.0f : 0.0f;
+		probeMins[3] = viewDef->globalProbeBounds.IsCleared() ? 0.0f : 1.0f;
 
 		probeMaxs[0] = viewDef->globalProbeBounds[1][0];
 		probeMaxs[1] = viewDef->globalProbeBounds[1][1];
