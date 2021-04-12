@@ -25,9 +25,8 @@
 
 // TODO: We will separate the CBV and materials into two separate heap objects. This will allow us to define objects positional properties differently from the material properties.
 #define TEXTURE_REGISTER_COUNT 5
-#define MAX_DESCRIPTOR_COUNT 8 // 1 CBV and 5 Shader Resource View, 2 extra to keep this as a power of 2
-#define MAX_DESCRIPTOR_TWO_POWER 3
-#define MAX_HEAP_OBJECT_COUNT 10000
+#define MAX_DESCRIPTOR_COUNT 6 // 1 CBV and 5 Shader Resource View
+#define MAX_HEAP_OBJECT_COUNT 3000
 
 using namespace DirectX;
 using namespace Microsoft::WRL;
@@ -102,7 +101,7 @@ public:
 	virtual bool SetScreenParams(UINT width, UINT height, int fullscreen);
 	virtual void OnDestroy();
 
-	void UpdateViewport(FLOAT topLeftX, FLOAT topLeftY, FLOAT width, FLOAT height, FLOAT minDepth = D3D12_DEFAULT_VIEWPORT_MIN_DEPTH, FLOAT maxDepth = D3D12_DEFAULT_VIEWPORT_MAX_DEPTH); // Used to put us into right hand depth space.
+	void UpdateViewport(FLOAT topLeftX, FLOAT topLeftY, FLOAT width, FLOAT height, FLOAT minDepth = 0.0f, FLOAT maxDepth = 1.0f); // Used to put us into right hand depth space.
 	void UpdateScissorRect(LONG left, LONG top, LONG right, LONG bottom);
 	void UpdateStencilRef(UINT ref);
 

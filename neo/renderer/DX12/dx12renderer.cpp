@@ -177,12 +177,12 @@ void DX12Renderer::LoadPipeline(HWND hWnd) {
 			debugController->EnableDebugLayer();
 		}
 
-		ComPtr<ID3D12DeviceRemovedExtendedDataSettings> pDredSettings;
+		/*ComPtr<ID3D12DeviceRemovedExtendedDataSettings> pDredSettings;
 		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&pDredSettings)))) {
 			// Turn on auto-breadcrumbs and page fault reporting.
 			pDredSettings->SetAutoBreadcrumbsEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
 			pDredSettings->SetPageFaultEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
-		}
+		}*/
 	}
 #endif
 
@@ -276,8 +276,8 @@ void DX12Renderer::LoadPipeline(HWND hWnd) {
 
 			// Create the constant buffer view for each object
 			UINT bufferLocation = m_cbvUploadHeap[frameIndex]->GetGPUVirtualAddress();
+			UINT descriptorIndex = 0; // Descriptor Table Location
 			for (UINT objectIndex = 0; objectIndex < MAX_HEAP_OBJECT_COUNT; ++objectIndex) {
-				UINT descriptorIndex = objectIndex << MAX_DESCRIPTOR_TWO_POWER; // Descriptor Table Location
 				CD3DX12_CPU_DESCRIPTOR_HANDLE descriptorHandle(m_cbvHeap[frameIndex]->GetCPUDescriptorHandleForHeapStart(), descriptorIndex, m_cbvHeapIncrementor);
 
 				D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
@@ -286,6 +286,7 @@ void DX12Renderer::LoadPipeline(HWND hWnd) {
 				m_device->CreateConstantBufferView(&cbvDesc, descriptorHandle);
 
 				bufferLocation += entrySize;
+				descriptorIndex += MAX_DESCRIPTOR_COUNT;
 			}
 
 			WCHAR heapName[20];
@@ -669,6 +670,8 @@ void DX12Renderer::EndDraw() {
 	ExecuteCommandList();
 
 	m_isDrawing = false;
+	
+	common->Printf("%d heap objects registered.\n", m_cbvHeapIndex);
 
 	SignalNextFrame();
 }
@@ -694,16 +697,18 @@ bool DX12Renderer::EndSurfaceSettings() {
 		return false;
 	}
 
-	const UINT descriptorIndex = m_cbvHeapIndex << MAX_DESCRIPTOR_TWO_POWER;
+	const UINT descriptorIndex = m_cbvHeapIndex * MAX_DESCRIPTOR_COUNT;
 	UINT currentDescriptorIndex = descriptorIndex;
 	
 	// Copy the CBV value to the upload heap
 	UINT8* buffer;
-	CD3DX12_RANGE readRange(0, 0);
-	UINT offset = ((sizeof(m_constantBuffer) + 255) & ~255)* m_cbvHeapIndex; // Each entry is 256 byte aligned.
+	const UINT bufferSize = ((sizeof(m_constantBuffer) + 255) & ~255);
+	UINT offset = bufferSize  * m_cbvHeapIndex; // Each entry is 256 byte aligned.
+	CD3DX12_RANGE readRange(offset, bufferSize);
+
 	ThrowIfFailed(m_cbvUploadHeap[m_frameIndex]->Map(0, &readRange, reinterpret_cast<void**>(&buffer)));
 	memcpy(&buffer[offset], &m_constantBuffer, sizeof(m_constantBuffer));
-	m_cbvUploadHeap[m_frameIndex]->Unmap(0, nullptr);
+	m_cbvUploadHeap[m_frameIndex]->Unmap(0, &readRange);
 
 	// Copy the Textures
 	DX12TextureBuffer* currentTexture;
