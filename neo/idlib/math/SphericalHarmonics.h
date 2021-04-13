@@ -26,6 +26,10 @@ SOFTWARE.
 #ifndef __MATH_SPHERICAL_HARMONICS_H__
 #define __MATH_SPHERICAL_HARMONICS_H__
 
+// RB: there is a very good talk by Yuriy O'Donnell that explains the the functions used in this library
+// Precomputed Global Illumination in Frostbite (GDC 2018)
+// https://www.gdcvault.com/play/1025214/Precomputed-Global-Illumination-in
+
 // https://graphics.stanford.edu/papers/envmap/envmap.pdf
 
 template <typename T, size_t L>

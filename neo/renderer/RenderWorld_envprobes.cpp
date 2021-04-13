@@ -171,7 +171,6 @@ void idRenderWorldLocal::AddAreaViewEnvprobes( int areaNum, const portalStack_t*
 R_SampleCubeMapHDR
 ==================
 */
-static idMat3		cubeAxis[6];
 static const char* envDirection[6] = { "_px", "_nx", "_py", "_ny", "_pz", "_nz" };
 
 void R_SampleCubeMapHDR( const idVec3& dir, int size, byte* buffers[6], float result[3], float& u, float& v )
@@ -208,8 +207,8 @@ void R_SampleCubeMapHDR( const idVec3& dir, int size, byte* buffers[6], float re
 		axis = 5;
 	}
 
-	float	fx = ( dir * cubeAxis[axis][1] ) / ( dir * cubeAxis[axis][0] );
-	float	fy = ( dir * cubeAxis[axis][2] ) / ( dir * cubeAxis[axis][0] );
+	float	fx = ( dir * tr.cubeAxis[axis][1] ) / ( dir * tr.cubeAxis[axis][0] );
+	float	fy = ( dir * tr.cubeAxis[axis][2] ) / ( dir * tr.cubeAxis[axis][0] );
 
 	fx = -fx;
 	fy = -fy;
@@ -252,56 +251,7 @@ void R_SampleCubeMapHDR( const idVec3& dir, int size, byte* buffers[6], float re
 	r11g11b10f_to_float3( tmp.i, result );
 }
 
-class CommandlineProgressBar
-{
-private:
-	size_t tics = 0;
-	size_t nextTicCount = 0;
-	int	count = 0;
-	int expectedCount = 0;
 
-public:
-	CommandlineProgressBar( int _expectedCount )
-	{
-		expectedCount = _expectedCount;
-	}
-
-	void Start()
-	{
-		common->Printf( "0%%  10   20   30   40   50   60   70   80   90   100%%\n" );
-		common->Printf( "|----|----|----|----|----|----|----|----|----|----|\n" );
-
-		common->UpdateScreen( false );
-	}
-
-	void Increment()
-	{
-		if( ( count + 1 ) >= nextTicCount )
-		{
-			size_t ticsNeeded = ( size_t )( ( ( double )( count + 1 ) / expectedCount ) * 50.0 );
-
-			do
-			{
-				common->Printf( "*" );
-			}
-			while( ++tics < ticsNeeded );
-
-			nextTicCount = ( size_t )( ( tics / 50.0 ) * expectedCount );
-			if( count == ( expectedCount - 1 ) )
-			{
-				if( tics < 51 )
-				{
-					common->Printf( "*" );
-				}
-				common->Printf( "\n" );
-			}
-
-			common->UpdateScreen( false );
-		}
-
-		count++;
-	}
-};
 
 
 // http://holger.dammertz.org/stuff/notes_HammersleyOnHemisphere.html
@@ -921,7 +871,7 @@ void R_MakeAmbientMap( const char* baseName, const char* suffix, int outSize, bo
 	jobParms->outHeight = outSize;
 	jobParms->outBuffer = ( halfFloat_t* )R_StaticAlloc( idMath::Ceil( outSize * outSize * 3 * sizeof( halfFloat_t ) * 1.5f ), TAG_IMAGE );
 
-	tr.irradianceJobs.Append( jobParms );
+	tr.envprobeJobs.Append( jobParms );
 
 	if( useThreads )
 	{
@@ -990,38 +940,6 @@ CONSOLE_COMMAND( generateEnvironmentProbes, "Generate environment probes", NULL 
 
 	const viewDef_t primary = *tr.primaryView;
 
-	memset( &cubeAxis, 0, sizeof( cubeAxis ) );
-
-	// +X
-	cubeAxis[0][0][0] = 1;
-	cubeAxis[0][1][2] = 1;
-	cubeAxis[0][2][1] = 1;
-
-	// -X
-	cubeAxis[1][0][0] = -1;
-	cubeAxis[1][1][2] = -1;
-	cubeAxis[1][2][1] = 1;
-
-	// +Y
-	cubeAxis[2][0][1] = 1;
-	cubeAxis[2][1][0] = -1;
-	cubeAxis[2][2][2] = -1;
-
-	// -Y
-	cubeAxis[3][0][1] = -1;
-	cubeAxis[3][1][0] = -1;
-	cubeAxis[3][2][2] = 1;
-
-	// +Z
-	cubeAxis[4][0][2] = 1;
-	cubeAxis[4][1][0] = -1;
-	cubeAxis[4][2][1] = 1;
-
-	// -Z
-	cubeAxis[5][0][2] = -1;
-	cubeAxis[5][1][0] = 1;
-	cubeAxis[5][2][1] = 1;
-
 	//--------------------------------------------
 	// CAPTURE SCENE LIGHTING TO CUBEMAPS
 	//--------------------------------------------
@@ -1042,7 +960,7 @@ CONSOLE_COMMAND( generateEnvironmentProbes, "Generate environment probes", NULL 
 			ref.fov_x = ref.fov_y = 90;
 
 			ref.vieworg = def->parms.origin;
-			ref.viewaxis = cubeAxis[j];
+			ref.viewaxis = tr.cubeAxis[j];
 
 			extension = envDirection[ j ];
 			fullname.Format( "env/%s/envprobe%i%s", baseName.c_str(), i, extension );
@@ -1082,9 +1000,9 @@ CONSOLE_COMMAND( generateEnvironmentProbes, "Generate environment probes", NULL 
 		tr.envprobeJobList->Wait();
 	}
 
-	for( int j = 0; j < tr.irradianceJobs.Num(); j++ )
+	for( int j = 0; j < tr.envprobeJobs.Num(); j++ )
 	{
-		calcEnvprobeParms_t* job = tr.irradianceJobs[ j ];
+		calcEnvprobeParms_t* job = tr.envprobeJobs[ j ];
 
 		R_WriteEXR( job->filename, ( byte* )job->outBuffer, 3, job->outWidth, job->outHeight, "fs_basepath" );
 
@@ -1103,7 +1021,7 @@ CONSOLE_COMMAND( generateEnvironmentProbes, "Generate environment probes", NULL 
 		delete job;
 	}
 
-	tr.irradianceJobs.Clear();
+	tr.envprobeJobs.Clear();
 
 	int	end = Sys_Milliseconds();
 

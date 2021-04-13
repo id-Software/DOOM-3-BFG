@@ -501,6 +501,24 @@ struct calcEnvprobeParms_t
 	halfFloat_t*					outBuffer;				// HDR R11G11B11F packed atlas
 	int								time;					// execution time in milliseconds
 };
+
+struct calcLightGridPointParms_t
+{
+	// input
+	byte*							buffers[6];				// HDR R11G11B11F standard OpenGL cubemap sides
+	int								samples;
+
+	int								outWidth;
+	int								outHeight;
+
+	bool							printProgress;
+
+	idStr							filename;
+
+	// output
+	halfFloat_t*					outBuffer;				// HDR R11G11B11F packed atlas
+	int								time;					// execution time in milliseconds
+};
 // RB end
 
 const int	MAX_CLIP_PLANES	= 1;				// we may expand this to six for some subview issues
@@ -940,6 +958,8 @@ public:
 
 	unsigned short			gammaTable[256];	// brightness / gamma modify this
 
+	idMat3					cubeAxis[6]; // RB
+
 	srfTriangles_t* 		unitSquareTriangles;
 	srfTriangles_t* 		zeroOneCubeTriangles;
 	srfTriangles_t* 		zeroOneSphereTriangles;
@@ -956,8 +976,9 @@ public:
 	idParallelJobList* 		frontEndJobList;
 
 	// RB irradiance and GGX background jobs
-	idParallelJobList* 		envprobeJobList;
-	idList<calcEnvprobeParms_t*> irradianceJobs;
+	idParallelJobList* 					envprobeJobList;
+	idList<calcEnvprobeParms_t*>		envprobeJobs;
+	idList<calcLightGridPointParms_t*>	lightGridJobs;
 
 	idRenderBackend			backend;
 
@@ -1172,6 +1193,7 @@ extern idCVar r_useHierarchicalDepthBuffer;
 extern idCVar r_usePBR;
 extern idCVar r_pbrDebug;
 extern idCVar r_showViewEnvprobes;
+extern idCVar r_showLightGrid;				// show Quake 3 style light grid points
 
 extern idCVar r_exposure;
 // RB end
@@ -1348,6 +1370,69 @@ RENDERWORLD_PORTALS
 
 viewEntity_t* R_SetEntityDefViewEntity( idRenderEntityLocal* def );
 viewLight_t* R_SetLightDefViewLight( idRenderLightLocal* def );
+
+/*
+============================================================
+
+RENDERWORLD_ENVPROBES
+
+============================================================
+*/
+
+void R_SampleCubeMapHDR( const idVec3& dir, int size, byte* buffers[6], float result[3], float& u, float& v );
+
+idVec2 NormalizedOctCoord( int x, int y, const int probeSideLength );
+
+class CommandlineProgressBar
+{
+private:
+	size_t tics = 0;
+	size_t nextTicCount = 0;
+	int	count = 0;
+	int expectedCount = 0;
+
+public:
+	CommandlineProgressBar( int _expectedCount )
+	{
+		expectedCount = _expectedCount;
+	}
+
+	void Start()
+	{
+		common->Printf( "0%%  10   20   30   40   50   60   70   80   90   100%%\n" );
+		common->Printf( "|----|----|----|----|----|----|----|----|----|----|\n" );
+
+		common->UpdateScreen( false );
+	}
+
+	void Increment()
+	{
+		if( ( count + 1 ) >= nextTicCount )
+		{
+			size_t ticsNeeded = ( size_t )( ( ( double )( count + 1 ) / expectedCount ) * 50.0 );
+
+			do
+			{
+				common->Printf( "*" );
+			}
+			while( ++tics < ticsNeeded );
+
+			nextTicCount = ( size_t )( ( tics / 50.0 ) * expectedCount );
+			if( count == ( expectedCount - 1 ) )
+			{
+				if( tics < 51 )
+				{
+					common->Printf( "*" );
+				}
+				common->Printf( "\n" );
+			}
+
+			common->UpdateScreen( false );
+		}
+
+		count++;
+	}
+};
 
 /*
 ====================================================================
@@ -1555,7 +1640,6 @@ struct localTrace_t
 localTrace_t R_LocalTrace( const idVec3& start, const idVec3& end, const float radius, const srfTriangles_t* tri );
 
 
-
 /*
 ============================================================
 
@@ -1585,6 +1669,9 @@ void RB_DrawBounds( const idBounds& bounds );
 
 void RB_ShutdownDebugTools();
 void RB_SetVertexColorParms( stageVertexColor_t svc );
+
+
+
 
 //=============================================
 

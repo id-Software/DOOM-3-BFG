@@ -425,6 +425,7 @@ private:
 	void				DBG_ShowDominantTris( drawSurf_t** drawSurfs, int numDrawSurfs );
 	void				DBG_ShowEdges( drawSurf_t** drawSurfs, int numDrawSurfs );
 	void				DBG_ShowLights();
+	void				DBG_ShowLightGrid(); // RB
 	void				DBG_ShowViewEnvprobes(); // RB
 	void				DBG_ShowShadowMapLODs(); // RB
 	void				DBG_ShowPortals();

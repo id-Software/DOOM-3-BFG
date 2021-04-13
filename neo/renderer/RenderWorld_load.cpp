@@ -858,6 +858,7 @@ bool idRenderWorldLocal::InitFromMap( const char* name )
 			TouchWorldModels();
 			AddWorldModelEntities();
 			ClearPortalStates();
+			SetupLightGrid();
 			return true;
 		}
 		common->Printf( "idRenderWorldLocal::InitFromMap: timestamp has changed, reloading.\n" );
@@ -1047,6 +1048,7 @@ bool idRenderWorldLocal::InitFromMap( const char* name )
 
 	AddWorldModelEntities();
 	ClearPortalStates();
+	SetupLightGrid();
 
 	// done!
 	return true;

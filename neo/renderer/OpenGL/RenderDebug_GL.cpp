@@ -1787,6 +1787,82 @@ void idRenderBackend::DBG_ShowViewEnvprobes()
 	}
 }
 
+void idRenderBackend::DBG_ShowLightGrid()
+{
+	if( r_showLightGrid.GetInteger() <= 0 || !tr.primaryWorld )
+	{
+		return;
+	}
+
+	// all volumes are expressed in world coordinates
+	renderProgManager.BindShader_Color();
+
+	GL_State( GLS_DEPTHFUNC_ALWAYS | GLS_DEPTHMASK );
+	GL_Color( 1.0f, 1.0f, 1.0f );
+
+	idMat3 axis;
+	axis.Identity();
+
+	for( int i = 0; i < tr.primaryWorld->lightGrid.lightGridPoints.Num(); i++ )
+	{
+		lightGridPoint_t* gridPoint = &tr.primaryWorld->lightGrid.lightGridPoints[i];
+
+		idVec3 distanceToCam = gridPoint->origin - viewDef->renderView.vieworg;
+		if( distanceToCam.LengthSqr() > ( 1024 * 1024 ) )
+		{
+			continue;
+		}
+
+		/*
+		idVec4 c;
+		c[0] = idMath::ClampFloat( 0, 1, gridPoint->directed[0] * ( 1.0f / 255.0f ) );
+		c[1] = idMath::ClampFloat( 0, 1, gridPoint->directed[1] * ( 1.0f / 255.0f ) );
+		c[2] = idMath::ClampFloat( 0, 1, gridPoint->directed[2] * ( 1.0f / 255.0f ) );
+
+		glColor4f( c[0], c[1], c[2], 1 );
+
+		float lattitude = DEG2RAD( gridPoint->latLong[1] * ( 360.0f / 255.0f ) );
+		float longitude = DEG2RAD( gridPoint->latLong[0] * ( 360.0f / 255.0f ) );
+
+		idVec3 dir;
+		dir[0] = idMath::Cos( lattitude ) * idMath::Sin( longitude );
+		dir[1] = idMath::Sin( lattitude ) * idMath::Sin( longitude );
+		dir[2] = idMath::Cos( longitude );
+
+		idVec3 pos2 = gridPoint->origin - dir * r_showLightGrid.GetFloat();
+
+		glBegin( GL_LINES );
+
+		glColor4f( c[0], c[1], c[2], 1 );
+		//glColor4f( 1, 1, 1, 1 );
+		glVertex3fv( gridPoint->origin.ToFloatPtr() );
+
+		glColor4f( 0, 0, 0, 1 );
+		glVertex3fv( pos2.ToFloatPtr() );
+		glEnd();
+		*/
+
+		idVec3 color = tr.primaryWorld->lightGrid.GetProbeIndexDebugColor( i );
+		GL_Color( color );
+
+		idRenderMatrix modelRenderMatrix;
+		idRenderMatrix::CreateFromOriginAxis( gridPoint->origin, axis, modelRenderMatrix );
+
+		// calculate the matrix that transforms the unit cube to exactly cover the model in world space
+		const float size = 3.0f;
+		idBounds debugBounds( idVec3( -size ), idVec3( size ) );
+
+		idRenderMatrix inverseBaseModelProject;
+		idRenderMatrix::OffsetScaleForBounds( modelRenderMatrix, debugBounds, inverseBaseModelProject );
+
+		idRenderMatrix invProjectMVPMatrix;
+		idRenderMatrix::Multiply( viewDef->worldSpace.mvp, inverseBaseModelProject, invProjectMVPMatrix );
+		RB_SetMVP( invProjectMVPMatrix );
+
+		DrawElementsWithCounters( &zeroOneSphereSurface );
+	}
+}
+
 void idRenderBackend::DBG_ShowShadowMapLODs()
 {
 	if( !r_showShadowMapLODs.GetInteger() )
@@ -3125,6 +3201,11 @@ idRenderBackend::DBG_RenderDebugTools
 */
 void idRenderBackend::DBG_RenderDebugTools( drawSurf_t** drawSurfs, int numDrawSurfs )
 {
+	if( viewDef->renderView.rdflags & RDF_IRRADIANCE )
+	{
+		return;
+	}
+
 	// don't do much if this was a 2D rendering
 	if( !viewDef->viewEntitys )
 	{
@@ -3158,6 +3239,7 @@ void idRenderBackend::DBG_RenderDebugTools( drawSurf_t** drawSurfs, int numDrawS
 	DBG_ShowViewEntitys( viewDef->viewEntitys );
 	DBG_ShowLights();
 	// RB begin
+	DBG_ShowLightGrid();
 	DBG_ShowViewEnvprobes();
 	DBG_ShowShadowMapLODs();
 	DBG_ShowShadowMaps();

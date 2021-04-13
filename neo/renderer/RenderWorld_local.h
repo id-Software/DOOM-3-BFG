@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2014-2016 Robert Beckebans
+Copyright (C) 2014-2021 Robert Beckebans
 Copyright (C) 2014-2016 Kot in Action Creative Artel
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
@@ -59,6 +59,42 @@ typedef struct doublePortal_s
 	struct doublePortal_s* 	nextFoggedPortal;
 } doublePortal_t;
 
+// RB: added Quake 3 style light grid
+struct lightGridPoint_t
+{
+	idVec3			origin;				// not saved to .proc
+
+	byte			ambient[3];
+	byte			directed[3];
+	byte			latLong[2];
+};
+
+class LightGrid
+{
+private:
+	idVec3					lightGridOrigin;
+	idVec3					lightGridSize;
+	int						lightGridBounds[3];
+
+public:
+	idList<lightGridPoint_t> lightGridPoints;
+
+	//LightGrid();
+
+	// setup light grid for given world bounds
+	void					SetupLightGrid( const idBounds& bounds );
+
+	void					ProbeIndexToGridIndex( const int probeIndex, int gridIndex[3] );
+
+	idVec3					GetProbeIndexDebugColor( const int probeIndex );
+
+	// fetch grid lighting on a per object basis
+	void					SetupEntityGridLighting( idRenderEntityLocal* def );
+
+private:
+	void					CalculateLightGridPointPositions();
+};
+// RB end
 
 typedef struct portalArea_s
 {
@@ -186,6 +222,9 @@ public:
 
 	doublePortal_t* 		doublePortals;
 	int						numInterAreaPortals;
+
+	// RB: added Quake 3 style light grid
+	LightGrid				lightGrid;
 
 	idList<idRenderModel*, TAG_MODEL>	localModels;
 
@@ -337,6 +376,15 @@ public:
 	//-------------------------------
 	// tr_light.c
 	void					CreateLightDefInteractions( idRenderLightLocal* const ldef, const int renderViewID );
+
+// RB begin
+
+	//--------------------------
+	// RenderWorld_lightgrid.cpp
+
+private:
+	void					SetupLightGrid();
+// RB end
 };
 
 // if an entity / light combination has been evaluated and found to not genrate any surfaces or shadows,
