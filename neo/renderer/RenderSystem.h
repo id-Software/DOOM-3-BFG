@@ -405,6 +405,9 @@ public:
 	// markers.  Use WriteRender() instead.
 	virtual void			TakeScreenshot( int width, int height, const char* fileName, int samples, struct renderView_s* ref, int exten ) = 0;
 
+	// RB
+	virtual byte*			CaptureRenderToBuffer( int width, int height, renderView_t* ref ) = 0;
+
 	// the render output can be cropped down to a subset of the real screen, as
 	// for save-game reviews and split-screen multiplayer.  Users of the renderer
 	// will not know the actual pixel size of the area they are rendering to

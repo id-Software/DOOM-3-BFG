@@ -505,15 +505,10 @@ struct calcEnvprobeParms_t
 struct calcLightGridPointParms_t
 {
 	// input
-	byte*							buffers[6];				// HDR R11G11B11F standard OpenGL cubemap sides
-	int								samples;
+	byte*							buffers[6];				// HDR RGB16F standard OpenGL cubemap sides
 
 	int								outWidth;
 	int								outHeight;
-
-	bool							printProgress;
-
-	idStr							filename;
 
 	// output
 	halfFloat_t*					outBuffer;				// HDR R11G11B11F packed atlas
@@ -876,6 +871,7 @@ public:
 
 	virtual void			RenderCommandBuffers( const emptyCommand_t* commandBuffers );
 	virtual void			TakeScreenshot( int width, int height, const char* fileName, int downSample, renderView_t* ref, int exten );
+	virtual byte*			CaptureRenderToBuffer( int width, int height, renderView_t* ref );
 	virtual void			CropRenderSize( int width, int height );
 	virtual void			CaptureRenderToImage( const char* imageName, bool clearColorAfterCopy = false );
 	virtual void			CaptureRenderToFile( const char* fileName, bool fixAlpha );
@@ -1380,6 +1376,7 @@ RENDERWORLD_ENVPROBES
 */
 
 void R_SampleCubeMapHDR( const idVec3& dir, int size, byte* buffers[6], float result[3], float& u, float& v );
+void R_SampleCubeMapHDR16F( const idVec3& dir, int size, halfFloat_t* buffers[6], float result[3], float& u, float& v );
 
 idVec2 NormalizedOctCoord( int x, int y, const int probeSideLength );
 
@@ -1431,6 +1428,11 @@ public:
 		}
 
 		count++;
+	}
+
+	void Reset()
+	{
+		count = 0;
 	}
 };
 

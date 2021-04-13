@@ -67,6 +67,9 @@ struct lightGridPoint_t
 	byte			ambient[3];
 	byte			directed[3];
 	byte			latLong[2];
+
+	// TODO REMOVE just for testing
+	idImage* 		irradianceImage;
 };
 
 class LightGrid
@@ -82,7 +85,7 @@ public:
 	//LightGrid();
 
 	// setup light grid for given world bounds
-	void					SetupLightGrid( const idBounds& bounds );
+	void					SetupLightGrid( const idBounds& bounds, const char* baseName );
 
 	void					ProbeIndexToGridIndex( const int probeIndex, int gridIndex[3] );
 

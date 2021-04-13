@@ -737,7 +737,7 @@ void R_ReadTiledPixels( int width, int height, byte* buffer, renderView_t* ref =
 	if( ref && ref->rdflags & RDF_IRRADIANCE )
 	{
 		// * 2 = sizeof( half float )
-		temp = ( byte* )R_StaticAlloc( RADIANCE_CUBEMAP_SIZE * RADIANCE_CUBEMAP_SIZE * 3 * 2 );
+		//temp = ( byte* )R_StaticAlloc( RADIANCE_CUBEMAP_SIZE * RADIANCE_CUBEMAP_SIZE * 3 * 2 );
 	}
 	else
 	{
@@ -764,8 +764,12 @@ void R_ReadTiledPixels( int width, int height, byte* buffer, renderView_t* ref =
 
 	int originalNativeWidth = glConfig.nativeScreenWidth;
 	int originalNativeHeight = glConfig.nativeScreenHeight;
-	glConfig.nativeScreenWidth = sysWidth;
-	glConfig.nativeScreenHeight = sysHeight;
+
+	//if( !ref || ( ref && !( ref->rdflags & RDF_IRRADIANCE ) ) )
+	{
+		glConfig.nativeScreenWidth = sysWidth;
+		glConfig.nativeScreenHeight = sysHeight;
+	}
 #endif
 
 	// disable scissor, so we don't need to adjust all those rects
@@ -864,8 +868,11 @@ void R_ReadTiledPixels( int width, int height, byte* buffer, renderView_t* ref =
 	// discard anything currently on the list
 	tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
 
-	glConfig.nativeScreenWidth = originalNativeWidth;
-	glConfig.nativeScreenHeight = originalNativeHeight;
+	if( !ref || ( ref && !( ref->rdflags & RDF_IRRADIANCE ) ) )
+	{
+		glConfig.nativeScreenWidth = originalNativeWidth;
+		glConfig.nativeScreenHeight = originalNativeHeight;
+	}
 #endif
 
 	r_useScissor.SetBool( true );
@@ -1008,6 +1015,33 @@ void idRenderSystemLocal::TakeScreenshot( int width, int height, const char* fil
 	R_StaticFree( buffer );
 
 	takingScreenshot = false;
+}
+
+// RB begin
+byte* idRenderSystemLocal::CaptureRenderToBuffer( int width, int height, renderView_t* ref )
+{
+	byte*		buffer;
+
+	takingScreenshot = true;
+
+	int pix = width * height;
+	const int bufferSize = pix * 3 + 18;
+
+	// HDR only for now
+	//if( exten == EXR )
+	{
+		buffer = ( byte* )R_StaticAlloc( pix * 3 * 2 );
+	}
+	//else if( exten == PNG )
+	//{
+	//	buffer = ( byte* )R_StaticAlloc( pix * 3 );
+	//}
+
+	R_ReadTiledPixels( width, height, buffer, ref );
+
+	takingScreenshot = false;
+
+	return buffer;
 }
 
 /*

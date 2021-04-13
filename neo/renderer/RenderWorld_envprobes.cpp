@@ -251,6 +251,73 @@ void R_SampleCubeMapHDR( const idVec3& dir, int size, byte* buffers[6], float re
 	r11g11b10f_to_float3( tmp.i, result );
 }
 
+void R_SampleCubeMapHDR16F( const idVec3& dir, int size, halfFloat_t* buffers[6], float result[3], float& u, float& v )
+{
+	float	adir[3];
+	int		axis, x, y;
+
+	adir[0] = fabs( dir[0] );
+	adir[1] = fabs( dir[1] );
+	adir[2] = fabs( dir[2] );
+
+	if( dir[0] >= adir[1] && dir[0] >= adir[2] )
+	{
+		axis = 0;
+	}
+	else if( -dir[0] >= adir[1] && -dir[0] >= adir[2] )
+	{
+		axis = 1;
+	}
+	else if( dir[1] >= adir[0] && dir[1] >= adir[2] )
+	{
+		axis = 2;
+	}
+	else if( -dir[1] >= adir[0] && -dir[1] >= adir[2] )
+	{
+		axis = 3;
+	}
+	else if( dir[2] >= adir[1] && dir[2] >= adir[2] )
+	{
+		axis = 4;
+	}
+	else
+	{
+		axis = 5;
+	}
+
+	float	fx = ( dir * tr.cubeAxis[axis][1] ) / ( dir * tr.cubeAxis[axis][0] );
+	float	fy = ( dir * tr.cubeAxis[axis][2] ) / ( dir * tr.cubeAxis[axis][0] );
+
+	fx = -fx;
+	fy = -fy;
+	x = size * 0.5 * ( fx + 1 );
+	y = size * 0.5 * ( fy + 1 );
+	if( x < 0 )
+	{
+		x = 0;
+	}
+	else if( x >= size )
+	{
+		x = size - 1;
+	}
+	if( y < 0 )
+	{
+		y = 0;
+	}
+	else if( y >= size )
+	{
+		y = size - 1;
+	}
+
+	u = x;
+	v = y;
+
+	// unpack RGB16F to 3 floats
+	result[0] = F16toF32( buffers[axis][( y * size + x ) * 3 + 0] );
+	result[1] = F16toF32( buffers[axis][( y * size + x ) * 3 + 1] );
+	result[2] = F16toF32( buffers[axis][( y * size + x ) * 3 + 2] );
+}
+
 
 
 
@@ -990,7 +1057,7 @@ CONSOLE_COMMAND( generateEnvironmentProbes, "Generate environment probes", NULL 
 		fullname.Format( "%s/envprobe%i", baseName.c_str(), i );
 
 		R_MakeAmbientMap( fullname.c_str(), "_amb", IRRADIANCE_CUBEMAP_SIZE, false, false, useThreads );
-		R_MakeAmbientMap( fullname.c_str(), "_spec", RADIANCE_CUBEMAP_SIZE, true, true, useThreads );
+		R_MakeAmbientMap( fullname.c_str(), "_spec", RADIANCE_CUBEMAP_SIZE, true, false, useThreads );
 	}
 
 	if( useThreads )

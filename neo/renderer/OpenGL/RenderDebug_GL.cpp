@@ -1724,11 +1724,10 @@ void idRenderBackend::DBG_ShowViewEnvprobes()
 		GL_State( GLS_DEPTHFUNC_ALWAYS | GLS_DEPTHMASK );
 		GL_Color( 1.0f, 1.0f, 1.0f );
 
-		float modelMatrix[16];
-
 		idMat3 axis;
 		axis.Identity();
 
+		float modelMatrix[16];
 		R_AxisToModelMatrix( axis, vProbe->globalOrigin, modelMatrix );
 
 		idRenderMatrix modelRenderMatrix;
@@ -1795,7 +1794,8 @@ void idRenderBackend::DBG_ShowLightGrid()
 	}
 
 	// all volumes are expressed in world coordinates
-	renderProgManager.BindShader_Color();
+	//renderProgManager.BindShader_Color();
+	renderProgManager.BindShader_Octahedron();
 
 	GL_State( GLS_DEPTHFUNC_ALWAYS | GLS_DEPTHMASK );
 	GL_Color( 1.0f, 1.0f, 1.0f );
@@ -1842,8 +1842,30 @@ void idRenderBackend::DBG_ShowLightGrid()
 		glEnd();
 		*/
 
+#if 1
+		idVec4 localViewOrigin( 1.0f );
+		idVec4 globalViewOrigin;
+		globalViewOrigin.x = viewDef->renderView.vieworg.x;
+		globalViewOrigin.y = viewDef->renderView.vieworg.y;
+		globalViewOrigin.z = viewDef->renderView.vieworg.z;
+		globalViewOrigin.w = 1.0f;
+
+		float modelMatrix[16];
+		R_AxisToModelMatrix( axis, gridPoint->origin, modelMatrix );
+
+		R_GlobalPointToLocal( modelMatrix, viewDef->renderView.vieworg, localViewOrigin.ToVec3() );
+
+		renderProgManager.SetUniformValue( RENDERPARM_LOCALVIEWORIGIN, localViewOrigin.ToFloatPtr() ); // rpLocalViewOrigin
+#endif
+
+
+#if 0
 		idVec3 color = tr.primaryWorld->lightGrid.GetProbeIndexDebugColor( i );
 		GL_Color( color );
+#else
+		GL_SelectTexture( 0 );
+		gridPoint->irradianceImage->Bind();
+#endif
 
 		idRenderMatrix modelRenderMatrix;
 		idRenderMatrix::CreateFromOriginAxis( gridPoint->origin, axis, modelRenderMatrix );
