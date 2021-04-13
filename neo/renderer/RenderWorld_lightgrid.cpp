@@ -37,12 +37,14 @@ static const int MAX_MAP_LIGHTGRID_POINTS = 0x100000;
 
 static const int LIGHTGRID_IRRADIANCE_SIZE = 32;
 
-void LightGrid::SetupLightGrid( const idBounds& bounds, const char* mapName )
+void LightGrid::SetupLightGrid( const idBounds& bounds, const char* mapName, const idRenderWorld* world, int area )
 {
 	//idLib::Printf( "----- SetupLightGrid -----\n" );
 
 	lightGridSize.Set( 64, 64, 128 );
 	lightGridPoints.Clear();
+
+	validGridPoints = 0;
 
 	idVec3 maxs;
 	int j = 0;
@@ -64,18 +66,22 @@ void LightGrid::SetupLightGrid( const idBounds& bounds, const char* mapName )
 		}
 	}
 
-	idLib::Printf( "grid size (%i %i %i)\n", ( int )lightGridSize[0], ( int )lightGridSize[1], ( int )lightGridSize[2] );
-	idLib::Printf( "grid bounds (%i %i %i)\n", ( int )lightGridBounds[0], ( int )lightGridBounds[1], ( int )lightGridBounds[2] );
+	if( numGridPoints > 0 )
+	{
+		lightGridPoints.SetNum( numGridPoints );
 
-	idLib::Printf( "%i x %i x %i = %i grid points \n", lightGridBounds[0], lightGridBounds[1], lightGridBounds[2], numGridPoints );
+		idLib::Printf( "area %i grid size (%i %i %i)\n", area, ( int )lightGridSize[0], ( int )lightGridSize[1], ( int )lightGridSize[2] );
+		idLib::Printf( "area %i grid bounds (%i %i %i)\n", area, ( int )lightGridBounds[0], ( int )lightGridBounds[1], ( int )lightGridBounds[2] );
 
-	lightGridPoints.SetNum( numGridPoints );
+		idLib::Printf( "area %i (%i x %i x %i) = %i grid points \n", area, lightGridBounds[0], lightGridBounds[1], lightGridBounds[2], numGridPoints );
 
-	idLib::Printf( "%9u x %" PRIuSIZE " = lightGridSize = (%.2fMB)\n", numGridPoints, sizeof( lightGridPoint_t ), ( float )( lightGridPoints.MemoryUsed() ) / ( 1024.0f * 1024.0f ) );
+		idLib::Printf( "area %i %9u x %" PRIuSIZE " = lightGridSize = (%.2fMB)\n", area, numGridPoints, sizeof( lightGridPoint_t ), ( float )( lightGridPoints.MemoryUsed() ) / ( 1024.0f * 1024.0f ) );
 
-	CalculateLightGridPointPositions();
+		CalculateLightGridPointPositions( world, area );
+	}
 
 	// try to load existing lightgrid data
+#if 0
 	idStr basename = mapName;
 	basename.StripFileExtension();
 
@@ -88,6 +94,7 @@ void LightGrid::SetupLightGrid( const idBounds& bounds, const char* mapName )
 		fullname.Format( "env/%s/lightgridpoint%i_amb", basename.c_str(), i );
 		gridPoint->irradianceImage = globalImages->ImageFromFile( fullname, TF_DEFAULT, TR_CLAMP, TD_R11G11B10F, CF_2D_PACKED_MIPCHAIN );
 	}
+#endif
 }
 
 void LightGrid::ProbeIndexToGridIndex( const int probeIndex, int gridIndex[3] )
@@ -142,7 +149,7 @@ idVec3 LightGrid::GetProbeIndexDebugColor( const int probeIndex )
 	return color;
 }
 
-void LightGrid::CalculateLightGridPointPositions()
+void LightGrid::CalculateLightGridPointPositions( const idRenderWorld* world, int area )
 {
 	// calculate grid point positions
 	int             gridStep[3];
@@ -153,7 +160,9 @@ void LightGrid::CalculateLightGridPointPositions()
 	gridStep[1] = lightGridBounds[0];
 	gridStep[2] = lightGridBounds[0] * lightGridBounds[1];
 
+	int invalidCount = 0;
 	int p = 0;
+
 	for( int i = 0; i < lightGridBounds[0]; i += 1 )
 	{
 		for( int j = 0; j < lightGridBounds[1]; j += 1 )
@@ -172,27 +181,39 @@ void LightGrid::CalculateLightGridPointPositions()
 
 				gridPoint->origin = lightGridOrigin + posFloat;
 
+				gridPoint->valid = ( world->PointInArea( gridPoint->origin ) != -1 );
+				if( !gridPoint->valid )
+				{
+					invalidCount++;
+				}
+
+				gridPoint->irradianceImage = NULL;
+
 				p++;
 			}
 		}
 	}
+
+	validGridPoints = p - invalidCount;
+
+	idLib::Printf( "area %i: %i of %i grid points in empty space (%.2f%%)\n", area, invalidCount, lightGridPoints.Num(), ( ( float ) invalidCount / lightGridPoints.Num() ) * 100 );
 }
 
 void idRenderWorldLocal::SetupLightGrid()
 {
 	idLib::Printf( "----- SetupLightGrid -----\n" );
 
-	idBounds bounds;
-	bounds.Clear();
-
+	int totalGridPoints = 0;
 	for( int i = 0; i < numPortalAreas; i++ )
 	{
 		portalArea_t* area = &portalAreas[i];
 
-		bounds.AddBounds( area->globalBounds );
+		area->lightGrid.SetupLightGrid( area->globalBounds, mapName, this, i );
+
+		totalGridPoints += area->lightGrid.validGridPoints;
 	}
 
-	lightGrid.SetupLightGrid( bounds, mapName );
+	idLib::Printf( "total valid light grid points %i\n", totalGridPoints );
 }
 
 
@@ -575,7 +596,15 @@ CONSOLE_COMMAND( generateLightGrid, "Generate light grid data", NULL )
 	// CAPTURE SCENE LIGHTING TO CUBEMAPS
 	//--------------------------------------------
 
-	CommandlineProgressBar progressBar( tr.primaryWorld->lightGrid.lightGridPoints.Num() );
+	int totalGridPoints = 0;
+	for( int a = 0; a < tr.primaryWorld->NumAreas(); a++ )
+	{
+		portalArea_t* area = &tr.primaryWorld->portalAreas[a];
+
+		totalGridPoints += area->lightGrid.lightGridPoints.Num();
+	}
+
+	CommandlineProgressBar progressBar( totalGridPoints );
 	if( !useThreads )
 	{
 		progressBar.Start();
@@ -583,41 +612,52 @@ CONSOLE_COMMAND( generateLightGrid, "Generate light grid data", NULL )
 
 	int	start = Sys_Milliseconds();
 
-	for( int i = 0; i < tr.primaryWorld->lightGrid.lightGridPoints.Num(); i++ )
+	for( int a = 0; a < tr.primaryWorld->NumAreas(); a++ )
 	{
-		lightGridPoint_t* gridPoint = &tr.primaryWorld->lightGrid.lightGridPoints[i];
+		portalArea_t* area = &tr.primaryWorld->portalAreas[a];
 
-		calcLightGridPointParms_t* jobParms = new calcLightGridPointParms_t;
-
-		for( int j = 0 ; j < 6 ; j++ )
+		for( int i = 0; i < area->lightGrid.lightGridPoints.Num(); i++ )
 		{
-			ref = primary.renderView;
+			lightGridPoint_t* gridPoint = &area->lightGrid.lightGridPoints[i];
+			if( !gridPoint->valid )
+			{
+				progressBar.Increment();
+				continue;
+			}
 
-			ref.rdflags = RDF_NOAMBIENT | RDF_IRRADIANCE;
-			ref.fov_x = ref.fov_y = 90;
+			calcLightGridPointParms_t* jobParms = new calcLightGridPointParms_t;
+			jobParms->area = a;
 
-			ref.vieworg = gridPoint->origin;
-			ref.viewaxis = tr.cubeAxis[j];
+			for( int j = 0 ; j < 6 ; j++ )
+			{
+				ref = primary.renderView;
 
-			extension = envDirection[ j ];
+				ref.rdflags = RDF_NOAMBIENT | RDF_IRRADIANCE;
+				ref.fov_x = ref.fov_y = 90;
 
-			//tr.TakeScreenshot( size, size, fullname, blends, &ref, EXR );
-			byte* float16FRGB = tr.CaptureRenderToBuffer( size, size, &ref );
+				ref.vieworg = gridPoint->origin;
+				ref.viewaxis = tr.cubeAxis[j];
 
-			jobParms->buffers[ j ] = float16FRGB;
+				extension = envDirection[ j ];
+
+				//tr.TakeScreenshot( size, size, fullname, blends, &ref, EXR );
+				byte* float16FRGB = tr.CaptureRenderToBuffer( size, size, &ref );
+
+				jobParms->buffers[ j ] = float16FRGB;
 
 #if 0
-			if( i < 3 )
-			{
-				filename.Format( "env/%s/lightgridpoint%i%s.exr", baseName.c_str(), i, extension );
-				R_WriteEXR( filename, float16FRGB, 3, size, size, "fs_basepath" );
-			}
+				if( i < 3 )
+				{
+					filename.Format( "env/%s/area%i_lightgridpoint%i%s.exr", baseName.c_str(), a, i, extension );
+					R_WriteEXR( filename, float16FRGB, 3, size, size, "fs_basepath" );
+				}
 #endif
+			}
+
+			tr.lightGridJobs.Append( jobParms );
+
+			progressBar.Increment();
 		}
-
-		tr.lightGridJobs.Append( jobParms );
-
-		progressBar.Increment();
 	}
 
 	int	end = Sys_Milliseconds();
@@ -670,7 +710,7 @@ CONSOLE_COMMAND( generateLightGrid, "Generate light grid data", NULL )
 	{
 		calcLightGridPointParms_t* job = tr.lightGridJobs[ j ];
 
-		filename.Format( "env/%s/lightgridpoint%i_amb.exr", baseName.c_str(), j );
+		filename.Format( "env/%s/area%i_lightgridpoint%i_amb.exr", baseName.c_str(), job->area, j );
 
 		R_WriteEXR( filename.c_str(), ( byte* )job->outBuffer, 3, job->outWidth, job->outHeight, "fs_basepath" );
 

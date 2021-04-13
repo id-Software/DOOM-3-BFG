@@ -506,6 +506,7 @@ struct calcLightGridPointParms_t
 {
 	// input
 	byte*							buffers[6];				// HDR RGB16F standard OpenGL cubemap sides
+	int								area;
 
 	int								outWidth;
 	int								outHeight;

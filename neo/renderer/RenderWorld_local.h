@@ -70,6 +70,8 @@ struct lightGridPoint_t
 
 	// TODO REMOVE just for testing
 	idImage* 		irradianceImage;
+
+	bool			valid;				// is not in solid area
 };
 
 class LightGrid
@@ -81,11 +83,12 @@ private:
 
 public:
 	idList<lightGridPoint_t> lightGridPoints;
+	int						validGridPoints;
 
 	//LightGrid();
 
 	// setup light grid for given world bounds
-	void					SetupLightGrid( const idBounds& bounds, const char* baseName );
+	void					SetupLightGrid( const idBounds& bounds, const char* baseName, const idRenderWorld* world, int area );
 
 	void					ProbeIndexToGridIndex( const int probeIndex, int gridIndex[3] );
 
@@ -95,7 +98,7 @@ public:
 	void					SetupEntityGridLighting( idRenderEntityLocal* def );
 
 private:
-	void					CalculateLightGridPointPositions();
+	void					CalculateLightGridPointPositions( const idRenderWorld* world, int area );
 };
 // RB end
 
@@ -106,6 +109,8 @@ typedef struct portalArea_s
 	// not separated by a portal with the apropriate PS_BLOCK_* blockingBits
 
 	idBounds		globalBounds;	// RB: AABB of the BSP area used for light grid density
+
+	LightGrid		lightGrid;
 
 	int				viewCount;		// set by R_FindViewLightsAndEntities
 	portal_t* 		portals;		// never changes after load
@@ -225,9 +230,6 @@ public:
 
 	doublePortal_t* 		doublePortals;
 	int						numInterAreaPortals;
-
-	// RB: added Quake 3 style light grid
-	LightGrid				lightGrid;
 
 	idList<idRenderModel*, TAG_MODEL>	localModels;
 
