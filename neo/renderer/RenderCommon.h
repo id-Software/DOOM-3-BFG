@@ -502,6 +502,10 @@ struct calcEnvprobeParms_t
 	int								time;					// execution time in milliseconds
 };
 
+
+
+static const int LIGHTGRID_IRRADIANCE_SIZE	= 8;
+
 struct calcLightGridPointParms_t
 {
 	// input
@@ -512,6 +516,8 @@ struct calcLightGridPointParms_t
 	int								outHeight;
 
 	// output
+	SphericalHarmonicsT<float, 4>	SH4;
+
 	halfFloat_t*					outBuffer;				// HDR R11G11B11F packed atlas
 	int								time;					// execution time in milliseconds
 };

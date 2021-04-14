@@ -1812,6 +1812,9 @@ void idRenderBackend::DBG_ShowLightGrid()
 
 	portalArea_t* area = &tr.primaryWorld->portalAreas[a];
 
+	const int numColors = 7;
+	static idVec4 colors[numColors] = { colorBlack, colorBlue, colorCyan, colorGreen, colorYellow, colorRed, colorWhite };
+
 	for( int i = 0; i < area->lightGrid.lightGridPoints.Num(); i++ )
 	{
 		lightGridPoint_t* gridPoint = &area->lightGrid.lightGridPoints[i];
@@ -1826,36 +1829,13 @@ void idRenderBackend::DBG_ShowLightGrid()
 			continue;
 		}
 
-		/*
-		idVec4 c;
-		c[0] = idMath::ClampFloat( 0, 1, gridPoint->directed[0] * ( 1.0f / 255.0f ) );
-		c[1] = idMath::ClampFloat( 0, 1, gridPoint->directed[1] * ( 1.0f / 255.0f ) );
-		c[2] = idMath::ClampFloat( 0, 1, gridPoint->directed[2] * ( 1.0f / 255.0f ) );
-
-		glColor4f( c[0], c[1], c[2], 1 );
-
-		float lattitude = DEG2RAD( gridPoint->latLong[1] * ( 360.0f / 255.0f ) );
-		float longitude = DEG2RAD( gridPoint->latLong[0] * ( 360.0f / 255.0f ) );
-
-		idVec3 dir;
-		dir[0] = idMath::Cos( lattitude ) * idMath::Sin( longitude );
-		dir[1] = idMath::Sin( lattitude ) * idMath::Sin( longitude );
-		dir[2] = idMath::Cos( longitude );
-
-		idVec3 pos2 = gridPoint->origin - dir * r_showLightGrid.GetFloat();
-
-		glBegin( GL_LINES );
-
-		glColor4f( c[0], c[1], c[2], 1 );
-		//glColor4f( 1, 1, 1, 1 );
-		glVertex3fv( gridPoint->origin.ToFloatPtr() );
-
-		glColor4f( 0, 0, 0, 1 );
-		glVertex3fv( pos2.ToFloatPtr() );
-		glEnd();
-		*/
-
 #if 1
+		if( i > 53 )
+		{
+			break;
+		}
+#endif
+
 		idVec4 localViewOrigin( 1.0f );
 		idVec4 globalViewOrigin;
 		globalViewOrigin.x = viewDef->renderView.vieworg.x;
@@ -1869,13 +1849,17 @@ void idRenderBackend::DBG_ShowLightGrid()
 		R_GlobalPointToLocal( modelMatrix, viewDef->renderView.vieworg, localViewOrigin.ToVec3() );
 
 		renderProgManager.SetUniformValue( RENDERPARM_LOCALVIEWORIGIN, localViewOrigin.ToFloatPtr() ); // rpLocalViewOrigin
-#endif
 
 
-#if 0
+#if 1
 		renderProgManager.BindShader_Color();
 
-		idVec3 color = area->lightGrid.GetProbeIndexDebugColor( i );
+		int gridCoord[3];
+		area->lightGrid.GetBaseGridCoord( gridPoint->origin, gridCoord );
+
+		idVec3 color = area->lightGrid.GetGridCoordDebugColor( gridCoord );
+		//idVec3 color = area->lightGrid.GetProbeIndexDebugColor( i );
+		//idVec4 color = colors[ i % numColors ];
 		GL_Color( color );
 #else
 		renderProgManager.BindShader_Octahedron();
@@ -1918,7 +1902,7 @@ void idRenderBackend::DBG_ShowLightGrid()
 		renderProgManager.BindShader_Color();
 
 		lightOrigin = viewDef->renderView.vieworg;
-		lightOrigin += viewDef->renderView.viewaxis[0] * 100.0f;
+		lightOrigin += viewDef->renderView.viewaxis[0] * 150.0f;
 		lightOrigin -= viewDef->renderView.viewaxis[2] * 16.0f;
 
 		// draw sample origin we want to test the grid with
@@ -1951,6 +1935,7 @@ void idRenderBackend::DBG_ShowLightGrid()
 			v = lightOrigin[i] * ( 1.0f / area->lightGrid.lightGridSize[i] );
 			pos[i] = floor( v );
 			frac[i] = v - pos[i];
+
 			if( pos[i] < 0 )
 			{
 				pos[i] = 0;

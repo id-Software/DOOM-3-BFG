@@ -60,18 +60,16 @@ typedef struct doublePortal_s
 } doublePortal_t;
 
 // RB: added Quake 3 style light grid
+// however this 2021 version features Spherical Harmonics instead of ambient + directed color
 struct lightGridPoint_t
 {
 	idVec3			origin;				// not saved to .proc
+	bool			valid;				// is not in solid area
 
-	byte			ambient[3];
-	byte			directed[3];
-	byte			latLong[2];
+	SphericalHarmonicsT<float, 4>	SH4;
 
 	// TODO REMOVE just for testing
-	idImage* 		irradianceImage;
-
-	bool			valid;				// is not in solid area
+	//idImage* 		irradianceImage;
 };
 
 class LightGrid
@@ -91,8 +89,12 @@ public:
 	// setup light grid for given world bounds
 	void					SetupLightGrid( const idBounds& bounds, const char* baseName, const idRenderWorld* world, int _area );
 
-	void					ProbeIndexToGridIndex( const int probeIndex, int gridIndex[3] );
+	void					GetBaseGridCoord( const idVec3& origin, int gridCoord[3] );
 
+	int						GridCoordToProbeIndex( int gridCoord[3] );
+	void					ProbeIndexToGridCoord( const int probeIndex, int gridCoord[3] );
+
+	idVec3					GetGridCoordDebugColor( int gridCoord[3] );
 	idVec3					GetProbeIndexDebugColor( const int probeIndex );
 
 	// fetch grid lighting on a per object basis

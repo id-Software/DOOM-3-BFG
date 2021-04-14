@@ -32,10 +32,8 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "RenderCommon.h"
 
-// RB: old constant from q3map2
-static const int MAX_MAP_LIGHTGRID_POINTS = 0x100000;
-
-static const int LIGHTGRID_IRRADIANCE_SIZE = 32;
+static const int MAX_LIGHTGRID_ATLAS_SIZE	= 4096;
+static const int MAX_AREA_LIGHTGRID_POINTS	= ( MAX_LIGHTGRID_ATLAS_SIZE / LIGHTGRID_IRRADIANCE_SIZE ) * ( MAX_LIGHTGRID_ATLAS_SIZE / LIGHTGRID_IRRADIANCE_SIZE );
 
 void LightGrid::SetupLightGrid( const idBounds& bounds, const char* mapName, const idRenderWorld* world, int _area )
 {
@@ -49,8 +47,8 @@ void LightGrid::SetupLightGrid( const idBounds& bounds, const char* mapName, con
 
 	idVec3 maxs;
 	int j = 0;
-	int numGridPoints = MAX_MAP_LIGHTGRID_POINTS + 1;
-	while( numGridPoints > MAX_MAP_LIGHTGRID_POINTS )
+	int numGridPoints = MAX_AREA_LIGHTGRID_POINTS + 1;
+	while( numGridPoints > MAX_AREA_LIGHTGRID_POINTS )
 	{
 		for( int i = 0; i < 3; i++ )
 		{
@@ -61,7 +59,7 @@ void LightGrid::SetupLightGrid( const idBounds& bounds, const char* mapName, con
 
 		numGridPoints = lightGridBounds[0] * lightGridBounds[1] * lightGridBounds[2];
 
-		if( numGridPoints > MAX_MAP_LIGHTGRID_POINTS )
+		if( numGridPoints > MAX_AREA_LIGHTGRID_POINTS )
 		{
 			lightGridSize[ j++ % 3 ] += 16.0f;
 		}
@@ -82,7 +80,7 @@ void LightGrid::SetupLightGrid( const idBounds& bounds, const char* mapName, con
 	}
 
 	// try to load existing lightgrid data
-#if 1
+#if 0
 	idStr basename = mapName;
 	basename.StripFileExtension();
 
@@ -92,13 +90,60 @@ void LightGrid::SetupLightGrid( const idBounds& bounds, const char* mapName, con
 	{
 		lightGridPoint_t* gridPoint = &lightGridPoints[i];
 
+		gridPoint->irradianceImage = NULL;
+
 		fullname.Format( "env/%s/area%i_lightgridpoint%i_amb", basename.c_str(), area, i );
 		gridPoint->irradianceImage = globalImages->ImageFromFile( fullname, TF_DEFAULT, TR_CLAMP, TD_R11G11B10F, CF_2D_PACKED_MIPCHAIN );
+	}
+#else
+	for( int i = 0; i < lightGridPoints.Num(); i++ )
+	{
+		lightGridPoint_t* gridPoint = &lightGridPoints[i];
+
+		//gridPoint->irradianceImage = NULL;
 	}
 #endif
 }
 
-void LightGrid::ProbeIndexToGridIndex( const int probeIndex, int gridIndex[3] )
+void LightGrid::GetBaseGridCoord( const idVec3& origin, int gridCoord[3] )
+{
+	int             pos[3];
+
+	idVec3 lightOrigin = origin - lightGridOrigin;
+	for( int i = 0; i < 3; i++ )
+	{
+		float           v;
+
+		v = lightOrigin[i] * ( 1.0f / lightGridSize[i] );
+		pos[i] = floor( v );
+
+		if( pos[i] < 0 )
+		{
+			pos[i] = 0;
+		}
+		else if( pos[i] >= lightGridBounds[i] - 1 )
+		{
+			pos[i] = lightGridBounds[i] - 1;
+		}
+
+		gridCoord[i] = pos[i];
+	}
+}
+
+int	LightGrid::GridCoordToProbeIndex( int gridCoord[3] )
+{
+	int             gridStep[3];
+
+	gridStep[0] = 1;
+	gridStep[1] = lightGridBounds[0];
+	gridStep[2] = lightGridBounds[0] * lightGridBounds[1];
+
+	int gridPointIndex = gridCoord[0] * gridStep[0] + gridCoord[1] * gridStep[1] + gridCoord[2] * gridStep[2];
+
+	return gridPointIndex;
+}
+
+void LightGrid::ProbeIndexToGridCoord( const int probeIndex, int gridCoord[3] )
 {
 	// slow brute force method only for debugging
 	int             gridStep[3];
@@ -107,9 +152,9 @@ void LightGrid::ProbeIndexToGridIndex( const int probeIndex, int gridIndex[3] )
 	gridStep[1] = lightGridBounds[0];
 	gridStep[2] = lightGridBounds[0] * lightGridBounds[1];
 
-	gridIndex[0] = 0;
-	gridIndex[1] = 0;
-	gridIndex[2] = 0;
+	gridCoord[0] = 0;
+	gridCoord[1] = 0;
+	gridCoord[2] = 0;
 
 	int p = 0;
 	for( int i = 0; i < lightGridBounds[0]; i += 1 )
@@ -120,9 +165,9 @@ void LightGrid::ProbeIndexToGridIndex( const int probeIndex, int gridIndex[3] )
 			{
 				if( probeIndex == p )
 				{
-					gridIndex[0] = i;
-					gridIndex[1] = j;
-					gridIndex[2] = k;
+					gridCoord[0] = i;
+					gridCoord[1] = j;
+					gridCoord[2] = k;
 
 					return;
 				}
@@ -133,21 +178,46 @@ void LightGrid::ProbeIndexToGridIndex( const int probeIndex, int gridIndex[3] )
 	}
 }
 
+idVec3 LightGrid::GetGridCoordDebugColor( int gridCoord[3] )
+{
+	idVec3 color( colorGold.x, colorGold.y, colorGold.z );
+
+#if 0
+	color.x = float( gridCoord[0] & 1 );
+	color.y = float( gridCoord[1] & 1 );
+	color.z = float( gridCoord[2] & 1 );
+
+	//color *= ( 1.0f / Max( color.x + color.y + color.z, 0.01f ) );
+	//color = color * 0.6f + idVec3( 0.2f );
+
+#else
+	int             gridStep[3];
+
+	gridStep[0] = 1;
+	gridStep[1] = lightGridBounds[0];
+	gridStep[2] = lightGridBounds[0] * lightGridBounds[1];
+
+	int gridPointIndex = gridCoord[0] * gridStep[0] + gridCoord[1] * gridStep[1] + gridCoord[2] * gridStep[2];
+
+	const int numColors = 7;
+	static idVec4 colors[numColors] = { colorBlack, colorBlue, colorCyan, colorGreen, colorYellow, colorRed, colorWhite };
+
+	color.x = colors[ gridPointIndex % numColors ].x;
+	color.y = colors[ gridPointIndex % numColors ].y;
+	color.z = colors[ gridPointIndex % numColors ].z;
+#endif
+
+	return color;
+}
+
 idVec3 LightGrid::GetProbeIndexDebugColor( const int probeIndex )
 {
 	idVec3 color( colorGold.x, colorGold.y, colorGold.z );
 
-	int gridIndex[3];
-	ProbeIndexToGridIndex( probeIndex, gridIndex );
+	int gridCoord[3];
+	ProbeIndexToGridCoord( probeIndex, gridCoord );
 
-	color.x = float( gridIndex[0] & 1 );
-	color.y = float( gridIndex[1] & 1 );
-	color.z = float( gridIndex[2] & 1 );
-
-	color *= ( 1.0f / Max( color.x + color.y + color.z, 0.01f ) );
-	color = color * 0.6f + idVec3( 0.2f );
-
-	return color;
+	return GetGridCoordDebugColor( gridCoord );
 }
 
 void LightGrid::CalculateLightGridPointPositions( const idRenderWorld* world, int area )
@@ -187,8 +257,6 @@ void LightGrid::CalculateLightGridPointPositions( const idRenderWorld* world, in
 				{
 					invalidCount++;
 				}
-
-				gridPoint->irradianceImage = NULL;
 
 				p++;
 			}
