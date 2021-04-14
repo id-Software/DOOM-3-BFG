@@ -76,19 +76,20 @@ struct lightGridPoint_t
 
 class LightGrid
 {
-private:
+public:
 	idVec3					lightGridOrigin;
 	idVec3					lightGridSize;
 	int						lightGridBounds[3];
+	int						area;
 
-public:
+//public:
 	idList<lightGridPoint_t> lightGridPoints;
 	int						validGridPoints;
 
 	//LightGrid();
 
 	// setup light grid for given world bounds
-	void					SetupLightGrid( const idBounds& bounds, const char* baseName, const idRenderWorld* world, int area );
+	void					SetupLightGrid( const idBounds& bounds, const char* baseName, const idRenderWorld* world, int _area );
 
 	void					ProbeIndexToGridIndex( const int probeIndex, int gridIndex[3] );
 

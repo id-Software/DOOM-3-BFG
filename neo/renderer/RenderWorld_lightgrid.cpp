@@ -37,13 +37,14 @@ static const int MAX_MAP_LIGHTGRID_POINTS = 0x100000;
 
 static const int LIGHTGRID_IRRADIANCE_SIZE = 32;
 
-void LightGrid::SetupLightGrid( const idBounds& bounds, const char* mapName, const idRenderWorld* world, int area )
+void LightGrid::SetupLightGrid( const idBounds& bounds, const char* mapName, const idRenderWorld* world, int _area )
 {
 	//idLib::Printf( "----- SetupLightGrid -----\n" );
 
 	lightGridSize.Set( 64, 64, 128 );
 	lightGridPoints.Clear();
 
+	area = _area;
 	validGridPoints = 0;
 
 	idVec3 maxs;
@@ -81,7 +82,7 @@ void LightGrid::SetupLightGrid( const idBounds& bounds, const char* mapName, con
 	}
 
 	// try to load existing lightgrid data
-#if 0
+#if 1
 	idStr basename = mapName;
 	basename.StripFileExtension();
 
@@ -91,7 +92,7 @@ void LightGrid::SetupLightGrid( const idBounds& bounds, const char* mapName, con
 	{
 		lightGridPoint_t* gridPoint = &lightGridPoints[i];
 
-		fullname.Format( "env/%s/lightgridpoint%i_amb", basename.c_str(), i );
+		fullname.Format( "env/%s/area%i_lightgridpoint%i_amb", basename.c_str(), area, i );
 		gridPoint->irradianceImage = globalImages->ImageFromFile( fullname, TF_DEFAULT, TR_CLAMP, TD_R11G11B10F, CF_2D_PACKED_MIPCHAIN );
 	}
 #endif
@@ -737,7 +738,7 @@ CONSOLE_COMMAND( generateLightGrid, "Generate light grid data", NULL )
 }
 
 #if 0
-// straight port of Quake 3
+// straight port of Quake 3 / XreaL
 void idRenderWorldLocal::SetupEntityGridLighting( idRenderEntityLocal* def )
 {
 	// lighting calculations
@@ -839,20 +840,30 @@ void idRenderWorldLocal::SetupEntityGridLighting( idRenderEntityLocal* def )
 
 			factor = 1.0;
 			gridPoint2 = gridPoint;
-			for( j = 0; j < 3; j++ )
+			for( int j = 0; j < 3; j++ )
 			{
 				if( i & ( 1 << j ) )
 				{
-					int gridPointIndex2 = gridPointIndex + gridStep[j];
+					factor *= frac[j];
 
-					if( gridPointIndex2 < 0 || gridPointIndex2 >= lightGridPoints.Num() )
+#if 1
+					gridPointIndex2 += gridStep[j];
+					if( gridPointIndex2 < 0 || gridPointIndex2 >= area->lightGrid.lightGridPoints.Num() )
 					{
+						// ignore values outside lightgrid
 						continue;
 					}
 
-					factor *= frac[j];
+					gridPoint2 = &area->lightGrid.lightGridPoints[ gridPointIndex2 ];
+#else
+					if( pos[j] + 1 > area->lightGrid.lightGridBounds[j] - 1 )
+					{
+						// ignore values outside lightgrid
+						break;
+					}
 
-					gridPoint2 = &lightGridPoints[ gridPointIndex + gridStep[j] ];
+					gridPoint2 += gridStep[j];
+#endif
 				}
 				else
 				{

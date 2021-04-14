@@ -1057,7 +1057,7 @@ CONSOLE_COMMAND( generateEnvironmentProbes, "Generate environment probes", NULL 
 		fullname.Format( "%s/envprobe%i", baseName.c_str(), i );
 
 		R_MakeAmbientMap( fullname.c_str(), "_amb", IRRADIANCE_CUBEMAP_SIZE, false, false, useThreads );
-		R_MakeAmbientMap( fullname.c_str(), "_spec", RADIANCE_CUBEMAP_SIZE, true, false, useThreads );
+		R_MakeAmbientMap( fullname.c_str(), "_spec", RADIANCE_CUBEMAP_SIZE, true, true, useThreads );
 	}
 
 	if( useThreads )

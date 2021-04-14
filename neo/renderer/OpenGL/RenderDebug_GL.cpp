@@ -1794,8 +1794,6 @@ void idRenderBackend::DBG_ShowLightGrid()
 	}
 
 	// all volumes are expressed in world coordinates
-	renderProgManager.BindShader_Color();
-	//renderProgManager.BindShader_Octahedron();
 
 	GL_State( GLS_DEPTHFUNC_ALWAYS | GLS_DEPTHMASK );
 	GL_Color( 1.0f, 1.0f, 1.0f );
@@ -1812,82 +1810,126 @@ void idRenderBackend::DBG_ShowLightGrid()
 		return;
 	}
 
+	portalArea_t* area = &tr.primaryWorld->portalAreas[a];
+
+	for( int i = 0; i < area->lightGrid.lightGridPoints.Num(); i++ )
 	{
-		portalArea_t* area = &tr.primaryWorld->portalAreas[a];
-
-		for( int i = 0; i < area->lightGrid.lightGridPoints.Num(); i++ )
+		lightGridPoint_t* gridPoint = &area->lightGrid.lightGridPoints[i];
+		if( !gridPoint->valid )
 		{
-			lightGridPoint_t* gridPoint = &area->lightGrid.lightGridPoints[i];
-			if( !gridPoint->valid )
-			{
-				continue;
-			}
+			continue;
+		}
 
-			idVec3 distanceToCam = gridPoint->origin - viewDef->renderView.vieworg;
-			if( distanceToCam.LengthSqr() > ( 1024 * 1024 ) )
-			{
-				continue;
-			}
+		idVec3 distanceToCam = gridPoint->origin - viewDef->renderView.vieworg;
+		if( distanceToCam.LengthSqr() > ( 1024 * 1024 ) )
+		{
+			continue;
+		}
 
-			/*
-			idVec4 c;
-			c[0] = idMath::ClampFloat( 0, 1, gridPoint->directed[0] * ( 1.0f / 255.0f ) );
-			c[1] = idMath::ClampFloat( 0, 1, gridPoint->directed[1] * ( 1.0f / 255.0f ) );
-			c[2] = idMath::ClampFloat( 0, 1, gridPoint->directed[2] * ( 1.0f / 255.0f ) );
+		/*
+		idVec4 c;
+		c[0] = idMath::ClampFloat( 0, 1, gridPoint->directed[0] * ( 1.0f / 255.0f ) );
+		c[1] = idMath::ClampFloat( 0, 1, gridPoint->directed[1] * ( 1.0f / 255.0f ) );
+		c[2] = idMath::ClampFloat( 0, 1, gridPoint->directed[2] * ( 1.0f / 255.0f ) );
 
-			glColor4f( c[0], c[1], c[2], 1 );
+		glColor4f( c[0], c[1], c[2], 1 );
 
-			float lattitude = DEG2RAD( gridPoint->latLong[1] * ( 360.0f / 255.0f ) );
-			float longitude = DEG2RAD( gridPoint->latLong[0] * ( 360.0f / 255.0f ) );
+		float lattitude = DEG2RAD( gridPoint->latLong[1] * ( 360.0f / 255.0f ) );
+		float longitude = DEG2RAD( gridPoint->latLong[0] * ( 360.0f / 255.0f ) );
 
-			idVec3 dir;
-			dir[0] = idMath::Cos( lattitude ) * idMath::Sin( longitude );
-			dir[1] = idMath::Sin( lattitude ) * idMath::Sin( longitude );
-			dir[2] = idMath::Cos( longitude );
+		idVec3 dir;
+		dir[0] = idMath::Cos( lattitude ) * idMath::Sin( longitude );
+		dir[1] = idMath::Sin( lattitude ) * idMath::Sin( longitude );
+		dir[2] = idMath::Cos( longitude );
 
-			idVec3 pos2 = gridPoint->origin - dir * r_showLightGrid.GetFloat();
+		idVec3 pos2 = gridPoint->origin - dir * r_showLightGrid.GetFloat();
 
-			glBegin( GL_LINES );
+		glBegin( GL_LINES );
 
-			glColor4f( c[0], c[1], c[2], 1 );
-			//glColor4f( 1, 1, 1, 1 );
-			glVertex3fv( gridPoint->origin.ToFloatPtr() );
+		glColor4f( c[0], c[1], c[2], 1 );
+		//glColor4f( 1, 1, 1, 1 );
+		glVertex3fv( gridPoint->origin.ToFloatPtr() );
 
-			glColor4f( 0, 0, 0, 1 );
-			glVertex3fv( pos2.ToFloatPtr() );
-			glEnd();
-			*/
+		glColor4f( 0, 0, 0, 1 );
+		glVertex3fv( pos2.ToFloatPtr() );
+		glEnd();
+		*/
 
 #if 1
-			idVec4 localViewOrigin( 1.0f );
-			idVec4 globalViewOrigin;
-			globalViewOrigin.x = viewDef->renderView.vieworg.x;
-			globalViewOrigin.y = viewDef->renderView.vieworg.y;
-			globalViewOrigin.z = viewDef->renderView.vieworg.z;
-			globalViewOrigin.w = 1.0f;
+		idVec4 localViewOrigin( 1.0f );
+		idVec4 globalViewOrigin;
+		globalViewOrigin.x = viewDef->renderView.vieworg.x;
+		globalViewOrigin.y = viewDef->renderView.vieworg.y;
+		globalViewOrigin.z = viewDef->renderView.vieworg.z;
+		globalViewOrigin.w = 1.0f;
 
-			float modelMatrix[16];
-			R_AxisToModelMatrix( axis, gridPoint->origin, modelMatrix );
+		float modelMatrix[16];
+		R_AxisToModelMatrix( axis, gridPoint->origin, modelMatrix );
 
-			R_GlobalPointToLocal( modelMatrix, viewDef->renderView.vieworg, localViewOrigin.ToVec3() );
+		R_GlobalPointToLocal( modelMatrix, viewDef->renderView.vieworg, localViewOrigin.ToVec3() );
 
-			renderProgManager.SetUniformValue( RENDERPARM_LOCALVIEWORIGIN, localViewOrigin.ToFloatPtr() ); // rpLocalViewOrigin
+		renderProgManager.SetUniformValue( RENDERPARM_LOCALVIEWORIGIN, localViewOrigin.ToFloatPtr() ); // rpLocalViewOrigin
 #endif
 
 
-#if 1
-			idVec3 color = area->lightGrid.GetProbeIndexDebugColor( i );
-			GL_Color( color );
+#if 0
+		renderProgManager.BindShader_Color();
+
+		idVec3 color = area->lightGrid.GetProbeIndexDebugColor( i );
+		GL_Color( color );
 #else
-			GL_SelectTexture( 0 );
-			gridPoint->irradianceImage->Bind();
+		renderProgManager.BindShader_Octahedron();
+
+		GL_SelectTexture( 0 );
+		gridPoint->irradianceImage->Bind();
 #endif
+
+		idRenderMatrix modelRenderMatrix;
+		idRenderMatrix::CreateFromOriginAxis( gridPoint->origin, axis, modelRenderMatrix );
+
+		// calculate the matrix that transforms the unit cube to exactly cover the model in world space
+		const float size = 3.0f;
+		idBounds debugBounds( idVec3( -size ), idVec3( size ) );
+
+		idRenderMatrix inverseBaseModelProject;
+		idRenderMatrix::OffsetScaleForBounds( modelRenderMatrix, debugBounds, inverseBaseModelProject );
+
+		idRenderMatrix invProjectMVPMatrix;
+		idRenderMatrix::Multiply( viewDef->worldSpace.mvp, inverseBaseModelProject, invProjectMVPMatrix );
+		RB_SetMVP( invProjectMVPMatrix );
+
+		DrawElementsWithCounters( &zeroOneSphereSurface );
+	}
+
+	if( r_showLightGrid.GetInteger() == 2 )
+	{
+		// show 8 nearest grid points around the camera and illustrate how the trilerping works
+
+		idVec3          lightOrigin;
+		int             pos[3];
+		int				gridPointIndex;
+		int				gridPointIndex2;
+		lightGridPoint_t*  gridPoint;
+		lightGridPoint_t*  gridPoint2;
+		float           frac[3];
+		int             gridStep[3];
+		float           totalFactor;
+
+		renderProgManager.BindShader_Color();
+
+		lightOrigin = viewDef->renderView.vieworg;
+		lightOrigin += viewDef->renderView.viewaxis[0] * 100.0f;
+		lightOrigin -= viewDef->renderView.viewaxis[2] * 16.0f;
+
+		// draw sample origin we want to test the grid with
+		{
+			GL_Color( colorYellow );
 
 			idRenderMatrix modelRenderMatrix;
-			idRenderMatrix::CreateFromOriginAxis( gridPoint->origin, axis, modelRenderMatrix );
+			idRenderMatrix::CreateFromOriginAxis( lightOrigin, axis, modelRenderMatrix );
 
 			// calculate the matrix that transforms the unit cube to exactly cover the model in world space
-			const float size = 3.0f;
+			const float size = 2.0f;
 			idBounds debugBounds( idVec3( -size ), idVec3( size ) );
 
 			idRenderMatrix inverseBaseModelProject;
@@ -1899,6 +1941,119 @@ void idRenderBackend::DBG_ShowLightGrid()
 
 			DrawElementsWithCounters( &zeroOneSphereSurface );
 		}
+
+		// find base grid point
+		lightOrigin -= area->lightGrid.lightGridOrigin;
+		for( int i = 0; i < 3; i++ )
+		{
+			float           v;
+
+			v = lightOrigin[i] * ( 1.0f / area->lightGrid.lightGridSize[i] );
+			pos[i] = floor( v );
+			frac[i] = v - pos[i];
+			if( pos[i] < 0 )
+			{
+				pos[i] = 0;
+			}
+			else if( pos[i] >= area->lightGrid.lightGridBounds[i] - 1 )
+			{
+				pos[i] = area->lightGrid.lightGridBounds[i] - 1;
+			}
+		}
+
+		// trilerp the light value
+		gridStep[0] = 1;
+		gridStep[1] = area->lightGrid.lightGridBounds[0];
+		gridStep[2] = area->lightGrid.lightGridBounds[0] * area->lightGrid.lightGridBounds[1];
+
+		gridPointIndex = pos[0] * gridStep[0] + pos[1] * gridStep[1] + pos[2] * gridStep[2];
+		gridPoint = &area->lightGrid.lightGridPoints[ gridPointIndex ];
+
+		totalFactor = 0;
+		for( int i = 0; i < 8; i++ )
+		{
+			float  factor = 1.0;
+
+			gridPoint2 = gridPoint;
+			gridPointIndex2 = gridPointIndex;
+
+			for( int j = 0; j < 3; j++ )
+			{
+				if( i & ( 1 << j ) )
+				{
+					factor *= frac[j];
+
+#if 1
+					gridPointIndex2 += gridStep[j];
+					if( gridPointIndex2 < 0 || gridPointIndex2 >= area->lightGrid.lightGridPoints.Num() )
+					{
+						// ignore values outside lightgrid
+						continue;
+					}
+
+					gridPoint2 = &area->lightGrid.lightGridPoints[ gridPointIndex2 ];
+#else
+					if( pos[j] + 1 > area->lightGrid.lightGridBounds[j] - 1 )
+					{
+						// ignore values outside lightgrid
+						break;
+					}
+
+					gridPoint2 += gridStep[j];
+#endif
+				}
+				else
+				{
+					factor *= ( 1.0f - frac[j] );
+				}
+			}
+
+			if( !gridPoint2->valid )
+			{
+				// ignore samples in walls
+				continue;
+			}
+
+			totalFactor += factor;
+
+			idVec4 color = Lerp( colorBlack, colorGreen, factor );
+			GL_Color( color );
+
+			idRenderMatrix modelRenderMatrix;
+			idRenderMatrix::CreateFromOriginAxis( gridPoint2->origin, axis, modelRenderMatrix );
+
+			// calculate the matrix that transforms the unit cube to exactly cover the model in world space
+			const float size = 4.0f;
+			idBounds debugBounds( idVec3( -size ), idVec3( size ) );
+
+			idRenderMatrix inverseBaseModelProject;
+			idRenderMatrix::OffsetScaleForBounds( modelRenderMatrix, debugBounds, inverseBaseModelProject );
+
+			idRenderMatrix invProjectMVPMatrix;
+			idRenderMatrix::Multiply( viewDef->worldSpace.mvp, inverseBaseModelProject, invProjectMVPMatrix );
+			RB_SetMVP( invProjectMVPMatrix );
+
+			DrawElementsWithCounters( &zeroOneSphereSurface );
+		}
+
+		// draw main grid point where camera position snapped to
+		GL_Color( colorRed );
+
+		idRenderMatrix modelRenderMatrix;
+		idRenderMatrix::CreateFromOriginAxis( gridPoint->origin, axis, modelRenderMatrix );
+
+		// calculate the matrix that transforms the unit cube to exactly cover the model in world space
+		const float size = 5.0f;
+		idBounds debugBounds( idVec3( -size ), idVec3( size ) );
+
+		idRenderMatrix inverseBaseModelProject;
+		idRenderMatrix::OffsetScaleForBounds( modelRenderMatrix, debugBounds, inverseBaseModelProject );
+
+		idRenderMatrix invProjectMVPMatrix;
+		idRenderMatrix::Multiply( viewDef->worldSpace.mvp, inverseBaseModelProject, invProjectMVPMatrix );
+		RB_SetMVP( invProjectMVPMatrix );
+
+		DrawElementsWithCounters( &zeroOneSphereSurface );
 	}
 }
 
