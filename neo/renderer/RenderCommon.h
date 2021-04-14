@@ -498,27 +498,26 @@ struct calcEnvprobeParms_t
 	idStr							filename;
 
 	// output
-	halfFloat_t*					outBuffer;				// HDR R11G11B11F packed atlas
+	halfFloat_t*					outBuffer;				// HDR R11G11B11F packed octahedron atlas
 	int								time;					// execution time in milliseconds
 };
 
 
 
-static const int LIGHTGRID_IRRADIANCE_SIZE	= 8;
+static const int LIGHTGRID_IRRADIANCE_SIZE	= 32;
 
 struct calcLightGridPointParms_t
 {
 	// input
 	byte*							buffers[6];				// HDR RGB16F standard OpenGL cubemap sides
-	int								area;
+	int								gridCoord[3];
 
-	int								outWidth;
+	int								outWidth;				// LIGHTGRID_IRRADIANCE_SIZE
 	int								outHeight;
 
 	// output
 	SphericalHarmonicsT<float, 4>	SH4;
-
-	halfFloat_t*					outBuffer;				// HDR R11G11B11F packed atlas
+	halfFloat_t*					outBuffer;				// HDR R11G11B11F octahedron LIGHTGRID_IRRADIANCE_SIZE^2
 	int								time;					// execution time in milliseconds
 };
 // RB end

@@ -69,7 +69,7 @@ struct lightGridPoint_t
 	SphericalHarmonicsT<float, 4>	SH4;
 
 	// TODO REMOVE just for testing
-	//idImage* 		irradianceImage;
+	idImage* 		irradianceImage;
 };
 
 class LightGrid

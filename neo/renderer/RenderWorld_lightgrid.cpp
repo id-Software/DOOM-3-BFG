@@ -80,7 +80,7 @@ void LightGrid::SetupLightGrid( const idBounds& bounds, const char* mapName, con
 	}
 
 	// try to load existing lightgrid data
-#if 0
+#if 1
 	idStr basename = mapName;
 	basename.StripFileExtension();
 
@@ -93,14 +93,14 @@ void LightGrid::SetupLightGrid( const idBounds& bounds, const char* mapName, con
 		gridPoint->irradianceImage = NULL;
 
 		fullname.Format( "env/%s/area%i_lightgridpoint%i_amb", basename.c_str(), area, i );
-		gridPoint->irradianceImage = globalImages->ImageFromFile( fullname, TF_DEFAULT, TR_CLAMP, TD_R11G11B10F, CF_2D_PACKED_MIPCHAIN );
+		gridPoint->irradianceImage = globalImages->ImageFromFile( fullname, TF_LINEAR, TR_CLAMP, TD_R11G11B10F, CF_2D );
 	}
 #else
 	for( int i = 0; i < lightGridPoints.Num(); i++ )
 	{
 		lightGridPoint_t* gridPoint = &lightGridPoints[i];
 
-		//gridPoint->irradianceImage = NULL;
+		gridPoint->irradianceImage = NULL;
 	}
 #endif
 }
@@ -145,6 +145,7 @@ int	LightGrid::GridCoordToProbeIndex( int gridCoord[3] )
 
 void LightGrid::ProbeIndexToGridCoord( const int probeIndex, int gridCoord[3] )
 {
+#if 1
 	// slow brute force method only for debugging
 	int             gridStep[3];
 
@@ -176,6 +177,12 @@ void LightGrid::ProbeIndexToGridCoord( const int probeIndex, int gridCoord[3] )
 			}
 		}
 	}
+#else
+
+	gridPoints
+
+	GetBaseGridCoord()
+#endif
 }
 
 idVec3 LightGrid::GetGridCoordDebugColor( int gridCoord[3] )
@@ -429,7 +436,7 @@ void CalculateLightGridPointJob( calcLightGridPointParms_t* parms )
 
 	// build SH by iterating over all cubemap pixels
 
-	idVec4 dstRect = R_CalculateMipRect( parms->outHeight, 0 );
+	//idVec4 dstRect = R_CalculateMipRect( parms->outHeight, 0 );
 
 	for( int side = 0; side < 6; side++ )
 	{
@@ -485,70 +492,54 @@ void CalculateLightGridPointJob( calcLightGridPointParms_t* parms )
 		}
 	}
 
-	for( int mip = 0; mip < numMips; mip++ )
+	for( int x = 0; x < parms->outWidth; x++ )
 	{
-		float roughness = ( float )mip / ( float )( numMips - 1 );
-
-		idVec4 dstRect = R_CalculateMipRect( parms->outHeight, mip );
-
-		for( int x = dstRect.x; x < ( dstRect.x + dstRect.z ); x++ )
+		for( int y = 0; y < parms->outHeight; y++ )
 		{
-			for( int y = dstRect.y; y < ( dstRect.y + dstRect.w ); y++ )
-			{
-				idVec2 octCoord;
-				if( mip > 0 )
-				{
-					// move back to [0, 1] coords
-					octCoord = NormalizedOctCoord( x - dstRect.x, y - dstRect.y, dstRect.z );
-				}
-				else
-				{
-					octCoord = NormalizedOctCoord( x, y, dstRect.z );
-				}
+			idVec2 octCoord = NormalizedOctCoord( x, y, parms->outWidth );
 
-				// convert UV coord to 3D direction
-				idVec3 dir;
+			// convert UV coord to 3D direction
+			idVec3 dir;
 
-				dir.FromOctahedral( octCoord );
+			dir.FromOctahedral( octCoord );
 
-				idVec3 outColor( 0, 0, 0 );
+			idVec3 outColor( 0, 0, 0 );
 
 #if 1
-				// generate ambient colors by evaluating the L4 Spherical Harmonics
-				SphericalHarmonicsT<float, 4> shDirection = shEvaluate<4>( dir );
+			// generate ambient colors by evaluating the L4 Spherical Harmonics
+			SphericalHarmonicsT<float, 4> shDirection = shEvaluate<4>( dir );
 
-				idVec3 sampleIrradianceSh = shEvaluateDiffuse<idVec3, 4>( shRadiance, dir ) / idMath::PI;
+			idVec3 sampleIrradianceSh = shEvaluateDiffuse<idVec3, 4>( shRadiance, dir ) / idMath::PI;
 
-				outColor[0] = Max( 0.0f, sampleIrradianceSh.x );
-				outColor[1] = Max( 0.0f, sampleIrradianceSh.y );
-				outColor[2] = Max( 0.0f, sampleIrradianceSh.z );
+			outColor[0] = Max( 0.0f, sampleIrradianceSh.x );
+			outColor[1] = Max( 0.0f, sampleIrradianceSh.y );
+			outColor[2] = Max( 0.0f, sampleIrradianceSh.z );
 #else
-				// generate ambient colors using Monte Carlo method
-				for( int s = 0; s < parms->samples; s++ )
-				{
-					idVec2 Xi = Hammersley2D( s, parms->samples );
-					idVec3 H = ImportanceSampleGGX( Xi, dir, 0.95f );
+			// generate ambient colors using Monte Carlo method
+			for( int s = 0; s < parms->samples; s++ )
+			{
+				idVec2 Xi = Hammersley2D( s, parms->samples );
+				idVec3 H = ImportanceSampleGGX( Xi, dir, 0.95f );
 
-					float u, v;
-					idVec3 radiance;
-					R_SampleCubeMapHDR( H, parms->outHeight, buffers, &radiance[0], u, v );
+				float u, v;
+				idVec3 radiance;
+				R_SampleCubeMapHDR( H, parms->outHeight, buffers, &radiance[0], u, v );
 
-					outColor[0] += radiance[0];
-					outColor[1] += radiance[1];
-					outColor[2] += radiance[2];
-				}
+				outColor[0] += radiance[0];
+				outColor[1] += radiance[1];
+				outColor[2] += radiance[2];
+			}
 
-				outColor[0] /= parms->samples;
-				outColor[1] /= parms->samples;
-				outColor[2] /= parms->samples;
+			outColor[0] /= parms->samples;
+			outColor[1] /= parms->samples;
+			outColor[2] /= parms->samples;
 #endif
 
-				//outColor = dir * 0.5 + idVec3( 0.5f, 0.5f, 0.5f );
+			//outColor = dir * 0.5 + idVec3( 0.5f, 0.5f, 0.5f );
 
-				parms->outBuffer[( y * parms->outWidth + x ) * 3 + 0] = F32toF16( outColor[0] );
-				parms->outBuffer[( y * parms->outWidth + x ) * 3 + 1] = F32toF16( outColor[1] );
-				parms->outBuffer[( y * parms->outWidth + x ) * 3 + 2] = F32toF16( outColor[2] );
-			}
+			parms->outBuffer[( y * parms->outWidth + x ) * 3 + 0] = F32toF16( outColor[0] );
+			parms->outBuffer[( y * parms->outWidth + x ) * 3 + 1] = F32toF16( outColor[1] );
+			parms->outBuffer[( y * parms->outWidth + x ) * 3 + 2] = F32toF16( outColor[2] );
 		}
 	}
 
@@ -635,7 +626,7 @@ CONSOLE_COMMAND( generateLightGrid, "Generate light grid data", NULL )
 	renderView_t	ref;
 	int				blends;
 	const char*		extension;
-	int				size;
+	int				captureSize;
 
 	static const char* envDirection[6] = { "_px", "_nx", "_py", "_ny", "_pz", "_nz" };
 
@@ -650,7 +641,7 @@ CONSOLE_COMMAND( generateLightGrid, "Generate light grid data", NULL )
 	baseName = tr.primaryWorld->mapName;
 	baseName.StripFileExtension();
 
-	size = RADIANCE_CUBEMAP_SIZE;
+	captureSize = RADIANCE_CUBEMAP_SIZE;
 	blends = 1;
 
 	if( !tr.primaryView )
@@ -665,6 +656,7 @@ CONSOLE_COMMAND( generateLightGrid, "Generate light grid data", NULL )
 	// CAPTURE SCENE LIGHTING TO CUBEMAPS
 	//--------------------------------------------
 
+	/*
 	int totalGridPoints = 0;
 	for( int a = 0; a < tr.primaryWorld->NumAreas(); a++ )
 	{
@@ -672,137 +664,185 @@ CONSOLE_COMMAND( generateLightGrid, "Generate light grid data", NULL )
 
 		totalGridPoints += area->lightGrid.lightGridPoints.Num();
 	}
-
-	CommandlineProgressBar progressBar( totalGridPoints );
-	if( !useThreads )
-	{
-		progressBar.Start();
-	}
-
-	int	start = Sys_Milliseconds();
+	*/
 
 	for( int a = 0; a < tr.primaryWorld->NumAreas(); a++ )
 	{
 		portalArea_t* area = &tr.primaryWorld->portalAreas[a];
 
-		for( int i = 0; i < area->lightGrid.lightGridPoints.Num(); i++ )
+		CommandlineProgressBar progressBar( area->lightGrid.lightGridPoints.Num() );
+		if( !useThreads )
 		{
-			lightGridPoint_t* gridPoint = &area->lightGrid.lightGridPoints[i];
-			if( !gridPoint->valid )
+			progressBar.Start();
+		}
+
+		int	start = Sys_Milliseconds();
+
+		int gridStep[3];
+
+		gridStep[0] = 1;
+		gridStep[1] = area->lightGrid.lightGridBounds[0];
+		gridStep[2] = area->lightGrid.lightGridBounds[0] * area->lightGrid.lightGridBounds[1];
+
+		int gridCoord[3];
+
+		for( int i = 0; i < area->lightGrid.lightGridBounds[0]; i += 1 )
+		{
+			for( int j = 0; j < area->lightGrid.lightGridBounds[1]; j += 1 )
 			{
-				progressBar.Increment();
-				continue;
-			}
+				for( int k = 0; k < area->lightGrid.lightGridBounds[2]; k += 1 )
+				{
+					gridCoord[0] = i;
+					gridCoord[1] = j;
+					gridCoord[2] = k;
 
-			calcLightGridPointParms_t* jobParms = new calcLightGridPointParms_t;
-			jobParms->area = a;
+					lightGridPoint_t* gridPoint = &area->lightGrid.lightGridPoints[ gridCoord[0] * gridStep[0] + gridCoord[1] * gridStep[1] + gridCoord[2] * gridStep[2] ];
+					if( !gridPoint->valid )
+					{
+						progressBar.Increment();
+						continue;
+					}
 
-			for( int j = 0 ; j < 6 ; j++ )
-			{
-				ref = primary.renderView;
+					calcLightGridPointParms_t* jobParms = new calcLightGridPointParms_t;
+					jobParms->gridCoord[0] = i;
+					jobParms->gridCoord[1] = j;
+					jobParms->gridCoord[2] = k;
 
-				ref.rdflags = RDF_NOAMBIENT | RDF_IRRADIANCE;
-				ref.fov_x = ref.fov_y = 90;
+					for( int side = 0; side < 6; side++ )
+					{
+						ref = primary.renderView;
 
-				ref.vieworg = gridPoint->origin;
-				ref.viewaxis = tr.cubeAxis[j];
+						ref.rdflags = RDF_NOAMBIENT | RDF_IRRADIANCE;
+						ref.fov_x = ref.fov_y = 90;
 
-				extension = envDirection[ j ];
+						ref.vieworg = gridPoint->origin;
+						ref.viewaxis = tr.cubeAxis[ side ];
 
-				//tr.TakeScreenshot( size, size, fullname, blends, &ref, EXR );
-				byte* float16FRGB = tr.CaptureRenderToBuffer( size, size, &ref );
+						extension = envDirection[ side ];
 
-				jobParms->buffers[ j ] = float16FRGB;
+						//tr.TakeScreenshot( size, size, fullname, blends, &ref, EXR );
+						byte* float16FRGB = tr.CaptureRenderToBuffer( captureSize, captureSize, &ref );
+
+						jobParms->buffers[ side ] = float16FRGB;
 
 #if 0
-				if( i < 3 )
-				{
-					filename.Format( "env/%s/area%i_lightgridpoint%i%s.exr", baseName.c_str(), a, i, extension );
-					R_WriteEXR( filename, float16FRGB, 3, size, size, "fs_basepath" );
-				}
+						if( i < 3 )
+						{
+							filename.Format( "env/%s/area%i_lightgridpoint%i%s.exr", baseName.c_str(), a, i, extension );
+							R_WriteEXR( filename, float16FRGB, 3, size, size, "fs_basepath" );
+						}
 #endif
+					}
+
+					tr.lightGridJobs.Append( jobParms );
+
+					progressBar.Increment();
+				}
 			}
-
-			tr.lightGridJobs.Append( jobParms );
-
-			progressBar.Increment();
 		}
-	}
 
-	int	end = Sys_Milliseconds();
+		int	end = Sys_Milliseconds();
 
-	common->Printf( "captured light grid radiance in %5.1f seconds\n\n", ( end - start ) * 0.001f );
+		common->Printf( "captured light grid radiance for area %i in %5.1f seconds\n\n", a, ( end - start ) * 0.001f );
 
-	//common->Printf( "Wrote a env set with the name %s\n", baseName.c_str() );
+		//--------------------------------------------
+		// GENERATE IRRADIANCE
+		//--------------------------------------------
 
-	//--------------------------------------------
-	// GENERATE IRRADIANCE
-	//--------------------------------------------
+		if( !useThreads )
+		{
+			progressBar.Reset();
+			progressBar.Start();
+		}
 
-	if( !useThreads )
-	{
-		progressBar.Reset();
-		progressBar.Start();
-	}
+		start = Sys_Milliseconds();
 
-	start = Sys_Milliseconds();
+		for( int j = 0; j < tr.lightGridJobs.Num(); j++ )
+		{
+			calcLightGridPointParms_t* jobParms = tr.lightGridJobs[ j ];
 
-	for( int j = 0; j < tr.lightGridJobs.Num(); j++ )
-	{
-		calcLightGridPointParms_t* jobParms = tr.lightGridJobs[ j ];
+			jobParms->outWidth = LIGHTGRID_IRRADIANCE_SIZE;
+			jobParms->outHeight = LIGHTGRID_IRRADIANCE_SIZE;
+			jobParms->outBuffer = ( halfFloat_t* )R_StaticAlloc( idMath::Ceil( LIGHTGRID_IRRADIANCE_SIZE * LIGHTGRID_IRRADIANCE_SIZE * 3 * sizeof( halfFloat_t ) * 1.5f ), TAG_IMAGE );
 
-		jobParms->outWidth = int( IRRADIANCE_CUBEMAP_SIZE * 1.5f );
-		jobParms->outHeight = IRRADIANCE_CUBEMAP_SIZE;
-		jobParms->outBuffer = ( halfFloat_t* )R_StaticAlloc( idMath::Ceil( IRRADIANCE_CUBEMAP_SIZE * IRRADIANCE_CUBEMAP_SIZE * 3 * sizeof( halfFloat_t ) * 1.5f ), TAG_IMAGE );
+			if( useThreads )
+			{
+				tr.envprobeJobList->AddJob( ( jobRun_t )CalculateLightGridPointJob, jobParms );
+			}
+			else
+			{
+				CalculateLightGridPointJob( jobParms );
+				progressBar.Increment();
+			}
+		}
 
 		if( useThreads )
 		{
-			tr.envprobeJobList->AddJob( ( jobRun_t )CalculateLightGridPointJob, jobParms );
+			//tr.envprobeJobList->Submit();
+			tr.envprobeJobList->Submit( NULL, JOBLIST_PARALLELISM_MAX_CORES );
+			tr.envprobeJobList->Wait();
 		}
-		else
+
+
+
+		int atlasWidth = area->lightGrid.lightGridBounds[0] * area->lightGrid.lightGridBounds[1] * LIGHTGRID_IRRADIANCE_SIZE;
+		int atlasHeight = area->lightGrid.lightGridBounds[2] * LIGHTGRID_IRRADIANCE_SIZE;
+
+		idTempArray<halfFloat_t> irradianceAtlas( atlasWidth * atlasHeight * 3 );
+
+		// fill everything with solid red
+		for( int i = 0; i < ( atlasWidth * atlasHeight ); i++ )
 		{
-			CalculateLightGridPointJob( jobParms );
-			progressBar.Increment();
+			irradianceAtlas[i * 3 + 0] = F32toF16( 1.0f );
+			irradianceAtlas[i * 3 + 1] = F32toF16( 0.0f );
+			irradianceAtlas[i * 3 + 2] = F32toF16( 0.0f );
 		}
-	}
 
-	if( useThreads )
-	{
-		//tr.envprobeJobList->Submit();
-		tr.envprobeJobList->Submit( NULL, JOBLIST_PARALLELISM_MAX_CORES );
-		tr.envprobeJobList->Wait();
-	}
-
-
-
-	for( int j = 0; j < tr.lightGridJobs.Num(); j++ )
-	{
-		calcLightGridPointParms_t* job = tr.lightGridJobs[ j ];
-
-		filename.Format( "env/%s/area%i_lightgridpoint%i_amb.exr", baseName.c_str(), job->area, j );
-
-		R_WriteEXR( filename.c_str(), ( byte* )job->outBuffer, 3, job->outWidth, job->outHeight, "fs_basepath" );
-
-		//common->Printf( "%s convolved in %5.1f seconds\n\n", filename.c_str(), job->time * 0.001f );
-
-		for( int i = 0; i < 6; i++ )
+		for( int j = 0; j < tr.lightGridJobs.Num(); j++ )
 		{
-			if( job->buffers[i] )
+			calcLightGridPointParms_t* job = tr.lightGridJobs[ j ];
+
+			//filename.Format( "env/%s/area%i_lightgridpoint%i_amb.exr", baseName.c_str(), a, j );
+			//R_WriteEXR( filename.c_str(), ( byte* )job->outBuffer, 3, job->outWidth, job->outHeight, "fs_basepath" );
+
+			for( int x = 0; x < LIGHTGRID_IRRADIANCE_SIZE; x++ )
 			{
-				Mem_Free( job->buffers[i] );
+				for( int y = 0; y < LIGHTGRID_IRRADIANCE_SIZE; y++ )
+				{
+					// gridPoint = lightGridPoints[ gridCoord[0] * gridStep[0] + gridCoord[1] * gridStep[1] + gridCoord[2] * gridStep[2] ];
+
+					int xx = x + ( job->gridCoord[0] * gridStep[0] + job->gridCoord[1] * gridStep[1] ) * LIGHTGRID_IRRADIANCE_SIZE;
+					int yy = y + job->gridCoord[2] * LIGHTGRID_IRRADIANCE_SIZE;
+
+					irradianceAtlas[( yy * atlasWidth + xx ) * 3 + 0] = job->outBuffer[( y * LIGHTGRID_IRRADIANCE_SIZE + x ) * 3 + 0];
+					irradianceAtlas[( yy * atlasWidth + xx ) * 3 + 1] = job->outBuffer[( y * LIGHTGRID_IRRADIANCE_SIZE + x ) * 3 + 1];
+					irradianceAtlas[( yy * atlasWidth + xx ) * 3 + 2] = job->outBuffer[( y * LIGHTGRID_IRRADIANCE_SIZE + x ) * 3 + 2];
+				}
 			}
+
+			for( int i = 0; i < 6; i++ )
+			{
+				if( job->buffers[i] )
+				{
+					Mem_Free( job->buffers[i] );
+				}
+			}
+
+			Mem_Free( job->outBuffer );
+
+			delete job;
 		}
 
-		Mem_Free( job->outBuffer );
+		filename.Format( "env/%s/area%i_lightgrid_amb.exr", baseName.c_str(), a );
 
-		delete job;
+		R_WriteEXR( filename.c_str(), irradianceAtlas.Ptr(), 3, atlasWidth, atlasHeight, "fs_basepath" );
+
+		tr.lightGridJobs.Clear();
+
+		end = Sys_Milliseconds();
+
+		common->Printf( "computed light grid irradiance for area %i in %5.1f seconds\n\n", a, ( end - start ) * 0.001f );
 	}
-
-	tr.lightGridJobs.Clear();
-
-	end = Sys_Milliseconds();
-
-	common->Printf( "computed light grid irradiance in %5.1f seconds\n\n", ( end - start ) * 0.001f );
 }
 
 #if 0

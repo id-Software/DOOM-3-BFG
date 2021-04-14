@@ -1851,7 +1851,7 @@ void idRenderBackend::DBG_ShowLightGrid()
 		renderProgManager.SetUniformValue( RENDERPARM_LOCALVIEWORIGIN, localViewOrigin.ToFloatPtr() ); // rpLocalViewOrigin
 
 
-#if 1
+#if 0
 		renderProgManager.BindShader_Color();
 
 		int gridCoord[3];
