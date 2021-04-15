@@ -91,11 +91,11 @@ void main( PS_IN fragment, out PS_OUT result )
 	float3 lightGridSize = rpJitterTexScale.xyz;
 	int3 lightGridBounds = int3( rpJitterTexOffset.x, rpJitterTexOffset.y, rpJitterTexOffset.z );
 
-	float invXY = ( 1.0 / ( lightGridBounds[0] * lightGridBounds[1] ) );
-	float invZ = ( 1.0 / lightGridBounds[2] );
+	float invXZ = ( 1.0 / ( lightGridBounds[0] * lightGridBounds[2] ) );
+	float invY = ( 1.0 / lightGridBounds[1] );
 
-	normalizedOctCoordZeroOne.x *= invXY;
-	normalizedOctCoordZeroOne.y *= invZ;
+	normalizedOctCoordZeroOne.x *= invXZ;
+	normalizedOctCoordZeroOne.y *= invY;
 
 	int3 gridStep;
 
@@ -105,8 +105,8 @@ void main( PS_IN fragment, out PS_OUT result )
 
 	int3 gridCoord = GetBaseGridCoord( globalPosition );
 
-	normalizedOctCoordZeroOne.x += ( gridCoord[0] * gridStep[0] + gridCoord[1] * gridStep[1] ) * invXY;
-	normalizedOctCoordZeroOne.y += ( gridCoord[2] * invZ );
+	normalizedOctCoordZeroOne.x += ( gridCoord[0] * gridStep[0] + gridCoord[2] * gridStep[1] ) * invXZ;
+	normalizedOctCoordZeroOne.y += ( gridCoord[1] * invY );
 
 	float4 envMap = tex2D( samp0, normalizedOctCoordZeroOne );
 

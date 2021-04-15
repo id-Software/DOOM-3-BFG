@@ -670,9 +670,19 @@ CONSOLE_COMMAND( generateLightGrid, "Generate light grid data", NULL )
 	}
 	*/
 
+#if 1
+	int a = tr.primaryWorld->PointInArea( tr.primaryView->renderView.vieworg );
+	if( a == -1 )
+	{
+		return;
+	}
+#else
 	for( int a = 0; a < tr.primaryWorld->NumAreas(); a++ )
+#endif
 	{
 		portalArea_t* area = &tr.primaryWorld->portalAreas[a];
+
+		idLib::Printf( "Shooting %i grid probes area %i...\n\n", area->lightGrid.lightGridPoints.Num(), a );
 
 		CommandlineProgressBar progressBar( area->lightGrid.lightGridPoints.Num() );
 		if( !useThreads )
@@ -789,15 +799,15 @@ CONSOLE_COMMAND( generateLightGrid, "Generate light grid data", NULL )
 
 
 
-		int atlasWidth = area->lightGrid.lightGridBounds[0] * area->lightGrid.lightGridBounds[1] * LIGHTGRID_IRRADIANCE_SIZE;
-		int atlasHeight = area->lightGrid.lightGridBounds[2] * LIGHTGRID_IRRADIANCE_SIZE;
+		int atlasWidth = area->lightGrid.lightGridBounds[0] * area->lightGrid.lightGridBounds[2] * LIGHTGRID_IRRADIANCE_SIZE;
+		int atlasHeight = area->lightGrid.lightGridBounds[1] * LIGHTGRID_IRRADIANCE_SIZE;
 
 		idTempArray<halfFloat_t> irradianceAtlas( atlasWidth * atlasHeight * 3 );
 
-		// fill everything with solid red
+		// fill everything with solid black
 		for( int i = 0; i < ( atlasWidth * atlasHeight ); i++ )
 		{
-			irradianceAtlas[i * 3 + 0] = F32toF16( 1.0f );
+			irradianceAtlas[i * 3 + 0] = F32toF16( 0.0f );
 			irradianceAtlas[i * 3 + 1] = F32toF16( 0.0f );
 			irradianceAtlas[i * 3 + 2] = F32toF16( 0.0f );
 		}
@@ -815,8 +825,8 @@ CONSOLE_COMMAND( generateLightGrid, "Generate light grid data", NULL )
 				{
 					// gridPoint = lightGridPoints[ gridCoord[0] * gridStep[0] + gridCoord[1] * gridStep[1] + gridCoord[2] * gridStep[2] ];
 
-					int xx = x + ( job->gridCoord[0] * gridStep[0] + job->gridCoord[1] * gridStep[1] ) * LIGHTGRID_IRRADIANCE_SIZE;
-					int yy = y + job->gridCoord[2] * LIGHTGRID_IRRADIANCE_SIZE;
+					int xx = x + ( job->gridCoord[0] * gridStep[0] + job->gridCoord[2] * gridStep[1] ) * LIGHTGRID_IRRADIANCE_SIZE;
+					int yy = y + job->gridCoord[1] * LIGHTGRID_IRRADIANCE_SIZE;
 
 					irradianceAtlas[( yy * atlasWidth + xx ) * 3 + 0] = job->outBuffer[( y * LIGHTGRID_IRRADIANCE_SIZE + x ) * 3 + 0];
 					irradianceAtlas[( yy * atlasWidth + xx ) * 3 + 1] = job->outBuffer[( y * LIGHTGRID_IRRADIANCE_SIZE + x ) * 3 + 1];

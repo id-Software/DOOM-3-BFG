@@ -249,11 +249,11 @@ void main( PS_IN fragment, out PS_OUT result )
 	float3 lightGridSize = rpJitterTexScale.xyz;
 	int3 lightGridBounds = int3( rpJitterTexOffset.x, rpJitterTexOffset.y, rpJitterTexOffset.z );
 
-	float invXY = ( 1.0 / ( lightGridBounds[0] * lightGridBounds[1] ) );
-	float invZ = ( 1.0 / lightGridBounds[2] );
+	float invXZ = ( 1.0 / ( lightGridBounds[0] * lightGridBounds[2] ) );
+	float invY = ( 1.0 / lightGridBounds[1] );
 
-	normalizedOctCoordZeroOne.x *= invXY;
-	normalizedOctCoordZeroOne.y *= invZ;
+	normalizedOctCoordZeroOne.x *= invXZ;
+	normalizedOctCoordZeroOne.y *= invY;
 
 	int3 gridCoord;
 	float3 frac;
@@ -328,8 +328,8 @@ void main( PS_IN fragment, out PS_OUT result )
 
 		float2 atlasOffset;
 
-		atlasOffset.x = ( gridCoord2[0] * gridStep[0] + gridCoord2[1] * gridStep[1] ) * invXY;
-		atlasOffset.y = ( gridCoord2[2] * invZ );
+		atlasOffset.x = ( gridCoord2[0] * gridStep[0] + gridCoord2[2] * gridStep[1] ) * invXZ;
+		atlasOffset.y = ( gridCoord2[1] * invY );
 
 		irradiance += tex2D( samp7, normalizedOctCoordZeroOne + atlasOffset ).rgb * factor;
 
