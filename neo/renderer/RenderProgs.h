@@ -451,14 +451,24 @@ public:
 		BindShader_Builtin( BUILTIN_PBR_INTERACTION_SHADOW_MAPPING_PARALLEL_SKINNED );
 	}
 
-	void	BindShader_Octahedron()
+	void	BindShader_DebugLightGrid()
 	{
-		BindShader_Builtin( BUILTIN_OCTAHEDRON );
+		BindShader_Builtin( BUILTIN_DEBUG_LIGHTGRID );
 	}
 
-	void	BindShader_OctahedronSkinned()
+	void	BindShader_DebugLightGridSkinned()
 	{
-		BindShader_Builtin( BUILTIN_OCTAHEDRON_SKINNED );
+		BindShader_Builtin( BUILTIN_DEBUG_LIGHTGRID_SKINNED );
+	}
+
+	void	BindShader_DebugOctahedron()
+	{
+		BindShader_Builtin( BUILTIN_DEBUG_OCTAHEDRON );
+	}
+
+	void	BindShader_DebugOctahedronSkinned()
+	{
+		BindShader_Builtin( BUILTIN_DEBUG_OCTAHEDRON_SKINNED );
 	}
 	// RB end
 
@@ -767,8 +777,11 @@ private:
 		BUILTIN_PBR_INTERACTION_SHADOW_MAPPING_PARALLEL,
 		BUILTIN_PBR_INTERACTION_SHADOW_MAPPING_PARALLEL_SKINNED,
 
-		BUILTIN_OCTAHEDRON,
-		BUILTIN_OCTAHEDRON_SKINNED,
+		BUILTIN_DEBUG_LIGHTGRID,
+		BUILTIN_DEBUG_LIGHTGRID_SKINNED,
+
+		BUILTIN_DEBUG_OCTAHEDRON,
+		BUILTIN_DEBUG_OCTAHEDRON_SKINNED,
 		// RB end
 		BUILTIN_ENVIRONMENT,
 		BUILTIN_ENVIRONMENT_SKINNED,

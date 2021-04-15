@@ -1937,7 +1937,7 @@ static srfTriangles_t* R_MakeZeroOneSphereTris()
 
 			verts[ numVerts ].SetTexCoord( s * S, r * R );
 			verts[ numVerts ].xyz = idVec3( x, y, z ) * radius;
-			verts[ numVerts ].SetNormal( -x, -y, -z );
+			verts[ numVerts ].SetNormal( x, y, z );
 			verts[ numVerts ].SetColor( 0xffffffff );
 			numVerts++;
 

@@ -67,9 +67,6 @@ struct lightGridPoint_t
 	bool			valid;				// is not in solid area
 
 	SphericalHarmonicsT<float, 4>	SH4;
-
-	// TODO REMOVE just for testing
-	idImage* 		irradianceImage;
 };
 
 class LightGrid
@@ -84,7 +81,9 @@ public:
 	idList<lightGridPoint_t> lightGridPoints;
 	int						validGridPoints;
 
-	//LightGrid();
+	idImage* 				irradianceImage;
+
+	LightGrid();
 
 	// setup light grid for given world bounds
 	void					SetupLightGrid( const idBounds& bounds, const char* baseName, const idRenderWorld* world, int _area );

@@ -1719,7 +1719,7 @@ void idRenderBackend::DBG_ShowViewEnvprobes()
 	{
 		count++;
 
-		renderProgManager.BindShader_Octahedron();
+		renderProgManager.BindShader_DebugOctahedron();
 
 		GL_State( GLS_DEPTHFUNC_ALWAYS | GLS_DEPTHMASK );
 		GL_Color( 1.0f, 1.0f, 1.0f );
@@ -1815,6 +1815,10 @@ void idRenderBackend::DBG_ShowLightGrid()
 	const int numColors = 7;
 	static idVec4 colors[numColors] = { colorBlack, colorBlue, colorCyan, colorGreen, colorYellow, colorRed, colorWhite };
 
+	// use rpGlobalLightOrigin for camera center
+	idVec4 globalViewOrigin( viewDef->renderView.vieworg.x, viewDef->renderView.vieworg.y, viewDef->renderView.vieworg.z, 1.0f );
+	renderProgManager.SetUniformValue( RENDERPARM_GLOBALLIGHTORIGIN, globalViewOrigin.ToFloatPtr() );
+
 	for( int i = 0; i < area->lightGrid.lightGridPoints.Num(); i++ )
 	{
 		lightGridPoint_t* gridPoint = &area->lightGrid.lightGridPoints[i];
@@ -1829,12 +1833,15 @@ void idRenderBackend::DBG_ShowLightGrid()
 			continue;
 		}
 
-#if 1
+#if 0
 		if( i > 53 )
 		{
 			break;
 		}
 #endif
+
+		// move center into the cube so we can void using negative results with GetBaseGridCoord
+		idVec3 gridPointOrigin = gridPoint->origin + idVec3( 4, 4, 4 );
 
 		idVec4 localViewOrigin( 1.0f );
 		idVec4 globalViewOrigin;
@@ -1844,11 +1851,20 @@ void idRenderBackend::DBG_ShowLightGrid()
 		globalViewOrigin.w = 1.0f;
 
 		float modelMatrix[16];
-		R_AxisToModelMatrix( axis, gridPoint->origin, modelMatrix );
+		R_AxisToModelMatrix( axis, gridPointOrigin, modelMatrix );
 
 		R_GlobalPointToLocal( modelMatrix, viewDef->renderView.vieworg, localViewOrigin.ToVec3() );
 
 		renderProgManager.SetUniformValue( RENDERPARM_LOCALVIEWORIGIN, localViewOrigin.ToFloatPtr() ); // rpLocalViewOrigin
+
+		// RB: if we want to get the normals in world space so we need the model -> world matrix
+		idRenderMatrix modelMatrix2;
+		idRenderMatrix::Transpose( *( idRenderMatrix* )modelMatrix, modelMatrix2 );
+
+		renderProgManager.SetUniformValue( RENDERPARM_MODELMATRIX_X, &modelMatrix2[0][0] );
+		renderProgManager.SetUniformValue( RENDERPARM_MODELMATRIX_Y, &modelMatrix2[1][0] );
+		renderProgManager.SetUniformValue( RENDERPARM_MODELMATRIX_Z, &modelMatrix2[2][0] );
+		renderProgManager.SetUniformValue( RENDERPARM_MODELMATRIX_W, &modelMatrix2[3][0] );
 
 
 #if 0
@@ -1862,10 +1878,10 @@ void idRenderBackend::DBG_ShowLightGrid()
 		//idVec4 color = colors[ i % numColors ];
 		GL_Color( color );
 #else
-		renderProgManager.BindShader_Octahedron();
+		renderProgManager.BindShader_DebugLightGrid();
 
 		GL_SelectTexture( 0 );
-		gridPoint->irradianceImage->Bind();
+		area->lightGrid.irradianceImage->Bind();
 #endif
 
 		idRenderMatrix modelRenderMatrix;
@@ -1883,6 +1899,7 @@ void idRenderBackend::DBG_ShowLightGrid()
 		RB_SetMVP( invProjectMVPMatrix );
 
 		DrawElementsWithCounters( &zeroOneSphereSurface );
+		//DrawElementsWithCounters( &zeroOneCubeSurface );
 	}
 
 	if( r_showLightGrid.GetInteger() == 2 )

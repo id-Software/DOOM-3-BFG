@@ -35,6 +35,17 @@ If you have questions concerning this license or the applicable additional terms
 static const int MAX_LIGHTGRID_ATLAS_SIZE	= 4096;
 static const int MAX_AREA_LIGHTGRID_POINTS	= ( MAX_LIGHTGRID_ATLAS_SIZE / LIGHTGRID_IRRADIANCE_SIZE ) * ( MAX_LIGHTGRID_ATLAS_SIZE / LIGHTGRID_IRRADIANCE_SIZE );
 
+LightGrid::LightGrid()
+{
+	lightGridSize.Set( 64, 64, 128 );
+	//lightGridPoints.Clear();
+
+	area = -1;
+	validGridPoints = 0;
+
+	irradianceImage = NULL;
+}
+
 void LightGrid::SetupLightGrid( const idBounds& bounds, const char* mapName, const idRenderWorld* world, int _area )
 {
 	//idLib::Printf( "----- SetupLightGrid -----\n" );
@@ -86,15 +97,8 @@ void LightGrid::SetupLightGrid( const idBounds& bounds, const char* mapName, con
 
 	idStr fullname;
 
-	for( int i = 0; i < lightGridPoints.Num(); i++ )
-	{
-		lightGridPoint_t* gridPoint = &lightGridPoints[i];
-
-		gridPoint->irradianceImage = NULL;
-
-		fullname.Format( "env/%s/area%i_lightgridpoint%i_amb", basename.c_str(), area, i );
-		gridPoint->irradianceImage = globalImages->ImageFromFile( fullname, TF_LINEAR, TR_CLAMP, TD_R11G11B10F, CF_2D );
-	}
+	fullname.Format( "env/%s/area%i_lightgrid_amb", basename.c_str(), area );
+	irradianceImage = globalImages->ImageFromFile( fullname, TF_NEAREST, TR_CLAMP, TD_R11G11B10F, CF_2D );
 #else
 	for( int i = 0; i < lightGridPoints.Num(); i++ )
 	{

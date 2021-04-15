@@ -15,6 +15,8 @@ return
 	"builtin/debug/shadowDebug_skinned.vs.hlsl",
 	"builtin/debug/octahedron.ps.hlsl",
 	"builtin/debug/octahedron.vs.hlsl",
+	"builtin/debug/lightgrid.ps.hlsl",
+	"builtin/debug/lightgrid.vs.hlsl",
 	
 	"builtin/fog/blendLight.ps.hlsl",
 	"builtin/fog/blendLight.vs.hlsl",
