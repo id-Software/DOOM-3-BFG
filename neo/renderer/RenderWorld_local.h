@@ -71,6 +71,9 @@ struct lightGridPoint_t
 
 class LightGrid
 {
+private:
+	idImage* 				irradianceImage;
+
 public:
 	idVec3					lightGridOrigin;
 	idVec3					lightGridSize;
@@ -80,8 +83,6 @@ public:
 //public:
 	idList<lightGridPoint_t> lightGridPoints;
 	int						validGridPoints;
-
-	idImage* 				irradianceImage;
 
 	LightGrid();
 
@@ -95,6 +96,11 @@ public:
 
 	idVec3					GetGridCoordDebugColor( int gridCoord[3] );
 	idVec3					GetProbeIndexDebugColor( const int probeIndex );
+
+	idImage*				GetIrradianceImage() const
+	{
+		return irradianceImage;
+	}
 
 	// fetch grid lighting on a per object basis
 	void					SetupEntityGridLighting( idRenderEntityLocal* def );

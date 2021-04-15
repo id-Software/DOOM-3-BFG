@@ -1323,7 +1323,7 @@ void idRenderBackend::DrawSingleInteraction( drawInteraction_t* din, bool useFas
 	const textureUsage_t specUsage = din->specularImage->GetUsage();
 
 	// RB begin
-	if( useIBL && viewDef->useLightGrid )
+	if( useIBL && currentSpace->useLightGrid )
 	{
 		idVec4 probeMins, probeMaxs, probeCenter;
 
@@ -1347,9 +1347,9 @@ void idRenderBackend::DrawSingleInteraction( drawInteraction_t* din, bool useFas
 		//SetVertexParm( RENDERPARM_WOBBLESK_Z, probeCenter.ToFloatPtr() );
 
 		// use rpGlobalLightOrigin for lightGrid center
-		idVec4 lightGridOrigin( viewDef->lightGridOrigin.x, viewDef->lightGridOrigin.y, viewDef->lightGridOrigin.z, 1.0f );
-		idVec4 lightGridSize( viewDef->lightGridSize.x, viewDef->lightGridSize.y, viewDef->lightGridSize.z, 1.0f );
-		idVec4 lightGridBounds( viewDef->lightGridBounds[0], viewDef->lightGridBounds[1], viewDef->lightGridBounds[2], 1.0f );
+		idVec4 lightGridOrigin( currentSpace->lightGridOrigin.x, currentSpace->lightGridOrigin.y, currentSpace->lightGridOrigin.z, 1.0f );
+		idVec4 lightGridSize( currentSpace->lightGridSize.x, currentSpace->lightGridSize.y, currentSpace->lightGridSize.z, 1.0f );
+		idVec4 lightGridBounds( currentSpace->lightGridBounds[0], currentSpace->lightGridBounds[1], currentSpace->lightGridBounds[2], 1.0f );
 
 		renderProgManager.SetUniformValue( RENDERPARM_GLOBALLIGHTORIGIN, lightGridOrigin.ToFloatPtr() );
 		renderProgManager.SetUniformValue( RENDERPARM_JITTERTEXSCALE, lightGridSize.ToFloatPtr() );
@@ -1397,14 +1397,7 @@ void idRenderBackend::DrawSingleInteraction( drawInteraction_t* din, bool useFas
 #endif
 
 		GL_SelectTexture( INTERACTION_TEXUNIT_AMBIENT_CUBE1 );
-		if( viewDef->irradianceImage )
-		{
-			viewDef->irradianceImage->Bind();
-		}
-		else
-		{
-			globalImages->defaultUACIrradianceCube->Bind();
-		}
+		currentSpace->irradianceAtlasImage->Bind();
 
 		GL_SelectTexture( INTERACTION_TEXUNIT_SPECULAR_CUBE1 );
 		if( viewDef->radianceImage )

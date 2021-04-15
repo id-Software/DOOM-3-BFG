@@ -1886,7 +1886,7 @@ void idRenderBackend::DBG_ShowLightGrid()
 		renderProgManager.BindShader_DebugLightGrid();
 
 		GL_SelectTexture( 0 );
-		area->lightGrid.irradianceImage->Bind();
+		area->lightGrid.GetIrradianceImage()->Bind();
 #endif
 
 		idRenderMatrix modelRenderMatrix;

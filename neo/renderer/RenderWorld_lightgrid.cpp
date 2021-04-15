@@ -88,25 +88,25 @@ void LightGrid::SetupLightGrid( const idBounds& bounds, const char* mapName, con
 		idLib::Printf( "area %i %9u x %" PRIuSIZE " = lightGridSize = (%.2fMB)\n", area, numGridPoints, sizeof( lightGridPoint_t ), ( float )( lightGridPoints.MemoryUsed() ) / ( 1024.0f * 1024.0f ) );
 
 		CalculateLightGridPointPositions( world, area );
-	}
 
-	// try to load existing lightgrid data
+		// try to load existing lightgrid data
 #if 1
-	idStr basename = mapName;
-	basename.StripFileExtension();
+		idStr basename = mapName;
+		basename.StripFileExtension();
 
-	idStr fullname;
+		idStr fullname;
 
-	fullname.Format( "env/%s/area%i_lightgrid_amb", basename.c_str(), area );
-	irradianceImage = globalImages->ImageFromFile( fullname, TF_NEAREST, TR_CLAMP, TD_R11G11B10F, CF_2D );
+		fullname.Format( "env/%s/area%i_lightgrid_amb", basename.c_str(), area );
+		irradianceImage = globalImages->ImageFromFile( fullname, TF_NEAREST, TR_CLAMP, TD_R11G11B10F, CF_2D );
 #else
-	for( int i = 0; i < lightGridPoints.Num(); i++ )
-	{
-		lightGridPoint_t* gridPoint = &lightGridPoints[i];
+		for( int i = 0; i < lightGridPoints.Num(); i++ )
+		{
+			lightGridPoint_t* gridPoint = &lightGridPoints[i];
 
-		gridPoint->irradianceImage = NULL;
-	}
+			gridPoint->irradianceImage = NULL;
+		}
 #endif
+	}
 }
 
 void LightGrid::GetBaseGridCoord( const idVec3& origin, int gridCoord[3] )
@@ -634,6 +634,12 @@ CONSOLE_COMMAND( generateLightGrid, "Generate light grid data", NULL )
 
 	static const char* envDirection[6] = { "_px", "_nx", "_py", "_ny", "_pz", "_nz" };
 
+	if( args.Argc() != 1 && args.Argc() != 2 )
+	{
+		common->Printf( "USAGE: generateLightData [limit] (limit is max probes per BSP area)\n" );
+		return;
+	}
+
 	if( !tr.primaryWorld )
 	{
 		common->Printf( "No primary world loaded.\n" );
@@ -654,6 +660,14 @@ CONSOLE_COMMAND( generateLightGrid, "Generate light grid data", NULL )
 		return;
 	}
 
+	int limit = MAX_AREA_LIGHTGRID_POINTS;
+	if( args.Argc() >= 2 )
+	{
+		limit = atoi( args.Argv( 1 ) );
+	}
+
+	idLib::Printf( "Using limit = %i\n", limit );
+
 	const viewDef_t primary = *tr.primaryView;
 
 	//--------------------------------------------
@@ -670,7 +684,7 @@ CONSOLE_COMMAND( generateLightGrid, "Generate light grid data", NULL )
 	}
 	*/
 
-#if 1
+#if 0
 	int a = tr.primaryWorld->PointInArea( tr.primaryView->renderView.vieworg );
 	if( a == -1 )
 	{
@@ -682,9 +696,15 @@ CONSOLE_COMMAND( generateLightGrid, "Generate light grid data", NULL )
 	{
 		portalArea_t* area = &tr.primaryWorld->portalAreas[a];
 
-		idLib::Printf( "Shooting %i grid probes area %i...\n\n", area->lightGrid.lightGridPoints.Num(), a );
+		int numGridPoints = Min( area->lightGrid.lightGridPoints.Num(), limit );
+		if( numGridPoints == 0 )
+		{
+			continue;
+		}
 
-		CommandlineProgressBar progressBar( area->lightGrid.lightGridPoints.Num() );
+		idLib::Printf( "Shooting %i grid probes area %i...\n", numGridPoints, a );
+
+		CommandlineProgressBar progressBar( numGridPoints );
 		if( !useThreads )
 		{
 			progressBar.Start();
@@ -711,7 +731,7 @@ CONSOLE_COMMAND( generateLightGrid, "Generate light grid data", NULL )
 					gridCoord[2] = k;
 
 					lightGridPoint_t* gridPoint = &area->lightGrid.lightGridPoints[ gridCoord[0] * gridStep[0] + gridCoord[1] * gridStep[1] + gridCoord[2] * gridStep[2] ];
-					if( !gridPoint->valid )
+					if( !gridPoint->valid || ( tr.lightGridJobs.Num() >= limit ) )
 					{
 						progressBar.Increment();
 						continue;

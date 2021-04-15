@@ -336,7 +336,7 @@ void main( PS_IN fragment, out PS_OUT result )
 		totalFactor += factor;
 	}
 
-	if( totalFactor > 0 && totalFactor < 0.99 )
+	if( totalFactor > 0.0 && totalFactor < 0.9999 )
 	{
 		totalFactor = 1.0f / totalFactor;
 
@@ -372,7 +372,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	float specAO = ComputeSpecularAO( vDotN, ao, roughness );
 	float3 specularLight = radiance * ( kS * envBRDF.x + float3( envBRDF.y ) ) * specAO * ( rpSpecularModifier.xyz * 0.5 );
 
-#if 0
+#if 1
 	// Marmoset Horizon Fade trick
 	const half horizonFade = 1.3;
 	half horiz = saturate( 1.0 + horizonFade * saturate( dot3( reflectionVector, globalNormal ) ) );
@@ -385,7 +385,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	//result.color.rgb = diffuseLight;
 	//result.color.rgb = diffuseLight * lightColor;
 	//result.color.rgb = specularLight;
-	result.color.rgb = ( diffuseLight + specularLight ) * lightColor * fragment.color.rgb;
+	result.color.rgb = ( diffuseLight + specularLight * horiz ) * lightColor * fragment.color.rgb;
 	//result.color.rgb = localNormal.xyz * 0.5 + 0.5;
 	//result.color.rgb = float3( ao );
 	result.color.w = fragment.color.a;

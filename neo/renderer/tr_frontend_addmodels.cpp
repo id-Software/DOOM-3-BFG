@@ -373,6 +373,9 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 	vEntity->staticShadowVolumes = NULL;
 	vEntity->dynamicShadowVolumes = NULL;
 
+	// RB
+	vEntity->useLightGrid = false;
+
 	// globals we really should pass in...
 	const viewDef_t* viewDef = tr.viewDef;
 
@@ -548,6 +551,30 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 			}
 		}
 	}
+
+	// RB: use first valid lightgrid
+	for( areaReference_t* ref = entityDef->entityRefs; ref != NULL; ref = ref->ownerNext )
+	{
+		idImage* lightGridImage = ref->area->lightGrid.GetIrradianceImage();
+
+		if( ref->area->lightGrid.lightGridPoints.Num() && lightGridImage && !lightGridImage->IsDefaulted() )
+		{
+			vEntity->useLightGrid = true;
+			vEntity->irradianceAtlasImage = lightGridImage;
+
+			for( int i = 0; i < 3; i++ )
+			{
+				vEntity->lightGridOrigin[i] = ref->area->lightGrid.lightGridOrigin[i];
+				vEntity->lightGridSize[i] = ref->area->lightGrid.lightGridSize[i];
+				vEntity->lightGridBounds[i] = ref->area->lightGrid.lightGridBounds[i];
+			}
+
+			break;
+		}
+	}
+
+
+	// RB end
 
 	//---------------------------
 	// copy matrix related stuff for back-end use

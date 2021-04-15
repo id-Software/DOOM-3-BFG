@@ -450,6 +450,15 @@ struct viewEntity_t
 	// be linked to the lights or added to the drawsurf list in a serial code section
 	drawSurf_t* 			drawSurfs;
 
+	// RB: use light grid of the best area this entity is in
+	bool					useLightGrid;
+	idImage* 				irradianceAtlasImage;
+
+	idVec3					lightGridOrigin;
+	idVec3					lightGridSize;
+	int						lightGridBounds[3];
+	// RB end
+
 	// R_AddSingleModel will build a chain of parameters here to setup shadow volumes
 	staticShadowVolumeParms_t* 		staticShadowVolumes;
 	dynamicShadowVolumeParms_t* 	dynamicShadowVolumes;
@@ -636,13 +645,6 @@ struct viewDef_t
 	idRenderMatrix		inverseBaseEnvProbeProject;	// the matrix for deforming the 'zeroOneCubeModel' to exactly cover the environent probe volume in world space
 	idImage* 			irradianceImage;			// cubemap image used for diffuse IBL by backend
 	idImage* 			radianceImage;				// cubemap image used for specular IBL by backend
-
-	// lightGrid
-	bool				useLightGrid;
-	idVec3				lightGridOrigin;
-	idVec3				lightGridSize;
-	int					lightGridBounds[3];
-	// RB end
 };
 
 
