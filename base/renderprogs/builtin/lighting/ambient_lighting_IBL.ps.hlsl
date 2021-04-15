@@ -62,6 +62,7 @@ struct PS_OUT
 };
 // *INDENT-ON*
 
+
 // RB: TODO OPTIMIZE
 // this is a straight port of idBounds::RayIntersection
 bool AABBRayIntersection( float3 b[2], float3 start, float3 dir, out float scale )
@@ -144,15 +145,14 @@ void main( PS_IN fragment, out PS_OUT result )
 
 	float3 globalPosition = fragment.texcoord7.xyz;
 
-	// RB: rpGlobalLightOrigin is global view origin
-	float3 globalEye = normalize( rpGlobalLightOrigin.xyz - globalPosition );
+	float3 globalView = normalize( rpGlobalEyePos.xyz - globalPosition );
 
-	float3 reflectionVector = globalNormal * dot3( globalEye, globalNormal );
-	reflectionVector = normalize( ( reflectionVector * 2.0f ) - globalEye );
+	float3 reflectionVector = globalNormal * dot3( globalView, globalNormal );
+	reflectionVector = normalize( ( reflectionVector * 2.0f ) - globalView );
 
 #if 1
 	// parallax box correction using portal area bounds
-	float hitScale;
+	float hitScale = 0.0;
 	float3 bounds[2];
 	bounds[0].x = rpWobbleSkyX.x;
 	bounds[0].y = rpWobbleSkyX.y;
@@ -178,7 +178,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	}
 #endif
 
-	half vDotN = saturate( dot3( globalEye, globalNormal ) );
+	half vDotN = saturate( dot3( globalView, globalNormal ) );
 
 #if defined( USE_PBR )
 	const half metallic = specMapSRGB.g;

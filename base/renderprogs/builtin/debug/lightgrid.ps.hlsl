@@ -46,12 +46,12 @@ struct PS_OUT {
 // *INDENT-ON*
 
 
-float3 lightGridOrigin = float3( -192.0, -128.0, 0 );
-float3 lightGridSize = float3( 64.0, 64.0, 128.0 );
-int3 lightGridBounds = int3( 7, 7, 3 );
-
 int3 GetBaseGridCoord( float3 origin )
 {
+	float3 lightGridOrigin = rpGlobalLightOrigin.xyz;
+	float3 lightGridSize = rpJitterTexScale.xyz;
+	int3 lightGridBounds = int3( rpJitterTexOffset.x, rpJitterTexOffset.y, rpJitterTexOffset.z );
+
 	int3 pos;
 
 	float3 lightOrigin = origin - lightGridOrigin;
@@ -86,6 +86,10 @@ void main( PS_IN fragment, out PS_OUT result )
 
 	float2 normalizedOctCoord = octEncode( globalNormal );
 	float2 normalizedOctCoordZeroOne = ( normalizedOctCoord + float2( 1.0 ) ) * 0.5;
+
+	float3 lightGridOrigin = rpGlobalLightOrigin.xyz;
+	float3 lightGridSize = rpJitterTexScale.xyz;
+	int3 lightGridBounds = int3( rpJitterTexOffset.x, rpJitterTexOffset.y, rpJitterTexOffset.z );
 
 	float invXY = ( 1.0 / ( lightGridBounds[0] * lightGridBounds[1] ) );
 	float invZ = ( 1.0 / lightGridBounds[2] );

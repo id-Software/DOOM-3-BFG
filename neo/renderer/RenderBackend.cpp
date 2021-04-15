@@ -1344,6 +1344,17 @@ void idRenderBackend::DrawSingleInteraction( drawInteraction_t* din, bool useFas
 		SetVertexParm( RENDERPARM_WOBBLESKY_Y, probeMaxs.ToFloatPtr() );
 		SetVertexParm( RENDERPARM_WOBBLESKY_Z, probeCenter.ToFloatPtr() );
 
+		//SetVertexParm( RENDERPARM_WOBBLESK_Z, probeCenter.ToFloatPtr() );
+
+		// use rpGlobalLightOrigin for lightGrid center
+		idVec4 lightGridOrigin( viewDef->lightGridOrigin.x, viewDef->lightGridOrigin.y, viewDef->lightGridOrigin.z, 1.0f );
+		idVec4 lightGridSize( viewDef->lightGridSize.x, viewDef->lightGridSize.y, viewDef->lightGridSize.z, 1.0f );
+		idVec4 lightGridBounds( viewDef->lightGridBounds[0], viewDef->lightGridBounds[1], viewDef->lightGridBounds[2], 1.0f );
+
+		renderProgManager.SetUniformValue( RENDERPARM_GLOBALLIGHTORIGIN, lightGridOrigin.ToFloatPtr() );
+		renderProgManager.SetUniformValue( RENDERPARM_JITTERTEXSCALE, lightGridSize.ToFloatPtr() );
+		renderProgManager.SetUniformValue( RENDERPARM_JITTERTEXOFFSET, lightGridBounds.ToFloatPtr() );
+
 		if( specUsage == TD_SPECULAR_PBR_RMAO || specUsage == TD_SPECULAR_PBR_RMAOD )
 		{
 			// PBR path with roughness, metal and AO
@@ -2310,10 +2321,6 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 	ambientColor.w = 1;
 
 	renderProgManager.SetRenderParm( RENDERPARM_AMBIENT_COLOR, ambientColor.ToFloatPtr() );
-
-	// use rpGlobalLightOrigin for camera center
-	idVec4 globalViewOrigin( viewDef->renderView.vieworg.x, viewDef->renderView.vieworg.y, viewDef->renderView.vieworg.z, 1.0f );
-	SetVertexParm( RENDERPARM_GLOBALLIGHTORIGIN, globalViewOrigin.ToFloatPtr() );
 
 	// setup renderparms assuming we will be drawing trivial surfaces first
 	RB_SetupForFastPathInteractions( diffuseColor, specularColor );

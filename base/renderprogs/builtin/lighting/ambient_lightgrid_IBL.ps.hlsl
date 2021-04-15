@@ -63,36 +63,6 @@ struct PS_OUT
 // *INDENT-ON*
 
 
-float3 lightGridOrigin = float3( -192.0, -128.0, 0 );
-float3 lightGridSize = float3( 64.0, 64.0, 128.0 );
-int3 lightGridBounds = int3( 7, 7, 3 );
-
-int3 GetBaseGridCoord( float3 origin )
-{
-	int3 pos;
-
-	float3 lightOrigin = origin - lightGridOrigin;
-	for( int i = 0; i < 3; i++ )
-	{
-		float           v;
-
-		v = lightOrigin[i] * ( 1.0f / lightGridSize[i] );
-		pos[i] = int( floor( v ) );
-
-		if( pos[i] < 0 )
-		{
-			pos[i] = 0;
-		}
-		else if( pos[i] >= lightGridBounds[i] - 1 )
-		{
-			pos[i] = lightGridBounds[i] - 1;
-		}
-	}
-
-	return pos;
-}
-
-
 // RB: TODO OPTIMIZE
 // this is a straight port of idBounds::RayIntersection
 bool AABBRayIntersection( float3 b[2], float3 start, float3 dir, out float scale )
@@ -175,15 +145,14 @@ void main( PS_IN fragment, out PS_OUT result )
 
 	float3 globalPosition = fragment.texcoord7.xyz;
 
-	// RB: rpGlobalLightOrigin is global view origin
-	float3 globalEye = normalize( rpGlobalLightOrigin.xyz - globalPosition );
+	float3 globalView = normalize( rpGlobalEyePos.xyz - globalPosition );
 
-	float3 reflectionVector = globalNormal * dot3( globalEye, globalNormal );
-	reflectionVector = normalize( ( reflectionVector * 2.0f ) - globalEye );
+	float3 reflectionVector = globalNormal * dot3( globalView, globalNormal );
+	reflectionVector = normalize( ( reflectionVector * 2.0f ) - globalView );
 
 #if 1
 	// parallax box correction using portal area bounds
-	float hitScale;
+	float hitScale = 0.0;
 	float3 bounds[2];
 	bounds[0].x = rpWobbleSkyX.x;
 	bounds[0].y = rpWobbleSkyX.y;
@@ -209,7 +178,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	}
 #endif
 
-	half vDotN = saturate( dot3( globalEye, globalNormal ) );
+	half vDotN = saturate( dot3( globalView, globalNormal ) );
 
 #if defined( USE_PBR )
 	const half metallic = specMapSRGB.g;
@@ -271,6 +240,15 @@ void main( PS_IN fragment, out PS_OUT result )
 	float2 normalizedOctCoordZeroOne = ( normalizedOctCoord + float2( 1.0 ) ) * 0.5;
 
 // lightgrid atlas
+
+	//float3 lightGridOrigin = float3( -192.0, -128.0, 0 );
+	//float3 lightGridSize = float3( 64.0, 64.0, 128.0 );
+	//int3 lightGridBounds = int3( 7, 7, 3 );
+
+	float3 lightGridOrigin = rpGlobalLightOrigin.xyz;
+	float3 lightGridSize = rpJitterTexScale.xyz;
+	int3 lightGridBounds = int3( rpJitterTexOffset.x, rpJitterTexOffset.y, rpJitterTexOffset.z );
+
 	float invXY = ( 1.0 / ( lightGridBounds[0] * lightGridBounds[1] ) );
 	float invZ = ( 1.0 / lightGridBounds[2] );
 
@@ -307,7 +285,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	gridStep[2] = lightGridBounds[0] * lightGridBounds[1];
 
 	float totalFactor = 0.0;
-	float3 irradiance;
+	float3 irradiance = float3( 0.0, 0.0, 0.0 );
 
 	/*
 	for( int i = 0; i < 8; i++ )

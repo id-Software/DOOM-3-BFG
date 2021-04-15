@@ -1815,9 +1815,14 @@ void idRenderBackend::DBG_ShowLightGrid()
 	const int numColors = 7;
 	static idVec4 colors[numColors] = { colorBlack, colorBlue, colorCyan, colorGreen, colorYellow, colorRed, colorWhite };
 
-	// use rpGlobalLightOrigin for camera center
-	idVec4 globalViewOrigin( viewDef->renderView.vieworg.x, viewDef->renderView.vieworg.y, viewDef->renderView.vieworg.z, 1.0f );
-	renderProgManager.SetUniformValue( RENDERPARM_GLOBALLIGHTORIGIN, globalViewOrigin.ToFloatPtr() );
+	// use rpGlobalLightOrigin for lightGrid center
+	idVec4 lightGridOrigin( area->lightGrid.lightGridOrigin.x, area->lightGrid.lightGridOrigin.y, area->lightGrid.lightGridOrigin.z, 1.0f );
+	idVec4 lightGridSize( area->lightGrid.lightGridSize.x, area->lightGrid.lightGridSize.y, area->lightGrid.lightGridSize.z, 1.0f );
+	idVec4 lightGridBounds( area->lightGrid.lightGridBounds[0], area->lightGrid.lightGridBounds[1], area->lightGrid.lightGridBounds[2], 1.0f );
+
+	renderProgManager.SetUniformValue( RENDERPARM_GLOBALLIGHTORIGIN, lightGridOrigin.ToFloatPtr() );
+	renderProgManager.SetUniformValue( RENDERPARM_JITTERTEXSCALE, lightGridSize.ToFloatPtr() );
+	renderProgManager.SetUniformValue( RENDERPARM_JITTERTEXOFFSET, lightGridBounds.ToFloatPtr() );
 
 	for( int i = 0; i < area->lightGrid.lightGridPoints.Num(); i++ )
 	{
