@@ -109,10 +109,17 @@ void idRenderProgManager::Init()
 		{ BUILTIN_VERTEX_COLOR, "builtin/vertex_color", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
 		{ BUILTIN_AMBIENT_LIGHTING, "builtin/lighting/ambient_lighting", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
 		{ BUILTIN_AMBIENT_LIGHTING_SKINNED, "builtin/lighting/ambient_lighting", "_skinned", BIT( USE_GPU_SKINNING ), true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+
 		{ BUILTIN_AMBIENT_LIGHTING_IBL, "builtin/lighting/ambient_lighting_IBL", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
 		{ BUILTIN_AMBIENT_LIGHTING_IBL_SKINNED, "builtin/lighting/ambient_lighting_IBL", "_skinned", BIT( USE_GPU_SKINNING ), true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
 		{ BUILTIN_AMBIENT_LIGHTING_IBL_PBR, "builtin/lighting/ambient_lighting_IBL", "_PBR", BIT( USE_PBR ), false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
 		{ BUILTIN_AMBIENT_LIGHTING_IBL_PBR_SKINNED, "builtin/lighting/ambient_lighting_IBL", "_PBR_skinned", BIT( USE_GPU_SKINNING | USE_PBR ), true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+
+		{ BUILTIN_AMBIENT_LIGHTGRID_IBL, "builtin/lighting/ambient_lightgrid_IBL", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_AMBIENT_LIGHTGRID_IBL_SKINNED, "builtin/lighting/ambient_lightgrid_IBL", "_skinned", BIT( USE_GPU_SKINNING ), true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_AMBIENT_LIGHTGRID_IBL_PBR, "builtin/lighting/ambient_lightgrid_IBL", "_PBR", BIT( USE_PBR ), false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_AMBIENT_LIGHTGRID_IBL_PBR_SKINNED, "builtin/lighting/ambient_lightgrid_IBL", "_PBR_skinned", BIT( USE_GPU_SKINNING | USE_PBR ), true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+
 		{ BUILTIN_SMALL_GEOMETRY_BUFFER, "builtin/gbuffer", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
 		{ BUILTIN_SMALL_GEOMETRY_BUFFER_SKINNED, "builtin/gbuffer", "_skinned", BIT( USE_GPU_SKINNING ), true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
 		// RB end
@@ -279,8 +286,13 @@ void idRenderProgManager::Init()
 		renderProgs[builtinShaders[BUILTIN_DEBUG_LIGHTGRID_SKINNED]].usesJoints = true;
 		renderProgs[builtinShaders[BUILTIN_DEBUG_OCTAHEDRON_SKINNED]].usesJoints = true;
 		renderProgs[builtinShaders[BUILTIN_AMBIENT_LIGHTING_SKINNED]].usesJoints = true;
+
 		renderProgs[builtinShaders[BUILTIN_AMBIENT_LIGHTING_IBL_SKINNED]].usesJoints = true;
 		renderProgs[builtinShaders[BUILTIN_AMBIENT_LIGHTING_IBL_PBR_SKINNED]].usesJoints = true;
+
+		renderProgs[builtinShaders[BUILTIN_AMBIENT_LIGHTGRID_IBL_SKINNED]].usesJoints = true;
+		renderProgs[builtinShaders[BUILTIN_AMBIENT_LIGHTGRID_IBL_PBR_SKINNED]].usesJoints = true;
+
 		renderProgs[builtinShaders[BUILTIN_SMALL_GEOMETRY_BUFFER_SKINNED]].usesJoints = true;
 		renderProgs[builtinShaders[BUILTIN_INTERACTION_SHADOW_MAPPING_SPOT_SKINNED]].usesJoints = true;
 		renderProgs[builtinShaders[BUILTIN_INTERACTION_SHADOW_MAPPING_POINT_SKINNED]].usesJoints = true;

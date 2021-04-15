@@ -549,6 +549,22 @@ void R_RenderView( viewDef_t* parms )
 		tr.viewDef->irradianceImage = globalImages->defaultUACIrradianceCube;
 		tr.viewDef->radianceImage = globalImages->defaultUACRadianceCube;
 
+		bool useLightGrid = tr.viewDef->useLightGrid = false;
+
+		portalArea_t* area = &tr.primaryWorld->portalAreas[tr.viewDef->areaNum];
+		if( area->lightGrid.irradianceImage && !area->lightGrid.irradianceImage->IsDefaulted() )
+		{
+			tr.viewDef->irradianceImage = area->lightGrid.irradianceImage;
+			tr.viewDef->useLightGrid = useLightGrid = true;
+
+			for( int i = 0; i < 3; i++ )
+			{
+				tr.viewDef->lightGridOrigin[i] = area->lightGrid.lightGridOrigin[i];
+				tr.viewDef->lightGridSize[i] = area->lightGrid.lightGridSize[i];
+				tr.viewDef->lightGridBounds[i] = area->lightGrid.lightGridBounds[i];
+			}
+		}
+
 		for( viewEnvprobe_t* vProbe = tr.viewDef->viewEnvprobes; vProbe != NULL; vProbe = vProbe->next )
 		{
 			float dist = ( tr.viewDef->renderView.vieworg - vProbe->globalOrigin ).Length();
@@ -557,7 +573,11 @@ void R_RenderView( viewDef_t* parms )
 				if( vProbe->irradianceImage->IsLoaded() && !vProbe->irradianceImage->IsDefaulted() )
 				{
 					tr.viewDef->globalProbeBounds = vProbe->globalProbeBounds;
-					tr.viewDef->irradianceImage = vProbe->irradianceImage;
+
+					if( !useLightGrid )
+					{
+						tr.viewDef->irradianceImage = vProbe->irradianceImage;
+					}
 					tr.viewDef->radianceImage = vProbe->radianceImage;
 
 					bestDist = dist;

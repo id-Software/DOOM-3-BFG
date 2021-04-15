@@ -1323,7 +1323,89 @@ void idRenderBackend::DrawSingleInteraction( drawInteraction_t* din, bool useFas
 	const textureUsage_t specUsage = din->specularImage->GetUsage();
 
 	// RB begin
-	if( useIBL )
+	if( useIBL && viewDef->useLightGrid )
+	{
+		idVec4 probeMins, probeMaxs, probeCenter;
+
+		probeMins[0] = viewDef->globalProbeBounds[0][0];
+		probeMins[1] = viewDef->globalProbeBounds[0][1];
+		probeMins[2] = viewDef->globalProbeBounds[0][2];
+		probeMins[3] = viewDef->globalProbeBounds.IsCleared() ? 0.0f : 1.0f;
+
+		probeMaxs[0] = viewDef->globalProbeBounds[1][0];
+		probeMaxs[1] = viewDef->globalProbeBounds[1][1];
+		probeMaxs[2] = viewDef->globalProbeBounds[1][2];
+		probeMaxs[3] = 0.0f;
+
+		idVec3 center = viewDef->globalProbeBounds.GetCenter();
+		probeCenter.Set( center.x, center.y, center.z, 1.0f );
+
+		SetVertexParm( RENDERPARM_WOBBLESKY_X, probeMins.ToFloatPtr() );
+		SetVertexParm( RENDERPARM_WOBBLESKY_Y, probeMaxs.ToFloatPtr() );
+		SetVertexParm( RENDERPARM_WOBBLESKY_Z, probeCenter.ToFloatPtr() );
+
+		if( specUsage == TD_SPECULAR_PBR_RMAO || specUsage == TD_SPECULAR_PBR_RMAOD )
+		{
+			// PBR path with roughness, metal and AO
+			if( din->surf->jointCache )
+			{
+				renderProgManager.BindShader_ImageBasedLightGridSkinned_PBR();
+			}
+			else
+			{
+				renderProgManager.BindShader_ImageBasedLightGrid_PBR();
+			}
+		}
+		else
+		{
+			if( din->surf->jointCache )
+			{
+				renderProgManager.BindShader_ImageBasedLightGridSkinned();
+			}
+			else
+			{
+				renderProgManager.BindShader_ImageBasedLightGrid();
+			}
+		}
+
+		GL_SelectTexture( INTERACTION_TEXUNIT_FALLOFF );
+		globalImages->brdfLutImage->Bind();
+
+		GL_SelectTexture( INTERACTION_TEXUNIT_PROJECTION );
+#if defined( USE_VULKAN )
+		globalImages->whiteImage->Bind();
+#else
+		if( !r_useSSAO.GetBool() )
+		{
+			globalImages->whiteImage->Bind();
+		}
+		else
+		{
+			globalImages->ambientOcclusionImage[0]->Bind();
+		}
+#endif
+
+		GL_SelectTexture( INTERACTION_TEXUNIT_AMBIENT_CUBE1 );
+		if( viewDef->irradianceImage )
+		{
+			viewDef->irradianceImage->Bind();
+		}
+		else
+		{
+			globalImages->defaultUACIrradianceCube->Bind();
+		}
+
+		GL_SelectTexture( INTERACTION_TEXUNIT_SPECULAR_CUBE1 );
+		if( viewDef->radianceImage )
+		{
+			viewDef->radianceImage->Bind();
+		}
+		else
+		{
+			globalImages->defaultUACRadianceCube->Bind();
+		}
+	}
+	else if( useIBL )
 	{
 		idVec4 probeMins, probeMaxs, probeCenter;
 

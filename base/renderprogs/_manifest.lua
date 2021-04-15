@@ -42,6 +42,8 @@ return
 	"builtin/lighting/ambient_lighting.vs.hlsl",
 	"builtin/lighting/ambient_lighting_IBL.ps.hlsl",
 	"builtin/lighting/ambient_lighting_IBL.vs.hlsl",
+	"builtin/lighting/ambient_lightgrid_IBL.ps.hlsl",
+	"builtin/lighting/ambient_lightgrid_IBL.vs.hlsl",
 	"builtin/lighting/interaction.ps.hlsl",
 	"builtin/lighting/interaction.vs.hlsl",
 	"builtin/lighting/interactionAmbient.ps.hlsl",

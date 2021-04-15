@@ -636,6 +636,12 @@ struct viewDef_t
 	idRenderMatrix		inverseBaseEnvProbeProject;	// the matrix for deforming the 'zeroOneCubeModel' to exactly cover the environent probe volume in world space
 	idImage* 			irradianceImage;			// cubemap image used for diffuse IBL by backend
 	idImage* 			radianceImage;				// cubemap image used for specular IBL by backend
+
+	// lightGrid
+	bool				useLightGrid;
+	idVec3				lightGridOrigin;
+	idVec3				lightGridSize;
+	int					lightGridBounds[3];
 	// RB end
 };
 

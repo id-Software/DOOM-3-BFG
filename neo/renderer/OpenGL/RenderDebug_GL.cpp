@@ -1972,6 +1972,8 @@ void idRenderBackend::DBG_ShowLightGrid()
 		gridPoint = &area->lightGrid.lightGridPoints[ gridPointIndex ];
 
 		totalFactor = 0;
+		idVec3 cornerOffsets[8];
+
 		for( int i = 0; i < 8; i++ )
 		{
 			float  factor = 1.0;
@@ -1981,7 +1983,9 @@ void idRenderBackend::DBG_ShowLightGrid()
 
 			for( int j = 0; j < 3; j++ )
 			{
-				if( i & ( 1 << j ) )
+				cornerOffsets[i][j] = i & ( 1 << j );
+
+				if( cornerOffsets[i][j] > 0.0f )
 				{
 					factor *= frac[j];
 
