@@ -696,8 +696,11 @@ CONSOLE_COMMAND( generateLightGrid, "Generate light grid data", NULL )
 	{
 		portalArea_t* area = &tr.primaryWorld->portalAreas[a];
 
-		int numGridPoints = Min( area->lightGrid.lightGridPoints.Num(), limit );
-		if( numGridPoints == 0 )
+		//int numGridPoints = Min( area->lightGrid.lightGridPoints.Num(), limit );
+		//if( numGridPoints == 0 )
+
+		int numGridPoints = area->lightGrid.lightGridPoints.Num();
+		if( numGridPoints == 0 || numGridPoints > limit )
 		{
 			continue;
 		}
