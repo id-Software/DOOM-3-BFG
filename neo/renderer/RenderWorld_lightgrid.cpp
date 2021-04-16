@@ -623,7 +623,7 @@ void R_MakeAmbientGridPoint( const char* baseName, const char* suffix, int outSi
 }
 #endif
 
-CONSOLE_COMMAND( generateLightGrid, "Generate light grid data", NULL )
+CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 {
 	idStr			baseName;
 	idStr			filename;
@@ -636,7 +636,7 @@ CONSOLE_COMMAND( generateLightGrid, "Generate light grid data", NULL )
 
 	if( args.Argc() != 1 && args.Argc() != 2 )
 	{
-		common->Printf( "USAGE: generateLightData [limit] (limit is max probes per BSP area)\n" );
+		common->Printf( "USAGE: bakeLightGrids [limit] (limit is max probes per BSP area)\n" );
 		return;
 	}
 

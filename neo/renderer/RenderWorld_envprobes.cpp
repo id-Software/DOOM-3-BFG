@@ -974,7 +974,7 @@ void R_MakeAmbientMap( const char* baseName, const char* suffix, int outSize, bo
 	}
 }
 
-CONSOLE_COMMAND( generateEnvironmentProbes, "Generate environment probes", NULL )
+CONSOLE_COMMAND( bakeEnvironmentProbes, "Bake environment probes", NULL )
 {
 	idStr			fullname;
 	idStr			baseName;

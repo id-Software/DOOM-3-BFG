@@ -1801,110 +1801,127 @@ void idRenderBackend::DBG_ShowLightGrid()
 	idMat3 axis;
 	axis.Identity();
 
-	//for( int a = 0; a < tr.primaryWorld->NumAreas(); a++ )
-
 	// only show current area
-	int a = tr.primaryWorld->PointInArea( viewDef->renderView.vieworg );
-	if( a == -1 )
+	int cameraArea = tr.primaryWorld->PointInArea( viewDef->renderView.vieworg );
+	if( cameraArea == -1 && r_showLightGrid.GetInteger() < 3 )
 	{
 		return;
 	}
 
-	portalArea_t* area = &tr.primaryWorld->portalAreas[a];
-
 	const int numColors = 7;
 	static idVec4 colors[numColors] = { colorBlack, colorBlue, colorCyan, colorGreen, colorYellow, colorRed, colorWhite };
 
-	// use rpGlobalLightOrigin for lightGrid center
-	idVec4 lightGridOrigin( area->lightGrid.lightGridOrigin.x, area->lightGrid.lightGridOrigin.y, area->lightGrid.lightGridOrigin.z, 1.0f );
-	idVec4 lightGridSize( area->lightGrid.lightGridSize.x, area->lightGrid.lightGridSize.y, area->lightGrid.lightGridSize.z, 1.0f );
-	idVec4 lightGridBounds( area->lightGrid.lightGridBounds[0], area->lightGrid.lightGridBounds[1], area->lightGrid.lightGridBounds[2], 1.0f );
-
-	renderProgManager.SetUniformValue( RENDERPARM_GLOBALLIGHTORIGIN, lightGridOrigin.ToFloatPtr() );
-	renderProgManager.SetUniformValue( RENDERPARM_JITTERTEXSCALE, lightGridSize.ToFloatPtr() );
-	renderProgManager.SetUniformValue( RENDERPARM_JITTERTEXOFFSET, lightGridBounds.ToFloatPtr() );
-
-	for( int i = 0; i < area->lightGrid.lightGridPoints.Num(); i++ )
+	for( int a = 0; a < tr.primaryWorld->NumAreas(); a++ )
 	{
-		lightGridPoint_t* gridPoint = &area->lightGrid.lightGridPoints[i];
-		if( !gridPoint->valid )
+		if( r_showLightGrid.GetInteger() < 3 && ( cameraArea != a ) )
 		{
 			continue;
 		}
 
-		idVec3 distanceToCam = gridPoint->origin - viewDef->renderView.vieworg;
-		if( distanceToCam.LengthSqr() > ( 1024 * 1024 ) )
+		portalArea_t* area = &tr.primaryWorld->portalAreas[a];
+
+		// use rpGlobalLightOrigin for lightGrid center
+		idVec4 lightGridOrigin( area->lightGrid.lightGridOrigin.x, area->lightGrid.lightGridOrigin.y, area->lightGrid.lightGridOrigin.z, 1.0f );
+		idVec4 lightGridSize( area->lightGrid.lightGridSize.x, area->lightGrid.lightGridSize.y, area->lightGrid.lightGridSize.z, 1.0f );
+		idVec4 lightGridBounds( area->lightGrid.lightGridBounds[0], area->lightGrid.lightGridBounds[1], area->lightGrid.lightGridBounds[2], 1.0f );
+
+		renderProgManager.SetUniformValue( RENDERPARM_GLOBALLIGHTORIGIN, lightGridOrigin.ToFloatPtr() );
+		renderProgManager.SetUniformValue( RENDERPARM_JITTERTEXSCALE, lightGridSize.ToFloatPtr() );
+		renderProgManager.SetUniformValue( RENDERPARM_JITTERTEXOFFSET, lightGridBounds.ToFloatPtr() );
+
+		for( int i = 0; i < area->lightGrid.lightGridPoints.Num(); i++ )
 		{
-			continue;
-		}
+			lightGridPoint_t* gridPoint = &area->lightGrid.lightGridPoints[i];
+			if( !gridPoint->valid )
+			{
+				continue;
+			}
+
+			idVec3 distanceToCam = gridPoint->origin - viewDef->renderView.vieworg;
+			if( distanceToCam.LengthSqr() > ( 1024 * 1024 ) && r_showLightGrid.GetInteger() < 3 )
+			{
+				continue;
+			}
 
 #if 0
-		if( i > 53 )
-		{
-			break;
-		}
+			if( i > 53 )
+			{
+				break;
+			}
 #endif
 
-		// move center into the cube so we can void using negative results with GetBaseGridCoord
-		idVec3 gridPointOrigin = gridPoint->origin + idVec3( 4, 4, 4 );
+			// move center into the cube so we can void using negative results with GetBaseGridCoord
+			idVec3 gridPointOrigin = gridPoint->origin + idVec3( 4, 4, 4 );
 
-		idVec4 localViewOrigin( 1.0f );
-		idVec4 globalViewOrigin;
-		globalViewOrigin.x = viewDef->renderView.vieworg.x;
-		globalViewOrigin.y = viewDef->renderView.vieworg.y;
-		globalViewOrigin.z = viewDef->renderView.vieworg.z;
-		globalViewOrigin.w = 1.0f;
+			idVec4 localViewOrigin( 1.0f );
+			idVec4 globalViewOrigin;
+			globalViewOrigin.x = viewDef->renderView.vieworg.x;
+			globalViewOrigin.y = viewDef->renderView.vieworg.y;
+			globalViewOrigin.z = viewDef->renderView.vieworg.z;
+			globalViewOrigin.w = 1.0f;
 
-		float modelMatrix[16];
-		R_AxisToModelMatrix( axis, gridPointOrigin, modelMatrix );
+			float modelMatrix[16];
+			R_AxisToModelMatrix( axis, gridPointOrigin, modelMatrix );
 
-		R_GlobalPointToLocal( modelMatrix, viewDef->renderView.vieworg, localViewOrigin.ToVec3() );
+			R_GlobalPointToLocal( modelMatrix, viewDef->renderView.vieworg, localViewOrigin.ToVec3() );
 
-		renderProgManager.SetUniformValue( RENDERPARM_LOCALVIEWORIGIN, localViewOrigin.ToFloatPtr() ); // rpLocalViewOrigin
+			renderProgManager.SetUniformValue( RENDERPARM_LOCALVIEWORIGIN, localViewOrigin.ToFloatPtr() ); // rpLocalViewOrigin
 
-		// RB: if we want to get the normals in world space so we need the model -> world matrix
-		idRenderMatrix modelMatrix2;
-		idRenderMatrix::Transpose( *( idRenderMatrix* )modelMatrix, modelMatrix2 );
+			// RB: if we want to get the normals in world space so we need the model -> world matrix
+			idRenderMatrix modelMatrix2;
+			idRenderMatrix::Transpose( *( idRenderMatrix* )modelMatrix, modelMatrix2 );
 
-		renderProgManager.SetUniformValue( RENDERPARM_MODELMATRIX_X, &modelMatrix2[0][0] );
-		renderProgManager.SetUniformValue( RENDERPARM_MODELMATRIX_Y, &modelMatrix2[1][0] );
-		renderProgManager.SetUniformValue( RENDERPARM_MODELMATRIX_Z, &modelMatrix2[2][0] );
-		renderProgManager.SetUniformValue( RENDERPARM_MODELMATRIX_W, &modelMatrix2[3][0] );
+			renderProgManager.SetUniformValue( RENDERPARM_MODELMATRIX_X, &modelMatrix2[0][0] );
+			renderProgManager.SetUniformValue( RENDERPARM_MODELMATRIX_Y, &modelMatrix2[1][0] );
+			renderProgManager.SetUniformValue( RENDERPARM_MODELMATRIX_Z, &modelMatrix2[2][0] );
+			renderProgManager.SetUniformValue( RENDERPARM_MODELMATRIX_W, &modelMatrix2[3][0] );
 
 
 #if 0
-		renderProgManager.BindShader_Color();
+			renderProgManager.BindShader_Color();
 
-		int gridCoord[3];
-		area->lightGrid.GetBaseGridCoord( gridPoint->origin, gridCoord );
+			int gridCoord[3];
+			area->lightGrid.GetBaseGridCoord( gridPoint->origin, gridCoord );
 
-		idVec3 color = area->lightGrid.GetGridCoordDebugColor( gridCoord );
-		//idVec3 color = area->lightGrid.GetProbeIndexDebugColor( i );
-		//idVec4 color = colors[ i % numColors ];
-		GL_Color( color );
+			idVec3 color = area->lightGrid.GetGridCoordDebugColor( gridCoord );
+			//idVec3 color = area->lightGrid.GetProbeIndexDebugColor( i );
+			//idVec4 color = colors[ i % numColors ];
+			GL_Color( color );
 #else
-		renderProgManager.BindShader_DebugLightGrid();
 
-		GL_SelectTexture( 0 );
-		area->lightGrid.GetIrradianceImage()->Bind();
+			if( r_showLightGrid.GetInteger() == 4 )
+			{
+				renderProgManager.BindShader_Color();
+
+				idVec4 color = colors[ a % numColors ];
+				GL_Color( color );
+			}
+			else
+			{
+				renderProgManager.BindShader_DebugLightGrid();
+
+				GL_SelectTexture( 0 );
+				area->lightGrid.GetIrradianceImage()->Bind();
+			}
 #endif
 
-		idRenderMatrix modelRenderMatrix;
-		idRenderMatrix::CreateFromOriginAxis( gridPoint->origin, axis, modelRenderMatrix );
+			idRenderMatrix modelRenderMatrix;
+			idRenderMatrix::CreateFromOriginAxis( gridPoint->origin, axis, modelRenderMatrix );
 
-		// calculate the matrix that transforms the unit cube to exactly cover the model in world space
-		const float size = 3.0f;
-		idBounds debugBounds( idVec3( -size ), idVec3( size ) );
+			// calculate the matrix that transforms the unit cube to exactly cover the model in world space
+			const float size = 3.0f;
+			idBounds debugBounds( idVec3( -size ), idVec3( size ) );
 
-		idRenderMatrix inverseBaseModelProject;
-		idRenderMatrix::OffsetScaleForBounds( modelRenderMatrix, debugBounds, inverseBaseModelProject );
+			idRenderMatrix inverseBaseModelProject;
+			idRenderMatrix::OffsetScaleForBounds( modelRenderMatrix, debugBounds, inverseBaseModelProject );
 
-		idRenderMatrix invProjectMVPMatrix;
-		idRenderMatrix::Multiply( viewDef->worldSpace.mvp, inverseBaseModelProject, invProjectMVPMatrix );
-		RB_SetMVP( invProjectMVPMatrix );
+			idRenderMatrix invProjectMVPMatrix;
+			idRenderMatrix::Multiply( viewDef->worldSpace.mvp, inverseBaseModelProject, invProjectMVPMatrix );
+			RB_SetMVP( invProjectMVPMatrix );
 
-		DrawElementsWithCounters( &zeroOneSphereSurface );
-		//DrawElementsWithCounters( &zeroOneCubeSurface );
+			DrawElementsWithCounters( &zeroOneSphereSurface );
+			//DrawElementsWithCounters( &zeroOneCubeSurface );
+		}
 	}
 
 	if( r_showLightGrid.GetInteger() == 2 )
@@ -1920,6 +1937,8 @@ void idRenderBackend::DBG_ShowLightGrid()
 		float           frac[3];
 		int             gridStep[3];
 		float           totalFactor;
+
+		portalArea_t* area = &tr.primaryWorld->portalAreas[cameraArea];
 
 		renderProgManager.BindShader_Color();
 
