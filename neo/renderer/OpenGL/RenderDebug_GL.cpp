@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2014-2016 Robert Beckebans
+Copyright (C) 2014-2021 Robert Beckebans
 Copyright (C) 2014-2016 Kot in Action Creative Artel
 Copyright (C) 2016-2017 Dustin Land
 
@@ -1809,7 +1809,7 @@ void idRenderBackend::DBG_ShowLightGrid()
 	}
 
 	const int numColors = 7;
-	static idVec4 colors[numColors] = { colorBlack, colorBlue, colorCyan, colorGreen, colorYellow, colorRed, colorWhite };
+	static idVec4 colors[numColors] = { colorBrown, colorBlue, colorCyan, colorGreen, colorYellow, colorRed, colorWhite };
 
 	for( int a = 0; a < tr.primaryWorld->NumAreas(); a++ )
 	{
@@ -1832,7 +1832,7 @@ void idRenderBackend::DBG_ShowLightGrid()
 		for( int i = 0; i < area->lightGrid.lightGridPoints.Num(); i++ )
 		{
 			lightGridPoint_t* gridPoint = &area->lightGrid.lightGridPoints[i];
-			if( !gridPoint->valid )
+			if( !gridPoint->valid && r_showLightGrid.GetInteger() < 3 )
 			{
 				continue;
 			}
@@ -1893,7 +1893,16 @@ void idRenderBackend::DBG_ShowLightGrid()
 			{
 				renderProgManager.BindShader_Color();
 
-				idVec4 color = colors[ a % numColors ];
+				idVec4 color;
+				if( !gridPoint->valid )
+				{
+					color = colorPurple;
+				}
+				else
+				{
+					color = colors[ a % numColors ];
+				}
+
 				GL_Color( color );
 			}
 			else

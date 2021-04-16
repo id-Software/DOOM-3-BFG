@@ -518,7 +518,7 @@ static const int LIGHTGRID_IRRADIANCE_SIZE	= 32;
 struct calcLightGridPointParms_t
 {
 	// input
-	byte*							buffers[6];				// HDR RGB16F standard OpenGL cubemap sides
+	byte*							radiance[6];			// HDR RGB16F standard OpenGL cubemap sides
 	int								gridCoord[3];
 
 	int								outWidth;				// LIGHTGRID_IRRADIANCE_SIZE

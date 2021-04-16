@@ -263,7 +263,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	{
 		float           v;
 
-		v = lightOrigin[i] * ( 1.0f / lightGridSize[i] );
+		v = lightOrigin[i] * ( 1.0 / lightGridSize[i] );
 		gridCoord[i] = int( floor( v ) );
 		frac[ i ] = v - gridCoord[ i ];
 
@@ -314,7 +314,7 @@ void main( PS_IN fragment, out PS_OUT result )
 
 		for( int j = 0; j < 3; j++ )
 		{
-			if( cornerOffsets[ i ][ j ] > 0.0f )
+			if( cornerOffsets[ i ][ j ] > 0.0 )
 			{
 				factor *= frac[ j ];
 
@@ -322,7 +322,7 @@ void main( PS_IN fragment, out PS_OUT result )
 			}
 			else
 			{
-				factor *= ( 1.0f - frac[ j ] );
+				factor *= ( 1.0 - frac[ j ] );
 			}
 		}
 
@@ -331,14 +331,21 @@ void main( PS_IN fragment, out PS_OUT result )
 		atlasOffset.x = ( gridCoord2[0] * gridStep[0] + gridCoord2[2] * gridStep[1] ) * invXZ;
 		atlasOffset.y = ( gridCoord2[1] * invY );
 
-		irradiance += tex2D( samp7, normalizedOctCoordZeroOne + atlasOffset ).rgb * factor;
+		float3 color = tex2D( samp7, normalizedOctCoordZeroOne + atlasOffset ).rgb;
 
+		if( ( color.r + color.g + color.b ) < 0.0001 )
+		{
+			// ignore samples in walls
+			continue;
+		}
+
+		irradiance += color * factor;
 		totalFactor += factor;
 	}
 
 	if( totalFactor > 0.0 && totalFactor < 0.9999 )
 	{
-		totalFactor = 1.0f / totalFactor;
+		totalFactor = 1.0 / totalFactor;
 
 		irradiance *= totalFactor;
 	}

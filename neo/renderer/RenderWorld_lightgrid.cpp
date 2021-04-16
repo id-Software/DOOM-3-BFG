@@ -32,7 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "RenderCommon.h"
 
-static const int MAX_LIGHTGRID_ATLAS_SIZE	= 4096;
+static const int MAX_LIGHTGRID_ATLAS_SIZE	= 1024;
 static const int MAX_AREA_LIGHTGRID_POINTS	= ( MAX_LIGHTGRID_ATLAS_SIZE / LIGHTGRID_IRRADIANCE_SIZE ) * ( MAX_LIGHTGRID_ATLAS_SIZE / LIGHTGRID_IRRADIANCE_SIZE );
 
 LightGrid::LightGrid()
@@ -266,7 +266,77 @@ void LightGrid::CalculateLightGridPointPositions( const idRenderWorld* world, in
 				gridPoint->valid = ( world->PointInArea( gridPoint->origin ) != -1 );
 				if( !gridPoint->valid )
 				{
-					invalidCount++;
+					idVec3			origin;
+					idVec3          baseOrigin;
+					int             step;
+
+					baseOrigin = gridPoint->origin;
+
+					// RB: do what q3map1 did - try to nudge the origin around to find a valid point
+					for( step = 9; step <= 18; step += 9 )
+					{
+						for( int c = 0; c < 8; c++ )
+						{
+							origin = baseOrigin;
+							if( c & 1 )
+							{
+								origin[0] += step;
+							}
+							else
+							{
+								origin[0] -= step;
+							}
+							if( c & 2 )
+							{
+								origin[1] += step;
+							}
+							else
+							{
+								origin[1] -= step;
+							}
+							if( c & 4 )
+							{
+								origin[2] += step;
+							}
+							else
+							{
+								origin[2] -= step;
+							}
+
+							if( world->PointInArea( origin ) != -1 )
+							{
+								// point is not in the void
+								gridPoint->valid = true;
+								gridPoint->origin = origin;
+								break;
+							}
+						}
+
+						if( i != 8 )
+						{
+							break;
+						}
+					}
+
+					/*
+					if( step > 18 )
+					{
+						// can't find a valid point at all
+						for( i = 0; i < 3; i++ )
+						{
+							gridPoint->ambient[i] = 0;
+							gridPoint->directed[i] = 0;
+						}
+						gridPoint->latLong[0] = 0;
+						gridPoint->latLong[1] = 0;
+						return;
+					}
+					*/
+
+					if( !gridPoint->valid )
+					{
+						invalidCount++;
+					}
 				}
 
 				p++;
@@ -369,7 +439,7 @@ void CalculateLightGridPointJob( calcLightGridPointParms_t* parms )
 
 	for( int i = 0; i < 6; i++ )
 	{
-		buffers[ i ] = ( halfFloat_t* ) parms->buffers[ i ];
+		buffers[ i ] = ( halfFloat_t* ) parms->radiance[ i ];
 	}
 
 	const float invDstSize = 1.0f / float( parms->outHeight );
@@ -760,7 +830,7 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 						//tr.TakeScreenshot( size, size, fullname, blends, &ref, EXR );
 						byte* float16FRGB = tr.CaptureRenderToBuffer( captureSize, captureSize, &ref );
 
-						jobParms->buffers[ side ] = float16FRGB;
+						jobParms->radiance[ side ] = float16FRGB;
 
 #if 0
 						if( i < 3 )
@@ -859,9 +929,9 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 
 			for( int i = 0; i < 6; i++ )
 			{
-				if( job->buffers[i] )
+				if( job->radiance[i] )
 				{
-					Mem_Free( job->buffers[i] );
+					Mem_Free( job->radiance[i] );
 				}
 			}
 
