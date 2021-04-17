@@ -8290,7 +8290,7 @@ static const cgShaderDef_t cg_renderprogs[] =
 		"#define USE_CAS                             0\n"
 		"\n"
 		"#define USE_DITHERING 						1\n"
-		"#define Dithering_QuantizationSteps         8.0 // 8.0 = 2 ^ 3 quantization bits\n"
+		"#define Dithering_QuantizationSteps         16.0 // 8.0 = 2 ^ 3 quantization bits\n"
 		"#define Dithering_NoiseBoost                1.0\n"
 		"#define Dithering_Wide                      1.0\n"
 		"#define DITHER_IN_LINEAR_SPACE              0\n"

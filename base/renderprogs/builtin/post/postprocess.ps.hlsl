@@ -66,7 +66,7 @@ struct PS_OUT
 #define USE_CAS                             0
 
 #define USE_DITHERING 						1
-#define Dithering_QuantizationSteps         8.0 // 8.0 = 2 ^ 3 quantization bits
+#define Dithering_QuantizationSteps         16.0 // 8.0 = 2 ^ 3 quantization bits
 #define Dithering_NoiseBoost                1.0
 #define Dithering_Wide                      1.0
 #define DITHER_IN_LINEAR_SPACE              0
