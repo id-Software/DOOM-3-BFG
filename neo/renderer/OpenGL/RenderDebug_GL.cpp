@@ -1889,7 +1889,7 @@ void idRenderBackend::DBG_ShowLightGrid()
 			GL_Color( color );
 #else
 
-			if( r_showLightGrid.GetInteger() == 4 )
+			if( r_showLightGrid.GetInteger() == 4 || !area->lightGrid.GetIrradianceImage() )
 			{
 				renderProgManager.BindShader_Color();
 

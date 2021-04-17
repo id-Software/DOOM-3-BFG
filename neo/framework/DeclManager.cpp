@@ -2091,15 +2091,15 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 
 	bool exportModels = false;
 
-	if( !idStr::Icmp( args.Argv( 1 ), "models" ) )
+	if( !idStr::Icmp( args.Argv( 1 ), "nomodels" ) )
 	{
-		exportModels = true;
-		common->Printf( "exporting entity decls to FGDs with models:\n" );
+		exportModels = false;
+		common->Printf( "exporting entity decls to FGDs without models:\n" );
 	}
 	else
 	{
-		exportModels = false;
-		common->Printf( "exporting entity decls to FGDs:\n" );
+		exportModels = true;
+		common->Printf( "exporting entity decls to FGDs with models:\n" );
 	}
 
 	if( exportModels )

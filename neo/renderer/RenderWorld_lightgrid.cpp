@@ -32,21 +32,30 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "RenderCommon.h"
 
-static const int MAX_LIGHTGRID_ATLAS_SIZE	= 1024;
+#define LGRID_FILE_EXT			"lightgrid"
+#define LGRID_BINARYFILE_EXT	"blightgrid"
+#define LGRID_FILEID			"LGRID"
+#define LGRID_FILEVERSION		"1.00"
+
+#define STORE_LIGHTGRID_SHDATA 0
+
+static const byte BLGRID_VERSION = 2;
+static const unsigned int BLGRID_MAGIC = ( 'P' << 24 ) | ( 'R' << 16 ) | ( 'O' << 8 ) | BLGRID_VERSION;
+
+
+
+static const int MAX_LIGHTGRID_ATLAS_SIZE	= 2048;
 static const int MAX_AREA_LIGHTGRID_POINTS	= ( MAX_LIGHTGRID_ATLAS_SIZE / LIGHTGRID_IRRADIANCE_SIZE ) * ( MAX_LIGHTGRID_ATLAS_SIZE / LIGHTGRID_IRRADIANCE_SIZE );
 
 LightGrid::LightGrid()
 {
 	lightGridSize.Set( 64, 64, 128 );
-	//lightGridPoints.Clear();
-
 	area = -1;
-	validGridPoints = 0;
 
 	irradianceImage = NULL;
 }
 
-void LightGrid::SetupLightGrid( const idBounds& bounds, const char* mapName, const idRenderWorld* world, int _area )
+void LightGrid::SetupLightGrid( const idBounds& bounds, const char* mapName, const idRenderWorld* world, int _area, int limit )
 {
 	//idLib::Printf( "----- SetupLightGrid -----\n" );
 
@@ -54,12 +63,18 @@ void LightGrid::SetupLightGrid( const idBounds& bounds, const char* mapName, con
 	lightGridPoints.Clear();
 
 	area = _area;
-	validGridPoints = 0;
 
 	idVec3 maxs;
 	int j = 0;
-	int numGridPoints = MAX_AREA_LIGHTGRID_POINTS + 1;
-	while( numGridPoints > MAX_AREA_LIGHTGRID_POINTS )
+
+	int maxGridPoints = MAX_AREA_LIGHTGRID_POINTS;
+	if( limit >= 100 && limit < MAX_AREA_LIGHTGRID_POINTS )
+	{
+		maxGridPoints = limit;
+	}
+
+	int numGridPoints = maxGridPoints + 1;
+	while( numGridPoints > maxGridPoints )
 	{
 		for( int i = 0; i < 3; i++ )
 		{
@@ -70,7 +85,7 @@ void LightGrid::SetupLightGrid( const idBounds& bounds, const char* mapName, con
 
 		numGridPoints = lightGridBounds[0] * lightGridBounds[1] * lightGridBounds[2];
 
-		if( numGridPoints > MAX_AREA_LIGHTGRID_POINTS )
+		if( numGridPoints > maxGridPoints )
 		{
 			lightGridSize[ j++ % 3 ] += 16.0f;
 		}
@@ -80,32 +95,12 @@ void LightGrid::SetupLightGrid( const idBounds& bounds, const char* mapName, con
 	{
 		lightGridPoints.SetNum( numGridPoints );
 
+		idLib::Printf( "area %i (%i x %i x %i) = %i grid points \n", area, lightGridBounds[0], lightGridBounds[1], lightGridBounds[2], numGridPoints );
 		idLib::Printf( "area %i grid size (%i %i %i)\n", area, ( int )lightGridSize[0], ( int )lightGridSize[1], ( int )lightGridSize[2] );
 		idLib::Printf( "area %i grid bounds (%i %i %i)\n", area, ( int )lightGridBounds[0], ( int )lightGridBounds[1], ( int )lightGridBounds[2] );
-
-		idLib::Printf( "area %i (%i x %i x %i) = %i grid points \n", area, lightGridBounds[0], lightGridBounds[1], lightGridBounds[2], numGridPoints );
-
 		idLib::Printf( "area %i %9u x %" PRIuSIZE " = lightGridSize = (%.2fMB)\n", area, numGridPoints, sizeof( lightGridPoint_t ), ( float )( lightGridPoints.MemoryUsed() ) / ( 1024.0f * 1024.0f ) );
 
 		CalculateLightGridPointPositions( world, area );
-
-		// try to load existing lightgrid data
-#if 1
-		idStr basename = mapName;
-		basename.StripFileExtension();
-
-		idStr fullname;
-
-		fullname.Format( "env/%s/area%i_lightgrid_amb", basename.c_str(), area );
-		irradianceImage = globalImages->ImageFromFile( fullname, TF_NEAREST, TR_CLAMP, TD_R11G11B10F, CF_2D );
-#else
-		for( int i = 0; i < lightGridPoints.Num(); i++ )
-		{
-			lightGridPoint_t* gridPoint = &lightGridPoints[i];
-
-			gridPoint->irradianceImage = NULL;
-		}
-#endif
 	}
 }
 
@@ -271,7 +266,7 @@ void LightGrid::CalculateLightGridPointPositions( const idRenderWorld* world, in
 					int             step;
 
 					baseOrigin = gridPoint->origin;
-
+#if 1
 					// RB: do what q3map1 did - try to nudge the origin around to find a valid point
 					for( step = 9; step <= 18; step += 9 )
 					{
@@ -317,6 +312,7 @@ void LightGrid::CalculateLightGridPointPositions( const idRenderWorld* world, in
 							break;
 						}
 					}
+#endif
 
 					/*
 					if( step > 18 )
@@ -344,7 +340,7 @@ void LightGrid::CalculateLightGridPointPositions( const idRenderWorld* world, in
 		}
 	}
 
-	validGridPoints = p - invalidCount;
+	//validGridPoints = p - invalidCount;
 
 	idLib::Printf( "area %i: %i of %i grid points in empty space (%.2f%%)\n", area, invalidCount, lightGridPoints.Num(), ( ( float ) invalidCount / lightGridPoints.Num() ) * 100 );
 }
@@ -353,19 +349,375 @@ void idRenderWorldLocal::SetupLightGrid()
 {
 	idLib::Printf( "----- SetupLightGrid -----\n" );
 
-	int totalGridPoints = 0;
+	idStrStatic< MAX_OSPATH > baseName = mapName;
+	baseName.StripFileExtension();
+
+	idStr filename;
+	filename.Format( "%s.lightgrid", baseName.c_str() );
+	bool loaded = LoadLightGridFile( filename );
+	if( loaded )
+	{
+		// try to load existing lightgrid image data
+		for( int i = 0; i < numPortalAreas; i++ )
+		{
+			portalArea_t* area = &portalAreas[i];
+
+			filename.Format( "env/%s/area%i_lightgrid_amb", baseName.c_str(), i );
+			area->lightGrid.irradianceImage = globalImages->ImageFromFile( filename, TF_NEAREST, TR_CLAMP, TD_R11G11B10F, CF_2D );
+		}
+	}
+	else
+	{
+		for( int i = 0; i < numPortalAreas; i++ )
+		{
+			portalArea_t* area = &portalAreas[i];
+
+			area->lightGrid.SetupLightGrid( area->globalBounds, mapName, this, i, -1 );
+		}
+	}
+}
+
+/*
+===============================================================================
+
+Reading / Writing of light grids files
+
+===============================================================================
+*/
+
+void idRenderWorldLocal::WriteLightGridsToFile( const char* filename )
+{
+	idFile* fp;
+	idStr name;
+
+	name = filename;
+	name.SetFileExtension( LGRID_FILE_EXT );
+
+	common->Printf( "writing %s\n", name.c_str() );
+	fp = fileSystem->OpenFileWrite( name, "fs_basepath" );
+	if( !fp )
+	{
+		common->Warning( "idCollisionModelManagerLocal::WriteCollisionModelsToFile: Error opening file %s\n", name.c_str() );
+		return;
+	}
+
+	// write file id and version
+	fp->WriteFloatString( "%s \"%s\"\n\n", LGRID_FILEID, LGRID_FILEVERSION );
+
+	// write the map file crc
+	//fp->WriteFloatString( "%u\n\n", mapFileCRC );
+
 	for( int i = 0; i < numPortalAreas; i++ )
 	{
 		portalArea_t* area = &portalAreas[i];
 
-		area->lightGrid.SetupLightGrid( area->globalBounds, mapName, this, i );
-
-		totalGridPoints += area->lightGrid.validGridPoints;
+		WriteLightGrid( fp, area->lightGrid );
 	}
 
-	idLib::Printf( "total valid light grid points %i\n", totalGridPoints );
+	fileSystem->CloseFile( fp );
 }
 
+void idRenderWorldLocal::WriteLightGrid( idFile* fp, const LightGrid& lightGrid )
+{
+	fp->WriteFloatString( "lightGridPoints { /* area = */ %i /* numLightGridPoints = */ %i\n", lightGrid.area, lightGrid.lightGridPoints.Num() );
+
+	fp->WriteFloatString( "/* gridMins */ " );
+	fp->WriteFloatString( "\t ( %f %f %f )\n", lightGrid.lightGridOrigin[0], lightGrid.lightGridOrigin[1], lightGrid.lightGridOrigin[2] );
+
+	fp->WriteFloatString( "/* gridSize */ " );
+	fp->WriteFloatString( "\t ( %f %f %f )\n", lightGrid.lightGridSize[0], lightGrid.lightGridSize[1], lightGrid.lightGridSize[2] );
+
+	fp->WriteFloatString( "/* gridBounds */ " );
+	fp->WriteFloatString( "%i %i %i\n\n", lightGrid.lightGridBounds[0], lightGrid.lightGridBounds[1], lightGrid.lightGridBounds[2] );
+
+	for( int i = 0 ; i < lightGrid.lightGridPoints.Num() ; i++ )
+	{
+		const lightGridPoint_t* gridPoint = &lightGrid.lightGridPoints[i];
+
+		fp->WriteFloatString( "/* lgp %i */ %d ( %f %f %f )", i, ( int )gridPoint->valid, gridPoint->origin[0], gridPoint->origin[1], gridPoint->origin[2] );
+
+#if STORE_LIGHTGRID_SHDATA
+		// spherical harmonic
+		fp->WriteFloatString( "( " );
+
+		for( int j = 0; j < shSize( 3 ); j++ )
+		{
+			fp->WriteFloatString( "%f %f %f ", gridPoint->shRadiance[j][0], gridPoint->shRadiance[j][1], gridPoint->shRadiance[j][2] );
+		}
+
+		fp->WriteFloatString( ")\n" );
+#endif
+	}
+
+	fp->WriteFloatString( "}\n\n" );
+}
+
+
+bool idRenderWorldLocal::LoadLightGridFile( const char* name )
+{
+	idToken token;
+	idLexer* src;
+	//unsigned int crc;
+
+	// load it
+	idStrStatic< MAX_OSPATH > fileName = name;
+
+	// check for generated file
+	idStrStatic< MAX_OSPATH > generatedFileName = fileName;
+	generatedFileName.Insert( "generated/", 0 );
+	generatedFileName.SetFileExtension( LGRID_BINARYFILE_EXT );
+
+	// if we are reloading the same map, check the timestamp
+	// and try to skip all the work
+	ID_TIME_T currentTimeStamp = fileSystem->GetTimestamp( fileName );
+
+	// see if we have a generated version of this
+	bool loaded = false;
+
+#if 1
+	idFileLocal file( fileSystem->OpenFileReadMemory( generatedFileName ) );
+	if( file != NULL )
+	{
+		int numEntries = 0;
+		//int magic = 0;
+		file->ReadBig( numEntries );
+		//file->ReadString( mapName );
+		//file->ReadBig( crc );
+		idStrStatic< 32 > fileID;
+		idStrStatic< 32 > fileVersion;
+		file->ReadString( fileID );
+		file->ReadString( fileVersion );
+		if( fileID == LGRID_FILEID && fileVersion == LGRID_FILEVERSION ) //&& crc == mapFileCRC && numEntries > 0 )
+		{
+			loaded = true;
+			for( int i = 0; i < numEntries; i++ )
+			{
+				idStrStatic< MAX_OSPATH > type;
+				file->ReadString( type );
+				type.ToLower();
+
+				if( type == "lightgridpoints" )
+				{
+					ReadBinaryLightGridPoints( file );
+				}
+				else
+				{
+					idLib::Error( "Binary proc file failed, unexpected type %s\n", type.c_str() );
+				}
+			}
+		}
+	}
+#endif
+
+	if( !loaded )
+	{
+		fileName.SetFileExtension( LGRID_FILE_EXT );
+		src = new( TAG_RENDER ) idLexer( fileName, LEXFL_NOSTRINGCONCAT | LEXFL_NODOLLARPRECOMPILE );
+		if( !src->IsLoaded() )
+		{
+			delete src;
+			return false;
+		}
+
+		int numEntries = 0;
+		idFileLocal outputFile( fileSystem->OpenFileWrite( generatedFileName, "fs_basepath" ) );
+		if( outputFile != NULL )
+		{
+			outputFile->WriteBig( numEntries );
+			//outputFile->WriteString( mapName );
+			//outputFile->WriteBig( mapFileCRC );
+			outputFile->WriteString( LGRID_FILEID );
+			outputFile->WriteString( LGRID_FILEVERSION );
+		}
+
+		if( !src->ExpectTokenString( LGRID_FILEID ) )
+		{
+			common->Warning( "%s is not an CM file.", fileName.c_str() );
+			delete src;
+			return false;
+		}
+
+		if( !src->ReadToken( &token ) || token != LGRID_FILEVERSION )
+		{
+			common->Warning( "%s has version %s instead of %s", fileName.c_str(), token.c_str(), LGRID_FILEVERSION );
+			delete src;
+			return false;
+		}
+
+		//if( !src->ExpectTokenType( TT_NUMBER, TT_INTEGER, &token ) )
+		//{
+		//	common->Warning( "%s has no map file CRC", fileName.c_str() );
+		//	delete src;
+		//	return false;
+		//}
+
+		//crc = token.GetUnsignedLongValue();
+		//if( mapFileCRC && crc != mapFileCRC )
+		//{
+		//	common->Printf( "%s is out of date\n", fileName.c_str() );
+		//	delete src;
+		//	return false;
+		//}
+
+		// parse the file
+		while( 1 )
+		{
+			if( !src->ReadToken( &token ) )
+			{
+				break;
+			}
+
+			if( token == "lightGridPoints" )
+			{
+				ParseLightGridPoints( src, outputFile );
+
+				numEntries++;
+				continue;
+			}
+
+			src->Error( "idRenderWorldLocal::LoadLightGridFile: bad token \"%s\"", token.c_str() );
+		}
+
+		delete src;
+
+		if( outputFile != NULL )
+		{
+			outputFile->Seek( 0, FS_SEEK_SET );
+			outputFile->WriteBig( numEntries );
+		}
+	}
+
+	return true;
+}
+
+void idRenderWorldLocal::ParseLightGridPoints( idLexer* src, idFile* fileOut )
+{
+	src->ExpectTokenString( "{" );
+
+	int areaIndex = src->ParseInt();
+	if( areaIndex < 0 || areaIndex >= NumAreas() )
+	{
+		src->Error( "ParseLightGridPoints: bad area index %i", areaIndex );
+		return;
+	}
+
+	int numLightGridPoints = src->ParseInt();
+	if( numLightGridPoints < 0 )
+	{
+		src->Error( "ParseLightGridPoints: bad numLightGridPoints" );
+		return;
+	}
+
+	if( fileOut != NULL )
+	{
+		// write out the type so the binary reader knows what to instantiate
+		fileOut->WriteString( "lightGridPoints" );
+	}
+
+	portalArea_t* area = &portalAreas[areaIndex];
+	area->lightGrid.area = areaIndex;
+
+	// gridMins
+	src->Parse1DMatrix( 3, area->lightGrid.lightGridOrigin.ToFloatPtr() );
+	src->Parse1DMatrix( 3, area->lightGrid.lightGridSize.ToFloatPtr() );
+	for( int i = 0; i < 3; i++ )
+	{
+		area->lightGrid.lightGridBounds[i] = src->ParseInt();
+	}
+
+	area->lightGrid.lightGridPoints.SetNum( numLightGridPoints );
+
+	idLib::Printf( "area %i (%i x %i x %i) = %i grid points \n", areaIndex, area->lightGrid.lightGridBounds[0], area->lightGrid.lightGridBounds[1], area->lightGrid.lightGridBounds[2], numLightGridPoints );
+	idLib::Printf( "area %i grid size (%i %i %i)\n", areaIndex, ( int )area->lightGrid.lightGridSize[0], ( int )area->lightGrid.lightGridSize[1], ( int )area->lightGrid.lightGridSize[2] );
+	idLib::Printf( "area %i grid bounds (%i %i %i)\n", areaIndex, ( int )area->lightGrid.lightGridBounds[0], ( int )area->lightGrid.lightGridBounds[1], ( int )area->lightGrid.lightGridBounds[2] );
+	idLib::Printf( "area %i %9u x %" PRIuSIZE " = lightGridSize = (%.2fMB)\n", areaIndex, numLightGridPoints, sizeof( lightGridPoint_t ), ( float )( area->lightGrid.lightGridPoints.MemoryUsed() ) / ( 1024.0f * 1024.0f ) );
+
+	if( fileOut != NULL )
+	{
+		fileOut->WriteBig( areaIndex );
+		fileOut->WriteBig( numLightGridPoints );
+		fileOut->WriteBig( area->lightGrid.lightGridOrigin );
+		fileOut->WriteBig( area->lightGrid.lightGridSize );
+		fileOut->WriteBigArray( area->lightGrid.lightGridBounds, 3 );
+	}
+
+	for( int i = 0; i < numLightGridPoints; i++ )
+	{
+		lightGridPoint_t* gridPoint = &area->lightGrid.lightGridPoints[i];
+
+		gridPoint->valid = src->ParseInt();
+
+		src->Parse1DMatrix( 3, gridPoint->origin.ToFloatPtr() );
+#if STORE_LIGHTGRID_SHDATA
+		src->Parse1DMatrix( shSize( 3 ) * 3, gridPoint->shRadiance[0].ToFloatPtr() );
+#endif
+
+		if( fileOut != NULL )
+		{
+			fileOut->WriteBig( gridPoint->valid );
+			fileOut->WriteBig( gridPoint->origin );
+
+#if STORE_LIGHTGRID_SHDATA
+			fileOut->WriteBigArray( gridPoint->shRadiance[0].ToFloatPtr(), shSize( 3 ) * 3 );
+#endif
+		}
+	}
+
+	src->ExpectTokenString( "}" );
+}
+
+void idRenderWorldLocal::ReadBinaryLightGridPoints( idFile* file )
+{
+	int areaIndex;
+	file->ReadBig( areaIndex );
+
+	if( areaIndex < 0 || areaIndex >= NumAreas() )
+	{
+		idLib::Error( "ReadBinaryLightGridPoints: bad area index %i", areaIndex );
+		return;
+	}
+
+	int numLightGridPoints = 0;
+	file->ReadBig( numLightGridPoints );
+	if( numLightGridPoints < 0 )
+	{
+		idLib::Error( "ReadBinaryLightGridPoints: bad numLightGridPoints" );
+		return;
+	}
+
+	portalArea_t* area = &portalAreas[areaIndex];
+	area->lightGrid.area = areaIndex;
+
+	// gridMins
+	file->ReadBig( area->lightGrid.lightGridOrigin );
+	file->ReadBig( area->lightGrid.lightGridSize );
+	file->ReadBigArray( area->lightGrid.lightGridBounds, 3 );
+
+	area->lightGrid.lightGridPoints.SetNum( numLightGridPoints );
+
+	idLib::Printf( "area %i (%i x %i x %i) = %i grid points \n", areaIndex, area->lightGrid.lightGridBounds[0], area->lightGrid.lightGridBounds[1], area->lightGrid.lightGridBounds[2], numLightGridPoints );
+	idLib::Printf( "area %i grid size (%i %i %i)\n", areaIndex, ( int )area->lightGrid.lightGridSize[0], ( int )area->lightGrid.lightGridSize[1], ( int )area->lightGrid.lightGridSize[2] );
+	idLib::Printf( "area %i grid bounds (%i %i %i)\n", areaIndex, ( int )area->lightGrid.lightGridBounds[0], ( int )area->lightGrid.lightGridBounds[1], ( int )area->lightGrid.lightGridBounds[2] );
+	idLib::Printf( "area %i %9u x %" PRIuSIZE " = lightGridSize = (%.2fMB)\n", areaIndex, numLightGridPoints, sizeof( lightGridPoint_t ), ( float )( area->lightGrid.lightGridPoints.MemoryUsed() ) / ( 1024.0f * 1024.0f ) );
+
+	for( int i = 0; i < numLightGridPoints; i++ )
+	{
+		lightGridPoint_t* gridPoint = &area->lightGrid.lightGridPoints[i];
+
+		file->ReadBig( gridPoint->valid );
+		file->ReadBig( gridPoint->origin );
+
+		//file->ReadBigArray( gridPoint->shRadiance[0].ToFloatPtr(), shSize( 3 ) * 3 );
+	}
+}
+
+/*
+===============================================================================
+
+Baking light grids files
+
+===============================================================================
+*/
 
 static const char* envDirection[6] = { "_px", "_nx", "_py", "_ny", "_pz", "_nz" };
 
@@ -448,10 +800,10 @@ void CalculateLightGridPointJob( calcLightGridPointParms_t* parms )
 
 	const idVec2i sourceImageSize( parms->outHeight, parms->outHeight );
 
-	// build L4 Spherical Harmonics from source image
-	SphericalHarmonicsT<idVec3, 4> shRadiance;
+	// build L3 Spherical Harmonics from source image
+	SphericalHarmonicsT<idVec3, 3> shRadiance;
 
-	for( int i = 0; i < shSize( 4 ); i++ )
+	for( int i = 0; i < shSize( 3 ); i++ )
 	{
 		shRadiance[i].Zero();
 	}
@@ -510,8 +862,6 @@ void CalculateLightGridPointJob( calcLightGridPointParms_t* parms )
 
 	// build SH by iterating over all cubemap pixels
 
-	//idVec4 dstRect = R_CalculateMipRect( parms->outHeight, 0 );
-
 	for( int side = 0; side < 6; side++ )
 	{
 		for( int x = 0; x < sourceImageSize.x; x++ )
@@ -533,10 +883,10 @@ void CalculateLightGridPointJob( calcLightGridPointParms_t* parms )
 
 				float texelArea = CubemapTexelSolidAngle( uu, vv, invDstSize );
 
-				const SphericalHarmonicsT<float, 4>& sh = shEvaluate<4>( dir );
+				const SphericalHarmonicsT<float, 3>& sh = shEvaluate<3>( dir );
 
 				bool shValid = true;
-				for( int i = 0; i < 25; i++ )
+				for( int i = 0; i < shSize( 3 ); i++ )
 				{
 					if( IsNAN( sh[i] ) )
 					{
@@ -554,6 +904,11 @@ void CalculateLightGridPointJob( calcLightGridPointParms_t* parms )
 	}
 
 #endif
+
+	for( int i = 0; i < shSize( 3 ); i++ )
+	{
+		parms->shRadiance[i] = shRadiance[i];
+	}
 
 	// reset image to black
 	for( int x = 0; x < parms->outWidth; x++ )
@@ -580,10 +935,10 @@ void CalculateLightGridPointJob( calcLightGridPointParms_t* parms )
 			idVec3 outColor( 0, 0, 0 );
 
 #if 1
-			// generate ambient colors by evaluating the L4 Spherical Harmonics
-			SphericalHarmonicsT<float, 4> shDirection = shEvaluate<4>( dir );
+			// generate ambient colors by evaluating the L3 Spherical Harmonics
+			SphericalHarmonicsT<float, 3> shDirection = shEvaluate<3>( dir );
 
-			idVec3 sampleIrradianceSh = shEvaluateDiffuse<idVec3, 4>( shRadiance, dir ) / idMath::PI;
+			idVec3 sampleIrradianceSh = shEvaluateDiffuse<idVec3, 3>( shRadiance, dir ) / idMath::PI;
 
 			outColor[0] = Max( 0.0f, sampleIrradianceSh.x );
 			outColor[1] = Max( 0.0f, sampleIrradianceSh.y );
@@ -744,33 +1099,25 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 	// CAPTURE SCENE LIGHTING TO CUBEMAPS
 	//--------------------------------------------
 
-	/*
-	int totalGridPoints = 0;
-	for( int a = 0; a < tr.primaryWorld->NumAreas(); a++ )
-	{
-		portalArea_t* area = &tr.primaryWorld->portalAreas[a];
 
-		totalGridPoints += area->lightGrid.lightGridPoints.Num();
-	}
-	*/
-
-#if 0
-	int a = tr.primaryWorld->PointInArea( tr.primaryView->renderView.vieworg );
-	if( a == -1 )
-	{
-		return;
-	}
-#else
 	for( int a = 0; a < tr.primaryWorld->NumAreas(); a++ )
-#endif
 	{
 		portalArea_t* area = &tr.primaryWorld->portalAreas[a];
 
 		//int numGridPoints = Min( area->lightGrid.lightGridPoints.Num(), limit );
 		//if( numGridPoints == 0 )
 
+		//int numGridPoints = area->lightGrid.lightGridPoints.Num();
+		//if( numGridPoints == 0 || numGridPoints > limit )
+		//{
+		//	continue;
+		//}
+
+		area->lightGrid.SetupLightGrid( area->globalBounds, tr.primaryWorld->mapName, tr.primaryWorld, a, limit );
+
+#if 1
 		int numGridPoints = area->lightGrid.lightGridPoints.Num();
-		if( numGridPoints == 0 || numGridPoints > limit )
+		if( numGridPoints == 0 )
 		{
 			continue;
 		}
@@ -804,7 +1151,7 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 					gridCoord[2] = k;
 
 					lightGridPoint_t* gridPoint = &area->lightGrid.lightGridPoints[ gridCoord[0] * gridStep[0] + gridCoord[1] * gridStep[1] + gridCoord[2] * gridStep[2] ];
-					if( !gridPoint->valid || ( tr.lightGridJobs.Num() >= limit ) )
+					if( !gridPoint->valid )
 					{
 						progressBar.Increment();
 						continue;
@@ -909,15 +1256,10 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 		{
 			calcLightGridPointParms_t* job = tr.lightGridJobs[ j ];
 
-			//filename.Format( "env/%s/area%i_lightgridpoint%i_amb.exr", baseName.c_str(), a, j );
-			//R_WriteEXR( filename.c_str(), ( byte* )job->outBuffer, 3, job->outWidth, job->outHeight, "fs_basepath" );
-
 			for( int x = 0; x < LIGHTGRID_IRRADIANCE_SIZE; x++ )
 			{
 				for( int y = 0; y < LIGHTGRID_IRRADIANCE_SIZE; y++ )
 				{
-					// gridPoint = lightGridPoints[ gridCoord[0] * gridStep[0] + gridCoord[1] * gridStep[1] + gridCoord[2] * gridStep[2] ];
-
 					int xx = x + ( job->gridCoord[0] * gridStep[0] + job->gridCoord[2] * gridStep[1] ) * LIGHTGRID_IRRADIANCE_SIZE;
 					int yy = y + job->gridCoord[1] * LIGHTGRID_IRRADIANCE_SIZE;
 
@@ -925,6 +1267,13 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 					irradianceAtlas[( yy * atlasWidth + xx ) * 3 + 1] = job->outBuffer[( y * LIGHTGRID_IRRADIANCE_SIZE + x ) * 3 + 1];
 					irradianceAtlas[( yy * atlasWidth + xx ) * 3 + 2] = job->outBuffer[( y * LIGHTGRID_IRRADIANCE_SIZE + x ) * 3 + 2];
 				}
+			}
+
+			// backup SH L3 data
+			lightGridPoint_t* gridPoint = &area->lightGrid.lightGridPoints[ job->gridCoord[0] * gridStep[0] + job->gridCoord[1] * gridStep[1] + job->gridCoord[2] * gridStep[2] ];
+			for( int i = 0; i < shSize( 3 ); i++ )
+			{
+				gridPoint->shRadiance[i] = job->shRadiance[i];
 			}
 
 			for( int i = 0; i < 6; i++ )
@@ -949,7 +1298,11 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 		end = Sys_Milliseconds();
 
 		common->Printf( "computed light grid irradiance for area %i in %5.1f seconds\n\n", a, ( end - start ) * 0.001f );
+#endif
 	}
+
+	filename.Format( "%s.lightgrid", baseName.c_str() );
+	tr.primaryWorld->WriteLightGridsToFile( filename );
 }
 
 #if 0

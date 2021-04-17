@@ -579,10 +579,10 @@ void CalculateIrradianceJob( calcEnvprobeParms_t* parms )
 		progressBar.Start();
 	}
 
-	// build L4 Spherical Harmonics from source image
-	SphericalHarmonicsT<idVec3, 4> shRadiance;
+	// build L3 Spherical Harmonics from source image
+	SphericalHarmonicsT<idVec3, 3> shRadiance;
 
-	for( int i = 0; i < shSize( 4 ); i++ )
+	for( int i = 0; i < shSize( 3 ); i++ )
 	{
 		shRadiance[i].Zero();
 	}
@@ -664,7 +664,7 @@ void CalculateIrradianceJob( calcEnvprobeParms_t* parms )
 
 				float texelArea = CubemapTexelSolidAngle( uu, vv, invDstSize );
 
-				const SphericalHarmonicsT<float, 4>& sh = shEvaluate<4>( dir );
+				const SphericalHarmonicsT<float, 3>& sh = shEvaluate<3>( dir );
 
 				bool shValid = true;
 				for( int i = 0; i < 25; i++ )
@@ -726,10 +726,10 @@ void CalculateIrradianceJob( calcEnvprobeParms_t* parms )
 				idVec3 outColor( 0, 0, 0 );
 
 #if 1
-				// generate ambient colors by evaluating the L4 Spherical Harmonics
-				SphericalHarmonicsT<float, 4> shDirection = shEvaluate<4>( dir );
+				// generate ambient colors by evaluating the L3 Spherical Harmonics
+				SphericalHarmonicsT<float, 3> shDirection = shEvaluate<3>( dir );
 
-				idVec3 sampleIrradianceSh = shEvaluateDiffuse<idVec3, 4>( shRadiance, dir ) / idMath::PI;
+				idVec3 sampleIrradianceSh = shEvaluateDiffuse<idVec3, 3>( shRadiance, dir ) / idMath::PI;
 
 				outColor[0] = Max( 0.0f, sampleIrradianceSh.x );
 				outColor[1] = Max( 0.0f, sampleIrradianceSh.y );

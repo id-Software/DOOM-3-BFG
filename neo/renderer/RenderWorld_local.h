@@ -64,30 +64,27 @@ typedef struct doublePortal_s
 struct lightGridPoint_t
 {
 	idVec3			origin;				// not saved to .proc
-	bool			valid;				// is not in solid area
+	byte			valid;				// is not in the void
 
-	SphericalHarmonicsT<float, 4>	SH4;
+	SphericalHarmonicsT<idVec3, 4>	shRadiance; // L4 Spherical Harmonics
 };
 
 class LightGrid
 {
-private:
-	idImage* 				irradianceImage;
-
 public:
 	idVec3					lightGridOrigin;
 	idVec3					lightGridSize;
 	int						lightGridBounds[3];
-	int						area;
 
-//public:
 	idList<lightGridPoint_t> lightGridPoints;
-	int						validGridPoints;
+
+	int						area;
+	idImage* 				irradianceImage;
 
 	LightGrid();
 
 	// setup light grid for given world bounds
-	void					SetupLightGrid( const idBounds& bounds, const char* baseName, const idRenderWorld* world, int _area );
+	void					SetupLightGrid( const idBounds& bounds, const char* baseName, const idRenderWorld* world, int _area, int limit );
 
 	void					GetBaseGridCoord( const idVec3& origin, int gridCoord[3] );
 
@@ -395,8 +392,16 @@ public:
 	//--------------------------
 	// RenderWorld_lightgrid.cpp
 
-private:
+//private:
 	void					SetupLightGrid();
+
+	void					WriteLightGridsToFile( const char* filename );
+	void					WriteLightGrid( idFile* fp, const LightGrid& lightGrid );
+
+	bool					LoadLightGridFile( const char* name );
+
+	void					ParseLightGridPoints( idLexer* src, idFile* fileOut );
+	void					ReadBinaryLightGridPoints( idFile* file );
 // RB end
 };
 
