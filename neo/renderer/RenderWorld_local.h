@@ -94,6 +94,8 @@ public:
 	idVec3					GetGridCoordDebugColor( int gridCoord[3] );
 	idVec3					GetProbeIndexDebugColor( const int probeIndex );
 
+	int						CountValidGridPoints() const;
+
 	idImage*				GetIrradianceImage() const
 	{
 		return irradianceImage;

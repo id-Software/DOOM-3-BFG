@@ -1058,7 +1058,6 @@ extern idCVar r_useShadowDepthBounds;		// use depth bounds test on individual sh
 extern idCVar r_useShadowMapping;			// use shadow mapping instead of stencil shadows
 extern idCVar r_useHalfLambertLighting;		// use Half-Lambert lighting instead of classic Lambert
 extern idCVar r_useHDR;
-extern idCVar r_useSRGB;
 extern idCVar r_useSeamlessCubeMap;
 // RB end
 
@@ -1447,6 +1446,14 @@ public:
 
 	void Reset()
 	{
+		count = 0;
+		tics = 0;
+		nextTicCount = 0;
+	}
+
+	void Reset( int expected )
+	{
+		expectedCount = expected;
 		count = 0;
 		tics = 0;
 		nextTicCount = 0;

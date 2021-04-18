@@ -150,7 +150,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	float3 reflectionVector = globalNormal * dot3( globalView, globalNormal );
 	reflectionVector = normalize( ( reflectionVector * 2.0f ) - globalView );
 
-#if 1
+#if 0
 	// parallax box correction using portal area bounds
 	float hitScale = 0.0;
 	float3 bounds[2];
@@ -368,6 +368,12 @@ void main( PS_IN fragment, out PS_OUT result )
 	float3 radiance = textureLod( samp8, normalizedOctCoordZeroOne, mip ).rgb;
 	//radiance = float3( 0.0 );
 
+	// RB: HACK dim down room radiance by better local irradiance brightness
+	//float luma = PhotoLuma( irradiance );
+	//float luma = dot( irradiance, LUMINANCE_LINEAR.rgb );
+	//float luma = length( irradiance.rgb );
+	//radiance *= ( luma * rpSpecularModifier.x * 3.0 );
+
 	float2 envBRDF  = texture( samp3, float2( max( vDotN, 0.0 ), roughness ) ).rg;
 
 #if 0
@@ -388,6 +394,7 @@ void main( PS_IN fragment, out PS_OUT result )
 #endif
 
 	half3 lightColor = sRGBToLinearRGB( rpAmbientColor.rgb );
+	//half3 lightColor = ( rpAmbientColor.rgb );
 
 	//result.color.rgb = diffuseLight;
 	//result.color.rgb = diffuseLight * lightColor;

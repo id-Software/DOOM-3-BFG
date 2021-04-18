@@ -199,7 +199,6 @@ struct glconfig_t
 	bool				anisotropicFilterAvailable;
 	bool				textureLODBiasAvailable;
 	bool				seamlessCubeMapAvailable;
-	bool				sRGBFramebufferAvailable;
 	bool				vertexBufferObjectAvailable;
 	bool				mapBufferRangeAvailable;
 	bool				vertexArrayObjectAvailable;

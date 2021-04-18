@@ -86,7 +86,6 @@ idCVar r_useNodeCommonChildren( "r_useNodeCommonChildren", "1", CVAR_RENDERER | 
 idCVar r_useShadowSurfaceScissor( "r_useShadowSurfaceScissor", "1", CVAR_RENDERER | CVAR_BOOL, "scissor shadows by the scissor rect of the interaction surfaces" );
 idCVar r_useCachedDynamicModels( "r_useCachedDynamicModels", "1", CVAR_RENDERER | CVAR_BOOL, "cache snapshots of dynamic models" );
 idCVar r_useSeamlessCubeMap( "r_useSeamlessCubeMap", "1", CVAR_RENDERER | CVAR_BOOL, "use ARB_seamless_cube_map if available" );
-idCVar r_useSRGB( "r_useSRGB", "0", CVAR_RENDERER | CVAR_INTEGER | CVAR_ARCHIVE, "1 = both texture and framebuffer, 2 = framebuffer only, 3 = texture only" );
 idCVar r_maxAnisotropicFiltering( "r_maxAnisotropicFiltering", "8", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "limit aniso filtering" );
 idCVar r_useTrilinearFiltering( "r_useTrilinearFiltering", "1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_BOOL, "Extra quality filtering" );
 // RB: not used anymore
@@ -262,9 +261,9 @@ idCVar r_shadowMapSunDepthBiasScale( "r_shadowMapSunDepthBiasScale", "0.999991",
 
 // RB: HDR parameters
 #if defined( USE_VULKAN )
-	idCVar r_useHDR( "r_useHDR", "0", CVAR_RENDERER | CVAR_ROM | CVAR_STATIC | CVAR_BOOL, "use high dynamic range rendering" );
+	idCVar r_useHDR( "r_useHDR", "0", CVAR_RENDERER | CVAR_ROM | CVAR_STATIC | CVAR_BOOL, "Can't be changed, is broken on Vulkan backend" );
 #else
-	idCVar r_useHDR( "r_useHDR", "1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_BOOL, "use high dynamic range rendering" );
+	idCVar r_useHDR( "r_useHDR", "1", CVAR_RENDERER | CVAR_ROM | CVAR_STATIC | CVAR_BOOL, "Can't be changed: Use high dynamic range rendering" );
 #endif
 
 idCVar r_hdrAutoExposure( "r_hdrAutoExposure", "0", CVAR_RENDERER | CVAR_BOOL, "EXPENSIVE: enables adapative HDR tone mapping otherwise the exposure is derived by r_exposure" );
