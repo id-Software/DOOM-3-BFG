@@ -1139,7 +1139,7 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 		area->lightGrid.SetupLightGrid( area->globalBounds, tr.primaryWorld->mapName, tr.primaryWorld, a, limit );
 
 #if 1
-		int numGridPoints = area->lightGrid.lightGridPoints.Num();
+		int numGridPoints = area->lightGrid.CountValidGridPoints();
 		if( numGridPoints == 0 )
 		{
 			continue;
