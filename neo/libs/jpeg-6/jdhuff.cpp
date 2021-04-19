@@ -381,11 +381,12 @@ static const int extend_test[16] =   /* entry n is 2**(n-1) */
 { 0, 0x0001, 0x0002, 0x0004, 0x0008, 0x0010, 0x0020, 0x0040, 0x0080,
   0x0100, 0x0200, 0x0400, 0x0800, 0x1000, 0x2000, 0x4000 };
 
-static const int extend_offset[16] = /* entry n is (-1 << n) + 1 */
-{ 0, ( ( -1 ) << 1 ) + 1, ( ( -1 ) << 2 ) + 1, ( ( -1 ) << 3 ) + 1, ( ( -1 ) << 4 ) + 1,
-  ( ( -1 ) << 5 ) + 1, ( ( -1 ) << 6 ) + 1, ( ( -1 ) << 7 ) + 1, ( ( -1 ) << 8 ) + 1,
-  ( ( -1 ) << 9 ) + 1, ( ( -1 ) << 10 ) + 1, ( ( -1 ) << 11 ) + 1, ( ( -1 ) << 12 ) + 1,
-  ( ( -1 ) << 13 ) + 1, ( ( -1 ) << 14 ) + 1, ( ( -1 ) << 15 ) + 1 };
+static const int extend_offset[16] = /* entry n is (-1 << n) + 1 */         // SRS - Cast to unsigned int
+{ 0, static_cast<int>(( (unsigned int)( -1 ) << 1 ) + 1), static_cast<int>(( (unsigned int)( -1 ) << 2 ) + 1), static_cast<int>(( (unsigned int)( -1 ) << 3 ) + 1),
+    static_cast<int>(( (unsigned int)( -1 ) << 4 ) + 1), static_cast<int>(( (unsigned int)( -1 ) << 5 ) + 1), static_cast<int>(( (unsigned int)( -1 ) << 6 ) + 1),
+    static_cast<int>(( (unsigned int)( -1 ) << 7 ) + 1), static_cast<int>(( (unsigned int)( -1 ) << 8 ) + 1), static_cast<int>(( (unsigned int)( -1 ) << 9 ) + 1),
+    static_cast<int>(( (unsigned int)( -1 ) << 10 ) + 1), static_cast<int>(( (unsigned int)( -1 ) << 11 ) + 1), static_cast<int>(( (unsigned int)( -1 ) << 12 ) + 1),
+    static_cast<int>(( (unsigned int)( -1 ) << 13 ) + 1), static_cast<int>(( (unsigned int)( -1 ) << 14 ) + 1), static_cast<int>(( (unsigned int)( -1 ) << 15 ) + 1) };
 
 #endif /* AVOID_TABLES */
 

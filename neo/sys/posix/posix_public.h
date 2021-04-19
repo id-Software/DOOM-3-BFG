@@ -68,8 +68,10 @@ char*		Posix_ConsoleInput();
 double 		MeasureClockTicks();
 
 #ifdef __APPLE__
-enum clk_id_t { CLOCK_REALTIME, CLOCK_MONOTONIC, CLOCK_MONOTONIC_RAW };
-int clock_gettime( clk_id_t clock, struct timespec* tp );
+#if !defined(CLOCK_REALTIME)                    // SRS - define clockid_t enum for OSX 10.11 and earlier
+enum /*clk_id_t*/ clockid_t { CLOCK_REALTIME, CLOCK_MONOTONIC, CLOCK_MONOTONIC_RAW };
+#endif
+int clock_gettime( /*clk_id_t*/ clockid_t clock, struct timespec* tp );     // SRS - use APPLE clockid_t
 #endif
 
 // Eric: Not used on Linux since using SDL2

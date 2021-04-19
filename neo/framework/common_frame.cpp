@@ -195,7 +195,7 @@ gameReturn_t idGameThread::RunGameAndDraw( int numGameFrames_, idUserCmdMgr& use
 
 	// start the thread going
 	// foresthale 2014-05-12: also check com_editors as many of them are not particularly thread-safe (editLights for example)
-	if( com_smp.GetBool() == false || com_editors != 0 )
+	if( com_smp.GetInteger() <= 0 || com_editors != 0 )
 	{
 		// run it in the main thread so PIX profiling catches everything
 		Run();
@@ -347,7 +347,8 @@ void idCommonLocal::Draw()
 	}
 	else if( readDemo )
 	{
-		AdvanceRenderDemo( true );
+        // SRS - Advance demo inside Frame() instead of Draw() to support smp mode playback
+        // AdvanceRenderDemo( true );
 		renderWorld->RenderScene( &currentDemoRenderView );
 		renderSystem->DrawDemoPics();
 	}
@@ -563,7 +564,8 @@ void idCommonLocal::Frame()
 			// RB end, DG end
 		{
 			// RB: don't release the mouse when opening a PDA or menu
-			if( console->Active() || ImGuiTools::ReleaseMouseForTools() )
+            // SRS - don't release when console open in a game (otherwise may be out of frame on return) but always release at main menu
+			if( ( console->Active() && !game ) || !mapSpawned || ImGuiTools::ReleaseMouseForTools() )
 			{
 				Sys_GrabMouseCursor( false );
 			}
@@ -679,7 +681,8 @@ void idCommonLocal::Frame()
 
 			// don't run any frames when paused
 			// jpcy: the game is paused when playing a demo, but playDemo should wait like the game does
-			if( pauseGame && !( readDemo && !timeDemo ) )
+            // SRS - don't wait if window not in focus and playDemo itself paused
+			if( pauseGame && ( !( readDemo && !timeDemo ) || session->IsSystemUIShowing() || com_pause.GetInteger() ) )
 			{
 				gameFrame++;
 				gameTimeResidual = 0;
@@ -766,6 +769,11 @@ void idCommonLocal::Frame()
 			ExecuteMapChange();
 			mapSpawnData.savegameFile = NULL;
 			mapSpawnData.persistentPlayerInfo.Clear();
+            // SRS - If in Doom 3 mode (com_smp = -1) on map change, must obey fence before returning to avoid command buffer sync issues
+            if( com_smp.GetInteger() < 0 )
+            {
+                renderSystem->SwapCommandBuffers_FinishRendering( &time_frontend, &time_backend, &time_shadows, &time_gpu, &stats_backend, &stats_frontend );
+            }
 			return;
 		}
 		else if( session->GetState() != idSession::INGAME && mapSpawned )
@@ -788,7 +796,19 @@ void idCommonLocal::Frame()
 
 		// send frame and mouse events to active guis
 		GuiFrameEvents();
-
+        
+        // SRS - Advance demos inside Frame() vs. Draw() to support smp mode playback
+        // SRS - Pause playDemo (but not timeDemo) when window not in focus
+        if ( readDemo && ( !( session->IsSystemUIShowing() || com_pause.GetInteger() ) || timeDemo ) )
+        {
+            AdvanceRenderDemo( true );
+            if( !readDemo )
+            {
+                // SRS - Important to return after demo playback is finished to avoid command buffer sync issues
+                return;
+            }
+        }
+		
 		//--------------------------------------------
 		// Prepare usercmds and kick off the game processing
 		// in a background thread
@@ -839,7 +859,8 @@ void idCommonLocal::Frame()
 		// RB begin
 #if defined(USE_DOOMCLASSIC)
 		// If we're in Doom or Doom 2, run tics and upload the new texture.
-		if( ( GetCurrentGame() == DOOM_CLASSIC || GetCurrentGame() == DOOM2_CLASSIC ) && !( Dialog().IsDialogPausing() || session->IsSystemUIShowing() ) )
+        // SRS - Add check for com_pause cvar to make sure window is in focus - if not classic game should be paused (FIXME: but classic music still plays in background)
+		if( ( GetCurrentGame() == DOOM_CLASSIC || GetCurrentGame() == DOOM2_CLASSIC ) && !( Dialog().IsDialogPausing() || session->IsSystemUIShowing() || com_pause.GetInteger() ) )
 		{
 			RunDoomClassicFrame();
 		}
@@ -850,12 +871,7 @@ void idCommonLocal::Frame()
 		gameReturn_t ret = gameThread.RunGameAndDraw( numGameFrames, userCmdMgr, IsClient(), gameFrame - numGameFrames );
 
 		// foresthale 2014-05-12: also check com_editors as many of them are not particularly thread-safe (editLights for example)
-		if( com_smp.GetInteger() < 0 )
-		{
-			// RB: this is the same as Doom 3 renderSystem->EndFrame()
-			renderSystem->SwapCommandBuffers_FinishRendering( &time_frontend, &time_backend, &time_shadows, &time_gpu, &stats_backend, &stats_frontend );
-		}
-		else if( com_smp.GetInteger() == 0 || com_editors != 0 )
+		if( com_smp.GetInteger() == 0 || com_editors != 0 )
 		{
 			// in non-smp mode, run the commands we just generated, instead of
 			// frame-delayed ones from a background thread
@@ -875,6 +891,13 @@ void idCommonLocal::Frame()
 		}
 		frameTiming.finishRenderTime = Sys_Microseconds();
 
+        // SRS - If in Doom 3 mode (com_smp = -1), must sync after RenderCommandBuffers() otherwise get artifacts due to improper command buffer swap timing
+        if( com_smp.GetInteger() < 0 )
+        {
+            // RB: this is the same as Doom 3 renderSystem->EndFrame()
+            renderSystem->SwapCommandBuffers_FinishRendering( &time_frontend, &time_backend, &time_shadows, &time_gpu, &stats_backend, &stats_frontend );
+        }
+
 		// make sure the game / draw thread has completed
 		// This may block if the game is taking longer than the render back end
 		gameThread.WaitForThread();
@@ -888,7 +911,8 @@ void idCommonLocal::Frame()
 		SendSnapshots();
 
 		// Render the sound system using the latest commands from the game thread
-		if( pauseGame )
+        // SRS - Enable sound during normal playDemo playback but not during timeDemo
+		if( pauseGame && !( readDemo && !timeDemo ) )
 		{
 			soundWorld->Pause();
 			soundSystem->SetPlayingSoundWorld( menuSoundWorld );
@@ -898,6 +922,10 @@ void idCommonLocal::Frame()
 			soundWorld->UnPause();
 			soundSystem->SetPlayingSoundWorld( soundWorld );
 		}
+        // SRS - Play silence when dialog waiting or window not in focus
+        if ( Dialog().IsDialogPausing() || session->IsSystemUIShowing() || com_pause.GetInteger() )
+            soundSystem->SetPlayingSoundWorld( NULL );
+        
 		soundSystem->Render();
 
 		// process the game return for map changes, etc

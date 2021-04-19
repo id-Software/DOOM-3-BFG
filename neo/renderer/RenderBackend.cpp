@@ -2050,7 +2050,7 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 					case SL_SPECULAR:
 					{
 						// ignore stage that fails the condition
-						if( !surfaceRegs[ surfaceStage->conditionRegister ] )
+						if( !surfaceRegs[ surfaceStage->conditionRegister ] || vLight->lightDef->parms.noSpecular ) // SRS - From RB forums
 						{
 							break;
 						}

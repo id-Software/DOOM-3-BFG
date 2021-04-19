@@ -181,14 +181,20 @@ ID_INLINE void idStrPool::FreeString( const idPoolStr* poolStr )
 	 * we're shutting down (at this point) just get rid of the following assertion:
 	 * assert( poolStr->numUsers >= 1 );
 	 */
-	if( poolStr->numUsers < 1 )
-	{
-		return;
-	}
+    //if( poolStr->numUsers < 1 )           // SRS - This test does not work if idStrPool is empty and poolStr->numUsers is undefined
+	//{
+	//	return;
+	//}
 	// DG end
 
+    if( pool.Num() <= 0 )                   // SRS - Instead, check for empty idStrPool and return to prevent segfaulting on shutdown
+    {
+        return;
+    }
+    
 	assert( poolStr->pool == this );
-
+    assert( poolStr->numUsers >= 1 );       // SRS - Reestablish assertion
+	
 	poolStr->numUsers--;
 	if( poolStr->numUsers <= 0 )
 	{

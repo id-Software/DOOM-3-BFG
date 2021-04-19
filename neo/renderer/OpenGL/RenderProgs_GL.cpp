@@ -128,8 +128,14 @@ void idRenderProgManager::LoadShader( shader_t& shader )
 
 		default:
 		{
-			outFileGLSL.Format( "renderprogs/glsl-4_50/%s%s", shader.name.c_str(), shader.nameOutSuffix.c_str() );
-			outFileUniforms.Format( "renderprogs/glsl-4_50/%s%s", shader.name.c_str(), shader.nameOutSuffix.c_str() );
+		//SRS - OSX supports only up to GLSL 4.1
+        #if defined(__APPLE__)
+			outFileGLSL.Format( "renderprogs/glsl-4_10/%s%s", shader.name.c_str(), shader.nameOutSuffix.c_str() );
+			outFileUniforms.Format( "renderprogs/glsl-4_10/%s%s", shader.name.c_str(), shader.nameOutSuffix.c_str() );
+        #else
+            outFileGLSL.Format( "renderprogs/glsl-4_50/%s%s", shader.name.c_str(), shader.nameOutSuffix.c_str() );
+            outFileUniforms.Format( "renderprogs/glsl-4_50/%s%s", shader.name.c_str(), shader.nameOutSuffix.c_str() );
+        #endif
 		}
 	}
 

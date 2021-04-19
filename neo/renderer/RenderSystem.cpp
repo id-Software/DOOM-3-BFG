@@ -130,7 +130,8 @@ void idRenderSystemLocal::RenderCommandBuffers( const emptyCommand_t* const cmdH
 	// draw 2D graphics
 	if( !r_skipBackEnd.GetBool() )
 	{
-#if !defined(USE_VULKAN)
+// SRS - For OSX skip total rendering time query due to missing GL_TIMESTAMP support in Apple OpenGL 4.1, will calculate it inside SwapCommandBuffers_FinishRendering instead
+#if !defined(USE_VULKAN) && !defined(__APPLE__)
 		if( glConfig.timerQueryAvailable )
 		{
 			if( glcontext.renderLogMainBlockTimeQueryIds[ glcontext.frameParity ][ MRB_GPU_TIME ] == 0 )
@@ -741,6 +742,16 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 
 			backend.pc.gpuPostProcessingMicroSec = ( gpuEndNanoseconds - gpuStartNanoseconds ) / 1000;
 		}
+        
+// SRS - For OSX OpenGL calculate total rendering time vs direct measurement due to missing GL_TIMESTAMP support in Apple OpenGL 4.1
+#if defined(__APPLE__)
+        backend.pc.gpuMicroSec = backend.pc.gpuDepthMicroSec + backend.pc.gpuScreenSpaceAmbientOcclusionMicroSec + backend.pc.gpuAmbientPassMicroSec + backend.pc.gpuInteractionsMicroSec + backend.pc.gpuShaderPassMicroSec + backend.pc.gpuPostProcessingMicroSec + commonLocal.GetRendererIdleMicroseconds();
+        
+        if( gpuMicroSec != NULL )
+        {
+            *gpuMicroSec = backend.pc.gpuMicroSec;
+        }
+#endif
 
 		for( int i = 0; i < MRB_TOTAL_QUERIES; i++ )
 		{

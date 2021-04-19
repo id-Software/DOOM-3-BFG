@@ -978,6 +978,9 @@ extern idCVar r_windowHeight;
 
 extern idCVar r_debugContext;				// enable various levels of context debug
 extern idCVar r_glDriver;					// "opengl32", etc
+// SRS - Added cvar to control workarounds for AMD OSX driver bugs when shadow mapping enabled
+extern idCVar r_skipAMDWorkarounds;         // skip work arounds for AMD driver bugs
+// SRS end
 extern idCVar r_skipIntelWorkarounds;		// skip work arounds for Intel driver bugs
 extern idCVar r_vidMode;					// video mode number
 extern idCVar r_displayRefresh;				// optional display refresh rate option for vid mode
@@ -1241,7 +1244,8 @@ struct glimpParms_t
 };
 
 // Eric: If on Linux using Vulkan use the sdl_vkimp.cpp methods
-#if defined(__linux__) && defined(USE_VULKAN)
+// SRS - Add OSX case
+#if ( defined(__linux__) || defined(__APPLE__) ) && defined(USE_VULKAN)
 #include <vector>
 
 #define CLAMP(x, lo, hi)    ((x) < (lo) ? (lo) : (x) > (hi) ? (hi) : (x))

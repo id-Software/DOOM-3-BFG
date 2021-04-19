@@ -31,6 +31,19 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "precompiled.h"
 
+// SRS - Include SDL headers to enable vsync changes without restart for UNIX-like OSs
+#if defined(__linux__) || defined(__FreeBSD__) || defined(__APPLE__)
+// SRS - Don't seem to need these #undefs (at least on macOS), are they needed for Linux, etc?
+// DG: SDL.h somehow needs the following functions, so #undef those silly
+//     "don't use" #defines from Str.h
+//#undef strncmp
+//#undef strcasecmp
+//#undef vsnprintf
+// DG end
+#include <SDL.h>
+#endif
+// SRS end
+
 #include "../RenderCommon.h"
 #include "../RenderBackend.h"
 #include "../../framework/Common_local.h"
@@ -339,10 +352,13 @@ static void R_CheckPortableExtensions()
 	// GL_ARB_occlusion_query
 	glConfig.occlusionQueryAvailable = GLEW_ARB_occlusion_query != 0;
 
-	// GL_ARB_timer_query using the DSA interface
-	//glConfig.timerQueryAvailable = ( GLEW_ARB_timer_query != 0 || GLEW_EXT_timer_query != 0 ) && ( glConfig.vendor != VENDOR_INTEL || r_skipIntelWorkarounds.GetBool() ) && glConfig.driverType != GLDRV_OPENGL_MESA;
-
+#if defined(__APPLE__)
+    // SRS - DSA not available in Apple OpenGL 4.1, but enable for OSX anyways since elapsed time query will be used to get timing info instead
+	glConfig.timerQueryAvailable = ( GLEW_ARB_timer_query != 0 || GLEW_EXT_timer_query != 0 ) && ( glConfig.vendor != VENDOR_INTEL || r_skipIntelWorkarounds.GetBool() ) && glConfig.driverType != GLDRV_OPENGL_MESA;
+#else
+    // GL_ARB_timer_query using the DSA interface
 	glConfig.timerQueryAvailable = ( GLEW_ARB_direct_state_access != 0 && GLEW_ARB_timer_query != 0 );
+#endif
 
 	// GREMEDY_string_marker
 	glConfig.gremedyStringMarkerAvailable = GLEW_GREMEDY_string_marker != 0;
@@ -1534,6 +1550,23 @@ void idRenderBackend::CheckCVars()
 		}
 	}
 
+    // SRS - Enable SDL-driven vync changes without restart for UNIX-like OSs
+#if defined(__linux__) || defined(__FreeBSD__) || defined(__APPLE__)
+    extern idCVar r_swapInterval;
+    if( r_swapInterval.IsModified() )
+    {
+        r_swapInterval.ClearModified();
+#if SDL_VERSION_ATLEAST(2, 0, 0)
+        if( SDL_GL_SetSwapInterval( r_swapInterval.GetInteger() ) < 0 )
+            common->Warning( "Vsync changes not supported without restart" );
+#else
+        if( SDL_GL_SetAttribute( SDL_GL_SWAP_CONTROL, r_swapInterval.GetInteger() ) < 0 )
+            common->Warning( "Vsync changes not supported without restart" );
+#endif
+    }
+#endif
+    // SRS end
+    
 	if( r_antiAliasing.IsModified() )
 	{
 		switch( r_antiAliasing.GetInteger() )

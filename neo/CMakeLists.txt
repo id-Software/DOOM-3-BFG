@@ -33,6 +33,9 @@ option(USE_VULKAN
 option(SPIRV_SHADERC
 		"Compile SPIR-V shader byte code using shaderc instead of using Glslang directly" OFF)
 
+option(USE_MoltenVK
+		"Use MoltenVK library instead of Vulkan library on macOS" OFF)
+
 option(ONATIVE
 		"Optimize for the host CPU" OFF)
 		
@@ -84,7 +87,8 @@ endif()
 if (FORCE_COLOR_OUTPUT)
 	if (CMAKE_COMPILER_IS_GNUCC)
 		add_compile_options(-fdiagnostics-color=always)
-	elseif(CMAKE_C_COMPILER_ID STREQUAL "Clang")
+	# SRS - Add test for AppleClang
+	elseif(CMAKE_C_COMPILER_ID STREQUAL "Clang" OR CMAKE_C_COMPILER_ID STREQUAL "AppleClang")
 		add_compile_options(-fcolor-diagnostics)
 	endif ()
 endif ()
@@ -112,7 +116,8 @@ else()
 	message(STATUS CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE})
 endif()
 
-if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
+# SRS - Add test for AppleClang
+if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang" OR CMAKE_C_COMPILER_ID STREQUAL "AppleClang")
 	add_definitions(-pipe)
 	#add_definitions(-Wall)
 	add_definitions(-Werror=format-security)
@@ -153,11 +158,14 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
 		add_definitions(-DUSE_EXCEPTIONS)
 	#endif()
 	
-	add_compile_options(-Wno-pragmas -Wno-unused-variable -Wno-switch -Wno-unused-value -Winvalid-pch -Wno-multichar)
-	if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
+	# SRS - Change add_compile_options to add_definitions so options propagate to pre-compiled header build settings
+	add_definitions(-Wno-pragmas -Wno-unused-variable -Wno-switch -Wno-unused-value -Winvalid-pch -Wno-multichar)
+	# SRS - Add test for AppleClang
+	if(CMAKE_C_COMPILER_ID STREQUAL "Clang" OR CMAKE_C_COMPILER_ID STREQUAL "AppleClang")
 		# add clang-specific settings for warnings (the second one make sure clang doesn't complain
 		# about unknown -W flags, like -Wno-unused-but-set-variable)
-		add_compile_options(-Wno-local-type-template-args -Wno-unknown-warning-option -Wno-inline-new-delete -Wno-switch-enum)
+		# SRS - Add -Wno-deprecated-register and -Wno-expansion-to-defined to list of warning settings
+		add_definitions(-Wno-local-type-template-args -Wno-unknown-warning-option -Wno-inline-new-delete -Wno-switch-enum -Wno-deprecated-register -Wno-expansion-to-defined)
 	endif()
 	
 	if(NOT CMAKE_CROSSCOMPILING AND ONATIVE)
@@ -168,11 +176,28 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
 		endif()
 	endif()
 
-	add_compile_options(-fno-strict-aliasing)
+	# SRS - Change add_compile_options to add_definitions so options propagate to pre-compiled header build settings
+	add_definitions(-fno-strict-aliasing)
 
-	set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -D_DEBUG -O0 -ggdb")
-	#set(CMAKE_C_FLAGS_DEBUGALL "${CMAKE_C_FLAGS_DEBUGALL} -g -ggdb -D_DEBUG")
-	#set(CMAKE_C_FLAGS_PROFILE "${CMAKE_C_FLAGS_PROFILE} -g -ggdb -D_DEBUG -O1 -fno-omit-frame-pointer")
+	# SRS - Make sure OSX can find system headers and add support for minimum OSX runtime version
+	if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+		# SRS - Also add -fasm-blocks otherwise Xcode complains
+		add_definitions(-fasm-blocks -isysroot "${CMAKE_OSX_SYSROOT}")
+		if("${CMAKE_OSX_DEPLOYMENT_TARGET}")
+			add_definitions(-mmacosx-version-min="${CMAKE_OSX_DEPLOYMENT_TARGET}")
+		endif()
+	endif()
+
+	#SRS - some #ifdef _DEBUG code can cause game to crash on OSX, remove -D_DEBUG for now and fix later
+	if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+		set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb -O0")
+		#set(CMAKE_C_FLAGS_DEBUGALL "${CMAKE_C_FLAGS_DEBUGALL} -g -ggdb")
+		#set(CMAKE_C_FLAGS_PROFILE "${CMAKE_C_FLAGS_PROFILE} -g -ggdb -O1 -fno-omit-frame-pointer")
+	else()
+		set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb -D_DEBUG -O0")
+		#set(CMAKE_C_FLAGS_DEBUGALL "${CMAKE_C_FLAGS_DEBUGALL} -g -ggdb -D_DEBUG")
+		#set(CMAKE_C_FLAGS_PROFILE "${CMAKE_C_FLAGS_PROFILE} -g -ggdb -D_DEBUG -O1 -fno-omit-frame-pointer")
+	endif()
 	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3 -ffast-math -fno-unsafe-math-optimizations -fomit-frame-pointer")
 	set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} -g -O3 -ffast-math -fno-unsafe-math-optimizations -fomit-frame-pointer")
 	set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -Os -ffast-math -fno-unsafe-math-optimizations -fomit-frame-pointer")
@@ -333,7 +358,8 @@ if(USE_VULKAN)
 	if(SPIRV_SHADERC)
 		add_definitions(-DSPIRV_SHADERC)
 
-		if(CMAKE_CL_64)
+		# SRS - Add case for UNIX/OSX
+		if(CMAKE_CL_64 OR UNIX)
 			link_directories($ENV{VULKAN_SDK}/Lib)
 		else()
 			link_directories($ENV{VULKAN_SDK}/Lib32)
@@ -374,7 +400,13 @@ if(USE_VULKAN)
 	if(NOT Vulkan_FOUND)
 		message(FATAL_ERROR "Could not find Vulkan library!")
 	else()
-		message(STATUS ${Vulkan_LIBRARY})
+		# SRS - Optionally use MoltenVK headers/library for runtime config functions on OSX
+		if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND USE_MoltenVK)
+			add_definitions(-DUSE_MoltenVK)
+			include_directories($ENV{VULKAN_SDK}/../MoltenVK/include)
+			set(Vulkan_LIBRARY $ENV{VULKAN_SDK}/lib/libMoltenVK.dylib)
+		endif()
+		message(STATUS "Using Vulkan: " ${Vulkan_LIBRARY})
 	endif()
 	
 	add_definitions(-DUSE_VULKAN)
@@ -386,7 +418,12 @@ if(USE_VULKAN)
 		if(X11_XCB_FOUND)
 			add_definitions(-DHAVE_X11_XCB)
 			list(APPEND SUBSYSTEMS [X11])
-			include_directories(${X11_XCB_INCLUDE_DIRS})
+			# SRS - Added PKG_ preface to X11_XCB_INCLUDE_DIRS for OSX, not sure about UNIX
+			if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+				include_directories(${PKG_X11_XCB_INCLUDE_DIRS})
+			else()
+				include_directories(${X11_XCB_INCLUDE_DIRS})
+			endif()
 		endif()
 		add_definitions(-DVK_USE_PLATFORM_XLIB_KHR)
 	elseif(WIN32)
@@ -1701,9 +1738,14 @@ else()
             set(Vulkan_LIBRARIES
                 ${Vulkan_LIBRARY}
 				${X11_XCB_LIBRARIES}
-                glslang
-                SPIRV
-                )
+				)
+				
+			# SRS - Added UNIX/OSX support for shaderc
+			if(SPIRV_SHADERC)
+				list(APPEND Vulkan_LIBRARIES shaderc_combined)
+			else()
+				list(APPEND Vulkan_LIBRARIES glslang SPIRV)
+			endif()
 
             if(ENABLE_GLSLANG_BINARIES)
                 list(APPEND Vulkan_LIBRARIES glslang-default-resource-limits)

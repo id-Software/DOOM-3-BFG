@@ -41,6 +41,10 @@ If you have questions concerning this license or the applicable additional terms
 #include <SDL.h>
 #include <SDL_vulkan.h>
 #include <vulkan/vulkan.h>
+// SRS - optinally needed for VK_MVK_MOLTENVK_EXTENSION_NAME visibility
+#if defined(__APPLE__) && defined(USE_MoltenVK)
+#include <MoltenVK/vk_mvk_moltenvk.h>
+#endif
 #include <vector>
 
 #include "renderer/RenderCommon.h"
@@ -90,6 +94,14 @@ std::vector<const char*> get_required_extensions( const std::vector<const char*>
 		}
 	}
 
+    // SRS - needed for MoltenVK portability implementation and optionally for MoltenVK configuration on OSX
+#if defined(__APPLE__)
+        sdlInstanceExtensions.push_back( VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME );
+#if defined(USE_MoltenVK)
+        sdlInstanceExtensions.push_back( VK_MVK_MOLTENVK_EXTENSION_NAME );
+#endif
+#endif
+    
 	if( enableValidationLayers )
 	{
 		sdlInstanceExtensions.push_back( "VK_EXT_debug_report" );
@@ -305,11 +317,11 @@ bool VKimp_Init( glimpParms_t parms )
 		common->Printf( "No usable VK mode found: %s", SDL_GetError() );
 		return false;
 	}
-
+/* SRS - This must be leftover code from OpenGL, disable it
 #ifdef __APPLE__
 	glewExperimental = GL_TRUE;
 #endif
-
+*/
 	// DG: disable cursor, we have two cursors in menu (because mouse isn't grabbed in menu)
 	SDL_ShowCursor( SDL_DISABLE );
 	// DG end

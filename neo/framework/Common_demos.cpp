@@ -55,7 +55,7 @@ static idStr FindUnusedFileName( const char* format )
 	return filename;
 }
 
-extern idCVar com_smp;
+//extern idCVar com_smp;            // SRS - No longer require non-smp mode for demos
 
 void WriteDeclCache( idDemoFile* f, int demoCategory, int demoCode, declType_t  declType )
 {
@@ -106,7 +106,7 @@ void idCommonLocal::StartRecordingRenderDemo( const char* demoName )
 
 	console->Close();
 
-	com_smp.SetInteger( 0 );
+//  com_smp.SetInteger( 0 );        // SRS - No longer require non-smp mode for demos
 
 	writeDemo = new( TAG_SYSTEM ) idDemoFile;
 	if( !writeDemo->OpenForWriting( demoName ) )
@@ -146,7 +146,7 @@ void idCommonLocal::StopRecordingRenderDemo()
 	common->Printf( "stopped recording %s.\n", writeDemo->GetName() );
 	delete writeDemo;
 	writeDemo = NULL;
-	com_smp.SetInteger( 1 ); // motorsep 12-30-2014; turn multithreading back on
+//	com_smp.SetInteger( 1 ); // motorsep 12-30-2014; turn multithreading back on;  SRS - No longer require non-smp mode for demos
 }
 
 /*
@@ -193,7 +193,7 @@ void idCommonLocal::StopPlayingRenderDemo()
 		timeDemo = TD_NO;
 	}
 
-	com_smp.SetInteger( 1 ); // motorsep 12-30-2014; turn multithreading back on
+//    com_smp.SetInteger( 1 ); // motorsep 12-30-2014; turn multithreading back on;  SRS - No longer require non-smp mode for demos
 }
 
 /*
@@ -227,7 +227,7 @@ void idCommonLocal::StartPlayingRenderDemo( idStr demoName )
 		return;
 	}
 
-	com_smp.SetInteger( 0 );
+//  com_smp.SetInteger( 0 );        // SRS - No longer require non-smp mode for demos
 
 	// make sure localSound / GUI intro music shuts up
 	soundWorld->StopAllSounds();
@@ -248,7 +248,8 @@ void idCommonLocal::StartPlayingRenderDemo( idStr demoName )
 		common->Printf( "couldn't open %s\n", demoName.c_str() );
 		delete readDemo;
 		readDemo = NULL;
-		Stop();
+        
+        CreateMainMenu();                   // SRS - drop back to main menu if demo playback fails
 		StartMenu();
 		return;
 	}
@@ -258,8 +259,11 @@ void idCommonLocal::StartPlayingRenderDemo( idStr demoName )
 	if( opcode != DS_VERSION )
 	{
 		common->Printf( "StartPlayingRenderDemo invalid demo file\n" );
-
-		Stop();
+        readDemo->Close();
+        delete readDemo;
+        readDemo = NULL;
+		
+        CreateMainMenu();                   // SRS - drop back to main menu if demo playback fails
 		StartMenu();
 		return;
 	}
@@ -268,22 +272,35 @@ void idCommonLocal::StartPlayingRenderDemo( idStr demoName )
 	if( demoVersion != RENDERDEMO_VERSION )
 	{
 		common->Printf( "StartPlayingRenderDemo got version %d, expected version %d\n", demoVersion, RENDERDEMO_VERSION );
+        readDemo->Close();
+        delete readDemo;
+        readDemo = NULL;
 
-		Stop();
+        CreateMainMenu();                   // SRS - drop back to main menu if demo playback fails
 		StartMenu();
 		return;
 	}
+	
+    numDemoFrames = 0;                      // SRS - Moved ahead of first call to AdvanceRenderDemo to properly handle demoshots
+    numShotFrames = 0;                      // SRS - Initialize count of demoShot frames to play before timeout to main menu
 
-	AdvanceRenderDemo( true );
+    renderSystem->BeginLevelLoad();         // SRS - Free static data from previous level before loading demo assets
+    soundSystem->BeginLevelLoad();          // SRS - Free sound media from previous level before loading demo assets
+    declManager->BeginLevelLoad();          // SRS - Clear declaration manager data before loading demo assets
+    uiManager->BeginLevelLoad();            // SRS - Clear gui manager data before loading demo assets
 
-	Game()->StartDemoPlayback( renderWorld );
+	AdvanceRenderDemo( true );              // SRS - Call AdvanceRenderDemo() once to load map and initial assets (like level load)
+    
+    renderSystem->EndLevelLoad();           // SRS - Define static data for use by RB_StencilShadowPass if stencil shadows enabled
+    soundSystem->EndLevelLoad();
+    declManager->EndLevelLoad();
+    uiManager->EndLevelLoad( "" );          // SRS - FIXME: No gui assets are currently saved/reloaded in demo file, fix later?
 
-	renderWorld->GenerateAllInteractions();
-
-	const bool captureToImage = false;
-	UpdateScreen( captureToImage );
-
-	numDemoFrames = 1;
+    Game()->StartDemoPlayback( renderWorld );
+    
+    renderWorld->GenerateAllInteractions();
+    
+    soundSystem->SetPlayingSoundWorld( soundWorld );
 
 	timeDemoStartTime = Sys_Milliseconds();
 }
@@ -301,11 +318,15 @@ void idCommonLocal::TimeRenderDemo( const char* demoName, bool twice, bool quit 
 
 	if( twice && readDemo )
 	{
-		while( readDemo )
+        timeDemo = TD_YES;                      // SRS - Set timeDemo to TD_YES to disable time demo playback pause when window not in focus
+        
+        while( readDemo )
 		{
-			const bool captureToImage = false;
-			UpdateScreen( captureToImage );
-			AdvanceRenderDemo( true );
+//          const bool captureToImage = false;
+//          UpdateScreen( captureToImage );
+            BusyWait();                         // SRS - Call BusyWait() vs. UpdateScreen() to avoid Pump() timeout messages in console
+            AdvanceRenderDemo( true );
+            eventLoop->RunEventLoop();          // SRS - Run event loop to allow keyboard escape to cancel first pass of the demo
 		}
 
 		StartPlayingRenderDemo( demo );
@@ -314,6 +335,7 @@ void idCommonLocal::TimeRenderDemo( const char* demoName, bool twice, bool quit 
 
 	if( !readDemo )
 	{
+        timeDemo = TD_NO;                       // SRS - Make sure timeDemo flag is off if readDemo is NULL
 		return;
 	}
 
@@ -499,14 +521,15 @@ void idCommonLocal::AdvanceRenderDemo( bool singleFrameOnly )
 		switch( ds )
 		{
 			case DS_FINISHED:
-				if( numDemoFrames != 1 )
+				if( numDemoFrames == 1 )
 				{
-					// if the demo has a single frame (a demoShot), continuously replay
-					// the renderView that has already been read
-					Stop();
-					StartMenu();
-				}
-				return;
+                    // if the demo has a single frame (a demoShot), continuously replay
+                    // the renderView that has already been read
+                    if ( numShotFrames++ < com_engineHz_latched*10 )    // SRS - play demoShot for min 10 sec then timeout
+                        return;
+                }
+                LeaveGame();                                            // SRS - drop back to main menu after demo playback is finished
+                return;
 			case DS_RENDER:
 				if( renderWorld->ProcessDemoCommand( readDemo, &currentDemoRenderView, &demoTimeOffset ) )
 				{
@@ -527,12 +550,14 @@ void idCommonLocal::AdvanceRenderDemo( bool singleFrameOnly )
 	}
 }
 
+// SRS - Changed macro from CONSOLE_COMMAND to CONSOLE_COMMAND_SHIP for demo-related commands - i.e. include in release builds
+
 /*
 ================
 Common_DemoShot_f
 ================
 */
-CONSOLE_COMMAND( demoShot, "writes a screenshot as a demo", NULL )
+CONSOLE_COMMAND_SHIP( demoShot, "writes a screenshot as a demo", NULL )
 {
 	if( args.Argc() != 2 )
 	{
@@ -550,7 +575,7 @@ CONSOLE_COMMAND( demoShot, "writes a screenshot as a demo", NULL )
 Common_RecordDemo_f
 ================
 */
-CONSOLE_COMMAND( recordDemo, "records a demo", NULL )
+CONSOLE_COMMAND_SHIP( recordDemo, "records a demo", NULL )
 {
 	if( args.Argc() != 2 )
 	{
@@ -568,7 +593,7 @@ CONSOLE_COMMAND( recordDemo, "records a demo", NULL )
 Common_CompressDemo_f
 ================
 */
-CONSOLE_COMMAND( compressDemo, "compresses a demo file", idCmdSystem::ArgCompletion_DemoName )
+CONSOLE_COMMAND_SHIP( compressDemo, "compresses a demo file", idCmdSystem::ArgCompletion_DemoName )
 {
 	if( args.Argc() == 2 )
 	{
@@ -589,7 +614,7 @@ CONSOLE_COMMAND( compressDemo, "compresses a demo file", idCmdSystem::ArgComplet
 Common_StopRecordingDemo_f
 ================
 */
-CONSOLE_COMMAND( stopRecording, "stops demo recording", NULL )
+CONSOLE_COMMAND_SHIP( stopRecording, "stops demo recording", NULL )
 {
 	commonLocal.StopRecordingRenderDemo();
 }
@@ -599,7 +624,7 @@ CONSOLE_COMMAND( stopRecording, "stops demo recording", NULL )
 Common_PlayDemo_f
 ================
 */
-CONSOLE_COMMAND( playDemo, "plays back a demo", idCmdSystem::ArgCompletion_DemoName )
+CONSOLE_COMMAND_SHIP( playDemo, "plays back a demo", idCmdSystem::ArgCompletion_DemoName )
 {
 	if( args.Argc() >= 2 )
 	{
@@ -612,7 +637,7 @@ CONSOLE_COMMAND( playDemo, "plays back a demo", idCmdSystem::ArgCompletion_DemoN
 Common_TimeDemo_f
 ================
 */
-CONSOLE_COMMAND( timeDemo, "times a demo", idCmdSystem::ArgCompletion_DemoName )
+CONSOLE_COMMAND_SHIP( timeDemo, "times a demo", idCmdSystem::ArgCompletion_DemoName )
 {
 	if( args.Argc() >= 2 )
 	{
@@ -625,9 +650,9 @@ CONSOLE_COMMAND( timeDemo, "times a demo", idCmdSystem::ArgCompletion_DemoName )
 Common_TimeDemoQuit_f
 ================
 */
-CONSOLE_COMMAND( timeDemoQuit, "times a demo and quits", idCmdSystem::ArgCompletion_DemoName )
+CONSOLE_COMMAND_SHIP( timeDemoQuit, "times a demo and quits", idCmdSystem::ArgCompletion_DemoName )
 {
-	commonLocal.TimeRenderDemo( va( "demos/%s", args.Argv( 1 ) ), true );
+	commonLocal.TimeRenderDemo( va( "demos/%s", args.Argv( 1 ) ), ( args.Argc() > 2 ), true );    // SRS - fixed missing "twice" argument
 }
 
 /*
@@ -635,7 +660,7 @@ CONSOLE_COMMAND( timeDemoQuit, "times a demo and quits", idCmdSystem::ArgComplet
 Common_AVIDemo_f
 ================
 */
-CONSOLE_COMMAND( aviDemo, "writes AVIs for a demo", idCmdSystem::ArgCompletion_DemoName )
+CONSOLE_COMMAND_SHIP( aviDemo, "writes AVIs for a demo", idCmdSystem::ArgCompletion_DemoName )
 {
 	commonLocal.AVIRenderDemo( va( "demos/%s", args.Argv( 1 ) ) );
 }
@@ -645,7 +670,7 @@ CONSOLE_COMMAND( aviDemo, "writes AVIs for a demo", idCmdSystem::ArgCompletion_D
 Common_AVIGame_f
 ================
 */
-CONSOLE_COMMAND( aviGame, "writes AVIs for the current game", NULL )
+CONSOLE_COMMAND_SHIP( aviGame, "writes AVIs for the current game", NULL )
 {
 	commonLocal.AVIGame( args.Argv( 1 ) );
 }

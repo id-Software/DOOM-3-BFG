@@ -39,7 +39,9 @@ class idVoiceChatMgr
 {
 public:
 	idVoiceChatMgr() : activeLobbyType( -1 ), activeGroupIndex( 0 ), sendFrame( 0 ), disableVoiceReasons( 0 ), sendGlobal( false )  {}
-
+    
+    virtual         ~idVoiceChatMgr() {}                // SRS - Added virtual destructor
+	
 	virtual void	Init( void* pXAudio2 );
 	virtual void	Shutdown();
 

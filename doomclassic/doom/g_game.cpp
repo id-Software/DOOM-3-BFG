@@ -593,8 +593,8 @@ void G_DoLoadLevel ()
 	::g->joyxmove = ::g->joyymove = 0; 
 	::g->mousex = ::g->mousey = 0; 
 	::g->sendpause = ::g->sendsave = ::g->paused = false; 
-	memset (::g->mousebuttons, 0, sizeof(::g->mousebuttons)); 
-	memset (::g->joybuttons, 0, sizeof(::g->joybuttons));
+	memset (::g->mousebuttons, 0, sizeof(::g->mousebuttons[0])*3);      // SRS - mousebuttons[0] points at mousearray[1] to mousearray[3], [-1] allowed
+	memset (::g->joybuttons, 0, sizeof(::g->joybuttons[0])*4);          // SRS - joybuttons[0] points at joyarray[1] to joyarray[4], [-1] allowed
 }
 
 //

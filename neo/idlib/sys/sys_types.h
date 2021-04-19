@@ -165,8 +165,11 @@ ID_INLINE void WriteIndexPair( triIndex_t* dest, const triIndex_t a, const triIn
 #else
 	#ifdef _MSVC
 		#define NODEFAULT	default: __assume( 0 )
-	#else // not _MSVC
+	#elif defined(__GNUC__)
 		// TODO: is that __assume an important optimization? if so, is there a gcc equivalent?
+		// SRS - The gcc equivalent is __builtin_unreachable()
+		#define NODEFAULT	default: __builtin_unreachable()
+	#else // not _MSVC and not __GNUC__
 		#define NODEFAULT
 	#endif
 #endif

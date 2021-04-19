@@ -396,8 +396,8 @@ void Sys_ReLaunch()
 	// DG end
 }
 
-// OS X doesn't have clock_gettime()
-int clock_gettime( clk_id_t clock, struct timespec* tp )
+// OS X 10.11 or earlier doesn't have native clock_gettime()
+int clock_gettime( /*clk_id_t*/ clockid_t clock, struct timespec* tp )   // SRS - use APPLE clockid_t
 {
 	switch( clock )
 	{

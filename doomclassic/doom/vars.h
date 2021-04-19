@@ -820,7 +820,7 @@ int			reloadlump;
 // w_wad.vars end // 
 //  z_zone.vars begin // 
 int sizes[NUM_ZONES+1];
-memzone_t*	zones[NUM_ZONES] ;
+memzone_t*	zones[NUM_ZONES+1] ;        // SRS - Added +1 so NUM_ZONES index is not beyond end of array
 int NumAlloc ;
 // z_zone.vars end // 
 // info vars begin //

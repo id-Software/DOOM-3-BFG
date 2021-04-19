@@ -56,7 +56,15 @@ glconfig_t	glConfig;
 idCVar r_requestStereoPixelFormat( "r_requestStereoPixelFormat", "1", CVAR_RENDERER, "Ask for a stereo GL pixel format on startup" );
 idCVar r_debugContext( "r_debugContext", "0", CVAR_RENDERER, "Enable various levels of context debug." );
 idCVar r_glDriver( "r_glDriver", "", CVAR_RENDERER, "\"opengl32\", etc." );
+// SRS - Added workaround for AMD OSX driver bugs caused by GL_EXT_timer_query when shadow mapping enabled; Intel bugs not present on OSX
+#if defined(__APPLE__)
+idCVar r_skipIntelWorkarounds( "r_skipIntelWorkarounds", "1", CVAR_RENDERER | CVAR_BOOL, "skip workarounds for Intel driver bugs" );
+idCVar r_skipAMDWorkarounds( "r_skipAMDWorkarounds", "0", CVAR_RENDERER | CVAR_BOOL, "skip workarounds for AMD driver bugs" );
+#else
 idCVar r_skipIntelWorkarounds( "r_skipIntelWorkarounds", "0", CVAR_RENDERER | CVAR_BOOL, "skip workarounds for Intel driver bugs" );
+idCVar r_skipAMDWorkarounds( "r_skipAMDWorkarounds", "1", CVAR_RENDERER | CVAR_BOOL, "skip workarounds for AMD driver bugs" );
+#endif
+// SRS end
 // RB: disabled 16x MSAA
 idCVar r_antiAliasing( "r_antiAliasing", "1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, " 0 = None\n 1 = SMAA 1x\n 2 = MSAA 2x\n 3 = MSAA 4x\n 4 = MSAA 8x\n", 0, ANTI_ALIASING_MSAA_8X );
 // RB end
@@ -90,7 +98,8 @@ idCVar r_useSRGB( "r_useSRGB", "0", CVAR_RENDERER | CVAR_INTEGER | CVAR_ARCHIVE,
 idCVar r_maxAnisotropicFiltering( "r_maxAnisotropicFiltering", "8", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "limit aniso filtering" );
 idCVar r_useTrilinearFiltering( "r_useTrilinearFiltering", "1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_BOOL, "Extra quality filtering" );
 // RB: not used anymore
-idCVar r_lodBias( "r_lodBias", "0.5", CVAR_RENDERER | CVAR_ARCHIVE, "UNUSED: image lod bias" );
+// SRS - Reenabled LODBIAS
+idCVar r_lodBias( "r_lodBias", "0.5", CVAR_RENDERER | CVAR_ARCHIVE, /*"UNUSED: */"image lod bias" );
 // RB end
 
 idCVar r_useStateCaching( "r_useStateCaching", "1", CVAR_RENDERER | CVAR_BOOL, "avoid redundant state changes in GL_*() calls" );
@@ -428,7 +437,8 @@ void R_SetNewMode( const bool fullInit )
 		if( fullInit )
 		{
 			// create the context as well as setting up the window
-#if defined(__linux__) && defined(USE_VULKAN)
+// SRS - Add OSX case
+#if ( defined(__linux__) || defined(__APPLE__) ) && defined(USE_VULKAN)
 			if( VKimp_Init( parms ) )
 #else
 			if( GLimp_Init( parms ) )
@@ -445,7 +455,8 @@ void R_SetNewMode( const bool fullInit )
 		else
 		{
 			// just rebuild the window
-#if defined(__linux__) && defined(USE_VULKAN)
+// SRS - Add OSX case
+#if ( defined(__linux__) || defined(__APPLE__) ) && defined(USE_VULKAN)
 			if( VKimp_SetScreenParms( parms ) )
 #else
 			if( GLimp_SetScreenParms( parms ) )
@@ -1399,7 +1410,8 @@ void R_SetColorMappings()
 		int inf = idMath::Ftoi( 0xffff * pow( j / 255.0f, invg ) + 0.5f );
 		tr.gammaTable[i] = idMath::ClampInt( 0, 0xFFFF, inf );
 	}
-#if defined(__linux__) && defined(USE_VULKAN)
+// SRS - Add OSX case
+#if ( defined(__linux__) || defined(__APPLE__) ) && defined(USE_VULKAN)
 	VKimp_SetGamma( tr.gammaTable, tr.gammaTable, tr.gammaTable );
 #else
 	GLimp_SetGamma( tr.gammaTable, tr.gammaTable, tr.gammaTable );
@@ -2105,6 +2117,9 @@ void idRenderSystemLocal::Shutdown()
 	R_ShutdownFrameData();
 
 	UnbindBufferObjects();
+    
+    // SRS - wait for fence to hit before freeing any resources the GPU may be using, otherwise get Vulkan validation layer errors on shutdown
+    backend.GL_BlockingSwapBuffers();
 
 	// free the vertex cache, which should have nothing allocated now
 	vertexCache.Shutdown();

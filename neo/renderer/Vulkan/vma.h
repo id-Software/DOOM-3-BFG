@@ -768,7 +768,27 @@ remove them if not needed.
 #include <mutex> // for std::mutex
 #include <string.h>
 
-#if !defined(_WIN32)
+//SRS - Modified from vkQuake2, to compile with C++11 on OSX versions with no aligned_alloc
+#if defined(__APPLE__)
+#if !defined(MAC_OS_X_VERSION_10_16) && defined(__cplusplus) && __cplusplus < 201703L
+// For C++14, usr/include/malloc/_malloc.h declares aligned_alloc() only with
+// the MacOSX11.0 SDK in Xcode 12 (which is what adds MAC_OS_X_VERSION_10_16).
+// For C++17 aligned_alloc is available with the 10.15 SDK already.
+void* aligned_alloc( size_t alignment, size_t size )
+{
+    // alignment must be >= sizeof(void*)
+    if(alignment < sizeof(void*))
+    {
+        alignment = sizeof(void*);
+    }
+    
+    void *pointer;
+    if(posix_memalign(&pointer, alignment, size) == 0)
+        return pointer;
+    return NULL;
+}
+#endif
+#elif !defined(_WIN32)
 	#include <malloc.h> // for aligned_alloc()
 #endif
 
@@ -3468,7 +3488,8 @@ void VmaBlock::PrintDetailedMap( class VmaStringBuilder& sb ) const
 	sb.Add( ",\n\t\t\t\"FreeBytes\": " );
 	sb.AddNumber( m_SumFreeSize );
 	sb.Add( ",\n\t\t\t\"Suballocations\": " );
-	sb.AddNumber( m_Suballocations.size() );
+    //SRS - cast to uint32_t to avoid type ambiguity
+	sb.AddNumber( ( uint32_t )m_Suballocations.size() );
 	sb.Add( ",\n\t\t\t\"FreeSuballocations\": " );
 	sb.AddNumber( m_FreeCount );
 	sb.Add( ",\n\t\t\t\"SuballocationList\": [" );
@@ -4933,7 +4954,8 @@ void VmaAllocator_T::PrintDetailedMap( VmaStringBuilder& sb )
 					sb.Add( ",\n\"OwnAllocations\": {\n\t\"Type " );
 					ownAllocationsStarted = true;
 				}
-				sb.AddNumber( memTypeIndex );
+                //SRS - cast to uint32_t to avoid type ambiguity, memTypeIndex is an unsigned int
+				sb.AddNumber( ( uint32_t )memTypeIndex );
 				if( blockVectorType == VMA_BLOCK_VECTOR_TYPE_MAPPED )
 				{
 					sb.Add( " Mapped" );
@@ -4984,7 +5006,8 @@ void VmaAllocator_T::PrintDetailedMap( VmaStringBuilder& sb )
 						sb.Add( ",\n\"Allocations\": {\n\t\"Type " );
 						allocationsStarted = true;
 					}
-					sb.AddNumber( memTypeIndex );
+                    //SRS - cast to uint32_t to avoid type ambiguity, memTypeIndex is an unsigned int
+					sb.AddNumber( ( uint32_t )memTypeIndex );
 					if( blockVectorType == VMA_BLOCK_VECTOR_TYPE_MAPPED )
 					{
 						sb.Add( " Mapped" );

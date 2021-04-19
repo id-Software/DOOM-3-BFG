@@ -455,6 +455,9 @@ private:
 
 #if defined( USE_VULKAN )
 	void				CreateSampler();
+    // SRS - added method to set image layout
+    void                SetImageLayout( VkImage image, VkImageSubresourceRange subresourceRange, VkImageLayout oldImageLayout, VkImageLayout newImageLayout );
+    // SRS End
 
 	bool				bIsSwapChainImage;
 	VkFormat			internalFormat;

@@ -547,6 +547,7 @@ private:
 	timeDemo_t			timeDemo;
 	int					timeDemoStartTime;
 	int					numDemoFrames;		// for timeDemo and demoShot
+    int                 numShotFrames;      // SRS - for demoShot playback timeout
 	int					demoTimeOffset;
 	renderView_t		currentDemoRenderView;
 

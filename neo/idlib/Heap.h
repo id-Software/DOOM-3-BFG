@@ -72,7 +72,8 @@ ID_INLINE void* operator new( size_t s )
 	return Mem_Alloc( s, TAG_NEW );
 }
 
-ID_INLINE void operator delete( void* p )
+// SRS - Added noexcept to silence build-time warning
+ID_INLINE void operator delete( void* p ) noexcept
 {
 	Mem_Free( p );
 }
@@ -81,7 +82,8 @@ ID_INLINE void* operator new[]( size_t s )
 	return Mem_Alloc( s, TAG_NEW );
 }
 
-ID_INLINE void operator delete[]( void* p )
+// SRS - Added noexcept to silence build-time warning
+ID_INLINE void operator delete[]( void* p ) noexcept
 {
 	Mem_Free( p );
 }
@@ -352,7 +354,7 @@ ID_INLINE _type_* idBlockAlloc<_type_, _blockSize_, memTag>::Alloc()
 	_type_ * t = ( _type_* ) element->buffer;
 	if( clearAllocs )
 	{
-		memset( t, 0, sizeof( _type_ ) );
+        memset( (void*)t, 0, sizeof( _type_ ) );    // SRS - Added (void*) cast to silence build-time warning
 	}
 	new( t ) _type_;
 	return t;

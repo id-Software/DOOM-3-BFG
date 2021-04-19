@@ -167,7 +167,8 @@ idVulkanBlock::Init
 */
 bool idVulkanBlock::Init()
 {
-	if( memoryTypeIndex == UINT64_MAX )
+    //SRS - Changed UINT64_MAX to UINT32_MAX for type consistency, otherwise test is always false
+	if( memoryTypeIndex == UINT32_MAX )
 	{
 		return false;
 	}
@@ -495,8 +496,9 @@ void idVulkanBlock::Print()
 	idLib::Printf( "Type Index: %u\n", memoryTypeIndex );
 	idLib::Printf( "Usage:      %s\n", memoryUsageStrings[ usage ] );
 	idLib::Printf( "Count:      %d\n", count );
-	idLib::Printf( "Size:       %lu\n", size );
-	idLib::Printf( "Allocated:  %lu\n", allocated );
+    //SRS - Changed %lu to %llu
+	idLib::Printf( "Size:       %llu\n", size );
+	idLib::Printf( "Allocated:  %llu\n", allocated );
 	idLib::Printf( "Next Block: %u\n", nextBlockId );
 	idLib::Printf( "------------------------\n" );
 
@@ -505,8 +507,9 @@ void idVulkanBlock::Print()
 		idLib::Printf( "{\n" );
 
 		idLib::Printf( "\tId:     %u\n", current->id );
-		idLib::Printf( "\tSize:   %lu\n", current->size );
-		idLib::Printf( "\tOffset: %lu\n", current->offset );
+        //SRS - Changed %lu to %llu
+        idLib::Printf( "\tSize:   %llu\n", current->size );
+		idLib::Printf( "\tOffset: %llu\n", current->offset );
 		idLib::Printf( "\tType:   %s\n", allocationTypeStrings[ current->type ] );
 
 		idLib::Printf( "}\n" );
@@ -679,7 +682,8 @@ void idVulkanAllocator::Print()
 {
 	idLib::Printf( "Device Local MB: %d\n", int( deviceLocalMemoryBytes / 1024 * 1024 ) );
 	idLib::Printf( "Host Visible MB: %d\n", int( hostVisibleMemoryBytes / 1024 * 1024 ) );
-	idLib::Printf( "Buffer Granularity: %lu\n", bufferImageGranularity );
+    //SRS - Changed %lu to %llu
+	idLib::Printf( "Buffer Granularity: %llu\n", bufferImageGranularity );
 	idLib::Printf( "\n" );
 
 	for( int i = 0; i < VK_MAX_MEMORY_TYPES; ++i )
@@ -702,7 +706,8 @@ CONSOLE_COMMAND( Vulkan_PrintHeapInfo, "Print out the heap information for this 
 	for( uint32 i = 0; i < props.memoryHeapCount; ++i )
 	{
 		VkMemoryHeap heap = props.memoryHeaps[ i ];
-		idLib::Printf( "id=%d, size=%lu, flags=", i, heap.size );
+        //SRS - Changed %lu to %llu
+		idLib::Printf( "id=%d, size=%llu, flags=", i, heap.size );
 		if( heap.flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT )
 		{
 			idLib::Printf( "DEVICE_LOCAL" );

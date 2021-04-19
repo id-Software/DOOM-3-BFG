@@ -35,7 +35,8 @@ const int GRAB_REENABLE		= ( 1 << 1 );
 const int GRAB_HIDECURSOR	= ( 1 << 2 );
 const int GRAB_SETSTATE		= ( 1 << 3 );
 
-#if defined(__linux__) && defined(USE_VULKAN)
+// SRS - Add OSX case
+#if ( defined(__linux__) || defined(__APPLE__) ) && defined(USE_VULKAN)
 	void VKimp_GrabInput( int flags );
 #else
 	void GLimp_GrabInput( int flags );

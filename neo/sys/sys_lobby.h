@@ -947,6 +947,8 @@ idSessionCallbacks
 class idSessionCallbacks
 {
 public:
+    virtual                         ~idSessionCallbacks() {}                    // SRS - Added virtual destructor
+    
 	virtual idLobby& 				GetPartyLobby() = 0;
 	virtual idLobby& 				GetGameLobby() = 0;
 	virtual idLobby& 				GetActingGameStateLobby() = 0;

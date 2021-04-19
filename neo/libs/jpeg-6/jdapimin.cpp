@@ -369,8 +369,8 @@ jpeg_has_multiple_scans( j_decompress_ptr cinfo ) {
 
 GLOBAL boolean
 jpeg_finish_decompress( j_decompress_ptr cinfo ) {
-    if ( ( ( cinfo->global_state == DSTATE_SCANNING ) ||
-          ( cinfo->global_state == DSTATE_RAW_OK ) && !cinfo->buffered_image ) ) {
+    if ( ( cinfo->global_state == DSTATE_SCANNING ) ||
+         ( ( cinfo->global_state == DSTATE_RAW_OK ) && !cinfo->buffered_image ) ) {         // SRS - Relocated parentheses to surround && expression
         /* Terminate final pass of non-buffered mode */
         if ( cinfo->output_scanline < cinfo->output_height ) {
             ERREXIT( cinfo, JERR_TOO_LITTLE_DATA );

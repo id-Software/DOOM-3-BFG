@@ -33,6 +33,8 @@
 
 #if defined(__TURBOC__) || defined(_MSC_VER) || defined(_WIN32)
 #  include <io.h>
+#elif defined(__GNUC__)
+#  include <unistd.h>	// SRS - For explicit declaration of lseek, read, write, close
 #endif
 
 #ifdef NO_DEFLATE       /* for compatibility with old definition */
