@@ -272,7 +272,6 @@ idSaveLoadParms::~idSaveLoadParms
 */
 idSaveLoadParms::~idSaveLoadParms()
 {
-    /* SRS - Don't need to repeat this code here, since auto-deletes are already handled by idSaveGameManager::FinishProcessor
 	for( int i = 0; i < files.Num(); ++i )
 	{
 		if( files[i]->type & SAVEGAMEFILE_AUTO_DELETE )
@@ -280,7 +279,6 @@ idSaveLoadParms::~idSaveLoadParms()
 			delete files[i];
 		}
 	}
-    */
 }
 
 /*
