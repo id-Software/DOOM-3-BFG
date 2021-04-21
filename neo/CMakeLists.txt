@@ -1745,12 +1745,12 @@ else()
 				list(APPEND Vulkan_LIBRARIES shaderc_combined)
 			else()
 				list(APPEND Vulkan_LIBRARIES glslang SPIRV)
-			endif()
 
-            if(ENABLE_GLSLANG_BINARIES)
-                list(APPEND Vulkan_LIBRARIES glslang-default-resource-limits)
+                if(ENABLE_GLSLANG_BINARIES)
+                    list(APPEND Vulkan_LIBRARIES glslang-default-resource-limits)
+                endif()
             endif()
-            
+
         else()
             list(APPEND RBDOOM3_INCLUDES ${RENDERER_OPENGL_INCLUDES})
             list(APPEND RBDOOM3_SOURCES ${RENDERER_OPENGL_SOURCES})
