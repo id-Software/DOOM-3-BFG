@@ -108,7 +108,7 @@ void main( PS_IN fragment, out PS_OUT result )
 
 	// offset by one pixel border bleed size for linear filtering
 #if 1
-	float2 octCoordNormalizedToTextureDimensions = ( normalizedOctCoordZeroOne * ( 32.0 / ( 34.0 * 1.0 ) ) );
+	float2 octCoordNormalizedToTextureDimensions = ( normalizedOctCoordZeroOne * ( 16.0 / 18.0 ) );
 
 	float2 probeTopLeftPosition;
 	probeTopLeftPosition.x = ( gridCoord[0] * gridStep[0] + gridCoord[2] * gridStep[1] ) * 2.0 + 1.0;

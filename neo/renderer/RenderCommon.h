@@ -513,7 +513,7 @@ struct calcEnvprobeParms_t
 
 
 
-static const int LIGHTGRID_IRRADIANCE_SIZE = ( 16 * 2 ) + 2;
+static const int LIGHTGRID_IRRADIANCE_SIZE = ( 16 * 1 ) + 2;
 
 struct calcLightGridPointParms_t
 {

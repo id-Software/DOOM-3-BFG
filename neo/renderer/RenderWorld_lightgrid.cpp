@@ -405,8 +405,16 @@ void idRenderWorldLocal::LoadLightGridImages()
 	for( int i = 0; i < numPortalAreas; i++ )
 	{
 		portalArea_t* area = &portalAreas[i];
-		filename.Format( "env/%s/area%i_lightgrid_amb", baseName.c_str(), i );
-		area->lightGrid.irradianceImage = globalImages->ImageFromFile( filename, TF_LINEAR, TR_CLAMP, TD_R11G11B10F, CF_2D );
+
+		if( !area->lightGrid.irradianceImage )
+		{
+			filename.Format( "env/%s/area%i_lightgrid_amb", baseName.c_str(), i );
+			area->lightGrid.irradianceImage = globalImages->ImageFromFile( filename, TF_LINEAR, TR_CLAMP, TD_R11G11B10F, CF_2D );
+		}
+		else
+		{
+			area->lightGrid.irradianceImage->Reload( false );
+		}
 	}
 }
 
@@ -452,6 +460,8 @@ void idRenderWorldLocal::WriteLightGridsToFile( const char* filename )
 
 void idRenderWorldLocal::WriteLightGrid( idFile* fp, const LightGrid& lightGrid )
 {
+	// TODO write used irradiance resolution
+
 	fp->WriteFloatString( "lightGridPoints { /* area = */ %i /* numLightGridPoints = */ %i\n", lightGrid.area, lightGrid.lightGridPoints.Num() );
 
 	fp->WriteFloatString( "/* gridMins */ " );
