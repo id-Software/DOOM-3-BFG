@@ -772,7 +772,7 @@ void R_DeriveEnvprobeData( RenderEnvprobeLocal* probe )
 	probe->irradianceImage = globalImages->ImageFromFile( fullname, TF_LINEAR, TR_REPEAT, TD_R11G11B10F, CF_2D_PACKED_MIPCHAIN );
 
 	fullname.Format( "env/%s/envprobe%i_spec", basename.c_str(), probeIndex );
-	probe->radianceImage = globalImages->ImageFromFile( fullname, TF_LINEAR, TR_REPEAT, TD_R11G11B10F, CF_2D_PACKED_MIPCHAIN );
+	probe->radianceImage = globalImages->ImageFromFile( fullname, TF_DEFAULT, TR_REPEAT, TD_R11G11B10F, CF_2D_PACKED_MIPCHAIN );
 
 	// ------------------------------------
 	// compute the probe projection matrix
