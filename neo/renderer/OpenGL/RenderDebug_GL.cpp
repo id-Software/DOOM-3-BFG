@@ -1756,15 +1756,25 @@ void idRenderBackend::DBG_ShowViewEnvprobes()
 
 		renderProgManager.SetUniformValue( RENDERPARM_LOCALVIEWORIGIN, localViewOrigin.ToFloatPtr() ); // rpLocalViewOrigin
 
+		idVec4 textureSize;
+
 		GL_SelectTexture( 0 );
 		if( r_showViewEnvprobes.GetInteger() >= 2 )
 		{
 			vProbe->irradianceImage->Bind();
+
+			idVec2i res = vProbe->irradianceImage->GetUploadResolution();
+			textureSize.Set( res.x, res.y, 1.0f / res.x, 1.0f / res.y );
 		}
 		else
 		{
 			vProbe->radianceImage->Bind();
+
+			idVec2i res = vProbe->radianceImage->GetUploadResolution();
+			textureSize.Set( res.x, res.y, 1.0f / res.x, 1.0f / res.y );
 		}
+
+		renderProgManager.SetUniformValue( RENDERPARM_CASCADEDISTANCES, textureSize.ToFloatPtr() );
 
 		DrawElementsWithCounters( &zeroOneSphereSurface );
 
@@ -1911,6 +1921,11 @@ void idRenderBackend::DBG_ShowLightGrid()
 
 				GL_SelectTexture( 0 );
 				area->lightGrid.GetIrradianceImage()->Bind();
+
+				idVec2i res = area->lightGrid.GetIrradianceImage()->GetUploadResolution();
+				idVec4 textureSize( res.x, res.y, 1.0f / res.x, 1.0f / res.y );
+
+				renderProgManager.SetUniformValue( RENDERPARM_CASCADEDISTANCES, textureSize.ToFloatPtr() );
 			}
 #endif
 

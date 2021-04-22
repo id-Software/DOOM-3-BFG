@@ -372,14 +372,7 @@ void idRenderWorldLocal::SetupLightGrid()
 	bool loaded = LoadLightGridFile( filename );
 	if( loaded )
 	{
-		// try to load existing lightgrid image data
-		for( int i = 0; i < numPortalAreas; i++ )
-		{
-			portalArea_t* area = &portalAreas[i];
-
-			filename.Format( "env/%s/area%i_lightgrid_amb", baseName.c_str(), i );
-			area->lightGrid.irradianceImage = globalImages->ImageFromFile( filename, TF_NEAREST, TR_CLAMP, TD_R11G11B10F, CF_2D );
-		}
+		LoadLightGridImages();
 	}
 	else
 	{
@@ -396,6 +389,24 @@ void idRenderWorldLocal::SetupLightGrid()
 
 		idLib::Printf( "----------------------------------\n" );
 		idLib::Printf( "Total valid light grid points %i\n", totalGridPoints );
+	}
+}
+
+void idRenderWorldLocal::LoadLightGridImages()
+{
+	idLib::Printf( "----- LoadLightGridImages -----\n" );
+
+	idStrStatic< MAX_OSPATH > baseName = mapName;
+	baseName.StripFileExtension();
+
+	idStr filename;
+
+	// try to load existing lightgrid image data
+	for( int i = 0; i < numPortalAreas; i++ )
+	{
+		portalArea_t* area = &portalAreas[i];
+		filename.Format( "env/%s/area%i_lightgrid_amb", baseName.c_str(), i );
+		area->lightGrid.irradianceImage = globalImages->ImageFromFile( filename, TF_LINEAR, TR_CLAMP, TD_R11G11B10F, CF_2D );
 	}
 }
 
@@ -1333,6 +1344,8 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 	// so we can load the texture atlases with the correct subdivisions next time
 	filename.Format( "%s.lightgrid", baseName.c_str() );
 	tr.primaryWorld->WriteLightGridsToFile( filename );
+
+	tr.primaryWorld->LoadLightGridImages();
 }
 
 #if 0

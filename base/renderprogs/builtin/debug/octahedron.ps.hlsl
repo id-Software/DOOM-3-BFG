@@ -58,7 +58,17 @@ void main( PS_IN fragment, out PS_OUT result )
 	float2 normalizedOctCoord = octEncode( reflectionVector );
 	float2 normalizedOctCoordZeroOne = ( normalizedOctCoord + float2( 1.0 ) ) * 0.5;
 
-	float4 envMap = tex2D( samp0, normalizedOctCoordZeroOne );
+	// offset by one pixel border bleed size for linear filtering
+	float2 octCoordNormalizedToTextureDimensions = ( normalizedOctCoordZeroOne * ( rpCascadeDistances.x - float( 2.0 ) ) ) / rpCascadeDistances.xy;
 
-	result.color = float4( sRGBToLinearRGB( envMap.xyz ), 1.0f ) * fragment.color;
+	float2 probeTopLeftPosition = float2( 1.0, 1.0 );
+	float2 normalizedProbeTopLeftPosition = probeTopLeftPosition * rpCascadeDistances.zw;
+
+	normalizedOctCoordZeroOne.xy = normalizedProbeTopLeftPosition + octCoordNormalizedToTextureDimensions;
+
+	//normalizedOctCoordZeroOne = TextureCoordFromDirection( reflectionVector, 0, int( rpCascadeDistances.x ), int( rpCascadeDistances.y ), int( rpCascadeDistances.x ) - 2 );
+
+	float4 envMap = texture( samp0, normalizedOctCoordZeroOne, 0 );
+
+	result.color = float4( envMap.xyz, 1.0f ) * fragment.color * 1.0;
 }

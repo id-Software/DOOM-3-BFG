@@ -75,8 +75,6 @@ int3 GetBaseGridCoord( float3 origin )
 	return pos;
 }
 
-
-
 void main( PS_IN fragment, out PS_OUT result )
 {
 	const int LIGHTGRID_IRRADIANCE_SIZE	= 32;
@@ -108,7 +106,20 @@ void main( PS_IN fragment, out PS_OUT result )
 	normalizedOctCoordZeroOne.x += ( gridCoord[0] * gridStep[0] + gridCoord[2] * gridStep[1] ) * invXZ;
 	normalizedOctCoordZeroOne.y += ( gridCoord[1] * invY );
 
-	float4 envMap = tex2D( samp0, normalizedOctCoordZeroOne );
+	// offset by one pixel border bleed size for linear filtering
+#if 1
+	float2 octCoordNormalizedToTextureDimensions = ( normalizedOctCoordZeroOne * ( 32.0 / ( 34.0 * 1.0 ) ) );
+
+	float2 probeTopLeftPosition;
+	probeTopLeftPosition.x = ( gridCoord[0] * gridStep[0] + gridCoord[2] * gridStep[1] ) * 2.0 + 1.0;
+	probeTopLeftPosition.y = ( gridCoord[1] ) * 2.0 + 1.0;
+
+	float2 normalizedProbeTopLeftPosition = probeTopLeftPosition * rpCascadeDistances.zw;
+
+	normalizedOctCoordZeroOne.xy = normalizedProbeTopLeftPosition + octCoordNormalizedToTextureDimensions;
+#endif
+
+	float4 envMap = texture( samp0, normalizedOctCoordZeroOne, 0 );
 
 	result.color = float4( envMap.xyz, 1.0f ) * 1.0 * fragment.color;
 }

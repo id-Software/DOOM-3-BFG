@@ -331,7 +331,22 @@ void main( PS_IN fragment, out PS_OUT result )
 		atlasOffset.x = ( gridCoord2[0] * gridStep[0] + gridCoord2[2] * gridStep[1] ) * invXZ;
 		atlasOffset.y = ( gridCoord2[1] * invY );
 
-		float3 color = tex2D( samp7, normalizedOctCoordZeroOne + atlasOffset ).rgb;
+		// offset by one pixel border bleed size for linear filtering
+#if 1
+		float2 octCoordNormalizedToTextureDimensions = ( ( normalizedOctCoordZeroOne + atlasOffset ) * ( 32.0 / ( 34.0 * 1.0 ) ) );
+
+		float2 probeTopLeftPosition;
+		probeTopLeftPosition.x = ( gridCoord2[0] * gridStep[0] + gridCoord2[2] * gridStep[1] ) * 2.0 + 1.0;
+		probeTopLeftPosition.y = ( gridCoord2[1] ) * 2.0 + 1.0;
+
+		float2 normalizedProbeTopLeftPosition = probeTopLeftPosition * rpCascadeDistances.zw;
+
+		float2 atlasCoord = normalizedProbeTopLeftPosition + octCoordNormalizedToTextureDimensions;
+#else
+		float2 atlasCoord = normalizedOctCoordZeroOne + atlasOffset;
+#endif
+
+		float3 color = texture( samp7, atlasCoord, 0 ).rgb;
 
 		if( ( color.r + color.g + color.b ) < 0.0001 )
 		{

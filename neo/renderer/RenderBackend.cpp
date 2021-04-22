@@ -1399,6 +1399,11 @@ void idRenderBackend::DrawSingleInteraction( drawInteraction_t* din, bool useFas
 		GL_SelectTexture( INTERACTION_TEXUNIT_AMBIENT_CUBE1 );
 		currentSpace->irradianceAtlasImage->Bind();
 
+		idVec2i res = currentSpace->irradianceAtlasImage->GetUploadResolution();
+		idVec4 textureSize( res.x, res.y, 1.0f / res.x, 1.0f / res.y );
+
+		renderProgManager.SetUniformValue( RENDERPARM_CASCADEDISTANCES, textureSize.ToFloatPtr() );
+
 		GL_SelectTexture( INTERACTION_TEXUNIT_SPECULAR_CUBE1 );
 		if( viewDef->radianceImage )
 		{

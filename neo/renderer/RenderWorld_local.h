@@ -401,6 +401,7 @@ public:
 	void					WriteLightGrid( idFile* fp, const LightGrid& lightGrid );
 
 	bool					LoadLightGridFile( const char* name );
+	void					LoadLightGridImages();
 
 	void					ParseLightGridPoints( idLexer* src, idFile* fileOut );
 	void					ReadBinaryLightGridPoints( idFile* file );

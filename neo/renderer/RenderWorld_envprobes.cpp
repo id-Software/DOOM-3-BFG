@@ -449,16 +449,32 @@ idVec2 IntegrateBRDF( float NdotV, float roughness, int sampleCount )
 
 
 // Compute normalized oct coord, mapping top left of top left pixel to (-1,-1)
-idVec2 NormalizedOctCoord( int x, int y, const int probeSideLength )
+idVec2 NormalizedOctCoord( int x, int y, const int probeWithBorderSide )
 {
-	const int margin = 0;
+#if 0
+	// 1 pixel border
+	const int margin = 1;
 
-	int probeWithBorderSide = probeSideLength + margin;
+	int probeSideLength = Max( 2, probeWithBorderSide - ( margin * 2 ) );
+
+	idVec2 octFragCoord;
+	octFragCoord.x = idMath::ClampInt( 0, probeSideLength - 1, x - margin );
+	octFragCoord.y = idMath::ClampInt( 0, probeSideLength - 1, y - margin );
+
+	return ( idVec2( octFragCoord ) ) * ( 2.0f / float( probeSideLength ) ) - idVec2( 1.0f, 1.0f );
+#else
+
+	const int margin = 2;
+
+	// RB: FIXME - margin * 2 is wrong but looks better
+	int probeSideLength = Max( 2, probeWithBorderSide - ( margin * 2 ) );
 
 	idVec2 octFragCoord = idVec2( ( x - margin ) % probeWithBorderSide, ( y - margin ) % probeWithBorderSide );
 
 	// Add back the half pixel to get pixel center normalized coordinates
 	return ( idVec2( octFragCoord ) + idVec2( 0.5f, 0.5f ) ) * ( 2.0f / float( probeSideLength ) ) - idVec2( 1.0f, 1.0f );
+
+#endif
 }
 
 /*
@@ -1093,6 +1109,21 @@ CONSOLE_COMMAND( bakeEnvironmentProbes, "Bake environment probes", NULL )
 	int	end = Sys_Milliseconds();
 
 	common->Printf( "convolved probes in %5.1f seconds\n\n", ( end - start ) * 0.001f );
+
+	//--------------------------------------------
+	// LOAD CONVOLVED OCTAHEDRONS INTO THE GPU
+	//--------------------------------------------
+	for( int i = 0; i < tr.primaryWorld->envprobeDefs.Num(); i++ )
+	{
+		RenderEnvprobeLocal* def = tr.primaryWorld->envprobeDefs[i];
+		if( def == NULL )
+		{
+			continue;
+		}
+
+		def->irradianceImage->Reload( false );
+		def->radianceImage->Reload( false );
+	}
 }
 
 /*
