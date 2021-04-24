@@ -671,9 +671,7 @@ void DX12Renderer::EndDraw() {
 
 	m_isDrawing = false;
 	
-	common->Printf("%d heap objects registered.\n", m_cbvHeapIndex);
-
-	SignalNextFrame();
+	//common->Printf("%d heap objects registered.\n", m_cbvHeapIndex);
 }
 
 UINT DX12Renderer::StartSurfaceSettings() {
@@ -681,7 +679,9 @@ UINT DX12Renderer::StartSurfaceSettings() {
 
 	++m_cbvHeapIndex;
 
-	assert(m_cbvHeapIndex < MAX_HEAP_OBJECT_COUNT);
+	if (m_cbvHeapIndex >= MAX_HEAP_OBJECT_COUNT) {
+		m_cbvHeapIndex = 0;
+	}
 
 	return m_cbvHeapIndex;
 }
@@ -741,7 +741,8 @@ bool DX12Renderer::IsScissorWindowValid() {
 void DX12Renderer::PresentBackbuffer() {
 	// Present the frame
 	ThrowIfFailed(m_swapChain->Present(1, 0));
-
+	
+	SignalNextFrame();
 	WaitForPreviousFrame();
 }
 
@@ -960,11 +961,9 @@ void DX12Renderer::SetTextureContent(DX12TextureBuffer* buffer, const UINT mipLe
 		size_t lastSize = imageSize << 2;
 
 		for (; mipCheck > 0; --mipCheck) {
-			intermediateOffset += lastSize;
+			intermediateOffset += ((lastSize + 511) & ~511); // 512 byte align.
 			lastSize = lastSize << 2;
 		}
-
-		intermediateOffset = (intermediateOffset + 511) & ~511;
 	}
 
 	SetTextureCopyState(buffer, mipLevel);
