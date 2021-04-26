@@ -1839,6 +1839,14 @@ void idRenderBackend::DBG_ShowLightGrid()
 		renderProgManager.SetUniformValue( RENDERPARM_JITTERTEXSCALE, lightGridSize.ToFloatPtr() );
 		renderProgManager.SetUniformValue( RENDERPARM_JITTERTEXOFFSET, lightGridBounds.ToFloatPtr() );
 
+		// individual probe sizes on the atlas image
+		idVec4 probeSize;
+		probeSize[0] = area->lightGrid.imageSingleProbeSize - area->lightGrid.imageBorderSize;
+		probeSize[1] = area->lightGrid.imageSingleProbeSize;
+		probeSize[2] = area->lightGrid.imageBorderSize;
+		probeSize[3] = float( area->lightGrid.imageSingleProbeSize - area->lightGrid.imageBorderSize ) / area->lightGrid.imageSingleProbeSize;
+		renderProgManager.SetUniformValue( RENDERPARM_SCREENCORRECTIONFACTOR, probeSize.ToFloatPtr() ); // rpScreenCorrectionFactor
+
 		for( int i = 0; i < area->lightGrid.lightGridPoints.Num(); i++ )
 		{
 			lightGridPoint_t* gridPoint = &area->lightGrid.lightGridPoints[i];

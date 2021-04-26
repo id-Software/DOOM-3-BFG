@@ -35,13 +35,11 @@ If you have questions concerning this license or the applicable additional terms
 #define LGRID_FILE_EXT			"lightgrid"
 #define LGRID_BINARYFILE_EXT	"blightgrid"
 #define LGRID_FILEID			"LGRID"
-#define LGRID_FILEVERSION		"1.00"
 
 #define STORE_LIGHTGRID_SHDATA 0
 
-static const byte BLGRID_VERSION = 2;
+static const byte BLGRID_VERSION = 3;
 static const unsigned int BLGRID_MAGIC = ( 'P' << 24 ) | ( 'R' << 16 ) | ( 'O' << 8 ) | BLGRID_VERSION;
-
 
 
 static const int MAX_LIGHTGRID_ATLAS_SIZE	= 2048;
@@ -53,6 +51,8 @@ LightGrid::LightGrid()
 	area = -1;
 
 	irradianceImage = NULL;
+	imageSingleProbeSize = LIGHTGRID_IRRADIANCE_SIZE;
+	imageBorderSize = LIGHTGRID_IRRADIANCE_BORDER_SIZE;
 }
 
 void LightGrid::SetupLightGrid( const idBounds& bounds, const char* mapName, const idRenderWorld* world, int _area, int limit )
@@ -63,6 +63,9 @@ void LightGrid::SetupLightGrid( const idBounds& bounds, const char* mapName, con
 	lightGridPoints.Clear();
 
 	area = _area;
+
+	imageSingleProbeSize = LIGHTGRID_IRRADIANCE_SIZE;
+	imageBorderSize = LIGHTGRID_IRRADIANCE_BORDER_SIZE;
 
 	idVec3 maxs;
 	int j = 0;
@@ -443,7 +446,7 @@ void idRenderWorldLocal::WriteLightGridsToFile( const char* filename )
 	}
 
 	// write file id and version
-	fp->WriteFloatString( "%s \"%s\"\n\n", LGRID_FILEID, LGRID_FILEVERSION );
+	fp->WriteFloatString( "%s \"%i\"\n\n", LGRID_FILEID, BLGRID_VERSION );
 
 	// write the map file crc
 	//fp->WriteFloatString( "%u\n\n", mapFileCRC );
@@ -460,9 +463,7 @@ void idRenderWorldLocal::WriteLightGridsToFile( const char* filename )
 
 void idRenderWorldLocal::WriteLightGrid( idFile* fp, const LightGrid& lightGrid )
 {
-	// TODO write used irradiance resolution
-
-	fp->WriteFloatString( "lightGridPoints { /* area = */ %i /* numLightGridPoints = */ %i\n", lightGrid.area, lightGrid.lightGridPoints.Num() );
+	fp->WriteFloatString( "lightGridPoints { /* area = */ %i /* numLightGridPoints = */ %i /* imageSingleProbeSize = */ %i /* imageBorderSize = */ %i \n", lightGrid.area, lightGrid.lightGridPoints.Num(), lightGrid.imageSingleProbeSize, lightGrid.imageBorderSize );
 
 	fp->WriteFloatString( "/* gridMins */ " );
 	fp->WriteFloatString( "\t ( %f %f %f )\n", lightGrid.lightGridOrigin[0], lightGrid.lightGridOrigin[1], lightGrid.lightGridOrigin[2] );
@@ -522,15 +523,10 @@ bool idRenderWorldLocal::LoadLightGridFile( const char* name )
 	if( file != NULL )
 	{
 		int numEntries = 0;
-		//int magic = 0;
+		int magic = 0;
+		file->ReadBig( magic );
 		file->ReadBig( numEntries );
-		//file->ReadString( mapName );
-		//file->ReadBig( crc );
-		idStrStatic< 32 > fileID;
-		idStrStatic< 32 > fileVersion;
-		file->ReadString( fileID );
-		file->ReadString( fileVersion );
-		if( fileID == LGRID_FILEID && fileVersion == LGRID_FILEVERSION ) //&& crc == mapFileCRC && numEntries > 0 )
+		if( magic == BLGRID_MAGIC && numEntries > 0 )
 		{
 			loaded = true;
 			for( int i = 0; i < numEntries; i++ )
@@ -566,11 +562,9 @@ bool idRenderWorldLocal::LoadLightGridFile( const char* name )
 		idFileLocal outputFile( fileSystem->OpenFileWrite( generatedFileName, "fs_basepath" ) );
 		if( outputFile != NULL )
 		{
+			int magic = BLGRID_MAGIC;
+			outputFile->WriteBig( magic );
 			outputFile->WriteBig( numEntries );
-			//outputFile->WriteString( mapName );
-			//outputFile->WriteBig( mapFileCRC );
-			outputFile->WriteString( LGRID_FILEID );
-			outputFile->WriteString( LGRID_FILEVERSION );
 		}
 
 		if( !src->ExpectTokenString( LGRID_FILEID ) )
@@ -580,9 +574,35 @@ bool idRenderWorldLocal::LoadLightGridFile( const char* name )
 			return false;
 		}
 
-		if( !src->ReadToken( &token ) || token != LGRID_FILEVERSION )
+		int lightGridVersion = 0;
+		if( !src->ReadToken( &token ) )
 		{
-			common->Warning( "%s has version %s instead of %s", fileName.c_str(), token.c_str(), LGRID_FILEVERSION );
+			src->Error( "couldn't read expected integer" );
+			delete src;
+			return false;
+		}
+		if( token.type == TT_PUNCTUATION && token == "-" )
+		{
+			src->ExpectTokenType( TT_NUMBER, TT_INTEGER, &token );
+			lightGridVersion = -( ( signed int ) token.GetIntValue() );
+		}
+		else if( token.type != TT_NUMBER && token.subtype != TT_STRING && token.subtype != TT_NAME )
+		{
+			src->Error( "expected integer value or string, found '%s'", token.c_str() );
+		}
+
+		if( token.type == TT_NUMBER )
+		{
+			lightGridVersion = token.GetIntValue();
+		}
+		else if( token.type == TT_STRING || token.subtype == TT_NAME )
+		{
+			lightGridVersion = atoi( token );
+		}
+
+		if( lightGridVersion != BLGRID_VERSION )
+		{
+			common->Warning( "%s has version %i instead of %i", fileName.c_str(), lightGridVersion, BLGRID_VERSION );
 			delete src;
 			return false;
 		}
@@ -626,6 +646,8 @@ bool idRenderWorldLocal::LoadLightGridFile( const char* name )
 		if( outputFile != NULL )
 		{
 			outputFile->Seek( 0, FS_SEEK_SET );
+			int magic = BLGRID_MAGIC;
+			outputFile->WriteBig( magic );
 			outputFile->WriteBig( numEntries );
 		}
 	}
@@ -651,6 +673,20 @@ void idRenderWorldLocal::ParseLightGridPoints( idLexer* src, idFile* fileOut )
 		return;
 	}
 
+	int imageProbeSize = src->ParseInt();
+	if( imageProbeSize < 8 )
+	{
+		src->Error( "ParseLightGridPoints: bad single image probe size %i", imageProbeSize );
+		return;
+	}
+
+	int imageBorderSize = src->ParseInt();
+	if( imageBorderSize < 0 )
+	{
+		src->Error( "ParseLightGridPoints: bad probe border size %i", imageBorderSize );
+		return;
+	}
+
 	if( fileOut != NULL )
 	{
 		// write out the type so the binary reader knows what to instantiate
@@ -659,6 +695,9 @@ void idRenderWorldLocal::ParseLightGridPoints( idLexer* src, idFile* fileOut )
 
 	portalArea_t* area = &portalAreas[areaIndex];
 	area->lightGrid.area = areaIndex;
+
+	area->lightGrid.imageSingleProbeSize = imageProbeSize;
+	area->lightGrid.imageBorderSize = imageBorderSize;
 
 	// gridMins
 	src->Parse1DMatrix( 3, area->lightGrid.lightGridOrigin.ToFloatPtr() );
@@ -674,11 +713,14 @@ void idRenderWorldLocal::ParseLightGridPoints( idLexer* src, idFile* fileOut )
 	idLib::Printf( "area %i grid size (%i %i %i)\n", areaIndex, ( int )area->lightGrid.lightGridSize[0], ( int )area->lightGrid.lightGridSize[1], ( int )area->lightGrid.lightGridSize[2] );
 	idLib::Printf( "area %i grid bounds (%i %i %i)\n", areaIndex, ( int )area->lightGrid.lightGridBounds[0], ( int )area->lightGrid.lightGridBounds[1], ( int )area->lightGrid.lightGridBounds[2] );
 	idLib::Printf( "area %i %9u x %" PRIuSIZE " = lightGridSize = (%.2fMB)\n", areaIndex, numLightGridPoints, sizeof( lightGridPoint_t ), ( float )( area->lightGrid.lightGridPoints.MemoryUsed() ) / ( 1024.0f * 1024.0f ) );
+	idLib::Printf( "area %i probe size (%i %i)\n", areaIndex, imageProbeSize, imageBorderSize );
 
 	if( fileOut != NULL )
 	{
 		fileOut->WriteBig( areaIndex );
 		fileOut->WriteBig( numLightGridPoints );
+		fileOut->WriteBig( imageProbeSize );
+		fileOut->WriteBig( imageBorderSize );
 		fileOut->WriteBig( area->lightGrid.lightGridOrigin );
 		fileOut->WriteBig( area->lightGrid.lightGridSize );
 		fileOut->WriteBigArray( area->lightGrid.lightGridBounds, 3 );
@@ -728,8 +770,27 @@ void idRenderWorldLocal::ReadBinaryLightGridPoints( idFile* file )
 		return;
 	}
 
+	int imageProbeSize = 0;
+	file->ReadBig( imageProbeSize );
+	if( imageProbeSize < 0 )
+	{
+		idLib::Error( "ReadBinaryLightGridPoints: bad imageProbeSize %i", imageProbeSize );
+		return;
+	}
+
+	int imageBorderSize = 0;
+	file->ReadBig( imageBorderSize );
+	if( imageBorderSize < 0 )
+	{
+		idLib::Error( "ReadBinaryLightGridPoints: bad imageBorderSize %i", imageBorderSize );
+		return;
+	}
+
 	portalArea_t* area = &portalAreas[areaIndex];
 	area->lightGrid.area = areaIndex;
+
+	area->lightGrid.imageSingleProbeSize = imageProbeSize;
+	area->lightGrid.imageBorderSize = imageBorderSize;
 
 	// gridMins
 	file->ReadBig( area->lightGrid.lightGridOrigin );
@@ -742,6 +803,7 @@ void idRenderWorldLocal::ReadBinaryLightGridPoints( idFile* file )
 	idLib::Printf( "area %i grid size (%i %i %i)\n", areaIndex, ( int )area->lightGrid.lightGridSize[0], ( int )area->lightGrid.lightGridSize[1], ( int )area->lightGrid.lightGridSize[2] );
 	idLib::Printf( "area %i grid bounds (%i %i %i)\n", areaIndex, ( int )area->lightGrid.lightGridBounds[0], ( int )area->lightGrid.lightGridBounds[1], ( int )area->lightGrid.lightGridBounds[2] );
 	idLib::Printf( "area %i %9u x %" PRIuSIZE " = lightGridSize = (%.2fMB)\n", areaIndex, numLightGridPoints, sizeof( lightGridPoint_t ), ( float )( area->lightGrid.lightGridPoints.MemoryUsed() ) / ( 1024.0f * 1024.0f ) );
+	idLib::Printf( "area %i probe size (%i %i)\n", areaIndex, imageProbeSize, imageBorderSize );
 
 	for( int i = 0; i < numLightGridPoints; i++ )
 	{

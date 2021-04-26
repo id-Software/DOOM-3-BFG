@@ -80,6 +80,8 @@ public:
 
 	int						area;
 	idImage* 				irradianceImage;
+	int						imageSingleProbeSize; // including border
+	int						imageBorderSize;
 
 	LightGrid();
 

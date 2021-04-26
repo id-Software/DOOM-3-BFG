@@ -560,7 +560,9 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 		if( ref->area->lightGrid.lightGridPoints.Num() && lightGridImage && !lightGridImage->IsDefaulted() )
 		{
 			vEntity->useLightGrid = true;
-			vEntity->irradianceAtlasImage = lightGridImage;
+			vEntity->lightGridAtlasImage = lightGridImage;
+			vEntity->lightGridAtlasSingleProbeSize = ref->area->lightGrid.imageSingleProbeSize;
+			vEntity->lightGridAtlasBorderSize = ref->area->lightGrid.imageBorderSize;
 
 			for( int i = 0; i < 3; i++ )
 			{

@@ -333,11 +333,13 @@ void main( PS_IN fragment, out PS_OUT result )
 
 		// offset by one pixel border bleed size for linear filtering
 #if 1
-		float2 octCoordNormalizedToTextureDimensions = ( ( normalizedOctCoordZeroOne + atlasOffset ) * ( 16.0 / 18.0 ) );
+		// rpScreenCorrectionFactor.w = probeSize factor accounting account offset border, e.g = ( 16 / 18 ) = 0.8888
+		float2 octCoordNormalizedToTextureDimensions = ( normalizedOctCoordZeroOne + atlasOffset ) * rpScreenCorrectionFactor.w;
 
+		// rpScreenCorrectionFactor.z = borderSize e.g = 2
 		float2 probeTopLeftPosition;
-		probeTopLeftPosition.x = ( gridCoord2[0] * gridStep[0] + gridCoord2[2] * gridStep[1] ) * 2.0 + 1.0;
-		probeTopLeftPosition.y = ( gridCoord2[1] ) * 2.0 + 1.0;
+		probeTopLeftPosition.x = ( gridCoord2[0] * gridStep[0] + gridCoord2[2] * gridStep[1] ) * rpScreenCorrectionFactor.z + rpScreenCorrectionFactor.z * 0.5;
+		probeTopLeftPosition.y = ( gridCoord2[1] ) * rpScreenCorrectionFactor.z + rpScreenCorrectionFactor.z * 0.5;
 
 		float2 normalizedProbeTopLeftPosition = probeTopLeftPosition * rpCascadeDistances.zw;
 

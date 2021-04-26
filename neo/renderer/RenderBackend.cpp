@@ -1355,6 +1355,14 @@ void idRenderBackend::DrawSingleInteraction( drawInteraction_t* din, bool useFas
 		renderProgManager.SetUniformValue( RENDERPARM_JITTERTEXSCALE, lightGridSize.ToFloatPtr() );
 		renderProgManager.SetUniformValue( RENDERPARM_JITTERTEXOFFSET, lightGridBounds.ToFloatPtr() );
 
+		// individual probe sizes on the atlas image
+		idVec4 probeSize;
+		probeSize[0] = currentSpace->lightGridAtlasSingleProbeSize - currentSpace->lightGridAtlasBorderSize;
+		probeSize[1] = currentSpace->lightGridAtlasSingleProbeSize;
+		probeSize[2] = currentSpace->lightGridAtlasBorderSize;
+		probeSize[3] = float( currentSpace->lightGridAtlasSingleProbeSize - currentSpace->lightGridAtlasBorderSize ) / currentSpace->lightGridAtlasSingleProbeSize;
+		renderProgManager.SetUniformValue( RENDERPARM_SCREENCORRECTIONFACTOR, probeSize.ToFloatPtr() ); // rpScreenCorrectionFactor
+
 		if( specUsage == TD_SPECULAR_PBR_RMAO || specUsage == TD_SPECULAR_PBR_RMAOD )
 		{
 			// PBR path with roughness, metal and AO
@@ -1397,9 +1405,9 @@ void idRenderBackend::DrawSingleInteraction( drawInteraction_t* din, bool useFas
 #endif
 
 		GL_SelectTexture( INTERACTION_TEXUNIT_AMBIENT_CUBE1 );
-		currentSpace->irradianceAtlasImage->Bind();
+		currentSpace->lightGridAtlasImage->Bind();
 
-		idVec2i res = currentSpace->irradianceAtlasImage->GetUploadResolution();
+		idVec2i res = currentSpace->lightGridAtlasImage->GetUploadResolution();
 		idVec4 textureSize( res.x, res.y, 1.0f / res.x, 1.0f / res.y );
 
 		renderProgManager.SetUniformValue( RENDERPARM_CASCADEDISTANCES, textureSize.ToFloatPtr() );

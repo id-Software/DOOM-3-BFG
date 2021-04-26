@@ -452,7 +452,9 @@ struct viewEntity_t
 
 	// RB: use light grid of the best area this entity is in
 	bool					useLightGrid;
-	idImage* 				irradianceAtlasImage;
+	idImage* 				lightGridAtlasImage;
+	int						lightGridAtlasSingleProbeSize; // including border
+	int						lightGridAtlasBorderSize;
 
 	idVec3					lightGridOrigin;
 	idVec3					lightGridSize;
@@ -513,7 +515,8 @@ struct calcEnvprobeParms_t
 
 
 
-static const int LIGHTGRID_IRRADIANCE_SIZE = ( 16 * 1 ) + 2;
+static const int LIGHTGRID_IRRADIANCE_BORDER_SIZE = 2;	// one pixel border all around the octahedron so 2 on each side
+static const int LIGHTGRID_IRRADIANCE_SIZE = ( 16 * 1 ) + LIGHTGRID_IRRADIANCE_BORDER_SIZE;
 
 struct calcLightGridPointParms_t
 {
