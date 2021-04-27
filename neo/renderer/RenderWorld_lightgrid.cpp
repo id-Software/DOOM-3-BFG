@@ -38,7 +38,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #define STORE_LIGHTGRID_SHDATA 0
 
-static const byte BLGRID_VERSION = 3;
+static const byte BLGRID_VERSION = 4;
 static const unsigned int BLGRID_MAGIC = ( 'P' << 24 ) | ( 'R' << 16 ) | ( 'O' << 8 ) | BLGRID_VERSION;
 
 
@@ -513,7 +513,7 @@ bool idRenderWorldLocal::LoadLightGridFile( const char* name )
 
 	// if we are reloading the same map, check the timestamp
 	// and try to skip all the work
-	ID_TIME_T currentTimeStamp = fileSystem->GetTimestamp( fileName );
+	ID_TIME_T sourceTimeStamp = fileSystem->GetTimestamp( fileName );
 
 	// see if we have a generated version of this
 	bool loaded = false;
@@ -524,11 +524,14 @@ bool idRenderWorldLocal::LoadLightGridFile( const char* name )
 	{
 		int numEntries = 0;
 		int magic = 0;
+		ID_TIME_T storedTimeStamp;
 		file->ReadBig( magic );
+		file->ReadBig( storedTimeStamp );
 		file->ReadBig( numEntries );
-		if( magic == BLGRID_MAGIC && numEntries > 0 )
+		if( ( magic == BLGRID_MAGIC ) && ( sourceTimeStamp == storedTimeStamp ) && ( numEntries > 0 ) )
 		{
 			loaded = true;
+
 			for( int i = 0; i < numEntries; i++ )
 			{
 				idStrStatic< MAX_OSPATH > type;
@@ -564,6 +567,7 @@ bool idRenderWorldLocal::LoadLightGridFile( const char* name )
 		{
 			int magic = BLGRID_MAGIC;
 			outputFile->WriteBig( magic );
+			outputFile->WriteBig( sourceTimeStamp );
 			outputFile->WriteBig( numEntries );
 		}
 
@@ -646,8 +650,10 @@ bool idRenderWorldLocal::LoadLightGridFile( const char* name )
 		if( outputFile != NULL )
 		{
 			outputFile->Seek( 0, FS_SEEK_SET );
+
 			int magic = BLGRID_MAGIC;
 			outputFile->WriteBig( magic );
+			outputFile->WriteBig( sourceTimeStamp );
 			outputFile->WriteBig( numEntries );
 		}
 	}
@@ -913,58 +919,6 @@ void CalculateLightGridPointJob( calcLightGridPointParms_t* parms )
 		shRadiance[i].Zero();
 	}
 
-#if 0
-
-	// build SH by only iterating over the octahedron
-	// RB: not used because I don't know the texel area of an octahedron pixel and the cubemap texel area is too small
-	// however it would be nice to use this because it would be 6 times faster
-
-	idVec4 dstRect = R_CalculateMipRect( parms->outHeight, 0 );
-
-	for( int x = dstRect.x; x < ( dstRect.x + dstRect.z ); x++ )
-	{
-		for( int y = dstRect.y; y < ( dstRect.y + dstRect.w ); y++ )
-		{
-			idVec2 octCoord = NormalizedOctCoord( x, y, dstRect.z );
-
-			// convert UV coord to 3D direction
-			idVec3 dir;
-
-			dir.FromOctahedral( octCoord );
-
-			float u, v;
-			idVec3 radiance;
-			R_SampleCubeMapHDR( dir, parms->outHeight, buffers, &radiance[0], u, v );
-
-			//radiance = dir * 0.5 + idVec3( 0.5f, 0.5f, 0.5f );
-
-			// convert from [0 .. size-1] to [-1.0 + invSize .. 1.0 - invSize]
-			const float uu = 2.0f * ( u * invDstSize ) - 1.0f;
-			const float vv = 2.0f * ( v * invDstSize ) - 1.0f;
-
-			float texelArea = CubemapTexelSolidAngle( uu, vv, invDstSize );
-
-			const SphericalHarmonicsT<float, 4>& sh = shEvaluate<4>( dir );
-
-			bool shValid = true;
-			for( int i = 0; i < 25; i++ )
-			{
-				if( IsNAN( sh[i] ) )
-				{
-					shValid = false;
-					break;
-				}
-			}
-
-			if( shValid )
-			{
-				shAddWeighted( shRadiance, sh, radiance * texelArea );
-			}
-		}
-	}
-
-#else
-
 	// build SH by iterating over all cubemap pixels
 
 	for( int side = 0; side < 6; side++ )
@@ -1007,8 +961,6 @@ void CalculateLightGridPointJob( calcLightGridPointParms_t* parms )
 			}
 		}
 	}
-
-#endif
 
 	for( int i = 0; i < shSize( 3 ); i++ )
 	{
@@ -1259,7 +1211,7 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 					lightGridPoint_t* gridPoint = &area->lightGrid.lightGridPoints[ gridCoord[0] * gridStep[0] + gridCoord[1] * gridStep[1] + gridCoord[2] * gridStep[2] ];
 					if( !gridPoint->valid )
 					{
-						progressBar.Increment();
+						//progressBar.Increment();
 						continue;
 					}
 
@@ -1284,14 +1236,6 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 						byte* float16FRGB = tr.CaptureRenderToBuffer( captureSize, captureSize, &ref );
 
 						jobParms->radiance[ side ] = float16FRGB;
-
-#if 0
-						if( i < 3 )
-						{
-							filename.Format( "env/%s/area%i_lightgridpoint%i%s.exr", baseName.c_str(), a, i, extension );
-							R_WriteEXR( filename, float16FRGB, 3, size, size, "fs_basepath" );
-						}
-#endif
 					}
 
 					tr.lightGridJobs.Append( jobParms );

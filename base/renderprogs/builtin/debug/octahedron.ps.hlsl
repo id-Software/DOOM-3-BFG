@@ -59,12 +59,14 @@ void main( PS_IN fragment, out PS_OUT result )
 	float2 normalizedOctCoordZeroOne = ( normalizedOctCoord + float2( 1.0 ) ) * 0.5;
 
 	// offset by one pixel border bleed size for linear filtering
+#if 0
 	float2 octCoordNormalizedToTextureDimensions = ( normalizedOctCoordZeroOne * ( rpCascadeDistances.x - float( 2.0 ) ) ) / rpCascadeDistances.xy;
 
 	float2 probeTopLeftPosition = float2( 1.0, 1.0 );
 	float2 normalizedProbeTopLeftPosition = probeTopLeftPosition * rpCascadeDistances.zw;
 
 	normalizedOctCoordZeroOne.xy = normalizedProbeTopLeftPosition + octCoordNormalizedToTextureDimensions;
+#endif
 
 	//normalizedOctCoordZeroOne = TextureCoordFromDirection( reflectionVector, 0, int( rpCascadeDistances.x ), int( rpCascadeDistances.y ), int( rpCascadeDistances.x ) - 2 );
 

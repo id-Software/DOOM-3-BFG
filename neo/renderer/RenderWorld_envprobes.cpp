@@ -467,6 +467,7 @@ idVec2 NormalizedOctCoord( int x, int y, const int probeWithBorderSide )
 	const int margin = 2;
 
 	// RB: FIXME - margin * 2 is wrong but looks better
+	// figure out why
 	int probeSideLength = Max( 2, probeWithBorderSide - ( margin * 2 ) );
 
 	idVec2 octFragCoord = idVec2( ( x - margin ) % probeWithBorderSide, ( y - margin ) % probeWithBorderSide );
@@ -475,6 +476,16 @@ idVec2 NormalizedOctCoord( int x, int y, const int probeWithBorderSide )
 	return ( idVec2( octFragCoord ) + idVec2( 0.5f, 0.5f ) ) * ( 2.0f / float( probeSideLength ) ) - idVec2( 1.0f, 1.0f );
 
 #endif
+}
+
+static inline idVec2 NormalizedOctCoordNoBorder( int x, int y, const int probeWithBorderSide )
+{
+	int probeSideLength = probeWithBorderSide;
+
+	idVec2 octFragCoord = idVec2( x % probeWithBorderSide, y % probeWithBorderSide );
+
+	// Add back the half pixel to get pixel center normalized coordinates
+	return ( idVec2( octFragCoord ) + idVec2( 0.5f, 0.5f ) ) * ( 2.0f / float( probeSideLength ) ) - idVec2( 1.0f, 1.0f );
 }
 
 /*
@@ -615,7 +626,7 @@ void CalculateIrradianceJob( calcEnvprobeParms_t* parms )
 	{
 		for( int y = dstRect.y; y < ( dstRect.y + dstRect.w ); y++ )
 		{
-			idVec2 octCoord = NormalizedOctCoord( x, y, dstRect.z );
+			idVec2 octCoord = NormalizedOctCoordNoBorder( x, y, dstRect.z );
 
 			// convert UV coord to 3D direction
 			idVec3 dir;
@@ -727,11 +738,11 @@ void CalculateIrradianceJob( calcEnvprobeParms_t* parms )
 				if( mip > 0 )
 				{
 					// move back to [0, 1] coords
-					octCoord = NormalizedOctCoord( x - dstRect.x, y - dstRect.y, dstRect.z );
+					octCoord = NormalizedOctCoordNoBorder( x - dstRect.x, y - dstRect.y, dstRect.z );
 				}
 				else
 				{
-					octCoord = NormalizedOctCoord( x, y, dstRect.z );
+					octCoord = NormalizedOctCoordNoBorder( x, y, dstRect.z );
 				}
 
 				// convert UV coord to 3D direction
@@ -838,11 +849,11 @@ void CalculateRadianceJob( calcEnvprobeParms_t* parms )
 				if( mip > 0 )
 				{
 					// move back to [0, 1] coords
-					octCoord = NormalizedOctCoord( x - dstRect.x, y - dstRect.y, dstRect.z );
+					octCoord = NormalizedOctCoordNoBorder( x - dstRect.x, y - dstRect.y, dstRect.z );
 				}
 				else
 				{
-					octCoord = NormalizedOctCoord( x, y, dstRect.z );
+					octCoord = NormalizedOctCoordNoBorder( x, y, dstRect.z );
 				}
 
 				// convert UV coord to 3D direction

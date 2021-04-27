@@ -516,7 +516,7 @@ struct calcEnvprobeParms_t
 
 
 static const int LIGHTGRID_IRRADIANCE_BORDER_SIZE = 2;	// one pixel border all around the octahedron so 2 on each side
-static const int LIGHTGRID_IRRADIANCE_SIZE = ( 16 * 1 ) + LIGHTGRID_IRRADIANCE_BORDER_SIZE;
+static const int LIGHTGRID_IRRADIANCE_SIZE = 30 + LIGHTGRID_IRRADIANCE_BORDER_SIZE;
 
 struct calcLightGridPointParms_t
 {
@@ -1207,6 +1207,8 @@ extern idCVar r_usePBR;
 extern idCVar r_pbrDebug;
 extern idCVar r_showViewEnvprobes;
 extern idCVar r_showLightGrid;				// show Quake 3 style light grid points
+
+extern idCVar r_useLightGrid;
 
 extern idCVar r_exposure;
 // RB end

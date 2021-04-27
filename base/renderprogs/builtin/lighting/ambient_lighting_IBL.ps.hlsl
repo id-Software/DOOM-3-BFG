@@ -119,6 +119,26 @@ bool AABBRayIntersection( float3 b[2], float3 start, float3 dir, out float scale
 			 hit[ax2] >= b[0][ax2] && hit[ax2] <= b[1][ax2] );
 }
 
+
+float2 OctTexCoord( float3 worldDir )
+{
+	float2 normalizedOctCoord = octEncode( worldDir );
+	float2 normalizedOctCoordZeroOne = ( normalizedOctCoord + float2( 1.0 ) ) * 0.5;
+
+	// offset by one pixel border bleed size for linear filtering
+#if 0
+	// texcoord sizes in rpCascadeDistances are not valid
+	float2 octCoordNormalizedToTextureDimensions = ( normalizedOctCoordZeroOne * ( rpCascadeDistances.x - float( 2.0 ) ) ) / rpCascadeDistances.xy;
+
+	float2 probeTopLeftPosition = float2( 1.0, 1.0 );
+	float2 normalizedProbeTopLeftPosition = probeTopLeftPosition * rpCascadeDistances.zw;
+
+	normalizedOctCoordZeroOne.xy = normalizedProbeTopLeftPosition + octCoordNormalizedToTextureDimensions;
+#endif
+
+	return normalizedOctCoordZeroOne;
+}
+
 void main( PS_IN fragment, out PS_OUT result )
 {
 	half4 bumpMap =			tex2D( samp0, fragment.texcoord0.xy );
@@ -236,8 +256,7 @@ void main( PS_IN fragment, out PS_OUT result )
 
 	// evaluate diffuse IBL
 
-	float2 normalizedOctCoord = octEncode( globalNormal );
-	float2 normalizedOctCoordZeroOne = ( normalizedOctCoord + float2( 1.0 ) ) * 0.5;
+	float2 normalizedOctCoordZeroOne = OctTexCoord( globalNormal );
 
 	float3 irradiance = tex2D( samp7, normalizedOctCoordZeroOne ).rgb;
 	float3 diffuseLight = ( kD * irradiance * diffuseColor ) * ao * ( rpDiffuseModifier.xyz * 1.0 );
@@ -249,8 +268,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	float mip = clamp( ( roughness * MAX_REFLECTION_LOD ), 0.0, MAX_REFLECTION_LOD );
 	//float mip = 0.0;
 
-	normalizedOctCoord = octEncode( reflectionVector );
-	normalizedOctCoordZeroOne = ( normalizedOctCoord + float2( 1.0 ) ) * 0.5;
+	normalizedOctCoordZeroOne = OctTexCoord( reflectionVector );
 
 	float3 radiance = textureLod( samp8, normalizedOctCoordZeroOne, mip ).rgb;
 	//radiance = float3( 0.0 );
