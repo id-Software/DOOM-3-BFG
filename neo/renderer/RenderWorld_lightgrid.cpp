@@ -35,6 +35,7 @@ If you have questions concerning this license or the applicable additional terms
 #define LGRID_FILE_EXT			"lightgrid"
 #define LGRID_BINARYFILE_EXT	"blightgrid"
 #define LGRID_FILEID			"LGRID"
+const byte LGRID_VERSION = 3;
 
 #define STORE_LIGHTGRID_SHDATA 0
 
@@ -604,9 +605,9 @@ bool idRenderWorldLocal::LoadLightGridFile( const char* name )
 			lightGridVersion = atoi( token );
 		}
 
-		if( lightGridVersion != BLGRID_VERSION )
+		if( lightGridVersion != LGRID_VERSION )
 		{
-			common->Warning( "%s has version %i instead of %i", fileName.c_str(), lightGridVersion, BLGRID_VERSION );
+			common->Warning( "%s has version %i instead of %i", fileName.c_str(), lightGridVersion, LGRID_VERSION );
 			delete src;
 			return false;
 		}

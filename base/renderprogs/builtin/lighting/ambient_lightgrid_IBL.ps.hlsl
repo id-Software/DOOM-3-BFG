@@ -263,15 +263,19 @@ void main( PS_IN fragment, out PS_OUT result )
 	{
 		float           v;
 
-		v = lightOrigin[i] * ( 1.0 / lightGridSize[i] );
+		// walls can be sampled behind the grid sometimes so avoid negative weights
+		v = max( 0, lightOrigin[i] * ( 1.0 / lightGridSize[i] ) );
 		gridCoord[i] = int( floor( v ) );
 		frac[ i ] = v - gridCoord[ i ];
 
+		/*
 		if( gridCoord[i] < 0 )
 		{
 			gridCoord[i] = 0;
 		}
-		else if( gridCoord[i] >= lightGridBounds[i] - 1 )
+		else
+		*/
+		if( gridCoord[i] >= lightGridBounds[i] - 1 )
 		{
 			gridCoord[i] = lightGridBounds[i] - 1;
 		}
@@ -325,6 +329,9 @@ void main( PS_IN fragment, out PS_OUT result )
 				factor *= ( 1.0 - frac[ j ] );
 			}
 		}
+
+		// build P
+		//float3 P = lightGridOrigin + ( gridCoord2[0] * gridStep[0] + gridCoord2[1] * gridStep[1] + gridCoord2[2] * gridStep[2] );
 
 		float2 atlasOffset;
 
