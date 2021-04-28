@@ -1200,9 +1200,13 @@ const int INTERACTION_TEXUNIT_JITTER		= 6;
 #if defined( USE_VULKAN )
 	const int INTERACTION_TEXUNIT_AMBIENT_CUBE1 = 5;
 	const int INTERACTION_TEXUNIT_SPECULAR_CUBE1 = 6;
+	const int INTERACTION_TEXUNIT_SPECULAR_CUBE2 = 7;
+	const int INTERACTION_TEXUNIT_SPECULAR_CUBE3 = 8;
 #else
 	const int INTERACTION_TEXUNIT_AMBIENT_CUBE1 = 7;
 	const int INTERACTION_TEXUNIT_SPECULAR_CUBE1 = 8;
+	const int INTERACTION_TEXUNIT_SPECULAR_CUBE2 = 9;
+	const int INTERACTION_TEXUNIT_SPECULAR_CUBE3 = 10;
 #endif
 
 /*
@@ -1344,8 +1348,6 @@ void idRenderBackend::DrawSingleInteraction( drawInteraction_t* din, bool useFas
 		SetVertexParm( RENDERPARM_WOBBLESKY_Y, probeMaxs.ToFloatPtr() );
 		SetVertexParm( RENDERPARM_WOBBLESKY_Z, probeCenter.ToFloatPtr() );
 
-		//SetVertexParm( RENDERPARM_WOBBLESK_Z, probeCenter.ToFloatPtr() );
-
 		// use rpGlobalLightOrigin for lightGrid center
 		idVec4 lightGridOrigin( currentSpace->lightGridOrigin.x, currentSpace->lightGridOrigin.y, currentSpace->lightGridOrigin.z, 1.0f );
 		idVec4 lightGridSize( currentSpace->lightGridSize.x, currentSpace->lightGridSize.y, currentSpace->lightGridSize.z, 1.0f );
@@ -1362,6 +1364,9 @@ void idRenderBackend::DrawSingleInteraction( drawInteraction_t* din, bool useFas
 		probeSize[2] = currentSpace->lightGridAtlasBorderSize;
 		probeSize[3] = float( currentSpace->lightGridAtlasSingleProbeSize - currentSpace->lightGridAtlasBorderSize ) / currentSpace->lightGridAtlasSingleProbeSize;
 		renderProgManager.SetUniformValue( RENDERPARM_SCREENCORRECTIONFACTOR, probeSize.ToFloatPtr() ); // rpScreenCorrectionFactor
+
+		// specular cubemap blend weights
+		renderProgManager.SetUniformValue( RENDERPARM_USER0, viewDef->radianceImageBlends.ToFloatPtr() );
 
 		if( specUsage == TD_SPECULAR_PBR_RMAO || specUsage == TD_SPECULAR_PBR_RMAOD )
 		{
@@ -1413,14 +1418,13 @@ void idRenderBackend::DrawSingleInteraction( drawInteraction_t* din, bool useFas
 		renderProgManager.SetUniformValue( RENDERPARM_CASCADEDISTANCES, textureSize.ToFloatPtr() );
 
 		GL_SelectTexture( INTERACTION_TEXUNIT_SPECULAR_CUBE1 );
-		if( viewDef->radianceImage )
-		{
-			viewDef->radianceImage->Bind();
-		}
-		else
-		{
-			globalImages->defaultUACRadianceCube->Bind();
-		}
+		viewDef->radianceImages[0]->Bind();
+
+		GL_SelectTexture( INTERACTION_TEXUNIT_SPECULAR_CUBE2 );
+		viewDef->radianceImages[1]->Bind();
+
+		GL_SelectTexture( INTERACTION_TEXUNIT_SPECULAR_CUBE3 );
+		viewDef->radianceImages[2]->Bind();
 	}
 	else if( useIBL )
 	{
@@ -1442,6 +1446,9 @@ void idRenderBackend::DrawSingleInteraction( drawInteraction_t* din, bool useFas
 		SetVertexParm( RENDERPARM_WOBBLESKY_X, probeMins.ToFloatPtr() );
 		SetVertexParm( RENDERPARM_WOBBLESKY_Y, probeMaxs.ToFloatPtr() );
 		SetVertexParm( RENDERPARM_WOBBLESKY_Z, probeCenter.ToFloatPtr() );
+
+		// specular cubemap blend weights
+		renderProgManager.SetUniformValue( RENDERPARM_GLOBALLIGHTORIGIN, viewDef->radianceImageBlends.ToFloatPtr() );
 
 		if( specUsage == TD_SPECULAR_PBR_RMAO || specUsage == TD_SPECULAR_PBR_RMAOD )
 		{
@@ -1484,26 +1491,17 @@ void idRenderBackend::DrawSingleInteraction( drawInteraction_t* din, bool useFas
 		}
 #endif
 
-		// TODO bind the 3 closest probes
 		GL_SelectTexture( INTERACTION_TEXUNIT_AMBIENT_CUBE1 );
-		if( viewDef->irradianceImage )
-		{
-			viewDef->irradianceImage->Bind();
-		}
-		else
-		{
-			globalImages->defaultUACIrradianceCube->Bind();
-		}
+		viewDef->irradianceImage->Bind();
 
 		GL_SelectTexture( INTERACTION_TEXUNIT_SPECULAR_CUBE1 );
-		if( viewDef->radianceImage )
-		{
-			viewDef->radianceImage->Bind();
-		}
-		else
-		{
-			globalImages->defaultUACRadianceCube->Bind();
-		}
+		viewDef->radianceImages[0]->Bind();
+
+		GL_SelectTexture( INTERACTION_TEXUNIT_SPECULAR_CUBE2 );
+		viewDef->radianceImages[1]->Bind();
+
+		GL_SelectTexture( INTERACTION_TEXUNIT_SPECULAR_CUBE3 );
+		viewDef->radianceImages[2]->Bind();
 	}
 	else if( setInteractionShader )
 	{

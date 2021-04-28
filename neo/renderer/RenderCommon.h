@@ -648,7 +648,8 @@ struct viewDef_t
 	idBounds			globalProbeBounds;
 	idRenderMatrix		inverseBaseEnvProbeProject;	// the matrix for deforming the 'zeroOneCubeModel' to exactly cover the environent probe volume in world space
 	idImage* 			irradianceImage;			// cubemap image used for diffuse IBL by backend
-	idImage* 			radianceImage;				// cubemap image used for specular IBL by backend
+	idImage* 			radianceImages[3];			// cubemap image used for specular IBL by backend
+	idVec4				radianceImageBlends;		// blending weights
 };
 
 
@@ -1612,6 +1613,9 @@ void				R_InitDrawSurfFromTri( drawSurf_t& ds, srfTriangles_t& tri );
 // For static surfaces, the indexes, ambient, and shadow buffers can be pre-created at load
 // time, rather than being re-created each frame in the frame temporary buffers.
 void				R_CreateStaticBuffersForTri( srfTriangles_t& tri );
+
+// RB
+idVec3				R_ClosestPointPointTriangle( const idVec3& point, const idVec3& vertex1, const idVec3& vertex2, const idVec3& vertex3 );
 
 // deformable meshes precalculate as much as possible from a base frame, then generate
 // complete srfTriangles_t from just a new set of vertexes

@@ -1702,9 +1702,38 @@ void idRenderBackend::DBG_ShowLights()
 ==============
 RB_ShowViewEnvprobes
 
-Visualize all environemnt probes used in the current scene
+Visualize all environment probes used in the current scene
 ==============
 */
+class idSort_DebugCompareViewEnvprobe : public idSort_Quick< RenderEnvprobeLocal*, idSort_DebugCompareViewEnvprobe >
+{
+	idVec3	viewOrigin;
+
+public:
+	idSort_DebugCompareViewEnvprobe( const idVec3& origin )
+	{
+		viewOrigin = origin;
+	}
+
+	int Compare( RenderEnvprobeLocal* const& a, RenderEnvprobeLocal* const& b ) const
+	{
+		float adist = ( viewOrigin - a->parms.origin ).LengthSqr();
+		float bdist = ( viewOrigin - b->parms.origin ).LengthSqr();
+
+		if( adist < bdist )
+		{
+			return -1;
+		}
+
+		if( adist > bdist )
+		{
+			return 1;
+		}
+
+		return 0;
+	}
+};
+
 void idRenderBackend::DBG_ShowViewEnvprobes()
 {
 	if( !r_showViewEnvprobes.GetInteger() )
@@ -1793,6 +1822,134 @@ void idRenderBackend::DBG_ShowViewEnvprobes()
 			DrawElementsWithCounters( &zeroOneCubeSurface );
 		}
 #endif
+	}
+
+
+	//if( r_showViewEnvprobes.GetInteger() >= 3 )
+	if( tr.primaryWorld )
+	{
+		/*
+		idList<viewEnvprobe_t*, TAG_RENDER_ENVPROBE> viewEnvprobes;
+		for( viewEnvprobe_t* vProbe = viewDef->viewEnvprobes; vProbe != NULL; vProbe = vProbe->next )
+		{
+			viewEnvprobes.AddUnique( vProbe );
+		}
+		*/
+
+		idList<RenderEnvprobeLocal*, TAG_RENDER_ENVPROBE> viewEnvprobes;
+		for( int i = 0; i < tr.primaryWorld->envprobeDefs.Num(); i++ )
+		{
+			RenderEnvprobeLocal* vProbe = tr.primaryWorld->envprobeDefs[i];
+			if( vProbe )
+			{
+				viewEnvprobes.AddUnique( vProbe );
+			}
+		}
+
+		if( viewEnvprobes.Num() == 0 )
+		{
+			return;
+		}
+
+		idVec3 testOrigin = viewDef->renderView.vieworg;
+		//testOrigin += viewDef->renderView.viewaxis[0] * 150.0f;
+		//testOrigin -= viewDef->renderView.viewaxis[2] * 16.0f;
+
+		// sort by distance
+		viewEnvprobes.SortWithTemplate( idSort_DebugCompareViewEnvprobe( testOrigin ) );
+
+		// draw 3 nearest probes
+		renderProgManager.BindShader_Color();
+
+		const int numColors = 3;
+		static idVec4 colors[numColors] = { colorRed, colorGreen, colorBlue };
+
+		// form a triangle of the 3 closest probes
+		idVec3 verts[3];
+		for( int i = 0; i < 3; i++ )
+		{
+			verts[i] = viewEnvprobes[0]->parms.origin;
+		}
+
+		for( int i = 0; i < viewEnvprobes.Num() && i < 3; i++ )
+		{
+			RenderEnvprobeLocal* vProbe = viewEnvprobes[i];
+
+			verts[i] = vProbe->parms.origin;
+		}
+
+		idVec3 closest = R_ClosestPointPointTriangle( testOrigin, verts[0], verts[1], verts[2] );
+		idVec3 barycentricWeights;
+
+		// find the barycentric coordinates
+		float denom = idWinding::TriangleArea( verts[0], verts[1], verts[2] );
+		if( denom == 0 )
+		{
+			// all points at same location
+			barycentricWeights.Set( 1, 0, 0 );
+		}
+		else
+		{
+			float	a, b, c;
+
+			a = idWinding::TriangleArea( closest, verts[1], verts[2] ) / denom;
+			b = idWinding::TriangleArea( closest, verts[2], verts[0] ) / denom;
+			c = idWinding::TriangleArea( closest, verts[0], verts[1] ) / denom;
+
+			barycentricWeights.Set( a, b, c );
+		}
+
+		idMat3 axis;
+		axis.Identity();
+
+		for( int i = 0; i < viewEnvprobes.Num() && i < 3; i++ )
+		{
+			RenderEnvprobeLocal* vProbe = viewEnvprobes[i];
+
+			verts[i] = vProbe->parms.origin;
+
+			//GL_Color( colors[i] );
+
+			idVec4 color = Lerp( colorBlack, colors[i], barycentricWeights[i] );
+			GL_Color( color );
+
+			idRenderMatrix modelRenderMatrix;
+			idRenderMatrix::CreateFromOriginAxis( vProbe->parms.origin, axis, modelRenderMatrix );
+
+			// calculate the matrix that transforms the unit cube to exactly cover the model in world space
+			const float size = 16.0f;
+			idBounds debugBounds( idVec3( -size ), idVec3( size ) );
+
+			idRenderMatrix inverseBaseModelProject;
+			idRenderMatrix::OffsetScaleForBounds( modelRenderMatrix, debugBounds, inverseBaseModelProject );
+
+			idRenderMatrix invProjectMVPMatrix;
+			idRenderMatrix::Multiply( viewDef->worldSpace.mvp, inverseBaseModelProject, invProjectMVPMatrix );
+			RB_SetMVP( invProjectMVPMatrix );
+
+			DrawElementsWithCounters( &zeroOneSphereSurface );
+		}
+
+		// draw closest hit
+		{
+			GL_Color( colorYellow );
+
+			idRenderMatrix modelRenderMatrix;
+			idRenderMatrix::CreateFromOriginAxis( closest, axis, modelRenderMatrix );
+
+			// calculate the matrix that transforms the unit cube to exactly cover the model in world space
+			const float size = 4.0f;
+			idBounds debugBounds( idVec3( -size ), idVec3( size ) );
+
+			idRenderMatrix inverseBaseModelProject;
+			idRenderMatrix::OffsetScaleForBounds( modelRenderMatrix, debugBounds, inverseBaseModelProject );
+
+			idRenderMatrix invProjectMVPMatrix;
+			idRenderMatrix::Multiply( viewDef->worldSpace.mvp, inverseBaseModelProject, invProjectMVPMatrix );
+			RB_SetMVP( invProjectMVPMatrix );
+
+			DrawElementsWithCounters( &zeroOneSphereSurface );
+		}
 	}
 }
 

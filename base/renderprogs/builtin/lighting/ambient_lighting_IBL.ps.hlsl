@@ -40,7 +40,9 @@ uniform sampler2D samp3 : register(s3); // texture 3 is the BRDF LUT
 uniform sampler2D samp4 : register(s4); // texture 4 is SSAO
 
 uniform sampler2D	samp7 : register(s7); // texture 7 is the irradiance cube map
-uniform sampler2D	samp8 : register(s8); // texture 8 is the radiance cube map
+uniform sampler2D	samp8 : register(s8); // texture 8 is the radiance cube map 1
+uniform sampler2D	samp9 : register(s9); // texture 9 is the radiance cube map 2
+uniform sampler2D	samp10 : register(s10); // texture 10 is the radiance cube map 3
 
 struct PS_IN 
 {
@@ -270,7 +272,9 @@ void main( PS_IN fragment, out PS_OUT result )
 
 	normalizedOctCoordZeroOne = OctTexCoord( reflectionVector );
 
-	float3 radiance = textureLod( samp8, normalizedOctCoordZeroOne, mip ).rgb;
+	float3 radiance = textureLod( samp8, normalizedOctCoordZeroOne, mip ).rgb * rpGlobalLightOrigin.x;
+	radiance += textureLod( samp9, normalizedOctCoordZeroOne, mip ).rgb * rpGlobalLightOrigin.y;
+	radiance += textureLod( samp10, normalizedOctCoordZeroOne, mip ).rgb * rpGlobalLightOrigin.z;
 	//radiance = float3( 0.0 );
 
 	float2 envBRDF  = texture( samp3, float2( max( vDotN, 0.0 ), roughness ) ).rg;
