@@ -317,11 +317,7 @@ bool VKimp_Init( glimpParms_t parms )
 		common->Printf( "No usable VK mode found: %s", SDL_GetError() );
 		return false;
 	}
-	/* SRS - This must be leftover code from OpenGL, disable it
-	#ifdef __APPLE__
-		glewExperimental = GL_TRUE;
-	#endif
-	*/
+
 	// DG: disable cursor, we have two cursors in menu (because mouse isn't grabbed in menu)
 	SDL_ShowCursor( SDL_DISABLE );
 	// DG end

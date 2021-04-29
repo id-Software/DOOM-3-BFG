@@ -198,7 +198,10 @@ void idLib::FatalError( const char* fmt, ... )
 
 	common->FatalError( "%s", text );
 
-	exit( EXIT_FAILURE );                              // SRS - Added exit to silence build warning since FatalError has attribute noreturn
+#if !defined(_WIN32)
+	// SRS - Added exit to silence build warning since FatalError has attribute noreturn
+	exit( EXIT_FAILURE );
+#endif
 }
 
 /*
@@ -217,7 +220,10 @@ void idLib::Error( const char* fmt, ... )
 
 	common->Error( "%s", text );
 
-	exit( EXIT_FAILURE );                              // SRS - Added exit to silence build warning since Error has attribute noreturn
+#if !defined(_WIN32)
+	// SRS - Added exit to silence build warning since FatalError has attribute noreturn
+	exit( EXIT_FAILURE );
+#endif
 }
 
 /*

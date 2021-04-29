@@ -764,7 +764,8 @@ idVarDef::SetObject
 void idVarDef::SetObject( idScriptObject* object )
 {
 	assert( typeDef );
-	initialized = initializedConstant;                  // SRS - Set initialized to initializedConstant vs self-assignment
+	// SRS - Set initialized to initializedConstant vs self-assignment
+	initialized = initializedConstant;
 	assert( typeDef->Inherits( &type_object ) );
 	*value.objectPtrPtr = object;
 }

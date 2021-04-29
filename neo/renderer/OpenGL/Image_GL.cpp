@@ -551,13 +551,13 @@ void idImage::SetTexParameters()
 	}
 
 	// RB: disabled use of unreliable extension that can make the game look worse
-	// SRS - Try with feature turned back on using r_lodBias CVAR vs. hardcoded value
+	/*
 	if( glConfig.textureLODBiasAvailable && ( usage != TD_FONT ) )
 	{
 		// use a blurring LOD bias in combination with high anisotropy to fix our aliasing grate textures...
-		glTexParameterf( target, GL_TEXTURE_LOD_BIAS_EXT, /*0.5*/ r_lodBias.GetFloat() );
+		glTexParameterf( target, GL_TEXTURE_LOD_BIAS_EXT, 0.5 ); //r_lodBias.GetFloat() );
 	}
-
+	*/
 	// RB end
 
 	// set the wrap/clamp modes

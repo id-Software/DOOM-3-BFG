@@ -807,7 +807,9 @@ void idImage::GenerateImage( const byte* pic, int width, int height, textureFilt
 	{
 		AllocImage();
 
-#if defined(USE_VULKAN)
+		// RB: shouldn't be needed as the Vulkan backend is not feature complete yet
+		// I just make sure r_useSSAO is 0
+#if 0 //defined(USE_VULKAN)
 		// SRS - update layout of Ambient Occlusion image otherwise get Vulkan validation layer errors with SSAO enabled
 		if( imgName == "_ao0" || imgName == "_ao1" )
 		{
