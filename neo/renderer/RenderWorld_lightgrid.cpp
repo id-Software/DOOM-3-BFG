@@ -605,7 +605,7 @@ bool idRenderWorldLocal::LoadLightGridFile( const char* name )
 			lightGridVersion = atoi( token );
 		}
 
-		if( lightGridVersion != LGRID_VERSION )
+		if( lightGridVersion != LGRID_VERSION && lightGridVersion != 4 )
 		{
 			common->Warning( "%s has version %i instead of %i", fileName.c_str(), lightGridVersion, LGRID_VERSION );
 			delete src;
