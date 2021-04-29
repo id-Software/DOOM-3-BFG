@@ -963,8 +963,8 @@ idMath::ATan
 */
 ID_INLINE float idMath::ATan( float y, float x )
 {
-    // SRS - Don't need this assertion since atan2f(y,x) handles x=0, y=0 and x=0, y>0 or y<0 cases properly
-    // SRS - This assertion can cause game to stop prematurely when _DEBUG is defined and asserts are enabled
+	// SRS - Don't need this assertion since atan2f(y,x) handles x=0, y=0 and x=0, y>0 or y<0 cases properly
+	// SRS - This assertion can cause game to stop prematurely when _DEBUG is defined and asserts are enabled
 	//assert( fabs( y ) > idMath::FLT_SMALLEST_NON_DENORMAL || fabs( x ) > idMath::FLT_SMALLEST_NON_DENORMAL );
 	return atan2f( y, x );
 }

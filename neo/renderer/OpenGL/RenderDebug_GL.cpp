@@ -785,7 +785,7 @@ void idRenderBackend::DBG_ShowTris( drawSurf_t** drawSurfs, int numDrawSurfs )
 
 	if( r_showTris.GetInteger() == 3 )
 	{
-        GL_State( (glStateBits & ~( GLS_CULL_MASK )) | GLS_CULL_TWOSIDED );         // SRS - Added parens to silence build warnings
+		GL_State( ( glStateBits & ~( GLS_CULL_MASK ) ) | GLS_CULL_TWOSIDED );       // SRS - Added parens to silence build warnings
 	}
 
 	GL_Color( color );
@@ -794,7 +794,7 @@ void idRenderBackend::DBG_ShowTris( drawSurf_t** drawSurfs, int numDrawSurfs )
 
 	if( r_showTris.GetInteger() == 3 )
 	{
-        GL_State( (glStateBits & ~( GLS_CULL_MASK )) | GLS_CULL_FRONTSIDED );       // SRS - Added parens to silence build warnings
+		GL_State( ( glStateBits & ~( GLS_CULL_MASK ) ) | GLS_CULL_FRONTSIDED );     // SRS - Added parens to silence build warnings
 	}
 }
 

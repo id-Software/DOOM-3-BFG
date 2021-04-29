@@ -793,9 +793,9 @@ const char* fragmentInsert =
 {
 // SRS - OSX OpenGL only supports up to GLSL 4.1, but current RenderProgs shaders seem to work as-is on OSX OpenGL drivers
 #if defined(__APPLE__) && !defined(USE_VULKAN)
-    "#version 410\n"
+	"#version 410\n"
 #else
-    "#version 450\n"
+	"#version 450\n"
 #endif
 	"#pragma shader_stage( fragment )\n"
 	"#extension GL_ARB_separate_shader_objects : enable\n"
@@ -1512,7 +1512,7 @@ idStr idRenderProgManager::ConvertCG2GLSL( const idStr& in, const char* name, rp
 	idStr filenameHint = "// filename " + idStr( name ) + "\n";
 
 	// RB: changed to allow multiple versions of GLSL
-    if(  stage == SHADER_STAGE_VERTEX  )        // SRS - Remove extra parens
+	if( stage == SHADER_STAGE_VERTEX )          // SRS - Remove extra parens
 	{
 		switch( glConfig.driverType )
 		{
@@ -1561,7 +1561,7 @@ idStr idRenderProgManager::ConvertCG2GLSL( const idStr& in, const char* name, rp
 		if( vkGLSL )
 		{
 			out += "\n";
-            if(  stage == SHADER_STAGE_VERTEX  )        // SRS - Remove extra parens
+			if( stage == SHADER_STAGE_VERTEX )          // SRS - Remove extra parens
 			{
 				out += "layout( binding = 0 ) uniform UBOV {\n";
 			}

@@ -146,9 +146,9 @@ idVulkanStagingManager::Shutdown
 */
 void idVulkanStagingManager::Shutdown()
 {
-    // SRS - use vkFreeMemory (with implicit unmap) vs. vkUnmapMemory to avoid validation layer errors on shutdown
+	// SRS - use vkFreeMemory (with implicit unmap) vs. vkUnmapMemory to avoid validation layer errors on shutdown
 	//vkUnmapMemory( vkcontext.device, memory );
-    vkFreeMemory( vkcontext.device, memory, NULL );
+	vkFreeMemory( vkcontext.device, memory, NULL );
 	memory = VK_NULL_HANDLE;
 	mappedData = NULL;
 
@@ -163,9 +163,9 @@ void idVulkanStagingManager::Shutdown()
 	maxBufferSize = 0;
 	currentBuffer = 0;
 
-    // SRS - destroy command pool to avoid validation layer errors on shutdown
-    vkDestroyCommandPool( vkcontext.device, commandPool, NULL );
-    commandPool = VK_NULL_HANDLE;
+	// SRS - destroy command pool to avoid validation layer errors on shutdown
+	vkDestroyCommandPool( vkcontext.device, commandPool, NULL );
+	commandPool = VK_NULL_HANDLE;
 }
 
 /*

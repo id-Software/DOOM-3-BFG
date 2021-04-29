@@ -75,9 +75,9 @@ public:
 
 	virtual void			BufferCommandText( cmdExecution_t exec, const char* text );
 	virtual void			ExecuteCommandBuffer();
-	
+
 	virtual void			ArgCompletion_FolderExtension( const idCmdArgs& args, void( *callback )( const char* s ), const char* folder, int stripFolder, ... );
-                            // SRS - Changed stripFolder type from bool to int for compatibility with va_start()
+	// SRS - Changed stripFolder type from bool to int for compatibility with va_start()
 	virtual void			ArgCompletion_DeclName( const idCmdArgs& args, void( *callback )( const char* s ), int type );
 
 	virtual void			BufferCommandArgs( cmdExecution_t exec, const idCmdArgs& args );
@@ -798,7 +798,7 @@ idCmdSystemLocal::ArgCompletion_FolderExtension
 ============
 */
 void idCmdSystemLocal::ArgCompletion_FolderExtension( const idCmdArgs& args, void( *callback )( const char* s ), const char* folder, int stripFolder, ... )
-     // SRS - Changed stripFolder type from bool to int for compatibility with va_start()
+// SRS - Changed stripFolder type from bool to int for compatibility with va_start()
 {
 	int i;
 	idStr string;

@@ -171,7 +171,7 @@ public:
 
 	// Base for path/file auto-completion.
 	virtual void		ArgCompletion_FolderExtension( const idCmdArgs& args, void( *callback )( const char* s ), const char* folder, int stripFolder, ... ) = 0;
-                        // SRS - Changed stripFolder type from bool to int for compatibility with va_start()
+	// SRS - Changed stripFolder type from bool to int for compatibility with va_start()
 	// Base for decl name auto-completion.
 	virtual void		ArgCompletion_DeclName( const idCmdArgs& args, void( *callback )( const char* s ), int type ) = 0;
 

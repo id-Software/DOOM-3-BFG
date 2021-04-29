@@ -105,14 +105,14 @@ bool idVertexBuffer::AllocBufferObject( const void* data, int allocSize, bufferU
 	}
 	else if( usage == BU_DYNAMIC )
 	{
-        // SRS - needed to ensure host coherency for MoltenVK on OSX < 10.15.6, otherwise black screen
+		// SRS - needed to ensure host coherency for MoltenVK on OSX < 10.15.6, otherwise black screen
 #if defined(__APPLE__)
-        vmaReq.usage = VMA_MEMORY_USAGE_UNKNOWN;
-        vmaReq.requiredFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+		vmaReq.usage = VMA_MEMORY_USAGE_UNKNOWN;
+		vmaReq.requiredFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
 #else
 		vmaReq.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
 #endif
-        vmaReq.flags = VMA_MEMORY_REQUIREMENT_PERSISTENT_MAP_BIT;
+		vmaReq.flags = VMA_MEMORY_REQUIREMENT_PERSISTENT_MAP_BIT;
 	}
 
 	ID_VK_CHECK( vmaCreateBuffer( vmaAllocator, &bufferCreateInfo, &vmaReq, &apiObject, &vmaAllocation, &allocation ) );
@@ -363,12 +363,12 @@ bool idIndexBuffer::AllocBufferObject( const void* data, int allocSize, bufferUs
 	}
 	else if( usage == BU_DYNAMIC )
 	{
-        // SRS - needed to ensure host coherency for MoltenVK on OSX < 10.15.6, otherwise black screen
+		// SRS - needed to ensure host coherency for MoltenVK on OSX < 10.15.6, otherwise black screen
 #if defined(__APPLE__)
-        vmaReq.usage = VMA_MEMORY_USAGE_UNKNOWN;
-        vmaReq.requiredFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+		vmaReq.usage = VMA_MEMORY_USAGE_UNKNOWN;
+		vmaReq.requiredFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
 #else
-        vmaReq.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
+		vmaReq.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
 #endif
 		vmaReq.flags = VMA_MEMORY_REQUIREMENT_PERSISTENT_MAP_BIT;
 	}
@@ -622,14 +622,14 @@ bool idUniformBuffer::AllocBufferObject( const void* data, int allocSize, buffer
 	}
 	else if( usage == BU_DYNAMIC )
 	{
-        // SRS - needed to ensure host coherency for MoltenVK on OSX < 10.15.6, otherwise black screen
+		// SRS - needed to ensure host coherency for MoltenVK on OSX < 10.15.6, otherwise black screen
 #if defined(__APPLE__)
-        vmaReq.usage = VMA_MEMORY_USAGE_UNKNOWN;
-        vmaReq.requiredFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+		vmaReq.usage = VMA_MEMORY_USAGE_UNKNOWN;
+		vmaReq.requiredFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
 #else
-        vmaReq.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
+		vmaReq.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
 #endif
-        vmaReq.flags = VMA_MEMORY_REQUIREMENT_PERSISTENT_MAP_BIT;
+		vmaReq.flags = VMA_MEMORY_REQUIREMENT_PERSISTENT_MAP_BIT;
 	}
 
 	ID_VK_CHECK( vmaCreateBuffer( vmaAllocator, &bufferCreateInfo, &vmaReq, &apiObject, &vmaAllocation, &allocation ) );

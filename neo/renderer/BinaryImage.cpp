@@ -897,62 +897,62 @@ bool idBinaryImage::LoadFromGeneratedFile( idFile* bFile, ID_TIME_T sourceTimeSt
 		// just the multiplication of dimensions
 		assert( img.dataSize >= img.width * img.height * BitsForFormat( ( textureFormat_t )fileData.format ) / 8 );
 #if defined(__APPLE__) && defined(USE_VULKAN)
-        int imgfile_dataSize = img.dataSize;
-        // SRS - Allocate 2x memory to prepare for in-place conversion from FMT_RGB565 to FMT_RGBA8
-        if( ( textureFormat_t )fileData.format == FMT_RGB565 )
-        {
-            img.Alloc( img.dataSize * 2 );
-        }
-        else
-        {
-            img.Alloc( img.dataSize );
-        }
+		int imgfile_dataSize = img.dataSize;
+		// SRS - Allocate 2x memory to prepare for in-place conversion from FMT_RGB565 to FMT_RGBA8
+		if( ( textureFormat_t )fileData.format == FMT_RGB565 )
+		{
+			img.Alloc( img.dataSize * 2 );
+		}
+		else
+		{
+			img.Alloc( img.dataSize );
+		}
 		if( img.data == NULL )
 		{
 			return false;
 		}
 
-        // SRS - Read image data using actual on-disk data size
+		// SRS - Read image data using actual on-disk data size
 		if( bFile->Read( img.data, imgfile_dataSize ) <= 0 )
 		{
 			return false;
 		}
 
-        // SRS - Convert FMT_RGB565 16-bits to FMT_RGBA8 32-bits in place using pre-allocated space
-        if( ( textureFormat_t )fileData.format == FMT_RGB565 )
-        {
-            //SRS - Make sure we have an integer number of RGBA8 storage slots
-            assert( img.dataSize % 4 == 0 );
-            for( int pixelIndex = img.dataSize/2 - 2; pixelIndex >= 0; pixelIndex -= 2 )
-            {
+		// SRS - Convert FMT_RGB565 16-bits to FMT_RGBA8 32-bits in place using pre-allocated space
+		if( ( textureFormat_t )fileData.format == FMT_RGB565 )
+		{
+			//SRS - Make sure we have an integer number of RGBA8 storage slots
+			assert( img.dataSize % 4 == 0 );
+			for( int pixelIndex = img.dataSize / 2 - 2; pixelIndex >= 0; pixelIndex -= 2 )
+			{
 #if 1
-                // SRS - Option 1: Scale and shift algorithm
-                uint16 pixelValue_rgb565 = img.data[pixelIndex + 0] << 8 | img.data[pixelIndex + 1];
-                img.data[pixelIndex*2 + 0] = ( ( ( pixelValue_rgb565          ) >> 11 ) * 527 + 23 ) >> 6;
-                img.data[pixelIndex*2 + 1] = ( ( ( pixelValue_rgb565 & 0x07E0 ) >>  5 ) * 259 + 33 ) >> 6;
-                img.data[pixelIndex*2 + 2] = ( ( ( pixelValue_rgb565 & 0x001F )       ) * 527 + 23 ) >> 6;
+				// SRS - Option 1: Scale and shift algorithm
+				uint16 pixelValue_rgb565 = img.data[pixelIndex + 0] << 8 | img.data[pixelIndex + 1];
+				img.data[pixelIndex * 2 + 0] = ( ( ( pixelValue_rgb565 ) >> 11 ) * 527 + 23 ) >> 6;
+				img.data[pixelIndex * 2 + 1] = ( ( ( pixelValue_rgb565 & 0x07E0 ) >>  5 ) * 259 + 33 ) >> 6;
+				img.data[pixelIndex * 2 + 2] = ( ( ( pixelValue_rgb565 & 0x001F ) ) * 527 + 23 ) >> 6;
 #else
-                // SRS - Option 2: Shift and combine algorithm - is this faster?
-                uint8 pixelValue_rgb565_hi = img.data[pixelIndex + 0];
-                uint8 pixelValue_rgb565_lo = img.data[pixelIndex + 1];
-                img.data[pixelIndex*2 + 0] = ( pixelValue_rgb565_hi & 0xF8      ) | (   pixelValue_rgb565_hi          >> 5 );
-                img.data[pixelIndex*2 + 1] = ( pixelValue_rgb565_hi        << 5 ) | ( ( pixelValue_rgb565_lo & 0xE0 ) >> 3 ) | ( ( pixelValue_rgb565_hi & 0x07 ) >> 1 );
-                img.data[pixelIndex*2 + 2] = ( pixelValue_rgb565_lo        << 3 ) | ( ( pixelValue_rgb565_lo & 0x1F ) >> 2 );
+				// SRS - Option 2: Shift and combine algorithm - is this faster?
+				uint8 pixelValue_rgb565_hi = img.data[pixelIndex + 0];
+				uint8 pixelValue_rgb565_lo = img.data[pixelIndex + 1];
+				img.data[pixelIndex * 2 + 0] = ( pixelValue_rgb565_hi & 0xF8 ) | ( pixelValue_rgb565_hi          >> 5 );
+				img.data[pixelIndex * 2 + 1] = ( pixelValue_rgb565_hi        << 5 ) | ( ( pixelValue_rgb565_lo & 0xE0 ) >> 3 ) | ( ( pixelValue_rgb565_hi & 0x07 ) >> 1 );
+				img.data[pixelIndex * 2 + 2] = ( pixelValue_rgb565_lo        << 3 ) | ( ( pixelValue_rgb565_lo & 0x1F ) >> 2 );
 #endif
-                img.data[pixelIndex*2 + 3] = 0xFF;
-            }
-        }
+				img.data[pixelIndex * 2 + 3] = 0xFF;
+			}
+		}
 #else
-        img.Alloc( img.dataSize );
-        if( img.data == NULL )
-        {
-            return false;
-        }
+		img.Alloc( img.dataSize );
+		if( img.data == NULL )
+		{
+			return false;
+		}
 
-        if( bFile->Read( img.data, img.dataSize ) <= 0 )
-        {
-            return false;
-        }
+		if( bFile->Read( img.data, img.dataSize ) <= 0 )
+		{
+			return false;
+		}
 #endif
 	}
 

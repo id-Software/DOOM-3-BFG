@@ -354,7 +354,7 @@ ID_INLINE _type_* idBlockAlloc<_type_, _blockSize_, memTag>::Alloc()
 	_type_ * t = ( _type_* ) element->buffer;
 	if( clearAllocs )
 	{
-        memset( (void*)t, 0, sizeof( _type_ ) );    // SRS - Added (void*) cast to silence build-time warning
+		memset( ( void* )t, 0, sizeof( _type_ ) );  // SRS - Added (void*) cast to silence build-time warning
 	}
 	new( t ) _type_;
 	return t;

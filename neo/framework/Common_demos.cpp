@@ -248,8 +248,8 @@ void idCommonLocal::StartPlayingRenderDemo( idStr demoName )
 		common->Printf( "couldn't open %s\n", demoName.c_str() );
 		delete readDemo;
 		readDemo = NULL;
-        
-        CreateMainMenu();                   // SRS - drop back to main menu if demo playback fails
+
+		CreateMainMenu();                   // SRS - drop back to main menu if demo playback fails
 		StartMenu();
 		return;
 	}
@@ -259,11 +259,11 @@ void idCommonLocal::StartPlayingRenderDemo( idStr demoName )
 	if( opcode != DS_VERSION )
 	{
 		common->Printf( "StartPlayingRenderDemo invalid demo file\n" );
-        readDemo->Close();
-        delete readDemo;
-        readDemo = NULL;
-		
-        CreateMainMenu();                   // SRS - drop back to main menu if demo playback fails
+		readDemo->Close();
+		delete readDemo;
+		readDemo = NULL;
+
+		CreateMainMenu();                   // SRS - drop back to main menu if demo playback fails
 		StartMenu();
 		return;
 	}
@@ -272,35 +272,35 @@ void idCommonLocal::StartPlayingRenderDemo( idStr demoName )
 	if( demoVersion != RENDERDEMO_VERSION )
 	{
 		common->Printf( "StartPlayingRenderDemo got version %d, expected version %d\n", demoVersion, RENDERDEMO_VERSION );
-        readDemo->Close();
-        delete readDemo;
-        readDemo = NULL;
+		readDemo->Close();
+		delete readDemo;
+		readDemo = NULL;
 
-        CreateMainMenu();                   // SRS - drop back to main menu if demo playback fails
+		CreateMainMenu();                   // SRS - drop back to main menu if demo playback fails
 		StartMenu();
 		return;
 	}
-	
-    numDemoFrames = 0;                      // SRS - Moved ahead of first call to AdvanceRenderDemo to properly handle demoshots
-    numShotFrames = 0;                      // SRS - Initialize count of demoShot frames to play before timeout to main menu
 
-    renderSystem->BeginLevelLoad();         // SRS - Free static data from previous level before loading demo assets
-    soundSystem->BeginLevelLoad();          // SRS - Free sound media from previous level before loading demo assets
-    declManager->BeginLevelLoad();          // SRS - Clear declaration manager data before loading demo assets
-    uiManager->BeginLevelLoad();            // SRS - Clear gui manager data before loading demo assets
+	numDemoFrames = 0;                      // SRS - Moved ahead of first call to AdvanceRenderDemo to properly handle demoshots
+	numShotFrames = 0;                      // SRS - Initialize count of demoShot frames to play before timeout to main menu
+
+	renderSystem->BeginLevelLoad();         // SRS - Free static data from previous level before loading demo assets
+	soundSystem->BeginLevelLoad();          // SRS - Free sound media from previous level before loading demo assets
+	declManager->BeginLevelLoad();          // SRS - Clear declaration manager data before loading demo assets
+	uiManager->BeginLevelLoad();            // SRS - Clear gui manager data before loading demo assets
 
 	AdvanceRenderDemo( true );              // SRS - Call AdvanceRenderDemo() once to load map and initial assets (like level load)
-    
-    renderSystem->EndLevelLoad();           // SRS - Define static data for use by RB_StencilShadowPass if stencil shadows enabled
-    soundSystem->EndLevelLoad();
-    declManager->EndLevelLoad();
-    uiManager->EndLevelLoad( "" );          // SRS - FIXME: No gui assets are currently saved/reloaded in demo file, fix later?
 
-    Game()->StartDemoPlayback( renderWorld );
-    
-    renderWorld->GenerateAllInteractions();
-    
-    soundSystem->SetPlayingSoundWorld( soundWorld );
+	renderSystem->EndLevelLoad();           // SRS - Define static data for use by RB_StencilShadowPass if stencil shadows enabled
+	soundSystem->EndLevelLoad();
+	declManager->EndLevelLoad();
+	uiManager->EndLevelLoad( "" );          // SRS - FIXME: No gui assets are currently saved/reloaded in demo file, fix later?
+
+	Game()->StartDemoPlayback( renderWorld );
+
+	renderWorld->GenerateAllInteractions();
+
+	soundSystem->SetPlayingSoundWorld( soundWorld );
 
 	timeDemoStartTime = Sys_Milliseconds();
 }
@@ -318,15 +318,15 @@ void idCommonLocal::TimeRenderDemo( const char* demoName, bool twice, bool quit 
 
 	if( twice && readDemo )
 	{
-        timeDemo = TD_YES;                      // SRS - Set timeDemo to TD_YES to disable time demo playback pause when window not in focus
-        
-        while( readDemo )
+		timeDemo = TD_YES;                      // SRS - Set timeDemo to TD_YES to disable time demo playback pause when window not in focus
+
+		while( readDemo )
 		{
 //          const bool captureToImage = false;
 //          UpdateScreen( captureToImage );
-            BusyWait();                         // SRS - Call BusyWait() vs. UpdateScreen() to avoid Pump() timeout messages in console
-            AdvanceRenderDemo( true );
-            eventLoop->RunEventLoop();          // SRS - Run event loop to allow keyboard escape to cancel first pass of the demo
+			BusyWait();                         // SRS - Call BusyWait() vs. UpdateScreen() to avoid Pump() timeout messages in console
+			AdvanceRenderDemo( true );
+			eventLoop->RunEventLoop();          // SRS - Run event loop to allow keyboard escape to cancel first pass of the demo
 		}
 
 		StartPlayingRenderDemo( demo );
@@ -335,7 +335,7 @@ void idCommonLocal::TimeRenderDemo( const char* demoName, bool twice, bool quit 
 
 	if( !readDemo )
 	{
-        timeDemo = TD_NO;                       // SRS - Make sure timeDemo flag is off if readDemo is NULL
+		timeDemo = TD_NO;                       // SRS - Make sure timeDemo flag is off if readDemo is NULL
 		return;
 	}
 
@@ -523,13 +523,15 @@ void idCommonLocal::AdvanceRenderDemo( bool singleFrameOnly )
 			case DS_FINISHED:
 				if( numDemoFrames == 1 )
 				{
-                    // if the demo has a single frame (a demoShot), continuously replay
-                    // the renderView that has already been read
-                    if ( numShotFrames++ < com_engineHz_latched*10 )    // SRS - play demoShot for min 10 sec then timeout
-                        return;
-                }
-                LeaveGame();                                            // SRS - drop back to main menu after demo playback is finished
-                return;
+					// if the demo has a single frame (a demoShot), continuously replay
+					// the renderView that has already been read
+					if( numShotFrames++ < com_engineHz_latched * 10 )   // SRS - play demoShot for min 10 sec then timeout
+					{
+						return;
+					}
+				}
+				LeaveGame();                                            // SRS - drop back to main menu after demo playback is finished
+				return;
 			case DS_RENDER:
 				if( renderWorld->ProcessDemoCommand( readDemo, &currentDemoRenderView, &demoTimeOffset ) )
 				{

@@ -76,12 +76,12 @@ static const char* g_instanceExtensions[ g_numInstanceExtensions ] =
 
 // SRS - needed for MoltenVK portability implementation on OSX
 #if defined(__APPLE__)
-// required for VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME visibility (as of SDK 1.2.170.0)
-#include <vulkan/vulkan_beta.h>
-#if defined(USE_MoltenVK)
-// optionally needed for runtime access to fullImageViewSwizzle (instead of env var MVK_CONFIG_FULL_IMAGE_VIEW_SWIZZLE = 1)
-#include <MoltenVK/vk_mvk_moltenvk.h>
-#endif
+	// required for VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME visibility (as of SDK 1.2.170.0)
+	#include <vulkan/vulkan_beta.h>
+	#if defined(USE_MoltenVK)
+		// optionally needed for runtime access to fullImageViewSwizzle (instead of env var MVK_CONFIG_FULL_IMAGE_VIEW_SWIZZLE = 1)
+		#include <MoltenVK/vk_mvk_moltenvk.h>
+	#endif
 #endif
 
 static const int g_numDebugInstanceExtensions = 1;
@@ -95,7 +95,7 @@ static const char* g_validationLayers[ g_numValidationLayers ] =
 {
 // SRS - use MoltenVK validation layer on macOS when using libMoltenVK in place of libvulkan
 #if defined(__APPLE__) && defined(USE_MoltenVK)
-    "MoltenVK"
+	"MoltenVK"
 #else
 	"VK_LAYER_KHRONOS_validation"
 #endif
@@ -303,7 +303,7 @@ static void CreateVulkanInstance()
 
 		ValidateValidationLayers();
 	}
-    // SRS - Add OSX case
+	// SRS - Add OSX case
 #if defined(__linux__) || defined(__APPLE__)
 	auto extensions = get_required_extensions( sdlInstanceExtensions, enableLayers );
 	createInfo.enabledExtensionCount = static_cast<uint32_t>( extensions.size() );
@@ -458,7 +458,7 @@ static void CreateSurface()
 	ID_VK_CHECK( vkCreateWaylandSurfaceKHR( info.inst, &createInfo, NULL, &info.surface ) );
 
 #else
-    // SRS - Add OSX case
+	// SRS - Add OSX case
 #if defined(__linux__) || defined(__APPLE__)
 	if( !SDL_Vulkan_CreateSurface( vkcontext.sdlWindow, vkcontext.instance, &vkcontext.surface ) )
 	{
@@ -523,15 +523,15 @@ static void PopulateDeviceExtensions( const idList< VkExtensionProperties >& ext
 	{
 		//idLib::Printf( "Checking Vulkan device extension [%s]\n", extensionProps[ i ].extensionName );
 
-        // SRS - needed for MoltenVK portability implementation on OSX
+		// SRS - needed for MoltenVK portability implementation on OSX
 #if defined(__APPLE__)
-        if( idStr::Icmp( extensionProps[ i ].extensionName, VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME ) == 0 )
-        {
-            extensions.AddUnique( VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME );
-            continue;
-        }
+		if( idStr::Icmp( extensionProps[ i ].extensionName, VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME ) == 0 )
+		{
+			extensions.AddUnique( VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME );
+			continue;
+		}
 #endif
-        
+
 		if( idStr::Icmp( extensionProps[ i ].extensionName, VK_EXT_DEBUG_MARKER_EXTENSION_NAME ) == 0 && enableLayers )
 		{
 			extensions.AddUnique( VK_EXT_DEBUG_MARKER_EXTENSION_NAME );
@@ -737,16 +737,16 @@ static void CreateLogicalDeviceAndQueues()
 		devqInfo.Append( qinfo );
 	}
 
-    // SRS - needed for MoltenVK portability implementation on OSX
+	// SRS - needed for MoltenVK portability implementation on OSX
 #if defined(__APPLE__)
-    VkPhysicalDeviceFeatures2 deviceFeatures2 = {};
-    VkPhysicalDevicePortabilitySubsetFeaturesKHR portabilityFeatures = {};
+	VkPhysicalDeviceFeatures2 deviceFeatures2 = {};
+	VkPhysicalDevicePortabilitySubsetFeaturesKHR portabilityFeatures = {};
 
-    deviceFeatures2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
-    deviceFeatures2.pNext = &portabilityFeatures;
-    portabilityFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PORTABILITY_SUBSET_FEATURES_KHR;
-               
-    vkGetPhysicalDeviceFeatures2( vkcontext.physicalDevice, &deviceFeatures2 );
+	deviceFeatures2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+	deviceFeatures2.pNext = &portabilityFeatures;
+	portabilityFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PORTABILITY_SUBSET_FEATURES_KHR;
+
+	vkGetPhysicalDeviceFeatures2( vkcontext.physicalDevice, &deviceFeatures2 );
 #else
 	VkPhysicalDeviceFeatures deviceFeatures = {};
 	deviceFeatures.textureCompressionBC = VK_TRUE;
@@ -760,11 +760,11 @@ static void CreateLogicalDeviceAndQueues()
 
 	VkDeviceCreateInfo info = {};
 	info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-    // SRS - needed for MoltenVK portability implementation on OSX
+	// SRS - needed for MoltenVK portability implementation on OSX
 #if defined(__APPLE__)
-    info.pNext = &deviceFeatures2;
+	info.pNext = &deviceFeatures2;
 #else
-    info.pEnabledFeatures = &deviceFeatures;
+	info.pEnabledFeatures = &deviceFeatures;
 #endif
 	info.queueCreateInfoCount = devqInfo.Num();
 	info.pQueueCreateInfos = devqInfo.Ptr();
@@ -886,7 +886,7 @@ static VkExtent2D ChooseSurfaceExtent( VkSurfaceCapabilitiesKHR& caps )
 	int width = glConfig.nativeScreenWidth;
 	int height = glConfig.nativeScreenHeight;
 
-    // SRS - Add OSX case
+	// SRS - Add OSX case
 #if defined(__linux__) || defined(__APPLE__)
 	SDL_Vulkan_GetDrawableSize( vkcontext.sdlWindow, &width, &height );
 
@@ -1154,13 +1154,13 @@ static void CreateRenderTargets()
 	{
 		vkcontext.sampleCount = VK_SAMPLE_COUNT_2_BIT;
 	}
-    
+
 #if defined(__APPLE__)
-    // SRS - Disable MSAA for OSX since shaderStorageImageMultisample is disabled on MoltenVK for now
-    if( samples >= 2 )
-    {
-        vkcontext.sampleCount = VK_SAMPLE_COUNT_1_BIT;
-    }
+	// SRS - Disable MSAA for OSX since shaderStorageImageMultisample is disabled on MoltenVK for now
+	if( samples >= 2 )
+	{
+		vkcontext.sampleCount = VK_SAMPLE_COUNT_1_BIT;
+	}
 #endif
 
 	// Select Depth Format
@@ -1179,7 +1179,7 @@ static void CreateRenderTargets()
 	depthOptions.format = FMT_DEPTH;
 
 	// Eric: See if this fixes resizing
-    // SRS - Add OSX case
+	// SRS - Add OSX case
 #if defined(__linux__) || defined(__APPLE__)
 	gpuInfo_t& gpu = *vkcontext.gpu;
 	VkExtent2D extent = ChooseSurfaceExtent( gpu.surfaceCaps );
@@ -1300,7 +1300,7 @@ static void CreateRenderPass()
 	depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 
 	// RB
-    // SRS - reenable, otherwise get Vulkan validation layer warnings
+	// SRS - reenable, otherwise get Vulkan validation layer warnings
 	depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 
 	depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
@@ -1507,7 +1507,7 @@ void idRenderBackend::Init()
 
 
 	// DG: make sure SDL has setup video so getting supported modes in R_SetNewMode() works
-    // SRS - Add OSX case
+	// SRS - Add OSX case
 #if ( defined(__linux__) || defined(__APPLE__) ) && defined(USE_VULKAN)
 	VKimp_PreInit();
 #else
@@ -1529,14 +1529,14 @@ void idRenderBackend::Init()
 	idLib::Printf( "Creating Vulkan Instance...\n" );
 	CreateVulkanInstance();
 
-    // SRS - On macOS optionally set fullImageViewSwizzle to TRUE (instead of env var MVK_CONFIG_FULL_IMAGE_VIEW_SWIZZLE = 1)
+	// SRS - On macOS optionally set fullImageViewSwizzle to TRUE (instead of env var MVK_CONFIG_FULL_IMAGE_VIEW_SWIZZLE = 1)
 #if defined(__APPLE__) && defined(USE_MoltenVK)
-    MVKConfiguration    pConfig;
-    size_t              pConfigSize = sizeof( pConfig );
-       
-    vkGetMoltenVKConfigurationMVK( vkcontext.instance, &pConfig, &pConfigSize );
-    pConfig.fullImageViewSwizzle = VK_TRUE;
-    vkSetMoltenVKConfigurationMVK( vkcontext.instance, &pConfig, &pConfigSize );
+	MVKConfiguration    pConfig;
+	size_t              pConfigSize = sizeof( pConfig );
+
+	vkGetMoltenVKConfigurationMVK( vkcontext.instance, &pConfig, &pConfigSize );
+	pConfig.fullImageViewSwizzle = VK_TRUE;
+	vkSetMoltenVKConfigurationMVK( vkcontext.instance, &pConfig, &pConfigSize );
 #endif
 
 	// create the windowing interface
@@ -1703,7 +1703,7 @@ void idRenderBackend::Shutdown()
 	ClearContext();
 
 	// destroy main window
-    // SRS - Add OSX case
+	// SRS - Add OSX case
 #if ( defined(__linux__) || defined(__APPLE__) ) && defined(USE_VULKAN)
 	VKimp_Shutdown();
 #else

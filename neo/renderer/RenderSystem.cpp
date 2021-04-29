@@ -742,15 +742,15 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 
 			backend.pc.gpuPostProcessingMicroSec = ( gpuEndNanoseconds - gpuStartNanoseconds ) / 1000;
 		}
-        
+
 // SRS - For OSX OpenGL calculate total rendering time vs direct measurement due to missing GL_TIMESTAMP support in Apple OpenGL 4.1
 #if defined(__APPLE__)
-        backend.pc.gpuMicroSec = backend.pc.gpuDepthMicroSec + backend.pc.gpuScreenSpaceAmbientOcclusionMicroSec + backend.pc.gpuAmbientPassMicroSec + backend.pc.gpuInteractionsMicroSec + backend.pc.gpuShaderPassMicroSec + backend.pc.gpuPostProcessingMicroSec + commonLocal.GetRendererIdleMicroseconds();
-        
-        if( gpuMicroSec != NULL )
-        {
-            *gpuMicroSec = backend.pc.gpuMicroSec;
-        }
+		backend.pc.gpuMicroSec = backend.pc.gpuDepthMicroSec + backend.pc.gpuScreenSpaceAmbientOcclusionMicroSec + backend.pc.gpuAmbientPassMicroSec + backend.pc.gpuInteractionsMicroSec + backend.pc.gpuShaderPassMicroSec + backend.pc.gpuPostProcessingMicroSec + commonLocal.GetRendererIdleMicroseconds();
+
+		if( gpuMicroSec != NULL )
+		{
+			*gpuMicroSec = backend.pc.gpuMicroSec;
+		}
 #endif
 
 		for( int i = 0; i < MRB_TOTAL_QUERIES; i++ )

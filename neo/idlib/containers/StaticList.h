@@ -150,9 +150,9 @@ Note:	The data is merely moved around the list, so any pointers to data within t
 template< class type, int size >
 ID_INLINE void idStaticList<type, size>::Sort( const idSort<type>& sort )
 {
-/*  if( list == NULL )  */
-    if( Num() <= 0 )                // SRS - Instead of checking this->list for NULL, check this->Num() for empty list
-    {
+	/*  if( list == NULL )  */
+	if( Num() <= 0 )                // SRS - Instead of checking this->list for NULL, check this->Num() for empty list
+	{
 		return;
 	}
 	sort.Sort( Ptr(), Num() );

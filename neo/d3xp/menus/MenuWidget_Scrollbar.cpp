@@ -268,7 +268,7 @@ bool idMenuWidget_ScrollBar::HandleAction( idWidgetAction& action, const idWidge
 			CalculatePosition( x, y );
 			return true;
 		}
-		case ( widgetAction_t ) WIDGET_ACTION_EVENT_DRAG_STOP:              // SRS - Cast actionHandler_t to widgetAction_t
+		case( widgetAction_t ) WIDGET_ACTION_EVENT_DRAG_STOP:               // SRS - Cast actionHandler_t to widgetAction_t
 		{
 			dragging = false;
 			return true;

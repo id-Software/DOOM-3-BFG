@@ -134,7 +134,7 @@ struct gpuInfo_t
 struct vulkanContext_t
 {
 	// Eric: If on linux, use this to pass SDL_Window pointer to the SDL_Vulkan_* methods not in sdl_vkimp.cpp file.
-    // SRS - Add OSX case
+	// SRS - Add OSX case
 #if defined(__linux__) || defined(__APPLE__)
 	SDL_Window*						sdlWindow = nullptr;
 #endif

@@ -1338,7 +1338,7 @@ void idCommonLocal::Init( int argc, const char* const* argv, const char* cmdline
 			// display the legal splash screen
 			// No clue why we have to render this twice to show up...
 			RenderSplash();
-            // SRS - OSX needs this for some OpenGL drivers, otherwise renders leftover image before splash
+			// SRS - OSX needs this for some OpenGL drivers, otherwise renders leftover image before splash
 			RenderSplash();
 		}
 
@@ -1794,7 +1794,7 @@ idCommonLocal::ProcessEvent
 bool idCommonLocal::ProcessEvent( const sysEvent_t* event )
 {
 	// hitting escape anywhere brings up the menu
-    // SRS - allow escape during demo playback to cancel
+	// SRS - allow escape during demo playback to cancel
 	if( game && ( game->IsInGame() || readDemo ) )
 	{
 		if( event->evType == SE_KEY && event->evValue2 == 1 && ( event->evValue == K_ESCAPE || event->evValue == K_JOY9 ) )
@@ -1815,16 +1815,16 @@ bool idCommonLocal::ProcessEvent( const sysEvent_t* event )
 					}
 
 					console->Close();
-                    
-                    // SRS - cancel demo playback and return to the main menu
-                    if ( readDemo )
-                    {
-                        LeaveGame();
-                    }
-                    else
-                    {
-                        StartMenu();
-                    }
+
+					// SRS - cancel demo playback and return to the main menu
+					if( readDemo )
+					{
+						LeaveGame();
+					}
+					else
+					{
+						StartMenu();
+					}
 					return true;
 				}
 				else

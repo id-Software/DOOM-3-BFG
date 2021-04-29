@@ -93,9 +93,9 @@ public:
 	}
 
 	cpuid_t							cpuid;
-    
-    virtual ~idSIMDProcessor() {}                   // SRS - Added virtual destructor
-	
+
+	virtual ~idSIMDProcessor() {}                   // SRS - Added virtual destructor
+
 	virtual const char* VPCALL		GetName() const = 0;
 
 	virtual	void VPCALL MinMax( float& min,			float& max,				const float* src,		const int count ) = 0;

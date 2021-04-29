@@ -167,7 +167,7 @@ idVulkanBlock::Init
 */
 bool idVulkanBlock::Init()
 {
-    //SRS - Changed UINT64_MAX to UINT32_MAX for type consistency, otherwise test is always false
+	//SRS - Changed UINT64_MAX to UINT32_MAX for type consistency, otherwise test is always false
 	if( memoryTypeIndex == UINT32_MAX )
 	{
 		return false;
@@ -496,7 +496,7 @@ void idVulkanBlock::Print()
 	idLib::Printf( "Type Index: %u\n", memoryTypeIndex );
 	idLib::Printf( "Usage:      %s\n", memoryUsageStrings[ usage ] );
 	idLib::Printf( "Count:      %d\n", count );
-    //SRS - Changed %lu to %llu
+	//SRS - Changed %lu to %llu
 	idLib::Printf( "Size:       %llu\n", size );
 	idLib::Printf( "Allocated:  %llu\n", allocated );
 	idLib::Printf( "Next Block: %u\n", nextBlockId );
@@ -507,8 +507,8 @@ void idVulkanBlock::Print()
 		idLib::Printf( "{\n" );
 
 		idLib::Printf( "\tId:     %u\n", current->id );
-        //SRS - Changed %lu to %llu
-        idLib::Printf( "\tSize:   %llu\n", current->size );
+		//SRS - Changed %lu to %llu
+		idLib::Printf( "\tSize:   %llu\n", current->size );
 		idLib::Printf( "\tOffset: %llu\n", current->offset );
 		idLib::Printf( "\tType:   %s\n", allocationTypeStrings[ current->type ] );
 
@@ -682,7 +682,7 @@ void idVulkanAllocator::Print()
 {
 	idLib::Printf( "Device Local MB: %d\n", int( deviceLocalMemoryBytes / 1024 * 1024 ) );
 	idLib::Printf( "Host Visible MB: %d\n", int( hostVisibleMemoryBytes / 1024 * 1024 ) );
-    //SRS - Changed %lu to %llu
+	//SRS - Changed %lu to %llu
 	idLib::Printf( "Buffer Granularity: %llu\n", bufferImageGranularity );
 	idLib::Printf( "\n" );
 
@@ -706,7 +706,7 @@ CONSOLE_COMMAND( Vulkan_PrintHeapInfo, "Print out the heap information for this 
 	for( uint32 i = 0; i < props.memoryHeapCount; ++i )
 	{
 		VkMemoryHeap heap = props.memoryHeaps[ i ];
-        //SRS - Changed %lu to %llu
+		//SRS - Changed %lu to %llu
 		idLib::Printf( "id=%d, size=%llu, flags=", i, heap.size );
 		if( heap.flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT )
 		{

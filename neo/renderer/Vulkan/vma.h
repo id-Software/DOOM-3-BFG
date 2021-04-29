@@ -776,20 +776,22 @@ remove them if not needed.
 // For C++17 aligned_alloc is available with the 10.15 SDK already.
 void* aligned_alloc( size_t alignment, size_t size )
 {
-    // alignment must be >= sizeof(void*)
-    if(alignment < sizeof(void*))
-    {
-        alignment = sizeof(void*);
-    }
-    
-    void *pointer;
-    if(posix_memalign(&pointer, alignment, size) == 0)
-        return pointer;
-    return NULL;
+	// alignment must be >= sizeof(void*)
+	if( alignment < sizeof( void* ) )
+	{
+		alignment = sizeof( void* );
+	}
+
+	void* pointer;
+	if( posix_memalign( &pointer, alignment, size ) == 0 )
+	{
+		return pointer;
+	}
+	return NULL;
 }
 #endif
 #elif !defined(_WIN32)
-	#include <malloc.h> // for aligned_alloc()
+#include <malloc.h> // for aligned_alloc()
 #endif
 
 // Normal assert to check for programmer's errors, especially in Debug configuration.
@@ -3488,7 +3490,7 @@ void VmaBlock::PrintDetailedMap( class VmaStringBuilder& sb ) const
 	sb.Add( ",\n\t\t\t\"FreeBytes\": " );
 	sb.AddNumber( m_SumFreeSize );
 	sb.Add( ",\n\t\t\t\"Suballocations\": " );
-    //SRS - cast to uint32_t to avoid type ambiguity
+	//SRS - cast to uint32_t to avoid type ambiguity
 	sb.AddNumber( ( uint32_t )m_Suballocations.size() );
 	sb.Add( ",\n\t\t\t\"FreeSuballocations\": " );
 	sb.AddNumber( m_FreeCount );
@@ -4954,7 +4956,7 @@ void VmaAllocator_T::PrintDetailedMap( VmaStringBuilder& sb )
 					sb.Add( ",\n\"OwnAllocations\": {\n\t\"Type " );
 					ownAllocationsStarted = true;
 				}
-                //SRS - cast to uint32_t to avoid type ambiguity, memTypeIndex is an unsigned int
+				//SRS - cast to uint32_t to avoid type ambiguity, memTypeIndex is an unsigned int
 				sb.AddNumber( ( uint32_t )memTypeIndex );
 				if( blockVectorType == VMA_BLOCK_VECTOR_TYPE_MAPPED )
 				{
@@ -5006,7 +5008,7 @@ void VmaAllocator_T::PrintDetailedMap( VmaStringBuilder& sb )
 						sb.Add( ",\n\"Allocations\": {\n\t\"Type " );
 						allocationsStarted = true;
 					}
-                    //SRS - cast to uint32_t to avoid type ambiguity, memTypeIndex is an unsigned int
+					//SRS - cast to uint32_t to avoid type ambiguity, memTypeIndex is an unsigned int
 					sb.AddNumber( ( uint32_t )memTypeIndex );
 					if( blockVectorType == VMA_BLOCK_VECTOR_TYPE_MAPPED )
 					{
