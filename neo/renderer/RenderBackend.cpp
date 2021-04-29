@@ -1366,7 +1366,7 @@ void idRenderBackend::DrawSingleInteraction( drawInteraction_t* din, bool useFas
 		renderProgManager.SetUniformValue( RENDERPARM_SCREENCORRECTIONFACTOR, probeSize.ToFloatPtr() ); // rpScreenCorrectionFactor
 
 		// specular cubemap blend weights
-		renderProgManager.SetUniformValue( RENDERPARM_USER0, viewDef->radianceImageBlends.ToFloatPtr() );
+		renderProgManager.SetUniformValue( RENDERPARM_LOCALLIGHTORIGIN, viewDef->radianceImageBlends.ToFloatPtr() );
 
 		if( specUsage == TD_SPECULAR_PBR_RMAO || specUsage == TD_SPECULAR_PBR_RMAOD )
 		{
@@ -1448,7 +1448,7 @@ void idRenderBackend::DrawSingleInteraction( drawInteraction_t* din, bool useFas
 		SetVertexParm( RENDERPARM_WOBBLESKY_Z, probeCenter.ToFloatPtr() );
 
 		// specular cubemap blend weights
-		renderProgManager.SetUniformValue( RENDERPARM_GLOBALLIGHTORIGIN, viewDef->radianceImageBlends.ToFloatPtr() );
+		renderProgManager.SetUniformValue( RENDERPARM_LOCALLIGHTORIGIN, viewDef->radianceImageBlends.ToFloatPtr() );
 
 		if( specUsage == TD_SPECULAR_PBR_RMAO || specUsage == TD_SPECULAR_PBR_RMAOD )
 		{
@@ -2411,16 +2411,6 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 			R_GlobalPointToLocal( drawSurf->space->modelMatrix, viewDef->renderView.vieworg, localViewOrigin.ToVec3() );
 			SetVertexParm( RENDERPARM_LOCALVIEWORIGIN, localViewOrigin.ToFloatPtr() );
 
-			//if( !isWorldModel )
-			//{
-			//	// tranform the light direction into model local space
-			//	idVec3 globalLightDirection( 0.0f, 0.0f, -1.0f ); // HACK
-			//	idVec4 localLightDirection( 0.0f );
-			//	R_GlobalVectorToLocal( drawSurf->space->modelMatrix, globalLightDirection, localLightDirection.ToVec3() );
-			//
-			//	SetVertexParm( RENDERPARM_LOCALLIGHTORIGIN, localLightDirection.ToFloatPtr() );
-			//}
-
 			// RB: if we want to store the normals in world space so we need the model -> world matrix
 			idRenderMatrix modelMatrix;
 			idRenderMatrix::Transpose( *( idRenderMatrix* )drawSurf->space->modelMatrix, modelMatrix );
@@ -2432,27 +2422,6 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 			R_MatrixTranspose( drawSurf->space->modelViewMatrix, modelViewMatrixTranspose );
 			SetVertexParms( RENDERPARM_MODELVIEWMATRIX_X, modelViewMatrixTranspose, 4 );
 		}
-
-#if 0
-		if( !isWorldModel )
-		{
-			idVec4 directedColor;
-			directedColor.x = drawSurf->space->gridDirectedLight.x;
-			directedColor.y = drawSurf->space->gridDirectedLight.y;
-			directedColor.z = drawSurf->space->gridDirectedLight.z;
-			directedColor.w = 1;
-
-			idVec4 ambientColor;
-			ambientColor.x = drawSurf->space->gridAmbientLight.x;
-			ambientColor.y = drawSurf->space->gridAmbientLight.y;
-			ambientColor.z = drawSurf->space->gridAmbientLight.z;
-			ambientColor.w = 1;
-
-			renderProgManager.SetRenderParm( RENDERPARM_COLOR, directedColor.ToFloatPtr() );
-			renderProgManager.SetRenderParm( RENDERPARM_AMBIENT_COLOR, ambientColor.ToFloatPtr() );
-		}
-		float ambientBoost = r_useHDR.GetBool() ? 1.5 : 1.0;
-#endif
 
 		/*
 		uint64 surfGLState = 0;

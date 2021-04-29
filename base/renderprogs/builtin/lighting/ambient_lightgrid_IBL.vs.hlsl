@@ -135,10 +135,6 @@ void main( VS_IN vertex, out VS_OUT result )
 
 	float4 defaultTexCoord = float4( 0.0f, 0.5f, 0.0f, 1.0f );
 
-	//calculate vector to light
-	//float4 toLight = rpLocalLightOrigin;
-	float4 toLight = normalize( float4( 0.0f, 0.5f, 1.0f, 1.0f ) );
-
 	//--------------------------------------------------------------
 
 

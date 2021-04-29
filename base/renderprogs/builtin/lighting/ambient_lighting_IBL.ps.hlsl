@@ -272,9 +272,9 @@ void main( PS_IN fragment, out PS_OUT result )
 
 	normalizedOctCoordZeroOne = OctTexCoord( reflectionVector );
 
-	float3 radiance = textureLod( samp8, normalizedOctCoordZeroOne, mip ).rgb * rpGlobalLightOrigin.x;
-	radiance += textureLod( samp9, normalizedOctCoordZeroOne, mip ).rgb * rpGlobalLightOrigin.y;
-	radiance += textureLod( samp10, normalizedOctCoordZeroOne, mip ).rgb * rpGlobalLightOrigin.z;
+	float3 radiance = textureLod( samp8, normalizedOctCoordZeroOne, mip ).rgb * rpLocalLightOrigin.x;
+	radiance += textureLod( samp9, normalizedOctCoordZeroOne, mip ).rgb * rpLocalLightOrigin.y;
+	radiance += textureLod( samp10, normalizedOctCoordZeroOne, mip ).rgb * rpLocalLightOrigin.z;
 	//radiance = float3( 0.0 );
 
 	float2 envBRDF  = texture( samp3, float2( max( vDotN, 0.0 ), roughness ) ).rg;

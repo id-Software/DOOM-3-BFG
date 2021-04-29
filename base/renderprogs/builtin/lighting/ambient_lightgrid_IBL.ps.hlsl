@@ -44,8 +44,6 @@ uniform sampler2D	samp8 : register(s8); // texture 8 is the radiance cube map 1
 uniform sampler2D	samp9 : register(s9); // texture 9 is the radiance cube map 2
 uniform sampler2D	samp10 : register(s10); // texture 10 is the radiance cube map 3
 
-uniform float4 rpUser0 : register( c128 );
-
 struct PS_IN 
 {
 	half4 position	: VPOS;
@@ -394,10 +392,9 @@ void main( PS_IN fragment, out PS_OUT result )
 	normalizedOctCoord = octEncode( reflectionVector );
 	normalizedOctCoordZeroOne = ( normalizedOctCoord + float2( 1.0 ) ) * 0.5;
 
-	float3 radiance = textureLod( samp8, normalizedOctCoordZeroOne, mip ).rgb * rpUser0.x;
-	radiance += textureLod( samp9, normalizedOctCoordZeroOne, mip ).rgb * rpUser0.y;
-	radiance += textureLod( samp10, normalizedOctCoordZeroOne, mip ).rgb * rpUser0.z;
-
+	float3 radiance = textureLod( samp8, normalizedOctCoordZeroOne, mip ).rgb * rpLocalLightOrigin.x;
+	radiance += textureLod( samp9, normalizedOctCoordZeroOne, mip ).rgb * rpLocalLightOrigin.y;
+	radiance += textureLod( samp10, normalizedOctCoordZeroOne, mip ).rgb * rpLocalLightOrigin.z;
 	//radiance = float3( 0.0 );
 
 	// RB: HACK dim down room radiance by better local irradiance brightness
