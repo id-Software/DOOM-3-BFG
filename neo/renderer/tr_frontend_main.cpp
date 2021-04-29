@@ -454,6 +454,121 @@ static void R_SetupSplitFrustums( viewDef_t* viewDef )
 		}
 	}
 }
+
+class idSort_CompareEnvprobe : public idSort_Quick< RenderEnvprobeLocal*, idSort_CompareEnvprobe >
+{
+	idVec3	viewOrigin;
+
+public:
+	idSort_CompareEnvprobe( const idVec3& origin )
+	{
+		viewOrigin = origin;
+	}
+
+	int Compare( RenderEnvprobeLocal* const& a, RenderEnvprobeLocal* const& b ) const
+	{
+		float adist = ( viewOrigin - a->parms.origin ).LengthSqr();
+		float bdist = ( viewOrigin - b->parms.origin ).LengthSqr();
+
+		if( adist < bdist )
+		{
+			return -1;
+		}
+
+		if( adist > bdist )
+		{
+			return 1;
+		}
+
+		return 0;
+	}
+};
+
+static void R_FindClosestEnvironmentProbes()
+{
+	// set safe defaults
+	tr.viewDef->globalProbeBounds.Clear();
+
+	tr.viewDef->irradianceImage = globalImages->defaultUACIrradianceCube;
+	tr.viewDef->radianceImageBlends.Set( 1, 0, 0, 0 );
+	for( int i = 0; i < 3; i++ )
+	{
+		tr.viewDef->radianceImages[i] = globalImages->defaultUACRadianceCube;
+	}
+
+	// early out
+	if( tr.viewDef->areaNum == -1 || tr.viewDef->isSubview )
+	{
+		return;
+	}
+
+	idList<RenderEnvprobeLocal*, TAG_RENDER_ENVPROBE> viewEnvprobes;
+	for( int i = 0; i < tr.primaryWorld->envprobeDefs.Num(); i++ )
+	{
+		RenderEnvprobeLocal* vProbe = tr.primaryWorld->envprobeDefs[i];
+		if( vProbe )
+		{
+			viewEnvprobes.AddUnique( vProbe );
+		}
+	}
+
+	if( viewEnvprobes.Num() == 0 )
+	{
+		return;
+	}
+
+	idVec3 testOrigin = tr.viewDef->renderView.vieworg;
+
+	// sort by distance
+	// RB: each Doom 3 level has ~50 - 150 probes so this should be ok for each frame
+	viewEnvprobes.SortWithTemplate( idSort_CompareEnvprobe( testOrigin ) );
+
+	RenderEnvprobeLocal* nearest = viewEnvprobes[0];
+	tr.viewDef->globalProbeBounds = nearest->globalProbeBounds;
+	tr.viewDef->irradianceImage = nearest->irradianceImage;
+
+	// form a triangle of the 3 closest probes
+	idVec3 verts[3];
+	for( int i = 0; i < 3; i++ )
+	{
+		verts[i] = viewEnvprobes[0]->parms.origin;
+	}
+
+	for( int i = 0; i < viewEnvprobes.Num() && i < 3; i++ )
+	{
+		RenderEnvprobeLocal* vProbe = viewEnvprobes[i];
+
+		verts[i] = vProbe->parms.origin;
+	}
+
+	idVec3 closest = R_ClosestPointPointTriangle( testOrigin, verts[0], verts[1], verts[2] );
+	idVec3 bary;
+
+	// find the barycentric coordinates
+	float denom = idWinding::TriangleArea( verts[0], verts[1], verts[2] );
+	if( denom == 0 )
+	{
+		// all points at same location
+		bary.Set( 1, 0, 0 );
+	}
+	else
+	{
+		float	a, b, c;
+
+		a = idWinding::TriangleArea( closest, verts[1], verts[2] ) / denom;
+		b = idWinding::TriangleArea( closest, verts[2], verts[0] ) / denom;
+		c = idWinding::TriangleArea( closest, verts[0], verts[1] ) / denom;
+
+		bary.Set( a, b, c );
+	}
+
+	tr.viewDef->radianceImageBlends.Set( bary.x, bary.y, bary.z, 0.0f );
+
+	for( int i = 0; i < viewEnvprobes.Num() && i < 3; i++ )
+	{
+		tr.viewDef->radianceImages[i] = viewEnvprobes[i]->radianceImage;
+	}
+}
 // RB end
 
 /*
@@ -539,32 +654,8 @@ void R_RenderView( viewDef_t* parms )
 		}
 	}
 
-	// RB: find closest environment probe
-	if( tr.viewDef->areaNum != -1 && !tr.viewDef->isSubview )
-	{
-		float bestDist = idMath::INFINITY;
-
-		tr.viewDef->globalProbeBounds.Clear();
-
-		tr.viewDef->irradianceImage = globalImages->defaultUACIrradianceCube;
-		tr.viewDef->radianceImage = globalImages->defaultUACRadianceCube;
-
-		for( viewEnvprobe_t* vProbe = tr.viewDef->viewEnvprobes; vProbe != NULL; vProbe = vProbe->next )
-		{
-			float dist = ( tr.viewDef->renderView.vieworg - vProbe->globalOrigin ).Length();
-			if( ( dist < bestDist ) )
-			{
-				if( vProbe->irradianceImage->IsLoaded() && !vProbe->irradianceImage->IsDefaulted() )
-				{
-					tr.viewDef->globalProbeBounds = vProbe->globalProbeBounds;
-					tr.viewDef->irradianceImage = vProbe->irradianceImage;
-					tr.viewDef->radianceImage = vProbe->radianceImage;
-
-					bestDist = dist;
-				}
-			}
-		}
-	}
+	// RB: find closest environment probes so we can interpolate between them in the ambient shaders
+	R_FindClosestEnvironmentProbes();
 
 	// write everything needed to the demo file
 	if( common->WriteDemo() )

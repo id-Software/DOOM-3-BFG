@@ -121,26 +121,6 @@ bool AABBRayIntersection( float3 b[2], float3 start, float3 dir, out float scale
 			 hit[ax2] >= b[0][ax2] && hit[ax2] <= b[1][ax2] );
 }
 
-
-float2 OctTexCoord( float3 worldDir )
-{
-	float2 normalizedOctCoord = octEncode( worldDir );
-	float2 normalizedOctCoordZeroOne = ( normalizedOctCoord + float2( 1.0 ) ) * 0.5;
-
-	// offset by one pixel border bleed size for linear filtering
-#if 0
-	// texcoord sizes in rpCascadeDistances are not valid
-	float2 octCoordNormalizedToTextureDimensions = ( normalizedOctCoordZeroOne * ( rpCascadeDistances.x - float( 2.0 ) ) ) / rpCascadeDistances.xy;
-
-	float2 probeTopLeftPosition = float2( 1.0, 1.0 );
-	float2 normalizedProbeTopLeftPosition = probeTopLeftPosition * rpCascadeDistances.zw;
-
-	normalizedOctCoordZeroOne.xy = normalizedProbeTopLeftPosition + octCoordNormalizedToTextureDimensions;
-#endif
-
-	return normalizedOctCoordZeroOne;
-}
-
 void main( PS_IN fragment, out PS_OUT result )
 {
 	half4 bumpMap =			tex2D( samp0, fragment.texcoord0.xy );
@@ -258,9 +238,148 @@ void main( PS_IN fragment, out PS_OUT result )
 
 	// evaluate diffuse IBL
 
-	float2 normalizedOctCoordZeroOne = OctTexCoord( globalNormal );
+	float2 normalizedOctCoord = octEncode( globalNormal );
+	float2 normalizedOctCoordZeroOne = ( normalizedOctCoord + float2( 1.0 ) ) * 0.5;
 
-	float3 irradiance = tex2D( samp7, normalizedOctCoordZeroOne ).rgb;
+// lightgrid atlas
+
+	//float3 lightGridOrigin = float3( -192.0, -128.0, 0 );
+	//float3 lightGridSize = float3( 64.0, 64.0, 128.0 );
+	//int3 lightGridBounds = int3( 7, 7, 3 );
+
+	float3 lightGridOrigin = rpGlobalLightOrigin.xyz;
+	float3 lightGridSize = rpJitterTexScale.xyz;
+	int3 lightGridBounds = int3( rpJitterTexOffset.x, rpJitterTexOffset.y, rpJitterTexOffset.z );
+
+	float invXZ = ( 1.0 / ( lightGridBounds[0] * lightGridBounds[2] ) );
+	float invY = ( 1.0 / lightGridBounds[1] );
+
+	normalizedOctCoordZeroOne.x *= invXZ;
+	normalizedOctCoordZeroOne.y *= invY;
+
+	int3 gridCoord;
+	float3 frac;
+	float3 lightOrigin = globalPosition - lightGridOrigin;
+
+	for( int i = 0; i < 3; i++ )
+	{
+		float           v;
+
+		// walls can be sampled behind the grid sometimes so avoid negative weights
+		v = max( 0, lightOrigin[i] * ( 1.0 / lightGridSize[i] ) );
+		gridCoord[i] = int( floor( v ) );
+		frac[ i ] = v - gridCoord[ i ];
+
+		/*
+		if( gridCoord[i] < 0 )
+		{
+			gridCoord[i] = 0;
+		}
+		else
+		*/
+		if( gridCoord[i] >= lightGridBounds[i] - 1 )
+		{
+			gridCoord[i] = lightGridBounds[i] - 1;
+		}
+	}
+
+	// trilerp the light value
+	int3 gridStep;
+
+	gridStep[0] = 1;
+	gridStep[1] = lightGridBounds[0];
+	gridStep[2] = lightGridBounds[0] * lightGridBounds[1];
+
+	float totalFactor = 0.0;
+	float3 irradiance = float3( 0.0, 0.0, 0.0 );
+
+	/*
+	for( int i = 0; i < 8; i++ )
+	{
+		for( int j = 0; j < 3; j++ )
+		{
+			if( i & ( 1 << j ) )
+
+		results in these offsets
+	*/
+	const float3 cornerOffsets[8] = float3[](
+										float3( 0.0, 0.0, 0.0 ),
+										float3( 1.0, 0.0, 0.0 ),
+										float3( 0.0, 2.0, 0.0 ),
+										float3( 1.0, 2.0, 0.0 ),
+										float3( 0.0, 0.0, 4.0 ),
+										float3( 1.0, 0.0, 4.0 ),
+										float3( 0.0, 2.0, 4.0 ),
+										float3( 1.0, 2.0, 4.0 ) );
+
+	for( int i = 0; i < 8; i++ )
+	{
+		float factor = 1.0;
+
+		int3 gridCoord2 = gridCoord;
+
+		for( int j = 0; j < 3; j++ )
+		{
+			if( cornerOffsets[ i ][ j ] > 0.0 )
+			{
+				factor *= frac[ j ];
+
+				gridCoord2[ j ] += 1;
+			}
+			else
+			{
+				factor *= ( 1.0 - frac[ j ] );
+			}
+		}
+
+		// build P
+		//float3 P = lightGridOrigin + ( gridCoord2[0] * gridStep[0] + gridCoord2[1] * gridStep[1] + gridCoord2[2] * gridStep[2] );
+
+		float2 atlasOffset;
+
+		atlasOffset.x = ( gridCoord2[0] * gridStep[0] + gridCoord2[2] * gridStep[1] ) * invXZ;
+		atlasOffset.y = ( gridCoord2[1] * invY );
+
+		// offset by one pixel border bleed size for linear filtering
+#if 1
+		// rpScreenCorrectionFactor.w = probeSize factor accounting account offset border, e.g = ( 16 / 18 ) = 0.8888
+		float2 octCoordNormalizedToTextureDimensions = ( normalizedOctCoordZeroOne + atlasOffset ) * rpScreenCorrectionFactor.w;
+
+		// skip by default 2 pixels for each grid cell and offset the start position by (1,1)
+		// rpScreenCorrectionFactor.z = borderSize e.g = 2
+		float2 probeTopLeftPosition;
+		probeTopLeftPosition.x = ( gridCoord2[0] * gridStep[0] + gridCoord2[2] * gridStep[1] ) * rpScreenCorrectionFactor.z + rpScreenCorrectionFactor.z * 0.5;
+		probeTopLeftPosition.y = ( gridCoord2[1] ) * rpScreenCorrectionFactor.z + rpScreenCorrectionFactor.z * 0.5;
+
+		float2 normalizedProbeTopLeftPosition = probeTopLeftPosition * rpCascadeDistances.zw;
+
+		float2 atlasCoord = normalizedProbeTopLeftPosition + octCoordNormalizedToTextureDimensions;
+#else
+		float2 atlasCoord = normalizedOctCoordZeroOne + atlasOffset;
+#endif
+
+		float3 color = texture( samp7, atlasCoord, 0 ).rgb;
+
+		if( ( color.r + color.g + color.b ) < 0.0001 )
+		{
+			// ignore samples in walls
+			continue;
+		}
+
+		irradiance += color * factor;
+		totalFactor += factor;
+	}
+
+	if( totalFactor > 0.0 && totalFactor < 0.9999 )
+	{
+		totalFactor = 1.0 / totalFactor;
+
+		irradiance *= totalFactor;
+	}
+
+// lightgrid atlas
+
+
 	float3 diffuseLight = ( kD * irradiance * diffuseColor ) * ao * ( rpDiffuseModifier.xyz * 1.0 );
 
 	// evaluate specular IBL
@@ -270,12 +389,19 @@ void main( PS_IN fragment, out PS_OUT result )
 	float mip = clamp( ( roughness * MAX_REFLECTION_LOD ), 0.0, MAX_REFLECTION_LOD );
 	//float mip = 0.0;
 
-	normalizedOctCoordZeroOne = OctTexCoord( reflectionVector );
+	normalizedOctCoord = octEncode( reflectionVector );
+	normalizedOctCoordZeroOne = ( normalizedOctCoord + float2( 1.0 ) ) * 0.5;
 
 	float3 radiance = textureLod( samp8, normalizedOctCoordZeroOne, mip ).rgb * rpLocalLightOrigin.x;
 	radiance += textureLod( samp9, normalizedOctCoordZeroOne, mip ).rgb * rpLocalLightOrigin.y;
 	radiance += textureLod( samp10, normalizedOctCoordZeroOne, mip ).rgb * rpLocalLightOrigin.z;
 	//radiance = float3( 0.0 );
+
+	// RB: HACK dim down room radiance by better local irradiance brightness
+	//float luma = PhotoLuma( irradiance );
+	//float luma = dot( irradiance, LUMINANCE_LINEAR.rgb );
+	//float luma = length( irradiance.rgb );
+	//radiance *= ( luma * rpSpecularModifier.x * 3.0 );
 
 	float2 envBRDF  = texture( samp3, float2( max( vDotN, 0.0 ), roughness ) ).rg;
 

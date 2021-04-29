@@ -309,6 +309,11 @@ public:
 		return opts.height;
 	}
 
+	idVec2i		GetUploadResolution() const
+	{
+		return idVec2i( opts.width, opts.height );
+	}
+
 	void		SetReferencedOutsideLevelLoad()
 	{
 		referencedOutsideLevelLoad = true;

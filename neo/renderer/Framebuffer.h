@@ -35,7 +35,7 @@ static const int MAX_SSAO_BUFFERS = 2;
 static const int MAX_HIERARCHICAL_ZBUFFERS = 6; // native resolution + 5 MIP LEVELS
 
 static const int RADIANCE_CUBEMAP_SIZE = 256;
-static const int IRRADIANCE_CUBEMAP_SIZE = 128;
+static const int IRRADIANCE_CUBEMAP_SIZE = 30 + 2;
 
 #if 1
 static	int shadowMapResolutions[MAX_SHADOWMAP_RESOLUTIONS] = { 2048, 1024, 512, 512, 256 };

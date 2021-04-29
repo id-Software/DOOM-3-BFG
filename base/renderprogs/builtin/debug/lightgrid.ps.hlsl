@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2020 Robert Beckebans
+Copyright (C) 2021 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -31,7 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 
 
 // *INDENT-OFF*
-uniform sampler2D	samp0 : register(s0); // texture 0 is octahedron cube map
+uniform sampler2D	samp0 : register(s0); // texture 0 is octahedron cube map atlas
 
 struct PS_IN {
 	float4 position		: VPOS;
@@ -45,32 +45,85 @@ struct PS_OUT {
 };
 // *INDENT-ON*
 
+
+int3 GetBaseGridCoord( float3 origin )
+{
+	float3 lightGridOrigin = rpGlobalLightOrigin.xyz;
+	float3 lightGridSize = rpJitterTexScale.xyz;
+	int3 lightGridBounds = int3( rpJitterTexOffset.x, rpJitterTexOffset.y, rpJitterTexOffset.z );
+
+	int3 pos;
+
+	float3 lightOrigin = origin - lightGridOrigin;
+	for( int i = 0; i < 3; i++ )
+	{
+		float           v;
+
+		v = lightOrigin[i] * ( 1.0f / lightGridSize[i] );
+		pos[i] = int( floor( v ) );
+
+		if( pos[i] < 0 )
+		{
+			pos[i] = 0;
+		}
+		else if( pos[i] >= lightGridBounds[i] - 1 )
+		{
+			pos[i] = lightGridBounds[i] - 1;
+		}
+	}
+
+	return pos;
+}
+
 void main( PS_IN fragment, out PS_OUT result )
 {
+	const int LIGHTGRID_IRRADIANCE_SIZE	= 32;
 
+	float3 globalPosition = fragment.texcoord0.xyz;
 	float3 globalNormal = normalize( fragment.texcoord1 );
-	float3 globalEye = normalize( fragment.texcoord0 );
 
-	float3 reflectionVector = _float3( dot3( globalEye, globalNormal ) );
-	reflectionVector *= globalNormal;
-	reflectionVector = ( reflectionVector * 2.0f ) - globalEye;
-
-	float2 normalizedOctCoord = octEncode( reflectionVector );
+	float2 normalizedOctCoord = octEncode( globalNormal );
 	float2 normalizedOctCoordZeroOne = ( normalizedOctCoord + float2( 1.0 ) ) * 0.5;
 
-	// offset by one pixel border bleed size for linear filtering
-#if 0
-	float2 octCoordNormalizedToTextureDimensions = ( normalizedOctCoordZeroOne * ( rpCascadeDistances.x - float( 2.0 ) ) ) / rpCascadeDistances.xy;
+	float3 lightGridOrigin = rpGlobalLightOrigin.xyz;
+	float3 lightGridSize = rpJitterTexScale.xyz;
+	int3 lightGridBounds = int3( rpJitterTexOffset.x, rpJitterTexOffset.y, rpJitterTexOffset.z );
 
-	float2 probeTopLeftPosition = float2( 1.0, 1.0 );
+	float invXZ = ( 1.0 / ( lightGridBounds[0] * lightGridBounds[2] ) );
+	float invY = ( 1.0 / lightGridBounds[1] );
+
+	normalizedOctCoordZeroOne.x *= invXZ;
+	normalizedOctCoordZeroOne.y *= invY;
+
+	int3 gridStep;
+
+	gridStep[0] = 1;
+	gridStep[1] = lightGridBounds[0];
+	gridStep[2] = lightGridBounds[0] * lightGridBounds[1];
+
+	int3 gridCoord = GetBaseGridCoord( globalPosition );
+
+	normalizedOctCoordZeroOne.x += ( gridCoord[0] * gridStep[0] + gridCoord[2] * gridStep[1] ) * invXZ;
+	normalizedOctCoordZeroOne.y += ( gridCoord[1] * invY );
+
+	// offset by one pixel border bleed size for linear filtering
+#if 1
+	// rpScreenCorrectionFactor.x = probeSize - borderSize, e.g. ( 18 - 2 ) = 16
+	// rpScreenCorrectionFactor.y = probeSize including border, e.g = 18
+	// rpScreenCorrectionFactor.z = borderSize e.g = 2
+	// rpScreenCorrectionFactor.w = probeSize factor accounting account offset border, e.g = ( 16 / 18 ) = 0.8888
+	float2 octCoordNormalizedToTextureDimensions = normalizedOctCoordZeroOne * rpScreenCorrectionFactor.w;
+
+	float2 probeTopLeftPosition;
+	probeTopLeftPosition.x = ( gridCoord[0] * gridStep[0] + gridCoord[2] * gridStep[1] ) * rpScreenCorrectionFactor.z + rpScreenCorrectionFactor.z * 0.5;
+	probeTopLeftPosition.y = ( gridCoord[1] ) * rpScreenCorrectionFactor.z + rpScreenCorrectionFactor.z * 0.5;
+
 	float2 normalizedProbeTopLeftPosition = probeTopLeftPosition * rpCascadeDistances.zw;
 
 	normalizedOctCoordZeroOne.xy = normalizedProbeTopLeftPosition + octCoordNormalizedToTextureDimensions;
 #endif
 
-	//normalizedOctCoordZeroOne = TextureCoordFromDirection( reflectionVector, 0, int( rpCascadeDistances.x ), int( rpCascadeDistances.y ), int( rpCascadeDistances.x ) - 2 );
-
 	float4 envMap = texture( samp0, normalizedOctCoordZeroOne, 0 );
 
-	result.color = float4( envMap.xyz, 1.0f ) * fragment.color * 1.0;
+	result.color = float4( envMap.xyz, 1.0f ) * 1.0 * fragment.color;
 }

@@ -199,7 +199,6 @@ struct glconfig_t
 	bool				anisotropicFilterAvailable;
 	bool				textureLODBiasAvailable;
 	bool				seamlessCubeMapAvailable;
-	bool				sRGBFramebufferAvailable;
 	bool				vertexBufferObjectAvailable;
 	bool				mapBufferRangeAvailable;
 	bool				vertexArrayObjectAvailable;
@@ -404,6 +403,9 @@ public:
 	// generate image files that happen during gameplay, as for savegame
 	// markers.  Use WriteRender() instead.
 	virtual void			TakeScreenshot( int width, int height, const char* fileName, int samples, struct renderView_s* ref, int exten ) = 0;
+
+	// RB
+	virtual byte*			CaptureRenderToBuffer( int width, int height, renderView_t* ref ) = 0;
 
 	// the render output can be cropped down to a subset of the real screen, as
 	// for save-game reviews and split-screen multiplayer.  Users of the renderer

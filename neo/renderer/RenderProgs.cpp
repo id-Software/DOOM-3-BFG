@@ -109,10 +109,17 @@ void idRenderProgManager::Init()
 		{ BUILTIN_VERTEX_COLOR, "builtin/vertex_color", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
 		{ BUILTIN_AMBIENT_LIGHTING, "builtin/lighting/ambient_lighting", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
 		{ BUILTIN_AMBIENT_LIGHTING_SKINNED, "builtin/lighting/ambient_lighting", "_skinned", BIT( USE_GPU_SKINNING ), true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+
 		{ BUILTIN_AMBIENT_LIGHTING_IBL, "builtin/lighting/ambient_lighting_IBL", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
 		{ BUILTIN_AMBIENT_LIGHTING_IBL_SKINNED, "builtin/lighting/ambient_lighting_IBL", "_skinned", BIT( USE_GPU_SKINNING ), true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
 		{ BUILTIN_AMBIENT_LIGHTING_IBL_PBR, "builtin/lighting/ambient_lighting_IBL", "_PBR", BIT( USE_PBR ), false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
 		{ BUILTIN_AMBIENT_LIGHTING_IBL_PBR_SKINNED, "builtin/lighting/ambient_lighting_IBL", "_PBR_skinned", BIT( USE_GPU_SKINNING | USE_PBR ), true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+
+		{ BUILTIN_AMBIENT_LIGHTGRID_IBL, "builtin/lighting/ambient_lightgrid_IBL", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_AMBIENT_LIGHTGRID_IBL_SKINNED, "builtin/lighting/ambient_lightgrid_IBL", "_skinned", BIT( USE_GPU_SKINNING ), true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_AMBIENT_LIGHTGRID_IBL_PBR, "builtin/lighting/ambient_lightgrid_IBL", "_PBR", BIT( USE_PBR ), false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_AMBIENT_LIGHTGRID_IBL_PBR_SKINNED, "builtin/lighting/ambient_lightgrid_IBL", "_PBR_skinned", BIT( USE_GPU_SKINNING | USE_PBR ), true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+
 		{ BUILTIN_SMALL_GEOMETRY_BUFFER, "builtin/gbuffer", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
 		{ BUILTIN_SMALL_GEOMETRY_BUFFER_SKINNED, "builtin/gbuffer", "_skinned", BIT( USE_GPU_SKINNING ), true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
 		// RB end
@@ -154,8 +161,12 @@ void idRenderProgManager::Init()
 		{ BUILTIN_PBR_INTERACTION_SHADOW_MAPPING_PARALLEL, "builtin/lighting/interactionSM", "_parallel_PBR", BIT( LIGHT_PARALLEL ) | BIT( USE_PBR ), false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
 		{ BUILTIN_PBR_INTERACTION_SHADOW_MAPPING_PARALLEL_SKINNED, "builtin/lighting/interactionSM", "_parallel_skinned_PBR", BIT( USE_GPU_SKINNING ) | BIT( LIGHT_PARALLEL ) | BIT( USE_PBR ), true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
 
-		{ BUILTIN_OCTAHEDRON, "builtin/debug/octahedron", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
-		{ BUILTIN_OCTAHEDRON_SKINNED, "builtin/debug/octahedron", "_skinned", BIT( USE_GPU_SKINNING ), true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		// debug stuff
+		{ BUILTIN_DEBUG_LIGHTGRID, "builtin/debug/lightgrid", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_DEBUG_LIGHTGRID_SKINNED, "builtin/debug/lightgrid", "_skinned", BIT( USE_GPU_SKINNING ), true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+
+		{ BUILTIN_DEBUG_OCTAHEDRON, "builtin/debug/octahedron", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
+		{ BUILTIN_DEBUG_OCTAHEDRON_SKINNED, "builtin/debug/octahedron", "_skinned", BIT( USE_GPU_SKINNING ), true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
 		// RB end
 
 		{ BUILTIN_ENVIRONMENT, "builtin/legacy/environment", "", 0, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT },
@@ -272,10 +283,16 @@ void idRenderProgManager::Init()
 		renderProgs[builtinShaders[BUILTIN_SHADOW_DEBUG_SKINNED]].usesJoints = true;
 		renderProgs[builtinShaders[BUILTIN_FOG_SKINNED]].usesJoints = true;
 		// RB begin
-		renderProgs[builtinShaders[BUILTIN_OCTAHEDRON_SKINNED]].usesJoints = true;
+		renderProgs[builtinShaders[BUILTIN_DEBUG_LIGHTGRID_SKINNED]].usesJoints = true;
+		renderProgs[builtinShaders[BUILTIN_DEBUG_OCTAHEDRON_SKINNED]].usesJoints = true;
 		renderProgs[builtinShaders[BUILTIN_AMBIENT_LIGHTING_SKINNED]].usesJoints = true;
+
 		renderProgs[builtinShaders[BUILTIN_AMBIENT_LIGHTING_IBL_SKINNED]].usesJoints = true;
 		renderProgs[builtinShaders[BUILTIN_AMBIENT_LIGHTING_IBL_PBR_SKINNED]].usesJoints = true;
+
+		renderProgs[builtinShaders[BUILTIN_AMBIENT_LIGHTGRID_IBL_SKINNED]].usesJoints = true;
+		renderProgs[builtinShaders[BUILTIN_AMBIENT_LIGHTGRID_IBL_PBR_SKINNED]].usesJoints = true;
+
 		renderProgs[builtinShaders[BUILTIN_SMALL_GEOMETRY_BUFFER_SKINNED]].usesJoints = true;
 		renderProgs[builtinShaders[BUILTIN_INTERACTION_SHADOW_MAPPING_SPOT_SKINNED]].usesJoints = true;
 		renderProgs[builtinShaders[BUILTIN_INTERACTION_SHADOW_MAPPING_POINT_SKINNED]].usesJoints = true;

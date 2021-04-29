@@ -171,7 +171,6 @@ void idRenderWorldLocal::AddAreaViewEnvprobes( int areaNum, const portalStack_t*
 R_SampleCubeMapHDR
 ==================
 */
-static idMat3		cubeAxis[6];
 static const char* envDirection[6] = { "_px", "_nx", "_py", "_ny", "_pz", "_nz" };
 
 void R_SampleCubeMapHDR( const idVec3& dir, int size, byte* buffers[6], float result[3], float& u, float& v )
@@ -208,8 +207,8 @@ void R_SampleCubeMapHDR( const idVec3& dir, int size, byte* buffers[6], float re
 		axis = 5;
 	}
 
-	float	fx = ( dir * cubeAxis[axis][1] ) / ( dir * cubeAxis[axis][0] );
-	float	fy = ( dir * cubeAxis[axis][2] ) / ( dir * cubeAxis[axis][0] );
+	float	fx = ( dir * tr.cubeAxis[axis][1] ) / ( dir * tr.cubeAxis[axis][0] );
+	float	fy = ( dir * tr.cubeAxis[axis][2] ) / ( dir * tr.cubeAxis[axis][0] );
 
 	fx = -fx;
 	fy = -fy;
@@ -252,56 +251,74 @@ void R_SampleCubeMapHDR( const idVec3& dir, int size, byte* buffers[6], float re
 	r11g11b10f_to_float3( tmp.i, result );
 }
 
-class CommandlineProgressBar
+void R_SampleCubeMapHDR16F( const idVec3& dir, int size, halfFloat_t* buffers[6], float result[3], float& u, float& v )
 {
-private:
-	size_t tics = 0;
-	size_t nextTicCount = 0;
-	int	count = 0;
-	int expectedCount = 0;
+	float	adir[3];
+	int		axis, x, y;
 
-public:
-	CommandlineProgressBar( int _expectedCount )
+	adir[0] = fabs( dir[0] );
+	adir[1] = fabs( dir[1] );
+	adir[2] = fabs( dir[2] );
+
+	if( dir[0] >= adir[1] && dir[0] >= adir[2] )
 	{
-		expectedCount = _expectedCount;
+		axis = 0;
+	}
+	else if( -dir[0] >= adir[1] && -dir[0] >= adir[2] )
+	{
+		axis = 1;
+	}
+	else if( dir[1] >= adir[0] && dir[1] >= adir[2] )
+	{
+		axis = 2;
+	}
+	else if( -dir[1] >= adir[0] && -dir[1] >= adir[2] )
+	{
+		axis = 3;
+	}
+	else if( dir[2] >= adir[1] && dir[2] >= adir[2] )
+	{
+		axis = 4;
+	}
+	else
+	{
+		axis = 5;
 	}
 
-	void Start()
-	{
-		common->Printf( "0%%  10   20   30   40   50   60   70   80   90   100%%\n" );
-		common->Printf( "|----|----|----|----|----|----|----|----|----|----|\n" );
+	float	fx = ( dir * tr.cubeAxis[axis][1] ) / ( dir * tr.cubeAxis[axis][0] );
+	float	fy = ( dir * tr.cubeAxis[axis][2] ) / ( dir * tr.cubeAxis[axis][0] );
 
-		common->UpdateScreen( false );
+	fx = -fx;
+	fy = -fy;
+	x = size * 0.5 * ( fx + 1 );
+	y = size * 0.5 * ( fy + 1 );
+	if( x < 0 )
+	{
+		x = 0;
+	}
+	else if( x >= size )
+	{
+		x = size - 1;
+	}
+	if( y < 0 )
+	{
+		y = 0;
+	}
+	else if( y >= size )
+	{
+		y = size - 1;
 	}
 
-	void Increment()
-	{
-		if( ( count + 1 ) >= nextTicCount )
-		{
-			size_t ticsNeeded = ( size_t )( ( ( double )( count + 1 ) / expectedCount ) * 50.0 );
+	u = x;
+	v = y;
 
-			do
-			{
-				common->Printf( "*" );
-			}
-			while( ++tics < ticsNeeded );
+	// unpack RGB16F to 3 floats
+	result[0] = F16toF32( buffers[axis][( y * size + x ) * 3 + 0] );
+	result[1] = F16toF32( buffers[axis][( y * size + x ) * 3 + 1] );
+	result[2] = F16toF32( buffers[axis][( y * size + x ) * 3 + 2] );
+}
 
-			nextTicCount = ( size_t )( ( tics / 50.0 ) * expectedCount );
-			if( count == ( expectedCount - 1 ) )
-			{
-				if( tics < 51 )
-				{
-					common->Printf( "*" );
-				}
-				common->Printf( "\n" );
-			}
 
-			common->UpdateScreen( false );
-		}
-
-		count++;
-	}
-};
 
 
 // http://holger.dammertz.org/stuff/notes_HammersleyOnHemisphere.html
@@ -432,13 +449,40 @@ idVec2 IntegrateBRDF( float NdotV, float roughness, int sampleCount )
 
 
 // Compute normalized oct coord, mapping top left of top left pixel to (-1,-1)
-idVec2 NormalizedOctCoord( int x, int y, const int probeSideLength )
+idVec2 NormalizedOctCoord( int x, int y, const int probeWithBorderSide )
 {
-	const int margin = 0;
+#if 0
+	// 1 pixel border
+	const int margin = 1;
 
-	int probeWithBorderSide = probeSideLength + margin;
+	int probeSideLength = Max( 2, probeWithBorderSide - ( margin * 2 ) );
+
+	idVec2 octFragCoord;
+	octFragCoord.x = idMath::ClampInt( 0, probeSideLength - 1, x - margin );
+	octFragCoord.y = idMath::ClampInt( 0, probeSideLength - 1, y - margin );
+
+	return ( idVec2( octFragCoord ) ) * ( 2.0f / float( probeSideLength ) ) - idVec2( 1.0f, 1.0f );
+#else
+
+	const int margin = 2;
+
+	// RB: FIXME - margin * 2 is wrong but looks better
+	// figure out why
+	int probeSideLength = Max( 2, probeWithBorderSide - ( margin * 2 ) );
 
 	idVec2 octFragCoord = idVec2( ( x - margin ) % probeWithBorderSide, ( y - margin ) % probeWithBorderSide );
+
+	// Add back the half pixel to get pixel center normalized coordinates
+	return ( idVec2( octFragCoord ) + idVec2( 0.5f, 0.5f ) ) * ( 2.0f / float( probeSideLength ) ) - idVec2( 1.0f, 1.0f );
+
+#endif
+}
+
+static inline idVec2 NormalizedOctCoordNoBorder( int x, int y, const int probeWithBorderSide )
+{
+	int probeSideLength = probeWithBorderSide;
+
+	idVec2 octFragCoord = idVec2( x % probeWithBorderSide, y % probeWithBorderSide );
 
 	// Add back the half pixel to get pixel center normalized coordinates
 	return ( idVec2( octFragCoord ) + idVec2( 0.5f, 0.5f ) ) * ( 2.0f / float( probeSideLength ) ) - idVec2( 1.0f, 1.0f );
@@ -562,10 +606,10 @@ void CalculateIrradianceJob( calcEnvprobeParms_t* parms )
 		progressBar.Start();
 	}
 
-	// build L4 Spherical Harmonics from source image
-	SphericalHarmonicsT<idVec3, 4> shRadiance;
+	// build L3 Spherical Harmonics from source image
+	SphericalHarmonicsT<idVec3, 3> shRadiance;
 
-	for( int i = 0; i < shSize( 4 ); i++ )
+	for( int i = 0; i < shSize( 3 ); i++ )
 	{
 		shRadiance[i].Zero();
 	}
@@ -582,7 +626,7 @@ void CalculateIrradianceJob( calcEnvprobeParms_t* parms )
 	{
 		for( int y = dstRect.y; y < ( dstRect.y + dstRect.w ); y++ )
 		{
-			idVec2 octCoord = NormalizedOctCoord( x, y, dstRect.z );
+			idVec2 octCoord = NormalizedOctCoordNoBorder( x, y, dstRect.z );
 
 			// convert UV coord to 3D direction
 			idVec3 dir;
@@ -647,7 +691,7 @@ void CalculateIrradianceJob( calcEnvprobeParms_t* parms )
 
 				float texelArea = CubemapTexelSolidAngle( uu, vv, invDstSize );
 
-				const SphericalHarmonicsT<float, 4>& sh = shEvaluate<4>( dir );
+				const SphericalHarmonicsT<float, 3>& sh = shEvaluate<3>( dir );
 
 				bool shValid = true;
 				for( int i = 0; i < 25; i++ )
@@ -694,11 +738,11 @@ void CalculateIrradianceJob( calcEnvprobeParms_t* parms )
 				if( mip > 0 )
 				{
 					// move back to [0, 1] coords
-					octCoord = NormalizedOctCoord( x - dstRect.x, y - dstRect.y, dstRect.z );
+					octCoord = NormalizedOctCoordNoBorder( x - dstRect.x, y - dstRect.y, dstRect.z );
 				}
 				else
 				{
-					octCoord = NormalizedOctCoord( x, y, dstRect.z );
+					octCoord = NormalizedOctCoordNoBorder( x, y, dstRect.z );
 				}
 
 				// convert UV coord to 3D direction
@@ -709,10 +753,10 @@ void CalculateIrradianceJob( calcEnvprobeParms_t* parms )
 				idVec3 outColor( 0, 0, 0 );
 
 #if 1
-				// generate ambient colors by evaluating the L4 Spherical Harmonics
-				SphericalHarmonicsT<float, 4> shDirection = shEvaluate<4>( dir );
+				// generate ambient colors by evaluating the L3 Spherical Harmonics
+				SphericalHarmonicsT<float, 3> shDirection = shEvaluate<3>( dir );
 
-				idVec3 sampleIrradianceSh = shEvaluateDiffuse<idVec3, 4>( shRadiance, dir ) / idMath::PI;
+				idVec3 sampleIrradianceSh = shEvaluateDiffuse<idVec3, 3>( shRadiance, dir ) / idMath::PI;
 
 				outColor[0] = Max( 0.0f, sampleIrradianceSh.x );
 				outColor[1] = Max( 0.0f, sampleIrradianceSh.y );
@@ -805,11 +849,11 @@ void CalculateRadianceJob( calcEnvprobeParms_t* parms )
 				if( mip > 0 )
 				{
 					// move back to [0, 1] coords
-					octCoord = NormalizedOctCoord( x - dstRect.x, y - dstRect.y, dstRect.z );
+					octCoord = NormalizedOctCoordNoBorder( x - dstRect.x, y - dstRect.y, dstRect.z );
 				}
 				else
 				{
-					octCoord = NormalizedOctCoord( x, y, dstRect.z );
+					octCoord = NormalizedOctCoordNoBorder( x, y, dstRect.z );
 				}
 
 				// convert UV coord to 3D direction
@@ -921,7 +965,7 @@ void R_MakeAmbientMap( const char* baseName, const char* suffix, int outSize, bo
 	jobParms->outHeight = outSize;
 	jobParms->outBuffer = ( halfFloat_t* )R_StaticAlloc( idMath::Ceil( outSize * outSize * 3 * sizeof( halfFloat_t ) * 1.5f ), TAG_IMAGE );
 
-	tr.irradianceJobs.Append( jobParms );
+	tr.envprobeJobs.Append( jobParms );
 
 	if( useThreads )
 	{
@@ -957,7 +1001,7 @@ void R_MakeAmbientMap( const char* baseName, const char* suffix, int outSize, bo
 	}
 }
 
-CONSOLE_COMMAND( generateEnvironmentProbes, "Generate environment probes", NULL )
+CONSOLE_COMMAND( bakeEnvironmentProbes, "Bake environment probes", NULL )
 {
 	idStr			fullname;
 	idStr			baseName;
@@ -990,38 +1034,6 @@ CONSOLE_COMMAND( generateEnvironmentProbes, "Generate environment probes", NULL 
 
 	const viewDef_t primary = *tr.primaryView;
 
-	memset( &cubeAxis, 0, sizeof( cubeAxis ) );
-
-	// +X
-	cubeAxis[0][0][0] = 1;
-	cubeAxis[0][1][2] = 1;
-	cubeAxis[0][2][1] = 1;
-
-	// -X
-	cubeAxis[1][0][0] = -1;
-	cubeAxis[1][1][2] = -1;
-	cubeAxis[1][2][1] = 1;
-
-	// +Y
-	cubeAxis[2][0][1] = 1;
-	cubeAxis[2][1][0] = -1;
-	cubeAxis[2][2][2] = -1;
-
-	// -Y
-	cubeAxis[3][0][1] = -1;
-	cubeAxis[3][1][0] = -1;
-	cubeAxis[3][2][2] = 1;
-
-	// +Z
-	cubeAxis[4][0][2] = 1;
-	cubeAxis[4][1][0] = -1;
-	cubeAxis[4][2][1] = 1;
-
-	// -Z
-	cubeAxis[5][0][2] = -1;
-	cubeAxis[5][1][0] = 1;
-	cubeAxis[5][2][1] = 1;
-
 	//--------------------------------------------
 	// CAPTURE SCENE LIGHTING TO CUBEMAPS
 	//--------------------------------------------
@@ -1042,7 +1054,7 @@ CONSOLE_COMMAND( generateEnvironmentProbes, "Generate environment probes", NULL 
 			ref.fov_x = ref.fov_y = 90;
 
 			ref.vieworg = def->parms.origin;
-			ref.viewaxis = cubeAxis[j];
+			ref.viewaxis = tr.cubeAxis[j];
 
 			extension = envDirection[ j ];
 			fullname.Format( "env/%s/envprobe%i%s", baseName.c_str(), i, extension );
@@ -1082,9 +1094,9 @@ CONSOLE_COMMAND( generateEnvironmentProbes, "Generate environment probes", NULL 
 		tr.envprobeJobList->Wait();
 	}
 
-	for( int j = 0; j < tr.irradianceJobs.Num(); j++ )
+	for( int j = 0; j < tr.envprobeJobs.Num(); j++ )
 	{
-		calcEnvprobeParms_t* job = tr.irradianceJobs[ j ];
+		calcEnvprobeParms_t* job = tr.envprobeJobs[ j ];
 
 		R_WriteEXR( job->filename, ( byte* )job->outBuffer, 3, job->outWidth, job->outHeight, "fs_basepath" );
 
@@ -1103,11 +1115,26 @@ CONSOLE_COMMAND( generateEnvironmentProbes, "Generate environment probes", NULL 
 		delete job;
 	}
 
-	tr.irradianceJobs.Clear();
+	tr.envprobeJobs.Clear();
 
 	int	end = Sys_Milliseconds();
 
 	common->Printf( "convolved probes in %5.1f seconds\n\n", ( end - start ) * 0.001f );
+
+	//--------------------------------------------
+	// LOAD CONVOLVED OCTAHEDRONS INTO THE GPU
+	//--------------------------------------------
+	for( int i = 0; i < tr.primaryWorld->envprobeDefs.Num(); i++ )
+	{
+		RenderEnvprobeLocal* def = tr.primaryWorld->envprobeDefs[i];
+		if( def == NULL )
+		{
+			continue;
+		}
+
+		def->irradianceImage->Reload( false );
+		def->radianceImage->Reload( false );
+	}
 }
 
 /*

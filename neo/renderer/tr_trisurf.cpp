@@ -2368,3 +2368,81 @@ static void SetUpMikkTSpaceContext( SMikkTSpaceContext* context )
 }
 
 // SP end
+
+
+// RB: Determines the closest point between a point and a triangle
+idVec3 R_ClosestPointPointTriangle( const idVec3& point, const idVec3& vertex1, const idVec3& vertex2, const idVec3& vertex3 )
+{
+	idVec3 result;
+
+	// Source: Real-Time Collision Detection by Christer Ericson
+	// Reference: Page 136
+
+	// check if P in vertex region outside A
+	idVec3 ab = vertex2 - vertex1;
+	idVec3 ac = vertex3 - vertex1;
+	idVec3 ap = point - vertex1;
+
+	float d1 = ( ab * ap );
+	float d2 = ( ac * ap );
+	if( d1 <= 0.0f && d2 <= 0.0f )
+	{
+		result = vertex1; //Barycentric coordinates (1,0,0)
+		return result;
+	}
+
+	// Check if P in vertex region outside B
+	idVec3 bp = point - vertex2;
+	float d3 = ( ab * bp );
+	float d4 = ( ac * bp );
+	if( d3 >= 0.0f && d4 <= d3 )
+	{
+		result = vertex2; // barycentric coordinates (0,1,0)
+		return result;
+	}
+
+	// Check if P in edge region of AB, if so return projection of P onto AB
+	float vc = d1 * d4 - d3 * d2;
+	if( vc <= 0.0f && d1 >= 0.0f && d3 <= 0.0f )
+	{
+		float v = d1 / ( d1 - d3 );
+		result = vertex1 + v * ab; //Barycentric coordinates (1-v,v,0)
+		return result;
+	}
+
+	// Check if P in vertex region outside C
+	idVec3 cp = point - vertex3;
+	float d5 = ( ab * cp );
+	float d6 = ( ac * cp );
+	if( d6 >= 0.0f && d5 <= d6 )
+	{
+		result = vertex3; //Barycentric coordinates (0,0,1)
+		return result;
+	}
+
+	// Check if P in edge region of AC, if so return projection of P onto AC
+	float vb = d5 * d2 - d1 * d6;
+	if( vb <= 0.0f && d2 >= 0.0f && d6 <= 0.0f )
+	{
+		float w = d2 / ( d2 - d6 );
+		result = vertex1 + w * ac; //Barycentric coordinates (1-w,0,w)
+		return result;
+	}
+
+	// Check if P in edge region of BC, if so return projection of P onto BC
+	float va = d3 * d6 - d5 * d4;
+	if( va <= 0.0f && ( d4 - d3 ) >= 0.0f && ( d5 - d6 ) >= 0.0f )
+	{
+		float w = ( d4 - d3 ) / ( ( d4 - d3 ) + ( d5 - d6 ) );
+		result = vertex2 + w * ( vertex3 - vertex2 ); //Barycentric coordinates (0,1-w,w)
+		return result;
+	}
+
+	// P inside face region. Compute Q through its barycentric coordinates (u,v,w)
+	float denom = 1.0f / ( va + vb + vc );
+	float v2 = vb * denom;
+	float w2 = vc * denom;
+	result = vertex1 + ab * v2 + ac * w2; //= u*vertex1 + v*vertex2 + w*vertex3, u = va * denom = 1.0f - v - w
+
+	return result;
+}

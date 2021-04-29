@@ -1200,9 +1200,13 @@ const int INTERACTION_TEXUNIT_JITTER		= 6;
 #if defined( USE_VULKAN )
 	const int INTERACTION_TEXUNIT_AMBIENT_CUBE1 = 5;
 	const int INTERACTION_TEXUNIT_SPECULAR_CUBE1 = 6;
+	const int INTERACTION_TEXUNIT_SPECULAR_CUBE2 = 7;
+	const int INTERACTION_TEXUNIT_SPECULAR_CUBE3 = 8;
 #else
 	const int INTERACTION_TEXUNIT_AMBIENT_CUBE1 = 7;
 	const int INTERACTION_TEXUNIT_SPECULAR_CUBE1 = 8;
+	const int INTERACTION_TEXUNIT_SPECULAR_CUBE2 = 9;
+	const int INTERACTION_TEXUNIT_SPECULAR_CUBE3 = 10;
 #endif
 
 /*
@@ -1323,7 +1327,7 @@ void idRenderBackend::DrawSingleInteraction( drawInteraction_t* din, bool useFas
 	const textureUsage_t specUsage = din->specularImage->GetUsage();
 
 	// RB begin
-	if( useIBL )
+	if( useIBL && currentSpace->useLightGrid && r_useLightGrid.GetBool() )
 	{
 		idVec4 probeMins, probeMaxs, probeCenter;
 
@@ -1343,6 +1347,108 @@ void idRenderBackend::DrawSingleInteraction( drawInteraction_t* din, bool useFas
 		SetVertexParm( RENDERPARM_WOBBLESKY_X, probeMins.ToFloatPtr() );
 		SetVertexParm( RENDERPARM_WOBBLESKY_Y, probeMaxs.ToFloatPtr() );
 		SetVertexParm( RENDERPARM_WOBBLESKY_Z, probeCenter.ToFloatPtr() );
+
+		// use rpGlobalLightOrigin for lightGrid center
+		idVec4 lightGridOrigin( currentSpace->lightGridOrigin.x, currentSpace->lightGridOrigin.y, currentSpace->lightGridOrigin.z, 1.0f );
+		idVec4 lightGridSize( currentSpace->lightGridSize.x, currentSpace->lightGridSize.y, currentSpace->lightGridSize.z, 1.0f );
+		idVec4 lightGridBounds( currentSpace->lightGridBounds[0], currentSpace->lightGridBounds[1], currentSpace->lightGridBounds[2], 1.0f );
+
+		renderProgManager.SetUniformValue( RENDERPARM_GLOBALLIGHTORIGIN, lightGridOrigin.ToFloatPtr() );
+		renderProgManager.SetUniformValue( RENDERPARM_JITTERTEXSCALE, lightGridSize.ToFloatPtr() );
+		renderProgManager.SetUniformValue( RENDERPARM_JITTERTEXOFFSET, lightGridBounds.ToFloatPtr() );
+
+		// individual probe sizes on the atlas image
+		idVec4 probeSize;
+		probeSize[0] = currentSpace->lightGridAtlasSingleProbeSize - currentSpace->lightGridAtlasBorderSize;
+		probeSize[1] = currentSpace->lightGridAtlasSingleProbeSize;
+		probeSize[2] = currentSpace->lightGridAtlasBorderSize;
+		probeSize[3] = float( currentSpace->lightGridAtlasSingleProbeSize - currentSpace->lightGridAtlasBorderSize ) / currentSpace->lightGridAtlasSingleProbeSize;
+		renderProgManager.SetUniformValue( RENDERPARM_SCREENCORRECTIONFACTOR, probeSize.ToFloatPtr() ); // rpScreenCorrectionFactor
+
+		// specular cubemap blend weights
+		renderProgManager.SetUniformValue( RENDERPARM_LOCALLIGHTORIGIN, viewDef->radianceImageBlends.ToFloatPtr() );
+
+		if( specUsage == TD_SPECULAR_PBR_RMAO || specUsage == TD_SPECULAR_PBR_RMAOD )
+		{
+			// PBR path with roughness, metal and AO
+			if( din->surf->jointCache )
+			{
+				renderProgManager.BindShader_ImageBasedLightGridSkinned_PBR();
+			}
+			else
+			{
+				renderProgManager.BindShader_ImageBasedLightGrid_PBR();
+			}
+		}
+		else
+		{
+			if( din->surf->jointCache )
+			{
+				renderProgManager.BindShader_ImageBasedLightGridSkinned();
+			}
+			else
+			{
+				renderProgManager.BindShader_ImageBasedLightGrid();
+			}
+		}
+
+		GL_SelectTexture( INTERACTION_TEXUNIT_FALLOFF );
+		globalImages->brdfLutImage->Bind();
+
+		GL_SelectTexture( INTERACTION_TEXUNIT_PROJECTION );
+#if defined( USE_VULKAN )
+		globalImages->whiteImage->Bind();
+#else
+		if( !r_useSSAO.GetBool() )
+		{
+			globalImages->whiteImage->Bind();
+		}
+		else
+		{
+			globalImages->ambientOcclusionImage[0]->Bind();
+		}
+#endif
+
+		GL_SelectTexture( INTERACTION_TEXUNIT_AMBIENT_CUBE1 );
+		currentSpace->lightGridAtlasImage->Bind();
+
+		idVec2i res = currentSpace->lightGridAtlasImage->GetUploadResolution();
+		idVec4 textureSize( res.x, res.y, 1.0f / res.x, 1.0f / res.y );
+
+		renderProgManager.SetUniformValue( RENDERPARM_CASCADEDISTANCES, textureSize.ToFloatPtr() );
+
+		GL_SelectTexture( INTERACTION_TEXUNIT_SPECULAR_CUBE1 );
+		viewDef->radianceImages[0]->Bind();
+
+		GL_SelectTexture( INTERACTION_TEXUNIT_SPECULAR_CUBE2 );
+		viewDef->radianceImages[1]->Bind();
+
+		GL_SelectTexture( INTERACTION_TEXUNIT_SPECULAR_CUBE3 );
+		viewDef->radianceImages[2]->Bind();
+	}
+	else if( useIBL )
+	{
+		idVec4 probeMins, probeMaxs, probeCenter;
+
+		probeMins[0] = viewDef->globalProbeBounds[0][0];
+		probeMins[1] = viewDef->globalProbeBounds[0][1];
+		probeMins[2] = viewDef->globalProbeBounds[0][2];
+		probeMins[3] = viewDef->globalProbeBounds.IsCleared() ? 0.0f : 1.0f;
+
+		probeMaxs[0] = viewDef->globalProbeBounds[1][0];
+		probeMaxs[1] = viewDef->globalProbeBounds[1][1];
+		probeMaxs[2] = viewDef->globalProbeBounds[1][2];
+		probeMaxs[3] = 0.0f;
+
+		idVec3 center = viewDef->globalProbeBounds.GetCenter();
+		probeCenter.Set( center.x, center.y, center.z, 1.0f );
+
+		SetVertexParm( RENDERPARM_WOBBLESKY_X, probeMins.ToFloatPtr() );
+		SetVertexParm( RENDERPARM_WOBBLESKY_Y, probeMaxs.ToFloatPtr() );
+		SetVertexParm( RENDERPARM_WOBBLESKY_Z, probeCenter.ToFloatPtr() );
+
+		// specular cubemap blend weights
+		renderProgManager.SetUniformValue( RENDERPARM_LOCALLIGHTORIGIN, viewDef->radianceImageBlends.ToFloatPtr() );
 
 		if( specUsage == TD_SPECULAR_PBR_RMAO || specUsage == TD_SPECULAR_PBR_RMAOD )
 		{
@@ -1385,26 +1491,17 @@ void idRenderBackend::DrawSingleInteraction( drawInteraction_t* din, bool useFas
 		}
 #endif
 
-		// TODO bind the 3 closest probes
 		GL_SelectTexture( INTERACTION_TEXUNIT_AMBIENT_CUBE1 );
-		if( viewDef->irradianceImage )
-		{
-			viewDef->irradianceImage->Bind();
-		}
-		else
-		{
-			globalImages->defaultUACIrradianceCube->Bind();
-		}
+		viewDef->irradianceImage->Bind();
 
 		GL_SelectTexture( INTERACTION_TEXUNIT_SPECULAR_CUBE1 );
-		if( viewDef->radianceImage )
-		{
-			viewDef->radianceImage->Bind();
-		}
-		else
-		{
-			globalImages->defaultUACRadianceCube->Bind();
-		}
+		viewDef->radianceImages[0]->Bind();
+
+		GL_SelectTexture( INTERACTION_TEXUNIT_SPECULAR_CUBE2 );
+		viewDef->radianceImages[1]->Bind();
+
+		GL_SelectTexture( INTERACTION_TEXUNIT_SPECULAR_CUBE3 );
+		viewDef->radianceImages[2]->Bind();
 	}
 	else if( setInteractionShader )
 	{
@@ -2229,10 +2326,6 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 
 	renderProgManager.SetRenderParm( RENDERPARM_AMBIENT_COLOR, ambientColor.ToFloatPtr() );
 
-	// use rpGlobalLightOrigin for camera center
-	idVec4 globalViewOrigin( viewDef->renderView.vieworg.x, viewDef->renderView.vieworg.y, viewDef->renderView.vieworg.z, 1.0f );
-	SetVertexParm( RENDERPARM_GLOBALLIGHTORIGIN, globalViewOrigin.ToFloatPtr() );
-
 	// setup renderparms assuming we will be drawing trivial surfaces first
 	RB_SetupForFastPathInteractions( diffuseColor, specularColor );
 
@@ -2318,16 +2411,6 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 			R_GlobalPointToLocal( drawSurf->space->modelMatrix, viewDef->renderView.vieworg, localViewOrigin.ToVec3() );
 			SetVertexParm( RENDERPARM_LOCALVIEWORIGIN, localViewOrigin.ToFloatPtr() );
 
-			//if( !isWorldModel )
-			//{
-			//	// tranform the light direction into model local space
-			//	idVec3 globalLightDirection( 0.0f, 0.0f, -1.0f ); // HACK
-			//	idVec4 localLightDirection( 0.0f );
-			//	R_GlobalVectorToLocal( drawSurf->space->modelMatrix, globalLightDirection, localLightDirection.ToVec3() );
-			//
-			//	SetVertexParm( RENDERPARM_LOCALLIGHTORIGIN, localLightDirection.ToFloatPtr() );
-			//}
-
 			// RB: if we want to store the normals in world space so we need the model -> world matrix
 			idRenderMatrix modelMatrix;
 			idRenderMatrix::Transpose( *( idRenderMatrix* )drawSurf->space->modelMatrix, modelMatrix );
@@ -2339,27 +2422,6 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 			R_MatrixTranspose( drawSurf->space->modelViewMatrix, modelViewMatrixTranspose );
 			SetVertexParms( RENDERPARM_MODELVIEWMATRIX_X, modelViewMatrixTranspose, 4 );
 		}
-
-#if 0
-		if( !isWorldModel )
-		{
-			idVec4 directedColor;
-			directedColor.x = drawSurf->space->gridDirectedLight.x;
-			directedColor.y = drawSurf->space->gridDirectedLight.y;
-			directedColor.z = drawSurf->space->gridDirectedLight.z;
-			directedColor.w = 1;
-
-			idVec4 ambientColor;
-			ambientColor.x = drawSurf->space->gridAmbientLight.x;
-			ambientColor.y = drawSurf->space->gridAmbientLight.y;
-			ambientColor.z = drawSurf->space->gridAmbientLight.z;
-			ambientColor.w = 1;
-
-			renderProgManager.SetRenderParm( RENDERPARM_COLOR, directedColor.ToFloatPtr() );
-			renderProgManager.SetRenderParm( RENDERPARM_AMBIENT_COLOR, ambientColor.ToFloatPtr() );
-		}
-		float ambientBoost = r_useHDR.GetBool() ? 1.5 : 1.0;
-#endif
 
 		/*
 		uint64 surfGLState = 0;

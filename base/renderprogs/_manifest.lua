@@ -15,6 +15,8 @@ return
 	"builtin/debug/shadowDebug_skinned.vs.hlsl",
 	"builtin/debug/octahedron.ps.hlsl",
 	"builtin/debug/octahedron.vs.hlsl",
+	"builtin/debug/lightgrid.ps.hlsl",
+	"builtin/debug/lightgrid.vs.hlsl",
 	
 	"builtin/fog/blendLight.ps.hlsl",
 	"builtin/fog/blendLight.vs.hlsl",
@@ -40,6 +42,8 @@ return
 	"builtin/lighting/ambient_lighting.vs.hlsl",
 	"builtin/lighting/ambient_lighting_IBL.ps.hlsl",
 	"builtin/lighting/ambient_lighting_IBL.vs.hlsl",
+	"builtin/lighting/ambient_lightgrid_IBL.ps.hlsl",
+	"builtin/lighting/ambient_lightgrid_IBL.vs.hlsl",
 	"builtin/lighting/interaction.ps.hlsl",
 	"builtin/lighting/interaction.vs.hlsl",
 	"builtin/lighting/interactionAmbient.ps.hlsl",

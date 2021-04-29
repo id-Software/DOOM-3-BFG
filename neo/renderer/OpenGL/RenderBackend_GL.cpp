@@ -276,10 +276,6 @@ static void R_CheckPortableExtensions()
 	glConfig.seamlessCubeMapAvailable = GLEW_ARB_seamless_cube_map != 0;
 	r_useSeamlessCubeMap.SetModified();		// the CheckCvars() next frame will enable / disable it
 
-	// GL_ARB_framebuffer_sRGB
-	glConfig.sRGBFramebufferAvailable = GLEW_ARB_framebuffer_sRGB != 0;
-	r_useSRGB.SetModified();		// the CheckCvars() next frame will enable / disable it
-
 	// GL_ARB_vertex_buffer_object
 	if( glConfig.driverType == GLDRV_OPENGL_MESA_CORE_PROFILE )
 	{
@@ -1423,21 +1419,6 @@ void idRenderBackend::GL_Clear( bool color, bool depth, bool stencil, byte stenc
 	glClear( clearFlags );
 
 	// RB begin
-	/*
-	if( r_useHDR.GetBool() && clearHDR && globalFramebuffers.hdrFBO != NULL )
-	{
-		bool isDefaultFramebufferActive = Framebuffer::IsDefaultFramebufferActive();
-
-		globalFramebuffers.hdrFBO->Bind();
-		glClear( clearFlags );
-
-		if( isDefaultFramebufferActive )
-		{
-			Framebuffer::Unbind();
-		}
-	}
-	*/
-
 	if( r_useHDR.GetBool() && clearHDR )
 	{
 		bool isDefaultFramebufferActive = Framebuffer::IsDefaultFramebufferActive();
@@ -1534,21 +1515,6 @@ void idRenderBackend::CheckCVars()
 		}
 	}
 
-	if( r_useSRGB.IsModified() )
-	{
-		r_useSRGB.ClearModified();
-		if( glConfig.sRGBFramebufferAvailable )
-		{
-			if( r_useSRGB.GetBool() && r_useSRGB.GetInteger() != 3 )
-			{
-				glEnable( GL_FRAMEBUFFER_SRGB );
-			}
-			else
-			{
-				glDisable( GL_FRAMEBUFFER_SRGB );
-			}
-		}
-	}
 
 	// SRS - Enable SDL-driven vync changes without restart for UNIX-like OSs
 #if defined(__linux__) || defined(__FreeBSD__) || defined(__APPLE__)
@@ -1570,7 +1536,6 @@ void idRenderBackend::CheckCVars()
 	}
 #endif
 	// SRS end
-
 	if( r_antiAliasing.IsModified() )
 	{
 		switch( r_antiAliasing.GetInteger() )

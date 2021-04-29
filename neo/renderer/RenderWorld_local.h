@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2014-2016 Robert Beckebans
+Copyright (C) 2014-2021 Robert Beckebans
 Copyright (C) 2014-2016 Kot in Action Creative Artel
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
@@ -59,6 +59,57 @@ typedef struct doublePortal_s
 	struct doublePortal_s* 	nextFoggedPortal;
 } doublePortal_t;
 
+// RB: added Quake 3 style light grid
+// however this 2021 version features Spherical Harmonics instead of ambient + directed color
+struct lightGridPoint_t
+{
+	idVec3			origin;				// not saved to .proc
+	byte			valid;				// is not in the void
+
+	SphericalHarmonicsT<idVec3, 4>	shRadiance; // L4 Spherical Harmonics
+};
+
+class LightGrid
+{
+public:
+	idVec3					lightGridOrigin;
+	idVec3					lightGridSize;
+	int						lightGridBounds[3];
+
+	idList<lightGridPoint_t> lightGridPoints;
+
+	int						area;
+	idImage* 				irradianceImage;
+	int						imageSingleProbeSize; // including border
+	int						imageBorderSize;
+
+	LightGrid();
+
+	// setup light grid for given world bounds
+	void					SetupLightGrid( const idBounds& bounds, const char* baseName, const idRenderWorld* world, int _area, int limit );
+
+	void					GetBaseGridCoord( const idVec3& origin, int gridCoord[3] );
+
+	int						GridCoordToProbeIndex( int gridCoord[3] );
+	void					ProbeIndexToGridCoord( const int probeIndex, int gridCoord[3] );
+
+	idVec3					GetGridCoordDebugColor( int gridCoord[3] );
+	idVec3					GetProbeIndexDebugColor( const int probeIndex );
+
+	int						CountValidGridPoints() const;
+
+	idImage*				GetIrradianceImage() const
+	{
+		return irradianceImage;
+	}
+
+	// fetch grid lighting on a per object basis
+	void					SetupEntityGridLighting( idRenderEntityLocal* def );
+
+private:
+	void					CalculateLightGridPointPositions( const idRenderWorld* world, int area );
+};
+// RB end
 
 typedef struct portalArea_s
 {
@@ -67,6 +118,8 @@ typedef struct portalArea_s
 	// not separated by a portal with the apropriate PS_BLOCK_* blockingBits
 
 	idBounds		globalBounds;	// RB: AABB of the BSP area used for light grid density
+
+	LightGrid		lightGrid;
 
 	int				viewCount;		// set by R_FindViewLightsAndEntities
 	portal_t* 		portals;		// never changes after load
@@ -337,6 +390,24 @@ public:
 	//-------------------------------
 	// tr_light.c
 	void					CreateLightDefInteractions( idRenderLightLocal* const ldef, const int renderViewID );
+
+// RB begin
+
+	//--------------------------
+	// RenderWorld_lightgrid.cpp
+
+//private:
+	void					SetupLightGrid();
+
+	void					WriteLightGridsToFile( const char* filename );
+	void					WriteLightGrid( idFile* fp, const LightGrid& lightGrid );
+
+	bool					LoadLightGridFile( const char* name );
+	void					LoadLightGridImages();
+
+	void					ParseLightGridPoints( idLexer* src, idFile* fileOut );
+	void					ReadBinaryLightGridPoints( idFile* file );
+// RB end
 };
 
 // if an entity / light combination has been evaluated and found to not genrate any surfaces or shadows,
