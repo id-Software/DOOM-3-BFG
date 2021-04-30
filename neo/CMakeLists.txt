@@ -76,8 +76,18 @@ if(FFMPEG AND BINKDEC)
 	message(FATAL_ERROR "Only one of FFMPEG and BINKDEC (or neither) can be enabled at a time")
 endif()
 
+
 if(UNIX)
-	set(OPENAL TRUE)
+	set(OPENAL ON)
+	
+	if(USE_VULKAN)
+		SET(SDL2 ON)
+		
+		# RB: disable precompiled headers on Linux with Vulkan because of error: POSIX thread support was disabled in PCH file but is currently enabled
+		if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang" OR CMAKE_C_COMPILER_ID STREQUAL "AppleClang")
+            set(USE_PRECOMPILED_HEADERS OFF)
+        endif()
+	endif()
 endif()
 
 if(COMPILE_COMMANDS)
@@ -93,12 +103,7 @@ if (FORCE_COLOR_OUTPUT)
 	endif ()
 endif ()
 
-# Eric: Hard dependency on SDL2 for the Vulkan renderer on Linux
-if(UNIX)
-	if(USE_VULKAN)
-		SET(SDL2 ON)
-	endif()
-endif()
+
 
 if(MSVC)
 	#message(STATUS CMAKE_ROOT: ${CMAKE_ROOT})
@@ -159,13 +164,12 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang" OR CMAKE_C_CO
 	#endif()
 	
 	# SRS - Change add_compile_options to add_definitions so options propagate to pre-compiled header build settings
-	add_definitions(-Wno-pragmas -Wno-unused-variable -Wno-switch -Wno-unused-value -Winvalid-pch -Wno-multichar)
+	add_compile_options(-Wno-pragmas -Wno-unused-variable -Wno-switch -Wno-unused-value -Winvalid-pch -Wno-multichar)
 	# SRS - Add test for AppleClang
 	if(CMAKE_C_COMPILER_ID STREQUAL "Clang" OR CMAKE_C_COMPILER_ID STREQUAL "AppleClang")
 		# add clang-specific settings for warnings (the second one make sure clang doesn't complain
 		# about unknown -W flags, like -Wno-unused-but-set-variable)
-		# SRS - Add -Wno-deprecated-register and -Wno-expansion-to-defined to list of warning settings
-		add_definitions(-Wno-local-type-template-args -Wno-unknown-warning-option -Wno-inline-new-delete -Wno-switch-enum -Wno-deprecated-register -Wno-expansion-to-defined)
+		add_compile_options(-Wno-local-type-template-args -Wno-unknown-warning-option -Wno-inline-new-delete -Wno-switch-enum)
 	endif()
 	
 	if(NOT CMAKE_CROSSCOMPILING AND ONATIVE)
@@ -176,8 +180,7 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang" OR CMAKE_C_CO
 		endif()
 	endif()
 
-	# SRS - Change add_compile_options to add_definitions so options propagate to pre-compiled header build settings
-	add_definitions(-fno-strict-aliasing)
+	add_compile_options(-fno-strict-aliasing)
 
 	# SRS - Make sure OSX can find system headers and add support for minimum OSX runtime version
 	if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -1669,9 +1672,6 @@ else()
 	list(APPEND RBDOOM3_SOURCES
 		${SYS_INCLUDES} ${SYS_SOURCES})
 	
-	find_package(OpenGL REQUIRED)
-	include_directories(${OPENGL_INCLUDE_DIRS})
-
 	if(UNIX)
 		if(FFMPEG)
 			find_package(FFMPEG REQUIRED)
@@ -1745,6 +1745,9 @@ else()
             endif()
 
         else()
+			find_package(OpenGL REQUIRED)
+			include_directories(${OPENGL_INCLUDE_DIRS})
+
             list(APPEND RBDOOM3_INCLUDES ${RENDERER_OPENGL_INCLUDES})
             list(APPEND RBDOOM3_SOURCES ${RENDERER_OPENGL_SOURCES})
         endif()
