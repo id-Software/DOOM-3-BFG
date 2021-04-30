@@ -498,7 +498,8 @@ struct viewEnvprobe_t
 struct calcEnvprobeParms_t
 {
 	// input
-	byte*							buffers[6];				// HDR R11G11B11F standard OpenGL cubemap sides
+	byte*							radiance[6];			// HDR RGB16F standard OpenGL cubemap sides
+	int								freeRadiance;
 	int								samples;
 
 	int								outWidth;

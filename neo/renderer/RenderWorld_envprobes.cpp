@@ -585,13 +585,13 @@ static inline idVec3 MapXYSToDirection( uint64 x, uint64 y, uint64 s, uint64 wid
 
 void CalculateIrradianceJob( calcEnvprobeParms_t* parms )
 {
-	byte*		buffers[6];
+	halfFloat_t*		buffers[6];
 
 	int	start = Sys_Milliseconds();
 
 	for( int i = 0; i < 6; i++ )
 	{
-		buffers[ i ] = parms->buffers[ i ];
+		buffers[ i ] = ( halfFloat_t* ) parms->radiance[ i ];
 	}
 
 	const float invDstSize = 1.0f / float( parms->outHeight );
@@ -629,7 +629,7 @@ void CalculateIrradianceJob( calcEnvprobeParms_t* parms )
 
 				float u, v;
 				idVec3 radiance;
-				R_SampleCubeMapHDR( dir, parms->outHeight, buffers, &radiance[0], u, v );
+				R_SampleCubeMapHDR16F( dir, parms->outHeight, buffers, &radiance[0], u, v );
 
 				//radiance = dir * 0.5 + idVec3( 0.5f, 0.5f, 0.5f );
 
@@ -749,13 +749,13 @@ void CalculateIrradianceJob( calcEnvprobeParms_t* parms )
 
 void CalculateRadianceJob( calcEnvprobeParms_t* parms )
 {
-	byte*		buffers[6];
+	halfFloat_t*		buffers[6];
 
 	int	start = Sys_Milliseconds();
 
 	for( int i = 0; i < 6; i++ )
 	{
-		buffers[ i ] = parms->buffers[ i ];
+		buffers[ i ] = ( halfFloat_t* ) parms->radiance[ i ];
 	}
 
 	const float invDstSize = 1.0f / float( parms->outHeight );
@@ -831,7 +831,7 @@ void CalculateRadianceJob( calcEnvprobeParms_t* parms )
 						float sample[3];
 						float u, v;
 
-						R_SampleCubeMapHDR( H, parms->outHeight, buffers, sample, u, v );
+						R_SampleCubeMapHDR16F( H, parms->outHeight, buffers, sample, u, v );
 
 						outColor[0] += sample[0] * NdotL;
 						outColor[1] += sample[1] * NdotL;
@@ -866,41 +866,23 @@ REGISTER_PARALLEL_JOB( CalculateIrradianceJob, "CalculateIrradianceJob" );
 REGISTER_PARALLEL_JOB( CalculateRadianceJob, "CalculateRadianceJob" );
 
 
-void R_MakeAmbientMap( const char* baseName, const char* suffix, int outSize, bool specular, bool deleteTempFiles, bool useThreads )
+void R_MakeAmbientMap( const char* baseName, byte* buffers[6], const char* suffix, int outSize, bool specular, bool useThreads )
 {
 	idStr		fullname;
 	renderView_t	ref;
 	viewDef_t	primary;
-	byte*		buffers[6];
-	int			width = 0, height = 0;
-
-	// read all of the images
-	for( int i = 0 ; i < 6 ; i++ )
-	{
-		fullname.Format( "env/%s%s.exr", baseName, envDirection[i] );
-
-		const bool captureToImage = false;
-		common->UpdateScreen( captureToImage );
-
-		R_LoadImage( fullname, &buffers[i], &width, &height, NULL, true, NULL );
-		if( !buffers[i] )
-		{
-			common->Printf( "loading %s failed.\n", fullname.c_str() );
-			for( i-- ; i >= 0 ; i-- )
-			{
-				Mem_Free( buffers[i] );
-			}
-			return;
-		}
-	}
+	//byte*		buffers[6];
+	//int			width = 0, height = 0;
 
 	// set up the job
 	calcEnvprobeParms_t* jobParms = new calcEnvprobeParms_t;
 
 	for( int i = 0; i < 6; i++ )
 	{
-		jobParms->buffers[ i ] = buffers[ i ];
+		jobParms->radiance[ i ] = buffers[ i ];
 	}
+
+	jobParms->freeRadiance = specular ? 1 : 0;
 
 	jobParms->samples = 1000;
 	jobParms->filename.Format( "env/%s%s.exr", baseName, suffix );
@@ -937,16 +919,6 @@ void R_MakeAmbientMap( const char* baseName, const char* suffix, int outSize, bo
 			CalculateIrradianceJob( jobParms );
 		}
 	}
-
-	if( deleteTempFiles )
-	{
-		for( int i = 0 ; i < 6 ; i++ )
-		{
-			fullname.Format( "env/%s%s.exr", baseName, envDirection[i] );
-
-			fileSystem->RemoveFile( fullname );
-		}
-	}
 }
 
 CONSOLE_COMMAND( bakeEnvironmentProbes, "Bake environment probes", NULL )
@@ -954,9 +926,8 @@ CONSOLE_COMMAND( bakeEnvironmentProbes, "Bake environment probes", NULL )
 	idStr			fullname;
 	idStr			baseName;
 	renderView_t	ref;
-	int				blends;
 	const char*		extension;
-	int				size;
+	int				captureSize;
 
 	static const char* envDirection[6] = { "_px", "_nx", "_py", "_ny", "_pz", "_nz" };
 
@@ -974,8 +945,7 @@ CONSOLE_COMMAND( bakeEnvironmentProbes, "Bake environment probes", NULL )
 	baseName = tr.primaryWorld->mapName;
 	baseName.StripFileExtension();
 
-	size = RADIANCE_CUBEMAP_SIZE;
-	blends = 1;
+	captureSize = RADIANCE_CUBEMAP_SIZE;
 
 	if( !tr.primaryView )
 	{
@@ -984,43 +954,6 @@ CONSOLE_COMMAND( bakeEnvironmentProbes, "Bake environment probes", NULL )
 	}
 
 	const viewDef_t primary = *tr.primaryView;
-
-	//--------------------------------------------
-	// CAPTURE SCENE LIGHTING TO CUBEMAPS
-	//--------------------------------------------
-
-	for( int i = 0; i < tr.primaryWorld->envprobeDefs.Num(); i++ )
-	{
-		RenderEnvprobeLocal* def = tr.primaryWorld->envprobeDefs[i];
-		if( def == NULL )
-		{
-			continue;
-		}
-
-		for( int j = 0 ; j < 6 ; j++ )
-		{
-			ref = primary.renderView;
-
-			ref.rdflags = RDF_NOAMBIENT | RDF_IRRADIANCE;
-			ref.fov_x = ref.fov_y = 90;
-
-			ref.vieworg = def->parms.origin;
-			ref.viewaxis = tr.cubeAxis[j];
-
-			extension = envDirection[ j ];
-			fullname.Format( "env/%s/envprobe%i%s", baseName.c_str(), i, extension );
-
-			tr.TakeScreenshot( size, size, fullname, blends, &ref, EXR );
-			//tr.CaptureRenderToFile( fullname, false );
-		}
-	}
-
-	// restore the original resolution, same as "vid_restart"
-	glConfig.nativeScreenWidth = sysWidth;
-	glConfig.nativeScreenHeight = sysHeight;
-	R_SetNewMode( false );
-
-	common->Printf( "Wrote a env set with the name %s\n", baseName.c_str() );
 
 	//--------------------------------------------
 	// CONVOLVE CUBEMAPS
@@ -1036,11 +969,37 @@ CONSOLE_COMMAND( bakeEnvironmentProbes, "Bake environment probes", NULL )
 			continue;
 		}
 
+		byte* buffers[6];
+
+		for( int j = 0; j < 6; j++ )
+		{
+			ref = primary.renderView;
+
+			ref.rdflags = RDF_NOAMBIENT | RDF_IRRADIANCE;
+			ref.fov_x = ref.fov_y = 90;
+
+			ref.vieworg = def->parms.origin;
+			ref.viewaxis = tr.cubeAxis[j];
+
+			//extension = envDirection[ j ];
+			//fullname.Format( "env/%s/envprobe%i%s", baseName.c_str(), i, extension );
+			//tr.TakeScreenshot( size, size, fullname, blends, &ref, EXR );
+
+			byte* float16FRGB = tr.CaptureRenderToBuffer( captureSize, captureSize, &ref );
+			buffers[ j ] = float16FRGB;
+		}
+
 		fullname.Format( "%s/envprobe%i", baseName.c_str(), i );
 
-		R_MakeAmbientMap( fullname.c_str(), "_amb", IRRADIANCE_CUBEMAP_SIZE, false, false, useThreads );
-		R_MakeAmbientMap( fullname.c_str(), "_spec", RADIANCE_CUBEMAP_SIZE, true, true, useThreads );
+		// create 2 jobs
+		R_MakeAmbientMap( fullname.c_str(), buffers, "_amb", IRRADIANCE_CUBEMAP_SIZE, false, useThreads );
+		R_MakeAmbientMap( fullname.c_str(), buffers, "_spec", RADIANCE_CUBEMAP_SIZE, true, useThreads );
 	}
+
+	// restore the original resolution, same as "vid_restart"
+	glConfig.nativeScreenWidth = sysWidth;
+	glConfig.nativeScreenHeight = sysHeight;
+	R_SetNewMode( false );
 
 	if( useThreads )
 	{
@@ -1057,11 +1016,14 @@ CONSOLE_COMMAND( bakeEnvironmentProbes, "Bake environment probes", NULL )
 
 		common->Printf( "%s convolved in %5.1f seconds\n\n", job->filename.c_str(), job->time * 0.001f );
 
-		for( int i = 0; i < 6; i++ )
+		if( job->freeRadiance > 0 )
 		{
-			if( job->buffers[i] )
+			for( int i = 0; i < 6; i++ )
 			{
-				Mem_Free( job->buffers[i] );
+				if( job->radiance[i] )
+				{
+					Mem_Free( job->radiance[i] );
+				}
 			}
 		}
 
@@ -1091,40 +1053,6 @@ CONSOLE_COMMAND( bakeEnvironmentProbes, "Bake environment probes", NULL )
 		def->radianceImage->Reload( false );
 	}
 }
-
-/*
-==================
-R_MakeAmbientMap_f
-
-R_MakeAmbientMap_f <basename> [size]
-
-Saves out env/<basename>_amb_ft.tga, etc
-==================
-*/
-CONSOLE_COMMAND( makeAmbientMap, "Saves out env/<basename>_amb_ft.tga, etc", NULL )
-{
-	const char*	baseName;
-	int			outSize;
-
-	if( args.Argc() != 2 && args.Argc() != 3 && args.Argc() != 4 )
-	{
-		common->Printf( "USAGE: makeAmbientMap <basename> [size]\n" );
-		return;
-	}
-	baseName = args.Argv( 1 );
-
-	if( args.Argc() >= 3 )
-	{
-		outSize = atoi( args.Argv( 2 ) );
-	}
-	else
-	{
-		outSize = 32;
-	}
-
-	R_MakeAmbientMap( baseName, "_amb", outSize, false, false, false );
-}
-
 
 CONSOLE_COMMAND( makeBrdfLUT, "make a GGX BRDF lookup table", NULL )
 {
