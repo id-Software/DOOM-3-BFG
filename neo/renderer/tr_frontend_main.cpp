@@ -525,7 +525,11 @@ static void R_FindClosestEnvironmentProbes()
 
 	RenderEnvprobeLocal* nearest = viewEnvprobes[0];
 	tr.viewDef->globalProbeBounds = nearest->globalProbeBounds;
-	tr.viewDef->irradianceImage = nearest->irradianceImage;
+
+	if( !nearest->irradianceImage->IsDefaulted() )
+	{
+		tr.viewDef->irradianceImage = nearest->irradianceImage;
+	}
 
 	// form a triangle of the 3 closest probes
 	idVec3 verts[3];
@@ -566,7 +570,10 @@ static void R_FindClosestEnvironmentProbes()
 
 	for( int i = 0; i < viewEnvprobes.Num() && i < 3; i++ )
 	{
-		tr.viewDef->radianceImages[i] = viewEnvprobes[i]->radianceImage;
+		if( !viewEnvprobes[i]->radianceImage->IsDefaulted() )
+		{
+			tr.viewDef->radianceImages[i] = viewEnvprobes[i]->radianceImage;
+		}
 	}
 }
 // RB end
@@ -682,7 +689,10 @@ void R_RenderPostProcess( viewDef_t* parms )
 {
 	viewDef_t* oldView = tr.viewDef;
 
-	R_AddDrawPostProcess( parms );
+	//if( !( parms->renderView.rdflags & RDF_IRRADIANCE ) )
+	{
+		R_AddDrawPostProcess( parms );
+	}
 
 	tr.viewDef = oldView;
 }
