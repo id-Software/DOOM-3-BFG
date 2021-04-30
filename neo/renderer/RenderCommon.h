@@ -530,7 +530,7 @@ struct calcLightGridPointParms_t
 	int								outHeight;
 
 	// output
-	SphericalHarmonicsT<idVec3, 3>	shRadiance;				// L3 Spherical Harmonics
+	SphericalHarmonicsT<idVec3, 4>	shRadiance;				// L4 Spherical Harmonics
 
 	halfFloat_t*					outBuffer;				// HDR R11G11B11F octahedron LIGHTGRID_IRRADIANCE_SIZE^2
 	int								time;					// execution time in milliseconds

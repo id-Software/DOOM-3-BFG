@@ -741,7 +741,7 @@ void idRenderWorldLocal::ParseLightGridPoints( idLexer* src, idFile* fileOut )
 
 		src->Parse1DMatrix( 3, gridPoint->origin.ToFloatPtr() );
 #if STORE_LIGHTGRID_SHDATA
-		src->Parse1DMatrix( shSize( 3 ) * 3, gridPoint->shRadiance[0].ToFloatPtr() );
+		src->Parse1DMatrix( shSize( 4 ) * 3, gridPoint->shRadiance[0].ToFloatPtr() );
 #endif
 
 		if( fileOut != NULL )
@@ -750,7 +750,7 @@ void idRenderWorldLocal::ParseLightGridPoints( idLexer* src, idFile* fileOut )
 			fileOut->WriteBig( gridPoint->origin );
 
 #if STORE_LIGHTGRID_SHDATA
-			fileOut->WriteBigArray( gridPoint->shRadiance[0].ToFloatPtr(), shSize( 3 ) * 3 );
+			fileOut->WriteBigArray( gridPoint->shRadiance[0].ToFloatPtr(), shSize( 4 ) * 3 );
 #endif
 		}
 	}
@@ -912,10 +912,10 @@ void CalculateLightGridPointJob( calcLightGridPointParms_t* parms )
 
 	const idVec2i sourceImageSize( parms->outHeight, parms->outHeight );
 
-	// build L3 Spherical Harmonics from source image
-	SphericalHarmonicsT<idVec3, 3> shRadiance;
+	// build L4 Spherical Harmonics from source image
+	SphericalHarmonicsT<idVec3, 4> shRadiance;
 
-	for( int i = 0; i < shSize( 3 ); i++ )
+	for( int i = 0; i < shSize( 4 ); i++ )
 	{
 		shRadiance[i].Zero();
 	}
@@ -943,10 +943,10 @@ void CalculateLightGridPointJob( calcLightGridPointParms_t* parms )
 
 				float texelArea = CubemapTexelSolidAngle( uu, vv, invDstSize );
 
-				const SphericalHarmonicsT<float, 3>& sh = shEvaluate<3>( dir );
+				const SphericalHarmonicsT<float, 4>& sh = shEvaluate<4>( dir );
 
 				bool shValid = true;
-				for( int i = 0; i < shSize( 3 ); i++ )
+				for( int i = 0; i < shSize( 4 ); i++ )
 				{
 					if( IsNAN( sh[i] ) )
 					{
@@ -963,7 +963,7 @@ void CalculateLightGridPointJob( calcLightGridPointParms_t* parms )
 		}
 	}
 
-	for( int i = 0; i < shSize( 3 ); i++ )
+	for( int i = 0; i < shSize( 4 ); i++ )
 	{
 		parms->shRadiance[i] = shRadiance[i];
 	}
@@ -992,35 +992,14 @@ void CalculateLightGridPointJob( calcLightGridPointParms_t* parms )
 
 			idVec3 outColor( 0, 0, 0 );
 
-#if 1
-			// generate ambient colors by evaluating the L3 Spherical Harmonics
-			SphericalHarmonicsT<float, 3> shDirection = shEvaluate<3>( dir );
+			// generate ambient colors by evaluating the L4 Spherical Harmonics
+			SphericalHarmonicsT<float, 4> shDirection = shEvaluate<4>( dir );
 
-			idVec3 sampleIrradianceSh = shEvaluateDiffuse<idVec3, 3>( shRadiance, dir ) / idMath::PI;
+			idVec3 sampleIrradianceSh = shEvaluateDiffuse<idVec3, 4>( shRadiance, dir ) / idMath::PI;
 
 			outColor[0] = Max( 0.0f, sampleIrradianceSh.x );
 			outColor[1] = Max( 0.0f, sampleIrradianceSh.y );
 			outColor[2] = Max( 0.0f, sampleIrradianceSh.z );
-#else
-			// generate ambient colors using Monte Carlo method
-			for( int s = 0; s < parms->samples; s++ )
-			{
-				idVec2 Xi = Hammersley2D( s, parms->samples );
-				idVec3 H = ImportanceSampleGGX( Xi, dir, 0.95f );
-
-				float u, v;
-				idVec3 radiance;
-				R_SampleCubeMapHDR( H, parms->outHeight, buffers, &radiance[0], u, v );
-
-				outColor[0] += radiance[0];
-				outColor[1] += radiance[1];
-				outColor[2] += radiance[2];
-			}
-
-			outColor[0] /= parms->samples;
-			outColor[1] /= parms->samples;
-			outColor[2] /= parms->samples;
-#endif
 
 			//outColor = dir * 0.5 + idVec3( 0.5f, 0.5f, 0.5f );
 
