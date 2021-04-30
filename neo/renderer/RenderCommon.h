@@ -505,6 +505,8 @@ struct calcEnvprobeParms_t
 	int								outHeight;
 
 	bool							printProgress;
+	int								printWidth;
+	int								printHeight;
 
 	idStr							filename;
 
@@ -1412,14 +1414,24 @@ private:
 	int	count = 0;
 	int expectedCount = 0;
 
+	int sysWidth = 1280;
+	int sysHeight = 720;
+
 public:
-	CommandlineProgressBar( int _expectedCount )
+	CommandlineProgressBar( int _expectedCount, int width, int height )
 	{
 		expectedCount = _expectedCount;
+		sysWidth = width;
+		sysHeight = height;
 	}
 
 	void Start()
 	{
+		// restore the original resolution, same as "vid_restart"
+		glConfig.nativeScreenWidth = sysWidth;
+		glConfig.nativeScreenHeight = sysHeight;
+		R_SetNewMode( false );
+
 		common->Printf( "0%%  10   20   30   40   50   60   70   80   90   100%%\n" );
 		common->Printf( "|----|----|----|----|----|----|----|----|----|----|\n" );
 
@@ -1430,6 +1442,11 @@ public:
 	{
 		if( ( count + 1 ) >= nextTicCount )
 		{
+			// restore the original resolution, same as "vid_restart"
+			glConfig.nativeScreenWidth = sysWidth;
+			glConfig.nativeScreenHeight = sysHeight;
+			R_SetNewMode( false );
+
 			size_t ticsNeeded = ( size_t )( ( ( double )( count + 1 ) / expectedCount ) * 50.0 );
 
 			do

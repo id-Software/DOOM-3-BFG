@@ -600,7 +600,7 @@ void CalculateIrradianceJob( calcEnvprobeParms_t* parms )
 
 	const idVec2i sourceImageSize( parms->outHeight, parms->outHeight );
 
-	CommandlineProgressBar progressBar( R_CalculateUsedAtlasPixels( sourceImageSize.y ) );
+	CommandlineProgressBar progressBar( R_CalculateUsedAtlasPixels( sourceImageSize.y ), parms->printWidth, parms->printHeight );
 	if( parms->printProgress )
 	{
 		progressBar.Start();
@@ -613,58 +613,6 @@ void CalculateIrradianceJob( calcEnvprobeParms_t* parms )
 	{
 		shRadiance[i].Zero();
 	}
-
-#if 0
-
-	// build SH by only iterating over the octahedron
-	// RB: not used because I don't know the texel area of an octahedron pixel and the cubemap texel area is too small
-	// however it would be nice to use this because it would be 6 times faster
-
-	idVec4 dstRect = R_CalculateMipRect( parms->outHeight, 0 );
-
-	for( int x = dstRect.x; x < ( dstRect.x + dstRect.z ); x++ )
-	{
-		for( int y = dstRect.y; y < ( dstRect.y + dstRect.w ); y++ )
-		{
-			idVec2 octCoord = NormalizedOctCoordNoBorder( x, y, dstRect.z );
-
-			// convert UV coord to 3D direction
-			idVec3 dir;
-
-			dir.FromOctahedral( octCoord );
-
-			float u, v;
-			idVec3 radiance;
-			R_SampleCubeMapHDR( dir, parms->outHeight, buffers, &radiance[0], u, v );
-
-			//radiance = dir * 0.5 + idVec3( 0.5f, 0.5f, 0.5f );
-
-			// convert from [0 .. size-1] to [-1.0 + invSize .. 1.0 - invSize]
-			const float uu = 2.0f * ( u * invDstSize ) - 1.0f;
-			const float vv = 2.0f * ( v * invDstSize ) - 1.0f;
-
-			float texelArea = CubemapTexelSolidAngle( uu, vv, invDstSize );
-
-			const SphericalHarmonicsT<float, 4>& sh = shEvaluate<4>( dir );
-
-			bool shValid = true;
-			for( int i = 0; i < 25; i++ )
-			{
-				if( IsNAN( sh[i] ) )
-				{
-					shValid = false;
-					break;
-				}
-			}
-
-			if( shValid )
-			{
-				shAddWeighted( shRadiance, sh, radiance * texelArea );
-			}
-		}
-	}
-
-#else
 
 	// build SH by iterating over all cubemap pixels
 
@@ -694,7 +642,7 @@ void CalculateIrradianceJob( calcEnvprobeParms_t* parms )
 				const SphericalHarmonicsT<float, 3>& sh = shEvaluate<3>( dir );
 
 				bool shValid = true;
-				for( int i = 0; i < 25; i++ )
+				for( int i = 0; i < shSize( 3 ); i++ )
 				{
 					if( IsNAN( sh[i] ) )
 					{
@@ -710,8 +658,6 @@ void CalculateIrradianceJob( calcEnvprobeParms_t* parms )
 			}
 		}
 	}
-
-#endif
 
 	// reset image to black
 	for( int x = 0; x < parms->outWidth; x++ )
@@ -818,7 +764,7 @@ void CalculateRadianceJob( calcEnvprobeParms_t* parms )
 
 	const idVec2i sourceImageSize( parms->outHeight, parms->outHeight );
 
-	CommandlineProgressBar progressBar( R_CalculateUsedAtlasPixels( sourceImageSize.y ) );
+	CommandlineProgressBar progressBar( R_CalculateUsedAtlasPixels( sourceImageSize.y ), parms->printWidth, parms->printHeight );
 	if( parms->printProgress )
 	{
 		progressBar.Start();
@@ -960,6 +906,8 @@ void R_MakeAmbientMap( const char* baseName, const char* suffix, int outSize, bo
 	jobParms->filename.Format( "env/%s%s.exr", baseName, suffix );
 
 	jobParms->printProgress = !useThreads;
+	jobParms->printWidth = renderSystem->GetWidth();
+	jobParms->printHeight = renderSystem->GetHeight();
 
 	jobParms->outWidth = int( outSize * 1.5f );
 	jobParms->outHeight = outSize;
@@ -1018,6 +966,9 @@ CONSOLE_COMMAND( bakeEnvironmentProbes, "Bake environment probes", NULL )
 		return;
 	}
 
+	int sysWidth = renderSystem->GetWidth();
+	int sysHeight = renderSystem->GetHeight();
+
 	bool useThreads = true;
 
 	baseName = tr.primaryWorld->mapName;
@@ -1064,6 +1015,10 @@ CONSOLE_COMMAND( bakeEnvironmentProbes, "Bake environment probes", NULL )
 		}
 	}
 
+	// restore the original resolution, same as "vid_restart"
+	glConfig.nativeScreenWidth = sysWidth;
+	glConfig.nativeScreenHeight = sysHeight;
+	R_SetNewMode( false );
 
 	common->Printf( "Wrote a env set with the name %s\n", baseName.c_str() );
 
@@ -1196,7 +1151,10 @@ CONSOLE_COMMAND( makeBrdfLUT, "make a GGX BRDF lookup table", NULL )
 	int hdrBufferSize = outSize * outSize * 2 * sizeof( halfFloat_t );
 	halfFloat_t* hdrBuffer = ( halfFloat_t* )Mem_Alloc( hdrBufferSize, TAG_TEMP );
 
-	CommandlineProgressBar progressBar( outSize * outSize );
+	int sysWidth = renderSystem->GetWidth();
+	int sysHeight = renderSystem->GetHeight();
+
+	CommandlineProgressBar progressBar( outSize * outSize, sysWidth, sysHeight );
 
 	int	start = Sys_Milliseconds();
 

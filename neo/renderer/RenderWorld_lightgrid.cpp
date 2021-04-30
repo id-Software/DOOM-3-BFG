@@ -1129,6 +1129,15 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 		return;
 	}
 
+	if( !tr.primaryView )
+	{
+		common->Printf( "No primary view.\n" );
+		return;
+	}
+
+	int sysWidth = renderSystem->GetWidth();
+	int sysHeight = renderSystem->GetHeight();
+
 	bool useThreads = false;
 
 	baseName = tr.primaryWorld->mapName;
@@ -1136,12 +1145,6 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 
 	captureSize = RADIANCE_CUBEMAP_SIZE;
 	blends = 1;
-
-	if( !tr.primaryView )
-	{
-		common->Printf( "No primary view.\n" );
-		return;
-	}
 
 	int limit = MAX_AREA_LIGHTGRID_POINTS;
 	if( args.Argc() >= 2 )
@@ -1183,7 +1186,7 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 
 		idLib::Printf( "Shooting %i grid probes area %i...\n", numGridPoints, a );
 
-		CommandlineProgressBar progressBar( numGridPoints );
+		CommandlineProgressBar progressBar( numGridPoints, sysWidth, sysHeight );
 		if( !useThreads )
 		{
 			progressBar.Start();
@@ -1247,6 +1250,11 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 		}
 
 		int	end = Sys_Milliseconds();
+
+		// restore the original resolution, same as "vid_restart"
+		glConfig.nativeScreenWidth = sysWidth;
+		glConfig.nativeScreenHeight = sysHeight;
+		R_SetNewMode( false );
 
 		common->Printf( "captured light grid radiance for area %i in %5.1f seconds\n\n", a, ( end - start ) * 0.001f );
 
