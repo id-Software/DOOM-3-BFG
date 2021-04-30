@@ -689,7 +689,7 @@ void R_RenderPostProcess( viewDef_t* parms )
 {
 	viewDef_t* oldView = tr.viewDef;
 
-	//if( !( parms->renderView.rdflags & RDF_IRRADIANCE ) )
+	if( !( parms->renderView.rdflags & RDF_IRRADIANCE ) )
 	{
 		R_AddDrawPostProcess( parms );
 	}

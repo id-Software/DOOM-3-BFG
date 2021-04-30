@@ -1444,7 +1444,7 @@ public:
 		if( ( count + 1 ) >= nextTicCount )
 		{
 			// discard anything currently on the list
-			tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
+			//tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
 
 			// restore the original resolution, same as "vid_restart"
 			glConfig.nativeScreenWidth = sysWidth;
@@ -1470,7 +1470,7 @@ public:
 			}
 
 			common->UpdateScreen( false );
-			common->UpdateScreen( false );
+			//common->UpdateScreen( false );
 		}
 
 		count++;
