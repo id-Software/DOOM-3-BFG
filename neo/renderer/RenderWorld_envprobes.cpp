@@ -33,6 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../libs/mesa/format_r11g11b10f.h"
 
 #include "RenderCommon.h"
+#include "../framework/Common_local.h" // commonLocal.WaitGameThread();
 
 /*
 =============
@@ -954,7 +955,35 @@ CONSOLE_COMMAND( bakeEnvironmentProbes, "Bake environment probes", NULL )
 	// CONVOLVE CUBEMAPS
 	//--------------------------------------------
 
+	// make sure the game / draw thread has completed
+	commonLocal.WaitGameThread();
+
+	glConfig.nativeScreenWidth = captureSize;
+	glConfig.nativeScreenHeight = captureSize;
+
+	// disable scissor, so we don't need to adjust all those rects
+	r_useScissor.SetBool( false );
+
+	// RB: this really sucks but prevents a crash I couldn't track down
+	extern idCVar r_useParallelAddModels;
+	extern idCVar r_useParallelAddShadows;
+	extern idCVar r_useParallelAddLights;
+
+	r_useParallelAddModels.SetBool( false );
+	r_useParallelAddShadows.SetBool( false );
+	r_useParallelAddLights.SetBool( false );
+
+	// discard anything currently on the list (this triggers SwapBuffers)
+	tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
+
+	tr.takingEnvprobe = true;
+
 	int	start = Sys_Milliseconds();
+
+	idLib::Printf( "Shooting %i environment probes...\n", tr.primaryWorld->envprobeDefs.Num() );
+
+	CommandlineProgressBar progressBar( tr.primaryWorld->envprobeDefs.Num(), sysWidth, sysHeight );
+	progressBar.Start();
 
 	for( int i = 0; i < tr.primaryWorld->envprobeDefs.Num(); i++ )
 	{
@@ -976,9 +1005,59 @@ CONSOLE_COMMAND( bakeEnvironmentProbes, "Bake environment probes", NULL )
 			ref.vieworg = def->parms.origin;
 			ref.viewaxis = tr.cubeAxis[j];
 
+#if 0
 			byte* float16FRGB = tr.CaptureRenderToBuffer( captureSize, captureSize, &ref );
+#else
+			glConfig.nativeScreenWidth = captureSize;
+			glConfig.nativeScreenHeight = captureSize;
+
+			int pix = captureSize * captureSize;
+			const int bufferSize = pix * 3 * 2;
+
+			byte* float16FRGB = ( byte* )R_StaticAlloc( bufferSize );
+
+			// discard anything currently on the list
+			tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
+
+			// build commands to render the scene
+			tr.primaryWorld->RenderScene( &ref );
+
+			// finish off these commands
+			const emptyCommand_t* cmd = tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
+
+			// issue the commands to the GPU
+			tr.RenderCommandBuffers( cmd );
+
+			// discard anything currently on the list (this triggers SwapBuffers)
+			tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
+
+#if defined(USE_VULKAN)
+
+			// TODO
+
+#else
+
+			glFinish();
+
+			glReadBuffer( GL_BACK );
+
+			globalFramebuffers.envprobeFBO->Bind();
+
+			glPixelStorei( GL_PACK_ROW_LENGTH, RADIANCE_CUBEMAP_SIZE );
+			glReadPixels( 0, 0, captureSize, captureSize, GL_RGB, GL_HALF_FLOAT, float16FRGB );
+
+			R_VerticalFlipRGB16F( float16FRGB, captureSize, captureSize );
+
+			Framebuffer::Unbind();
+#endif
+
+#endif
 			buffers[ j ] = float16FRGB;
 		}
+
+		tr.takingEnvprobe = false;
+		progressBar.Increment( true );
+		tr.takingEnvprobe = true;
 
 		fullname.Format( "%s/envprobe%i", baseName.c_str(), i );
 
@@ -987,13 +1066,24 @@ CONSOLE_COMMAND( bakeEnvironmentProbes, "Bake environment probes", NULL )
 		R_MakeAmbientMap( fullname.c_str(), buffers, "_spec", RADIANCE_CUBEMAP_SIZE, true, useThreads );
 	}
 
+	tr.takingEnvprobe = false;
+
 	// restore the original resolution, same as "vid_restart"
 	glConfig.nativeScreenWidth = sysWidth;
 	glConfig.nativeScreenHeight = sysHeight;
 	R_SetNewMode( false );
 
+	r_useScissor.SetBool( true );
+	r_useParallelAddModels.SetBool( true );
+	r_useParallelAddShadows.SetBool( true );
+	r_useParallelAddLights.SetBool( true );
+
 	if( useThreads )
 	{
+		idLib::Printf( "Processing probes on all available cores... Please wait.\n" );
+		common->UpdateScreen( false );
+		common->UpdateScreen( false );
+
 		//tr.envprobeJobList->Submit();
 		tr.envprobeJobList->Submit( NULL, JOBLIST_PARALLELISM_MAX_CORES );
 		tr.envprobeJobList->Wait();
