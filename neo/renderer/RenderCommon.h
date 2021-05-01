@@ -929,6 +929,7 @@ public:
 	bool					registered;		// cleared at shutdown, set at InitOpenGL
 
 	bool					takingScreenshot;
+	bool					takingEnvprobe;
 
 	int						frameCount;		// incremented every frame
 	int						viewCount;		// incremented every view (twice a scene if subviewed)
@@ -1439,17 +1440,20 @@ public:
 		common->UpdateScreen( false );
 	}
 
-	void Increment()
+	void Increment( bool updateScreen )
 	{
 		if( ( count + 1 ) >= nextTicCount )
 		{
-			// discard anything currently on the list
-			//tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
+			if( updateScreen )
+			{
+				// restore the original resolution, same as "vid_restart"
+				glConfig.nativeScreenWidth = sysWidth;
+				glConfig.nativeScreenHeight = sysHeight;
+				R_SetNewMode( false );
 
-			// restore the original resolution, same as "vid_restart"
-			glConfig.nativeScreenWidth = sysWidth;
-			glConfig.nativeScreenHeight = sysHeight;
-			R_SetNewMode( false );
+				// resize frame buffers (this triggers SwapBuffers)
+				tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
+			}
 
 			size_t ticsNeeded = ( size_t )( ( ( double )( count + 1 ) / expectedCount ) * 50.0 );
 
@@ -1469,8 +1473,13 @@ public:
 				common->Printf( "\n" );
 			}
 
-			common->UpdateScreen( false );
-			//common->UpdateScreen( false );
+			if( updateScreen )
+			{
+				common->UpdateScreen( false );
+
+				// swap front / back buffers
+				tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
+			}
 		}
 
 		count++;

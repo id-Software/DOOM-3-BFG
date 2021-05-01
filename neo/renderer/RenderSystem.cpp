@@ -660,6 +660,10 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 
 	// After coming back from an autoswap, we won't have anything to render
 	//if( frameData && frameData->cmdHead->next != NULL )
+
+	// keep capturing envprobes completely in the background
+	// and only update the screen when we update the progress bar in the console
+	if( !takingEnvprobe )
 	{
 #if !defined( USE_VULKAN ) && !defined( IMGUI_BFGUI )
 		ImGuiHook::Render();

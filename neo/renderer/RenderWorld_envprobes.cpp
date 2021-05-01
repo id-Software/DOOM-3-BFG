@@ -171,8 +171,6 @@ void idRenderWorldLocal::AddAreaViewEnvprobes( int areaNum, const portalStack_t*
 R_SampleCubeMapHDR
 ==================
 */
-static const char* envDirection[6] = { "_px", "_nx", "_py", "_ny", "_pz", "_nz" };
-
 void R_SampleCubeMapHDR( const idVec3& dir, int size, byte* buffers[6], float result[3], float& u, float& v )
 {
 	float	adir[3];
@@ -736,7 +734,7 @@ void CalculateIrradianceJob( calcEnvprobeParms_t* parms )
 
 				if( parms->printProgress )
 				{
-					progressBar.Increment();
+					progressBar.Increment( true );
 				}
 			}
 		}
@@ -851,7 +849,7 @@ void CalculateRadianceJob( calcEnvprobeParms_t* parms )
 
 				if( parms->printProgress )
 				{
-					progressBar.Increment();
+					progressBar.Increment( true );
 				}
 			}
 		}
@@ -926,10 +924,7 @@ CONSOLE_COMMAND( bakeEnvironmentProbes, "Bake environment probes", NULL )
 	idStr			fullname;
 	idStr			baseName;
 	renderView_t	ref;
-	const char*		extension;
 	int				captureSize;
-
-	static const char* envDirection[6] = { "_px", "_nx", "_py", "_ny", "_pz", "_nz" };
 
 	if( !tr.primaryWorld )
 	{
@@ -980,10 +975,6 @@ CONSOLE_COMMAND( bakeEnvironmentProbes, "Bake environment probes", NULL )
 
 			ref.vieworg = def->parms.origin;
 			ref.viewaxis = tr.cubeAxis[j];
-
-			//extension = envDirection[ j ];
-			//fullname.Format( "env/%s/envprobe%i%s", baseName.c_str(), i, extension );
-			//tr.TakeScreenshot( size, size, fullname, blends, &ref, EXR );
 
 			byte* float16FRGB = tr.CaptureRenderToBuffer( captureSize, captureSize, &ref );
 			buffers[ j ] = float16FRGB;
@@ -1109,7 +1100,7 @@ CONSOLE_COMMAND( makeBrdfLUT, "make a GGX BRDF lookup table", NULL )
 			//hdrBuffer[( y * outSize + x ) * 4 + 2] = 0;
 			//hdrBuffer[( y * outSize + x ) * 4 + 3] = 1;
 
-			progressBar.Increment();
+			progressBar.Increment( true );
 		}
 	}
 

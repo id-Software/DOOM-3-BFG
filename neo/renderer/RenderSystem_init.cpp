@@ -1041,7 +1041,7 @@ byte* idRenderSystemLocal::CaptureRenderToBuffer( int width, int height, renderV
 	takingScreenshot = true;
 
 	int pix = width * height;
-	const int bufferSize = pix * 3 + 18;
+	//const int bufferSize = pix * 3 * 2;
 
 	// HDR only for now
 	//if( exten == EXR )
@@ -1740,6 +1740,7 @@ void idRenderSystemLocal::Clear()
 	memset( gammaTable, 0, sizeof( gammaTable ) );
 	memset( &cubeAxis, 0, sizeof( cubeAxis ) ); // RB
 	takingScreenshot = false;
+	takingEnvprobe = false;
 
 	if( unitSquareTriangles != NULL )
 	{

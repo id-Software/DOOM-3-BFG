@@ -32,6 +32,8 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "RenderCommon.h"
 
+#include "../framework/Common_local.h" // commonLocal.WaitGameThread();
+
 #define LGRID_FILE_EXT			"lightgrid"
 #define LGRID_BINARYFILE_EXT	"blightgrid"
 #define LGRID_FILEID			"LGRID"
@@ -1016,74 +1018,7 @@ void CalculateLightGridPointJob( calcLightGridPointParms_t* parms )
 
 REGISTER_PARALLEL_JOB( CalculateLightGridPointJob, "CalculateLightGridPointJob" );
 
-#if 0
-void R_MakeAmbientGridPoint( const char* baseName, const char* suffix, int outSize, bool deleteTempFiles, bool useThreads )
-{
-	idStr		fullname;
-	renderView_t	ref;
-	viewDef_t	primary;
-	byte*		buffers[6];
-	int			width = 0, height = 0;
 
-	// read all of the images
-	for( int i = 0 ; i < 6 ; i++ )
-	{
-		fullname.Format( "env/%s%s.exr", baseName, envDirection[i] );
-
-		const bool captureToImage = false;
-		common->UpdateScreen( captureToImage );
-
-		R_LoadImage( fullname, &buffers[i], &width, &height, NULL, true, NULL );
-		if( !buffers[i] )
-		{
-			common->Printf( "loading %s failed.\n", fullname.c_str() );
-			for( i-- ; i >= 0 ; i-- )
-			{
-				Mem_Free( buffers[i] );
-			}
-			return;
-		}
-	}
-
-	// set up the job
-	calcLightGridPointParms_t* jobParms = new calcLightGridPointParms_t;
-
-	for( int i = 0; i < 6; i++ )
-	{
-		jobParms->buffers[ i ] = buffers[ i ];
-	}
-
-//	jobParms->samples = 1000;
-//	jobParms->filename.Format( "env/%s%s.exr", baseName, suffix );
-
-//	jobParms->printProgress = !useThreads;
-
-	jobParms->outWidth = int( outSize * 1.5f );
-	jobParms->outHeight = outSize;
-	jobParms->outBuffer = ( halfFloat_t* )R_StaticAlloc( idMath::Ceil( outSize * outSize * 3 * sizeof( halfFloat_t ) * 1.5f ), TAG_IMAGE );
-
-	tr.lightGridJobs.Append( jobParms );
-
-	if( useThreads )
-	{
-		tr.envprobeJobList->AddJob( ( jobRun_t )CalculateLightGridPointJob, jobParms );
-	}
-	else
-	{
-		CalculateLightGridPointJob( jobParms );
-	}
-
-	if( deleteTempFiles )
-	{
-		for( int i = 0 ; i < 6 ; i++ )
-		{
-			fullname.Format( "env/%s%s.exr", baseName, envDirection[i] );
-
-			fileSystem->RemoveFile( fullname );
-		}
-	}
-}
-#endif
 
 CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 {
@@ -1091,10 +1026,7 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 	idStr			filename;
 	renderView_t	ref;
 	int				blends;
-	const char*		extension;
 	int				captureSize;
-
-	static const char* envDirection[6] = { "_px", "_nx", "_py", "_ny", "_pz", "_nz" };
 
 	if( args.Argc() != 1 && args.Argc() != 2 )
 	{
@@ -1135,10 +1067,8 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 
 	const viewDef_t primary = *tr.primaryView;
 
-	//--------------------------------------------
-	// CAPTURE SCENE LIGHTING TO CUBEMAPS
-	//--------------------------------------------
-
+	int totalProcessedAreas = 0;
+	int totalProcessedProbes = 0;
 	int	totalStart = Sys_Milliseconds();
 
 	for( int a = 0; a < tr.primaryWorld->NumAreas(); a++ )
@@ -1165,6 +1095,9 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 
 		idLib::Printf( "Shooting %i grid probes area %i...\n", numGridPoints, a );
 
+		totalProcessedAreas++;
+		totalProcessedProbes += numGridPoints;
+
 		CommandlineProgressBar progressBar( numGridPoints, sysWidth, sysHeight );
 		if( !useThreads )
 		{
@@ -1180,6 +1113,33 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 		gridStep[2] = area->lightGrid.lightGridBounds[0] * area->lightGrid.lightGridBounds[1];
 
 		int gridCoord[3];
+
+		//--------------------------------------------
+		// CAPTURE SCENE LIGHTING TO CUBEMAPS
+		//--------------------------------------------
+
+		// make sure the game / draw thread has completed
+		commonLocal.WaitGameThread();
+
+		glConfig.nativeScreenWidth = captureSize;
+		glConfig.nativeScreenHeight = captureSize;
+
+		// disable scissor, so we don't need to adjust all those rects
+		r_useScissor.SetBool( false );
+
+		// RB: this really sucks but prevents a crash I couldn't track down
+		extern idCVar r_useParallelAddModels;
+		extern idCVar r_useParallelAddShadows;
+		extern idCVar r_useParallelAddLights;
+
+		r_useParallelAddModels.SetBool( false );
+		r_useParallelAddShadows.SetBool( false );
+		r_useParallelAddLights.SetBool( false );
+
+		// discard anything currently on the list (this triggers SwapBuffers)
+		tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
+
+		tr.takingEnvprobe = true;
 
 		for( int i = 0; i < area->lightGrid.lightGridBounds[0]; i += 1 )
 		{
@@ -1213,27 +1173,80 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 						ref.vieworg = gridPoint->origin;
 						ref.viewaxis = tr.cubeAxis[ side ];
 
-						extension = envDirection[ side ];
-
-						//tr.TakeScreenshot( size, size, fullname, blends, &ref, EXR );
+#if 0
 						byte* float16FRGB = tr.CaptureRenderToBuffer( captureSize, captureSize, &ref );
+#else
+						glConfig.nativeScreenWidth = captureSize;
+						glConfig.nativeScreenHeight = captureSize;
+
+						int pix = captureSize * captureSize;
+						const int bufferSize = pix * 3 * 2;
+
+						byte* float16FRGB = ( byte* )R_StaticAlloc( bufferSize );
+
+						// discard anything currently on the list
+						tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
+
+						// build commands to render the scene
+						tr.primaryWorld->RenderScene( &ref );
+
+						// finish off these commands
+						const emptyCommand_t* cmd = tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
+
+						// issue the commands to the GPU
+						tr.RenderCommandBuffers( cmd );
+
+						// discard anything currently on the list (this triggers SwapBuffers)
+						tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
+
+#if defined(USE_VULKAN)
+
+						// TODO
+
+#else
+
+						glFinish();
+
+						glReadBuffer( GL_BACK );
+
+						globalFramebuffers.envprobeFBO->Bind();
+
+						glPixelStorei( GL_PACK_ROW_LENGTH, RADIANCE_CUBEMAP_SIZE );
+						glReadPixels( 0, 0, captureSize, captureSize, GL_RGB, GL_HALF_FLOAT, float16FRGB );
+
+						R_VerticalFlipRGB16F( float16FRGB, captureSize, captureSize );
+
+						Framebuffer::Unbind();
+#endif
+
+#endif
 
 						jobParms->radiance[ side ] = float16FRGB;
 					}
 
 					tr.lightGridJobs.Append( jobParms );
 
-					progressBar.Increment();
+
+					tr.takingEnvprobe = false;
+					progressBar.Increment( true );
+					tr.takingEnvprobe = true;
 				}
 			}
 		}
 
 		int	end = Sys_Milliseconds();
 
+		tr.takingEnvprobe = false;
+
 		// restore the original resolution, same as "vid_restart"
 		glConfig.nativeScreenWidth = sysWidth;
 		glConfig.nativeScreenHeight = sysHeight;
 		R_SetNewMode( false );
+
+		r_useScissor.SetBool( true );
+		r_useParallelAddModels.SetBool( true );
+		r_useParallelAddShadows.SetBool( true );
+		r_useParallelAddLights.SetBool( true );
 
 		common->Printf( "captured light grid radiance for area %i in %5.1f seconds\n\n", a, ( end - start ) * 0.001f );
 
@@ -1264,7 +1277,7 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 			else
 			{
 				CalculateLightGridPointJob( jobParms );
-				progressBar.Increment();
+				progressBar.Increment( true );
 			}
 		}
 
@@ -1342,6 +1355,8 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 
 	int totalEnd = Sys_Milliseconds();
 
+	idLib::Printf( "----------------------------------\n" );
+	idLib::Printf( "Processed %i light probes in %i areas\n", totalProcessedProbes, totalProcessedAreas );
 	common->Printf( "Baked light grid irradiance in %5.1f minutes\n\n", ( totalEnd - totalStart ) / ( 1000.0f * 60 ) );
 
 	// everything went ok so let's save the configurations to disc
