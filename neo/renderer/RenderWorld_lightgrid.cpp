@@ -1086,14 +1086,13 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 
 		area->lightGrid.SetupLightGrid( area->globalBounds, tr.primaryWorld->mapName, tr.primaryWorld, a, limit );
 
-#if 1
 		int numGridPoints = area->lightGrid.CountValidGridPoints();
 		if( numGridPoints == 0 )
 		{
 			continue;
 		}
 
-		idLib::Printf( "Shooting %i grid probes area %i...\n", numGridPoints, a );
+		idLib::Printf( "Shooting %i grid probes in area %i...\n", numGridPoints, a );
 
 		totalProcessedAreas++;
 		totalProcessedProbes += numGridPoints;
@@ -1349,15 +1348,9 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 		end = Sys_Milliseconds();
 
 		common->Printf( "computed light grid irradiance for area %i in %5.1f seconds\n\n", a, ( end - start ) * 0.001f );
-#endif
 	}
 
-
 	int totalEnd = Sys_Milliseconds();
-
-	idLib::Printf( "----------------------------------\n" );
-	idLib::Printf( "Processed %i light probes in %i areas\n", totalProcessedProbes, totalProcessedAreas );
-	common->Printf( "Baked light grid irradiance in %5.1f minutes\n\n", ( totalEnd - totalStart ) / ( 1000.0f * 60 ) );
 
 	// everything went ok so let's save the configurations to disc
 	// so we can load the texture atlases with the correct subdivisions next time
@@ -1365,6 +1358,10 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 	tr.primaryWorld->WriteLightGridsToFile( filename );
 
 	tr.primaryWorld->LoadLightGridImages();
+
+	idLib::Printf( "----------------------------------\n" );
+	idLib::Printf( "Processed %i light probes in %i areas\n", totalProcessedProbes, totalProcessedAreas );
+	common->Printf( "Baked light grid irradiance in %5.1f minutes\n\n", ( totalEnd - totalStart ) / ( 1000.0f * 60 ) );
 }
 
 #if 0

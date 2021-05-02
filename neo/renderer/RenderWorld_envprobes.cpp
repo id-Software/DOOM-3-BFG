@@ -978,11 +978,23 @@ CONSOLE_COMMAND( bakeEnvironmentProbes, "Bake environment probes", NULL )
 
 	tr.takingEnvprobe = true;
 
-	int	start = Sys_Milliseconds();
+	int totalProcessedProbes = 0;
+	int	totalStart = Sys_Milliseconds();
 
-	idLib::Printf( "Shooting %i environment probes...\n", tr.primaryWorld->envprobeDefs.Num() );
+	for( int i = 0; i < tr.primaryWorld->envprobeDefs.Num(); i++ )
+	{
+		RenderEnvprobeLocal* def = tr.primaryWorld->envprobeDefs[i];
+		if( def == NULL )
+		{
+			continue;
+		}
 
-	CommandlineProgressBar progressBar( tr.primaryWorld->envprobeDefs.Num(), sysWidth, sysHeight );
+		totalProcessedProbes++;
+	}
+
+	idLib::Printf( "Shooting %i environment probes...\n", totalProcessedProbes );
+
+	CommandlineProgressBar progressBar( totalProcessedProbes, sysWidth, sysHeight );
 	progressBar.Start();
 
 	for( int i = 0; i < tr.primaryWorld->envprobeDefs.Num(); i++ )
@@ -1115,9 +1127,7 @@ CONSOLE_COMMAND( bakeEnvironmentProbes, "Bake environment probes", NULL )
 
 	tr.envprobeJobs.Clear();
 
-	int	end = Sys_Milliseconds();
-
-	common->Printf( "convolved probes in %5.1f seconds\n\n", ( end - start ) * 0.001f );
+	int	totalEnd = Sys_Milliseconds();
 
 	//--------------------------------------------
 	// LOAD CONVOLVED OCTAHEDRONS INTO THE GPU
@@ -1133,6 +1143,10 @@ CONSOLE_COMMAND( bakeEnvironmentProbes, "Bake environment probes", NULL )
 		def->irradianceImage->Reload( false );
 		def->radianceImage->Reload( false );
 	}
+
+	idLib::Printf( "----------------------------------\n" );
+	idLib::Printf( "Processed %i light probes\n", totalProcessedProbes );
+	common->Printf( "Baked light grid irradiance in %5.1f seconds\n\n", ( totalEnd - totalStart ) / ( 1000.0f ) );
 }
 
 CONSOLE_COMMAND( makeBrdfLUT, "make a GGX BRDF lookup table", NULL )
