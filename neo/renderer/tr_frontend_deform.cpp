@@ -76,7 +76,9 @@ static drawSurf_t* R_AutospriteDeform( drawSurf_t* surf )
 
 	if( srcTri->numVerts & 3 )
 	{
+#if !defined( ID_RETAIL )
 		common->Warning( "R_AutospriteDeform: shader had odd vertex count" );
+#endif
 		return NULL;
 	}
 	if( srcTri->numIndexes != ( srcTri->numVerts >> 2 ) * 6 )
@@ -399,7 +401,9 @@ static drawSurf_t* R_FlareDeform( drawSurf_t* surf )
 	if( srcTri->numVerts != 4 || srcTri->numIndexes != 6 )
 	{
 		// FIXME: temp hack for flares on tripleted models
+#if !defined( ID_RETAIL )
 		common->Warning( "R_FlareDeform: not a single quad" );
+#endif
 		return NULL;
 	}
 
