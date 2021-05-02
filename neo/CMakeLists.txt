@@ -34,7 +34,7 @@ option(SPIRV_SHADERC
 		"Compile SPIR-V shader byte code using shaderc instead of using Glslang directly" OFF)
 
 option(USE_MoltenVK
-		"Use MoltenVK library instead of Vulkan library on macOS" OFF)
+		"Use MoltenVK library directly instead of Vulkan loader on macOS" OFF)
 
 option(ONATIVE
 		"Optimize for the host CPU" OFF)
@@ -84,7 +84,7 @@ if(UNIX)
 		SET(SDL2 ON)
 		
 		# RB: disable precompiled headers on Linux with Vulkan because of error: POSIX thread support was disabled in PCH file but is currently enabled
-		if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang" OR CMAKE_C_COMPILER_ID STREQUAL "AppleClang")
+		if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
             set(USE_PRECOMPILED_HEADERS OFF)
         endif()
 	endif()
@@ -163,13 +163,13 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang" OR CMAKE_C_CO
 		add_definitions(-DUSE_EXCEPTIONS)
 	#endif()
 	
-	# SRS - Change add_compile_options to add_definitions so options propagate to pre-compiled header build settings
 	add_compile_options(-Wno-pragmas -Wno-unused-variable -Wno-switch -Wno-unused-value -Winvalid-pch -Wno-multichar)
 	# SRS - Add test for AppleClang
 	if(CMAKE_C_COMPILER_ID STREQUAL "Clang" OR CMAKE_C_COMPILER_ID STREQUAL "AppleClang")
 		# add clang-specific settings for warnings (the second one make sure clang doesn't complain
 		# about unknown -W flags, like -Wno-unused-but-set-variable)
-		add_compile_options(-Wno-local-type-template-args -Wno-unknown-warning-option -Wno-inline-new-delete -Wno-switch-enum)
+		# SRS - Add -Wno-deprecated-register and -Wno-expansion-to-defined to list of warning settings
+		add_definitions(-Wno-local-type-template-args -Wno-unknown-warning-option -Wno-inline-new-delete -Wno-switch-enum -Wno-deprecated-register -Wno-expansion-to-defined)
 	endif()
 	
 	if(NOT CMAKE_CROSSCOMPILING AND ONATIVE)
