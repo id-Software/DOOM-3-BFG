@@ -908,11 +908,8 @@ void CalculateLightGridPointJob( calcLightGridPointParms_t* parms )
 		buffers[ i ] = ( halfFloat_t* ) parms->radiance[ i ];
 	}
 
-	const float invDstSize = 1.0f / float( parms->outHeight );
-
-	const int numMips = idMath::BitsForInteger( parms->outHeight );
-
-	const idVec2i sourceImageSize( parms->outHeight, parms->outHeight );
+	const float invDstSize = 1.0f / float( ENVPROBE_CAPTURE_SIZE );
+	const idVec2i sourceImageSize( ENVPROBE_CAPTURE_SIZE, ENVPROBE_CAPTURE_SIZE );
 
 	// build L4 Spherical Harmonics from source image
 	SphericalHarmonicsT<idVec3, 4> shRadiance;
@@ -935,7 +932,7 @@ void CalculateLightGridPointJob( calcLightGridPointParms_t* parms )
 
 				float u, v;
 				idVec3 radiance;
-				R_SampleCubeMapHDR16F( dir, parms->outHeight, buffers, &radiance[0], u, v );
+				R_SampleCubeMapHDR16F( dir, ENVPROBE_CAPTURE_SIZE, buffers, &radiance[0], u, v );
 
 				//radiance = dir * 0.5 + idVec3( 0.5f, 0.5f, 0.5f );
 
@@ -1049,12 +1046,12 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 	int sysWidth = renderSystem->GetWidth();
 	int sysHeight = renderSystem->GetHeight();
 
-	bool useThreads = false;
+	bool useThreads = true;
 
 	baseName = tr.primaryWorld->mapName;
 	baseName.StripFileExtension();
 
-	captureSize = RADIANCE_CUBEMAP_SIZE;
+	captureSize = ENVPROBE_CAPTURE_SIZE;
 	blends = 1;
 
 	int limit = MAX_AREA_LIGHTGRID_POINTS;
@@ -1098,10 +1095,7 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 		totalProcessedProbes += numGridPoints;
 
 		CommandlineProgressBar progressBar( numGridPoints, sysWidth, sysHeight );
-		if( !useThreads )
-		{
-			progressBar.Start();
-		}
+		progressBar.Start();
 
 		int	start = Sys_Milliseconds();
 
@@ -1210,7 +1204,7 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 
 						globalFramebuffers.envprobeFBO->Bind();
 
-						glPixelStorei( GL_PACK_ROW_LENGTH, RADIANCE_CUBEMAP_SIZE );
+						glPixelStorei( GL_PACK_ROW_LENGTH, ENVPROBE_CAPTURE_SIZE );
 						glReadPixels( 0, 0, captureSize, captureSize, GL_RGB, GL_HALF_FLOAT, float16FRGB );
 
 						R_VerticalFlipRGB16F( float16FRGB, captureSize, captureSize );
@@ -1282,6 +1276,10 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 
 		if( useThreads )
 		{
+			idLib::Printf( "Processing probes on all available cores... Please wait.\n" );
+			common->UpdateScreen( false );
+			common->UpdateScreen( false );
+
 			//tr.envprobeJobList->Submit();
 			tr.envprobeJobList->Submit( NULL, JOBLIST_PARALLELISM_MAX_CORES );
 			tr.envprobeJobList->Wait();

@@ -291,9 +291,9 @@ idCVar r_ldrContrastOffset( "r_ldrContrastOffset", "3", CVAR_RENDERER | CVAR_FLO
 idCVar r_useFilmicPostProcessing( "r_useFilmicPostProcessing", "1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_BOOL, "apply several post process effects to mimic a filmic look" );
 
 #if defined( USE_VULKAN )
-	idCVar r_forceAmbient( "r_forceAmbient", "0.4", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_FLOAT, "render additional ambient pass to make the game less dark", 0.0f, 0.75f );
+	idCVar r_forceAmbient( "r_forceAmbient", "0.5", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_FLOAT, "render additional ambient pass to make the game less dark", 0.0f, 0.75f );
 #else
-	idCVar r_forceAmbient( "r_forceAmbient", "0.4", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_FLOAT, "render additional ambient pass to make the game less dark", 0.0f, 0.75f );
+	idCVar r_forceAmbient( "r_forceAmbient", "0.5", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_FLOAT, "render additional ambient pass to make the game less dark", 0.0f, 1.0f );
 #endif
 
 idCVar r_useSSGI( "r_useSSGI", "0", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_BOOL, "use screen space global illumination and reflections" );
@@ -753,7 +753,7 @@ void R_ReadTiledPixels( int width, int height, byte* buffer, renderView_t* ref =
 	if( ref && ref->rdflags & RDF_IRRADIANCE )
 	{
 		// * 2 = sizeof( half float )
-		//temp = ( byte* )R_StaticAlloc( RADIANCE_CUBEMAP_SIZE * RADIANCE_CUBEMAP_SIZE * 3 * 2 );
+		//temp = ( byte* )R_StaticAlloc( ENVPROBE_CAPTURE_SIZE * ENVPROBE_CAPTURE_SIZE * 3 * 2 );
 	}
 	else
 	{
@@ -856,7 +856,7 @@ void R_ReadTiledPixels( int width, int height, byte* buffer, renderView_t* ref =
 			{
 				globalFramebuffers.envprobeFBO->Bind();
 
-				glPixelStorei( GL_PACK_ROW_LENGTH, RADIANCE_CUBEMAP_SIZE );
+				glPixelStorei( GL_PACK_ROW_LENGTH, ENVPROBE_CAPTURE_SIZE );
 				glReadPixels( 0, 0, w, h, GL_RGB, GL_HALF_FLOAT, buffer );
 
 				R_VerticalFlipRGB16F( buffer, w, h );

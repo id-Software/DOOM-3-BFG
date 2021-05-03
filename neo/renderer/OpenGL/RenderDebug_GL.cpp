@@ -1824,9 +1824,7 @@ void idRenderBackend::DBG_ShowViewEnvprobes()
 #endif
 	}
 
-
-	//if( r_showViewEnvprobes.GetInteger() >= 3 )
-	if( tr.primaryWorld )
+	if( tr.primaryWorld && r_showViewEnvprobes.GetInteger() == 3 )
 	{
 		/*
 		idList<viewEnvprobe_t*, TAG_RENDER_ENVPROBE> viewEnvprobes;

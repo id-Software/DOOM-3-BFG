@@ -265,8 +265,10 @@ void main( PS_IN fragment, out PS_OUT result )
 
 	// evaluate specular IBL
 
-	// should be 8 = numMips - 1, 256^2 = 9 mips
-	const float MAX_REFLECTION_LOD = 8.0;
+	// 512^2 = 10 mips
+	// however we can't use the last 3 mips with octahedrons because the quality suffers too much
+	// so it is 7 - 1
+	const float MAX_REFLECTION_LOD = 6.0;
 	float mip = clamp( ( roughness * MAX_REFLECTION_LOD ), 0.0, MAX_REFLECTION_LOD );
 	//float mip = 0.0;
 

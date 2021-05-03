@@ -593,13 +593,10 @@ void CalculateIrradianceJob( calcEnvprobeParms_t* parms )
 		buffers[ i ] = ( halfFloat_t* ) parms->radiance[ i ];
 	}
 
-	const float invDstSize = 1.0f / float( parms->outHeight );
+	const float invDstSize = 1.0f / float( ENVPROBE_CAPTURE_SIZE );
+	const idVec2i sourceImageSize( ENVPROBE_CAPTURE_SIZE, ENVPROBE_CAPTURE_SIZE );
 
-	const int numMips = idMath::BitsForInteger( parms->outHeight );
-
-	const idVec2i sourceImageSize( parms->outHeight, parms->outHeight );
-
-	CommandlineProgressBar progressBar( R_CalculateUsedAtlasPixels( sourceImageSize.y ), parms->printWidth, parms->printHeight );
+	CommandlineProgressBar progressBar( R_CalculateUsedAtlasPixels( parms->outHeight ), parms->printWidth, parms->printHeight );
 	if( parms->printProgress )
 	{
 		progressBar.Start();
@@ -628,7 +625,7 @@ void CalculateIrradianceJob( calcEnvprobeParms_t* parms )
 
 				float u, v;
 				idVec3 radiance;
-				R_SampleCubeMapHDR16F( dir, parms->outHeight, buffers, &radiance[0], u, v );
+				R_SampleCubeMapHDR16F( dir, ENVPROBE_CAPTURE_SIZE, buffers, &radiance[0], u, v );
 
 				//radiance = dir * 0.5 + idVec3( 0.5f, 0.5f, 0.5f );
 
@@ -669,10 +666,10 @@ void CalculateIrradianceJob( calcEnvprobeParms_t* parms )
 		}
 	}
 
+	const int numMips = idMath::BitsForInteger( parms->outHeight );
+
 	for( int mip = 0; mip < numMips; mip++ )
 	{
-		float roughness = ( float )mip / ( float )( numMips - 1 );
-
 		idVec4 dstRect = R_CalculateMipRect( parms->outHeight, mip );
 
 		for( int x = dstRect.x; x < ( dstRect.x + dstRect.z ); x++ )
@@ -760,10 +757,9 @@ void CalculateRadianceJob( calcEnvprobeParms_t* parms )
 	const float invDstSize = 1.0f / float( parms->outHeight );
 
 	const int numMips = idMath::BitsForInteger( parms->outHeight );
+	const int numOctahedronMips = numMips - 3; // the last 3 mips are too low quality for filtering
 
-	const idVec2i sourceImageSize( parms->outHeight, parms->outHeight );
-
-	CommandlineProgressBar progressBar( R_CalculateUsedAtlasPixels( sourceImageSize.y ), parms->printWidth, parms->printHeight );
+	CommandlineProgressBar progressBar( R_CalculateUsedAtlasPixels( parms->outHeight ), parms->printWidth, parms->printHeight );
 	if( parms->printProgress )
 	{
 		progressBar.Start();
@@ -780,9 +776,9 @@ void CalculateRadianceJob( calcEnvprobeParms_t* parms )
 		}
 	}
 
-	for( int mip = 0; mip < numMips; mip++ )
+	for( int mip = 0; mip < numOctahedronMips; mip++ )
 	{
-		float roughness = ( float )mip / ( float )( numMips - 1 );
+		float roughness = ( float )mip / ( float )( numOctahedronMips - 1 );
 
 		idVec4 dstRect = R_CalculateMipRect( parms->outHeight, mip );
 
@@ -830,7 +826,7 @@ void CalculateRadianceJob( calcEnvprobeParms_t* parms )
 						float sample[3];
 						float u, v;
 
-						R_SampleCubeMapHDR16F( H, parms->outHeight, buffers, sample, u, v );
+						R_SampleCubeMapHDR16F( H, ENVPROBE_CAPTURE_SIZE, buffers, sample, u, v );
 
 						outColor[0] += sample[0] * NdotL;
 						outColor[1] += sample[1] * NdotL;
@@ -941,7 +937,7 @@ CONSOLE_COMMAND( bakeEnvironmentProbes, "Bake environment probes", NULL )
 	baseName = tr.primaryWorld->mapName;
 	baseName.StripFileExtension();
 
-	captureSize = RADIANCE_CUBEMAP_SIZE;
+	captureSize = ENVPROBE_CAPTURE_SIZE;
 
 	if( !tr.primaryView )
 	{
@@ -996,6 +992,8 @@ CONSOLE_COMMAND( bakeEnvironmentProbes, "Bake environment probes", NULL )
 
 	CommandlineProgressBar progressBar( totalProcessedProbes, sysWidth, sysHeight );
 	progressBar.Start();
+
+	int	start = Sys_Milliseconds();
 
 	for( int i = 0; i < tr.primaryWorld->envprobeDefs.Num(); i++ )
 	{
@@ -1055,7 +1053,7 @@ CONSOLE_COMMAND( bakeEnvironmentProbes, "Bake environment probes", NULL )
 
 			globalFramebuffers.envprobeFBO->Bind();
 
-			glPixelStorei( GL_PACK_ROW_LENGTH, RADIANCE_CUBEMAP_SIZE );
+			glPixelStorei( GL_PACK_ROW_LENGTH, ENVPROBE_CAPTURE_SIZE );
 			glReadPixels( 0, 0, captureSize, captureSize, GL_RGB, GL_HALF_FLOAT, float16FRGB );
 
 			R_VerticalFlipRGB16F( float16FRGB, captureSize, captureSize );
@@ -1074,9 +1072,11 @@ CONSOLE_COMMAND( bakeEnvironmentProbes, "Bake environment probes", NULL )
 		fullname.Format( "%s/envprobe%i", baseName.c_str(), i );
 
 		// create 2 jobs
-		R_MakeAmbientMap( fullname.c_str(), buffers, "_amb", IRRADIANCE_CUBEMAP_SIZE, false, useThreads );
-		R_MakeAmbientMap( fullname.c_str(), buffers, "_spec", RADIANCE_CUBEMAP_SIZE, true, useThreads );
+		R_MakeAmbientMap( fullname.c_str(), buffers, "_amb", IRRADIANCE_OCTAHEDRON_SIZE, false, useThreads );
+		R_MakeAmbientMap( fullname.c_str(), buffers, "_spec", RADIANCE_OCTAHEDRON_SIZE, true, useThreads );
 	}
+
+	int	end = Sys_Milliseconds();
 
 	tr.takingEnvprobe = false;
 
@@ -1089,6 +1089,8 @@ CONSOLE_COMMAND( bakeEnvironmentProbes, "Bake environment probes", NULL )
 	r_useParallelAddModels.SetBool( true );
 	r_useParallelAddShadows.SetBool( true );
 	r_useParallelAddLights.SetBool( true );
+
+	common->Printf( "captured environemt probes %5.1f seconds\n\n", ( end - start ) * 0.001f );
 
 	if( useThreads )
 	{

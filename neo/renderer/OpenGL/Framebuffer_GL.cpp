@@ -135,7 +135,7 @@ void Framebuffer::Init()
 
 	// HDR CUBEMAP CAPTURE
 
-	globalFramebuffers.envprobeFBO = new Framebuffer( "_envprobeRender", RADIANCE_CUBEMAP_SIZE, RADIANCE_CUBEMAP_SIZE );
+	globalFramebuffers.envprobeFBO = new Framebuffer( "_envprobeRender", ENVPROBE_CAPTURE_SIZE, ENVPROBE_CAPTURE_SIZE );
 	globalFramebuffers.envprobeFBO->Bind();
 
 	globalFramebuffers.envprobeFBO->AddColorBuffer( GL_RGBA16F, 0 );
