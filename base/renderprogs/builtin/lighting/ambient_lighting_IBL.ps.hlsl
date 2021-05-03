@@ -266,7 +266,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	// evaluate specular IBL
 
 	// should be 8 = numMips - 1, 256^2 = 9 mips
-	const float MAX_REFLECTION_LOD = 10.0;
+	const float MAX_REFLECTION_LOD = 8.0;
 	float mip = clamp( ( roughness * MAX_REFLECTION_LOD ), 0.0, MAX_REFLECTION_LOD );
 	//float mip = 0.0;
 
