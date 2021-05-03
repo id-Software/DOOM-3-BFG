@@ -130,7 +130,7 @@ Some examples that show additional environment lighting on all assets.
 
 ## PBR Texture format
 
-<img src="https://i.imgur.com/Y9CFBaM.png" width="640">
+<img src="https://i.imgur.com/j8nYYls.png" width="640">
 
 In Doom 3 a classic simple materials looks like this:
 ```
