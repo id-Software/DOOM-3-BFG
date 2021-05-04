@@ -519,7 +519,7 @@ struct calcEnvprobeParms_t
 
 
 static const int LIGHTGRID_IRRADIANCE_BORDER_SIZE = 2;	// one pixel border all around the octahedron so 2 on each side
-static const int LIGHTGRID_IRRADIANCE_SIZE = 30 + LIGHTGRID_IRRADIANCE_BORDER_SIZE;
+static const int LIGHTGRID_IRRADIANCE_SIZE = 14 + LIGHTGRID_IRRADIANCE_BORDER_SIZE;
 
 struct calcLightGridPointParms_t
 {

@@ -1025,21 +1025,55 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 	int				blends;
 	int				captureSize;
 
-	if( args.Argc() != 1 && args.Argc() != 2 )
-	{
-		common->Printf( "USAGE: bakeLightGrids [limit] (limit is max probes per BSP area)\n" );
-		return;
-	}
-
 	if( !tr.primaryWorld )
 	{
-		common->Printf( "No primary world loaded.\n" );
+		idLib::Printf( "No primary world loaded.\n" );
 		return;
 	}
 
 	if( !tr.primaryView )
 	{
-		common->Printf( "No primary view.\n" );
+		idLib::Printf( "No primary view.\n" );
+		return;
+	}
+
+	int limit = MAX_AREA_LIGHTGRID_POINTS;
+	int bounces = 1;
+
+	bool helpRequested = false;
+	idStr option;
+
+	for( int i = 1; i < args.Argc(); i++ )
+	{
+		option = args.Argv( i );
+		option.StripLeading( '-' );
+
+		if( option.IcmpPrefix( "limit" ) == 0 )
+		{
+			option.StripLeading( "limit" );
+			limit = atoi( option );
+			limit = Max( 1000, limit );
+		}
+		else if( option.IcmpPrefix( "bounce" ) == 0 )
+		{
+			option.StripLeading( "bounce" );
+			bounces = atoi( option );
+			bounces = Max( 1, bounces );
+		}
+		else if( option.Icmp( "h" ) == 0 || option.Icmp( "help" ) == 0 )
+		{
+			helpRequested = true;
+			break;
+		}
+	}
+
+	if( helpRequested )
+	{
+		idLib::Printf( "USAGE: bakeLightGrids [<switches>...]\n\n" );
+		idLib::Printf( "<Switches>\n" );
+		idLib::Printf( " -limit[num] : max probes per BSP area (default %i)\n", MAX_AREA_LIGHTGRID_POINTS );
+		idLib::Printf( " -bounce[num] : number of bounces or number of light reuse (default 1)\n" );
+
 		return;
 	}
 
@@ -1054,13 +1088,8 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 	captureSize = ENVPROBE_CAPTURE_SIZE;
 	blends = 1;
 
-	int limit = MAX_AREA_LIGHTGRID_POINTS;
-	if( args.Argc() >= 2 )
-	{
-		limit = atoi( args.Argv( 1 ) );
-	}
-
 	idLib::Printf( "Using limit = %i\n", limit );
+	idLib::Printf( "Using bounces = %i\n", bounces );
 
 	const viewDef_t primary = *tr.primaryView;
 
@@ -1068,284 +1097,297 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 	int totalProcessedProbes = 0;
 	int	totalStart = Sys_Milliseconds();
 
-	for( int a = 0; a < tr.primaryWorld->NumAreas(); a++ )
+	for( int bounce = 0; bounce < bounces; bounce++ )
 	{
-		portalArea_t* area = &tr.primaryWorld->portalAreas[a];
-
-		//int numGridPoints = Min( area->lightGrid.lightGridPoints.Num(), limit );
-		//if( numGridPoints == 0 )
-
-		//int numGridPoints = area->lightGrid.lightGridPoints.Num();
-		//if( numGridPoints == 0 || numGridPoints > limit )
-		//{
-		//	continue;
-		//}
-
-		area->lightGrid.SetupLightGrid( area->globalBounds, tr.primaryWorld->mapName, tr.primaryWorld, a, limit );
-
-		int numGridPoints = area->lightGrid.CountValidGridPoints();
-		if( numGridPoints == 0 )
+		for( int a = 0; a < tr.primaryWorld->NumAreas(); a++ )
 		{
-			continue;
-		}
+			portalArea_t* area = &tr.primaryWorld->portalAreas[a];
 
-		idLib::Printf( "Shooting %i grid probes in area %i...\n", numGridPoints, a );
+			//int numGridPoints = Min( area->lightGrid.lightGridPoints.Num(), limit );
+			//if( numGridPoints == 0 )
 
-		totalProcessedAreas++;
-		totalProcessedProbes += numGridPoints;
+			//int numGridPoints = area->lightGrid.lightGridPoints.Num();
+			//if( numGridPoints == 0 || numGridPoints > limit )
+			//{
+			//	continue;
+			//}
 
-		CommandlineProgressBar progressBar( numGridPoints, sysWidth, sysHeight );
-		progressBar.Start();
+			area->lightGrid.SetupLightGrid( area->globalBounds, tr.primaryWorld->mapName, tr.primaryWorld, a, limit );
 
-		int	start = Sys_Milliseconds();
-
-		int gridStep[3];
-
-		gridStep[0] = 1;
-		gridStep[1] = area->lightGrid.lightGridBounds[0];
-		gridStep[2] = area->lightGrid.lightGridBounds[0] * area->lightGrid.lightGridBounds[1];
-
-		int gridCoord[3];
-
-		//--------------------------------------------
-		// CAPTURE SCENE LIGHTING TO CUBEMAPS
-		//--------------------------------------------
-
-		// make sure the game / draw thread has completed
-		commonLocal.WaitGameThread();
-
-		glConfig.nativeScreenWidth = captureSize;
-		glConfig.nativeScreenHeight = captureSize;
-
-		// disable scissor, so we don't need to adjust all those rects
-		r_useScissor.SetBool( false );
-
-		// RB: this really sucks but prevents a crash I couldn't track down
-		extern idCVar r_useParallelAddModels;
-		extern idCVar r_useParallelAddShadows;
-		extern idCVar r_useParallelAddLights;
-
-		r_useParallelAddModels.SetBool( false );
-		r_useParallelAddShadows.SetBool( false );
-		r_useParallelAddLights.SetBool( false );
-
-		// discard anything currently on the list (this triggers SwapBuffers)
-		tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
-
-		tr.takingEnvprobe = true;
-
-		for( int i = 0; i < area->lightGrid.lightGridBounds[0]; i += 1 )
-		{
-			for( int j = 0; j < area->lightGrid.lightGridBounds[1]; j += 1 )
+			int numGridPoints = area->lightGrid.CountValidGridPoints();
+			if( numGridPoints == 0 )
 			{
-				for( int k = 0; k < area->lightGrid.lightGridBounds[2]; k += 1 )
+				continue;
+			}
+
+			idLib::Printf( "Shooting %i grid probes in area %i...\n", numGridPoints, a );
+
+			if( bounce == 0 )
+			{
+				totalProcessedAreas++;
+				totalProcessedProbes += numGridPoints;
+			}
+
+			CommandlineProgressBar progressBar( numGridPoints, sysWidth, sysHeight );
+			progressBar.Start();
+
+			int	start = Sys_Milliseconds();
+
+			int gridStep[3];
+
+			gridStep[0] = 1;
+			gridStep[1] = area->lightGrid.lightGridBounds[0];
+			gridStep[2] = area->lightGrid.lightGridBounds[0] * area->lightGrid.lightGridBounds[1];
+
+			int gridCoord[3];
+
+			//--------------------------------------------
+			// CAPTURE SCENE LIGHTING TO CUBEMAPS
+			//--------------------------------------------
+
+			// make sure the game / draw thread has completed
+			commonLocal.WaitGameThread();
+
+			glConfig.nativeScreenWidth = captureSize;
+			glConfig.nativeScreenHeight = captureSize;
+
+			// disable scissor, so we don't need to adjust all those rects
+			r_useScissor.SetBool( false );
+
+			// RB: this really sucks but prevents a crash I couldn't track down
+			extern idCVar r_useParallelAddModels;
+			extern idCVar r_useParallelAddShadows;
+			extern idCVar r_useParallelAddLights;
+
+			r_useParallelAddModels.SetBool( false );
+			r_useParallelAddShadows.SetBool( false );
+			r_useParallelAddLights.SetBool( false );
+
+			// discard anything currently on the list (this triggers SwapBuffers)
+			tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
+
+			tr.takingEnvprobe = true;
+
+			for( int i = 0; i < area->lightGrid.lightGridBounds[0]; i += 1 )
+			{
+				for( int j = 0; j < area->lightGrid.lightGridBounds[1]; j += 1 )
 				{
-					gridCoord[0] = i;
-					gridCoord[1] = j;
-					gridCoord[2] = k;
-
-					lightGridPoint_t* gridPoint = &area->lightGrid.lightGridPoints[ gridCoord[0] * gridStep[0] + gridCoord[1] * gridStep[1] + gridCoord[2] * gridStep[2] ];
-					if( !gridPoint->valid )
+					for( int k = 0; k < area->lightGrid.lightGridBounds[2]; k += 1 )
 					{
-						//progressBar.Increment();
-						continue;
-					}
+						gridCoord[0] = i;
+						gridCoord[1] = j;
+						gridCoord[2] = k;
 
-					calcLightGridPointParms_t* jobParms = new calcLightGridPointParms_t;
-					jobParms->gridCoord[0] = i;
-					jobParms->gridCoord[1] = j;
-					jobParms->gridCoord[2] = k;
+						lightGridPoint_t* gridPoint = &area->lightGrid.lightGridPoints[ gridCoord[0] * gridStep[0] + gridCoord[1] * gridStep[1] + gridCoord[2] * gridStep[2] ];
+						if( !gridPoint->valid )
+						{
+							//progressBar.Increment();
+							continue;
+						}
 
-					for( int side = 0; side < 6; side++ )
-					{
-						ref = primary.renderView;
+						calcLightGridPointParms_t* jobParms = new calcLightGridPointParms_t;
+						jobParms->gridCoord[0] = i;
+						jobParms->gridCoord[1] = j;
+						jobParms->gridCoord[2] = k;
 
-						ref.rdflags = RDF_NOAMBIENT | RDF_IRRADIANCE;
-						ref.fov_x = ref.fov_y = 90;
+						for( int side = 0; side < 6; side++ )
+						{
+							ref = primary.renderView;
 
-						ref.vieworg = gridPoint->origin;
-						ref.viewaxis = tr.cubeAxis[ side ];
+							ref.rdflags = RDF_IRRADIANCE;
+							if( bounce == 0 )
+							{
+								ref.rdflags |= RDF_NOAMBIENT;
+							}
+
+							ref.fov_x = ref.fov_y = 90;
+
+							ref.vieworg = gridPoint->origin;
+							ref.viewaxis = tr.cubeAxis[ side ];
 
 #if 0
-						byte* float16FRGB = tr.CaptureRenderToBuffer( captureSize, captureSize, &ref );
+							byte* float16FRGB = tr.CaptureRenderToBuffer( captureSize, captureSize, &ref );
 #else
-						glConfig.nativeScreenWidth = captureSize;
-						glConfig.nativeScreenHeight = captureSize;
+							glConfig.nativeScreenWidth = captureSize;
+							glConfig.nativeScreenHeight = captureSize;
 
-						int pix = captureSize * captureSize;
-						const int bufferSize = pix * 3 * 2;
+							int pix = captureSize * captureSize;
+							const int bufferSize = pix * 3 * 2;
 
-						byte* float16FRGB = ( byte* )R_StaticAlloc( bufferSize );
+							byte* float16FRGB = ( byte* )R_StaticAlloc( bufferSize );
 
-						// discard anything currently on the list
-						tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
+							// discard anything currently on the list
+							tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
 
-						// build commands to render the scene
-						tr.primaryWorld->RenderScene( &ref );
+							// build commands to render the scene
+							tr.primaryWorld->RenderScene( &ref );
 
-						// finish off these commands
-						const emptyCommand_t* cmd = tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
+							// finish off these commands
+							const emptyCommand_t* cmd = tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
 
-						// issue the commands to the GPU
-						tr.RenderCommandBuffers( cmd );
+							// issue the commands to the GPU
+							tr.RenderCommandBuffers( cmd );
 
-						// discard anything currently on the list (this triggers SwapBuffers)
-						tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
+							// discard anything currently on the list (this triggers SwapBuffers)
+							tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
 
 #if defined(USE_VULKAN)
 
-						// TODO
+							// TODO
 
 #else
 
-						glFinish();
+							glFinish();
 
-						glReadBuffer( GL_BACK );
+							glReadBuffer( GL_BACK );
 
-						globalFramebuffers.envprobeFBO->Bind();
+							globalFramebuffers.envprobeFBO->Bind();
 
-						glPixelStorei( GL_PACK_ROW_LENGTH, ENVPROBE_CAPTURE_SIZE );
-						glReadPixels( 0, 0, captureSize, captureSize, GL_RGB, GL_HALF_FLOAT, float16FRGB );
+							glPixelStorei( GL_PACK_ROW_LENGTH, ENVPROBE_CAPTURE_SIZE );
+							glReadPixels( 0, 0, captureSize, captureSize, GL_RGB, GL_HALF_FLOAT, float16FRGB );
 
-						R_VerticalFlipRGB16F( float16FRGB, captureSize, captureSize );
+							R_VerticalFlipRGB16F( float16FRGB, captureSize, captureSize );
 
-						Framebuffer::Unbind();
+							Framebuffer::Unbind();
 #endif
 
 #endif
 
-						jobParms->radiance[ side ] = float16FRGB;
+							jobParms->radiance[ side ] = float16FRGB;
+						}
+
+						tr.lightGridJobs.Append( jobParms );
+
+
+						tr.takingEnvprobe = false;
+						progressBar.Increment( true );
+						tr.takingEnvprobe = true;
 					}
-
-					tr.lightGridJobs.Append( jobParms );
-
-
-					tr.takingEnvprobe = false;
-					progressBar.Increment( true );
-					tr.takingEnvprobe = true;
 				}
 			}
-		}
 
-		int	end = Sys_Milliseconds();
+			int	end = Sys_Milliseconds();
 
-		tr.takingEnvprobe = false;
+			tr.takingEnvprobe = false;
 
-		// restore the original resolution, same as "vid_restart"
-		glConfig.nativeScreenWidth = sysWidth;
-		glConfig.nativeScreenHeight = sysHeight;
-		R_SetNewMode( false );
+			// restore the original resolution, same as "vid_restart"
+			glConfig.nativeScreenWidth = sysWidth;
+			glConfig.nativeScreenHeight = sysHeight;
+			R_SetNewMode( false );
 
-		r_useScissor.SetBool( true );
-		r_useParallelAddModels.SetBool( true );
-		r_useParallelAddShadows.SetBool( true );
-		r_useParallelAddLights.SetBool( true );
+			r_useScissor.SetBool( true );
+			r_useParallelAddModels.SetBool( true );
+			r_useParallelAddShadows.SetBool( true );
+			r_useParallelAddLights.SetBool( true );
 
-		common->Printf( "captured light grid radiance for area %i in %5.1f seconds\n\n", a, ( end - start ) * 0.001f );
+			common->Printf( "captured light grid radiance for area %i in %5.1f seconds\n\n", a, ( end - start ) * 0.001f );
 
-		//--------------------------------------------
-		// GENERATE IRRADIANCE
-		//--------------------------------------------
+			//--------------------------------------------
+			// GENERATE IRRADIANCE
+			//--------------------------------------------
 
-		if( !useThreads )
-		{
-			progressBar.Reset( tr.lightGridJobs.Num() );
-			progressBar.Start();
-		}
+			if( !useThreads )
+			{
+				progressBar.Reset( tr.lightGridJobs.Num() );
+				progressBar.Start();
+			}
 
-		start = Sys_Milliseconds();
+			start = Sys_Milliseconds();
 
-		for( int j = 0; j < tr.lightGridJobs.Num(); j++ )
-		{
-			calcLightGridPointParms_t* jobParms = tr.lightGridJobs[ j ];
+			for( int j = 0; j < tr.lightGridJobs.Num(); j++ )
+			{
+				calcLightGridPointParms_t* jobParms = tr.lightGridJobs[ j ];
 
-			jobParms->outWidth = LIGHTGRID_IRRADIANCE_SIZE;
-			jobParms->outHeight = LIGHTGRID_IRRADIANCE_SIZE;
-			jobParms->outBuffer = ( halfFloat_t* )R_StaticAlloc( idMath::Ceil( LIGHTGRID_IRRADIANCE_SIZE * LIGHTGRID_IRRADIANCE_SIZE * 3 * sizeof( halfFloat_t ) * 1.5f ), TAG_IMAGE );
+				jobParms->outWidth = LIGHTGRID_IRRADIANCE_SIZE;
+				jobParms->outHeight = LIGHTGRID_IRRADIANCE_SIZE;
+				jobParms->outBuffer = ( halfFloat_t* )R_StaticAlloc( idMath::Ceil( LIGHTGRID_IRRADIANCE_SIZE * LIGHTGRID_IRRADIANCE_SIZE * 3 * sizeof( halfFloat_t ) * 1.5f ), TAG_IMAGE );
+
+				if( useThreads )
+				{
+					tr.envprobeJobList->AddJob( ( jobRun_t )CalculateLightGridPointJob, jobParms );
+				}
+				else
+				{
+					CalculateLightGridPointJob( jobParms );
+					progressBar.Increment( true );
+				}
+			}
 
 			if( useThreads )
 			{
-				tr.envprobeJobList->AddJob( ( jobRun_t )CalculateLightGridPointJob, jobParms );
+				idLib::Printf( "Processing probes on all available cores... Please wait.\n" );
+				common->UpdateScreen( false );
+				common->UpdateScreen( false );
+
+				//tr.envprobeJobList->Submit();
+				tr.envprobeJobList->Submit( NULL, JOBLIST_PARALLELISM_MAX_CORES );
+				tr.envprobeJobList->Wait();
 			}
-			else
+
+
+
+			int atlasWidth = area->lightGrid.lightGridBounds[0] * area->lightGrid.lightGridBounds[2] * LIGHTGRID_IRRADIANCE_SIZE;
+			int atlasHeight = area->lightGrid.lightGridBounds[1] * LIGHTGRID_IRRADIANCE_SIZE;
+
+			idTempArray<halfFloat_t> irradianceAtlas( atlasWidth * atlasHeight * 3 );
+
+			// fill everything with solid black
+			for( int i = 0; i < ( atlasWidth * atlasHeight ); i++ )
 			{
-				CalculateLightGridPointJob( jobParms );
-				progressBar.Increment( true );
+				irradianceAtlas[i * 3 + 0] = F32toF16( 0.0f );
+				irradianceAtlas[i * 3 + 1] = F32toF16( 0.0f );
+				irradianceAtlas[i * 3 + 2] = F32toF16( 0.0f );
 			}
-		}
 
-		if( useThreads )
-		{
-			idLib::Printf( "Processing probes on all available cores... Please wait.\n" );
-			common->UpdateScreen( false );
-			common->UpdateScreen( false );
-
-			//tr.envprobeJobList->Submit();
-			tr.envprobeJobList->Submit( NULL, JOBLIST_PARALLELISM_MAX_CORES );
-			tr.envprobeJobList->Wait();
-		}
-
-
-
-		int atlasWidth = area->lightGrid.lightGridBounds[0] * area->lightGrid.lightGridBounds[2] * LIGHTGRID_IRRADIANCE_SIZE;
-		int atlasHeight = area->lightGrid.lightGridBounds[1] * LIGHTGRID_IRRADIANCE_SIZE;
-
-		idTempArray<halfFloat_t> irradianceAtlas( atlasWidth * atlasHeight * 3 );
-
-		// fill everything with solid black
-		for( int i = 0; i < ( atlasWidth * atlasHeight ); i++ )
-		{
-			irradianceAtlas[i * 3 + 0] = F32toF16( 0.0f );
-			irradianceAtlas[i * 3 + 1] = F32toF16( 0.0f );
-			irradianceAtlas[i * 3 + 2] = F32toF16( 0.0f );
-		}
-
-		for( int j = 0; j < tr.lightGridJobs.Num(); j++ )
-		{
-			calcLightGridPointParms_t* job = tr.lightGridJobs[ j ];
-
-			for( int x = 0; x < LIGHTGRID_IRRADIANCE_SIZE; x++ )
+			for( int j = 0; j < tr.lightGridJobs.Num(); j++ )
 			{
-				for( int y = 0; y < LIGHTGRID_IRRADIANCE_SIZE; y++ )
+				calcLightGridPointParms_t* job = tr.lightGridJobs[ j ];
+
+				for( int x = 0; x < LIGHTGRID_IRRADIANCE_SIZE; x++ )
 				{
-					int xx = x + ( job->gridCoord[0] * gridStep[0] + job->gridCoord[2] * gridStep[1] ) * LIGHTGRID_IRRADIANCE_SIZE;
-					int yy = y + job->gridCoord[1] * LIGHTGRID_IRRADIANCE_SIZE;
+					for( int y = 0; y < LIGHTGRID_IRRADIANCE_SIZE; y++ )
+					{
+						int xx = x + ( job->gridCoord[0] * gridStep[0] + job->gridCoord[2] * gridStep[1] ) * LIGHTGRID_IRRADIANCE_SIZE;
+						int yy = y + job->gridCoord[1] * LIGHTGRID_IRRADIANCE_SIZE;
 
-					irradianceAtlas[( yy * atlasWidth + xx ) * 3 + 0] = job->outBuffer[( y * LIGHTGRID_IRRADIANCE_SIZE + x ) * 3 + 0];
-					irradianceAtlas[( yy * atlasWidth + xx ) * 3 + 1] = job->outBuffer[( y * LIGHTGRID_IRRADIANCE_SIZE + x ) * 3 + 1];
-					irradianceAtlas[( yy * atlasWidth + xx ) * 3 + 2] = job->outBuffer[( y * LIGHTGRID_IRRADIANCE_SIZE + x ) * 3 + 2];
+						irradianceAtlas[( yy * atlasWidth + xx ) * 3 + 0] = job->outBuffer[( y * LIGHTGRID_IRRADIANCE_SIZE + x ) * 3 + 0];
+						irradianceAtlas[( yy * atlasWidth + xx ) * 3 + 1] = job->outBuffer[( y * LIGHTGRID_IRRADIANCE_SIZE + x ) * 3 + 1];
+						irradianceAtlas[( yy * atlasWidth + xx ) * 3 + 2] = job->outBuffer[( y * LIGHTGRID_IRRADIANCE_SIZE + x ) * 3 + 2];
+					}
 				}
-			}
 
-			// backup SH L3 data
-			lightGridPoint_t* gridPoint = &area->lightGrid.lightGridPoints[ job->gridCoord[0] * gridStep[0] + job->gridCoord[1] * gridStep[1] + job->gridCoord[2] * gridStep[2] ];
-			for( int i = 0; i < shSize( 3 ); i++ )
-			{
-				gridPoint->shRadiance[i] = job->shRadiance[i];
-			}
-
-			for( int i = 0; i < 6; i++ )
-			{
-				if( job->radiance[i] )
+				// backup SH L3 data
+				lightGridPoint_t* gridPoint = &area->lightGrid.lightGridPoints[ job->gridCoord[0] * gridStep[0] + job->gridCoord[1] * gridStep[1] + job->gridCoord[2] * gridStep[2] ];
+				for( int i = 0; i < shSize( 3 ); i++ )
 				{
-					Mem_Free( job->radiance[i] );
+					gridPoint->shRadiance[i] = job->shRadiance[i];
 				}
+
+				for( int i = 0; i < 6; i++ )
+				{
+					if( job->radiance[i] )
+					{
+						Mem_Free( job->radiance[i] );
+					}
+				}
+
+				Mem_Free( job->outBuffer );
+
+				delete job;
 			}
 
-			Mem_Free( job->outBuffer );
+			filename.Format( "env/%s/area%i_lightgrid_amb.exr", baseName.c_str(), a );
 
-			delete job;
+			R_WriteEXR( filename.c_str(), irradianceAtlas.Ptr(), 3, atlasWidth, atlasHeight, "fs_basepath" );
+
+			tr.lightGridJobs.Clear();
+
+			end = Sys_Milliseconds();
+
+			common->Printf( "computed light grid irradiance for area %i in %5.1f seconds\n\n", a, ( end - start ) * 0.001f );
 		}
 
-		filename.Format( "env/%s/area%i_lightgrid_amb.exr", baseName.c_str(), a );
-
-		R_WriteEXR( filename.c_str(), irradianceAtlas.Ptr(), 3, atlasWidth, atlasHeight, "fs_basepath" );
-
-		tr.lightGridJobs.Clear();
-
-		end = Sys_Milliseconds();
-
-		common->Printf( "computed light grid irradiance for area %i in %5.1f seconds\n\n", a, ( end - start ) * 0.001f );
+		tr.primaryWorld->LoadLightGridImages();
 	}
 
 	int totalEnd = Sys_Milliseconds();
@@ -1354,8 +1396,6 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 	// so we can load the texture atlases with the correct subdivisions next time
 	filename.Format( "%s.lightgrid", baseName.c_str() );
 	tr.primaryWorld->WriteLightGridsToFile( filename );
-
-	tr.primaryWorld->LoadLightGridImages();
 
 	idLib::Printf( "----------------------------------\n" );
 	idLib::Printf( "Processed %i light probes in %i areas\n", totalProcessedProbes, totalProcessedAreas );
