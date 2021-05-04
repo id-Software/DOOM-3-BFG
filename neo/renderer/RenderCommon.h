@@ -517,6 +517,7 @@ struct calcEnvprobeParms_t
 };
 
 
+#define STORE_LIGHTGRID_SHDATA 0
 
 static const int LIGHTGRID_IRRADIANCE_BORDER_SIZE = 2;	// one pixel border all around the octahedron so 2 on each side
 static const int LIGHTGRID_IRRADIANCE_SIZE = 14 + LIGHTGRID_IRRADIANCE_BORDER_SIZE;
@@ -531,7 +532,9 @@ struct calcLightGridPointParms_t
 	int								outHeight;
 
 	// output
+#if STORE_LIGHTGRID_SHDATA
 	SphericalHarmonicsT<idVec3, 4>	shRadiance;				// L4 Spherical Harmonics
+#endif
 
 	halfFloat_t*					outBuffer;				// HDR R11G11B11F octahedron LIGHTGRID_IRRADIANCE_SIZE^2
 	int								time;					// execution time in milliseconds

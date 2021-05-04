@@ -39,7 +39,7 @@ If you have questions concerning this license or the applicable additional terms
 #define LGRID_FILEID			"LGRID"
 const byte LGRID_VERSION = 3;
 
-#define STORE_LIGHTGRID_SHDATA 0
+
 
 static const byte BLGRID_VERSION = 4;
 static const unsigned int BLGRID_MAGIC = ( 'P' << 24 ) | ( 'R' << 16 ) | ( 'O' << 8 ) | BLGRID_VERSION;
@@ -48,9 +48,11 @@ static const unsigned int BLGRID_MAGIC = ( 'P' << 24 ) | ( 'R' << 16 ) | ( 'O' <
 static const int MAX_LIGHTGRID_ATLAS_SIZE	= 2048;
 static const int MAX_AREA_LIGHTGRID_POINTS	= ( MAX_LIGHTGRID_ATLAS_SIZE / LIGHTGRID_IRRADIANCE_SIZE ) * ( MAX_LIGHTGRID_ATLAS_SIZE / LIGHTGRID_IRRADIANCE_SIZE );
 
+static idVec3 defaultLightGridSize = idVec3( 64, 64, 128 );
+
 LightGrid::LightGrid()
 {
-	lightGridSize.Set( 64, 64, 128 );
+	lightGridSize = defaultLightGridSize;
 	area = -1;
 
 	irradianceImage = NULL;
@@ -58,11 +60,11 @@ LightGrid::LightGrid()
 	imageBorderSize = LIGHTGRID_IRRADIANCE_BORDER_SIZE;
 }
 
-void LightGrid::SetupLightGrid( const idBounds& bounds, const char* mapName, const idRenderWorld* world, int _area, int limit )
+void LightGrid::SetupLightGrid( const idBounds& bounds, const char* mapName, const idRenderWorld* world, const idVec3& gridSize, int _area, int numAreas, int maxProbes )
 {
 	//idLib::Printf( "----- SetupLightGrid -----\n" );
 
-	lightGridSize.Set( 64, 64, 128 );
+	lightGridSize = gridSize;
 	lightGridPoints.Clear();
 
 	area = _area;
@@ -74,9 +76,9 @@ void LightGrid::SetupLightGrid( const idBounds& bounds, const char* mapName, con
 	int j = 0;
 
 	int maxGridPoints = MAX_AREA_LIGHTGRID_POINTS;
-	if( limit >= 100 && limit < MAX_AREA_LIGHTGRID_POINTS )
+	if( maxProbes >= 100 )// && maxProbes < MAX_AREA_LIGHTGRID_POINTS )
 	{
-		maxGridPoints = limit;
+		maxGridPoints = maxProbes;
 	}
 
 	int numGridPoints = maxGridPoints + 1;
@@ -101,10 +103,10 @@ void LightGrid::SetupLightGrid( const idBounds& bounds, const char* mapName, con
 	{
 		lightGridPoints.SetNum( numGridPoints );
 
-		idLib::Printf( "\narea %i (%i x %i x %i) = %i grid points \n", area, lightGridBounds[0], lightGridBounds[1], lightGridBounds[2], numGridPoints );
+		idLib::Printf( "\narea %i of %i (%i x %i x %i) = %i grid points \n", area, numAreas, lightGridBounds[0], lightGridBounds[1], lightGridBounds[2], numGridPoints );
 		idLib::Printf( "area %i grid size (%i %i %i)\n", area, ( int )lightGridSize[0], ( int )lightGridSize[1], ( int )lightGridSize[2] );
 		idLib::Printf( "area %i grid bounds (%i %i %i)\n", area, ( int )lightGridBounds[0], ( int )lightGridBounds[1], ( int )lightGridBounds[2] );
-		idLib::Printf( "area %i %9u x %" PRIuSIZE " = lightGridSize = (%.2fMB)\n", area, numGridPoints, sizeof( lightGridPoint_t ), ( float )( lightGridPoints.MemoryUsed() ) / ( 1024.0f * 1024.0f ) );
+		//idLib::Printf( "area %i %9u x %" PRIuSIZE " = lightGridSize = (%.2fMB)\n", area, numGridPoints, sizeof( lightGridPoint_t ), ( float )( lightGridPoints.MemoryUsed() ) / ( 1024.0f * 1024.0f ) );
 
 		CalculateLightGridPointPositions( world, area );
 	}
@@ -388,7 +390,7 @@ void idRenderWorldLocal::SetupLightGrid()
 		{
 			portalArea_t* area = &portalAreas[i];
 
-			area->lightGrid.SetupLightGrid( area->globalBounds, mapName, this, i, -1 );
+			area->lightGrid.SetupLightGrid( area->globalBounds, mapName, this, defaultLightGridSize, i, numPortalAreas, -1 );
 
 			totalGridPoints += area->lightGrid.CountValidGridPoints();
 		}
@@ -721,7 +723,7 @@ void idRenderWorldLocal::ParseLightGridPoints( idLexer* src, idFile* fileOut )
 	idLib::Printf( "\narea %i (%i x %i x %i) = %i grid points \n", areaIndex, area->lightGrid.lightGridBounds[0], area->lightGrid.lightGridBounds[1], area->lightGrid.lightGridBounds[2], numLightGridPoints );
 	idLib::Printf( "area %i grid size (%i %i %i)\n", areaIndex, ( int )area->lightGrid.lightGridSize[0], ( int )area->lightGrid.lightGridSize[1], ( int )area->lightGrid.lightGridSize[2] );
 	idLib::Printf( "area %i grid bounds (%i %i %i)\n", areaIndex, ( int )area->lightGrid.lightGridBounds[0], ( int )area->lightGrid.lightGridBounds[1], ( int )area->lightGrid.lightGridBounds[2] );
-	idLib::Printf( "area %i %9u x %" PRIuSIZE " = lightGridSize = (%.2fMB)\n", areaIndex, numLightGridPoints, sizeof( lightGridPoint_t ), ( float )( area->lightGrid.lightGridPoints.MemoryUsed() ) / ( 1024.0f * 1024.0f ) );
+	//idLib::Printf( "area %i %9u x %" PRIuSIZE " = lightGridSize = (%.2fMB)\n", areaIndex, numLightGridPoints, sizeof( lightGridPoint_t ), ( float )( area->lightGrid.lightGridPoints.MemoryUsed() ) / ( 1024.0f * 1024.0f ) );
 	idLib::Printf( "area %i probe size (%i %i)\n", areaIndex, imageProbeSize, imageBorderSize );
 
 	if( fileOut != NULL )
@@ -811,7 +813,7 @@ void idRenderWorldLocal::ReadBinaryLightGridPoints( idFile* file )
 	idLib::Printf( "\narea %i (%i x %i x %i) = %i grid points \n", areaIndex, area->lightGrid.lightGridBounds[0], area->lightGrid.lightGridBounds[1], area->lightGrid.lightGridBounds[2], numLightGridPoints );
 	idLib::Printf( "area %i grid size (%i %i %i)\n", areaIndex, ( int )area->lightGrid.lightGridSize[0], ( int )area->lightGrid.lightGridSize[1], ( int )area->lightGrid.lightGridSize[2] );
 	idLib::Printf( "area %i grid bounds (%i %i %i)\n", areaIndex, ( int )area->lightGrid.lightGridBounds[0], ( int )area->lightGrid.lightGridBounds[1], ( int )area->lightGrid.lightGridBounds[2] );
-	idLib::Printf( "area %i %9u x %" PRIuSIZE " = lightGridSize = (%.2fMB)\n", areaIndex, numLightGridPoints, sizeof( lightGridPoint_t ), ( float )( area->lightGrid.lightGridPoints.MemoryUsed() ) / ( 1024.0f * 1024.0f ) );
+	//idLib::Printf( "area %i %9u x %" PRIuSIZE " = lightGridSize = (%.2fMB)\n", areaIndex, numLightGridPoints, sizeof( lightGridPoint_t ), ( float )( area->lightGrid.lightGridPoints.MemoryUsed() ) / ( 1024.0f * 1024.0f ) );
 	idLib::Printf( "area %i probe size (%i %i)\n", areaIndex, imageProbeSize, imageBorderSize );
 
 	for( int i = 0; i < numLightGridPoints; i++ )
@@ -962,10 +964,12 @@ void CalculateLightGridPointJob( calcLightGridPointParms_t* parms )
 		}
 	}
 
+#if STORE_LIGHTGRID_SHDATA
 	for( int i = 0; i < shSize( 4 ); i++ )
 	{
 		parms->shRadiance[i] = shRadiance[i];
 	}
+#endif
 
 	// reset image to black
 	for( int x = 0; x < parms->outWidth; x++ )
@@ -1039,6 +1043,7 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 
 	int limit = MAX_AREA_LIGHTGRID_POINTS;
 	int bounces = 1;
+	idVec3 gridSize = defaultLightGridSize;
 
 	bool helpRequested = false;
 	idStr option;
@@ -1060,6 +1065,25 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 			bounces = atoi( option );
 			bounces = Max( 1, bounces );
 		}
+		else if( option.IcmpPrefix( "grid" ) == 0 )
+		{
+			if( ( i + 5 ) < args.Argc() )
+			{
+				// skip res
+				i++;
+
+				// skip (
+				i++;
+
+				gridSize[0] = atoi( args.Argv( i++ ) );
+				gridSize[1] = atoi( args.Argv( i++ ) );
+				gridSize[2] = atoi( args.Argv( i++ ) );
+
+				// skip )
+				i++;
+				continue;
+			}
+		}
 		else if( option.Icmp( "h" ) == 0 || option.Icmp( "help" ) == 0 )
 		{
 			helpRequested = true;
@@ -1071,8 +1095,9 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 	{
 		idLib::Printf( "USAGE: bakeLightGrids [<switches>...]\n\n" );
 		idLib::Printf( "<Switches>\n" );
-		idLib::Printf( " -limit[num] : max probes per BSP area (default %i)\n", MAX_AREA_LIGHTGRID_POINTS );
-		idLib::Printf( " -bounce[num] : number of bounces or number of light reuse (default 1)\n" );
+		idLib::Printf( " limit[num] : max probes per BSP area (default %i)\n", MAX_AREA_LIGHTGRID_POINTS );
+		idLib::Printf( " bounce[num] : number of bounces or number of light reuse (default 1)\n" );
+		idLib::Printf( " grid( xdim ydim zdim ) : light grid size steps into each direction (default 64 64 128)\n" );
 
 		return;
 	}
@@ -1090,6 +1115,7 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 
 	idLib::Printf( "Using limit = %i\n", limit );
 	idLib::Printf( "Using bounces = %i\n", bounces );
+	idLib::Printf( "Preferred lightGridSize (%i %i %i)\n", ( int )gridSize[0], ( int )gridSize[1], ( int )gridSize[2] );
 
 	const viewDef_t primary = *tr.primaryView;
 
@@ -1112,7 +1138,7 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 			//	continue;
 			//}
 
-			area->lightGrid.SetupLightGrid( area->globalBounds, tr.primaryWorld->mapName, tr.primaryWorld, a, limit );
+			area->lightGrid.SetupLightGrid( area->globalBounds, tr.primaryWorld->mapName, tr.primaryWorld, gridSize, a, tr.primaryWorld->NumAreas(), limit );
 
 			int numGridPoints = area->lightGrid.CountValidGridPoints();
 			if( numGridPoints == 0 )
@@ -1356,12 +1382,14 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 					}
 				}
 
-				// backup SH L3 data
+				// backup SH L4 data
+#if STORE_LIGHTGRID_SHDATA
 				lightGridPoint_t* gridPoint = &area->lightGrid.lightGridPoints[ job->gridCoord[0] * gridStep[0] + job->gridCoord[1] * gridStep[1] + job->gridCoord[2] * gridStep[2] ];
-				for( int i = 0; i < shSize( 3 ); i++ )
+				for( int i = 0; i < shSize( 4 ); i++ )
 				{
 					gridPoint->shRadiance[i] = job->shRadiance[i];
 				}
+#endif
 
 				for( int i = 0; i < 6; i++ )
 				{
