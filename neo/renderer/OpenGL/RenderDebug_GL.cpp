@@ -1840,6 +1840,13 @@ void idRenderBackend::DBG_ShowViewEnvprobes()
 			RenderEnvprobeLocal* vProbe = tr.primaryWorld->envprobeDefs[i];
 			if( vProbe )
 			{
+				// check for being closed off behind a door
+				if( r_useLightAreaCulling.GetBool()
+						&& vProbe->areaNum != -1 && !viewDef->connectedAreas[ vProbe->areaNum ] )
+				{
+					continue;
+				}
+
 				viewEnvprobes.AddUnique( vProbe );
 			}
 		}
@@ -1896,6 +1903,8 @@ void idRenderBackend::DBG_ShowViewEnvprobes()
 
 			barycentricWeights.Set( a, b, c );
 		}
+
+		idLib::Printf( "bary weights %.2f %.2f %.2f\n", barycentricWeights.x, barycentricWeights.y, barycentricWeights.z );
 
 		idMat3 axis;
 		axis.Identity();

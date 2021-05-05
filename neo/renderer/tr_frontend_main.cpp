@@ -508,6 +508,12 @@ static void R_FindClosestEnvironmentProbes()
 		RenderEnvprobeLocal* vProbe = tr.primaryWorld->envprobeDefs[i];
 		if( vProbe )
 		{
+			// check for being closed off behind a door
+			if( r_useLightAreaCulling.GetBool() && vProbe->areaNum != -1 && !tr.viewDef->connectedAreas[ vProbe->areaNum ] )
+			{
+				continue;
+			}
+
 			viewEnvprobes.AddUnique( vProbe );
 		}
 	}
