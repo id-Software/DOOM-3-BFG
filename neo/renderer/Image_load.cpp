@@ -513,8 +513,6 @@ void idImage::ActuallyLoadImage( bool fromBackEnd )
 				idLib::Warning( "Couldn't load image: %s : %s", GetName(), generatedName.c_str() );
 
 				// create a default so it doesn't get continuously reloaded
-				defaulted = true; // RB
-
 				opts.width = 8;
 				opts.height = 8;
 				opts.numLevels = 1;
@@ -529,6 +527,7 @@ void idImage::ActuallyLoadImage( bool fromBackEnd )
 					SubImageUpload( level, 0, 0, 0, opts.width >> level, opts.height >> level, clear.Ptr() );
 				}
 
+				defaulted = true; // RB
 				return;
 			}
 

@@ -1142,8 +1142,8 @@ CONSOLE_COMMAND( bakeEnvironmentProbes, "Bake environment probes", NULL )
 			continue;
 		}
 
-		def->irradianceImage->Reload( false );
-		def->radianceImage->Reload( false );
+		def->irradianceImage->Reload( true );
+		def->radianceImage->Reload( true );
 	}
 
 	idLib::Printf( "----------------------------------\n" );

@@ -421,7 +421,7 @@ void idRenderWorldLocal::LoadLightGridImages()
 		}
 		else
 		{
-			area->lightGrid.irradianceImage->Reload( false );
+			area->lightGrid.irradianceImage->Reload( true );
 		}
 	}
 }
@@ -1029,18 +1029,6 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 	int				blends;
 	int				captureSize;
 
-	if( !tr.primaryWorld )
-	{
-		idLib::Printf( "No primary world loaded.\n" );
-		return;
-	}
-
-	if( !tr.primaryView )
-	{
-		idLib::Printf( "No primary view.\n" );
-		return;
-	}
-
 	int limit = MAX_AREA_LIGHTGRID_POINTS;
 	int bounces = 1;
 	idVec3 gridSize = defaultLightGridSize;
@@ -1099,6 +1087,18 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 		idLib::Printf( " bounce[num] : number of bounces or number of light reuse (default 1)\n" );
 		idLib::Printf( " grid( xdim ydim zdim ) : light grid size steps into each direction (default 64 64 128)\n" );
 
+		return;
+	}
+
+	if( !tr.primaryWorld )
+	{
+		idLib::Printf( "No primary world loaded.\n" );
+		return;
+	}
+
+	if( !tr.primaryView )
+	{
+		idLib::Printf( "No primary view.\n" );
 		return;
 	}
 
