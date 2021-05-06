@@ -362,14 +362,14 @@ void idGuiModel::EmitImGui( ImDrawData* drawData )
 
 			int numIndexes = pcmd->ElemCount;
 
-			// TODO support more than just the imGui Font texture
-			// but we can live with the current solution because ImGui is only meant to draw a few bars and timers
+			// support more than just the imGui Font texture
+			const idMaterial* mat = tr.imgGuiMaterial;
+			if( pcmd->TextureId && ( mat != ( const idMaterial* )pcmd->TextureId ) )
+			{
+				mat = ( const idMaterial* )pcmd->TextureId;
+			}
 
-			//glBindTexture( GL_TEXTURE_2D, ( GLuint )( intptr_t )pcmd->TextureId )
-
-			//const idMaterial* material = declManager->FindMaterial( texture name of pcmd->TextureId );
-
-			idDrawVert* verts = renderSystem->AllocTris( numVerts, indexBufferOffset, numIndexes, tr.imgGuiMaterial, STEREO_DEPTH_TYPE_NONE );
+			idDrawVert* verts = renderSystem->AllocTris( numVerts, indexBufferOffset, numIndexes, mat, STEREO_DEPTH_TYPE_NONE );
 			if( verts == NULL )
 			{
 				continue;

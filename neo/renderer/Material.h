@@ -31,6 +31,14 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __MATERIAL_H__
 #define __MATERIAL_H__
 
+
+// RB: define this to use the id Tech 4.5 UI interface for ImGui instead of OpenGL or Vulkan
+// this allows to have the com_showFPS stats in screenshots
+
+//#if defined( USE_VULKAN )
+#define IMGUI_BFGUI 1
+//#endif
+
 /*
 ===============================================================================
 
@@ -799,6 +807,7 @@ public:
 
 	// gets an image for the editor to use
 	idImage* 			GetEditorImage() const;
+	idImage* 			GetLightEditorImage() const; // RB
 	int					GetImageWidth() const;
 	int					GetImageHeight() const;
 

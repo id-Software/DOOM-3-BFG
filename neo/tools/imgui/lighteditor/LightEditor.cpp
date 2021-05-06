@@ -378,7 +378,7 @@ void LightEditor::Reset()
 	lightEntity = NULL;
 	currentTextureIndex = 0;
 	currentTexture = NULL;
-
+	currentTextureMaterial = NULL;
 	currentStyleIndex = 0;
 }
 
@@ -402,14 +402,30 @@ void LightEditor::LoadLightTextures()
 
 	for( int i = 0; i < count; i++ )
 	{
+		// just get the name of the light material
 		const idMaterial* mat = declManager->MaterialByIndex( i, false );
 
-		idStr str = mat->GetName();
-		str.ToLower(); // FIXME: why? (this is from old doom3 code)
+		idStr matName = mat->GetName();
+		matName.ToLower(); // FIXME: why? (this is from old doom3 code)
 
-		if( str.Icmpn( "lights/", strlen( "lights/" ) ) == 0 || str.Icmpn( "fogs/", strlen( "fogs/" ) ) == 0 )
+		if( matName.Icmpn( "lights/", strlen( "lights/" ) ) == 0 || matName.Icmpn( "fogs/", strlen( "fogs/" ) ) == 0 )
 		{
-			textureNames.Append( str );
+			// actually load the material
+			const idMaterial* material = declManager->FindMaterial( matName, false );
+			if( material != NULL )
+			{
+				// check if the material has textures or is just a leftover from the development
+				idImage* editorImage = mat->GetLightEditorImage();
+				if( !editorImage->IsLoaded() )
+				{
+					editorImage->ActuallyLoadImage( false );
+				}
+
+				if( !editorImage->IsDefaulted() )
+				{
+					textureNames.Append( matName );
+				}
+			}
 		}
 	}
 
@@ -449,7 +465,17 @@ void LightEditor::LoadCurrentTexture()
 		const idMaterial* mat = declManager->FindMaterial( cur.strTexture, false );
 		if( mat != NULL )
 		{
-			currentTexture = mat->GetEditorImage();
+			currentTexture = mat->GetLightEditorImage();
+			if( currentTexture )
+			{
+				// RB: create extra 2D material of the image for UI rendering
+
+				// HACK that deserves being called a hack
+				idStr uiName( "lighteditor/" );
+				uiName += currentTexture->GetName();
+
+				currentTextureMaterial = declManager->FindMaterial( uiName, true );
+			}
 		}
 	}
 }
@@ -681,10 +707,15 @@ void LightEditor::DrawWindow()
 			LoadCurrentTexture();
 		}
 
-		if( currentTexture != NULL )
+		if( currentTextureMaterial != nullptr && currentTexture != nullptr )
 		{
 			ImVec2 size( currentTexture->GetUploadWidth(), currentTexture->GetUploadHeight() );
-			ImGui::Image( currentTexture->GetImGuiTextureID(), size, ImVec2( 0, 0 ), ImVec2( 1, 1 ),
+
+#if !IMGUI_BFGUI
+			ImGui::Image( ( void* )currentTexture->GetImGuiTextureID(), size, ImVec2( 0, 0 ), ImVec2( 1, 1 ),
+#else
+			ImGui::Image( ( void* )currentTextureMaterial, size, ImVec2( 0, 0 ), ImVec2( 1, 1 ),
+#endif
 						  ImColor( 255, 255, 255, 255 ), ImColor( 255, 255, 255, 128 ) );
 		}
 

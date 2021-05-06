@@ -258,6 +258,24 @@ idImage* idMaterial::GetEditorImage() const
 	return editorImage;
 }
 
+// RB - just look for first stage and fallback to editor image like D3Radiant does
+idImage* idMaterial::GetLightEditorImage() const
+{
+	if( numStages && stages )
+	{
+		for( int i = 0; i < numStages; i++ )
+		{
+			idImage* image = stages[i].texture.image;
+			if( image )
+			{
+				return image;
+			}
+		}
+	}
+
+	return GetEditorImage();
+}
+// RB end
 
 // info parms
 typedef struct
@@ -3320,16 +3338,38 @@ bool idMaterial::SetDefaultText()
 	if( 1 )    //fileSystem->ReadFile( GetName(), NULL ) != -1 ) {
 	{
 		char generated[2048];
-		idStr::snPrintf( generated, sizeof( generated ),
-						 "material %s // IMPLICITLY GENERATED\n"
-						 "{\n"
-						 "{\n"
-						 "blend blend\n"
-						 "colored\n"
-						 "map \"%s\"\n"
-						 "clamp\n"
-						 "}\n"
-						 "}\n", GetName(), GetName() );
+
+		// RB: HACK super hack for light editor 2D rendering
+		idStr matName = GetName();
+		if( matName.IcmpPrefix( "lighteditor/" ) == 0 )
+		{
+			idStr imageName = GetName();
+			imageName.StripLeading( "lighteditor/" );
+
+			idStr::snPrintf( generated, sizeof( generated ),
+							 "material %s // IMPLICITLY GENERATED\n"
+							 "{\n"
+							 "{\n"
+							 "blend blend\n"
+							 "colored\n"
+							 "map \"%s\"\n"
+							 "clamp\n"
+							 "}\n"
+							 "}\n", matName.c_str(), imageName.c_str() );
+		}
+		else
+		{
+			idStr::snPrintf( generated, sizeof( generated ),
+							 "material %s // IMPLICITLY GENERATED\n"
+							 "{\n"
+							 "{\n"
+							 "blend blend\n"
+							 "colored\n"
+							 "map \"%s\"\n"
+							 "clamp\n"
+							 "}\n"
+							 "}\n", GetName(), GetName() );
+		}
 		SetText( generated );
 		return true;
 	}

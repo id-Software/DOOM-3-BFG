@@ -31,6 +31,8 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "precompiled.h"
 
+#include "libs/imgui/imgui.h"
+
 #include "RenderCommon.h"
 
 // RB begin
@@ -1612,6 +1614,11 @@ void R_InitMaterials()
 
 	// RB: create implicit material
 	tr.imgGuiMaterial = declManager->FindMaterial( "_imguiFont", true );
+
+#if IMGUI_BFGUI
+	ImGuiIO& io = ImGui::GetIO();
+	io.Fonts->TexID = ( void* )( intptr_t )tr.imgGuiMaterial;
+#endif
 }
 
 

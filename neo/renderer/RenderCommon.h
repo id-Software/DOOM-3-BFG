@@ -39,9 +39,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "Font.h"
 #include "Framebuffer.h"
 
-// RB: define this to use the id Tech 4.5 UI interface for ImGui instead of OpenGL or Vulkan
-// this allows to have the com_showFPS stats in screenshots
-#define IMGUI_BFGUI 1
+
 
 // maximum texture units
 const int MAX_PROG_TEXTURE_PARMS	= 16;
