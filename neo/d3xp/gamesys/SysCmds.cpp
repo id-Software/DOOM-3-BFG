@@ -2738,7 +2738,8 @@ void idGameLocal::InitConsoleCommands()
 	cmdSystem->AddCommand( "closeViewNotes",		Cmd_CloseViewNotes_f,		CMD_FL_GAME | CMD_FL_CHEAT,	"close the view showing any notes for this map" );
 
 	// RB begin
-	cmdSystem->AddCommand( "exportScriptEvents",	idClass::ExportScriptEvents_f,	CMD_FL_GAME | CMD_FL_CHEAT,	"update script/doom_events.script" );
+	cmdSystem->AddCommand( "exportScriptEvents",	idClass::ExportScriptEvents_f,	CMD_FL_GAME | CMD_FL_TOOL,	"update script/doom_events.script" );
+	cmdSystem->AddCommand( "editLights",			idClass::EditLights_f,		CMD_FL_GAME | CMD_FL_TOOL,	"launches the in-game Light Editor" );
 	// RB end
 
 	// multiplayer client commands ( replaces old impulses stuff )

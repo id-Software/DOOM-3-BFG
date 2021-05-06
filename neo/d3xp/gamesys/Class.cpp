@@ -1427,4 +1427,16 @@ void idClass::ExportScriptEvents_f( const idCmdArgs& args )
 
 	delete[] set;
 }
+
+void idClass::EditLights_f( const idCmdArgs& args )
+{
+	if( g_editEntityMode.GetInteger() != 1 )
+	{
+		g_editEntityMode.SetInteger( 1 );
+	}
+	else
+	{
+		g_editEntityMode.SetInteger( 0 );
+	}
+}
 // RB end
