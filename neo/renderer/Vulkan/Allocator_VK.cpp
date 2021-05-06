@@ -497,14 +497,9 @@ void idVulkanBlock::Print()
 	idLib::Printf( "Usage:      %s\n", memoryUsageStrings[ usage ] );
 	idLib::Printf( "Count:      %d\n", count );
 
-	// RB: FIXME different sizes of VulkanDeviceSize on different platforms?
-#if defined(__APPLE__)
-	idLib::Printf( "Size:       %llu\n", size );
-	idLib::Printf( "Allocated:  %llu\n", allocated );
-#else
-	idLib::Printf( "Size:       %lu\n", size );
-	idLib::Printf( "Allocated:  %lu\n", allocated );
-#endif
+    // SRS - Changed %lu to %PRIu64 pre-defined macro to handle platform differences
+	idLib::Printf( "Size:       %" PRIu64"\n", size );
+	idLib::Printf( "Allocated:  %" PRIu64"\n", allocated );
 	idLib::Printf( "Next Block: %u\n", nextBlockId );
 	idLib::Printf( "------------------------\n" );
 
@@ -513,13 +508,9 @@ void idVulkanBlock::Print()
 		idLib::Printf( "{\n" );
 
 		idLib::Printf( "\tId:     %u\n", current->id );
-#if defined(__APPLE__)
-		idLib::Printf( "\tSize:   %llu\n", current->size );
-		idLib::Printf( "\tOffset: %llu\n", current->offset );
-#else
-		idLib::Printf( "\tSize:   %lu\n", current->size );
-		idLib::Printf( "\tOffset: %lu\n", current->offset );
-#endif
+        // SRS - Changed %lu to %PRIu64 pre-defined macro to handle platform differences
+		idLib::Printf( "\tSize:   %" PRIu64"\n", current->size );
+		idLib::Printf( "\tOffset: %" PRIu64"\n", current->offset );
 		idLib::Printf( "\tType:   %s\n", allocationTypeStrings[ current->type ] );
 
 		idLib::Printf( "}\n" );
@@ -692,11 +683,8 @@ void idVulkanAllocator::Print()
 {
 	idLib::Printf( "Device Local MB: %d\n", int( deviceLocalMemoryBytes / 1024 * 1024 ) );
 	idLib::Printf( "Host Visible MB: %d\n", int( hostVisibleMemoryBytes / 1024 * 1024 ) );
-#if defined(__APPLE__)
-	idLib::Printf( "Buffer Granularity: %llu\n", bufferImageGranularity );
-#else
-	idLib::Printf( "Buffer Granularity: %lu\n", bufferImageGranularity );
-#endif
+    // SRS - Changed %lu to %PRIu64 pre-defined macro to handle platform differences
+	idLib::Printf( "Buffer Granularity: %" PRIu64"\n", bufferImageGranularity );
 	idLib::Printf( "\n" );
 
 	for( int i = 0; i < VK_MAX_MEMORY_TYPES; ++i )
@@ -720,11 +708,8 @@ CONSOLE_COMMAND( Vulkan_PrintHeapInfo, "Print out the heap information for this 
 	{
 		VkMemoryHeap heap = props.memoryHeaps[ i ];
 
-#if defined(__APPLE__)
-		idLib::Printf( "id=%d, size=%llu, flags=", i, heap.size );
-#else
-		idLib::Printf( "id=%d, size=%lu, flags=", i, heap.size );
-#endif
+        // SRS - Changed %lu to %PRIu64 pre-defined macro to handle platform differences
+		idLib::Printf( "id=%d, size=%" PRIu64", flags=", i, heap.size );
 		if( heap.flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT )
 		{
 			idLib::Printf( "DEVICE_LOCAL" );
