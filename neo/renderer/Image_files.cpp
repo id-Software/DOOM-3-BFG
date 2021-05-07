@@ -992,19 +992,20 @@ static void LoadEXR( const char* filename, unsigned char** pic, int* width, int*
 R_WriteEXR
 ================
 */
-// miniexr.cpp - v0.2 - public domain - 2013 Aras Pranckevicius / Unity Technologies
-//
-// Writes OpenEXR RGB files out of half-precision RGBA or RGB data.
-//
-// Only tested on Windows (VS2008) and Mac (clang 3.3), little endian.
-// Testing status: "works for me".
-//
-// History:
-// 0.2 Source data can be RGB or RGBA now.
-// 0.1 Initial release.
-
 void R_WriteEXR( const char* filename, const void* rgba16f, int channelsPerPixel, int width, int height, const char* basePath )
 {
+#if 0
+	// miniexr.cpp - v0.2 - public domain - 2013 Aras Pranckevicius / Unity Technologies
+	//
+	// Writes OpenEXR RGB files out of half-precision RGBA or RGB data.
+	//
+	// Only tested on Windows (VS2008) and Mac (clang 3.3), little endian.
+	// Testing status: "works for me".
+	//
+	// History:
+	// 0.2 Source data can be RGB or RGBA now.
+	// 0.1 Initial release.
+
 	const unsigned ww = width - 1;
 	const unsigned hh = height - 1;
 	const unsigned char kHeader[] =
@@ -1140,6 +1141,86 @@ void R_WriteEXR( const char* filename, const void* rgba16f, int channelsPerPixel
 	fileSystem->WriteFile( filename, buf, bufSize, basePath );
 
 	Mem_Free( buf );
+
+#else
+
+	// TinyEXR version with compression to save disc size
+
+	if( channelsPerPixel != 3 )
+	{
+		common->Error( "R_WriteEXR( %s ): channelsPerPixel = %i not supported", filename, channelsPerPixel );
+	}
+
+	EXRHeader header;
+	InitEXRHeader( &header );
+
+	EXRImage image;
+	InitEXRImage( &image );
+
+	image.num_channels = 3;
+
+	std::vector<halfFloat_t> images[3];
+	images[0].resize( width * height );
+	images[1].resize( width * height );
+	images[2].resize( width * height );
+
+	halfFloat_t* rgb = ( halfFloat_t* ) rgba16f;
+
+	for( int i = 0; i < width * height; i++ )
+	{
+		images[0][i] = ( rgb[3 * i + 0] );
+		images[1][i] = ( rgb[3 * i + 1] );
+		images[2][i] = ( rgb[3 * i + 2] );
+	}
+
+	halfFloat_t* image_ptr[3];
+	image_ptr[0] = &( images[2].at( 0 ) ); // B
+	image_ptr[1] = &( images[1].at( 0 ) ); // G
+	image_ptr[2] = &( images[0].at( 0 ) ); // R
+
+	image.images = ( unsigned char** )image_ptr;
+	image.width = width;
+	image.height = height;
+
+	header.num_channels = 3;
+	header.channels = ( EXRChannelInfo* )malloc( sizeof( EXRChannelInfo ) * header.num_channels );
+
+	// Must be BGR(A) order, since most of EXR viewers expect this channel order.
+	strncpy( header.channels[0].name, "B", 255 );
+	header.channels[0].name[strlen( "B" )] = '\0';
+	strncpy( header.channels[1].name, "G", 255 );
+	header.channels[1].name[strlen( "G" )] = '\0';
+	strncpy( header.channels[2].name, "R", 255 );
+	header.channels[2].name[strlen( "R" )] = '\0';
+
+	header.pixel_types = ( int* )malloc( sizeof( int ) * header.num_channels );
+	header.requested_pixel_types = ( int* )malloc( sizeof( int ) * header.num_channels );
+	for( int i = 0; i < header.num_channels; i++ )
+	{
+		header.pixel_types[i] = TINYEXR_PIXELTYPE_FLOAT; // pixel type of input image
+		header.requested_pixel_types[i] = TINYEXR_PIXELTYPE_HALF; // pixel type of output image to be stored in .EXR
+	}
+
+	header.compression_type = TINYEXR_COMPRESSIONTYPE_ZIP;
+
+	byte* buffer = NULL;
+	const char* err;
+	size_t size = SaveEXRImageToMemory( &image, &header, &buffer, &err );
+	if( size == 0 )
+	{
+		common->Error( "R_WriteEXR( %s ): Save EXR err: %s\n", filename, err );
+
+		goto cleanup;
+	}
+
+	fileSystem->WriteFile( filename, buffer, size, basePath );
+
+cleanup:
+	free( header.channels );
+	free( header.pixel_types );
+	free( header.requested_pixel_types );
+
+#endif
 }
 // RB end
 

@@ -22,6 +22,10 @@ _______________________________
 
 # RBDOOM-3-BFG 1.3.0 adds PBR, Baked GI and TrenchBroom Mapping Support
 
+The main goal of this 1.3.0 release is enabling modders the ability to make new content using up to date Material & Lighting standards. Adding PBR is a requirement to make the new content look the same in RBDOOM-3-BFG as in Blender 2.9x with Cycles or Eevee and Substance Designer. PBR became the standard material authoring since 2014. Many texture packs for Doom 3 like the Wulfen & Monoxead packs were made before and are heavily outdated. With this release modders can work with modern tools and expect that their content looks as expected.
+However the PBR implementation is restricted to standard PBR using the Roughness/Metallic workflow for now.
+Specialized rendering paths for skin, clothes and vegetation will be in future releases.
+
 ## Physically Based Rendering
 
 Implementing Physically Based Rendering (PBR) in Doom 3 is a challenge and comes with a few compromises because the Doom 3 content was designed to work with the hardware constraints in 2004 and that even meant to run on a Geforce 3.
@@ -34,12 +38,8 @@ PBR allows artists to create textures that are based on real world measured colo
 
 ## Baked Global Illumination using Irradiance Volumes and Image Based Lighting
 
-The main goal is that the new content looks the same in RBDOOM-3-BFG as in Blender 2.9x with Cycles or Eevee.
-
-```
-To achieve the typical PBR look from an artistic point of view it also means to that it is necessary to add indirect lighting.
-Doom 3 and even Doom 3 BFG had no indirect lighting.
-```
+***To achieve the typical PBR look from an artistic point of view it also means to that it is necessary to add indirect lighting.
+Doom 3 and even Doom 3 BFG had no indirect lighting.***
 
 ### Irradiance Volumes aka Light Grids
 

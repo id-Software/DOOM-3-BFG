@@ -497,7 +497,7 @@ void idVulkanBlock::Print()
 	idLib::Printf( "Usage:      %s\n", memoryUsageStrings[ usage ] );
 	idLib::Printf( "Count:      %d\n", count );
 
-    // SRS - Changed %lu to %PRIu64 pre-defined macro to handle platform differences
+	// SRS - Changed %lu to %PRIu64 pre-defined macro to handle platform differences
 	idLib::Printf( "Size:       %" PRIu64"\n", size );
 	idLib::Printf( "Allocated:  %" PRIu64"\n", allocated );
 	idLib::Printf( "Next Block: %u\n", nextBlockId );
@@ -508,7 +508,7 @@ void idVulkanBlock::Print()
 		idLib::Printf( "{\n" );
 
 		idLib::Printf( "\tId:     %u\n", current->id );
-        // SRS - Changed %lu to %PRIu64 pre-defined macro to handle platform differences
+		// SRS - Changed %lu to %PRIu64 pre-defined macro to handle platform differences
 		idLib::Printf( "\tSize:   %" PRIu64"\n", current->size );
 		idLib::Printf( "\tOffset: %" PRIu64"\n", current->offset );
 		idLib::Printf( "\tType:   %s\n", allocationTypeStrings[ current->type ] );
@@ -683,7 +683,7 @@ void idVulkanAllocator::Print()
 {
 	idLib::Printf( "Device Local MB: %d\n", int( deviceLocalMemoryBytes / 1024 * 1024 ) );
 	idLib::Printf( "Host Visible MB: %d\n", int( hostVisibleMemoryBytes / 1024 * 1024 ) );
-    // SRS - Changed %lu to %PRIu64 pre-defined macro to handle platform differences
+	// SRS - Changed %lu to %PRIu64 pre-defined macro to handle platform differences
 	idLib::Printf( "Buffer Granularity: %" PRIu64"\n", bufferImageGranularity );
 	idLib::Printf( "\n" );
 
@@ -708,7 +708,7 @@ CONSOLE_COMMAND( Vulkan_PrintHeapInfo, "Print out the heap information for this 
 	{
 		VkMemoryHeap heap = props.memoryHeaps[ i ];
 
-        // SRS - Changed %lu to %PRIu64 pre-defined macro to handle platform differences
+		// SRS - Changed %lu to %PRIu64 pre-defined macro to handle platform differences
 		idLib::Printf( "id=%d, size=%" PRIu64", flags=", i, heap.size );
 		if( heap.flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT )
 		{

@@ -15905,7 +15905,7 @@ static size_t SaveEXRNPartImageToMemory( const EXRImage* exr_images,
 				return 0;
 			}
 #else
-			for( int c = 0; c < exr_header->num_channels; ++c )
+			for( int c = 0; c < exr_headers[i]->num_channels; ++c )
 			{
 				if( exr_headers[i]->requested_pixel_types[c] != TINYEXR_PIXELTYPE_FLOAT )
 				{
