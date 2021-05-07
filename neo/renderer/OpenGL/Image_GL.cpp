@@ -875,7 +875,7 @@ void idImage::PurgeImage()
 	}
 
 	// clear all the current binding caches, so the next bind will do a real one
-	for( int i = 0 ; i < MAX_MULTITEXTURE_UNITS ; i++ )
+	for( int i = 0; i < MAX_MULTITEXTURE_UNITS; i++ )
 	{
 		glcontext.tmu[i].current2DMap = TEXTURE_NOT_LOADED;
 		glcontext.tmu[i].current2DArray = TEXTURE_NOT_LOADED;

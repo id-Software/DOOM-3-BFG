@@ -34,12 +34,12 @@ The light rigs aren't made for PBR but it is possible to achieve good PBR lighti
 
 PBR allows artists to create textures that are based on real world measured color values and they look more or less the same in any renderer that follows the PBR guidelines and formulars.
 
-***RBDOOM-3-BFG only supports the standard PBR roughness/metal workflow.***
+***RBDOOM-3-BFG only supports the standard PBR Roughness/Metallic workflow.***
 
 ## Baked Global Illumination using Irradiance Volumes and Image Based Lighting
 
-***To achieve the typical PBR look from an artistic point of view it also means to that it is necessary to add indirect lighting.
-Doom 3 and even Doom 3 BFG had no indirect lighting.***
+*To achieve the typical PBR look from an artistic point of view it also means to that it is necessary to add indirect lighting.
+Doom 3 and even Doom 3 BFG had no indirect lighting.*
 
 ### Irradiance Volumes aka Light Grids
 
@@ -258,7 +258,9 @@ Here is an overview of the changes made to TrenchBroom:
 
 * Fixed ellipse bug when using Grabber gun in HDR mode #407
 
-* Added LoadEXR using tinyexr, LoadHDR using stb_image
+* Added LoadEXR using TinyEXR, LoadHDR using stb_image
+
+* Optimized R_WriteEXR using TinyEXR compression
 
 * Added Spherical Harmonics math from Probulator by Yuri O'Donnell
 

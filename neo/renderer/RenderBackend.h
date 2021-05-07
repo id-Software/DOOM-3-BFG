@@ -48,7 +48,7 @@ struct tmu_t
 	unsigned int	currentCubeMap;
 };
 
-const int MAX_MULTITEXTURE_UNITS =	8;
+const int MAX_MULTITEXTURE_UNITS = 14;
 
 enum stencilFace_t
 {
