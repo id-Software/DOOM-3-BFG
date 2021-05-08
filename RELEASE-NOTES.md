@@ -112,19 +112,21 @@ The default irradiance / radiance data gives the entire game a warmer look and i
 
 ### Some Examples of Indirect Lighting
 
-<img src="https://i.imgur.com/KkPSWrc.png" width="384"> <img src="https://i.imgur.com/OSxFcAf.png" width="384">
-
-<img src="https://i.imgur.com/67k9QXG.png" width="384"> <img src="https://media.moddb.com/images/mods/1/50/49231/rbdoom-3-bfg-20210409-221842-001.png" width="384">
+<img src="https://i.imgur.com/DqTEbzU.jpg" width="384"> <img src="https://media.moddb.com/images/mods/1/50/49231/rbdoom-3-bfg-20210409-221842-001.png" width="384">
 
 Left: No extra ambient pass. Ambient is pure black like in original Doom 3. Right: Extra ambient pass with r_forceAmbient 0.5 using local environment probe for irradiance and radiance lighting.
 
 <img src="https://i.imgur.com/ZEI4i87.png" width="384"> <img src="https://i.imgur.com/FC82oOM.png" width="384">
 
+<img src="https://i.imgur.com/LRJBJwV.png" width="384"> <img src="https://i.imgur.com/GPD2aIr.png" width="384">
+
+<img src="https://i.imgur.com/PVAXGui.png" width="384"> <img src="https://i.imgur.com/NleLuWY.png" width="384">
+
+<img src="https://i.imgur.com/vxAgY2S.png" width="384"> <img src="https://i.imgur.com/8avH7DY.png" width="384">
+
+<img src="https://i.imgur.com/KESmZld.png" width="384"> <img src="https://i.imgur.com/lHc7Pb9.png" width="384">
+
 Some examples that show additional environment lighting on all assets.
-
-<img src="https://i.imgur.com/0OOgwC9.png" width="384"> <img src="https://i.imgur.com/qL0DgcZ.png" width="384">
-
-<img src="https://i.imgur.com/5Pcomzu.png" width="384"> <img src="https://i.imgur.com/IczOpHI.png" width="384">
 
 <img src="https://i.imgur.com/xBPa2Y8.png" width="384"> <img src="https://i.imgur.com/MCjwFE7.png" width="384">
 

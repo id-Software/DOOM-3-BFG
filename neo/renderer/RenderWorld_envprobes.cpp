@@ -1090,7 +1090,7 @@ CONSOLE_COMMAND( bakeEnvironmentProbes, "Bake environment probes", NULL )
 	r_useParallelAddShadows.SetBool( true );
 	r_useParallelAddLights.SetBool( true );
 
-	common->Printf( "captured environemt probes %5.1f seconds\n\n", ( end - start ) * 0.001f );
+	common->Printf( "captured environment probes %5.1f seconds\n\n", ( end - start ) * 0.001f );
 
 	if( useThreads )
 	{
