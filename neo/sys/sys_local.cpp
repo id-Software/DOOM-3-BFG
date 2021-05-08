@@ -37,7 +37,8 @@ const char* sysLanguageNames[] =
 
 const int numLanguages = sizeof( sysLanguageNames ) / sizeof sysLanguageNames[ 0 ] - 1;
 
-idCVar sys_lang( "sys_lang", ID_LANG_ENGLISH, CVAR_SYSTEM | CVAR_INIT, "", sysLanguageNames, idCmdSystem::ArgCompletion_String<sysLanguageNames> );
+// RB: allow sys_lang to be saved to config so it has to be set per cmdline only a single time
+idCVar sys_lang( "sys_lang", ID_LANG_ENGLISH, CVAR_SYSTEM | CVAR_INIT | CVAR_ARCHIVE, "", sysLanguageNames, idCmdSystem::ArgCompletion_String<sysLanguageNames> );
 
 idSysLocal			sysLocal;
 idSys* 				sys = &sysLocal;
@@ -295,6 +296,12 @@ const char* Sys_DefaultLanguage()
 		return ID_LANG_ENGLISH;
 	}
 
+	// GK: Prevent sys_lang to revert to english if is set manually
+	if( idStr::Icmp( ID_LANG_ENGLISH, sys_lang.GetString() ) != 0 )
+	{
+		return sys_lang.GetString();
+	}
+
 	idStr fileName;
 
 	//D3XP: Instead of just loading a single lang file for each language
@@ -329,13 +336,13 @@ const char* Sys_DefaultLanguage()
 	}
 	else
 	{
-		if( currentLangList.Find( ID_LANG_JAPANESE ) )
-		{
-			sys_lang.SetString( ID_LANG_JAPANESE );
-		}
-		else if( currentLangList.Find( ID_LANG_ENGLISH ) )
+		if( currentLangList.Find( ID_LANG_ENGLISH ) )
 		{
 			sys_lang.SetString( ID_LANG_ENGLISH );
+		}
+		else if( currentLangList.Find( ID_LANG_JAPANESE ) )
+		{
+			sys_lang.SetString( ID_LANG_JAPANESE );
 		}
 		else if( currentLangList.Find( ID_LANG_FRENCH ) )
 		{

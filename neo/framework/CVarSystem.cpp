@@ -387,7 +387,7 @@ void idInternalCVar::Set( const char* newValue, bool force, bool fromServer )
 
 		if( flags & CVAR_INIT )
 		{
-			common->Printf( "%s is write protected.\n", nameString.c_str() );
+			common->Printf( "%s is write protected and can only be set from the cmdline (or autoexec.cfg).\n", nameString.c_str() );
 			return;
 		}
 	}

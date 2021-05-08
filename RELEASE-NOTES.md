@@ -339,6 +339,10 @@ Using the models argument will also export all needed models by entity declarati
 
 * Added invertGreen( normalmap.png ) material keyword to allow flipping the Y-Axis for tangent space normal maps
 
+* Changed to sys_lang to be saved to config so it has to be set per cmdline only a single time
+
+* Fixed bug that GOG builds default to Japanese instead of English
+
 
 
 _______________________________________
