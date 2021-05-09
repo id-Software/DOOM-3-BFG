@@ -18,9 +18,9 @@ std::unordered_map<int64, ID3D12PipelineState*> pipelineStateMap(128);
 D3D12_CULL_MODE CalculateCullMode(const int cullType) {
 	switch (cullType) {
 	case CT_FRONT_SIDED:
-		return D3D12_CULL_MODE_BACK;
-	case CT_BACK_SIDED:
 		return D3D12_CULL_MODE_FRONT;
+	case CT_BACK_SIDED:
+		return D3D12_CULL_MODE_BACK;
 	}
 
 	return D3D12_CULL_MODE_NONE;
@@ -41,10 +41,10 @@ D3D12_DEPTH_STENCIL_DESC CalculateDepthStencilMode(const uint64 stateBits) {
 
 	// Check if we should enable the depth mask
 	if (stateBits & GLS_DEPTHMASK) {
-		dsDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+		dsDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
 	}
 	else {
-		dsDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+		dsDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
 	}
 
 	switch (stateBits & GLS_DEPTHFUNC_BITS) {
@@ -53,6 +53,7 @@ D3D12_DEPTH_STENCIL_DESC CalculateDepthStencilMode(const uint64 stateBits) {
 		case GLS_DEPTHFUNC_ALWAYS:	dsDesc.DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS; break;
 		case GLS_DEPTHFUNC_LESS:	dsDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL; break;
 		case GLS_DEPTHFUNC_GREATER:	dsDesc.DepthFunc = D3D12_COMPARISON_FUNC_GREATER_EQUAL; break;
+		default:					dsDesc.DepthFunc = D3D12_COMPARISON_FUNC_NEVER;
 	}
 
 	// Calculate the stencil
@@ -79,6 +80,7 @@ D3D12_DEPTH_STENCIL_DESC CalculateDepthStencilMode(const uint64 stateBits) {
 			case GLS_STENCIL_FUNC_NOTEQUAL:		func = D3D12_COMPARISON_FUNC_NOT_EQUAL; break;
 			case GLS_STENCIL_FUNC_GEQUAL:		func = D3D12_COMPARISON_FUNC_GREATER_EQUAL; break;
 			case GLS_STENCIL_FUNC_ALWAYS:		func = D3D12_COMPARISON_FUNC_ALWAYS; break;
+			default:							func = D3D12_COMPARISON_FUNC_NEVER; break;
 		}
 
 		dsDesc.FrontFace.StencilFunc = func;
@@ -228,8 +230,14 @@ void LoadStagePipelineState(int parentState, glstate_t state) {
 	}
 }
 
-void DX12_ActivatePipelineState() {
+bool DX12_ActivatePipelineState() {
+	if (activePipelineState < 0) {
+		return false;
+	}
+
 	LoadStagePipelineState(activePipelineState, backEnd.glState);
+
+	return true;
 }
 
 void LoadHLSLShader(DX12CompiledShader* shader, const char* name, eShader shaderType) {
@@ -371,6 +379,8 @@ void idRenderProgManager::BindShader(int vIndex, int fIndex) {
 	if (vIndex >= 0 && vIndex < shaderPrograms.Num()) {
 		if (shaderPrograms[vIndex].shaderObject == NULL) {
 			common->Warning("RenderState %s has not been loaded.", vertexShaders[vIndex].name.c_str());
+			currentRenderProgram = -1;
+			activePipelineState = -1;
 			return;
 		}
 

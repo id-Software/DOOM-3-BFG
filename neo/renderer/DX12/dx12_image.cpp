@@ -36,6 +36,15 @@ Contains the Image implementation for OpenGL.
 
 #include "../tr_local.h"
 
+void RGB565SwapBytes(const int width, const int height, const byte* input, byte* output) {
+	for (int i = 0; i < width * height; ++i) {
+		output[i * 2 + 0] = input[i * 2 + 1];
+		output[i * 2 + 1] = input[i * 2 + 0];
+
+		// TODO: swap the red and blue channels.
+	}
+}
+
 /*
 ========================
 idImage::SubImageUpload
@@ -43,7 +52,6 @@ idImage::SubImageUpload
 */
 void idImage::SubImageUpload(int mipLevel, int x, int y, int z, int width, int height, const void* pic, int pixelPitch) const {
 	assert(x >= 0 && y >= 0 && mipLevel >= 0 && width >= 0 && height >= 0 && mipLevel < opts.numLevels);
-
 	int compressedSize = 0;
 
 	if (IsCompressed()) {
@@ -96,7 +104,16 @@ void idImage::SubImageUpload(int mipLevel, int x, int y, int z, int width, int h
 	//TODO: Load by the x or y coordinate.
 	UINT bytePitch = ((pixelPitch == 0 ? width : pixelPitch) * BitsForFormat(opts.format)) / (IsCompressed() ? 2 : 8);
 	UINT imageSize = IsCompressed() ? compressedSize : bytePitch * height;
-	dxRenderer.SetTextureContent(static_cast<DX12TextureBuffer*>(textureResource), mipLevel, bytePitch, imageSize, pic);
+
+	if (opts.format == FMT_RGB565) {
+		byte* data = new byte[width * height * 2];
+		RGB565SwapBytes(width, height, reinterpret_cast<const byte*>(pic), data);
+		dxRenderer.SetTextureContent(static_cast<DX12TextureBuffer*>(textureResource), mipLevel, bytePitch, imageSize, data);
+		delete data;
+	}
+	else {
+		dxRenderer.SetTextureContent(static_cast<DX12TextureBuffer*>(textureResource), mipLevel, bytePitch, imageSize, pic);
+	}
 
 	//TODO: Implement
 	/*if (pixelPitch != 0) {
@@ -144,7 +161,10 @@ idImage::SetPixel
 ========================
 */
 void idImage::SetPixel(int mipLevel, int x, int y, const void* data, int dataSize) {
+	// TODO: IS THIS EVEN USED ANYMORE? Current implementation will be very slow.
+	dxRenderer.StartTextureWrite(static_cast<DX12TextureBuffer*>(textureResource));
 	SubImageUpload(mipLevel, x, y, 0, 1, 1, data);
+	dxRenderer.EndTextureWrite(static_cast<DX12TextureBuffer*>(textureResource));
 }
 
 /*

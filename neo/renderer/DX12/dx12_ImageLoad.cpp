@@ -188,11 +188,15 @@ void idImage::GenerateImage(const byte* pic, int width, int height, textureFilte
 
 	AllocImage();
 
+	dxRenderer.StartTextureWrite(static_cast<DX12TextureBuffer*>(textureResource));
+
 	for (int i = 0; i < im.NumImages(); i++) {
 		const bimageImage_t& img = im.GetImageHeader(i);
 		const byte* data = im.GetImageData(i);
 		SubImageUpload(img.level, 0, 0, img.destZ, img.width, img.height, data);
 	}
+
+	dxRenderer.EndTextureWrite(static_cast<DX12TextureBuffer*>(textureResource));
 }
 
 /*
@@ -229,11 +233,15 @@ void idImage::GenerateCubeImage(const byte* pic[6], int size, textureFilter_t fi
 
 	AllocImage();
 
+	dxRenderer.StartTextureWrite(static_cast<DX12TextureBuffer*>(textureResource));
+
 	for (int i = 0; i < im.NumImages(); i++) {
 		const bimageImage_t& img = im.GetImageHeader(i);
 		const byte* data = im.GetImageData(i);
 		SubImageUpload(img.level, 0, 0, img.destZ, img.width, img.height, data);
 	}
+
+	dxRenderer.EndTextureWrite(static_cast<DX12TextureBuffer*>(textureResource));
 }
 
 /*
@@ -265,7 +273,6 @@ On exit, the idImage will have a valid OpenGL texture number that can be bound
 ===============
 */
 void idImage::ActuallyLoadImage(bool fromBackEnd) {
-
 	// if we don't have a rendering context yet, just return
 	if (!R_IsInitialized()) {
 		return;
@@ -402,11 +409,14 @@ void idImage::ActuallyLoadImage(bool fromBackEnd) {
 
 				// clear the data so it's not left uninitialized
 				idTempArray<byte> clear(opts.width * opts.height * 4);
+
+				dxRenderer.StartTextureWrite(static_cast<DX12TextureBuffer*>(textureResource));
 				memset(clear.Ptr(), 0, clear.Size());
 				for (int level = 0; level < opts.numLevels; level++) {
 					SubImageUpload(level, 0, 0, 0, opts.width >> level, opts.height >> level, clear.Ptr());
 				}
 
+				dxRenderer.EndTextureWrite(static_cast<DX12TextureBuffer*>(textureResource));
 				return;
 			}
 
@@ -423,12 +433,13 @@ void idImage::ActuallyLoadImage(bool fromBackEnd) {
 
 	AllocImage();
 
-
+	dxRenderer.StartTextureWrite(static_cast<DX12TextureBuffer*>(textureResource));
 	for (int i = 0; i < im.NumImages(); i++) {
 		const bimageImage_t& img = im.GetImageHeader(i);
 		const byte* data = im.GetImageData(i);
 		SubImageUpload(img.level, 0, 0, img.destZ, img.width, img.height, data);
 	}
+	dxRenderer.EndTextureWrite(static_cast<DX12TextureBuffer*>(textureResource));
 }
 
 /*
@@ -536,7 +547,6 @@ if rows = cols * 6, assume it is a cube map animation
 =============
 */
 void idImage::UploadScratch(const byte* data, int cols, int rows) {
-
 	// if rows = cols * 6, assume it is a cube map animation
 	if (rows == cols * 6) {
 		rows /= 6;
@@ -554,6 +564,7 @@ void idImage::UploadScratch(const byte* data, int cols, int rows) {
 			opts.height = rows;
 			AllocImage();
 		}
+		dxRenderer.StartTextureWrite(static_cast<DX12TextureBuffer*>(textureResource));
 		SetSamplerState(TF_LINEAR, TR_CLAMP);
 		for (int i = 0; i < 6; i++) {
 			SubImageUpload(0, 0, 0, i, opts.width, opts.height, pic[i]);
@@ -570,9 +581,12 @@ void idImage::UploadScratch(const byte* data, int cols, int rows) {
 			opts.height = rows;
 			AllocImage();
 		}
+		dxRenderer.StartTextureWrite(static_cast<DX12TextureBuffer*>(textureResource));
 		SetSamplerState(TF_LINEAR, TR_REPEAT);
 		SubImageUpload(0, 0, 0, 0, opts.width, opts.height, data);
 	}
+
+	dxRenderer.EndTextureWrite(static_cast<DX12TextureBuffer*>(textureResource));
 }
 
 /*

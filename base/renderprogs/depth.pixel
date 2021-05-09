@@ -34,5 +34,5 @@ struct PS_OUT {
 };
 
 void main( out PS_OUT result ) {
-	result.color = float4( 0.0, 0.0, 0.0, 1.0 );
+	result.color = float4( 0.0, 0.0, 0.0, 1.0 ); // TODO: make sure this is hidden.
 }

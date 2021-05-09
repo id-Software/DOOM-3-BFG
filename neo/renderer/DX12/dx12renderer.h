@@ -28,9 +28,8 @@
 
 // TODO: We will separate the CBV and materials into two separate heap objects. This will allow us to define objects positional properties differently from the material properties.
 #define TEXTURE_REGISTER_COUNT 5
-#define MAX_DESCRIPTOR_COUNT 8 // 1 CBV and 5 Shader Resource View, 2 extra to keep this as a power of 2
-#define MAX_DESCRIPTOR_TWO_POWER 3
-#define MAX_HEAP_OBJECT_COUNT 10000
+#define MAX_DESCRIPTOR_COUNT 6 // 1 CBV and 5 Shader Resource View
+#define MAX_HEAP_OBJECT_COUNT 3000
 
 using namespace DirectX;
 using namespace Microsoft::WRL;
@@ -67,6 +66,7 @@ struct DX12TextureBuffer
 	ComPtr<ID3D12Resource> textureBuffer;
 	D3D12_SHADER_RESOURCE_VIEW_DESC textureView;
 	D3D12_RESOURCE_STATES usageState;
+	const idStr* name;
 };
 
 struct DX12JointBuffer
@@ -75,23 +75,36 @@ struct DX12JointBuffer
 	ComPtr<ID3D12Resource> jointBuffer;
 };
 
+// TODO: Start setting frame data to it's own object to make it easier to manage.
+struct DX12FrameDataBuffer
+{
+	// Render Data
+	ComPtr<ID3D12Resource> renderTargets;
+
+	// CBV Heap data
+	ComPtr<ID3D12DescriptorHeap> cbvHeap;
+	ComPtr<ID3D12Resource> cbvUploadHeap;
+	UINT cbvHeapIndex;
+	UINT8* m_constantBufferGPUAddress;
+};
+
 enum eShader {
 	VERTEX,
 	PIXEL
 };
 
-void DX12_ActivatePipelineState();
+bool DX12_ActivatePipelineState();
 
 class DX12Renderer {
 public:
 	DX12Renderer();
 	~DX12Renderer();
 
-	virtual void Init(HWND hWnd);
-	virtual bool SetScreenParams(UINT width, UINT height, int fullscreen);
-	virtual void OnDestroy();
+	void Init(HWND hWnd);
+	bool SetScreenParams(UINT width, UINT height, int fullscreen);
+	void OnDestroy();
 
-	void UpdateViewport(FLOAT topLeftX, FLOAT topLeftY, FLOAT width, FLOAT height, FLOAT minDepth = D3D12_DEFAULT_VIEWPORT_MIN_DEPTH, FLOAT maxDepth = D3D12_DEFAULT_VIEWPORT_MAX_DEPTH); // Used to put us into right hand depth space.
+	void UpdateViewport(FLOAT topLeftX, FLOAT topLeftY, FLOAT width, FLOAT height, FLOAT minDepth = 0.0f, FLOAT maxDepth = 1.0f); // Used to put us into right hand depth space.
 	void UpdateScissorRect(LONG left, LONG top, LONG right, LONG bottom);
 	void UpdateStencilRef(UINT ref);
 
@@ -118,7 +131,12 @@ public:
 	DX12TextureBuffer* AllocTextureBuffer(DX12TextureBuffer* buffer, D3D12_RESOURCE_DESC* textureDesc, const idStr* name);
 	void FreeTextureBuffer(DX12TextureBuffer* buffer);
 	void SetTextureContent(DX12TextureBuffer* buffer, const UINT mipLevel, const UINT bytesPerRow, const size_t imageSize, const void* image);
-	void SetTexture(const DX12TextureBuffer* buffer);
+	void SetTexture(DX12TextureBuffer* buffer);
+	void StartTextureWrite(DX12TextureBuffer* buffer);
+	void EndTextureWrite(DX12TextureBuffer* buffer);
+	bool SetTextureCopyState(DX12TextureBuffer* buffer, const UINT mipLevel);
+	bool SetTexturePixelShaderState(DX12TextureBuffer* buffer, const UINT mipLevel = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES);
+	bool SetTextureState(DX12TextureBuffer* buffer, const D3D12_RESOURCE_STATES usageState, ID3D12GraphicsCommandList *commandList, const UINT mipLevel = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES);
 
 	// Draw commands
 	void BeginDraw();
@@ -128,7 +146,7 @@ public:
 	void ResetCommandList(bool waitForBackBuffer = false);
 	void ExecuteCommandList();
 	UINT StartSurfaceSettings(); // Starts a new heap entry for the surface.
-	void EndSurfaceSettings(); // Records the the surface entry into the heap.
+	bool EndSurfaceSettings(); // Records the the surface entry into the heap.
 	void DrawModel(DX12VertexBuffer* vertexBuffer, UINT vertexOffset, DX12IndexBuffer* indexBuffer, UINT indexOffset, UINT indexCount);
 
 private:
@@ -147,16 +165,21 @@ private:
 	CD3DX12_VIEWPORT m_viewport;
 	CD3DX12_RECT m_scissorRect;
 	ComPtr<ID3D12Device5> m_device;
-	ComPtr<ID3D12CommandQueue> m_commandQueue;
 	ComPtr<IDXGISwapChain3> m_swapChain;
 	ComPtr<ID3D12DescriptorHeap> m_rtvHeap;
 	UINT m_rtvDescriptorSize;
 	ComPtr<ID3D12Resource> m_renderTargets[FrameCount];
-	ComPtr<ID3D12CommandAllocator> m_commandAllocator;
 	ComPtr<ID3D12RootSignature> m_rootsSignature;
-    ComPtr<ID3D12GraphicsCommandList> m_commandList;
     ComPtr<ID3D12DescriptorHeap> m_dsvHeap;
 	ComPtr<ID3D12Resource> m_depthBuffer;
+
+	// Command List
+	ComPtr<ID3D12CommandQueue> m_directCommandQueue;
+	ComPtr<ID3D12CommandQueue> m_copyCommandQueue;
+	ComPtr<ID3D12CommandAllocator> m_directCommandAllocator[FrameCount];
+	ComPtr<ID3D12CommandAllocator> m_copyCommandAllocator;
+	ComPtr<ID3D12GraphicsCommandList> m_commandList;
+	ComPtr<ID3D12GraphicsCommandList> m_copyCommandList;
 
 	ComPtr<ID3D12DescriptorHeap> m_cbvHeap[FrameCount];
 	ComPtr<ID3D12Resource> m_cbvUploadHeap[FrameCount];
@@ -172,11 +195,18 @@ private:
     HANDLE m_fenceEvent;
     ComPtr<ID3D12Fence> m_fence;
     UINT16 m_fenceValue;
+	HANDLE m_copyFenceEvent;
+	ComPtr<ID3D12Fence> m_copyFence;
+	UINT16 m_copyFenceValue;
 
 	// Textures
 	ComPtr<ID3D12Resource> m_textureBufferUploadHeap;
 	UINT8 m_activeTextureRegister;
-	const DX12TextureBuffer* m_activeTextures[TEXTURE_REGISTER_COUNT];
+	DX12TextureBuffer* m_activeTextures[TEXTURE_REGISTER_COUNT];
+
+	// Device removal
+	HANDLE m_deviceRemovedHandle;
+	HANDLE m_removeDeviceEvent;
 
 	void ThrowIfFailed(HRESULT hr);
 	bool WarnIfFailed(HRESULT hr);
@@ -184,11 +214,13 @@ private:
 	void LoadPipeline(HWND hWnd);
 	void LoadAssets();
 
+	void SignalNextFrame();
     void WaitForPreviousFrame();
+	void WaitForCopyToComplete();
 
 	bool CreateBackBuffer();
 
-
+	bool IsScissorWindowValid();
 };
 
 extern DX12Renderer dxRenderer;
