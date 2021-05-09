@@ -131,11 +131,25 @@ void idGameEdit::ParseSpawnArgsToRenderLight( const idDict* args, renderLight_t*
 	{
 		if( !args->GetMatrix( "rotation", "1 0 0 0 1 0 0 0 1", mat ) )
 		{
-			args->GetFloat( "angle", "0", angles[ 1 ] );
-			angles[ 0 ] = 0;
-			angles[ 1 ] = idMath::AngleNormalize360( angles[ 1 ] );
-			angles[ 2 ] = 0;
-			mat = angles.ToMat3();
+			// RB: TrenchBroom interop
+			// support "angles" like in Quake 3
+
+			if( args->GetAngles( "angles", "0 0 0", angles ) )
+			{
+				angles[ 0 ] = idMath::AngleNormalize360( angles[ 0 ] );
+				angles[ 1 ] = idMath::AngleNormalize360( angles[ 1 ] );
+				angles[ 2 ] = idMath::AngleNormalize360( angles[ 2 ] );
+
+				mat = angles.ToMat3();
+			}
+			else
+			{
+				args->GetFloat( "angle", "0", angles[ 1 ] );
+				angles[ 0 ] = 0;
+				angles[ 1 ] = idMath::AngleNormalize360( angles[ 1 ] );
+				angles[ 2 ] = 0;
+				mat = angles.ToMat3();
+			}
 		}
 	}
 

@@ -86,7 +86,7 @@ public:
 	LightGrid();
 
 	// setup light grid for given world bounds
-	void					SetupLightGrid( const idBounds& bounds, const char* baseName, const idRenderWorld* world, const idVec3& gridSize, int _area, int totalAreas, int maxProbes );
+	void					SetupLightGrid( const idBounds& bounds, const char* baseName, const idRenderWorld* world, const idVec3& gridSize, int _area, int totalAreas, int maxProbes, bool printToConsole );
 
 	void					GetBaseGridCoord( const idVec3& origin, int gridCoord[3] );
 

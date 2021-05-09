@@ -288,7 +288,7 @@ void main( PS_IN fragment, out PS_OUT result )
 #endif
 
 	float specAO = ComputeSpecularAO( vDotN, ao, roughness );
-	float3 specularLight = radiance * ( kS * envBRDF.x + float3( envBRDF.y ) ) * specAO * ( rpSpecularModifier.xyz * 0.5 );
+	float3 specularLight = radiance * ( kS * envBRDF.x + float3( envBRDF.y ) ) * specAO * ( rpSpecularModifier.xyz * 1.0 );
 
 #if 1
 	// Marmoset Horizon Fade trick
@@ -298,8 +298,8 @@ void main( PS_IN fragment, out PS_OUT result )
 	//horiz = clamp( horiz, 0.0, 1.0 );
 #endif
 
-	half3 lightColor = sRGBToLinearRGB( rpAmbientColor.rgb );
-	//half3 lightColor = ( rpAmbientColor.rgb );
+	//half3 lightColor = sRGBToLinearRGB( rpAmbientColor.rgb );
+	half3 lightColor = ( rpAmbientColor.rgb );
 
 	//result.color.rgb = diffuseLight;
 	//result.color.rgb = diffuseLight * lightColor;

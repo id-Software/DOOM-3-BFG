@@ -18,11 +18,12 @@ _______________________________________
 11 May 2021 - RBDOOM-3-BFG 1.3.0 - Download it from the [RBDOOM-3-BFG ModDB Page](https://www.moddb.com/mods/rbdoom-3-bfg) 
 _______________________________
 
-<img src="https://i.imgur.com/iQjLKzx.png">
+<img src="https://i.imgur.com/ykY9tMs.png">
 
 # RBDOOM-3-BFG 1.3.0 adds PBR, Baked GI and TrenchBroom Mapping Support
 
 The main goal of this 1.3.0 release is enabling modders the ability to make new content using up to date Material & Lighting standards. Adding PBR is a requirement to make the new content look the same in RBDOOM-3-BFG as in Blender 2.9x with Cycles or Eevee and Substance Designer. PBR became the standard material authoring since 2014. Many texture packs for Doom 3 like the Wulfen & Monoxead packs were made before and are heavily outdated. With this release modders can work with modern tools and expect that their content looks as expected.
+
 However the PBR implementation is restricted to standard PBR using the Roughness/Metallic workflow for now.
 Specialized rendering paths for skin, clothes and vegetation will be in future releases.
 
@@ -41,29 +42,42 @@ PBR allows artists to create textures that are based on real world measured colo
 *To achieve the typical PBR look from an artistic point of view it also means to that it is necessary to add indirect lighting.
 Doom 3 and even Doom 3 BFG had no indirect lighting.*
 
+Doom 3 BFG is a big game. Doom 3, Resurrection of Evil and Lost Missions sum up to 47 big single player levels with an average of ~60 - 110 BSP portal areas or let's call them rooms / floors. Each room can have up to 50 shadow casting lights and most of them are point lights.
+I needed a good automatic solution that fixes the pitch black areas without destroying the original look and feel of the game.
+I also needed to add environment probes for each room so PBR materials can actually reflect the environment.
+
+So RBDOOM-3-BFG comes with 2 systems to achieve this and both are automatic approaches so everything can be achieved in a reasonable amount of time.
+The first system are environment probes which are placed into the center of the rooms. They can also be manually tweaked by adding env_probe entities in the maps. They use L4 spherical harmonics for diffuse reflections and GGX convolved mip maps for specular reflections.
+The second system refines this by using a light grid for each room which provides a sort of a localized/improved version of the surrounding light for each corner of the room.
+
 ### Irradiance Volumes aka Light Grids
 
 RBDOOM-3-BFG 1.3.0 brings back the Quake 3 light grid but this time the grid points feature spherical harmonics encoded as octahedrons and it can be evaluated per pixel. This means it can be used on any geometry and serves as an irradiance volume.
+Unlike Quake 3 this isn't radiosity which is limited to diffuse only reflections. The diffuse reflectivity is built using all kinds of incoming light: diffuse, specular and emissive (sky, light emitting GUIs, VFX).
 
 <img src="https://i.imgur.com/DKoBaP6.png" width="384"> <img src="https://i.imgur.com/Yrhh28g.png" width="384">
 
 Lightgrids can be baked after loading the map and by typing:
 
 ```
-bakeLightGrids [limit]
+bakeLightGrids [<switches>...]
+<Switches>
+ limit[num] : max probes per BSP area (default 16384)
+ bounce[num] : number of bounces or number of light reuse (default 1)
+ grid( xdim ydim zdim ) : light grid size steps into each direction (default 64 64 128)
 ```
 
 This will generate a ***.lightgrid*** file next to your .map file and it will also store a light grid atlas for each BSP area under ***env/maps/<path/to/your/map/>***
 
 <img src="https://i.imgur.com/HeXnVLs.jpg" width="640">
 
-Limit is 4096 by default and means the maximum number of light grid points in a single light grid.
+Limit is 16384 by default and means the maximum number of light grid points in a single light grid.
 Quake 3 had one light grid that streched over the entire map and distributed lighting every 64 x 64 x 128 units by default.
 If the maps were too big then q3map2 made the default grid size broader like 80 x 80 x 144, 96 x 96 x 160 and so on until the maximum number of light grid points was reached.
 
 The Quake 3 approach wouldn't work with Doom 3 because the maps are too big and it would result in up to 800k probes for some maps or the grid density would very coarse.
 
-RBDOOM-3-BFG uses the bounding size of the BSP portal areas and puts and smaller light grid into those BSP areas.
+RBDOOM-3-BFG uses the bounding size of the BSP portal areas and puts smaller light grids into those BSP areas.
 
 <img src="https://i.imgur.com/pTR06dH.png" width="640">
 
@@ -84,9 +98,9 @@ This is a way more advanced technique.
 
 ### Image Based Lighting and Environment Probes
 
-Environment probes supplement the light grids. While light grids provide diffuse lighting information the signal isn't good enough to provide specular lighting. This is where environment probes are needed. There are less of them 
+Environment probes supplement the light grids. While light grids provide diffuse lighting information the signal isn't good enough to provide plausible specular light reflections. This is where environment probes are needed.
 
-If an level designer doesn't put any env_probe entities into a map then they are automatically distributed through the map using the BSP area bounds and placed in the center of them.
+If a level designer doesn't put any env_probe entities into a map then they are automatically distributed through the map using the BSP area bounds and placed in the center of them.
 
 Environment probes can be computed after loading the map and by typing:
 ```
@@ -104,7 +118,7 @@ For artists this basically means if you increase the roughness in your material 
 If you haven't downloaded the additional baked light data from the [RBDOOM-3-BFG ModDB Page](https://www.moddb.com/mods/rbdoom-3-bfg) and just run RBDOOM-3-BFG.exe with the required DLLs (or you built it yourself) it will use an internal fallback.
 RBDOOM-3-BFG.exe has one prebaked environment probe that is compiled into the executable.
 
-<img src="https://i.imgur.com/KldEkrI.jpg" width="384"> <img src="https://i.imgur.com/tM0aEIV.png" width="384"> 
+<img src="https://i.imgur.com/Q9ONWaq.jpg" width="384"> <img src="https://i.imgur.com/tM0aEIV.png" width="384"> 
 
 It's the light data from the Mars City 1 lobby in the screenshot above. Using this data for the entire game is inacurrate but a better compromise than using a fixed global light direction and some sort of Rim lighting hack like in version 1.2.0.
 The default irradiance / radiance data gives the entire game a warmer look and it fits for being on Mars all the time.

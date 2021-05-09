@@ -1844,7 +1844,6 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 	}
 	// RB end
 
-	//const float lightScale = r_useHDR.GetBool() ? r_lightScale.GetFloat() * 0.666f : r_lightScale.GetFloat();
 	const float lightScale = r_lightScale.GetFloat();
 
 	for( int lightStageNum = 0; lightStageNum < lightShader->GetNumStages(); lightStageNum++ )
@@ -2300,31 +2299,55 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 
 	GL_Color( colorWhite );
 
-	//const float lightScale = r_useHDR.GetBool() ? r_lightScale.GetFloat() * 0.666f : r_lightScale.GetFloat();
-	const float lightScale = r_lightScale.GetFloat();
-	const idVec4 lightColor = colorWhite * lightScale;
-
-	// apply the world-global overbright and the 2x factor for specular
-	const idVec4 diffuseColor = lightColor;
-	const idVec4 specularColor = lightColor * 2.0f;
-
+	idVec4 diffuseColor;
+	idVec4 specularColor;
 	idVec4 ambientColor;
-	float ambientBoost = 1.0f;
 
-	if( !r_usePBR.GetBool() )
+	if( viewDef->renderView.rdflags & RDF_IRRADIANCE )
 	{
-		ambientBoost += r_useSSAO.GetBool() ? 0.2f : 0.0f;
-		ambientBoost *= r_useHDR.GetBool() ? 1.1f : 1.0f;
+		// RB: don't let artist run into a trap when baking multibounce lightgrids
+
+		// use default value of r_lightScale 3
+		const float lightScale = 3;
+		const idVec4 lightColor = colorWhite * lightScale;
+
+		// apply the world-global overbright and the 2x factor for specular
+		diffuseColor = lightColor;
+		specularColor = lightColor;// * 2.0f;
+
+		// loose 5% with every bounce like in DDGI
+		const float energyConservation = 0.95f;
+
+		//ambientColor.Set( energyConservation, energyConservation, energyConservation, 1.0f );
+		float a = r_forceAmbient.GetFloat();
+
+		ambientColor.Set( a, a, a, 1 );
+	}
+	else
+	{
+		const float lightScale = r_lightScale.GetFloat();
+		const idVec4 lightColor = colorWhite * lightScale;
+
+		// apply the world-global overbright and tune down specular a bit so we have less fresnel overglow
+		diffuseColor = lightColor;
+		specularColor = lightColor;// * 0.5f;
+
+		float ambientBoost = 1.0f;
+		if( !r_usePBR.GetBool() )
+		{
+			ambientBoost += r_useSSAO.GetBool() ? 0.2f : 0.0f;
+			ambientBoost *= r_useHDR.GetBool() ? 1.1f : 1.0f;
+		}
+
+		ambientColor.x = r_forceAmbient.GetFloat() * ambientBoost;
+		ambientColor.y = r_forceAmbient.GetFloat() * ambientBoost;
+		ambientColor.z = r_forceAmbient.GetFloat() * ambientBoost;
+		ambientColor.w = 1;
 	}
 
-	bool useIBL = r_usePBR.GetBool() && !fillGbuffer;
-
-	ambientColor.x = r_forceAmbient.GetFloat() * ambientBoost;
-	ambientColor.y = r_forceAmbient.GetFloat() * ambientBoost;
-	ambientColor.z = r_forceAmbient.GetFloat() * ambientBoost;
-	ambientColor.w = 1;
-
 	renderProgManager.SetRenderParm( RENDERPARM_AMBIENT_COLOR, ambientColor.ToFloatPtr() );
+
+	bool useIBL = r_usePBR.GetBool() && !fillGbuffer;
 
 	// setup renderparms assuming we will be drawing trivial surfaces first
 	RB_SetupForFastPathInteractions( diffuseColor, specularColor );
