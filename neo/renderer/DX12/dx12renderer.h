@@ -97,9 +97,9 @@ public:
 	DX12Renderer();
 	~DX12Renderer();
 
-	virtual void Init(HWND hWnd);
-	virtual bool SetScreenParams(UINT width, UINT height, int fullscreen);
-	virtual void OnDestroy();
+	void Init(HWND hWnd);
+	bool SetScreenParams(UINT width, UINT height, int fullscreen);
+	void OnDestroy();
 
 	void UpdateViewport(FLOAT topLeftX, FLOAT topLeftY, FLOAT width, FLOAT height, FLOAT minDepth = 0.0f, FLOAT maxDepth = 1.0f); // Used to put us into right hand depth space.
 	void UpdateScissorRect(LONG left, LONG top, LONG right, LONG bottom);

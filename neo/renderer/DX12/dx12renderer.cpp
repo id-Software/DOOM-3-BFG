@@ -236,7 +236,7 @@ void DX12Renderer::LoadPipeline(HWND hWnd) {
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	swapChainDesc.OutputWindow = hWnd;
 	swapChainDesc.SampleDesc.Count = 1;
-	swapChainDesc.Windowed = FALSE; //TODO: Change to option
+	swapChainDesc.Windowed = TRUE; //TODO: Change to option
 
 	ComPtr<IDXGISwapChain> swapChain;
 	ThrowIfFailed(factory->CreateSwapChain(m_directCommandQueue.Get(), &swapChainDesc, &swapChain));
@@ -878,10 +878,23 @@ void DX12Renderer::UpdateViewport(FLOAT topLeftX, FLOAT topLeftY, FLOAT width, F
 }
 
 void DX12Renderer::UpdateScissorRect(LONG left, LONG top, LONG right, LONG bottom) {
-	m_scissorRect.left = left;
-	m_scissorRect.top = top;
-	m_scissorRect.right = right;
-	m_scissorRect.bottom = bottom;
+	if (left <= right) {
+		m_scissorRect.left = left;
+		m_scissorRect.right = right;
+	}
+	else {
+		m_scissorRect.left = right;
+		m_scissorRect.right = left;
+	}
+	
+	if (top <= bottom) {
+		m_scissorRect.top = top;
+		m_scissorRect.bottom = bottom;
+	}
+	else {
+		m_scissorRect.top = bottom;
+		m_scissorRect.bottom = top;
+	}
 
 	if (m_isDrawing) {
 		m_commandList->RSSetScissorRects(1, &m_scissorRect);
