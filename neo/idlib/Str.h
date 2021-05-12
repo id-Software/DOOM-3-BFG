@@ -90,17 +90,17 @@ class idVec4;
 #endif
 
 // color escape character
-const int C_COLOR_ESCAPE			= '^';
-const int C_COLOR_DEFAULT			= '0';
-const int C_COLOR_RED				= '1';
-const int C_COLOR_GREEN				= '2';
-const int C_COLOR_YELLOW			= '3';
-const int C_COLOR_BLUE				= '4';
-const int C_COLOR_CYAN				= '5';
-const int C_COLOR_ORANGE			= '6';
-const int C_COLOR_WHITE				= '7';
-const int C_COLOR_GRAY				= '8';
-const int C_COLOR_BLACK				= '9';
+constexpr int C_COLOR_ESCAPE			= '^';
+constexpr int C_COLOR_DEFAULT			= '0';
+constexpr int C_COLOR_RED				= '1';
+constexpr int C_COLOR_GREEN				= '2';
+constexpr int C_COLOR_YELLOW			= '3';
+constexpr int C_COLOR_BLUE				= '4';
+constexpr int C_COLOR_CYAN				= '5';
+constexpr int C_COLOR_ORANGE			= '6';
+constexpr int C_COLOR_WHITE				= '7';
+constexpr int C_COLOR_GRAY				= '8';
+constexpr int C_COLOR_BLACK				= '9';
 
 // color escape string
 #define S_COLOR_DEFAULT				"^0"
@@ -116,8 +116,8 @@ const int C_COLOR_BLACK				= '9';
 
 // make idStr a multiple of 16 bytes long
 // don't make too large to keep memory requirements to a minimum
-const int STR_ALLOC_BASE			= 20;
-const int STR_ALLOC_GRAN			= 32;
+constexpr int STR_ALLOC_BASE			= 20;
+constexpr int STR_ALLOC_GRAN			= 32;
 
 typedef enum {
 	MEASURE_SIZE = 0,
@@ -847,13 +847,10 @@ ID_INLINE void idStr::Append( const idStr &text ) {
 }
 
 ID_INLINE void idStr::Append( const char *text ) {
-	int newLen;
-	int i;
-
 	if ( text ) {
-		newLen = len + strlen( text );
+		auto newLen = len + strlen( text );
 		EnsureAlloced( newLen + 1 );
-		for ( i = 0; text[ i ]; i++ ) {
+		for (int i = 0; text[ i ]; i++ ) {
 			data[ len + i ] = text[ i ];
 		}
 		len = newLen;
@@ -862,13 +859,10 @@ ID_INLINE void idStr::Append( const char *text ) {
 }
 
 ID_INLINE void idStr::Append( const char *text, int l ) {
-	int newLen;
-	int i;
-
 	if ( text && l ) {
-		newLen = len + l;
+		auto newLen = len + l;
 		EnsureAlloced( newLen + 1 );
-		for ( i = 0; text[ i ] && i < l; i++ ) {
+		for (int i = 0; text[ i ] && i < l; i++ ) {
 			data[ len + i ] = text[ i ];
 		}
 		len = newLen;
@@ -877,7 +871,7 @@ ID_INLINE void idStr::Append( const char *text, int l ) {
 }
 
 ID_INLINE void idStr::Insert( const char a, int index ) {
-	int i, l;
+	int i(0), l(1);
 
 	if ( index < 0 ) {
 		index = 0;
@@ -885,7 +879,6 @@ ID_INLINE void idStr::Insert( const char a, int index ) {
 		index = len;
 	}
 
-	l = 1;
 	EnsureAlloced( len + l + 1 );
 	for ( i = len; i >= index; i-- ) {
 		data[i+l] = data[i];
@@ -895,7 +888,7 @@ ID_INLINE void idStr::Insert( const char a, int index ) {
 }
 
 ID_INLINE void idStr::Insert( const char *text, int index ) {
-	int i, l;
+	int i(0), l(0);
 
 	if ( index < 0 ) {
 		index = 0;

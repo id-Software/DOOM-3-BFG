@@ -300,12 +300,12 @@ typedef union varEval_s {
 	int 					*intPtr;
 	byte					*bytePtr;
 	int 					*entityNumberPtr;
-	int						virtualFunction;
-	int						jumpOffset;
-	int						stackOffset;		// offset in stack for local variables
+	size_t					virtualFunction;
+	size_t					jumpOffset;
+	size_t					stackOffset;		// offset in stack for local variables
 	int						argSize;
 	varEval_s				*evalPtr;
-	int						ptrOffset;
+	size_t					ptrOffset;
 } varEval_t;
 
 class idVarDefName;

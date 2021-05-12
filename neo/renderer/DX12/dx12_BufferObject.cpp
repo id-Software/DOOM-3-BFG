@@ -475,7 +475,7 @@ void* idIndexBuffer::MapBuffer(bufferMapType_t mapType) const {
 
 	if (mapType == BM_READ || mapType == BM_WRITE) { // TODO: Can we make a read only one?
 		HRESULT hr = bufferObject->indexBuffer->Map(0, &readRange, reinterpret_cast<void**>(&buffer));
-		if (FAILED(bufferObject)) {
+		if (FAILED(hr)) {
 			common->Warning("Could not load index buffer.");
 			buffer = NULL;
 		}

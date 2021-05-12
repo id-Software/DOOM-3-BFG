@@ -2889,7 +2889,8 @@ set to their apropriate values.
 ===============
 */
 void idWindow::EvaluateRegisters(float *registers) {
-	int		i, b;
+	int		i;
+	size_t b;
 	wexpOp_t	*op;
 	idVec4 v;
 
@@ -3745,7 +3746,7 @@ void idWindow::FixupParms() {
 			const char *p = (const char*)(ops[i].a);
 			idWinVar *var = GetWinVarByName(p, true);
 			delete []p;
-			ops[i].a = (int)var;
+			ops[i].a = (size_t)var;
 			ops[i].b = -1;
 		}
 	}

@@ -308,7 +308,7 @@ extern idGameEdit *				gameEdit;
 ===============================================================================
 */
 
-const int GAME_API_VERSION		= 8;
+constexpr int GAME_API_VERSION		= 8;
 
 typedef struct {
 

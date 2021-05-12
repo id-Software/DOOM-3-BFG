@@ -47,11 +47,7 @@ Event are used for scheduling tasks and for linking script commands.
 
 #define MAX_EVENTS					4096
 
-#if defined(_WIN64)
-typedef long idEventArgPtr;
-#else
-typedef int idEventArgPtr;
-#endif
+typedef size_t idEventArgPtr;
 
 class idClass;
 class idTypeInfo;

@@ -39,7 +39,7 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-const int MAX_PUSHED_EVENTS =	64;
+constexpr int MAX_PUSHED_EVENTS =	64;
 
 class idEventLoop {
 public:
