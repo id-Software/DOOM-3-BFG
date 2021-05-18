@@ -79,7 +79,7 @@ typedef union eval_s {
 	float				vector[ 3 ];
 	function_t			*function;
 	int 				_int;
-	int 				entity;
+	size_t 				entity;
 } eval_t;
 
 /***********************************************************************
@@ -299,7 +299,7 @@ typedef union varEval_s {
 	function_t				*functionPtr;
 	int 					*intPtr;
 	byte					*bytePtr;
-	int 					*entityNumberPtr;
+	short 					*entityNumberPtr;
 	size_t					virtualFunction;
 	size_t					jumpOffset;
 	size_t					stackOffset;		// offset in stack for local variables

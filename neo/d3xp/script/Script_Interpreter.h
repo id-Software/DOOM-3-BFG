@@ -66,8 +66,8 @@ private:
 	void				SetString( idVarDef *def, const char *from );
 	const char			*GetString( idVarDef *def );
 	varEval_t			GetVariable( idVarDef *def );
-	idEntity			*GetEntity( int entnum ) const;
-	idScriptObject		*GetScriptObject( int entnum ) const;
+	idEntity			*GetEntity( short entnum ) const;
+	idScriptObject		*GetScriptObject( short entnum ) const;
 	void				NextInstruction( int position );
 
 	void				LeaveFunction( idVarDef *returnDef );
@@ -231,7 +231,12 @@ ID_INLINE varEval_t idInterpreter::GetVariable( idVarDef *def ) {
 idInterpreter::GetEntity
 ================
 */
-ID_INLINE idEntity *idInterpreter::GetEntity( int entnum ) const{
+ID_INLINE idEntity *idInterpreter::GetEntity( short entnum ) const{
+	if (entnum > MAX_GENTITIES) {
+		//TODO: REMOVE WOO
+		common->Printf("WOOOOOO");
+	}
+
 	assert( entnum <= MAX_GENTITIES );
 	if ( ( entnum > 0 ) && ( entnum <= MAX_GENTITIES ) ) {
 		return gameLocal.entities[ entnum - 1 ];
@@ -244,7 +249,7 @@ ID_INLINE idEntity *idInterpreter::GetEntity( int entnum ) const{
 idInterpreter::GetScriptObject
 ================
 */
-ID_INLINE idScriptObject *idInterpreter::GetScriptObject( int entnum ) const {
+ID_INLINE idScriptObject *idInterpreter::GetScriptObject( short entnum ) const {
 	idEntity *ent;
 
 	assert( entnum <= MAX_GENTITIES );

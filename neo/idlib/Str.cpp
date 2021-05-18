@@ -1282,7 +1282,7 @@ idStr::Icmp
 ================
 */
 int idStr::Icmp( const char *s1, const char *s2 ) {
-	int c1, c2, d;
+	size_t c1, c2, d;
 
 	do {
 		c1 = *s1++;
@@ -1315,7 +1315,7 @@ idStr::Icmpn
 ================
 */
 int idStr::Icmpn( const char *s1, const char *s2, int n ) {
-	int c1, c2, d;
+	size_t c1, c2, d;
 
 	assert( n >= 0 );
 

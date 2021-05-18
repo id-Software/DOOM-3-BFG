@@ -175,7 +175,7 @@ public:
 	bool				IsMapped() const { return ( numJoints & MAPPED_FLAG ) != 0; }
 
 	int					GetNumJoints() const { return ( numJoints & ~MAPPED_FLAG ); }
-	int					GetAllocedSize() const { return ( numJoints & ~MAPPED_FLAG ) * 3 * 4 * sizeof( float ); }
+	size_t				GetAllocedSize() const { return ( numJoints & ~MAPPED_FLAG ) * 3 * 4 * sizeof( float ); }
 	void *				GetAPIObject() const { return apiObject; }
 	int					GetOffset() const { return ( offsetInOtherBuffer & ~OWNS_BUFFER_FLAG ); }
 

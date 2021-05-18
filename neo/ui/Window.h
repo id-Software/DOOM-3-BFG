@@ -158,7 +158,7 @@ public:
 
 struct idTransitionData {
 	idWinVar *data;
-	int	offset;
+	size_t	offset;
 	idInterpolateAccelDecelLinear<idVec4> interp;
 };
 
@@ -226,7 +226,7 @@ public:
 
 	virtual idWinVar *GetWinVarByName	(const char *_name, bool winLookup = false, drawWin_t** owner = NULL);
 
-	int  GetWinVarOffset( idWinVar *wv, drawWin_t *dw );
+	size_t  GetWinVarOffset( idWinVar *wv, drawWin_t *dw );
 	float GetMaxCharHeight();
 	float GetMaxCharWidth();
 	void SetFont();
@@ -297,7 +297,7 @@ public:
 	bool RunScript(int n);
 	bool RunScriptList(idGuiScriptList *src);
 	void SetRegs(const char *key, const char *val);
-	int ParseExpression( idTokenParser *src, idWinVar *var = NULL, int component = 0 );
+	size_t ParseExpression( idTokenParser *src, idWinVar *var = NULL, int component = 0 );
 	int ExpressionConstant(float f);
 	idRegisterList *RegList() { return &regList; }
 	void AddCommand(const char *cmd);
@@ -347,10 +347,10 @@ protected:
 
 	int ExpressionTemporary();
 	wexpOp_t *ExpressionOp();
-	int EmitOp( int a, int b, wexpOpType_t opType, wexpOp_t **opp = NULL );
-	int ParseEmitOp( idTokenParser *src, int a, wexpOpType_t opType, int priority, wexpOp_t **opp = NULL );
-	int ParseTerm( idTokenParser *src, idWinVar *var = NULL, int component = 0 );
-	int ParseExpressionPriority( idTokenParser *src, int priority, idWinVar *var = NULL, int component = 0 );
+	size_t EmitOp( size_t a, size_t b, wexpOpType_t opType, wexpOp_t **opp = NULL );
+	size_t ParseEmitOp( idTokenParser *src, size_t a, wexpOpType_t opType, int priority, wexpOp_t **opp = NULL );
+	size_t ParseTerm( idTokenParser *src, idWinVar *var = NULL, int component = 0 );
+	size_t ParseExpressionPriority( idTokenParser *src, int priority, idWinVar *var = NULL, int component = 0 );
 	void EvaluateRegisters(float *registers);
 	void SaveExpressionParseState();
 	void RestoreExpressionParseState();
