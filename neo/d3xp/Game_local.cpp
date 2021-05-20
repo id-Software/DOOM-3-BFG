@@ -1295,7 +1295,7 @@ void idGameLocal::PopulateEnvironmentProbes()
 
 	int	numAreas = gameRenderWorld->NumAreas();
 
-	for( int i = 0 ; i < numAreas ; i++ )
+	for( int i = 0; i < numAreas; i++ )
 	{
 		idBounds areaBounds = gameRenderWorld->AreaBounds( i );
 
@@ -1311,6 +1311,10 @@ void idGameLocal::PopulateEnvironmentProbes()
 		idDict args;
 		args.Set( "classname", "env_probe" );
 		args.Set( "origin", point.ToString() );
+
+		idStr name; //= gameEdit->GetUniqueEntityName( "env_probe_generated" );
+		name.Format( "env_probe_generated%i", i );
+		args.Set( "name", name );
 
 		gameLocal.SpawnEntityDef( args, &ent );
 		if( !ent )
