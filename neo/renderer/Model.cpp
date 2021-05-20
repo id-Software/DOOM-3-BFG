@@ -2272,8 +2272,12 @@ bool idRenderModelStatic::ConvertASEToModelSurfaces( const struct aseModel_s* as
 	{
 		object = ase->objects[objectNum];
 		mesh = &object->mesh;
-		material = ase->materials[object->materialRef];
-		im1 = declManager->FindMaterial( material->name );
+		//material = ase->materials[object->materialRef];
+		//im1 = declManager->FindMaterial( material->name );
+		// 
+		// caedes dhewm3 fix for ASE meshes without materials (a lot of Doom 3 mods have this issue) 05-18-2021
+		material = (ase->materials.Num() > object->materialRef) ? ase->materials[object->materialRef] : NULL;
+		im1 = declManager->FindMaterial(material ? material->name : NULL);
 
 		bool normalsParsed = mesh->normalsParsed;
 
