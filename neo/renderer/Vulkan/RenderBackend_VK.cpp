@@ -74,14 +74,9 @@ static const char* g_instanceExtensions[ g_numInstanceExtensions ] =
 };
 #endif
 
-// SRS - needed for MoltenVK portability implementation on OSX
-#if defined(__APPLE__)
-	// required for VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME visibility (as of SDK 1.2.170.0)
-	#include <vulkan/vulkan_beta.h>
-	#if defined(USE_MoltenVK)
-		// optionally needed for runtime access to fullImageViewSwizzle (instead of env var MVK_CONFIG_FULL_IMAGE_VIEW_SWIZZLE = 1)
-		#include <MoltenVK/vk_mvk_moltenvk.h>
-	#endif
+// SRS - optionally needed for runtime access to fullImageViewSwizzle (instead of env var MVK_CONFIG_FULL_IMAGE_VIEW_SWIZZLE = 1)
+#if defined(__APPLE__) && defined(USE_MoltenVK)
+#include <MoltenVK/vk_mvk_moltenvk.h>
 #endif
 
 static const int g_numDebugInstanceExtensions = 1;
@@ -1508,7 +1503,7 @@ void idRenderBackend::Init()
 
 	// DG: make sure SDL has setup video so getting supported modes in R_SetNewMode() works
 	// SRS - Add OSX case
-#if ( defined(__linux__) || defined(__APPLE__) ) && defined(USE_VULKAN)
+#if defined(__linux__) || defined(__APPLE__)
 	VKimp_PreInit();
 #else
 	GLimp_PreInit();
@@ -1704,7 +1699,7 @@ void idRenderBackend::Shutdown()
 
 	// destroy main window
 	// SRS - Add OSX case
-#if ( defined(__linux__) || defined(__APPLE__) ) && defined(USE_VULKAN)
+#if defined(__linux__) || defined(__APPLE__)
 	VKimp_Shutdown();
 #else
 	GLimp_Shutdown();

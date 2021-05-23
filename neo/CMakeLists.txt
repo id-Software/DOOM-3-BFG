@@ -396,18 +396,23 @@ if(USE_VULKAN)
 	if(NOT Vulkan_FOUND)
 		message(FATAL_ERROR "Could not find Vulkan library!")
 	else()
-		# SRS - Optionally use MoltenVK headers/library for runtime config functions on OSX
-		if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND USE_MoltenVK)
-			add_definitions(-DUSE_MoltenVK)
-			include_directories($ENV{VULKAN_SDK}/../MoltenVK/include)
-			set(Vulkan_LIBRARY $ENV{VULKAN_SDK}/lib/libMoltenVK.dylib)
+        add_definitions(-DUSE_VULKAN)
+        include_directories($ENV{VULKAN_SDK}/include)
+
+        # SRS - Locate this after Vulkan SDK include path, otherwise issues with precompiled headers
+		if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+            # SRS - Enable Beta extensions for VULKAN_SDK portability subset features on OSX
+            add_definitions(-DVK_ENABLE_BETA_EXTENSIONS)
+            # SRS - Optionally use MoltenVK headers/library for runtime config functions on OSX
+            if(USE_MoltenVK)
+                add_definitions(-DUSE_MoltenVK)
+                include_directories($ENV{VULKAN_SDK}/../MoltenVK/include)
+                set(Vulkan_LIBRARY $ENV{VULKAN_SDK}/lib/libMoltenVK.dylib)
+            endif()
 		endif()
 		message(STATUS "Using Vulkan: " ${Vulkan_LIBRARY})
 	endif()
 	
-	add_definitions(-DUSE_VULKAN)
-	include_directories($ENV{VULKAN_SDK}/include)
-
 	# Eric: For use with SDL2/Vulkan
 	if(UNIX)
 		find_package(X11_XCB)
