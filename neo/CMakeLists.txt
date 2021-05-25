@@ -350,6 +350,16 @@ if(USE_VULKAN)
 
 	# RB: moved this above the general Vulkan part so glslang does not include Vulkan SDK headers
 	# which causes all kinds of weird segmentation faults because struct sizes don't match
+ 
+    # SRS - Set default VULKAN_SDK location if environment variable not defined on OSX
+    if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND NOT DEFINED ENV{VULKAN_SDK})
+        if(NOT USE_MoltenVK)
+            # SRS - Vulkan SDK installer copies standard vulkan headers and libs to /usr/local on OSX
+            set(ENV{VULKAN_SDK} /usr/local)
+        else()
+            message(FATAL_ERROR "Must define VULKAN_SDK location if USE_MoltenVK option enabled!")
+        endif()
+    endif()
 
 	if(SPIRV_SHADERC)
 		add_definitions(-DSPIRV_SHADERC)
