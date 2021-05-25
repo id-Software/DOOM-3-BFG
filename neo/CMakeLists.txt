@@ -1,8 +1,14 @@
 cmake_minimum_required(VERSION 3.2)
-set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 project(RBDoom3BFG)
 
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+if(CMAKE_MAJOR_VERSION EQUAL 3 AND CMAKE_MINOR_VERSION GREATER_EQUAL 6)
+	# set MSVC startup project
+	set_property (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT RBDoom3BFG)
+endif()
+	
 option(FORCE_COLOR_OUTPUT
 		"Always produce ANSI-colored output (GNU/Clang only)." OFF)
 
@@ -76,7 +82,6 @@ if(FFMPEG AND BINKDEC)
 	message(FATAL_ERROR "Only one of FFMPEG and BINKDEC (or neither) can be enabled at a time")
 endif()
 
-
 if(UNIX)
 	set(OPENAL ON)
 	
@@ -97,13 +102,10 @@ endif()
 if (FORCE_COLOR_OUTPUT)
 	if (CMAKE_COMPILER_IS_GNUCC)
 		add_compile_options(-fdiagnostics-color=always)
-	# SRS - Add test for AppleClang
-	elseif(CMAKE_C_COMPILER_ID STREQUAL "Clang" OR CMAKE_C_COMPILER_ID STREQUAL "AppleClang")
+	elseif(CMAKE_C_COMPILER_ID MATCHES "Clang")
 		add_compile_options(-fcolor-diagnostics)
 	endif ()
 endif ()
-
-
 
 if(MSVC)
 	#message(STATUS CMAKE_ROOT: ${CMAKE_ROOT})
@@ -121,8 +123,8 @@ else()
 	message(STATUS CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE})
 endif()
 
-# SRS - Add test for AppleClang
-if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang" OR CMAKE_C_COMPILER_ID STREQUAL "AppleClang")
+if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
+
 	add_definitions(-pipe)
 	#add_definitions(-Wall)
 	add_definitions(-Werror=format-security)
@@ -164,8 +166,7 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang" OR CMAKE_C_CO
 	#endif()
 	
 	add_compile_options(-Wno-pragmas -Wno-unused-variable -Wno-switch -Wno-unused-value -Winvalid-pch -Wno-multichar)
-	# SRS - Add test for AppleClang
-	if(CMAKE_C_COMPILER_ID STREQUAL "Clang" OR CMAKE_C_COMPILER_ID STREQUAL "AppleClang")
+    if(CMAKE_C_COMPILER_ID MATCHES "Clang")
 		# add clang-specific settings for warnings (the second one make sure clang doesn't complain
 		# about unknown -W flags, like -Wno-unused-but-set-variable)
 		# SRS - Add -Wno-deprecated-register and -Wno-expansion-to-defined to list of warning settings
@@ -266,7 +267,6 @@ elseif(MSVC)
 		set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /SAFESEH:NO")
 		set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO} /SAFESEH:NO")
 	# endif()
-	
 
 	add_definitions(-DWIN32 
 					-D_WINDOWS
@@ -274,9 +274,8 @@ elseif(MSVC)
 					-D_CRT_NONSTDC_NO_DEPRECATE
 					-D_CRT_SECURE_NO_WARNINGS
 					-D_MBCS
-					#-DUSE_OPENAL
 					-DUSE_EXCEPTIONS)
-        ## Check for Version ##
+
         if( WINRT OR WINDOWS10 ) # Windows RT
 			add_definitions(-DUSE_WINRT)
         endif()
@@ -297,6 +296,7 @@ elseif(MSVC)
 		# 2: Use MFC in a Shared DLL 
 		set(CMAKE_MFC_FLAG 2)
 	endif()
+
 endif()
 
 #if(STANDALONE)
@@ -425,8 +425,6 @@ if(USE_VULKAN)
 	elseif(WIN32)
 		add_definitions(-DVK_USE_PLATFORM_WIN32_KHR)
 	endif()
-
-	
 
 else()
 
@@ -624,7 +622,6 @@ endif()
 
 file(GLOB MINIZIP_INCLUDES libs/zlib/minizip/*.h)
 file(GLOB MINIZIP_SOURCES libs/zlib/minizip/*.c libs/zlib/minizip/*.cpp)
-	
 
 set(FREETYPE_SOURCES
 	libs/freetype/src/autofit/autofit.c
@@ -669,9 +666,6 @@ set(SOUND_INCLUDES
 	sound/WaveFile.h)
 	
 set(SOUND_SOURCES
-	#sound/snd_cache.cpp
-	#sound/snd_decoder.cpp
-	#sound/snd_efxfile.cpp
 	sound/snd_emitter.cpp
 	sound/snd_shader.cpp
 	sound/snd_system.cpp
@@ -857,9 +851,6 @@ file(GLOB COMPILER_AAS_SOURCES tools/compilers/aas/*.cpp)
 
 file(GLOB COMPILER_DMAP_INCLUDES tools/compilers/dmap/*.h)
 file(GLOB COMPILER_DMAP_SOURCES tools/compilers/dmap/*.cpp)
-
-file(GLOB COMPILER_RENDERBUMP_INCLUDES tools/compilers/renderbump/*.h)
-file(GLOB COMPILER_RENDERBUMP_SOURCES tools/compilers/renderbump/*.cpp)
 
 file(GLOB COMPILER_ROQVQ_INCLUDES tools/compilers/roqvq/*.h)
 file(GLOB COMPILER_ROQVQ_SOURCES tools/compilers/roqvq/*.cpp)
@@ -1261,9 +1252,6 @@ source_group("tools\\compilers\\aas" FILES ${COMPILER_AAS_SOURCES})
 source_group("tools\\compilers\\dmap" FILES ${COMPILER_DMAP_INCLUDES})
 source_group("tools\\compilers\\dmap" FILES ${COMPILER_DMAP_SOURCES})
 
-source_group("tools\\compilers\\renderbump" FILES ${COMPILER_RENDERBUMP_INCLUDES})
-source_group("tools\\compilers\\renderbump" FILES ${COMPILER_RENDERBUMP_SOURCES})
-
 source_group("tools\\compilers\\roqvq" FILES ${COMPILER_ROQVQ_INCLUDES})
 source_group("tools\\compilers\\roqvq" FILES ${COMPILER_ROQVQ_SOURCES})
 
@@ -1460,9 +1448,8 @@ if(MSVC)
 		list(APPEND RBDOOM3_INCLUDES ${RENDERER_VULKAN_INCLUDES})
 		list(APPEND RBDOOM3_SOURCES ${RENDERER_VULKAN_SOURCES})
 		
-		set(Vulkan_LIBRARIES
-			${Vulkan_LIBRARY}
-			)
+		set(Vulkan_LIBRARIES 
+			${Vulkan_LIBRARY})
 
 		if(SPIRV_SHADERC)
 			list(APPEND Vulkan_LIBRARIES shaderc_combined)
@@ -1631,13 +1618,7 @@ if(MSVC)
 	list(APPEND RBDOOM3_SOURCES ${WIN32_RESOURCES})
 	
 	add_executable(RBDoom3BFG WIN32 ${RBDOOM3_INCLUDES} ${RBDOOM3_SOURCES})
-		
-	#add_custom_command(TARGET RBDoom3BFG
-    #               PRE_BUILD
-	#			   COMMAND nmake ARGS /f Makefile.vc6 CFG=release
-	#			   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/libs/curl/lib
-    #               COMMENT "Compiling libcURL")
-		
+
 	add_dependencies(RBDoom3BFG idlib)
 	target_link_libraries(RBDoom3BFG
 		idlib
@@ -1658,6 +1639,11 @@ if(MSVC)
 		${CMAKE_DL_LIBS}
 		)
 		
+	# set MSVC default debug directory on executable	
+	if(CMAKE_MAJOR_VERSION EQUAL 3 AND CMAKE_MINOR_VERSION GREATER_EQUAL 8)
+		set_target_properties(RBDoom3BFG PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/..")
+	endif()
+	
 	#CMAKE_BINARY_DIR
 	if(CMAKE_CL_64)
 		install(TARGETS RBDoom3BFG
@@ -1665,8 +1651,8 @@ if(MSVC)
 	else()
 		install(TARGETS RBDoom3BFG
 			RUNTIME DESTINATION .)
-	endif()
-	
+	endif()	
+
 else()
 
 	list(APPEND RBDOOM3_SOURCES
@@ -1705,14 +1691,6 @@ else()
 			find_package(OpenAL REQUIRED)
 			add_definitions(-DUSE_OPENAL)
 
-			#include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs/openal-soft/include)
-			
-			#if(CMAKE_CL_64)
-			#	link_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs/openal-soft/lib/win64)
-			#else()
-			#	link_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs/openal-soft/lib/win32)
-			#endif()
-			
 			list(APPEND RBDOOM3_INCLUDES ${OPENAL_INCLUDES})
 			list(APPEND RBDOOM3_SOURCES
 				${OPENAL_SOURCES}
@@ -1728,11 +1706,9 @@ else()
             list(APPEND RBDOOM3_INCLUDES ${RENDERER_VULKAN_INCLUDES})
             list(APPEND RBDOOM3_SOURCES ${RENDERER_VULKAN_SOURCES})
             
-            set(Vulkan_LIBRARIES
-                ${Vulkan_LIBRARY}
-				${X11_XCB_LIBRARIES}
-				)
-				
+            set(Vulkan_LIBRARIES 
+            	${Vulkan_LIBRARY})
+
 			# SRS - Added UNIX/OSX support for shaderc
 			if(SPIRV_SHADERC)
 				list(APPEND Vulkan_LIBRARIES shaderc_combined)
