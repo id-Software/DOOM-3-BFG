@@ -399,7 +399,6 @@ if(USE_VULKAN)
         add_definitions(-DUSE_VULKAN)
         include_directories($ENV{VULKAN_SDK}/include)
 
-        # SRS - Locate this after Vulkan SDK include path, otherwise issues with precompiled headers
 		if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
             # SRS - Enable Beta extensions for VULKAN_SDK portability subset features on OSX
             add_definitions(-DVK_ENABLE_BETA_EXTENSIONS)
