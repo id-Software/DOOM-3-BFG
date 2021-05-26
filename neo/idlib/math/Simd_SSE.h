@@ -38,7 +38,7 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-#if defined(USE_INTRINSICS)
+#if defined(USE_INTRINSICS_SSE)
 
 class idSIMD_SSE : public idSIMD_Generic
 {

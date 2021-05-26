@@ -54,7 +54,7 @@ bool IsWriteCombined( void* base )
 }
 #endif
 
-#if defined(USE_INTRINSICS)
+#if defined(USE_INTRINSICS_SSE)
 
 void CopyBuffer( byte* dst, const byte* src, int numBytes )
 {

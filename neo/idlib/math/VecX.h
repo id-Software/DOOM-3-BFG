@@ -46,7 +46,7 @@ NOTE: due to the temporary memory pool idVecX cannot be used by multiple threads
 #define VECX_CLEAREND()		int s = size; while( s < ( ( s + 3) & ~3 ) ) { p[s++] = 0.0f; }
 #define VECX_ALLOCA( n )	( (float *) _alloca16( VECX_QUAD( n ) ) )
 
-#if defined(USE_INTRINSICS)
+#if defined(USE_INTRINSICS_SSE)
 	#define VECX_SIMD
 #endif
 

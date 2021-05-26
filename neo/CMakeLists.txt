@@ -72,10 +72,10 @@ if (CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)|(amd64)|(AMD64)")
 	set(CPU_OPTIMIZATION "-mmmx -msse -msse2" CACHE STRING "Which CPU specific optimitations should be used beside the compiler's default?")
 endif()
 
-if(CMAKE_SYSTEM_PROCESSOR MATCHES "((powerpc|ppc)64le)|(mips64)")
-	option(USE_INTRINSICS "Compile using intrinsics (e.g mmx, sse, msse2)" OFF)
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)|(amd64)|(AMD64)")
+	option(USE_INTRINSICS_SSE "Compile using SSE intrinsics (e.g mmx, sse, msse2)" ON)
 else()
-	option(USE_INTRINSICS "Compile using intrinsics (e.g mmx, sse, msse2)" ON)
+	option(USE_INTRINSICS_SSE "Compile using SSE intrinsics (e.g mmx, sse, msse2)" OF)
 endif()
 
 if(FFMPEG AND BINKDEC)
@@ -146,9 +146,6 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
 	endif()
 	if (CPU_OPTIMIZATION)
 		add_definitions(${CPU_OPTIMIZATION})
-	endif()
-	if (USE_INTRINSICS)
-		add_definitions(-DUSE_INTRINSICS)
 	endif()
 	if(WIN32)
 		# require msvcr70.dll or newer for _aligned_malloc etc
@@ -276,13 +273,9 @@ elseif(MSVC)
 					-D_MBCS
 					-DUSE_EXCEPTIONS)
 
-        if( WINRT OR WINDOWS10 ) # Windows RT
-			add_definitions(-DUSE_WINRT)
-        endif()
-
-        if (USE_INTRINSICS)
-			add_definitions(-DUSE_INTRINSICS)
-        endif()
+	if( WINRT OR WINDOWS10 ) # Windows RT
+		add_definitions(-DUSE_WINRT)
+	endif()
 					
 	if(NOT CMAKE_CL_64)
 		add_definitions(-D_USE_32BIT_TIME_T)
@@ -297,6 +290,10 @@ elseif(MSVC)
 		set(CMAKE_MFC_FLAG 2)
 	endif()
 
+endif()
+
+if (USE_INTRINSICS_SSE)
+	add_definitions(-DUSE_INTRINSICS_SSE)
 endif()
 
 #if(STANDALONE)
@@ -316,7 +313,7 @@ else (ZLIB_FOUND)
 endif (ZLIB_FOUND)
 
 if(USE_SYSTEM_LIBPNG)
-find_package(PNG REQUIRED)
+	find_package(PNG REQUIRED)
 endif (USE_SYSTEM_LIBPNG)
 
 if (PNG_FOUND)
@@ -327,9 +324,8 @@ else (PNG_FOUND)
     set(PNG_LIBRARY "" )
 endif (PNG_FOUND)
 
-
 if(USE_SYSTEM_LIBJPEG)
-find_package(JPEG REQUIRED)
+	find_package(JPEG REQUIRED)
 endif(USE_SYSTEM_LIBJPEG)
 
 if (JPEG_FOUND)

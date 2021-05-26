@@ -44,7 +44,7 @@ const float LCP_DELTA_FORCE_EPSILON		= 1e-9f;
 
 #define IGNORE_UNSATISFIABLE_VARIABLES
 
-#if defined(USE_INTRINSICS)
+#if defined(USE_INTRINSICS_SSE)
 	#define LCP_SIMD
 #endif
 

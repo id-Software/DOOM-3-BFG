@@ -201,7 +201,7 @@ void idMatX::CopyLowerToUpperTriangle()
 	assert( ( GetNumColumns() & 3 ) == 0 );
 	assert( GetNumColumns() >= GetNumRows() );
 
-#if defined(USE_INTRINSICS)
+#if defined(USE_INTRINSICS_SSE)
 
 	const int n = GetNumColumns();
 	const int m = GetNumRows();

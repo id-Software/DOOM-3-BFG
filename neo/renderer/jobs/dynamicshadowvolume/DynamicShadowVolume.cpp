@@ -31,7 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../../../idlib/sys/sys_intrinsics.h"
 #include "../../../idlib/geometry/DrawVert_intrinsics.h"
 
-#if defined(USE_INTRINSICS)
+#if defined(USE_INTRINSICS_SSE)
 	static const __m128i vector_int_neg_one		= _mm_set_epi32( -1, -1, -1, -1 );
 #endif
 
@@ -40,7 +40,7 @@ If you have questions concerning this license or the applicable additional terms
 TriangleFacing_SSE2
 =====================
 */
-#if defined(USE_INTRINSICS)
+#if defined(USE_INTRINSICS_SSE)
 static ID_FORCE_INLINE __m128i TriangleFacing_SSE2(	const __m128& vert0X, const __m128& vert0Y, const __m128& vert0Z,
 		const __m128& vert1X, const __m128& vert1Y, const __m128& vert1Z,
 		const __m128& vert2X, const __m128& vert2Y, const __m128& vert2Z,
@@ -71,7 +71,7 @@ TriangleCulled
 The clip space of the 'lightProject' is assumed to be in the range [0, 1].
 =====================
 */
-#if defined(USE_INTRINSICS)
+#if defined(USE_INTRINSICS_SSE)
 static ID_FORCE_INLINE __m128i TriangleCulled_SSE2(	const __m128& vert0X, const __m128& vert0Y, const __m128& vert0Z,
 		const __m128& vert1X, const __m128& vert1Y, const __m128& vert1Z,
 		const __m128& vert2X, const __m128& vert2Y, const __m128& vert2Z,
@@ -249,7 +249,7 @@ static int CalculateTriangleFacingCulledStatic( byte* __restrict facing, byte* _
 	const idVec3 lineDir = lineDelta * lineLengthRcp;
 	const float lineLength = lineLengthSqr * lineLengthRcp;
 
-#if defined(USE_INTRINSICS)
+#if defined(USE_INTRINSICS_SSE)
 
 	idODSStreamedIndexedArray< idDrawVert, triIndex_t, 32, SBT_QUAD, 4 * 3 > indexedVertsODS( verts, numVerts, indexes, numIndexes );
 
@@ -449,7 +449,7 @@ static int CalculateTriangleFacingCulledSkinned( byte* __restrict facing, byte* 
 	const idVec3 lineDir = lineDelta * lineLengthRcp;
 	const float lineLength = lineLengthSqr * lineLengthRcp;
 
-#if defined(USE_INTRINSICS)
+#if defined(USE_INTRINSICS_SSE)
 
 	idODSStreamedArray< idDrawVert, 32, SBT_DOUBLE, 1 > vertsODS( verts, numVerts );
 
@@ -684,7 +684,7 @@ static void StreamOut( void* dst, const void* src, int numBytes )
 	assert_16_byte_aligned( dst );
 	assert_16_byte_aligned( src );
 
-#if defined(USE_INTRINSICS)
+#if defined(USE_INTRINSICS_SSE)
 	int i = 0;
 	for( ; i + 128 <= numBytes; i += 128 )
 	{
@@ -933,7 +933,7 @@ static void R_CreateShadowVolumeTriangles( triIndex_t* __restrict shadowIndices,
 
 	numShadowIndexesTotal = numShadowIndices;
 
-#if defined(USE_INTRINSICS)
+#if defined(USE_INTRINSICS_SSE)
 	_mm_sfence();
 #endif
 
@@ -1122,7 +1122,7 @@ void R_CreateLightTriangles( triIndex_t* __restrict lightIndices, triIndex_t* __
 
 	numLightIndicesTotal = numLightIndices;
 
-#if defined(USE_INTRINSICS)
+#if defined(USE_INTRINSICS_SSE)
 	_mm_sfence();
 #endif
 

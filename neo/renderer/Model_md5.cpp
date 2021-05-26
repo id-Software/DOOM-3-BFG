@@ -34,7 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "RenderCommon.h"
 #include "Model_local.h"
 
-#if defined(USE_INTRINSICS)
+#if defined(USE_INTRINSICS_SSE)
 static const __m128 vector_float_posInfinity		= { idMath::INFINITY, idMath::INFINITY, idMath::INFINITY, idMath::INFINITY };
 static const __m128 vector_float_negInfinity		= { -idMath::INFINITY, -idMath::INFINITY, -idMath::INFINITY, -idMath::INFINITY };
 #endif
@@ -565,7 +565,7 @@ idMD5Mesh::CalculateBounds
 */
 void idMD5Mesh::CalculateBounds( const idJointMat* entJoints, idBounds& bounds ) const
 {
-#if defined(USE_INTRINSICS)
+#if defined(USE_INTRINSICS_SSE)
 
 	__m128 minX = vector_float_posInfinity;
 	__m128 minY = vector_float_posInfinity;
@@ -1236,7 +1236,7 @@ static void TransformJoints( idJointMat* __restrict outJoints, const int numJoin
 	assert_16_byte_aligned( inFloats1 );
 	assert_16_byte_aligned( inFloats2 );
 
-#if defined(USE_INTRINSICS)
+#if defined(USE_INTRINSICS_SSE)
 
 	const __m128 mask_keep_last = __m128c( _mm_set_epi32( 0xFFFFFFFF, 0x00000000, 0x00000000, 0x00000000 ) );
 

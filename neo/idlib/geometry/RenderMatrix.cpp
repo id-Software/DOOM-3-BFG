@@ -109,7 +109,7 @@ SIMD constants
 ================================================================================================
 */
 
-#if defined(USE_INTRINSICS)
+#if defined(USE_INTRINSICS_SSE)
 static const __m128i vector_int_1							= _mm_set1_epi32( 1 );
 static const __m128i vector_int_4							= _mm_set1_epi32( 4 );
 static const __m128i vector_int_0123						= _mm_set_epi32( 3, 2, 1, 0 );
@@ -560,7 +560,7 @@ front bits:
   bit 5 = pos-Z is front facing
 ========================
 */
-#if defined(USE_INTRINSICS)
+#if defined(USE_INTRINSICS_SSE)
 static int GetBoxFrontBits_SSE2( const __m128& b0, const __m128& b1, const __m128& viewOrigin )
 {
 	const __m128 dir0 = _mm_sub_ps( viewOrigin, b0 );
@@ -776,7 +776,7 @@ void idRenderMatrix::OffsetScaleForBounds( const idRenderMatrix& src, const idBo
 {
 	assert( &src != &out );
 
-#if defined(USE_INTRINSICS)
+#if defined(USE_INTRINSICS_SSE)
 	__m128 b0 = _mm_loadu_bounds_0( bounds );
 	__m128 b1 = _mm_loadu_bounds_1( bounds );
 
@@ -862,7 +862,7 @@ void idRenderMatrix::InverseOffsetScaleForBounds( const idRenderMatrix& src, con
 {
 	assert( &src != &out );
 
-#if defined(USE_INTRINSICS)
+#if defined(USE_INTRINSICS_SSE)
 	__m128 b0 = _mm_loadu_bounds_0( bounds );
 	__m128 b1 = _mm_loadu_bounds_1( bounds );
 
@@ -930,7 +930,7 @@ void idRenderMatrix::Transpose( const idRenderMatrix& src, idRenderMatrix& out )
 {
 	assert( &src != &out );
 
-#if defined(USE_INTRINSICS)
+#if defined(USE_INTRINSICS_SSE)
 	const __m128 a0 = _mm_loadu_ps( src.m + 0 * 4 );
 	const __m128 a1 = _mm_loadu_ps( src.m + 1 * 4 );
 	const __m128 a2 = _mm_loadu_ps( src.m + 2 * 4 );
@@ -978,7 +978,7 @@ idRenderMatrix::Multiply
 */
 void idRenderMatrix::Multiply( const idRenderMatrix& a, const idRenderMatrix& b, idRenderMatrix& out )
 {
-#if defined(USE_INTRINSICS)
+#if defined(USE_INTRINSICS_SSE)
 	__m128 a0 = _mm_loadu_ps( a.m + 0 * 4 );
 	__m128 a1 = _mm_loadu_ps( a.m + 1 * 4 );
 	__m128 a2 = _mm_loadu_ps( a.m + 2 * 4 );
@@ -1068,7 +1068,7 @@ can get really, really small.
 */
 bool idRenderMatrix::Inverse( const idRenderMatrix& src, idRenderMatrix& out )
 {
-#if defined(USE_INTRINSICS)
+#if defined(USE_INTRINSICS_SSE)
 
 	const __m128 r0 = _mm_loadu_ps( src.m + 0 * 4 );
 	const __m128 r1 = _mm_loadu_ps( src.m + 1 * 4 );
@@ -1382,7 +1382,7 @@ bool idRenderMatrix::InverseByDoubles( const idRenderMatrix& src, idRenderMatrix
 DeterminantIsNegative
 ========================
 */
-#if defined(USE_INTRINSICS)
+#if defined(USE_INTRINSICS_SSE)
 void DeterminantIsNegative( bool& negativeDeterminant, const __m128& r0, const __m128& r1, const __m128& r2, const __m128& r3 )
 {
 	const __m128 r1u1 = _mm_perm_ps( r1, _MM_SHUFFLE( 2, 1, 0, 3 ) );
@@ -1464,7 +1464,7 @@ void idRenderMatrix::CopyMatrix( const idRenderMatrix& matrix, idVec4& row0, idV
 	assert_16_byte_aligned( row2.ToFloatPtr() );
 	assert_16_byte_aligned( row3.ToFloatPtr() );
 
-#if defined(USE_INTRINSICS)
+#if defined(USE_INTRINSICS_SSE)
 	const __m128 r0 = _mm_loadu_ps( matrix.m + 0 * 4 );
 	const __m128 r1 = _mm_loadu_ps( matrix.m + 1 * 4 );
 	const __m128 r2 = _mm_loadu_ps( matrix.m + 2 * 4 );
@@ -1506,7 +1506,7 @@ void idRenderMatrix::SetMVP( const idRenderMatrix& mvp, idVec4& row0, idVec4& ro
 	assert_16_byte_aligned( row2.ToFloatPtr() );
 	assert_16_byte_aligned( row3.ToFloatPtr() );
 
-#if defined(USE_INTRINSICS)
+#if defined(USE_INTRINSICS_SSE)
 	const __m128 r0 = _mm_loadu_ps( mvp.m + 0 * 4 );
 	const __m128 r1 = _mm_loadu_ps( mvp.m + 1 * 4 );
 	const __m128 r2 = _mm_loadu_ps( mvp.m + 2 * 4 );
@@ -1553,7 +1553,7 @@ void idRenderMatrix::SetMVPForBounds( const idRenderMatrix& mvp, const idBounds&
 	assert_16_byte_aligned( row2.ToFloatPtr() );
 	assert_16_byte_aligned( row3.ToFloatPtr() );
 
-#if defined(USE_INTRINSICS)
+#if defined(USE_INTRINSICS_SSE)
 
 	__m128 b0 = _mm_loadu_bounds_0( bounds );
 	__m128 b1 = _mm_loadu_bounds_1( bounds );
@@ -1644,7 +1644,7 @@ void idRenderMatrix::SetMVPForInverseProject( const idRenderMatrix& mvp, const i
 	assert_16_byte_aligned( row2.ToFloatPtr() );
 	assert_16_byte_aligned( row3.ToFloatPtr() );
 
-#if defined(USE_INTRINSICS)
+#if defined(USE_INTRINSICS_SSE)
 
 	__m128 r0 = _mm_loadu_ps( mvp.m + 0 * 4 );
 	__m128 r1 = _mm_loadu_ps( mvp.m + 1 * 4 );
@@ -1788,7 +1788,7 @@ frustum plane, but only while also being behind another one.
 */
 bool idRenderMatrix::CullBoundsToMVPbits( const idRenderMatrix& mvp, const idBounds& bounds, byte* outBits, bool zeroToOne )
 {
-#if defined(USE_INTRINSICS)
+#if defined(USE_INTRINSICS_SSE)
 	__m128 mvp0 = _mm_loadu_ps( mvp[0] );
 	__m128 mvp1 = _mm_loadu_ps( mvp[1] );
 	__m128 mvp2 = _mm_loadu_ps( mvp[2] );
@@ -1974,7 +1974,7 @@ bool idRenderMatrix::CullExtrudedBoundsToMVPbits( const idRenderMatrix& mvp, con
 {
 	assert( idMath::Fabs( extrudeDirection * clipPlane.Normal() ) >= idMath::FLT_SMALLEST_NON_DENORMAL );
 
-#if defined(USE_INTRINSICS)
+#if defined(USE_INTRINSICS_SSE)
 
 	__m128 mvp0 = _mm_loadu_ps( mvp[0] );
 	__m128 mvp1 = _mm_loadu_ps( mvp[1] );
@@ -2292,7 +2292,7 @@ is W=0 clipped.
 */
 void idRenderMatrix::ProjectedBounds( idBounds& projected, const idRenderMatrix& mvp, const idBounds& bounds, bool windowSpace )
 {
-#if defined(USE_INTRINSICS)
+#if defined(USE_INTRINSICS_SSE)
 
 	__m128 mvp0 = _mm_loadu_ps( mvp[0] );
 	__m128 mvp1 = _mm_loadu_ps( mvp[1] );
@@ -2540,7 +2540,7 @@ void idRenderMatrix::ProjectedNearClippedBounds( idBounds& projected, const idRe
 		    - X +
 	*/
 
-#if defined(USE_INTRINSICS)
+#if defined(USE_INTRINSICS_SSE)
 
 	const __m128 mvp0 = _mm_loadu_ps( mvp[0] );
 	const __m128 mvp1 = _mm_loadu_ps( mvp[1] );
@@ -3179,7 +3179,7 @@ ClipHomogeneousPolygonToSide
 Clips a polygon with homogeneous coordinates to the axis aligned plane[axis] = sign * offset.
 ========================
 */
-#if defined(USE_INTRINSICS)
+#if defined(USE_INTRINSICS_SSE)
 static void ClipHomogeneousPolygonToSide_SSE2( idVec4* __restrict newPoints, idVec4* __restrict points, int& numPoints,
 		const int axis, const __m128& sign, const __m128& offset )
 {
@@ -3436,7 +3436,7 @@ the given bounds in which case the projected bounds should be set to fully cover
 */
 void idRenderMatrix::ProjectedFullyClippedBounds( idBounds& projected, const idRenderMatrix& mvp, const idBounds& bounds, bool windowSpace )
 {
-#if defined(USE_INTRINSICS)
+#if defined(USE_INTRINSICS_SSE)
 
 	const __m128 mvp0 = _mm_loadu_ps( mvp[0] );
 	const __m128 mvp1 = _mm_loadu_ps( mvp[1] );
@@ -3701,7 +3701,7 @@ The given bounding box is not clipped to the MVP so the depth bounds may not be 
 */
 void idRenderMatrix::DepthBoundsForBounds( float& min, float& max, const idRenderMatrix& mvp, const idBounds& bounds, bool windowSpace )
 {
-#if defined(USE_INTRINSICS)
+#if defined(USE_INTRINSICS_SSE)
 
 	__m128 mvp2 = _mm_loadu_ps( mvp[2] );
 	__m128 mvp3 = _mm_loadu_ps( mvp[3] );
@@ -3833,7 +3833,7 @@ void idRenderMatrix::DepthBoundsForExtrudedBounds( float& min, float& max, const
 {
 	assert( idMath::Fabs( extrudeDirection * clipPlane.Normal() ) >= idMath::FLT_SMALLEST_NON_DENORMAL );
 
-#if defined(USE_INTRINSICS)
+#if defined(USE_INTRINSICS_SSE)
 
 	__m128 mvp2 = _mm_loadu_ps( mvp[2] );
 	__m128 mvp3 = _mm_loadu_ps( mvp[3] );
@@ -4114,7 +4114,7 @@ testing if the center of the far clipping plane is contained inside the shadow v
 */
 void idRenderMatrix::DepthBoundsForShadowBounds( float& min, float& max, const idRenderMatrix& mvp, const idBounds& bounds, const idVec3& localLightOrigin, bool windowSpace )
 {
-#if defined(USE_INTRINSICS)
+#if defined(USE_INTRINSICS_SSE)
 
 	const __m128 mvp0 = _mm_loadu_ps( mvp[0] );
 	const __m128 mvp1 = _mm_loadu_ps( mvp[1] );
@@ -4505,7 +4505,7 @@ void idRenderMatrix::GetFrustumCorners( frustumCorners_t& corners, const idRende
 {
 	assert_16_byte_aligned( &corners );
 
-#if defined(USE_INTRINSICS)
+#if defined(USE_INTRINSICS_SSE)
 
 	__m128 mvp0 = _mm_loadu_ps( frustumTransform[0] );
 	__m128 mvp1 = _mm_loadu_ps( frustumTransform[1] );
@@ -4619,7 +4619,7 @@ frustumCull_t idRenderMatrix::CullFrustumCornersToPlane( const frustumCorners_t&
 {
 	assert_16_byte_aligned( &corners );
 
-#if defined(USE_INTRINSICS)
+#if defined(USE_INTRINSICS_SSE)
 
 	__m128 vp = _mm_loadu_ps( plane.ToFloatPtr() );
 
