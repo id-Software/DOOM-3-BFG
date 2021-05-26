@@ -64,6 +64,8 @@ Win32Vars_t	win32;
 
 static char		sys_cmdline[MAX_STRING_CHARS];
 
+static idStr	basepath;
+
 static sysMemoryStats_t exeLaunchMemoryStats;
 
 static HANDLE hProcessMutex;
@@ -545,11 +547,220 @@ const char* Sys_Cwd()
 
 /*
 ==============
+WidePath2ASCI
+
+raynorpat: shamelessly ripped from dhwem3
+==============
+*/
+static int WidePath2ASCI( char* dst, size_t size, const WCHAR* src )
+{
+	int len;
+	BOOL default_char = FALSE;
+
+	// test if we can convert lossless
+	len = WideCharToMultiByte( CP_ACP, 0, src, -1, dst, size, NULL, &default_char );
+	if ( default_char )
+	{
+		// The following lines implement a horrible hack to connect the UTF-16 WinAPI to the ASCII doom3 strings.
+		// While this should work in most cases, it'll fail if the "Windows to DOS filename translation" is switched off.
+		// In that case the function will return NULL.
+		WCHAR w[MAX_OSPATH];
+		len = GetShortPathNameW( src, w, sizeof( w ) );
+		if (len == 0)
+		{
+			return 0;
+		}
+
+		// Since the DOS path contains no UTF-16 characters, convert it to the system's default code page
+		len = WideCharToMultiByte( CP_ACP, 0, w, len, dst, size - 1, NULL, NULL );
+	}
+
+	if ( len == 0 )
+	{
+		return 0;
+	}
+
+	dst[len] = 0;
+	// Replace backslashes by slashes
+	for ( int i = 0; i < len; ++i )
+	{
+		if ( dst[i] == '\\' )
+		{
+			dst[i] = '/';
+		}
+	}
+
+	// cut trailing slash
+	if ( dst[len - 1] == '/' )
+	{
+		dst[len - 1] = 0;
+		len--;
+	}
+
+	return len;
+}
+
+/*
+==============
+Sys_SteamBasePath
+==============
+*/
+static char steamPathBuffer[MAX_OSPATH] = { 0 };
+
+static const char* Sys_SteamBasePath()
+{
+#if defined(STEAMPATH_NAME) || defined(STEAMPATH_APPID)
+	WCHAR wideBuffer[MAX_OSPATH] = { 0 };
+	HKEY steamRegKey;
+	DWORD steamRegKeyLen = MAX_OSPATH;
+
+	// Let's try the Steam appid path first
+#ifdef STEAMPATH_APPID
+	if ( !RegOpenKeyExW( HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App " STEAMPATH_APPID, 0, KEY_QUERY_VALUE, &steamRegKey ) )
+	{
+		if ( !RegQueryValueExW( steamRegKey, L"InstallLocation", NULL, NULL, (LPBYTE)wideBuffer, &steamRegKeyLen ) )
+		{
+			// Convert our path from widechar to asci
+			if ( WidePath2ASCI( steamPathBuffer, steamRegKeyLen, wideBuffer ) )
+			{
+				if ( Sys_IsFolder( steamPathBuffer ) == FOLDER_YES )
+				{
+					common->Printf( "^4Using Steam app id base path '%s'\n", steamPathBuffer );
+					return steamPathBuffer;
+				}
+			}
+		}
+
+		RegCloseKey( steamRegKey );
+	}
+#endif
+
+	// Let's try the Steam install path next (this only works if the user has the default steamlibrary set to match the install path)
+#ifdef STEAMPATH_NAME
+	if ( !RegOpenKeyEx( HKEY_CURRENT_USER, "Software\\Valve\\Steam", 0, KEY_QUERY_VALUE | KEY_WOW64_32KEY, &steamRegKey ) )
+	{
+		steamRegKeyLen = MAX_OSPATH; // reset steamRegKeyLen to MAX_OSPATH from above
+		if ( !RegQueryValueEx( steamRegKey, "SteamPath", NULL, NULL, (LPBYTE)wideBuffer, &steamRegKeyLen ) )
+		{
+			if ( !RegQueryValueEx( steamRegKey, "InstallPath", NULL, NULL, (LPBYTE)wideBuffer, &steamRegKeyLen ) )
+			{
+				// Convert our path from widechar to asci
+				if ( WidePath2ASCI( steamPathBuffer, steamRegKeyLen, wideBuffer ) )
+				{
+					idStr steamInstallPath;
+					steamInstallPath = steamPathBuffer;
+					steamInstallPath.AppendPath( "steamapps\\common\\" STEAMPATH_NAME );
+					if ( Sys_IsFolder( steamInstallPath.c_str() ) == FOLDER_YES )
+					{
+						common->Printf( "^4Using Steam install base path '%s'\n", steamInstallPath.c_str() );
+						return steamInstallPath.c_str();
+					}
+				}
+			}
+		}
+	}
+#endif
+#endif
+
+	return steamPathBuffer;
+}
+
+/*
+================
+Sys_GogBasePath
+================
+*/
+static char gogPathBuffer[MAX_OSPATH] = { 0 };
+
+static const char* Sys_GogBasePath(void)
+{
+#ifdef GOGPATH_ID
+	HKEY gogRegKey;
+	DWORD gogRegKeyLen = MAX_OSPATH;
+	WCHAR wideBuffer[MAX_OSPATH] = { 0 };
+
+	// Let's try checking the GOG.com launcher game ID
+	if ( !RegOpenKeyEx( HKEY_LOCAL_MACHINE, "SOFTWARE\\GOG.com\\Games\\" GOGPATH_ID, 0, KEY_QUERY_VALUE | KEY_WOW64_32KEY, &gogRegKey ) )
+	{
+		if ( !RegQueryValueEx( gogRegKey, "PATH", NULL, NULL, (LPBYTE)gogPathBuffer, &gogRegKeyLen ) )
+		{
+			// Convert our path from widechar to asci
+			if (WidePath2ASCI( gogPathBuffer, gogRegKeyLen, wideBuffer ) )
+			{
+				common->Printf( "^4Using GOG.com Game ID base path '%s'\n", gogPathBuffer );
+				return gogPathBuffer;
+			}
+		}
+
+		RegCloseKey(gogRegKey);
+	}
+#endif
+
+	return gogPathBuffer;
+}
+
+/*
+==============
 Sys_DefaultBasePath
 ==============
 */
 const char* Sys_DefaultBasePath()
 {
+	idStr testbase;
+
+	// Try the exe path first
+	basepath = Sys_EXEPath();
+	if ( basepath.Length() )
+	{
+		basepath.StripFilename();
+		testbase = basepath;
+		testbase += "/";
+		testbase += BASE_GAMEDIR;
+		if ( Sys_IsFolder( testbase.c_str() ) == FOLDER_YES )
+		{
+			return basepath.c_str();
+		}
+		else
+		{
+			common->Printf( "no '%s' directory in exe path %s, skipping\n", BASE_GAMEDIR, basepath.c_str() );
+		}
+	}
+
+	// Try the Steam path next
+	basepath = Sys_SteamBasePath();
+	if ( basepath.Length() )
+	{
+		testbase = basepath;
+		testbase += "/";
+		testbase += BASE_GAMEDIR;
+		if ( Sys_IsFolder( testbase.c_str() ) == FOLDER_YES )
+		{
+			return basepath.c_str();
+		}
+		else
+		{
+			common->Printf( "no '%s' directory in Steam path %s, skipping\n", BASE_GAMEDIR, basepath.c_str() );
+		}
+	}
+
+	// Try the GOG.com path next
+	basepath = Sys_GogBasePath();
+	if ( basepath.Length() )
+	{
+		testbase = basepath;
+		testbase += "/";
+		testbase += BASE_GAMEDIR;
+		if ( Sys_IsFolder( testbase.c_str() ) == FOLDER_YES )
+		{
+			return basepath.c_str();
+		}
+		else
+		{
+			common->Printf( "no '%s' directory in GOG.com path %s, skipping\n", BASE_GAMEDIR, basepath.c_str() );
+		}
+	}
+
+	// Finally, try the current working directory as a fallback
 	return Sys_Cwd();
 }
 
@@ -1442,6 +1653,8 @@ Sys_Shutdown
 */
 void Sys_Shutdown()
 {
+	basepath.Clear();
+
 	CoUninitialize();
 }
 
