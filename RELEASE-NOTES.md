@@ -357,6 +357,10 @@ Using the models argument will also export all needed models by entity declarati
 
 * Fixed bug that GOG builds default to Japanese instead of English
 
+* Support for Steam and GOG base path detection for Windows
+
+* Changed CMake MSVC setup to enable debugging without manually changing paths (thanks to Patrick Raynor)
+
 
 
 _______________________________________
