@@ -62,15 +62,15 @@ void idInterpreter::Save( idSaveGame *savefile ) const {
 		} else {
 			savefile->WriteInt( -1 );
 		}
-		savefile->WriteInt( callStack[i].stackbase );
+		savefile->WritePtr( callStack[i].stackbase );
 	}
 	savefile->WriteInt( maxStackDepth );
 
-	savefile->WriteInt( localstackUsed );
+	savefile->WritePtr( localstackUsed );
 	savefile->Write( &localstack, localstackUsed );
 
-	savefile->WriteInt( localstackBase );
-	savefile->WriteInt( maxLocalstackUsed );
+	savefile->WritePtr( localstackBase );
+	savefile->WritePtr( maxLocalstackUsed );
 
 	if ( currentFunction ) {
 		savefile->WriteInt( gameLocal.program.GetFunctionIndex( currentFunction ) );
@@ -117,15 +117,15 @@ void idInterpreter::Restore( idRestoreGame *savefile ) {
 			callStack[i].f = NULL;
 		}
 
-		savefile->ReadInt( callStack[i].stackbase );
+		savefile->ReadPtr( callStack[i].stackbase );
 	}
 	savefile->ReadInt( maxStackDepth );
 
-	savefile->ReadInt( localstackUsed );
+	savefile->ReadPtr( localstackUsed );
 	savefile->Read( &localstack, localstackUsed );
 
-	savefile->ReadInt( localstackBase );
-	savefile->ReadInt( maxLocalstackUsed );
+	savefile->ReadPtr( localstackBase );
+	savefile->ReadPtr( maxLocalstackUsed );
 
 	savefile->ReadInt( func_index );
 	if ( func_index >= 0 ) {

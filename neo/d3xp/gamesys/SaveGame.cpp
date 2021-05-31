@@ -203,6 +203,15 @@ void idSaveGame::Write( const void *buffer, int len ) {
 
 /*
 ================
+idSaveGame::WritePtr
+================
+*/
+void idSaveGame::WritePtr(const uintptr_t value) {
+	file->WriteBig(value);
+}
+
+/*
+================
 idSaveGame::WriteInt
 ================
 */
@@ -979,6 +988,15 @@ idRestoreGame::Read
 */
 void idRestoreGame::Read( void *buffer, int len ) {
 	file->Read( buffer, len );
+}
+
+/*
+================
+idRestoreGame::ReadPtr
+================
+*/
+void idRestoreGame::ReadPtr(uintptr_t& value) {
+	file->ReadBig(value);
 }
 
 /*

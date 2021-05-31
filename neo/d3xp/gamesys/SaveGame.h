@@ -49,6 +49,7 @@ public:
 	void					WriteObjectList();
 
 	void					Write( const void *buffer, int len );
+	void					WritePtr(const uintptr_t value);
 	void					WriteInt( const int value );
 	void					WriteJoint( const jointHandle_t value );
 	void					WriteShort( const short value );
@@ -128,6 +129,7 @@ public:
 	void					Error( VERIFY_FORMAT_STRING const char *fmt, ... );
 
 	void					Read( void *buffer, int len );
+	void					ReadPtr(uintptr_t &value);
 	void					ReadInt( int &value );
 	void					ReadJoint( jointHandle_t &value );
 	void					ReadShort( short &value );

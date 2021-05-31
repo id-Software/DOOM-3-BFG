@@ -79,7 +79,7 @@ typedef union eval_s {
 	float				vector[ 3 ];
 	function_t			*function;
 	int 				_int;
-	size_t 				entity;
+	uintptr_t			entity;
 } eval_t;
 
 /***********************************************************************
@@ -177,6 +177,17 @@ public:
 
 	byte						*GetVariable( const char *name, etype_t etype ) const;
 };
+
+/*
+================
+PointerAlignedSize
+Aligns the size to the nearest possible pointer size.
+================
+*/
+ID_INLINE int PointerAlignedSize(int requestedSize) {
+	const int alignmentSize = sizeof(uintptr_t) - 1;
+	return (requestedSize + alignmentSize) & ~alignmentSize;
+}
 
 /***********************************************************************
 
@@ -300,12 +311,12 @@ typedef union varEval_s {
 	int 					*intPtr;
 	byte					*bytePtr;
 	short 					*entityNumberPtr;
-	size_t					virtualFunction;
-	size_t					jumpOffset;
-	size_t					stackOffset;		// offset in stack for local variables
+	uintptr_t				virtualFunction;
+	intptr_t				jumpOffset;
+	intptr_t				stackOffset;		// offset in stack for local variables
 	int						argSize;
 	varEval_s				*evalPtr;
-	size_t					ptrOffset;
+	intptr_t				ptrOffset;
 } varEval_t;
 
 class idVarDefName;
@@ -345,7 +356,7 @@ public:
 
 	idVarDef *				Next() const { return next; }		// next var def with same name
 
-	void					PrintInfo( idFile *file, int instructionPointer ) const;
+	void					PrintInfo( idFile *file, uintptr_t instructionPointer ) const;
 
 private:
 	idTypeDef *				typeDef;
@@ -480,7 +491,7 @@ public:
 	void										CompileFile( const char *filename );
 	void										BeginCompilation();
 	void										FinishCompilation();
-	void										DisassembleStatement( idFile *file, int instructionPointer ) const;
+	void										DisassembleStatement( idFile *file, uintptr_t instructionPointer ) const;
 	void										Disassemble() const;
 	void										FreeData();
 
@@ -505,7 +516,7 @@ public:
 	function_t									*FindFunction( const char *name, const idTypeDef *type ) const;	// returns NULL if function not found
 	function_t									&AllocFunction( idVarDef *def );
 	function_t									*GetFunction( int index );
-	int											GetFunctionIndex( const function_t *func );
+	intptr_t									GetFunctionIndex( const function_t *func );
 
 	void										SetEntity( const char *name, idEntity *ent );
 
@@ -547,7 +558,7 @@ ID_INLINE function_t *idProgram::GetFunction( int index ) {
 idProgram::GetFunctionIndex
 ================
 */
-ID_INLINE int idProgram::GetFunctionIndex( const function_t *func ) {
+ID_INLINE intptr_t idProgram::GetFunctionIndex( const function_t *func ) {
 	return func - &functions[0];
 }
 

@@ -172,10 +172,10 @@ void DX12Renderer::Init(HWND hWnd) {
 void DX12Renderer::LoadPipeline(HWND hWnd) {
 #if defined(_DEBUG)
 	{
-		ComPtr<ID3D12Debug> debugController;
+		/*ComPtr<ID3D12Debug> debugController;
 		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)))) {
 			debugController->EnableDebugLayer();
-		}
+		}*/
 
 		/*ComPtr<ID3D12DeviceRemovedExtendedDataSettings> pDredSettings;
 		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&pDredSettings)))) {
