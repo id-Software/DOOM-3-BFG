@@ -76,7 +76,7 @@ static const char* g_instanceExtensions[ g_numInstanceExtensions ] =
 
 // SRS - optionally needed for runtime access to fullImageViewSwizzle (instead of env var MVK_CONFIG_FULL_IMAGE_VIEW_SWIZZLE = 1)
 #if defined(__APPLE__) && defined(USE_MoltenVK)
-#include <MoltenVK/vk_mvk_moltenvk.h>
+	#include <MoltenVK/vk_mvk_moltenvk.h>
 #endif
 
 static const int g_numDebugInstanceExtensions = 1;
