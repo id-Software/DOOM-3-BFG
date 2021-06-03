@@ -346,6 +346,16 @@ if(USE_VULKAN)
 
 	# RB: moved this above the general Vulkan part so glslang does not include Vulkan SDK headers
 	# which causes all kinds of weird segmentation faults because struct sizes don't match
+ 
+    # SRS - Set default VULKAN_SDK location if environment variable not defined on OSX
+    if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND NOT DEFINED ENV{VULKAN_SDK})
+        if(NOT USE_MoltenVK)
+            # SRS - Vulkan SDK installer copies standard vulkan headers and libs to /usr/local on OSX
+            set(ENV{VULKAN_SDK} /usr/local)
+        else()
+            message(FATAL_ERROR "Must define VULKAN_SDK location if USE_MoltenVK option enabled!")
+        endif()
+    endif()
 
 	if(SPIRV_SHADERC)
 		add_definitions(-DSPIRV_SHADERC)
@@ -392,18 +402,22 @@ if(USE_VULKAN)
 	if(NOT Vulkan_FOUND)
 		message(FATAL_ERROR "Could not find Vulkan library!")
 	else()
-		# SRS - Optionally use MoltenVK headers/library for runtime config functions on OSX
-		if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND USE_MoltenVK)
-			add_definitions(-DUSE_MoltenVK)
-			include_directories($ENV{VULKAN_SDK}/../MoltenVK/include)
-			set(Vulkan_LIBRARY $ENV{VULKAN_SDK}/lib/libMoltenVK.dylib)
+        add_definitions(-DUSE_VULKAN)
+        include_directories($ENV{VULKAN_SDK}/include)
+
+		if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+            # SRS - Enable Beta extensions for VULKAN_SDK portability subset features on OSX
+            add_definitions(-DVK_ENABLE_BETA_EXTENSIONS)
+            # SRS - Optionally use MoltenVK headers/library for runtime config functions on OSX
+            if(USE_MoltenVK)
+                add_definitions(-DUSE_MoltenVK)
+                include_directories($ENV{VULKAN_SDK}/../MoltenVK/include)
+                set(Vulkan_LIBRARY $ENV{VULKAN_SDK}/lib/libMoltenVK.dylib)
+            endif()
 		endif()
 		message(STATUS "Using Vulkan: " ${Vulkan_LIBRARY})
 	endif()
 	
-	add_definitions(-DUSE_VULKAN)
-	include_directories($ENV{VULKAN_SDK}/include)
-
 	# Eric: For use with SDL2/Vulkan
 	if(UNIX)
 		find_package(X11_XCB)
