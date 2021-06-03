@@ -165,6 +165,10 @@ int Mus2Midi(unsigned char* bytes, unsigned char* out, int* len)
 	
 	// current position in read buffer
 	unsigned char* cur = bytes,* end;
+	if( cur[0] != 'M' || cur[1] != 'U' || cur[2] != 'S' )
+	{
+		return 0;
+	}
 
 	// Midi header(format 0)
 	MidiHeaderChunk_t midiHeader;
