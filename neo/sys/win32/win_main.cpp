@@ -60,6 +60,10 @@ idCVar Win32Vars_t::win_viewlog( "win_viewlog", "0", CVAR_SYSTEM | CVAR_INTEGER,
 idCVar Win32Vars_t::win_timerUpdate( "win_timerUpdate", "0", CVAR_SYSTEM | CVAR_BOOL, "allows the game to be updated while dragging the window" );
 idCVar Win32Vars_t::win_allowMultipleInstances( "win_allowMultipleInstances", "0", CVAR_SYSTEM | CVAR_BOOL, "allow multiple instances running concurrently" );
 
+// RB
+idCVar Win32Vars_t::sys_useSteamPath( "sys_useSteamPath", "0", CVAR_SYSTEM | CVAR_BOOL | CVAR_ARCHIVE, "Look for Steam Doom 3 BFG path instead of local installation" );
+idCVar Win32Vars_t::sys_useGOGPath( "sys_useGOGPath", "0", CVAR_SYSTEM | CVAR_BOOL | CVAR_ARCHIVE, "Look for GOG Doom 3 BFG path instead of local installation" );
+
 Win32Vars_t	win32;
 
 static char		sys_cmdline[MAX_STRING_CHARS];
@@ -728,7 +732,7 @@ const char* Sys_DefaultBasePath()
 
 	// Try the Steam path next
 	basepath = Sys_SteamBasePath();
-	if( basepath.Length() )
+	if( basepath.Length() && win32.sys_useSteamPath.GetBool() )
 	{
 		testbase = basepath;
 		testbase += "/";
@@ -745,7 +749,7 @@ const char* Sys_DefaultBasePath()
 
 	// Try the GOG.com path next
 	basepath = Sys_GogBasePath();
-	if( basepath.Length() )
+	if( basepath.Length() && win32.sys_useGOGPath.GetBool() )
 	{
 		testbase = basepath;
 		testbase += "/";

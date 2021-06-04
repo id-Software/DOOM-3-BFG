@@ -125,6 +125,9 @@ typedef struct
 	static idCVar	win_timerUpdate;
 	static idCVar	win_allowMultipleInstances;
 
+	static idCVar	sys_useSteamPath;
+	static idCVar	sys_useGOGPath;
+
 	CRITICAL_SECTION criticalSections[MAX_CRITICAL_SECTIONS];
 
 	HINSTANCE		hInstDI;			// direct input
