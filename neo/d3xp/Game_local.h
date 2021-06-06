@@ -67,14 +67,14 @@ class idEditEntities;
 class idLocationEntity;
 class idMenuHandler_Shell;
 
-const int MAX_CLIENTS			= MAX_PLAYERS;
-const int MAX_CLIENTS_IN_PVS	= MAX_CLIENTS >> 3;
-const int GENTITYNUM_BITS		= 12;
-const int MAX_GENTITIES			= 1 << GENTITYNUM_BITS;
-const int ENTITYNUM_NONE		= MAX_GENTITIES - 1;
-const int ENTITYNUM_WORLD		= MAX_GENTITIES - 2;
-const int ENTITYNUM_MAX_NORMAL	= MAX_GENTITIES - 2;
-const int ENTITYNUM_FIRST_NON_REPLICATED	= ENTITYNUM_MAX_NORMAL - 256;
+constexpr int MAX_CLIENTS			= MAX_PLAYERS;
+constexpr int MAX_CLIENTS_IN_PVS	= MAX_CLIENTS >> 3;
+constexpr int GENTITYNUM_BITS		= 12;
+constexpr int MAX_GENTITIES			= 1 << GENTITYNUM_BITS;
+constexpr int ENTITYNUM_NONE		= MAX_GENTITIES - 1;
+constexpr int ENTITYNUM_WORLD		= MAX_GENTITIES - 2;
+constexpr int ENTITYNUM_MAX_NORMAL	= MAX_GENTITIES - 2;
+constexpr int ENTITYNUM_FIRST_NON_REPLICATED	= ENTITYNUM_MAX_NORMAL - 256;
 
 //============================================================================
 

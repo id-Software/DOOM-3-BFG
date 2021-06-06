@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #define __SCRIPT_INTERPRETER_H__
 
 #define MAX_STACK_DEPTH 	64
-#define LOCALSTACK_SIZE 	3 * sizeof(uintptr_t) * MAX_STACK_DEPTH
+constexpr int LOCALSTACK_SIZE = 24 * sizeof(uintptr_t) * MAX_STACK_DEPTH;
 
 typedef struct prstack_s {
 	int 				s;
@@ -232,11 +232,6 @@ idInterpreter::GetEntity
 ================
 */
 ID_INLINE idEntity *idInterpreter::GetEntity( short entnum ) const{
-	if (entnum > MAX_GENTITIES) {
-		//TODO: REMOVE WOO
-		common->Printf("WOOOOOO");
-	}
-
 	assert( entnum <= MAX_GENTITIES );
 	if ( ( entnum > 0 ) && ( entnum <= MAX_GENTITIES ) ) {
 		return gameLocal.entities[ entnum - 1 ];
