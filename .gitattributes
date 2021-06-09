@@ -1,0 +1,7 @@
+# Make 100% sure that .cpp and .h files are C++
+*.cpp linguist-language=C++
+*.hpp linguist-langauge=C++
+*.h linguist-language=C++
+
+# Don't count 3rd-party libraries
+neo/libs/* linguist_vendored
