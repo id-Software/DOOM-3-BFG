@@ -9,7 +9,7 @@ _______________________________________________________________________
 
 RBDOOM-3-BFG Readme - https://github.com/RobertBeckebans/RBDOOM-3-BFG 
 
-Download it from the [RBDOOM-3-BFG ModDB Page](https://www.moddb.com/mods/rbdoom-3-bfg) 
+Download it from the [RBDOOM-3-BFG Mod DB Page](https://www.moddb.com/mods/rbdoom-3-bfg) 
 
 <a href="https://www.moddb.com/mods/rbdoom-3-bfg" title="View RBDOOM-3-BFG on Mod DB" target="_blank"><img src="https://button.moddb.com/popularity/medium/mods/49231.png" alt="RBDOOM-3-BFG" /></a>
 
@@ -72,7 +72,7 @@ I started this project in 2012 and focused on making this code being future proo
 * OpenAL Soft sound backend primarily developed for Linux but works on Windows as well
 * Sourcecode cleanup using the Artistic Style C++ beautifier to ensure the Git diffs and logs are clean
 * Fixed tons of warnings using the Clang compiler
-* Fast compile times using precompiled header support
+* Fast compile times using precompiled header support which allows to compile the entire engine and builtin tools in less than 30 seconds on a Ryzen 9
 * Although not really supported but runs on exotic hardware like MIPS64, PPC64 and ARM architectures
 * Updated idRenderLog to support RenderDoc and Nvidia's Nsight and only issue OpenGL or Vulkan debug commands if the debug extensions are detected. Reference: https://devblogs.nvidia.com/best-practices-gpu-performance-events/
 
@@ -512,7 +512,7 @@ Existing repositories can be updated manually:
 
 ## For 99% of all users:
 
-1. Download thew newest version from the [RBDOOM-3-BFG ModDB Page](https://www.moddb.com/mods/rbdoom-3-bfg) 
+1. Download the newest version from the [RBDOOM-3-BFG Mod DB Page](https://www.moddb.com/mods/rbdoom-3-bfg) 
 
 <a href="https://www.moddb.com/mods/rbdoom-3-bfg" title="View RBDOOM-3-BFG on Mod DB" target="_blank"><img src="https://button.moddb.com/popularity/medium/mods/49231.png" alt="RBDOOM-3-BFG" /></a>
 
@@ -677,7 +677,10 @@ You can find your qconsole.log on Windows in C:\Users\<your user name>\Saved Gam
 # FAQ <a name="faq"></a>
 
 **Q**: Why bother with DOOM-3-BFG in 2021?
-**A**: It is fun, period. Doom 3 was an impressive milestone in total game development in 2004. In 2011 id Software added lot stuff from the development of Rage like its own Flash SWF and ActionScript 2 interpreter, proper support for gamepads and widescreens. It also combines the gamecode for D3 and its missionpacks and runs it in a seperate thread and it has many multithreaded rendering optimizations. DOOM-3-BFG is one of the most transparent games available where you can open all files and inspect how the game was built.
+**A**: It is fun, period. Doom 3 was an impressive milestone in total game development in 2004. In 2011 id Software added lot stuff from the development of Rage like its own Flash SWF and ActionScript 2 interpreter, proper support for gamepads and widescreens. It also combines the gamecode for D3 and its missionpacks and runs it in a seperate thread and it has many multithreaded rendering optimizations. 
+DOOM-3 and DOOM-3-BFG are some of the most transparent games available where you can open all files and inspect how the game was built.
+Unlike Quake 1-3, DOOM-3-BFG shipped with all level .map sources for 47 single player maps.
+There is plenty of stuff to learn from it like solid run & gun core gameplay, AI, animations, client/server multiplayer, level design or simple and elegant engine design.
 
 **Q**: Can I use this engine to make a commercial game?
 **A**: You can but don't bother me to give you free support and you probably should use Unreal Engine 4. I am a full time game developer and usually don't have time for any free support.
