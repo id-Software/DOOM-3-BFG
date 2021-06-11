@@ -270,11 +270,19 @@ The default irradiance / radiance data gives the entire game a warmer look and i
 
 <img src="https://i.imgur.com/DqTEbzU.jpg" width="384"> <img src="https://media.moddb.com/images/mods/1/50/49231/rbdoom-3-bfg-20210409-221842-001.png" width="384">
 
-Left: No extra ambient pass. Ambient is pure black like in original Doom 3. Right: Extra ambient pass with r_forceAmbient 0.5 using local environment probe for irradiance and radiance lighting.
+Single spot light render with direct lighting only
 
-<img src="https://i.imgur.com/IRfNeoF.png" width="384"> <img src="https://media.moddb.com/images/mods/1/50/49231/rbdoom-3-bfg-20210510-144932-005.png" width="384">
+<img src="https://i.imgur.com/IRfNeoF.png" width="384"> 
 
-<img src="https://i.imgur.com/ZEI4i87.png" width="384"> <img src="https://i.imgur.com/FC82oOM.png" width="384">
+Single spot light render causing indirect light bounce using the new irradiance light grid in RBDOOM-3-BFG combined with SSAO
+
+<img src="https://media.moddb.com/images/mods/1/50/49231/rbdoom-3-bfg-20210510-144932-005.png" width="384">
+
+`Raytraced` reference in Blender 2.83 with Cycles raytracing
+
+<img src="https://media.moddb.com/images/mods/1/50/49231/test_radiosity2_2.png" width="384"> 
+
+Left: No global illumination. Ambient is pitch black like in original Doom 3. Right: Extra ambient pass for global illumination with r_forceAmbient 0.5.
 
 <img src="https://i.imgur.com/LRJBJwV.png" width="384"> <img src="https://i.imgur.com/GPD2aIr.png" width="384">
 
@@ -502,7 +510,7 @@ Existing repositories can be updated manually:
 ---
 # Installation, Getting the Game Data, Running the Game <a name="installation"></a>
 
-For 99% of all users:
+## For 99% of all users:
 
 1. Download thew newest version from the [RBDOOM-3-BFG ModDB Page](https://www.moddb.com/mods/rbdoom-3-bfg) 
 
