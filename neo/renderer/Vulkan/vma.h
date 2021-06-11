@@ -770,11 +770,9 @@ remove them if not needed.
 
 //SRS - Modified from vkQuake2, to compile with C++11 on OSX versions with no aligned_alloc
 #if defined(__APPLE__)
-#if !defined(MAC_OS_X_VERSION_10_16) && defined(__cplusplus) && __cplusplus < 201703L
-// For C++14, usr/include/malloc/_malloc.h declares aligned_alloc() only with
-// the MacOSX11.0 SDK in Xcode 12 (which is what adds MAC_OS_X_VERSION_10_16).
-// For C++17 aligned_alloc is available with the 10.15 SDK already.
-void* aligned_alloc( size_t alignment, size_t size )
+//SRS - aligned_alloc available on macOS starting with C++17 on 10.15 SDK, C++14 on 11.0 SDK
+//SRS - Instead, use custom _aligned_alloc for portability across macOS SDK and runtime versions
+void* _aligned_alloc( size_t alignment, size_t size )
 {
 	// alignment must be >= sizeof(void*)
 	if( alignment < sizeof( void* ) )
@@ -789,7 +787,6 @@ void* aligned_alloc( size_t alignment, size_t size )
 	}
 	return NULL;
 }
-#endif
 #elif !defined(_WIN32)
 #include <malloc.h> // for aligned_alloc()
 #endif
@@ -825,6 +822,8 @@ void* aligned_alloc( size_t alignment, size_t size )
 #ifndef VMA_SYSTEM_ALIGNED_MALLOC
 	#if defined(_WIN32)
 		#define VMA_SYSTEM_ALIGNED_MALLOC(size, alignment)   (_aligned_malloc((size), (alignment)))
+    #elif defined(__APPLE__)
+        #define VMA_SYSTEM_ALIGNED_MALLOC(size, alignment)   (_aligned_alloc((alignment), (size) ))
 	#else
 		#define VMA_SYSTEM_ALIGNED_MALLOC(size, alignment)   (aligned_alloc((alignment), (size) ))
 	#endif
