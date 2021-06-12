@@ -83,7 +83,7 @@ RBDOOM-3-BFG allows mod editing and has many tiny fixes so custom content can be
 * invertGreen( normalmap.png ) material keyword to allow flipping the Y-Axis for tangent space normal maps 
 * PNG image support
 * Collada .DAE model support in addition to .ase and .lwo for static map models
-* Wavefront OBJ model support
+* Wavefront OBJ model support to make it easier getting static models from Blender/Maya/3D Studio Max into TrenchBroom
 * Added back dmap and aas compilers (mapping tools, thanks to Pat Raynor) and improved them to work with TrenchBroom
 * Added in-engine Flash debugging tools and new console variables.
   These tools help to analyse the id Tech view of Flash and what SWF tags are supported and how they are interpreted
@@ -112,9 +112,8 @@ You can fork RBDOOM-3-BFG and create a new renamed binary that includes all requ
 ***The goal of the TrenchBroom support is to make mapping for RBDOOM-3-BFG as easy as for Quake 1.***
 
 * idMapFile and dmap were changed to support the Valve 220 .map format to aid mapping with TrenchBroom
-* Added exportFGD [models] console command which exports all def/*.def entityDef declarations to base/exported/_tb/ as Forge Game Data files. TrenchBroom has native support to read those files https://developer.valvesoftware.com/wiki/FGD.
-Using the models argument will also export all needed models by entity declarations to base/_tb/ as Wavefront OBJ files.
-* To make it easier getting static models from Blender/Maya/3D Studio Max into TrenchBroom and the engine Wavefront OBJ model support has been ported from IcedTech
+* Added exportFGD `[nomodels]` console command which exports all def/*.def entityDef declarations to base/exported/_tb/ as Forge Game Data files. TrenchBroom has native support to read those files https://developer.valvesoftware.com/wiki/FGD.
+If the nomodels argument is not given then it will also export all needed models by entity declarations to base/_tb/ as Wavefront OBJ files.
 * Support ***angles*** keyword again for TrenchBroom like in Quake 3
 
 ---
@@ -634,7 +633,7 @@ dmap `[glfile]` mapfile                | DMap option that exports the BSP areas 
 bakeEnvironmentProbes                  | Command after loading a map. Captures all env_probe entities and stores them to disc
 bakeLightGrids [`<switches>`...]       | `<Switches>` limit[num] : max probes per BSP area (default 16384) bounce[num] : number of bounces or number of light reuse (default 1) grid( xdim ydim zdim ) : light grid size steps into each direction (default 64 64 128)
 exportScriptEvents                     | Command: Generates a new script/doom_events.script that reflects all registered class events in the idClass C++ system. The gamecode still needs to be extended to add the original comments of the events
-exportFGD `[models]`                   | Command: Exports all entity defs to exported/_tb/*.fgd for usage in TrenchBroom
+exportFGD `[nomodels]`                 | Command: Exports all entity defs to exported/_tb/*.fgd for usage in TrenchBroom
 exportEntityDefsToBlender              | Command: Exports all entity and model defs to exported/entities.json for usage in Blender
 postLoadExportModels                   | Cvar: Export models after loading to OBJ model format. Set it to 1 before loading a map.
 exportMapToOBJ                         | Command: Convert .map file to .obj/.mtl
