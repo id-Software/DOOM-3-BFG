@@ -68,7 +68,7 @@ I started this project in 2012 and focused on making this code being future proo
 * Flexible build system using CMake allowing to add optional features like Vulkan rendering, FFmpeg for videos or OpenAL for sound
 * Linux support for both GCC and Clang with a proper SDL 2 OS layer including gamepad support
 * Win64 support and Visual Studio support up to VS 2019
-* ~~MacOS X support~~ (might be outdated due to Apple's latest API restrictions)
+* macOS support (updated in 2021 thanks to Stephen Saunders)
 * OpenAL Soft sound backend primarily developed for Linux but works on Windows as well
 * Sourcecode cleanup using the Artistic Style C++ beautifier to ensure the Git diffs and logs are clean
 * Fixed tons of warnings using the Clang compiler
