@@ -98,7 +98,8 @@ typedef enum
 
 //#define AL_ALEXT_PROTOTYPES
 
-#ifdef __APPLE__
+// SRS - Added check on OSX for OpenAL Soft headers vs macOS SDK headers
+#if defined(__APPLE__) && !defined(USE_OPENAL_SOFT_INCLUDES)
 	#include <OpenAL/al.h>
 	#include <OpenAL/alc.h>
 #else
