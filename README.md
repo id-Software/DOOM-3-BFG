@@ -23,10 +23,10 @@ For discussions join the id Tech 4 Discord: https://discord.gg/Q3E9rUFnnP , #rbd
 This file contains the following sections:
 
 1. [About the Port](#about)
-2. [Renderer Features Explained](#render)
-3. [TrenchBroom Mapping Support](#trenchbroom)
-4. [".plan"](#plan)
-5. [May or may not ".plan"](#plan2)
+2. [".plan"](#plan)
+3. [May or may not ".plan"](#plan2)
+4. [Renderer Features Explained](#render)
+5. [TrenchBroom Mapping Support](#trenchbroom)
 6. [General Notes](#notes)
 7. [License](#license)
 8. [Getting the Source Code ](#source)
@@ -109,13 +109,35 @@ IMPORTANT: RBDOOM-3-BFG does not support old Doom 3 modifications that include s
 You can fork RBDOOM-3-BFG and create a new renamed binary that includes all required C++ game code modifications. 
 
 ## TrenchBroom Mapping Support
-The goal of the TrenchBroom support is to make mapping for RBDOOM-3-BFG as easy as for Quake 1.
+***The goal of the TrenchBroom support is to make mapping for RBDOOM-3-BFG as easy as for Quake 1.***
 
 * idMapFile and dmap were changed to support the Valve 220 .map format to aid mapping with TrenchBroom
 * Added exportFGD [models] console command which exports all def/*.def entityDef declarations to base/exported/_tb/ as Forge Game Data files. TrenchBroom has native support to read those files https://developer.valvesoftware.com/wiki/FGD.
 Using the models argument will also export all needed models by entity declarations to base/_tb/ as Wavefront OBJ files.
 * To make it easier getting static models from Blender/Maya/3D Studio Max into TrenchBroom and the engine Wavefront OBJ model support has been ported from IcedTech
 * Support ***angles*** keyword again for TrenchBroom like in Quake 3
+
+---
+# ".plan" <a name="plan"></a>
+
+If you want to see what is planned or in progress in a Trello/Kanban style manner look here: [RBDOOM-3-BFG projects](https://github.com/RobertBeckebans/RBDOOM-3-BFG/projects)
+
+Very certain short term goals are to port and extend some improvements from Justin Marshall's Iced-Hellfire-Dev branch:
+* Assimp -> MD5 converter pipeline to generate .md5mesh/.md5anim files from any FBX, DAE, glTF2 files
+* Improve MD5 files with a new Version 11 that allows to store normals for better control of smoothing groups
+* Native C++ weapons code
+* Native C++ AI & monsters code
+* Quake 3 gladiator multiplayer bot
+
+---
+# May or may not ".plan" <a name="plan2"></a>
+* Scrap expensive multipass forward shading with a faster forward+ solution
+* Add [Volumetric Lighting](http://www.alexandre-pestana.com/volumetric-lights/)
+* Add a DX12 Ultimate renderer backend
+* Explore Screen Space Global Illumination with Christoph Schieds' A-SVGF realtime denoising because A-SVGF works really well in Q2RTX
+* Update texture compression based on [Basis Universal GPU Texture and Texture Video Compression Codec](https://github.com/binomialLLC/basis_universal)
+* Rip & Tear renderer backend with modern approaches by [The-Forge](https://github.com/ConfettiFX/The-Forge)
+* Replace collision detection and physics with PhysX 4.1
 
 ---
 # Renderer Features Explained <a name="render"></a>
@@ -367,21 +389,6 @@ Here is an overview of the changes made to TrenchBroom:
 ### Some Scenes of Mars City 1 loaded into TrenchBroom
 <img src="https://i.imgur.com/nqR04z8.jpg" width="384"> <img src="https://i.imgur.com/GxL1X02.jpg" width="384">
 
----
-# ".plan" <a name=".plan"></a>
-
-If you want to see what is planned or in progress in a Trello style manner look here: [RBDOOM-3-BFG projects](https://github.com/RobertBeckebans/RBDOOM-3-BFG/projects)
-
----
-# May or may not ".plan" <a name=".plan2"></a>
-* Add a DX12 Ultimate renderer backend
-* Add [Volumetric Lighting](http://www.alexandre-pestana.com/volumetric-lights/)
-* Give Mara's and McGuire's DeepGBuffer Screen Space Global Illumination a second try with Christoph Schieds' A-SVGF realtime denoising because A-SVGF works really well in Q2RTX
-* Slim texture loading routines based on stb_image
-* Add texture compression based on [Basis Universal GPU Texture and Texture Video Compression Codec](https://github.com/binomialLLC/basis_universal)
-* Scrap complex and complicated multipass forward shading with a simpler forward+ solution
-* Rip & Tear renderer backend with modern approaches by [The-Forge](https://github.com/ConfettiFX/The-Forge)
-* Replace collision detection and physics with PhysX 4.1
 
 ---
 # General Notes <a name="notes"></a>
