@@ -121,7 +121,7 @@ If the nomodels argument is not given then it will also export all needed models
 
 If you want to see what is planned or in progress in a Trello/Kanban style manner look here: [RBDOOM-3-BFG projects](https://github.com/RobertBeckebans/RBDOOM-3-BFG/projects)
 
-Very certain short term goals are to port and extend some improvements from Justin Marshall's Iced-Hellfire-Dev branch:
+Very certain short term goals are to port and extend some improvements from Justin Marshall's [Iced-Hellfire-Dev](https://github.com/jmarshall23/Doom3BFG) branch:
 * Assimp -> MD5 converter pipeline to generate .md5mesh/.md5anim files from any FBX, DAE, glTF2 files
 * Improve MD5 files with a new Version 11 that allows to store normals for better control of smoothing groups
 * Native C++ weapons code
@@ -433,11 +433,11 @@ This method was patented by Creative Labs and has finally expired on 2019-10-13.
 
 ---
 # License <a name="license"></a>
-See docs/COPYING.txt for the GNU GENERAL PUBLIC LICENSE
+See LICENSE.md for the GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
 
 ADDITIONAL TERMS:  The Doom 3 BFG Edition GPL Source Code is also subject to certain additional terms. You should have received a copy of these additional terms immediately following the terms and conditions of the GNU GPL which accompanied the Doom 3 BFG Edition GPL Source Code.  If not, please request a copy in writing from id Software at id Software LLC, c/o ZeniMax Media Inc., Suite 120, Rockville, Maryland 20850 USA.
 
-See LICENSE_EXCEPTIONS.md for all parts of the code The parts that are not covered by the GPL.
+See LICENSE_EXCEPTIONS.md for all parts of the code that are not covered by the GPL.
 
 ---
 # Getting the Source Code <a name="source"></a>

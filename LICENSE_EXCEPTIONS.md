@@ -649,6 +649,7 @@ Every source file includes an explicit dual-license for you to choose from.
 Research Samples by Morgan McGuire
 -----------------------------------------------------------------------------
 base/renderprogs/builtin/SSAO/*   (AlchemyAO)
+
 base/renderprogs/builtin/SSGI/*   (Deep G-Buffer)
 
 Morgan McGuire and Michael Mara, NVIDIA Research
