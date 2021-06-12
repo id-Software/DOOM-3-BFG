@@ -822,8 +822,8 @@ void* _aligned_alloc( size_t alignment, size_t size )
 #ifndef VMA_SYSTEM_ALIGNED_MALLOC
 	#if defined(_WIN32)
 		#define VMA_SYSTEM_ALIGNED_MALLOC(size, alignment)   (_aligned_malloc((size), (alignment)))
-    #elif defined(__APPLE__)
-        #define VMA_SYSTEM_ALIGNED_MALLOC(size, alignment)   (_aligned_alloc((alignment), (size) ))
+	#elif defined(__APPLE__)
+		#define VMA_SYSTEM_ALIGNED_MALLOC(size, alignment)   (_aligned_alloc((alignment), (size) ))
 	#else
 		#define VMA_SYSTEM_ALIGNED_MALLOC(size, alignment)   (aligned_alloc((alignment), (size) ))
 	#endif
