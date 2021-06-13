@@ -73,7 +73,7 @@ I started this project in 2012 and focused on making this code being future proo
 * Sourcecode cleanup using the Artistic Style C++ beautifier to ensure the Git diffs and logs are clean
 * Fixed tons of warnings using the Clang compiler
 * Fast compile times using precompiled header support which allows to compile the entire engine and builtin tools in less than 30 seconds on a Ryzen 9
-* Although not really supported but runs on exotic hardware like MIPS64, PPC64 and ARM architectures
+* Although not really supported but runs on exotic hardware like MIPS64, PPC64, ARM64 and E2K architectures
 * Updated idRenderLog to support RenderDoc and Nvidia's Nsight and only issue OpenGL or Vulkan debug commands if the debug extensions are detected. Reference: https://devblogs.nvidia.com/best-practices-gpu-performance-events/
 
 ## Modding Support
