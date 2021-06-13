@@ -341,11 +341,11 @@ Using the models argument will also export all needed models by entity declarati
 
 * Windows builds still require OpenGL 4.5 but they run in compatibility profile instead of core profile
 
-* Support for the MIPS64 architecture (thanks to Ramil Sattarov)
+* Initial support for the MIPS64 architecture (thanks to Ramil Sattarov)
 
 * Initial support for the PPC64 architecture (thanks to Trung Lê)
 
-* Initial support for the Rasperi PI4 (thanks to Alejandro Piñeiro)
+* Initial support for the Raspberry Pi 4 (thanks to Alejandro Piñeiro)
 
 * Updated Mac OS support (thanks to Steve Saunders)
 
@@ -404,6 +404,7 @@ This is a maintenance release without Vulkan support even though it contains a l
 * Many smaller compiler related fixes like VS 2017 and VS 2019 support.
   If it fails to compile with GCC then it should at least build with Clang on Linux
 
+* Initial support for the E2K (MCST Elbrus 2000) architecture (thanks to Ramil Sattarov)
 
 _______________________________________
 
