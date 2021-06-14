@@ -564,8 +564,8 @@ void idCommonLocal::Frame()
 			// RB end, DG end
 		{
 			// RB: don't release the mouse when opening a PDA or menu
-			// SRS - don't release when console open in a game (otherwise may be out of frame on return) but always release at main menu
-			if( ( console->Active() && !game ) || !mapSpawned || ImGuiTools::ReleaseMouseForTools() )
+			// SRS - but always release at main menu after exiting game or demo
+			if( console->Active() || !mapSpawned || ImGuiTools::ReleaseMouseForTools() )
 			{
 				Sys_GrabMouseCursor( false );
 			}
