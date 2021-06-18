@@ -374,7 +374,7 @@ menuitem_t LoadExpMenu[2];
 menu_t  LoadExpDef;
 menuitem_t SaveMenu[6];
 menu_t  SaveDef;
-char    tempstring[80];
+char    tempstring[128];    // SRS - extended from 80 to 128 to handle worst case string length (gcc 11 error checking)
 int     epi;
 int     exp;
 int     quitsounds[8];
