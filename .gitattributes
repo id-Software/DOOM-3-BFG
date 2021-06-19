@@ -4,4 +4,4 @@
 *.h linguist-language=C++
 
 # Don't count 3rd-party libraries
-neo/libs/* linguist_vendored
+neo/libs/* linguist-vendored
