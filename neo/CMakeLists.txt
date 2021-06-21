@@ -184,8 +184,12 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
 	if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 		# SRS - Also add -fasm-blocks otherwise Xcode complains
 		add_definitions(-fasm-blocks)
+        if(CMAKE_OSX_SYSROOT)
+            add_definitions(-isysroot "${CMAKE_OSX_SYSROOT}")
+            message(STATUS "Using macOS sysroot: " ${CMAKE_OSX_SYSROOT})
+        endif()
 		if(CMAKE_OSX_DEPLOYMENT_TARGET)
-			add_definitions(-isysroot "${CMAKE_OSX_SYSROOT}" -mmacosx-version-min="${CMAKE_OSX_DEPLOYMENT_TARGET}")
+			add_definitions(-mmacosx-version-min="${CMAKE_OSX_DEPLOYMENT_TARGET}")
 		endif()
 	endif()
 
