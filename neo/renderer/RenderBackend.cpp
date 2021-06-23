@@ -4887,7 +4887,6 @@ void idRenderBackend::Bloom( const viewDef_t* _viewDef )
 	// Draw
 	DrawElementsWithCounters( &unitSquareSurface );
 
-
 	// BLOOM PING PONG rendering
 	renderProgManager.BindShader_HDRGlareChromatic();
 
@@ -5910,7 +5909,10 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 		Tonemap( _viewDef );
 	}
 
-	Bloom( _viewDef );
+	if ( !r_skipBloom.GetBool() )
+	{
+		Bloom( _viewDef );
+	}
 #endif
 
 	renderLog.CloseBlock();

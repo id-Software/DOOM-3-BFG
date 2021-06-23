@@ -119,10 +119,11 @@ idCVar r_skipStaticInteractions( "r_skipStaticInteractions", "0", CVAR_RENDERER 
 idCVar r_skipDynamicInteractions( "r_skipDynamicInteractions", "0", CVAR_RENDERER | CVAR_BOOL, "skip interactions created after level load" );
 idCVar r_skipSuppress( "r_skipSuppress", "0", CVAR_RENDERER | CVAR_BOOL, "ignore the per-view suppressions" );
 #if defined( USE_VULKAN )
-	idCVar r_skipPostProcess( "r_skipPostProcess", "1", CVAR_RENDERER | CVAR_BOOL, "skip all post-process renderings" );
+	idCVar r_skipPostProcess( "r_skipPostProcess", "1", CVAR_RENDERER | CVAR_BOOL, "skip all post-process renderings except bloom" );
 #else
-	idCVar r_skipPostProcess( "r_skipPostProcess", "0", CVAR_RENDERER | CVAR_BOOL, "skip all post-process renderings" );
+	idCVar r_skipPostProcess( "r_skipPostProcess", "0", CVAR_RENDERER | CVAR_BOOL, "skip all post-process renderings except bloom" );
 #endif
+idCVar r_skipBloom( "r_skipBloom", "0", CVAR_RENDERER | CVAR_BOOL, "Skip bloom" );
 idCVar r_skipInteractions( "r_skipInteractions", "0", CVAR_RENDERER | CVAR_BOOL, "skip all light/surface interaction drawing" );
 idCVar r_skipDynamicTextures( "r_skipDynamicTextures", "0", CVAR_RENDERER | CVAR_BOOL, "don't dynamically create textures" );
 idCVar r_skipCopyTexture( "r_skipCopyTexture", "0", CVAR_RENDERER | CVAR_BOOL, "do all rendering, but don't actually copyTexSubImage2D" );

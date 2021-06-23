@@ -1076,6 +1076,7 @@ extern idCVar r_useSeamlessCubeMap;
 extern idCVar r_skipStaticInteractions;		// skip interactions created at level load
 extern idCVar r_skipDynamicInteractions;	// skip interactions created after level load
 extern idCVar r_skipPostProcess;			// skip all post-process renderings
+extern idCVar r_skipBloom;					// Admer: skip bloom
 extern idCVar r_skipSuppress;				// ignore the per-view suppressions
 extern idCVar r_skipInteractions;			// skip all light/surface interaction drawing
 extern idCVar r_skipFrontEnd;				// bypasses all front end work, but 2D gui rendering still draws
