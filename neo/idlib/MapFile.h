@@ -421,6 +421,7 @@ class idMapEntity
 
 public:
 	idDict					epairs;
+	idVec3					originOffset{ vec3_origin };
 
 public:
 	idMapEntity()

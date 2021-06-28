@@ -295,7 +295,7 @@ WriteUTriangles
 Writes text verts and indexes to procfile
 ====================
 */
-static void WriteUTriangles( const srfTriangles_t* uTris )
+static void WriteUTriangles( const srfTriangles_t* uTris, const idVec3& offsetOrigin = vec3_origin )
 {
 	int			col;
 	int			i;
@@ -313,9 +313,9 @@ static void WriteUTriangles( const srfTriangles_t* uTris )
 
 		dv = &uTris->verts[i];
 
-		vec[0] = dv->xyz[0];
-		vec[1] = dv->xyz[1];
-		vec[2] = dv->xyz[2];
+		vec[0] = dv->xyz[0] - offsetOrigin.x;
+		vec[1] = dv->xyz[1] - offsetOrigin.y;
+		vec[2] = dv->xyz[2] - offsetOrigin.z;
 
 		idVec2 st = dv->GetTexCoord();
 		vec[3] = st.x;
@@ -506,7 +506,7 @@ static void WriteOutputSurfaces( int entityNum, int areaNum )
 		FreeTriList( ambient );
 
 		CleanupUTriangles( uTri );
-		WriteUTriangles( uTri );
+		WriteUTriangles( uTri, entity->originOffset );
 		R_FreeStaticTriSurf( uTri );
 
 		procFile->WriteFloatString( "}\n\n" );

@@ -215,6 +215,8 @@ void idCollisionModelManagerLocal::WriteCollisionModel( idFile* fp, cm_model_t* 
 	int i, polygonMemory, brushMemory;
 
 	fp->WriteFloatString( "collisionModel \"%s\" {\n", model->name.c_str() );
+	// origin brush offset
+	fp->WriteFloatString( "\toriginOffset { %f %f %f }\n", model->originOffset.x, model->originOffset.y, model->originOffset.z );
 	// vertices
 	fp->WriteFloatString( "\tvertices { /* numVertices = */ %d\n", model->numVertices );
 	for( i = 0; i < model->numVertices; i++ )
@@ -548,8 +550,19 @@ cm_model_t* idCollisionModelManagerLocal::ParseCollisionModel( idLexer* src )
 	src->ExpectTokenString( "{" );
 	while( !src->CheckTokenString( "}" ) )
 	{
-
 		src->ReadToken( &token );
+
+		if ( token == "originOffset" )
+		{
+			src->ExpectTokenString( "{" );
+
+			model->originOffset.x = src->ParseFloat();
+			model->originOffset.y = src->ParseFloat();
+			model->originOffset.z = src->ParseFloat();
+
+			src->ExpectTokenString( "}" );
+			continue;
+		}
 
 		if( token == "vertices" )
 		{

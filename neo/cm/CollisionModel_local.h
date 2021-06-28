@@ -189,6 +189,7 @@ typedef struct cm_model_s
 {
 	idStr					name;				// model name
 	idBounds				bounds;				// model bounds
+	idVec3					originOffset;		// Admer: origin brush offset for rotating entities
 	int						contents;			// all contents of the model ored together
 	bool					isConvex;			// set if model is convex
 	// model geometry
@@ -492,8 +493,8 @@ private:			// CollisionMap_load.cpp
 	void			CalculateEdgeNormals( cm_model_t* model, cm_node_t* node );
 	void			CreatePatchPolygons( cm_model_t* model, idSurface_Patch& mesh, const idMaterial* material, int primitiveNum );
 	void			ConvertPatch( cm_model_t* model, const idMapPatch* patch, int primitiveNum );
-	void			ConvertBrushSides( cm_model_t* model, const idMapBrush* mapBrush, int primitiveNum );
-	void			ConvertBrush( cm_model_t* model, const idMapBrush* mapBrush, int primitiveNum );
+	void			ConvertBrushSides( cm_model_t* model, const idMapBrush* mapBrush, int primitiveNum, const idVec3& originOffset );
+	void			ConvertBrush( cm_model_t* model, const idMapBrush* mapBrush, int primitiveNum, const idVec3& originOffset );
 	// RB: support new .map format
 	void			ConvertMesh( cm_model_t* model, const MapPolygonMesh* mesh, int primitiveNum );
 	// RB end
