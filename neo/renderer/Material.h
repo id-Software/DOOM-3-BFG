@@ -298,7 +298,10 @@ typedef enum
 	MF_LOD2						= BIT( 8 ),	 // motorsep 11-24-2014; material flag for LOD2 iteration
 	MF_LOD3						= BIT( 9 ),	 // motorsep 11-24-2014; material flag for LOD3 iteration
 	MF_LOD4						= BIT( 10 ), // motorsep 11-24-2014; material flag for LOD4 iteration
-	MF_LOD_PERSISTENT			= BIT( 11 )	 // motorsep 11-24-2014; material flag for persistent LOD iteration
+	MF_LOD_PERSISTENT			= BIT( 11 ), // motorsep 11-24-2014; material flag for persistent LOD iteration
+	MF_GUITARGET				= BIT( 12 ), // Admer: this GUI surface is used to compute a GUI render map, but a GUI should NOT be drawn on it
+	MF_AUTOGEN_TEMPLATE			= BIT( 13 ), // Admer: this material is a template for auto-generated templates
+	MF_ORIGIN					= BIT( 14 ), // Admer: for origin brushes
 } materialFlags_t;
 
 // contents flags, NOTE: make sure to keep the defines in doom_defs.script up to date with these!
@@ -324,6 +327,7 @@ typedef enum
 	// contents used by utils
 	CONTENTS_AREAPORTAL			= BIT( 20 ),	// portal separating renderer areas
 	CONTENTS_NOCSG				= BIT( 21 ),	// don't cut this brush with CSG operations in the editor
+	CONTENTS_ORIGIN				= BIT( 22 ),
 
 	CONTENTS_REMOVE_UTIL		= ~( CONTENTS_AREAPORTAL | CONTENTS_NOCSG )
 } contentsFlags_t;
@@ -884,7 +888,7 @@ private:
 	bool				CheckSurfaceParm( idToken* token );
 	int					GetExpressionConstant( float f );
 	int					GetExpressionTemporary();
-	expOp_t*				GetExpressionOp();
+	expOp_t*			GetExpressionOp();
 	int					EmitOp( int a, int b, expOpType_t opType );
 	int					ParseEmitOp( idLexer& src, int a, expOpType_t opType, int priority );
 	int					ParseTerm( idLexer& src );
@@ -924,7 +928,6 @@ private:
 	mutable int			materialFlags;		// material flags
 
 	decalInfo_t			decalInfo;
-
 
 	mutable	float		sort;				// lower numbered shaders draw before higher numbered
 	int					stereoEye;
