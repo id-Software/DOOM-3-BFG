@@ -532,6 +532,7 @@ void idEntity::Spawn()
 	int					i;
 	const char*			temp;
 	idVec3				origin;
+	idVec3				brushOrigin;
 	idMat3				axis;
 	const idKeyValue*	networkSync;
 	const char*			classname;
@@ -646,6 +647,11 @@ void idEntity::Spawn()
 	if( temp != NULL && *temp != '\0' )
 	{
 		SetModel( temp );
+
+		brushOrigin = GetOriginBrushOffset();
+		origin += brushOrigin;
+		SetOrigin( origin );
+		common->Printf( "borigin of entity '%s' is %s\n", classname, brushOrigin.ToString() );
 	}
 
 	if( spawnArgs.GetString( "bind", "", &temp ) )
@@ -4581,6 +4587,12 @@ idEntity::ShowEditingDialog
 */
 void idEntity::ShowEditingDialog()
 {
+}
+
+idVec3 idEntity::GetOriginBrushOffset() const
+{
+	cmHandle_t cmodel = GetPhysics()->GetClipModel()->Handle();
+	return collisionModelManager->GetModelOriginOffset( cmodel );
 }
 
 /***********************************************************************

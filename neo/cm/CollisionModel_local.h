@@ -351,6 +351,8 @@ public:
 	bool			GetModelEdge( cmHandle_t model, int edgeNum, idVec3& start, idVec3& end ) const;
 	// get the polygon of a model
 	bool			GetModelPolygon( cmHandle_t model, int polygonNum, idFixedWinding& winding ) const;
+	// get the origin brush offset of a model
+	idVec3			GetModelOriginOffset( cmHandle_t model ) const override;
 
 	// translates a trm and reports the first collision if any
 	void			Translation( trace_t* results, const idVec3& start, const idVec3& end,

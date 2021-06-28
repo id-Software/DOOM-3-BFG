@@ -4559,6 +4559,22 @@ bool idCollisionModelManagerLocal::GetModelPolygon( cmHandle_t model, int polygo
 }
 
 /*
+===================
+idCollisionModelManagerLocal::GetModelOriginOffset
+===================
+*/
+idVec3 idCollisionModelManagerLocal::GetModelOriginOffset( cmHandle_t model ) const
+{
+	if ( model < 0 || model > MAX_SUBMODELS || model >= numModels || !models[model] )
+	{
+		common->Printf( "idCollisionModelManagerLocal::GetModelOriginOffset: invalid model handle\n" );
+		return vec3_origin;
+	}
+
+	return models[model]->originOffset;
+}
+
+/*
 ==================
 idCollisionModelManagerLocal::LoadModel
 ==================
