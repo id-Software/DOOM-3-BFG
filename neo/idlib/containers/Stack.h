@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -40,45 +40,52 @@ If you have questions concerning this license or the applicable additional terms
 #define idStack( type, next )		idStackTemplate<type, (int)&(((type*)NULL)->next)>
 
 template< class type, int nextOffset >
-class idStackTemplate {
+class idStackTemplate
+{
 public:
-							idStackTemplate();
+	idStackTemplate();
 
-	void					Add( type *element );
-	type *					Get();
+	void					Add( type* element );
+	type* 					Get();
 
 private:
-	type *					top;
-	type *					bottom;
+	type* 					top;
+	type* 					bottom;
 };
 
 #define STACK_NEXT_PTR( element )		(*(type**)(((byte*)element)+nextOffset))
 
 template< class type, int nextOffset >
-idStackTemplate<type,nextOffset>::idStackTemplate() {
+idStackTemplate<type, nextOffset>::idStackTemplate()
+{
 	top = bottom = NULL;
 }
 
 template< class type, int nextOffset >
-void idStackTemplate<type,nextOffset>::Add( type *element ) {
-	STACK_NEXT_PTR(element) = top;
+void idStackTemplate<type, nextOffset>::Add( type* element )
+{
+	STACK_NEXT_PTR( element ) = top;
 	top = element;
-	if ( !bottom ) {
+	if( !bottom )
+	{
 		bottom = element;
 	}
 }
 
 template< class type, int nextOffset >
-type *idStackTemplate<type,nextOffset>::Get() {
-	type *element;
+type* idStackTemplate<type, nextOffset>::Get()
+{
+	type* element;
 
 	element = top;
-	if ( element ) {
-		top = STACK_NEXT_PTR(top);
-		if ( bottom == element ) {
+	if( element )
+	{
+		top = STACK_NEXT_PTR( top );
+		if( bottom == element )
+		{
 			bottom = NULL;
 		}
-		STACK_NEXT_PTR(element) = NULL;
+		STACK_NEXT_PTR( element ) = NULL;
 	}
 	return element;
 }

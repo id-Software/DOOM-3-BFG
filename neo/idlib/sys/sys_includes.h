@@ -2,9 +2,11 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2012 Daniel Gibson
+Copyright (C) 2012 Robert Beckebans
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -38,38 +40,87 @@ If you have questions concerning this license or the applicable additional terms
 ================================================================================================
 */
 
+// RB: windows specific stuff should only be set on Windows
+#if defined(_WIN32)
 
-#define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS	// prevent auto literal to string conversion
+	#define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS	// prevent auto literal to string conversion
 
-#ifndef _D3SDK
-#ifndef GAME_DLL
+	#ifndef _D3SDK
+		#ifndef GAME_DLL
 
-#define WINVER				0x501
+			#define WINVER				0x501
 
-#include <winsock2.h>
-#include <mmsystem.h>
-#include <mmreg.h>
+			#include <winsock2.h>
+			#include <mmsystem.h>
+			#include <mmreg.h>
 
-#define DIRECTINPUT_VERSION  0x0800			// was 0x0700 with the old mssdk
-#define DIRECTSOUND_VERSION  0x0800
+			#define DIRECTINPUT_VERSION  0x0800			// was 0x0700 with the old mssdk
+			#define DIRECTSOUND_VERSION  0x0800
 
-#include <dsound.h>
-#include <dinput.h>
+			#ifdef _MSC_VER
+				#include <dsound.h>
+			#else
+				// DG: MinGW is incompatible with the original dsound.h because it contains MSVC specific annotations
+				#include <wine-dsound.h>
 
-#endif /* !GAME_DLL */
-#endif /* !_D3SDK */
+				// RB: was missing in MinGW/include/winuser.h
+				#ifndef MAPVK_VSC_TO_VK_EX
+					#define MAPVK_VSC_TO_VK_EX 3
+				#endif
 
-#include <intrin.h>			// needed for intrinsics like _mm_setzero_si28
+				// RB begin
+				#if defined(__MINGW32__)
+					//#include <sal.h> 	// RB: missing __analysis_assume
+					// including <sal.h> breaks some STL crap ...
 
-#pragma warning(disable : 4100)				// unreferenced formal parameter
-#pragma warning(disable : 4127)				// conditional expression is constant
-#pragma warning(disable : 4244)				// conversion to smaller type, possible loss of data
-#pragma warning(disable : 4714)				// function marked as __forceinline not inlined
-#pragma warning(disable : 4996)				// unsafe string operations
+					#ifndef __analysis_assume
+						#define __analysis_assume( x )
+					#endif
 
-#include <malloc.h>							// no malloc.h on mac or unix
-#include <windows.h>						// for qgl.h
+				#endif
+				// RB end
+
+			#endif
+
+
+
+			#include <dinput.h>
+
+		#endif /* !GAME_DLL */
+	#endif /* !_D3SDK */
+
+	// DG: intrinsics for GCC
+	#if defined(__GNUC__) && defined(__SSE2__)
+		#include <emmintrin.h>
+
+		// TODO: else: alternative implementations?
+	#endif
+	// DG end
+
+	#ifdef _MSC_VER
+		#include <intrin.h>			// needed for intrinsics like _mm_setzero_si28
+
+		#pragma warning(disable : 4100)				// unreferenced formal parameter
+		#pragma warning(disable : 4127)				// conditional expression is constant
+		#pragma warning(disable : 4244)				// conversion to smaller type, possible loss of data
+		#pragma warning(disable : 4267)				// RB 'initializing': conversion from 'size_t' to 'int', possible loss of data
+		#pragma warning(disable : 4714)				// function marked as __forceinline not inlined
+		#pragma warning(disable : 4996)				// unsafe string operations
+	#endif // _MSC_VER
+
+	#include <windows.h>						// for gl.h
+
+#elif defined(__linux__) || defined(__FreeBSD__)
+
+	#include <signal.h>
+	#include <pthread.h>
+
+#endif // #if defined(_WIN32)
+// RB end
+
+#include <stdlib.h>							// no malloc.h on mac or unix
 #undef FindText								// fix namespace pollution
+
 
 /*
 ================================================================================================
@@ -96,11 +147,18 @@ If you have questions concerning this license or the applicable additional terms
 #include <math.h>
 #include <limits.h>
 #include <memory>
+// RB: added <stdint.h> for missing uintptr_t with MinGW
+#include <stdint.h>
+// RB end
+// Yamagi: <stddef.h> for ptrdiff_t on FreeBSD
+#include <stddef.h>
+// Yamagi end
 
 //-----------------------------------------------------
 
 // Hacked stuff we may want to consider implementing later
-class idScopedGlobalHeap {
+class idScopedGlobalHeap
+{
 };
 
 #endif // SYS_INCLUDES_H

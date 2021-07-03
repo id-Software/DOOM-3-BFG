@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -26,41 +26,50 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 #pragma hdrstop
-#include "../idlib/precompiled.h"
+#include "precompiled.h"
 #include "ConsoleHistory.h"
 
 idConsoleHistory consoleHistory;
 
-const char * HISTORY_FILE_NAME = "consoleHistory.txt";
+const char* HISTORY_FILE_NAME = "consoleHistory.txt";
 
 /*
 ========================
 idConsoleHistory::AddToHistory
 ========================
 */
-void idConsoleHistory::AddToHistory( const char *line, bool writeHistoryFile ) {
+void idConsoleHistory::AddToHistory( const char* line, bool writeHistoryFile )
+{
 	// empty lines never modify history
-	if ( line == NULL ) {
+	if( line == NULL )
+	{
 		return;
 	}
-	const char *s;
-	for ( s = line; *s != '\0'; s++ ) {
-		if ( *s > ' ' ) {
+	const char* s;
+	for( s = line; *s != '\0'; s++ )
+	{
+		if( *s > ' ' )
+		{
 			break;
 		}
 	}
-	if ( *s == '\0' ) {
+	if( *s == '\0' )
+	{
 		return;
 	}
 
 	// repeating the last command doesn't add to the list
-	if ( historyLines[( numHistory - 1 ) & ( COMMAND_HISTORY - 1 )].Icmp( line ) == 0 ) {
-		if ( historyLines[returnLine & ( COMMAND_HISTORY - 1 )].Icmp( line ) == 0 ) {
+	if( historyLines[( numHistory - 1 ) & ( COMMAND_HISTORY - 1 )].Icmp( line ) == 0 )
+	{
+		if( historyLines[returnLine & ( COMMAND_HISTORY - 1 )].Icmp( line ) == 0 )
+		{
 			// the command was retrieved from the history, so
 			// move the up point down so that up arrow will retrieve the same
 			// command again.
 			upPoint = returnLine;
-		} else {
+		}
+		else
+		{
 			// the command was typed again, so leave the up/down points alone
 		}
 		return;
@@ -77,11 +86,15 @@ void idConsoleHistory::AddToHistory( const char *line, bool writeHistoryFile ) {
 	numHistory++;
 
 	// write the history file to disk
-	if ( writeHistoryFile ) {
-		idFile *f = fileSystem->OpenFileWrite( HISTORY_FILE_NAME );
-		if ( f != NULL ) {
-			for ( int i = numHistory - COMMAND_HISTORY; i < numHistory; i++ ) {
-				if ( i < 0 ) {
+	if( writeHistoryFile )
+	{
+		idFile* f = fileSystem->OpenFileWrite( HISTORY_FILE_NAME );
+		if( f != NULL )
+		{
+			for( int i = numHistory - COMMAND_HISTORY; i < numHistory; i++ )
+			{
+				if( i < 0 )
+				{
 					continue;
 				}
 				f->Printf( "%s\n", historyLines[i & ( COMMAND_HISTORY - 1 )].c_str() );
@@ -96,21 +109,31 @@ void idConsoleHistory::AddToHistory( const char *line, bool writeHistoryFile ) {
 idConsoleHistory::RetrieveFromHistory
 ========================
 */
-idStr idConsoleHistory::RetrieveFromHistory( bool backward ) {
+idStr idConsoleHistory::RetrieveFromHistory( bool backward )
+{
 	// if there are no commands in the history
-	if ( numHistory == 0 ) {
+	if( numHistory == 0 )
+	{
 		return idStr( "" );
 	}
 	// move the history point
-	if ( backward ) {
-		if ( upPoint < numHistory - COMMAND_HISTORY || upPoint < 0 ) {
+	if( backward )
+	{
+		if( upPoint < numHistory - COMMAND_HISTORY || upPoint < 0 )
+		{
 			return idStr( "" );
 		}
 		returnLine = upPoint;
 		downPoint = upPoint + 1;
 		upPoint--;
-	} else {
-		if ( downPoint >= numHistory ) {
+	}
+	else
+	{
+		if( downPoint >= numHistory )
+		{
+			// DG: without this you'll get the last-but-one command when pressing UP
+			upPoint = downPoint - 1;
+			// DG end
 			return idStr( "" );
 		}
 		returnLine = downPoint;
@@ -125,13 +148,17 @@ idStr idConsoleHistory::RetrieveFromHistory( bool backward ) {
 idConsoleHistory::LoadHistoryFile
 ========================
 */
-void idConsoleHistory::LoadHistoryFile() {
+void idConsoleHistory::LoadHistoryFile()
+{
 	idLexer lex;
-	if ( lex.LoadFile( HISTORY_FILE_NAME, false ) ) {
-		while( 1 ) {
+	if( lex.LoadFile( HISTORY_FILE_NAME, false ) )
+	{
+		while( 1 )
+		{
 			idStr	line;
 			lex.ParseCompleteLine( line );
-			if ( line.IsEmpty() ) {
+			if( line.IsEmpty() )
+			{
 				break;
 			}
 			line.StripTrailingWhitespace();	// remove the \n
@@ -145,16 +172,19 @@ void idConsoleHistory::LoadHistoryFile() {
 idConsoleHistory::PrintHistory
 ========================
 */
-void idConsoleHistory::PrintHistory() {
-	for ( int i = numHistory - COMMAND_HISTORY; i < numHistory; i++ ) {
-		if ( i < 0 ) {
+void idConsoleHistory::PrintHistory()
+{
+	for( int i = numHistory - COMMAND_HISTORY; i < numHistory; i++ )
+	{
+		if( i < 0 )
+		{
 			continue;
 		}
-		idLib::Printf( "%c%c%c%4i: %s\n", 
-			i == upPoint ? 'U' : ' ',
-			i == downPoint ? 'D' : ' ',
-			i == returnLine ? 'R' : ' ',
-			i, historyLines[i & ( COMMAND_HISTORY - 1 )].c_str() );
+		idLib::Printf( "%c%c%c%4i: %s\n",
+					   i == upPoint ? 'U' : ' ',
+					   i == downPoint ? 'D' : ' ',
+					   i == returnLine ? 'R' : ' ',
+					   i, historyLines[i & ( COMMAND_HISTORY - 1 )].c_str() );
 	}
 }
 
@@ -163,7 +193,8 @@ void idConsoleHistory::PrintHistory() {
 idConsoleHistory::ClearHistory
 ========================
 */
-void idConsoleHistory::ClearHistory() {
+void idConsoleHistory::ClearHistory()
+{
 	upPoint = 0;
 	downPoint = 0;
 	returnLine = 0;
@@ -175,7 +206,8 @@ void idConsoleHistory::ClearHistory() {
 history
 ========================
 */
-CONSOLE_COMMAND_SHIP( history, "Displays the console command history", 0 ) {
+CONSOLE_COMMAND_SHIP( history, "Displays the console command history", 0 )
+{
 	consoleHistory.PrintHistory();
 }
 
@@ -184,6 +216,7 @@ CONSOLE_COMMAND_SHIP( history, "Displays the console command history", 0 ) {
 clearHistory
 ========================
 */
-CONSOLE_COMMAND_SHIP( clearHistory, "Clears the console history", 0 ) {
+CONSOLE_COMMAND_SHIP( clearHistory, "Clears the console history", 0 )
+{
 	consoleHistory.ClearHistory();
 }

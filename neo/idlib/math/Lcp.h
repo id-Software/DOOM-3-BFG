@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@ such that for each 0 <= i < n one of the following holds:
 	x[i] == lo[i], t[i] >= 0
 	x[i] == hi[i], t[i] <= 0
 
-Partly-bounded or unbounded variables can have lo[i] and/or hi[i] set to negative/positive 
+Partly-bounded or unbounded variables can have lo[i] and/or hi[i] set to negative/positive
 idMath::INFITITY, respectively.
 
 If boxIndex != NULL and boxIndex[i] != -1, then
@@ -53,24 +53,25 @@ If boxIndex != NULL and boxIndex[i] != -1, then
 	hi[i] = fabs( hi[i] * x[boxIndex[i]] )
 	boxIndex[boxIndex[i]] must be -1
 
-Before calculating any of the bounded x[i] with boxIndex[i] != -1, the solver calculates all 
+Before calculating any of the bounded x[i] with boxIndex[i] != -1, the solver calculates all
 unbounded x[i] and all x[i] with boxIndex[i] == -1.
 ================================================
 */
-class idLCP {
+class idLCP
+{
 public:
-	static idLCP *	AllocSquare();		// 'A' must be a square matrix
-	static idLCP *	AllocSymmetric();	// 'A' must be a symmetric matrix
+	static idLCP* 	AllocSquare();		// 'A' must be a square matrix
+	static idLCP* 	AllocSymmetric();	// 'A' must be a symmetric matrix
 
 	virtual			~idLCP();
 
-	virtual bool	Solve( const idMatX &A, idVecX &x, const idVecX &b, const idVecX &lo, 
-						   const idVecX &hi, const int *boxIndex = NULL ) = 0;
+	virtual bool	Solve( const idMatX& A, idVecX& x, const idVecX& b, const idVecX& lo,
+						   const idVecX& hi, const int* boxIndex = NULL ) = 0;
 
 	virtual void	SetMaxIterations( int max );
 	virtual int		GetMaxIterations();
 
-	static void		Test_f( const idCmdArgs &args );
+	static void		Test_f( const idCmdArgs& args );
 
 protected:
 	int				maxIterations;

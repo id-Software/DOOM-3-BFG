@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -33,33 +33,37 @@ If you have questions concerning this license or the applicable additional terms
 idLobbyBackendDirect
 ========================
 */
-class idLobbyBackendDirect : public idLobbyBackend {
+class idLobbyBackendDirect : public idLobbyBackend
+{
 public:
 	idLobbyBackendDirect();
 
 	// idLobbyBackend interface
-	virtual void				StartHosting( const idMatchParameters & p, float skillLevel, lobbyBackendType_t type );
-	virtual void				StartFinding( const idMatchParameters & p, int numPartyUsers, float skillLevel );
-	virtual void				JoinFromConnectInfo( const lobbyConnectInfo_t & connectInfo );
-	virtual void				GetSearchResults( idList< lobbyConnectInfo_t > & searchResults );
-	virtual void				FillMsgWithPostConnectInfo( idBitMsg & msg ) {}
-	virtual void				PostConnectFromMsg( idBitMsg & msg ) {}
+	virtual void				StartHosting( const idMatchParameters& p, float skillLevel, lobbyBackendType_t type );
+	virtual void				StartFinding( const idMatchParameters& p, int numPartyUsers, float skillLevel );
+	virtual void				JoinFromConnectInfo( const lobbyConnectInfo_t& connectInfo );
+	virtual void				GetSearchResults( idList< lobbyConnectInfo_t >& searchResults );
+	virtual void				FillMsgWithPostConnectInfo( idBitMsg& msg ) {}
+	virtual void				PostConnectFromMsg( idBitMsg& msg ) {}
 	virtual void				Shutdown();
-	virtual void				GetOwnerAddress( lobbyAddress_t & outAddr );
-	virtual void				SetIsJoinable( bool joinable );	
+	virtual void				GetOwnerAddress( lobbyAddress_t& outAddr );
+	virtual void				SetIsJoinable( bool joinable );
 	virtual lobbyConnectInfo_t	GetConnectInfo();
-	virtual bool				IsOwnerOfConnectInfo( const lobbyConnectInfo_t & connectInfo ) const;
+	virtual bool				IsOwnerOfConnectInfo( const lobbyConnectInfo_t& connectInfo ) const;
 	virtual void				Pump();
-	virtual void				UpdateMatchParms( const idMatchParameters & p );
+	virtual void				UpdateMatchParms( const idMatchParameters& p );
 	virtual void				UpdateLobbySkill( float lobbySkill );
 	virtual void				SetInGame( bool value );
-	virtual lobbyBackendState_t	GetState() { return state; }
+	virtual lobbyBackendState_t	GetState()
+	{
+		return state;
+	}
 
 	virtual void				BecomeHost( int numInvites );
 	virtual void				FinishBecomeHost();
 
-	virtual void			RegisterUser( lobbyUser_t * user, bool isLocal );
-	virtual void			UnregisterUser( lobbyUser_t * user, bool isLocal );	
+	virtual void			RegisterUser( lobbyUser_t* user, bool isLocal );
+	virtual void			UnregisterUser( lobbyUser_t* user, bool isLocal );
 
 private:
 

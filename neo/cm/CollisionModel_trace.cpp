@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
-#include "../idlib/precompiled.h"
+#include "precompiled.h"
 
 
 #include "CollisionModel_local.h"
@@ -53,45 +53,59 @@ Trace through the spatial subdivision
 idCollisionModelManagerLocal::TraceTrmThroughNode
 ================
 */
-void idCollisionModelManagerLocal::TraceTrmThroughNode( cm_traceWork_t *tw, cm_node_t *node ) {
-	cm_polygonRef_t *pref;
-	cm_brushRef_t *bref;
+void idCollisionModelManagerLocal::TraceTrmThroughNode( cm_traceWork_t* tw, cm_node_t* node )
+{
+	cm_polygonRef_t* pref;
+	cm_brushRef_t* bref;
 
 	// position test
-	if ( tw->positionTest ) {
+	if( tw->positionTest )
+	{
 		// if already stuck in solid
-		if ( tw->trace.fraction == 0.0f ) {
+		if( tw->trace.fraction == 0.0f )
+		{
 			return;
 		}
 		// test if any of the trm vertices is inside a brush
-		for ( bref = node->brushes; bref; bref = bref->next ) {
-			if ( idCollisionModelManagerLocal::TestTrmVertsInBrush( tw, bref->b ) ) {
+		for( bref = node->brushes; bref; bref = bref->next )
+		{
+			if( idCollisionModelManagerLocal::TestTrmVertsInBrush( tw, bref->b ) )
+			{
 				return;
 			}
 		}
 		// if just testing a point we're done
-		if ( tw->pointTrace ) {
+		if( tw->pointTrace )
+		{
 			return;
 		}
 		// test if the trm is stuck in any polygons
-		for ( pref = node->polygons; pref; pref = pref->next ) {
-			if ( idCollisionModelManagerLocal::TestTrmInPolygon( tw, pref->p ) ) {
+		for( pref = node->polygons; pref; pref = pref->next )
+		{
+			if( idCollisionModelManagerLocal::TestTrmInPolygon( tw, pref->p ) )
+			{
 				return;
 			}
 		}
 	}
-	else if ( tw->rotation ) {
+	else if( tw->rotation )
+	{
 		// rotate through all polygons in this leaf
-		for ( pref = node->polygons; pref; pref = pref->next ) {
-			if ( idCollisionModelManagerLocal::RotateTrmThroughPolygon( tw, pref->p ) ) {
+		for( pref = node->polygons; pref; pref = pref->next )
+		{
+			if( idCollisionModelManagerLocal::RotateTrmThroughPolygon( tw, pref->p ) )
+			{
 				return;
 			}
 		}
 	}
-	else {
+	else
+	{
 		// trace through all polygons in this leaf
-		for ( pref = node->polygons; pref; pref = pref->next ) {
-			if ( idCollisionModelManagerLocal::TranslateTrmThroughPolygon( tw, pref->p ) ) {
+		for( pref = node->polygons; pref; pref = pref->next )
+		{
+			if( idCollisionModelManagerLocal::TranslateTrmThroughPolygon( tw, pref->p ) )
+			{
 				return;
 			}
 		}
@@ -105,7 +119,8 @@ idCollisionModelManagerLocal::TraceThroughAxialBSPTree_r
 */
 //#define NO_SPATIAL_SUBDIVISION
 
-void idCollisionModelManagerLocal::TraceThroughAxialBSPTree_r( cm_traceWork_t *tw, cm_node_t *node, float p1f, float p2f, idVec3 &p1, idVec3 &p2) {
+void idCollisionModelManagerLocal::TraceThroughAxialBSPTree_r( cm_traceWork_t* tw, cm_node_t* node, float p1f, float p2f, idVec3& p1, idVec3& p2 )
+{
 	float		t1, t2, offset;
 	float		frac, frac2;
 	float		idist;
@@ -113,29 +128,35 @@ void idCollisionModelManagerLocal::TraceThroughAxialBSPTree_r( cm_traceWork_t *t
 	int			side;
 	float		midf;
 
-	if ( !node ) {
+	if( !node )
+	{
 		return;
 	}
 
-	if ( tw->quickExit ) {
+	if( tw->quickExit )
+	{
 		return;		// stop immediately
 	}
 
-	if ( tw->trace.fraction <= p1f ) {
+	if( tw->trace.fraction <= p1f )
+	{
 		return;		// already hit something nearer
 	}
 
 	// if we need to test this node for collisions
-	if ( node->polygons || (tw->positionTest && node->brushes) ) {
+	if( node->polygons || ( tw->positionTest && node->brushes ) )
+	{
 		// trace through node with collision data
 		idCollisionModelManagerLocal::TraceTrmThroughNode( tw, node );
 	}
 	// if already stuck in solid
-	if ( tw->positionTest && tw->trace.fraction == 0.0f ) {
+	if( tw->positionTest && tw->trace.fraction == 0.0f )
+	{
 		return;
 	}
 	// if this is a leaf node
-	if ( node->planeType == -1 ) {
+	if( node->planeType == -1 )
+	{
 		return;
 	}
 #ifdef NO_SPATIAL_SUBDIVISION
@@ -149,64 +170,75 @@ void idCollisionModelManagerLocal::TraceThroughAxialBSPTree_r( cm_traceWork_t *t
 	// adjust the plane distance appropriately for mins/maxs
 	offset = tw->extents[node->planeType];
 	// see which sides we need to consider
-	if ( t1 >= offset && t2 >= offset ) {
+	if( t1 >= offset && t2 >= offset )
+	{
 		idCollisionModelManagerLocal::TraceThroughAxialBSPTree_r( tw, node->children[0], p1f, p2f, p1, p2 );
 		return;
 	}
 
-	if ( t1 < -offset && t2 < -offset ) {
+	if( t1 < -offset && t2 < -offset )
+	{
 		idCollisionModelManagerLocal::TraceThroughAxialBSPTree_r( tw, node->children[1], p1f, p2f, p1, p2 );
 		return;
 	}
 
-	if ( t1 < t2 ) {
-		idist = 1.0f / (t1-t2);
+	if( t1 < t2 )
+	{
+		idist = 1.0f / ( t1 - t2 );
 		side = 1;
-		frac2 = (t1 + offset) * idist;
-		frac = (t1 - offset) * idist;
-	} else if (t1 > t2) {
-		idist = 1.0f / (t1-t2);
+		frac2 = ( t1 + offset ) * idist;
+		frac = ( t1 - offset ) * idist;
+	}
+	else if( t1 > t2 )
+	{
+		idist = 1.0f / ( t1 - t2 );
 		side = 0;
-		frac2 = (t1 - offset) * idist;
-		frac = (t1 + offset) * idist;
-	} else {
+		frac2 = ( t1 - offset ) * idist;
+		frac = ( t1 + offset ) * idist;
+	}
+	else
+	{
 		side = 0;
 		frac = 1.0f;
 		frac2 = 0.0f;
 	}
 
 	// move up to the node
-	if ( frac < 0.0f ) {
+	if( frac < 0.0f )
+	{
 		frac = 0.0f;
 	}
-	else if ( frac > 1.0f ) {
+	else if( frac > 1.0f )
+	{
 		frac = 1.0f;
 	}
 
-	midf = p1f + (p2f - p1f)*frac;
+	midf = p1f + ( p2f - p1f ) * frac;
 
-	mid[0] = p1[0] + frac*(p2[0] - p1[0]);
-	mid[1] = p1[1] + frac*(p2[1] - p1[1]);
-	mid[2] = p1[2] + frac*(p2[2] - p1[2]);
+	mid[0] = p1[0] + frac * ( p2[0] - p1[0] );
+	mid[1] = p1[1] + frac * ( p2[1] - p1[1] );
+	mid[2] = p1[2] + frac * ( p2[2] - p1[2] );
 
 	idCollisionModelManagerLocal::TraceThroughAxialBSPTree_r( tw, node->children[side], p1f, midf, p1, mid );
 
 
 	// go past the node
-	if ( frac2 < 0.0f ) {
+	if( frac2 < 0.0f )
+	{
 		frac2 = 0.0f;
 	}
-	else if ( frac2 > 1.0f ) {
+	else if( frac2 > 1.0f )
+	{
 		frac2 = 1.0f;
 	}
-		
-	midf = p1f + (p2f - p1f)*frac2;
 
-	mid[0] = p1[0] + frac2*(p2[0] - p1[0]);
-	mid[1] = p1[1] + frac2*(p2[1] - p1[1]);
-	mid[2] = p1[2] + frac2*(p2[2] - p1[2]);
+	midf = p1f + ( p2f - p1f ) * frac2;
 
-	idCollisionModelManagerLocal::TraceThroughAxialBSPTree_r( tw, node->children[side^1], midf, p2f, mid, p2 );
+	mid[0] = p1[0] + frac2 * ( p2[0] - p1[0] );
+	mid[1] = p1[1] + frac2 * ( p2[1] - p1[1] );
+	mid[2] = p1[2] + frac2 * ( p2[2] - p1[2] );
+
+	idCollisionModelManagerLocal::TraceThroughAxialBSPTree_r( tw, node->children[side ^ 1], midf, p2f, mid, p2 );
 }
 
 /*
@@ -214,41 +246,48 @@ void idCollisionModelManagerLocal::TraceThroughAxialBSPTree_r( cm_traceWork_t *t
 idCollisionModelManagerLocal::TraceThroughModel
 ================
 */
-void idCollisionModelManagerLocal::TraceThroughModel( cm_traceWork_t *tw ) {
+void idCollisionModelManagerLocal::TraceThroughModel( cm_traceWork_t* tw )
+{
 	float d;
 	int i, numSteps;
 	idVec3 start, end;
 	idRotation rot;
 
-	if ( !tw->rotation ) {
+	if( !tw->rotation )
+	{
 		// trace through spatial subdivision and then through leafs
 		idCollisionModelManagerLocal::TraceThroughAxialBSPTree_r( tw, tw->model->node, 0, 1, tw->start, tw->end );
 	}
-	else {
+	else
+	{
 		// approximate the rotation with a series of straight line movements
 		// total length covered along circle
 		d = tw->radius * DEG2RAD( tw->angle );
 		// if more than one step
-		if ( d > CIRCLE_APPROXIMATION_LENGTH ) {
+		if( d > CIRCLE_APPROXIMATION_LENGTH )
+		{
 			// number of steps for the approximation
-			numSteps = (int) (CIRCLE_APPROXIMATION_LENGTH / d);
+			numSteps = ( int )( CIRCLE_APPROXIMATION_LENGTH / d );
 			// start of approximation
 			start = tw->start;
 			// trace circle approximation steps through the BSP tree
-			for ( i = 0; i < numSteps; i++ ) {
+			for( i = 0; i < numSteps; i++ )
+			{
 				// calculate next point on approximated circle
-				rot.Set( tw->origin, tw->axis, tw->angle * ((float) (i+1) / numSteps) );
+				rot.Set( tw->origin, tw->axis, tw->angle * ( ( float )( i + 1 ) / numSteps ) );
 				end = start * rot;
 				// trace through spatial subdivision and then through leafs
 				idCollisionModelManagerLocal::TraceThroughAxialBSPTree_r( tw, tw->model->node, 0, 1, start, end );
 				// no need to continue if something was hit already
-				if ( tw->trace.fraction < 1.0f ) {
+				if( tw->trace.fraction < 1.0f )
+				{
 					return;
 				}
 				start = end;
 			}
 		}
-		else {
+		else
+		{
 			start = tw->start;
 		}
 		// last step of the approximation

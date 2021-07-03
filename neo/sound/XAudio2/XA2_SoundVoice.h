@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -35,12 +35,13 @@ static const int MAX_QUEUED_BUFFERS = 3;
 idSoundVoice_XAudio2
 ================================================
 */
-class idSoundVoice_XAudio2 : public idSoundVoice_Base {
+class idSoundVoice_XAudio2 : public idSoundVoice_Base
+{
 public:
-							idSoundVoice_XAudio2();
-							~idSoundVoice_XAudio2();
+	idSoundVoice_XAudio2();
+	~idSoundVoice_XAudio2();
 
-	void					Create( const idSoundSample * leadinSample, const idSoundSample * loopingSample );
+	void					Create( const idSoundSample* leadinSample, const idSoundSample* loopingSample );
 
 	// Start playing at a particular point in the buffer.  Does an Update() too
 	void					Start( int offsetMS, int ssFlags );
@@ -60,12 +61,15 @@ public:
 	float					GetAmplitude();
 
 	// returns true if we can re-use this voice
-	bool					CompatibleFormat( idSoundSample_XAudio2 * s );
+	bool					CompatibleFormat( idSoundSample_XAudio2* s );
 
-	uint32					GetSampleRate() const { return sampleRate; }
+	uint32					GetSampleRate() const
+	{
+		return sampleRate;
+	}
 
 	// callback function
-	void					OnBufferStart( idSoundSample_XAudio2 * sample, int bufferNumber );
+	void					OnBufferStart( idSoundSample_XAudio2* sample, int bufferNumber );
 
 private:
 	friend class idSoundHardware_XAudio2;
@@ -83,14 +87,14 @@ private:
 	int						RestartAt( int offsetSamples );
 
 	// Helper function to submit a buffer
-	int						SubmitBuffer( idSoundSample_XAudio2 * sample, int bufferNumber, int offset );
+	int						SubmitBuffer( idSoundSample_XAudio2* sample, int bufferNumber, int offset );
 
 	// Adjust the voice frequency based on the new sample rate for the buffer
 	void					SetSampleRate( uint32 newSampleRate, uint32 operationSet );
 
-	IXAudio2SourceVoice *	pSourceVoice;
-	idSoundSample_XAudio2 * leadinSample;
-	idSoundSample_XAudio2 * loopingSample;
+	IXAudio2SourceVoice* 	pSourceVoice;
+	idSoundSample_XAudio2* leadinSample;
+	idSoundSample_XAudio2* loopingSample;
 
 	// These are the fields from the sample format that matter to us for voice reuse
 	uint16					formatTag;
@@ -108,7 +112,8 @@ private:
 idSoundVoice
 ================================================
 */
-class idSoundVoice : public idSoundVoice_XAudio2 {
+class idSoundVoice : public idSoundVoice_XAudio2
+{
 };
 
 #endif

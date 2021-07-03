@@ -2,9 +2,10 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2012 Robert Beckebans
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -35,19 +36,32 @@ object that can only be locked by one thread at a time.  It's used to prevent tw
 from accessing the same piece of data simultaneously.
 ================================================
 */
-class idSysMutex {
+class idSysMutex
+{
 public:
-					idSysMutex() { Sys_MutexCreate( handle ); }
-					~idSysMutex() { Sys_MutexDestroy( handle ); }
+	idSysMutex()
+	{
+		Sys_MutexCreate( handle );
+	}
+	~idSysMutex()
+	{
+		Sys_MutexDestroy( handle );
+	}
 
-	bool			Lock( bool blocking = true ) { return Sys_MutexLock( handle, blocking ); }
-	void			Unlock() { Sys_MutexUnlock( handle ); }
+	bool			Lock( bool blocking = true )
+	{
+		return Sys_MutexLock( handle, blocking );
+	}
+	void			Unlock()
+	{
+		Sys_MutexUnlock( handle );
+	}
 
 private:
 	mutexHandle_t	handle;
 
-					idSysMutex( const idSysMutex & s ) {}
-	void			operator=( const idSysMutex & s ) {}
+	idSysMutex( const idSysMutex& s ) {}
+	void			operator=( const idSysMutex& s ) {}
 };
 
 /*
@@ -56,13 +70,20 @@ idScopedCriticalSection is a helper class that automagically locks a mutex when 
 and unlocks it when it goes out of scope.
 ================================================
 */
-class idScopedCriticalSection {
+class idScopedCriticalSection
+{
 public:
-	idScopedCriticalSection( idSysMutex & m ) : mutex(&m) { mutex->Lock(); }
-	~idScopedCriticalSection() { mutex->Unlock(); }
+	idScopedCriticalSection( idSysMutex& m ) : mutex( &m )
+	{
+		mutex->Lock();
+	}
+	~idScopedCriticalSection()
+	{
+		mutex->Unlock();
+	}
 
 private:
-	idSysMutex *	mutex;	// NOTE: making this a reference causes a TypeInfo crash
+	idSysMutex* 	mutex;	// NOTE: making this a reference causes a TypeInfo crash
 };
 
 /*
@@ -72,26 +93,42 @@ that a thread can wait on for it to be raised.  It's used to indicate data is av
 a thread has reached a specific point.
 ================================================
 */
-class idSysSignal {
+class idSysSignal
+{
 public:
 	static const int	WAIT_INFINITE = -1;
 
-			idSysSignal( bool manualReset = false )	{ Sys_SignalCreate( handle, manualReset ); }
-			~idSysSignal()	{ Sys_SignalDestroy( handle ); }
+	idSysSignal( bool manualReset = false )
+	{
+		Sys_SignalCreate( handle, manualReset );
+	}
+	~idSysSignal()
+	{
+		Sys_SignalDestroy( handle );
+	}
 
-	void	Raise() { Sys_SignalRaise( handle ); }
-	void	Clear() { Sys_SignalClear( handle ); }
+	void	Raise()
+	{
+		Sys_SignalRaise( handle );
+	}
+	void	Clear()
+	{
+		Sys_SignalClear( handle );
+	}
 
 	// Wait returns true if the object is in a signalled state and
 	// returns false if the wait timed out. Wait also clears the signalled
 	// state when the signalled state is reached within the time out period.
-	bool	Wait( int timeout = WAIT_INFINITE ) { return Sys_SignalWait( handle, timeout ); }
+	bool	Wait( int timeout = WAIT_INFINITE )
+	{
+		return Sys_SignalWait( handle, timeout );
+	}
 
 private:
 	signalHandle_t		handle;
 
-						idSysSignal( const idSysSignal & s ) {}
-	void				operator=( const idSysSignal & s ) {}
+	idSysSignal( const idSysSignal& s ) {}
+	void				operator=( const idSysSignal& s ) {}
 };
 
 /*
@@ -100,27 +137,46 @@ idSysInterlockedInteger is a C++ wrapper for the low level system interlocked in
 routines to atomically increment or decrement an integer.
 ================================================
 */
-class idSysInterlockedInteger {
+class idSysInterlockedInteger
+{
 public:
-						idSysInterlockedInteger() : value( 0 ) {}
+	idSysInterlockedInteger() : value( 0 ) {}
 
 	// atomically increments the integer and returns the new value
-	int					Increment() { return Sys_InterlockedIncrement( value ); }
+	int					Increment()
+	{
+		return Sys_InterlockedIncrement( value );
+	}
 
 	// atomically decrements the integer and returns the new value
-	int					Decrement() { return Sys_InterlockedDecrement( value ); }
+	int					Decrement()
+	{
+		return Sys_InterlockedDecrement( value );
+	}
 
 	// atomically adds a value to the integer and returns the new value
-	int					Add( int v ) { return Sys_InterlockedAdd( value, (interlockedInt_t) v ); }
+	int					Add( int v )
+	{
+		return Sys_InterlockedAdd( value, ( interlockedInt_t ) v );
+	}
 
 	// atomically subtracts a value from the integer and returns the new value
-	int					Sub( int v ) { return Sys_InterlockedSub( value, (interlockedInt_t) v ); }
+	int					Sub( int v )
+	{
+		return Sys_InterlockedSub( value, ( interlockedInt_t ) v );
+	}
 
 	// returns the current value of the integer
-	int					GetValue() const { return value; }
+	int					GetValue() const
+	{
+		return value;
+	}
 
 	// sets a new value, Note: this operation is not atomic
-	void				SetValue( int v ) { value = (interlockedInt_t)v; }
+	void				SetValue( int v )
+	{
+		value = ( interlockedInt_t )v;
+	}
 
 private:
 	interlockedInt_t	value;
@@ -133,32 +189,38 @@ routine to atomically set a pointer while retrieving the previous value of the p
 ================================================
 */
 template< typename T >
-class idSysInterlockedPointer {
+class idSysInterlockedPointer
+{
 public:
-			idSysInterlockedPointer() : ptr( NULL ) {}
+	idSysInterlockedPointer() : ptr( NULL ) {}
 
 	// atomically sets the pointer and returns the previous pointer value
-	T *		Set( T * newPtr ) { 
-				return (T *) Sys_InterlockedExchangePointer( (void * &) ptr, newPtr ); 
-			}
+	T* 		Set( T* newPtr )
+	{
+		return ( T* ) Sys_InterlockedExchangePointer( ( void*& ) ptr, newPtr );
+	}
 
 	// atomically sets the pointer to 'newPtr' only if the previous pointer is equal to 'comparePtr'
 	// ptr = ( ptr == comparePtr ) ? newPtr : ptr
-	T *		CompareExchange( T * comparePtr, T * newPtr ) {
-				return (T *) Sys_InterlockedCompareExchangePointer( (void * &) ptr, comparePtr, newPtr );
+	T* 		CompareExchange( T* comparePtr, T* newPtr )
+	{
+		return ( T* ) Sys_InterlockedCompareExchangePointer( ( void*& ) ptr, comparePtr, newPtr );
 	}
 
 	// returns the current value of the pointer
-	T *		Get() const { return ptr; }
+	T* 		Get() const
+	{
+		return ptr;
+	}
 
 private:
-	T *		ptr;
+	T* 		ptr;
 };
 
 /*
 ================================================
 idSysThread is an abstract base class, to be extended by classes implementing the
-idSysThread::Run() method. 
+idSysThread::Run() method.
 
 	class idMyThread : public idSysThread {
 	public:
@@ -188,7 +250,7 @@ Note that the Sys_CreateThread function does not support the concept of worker t
 
 	idMyWorkerThread thread;
 	thread.StartThread( "myWorkerThread" );
- 
+
 	// main thread loop
 	for ( ; ; ) {
 		// setup work for the thread here (by modifying class data on the thread)
@@ -208,25 +270,38 @@ from the worker thread.
 Note that worker threads are useful on all platforms but they do not map to the SPUs on the PS3.
 ================================================
 */
-class idSysThread {
+class idSysThread
+{
 public:
-					idSysThread();
+	idSysThread();
 	virtual			~idSysThread();
 
-	const char *	GetName() const { return name.c_str(); }
-	uintptr_t		GetThreadHandle() const { return threadHandle; }
-	bool			IsRunning() const { return isRunning; }
-	bool			IsTerminating() const { return isTerminating; }
+	const char* 	GetName() const
+	{
+		return name.c_str();
+	}
+	uintptr_t		GetThreadHandle() const
+	{
+		return threadHandle;
+	}
+	bool			IsRunning() const
+	{
+		return isRunning;
+	}
+	bool			IsTerminating() const
+	{
+		return isTerminating;
+	}
 
 	//------------------------
 	// Thread Start/Stop/Wait
 	//------------------------
 
-	bool			StartThread( const char * name, core_t core, 
+	bool			StartThread( const char* name, core_t core,
 								 xthreadPriority priority = THREAD_NORMAL,
 								 int stackSize = DEFAULT_THREAD_STACK_SIZE );
 
-	bool			StartWorkerThread( const char * name, core_t core, 
+	bool			StartWorkerThread( const char* name, core_t core,
 									   xthreadPriority priority = THREAD_NORMAL,
 									   int stackSize = DEFAULT_THREAD_STACK_SIZE );
 
@@ -266,15 +341,15 @@ private:
 	idSysSignal		signalMoreWorkToDo;
 	idSysMutex		signalMutex;
 
-	static int		ThreadProc( idSysThread * thread );
+	static int		ThreadProc( idSysThread* thread );
 
-					idSysThread( const idSysThread & s ) {}
-	void			operator=( const idSysThread & s ) {}
+	idSysThread( const idSysThread& s ) {}
+	void			operator=( const idSysThread& s ) {}
 };
 
 /*
 ================================================
-idSysWorkerThreadGroup implements a group of worker threads that 
+idSysWorkerThreadGroup implements a group of worker threads that
 typically crunch through a collection of similar tasks.
 
 	class idMyWorkerThread : public idSysThread {
@@ -302,21 +377,28 @@ in that the worker threads won't automatically run on the SPUs.
 ================================================
 */
 template<class threadType>
-class idSysWorkerThreadGroup {
+class idSysWorkerThreadGroup
+{
 public:
-					idSysWorkerThreadGroup( const char * name, int numThreads,
-											xthreadPriority priority = THREAD_NORMAL,
-											int stackSize = DEFAULT_THREAD_STACK_SIZE );
+	idSysWorkerThreadGroup( const char* name, int numThreads,
+							xthreadPriority priority = THREAD_NORMAL,
+							int stackSize = DEFAULT_THREAD_STACK_SIZE );
 
 	virtual			~idSysWorkerThreadGroup();
 
-	int				GetNumThreads() const { return threadList.Num(); }
-	threadType &	GetThread( int i ) { return *threadList[i]; }
+	int				GetNumThreads() const
+	{
+		return threadList.Num();
+	}
+	threadType& 	GetThread( int i )
+	{
+		return *threadList[i];
+	}
 
 	void			SignalWorkAndWait();
 
 private:
-	idList<threadType *, TAG_THREAD>	threadList;
+	idList<threadType*, TAG_THREAD>	threadList;
 	bool					runOneThreadInline;	// use the signalling thread as one of the threads
 	bool					singleThreaded;		// set to true for debugging
 };
@@ -327,14 +409,16 @@ idSysWorkerThreadGroup<threadType>::idSysWorkerThreadGroup
 ========================
 */
 template<class threadType>
-ID_INLINE idSysWorkerThreadGroup<threadType>::idSysWorkerThreadGroup( const char * name, 
-			int numThreads, xthreadPriority priority, int stackSize ) {
+ID_INLINE idSysWorkerThreadGroup<threadType>::idSysWorkerThreadGroup( const char* name,
+		int numThreads, xthreadPriority priority, int stackSize )
+{
 	runOneThreadInline = ( numThreads < 0 );
 	singleThreaded = false;
 	numThreads = abs( numThreads );
-	for( int i = 0; i < numThreads; i++ ) {
-		threadType *thread = new (TAG_THREAD) threadType;
-		thread->StartWorkerThread( va( "%s_worker%i", name, i ), (core_t) i, priority, stackSize );
+	for( int i = 0; i < numThreads; i++ )
+	{
+		threadType* thread = new( TAG_THREAD ) threadType;
+		thread->StartWorkerThread( va( "%s_worker%i", name, i ), ( core_t ) i, priority, stackSize );
 		threadList.Append( thread );
 	}
 }
@@ -345,7 +429,8 @@ idSysWorkerThreadGroup<threadType>::~idSysWorkerThreadGroup
 ========================
 */
 template<class threadType>
-ID_INLINE idSysWorkerThreadGroup<threadType>::~idSysWorkerThreadGroup() {
+ID_INLINE idSysWorkerThreadGroup<threadType>::~idSysWorkerThreadGroup()
+{
 	threadList.DeleteContents();
 }
 
@@ -355,27 +440,33 @@ idSysWorkerThreadGroup<threadType>::SignalWorkAndWait
 ========================
 */
 template<class threadType>
-ID_INLINE void idSysWorkerThreadGroup<threadType>::SignalWorkAndWait() {
-	if ( singleThreaded ) {
-		for( int i = 0; i < threadList.Num(); i++ ) {
+ID_INLINE void idSysWorkerThreadGroup<threadType>::SignalWorkAndWait()
+{
+	if( singleThreaded )
+	{
+		for( int i = 0; i < threadList.Num(); i++ )
+		{
 			threadList[ i ]->Run();
 		}
 		return;
 	}
-	for( int i = 0; i < threadList.Num() - runOneThreadInline; i++ ) {
+	for( int i = 0; i < threadList.Num() - runOneThreadInline; i++ )
+	{
 		threadList[ i ]->SignalWork();
 	}
-	if ( runOneThreadInline ) {
+	if( runOneThreadInline )
+	{
 		threadList[ threadList.Num() - 1 ]->Run();
 	}
-	for ( int i = 0; i < threadList.Num() - runOneThreadInline; i++ ) {
+	for( int i = 0; i < threadList.Num() - runOneThreadInline; i++ )
+	{
 		threadList[ i ]->WaitForThread();
 	}
 }
 
 /*
 ================================================
-idSysThreadSynchronizer, allows a group of threads to 
+idSysThreadSynchronizer, allows a group of threads to
 synchronize with each other half-way through execution.
 
 	idSysThreadSynchronizer sync;
@@ -407,7 +498,8 @@ synchronize with each other half-way through execution.
 
 ================================================
 */
-class idSysThreadSynchronizer {
+class idSysThreadSynchronizer
+{
 public:
 	static const int	WAIT_INFINITE = -1;
 
@@ -416,7 +508,7 @@ public:
 	ID_INLINE	bool			Synchronize( unsigned int threadNum, int timeout = WAIT_INFINITE );
 
 private:
-	idList< idSysSignal *, TAG_THREAD >		signals;
+	idList< idSysSignal*, TAG_THREAD >		signals;
 	idSysInterlockedInteger		busyCount;
 };
 
@@ -425,13 +517,16 @@ private:
 idSysThreadSynchronizer::SetNumThreads
 ========================
 */
-ID_INLINE void idSysThreadSynchronizer::SetNumThreads( unsigned int num ) {
+ID_INLINE void idSysThreadSynchronizer::SetNumThreads( unsigned int num )
+{
 	assert( busyCount.GetValue() == signals.Num() );
-	if ( (int)num != signals.Num() ) {
+	if( ( int )num != signals.Num() )
+	{
 		signals.DeleteContents();
-		signals.SetNum( (int)num );
-		for ( unsigned int i = 0; i < num; i++ ) {
-			signals[i] = new (TAG_THREAD) idSysSignal();
+		signals.SetNum( ( int )num );
+		for( unsigned int i = 0; i < num; i++ )
+		{
+			signals[i] = new( TAG_THREAD ) idSysSignal();
 		}
 		busyCount.SetValue( num );
 		SYS_MEMORYBARRIER;
@@ -443,11 +538,14 @@ ID_INLINE void idSysThreadSynchronizer::SetNumThreads( unsigned int num ) {
 idSysThreadSynchronizer::Signal
 ========================
 */
-ID_INLINE void idSysThreadSynchronizer::Signal( unsigned int threadNum ) {
-	if ( busyCount.Decrement() == 0 ) {
-		busyCount.SetValue( (unsigned int) signals.Num() );
+ID_INLINE void idSysThreadSynchronizer::Signal( unsigned int threadNum )
+{
+	if( busyCount.Decrement() == 0 )
+	{
+		busyCount.SetValue( ( unsigned int ) signals.Num() );
 		SYS_MEMORYBARRIER;
-		for ( int i = 0; i < signals.Num(); i++ ) {
+		for( int i = 0; i < signals.Num(); i++ )
+		{
 			signals[i]->Raise();
 		}
 	}
@@ -458,7 +556,8 @@ ID_INLINE void idSysThreadSynchronizer::Signal( unsigned int threadNum ) {
 idSysThreadSynchronizer::Synchronize
 ========================
 */
-ID_INLINE bool idSysThreadSynchronizer::Synchronize( unsigned int threadNum, int timeout ) {
+ID_INLINE bool idSysThreadSynchronizer::Synchronize( unsigned int threadNum, int timeout )
+{
 	return signals[threadNum]->Wait( timeout );
 }
 

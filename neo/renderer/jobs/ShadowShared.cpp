@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -50,7 +50,8 @@ If we know that we are "off to the side" of an infinite shadow volume,
 we can draw it without caps in Z-pass mode.
 ======================
 */
-bool R_ViewPotentiallyInsideInfiniteShadowVolume( const idBounds & occluderBounds, const idVec3 & localLight, const idVec3 & localView, const float zNear ) {
+bool R_ViewPotentiallyInsideInfiniteShadowVolume( const idBounds& occluderBounds, const idVec3& localLight, const idVec3& localView, const float zNear )
+{
 	// Expand the bounds to account for the near clip plane, because the
 	// view could be mathematically outside, but if the near clip plane
 	// chops a volume edge then the Z-pass rendering would fail.
@@ -58,19 +59,22 @@ bool R_ViewPotentiallyInsideInfiniteShadowVolume( const idBounds & occluderBound
 
 	// If the view is inside the geometry bounding box then the view
 	// is also inside the shadow projection.
-	if ( expandedBounds.ContainsPoint( localView ) ) {
+	if( expandedBounds.ContainsPoint( localView ) )
+	{
 		return true;
 	}
 
 	// If the light is inside the geometry bounding box then the shadow is projected
 	// in all directions and any view position is inside the infinte shadow projection.
-	if ( expandedBounds.ContainsPoint( localLight ) ) {
+	if( expandedBounds.ContainsPoint( localLight ) )
+	{
 		return true;
 	}
 
 	// If the line from localLight to localView intersects the geometry
 	// bounding box then the view is inside the infinite shadow projection.
-	if ( expandedBounds.LineIntersection( localLight, localView ) ) {
+	if( expandedBounds.LineIntersection( localLight, localView ) )
+	{
 		return true;
 	}
 
@@ -83,12 +87,12 @@ bool R_ViewPotentiallyInsideInfiniteShadowVolume( const idBounds & occluderBound
 R_ShadowVolumeCullBits
 ====================
 */
-static void R_ShadowVolumeCullBits( byte *cullBits, byte &totalOr, const float radius, const idPlane *planes, const idShadowVert *verts, const int numVerts ) {
+static void R_ShadowVolumeCullBits( byte* cullBits, byte& totalOr, const float radius, const idPlane* planes, const idShadowVert* verts, const int numVerts )
+{
 	assert_16_byte_aligned( cullBits );
 	assert_16_byte_aligned( verts );
 
-#ifdef ID_WIN_X86_SSE2_INTRIN
-
+#if defined(USE_INTRINSICS_SSE)
 	idODSStreamedArray< idShadowVert, 16, SBT_DOUBLE, 4 > vertsODS( verts, numVerts );
 
 	const __m128 vector_float_radius	= _mm_splat_ps( _mm_load_ss( &radius ), 0 );
@@ -127,13 +131,15 @@ static void R_ShadowVolumeCullBits( byte *cullBits, byte &totalOr, const float r
 	const __m128 p3Z = _mm_splat_ps( p3, 2 );
 	const __m128 p3W = _mm_splat_ps( p3, 3 );
 
-	__m128i vecTotalOrInt = { 0, 0, 0, 0 };
+	__m128i vecTotalOrInt = _mm_set_epi32( 0, 0, 0, 0 );
 
-	for ( int i = 0; i < numVerts; ) {
+	for( int i = 0; i < numVerts; )
+	{
 
 		const int nextNumVerts = vertsODS.FetchNextBatch() - 4;
 
-		for ( ; i <= nextNumVerts; i += 4 ) {
+		for( ; i <= nextNumVerts; i += 4 )
+		{
 			const __m128 v0 = _mm_load_ps( vertsODS[i + 0].xyzw.ToFloatPtr() );
 			const __m128 v1 = _mm_load_ps( vertsODS[i + 1].xyzw.ToFloatPtr() );
 			const __m128 v2 = _mm_load_ps( vertsODS[i + 2].xyzw.ToFloatPtr() );
@@ -197,7 +203,7 @@ static void R_ShadowVolumeCullBits( byte *cullBits, byte &totalOr, const float r
 			__m128i s0 = _mm_packs_epi32( c0, c0 );
 			__m128i b0 = _mm_packus_epi16( s0, s0 );
 
-			*(unsigned int *)&cullBits[i] = _mm_cvtsi128_si32( b0 );
+			*( unsigned int* )&cullBits[i] = _mm_cvtsi128_si32( b0 );
 		}
 	}
 
@@ -207,19 +213,21 @@ static void R_ShadowVolumeCullBits( byte *cullBits, byte &totalOr, const float r
 	__m128i vecTotalOrShort = _mm_packs_epi32( vecTotalOrInt, vecTotalOrInt );
 	__m128i vecTotalOrByte = _mm_packus_epi16( vecTotalOrShort, vecTotalOrShort );
 
-	totalOr = (byte) _mm_cvtsi128_si32( vecTotalOrByte );
+	totalOr = ( byte ) _mm_cvtsi128_si32( vecTotalOrByte );
 
 #else
 
 	idODSStreamedArray< idShadowVert, 16, SBT_DOUBLE, 1 > vertsODS( verts, numVerts );
 
 	byte tOr = 0;
-	for ( int i = 0; i < numVerts; ) {
+	for( int i = 0; i < numVerts; )
+	{
 
 		const int nextNumVerts = vertsODS.FetchNextBatch() - 1;
 
-		for ( ; i <= nextNumVerts; i++ ) {
-			const idVec3 & v = vertsODS[i].xyzw.ToVec3();
+		for( ; i <= nextNumVerts; i++ )
+		{
+			const idVec3& v = vertsODS[i].xyzw.ToVec3();
 
 			const float d0 = planes[0].Distance( v );
 			const float d1 = planes[1].Distance( v );
@@ -264,19 +272,21 @@ static void R_ShadowVolumeCullBits( byte *cullBits, byte &totalOr, const float r
 R_SegmentToSegmentDistanceSquare
 ===================
 */
-static float R_SegmentToSegmentDistanceSquare( const idVec3 & start1, const idVec3 & end1, const idVec3 & start2, const idVec3 & end2 ) {
+static float R_SegmentToSegmentDistanceSquare( const idVec3& start1, const idVec3& end1, const idVec3& start2, const idVec3& end2 )
+{
 
 	const idVec3 dir0 = start1 - start2;
 	const idVec3 dir1 = end1 - start1;
 	const idVec3 dir2 = end2 - start2;
-	
+
 	const float dotDir1Dir1 = dir1 * dir1;
 	const float dotDir2Dir2 = dir2 * dir2;
 	const float dotDir1Dir2 = dir1 * dir2;
 	const float dotDir0Dir1 = dir0 * dir1;
 	const float dotDir0Dir2 = dir0 * dir2;
 
-	if ( dotDir1Dir1 < idMath::FLT_SMALLEST_NON_DENORMAL || dotDir2Dir2 < idMath::FLT_SMALLEST_NON_DENORMAL ) {
+	if( dotDir1Dir1 < idMath::FLT_SMALLEST_NON_DENORMAL || dotDir2Dir2 < idMath::FLT_SMALLEST_NON_DENORMAL )
+	{
 		// At least one of the lines is degenerate.
 		// The returned length is correct only if both lines are degenerate otherwise the start point of
 		// the degenerate line has to be projected onto the other line to calculate the shortest distance.
@@ -286,13 +296,14 @@ static float R_SegmentToSegmentDistanceSquare( const idVec3 & start1, const idVe
 
 	const float d = dotDir1Dir1 * dotDir2Dir2 - dotDir1Dir2 * dotDir1Dir2;
 
-	if ( d < idMath::FLT_SMALLEST_NON_DENORMAL ) {
+	if( d < idMath::FLT_SMALLEST_NON_DENORMAL )
+	{
 		// The lines are parallel.
 		// The returned length is not correct.
 		// The parallel case is not relevent here though.
 		return ( start2 - start1 ).LengthSqr();
 	}
-	
+
 	const float n = dotDir0Dir2 * dotDir1Dir2 - dotDir0Dir1 * dotDir2Dir2;
 
 	const float t1 = n / d;
@@ -314,8 +325,9 @@ static float R_SegmentToSegmentDistanceSquare( const idVec3 & start1, const idVe
 R_LineIntersectsTriangleExpandedWithSphere
 ===================
 */
-bool R_LineIntersectsTriangleExpandedWithSphere( const idVec3 & lineStart, const idVec3 & lineEnd, const idVec3 & lineDir, const float lineLength,
-													const float sphereRadius, const idVec3 & triVert0, const idVec3 & triVert1, const idVec3 & triVert2 ) {
+bool R_LineIntersectsTriangleExpandedWithSphere( const idVec3& lineStart, const idVec3& lineEnd, const idVec3& lineDir, const float lineLength,
+		const float sphereRadius, const idVec3& triVert0, const idVec3& triVert1, const idVec3& triVert2 )
+{
 	// edge directions
 	const idVec3 edge1 = triVert1 - triVert0;
 	const idVec3 edge2 = triVert2 - triVert0;
@@ -331,12 +343,16 @@ bool R_LineIntersectsTriangleExpandedWithSphere( const idVec3 & lineStart, const
 	const float v = ( lineDir * qvec ) * det;
 
 	// test if the line passes through the triangle
-	if ( u >= 0.0f && u <= det * det ) {
-		if ( v >= 0.0f && u + v <= det * det ) {
+	if( u >= 0.0f && u <= det * det )
+	{
+		if( v >= 0.0f && u + v <= det * det )
+		{
 			// if determinant is near zero then the ray lies in the triangle plane
-			if ( idMath::Fabs( det ) > idMath::FLT_SMALLEST_NON_DENORMAL ) {
+			if( idMath::Fabs( det ) > idMath::FLT_SMALLEST_NON_DENORMAL )
+			{
 				const float fraction = ( edge1 * qvec ) / det;
-				if ( fraction >= 0.0f && fraction <= lineLength ) {
+				if( fraction >= 0.0f && fraction <= lineLength )
+				{
 					return true;
 				}
 			}
@@ -345,15 +361,18 @@ bool R_LineIntersectsTriangleExpandedWithSphere( const idVec3 & lineStart, const
 
 	const float radiusSqr = sphereRadius * sphereRadius;
 
-	if ( R_SegmentToSegmentDistanceSquare( lineStart, lineEnd, triVert0, triVert1 ) < radiusSqr ) {
+	if( R_SegmentToSegmentDistanceSquare( lineStart, lineEnd, triVert0, triVert1 ) < radiusSqr )
+	{
 		return true;
 	}
 
-	if ( R_SegmentToSegmentDistanceSquare( lineStart, lineEnd, triVert1, triVert2 ) < radiusSqr ) {
+	if( R_SegmentToSegmentDistanceSquare( lineStart, lineEnd, triVert1, triVert2 ) < radiusSqr )
+	{
 		return true;
 	}
 
-	if ( R_SegmentToSegmentDistanceSquare( lineStart, lineEnd, triVert2, triVert0 ) < radiusSqr ) {
+	if( R_SegmentToSegmentDistanceSquare( lineStart, lineEnd, triVert2, triVert0 ) < radiusSqr )
+	{
 		return true;
 	}
 
@@ -375,8 +394,9 @@ cases where the shadow volume would otherwise be rendered with Z-fail.
 Rendering with Z-fail can be significantly slower even on today's hardware.
 ===================
 */
-bool R_ViewInsideShadowVolume( byte * cullBits, const idShadowVert * verts, int numVerts, const triIndex_t * indexes, int numIndexes,
-								const idVec3 & localLightOrigin, const idVec3 & localViewOrigin, const float zNear ) {
+bool R_ViewInsideShadowVolume( byte* cullBits, const idShadowVert* verts, int numVerts, const triIndex_t* indexes, int numIndexes,
+							   const idVec3& localLightOrigin, const idVec3& localViewOrigin, const float zNear )
+{
 
 	ALIGNTYPE16 idPlane planes[4];
 	// create two planes orthogonal to each other that intersect along the trace
@@ -397,12 +417,14 @@ bool R_ViewInsideShadowVolume( byte * cullBits, const idShadowVert * verts, int 
 	R_ShadowVolumeCullBits( cullBits, totalOr, zNear, planes, verts, numVerts );
 
 	// if we don't have points on both sides of both the ray planes, no intersection
-	if ( ( totalOr ^ ( totalOr >> 4 ) ) & 3 ) {
+	if( ( totalOr ^ ( totalOr >> 4 ) ) & 3 )
+	{
 		return false;
 	}
 
 	// if we don't have any points between front and end, no intersection
-	if ( ( totalOr ^ ( totalOr >> 1 ) ) & 4 ) {
+	if( ( totalOr ^ ( totalOr >> 1 ) ) & 4 )
+	{
 		return false;
 	}
 
@@ -418,11 +440,13 @@ bool R_ViewInsideShadowVolume( byte * cullBits, const idShadowVert * verts, int 
 	const idVec3 lineDir = lineDelta * lineLengthRcp;
 	const float lineLength = lineLengthSqr * lineLengthRcp;
 
-	for ( int i = 0; i < numIndexes; ) {
+	for( int i = 0; i < numIndexes; )
+	{
 
 		const int nextNumIndexes = indexesODS.FetchNextBatch() - 3;
 
-		for ( ; i <= nextNumIndexes; i += 3 ) {
+		for( ; i <= nextNumIndexes; i += 3 )
+		{
 			const int i0 = indexesODS[i + 0];
 			const int i1 = indexesODS[i + 1];
 			const int i2 = indexesODS[i + 2];
@@ -431,12 +455,14 @@ bool R_ViewInsideShadowVolume( byte * cullBits, const idShadowVert * verts, int 
 			const byte triOr = cullBits[i0] | cullBits[i1] | cullBits[i2];
 
 			// If there are no points on both sides of both the ray planes, no intersection.
-			if ( likely( ( triOr ^ ( triOr >> 4 ) ) & 3 ) ) {
+			if( likely( ( triOr ^ ( triOr >> 4 ) ) & 3 ) )
+			{
 				continue;
 			}
 
 			// If there are no points between front and end, no intersection.
-			if ( unlikely( ( triOr ^ ( triOr >> 1 ) ) & 4 ) ) {
+			if( unlikely( ( triOr ^ ( triOr >> 1 ) ) & 4 ) )
+			{
 				continue;
 			}
 
@@ -446,13 +472,15 @@ bool R_ViewInsideShadowVolume( byte * cullBits, const idShadowVert * verts, int 
 
 			// If the W of any of the coordinates is zero then the triangle is at or
 			// stretches to infinity which means it is not part of the near cap.
-			if ( triVert0->w == 0.0f || triVert1->w == 0.0f || triVert2->w == 0.0f ) {
+			if( triVert0->w == 0.0f || triVert1->w == 0.0f || triVert2->w == 0.0f )
+			{
 				continue;
 			}
 
 			// Test against the expanded triangle to see if we hit the near cap.
-			if ( R_LineIntersectsTriangleExpandedWithSphere( lineStart, lineEnd, lineDir, lineLength, zNear,
-											triVert2->ToVec3(), triVert1->ToVec3(), triVert0->ToVec3() ) ) {
+			if( R_LineIntersectsTriangleExpandedWithSphere( lineStart, lineEnd, lineDir, lineLength, zNear,
+					triVert2->ToVec3(), triVert1->ToVec3(), triVert0->ToVec3() ) )
+			{
 				return true;
 			}
 		}

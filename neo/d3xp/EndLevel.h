@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -26,12 +26,13 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-class idTarget_EndLevel : public idEntity {
+class idTarget_EndLevel : public idEntity
+{
 public:
 	CLASS_PROTOTYPE( idTarget_EndLevel );
 
 	void	Spawn( void );
-			~idTarget_EndLevel();
+	~idTarget_EndLevel();
 
 	void	Draw();
 	// the endLevel will be responsible for drawing the entire screen
@@ -42,7 +43,7 @@ public:
 	// of doing anything to the player, which will allow moving to
 	// the next level
 
-	const char *ExitCommand();
+	const char* ExitCommand();
 	// the game will check this each frame, and return it to the
 	// session when there is something to give
 
@@ -53,7 +54,7 @@ private:
 	idVec3	initialViewAngles;
 	// set when the player triggers the exit
 
-	idUserInterface	*gui;
+	idUserInterface*	gui;
 
 	bool	buttonsReleased;
 	// don't skip out until buttons are released, then pressed
@@ -61,6 +62,6 @@ private:
 	bool	readyToExit;
 	bool	noGui;
 
-	void	Event_Trigger( idEntity *activator );
+	void	Event_Trigger( idEntity* activator );
 };
 

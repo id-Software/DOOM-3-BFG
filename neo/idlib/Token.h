@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -68,7 +68,8 @@ If you have questions concerning this license or the applicable additional terms
 // punctuation sub type is the punctuation id
 // name sub type is the length of the name
 
-class idToken : public idStr {
+class idToken : public idStr
+{
 
 	friend class idParser;
 	friend class idLexer;
@@ -81,12 +82,12 @@ public:
 	int				flags;								// token flags, used for recursive defines
 
 public:
-					idToken();
-					idToken( const idToken *token );
-					~idToken();
+	idToken();
+	idToken( const idToken* token );
+	~idToken();
 
 	void			operator=( const idStr& text );
-	void			operator=( const char *text );
+	void			operator=( const char* text );
 
 	double			GetDoubleValue();				// double value of TT_NUMBER
 	float			GetFloatValue();				// float value of TT_NUMBER
@@ -98,66 +99,83 @@ public:
 	void			NumberValue();				// calculate values for a TT_NUMBER
 
 private:
-	unsigned long	intvalue;							// integer value
+	// DG: use int instead of long for 64bit compatibility
+	unsigned int	intvalue;							// integer value
+	// DG end
 	double			floatvalue;							// floating point value
-	const char *	whiteSpaceStart_p;					// start of white space before token, only used by idLexer
-	const char *	whiteSpaceEnd_p;					// end of white space before token, only used by idLexer
-	idToken *		next;								// next token in chain, only used by idParser
+	const char* 	whiteSpaceStart_p;					// start of white space before token, only used by idLexer
+	const char* 	whiteSpaceEnd_p;					// end of white space before token, only used by idLexer
+	idToken* 		next;								// next token in chain, only used by idParser
 
 	void			AppendDirty( const char a );		// append character without adding trailing zero
 };
 
-ID_INLINE idToken::idToken() : type(), subtype(), line(), linesCrossed(), flags() {
+ID_INLINE idToken::idToken() : type(), subtype(), line(), linesCrossed(), flags()
+{
 }
 
-ID_INLINE idToken::idToken( const idToken *token ) {
+ID_INLINE idToken::idToken( const idToken* token )
+{
 	*this = *token;
 }
 
-ID_INLINE idToken::~idToken() {
+ID_INLINE idToken::~idToken()
+{
 }
 
-ID_INLINE void idToken::operator=( const char *text) {
-	*static_cast<idStr *>(this) = text;
+ID_INLINE void idToken::operator=( const char* text )
+{
+	*static_cast<idStr*>( this ) = text;
 }
 
-ID_INLINE void idToken::operator=( const idStr& text ) {
-	*static_cast<idStr *>(this) = text;
+ID_INLINE void idToken::operator=( const idStr& text )
+{
+	*static_cast<idStr*>( this ) = text;
 }
 
-ID_INLINE double idToken::GetDoubleValue() {
-	if ( type != TT_NUMBER ) {
+ID_INLINE double idToken::GetDoubleValue()
+{
+	if( type != TT_NUMBER )
+	{
 		return 0.0;
 	}
-	if ( !(subtype & TT_VALUESVALID) ) {
+	if( !( subtype & TT_VALUESVALID ) )
+	{
 		NumberValue();
 	}
 	return floatvalue;
 }
 
-ID_INLINE float idToken::GetFloatValue() {
-	return (float) GetDoubleValue();
+ID_INLINE float idToken::GetFloatValue()
+{
+	return ( float ) GetDoubleValue();
 }
 
-ID_INLINE unsigned long	idToken::GetUnsignedLongValue() {
-	if ( type != TT_NUMBER ) {
+ID_INLINE unsigned long	idToken::GetUnsignedLongValue()
+{
+	if( type != TT_NUMBER )
+	{
 		return 0;
 	}
-	if ( !(subtype & TT_VALUESVALID) ) {
+	if( !( subtype & TT_VALUESVALID ) )
+	{
 		NumberValue();
 	}
 	return intvalue;
 }
 
-ID_INLINE int idToken::GetIntValue() {
-	return (int) GetUnsignedLongValue();
+ID_INLINE int idToken::GetIntValue()
+{
+	return ( int ) GetUnsignedLongValue();
 }
 
-ID_INLINE int idToken::WhiteSpaceBeforeToken() const {
+ID_INLINE int idToken::WhiteSpaceBeforeToken() const
+{
 	return ( whiteSpaceEnd_p > whiteSpaceStart_p );
 }
 
-ID_INLINE void idToken::AppendDirty( const char a ) {
+ID_INLINE void idToken::AppendDirty( const char a )
+{
 	EnsureAlloced( len + 2, true );
 	data[len++] = a;
 }

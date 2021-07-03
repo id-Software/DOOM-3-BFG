@@ -2,9 +2,10 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2012 Robert Beckebans
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -44,12 +45,33 @@ If you have questions concerning this license or the applicable additional terms
 #include <math.h>
 #include <string.h>
 
-#include <basetsd.h>				// for UINT_PTR
-#include <intrin.h>
-#pragma warning( disable : 4100 )	// unreferenced formal parameter
-#pragma warning( disable : 4127 )	// conditional expression is constant
+// RB: added <stdint.h> for missing uintptr_t
+#include <stdint.h>
 
+// RB begin
+#if defined(__MINGW32__)
+	//#include <sal.h> 	// RB: missing __analysis_assume
+	#include <malloc.h> // DG: _alloca16 needs that
 
+	#ifndef __analysis_assume
+		#define __analysis_assume( x )
+	#endif
+
+#elif defined(__linux__)
+	#include <malloc.h> // DG: _alloca16 needs that
+	#include <signal.h>
+	// RB end
+	// Yamagi begin
+#elif defined(__FreeBSD__)
+	#include <signal.h>
+#endif
+// Yamagi end
+
+#ifdef _MSC_VER
+	#include <intrin.h>
+	#pragma warning( disable : 4100 )	// unreferenced formal parameter
+	#pragma warning( disable : 4127 )	// conditional expression is constant
+#endif
 
 
 
@@ -60,8 +82,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "ParallelJobList.h"
 
 #if _MSC_VER >= 1600
-#undef NULL
-#define NULL 0
+	#undef NULL
+	#define NULL 0
 #endif
 
 #endif // !__PARALLELJOBLIST_JOBHEADERS_H__

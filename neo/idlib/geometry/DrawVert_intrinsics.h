@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -29,8 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __DRAWVERT_INTRINSICS_H__
 #define __DRAWVERT_INTRINSICS_H__
 
-#ifdef ID_WIN_X86_SSE2_INTRIN
 
+#if defined(USE_INTRINSICS_SSE)
 static const __m128i vector_int_f32_sign_mask					= _mm_set1_epi32( 1U << IEEE_FLT_SIGN_BIT );
 static const __m128i vector_int_f32_exponent_mask				= _mm_set1_epi32( ( ( 1U << IEEE_FLT_EXPONENT_BITS ) - 1 ) << IEEE_FLT_MANTISSA_BITS );
 static const __m128i vector_int_f32_mantissa_mask				= _mm_set1_epi32( ( 1U << IEEE_FLT_MANTISSA_BITS ) - 1 );
@@ -58,10 +58,10 @@ static const __m128 vector_float_1_over_4						= { 1.0f / 4.0f, 1.0f / 4.0f, 1.0
 FastF32toF16
 ====================
 */
-#ifdef ID_WIN_X86_SSE2_INTRIN
-
-ID_INLINE_EXTERN __m128i FastF32toF16( __m128i f32_bits ) {
-	__m128i f16_sign     = _mm_srli_epi32( _mm_and_si128( f32_bits, vector_int_f32_sign_mask     ), f32_to_f16_sign_shift );
+#if defined(USE_INTRINSICS_SSE)
+ID_INLINE_EXTERN __m128i FastF32toF16( __m128i f32_bits )
+{
+	__m128i f16_sign     = _mm_srli_epi32( _mm_and_si128( f32_bits, vector_int_f32_sign_mask ), f32_to_f16_sign_shift );
 	__m128i f16_exponent = _mm_srli_epi32( _mm_and_si128( f32_bits, vector_int_f32_exponent_mask ), f32_to_f16_exponent_shift );
 	__m128i f16_mantissa = _mm_srli_epi32( _mm_and_si128( f32_bits, vector_int_f32_mantissa_mask ), f32_to_f16_mantissa_shift );
 
@@ -79,10 +79,11 @@ ID_INLINE_EXTERN __m128i FastF32toF16( __m128i f32_bits ) {
 
 	return _mm_packs_epi32( flt16, flt16 );
 }
-
 #endif
 
-ID_INLINE_EXTERN halfFloat_t Scalar_FastF32toF16( float f32 ) {
+
+ID_INLINE_EXTERN halfFloat_t Scalar_FastF32toF16( float f32 )
+{
 	const int f32_sign_mask				= 1U << IEEE_FLT_SIGN_BIT;
 	const int f32_exponent_mask			= ( ( 1U << IEEE_FLT_EXPONENT_BITS ) - 1 ) << IEEE_FLT_MANTISSA_BITS;
 	const int f32_mantissa_mask			= ( 1U << IEEE_FLT_MANTISSA_BITS ) - 1;
@@ -95,11 +96,11 @@ ID_INLINE_EXTERN halfFloat_t Scalar_FastF32toF16( float f32 ) {
 	const int f32_to_f16_mantissa_shift	= IEEE_FLT_MANTISSA_BITS - IEEE_FLT16_MANTISSA_BITS;
 	const int f32_to_f16_exponent_bias	= ( IEEE_FLT_EXPONENT_BIAS - IEEE_FLT16_EXPONENT_BIAS ) << IEEE_FLT16_MANTISSA_BITS;
 
-	int f32_bits = *(unsigned int *)&f32;
+	int f32_bits = *( unsigned int* )&f32;
 
-	int f16_sign     = ( (unsigned int )( f32_bits & f32_sign_mask     ) >> f32_to_f16_sign_shift );
-	int f16_exponent = ( (unsigned int )( f32_bits & f32_exponent_mask ) >> f32_to_f16_exponent_shift );
-	int f16_mantissa = ( (unsigned int )( f32_bits & f32_mantissa_mask ) >> f32_to_f16_mantissa_shift );
+	int f16_sign     = ( ( unsigned int )( f32_bits & f32_sign_mask ) >> f32_to_f16_sign_shift );
+	int f16_exponent = ( ( unsigned int )( f32_bits & f32_exponent_mask ) >> f32_to_f16_exponent_shift );
+	int f16_mantissa = ( ( unsigned int )( f32_bits & f32_mantissa_mask ) >> f32_to_f16_mantissa_shift );
 
 	f16_exponent -= f32_to_f16_exponent_bias;
 
@@ -111,7 +112,7 @@ ID_INLINE_EXTERN halfFloat_t Scalar_FastF32toF16( float f32 ) {
 	f16_mantissa = underflow ? f16_min_mantissa : f16_mantissa;
 	f16_mantissa = overflow  ? f16_max_mantissa : f16_mantissa;
 
-	return (halfFloat_t)( f16_sign | f16_exponent | f16_mantissa );
+	return ( halfFloat_t )( f16_sign | f16_exponent | f16_mantissa );
 }
 
 /*
@@ -119,15 +120,15 @@ ID_INLINE_EXTERN halfFloat_t Scalar_FastF32toF16( float f32 ) {
 LoadSkinnedDrawVertPosition
 ====================
 */
-#ifdef ID_WIN_X86_SSE2_INTRIN
+#if defined(USE_INTRINSICS_SSE)
+ID_INLINE_EXTERN __m128 LoadSkinnedDrawVertPosition( const idDrawVert& base, const idJointMat* joints )
+{
+	const idJointMat& j0 = joints[base.color[0]];
+	const idJointMat& j1 = joints[base.color[1]];
+	const idJointMat& j2 = joints[base.color[2]];
+	const idJointMat& j3 = joints[base.color[3]];
 
-ID_INLINE_EXTERN __m128 LoadSkinnedDrawVertPosition( const idDrawVert & base, const idJointMat * joints ) {
-	const idJointMat & j0 = joints[base.color[0]];
-	const idJointMat & j1 = joints[base.color[1]];
-	const idJointMat & j2 = joints[base.color[2]];
-	const idJointMat & j3 = joints[base.color[3]];
-
-	__m128i weights_b = _mm_cvtsi32_si128( *(const unsigned int *)base.color2 );
+	__m128i weights_b = _mm_cvtsi32_si128( *( const unsigned int* )base.color2 );
 	__m128i weights_s = _mm_unpacklo_epi8( weights_b, vector_int_zero );
 	__m128i weights_i = _mm_unpacklo_epi16( weights_s, vector_int_zero );
 
@@ -180,14 +181,14 @@ ID_INLINE_EXTERN __m128 LoadSkinnedDrawVertPosition( const idDrawVert & base, co
 
 	return r0;
 }
-
 #endif
 
-ID_INLINE_EXTERN idVec3 Scalar_LoadSkinnedDrawVertPosition( const idDrawVert & vert, const idJointMat * joints ) {
-	const idJointMat & j0 = joints[vert.color[0]];
-	const idJointMat & j1 = joints[vert.color[1]];
-	const idJointMat & j2 = joints[vert.color[2]];
-	const idJointMat & j3 = joints[vert.color[3]];
+ID_INLINE_EXTERN idVec3 Scalar_LoadSkinnedDrawVertPosition( const idDrawVert& vert, const idJointMat* joints )
+{
+	const idJointMat& j0 = joints[vert.color[0]];
+	const idJointMat& j1 = joints[vert.color[1]];
+	const idJointMat& j2 = joints[vert.color[2]];
+	const idJointMat& j3 = joints[vert.color[3]];
 
 	const float w0 = vert.color2[0] * ( 1.0f / 255.0f );
 	const float w1 = vert.color2[1] * ( 1.0f / 255.0f );

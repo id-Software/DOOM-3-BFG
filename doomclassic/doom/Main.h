@@ -60,7 +60,7 @@ void			DL_InitNetworking( DoomInterface *pdi );
 extern int		PLAYERCOUNT;
 extern bool		globalNetworking;
 extern bool		debugOutput;
-extern BOOL		globalLicenseFullGame;
+extern bool		globalLicenseFullGame;
 extern int		globalRichPresenceState;  // values from spa.h X_CONTEXT_PRESENCE
 extern int		globalNeedUpsell;
 // PS3

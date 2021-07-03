@@ -2,9 +2,10 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013-2014 Robert Beckebans
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,9 +28,9 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
-#include "../idlib/precompiled.h"
+#include "precompiled.h"
 
-#include "tr_local.h"
+#include "RenderCommon.h"
 #include "Model_local.h"
 
 #include "../idlib/geometry/DrawVert_intrinsics.h"
@@ -39,12 +40,12 @@ If you have questions concerning this license or the applicable additional terms
 R_TracePointCullStatic
 ====================
 */
-static void R_TracePointCullStatic( byte *cullBits, byte &totalOr, const float radius, const idPlane *planes, const idDrawVert *verts, const int numVerts ) {
+static void R_TracePointCullStatic( byte* cullBits, byte& totalOr, const float radius, const idPlane* planes, const idDrawVert* verts, const int numVerts )
+{
 	assert_16_byte_aligned( cullBits );
 	assert_16_byte_aligned( verts );
 
-#ifdef ID_WIN_X86_SSE2_INTRIN
-
+#if defined(USE_INTRINSICS_SSE)
 	idODSStreamedArray< idDrawVert, 16, SBT_DOUBLE, 4 > vertsODS( verts, numVerts );
 
 	const __m128 vector_float_radius	= _mm_splat_ps( _mm_load_ss( &radius ), 0 );
@@ -83,13 +84,15 @@ static void R_TracePointCullStatic( byte *cullBits, byte &totalOr, const float r
 	const __m128 p3Z = _mm_splat_ps( p3, 2 );
 	const __m128 p3W = _mm_splat_ps( p3, 3 );
 
-	__m128i vecTotalOrInt = { 0, 0, 0, 0 };
+	__m128i vecTotalOrInt = _mm_set_epi32( 0, 0, 0, 0 );
 
-	for ( int i = 0; i < numVerts; ) {
+	for( int i = 0; i < numVerts; )
+	{
 
 		const int nextNumVerts = vertsODS.FetchNextBatch() - 4;
 
-		for ( ; i <= nextNumVerts; i += 4 ) {
+		for( ; i <= nextNumVerts; i += 4 )
+		{
 			const __m128 v0 = _mm_load_ps( vertsODS[i + 0].xyz.ToFloatPtr() );
 			const __m128 v1 = _mm_load_ps( vertsODS[i + 1].xyz.ToFloatPtr() );
 			const __m128 v2 = _mm_load_ps( vertsODS[i + 2].xyz.ToFloatPtr() );
@@ -153,7 +156,7 @@ static void R_TracePointCullStatic( byte *cullBits, byte &totalOr, const float r
 			__m128i s0 = _mm_packs_epi32( c0, c0 );
 			__m128i b0 = _mm_packus_epi16( s0, s0 );
 
-			*(unsigned int *)&cullBits[i] = _mm_cvtsi128_si32( b0 );
+			*( unsigned int* )&cullBits[i] = _mm_cvtsi128_si32( b0 );
 		}
 	}
 
@@ -163,19 +166,21 @@ static void R_TracePointCullStatic( byte *cullBits, byte &totalOr, const float r
 	__m128i vecTotalOrShort = _mm_packs_epi32( vecTotalOrInt, vecTotalOrInt );
 	__m128i vecTotalOrByte = _mm_packus_epi16( vecTotalOrShort, vecTotalOrShort );
 
-	totalOr = (byte) _mm_cvtsi128_si32( vecTotalOrByte );
+	totalOr = ( byte ) _mm_cvtsi128_si32( vecTotalOrByte );
 
 #else
 
 	idODSStreamedArray< idDrawVert, 16, SBT_DOUBLE, 1 > vertsODS( verts, numVerts );
 
 	byte tOr = 0;
-	for ( int i = 0; i < numVerts; ) {
+	for( int i = 0; i < numVerts; )
+	{
 
 		const int nextNumVerts = vertsODS.FetchNextBatch() - 1;
 
-		for ( ; i <= nextNumVerts; i++ ) {
-			const idVec3 & v = vertsODS[i].xyz;
+		for( ; i <= nextNumVerts; i++ )
+		{
+			const idVec3& v = vertsODS[i].xyz;
 
 			const float d0 = planes[0].Distance( v );
 			const float d1 = planes[1].Distance( v );
@@ -220,12 +225,12 @@ static void R_TracePointCullStatic( byte *cullBits, byte &totalOr, const float r
 R_TracePointCullSkinned
 ====================
 */
-static void R_TracePointCullSkinned( byte *cullBits, byte &totalOr, const float radius, const idPlane *planes, const idDrawVert *verts, const int numVerts, const idJointMat * joints ) {
+static void R_TracePointCullSkinned( byte* cullBits, byte& totalOr, const float radius, const idPlane* planes, const idDrawVert* verts, const int numVerts, const idJointMat* joints )
+{
 	assert_16_byte_aligned( cullBits );
 	assert_16_byte_aligned( verts );
 
-#ifdef ID_WIN_X86_SSE2_INTRIN
-
+#if defined(USE_INTRINSICS_SSE)
 	idODSStreamedArray< idDrawVert, 16, SBT_DOUBLE, 4 > vertsODS( verts, numVerts );
 
 	const __m128 vector_float_radius	= _mm_splat_ps( _mm_load_ss( &radius ), 0 );
@@ -264,13 +269,15 @@ static void R_TracePointCullSkinned( byte *cullBits, byte &totalOr, const float 
 	const __m128 p3Z = _mm_splat_ps( p3, 2 );
 	const __m128 p3W = _mm_splat_ps( p3, 3 );
 
-	__m128i vecTotalOrInt = { 0, 0, 0, 0 };
+	__m128i vecTotalOrInt = _mm_set_epi32( 0, 0, 0, 0 );
 
-	for ( int i = 0; i < numVerts; ) {
+	for( int i = 0; i < numVerts; )
+	{
 
 		const int nextNumVerts = vertsODS.FetchNextBatch() - 4;
 
-		for ( ; i <= nextNumVerts; i += 4 ) {
+		for( ; i <= nextNumVerts; i += 4 )
+		{
 			const __m128 v0 = LoadSkinnedDrawVertPosition( vertsODS[i + 0], joints );
 			const __m128 v1 = LoadSkinnedDrawVertPosition( vertsODS[i + 1], joints );
 			const __m128 v2 = LoadSkinnedDrawVertPosition( vertsODS[i + 2], joints );
@@ -334,7 +341,7 @@ static void R_TracePointCullSkinned( byte *cullBits, byte &totalOr, const float 
 			__m128i s0 = _mm_packs_epi32( c0, c0 );
 			__m128i b0 = _mm_packus_epi16( s0, s0 );
 
-			*(unsigned int *)&cullBits[i] = _mm_cvtsi128_si32( b0 );
+			*( unsigned int* )&cullBits[i] = _mm_cvtsi128_si32( b0 );
 		}
 	}
 
@@ -344,18 +351,20 @@ static void R_TracePointCullSkinned( byte *cullBits, byte &totalOr, const float 
 	__m128i vecTotalOrShort = _mm_packs_epi32( vecTotalOrInt, vecTotalOrInt );
 	__m128i vecTotalOrByte = _mm_packus_epi16( vecTotalOrShort, vecTotalOrShort );
 
-	totalOr = (byte) _mm_cvtsi128_si32( vecTotalOrByte );
+	totalOr = ( byte ) _mm_cvtsi128_si32( vecTotalOrByte );
 
 #else
 
 	idODSStreamedArray< idDrawVert, 16, SBT_DOUBLE, 1 > vertsODS( verts, numVerts );
 
 	byte tOr = 0;
-	for ( int i = 0; i < numVerts; ) {
+	for( int i = 0; i < numVerts; )
+	{
 
 		const int nextNumVerts = vertsODS.FetchNextBatch() - 1;
 
-		for ( ; i <= nextNumVerts; i++ ) {
+		for( ; i <= nextNumVerts; i++ )
+		{
 			const idVec3 v = Scalar_LoadSkinnedDrawVertPosition( vertsODS[i], joints );
 
 			const float d0 = planes[0].Distance( v );
@@ -403,33 +412,39 @@ R_LineIntersectsTriangleExpandedWithCircle
 The triangle is expanded in the plane with a circle of the given radius.
 ====================
 */
-static bool R_LineIntersectsTriangleExpandedWithCircle( localTrace_t & hit, const idVec3 & start, const idVec3 & end, const float circleRadius, const idVec3 & triVert0, const idVec3 & triVert1, const idVec3 & triVert2 ) {
+static bool R_LineIntersectsTriangleExpandedWithCircle( localTrace_t& hit, const idVec3& start, const idVec3& end, const float circleRadius, const idVec3& triVert0, const idVec3& triVert1, const idVec3& triVert2 )
+{
 	const idPlane plane( triVert0, triVert1, triVert2 );
 
 	const float planeDistStart = plane.Distance( start );
 	const float planeDistEnd = plane.Distance( end );
 
-	if ( planeDistStart < 0.0f ) {
+	if( planeDistStart < 0.0f )
+	{
 		return false;		// starts past the triangle
 	}
 
-	if ( planeDistEnd > 0.0f ) {
+	if( planeDistEnd > 0.0f )
+	{
 		return false;		// finishes in front of the triangle
 	}
 
 	const float planeDelta = planeDistStart - planeDistEnd;
 
-	if ( planeDelta < idMath::FLT_SMALLEST_NON_DENORMAL ) {
+	if( planeDelta < idMath::FLT_SMALLEST_NON_DENORMAL )
+	{
 		return false;		// coming at the triangle from behind or parallel
 	}
 
 	const float fraction = planeDistStart / planeDelta;
 
-	if ( fraction < 0.0f ) {
+	if( fraction < 0.0f )
+	{
 		return false;		// shouldn't happen
 	}
-		
-	if ( fraction >= hit.fraction ) {
+
+	if( fraction >= hit.fraction )
+	{
 		return false;		// have already hit something closer
 	}
 
@@ -446,29 +461,39 @@ static bool R_LineIntersectsTriangleExpandedWithCircle( localTrace_t & hit, cons
 
 	const idVec3 cross0 = dir0.Cross( dir1 );
 	float d0 = plane.Normal() * cross0;
-	if ( d0 > 0.0f ) {
-		if ( radiusSqr <= 0.0f ) {
+	if( d0 > 0.0f )
+	{
+		if( radiusSqr <= 0.0f )
+		{
 			return false;
 		}
 		idVec3 edge = triVert0 - triVert1;
 		const float edgeLengthSqr = edge.LengthSqr();
-		if ( cross0.LengthSqr() > edgeLengthSqr * radiusSqr ) {
+		if( cross0.LengthSqr() > edgeLengthSqr * radiusSqr )
+		{
 			return false;
 		}
 		d0 = edge * dir0;
-		if ( d0 < 0.0f ) {
+		if( d0 < 0.0f )
+		{
 			edge = triVert0 - triVert2;
 			d0 = edge * dir0;
-			if ( d0 < 0.0f ) {
-				if ( dir0.LengthSqr() > radiusSqr ) {
+			if( d0 < 0.0f )
+			{
+				if( dir0.LengthSqr() > radiusSqr )
+				{
 					return false;
 				}
 			}
-		} else if ( d0 > edgeLengthSqr ) {
+		}
+		else if( d0 > edgeLengthSqr )
+		{
 			edge = triVert1 - triVert2;
 			d0 = edge * dir1;
-			if ( d0 < 0.0f ) {
-				if ( dir1.LengthSqr() > radiusSqr ) {
+			if( d0 < 0.0f )
+			{
+				if( dir1.LengthSqr() > radiusSqr )
+				{
 					return false;
 				}
 			}
@@ -479,29 +504,39 @@ static bool R_LineIntersectsTriangleExpandedWithCircle( localTrace_t & hit, cons
 
 	const idVec3 cross1 = dir1.Cross( dir2 );
 	float d1 = plane.Normal() * cross1;
-	if ( d1 > 0.0f ) {
-		if ( radiusSqr <= 0.0f ) {
+	if( d1 > 0.0f )
+	{
+		if( radiusSqr <= 0.0f )
+		{
 			return false;
 		}
 		idVec3 edge = triVert1 - triVert2;
 		const float edgeLengthSqr = edge.LengthSqr();
-		if ( cross1.LengthSqr() > edgeLengthSqr * radiusSqr ) {
+		if( cross1.LengthSqr() > edgeLengthSqr * radiusSqr )
+		{
 			return false;
 		}
 		d1 = edge * dir1;
-		if ( d1 < 0.0f ) {
+		if( d1 < 0.0f )
+		{
 			edge = triVert1 - triVert0;
 			d1 = edge * dir1;
-			if ( d1 < 0.0f ) {
-				if ( dir1.LengthSqr() > radiusSqr ) {
+			if( d1 < 0.0f )
+			{
+				if( dir1.LengthSqr() > radiusSqr )
+				{
 					return false;
 				}
 			}
-		} else if ( d1 > edgeLengthSqr ) {
+		}
+		else if( d1 > edgeLengthSqr )
+		{
 			edge = triVert2 - triVert0;
 			d1 = edge * dir2;
-			if ( d1 < 0.0f ) {
-				if ( dir2.LengthSqr() > radiusSqr ) {
+			if( d1 < 0.0f )
+			{
+				if( dir2.LengthSqr() > radiusSqr )
+				{
 					return false;
 				}
 			}
@@ -510,29 +545,39 @@ static bool R_LineIntersectsTriangleExpandedWithCircle( localTrace_t & hit, cons
 
 	const idVec3 cross2 = dir2.Cross( dir0 );
 	float d2 = plane.Normal() * cross2;
-	if ( d2 > 0.0f ) {
-		if ( radiusSqr <= 0.0f ) {
+	if( d2 > 0.0f )
+	{
+		if( radiusSqr <= 0.0f )
+		{
 			return false;
 		}
 		idVec3 edge = triVert2 - triVert0;
 		const float edgeLengthSqr = edge.LengthSqr();
-		if ( cross2.LengthSqr() > edgeLengthSqr * radiusSqr ) {
+		if( cross2.LengthSqr() > edgeLengthSqr * radiusSqr )
+		{
 			return false;
 		}
 		d2 = edge * dir2;
-		if ( d2 < 0.0f ) {
+		if( d2 < 0.0f )
+		{
 			edge = triVert2 - triVert1;
 			d2 = edge * dir2;
-			if ( d2 < 0.0f ) {
-				if ( dir2.LengthSqr() > radiusSqr ) {
+			if( d2 < 0.0f )
+			{
+				if( dir2.LengthSqr() > radiusSqr )
+				{
 					return false;
 				}
 			}
-		} else if ( d2 > edgeLengthSqr ) {
+		}
+		else if( d2 > edgeLengthSqr )
+		{
 			edge = triVert0 - triVert1;
 			d2 = edge * dir0;
-			if ( d2 < 0.0f ) {
-				if ( dir0.LengthSqr() > radiusSqr ) {
+			if( d2 < 0.0f )
+			{
+				if( dir0.LengthSqr() > radiusSqr )
+				{
 					return false;
 				}
 			}
@@ -552,7 +597,8 @@ static bool R_LineIntersectsTriangleExpandedWithCircle( localTrace_t & hit, cons
 R_LocalTrace
 ====================
 */
-localTrace_t R_LocalTrace( const idVec3 &start, const idVec3 &end, const float radius, const srfTriangles_t *tri ) {
+localTrace_t R_LocalTrace( const idVec3& start, const idVec3& end, const float radius, const srfTriangles_t* tri )
+{
 	localTrace_t hit;
 	hit.fraction = 1.0f;
 
@@ -570,34 +616,44 @@ localTrace_t R_LocalTrace( const idVec3 &start, const idVec3 &end, const float r
 	planes[3][3] = - end * planes[3].Normal();
 
 	// catagorize each point against the four planes
-	byte * cullBits = (byte *) _alloca16( ALIGN( tri->numVerts, 4 ) );	// round up to a multiple of 4 for SIMD
+	byte* cullBits = ( byte* ) _alloca16( ALIGN( tri->numVerts, 4 ) );	// round up to a multiple of 4 for SIMD
 	byte totalOr = 0;
 
-	const idJointMat * joints = ( tri->staticModelWithJoints != NULL && r_useGPUSkinning.GetBool() ) ? tri->staticModelWithJoints->jointsInverted : NULL;
-	if ( joints != NULL ) {
+	// RB: added check wether GPU skinning is available at all
+	const idJointMat* joints = ( tri->staticModelWithJoints != NULL && r_useGPUSkinning.GetBool() && glConfig.gpuSkinningAvailable ) ? tri->staticModelWithJoints->jointsInverted : NULL;
+	// RB end
+
+	if( joints != NULL )
+	{
 		R_TracePointCullSkinned( cullBits, totalOr, radius, planes, tri->verts, tri->numVerts, joints );
-	} else {
+	}
+	else
+	{
 		R_TracePointCullStatic( cullBits, totalOr, radius, planes, tri->verts, tri->numVerts );
 	}
 
 	// if we don't have points on both sides of both the ray planes, no intersection
-	if ( ( totalOr ^ ( totalOr >> 4 ) ) & 3 ) {
+	if( ( totalOr ^ ( totalOr >> 4 ) ) & 3 )
+	{
 		return hit;
 	}
 
 	// if we don't have any points between front and end, no intersection
-	if ( ( totalOr ^ ( totalOr >> 1 ) ) & 4 ) {
+	if( ( totalOr ^ ( totalOr >> 1 ) ) & 4 )
+	{
 		return hit;
 	}
 
 	// start streaming the indexes
 	idODSStreamedArray< triIndex_t, 256, SBT_QUAD, 3 > indexesODS( tri->indexes, tri->numIndexes );
 
-	for ( int i = 0; i < tri->numIndexes; ) {
+	for( int i = 0; i < tri->numIndexes; )
+	{
 
 		const int nextNumIndexes = indexesODS.FetchNextBatch() - 3;
 
-		for ( ; i <= nextNumIndexes; i += 3 ) {
+		for( ; i <= nextNumIndexes; i += 3 )
+		{
 			const int i0 = indexesODS[i + 0];
 			const int i1 = indexesODS[i + 1];
 			const int i2 = indexesODS[i + 2];
@@ -606,12 +662,14 @@ localTrace_t R_LocalTrace( const idVec3 &start, const idVec3 &end, const float r
 			const byte triOr = cullBits[i0] | cullBits[i1] | cullBits[i2];
 
 			// if we don't have points on both sides of both the ray planes, no intersection
-			if ( likely( ( triOr ^ ( triOr >> 4 ) ) & 3 ) ) {
+			if( likely( ( triOr ^ ( triOr >> 4 ) ) & 3 ) )
+			{
 				continue;
 			}
 
 			// if we don't have any points between front and end, no intersection
-			if ( unlikely( ( triOr ^ ( triOr >> 1 ) ) & 4 ) ) {
+			if( unlikely( ( triOr ^ ( triOr >> 1 ) ) & 4 ) )
+			{
 				continue;
 			}
 
@@ -619,7 +677,8 @@ localTrace_t R_LocalTrace( const idVec3 &start, const idVec3 &end, const float r
 			const idVec3 triVert1 = idDrawVert::GetSkinnedDrawVertPosition( idODSObject< idDrawVert > ( & tri->verts[i1] ), joints );
 			const idVec3 triVert2 = idDrawVert::GetSkinnedDrawVertPosition( idODSObject< idDrawVert > ( & tri->verts[i2] ), joints );
 
-			if ( R_LineIntersectsTriangleExpandedWithCircle( hit, start, end, radius, triVert0, triVert1, triVert2 ) ) {
+			if( R_LineIntersectsTriangleExpandedWithCircle( hit, start, end, radius, triVert0, triVert1, triVert2 ) )
+			{
 				hit.indexes[0] = i0;
 				hit.indexes[1] = i1;
 				hit.indexes[2] = i2;

@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
-#include "../precompiled.h"
+#include "precompiled.h"
 
 //===============================================================
 //
@@ -43,14 +43,16 @@ idMat2 mat2_identity( idVec2( 1, 0 ), idVec2( 0, 1 ) );
 idMat2::InverseSelf
 ============
 */
-bool idMat2::InverseSelf() {
+bool idMat2::InverseSelf()
+{
 	// 2+4 = 6 multiplications
 	//		 1 division
 	double det, invDet, a;
 
 	det = mat[0][0] * mat[1][1] - mat[0][1] * mat[1][0];
 
-	if ( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON ) {
+	if( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON )
+	{
 		return false;
 	}
 
@@ -70,7 +72,8 @@ bool idMat2::InverseSelf() {
 idMat2::InverseFastSelf
 ============
 */
-bool idMat2::InverseFastSelf() {
+bool idMat2::InverseFastSelf()
+{
 #if 1
 	// 2+4 = 6 multiplications
 	//		 1 division
@@ -78,7 +81,8 @@ bool idMat2::InverseFastSelf() {
 
 	det = mat[0][0] * mat[1][1] - mat[0][1] * mat[1][0];
 
-	if ( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON ) {
+	if( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON )
+	{
 		return false;
 	}
 
@@ -94,26 +98,26 @@ bool idMat2::InverseFastSelf() {
 #else
 	// 2*4 = 8 multiplications
 	//		 2 division
-	float *mat = reinterpret_cast<float *>(this);
+	float* mat = reinterpret_cast<float*>( this );
 	double d, di;
 	float s;
 
 	di = mat[0];
 	s = di;
-	mat[0*2+0] = d = 1.0f / di;
-	mat[0*2+1] *= d;
+	mat[0 * 2 + 0] = d = 1.0f / di;
+	mat[0 * 2 + 1] *= d;
 	d = -d;
-	mat[1*2+0] *= d;
-	d = mat[1*2+0] * di;
-	mat[1*2+1] += mat[0*2+1] * d;
-	di = mat[1*2+1];
+	mat[1 * 2 + 0] *= d;
+	d = mat[1 * 2 + 0] * di;
+	mat[1 * 2 + 1] += mat[0 * 2 + 1] * d;
+	di = mat[1 * 2 + 1];
 	s *= di;
-	mat[1*2+1] = d = 1.0f / di;
-	mat[1*2+0] *= d;
+	mat[1 * 2 + 1] = d = 1.0f / di;
+	mat[1 * 2 + 0] *= d;
 	d = -d;
-	mat[0*2+1] *= d;
-	d = mat[0*2+1] * di;
-	mat[0*2+0] += mat[1*2+0] * d;
+	mat[0 * 2 + 1] *= d;
+	d = mat[0 * 2 + 1] * di;
+	mat[0 * 2 + 0] += mat[1 * 2 + 0] * d;
 
 	return ( s != 0.0f && !IEEE_FLT_IS_NAN( s ) );
 #endif
@@ -124,7 +128,8 @@ bool idMat2::InverseFastSelf() {
 idMat2::ToString
 =============
 */
-const char *idMat2::ToString( int precision ) const {
+const char* idMat2::ToString( int precision ) const
+{
 	return idStr::FloatArrayToString( ToFloatPtr(), GetDimension(), precision );
 }
 
@@ -145,14 +150,18 @@ idMat3::ToAngles
 returns the pitch/yaw/roll each in the range [-180, 180] degrees
 ========================
 */
-idAngles idMat3::ToAngles() const {
+idAngles idMat3::ToAngles() const
+{
 	idAngles angles;
 	float s = idMath::Sqrt( mat[0][0] * mat[0][0] + mat[0][1] * mat[0][1] );
-	if ( s > idMath::FLT_EPSILON ) {
+	if( s > idMath::FLT_EPSILON )
+	{
 		angles.pitch = RAD2DEG( - idMath::ATan( mat[0][2], s ) );
 		angles.yaw = RAD2DEG( idMath::ATan( mat[0][1], mat[0][0] ) );
 		angles.roll = RAD2DEG( idMath::ATan( mat[1][2], mat[2][2] ) );
-	} else {
+	}
+	else
+	{
 		angles.pitch = mat[0][2] < 0.0f ? 90.0f : -90.0f;
 		angles.yaw = RAD2DEG( - idMath::ATan( mat[1][0], mat[1][1] ) );
 		angles.roll = 0.0f;
@@ -165,7 +174,8 @@ idAngles idMat3::ToAngles() const {
 idMat3::ToQuat
 ============
 */
-idQuat idMat3::ToQuat() const {
+idQuat idMat3::ToQuat() const
+{
 	idQuat		q;
 	float		trace;
 	float		s;
@@ -178,7 +188,8 @@ idQuat idMat3::ToQuat() const {
 
 	trace = mat[ 0 ][ 0 ] + mat[ 1 ][ 1 ] + mat[ 2 ][ 2 ];
 
-	if ( trace > 0.0f ) {
+	if( trace > 0.0f )
+	{
 
 		t = trace + 1.0f;
 		s = idMath::InvSqrt( t ) * 0.5f;
@@ -188,13 +199,17 @@ idQuat idMat3::ToQuat() const {
 		q[1] = ( mat[ 0 ][ 2 ] - mat[ 2 ][ 0 ] ) * s;
 		q[2] = ( mat[ 1 ][ 0 ] - mat[ 0 ][ 1 ] ) * s;
 
-	} else {
+	}
+	else
+	{
 
 		i = 0;
-		if ( mat[ 1 ][ 1 ] > mat[ 0 ][ 0 ] ) {
+		if( mat[ 1 ][ 1 ] > mat[ 0 ][ 0 ] )
+		{
 			i = 1;
 		}
-		if ( mat[ 2 ][ 2 ] > mat[ i ][ i ] ) {
+		if( mat[ 2 ][ 2 ] > mat[ i ][ i ] )
+		{
 			i = 2;
 		}
 		j = next[ i ];
@@ -216,9 +231,11 @@ idQuat idMat3::ToQuat() const {
 idMat3::ToCQuat
 ============
 */
-idCQuat idMat3::ToCQuat() const {
+idCQuat idMat3::ToCQuat() const
+{
 	idQuat q = ToQuat();
-	if ( q.w < 0.0f ) {
+	if( q.w < 0.0f )
+	{
 		return idCQuat( -q.x, -q.y, -q.z );
 	}
 	return idCQuat( q.x, q.y, q.z );
@@ -229,7 +246,8 @@ idCQuat idMat3::ToCQuat() const {
 idMat3::ToRotation
 ============
 */
-idRotation idMat3::ToRotation() const {
+idRotation idMat3::ToRotation() const
+{
 	idRotation	r;
 	float		trace;
 	float		s;
@@ -240,31 +258,36 @@ idRotation idMat3::ToRotation() const {
 	static int 	next[ 3 ] = { 1, 2, 0 };
 
 	trace = mat[ 0 ][ 0 ] + mat[ 1 ][ 1 ] + mat[ 2 ][ 2 ];
-	if ( trace > 0.0f ) {
+	if( trace > 0.0f )
+	{
 
 		t = trace + 1.0f;
 		s = idMath::InvSqrt( t ) * 0.5f;
-    
+
 		r.angle = s * t;
 		r.vec[0] = ( mat[ 2 ][ 1 ] - mat[ 1 ][ 2 ] ) * s;
 		r.vec[1] = ( mat[ 0 ][ 2 ] - mat[ 2 ][ 0 ] ) * s;
 		r.vec[2] = ( mat[ 1 ][ 0 ] - mat[ 0 ][ 1 ] ) * s;
 
-	} else {
+	}
+	else
+	{
 
 		i = 0;
-		if ( mat[ 1 ][ 1 ] > mat[ 0 ][ 0 ] ) {
+		if( mat[ 1 ][ 1 ] > mat[ 0 ][ 0 ] )
+		{
 			i = 1;
 		}
-		if ( mat[ 2 ][ 2 ] > mat[ i ][ i ] ) {
+		if( mat[ 2 ][ 2 ] > mat[ i ][ i ] )
+		{
 			i = 2;
 		}
-		j = next[ i ];  
+		j = next[ i ];
 		k = next[ j ];
-    
+
 		t = ( mat[ i ][ i ] - ( mat[ j ][ j ] + mat[ k ][ k ] ) ) + 1.0f;
 		s = idMath::InvSqrt( t ) * 0.5f;
-    
+
 		r.vec[i]	= s * t;
 		r.angle		= ( mat[ k ][ j ] - mat[ j ][ k ] ) * s;
 		r.vec[j]	= ( mat[ j ][ i ] + mat[ i ][ j ] ) * s;
@@ -273,10 +296,13 @@ idRotation idMat3::ToRotation() const {
 
 	r.angle = idMath::ACos( r.angle );
 	float lengthSqr = r.vec.LengthSqr();
-	if ( ( idMath::Fabs( r.angle ) < 1e-10f ) || ( lengthSqr < 1e-10f ) ) {
+	if( ( idMath::Fabs( r.angle ) < 1e-10f ) || ( lengthSqr < 1e-10f ) )
+	{
 		r.vec.Set( 0.0f, 0.0f, 1.0f );
 		r.angle = 0.0f;
-	} else {
+	}
+	else
+	{
 		r.vec *= idMath::InvSqrt( lengthSqr );
 		r.angle *= 2.0f * idMath::M_RAD2DEG;
 	}
@@ -293,7 +319,8 @@ idRotation idMat3::ToRotation() const {
 idMat3::ToAngularVelocity
 =================
 */
-idVec3 idMat3::ToAngularVelocity() const {
+idVec3 idMat3::ToAngularVelocity() const
+{
 	idRotation rotation = ToRotation();
 	return rotation.GetVec() * DEG2RAD( rotation.GetAngle() );
 }
@@ -303,7 +330,8 @@ idVec3 idMat3::ToAngularVelocity() const {
 idMat3::Determinant
 ============
 */
-float idMat3::Determinant() const {
+float idMat3::Determinant() const
+{
 
 	float det2_12_01 = mat[1][0] * mat[2][1] - mat[1][1] * mat[2][0];
 	float det2_12_02 = mat[1][0] * mat[2][2] - mat[1][2] * mat[2][0];
@@ -317,7 +345,8 @@ float idMat3::Determinant() const {
 idMat3::InverseSelf
 ============
 */
-bool idMat3::InverseSelf() {
+bool idMat3::InverseSelf()
+{
 	// 18+3+9 = 30 multiplications
 	//			 1 division
 	idMat3 inverse;
@@ -329,7 +358,8 @@ bool idMat3::InverseSelf() {
 
 	det = mat[0][0] * inverse[0][0] + mat[0][1] * inverse[1][0] + mat[0][2] * inverse[2][0];
 
-	if ( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON ) {
+	if( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON )
+	{
 		return false;
 	}
 
@@ -362,7 +392,8 @@ bool idMat3::InverseSelf() {
 idMat3::InverseFastSelf
 ============
 */
-bool idMat3::InverseFastSelf() {
+bool idMat3::InverseFastSelf()
+{
 #if 1
 	// 18+3+9 = 30 multiplications
 	//			 1 division
@@ -375,7 +406,8 @@ bool idMat3::InverseFastSelf() {
 
 	det = mat[0][0] * inverse[0][0] + mat[0][1] * inverse[1][0] + mat[0][2] * inverse[2][0];
 
-	if ( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON ) {
+	if( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON )
+	{
 		return false;
 	}
 
@@ -404,7 +436,7 @@ bool idMat3::InverseFastSelf() {
 #elif 0
 	// 3*10 = 30 multiplications
 	//		   3 divisions
-	float *mat = reinterpret_cast<float *>(this);
+	float* mat = reinterpret_cast<float*>( this );
 	float s;
 	double d, di;
 
@@ -458,59 +490,61 @@ bool idMat3::InverseFastSelf() {
 	idMat2 r0;
 	float r1[2], r2[2], r3;
 	float det, invDet;
-	float *mat = reinterpret_cast<float *>(this);
+	float* mat = reinterpret_cast<float*>( this );
 
 	// r0 = m0.Inverse();	// 2x2
-	det = mat[0*3+0] * mat[1*3+1] - mat[0*3+1] * mat[1*3+0];
+	det = mat[0 * 3 + 0] * mat[1 * 3 + 1] - mat[0 * 3 + 1] * mat[1 * 3 + 0];
 
-	if ( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON ) {
+	if( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON )
+	{
 		return false;
 	}
 
 	invDet = 1.0f / det;
 
-	r0[0][0] =   mat[1*3+1] * invDet;
-	r0[0][1] = - mat[0*3+1] * invDet;
-	r0[1][0] = - mat[1*3+0] * invDet;
-	r0[1][1] =   mat[0*3+0] * invDet;
+	r0[0][0] =   mat[1 * 3 + 1] * invDet;
+	r0[0][1] = - mat[0 * 3 + 1] * invDet;
+	r0[1][0] = - mat[1 * 3 + 0] * invDet;
+	r0[1][1] =   mat[0 * 3 + 0] * invDet;
 
 	// r1 = r0 * m1;		// 2x1 = 2x2 * 2x1
-	r1[0] = r0[0][0] * mat[0*3+2] + r0[0][1] * mat[1*3+2];
-	r1[1] = r0[1][0] * mat[0*3+2] + r0[1][1] * mat[1*3+2];
+	r1[0] = r0[0][0] * mat[0 * 3 + 2] + r0[0][1] * mat[1 * 3 + 2];
+	r1[1] = r0[1][0] * mat[0 * 3 + 2] + r0[1][1] * mat[1 * 3 + 2];
 
 	// r2 = m2 * r1;		// 1x1 = 1x2 * 2x1
-	r2[0] = mat[2*3+0] * r1[0] + mat[2*3+1] * r1[1];
+	r2[0] = mat[2 * 3 + 0] * r1[0] + mat[2 * 3 + 1] * r1[1];
 
 	// r3 = r2 - m3;		// 1x1 = 1x1 - 1x1
-	r3 = r2[0] - mat[2*3+2];
+	r3 = r2[0] - mat[2 * 3 + 2];
 
 	// r3.InverseSelf();
-	if ( idMath::Fabs( r3 ) < MATRIX_INVERSE_EPSILON ) {
+	if( idMath::Fabs( r3 ) < MATRIX_INVERSE_EPSILON )
+	{
 		return false;
 	}
 
 	r3 = 1.0f / r3;
 
 	// r2 = m2 * r0;		// 1x2 = 1x2 * 2x2
-	r2[0] = mat[2*3+0] * r0[0][0] + mat[2*3+1] * r0[1][0];
-	r2[1] = mat[2*3+0] * r0[0][1] + mat[2*3+1] * r0[1][1];
+	r2[0] = mat[2 * 3 + 0] * r0[0][0] + mat[2 * 3 + 1] * r0[1][0];
+	r2[1] = mat[2 * 3 + 0] * r0[0][1] + mat[2 * 3 + 1] * r0[1][1];
 
 	// m2 = r3 * r2;		// 1x2 = 1x1 * 1x2
-	mat[2*3+0] = r3 * r2[0];
-	mat[2*3+1] = r3 * r2[1];
+	mat[2 * 3 + 0] = r3 * r2[0];
+	mat[2 * 3 + 1] = r3 * r2[1];
 
 	// m0 = r0 - r1 * m2;	// 2x2 - 2x1 * 1x2
-	mat[0*3+0] = r0[0][0] - r1[0] * mat[2*3+0];
-	mat[0*3+1] = r0[0][1] - r1[0] * mat[2*3+1];
-	mat[1*3+0] = r0[1][0] - r1[1] * mat[2*3+0];
-	mat[1*3+1] = r0[1][1] - r1[1] * mat[2*3+1];
+	mat[0 * 3 + 0] = r0[0][0] - r1[0] * mat[2 * 3 + 0];
+	mat[0 * 3 + 1] = r0[0][1] - r1[0] * mat[2 * 3 + 1];
+	mat[1 * 3 + 0] = r0[1][0] - r1[1] * mat[2 * 3 + 0];
+	mat[1 * 3 + 1] = r0[1][1] - r1[1] * mat[2 * 3 + 1];
 
 	// m1 = r1 * r3;		// 2x1 = 2x1 * 1x1
-	mat[0*3+2] = r1[0] * r3;
-	mat[1*3+2] = r1[1] * r3;
+	mat[0 * 3 + 2] = r1[0] * r3;
+	mat[1 * 3 + 2] = r1[1] * r3;
 
 	// m3 = -r3;
-	mat[2*3+2] = -r3;
+	mat[2 * 3 + 2] = -r3;
 
 	return true;
 #endif
@@ -521,24 +555,25 @@ bool idMat3::InverseFastSelf() {
 idMat3::InertiaTranslate
 ============
 */
-idMat3 idMat3::InertiaTranslate( const float mass, const idVec3 &centerOfMass, const idVec3 &translation ) const {
+idMat3 idMat3::InertiaTranslate( const float mass, const idVec3& centerOfMass, const idVec3& translation ) const
+{
 	idMat3 m;
 	idVec3 newCenter;
 
 	newCenter = centerOfMass + translation;
 
 	m[0][0] = mass * ( ( centerOfMass[1] * centerOfMass[1] + centerOfMass[2] * centerOfMass[2] )
-				- ( newCenter[1] * newCenter[1] + newCenter[2] * newCenter[2] ) );
+					   - ( newCenter[1] * newCenter[1] + newCenter[2] * newCenter[2] ) );
 	m[1][1] = mass * ( ( centerOfMass[0] * centerOfMass[0] + centerOfMass[2] * centerOfMass[2] )
-				- ( newCenter[0] * newCenter[0] + newCenter[2] * newCenter[2] ) );
+					   - ( newCenter[0] * newCenter[0] + newCenter[2] * newCenter[2] ) );
 	m[2][2] = mass * ( ( centerOfMass[0] * centerOfMass[0] + centerOfMass[1] * centerOfMass[1] )
-				- ( newCenter[0] * newCenter[0] + newCenter[1] * newCenter[1] ) );
+					   - ( newCenter[0] * newCenter[0] + newCenter[1] * newCenter[1] ) );
 
 	m[0][1] = m[1][0] = mass * ( newCenter[0] * newCenter[1] - centerOfMass[0] * centerOfMass[1] );
 	m[1][2] = m[2][1] = mass * ( newCenter[1] * newCenter[2] - centerOfMass[1] * centerOfMass[2] );
 	m[0][2] = m[2][0] = mass * ( newCenter[0] * newCenter[2] - centerOfMass[0] * centerOfMass[2] );
 
-	return (*this) + m;
+	return ( *this ) + m;
 }
 
 /*
@@ -546,26 +581,27 @@ idMat3 idMat3::InertiaTranslate( const float mass, const idVec3 &centerOfMass, c
 idMat3::InertiaTranslateSelf
 ============
 */
-idMat3 &idMat3::InertiaTranslateSelf( const float mass, const idVec3 &centerOfMass, const idVec3 &translation ) {
+idMat3& idMat3::InertiaTranslateSelf( const float mass, const idVec3& centerOfMass, const idVec3& translation )
+{
 	idMat3 m;
 	idVec3 newCenter;
 
 	newCenter = centerOfMass + translation;
 
 	m[0][0] = mass * ( ( centerOfMass[1] * centerOfMass[1] + centerOfMass[2] * centerOfMass[2] )
-				- ( newCenter[1] * newCenter[1] + newCenter[2] * newCenter[2] ) );
+					   - ( newCenter[1] * newCenter[1] + newCenter[2] * newCenter[2] ) );
 	m[1][1] = mass * ( ( centerOfMass[0] * centerOfMass[0] + centerOfMass[2] * centerOfMass[2] )
-				- ( newCenter[0] * newCenter[0] + newCenter[2] * newCenter[2] ) );
+					   - ( newCenter[0] * newCenter[0] + newCenter[2] * newCenter[2] ) );
 	m[2][2] = mass * ( ( centerOfMass[0] * centerOfMass[0] + centerOfMass[1] * centerOfMass[1] )
-				- ( newCenter[0] * newCenter[0] + newCenter[1] * newCenter[1] ) );
+					   - ( newCenter[0] * newCenter[0] + newCenter[1] * newCenter[1] ) );
 
 	m[0][1] = m[1][0] = mass * ( newCenter[0] * newCenter[1] - centerOfMass[0] * centerOfMass[1] );
 	m[1][2] = m[2][1] = mass * ( newCenter[1] * newCenter[2] - centerOfMass[1] * centerOfMass[2] );
 	m[0][2] = m[2][0] = mass * ( newCenter[0] * newCenter[2] - centerOfMass[0] * centerOfMass[2] );
 
-	(*this) += m;
+	( *this ) += m;
 
-	return (*this);
+	return ( *this );
 }
 
 /*
@@ -573,9 +609,10 @@ idMat3 &idMat3::InertiaTranslateSelf( const float mass, const idVec3 &centerOfMa
 idMat3::InertiaRotate
 ============
 */
-idMat3 idMat3::InertiaRotate( const idMat3 &rotation ) const {
+idMat3 idMat3::InertiaRotate( const idMat3& rotation ) const
+{
 	// NOTE: the rotation matrix is stored column-major
-	return rotation.Transpose() * (*this) * rotation;
+	return rotation.Transpose() * ( *this ) * rotation;
 }
 
 /*
@@ -583,9 +620,10 @@ idMat3 idMat3::InertiaRotate( const idMat3 &rotation ) const {
 idMat3::InertiaRotateSelf
 ============
 */
-idMat3 &idMat3::InertiaRotateSelf( const idMat3 &rotation ) {
+idMat3& idMat3::InertiaRotateSelf( const idMat3& rotation )
+{
 	// NOTE: the rotation matrix is stored column-major
-	*this = rotation.Transpose() * (*this) * rotation;
+	*this = rotation.Transpose() * ( *this ) * rotation;
 	return *this;
 }
 
@@ -594,7 +632,8 @@ idMat3 &idMat3::InertiaRotateSelf( const idMat3 &rotation ) {
 idMat3::ToString
 =============
 */
-const char *idMat3::ToString( int precision ) const {
+const char* idMat3::ToString( int precision ) const
+{
 	return idStr::FloatArrayToString( ToFloatPtr(), GetDimension(), precision );
 }
 
@@ -613,14 +652,17 @@ idMat4 mat4_identity( idVec4( 1, 0, 0, 0 ), idVec4( 0, 1, 0, 0 ), idVec4( 0, 0, 
 idMat4::Transpose
 ============
 */
-idMat4 idMat4::Transpose() const {
+idMat4 idMat4::Transpose() const
+{
 	idMat4	transpose;
 	int		i, j;
-   
-	for( i = 0; i < 4; i++ ) {
-		for( j = 0; j < 4; j++ ) {
+
+	for( i = 0; i < 4; i++ )
+	{
+		for( j = 0; j < 4; j++ )
+		{
 			transpose[ i ][ j ] = mat[ j ][ i ];
-        }
+		}
 	}
 	return transpose;
 }
@@ -630,16 +672,19 @@ idMat4 idMat4::Transpose() const {
 idMat4::TransposeSelf
 ============
 */
-idMat4 &idMat4::TransposeSelf() {
+idMat4& idMat4::TransposeSelf()
+{
 	float	temp;
 	int		i, j;
-   
-	for( i = 0; i < 4; i++ ) {
-		for( j = i + 1; j < 4; j++ ) {
+
+	for( i = 0; i < 4; i++ )
+	{
+		for( j = i + 1; j < 4; j++ )
+		{
 			temp = mat[ i ][ j ];
 			mat[ i ][ j ] = mat[ j ][ i ];
 			mat[ j ][ i ] = temp;
-        }
+		}
 	}
 	return *this;
 }
@@ -649,7 +694,8 @@ idMat4 &idMat4::TransposeSelf() {
 idMat4::Determinant
 ============
 */
-float idMat4::Determinant() const {
+float idMat4::Determinant() const
+{
 
 	// 2x2 sub-determinants
 	float det2_01_01 = mat[0][0] * mat[1][1] - mat[0][1] * mat[1][0];
@@ -673,7 +719,8 @@ float idMat4::Determinant() const {
 idMat4::InverseSelf
 ============
 */
-bool idMat4::InverseSelf() {
+bool idMat4::InverseSelf()
+{
 	// 84+4+16 = 104 multiplications
 	//			   1 division
 	double det, invDet;
@@ -694,7 +741,8 @@ bool idMat4::InverseSelf() {
 
 	det = ( - det3_201_123 * mat[3][0] + det3_201_023 * mat[3][1] - det3_201_013 * mat[3][2] + det3_201_012 * mat[3][3] );
 
-	if ( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON ) {
+	if( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON )
+	{
 		return false;
 	}
 
@@ -759,7 +807,8 @@ bool idMat4::InverseSelf() {
 idMat4::InverseFastSelf
 ============
 */
-bool idMat4::InverseFastSelf() {
+bool idMat4::InverseFastSelf()
+{
 #if 0
 	// 84+4+16 = 104 multiplications
 	//			   1 division
@@ -781,7 +830,8 @@ bool idMat4::InverseFastSelf() {
 
 	det = ( - det3_201_123 * mat[3][0] + det3_201_023 * mat[3][1] - det3_201_013 * mat[3][2] + det3_201_012 * mat[3][3] );
 
-	if ( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON ) {
+	if( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON )
+	{
 		return false;
 	}
 
@@ -842,7 +892,7 @@ bool idMat4::InverseFastSelf() {
 #elif 0
 	// 4*18 = 72 multiplications
 	//		   4 divisions
-	float *mat = reinterpret_cast<float *>(this);
+	float* mat = reinterpret_cast<float*>( this );
 	float s;
 	double d, di;
 
@@ -941,44 +991,46 @@ bool idMat4::InverseFastSelf() {
 	//		2*1 =  2 divisions
 	idMat2 r0, r1, r2, r3;
 	float a, det, invDet;
-	float *mat = reinterpret_cast<float *>(this);
+	float* mat = reinterpret_cast<float*>( this );
 
 	// r0 = m0.Inverse();
-	det = mat[0*4+0] * mat[1*4+1] - mat[0*4+1] * mat[1*4+0];
+	det = mat[0 * 4 + 0] * mat[1 * 4 + 1] - mat[0 * 4 + 1] * mat[1 * 4 + 0];
 
-	if ( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON ) {
+	if( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON )
+	{
 		return false;
 	}
 
 	invDet = 1.0f / det;
 
-	r0[0][0] =   mat[1*4+1] * invDet;
-	r0[0][1] = - mat[0*4+1] * invDet;
-	r0[1][0] = - mat[1*4+0] * invDet;
-	r0[1][1] =   mat[0*4+0] * invDet;
+	r0[0][0] =   mat[1 * 4 + 1] * invDet;
+	r0[0][1] = - mat[0 * 4 + 1] * invDet;
+	r0[1][0] = - mat[1 * 4 + 0] * invDet;
+	r0[1][1] =   mat[0 * 4 + 0] * invDet;
 
 	// r1 = r0 * m1;
-	r1[0][0] = r0[0][0] * mat[0*4+2] + r0[0][1] * mat[1*4+2];
-	r1[0][1] = r0[0][0] * mat[0*4+3] + r0[0][1] * mat[1*4+3];
-	r1[1][0] = r0[1][0] * mat[0*4+2] + r0[1][1] * mat[1*4+2];
-	r1[1][1] = r0[1][0] * mat[0*4+3] + r0[1][1] * mat[1*4+3];
+	r1[0][0] = r0[0][0] * mat[0 * 4 + 2] + r0[0][1] * mat[1 * 4 + 2];
+	r1[0][1] = r0[0][0] * mat[0 * 4 + 3] + r0[0][1] * mat[1 * 4 + 3];
+	r1[1][0] = r0[1][0] * mat[0 * 4 + 2] + r0[1][1] * mat[1 * 4 + 2];
+	r1[1][1] = r0[1][0] * mat[0 * 4 + 3] + r0[1][1] * mat[1 * 4 + 3];
 
 	// r2 = m2 * r1;
-	r2[0][0] = mat[2*4+0] * r1[0][0] + mat[2*4+1] * r1[1][0];
-	r2[0][1] = mat[2*4+0] * r1[0][1] + mat[2*4+1] * r1[1][1];
-	r2[1][0] = mat[3*4+0] * r1[0][0] + mat[3*4+1] * r1[1][0];
-	r2[1][1] = mat[3*4+0] * r1[0][1] + mat[3*4+1] * r1[1][1];
+	r2[0][0] = mat[2 * 4 + 0] * r1[0][0] + mat[2 * 4 + 1] * r1[1][0];
+	r2[0][1] = mat[2 * 4 + 0] * r1[0][1] + mat[2 * 4 + 1] * r1[1][1];
+	r2[1][0] = mat[3 * 4 + 0] * r1[0][0] + mat[3 * 4 + 1] * r1[1][0];
+	r2[1][1] = mat[3 * 4 + 0] * r1[0][1] + mat[3 * 4 + 1] * r1[1][1];
 
 	// r3 = r2 - m3;
-	r3[0][0] = r2[0][0] - mat[2*4+2];
-	r3[0][1] = r2[0][1] - mat[2*4+3];
-	r3[1][0] = r2[1][0] - mat[3*4+2];
-	r3[1][1] = r2[1][1] - mat[3*4+3];
+	r3[0][0] = r2[0][0] - mat[2 * 4 + 2];
+	r3[0][1] = r2[0][1] - mat[2 * 4 + 3];
+	r3[1][0] = r2[1][0] - mat[3 * 4 + 2];
+	r3[1][1] = r2[1][1] - mat[3 * 4 + 3];
 
 	// r3.InverseSelf();
 	det = r3[0][0] * r3[1][1] - r3[0][1] * r3[1][0];
 
-	if ( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON ) {
+	if( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON )
+	{
 		return false;
 	}
 
@@ -991,34 +1043,34 @@ bool idMat4::InverseFastSelf() {
 	r3[1][1] =   a * invDet;
 
 	// r2 = m2 * r0;
-	r2[0][0] = mat[2*4+0] * r0[0][0] + mat[2*4+1] * r0[1][0];
-	r2[0][1] = mat[2*4+0] * r0[0][1] + mat[2*4+1] * r0[1][1];
-	r2[1][0] = mat[3*4+0] * r0[0][0] + mat[3*4+1] * r0[1][0];
-	r2[1][1] = mat[3*4+0] * r0[0][1] + mat[3*4+1] * r0[1][1];
+	r2[0][0] = mat[2 * 4 + 0] * r0[0][0] + mat[2 * 4 + 1] * r0[1][0];
+	r2[0][1] = mat[2 * 4 + 0] * r0[0][1] + mat[2 * 4 + 1] * r0[1][1];
+	r2[1][0] = mat[3 * 4 + 0] * r0[0][0] + mat[3 * 4 + 1] * r0[1][0];
+	r2[1][1] = mat[3 * 4 + 0] * r0[0][1] + mat[3 * 4 + 1] * r0[1][1];
 
 	// m2 = r3 * r2;
-	mat[2*4+0] = r3[0][0] * r2[0][0] + r3[0][1] * r2[1][0];
-	mat[2*4+1] = r3[0][0] * r2[0][1] + r3[0][1] * r2[1][1];
-	mat[3*4+0] = r3[1][0] * r2[0][0] + r3[1][1] * r2[1][0];
-	mat[3*4+1] = r3[1][0] * r2[0][1] + r3[1][1] * r2[1][1];
+	mat[2 * 4 + 0] = r3[0][0] * r2[0][0] + r3[0][1] * r2[1][0];
+	mat[2 * 4 + 1] = r3[0][0] * r2[0][1] + r3[0][1] * r2[1][1];
+	mat[3 * 4 + 0] = r3[1][0] * r2[0][0] + r3[1][1] * r2[1][0];
+	mat[3 * 4 + 1] = r3[1][0] * r2[0][1] + r3[1][1] * r2[1][1];
 
 	// m0 = r0 - r1 * m2;
-	mat[0*4+0] = r0[0][0] - r1[0][0] * mat[2*4+0] - r1[0][1] * mat[3*4+0];
-	mat[0*4+1] = r0[0][1] - r1[0][0] * mat[2*4+1] - r1[0][1] * mat[3*4+1];
-	mat[1*4+0] = r0[1][0] - r1[1][0] * mat[2*4+0] - r1[1][1] * mat[3*4+0];
-	mat[1*4+1] = r0[1][1] - r1[1][0] * mat[2*4+1] - r1[1][1] * mat[3*4+1];
+	mat[0 * 4 + 0] = r0[0][0] - r1[0][0] * mat[2 * 4 + 0] - r1[0][1] * mat[3 * 4 + 0];
+	mat[0 * 4 + 1] = r0[0][1] - r1[0][0] * mat[2 * 4 + 1] - r1[0][1] * mat[3 * 4 + 1];
+	mat[1 * 4 + 0] = r0[1][0] - r1[1][0] * mat[2 * 4 + 0] - r1[1][1] * mat[3 * 4 + 0];
+	mat[1 * 4 + 1] = r0[1][1] - r1[1][0] * mat[2 * 4 + 1] - r1[1][1] * mat[3 * 4 + 1];
 
 	// m1 = r1 * r3;
-	mat[0*4+2] = r1[0][0] * r3[0][0] + r1[0][1] * r3[1][0];
-	mat[0*4+3] = r1[0][0] * r3[0][1] + r1[0][1] * r3[1][1];
-	mat[1*4+2] = r1[1][0] * r3[0][0] + r1[1][1] * r3[1][0];
-	mat[1*4+3] = r1[1][0] * r3[0][1] + r1[1][1] * r3[1][1];
+	mat[0 * 4 + 2] = r1[0][0] * r3[0][0] + r1[0][1] * r3[1][0];
+	mat[0 * 4 + 3] = r1[0][0] * r3[0][1] + r1[0][1] * r3[1][1];
+	mat[1 * 4 + 2] = r1[1][0] * r3[0][0] + r1[1][1] * r3[1][0];
+	mat[1 * 4 + 3] = r1[1][0] * r3[0][1] + r1[1][1] * r3[1][1];
 
 	// m3 = -r3;
-	mat[2*4+2] = -r3[0][0];
-	mat[2*4+3] = -r3[0][1];
-	mat[3*4+2] = -r3[1][0];
-	mat[3*4+3] = -r3[1][1];
+	mat[2 * 4 + 2] = -r3[0][0];
+	mat[2 * 4 + 3] = -r3[0][1];
+	mat[3 * 4 + 2] = -r3[1][0];
+	mat[3 * 4 + 3] = -r3[1][1];
 
 	return true;
 #endif
@@ -1029,7 +1081,8 @@ bool idMat4::InverseFastSelf() {
 idMat4::ToString
 =============
 */
-const char *idMat4::ToString( int precision ) const {
+const char* idMat4::ToString( int precision ) const
+{
 	return idStr::FloatArrayToString( ToFloatPtr(), GetDimension(), precision );
 }
 
@@ -1048,14 +1101,17 @@ idMat5 mat5_identity( idVec5( 1, 0, 0, 0, 0 ), idVec5( 0, 1, 0, 0, 0 ), idVec5( 
 idMat5::Transpose
 ============
 */
-idMat5 idMat5::Transpose() const {
+idMat5 idMat5::Transpose() const
+{
 	idMat5	transpose;
 	int		i, j;
-   
-	for( i = 0; i < 5; i++ ) {
-		for( j = 0; j < 5; j++ ) {
+
+	for( i = 0; i < 5; i++ )
+	{
+		for( j = 0; j < 5; j++ )
+		{
 			transpose[ i ][ j ] = mat[ j ][ i ];
-        }
+		}
 	}
 	return transpose;
 }
@@ -1065,16 +1121,19 @@ idMat5 idMat5::Transpose() const {
 idMat5::TransposeSelf
 ============
 */
-idMat5 &idMat5::TransposeSelf() {
+idMat5& idMat5::TransposeSelf()
+{
 	float	temp;
 	int		i, j;
-   
-	for( i = 0; i < 5; i++ ) {
-		for( j = i + 1; j < 5; j++ ) {
+
+	for( i = 0; i < 5; i++ )
+	{
+		for( j = i + 1; j < 5; j++ )
+		{
 			temp = mat[ i ][ j ];
 			mat[ i ][ j ] = mat[ j ][ i ];
 			mat[ j ][ i ] = temp;
-        }
+		}
 	}
 	return *this;
 }
@@ -1084,7 +1143,8 @@ idMat5 &idMat5::TransposeSelf() {
 idMat5::Determinant
 ============
 */
-float idMat5::Determinant() const {
+float idMat5::Determinant() const
+{
 
 	// 2x2 sub-determinants required to calculate 5x5 determinant
 	float det2_34_01 = mat[3][0] * mat[4][1] - mat[3][1] * mat[4][0];
@@ -1126,7 +1186,8 @@ float idMat5::Determinant() const {
 idMat5::InverseSelf
 ============
 */
-bool idMat5::InverseSelf() {
+bool idMat5::InverseSelf()
+{
 	// 280+5+25 = 310 multiplications
 	//				1 division
 	double det, invDet;
@@ -1165,7 +1226,8 @@ bool idMat5::InverseSelf() {
 	// determinant of 5x5 matrix
 	det = mat[0][0] * det4_1234_1234 - mat[0][1] * det4_1234_0234 + mat[0][2] * det4_1234_0134 - mat[0][3] * det4_1234_0124 + mat[0][4] * det4_1234_0123;
 
-	if( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON ) {  
+	if( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON )
+	{
 		return false;
 	}
 
@@ -1285,7 +1347,8 @@ bool idMat5::InverseSelf() {
 idMat5::InverseFastSelf
 ============
 */
-bool idMat5::InverseFastSelf() {
+bool idMat5::InverseFastSelf()
+{
 #if 0
 	// 280+5+25 = 310 multiplications
 	//				1 division
@@ -1325,7 +1388,8 @@ bool idMat5::InverseFastSelf() {
 	// determinant of 5x5 matrix
 	det = mat[0][0] * det4_1234_1234 - mat[0][1] * det4_1234_0234 + mat[0][2] * det4_1234_0134 - mat[0][3] * det4_1234_0124 + mat[0][4] * det4_1234_0123;
 
-	if( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON ) {  
+	if( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON )
+	{
 		return false;
 	}
 
@@ -1441,7 +1505,7 @@ bool idMat5::InverseFastSelf() {
 #elif 0
 	// 5*28 = 140 multiplications
 	//			5 divisions
-	float *mat = reinterpret_cast<float *>(this);
+	float* mat = reinterpret_cast<float*>( this );
 	float s;
 	double d, di;
 
@@ -1612,55 +1676,57 @@ bool idMat5::InverseFastSelf() {
 	//	  2*1  =   2 divisions
 	idMat3 r0, r1, r2, r3;
 	float c0, c1, c2, det, invDet;
-	float *mat = reinterpret_cast<float *>(this);
+	float* mat = reinterpret_cast<float*>( this );
 
 	// r0 = m0.Inverse();	// 3x3
-	c0 = mat[1*5+1] * mat[2*5+2] - mat[1*5+2] * mat[2*5+1];
-	c1 = mat[1*5+2] * mat[2*5+0] - mat[1*5+0] * mat[2*5+2];
-	c2 = mat[1*5+0] * mat[2*5+1] - mat[1*5+1] * mat[2*5+0];
+	c0 = mat[1 * 5 + 1] * mat[2 * 5 + 2] - mat[1 * 5 + 2] * mat[2 * 5 + 1];
+	c1 = mat[1 * 5 + 2] * mat[2 * 5 + 0] - mat[1 * 5 + 0] * mat[2 * 5 + 2];
+	c2 = mat[1 * 5 + 0] * mat[2 * 5 + 1] - mat[1 * 5 + 1] * mat[2 * 5 + 0];
 
-	det = mat[0*5+0] * c0 + mat[0*5+1] * c1 + mat[0*5+2] * c2;
+	det = mat[0 * 5 + 0] * c0 + mat[0 * 5 + 1] * c1 + mat[0 * 5 + 2] * c2;
 
-	if ( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON ) {
+	if( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON )
+	{
 		return false;
 	}
 
 	invDet = 1.0f / det;
 
 	r0[0][0] = c0 * invDet;
-	r0[0][1] = ( mat[0*5+2] * mat[2*5+1] - mat[0*5+1] * mat[2*5+2] ) * invDet;
-	r0[0][2] = ( mat[0*5+1] * mat[1*5+2] - mat[0*5+2] * mat[1*5+1] ) * invDet;
+	r0[0][1] = ( mat[0 * 5 + 2] * mat[2 * 5 + 1] - mat[0 * 5 + 1] * mat[2 * 5 + 2] ) * invDet;
+	r0[0][2] = ( mat[0 * 5 + 1] * mat[1 * 5 + 2] - mat[0 * 5 + 2] * mat[1 * 5 + 1] ) * invDet;
 	r0[1][0] = c1 * invDet;
-	r0[1][1] = ( mat[0*5+0] * mat[2*5+2] - mat[0*5+2] * mat[2*5+0] ) * invDet;
-	r0[1][2] = ( mat[0*5+2] * mat[1*5+0] - mat[0*5+0] * mat[1*5+2] ) * invDet;
+	r0[1][1] = ( mat[0 * 5 + 0] * mat[2 * 5 + 2] - mat[0 * 5 + 2] * mat[2 * 5 + 0] ) * invDet;
+	r0[1][2] = ( mat[0 * 5 + 2] * mat[1 * 5 + 0] - mat[0 * 5 + 0] * mat[1 * 5 + 2] ) * invDet;
 	r0[2][0] = c2 * invDet;
-	r0[2][1] = ( mat[0*5+1] * mat[2*5+0] - mat[0*5+0] * mat[2*5+1] ) * invDet;
-	r0[2][2] = ( mat[0*5+0] * mat[1*5+1] - mat[0*5+1] * mat[1*5+0] ) * invDet;
+	r0[2][1] = ( mat[0 * 5 + 1] * mat[2 * 5 + 0] - mat[0 * 5 + 0] * mat[2 * 5 + 1] ) * invDet;
+	r0[2][2] = ( mat[0 * 5 + 0] * mat[1 * 5 + 1] - mat[0 * 5 + 1] * mat[1 * 5 + 0] ) * invDet;
 
 	// r1 = r0 * m1;		// 3x2 = 3x3 * 3x2
-	r1[0][0] = r0[0][0] * mat[0*5+3] + r0[0][1] * mat[1*5+3] + r0[0][2] * mat[2*5+3];
-	r1[0][1] = r0[0][0] * mat[0*5+4] + r0[0][1] * mat[1*5+4] + r0[0][2] * mat[2*5+4];
-	r1[1][0] = r0[1][0] * mat[0*5+3] + r0[1][1] * mat[1*5+3] + r0[1][2] * mat[2*5+3];
-	r1[1][1] = r0[1][0] * mat[0*5+4] + r0[1][1] * mat[1*5+4] + r0[1][2] * mat[2*5+4];
-	r1[2][0] = r0[2][0] * mat[0*5+3] + r0[2][1] * mat[1*5+3] + r0[2][2] * mat[2*5+3];
-	r1[2][1] = r0[2][0] * mat[0*5+4] + r0[2][1] * mat[1*5+4] + r0[2][2] * mat[2*5+4];
+	r1[0][0] = r0[0][0] * mat[0 * 5 + 3] + r0[0][1] * mat[1 * 5 + 3] + r0[0][2] * mat[2 * 5 + 3];
+	r1[0][1] = r0[0][0] * mat[0 * 5 + 4] + r0[0][1] * mat[1 * 5 + 4] + r0[0][2] * mat[2 * 5 + 4];
+	r1[1][0] = r0[1][0] * mat[0 * 5 + 3] + r0[1][1] * mat[1 * 5 + 3] + r0[1][2] * mat[2 * 5 + 3];
+	r1[1][1] = r0[1][0] * mat[0 * 5 + 4] + r0[1][1] * mat[1 * 5 + 4] + r0[1][2] * mat[2 * 5 + 4];
+	r1[2][0] = r0[2][0] * mat[0 * 5 + 3] + r0[2][1] * mat[1 * 5 + 3] + r0[2][2] * mat[2 * 5 + 3];
+	r1[2][1] = r0[2][0] * mat[0 * 5 + 4] + r0[2][1] * mat[1 * 5 + 4] + r0[2][2] * mat[2 * 5 + 4];
 
 	// r2 = m2 * r1;		// 2x2 = 2x3 * 3x2
-	r2[0][0] = mat[3*5+0] * r1[0][0] + mat[3*5+1] * r1[1][0] + mat[3*5+2] * r1[2][0];
-	r2[0][1] = mat[3*5+0] * r1[0][1] + mat[3*5+1] * r1[1][1] + mat[3*5+2] * r1[2][1];
-	r2[1][0] = mat[4*5+0] * r1[0][0] + mat[4*5+1] * r1[1][0] + mat[4*5+2] * r1[2][0];
-	r2[1][1] = mat[4*5+0] * r1[0][1] + mat[4*5+1] * r1[1][1] + mat[4*5+2] * r1[2][1];
+	r2[0][0] = mat[3 * 5 + 0] * r1[0][0] + mat[3 * 5 + 1] * r1[1][0] + mat[3 * 5 + 2] * r1[2][0];
+	r2[0][1] = mat[3 * 5 + 0] * r1[0][1] + mat[3 * 5 + 1] * r1[1][1] + mat[3 * 5 + 2] * r1[2][1];
+	r2[1][0] = mat[4 * 5 + 0] * r1[0][0] + mat[4 * 5 + 1] * r1[1][0] + mat[4 * 5 + 2] * r1[2][0];
+	r2[1][1] = mat[4 * 5 + 0] * r1[0][1] + mat[4 * 5 + 1] * r1[1][1] + mat[4 * 5 + 2] * r1[2][1];
 
 	// r3 = r2 - m3;		// 2x2 = 2x2 - 2x2
-	r3[0][0] = r2[0][0] - mat[3*5+3];
-	r3[0][1] = r2[0][1] - mat[3*5+4];
-	r3[1][0] = r2[1][0] - mat[4*5+3];
-	r3[1][1] = r2[1][1] - mat[4*5+4];
+	r3[0][0] = r2[0][0] - mat[3 * 5 + 3];
+	r3[0][1] = r2[0][1] - mat[3 * 5 + 4];
+	r3[1][0] = r2[1][0] - mat[4 * 5 + 3];
+	r3[1][1] = r2[1][1] - mat[4 * 5 + 4];
 
 	// r3.InverseSelf();	// 2x2
 	det = r3[0][0] * r3[1][1] - r3[0][1] * r3[1][0];
 
-	if ( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON ) {
+	if( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON )
+	{
 		return false;
 	}
 
@@ -1673,45 +1739,45 @@ bool idMat5::InverseFastSelf() {
 	r3[1][1] =   c0 * invDet;
 
 	// r2 = m2 * r0;		// 2x3 = 2x3 * 3x3
-	r2[0][0] = mat[3*5+0] * r0[0][0] + mat[3*5+1] * r0[1][0] + mat[3*5+2] * r0[2][0];
-	r2[0][1] = mat[3*5+0] * r0[0][1] + mat[3*5+1] * r0[1][1] + mat[3*5+2] * r0[2][1];
-	r2[0][2] = mat[3*5+0] * r0[0][2] + mat[3*5+1] * r0[1][2] + mat[3*5+2] * r0[2][2];
-	r2[1][0] = mat[4*5+0] * r0[0][0] + mat[4*5+1] * r0[1][0] + mat[4*5+2] * r0[2][0];
-	r2[1][1] = mat[4*5+0] * r0[0][1] + mat[4*5+1] * r0[1][1] + mat[4*5+2] * r0[2][1];
-	r2[1][2] = mat[4*5+0] * r0[0][2] + mat[4*5+1] * r0[1][2] + mat[4*5+2] * r0[2][2];
+	r2[0][0] = mat[3 * 5 + 0] * r0[0][0] + mat[3 * 5 + 1] * r0[1][0] + mat[3 * 5 + 2] * r0[2][0];
+	r2[0][1] = mat[3 * 5 + 0] * r0[0][1] + mat[3 * 5 + 1] * r0[1][1] + mat[3 * 5 + 2] * r0[2][1];
+	r2[0][2] = mat[3 * 5 + 0] * r0[0][2] + mat[3 * 5 + 1] * r0[1][2] + mat[3 * 5 + 2] * r0[2][2];
+	r2[1][0] = mat[4 * 5 + 0] * r0[0][0] + mat[4 * 5 + 1] * r0[1][0] + mat[4 * 5 + 2] * r0[2][0];
+	r2[1][1] = mat[4 * 5 + 0] * r0[0][1] + mat[4 * 5 + 1] * r0[1][1] + mat[4 * 5 + 2] * r0[2][1];
+	r2[1][2] = mat[4 * 5 + 0] * r0[0][2] + mat[4 * 5 + 1] * r0[1][2] + mat[4 * 5 + 2] * r0[2][2];
 
 	// m2 = r3 * r2;		// 2x3 = 2x2 * 2x3
-	mat[3*5+0] = r3[0][0] * r2[0][0] + r3[0][1] * r2[1][0];
-	mat[3*5+1] = r3[0][0] * r2[0][1] + r3[0][1] * r2[1][1];
-	mat[3*5+2] = r3[0][0] * r2[0][2] + r3[0][1] * r2[1][2];
-	mat[4*5+0] = r3[1][0] * r2[0][0] + r3[1][1] * r2[1][0];
-	mat[4*5+1] = r3[1][0] * r2[0][1] + r3[1][1] * r2[1][1];
-	mat[4*5+2] = r3[1][0] * r2[0][2] + r3[1][1] * r2[1][2];
+	mat[3 * 5 + 0] = r3[0][0] * r2[0][0] + r3[0][1] * r2[1][0];
+	mat[3 * 5 + 1] = r3[0][0] * r2[0][1] + r3[0][1] * r2[1][1];
+	mat[3 * 5 + 2] = r3[0][0] * r2[0][2] + r3[0][1] * r2[1][2];
+	mat[4 * 5 + 0] = r3[1][0] * r2[0][0] + r3[1][1] * r2[1][0];
+	mat[4 * 5 + 1] = r3[1][0] * r2[0][1] + r3[1][1] * r2[1][1];
+	mat[4 * 5 + 2] = r3[1][0] * r2[0][2] + r3[1][1] * r2[1][2];
 
 	// m0 = r0 - r1 * m2;	// 3x3 = 3x3 - 3x2 * 2x3
-	mat[0*5+0] = r0[0][0] - r1[0][0] * mat[3*5+0] - r1[0][1] * mat[4*5+0];
-	mat[0*5+1] = r0[0][1] - r1[0][0] * mat[3*5+1] - r1[0][1] * mat[4*5+1];
-	mat[0*5+2] = r0[0][2] - r1[0][0] * mat[3*5+2] - r1[0][1] * mat[4*5+2];
-	mat[1*5+0] = r0[1][0] - r1[1][0] * mat[3*5+0] - r1[1][1] * mat[4*5+0];
-	mat[1*5+1] = r0[1][1] - r1[1][0] * mat[3*5+1] - r1[1][1] * mat[4*5+1];
-	mat[1*5+2] = r0[1][2] - r1[1][0] * mat[3*5+2] - r1[1][1] * mat[4*5+2];
-	mat[2*5+0] = r0[2][0] - r1[2][0] * mat[3*5+0] - r1[2][1] * mat[4*5+0];
-	mat[2*5+1] = r0[2][1] - r1[2][0] * mat[3*5+1] - r1[2][1] * mat[4*5+1];
-	mat[2*5+2] = r0[2][2] - r1[2][0] * mat[3*5+2] - r1[2][1] * mat[4*5+2];
+	mat[0 * 5 + 0] = r0[0][0] - r1[0][0] * mat[3 * 5 + 0] - r1[0][1] * mat[4 * 5 + 0];
+	mat[0 * 5 + 1] = r0[0][1] - r1[0][0] * mat[3 * 5 + 1] - r1[0][1] * mat[4 * 5 + 1];
+	mat[0 * 5 + 2] = r0[0][2] - r1[0][0] * mat[3 * 5 + 2] - r1[0][1] * mat[4 * 5 + 2];
+	mat[1 * 5 + 0] = r0[1][0] - r1[1][0] * mat[3 * 5 + 0] - r1[1][1] * mat[4 * 5 + 0];
+	mat[1 * 5 + 1] = r0[1][1] - r1[1][0] * mat[3 * 5 + 1] - r1[1][1] * mat[4 * 5 + 1];
+	mat[1 * 5 + 2] = r0[1][2] - r1[1][0] * mat[3 * 5 + 2] - r1[1][1] * mat[4 * 5 + 2];
+	mat[2 * 5 + 0] = r0[2][0] - r1[2][0] * mat[3 * 5 + 0] - r1[2][1] * mat[4 * 5 + 0];
+	mat[2 * 5 + 1] = r0[2][1] - r1[2][0] * mat[3 * 5 + 1] - r1[2][1] * mat[4 * 5 + 1];
+	mat[2 * 5 + 2] = r0[2][2] - r1[2][0] * mat[3 * 5 + 2] - r1[2][1] * mat[4 * 5 + 2];
 
 	// m1 = r1 * r3;		// 3x2 = 3x2 * 2x2
-	mat[0*5+3] = r1[0][0] * r3[0][0] + r1[0][1] * r3[1][0];
-	mat[0*5+4] = r1[0][0] * r3[0][1] + r1[0][1] * r3[1][1];
-	mat[1*5+3] = r1[1][0] * r3[0][0] + r1[1][1] * r3[1][0];
-	mat[1*5+4] = r1[1][0] * r3[0][1] + r1[1][1] * r3[1][1];
-	mat[2*5+3] = r1[2][0] * r3[0][0] + r1[2][1] * r3[1][0];
-	mat[2*5+4] = r1[2][0] * r3[0][1] + r1[2][1] * r3[1][1];
+	mat[0 * 5 + 3] = r1[0][0] * r3[0][0] + r1[0][1] * r3[1][0];
+	mat[0 * 5 + 4] = r1[0][0] * r3[0][1] + r1[0][1] * r3[1][1];
+	mat[1 * 5 + 3] = r1[1][0] * r3[0][0] + r1[1][1] * r3[1][0];
+	mat[1 * 5 + 4] = r1[1][0] * r3[0][1] + r1[1][1] * r3[1][1];
+	mat[2 * 5 + 3] = r1[2][0] * r3[0][0] + r1[2][1] * r3[1][0];
+	mat[2 * 5 + 4] = r1[2][0] * r3[0][1] + r1[2][1] * r3[1][1];
 
 	// m3 = -r3;			// 2x2 = - 2x2
-	mat[3*5+3] = -r3[0][0];
-	mat[3*5+4] = -r3[0][1];
-	mat[4*5+3] = -r3[1][0];
-	mat[4*5+4] = -r3[1][1];
+	mat[3 * 5 + 3] = -r3[0][0];
+	mat[3 * 5 + 4] = -r3[0][1];
+	mat[4 * 5 + 3] = -r3[1][0];
+	mat[4 * 5 + 4] = -r3[1][1];
 
 	return true;
 #endif
@@ -1722,7 +1788,8 @@ bool idMat5::InverseFastSelf() {
 idMat5::ToString
 =============
 */
-const char *idMat5::ToString( int precision ) const {
+const char* idMat5::ToString( int precision ) const
+{
 	return idStr::FloatArrayToString( ToFloatPtr(), GetDimension(), precision );
 }
 
@@ -1741,14 +1808,17 @@ idMat6 mat6_identity( idVec6( 1, 0, 0, 0, 0, 0 ), idVec6( 0, 1, 0, 0, 0, 0 ), id
 idMat6::Transpose
 ============
 */
-idMat6 idMat6::Transpose() const {
+idMat6 idMat6::Transpose() const
+{
 	idMat6	transpose;
 	int		i, j;
-   
-	for( i = 0; i < 6; i++ ) {
-		for( j = 0; j < 6; j++ ) {
+
+	for( i = 0; i < 6; i++ )
+	{
+		for( j = 0; j < 6; j++ )
+		{
 			transpose[ i ][ j ] = mat[ j ][ i ];
-        }
+		}
 	}
 	return transpose;
 }
@@ -1758,16 +1828,19 @@ idMat6 idMat6::Transpose() const {
 idMat6::TransposeSelf
 ============
 */
-idMat6 &idMat6::TransposeSelf() {
+idMat6& idMat6::TransposeSelf()
+{
 	float	temp;
 	int		i, j;
-   
-	for( i = 0; i < 6; i++ ) {
-		for( j = i + 1; j < 6; j++ ) {
+
+	for( i = 0; i < 6; i++ )
+	{
+		for( j = i + 1; j < 6; j++ )
+		{
 			temp = mat[ i ][ j ];
 			mat[ i ][ j ] = mat[ j ][ i ];
 			mat[ j ][ i ] = temp;
-        }
+		}
 	}
 	return *this;
 }
@@ -1777,7 +1850,8 @@ idMat6 &idMat6::TransposeSelf() {
 idMat6::Determinant
 ============
 */
-float idMat6::Determinant() const {
+float idMat6::Determinant() const
+{
 
 	// 2x2 sub-determinants required to calculate 6x6 determinant
 	float det2_45_01 = mat[4][0] * mat[5][1] - mat[4][1] * mat[5][0];
@@ -1853,7 +1927,8 @@ float idMat6::Determinant() const {
 idMat6::InverseSelf
 ============
 */
-bool idMat6::InverseSelf() {
+bool idMat6::InverseSelf()
+{
 	// 810+6+36 = 852 multiplications
 	//				1 division
 	double det, invDet;
@@ -1924,9 +1999,10 @@ bool idMat6::InverseSelf() {
 
 	// determinant of 6x6 matrix
 	det = mat[0][0] * det5_12345_12345 - mat[0][1] * det5_12345_02345 + mat[0][2] * det5_12345_01345 -
-				mat[0][3] * det5_12345_01245 + mat[0][4] * det5_12345_01235 - mat[0][5] * det5_12345_01234;
+		  mat[0][3] * det5_12345_01245 + mat[0][4] * det5_12345_01235 - mat[0][5] * det5_12345_01234;
 
-	if ( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON ) {
+	if( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON )
+	{
 		return false;
 	}
 
@@ -2170,7 +2246,8 @@ bool idMat6::InverseSelf() {
 idMat6::InverseFastSelf
 ============
 */
-bool idMat6::InverseFastSelf() {
+bool idMat6::InverseFastSelf()
+{
 #if 0
 	// 810+6+36 = 852 multiplications
 	//				1 division
@@ -2242,9 +2319,10 @@ bool idMat6::InverseFastSelf() {
 
 	// determinant of 6x6 matrix
 	det = mat[0][0] * det5_12345_12345 - mat[0][1] * det5_12345_02345 + mat[0][2] * det5_12345_01345 -
-				mat[0][3] * det5_12345_01245 + mat[0][4] * det5_12345_01235 - mat[0][5] * det5_12345_01234;
+		  mat[0][3] * det5_12345_01245 + mat[0][4] * det5_12345_01235 - mat[0][5] * det5_12345_01234;
 
-	if ( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON ) {
+	if( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON )
+	{
 		return false;
 	}
 
@@ -2484,7 +2562,7 @@ bool idMat6::InverseFastSelf() {
 #elif 0
 	// 6*40 = 240 multiplications
 	//			6 divisions
-	float *mat = reinterpret_cast<float *>(this);
+	float* mat = reinterpret_cast<float*>( this );
 	float s;
 	double d, di;
 
@@ -2759,63 +2837,64 @@ bool idMat6::InverseFastSelf() {
 	//		2*1  =	 2 divisions
 	idMat3 r0, r1, r2, r3;
 	float c0, c1, c2, det, invDet;
-	float *mat = reinterpret_cast<float *>(this);
+	float* mat = reinterpret_cast<float*>( this );
 
 	// r0 = m0.Inverse();
-	c0 = mat[1*6+1] * mat[2*6+2] - mat[1*6+2] * mat[2*6+1];
-	c1 = mat[1*6+2] * mat[2*6+0] - mat[1*6+0] * mat[2*6+2];
-	c2 = mat[1*6+0] * mat[2*6+1] - mat[1*6+1] * mat[2*6+0];
+	c0 = mat[1 * 6 + 1] * mat[2 * 6 + 2] - mat[1 * 6 + 2] * mat[2 * 6 + 1];
+	c1 = mat[1 * 6 + 2] * mat[2 * 6 + 0] - mat[1 * 6 + 0] * mat[2 * 6 + 2];
+	c2 = mat[1 * 6 + 0] * mat[2 * 6 + 1] - mat[1 * 6 + 1] * mat[2 * 6 + 0];
 
-	det = mat[0*6+0] * c0 + mat[0*6+1] * c1 + mat[0*6+2] * c2;
+	det = mat[0 * 6 + 0] * c0 + mat[0 * 6 + 1] * c1 + mat[0 * 6 + 2] * c2;
 
-	if ( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON ) {
+	if( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON )
+	{
 		return false;
 	}
 
 	invDet = 1.0f / det;
 
 	r0[0][0] = c0 * invDet;
-	r0[0][1] = ( mat[0*6+2] * mat[2*6+1] - mat[0*6+1] * mat[2*6+2] ) * invDet;
-	r0[0][2] = ( mat[0*6+1] * mat[1*6+2] - mat[0*6+2] * mat[1*6+1] ) * invDet;
+	r0[0][1] = ( mat[0 * 6 + 2] * mat[2 * 6 + 1] - mat[0 * 6 + 1] * mat[2 * 6 + 2] ) * invDet;
+	r0[0][2] = ( mat[0 * 6 + 1] * mat[1 * 6 + 2] - mat[0 * 6 + 2] * mat[1 * 6 + 1] ) * invDet;
 	r0[1][0] = c1 * invDet;
-	r0[1][1] = ( mat[0*6+0] * mat[2*6+2] - mat[0*6+2] * mat[2*6+0] ) * invDet;
-	r0[1][2] = ( mat[0*6+2] * mat[1*6+0] - mat[0*6+0] * mat[1*6+2] ) * invDet;
+	r0[1][1] = ( mat[0 * 6 + 0] * mat[2 * 6 + 2] - mat[0 * 6 + 2] * mat[2 * 6 + 0] ) * invDet;
+	r0[1][2] = ( mat[0 * 6 + 2] * mat[1 * 6 + 0] - mat[0 * 6 + 0] * mat[1 * 6 + 2] ) * invDet;
 	r0[2][0] = c2 * invDet;
-	r0[2][1] = ( mat[0*6+1] * mat[2*6+0] - mat[0*6+0] * mat[2*6+1] ) * invDet;
-	r0[2][2] = ( mat[0*6+0] * mat[1*6+1] - mat[0*6+1] * mat[1*6+0] ) * invDet;
+	r0[2][1] = ( mat[0 * 6 + 1] * mat[2 * 6 + 0] - mat[0 * 6 + 0] * mat[2 * 6 + 1] ) * invDet;
+	r0[2][2] = ( mat[0 * 6 + 0] * mat[1 * 6 + 1] - mat[0 * 6 + 1] * mat[1 * 6 + 0] ) * invDet;
 
 	// r1 = r0 * m1;
-	r1[0][0] = r0[0][0] * mat[0*6+3] + r0[0][1] * mat[1*6+3] + r0[0][2] * mat[2*6+3];
-	r1[0][1] = r0[0][0] * mat[0*6+4] + r0[0][1] * mat[1*6+4] + r0[0][2] * mat[2*6+4];
-	r1[0][2] = r0[0][0] * mat[0*6+5] + r0[0][1] * mat[1*6+5] + r0[0][2] * mat[2*6+5];
-	r1[1][0] = r0[1][0] * mat[0*6+3] + r0[1][1] * mat[1*6+3] + r0[1][2] * mat[2*6+3];
-	r1[1][1] = r0[1][0] * mat[0*6+4] + r0[1][1] * mat[1*6+4] + r0[1][2] * mat[2*6+4];
-	r1[1][2] = r0[1][0] * mat[0*6+5] + r0[1][1] * mat[1*6+5] + r0[1][2] * mat[2*6+5];
-	r1[2][0] = r0[2][0] * mat[0*6+3] + r0[2][1] * mat[1*6+3] + r0[2][2] * mat[2*6+3];
-	r1[2][1] = r0[2][0] * mat[0*6+4] + r0[2][1] * mat[1*6+4] + r0[2][2] * mat[2*6+4];
-	r1[2][2] = r0[2][0] * mat[0*6+5] + r0[2][1] * mat[1*6+5] + r0[2][2] * mat[2*6+5];
+	r1[0][0] = r0[0][0] * mat[0 * 6 + 3] + r0[0][1] * mat[1 * 6 + 3] + r0[0][2] * mat[2 * 6 + 3];
+	r1[0][1] = r0[0][0] * mat[0 * 6 + 4] + r0[0][1] * mat[1 * 6 + 4] + r0[0][2] * mat[2 * 6 + 4];
+	r1[0][2] = r0[0][0] * mat[0 * 6 + 5] + r0[0][1] * mat[1 * 6 + 5] + r0[0][2] * mat[2 * 6 + 5];
+	r1[1][0] = r0[1][0] * mat[0 * 6 + 3] + r0[1][1] * mat[1 * 6 + 3] + r0[1][2] * mat[2 * 6 + 3];
+	r1[1][1] = r0[1][0] * mat[0 * 6 + 4] + r0[1][1] * mat[1 * 6 + 4] + r0[1][2] * mat[2 * 6 + 4];
+	r1[1][2] = r0[1][0] * mat[0 * 6 + 5] + r0[1][1] * mat[1 * 6 + 5] + r0[1][2] * mat[2 * 6 + 5];
+	r1[2][0] = r0[2][0] * mat[0 * 6 + 3] + r0[2][1] * mat[1 * 6 + 3] + r0[2][2] * mat[2 * 6 + 3];
+	r1[2][1] = r0[2][0] * mat[0 * 6 + 4] + r0[2][1] * mat[1 * 6 + 4] + r0[2][2] * mat[2 * 6 + 4];
+	r1[2][2] = r0[2][0] * mat[0 * 6 + 5] + r0[2][1] * mat[1 * 6 + 5] + r0[2][2] * mat[2 * 6 + 5];
 
 	// r2 = m2 * r1;
-	r2[0][0] = mat[3*6+0] * r1[0][0] + mat[3*6+1] * r1[1][0] + mat[3*6+2] * r1[2][0];
-	r2[0][1] = mat[3*6+0] * r1[0][1] + mat[3*6+1] * r1[1][1] + mat[3*6+2] * r1[2][1];
-	r2[0][2] = mat[3*6+0] * r1[0][2] + mat[3*6+1] * r1[1][2] + mat[3*6+2] * r1[2][2];
-	r2[1][0] = mat[4*6+0] * r1[0][0] + mat[4*6+1] * r1[1][0] + mat[4*6+2] * r1[2][0];
-	r2[1][1] = mat[4*6+0] * r1[0][1] + mat[4*6+1] * r1[1][1] + mat[4*6+2] * r1[2][1];
-	r2[1][2] = mat[4*6+0] * r1[0][2] + mat[4*6+1] * r1[1][2] + mat[4*6+2] * r1[2][2];
-	r2[2][0] = mat[5*6+0] * r1[0][0] + mat[5*6+1] * r1[1][0] + mat[5*6+2] * r1[2][0];
-	r2[2][1] = mat[5*6+0] * r1[0][1] + mat[5*6+1] * r1[1][1] + mat[5*6+2] * r1[2][1];
-	r2[2][2] = mat[5*6+0] * r1[0][2] + mat[5*6+1] * r1[1][2] + mat[5*6+2] * r1[2][2];
+	r2[0][0] = mat[3 * 6 + 0] * r1[0][0] + mat[3 * 6 + 1] * r1[1][0] + mat[3 * 6 + 2] * r1[2][0];
+	r2[0][1] = mat[3 * 6 + 0] * r1[0][1] + mat[3 * 6 + 1] * r1[1][1] + mat[3 * 6 + 2] * r1[2][1];
+	r2[0][2] = mat[3 * 6 + 0] * r1[0][2] + mat[3 * 6 + 1] * r1[1][2] + mat[3 * 6 + 2] * r1[2][2];
+	r2[1][0] = mat[4 * 6 + 0] * r1[0][0] + mat[4 * 6 + 1] * r1[1][0] + mat[4 * 6 + 2] * r1[2][0];
+	r2[1][1] = mat[4 * 6 + 0] * r1[0][1] + mat[4 * 6 + 1] * r1[1][1] + mat[4 * 6 + 2] * r1[2][1];
+	r2[1][2] = mat[4 * 6 + 0] * r1[0][2] + mat[4 * 6 + 1] * r1[1][2] + mat[4 * 6 + 2] * r1[2][2];
+	r2[2][0] = mat[5 * 6 + 0] * r1[0][0] + mat[5 * 6 + 1] * r1[1][0] + mat[5 * 6 + 2] * r1[2][0];
+	r2[2][1] = mat[5 * 6 + 0] * r1[0][1] + mat[5 * 6 + 1] * r1[1][1] + mat[5 * 6 + 2] * r1[2][1];
+	r2[2][2] = mat[5 * 6 + 0] * r1[0][2] + mat[5 * 6 + 1] * r1[1][2] + mat[5 * 6 + 2] * r1[2][2];
 
 	// r3 = r2 - m3;
-	r3[0][0] = r2[0][0] - mat[3*6+3];
-	r3[0][1] = r2[0][1] - mat[3*6+4];
-	r3[0][2] = r2[0][2] - mat[3*6+5];
-	r3[1][0] = r2[1][0] - mat[4*6+3];
-	r3[1][1] = r2[1][1] - mat[4*6+4];
-	r3[1][2] = r2[1][2] - mat[4*6+5];
-	r3[2][0] = r2[2][0] - mat[5*6+3];
-	r3[2][1] = r2[2][1] - mat[5*6+4];
-	r3[2][2] = r2[2][2] - mat[5*6+5];
+	r3[0][0] = r2[0][0] - mat[3 * 6 + 3];
+	r3[0][1] = r2[0][1] - mat[3 * 6 + 4];
+	r3[0][2] = r2[0][2] - mat[3 * 6 + 5];
+	r3[1][0] = r2[1][0] - mat[4 * 6 + 3];
+	r3[1][1] = r2[1][1] - mat[4 * 6 + 4];
+	r3[1][2] = r2[1][2] - mat[4 * 6 + 5];
+	r3[2][0] = r2[2][0] - mat[5 * 6 + 3];
+	r3[2][1] = r2[2][1] - mat[5 * 6 + 4];
+	r3[2][2] = r2[2][2] - mat[5 * 6 + 5];
 
 	// r3.InverseSelf();
 	r2[0][0] = r3[1][1] * r3[2][2] - r3[1][2] * r3[2][1];
@@ -2824,7 +2903,8 @@ bool idMat6::InverseFastSelf() {
 
 	det = r3[0][0] * r2[0][0] + r3[0][1] * r2[1][0] + r3[0][2] * r2[2][0];
 
-	if ( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON ) {
+	if( idMath::Fabs( det ) < MATRIX_INVERSE_EPSILON )
+	{
 		return false;
 	}
 
@@ -2848,59 +2928,59 @@ bool idMat6::InverseFastSelf() {
 	r3[2][2] = r2[2][2] * invDet;
 
 	// r2 = m2 * r0;
-	r2[0][0] = mat[3*6+0] * r0[0][0] + mat[3*6+1] * r0[1][0] + mat[3*6+2] * r0[2][0];
-	r2[0][1] = mat[3*6+0] * r0[0][1] + mat[3*6+1] * r0[1][1] + mat[3*6+2] * r0[2][1];
-	r2[0][2] = mat[3*6+0] * r0[0][2] + mat[3*6+1] * r0[1][2] + mat[3*6+2] * r0[2][2];
-	r2[1][0] = mat[4*6+0] * r0[0][0] + mat[4*6+1] * r0[1][0] + mat[4*6+2] * r0[2][0];
-	r2[1][1] = mat[4*6+0] * r0[0][1] + mat[4*6+1] * r0[1][1] + mat[4*6+2] * r0[2][1];
-	r2[1][2] = mat[4*6+0] * r0[0][2] + mat[4*6+1] * r0[1][2] + mat[4*6+2] * r0[2][2];
-	r2[2][0] = mat[5*6+0] * r0[0][0] + mat[5*6+1] * r0[1][0] + mat[5*6+2] * r0[2][0];
-	r2[2][1] = mat[5*6+0] * r0[0][1] + mat[5*6+1] * r0[1][1] + mat[5*6+2] * r0[2][1];
-	r2[2][2] = mat[5*6+0] * r0[0][2] + mat[5*6+1] * r0[1][2] + mat[5*6+2] * r0[2][2];
+	r2[0][0] = mat[3 * 6 + 0] * r0[0][0] + mat[3 * 6 + 1] * r0[1][0] + mat[3 * 6 + 2] * r0[2][0];
+	r2[0][1] = mat[3 * 6 + 0] * r0[0][1] + mat[3 * 6 + 1] * r0[1][1] + mat[3 * 6 + 2] * r0[2][1];
+	r2[0][2] = mat[3 * 6 + 0] * r0[0][2] + mat[3 * 6 + 1] * r0[1][2] + mat[3 * 6 + 2] * r0[2][2];
+	r2[1][0] = mat[4 * 6 + 0] * r0[0][0] + mat[4 * 6 + 1] * r0[1][0] + mat[4 * 6 + 2] * r0[2][0];
+	r2[1][1] = mat[4 * 6 + 0] * r0[0][1] + mat[4 * 6 + 1] * r0[1][1] + mat[4 * 6 + 2] * r0[2][1];
+	r2[1][2] = mat[4 * 6 + 0] * r0[0][2] + mat[4 * 6 + 1] * r0[1][2] + mat[4 * 6 + 2] * r0[2][2];
+	r2[2][0] = mat[5 * 6 + 0] * r0[0][0] + mat[5 * 6 + 1] * r0[1][0] + mat[5 * 6 + 2] * r0[2][0];
+	r2[2][1] = mat[5 * 6 + 0] * r0[0][1] + mat[5 * 6 + 1] * r0[1][1] + mat[5 * 6 + 2] * r0[2][1];
+	r2[2][2] = mat[5 * 6 + 0] * r0[0][2] + mat[5 * 6 + 1] * r0[1][2] + mat[5 * 6 + 2] * r0[2][2];
 
 	// m2 = r3 * r2;
-	mat[3*6+0] = r3[0][0] * r2[0][0] + r3[0][1] * r2[1][0] + r3[0][2] * r2[2][0];
-	mat[3*6+1] = r3[0][0] * r2[0][1] + r3[0][1] * r2[1][1] + r3[0][2] * r2[2][1];
-	mat[3*6+2] = r3[0][0] * r2[0][2] + r3[0][1] * r2[1][2] + r3[0][2] * r2[2][2];
-	mat[4*6+0] = r3[1][0] * r2[0][0] + r3[1][1] * r2[1][0] + r3[1][2] * r2[2][0];
-	mat[4*6+1] = r3[1][0] * r2[0][1] + r3[1][1] * r2[1][1] + r3[1][2] * r2[2][1];
-	mat[4*6+2] = r3[1][0] * r2[0][2] + r3[1][1] * r2[1][2] + r3[1][2] * r2[2][2];
-	mat[5*6+0] = r3[2][0] * r2[0][0] + r3[2][1] * r2[1][0] + r3[2][2] * r2[2][0];
-	mat[5*6+1] = r3[2][0] * r2[0][1] + r3[2][1] * r2[1][1] + r3[2][2] * r2[2][1];
-	mat[5*6+2] = r3[2][0] * r2[0][2] + r3[2][1] * r2[1][2] + r3[2][2] * r2[2][2];
+	mat[3 * 6 + 0] = r3[0][0] * r2[0][0] + r3[0][1] * r2[1][0] + r3[0][2] * r2[2][0];
+	mat[3 * 6 + 1] = r3[0][0] * r2[0][1] + r3[0][1] * r2[1][1] + r3[0][2] * r2[2][1];
+	mat[3 * 6 + 2] = r3[0][0] * r2[0][2] + r3[0][1] * r2[1][2] + r3[0][2] * r2[2][2];
+	mat[4 * 6 + 0] = r3[1][0] * r2[0][0] + r3[1][1] * r2[1][0] + r3[1][2] * r2[2][0];
+	mat[4 * 6 + 1] = r3[1][0] * r2[0][1] + r3[1][1] * r2[1][1] + r3[1][2] * r2[2][1];
+	mat[4 * 6 + 2] = r3[1][0] * r2[0][2] + r3[1][1] * r2[1][2] + r3[1][2] * r2[2][2];
+	mat[5 * 6 + 0] = r3[2][0] * r2[0][0] + r3[2][1] * r2[1][0] + r3[2][2] * r2[2][0];
+	mat[5 * 6 + 1] = r3[2][0] * r2[0][1] + r3[2][1] * r2[1][1] + r3[2][2] * r2[2][1];
+	mat[5 * 6 + 2] = r3[2][0] * r2[0][2] + r3[2][1] * r2[1][2] + r3[2][2] * r2[2][2];
 
 	// m0 = r0 - r1 * m2;
-	mat[0*6+0] = r0[0][0] - r1[0][0] * mat[3*6+0] - r1[0][1] * mat[4*6+0] - r1[0][2] * mat[5*6+0];
-	mat[0*6+1] = r0[0][1] - r1[0][0] * mat[3*6+1] - r1[0][1] * mat[4*6+1] - r1[0][2] * mat[5*6+1];
-	mat[0*6+2] = r0[0][2] - r1[0][0] * mat[3*6+2] - r1[0][1] * mat[4*6+2] - r1[0][2] * mat[5*6+2];
-	mat[1*6+0] = r0[1][0] - r1[1][0] * mat[3*6+0] - r1[1][1] * mat[4*6+0] - r1[1][2] * mat[5*6+0];
-	mat[1*6+1] = r0[1][1] - r1[1][0] * mat[3*6+1] - r1[1][1] * mat[4*6+1] - r1[1][2] * mat[5*6+1];
-	mat[1*6+2] = r0[1][2] - r1[1][0] * mat[3*6+2] - r1[1][1] * mat[4*6+2] - r1[1][2] * mat[5*6+2];
-	mat[2*6+0] = r0[2][0] - r1[2][0] * mat[3*6+0] - r1[2][1] * mat[4*6+0] - r1[2][2] * mat[5*6+0];
-	mat[2*6+1] = r0[2][1] - r1[2][0] * mat[3*6+1] - r1[2][1] * mat[4*6+1] - r1[2][2] * mat[5*6+1];
-	mat[2*6+2] = r0[2][2] - r1[2][0] * mat[3*6+2] - r1[2][1] * mat[4*6+2] - r1[2][2] * mat[5*6+2];
+	mat[0 * 6 + 0] = r0[0][0] - r1[0][0] * mat[3 * 6 + 0] - r1[0][1] * mat[4 * 6 + 0] - r1[0][2] * mat[5 * 6 + 0];
+	mat[0 * 6 + 1] = r0[0][1] - r1[0][0] * mat[3 * 6 + 1] - r1[0][1] * mat[4 * 6 + 1] - r1[0][2] * mat[5 * 6 + 1];
+	mat[0 * 6 + 2] = r0[0][2] - r1[0][0] * mat[3 * 6 + 2] - r1[0][1] * mat[4 * 6 + 2] - r1[0][2] * mat[5 * 6 + 2];
+	mat[1 * 6 + 0] = r0[1][0] - r1[1][0] * mat[3 * 6 + 0] - r1[1][1] * mat[4 * 6 + 0] - r1[1][2] * mat[5 * 6 + 0];
+	mat[1 * 6 + 1] = r0[1][1] - r1[1][0] * mat[3 * 6 + 1] - r1[1][1] * mat[4 * 6 + 1] - r1[1][2] * mat[5 * 6 + 1];
+	mat[1 * 6 + 2] = r0[1][2] - r1[1][0] * mat[3 * 6 + 2] - r1[1][1] * mat[4 * 6 + 2] - r1[1][2] * mat[5 * 6 + 2];
+	mat[2 * 6 + 0] = r0[2][0] - r1[2][0] * mat[3 * 6 + 0] - r1[2][1] * mat[4 * 6 + 0] - r1[2][2] * mat[5 * 6 + 0];
+	mat[2 * 6 + 1] = r0[2][1] - r1[2][0] * mat[3 * 6 + 1] - r1[2][1] * mat[4 * 6 + 1] - r1[2][2] * mat[5 * 6 + 1];
+	mat[2 * 6 + 2] = r0[2][2] - r1[2][0] * mat[3 * 6 + 2] - r1[2][1] * mat[4 * 6 + 2] - r1[2][2] * mat[5 * 6 + 2];
 
 	// m1 = r1 * r3;
-	mat[0*6+3] = r1[0][0] * r3[0][0] + r1[0][1] * r3[1][0] + r1[0][2] * r3[2][0];
-	mat[0*6+4] = r1[0][0] * r3[0][1] + r1[0][1] * r3[1][1] + r1[0][2] * r3[2][1];
-	mat[0*6+5] = r1[0][0] * r3[0][2] + r1[0][1] * r3[1][2] + r1[0][2] * r3[2][2];
-	mat[1*6+3] = r1[1][0] * r3[0][0] + r1[1][1] * r3[1][0] + r1[1][2] * r3[2][0];
-	mat[1*6+4] = r1[1][0] * r3[0][1] + r1[1][1] * r3[1][1] + r1[1][2] * r3[2][1];
-	mat[1*6+5] = r1[1][0] * r3[0][2] + r1[1][1] * r3[1][2] + r1[1][2] * r3[2][2];
-	mat[2*6+3] = r1[2][0] * r3[0][0] + r1[2][1] * r3[1][0] + r1[2][2] * r3[2][0];
-	mat[2*6+4] = r1[2][0] * r3[0][1] + r1[2][1] * r3[1][1] + r1[2][2] * r3[2][1];
-	mat[2*6+5] = r1[2][0] * r3[0][2] + r1[2][1] * r3[1][2] + r1[2][2] * r3[2][2];
+	mat[0 * 6 + 3] = r1[0][0] * r3[0][0] + r1[0][1] * r3[1][0] + r1[0][2] * r3[2][0];
+	mat[0 * 6 + 4] = r1[0][0] * r3[0][1] + r1[0][1] * r3[1][1] + r1[0][2] * r3[2][1];
+	mat[0 * 6 + 5] = r1[0][0] * r3[0][2] + r1[0][1] * r3[1][2] + r1[0][2] * r3[2][2];
+	mat[1 * 6 + 3] = r1[1][0] * r3[0][0] + r1[1][1] * r3[1][0] + r1[1][2] * r3[2][0];
+	mat[1 * 6 + 4] = r1[1][0] * r3[0][1] + r1[1][1] * r3[1][1] + r1[1][2] * r3[2][1];
+	mat[1 * 6 + 5] = r1[1][0] * r3[0][2] + r1[1][1] * r3[1][2] + r1[1][2] * r3[2][2];
+	mat[2 * 6 + 3] = r1[2][0] * r3[0][0] + r1[2][1] * r3[1][0] + r1[2][2] * r3[2][0];
+	mat[2 * 6 + 4] = r1[2][0] * r3[0][1] + r1[2][1] * r3[1][1] + r1[2][2] * r3[2][1];
+	mat[2 * 6 + 5] = r1[2][0] * r3[0][2] + r1[2][1] * r3[1][2] + r1[2][2] * r3[2][2];
 
 	// m3 = -r3;
-	mat[3*6+3] = -r3[0][0];
-	mat[3*6+4] = -r3[0][1];
-	mat[3*6+5] = -r3[0][2];
-	mat[4*6+3] = -r3[1][0];
-	mat[4*6+4] = -r3[1][1];
-	mat[4*6+5] = -r3[1][2];
-	mat[5*6+3] = -r3[2][0];
-	mat[5*6+4] = -r3[2][1];
-	mat[5*6+5] = -r3[2][2];
+	mat[3 * 6 + 3] = -r3[0][0];
+	mat[3 * 6 + 4] = -r3[0][1];
+	mat[3 * 6 + 5] = -r3[0][2];
+	mat[4 * 6 + 3] = -r3[1][0];
+	mat[4 * 6 + 4] = -r3[1][1];
+	mat[4 * 6 + 5] = -r3[1][2];
+	mat[5 * 6 + 3] = -r3[2][0];
+	mat[5 * 6 + 4] = -r3[2][1];
+	mat[5 * 6 + 5] = -r3[2][2];
 
 	return true;
 #endif
@@ -2911,6 +2991,7 @@ bool idMat6::InverseFastSelf() {
 idMat6::ToString
 =============
 */
-const char *idMat6::ToString( int precision ) const {
+const char* idMat6::ToString( int precision ) const
+{
 	return idStr::FloatArrayToString( ToFloatPtr(), GetDimension(), precision );
 }

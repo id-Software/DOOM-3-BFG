@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -32,11 +32,12 @@ If you have questions concerning this license or the applicable additional terms
 
 /*
 ================================================
-profileStatValue_t 
+profileStatValue_t
 ================================================
 */
-union profileStatValue_t {
-	int		i; 
+union profileStatValue_t
+{
+	int		i;
 	float	f;
 };
 
@@ -48,15 +49,17 @@ The general rule for using cvars for settings is that if you want the player's p
 of the game before there is a player associated with the game, use cvars.  Example: video & volume settings.
 ================================================
 */
-class idPlayerProfile {
+class idPlayerProfile
+{
 	friend class idLocalUser;
 	friend class idProfileMgr;
 
-public: 
+public:
 	// Only have room to squeeze ~450 in doom3 right now
 	static const int MAX_PLAYER_PROFILE_STATS = 200;
 
-	enum state_t {
+	enum state_t
+	{
 		IDLE = 0,
 		SAVING,
 		LOADING,
@@ -65,51 +68,90 @@ public:
 		ERR
 	};
 protected:
-					idPlayerProfile(); // don't instantiate. we static_cast the child all over the place
+	idPlayerProfile(); // don't instantiate. we static_cast the child all over the place
 public:
 
 	virtual			~idPlayerProfile();
 
-	static idPlayerProfile * CreatePlayerProfile( int deviceIndex );
+	static idPlayerProfile* CreatePlayerProfile( int deviceIndex );
 
 	void			SetDefaults();
-	bool			Serialize( idSerializer & ser );
+	bool			Serialize( idSerializer& ser );
 
-	const int		GetDeviceNumForProfile() const { return deviceNum; }
-	void			SetDeviceNumForProfile( int num ) { deviceNum = num; }
+	const int		GetDeviceNumForProfile() const
+	{
+		return deviceNum;
+	}
+	void			SetDeviceNumForProfile( int num )
+	{
+		deviceNum = num;
+	}
 	void			SaveSettings( bool forceDirty );
 	void			LoadSettings();
-	state_t			GetState() const { return state; }
-	state_t			GetRequestedState() const { return requestedState; }
-	bool			IsDirty() { return dirty; }
+	state_t			GetState() const
+	{
+		return state;
+	}
+	state_t			GetRequestedState() const
+	{
+		return requestedState;
+	}
+	bool			IsDirty()
+	{
+		return dirty;
+	}
 
 	bool			GetAchievement( const int id ) const;
 	void			SetAchievement( const int id );
 	void			ClearAchievement( const int id );
 
-	int				GetDlcReleaseVersion() const { return dlcReleaseVersion; }
-	void			SetDlcReleaseVersion( int version ) { dlcReleaseVersion = version; }
+	int				GetDlcReleaseVersion() const
+	{
+		return dlcReleaseVersion;
+	}
+	void			SetDlcReleaseVersion( int version )
+	{
+		dlcReleaseVersion = version;
+	}
 
-	int				GetLevel() const { return 0; }
+	int				GetLevel() const
+	{
+		return 0;
+	}
 
 	//------------------------
 	// Config
 	//------------------------
-	int				GetConfig() const { return configSet; }
+	int				GetConfig() const
+	{
+		return configSet;
+	}
 	void			SetConfig( int config, bool save );
 	void			RestoreDefault();
 
 	void			SetLeftyFlip( bool lf );
-	bool			GetLeftyFlip() const { return leftyFlip; }
+	bool			GetLeftyFlip() const
+	{
+		return leftyFlip;
+	}
 
 private:
 	void			StatSetInt( int s, int v );
 	void			StatSetFloat( int s, float v );
 	int				StatGetInt( int s ) const;
 	float			StatGetFloat( int s ) const;
-	void			SetState( state_t value ) { state = value; }
-	void			SetRequestedState( state_t value ) { requestedState = value; }
-	void			MarkDirty( bool isDirty ) { dirty = isDirty; }
+	void			SetState( state_t value )
+	{
+		state = value;
+	}
+	void			SetRequestedState( state_t value )
+	{
+		requestedState = value;
+	}
+	void			MarkDirty( bool isDirty )
+	{
+		dirty = isDirty;
+	}
 
 	void			ExecConfig( bool save = false, bool forceDefault = false );
 

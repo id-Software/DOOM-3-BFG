@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#include "../idlib/precompiled.h"
+#include "precompiled.h"
 #pragma hdrstop
 
 /*
@@ -39,34 +39,41 @@ idResourceContainer
 
 /*
 ========================
-idResourceContainer::ReOpen 
+idResourceContainer::ReOpen
 ========================
-*/ 
-void idResourceContainer::ReOpen() {
+*/
+void idResourceContainer::ReOpen()
+{
 	delete resourceFile;
 	resourceFile = fileSystem->OpenFileRead( fileName );
 }
 
 /*
 ========================
-idResourceContainer::Init 
+idResourceContainer::Init
 ========================
-*/ 
-bool idResourceContainer::Init( const char *_fileName, uint8 containerIndex ) {
+*/
+bool idResourceContainer::Init( const char* _fileName, uint8 containerIndex )
+{
 
-	if ( idStr::Icmp( _fileName, "_ordered.resources" ) == 0 ) {
+	if( idStr::Icmp( _fileName, "_ordered.resources" ) == 0 )
+	{
 		resourceFile = fileSystem->OpenFileReadMemory( _fileName );
-	} else {
+	}
+	else
+	{
 		resourceFile = fileSystem->OpenFileRead( _fileName );
 	}
 
-	if ( resourceFile == NULL ) {
+	if( resourceFile == NULL )
+	{
 		idLib::Warning( "Unable to open resource file %s", _fileName );
 		return false;
 	}
 
 	resourceFile->ReadBig( resourceMagic );
-	if ( resourceMagic != RESOURCE_FILE_MAGIC ) {
+	if( resourceMagic != RESOURCE_FILE_MAGIC )
+	{
 		idLib::FatalError( "resourceFileMagic != RESOURCE_FILE_MAGIC" );
 	}
 
@@ -75,10 +82,10 @@ bool idResourceContainer::Init( const char *_fileName, uint8 containerIndex ) {
 	resourceFile->ReadBig( tableOffset );
 	resourceFile->ReadBig( tableLength );
 	// read this into a memory buffer with a single read
-	char * const buf = (char *)Mem_Alloc( tableLength, TAG_RESOURCE );
+	char* const buf = ( char* )Mem_Alloc( tableLength, TAG_RESOURCE );
 	resourceFile->Seek( tableOffset, FS_SEEK_SET );
 	resourceFile->Read( buf, tableLength );
-	idFile_Memory memFile( "resourceHeader", (const char *)buf, tableLength );
+	idFile_Memory memFile( "resourceHeader", ( const char* )buf, tableLength );
 
 	// Parse the resourceFile header, which includes every resource used
 	// by the game.
@@ -86,8 +93,9 @@ bool idResourceContainer::Init( const char *_fileName, uint8 containerIndex ) {
 
 	cacheTable.SetNum( numFileResources );
 
-	for ( int i = 0; i < numFileResources; i++ ) {
-		idResourceCacheEntry &rt = cacheTable[ i ];
+	for( int i = 0; i < numFileResources; i++ )
+	{
+		idResourceCacheEntry& rt = cacheTable[ i ];
 		rt.Read( &memFile );
 		rt.filename.BackSlashesToSlashes();
 		rt.filename.ToLower();
@@ -102,7 +110,8 @@ bool idResourceContainer::Init( const char *_fileName, uint8 containerIndex ) {
 		//		break;
 		//	}
 		//}
-		if ( !found ) {
+		if( !found )
+		{
 			//idLib::Printf( "rez file name: %s\n", rt.filename.c_str() );
 			cacheHash.Add( key, i );
 		}
@@ -115,18 +124,21 @@ bool idResourceContainer::Init( const char *_fileName, uint8 containerIndex ) {
 
 /*
 ========================
-idResourceContainer::WriteManifestFile 
+idResourceContainer::WriteManifestFile
 ========================
-*/ 
-void idResourceContainer::WriteManifestFile( const char *name, const idStrList &list ) {
+*/
+void idResourceContainer::WriteManifestFile( const char* name, const idStrList& list )
+{
 	idStr filename( name );
 	filename.SetFileExtension( "manifest" );
 	filename.Insert( "maps/", 0 );
-	idFile *outFile = fileSystem->OpenFileWrite( filename );
-	if ( outFile != NULL ) {
+	idFile* outFile = fileSystem->OpenFileWrite( filename );
+	if( outFile != NULL )
+	{
 		int num = list.Num();
 		outFile->WriteBig( num );
-		for ( int i = 0; i < num; i++ ) {
+		for( int i = 0; i < num; i++ )
+		{
 			outFile->WriteString( list[ i ] );
 		}
 		delete outFile;
@@ -135,18 +147,21 @@ void idResourceContainer::WriteManifestFile( const char *name, const idStrList &
 
 /*
 ========================
-idResourceContainer::ReadManifestFile 
+idResourceContainer::ReadManifestFile
 ========================
-*/ 
-int idResourceContainer::ReadManifestFile( const char *name, idStrList &list ) {
-	idFile *inFile = fileSystem->OpenFileRead( name );
-	if ( inFile != NULL ) {
+*/
+int idResourceContainer::ReadManifestFile( const char* name, idStrList& list )
+{
+	idFile* inFile = fileSystem->OpenFileRead( name );
+	if( inFile != NULL )
+	{
 		list.SetGranularity( 16384 );
 		idStr str;
 		int num;
 		list.Clear();
 		inFile->ReadBig( num );
-		for ( int i = 0; i < num; i++ ) {
+		for( int i = 0; i < num; i++ )
+		{
 			inFile->ReadString( str );
 			list.Append( str );
 		}
@@ -158,12 +173,14 @@ int idResourceContainer::ReadManifestFile( const char *name, idStrList &list ) {
 
 /*
 ========================
-idResourceContainer::UpdateResourceFile 
+idResourceContainer::UpdateResourceFile
 ========================
-*/ 
-void idResourceContainer::UpdateResourceFile( const char *_filename, const idStrList &_filesToUpdate ) {
-	idFile *outFile = fileSystem->OpenFileWrite( va( "%s.new", _filename ) );
-	if ( outFile == NULL ) {
+*/
+void idResourceContainer::UpdateResourceFile( const char* _filename, const idStrList& _filesToUpdate )
+{
+	idFile* outFile = fileSystem->OpenFileWrite( va( "%s.new", _filename ) );
+	if( outFile == NULL )
+	{
 		idLib::Warning( "Unable to open resource file %s or new output file", _filename );
 		return;
 	}
@@ -174,17 +191,21 @@ void idResourceContainer::UpdateResourceFile( const char *_filename, const idStr
 	idList< idResourceCacheEntry > entries;
 	idStrList filesToUpdate = _filesToUpdate;
 
-	idFile *inFile = fileSystem->OpenFileRead( _filename );
-	if ( inFile == NULL ) {
+	idFile* inFile = fileSystem->OpenFileRead( _filename );
+	if( inFile == NULL )
+	{
 		magic = RESOURCE_FILE_MAGIC;
 
 		outFile->WriteBig( magic );
 		outFile->WriteBig( _tableOffset );
 		outFile->WriteBig( _tableLength );
 
-	} else {
+	}
+	else
+	{
 		inFile->ReadBig( magic );
-		if ( magic != RESOURCE_FILE_MAGIC ) {
+		if( magic != RESOURCE_FILE_MAGIC )
+		{
 			delete inFile;
 			return;
 		}
@@ -192,10 +213,10 @@ void idResourceContainer::UpdateResourceFile( const char *_filename, const idStr
 		inFile->ReadBig( _tableOffset );
 		inFile->ReadBig( _tableLength );
 		// read this into a memory buffer with a single read
-		char * const buf = (char *)Mem_Alloc( _tableLength, TAG_RESOURCE );
+		char* const buf = ( char* )Mem_Alloc( _tableLength, TAG_RESOURCE );
 		inFile->Seek( _tableOffset, FS_SEEK_SET );
 		inFile->Read( buf, _tableLength );
-		idFile_Memory memFile( "resourceHeader", (const char *)buf, _tableLength );
+		idFile_Memory memFile( "resourceHeader", ( const char* )buf, _tableLength );
 
 		int _numFileResources = 0;
 		memFile.ReadBig( _numFileResources );
@@ -206,20 +227,24 @@ void idResourceContainer::UpdateResourceFile( const char *_filename, const idStr
 
 		entries.SetNum( _numFileResources );
 
-		for ( int i = 0; i < _numFileResources; i++ ) {
+		for( int i = 0; i < _numFileResources; i++ )
+		{
 			entries[ i ].Read( &memFile );
 
 
 			idLib::Printf( "examining %s\n", entries[ i ].filename.c_str() );
-			byte * fileData = NULL;
+			byte* fileData = NULL;
 
-			for ( int j = filesToUpdate.Num() - 1; j >= 0; j-- ) {
-				if ( filesToUpdate[ j ].Icmp( entries[ i ].filename ) == 0 ) {
-					idFile *newFile = fileSystem->OpenFileReadMemory( filesToUpdate[ j ] );
-					if ( newFile != NULL ) {
+			for( int j = filesToUpdate.Num() - 1; j >= 0; j-- )
+			{
+				if( filesToUpdate[ j ].Icmp( entries[ i ].filename ) == 0 )
+				{
+					idFile* newFile = fileSystem->OpenFileReadMemory( filesToUpdate[ j ] );
+					if( newFile != NULL )
+					{
 						idLib::Printf( "Updating %s\n", filesToUpdate[ j ].c_str() );
 						entries[ i ].length = newFile->Length();
-						fileData = (byte *)Mem_Alloc( entries[ i ].length, TAG_TEMP );
+						fileData = ( byte* )Mem_Alloc( entries[ i ].length, TAG_TEMP );
 						newFile->Read( fileData, newFile->Length() );
 						delete newFile;
 					}
@@ -227,9 +252,10 @@ void idResourceContainer::UpdateResourceFile( const char *_filename, const idStr
 				}
 			}
 
-			if ( fileData == NULL ) {
+			if( fileData == NULL )
+			{
 				inFile->Seek( entries[ i ].offset, FS_SEEK_SET );
-				fileData = (byte *)Mem_Alloc( entries[ i ].length, TAG_TEMP );
+				fileData = ( byte* )Mem_Alloc( entries[ i ].length, TAG_TEMP );
 				inFile->Read( fileData, entries[ i ].length );
 			}
 
@@ -242,17 +268,20 @@ void idResourceContainer::UpdateResourceFile( const char *_filename, const idStr
 		Mem_Free( buf );
 	}
 
-	while ( filesToUpdate.Num() > 0 ) {
-		idFile *newFile = fileSystem->OpenFileReadMemory( filesToUpdate[ 0 ] );
-		if ( newFile != NULL ) {
+	while( filesToUpdate.Num() > 0 )
+	{
+		idFile* newFile = fileSystem->OpenFileReadMemory( filesToUpdate[ 0 ] );
+		if( newFile != NULL )
+		{
 			idLib::Printf( "Appending %s\n", filesToUpdate[ 0 ].c_str() );
 			idResourceCacheEntry rt;
 			rt.filename = filesToUpdate[ 0 ];
 			rt.length = newFile->Length();
-			byte * fileData = (byte *)Mem_Alloc( rt.length, TAG_TEMP );
+			byte* fileData = ( byte* )Mem_Alloc( rt.length, TAG_TEMP );
 			newFile->Read( fileData, rt.length );
 			int idx = entries.Append( rt );
-			if ( idx >= 0 ) {
+			if( idx >= 0 )
+			{
 				entries[ idx ].offset = outFile->Tell();
 				outFile->Write( ( void* )fileData, entries[ idx ].length );
 			}
@@ -266,7 +295,8 @@ void idResourceContainer::UpdateResourceFile( const char *_filename, const idStr
 	outFile->WriteBig( entries.Num() );
 
 	// write the individual resource entries
-	for ( int i = 0; i < entries.Num(); i++ ) {
+	for( int i = 0; i < entries.Num(); i++ )
+	{
 		entries[ i ].Write( outFile );
 	}
 
@@ -284,31 +314,36 @@ void idResourceContainer::UpdateResourceFile( const char *_filename, const idStr
 
 /*
 ========================
-idResourceContainer::ExtractResourceFile 
+idResourceContainer::ExtractResourceFile
 ========================
-*/ 
-void idResourceContainer::SetContainerIndex( const int & _idx ) {
-	for ( int i = 0; i < cacheTable.Num(); i++ ) {
+*/
+void idResourceContainer::SetContainerIndex( const int& _idx )
+{
+	for( int i = 0; i < cacheTable.Num(); i++ )
+	{
 		cacheTable[ i ].containerIndex = _idx;
 	}
 }
 
 /*
 ========================
-idResourceContainer::ExtractResourceFile 
+idResourceContainer::ExtractResourceFile
 ========================
-*/ 
-void idResourceContainer::ExtractResourceFile ( const char * _fileName, const char * _outPath, bool _copyWavs ) {
-	idFile *inFile = fileSystem->OpenFileRead( _fileName );
+*/
+void idResourceContainer::ExtractResourceFile( const char* _fileName, const char* _outPath, bool _copyWavs )
+{
+	idFile* inFile = fileSystem->OpenFileRead( _fileName );
 
-	if ( inFile == NULL ) {
+	if( inFile == NULL )
+	{
 		idLib::Warning( "Unable to open resource file %s", _fileName );
 		return;
 	}
 
 	uint32 magic;
 	inFile->ReadBig( magic );
-	if ( magic != RESOURCE_FILE_MAGIC ) {
+	if( magic != RESOURCE_FILE_MAGIC )
+	{
 		delete inFile;
 		return;
 	}
@@ -318,35 +353,40 @@ void idResourceContainer::ExtractResourceFile ( const char * _fileName, const ch
 	inFile->ReadBig( _tableOffset );
 	inFile->ReadBig( _tableLength );
 	// read this into a memory buffer with a single read
-	char * const buf = (char *)Mem_Alloc( _tableLength, TAG_RESOURCE );
+	char* const buf = ( char* )Mem_Alloc( _tableLength, TAG_RESOURCE );
 	inFile->Seek( _tableOffset, FS_SEEK_SET );
 	inFile->Read( buf, _tableLength );
-	idFile_Memory memFile( "resourceHeader", (const char *)buf, _tableLength );
+	idFile_Memory memFile( "resourceHeader", ( const char* )buf, _tableLength );
 
 	int _numFileResources;
 	memFile.ReadBig( _numFileResources );
 
-	for ( int i = 0; i < _numFileResources; i++ ) {
+	for( int i = 0; i < _numFileResources; i++ )
+	{
 		idResourceCacheEntry rt;
 		rt.Read( &memFile );
 		rt.filename.BackSlashesToSlashes();
 		rt.filename.ToLower();
-		byte *fbuf = NULL;
-		if ( _copyWavs && ( rt.filename.Find( ".idwav" ) >= 0 ||  rt.filename.Find( ".idxma" ) >= 0 ||  rt.filename.Find( ".idmsf" ) >= 0 ) ) {
+		byte* fbuf = NULL;
+		if( _copyWavs && ( rt.filename.Find( ".idwav" ) >= 0 ||  rt.filename.Find( ".idxma" ) >= 0 ||  rt.filename.Find( ".idmsf" ) >= 0 ) )
+		{
 			rt.filename.SetFileExtension( "wav" );
 			rt.filename.Replace( "generated/", "" );
 			int len = fileSystem->GetFileLength( rt.filename );
-			fbuf =  (byte *)Mem_Alloc( len, TAG_RESOURCE );
-			fileSystem->ReadFile( rt.filename, (void**)&fbuf, NULL );
-		} else {
+			fbuf = ( byte* )Mem_Alloc( len, TAG_RESOURCE );
+			fileSystem->ReadFile( rt.filename, ( void** )&fbuf, NULL );
+		}
+		else
+		{
 			inFile->Seek( rt.offset, FS_SEEK_SET );
-			fbuf =  (byte *)Mem_Alloc( rt.length, TAG_RESOURCE );
+			fbuf = ( byte* )Mem_Alloc( rt.length, TAG_RESOURCE );
 			inFile->Read( fbuf, rt.length );
 		}
 		idStr outName = _outPath;
 		outName.AppendPath( rt.filename );
-		idFile *outFile = fileSystem->OpenExplicitFileWrite( outName );
-		if ( outFile != NULL ) {
+		idFile* outFile = fileSystem->OpenExplicitFileWrite( outName );
+		if( outFile != NULL )
+		{
 			outFile->Write( ( byte* )fbuf, rt.length );
 			delete outFile;
 		}
@@ -360,12 +400,14 @@ void idResourceContainer::ExtractResourceFile ( const char * _fileName, const ch
 
 /*
 ========================
-idResourceContainer::Open 
+idResourceContainer::Open
 ========================
-*/ 
-void idResourceContainer::WriteResourceFile( const char *manifestName, const idStrList &manifest, const bool &_writeManifest ) {
+*/
+void idResourceContainer::WriteResourceFile( const char* manifestName, const idStrList& manifest, const bool& _writeManifest )
+{
 
-	if ( manifest.Num() == 0 ) {
+	if( manifest.Num() == 0 )
+	{
 		return;
 	}
 
@@ -378,10 +420,12 @@ void idResourceContainer::WriteResourceFile( const char *manifestName, const idS
 	int64 size = 0;
 	idStrList flist;
 	flist.SetGranularity( 16384 );
-	for ( int i = 0; i < manifest.Num(); i++ ) {
+	for( int i = 0; i < manifest.Num(); i++ )
+	{
 		flist.Append( manifest[ i ] );
 		size += fileSystem->GetFileLength( manifest[ i ] );
-		if ( size > 1024 * 1024 * 1024 ) {
+		if( size > 1024 * 1024 * 1024 )
+		{
 			outPutFiles.Append( flist );
 			size = 0;
 			flist.Clear();
@@ -391,7 +435,8 @@ void idResourceContainer::WriteResourceFile( const char *manifestName, const idS
 
 	outPutFiles.Append( flist );
 
-	if ( _writeManifest ) {
+	if( _writeManifest )
+	{
 		idStr temp = manifestName;
 		temp.Replace( "maps/", "manifests/" );
 		temp.StripFileExtension();
@@ -399,22 +444,26 @@ void idResourceContainer::WriteResourceFile( const char *manifestName, const idS
 		outManifest.WriteManifestFile( temp );
 	}
 
-	for ( int idx = 0; idx < outPutFiles.Num(); idx++ ) {
+	for( int idx = 0; idx < outPutFiles.Num(); idx++ )
+	{
 
-		idStrList &fileList = outPutFiles[ idx ];
-		if ( fileList.Num() == 0 ) {
+		idStrList& fileList = outPutFiles[ idx ];
+		if( fileList.Num() == 0 )
+		{
 			continue;
 		}
 
 		idStr fileName = manifestName;
-		if ( idx > 0 ) {
+		if( idx > 0 )
+		{
 			fileName = va( "%s_%02d", manifestName, idx );
-		} 
+		}
 		fileName.SetFileExtension( "resources" );
 
-		idFile *resFile = fileSystem->OpenFileWrite( fileName );
+		idFile* resFile = fileSystem->OpenFileWrite( fileName );
 
-		if ( resFile == NULL ) {
+		if( resFile == NULL )
+		{
 			idLib::Warning( "Cannot open %s for writing.\n", fileName.c_str() );
 			return;
 		}
@@ -434,16 +483,18 @@ void idResourceContainer::WriteResourceFile( const char *manifestName, const idS
 
 		entries.Resize( fileList.Num() );
 
-		for ( int i = 0; i < fileList.Num(); i++ ) {
+		for( int i = 0; i < fileList.Num(); i++ )
+		{
 			idResourceCacheEntry ent;
 
 			ent.filename = fileList[ i ];
 			ent.length = 0;
 			ent.offset = 0;
 
-			idFile *file = fileSystem->OpenFileReadMemory( ent.filename, false );
-			idFile_Memory *fm = dynamic_cast< idFile_Memory* >( file );
-			if ( fm == NULL ) {
+			idFile* file = fileSystem->OpenFileReadMemory( ent.filename, false );
+			idFile_Memory* fm = dynamic_cast< idFile_Memory* >( file );
+			if( fm == NULL )
+			{
 				continue;
 			}
 			// if the entry is uncompressed, align the file pointer to a 16 byte boundary
@@ -455,7 +506,8 @@ void idResourceContainer::WriteResourceFile( const char *manifestName, const idS
 
 			entries.Append( ent );
 
-			if ( ent.length == 0 ) {
+			if( ent.length == 0 )
+			{
 				ent.filename = "";
 				delete fm;
 				continue;
@@ -466,7 +518,8 @@ void idResourceContainer::WriteResourceFile( const char *manifestName, const idS
 			delete fm;
 
 			// pacifier every ten megs
-			if ( ( ent.offset + ent.length ) / 10000000 != ent.offset / 10000000 ) {
+			if( ( ent.offset + ent.length ) / 10000000 != ent.offset / 10000000 )
+			{
 				idLib::Printf( "." );
 			}
 		}
@@ -482,9 +535,11 @@ void idResourceContainer::WriteResourceFile( const char *manifestName, const idS
 		resFile->WriteBig( numFileResources );
 
 		// write the individual resource entries
-		for ( int i = 0; i < entries.Num(); i++ ) {
+		for( int i = 0; i < entries.Num(); i++ )
+		{
 			entries[ i ].Write( resFile );
-			if ( i + 1 == numFileResources ) {
+			if( i + 1 == numFileResources )
+			{
 				// we just wrote out the last new entry
 				tableNewLength = resFile->Tell() - tableOffset;
 			}

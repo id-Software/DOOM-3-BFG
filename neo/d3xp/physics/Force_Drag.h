@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -37,27 +37,28 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-class idForce_Drag : public idForce {
+class idForce_Drag : public idForce
+{
 
 public:
 	CLASS_PROTOTYPE( idForce_Drag );
 
-						idForce_Drag();
+	idForce_Drag();
 	virtual				~idForce_Drag();
-						// initialize the drag force
+	// initialize the drag force
 	void				Init( float damping );
-						// set physics object being dragged
-	void				SetPhysics( idPhysics *physics, int id, const idVec3 &p );
-						// set position to drag towards
-	void				SetDragPosition( const idVec3 &pos );
-						// get the position dragged towards
-	const idVec3 &		GetDragPosition() const;
-						// get the position on the dragged physics object
+	// set physics object being dragged
+	void				SetPhysics( idPhysics* physics, int id, const idVec3& p );
+	// set position to drag towards
+	void				SetDragPosition( const idVec3& pos );
+	// get the position dragged towards
+	const idVec3& 		GetDragPosition() const;
+	// get the position on the dragged physics object
 	const idVec3		GetDraggedPosition() const;
 
 public: // common force interface
 	virtual void		Evaluate( int time );
-	virtual void		RemovePhysics( const idPhysics *phys );
+	virtual void		RemovePhysics( const idPhysics* phys );
 
 private:
 
@@ -65,7 +66,7 @@ private:
 	float				damping;
 
 	// positioning
-	idPhysics *			physics;		// physics object
+	idPhysics* 			physics;		// physics object
 	int					id;				// clip model id of physics object
 	idVec3				p;				// position on clip model
 	idVec3				dragPosition;	// drag towards this position

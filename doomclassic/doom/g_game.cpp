@@ -593,8 +593,8 @@ void G_DoLoadLevel ()
 	::g->joyxmove = ::g->joyymove = 0; 
 	::g->mousex = ::g->mousey = 0; 
 	::g->sendpause = ::g->sendsave = ::g->paused = false; 
-	memset (::g->mousebuttons, 0, sizeof(::g->mousebuttons)); 
-	memset (::g->joybuttons, 0, sizeof(::g->joybuttons));
+	memset (::g->mousebuttons, 0, sizeof(::g->mousebuttons[0])*3);      // SRS - mousebuttons[0] points at mousearray[1] to mousearray[3], [-1] allowed
+	memset (::g->joybuttons, 0, sizeof(::g->joybuttons[0])*4);          // SRS - joybuttons[0] points at joyarray[1] to joyarray[4], [-1] allowed
 }
 
 //
@@ -1421,7 +1421,7 @@ qboolean G_DoLoadGame ()
 		loadingGame = false;
 		waitingForWipe = false;
 
-		return FALSE;				// bad version
+		return false;				// bad version
 	}
 
 	::g->save_p += VERSIONSIZE; 
@@ -1463,7 +1463,7 @@ qboolean G_DoLoadGame ()
 
 	Z_Free(g->savebuffer);
 
-	return TRUE;
+	return true;
 } 
 
 
@@ -1844,9 +1844,9 @@ void G_BeginRecording (void)
 //
 // G_PlayDemo 
 //
-void G_DeferedPlayDemo (char* name) 
+void G_DeferedPlayDemo (const char* name)
 { 
-	::g->defdemoname = name; 
+	::g->defdemoname = (char *)name;
 	::g->gameaction = ga_playdemo; 
 } 
 
@@ -1946,14 +1946,14 @@ void G_DoPlayDemo (void)
 //
 // G_TimeDemo 
 //
-void G_TimeDemo (char* name) 
+void G_TimeDemo (const char* name)
 { 	 
 	::g->nodrawers = M_CheckParm ("-nodraw"); 
 	::g->noblit = M_CheckParm ("-noblit"); 
 	::g->timingdemo = true; 
 	::g->singletics = true; 
 
-	::g->defdemoname = name; 
+	::g->defdemoname = (char *)name;
 	::g->gameaction = ga_playdemo; 
 } 
 

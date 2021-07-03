@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -39,7 +39,8 @@ idPredictedValue::idPredictedValue
 template< class type_ >
 idPredictedValue< type_ >::idPredictedValue() :
 	value(),
-	clientPredictedMilliseconds( 0 ) {
+	clientPredictedMilliseconds( 0 )
+{
 }
 
 /*
@@ -50,7 +51,8 @@ idPredictedValue::idPredictedValue
 template< class type_ >
 idPredictedValue< type_ >::idPredictedValue( const type_ & value_ ) :
 	value( value_ ),
-	clientPredictedMilliseconds( 0 ) {
+	clientPredictedMilliseconds( 0 )
+{
 }
 
 /*
@@ -59,8 +61,10 @@ idPredictedValue::UpdatePredictionTime
 ===============
 */
 template< class type_ >
-void idPredictedValue< type_ >::UpdatePredictionTime() {
-	if ( gameLocal.GetLocalPlayer() != NULL ) {
+void idPredictedValue< type_ >::UpdatePredictionTime()
+{
+	if( gameLocal.GetLocalPlayer() != NULL )
+	{
 		clientPredictedMilliseconds = gameLocal.GetLocalPlayer()->usercmd.clientGameMilliseconds;
 	}
 }
@@ -71,7 +75,8 @@ idPredictedValue::Set
 ===============
 */
 template< class type_ >
-void idPredictedValue< type_ >::Set( const type_ & newValue ) {
+void idPredictedValue< type_ >::Set( const type_ & newValue )
+{
 	value = newValue;
 	UpdatePredictionTime();
 }
@@ -82,7 +87,8 @@ idPredictedValue::operator=
 ===============
 */
 template< class type_ >
-idPredictedValue< type_ > & idPredictedValue< type_ >::operator=( const type_ & newValue ) {
+idPredictedValue< type_ >& idPredictedValue< type_ >::operator=( const type_ & newValue )
+{
 	Set( newValue );
 	return *this;
 }
@@ -93,7 +99,8 @@ idPredictedValue::operator+=
 ===============
 */
 template< class type_ >
-idPredictedValue< type_ > & idPredictedValue< type_ >::operator+=( const type_ & toAdd ) {
+idPredictedValue< type_ >& idPredictedValue< type_ >::operator+=( const type_ & toAdd )
+{
 	Set( value + toAdd );
 	return *this;
 }
@@ -104,7 +111,8 @@ idPredictedValue::operator-=
 ===============
 */
 template< class type_ >
-idPredictedValue< type_ > & idPredictedValue< type_ >::operator-=( const type_ & toSubtract ) {
+idPredictedValue< type_ >& idPredictedValue< type_ >::operator-=( const type_ & toSubtract )
+{
 	Set( value - toSubtract );
 	return *this;
 }
@@ -122,13 +130,16 @@ Returns true if the value was set, false if not.
 ===============
 */
 template< class type_ >
-bool idPredictedValue< type_ >::UpdateFromSnapshot( const type_ & valueFromSnapshot, int clientNumber ) {
-	if ( clientNumber != gameLocal.GetLocalClientNum() ) {
+bool idPredictedValue< type_ >::UpdateFromSnapshot( const type_ & valueFromSnapshot, int clientNumber )
+{
+	if( clientNumber != gameLocal.GetLocalClientNum() )
+	{
 		value = valueFromSnapshot;
 		return true;
 	}
-		
-	if ( gameLocal.GetLastClientUsercmdMilliseconds( clientNumber ) >= clientPredictedMilliseconds ) {
+
+	if( gameLocal.GetLastClientUsercmdMilliseconds( clientNumber ) >= clientPredictedMilliseconds )
+	{
 		value = valueFromSnapshot;
 		return true;
 	}
@@ -145,7 +156,8 @@ We only care if the values are equal, not the frame number.
 ===============
 */
 template< class firstType_, class secondType_ >
-bool operator==( const idPredictedValue< firstType_ > & lhs, const idPredictedValue< secondType_ > & rhs ) {
+bool operator==( const idPredictedValue< firstType_ >& lhs, const idPredictedValue< secondType_ >& rhs )
+{
 	return lhs.Get() == rhs.Get();
 }
 
@@ -158,7 +170,8 @@ We only care if the values are equal, not the frame number.
 ===============
 */
 template< class firstType_, class secondType_ >
-bool operator!=( const idPredictedValue< firstType_ > & lhs, const idPredictedValue< secondType_ > & rhs ) {
+bool operator!=( const idPredictedValue< firstType_ >& lhs, const idPredictedValue< secondType_ >& rhs )
+{
 	return lhs.Get() != rhs.Get();
 }
 
@@ -171,7 +184,8 @@ We only care if the values are equal, not the frame number.
 ===============
 */
 template< class firstType_, class secondType_ >
-bool operator==( const idPredictedValue< firstType_ > & lhs, const secondType_ & rhs ) {
+bool operator==( const idPredictedValue< firstType_ >& lhs, const secondType_ & rhs )
+{
 	return lhs.Get() == rhs;
 }
 
@@ -184,7 +198,8 @@ We only care if the values are equal, not the frame number.
 ===============
 */
 template< class firstType_, class secondType_ >
-bool operator==( const firstType_ lhs, const idPredictedValue< secondType_ > & rhs ) {
+bool operator==( const firstType_ lhs, const idPredictedValue< secondType_ >& rhs )
+{
 	return lhs == rhs.Get();
 }
 
@@ -197,7 +212,8 @@ We only care if the values are equal, not the frame number.
 ===============
 */
 template< class firstType_, class secondType_ >
-bool operator!=( const idPredictedValue< firstType_ > & lhs, const secondType_ & rhs ) {
+bool operator!=( const idPredictedValue< firstType_ >& lhs, const secondType_ & rhs )
+{
 	return lhs.Get() != rhs;
 }
 
@@ -210,7 +226,8 @@ We only care if the values are equal, not the frame number.
 ===============
 */
 template< class firstType_, class secondType_ >
-bool operator!=( const firstType_ lhs, const idPredictedValue< secondType_ > & rhs ) {
+bool operator!=( const firstType_ lhs, const idPredictedValue< secondType_ >& rhs )
+{
 	return lhs != rhs.Get();
 }
 

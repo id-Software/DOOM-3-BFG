@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -40,7 +40,8 @@ If you have questions concerning this license or the applicable additional terms
 ===================================================================================
 */
 
-typedef enum {
+typedef enum
+{
 	MM_OK,
 	MM_SLIDING,
 	MM_BLOCKED,
@@ -48,7 +49,8 @@ typedef enum {
 	MM_FALLING
 } monsterMoveResult_t;
 
-typedef struct monsterPState_s {
+typedef struct monsterPState_s
+{
 	int						atRest;
 	bool					onGround;
 	idVec3					origin;
@@ -57,36 +59,37 @@ typedef struct monsterPState_s {
 	idVec3					pushVelocity;
 } monsterPState_t;
 
-class idPhysics_Monster : public idPhysics_Actor {
+class idPhysics_Monster : public idPhysics_Actor
+{
 
 public:
 	CLASS_PROTOTYPE( idPhysics_Monster );
 
-							idPhysics_Monster();
+	idPhysics_Monster();
 
-	void					Save( idSaveGame *savefile ) const;
-	void					Restore( idRestoreGame *savefile );
+	void					Save( idSaveGame* savefile ) const;
+	void					Restore( idRestoreGame* savefile );
 
-							// maximum step up the monster can take, default 18 units
+	// maximum step up the monster can take, default 18 units
 	void					SetMaxStepHeight( const float newMaxStepHeight );
 	float					GetMaxStepHeight() const;
-							// minimum cosine of floor angle to be able to stand on the floor
+	// minimum cosine of floor angle to be able to stand on the floor
 	void					SetMinFloorCosine( const float newMinFloorCosine );
-							// set delta for next move
-	void					SetDelta( const idVec3 &d );
-							// returns true if monster is standing on the ground
+	// set delta for next move
+	void					SetDelta( const idVec3& d );
+	// returns true if monster is standing on the ground
 	bool					OnGround() const;
-							// returns the movement result
+	// returns the movement result
 	monsterMoveResult_t		GetMoveResult() const;
-							// overrides any velocity for pure delta movement
+	// overrides any velocity for pure delta movement
 	void					ForceDeltaMove( bool force );
-							// whether velocity should be affected by gravity
+	// whether velocity should be affected by gravity
 	void					UseFlyMove( bool force );
-							// don't use delta movement
+	// don't use delta movement
 	void					UseVelocityMove( bool force );
-							// get entity blocking the move
-	idEntity *				GetSlideMoveEntity() const;
-							// enable/disable activation by impact
+	// get entity blocking the move
+	idEntity* 				GetSlideMoveEntity() const;
+	// enable/disable activation by impact
 	void					EnableImpact();
 	void					DisableImpact();
 
@@ -95,8 +98,8 @@ public:	// common physics interface
 	void					UpdateTime( int endTimeMSec );
 	int						GetTime() const;
 
-	void					GetImpactInfo( const int id, const idVec3 &point, impactInfo_t *info ) const;
-	void					ApplyImpulse( const int id, const idVec3 &point, const idVec3 &impulse );
+	void					GetImpactInfo( const int id, const idVec3& point, impactInfo_t* info ) const;
+	void					ApplyImpulse( const int id, const idVec3& point, const idVec3& impulse );
 	void					Activate();
 	void					PutToRest();
 	bool					IsAtRest() const;
@@ -105,23 +108,23 @@ public:	// common physics interface
 	void					SaveState();
 	void					RestoreState();
 
-	void					SetOrigin( const idVec3 &newOrigin, int id = -1 );
-	void					SetAxis( const idMat3 &newAxis, int id = -1 );
+	void					SetOrigin( const idVec3& newOrigin, int id = -1 );
+	void					SetAxis( const idMat3& newAxis, int id = -1 );
 
-	void					Translate( const idVec3 &translation, int id = -1 );
-	void					Rotate( const idRotation &rotation, int id = -1 );
+	void					Translate( const idVec3& translation, int id = -1 );
+	void					Rotate( const idRotation& rotation, int id = -1 );
 
-	void					SetLinearVelocity( const idVec3 &newLinearVelocity, int id = 0 );
+	void					SetLinearVelocity( const idVec3& newLinearVelocity, int id = 0 );
 
-	const idVec3 &			GetLinearVelocity( int id = 0 ) const;
+	const idVec3& 			GetLinearVelocity( int id = 0 ) const;
 
 	void					SetPushed( int deltaTime );
-	const idVec3 &			GetPushedLinearVelocity( const int id = 0 ) const;
+	const idVec3& 			GetPushedLinearVelocity( const int id = 0 ) const;
 
-	void					SetMaster( idEntity *master, const bool orientated = true );
+	void					SetMaster( idEntity* master, const bool orientated = true );
 
-	void					WriteToSnapshot( idBitMsg &msg ) const;
-	void					ReadFromSnapshot( const idBitMsg &msg );
+	void					WriteToSnapshot( idBitMsg& msg ) const;
+	void					ReadFromSnapshot( const idBitMsg& msg );
 
 private:
 	// monster physics state
@@ -144,12 +147,12 @@ private:
 
 	// results of last evaluate
 	monsterMoveResult_t		moveResult;
-	idEntity *				blockingEntity;
+	idEntity* 				blockingEntity;
 
 private:
-	void					CheckGround( monsterPState_t &state );
-	monsterMoveResult_t		SlideMove( idVec3 &start, idVec3 &velocity, const idVec3 &delta );
-	monsterMoveResult_t		StepMove( idVec3 &start, idVec3 &velocity, const idVec3 &delta );
+	void					CheckGround( monsterPState_t& state );
+	monsterMoveResult_t		SlideMove( idVec3& start, idVec3& velocity, const idVec3& delta );
+	monsterMoveResult_t		StepMove( idVec3& start, idVec3& velocity, const idVec3& delta );
 	void					Rest();
 };
 

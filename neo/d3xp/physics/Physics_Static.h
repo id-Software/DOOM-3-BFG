@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -39,7 +39,8 @@ If you have questions concerning this license or the applicable additional terms
 
 class idBitMsg;
 
-typedef struct staticPState_s {
+typedef struct staticPState_s
+{
 	idVec3					origin;
 	idMat3					axis;
 	idVec3					localOrigin;
@@ -49,7 +50,8 @@ typedef struct staticPState_s {
 // Storing the state used for interpolation with quaternions
 // means I don't have to do a bunch of conversions between
 // idMat3s and idQuats every frame.
-struct staticInterpolatePState_t {
+struct staticInterpolatePState_t
+{
 	idVec3					origin;
 	idQuat					axis;
 	idVec3					localOrigin;
@@ -61,26 +63,27 @@ struct staticInterpolatePState_t {
 ReadStaticInterpolatePStateFromSnapshot
 ================
 */
-staticInterpolatePState_t ReadStaticInterpolatePStateFromSnapshot( const idBitMsg & msg );
-staticPState_s	ConvertInterpolateStateToPState( const staticInterpolatePState_t & interpolateState  );
-staticInterpolatePState_t ConvertPStateToInterpolateState( const staticPState_t & state );
+staticInterpolatePState_t ReadStaticInterpolatePStateFromSnapshot( const idBitMsg& msg );
+staticPState_s	ConvertInterpolateStateToPState( const staticInterpolatePState_t& interpolateState );
+staticInterpolatePState_t ConvertPStateToInterpolateState( const staticPState_t& state );
 
-class idPhysics_Static : public idPhysics {
+class idPhysics_Static : public idPhysics
+{
 
 public:
 	CLASS_PROTOTYPE( idPhysics_Static );
 
-							idPhysics_Static();
-							~idPhysics_Static();
+	idPhysics_Static();
+	~idPhysics_Static();
 
-	void					Save( idSaveGame *savefile ) const;
-	void					Restore( idRestoreGame *savefile );
+	void					Save( idSaveGame* savefile ) const;
+	void					Restore( idRestoreGame* savefile );
 
 public:	// common physics interface
-	void					SetSelf( idEntity *e );
+	void					SetSelf( idEntity* e );
 
-	void					SetClipModel( idClipModel *model, float density, int id = 0, bool freeOld = true );
-	idClipModel *			GetClipModel( int id = 0 ) const;
+	void					SetClipModel( idClipModel* model, float density, int id = 0, bool freeOld = true );
+	idClipModel* 			GetClipModel( int id = 0 ) const;
 	int						GetNumClipModels() const;
 
 	void					SetMass( float mass, int id = -1 );
@@ -92,18 +95,18 @@ public:	// common physics interface
 	void					SetClipMask( int mask, int id = -1 );
 	int						GetClipMask( int id = -1 ) const;
 
-	const idBounds &		GetBounds( int id = -1 ) const;
-	const idBounds &		GetAbsBounds( int id = -1 ) const;
+	const idBounds& 		GetBounds( int id = -1 ) const;
+	const idBounds& 		GetAbsBounds( int id = -1 ) const;
 
 	bool					Evaluate( int timeStepMSec, int endTimeMSec );
 	bool					Interpolate( const float fraction );
-	void					ResetInterpolationState( const idVec3 & origin, const idMat3 & axis ) {}
+	void					ResetInterpolationState( const idVec3& origin, const idMat3& axis ) {}
 	void					UpdateTime( int endTimeMSec );
 	int						GetTime() const;
 
-	void					GetImpactInfo( const int id, const idVec3 &point, impactInfo_t *info ) const;
-	void					ApplyImpulse( const int id, const idVec3 &point, const idVec3 &impulse );
-	void					AddForce( const int id, const idVec3 &point, const idVec3 &force );
+	void					GetImpactInfo( const int id, const idVec3& point, impactInfo_t* info ) const;
+	void					ApplyImpulse( const int id, const idVec3& point, const idVec3& impulse );
+	void					AddForce( const int id, const idVec3& point, const idVec3& force );
 	void					Activate();
 	void					PutToRest();
 	bool					IsAtRest() const;
@@ -113,28 +116,28 @@ public:	// common physics interface
 	void					SaveState();
 	void					RestoreState();
 
-	void					SetOrigin( const idVec3 &newOrigin, int id = -1 );
-	void					SetAxis( const idMat3 &newAxis, int id = -1 );
+	void					SetOrigin( const idVec3& newOrigin, int id = -1 );
+	void					SetAxis( const idMat3& newAxis, int id = -1 );
 
-	void					Translate( const idVec3 &translation, int id = -1 );
-	void					Rotate( const idRotation &rotation, int id = -1 );
+	void					Translate( const idVec3& translation, int id = -1 );
+	void					Rotate( const idRotation& rotation, int id = -1 );
 
-	const idVec3 &			GetOrigin( int id = 0 ) const;
-	const idMat3 &			GetAxis( int id = 0 ) const;
+	const idVec3& 			GetOrigin( int id = 0 ) const;
+	const idMat3& 			GetAxis( int id = 0 ) const;
 
-	void					SetLinearVelocity( const idVec3 &newLinearVelocity, int id = 0 );
-	void					SetAngularVelocity( const idVec3 &newAngularVelocity, int id = 0 );
+	void					SetLinearVelocity( const idVec3& newLinearVelocity, int id = 0 );
+	void					SetAngularVelocity( const idVec3& newAngularVelocity, int id = 0 );
 
-	const idVec3 &			GetLinearVelocity( int id = 0 ) const;
-	const idVec3 &			GetAngularVelocity( int id = 0 ) const;
+	const idVec3& 			GetLinearVelocity( int id = 0 ) const;
+	const idVec3& 			GetAngularVelocity( int id = 0 ) const;
 
-	void					SetGravity( const idVec3 &newGravity );
-	const idVec3 &			GetGravity() const;
-	const idVec3 &			GetGravityNormal() const;
+	void					SetGravity( const idVec3& newGravity );
+	const idVec3& 			GetGravity() const;
+	const idVec3& 			GetGravityNormal() const;
 
-	void					ClipTranslation( trace_t &results, const idVec3 &translation, const idClipModel *model ) const;
-	void					ClipRotation( trace_t &results, const idRotation &rotation, const idClipModel *model ) const;
-	int						ClipContents( const idClipModel *model ) const;
+	void					ClipTranslation( trace_t& results, const idVec3& translation, const idClipModel* model ) const;
+	void					ClipRotation( trace_t& results, const idRotation& rotation, const idClipModel* model ) const;
+	int						ClipContents( const idClipModel* model ) const;
 
 	void					DisableClip();
 	void					EnableClip();
@@ -144,35 +147,35 @@ public:	// common physics interface
 
 	bool					EvaluateContacts();
 	int						GetNumContacts() const;
-	const contactInfo_t &	GetContact( int num ) const;
+	const contactInfo_t& 	GetContact( int num ) const;
 	void					ClearContacts();
-	void					AddContactEntity( idEntity *e );
-	void					RemoveContactEntity( idEntity *e );
+	void					AddContactEntity( idEntity* e );
+	void					RemoveContactEntity( idEntity* e );
 
 	bool					HasGroundContacts() const;
 	bool					IsGroundEntity( int entityNum ) const;
 	bool					IsGroundClipModel( int entityNum, int id ) const;
 
 	void					SetPushed( int deltaTime );
-	const idVec3 &			GetPushedLinearVelocity( const int id = 0 ) const;
-	const idVec3 &			GetPushedAngularVelocity( const int id = 0 ) const;
+	const idVec3& 			GetPushedLinearVelocity( const int id = 0 ) const;
+	const idVec3& 			GetPushedAngularVelocity( const int id = 0 ) const;
 
-	void					SetMaster( idEntity *master, const bool orientated = true );
+	void					SetMaster( idEntity* master, const bool orientated = true );
 
-	const trace_t *			GetBlockingInfo() const;
-	idEntity *				GetBlockingEntity() const;
+	const trace_t* 			GetBlockingInfo() const;
+	idEntity* 				GetBlockingEntity() const;
 
 	int						GetLinearEndTime() const;
 	int						GetAngularEndTime() const;
 
-	void					WriteToSnapshot( idBitMsg &msg ) const;
-	void					ReadFromSnapshot( const idBitMsg &msg );
+	void					WriteToSnapshot( idBitMsg& msg ) const;
+	void					ReadFromSnapshot( const idBitMsg& msg );
 
 protected:
-	idEntity *				self;					// entity using this physics object
+	idEntity* 				self;					// entity using this physics object
 	staticPState_t			current;				// physics state
-	idClipModel *			clipModel;				// collision model
-	
+	idClipModel* 			clipModel;				// collision model
+
 	// Used for client-side interpolation
 	staticInterpolatePState_t	previous;
 	staticInterpolatePState_t	next;
@@ -182,8 +185,8 @@ protected:
 	bool					isOrientated;
 };
 
-staticPState_t InterpolateStaticPState( const staticInterpolatePState_t & previous,
-										const staticInterpolatePState_t & next,
+staticPState_t InterpolateStaticPState( const staticInterpolatePState_t& previous,
+										const staticInterpolatePState_t& next,
 										float fraction );
 
 #endif /* !__PHYSICS_STATIC_H__ */

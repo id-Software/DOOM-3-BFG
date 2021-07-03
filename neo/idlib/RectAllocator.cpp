@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -48,40 +48,49 @@ or scale the input sizes down by that alignment and scale the outputPositions ba
 
 */
 
-float	RectPackingFraction( const idList<idVec2i> &inputSizes, const idVec2i totalSize ) {
+float	RectPackingFraction( const idList<idVec2i>& inputSizes, const idVec2i totalSize )
+{
 	int	totalArea = totalSize.Area();
-	if ( totalArea == 0 ) {
+	if( totalArea == 0 )
+	{
 		return 0;
 	}
 	int	inputArea = 0;
-	for ( int i = 0 ; i < inputSizes.Num() ; i++ ) {
+	for( int i = 0 ; i < inputSizes.Num() ; i++ )
+	{
 		inputArea += inputSizes[i].Area();
 	}
-	return (float)inputArea / totalArea;
+	return ( float )inputArea / totalArea;
 }
 
-class idSortrects : public idSort_Quick< int, idSortrects > {
+class idSortrects : public idSort_Quick< int, idSortrects >
+{
 public:
-	int SizeMetric( idVec2i v ) const {
+	int SizeMetric( idVec2i v ) const
+	{
 		// skinny rects will sort earlier than square ones, because
 		// they are more likely to grow the entire region
 		return v.x * v.x + v.y * v.y;
 	}
-	int Compare( const int & a, const int & b ) const {
-		return SizeMetric( (*inputSizes)[b] ) - SizeMetric( (*inputSizes)[a] );
+	int Compare( const int& a, const int& b ) const
+	{
+		return SizeMetric( ( *inputSizes )[b] ) - SizeMetric( ( *inputSizes )[a] );
 	}
-	const idList<idVec2i> *inputSizes;
+	const idList<idVec2i>* inputSizes;
 };
 
-void RectAllocator( const idList<idVec2i> &inputSizes, idList<idVec2i> &outputPositions, idVec2i &totalSize ) {
+void RectAllocator( const idList<idVec2i>& inputSizes, idList<idVec2i>& outputPositions, idVec2i& totalSize )
+{
 	outputPositions.SetNum( inputSizes.Num() );
-	if ( inputSizes.Num() == 0 ) {
+	if( inputSizes.Num() == 0 )
+	{
 		totalSize.Set( 0, 0 );
 		return;
 	}
 	idList<int> sizeRemap;
 	sizeRemap.SetNum( inputSizes.Num() );
-	for ( int i = 0; i < inputSizes.Num(); i++ ) {
+	for( int i = 0; i < inputSizes.Num(); i++ )
+	{
 		sizeRemap[i] = i;
 	}
 
@@ -100,30 +109,36 @@ void RectAllocator( const idList<idVec2i> &inputSizes, idList<idVec2i> &outputPo
 	// Somewhat better allocation could be had by checking all the combinations of x and y edges
 	// in the allocated rectangles, rather than just the corners of each rectangle, but it
 	// still does a pretty good job.
-	static const int START_MAX = 1<<14;
-	for ( int i = 1; i < inputSizes.Num(); i++ ) {
+	static const int START_MAX = 1 << 14;
+	for( int i = 1; i < inputSizes.Num(); i++ )
+	{
 		idVec2i	best( 0, 0 );
 		idVec2i	bestMax( START_MAX, START_MAX );
 		idVec2i	size = inputSizes[sizeRemap[i]];
-		for ( int j = 0; j < i; j++ ) {
-			for ( int k = 1;  k < 4; k++ ) {
+		for( int j = 0; j < i; j++ )
+		{
+			for( int k = 1;  k < 4; k++ )
+			{
 				idVec2i	test;
-				for ( int n = 0 ; n < 2 ; n++ ) {
+				for( int n = 0 ; n < 2 ; n++ )
+				{
 					test[n] = outputPositions[sizeRemap[j]][n] + ( ( k >> n ) & 1 ) * inputSizes[sizeRemap[j]][n];
 				}
 
 				idVec2i	newMax;
-				for ( int n = 0 ; n < 2 ; n++ ) {
+				for( int n = 0 ; n < 2 ; n++ )
+				{
 					newMax[n] = Max( totalSize[n], test[n] + size[n] );
 				}
 				// widths must be multiples of 128 pixels / 32 DXT blocks to
 				// allow it to be used directly as a GPU texture without re-packing
 				// FIXME: make this a parameter
-				newMax[0] = (newMax[0]+31) & ~31;
+				newMax[0] = ( newMax[0] + 31 ) & ~31;
 
 				// don't let an image get larger than 1024 DXT block, or PS3 crashes
 				// FIXME: pass maxSize in as a parameter
-				if ( newMax[0] > 1024 || newMax[1] > 1024 ) {
+				if( newMax[0] > 1024 || newMax[1] > 1024 )
+				{
 					continue;
 				}
 
@@ -132,28 +147,33 @@ void RectAllocator( const idList<idVec2i> &inputSizes, idList<idVec2i> &outputPo
 				// allowing it to extend in one dimension for a long time.
 				int	newSize = newMax.x * newMax.x + newMax.y * newMax.y;
 				int	bestSize = bestMax.x * bestMax.x + bestMax.y * bestMax.y;
-				if ( newSize > bestSize ) {
+				if( newSize > bestSize )
+				{
 					continue;
 				}
 
 				// if the image isn't required to grow, favor the location closest to the origin
-				if ( newSize == bestSize && best.x + best.y < test.x + test.y ) {
+				if( newSize == bestSize && best.x + best.y < test.x + test.y )
+				{
 					continue;
 				}
 
 				// see if this spot overlaps any already allocated rect
 				int n = 0;
-				for ( ; n < i; n++ ) {
-					const idVec2i &check = outputPositions[sizeRemap[n]];
-					const idVec2i &checkSize = inputSizes[sizeRemap[n]];
-					if (	test.x + size.x > check.x &&
+				for( ; n < i; n++ )
+				{
+					const idVec2i& check = outputPositions[sizeRemap[n]];
+					const idVec2i& checkSize = inputSizes[sizeRemap[n]];
+					if(	test.x + size.x > check.x &&
 							test.y + size.y > check.y &&
 							test.x < check.x + checkSize.x &&
-							test.y < check.y + checkSize.y ) {
+							test.y < check.y + checkSize.y )
+					{
 						break;
 					}
 				}
-				if ( n < i ) {
+				if( n < i )
+				{
 					// overlapped, can't use
 					continue;
 				}
@@ -161,8 +181,9 @@ void RectAllocator( const idList<idVec2i> &inputSizes, idList<idVec2i> &outputPo
 				bestMax = newMax;
 			}
 		}
-		if ( bestMax[0] == START_MAX ) {	// FIXME: return an error code
-			idLib::FatalError( "RectAllocator: couldn't fit everything" ); 
+		if( bestMax[0] == START_MAX )  	// FIXME: return an error code
+		{
+			idLib::FatalError( "RectAllocator: couldn't fit everything" );
 		}
 		outputPositions[sizeRemap[i]] = best;
 		totalSize = bestMax;

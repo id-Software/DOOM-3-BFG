@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -28,25 +28,26 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __ACHIEVEMENTS_H__
 #define __ACHIEVEMENTS_H__
 
-enum achievement_t {
-	
+enum achievement_t
+{
+
 	ACHIEVEMENT_INVALID = -1,
 
 	ACHIEVEMENT_EARN_ALL_50_TROPHIES,					// 0 // DONE -- (automagic?)
-	
+
 	ACHIEVEMENT_COMPLETED_DIFFICULTY_0,					// 1 // DONE -- Recruit
 	ACHIEVEMENT_COMPLETED_DIFFICULTY_1,					// 2 // DONE -- Marine
 	ACHIEVEMENT_COMPLETED_DIFFICULTY_2,					// 3 // DONE -- Veteran
 	ACHIEVEMENT_COMPLETED_DIFFICULTY_3,					// 4 // DONE -- Nightmare
 
-	ACHIEVEMENT_PDAS_BASE,								// 5 // DONE -- 
-	ACHIEVEMENT_WATCH_ALL_VIDEOS,						// 6 // DONE -- 
-	ACHIEVEMENT_KILL_MONSTER_WITH_1_HEALTH_LEFT,		// 7 // DONE -- 
+	ACHIEVEMENT_PDAS_BASE,								// 5 // DONE --
+	ACHIEVEMENT_WATCH_ALL_VIDEOS,						// 6 // DONE --
+	ACHIEVEMENT_KILL_MONSTER_WITH_1_HEALTH_LEFT,		// 7 // DONE --
 	ACHIEVEMENT_OPEN_ALL_LOCKERS,						// 8 // DONE --
 	ACHIEVEMENT_KILL_20_ENEMY_FISTS_HANDS,				// 9 // DONE --- kill 20 enemies with fists & hands
 	ACHIEVEMENT_KILL_SCI_NEXT_TO_RCR,					// 10 // DONE -----> ADD TARGET TO MAP   kill scientist trapped next to reactor control room
 	ACHIEVEMENT_KILL_TWO_IMPS_ONE_SHOTGUN,				// 11 // DONE --
-	ACHIEVEMENT_SCORE_25000_TURKEY_PUNCHER,				// 12 // DONE -- 
+	ACHIEVEMENT_SCORE_25000_TURKEY_PUNCHER,				// 12 // DONE --
 	ACHIEVEMENT_DESTROY_BARRELS,						// 13 // DONE --
 	ACHIEVEMENT_GET_BFG_FROM_SECURITY_OFFICE,			// 14 // DONE -----> ADD TARGET TO MAP
 	ACHIEVEMENT_COMPLETE_LEVEL_WITHOUT_TAKING_DMG,		// 15 // DONE --
@@ -83,12 +84,12 @@ enum achievement_t {
 	ACHIEVEMENT_LE_COMPLETED_DIFFICULTY_1,				// 41 // DONE -- Marine
 	ACHIEVEMENT_LE_COMPLETED_DIFFICULTY_2,				// 42 // DONE -- Veteran
 	ACHIEVEMENT_LE_COMPLETED_DIFFICULTY_3,				// 43 // DONE -- Nightmare
-															
+
 	ACHIEVEMENT_PDAS_LE,								// 44 // DONE -- read all pdas in LE
 
 	ACHIEVEMENT_MP_KILL_PLAYER_VIA_TELEPORT,			// 45 // DONE --
 	ACHIEVEMENT_MP_CATCH_ENEMY_IN_ROFC,					// 46 // DONE -- needs to be tested -- Reactor of Frag Chamber
-	ACHIEVEMENT_MP_KILL_5_PLAYERS_USING_INVIS,			// 47 // DONE -- 
+	ACHIEVEMENT_MP_KILL_5_PLAYERS_USING_INVIS,			// 47 // DONE --
 	ACHIEVEMENT_MP_COMPLETE_MATCH_WITHOUT_DYING,		// 48 // DONE --
 	ACHIEVEMENT_MP_USE_BERSERK_TO_KILL_PLAYER,			// 49 // DONE --
 	ACHIEVEMENT_MP_KILL_2_GUYS_IN_ROOM_WITH_BFG,		// 50 // DONE --
@@ -109,7 +110,7 @@ enum achievement_t {
 	ACHIEVEMENT_DOOM2_REALLY_BIG_GUN_FIND_BFG_SINGLEPLAYER,					// 63
 	ACHIEVEMENT_DOOM2_BURNING_OUT_OF_CONTROL_COMPLETE_KILLS_ITEMS_SECRETS,	// 64
 	ACHIEVEMENT_DOOM2_IMPORTANT_LOOKING_DOOR_FIND_ANY_SECRET,				// 65
-	
+
 	ACHIEVEMENTS_NUM,
 
 	STAT_DOOM_COMPLETED_EPISODE_1_MEDIUM,
@@ -127,44 +128,77 @@ compile_time_assert( ACHIEVEMENTS_NUM <= idPlayerProfile::MAX_PLAYER_PROFILE_STA
 
 /*
 ================================================
-idAchievementManager 
+idAchievementManager
 
 Manages a List of Achievements associated with a particular Player.
 
 This is setup to only have one achievement manager per game.
 ================================================
 */
-class idAchievementManager {
+class idAchievementManager
+{
 public:
-				idAchievementManager();
+	idAchievementManager();
 
-	void		Init( idPlayer * player );
-	bool		IsInitialized() const { return owner != NULL; }
+	void		Init( idPlayer* player );
+	bool		IsInitialized() const
+	{
+		return owner != NULL;
+	}
 
 	// save games
-	void		Save( idSaveGame * savefile ) const;					// archives object for save game file
-	void		Restore( idRestoreGame * savefile );					// unarchives object from save game file
+	void		Save( idSaveGame* savefile ) const;					// archives object for save game file
+	void		Restore( idRestoreGame* savefile );					// unarchives object from save game file
 
 	// Debug tool to reset achievement state and counts
 	void		Reset();
-	int			GetCount( const achievement_t eventId ) const { return counts[eventId]; }
+	int			GetCount( const achievement_t eventId ) const
+	{
+		return counts[eventId];
+	}
 
 	// Adds a count to the tracked number of events, these events can be applied to multiple achievements
 	void		EventCompletesAchievement( const achievement_t eventId );
 
-	int			GetLastImpKilledTime() { return lastImpKilledTime; }
-	void		SetLastImpKilledTime( int time) { lastImpKilledTime = time; }
-	int			GetLastPlayerKilledTime() { return lastPlayerKilledTime; }
-	void		SetLastPlayerKilledTime( int time ) { lastPlayerKilledTime = time; }
-	bool		GetPlayerTookDamage() { return playerTookDamage; }
-	void		SetPlayerTookDamage( bool bl ) { playerTookDamage = bl; }
+	int			GetLastImpKilledTime()
+	{
+		return lastImpKilledTime;
+	}
+	void		SetLastImpKilledTime( int time )
+	{
+		lastImpKilledTime = time;
+	}
+	int			GetLastPlayerKilledTime()
+	{
+		return lastPlayerKilledTime;
+	}
+	void		SetLastPlayerKilledTime( int time )
+	{
+		lastPlayerKilledTime = time;
+	}
+	bool		GetPlayerTookDamage()
+	{
+		return playerTookDamage;
+	}
+	void		SetPlayerTookDamage( bool bl )
+	{
+		playerTookDamage = bl;
+	}
 	void		IncrementHellTimeKills();
-	void		ResetHellTimeKills() { currentHellTimeKills = 0; }
-	void		SavePersistentData( idDict & playerInfo );
-	void		RestorePersistentData( const idDict & spawnArgs );
+	void		ResetHellTimeKills()
+	{
+		currentHellTimeKills = 0;
+	}
+	void		SavePersistentData( idDict& playerInfo );
+	void		RestorePersistentData( const idDict& spawnArgs );
 
 	static void LocalUser_CompleteAchievement( achievement_t id );
+
+	// RB begin
+#if defined(USE_DOOMCLASSIC)
 	static void	CheckDoomClassicsAchievements( int killcount, int itemcount, int secretcount, int skill, int mission, int map, int episode, int totalkills, int totalitems, int totalsecret );
+#endif
+	// RB end
 
 private:
 	idEntityPtr< idPlayer >	owner;
@@ -177,7 +211,7 @@ private:
 
 	static bool		cheatingDialogShown;
 
-	idLocalUser *	GetLocalUser();
+	idLocalUser* 	GetLocalUser();
 	void			SyncAchievments();
 };
 

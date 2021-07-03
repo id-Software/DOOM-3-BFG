@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -37,7 +37,8 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-typedef struct {
+typedef struct
+{
 	renderLight_t			renderLight;			// light presented to the renderer
 	qhandle_t				lightDefHandle;			// handle to renderer light def
 	renderEntity_t			renderEntity;			// used to present a model to the renderer
@@ -51,37 +52,38 @@ typedef struct {
 	bool					launched;
 } idFXLocalAction;
 
-class idEntityFx : public idEntity {
+class idEntityFx : public idEntity
+{
 public:
 	CLASS_PROTOTYPE( idEntityFx );
 
-							idEntityFx();
+	idEntityFx();
 	virtual					~idEntityFx();
 
 	void					Spawn();
 
-	void					Save( idSaveGame *savefile ) const;
-	void					Restore( idRestoreGame *savefile );
+	void					Save( idSaveGame* savefile ) const;
+	void					Restore( idRestoreGame* savefile );
 
 	virtual void			Think();
-	void					Setup( const char *fx );
+	void					Setup( const char* fx );
 	void					Run( int time );
 	void					Start( int time );
 	void					Stop();
 	const int				Duration();
-	const char *			EffectName();
-	const char *			Joint();
+	const char* 			EffectName();
+	const char* 			Joint();
 	const bool				Done();
 
-	virtual void			WriteToSnapshot( idBitMsg &msg ) const;
-	virtual void			ReadFromSnapshot( const idBitMsg &msg );
+	virtual void			WriteToSnapshot( idBitMsg& msg ) const;
+	virtual void			ReadFromSnapshot( const idBitMsg& msg );
 	virtual void			ClientThink( const int curTime, const float fraction, const bool predict );
 	virtual void			ClientPredictionThink();
 
-	static idEntityFx *		StartFx( const char *fx, const idVec3 *useOrigin, const idMat3 *useAxis, idEntity *ent, bool bind );
+	static idEntityFx* 		StartFx( const char* fx, const idVec3* useOrigin, const idMat3* useAxis, idEntity* ent, bool bind );
 
 protected:
-	void					Event_Trigger( idEntity *activator );
+	void					Event_Trigger( idEntity* activator );
 	void					Event_ClearFx();
 
 	void					CleanUp();
@@ -90,18 +92,19 @@ protected:
 
 	int						started;
 	int						nextTriggerTime;
-	const idDeclFX *		fxEffect;				// GetFX() should be called before using fxEffect as a pointer
+	const idDeclFX* 		fxEffect;				// GetFX() should be called before using fxEffect as a pointer
 	idList<idFXLocalAction, TAG_FX>	actions;
 	idStr					systemName;
 };
 
-class idTeleporter : public idEntityFx {
+class idTeleporter : public idEntityFx
+{
 public:
 	CLASS_PROTOTYPE( idTeleporter );
 
 private:
 	// teleporters to this location
-	void					Event_DoAction( idEntity *activator );
+	void					Event_DoAction( idEntity* activator );
 };
 
 #endif /* !__GAME_FX_H__ */

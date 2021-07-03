@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -40,32 +40,42 @@ class idPlayer;
 
 /*
 ================================================
-idAimAssist modifies the angle of Weapon firing to help the Player 
+idAimAssist modifies the angle of Weapon firing to help the Player
 hit a Target.
 ================================================
 */
-class idAimAssist {
+class idAimAssist
+{
 public:
 
-				idAimAssist() : angleCorrection( ang_zero ), frictionScalar( 1.0f ), lastTargetPos( vec3_zero ), player( NULL ) {}
+	idAimAssist() : player( NULL ), angleCorrection( ang_zero ), frictionScalar( 1.0f ), lastTargetPos( vec3_zero ) {}
 
-	void		Init( idPlayer * player );
+	void		Init( idPlayer* player );
 	void		Update();
-	void		GetAngleCorrection( idAngles & correction ) const { correction = angleCorrection; }
-	float		GetFrictionScalar () const { return frictionScalar; }
+	void		GetAngleCorrection( idAngles& correction ) const
+	{
+		correction = angleCorrection;
+	}
+	float		GetFrictionScalar() const
+	{
+		return frictionScalar;
+	}
 
-	idEntity *	GetLastTarget() { return targetEntity; }
-	idEntity *	FindAimAssistTarget( idVec3 & targetPos );
+	idEntity* 	GetLastTarget()
+	{
+		return targetEntity;
+	}
+	idEntity* 	FindAimAssistTarget( idVec3& targetPos );
 
 private:
 	void		UpdateNewAimAssist();
-	float		ComputeEntityAimAssistScore( const idVec3 & targetPos, const idVec3 & cameraPos, const idMat3 & cameraAxis );
-	bool		ComputeTargetPos( idEntity * pTarget, idVec3 & primaryTargetPos, idVec3 & secondaryTargetPos );
+	float		ComputeEntityAimAssistScore( const idVec3& targetPos, const idVec3& cameraPos, const idMat3& cameraAxis );
+	bool		ComputeTargetPos( idEntity* pTarget, idVec3& primaryTargetPos, idVec3& secondaryTargetPos );
 	float		ComputeFrictionRadius( float distanceToTarget );
-	void		UpdateAdhesion( idEntity * pTarget, const idVec3 & targetPos);
-	void		UpdateFriction( idEntity * pTarget, const idVec3 & targetPos);
+	void		UpdateAdhesion( idEntity* pTarget, const idVec3& targetPos );
+	void		UpdateFriction( idEntity* pTarget, const idVec3& targetPos );
 
-	idPlayer *				player;						// player associated with this object
+	idPlayer* 				player;						// player associated with this object
 	idAngles				angleCorrection;			// the angle delta to apply for aim assistance
 	float					frictionScalar;				// friction scalar
 	idEntityPtr<idEntity>	targetEntity;				// the last target we had (updated every frame)

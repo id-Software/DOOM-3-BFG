@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -30,12 +30,14 @@ If you have questions concerning this license or the applicable additional terms
 
 class idSliderWindow;
 
-enum {
+enum
+{
 	TAB_TYPE_TEXT = 0,
 	TAB_TYPE_ICON = 1
 };
 
-struct idTabRect {
+struct idTabRect
+{
 	int x;
 	int w;
 	int align;
@@ -45,23 +47,27 @@ struct idTabRect {
 	float iconVOffset;
 };
 
-class idListWindow : public idWindow {
+class idListWindow : public idWindow
+{
 public:
-	idListWindow(idUserInterfaceLocal *gui);
+	idListWindow( idUserInterfaceLocal* gui );
 
-	virtual const char*	HandleEvent(const sysEvent_t *event, bool *updateVisuals);
+	virtual const char*	HandleEvent( const sysEvent_t* event, bool* updateVisuals );
 	virtual void		PostParse();
-	virtual void		Draw(int time, float x, float y);
-	virtual void		Activate(bool activate, idStr &act);
-	virtual void		HandleBuddyUpdate(idWindow *buddy);
+	virtual void		Draw( int time, float x, float y );
+	virtual void		Activate( bool activate, idStr& act );
+	virtual void		HandleBuddyUpdate( idWindow* buddy );
 	virtual void		StateChanged( bool redraw = false );
-	virtual size_t		Allocated(){return idWindow::Allocated();};
-	virtual idWinVar*	GetWinVarByName(const char *_name, bool winLookup = false, drawWin_t** owner = NULL);
+	virtual size_t		Allocated()
+	{
+		return idWindow::Allocated();
+	};
+	virtual idWinVar*	GetWinVarByName( const char* _name, bool winLookup = false, drawWin_t** owner = NULL );
 
 	void				UpdateList();
-	
+
 private:
-	virtual bool		ParseInternalVar(const char *name, idTokenParser *src);
+	virtual bool		ParseInternalVar( const char* name, idTokenParser* src );
 	void				CommonInit();
 	void				InitScroller( bool horizontal );
 	void				SetCurrentSel( int sel );
@@ -80,7 +86,7 @@ private:
 	idStr				tabTypeStr;
 	idStr				tabIconSizeStr;
 	idStr				tabIconVOffsetStr;
-	idHashTable<const idMaterial*> iconMaterials;						
+	idHashTable<const idMaterial*> iconMaterials;
 	bool				multipleSel;
 
 	idStrList			listItems;

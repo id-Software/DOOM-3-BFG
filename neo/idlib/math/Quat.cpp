@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,14 +27,15 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
-#include "../precompiled.h"
+#include "precompiled.h"
 
 /*
 =====================
 idQuat::ToAngles
 =====================
 */
-idAngles idQuat::ToAngles() const {
+idAngles idQuat::ToAngles() const
+{
 	return ToMat3().ToAngles();
 }
 
@@ -43,7 +44,8 @@ idAngles idQuat::ToAngles() const {
 idQuat::ToRotation
 =====================
 */
-idRotation idQuat::ToRotation() const {
+idRotation idQuat::ToRotation() const
+{
 	idVec3 vec;
 	float angle;
 
@@ -51,9 +53,12 @@ idRotation idQuat::ToRotation() const {
 	vec.y = y;
 	vec.z = z;
 	angle = idMath::ACos( w );
-	if ( angle == 0.0f ) {
+	if( angle == 0.0f )
+	{
 		vec.Set( 0.0f, 0.0f, 1.0f );
-	} else {
+	}
+	else
+	{
 		//vec *= (1.0f / sin( angle ));
 		vec.Normalize();
 		vec.FixDegenerateNormal();
@@ -67,7 +72,8 @@ idRotation idQuat::ToRotation() const {
 idQuat::ToMat3
 =====================
 */
-idMat3 idQuat::ToMat3() const {
+idMat3 idQuat::ToMat3() const
+{
 	idMat3	mat;
 	float	wx, wy, wz;
 	float	xx, yy, yz;
@@ -110,7 +116,8 @@ idMat3 idQuat::ToMat3() const {
 idQuat::ToMat4
 =====================
 */
-idMat4 idQuat::ToMat4() const {
+idMat4 idQuat::ToMat4() const
+{
 	return ToMat3().ToMat4();
 }
 
@@ -119,8 +126,10 @@ idMat4 idQuat::ToMat4() const {
 idQuat::ToCQuat
 =====================
 */
-idCQuat idQuat::ToCQuat() const {
-	if ( w < 0.0f ) {
+idCQuat idQuat::ToCQuat() const
+{
+	if( w < 0.0f )
+	{
 		return idCQuat( -x, -y, -z );
 	}
 	return idCQuat( x, y, z );
@@ -131,7 +140,8 @@ idCQuat idQuat::ToCQuat() const {
 idQuat::ToAngularVelocity
 ============
 */
-idVec3 idQuat::ToAngularVelocity() const {
+idVec3 idQuat::ToAngularVelocity() const
+{
 	idVec3 vec;
 
 	vec.x = x;
@@ -146,7 +156,8 @@ idVec3 idQuat::ToAngularVelocity() const {
 idQuat::ToString
 =============
 */
-const char *idQuat::ToString( int precision ) const {
+const char* idQuat::ToString( int precision ) const
+{
 	return idStr::FloatArrayToString( ToFloatPtr(), GetDimension(), precision );
 }
 
@@ -157,34 +168,42 @@ idQuat::Slerp
 Spherical linear interpolation between two quaternions.
 =====================
 */
-idQuat &idQuat::Slerp( const idQuat &from, const idQuat &to, float t ) {
+idQuat& idQuat::Slerp( const idQuat& from, const idQuat& to, float t )
+{
 	idQuat	temp;
 	float	omega, cosom, sinom, scale0, scale1;
 
-	if ( t <= 0.0f ) {
+	if( t <= 0.0f )
+	{
 		*this = from;
 		return *this;
 	}
 
-	if ( t >= 1.0f ) {
+	if( t >= 1.0f )
+	{
 		*this = to;
 		return *this;
 	}
 
-	if ( from == to ) {
+	if( from == to )
+	{
 		*this = to;
 		return *this;
 	}
 
 	cosom = from.x * to.x + from.y * to.y + from.z * to.z + from.w * to.w;
-	if ( cosom < 0.0f ) {
+	if( cosom < 0.0f )
+	{
 		temp = -to;
 		cosom = -cosom;
-	} else {
+	}
+	else
+	{
 		temp = to;
 	}
 
-	if ( ( 1.0f - cosom ) > 1e-6f ) {
+	if( ( 1.0f - cosom ) > 1e-6f )
+	{
 #if 0
 		omega = acos( cosom );
 		sinom = 1.0f / sin( omega );
@@ -197,7 +216,9 @@ idQuat &idQuat::Slerp( const idQuat &from, const idQuat &to, float t ) {
 		scale0 = idMath::Sin16( ( 1.0f - t ) * omega ) * sinom;
 		scale1 = idMath::Sin16( t * omega ) * sinom;
 #endif
-	} else {
+	}
+	else
+	{
 		scale0 = 1.0f - t;
 		scale1 = t;
 	}
@@ -210,22 +231,26 @@ idQuat &idQuat::Slerp( const idQuat &from, const idQuat &to, float t ) {
 ========================
 idQuat::Lerp
 
-Approximation of spherical linear interpolation between two quaternions. The interpolation 
+Approximation of spherical linear interpolation between two quaternions. The interpolation
 traces out the exact same curve as Slerp but does not maintain a constant speed across the arc.
 ========================
 */
-idQuat &idQuat::Lerp( const idQuat &from, const idQuat &to, const float t ) {
-	if ( t <= 0.0f ) {
+idQuat& idQuat::Lerp( const idQuat& from, const idQuat& to, const float t )
+{
+	if( t <= 0.0f )
+	{
 		*this = from;
 		return *this;
 	}
 
-	if ( t >= 1.0f ) {
+	if( t >= 1.0f )
+	{
 		*this = to;
 		return *this;
 	}
 
-	if ( from == to ) {
+	if( from == to )
+	{
 		*this = to;
 		return *this;
 	}
@@ -255,7 +280,8 @@ idQuat &idQuat::Lerp( const idQuat &from, const idQuat &to, const float t ) {
 idCQuat::ToAngles
 =============
 */
-idAngles idCQuat::ToAngles() const {
+idAngles idCQuat::ToAngles() const
+{
 	return ToQuat().ToAngles();
 }
 
@@ -264,7 +290,8 @@ idAngles idCQuat::ToAngles() const {
 idCQuat::ToRotation
 =============
 */
-idRotation idCQuat::ToRotation() const {
+idRotation idCQuat::ToRotation() const
+{
 	return ToQuat().ToRotation();
 }
 
@@ -273,7 +300,8 @@ idRotation idCQuat::ToRotation() const {
 idCQuat::ToMat3
 =============
 */
-idMat3 idCQuat::ToMat3() const {
+idMat3 idCQuat::ToMat3() const
+{
 	return ToQuat().ToMat3();
 }
 
@@ -282,7 +310,8 @@ idMat3 idCQuat::ToMat3() const {
 idCQuat::ToMat4
 =============
 */
-idMat4 idCQuat::ToMat4() const {
+idMat4 idCQuat::ToMat4() const
+{
 	return ToQuat().ToMat4();
 }
 
@@ -291,7 +320,8 @@ idMat4 idCQuat::ToMat4() const {
 idCQuat::ToString
 =============
 */
-const char *idCQuat::ToString( int precision ) const {
+const char* idCQuat::ToString( int precision ) const
+{
 	return idStr::FloatArrayToString( ToFloatPtr(), GetDimension(), precision );
 }
 
@@ -302,6 +332,7 @@ Slerp
 Spherical linear interpolation between two quaternions.
 =====================
 */
-idQuat Slerp( const idQuat & from, const idQuat & to, const float t ) {
+idQuat Slerp( const idQuat& from, const idQuat& to, const float t )
+{
 	return idQuat().Slerp( from, to, t );
 }

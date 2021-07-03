@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -41,36 +41,37 @@ If you have questions concerning this license or the applicable additional terms
 
 const int MAX_PUSHED_EVENTS =	64;
 
-class idEventLoop {
+class idEventLoop
+{
 public:
-					idEventLoop();
-					~idEventLoop();
+	idEventLoop();
+	~idEventLoop();
 
 	void			Init();
 
-					// Closes the journal file if needed.
+	// Closes the journal file if needed.
 	void			Shutdown();
 
-					// It is possible to get an event at the beginning of a frame that
-					// has a time stamp lower than the last event from the previous frame.
+	// It is possible to get an event at the beginning of a frame that
+	// has a time stamp lower than the last event from the previous frame.
 	sysEvent_t		GetEvent();
 
-					// Dispatches all pending events and returns the current time.
+	// Dispatches all pending events and returns the current time.
 	int				RunEventLoop( bool commandExecution = true );
 
-					// Gets the current time in a way that will be journaled properly,
-					// as opposed to Sys_Milliseconds(), which always reads a real timer.
+	// Gets the current time in a way that will be journaled properly,
+	// as opposed to Sys_Milliseconds(), which always reads a real timer.
 	int				Milliseconds();
 
-					// Returns the journal level, 1 = record, 2 = play back.
+	// Returns the journal level, 1 = record, 2 = play back.
 	int				JournalLevel() const;
 
-					// Journal file.
-	idFile *		com_journalFile;
-	idFile *		com_journalDataFile;
+	// Journal file.
+	idFile* 		com_journalFile;
+	idFile* 		com_journalDataFile;
 
 private:
-					// all events will have this subtracted from their time
+	// all events will have this subtracted from their time
 	int				initialTimeOffset;
 
 	int				com_pushedEventsHead, com_pushedEventsTail;
@@ -80,9 +81,9 @@ private:
 
 	sysEvent_t		GetRealEvent();
 	void			ProcessEvent( sysEvent_t ev );
-	void			PushEvent( sysEvent_t *event );
+	void			PushEvent( sysEvent_t* event );
 };
 
-extern	idEventLoop	*eventLoop;
+extern	idEventLoop*	eventLoop;
 
 #endif /* !__EVENTLOOP_H__ */

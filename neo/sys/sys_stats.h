@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -31,7 +31,8 @@ If you have questions concerning this license or the applicable additional terms
 //------------------------
 // leaderboardError_t
 //------------------------
-enum leaderboardError_t {
+enum leaderboardError_t
+{
 	LEADERBOARD_ERROR_NONE,
 	LEADERBOARD_ERROR_FAILED,				// General error occurred
 	LEADERBOARD_ERROR_NOT_ONLINE,			// Not online to request leaderboards
@@ -44,12 +45,14 @@ enum leaderboardError_t {
 
 /*
 ================================================
-idLeaderboardCallback 
+idLeaderboardCallback
 ================================================
 */
-class idLeaderboardCallback : public idCallback {
+class idLeaderboardCallback : public idCallback
+{
 public:
-	struct row_t {
+	struct row_t
+	{
 		bool		hasAttachment;
 		int64		attachmentID;
 		idStr		name;
@@ -58,27 +61,66 @@ public:
 	};
 
 	idLeaderboardCallback() : def( NULL ), startIndex( -1 ), localIndex( -1 ), numRowsInLeaderboard( -1 ), errorCode( LEADERBOARD_ERROR_NONE ) { }
-	virtual idLeaderboardCallback * Clone() const = 0;
+	virtual idLeaderboardCallback* Clone() const = 0;
 
 	// Used by the platform handlers to set data
-	void 							ResetRows() { rows.Clear(); }
-	void 							AddRow( const row_t & row ) { rows.Append( row ); }
-	void 							SetNumRowsInLeaderboard( int32 i ) { numRowsInLeaderboard = i; }
-	void 							SetDef( const leaderboardDefinition_t * def_ ) { def = def_; }
-	void 							SetStartIndex( int startIndex_ ) { startIndex = startIndex_; }
-	void 							SetLocalIndex( int localIndex_ ) { localIndex = localIndex_; }
-	void							SetErrorCode( leaderboardError_t errorCode ) { this->errorCode = errorCode; }
+	void 							ResetRows()
+	{
+		rows.Clear();
+	}
+	void 							AddRow( const row_t& row )
+	{
+		rows.Append( row );
+	}
+	void 							SetNumRowsInLeaderboard( int32 i )
+	{
+		numRowsInLeaderboard = i;
+	}
+	void 							SetDef( const leaderboardDefinition_t* def_ )
+	{
+		def = def_;
+	}
+	void 							SetStartIndex( int startIndex_ )
+	{
+		startIndex = startIndex_;
+	}
+	void 							SetLocalIndex( int localIndex_ )
+	{
+		localIndex = localIndex_;
+	}
+	void							SetErrorCode( leaderboardError_t errorCode )
+	{
+		this->errorCode = errorCode;
+	}
 
 	// Used in user callback for information retrieval
-	const leaderboardDefinition_t *	GetDef() const { return def; }
-	int								GetStartIndex() const { return startIndex; }
-	const idList< row_t > &			GetRows() const { return rows; } 
-	int								GetNumRowsInLeaderboard() const { return numRowsInLeaderboard; }
-	int								GetLocalIndex() const { return localIndex; }
-	leaderboardError_t				GetErrorCode() const { return this->errorCode; }
+	const leaderboardDefinition_t* 	GetDef() const
+	{
+		return def;
+	}
+	int								GetStartIndex() const
+	{
+		return startIndex;
+	}
+	const idList< row_t >& 			GetRows() const
+	{
+		return rows;
+	}
+	int								GetNumRowsInLeaderboard() const
+	{
+		return numRowsInLeaderboard;
+	}
+	int								GetLocalIndex() const
+	{
+		return localIndex;
+	}
+	leaderboardError_t				GetErrorCode() const
+	{
+		return this->errorCode;
+	}
 
 protected:
-	const leaderboardDefinition_t *	def;					// leaderboard def
+	const leaderboardDefinition_t* 	def;					// leaderboard def
 	int								startIndex;				// where the first row starts in the online leaderboard
 	int								localIndex;				// if player is in the rows, this is the offset of him within the returned rows
 	idList< row_t >					rows;					// leaderboard entries for the request

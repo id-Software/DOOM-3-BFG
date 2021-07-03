@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -26,85 +26,107 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 #pragma hdrstop
-#include "../../idLib/precompiled.h"
+#include "precompiled.h"
 #include "../Game_local.h"
 
-void idMenuWidget_PDA_VideoInfo::Update() {
+void idMenuWidget_PDA_VideoInfo::Update()
+{
 
-	if ( GetSWFObject() == NULL ) {
+	if( GetSWFObject() == NULL )
+	{
 		return;
 	}
 
-	idSWFScriptObject & root = GetSWFObject()->GetRootObject();
-	if ( !BindSprite( root ) || GetSprite() == NULL ) {
+	idSWFScriptObject& root = GetSWFObject()->GetRootObject();
+	if( !BindSprite( root ) || GetSprite() == NULL )
+	{
 		return;
 	}
 
-	idPlayer * player = gameLocal.GetLocalPlayer();
-	if ( player == NULL ) {
+	idPlayer* player = gameLocal.GetLocalPlayer();
+	if( player == NULL )
+	{
 		return;
 	}
 
-	idSWFTextInstance * txtHeading = GetSprite()->GetScriptObject()->GetNestedText( "txtName" );
-	idSWFTextInstance * txtInfo = GetSprite()->GetScriptObject()->GetNestedText( "txtInfo" );
-	
+	idSWFTextInstance* txtHeading = GetSprite()->GetScriptObject()->GetNestedText( "txtName" );
+	idSWFTextInstance* txtInfo = GetSprite()->GetScriptObject()->GetNestedText( "txtInfo" );
+
 	int numVideos = player->GetInventory().videos.Num();
-	if ( numVideos != 0 ) {
-		const idDeclVideo * video = player->GetVideo( videoIndex );
-		if( video != NULL ) {
-			if ( txtHeading != NULL ) {
+	if( numVideos != 0 )
+	{
+		const idDeclVideo* video = player->GetVideo( videoIndex );
+		if( video != NULL )
+		{
+			if( txtHeading != NULL )
+			{
 				txtHeading->SetText( video->GetVideoName() );
 			}
 
-			if ( txtInfo != NULL ) {
+			if( txtInfo != NULL )
+			{
 				txtInfo->SetText( video->GetInfo() );
 			}
 		}
-	} else {
-		if ( txtHeading != NULL ) {
+	}
+	else
+	{
+		if( txtHeading != NULL )
+		{
 			txtHeading->SetText( "" );
 		}
 
-		if ( txtInfo != NULL ) {
+		if( txtInfo != NULL )
+		{
 			txtInfo->SetText( "" );
 		}
 	}
 }
 
-void idMenuWidget_PDA_VideoInfo::ObserveEvent( const idMenuWidget & widget, const idWidgetEvent & event ) {
-	const idMenuWidget_Button * const button = dynamic_cast< const idMenuWidget_Button * >( &widget );
-	if ( button == NULL ) {
+void idMenuWidget_PDA_VideoInfo::ObserveEvent( const idMenuWidget& widget, const idWidgetEvent& event )
+{
+	const idMenuWidget_Button* const button = dynamic_cast< const idMenuWidget_Button* >( &widget );
+	if( button == NULL )
+	{
 		return;
 	}
 
-	const idMenuWidget * const listWidget = button->GetParent();
+	const idMenuWidget* const listWidget = button->GetParent();
 
-	if ( listWidget == NULL ) {
+	if( listWidget == NULL )
+	{
 		return;
 	}
 
-	switch ( event.type ) {
-		case WIDGET_EVENT_FOCUS_ON: {
-			const idMenuWidget_DynamicList * const list = dynamic_cast< const idMenuWidget_DynamicList * const >( listWidget );
+	switch( event.type )
+	{
+		case WIDGET_EVENT_FOCUS_ON:
+		{
+			const idMenuWidget_DynamicList* const list = dynamic_cast< const idMenuWidget_DynamicList* const >( listWidget );
 			videoIndex = list->GetViewIndex();
 
-			idPlayer * player = gameLocal.GetLocalPlayer();
-			if ( player != NULL ) {
+			idPlayer* player = gameLocal.GetLocalPlayer();
+			if( player != NULL )
+			{
 				player->EndVideoDisk();
 
-				const idDeclVideo * video = player->GetVideo( videoIndex );
+				const idDeclVideo* video = player->GetVideo( videoIndex );
 
-				if ( video != NULL ) {
-					idSWFSpriteInstance * videoSprite = GetSprite()->GetScriptObject()->GetNestedSprite( "video", "img" );
-					if ( videoSprite != NULL ) {
+				if( video != NULL )
+				{
+					idSWFSpriteInstance* videoSprite = GetSprite()->GetScriptObject()->GetNestedSprite( "video", "img" );
+					if( videoSprite != NULL )
+					{
 						videoSprite->SetMaterial( video->GetPreview() );
 					}
 				}
-			}			
+			}
 
-			if ( GetParent() != NULL ) {
-				idMenuScreen_PDA_VideoDisks * screen = dynamic_cast< idMenuScreen_PDA_VideoDisks * const >( GetParent() );
-				if ( screen != NULL ) {
+			if( GetParent() != NULL )
+			{
+				idMenuScreen_PDA_VideoDisks* screen = dynamic_cast< idMenuScreen_PDA_VideoDisks* const >( GetParent() );
+				if( screen != NULL )
+				{
 					screen->Update();
 				}
 			}

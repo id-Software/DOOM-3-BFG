@@ -2,9 +2,10 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013 Robert Beckebans
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -34,28 +35,62 @@ idSoundVoice_Base
 ================================================
 */
 
-class idSoundVoice_Base {
+class idSoundVoice_Base
+{
 public:
-				idSoundVoice_Base();
+	idSoundVoice_Base();
 
 	static void InitSurround( int outputChannels, int channelMask );
 
 	void		CalculateSurround( int srcChannels, float pLevelMatrix[ MAX_CHANNELS_PER_VOICE * MAX_CHANNELS_PER_VOICE ], float scale );
 
-	void		SetPosition( const idVec3 & p ) { position = p; }
-	void		SetGain( float g ) { gain = g; }
-	void		SetCenterChannel( float c ) { centerChannel = c; }
-	void		SetPitch( float p ) { pitch = p; }
-	void		SetInnerRadius( float r ) { innerRadius = r; }
-	void		SetChannelMask( uint32 mask ) { channelMask = mask; }
+	// RB begin
+	virtual void	SetPosition( const idVec3& p )
+	{
+		position = p;
+	}
 
-	const idSoundSample * GetCurrentSample();
+	virtual void	SetGain( float g )
+	{
+		gain = g;
+	}
+
+	virtual void	SetPitch( float p )
+	{
+		pitch = p;
+	}
+	// RB end
+
+	void		SetCenterChannel( float c )
+	{
+		centerChannel = c;
+	}
+
+	void		SetInnerRadius( float r )
+	{
+		innerRadius = r;
+	}
+	void		SetChannelMask( uint32 mask )
+	{
+		channelMask = mask;
+	}
+
+	const idSoundSample* GetCurrentSample();
 
 	// Controls the low pass filter, where 0.0f = no filtering, 1.0f = full filter
-	void		SetOcclusion( float f ) { occlusion = f; }
+	void		SetOcclusion( float f )
+	{
+		occlusion = f;
+	}
 
-	float		GetGain() { return gain; }
-	float		GetPitch() { return pitch; }
+	float		GetGain()
+	{
+		return gain;
+	}
+	float		GetPitch()
+	{
+		return pitch;
+	}
 
 protected:
 	idVec3		position;			// Position of the sound relative to listener
@@ -70,7 +105,7 @@ protected:
 	float		innerSampleRangeSqr;
 	float		outerSampleRangeSqr;
 
-	idList< idSoundSample *, TAG_AUDIO> samples;
+	idList< idSoundSample*, TAG_AUDIO> samples;
 
 	// These are constants which are initialized with InitSurround
 	//-------------------------------------------------------------

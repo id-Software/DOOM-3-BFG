@@ -73,7 +73,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "d_main.h"
 
-//#include "../idLib/precompiled.h"
+//#include "precompiled.h"
 //#include "../Main/PlayerProfile.h"
 //#include "../Main/PSN/PS3_Session.h"
 #include "d3xp/Game_local.h"
@@ -414,7 +414,7 @@ void D_DoAdvanceDemo (void)
 			::g->pagetic = 8 * TICRATE;
 
 		::g->gamestate = GS_DEMOSCREEN;
-		::g->pagename = "INTERPIC";
+		::g->pagename = (char *)"INTERPIC";
 
 		if ( ::g->gamemode == commercial )
 			S_StartMusic(mus_dm2ttl);
@@ -428,7 +428,7 @@ void D_DoAdvanceDemo (void)
 	case 2:
 		::g->pagetic = 3 * TICRATE;
 		::g->gamestate = GS_DEMOSCREEN;
-		::g->pagename = "INTERPIC";
+		::g->pagename = (char *)"INTERPIC";
 		break;
 	case 3:
 		G_DeferedPlayDemo ("demo2");
@@ -436,7 +436,7 @@ void D_DoAdvanceDemo (void)
 	case 4:
 		::g->pagetic = 3 * TICRATE;
 		::g->gamestate = GS_DEMOSCREEN;
-		::g->pagename = "INTERPIC";
+		::g->pagename = (char *)"INTERPIC";
 		break;
 	case 5:
 		G_DeferedPlayDemo ("demo3");
@@ -445,7 +445,7 @@ void D_DoAdvanceDemo (void)
 	case 6:
 		::g->pagetic = 3 * TICRATE;
 		::g->gamestate = GS_DEMOSCREEN;
-		::g->pagename = "INTERPIC";
+		::g->pagename = (char *)"INTERPIC";
 		break;
 	case 7:
 		G_DeferedPlayDemo ("demo4");
@@ -845,9 +845,9 @@ bool D_DoomMainPoll(void)
 	if (p && p < ::g->myargc-1)
 	{
 		if (M_CheckParm("-cdrom"))
-			sprintf(file, "c:\\doomdata\\"SAVEGAMENAME"%c.dsg",::g->myargv[p+1][0]);
+			sprintf(file, "c:\\doomdata\\" SAVEGAMENAME "%c.dsg",::g->myargv[p+1][0]);
 		else
-			sprintf(file, SAVEGAMENAME"%c.dsg",::g->myargv[p+1][0]);
+			sprintf(file, SAVEGAMENAME "%c.dsg",::g->myargv[p+1][0]);
 		G_LoadGame (file);
 	}
 

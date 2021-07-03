@@ -2,9 +2,10 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2014 Robert Beckebans
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,9 +28,9 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
-#include "../idlib/precompiled.h"
+#include "precompiled.h"
 
-#include "tr_local.h"
+#include "RenderCommon.h"
 #include "Model_local.h"
 
 /*
@@ -48,11 +49,13 @@ Calculates two axis for the surface such that a point dotted against
 the axis will give a 0.0 to 1.0 range in S and T when inside the gui surface
 ================
 */
-void R_SurfaceToTextureAxis( const srfTriangles_t *tri, idVec3 &origin, idVec3 axis[3] ) {
+void R_SurfaceToTextureAxis( const srfTriangles_t* tri, idVec3& origin, idVec3 axis[3] )
+{
 	// find the bounds of the texture
 	idVec2 boundsMin( 999999.0f, 999999.0f );
 	idVec2 boundsMax( -999999.0f, -999999.0f );
-	for ( int i = 0 ; i < tri->numVerts ; i++ ) {
+	for( int i = 0 ; i < tri->numVerts ; i++ )
+	{
 		const idVec2 uv = tri->verts[i].GetTexCoord();
 		boundsMin.x = Min( uv.x, boundsMin.x );
 		boundsMax.x = Max( uv.x, boundsMax.x );
@@ -66,7 +69,10 @@ void R_SurfaceToTextureAxis( const srfTriangles_t *tri, idVec3 &origin, idVec3 a
 	const idVec2 boundsOrg( floor( ( boundsMin.x + boundsMax.x ) * 0.5f ), floor( ( boundsMin.y + boundsMax.y ) * 0.5f ) );
 
 	// determine the world S and T vectors from the first drawSurf triangle
-	const idJointMat * joints = ( tri->staticModelWithJoints != NULL && r_useGPUSkinning.GetBool() ) ? tri->staticModelWithJoints->jointsInverted : NULL;
+
+	// RB: added check wether GPU skinning is available at all
+	const idJointMat* joints = ( tri->staticModelWithJoints != NULL && r_useGPUSkinning.GetBool() && glConfig.gpuSkinningAvailable ) ? tri->staticModelWithJoints->jointsInverted : NULL;
+	// RB end
 
 	const idVec3 aXYZ = idDrawVert::GetSkinnedDrawVertPosition( tri->verts[ tri->indexes[0] ], joints );
 	const idVec3 bXYZ = idDrawVert::GetSkinnedDrawVertPosition( tri->verts[ tri->indexes[1] ], joints );
@@ -91,7 +97,8 @@ void R_SurfaceToTextureAxis( const srfTriangles_t *tri, idVec3 &origin, idVec3 a
 	d1[4] = cST.y - aST.y;
 
 	const float area = d0[3] * d1[4] - d0[4] * d1[3];
-	if ( area == 0.0f ) {
+	if( area == 0.0f )
+	{
 		axis[0].Zero();
 		axis[1].Zero();
 		axis[2].Zero();
@@ -99,13 +106,13 @@ void R_SurfaceToTextureAxis( const srfTriangles_t *tri, idVec3 &origin, idVec3 a
 	}
 	const float inva = 1.0f / area;
 
-    axis[0][0] = ( d0[0] * d1[4] - d0[4] * d1[0] ) * inva;
-    axis[0][1] = ( d0[1] * d1[4] - d0[4] * d1[1] ) * inva;
-    axis[0][2] = ( d0[2] * d1[4] - d0[4] * d1[2] ) * inva;
-    
-    axis[1][0] = ( d0[3] * d1[0] - d0[0] * d1[3] ) * inva;
-    axis[1][1] = ( d0[3] * d1[1] - d0[1] * d1[3] ) * inva;
-    axis[1][2] = ( d0[3] * d1[2] - d0[2] * d1[3] ) * inva;
+	axis[0][0] = ( d0[0] * d1[4] - d0[4] * d1[0] ) * inva;
+	axis[0][1] = ( d0[1] * d1[4] - d0[4] * d1[1] ) * inva;
+	axis[0][2] = ( d0[2] * d1[4] - d0[4] * d1[2] ) * inva;
+
+	axis[1][0] = ( d0[3] * d1[0] - d0[0] * d1[3] ) * inva;
+	axis[1][1] = ( d0[3] * d1[1] - d0[1] * d1[3] ) * inva;
+	axis[1][2] = ( d0[3] * d1[2] - d0[2] * d1[3] ) * inva;
 
 	idPlane plane;
 	plane.FromPoints( aXYZ, bXYZ, cXYZ );
@@ -126,16 +133,19 @@ Create a texture space on the given surface and
 call the GUI generator to create quads for it.
 =================
 */
-static void R_RenderGuiSurf( idUserInterface *gui, const drawSurf_t *drawSurf ) {
+static void R_RenderGuiSurf( idUserInterface* gui, const drawSurf_t* drawSurf )
+{
 	SCOPED_PROFILE_EVENT( "R_RenderGuiSurf" );
 
 	// for testing the performance hit
-	if ( r_skipGuiShaders.GetInteger() == 1 ) {
+	if( r_skipGuiShaders.GetInteger() == 1 )
+	{
 		return;
 	}
 
 	// don't allow an infinite recursion loop
-	if ( tr.guiRecursionLevel == 4 ) {
+	if( tr.guiRecursionLevel == 4 )
+	{
 		return;
 	}
 
@@ -148,25 +158,26 @@ static void R_RenderGuiSurf( idUserInterface *gui, const drawSurf_t *drawSurf ) 
 	float guiModelMatrix[16];
 	float modelMatrix[16];
 
-	guiModelMatrix[0*4+0] = axis[0][0] * ( 1.0f / 640.0f );
-	guiModelMatrix[1*4+0] = axis[1][0] * ( 1.0f / 480.0f );
-	guiModelMatrix[2*4+0] = axis[2][0];
-	guiModelMatrix[3*4+0] = origin[0];
+	guiModelMatrix[0 * 4 + 0] = axis[0][0] * ( 1.0f / SCREEN_WIDTH );
+	guiModelMatrix[1 * 4 + 0] = axis[1][0] * ( 1.0f / SCREEN_HEIGHT );
+	guiModelMatrix[2 * 4 + 0] = axis[2][0];
+	guiModelMatrix[3 * 4 + 0] = origin[0];
 
-	guiModelMatrix[0*4+1] = axis[0][1] * ( 1.0f / 640.0f );
-	guiModelMatrix[1*4+1] = axis[1][1] * ( 1.0f / 480.0f );
-	guiModelMatrix[2*4+1] = axis[2][1];
-	guiModelMatrix[3*4+1] = origin[1];
+	guiModelMatrix[0 * 4 + 1] = axis[0][1] * ( 1.0f / SCREEN_WIDTH );
+	guiModelMatrix[1 * 4 + 1] = axis[1][1] * ( 1.0f / SCREEN_HEIGHT );
+	guiModelMatrix[2 * 4 + 1] = axis[2][1];
+	guiModelMatrix[3 * 4 + 1] = origin[1];
 
-	guiModelMatrix[0*4+2] = axis[0][2] * ( 1.0f / 640.0f );
-	guiModelMatrix[1*4+2] = axis[1][2] * ( 1.0f / 480.0f );
-	guiModelMatrix[2*4+2] = axis[2][2];
-	guiModelMatrix[3*4+2] = origin[2];
+	guiModelMatrix[0 * 4 + 2] = axis[0][2] * ( 1.0f / SCREEN_WIDTH );
+	guiModelMatrix[1 * 4 + 2] = axis[1][2] * ( 1.0f / SCREEN_HEIGHT );
 
-	guiModelMatrix[0*4+3] = 0.0f;
-	guiModelMatrix[1*4+3] = 0.0f;
-	guiModelMatrix[2*4+3] = 0.0f;
-	guiModelMatrix[3*4+3] = 1.0f;
+	guiModelMatrix[2 * 4 + 2] = axis[2][2];
+	guiModelMatrix[3 * 4 + 2] = origin[2];
+
+	guiModelMatrix[0 * 4 + 3] = 0.0f;
+	guiModelMatrix[1 * 4 + 3] = 0.0f;
+	guiModelMatrix[2 * 4 + 3] = 0.0f;
+	guiModelMatrix[3 * 4 + 3] = 1.0f;
 
 	R_MatrixMultiply( guiModelMatrix, drawSurf->space->modelMatrix, modelMatrix );
 
@@ -186,28 +197,33 @@ static void R_RenderGuiSurf( idUserInterface *gui, const drawSurf_t *drawSurf ) 
 R_AddInGameGuis
 ================
 */
-void R_AddInGameGuis( const drawSurf_t * const drawSurfs[], const int numDrawSurfs ) {
+void R_AddInGameGuis( const drawSurf_t* const drawSurfs[], const int numDrawSurfs )
+{
 	SCOPED_PROFILE_EVENT( "R_AddInGameGuis" );
 
 	// check for gui surfaces
-	for ( int i = 0; i < numDrawSurfs; i++ ) {
-		const drawSurf_t * drawSurf = drawSurfs[i];
-
-		idUserInterface	*gui = drawSurf->material->GlobalGui();
+	for( int i = 0; i < numDrawSurfs; i++ )
+	{
+		const drawSurf_t* drawSurf = drawSurfs[i];
+		idUserInterface* gui = drawSurf->material->GlobalGui();
 
 		int guiNum = drawSurf->material->GetEntityGui() - 1;
-		if ( guiNum >= 0 && guiNum < MAX_RENDERENTITY_GUI ) {
-			if ( drawSurf->space->entityDef != NULL ) {
-				gui = drawSurf->space->entityDef->parms.gui[ guiNum ];
+		if( guiNum >= 0 && guiNum < MAX_RENDERENTITY_GUI )
+		{
+			if( drawSurf->space->entityDef != NULL )
+			{
+				gui = drawSurf->space->entityDef->parms.gui[guiNum];
 			}
 		}
 
-		if ( gui == NULL ) {
+		if( gui == NULL )
+		{
 			continue;
 		}
 
 		idBounds ndcBounds;
-		if ( !R_PreciseCullSurface( drawSurf, ndcBounds ) ) {
+		if( !R_PreciseCullSurface( drawSurf, ndcBounds ) )
+		{
 			// did we ever use this to forward an entity color to a gui that didn't set color?
 			//	memcpy( tr.guiShaderParms, shaderParms, sizeof( tr.guiShaderParms ) );
 			R_RenderGuiSurf( gui, drawSurf );
@@ -226,13 +242,17 @@ if they are not out of date.
 Should we also reload the map models?
 ================
 */
-void R_ReloadGuis_f( const idCmdArgs &args ) {
+void R_ReloadGuis_f( const idCmdArgs& args )
+{
 	bool all;
 
-	if ( !idStr::Icmp( args.Argv(1), "all" ) ) {
+	if( !idStr::Icmp( args.Argv( 1 ), "all" ) )
+	{
 		all = true;
 		common->Printf( "Reloading all gui files...\n" );
-	} else {
+	}
+	else
+	{
 		all = false;
 		common->Printf( "Checking for changed gui files...\n" );
 	}
@@ -245,6 +265,7 @@ void R_ReloadGuis_f( const idCmdArgs &args ) {
 R_ListGuis_f
 ================
 */
-void R_ListGuis_f( const idCmdArgs &args ) {
+void R_ListGuis_f( const idCmdArgs& args )
+{
 	uiManager->ListGuis();
 }

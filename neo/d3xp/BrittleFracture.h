@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -39,12 +39,13 @@ of the render model which can fracture.
 ===============================================================================
 */
 
-typedef struct shard_s {
-	idClipModel *				clipModel;
+typedef struct shard_s
+{
+	idClipModel* 				clipModel;
 	idFixedWinding				winding;
-	idList<idFixedWinding *, TAG_PHYSICS_BRITTLE>	decals;
+	idList<idFixedWinding*, TAG_PHYSICS_BRITTLE>	decals;
 	idList<bool>				edgeHasNeighbour;
-	idList<struct shard_s *, TAG_PHYSICS_BRITTLE>	neighbours;
+	idList<struct shard_s*, TAG_PHYSICS_BRITTLE>	neighbours;
 	idPhysics_RigidBody			physicsObj;
 	int							droppedTime;
 	bool						atEdge;
@@ -52,30 +53,32 @@ typedef struct shard_s {
 } shard_t;
 
 
-class idBrittleFracture : public idEntity {
+class idBrittleFracture : public idEntity
+{
 
 public:
 	CLASS_PROTOTYPE( idBrittleFracture );
 
-								idBrittleFracture();
+	idBrittleFracture();
 	virtual						~idBrittleFracture();
 
-	void						Save( idSaveGame *savefile ) const;
-	void						Restore( idRestoreGame *savefile );
+	void						Save( idSaveGame* savefile ) const;
+	void						Restore( idRestoreGame* savefile );
 
 	void						Spawn();
 
 	virtual void				Present();
 	virtual void				Think();
-	virtual void				ApplyImpulse( idEntity *ent, int id, const idVec3 &point, const idVec3 &impulse );
-	virtual void				AddForce( idEntity *ent, int id, const idVec3 &point, const idVec3 &force );
-	virtual void				AddDamageEffect( const trace_t &collision, const idVec3 &velocity, const char *damageDefName );
-	virtual void				Killed( idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, int location );
+	virtual void				ApplyImpulse( idEntity* ent, int id, const idVec3& point, const idVec3& impulse );
+	virtual void				AddForce( idEntity* ent, int id, const idVec3& point, const idVec3& force );
+	virtual void				AddDamageEffect( const trace_t& collision, const idVec3& velocity, const char* damageDefName );
+	virtual void				Killed( idEntity* inflictor, idEntity* attacker, int damage, const idVec3& dir, int location );
 
-	void						ProjectDecal( const idVec3 &point, const idVec3 &dir, const int time, const char *damageDefName );
+	void						ProjectDecal( const idVec3& point, const idVec3& dir, const int time, const char* damageDefName );
 	bool						IsBroken() const;
 
-	enum {
+	enum
+	{
 		EVENT_PROJECT_DECAL = idEntity::EVENT_MAXEVENTS,
 		EVENT_SHATTER,
 		EVENT_MAXEVENTS
@@ -83,12 +86,12 @@ public:
 
 	virtual void				ClientThink( const int curTime, const float fraction, const bool predict );
 	virtual void				ClientPredictionThink();
-	virtual bool				ClientReceiveEvent( int event, int time, const idBitMsg &msg );
+	virtual bool				ClientReceiveEvent( int event, int time, const idBitMsg& msg );
 
 private:
 	// setttings
-	const idMaterial *			material;
-	const idMaterial *			decalMaterial;
+	const idMaterial* 			material;
+	const idMaterial* 			decalMaterial;
 	float						decalSize;
 	float						maxShardArea;
 	float						maxShatterRadius;
@@ -101,19 +104,20 @@ private:
 	float						bouncyness;
 	idStr						fxFracture;
 
-	struct fractureEvent_s {
+	struct fractureEvent_s
+	{
 		int				eventType;
 		idVec3			point;
 		idVec3			vector;
 	};
 	idList<fractureEvent_s>		storedEvents;
 	bool						processStoredEvents;
-	idRenderModel *				defaultRenderModel;
+	idRenderModel* 				defaultRenderModel;
 	bool						isXraySurface;
 
 	// state
 	idPhysics_StaticMulti		physicsObj;
-	idList<shard_t *, TAG_PHYSICS_BRITTLE>	shards;
+	idList<shard_t*, TAG_PHYSICS_BRITTLE>	shards;
 	idBounds					bounds;
 	bool						disableFracture;
 
@@ -121,21 +125,21 @@ private:
 	mutable int					lastRenderEntityUpdate;
 	mutable bool				changed;
 
-	bool						UpdateRenderEntity( renderEntity_s *renderEntity, const renderView_t *renderView ) const;
-	static bool					ModelCallback( renderEntity_s *renderEntity, const renderView_t *renderView );
+	bool						UpdateRenderEntity( renderEntity_s* renderEntity, const renderView_t* renderView ) const;
+	static bool					ModelCallback( renderEntity_s* renderEntity, const renderView_t* renderView );
 
-	void						AddShard( idClipModel *clipModel, idFixedWinding &w );
+	void						AddShard( idClipModel* clipModel, idFixedWinding& w );
 	void						RemoveShard( int index );
-	void						DropShard( shard_t *shard, const idVec3 &point, const idVec3 &dir, const float impulse, const int time );
-	void						Shatter( const idVec3 &point, const idVec3 &impulse, const int time );
-	void						DropFloatingIslands( const idVec3 &point, const idVec3 &impulse, const int time );
+	void						DropShard( shard_t* shard, const idVec3& point, const idVec3& dir, const float impulse, const int time );
+	void						Shatter( const idVec3& point, const idVec3& impulse, const int time );
+	void						DropFloatingIslands( const idVec3& point, const idVec3& impulse, const int time );
 	void						Break();
-	void						Fracture_r( idFixedWinding &w, idRandom2 & random );
-	void						CreateFractures( const idRenderModel *renderModel );
+	void						Fracture_r( idFixedWinding& w, idRandom2& random );
+	void						CreateFractures( const idRenderModel* renderModel );
 	void						FindNeighbours();
 
-	void						Event_Activate( idEntity *activator );
-	void						Event_Touch( idEntity *other, trace_t *trace );
+	void						Event_Activate( idEntity* activator );
+	void						Event_Touch( idEntity* other, trace_t* trace );
 };
 
 #endif /* !__GAME_BRITTLEFRACTURE_H__ */

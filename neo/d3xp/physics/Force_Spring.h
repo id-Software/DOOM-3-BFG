@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -37,22 +37,23 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-class idForce_Spring : public idForce {
+class idForce_Spring : public idForce
+{
 
 public:
 	CLASS_PROTOTYPE( idForce_Spring );
 
-						idForce_Spring();
+	idForce_Spring();
 	virtual				~idForce_Spring();
-						// initialize the spring
+	// initialize the spring
 	void				InitSpring( float Kstretch, float Kcompress, float damping, float restLength );
-						// set the entities and positions on these entities the spring is attached to
-	void				SetPosition(	idPhysics *physics1, int id1, const idVec3 &p1,
-										idPhysics *physics2, int id2, const idVec3 &p2 );
+	// set the entities and positions on these entities the spring is attached to
+	void				SetPosition(	idPhysics* physics1, int id1, const idVec3& p1,
+										idPhysics* physics2, int id2, const idVec3& p2 );
 
 public: // common force interface
 	virtual void		Evaluate( int time );
-	virtual void		RemovePhysics( const idPhysics *phys );
+	virtual void		RemovePhysics( const idPhysics* phys );
 
 private:
 
@@ -63,10 +64,10 @@ private:
 	float				restLength;
 
 	// positioning
-	idPhysics *			physics1;	// first physics object
+	idPhysics* 			physics1;	// first physics object
 	int					id1;		// clip model id of first physics object
 	idVec3				p1;			// position on clip model
-	idPhysics *			physics2;	// second physics object
+	idPhysics* 			physics2;	// second physics object
 	int					id2;		// clip model id of second physics object
 	idVec3				p2;			// position on clip model
 

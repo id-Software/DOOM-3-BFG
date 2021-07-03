@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,9 +27,9 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
-#include "../idlib/precompiled.h"
+#include "precompiled.h"
 
-#include "tr_local.h"
+#include "RenderCommon.h"
 #include "Model_local.h"
 
 
@@ -39,14 +39,15 @@ A simple sprite model that always faces the view axis.
 
 */
 
-static const char *sprite_SnapshotName = "_sprite_Snapshot_";
+static const char* sprite_SnapshotName = "_sprite_Snapshot_";
 
 /*
 ===============
 idRenderModelSprite::IsDynamicModel
 ===============
 */
-dynamicModel_t idRenderModelSprite::IsDynamicModel() const {
+dynamicModel_t idRenderModelSprite::IsDynamicModel() const
+{
 	return DM_CONTINUOUS;
 }
 
@@ -55,7 +56,8 @@ dynamicModel_t idRenderModelSprite::IsDynamicModel() const {
 idRenderModelSprite::IsLoaded
 ===============
 */
-bool idRenderModelSprite::IsLoaded() const {
+bool idRenderModelSprite::IsLoaded() const
+{
 	return true;
 }
 
@@ -64,33 +66,39 @@ bool idRenderModelSprite::IsLoaded() const {
 idRenderModelSprite::InstantiateDynamicModel
 ===============
 */
-idRenderModel *	idRenderModelSprite::InstantiateDynamicModel( const struct renderEntity_s *renderEntity, const viewDef_t *viewDef, idRenderModel *cachedModel ) {
-	idRenderModelStatic *staticModel;
-	srfTriangles_t *tri;
+idRenderModel* 	idRenderModelSprite::InstantiateDynamicModel( const struct renderEntity_s* renderEntity, const viewDef_t* viewDef, idRenderModel* cachedModel )
+{
+	idRenderModelStatic* staticModel;
+	srfTriangles_t* tri;
 	modelSurface_t surf;
 
-	if ( cachedModel && !r_useCachedDynamicModels.GetBool() ) {
+	if( cachedModel && !r_useCachedDynamicModels.GetBool() )
+	{
 		delete cachedModel;
 		cachedModel = NULL;
 	}
 
-	if ( renderEntity == NULL || viewDef == NULL ) {
+	if( renderEntity == NULL || viewDef == NULL )
+	{
 		delete cachedModel;
 		return NULL;
 	}
 
-	if ( cachedModel != NULL ) {
+	if( cachedModel != NULL )
+	{
 
-		assert( dynamic_cast<idRenderModelStatic *>( cachedModel ) != NULL );
+		assert( dynamic_cast<idRenderModelStatic*>( cachedModel ) != NULL );
 		assert( idStr::Icmp( cachedModel->Name(), sprite_SnapshotName ) == 0 );
 
-		staticModel = static_cast<idRenderModelStatic *>( cachedModel );
+		staticModel = static_cast<idRenderModelStatic*>( cachedModel );
 		surf = *staticModel->Surface( 0 );
 		tri = surf.geometry;
 
-	} else {
+	}
+	else
+	{
 
-		staticModel = new (TAG_MODEL) idRenderModelStatic;
+		staticModel = new( TAG_MODEL ) idRenderModelStatic;
 		staticModel->InitEmpty( sprite_SnapshotName );
 
 		tri = R_AllocStaticTriSurf();
@@ -181,13 +189,17 @@ idRenderModel *	idRenderModelSprite::InstantiateDynamicModel( const struct rende
 idRenderModelSprite::Bounds
 ===============
 */
-idBounds idRenderModelSprite::Bounds( const struct renderEntity_s *renderEntity ) const {
+idBounds idRenderModelSprite::Bounds( const struct renderEntity_s* renderEntity ) const
+{
 	idBounds b;
 
 	b.Zero();
-	if ( renderEntity == NULL ) {
+	if( renderEntity == NULL )
+	{
 		b.ExpandSelf( 8.0f );
-	} else {
+	}
+	else
+	{
 		b.ExpandSelf( Max( renderEntity->shaderParms[ SHADERPARM_SPRITE_WIDTH ], renderEntity->shaderParms[ SHADERPARM_SPRITE_HEIGHT ] ) * 0.5f );
 	}
 	return b;

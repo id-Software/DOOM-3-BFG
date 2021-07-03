@@ -57,8 +57,10 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "sound/snd_local.h"
 
+#ifdef _MSC_VER // DG: xaudio can only be used with MSVC
 #include <xaudio2.h>
 #include <x3daudio.h>
+#endif // DG end
 
 #pragma warning ( disable : 4244 )
 
@@ -75,7 +77,10 @@ If you have questions concerning this license or the applicable additional terms
 #define MIDI_FORMAT_BYTES	2
 #endif
 
+#ifdef _MSC_VER // DG: xaudio can only be used with MSVC
 IXAudio2SourceVoice*	pMusicSourceVoice;
+#endif
+
 MidiSong*				doomMusic;
 byte*					musicBuffer;
 int						totalBufferSize;
@@ -132,10 +137,12 @@ float			g_EmitterAzimuths [] = { 0.f };
 static int		numOutputChannels = 0;
 static bool		soundHardwareInitialized = false;
 
-
+// DG: xaudio can only be used with MSVC
+#ifdef _MSC_VER
 X3DAUDIO_HANDLE					X3DAudioInstance;
 
 X3DAUDIO_LISTENER				doom_Listener;
+#endif
 
 //float							localSoundVolumeEntries[] = { 0.f, 0.f, 0.9f, 0.5f, 0.f, 0.f };
 float							localSoundVolumeEntries[] = { 0.8f, 0.8f, 0.8f, 0.8f, 0.8f, 0.8f, 0.8f, 0.8f, 0.8f, 0.8f, 0.8f };
@@ -151,7 +158,7 @@ getsfx
 // This function loads the sound data from the WAD lump,
 //  for single sound.
 //
-void* getsfx ( char* sfxname, int* len )
+void* getsfx ( const char* sfxname, int* len )
 {
 	unsigned char*      sfx;
 	unsigned char*	    sfxmem;
@@ -374,7 +381,7 @@ int I_StartSound2 ( int id, int player, mobj_t *origin, mobj_t *listener_origin,
 I_ProcessSoundEvents
 ======================
 */
-void I_ProcessSoundEvents( void ) {
+void I_ProcessSoundEvents() {
 	for( int i = 0; i < 128; i++ ) {
 		if( soundEvents[i].pitch ) {
 			I_StartSound2( i, soundEvents[i].player, soundEvents[i].originator, soundEvents[i].listener, soundEvents[i].pitch, soundEvents[i].priority );
@@ -483,7 +490,7 @@ I_UpdateSound
 */
 // Update Listener Position and go through all the
 // channels and update speaker volumes for 3D sound.
-void I_UpdateSound( void ) {
+void I_UpdateSound() {
 	if ( !soundHardwareInitialized ) {
 		return;
 	}
@@ -654,7 +661,13 @@ I_InitSoundChannel
 void I_InitSoundChannel( int channel, int numOutputChannels_ ) {
 	activeSound_t	*soundchannel = &activeSounds[ channel ];
 
+	// RB: fixed non-aggregates cannot be initialized with initializer list
+#if defined(USE_WINRT) //(_WIN32_WINNT >= 0x0602 /*_WIN32_WINNT_WIN8*/)
+	X3DAUDIO_VECTOR ZeroVector( 0.0f, 0.0f, 0.0f );
+#else
 	X3DAUDIO_VECTOR ZeroVector = { 0.0f, 0.0f, 0.0f };
+#endif
+	// RB end
 
 	// Set up emitter parameters
 	soundchannel->m_Emitter.OrientFront.x         = 0.0f;
@@ -718,7 +731,13 @@ void I_InitSound() {
 	if (S_initialized == 0) {
 		int i;
 
+		// RB: non-aggregates cannot be initialized with initializer list
+#if defined(USE_WINRT) // (_WIN32_WINNT >= 0x0602 /*_WIN32_WINNT_WIN8*/)
+		X3DAUDIO_VECTOR ZeroVector( 0.0f, 0.0f, 0.0f );
+#else
 		X3DAUDIO_VECTOR ZeroVector = { 0.0f, 0.0f, 0.0f };
+#endif
+		// RB end
 
 		// Set up listener parameters
 		doom_Listener.OrientFront.x        = 0.0f;
@@ -813,7 +832,9 @@ void I_InitMusic(void)
 		voiceFormat.wBitsPerSample = MIDI_FORMAT_BYTES * 8;
 		voiceFormat.cbSize = 0;
 
-		soundSystemLocal.hardware.GetIXAudio2()->CreateSourceVoice( &pMusicSourceVoice, (WAVEFORMATEX *)&voiceFormat, XAUDIO2_VOICE_MUSIC );
+// RB: XAUDIO2_VOICE_MUSIC not available on Windows 8 SDK
+		soundSystemLocal.hardware.GetIXAudio2()->CreateSourceVoice( &pMusicSourceVoice, (WAVEFORMATEX *)&voiceFormat/*, XAUDIO2_VOICE_MUSIC*/ );
+// RB end
 
 		Music_initialized = true;
 	}
@@ -934,7 +955,7 @@ void I_PlaySong( const char *songname, int looping)
 	bool isStopped = false;
 	int d = 0;
 	while ( !isStopped ) {
-		XAUDIO2_VOICE_STATE test;
+		XAUDIO2_VOICE_STATE test = {};
 
 		if ( pMusicSourceVoice != NULL ) {
 			pMusicSourceVoice->GetState( &test );
@@ -966,7 +987,7 @@ void I_PlaySong( const char *songname, int looping)
 I_UpdateMusic
 ======================
 */
-void I_UpdateMusic( void ) {
+void I_UpdateMusic() {
 	if ( !Music_initialized ) {
 		return;
 	}
@@ -1081,4 +1102,3 @@ int I_RegisterSong(void* data, int length)
 	// does nothing
 	return 0;
 }
-

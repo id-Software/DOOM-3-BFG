@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -32,52 +32,61 @@ If you have questions concerning this license or the applicable additional terms
 /*
 ==============================================================
 
-  File and preload manifests. 
+  File and preload manifests.
 
 ==============================================================
 */
 
-class idFileManifest {
+class idFileManifest
+{
 public:
-	idFileManifest() {
+	idFileManifest()
+	{
 		cacheTable.SetGranularity( 4096 );
 		cacheHash.SetGranularity( 4096 );
 	}
-	~idFileManifest(){}
+	~idFileManifest() {}
 
-	bool LoadManifest( const char *fileName );
-	bool LoadManifestFromFile( idFile *file );
-	void WriteManifestFile( const char *fileName );
+	bool LoadManifest( const char* fileName );
+	bool LoadManifestFromFile( idFile* file );
+	void WriteManifestFile( const char* fileName );
 
-	int NumFiles() {
+	int NumFiles()
+	{
 		return cacheTable.Num();
 	}
 
-	int FindFile( const char *fileName );
+	int FindFile( const char* fileName );
 
-	const idStr & GetFileNameByIndex( int idx ) const;
+	const idStr& GetFileNameByIndex( int idx ) const;
 
 
-	const char * GetManifestName() {
+	const char* GetManifestName()
+	{
 		return filename;
 	}
 
-	void RemoveAll( const char *filename );
-	void AddFile( const char *filename );
+	void RemoveAll( const char* filename );
+	void AddFile( const char* filename );
 
-	void PopulateList( idStaticList< idStr, 16384 > &dest ) {
+	void PopulateList( idStaticList< idStr, 16384 >& dest )
+	{
 		dest.Clear();
-		for ( int i = 0; i < cacheTable.Num(); i++ ) {
+		for( int i = 0; i < cacheTable.Num(); i++ )
+		{
 			dest.Append( cacheTable[ i ] );
 		}
 	}
 
-	void Print() {
+	void Print()
+	{
 		idLib::Printf( "dump for manifest %s\n", GetManifestName() );
 		idLib::Printf( "---------------------------------------\n" );
-		for ( int i = 0; i < NumFiles(); i++ ) {
-			const idStr & name = GetFileNameByIndex( i );
-			if ( name.Find( ".idwav", false ) >= 0 ) {
+		for( int i = 0; i < NumFiles(); i++ )
+		{
+			const idStr& name = GetFileNameByIndex( i );
+			if( name.Find( ".idwav", false ) >= 0 )
+			{
 				idLib::Printf( "%s\n", GetFileNameByIndex( i ).c_str() );
 			}
 		}
@@ -89,27 +98,32 @@ private:
 	idStr filename;
 };
 
-// image preload 
-struct imagePreload_s {
-	imagePreload_s() {
+// image preload
+struct imagePreload_s
+{
+	imagePreload_s()
+	{
 		filter = 0;
 		repeat = 0;
 		usage = 0;
 		cubeMap = 0;
 	}
-	void Write( idFile *f ) {
+	void Write( idFile* f )
+	{
 		f->WriteBig( filter );
 		f->WriteBig( repeat );
 		f->WriteBig( usage );
 		f->WriteBig( cubeMap );
 	}
-	void Read( idFile *f ) {
+	void Read( idFile* f )
+	{
 		f->ReadBig( filter );
 		f->ReadBig( repeat );
 		f->ReadBig( usage );
 		f->ReadBig( cubeMap );
 	}
-	bool operator==( const imagePreload_s &b ) const { 
+	bool operator==( const imagePreload_s& b ) const
+	{
 		return ( filter == b.filter && repeat == b.repeat && usage == b.usage && cubeMap == b.cubeMap );
 	}
 	int filter;
@@ -118,7 +132,8 @@ struct imagePreload_s {
 	int cubeMap;
 };
 
-enum preloadType_t {
+enum preloadType_t
+{
 	PRELOAD_IMAGE,
 	PRELOAD_MODEL,
 	PRELOAD_SAMPLE,
@@ -128,25 +143,31 @@ enum preloadType_t {
 };
 
 // preload
-struct preloadEntry_s {
-	preloadEntry_s() {
+struct preloadEntry_s
+{
+	preloadEntry_s()
+	{
 		resType = 0;
 	}
-	bool operator==( const preloadEntry_s &b ) const { 
+	bool operator==( const preloadEntry_s& b ) const
+	{
 		bool ret = ( resourceName.Icmp( b.resourceName ) == 0 );
-		if ( ret && resType == PRELOAD_IMAGE ) {
+		if( ret && resType == PRELOAD_IMAGE )
+		{
 			// this should never matter but...
 			ret &= ( imgData == b.imgData );
 		}
 		return ret;
 	}
-	void Write( idFile *outFile ) {
+	void Write( idFile* outFile )
+	{
 		outFile->WriteBig( resType );
 		outFile->WriteString( resourceName );
 		imgData.Write( outFile );
 	}
 
-	void Read( idFile *inFile ) {
+	void Read( idFile* inFile )
+	{
 		inFile->ReadBig( resType );
 		inFile->ReadString( resourceName );
 		imgData.Read( inFile );
@@ -157,89 +178,110 @@ struct preloadEntry_s {
 	imagePreload_s	imgData;		// image specific data
 };
 
-struct preloadSort_t {
+struct preloadSort_t
+{
 	int idx;
 	int ofs;
 };
-class idSort_Preload : public idSort_Quick< preloadSort_t, idSort_Preload > {
+class idSort_Preload : public idSort_Quick< preloadSort_t, idSort_Preload >
+{
 public:
-	int Compare( const preloadSort_t & a, const preloadSort_t & b ) const { return a.ofs - b.ofs; }
+	int Compare( const preloadSort_t& a, const preloadSort_t& b ) const
+	{
+		return a.ofs - b.ofs;
+	}
 };
 
-class idPreloadManifest {
+class idPreloadManifest
+{
 public:
-	idPreloadManifest() {
+	idPreloadManifest()
+	{
 		entries.SetGranularity( 2048 );
 	}
-	~idPreloadManifest(){}
+	~idPreloadManifest() {}
 
-	bool LoadManifest( const char *fileName );
-	bool LoadManifestFromFile( idFile *file );
+	bool LoadManifest( const char* fileName );
+	bool LoadManifestFromFile( idFile* file );
 
-	void WriteManifest( const char *fileName );
-	void WriteManifestToFile(  idFile *outFile ) {
-		if ( outFile == NULL ) {
+	void WriteManifest( const char* fileName );
+	void WriteManifestToFile( idFile* outFile )
+	{
+		if( outFile == NULL )
+		{
 			return;
 		}
 		filename = outFile->GetName();
-		outFile->WriteBig ( ( int )entries.Num() );
+		outFile->WriteBig( ( int )entries.Num() );
 		outFile->WriteString( filename );
-		for ( int i = 0; i < entries.Num(); i++ ) {
+		for( int i = 0; i < entries.Num(); i++ )
+		{
 			entries[ i ].Write( outFile );
 		}
 	}
 
-	int NumResources() const {
+	int NumResources() const
+	{
 		return entries.Num();
 	}
 
-	const preloadEntry_s & GetPreloadByIndex( int idx ) const {
+	const preloadEntry_s& GetPreloadByIndex( int idx ) const
+	{
 		return entries[ idx ];
 	}
 
-	const idStr & GetResourceNameByIndex( int idx ) const {
+	const idStr& GetResourceNameByIndex( int idx ) const
+	{
 		return entries[ idx ].resourceName;
 	}
 
-	const char * GetManifestName() const {
+	const char* GetManifestName() const
+	{
 		return filename;
 	}
 
-	void Add( const preloadEntry_s & p ) {
+	void Add( const preloadEntry_s& p )
+	{
 		entries.AddUnique( p );
 	}
 
-	void AddSample( const char *_resourceName ) {
+	void AddSample( const char* _resourceName )
+	{
 		static preloadEntry_s pe;
 		pe.resType = PRELOAD_SAMPLE;
 		pe.resourceName = _resourceName;
 		entries.Append( pe );
 	}
-	void AddModel( const char *_resourceName ) {
+	void AddModel( const char* _resourceName )
+	{
 		static preloadEntry_s pe;
 		pe.resType = PRELOAD_MODEL;
 		pe.resourceName = _resourceName;
 		entries.Append( pe );
 	}
-	void AddParticle( const char *_resourceName ) {
+	void AddParticle( const char* _resourceName )
+	{
 		static preloadEntry_s pe;
 		pe.resType = PRELOAD_PARTICLE;
 		pe.resourceName = _resourceName;
 		entries.Append( pe );
 	}
-	void AddAnim( const char *_resourceName ) {
+	void AddAnim( const char* _resourceName )
+	{
 		static preloadEntry_s pe;
 		pe.resType = PRELOAD_ANIM;
 		pe.resourceName = _resourceName;
 		entries.Append( pe );
 	}
-	void AddCollisionModel( const char *_resourceName ) {
+	void AddCollisionModel( const char* _resourceName )
+	{
 		static preloadEntry_s pe;
 		pe.resType = PRELOAD_COLLISION;
 		pe.resourceName = _resourceName;
 		entries.Append( pe );
 	}
-	void AddImage( const char *_resourceName, int _filter, int _repeat, int _usage, int _cube ) {
+	void AddImage( const char* _resourceName, int _filter, int _repeat, int _usage, int _cube )
+	{
 		static preloadEntry_s pe;
 		pe.resType = PRELOAD_IMAGE;
 		pe.resourceName = _resourceName;
@@ -250,23 +292,29 @@ public:
 		entries.Append( pe );
 	}
 
-	void Clear() {
+	void Clear()
+	{
 		entries.Clear();
 	}
 
-	int FindResource( const char *name ) {
-		for ( int i = 0; i < entries.Num(); i++ ) {
-			if ( idStr::Icmp( name, entries[ i ].resourceName ) == 0 ) {
+	int FindResource( const char* name )
+	{
+		for( int i = 0; i < entries.Num(); i++ )
+		{
+			if( idStr::Icmp( name, entries[ i ].resourceName ) == 0 )
+			{
 				return i;
 			}
 		}
 		return -1;
 	}
 
-	void Print() {
+	void Print()
+	{
 		idLib::Printf( "dump for preload manifest %s\n", GetManifestName() );
 		idLib::Printf( "---------------------------------------\n" );
-		for ( int i = 0; i < NumResources(); i++ ) {
+		for( int i = 0; i < NumResources(); i++ )
+		{
 			idLib::Printf( "%s\n", GetResourceNameByIndex( i ).c_str() );
 		}
 	}

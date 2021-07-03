@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -37,24 +37,26 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-typedef struct {
-	const idMaterial *		from;			// 0 == any unmatched shader
-	const idMaterial *		to;
+typedef struct
+{
+	const idMaterial* 		from;			// 0 == any unmatched shader
+	const idMaterial* 		to;
 } skinMapping_t;
 
-class idDeclSkin : public idDecl {
+class idDeclSkin : public idDecl
+{
 public:
 	virtual size_t			Size() const;
 	virtual bool			SetDefaultText();
-	virtual const char *	DefaultDefinition() const;
-	virtual bool			Parse( const char *text, const int textLength, bool allowBinaryVersion );
+	virtual const char* 	DefaultDefinition() const;
+	virtual bool			Parse( const char* text, const int textLength, bool allowBinaryVersion );
 	virtual void			FreeData();
 
-	const idMaterial *		RemapShaderBySkin( const idMaterial *shader ) const;
+	const idMaterial* 		RemapShaderBySkin( const idMaterial* shader ) const;
 
-							// model associations are just for the preview dialog in the editor
+	// model associations are just for the preview dialog in the editor
 	const int				GetNumModelAssociations() const;
-	const char *			GetAssociatedModel( int index ) const;
+	const char* 			GetAssociatedModel( int index ) const;
 
 private:
 	idList<skinMapping_t, TAG_IDLIB_LIST_DECL>	mappings;

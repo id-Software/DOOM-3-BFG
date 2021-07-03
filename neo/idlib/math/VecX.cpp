@@ -2,9 +2,10 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2012 Robert Beckebans
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,7 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
-#include "../precompiled.h"
+#include "precompiled.h"
 
 //===============================================================
 //
@@ -35,8 +36,10 @@ If you have questions concerning this license or the applicable additional terms
 //
 //===============================================================
 
-float	idVecX::temp[VECX_MAX_TEMP+4];
-float *	idVecX::tempPtr = (float *) ( ( (int) idVecX::temp + 15 ) & ~15 );
+float	idVecX::temp[VECX_MAX_TEMP + 4];
+// RB: changed int to intptr_t
+float* 	idVecX::tempPtr = ( float* )( ( ( intptr_t ) idVecX::temp + 15 ) & ~15 );
+// RB end
 int		idVecX::tempIndex = 0;
 
 /*
@@ -44,6 +47,7 @@ int		idVecX::tempIndex = 0;
 idVecX::ToString
 =============
 */
-const char *idVecX::ToString( int precision ) const {
+const char* idVecX::ToString( int precision ) const
+{
 	return idStr::FloatArrayToString( ToFloatPtr(), GetDimension(), precision );
 }

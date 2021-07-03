@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -30,28 +30,38 @@ If you have questions concerning this license or the applicable additional terms
 
 /*
 ================================================
-idBitMsg operates on a sequence of individual bits. It handles byte ordering and 
-avoids alignment errors. It allows concurrent writing and reading. The data set with Init 
+idBitMsg operates on a sequence of individual bits. It handles byte ordering and
+avoids alignment errors. It allows concurrent writing and reading. The data set with Init
 is never free-d.
 ================================================
 */
-class idBitMsg {
+class idBitMsg
+{
 public:
-					idBitMsg() { InitWrite( NULL, 0 ); }
-					idBitMsg( byte * data, int length ) { InitWrite( data, length ); }
-					idBitMsg( const byte * data, int length ) { InitRead( data, length ); }
+	idBitMsg()
+	{
+		InitWrite( NULL, 0 );
+	}
+	idBitMsg( byte* data, int length )
+	{
+		InitWrite( data, length );
+	}
+	idBitMsg( const byte* data, int length )
+	{
+		InitRead( data, length );
+	}
 
 	// both read & write
-	void			InitWrite( byte *data, int length );
+	void			InitWrite( byte* data, int length );
 
 	// read only
-	void			InitRead( const byte *data, int length );
+	void			InitRead( const byte* data, int length );
 
 	// get data for writing
-	byte *			GetWriteData();
+	byte* 			GetWriteData();
 
 	// get data for reading
-	const byte *	GetReadData() const;
+	const byte* 	GetReadData() const;
 
 	// get the maximum message size
 	int				GetMaxSize() const;
@@ -88,7 +98,7 @@ public:
 	//------------------------
 
 	// save the write state
-	void			SaveWriteState( int &s, int &b, uint64 &t ) const;
+	void			SaveWriteState( int& s, int& b, uint64& t ) const;
 
 	// restore the write state
 	void			RestoreWriteState( int s, int b, uint64 t );
@@ -119,7 +129,7 @@ public:
 	int				GetRemainingReadBits() const;
 
 	// save the read state
-	void			SaveReadState( int &c, int &b ) const;
+	void			SaveReadState( int& c, int& b ) const;
 
 	// restore the read state
 	void			RestoreReadState( int c, int b );
@@ -148,24 +158,54 @@ public:
 	void			WriteFloat( float f, int exponentBits, int mantissaBits );
 	void			WriteAngle8( float f );
 	void			WriteAngle16( float f );
-	void			WriteDir( const idVec3 &dir, int numBits );
-	void			WriteString( const char *s, int maxLength = -1, bool make7Bit = true );
-	void			WriteData( const void *data, int length );
+	void			WriteDir( const idVec3& dir, int numBits );
+	void			WriteString( const char* s, int maxLength = -1, bool make7Bit = true );
+	void			WriteData( const void* data, int length );
 	void			WriteNetadr( const netadr_t adr );
 
-	void			WriteUNorm8( float f ) { WriteByte( idMath::Ftob( f * 255.0f ) ); }
-	void			WriteUNorm16( float f ) { WriteUShort( idMath::Ftoi( f * 65535.0f ) ); }
-	void			WriteNorm16( float f ) { WriteShort( idMath::Ftoi( f * 32767.0f ) ); }
+	void			WriteUNorm8( float f )
+	{
+		WriteByte( idMath::Ftob( f * 255.0f ) );
+	}
+	void			WriteUNorm16( float f )
+	{
+		WriteUShort( idMath::Ftoi( f * 65535.0f ) );
+	}
+	void			WriteNorm16( float f )
+	{
+		WriteShort( idMath::Ftoi( f * 32767.0f ) );
+	}
 
-	void			WriteDeltaChar( int8 oldValue, int8 newValue ) { WriteByte( newValue - oldValue ); }
-	void			WriteDeltaByte( uint8 oldValue, uint8 newValue ) { WriteByte( newValue - oldValue ); }
-	void			WriteDeltaShort( int16 oldValue, int16 newValue ) { WriteUShort( newValue - oldValue ); }
-	void			WriteDeltaUShort( uint16 oldValue, uint16 newValue ) { WriteUShort( newValue - oldValue ); }
-	void			WriteDeltaLong( int32 oldValue, int32 newValue ) { WriteLong( newValue - oldValue ); }
-	void			WriteDeltaFloat( float oldValue, float newValue ) { WriteFloat( newValue - oldValue ); }
-	void			WriteDeltaFloat( float oldValue, float newValue, int exponentBits, int mantissaBits ) { WriteFloat( newValue - oldValue, exponentBits, mantissaBits ); }
+	void			WriteDeltaChar( int8 oldValue, int8 newValue )
+	{
+		WriteByte( newValue - oldValue );
+	}
+	void			WriteDeltaByte( uint8 oldValue, uint8 newValue )
+	{
+		WriteByte( newValue - oldValue );
+	}
+	void			WriteDeltaShort( int16 oldValue, int16 newValue )
+	{
+		WriteUShort( newValue - oldValue );
+	}
+	void			WriteDeltaUShort( uint16 oldValue, uint16 newValue )
+	{
+		WriteUShort( newValue - oldValue );
+	}
+	void			WriteDeltaLong( int32 oldValue, int32 newValue )
+	{
+		WriteLong( newValue - oldValue );
+	}
+	void			WriteDeltaFloat( float oldValue, float newValue )
+	{
+		WriteFloat( newValue - oldValue );
+	}
+	void			WriteDeltaFloat( float oldValue, float newValue, int exponentBits, int mantissaBits )
+	{
+		WriteFloat( newValue - oldValue, exponentBits, mantissaBits );
+	}
 
-	bool			WriteDeltaDict( const idDict &dict, const idDict *base );
+	bool			WriteDeltaDict( const idDict& dict, const idDict* base );
 
 	template< int _max_, int _numBits_ >
 	void			WriteQuantizedFloat( float value );
@@ -173,17 +213,47 @@ public:
 	void			WriteQuantizedUFloat( float value );		// Quantize a float to a variable number of bits (assumes unsigned, uses simple quantization)
 
 	template< typename T >
-	void			WriteVectorFloat( const T & v ) { for ( int i = 0; i < v.GetDimension(); i++ ) { WriteFloat( v[i] ); } }
+	void			WriteVectorFloat( const T& v )
+	{
+		for( int i = 0; i < v.GetDimension(); i++ )
+		{
+			WriteFloat( v[i] );
+		}
+	}
 	template< typename T >
-	void			WriteVectorUNorm8( const T & v ) { for ( int i = 0; i < v.GetDimension(); i++ ) { WriteUNorm8( v[i] ); } }
+	void			WriteVectorUNorm8( const T& v )
+	{
+		for( int i = 0; i < v.GetDimension(); i++ )
+		{
+			WriteUNorm8( v[i] );
+		}
+	}
 	template< typename T >
-	void			WriteVectorUNorm16( const T & v ) { for ( int i = 0; i < v.GetDimension(); i++ ) { WriteUNorm16( v[i] ); } }
+	void			WriteVectorUNorm16( const T& v )
+	{
+		for( int i = 0; i < v.GetDimension(); i++ )
+		{
+			WriteUNorm16( v[i] );
+		}
+	}
 	template< typename T >
-	void			WriteVectorNorm16( const T & v ) { for ( int i = 0; i < v.GetDimension(); i++ ) { WriteNorm16( v[i] ); } }
+	void			WriteVectorNorm16( const T& v )
+	{
+		for( int i = 0; i < v.GetDimension(); i++ )
+		{
+			WriteNorm16( v[i] );
+		}
+	}
 
 	// Compress a vector to a variable number of bits (assumes signed, uses simple quantization)
 	template< typename T, int _max_, int _numBits_  >
-	void			WriteQuantizedVector( const T & v ) { for ( int i = 0; i < v.GetDimension(); i++ ) { WriteQuantizedFloat< _max_, _numBits_ >( v[i] ); } }
+	void			WriteQuantizedVector( const T& v )
+	{
+		for( int i = 0; i < v.GetDimension(); i++ )
+		{
+			WriteQuantizedFloat< _max_, _numBits_ >( v[i] );
+		}
+	}
 
 	// begin reading.
 	void			BeginReading() const;
@@ -206,23 +276,53 @@ public:
 	float			ReadAngle8() const;
 	float			ReadAngle16() const;
 	idVec3			ReadDir( int numBits ) const;
-	int				ReadString( char *buffer, int bufferSize ) const;
-	int				ReadString( idStr & str ) const;
-	int				ReadData( void *data, int length ) const;
-	void			ReadNetadr( netadr_t *adr ) const;
+	int				ReadString( char* buffer, int bufferSize ) const;
+	int				ReadString( idStr& str ) const;
+	int				ReadData( void* data, int length ) const;
+	void			ReadNetadr( netadr_t* adr ) const;
 
-	float			ReadUNorm8() const { return ReadByte() / 255.0f; }
-	float			ReadUNorm16() const { return ReadUShort() / 65535.0f; }
-	float			ReadNorm16() const { return ReadShort() / 32767.0f; }
+	float			ReadUNorm8() const
+	{
+		return ReadByte() / 255.0f;
+	}
+	float			ReadUNorm16() const
+	{
+		return ReadUShort() / 65535.0f;
+	}
+	float			ReadNorm16() const
+	{
+		return ReadShort() / 32767.0f;
+	}
 
-	int8			ReadDeltaChar( int8 oldValue ) const { return oldValue + ReadByte(); }
-	uint8			ReadDeltaByte( uint8 oldValue ) const { return oldValue + ReadByte(); }
-	int16			ReadDeltaShort( int16 oldValue ) const { return oldValue + ReadUShort(); }
-	uint16			ReadDeltaUShort( uint16 oldValue ) const { return oldValue + ReadUShort(); }
-	int32			ReadDeltaLong( int32 oldValue ) const { return oldValue + ReadLong(); }
-	float			ReadDeltaFloat( float oldValue ) const { return oldValue + ReadFloat(); }
-	float			ReadDeltaFloat( float oldValue, int exponentBits, int mantissaBits ) const { return oldValue + ReadFloat( exponentBits, mantissaBits ); }
-	bool			ReadDeltaDict( idDict &dict, const idDict *base ) const;
+	int8			ReadDeltaChar( int8 oldValue ) const
+	{
+		return oldValue + ReadByte();
+	}
+	uint8			ReadDeltaByte( uint8 oldValue ) const
+	{
+		return oldValue + ReadByte();
+	}
+	int16			ReadDeltaShort( int16 oldValue ) const
+	{
+		return oldValue + ReadUShort();
+	}
+	uint16			ReadDeltaUShort( uint16 oldValue ) const
+	{
+		return oldValue + ReadUShort();
+	}
+	int32			ReadDeltaLong( int32 oldValue ) const
+	{
+		return oldValue + ReadLong();
+	}
+	float			ReadDeltaFloat( float oldValue ) const
+	{
+		return oldValue + ReadFloat();
+	}
+	float			ReadDeltaFloat( float oldValue, int exponentBits, int mantissaBits ) const
+	{
+		return oldValue + ReadFloat( exponentBits, mantissaBits );
+	}
+	bool			ReadDeltaDict( idDict& dict, const idDict* base ) const;
 
 	template< int _max_, int _numBits_ >
 	float			ReadQuantizedFloat() const;
@@ -230,25 +330,61 @@ public:
 	float			ReadQuantizedUFloat() const;
 
 	template< typename T >
-	void			ReadVectorFloat( T & v ) const { for ( int i = 0; i < v.GetDimension(); i++ ) { v[i] = ReadFloat(); } }
+	void			ReadVectorFloat( T& v ) const
+	{
+		for( int i = 0; i < v.GetDimension(); i++ )
+		{
+			v[i] = ReadFloat();
+		}
+	}
 	template< typename T >
-	void			ReadVectorUNorm8( T & v ) const { for ( int i = 0; i < v.GetDimension(); i++ ) { v[i] = ReadUNorm8(); } }
+	void			ReadVectorUNorm8( T& v ) const
+	{
+		for( int i = 0; i < v.GetDimension(); i++ )
+		{
+			v[i] = ReadUNorm8();
+		}
+	}
 	template< typename T >
-	void			ReadVectorUNorm16( T & v ) const { for ( int i = 0; i < v.GetDimension(); i++ ) { v[i] = ReadUNorm16(); } }
+	void			ReadVectorUNorm16( T& v ) const
+	{
+		for( int i = 0; i < v.GetDimension(); i++ )
+		{
+			v[i] = ReadUNorm16();
+		}
+	}
 	template< typename T >
-	void			ReadVectorNorm16( T & v ) const { for ( int i = 0; i < v.GetDimension(); i++ ) { v[i] = ReadNorm16(); } }
+	void			ReadVectorNorm16( T& v ) const
+	{
+		for( int i = 0; i < v.GetDimension(); i++ )
+		{
+			v[i] = ReadNorm16();
+		}
+	}
 	template< typename T, int _max_, int _numBits_ >
-	void			ReadQuantizedVector( T & v ) const { for ( int i = 0; i < v.GetDimension(); i++ ) { v[i] = ReadQuantizedFloat< _max_, _numBits_ >(); } }
+	void			ReadQuantizedVector( T& v ) const
+	{
+		for( int i = 0; i < v.GetDimension(); i++ )
+		{
+			v[i] = ReadQuantizedFloat< _max_, _numBits_ >();
+		}
+	}
 
-	static int		DirToBits( const idVec3 &dir, int numBits );
+	static int		DirToBits( const idVec3& dir, int numBits );
 	static idVec3	BitsToDir( int bits, int numBits );
 
-	void			SetHasChanged( bool b ) { hasChanged = b; }
-	bool			HasChanged() const { return hasChanged; }
+	void			SetHasChanged( bool b )
+	{
+		hasChanged = b;
+	}
+	bool			HasChanged() const
+	{
+		return hasChanged;
+	}
 
 private:
-	byte *			writeData;		// pointer to data for writing
-	const byte *	readData;		// pointer to data for reading
+	byte* 			writeData;		// pointer to data for writing
+	const byte* 	readData;		// pointer to data for reading
 	int				maxSize;		// maximum size of message in bytes
 	int				curSize;		// current size of message in bytes
 	mutable int		writeBit;		// number of bits written to the last written byte
@@ -262,7 +398,7 @@ private:
 
 private:
 	bool			CheckOverflow( int numBits );
-	byte *			GetByteSpace( int length );
+	byte* 			GetByteSpace( int length );
 };
 
 /*
@@ -270,7 +406,8 @@ private:
 idBitMsg::InitWrite
 ========================
 */
-ID_INLINE void idBitMsg::InitWrite( byte *data, int length ) {
+ID_INLINE void idBitMsg::InitWrite( byte* data, int length )
+{
 	writeData = data;
 	readData = data;
 	maxSize = length;
@@ -281,7 +418,7 @@ ID_INLINE void idBitMsg::InitWrite( byte *data, int length ) {
 	readBit = 0;
 	allowOverflow = false;
 	overflowed = false;
-	
+
 	tempValue = 0;
 }
 
@@ -290,7 +427,8 @@ ID_INLINE void idBitMsg::InitWrite( byte *data, int length ) {
 idBitMsg::InitRead
 ========================
 */
-ID_INLINE void idBitMsg::InitRead( const byte *data, int length ) {
+ID_INLINE void idBitMsg::InitRead( const byte* data, int length )
+{
 	writeData = NULL;
 	readData = data;
 	maxSize = length;
@@ -310,7 +448,8 @@ ID_INLINE void idBitMsg::InitRead( const byte *data, int length ) {
 idBitMsg::GetWriteData
 ========================
 */
-ID_INLINE byte *idBitMsg::GetWriteData() {
+ID_INLINE byte* idBitMsg::GetWriteData()
+{
 	return writeData;
 }
 
@@ -319,7 +458,8 @@ ID_INLINE byte *idBitMsg::GetWriteData() {
 idBitMsg::GetReadData
 ========================
 */
-ID_INLINE const byte *idBitMsg::GetReadData() const {
+ID_INLINE const byte* idBitMsg::GetReadData() const
+{
 	return readData;
 }
 
@@ -328,7 +468,8 @@ ID_INLINE const byte *idBitMsg::GetReadData() const {
 idBitMsg::GetMaxSize
 ========================
 */
-ID_INLINE int idBitMsg::GetMaxSize() const {
+ID_INLINE int idBitMsg::GetMaxSize() const
+{
 	return maxSize;
 }
 
@@ -337,7 +478,8 @@ ID_INLINE int idBitMsg::GetMaxSize() const {
 idBitMsg::SetAllowOverflow
 ========================
 */
-ID_INLINE void idBitMsg::SetAllowOverflow( bool set ) {
+ID_INLINE void idBitMsg::SetAllowOverflow( bool set )
+{
 	allowOverflow = set;
 }
 
@@ -346,7 +488,8 @@ ID_INLINE void idBitMsg::SetAllowOverflow( bool set ) {
 idBitMsg::IsOverflowed
 ========================
 */
-ID_INLINE bool idBitMsg::IsOverflowed() const {
+ID_INLINE bool idBitMsg::IsOverflowed() const
+{
 	return overflowed;
 }
 
@@ -355,7 +498,8 @@ ID_INLINE bool idBitMsg::IsOverflowed() const {
 idBitMsg::GetSize
 ========================
 */
-ID_INLINE int idBitMsg::GetSize() const {
+ID_INLINE int idBitMsg::GetSize() const
+{
 	return curSize + ( writeBit != 0 );
 }
 
@@ -364,12 +508,16 @@ ID_INLINE int idBitMsg::GetSize() const {
 idBitMsg::SetSize
 ========================
 */
-ID_INLINE void idBitMsg::SetSize( int size ) {
+ID_INLINE void idBitMsg::SetSize( int size )
+{
 	assert( writeBit == 0 );
-	
-	if ( size > maxSize ) {
+
+	if( size > maxSize )
+	{
 		curSize = maxSize;
-	} else {
+	}
+	else
+	{
 		curSize = size;
 	}
 }
@@ -379,7 +527,8 @@ ID_INLINE void idBitMsg::SetSize( int size ) {
 idBitMsg::GetWriteBit
 ========================
 */
-ID_INLINE int idBitMsg::GetWriteBit() const {
+ID_INLINE int idBitMsg::GetWriteBit() const
+{
 	return writeBit;
 }
 
@@ -388,11 +537,13 @@ ID_INLINE int idBitMsg::GetWriteBit() const {
 idBitMsg::SetWriteBit
 ========================
 */
-ID_INLINE void idBitMsg::SetWriteBit( int bit ) {
+ID_INLINE void idBitMsg::SetWriteBit( int bit )
+{
 	// see idBitMsg::WriteByteAlign
 	assert( false );
 	writeBit = bit & 7;
-	if ( writeBit ) {
+	if( writeBit )
+	{
 		writeData[curSize - 1] &= ( 1 << writeBit ) - 1;
 	}
 }
@@ -402,7 +553,8 @@ ID_INLINE void idBitMsg::SetWriteBit( int bit ) {
 idBitMsg::GetNumBitsWritten
 ========================
 */
-ID_INLINE int idBitMsg::GetNumBitsWritten() const {
+ID_INLINE int idBitMsg::GetNumBitsWritten() const
+{
 	return ( curSize << 3 ) + writeBit;
 }
 
@@ -411,7 +563,8 @@ ID_INLINE int idBitMsg::GetNumBitsWritten() const {
 idBitMsg::GetRemainingSpace
 ========================
 */
-ID_INLINE int idBitMsg::GetRemainingSpace() const {
+ID_INLINE int idBitMsg::GetRemainingSpace() const
+{
 	return maxSize - GetSize();
 }
 
@@ -420,7 +573,8 @@ ID_INLINE int idBitMsg::GetRemainingSpace() const {
 idBitMsg::GetRemainingWriteBits
 ========================
 */
-ID_INLINE int idBitMsg::GetRemainingWriteBits() const {
+ID_INLINE int idBitMsg::GetRemainingWriteBits() const
+{
 	return ( maxSize << 3 ) - GetNumBitsWritten();
 }
 
@@ -429,7 +583,8 @@ ID_INLINE int idBitMsg::GetRemainingWriteBits() const {
 idBitMsg::SaveWriteState
 ========================
 */
-ID_INLINE void idBitMsg::SaveWriteState( int &s, int &b, uint64 &t ) const {
+ID_INLINE void idBitMsg::SaveWriteState( int& s, int& b, uint64& t ) const
+{
 	s = curSize;
 	b = writeBit;
 	t = tempValue;
@@ -440,10 +595,12 @@ ID_INLINE void idBitMsg::SaveWriteState( int &s, int &b, uint64 &t ) const {
 idBitMsg::RestoreWriteState
 ========================
 */
-ID_INLINE void idBitMsg::RestoreWriteState( int s, int b, uint64 t ) {
+ID_INLINE void idBitMsg::RestoreWriteState( int s, int b, uint64 t )
+{
 	curSize = s;
 	writeBit = b & 7;
-	if ( writeBit ) {
+	if( writeBit )
+	{
 		writeData[curSize] &= ( 1 << writeBit ) - 1;
 	}
 	tempValue = t;
@@ -454,7 +611,8 @@ ID_INLINE void idBitMsg::RestoreWriteState( int s, int b, uint64 t ) {
 idBitMsg::GetReadCount
 ========================
 */
-ID_INLINE int idBitMsg::GetReadCount() const {
+ID_INLINE int idBitMsg::GetReadCount() const
+{
 	return readCount;
 }
 
@@ -463,7 +621,8 @@ ID_INLINE int idBitMsg::GetReadCount() const {
 idBitMsg::SetReadCount
 ========================
 */
-ID_INLINE void idBitMsg::SetReadCount( int bytes ) {
+ID_INLINE void idBitMsg::SetReadCount( int bytes )
+{
 	readCount = bytes;
 }
 
@@ -472,7 +631,8 @@ ID_INLINE void idBitMsg::SetReadCount( int bytes ) {
 idBitMsg::GetReadBit
 ========================
 */
-ID_INLINE int idBitMsg::GetReadBit() const {
+ID_INLINE int idBitMsg::GetReadBit() const
+{
 	return readBit;
 }
 
@@ -481,7 +641,8 @@ ID_INLINE int idBitMsg::GetReadBit() const {
 idBitMsg::SetReadBit
 ========================
 */
-ID_INLINE void idBitMsg::SetReadBit( int bit ) {
+ID_INLINE void idBitMsg::SetReadBit( int bit )
+{
 	readBit = bit & 7;
 }
 
@@ -490,7 +651,8 @@ ID_INLINE void idBitMsg::SetReadBit( int bit ) {
 idBitMsg::GetNumBitsRead
 ========================
 */
-ID_INLINE int idBitMsg::GetNumBitsRead() const {
+ID_INLINE int idBitMsg::GetNumBitsRead() const
+{
 	return ( ( readCount << 3 ) - ( ( 8 - readBit ) & 7 ) );
 }
 
@@ -499,7 +661,8 @@ ID_INLINE int idBitMsg::GetNumBitsRead() const {
 idBitMsg::GetRemainingData
 ========================
 */
-ID_INLINE int idBitMsg::GetRemainingData() const {
+ID_INLINE int idBitMsg::GetRemainingData() const
+{
 	assert( writeBit == 0 );
 	return curSize - readCount;
 }
@@ -509,7 +672,8 @@ ID_INLINE int idBitMsg::GetRemainingData() const {
 idBitMsg::GetRemainingReadBits
 ========================
 */
-ID_INLINE int idBitMsg::GetRemainingReadBits() const {
+ID_INLINE int idBitMsg::GetRemainingReadBits() const
+{
 	assert( writeBit == 0 );
 	return ( curSize << 3 ) - GetNumBitsRead();
 }
@@ -519,7 +683,8 @@ ID_INLINE int idBitMsg::GetRemainingReadBits() const {
 idBitMsg::SaveReadState
 ========================
 */
-ID_INLINE void idBitMsg::SaveReadState( int &c, int &b ) const {
+ID_INLINE void idBitMsg::SaveReadState( int& c, int& b ) const
+{
 	assert( writeBit == 0 );
 	c = readCount;
 	b = readBit;
@@ -530,7 +695,8 @@ ID_INLINE void idBitMsg::SaveReadState( int &c, int &b ) const {
 idBitMsg::RestoreReadState
 ========================
 */
-ID_INLINE void idBitMsg::RestoreReadState( int c, int b ) {
+ID_INLINE void idBitMsg::RestoreReadState( int c, int b )
+{
 	assert( writeBit == 0 );
 	readCount = c;
 	readBit = b & 7;
@@ -541,7 +707,8 @@ ID_INLINE void idBitMsg::RestoreReadState( int c, int b ) {
 idBitMsg::BeginWriting
 ========================
 */
-ID_INLINE void idBitMsg::BeginWriting() {
+ID_INLINE void idBitMsg::BeginWriting()
+{
 	curSize = 0;
 	overflowed = false;
 	writeBit = 0;
@@ -553,7 +720,8 @@ ID_INLINE void idBitMsg::BeginWriting() {
 idBitMsg::WriteByteAlign
 ========================
 */
-ID_INLINE void idBitMsg::WriteByteAlign() {
+ID_INLINE void idBitMsg::WriteByteAlign()
+{
 	// it is important that no uninitialized data slips in the msg stream,
 	// because we use memcmp to decide if entities have changed and wether we should transmit them
 	// this function has the potential to leave uninitialized bits into the stream,
@@ -570,7 +738,8 @@ ID_INLINE void idBitMsg::WriteByteAlign() {
 idBitMsg::WriteBool
 ========================
 */
-ID_INLINE void idBitMsg::WriteBool( bool c ) {
+ID_INLINE void idBitMsg::WriteBool( bool c )
+{
 	WriteBits( c, 1 );
 }
 
@@ -579,7 +748,8 @@ ID_INLINE void idBitMsg::WriteBool( bool c ) {
 idBitMsg::WriteChar
 ========================
 */
-ID_INLINE void idBitMsg::WriteChar( int8 c ) {
+ID_INLINE void idBitMsg::WriteChar( int8 c )
+{
 	WriteBits( c, -8 );
 }
 
@@ -588,7 +758,8 @@ ID_INLINE void idBitMsg::WriteChar( int8 c ) {
 idBitMsg::WriteByte
 ========================
 */
-ID_INLINE void idBitMsg::WriteByte( uint8 c ) {
+ID_INLINE void idBitMsg::WriteByte( uint8 c )
+{
 	WriteBits( c, 8 );
 }
 
@@ -597,7 +768,8 @@ ID_INLINE void idBitMsg::WriteByte( uint8 c ) {
 idBitMsg::WriteShort
 ========================
 */
-ID_INLINE void idBitMsg::WriteShort( int16 c ) {
+ID_INLINE void idBitMsg::WriteShort( int16 c )
+{
 	WriteBits( c, -16 );
 }
 
@@ -606,7 +778,8 @@ ID_INLINE void idBitMsg::WriteShort( int16 c ) {
 idBitMsg::WriteUShort
 ========================
 */
-ID_INLINE void idBitMsg::WriteUShort( uint16 c ) {
+ID_INLINE void idBitMsg::WriteUShort( uint16 c )
+{
 	WriteBits( c, 16 );
 }
 
@@ -615,7 +788,8 @@ ID_INLINE void idBitMsg::WriteUShort( uint16 c ) {
 idBitMsg::WriteLong
 ========================
 */
-ID_INLINE void idBitMsg::WriteLong( int32 c ) {
+ID_INLINE void idBitMsg::WriteLong( int32 c )
+{
 	WriteBits( c, 32 );
 }
 
@@ -624,7 +798,8 @@ ID_INLINE void idBitMsg::WriteLong( int32 c ) {
 idBitMsg::WriteLongLong
 ========================
 */
-ID_INLINE void idBitMsg::WriteLongLong( int64 c ) {
+ID_INLINE void idBitMsg::WriteLongLong( int64 c )
+{
 	int a = c;
 	int b = c >> 32;
 	WriteBits( a, 32 );
@@ -636,8 +811,9 @@ ID_INLINE void idBitMsg::WriteLongLong( int64 c ) {
 idBitMsg::WriteFloat
 ========================
 */
-ID_INLINE void idBitMsg::WriteFloat( float f ) {
-	WriteBits( *reinterpret_cast<int *>(&f), 32 );
+ID_INLINE void idBitMsg::WriteFloat( float f )
+{
+	WriteBits( *reinterpret_cast<int*>( &f ), 32 );
 }
 
 /*
@@ -645,7 +821,8 @@ ID_INLINE void idBitMsg::WriteFloat( float f ) {
 idBitMsg::WriteFloat
 ========================
 */
-ID_INLINE void idBitMsg::WriteFloat( float f, int exponentBits, int mantissaBits ) {
+ID_INLINE void idBitMsg::WriteFloat( float f, int exponentBits, int mantissaBits )
+{
 	int bits = idMath::FloatToBits( f, exponentBits, mantissaBits );
 	WriteBits( bits, 1 + exponentBits + mantissaBits );
 }
@@ -655,7 +832,8 @@ ID_INLINE void idBitMsg::WriteFloat( float f, int exponentBits, int mantissaBits
 idBitMsg::WriteAngle8
 ========================
 */
-ID_INLINE void idBitMsg::WriteAngle8( float f ) {
+ID_INLINE void idBitMsg::WriteAngle8( float f )
+{
 	WriteByte( ANGLE2BYTE( f ) );
 }
 
@@ -664,8 +842,9 @@ ID_INLINE void idBitMsg::WriteAngle8( float f ) {
 idBitMsg::WriteAngle16
 ========================
 */
-ID_INLINE void idBitMsg::WriteAngle16( float f ) {
-	WriteShort( ANGLE2SHORT(f) );
+ID_INLINE void idBitMsg::WriteAngle16( float f )
+{
+	WriteShort( ANGLE2SHORT( f ) );
 }
 
 /*
@@ -673,7 +852,8 @@ ID_INLINE void idBitMsg::WriteAngle16( float f ) {
 idBitMsg::WriteDir
 ========================
 */
-ID_INLINE void idBitMsg::WriteDir( const idVec3 &dir, int numBits ) {
+ID_INLINE void idBitMsg::WriteDir( const idVec3& dir, int numBits )
+{
 	WriteBits( DirToBits( dir, numBits ), numBits );
 }
 
@@ -682,10 +862,11 @@ ID_INLINE void idBitMsg::WriteDir( const idVec3 &dir, int numBits ) {
 idBitMsg::BeginReading
 ========================
 */
-ID_INLINE void idBitMsg::BeginReading() const {
+ID_INLINE void idBitMsg::BeginReading() const
+{
 	readCount = 0;
 	readBit = 0;
-	
+
 	writeBit = 0;
 	tempValue = 0;
 }
@@ -695,7 +876,8 @@ ID_INLINE void idBitMsg::BeginReading() const {
 idBitMsg::ReadByteAlign
 ========================
 */
-ID_INLINE void idBitMsg::ReadByteAlign() const {
+ID_INLINE void idBitMsg::ReadByteAlign() const
+{
 	readBit = 0;
 }
 
@@ -704,7 +886,8 @@ ID_INLINE void idBitMsg::ReadByteAlign() const {
 idBitMsg::ReadBool
 ========================
 */
-ID_INLINE bool idBitMsg::ReadBool() const {
+ID_INLINE bool idBitMsg::ReadBool() const
+{
 	return ( ReadBits( 1 ) == 1 ) ? true : false;
 }
 
@@ -713,8 +896,9 @@ ID_INLINE bool idBitMsg::ReadBool() const {
 idBitMsg::ReadChar
 ========================
 */
-ID_INLINE int idBitMsg::ReadChar() const {
-	return (signed char)ReadBits( -8 );
+ID_INLINE int idBitMsg::ReadChar() const
+{
+	return ( signed char )ReadBits( -8 );
 }
 
 /*
@@ -722,8 +906,9 @@ ID_INLINE int idBitMsg::ReadChar() const {
 idBitMsg::ReadByte
 ========================
 */
-ID_INLINE int idBitMsg::ReadByte() const {
-	return (unsigned char)ReadBits( 8 );
+ID_INLINE int idBitMsg::ReadByte() const
+{
+	return ( unsigned char )ReadBits( 8 );
 }
 
 /*
@@ -731,8 +916,9 @@ ID_INLINE int idBitMsg::ReadByte() const {
 idBitMsg::ReadShort
 ========================
 */
-ID_INLINE int idBitMsg::ReadShort() const {
-	return (short)ReadBits( -16 );
+ID_INLINE int idBitMsg::ReadShort() const
+{
+	return ( short )ReadBits( -16 );
 }
 
 /*
@@ -740,8 +926,9 @@ ID_INLINE int idBitMsg::ReadShort() const {
 idBitMsg::ReadUShort
 ========================
 */
-ID_INLINE int idBitMsg::ReadUShort() const {
-	return (unsigned short)ReadBits( 16 );
+ID_INLINE int idBitMsg::ReadUShort() const
+{
+	return ( unsigned short )ReadBits( 16 );
 }
 
 /*
@@ -749,7 +936,8 @@ ID_INLINE int idBitMsg::ReadUShort() const {
 idBitMsg::ReadLong
 ========================
 */
-ID_INLINE int idBitMsg::ReadLong() const {
+ID_INLINE int idBitMsg::ReadLong() const
+{
 	return ReadBits( 32 );
 }
 
@@ -758,7 +946,8 @@ ID_INLINE int idBitMsg::ReadLong() const {
 idBitMsg::ReadLongLong
 ========================
 */
-ID_INLINE int64 idBitMsg::ReadLongLong() const {
+ID_INLINE int64 idBitMsg::ReadLongLong() const
+{
 	int64 a = ReadBits( 32 );
 	int64 b = ReadBits( 32 );
 	int64 c = ( 0x00000000ffffffff & a ) | ( b << 32 );
@@ -770,9 +959,10 @@ ID_INLINE int64 idBitMsg::ReadLongLong() const {
 idBitMsg::ReadFloat
 ========================
 */
-ID_INLINE float idBitMsg::ReadFloat() const {
+ID_INLINE float idBitMsg::ReadFloat() const
+{
 	float value;
-	*reinterpret_cast<int *>(&value) = ReadBits( 32 );
+	*reinterpret_cast<int*>( &value ) = ReadBits( 32 );
 	return value;
 }
 
@@ -781,7 +971,8 @@ ID_INLINE float idBitMsg::ReadFloat() const {
 idBitMsg::ReadFloat
 ========================
 */
-ID_INLINE float idBitMsg::ReadFloat( int exponentBits, int mantissaBits ) const {
+ID_INLINE float idBitMsg::ReadFloat( int exponentBits, int mantissaBits ) const
+{
 	int bits = ReadBits( 1 + exponentBits + mantissaBits );
 	return idMath::BitsToFloat( bits, exponentBits, mantissaBits );
 }
@@ -791,7 +982,8 @@ ID_INLINE float idBitMsg::ReadFloat( int exponentBits, int mantissaBits ) const 
 idBitMsg::ReadAngle8
 ========================
 */
-ID_INLINE float idBitMsg::ReadAngle8() const {
+ID_INLINE float idBitMsg::ReadAngle8() const
+{
 	return BYTE2ANGLE( ReadByte() );
 }
 
@@ -800,7 +992,8 @@ ID_INLINE float idBitMsg::ReadAngle8() const {
 idBitMsg::ReadAngle16
 ========================
 */
-ID_INLINE float idBitMsg::ReadAngle16() const {
+ID_INLINE float idBitMsg::ReadAngle16() const
+{
 	return SHORT2ANGLE( ReadShort() );
 }
 
@@ -809,7 +1002,8 @@ ID_INLINE float idBitMsg::ReadAngle16() const {
 idBitMsg::ReadDir
 ========================
 */
-ID_INLINE idVec3 idBitMsg::ReadDir( int numBits ) const {
+ID_INLINE idVec3 idBitMsg::ReadDir( int numBits ) const
+{
 	return BitsToDir( ReadBits( numBits ), numBits );
 }
 
@@ -819,16 +1013,20 @@ idBitMsg::WriteQuantizedFloat
 ========================
 */
 template< int _max_, int _numBits_ >
-ID_INLINE void idBitMsg::WriteQuantizedFloat( float value ) {
+ID_INLINE void idBitMsg::WriteQuantizedFloat( float value )
+{
 	enum { storeMax = ( 1 << ( _numBits_ - 1 ) ) - 1 };
-	if ( _max_ > storeMax ) {
+	if( _max_ > storeMax )
+	{
 		// Scaling down (scale should be < 1)
-		const float scale = (float)storeMax / (float)_max_;
-		WriteBits( idMath::ClampInt( -storeMax, storeMax, idMath::Ftoi( value * scale ) ), -_numBits_ );	
-	} else {
+		const float scale = ( float )storeMax / ( float )_max_;
+		WriteBits( idMath::ClampInt( -storeMax, storeMax, idMath::Ftoi( value * scale ) ), -_numBits_ );
+	}
+	else
+	{
 		// Scaling up (scale should be >= 1) (Preserve whole numbers when possible)
 		enum { scale = storeMax / _max_ };
-		WriteBits( idMath::ClampInt( -storeMax, storeMax, idMath::Ftoi( value * scale ) ), -_numBits_ );	
+		WriteBits( idMath::ClampInt( -storeMax, storeMax, idMath::Ftoi( value * scale ) ), -_numBits_ );
 	}
 }
 
@@ -838,16 +1036,20 @@ idBitMsg::WriteQuantizedUFloat
 ========================
 */
 template< int _max_, int _numBits_ >
-ID_INLINE void idBitMsg::WriteQuantizedUFloat( float value ) {
+ID_INLINE void idBitMsg::WriteQuantizedUFloat( float value )
+{
 	enum { storeMax = ( 1 << _numBits_ ) - 1 };
-	if ( _max_ > storeMax ) {
+	if( _max_ > storeMax )
+	{
 		// Scaling down (scale should be < 1)
-		const float scale = (float)storeMax / (float)_max_;
-		WriteBits( idMath::ClampInt( 0, storeMax, idMath::Ftoi( value * scale ) ), _numBits_ );	
-	} else {
+		const float scale = ( float )storeMax / ( float )_max_;
+		WriteBits( idMath::ClampInt( 0, storeMax, idMath::Ftoi( value * scale ) ), _numBits_ );
+	}
+	else
+	{
 		// Scaling up (scale should be >= 1) (Preserve whole numbers when possible)
 		enum { scale = storeMax / _max_ };
-		WriteBits( idMath::ClampInt( 0, storeMax, idMath::Ftoi( value * scale ) ), _numBits_ );	
+		WriteBits( idMath::ClampInt( 0, storeMax, idMath::Ftoi( value * scale ) ), _numBits_ );
 	}
 }
 
@@ -857,19 +1059,23 @@ idBitMsg::ReadQuantizedFloat
 ========================
 */
 template< int _max_, int _numBits_ >
-ID_INLINE float idBitMsg::ReadQuantizedFloat() const {
+ID_INLINE float idBitMsg::ReadQuantizedFloat() const
+{
 	enum { storeMax = ( 1 << ( _numBits_ - 1 ) ) - 1 };
-	if ( _max_ > storeMax ) {
+	if( _max_ > storeMax )
+	{
 		// Scaling down (scale should be < 1)
-		const float invScale = (float)_max_ / (float)storeMax;
-		return (float)ReadBits( -_numBits_ ) * invScale;
-	} else {
+		const float invScale = ( float )_max_ / ( float )storeMax;
+		return ( float )ReadBits( -_numBits_ ) * invScale;
+	}
+	else
+	{
 		// Scaling up (scale should be >= 1) (Preserve whole numbers when possible)
-		// Scale will be a whole number.  
+		// Scale will be a whole number.
 		// We use a float to get rid of (potential divide by zero) which is handled above, but the compiler is dumb
 		const float scale = storeMax / _max_;
 		const float invScale = 1.0f / scale;
-		return (float)ReadBits( -_numBits_ ) * invScale;
+		return ( float )ReadBits( -_numBits_ ) * invScale;
 	}
 }
 
@@ -879,19 +1085,23 @@ idBitMsg::ReadQuantizedUFloat
 ========================
 */
 template< int _max_, int _numBits_ >
-float idBitMsg::ReadQuantizedUFloat() const {
+float idBitMsg::ReadQuantizedUFloat() const
+{
 	enum { storeMax = ( 1 << _numBits_ ) - 1 };
-	if ( _max_ > storeMax ) {
+	if( _max_ > storeMax )
+	{
 		// Scaling down (scale should be < 1)
-		const float invScale = (float)_max_ / (float)storeMax;
-		return (float)ReadBits( _numBits_ ) * invScale;
-	} else {
+		const float invScale = ( float )_max_ / ( float )storeMax;
+		return ( float )ReadBits( _numBits_ ) * invScale;
+	}
+	else
+	{
 		// Scaling up (scale should be >= 1) (Preserve whole numbers when possible)
-		// Scale will be a whole number.  
+		// Scale will be a whole number.
 		// We use a float to get rid of (potential divide by zero) which is handled above, but the compiler is dumb
-		const float scale = storeMax / _max_;	
+		const float scale = storeMax / _max_;
 		const float invScale = 1.0f / scale;
-		return (float)ReadBits( _numBits_ ) * invScale;
+		return ( float )ReadBits( _numBits_ ) * invScale;
 	}
 }
 
@@ -902,8 +1112,10 @@ Writes all the values from the array to the bit message.
 ================
 */
 template< class _arrayType_ >
-void WriteFloatArray( idBitMsg & message, const _arrayType_ & sourceArray ) {
-	for( int i = 0; i < idTupleSize< _arrayType_ >::value; ++i ) {
+void WriteFloatArray( idBitMsg& message, const _arrayType_ & sourceArray )
+{
+	for( int i = 0; i < idTupleSize< _arrayType_ >::value; ++i )
+	{
 		message.WriteFloat( sourceArray[i] );
 	}
 }
@@ -915,8 +1127,10 @@ Writes _num_ values from the array to the bit message.
 ================
 */
 template< class _arrayType_ >
-void WriteDeltaFloatArray( idBitMsg & message, const _arrayType_ & oldArray, const _arrayType_ & newArray ) {
-	for( int i = 0; i < idTupleSize< _arrayType_ >::value; ++i ) {
+void WriteDeltaFloatArray( idBitMsg& message, const _arrayType_ & oldArray, const _arrayType_ & newArray )
+{
+	for( int i = 0; i < idTupleSize< _arrayType_ >::value; ++i )
+	{
 		message.WriteDeltaFloat( oldArray[i], newArray[i] );
 	}
 }
@@ -928,10 +1142,12 @@ Reads _num_ values from the array to the bit message.
 ================
 */
 template< class _arrayType_ >
-_arrayType_ ReadFloatArray( const idBitMsg & message ) {
+_arrayType_ ReadFloatArray( const idBitMsg& message )
+{
 	_arrayType_ result;
 
-	for( int i = 0; i < idTupleSize< _arrayType_ >::value; ++i ) {
+	for( int i = 0; i < idTupleSize< _arrayType_ >::value; ++i )
+	{
 		result[i] = message.ReadFloat();
 	}
 
@@ -945,10 +1161,12 @@ Reads _num_ values from the array to the bit message.
 ================
 */
 template< class _arrayType_ >
-_arrayType_ ReadDeltaFloatArray( const idBitMsg & message, const _arrayType_ & oldArray ) {
+_arrayType_ ReadDeltaFloatArray( const idBitMsg& message, const _arrayType_ & oldArray )
+{
 	_arrayType_ result;
 
-	for( int i = 0; i < idTupleSize< _arrayType_ >::value; ++i ) {
+	for( int i = 0; i < idTupleSize< _arrayType_ >::value; ++i )
+	{
 		result[i] = message.ReadDeltaFloat( oldArray[i] );
 	}
 

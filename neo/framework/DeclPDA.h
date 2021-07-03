@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -38,22 +38,38 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 
-class idDeclEmail : public idDecl {
+class idDeclEmail : public idDecl
+{
 public:
-							idDeclEmail() {}
+	idDeclEmail() {}
 
 	virtual size_t			Size() const;
-	virtual const char *	DefaultDefinition() const;
-	virtual bool			Parse( const char *text, const int textLength, bool allowBinaryVersion );
+	virtual const char* 	DefaultDefinition() const;
+	virtual bool			Parse( const char* text, const int textLength, bool allowBinaryVersion );
 	virtual void			FreeData();
 	virtual void			Print() const;
 	virtual void			List() const;
 
-	const char *			GetFrom() const { return from; }
-	const char *			GetBody() const { return text; }
-	const char *			GetSubject() const { return subject; }
-	const char *			GetDate() const { return date; }
-	const char *			GetTo() const { return to; }
+	const char* 			GetFrom() const
+	{
+		return from;
+	}
+	const char* 			GetBody() const
+	{
+		return text;
+	}
+	const char* 			GetSubject() const
+	{
+		return subject;
+	}
+	const char* 			GetDate() const
+	{
+		return date;
+	}
+	const char* 			GetTo() const
+	{
+		return to;
+	}
 
 private:
 	idStr					text;
@@ -64,90 +80,189 @@ private:
 };
 
 
-class idDeclVideo : public idDecl {
+class idDeclVideo : public idDecl
+{
 public:
-							idDeclVideo() : preview( NULL ), video( NULL ), audio( NULL ) {};
+	idDeclVideo() : preview( NULL ), video( NULL ), audio( NULL ) {};
 
 	virtual size_t			Size() const;
-	virtual const char *	DefaultDefinition() const;
-	virtual bool			Parse( const char *text, const int textLength, bool allowBinaryVersion );
+	virtual const char* 	DefaultDefinition() const;
+	virtual bool			Parse( const char* text, const int textLength, bool allowBinaryVersion );
 	virtual void			FreeData();
 	virtual void			Print() const;
 	virtual void			List() const;
 
-	const idMaterial *		GetRoq() const { return video; }
-	const idSoundShader *	GetWave() const { return audio; }
-	const char *			GetVideoName() const { return videoName; }
-	const char *			GetInfo() const { return info; }
-	const idMaterial *		GetPreview() const { return preview; }
+	const idMaterial* 		GetRoq() const
+	{
+		return video;
+	}
+	const idSoundShader* 	GetWave() const
+	{
+		return audio;
+	}
+	const char* 			GetVideoName() const
+	{
+		return videoName;
+	}
+	const char* 			GetInfo() const
+	{
+		return info;
+	}
+	const idMaterial* 		GetPreview() const
+	{
+		return preview;
+	}
 
 private:
-	const idMaterial *		preview;
-	const idMaterial *		video;
+	const idMaterial* 		preview;
+	const idMaterial* 		video;
 	idStr					videoName;
 	idStr					info;
-	const idSoundShader *	audio;
+	const idSoundShader* 	audio;
 };
 
 
-class idDeclAudio : public idDecl {
+class idDeclAudio : public idDecl
+{
 public:
-							idDeclAudio() : audio( NULL ) {};
+	idDeclAudio() : audio( NULL ) {};
 
 	virtual size_t			Size() const;
-	virtual const char *	DefaultDefinition() const;
-	virtual bool			Parse( const char *text, const int textLength, bool allowBinaryVersion );
+	virtual const char* 	DefaultDefinition() const;
+	virtual bool			Parse( const char* text, const int textLength, bool allowBinaryVersion );
 	virtual void			FreeData();
 	virtual void			Print() const;
 	virtual void			List() const;
 
-	const char *			GetAudioName() const { return audioName; }
-	const idSoundShader *	GetWave() const { return audio; }
-	const char *			GetInfo() const { return info; }
+	const char* 			GetAudioName() const
+	{
+		return audioName;
+	}
+	const idSoundShader* 	GetWave() const
+	{
+		return audio;
+	}
+	const char* 			GetInfo() const
+	{
+		return info;
+	}
 
 private:
-	const idSoundShader *	audio;
+	const idSoundShader* 	audio;
 	idStr					audioName;
 	idStr					info;
 };
 
-class idDeclPDA : public idDecl {
+class idDeclPDA : public idDecl
+{
 public:
-							idDeclPDA() { originalEmails = originalVideos = 0; };
+	idDeclPDA()
+	{
+		originalEmails = originalVideos = 0;
+	};
 
 	virtual size_t			Size() const;
-	virtual const char *	DefaultDefinition() const;
-	virtual bool			Parse( const char *text, const int textLength, bool allowBinaryVersion );
+	virtual const char* 	DefaultDefinition() const;
+	virtual bool			Parse( const char* text, const int textLength, bool allowBinaryVersion );
 	virtual void			FreeData();
 	virtual void			Print() const;
 	virtual void			List() const;
 
-	virtual void			AddVideo( const idDeclVideo * video, bool unique = true ) const { if ( unique ) { videos.AddUnique( video ); } else { videos.Append( video ); } }
-	virtual void			AddAudio( const idDeclAudio * audio, bool unique = true ) const { if ( unique ) { audios.AddUnique( audio ); } else { audios.Append( audio ); } }
-	virtual void			AddEmail( const idDeclEmail * email, bool unique = true ) const { if ( unique ) { emails.AddUnique( email ); } else { emails.Append( email ); } }
+	virtual void			AddVideo( const idDeclVideo* video, bool unique = true ) const
+	{
+		if( unique )
+		{
+			videos.AddUnique( video );
+		}
+		else
+		{
+			videos.Append( video );
+		}
+	}
+	virtual void			AddAudio( const idDeclAudio* audio, bool unique = true ) const
+	{
+		if( unique )
+		{
+			audios.AddUnique( audio );
+		}
+		else
+		{
+			audios.Append( audio );
+		}
+	}
+	virtual void			AddEmail( const idDeclEmail* email, bool unique = true ) const
+	{
+		if( unique )
+		{
+			emails.AddUnique( email );
+		}
+		else
+		{
+			emails.Append( email );
+		}
+	}
 	virtual void			RemoveAddedEmailsAndVideos() const;
 
-	virtual const int		GetNumVideos() const { return videos.Num(); }
-	virtual const int		GetNumAudios() const { return audios.Num(); }
-	virtual const int		GetNumEmails() const { return emails.Num(); }
-	virtual const idDeclVideo *GetVideoByIndex( int index ) const { return ( index < 0 || index > videos.Num() ? NULL : videos[index] ); }
-	virtual const idDeclAudio *GetAudioByIndex( int index ) const { return ( index < 0 || index > audios.Num() ? NULL : audios[index] ); }
-	virtual const idDeclEmail *GetEmailByIndex( int index ) const { return ( index < 0 || index > emails.Num() ? NULL : emails[index] ); }
+	virtual const int		GetNumVideos() const
+	{
+		return videos.Num();
+	}
+	virtual const int		GetNumAudios() const
+	{
+		return audios.Num();
+	}
+	virtual const int		GetNumEmails() const
+	{
+		return emails.Num();
+	}
+	virtual const idDeclVideo* GetVideoByIndex( int index ) const
+	{
+		return ( index < 0 || index > videos.Num() ? NULL : videos[index] );
+	}
+	virtual const idDeclAudio* GetAudioByIndex( int index ) const
+	{
+		return ( index < 0 || index > audios.Num() ? NULL : audios[index] );
+	}
+	virtual const idDeclEmail* GetEmailByIndex( int index ) const
+	{
+		return ( index < 0 || index > emails.Num() ? NULL : emails[index] );
+	}
 
-	virtual void			SetSecurity( const char *sec ) const;
+	virtual void			SetSecurity( const char* sec ) const;
 
-	const char *			GetPdaName() const { return pdaName; }
-	const char *			GetSecurity() const {return security; }
-	const char *			GetFullName() const { return fullName; }
-	const char *			GetIcon() const { return icon; }
-	const char *			GetPost() const { return post; }
-	const char *			GetID() const { return id; }
-	const char *			GetTitle() const { return title; }
+	const char* 			GetPdaName() const
+	{
+		return pdaName;
+	}
+	const char* 			GetSecurity() const
+	{
+		return security;
+	}
+	const char* 			GetFullName() const
+	{
+		return fullName;
+	}
+	const char* 			GetIcon() const
+	{
+		return icon;
+	}
+	const char* 			GetPost() const
+	{
+		return post;
+	}
+	const char* 			GetID() const
+	{
+		return id;
+	}
+	const char* 			GetTitle() const
+	{
+		return title;
+	}
 
 private:
-	mutable idList<const idDeclVideo *>	videos;
-	mutable idList<const idDeclAudio *>	audios;
-	mutable idList<const idDeclEmail *>	emails;
+	mutable idList<const idDeclVideo*>	videos;
+	mutable idList<const idDeclAudio*>	audios;
+	mutable idList<const idDeclEmail*>	emails;
 	idStr					pdaName;
 	idStr					fullName;
 	idStr					icon;

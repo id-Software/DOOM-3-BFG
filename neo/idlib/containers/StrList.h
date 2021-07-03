@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ If you have questions concerning this license or the applicable additional terms
 
 typedef idList<idStr> idStrList;
 typedef idList<idStr*> idStrPtrList;
-typedef idStr *idStrPtr;
+typedef idStr* idStrPtr;
 
 ///*
 //================
@@ -136,12 +136,14 @@ idStrList::Size
 ================
 */
 template<>
-ID_INLINE size_t idStrList::Size() const {
+ID_INLINE size_t idStrList::Size() const
+{
 	size_t s;
 	int i;
 
 	s = sizeof( *this );
-	for( i = 0; i < Num(); i++ ) {
+	for( i = 0; i < Num(); i++ )
+	{
 		s += ( *this )[ i ].Size();
 	}
 

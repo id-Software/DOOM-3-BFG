@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@ If you have questions concerning this license or the applicable additional terms
 
 /*
 ================================================
-systemStats_t 
+systemStats_t
 This is to give the framework the ability to deal with stat indexes that are
 completely up to each game.  The system needs to deal with some stat indexes for things like
 the level for matchmaking, etc.
@@ -56,62 +56,70 @@ the level for matchmaking, etc.
 const int MAX_LEADERBOARDS			= 256;
 const int MAX_LEADERBOARD_COLUMNS	= 16;
 
-enum aggregationMethod_t {
+enum aggregationMethod_t
+{
 	AGGREGATE_MIN,  // Write the new value if it is less than the existing value.
 	AGGREGATE_MAX,  // Write the new value if it is greater than the existing value.
 	AGGREGATE_SUM,  // Add the new value to the existing value and write the result.
 	AGGREGATE_LAST, // Write the new value.
 };
 
-enum rankOrder_t {
+enum rankOrder_t
+{
 	RANK_GREATEST_FIRST, // Rank the in descending order, greatest score is best score
 	RANK_LEAST_FIRST,	 // Rank the in ascending order, lowest score is best score
 };
 
-enum statsColumnDisplayType_t {
+enum statsColumnDisplayType_t
+{
 	STATS_COLUMN_DISPLAY_NUMBER,
 	STATS_COLUMN_DISPLAY_TIME_MILLISECONDS,
 	STATS_COLUMN_DISPLAY_CASH,
 	STATS_COLUMN_NEVER_DISPLAY,
 };
 
-struct columnDef_t {
-	const char *				locDisplayName;
+struct columnDef_t
+{
+	const char* 				locDisplayName;
 	int							bits;
 	aggregationMethod_t			aggregationMethod;
 	statsColumnDisplayType_t	displayType;
 };
 
-struct leaderboardDefinition_t {
+struct leaderboardDefinition_t
+{
 
 	leaderboardDefinition_t() :
-		id ( -1 ),
+		id( -1 ),
 		numColumns( 0 ),
 		columnDefs( NULL ),
 		rankOrder( RANK_GREATEST_FIRST ),
 		supportsAttachments( false ),
-		checkAgainstCurrent( false ) {
+		checkAgainstCurrent( false )
+	{
 	}
 
-	leaderboardDefinition_t( int id_, int numColumns_, const columnDef_t * columnDefs_, rankOrder_t rankOrder_, bool supportsAttachments_, bool checkAgainstCurrent_ ) :
-		id ( id_ ),
+	leaderboardDefinition_t( int id_, int numColumns_, const columnDef_t* columnDefs_, rankOrder_t rankOrder_, bool supportsAttachments_, bool checkAgainstCurrent_ ) :
+		id( id_ ),
 		numColumns( numColumns_ ),
 		columnDefs( columnDefs_ ),
 		rankOrder( rankOrder_ ),
 		supportsAttachments( supportsAttachments_ ),
-		checkAgainstCurrent( checkAgainstCurrent_ ) {
+		checkAgainstCurrent( checkAgainstCurrent_ )
+	{
 	}
 
 	int32				id;
 	int32				numColumns;
-	const columnDef_t *	columnDefs;
+	const columnDef_t* 	columnDefs;
 	rankOrder_t			rankOrder;
 	bool				supportsAttachments;
 	bool				checkAgainstCurrent;		// Compare column 0 with the currently stored leaderboard, and only submit the new leaderboard if the new column 0 is better
 	idStr				boardName;					// Only used for display name within steam. If Empty, will generate. must be specifically set.
 };
 
-struct column_t {
+struct column_t
+{
 	column_t( int64 value_ ) : value( value_ ) {}
 	column_t() {}
 
@@ -132,7 +140,8 @@ typedef int32			leaderboardHandle_t;
 idLeaderBoardEntry
 ================================================
 */
-class idLeaderBoardEntry {
+class idLeaderBoardEntry
+{
 public:
 	static const int MAX_LEADERBOARD_COLUMNS = 16;
 	idStr username; // aka gamertag
@@ -140,8 +149,8 @@ public:
 	int64 columns[ MAX_LEADERBOARD_COLUMNS ];
 };
 
-const leaderboardDefinition_t * Sys_FindLeaderboardDef( int id );
-leaderboardDefinition_t *		Sys_CreateLeaderboardDef( int id_, int numColumns_, const columnDef_t * columnDefs_, rankOrder_t rankOrder_, bool supportsAttachments_, bool checkAgainstCurrent_ );
+const leaderboardDefinition_t* Sys_FindLeaderboardDef( int id );
+leaderboardDefinition_t* 		Sys_CreateLeaderboardDef( int id_, int numColumns_, const columnDef_t* columnDefs_, rankOrder_t rankOrder_, bool supportsAttachments_, bool checkAgainstCurrent_ );
 void							Sys_DestroyLeaderboardDefs();
 
 #endif // !__SYS_STATS_MISC_H__

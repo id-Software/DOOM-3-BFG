@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -39,29 +39,30 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-class idCompressor : public idFile {
+class idCompressor : public idFile
+{
 public:
-							// compressor allocation
-	static idCompressor *	AllocNoCompression();
-	static idCompressor *	AllocBitStream();
-	static idCompressor *	AllocRunLength();
-	static idCompressor *	AllocRunLength_ZeroBased();
-	static idCompressor *	AllocHuffman();
-	static idCompressor *	AllocArithmetic();
-	static idCompressor *	AllocLZSS();
-	static idCompressor *	AllocLZSS_WordAligned();
-	static idCompressor *	AllocLZW();
+	// compressor allocation
+	static idCompressor* 	AllocNoCompression();
+	static idCompressor* 	AllocBitStream();
+	static idCompressor* 	AllocRunLength();
+	static idCompressor* 	AllocRunLength_ZeroBased();
+	static idCompressor* 	AllocHuffman();
+	static idCompressor* 	AllocArithmetic();
+	static idCompressor* 	AllocLZSS();
+	static idCompressor* 	AllocLZSS_WordAligned();
+	static idCompressor* 	AllocLZW();
 
-							// initialization
-	virtual void			Init( idFile *f, bool compress, int wordLength ) = 0;
+	// initialization
+	virtual void			Init( idFile* f, bool compress, int wordLength ) = 0;
 	virtual void			FinishCompress() = 0;
 	virtual float			GetCompressionRatio() const = 0;
 
-							// common idFile interface
-	virtual const char *	GetName() = 0;
-	virtual const char *	GetFullPath() = 0;
-	virtual int				Read( void *outData, int outLength ) = 0;
-	virtual int				Write( const void *inData, int inLength ) = 0;
+	// common idFile interface
+	virtual const char* 	GetName() = 0;
+	virtual const char* 	GetFullPath() = 0;
+	virtual int				Read( void* outData, int outLength ) = 0;
+	virtual int				Write( const void* inData, int inLength ) = 0;
 	virtual int				Length() = 0;
 	virtual ID_TIME_T			Timestamp() = 0;
 	virtual int				Tell() = 0;

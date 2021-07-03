@@ -141,9 +141,9 @@ namespace DoomLib
 
 	Globals *globaldata[4];
 
-	RecvFunc Recv;
-	SendFunc Send;
-	SendRemoteFunc SendRemote;
+	//RecvFunc Recv;
+	//SendFunc Send;
+	//SendRemoteFunc SendRemote;
 
 
 	bool							Active = true;
@@ -239,7 +239,7 @@ extern void D_RunFrame( bool );
 extern void I_ShutdownSound();
 extern void I_ShutdownMusic();
 extern void I_ShutdownGraphics();
-extern void I_ProcessSoundEvents( void );
+extern void I_ProcessSoundEvents();
 
 
 void DoomLib::InitGlobals( void *ptr /* = NULL */ )
@@ -419,12 +419,14 @@ void DoomLib::SetPlayer( int id )
 	}
 }
 
+#if 0
 void DoomLib::SetNetworking( RecvFunc rf, SendFunc sf, SendRemoteFunc sendRemote )
 {
 	Recv = rf;
 	Send = sf;
 	SendRemote = sendRemote;
 }
+#endif
 
 int DoomLib::GetPlayer() 
 { 
@@ -496,7 +498,7 @@ int DoomLib::PlayerIndexToRemoteNode( int index ) {
 	return indexMap[::g->consoleplayer][index];
 }
 
-void I_Error (char *error, ...);
+void I_Error (const char *error, ...);
 extern bool useTech5Packets;
 
 void DoomLib::PollNetwork() {
@@ -544,7 +546,7 @@ void DoomLib::SendNetwork() {
 	if ( !globalNetworking ) {
 		return;
 	}
-	DoomLib::SendRemote();	
+	//DoomLib::SendRemote();
 }
 
 void DoomLib::RunSound() {

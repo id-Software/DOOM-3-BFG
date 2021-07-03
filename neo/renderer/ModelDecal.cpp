@@ -2,9 +2,11 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2014-2016 Robert Beckebans
+Copyright (C) 2014-2016 Kot in Action Creative Artel
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,9 +29,9 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
-#include "../idlib/precompiled.h"
+#include "precompiled.h"
 
-#include "tr_local.h"
+#include "RenderCommon.h"
 #include "Model_local.h"
 
 #include "../idlib/geometry/DrawVert_intrinsics.h"
@@ -49,11 +51,15 @@ idRenderModelDecal::idRenderModelDecal
 ==================
 */
 idRenderModelDecal::idRenderModelDecal() :
-		firstDecal( 0 ),
-		nextDecal( 0 ),
-		firstDeferredDecal( 0 ),
-		nextDeferredDecal( 0 ),
-		numDecalMaterials( 0 ) {
+	firstDecal( 0 ),
+	nextDecal( 0 ),
+	firstDeferredDecal( 0 ),
+	nextDeferredDecal( 0 ),
+	numDecalMaterials( 0 ),
+	index( -1 ),
+	demoSerialWrite( 0 ),
+	demoSerialCurrent( 0 )
+{
 }
 
 /*
@@ -61,7 +67,8 @@ idRenderModelDecal::idRenderModelDecal() :
 idRenderModelDecal::~idRenderModelDecal
 ==================
 */
-idRenderModelDecal::~idRenderModelDecal() {
+idRenderModelDecal::~idRenderModelDecal()
+{
 }
 
 /*
@@ -69,9 +76,11 @@ idRenderModelDecal::~idRenderModelDecal() {
 idRenderModelDecal::CreateProjectionParms
 =================
 */
-bool idRenderModelDecal::CreateProjectionParms( decalProjectionParms_t &parms, const idFixedWinding &winding, const idVec3 &projectionOrigin, const bool parallel, const float fadeDepth, const idMaterial *material, const int startTime ) {
+bool idRenderModelDecal::CreateProjectionParms( decalProjectionParms_t& parms, const idFixedWinding& winding, const idVec3& projectionOrigin, const bool parallel, const float fadeDepth, const idMaterial* material, const int startTime )
+{
 
-	if ( winding.GetNumPoints() != NUM_DECAL_BOUNDING_PLANES - 2 ) {
+	if( winding.GetNumPoints() != NUM_DECAL_BOUNDING_PLANES - 2 )
+	{
 		common->Printf( "idRenderModelDecal::CreateProjectionInfo: winding must have %d points\n", NUM_DECAL_BOUNDING_PLANES - 2 );
 		return false;
 	}
@@ -92,23 +101,31 @@ bool idRenderModelDecal::CreateProjectionParms( decalProjectionParms_t &parms, c
 
 	// find the bounds for the projection
 	winding.GetBounds( parms.projectionBounds );
-	if ( parallel ) {
+	if( parallel )
+	{
 		parms.projectionBounds.ExpandSelf( depth );
-	} else {
+	}
+	else
+	{
 		parms.projectionBounds.AddPoint( projectionOrigin );
 	}
 
 	// calculate the world space projection volume bounding planes, positive sides face outside the decal
-	if ( parallel ) {
-		for ( int i = 0; i < winding.GetNumPoints(); i++ ) {
+	if( parallel )
+	{
+		for( int i = 0; i < winding.GetNumPoints(); i++ )
+		{
 			idVec3 edge = winding[( i + 1 ) % winding.GetNumPoints()].ToVec3() - winding[i].ToVec3();
 			parms.boundingPlanes[i].Normal().Cross( windingPlane.Normal(), edge );
 			parms.boundingPlanes[i].Normalize();
 			parms.boundingPlanes[i].FitThroughPoint( winding[i].ToVec3() );
 		}
-	} else {
-		for ( int i = 0; i < winding.GetNumPoints(); i++ ) {
-			parms.boundingPlanes[i].FromPoints( projectionOrigin, winding[i].ToVec3(), winding[(i+1)%winding.GetNumPoints()].ToVec3() );
+	}
+	else
+	{
+		for( int i = 0; i < winding.GetNumPoints(); i++ )
+		{
+			parms.boundingPlanes[i].FromPoints( projectionOrigin, winding[i].ToVec3(), winding[( i + 1 ) % winding.GetNumPoints()].ToVec3() );
 		}
 	}
 	parms.boundingPlanes[NUM_DECAL_BOUNDING_PLANES - 2] = windingPlane;
@@ -126,9 +143,9 @@ bool idRenderModelDecal::CreateProjectionParms( decalProjectionParms_t &parms, c
 	idVec3	temp;
 	idVec5	d0, d1;
 
-	const idVec5 &a = winding[0];
-	const idVec5 &b = winding[1];
-	const idVec5 &c = winding[2];
+	const idVec5& a = winding[0];
+	const idVec5& b = winding[1];
+	const idVec5& c = winding[2];
 
 	d0 = b.ToVec3() - a.ToVec3();
 	d0.s = b.s - a.s;
@@ -162,12 +179,14 @@ bool idRenderModelDecal::CreateProjectionParms( decalProjectionParms_t &parms, c
 idRenderModelDecal::GlobalProjectionParmsToLocal
 =================
 */
-void idRenderModelDecal::GlobalProjectionParmsToLocal( decalProjectionParms_t &localParms, const decalProjectionParms_t &globalParms, const idVec3 &origin, const idMat3 &axis ) {
+void idRenderModelDecal::GlobalProjectionParmsToLocal( decalProjectionParms_t& localParms, const decalProjectionParms_t& globalParms, const idVec3& origin, const idMat3& axis )
+{
 	float modelMatrix[16];
 
 	R_AxisToModelMatrix( axis, origin, modelMatrix );
 
-	for ( int j = 0; j < NUM_DECAL_BOUNDING_PLANES; j++ ) {
+	for( int j = 0; j < NUM_DECAL_BOUNDING_PLANES; j++ )
+	{
 		R_GlobalPlaneToLocal( modelMatrix, globalParms.boundingPlanes[j], localParms.boundingPlanes[j] );
 	}
 	R_GlobalPlaneToLocal( modelMatrix, globalParms.fadePlanes[0], localParms.fadePlanes[0] );
@@ -190,12 +209,14 @@ void idRenderModelDecal::GlobalProjectionParmsToLocal( decalProjectionParms_t &l
 idRenderModelDecal::ReUse
 =================
 */
-void idRenderModelDecal::ReUse() {
+void idRenderModelDecal::ReUse()
+{
 	firstDecal = 0;
 	nextDecal = 0;
 	firstDeferredDecal = 0;
 	nextDeferredDecal = 0;
 	numDecalMaterials = 0;
+	demoSerialCurrent++;
 }
 
 /*
@@ -203,41 +224,53 @@ void idRenderModelDecal::ReUse() {
 idRenderModelDecal::CreateDecalFromWinding
 =================
 */
-void idRenderModelDecal::CreateDecalFromWinding( const idWinding &w, const idMaterial *decalMaterial, const idPlane fadePlanes[2], float fadeDepth, int startTime ) {
+void idRenderModelDecal::CreateDecalFromWinding( const idWinding& w, const idMaterial* decalMaterial, const idPlane fadePlanes[2], float fadeDepth, int startTime )
+{
 	// Often we are appending a new triangle to an existing decal, so merge with the previous decal if possible
 	int decalIndex = ( nextDecal - 1 ) & ( MAX_DECALS - 1 );
-	if ( decalIndex >= 0
-		&& decals[decalIndex].material == decalMaterial
-		&& decals[decalIndex].startTime == startTime
-		&& decals[decalIndex].numVerts + w.GetNumPoints() <= MAX_DECAL_VERTS
-		&& decals[decalIndex].numIndexes + 3 * ( w.GetNumPoints() - 2 ) <= MAX_DECAL_INDEXES ) {
-	} else {
+	if( decalIndex >= 0
+			&& decals[decalIndex].material == decalMaterial
+			&& decals[decalIndex].startTime == startTime
+			&& decals[decalIndex].numVerts + w.GetNumPoints() <= MAX_DECAL_VERTS
+			&& decals[decalIndex].numIndexes + 3 * ( w.GetNumPoints() - 2 ) <= MAX_DECAL_INDEXES )
+	{
+	}
+	else
+	{
 		decalIndex = nextDecal++ & ( MAX_DECALS - 1 );
 		decals[decalIndex].material = decalMaterial;
 		decals[decalIndex].startTime = startTime;
 		decals[decalIndex].numVerts = 0;
 		decals[decalIndex].numIndexes = 0;
 		assert( w.GetNumPoints() <= MAX_DECAL_VERTS );
-		if ( nextDecal - firstDecal > MAX_DECALS ) {
+		if( nextDecal - firstDecal > MAX_DECALS )
+		{
 			firstDecal = nextDecal - MAX_DECALS;
 		}
 	}
 
-	decal_t & decal = decals[decalIndex];
+	demoSerialCurrent++;
+
+	decal_t& decal = decals[decalIndex];
 
 	const float invFadeDepth = -1.0f / fadeDepth;
 
 	int firstVert = decal.numVerts;
 
 	// create the vertices
-	for ( int i = 0; i < w.GetNumPoints(); i++ ) {
+	for( int i = 0; i < w.GetNumPoints(); i++ )
+	{
 		float depthFade = fadePlanes[0].Distance( w[i].ToVec3() ) * invFadeDepth;
-		if ( depthFade < 0.0f ) {
+		if( depthFade < 0.0f )
+		{
 			depthFade = fadePlanes[1].Distance( w[i].ToVec3() ) * invFadeDepth;
 		}
-		if ( depthFade < 0.0f ) {
+		if( depthFade < 0.0f )
+		{
 			depthFade = 0.0f;
-		} else if ( depthFade > 0.99f ) {
+		}
+		else if( depthFade > 0.99f )
+		{
 			depthFade = 1.0f;
 		}
 		decal.vertDepthFade[decal.numVerts] = 1.0f - depthFade;
@@ -248,7 +281,8 @@ void idRenderModelDecal::CreateDecalFromWinding( const idWinding &w, const idMat
 	}
 
 	// create the indexes
-	for ( int i = 2; i < w.GetNumPoints(); i++ ) {
+	for( int i = 2; i < w.GetNumPoints(); i++ )
+	{
 		assert( decal.numIndexes + 3 <= MAX_DECAL_INDEXES );
 		decal.indexes[decal.numIndexes + 0] = firstVert;
 		decal.indexes[decal.numIndexes + 1] = firstVert + i - 1;
@@ -257,12 +291,15 @@ void idRenderModelDecal::CreateDecalFromWinding( const idWinding &w, const idMat
 	}
 
 	// add degenerate triangles until the index size is a multiple of 16 bytes
-	for ( ; ( ( ( decal.numIndexes * sizeof( triIndex_t ) ) & 15 ) != 0 ); decal.numIndexes += 3 ) {
+	for( ; ( ( ( decal.numIndexes * sizeof( triIndex_t ) ) & 15 ) != 0 ); decal.numIndexes += 3 )
+	{
 		assert( decal.numIndexes + 3 <= MAX_DECAL_INDEXES );
 		decal.indexes[decal.numIndexes + 0] = 0;
 		decal.indexes[decal.numIndexes + 1] = 0;
 		decal.indexes[decal.numIndexes + 2] = 0;
 	}
+
+	decal.writtenToDemo = false;
 }
 
 /*
@@ -270,15 +307,15 @@ void idRenderModelDecal::CreateDecalFromWinding( const idWinding &w, const idMat
 R_DecalPointCullStatic
 ============
 */
-static void R_DecalPointCullStatic( byte * cullBits, const idPlane * planes, const idDrawVert * verts, const int numVerts ) {
+static void R_DecalPointCullStatic( byte* cullBits, const idPlane* planes, const idDrawVert* verts, const int numVerts )
+{
 	assert_16_byte_aligned( cullBits );
 	assert_16_byte_aligned( verts );
 
-#ifdef ID_WIN_X86_SSE2_INTRIN
-
+#if defined(USE_INTRINSICS_SSE)
 	idODSStreamedArray< idDrawVert, 16, SBT_DOUBLE, 4 > vertsODS( verts, numVerts );
 
-	const __m128 vector_float_zero	= { 0.0f, 0.0f, 0.0f, 0.0f };
+	const __m128 vector_float_zero	= _mm_setzero_ps();
 	const __m128i vector_int_mask0	= _mm_set1_epi32( 1 << 0 );
 	const __m128i vector_int_mask1	= _mm_set1_epi32( 1 << 1 );
 	const __m128i vector_int_mask2	= _mm_set1_epi32( 1 << 2 );
@@ -323,11 +360,13 @@ static void R_DecalPointCullStatic( byte * cullBits, const idPlane * planes, con
 	const __m128 p5Z = _mm_splat_ps( p5, 2 );
 	const __m128 p5W = _mm_splat_ps( p5, 3 );
 
-	for ( int i = 0; i < numVerts; ) {
+	for( int i = 0; i < numVerts; )
+	{
 
 		const int nextNumVerts = vertsODS.FetchNextBatch() - 4;
 
-		for ( ; i <= nextNumVerts; i += 4 ) {
+		for( ; i <= nextNumVerts; i += 4 )
+		{
 			const __m128 v0 = _mm_load_ps( vertsODS[i + 0].xyz.ToFloatPtr() );
 			const __m128 v1 = _mm_load_ps( vertsODS[i + 1].xyz.ToFloatPtr() );
 			const __m128 v2 = _mm_load_ps( vertsODS[i + 2].xyz.ToFloatPtr() );
@@ -373,7 +412,7 @@ static void R_DecalPointCullStatic( byte * cullBits, const idPlane * planes, con
 			__m128i s0 = _mm_packs_epi32( c0, c0 );
 			__m128i b0 = _mm_packus_epi16( s0, s0 );
 
-			*(unsigned int *)&cullBits[i] = _mm_cvtsi128_si32( b0 );
+			*( unsigned int* )&cullBits[i] = _mm_cvtsi128_si32( b0 );
 		}
 	}
 
@@ -381,12 +420,14 @@ static void R_DecalPointCullStatic( byte * cullBits, const idPlane * planes, con
 
 	idODSStreamedArray< idDrawVert, 16, SBT_DOUBLE, 1 > vertsODS( verts, numVerts );
 
-	for ( int i = 0; i < numVerts; ) {
+	for( int i = 0; i < numVerts; )
+	{
 
 		const int nextNumVerts = vertsODS.FetchNextBatch() - 1;
 
-		for ( ; i <= nextNumVerts; i++ ) {
-			const idVec3 & v = vertsODS[i].xyz;
+		for( ; i <= nextNumVerts; i++ )
+		{
+			const idVec3& v = vertsODS[i].xyz;
 
 			const float d0 = planes[0].Distance( v );
 			const float d1 = planes[1].Distance( v );
@@ -415,11 +456,14 @@ static void R_DecalPointCullStatic( byte * cullBits, const idPlane * planes, con
 idRenderModelDecal::CreateDecal
 =================
 */
-void idRenderModelDecal::CreateDecal( const idRenderModel *model, const decalProjectionParms_t &localParms ) {
+void idRenderModelDecal::CreateDecal( const idRenderModel* model, const decalProjectionParms_t& localParms )
+{
 	int maxVerts = 0;
-	for ( int surfNum = 0; surfNum < model->NumSurfaces(); surfNum++ ) {
-		const modelSurface_t *surf = model->Surface( surfNum );
-		if ( surf->geometry != NULL && surf->shader != NULL ) {
+	for( int surfNum = 0; surfNum < model->NumSurfaces(); surfNum++ )
+	{
+		const modelSurface_t* surf = model->Surface( surfNum );
+		if( surf->geometry != NULL && surf->shader != NULL )
+		{
 			maxVerts = Max( maxVerts, surf->geometry->numVerts );
 		}
 	}
@@ -427,23 +471,27 @@ void idRenderModelDecal::CreateDecal( const idRenderModel *model, const decalPro
 	idTempArray< byte > cullBits( ALIGN( maxVerts, 4 ) );
 
 	// check all model surfaces
-	for ( int surfNum = 0; surfNum < model->NumSurfaces(); surfNum++ ) {
-		const modelSurface_t *surf = model->Surface( surfNum );
+	for( int surfNum = 0; surfNum < model->NumSurfaces(); surfNum++ )
+	{
+		const modelSurface_t* surf = model->Surface( surfNum );
 
 		// if no geometry or no shader
-		if ( surf->geometry == NULL || surf->shader == NULL ) {
+		if( surf->geometry == NULL || surf->shader == NULL )
+		{
 			continue;
 		}
 
 		// decals and overlays use the same rules
-		if ( !localParms.force && !surf->shader->AllowOverlays() ) {
+		if( !localParms.force && !surf->shader->AllowOverlays() )
+		{
 			continue;
 		}
 
-		srfTriangles_t *tri = surf->geometry;
+		srfTriangles_t* tri = surf->geometry;
 
 		// if the triangle bounds do not overlap with the projection bounds
-		if ( !localParms.projectionBounds.IntersectsBounds( tri->bounds ) ) {
+		if( !localParms.projectionBounds.IntersectsBounds( tri->bounds ) )
+		{
 			continue;
 		}
 
@@ -457,21 +505,25 @@ void idRenderModelDecal::CreateDecal( const idRenderModel *model, const decalPro
 		idODSStreamedArray< triIndex_t, 256, SBT_QUAD, 3 > indexesODS( tri->indexes, tri->numIndexes );
 
 		// find triangles inside the projection volume
-		for ( int i = 0; i < tri->numIndexes; ) {
+		for( int i = 0; i < tri->numIndexes; )
+		{
 
 			const int nextNumIndexes = indexesODS.FetchNextBatch() - 3;
 
-			for ( ; i <= nextNumIndexes; i += 3 ) {
+			for( ; i <= nextNumIndexes; i += 3 )
+			{
 				const int i0 = indexesODS[i + 0];
 				const int i1 = indexesODS[i + 1];
 				const int i2 = indexesODS[i + 2];
 
 				// skip triangles completely off one side
-				if ( cullBits[i0] & cullBits[i1] & cullBits[i2] ) {
+				if( cullBits[i0] & cullBits[i1] & cullBits[i2] )
+				{
 					continue;
 				}
 
-				const idDrawVert * verts[3] = {
+				const idDrawVert* verts[3] =
+				{
 					&tri->verts[i0],
 					&tri->verts[i1],
 					&tri->verts[i2]
@@ -479,21 +531,27 @@ void idRenderModelDecal::CreateDecal( const idRenderModel *model, const decalPro
 
 				// skip back facing triangles
 				const idPlane plane( verts[0]->xyz, verts[1]->xyz, verts[2]->xyz );
-				if ( plane.Normal() * localParms.boundingPlanes[NUM_DECAL_BOUNDING_PLANES - 2].Normal() < -0.1f ) {
+				if( plane.Normal() * localParms.boundingPlanes[NUM_DECAL_BOUNDING_PLANES - 2].Normal() < -0.1f )
+				{
 					continue;
 				}
 
 				// create a winding with texture coordinates for the triangle
 				idFixedWinding fw;
 				fw.SetNumPoints( 3 );
-				if ( localParms.parallel ) {
-					for ( int j = 0; j < 3; j++ ) {
+				if( localParms.parallel )
+				{
+					for( int j = 0; j < 3; j++ )
+					{
 						fw[j] = verts[j]->xyz;
 						fw[j].s = localParms.textureAxis[0].Distance( verts[j]->xyz );
 						fw[j].t = localParms.textureAxis[1].Distance( verts[j]->xyz );
 					}
-				} else {
-					for ( int j = 0; j < 3; j++ ) {
+				}
+				else
+				{
+					for( int j = 0; j < 3; j++ )
+					{
 						const idVec3 dir = verts[j]->xyz - localParms.projectionOrigin;
 						float scale;
 						localParms.boundingPlanes[NUM_DECAL_BOUNDING_PLANES - 1].RayIntersection( verts[j]->xyz, dir, scale );
@@ -508,9 +566,12 @@ void idRenderModelDecal::CreateDecal( const idRenderModel *model, const decalPro
 				const int orBits = cullBits[i0] | cullBits[i1] | cullBits[i2];
 
 				// clip the exact surface triangle to the projection volume
-				for ( int j = 0; j < NUM_DECAL_BOUNDING_PLANES; j++ ) {
-					if ( ( orBits & ( 1 << j ) ) != 0 ) {
-						if ( !fw.ClipInPlace( -localParms.boundingPlanes[j] ) ) {
+				for( int j = 0; j < NUM_DECAL_BOUNDING_PLANES; j++ )
+				{
+					if( ( orBits & ( 1 << j ) ) != 0 )
+					{
+						if( !fw.ClipInPlace( -localParms.boundingPlanes[j] ) )
+						{
 							break;
 						}
 					}
@@ -518,14 +579,17 @@ void idRenderModelDecal::CreateDecal( const idRenderModel *model, const decalPro
 
 				// if there is a part of the triangle between the bounding planes then clip
 				// the triangle based on depth and add decals for the depth faded parts
-				if ( fw.GetNumPoints() != 0 ) {
+				if( fw.GetNumPoints() != 0 )
+				{
 					idFixedWinding back;
 
-					if ( fw.Split( &back, localParms.fadePlanes[0], 0.1f ) == SIDE_CROSS ) {
+					if( fw.Split( &back, localParms.fadePlanes[0], 0.1f ) == SIDE_CROSS )
+					{
 						CreateDecalFromWinding( back, localParms.material, localParms.fadePlanes, localParms.fadeDepth, localParms.startTime );
 					}
 
-					if ( fw.Split( &back, localParms.fadePlanes[1], 0.1f ) == SIDE_CROSS ) {
+					if( fw.Split( &back, localParms.fadePlanes[1], 0.1f ) == SIDE_CROSS )
+					{
 						CreateDecalFromWinding( back, localParms.material, localParms.fadePlanes, localParms.fadeDepth, localParms.startTime );
 					}
 
@@ -541,10 +605,13 @@ void idRenderModelDecal::CreateDecal( const idRenderModel *model, const decalPro
 idRenderModelDecal::CreateDeferredDecals
 =====================
 */
-void idRenderModelDecal::CreateDeferredDecals( const idRenderModel *model ) {
-	for ( unsigned int i = firstDeferredDecal; i < nextDeferredDecal; i++ ) {
-		decalProjectionParms_t & parms = deferredDecals[i & ( MAX_DEFERRED_DECALS - 1 )];
-		if ( parms.startTime > tr.viewDef->renderView.time[0] -  DEFFERED_DECAL_TIMEOUT ) {
+void idRenderModelDecal::CreateDeferredDecals( const idRenderModel* model )
+{
+	for( unsigned int i = firstDeferredDecal; i < nextDeferredDecal; i++ )
+	{
+		decalProjectionParms_t& parms = deferredDecals[i & ( MAX_DEFERRED_DECALS - 1 )];
+		if( parms.startTime > tr.viewDef->renderView.time[0] -  DEFFERED_DECAL_TIMEOUT )
+		{
 			CreateDecal( model, parms );
 		}
 	}
@@ -557,9 +624,11 @@ void idRenderModelDecal::CreateDeferredDecals( const idRenderModel *model ) {
 idRenderModelDecal::AddDeferredDecal
 =====================
 */
-void idRenderModelDecal::AddDeferredDecal( const decalProjectionParms_t &localParms ) {
+void idRenderModelDecal::AddDeferredDecal( const decalProjectionParms_t& localParms )
+{
 	deferredDecals[nextDeferredDecal++ & ( MAX_DEFERRED_DECALS - 1 )] = localParms;
-	if ( nextDeferredDecal - firstDeferredDecal > MAX_DEFERRED_DECALS ) {
+	if( nextDeferredDecal - firstDeferredDecal > MAX_DEFERRED_DECALS )
+	{
 		firstDeferredDecal = nextDeferredDecal - MAX_DEFERRED_DECALS;
 	}
 }
@@ -569,22 +638,27 @@ void idRenderModelDecal::AddDeferredDecal( const decalProjectionParms_t &localPa
 idRenderModelDecal::RemoveFadedDecals
 =====================
 */
-void idRenderModelDecal::RemoveFadedDecals( int time ) {
-	for ( unsigned int i = firstDecal; i < nextDecal; i++ ) {
-		decal_t & decal = decals[i & ( MAX_DECALS - 1 )];
+void idRenderModelDecal::RemoveFadedDecals( int time )
+{
+	for( unsigned int i = firstDecal; i < nextDecal; i++ )
+	{
+		decal_t& decal = decals[i & ( MAX_DECALS - 1 )];
 
 		const decalInfo_t decalInfo = decal.material->GetDecalInfo();
 		const int minTime = time - ( decalInfo.stayTime + decalInfo.fadeTime );
 
-		if ( decal.startTime <= minTime ) {
+		if( decal.startTime <= minTime )
+		{
 			decal.numVerts = 0;
 			decal.numIndexes = 0;
-			if ( i == firstDecal ) {
+			if( i == firstDecal )
+			{
 				firstDecal++;
 			}
 		}
 	}
-	if ( firstDecal == nextDecal ) {
+	if( firstDecal == nextDecal )
+	{
 		firstDecal = 0;
 		nextDecal = 0;
 	}
@@ -595,8 +669,9 @@ void idRenderModelDecal::RemoveFadedDecals( int time ) {
 R_CopyDecalSurface
 =====================
 */
-static void R_CopyDecalSurface( idDrawVert * verts, int numVerts, triIndex_t * indexes, int numIndexes,
-									const decal_t * decal, const float fadeColor[4] ) {
+static void R_CopyDecalSurface( idDrawVert* verts, int numVerts, triIndex_t* indexes, int numIndexes,
+								const decal_t* decal, const float fadeColor[4] )
+{
 	assert_16_byte_aligned( &verts[numVerts] );
 	assert_16_byte_aligned( &indexes[numIndexes] );
 	assert_16_byte_aligned( decal->indexes );
@@ -605,7 +680,7 @@ static void R_CopyDecalSurface( idDrawVert * verts, int numVerts, triIndex_t * i
 	assert( ( ( decal->numIndexes * sizeof( triIndex_t ) ) & 15 ) == 0 );
 	assert_16_byte_aligned( fadeColor );
 
-#ifdef ID_WIN_X86_SSE2_INTRIN
+#if defined(USE_INTRINSICS_SSE)
 
 	const __m128i vector_int_num_verts = _mm_shuffle_epi32( _mm_cvtsi32_si128( numVerts ), 0 );
 	const __m128i vector_short_num_verts = _mm_packs_epi32( vector_int_num_verts, vector_int_num_verts );
@@ -614,12 +689,13 @@ static void R_CopyDecalSurface( idDrawVert * verts, int numVerts, triIndex_t * i
 
 	// copy vertices and apply depth/time based fading
 	assert_offsetof( idDrawVert, color, 6 * 4 );
-	for ( int i = 0; i < decal->numVerts; i++ ) {
-		const idDrawVert &srcVert = decal->verts[i];
-		idDrawVert &dstVert = verts[numVerts + i];
+	for( int i = 0; i < decal->numVerts; i++ )
+	{
+		const idDrawVert& srcVert = decal->verts[i];
+		idDrawVert& dstVert = verts[numVerts + i];
 
-		__m128i v0 = _mm_load_si128( (const __m128i *)( (byte *)&srcVert +  0 ) );
-		__m128i v1 = _mm_load_si128( (const __m128i *)( (byte *)&srcVert + 16 ) );
+		__m128i v0 = _mm_load_si128( ( const __m128i* )( ( byte* )&srcVert +  0 ) );
+		__m128i v1 = _mm_load_si128( ( const __m128i* )( ( byte* )&srcVert + 16 ) );
 		__m128 depthFade = _mm_splat_ps( _mm_load_ss( decal->vertDepthFade + i ), 0 );
 
 		__m128 timeDepthFade = _mm_mul_ps( depthFade, vector_fade_color );
@@ -628,19 +704,20 @@ static void R_CopyDecalSurface( idDrawVert * verts, int numVerts, triIndex_t * i
 		__m128i colorByte = _mm_packus_epi16( colorShort, colorShort );
 		v1 = _mm_or_si128( v1, _mm_and_si128( colorByte, vector_color_mask ) );
 
-		_mm_stream_si128( (__m128i *)( (byte *)&dstVert +  0 ), v0 );
-		_mm_stream_si128( (__m128i *)( (byte *)&dstVert + 16 ), v1 );
+		_mm_stream_si128( ( __m128i* )( ( byte* )&dstVert +  0 ), v0 );
+		_mm_stream_si128( ( __m128i* )( ( byte* )&dstVert + 16 ), v1 );
 	}
 
 	// copy indexes
 	assert( ( decal->numIndexes & 7 ) == 0 );
 	assert( sizeof( triIndex_t ) == 2 );
-	for ( int i = 0; i < decal->numIndexes; i += 8 ) {
-		__m128i vi = _mm_load_si128( (const __m128i *)&decal->indexes[i] );
+	for( int i = 0; i < decal->numIndexes; i += 8 )
+	{
+		__m128i vi = _mm_load_si128( ( const __m128i* )&decal->indexes[i] );
 
 		vi = _mm_add_epi16( vi, vector_short_num_verts );
 
-		_mm_stream_si128( (__m128i *)&indexes[numIndexes + i], vi );
+		_mm_stream_si128( ( __m128i* )&indexes[numIndexes + i], vi );
 	}
 
 	_mm_sfence();
@@ -648,17 +725,20 @@ static void R_CopyDecalSurface( idDrawVert * verts, int numVerts, triIndex_t * i
 #else
 
 	// copy vertices and apply depth/time based fading
-	for ( int i = 0; i < decal->numVerts; i++ ) {
+	for( int i = 0; i < decal->numVerts; i++ )
+	{
 		// NOTE: bad out-of-order write-combined write, SIMD code does the right thing
 		verts[numVerts + i] = decal->verts[i];
-		for ( int j = 0; j < 4; j++ ) {
+		for( int j = 0; j < 4; j++ )
+		{
 			verts[numVerts + i].color[j] = idMath::Ftob( fadeColor[j] * decal->vertDepthFade[i] );
 		}
 	}
 
 	// copy indices
 	assert( ( decal->numIndexes & 1 ) == 0 );
-	for ( int i = 0; i < decal->numIndexes; i += 2 ) {
+	for( int i = 0; i < decal->numIndexes; i += 2 )
+	{
 		assert( decal->indexes[i + 0] < decal->numVerts && decal->indexes[i + 1] < decal->numVerts );
 		WriteIndexPair( &indexes[numIndexes + i], numVerts + decal->indexes[i + 0], numVerts + decal->indexes[i + 1] );
 	}
@@ -671,19 +751,24 @@ static void R_CopyDecalSurface( idDrawVert * verts, int numVerts, triIndex_t * i
 idRenderModelDecal::GetNumDecalDrawSurfs
 =====================
 */
-unsigned int idRenderModelDecal::GetNumDecalDrawSurfs() {
+unsigned int idRenderModelDecal::GetNumDecalDrawSurfs()
+{
 	numDecalMaterials = 0;
 
-	for ( unsigned int i = firstDecal; i < nextDecal; i++ ) {
-		const decal_t & decal = decals[i & ( MAX_DECALS - 1 )];
+	for( unsigned int i = firstDecal; i < nextDecal; i++ )
+	{
+		const decal_t& decal = decals[i & ( MAX_DECALS - 1 )];
 
 		unsigned int j = 0;
-		for ( ; j < numDecalMaterials; j++ ) {
-			if ( decalMaterials[j] == decal.material ) {
+		for( ; j < numDecalMaterials; j++ )
+		{
+			if( decalMaterials[j] == decal.material )
+			{
 				break;
 			}
 		}
-		if ( j >= numDecalMaterials ) {
+		if( j >= numDecalMaterials )
+		{
 			decalMaterials[numDecalMaterials++] = decal.material;
 		}
 	}
@@ -696,37 +781,42 @@ unsigned int idRenderModelDecal::GetNumDecalDrawSurfs() {
 idRenderModelDecal::CreateDecalDrawSurf
 =====================
 */
-drawSurf_t * idRenderModelDecal::CreateDecalDrawSurf( const viewEntity_t *space, unsigned int index ) {
-	if ( index < 0 || index >= numDecalMaterials ) {
+drawSurf_t* idRenderModelDecal::CreateDecalDrawSurf( const viewEntity_t* space, unsigned int index )
+{
+	if( index < 0 || index >= numDecalMaterials )
+	{
 		return NULL;
 	}
 
-	const idMaterial * material = decalMaterials[index];
+	const idMaterial* material = decalMaterials[index];
 
 	int maxVerts = 0;
 	int maxIndexes = 0;
-	for ( unsigned int i = firstDecal; i < nextDecal; i++ ) {
-		const decal_t & decal = decals[i & ( MAX_DECALS - 1 )];
-		if ( decal.material == material ) {
+	for( unsigned int i = firstDecal; i < nextDecal; i++ )
+	{
+		const decal_t& decal = decals[i & ( MAX_DECALS - 1 )];
+		if( decal.material == material )
+		{
 			maxVerts += decal.numVerts;
 			maxIndexes += decal.numIndexes;
 		}
 	}
 
-	if ( maxVerts == 0 || maxIndexes == 0 ) {
+	if( maxVerts == 0 || maxIndexes == 0 )
+	{
 		return NULL;
 	}
 
 	// create a new triangle surface in frame memory so it gets automatically disposed of
-	srfTriangles_t *newTri = (srfTriangles_t *)R_ClearedFrameAlloc( sizeof( *newTri ), FRAME_ALLOC_SURFACE_TRIANGLES );
+	srfTriangles_t* newTri = ( srfTriangles_t* )R_ClearedFrameAlloc( sizeof( *newTri ), FRAME_ALLOC_SURFACE_TRIANGLES );
 	newTri->numVerts = maxVerts;
 	newTri->numIndexes = maxIndexes;
 
-	newTri->ambientCache = vertexCache.AllocVertex( NULL, ALIGN( maxVerts * sizeof( idDrawVert ), VERTEX_CACHE_ALIGN ) );
-	newTri->indexCache = vertexCache.AllocIndex( NULL, ALIGN( maxIndexes * sizeof( triIndex_t ), INDEX_CACHE_ALIGN ) );
+	newTri->ambientCache = vertexCache.AllocVertex( NULL, maxVerts );
+	newTri->indexCache = vertexCache.AllocIndex( NULL, maxIndexes );
 
-	idDrawVert * mappedVerts = (idDrawVert *)vertexCache.MappedVertexBuffer( newTri->ambientCache );
-	triIndex_t * mappedIndexes = (triIndex_t *)vertexCache.MappedIndexBuffer( newTri->indexCache );
+	idDrawVert* mappedVerts = ( idDrawVert* )vertexCache.MappedVertexBuffer( newTri->ambientCache );
+	triIndex_t* mappedIndexes = ( triIndex_t* )vertexCache.MappedIndexBuffer( newTri->indexCache );
 
 	const decalInfo_t decalInfo = material->GetDecalInfo();
 	const int maxTime = decalInfo.stayTime + decalInfo.fadeTime;
@@ -734,30 +824,36 @@ drawSurf_t * idRenderModelDecal::CreateDecalDrawSurf( const viewEntity_t *space,
 
 	int numVerts = 0;
 	int numIndexes = 0;
-	for ( unsigned int i = firstDecal; i < nextDecal; i++ ) {
-		const decal_t & decal = decals[i & ( MAX_DECALS - 1 )];
+	for( unsigned int i = firstDecal; i < nextDecal; i++ )
+	{
+		const decal_t& decal = decals[i & ( MAX_DECALS - 1 )];
 
-		if ( decal.numVerts == 0 ) {
-			if ( i == firstDecal ) {
+		if( decal.numVerts == 0 )
+		{
+			if( i == firstDecal )
+			{
 				firstDecal++;
 			}
 			continue;
 		}
 
-		if ( decal.material != material ) {
+		if( decal.material != material )
+		{
 			continue;
 		}
 
 		const int deltaTime = time - decal.startTime;
 		const int fadeTime = deltaTime - decalInfo.stayTime;
-		if ( deltaTime > maxTime ) {
+		if( deltaTime > maxTime )
+		{
 			continue;	// already completely faded away, but not yet removed
 		}
 
-		const float f = ( deltaTime > decalInfo.stayTime ) ? ( (float) fadeTime / decalInfo.fadeTime ) : 0.0f;
+		const float f = ( deltaTime > decalInfo.stayTime ) ? ( ( float ) fadeTime / decalInfo.fadeTime ) : 0.0f;
 
 		ALIGNTYPE16 float fadeColor[4];
-		for ( int j = 0; j < 4; j++ ) {
+		for( int j = 0; j < 4; j++ )
+		{
 			fadeColor[j] = 255.0f * ( decalInfo.start[j] + ( decalInfo.end[j] - decalInfo.start[j] ) * f );
 		}
 
@@ -772,7 +868,7 @@ drawSurf_t * idRenderModelDecal::CreateDecalDrawSurf( const viewEntity_t *space,
 	newTri->numIndexes = numIndexes;
 
 	// create the drawsurf
-	drawSurf_t * drawSurf = (drawSurf_t *)R_FrameAlloc( sizeof( *drawSurf ), FRAME_ALLOC_DRAW_SURFACE );
+	drawSurf_t* drawSurf = ( drawSurf_t* )R_FrameAlloc( sizeof( *drawSurf ), FRAME_ALLOC_DRAW_SURFACE );
 	drawSurf->frontEndGeo = newTri;
 	drawSurf->numIndexes = newTri->numIndexes;
 	drawSurf->ambientCache = newTri->ambientCache;
@@ -794,8 +890,68 @@ drawSurf_t * idRenderModelDecal::CreateDecalDrawSurf( const viewEntity_t *space,
 idRenderModelDecal::ReadFromDemoFile
 ====================
 */
-void idRenderModelDecal::ReadFromDemoFile( idDemoFile *f ) {
-	// FIXME: implement
+void idRenderModelDecal::ReadFromDemoFile( idDemoFile* f )
+{
+	f->ReadUnsignedInt( firstDecal );
+	f->ReadUnsignedInt( nextDecal );
+
+	for( unsigned int i = firstDecal; i < nextDecal; i++ )
+	{
+		decal_t& decal = decals[ i & ( MAX_DECALS - 1 ) ];
+
+		bool decalWritten = false;
+		f->ReadBool( decalWritten );
+		if( !decalWritten )
+		{
+			continue;
+		}
+
+		f->ReadInt( decal.startTime ); // TODO: Figure out what this needs to be.
+
+		const char* matName = f->ReadHashString();
+		decal.material = matName[ 0 ] ? declManager->FindMaterial( matName ) : NULL;
+
+		f->ReadInt( decal.numVerts );
+		for( int j = 0; j < decal.numVerts; j++ )
+		{
+			f->Read( &decal.verts[ j ], sizeof( idDrawVert ) );
+		}
+
+		f->ReadInt( decal.numIndexes );
+		for( int j = 0; j < decal.numIndexes; j++ )
+		{
+			f->Read( &decal.indexes[ j ], sizeof( triIndex_t ) );
+		}
+
+		f->Read( decal.vertDepthFade, sizeof( float )*MAX_DECAL_VERTS );
+	}
+
+	f->ReadUnsignedInt( firstDeferredDecal );
+	f->ReadUnsignedInt( nextDeferredDecal );
+	for( unsigned int i = firstDeferredDecal; i < nextDeferredDecal; i++ )
+	{
+		decalProjectionParms_t& deferredDecal = deferredDecals[ i & ( MAX_DEFERRED_DECALS - 1 ) ];
+		f->ReadInt( deferredDecal.startTime );
+		f->ReadBool( deferredDecal.parallel );
+		f->ReadBool( deferredDecal.force );
+		f->Read( deferredDecal.boundingPlanes, sizeof( idPlane )*NUM_DECAL_BOUNDING_PLANES );
+		f->ReadVec4( deferredDecal.fadePlanes[ 0 ].ToVec4() );
+		f->ReadVec4( deferredDecal.fadePlanes[ 1 ].ToVec4() );
+		f->ReadVec4( deferredDecal.textureAxis[ 0 ].ToVec4() );
+		f->ReadVec4( deferredDecal.textureAxis[ 1 ].ToVec4() );
+		f->ReadVec3( deferredDecal.projectionOrigin );
+		f->ReadFloat( deferredDecal.fadeDepth );
+
+		const char* matName = f->ReadHashString();
+		deferredDecal.material = matName[ 0 ] ? declManager->FindMaterial( matName ) : NULL;
+	}
+
+	f->ReadUnsignedInt( numDecalMaterials );
+	for( unsigned int i = 0; i < numDecalMaterials; i++ )
+	{
+		const char* matName = f->ReadHashString();
+		decalMaterials[ i ] = matName[ 0 ] ? declManager->FindMaterial( matName ) : NULL;
+	}
 }
 
 /*
@@ -803,6 +959,74 @@ void idRenderModelDecal::ReadFromDemoFile( idDemoFile *f ) {
 idRenderModelDecal::WriteToDemoFile
 ====================
 */
-void idRenderModelDecal::WriteToDemoFile( idDemoFile *f ) const {
-	// FIXME: implement
+void idRenderModelDecal::WriteToDemoFile( idDemoFile* f ) const
+{
+	unsigned int i = 0;
+	int j = 0;
+	int nDecal = nextDecal;
+	if( nextDecal - firstDecal > MAX_DECALS )
+	{
+		nDecal = nextDecal - MAX_DECALS;
+	}
+	f->WriteUnsignedInt( firstDecal );
+	f->WriteUnsignedInt( nextDecal );
+
+	for( unsigned int i = firstDecal; i < nextDecal; i++ )
+	{
+		const decal_t& decal = decals[ i & ( MAX_DECALS - 1 ) ];
+
+		if( decal.writtenToDemo )
+		{
+			f->WriteBool( false );
+			continue;
+		}
+
+		f->WriteBool( true );
+		f->WriteInt( decal.startTime );
+		f->WriteHashString( decal.material ? decal.material->GetName() : "" );
+
+		f->WriteInt( decal.numVerts );
+		if( decal.numVerts )
+		{
+			for( j = 0; j < decal.numVerts; j++ )
+			{
+				f->Write( &decal.verts[ j ], sizeof( idDrawVert ) );
+			}
+		}
+		f->WriteInt( decal.numIndexes );
+		if( decal.numIndexes )
+		{
+			for( j = 0; j < decal.numIndexes; j++ )
+			{
+				f->Write( &decal.indexes[ j ], sizeof( triIndex_t ) );
+			}
+		}
+		f->Write( decal.vertDepthFade, sizeof( float )*MAX_DECAL_VERTS );
+
+		decal.writtenToDemo = true;
+	}
+
+	f->WriteUnsignedInt( firstDeferredDecal );
+	f->WriteUnsignedInt( nextDeferredDecal );
+	for( i = firstDeferredDecal; i < nextDeferredDecal; i++ )
+	{
+		const decalProjectionParms_t& deferredDecal = deferredDecals[ i & ( MAX_DEFERRED_DECALS - 1 ) ];
+		f->WriteInt( deferredDecal.startTime );
+		f->WriteBool( deferredDecal.parallel );
+		f->WriteBool( deferredDecal.force );
+		f->Write( deferredDecal.boundingPlanes, sizeof( idPlane )*NUM_DECAL_BOUNDING_PLANES );
+		f->WriteVec4( deferredDecal.fadePlanes[ 0 ].ToVec4() );
+		f->WriteVec4( deferredDecal.fadePlanes[ 1 ].ToVec4() );
+		f->WriteVec4( deferredDecal.textureAxis[ 0 ].ToVec4() );
+		f->WriteVec4( deferredDecal.textureAxis[ 1 ].ToVec4() );
+		f->WriteVec3( deferredDecal.projectionOrigin );
+		f->WriteFloat( deferredDecal.fadeDepth );
+		f->WriteHashString( deferredDecal.material ? deferredDecal.material->GetName() : "" );
+	}
+
+	f->WriteUnsignedInt( numDecalMaterials );
+	for( i = 0; i < numDecalMaterials; i++ )
+	{
+		f->WriteHashString( decalMaterials[ i ] ? decalMaterials[ i ]->GetName() : "" );
+	}
 }

@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -33,25 +33,28 @@ static const int SWF_MAX_PARMS = 16;
 
 /*
 ================================================
-idSWFParmList 
+idSWFParmList
 
 A static list for script parameters that reduces the number of SWF allocations dramatically.
 ================================================
 */
-class idSWFParmList : public idStaticList< idSWFScriptVar, SWF_MAX_PARMS > {
+class idSWFParmList : public idStaticList< idSWFScriptVar, SWF_MAX_PARMS >
+{
 public:
-					idSWFParmList() {
-					}
-	explicit		idSWFParmList( const int num_ ) {
-						SetNum( num_ );
-					}
+	idSWFParmList()
+	{
+	}
+	explicit		idSWFParmList( const int num_ )
+	{
+		SetNum( num_ );
+	}
 
-	void	Append( const idSWFScriptVar & other );
-	void	Append( idSWFScriptObject * o );
-	void	Append( idSWFScriptFunction * f );
-	void	Append( const char * s );
-	void	Append( const idStr & s );
-	void	Append( idSWFScriptString * s );
+	void	Append( const idSWFScriptVar& other );
+	void	Append( idSWFScriptObject* o );
+	void	Append( idSWFScriptFunction* f );
+	void	Append( const char* s );
+	void	Append( const idStr& s );
+	void	Append( idSWFScriptString* s );
 	void	Append( const float f );
 	void	Append( const int32 i );
 	void	Append( const bool b );

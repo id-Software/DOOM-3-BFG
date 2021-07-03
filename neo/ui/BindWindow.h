@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -29,21 +29,25 @@ If you have questions concerning this license or the applicable additional terms
 #define __BINDWINDOW_H
 
 class idUserInterfaceLocal;
-class idBindWindow : public idWindow {
+class idBindWindow : public idWindow
+{
 public:
-	idBindWindow(idUserInterfaceLocal *gui);
+	idBindWindow( idUserInterfaceLocal* gui );
 	virtual ~idBindWindow();
 
-	virtual const char *HandleEvent(const sysEvent_t *event, bool *updateVisuals);
+	virtual const char* HandleEvent( const sysEvent_t* event, bool* updateVisuals );
 	virtual void PostParse();
-	virtual void Draw(int time, float x, float y);
-	virtual size_t Allocated(){return idWindow::Allocated();};
-// 
-//  
-	virtual idWinVar *GetWinVarByName(const char *_name, bool winLookup = false, drawWin_t** owner = NULL );
-// 
-	virtual void Activate( bool activate, idStr &act );
-	
+	virtual void Draw( int time, float x, float y );
+	virtual size_t Allocated()
+	{
+		return idWindow::Allocated();
+	};
+//
+//
+	virtual idWinVar* GetWinVarByName( const char* _name, bool winLookup = false, drawWin_t** owner = NULL );
+//
+	virtual void Activate( bool activate, idStr& act );
+
 private:
 	void CommonInit();
 	idWinStr bindName;

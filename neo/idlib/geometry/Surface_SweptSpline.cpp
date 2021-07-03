@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,15 +27,17 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
-#include "../precompiled.h"
+#include "precompiled.h"
 
 /*
 ====================
 idSurface_SweptSpline::SetSpline
 ====================
 */
-void idSurface_SweptSpline::SetSpline( idCurve_Spline<idVec4> *spline ) {
-	if ( this->spline ) {
+void idSurface_SweptSpline::SetSpline( idCurve_Spline<idVec4>* spline )
+{
+	if( this->spline )
+	{
 		delete this->spline;
 	}
 	this->spline = spline;
@@ -46,8 +48,10 @@ void idSurface_SweptSpline::SetSpline( idCurve_Spline<idVec4> *spline ) {
 idSurface_SweptSpline::SetSweptSpline
 ====================
 */
-void idSurface_SweptSpline::SetSweptSpline( idCurve_Spline<idVec4> *sweptSpline ) {
-	if ( this->sweptSpline ) {
+void idSurface_SweptSpline::SetSweptSpline( idCurve_Spline<idVec4>* sweptSpline )
+{
+	if( this->sweptSpline )
+	{
 		delete this->sweptSpline;
 	}
 	this->sweptSpline = sweptSpline;
@@ -60,16 +64,18 @@ idSurface_SweptSpline::SetSweptCircle
   Sets the swept spline to a NURBS circle.
 ====================
 */
-void idSurface_SweptSpline::SetSweptCircle( const float radius ) {
-	idCurve_NURBS<idVec4> *nurbs = new (TAG_IDLIB_SURFACE) idCurve_NURBS<idVec4>();
+void idSurface_SweptSpline::SetSweptCircle( const float radius )
+{
+	idCurve_NURBS<idVec4>* nurbs = new( TAG_IDLIB_SURFACE ) idCurve_NURBS<idVec4>();
 	nurbs->Clear();
-	nurbs->AddValue(   0.0f, idVec4(  radius,  radius, 0.0f, 0.00f ) );
+	nurbs->AddValue( 0.0f, idVec4( radius,  radius, 0.0f, 0.00f ) );
 	nurbs->AddValue( 100.0f, idVec4( -radius,  radius, 0.0f, 0.25f ) );
 	nurbs->AddValue( 200.0f, idVec4( -radius, -radius, 0.0f, 0.50f ) );
-	nurbs->AddValue( 300.0f, idVec4(  radius, -radius, 0.0f, 0.75f ) );
+	nurbs->AddValue( 300.0f, idVec4( radius, -radius, 0.0f, 0.75f ) );
 	nurbs->SetBoundaryType( idCurve_NURBS<idVec4>::BT_CLOSED );
 	nurbs->SetCloseTime( 100.0f );
-	if ( sweptSpline ) {
+	if( sweptSpline )
+	{
 		delete sweptSpline;
 	}
 	sweptSpline = nurbs;
@@ -80,7 +86,8 @@ void idSurface_SweptSpline::SetSweptCircle( const float radius ) {
 idSurface_SweptSpline::GetFrame
 ====================
 */
-void idSurface_SweptSpline::GetFrame( const idMat3 &previousFrame, const idVec3 dir, idMat3 &newFrame ) {
+void idSurface_SweptSpline::GetFrame( const idMat3& previousFrame, const idVec3 dir, idMat3& newFrame )
+{
 	float wx, wy, wz;
 	float xx, yy, yz;
 	float xy, xz, zz;
@@ -142,14 +149,16 @@ idSurface_SweptSpline::Tessellate
   tesselate the surface
 ====================
 */
-void idSurface_SweptSpline::Tessellate( const int splineSubdivisions, const int sweptSplineSubdivisions ) {
+void idSurface_SweptSpline::Tessellate( const int splineSubdivisions, const int sweptSplineSubdivisions )
+{
 	int i, j, offset, baseOffset, splineDiv, sweptSplineDiv;
 	int i0, i1, j0, j1;
 	float totalTime, t;
 	idVec4 splinePos, splineD1;
 	idMat3 splineMat;
 
-	if ( !spline || !sweptSpline ) {
+	if( !spline || !sweptSpline )
+	{
 		idSurface::Clear();
 		return;
 	}
@@ -158,23 +167,25 @@ void idSurface_SweptSpline::Tessellate( const int splineSubdivisions, const int 
 
 	// calculate the points and first derivatives for the swept spline
 	totalTime = sweptSpline->GetTime( sweptSpline->GetNumValues() - 1 ) - sweptSpline->GetTime( 0 ) + sweptSpline->GetCloseTime();
-	sweptSplineDiv = sweptSpline->GetBoundaryType() == idCurve_Spline<idVec3>::BT_CLOSED ? sweptSplineSubdivisions : sweptSplineSubdivisions - 1;
-	baseOffset = (splineSubdivisions-1) * sweptSplineSubdivisions;
-	for ( i = 0; i < sweptSplineSubdivisions; i++ ) {
+	sweptSplineDiv = sweptSpline->GetBoundaryType() == idCurve_Spline<idVec4>::BT_CLOSED ? sweptSplineSubdivisions : sweptSplineSubdivisions - 1;
+	baseOffset = ( splineSubdivisions - 1 ) * sweptSplineSubdivisions;
+	for( i = 0; i < sweptSplineSubdivisions; i++ )
+	{
 		t = totalTime * i / sweptSplineDiv;
 		splinePos = sweptSpline->GetCurrentValue( t );
 		splineD1 = sweptSpline->GetCurrentFirstDerivative( t );
-		verts[baseOffset+i].xyz = splinePos.ToVec3();
-		verts[baseOffset+i].SetTexCoordS( splinePos.w );
-		verts[baseOffset+i].SetTangent( splineD1.ToVec3() );
+		verts[baseOffset + i].xyz = splinePos.ToVec3();
+		verts[baseOffset + i].SetTexCoordS( splinePos.w );
+		verts[baseOffset + i].SetTangent( splineD1.ToVec3() );
 	}
 
 	// sweep the spline
 	totalTime = spline->GetTime( spline->GetNumValues() - 1 ) - spline->GetTime( 0 ) + spline->GetCloseTime();
-	splineDiv = spline->GetBoundaryType() == idCurve_Spline<idVec3>::BT_CLOSED ? splineSubdivisions : splineSubdivisions - 1;
+	splineDiv = spline->GetBoundaryType() == idCurve_Spline<idVec4>::BT_CLOSED ? splineSubdivisions : splineSubdivisions - 1;
 	splineMat.Identity();
 	idVec3 tempNormal;
-	for ( i = 0; i < splineSubdivisions; i++ ) {
+	for( i = 0; i < splineSubdivisions; i++ )
+	{
 		t = totalTime * i / splineDiv;
 
 		splinePos = spline->GetCurrentValue( t );
@@ -183,11 +194,12 @@ void idSurface_SweptSpline::Tessellate( const int splineSubdivisions, const int 
 		GetFrame( splineMat, splineD1.ToVec3(), splineMat );
 
 		offset = i * sweptSplineSubdivisions;
-		for ( j = 0; j < sweptSplineSubdivisions; j++ ) {
-			idDrawVert *v = &verts[offset+j];
-			v->xyz = splinePos.ToVec3() + verts[baseOffset+j].xyz * splineMat;
-			v->SetTexCoord( verts[baseOffset+j].GetTexCoord().x, splinePos.w );
-			v->SetTangent( verts[baseOffset+j].GetTangent() * splineMat );
+		for( j = 0; j < sweptSplineSubdivisions; j++ )
+		{
+			idDrawVert* v = &verts[offset + j];
+			v->xyz = splinePos.ToVec3() + verts[baseOffset + j].xyz * splineMat;
+			v->SetTexCoord( verts[baseOffset + j].GetTexCoord().x, splinePos.w );
+			v->SetTangent( verts[baseOffset + j].GetTangent() * splineMat );
 			v->SetBiTangent( splineD1.ToVec3() );
 			tempNormal = v->GetBiTangent().Cross( v->GetTangent() );
 			tempNormal.Normalize();
@@ -199,15 +211,17 @@ void idSurface_SweptSpline::Tessellate( const int splineSubdivisions, const int 
 	indexes.SetNum( splineDiv * sweptSplineDiv * 2 * 3 );
 
 	// create indexes for the triangles
-	for ( offset = i = 0; i < splineDiv; i++ ) {
+	for( offset = i = 0; i < splineDiv; i++ )
+	{
 
-		i0 = (i+0) * sweptSplineSubdivisions;
-		i1 = (i+1) % splineSubdivisions * sweptSplineSubdivisions;
+		i0 = ( i + 0 ) * sweptSplineSubdivisions;
+		i1 = ( i + 1 ) % splineSubdivisions * sweptSplineSubdivisions;
 
-		for ( j = 0; j < sweptSplineDiv; j++ ) {
+		for( j = 0; j < sweptSplineDiv; j++ )
+		{
 
-			j0 = (j+0);
-			j1 = (j+1) % sweptSplineSubdivisions;
+			j0 = ( j + 0 );
+			j1 = ( j + 1 ) % sweptSplineSubdivisions;
 
 			indexes[offset++] = i0 + j0;
 			indexes[offset++] = i0 + j1;

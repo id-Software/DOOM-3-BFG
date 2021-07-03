@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 /*
 ===============================================================================
 
-	Grabber Object - Class to extend idWeapon to include functionality for 
+	Grabber Object - Class to extend idWeapon to include functionality for
 						manipulating physics objects.
 
 ===============================================================================
@@ -37,19 +37,20 @@ If you have questions concerning this license or the applicable additional terms
 
 class idBeam;
 
-class idGrabber : public idEntity {
+class idGrabber : public idEntity
+{
 public:
 	CLASS_PROTOTYPE( idGrabber );
 
-							idGrabber();
-							~idGrabber();
+	idGrabber();
+	~idGrabber();
 
-	void					Save( idSaveGame *savefile ) const;
-	void					Restore( idRestoreGame *savefile );
+	void					Save( idSaveGame* savefile ) const;
+	void					Restore( idRestoreGame* savefile );
 
 	void					Initialize();
 	void					SetDragDistance( float dist );
-	int						Update( idPlayer *player, bool hide );
+	int						Update( idPlayer* player, bool hide );
 
 private:
 	idEntityPtr<idEntity>	dragEnt;			// entity being dragged
@@ -75,8 +76,8 @@ private:
 
 	int						warpId;
 
-	bool					grabbableAI( const char *aiName );
-	void					StartDrag( idEntity *grabEnt, int id );
+	bool					grabbableAI( const char* aiName );
+	void					StartDrag( idEntity* grabEnt, int id );
 	void					StopDrag( bool dropOnly );
 	void					UpdateBeams();
 	void					ApplyShake();

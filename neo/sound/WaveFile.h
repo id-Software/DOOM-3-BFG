@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -39,22 +39,33 @@ Contains the WaveFile declaration.
 idWaveFile is used for reading generic RIFF WAVE files.
 ================================================
 */
-class idWaveFile {
+class idWaveFile
+{
 public:
 	ID_INLINE 	idWaveFile();
 	ID_INLINE 	~idWaveFile();
 
-	bool		Open( const char * filename );
+	bool		Open( const char* filename );
 	void		Close();
 	uint32		SeekToChunk( uint32 id );
-	size_t		Read( void * buffer, size_t len ) { return file->Read( buffer, len ); }
+	size_t		Read( void* buffer, size_t len )
+	{
+		return file->Read( buffer, len );
+	}
 	uint32		GetChunkOffset( uint32 id );
 
-	ID_TIME_T	Timestamp() { return file->Timestamp(); }
-	const char * Name() { return ( file == NULL ? "" : file->GetName() ); }
+	ID_TIME_T	Timestamp()
+	{
+		return file->Timestamp();
+	}
+	const char* Name()
+	{
+		return ( file == NULL ? "" : file->GetName() );
+	}
 
 	// This maps to the channel mask in waveFmtExtensible_t
-	enum {
+	enum
+	{
 		CHANNEL_INDEX_FRONT_LEFT,
 		CHANNEL_INDEX_FRONT_RIGHT,
 		CHANNEL_INDEX_FRONT_CENTER,
@@ -68,7 +79,8 @@ public:
 		CHANNEL_INDEX_SIDE_RIGHT,
 		CHANNEL_INDEX_MAX
 	};
-	enum {
+	enum
+	{
 		CHANNEL_MASK_FRONT_LEFT			= BIT( CHANNEL_INDEX_FRONT_LEFT ),
 		CHANNEL_MASK_FRONT_RIGHT		= BIT( CHANNEL_INDEX_FRONT_RIGHT ),
 		CHANNEL_MASK_FRONT_CENTER		= BIT( CHANNEL_INDEX_FRONT_CENTER ),
@@ -85,7 +97,8 @@ public:
 
 	// This matches waveFmt_t::formatTag
 	// These are the only wave formats that we understand
-	enum {
+	enum
+	{
 		FORMAT_UNKNOWN		= 0x0000,
 		FORMAT_PCM			= 0x0001,
 		FORMAT_ADPCM		= 0x0002,
@@ -94,10 +107,12 @@ public:
 	};
 
 #pragma pack( push, 1 )
-	struct waveFmt_t {
+	struct waveFmt_t
+	{
 		static const uint32 id = 'fmt ';
 		// This is the basic data we'd expect to see in any valid wave file
-		struct basic_t {
+		struct basic_t
+		{
 			uint16 formatTag;
 			uint16 numChannels;
 			uint32 samplesPerSec;
@@ -108,12 +123,15 @@ public:
 		// Some wav file formats have extra data after the basic header
 		uint16 extraSize;
 		// We have a few known formats that we handle:
-		union extra_t {
+		union extra_t
+		{
 			// Valid if basic.formatTag == FORMAT_EXTENSIBLE
-			struct extensible_t {
+			struct extensible_t
+			{
 				uint16 validBitsPerSample;	// Valid bits in each sample container
 				uint32 channelMask;			// Positions of the audio channels
-				struct guid_t {
+				struct guid_t
+				{
 					uint32 data1;
 					uint16 data2;
 					uint16 data3;
@@ -126,16 +144,19 @@ public:
 			// but the array is always 7 entries, so we set it to that size
 			// so we can embed it in our format union.  Otherwise, the struct
 			// is exactly the same as the one in audiodefs.h
-			struct adpcm_t {
+			struct adpcm_t
+			{
 				uint16 samplesPerBlock;
 				uint16 numCoef;
-				struct adpcmcoef_t {
+				struct adpcmcoef_t
+				{
 					short coef1;
 					short coef2;
 				} aCoef[7];  // Always 7 coefficient pairs for MS ADPCM
 			} adpcm;
 			// Valid if basic.formatTag == FORMAT_XMA2
-			struct xma2_t {
+			struct xma2_t
+			{
 				uint16 numStreams;		// Number of audio streams (1 or 2 channels each)
 				uint32 channelMask;		// matches the CHANNEL_MASK enum above
 				uint32 samplesEncoded;	// Total number of PCM samples the file decodes to
@@ -153,13 +174,15 @@ public:
 
 #pragma pack( pop )
 
-	struct dataChunk_t {
+	struct dataChunk_t
+	{
 		static const uint32 id = 'data';
 		uint32 size;
-		void * data;
+		void* data;
 	};
 
-	struct formatChunk_t {
+	struct formatChunk_t
+	{
 		static const uint32 id = 'fmt ';
 		uint32 size;
 		uint16 compressionCode;
@@ -171,7 +194,8 @@ public:
 		uint16 numExtraFormatByte;
 	};
 
-	struct samplerChunk_t {
+	struct samplerChunk_t
+	{
 		static const uint32 id = 'smpl';
 		uint32 manufacturer;		// ignored
 		uint32 product;				// ignored
@@ -184,28 +208,30 @@ public:
 		uint32 extraSamplerData;	// ignored, should always be 0
 	};
 
-	struct sampleData_t {
+	struct sampleData_t
+	{
 		uint32 identifier;		// ignored
 		uint32 type;			// 0 for loop 33 multi-sample sample type
 		uint32 start;			// start of the loop point
 		uint32 end;				// end of the loop point
 		uint32 fraction;		// ignored
-		uint32 playCount;		// ignored	
+		uint32 playCount;		// ignored
 	};
 
-	const char * ReadWaveFormat( waveFmt_t & waveFmt );
-	static bool  ReadWaveFormatDirect( waveFmt_t & format, idFile *file );
-	static bool  WriteWaveFormatDirect( waveFmt_t & format, idFile *file );
-	static bool  WriteSampleDataDirect( idList< sampleData_t > & sampleData, idFile *file );
-	static bool  WriteDataDirect( char * _data, uint32 size, idFile * file );
-	static bool  WriteHeaderDirect( uint32 fileSize, idFile * file );
+	const char* ReadWaveFormat( waveFmt_t& waveFmt );
+	static bool  ReadWaveFormatDirect( waveFmt_t& format, idFile* file );
+	static bool  WriteWaveFormatDirect( waveFmt_t& format, idFile* file );
+	static bool  WriteSampleDataDirect( idList< sampleData_t >& sampleData, idFile* file );
+	static bool  WriteDataDirect( char* _data, uint32 size, idFile* file );
+	static bool  WriteHeaderDirect( uint32 fileSize, idFile* file );
 
-	bool		 ReadLoopData( int & start, int & end );
-	
+	bool		 ReadLoopData( int& start, int& end );
+
 private:
-	idFile *					file;
+	idFile* 					file;
 
-	struct chunk_t {
+	struct chunk_t
+	{
 		uint32 id;
 		uint32 size;
 		uint32 offset;
@@ -221,7 +247,8 @@ private:
 idWaveFile::idWaveFile
 ========================
 */
-ID_INLINE idWaveFile::idWaveFile() : file( NULL ) {
+ID_INLINE idWaveFile::idWaveFile() : file( NULL )
+{
 }
 
 /*
@@ -229,7 +256,8 @@ ID_INLINE idWaveFile::idWaveFile() : file( NULL ) {
 idWaveFile::~idWaveFile
 ========================
 */
-ID_INLINE idWaveFile::~idWaveFile() {
+ID_INLINE idWaveFile::~idWaveFile()
+{
 	Close();
 }
 

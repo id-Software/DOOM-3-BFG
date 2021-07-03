@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -37,43 +37,54 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-class idPlaneSet : public idList<idPlane> {
+class idPlaneSet : public idList<idPlane>
+{
 public:
 
-	void					Clear() { idList<idPlane>::Clear(); hash.Free(); }
+	void					Clear()
+	{
+		idList<idPlane>::Clear();
+		hash.Free();
+	}
 
-	int						FindPlane( const idPlane &plane, const float normalEps, const float distEps );
+	int						FindPlane( const idPlane& plane, const float normalEps, const float distEps );
 
 private:
 	idHashIndex				hash;
 };
 
-ID_INLINE int idPlaneSet::FindPlane( const idPlane &plane, const float normalEps, const float distEps ) {
+ID_INLINE int idPlaneSet::FindPlane( const idPlane& plane, const float normalEps, const float distEps )
+{
 	int i, border, hashKey;
 
 	assert( distEps <= 0.125f );
 
-	hashKey = (int)( idMath::Fabs( plane.Dist() ) * 0.125f );
-	for ( border = -1; border <= 1; border++ ) {
-		for ( i = hash.First( hashKey + border ); i >= 0; i = hash.Next( i ) ) {
-			if ( (*this)[i].Compare( plane, normalEps, distEps ) ) {
+	hashKey = ( int )( idMath::Fabs( plane.Dist() ) * 0.125f );
+	for( border = -1; border <= 1; border++ )
+	{
+		for( i = hash.First( hashKey + border ); i >= 0; i = hash.Next( i ) )
+		{
+			if( ( *this )[i].Compare( plane, normalEps, distEps ) )
+			{
 				return i;
 			}
 		}
 	}
 
-	if ( plane.Type() >= PLANETYPE_NEGX && plane.Type() < PLANETYPE_TRUEAXIAL ) {
+	if( plane.Type() >= PLANETYPE_NEGX && plane.Type() < PLANETYPE_TRUEAXIAL )
+	{
 		Append( -plane );
-		hash.Add( hashKey, Num()-1 );
+		hash.Add( hashKey, Num() - 1 );
 		Append( plane );
-		hash.Add( hashKey, Num()-1 );
+		hash.Add( hashKey, Num() - 1 );
 		return ( Num() - 1 );
 	}
-	else {
+	else
+	{
 		Append( plane );
-		hash.Add( hashKey, Num()-1 );
+		hash.Add( hashKey, Num() - 1 );
 		Append( -plane );
-		hash.Add( hashKey, Num()-1 );
+		hash.Add( hashKey, Num() - 1 );
 		return ( Num() - 2 );
 	}
 }

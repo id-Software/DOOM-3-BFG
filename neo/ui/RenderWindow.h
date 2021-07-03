@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -29,30 +29,34 @@ If you have questions concerning this license or the applicable additional terms
 #define __RENDERWINDOW_H
 
 class idUserInterfaceLocal;
-class idRenderWindow : public idWindow {
+class idRenderWindow : public idWindow
+{
 public:
-	idRenderWindow(idUserInterfaceLocal *gui);
+	idRenderWindow( idUserInterfaceLocal* gui );
 	virtual ~idRenderWindow();
 
 	virtual void PostParse();
-	virtual void Draw(int time, float x, float y);
-	virtual size_t Allocated(){return idWindow::Allocated();};
-// 
-//  
-	virtual idWinVar *GetWinVarByName(const char *_name, bool winLookup = false, drawWin_t** owner = NULL);
-// 
-	
+	virtual void Draw( int time, float x, float y );
+	virtual size_t Allocated()
+	{
+		return idWindow::Allocated();
+	};
+//
+//
+	virtual idWinVar* GetWinVarByName( const char* _name, bool winLookup = false, drawWin_t** owner = NULL );
+//
+
 private:
 	void CommonInit();
-	virtual bool ParseInternalVar(const char *name, idTokenParser *src);
-	void Render(int time);
+	virtual bool ParseInternalVar( const char* name, idTokenParser* src );
+	void Render( int time );
 	void PreRender();
-	void BuildAnimation(int time);
+	void BuildAnimation( int time );
 	renderView_t refdef;
-	idRenderWorld *world;
+	idRenderWorld* world;
 	renderEntity_t worldEntity;
 	renderLight_t rLight;
-	const idMD5Anim *modelAnim;
+	const idMD5Anim* modelAnim;
 
 	qhandle_t	worldModelDef;
 	qhandle_t	lightDef;

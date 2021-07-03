@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -33,43 +33,48 @@ class idUserInterfaceLocal;
 class idDeviceContext;
 class idSimpleWindow;
 
-typedef struct {
-	idWindow *win;
-	idSimpleWindow *simp;
+typedef struct
+{
+	idWindow* win;
+	idSimpleWindow* simp;
 } drawWin_t;
 
-class idSimpleWindow {
+class idSimpleWindow
+{
 	friend class idWindow;
 public:
-					idSimpleWindow(idWindow* win);
+	idSimpleWindow( idWindow* win );
 	virtual			~idSimpleWindow();
-	void			Redraw(float x, float y);
+	void			Redraw( float x, float y );
 	void			StateChanged( bool redraw );
 
 	idStr			name;
 
-	idWinVar *		GetWinVarByName(const char *_name);
-	int				GetWinVarOffset( idWinVar *wv, drawWin_t* owner);
+	idWinVar* 		GetWinVarByName( const char* _name );
+	int				GetWinVarOffset( idWinVar* wv, drawWin_t* owner );
 	size_t			Size();
 
-	idWindow*		GetParent () { return mParent; }
+	idWindow*		GetParent()
+	{
+		return mParent;
+	}
 
-	virtual void	WriteToSaveGame( idFile *savefile );
-	virtual void	ReadFromSaveGame( idFile *savefile );
+	virtual void	WriteToSaveGame( idFile* savefile );
+	virtual void	ReadFromSaveGame( idFile* savefile );
 
 protected:
-	void 			CalcClientRect(float xofs, float yofs);
-	void 			SetupTransforms(float x, float y);
-	void 			DrawBackground(const idRectangle &drawRect);
-	void 			DrawBorderAndCaption(const idRectangle &drawRect);
+	void 			CalcClientRect( float xofs, float yofs );
+	void 			SetupTransforms( float x, float y );
+	void 			DrawBackground( const idRectangle& drawRect );
+	void 			DrawBorderAndCaption( const idRectangle& drawRect );
 
-	idUserInterfaceLocal *gui;
+	idUserInterfaceLocal* gui;
 	int 			flags;
 	idRectangle 	drawRect;			// overall rect
 	idRectangle 	clientRect;			// client area
 	idRectangle 	textRect;
 	idVec2			origin;
-	class idFont *	font;
+	class idFont* 	font;
 	float 			matScalex;
 	float 			matScaley;
 	float 			borderSize;
@@ -91,8 +96,8 @@ protected:
 	idWinBackground	backGroundName;
 
 	const idMaterial* background;
-	
-	idWindow *		mParent;
+
+	idWindow* 		mParent;
 
 	idWinBool	hideCursor;
 };

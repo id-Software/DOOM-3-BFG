@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -74,17 +74,18 @@ extern const idEventDef EV_Thread_FadeOut;
 extern const idEventDef EV_Thread_FadeTo;
 extern const idEventDef EV_Thread_Restart;
 
-class idThread : public idClass {
+class idThread : public idClass
+{
 private:
-	static idThread				*currentThread;
+	static idThread*				currentThread;
 
-	idThread					*waitingForThread;
+	idThread*					waitingForThread;
 	int							waitingFor;
 	int							waitingUntil;
 	idInterpreter				interpreter;
 
 	idDict						spawnArgs;
-								
+
 	int 						threadNum;
 	idStr 						threadName;
 
@@ -94,7 +95,7 @@ private:
 	bool						manualControl;
 
 	static int					threadIndex;
-	static idList<idThread *, TAG_THREAD>	threadList;
+	static idList<idThread*, TAG_THREAD>	threadList;
 
 	static trace_t				trace;
 
@@ -102,7 +103,7 @@ private:
 	void						Pause();
 
 	void						Event_Execute();
-	void						Event_SetThreadName( const char *name );
+	void						Event_SetThreadName( const char* name );
 
 	//
 	// script callable Events
@@ -111,161 +112,183 @@ private:
 	void						Event_Pause();
 	void						Event_Wait( float time );
 	void						Event_WaitFrame();
-	void						Event_WaitFor( idEntity *ent );
+	void						Event_WaitFor( idEntity* ent );
 	void						Event_WaitForThread( int num );
-	void						Event_Print( const char *text );
-	void						Event_PrintLn( const char *text );
-	void						Event_Say( const char *text );
+	void						Event_Print( const char* text );
+	void						Event_PrintLn( const char* text );
+	void						Event_Say( const char* text );
 	void						Event_Assert( float value );
-	void						Event_Trigger( idEntity *ent );
-	void						Event_SetCvar( const char *name, const char *value ) const;
-	void						Event_GetCvar( const char *name ) const;
+	void						Event_Trigger( idEntity* ent );
+	void						Event_SetCvar( const char* name, const char* value ) const;
+	void						Event_GetCvar( const char* name ) const;
 	void						Event_Random( float range ) const;
 	void						Event_RandomInt( int range ) const;
 	void						Event_GetTime();
-	void						Event_KillThread( const char *name );
-	void						Event_GetEntity( const char *name );
-	void						Event_Spawn( const char *classname );
-	void						Event_CopySpawnArgs( idEntity *ent );
-	void						Event_SetSpawnArg( const char *key, const char *value );
-	void						Event_SpawnString( const char *key, const char *defaultvalue );
-	void						Event_SpawnFloat( const char *key, float defaultvalue );
-	void						Event_SpawnVector( const char *key, idVec3 &defaultvalue );
+	void						Event_KillThread( const char* name );
+	void						Event_GetEntity( const char* name );
+	void						Event_Spawn( const char* classname );
+	void						Event_CopySpawnArgs( idEntity* ent );
+	void						Event_SetSpawnArg( const char* key, const char* value );
+	void						Event_SpawnString( const char* key, const char* defaultvalue );
+	void						Event_SpawnFloat( const char* key, float defaultvalue );
+	void						Event_SpawnVector( const char* key, idVec3& defaultvalue );
 	void						Event_ClearPersistantArgs();
-	void 						Event_SetPersistantArg( const char *key, const char *value );
-	void 						Event_GetPersistantString( const char *key );
-	void 						Event_GetPersistantFloat( const char *key );
-	void 						Event_GetPersistantVector( const char *key );
-	void						Event_AngToForward( idAngles &ang );
-	void						Event_AngToRight( idAngles &ang );
-	void						Event_AngToUp( idAngles &ang );
+	void 						Event_SetPersistantArg( const char* key, const char* value );
+	void 						Event_GetPersistantString( const char* key );
+	void 						Event_GetPersistantFloat( const char* key );
+	void 						Event_GetPersistantVector( const char* key );
+	void						Event_AngToForward( idAngles& ang );
+	void						Event_AngToRight( idAngles& ang );
+	void						Event_AngToUp( idAngles& ang );
 	void						Event_GetSine( float angle );
 	void						Event_GetCosine( float angle );
 	void						Event_GetArcSine( float a );
 	void						Event_GetArcCosine( float a );
 	void						Event_GetSquareRoot( float theSquare );
-	void						Event_VecNormalize( idVec3 &vec );
-	void						Event_VecLength( idVec3 &vec );
-	void						Event_VecDotProduct( idVec3 &vec1, idVec3 &vec2 );
-	void						Event_VecCrossProduct( idVec3 &vec1, idVec3 &vec2 );
-	void						Event_VecToAngles( idVec3 &vec );
-	void						Event_VecToOrthoBasisAngles( idVec3 &vec );
-	void						Event_RotateVector( idVec3 &vec, idVec3 &ang );
-	void						Event_OnSignal( int signal, idEntity *ent, const char *func );
-	void						Event_ClearSignalThread( int signal, idEntity *ent );
-	void						Event_SetCamera( idEntity *ent );
+	void						Event_VecNormalize( idVec3& vec );
+	void						Event_VecLength( idVec3& vec );
+	void						Event_VecDotProduct( idVec3& vec1, idVec3& vec2 );
+	void						Event_VecCrossProduct( idVec3& vec1, idVec3& vec2 );
+	void						Event_VecToAngles( idVec3& vec );
+	void						Event_VecToOrthoBasisAngles( idVec3& vec );
+	void						Event_RotateVector( idVec3& vec, idVec3& ang );
+	void						Event_OnSignal( int signal, idEntity* ent, const char* func );
+	void						Event_ClearSignalThread( int signal, idEntity* ent );
+	void						Event_SetCamera( idEntity* ent );
 	void						Event_FirstPerson();
-	void						Event_Trace( const idVec3 &start, const idVec3 &end, const idVec3 &mins, const idVec3 &maxs, int contents_mask, idEntity *passEntity );
-	void						Event_TracePoint( const idVec3 &start, const idVec3 &end, int contents_mask, idEntity *passEntity );
+	void						Event_Trace( const idVec3& start, const idVec3& end, const idVec3& mins, const idVec3& maxs, int contents_mask, idEntity* passEntity );
+	void						Event_TracePoint( const idVec3& start, const idVec3& end, int contents_mask, idEntity* passEntity );
 	void						Event_GetTraceFraction();
 	void						Event_GetTraceEndPos();
 	void						Event_GetTraceNormal();
 	void						Event_GetTraceEntity();
 	void						Event_GetTraceJoint();
 	void						Event_GetTraceBody();
-	void						Event_FadeIn( idVec3 &color, float time );
-	void						Event_FadeOut( idVec3 &color, float time );
-	void						Event_FadeTo( idVec3 &color, float alpha, float time );
+	void						Event_FadeIn( idVec3& color, float time );
+	void						Event_FadeOut( idVec3& color, float time );
+	void						Event_FadeTo( idVec3& color, float alpha, float time );
 	void						Event_SetShaderParm( int parmnum, float value );
-	void						Event_StartMusic( const char *name );
-	void						Event_Warning( const char *text );
-	void						Event_Error( const char *text );
-	void 						Event_StrLen( const char *string );
-	void 						Event_StrLeft( const char *string, int num );
-	void 						Event_StrRight( const char *string, int num );
-	void 						Event_StrSkip( const char *string, int num );
-	void 						Event_StrMid( const char *string, int start, int num );
-	void						Event_StrToFloat( const char *string );
-	void						Event_RadiusDamage( const idVec3 &origin, idEntity *inflictor, idEntity *attacker, idEntity *ignore, const char *damageDefName, float dmgPower );
+	void						Event_StartMusic( const char* name );
+	void						Event_Warning( const char* text );
+	void						Event_Error( const char* text );
+	void 						Event_StrLen( const char* string );
+	void 						Event_StrLeft( const char* string, int num );
+	void 						Event_StrRight( const char* string, int num );
+	void 						Event_StrSkip( const char* string, int num );
+	void 						Event_StrMid( const char* string, int start, int num );
+	void						Event_StrToFloat( const char* string );
+	void						Event_RadiusDamage( const idVec3& origin, idEntity* inflictor, idEntity* attacker, idEntity* ignore, const char* damageDefName, float dmgPower );
 	void						Event_IsClient();
 	void 						Event_IsMultiplayer();
 	void 						Event_GetFrameTime();
 	void 						Event_GetTicsPerSecond();
-	void						Event_CacheSoundShader( const char *soundName );
-	void						Event_DebugLine( const idVec3 &color, const idVec3 &start, const idVec3 &end, const float lifetime );
-	void						Event_DebugArrow( const idVec3 &color, const idVec3 &start, const idVec3 &end, const int size, const float lifetime );
-	void						Event_DebugCircle( const idVec3 &color, const idVec3 &origin, const idVec3 &dir, const float radius, const int numSteps, const float lifetime );
-	void						Event_DebugBounds( const idVec3 &color, const idVec3 &mins, const idVec3 &maxs, const float lifetime );
-	void						Event_DrawText( const char *text, const idVec3 &origin, float scale, const idVec3 &color, const int align, const float lifetime );
+	void						Event_CacheSoundShader( const char* soundName );
+	void						Event_DebugLine( const idVec3& color, const idVec3& start, const idVec3& end, const float lifetime );
+	void						Event_DebugArrow( const idVec3& color, const idVec3& start, const idVec3& end, const int size, const float lifetime );
+	void						Event_DebugCircle( const idVec3& color, const idVec3& origin, const idVec3& dir, const float radius, const int numSteps, const float lifetime );
+	void						Event_DebugBounds( const idVec3& color, const idVec3& mins, const idVec3& maxs, const float lifetime );
+	void						Event_DrawText( const char* text, const idVec3& origin, float scale, const idVec3& color, const int align, const float lifetime );
 	void						Event_InfluenceActive();
 
-public:							
-								CLASS_PROTOTYPE( idThread );
-								
-								idThread();
-								idThread( idEntity *self, const function_t *func );
-								idThread( const function_t *func );
-								idThread( idInterpreter *source, const function_t *func, int args );
-								idThread( idInterpreter *source, idEntity *self, const function_t *func, int args );
+public:
+	CLASS_PROTOTYPE( idThread );
+
+	idThread();
+	idThread( idEntity* self, const function_t* func );
+	idThread( const function_t* func );
+	idThread( idInterpreter* source, const function_t* func, int args );
+	idThread( idInterpreter* source, idEntity* self, const function_t* func, int args );
 
 	virtual						~idThread();
 
-								// tells the thread manager not to delete this thread when it ends
+	// tells the thread manager not to delete this thread when it ends
 	void						ManualDelete();
 
 	// save games
-	void						Save( idSaveGame *savefile ) const;				// archives object for save game file
-	void						Restore( idRestoreGame *savefile );				// unarchives object from save game file
+	void						Save( idSaveGame* savefile ) const;				// archives object for save game file
+	void						Restore( idRestoreGame* savefile );				// unarchives object from save game file
 
-	void						EnableDebugInfo() { interpreter.debug = true; };
-	void						DisableDebugInfo() { interpreter.debug = false; };
+	void						EnableDebugInfo()
+	{
+		interpreter.debug = true;
+	};
+	void						DisableDebugInfo()
+	{
+		interpreter.debug = false;
+	};
 
 	void						WaitMS( int time );
 	void						WaitSec( float time );
 	void						WaitFrame();
-								
-								// NOTE: If this is called from within a event called by this thread, the function arguments will be invalid after calling this function.
-	void						CallFunction( const function_t	*func, bool clearStack );
 
-								// NOTE: If this is called from within a event called by this thread, the function arguments will be invalid after calling this function.
-	void						CallFunction( idEntity *obj, const function_t *func, bool clearStack );
+	// NOTE: If this is called from within a event called by this thread, the function arguments will be invalid after calling this function.
+	void						CallFunction( const function_t*	func, bool clearStack );
+
+	// NOTE: If this is called from within a event called by this thread, the function arguments will be invalid after calling this function.
+	void						CallFunction( idEntity* obj, const function_t* func, bool clearStack );
 
 	void						DisplayInfo();
-	static idThread				*GetThread( int num );
-	static void					ListThreads_f( const idCmdArgs &args );
+	static idThread*				GetThread( int num );
+	static void					ListThreads_f( const idCmdArgs& args );
 	static void					Restart();
-	static void					ObjectMoveDone( int threadnum, idEntity *obj );
-								
-	static idList<idThread*>&	GetThreads ();
-	
-	bool						IsDoneProcessing ();
-	bool						IsDying			 ();	
-								
+	static void					ObjectMoveDone( int threadnum, idEntity* obj );
+
+	static idList<idThread*>&	GetThreads();
+
+	bool						IsDoneProcessing();
+	bool						IsDying();
+
 	void						End();
-	static void					KillThread( const char *name );
+	static void					KillThread( const char* name );
 	static void					KillThread( int num );
 	bool						Execute();
-	void						ManualControl() { manualControl = true; CancelEvents( &EV_Thread_Execute ); };
-	void						DoneProcessing() { interpreter.doneProcessing = true; };
-	void						ContinueProcessing() { interpreter.doneProcessing = false; };
-	bool						ThreadDying() { return interpreter.threadDying; };
-	void						EndThread() { interpreter.threadDying = true; };
+	void						ManualControl()
+	{
+		manualControl = true;
+		CancelEvents( &EV_Thread_Execute );
+	};
+	void						DoneProcessing()
+	{
+		interpreter.doneProcessing = true;
+	};
+	void						ContinueProcessing()
+	{
+		interpreter.doneProcessing = false;
+	};
+	bool						ThreadDying()
+	{
+		return interpreter.threadDying;
+	};
+	void						EndThread()
+	{
+		interpreter.threadDying = true;
+	};
 	bool						IsWaiting();
 	void						ClearWaitFor();
-	bool						IsWaitingFor( idEntity *obj );
-	void						ObjectMoveDone( idEntity *obj );
-	void						ThreadCallback( idThread *thread );
+	bool						IsWaitingFor( idEntity* obj );
+	void						ObjectMoveDone( idEntity* obj );
+	void						ThreadCallback( idThread* thread );
 	void						DelayedStart( int delay );
 	bool						Start();
-	idThread					*WaitingOnThread();
+	idThread*					WaitingOnThread();
 	void						SetThreadNum( int num );
 	int 						GetThreadNum();
-	void						SetThreadName( const char *name );
-	const char					*GetThreadName();
+	void						SetThreadName( const char* name );
+	const char*					GetThreadName();
 
-	void						Error( VERIFY_FORMAT_STRING const char *fmt, ... ) const;
-	void						Warning( VERIFY_FORMAT_STRING const char *fmt, ... ) const;
-								
-	static idThread				*CurrentThread();
+	void						Error( VERIFY_FORMAT_STRING const char* fmt, ... ) const;
+	void						Warning( VERIFY_FORMAT_STRING const char* fmt, ... ) const;
+
+	static idThread*				CurrentThread();
 	static int					CurrentThreadNum();
-	static bool					BeginMultiFrameEvent( idEntity *ent, const idEventDef *event );
-	static void					EndMultiFrameEvent( idEntity *ent, const idEventDef *event );
+	static bool					BeginMultiFrameEvent( idEntity* ent, const idEventDef* event );
+	static void					EndMultiFrameEvent( idEntity* ent, const idEventDef* event );
 
-	static void					ReturnString( const char *text );
+	static void					ReturnString( const char* text );
 	static void					ReturnFloat( float value );
 	static void					ReturnInt( int value );
-	static void					ReturnVector( idVec3 const &vec );
-	static void					ReturnEntity( idEntity *ent );
+	static void					ReturnVector( idVec3 const& vec );
+	static void					ReturnEntity( idEntity* ent );
 };
 
 /*
@@ -273,7 +296,8 @@ public:
 idThread::WaitingOnThread
 ================
 */
-ID_INLINE idThread *idThread::WaitingOnThread() {
+ID_INLINE idThread* idThread::WaitingOnThread()
+{
 	return waitingForThread;
 }
 
@@ -282,7 +306,8 @@ ID_INLINE idThread *idThread::WaitingOnThread() {
 idThread::SetThreadNum
 ================
 */
-ID_INLINE void idThread::SetThreadNum( int num ) {
+ID_INLINE void idThread::SetThreadNum( int num )
+{
 	threadNum = num;
 }
 
@@ -291,7 +316,8 @@ ID_INLINE void idThread::SetThreadNum( int num ) {
 idThread::GetThreadNum
 ================
 */
-ID_INLINE int idThread::GetThreadNum() {
+ID_INLINE int idThread::GetThreadNum()
+{
 	return threadNum;
 }
 
@@ -300,7 +326,8 @@ ID_INLINE int idThread::GetThreadNum() {
 idThread::GetThreadName
 ================
 */
-ID_INLINE const char *idThread::GetThreadName() {
+ID_INLINE const char* idThread::GetThreadName()
+{
 	return threadName.c_str();
 }
 
@@ -309,16 +336,18 @@ ID_INLINE const char *idThread::GetThreadName() {
 idThread::GetThreads
 ================
 */
-ID_INLINE idList<idThread*>& idThread::GetThreads () {
+ID_INLINE idList<idThread*>& idThread::GetThreads()
+{
 	return threadList;
-}	
+}
 
 /*
 ================
 idThread::IsDoneProcessing
 ================
 */
-ID_INLINE bool idThread::IsDoneProcessing () {
+ID_INLINE bool idThread::IsDoneProcessing()
+{
 	return interpreter.doneProcessing;
 }
 
@@ -327,7 +356,8 @@ ID_INLINE bool idThread::IsDoneProcessing () {
 idThread::IsDying
 ================
 */
-ID_INLINE bool idThread::IsDying () {
+ID_INLINE bool idThread::IsDying()
+{
 	return interpreter.threadDying;
 }
 

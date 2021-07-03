@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -48,11 +48,12 @@ not the shadow volume needs to be rendered with Z-Fail.
 preLightShadowVolumeParms_t
 ================================================
 */
-struct preLightShadowVolumeParms_t {
+struct preLightShadowVolumeParms_t
+{
 	// input
-	const idShadowVert *			verts;					// streamed in from main memory
+	const idShadowVert* 			verts;					// streamed in from main memory
 	int								numVerts;
-	const triIndex_t *				indexes;				// streamed in from main memory
+	const triIndex_t* 				indexes;				// streamed in from main memory
 	int								numIndexes;
 	idBounds						triangleBounds;
 	idRenderMatrix					triangleMVP;
@@ -65,20 +66,19 @@ struct preLightShadowVolumeParms_t {
 	bool							useShadowPreciseInsideTest;
 	bool							useShadowDepthBounds;
 	// temp
-	byte *							tempCullBits;			// temp buffer in SPU local memory
+	byte* 							tempCullBits;			// temp buffer in SPU local memory
 	// output
-	int *							numShadowIndices;		// streamed out to main memory
-	int *							renderZFail;			// streamed out to main memory
-	float *							shadowZMin;				// streamed out to main memory
-	float *							shadowZMax;				// streamed out to main memory
-	volatile shadowVolumeState_t *	shadowVolumeState;		// streamed out to main memory
+	int* 							numShadowIndices;		// streamed out to main memory
+	int* 							renderZFail;			// streamed out to main memory
+	float* 							shadowZMin;				// streamed out to main memory
+	float* 							shadowZMax;				// streamed out to main memory
+	volatile shadowVolumeState_t* 	shadowVolumeState;		// streamed out to main memory
 	// next in chain on view light
-	preLightShadowVolumeParms_t *	next;
+	preLightShadowVolumeParms_t* 	next;
 	int								pad;
 };
 
 
-void PreLightShadowVolumeJob( const preLightShadowVolumeParms_t * parms );
-void PreLightShadowVolume_SetupSPURSHeader( CellSpursJob128 * job, const preLightShadowVolumeParms_t * parms );
+void PreLightShadowVolumeJob( const preLightShadowVolumeParms_t* parms );
 
 #endif // !__PRELIGHTSHADOWVOLUME_H__

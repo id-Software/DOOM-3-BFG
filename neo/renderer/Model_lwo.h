@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -189,46 +189,50 @@ If you have questions concerning this license or the applicable additional terms
 
 /* generic linked list */
 
-typedef struct st_lwNode {
-   struct st_lwNode *next, *prev;
-   void *data;
+typedef struct st_lwNode
+{
+	struct st_lwNode* next, *prev;
+	void* data;
 } lwNode;
 
 
 /* plug-in reference */
 
-typedef struct st_lwPlugin {
-   struct st_lwPlugin *next, *prev;
-   char          *ord;
-   char          *name;
-   int            flags;
-   void          *data;
+typedef struct st_lwPlugin
+{
+	struct st_lwPlugin* next, *prev;
+	char*          ord;
+	char*          name;
+	int            flags;
+	void*          data;
 } lwPlugin;
 
 
 /* envelopes */
 
-typedef struct st_lwKey {
-   struct st_lwKey *next, *prev;
-   float          value;
-   float          time;
-   unsigned int   shape;               /* ID_TCB, ID_BEZ2, etc. */
-   float          tension;
-   float          continuity;
-   float          bias;
-   float          param[ 4 ];
+typedef struct st_lwKey
+{
+	struct st_lwKey* next, *prev;
+	float          value;
+	float          time;
+	unsigned int   shape;               /* ID_TCB, ID_BEZ2, etc. */
+	float          tension;
+	float          continuity;
+	float          bias;
+	float          param[ 4 ];
 } lwKey;
 
-typedef struct st_lwEnvelope {
-   struct st_lwEnvelope *next, *prev;
-   int            index;
-   int            type;
-   char          *name;
-   lwKey         *key;                 /* linked list of keys */
-   int            nkeys;
-   int            behavior[ 2 ];       /* pre and post (extrapolation) */
-   lwPlugin      *cfilter;             /* linked list of channel filters */
-   int            ncfilters;
+typedef struct st_lwEnvelope
+{
+	struct st_lwEnvelope* next, *prev;
+	int            index;
+	int            type;
+	char*          name;
+	lwKey*         key;                 /* linked list of keys */
+	int            nkeys;
+	int            behavior[ 2 ];       /* pre and post (extrapolation) */
+	lwPlugin*      cfilter;             /* linked list of channel filters */
+	int            ncfilters;
 } lwEnvelope;
 
 #define BEH_RESET      0
@@ -241,104 +245,115 @@ typedef struct st_lwEnvelope {
 
 /* values that can be enveloped */
 
-typedef struct st_lwEParam {
-   float          val;
-   int            eindex;
+typedef struct st_lwEParam
+{
+	float          val;
+	int            eindex;
 } lwEParam;
 
-typedef struct st_lwVParam {
-   float          val[ 3 ];
-   int            eindex;
+typedef struct st_lwVParam
+{
+	float          val[ 3 ];
+	int            eindex;
 } lwVParam;
 
 
 /* clips */
 
-typedef struct st_lwClipStill {
-   char          *name;
+typedef struct st_lwClipStill
+{
+	char*          name;
 } lwClipStill;
 
-typedef struct st_lwClipSeq {
-   char          *prefix;              /* filename before sequence digits */
-   char          *suffix;              /* after digits, e.g. extensions */
-   int            digits;
-   int            flags;
-   int            offset;
-   int            start;
-   int            end;
+typedef struct st_lwClipSeq
+{
+	char*          prefix;              /* filename before sequence digits */
+	char*          suffix;              /* after digits, e.g. extensions */
+	int            digits;
+	int            flags;
+	int            offset;
+	int            start;
+	int            end;
 } lwClipSeq;
 
-typedef struct st_lwClipAnim {
-   char          *name;
-   char          *server;              /* anim loader plug-in */
-   void          *data;
+typedef struct st_lwClipAnim
+{
+	char*          name;
+	char*          server;              /* anim loader plug-in */
+	void*          data;
 } lwClipAnim;
 
-typedef struct st_lwClipXRef {
-   char          *string;
-   int            index;
-   struct st_lwClip *clip;
+typedef struct st_lwClipXRef
+{
+	char*          string;
+	int            index;
+	struct st_lwClip* clip;
 } lwClipXRef;
 
-typedef struct st_lwClipCycle {
-   char          *name;
-   int            lo;
-   int            hi;
+typedef struct st_lwClipCycle
+{
+	char*          name;
+	int            lo;
+	int            hi;
 } lwClipCycle;
 
-typedef struct st_lwClip {
-   struct st_lwClip *next, *prev;
-   int            index;
-   unsigned int   type;                /* ID_STIL, ID_ISEQ, etc. */
-   union {
-      lwClipStill    still;
-      lwClipSeq      seq;
-      lwClipAnim     anim;
-      lwClipXRef     xref;
-      lwClipCycle    cycle;
-   }              source;
-   float          start_time;
-   float          duration;
-   float          frame_rate;
-   lwEParam       contrast;
-   lwEParam       brightness;
-   lwEParam       saturation;
-   lwEParam       hue;
-   lwEParam       gamma;
-   int            negative;
-   lwPlugin      *ifilter;             /* linked list of image filters */
-   int            nifilters;
-   lwPlugin      *pfilter;             /* linked list of pixel filters */
-   int            npfilters;
+typedef struct st_lwClip
+{
+	struct st_lwClip* next, *prev;
+	int            index;
+	unsigned int   type;                /* ID_STIL, ID_ISEQ, etc. */
+	union
+	{
+		lwClipStill    still;
+		lwClipSeq      seq;
+		lwClipAnim     anim;
+		lwClipXRef     xref;
+		lwClipCycle    cycle;
+	}              source;
+	float          start_time;
+	float          duration;
+	float          frame_rate;
+	lwEParam       contrast;
+	lwEParam       brightness;
+	lwEParam       saturation;
+	lwEParam       hue;
+	lwEParam       gamma;
+	int            negative;
+	lwPlugin*      ifilter;             /* linked list of image filters */
+	int            nifilters;
+	lwPlugin*      pfilter;             /* linked list of pixel filters */
+	int            npfilters;
 } lwClip;
 
 
 /* textures */
 
-typedef struct st_lwTMap {
-   lwVParam       size;
-   lwVParam       center;
-   lwVParam       rotate;
-   lwVParam       falloff;
-   int            fall_type;
-   char          *ref_object;
-   int            coord_sys;
+typedef struct st_lwTMap
+{
+	lwVParam       size;
+	lwVParam       center;
+	lwVParam       rotate;
+	lwVParam       falloff;
+	int            fall_type;
+	char*          ref_object;
+	int            coord_sys;
 } lwTMap;
 
-typedef struct st_lwImageMap {
-   int            cindex;
-   int            projection;
-   char          *vmap_name;
-   int            axis;
-   int            wrapw_type;
-   int            wraph_type;
-   lwEParam       wrapw;
-   lwEParam       wraph;
-   float          aa_strength;
-   int            aas_flags;
-   int            pblend;
-   lwEParam       stck;
-   lwEParam       amplitude;
+typedef struct st_lwImageMap
+{
+	int            cindex;
+	int            projection;
+	char*          vmap_name;
+	int            axis;
+	int            wrapw_type;
+	int            wraph_type;
+	lwEParam       wrapw;
+	lwEParam       wraph;
+	float          aa_strength;
+	int            aas_flags;
+	int            pblend;
+	lwEParam       stck;
+	lwEParam       amplitude;
 } lwImageMap;
 
 #define PROJ_PLANAR       0
@@ -352,214 +367,239 @@ typedef struct st_lwImageMap {
 #define WRAP_REPEAT  2
 #define WRAP_MIRROR  3
 
-typedef struct st_lwProcedural {
-   int            axis;
-   float          value[ 3 ];
-   char          *name;
-   void          *data;
+typedef struct st_lwProcedural
+{
+	int            axis;
+	float          value[ 3 ];
+	char*          name;
+	void*          data;
 } lwProcedural;
 
-typedef struct st_lwGradKey {
-   struct st_lwGradKey *next, *prev;
-   float          value;
-   float          rgba[ 4 ];
+typedef struct st_lwGradKey
+{
+	struct st_lwGradKey* next, *prev;
+	float          value;
+	float          rgba[ 4 ];
 } lwGradKey;
 
-typedef struct st_lwGradient {
-   char          *paramname;
-   char          *itemname;
-   float          start;
-   float          end;
-   int            repeat;
-   lwGradKey     *key;                 /* array of gradient keys */
-   short         *ikey;                /* array of interpolation codes */
+typedef struct st_lwGradient
+{
+	char*          paramname;
+	char*          itemname;
+	float          start;
+	float          end;
+	int            repeat;
+	lwGradKey*     key;                 /* array of gradient keys */
+	short*         ikey;                /* array of interpolation codes */
 } lwGradient;
 
-typedef struct st_lwTexture {
-   struct st_lwTexture *next, *prev;
-   char          *ord;
-   unsigned int   type;
-   unsigned int   chan;
-   lwEParam       opacity;
-   short          opac_type;
-   short          enabled;
-   short          negative;
-   short          axis;
-   union {
-      lwImageMap     imap;
-      lwProcedural   proc;
-      lwGradient     grad;
-   }              param;
-   lwTMap         tmap;
+typedef struct st_lwTexture
+{
+	struct st_lwTexture* next, *prev;
+	char*          ord;
+	unsigned int   type;
+	unsigned int   chan;
+	lwEParam       opacity;
+	short          opac_type;
+	short          enabled;
+	short          negative;
+	short          axis;
+	union
+	{
+		lwImageMap     imap;
+		lwProcedural   proc;
+		lwGradient     grad;
+	}              param;
+	lwTMap         tmap;
 } lwTexture;
 
 
 /* values that can be textured */
 
-typedef struct st_lwTParam {
-   float          val;
-   int            eindex;
-   lwTexture     *tex;                 /* linked list of texture layers */
+typedef struct st_lwTParam
+{
+	float          val;
+	int            eindex;
+	lwTexture*     tex;                 /* linked list of texture layers */
 } lwTParam;
 
-typedef struct st_lwCParam {
-   float          rgb[ 3 ];
-   int            eindex;
-   lwTexture     *tex;                 /* linked list of texture layers */
+typedef struct st_lwCParam
+{
+	float          rgb[ 3 ];
+	int            eindex;
+	lwTexture*     tex;                 /* linked list of texture layers */
 } lwCParam;
 
 
 /* surfaces */
 
-typedef struct st_lwGlow {
-   short          enabled;
-   short          type;
-   lwEParam       intensity;
-   lwEParam       size;
+typedef struct st_lwGlow
+{
+	short          enabled;
+	short          type;
+	lwEParam       intensity;
+	lwEParam       size;
 } Glow;
 
-typedef struct st_lwRMap {
-   lwTParam       val;
-   int            options;
-   int            cindex;
-   float          seam_angle;
+typedef struct st_lwRMap
+{
+	lwTParam       val;
+	int            options;
+	int            cindex;
+	float          seam_angle;
 } lwRMap;
 
-typedef struct st_lwLine {
-   short          enabled;
-   unsigned short flags;
-   lwEParam       size;
+typedef struct st_lwLine
+{
+	short          enabled;
+	unsigned short flags;
+	lwEParam       size;
 } lwLine;
 
-typedef struct st_lwSurface {
-   struct st_lwSurface *next, *prev;
-   char          *name;
-   char          *srcname;
-   lwCParam       color;
-   lwTParam       luminosity;
-   lwTParam       diffuse;
-   lwTParam       specularity;
-   lwTParam       glossiness;
-   lwRMap         reflection;
-   lwRMap         transparency;
-   lwTParam       eta;
-   lwTParam       translucency;
-   lwTParam       bump;
-   float          smooth;
-   int            sideflags;
-   float          alpha;
-   int            alpha_mode;
-   lwEParam       color_hilite;
-   lwEParam       color_filter;
-   lwEParam       add_trans;
-   lwEParam       dif_sharp;
-   lwEParam       glow;
-   lwLine         line;
-   lwPlugin      *shader;              /* linked list of shaders */
-   int            nshaders;
+typedef struct st_lwSurface
+{
+	struct st_lwSurface* next, *prev;
+	char*          name;
+	char*          srcname;
+	lwCParam       color;
+	lwTParam       luminosity;
+	lwTParam       diffuse;
+	lwTParam       specularity;
+	lwTParam       glossiness;
+	lwRMap         reflection;
+	lwRMap         transparency;
+	lwTParam       eta;
+	lwTParam       translucency;
+	lwTParam       bump;
+	float          smooth;
+	int            sideflags;
+	float          alpha;
+	int            alpha_mode;
+	lwEParam       color_hilite;
+	lwEParam       color_filter;
+	lwEParam       add_trans;
+	lwEParam       dif_sharp;
+	lwEParam       glow;
+	lwLine         line;
+	lwPlugin*      shader;              /* linked list of shaders */
+	int            nshaders;
 } lwSurface;
 
 
 /* vertex maps */
 
-typedef struct st_lwVMap {
-   struct st_lwVMap *next, *prev;
-   char          *name;
-   unsigned int   type;
-   int            dim;
-   int            nverts;
-   int            perpoly;
-   int           *vindex;              /* array of point indexes */
-   int           *pindex;              /* array of polygon indexes */
-   float        **val;
+typedef struct st_lwVMap
+{
+	struct st_lwVMap* next, *prev;
+	char*          name;
+	unsigned int   type;
+	int            dim;
+	int            nverts;
+	int            perpoly;
+	int*           vindex;              /* array of point indexes */
+	int*           pindex;              /* array of polygon indexes */
+	float**        val;
 
-   // added by duffy
-   int			offset;
+	// added by duffy
+	int			offset;
 } lwVMap;
 
-typedef struct st_lwVMapPt {
-   lwVMap        *vmap;
-   int            index;               /* vindex or pindex element */
+typedef struct st_lwVMapPt
+{
+	lwVMap*        vmap;
+	int            index;               /* vindex or pindex element */
 } lwVMapPt;
 
 
 /* points and polygons */
 
-typedef struct st_lwPoint {
-   float          pos[ 3 ];
-   int            npols;               /* number of polygons sharing the point */
-   int           *pol;                 /* array of polygon indexes */
-   int            nvmaps;
-   lwVMapPt      *vm;                  /* array of vmap references */
+typedef struct st_lwPoint
+{
+	float          pos[ 3 ];
+	int            npols;               /* number of polygons sharing the point */
+	int*           pol;                 /* array of polygon indexes */
+	int            nvmaps;
+	lwVMapPt*      vm;                  /* array of vmap references */
 } lwPoint;
 
-typedef struct st_lwPolVert {
-   int            index;               /* index into the point array */
-   float          norm[ 3 ];
-   int            nvmaps;
-   lwVMapPt      *vm;                  /* array of vmap references */
+typedef struct st_lwPolVert
+{
+	int            index;               /* index into the point array */
+	float          norm[ 3 ];
+	int            nvmaps;
+	lwVMapPt*      vm;                  /* array of vmap references */
 } lwPolVert;
 
-typedef struct st_lwPolygon {
-   lwSurface     *surf;
-   int            part;                /* part index */
-   int            smoothgrp;           /* smoothing group */
-   int            flags;
-   unsigned int   type;
-   float          norm[ 3 ];
-   int            nverts;
-   lwPolVert     *v;                   /* array of vertex records */
+typedef struct st_lwPolygon
+{
+	union
+	{
+		intptr_t   index;
+		lwSurface* ptr;
+	}              surf;
+	int            part;                /* part index */
+	int            smoothgrp;           /* smoothing group */
+	int            flags;
+	unsigned int   type;
+	float          norm[ 3 ];
+	int            nverts;
+	lwPolVert*     v;                   /* array of vertex records */
 } lwPolygon;
 
-typedef struct st_lwPointList {
-   int            count;
-   int            offset;              /* only used during reading */
-   lwPoint       *pt;                  /* array of points */
+typedef struct st_lwPointList
+{
+	int            count;
+	int            offset;              /* only used during reading */
+	lwPoint*       pt;                  /* array of points */
 } lwPointList;
 
-typedef struct st_lwPolygonList {
-   int            count;
-   int            offset;              /* only used during reading */
-   int            vcount;              /* total number of vertices */
-   int            voffset;             /* only used during reading */
-   lwPolygon     *pol;                 /* array of polygons */
+typedef struct st_lwPolygonList
+{
+	int            count;
+	int            offset;              /* only used during reading */
+	int            vcount;              /* total number of vertices */
+	int            voffset;             /* only used during reading */
+	lwPolygon*     pol;                 /* array of polygons */
 } lwPolygonList;
 
 
 /* geometry layers */
 
-typedef struct st_lwLayer {
-   struct st_lwLayer *next, *prev;
-   char          *name;
-   int            index;
-   int            parent;
-   int            flags;
-   float          pivot[ 3 ];
-   float          bbox[ 6 ];
-   lwPointList    point;
-   lwPolygonList  polygon;
-   int            nvmaps;
-   lwVMap        *vmap;                /* linked list of vmaps */
+typedef struct st_lwLayer
+{
+	struct st_lwLayer* next, *prev;
+	char*          name;
+	int            index;
+	int            parent;
+	int            flags;
+	float          pivot[ 3 ];
+	float          bbox[ 6 ];
+	lwPointList    point;
+	lwPolygonList  polygon;
+	int            nvmaps;
+	lwVMap*        vmap;                /* linked list of vmaps */
 } lwLayer;
 
 
 /* tag strings */
 
-typedef struct st_lwTagList {
-   int            count;
-   int            offset;              /* only used during reading */
-   char         **tag;                 /* array of strings */
+typedef struct st_lwTagList
+{
+	int            count;
+	int            offset;              /* only used during reading */
+	char**         tag;                 /* array of strings */
 } lwTagList;
 
 
 /* an object */
 
-typedef struct st_lwObject {
+typedef struct st_lwObject
+{
 	ID_TIME_T			timeStamp;
-	lwLayer *		layer;               /* linked list of layers */
-	lwEnvelope *	env;                 /* linked list of envelopes */
-	lwClip *		clip;                /* linked list of clips */
-	lwSurface *		surf;                /* linked list of surfaces */
+	lwLayer* 		layer;               /* linked list of layers */
+	lwEnvelope* 	env;                 /* linked list of envelopes */
+	lwClip* 		clip;                /* linked list of clips */
+	lwSurface* 		surf;                /* linked list of surfaces */
 	lwTagList		taglist;
 	int				nlayers;
 	int				nenvs;
@@ -570,76 +610,76 @@ typedef struct st_lwObject {
 
 /* lwo2.c */
 
-lwObject *lwGetObject( const char *filename, unsigned int *failID, int *failpos );
-void lwFreeObject( lwObject *object );
-void lwFreeLayer( lwLayer *layer );
+lwObject* lwGetObject( const char* filename, unsigned int* failID, int* failpos );
+void lwFreeObject( lwObject* object );
+void lwFreeLayer( lwLayer* layer );
 
 /* pntspols.c */
 
-void lwFreePoints( lwPointList *point );
-void lwFreePolygons( lwPolygonList *plist );
-int lwGetPoints( idFile *fp, int cksize, lwPointList *point );
-void lwGetBoundingBox( lwPointList *point, float bbox[] );
-int lwAllocPolygons( lwPolygonList *plist, int npols, int nverts );
-int lwGetPolygons( idFile *fp, int cksize, lwPolygonList *plist, int ptoffset );
-void lwGetPolyNormals( lwPointList *point, lwPolygonList *polygon );
-int lwGetPointPolygons( lwPointList *point, lwPolygonList *polygon );
-int lwResolvePolySurfaces( lwPolygonList *polygon, lwTagList *tlist,
-   lwSurface **surf, int *nsurfs );
-void lwGetVertNormals( lwPointList *point, lwPolygonList *polygon );
-void lwFreeTags( lwTagList *tlist );
-int lwGetTags( idFile *fp, int cksize, lwTagList *tlist );
-int lwGetPolygonTags( idFile *fp, int cksize, lwTagList *tlist,
-   lwPolygonList *plist );
+void lwFreePoints( lwPointList* point );
+void lwFreePolygons( lwPolygonList* plist );
+int lwGetPoints( idFile* fp, int cksize, lwPointList* point );
+void lwGetBoundingBox( lwPointList* point, float bbox[] );
+int lwAllocPolygons( lwPolygonList* plist, int npols, int nverts );
+int lwGetPolygons( idFile* fp, int cksize, lwPolygonList* plist, int ptoffset );
+void lwGetPolyNormals( lwPointList* point, lwPolygonList* polygon );
+int lwGetPointPolygons( lwPointList* point, lwPolygonList* polygon );
+int lwResolvePolySurfaces( lwPolygonList* polygon, lwTagList* tlist,
+						   lwSurface** surf, int* nsurfs );
+void lwGetVertNormals( lwPointList* point, lwPolygonList* polygon );
+void lwFreeTags( lwTagList* tlist );
+int lwGetTags( idFile* fp, int cksize, lwTagList* tlist );
+int lwGetPolygonTags( idFile* fp, int cksize, lwTagList* tlist,
+					  lwPolygonList* plist );
 
 /* vmap.c */
 
-void lwFreeVMap( lwVMap *vmap );
-lwVMap *lwGetVMap( idFile *fp, int cksize, int ptoffset, int poloffset,
-   int perpoly );
-int lwGetPointVMaps( lwPointList *point, lwVMap *vmap );
-int lwGetPolyVMaps( lwPolygonList *polygon, lwVMap *vmap );
+void lwFreeVMap( lwVMap* vmap );
+lwVMap* lwGetVMap( idFile* fp, int cksize, int ptoffset, int poloffset,
+				   int perpoly );
+int lwGetPointVMaps( lwPointList* point, lwVMap* vmap );
+int lwGetPolyVMaps( lwPolygonList* polygon, lwVMap* vmap );
 
 /* clip.c */
 
-void lwFreeClip( lwClip *clip );
-lwClip *lwGetClip( idFile *fp, int cksize );
-lwClip *lwFindClip( lwClip *list, int index );
+void lwFreeClip( lwClip* clip );
+lwClip* lwGetClip( idFile* fp, int cksize );
+lwClip* lwFindClip( lwClip* list, int index );
 
 /* envelope.c */
 
-void lwFreeEnvelope( lwEnvelope *env );
-lwEnvelope *lwGetEnvelope( idFile *fp, int cksize );
-lwEnvelope *lwFindEnvelope( lwEnvelope *list, int index );
-float lwEvalEnvelope( lwEnvelope *env, float time );
+void lwFreeEnvelope( lwEnvelope* env );
+lwEnvelope* lwGetEnvelope( idFile* fp, int cksize );
+lwEnvelope* lwFindEnvelope( lwEnvelope* list, int index );
+float lwEvalEnvelope( lwEnvelope* env, float time );
 
 /* surface.c */
 
-void lwFreePlugin( lwPlugin *p );
-void lwFreeTexture( lwTexture *t );
-void lwFreeSurface( lwSurface *surf );
-int lwGetTHeader( idFile *fp, int hsz, lwTexture *tex );
-int lwGetTMap( idFile *fp, int tmapsz, lwTMap *tmap );
-int lwGetImageMap( idFile *fp, int rsz, lwTexture *tex );
-int lwGetProcedural( idFile *fp, int rsz, lwTexture *tex );
-int lwGetGradient( idFile *fp, int rsz, lwTexture *tex );
-lwTexture *lwGetTexture( idFile *fp, int bloksz, unsigned int type );
-lwPlugin *lwGetShader( idFile *fp, int bloksz );
-lwSurface *lwGetSurface( idFile *fp, int cksize );
-lwSurface *lwDefaultSurface();
+void lwFreePlugin( lwPlugin* p );
+void lwFreeTexture( lwTexture* t );
+void lwFreeSurface( lwSurface* surf );
+int lwGetTHeader( idFile* fp, int hsz, lwTexture* tex );
+int lwGetTMap( idFile* fp, int tmapsz, lwTMap* tmap );
+int lwGetImageMap( idFile* fp, int rsz, lwTexture* tex );
+int lwGetProcedural( idFile* fp, int rsz, lwTexture* tex );
+int lwGetGradient( idFile* fp, int rsz, lwTexture* tex );
+lwTexture* lwGetTexture( idFile* fp, int bloksz, unsigned int type );
+lwPlugin* lwGetShader( idFile* fp, int bloksz );
+lwSurface* lwGetSurface( idFile* fp, int cksize );
+lwSurface* lwDefaultSurface();
 
 /* lwob.c */
 
-lwSurface *lwGetSurface5( idFile *fp, int cksize, lwObject *obj );
-int lwGetPolygons5( idFile *fp, int cksize, lwPolygonList *plist, int ptoffset );
-lwObject *lwGetObject5( const char *filename, unsigned int *failID, int *failpos );
+lwSurface* lwGetSurface5( idFile* fp, int cksize, lwObject* obj );
+int lwGetPolygons5( idFile* fp, int cksize, lwPolygonList* plist, int ptoffset );
+lwObject* lwGetObject5( const char* filename, unsigned int* failID, int* failpos );
 
 /* list.c */
 
-void lwListFree( void *list, void ( *freeNode )( void * ));
-void lwListAdd( void **list, void *node );
-void lwListInsert( void **vlist, void *vitem,
-   int ( *compare )( void *, void * ));
+void lwListFree( void* list, void ( *freeNode )( void* ) );
+void lwListAdd( void** list, void* node );
+void lwListInsert( void** vlist, void* vitem,
+				   int ( *compare )( void*, void* ) );
 
 /* vecmath.c */
 
@@ -652,25 +692,25 @@ void normalize( float v[] );
 
 void  set_flen( int i );
 int   get_flen();
-void *getbytes( idFile *fp, int size );
-void  skipbytes( idFile *fp, int n );
-int   getI1( idFile *fp );
-short getI2( idFile *fp );
-int   getI4( idFile *fp );
-unsigned char  getU1( idFile *fp );
-unsigned short getU2( idFile *fp );
-unsigned int   getU4( idFile *fp );
-int   getVX( idFile *fp );
-float getF4( idFile *fp );
-char *getS0( idFile *fp );
-int   sgetI1( unsigned char **bp );
-short sgetI2( unsigned char **bp );
-int   sgetI4( unsigned char **bp );
-unsigned char  sgetU1( unsigned char **bp );
-unsigned short sgetU2( unsigned char **bp );
-unsigned int   sgetU4( unsigned char **bp );
-int   sgetVX( unsigned char **bp );
-float sgetF4( unsigned char **bp );
-char *sgetS0( unsigned char **bp );
+void* getbytes( idFile* fp, int size );
+void  skipbytes( idFile* fp, int n );
+int   getI1( idFile* fp );
+short getI2( idFile* fp );
+int   getI4( idFile* fp );
+unsigned char  getU1( idFile* fp );
+unsigned short getU2( idFile* fp );
+unsigned int   getU4( idFile* fp );
+int   getVX( idFile* fp );
+float getF4( idFile* fp );
+char* getS0( idFile* fp );
+int   sgetI1( unsigned char** bp );
+short sgetI2( unsigned char** bp );
+int   sgetI4( unsigned char** bp );
+unsigned char  sgetU1( unsigned char** bp );
+unsigned short sgetU2( unsigned char** bp );
+unsigned int   sgetU4( unsigned char** bp );
+int   sgetVX( unsigned char** bp );
+float sgetF4( unsigned char** bp );
+char* sgetS0( unsigned char** bp );
 
 #endif /* !__LWO2_H__ */

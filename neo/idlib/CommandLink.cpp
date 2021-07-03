@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -36,24 +36,27 @@ The command system is not required for idLib, but we want to be able
 to use the CONSOLE_COMMAND() macro inside idlib, so these must be here.
 ========================
 */
-idCommandLink *CommandLinks( idCommandLink *cl ) {
-	static idCommandLink *commandLinks = NULL;
-	if ( cl != NULL ) {
+idCommandLink* CommandLinks( idCommandLink* cl )
+{
+	static idCommandLink* commandLinks = NULL;
+	if( cl != NULL )
+	{
 		commandLinks = cl;
 	}
 	return commandLinks;
 }
 
 
-idCommandLink *commandLinks = NULL;
+idCommandLink* commandLinks = NULL;
 
-idCommandLink::idCommandLink( const char *cmdName, cmdFunction_t function, 
-	const char *description, argCompletion_t argCompletion ) {
-		next = CommandLinks();
-		CommandLinks( this );
-		cmdName_ = cmdName;
-		function_ = function;
-		description_ = description;
-		argCompletion_ = argCompletion;
+idCommandLink::idCommandLink( const char* cmdName, cmdFunction_t function,
+							  const char* description, argCompletion_t argCompletion )
+{
+	next = CommandLinks();
+	CommandLinks( this );
+	cmdName_ = cmdName;
+	function_ = function;
+	description_ = description;
+	argCompletion_ = argCompletion;
 }
 

@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -28,25 +28,27 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __LANGDICT_H__
 #define __LANGDICT_H__
 
-class idLangKeyValue {
+class idLangKeyValue
+{
 public:
 	idLangKeyValue() : key( NULL ), value( NULL ) { }
-	idLangKeyValue( char * k, char * v ) : key ( k ), value( v ) { }
-	char * key;
-	char * value;
+	idLangKeyValue( char* k, char* v ) : key( k ), value( v ) { }
+	char* key;
+	char* value;
 };
 
 class idStrId;
 
 /*
 ================================================
-idLangDict is a simple Dictionary used specifically for the 
+idLangDict is a simple Dictionary used specifically for the
 LocalizedStringTables.
 ================================================
 */
-class idLangDict {
+class idLangDict
+{
 public:
-	static const char *		KEY_PREFIX;
+	static const char* 		KEY_PREFIX;
 	static const int		KEY_PREFIX_LEN;
 	static const int		MAX_REDIRECTION_DEPTH = 2;
 
@@ -54,27 +56,27 @@ public:
 	~idLangDict();
 
 	void					Clear();
-	bool					Load( const byte * buffer, const int bufferLen, const char * name );
-	bool					Save( const char * fileName );
+	bool					Load( const byte* buffer, const int bufferLen, const char* name );
+	bool					Save( const char* fileName );
 
-	const char *			GetString( const char * str ) const;		// returns str if string not found
-	const char *			FindString( const char * str ) const;		// returns NULL if string not found
+	const char* 			GetString( const char* str ) const;		// returns str if string not found
+	const char* 			FindString( const char* str ) const;		// returns NULL if string not found
 
-	const char *			AddString( const char * str );				// returns a randomly generated key
-	bool					DeleteString( const char * key );			// returns false if the key doesn't exist
-	bool					RenameStringKey( const char * oldKey, const char * newKey );
+	const char* 			AddString( const char* str );				// returns a randomly generated key
+	bool					DeleteString( const char* key );			// returns false if the key doesn't exist
+	bool					RenameStringKey( const char* oldKey, const char* newKey );
 
-	bool					SetString( const char * key, const char * val );	// Returns false if the key doesn't exist
-	void					AddKeyVal( const char * key, const char * val );	// Like SetString, but adds it if it doesn't already exist
+	bool					SetString( const char* key, const char* val );	// Returns false if the key doesn't exist
+	void					AddKeyVal( const char* key, const char* val );	// Like SetString, but adds it if it doesn't already exist
 
 	int						GetNumKeyVals() const;
-	const idLangKeyValue *	GetKeyVal( int i ) const;
+	const idLangKeyValue* 	GetKeyVal( int i ) const;
 	bool					DeleteString( const int idx );
 
-	const char *			GetLocalizedString( const idStrId & strId ) const;
+	const char* 			GetLocalizedString( const idStrId& strId ) const;
 
 	// returns true if the string starts with the KEY_PREFIX string
-	static bool				IsStringId( const char * str );
+	static bool				IsStringId( const char* str );
 
 private:
 	idDynamicBlockAlloc< char, 100 * 1024, 16 > blockAlloc;
@@ -82,29 +84,33 @@ private:
 	idHashIndex keyIndex;
 
 private:
-	int						FindStringIndex( const char * str ) const;
-	const char *			FindString_r( const char * str, int & depth ) const;
+	int						FindStringIndex( const char* str ) const;
+	const char* 			FindString_r( const char* str, int& depth ) const;
 
 	friend class idStrId;
 };
 
 /*
 ================================================
-idLocalization 
+idLocalization
 ================================================
 */
-class idLocalization {
+class idLocalization
+{
 public:
-	static const char *		GetString( const char * inString );		// returns inString if string not found
-	static const char *		FindString( const char * inString );	// Returns NULL if string not found
+	static const char* 		GetString( const char* inString );		// returns inString if string not found
+	static const char* 		FindString( const char* inString );	// Returns NULL if string not found
 
 	static void				ClearDictionary();
-	static bool				LoadDictionary( const byte * buffer, const int bufferLen, const char * name );
+	static bool				LoadDictionary( const byte* buffer, const int bufferLen, const char* name );
 
 	// This is only here for tools, normal code should only ever call GetString
-	static idLangDict &		GetDictionary() { return languageDict; }
+	static idLangDict& 		GetDictionary()
+	{
+		return languageDict;
+	}
 
-	static utf8Encoding_t	VerifyUTF8( const uint8 * buffer, const int bufferLen, const char * name );
+	static utf8Encoding_t	VerifyUTF8( const uint8* buffer, const int bufferLen, const char* name );
 
 private:
 	static idLangDict					languageDict;
@@ -116,32 +122,66 @@ private:
 idStrId represents a localized String as a String ID.
 ================================================
 */
-class idStrId {
+class idStrId
+{
 public:
 	idStrId() : index( -1 ) { }
-	idStrId( const idStrId & other ) : index( other.index ) { }
+	idStrId( const idStrId& other ) : index( other.index ) { }
 
 	explicit idStrId( int i ) : index( i ) { }
-	explicit idStrId( const char * key ) { Set( key ); }
-	explicit idStrId( const idStr & key ) { Set( key ); }
+	explicit idStrId( const char* key )
+	{
+		Set( key );
+	}
+	explicit idStrId( const idStr& key )
+	{
+		Set( key );
+	}
 
-	void operator=( const char * key ) { Set( key ); }
-	void operator=( const idStr & key ) { Set( key ); }
-	void operator=( const idStrId & other ) { index = other.index; }
+	void operator=( const char* key )
+	{
+		Set( key );
+	}
+	void operator=( const idStr& key )
+	{
+		Set( key );
+	}
+	void operator=( const idStrId& other )
+	{
+		index = other.index;
+	}
 
-	bool operator==( const idStrId & other ) const { return index == other.index; }
-	bool operator!=( const idStrId & other ) const { return index != other.index; }
+	bool operator==( const idStrId& other ) const
+	{
+		return index == other.index;
+	}
+	bool operator!=( const idStrId& other ) const
+	{
+		return index != other.index;
+	}
 
-	void			Set( const char * key );
+	void			Set( const char* key );
 
-	void			Empty() { index = -1; }
-	bool			IsEmpty() const { return index < 0; }
+	void			Empty()
+	{
+		index = -1;
+	}
+	bool			IsEmpty() const
+	{
+		return index < 0;
+	}
 
-	const char *	GetKey() const;
-	const char *	GetLocalizedString() const;
+	const char* 	GetKey() const;
+	const char* 	GetLocalizedString() const;
 
-	int				GetIndex() const { return index; }
-	void			SetIndex( int i ) { index = i; }
+	int				GetIndex() const
+	{
+		return index;
+	}
+	void			SetIndex( int i )
+	{
+		index = i;
+	}
 
 private:
 	int index;	// Index into the language dictionary

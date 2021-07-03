@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -38,19 +38,32 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-class idListGUILocal : protected idList<idStr, TAG_OLD_UI>, public idListGUI {
+class idListGUILocal : protected idList<idStr, TAG_OLD_UI>, public idListGUI
+{
 public:
-						idListGUILocal() { m_pGUI = NULL; m_water = 0; m_stateUpdates = true; }
+	idListGUILocal()
+	{
+		m_pGUI = NULL;
+		m_water = 0;
+		m_stateUpdates = true;
+	}
 
 	// idListGUI interface
-	void				Config( idUserInterface *pGUI, const char *name ) { m_pGUI = pGUI; m_name = name; }
+	void				Config( idUserInterface* pGUI, const char* name )
+	{
+		m_pGUI = pGUI;
+		m_name = name;
+	}
 	void				Add( int id, const idStr& s );
-						// use the element count as index for the ids
+	// use the element count as index for the ids
 	void				Push( const idStr& s );
 	bool				Del( int id );
 	void				Clear();
-	int					Num() { return idList<idStr, TAG_OLD_UI>::Num(); }
-	int					GetSelection( char *s, int size, int sel = 0 ) const; // returns the id, not the list index (or -1)
+	int					Num()
+	{
+		return idList<idStr, TAG_OLD_UI>::Num();
+	}
+	int					GetSelection( char* s, int size, int sel = 0 ) const; // returns the id, not the list index (or -1)
 	void				SetSelection( int sel );
 	int					GetNumSelections();
 	bool				IsConfigured() const;
@@ -58,7 +71,7 @@ public:
 	void				Shutdown();
 
 private:
-	idUserInterface *	m_pGUI;
+	idUserInterface* 	m_pGUI;
 	idStr				m_name;
 	int					m_water;
 	idList<int, TAG_OLD_UI>			m_ids;

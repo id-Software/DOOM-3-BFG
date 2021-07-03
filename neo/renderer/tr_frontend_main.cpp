@@ -2,9 +2,10 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2014 Robert Beckebans
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,9 +28,9 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
-#include "../idlib/precompiled.h"
+#include "precompiled.h"
 
-#include "tr_local.h"
+#include "RenderCommon.h"
 
 /*
 ==========================================================================================
@@ -39,19 +40,18 @@ FRAME MEMORY ALLOCATION
 ==========================================================================================
 */
 
-static const unsigned int NUM_FRAME_DATA = 2;
 static const unsigned int FRAME_ALLOC_ALIGNMENT = 128;
 static const unsigned int MAX_FRAME_MEMORY = 64 * 1024 * 1024;	// larger so that we can noclip on PC for dev purposes
 
 idFrameData		smpFrameData[NUM_FRAME_DATA];
-idFrameData *	frameData;
+idFrameData* 	frameData;
 unsigned int	smpFrame;
 
 //#define TRACK_FRAME_ALLOCS
 
 #if defined( TRACK_FRAME_ALLOCS )
-idSysInterlockedInteger frameAllocTypeCount[FRAME_ALLOC_MAX];
-int frameHighWaterTypeCount[FRAME_ALLOC_MAX];
+	idSysInterlockedInteger frameAllocTypeCount[FRAME_ALLOC_MAX];
+	int frameHighWaterTypeCount[FRAME_ALLOC_MAX];
 #endif
 
 /*
@@ -59,13 +59,16 @@ int frameHighWaterTypeCount[FRAME_ALLOC_MAX];
 R_ToggleSmpFrame
 ====================
 */
-void R_ToggleSmpFrame() {
+void R_ToggleSmpFrame()
+{
 	// update the highwater mark
-	if ( frameData->frameMemoryAllocated.GetValue() > frameData->highWaterAllocated ) {
+	if( frameData->frameMemoryAllocated.GetValue() > frameData->highWaterAllocated )
+	{
 		frameData->highWaterAllocated = frameData->frameMemoryAllocated.GetValue();
 #if defined( TRACK_FRAME_ALLOCS )
 		frameData->highWaterUsed = frameData->frameMemoryUsed.GetValue();
-		for ( int i = 0; i < FRAME_ALLOC_MAX; i++ ) {
+		for( int i = 0; i < FRAME_ALLOC_MAX; i++ )
+		{
 			frameHighWaterTypeCount[i] = frameAllocTypeCount[i].GetValue();
 		}
 #endif
@@ -76,18 +79,23 @@ void R_ToggleSmpFrame() {
 	frameData = &smpFrameData[smpFrame % NUM_FRAME_DATA];
 
 	// reset the memory allocation
-	const unsigned int bytesNeededForAlignment = FRAME_ALLOC_ALIGNMENT - ( (unsigned int)frameData->frameMemory & ( FRAME_ALLOC_ALIGNMENT - 1 ) );
+
+	// RB: 64 bit fixes, changed unsigned int to uintptr_t
+	const uintptr_t bytesNeededForAlignment = FRAME_ALLOC_ALIGNMENT - ( ( uintptr_t )frameData->frameMemory & ( FRAME_ALLOC_ALIGNMENT - 1 ) );
+	// RB end
+
 	frameData->frameMemoryAllocated.SetValue( bytesNeededForAlignment );
 	frameData->frameMemoryUsed.SetValue( 0 );
 
 #if defined( TRACK_FRAME_ALLOCS )
-	for ( int i = 0; i < FRAME_ALLOC_MAX; i++ ) {
+	for( int i = 0; i < FRAME_ALLOC_MAX; i++ )
+	{
 		frameAllocTypeCount[i].SetValue( 0 );
 	}
 #endif
 
 	// clear the command chain and make a RC_NOP command the only thing on the list
-	frameData->cmdHead = frameData->cmdTail = (emptyCommand_t *)R_FrameAlloc( sizeof( *frameData->cmdHead ), FRAME_ALLOC_DRAW_COMMAND );
+	frameData->cmdHead = frameData->cmdTail = ( emptyCommand_t* )R_FrameAlloc( sizeof( *frameData->cmdHead ), FRAME_ALLOC_DRAW_COMMAND );
 	frameData->cmdHead->commandId = RC_NOP;
 	frameData->cmdHead->next = NULL;
 }
@@ -97,9 +105,11 @@ void R_ToggleSmpFrame() {
 R_ShutdownFrameData
 =====================
 */
-void R_ShutdownFrameData() {
+void R_ShutdownFrameData()
+{
 	frameData = NULL;
-	for ( int i = 0; i < NUM_FRAME_DATA; i++ ) {
+	for( int i = 0; i < NUM_FRAME_DATA; i++ )
+	{
 		Mem_Free16( smpFrameData[i].frameMemory );
 		smpFrameData[i].frameMemory = NULL;
 	}
@@ -110,11 +120,13 @@ void R_ShutdownFrameData() {
 R_InitFrameData
 =====================
 */
-void R_InitFrameData() {
+void R_InitFrameData()
+{
 	R_ShutdownFrameData();
 
-	for ( int i = 0; i < NUM_FRAME_DATA; i++ ) {
-		smpFrameData[i].frameMemory = (byte *) Mem_Alloc16( MAX_FRAME_MEMORY, TAG_RENDER );
+	for( int i = 0; i < NUM_FRAME_DATA; i++ )
+	{
+		smpFrameData[i].frameMemory = ( byte* ) Mem_Alloc16( MAX_FRAME_MEMORY, TAG_RENDER );
 	}
 
 	// must be set before calling R_ToggleSmpFrame()
@@ -139,24 +151,27 @@ and local spaces are allocated here.
 All memory is cache-line-cleared for the best performance.
 ================
 */
-void *R_FrameAlloc( int bytes, frameAllocType_t type ) {
+void* R_FrameAlloc( int bytes, frameAllocType_t type )
+{
 #if defined( TRACK_FRAME_ALLOCS )
 	frameData->frameMemoryUsed.Add( bytes );
 	frameAllocTypeCount[type].Add( bytes );
 #endif
 
-	bytes = ( bytes + FRAME_ALLOC_ALIGNMENT - 1 ) & ~ ( FRAME_ALLOC_ALIGNMENT - 1 );
+	bytes = ( bytes + FRAME_ALLOC_ALIGNMENT - 1 ) & ~( FRAME_ALLOC_ALIGNMENT - 1 );
 
 	// thread safe add
 	int	end = frameData->frameMemoryAllocated.Add( bytes );
-	if ( end > MAX_FRAME_MEMORY ) {
+	if( end > MAX_FRAME_MEMORY )
+	{
 		idLib::Error( "R_FrameAlloc ran out of memory. bytes = %d, end = %d, highWaterAllocated = %d\n", bytes, end, frameData->highWaterAllocated );
 	}
 
-	byte * ptr = frameData->frameMemory + end - bytes;
+	byte* ptr = frameData->frameMemory + end - bytes;
 
 	// cache line clear the memory
-	for ( int offset = 0; offset < bytes; offset += CACHE_LINE_SIZE ) {
+	for( int offset = 0; offset < bytes; offset += CACHE_LINE_SIZE )
+	{
 		ZeroCacheLine( ptr, offset );
 	}
 
@@ -168,7 +183,8 @@ void *R_FrameAlloc( int bytes, frameAllocType_t type ) {
 R_ClearedFrameAlloc
 ==================
 */
-void *R_ClearedFrameAlloc( int bytes, frameAllocType_t type ) {
+void* R_ClearedFrameAlloc( int bytes, frameAllocType_t type )
+{
 	// NOTE: every allocation is cache line cleared
 	return R_FrameAlloc( bytes, type );
 }
@@ -186,13 +202,15 @@ FONT-END STATIC MEMORY ALLOCATION
 R_StaticAlloc
 =================
 */
-void *R_StaticAlloc( int bytes, const memTag_t tag ) {
+void* R_StaticAlloc( int bytes, const memTag_t tag )
+{
 	tr.pc.c_alloc++;
 
-    void * buf = Mem_Alloc( bytes, tag );
+	void* buf = Mem_Alloc( bytes, tag );
 
 	// don't exit on failure on zero length allocations since the old code didn't
-	if ( buf == NULL && bytes != 0 ) {
+	if( buf == NULL && bytes != 0 )
+	{
 		common->FatalError( "R_StaticAlloc failed on %i bytes", bytes );
 	}
 	return buf;
@@ -203,8 +221,9 @@ void *R_StaticAlloc( int bytes, const memTag_t tag ) {
 R_ClearedStaticAlloc
 =================
 */
-void *R_ClearedStaticAlloc( int bytes ) {
-	void * buf = R_StaticAlloc( bytes );
+void* R_ClearedStaticAlloc( int bytes )
+{
+	void* buf = R_StaticAlloc( bytes );
 	memset( buf, 0, bytes );
 	return buf;
 }
@@ -214,9 +233,10 @@ void *R_ClearedStaticAlloc( int bytes ) {
 R_StaticFree
 =================
 */
-void R_StaticFree( void *data ) {
+void R_StaticFree( void* data )
+{
 	tr.pc.c_free++;
-    Mem_Free( data );
+	Mem_Free( data );
 }
 
 /*
@@ -232,29 +252,32 @@ FONT-END RENDERING
 R_SortDrawSurfs
 =================
 */
-static void R_SortDrawSurfs( drawSurf_t ** drawSurfs, const int numDrawSurfs ) {
+static void R_SortDrawSurfs( drawSurf_t** drawSurfs, const int numDrawSurfs )
+{
 #if 1
 
-	uint64 * indices = (uint64 *) _alloca16( numDrawSurfs * sizeof( indices[0] ) );
+	uint64* indices = ( uint64* ) _alloca16( numDrawSurfs * sizeof( indices[0] ) );
 
 	// sort the draw surfs based on:
 	// 1. sort value (largest first)
 	// 2. depth (smallest first)
 	// 3. index (largest first)
 	assert( numDrawSurfs <= 0xFFFF );
-	for ( int i = 0; i < numDrawSurfs; i++ ) {
+	for( int i = 0; i < numDrawSurfs; i++ )
+	{
 		float sort = SS_POST_PROCESS - drawSurfs[i]->sort;
 		assert( sort >= 0.0f );
 
 		uint64 dist = 0;
-		if ( drawSurfs[i]->frontEndGeo != NULL ) {
+		if( drawSurfs[i]->frontEndGeo != NULL )
+		{
 			float min = 0.0f;
 			float max = 1.0f;
 			idRenderMatrix::DepthBoundsForBounds( min, max, drawSurfs[i]->space->mvp, drawSurfs[i]->frontEndGeo->bounds );
 			dist = idMath::Ftoui16( min * 0xFFFF );
 		}
-		
-		indices[i] = ( ( numDrawSurfs - i ) & 0xFFFF ) | ( dist << 16 ) | ( (uint64) ( *(uint32 *)&sort ) << 32 );
+
+		indices[i] = ( ( numDrawSurfs - i ) & 0xFFFF ) | ( dist << 16 ) | ( ( uint64 )( *( uint32* )&sort ) << 32 );
 	}
 
 	const int64 MAX_LEVELS = 128;
@@ -266,17 +289,32 @@ static void R_SortDrawSurfs( drawSurf_t ** drawSurfs, const int numDrawSurfs ) {
 	register int64 st_hi = numDrawSurfs - 1;
 	register int64 level = 0;
 
-	for ( ; ; ) {
+	for( ; ; )
+	{
 		register int64 i = st_lo;
 		register int64 j = st_hi;
-		if ( j - i >= 4 && level < MAX_LEVELS - 1 ) {
+		if( j - i >= 4 && level < MAX_LEVELS - 1 )
+		{
 			register uint64 pivot = indices[( i + j ) / 2];
-			do {
-				while ( indices[i] > pivot ) i++;
-				while ( indices[j] < pivot ) j--;
-				if ( i > j ) break;
-				uint64 h = indices[i]; indices[i] = indices[j]; indices[j] = h;
-			} while ( ++i <= --j );
+			do
+			{
+				while( indices[i] > pivot )
+				{
+					i++;
+				}
+				while( indices[j] < pivot )
+				{
+					j--;
+				}
+				if( i > j )
+				{
+					break;
+				}
+				uint64 h = indices[i];
+				indices[i] = indices[j];
+				indices[j] = h;
+			}
+			while( ++i <= --j );
 
 			// No need for these iterations because we are always sorting unique values.
 			//while ( indices[j] == pivot && st_lo < j ) j--;
@@ -287,17 +325,25 @@ static void R_SortDrawSurfs( drawSurf_t ** drawSurfs, const int numDrawSurfs ) {
 			hi[level] = st_hi;
 			st_hi = j;
 			level++;
-		} else {
-			for( ; i < j; j-- ) {
+		}
+		else
+		{
+			for( ; i < j; j-- )
+			{
 				register int64 m = i;
-				for ( int64 k = i + 1; k <= j; k++ ) {
-					if ( indices[k] < indices[m] ) {
+				for( int64 k = i + 1; k <= j; k++ )
+				{
+					if( indices[k] < indices[m] )
+					{
 						m = k;
 					}
 				}
-				uint64 h = indices[m]; indices[m] = indices[j]; indices[j] = h;
+				uint64 h = indices[m];
+				indices[m] = indices[j];
+				indices[j] = h;
 			}
-			if ( --level < 0 ) {
+			if( --level < 0 )
+			{
 				break;
 			}
 			st_lo = lo[level];
@@ -305,22 +351,27 @@ static void R_SortDrawSurfs( drawSurf_t ** drawSurfs, const int numDrawSurfs ) {
 		}
 	}
 
-	drawSurf_t ** newDrawSurfs = (drawSurf_t **) indices;
-	for ( int i = 0; i < numDrawSurfs; i++ ) {
+	drawSurf_t** newDrawSurfs = ( drawSurf_t** ) indices;
+	for( int i = 0; i < numDrawSurfs; i++ )
+	{
 		newDrawSurfs[i] = drawSurfs[numDrawSurfs - ( indices[i] & 0xFFFF )];
 	}
 	memcpy( drawSurfs, newDrawSurfs, numDrawSurfs * sizeof( drawSurfs[0] ) );
 
 #else
 
-	struct local_t {
-		static int R_QsortSurfaces( const void *a, const void *b ) {
-			const drawSurf_t * ea = *(drawSurf_t **)a;
-			const drawSurf_t * eb = *(drawSurf_t **)b;
-			if ( ea->sort < eb->sort ) {
+	struct local_t
+	{
+		static int R_QsortSurfaces( const void* a, const void* b )
+		{
+			const drawSurf_t* ea = *( drawSurf_t** )a;
+			const drawSurf_t* eb = *( drawSurf_t** )b;
+			if( ea->sort < eb->sort )
+			{
 				return -1;
 			}
-			if ( ea->sort > eb->sort ) {
+			if( ea->sort > eb->sort )
+			{
 				return 1;
 			}
 			return 0;
@@ -330,7 +381,8 @@ static void R_SortDrawSurfs( drawSurf_t ** drawSurfs, const int numDrawSurfs ) {
 	// Add a sort offset so surfaces with equal sort orders still deterministically
 	// draw in the order they were added, at least within a given model.
 	float sorfOffset = 0.0f;
-	for ( int i = 0; i < numDrawSurfs; i++ ) {
+	for( int i = 0; i < numDrawSurfs; i++ )
+	{
 		drawSurf[i]->sort += sorfOffset;
 		sorfOffset += 0.000001f;
 	}
@@ -340,6 +392,197 @@ static void R_SortDrawSurfs( drawSurf_t ** drawSurfs, const int numDrawSurfs ) {
 
 #endif
 }
+
+// RB begin
+static void R_SetupSplitFrustums( viewDef_t* viewDef )
+{
+	idVec3			planeOrigin;
+
+	const float zNearStart = ( viewDef->renderView.cramZNear ) ? ( r_znear.GetFloat() * 0.25f ) : r_znear.GetFloat();
+	float zFarEnd = 10000;
+
+	float zNear = zNearStart;
+	float zFar = zFarEnd;
+
+	float lambda = r_shadowMapSplitWeight.GetFloat();
+	float ratio = zFarEnd / zNearStart;
+
+	for( int i = 0; i < 6; i++ )
+	{
+		tr.viewDef->frustumSplitDistances[i] = idMath::INFINITY;
+	}
+
+	for( int i = 1; i <= ( r_shadowMapSplits.GetInteger() + 1 ) && i < MAX_FRUSTUMS; i++ )
+	{
+		float si = i / ( float )( r_shadowMapSplits.GetInteger() + 1 );
+
+		if( i > FRUSTUM_CASCADE1 )
+		{
+			zNear = zFar - ( zFar * 0.005f );
+		}
+
+		zFar = 1.005f * lambda * ( zNearStart * powf( ratio, si ) ) + ( 1 - lambda ) * ( zNearStart + ( zFarEnd - zNearStart ) * si );
+
+		if( i <= r_shadowMapSplits.GetInteger() )
+		{
+			tr.viewDef->frustumSplitDistances[i - 1] = zFar;
+		}
+
+		float projectionMatrix[16];
+		R_SetupProjectionMatrix2( tr.viewDef, zNear, zFar, projectionMatrix );
+
+		// setup render matrices for faster culling
+		idRenderMatrix projectionRenderMatrix;
+		idRenderMatrix::Transpose( *( idRenderMatrix* )projectionMatrix, projectionRenderMatrix );
+		idRenderMatrix viewRenderMatrix;
+		idRenderMatrix::Transpose( *( idRenderMatrix* )tr.viewDef->worldSpace.modelViewMatrix, viewRenderMatrix );
+		idRenderMatrix::Multiply( projectionRenderMatrix, viewRenderMatrix, tr.viewDef->frustumMVPs[i] );
+
+		// the planes of the view frustum are needed for portal visibility culling
+		idRenderMatrix::GetFrustumPlanes( tr.viewDef->frustums[i], tr.viewDef->frustumMVPs[i], false, true );
+
+		// the DOOM 3 frustum planes point outside the frustum
+		for( int j = 0; j < 6; j++ )
+		{
+			tr.viewDef->frustums[i][j] = - tr.viewDef->frustums[i][j];
+		}
+
+		// remove the Z-near to avoid portals from being near clipped
+		if( i == FRUSTUM_CASCADE1 )
+		{
+			tr.viewDef->frustums[i][4][3] -= r_znear.GetFloat();
+		}
+	}
+}
+
+class idSort_CompareEnvprobe : public idSort_Quick< RenderEnvprobeLocal*, idSort_CompareEnvprobe >
+{
+	idVec3	viewOrigin;
+
+public:
+	idSort_CompareEnvprobe( const idVec3& origin )
+	{
+		viewOrigin = origin;
+	}
+
+	int Compare( RenderEnvprobeLocal* const& a, RenderEnvprobeLocal* const& b ) const
+	{
+		float adist = ( viewOrigin - a->parms.origin ).LengthSqr();
+		float bdist = ( viewOrigin - b->parms.origin ).LengthSqr();
+
+		if( adist < bdist )
+		{
+			return -1;
+		}
+
+		if( adist > bdist )
+		{
+			return 1;
+		}
+
+		return 0;
+	}
+};
+
+static void R_FindClosestEnvironmentProbes()
+{
+	// set safe defaults
+	tr.viewDef->globalProbeBounds.Clear();
+
+	tr.viewDef->irradianceImage = globalImages->defaultUACIrradianceCube;
+	tr.viewDef->radianceImageBlends.Set( 1, 0, 0, 0 );
+	for( int i = 0; i < 3; i++ )
+	{
+		tr.viewDef->radianceImages[i] = globalImages->defaultUACRadianceCube;
+	}
+
+	// early out
+	if( tr.viewDef->areaNum == -1 || tr.viewDef->isSubview )
+	{
+		return;
+	}
+
+	idList<RenderEnvprobeLocal*, TAG_RENDER_ENVPROBE> viewEnvprobes;
+	for( int i = 0; i < tr.primaryWorld->envprobeDefs.Num(); i++ )
+	{
+		RenderEnvprobeLocal* vProbe = tr.primaryWorld->envprobeDefs[i];
+		if( vProbe )
+		{
+			// check for being closed off behind a door
+			if( r_useLightAreaCulling.GetBool() && vProbe->areaNum != -1 && !tr.viewDef->connectedAreas[ vProbe->areaNum ] )
+			{
+				continue;
+			}
+
+			viewEnvprobes.AddUnique( vProbe );
+		}
+	}
+
+	if( viewEnvprobes.Num() == 0 )
+	{
+		return;
+	}
+
+	idVec3 testOrigin = tr.viewDef->renderView.vieworg;
+
+	// sort by distance
+	// RB: each Doom 3 level has ~50 - 150 probes so this should be ok for each frame
+	viewEnvprobes.SortWithTemplate( idSort_CompareEnvprobe( testOrigin ) );
+
+	RenderEnvprobeLocal* nearest = viewEnvprobes[0];
+	tr.viewDef->globalProbeBounds = nearest->globalProbeBounds;
+
+	if( !nearest->irradianceImage->IsDefaulted() )
+	{
+		tr.viewDef->irradianceImage = nearest->irradianceImage;
+	}
+
+	// form a triangle of the 3 closest probes
+	idVec3 verts[3];
+	for( int i = 0; i < 3; i++ )
+	{
+		verts[i] = viewEnvprobes[0]->parms.origin;
+	}
+
+	for( int i = 0; i < viewEnvprobes.Num() && i < 3; i++ )
+	{
+		RenderEnvprobeLocal* vProbe = viewEnvprobes[i];
+
+		verts[i] = vProbe->parms.origin;
+	}
+
+	idVec3 closest = R_ClosestPointPointTriangle( testOrigin, verts[0], verts[1], verts[2] );
+	idVec3 bary;
+
+	// find the barycentric coordinates
+	float denom = idWinding::TriangleArea( verts[0], verts[1], verts[2] );
+	if( denom == 0 )
+	{
+		// all points at same location
+		bary.Set( 1, 0, 0 );
+	}
+	else
+	{
+		float	a, b, c;
+
+		a = idWinding::TriangleArea( closest, verts[1], verts[2] ) / denom;
+		b = idWinding::TriangleArea( closest, verts[2], verts[0] ) / denom;
+		c = idWinding::TriangleArea( closest, verts[0], verts[1] ) / denom;
+
+		bary.Set( a, b, c );
+	}
+
+	tr.viewDef->radianceImageBlends.Set( bary.x, bary.y, bary.z, 0.0f );
+
+	for( int i = 0; i < viewEnvprobes.Num() && i < 3; i++ )
+	{
+		if( !viewEnvprobes[i]->radianceImage->IsDefaulted() )
+		{
+			tr.viewDef->radianceImages[i] = viewEnvprobes[i]->radianceImage;
+		}
+	}
+}
+// RB end
 
 /*
 ================
@@ -351,9 +594,10 @@ a mirror / remote location, or a 3D view on a gui surface.
 Parms will typically be allocated with R_FrameAlloc
 ================
 */
-void R_RenderView( viewDef_t *parms ) {
+void R_RenderView( viewDef_t* parms )
+{
 	// save view in case we are a subview
-	viewDef_t * oldView = tr.viewDef;
+	viewDef_t* oldView = tr.viewDef;
 
 	tr.viewDef = parms;
 
@@ -364,25 +608,35 @@ void R_RenderView( viewDef_t *parms ) {
 	// portal-to-screen scissor calculations
 	R_SetupProjectionMatrix( tr.viewDef );
 
+	// RB: we need a unprojection matrix to calculate the vertex position based on the depth image value
+	// for some post process shaders
+	R_SetupUnprojection( tr.viewDef );
+	// RB end
+
 	// setup render matrices for faster culling
-	idRenderMatrix::Transpose( *(idRenderMatrix *)tr.viewDef->projectionMatrix, tr.viewDef->projectionRenderMatrix );
+	idRenderMatrix::Transpose( *( idRenderMatrix* )tr.viewDef->projectionMatrix, tr.viewDef->projectionRenderMatrix );
 	idRenderMatrix viewRenderMatrix;
-	idRenderMatrix::Transpose( *(idRenderMatrix *)tr.viewDef->worldSpace.modelViewMatrix, viewRenderMatrix );
+	idRenderMatrix::Transpose( *( idRenderMatrix* )tr.viewDef->worldSpace.modelViewMatrix, viewRenderMatrix );
 	idRenderMatrix::Multiply( tr.viewDef->projectionRenderMatrix, viewRenderMatrix, tr.viewDef->worldSpace.mvp );
 
 	// the planes of the view frustum are needed for portal visibility culling
-	idRenderMatrix::GetFrustumPlanes( tr.viewDef->frustum, tr.viewDef->worldSpace.mvp, false, true );
+	idRenderMatrix::GetFrustumPlanes( tr.viewDef->frustums[FRUSTUM_PRIMARY], tr.viewDef->worldSpace.mvp, false, true );
 
 	// the DOOM 3 frustum planes point outside the frustum
-	for ( int i = 0; i < 6; i++ ) {
-		tr.viewDef->frustum[i] = - tr.viewDef->frustum[i];
+	for( int i = 0; i < 6; i++ )
+	{
+		tr.viewDef->frustums[FRUSTUM_PRIMARY][i] = - tr.viewDef->frustums[FRUSTUM_PRIMARY][i];
 	}
 	// remove the Z-near to avoid portals from being near clipped
-	tr.viewDef->frustum[4][3] -= r_znear.GetFloat();
+	tr.viewDef->frustums[FRUSTUM_PRIMARY][4][3] -= r_znear.GetFloat();
+
+	// RB begin
+	R_SetupSplitFrustums( tr.viewDef );
+	// RB end
 
 	// identify all the visible portal areas, and create view lights and view entities
 	// for all the the entityDefs and lightDefs that are in the visible portal areas
-	static_cast<idRenderWorldLocal *>(parms->renderWorld)->FindViewLightsAndEntities();
+	static_cast<idRenderWorldLocal*>( parms->renderWorld )->FindViewLightsAndEntities();
 
 	// wait for any shadow volume jobs from the previous frame to finish
 	tr.frontEndJobList->Wait();
@@ -404,16 +658,22 @@ void R_RenderView( viewDef_t *parms ) {
 	R_SortDrawSurfs( tr.viewDef->drawSurfs, tr.viewDef->numDrawSurfs );
 
 	// generate any subviews (mirrors, cameras, etc) before adding this view
-	if ( R_GenerateSubViews( tr.viewDef->drawSurfs, tr.viewDef->numDrawSurfs ) ) {
+	if( R_GenerateSubViews( tr.viewDef->drawSurfs, tr.viewDef->numDrawSurfs ) )
+	{
 		// if we are debugging subviews, allow the skipping of the main view draw
-		if ( r_subviewOnly.GetBool() ) {
+		if( r_subviewOnly.GetBool() )
+		{
 			return;
 		}
 	}
 
+	// RB: find closest environment probes so we can interpolate between them in the ambient shaders
+	R_FindClosestEnvironmentProbes();
+
 	// write everything needed to the demo file
-	if ( common->WriteDemo() ) {
-		static_cast<idRenderWorldLocal *>(parms->renderWorld)->WriteVisibleDefs( tr.viewDef );
+	if( common->WriteDemo() )
+	{
+		static_cast<idRenderWorldLocal*>( parms->renderWorld )->WriteVisibleDefs( tr.viewDef );
 	}
 
 	// add the rendering commands for this viewDef
@@ -431,10 +691,14 @@ Because R_RenderView may be called by subviews we have to make sure the post pro
 pass happens after the active view and its subviews is done rendering.
 ================
 */
-void R_RenderPostProcess( viewDef_t *parms ) {
-	viewDef_t * oldView = tr.viewDef;
+void R_RenderPostProcess( viewDef_t* parms )
+{
+	viewDef_t* oldView = tr.viewDef;
 
-	R_AddDrawPostProcess( parms );
+	if( !( parms->renderView.rdflags & RDF_IRRADIANCE ) )
+	{
+		R_AddDrawPostProcess( parms );
+	}
 
 	tr.viewDef = oldView;
 }

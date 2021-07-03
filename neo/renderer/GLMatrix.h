@@ -2,9 +2,10 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2014 Robert Beckebans
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -40,25 +41,31 @@ This is the old DOOM3 matrix code that should really to be replaced with idRende
 ==========================================================================================
 */
 
-void R_AxisToModelMatrix( const idMat3 &axis, const idVec3 &origin, float modelMatrix[16] );
+void R_AxisToModelMatrix( const idMat3& axis, const idVec3& origin, float modelMatrix[16] );
 void R_MatrixTranspose( const float in[16], float out[16] );
-void R_MatrixMultiply( const float *a, const float *b, float *out );
+void R_MatrixMultiply( const float* a, const float* b, float* out );
 
-void R_TransformModelToClip( const idVec3 &src, const float *modelMatrix, const float *projectionMatrix, idPlane &eye, idPlane &dst );
-void R_TransformClipToDevice( const idPlane &clip, idVec3 &ndc );
-void R_GlobalToNormalizedDeviceCoordinates( const idVec3 &global, idVec3 &ndc );
+void R_TransformModelToClip( const idVec3& src, const float* modelMatrix, const float* projectionMatrix, idPlane& eye, idPlane& dst );
+void R_TransformClipToDevice( const idPlane& clip, idVec3& ndc );
+void R_GlobalToNormalizedDeviceCoordinates( const idVec3& global, idVec3& ndc );
 
 // note that these assume a normalized matrix, and will not work with scaled axis
-void R_GlobalPointToLocal( const float modelMatrix[16], const idVec3 &in, idVec3 &out );
-void R_LocalPointToGlobal( const float modelMatrix[16], const idVec3 &in, idVec3 &out );
+void R_GlobalPointToLocal( const float modelMatrix[16], const idVec3& in, idVec3& out );
+void R_LocalPointToGlobal( const float modelMatrix[16], const idVec3& in, idVec3& out );
 
-void R_GlobalVectorToLocal( const float modelMatrix[16], const idVec3 &in, idVec3 &out );
-void R_LocalVectorToGlobal( const float modelMatrix[16], const idVec3 &in, idVec3 &out );
+void R_GlobalVectorToLocal( const float modelMatrix[16], const idVec3& in, idVec3& out );
+void R_LocalVectorToGlobal( const float modelMatrix[16], const idVec3& in, idVec3& out );
 
-void R_GlobalPlaneToLocal( const float modelMatrix[16], const idPlane &in, idPlane &out );
-void R_LocalPlaneToGlobal( const float modelMatrix[16], const idPlane &in, idPlane &out );
+void R_GlobalPlaneToLocal( const float modelMatrix[16], const idPlane& in, idPlane& out );
+void R_LocalPlaneToGlobal( const float modelMatrix[16], const idPlane& in, idPlane& out );
 
-void R_SetupViewMatrix( viewDef_t *viewDef );
-void R_SetupProjectionMatrix( viewDef_t *viewDef );
+void R_SetupViewMatrix( viewDef_t* viewDef );
+void R_SetupProjectionMatrix( viewDef_t* viewDef );
+
+// RB begin
+void R_SetupUnprojection( viewDef_t* viewDef );
+void R_SetupProjectionMatrix2( const viewDef_t* viewDef, const float zNear, const float zFar, float out[16] );
+void R_MatrixFullInverse( const float in[16], float r[16] );
+// RB end
 
 #endif /* !__GLMATRIX_H__ */

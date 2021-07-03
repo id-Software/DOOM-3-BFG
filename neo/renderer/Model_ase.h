@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -37,7 +37,8 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-typedef struct {
+typedef struct
+{
 	int						vertexNum[3];
 	int						tVertexNum[3];
 	idVec3					faceNormal;
@@ -45,7 +46,8 @@ typedef struct {
 	byte					vertexColors[3][4];
 } aseFace_t;
 
-typedef struct {
+typedef struct
+{
 	int						timeValue;
 
 	int						numVertexes;
@@ -59,20 +61,22 @@ typedef struct {
 
 	bool					colorsParsed;
 	bool					normalsParsed;
-	idVec3 *				vertexes;
-	idVec2 *				tvertexes;
-	idVec3 *				cvertexes;
-	aseFace_t *				faces;
+	idVec3* 				vertexes;
+	idVec2* 				tvertexes;
+	idVec3* 				cvertexes;
+	aseFace_t* 				faces;
 } aseMesh_t;
 
-typedef struct {
+typedef struct
+{
 	char					name[128];
 	float					uOffset, vOffset;		// max lets you offset by material without changing texCoords
 	float					uTiling, vTiling;		// multiply tex coords by this
 	float					angle;					// in clockwise radians
 } aseMaterial_t;
 
-typedef struct {
+typedef struct
+{
 	char					name[128];
 	int						materialRef;
 
@@ -82,14 +86,15 @@ typedef struct {
 	idList<aseMesh_t*, TAG_MODEL>		frames;			// aseMesh_t
 } aseObject_t;
 
-typedef struct aseModel_s {
+typedef struct aseModel_s
+{
 	ID_TIME_T					timeStamp;
-	idList<aseMaterial_t *, TAG_MODEL>	materials;
-	idList<aseObject_t *, TAG_MODEL>	objects;
+	idList<aseMaterial_t*, TAG_MODEL>	materials;
+	idList<aseObject_t*, TAG_MODEL>	objects;
 } aseModel_t;
 
 
-aseModel_t *ASE_Load( const char *fileName );
-void		ASE_Free( aseModel_t *ase );
+aseModel_t* ASE_Load( const char* fileName );
+void		ASE_Free( aseModel_t* ase );
 
 #endif /* !__MODEL_ASE_H__ */

@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,24 +27,26 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
-#include "../precompiled.h"
+#include "precompiled.h"
 
 /*
 ============
 idShadowVert::CreateShadowCache
 ============
 */
-int idShadowVert::CreateShadowCache( idShadowVert * vertexCache, const idDrawVert *verts, const int numVerts ) {
-	for ( int i = 0; i < numVerts; i++ ) {
-		vertexCache[i*2+0].xyzw[0] = verts[i].xyz[0];
-		vertexCache[i*2+0].xyzw[1] = verts[i].xyz[1];
-		vertexCache[i*2+0].xyzw[2] = verts[i].xyz[2];
-		vertexCache[i*2+0].xyzw[3] = 1.0f;
+int idShadowVert::CreateShadowCache( idShadowVert* vertexCache, const idDrawVert* verts, const int numVerts )
+{
+	for( int i = 0; i < numVerts; i++ )
+	{
+		vertexCache[i * 2 + 0].xyzw[0] = verts[i].xyz[0];
+		vertexCache[i * 2 + 0].xyzw[1] = verts[i].xyz[1];
+		vertexCache[i * 2 + 0].xyzw[2] = verts[i].xyz[2];
+		vertexCache[i * 2 + 0].xyzw[3] = 1.0f;
 
-		vertexCache[i*2+1].xyzw[0] = verts[i].xyz[0];
-		vertexCache[i*2+1].xyzw[1] = verts[i].xyz[1];
-		vertexCache[i*2+1].xyzw[2] = verts[i].xyz[2];
-		vertexCache[i*2+1].xyzw[3] = 0.0f;
+		vertexCache[i * 2 + 1].xyzw[0] = verts[i].xyz[0];
+		vertexCache[i * 2 + 1].xyzw[1] = verts[i].xyz[1];
+		vertexCache[i * 2 + 1].xyzw[2] = verts[i].xyz[2];
+		vertexCache[i * 2 + 1].xyzw[3] = 0.0f;
 	}
 	return numVerts * 2;
 }
@@ -54,21 +56,23 @@ int idShadowVert::CreateShadowCache( idShadowVert * vertexCache, const idDrawVer
 idShadowVertSkinned::CreateShadowCache
 ===================
 */
-int idShadowVertSkinned::CreateShadowCache( idShadowVertSkinned * vertexCache, const idDrawVert *verts, const int numVerts ) {
-	for ( int i = 0; i < numVerts; i++ ) {
+int idShadowVertSkinned::CreateShadowCache( idShadowVertSkinned* vertexCache, const idDrawVert* verts, const int numVerts )
+{
+	for( int i = 0; i < numVerts; i++ )
+	{
 		vertexCache[0].xyzw[0] = verts[i].xyz[0];
 		vertexCache[0].xyzw[1] = verts[i].xyz[1];
 		vertexCache[0].xyzw[2] = verts[i].xyz[2];
 		vertexCache[0].xyzw[3] = 1.0f;
-		*(unsigned int *)vertexCache[0].color = *(unsigned int *)verts[i].color;
-		*(unsigned int *)vertexCache[0].color2 = *(unsigned int *)verts[i].color2;
+		*( unsigned int* )vertexCache[0].color = *( unsigned int* )verts[i].color;
+		*( unsigned int* )vertexCache[0].color2 = *( unsigned int* )verts[i].color2;
 
 		vertexCache[1].xyzw[0] = verts[i].xyz[0];
 		vertexCache[1].xyzw[1] = verts[i].xyz[1];
 		vertexCache[1].xyzw[2] = verts[i].xyz[2];
 		vertexCache[1].xyzw[3] = 0.0f;
-		*(unsigned int *)vertexCache[1].color = *(unsigned int *)verts[i].color;
-		*(unsigned int *)vertexCache[1].color2 = *(unsigned int *)verts[i].color2;
+		*( unsigned int* )vertexCache[1].color = *( unsigned int* )verts[i].color;
+		*( unsigned int* )vertexCache[1].color2 = *( unsigned int* )verts[i].color2;
 
 		vertexCache += 2;
 	}

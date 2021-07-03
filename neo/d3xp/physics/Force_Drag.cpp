@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
-#include "../../idlib/precompiled.h"
+#include "precompiled.h"
 
 
 #include "../Game_local.h"
@@ -40,7 +40,8 @@ END_CLASS
 idForce_Drag::idForce_Drag
 ================
 */
-idForce_Drag::idForce_Drag() {
+idForce_Drag::idForce_Drag()
+{
 	damping			= 0.5f;
 	physics			= NULL;
 	id				= 0;
@@ -53,7 +54,8 @@ idForce_Drag::idForce_Drag() {
 idForce_Drag::~idForce_Drag
 ================
 */
-idForce_Drag::~idForce_Drag() {
+idForce_Drag::~idForce_Drag()
+{
 }
 
 /*
@@ -61,8 +63,10 @@ idForce_Drag::~idForce_Drag() {
 idForce_Drag::Init
 ================
 */
-void idForce_Drag::Init( float damping ) {
-	if ( damping >= 0.0f && damping < 1.0f ) {
+void idForce_Drag::Init( float damping )
+{
+	if( damping >= 0.0f && damping < 1.0f )
+	{
 		this->damping = damping;
 	}
 }
@@ -72,7 +76,8 @@ void idForce_Drag::Init( float damping ) {
 idForce_Drag::SetPhysics
 ================
 */
-void idForce_Drag::SetPhysics( idPhysics *phys, int id, const idVec3 &p ) {
+void idForce_Drag::SetPhysics( idPhysics* phys, int id, const idVec3& p )
+{
 	this->physics = phys;
 	this->id = id;
 	this->p = p;
@@ -83,7 +88,8 @@ void idForce_Drag::SetPhysics( idPhysics *phys, int id, const idVec3 &p ) {
 idForce_Drag::SetDragPosition
 ================
 */
-void idForce_Drag::SetDragPosition( const idVec3 &pos ) {
+void idForce_Drag::SetDragPosition( const idVec3& pos )
+{
 	this->dragPosition = pos;
 }
 
@@ -92,7 +98,8 @@ void idForce_Drag::SetDragPosition( const idVec3 &pos ) {
 idForce_Drag::GetDragPosition
 ================
 */
-const idVec3 &idForce_Drag::GetDragPosition() const {
+const idVec3& idForce_Drag::GetDragPosition() const
+{
 	return this->dragPosition;
 }
 
@@ -101,7 +108,8 @@ const idVec3 &idForce_Drag::GetDragPosition() const {
 idForce_Drag::GetDraggedPosition
 ================
 */
-const idVec3 idForce_Drag::GetDraggedPosition() const {
+const idVec3 idForce_Drag::GetDraggedPosition() const
+{
 	return ( physics->GetOrigin( id ) + p * physics->GetAxis( id ) );
 }
 
@@ -110,21 +118,26 @@ const idVec3 idForce_Drag::GetDraggedPosition() const {
 idForce_Drag::Evaluate
 ================
 */
-void idForce_Drag::Evaluate( int time ) {
+void idForce_Drag::Evaluate( int time )
+{
 	float l1, l2, mass;
 	idVec3 dragOrigin, dir1, dir2, velocity, centerOfMass;
 	idMat3 inertiaTensor;
 	idRotation rotation;
-	idClipModel *clipModel;
+	idClipModel* clipModel;
 
-	if ( !physics ) {
+	if( !physics )
+	{
 		return;
 	}
 
 	clipModel = physics->GetClipModel( id );
-	if ( clipModel != NULL && clipModel->IsTraceModel() ) {
+	if( clipModel != NULL && clipModel->IsTraceModel() )
+	{
 		clipModel->GetMassProperties( 1.0f, mass, centerOfMass, inertiaTensor );
-	} else {
+	}
+	else
+	{
 		centerOfMass.Zero();
 	}
 
@@ -148,8 +161,10 @@ void idForce_Drag::Evaluate( int time ) {
 idForce_Drag::RemovePhysics
 ================
 */
-void idForce_Drag::RemovePhysics( const idPhysics *phys ) {
-	if ( physics == phys ) {
+void idForce_Drag::RemovePhysics( const idPhysics* phys )
+{
+	if( physics == phys )
+	{
 		physics = NULL;
 	}
 }

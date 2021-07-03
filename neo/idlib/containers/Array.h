@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -48,27 +48,54 @@ Unlike idStaticList, there are no fields other than the
 actual raw data, and the size is fixed.
 ================================================
 */
-template<class T_, int numElements > class idArray {
+template<class T_, int numElements > class idArray
+{
 public:
 	// returns number of elements in list
-	int				Num() const { return numElements; }
+	int				Num() const
+	{
+		return numElements;
+	}
 
 	// returns the number of bytes the array takes up
-	int				ByteSize() const { return sizeof( ptr ); }
+	int				ByteSize() const
+	{
+		return sizeof( ptr );
+	}
 
 	// memset the entire array to zero
-	void			Zero() { memset( ptr, 0, sizeof( ptr ) ); }
+	void			Zero()
+	{
+		memset( ptr, 0, sizeof( ptr ) );
+	}
 
 	// memset the entire array to a specific value
-	void			Memset( const char fill ) { memset( ptr, fill, numElements * sizeof( *ptr ) ); }
+	void			Memset( const char fill )
+	{
+		memset( ptr, fill, numElements * sizeof( *ptr ) );
+	}
 
 	// array operators
-	const T_ &		operator[]( int index ) const { assert( (unsigned)index < (unsigned)numElements ); return ptr[index]; }
-	T_ &			operator[]( int index ) { assert( (unsigned)index < (unsigned)numElements ); return ptr[index]; }
+	const T_& 		operator[]( int index ) const
+	{
+		assert( ( unsigned )index < ( unsigned )numElements );
+		return ptr[index];
+	}
+	T_& 			operator[]( int index )
+	{
+		assert( ( unsigned )index < ( unsigned )numElements );
+		return ptr[index];
+	}
 
 	// returns a pointer to the list
-	const T_ *		Ptr() const { return ptr; }
-	T_ *			Ptr() { return ptr; }
+	const T_* 		Ptr() const
+	{
+		return ptr;
+	}
+	T_* 			Ptr()
+	{
+		return ptr;
+	}
 
 private:
 	T_				ptr[numElements];
@@ -90,7 +117,8 @@ Usage:
 ================================================
 */
 template<class _type_, int _dim1_, int _dim2_ >
-struct id2DArray {
+struct id2DArray
+{
 	typedef idArray< idArray< _type_, _dim2_ >, _dim1_ > type;
 };
 
@@ -108,7 +136,8 @@ template< class _type_ >
 struct idTupleSize;
 
 template< class _type_, int _num_ >
-struct idTupleSize< idArray< _type_, _num_ > > {
+struct idTupleSize< idArray< _type_, _num_ > >
+{
 	enum { value = _num_ };
 };
 

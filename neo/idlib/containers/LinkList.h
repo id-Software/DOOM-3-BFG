@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -40,38 +40,39 @@ Circular linked list template
 */
 
 template< class type >
-class idLinkList {
+class idLinkList
+{
 public:
-						idLinkList();
-						~idLinkList();
+	idLinkList();
+	~idLinkList();
 
 	bool				IsListEmpty() const;
 	bool				InList() const;
 	int					Num() const;
 	void				Clear();
 
-	void				InsertBefore( idLinkList &node );
-	void				InsertAfter( idLinkList &node );
-	void				AddToEnd( idLinkList &node );
-	void				AddToFront( idLinkList &node );
+	void				InsertBefore( idLinkList& node );
+	void				InsertAfter( idLinkList& node );
+	void				AddToEnd( idLinkList& node );
+	void				AddToFront( idLinkList& node );
 
 	void				Remove();
 
-	type *				Next() const;
-	type *				Prev() const;
+	type* 				Next() const;
+	type* 				Prev() const;
 
-	type *				Owner() const;
-	void				SetOwner( type *object );
+	type* 				Owner() const;
+	void				SetOwner( type* object );
 
-	idLinkList *		ListHead() const;
-	idLinkList *		NextNode() const;
-	idLinkList *		PrevNode() const;
+	idLinkList* 		ListHead() const;
+	idLinkList* 		NextNode() const;
+	idLinkList* 		PrevNode() const;
 
 private:
-	idLinkList *		head;
-	idLinkList *		next;
-	idLinkList *		prev;
-	type *				owner;
+	idLinkList* 		head;
+	idLinkList* 		next;
+	idLinkList* 		prev;
+	type* 				owner;
 };
 
 /*
@@ -82,9 +83,10 @@ Node is initialized to be the head of an empty list
 ================
 */
 template< class type >
-idLinkList<type>::idLinkList() {
+idLinkList<type>::idLinkList()
+{
 	owner	= NULL;
-	head	= this;	
+	head	= this;
 	next	= this;
 	prev	= this;
 }
@@ -98,7 +100,8 @@ all the nodes from the list.
 ================
 */
 template< class type >
-idLinkList<type>::~idLinkList() {
+idLinkList<type>::~idLinkList()
+{
 	Clear();
 }
 
@@ -110,7 +113,8 @@ Returns true if the list is empty.
 ================
 */
 template< class type >
-bool idLinkList<type>::IsListEmpty() const {
+bool idLinkList<type>::IsListEmpty() const
+{
 	return head->next == head;
 }
 
@@ -122,7 +126,8 @@ Returns true if the node is in a list.  If called on the head of a list, will al
 ================
 */
 template< class type >
-bool idLinkList<type>::InList() const {
+bool idLinkList<type>::InList() const
+{
 	return head != this;
 }
 
@@ -134,12 +139,14 @@ Returns the number of nodes in the list.
 ================
 */
 template< class type >
-int idLinkList<type>::Num() const {
-	idLinkList<type>	*node;
+int idLinkList<type>::Num() const
+{
+	idLinkList<type>*	node;
 	int					num;
 
 	num = 0;
-	for( node = head->next; node != head; node = node->next ) {
+	for( node = head->next; node != head; node = node->next )
+	{
 		num++;
 	}
 
@@ -154,12 +161,17 @@ If node is the head of the list, clears the list.  Otherwise it just removes the
 ================
 */
 template< class type >
-void idLinkList<type>::Clear() {
-	if ( head == this ) {
-		while( next != this ) {
+void idLinkList<type>::Clear()
+{
+	if( head == this )
+	{
+		while( next != this )
+		{
 			next->Remove();
 		}
-	} else {
+	}
+	else
+	{
 		Remove();
 	}
 }
@@ -172,7 +184,8 @@ Removes node from list
 ================
 */
 template< class type >
-void idLinkList<type>::Remove() {
+void idLinkList<type>::Remove()
+{
 	prev->next = next;
 	next->prev = prev;
 
@@ -190,7 +203,8 @@ then the new node is placed at the end of the list.
 ================
 */
 template< class type >
-void idLinkList<type>::InsertBefore( idLinkList &node ) {
+void idLinkList<type>::InsertBefore( idLinkList& node )
+{
 	Remove();
 
 	next		= &node;
@@ -209,7 +223,8 @@ then the new node is placed at the beginning of the list.
 ================
 */
 template< class type >
-void idLinkList<type>::InsertAfter( idLinkList &node ) {
+void idLinkList<type>::InsertAfter( idLinkList& node )
+{
 	Remove();
 
 	prev		= &node;
@@ -227,7 +242,8 @@ Adds node at the end of the list
 ================
 */
 template< class type >
-void idLinkList<type>::AddToEnd( idLinkList &node ) {
+void idLinkList<type>::AddToEnd( idLinkList& node )
+{
 	InsertBefore( *node.head );
 }
 
@@ -239,7 +255,8 @@ Adds node at the beginning of the list
 ================
 */
 template< class type >
-void idLinkList<type>::AddToFront( idLinkList &node ) {
+void idLinkList<type>::AddToFront( idLinkList& node )
+{
 	InsertAfter( *node.head );
 }
 
@@ -252,7 +269,8 @@ a pointer to itself.
 ================
 */
 template< class type >
-idLinkList<type> *idLinkList<type>::ListHead() const {
+idLinkList<type>* idLinkList<type>::ListHead() const
+{
 	return head;
 }
 
@@ -264,8 +282,10 @@ Returns the next object in the list, or NULL if at the end.
 ================
 */
 template< class type >
-type *idLinkList<type>::Next() const {
-	if ( !next || ( next == head ) ) {
+type* idLinkList<type>::Next() const
+{
+	if( !next || ( next == head ) )
+	{
 		return NULL;
 	}
 	return next->owner;
@@ -279,8 +299,10 @@ Returns the previous object in the list, or NULL if at the beginning.
 ================
 */
 template< class type >
-type *idLinkList<type>::Prev() const {
-	if ( !prev || ( prev == head ) ) {
+type* idLinkList<type>::Prev() const
+{
+	if( !prev || ( prev == head ) )
+	{
 		return NULL;
 	}
 	return prev->owner;
@@ -294,8 +316,10 @@ Returns the next node in the list, or NULL if at the end.
 ================
 */
 template< class type >
-idLinkList<type> *idLinkList<type>::NextNode() const {
-	if ( next == head ) {
+idLinkList<type>* idLinkList<type>::NextNode() const
+{
+	if( next == head )
+	{
 		return NULL;
 	}
 	return next;
@@ -309,8 +333,10 @@ Returns the previous node in the list, or NULL if at the beginning.
 ================
 */
 template< class type >
-idLinkList<type> *idLinkList<type>::PrevNode() const {
-	if ( prev == head ) {
+idLinkList<type>* idLinkList<type>::PrevNode() const
+{
+	if( prev == head )
+	{
 		return NULL;
 	}
 	return prev;
@@ -324,7 +350,8 @@ Gets the object that is associated with this node.
 ================
 */
 template< class type >
-type *idLinkList<type>::Owner() const {
+type* idLinkList<type>::Owner() const
+{
 	return owner;
 }
 
@@ -336,7 +363,8 @@ Sets the object that this node is associated with.
 ================
 */
 template< class type >
-void idLinkList<type>::SetOwner( type *object ) {
+void idLinkList<type>::SetOwner( type* object )
+{
 	owner = object;
 }
 

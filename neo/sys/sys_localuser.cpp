@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 #pragma hdrstop
-#include "../idlib/precompiled.h"
+#include "precompiled.h"
 
 extern idCVar fs_savepath;
 
@@ -35,20 +35,25 @@ extern idCVar fs_savepath;
 idLocalUser::idLocalUser
 ========================
 */
-idLocalUser::idLocalUser() {
+idLocalUser::idLocalUser()
+{
 	memset( joiningLobby, 0, sizeof( joiningLobby ) );
 	profileMgr.Init( this );
 	syncAchievementsRequested = 0;
 }
 
-void idLocalUser::Pump() {
+void idLocalUser::Pump()
+{
 	// Pump the profile
 	GetProfileMgr().Pump();
 
-	if ( GetProfileMgr().GetProfile() != NULL && GetProfileMgr().GetProfile()->GetState() == idPlayerProfile::IDLE ) {
+	if( GetProfileMgr().GetProfile() != NULL && GetProfileMgr().GetProfile()->GetState() == idPlayerProfile::IDLE )
+	{
 		// Pump achievements
-		if ( syncAchievementsRequested ) {
-			if ( session->GetAchievementSystem().IsInitialized() ) {
+		if( syncAchievementsRequested )
+		{
+			if( session->GetAchievementSystem().IsInitialized() )
+			{
 				session->GetAchievementSystem().SyncAchievementBits( this );
 				syncAchievementsRequested = false;
 			}
@@ -65,7 +70,8 @@ void idLocalUser::Pump() {
 idLocalUser::IsStorageDeviceAvailable
 ========================
 */
-bool idLocalUser::IsStorageDeviceAvailable() const {
+bool idLocalUser::IsStorageDeviceAvailable() const
+{
 	return saveGame_enable.GetBool();
 }
 
@@ -74,7 +80,8 @@ bool idLocalUser::IsStorageDeviceAvailable() const {
 idLocalUser::ResetStorageDevice
 ========================
 */
-void idLocalUser::ResetStorageDevice() {
+void idLocalUser::ResetStorageDevice()
+{
 }
 
 /*
@@ -82,25 +89,33 @@ void idLocalUser::ResetStorageDevice() {
 idLocalUser::StorageSizeAvailable
 ========================
 */
-bool idLocalUser::StorageSizeAvailable( uint64 minSizeInBytes, int64 & neededBytes ) {
+// RB: disabled savegame and profile storage checks, because it fails sometimes without any clear reason
+/*
+bool idLocalUser::StorageSizeAvailable( uint64 minSizeInBytes, int64& neededBytes )
+{
 	int64 size = Sys_GetDriveFreeSpaceInBytes( fs_savepath.GetString() );
 
 	neededBytes = minSizeInBytes - size;
-	if ( neededBytes < 0 ) {
+	if( neededBytes < 0 )
+	{
 		neededBytes = 0;
 	}
 
 	return neededBytes == 0;
 }
+*/
+// RB end
 
 /*
 ========================
 idLocalUser::SetStatInt
 ========================
 */
-void idLocalUser::SetStatInt( int s, int v ) {
-	idPlayerProfile * profile = GetProfile();
-	if ( profile != NULL ) {
+void idLocalUser::SetStatInt( int s, int v )
+{
+	idPlayerProfile* profile = GetProfile();
+	if( profile != NULL )
+	{
 		return profile->StatSetInt( s, v );
 	}
 }
@@ -110,9 +125,11 @@ void idLocalUser::SetStatInt( int s, int v ) {
 idLocalUser::SetStatFloat
 ========================
 */
-void idLocalUser::SetStatFloat( int s, float v ) {
-	idPlayerProfile * profile = GetProfile();
-	if ( profile != NULL ) {
+void idLocalUser::SetStatFloat( int s, float v )
+{
+	idPlayerProfile* profile = GetProfile();
+	if( profile != NULL )
+	{
 		return profile->StatSetFloat( s, v );
 	}
 }
@@ -122,14 +139,16 @@ void idLocalUser::SetStatFloat( int s, float v ) {
 idLocalUser::GetStatInt
 ========================
 */
-int	idLocalUser::GetStatInt( int s ) { 
-	const idPlayerProfile * profile = GetProfile();
+int	idLocalUser::GetStatInt( int s )
+{
+	const idPlayerProfile* profile = GetProfile();
 
-	if ( profile != NULL && s >= 0 ) {
+	if( profile != NULL && s >= 0 )
+	{
 		return profile->StatGetInt( s );
 	}
 
-	return 0; 
+	return 0;
 }
 
 /*
@@ -137,10 +156,12 @@ int	idLocalUser::GetStatInt( int s ) {
 idLocalUser::GetStatFloat
 ========================
 */
-float idLocalUser::GetStatFloat( int s ) {
-	const idPlayerProfile * profile = GetProfile();
+float idLocalUser::GetStatFloat( int s )
+{
+	const idPlayerProfile* profile = GetProfile();
 
-	if ( profile != NULL ) {
+	if( profile != NULL )
+	{
 		return profile->StatGetFloat( s );
 	}
 
@@ -152,16 +173,19 @@ float idLocalUser::GetStatFloat( int s ) {
 idLocalUser::LoadProfileSettings
 ========================
 */
-void idLocalUser::LoadProfileSettings() {
-	idPlayerProfile * profile = GetProfileMgr().GetProfile();
+void idLocalUser::LoadProfileSettings()
+{
+	idPlayerProfile* profile = GetProfileMgr().GetProfile();
 
 	// Lazy instantiation
-	if ( profile == NULL ) {
+	if( profile == NULL )
+	{
 		// Create a new profile
 		profile = idPlayerProfile::CreatePlayerProfile( GetInputDevice() );
 	}
 
-	if ( profile != NULL ) {
+	if( profile != NULL )
+	{
 		profile->LoadSettings();
 	}
 
@@ -173,9 +197,11 @@ void idLocalUser::LoadProfileSettings() {
 idLocalUser::SaveProfileSettings
 ========================
 */
-void idLocalUser::SaveProfileSettings() {
-	idPlayerProfile * profile = GetProfileMgr().GetProfile();
-	if ( profile != NULL ) {
+void idLocalUser::SaveProfileSettings()
+{
+	idPlayerProfile* profile = GetProfileMgr().GetProfile();
+	if( profile != NULL )
+	{
 		profile->SaveSettings( true );
 	}
 
@@ -187,6 +213,7 @@ void idLocalUser::SaveProfileSettings() {
 localUserHandle_t::Serialize
 ========================
 */
-void localUserHandle_t::Serialize( idSerializer & ser ) {
+void localUserHandle_t::Serialize( idSerializer& ser )
+{
 	ser.Serialize( handle );
 }

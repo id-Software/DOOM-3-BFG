@@ -10,9 +10,11 @@
 ===============================================================================
 */
 
-void CRC32_InitChecksum( unsigned long &crcvalue );
-void CRC32_UpdateChecksum( unsigned long &crcvalue, const void *data, int length );
-void CRC32_FinishChecksum( unsigned long &crcvalue );
-unsigned long CRC32_BlockChecksum( const void *data, int length );
+// RB: 64 bit fixes, changed long to int
+void CRC32_InitChecksum( unsigned int& crcvalue );
+void CRC32_UpdateChecksum( unsigned int& crcvalue, const void* data, int length );
+void CRC32_FinishChecksum( unsigned int& crcvalue );
+unsigned int CRC32_BlockChecksum( const void* data, int length );
+// RB end
 
 #endif /* !__CRC32_H__ */

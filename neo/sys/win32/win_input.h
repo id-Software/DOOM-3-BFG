@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -26,13 +26,13 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 #pragma hdrstop
-#include "../../idlib/precompiled.h"
+#include "precompiled.h"
 
-//#if defined( ID_VS2010 )
-//#include "../../../libs/dxsdk_June2010/include/xinput.h"
-//#else
-#include <Xinput.h>
-//#endif
+#ifdef _MSC_VER // DG: dx SDK's xinput.h is incompatible with MinGW..
+	#include <Xinput.h>
+#else // .. so use the one from wine instead when not using MSVC
+	#include "wine-xinput.h"
+#endif // DG end
 
 static const int MAX_JOYSTICKS = 4;
 
@@ -44,7 +44,8 @@ static const int MAX_JOYSTICKS = 4;
 ================================================================================================
 */
 
-struct controllerState_t {
+struct controllerState_t
+{
 	// the current states are updated by the input thread at 250 hz
 	XINPUT_STATE	current;
 
@@ -62,18 +63,19 @@ struct controllerState_t {
 };
 
 
-class idJoystickWin32 : idJoystick {
+class idJoystickWin32 : idJoystick
+{
 public:
-					idJoystickWin32();
+	idJoystickWin32();
 
 	virtual bool	Init();
 	virtual void	SetRumble( int deviceNum, int rumbleLow, int rumbleHigh );
 	virtual int		PollInputEvents( int inputDeviceNum );
-	virtual int		ReturnInputEvent( const int n, int &action, int &value );
+	virtual int		ReturnInputEvent( const int n, int& action, int& value );
 	virtual void	EndInputEvents() {}
 
 protected:
-	friend void		JoystickSamplingThread( void *data );
+	friend void		JoystickSamplingThread( void* data );
 
 	void 			PushButton( int inputDeviceNum, int key, bool value );
 	void 			PostInputEvent( int inputDeviceNum, int event, int value, int range = 16384 );
@@ -83,7 +85,8 @@ protected:
 
 	int						numEvents;
 
-	struct {
+	struct
+	{
 		int event;
 		int value;
 	}						events[ MAX_JOY_EVENT ];

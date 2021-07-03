@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 #pragma hdrstop
 
-#include "../idlib/precompiled.h"
+#include "precompiled.h"
 #include "sys_lobby_backend.h"
 #include "sys_dedicated_server_search.h"
 
@@ -37,7 +37,8 @@ idDedicatedServerSearch::idDedicatedServerSearch
 ========================
 */
 idDedicatedServerSearch::idDedicatedServerSearch() :
-	callback( NULL ) {
+	callback( NULL )
+{
 }
 
 /*
@@ -45,8 +46,10 @@ idDedicatedServerSearch::idDedicatedServerSearch() :
 idDedicatedServerSearch::~idDedicatedServerSearch
 ========================
 */
-idDedicatedServerSearch::~idDedicatedServerSearch() {
-	if ( callback != NULL ) {
+idDedicatedServerSearch::~idDedicatedServerSearch()
+{
+	if( callback != NULL )
+	{
 		delete callback;
 	}
 }
@@ -58,7 +61,8 @@ idDedicatedServerSearch::~idDedicatedServerSearch() {
 idDedicatedServerSearch::StartSearch
 ========================
 */
-void idDedicatedServerSearch::StartSearch( const idCallback & cb ) {
+void idDedicatedServerSearch::StartSearch( const idCallback& cb )
+{
 	Clear();
 	callback = cb.Clone();
 }
@@ -68,8 +72,10 @@ void idDedicatedServerSearch::StartSearch( const idCallback & cb ) {
 idDedicatedServerSearch::Clear
 ========================
 */
-void idDedicatedServerSearch::Clear() {
-	if ( callback != NULL ) {
+void idDedicatedServerSearch::Clear()
+{
+	if( callback != NULL )
+	{
 		delete callback;
 		callback = NULL;
 	}
@@ -81,28 +87,33 @@ void idDedicatedServerSearch::Clear() {
 idDedicatedServerSearch::Clear
 ========================
 */
-void idDedicatedServerSearch::HandleQueryAck( lobbyAddress_t & addr, idBitMsg & msg ) {
+void idDedicatedServerSearch::HandleQueryAck( lobbyAddress_t& addr, idBitMsg& msg )
+{
 	bool found = false;
 	// Find the server this ack belongs to
-	for ( int i = 0; i < list.Num(); i++ ) {
-		serverInfoDedicated_t & query = list[i];
+	for( int i = 0; i < list.Num(); i++ )
+	{
+		serverInfoDedicated_t& query = list[i];
 
 
-		if ( query.addr.Compare( addr ) ) {
+		if( query.addr.Compare( addr ) )
+		{
 			// Found the server
 			found = true;
-				
+
 			bool canJoin = msg.ReadBool();
-				
-			if ( !canJoin ) {
+
+			if( !canJoin )
+			{
 				// If we can't join this server, then remove it
 				list.RemoveIndex( i-- );
 				break;
 			}
-				
+
 			query.serverInfo.Read( msg );
 			query.connectedPlayers.Clear();
-			for ( int i = 0; i < query.serverInfo.numPlayers; i++ ) {
+			for( int i = 0; i < query.serverInfo.numPlayers; i++ )
+			{
 				idStr user;
 				msg.ReadString( user );
 				query.connectedPlayers.Append( user );
@@ -111,17 +122,21 @@ void idDedicatedServerSearch::HandleQueryAck( lobbyAddress_t & addr, idBitMsg & 
 		}
 	}
 
-	if ( !found ) {
+	if( !found )
+	{
 		bool canJoin = msg.ReadBool();
-		if ( canJoin ) {
+		if( canJoin )
+		{
 			serverInfoDedicated_t newServer;
 			newServer.addr = addr;
 			newServer.serverInfo.Read( msg );
-			if ( newServer.serverInfo.serverName.IsEmpty() ) {
+			if( newServer.serverInfo.serverName.IsEmpty() )
+			{
 				newServer.serverInfo.serverName = addr.ToString();
 			}
 			newServer.connectedPlayers.Clear();
-			for ( int i = 0; i < newServer.serverInfo.numPlayers; i++ ) {
+			for( int i = 0; i < newServer.serverInfo.numPlayers; i++ )
+			{
 				idStr user;
 				msg.ReadString( user );
 				newServer.connectedPlayers.Append( user );
@@ -131,7 +146,8 @@ void idDedicatedServerSearch::HandleQueryAck( lobbyAddress_t & addr, idBitMsg & 
 	}
 
 
-	if ( callback != NULL ) {
+	if( callback != NULL )
+	{
 		callback->Call();
 	}
 }
@@ -141,8 +157,10 @@ void idDedicatedServerSearch::HandleQueryAck( lobbyAddress_t & addr, idBitMsg & 
 idDedicatedServerSearch::GetAddrAtIndex
 ========================
 */
-bool idDedicatedServerSearch::GetAddrAtIndex( netadr_t & addr, int i ) {
-	if ( i >= 0 && i < list.Num() ) {
+bool idDedicatedServerSearch::GetAddrAtIndex( netadr_t& addr, int i )
+{
+	if( i >= 0 && i < list.Num() )
+	{
 		addr = list[i].addr.netAddr;
 		return true;
 	}
@@ -154,8 +172,10 @@ bool idDedicatedServerSearch::GetAddrAtIndex( netadr_t & addr, int i ) {
 idDedicatedServerSearch::DescribeServerAtIndex
 ========================
 */
-const serverInfo_t * idDedicatedServerSearch::DescribeServerAtIndex( int i ) const {
-	if ( i >= 0 && i < list.Num() ) {
+const serverInfo_t* idDedicatedServerSearch::DescribeServerAtIndex( int i ) const
+{
+	if( i >= 0 && i < list.Num() )
+	{
 		return &list[i].serverInfo;
 	}
 	return NULL;
@@ -166,8 +186,10 @@ const serverInfo_t * idDedicatedServerSearch::DescribeServerAtIndex( int i ) con
 idDedicatedServerSearch::GetServerPlayersAtIndex
 ========================
 */
-const idList< idStr > * idDedicatedServerSearch::GetServerPlayersAtIndex( int i ) const {
-	if ( i >= 0 && i < list.Num() ) {
+const idList< idStr >* idDedicatedServerSearch::GetServerPlayersAtIndex( int i ) const
+{
+	if( i >= 0 && i < list.Num() )
+	{
 		return &list[i].connectedPlayers;
 	}
 	return NULL;
@@ -178,6 +200,7 @@ const idList< idStr > * idDedicatedServerSearch::GetServerPlayersAtIndex( int i 
 idDedicatedServerSearch::NumServers
 ========================
 */
-int idDedicatedServerSearch::NumServers() const {
+int idDedicatedServerSearch::NumServers() const
+{
 	return list.Num();
 }

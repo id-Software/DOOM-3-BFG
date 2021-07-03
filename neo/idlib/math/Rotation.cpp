@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,14 +27,15 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
-#include "../precompiled.h"
+#include "precompiled.h"
 
 /*
 ============
 idRotation::ToAngles
 ============
 */
-idAngles idRotation::ToAngles() const {
+idAngles idRotation::ToAngles() const
+{
 	return ToMat3().ToAngles();
 }
 
@@ -43,7 +44,8 @@ idAngles idRotation::ToAngles() const {
 idRotation::ToQuat
 ============
 */
-idQuat idRotation::ToQuat() const {
+idQuat idRotation::ToQuat() const
+{
 	float a, s, c;
 
 	a = angle * ( idMath::M_DEG2RAD * 0.5f );
@@ -56,14 +58,16 @@ idQuat idRotation::ToQuat() const {
 idRotation::toMat3
 ============
 */
-const idMat3 &idRotation::ToMat3() const {
+const idMat3& idRotation::ToMat3() const
+{
 	float wx, wy, wz;
 	float xx, yy, yz;
 	float xy, xz, zz;
 	float x2, y2, z2;
 	float a, c, s, x, y, z;
 
-	if ( axisValid ) {
+	if( axisValid )
+	{
 		return axis;
 	}
 
@@ -112,7 +116,8 @@ const idMat3 &idRotation::ToMat3() const {
 idRotation::ToMat4
 ============
 */
-idMat4 idRotation::ToMat4() const {
+idMat4 idRotation::ToMat4() const
+{
 	return ToMat3().ToMat4();
 }
 
@@ -121,7 +126,8 @@ idMat4 idRotation::ToMat4() const {
 idRotation::ToAngularVelocity
 ============
 */
-idVec3 idRotation::ToAngularVelocity() const {
+idVec3 idRotation::ToAngularVelocity() const
+{
 	return vec * DEG2RAD( angle );
 }
 
@@ -130,12 +136,15 @@ idVec3 idRotation::ToAngularVelocity() const {
 idRotation::Normalize180
 ============
 */
-void idRotation::Normalize180() {
+void idRotation::Normalize180()
+{
 	angle -= floor( angle / 360.0f ) * 360.0f;
-	if ( angle > 180.0f ) {
+	if( angle > 180.0f )
+	{
 		angle -= 360.0f;
 	}
-	else if ( angle < -180.0f ) {
+	else if( angle < -180.0f )
+	{
 		angle += 360.0f;
 	}
 }
@@ -145,12 +154,15 @@ void idRotation::Normalize180() {
 idRotation::Normalize360
 ============
 */
-void idRotation::Normalize360() {
+void idRotation::Normalize360()
+{
 	angle -= floor( angle / 360.0f ) * 360.0f;
-	if ( angle > 360.0f ) {
+	if( angle > 360.0f )
+	{
 		angle -= 360.0f;
 	}
-	else if ( angle < 0.0f ) {
+	else if( angle < 0.0f )
+	{
 		angle += 360.0f;
 	}
 }

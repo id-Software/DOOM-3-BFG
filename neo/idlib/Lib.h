@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -45,32 +45,36 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-class idLib {
+class idLib
+{
 private:
 	static bool					mainThreadInitialized;
 	static ID_TLS				isMainThread;
 
 public:
-	static class idSys *		sys;
-	static class idCommon *		common;
-	static class idCVarSystem *	cvarSystem;
-	static class idFileSystem *	fileSystem;
+	static class idSys* 		sys;
+	static class idCommon* 		common;
+	static class idCVarSystem* 	cvarSystem;
+	static class idFileSystem* 	fileSystem;
 	static int					frameNumber;
 
 	static void					Init();
 	static void					ShutDown();
 
-	// wrapper to idCommon functions 
-	static void					Printf( const char *fmt, ... );
-	static void					PrintfIf( const bool test, const char *fmt, ... );
-	NO_RETURN static void		Error( const char *fmt, ... );
-	NO_RETURN static void		FatalError( const char *fmt, ... );
-	static void					Warning( const char *fmt, ... );
-	static void					WarningIf( const bool test, const char *fmt, ... );
+	// wrapper to idCommon functions
+	static void       			Printf( VERIFY_FORMAT_STRING const char* fmt, ... ) ID_STATIC_ATTRIBUTE_PRINTF( 1, 2 );
+	static void       			PrintfIf( const bool test, VERIFY_FORMAT_STRING const char* fmt, ... ) ID_STATIC_ATTRIBUTE_PRINTF( 2, 3 );
+	NO_RETURN static void       Error( VERIFY_FORMAT_STRING const char* fmt, ... ) ID_STATIC_ATTRIBUTE_PRINTF( 1, 2 );
+	NO_RETURN static void       FatalError( VERIFY_FORMAT_STRING const char* fmt, ... ) ID_STATIC_ATTRIBUTE_PRINTF( 1, 2 );
+	static void       			Warning( VERIFY_FORMAT_STRING const char* fmt, ... ) ID_STATIC_ATTRIBUTE_PRINTF( 1, 2 );
+	static void       			WarningIf( const bool test, VERIFY_FORMAT_STRING const char* fmt, ... ) ID_STATIC_ATTRIBUTE_PRINTF( 2, 3 );
 
 	// the extra check for mainThreadInitialized is necessary for this to be accurate
 	// when called by startup code that happens before idLib::Init
-	static bool					IsMainThread() { return ( 0 == mainThreadInitialized ) || ( 1 == isMainThread ); }
+	static bool					IsMainThread()
+	{
+		return ( 0 == mainThreadInitialized ) || ( 1 == isMainThread );
+	}
 };
 
 
@@ -89,11 +93,11 @@ class idVec3;
 class idVec4;
 
 #ifndef NULL
-#define NULL					((void *)0)
+	#define NULL					((void *)0)
 #endif
 
 #ifndef BIT
-#define BIT( num )				( 1ULL << ( num ) )
+	#define BIT( num )				( 1ULL << ( num ) )
 #endif
 
 #define	MAX_STRING_CHARS		1024		// max length of a string
@@ -124,12 +128,15 @@ extern	idVec4 colorBrown;
 extern	idVec4 colorLtGrey;
 extern	idVec4 colorMdGrey;
 extern	idVec4 colorDkGrey;
+// jmarshall
+extern idVec4  colorGold;
+// jmarshall end
 
 // packs color floats in the range [0,1] into an integer
-dword	PackColor( const idVec3 &color );
-void	UnpackColor( const dword color, idVec3 &unpackedColor );
-dword	PackColor( const idVec4 &color );
-void	UnpackColor( const dword color, idVec4 &unpackedColor );
+dword	PackColor( const idVec3& color );
+void	UnpackColor( const dword color, idVec3& unpackedColor );
+dword	PackColor( const idVec4& color );
+void	UnpackColor( const dword color, idVec4& unpackedColor );
 
 // little/big endian conversion
 short	BigShort( short l );
@@ -138,43 +145,48 @@ int		BigLong( int l );
 int		LittleLong( int l );
 float	BigFloat( float l );
 float	LittleFloat( float l );
-void	BigRevBytes( void *bp, int elsize, int elcount );
-void	LittleRevBytes( void *bp, int elsize, int elcount );
-void	LittleBitField( void *bp, int elsize );
+void	BigRevBytes( void* bp, int elsize, int elcount );
+void	LittleRevBytes( void* bp, int elsize, int elcount );
+void	LittleBitField( void* bp, int elsize );
 void	Swap_Init();
 
 bool	Swap_IsBigEndian();
 
 // for base64
-void	SixtetsForInt( byte *out, int src);
-int		IntForSixtets( byte *in );
+void	SixtetsForInt( byte* out, int src );
+int		IntForSixtets( byte* in );
 
 /*
 ================================================
 idException
 ================================================
 */
-class idException {
+class idException
+{
 public:
 	static const int MAX_ERROR_LEN = 2048;
 
-					idException( const char *text = "" ) { 
-						strncpy( error, text, MAX_ERROR_LEN ); 
-					}
+	idException( const char* text = "" )
+	{
+		strncpy( error, text, MAX_ERROR_LEN );
+	}
 
 	// this really, really should be a const function, but it's referenced too many places to change right now
-	const char *	GetError() { 
-						return error; 
-					}	
+	const char* 	GetError()
+	{
+		return error;
+	}
 
 protected:
 	// if GetError() were correctly const this would be named GetError(), too
-	char *		GetErrorBuffer() { 
-					return error; 
-				}	
-	int			GetErrorBufferSize() { 
-					return MAX_ERROR_LEN; 
-				}
+	char* 		GetErrorBuffer()
+	{
+		return error;
+	}
+	int			GetErrorBufferSize()
+	{
+		return MAX_ERROR_LEN;
+	}
 
 private:
 	friend class idFatalException;
@@ -186,26 +198,31 @@ private:
 idFatalException
 ================================================
 */
-class idFatalException {
+class idFatalException
+{
 public:
 	static const int MAX_ERROR_LEN = 2048;
 
-	idFatalException( const char *text = "" ) { 
-		strncpy( idException::error, text, MAX_ERROR_LEN ); 
+	idFatalException( const char* text = "" )
+	{
+		strncpy( idException::error, text, MAX_ERROR_LEN );
 	}
 
 	// this really, really should be a const function, but it's referenced too many places to change right now
-	const char *	GetError() { 
-		return idException::error; 
-	}	
+	const char* 	GetError()
+	{
+		return idException::error;
+	}
 
 protected:
 	// if GetError() were correctly const this would be named GetError(), too
-	char *		GetErrorBuffer() { 
-		return idException::error; 
-	}	
-	int			GetErrorBufferSize() { 
-		return MAX_ERROR_LEN; 
+	char* 		GetErrorBuffer()
+	{
+		return idException::error;
+	}
+	int			GetErrorBufferSize()
+	{
+		return MAX_ERROR_LEN;
 	}
 };
 
@@ -214,9 +231,10 @@ protected:
 idNetworkLoadException
 ================================================
 */
-class idNetworkLoadException : public idException {
+class idNetworkLoadException : public idException
+{
 public:
-	idNetworkLoadException( const char * text = "" ) : idException( text ) { }
+	idNetworkLoadException( const char* text = "" ) : idException( text ) { }
 };
 
 /*
@@ -257,6 +275,7 @@ public:
 #include "math/Curve.h"
 #include "math/Ode.h"
 #include "math/Lcp.h"
+#include "math/SphericalHarmonics.h"
 
 // bounding volumes
 #include "bv/Sphere.h"

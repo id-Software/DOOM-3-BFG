@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -49,11 +49,12 @@ rendered with Z-Fail, and optionally calculates the shadow volume depth bounds.
 staticShadowVolumeParms_t
 ================================================
 */
-struct staticShadowVolumeParms_t {
+struct staticShadowVolumeParms_t
+{
 	// input
-	const idShadowVert *			verts;					// streamed in from main memory
+	const idShadowVert* 			verts;					// streamed in from main memory
 	int								numVerts;
-	const triIndex_t *				indexes;				// streamed in from main memory
+	const triIndex_t* 				indexes;				// streamed in from main memory
 	int								numIndexes;
 	int								numShadowIndicesWithCaps;
 	int								numShadowIndicesNoCaps;
@@ -68,20 +69,19 @@ struct staticShadowVolumeParms_t {
 	bool							useShadowPreciseInsideTest;
 	bool							useShadowDepthBounds;
 	// temp
-	byte *							tempCullBits;			// temp buffer in SPU local memory
+	byte* 							tempCullBits;			// temp buffer in SPU local memory
 	// output
-	int *							numShadowIndices;		// streamed out to main memory
-	int *							renderZFail;			// streamed out to main memory
-	float *							shadowZMin;				// streamed out to main memory
-	float *							shadowZMax;				// streamed out to main memory
-	volatile shadowVolumeState_t *	shadowVolumeState;		// streamed out to main memory
+	int* 							numShadowIndices;		// streamed out to main memory
+	int* 							renderZFail;			// streamed out to main memory
+	float* 							shadowZMin;				// streamed out to main memory
+	float* 							shadowZMax;				// streamed out to main memory
+	volatile shadowVolumeState_t* 	shadowVolumeState;		// streamed out to main memory
 	// next in chain on view entity
-	staticShadowVolumeParms_t *		next;
+	staticShadowVolumeParms_t* 		next;
 	int								pad[3];
 };
 
 
-void StaticShadowVolumeJob( const staticShadowVolumeParms_t * parms );
-void StaticShadowVolume_SetupSPURSHeader( CellSpursJob128 * job, const staticShadowVolumeParms_t * parms );
+void StaticShadowVolumeJob( const staticShadowVolumeParms_t* parms );
 
 #endif // !__STATICSHADOWVOLUME_H__

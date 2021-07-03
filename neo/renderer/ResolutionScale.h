@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -28,16 +28,17 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __RESOLUTIONSCALE_H__
 #define __RESOLUTIONSCALE_H__
 
-class idResolutionScale {
+class idResolutionScale
+{
 public:
-			idResolutionScale();
+	idResolutionScale();
 
-	void	InitForMap( const char * mapName );
+	void	InitForMap( const char* mapName );
 
 	// Returns a float from 0.5 to 1.0, representing
 	// the estimated resolution downscale needed to
 	// maintain the target framerate.
-	void	GetCurrentResolutionScale( float &x, float &y );
+	void	GetCurrentResolutionScale( float& x, float& y );
 
 	// This should be called after any discontinuous
 	// view movement or force texture loading to prevent
@@ -50,7 +51,7 @@ public:
 	void	SetCurrentGPUFrameTime( int microseconds );
 
 	// return console display text
-	void	GetConsoleText( idStr &s );
+	void	GetConsoleText( idStr& s );
 
 private:
 	float			dropMilliseconds;

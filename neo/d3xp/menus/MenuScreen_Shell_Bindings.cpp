@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -26,15 +26,17 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 #pragma hdrstop
-#include "../../idLib/precompiled.h"
+#include "precompiled.h"
 #include "../Game_local.h"
 
-typedef struct {
-	const char * display;
-	const char * bind;
+typedef struct
+{
+	const char* display;
+	const char* bind;
 } bindInfo_t;
 
-static bindInfo_t keyboardBinds[] = {
+static bindInfo_t keyboardBinds[] =
+{
 	{ "#str_02090",			""								},	// HEADING
 	{ "#str_02100",	"_forward"								},	// FORWARD
 	{ "#str_02101",	"_back"									},	// BACKPEDAL
@@ -66,7 +68,7 @@ static bindInfo_t keyboardBinds[] = {
 	{ "#str_00100183",	"_impulse8"							},	// PLASMA GUN
 	{ "#str_00100184",	"_impulse9"							},	// ROCKETS
 	{ "#str_00100185",	"_impulse10"						},	// BFG
-	{ "#str_swf_soulcube_artifact",	"_impulse12"			},	// SOULCUBE / ARTIFACT	
+	{ "#str_swf_soulcube_artifact",	"_impulse12"			},	// SOULCUBE / ARTIFACT
 	{ "#str_00100187",	"_impulse16"						},	// FLASHLIGHT
 
 	{ "#str_04065",			""								},	// HEADING
@@ -86,10 +88,12 @@ static const int NUM_BIND_LISTINGS = 14;
 idMenuScreen_Shell_Bindings::Initialize
 ========================
 */
-void idMenuScreen_Shell_Bindings::Initialize( idMenuHandler * data ) {
+void idMenuScreen_Shell_Bindings::Initialize( idMenuHandler* data )
+{
 	idMenuScreen::Initialize( data );
 
-	if ( data != NULL ) {
+	if( data != NULL )
+	{
 		menuGUI = data->GetGUI();
 	}
 
@@ -103,7 +107,7 @@ void idMenuScreen_Shell_Bindings::Initialize( idMenuHandler * data ) {
 
 	AddChild( restoreDefault );
 
-	btnBack = new (TAG_SWF) idMenuWidget_Button();
+	btnBack = new( TAG_SWF ) idMenuWidget_Button();
 	btnBack->Initialize( data );
 	idStr controls( idLocalization::GetString( "#str_04158" ) );
 	controls.ToUpper();
@@ -121,8 +125,9 @@ void idMenuScreen_Shell_Bindings::Initialize( idMenuHandler * data ) {
 
 	UpdateBindingDisplay();
 
-	while ( options->GetChildren().Num() < NUM_BIND_LISTINGS ) {
-		idMenuWidget_Button * const buttonWidget = new (TAG_SWF) idMenuWidget_Button();
+	while( options->GetChildren().Num() < NUM_BIND_LISTINGS )
+	{
+		idMenuWidget_Button* const buttonWidget = new( TAG_SWF ) idMenuWidget_Button();
 		buttonWidget->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_PRESS_FOCUSED, options->GetChildren().Num() );
 		buttonWidget->Initialize( data );
 		options->AddChild( buttonWidget );
@@ -131,14 +136,14 @@ void idMenuScreen_Shell_Bindings::Initialize( idMenuHandler * data ) {
 
 	AddChild( options );
 
-	AddEventAction( WIDGET_EVENT_SCROLL_DOWN_LSTICK ).Set( new (TAG_SWF) idWidgetActionHandler( this, WIDGET_ACTION_EVENT_SCROLL_DOWN_START_REPEATER_VARIABLE, WIDGET_EVENT_SCROLL_DOWN_LSTICK ) );
-	AddEventAction( WIDGET_EVENT_SCROLL_UP_LSTICK ).Set( new (TAG_SWF) idWidgetActionHandler( this, WIDGET_ACTION_EVENT_SCROLL_UP_START_REPEATER_VARIABLE, WIDGET_EVENT_SCROLL_UP_LSTICK ) );
-	AddEventAction( WIDGET_EVENT_SCROLL_DOWN_LSTICK_RELEASE ).Set( new (TAG_SWF) idWidgetActionHandler( this, WIDGET_ACTION_EVENT_STOP_REPEATER, WIDGET_EVENT_SCROLL_DOWN_LSTICK_RELEASE ) );
-	AddEventAction( WIDGET_EVENT_SCROLL_UP_LSTICK_RELEASE ).Set( new (TAG_SWF) idWidgetActionHandler( this, WIDGET_ACTION_EVENT_STOP_REPEATER, WIDGET_EVENT_SCROLL_UP_LSTICK_RELEASE ) );
-	AddEventAction( WIDGET_EVENT_SCROLL_DOWN ).Set( new (TAG_SWF) idWidgetActionHandler( this, WIDGET_ACTION_EVENT_SCROLL_DOWN_START_REPEATER_VARIABLE, WIDGET_EVENT_SCROLL_DOWN ) );
-	AddEventAction( WIDGET_EVENT_SCROLL_UP ).Set( new (TAG_SWF) idWidgetActionHandler( this, WIDGET_ACTION_EVENT_SCROLL_UP_START_REPEATER_VARIABLE, WIDGET_EVENT_SCROLL_UP ) );
-	AddEventAction( WIDGET_EVENT_SCROLL_DOWN_RELEASE ).Set( new (TAG_SWF) idWidgetActionHandler( this, WIDGET_ACTION_EVENT_STOP_REPEATER, WIDGET_EVENT_SCROLL_DOWN_RELEASE ) );
-	AddEventAction( WIDGET_EVENT_SCROLL_UP_RELEASE ).Set( new (TAG_SWF) idWidgetActionHandler( this, WIDGET_ACTION_EVENT_STOP_REPEATER, WIDGET_EVENT_SCROLL_UP_RELEASE ) );
+	AddEventAction( WIDGET_EVENT_SCROLL_DOWN_LSTICK ).Set( new( TAG_SWF ) idWidgetActionHandler( this, WIDGET_ACTION_EVENT_SCROLL_DOWN_START_REPEATER_VARIABLE, WIDGET_EVENT_SCROLL_DOWN_LSTICK ) );
+	AddEventAction( WIDGET_EVENT_SCROLL_UP_LSTICK ).Set( new( TAG_SWF ) idWidgetActionHandler( this, WIDGET_ACTION_EVENT_SCROLL_UP_START_REPEATER_VARIABLE, WIDGET_EVENT_SCROLL_UP_LSTICK ) );
+	AddEventAction( WIDGET_EVENT_SCROLL_DOWN_LSTICK_RELEASE ).Set( new( TAG_SWF ) idWidgetActionHandler( this, WIDGET_ACTION_EVENT_STOP_REPEATER, WIDGET_EVENT_SCROLL_DOWN_LSTICK_RELEASE ) );
+	AddEventAction( WIDGET_EVENT_SCROLL_UP_LSTICK_RELEASE ).Set( new( TAG_SWF ) idWidgetActionHandler( this, WIDGET_ACTION_EVENT_STOP_REPEATER, WIDGET_EVENT_SCROLL_UP_LSTICK_RELEASE ) );
+	AddEventAction( WIDGET_EVENT_SCROLL_DOWN ).Set( new( TAG_SWF ) idWidgetActionHandler( this, WIDGET_ACTION_EVENT_SCROLL_DOWN_START_REPEATER_VARIABLE, WIDGET_EVENT_SCROLL_DOWN ) );
+	AddEventAction( WIDGET_EVENT_SCROLL_UP ).Set( new( TAG_SWF ) idWidgetActionHandler( this, WIDGET_ACTION_EVENT_SCROLL_UP_START_REPEATER_VARIABLE, WIDGET_EVENT_SCROLL_UP ) );
+	AddEventAction( WIDGET_EVENT_SCROLL_DOWN_RELEASE ).Set( new( TAG_SWF ) idWidgetActionHandler( this, WIDGET_ACTION_EVENT_STOP_REPEATER, WIDGET_EVENT_SCROLL_DOWN_RELEASE ) );
+	AddEventAction( WIDGET_EVENT_SCROLL_UP_RELEASE ).Set( new( TAG_SWF ) idWidgetActionHandler( this, WIDGET_ACTION_EVENT_STOP_REPEATER, WIDGET_EVENT_SCROLL_UP_RELEASE ) );
 
 }
 
@@ -147,15 +152,19 @@ void idMenuScreen_Shell_Bindings::Initialize( idMenuHandler * data ) {
 idMenuScreen_Shell_Bindings::Update
 ========================
 */
-void idMenuScreen_Shell_Bindings::Update() {
+void idMenuScreen_Shell_Bindings::Update()
+{
 
-	if ( menuData != NULL ) {
-		idMenuWidget_CommandBar * cmdBar = menuData->GetCmdBar();
-		if ( cmdBar != NULL ) {
+	if( menuData != NULL )
+	{
+		idMenuWidget_CommandBar* cmdBar = menuData->GetCmdBar();
+		if( cmdBar != NULL )
+		{
 			cmdBar->ClearAllButtons();
-			idMenuWidget_CommandBar::buttonInfo_t * buttonInfo;
+			idMenuWidget_CommandBar::buttonInfo_t* buttonInfo;
 			buttonInfo = cmdBar->GetButton( idMenuWidget_CommandBar::BUTTON_JOY2 );
-			if ( menuData->GetPlatform() != 2 ) {
+			if( menuData->GetPlatform() != 2 )
+			{
 				buttonInfo->label = "#str_00395";
 			}
 			buttonInfo->action.Set( WIDGET_ACTION_GO_BACK );
@@ -165,21 +174,25 @@ void idMenuScreen_Shell_Bindings::Update() {
 		}
 	}
 
-	idSWFScriptObject & root = GetSWFObject()->GetRootObject();
-	if ( BindSprite( root ) ) {
-		idSWFTextInstance * heading = GetSprite()->GetScriptObject()->GetNestedText( "info", "txtHeading" );
-		if ( heading != NULL ) {
+	idSWFScriptObject& root = GetSWFObject()->GetRootObject();
+	if( BindSprite( root ) )
+	{
+		idSWFTextInstance* heading = GetSprite()->GetScriptObject()->GetNestedText( "info", "txtHeading" );
+		if( heading != NULL )
+		{
 			heading->SetText( "#str_swf_controls_keyboard" );
 			heading->SetStrokeInfo( true, 0.75f, 1.75f );
 		}
 
-		idSWFSpriteInstance * gradient = GetSprite()->GetScriptObject()->GetNestedSprite( "info", "gradient" );
-		if ( gradient != NULL && heading != NULL ) {
+		idSWFSpriteInstance* gradient = GetSprite()->GetScriptObject()->GetNestedSprite( "info", "gradient" );
+		if( gradient != NULL && heading != NULL )
+		{
 			gradient->SetXPos( heading->GetTextLength() );
 		}
 	}
 
-	if ( btnBack != NULL ) {
+	if( btnBack != NULL )
+	{
 		btnBack->BindSprite( root );
 	}
 
@@ -191,20 +204,25 @@ void idMenuScreen_Shell_Bindings::Update() {
 idMenuScreen_Shell_Bindings::ShowScreen
 ========================
 */
-void idMenuScreen_Shell_Bindings::ShowScreen( const mainMenuTransition_t transitionType ) {
-	if ( options != NULL ) {		
+void idMenuScreen_Shell_Bindings::ShowScreen( const mainMenuTransition_t transitionType )
+{
+	if( options != NULL )
+	{
 		options->SetViewOffset( 0 );
-		options->SetViewIndex( 1 );		
+		options->SetViewIndex( 1 );
 		options->SetFocusIndex( 1 );
 	}
 
-	if ( menuData != NULL ) {
+	if( menuData != NULL )
+	{
 		menuGUI = menuData->GetGUI();
-		if ( menuGUI != NULL ) {		
-			idSWFScriptObject & root = menuGUI->GetRootObject();
+		if( menuGUI != NULL )
+		{
+			idSWFScriptObject& root = menuGUI->GetRootObject();
 			txtBlinder = root.GetNestedSprite( "menuBindings", "info", "rebind" );
-			blinder = root.GetNestedSprite( "menuBindings", "info", "blinder" );			
-			if ( restoreDefault != NULL ) {
+			blinder = root.GetNestedSprite( "menuBindings", "info", "blinder" );
+			if( restoreDefault != NULL )
+			{
 				restoreDefault->BindSprite( root );
 			}
 		}
@@ -213,7 +231,7 @@ void idMenuScreen_Shell_Bindings::ShowScreen( const mainMenuTransition_t transit
 	ToggleWait( false );
 	UpdateBindingDisplay();
 
-	idMenuScreen::ShowScreen( transitionType );	
+	idMenuScreen::ShowScreen( transitionType );
 }
 
 /*
@@ -221,9 +239,11 @@ void idMenuScreen_Shell_Bindings::ShowScreen( const mainMenuTransition_t transit
 idMenuScreen_Shell_Bindings::HideScreen
 ========================
 */
-void idMenuScreen_Shell_Bindings::HideScreen( const mainMenuTransition_t transitionType ) {
+void idMenuScreen_Shell_Bindings::HideScreen( const mainMenuTransition_t transitionType )
+{
 
-	if ( bindingsChanged ) {
+	if( bindingsChanged )
+	{
 		cvarSystem->SetModifiedFlags( CVAR_ARCHIVE );
 		bindingsChanged = false;
 	}
@@ -238,69 +258,88 @@ extern idCVar in_useJoystick;
 idMenuScreen_Shell_Bindings::UpdateBindingDisplay
 ========================
 */
-void idMenuScreen_Shell_Bindings::UpdateBindingDisplay() {
+void idMenuScreen_Shell_Bindings::UpdateBindingDisplay()
+{
 
-	idList< idList< idStr, TAG_IDLIB_LIST_MENU >, TAG_IDLIB_LIST_MENU > bindList;	
+	idList< idList< idStr, TAG_IDLIB_LIST_MENU >, TAG_IDLIB_LIST_MENU > bindList;
 
-	for ( int i = 0; i < numBinds; ++i ) {
+	for( int i = 0; i < numBinds; ++i )
+	{
 		idList< idStr > option;
 
 		option.Append( keyboardBinds[i].display );
 
-		if ( ( idStr::Icmp( keyboardBinds[i].bind, "" ) != 0 ) ) {
+		if( ( idStr::Icmp( keyboardBinds[i].bind, "" ) != 0 ) )
+		{
 			keyBindings_t bind = idKeyInput::KeyBindingsFromBinding( keyboardBinds[i].bind, false, true );
 
 			idStr bindings;
 
-			if ( !bind.gamepad.IsEmpty() && in_useJoystick.GetBool() ) {
+			if( !bind.gamepad.IsEmpty() && in_useJoystick.GetBool() )
+			{
 				idStrList joyBinds;
 				int start = 0;
-				while ( start < bind.gamepad.Length() ) {
+				while( start < bind.gamepad.Length() )
+				{
 					int end = bind.gamepad.Find( ", ", true, start );
-					if ( end < 0 ) {
+					if( end < 0 )
+					{
 						end = bind.gamepad.Length();
 					}
 					joyBinds.Alloc().CopyRange( bind.gamepad, start, end );
 					start = end + 2;
 				}
-				const char * buttonsWithImages[] = {
+				const char* buttonsWithImages[] =
+				{
 					"JOY1", "JOY2", "JOY3", "JOY4", "JOY5", "JOY6",
 					"JOY_TRIGGER1", "JOY_TRIGGER2", 0
 				};
-				for ( int i = 0; i < joyBinds.Num(); i++ ) {
-					if ( joyBinds[i].Icmpn( "JOY_STICK", 9 ) == 0 ) {
+				for( int i = 0; i < joyBinds.Num(); i++ )
+				{
+					if( joyBinds[i].Icmpn( "JOY_STICK", 9 ) == 0 )
+					{
 						continue; // Can't rebind the sticks, so don't even show them
 					}
 					bool hasImage = false;
-					for ( const char ** b = buttonsWithImages; *b != 0; b++ ) {
-						if ( joyBinds[i].Icmp( *b ) == 0 ) {
+					for( const char** b = buttonsWithImages; *b != 0; b++ )
+					{
+						if( joyBinds[i].Icmp( *b ) == 0 )
+						{
 							hasImage = true;
 							break;
 						}
 					}
-					if ( !bindings.IsEmpty() ) {
+					if( !bindings.IsEmpty() )
+					{
 						bindings.Append( ", " );
 					}
-					if ( hasImage ) {
+					if( hasImage )
+					{
 						bindings.Append( '<' );
 						bindings.Append( joyBinds[i] );
 						bindings.Append( '>' );
-					} else {
+					}
+					else
+					{
 						bindings.Append( joyBinds[i] );
 					}
 				}
 				bindings.Replace( "JOY_DPAD", "DPAD" );
 			}
 
-			if ( !bind.keyboard.IsEmpty() ) {
-				if ( !bindings.IsEmpty() ) {
+			if( !bind.keyboard.IsEmpty() )
+			{
+				if( !bindings.IsEmpty() )
+				{
 					bindings.Append( ", " );
 				}
 				bindings.Append( bind.keyboard );
-			} 
+			}
 
-			if ( !bind.mouse.IsEmpty() ) {
-				if ( !bindings.IsEmpty() ) {
+			if( !bind.mouse.IsEmpty() )
+			{
+				if( !bindings.IsEmpty() )
+				{
 					bindings.Append( ", " );
 				}
 				bindings.Append( bind.mouse );
@@ -309,7 +348,9 @@ void idMenuScreen_Shell_Bindings::UpdateBindingDisplay() {
 			bindings.ToUpper();
 			option.Append( bindings );
 
-		} else {
+		}
+		else
+		{
 			option.Append( "" );
 		}
 
@@ -325,45 +366,59 @@ void idMenuScreen_Shell_Bindings::UpdateBindingDisplay() {
 idMenuScreen_Shell_Bindings::ToggleWait
 ========================
 */
-void idMenuScreen_Shell_Bindings::ToggleWait( bool wait ) {
+void idMenuScreen_Shell_Bindings::ToggleWait( bool wait )
+{
 
-	if ( wait ) {
+	if( wait )
+	{
 
-		if ( blinder != NULL ) {
+		if( blinder != NULL )
+		{
 			blinder->SetVisible( true );
-			if ( options != NULL ) {
+			if( options != NULL )
+			{
 				blinder->StopFrame( options->GetFocusIndex() + 1 );
 			}
 		}
 
-		if ( txtBlinder != NULL ) {
+		if( txtBlinder != NULL )
+		{
 			txtBlinder->SetVisible( true );
 		}
 
-		if ( restoreDefault != NULL ) {
+		if( restoreDefault != NULL )
+		{
 			restoreDefault->SetLabel( "" );
 		}
 
-	} else {
+	}
+	else
+	{
 
-		if ( blinder != NULL ) {
+		if( blinder != NULL )
+		{
 			blinder->SetVisible( false );
 		}
 
-		if ( txtBlinder != NULL ) {
+		if( txtBlinder != NULL )
+		{
 			txtBlinder->SetVisible( false );
 		}
 
-		if ( restoreDefault != NULL ) {
-			if ( menuData != NULL ) {
+		if( restoreDefault != NULL )
+		{
+			if( menuData != NULL )
+			{
 				menuGUI = menuData->GetGUI();
-				if ( menuGUI != NULL ) {		
-					idSWFScriptObject & root = menuGUI->GetRootObject();
+				if( menuGUI != NULL )
+				{
+					idSWFScriptObject& root = menuGUI->GetRootObject();
 					restoreDefault->SetSpritePath( GetSpritePath(), "info", "btnRestore" );
 					restoreDefault->BindSprite( root );
 				}
 			}
-			if ( restoreDefault->GetSprite() ) {
+			if( restoreDefault->GetSprite() )
+			{
 				restoreDefault->GetSprite()->SetVisible( true );
 			}
 			restoreDefault->SetLabel( "#str_swf_restore_defaults" );
@@ -377,14 +432,15 @@ void idMenuScreen_Shell_Bindings::ToggleWait( bool wait ) {
 idMenuScreen_Shell_Bindings::SetBinding
 ========================
 */
-void idMenuScreen_Shell_Bindings::SetBinding( int keyNum ) {
+void idMenuScreen_Shell_Bindings::SetBinding( int keyNum )
+{
 
 	int listIndex = options->GetViewIndex();
 	idKeyInput::SetBinding( keyNum, keyboardBinds[ listIndex ].bind );
 	UpdateBindingDisplay();
 	ToggleWait( false );
 	Update();
-	
+
 }
 
 /*
@@ -392,25 +448,33 @@ void idMenuScreen_Shell_Bindings::SetBinding( int keyNum ) {
 idMenuScreen_Shell_Bindings::HandleRestoreDefaults
 ========================
 */
-void idMenuScreen_Shell_Bindings::HandleRestoreDefaults() {
+void idMenuScreen_Shell_Bindings::HandleRestoreDefaults()
+{
 
 
-	class idSWFScriptFunction_Restore : public idSWFScriptFunction_RefCounted {
+	class idSWFScriptFunction_Restore : public idSWFScriptFunction_RefCounted
+	{
 	public:
-		idSWFScriptFunction_Restore( gameDialogMessages_t _msg, bool _accept, idMenuScreen_Shell_Bindings * _menu ) {
+		idSWFScriptFunction_Restore( gameDialogMessages_t _msg, bool _accept, idMenuScreen_Shell_Bindings* _menu )
+		{
 			msg = _msg;
 			accept = _accept;
 			menu = _menu;
 		}
-		idSWFScriptVar Call( idSWFScriptObject * thisObject, const idSWFParmList & parms ) {
+		idSWFScriptVar Call( idSWFScriptObject* thisObject, const idSWFParmList& parms )
+		{
 			common->Dialog().ClearDialog( msg );
-			if ( accept ) {
-				idLocalUser * user = session->GetSignInManager().GetMasterLocalUser();
-				if ( user != NULL ) {
-					idPlayerProfile * profile = user->GetProfile();
-					if ( profile != NULL ) {
+			if( accept )
+			{
+				idLocalUser* user = session->GetSignInManager().GetMasterLocalUser();
+				if( user != NULL )
+				{
+					idPlayerProfile* profile = user->GetProfile();
+					if( profile != NULL )
+					{
 						profile->RestoreDefault();
-						if ( menu != NULL ) {
+						if( menu != NULL )
+						{
 							menu->UpdateBindingDisplay();
 							menu->Update();
 						}
@@ -422,7 +486,7 @@ void idMenuScreen_Shell_Bindings::HandleRestoreDefaults() {
 	private:
 		gameDialogMessages_t msg;
 		bool accept;
-		idMenuScreen_Shell_Bindings * menu;
+		idMenuScreen_Shell_Bindings* menu;
 	};
 
 	common->Dialog().AddDialog( GDM_BINDINGS_RESTORE, DIALOG_ACCEPT_CANCEL, new idSWFScriptFunction_Restore( GDM_BINDINGS_RESTORE, true, this ), new idSWFScriptFunction_Restore( GDM_BINDINGS_RESTORE, false, this ), false );
@@ -434,53 +498,69 @@ void idMenuScreen_Shell_Bindings::HandleRestoreDefaults() {
 idMenuScreen_Shell_Bindings::HandleAction
 ========================
 */
-bool idMenuScreen_Shell_Bindings::HandleAction( idWidgetAction & action, const idWidgetEvent & event, idMenuWidget * widget, bool forceHandled ) {
+bool idMenuScreen_Shell_Bindings::HandleAction( idWidgetAction& action, const idWidgetEvent& event, idMenuWidget* widget, bool forceHandled )
+{
 
-	if ( menuData == NULL ) {
+	if( menuData == NULL )
+	{
 		return true;
 	}
 
-	if ( menuData->ActiveScreen() != SHELL_AREA_KEYBOARD ) {
+	if( menuData->ActiveScreen() != SHELL_AREA_KEYBOARD )
+	{
 		return false;
 	}
 
 	widgetAction_t actionType = action.GetType();
-	const idSWFParmList & parms = action.GetParms();
+	const idSWFParmList& parms = action.GetParms();
 
-	switch ( actionType ) {
-		case WIDGET_ACTION_GO_BACK: {
+	switch( actionType )
+	{
+		case WIDGET_ACTION_GO_BACK:
+		{
 			menuData->SetNextScreen( SHELL_AREA_CONTROLS, MENU_TRANSITION_SIMPLE );
 			return true;
 		}
-		case WIDGET_ACTION_JOY3_ON_PRESS: {
+		case WIDGET_ACTION_JOY3_ON_PRESS:
+		{
 			HandleRestoreDefaults();
 			return true;
 		}
-		case WIDGET_ACTION_PRESS_FOCUSED: {
+		case WIDGET_ACTION_PRESS_FOCUSED:
+		{
 
 			int listIndex = 0;
-			if ( parms.Num() > 0 ) {
+			if( parms.Num() > 0 )
+			{
 				listIndex = options->GetViewOffset() + parms[ 0 ].ToInteger();
-			} else {
+			}
+			else
+			{
 				listIndex = options->GetViewIndex();
 			}
 
-			if ( listIndex < 0 || listIndex >= numBinds ) {
+			if( listIndex < 0 || listIndex >= numBinds )
+			{
 				return true;
 			}
 
-			if ( options->GetViewIndex() != listIndex ) {
+			if( options->GetViewIndex() != listIndex )
+			{
 
-				if ( idStr::Icmp( keyboardBinds[ listIndex ].bind, "" ) == 0 ) {
+				if( idStr::Icmp( keyboardBinds[ listIndex ].bind, "" ) == 0 )
+				{
 					return true;
 				}
 
 				options->SetViewIndex( listIndex );
 				options->SetFocusIndex( listIndex - options->GetViewOffset() );
-			} else {
+			}
+			else
+			{
 
-				idMenuHandler_Shell * data = dynamic_cast< idMenuHandler_Shell * >( menuData );
-				if ( data != NULL ) {
+				idMenuHandler_Shell* data = dynamic_cast< idMenuHandler_Shell* >( menuData );
+				if( data != NULL )
+				{
 					ToggleWait( true );
 					Update();
 					data->SetWaitForBinding( keyboardBinds[ listIndex ].bind );
@@ -490,27 +570,39 @@ bool idMenuScreen_Shell_Bindings::HandleAction( idWidgetAction & action, const i
 
 			return true;
 		}
-		case WIDGET_ACTION_SCROLL_VERTICAL_VARIABLE: {
+		case WIDGET_ACTION_SCROLL_VERTICAL_VARIABLE:
+		{
 
-			if ( parms.Num() == 0 ) {
+			if( parms.Num() == 0 )
+			{
 				return true;
 			}
 
-			if ( options != NULL ) {		
+			if( options != NULL )
+			{
 
 				int dir = parms[ 0 ].ToInteger();
 				int scroll = 0;
 				int curIndex = options->GetViewIndex();
 
-				if ( dir != 0 ) {
-					if ( curIndex + dir >= numBinds ) {
+				if( dir != 0 )
+				{
+					if( curIndex + dir >= numBinds )
+					{
 						scroll = dir * 2;
-					} else if ( curIndex + dir < 1 ) {
+					}
+					else if( curIndex + dir < 1 )
+					{
 						scroll = dir * 2;
-					} else {
-						if ( idStr::Icmp( keyboardBinds[curIndex + dir].bind, "" ) == 0 ) {
+					}
+					else
+					{
+						if( idStr::Icmp( keyboardBinds[curIndex + dir].bind, "" ) == 0 )
+						{
 							scroll = dir * 2;
-						} else {
+						}
+						else
+						{
 							scroll = dir;
 						}
 					}

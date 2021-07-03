@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -38,14 +38,15 @@ Camera providing an alternative view of the level.
 ===============================================================================
 */
 
-class idCamera : public idEntity {
+class idCamera : public idEntity
+{
 public:
 	ABSTRACT_PROTOTYPE( idCamera );
 
 	void					Spawn();
-	virtual void			GetViewParms( renderView_t *view ) = 0;
-	virtual renderView_t *	GetRenderView();
-	virtual void			Stop(){} ;
+	virtual void			GetViewParms( renderView_t* view ) = 0;
+	virtual renderView_t* 	GetRenderView();
+	virtual void			Stop() {} ;
 };
 
 /*
@@ -56,26 +57,27 @@ idCameraView
 ===============================================================================
 */
 
-class idCameraView : public idCamera {
+class idCameraView : public idCamera
+{
 public:
 	CLASS_PROTOTYPE( idCameraView );
-							idCameraView();
+	idCameraView();
 
 	// save games
-	void					Save( idSaveGame *savefile ) const;				// archives object for save game file
-	void					Restore( idRestoreGame *savefile );				// unarchives object from save game file
+	void					Save( idSaveGame* savefile ) const;				// archives object for save game file
+	void					Restore( idRestoreGame* savefile );				// unarchives object from save game file
 
 	void					Spawn( );
-	virtual void			GetViewParms( renderView_t *view );
+	virtual void			GetViewParms( renderView_t* view );
 	virtual void			Stop();
 
 protected:
-	void					Event_Activate( idEntity *activator );
+	void					Event_Activate( idEntity* activator );
 	void					Event_SetAttachments();
-	void					SetAttachment( idEntity **e, const char *p );
+	void					SetAttachment( idEntity** e, const char* p );
 	float					fov;
-	idEntity				*attachedTo;
-	idEntity				*attachedView;
+	idEntity*				attachedTo;
+	idEntity*				attachedView;
 };
 
 
@@ -88,25 +90,27 @@ A camera which follows a path defined by an animation.
 ===============================================================================
 */
 
-typedef struct {
+typedef struct
+{
 	idCQuat				q;
 	idVec3				t;
 	float				fov;
 } cameraFrame_t;
 
-class idCameraAnim : public idCamera {
+class idCameraAnim : public idCamera
+{
 public:
 	CLASS_PROTOTYPE( idCameraAnim );
 
-							idCameraAnim();
-							~idCameraAnim();
+	idCameraAnim();
+	~idCameraAnim();
 
 	// save games
-	void					Save( idSaveGame *savefile ) const;				// archives object for save game file
-	void					Restore( idRestoreGame *savefile );				// unarchives object from save game file
+	void					Save( idSaveGame* savefile ) const;				// archives object for save game file
+	void					Restore( idRestoreGame* savefile );				// unarchives object from save game file
 
 	void					Spawn();
-	virtual void			GetViewParms( renderView_t *view );
+	virtual void			GetViewParms( renderView_t* view );
 
 private:
 	int						threadNum;
@@ -126,7 +130,7 @@ private:
 	void					Event_Start();
 	void					Event_Stop();
 	void					Event_SetCallback();
-	void					Event_Activate( idEntity *activator );
+	void					Event_Activate( idEntity* activator );
 };
 
 #endif /* !__GAME_CAMERA_H__ */

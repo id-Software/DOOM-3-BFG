@@ -1,6 +1,6 @@
 
 #pragma hdrstop
-#include "../precompiled.h"
+#include "precompiled.h"
 
 /*
    CRC-32
@@ -12,7 +12,9 @@
 
 #ifdef CREATE_CRC_TABLE
 
-static unsigned long crctable[256];
+// RB: 64 bit fix, changed long to int
+static unsigned int id_crctable[256];
+// RB end
 
 /*
    Generate a table for a byte-wise 32-bit CRC calculation on the polynomial:
@@ -39,21 +41,30 @@ static unsigned long crctable[256];
    combinations of CRC register values and incoming bytes.
 */
 
-void make_crc_table( void ) {
+static void id_make_crc_table()
+{
 	int i, j;
-	unsigned long c, poly;
+	// RB: 64 bit fix, changed long to int
+	unsigned int c, poly;
+	// RB end
+
 	/* terms of polynomial defining this crc (except x^32): */
-	static const byte p[] = {0,1,2,4,5,7,8,10,11,12,16,22,23,26};
+	static const byte p[] = {0, 1, 2, 4, 5, 7, 8, 10, 11, 12, 16, 22, 23, 26};
 
 	/* make exclusive-or pattern from polynomial (0xedb88320L) */
 	poly = 0L;
-	for ( i = 0; i < sizeof( p ) / sizeof( byte ); i++ ) {
+	for( i = 0; i < sizeof( p ) / sizeof( byte ); i++ )
+	{
 		poly |= 1L << ( 31 - p[i] );
 	}
 
-	for ( i = 0; i < 256; i++ ) {
-		c = (unsigned long)i;
-		for ( j = 0; j < 8; j++ ) {
+	for( i = 0; i < 256; i++ )
+	{
+		// RB: 64 bit fix, changed long to int
+		c = ( unsigned int )i;
+		// RB end
+		for( j = 0; j < 8; j++ )
+		{
 			c = ( c & 1 ) ? poly ^ ( c >> 1 ) : ( c >> 1 );
 		}
 		crctable[i] = c;
@@ -65,7 +76,10 @@ void make_crc_table( void ) {
 /*
   Table of CRC-32's of all single-byte values (made by make_crc_table)
 */
-static unsigned long crctable[256] = {
+// RB: 64 bit fix, changed long to int
+static unsigned int id_crctable[256] =
+{
+// RB end
 	0x00000000L, 0x77073096L, 0xee0e612cL, 0x990951baL,
 	0x076dc419L, 0x706af48fL, 0xe963a535L, 0x9e6495a3L,
 	0x0edb8832L, 0x79dcb8a4L, 0xe0d5e91eL, 0x97d2d988L,
@@ -134,34 +148,42 @@ static unsigned long crctable[256] = {
 
 #endif
 
-void CRC32_InitChecksum( unsigned long &crcvalue ) {
+// RB: 64 bit fixes, changed long to int
+void CRC32_InitChecksum( unsigned int& crcvalue )
+{
 	crcvalue = CRC32_INIT_VALUE;
 }
 
-void CRC32_Update( unsigned long &crcvalue, const byte data ) {
-	crcvalue = crctable[ ( crcvalue ^ data ) & 0xff ] ^ ( crcvalue >> 8 );
+void CRC32_Update( unsigned int& crcvalue, const byte data )
+{
+	crcvalue = id_crctable[( crcvalue ^ data ) & 0xff ] ^ ( crcvalue >> 8 );
 }
 
-void CRC32_UpdateChecksum( unsigned long &crcvalue, const void *data, int length ) {
-	unsigned long crc;
-	const unsigned char *buf = (const unsigned char *) data;
+void CRC32_UpdateChecksum( unsigned int& crcvalue, const void* data, int length )
+{
+	unsigned int crc;
+	const unsigned char* buf = ( const unsigned char* ) data;
 
 	crc = crcvalue;
-	while( length-- ) {
-		crc = crctable[ ( crc ^ ( *buf++ ) ) & 0xff ] ^ ( crc >> 8 );
+	while( length-- )
+	{
+		crc = id_crctable[( crc ^ ( *buf++ ) ) & 0xff ] ^ ( crc >> 8 );
 	}
 	crcvalue = crc;
 }
 
-void CRC32_FinishChecksum( unsigned long &crcvalue ) {
+void CRC32_FinishChecksum( unsigned int& crcvalue )
+{
 	crcvalue ^= CRC32_XOR_VALUE;
 }
 
-unsigned long CRC32_BlockChecksum( const void *data, int length ) {
-	unsigned long crc;
+unsigned int CRC32_BlockChecksum( const void* data, int length )
+{
+	unsigned int crc;
 
 	CRC32_InitChecksum( crc );
 	CRC32_UpdateChecksum( crc, data, length );
 	CRC32_FinishChecksum( crc );
 	return crc;
 }
+// RB end

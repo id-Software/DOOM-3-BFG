@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<config>
+<!--This is a config file for the Irrlicht Engine Mesh Viewer.-->
+<startUpModel file="../../media/dwarf.x" />
+<messageText caption="Irrlicht Engine Mesh Viewer">Welcome to the Mesh Viewer of the &quot;Irrlicht Engine&quot;. This program is able to load and display all 3D geometry and models, the Irrlicht Engine can. 
+
+Controls:
+- Left mouse to rotate
+- Right mouse to move
+- Both buttons to zoom
+
+Supported formats are:
+- 3D Studio (.3ds)
+- Cartography shop 4 (.csm)
+- DirectX (.x)
+- Maya (.obj)
+- Milkshape (.ms3d)
+- My3D (.my3D) 
+- OCT (.oct)
+- Pulsar LMTools (.lmts)
+- Quake 3 levels (.bsp)
+- Quake 2 models (.md2)
+
+Please note that this program is also a demo of the user interface capabilities of the engine, so for example the combo box in the toolbar has no function.
+</messageText>
+</config>

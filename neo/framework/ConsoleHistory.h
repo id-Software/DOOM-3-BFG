@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -37,21 +37,24 @@ Note that commands bound to keys do not go through the console history.
 
 */
 
-class idConsoleHistory {
+class idConsoleHistory
+{
 public:
-			idConsoleHistory() :
-					upPoint( 0 ),
-					downPoint( 0 ),
-					returnLine( 0 ),
-					numHistory( 0 )
-				{ ClearHistory(); }
+	idConsoleHistory() :
+		upPoint( 0 ),
+		downPoint( 0 ),
+		returnLine( 0 ),
+		numHistory( 0 )
+	{
+		ClearHistory();
+	}
 
 	void	LoadHistoryFile();
 
 	// the line should not have a \n
 	// Empty lines are never added to the history.
 	// If the command is the same as the last returned history line, nothing is changed.
-	void	AddToHistory( const char *line, bool writeHistoryFile = true );
+	void	AddToHistory( const char* line, bool writeHistoryFile = true );
 
 	// the string will not have a \n
 	// Returns an empty string if there is nothing to retrieve in that
@@ -69,7 +72,7 @@ private:
 	int		numHistory;
 
 	static const int COMMAND_HISTORY = 64;
-	idArray<idStr,COMMAND_HISTORY>	historyLines;
+	idArray<idStr, COMMAND_HISTORY>	historyLines;
 
 	compile_time_assert( CONST_ISPOWEROFTWO( COMMAND_HISTORY ) );	// we use the binary 'and' operator for wrapping
 };

@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -37,24 +37,28 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-typedef struct {
+typedef struct
+{
 	char					name[128];
 	char					parent[128];
 } maNodeHeader_t;
 
-typedef struct {
+typedef struct
+{
 	char					name[128];
 	int						size;
 } maAttribHeader_t;
 
-typedef struct maTransform_s {
+typedef struct maTransform_s
+{
 	idVec3					translate;
 	idVec3					rotate;
 	idVec3					scale;
-	maTransform_s*			parent;	
+	maTransform_s*			parent;
 } maTransform_t;
 
-typedef struct {
+typedef struct
+{
 	int						edge[3];
 	int						vertexNum[3];
 	int						tVertexNum[3];
@@ -62,25 +66,26 @@ typedef struct {
 	idVec3					vertexNormals[3];
 } maFace_t;
 
-typedef struct {
-	
+typedef struct
+{
+
 	//Transform to be applied
 	maTransform_t*			transform;
 
 	//Verts
 	int						numVertexes;
-	idVec3 *				vertexes;
+	idVec3* 				vertexes;
 	int						numVertTransforms;
-	idVec4 *				vertTransforms;
+	idVec4* 				vertTransforms;
 	int						nextVertTransformIndex;
 
 	//Texture Coordinates
 	int						numTVertexes;
-	idVec2 *				tvertexes;
+	idVec2* 				tvertexes;
 
 	//Edges
 	int						numEdges;
-	idVec3 *				edges;
+	idVec3* 				edges;
 
 	//Colors
 	int						numColors;
@@ -88,24 +93,26 @@ typedef struct {
 
 	//Faces
 	int						numFaces;
-	maFace_t *				faces;
+	maFace_t* 				faces;
 
 	//Normals
 	int						numNormals;
-	idVec3 *				normals;
+	idVec3* 				normals;
 	bool					normalsParsed;
 	int						nextNormal;
 
 } maMesh_t;
 
-typedef struct {
+typedef struct
+{
 	char					name[128];
 	float					uOffset, vOffset;		// max lets you offset by material without changing texCoords
 	float					uTiling, vTiling;		// multiply tex coords by this
 	float					angle;					// in clockwise radians
 } maMaterial_t;
 
-typedef struct {
+typedef struct
+{
 	char					name[128];
 	int						materialRef;
 	char					materialName[128];
@@ -114,12 +121,14 @@ typedef struct {
 } maObject_t;
 
 
-typedef struct {
+typedef struct
+{
 	char					name[128];
 	char					path[1024];
 } maFileNode_t;
 
-typedef struct maMaterialNode_s {
+typedef struct maMaterialNode_s
+{
 	char					name[128];
 
 	maMaterialNode_s*		child;
@@ -127,19 +136,20 @@ typedef struct maMaterialNode_s {
 
 } maMaterialNode_t;
 
-typedef struct maModel_s {
+typedef struct maModel_s
+{
 	ID_TIME_T						timeStamp;
-	idList<maMaterial_t *, TAG_MODEL>		materials;
-	idList<maObject_t *, TAG_MODEL>		objects;
+	idList<maMaterial_t*, TAG_MODEL>		materials;
+	idList<maObject_t*, TAG_MODEL>		objects;
 	idHashTable<maTransform_t*> transforms;
-	
+
 	//Material Resolution
 	idHashTable<maFileNode_t*>		fileNodes;
 	idHashTable<maMaterialNode_t*>	materialNodes;
 
 } maModel_t;
 
-maModel_t	*MA_Load( const char *fileName );
-void		MA_Free( maModel_t *ma );
+maModel_t*	MA_Load( const char* fileName );
+void		MA_Free( maModel_t* ma );
 
 #endif /* !__MODEL_MA_H__ */

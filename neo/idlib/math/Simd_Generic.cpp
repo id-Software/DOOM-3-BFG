@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
-#include "../precompiled.h"
+#include "precompiled.h"
 #include "Simd_Generic.h"
 
 //===============================================================
@@ -41,10 +41,11 @@ If you have questions concerning this license or the applicable additional terms
 #define UNROLL4(Y) { int _IX, _NM = count&0xfffffffc; for (_IX=0;_IX<_NM;_IX+=4){Y(_IX+0);Y(_IX+1);Y(_IX+2);Y(_IX+3);}for(;_IX<count;_IX++){Y(_IX);}}
 #define UNROLL8(Y) { int _IX, _NM = count&0xfffffff8; for (_IX=0;_IX<_NM;_IX+=8){Y(_IX+0);Y(_IX+1);Y(_IX+2);Y(_IX+3);Y(_IX+4);Y(_IX+5);Y(_IX+6);Y(_IX+7);} _NM = count&0xfffffffe; for(;_IX<_NM;_IX+=2){Y(_IX); Y(_IX+1);} if (_IX < count) {Y(_IX);} }
 
+#undef NODEFAULT
 #ifdef _DEBUG
-#define NODEFAULT	default: assert( 0 )
+	#define NODEFAULT	default: assert( 0 )
 #else
-#define NODEFAULT	default: __assume( 0 )
+	#define NODEFAULT	default: __assume( 0 )
 #endif
 
 
@@ -53,7 +54,8 @@ If you have questions concerning this license or the applicable additional terms
 idSIMD_Generic::GetName
 ============
 */
-const char * idSIMD_Generic::GetName() const {
+const char* idSIMD_Generic::GetName() const
+{
 	return "generic code";
 }
 
@@ -62,10 +64,12 @@ const char * idSIMD_Generic::GetName() const {
 idSIMD_Generic::MinMax
 ============
 */
-void VPCALL idSIMD_Generic::MinMax( float &min, float &max, const float *src, const int count ) {
-	min = idMath::INFINITY; max = -idMath::INFINITY;
+void VPCALL idSIMD_Generic::MinMax( float& min, float& max, const float* src, const int count )
+{
+	min = idMath::INFINITY;
+	max = -idMath::INFINITY;
 #define OPER(X) if ( src[(X)] < min ) {min = src[(X)];} if ( src[(X)] > max ) {max = src[(X)];}
-	UNROLL1(OPER)
+	UNROLL1( OPER )
 #undef OPER
 }
 
@@ -74,10 +78,12 @@ void VPCALL idSIMD_Generic::MinMax( float &min, float &max, const float *src, co
 idSIMD_Generic::MinMax
 ============
 */
-void VPCALL idSIMD_Generic::MinMax( idVec2 &min, idVec2 &max, const idVec2 *src, const int count ) {
-	min[0] = min[1] = idMath::INFINITY; max[0] = max[1] = -idMath::INFINITY;
+void VPCALL idSIMD_Generic::MinMax( idVec2& min, idVec2& max, const idVec2* src, const int count )
+{
+	min[0] = min[1] = idMath::INFINITY;
+	max[0] = max[1] = -idMath::INFINITY;
 #define OPER(X) const idVec2 &v = src[(X)]; if ( v[0] < min[0] ) { min[0] = v[0]; } if ( v[0] > max[0] ) { max[0] = v[0]; } if ( v[1] < min[1] ) { min[1] = v[1]; } if ( v[1] > max[1] ) { max[1] = v[1]; }
-	UNROLL1(OPER)
+	UNROLL1( OPER )
 #undef OPER
 }
 
@@ -86,10 +92,12 @@ void VPCALL idSIMD_Generic::MinMax( idVec2 &min, idVec2 &max, const idVec2 *src,
 idSIMD_Generic::MinMax
 ============
 */
-void VPCALL idSIMD_Generic::MinMax( idVec3 &min, idVec3 &max, const idVec3 *src, const int count ) {
-	min[0] = min[1] = min[2] = idMath::INFINITY; max[0] = max[1] = max[2] = -idMath::INFINITY;
+void VPCALL idSIMD_Generic::MinMax( idVec3& min, idVec3& max, const idVec3* src, const int count )
+{
+	min[0] = min[1] = min[2] = idMath::INFINITY;
+	max[0] = max[1] = max[2] = -idMath::INFINITY;
 #define OPER(X) const idVec3 &v = src[(X)]; if ( v[0] < min[0] ) { min[0] = v[0]; } if ( v[0] > max[0] ) { max[0] = v[0]; } if ( v[1] < min[1] ) { min[1] = v[1]; } if ( v[1] > max[1] ) { max[1] = v[1]; } if ( v[2] < min[2] ) { min[2] = v[2]; } if ( v[2] > max[2] ) { max[2] = v[2]; }
-	UNROLL1(OPER)
+	UNROLL1( OPER )
 #undef OPER
 }
 
@@ -98,10 +106,12 @@ void VPCALL idSIMD_Generic::MinMax( idVec3 &min, idVec3 &max, const idVec3 *src,
 idSIMD_Generic::MinMax
 ============
 */
-void VPCALL idSIMD_Generic::MinMax( idVec3 &min, idVec3 &max, const idDrawVert *src, const int count ) {
-	min[0] = min[1] = min[2] = idMath::INFINITY; max[0] = max[1] = max[2] = -idMath::INFINITY;
+void VPCALL idSIMD_Generic::MinMax( idVec3& min, idVec3& max, const idDrawVert* src, const int count )
+{
+	min[0] = min[1] = min[2] = idMath::INFINITY;
+	max[0] = max[1] = max[2] = -idMath::INFINITY;
 #define OPER(X) const idVec3 &v = src[(X)].xyz; if ( v[0] < min[0] ) { min[0] = v[0]; } if ( v[0] > max[0] ) { max[0] = v[0]; } if ( v[1] < min[1] ) { min[1] = v[1]; } if ( v[1] > max[1] ) { max[1] = v[1]; } if ( v[2] < min[2] ) { min[2] = v[2]; } if ( v[2] > max[2] ) { max[2] = v[2]; }
-	UNROLL1(OPER)
+	UNROLL1( OPER )
 #undef OPER
 }
 
@@ -110,10 +120,12 @@ void VPCALL idSIMD_Generic::MinMax( idVec3 &min, idVec3 &max, const idDrawVert *
 idSIMD_Generic::MinMax
 ============
 */
-void VPCALL idSIMD_Generic::MinMax( idVec3 &min, idVec3 &max, const idDrawVert *src, const triIndex_t *indexes, const int count ) {
-	min[0] = min[1] = min[2] = idMath::INFINITY; max[0] = max[1] = max[2] = -idMath::INFINITY;
+void VPCALL idSIMD_Generic::MinMax( idVec3& min, idVec3& max, const idDrawVert* src, const triIndex_t* indexes, const int count )
+{
+	min[0] = min[1] = min[2] = idMath::INFINITY;
+	max[0] = max[1] = max[2] = -idMath::INFINITY;
 #define OPER(X) const idVec3 &v = src[indexes[(X)]].xyz; if ( v[0] < min[0] ) { min[0] = v[0]; } if ( v[0] > max[0] ) { max[0] = v[0]; } if ( v[1] < min[1] ) { min[1] = v[1]; } if ( v[1] > max[1] ) { max[1] = v[1]; } if ( v[2] < min[2] ) { min[2] = v[2]; } if ( v[2] > max[2] ) { max[2] = v[2]; }
-	UNROLL1(OPER)
+	UNROLL1( OPER )
 #undef OPER
 }
 
@@ -122,7 +134,8 @@ void VPCALL idSIMD_Generic::MinMax( idVec3 &min, idVec3 &max, const idDrawVert *
 idSIMD_Generic::Memcpy
 ================
 */
-void VPCALL idSIMD_Generic::Memcpy( void *dst, const void *src, const int count ) {
+void VPCALL idSIMD_Generic::Memcpy( void* dst, const void* src, const int count )
+{
 	memcpy( dst, src, count );
 }
 
@@ -131,7 +144,8 @@ void VPCALL idSIMD_Generic::Memcpy( void *dst, const void *src, const int count 
 idSIMD_Generic::Memset
 ================
 */
-void VPCALL idSIMD_Generic::Memset( void *dst, const int val, const int count ) {
+void VPCALL idSIMD_Generic::Memset( void* dst, const int val, const int count )
+{
 	memset( dst, val, count );
 }
 
@@ -140,8 +154,10 @@ void VPCALL idSIMD_Generic::Memset( void *dst, const int val, const int count ) 
 idSIMD_Generic::BlendJoints
 ============
 */
-void VPCALL idSIMD_Generic::BlendJoints( idJointQuat *joints, const idJointQuat *blendJoints, const float lerp, const int *index, const int numJoints ) {
-	for ( int i = 0; i < numJoints; i++ ) {
+void VPCALL idSIMD_Generic::BlendJoints( idJointQuat* joints, const idJointQuat* blendJoints, const float lerp, const int* index, const int numJoints )
+{
+	for( int i = 0; i < numJoints; i++ )
+	{
 		int j = index[i];
 		joints[j].q.Slerp( joints[j].q, blendJoints[j].q, lerp );
 		joints[j].t.Lerp( joints[j].t, blendJoints[j].t, lerp );
@@ -154,8 +170,10 @@ void VPCALL idSIMD_Generic::BlendJoints( idJointQuat *joints, const idJointQuat 
 idSIMD_Generic::BlendJointsFast
 ============
 */
-void VPCALL idSIMD_Generic::BlendJointsFast( idJointQuat *joints, const idJointQuat *blendJoints, const float lerp, const int *index, const int numJoints ) {
-	for ( int i = 0; i < numJoints; i++ ) {
+void VPCALL idSIMD_Generic::BlendJointsFast( idJointQuat* joints, const idJointQuat* blendJoints, const float lerp, const int* index, const int numJoints )
+{
+	for( int i = 0; i < numJoints; i++ )
+	{
 		int j = index[i];
 		joints[j].q.Lerp( joints[j].q, blendJoints[j].q, lerp );
 		joints[j].t.Lerp( joints[j].t, blendJoints[j].t, lerp );
@@ -168,8 +186,10 @@ void VPCALL idSIMD_Generic::BlendJointsFast( idJointQuat *joints, const idJointQ
 idSIMD_Generic::ConvertJointQuatsToJointMats
 ============
 */
-void VPCALL idSIMD_Generic::ConvertJointQuatsToJointMats( idJointMat *jointMats, const idJointQuat *jointQuats, const int numJoints ) {
-	for ( int i = 0; i < numJoints; i++ ) {
+void VPCALL idSIMD_Generic::ConvertJointQuatsToJointMats( idJointMat* jointMats, const idJointQuat* jointQuats, const int numJoints )
+{
+	for( int i = 0; i < numJoints; i++ )
+	{
 		jointMats[i].SetRotation( jointQuats[i].q.ToMat3() );
 		jointMats[i].SetTranslation( jointQuats[i].t );
 	}
@@ -180,8 +200,10 @@ void VPCALL idSIMD_Generic::ConvertJointQuatsToJointMats( idJointMat *jointMats,
 idSIMD_Generic::ConvertJointMatsToJointQuats
 ============
 */
-void VPCALL idSIMD_Generic::ConvertJointMatsToJointQuats( idJointQuat *jointQuats, const idJointMat *jointMats, const int numJoints ) {
-	for ( int i = 0; i < numJoints; i++ ) {
+void VPCALL idSIMD_Generic::ConvertJointMatsToJointQuats( idJointQuat* jointQuats, const idJointMat* jointMats, const int numJoints )
+{
+	for( int i = 0; i < numJoints; i++ )
+	{
 		jointQuats[i] = jointMats[i].ToJointQuat();
 	}
 }
@@ -191,8 +213,10 @@ void VPCALL idSIMD_Generic::ConvertJointMatsToJointQuats( idJointQuat *jointQuat
 idSIMD_Generic::TransformJoints
 ============
 */
-void VPCALL idSIMD_Generic::TransformJoints( idJointMat *jointMats, const int *parents, const int firstJoint, const int lastJoint ) {
-	for ( int i = firstJoint; i <= lastJoint; i++ ) {
+void VPCALL idSIMD_Generic::TransformJoints( idJointMat* jointMats, const int* parents, const int firstJoint, const int lastJoint )
+{
+	for( int i = firstJoint; i <= lastJoint; i++ )
+	{
 		assert( parents[i] < i );
 		jointMats[i] *= jointMats[parents[i]];
 	}
@@ -203,8 +227,10 @@ void VPCALL idSIMD_Generic::TransformJoints( idJointMat *jointMats, const int *p
 idSIMD_Generic::UntransformJoints
 ============
 */
-void VPCALL idSIMD_Generic::UntransformJoints( idJointMat *jointMats, const int *parents, const int firstJoint, const int lastJoint ) {
-	for ( int i = lastJoint; i >= firstJoint; i-- ) {
+void VPCALL idSIMD_Generic::UntransformJoints( idJointMat* jointMats, const int* parents, const int firstJoint, const int lastJoint )
+{
+	for( int i = lastJoint; i >= firstJoint; i-- )
+	{
 		assert( parents[i] < i );
 		jointMats[i] /= jointMats[parents[i]];
 	}

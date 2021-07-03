@@ -1,0 +1,21 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "irrxml", "irrxml.vcproj", "{2CDC9E2F-2CE6-4917-8BB9-DBA8E44C9A82}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release = Release
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{2CDC9E2F-2CE6-4917-8BB9-DBA8E44C9A82}.Debug.ActiveCfg = Debug|Win32
+		{2CDC9E2F-2CE6-4917-8BB9-DBA8E44C9A82}.Debug.Build.0 = Debug|Win32
+		{2CDC9E2F-2CE6-4917-8BB9-DBA8E44C9A82}.Release.ActiveCfg = Release|Win32
+		{2CDC9E2F-2CE6-4917-8BB9-DBA8E44C9A82}.Release.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

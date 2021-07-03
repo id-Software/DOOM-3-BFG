@@ -303,7 +303,7 @@ InputEvent joyEvents[18];
 //  i_net_xbox.vars begin // 
 int			sendsocket;
 int			insocket;
-struct	sockaddr_in	sendaddress[MAXNETNODES];
+//struct	sockaddr_in	sendaddress[MAXNETNODES];
 // i_net_xbox.vars end // 
 //  i_system.vars begin // 
 int	mb_used ;
@@ -820,7 +820,7 @@ int			reloadlump;
 // w_wad.vars end // 
 //  z_zone.vars begin // 
 int sizes[NUM_ZONES+1];
-memzone_t*	zones[NUM_ZONES] ;
+memzone_t*	zones[NUM_ZONES+1] ;        // SRS - Added +1 so NUM_ZONES index is not beyond end of array
 int NumAlloc ;
 // z_zone.vars end // 
 // info vars begin //

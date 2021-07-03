@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -28,8 +28,10 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __SWF_TEXTINSTANCE_H__
 #define __SWF_TEXTINSTANCE_H__
 
-struct subTimingWordData_t {
-	subTimingWordData_t() {
+struct subTimingWordData_t
+{
+	subTimingWordData_t()
+	{
 		startTime = 0;
 		forceBreak = false;
 	}
@@ -39,31 +41,62 @@ struct subTimingWordData_t {
 	bool forceBreak;
 };
 
-class idSWFTextInstance {
+class idSWFTextInstance
+{
 public:
 	idSWFTextInstance();
 	~idSWFTextInstance();
 
-	void Init( idSWFEditText * editText, idSWF * _swf );
+	void Init( idSWFEditText* editText, idSWF* _swf );
 
-	idSWFScriptObject * GetScriptObject() { return &scriptObject; }
+	idSWFScriptObject* GetScriptObject()
+	{
+		return &scriptObject;
+	}
 
-	bool	GetHasDropShadow() { return useDropShadow; }
-	bool	HasStroke() { return useStroke; }
-	float	GetStrokeStrength() { return strokeStrength; }
-	float	GetStrokeWeight() { return strokeWeight; }
+	bool	GetHasDropShadow()
+	{
+		return useDropShadow;
+	}
+	bool	HasStroke()
+	{
+		return useStroke;
+	}
+	float	GetStrokeStrength()
+	{
+		return strokeStrength;
+	}
+	float	GetStrokeWeight()
+	{
+		return strokeWeight;
+	}
 
-	// used for when text has random render mode set 
-	bool	IsGeneratingRandomText() { return generatingText; }
-	void	StartRandomText( int time );	
+	// used for when text has random render mode set
+	bool	IsGeneratingRandomText()
+	{
+		return generatingText;
+	}
+	void	StartRandomText( int time );
 	idStr	GetRandomText( int time );
 	void	StartParagraphText( int time );
 	idStr	GetParagraphText( int time );
-	bool	NeedsGenerateRandomText() { return triggerGenerate; }
+	bool	NeedsGenerateRandomText()
+	{
+		return triggerGenerate;
+	}
 	bool	NeedsSoundPlayed();
-	void	ClearPlaySound() { needsSoundUpdate = false; }
-	idStr	GetSoundClip() { return soundClip; }
-	void	SetIgnoreColor( bool ignore ) { ignoreColor = ignore; }
+	void	ClearPlaySound()
+	{
+		needsSoundUpdate = false;
+	}
+	idStr	GetSoundClip()
+	{
+		return soundClip;
+	}
+	void	SetIgnoreColor( bool ignore )
+	{
+		ignoreColor = ignore;
+	}
 
 	void	SetStrokeInfo( bool use, float strength = 0.75f, float weight = 1.75f );
 	int		CalcMaxScroll( int numLines = -1 );
@@ -72,37 +105,83 @@ public:
 	// subtitle functions
 	void	SwitchSubtitleText( int time );
 	bool	UpdateSubtitle( int time );
-	bool	IsSubtitle() { return isSubtitle; }
-	bool	IsUpdatingSubtitle() { return subUpdating; }
+	bool	IsSubtitle()
+	{
+		return isSubtitle;
+	}
+	bool	IsUpdatingSubtitle()
+	{
+		return subUpdating;
+	}
 	void	SetSubEndIndex( int endChar, int time );
-	int		GetLastWordIndex() { return subLastWordIndex; }
-	int		GetPrevLastWordIndex() { return subPrevLastWordIndex; }
+	int		GetLastWordIndex()
+	{
+		return subLastWordIndex;
+	}
+	int		GetPrevLastWordIndex()
+	{
+		return subPrevLastWordIndex;
+	}
 	void	LastWordChanged( int wordCount, int time );
-	void	SetSubStartIndex( int value ) { subCharStartIndex = value; }
-	int		GetSubEndIndex() { return subCharEndIndex; }
-	int		GetSubStartIndex() { return subCharStartIndex; }
+	void	SetSubStartIndex( int value )
+	{
+		subCharStartIndex = value;
+	}
+	int		GetSubEndIndex()
+	{
+		return subCharEndIndex;
+	}
+	int		GetSubStartIndex()
+	{
+		return subCharStartIndex;
+	}
 	void	SetSubNextStartIndex( int value );
 	int		GetApporoximateSubtitleBreak( int time );
-	bool	SubNeedsSwitch() { return subNeedsSwitch; }
-	idStr	GetPreviousText() { return subtitleText.c_str(); }
+	bool	SubNeedsSwitch()
+	{
+		return subNeedsSwitch;
+	}
+	idStr	GetPreviousText()
+	{
+		return subtitleText.c_str();
+	}
 	void	SubtitleComplete();
-	int		GetSubAlignment() { return subAlign; }
-	idStr	GetSpeaker() { return subSpeaker.c_str(); }
+	int		GetSubAlignment()
+	{
+		return subAlign;
+	}
+	idStr	GetSpeaker()
+	{
+		return subSpeaker.c_str();
+	}
 	void	SubtitleCleanup();
 	float	GetTextLength();
-	int		GetInputStartChar( ) { return inputTextStartChar; }
-	void	SetInputStartCharacter( int c ) { inputTextStartChar = c; }
+	int		GetInputStartChar( )
+	{
+		return inputTextStartChar;
+	}
+	void	SetInputStartCharacter( int c )
+	{
+		inputTextStartChar = c;
+	}
 
-	const idSWFEditText * GetEditText() const { return editText; }
-	void	SetText( idStr val ) { text = val; lengthCalculated = false; }
+	const idSWFEditText* GetEditText() const
+	{
+		return editText;
+	}
+	void	SetText( idStr val )
+	{
+		text = val;
+		lengthCalculated = false;
+	}
 
 	// Removing the private access control statement due to cl 214702
 	// Apparently MS's C++ compiler supports the newer C++ standard, and GCC supports C++03
 	// In the new C++ standard, nested members of a friend class have access to private/protected members of the class granting friendship
 	// In C++03, nested members defined in a friend class do NOT have access to private/protected members of the class granting friendship
 
-	idSWFEditText * editText;
-	idSWF *	swf;
+	idSWFEditText* editText;
+	idSWF* 	swf;
 
 	// this text instance's script object
 	idSWFScriptObject  scriptObject;
@@ -182,7 +261,7 @@ public:
 
 	// input text
 	int			inputTextStartChar;
-	
+
 	idList< subTimingWordData_t, TAG_SWF > subtitleTimingInfo;
 };
 
@@ -191,7 +270,8 @@ public:
 This is the prototype object that all the text instance script objects reference
 ================================================
 */
-class idSWFScriptObject_TextInstancePrototype : public idSWFScriptObject {
+class idSWFScriptObject_TextInstancePrototype : public idSWFScriptObject
+{
 public:
 	idSWFScriptObject_TextInstancePrototype();
 
@@ -234,7 +314,7 @@ public:
 	SWF_NATIVE_VAR_DECLARE( subtitleAlign );
 	SWF_NATIVE_VAR_DECLARE( subtitleSourceID );
 	SWF_NATIVE_VAR_DECLARE( subtitleSpeaker );
-	
+
 	SWF_NATIVE_VAR_DECLARE_READONLY( _textLength );
 
 	SWF_TEXT_FUNCTION_DECLARE( subtitleSourceCheck );

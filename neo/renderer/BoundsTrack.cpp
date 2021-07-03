@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
-#include "../idlib/precompiled.h"
+#include "precompiled.h"
 
 
 #undef min			// windef.h macros
@@ -50,45 +50,53 @@ overlap if all 8 tests pass
 //
 // We may need to add a global scale factor to this if there are intersections
 // completely outside +/-32k
-struct shortBounds_t {
-	shortBounds_t() {
+struct shortBounds_t
+{
+	shortBounds_t()
+	{
 		SetToEmpty();
 	}
 
-	shortBounds_t( const idBounds & b  ) {
+	shortBounds_t( const idBounds& b )
+	{
 		SetFromReferenceBounds( b );
 	}
 
 	short	b[2][4];		// fourth element is just for padding
 
-	idBounds ToFloatBounds() const {
+	idBounds ToFloatBounds() const
+	{
 		idBounds	f;
-		for ( int i = 0 ; i < 3 ; i++ ) {
+		for( int i = 0 ; i < 3 ; i++ )
+		{
 			f[0][i] = b[0][i];
 			f[1][i] = -b[1][i];
 		}
 		return f;
 	}
 
-	bool	IntersectsShortBounds( shortBounds_t & comp ) const {
+	bool	IntersectsShortBounds( shortBounds_t& comp ) const
+	{
 		shortBounds_t test;
 		comp.MakeComparisonBounds( test );
 		return IntersectsComparisonBounds( test );
 	}
 
-	bool	IntersectsComparisonBounds( shortBounds_t & test ) const {
+	bool	IntersectsComparisonBounds( shortBounds_t& test ) const
+	{
 		// this can be a single ALTIVEC vcmpgtshR instruction
 		return test.b[0][0] > b[0][0]
-			&& test.b[0][1] > b[0][1]
-			&& test.b[0][2] > b[0][2]
-			&& test.b[0][3] > b[0][3]
-			&& test.b[1][0] > b[1][0]
-			&& test.b[1][1] > b[1][1]
-			&& test.b[1][2] > b[1][2]
-			&& test.b[1][3] > b[1][3];
+			   && test.b[0][1] > b[0][1]
+			   && test.b[0][2] > b[0][2]
+			   && test.b[0][3] > b[0][3]
+			   && test.b[1][0] > b[1][0]
+			   && test.b[1][1] > b[1][1]
+			   && test.b[1][2] > b[1][2]
+			   && test.b[1][3] > b[1][3];
 	}
 
-	void MakeComparisonBounds( shortBounds_t & comp ) const {
+	void MakeComparisonBounds( shortBounds_t& comp ) const
+	{
 		comp.b[0][0] = -b[1][0];
 		comp.b[1][0] = -b[0][0];
 		comp.b[0][1] = -b[1][1];
@@ -99,21 +107,28 @@ struct shortBounds_t {
 		comp.b[1][3] = 0x7fff;
 	}
 
-	void SetFromReferenceBounds( const idBounds & set ) {
+	void SetFromReferenceBounds( const idBounds& set )
+	{
 		// the maxs are stored negated
-		for ( int i = 0 ; i < 3 ; i++ ) {
+		for( int i = 0 ; i < 3 ; i++ )
+		{
+			// RB: replaced std::min, max
 			int minv = floor( set[0][i] );
-			b[0][i] = std::max( -32768, minv );
+			b[0][i] = Max( -32768, minv );
 			int maxv = -ceil( set[1][i] );
-			b[1][i] = std::min( 32767, maxv );
+			b[1][i] = Min( 32767, maxv );
+			// RB end
 		}
 		b[0][3] = b[1][3] = 0;
 	}
 
-	void SetToEmpty() {
+	void SetToEmpty()
+	{
 		// this will always fail the comparison
-		for ( int i = 0 ; i < 2 ; i++ ) {
-			for ( int j = 0 ; j < 4 ; j++ ) {
+		for( int i = 0 ; i < 2 ; i++ )
+		{
+			for( int j = 0 ; j < 4 ; j++ )
+			{
 				b[i][j] = 0x7fff;
 			}
 		}
@@ -123,17 +138,20 @@ struct shortBounds_t {
 
 
 // pure function
-int FindBoundsIntersectionsTEST( 
+int FindBoundsIntersectionsTEST(
 	const shortBounds_t			testBounds,
-	const shortBounds_t * const	boundsList,
+	const shortBounds_t* const	boundsList,
 	const int					numBounds,
-	int * const					returnedList ) {
+	int* const					returnedList )
+{
 
 	int hits = 0;
 	idBounds	testF = testBounds.ToFloatBounds();
-	for ( int i = 0 ; i < numBounds ; i++ ) {
+	for( int i = 0 ; i < numBounds ; i++ )
+	{
 		idBounds	listF = boundsList[i].ToFloatBounds();
-		if ( testF.IntersectsBounds( listF ) ) {
+		if( testF.IntersectsBounds( listF ) )
+		{
 			returnedList[hits++] = i;
 		}
 	}
@@ -141,29 +159,36 @@ int FindBoundsIntersectionsTEST(
 }
 
 // pure function
-int FindBoundsIntersectionsSimSIMD( 
+int FindBoundsIntersectionsSimSIMD(
 	const shortBounds_t			testBounds,
-	const shortBounds_t * const	boundsList,
+	const shortBounds_t* const	boundsList,
 	const int					numBounds,
-	int * const					returnedList ) {
+	int* const					returnedList )
+{
 
 	shortBounds_t	compareBounds;
 	testBounds.MakeComparisonBounds( compareBounds );
 
 	int hits = 0;
-	for ( int i = 0 ; i < numBounds ; i++ ) {
-		const shortBounds_t & listBounds = boundsList[i];
+	for( int i = 0 ; i < numBounds ; i++ )
+	{
+		const shortBounds_t& listBounds = boundsList[i];
 		bool	compare[8];
 		int		count = 0;
-		for ( int j = 0 ; j < 8 ; j++ ) {
-			if ( ((short *)&compareBounds)[j] >= ((short *)&listBounds)[j] ) {
+		for( int j = 0 ; j < 8 ; j++ )
+		{
+			if( ( ( short* )&compareBounds )[j] >= ( ( short* )&listBounds )[j] )
+			{
 				compare[j] = true;
 				count++;
-			} else {
+			}
+			else
+			{
 				compare[j] = false;
 			}
 		}
-		if ( count == 8 ) {
+		if( count == 8 )
+		{
 			returnedList[hits++] = i;
 		}
 	}
@@ -172,45 +197,57 @@ int FindBoundsIntersectionsSimSIMD(
 
 
 
-idBoundsTrack::idBoundsTrack() {
-	boundsList = (shortBounds_t *)Mem_Alloc( MAX_BOUNDS_TRACK_INDEXES * sizeof( *boundsList ), TAG_RENDER );
+idBoundsTrack::idBoundsTrack()
+{
+	boundsList = ( shortBounds_t* )Mem_Alloc( MAX_BOUNDS_TRACK_INDEXES * sizeof( *boundsList ), TAG_RENDER );
 	ClearAll();
 }
 
-idBoundsTrack::~idBoundsTrack() {
+idBoundsTrack::~idBoundsTrack()
+{
 	Mem_Free( boundsList );
 }
 
-void idBoundsTrack::ClearAll() {
+void idBoundsTrack::ClearAll()
+{
 	maxIndex = 0;
-	for ( int i = 0 ; i < MAX_BOUNDS_TRACK_INDEXES ; i++ ) {
+	for( int i = 0 ; i < MAX_BOUNDS_TRACK_INDEXES ; i++ )
+	{
 		ClearIndex( i );
 	}
 }
 
-void	idBoundsTrack::SetIndex( const int index, const idBounds & bounds ) {
-	assert( (unsigned)index < MAX_BOUNDS_TRACK_INDEXES );
-	maxIndex = std::max( maxIndex, index+1);
+void	idBoundsTrack::SetIndex( const int index, const idBounds& bounds )
+{
+	assert( ( unsigned )index < MAX_BOUNDS_TRACK_INDEXES );
+	// RB: replaced std::max
+	maxIndex = Max( maxIndex, index + 1 );
+	// RB end
 	boundsList[index].SetFromReferenceBounds( bounds );
 }
 
-void	idBoundsTrack::ClearIndex( const int index ) {
-	assert( (unsigned)index < MAX_BOUNDS_TRACK_INDEXES );
+void	idBoundsTrack::ClearIndex( const int index )
+{
+	assert( ( unsigned )index < MAX_BOUNDS_TRACK_INDEXES );
 	boundsList[index].SetToEmpty();
 }
 
-int		idBoundsTrack::FindIntersections( const idBounds & testBounds, int intersectedIndexes[ MAX_BOUNDS_TRACK_INDEXES ] ) const {
+int		idBoundsTrack::FindIntersections( const idBounds& testBounds, int intersectedIndexes[ MAX_BOUNDS_TRACK_INDEXES ] ) const
+{
 	const shortBounds_t	shortTestBounds( testBounds );
 	return FindBoundsIntersectionsTEST( shortTestBounds, boundsList, maxIndex, intersectedIndexes );
 }
 
-void	idBoundsTrack::Test() {
+void	idBoundsTrack::Test()
+{
 	ClearAll();
 	idRandom	r;
 
-	for ( int i = 0 ; i < 1800 ; i++ ) {
+	for( int i = 0 ; i < 1800 ; i++ )
+	{
 		idBounds b;
-		for ( int j = 0 ; j < 3 ; j++ ) {
+		for( int j = 0 ; j < 3 ; j++ )
+		{
 			b[0][j] = r.RandomInt( 20000 ) - 10000;
 			b[1][j] = b[0][j] + r.RandomInt( 1000 );
 		}
@@ -229,11 +266,16 @@ void	idBoundsTrack::Test() {
 	int intersectedIndexes2[ MAX_BOUNDS_TRACK_INDEXES ];
 	const int numHits2 = FindBoundsIntersectionsSimSIMD( shortTestBounds, boundsList, maxIndex, intersectedIndexes2 );
 	idLib::Printf( "%i intersections\n", numHits1 );
-	if ( numHits1 != numHits2 ) {
+	if( numHits1 != numHits2 )
+	{
 		idLib::Printf( "different results\n" );
-	} else {
-		for ( int i = 0 ; i < numHits1 ; i++ ) {
-			if ( intersectedIndexes1[i] != intersectedIndexes2[i] ) {
+	}
+	else
+	{
+		for( int i = 0 ; i < numHits1 ; i++ )
+		{
+			if( intersectedIndexes1[i] != intersectedIndexes2[i] )
+			{
 				idLib::Printf( "different results\n" );
 				break;
 			}
@@ -246,16 +288,18 @@ void	idBoundsTrack::Test() {
 
 	// timing
 	const int64 start = Sys_Microseconds();
-	for ( int i = 0 ; i < 40 ; i++ ) {
+	for( int i = 0 ; i < 40 ; i++ )
+	{
 		FindBoundsIntersectionsSimSIMD( shortTestBounds, boundsList, maxIndex, intersectedIndexes2 );
 	}
 	const int64 stop = Sys_Microseconds();
-	idLib::Printf( "%i microseconds for 40 itterations\n", stop - start );
+	idLib::Printf( "%lli microseconds for 40 itterations\n", stop - start );
 }
 
 
 
-class interactionPair_t {
+class interactionPair_t
+{
 	int		entityIndex;
 	int		lightIndex;
 };
@@ -267,7 +311,7 @@ keep a sorted list of static interactions and interactions already generated thi
 determine if the light needs more exact culling because it is rotated or a spot light
 for each entity on the bounds intersection list
 	if entity is not directly visible, determine if it can cast a shadow into the view
-		if the light center is in-frustum 
+		if the light center is in-frustum
 			and the entity bounds is out-of-frustum, it can't contribue
 		else the light center is off-frustum
 			if any of the view frustum planes can be moved out to the light center and the entity bounds is still outside it, it can't contribute

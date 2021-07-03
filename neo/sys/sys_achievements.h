@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -33,8 +33,10 @@ class idLocalUser;
 // data structure for online achievement entry descriptions
 // this is used for testing purposes to make sure that the consoles
 // achievement settings match the game's decls
-struct achievementDescription_t {
-	void	Clear() {
+struct achievementDescription_t
+{
+	void	Clear()
+	{
 		name[0] = '\0';
 		description[0] = '\0';
 		hidden = false;
@@ -46,10 +48,11 @@ struct achievementDescription_t {
 
 /*
 ================================================
-idAchievementSystem 
+idAchievementSystem
 ================================================
 */
-class idAchievementSystem {
+class idAchievementSystem
+{
 public:
 	static const int MAX_ACHIEVEMENTS = 128;		// This matches the max number of achievements bits in the profile
 
@@ -65,59 +68,78 @@ public:
 	virtual void	Shutdown() {}
 
 	// Is the achievement system ready for requests
-	virtual bool	IsInitialized() { return false; }
-	
+	virtual bool	IsInitialized()
+	{
+		return false;
+	}
+
 	// Add a local user to the system
-	virtual void	RegisterLocalUser( idLocalUser * user ) {}
+	virtual void	RegisterLocalUser( idLocalUser* user ) {}
 
 	// This is only necessary on the 360 right now, we need this because the 360 maintains a buffer of pending actions
 	// per user.  If a user is removed from the system, we need to inform the system so it can cancel it's in flight actions
 	// and allow the buffers to be reused
-	virtual void	RemoveLocalUser( idLocalUser * user ) {}
+	virtual void	RemoveLocalUser( idLocalUser* user ) {}
 
 	// Unlocks the achievement, all platforms silently fail if the achievement has already been unlocked
-	virtual void	AchievementUnlock( idLocalUser * user, const int achievementID ) = 0;
+	virtual void	AchievementUnlock( idLocalUser* user, const int achievementID ) = 0;
 
 	// Puts the achievement back to its original state, platform implementation may not allow this
-	virtual void	AchievementLock( idLocalUser * user, const int achievementID ) {}
+	virtual void	AchievementLock( idLocalUser* user, const int achievementID ) {}
 
 	// Puts alls achievements back to their original state, platform implementation may not allow this
-	virtual void	AchievementLockAll( idLocalUser * user, const int maxId ) {}
+	virtual void	AchievementLockAll( idLocalUser* user, const int maxId ) {}
 
 	// Should be done every frame
 	virtual void	Pump() = 0;
 
 	// Cancels all in-flight achievements for all users if NULL, resets the system so a Init() must be re-issued
-	virtual void	Reset( idLocalUser * user = NULL ) {}
+	virtual void	Reset( idLocalUser* user = NULL ) {}
 
 	// Cancels all in-flight achievements, not very useful on PC
-	virtual void	Cancel( idLocalUser * user ) {}
+	virtual void	Cancel( idLocalUser* user ) {}
 
 	// Retrieves textual information about a given achievement
 	// returns false if there was an error
-	virtual bool	GetAchievementDescription( idLocalUser * user, const int id, achievementDescription_t & data ) const { return false; }
+	virtual bool	GetAchievementDescription( idLocalUser* user, const int id, achievementDescription_t& data ) const
+	{
+		return false;
+	}
 
 	// How much storage is required
 	// returns false if there was an error
-	virtual bool	GetRequiredStorage( uint64 & requiredSizeTrophiesBytes ) { requiredSizeTrophiesBytes = 0; return true; }
+	virtual bool	GetRequiredStorage( uint64& requiredSizeTrophiesBytes )
+	{
+		requiredSizeTrophiesBytes = 0;
+		return true;
+	}
 
 	// Retrieves state about of all achievements cached locally (may not be online yet)
 	// returns false if there was an error
-	virtual bool	GetAchievementState( idLocalUser * user, idArray< bool, idAchievementSystem::MAX_ACHIEVEMENTS > & achievements ) const { return false; }
+	virtual bool	GetAchievementState( idLocalUser* user, idArray< bool, idAchievementSystem::MAX_ACHIEVEMENTS >& achievements ) const
+	{
+		return false;
+	}
 
 	// Sets state of all the achievements within list (for debug purposes only)
 	// returns false if there was an error
-	virtual bool	SetAchievementState( idLocalUser * user, idArray< bool, idAchievementSystem::MAX_ACHIEVEMENTS > & achievements ) { return false; }
+	virtual bool	SetAchievementState( idLocalUser* user, idArray< bool, idAchievementSystem::MAX_ACHIEVEMENTS >& achievements )
+	{
+		return false;
+	}
 
 	// You want to get the server's cached achievement status into the user because the profile may not have been
 	// saved with the achievement bits after an achievement was granted.
-	void			SyncAchievementBits( idLocalUser * user );
+	void			SyncAchievementBits( idLocalUser* user );
 
 protected:
 	// Retrieves the index from the local user list
-	int				GetLocalUserIndex( idLocalUser * user ) const { return users.FindIndex( user ); }
+	int				GetLocalUserIndex( idLocalUser* user ) const
+	{
+		return users.FindIndex( user );
+	}
 
-	idStaticList< idLocalUser *, MAX_LOCAL_PLAYERS > users;
+	idStaticList< idLocalUser*, MAX_LOCAL_PLAYERS > users;
 };
 
 #endif // __SYS_ACHIEVEMENTS_H__

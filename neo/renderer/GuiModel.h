@@ -2,9 +2,10 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2013-2020 Robert Beckebans
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -26,8 +27,9 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-struct guiModelSurface_t {
-	const idMaterial *	material;
+struct guiModelSurface_t
+{
+	const idMaterial* 	material;
 	uint64				glState;
 	int					firstIndex;
 	int					numIndexes;
@@ -36,33 +38,41 @@ struct guiModelSurface_t {
 
 class idRenderMatrix;
 
-class idGuiModel {
+namespace ImGui
+{
+struct ImDrawData;
+}
+
+class idGuiModel
+{
 public:
 	idGuiModel();
 
-	void	Clear();
+	void		Clear();
 
-	void	WriteToDemo( idDemoFile * demo );
-	void	ReadFromDemo( idDemoFile * demo );
-	
+	void		WriteToDemo( idDemoFile* demo );
+	void		ReadFromDemo( idDemoFile* demo );
+
 	// allocates memory for verts and indexes in frame-temporary buffer memory
-	void	BeginFrame();
+	void		BeginFrame();
 
-	void	EmitToCurrentView( float modelMatrix[16], bool depthHack );
-	void	EmitFullScreen();
+	void		EmitToCurrentView( float modelMatrix[16], bool depthHack );
+	void		EmitFullScreen();
+
+	// RB
+	void		EmitImGui( ImDrawData* drawData );
 
 	// the returned pointer will be in write-combined memory, so only make contiguous
 	// 32 bit writes and never read from it.
-	idDrawVert * AllocTris( int numVerts, const triIndex_t * indexes, int numIndexes, const idMaterial * material, 
-							const uint64 glState, const stereoDepthType_t stereoType );
+	idDrawVert* AllocTris( int numVerts, const triIndex_t* indexes, int numIndexes, const idMaterial* material,
+						   const uint64 glState, const stereoDepthType_t stereoType );
 
 	//---------------------------
 private:
-	void	AdvanceSurf();
-	void	EmitSurfaces( float modelMatrix[16], float modelViewMatrix[16], 
-		bool depthHack, bool allowFullScreenStereoDepth, bool linkAsEntity );
+	void		AdvanceSurf();
+	void		EmitSurfaces( float modelMatrix[16], float modelViewMatrix[16], bool depthHack, bool allowFullScreenStereoDepth, bool linkAsEntity );
 
-	guiModelSurface_t *			surf;
+	guiModelSurface_t* 			surf;
 
 	float						shaderParms[ MAX_ENTITY_SHADER_PARMS ];
 
@@ -76,11 +86,11 @@ private:
 
 	vertCacheHandle_t			vertexBlock;
 	vertCacheHandle_t			indexBlock;
-	idDrawVert *				vertexPointer;
-	triIndex_t *				indexPointer;
+	idDrawVert* 				vertexPointer;
+	triIndex_t* 				indexPointer;
 
-	int		numVerts;
-	int		numIndexes;
+	int							numVerts;
+	int							numIndexes;
 
 	idList<guiModelSurface_t, TAG_MODEL>	surfaces;
 };

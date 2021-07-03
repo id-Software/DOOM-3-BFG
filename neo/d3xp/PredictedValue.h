@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -45,26 +45,30 @@ Got that?
 ================================================
 */
 template< class type_ >
-class idPredictedValue {
+class idPredictedValue
+{
 public:
 	explicit	idPredictedValue();
 	explicit	idPredictedValue( const type_ & value_ );
 
 	void		Set( const type_ & newValue );
 
-	idPredictedValue< type_ > & operator=( const type_ & value );
+	idPredictedValue< type_ >& operator=( const type_ & value );
 
-	idPredictedValue< type_ > & operator+=( const type_ & toAdd );
-	idPredictedValue< type_ > & operator-=( const type_ & toSubtract );
+	idPredictedValue< type_ >& operator+=( const type_ & toAdd );
+	idPredictedValue< type_ >& operator-=( const type_ & toSubtract );
 
 	bool		UpdateFromSnapshot( const type_ & valueFromSnapshot, int clientNumber );
 
-	type_		Get() const { return value; }
+	type_		Get() const
+	{
+		return value;
+	}
 
 private:
 	// Noncopyable
-	idPredictedValue( const idPredictedValue< type_ > & other );
-	idPredictedValue< type_ > & operator=( const idPredictedValue< type_ > & other );
+	idPredictedValue( const idPredictedValue< type_ >& other );
+	idPredictedValue< type_ >& operator=( const idPredictedValue< type_ >& other );
 
 	type_		value;
 	int			clientPredictedMilliseconds;	// The time in which the client predicted the value.

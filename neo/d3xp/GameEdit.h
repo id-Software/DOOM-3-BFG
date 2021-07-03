@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -38,12 +38,13 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-class idCursor3D : public idEntity {
+class idCursor3D : public idEntity
+{
 public:
 	CLASS_PROTOTYPE( idCursor3D );
 
-							idCursor3D();
-							~idCursor3D();
+	idCursor3D();
+	~idCursor3D();
 
 	void					Spawn();
 	void					Present();
@@ -62,15 +63,19 @@ public:
 ===============================================================================
 */
 
-class idDragEntity {
+class idDragEntity
+{
 public:
-							idDragEntity();
-							~idDragEntity();
+	idDragEntity();
+	~idDragEntity();
 
 	void					Clear();
-	void					Update( idPlayer *player );
-	void					SetSelected( idEntity *ent );
-	idEntity *				GetSelected() const { return selected.GetEntity(); }
+	void					Update( idPlayer* player );
+	void					SetSelected( idEntity* ent );
+	idEntity* 				GetSelected() const
+	{
+		return selected.GetEntity();
+	}
 	void					DeleteSelected();
 	void					BindSelected();
 	void					UnbindSelected();
@@ -82,7 +87,7 @@ private:
 	idVec3					localEntityPoint;	// dragged point in entity space
 	idVec3					localPlayerPoint;	// dragged point in player space
 	idStr					bodyName;			// name of the body being dragged
-	idCursor3D *			cursor;				// cursor entity
+	idCursor3D* 			cursor;				// cursor entity
 	idEntityPtr<idEntity>	selected;			// last dragged entity
 
 	void					StopDrag();
@@ -96,24 +101,26 @@ private:
 
 ===============================================================================
 */
-typedef struct selectedTypeInfo_s {
-	idTypeInfo *typeInfo;
+typedef struct selectedTypeInfo_s
+{
+	idTypeInfo* typeInfo;
 	idStr		textKey;
 } selectedTypeInfo_t;
 
-class idEditEntities {
+class idEditEntities
+{
 public:
-							idEditEntities();
-	bool					SelectEntity( const idVec3 &origin, const idVec3 &dir, const idEntity *skip );
-	void					AddSelectedEntity( idEntity *ent );
-	void					RemoveSelectedEntity( idEntity *ent );
+	idEditEntities();
+	bool					SelectEntity( const idVec3& origin, const idVec3& dir, const idEntity* skip );
+	void					AddSelectedEntity( idEntity* ent );
+	void					RemoveSelectedEntity( idEntity* ent );
 	void					ClearSelectedEntities();
 	void					DisplayEntities();
-	bool					EntityIsSelectable( idEntity *ent, idVec4 *color = NULL, idStr *text = NULL );
+	bool					EntityIsSelectable( idEntity* ent, idVec4* color = NULL, idStr* text = NULL );
 private:
 	int						nextSelectTime;
 	idList<selectedTypeInfo_t> selectableEntityClasses;
-	idList<idEntity *>		selectedEntities;
+	idList<idEntity*>		selectedEntities;
 };
 
 #endif /* !__GAME_EDIT_H__ */

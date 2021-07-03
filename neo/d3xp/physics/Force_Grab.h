@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -38,27 +38,28 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-class idForce_Grab : public idForce {
+class idForce_Grab : public idForce
+{
 
 public:
 	CLASS_PROTOTYPE( idForce_Grab );
 
-	void				Save( idSaveGame *savefile ) const;
-	void				Restore( idRestoreGame *savefile );
+	void				Save( idSaveGame* savefile ) const;
+	void				Restore( idRestoreGame* savefile );
 
-						idForce_Grab();
+	idForce_Grab();
 	virtual				~idForce_Grab();
-						// initialize the drag force
+	// initialize the drag force
 	void				Init( float damping );
-						// set physics object being dragged
-	void				SetPhysics( idPhysics *physics, int id, const idVec3 &goal );
-						// update the goal position
-	void				SetGoalPosition( const idVec3 &goal );
+	// set physics object being dragged
+	void				SetPhysics( idPhysics* physics, int id, const idVec3& goal );
+	// update the goal position
+	void				SetGoalPosition( const idVec3& goal );
 
 
 public: // common force interface
 	virtual void		Evaluate( int time );
-	virtual void		RemovePhysics( const idPhysics *phys );
+	virtual void		RemovePhysics( const idPhysics* phys );
 
 	// Get the distance from object to goal position
 	float				GetDistanceToGoal();
@@ -72,7 +73,7 @@ private:
 	float				distanceToGoal;
 
 	// positioning
-	idPhysics *			physics;		// physics object
+	idPhysics* 			physics;		// physics object
 	int					id;				// clip model id of physics object
 };
 

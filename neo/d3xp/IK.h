@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -39,28 +39,29 @@ If you have questions concerning this license or the applicable additional terms
 
 #define IK_ANIM				"ik_pose"
 
-class idIK {
+class idIK
+{
 public:
-							idIK();
+	idIK();
 	virtual					~idIK();
 
-	void					Save( idSaveGame *savefile ) const;
-	void					Restore( idRestoreGame *savefile );
+	void					Save( idSaveGame* savefile ) const;
+	void					Restore( idRestoreGame* savefile );
 
 	bool					IsInitialized() const;
 
-	virtual bool			Init( idEntity *self, const char *anim, const idVec3 &modelOffset );
+	virtual bool			Init( idEntity* self, const char* anim, const idVec3& modelOffset );
 	virtual void			Evaluate();
 	virtual void			ClearJointMods();
 
-	bool					SolveTwoBones( const idVec3 &startPos, const idVec3 &endPos, const idVec3 &dir, float len0, float len1, idVec3 &jointPos );
-	float					GetBoneAxis( const idVec3 &startPos, const idVec3 &endPos, const idVec3 &dir, idMat3 &axis );
+	bool					SolveTwoBones( const idVec3& startPos, const idVec3& endPos, const idVec3& dir, float len0, float len1, idVec3& jointPos );
+	float					GetBoneAxis( const idVec3& startPos, const idVec3& endPos, const idVec3& dir, idMat3& axis );
 
 protected:
 	bool					initialized;
 	bool					ik_activate;
-	idEntity *				self;				// entity using the animated model
-	idAnimator *			animator;			// animator on entity
+	idEntity* 				self;				// entity using the animated model
+	idAnimator* 			animator;			// animator on entity
 	int						modifiedAnim;		// animation modified by the IK
 	idVec3					modelOffset;
 };
@@ -69,21 +70,22 @@ protected:
 /*
 ===============================================================================
 
-  IK controller for a walking character with an arbitrary number of legs.	
+  IK controller for a walking character with an arbitrary number of legs.
 
 ===============================================================================
 */
 
-class idIK_Walk : public idIK {
+class idIK_Walk : public idIK
+{
 public:
 
-							idIK_Walk();
+	idIK_Walk();
 	virtual					~idIK_Walk();
 
-	void					Save( idSaveGame *savefile ) const;
-	void					Restore( idRestoreGame *savefile );
+	void					Save( idSaveGame* savefile ) const;
+	void					Restore( idRestoreGame* savefile );
 
-	virtual bool			Init( idEntity *self, const char *anim, const idVec3 &modelOffset );
+	virtual bool			Init( idEntity* self, const char* anim, const idVec3& modelOffset );
 	virtual void			Evaluate();
 	virtual void			ClearJointMods();
 
@@ -95,7 +97,7 @@ public:
 private:
 	static const int		MAX_LEGS		= 8;
 
-	idClipModel *			footModel;
+	idClipModel* 			footModel;
 
 	int						numLegs;
 	int						enabledLegs;
@@ -145,16 +147,17 @@ private:
 ===============================================================================
 */
 
-class idIK_Reach : public idIK {
+class idIK_Reach : public idIK
+{
 public:
 
-							idIK_Reach();
+	idIK_Reach();
 	virtual					~idIK_Reach();
 
-	void					Save( idSaveGame *savefile ) const;
-	void					Restore( idRestoreGame *savefile );
+	void					Save( idSaveGame* savefile ) const;
+	void					Restore( idRestoreGame* savefile );
 
-	virtual bool			Init( idEntity *self, const char *anim, const idVec3 &modelOffset );
+	virtual bool			Init( idEntity* self, const char* anim, const idVec3& modelOffset );
 	virtual void			Evaluate();
 	virtual void			ClearJointMods();
 

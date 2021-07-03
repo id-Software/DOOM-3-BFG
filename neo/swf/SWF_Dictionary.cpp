@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 #pragma hdrstop
-#include "../idlib/precompiled.h"
+#include "precompiled.h"
 
 /*
 ========================
@@ -43,7 +43,8 @@ idSWFDictionaryEntry::idSWFDictionaryEntry() :
 	edittext( NULL ),
 	imageSize( 0, 0 ),
 	imageAtlasOffset( 0, 0 ),
-	channelScale( 1.0f, 1.0f, 1.0f, 1.0f ) {
+	channelScale( 1.0f, 1.0f, 1.0f, 1.0f )
+{
 }
 
 /*
@@ -51,7 +52,8 @@ idSWFDictionaryEntry::idSWFDictionaryEntry() :
 idSWF::idSWFDictionaryEntry::idSWFDictionaryEntry
 ========================
 */
-idSWFDictionaryEntry::~idSWFDictionaryEntry() {
+idSWFDictionaryEntry::~idSWFDictionaryEntry()
+{
 	delete shape;
 	delete sprite;
 	delete font;
@@ -65,7 +67,8 @@ idSWF::idSWFDictionaryEntry::operator=
 This exists mostly so idList works right
 ========================
 */
-idSWFDictionaryEntry & idSWFDictionaryEntry::operator=( idSWFDictionaryEntry & other ) {
+idSWFDictionaryEntry& idSWFDictionaryEntry::operator=( idSWFDictionaryEntry& other )
+{
 	type = other.type;
 	material = other.material;
 	shape = other.shape;
@@ -90,29 +93,41 @@ idSWFDictionaryEntry & idSWFDictionaryEntry::operator=( idSWFDictionaryEntry & o
 idSWF::AddDictionaryEntry
 ========================
 */
-idSWFDictionaryEntry * idSWF::AddDictionaryEntry( int characterID, swfDictType_t type ) {
+idSWFDictionaryEntry* idSWF::AddDictionaryEntry( int characterID, swfDictType_t type )
+{
 
-	if ( dictionary.Num() < characterID + 1 ) {
+	if( dictionary.Num() < characterID + 1 )
+	{
 		dictionary.SetNum( characterID + 1 );
 	}
 
-	if ( dictionary[ characterID ].type != SWF_DICT_NULL ) {
+	if( dictionary[ characterID ].type != SWF_DICT_NULL )
+	{
 		idLib::Warning( "%s: Duplicate character %d", filename.c_str(), characterID );
 		return NULL;
 	}
 
 	dictionary[ characterID ].type = type;
 
-	if ( ( type == SWF_DICT_SHAPE ) || ( type == SWF_DICT_MORPH ) ) {
-		dictionary[ characterID ].shape = new (TAG_SWF) idSWFShape;
-	} else if ( type == SWF_DICT_SPRITE ) {
-		dictionary[ characterID ].sprite = new (TAG_SWF) idSWFSprite( this );
-	} else if ( type == SWF_DICT_FONT ) {
-		dictionary[ characterID ].font = new (TAG_SWF) idSWFFont;
-	} else if ( type == SWF_DICT_TEXT ) {
-		dictionary[ characterID ].text = new (TAG_SWF) idSWFText;
-	} else if ( type == SWF_DICT_EDITTEXT ) {
-		dictionary[ characterID ].edittext = new (TAG_SWF) idSWFEditText;
+	if( ( type == SWF_DICT_SHAPE ) || ( type == SWF_DICT_MORPH ) )
+	{
+		dictionary[ characterID ].shape = new( TAG_SWF ) idSWFShape;
+	}
+	else if( type == SWF_DICT_SPRITE )
+	{
+		dictionary[ characterID ].sprite = new( TAG_SWF ) idSWFSprite( this );
+	}
+	else if( type == SWF_DICT_FONT )
+	{
+		dictionary[ characterID ].font = new( TAG_SWF ) idSWFFont;
+	}
+	else if( type == SWF_DICT_TEXT )
+	{
+		dictionary[ characterID ].text = new( TAG_SWF ) idSWFText;
+	}
+	else if( type == SWF_DICT_EDITTEXT )
+	{
+		dictionary[ characterID ].edittext = new( TAG_SWF ) idSWFEditText;
 	}
 
 	return &dictionary[ characterID ];
@@ -123,14 +138,17 @@ idSWFDictionaryEntry * idSWF::AddDictionaryEntry( int characterID, swfDictType_t
 FindDictionaryEntry
 ========================
 */
-idSWFDictionaryEntry * idSWF::FindDictionaryEntry( int characterID, swfDictType_t type ) {
+idSWFDictionaryEntry* idSWF::FindDictionaryEntry( int characterID, swfDictType_t type )
+{
 
-	if ( dictionary.Num() < characterID + 1 ) {
+	if( dictionary.Num() < characterID + 1 )
+	{
 		idLib::Warning( "%s: Could not find character %d", filename.c_str(), characterID );
 		return NULL;
 	}
 
-	if ( dictionary[ characterID ].type != type ) {
+	if( dictionary[ characterID ].type != type )
+	{
 		idLib::Warning( "%s: Character %d is the wrong type", filename.c_str(), characterID );
 		return NULL;
 	}
@@ -144,9 +162,11 @@ idSWFDictionaryEntry * idSWF::FindDictionaryEntry( int characterID, swfDictType_
 FindDictionaryEntry
 ========================
 */
-idSWFDictionaryEntry * idSWF::FindDictionaryEntry( int characterID ) {
+idSWFDictionaryEntry* idSWF::FindDictionaryEntry( int characterID )
+{
 
-	if ( dictionary.Num() < characterID + 1 ) {
+	if( dictionary.Num() < characterID + 1 )
+	{
 		idLib::Warning( "%s: Could not find character %d", filename.c_str(), characterID );
 		return NULL;
 	}

@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -28,38 +28,44 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __FONT_H__
 #define __FONT_H__
 
-struct scaledGlyphInfo_t {
+struct scaledGlyphInfo_t
+{
 	float	top, left;
 	float	width, height;
 	float	xSkip;
 	float	s1, t1, s2, t2;
-	const class idMaterial * material;
+	const class idMaterial* material;
 };
 
-class idFont {
+class idFont
+{
 public:
-	idFont( const char * n );
+	idFont( const char* n );
 	~idFont();
 
 	void Touch();
 
-	const char * GetName() const { return name; }
+	const char* GetName() const
+	{
+		return name;
+	}
 
 	float GetLineHeight( float scale ) const;
 	float GetAscender( float scale ) const;
 	float GetMaxCharWidth( float scale ) const;
 
 	float GetGlyphWidth( float scale, uint32 idx ) const;
-	void GetScaledGlyph( float scale, uint32 idx, scaledGlyphInfo_t & glyphInfo ) const;
+	void GetScaledGlyph( float scale, uint32 idx, scaledGlyphInfo_t& glyphInfo ) const;
 
 private:
-	static idFont * RemapFont( const char * baseName );
+	static idFont* RemapFont( const char* baseName );
 
 	int	GetGlyphIndex( uint32 idx ) const;
 
 	bool LoadFont();
 
-	struct glyphInfo_t {
+	struct glyphInfo_t
+	{
 		byte	width;	// width of glyph in pixels
 		byte	height;	// height of glyph in pixels
 		char	top;	// distance in pixels from the base line to the top of the glyph
@@ -68,8 +74,10 @@ private:
 		uint16	s;		// x offset in image where glyph starts (in pixels)
 		uint16	t;		// y offset in image where glyph starts (in pixels)
 	};
-	struct fontInfo_t {
-		struct oldInfo_t {
+	struct fontInfo_t
+	{
+		struct oldInfo_t
+		{
 			float maxWidth;
 			float maxHeight;
 		} oldInfo[3];
@@ -78,26 +86,26 @@ private:
 		short		descender;
 
 		short		numGlyphs;
-		glyphInfo_t * glyphData;
+		glyphInfo_t* glyphData;
 
 		// This is a sorted array of all characters in the font
 		// This maps directly to glyphData, so if charIndex[0] is 42 then glyphData[0] is character 42
-		uint32 *	charIndex;
+		uint32* 	charIndex;
 
 		// As an optimization, provide a direct mapping for the ascii character set
 		char		ascii[128];
 
-		const idMaterial *	material;
+		const idMaterial* 	material;
 	};
 
 	// base name of the font (minus "fonts/" and ".dat")
 	idStr			name;
 
 	// Fonts can be aliases to other fonts
-	idFont * alias;
+	idFont* alias;
 
 	// If the font is NOT an alias, this is where the font data is located
-	fontInfo_t * fontInfo;
+	fontInfo_t* fontInfo;
 };
 
 #endif

@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,10 +27,10 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #pragma hdrstop
-#include "../idlib/precompiled.h"
+#include "precompiled.h"
 
 
-#include "tr_local.h"
+#include "RenderCommon.h"
 #include "Model_local.h"
 
 #define LIQUID_MAX_SKIP_FRAMES	5
@@ -41,7 +41,8 @@ If you have questions concerning this license or the applicable additional terms
 idRenderModelLiquid::idRenderModelLiquid
 ====================
 */
-idRenderModelLiquid::idRenderModelLiquid() {
+idRenderModelLiquid::idRenderModelLiquid()
+{
 	verts_x		= 32;
 	verts_y		= 32;
 	scale_x		= 256.0f;
@@ -51,7 +52,7 @@ idRenderModelLiquid::idRenderModelLiquid() {
 	drop_height = 4;
 	drop_radius = 4;
 	drop_delay	= 1000;
-    shader		= declManager->FindMaterial( NULL );
+	shader		= declManager->FindMaterial( NULL );
 	update_tics	= 33;  // ~30 hz
 	time		= 0;
 	seed		= 0;
@@ -64,16 +65,18 @@ idRenderModelLiquid::idRenderModelLiquid() {
 idRenderModelLiquid::GenerateSurface
 ====================
 */
-modelSurface_t idRenderModelLiquid::GenerateSurface( float lerp ) {
-	srfTriangles_t	*tri;
+modelSurface_t idRenderModelLiquid::GenerateSurface( float lerp )
+{
+	srfTriangles_t*	tri;
 	int				i, base;
-	idDrawVert		*vert;
+	idDrawVert*		vert;
 	modelSurface_t	surf;
 	float			inv_lerp;
 
 	inv_lerp = 1.0f - lerp;
 	vert = verts.Ptr();
-	for( i = 0; i < verts.Num(); i++, vert++ ) {
+	for( i = 0; i < verts.Num(); i++, vert++ )
+	{
 		vert->xyz.z = page1[ i ] * lerp + page2[ i ] * inv_lerp;
 	}
 
@@ -98,11 +101,12 @@ modelSurface_t idRenderModelLiquid::GenerateSurface( float lerp ) {
 
 	tri->numVerts = deformInfo->numOutputVerts;
 	R_AllocStaticTriSurfVerts( tri, tri->numVerts );
-	SIMDProcessor->Memcpy( tri->verts, verts.Ptr(), deformInfo->numSourceVerts * sizeof(tri->verts[0]) );
+	SIMDProcessor->Memcpy( tri->verts, verts.Ptr(), deformInfo->numSourceVerts * sizeof( tri->verts[0] ) );
 
 	// replicate the mirror seam vertexes
 	base = deformInfo->numOutputVerts - deformInfo->numMirroredVerts;
-	for ( i = 0 ; i < deformInfo->numMirroredVerts ; i++ ) {
+	for( i = 0 ; i < deformInfo->numMirroredVerts ; i++ )
+	{
 		tri->verts[base + i] = tri->verts[deformInfo->mirroredVerts[i]];
 	}
 
@@ -119,44 +123,56 @@ modelSurface_t idRenderModelLiquid::GenerateSurface( float lerp ) {
 idRenderModelLiquid::WaterDrop
 ====================
 */
-void idRenderModelLiquid::WaterDrop( int x, int y, float *page ) {
+void idRenderModelLiquid::WaterDrop( int x, int y, float* page )
+{
 	int		cx, cy;
-	int		left,top,right,bottom;
+	int		left, top, right, bottom;
 	int		square;
 	int		radsquare = drop_radius * drop_radius;
 	float	invlength = 1.0f / ( float )radsquare;
 	float	dist;
 
-	if ( x < 0 ) {
+	if( x < 0 )
+	{
 		x = 1 + drop_radius + random.RandomInt( verts_x - 2 * drop_radius - 1 );
 	}
-	if ( y < 0 ) {
+	if( y < 0 )
+	{
 		y = 1 + drop_radius + random.RandomInt( verts_y - 2 * drop_radius - 1 );
 	}
 
-	left=-drop_radius; right = drop_radius;
-	top=-drop_radius; bottom = drop_radius;
+	left = -drop_radius;
+	right = drop_radius;
+	top = -drop_radius;
+	bottom = drop_radius;
 
 	// Perform edge clipping...
-	if ( x - drop_radius < 1 ) {
-		left -= (x-drop_radius-1);
+	if( x - drop_radius < 1 )
+	{
+		left -= ( x - drop_radius - 1 );
 	}
-	if ( y - drop_radius < 1 ) {
-		top -= (y-drop_radius-1);
+	if( y - drop_radius < 1 )
+	{
+		top -= ( y - drop_radius - 1 );
 	}
-	if ( x + drop_radius > verts_x - 1 ) {
-		right -= (x+drop_radius-verts_x+1);
+	if( x + drop_radius > verts_x - 1 )
+	{
+		right -= ( x + drop_radius - verts_x + 1 );
 	}
-	if ( y + drop_radius > verts_y - 1 ) {
-		bottom-= (y+drop_radius-verts_y+1);
+	if( y + drop_radius > verts_y - 1 )
+	{
+		bottom -= ( y + drop_radius - verts_y + 1 );
 	}
 
-	for ( cy = top; cy < bottom; cy++ ) {
-		for ( cx = left; cx < right; cx++ ) {
-			square = cy*cy + cx*cx;
-			if ( square < radsquare ) {
-				dist = idMath::Sqrt( (float)square * invlength );
-				page[verts_x*(cy+y) + cx+x] += idMath::Cos16( dist * idMath::PI * 0.5f ) * drop_height;
+	for( cy = top; cy < bottom; cy++ )
+	{
+		for( cx = left; cx < right; cx++ )
+		{
+			square = cy * cy + cx * cx;
+			if( square < radsquare )
+			{
+				dist = idMath::Sqrt( ( float )square * invlength );
+				page[verts_x * ( cy + y ) + cx + x] += idMath::Cos16( dist * idMath::PI * 0.5f ) * drop_height;
 			}
 		}
 	}
@@ -167,11 +183,12 @@ void idRenderModelLiquid::WaterDrop( int x, int y, float *page ) {
 idRenderModelLiquid::IntersectBounds
 ====================
 */
-void idRenderModelLiquid::IntersectBounds( const idBounds &bounds, float displacement ) {
+void idRenderModelLiquid::IntersectBounds( const idBounds& bounds, float displacement )
+{
 	int		cx, cy;
-	int		left,top,right,bottom;
+	int		left, top, right, bottom;
 	float	up, down;
-	float	*pos;
+	float*	pos;
 
 	left	= ( int )( bounds[ 0 ].x / scale_x );
 	right	= ( int )( bounds[ 1 ].x / scale_x );
@@ -180,28 +197,36 @@ void idRenderModelLiquid::IntersectBounds( const idBounds &bounds, float displac
 	down	= bounds[ 0 ].z;
 	up		= bounds[ 1 ].z;
 
-	if ( ( right < 1 ) || ( left >= verts_x ) || ( bottom < 1 ) || ( top >= verts_x ) ) {
+	if( ( right < 1 ) || ( left >= verts_x ) || ( bottom < 1 ) || ( top >= verts_x ) )
+	{
 		return;
 	}
 
 	// Perform edge clipping...
-	if ( left < 1 ) {
+	if( left < 1 )
+	{
 		left = 1;
 	}
-	if ( right >= verts_x ) {
+	if( right >= verts_x )
+	{
 		right = verts_x - 1;
 	}
-	if ( top < 1 ) {
+	if( top < 1 )
+	{
 		top = 1;
 	}
-	if ( bottom >= verts_y ) {
+	if( bottom >= verts_y )
+	{
 		bottom = verts_y - 1;
 	}
 
-	for ( cy = top; cy < bottom; cy++ ) {
-		for ( cx = left; cx < right; cx++ ) {
+	for( cy = top; cy < bottom; cy++ )
+	{
+		for( cx = left; cx < right; cx++ )
+		{
 			pos = &page1[ verts_x * cy + cx ];
-			if ( *pos > down ) {//&& ( *pos < up ) ) {
+			if( *pos > down )   //&& ( *pos < up ) ) {
+			{
 				*pos = down;
 			}
 		}
@@ -213,90 +238,101 @@ void idRenderModelLiquid::IntersectBounds( const idBounds &bounds, float displac
 idRenderModelLiquid::Update
 ====================
 */
-void idRenderModelLiquid::Update() {
+void idRenderModelLiquid::Update()
+{
 	int		x, y;
-	float	*p2;
-	float	*p1;
+	float*	p2;
+	float*	p1;
 	float	value;
 
 	time += update_tics;
 
 	SwapValues( page1, page2 );
 
-	if ( time > nextDropTime ) {
+	if( time > nextDropTime )
+	{
 		WaterDrop( -1, -1, page2 );
 		nextDropTime = time + drop_delay;
-	} else if ( time < nextDropTime - drop_delay ) {
+	}
+	else if( time < nextDropTime - drop_delay )
+	{
 		nextDropTime = time + drop_delay;
 	}
 
 	p1 = page1;
 	p2 = page2;
 
-	switch( liquid_type ) {
-	case 0 :
-		for ( y = 1; y < verts_y - 1; y++ ) {
-			p2 += verts_x;
-			p1 += verts_x;
-			for ( x = 1; x < verts_x - 1; x++ ) {
-				value =
-					( p2[ x + verts_x ] +
-					p2[ x - verts_x ] +
-					p2[ x + 1 ] +
-					p2[ x - 1 ] +
-					p2[ x - verts_x - 1 ] +
-					p2[ x - verts_x + 1 ] +
-					p2[ x + verts_x - 1 ] +
-					p2[ x + verts_x + 1 ] +
-					p2[ x ] ) * ( 2.0f / 9.0f ) -
-					p1[ x ];
+	switch( liquid_type )
+	{
+		case 0 :
+			for( y = 1; y < verts_y - 1; y++ )
+			{
+				p2 += verts_x;
+				p1 += verts_x;
+				for( x = 1; x < verts_x - 1; x++ )
+				{
+					value =
+						( p2[ x + verts_x ] +
+						  p2[ x - verts_x ] +
+						  p2[ x + 1 ] +
+						  p2[ x - 1 ] +
+						  p2[ x - verts_x - 1 ] +
+						  p2[ x - verts_x + 1 ] +
+						  p2[ x + verts_x - 1 ] +
+						  p2[ x + verts_x + 1 ] +
+						  p2[ x ] ) * ( 2.0f / 9.0f ) -
+						p1[ x ];
 
-				p1[ x ] = value * density;
+					p1[ x ] = value * density;
+				}
 			}
-		}
-		break;
+			break;
 
-	case 1 :
-		for ( y = 1; y < verts_y - 1; y++ ) {
-			p2 += verts_x;
-			p1 += verts_x;
-			for ( x = 1; x < verts_x - 1; x++ ) {
-				value =
-					( p2[ x + verts_x ] +
-					p2[ x - verts_x ] +
-					p2[ x + 1 ] +
-					p2[ x - 1 ] +
-					p2[ x - verts_x - 1 ] +
-					p2[ x - verts_x + 1 ] +
-					p2[ x + verts_x - 1 ] +
-					p2[ x + verts_x + 1 ] ) * 0.25f -
-					p1[ x ];
+		case 1 :
+			for( y = 1; y < verts_y - 1; y++ )
+			{
+				p2 += verts_x;
+				p1 += verts_x;
+				for( x = 1; x < verts_x - 1; x++ )
+				{
+					value =
+						( p2[ x + verts_x ] +
+						  p2[ x - verts_x ] +
+						  p2[ x + 1 ] +
+						  p2[ x - 1 ] +
+						  p2[ x - verts_x - 1 ] +
+						  p2[ x - verts_x + 1 ] +
+						  p2[ x + verts_x - 1 ] +
+						  p2[ x + verts_x + 1 ] ) * 0.25f -
+						p1[ x ];
 
-				p1[ x ] = value * density;
+					p1[ x ] = value * density;
+				}
 			}
-		}
-		break;
+			break;
 
-	case 2 :
-		for ( y = 1; y < verts_y - 1; y++ ) {
-			p2 += verts_x;
-			p1 += verts_x;
-			for ( x = 1; x < verts_x - 1; x++ ) {
-				value =
-					( p2[ x + verts_x ] +
-					p2[ x - verts_x ] +
-					p2[ x + 1 ] +
-					p2[ x - 1 ] +
-					p2[ x - verts_x - 1 ] +
-					p2[ x - verts_x + 1 ] +
-					p2[ x + verts_x - 1 ] +
-					p2[ x + verts_x + 1 ] + 
-					p2[ x ] ) * ( 1.0f / 9.0f );
+		case 2 :
+			for( y = 1; y < verts_y - 1; y++ )
+			{
+				p2 += verts_x;
+				p1 += verts_x;
+				for( x = 1; x < verts_x - 1; x++ )
+				{
+					value =
+						( p2[ x + verts_x ] +
+						  p2[ x - verts_x ] +
+						  p2[ x + 1 ] +
+						  p2[ x - 1 ] +
+						  p2[ x - verts_x - 1 ] +
+						  p2[ x - verts_x + 1 ] +
+						  p2[ x + verts_x - 1 ] +
+						  p2[ x + verts_x + 1 ] +
+						  p2[ x ] ) * ( 1.0f / 9.0f );
 
-				p1[ x ] = value * density;
+					p1[ x ] = value * density;
+				}
 			}
-		}
-		break;
+			break;
 	}
 }
 
@@ -305,10 +341,12 @@ void idRenderModelLiquid::Update() {
 idRenderModelLiquid::Reset
 ====================
 */
-void idRenderModelLiquid::Reset() {
+void idRenderModelLiquid::Reset()
+{
 	int	i, x, y;
 
-	if ( pages.Num() < 2 * verts_x * verts_y ) {
+	if( pages.Num() < 2 * verts_x * verts_y )
+	{
 		return;
 	}
 
@@ -319,8 +357,10 @@ void idRenderModelLiquid::Reset() {
 	page1 = pages.Ptr();
 	page2 = page1 + verts_x * verts_y;
 
-	for ( i = 0, y = 0; y < verts_y; y++ ) {
-		for ( x = 0; x < verts_x; x++, i++ ) {
+	for( i = 0, y = 0; y < verts_y; y++ )
+	{
+		for( x = 0; x < verts_x; x++, i++ )
+		{
 			page1[ i ] = 0.0f;
 			page2[ i ] = 0.0f;
 			verts[ i ].xyz.z = 0.0f;
@@ -333,7 +373,8 @@ void idRenderModelLiquid::Reset() {
 idRenderModelLiquid::InitFromFile
 ====================
 */
-void idRenderModelLiquid::InitFromFile( const char *fileName ) {
+void idRenderModelLiquid::InitFromFile( const char* fileName )
+{
 	int				i, x, y;
 	idToken			token;
 	idParser		parser( LEXFL_ALLOWPATHNAMES | LEXFL_NOSTRINGESCAPECHARS );
@@ -343,7 +384,8 @@ void idRenderModelLiquid::InitFromFile( const char *fileName ) {
 
 	name = fileName;
 
-	if ( !parser.LoadFile( fileName ) ) {
+	if( !parser.LoadFile( fileName ) )
+	{
 		MakeDefaultModel();
 		return;
 	}
@@ -351,54 +393,84 @@ void idRenderModelLiquid::InitFromFile( const char *fileName ) {
 	size_x = scale_x * verts_x;
 	size_y = scale_y * verts_y;
 
-	while( parser.ReadToken( &token ) ) {
-		if ( !token.Icmp( "seed" ) ) {
+	while( parser.ReadToken( &token ) )
+	{
+		if( !token.Icmp( "seed" ) )
+		{
 			seed = parser.ParseInt();
-		} else if ( !token.Icmp( "size_x" ) ) {
+		}
+		else if( !token.Icmp( "size_x" ) )
+		{
 			size_x = parser.ParseFloat();
-		} else if ( !token.Icmp( "size_y" ) ) {
+		}
+		else if( !token.Icmp( "size_y" ) )
+		{
 			size_y = parser.ParseFloat();
-		} else if ( !token.Icmp( "verts_x" ) ) {
+		}
+		else if( !token.Icmp( "verts_x" ) )
+		{
 			verts_x = parser.ParseFloat();
-			if ( verts_x < 2 ) {
+			if( verts_x < 2 )
+			{
 				parser.Warning( "Invalid # of verts.  Using default model." );
 				MakeDefaultModel();
 				return;
 			}
-		} else if ( !token.Icmp( "verts_y" ) ) {
+		}
+		else if( !token.Icmp( "verts_y" ) )
+		{
 			verts_y = parser.ParseFloat();
-			if ( verts_y < 2 ) {
+			if( verts_y < 2 )
+			{
 				parser.Warning( "Invalid # of verts.  Using default model." );
 				MakeDefaultModel();
 				return;
 			}
-		} else if ( !token.Icmp( "liquid_type" ) ) {
+		}
+		else if( !token.Icmp( "liquid_type" ) )
+		{
 			liquid_type = parser.ParseInt() - 1;
-			if ( ( liquid_type < 0 ) || ( liquid_type >= LIQUID_MAX_TYPES ) ) {
+			if( ( liquid_type < 0 ) || ( liquid_type >= LIQUID_MAX_TYPES ) )
+			{
 				parser.Warning( "Invalid liquid_type.  Using default model." );
 				MakeDefaultModel();
 				return;
 			}
-		} else if ( !token.Icmp( "density" ) ) {
+		}
+		else if( !token.Icmp( "density" ) )
+		{
 			density = parser.ParseFloat();
-		} else if ( !token.Icmp( "drop_height" ) ) {
+		}
+		else if( !token.Icmp( "drop_height" ) )
+		{
 			drop_height = parser.ParseFloat();
-		} else if ( !token.Icmp( "drop_radius" ) ) {
+		}
+		else if( !token.Icmp( "drop_radius" ) )
+		{
 			drop_radius = parser.ParseInt();
-		} else if ( !token.Icmp( "drop_delay" ) ) {
+		}
+		else if( !token.Icmp( "drop_delay" ) )
+		{
 			drop_delay = SEC2MS( parser.ParseFloat() );
-		} else if ( !token.Icmp( "shader" ) ) {
+		}
+		else if( !token.Icmp( "shader" ) )
+		{
 			parser.ReadToken( &token );
 			shader = declManager->FindMaterial( token );
-		} else if ( !token.Icmp( "update_rate" ) ) {
+		}
+		else if( !token.Icmp( "update_rate" ) )
+		{
 			rate = parser.ParseFloat();
-			if ( ( rate <= 0.0f ) || ( rate > 60.0f ) ) {
+			if( ( rate <= 0.0f ) || ( rate > 60.0f ) )
+			{
 				parser.Warning( "Invalid update_rate.  Must be between 0 and 60.  Using default model." );
 				MakeDefaultModel();
 				return;
 			}
 			update_tics = 1000 / rate;
-		} else {
+		}
+		else
+		{
 			parser.Warning( "Unknown parameter '%s'.  Using default model.", token.c_str() );
 			MakeDefaultModel();
 			return;
@@ -413,19 +485,23 @@ void idRenderModelLiquid::InitFromFile( const char *fileName ) {
 	page2 = page1 + verts_x * verts_y;
 
 	verts.SetNum( verts_x * verts_y );
-	for ( i = 0, y = 0; y < verts_y; y++ ) {
-		for ( x = 0; x < verts_x; x++, i++ ) {
+	for( i = 0, y = 0; y < verts_y; y++ )
+	{
+		for( x = 0; x < verts_x; x++, i++ )
+		{
 			page1[ i ] = 0.0f;
 			page2[ i ] = 0.0f;
 			verts[ i ].Clear();
 			verts[ i ].xyz.Set( x * scale_x, y * scale_y, 0.0f );
-			verts[ i ].SetTexCoord( (float) x / (float)( verts_x - 1 ), (float) -y / (float)( verts_y - 1 ) );
+			verts[ i ].SetTexCoord( ( float ) x / ( float )( verts_x - 1 ), ( float ) - y / ( float )( verts_y - 1 ) );
 		}
 	}
 
 	tris.SetNum( ( verts_x - 1 ) * ( verts_y - 1 ) * 6 );
-	for( i = 0, y = 0; y < verts_y - 1; y++ ) {
-		for( x = 1; x < verts_x; x++, i += 6 ) {
+	for( i = 0, y = 0; y < verts_y - 1; y++ )
+	{
+		for( x = 1; x < verts_x; x++, i += 6 )
+		{
 			tris[ i + 0 ] = y * verts_x + x;
 			tris[ i + 1 ] = y * verts_x + x - 1;
 			tris[ i + 2 ] = ( y + 1 ) * verts_x + x - 1;
@@ -455,37 +531,45 @@ void idRenderModelLiquid::InitFromFile( const char *fileName ) {
 idRenderModelLiquid::InstantiateDynamicModel
 ====================
 */
-idRenderModel *idRenderModelLiquid::InstantiateDynamicModel( const struct renderEntity_s *ent, const viewDef_t *view, idRenderModel *cachedModel ) {
-	idRenderModelStatic	*staticModel;
+idRenderModel* idRenderModelLiquid::InstantiateDynamicModel( const struct renderEntity_s* ent, const viewDef_t* view, idRenderModel* cachedModel )
+{
+	idRenderModelStatic*	staticModel;
 	int		frames;
 	int		t;
 	float	lerp;
 
-	if ( cachedModel ) {
+	if( cachedModel )
+	{
 		delete cachedModel;
 		cachedModel = NULL;
 	}
 
-	if ( !deformInfo ) {
+	if( !deformInfo )
+	{
 		return NULL;
 	}
 
-	if ( !view ) {
+	if( !view )
+	{
 		t = 0;
-	} else {
+	}
+	else
+	{
 		t = view->renderView.time[0];
 	}
 
 	// update the liquid model
 	frames = ( t - time ) / update_tics;
-	if ( frames > LIQUID_MAX_SKIP_FRAMES ) {
+	if( frames > LIQUID_MAX_SKIP_FRAMES )
+	{
 		// don't let time accumalate when skipping frames
 		time += update_tics * ( frames - LIQUID_MAX_SKIP_FRAMES );
 
 		frames = LIQUID_MAX_SKIP_FRAMES;
 	}
-	
-	while( frames > 0 ) {
+
+	while( frames > 0 )
+	{
 		Update();
 		frames--;
 	}
@@ -494,7 +578,7 @@ idRenderModel *idRenderModelLiquid::InstantiateDynamicModel( const struct render
 	lerp = ( float )( t - time ) / ( float )update_tics;
 	modelSurface_t surf = GenerateSurface( lerp );
 
-	staticModel = new (TAG_MODEL) idRenderModelStatic;
+	staticModel = new( TAG_MODEL ) idRenderModelStatic;
 	staticModel->AddSurface( surf );
 	staticModel->bounds = surf.geometry->bounds;
 
@@ -506,7 +590,8 @@ idRenderModel *idRenderModelLiquid::InstantiateDynamicModel( const struct render
 idRenderModelLiquid::IsDynamicModel
 ====================
 */
-dynamicModel_t idRenderModelLiquid::IsDynamicModel() const {
+dynamicModel_t idRenderModelLiquid::IsDynamicModel() const
+{
 	return DM_CONTINUOUS;
 }
 
@@ -515,7 +600,8 @@ dynamicModel_t idRenderModelLiquid::IsDynamicModel() const {
 idRenderModelLiquid::Bounds
 ====================
 */
-idBounds idRenderModelLiquid::Bounds(const struct renderEntity_s *ent) const {
+idBounds idRenderModelLiquid::Bounds( const struct renderEntity_s* ent ) const
+{
 	// FIXME: need to do this better
 	return bounds;
 }

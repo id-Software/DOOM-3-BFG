@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -34,10 +34,11 @@ static const int	PC_KEYBOARD_WAIT	= 20000;
 
 /*
 ================================================
-Dialog box message types 
+Dialog box message types
 ================================================
 */
-enum gameDialogMessages_t {
+enum gameDialogMessages_t
+{
 	GDM_INVALID,
 	GDM_SWAP_DISKS_TO1,
 	GDM_SWAP_DISKS_TO2,
@@ -93,7 +94,7 @@ enum gameDialogMessages_t {
 	GDM_DELETE_AUTOSAVE,
 	GDM_QUICK_SAVE,
 	GDM_MULTI_RETRY,
-	GDM_MULTI_SELF_DESTRUCT,	
+	GDM_MULTI_SELF_DESTRUCT,
 	GDM_MULTI_VDM_QUIT,
 	GDM_MULTI_COOP_QUIT,
 	GDM_LOADING_PROFILE,
@@ -185,7 +186,8 @@ enum gameDialogMessages_t {
 Dialog box types
 ================================================
 */
-enum dialogType_t {
+enum dialogType_t
+{
 	DIALOG_INVALID = -1,
 	DIALOG_ACCEPT,
 	DIALOG_CONTINUE,
@@ -208,9 +210,11 @@ enum dialogType_t {
 idDialogInfo
 ================================================
 */
-class idDialogInfo {
+class idDialogInfo
+{
 public:
-	idDialogInfo() {
+	idDialogInfo()
+	{
 		msg					= GDM_INVALID;
 		type				= DIALOG_ACCEPT;
 		acceptCB			= NULL;
@@ -228,10 +232,10 @@ public:
 	}
 	gameDialogMessages_t	msg;
 	dialogType_t			type;
-	idSWFScriptFunction *	acceptCB;
-	idSWFScriptFunction *	cancelCB;
-	idSWFScriptFunction *	altCBOne;
-	idSWFScriptFunction *	altCBTwo;
+	idSWFScriptFunction* 	acceptCB;
+	idSWFScriptFunction* 	cancelCB;
+	idSWFScriptFunction* 	altCBOne;
+	idSWFScriptFunction* 	altCBTwo;
 	bool					showing;
 	bool					clear;
 	bool					waitClear;
@@ -251,10 +255,11 @@ public:
 
 /*
 ================================================
-idLoadScreenInfo 
+idLoadScreenInfo
 ================================================
 */
-class idLoadScreenInfo {
+class idLoadScreenInfo
+{
 public:
 	idStr	varName;
 	idStr	value;
@@ -268,40 +273,47 @@ public:
 ==============================================================
 */
 
-class idCommonDialog {
+class idCommonDialog
+{
 public:
 	void	Init();
 	void	Render( bool loading );
 	void	Shutdown();
 	void	Restart();
 
-	bool	IsDialogPausing() { return dialogPause; }
+	bool	IsDialogPausing()
+	{
+		return dialogPause;
+	}
 	void	ClearDialogs( bool forceClear = false );
-	bool	HasDialogMsg( gameDialogMessages_t msg, bool * isNowActive );
-	void	AddDialog( gameDialogMessages_t msg, dialogType_t type, idSWFScriptFunction * acceptCallback, idSWFScriptFunction * cancelCallback, bool pause, const char * location = NULL, int lineNumber = 0, bool leaveOnMapHeapReset = false, bool waitOnAtlas = false, bool renderDuringLoad = false );
-	void	AddDynamicDialog( gameDialogMessages_t msg, const idStaticList< idSWFScriptFunction *, 4 > & callbacks, const idStaticList< idStrId, 4 > & optionText, bool pause, idStrStatic< 256 > overrideMsg, bool leaveOnMapHeapReset = false, bool waitOnAtlas = false, bool renderDuringLoad = false );
-	void	AddDialogIntVal( const char * name, int val );
+	bool	HasDialogMsg( gameDialogMessages_t msg, bool* isNowActive );
+	void	AddDialog( gameDialogMessages_t msg, dialogType_t type, idSWFScriptFunction* acceptCallback, idSWFScriptFunction* cancelCallback, bool pause, const char* location = NULL, int lineNumber = 0, bool leaveOnMapHeapReset = false, bool waitOnAtlas = false, bool renderDuringLoad = false );
+	void	AddDynamicDialog( gameDialogMessages_t msg, const idStaticList< idSWFScriptFunction*, 4 >& callbacks, const idStaticList< idStrId, 4 >& optionText, bool pause, idStrStatic< 256 > overrideMsg, bool leaveOnMapHeapReset = false, bool waitOnAtlas = false, bool renderDuringLoad = false );
+	void	AddDialogIntVal( const char* name, int val );
 	bool	IsDialogActive();
-	void	ClearDialog( gameDialogMessages_t msg, const char * location = NULL, int lineNumber = 0 );
+	void	ClearDialog( gameDialogMessages_t msg, const char* location = NULL, int lineNumber = 0 );
 	void	ShowSaveIndicator( bool show );
-	bool	HasAnyActiveDialog() const { return ( messageList.Num() > 0 ) && ( !messageList[0].clear ); }
+	bool	HasAnyActiveDialog() const
+	{
+		return ( messageList.Num() > 0 ) && ( !messageList[0].clear );
+	}
 
 	void	ClearAllDialogHack();
-	idStr	GetDialogMsg( gameDialogMessages_t msg, idStr & message, idStr & title );
-	bool	HandleDialogEvent( const sysEvent_t * sev );
+	idStr	GetDialogMsg( gameDialogMessages_t msg, idStr& message, idStr& title );
+	bool	HandleDialogEvent( const sysEvent_t* sev );
 
 protected:
 	void	RemoveWaitDialogs();
-	void	ShowDialog( const idDialogInfo & info );
+	void	ShowDialog( const idDialogInfo& info );
 	void	ShowNextDialog();
 	void	ActivateDialog( bool activate );
-	void	AddDialogInternal( idDialogInfo & info );
+	void	AddDialogInternal( idDialogInfo& info );
 	void	ReleaseCallBacks( int index );
 
 private:
 	bool	dialogPause;
-	idSWF *	dialog;
-	idSWF *	saveIndicator;
+	idSWF* 	dialog;
+	idSWF* 	saveIndicator;
 	bool	dialogShowingSaveIndicatorRequested;
 	int		dialogShowingSaveIndicatorTimeRemaining;
 

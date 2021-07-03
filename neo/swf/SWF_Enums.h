@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -28,7 +28,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __SWF_ENUMS_H__
 #define __SWF_ENUMS_H__
 
-enum swfDictType_t {
+enum swfDictType_t
+{
 	SWF_DICT_NULL,
 	SWF_DICT_IMAGE,
 	SWF_DICT_SHAPE,
@@ -38,7 +39,8 @@ enum swfDictType_t {
 	SWF_DICT_TEXT,
 	SWF_DICT_EDITTEXT
 };
-enum swfTag_t {
+enum swfTag_t
+{
 	Tag_End = 0,
 	Tag_ShowFrame = 1,
 	Tag_DefineShape = 2,
@@ -102,7 +104,8 @@ enum swfTag_t {
 	Tag_DefineFontName = 88,
 	Tag_StartSound2 = 89
 };
-enum swfAction_t {
+enum swfAction_t
+{
 	Action_End = 0,
 
 	// swf 3

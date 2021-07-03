@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -37,33 +37,34 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-class idForce_Constant : public idForce {
+class idForce_Constant : public idForce
+{
 
 public:
 	CLASS_PROTOTYPE( idForce_Constant );
 
-						idForce_Constant();
+	idForce_Constant();
 	virtual				~idForce_Constant();
 
 
-	void				Save( idSaveGame *savefile ) const;
-	void				Restore( idRestoreGame *savefile );
+	void				Save( idSaveGame* savefile ) const;
+	void				Restore( idRestoreGame* savefile );
 
-						// constant force
-	void				SetForce( const idVec3 &force );
-						// set force position
-	void				SetPosition( idPhysics *physics, int id, const idVec3 &point );
+	// constant force
+	void				SetForce( const idVec3& force );
+	// set force position
+	void				SetPosition( idPhysics* physics, int id, const idVec3& point );
 
-	void				SetPhysics( idPhysics *physics );
+	void				SetPhysics( idPhysics* physics );
 
 public: // common force interface
 	virtual void		Evaluate( int time );
-	virtual void		RemovePhysics( const idPhysics *phys );
+	virtual void		RemovePhysics( const idPhysics* phys );
 
 private:
 	// force properties
 	idVec3				force;
-	idPhysics *			physics;
+	idPhysics* 			physics;
 	int					id;
 	idVec3				point;
 };

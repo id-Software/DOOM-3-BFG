@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -42,7 +42,8 @@ If you have questions concerning this license or the applicable additional terms
 ===================================================================================
 */
 
-typedef struct parametricPState_s {
+typedef struct parametricPState_s
+{
 	int										time;					// physics time
 	int										atRest;					// set when simulation is suspended
 	idVec3									origin;					// world origin
@@ -54,47 +55,48 @@ typedef struct parametricPState_s {
 	idExtrapolate<idAngles>					angularExtrapolation;	// extrapolation based description of the orientation over time
 	idInterpolateAccelDecelLinear<idVec3>	linearInterpolation;	// interpolation based description of the position over time
 	idInterpolateAccelDecelLinear<idAngles>	angularInterpolation;	// interpolation based description of the orientation over time
-	idCurve_Spline<idVec3> *				spline;					// spline based description of the position over time
+	idCurve_Spline<idVec3>* 				spline;					// spline based description of the position over time
 	idInterpolateAccelDecelLinear<float>	splineInterpolate;		// position along the spline over time
 	bool									useSplineAngles;		// set the orientation using the spline
 } parametricPState_t;
 
-class idPhysics_Parametric : public idPhysics_Base {
+class idPhysics_Parametric : public idPhysics_Base
+{
 
 public:
 	CLASS_PROTOTYPE( idPhysics_Parametric );
 
-							idPhysics_Parametric();
-							~idPhysics_Parametric();
+	idPhysics_Parametric();
+	~idPhysics_Parametric();
 
-	void					Save( idSaveGame *savefile ) const;
-	void					Restore( idRestoreGame *savefile );
+	void					Save( idSaveGame* savefile ) const;
+	void					Restore( idRestoreGame* savefile );
 
 	void					SetPusher( int flags );
 	bool					IsPusher() const;
 
-	void					SetLinearExtrapolation( extrapolation_t type, int time, int duration, const idVec3 &base, const idVec3 &speed, const idVec3 &baseSpeed );
-	void					SetAngularExtrapolation( extrapolation_t type, int time, int duration, const idAngles &base, const idAngles &speed, const idAngles &baseSpeed );
+	void					SetLinearExtrapolation( extrapolation_t type, int time, int duration, const idVec3& base, const idVec3& speed, const idVec3& baseSpeed );
+	void					SetAngularExtrapolation( extrapolation_t type, int time, int duration, const idAngles& base, const idAngles& speed, const idAngles& baseSpeed );
 	extrapolation_t			GetLinearExtrapolationType() const;
 	extrapolation_t			GetAngularExtrapolationType() const;
 
-	void					SetLinearInterpolation( int time, int accelTime, int decelTime, int duration, const idVec3 &startPos, const idVec3 &endPos );
-	void					SetAngularInterpolation( int time, int accelTime, int decelTime, int duration, const idAngles &startAng, const idAngles &endAng );
+	void					SetLinearInterpolation( int time, int accelTime, int decelTime, int duration, const idVec3& startPos, const idVec3& endPos );
+	void					SetAngularInterpolation( int time, int accelTime, int decelTime, int duration, const idAngles& startAng, const idAngles& endAng );
 
-	void					SetSpline( idCurve_Spline<idVec3> *spline, int accelTime, int decelTime, bool useSplineAngles );
-	idCurve_Spline<idVec3> *GetSpline() const;
+	void					SetSpline( idCurve_Spline<idVec3>* spline, int accelTime, int decelTime, bool useSplineAngles );
+	idCurve_Spline<idVec3>* GetSpline() const;
 	int						GetSplineAcceleration() const;
 	int						GetSplineDeceleration() const;
 	bool					UsingSplineAngles() const;
 
-	void					GetLocalOrigin( idVec3 &curOrigin ) const;
-	void					GetLocalAngles( idAngles &curAngles ) const;
+	void					GetLocalOrigin( idVec3& curOrigin ) const;
+	void					GetLocalAngles( idAngles& curAngles ) const;
 
-	void					GetAngles( idAngles &curAngles ) const;
+	void					GetAngles( idAngles& curAngles ) const;
 
 public:	// common physics interface
-	void					SetClipModel( idClipModel *model, float density, int id = 0, bool freeOld = true );
-	idClipModel *			GetClipModel( int id = 0 ) const;
+	void					SetClipModel( idClipModel* model, float density, int id = 0, bool freeOld = true );
+	idClipModel* 			GetClipModel( int id = 0 ) const;
 	int						GetNumClipModels() const;
 
 	void					SetMass( float mass, int id = -1 );
@@ -103,8 +105,8 @@ public:	// common physics interface
 	void					SetContents( int contents, int id = -1 );
 	int						GetContents( int id = -1 ) const;
 
-	const idBounds &		GetBounds( int id = -1 ) const;
-	const idBounds &		GetAbsBounds( int id = -1 ) const;
+	const idBounds& 		GetBounds( int id = -1 ) const;
+	const idBounds& 		GetAbsBounds( int id = -1 ) const;
 
 	bool					Evaluate( int timeStepMSec, int endTimeMSec );
 	bool					Interpolate( const float fraction );
@@ -119,20 +121,20 @@ public:	// common physics interface
 	void					SaveState();
 	void					RestoreState();
 
-	void					SetOrigin( const idVec3 &newOrigin, int id = -1 );
-	void					SetAxis( const idMat3 &newAxis, int id = -1 );
+	void					SetOrigin( const idVec3& newOrigin, int id = -1 );
+	void					SetAxis( const idMat3& newAxis, int id = -1 );
 
-	void					Translate( const idVec3 &translation, int id = -1 );
-	void					Rotate( const idRotation &rotation, int id = -1 );
+	void					Translate( const idVec3& translation, int id = -1 );
+	void					Rotate( const idRotation& rotation, int id = -1 );
 
-	const idVec3 &			GetOrigin( int id = 0 ) const;
-	const idMat3 &			GetAxis( int id = 0 ) const;
+	const idVec3& 			GetOrigin( int id = 0 ) const;
+	const idMat3& 			GetAxis( int id = 0 ) const;
 
-	void					SetLinearVelocity( const idVec3 &newLinearVelocity, int id = 0 );
-	void					SetAngularVelocity( const idVec3 &newAngularVelocity, int id = 0 );
+	void					SetLinearVelocity( const idVec3& newLinearVelocity, int id = 0 );
+	void					SetAngularVelocity( const idVec3& newAngularVelocity, int id = 0 );
 
-	const idVec3 &			GetLinearVelocity( int id = 0 ) const;
-	const idVec3 &			GetAngularVelocity( int id = 0 ) const;
+	const idVec3& 			GetLinearVelocity( int id = 0 ) const;
+	const idVec3& 			GetAngularVelocity( int id = 0 ) const;
 
 	void					DisableClip();
 	void					EnableClip();
@@ -140,16 +142,16 @@ public:	// common physics interface
 	void					UnlinkClip();
 	void					LinkClip();
 
-	void					SetMaster( idEntity *master, const bool orientated = true );
+	void					SetMaster( idEntity* master, const bool orientated = true );
 
-	const trace_t *			GetBlockingInfo() const;
-	idEntity *				GetBlockingEntity() const;
+	const trace_t* 			GetBlockingInfo() const;
+	idEntity* 				GetBlockingEntity() const;
 
 	int						GetLinearEndTime() const;
 	int						GetAngularEndTime() const;
 
-	void					WriteToSnapshot( idBitMsg &msg ) const;
-	void					ReadFromSnapshot( const idBitMsg &msg );
+	void					WriteToSnapshot( idBitMsg& msg ) const;
+	void					ReadFromSnapshot( const idBitMsg& msg );
 
 private:
 	// parametric physics state
@@ -161,7 +163,7 @@ private:
 
 	// pusher
 	bool					isPusher;
-	idClipModel *			clipModel;
+	idClipModel* 			clipModel;
 	int						pushFlags;
 
 	// results of last evaluate

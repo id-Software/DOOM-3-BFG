@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -41,27 +41,28 @@ If you have questions concerning this license or the applicable additional terms
 ===================================================================================
 */
 
-class idPhysics_Actor : public idPhysics_Base {
+class idPhysics_Actor : public idPhysics_Base
+{
 
 public:
 	CLASS_PROTOTYPE( idPhysics_Actor );
 
-							idPhysics_Actor();
-							~idPhysics_Actor();
+	idPhysics_Actor();
+	~idPhysics_Actor();
 
-	void					Save( idSaveGame *savefile ) const;
-	void					Restore( idRestoreGame *savefile );
+	void					Save( idSaveGame* savefile ) const;
+	void					Restore( idRestoreGame* savefile );
 
-							// get delta yaw of master
+	// get delta yaw of master
 	float					GetMasterDeltaYaw() const;
-							// returns the ground entity
-	idEntity *				GetGroundEntity() const;
-							// align the clip model with the gravity direction
+	// returns the ground entity
+	idEntity* 				GetGroundEntity() const;
+	// align the clip model with the gravity direction
 	void					SetClipModelAxis();
 
 public:	// common physics interface
-	void					SetClipModel( idClipModel *model, float density, int id = 0, bool freeOld = true );
-	idClipModel *			GetClipModel( int id = 0 ) const;
+	void					SetClipModel( idClipModel* model, float density, int id = 0, bool freeOld = true );
+	idClipModel* 			GetClipModel( int id = 0 ) const;
 	int						GetNumClipModels() const;
 
 	void					SetMass( float mass, int id = -1 );
@@ -70,20 +71,20 @@ public:	// common physics interface
 	void					SetContents( int contents, int id = -1 );
 	int						GetContents( int id = -1 ) const;
 
-	const idBounds &		GetBounds( int id = -1 ) const;
-	const idBounds &		GetAbsBounds( int id = -1 ) const;
+	const idBounds& 		GetBounds( int id = -1 ) const;
+	const idBounds& 		GetAbsBounds( int id = -1 ) const;
 
 	bool					IsPushable() const;
 
-	const idVec3 &			GetOrigin( int id = 0 ) const;
-	const idMat3 &			GetAxis( int id = 0 ) const;
+	const idVec3& 			GetOrigin( int id = 0 ) const;
+	const idMat3& 			GetAxis( int id = 0 ) const;
 
-	void					SetGravity( const idVec3 &newGravity );
-	const idMat3 &			GetGravityAxis() const;
+	void					SetGravity( const idVec3& newGravity );
+	const idMat3& 			GetGravityAxis() const;
 
-	void					ClipTranslation( trace_t &results, const idVec3 &translation, const idClipModel *model ) const;
-	void					ClipRotation( trace_t &results, const idRotation &rotation, const idClipModel *model ) const;
-	int						ClipContents( const idClipModel *model ) const;
+	void					ClipTranslation( trace_t& results, const idVec3& translation, const idClipModel* model ) const;
+	void					ClipRotation( trace_t& results, const idRotation& rotation, const idClipModel* model ) const;
+	int						ClipContents( const idClipModel* model ) const;
 
 	void					DisableClip();
 	void					EnableClip();
@@ -94,7 +95,7 @@ public:	// common physics interface
 	bool					EvaluateContacts();
 
 protected:
-	idClipModel *			clipModel;			// clip model used for collision detection
+	idClipModel* 			clipModel;			// clip model used for collision detection
 	idMat3					clipModelAxis;		// axis of clip model aligned with gravity direction
 
 	// derived properties
@@ -102,7 +103,7 @@ protected:
 	float					invMass;
 
 	// master
-	idEntity *				masterEntity;
+	idEntity* 				masterEntity;
 	float					masterYaw;
 	float					masterDeltaYaw;
 

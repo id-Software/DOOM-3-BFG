@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -31,16 +31,18 @@ If you have questions concerning this license or the applicable additional terms
 struct CellSpursJob128;
 class idColor;
 
-typedef void ( * jobRun_t )( void * );
+typedef void ( * jobRun_t )( void* );
 
-enum jobSyncType_t {
+enum jobSyncType_t
+{
 	SYNC_NONE,
 	SYNC_SIGNAL,
 	SYNC_SYNCHRONIZE
 };
 
 // NOTE: keep in sync with jobNames[]
-enum jobListId_t {
+enum jobListId_t
+{
 	JOBLIST_RENDERER_FRONTEND	= 0,
 	JOBLIST_RENDERER_BACKEND	= 1,
 	JOBLIST_UTILITY				= 9,			// won't print over-time warnings
@@ -50,14 +52,16 @@ enum jobListId_t {
 
 compile_time_assert( CONST_ISPOWEROFTWO( MAX_JOBLISTS ) );
 
-enum jobListPriority_t {
+enum jobListPriority_t
+{
 	JOBLIST_PRIORITY_NONE,
 	JOBLIST_PRIORITY_LOW,
 	JOBLIST_PRIORITY_MEDIUM,
 	JOBLIST_PRIORITY_HIGH
 };
 
-enum jobListParallelism_t {
+enum jobListParallelism_t
+{
 	JOBLIST_PARALLELISM_DEFAULT			= -1,	// use "jobs_numThreads" number of threads
 	JOBLIST_PARALLELISM_MAX_CORES		= -2,	// use a thread for each logical core (includes hyperthreads)
 	JOBLIST_PARALLELISM_MAX_THREADS		= -3	// use the maximum number of job threads, which can help if there is IO to overlap
@@ -77,16 +81,17 @@ hand a job should consume no more than a couple of
 multiple processing units.
 ================================================
 */
-class idParallelJobList {
+class idParallelJobList
+{
 	friend class idParallelJobManagerLocal;
 public:
 
-	void					AddJob( jobRun_t function, void * data );
-	CellSpursJob128 *		AddJobSPURS();
+	void					AddJob( jobRun_t function, void* data );
+	CellSpursJob128* 		AddJobSPURS();
 	void					InsertSyncPoint( jobSyncType_t syncType );
 
 	// Submit the jobs in this list.
-	void					Submit( idParallelJobList * waitForJobList = NULL, int parallelism = JOBLIST_PARALLELISM_DEFAULT );
+	void					Submit( idParallelJobList* waitForJobList = NULL, int parallelism = JOBLIST_PARALLELISM_DEFAULT );
 	// Wait for the jobs in this list to finish. Will spin in place if any jobs are not done.
 	void					Wait();
 	// Try to wait for the jobs in this list to finish but either way return immediately. Returns true if all jobs are done.
@@ -118,13 +123,16 @@ public:
 	// Get the job list ID
 	jobListId_t				GetId() const;
 	// Get the color for profiling.
-	const idColor *			GetColor() const { return this->color; }
+	const idColor* 			GetColor() const
+	{
+		return this->color;
+	}
 
 private:
-	class idParallelJobList_Threads *	jobListThreads;
-	const idColor *						color;
+	class idParallelJobList_Threads* 	jobListThreads;
+	const idColor* 						color;
 
-	idParallelJobList( jobListId_t id, jobListPriority_t priority, unsigned int maxJobs, unsigned int maxSyncs, const idColor * color );
+	idParallelJobList( jobListId_t id, jobListPriority_t priority, unsigned int maxJobs, unsigned int maxSyncs, const idColor* color );
 	~idParallelJobList();
 };
 
@@ -136,40 +144,42 @@ This is the only interface through which job lists
 should be allocated or freed.
 ================================================
 */
-class idParallelJobManager {
+class idParallelJobManager
+{
 public:
 	virtual						~idParallelJobManager() {}
 
 	virtual void				Init() = 0;
 	virtual void				Shutdown() = 0;
 
-	virtual idParallelJobList *	AllocJobList( jobListId_t id, jobListPriority_t priority, unsigned int maxJobs, unsigned int maxSyncs, const idColor * color ) = 0;
-	virtual void				FreeJobList( idParallelJobList * jobList ) = 0;
+	virtual idParallelJobList* 	AllocJobList( jobListId_t id, jobListPriority_t priority, unsigned int maxJobs, unsigned int maxSyncs, const idColor* color ) = 0;
+	virtual void				FreeJobList( idParallelJobList* jobList ) = 0;
 
 	virtual int					GetNumJobLists() const = 0;
 	virtual int					GetNumFreeJobLists() const = 0;
-	virtual idParallelJobList *	GetJobList( int index ) = 0;
+	virtual idParallelJobList* 	GetJobList( int index ) = 0;
 
 	virtual int					GetNumProcessingUnits() = 0;
 
 	virtual void				WaitForAllJobLists() = 0;
 };
 
-extern idParallelJobManager *	parallelJobManager;
+extern idParallelJobManager* 	parallelJobManager;
 
 // jobRun_t functions can have the debug name associated with them
 // by explicitly calling this, or using the REGISTER_PARALLEL_JOB()
 // static variable macro.
-void RegisterJob( jobRun_t function, const char * name );
+void RegisterJob( jobRun_t function, const char* name );
 
 /*
 ================================================
 idParallelJobRegistration
 ================================================
 */
-class idParallelJobRegistration {
+class idParallelJobRegistration
+{
 public:
-	idParallelJobRegistration( jobRun_t function, const char * name );
+	idParallelJobRegistration( jobRun_t function, const char* name );
 };
 
 #define REGISTER_PARALLEL_JOB( function, name )		static idParallelJobRegistration register_##function( (jobRun_t) function, name )

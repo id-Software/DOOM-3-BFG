@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -37,13 +37,14 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-class idSurface_SweptSpline : public idSurface {
+class idSurface_SweptSpline : public idSurface
+{
 public:
-							idSurface_SweptSpline();
-							~idSurface_SweptSpline();
+	idSurface_SweptSpline();
+	~idSurface_SweptSpline();
 
-	void					SetSpline( idCurve_Spline<idVec4> *spline );
-	void					SetSweptSpline( idCurve_Spline<idVec4> *sweptSpline );
+	void					SetSpline( idCurve_Spline<idVec4>* spline );
+	void					SetSweptSpline( idCurve_Spline<idVec4>* sweptSpline );
 	void					SetSweptCircle( const float radius );
 
 	void					Tessellate( const int splineSubdivisions, const int sweptSplineSubdivisions );
@@ -51,10 +52,10 @@ public:
 	void					Clear();
 
 protected:
-	idCurve_Spline<idVec4> *spline;
-	idCurve_Spline<idVec4> *sweptSpline;
+	idCurve_Spline<idVec4>* spline;
+	idCurve_Spline<idVec4>* sweptSpline;
 
-	void					GetFrame( const idMat3 &previousFrame, const idVec3 dir, idMat3 &newFrame );
+	void					GetFrame( const idMat3& previousFrame, const idVec3 dir, idMat3& newFrame );
 };
 
 /*
@@ -62,7 +63,8 @@ protected:
 idSurface_SweptSpline::idSurface_SweptSpline
 ====================
 */
-ID_INLINE idSurface_SweptSpline::idSurface_SweptSpline() {
+ID_INLINE idSurface_SweptSpline::idSurface_SweptSpline()
+{
 	spline = NULL;
 	sweptSpline = NULL;
 }
@@ -72,7 +74,8 @@ ID_INLINE idSurface_SweptSpline::idSurface_SweptSpline() {
 idSurface_SweptSpline::~idSurface_SweptSpline
 ====================
 */
-ID_INLINE idSurface_SweptSpline::~idSurface_SweptSpline() {
+ID_INLINE idSurface_SweptSpline::~idSurface_SweptSpline()
+{
 	delete spline;
 	delete sweptSpline;
 }
@@ -82,7 +85,8 @@ ID_INLINE idSurface_SweptSpline::~idSurface_SweptSpline() {
 idSurface_SweptSpline::Clear
 ====================
 */
-ID_INLINE void idSurface_SweptSpline::Clear() {
+ID_INLINE void idSurface_SweptSpline::Clear()
+{
 	idSurface::Clear();
 	delete spline;
 	spline = NULL;

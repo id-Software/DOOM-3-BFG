@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -55,6 +55,9 @@ If you have questions concerning this license or the applicable additional terms
 #include "../framework/CmdSystem.h"
 #include "../framework/CVarSystem.h"
 #include "../framework/Common.h"
+// DG: needed for idFile_InZip in File.h
+#include "../framework/Unzip.h"
+// DG end
 #include "../framework/File.h"
 #include "../framework/File_Manifest.h"
 #include "../framework/File_SaveGame.h"
@@ -81,7 +84,23 @@ const int MAX_EXPRESSION_OPS = 4096;
 const int MAX_EXPRESSION_REGISTERS = 4096;
 
 // renderer
-#include "../renderer/OpenGL/qgl.h"
+// everything that is needed by the backend needs
+// to be double buffered to allow it to run in
+// parallel on a dual cpu machine
+#if defined(__APPLE__) && defined(USE_VULKAN)
+	// SRS - macOS MoltenVK/Metal needs triple buffering for full screen to work properly
+	const uint32 NUM_FRAME_DATA	= 3;
+#else
+	const uint32 NUM_FRAME_DATA = 2;
+#endif
+
+#if defined(USE_VULKAN)
+	#include "../renderer/Vulkan/qvk.h"
+#else
+	// RB: replaced QGL with GLEW
+	#include <GL/glew.h>
+	// RB end
+#endif
 #include "../renderer/Cinematic.h"
 #include "../renderer/Material.h"
 #include "../renderer/BufferObject.h"
@@ -97,6 +116,9 @@ const int MAX_EXPRESSION_REGISTERS = 4096;
 // user interfaces
 #include "../ui/ListGUI.h"
 #include "../ui/UserInterface.h"
+
+// RB: required for SWF extensions
+//#include "rapidjson/document.h"
 
 #include "../swf/SWF.h"
 
@@ -126,29 +148,40 @@ const int MAX_EXPRESSION_REGISTERS = 4096;
 #include "../sys/sys_session.h"
 #include "../sys/sys_achievements.h"
 
+// tools
+
+// The editor entry points are always declared, but may just be
+// stubbed out on non-windows platforms.
+//#if defined(USE_MFC_TOOLS) || defined(USE_QT_TOOLS) || defined(USE_GTK_TOOLS)
+#include "../imgui/ImGui_Hooks.h"
+#include "../tools/edit_public.h"
+//#endif
+
+#include "../tools/compilers/compiler_public.h"
+
 //-----------------------------------------------------
 
 #ifndef _D3SDK
 
-#ifdef GAME_DLL
+	#ifdef GAME_DLL
 
-#include "../d3xp/Game_local.h"
+		#include "../d3xp/Game_local.h"
 
-#else
+	#else
 
-#include "../framework/DemoChecksum.h"
+		#include "../framework/DemoChecksum.h"
 
-// framework
-#include "../framework/Compressor.h"
-#include "../framework/EventLoop.h"
-#include "../framework/KeyInput.h"
-#include "../framework/EditField.h"
-#include "../framework/DebugGraph.h"
-#include "../framework/Console.h"
-#include "../framework/DemoFile.h"
-#include "../framework/Common_dialog.h"
+		// framework
+		#include "../framework/Compressor.h"
+		#include "../framework/EventLoop.h"
+		#include "../framework/KeyInput.h"
+		#include "../framework/EditField.h"
+		#include "../framework/DebugGraph.h"
+		#include "../framework/Console.h"
+		#include "../framework/DemoFile.h"
+		#include "../framework/Common_dialog.h"
 
-#endif /* !GAME_DLL */
+	#endif /* !GAME_DLL */
 
 #endif /* !_D3SDK */
 

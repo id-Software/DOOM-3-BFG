@@ -2,9 +2,9 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company. 
+Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 
-This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").  
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
 Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -30,15 +30,17 @@ If you have questions concerning this license or the applicable additional terms
 
 class idWindow;
 
-class idRegister {
+class idRegister
+{
 public:
 	idRegister() {};
-	idRegister(const char *p, int t) {
+	idRegister( const char* p, int t )
+	{
 		name = p;
 		type = t;
-		assert(t >= 0 && t < NUMTYPES);
+		assert( t >= 0 && t < NUMTYPES );
 		regCount = REGCOUNT[t];
-		enabled = (type == STRING) ? false : true;
+		enabled = ( type == STRING ) ? false : true;
 	};
 	bool enabled;
 	int type;
@@ -47,40 +49,43 @@ public:
 	static int REGCOUNT[NUMTYPES];
 	idStr name;
 	int regs[4];
-	void SetToRegs(float *registers, idTypedDict *state);
-	void SetToRegList(idList<float> *registers, idTypedDict *state);
-	void GetFromRegs(float *registers, idTypedDict *state);
-	void CopyRegs(idRegister *src) {
+	void SetToRegs( float* registers, idTypedDict* state );
+	void SetToRegList( idList<float>* registers, idTypedDict* state );
+	void GetFromRegs( float* registers, idTypedDict* state );
+	void CopyRegs( idRegister* src )
+	{
 		regs[0] = src->regs[0];
 		regs[1] = src->regs[1];
 		regs[2] = src->regs[2];
 		regs[3] = src->regs[3];
 	}
-	void Enable(bool b) {
+	void Enable( bool b )
+	{
 		enabled = b;
 	}
-	void ReadFromDemoFile(idDemoFile *f);
-	void WriteToDemoFile(idDemoFile *f);
+	void ReadFromDemoFile( idDemoFile* f );
+	void WriteToDemoFile( idDemoFile* f );
 
 };
 
-class idRegisterList {
+class idRegisterList
+{
 	idList<idRegister> regs;
 public:
-	
-	// 
-	void RemoveReg ( const char* name );
-	// 
 
-	void AddReg(const char *name, int type, idTokenParser *src, idWindow *win);
-	void AddReg(const char *name, int type, idVec4 data, idWindow *win);
-	idRegister *FindReg(const char *name);
-	int			FindRegIndex ( const char* name );
-	void SetToRegs(float *registers, idTypedDict *state);
-	void GetFromRegs(float *registers, idTypedDict *state);
+	//
+	void RemoveReg( const char* name );
+	//
+
+	void AddReg( const char* name, int type, idTokenParser* src, idWindow* win );
+	void AddReg( const char* name, int type, idVec4 data, idWindow* win );
+	idRegister* FindReg( const char* name );
+	int			FindRegIndex( const char* name );
+	void SetToRegs( float* registers, idTypedDict* state );
+	void GetFromRegs( float* registers, idTypedDict* state );
 	void Reset();
-	void ReadFromDemoFile(idDemoFile *f);
-	void WriteToDemoFile(idDemoFile *f);
+	void ReadFromDemoFile( idDemoFile* f );
+	void WriteToDemoFile( idDemoFile* f );
 
 };
 
