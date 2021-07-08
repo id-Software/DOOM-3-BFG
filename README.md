@@ -32,11 +32,12 @@ This file contains the following sections:
 8. [Getting the Source Code ](#source)
 9. [Compiling on Windows](#compile_windows)
 10. [Compiling on Linux](#compile_linux)
-11. [Installation, Getting the Game Data, Running the Game](#installation)
-12. [New Console Variables](#console)
-13. [Known Issues](#issues)
-14. [Bug Reports](#reports)
-15. [FAQ](#faq)
+11. [Compiling on macOS](#compile_macos)
+12. [Installation, Getting the Game Data, Running the Game](#installation)
+13. [New Console Variables](#console)
+14. [Known Issues](#issues)
+15. [Bug Reports](#reports)
+16. [FAQ](#faq)
 	
 
 
@@ -446,7 +447,7 @@ This project's GitHub.net Git repository can be checked out through Git with the
 
 	> git clone --recursive https://github.com/RobertBeckebans/RBDOOM-3-BFG.git
 
-The paramter --recursive is only required if you want to build RBDOOM-3-BFG with Vulkan support.
+The parameter --recursive is only required if you want to build RBDOOM-3-BFG with Vulkan support.
 
 Existing repositories can be updated manually:
 
@@ -500,18 +501,48 @@ Existing repositories can be updated manually:
 	
 		> sudo zypper install cmake libSDL2-devel openal-soft-devel
 
-	You don't need FFmpeg to be installed. You can also turn it off by add -DFFMPEG=OFF to the CMake options.
+	You don't need FFmpeg to be installed. You can turn it off by adding -DFFMPEG=OFF to the CMake options.
 	It is enabled by default because the bundled libbinkdec is slow during development if compiled for Debug mode.
 
 2. Generate the Makefiles using CMake:
 
-	> cd neo/
-	> ./cmake-eclipse-linux-profile.sh
+		> cd neo/
+		> ./cmake-eclipse-linux-profile.sh
 	
 3. Compile RBDOOM-3-BFG targets with
 
-	> cd ../build
-	> make
+		> cd ../build
+		> make
+
+---
+# Compiling on macOS <a name="compile_macos"></a>
+
+1.	Download and install Homebrew (https://brew.sh)
+
+2.	You need the following dependencies in order to compile RBDoom3BFG with all features:
+
+		> brew install cmake sdl2 openal-soft ffmpeg
+
+3. Generate the Makefiles using CMake:
+
+	For command line builds:
+
+		> cd neo/
+		> ./cmake-macos-opengl-release.sh
+	
+	For Xcode builds:
+	
+		> cd neo/
+		> ./cmake-xcode-opengl-release.sh	
+	
+4. Compile RBDOOM-3-BFG targets:
+
+	For command line builds:
+
+		> cd ../build
+		> make
+	
+	For Xcode builds double click on RBDOOM-3-BFG/xcode-opengl-release/RBDoom3BFG.xcodeproj and start the build. The generated Xcode project file is pre-configured with the correct targets and build settings.
 
 ---
 # Installation, Getting the Game Data, Running the Game <a name="installation"></a>
@@ -538,12 +569,12 @@ Currently this requires a Windows installer, whether that be the GOG installer o
 
 Note: the original DVD release of Doom 3 BFG contains encrypted data that is decoded by Steam on install.
 
-On Linux and OSX the easiest way to install is with SteamCMD: https://developer.valvesoftware.com/wiki/SteamCMD
-See the description on https://developer.valvesoftware.com/wiki/SteamCMD#Linux (OS X is directly below that) on how to install SteamCMD on your system. You won't have to create a new user.
+On Linux and macOS the easiest way to install is with SteamCMD: https://developer.valvesoftware.com/wiki/SteamCMD.
+See the description on https://developer.valvesoftware.com/wiki/SteamCMD#Linux (macOS is directly below that) on how to install SteamCMD on your system. You won't have to create a new user.
 
 Then you can download Doom 3 BFG with
 
-> ./steamcmd.sh +@sSteamCmdForcePlatformType windows +login <YOUR_STEAM_LOGIN_NAME> +force_install_dir ./doom3bfg/ +app_update 208200 validate +quit
+	> ./steamcmd.sh +@sSteamCmdForcePlatformType windows +login <YOUR_STEAM_LOGIN_NAME> +force_install_dir ./doom3bfg/ +app_update 208200 validate +quit
 
 (replace <YOUR_STEAM_LOGIN_NAME> with your steam login name)
 When it's done you should have the normal windows installation of Doom 3 BFG in ./doom3bfg/ and the needed files in ./doom3bfg/base/
@@ -551,11 +582,11 @@ That number is the "AppID" of Doom 3 BFG; if you wanna use this to get the data 
 
 NOTE that we've previously recommended using download_depot in the Steam console to install the game data. That turned out to be unreliable and result in broken, unusable game data. So use SteamCMD instead, as described above.
 
-Alternatively with the GOG installer, you can use Wine to install the game. See https://winehq.org/download for details on how to install wine for Linux and Mac.
+Alternatively with the GOG installer, you can use Wine to install the game. See https://winehq.org/download for details on how to install wine for Linux and macOS.
 
 Once Wine is installed and configured on your system install Doom 3 BFG edition using the downloaded installers from gog.com:
 
-> wine setup_doom_3_bfg_1.14_\(13452\)_\(g\).exe
+	> wine setup_doom_3_bfg_1.14_\(13452\)_\(g\).exe
 
 (there will be several .exe files from GOG, make sure all of them are in the same directory)
 
@@ -563,16 +594,16 @@ Once this is complete, by default you can find your Doom 3 BFG "base/" directory
 
 Note that you may want to add the following line to the bottom of the default.cfg in whatever "base/" directory you use:
 
-> set sys_lang "english"
+* set sys_lang "english"
 
 This will ensure the game and its menus are in english and don't default to something else. Alternatives include:
 
-set sys_lang "english"
-set sys_lang "french"
-set sys_lang "german"
-set sys_lang "italian"
-set sys_lang "japanese"
-set sys_lang "spanish"
+* set sys_lang "english"
+* set sys_lang "french"
+* set sys_lang "german"
+* set sys_lang "italian"
+* set sys_lang "japanese"
+* set sys_lang "spanish"
 
 Anyway:
 
@@ -586,30 +617,33 @@ Anyway:
 	/your/path/to/Steam/steamapps/common/DOOM 3 BFG Edition/base/
 	or, if you used SteamCMD or GOG installer with Wine, in the path you used above.
 
-4. Copy your RBDoom3BFG executable that you created in 5) or 6) and the FFmpeg DLLs to your own 
-   Doom 3 BFG directory (/path/to/Doom3BFG).
+4. Copy your RBDoom3BFG executable and the FFmpeg DLLs (Windows only) to your own 
+   Doom 3 BFG directory (/path/to/Doom3BFG). Your Doom 3 BFG directory now should look like:  
    
-   Your own Doom 3 BFG directory now should look like:
 	/path/to/Doom3BFG/
-	 ->	RBDoom3BFG (or RBDoom3BFG.exe on Windows)
-	 -> avcodec-58.dll
-	 -> avdevice-58.dll
-	 -> avfilter-7.dll
-	 -> avformat-58.dll
-	 -> avutil-56.dll
-	 -> postproc-55.dll
-	 -> swresample-5.dll
-	 -> swscale-5.dll
-	 ->	base/
-		 ->	classicmusic/
-		 ->	_common.crc
-		 ->	(etc)
+	* RBDoom3BFG (or RBDoom3BFG.exe on Windows)
+	* avcodec-58.dll (Windows only)
+	* avdevice-58.dll (Windows only)
+	* avfilter-7.dll (Windows only)
+	* avformat-58.dll (Windows only)
+	* avutil-56.dll (Windows only)
+	* postproc-55.dll (Windows only)
+	* swresample-3.dll (Windows only)
+	* swscale-5.dll (Windows only)
+	* base/
+		* classicmusic/
+		* _common.crc
+		* (etc)
+		 
+5. On macOS the RBDoom3BFG executable will also search for game data within the Contents/Resources/base directory as part of a macOS app bundle.  In addition, if you want the game to be standalone without dependencies on pre-installed dynamic libs, you can use macdylibbundler to bundle all external lib dependencies into the app bundle (see https://github.com/auriamg/macdylibbundler or simply install via "brew install dylibbundler").  For example, the following command will copy all external dynamic lib dependencies to the Contents/libs directory of the app bundle and adjust the rpaths within the RBDoom3BFG executable and copied libs.
 
-5. Run the game by executing the RBDoom3BFG executable.
+		> dylibbundler -od -b -x ./Doom3BFG.app/Contents/MacOS/RBDoom3BFG -d ./Doom3BFG.app/Contents/libs/
 
-6. Enjoy
+6. Run the game by executing the RBDoom3BFG executable.
 
-7. If you run into bugs, please report them, see [Bug Reports](#reports)
+7. Enjoy
+
+8. If you run into bugs, please report them, see [Bug Reports](#reports)
 
 ---
 # New Console Variables and Commands <a name="console"></a>
