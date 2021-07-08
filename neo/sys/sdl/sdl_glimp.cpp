@@ -366,10 +366,10 @@ bool GLimp_Init( glimpParms_t parms )
 	{
 		common->Printf( "Using GLEW %s\n", glewGetString( GLEW_VERSION ) );
 	}
-    
+
 #if defined(__APPLE__) && SDL_VERSION_ATLEAST(2, 0, 2)
-    // SRS - On OSX enable SDL2 relative mouse mode warping to capture mouse properly if outside of window
-    SDL_SetHintWithPriority( SDL_HINT_MOUSE_RELATIVE_MODE_WARP, "1", SDL_HINT_OVERRIDE );
+	// SRS - On OSX enable SDL2 relative mouse mode warping to capture mouse properly if outside of window
+	SDL_SetHintWithPriority( SDL_HINT_MOUSE_RELATIVE_MODE_WARP, "1", SDL_HINT_OVERRIDE );
 #endif
 
 	// DG: disable cursor, we have two cursors in menu (because mouse isn't grabbed in menu)
