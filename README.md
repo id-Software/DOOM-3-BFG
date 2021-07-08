@@ -461,12 +461,13 @@ Existing repositories can be updated manually:
 
 1. Download and install the Visual Studio 2017 Community Edition.
 
-2. Download the DirectX SDK (June 2010) here: (Only for Windows 7 builds)
+2. **Only for Windows 7 builds**: Download and install the DirectX SDK (June 2010)
 	http://www.microsoft.com/en-us/download/details.aspx?id=6812
 
 3. Download and install the latest CMake.
 
 4. Generate the VS2017 projects using CMake by doubleclicking a matching configuration .bat file in the neo/ folder.
+Recommended in this case is `cmake-vs2017-64bit-windows10.bat`
 
 5. Use the VS2017 solution to compile what you need:
 	RBDOOM-3-BFG/build/RBDoom3BFG.sln
@@ -654,11 +655,10 @@ convertMapToJSON mapfile               | Command: Convert .map file to new .json
 * Some lights cause shadow acne with shadow mapping
 * Some shadows might almost disappear due to the shadow filtering or look off ("Peter panning" problem)
 * [HDR] HDR does not work with old-school stencil shadows
-* [HDR] MSAA anti-aliasing modes don't work with HDR: Use SMAA
-* ~~[HDR] HDR causes problems with the grabber gun~~
-* ~~[HDR] HDR darkens the screen when you get hit by an enemy~~
+* [HDR] MSAA anti-aliasing modes don't work with HDR: Use SMAA with r_antiAliasing 1
+* [Vulkan] **Vulkan backend is unfinished in general**
 * [Vulkan] Shadow Mapping is not supported yet
-* [Vulkan] HDR is not supported yet
+* [Vulkan] HDR is not supported yet and GI looks bad because it requires HDR and linear RGB color space
 * [Vulkan] Post processing and SMAA is not supported yet
 
 ---
