@@ -97,7 +97,8 @@ double Sys_ClockTicksPerSecond()
 {
 	static bool		init = false;
 	static double	ret;
-	size_t len = sizeof( ret );
+	int64_t temp;
+	size_t len = sizeof( temp );
 	int status;
 
 	if( init )
@@ -105,7 +106,8 @@ double Sys_ClockTicksPerSecond()
 		return ret;
 	}
 
-	status = sysctlbyname( "hw.cpufrequency", &ret, &len, NULL, 0 );
+	status = sysctlbyname( "hw.cpufrequency", &temp, &len, NULL, 0 );
+	ret = double(temp);
 
 	if( status == -1 )
 	{
