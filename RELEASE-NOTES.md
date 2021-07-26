@@ -343,6 +343,8 @@ Using the models argument will also export all needed models by entity declarati
 
 * Initial support for the MIPS64 architecture (thanks to Ramil Sattarov)
 
+* Initial support for the LoongArch64 architecture (thanks to Ramil Sattarov)
+
 * Initial support for the PPC64 architecture (thanks to Trung Lê)
 
 * Initial support for the Raspberry Pi 4 (thanks to Alejandro Piñeiro)
