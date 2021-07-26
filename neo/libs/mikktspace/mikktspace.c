@@ -106,7 +106,7 @@ static float		vdot( const SVec3 v1, const SVec3 v2)
 
 static tbool NotZero(const float fX)
 {
-	// could possibly use FLT_EPSILON instead
+	// could possibly use FLOAT_EPSILON instead
 	return fabsf(fX) > FLT_MIN;
 }
 

@@ -647,11 +647,11 @@ idMapBrush* idMapBrush::ParseValve220( idLexer& src, const idVec3& origin )
 		scale[0] = src.ParseFloat();
 		scale[1] = src.ParseFloat();
 
-		if( scale[0] < idMath::FLT_EPSILON )
+		if( scale[0] < idMath::FLOAT_EPSILON )
 		{
 			scale[0] = 1.0f;
 		}
-		if( scale[1] < idMath::FLT_EPSILON )
+		if( scale[1] < idMath::FLOAT_EPSILON )
 		{
 			scale[1] = 1.0f;
 		}

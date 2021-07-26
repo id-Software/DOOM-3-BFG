@@ -41,8 +41,8 @@ If you have questions concerning this license or the applicable additional terms
 	#undef INFINITUM
 #endif
 
-#ifdef FLT_EPSILON
-	#undef FLT_EPSILON
+#ifdef FLOAT_EPSILON
+	#undef FLOAT_EPSILON
 #endif
 
 #define DEG2RAD(a)				( (a) * idMath::M_DEG2RAD )
@@ -459,7 +459,7 @@ public:
 	static const float			M_SEC2MS;					// seconds to milliseconds multiplier
 	static const float			M_MS2SEC;					// milliseconds to seconds multiplier
 	static const float			INFINITUM;					// huge number which should be larger than any valid number used
-	static const float			FLT_EPSILON;				// smallest positive number such that 1.0+FLT_EPSILON != 1.0
+	static const float			FLOAT_EPSILON;				// smallest positive number such that 1.0+FLOAT_EPSILON != 1.0
 	static const float			FLT_SMALLEST_NON_DENORMAL;	// smallest non-denormal 32-bit floating point value
 
 #if defined(USE_INTRINSICS_SSE)
