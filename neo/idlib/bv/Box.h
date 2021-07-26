@@ -219,7 +219,7 @@ ID_INLINE bool idBox::operator!=( const idBox& a ) const
 ID_INLINE void idBox::Clear()
 {
 	center.Zero();
-	extents[0] = extents[1] = extents[2] = -idMath::INFINITY;
+	extents[0] = extents[1] = extents[2] = -idMath::INFINITUM;
 	axis.Identity();
 }
 

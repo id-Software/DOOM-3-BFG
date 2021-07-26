@@ -409,7 +409,7 @@ static void R_SetupSplitFrustums( viewDef_t* viewDef )
 
 	for( int i = 0; i < 6; i++ )
 	{
-		tr.viewDef->frustumSplitDistances[i] = idMath::INFINITY;
+		tr.viewDef->frustumSplitDistances[i] = idMath::INFINITUM;
 	}
 
 	for( int i = 1; i <= ( r_shadowMapSplits.GetInteger() + 1 ) && i < MAX_FRUSTUMS; i++ )

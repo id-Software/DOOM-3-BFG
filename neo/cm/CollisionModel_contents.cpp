@@ -93,7 +93,7 @@ bool idCollisionModelManagerLocal::TestTrmVertsInBrush( cm_traceWork_t* tw, cm_b
 
 		// see if the point is inside the brush
 		bestPlane = 0;
-		bestd = -idMath::INFINITY;
+		bestd = -idMath::INFINITUM;
 		for( i = 0; i < b->numPlanes; i++ )
 		{
 			d = b->planes[i].Distance( *p );
@@ -226,7 +226,7 @@ bool idCollisionModelManagerLocal::TestTrmInPolygon( cm_traceWork_t* tw, cm_poly
 				}
 
 				bestPlane = 0;
-				bestd = -idMath::INFINITY;
+				bestd = -idMath::INFINITUM;
 				for( k = 0; k < tw->numPolys; k++ )
 				{
 					d = tw->polys[k].plane.Distance( v->p );

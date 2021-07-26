@@ -66,8 +66,8 @@ idSIMD_Generic::MinMax
 */
 void VPCALL idSIMD_Generic::MinMax( float& min, float& max, const float* src, const int count )
 {
-	min = idMath::INFINITY;
-	max = -idMath::INFINITY;
+	min = idMath::INFINITUM;
+	max = -idMath::INFINITUM;
 #define OPER(X) if ( src[(X)] < min ) {min = src[(X)];} if ( src[(X)] > max ) {max = src[(X)];}
 	UNROLL1( OPER )
 #undef OPER
@@ -80,8 +80,8 @@ idSIMD_Generic::MinMax
 */
 void VPCALL idSIMD_Generic::MinMax( idVec2& min, idVec2& max, const idVec2* src, const int count )
 {
-	min[0] = min[1] = idMath::INFINITY;
-	max[0] = max[1] = -idMath::INFINITY;
+	min[0] = min[1] = idMath::INFINITUM;
+	max[0] = max[1] = -idMath::INFINITUM;
 #define OPER(X) const idVec2 &v = src[(X)]; if ( v[0] < min[0] ) { min[0] = v[0]; } if ( v[0] > max[0] ) { max[0] = v[0]; } if ( v[1] < min[1] ) { min[1] = v[1]; } if ( v[1] > max[1] ) { max[1] = v[1]; }
 	UNROLL1( OPER )
 #undef OPER
@@ -94,8 +94,8 @@ idSIMD_Generic::MinMax
 */
 void VPCALL idSIMD_Generic::MinMax( idVec3& min, idVec3& max, const idVec3* src, const int count )
 {
-	min[0] = min[1] = min[2] = idMath::INFINITY;
-	max[0] = max[1] = max[2] = -idMath::INFINITY;
+	min[0] = min[1] = min[2] = idMath::INFINITUM;
+	max[0] = max[1] = max[2] = -idMath::INFINITUM;
 #define OPER(X) const idVec3 &v = src[(X)]; if ( v[0] < min[0] ) { min[0] = v[0]; } if ( v[0] > max[0] ) { max[0] = v[0]; } if ( v[1] < min[1] ) { min[1] = v[1]; } if ( v[1] > max[1] ) { max[1] = v[1]; } if ( v[2] < min[2] ) { min[2] = v[2]; } if ( v[2] > max[2] ) { max[2] = v[2]; }
 	UNROLL1( OPER )
 #undef OPER
@@ -108,8 +108,8 @@ idSIMD_Generic::MinMax
 */
 void VPCALL idSIMD_Generic::MinMax( idVec3& min, idVec3& max, const idDrawVert* src, const int count )
 {
-	min[0] = min[1] = min[2] = idMath::INFINITY;
-	max[0] = max[1] = max[2] = -idMath::INFINITY;
+	min[0] = min[1] = min[2] = idMath::INFINITUM;
+	max[0] = max[1] = max[2] = -idMath::INFINITUM;
 #define OPER(X) const idVec3 &v = src[(X)].xyz; if ( v[0] < min[0] ) { min[0] = v[0]; } if ( v[0] > max[0] ) { max[0] = v[0]; } if ( v[1] < min[1] ) { min[1] = v[1]; } if ( v[1] > max[1] ) { max[1] = v[1]; } if ( v[2] < min[2] ) { min[2] = v[2]; } if ( v[2] > max[2] ) { max[2] = v[2]; }
 	UNROLL1( OPER )
 #undef OPER
@@ -122,8 +122,8 @@ idSIMD_Generic::MinMax
 */
 void VPCALL idSIMD_Generic::MinMax( idVec3& min, idVec3& max, const idDrawVert* src, const triIndex_t* indexes, const int count )
 {
-	min[0] = min[1] = min[2] = idMath::INFINITY;
-	max[0] = max[1] = max[2] = -idMath::INFINITY;
+	min[0] = min[1] = min[2] = idMath::INFINITUM;
+	max[0] = max[1] = max[2] = -idMath::INFINITUM;
 #define OPER(X) const idVec3 &v = src[indexes[(X)]].xyz; if ( v[0] < min[0] ) { min[0] = v[0]; } if ( v[0] > max[0] ) { max[0] = v[0]; } if ( v[1] < min[1] ) { min[1] = v[1]; } if ( v[1] > max[1] ) { max[1] = v[1]; } if ( v[2] < min[2] ) { min[2] = v[2]; } if ( v[2] > max[2] ) { max[2] = v[2]; }
 	UNROLL1( OPER )
 #undef OPER

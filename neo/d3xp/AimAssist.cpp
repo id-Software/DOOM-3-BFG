@@ -155,7 +155,7 @@ idEntity* idAimAssist::FindAimAssistTarget( idVec3& targetPos )
 	//TO DO: Make this faster
 	//TO DO: Defer Traces
 	idEntity* 	optimalTarget = NULL;
-	float		currentBestScore = -idMath::INFINITY;
+	float		currentBestScore = -idMath::INFINITUM;
 	targetPos = vec3_zero;
 
 	idVec3 cameraPos;

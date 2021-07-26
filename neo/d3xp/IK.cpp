@@ -684,7 +684,7 @@ void idIK_Walk::Evaluate()
 	animator->CreateFrame( gameLocal.time, false );
 
 	// get the joint positions for the feet
-	lowestHeight = idMath::INFINITY;
+	lowestHeight = idMath::INFINITUM;
 	for( i = 0; i < numLegs; i++ )
 	{
 		animator->GetJointTransform( footJoints[i], gameLocal.time, footOrigin, axis );
@@ -758,8 +758,8 @@ void idIK_Walk::Evaluate()
 	}
 
 	// adjust heights of the ankles
-	smallestShift = idMath::INFINITY;
-	largestAnkleHeight = -idMath::INFINITY;
+	smallestShift = idMath::INFINITUM;
+	largestAnkleHeight = -idMath::INFINITUM;
 	for( i = 0; i < numLegs; i++ )
 	{
 

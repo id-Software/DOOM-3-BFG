@@ -529,8 +529,8 @@ void idWinding2D::GetBounds( idVec2 bounds[2] ) const
 
 	if( !numPoints )
 	{
-		bounds[0].x = bounds[0].y = idMath::INFINITY;
-		bounds[1].x = bounds[1].y = -idMath::INFINITY;
+		bounds[0].x = bounds[0].y = idMath::INFINITUM;
+		bounds[1].x = bounds[1].y = -idMath::INFINITUM;
 		return;
 	}
 	bounds[0] = bounds[1] = p[0];
@@ -632,7 +632,7 @@ float idWinding2D::PlaneDistance( const idVec3& plane ) const
 	int		i;
 	float	d, min, max;
 
-	min = idMath::INFINITY;
+	min = idMath::INFINITUM;
 	max = -min;
 	for( i = 0; i < numPoints; i++ )
 	{

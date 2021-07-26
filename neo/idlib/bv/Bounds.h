@@ -225,8 +225,8 @@ ID_INLINE bool idBounds::operator!=( const idBounds& a ) const
 
 ID_INLINE void idBounds::Clear()
 {
-	b[0][0] = b[0][1] = b[0][2] = idMath::INFINITY;
-	b[1][0] = b[1][1] = b[1][2] = -idMath::INFINITY;
+	b[0][0] = b[0][1] = b[0][2] = idMath::INFINITUM;
+	b[1][0] = b[1][1] = b[1][2] = -idMath::INFINITUM;
 }
 
 ID_INLINE void idBounds::Zero()

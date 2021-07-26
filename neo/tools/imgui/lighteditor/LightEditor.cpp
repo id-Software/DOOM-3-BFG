@@ -368,9 +368,9 @@ void LightEditor::Init( const idDict* dict, idEntity* light )
 void LightEditor::Reset()
 {
 	title = "Light Editor: no Light selected!";
-	entityPos.x = idMath::INFINITY;
-	entityPos.y = idMath::INFINITY;
-	entityPos.z = idMath::INFINITY;
+	entityPos.x = idMath::INFINITUM;
+	entityPos.y = idMath::INFINITUM;
+	entityPos.z = idMath::INFINITUM;
 
 	original.Defaults();
 	cur.Defaults();
@@ -554,7 +554,7 @@ void LightEditor::SaveChanges()
 	{
 		gameEdit->MapCopyDictToEntity( entityName, &d );
 	}
-	else if( entityPos.x != idMath::INFINITY )
+	else if( entityPos.x != idMath::INFINITUM )
 	{
 		entityName = gameEdit->GetUniqueEntityName( "light" );
 		d.Set( "name", entityName );

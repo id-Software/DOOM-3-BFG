@@ -48,7 +48,7 @@ If you have questions concerning this license or the applicable additional terms
 //lint -e550
 
 #define RENDER_MATRIX_INVERSE_EPSILON		1e-16f	// JDC: changed from 1e-14f to allow full wasteland parallel light projections to invert
-#define RENDER_MATRIX_INFINITY				1e30f	// NOTE: cannot initiaize a vec_float4 with idMath::INFINITY on the SPU
+#define RENDER_MATRIX_INFINITY				1e30f	// NOTE: cannot initiaize a vec_float4 with idMath::INFINITUM on the SPU
 #define RENDER_MATRIX_PROJECTION_EPSILON	0.1f
 
 //#define CLIP_SPACE_OGL		// the OpenGL clip space Z is in the range [-1, 1]

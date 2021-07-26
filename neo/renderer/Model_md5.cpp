@@ -35,8 +35,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "Model_local.h"
 
 #if defined(USE_INTRINSICS_SSE)
-static const __m128 vector_float_posInfinity		= { idMath::INFINITY, idMath::INFINITY, idMath::INFINITY, idMath::INFINITY };
-static const __m128 vector_float_negInfinity		= { -idMath::INFINITY, -idMath::INFINITY, -idMath::INFINITY, -idMath::INFINITY };
+static const __m128 vector_float_posInfinity		= { idMath::INFINITUM, idMath::INFINITUM, idMath::INFINITUM, idMath::INFINITUM };
+static const __m128 vector_float_negInfinity		= { -idMath::INFINITUM, -idMath::INFINITUM, -idMath::INFINITUM, -idMath::INFINITUM };
 #endif
 
 static const char* MD5_SnapshotName = "_MD5_Snapshot_";
