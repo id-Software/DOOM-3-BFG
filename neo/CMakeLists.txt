@@ -392,7 +392,7 @@ if(USE_VULKAN)
 		set(GLSLANG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/extern/glslang)
 		add_subdirectory(${GLSLANG_DIR})
 	
-		include_directories(${GLSLANG_DIR}/glslang)
+		include_directories(${GLSLANG_DIR})
 		
 		#link_directories($ENV{VULKAN_SDK}/Lib)
 	endif()
