@@ -452,7 +452,7 @@ int BinkDecoder::ReadDCs(BinkCommon::BitReader &bits, Bundle *b, int start_bits,
                 v += v2;
                 *dst++ = v;
                 if (v < -32768 || v > 32767) {
-					BinkCommon::LogError("DC value went out of bounds" + v);
+					BinkCommon::LogError("DC value went out of bounds: " + std::to_string(v));
                     return -1;
                 }
             }
