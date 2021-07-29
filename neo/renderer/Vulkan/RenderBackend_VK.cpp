@@ -435,7 +435,7 @@ CreateSurface
 
 static void CreateSurface()
 {
-#ifdef _WIN32
+#if defined(VK_USE_PLATFORM_WIN32_KHR) // _WIN32
 	VkWin32SurfaceCreateInfoKHR createInfo = {};
 	createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
 	createInfo.hinstance = win32.hInstance;
@@ -459,7 +459,7 @@ static void CreateSurface()
 	{
 		idLib::FatalError( "Error while creating Vulkan surface: %s", SDL_GetError() );
 	}
-#else
+#else // defined(VK_USE_PLATFORM_XCB_KHR)
 	VkXcbSurfaceCreateInfoKHR createInfo = {};
 	createInfo.sType = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;
 	createInfo.pNext = NULL;
@@ -468,7 +468,7 @@ static void CreateSurface()
 	createInfo.window = info.window;
 
 	ID_VK_CHECK( vkCreateXcbSurfaceKHR( vkcontext.instance, &createInfo, NULL, &vkcontext.surface ) );
-#endif // __linux__
+#endif  // UNIX-style platforms
 
 #endif  // _WIN32
 

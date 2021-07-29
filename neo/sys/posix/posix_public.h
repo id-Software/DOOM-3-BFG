@@ -31,7 +31,8 @@ If you have questions concerning this license or the applicable additional terms
 
 #include <signal.h>
 
-#ifdef USE_VULKAN
+// SRS - Not used on Linux/macOS since using SDL2
+#if defined(USE_VULKAN) && defined(VK_USE_PLATFORM_XCB_KHR)
 	#include <xcb/xcb.h>
 #endif
 
@@ -74,8 +75,8 @@ enum /*clk_id_t*/ clockid_t { CLOCK_REALTIME, CLOCK_MONOTONIC, CLOCK_MONOTONIC_R
 int clock_gettime( /*clk_id_t*/ clockid_t clock, struct timespec* tp );     // SRS - use APPLE clockid_t
 #endif
 
-// Eric: Not used on Linux since using SDL2
-#if 0 //defined(USE_VULKAN)
+// Eric: Not used on Linux/macOS since using SDL2
+#if defined(USE_VULKAN) && defined(VK_USE_PLATFORM_XCB_KHR)
 /* Struct that holds global xcb state for vulkan */
 typedef struct _posixInfo
 {
