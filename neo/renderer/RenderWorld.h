@@ -313,6 +313,12 @@ typedef enum
 	PS_BLOCK_ALL = ( 1 << NUM_PORTAL_ATTRIBUTES ) - 1
 } portalConnection_t;
 
+// Admer: Suppress Windows API DrawText, so IntelliSense can properly highlight idRenderWorld::DrawText
+#ifdef _WIN32
+	#ifdef DrawText
+		#undef DrawText
+	#endif
+#endif
 
 class idRenderWorld
 {
