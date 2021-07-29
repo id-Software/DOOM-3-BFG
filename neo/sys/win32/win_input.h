@@ -25,8 +25,8 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
-#pragma hdrstop
 #include "precompiled.h"
+#pragma hdrstop
 
 #ifdef _MSC_VER // DG: dx SDK's xinput.h is incompatible with MinGW..
 	#include <Xinput.h>

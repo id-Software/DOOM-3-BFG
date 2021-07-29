@@ -9,8 +9,8 @@
  * This file is under MIT License, like the original code from ImGui.
  */
 
-#pragma hdrstop
 #include "precompiled.h"
+#pragma hdrstop
 
 #include "BFGimgui.h"
 #include "renderer/RenderCommon.h"

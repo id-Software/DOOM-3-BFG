@@ -36,8 +36,8 @@ Note that other POSIX systems may need some small changes, e.g. in Sys_InitNetwo
 ================================================================================================
 */
 
-#pragma hdrstop
 #include "precompiled.h"
+#pragma hdrstop
 
 #ifdef _WIN32
 

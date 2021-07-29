@@ -28,8 +28,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#pragma hdrstop
 #include "precompiled.h"
+#pragma hdrstop
 
 // SRS - Include SDL headers to enable vsync changes without restart for UNIX-like OSs
 #if defined(__linux__) || defined(__FreeBSD__) || defined(__APPLE__)

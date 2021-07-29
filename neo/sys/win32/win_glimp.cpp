@@ -41,8 +41,8 @@ If you have questions concerning this license or the applicable additional terms
 ** Note that the GLW_xxx functions are Windows specific GL-subsystem
 ** related functions that are relevant ONLY to win_glimp.c
 */
-#pragma hdrstop
 #include "precompiled.h"
+#pragma hdrstop
 
 #include "win_local.h"
 #include "rc/doom_resource.h"

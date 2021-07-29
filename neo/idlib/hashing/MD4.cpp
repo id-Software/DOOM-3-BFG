@@ -1,6 +1,6 @@
 
-#pragma hdrstop
 #include "precompiled.h"
+#pragma hdrstop
 
 /*
    RSA Data Security, Inc., MD4 message-digest algorithm. (RFC1320)

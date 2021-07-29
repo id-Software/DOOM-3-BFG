@@ -34,9 +34,8 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-#pragma hdrstop
 #include "precompiled.h"
-
+#pragma hdrstop
 
 #include "CollisionModel_local.h"
 
@@ -44,7 +43,6 @@ If you have questions concerning this license or the applicable additional terms
 #define CM_BINARYFILE_EXT	"bcm"
 #define CM_FILEID			"CM"
 #define CM_FILEVERSION		"1.00"
-
 
 /*
 ===============================================================================

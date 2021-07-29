@@ -25,8 +25,8 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
-#pragma hdrstop
 #include "precompiled.h"
+#pragma hdrstop
 #include "sys_lobby.h"
 
 idCVar net_snapshot_send_warntime( "net_snapshot_send_warntime", "500", CVAR_INTEGER, "Print warning messages if we take longer than this to send a client a snapshot." );
