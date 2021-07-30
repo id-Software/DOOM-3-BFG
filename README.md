@@ -502,8 +502,7 @@ Recommended in this case is `cmake-vs2017-64bit-windows10.bat`
 	
 		> sudo zypper install cmake libSDL2-devel openal-soft-devel
 
-	You don't need FFmpeg to be installed. You can turn it off by adding -DFFMPEG=OFF to the CMake options.
-	It is enabled by default because the bundled libbinkdec is slow during development if compiled for Debug mode.
+	You don't need FFmpeg to be installed. You can turn it off by adding -DFFMPEG=OFF and -DBINKDEC=ON to the CMake options. It is enabled by default because the bundled libbinkdec is slow during development if compiled for Debug mode.
 
 2. Generate the Makefiles using CMake:
 
@@ -523,6 +522,8 @@ Recommended in this case is `cmake-vs2017-64bit-windows10.bat`
 2.	You need the following dependencies in order to compile RBDoom3BFG with all features:
 
 		> brew install cmake sdl2 openal-soft ffmpeg
+		
+	You don't need FFmpeg to be installed. You can turn it off by adding -DFFMPEG=OFF and -DBINKDEC=ON to the CMake options. For debug builds FFmpeg is enabled by default because the bundled libbinkdec is slow during development if compiled for Debug mode.  For release and retail builds FFmpeg is disabled and libbinkdec is enabled by default.
 
 3. Generate the Makefiles using CMake:
 
