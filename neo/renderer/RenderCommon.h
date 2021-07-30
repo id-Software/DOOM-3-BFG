@@ -1287,8 +1287,8 @@ struct glimpParms_t
 };
 
 // Eric: If on Linux using Vulkan use the sdl_vkimp.cpp methods
-// SRS - Add OSX case
-#if ( defined(__linux__) || defined(__APPLE__) ) && defined(USE_VULKAN)
+// SRS - Generalized Vulkan SDL platform
+#if defined(VULKAN_USE_PLATFORM_SDL)
 #include <vector>
 
 #define CLAMP(x, lo, hi)    ((x) < (lo) ? (lo) : (x) > (hi) ? (hi) : (x))

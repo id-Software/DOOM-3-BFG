@@ -31,11 +31,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #include <signal.h>
 
-// SRS - Not used on Linux/macOS since using SDL2
-#if defined(USE_VULKAN) && defined(VK_USE_PLATFORM_XCB_KHR)
-	#include <xcb/xcb.h>
-#endif
-
 extern glconfig_t glConfig;
 
 void		Posix_QueEvent( sysEventType_t type, int value, int value2, int ptrLength, void* ptr );
@@ -73,22 +68,6 @@ double 		MeasureClockTicks();
 enum /*clk_id_t*/ clockid_t { CLOCK_REALTIME, CLOCK_MONOTONIC, CLOCK_MONOTONIC_RAW };
 #endif
 int clock_gettime( /*clk_id_t*/ clockid_t clock, struct timespec* tp );     // SRS - use APPLE clockid_t
-#endif
-
-// Eric: Not used on Linux/macOS since using SDL2
-#if defined(USE_VULKAN) && defined(VK_USE_PLATFORM_XCB_KHR)
-/* Struct that holds global xcb state for vulkan */
-typedef struct _posixInfo
-{
-	xcb_connection_t* connection;
-	xcb_window_t window;
-	xcb_screen_t* screen;
-	xcb_atom_t wmProtocols;
-	xcb_atom_t wmDeleteWin;
-} posixInfo;
-
-extern posixInfo info;
-
 #endif
 
 #endif

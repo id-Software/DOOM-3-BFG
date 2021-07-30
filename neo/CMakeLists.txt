@@ -424,17 +424,11 @@ if(USE_VULKAN)
 	
 	# Eric: For use with SDL2/Vulkan
 	if(UNIX)
+        # SRS - Currently only Linux and OSX are supported when using the Vulkan SDL platform
         if (${CMAKE_SYSTEM_NAME} MATCHES "Linux" OR ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-            # SRS - Do nothing here for Linux and OSX since SDL2 is used in place of platform-specific Vulkan
+            add_definitions(-DVULKAN_USE_PLATFORM_SDL)
         else()
-            find_package(X11_XCB)
-            if(X11_XCB_FOUND)
-                list(APPEND SUBSYSTEMS [X11])
-                include_directories(${X11_XCB_INCLUDE_DIR})
-                add_definitions(-DVK_USE_PLATFORM_XCB_KHR)
-            else()
-                message(FATAL_ERROR "Could not find XCB library!")
-            endif()
+            message(FATAL_ERROR "Unsupported OS for Vulkan SDL platform!")
         endif()
 	elseif(WIN32)
 		add_definitions(-DVK_USE_PLATFORM_WIN32_KHR)
