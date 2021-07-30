@@ -523,7 +523,7 @@ Recommended in this case is `cmake-vs2017-64bit-windows10.bat`
 
 		> brew install cmake sdl2 openal-soft ffmpeg
 		
-	You don't need FFmpeg to be installed. You can turn it off by adding -DFFMPEG=OFF and -DBINKDEC=ON to the CMake options. It is enabled by default because the bundled libbinkdec is slow during development if compiled for Debug mode.
+	You don't need FFmpeg to be installed. You can turn it off by adding -DFFMPEG=OFF and -DBINKDEC=ON to the CMake options. For debug builds FFmpeg is enabled by default because the bundled libbinkdec is slow during development if compiled for Debug mode.  For release and retail builds FFmpeg is disabled and libbinkdec is enabled by default.
 
 3. Generate the Makefiles using CMake:
 
