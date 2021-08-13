@@ -619,27 +619,24 @@ Anyway:
 	/your/path/to/Steam/steamapps/common/DOOM 3 BFG Edition/base/
 	or, if you used SteamCMD or GOG installer with Wine, in the path you used above.
 
-4. Copy your RBDoom3BFG executable and the FFmpeg DLLs (Windows only) to your own 
+4. Copy your RBDoom3BFG executable and the optional FFmpeg DLLs (if Windows FFmpeg enabled) to your own 
    Doom 3 BFG directory (/path/to/Doom3BFG). Your Doom 3 BFG directory now should look like:  
    
 	/path/to/Doom3BFG/
 	* RBDoom3BFG (or RBDoom3BFG.exe on Windows)
-	* avcodec-58.dll (Windows only)
-	* avdevice-58.dll (Windows only)
-	* avfilter-7.dll (Windows only)
-	* avformat-58.dll (Windows only)
-	* avutil-56.dll (Windows only)
-	* postproc-55.dll (Windows only)
-	* swresample-3.dll (Windows only)
-	* swscale-5.dll (Windows only)
+	* avcodec-58.dll (Windows FFmpeg only)
+	* avformat-58.dll (Windows FFmpeg only)
+	* avutil-56.dll (Windows FFmpeg only)
+	* swresample-3.dll (Windows FFmpeg only)
+	* swscale-5.dll (Windows FFmpeg only)
 	* base/
 		* classicmusic/
 		* _common.crc
 		* (etc)
 		 
-5. On macOS the RBDoom3BFG executable will also search for game data within the Contents/Resources/base directory as part of a macOS app bundle.  In addition, if you want the game to be standalone without dependencies on pre-installed dynamic libs, you can use macdylibbundler to bundle all external lib dependencies into the app bundle (see https://github.com/auriamg/macdylibbundler or simply install via "brew install dylibbundler").  For example, the following command will copy all external dynamic lib dependencies to the Contents/libs directory of the app bundle and adjust the rpaths within the RBDoom3BFG executable and copied libs.
+5. On macOS the RBDoom3BFG executable will also search for game data within an app bundle's relative path ../Resources/base and, as a last resort, within the absolute path /Applications/RBDoom-3-BFG.app/Contents/Resources/base.  In addition, if you want the game to be standalone without dependencies on pre-installed dynamic libs, you can use macdylibbundler to bundle all external dylib dependencies into the app bundle (see https://github.com/auriamg/macdylibbundler or simply install via "brew install dylibbundler").  For example, the following command will copy all external dynamic lib dependencies to the Contents/libs directory of the game's app bundle and adjust the rpaths within the RBDoom3BFG executable and copied dylibs.
 
-		> dylibbundler -od -b -x ./Doom3BFG.app/Contents/MacOS/RBDoom3BFG -d ./Doom3BFG.app/Contents/libs/
+		> dylibbundler -od -b -x ./RBDoom-3-BFG.app/Contents/MacOS/RBDoom3BFG -d ./RBDoom-3-BFG.app/Contents/libs/
 
 6. Run the game by executing the RBDoom3BFG executable.
 
