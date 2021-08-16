@@ -424,12 +424,8 @@ if(USE_VULKAN)
 	
 	# Eric: For use with SDL2/Vulkan
 	if(UNIX)
-        # SRS - Currently only Linux and OSX are supported when using the Vulkan SDL platform
-        if (${CMAKE_SYSTEM_NAME} MATCHES "Linux" OR ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-            add_definitions(-DVULKAN_USE_PLATFORM_SDL)
-        else()
-            message(FATAL_ERROR "Unsupported OS for Vulkan SDL platform!")
-        endif()
+        # SRS - For UNIX-like target OSs use the generic SDL Vulkan platform
+        add_definitions(-DVULKAN_USE_PLATFORM_SDL)
 	elseif(WIN32)
 		add_definitions(-DVK_USE_PLATFORM_WIN32_KHR)
 	endif()
