@@ -852,8 +852,8 @@ void Sys_GrabMouseCursor( bool grabIt )
 	{
 		flags = GRAB_SETSTATE;
 	}
-// SRS - Add OSX case
-#if ( defined(__linux__) || defined(__APPLE__) ) && defined(USE_VULKAN)
+// SRS - Generalized Vulkan SDL platform
+#if defined(VULKAN_USE_PLATFORM_SDL)
 	VKimp_GrabInput( flags );
 #else
 	GLimp_GrabInput( flags );

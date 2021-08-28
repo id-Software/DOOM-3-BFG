@@ -65,7 +65,7 @@ idCVar r_vkEnableValidationLayers( "r_vkEnableValidationLayers", "0", CVAR_BOOL 
 
 vulkanContext_t vkcontext;
 
-#if defined(_WIN32)
+#if defined(VK_USE_PLATFORM_WIN32_KHR)  //_WIN32
 static const int g_numInstanceExtensions = 2;
 static const char* g_instanceExtensions[ g_numInstanceExtensions ] =
 {
@@ -277,7 +277,7 @@ static void CreateVulkanInstance()
 	vkcontext.instanceExtensions.Clear();
 	vkcontext.deviceExtensions.Clear();
 	vkcontext.validationLayers.Clear();
-#if defined(_WIN32)
+#if defined(VK_USE_PLATFORM_WIN32_KHR)  //_WIN32
 	for( int i = 0; i < g_numInstanceExtensions; ++i )
 	{
 		vkcontext.instanceExtensions.Append( g_instanceExtensions[ i ] );
@@ -298,8 +298,8 @@ static void CreateVulkanInstance()
 
 		ValidateValidationLayers();
 	}
-	// SRS - Add OSX case
-#if defined(__linux__) || defined(__APPLE__)
+// SRS - Generalized Vulkan SDL platform
+#if defined(VULKAN_USE_PLATFORM_SDL)
 	auto extensions = get_required_extensions( sdlInstanceExtensions, enableLayers );
 	createInfo.enabledExtensionCount = static_cast<uint32_t>( extensions.size() );
 	createInfo.ppEnabledExtensionNames = extensions.data();
@@ -429,13 +429,14 @@ static void EnumeratePhysicalDevices()
 CreateSurface
 =============
 */
+// SRS - Is this #include still needed?
 #ifdef _WIN32
 	#include "../../sys/win32/win_local.h"
 #endif
 
 static void CreateSurface()
 {
-#ifdef _WIN32
+#if defined(VK_USE_PLATFORM_WIN32_KHR)  //_WIN32
 	VkWin32SurfaceCreateInfoKHR createInfo = {};
 	createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
 	createInfo.hinstance = win32.hInstance;
@@ -443,34 +444,13 @@ static void CreateSurface()
 
 	ID_VK_CHECK( vkCreateWin32SurfaceKHR( vkcontext.instance, &createInfo, NULL, &vkcontext.surface ) );
 
-#elif defined(VK_USE_PLATFORM_WAYLAND_KHR)
-	VkWaylandSurfaceCreateInfoKHR createInfo = {};
-	createInfo.sType = VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR;
-	createInfo.pNext = NULL;
-	createInfo.display = info.display;
-	createInfo.surface = info.window;
-
-	ID_VK_CHECK( vkCreateWaylandSurfaceKHR( info.inst, &createInfo, NULL, &info.surface ) );
-
-#else
-	// SRS - Add OSX case
-#if defined(__linux__) || defined(__APPLE__)
+// SRS - Generalized Vulkan SDL platform
+#elif defined(VULKAN_USE_PLATFORM_SDL)
 	if( !SDL_Vulkan_CreateSurface( vkcontext.sdlWindow, vkcontext.instance, &vkcontext.surface ) )
 	{
 		idLib::FatalError( "Error while creating Vulkan surface: %s", SDL_GetError() );
 	}
-#else
-	VkXcbSurfaceCreateInfoKHR createInfo = {};
-	createInfo.sType = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;
-	createInfo.pNext = NULL;
-	createInfo.flags = 0;
-	createInfo.connection = info.connection;
-	createInfo.window = info.window;
-
-	ID_VK_CHECK( vkCreateXcbSurfaceKHR( vkcontext.instance, &createInfo, NULL, &vkcontext.surface ) );
-#endif // __linux__
-
-#endif  // _WIN32
+#endif
 
 }
 
@@ -881,8 +861,8 @@ static VkExtent2D ChooseSurfaceExtent( VkSurfaceCapabilitiesKHR& caps )
 	int width = glConfig.nativeScreenWidth;
 	int height = glConfig.nativeScreenHeight;
 
-	// SRS - Add OSX case
-#if defined(__linux__) || defined(__APPLE__)
+// SRS - Generalized Vulkan SDL platform
+#if defined(VULKAN_USE_PLATFORM_SDL)
 	SDL_Vulkan_GetDrawableSize( vkcontext.sdlWindow, &width, &height );
 
 	width = idMath::ClampInt( caps.minImageExtent.width, caps.maxImageExtent.width, width );
@@ -1174,8 +1154,8 @@ static void CreateRenderTargets()
 	depthOptions.format = FMT_DEPTH;
 
 	// Eric: See if this fixes resizing
-	// SRS - Add OSX case
-#if defined(__linux__) || defined(__APPLE__)
+// SRS - Generalized Vulkan SDL platform
+#if defined(VULKAN_USE_PLATFORM_SDL)
 	gpuInfo_t& gpu = *vkcontext.gpu;
 	VkExtent2D extent = ChooseSurfaceExtent( gpu.surfaceCaps );
 
@@ -1502,8 +1482,8 @@ void idRenderBackend::Init()
 
 
 	// DG: make sure SDL has setup video so getting supported modes in R_SetNewMode() works
-	// SRS - Add OSX case
-#if defined(__linux__) || defined(__APPLE__)
+// SRS - Generalized Vulkan SDL platform
+#if defined(VULKAN_USE_PLATFORM_SDL)
 	VKimp_PreInit();
 #else
 	GLimp_PreInit();
@@ -1698,8 +1678,8 @@ void idRenderBackend::Shutdown()
 	ClearContext();
 
 	// destroy main window
-	// SRS - Add OSX case
-#if defined(__linux__) || defined(__APPLE__)
+// SRS - Generalized Vulkan SDL platform
+#if defined(VULKAN_USE_PLATFORM_SDL)
 	VKimp_Shutdown();
 #else
 	GLimp_Shutdown();

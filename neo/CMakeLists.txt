@@ -424,18 +424,8 @@ if(USE_VULKAN)
 	
 	# Eric: For use with SDL2/Vulkan
 	if(UNIX)
-		find_package(X11_XCB)
-		if(X11_XCB_FOUND)
-			add_definitions(-DHAVE_X11_XCB)
-			list(APPEND SUBSYSTEMS [X11])
-			# SRS - Added PKG_ preface to X11_XCB_INCLUDE_DIRS for OSX, not sure about UNIX
-			if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-				include_directories(${PKG_X11_XCB_INCLUDE_DIRS})
-			else()
-				include_directories(${X11_XCB_INCLUDE_DIRS})
-			endif()
-		endif()
-		add_definitions(-DVK_USE_PLATFORM_XLIB_KHR)
+        # SRS - For UNIX-like target OSs use the generic SDL Vulkan platform
+        add_definitions(-DVULKAN_USE_PLATFORM_SDL)
 	elseif(WIN32)
 		add_definitions(-DVK_USE_PLATFORM_WIN32_KHR)
 	endif()

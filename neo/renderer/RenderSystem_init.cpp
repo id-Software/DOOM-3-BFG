@@ -446,8 +446,8 @@ void R_SetNewMode( const bool fullInit )
 		if( fullInit )
 		{
 			// create the context as well as setting up the window
-// SRS - Add OSX case
-#if ( defined(__linux__) || defined(__APPLE__) ) && defined(USE_VULKAN)
+// SRS - Generalized Vulkan SDL platform
+#if defined(VULKAN_USE_PLATFORM_SDL)
 			if( VKimp_Init( parms ) )
 #else
 			if( GLimp_Init( parms ) )
@@ -464,8 +464,8 @@ void R_SetNewMode( const bool fullInit )
 		else
 		{
 			// just rebuild the window
-// SRS - Add OSX case
-#if ( defined(__linux__) || defined(__APPLE__) ) && defined(USE_VULKAN)
+// SRS - Generalized Vulkan SDL platform
+#if defined(VULKAN_USE_PLATFORM_SDL)
 			if( VKimp_SetScreenParms( parms ) )
 #else
 			if( GLimp_SetScreenParms( parms ) )
@@ -1448,8 +1448,8 @@ void R_SetColorMappings()
 		int inf = idMath::Ftoi( 0xffff * pow( j / 255.0f, invg ) + 0.5f );
 		tr.gammaTable[i] = idMath::ClampInt( 0, 0xFFFF, inf );
 	}
-// SRS - Add OSX case
-#if ( defined(__linux__) || defined(__APPLE__) ) && defined(USE_VULKAN)
+// SRS - Generalized Vulkan SDL platform
+#if defined(VULKAN_USE_PLATFORM_SDL)
 	VKimp_SetGamma( tr.gammaTable, tr.gammaTable, tr.gammaTable );
 #else
 	GLimp_SetGamma( tr.gammaTable, tr.gammaTable, tr.gammaTable );
