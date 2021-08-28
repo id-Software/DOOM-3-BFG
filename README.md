@@ -517,13 +517,15 @@ Recommended in this case is `cmake-vs2017-64bit-windows10.bat`
 ---
 # Compiling on macOS <a name="compile_macos"></a>
 
-1.	Download and install Homebrew (https://brew.sh)
+1.	Download and install Homebrew (https://brew.sh) for single architecture builds or MacPorts (https://www.macports.org/install.php) for universal architecture builds on macOS Big Sur or later.
 
 2.	You need the following dependencies in order to compile RBDoom3BFG with all features:
 
-		> brew install cmake sdl2 openal-soft ffmpeg
+		> brew install cmake sdl2 openal-soft ffmpeg (for single arch libraries only)
+		or
+		> sudo port install cmake libsdl2 +universal openal-soft +universal (for universal arch libraries)
 		
-	You don't need FFmpeg to be installed. You can turn it off by adding -DFFMPEG=OFF and -DBINKDEC=ON to the CMake options. For debug builds FFmpeg is enabled by default because the bundled libbinkdec is slow during development if compiled for Debug mode.  For release and retail builds FFmpeg is disabled and libbinkdec is enabled by default.
+	You don't need FFmpeg to be installed. You can turn it off by adding -DFFMPEG=OFF and -DBINKDEC=ON to the CMake options. For debug builds FFmpeg is enabled by default because the bundled libbinkdec is slow during development if compiled for Debug mode.  For release, retail and universal builds FFmpeg is disabled and libbinkdec is enabled by default.
 
 3. Generate the Makefiles using CMake:
 
@@ -536,6 +538,10 @@ Recommended in this case is `cmake-vs2017-64bit-windows10.bat`
 	
 		> cd neo/
 		> ./cmake-xcode-opengl-release.sh	
+		or
+		> ./cmake-xcode-opengl-universal.sh (universal build on macOS Big Sur / Xcode 12.2 or later)
+	
+	Depending on which package manager you install (Homebrew or MacPorts) you may need to change the openal-soft library and include paths specified in the cmake shell scripts.  For single architecture builds (debug, release, retail) the default openal-soft paths are set for Homebrew on x86, while for universal builds the default paths are set for MacPorts on x86 or Apple Silicon.  If you want to build using the single architecture shell scripts (debug, release, retail) on Apple Silicon, you will need to change the openal-soft paths from `/usr/local/...` to either `/opt/homebrew/...` (Homebrew) or `/opt/local/...` (MacPorts).
 	
 4. Compile RBDOOM-3-BFG targets:
 
@@ -544,7 +550,7 @@ Recommended in this case is `cmake-vs2017-64bit-windows10.bat`
 		> cd ../build
 		> make
 	
-	For Xcode builds double click on RBDOOM-3-BFG/xcode-opengl-release/RBDoom3BFG.xcodeproj and start the build. The generated Xcode project file is pre-configured with the correct targets and build settings.
+	For Xcode builds double click on RBDOOM-3-BFG/xcode-opengl-\<buildtype\>/RBDoom3BFG.xcodeproj and start the build. The generated Xcode project file is pre-configured with the correct targets and build settings.
 
 ---
 # Installation, Getting the Game Data, Running the Game <a name="installation"></a>
@@ -619,27 +625,30 @@ Anyway:
 	/your/path/to/Steam/steamapps/common/DOOM 3 BFG Edition/base/
 	or, if you used SteamCMD or GOG installer with Wine, in the path you used above.
 
-4. Copy your RBDoom3BFG executable and the FFmpeg DLLs (Windows only) to your own 
+4. Copy your RBDoom3BFG executable and the optional FFmpeg DLLs (if Windows FFmpeg enabled) to your own 
    Doom 3 BFG directory (/path/to/Doom3BFG). Your Doom 3 BFG directory now should look like:  
    
 	/path/to/Doom3BFG/
 	* RBDoom3BFG (or RBDoom3BFG.exe on Windows)
-	* avcodec-58.dll (Windows only)
-	* avdevice-58.dll (Windows only)
-	* avfilter-7.dll (Windows only)
-	* avformat-58.dll (Windows only)
-	* avutil-56.dll (Windows only)
-	* postproc-55.dll (Windows only)
-	* swresample-3.dll (Windows only)
-	* swscale-5.dll (Windows only)
+	* avcodec-58.dll (Windows FFmpeg only)
+	* avformat-58.dll (Windows FFmpeg only)
+	* avutil-56.dll (Windows FFmpeg only)
+	* swresample-3.dll (Windows FFmpeg only)
+	* swscale-5.dll (Windows FFmpeg only)
 	* base/
 		* classicmusic/
 		* _common.crc
 		* (etc)
 		 
-5. On macOS the RBDoom3BFG executable will also search for game data within the Contents/Resources/base directory as part of a macOS app bundle.  In addition, if you want the game to be standalone without dependencies on pre-installed dynamic libs, you can use macdylibbundler to bundle all external lib dependencies into the app bundle (see https://github.com/auriamg/macdylibbundler or simply install via "brew install dylibbundler").  For example, the following command will copy all external dynamic lib dependencies to the Contents/libs directory of the app bundle and adjust the rpaths within the RBDoom3BFG executable and copied libs.
+5. On macOS the RBDoom3BFG executable will also search for game data within an app bundle's relative path ../Resources/base and, as a last resort, within the absolute path /Applications/RBDoom-3-BFG.app/Contents/Resources/base.  In addition, if you want the game to be standalone without dependencies on pre-installed dynamic libs, you can use macdylibbundler to bundle all external dylib dependencies into the app bundle (see https://github.com/auriamg/macdylibbundler or simply install via "brew install dylibbundler" or "sudo port install dylibbundler").  For example, the following command will copy all external dynamic library dependencies to the Contents/libs directory of the game's app bundle and adjust the rpaths within the RBDoom3BFG executable and copied dylibs.
 
-		> dylibbundler -od -b -x ./Doom3BFG.app/Contents/MacOS/RBDoom3BFG -d ./Doom3BFG.app/Contents/libs/
+		> dylibbundler -od -b -x RBDoom-3-BFG.app/Contents/MacOS/RBDoom3BFG -d RBDoom-3-BFG.app/Contents/libs/
+
+	After running dylibbundler you must re-sign the modified executable and dylibs if planning to run on **Apple Silicon** machines.  The output of dylibbundler will indicate which dylibs (if any) require re-signing.  This code signing step is not needed for x86-based Macs.
+
+		> codesign -s - --force RBDoom-3-BFG.app/Contents/libs/lib<modified-by-dylibbundler>.dylib
+		...
+		> codesign -s - --force RBDoom-3-BFG.app/Contents/MacOS/RBDoom3BFG
 
 6. Run the game by executing the RBDoom3BFG executable.
 

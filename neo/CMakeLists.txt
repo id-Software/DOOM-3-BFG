@@ -68,11 +68,13 @@ option(USE_SYSTEM_RAPIDJSON
 
 set(CPU_TYPE "" CACHE STRING "When set, passes this string as CPU-ID which will be embedded into the binary.")
 
-if (CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)|(amd64)|(AMD64)")
+# SRS - Turn on optimization when cross-compiling from Apple arm64 to x86_64
+if (CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)|(amd64)|(AMD64)" OR CMAKE_OSX_ARCHITECTURES MATCHES "x86_64")
 	set(CPU_OPTIMIZATION "-mmmx -msse -msse2" CACHE STRING "Which CPU specific optimitations should be used beside the compiler's default?")
 endif()
 
-if(CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)|(amd64)|(AMD64)|(e2k)|(E2K)")
+# SRS - Turn off MMX/SSE intrinsics when cross-compiling from Apple x86_64 to arm64
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "(x86)|(X86)|(amd64)|(AMD64)|(e2k)|(E2K)" AND NOT CMAKE_OSX_ARCHITECTURES MATCHES "arm64")
 	option(USE_INTRINSICS_SSE "Compile using SSE intrinsics (e.g mmx, sse, msse2)" ON)
 else()
 	option(USE_INTRINSICS_SSE "Compile using SSE intrinsics (e.g mmx, sse, msse2)" OFF)
@@ -85,6 +87,12 @@ endif()
 if(UNIX)
 	set(OPENAL ON)
 	
+    # SRS - Disable precompiled headers when cross-compiling on OSX, e.g. when creating universal binaries
+    if((CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "x86_64" AND CMAKE_OSX_ARCHITECTURES MATCHES "arm64" ) OR
+       (CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "arm64"  AND CMAKE_OSX_ARCHITECTURES MATCHES "x86_64"))
+        set(USE_PRECOMPILED_HEADERS OFF)
+    endif()
+
 	if(USE_VULKAN)
 		SET(SDL2 ON)
 		
@@ -182,8 +190,8 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang")
 
 	# SRS - Make sure OSX can find system headers and add support for minimum OSX runtime version
 	if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-		# SRS - Also add -fasm-blocks otherwise Xcode complains
-		add_definitions(-fasm-blocks)
+		# SRS - Also add -fasm-blocks otherwise Xcode complains and -Qunused-arguments to silence MMX/SSE unused arg warnings when compiling for Apple arm64
+		add_definitions(-fasm-blocks -Qunused-arguments)
         if(CMAKE_OSX_SYSROOT)
             add_definitions(-isysroot "${CMAKE_OSX_SYSROOT}")
             message(STATUS "Using macOS sysroot: " ${CMAKE_OSX_SYSROOT})
@@ -1696,7 +1704,7 @@ else()
 			add_definitions(-DUSE_OPENAL)
    
             # SRS - Added support for OpenAL Soft headers on OSX (vs default macOS SDK headers)
-            if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND OPENAL_INCLUDE_DIR MATCHES "openal-soft")
+            if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND NOT OPENAL_INCLUDE_DIR MATCHES "SDKs/MacOSX.*\.sdk")
                 include_directories(${OPENAL_INCLUDE_DIR})
                 add_definitions(-DUSE_OPENAL_SOFT_INCLUDES)
             endif()
