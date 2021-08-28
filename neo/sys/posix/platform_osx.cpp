@@ -107,7 +107,7 @@ double Sys_ClockTicksPerSecond()
 	}
 
 	status = sysctlbyname( "hw.cpufrequency", &temp, &len, NULL, 0 );
-	ret = double(temp);
+	ret = double( temp );
 
 	if( status == -1 )
 	{
