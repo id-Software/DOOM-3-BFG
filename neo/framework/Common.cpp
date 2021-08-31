@@ -1540,15 +1540,18 @@ void idCommonLocal::Shutdown()
 	ImGuiHook::Destroy();
 
 	printf( "delete renderWorld;\n" );
-	delete renderWorld;
+    // SRS - Call FreeRenderWorld() vs. delete, otherwise worlds list not updated on shutdown
+    renderSystem->FreeRenderWorld( renderWorld );
 	renderWorld = NULL;
 
 	printf( "delete soundWorld;\n" );
-	delete soundWorld;
+    // SRS - Call FreeSoundWorld() vs. delete, otherwise soundWorlds list not updated and can segfault in soundSystem->Shutdown()
+    soundSystem->FreeSoundWorld( soundWorld );
 	soundWorld = NULL;
 
 	printf( "delete menuSoundWorld;\n" );
-	delete menuSoundWorld;
+    // SRS - Call FreeSoundWorld() vs. delete, otherwise soundWorlds list not updated and can segfault in soundSystem->Shutdown()
+    soundSystem->FreeSoundWorld( menuSoundWorld );
 	menuSoundWorld = NULL;
 
 	// shut down the session
