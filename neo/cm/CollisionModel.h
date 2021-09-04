@@ -118,8 +118,6 @@ public:
 	virtual bool			GetModelEdge( cmHandle_t model, int edgeNum, idVec3& start, idVec3& end ) const = 0;
 	// Gets a polygon of a model.
 	virtual bool			GetModelPolygon( cmHandle_t model, int polygonNum, idFixedWinding& winding ) const = 0;
-	// Gets the origin brush offset of a model.
-	virtual idVec3			GetModelOriginOffset( cmHandle_t model ) const = 0;
 
 	// Translates a trace model and reports the first collision if any.
 	virtual void			Translation( trace_t* results, const idVec3& start, const idVec3& end,

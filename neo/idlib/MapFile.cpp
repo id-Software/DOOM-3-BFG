@@ -795,6 +795,25 @@ unsigned int idMapBrush::GetGeometryCRC() const
 }
 
 /*
+===============
+idMapBrush::IsOriginBrush
+===============
+*/
+bool idMapBrush::IsOriginBrush() const
+{
+	for ( int i = 0; i < GetNumSides(); i++ )
+	{
+		const idMaterial* material = declManager->FindMaterial( sides[i]->GetMaterial() );
+		if ( material && material->GetContentFlags() & CONTENTS_ORIGIN )
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/*
 ================
 idMapEntity::Parse
 ================
@@ -933,6 +952,8 @@ idMapEntity* idMapEntity::Parse( idLexer& src, bool worldSpawn, float version )
 		}
 	}
 	while( 1 );
+
+	mapEnt->CalculateBrushOrigin();
 
 	return mapEnt;
 }
@@ -1284,6 +1305,47 @@ unsigned int idMapEntity::GetGeometryCRC() const
 	}
 
 	return crc;
+}
+
+/*
+===============
+idMapEntity::CalculateBrushOrigin
+===============
+*/
+void idMapEntity::CalculateBrushOrigin()
+{
+	// Collect the origin brushes
+	idList<idMapBrush*> originBrushes;
+	for ( int i = 0; i < primitives.Num(); i++ )
+	{
+		if ( primitives[i]->GetType() == idMapPrimitive::TYPE_BRUSH )
+		{
+			idMapBrush* brush = static_cast<idMapBrush*>( primitives[i] );
+			if ( brush->IsOriginBrush() )
+			{
+				originBrushes.Append( brush );
+			}
+		}
+	}
+
+	if ( !originBrushes.Num() )
+	{
+		return;
+	}
+
+	// Accumulate and average the origin brushes centres
+	for ( int i = 0; i < originBrushes.Num(); i++ )
+	{
+		MapPolygonMesh mesh;
+		idBounds bounds;
+
+		mesh.ConvertFromBrush( originBrushes[i], 0, 0 );
+		mesh.GetBounds( bounds );
+
+		originOffset += bounds.GetCenter();
+	}
+
+	originOffset /= static_cast<float>( originBrushes.Num() );
 }
 
 class idSort_CompareMapEntity : public idSort_Quick< idMapEntity*, idSort_CompareMapEntity >

@@ -618,7 +618,6 @@ cm_model_t* idCollisionModelManagerLocal::AllocModel()
 	model->isConvex = false;
 	model->maxVertices = 0;
 	model->numVertices = 0;
-	model->originOffset = vec3_origin;
 	model->vertices = NULL;
 	model->maxEdges = 0;
 	model->numEdges = 0;
@@ -3535,13 +3534,6 @@ cm_model_t* idCollisionModelManagerLocal::LoadBinaryModelFromFile( idFile* file,
 	file->ReadBig( model->numRemovedPolys );
 	file->ReadBig( model->numMergedPolys );
 
-	if ( model->contents & CONTENTS_ORIGIN )
-	{
-		file->ReadBig( model->originOffset.x );
-		file->ReadBig( model->originOffset.y );
-		file->ReadBig( model->originOffset.z );
-	}
-
 	model->maxVertices = model->numVertices;
 	model->vertices = ( cm_vertex_t* ) Mem_ClearedAlloc( model->maxVertices * sizeof( cm_vertex_t ), TAG_COLLISION );
 	for( int i = 0; i < model->numVertices; i++ )
@@ -3725,13 +3717,6 @@ void idCollisionModelManagerLocal::WriteBinaryModelToFile( cm_model_t* model, id
 	file->WriteBig( model->numSharpEdges );
 	file->WriteBig( model->numRemovedPolys );
 	file->WriteBig( model->numMergedPolys );
-	
-	if ( model->contents & CONTENTS_ORIGIN )
-	{
-		file->WriteBig( model->originOffset.x );
-		file->WriteBig( model->originOffset.y );
-		file->WriteBig( model->originOffset.z );
-	}
 
 	for( int i = 0; i < model->numVertices; i++ )
 	{
@@ -4049,8 +4034,6 @@ cm_model_t* idCollisionModelManagerLocal::CollisionModelForMapEntity( const idMa
 
 	model->name = name;
 	model->isConvex = false;
-
-	model->originOffset = mapEnt->originOffset;
 
 	// convert brushes
 	bool hasMeshes = false;
@@ -4556,22 +4539,6 @@ bool idCollisionModelManagerLocal::GetModelPolygon( cmHandle_t model, int polygo
 	}
 
 	return true;
-}
-
-/*
-===================
-idCollisionModelManagerLocal::GetModelOriginOffset
-===================
-*/
-idVec3 idCollisionModelManagerLocal::GetModelOriginOffset( cmHandle_t model ) const
-{
-	if ( model < 0 || model > MAX_SUBMODELS || model >= numModels || !models[model] )
-	{
-		common->Printf( "idCollisionModelManagerLocal::GetModelOriginOffset: invalid model handle\n" );
-		return vec3_origin;
-	}
-
-	return models[model]->originOffset;
 }
 
 /*

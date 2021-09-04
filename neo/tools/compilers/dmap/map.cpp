@@ -573,48 +573,10 @@ static bool	ProcessMapEntity( idMapEntity* mapEnt )
 		// RB end
 	}
 
-	// Admer begin
-	idVec3 originOffset = vec3_origin;
-
-	if ( dmapGlobals.num_entities > 1 )
-	{
-		float numOrigins = 0.0f;
-
-		// Find the average center of all origin brushes associated with this entity
-		primitive_t* uPrimitive = uEntity->primitives;
-		while ( nullptr != uPrimitive )
-		{
-			if ( nullptr != uPrimitive->brush )
-			{
-				if ( uPrimitive->brush->contents & CONTENTS_ORIGIN )
-				{
-					originOffset += uPrimitive->brush->bounds.GetCenter();
-					numOrigins += 1.0f;
-				}
-			}
-
-			uPrimitive = uPrimitive->next;
-		}
-
-		if ( numOrigins >= 1.0f )
-		{
-			originOffset /= numOrigins;
-		}
-
-		mapEnt->originOffset = originOffset;
-	}
-	// Admer end
-
 	// never put an origin on the world, even if the editor left one there
 	if( dmapGlobals.num_entities != 1 )
 	{
 		uEntity->mapEntity->epairs.GetVector( "origin", "", uEntity->origin );
-
-		// Admer: also write down the brush origin for map entities
-		if ( originOffset != vec3_origin )
-		{
-			mapEnt->epairs.SetVector( "borigin", originOffset );
-		}
 	}
 
 	return true;

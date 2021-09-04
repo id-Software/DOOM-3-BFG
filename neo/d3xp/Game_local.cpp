@@ -4090,6 +4090,9 @@ void idGameLocal::SpawnMapEntities()
 			// precache any media specified in the map entity
 			CacheDictionaryMedia( &args );
 
+			// Admer: brush origin offsets:
+			args.SetVector( BRUSH_ORIGIN_KEY, mapEnt->originOffset );
+
 			SpawnEntityDef( args );
 			num++;
 		}
