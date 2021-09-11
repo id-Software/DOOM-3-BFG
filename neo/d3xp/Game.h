@@ -48,7 +48,7 @@ struct gameReturn_t
 {
 
 	gameReturn_t() :
-        sessionCommand( "" ),       // SRS - Explicitly init sessionCommand otherwise can be optimized out and skipped with gcc or Apple clang
+		sessionCommand( "" ),       // SRS - Explicitly init sessionCommand otherwise can be optimized out and skipped with gcc or Apple clang
 		syncNextGameFrame( false ),
 		vibrationLow( 0 ),
 		vibrationHigh( 0 )
