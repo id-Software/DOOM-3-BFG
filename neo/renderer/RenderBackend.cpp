@@ -5909,7 +5909,7 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 		Tonemap( _viewDef );
 	}
 
-	if ( !r_skipBloom.GetBool() )
+	if( !r_skipBloom.GetBool() )
 	{
 		Bloom( _viewDef );
 	}

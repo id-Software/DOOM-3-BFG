@@ -3088,7 +3088,7 @@ void idCollisionModelManagerLocal::ConvertBrushSides( cm_model_t* model, const i
 	{
 		planes[i] = mapBrush->GetSide( i )->GetPlane();
 		planes[i].FixDegeneracies( DEGENERATE_DIST_EPSILON );
-		
+
 		// Admer: also offset em
 		idVec3 reverseOriginOffset = originOffset * -1.0f;
 		planes[i].TranslateSelf( reverseOriginOffset );

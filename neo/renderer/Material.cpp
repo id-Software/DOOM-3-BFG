@@ -2437,7 +2437,7 @@ void idMaterial::ParseMaterial( idLexer& src )
 			unsmoothedTangents = true;
 			continue;
 		}
-		else if ( !token.Icmp( "origin" ) )
+		else if( !token.Icmp( "origin" ) )
 		{
 			SetMaterialFlag( MF_ORIGIN );
 			contentFlags = CONTENTS_ORIGIN;

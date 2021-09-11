@@ -72,7 +72,7 @@ enum jobListParallelism_t
 
 // Admer: prevent Visual Studio from incorrectly highlighting AddJob, as the same is defined in winspool.h
 #ifdef AddJob
-#undef AddJob
+	#undef AddJob
 #endif
 
 /*

@@ -3,6 +3,11 @@ eclipse*
 neo/ipch
 *~
 *.gch
+*.dll
+*.exe
+*.7z
+*.zip
+imgui.ini
 
 Doom3BFG.exe
 base/_common.crc

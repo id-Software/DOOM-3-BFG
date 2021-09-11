@@ -801,10 +801,10 @@ idMapBrush::IsOriginBrush
 */
 bool idMapBrush::IsOriginBrush() const
 {
-	for ( int i = 0; i < GetNumSides(); i++ )
+	for( int i = 0; i < GetNumSides(); i++ )
 	{
 		const idMaterial* material = declManager->FindMaterial( sides[i]->GetMaterial() );
-		if ( material && material->GetContentFlags() & CONTENTS_ORIGIN )
+		if( material && material->GetContentFlags() & CONTENTS_ORIGIN )
 		{
 			return true;
 		}
@@ -1316,25 +1316,25 @@ void idMapEntity::CalculateBrushOrigin()
 {
 	// Collect the origin brushes
 	idList<idMapBrush*> originBrushes;
-	for ( int i = 0; i < primitives.Num(); i++ )
+	for( int i = 0; i < primitives.Num(); i++ )
 	{
-		if ( primitives[i]->GetType() == idMapPrimitive::TYPE_BRUSH )
+		if( primitives[i]->GetType() == idMapPrimitive::TYPE_BRUSH )
 		{
 			idMapBrush* brush = static_cast<idMapBrush*>( primitives[i] );
-			if ( brush->IsOriginBrush() )
+			if( brush->IsOriginBrush() )
 			{
 				originBrushes.Append( brush );
 			}
 		}
 	}
 
-	if ( !originBrushes.Num() )
+	if( !originBrushes.Num() )
 	{
 		return;
 	}
 
 	// Accumulate and average the origin brushes centres
-	for ( int i = 0; i < originBrushes.Num(); i++ )
+	for( int i = 0; i < originBrushes.Num(); i++ )
 	{
 		MapPolygonMesh mesh;
 		idBounds bounds;
