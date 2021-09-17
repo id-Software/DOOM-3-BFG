@@ -287,7 +287,7 @@ float idConsoleLocal::DrawFPS( float y )
 	const uint64 rendererGPUInteractionsTime = commonLocal.GetRendererGpuInteractionsMicroseconds();
 	const uint64 rendererGPUShaderPassesTime = commonLocal.GetRendererGpuShaderPassMicroseconds();
 	const uint64 rendererGPUPostProcessingTime = commonLocal.GetRendererGpuPostProcessingMicroseconds();
-	const int maxTime = 16 * 1000;
+	const int maxTime = 1000 / com_engineHz_latched * 1000;
 
 #if 1
 
@@ -406,7 +406,7 @@ float idConsoleLocal::DrawFPS( float y )
 		}
 		else
 		{
-			ImGui::TextColored( colorYellow, "Average FPS %i", fps );
+            ImGui::TextColored( fps < com_engineHz_latched ? colorRed : colorYellow, "Average FPS %i", fps );
 		}
 
 		ImGui::Spacing();

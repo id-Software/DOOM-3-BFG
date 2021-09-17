@@ -2270,8 +2270,8 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 		return;
 	}
 
-	renderLog.OpenMainBlock( MRB_AMBIENT_PASS );
-	renderLog.OpenBlock( "Render_AmbientPass", colorBlue );
+	renderLog.OpenMainBlock( fillGbuffer ? MRB_FILL_GEOMETRY_BUFFER : MRB_AMBIENT_PASS );
+	renderLog.OpenBlock( fillGbuffer ? "Fill_GeometryBuffer" : "Render_AmbientPass", colorBlue );
 
 	if( fillGbuffer )
 	{
@@ -5850,6 +5850,11 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 	DBG_RenderDebugTools( drawSurfs, numDrawSurfs );
 
 #if !defined(USE_VULKAN)
+    
+// SRS - For OSX OpenGL record the final portion of GPU time while no other elapsed time query is active (after final shader pass and before post processing)
+#if defined(__APPLE__)
+    renderLog.OpenMainBlock( MRB_GPU_TIME );
+#endif
 
 	// RB: convert back from HDR to LDR range
 	if( useHDR && !( _viewDef->renderView.rdflags & RDF_IRRADIANCE ) )
@@ -5913,6 +5918,11 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 	{
 		Bloom( _viewDef );
 	}
+
+#if defined(__APPLE__)
+    renderLog.CloseMainBlock();
+#endif
+
 #endif
 
 	renderLog.CloseBlock();
