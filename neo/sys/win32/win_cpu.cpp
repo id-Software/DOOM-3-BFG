@@ -102,7 +102,8 @@ Sys_ClockTicksPerSecond
 */
 double Sys_ClockTicksPerSecond() {
 	static double ticks = 0;
-#if 0
+// SRS - Make sure #ifdef is consistent with Sys_GetClockTicks() so same scale is used for ticks
+#if defined(_WIN64)
 
 	if ( !ticks ) {
 		LARGE_INTEGER li;

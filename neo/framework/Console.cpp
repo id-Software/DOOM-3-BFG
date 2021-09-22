@@ -287,7 +287,7 @@ float idConsoleLocal::DrawFPS( float y )
 	const uint64 rendererGPUInteractionsTime = commonLocal.GetRendererGpuInteractionsMicroseconds();
 	const uint64 rendererGPUShaderPassesTime = commonLocal.GetRendererGpuShaderPassMicroseconds();
 	const uint64 rendererGPUPostProcessingTime = commonLocal.GetRendererGpuPostProcessingMicroseconds();
-	const int maxTime = 1000 / com_engineHz_latched * 1000;
+	const int maxTime = int( 1000 / com_engineHz_latched ) * 1000;
 
 #if 1
 
@@ -366,7 +366,7 @@ float idConsoleLocal::DrawFPS( float y )
 
 		if( com_showFPS.GetInteger() > 2 )
 		{
-			ImGui::TextColored( colorLtGrey, "DYNAMIC: callback:%i md5:%i dfrmVerts:%i dfrmTris:%i tangTris:%i guis:%i",
+			ImGui::TextColored( colorLtGrey, "DYNAMIC: callback:%2i md5:%i dfrmVerts:%i dfrmTris:%i tangTris:%i guis:%i",
 								commonLocal.stats_frontend.c_entityDefCallbacks,
 								commonLocal.stats_frontend.c_generateMd5,
 								commonLocal.stats_frontend.c_deformedVerts,
@@ -378,16 +378,16 @@ float idConsoleLocal::DrawFPS( float y )
 			//ImGui::Text( "Cull: %i box in %i box out\n",
 			//					commonLocal.stats_frontend.c_box_cull_in, commonLocal.stats_frontend.c_box_cull_out );
 
-			ImGui::TextColored( colorLtGrey, "ADDMODEL: callback:%i createInteractions:%i createShadowVolumes:%i",
+			ImGui::TextColored( colorLtGrey, "ADDMODEL: callback:%2i createInteractions:%i createShadowVolumes:%i",
 								commonLocal.stats_frontend.c_entityDefCallbacks,
 								commonLocal.stats_frontend.c_createInteractions,
 								commonLocal.stats_frontend.c_createShadowVolumes );
 
-			ImGui::TextColored( colorLtGrey, "viewEntities:%i  shadowEntities:%i  viewLights:%i\n",	commonLocal.stats_frontend.c_visibleViewEntities,
+			ImGui::TextColored( colorLtGrey, "viewEntities:%2i  shadowEntities:%i  viewLights:%i\n",	commonLocal.stats_frontend.c_visibleViewEntities,
 								commonLocal.stats_frontend.c_shadowViewEntities,
 								commonLocal.stats_frontend.c_viewLights );
 
-			ImGui::TextColored( colorLtGrey, "UPDATES: entityUpdates:%i  entityRefs:%i  lightUpdates:%i  lightRefs:%i\n",
+			ImGui::TextColored( colorLtGrey, "UPDATES: entityUpdates:%2i  entityRefs:%2i  lightUpdates:%i  lightRefs:%i\n",
 								commonLocal.stats_frontend.c_entityUpdates, commonLocal.stats_frontend.c_entityReferences,
 								commonLocal.stats_frontend.c_lightUpdates, commonLocal.stats_frontend.c_lightReferences );
 		}
@@ -419,8 +419,8 @@ float idConsoleLocal::DrawFPS( float y )
 		ImGui::TextColored( rendererShadowsTime > maxTime ? colorRed : colorWhite,			"Shadows: %5llu us   Interactions: %5llu us", rendererShadowsTime, rendererGPUInteractionsTime );
 		ImGui::TextColored( rendererGPUShaderPassesTime > maxTime ? colorRed : colorWhite,	"                    ShaderPass:   %5llu us", rendererGPUShaderPassesTime );
 		ImGui::TextColored( rendererGPUPostProcessingTime > maxTime ? colorRed : colorWhite, "                    PostFX:       %5llu us", rendererGPUPostProcessingTime );
-		ImGui::TextColored( rendererGPUIdleTime > maxTime ? colorRed : colorWhite,			"                    Idle:         %5llu us", rendererGPUIdleTime );
 		ImGui::TextColored( rendererGPUTime > maxTime ? colorRed : colorWhite,				"                    Total:        %5llu us", rendererGPUTime );
+        ImGui::TextColored( rendererGPUIdleTime > maxTime ? colorRed : colorWhite,          "                    Idle:         %5llu us", rendererGPUIdleTime );
 
 		ImGui::End();
 	}
