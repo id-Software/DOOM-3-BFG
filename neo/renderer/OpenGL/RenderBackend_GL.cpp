@@ -350,7 +350,7 @@ static void R_CheckPortableExtensions()
 
 #if defined(__APPLE__)
 	// SRS - DSA not available in Apple OpenGL 4.1, but enable for OSX anyways since elapsed time query will be used to get timing info instead
-	glConfig.timerQueryAvailable = ( GLEW_ARB_timer_query != 0 || GLEW_EXT_timer_query != 0 ) && ( glConfig.vendor != VENDOR_INTEL || r_skipIntelWorkarounds.GetBool() ) && glConfig.driverType != GLDRV_OPENGL_MESA;
+	glConfig.timerQueryAvailable = ( GLEW_ARB_timer_query != 0 || GLEW_EXT_timer_query != 0 );
 #else
 	// GL_ARB_timer_query using the DSA interface
 	glConfig.timerQueryAvailable = ( GLEW_ARB_direct_state_access != 0 && GLEW_ARB_timer_query != 0 );
@@ -1960,6 +1960,9 @@ void idRenderBackend::StereoRenderExecuteBackEndCommands( const emptyCommand_t* 
 	// off to a texture.
 	bool foundEye[2] = { false, false };
 
+	// SRS - Save glConfig.timerQueryAvailable state so it can be disabled for RC_DRAW_VIEW_GUI then restored after it is finished
+	const bool timerQueryAvailable = glConfig.timerQueryAvailable;
+
 	for( int stereoEye = 1; stereoEye >= -1; stereoEye -= 2 )
 	{
 		// set up the target texture we will draw to
@@ -1991,10 +1994,25 @@ void idRenderBackend::StereoRenderExecuteBackEndCommands( const emptyCommand_t* 
 					}
 
 					foundEye[ targetEye ] = true;
-					DrawView( dsc, stereoEye );
 					if( cmds->commandId == RC_DRAW_VIEW_GUI )
 					{
+						// SRS - Capture separate timestamps for GUI rendering
+						renderLog.OpenMainBlock( MRB_DRAW_GUI );
+						renderLog.OpenBlock( "Render_DrawViewGUI", colorBlue );
+						// SRS - Disable detailed timestamps during GUI rendering so they do not overwrite timestamps from 3D rendering
+						glConfig.timerQueryAvailable = false;
+
+                        DrawView( dsc, stereoEye );
+
+                        // SRS - Restore timestamp capture state after GUI rendering is finished
+						glConfig.timerQueryAvailable = timerQueryAvailable;
+						renderLog.CloseBlock();
+						renderLog.CloseMainBlock();
 					}
+                    else
+                    {
+                        DrawView( dsc, stereoEye );
+                    }
 				}
 				break;
 
@@ -2016,6 +2034,7 @@ void idRenderBackend::StereoRenderExecuteBackEndCommands( const emptyCommand_t* 
 					PostProcess( cmds );
 				}
 				break;
+
 				default:
 					common->Error( "RB_ExecuteBackEndCommands: bad commandId" );
 					break;

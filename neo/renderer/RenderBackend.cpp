@@ -5561,6 +5561,9 @@ void idRenderBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
 
 	// needed for editor rendering
 	GL_SetDefaultState();
+    
+    // SRS - Save glConfig.timerQueryAvailable state so it can be disabled for RC_DRAW_VIEW_GUI then restored after it is finished
+    const bool timerQueryAvailable = glConfig.timerQueryAvailable;
 
 	for( ; cmds != NULL; cmds = ( const emptyCommand_t* )cmds->next )
 	{
@@ -5569,19 +5572,27 @@ void idRenderBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
 			case RC_NOP:
 				break;
 
-			case RC_DRAW_VIEW_3D:
 			case RC_DRAW_VIEW_GUI:
+                // SRS - Capture separate timestamps for GUI rendering
+                renderLog.OpenMainBlock( MRB_DRAW_GUI );
+                renderLog.OpenBlock( "Render_DrawViewGUI", colorBlue );
+                // SRS - Disable detailed timestamps during GUI rendering so they do not overwrite timestamps from 3D rendering
+                glConfig.timerQueryAvailable = false;
+                
 				DrawView( cmds, 0 );
-				if( ( ( const drawSurfsCommand_t* )cmds )->viewDef->viewEntitys )
-				{
-					c_draw3d++;
-				}
-				else
-				{
-					c_draw2d++;
-				}
+                c_draw2d++;
+
+                // SRS - Restore timestamp capture state after GUI rendering is finished
+                glConfig.timerQueryAvailable = timerQueryAvailable;
+                renderLog.CloseBlock();
+                renderLog.CloseMainBlock();
 				break;
 
+            case RC_DRAW_VIEW_3D:
+                DrawView( cmds, 0 );
+                c_draw3d++;
+                break;
+                
 			case RC_SET_BUFFER:
 				SetBuffer( cmds );
 				c_setBuffers++;

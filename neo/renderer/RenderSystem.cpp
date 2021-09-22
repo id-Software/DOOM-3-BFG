@@ -781,6 +781,13 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
             backend.pc.gpuMicroSec += gpuEndNanoseconds / 1000;
         }
         
+        if( glcontext.renderLogMainBlockTimeQueryIssued[ glcontext.frameParity ^ 1 ][ MRB_DRAW_GUI  * 2 + 1 ] > 0 )
+        {
+            glGetQueryObjectui64vEXT( glcontext.renderLogMainBlockTimeQueryIds[ glcontext.frameParity ^ 1 ][ MRB_DRAW_GUI * 2 + 1], GL_QUERY_RESULT, &gpuEndNanoseconds );
+            
+            backend.pc.gpuMicroSec += gpuEndNanoseconds / 1000;
+        }
+        
 		if( gpuMicroSec != NULL )
 		{
 			*gpuMicroSec = backend.pc.gpuMicroSec;
