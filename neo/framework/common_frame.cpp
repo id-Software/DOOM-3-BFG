@@ -872,6 +872,7 @@ void idCommonLocal::Frame()
 
 		// foresthale 2014-05-12: also check com_editors as many of them are not particularly thread-safe (editLights for example)
 		// SRS - if com_editors is active make sure com_smp != -1, otherwise skip and call SwapCommandBuffers_FinishRendering later
+        frameTiming.startRenderTime = Sys_Microseconds();
 		if( com_smp.GetInteger() == 0 || ( com_smp.GetInteger() > 0 && com_editors != 0 ) )
 		{
 			// in non-smp mode, run the commands we just generated, instead of
@@ -883,7 +884,6 @@ void idCommonLocal::Frame()
 		// Run the render back end, getting the GPU busy with new commands
 		// ASAP to minimize the pipeline bubble.
 		//----------------------------------------
-		frameTiming.startRenderTime = Sys_Microseconds();
 		renderSystem->RenderCommandBuffers( renderCommands );
 		if( com_sleepRender.GetInteger() > 0 )
 		{

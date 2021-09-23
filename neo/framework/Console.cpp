@@ -213,6 +213,8 @@ idConsoleLocal::DrawFPS
 #define FPS_FRAMES_HISTORY 90
 float idConsoleLocal::DrawFPS( float y )
 {
+    extern idCVar com_smp;
+    
 	static float previousTimes[FPS_FRAMES];
 	static float previousTimesNormalized[FPS_FRAMES_HISTORY];
 	static int index;
@@ -278,7 +280,8 @@ float idConsoleLocal::DrawFPS( float y )
 
 	const uint64 rendererBackEndTime = commonLocal.GetRendererBackEndMicroseconds();
 	const uint64 rendererShadowsTime = commonLocal.GetRendererShadowsMicroseconds();
-	const uint64 rendererGPUIdleTime = commonLocal.GetRendererIdleMicroseconds();
+    // SRS - GPU idle time calculation depends on whether game is operating in smp mode or not
+	const uint64 rendererGPUIdleTime = commonLocal.GetRendererIdleMicroseconds() - ( com_smp.GetInteger() > 0 && com_editors == 0 ? 0 : gameThreadTotalTime );
 	const uint64 rendererGPUTime = commonLocal.GetRendererGPUMicroseconds();
 	const uint64 rendererGPUEarlyZTime = commonLocal.GetRendererGpuEarlyZMicroseconds();
 	const uint64 rendererGPU_SSAOTime = commonLocal.GetRendererGpuSSAOMicroseconds();
@@ -288,6 +291,9 @@ float idConsoleLocal::DrawFPS( float y )
 	const uint64 rendererGPUShaderPassesTime = commonLocal.GetRendererGpuShaderPassMicroseconds();
 	const uint64 rendererGPUPostProcessingTime = commonLocal.GetRendererGpuPostProcessingMicroseconds();
 	const int maxTime = int( 1000 / com_engineHz_latched ) * 1000;
+    
+    //SRS - Total rendering time calculation depends on whether game is operating in smp mode or not
+    const uint64 rendererTotalTime = ( com_smp.GetInteger() > 0 && com_editors == 0 ? std::max( gameThreadTotalTime, rendererBackEndTime ) + rendererGPUTime : gameThreadTotalTime + rendererBackEndTime + rendererGPUTime );
 
 #if 1
 
@@ -419,7 +425,7 @@ float idConsoleLocal::DrawFPS( float y )
 		ImGui::TextColored( rendererShadowsTime > maxTime ? colorRed : colorWhite,			"Shadows: %5llu us   Interactions: %5llu us", rendererShadowsTime, rendererGPUInteractionsTime );
 		ImGui::TextColored( rendererGPUShaderPassesTime > maxTime ? colorRed : colorWhite,	"                    ShaderPass:   %5llu us", rendererGPUShaderPassesTime );
 		ImGui::TextColored( rendererGPUPostProcessingTime > maxTime ? colorRed : colorWhite, "                    PostFX:       %5llu us", rendererGPUPostProcessingTime );
-		ImGui::TextColored( rendererGPUTime > maxTime ? colorRed : colorWhite,				"                    Total:        %5llu us", rendererGPUTime );
+		ImGui::TextColored( rendererTotalTime > maxTime ? colorRed : colorWhite,		    "CPU+GPU: %5llu us   Total:        %5llu us", rendererTotalTime, rendererGPUTime );
         ImGui::TextColored( rendererGPUIdleTime > maxTime ? colorRed : colorWhite,          "                    Idle:         %5llu us", rendererGPUIdleTime );
 
 		ImGui::End();
