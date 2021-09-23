@@ -5564,6 +5564,7 @@ void idRenderBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
     
     // SRS - Save glConfig.timerQueryAvailable state so it can be disabled for RC_DRAW_VIEW_GUI then restored after it is finished
     const bool timerQueryAvailable = glConfig.timerQueryAvailable;
+    bool drawView3D_timestamps = false;
 
 	for( ; cmds != NULL; cmds = ( const emptyCommand_t* )cmds->next )
 	{
@@ -5573,22 +5574,30 @@ void idRenderBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
 				break;
 
 			case RC_DRAW_VIEW_GUI:
-                // SRS - Capture separate timestamps for GUI rendering
-                renderLog.OpenMainBlock( MRB_DRAW_GUI );
-                renderLog.OpenBlock( "Render_DrawViewGUI", colorBlue );
-                // SRS - Disable detailed timestamps during GUI rendering so they do not overwrite timestamps from 3D rendering
-                glConfig.timerQueryAvailable = false;
+                if( drawView3D_timestamps )
+                {
+                    // SRS - Capture separate timestamps for overlay GUI rendering when RC_DRAW_VIEW_3D timestamps are active
+                    renderLog.OpenMainBlock( MRB_DRAW_GUI );
+                    renderLog.OpenBlock( "Render_DrawViewGUI", colorBlue );
+                    // SRS - Disable detailed timestamps during overlay GUI rendering so they do not overwrite timestamps from 3D rendering
+                    glConfig.timerQueryAvailable = false;
                 
-				DrawView( cmds, 0 );
-                c_draw2d++;
+                    DrawView( cmds, 0 );
 
-                // SRS - Restore timestamp capture state after GUI rendering is finished
-                glConfig.timerQueryAvailable = timerQueryAvailable;
-                renderLog.CloseBlock();
-                renderLog.CloseMainBlock();
+                    // SRS - Restore timestamp capture state after overlay GUI rendering is finished
+                    glConfig.timerQueryAvailable = timerQueryAvailable;
+                    renderLog.CloseBlock();
+                    renderLog.CloseMainBlock();
+                }
+                else
+                {
+                    DrawView( cmds, 0 );
+                }
+                c_draw2d++;
 				break;
 
             case RC_DRAW_VIEW_3D:
+                drawView3D_timestamps = true;
                 DrawView( cmds, 0 );
                 c_draw3d++;
                 break;

@@ -1962,6 +1962,7 @@ void idRenderBackend::StereoRenderExecuteBackEndCommands( const emptyCommand_t* 
 
 	// SRS - Save glConfig.timerQueryAvailable state so it can be disabled for RC_DRAW_VIEW_GUI then restored after it is finished
 	const bool timerQueryAvailable = glConfig.timerQueryAvailable;
+    bool drawView3D_timestamps = false;
 
 	for( int stereoEye = 1; stereoEye >= -1; stereoEye -= 2 )
 	{
@@ -1994,25 +1995,27 @@ void idRenderBackend::StereoRenderExecuteBackEndCommands( const emptyCommand_t* 
 					}
 
 					foundEye[ targetEye ] = true;
-					if( cmds->commandId == RC_DRAW_VIEW_GUI )
-					{
-						// SRS - Capture separate timestamps for GUI rendering
-						renderLog.OpenMainBlock( MRB_DRAW_GUI );
-						renderLog.OpenBlock( "Render_DrawViewGUI", colorBlue );
-						// SRS - Disable detailed timestamps during GUI rendering so they do not overwrite timestamps from 3D rendering
-						glConfig.timerQueryAvailable = false;
-
-                        DrawView( dsc, stereoEye );
-
-                        // SRS - Restore timestamp capture state after GUI rendering is finished
-						glConfig.timerQueryAvailable = timerQueryAvailable;
-						renderLog.CloseBlock();
-						renderLog.CloseMainBlock();
-					}
-                    else
+					if( cmds->commandId == RC_DRAW_VIEW_GUI && drawView3D_timestamps )
                     {
+                        // SRS - Capture separate timestamps for overlay GUI rendering when RC_DRAW_VIEW_3D timestamps are active
+                        renderLog.OpenMainBlock( MRB_DRAW_GUI );
+                        renderLog.OpenBlock( "Render_DrawViewGUI", colorBlue );
+                        // SRS - Disable detailed timestamps during overlay GUI rendering so they do not overwrite timestamps from 3D rendering
+                        glConfig.timerQueryAvailable = false;
+
                         DrawView( dsc, stereoEye );
+
+                        // SRS - Restore timestamp capture state after overlay GUI rendering is finished
+                        glConfig.timerQueryAvailable = timerQueryAvailable;
+                        renderLog.CloseBlock();
+                        renderLog.CloseMainBlock();
+                        break;
+					}
+                    else if( cmds->commandId == RC_DRAW_VIEW_3D )
+                    {
+                        drawView3D_timestamps = true;
                     }
+                    DrawView( dsc, stereoEye );
 				}
 				break;
 
