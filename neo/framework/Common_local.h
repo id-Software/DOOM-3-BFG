@@ -130,6 +130,7 @@ struct frameTiming_t
 	uint64	finishDrawTime;
 	uint64	startRenderTime;
 	uint64	finishRenderTime;
+    uint64  finishSyncTime_EndFrame;
 };
 
 #define	MAX_PRINT_MSG_SIZE	4096
