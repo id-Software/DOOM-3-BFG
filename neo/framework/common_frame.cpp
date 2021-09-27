@@ -897,9 +897,9 @@ void idCommonLocal::Frame()
 		{
 			// RB: this is the same as Doom 3 renderSystem->EndFrame()
 			renderSystem->SwapCommandBuffers_FinishRendering( &time_frontend, &time_backend, &time_shadows, &time_gpu, &stats_backend, &stats_frontend );
-            // SRS - Use finishSyncTime_EndFrame to record timing after sync for com_smp = -1, used in idConsoleLocal::DrawFPS() for calculating rendererSyncTime
-            frameTiming.finishSyncTime_EndFrame = Sys_Microseconds();
 		}
+        // SRS - Use finishSyncTime_EndFrame to record timing after sync for com_smp = -1, and just before gameThread.WaitForThread() for com_smp = 1
+        frameTiming.finishSyncTime_EndFrame = Sys_Microseconds();
 
 		// make sure the game / draw thread has completed
 		// This may block if the game is taking longer than the render back end

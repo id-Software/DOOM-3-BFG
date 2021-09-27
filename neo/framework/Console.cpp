@@ -290,14 +290,15 @@ float idConsoleLocal::DrawFPS( float y )
 	const uint64 rendererGPUInteractionsTime = commonLocal.GetRendererGpuInteractionsMicroseconds();
 	const uint64 rendererGPUShaderPassesTime = commonLocal.GetRendererGpuShaderPassMicroseconds();
 	const uint64 rendererGPUPostProcessingTime = commonLocal.GetRendererGpuPostProcessingMicroseconds();
-	const int maxTime = 1000 / com_engineHz_latched * 1000;
+	const int maxTime = int( 1000 / com_engineHz_latched ) * 1000;
     
+    // SRS - Calculate time waiting for GPU to sync at the start of a frame (com_smp = 1 or 0) and at the end of a frame (com_smp = -1)
+    const uint64 rendererSyncTime_StartFrame = commonLocal.mainFrameTiming.finishSyncTime - commonLocal.mainFrameTiming.startSyncTime;
+    const uint64 rendererSyncTime_EndFrame = commonLocal.mainFrameTiming.finishSyncTime_EndFrame - commonLocal.mainFrameTiming.startRenderTime;
+
     // SRS - Total CPU and Frame time calculations depend on whether game is operating in smp mode or not
     const uint64 totalCPUTime = ( com_smp.GetInteger() > 0 && com_editors == 0 ? std::max( gameThreadTotalTime, rendererBackEndTime ) : gameThreadTotalTime + rendererBackEndTime );
-    // SRS - Calculate rendererSyncTime depending on smp mode and use to determine whether a frame loss has occurred
-    const uint64 rendererSyncTime = ( com_smp.GetInteger() >= 0 ? commonLocal.mainFrameTiming.finishSyncTime - commonLocal.mainFrameTiming.startSyncTime : commonLocal.mainFrameTiming.finishSyncTime_EndFrame - commonLocal.mainFrameTiming.finishRenderTime );
-    const uint64 frameLossTime = ( rendererSyncTime < maxTime || rendererGPUTime > maxTime ? 0 : maxTime );
-    const uint64 totalFrameTime = totalCPUTime + rendererGPUTime + frameLossTime;
+    const uint64 totalFrameTime = ( com_smp.GetInteger() > 0 && com_editors == 0 ? std::max( gameThreadTotalTime, rendererSyncTime_EndFrame ) : gameThreadTotalTime + rendererSyncTime_EndFrame ) + rendererSyncTime_StartFrame;
 
 #if 1
 
