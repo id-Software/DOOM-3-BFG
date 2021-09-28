@@ -1498,7 +1498,7 @@ void idRenderBackend::Init()
 	idLib::Printf( "----- Initializing Vulkan driver -----\n" );
 
 	glConfig.driverType = GLDRV_VULKAN;
-    glConfig.timerQueryAvailable = true;    // SRS - Use glConfig.timerQueryAvailable flag to control Vulkan timestamp capture
+	glConfig.timerQueryAvailable = true;    // SRS - Use glConfig.timerQueryAvailable flag to control Vulkan timestamp capture
 	glConfig.gpuSkinningAvailable = true;
 
 	// create the Vulkan instance and enable validation layers

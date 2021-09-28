@@ -213,8 +213,8 @@ idConsoleLocal::DrawFPS
 #define FPS_FRAMES_HISTORY 90
 float idConsoleLocal::DrawFPS( float y )
 {
-    extern idCVar com_smp;
-    
+	extern idCVar com_smp;
+
 	static float previousTimes[FPS_FRAMES];
 	static float previousTimesNormalized[FPS_FRAMES_HISTORY];
 	static int index;
@@ -280,7 +280,7 @@ float idConsoleLocal::DrawFPS( float y )
 
 	const uint64 rendererBackEndTime = commonLocal.GetRendererBackEndMicroseconds();
 	const uint64 rendererShadowsTime = commonLocal.GetRendererShadowsMicroseconds();
-    // SRS - GPU idle time calculation depends on whether game is operating in smp mode or not
+	// SRS - GPU idle time calculation depends on whether game is operating in smp mode or not
 	const uint64 rendererGPUIdleTime = commonLocal.GetRendererIdleMicroseconds() - ( com_smp.GetInteger() > 0 && com_editors == 0 ? 0 : gameThreadTotalTime );
 	const uint64 rendererGPUTime = commonLocal.GetRendererGPUMicroseconds();
 	const uint64 rendererGPUEarlyZTime = commonLocal.GetRendererGpuEarlyZMicroseconds();
@@ -291,14 +291,14 @@ float idConsoleLocal::DrawFPS( float y )
 	const uint64 rendererGPUShaderPassesTime = commonLocal.GetRendererGpuShaderPassMicroseconds();
 	const uint64 rendererGPUPostProcessingTime = commonLocal.GetRendererGpuPostProcessingMicroseconds();
 	const int maxTime = int( 1000 / com_engineHz_latched ) * 1000;
-    
-    // SRS - Get GPU sync time at the start of a frame (com_smp = 1 or 0) and at the end of a frame (com_smp = -1)
-    const uint64 rendererStartFrameSyncTime = commonLocal.GetRendererStartFrameSyncMicroseconds();
-    const uint64 rendererEndFrameSyncTime = commonLocal.GetRendererEndFrameSyncMicroseconds();
 
-    // SRS - Total CPU and Frame time calculations depend on whether game is operating in smp mode or not
-    const uint64 totalCPUTime = ( com_smp.GetInteger() > 0 && com_editors == 0 ? std::max( gameThreadTotalTime, rendererBackEndTime ) : gameThreadTotalTime + rendererBackEndTime );
-    const uint64 totalFrameTime = ( com_smp.GetInteger() > 0 && com_editors == 0 ? std::max( gameThreadTotalTime, rendererEndFrameSyncTime ) : gameThreadTotalTime + rendererEndFrameSyncTime ) + rendererStartFrameSyncTime;
+	// SRS - Get GPU sync time at the start of a frame (com_smp = 1 or 0) and at the end of a frame (com_smp = -1)
+	const uint64 rendererStartFrameSyncTime = commonLocal.GetRendererStartFrameSyncMicroseconds();
+	const uint64 rendererEndFrameSyncTime = commonLocal.GetRendererEndFrameSyncMicroseconds();
+
+	// SRS - Total CPU and Frame time calculations depend on whether game is operating in smp mode or not
+	const uint64 totalCPUTime = ( com_smp.GetInteger() > 0 && com_editors == 0 ? std::max( gameThreadTotalTime, rendererBackEndTime ) : gameThreadTotalTime + rendererBackEndTime );
+	const uint64 totalFrameTime = ( com_smp.GetInteger() > 0 && com_editors == 0 ? std::max( gameThreadTotalTime, rendererEndFrameSyncTime ) : gameThreadTotalTime + rendererEndFrameSyncTime ) + rendererStartFrameSyncTime;
 
 #if 1
 
@@ -417,7 +417,7 @@ float idConsoleLocal::DrawFPS( float y )
 		}
 		else
 		{
-            ImGui::TextColored( fps < com_engineHz_latched ? colorRed : colorYellow, "Average FPS %i", fps );
+			ImGui::TextColored( fps < com_engineHz_latched ? colorRed : colorYellow, "Average FPS %i", fps );
 		}
 
 		ImGui::Spacing();
@@ -431,8 +431,8 @@ float idConsoleLocal::DrawFPS( float y )
 		ImGui::TextColored( rendererGPUShaderPassesTime > maxTime ? colorRed : colorWhite,	"                    ShaderPass:   %5llu us", rendererGPUShaderPassesTime );
 		ImGui::TextColored( rendererGPUPostProcessingTime > maxTime ? colorRed : colorWhite, "                    PostFX:       %5llu us", rendererGPUPostProcessingTime );
 		ImGui::TextColored( totalCPUTime > maxTime || rendererGPUTime > maxTime ? colorRed : colorWhite,
-                                                                                            "Total:   %5llu us   Total:        %5llu us", totalCPUTime, rendererGPUTime );
-        ImGui::TextColored( totalFrameTime > maxTime ? colorRed : colorWhite,               "Frame:   %5llu us   Idle:         %5llu us", totalFrameTime, rendererGPUIdleTime );
+							"Total:   %5llu us   Total:        %5llu us", totalCPUTime, rendererGPUTime );
+		ImGui::TextColored( totalFrameTime > maxTime ? colorRed : colorWhite,               "Frame:   %5llu us   Idle:         %5llu us", totalFrameTime, rendererGPUIdleTime );
 
 		ImGui::End();
 	}

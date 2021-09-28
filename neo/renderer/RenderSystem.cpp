@@ -749,45 +749,45 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 
 // SRS - For OSX OpenGL calculate total rendering time vs direct measurement due to missing GL_TIMESTAMP support in Apple OpenGL 4.1
 #if defined(__APPLE__)
-        // SRS - On OSX gpuMicroSec starts with only a portion of the GPU rendering time, must add additional components for more accurate estimate
+		// SRS - On OSX gpuMicroSec starts with only a portion of the GPU rendering time, must add additional components for more accurate estimate
 		backend.pc.gpuMicroSec += backend.pc.gpuDepthMicroSec + backend.pc.gpuScreenSpaceAmbientOcclusionMicroSec + backend.pc.gpuScreenSpaceReflectionsMicroSec + backend.pc.gpuAmbientPassMicroSec + backend.pc.gpuInteractionsMicroSec + backend.pc.gpuShaderPassMicroSec + backend.pc.gpuPostProcessingMicroSec;
 
-        // SRS - For OSX elapsed time queries, no need to perform unnecessary calls to glGetQueryObjectui64vEXT since gpuStartNanoseconds will always equal 0
-        if( glcontext.renderLogMainBlockTimeQueryIssued[ glcontext.frameParity ^ 1 ][ MRB_FILL_GEOMETRY_BUFFER  * 2 + 1 ] > 0 )
-        {
-            glGetQueryObjectui64vEXT( glcontext.renderLogMainBlockTimeQueryIds[ glcontext.frameParity ^ 1 ][ MRB_FILL_GEOMETRY_BUFFER * 2 + 1], GL_QUERY_RESULT, &gpuEndNanoseconds );
-            
-            backend.pc.gpuMicroSec += gpuEndNanoseconds / 1000;
-        }
+		// SRS - For OSX elapsed time queries, no need to perform unnecessary calls to glGetQueryObjectui64vEXT since gpuStartNanoseconds will always equal 0
+		if( glcontext.renderLogMainBlockTimeQueryIssued[ glcontext.frameParity ^ 1 ][ MRB_FILL_GEOMETRY_BUFFER  * 2 + 1 ] > 0 )
+		{
+			glGetQueryObjectui64vEXT( glcontext.renderLogMainBlockTimeQueryIds[ glcontext.frameParity ^ 1 ][ MRB_FILL_GEOMETRY_BUFFER * 2 + 1], GL_QUERY_RESULT, &gpuEndNanoseconds );
 
-        if( glcontext.renderLogMainBlockTimeQueryIssued[ glcontext.frameParity ^ 1 ][ MRB_FOG_ALL_LIGHTS  * 2 + 1 ] > 0 )
-        {
-            glGetQueryObjectui64vEXT( glcontext.renderLogMainBlockTimeQueryIds[ glcontext.frameParity ^ 1 ][ MRB_FOG_ALL_LIGHTS * 2 + 1], GL_QUERY_RESULT, &gpuEndNanoseconds );
+			backend.pc.gpuMicroSec += gpuEndNanoseconds / 1000;
+		}
 
-            backend.pc.gpuMicroSec += gpuEndNanoseconds / 1000;
-        }
+		if( glcontext.renderLogMainBlockTimeQueryIssued[ glcontext.frameParity ^ 1 ][ MRB_FOG_ALL_LIGHTS  * 2 + 1 ] > 0 )
+		{
+			glGetQueryObjectui64vEXT( glcontext.renderLogMainBlockTimeQueryIds[ glcontext.frameParity ^ 1 ][ MRB_FOG_ALL_LIGHTS * 2 + 1], GL_QUERY_RESULT, &gpuEndNanoseconds );
 
-        if( glcontext.renderLogMainBlockTimeQueryIssued[ glcontext.frameParity ^ 1 ][ MRB_DRAW_SHADER_PASSES_POST  * 2 + 1 ] > 0 )
-        {
-            glGetQueryObjectui64vEXT( glcontext.renderLogMainBlockTimeQueryIds[ glcontext.frameParity ^ 1 ][ MRB_DRAW_SHADER_PASSES_POST * 2 + 1], GL_QUERY_RESULT, &gpuEndNanoseconds );
+			backend.pc.gpuMicroSec += gpuEndNanoseconds / 1000;
+		}
 
-            backend.pc.gpuMicroSec += gpuEndNanoseconds / 1000;
-        }
-        
-        if( glcontext.renderLogMainBlockTimeQueryIssued[ glcontext.frameParity ^ 1 ][ MRB_DRAW_DEBUG_TOOLS  * 2 + 1 ] > 0 )
-        {
-            glGetQueryObjectui64vEXT( glcontext.renderLogMainBlockTimeQueryIds[ glcontext.frameParity ^ 1 ][ MRB_DRAW_DEBUG_TOOLS * 2 + 1], GL_QUERY_RESULT, &gpuEndNanoseconds );
+		if( glcontext.renderLogMainBlockTimeQueryIssued[ glcontext.frameParity ^ 1 ][ MRB_DRAW_SHADER_PASSES_POST  * 2 + 1 ] > 0 )
+		{
+			glGetQueryObjectui64vEXT( glcontext.renderLogMainBlockTimeQueryIds[ glcontext.frameParity ^ 1 ][ MRB_DRAW_SHADER_PASSES_POST * 2 + 1], GL_QUERY_RESULT, &gpuEndNanoseconds );
 
-            backend.pc.gpuMicroSec += gpuEndNanoseconds / 1000;
-        }
-        
-        if( glcontext.renderLogMainBlockTimeQueryIssued[ glcontext.frameParity ^ 1 ][ MRB_DRAW_GUI  * 2 + 1 ] > 0 )
-        {
-            glGetQueryObjectui64vEXT( glcontext.renderLogMainBlockTimeQueryIds[ glcontext.frameParity ^ 1 ][ MRB_DRAW_GUI * 2 + 1], GL_QUERY_RESULT, &gpuEndNanoseconds );
-            
-            backend.pc.gpuMicroSec += gpuEndNanoseconds / 1000;
-        }
-        
+			backend.pc.gpuMicroSec += gpuEndNanoseconds / 1000;
+		}
+
+		if( glcontext.renderLogMainBlockTimeQueryIssued[ glcontext.frameParity ^ 1 ][ MRB_DRAW_DEBUG_TOOLS  * 2 + 1 ] > 0 )
+		{
+			glGetQueryObjectui64vEXT( glcontext.renderLogMainBlockTimeQueryIds[ glcontext.frameParity ^ 1 ][ MRB_DRAW_DEBUG_TOOLS * 2 + 1], GL_QUERY_RESULT, &gpuEndNanoseconds );
+
+			backend.pc.gpuMicroSec += gpuEndNanoseconds / 1000;
+		}
+
+		if( glcontext.renderLogMainBlockTimeQueryIssued[ glcontext.frameParity ^ 1 ][ MRB_DRAW_GUI  * 2 + 1 ] > 0 )
+		{
+			glGetQueryObjectui64vEXT( glcontext.renderLogMainBlockTimeQueryIds[ glcontext.frameParity ^ 1 ][ MRB_DRAW_GUI * 2 + 1], GL_QUERY_RESULT, &gpuEndNanoseconds );
+
+			backend.pc.gpuMicroSec += gpuEndNanoseconds / 1000;
+		}
+
 		if( gpuMicroSec != NULL )
 		{
 			*gpuMicroSec = backend.pc.gpuMicroSec;
