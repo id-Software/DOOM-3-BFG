@@ -155,7 +155,7 @@ int idGameThread::Run()
 
 	commonLocal.frameTiming.finishGameTime = Sys_Microseconds();
 
-	SetThreadGameTime( commonLocal.frameTiming.finishGameTime - commonLocal.frameTiming.startGameTime );
+	SetThreadGameTime( ( commonLocal.frameTiming.finishGameTime - commonLocal.frameTiming.startGameTime ) / 1000 );
 
 	// build render commands and geometry
 	{
@@ -165,9 +165,9 @@ int idGameThread::Run()
 
 	commonLocal.frameTiming.finishDrawTime = Sys_Microseconds();
 
-	SetThreadRenderTime( commonLocal.frameTiming.finishDrawTime - commonLocal.frameTiming.finishGameTime );
+	SetThreadRenderTime( ( commonLocal.frameTiming.finishDrawTime - commonLocal.frameTiming.finishGameTime ) / 1000 );
 
-	SetThreadTotalTime( commonLocal.frameTiming.finishDrawTime - commonLocal.frameTiming.startGameTime );
+	SetThreadTotalTime( ( commonLocal.frameTiming.finishDrawTime - commonLocal.frameTiming.startGameTime ) / 1000 );
 
 	return 0;
 }

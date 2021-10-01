@@ -270,13 +270,14 @@ float idConsoleLocal::DrawFPS( float y )
 	}
 	// DG end
 
-	const uint64 gameThreadTotalTime = commonLocal.GetGameThreadTotalTime();
-	const uint64 gameThreadGameTime = commonLocal.GetGameThreadGameTime();
-	const uint64 gameThreadRenderTime = commonLocal.GetGameThreadRenderTime();
+	// SRS - Shouldn't use these getters since they access and return int-sized variables measured in milliseconds
+    //const uint64 gameThreadTotalTime = commonLocal.GetGameThreadTotalTime();
+	//const uint64 gameThreadGameTime = commonLocal.GetGameThreadGameTime();
+	//const uint64 gameThreadRenderTime = commonLocal.GetGameThreadRenderTime();
 
-	//const uint64 gameThreadTotalTime	= commonLocal.mainFrameTiming.finishDrawTime - commonLocal.mainFrameTiming.startGameTime;
-	//const uint64 gameThreadGameTime		= commonLocal.mainFrameTiming.finishGameTime - commonLocal.mainFrameTiming.startGameTime;
-	//const uint64 gameThreadRenderTime	= commonLocal.mainFrameTiming.finishDrawTime - commonLocal.mainFrameTiming.finishGameTime;
+	const uint64 gameThreadTotalTime	= commonLocal.mainFrameTiming.finishDrawTime - commonLocal.mainFrameTiming.startGameTime;
+	const uint64 gameThreadGameTime		= commonLocal.mainFrameTiming.finishGameTime - commonLocal.mainFrameTiming.startGameTime;
+	const uint64 gameThreadRenderTime	= commonLocal.mainFrameTiming.finishDrawTime - commonLocal.mainFrameTiming.finishGameTime;
 
 	const uint64 rendererBackEndTime = commonLocal.GetRendererBackEndMicroseconds();
 	const uint64 rendererShadowsTime = commonLocal.GetRendererShadowsMicroseconds();
