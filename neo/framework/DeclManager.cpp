@@ -2394,6 +2394,7 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 				evars.Append( ev );
 
 				dictToWrite.Set( "light", "300" );
+				//dictToWrite.Set( "model", "sprites/light.png" );
 			}
 
 			if( idStr::Icmp( decl->GetName(), "light" ) == 0 ||
@@ -2529,6 +2530,41 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 				// dynamic model case
 				file->Printf( "model({ \"path\" : model }) " );
 			}
+			else if( idStr::Icmp( decl->GetName(), "light" ) == 0 )
+			{
+				// default light sprite for TB editor sprites branch
+				file->Printf( "model({ \"path\": \"sprites/light-bulb.png\" }) " );
+			}
+			else if( idStr::Icmp( decl->GetName(), "speaker" ) == 0 )
+			{
+				file->Printf( "model({ \"path\": \"sprites/speaker.png\" }) " );
+			}
+			else if( idStr::Icmpn( decl->GetName(), "info_vacuum", 11 ) == 0 )
+			{
+				file->Printf( "model({ \"path\": \"sprites/air-conditioning.png\" }) " );
+			}
+			else if( idStr::Icmp( decl->GetName(), "target_null" ) == 0 )
+			{
+				file->Printf( "model({ \"path\": \"sprites/info_notnull.png\" }) " );
+			}
+			else if( idStr::Icmpn( decl->GetName(), "info_location", 13 ) == 0 )
+			{
+				file->Printf( "model({ \"path\": \"sprites/info_location.png\" }) " );
+			}
+			else if( idStr::Icmpn( decl->GetName(), "path_", 5 ) == 0 )
+			{
+				file->Printf( "model({ \"path\": \"sprites/waypoint.png\" }) " );
+			}
+			/*
+			else
+			{
+				const idKeyValue* kv = dictToWrite.FindKey( "spawnclass" );
+				if( kv && idStr::Icmp( kv->GetKey(), "idPathCorner" ) == 0 )
+				{
+					file->Printf( "model({ \"path\": \"sprites/waypoint.png\" }) " );
+				}
+			}
+			*/
 
 			file->Printf( "= %s : \"%s\"\n", decl->GetName(), text.c_str() );
 			file->Printf( "[\n" );

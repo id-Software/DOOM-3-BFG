@@ -271,7 +271,7 @@ float idConsoleLocal::DrawFPS( float y )
 	// DG end
 
 	// SRS - Shouldn't use these getters since they access and return int-sized variables measured in milliseconds
-    //const uint64 gameThreadTotalTime = commonLocal.GetGameThreadTotalTime();
+	//const uint64 gameThreadTotalTime = commonLocal.GetGameThreadTotalTime();
 	//const uint64 gameThreadGameTime = commonLocal.GetGameThreadGameTime();
 	//const uint64 gameThreadRenderTime = commonLocal.GetGameThreadRenderTime();
 
