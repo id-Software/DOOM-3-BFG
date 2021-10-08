@@ -2539,13 +2539,13 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 			{
 				file->Printf( "model({ \"path\": \"sprites/speaker.png\" }) " );
 			}
+			else if( idStr::Icmpn( decl->GetName(), "ai_", 3 ) == 0 )
+			{
+				file->Printf( "model({ \"path\": \"sprites/ai.png\" }) " );
+			}
 			else if( idStr::Icmpn( decl->GetName(), "info_vacuum", 11 ) == 0 )
 			{
 				file->Printf( "model({ \"path\": \"sprites/air-conditioning.png\" }) " );
-			}
-			else if( idStr::Icmp( decl->GetName(), "target_null" ) == 0 )
-			{
-				file->Printf( "model({ \"path\": \"sprites/info_notnull.png\" }) " );
 			}
 			else if( idStr::Icmpn( decl->GetName(), "info_location", 13 ) == 0 )
 			{
@@ -2555,16 +2555,22 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 			{
 				file->Printf( "model({ \"path\": \"sprites/waypoint.png\" }) " );
 			}
-			/*
-			else
+			else if( idStr::Icmp( decl->GetName(), "func_emitter" ) == 0 || idStr::Icmp( decl->GetName(), "func_fx" ) == 0 )
 			{
-				const idKeyValue* kv = dictToWrite.FindKey( "spawnclass" );
-				if( kv && idStr::Icmp( kv->GetKey(), "idPathCorner" ) == 0 )
-				{
-					file->Printf( "model({ \"path\": \"sprites/waypoint.png\" }) " );
-				}
+				file->Printf( "model({ \"path\": \"sprites/func_emitter.png\" }) " );
 			}
-			*/
+			else if( idStr::Icmp( decl->GetName(), "target_null" ) == 0 )
+			{
+				file->Printf( "model({ \"path\": \"sprites/info_notnull.png\" }) " );
+			}
+			else if( idStr::Icmpn( decl->GetName(), "target_", 7 ) == 0 )
+			{
+				file->Printf( "model({ \"path\": \"sprites/gamepad.png\" }) " );
+			}
+			else if( idStr::Icmp( decl->GetName(), "trigger_relay" ) == 0 )
+			{
+				file->Printf( "model({ \"path\": \"sprites/joystick.png\" }) " );
+			}
 
 			file->Printf( "= %s : \"%s\"\n", decl->GetName(), text.c_str() );
 			file->Printf( "[\n" );
