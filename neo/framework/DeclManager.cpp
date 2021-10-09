@@ -2394,7 +2394,6 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 				evars.Append( ev );
 
 				dictToWrite.Set( "light", "300" );
-				//dictToWrite.Set( "model", "sprites/light.png" );
 			}
 
 			if( idStr::Icmp( decl->GetName(), "light" ) == 0 ||

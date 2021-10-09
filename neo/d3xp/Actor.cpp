@@ -645,15 +645,21 @@ void idActor::Spawn()
 			}
 
 			jointName = kv->GetKey();
-			if( jointName.StripLeadingOnce( "copy_joint_world " ) )
+
+			// RB: TrenchBroom interop use copy_joint_world.<name> instead so we can build this up using the FGD files
+			if( jointName.StripLeadingOnce( "copy_joint_world " ) || jointName.StripLeadingOnce( "copy_joint_world." ) )
 			{
 				copyJoint.mod = JOINTMOD_WORLD_OVERRIDE;
 			}
 			else
 			{
-				jointName.StripLeadingOnce( "copy_joint " );
+				if( !jointName.StripLeadingOnce( "copy_joint " ) )
+				{
+					jointName.StripLeadingOnce( "copy_joint." );
+				}
 				copyJoint.mod = JOINTMOD_LOCAL_OVERRIDE;
 			}
+			// RB end
 
 			copyJoint.from = animator.GetJointHandle( jointName );
 			if( copyJoint.from == INVALID_JOINT )
@@ -2821,7 +2827,15 @@ void idActor::SetupDamageGroups()
 	while( arg )
 	{
 		groupname = arg->GetKey();
-		groupname.Strip( "damage_zone " );
+
+		// RB: TrenchBroom interop use damage_zone.<name> instead so we can build this up using the FGD files
+		//groupname.Strip( "damage_zone " );
+		if( !groupname.StripLeadingOnce( "damage_zone " ) )
+		{
+			groupname.StripLeadingOnce( "damage_zone." );
+		}
+		// RB end
+
 		animator.GetJointList( arg->GetValue(), jointList );
 		for( i = 0; i < jointList.Num(); i++ )
 		{
@@ -2845,7 +2859,15 @@ void idActor::SetupDamageGroups()
 	{
 		scale = atof( arg->GetValue() );
 		groupname = arg->GetKey();
-		groupname.Strip( "damage_scale " );
+
+		// RB: TrenchBroom interop use damage_scale.<name> instead so we can build this up using the FGD files
+		//groupname.Strip( "damage_scale " );
+		if( !groupname.StripLeadingOnce( "damage_scale " ) )
+		{
+			groupname.StripLeadingOnce( "damage_scale." );
+		}
+		// RB end
+
 		for( i = 0; i < damageScale.Num(); i++ )
 		{
 			if( damageGroups[ i ] == groupname )

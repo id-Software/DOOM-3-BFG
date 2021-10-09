@@ -373,7 +373,13 @@ void idCameraAnim::LoadAnim()
 	filename = spawnArgs.GetString( va( "anim %s", key ) );
 	if( !filename.Length() )
 	{
-		gameLocal.Error( "Missing 'anim %s' key on '%s'", key, name.c_str() );
+		// RB: TrenchBroom interop use anim.<name> instead so we can build this up using the FGD files
+		filename = spawnArgs.GetString( va( "anim.%s", key ) );
+		if( !filename.Length() )
+		{
+			gameLocal.Error( "Missing 'anim.%s' key on '%s'", key, name.c_str() );
+		}
+		// RB end
 	}
 
 	filename.SetFileExtension( MD5_CAMERA_EXT );
