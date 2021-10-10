@@ -782,8 +782,15 @@ void R_DeriveEnvprobeData( RenderEnvprobeLocal* probe )
 	// cull the envprobe if it is behind a closed door
 	int areaNum = probe->world->PointInArea( probe->parms.origin );
 
-	// HACK: this should be in the gamecode and set by the entity properties
-	probe->globalProbeBounds = probe->world->AreaBounds( areaNum );
+	if( areaNum != -1 )
+	{
+		// HACK: this should be in the gamecode and set by the entity properties
+		probe->globalProbeBounds = probe->world->AreaBounds( areaNum );
+	}
+	else
+	{
+		probe->globalProbeBounds.Clear();
+	}
 
 	idMat3 axis;
 	axis.Identity();

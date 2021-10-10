@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2014-2016 Robert Beckebans
+Copyright (C) 2014-2021 Robert Beckebans
 Copyright (C) 2014-2016 Kot in Action Creative Artel
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
@@ -1271,12 +1271,10 @@ void idGameLocal::PopulateEnvironmentProbes()
 
 	for( ent = spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next() )
 	{
-		if( !ent->IsType( EnvironmentProbe::Type ) )
+		if( ent->IsType( EnvironmentProbe::Type ) )
 		{
-			continue;
+			numEnvprobes++;
 		}
-
-		numEnvprobes++;
 	}
 
 	if( numEnvprobes > 0 )
@@ -1300,6 +1298,7 @@ void idGameLocal::PopulateEnvironmentProbes()
 		idBounds areaBounds = gameRenderWorld->AreaBounds( i );
 
 		idVec3 point = areaBounds.GetCenter();
+		point.SnapInt();
 
 		int areaNum = gameRenderWorld->PointInArea( point );
 		if( areaNum < 0 )
@@ -1313,7 +1312,7 @@ void idGameLocal::PopulateEnvironmentProbes()
 		args.Set( "origin", point.ToString() );
 
 		idStr name; //= gameEdit->GetUniqueEntityName( "env_probe_generated" );
-		name.Format( "env_probe_generated%i", i );
+		name.Format( "env_probe_generated_area_%i_pos_%i_%i_%i", i, int( point.x ), int( point.y ), int( point.z ) );
 		args.Set( "name", name );
 
 		gameLocal.SpawnEntityDef( args, &ent );

@@ -1383,6 +1383,7 @@ bool idMapFile::Parse( const char* filename, bool ignoreRegion, bool osPath )
 
 	name = filename;
 	name.StripFileExtension();
+	name.StripFileExtension(); // RB: there might be .map.map
 	fullName = name;
 	hasPrimitiveData = false;
 
@@ -1584,6 +1585,46 @@ bool idMapFile::Parse( const char* filename, bool ignoreRegion, bool osPath )
 				}
 			}
 		}
+	}
+
+	// RB: <name>_extraents.map allows to add and override existing entities
+	idMapFile extrasMap;
+	fullName = name;
+	//fullName.StripFileExtension();
+	fullName += "_extra_ents.map";
+
+	if( extrasMap.Parse( fullName, ignoreRegion, osPath ) )
+	{
+		for( i = 0; i < extrasMap.entities.Num(); i++ )
+		{
+			idMapEntity* extraEnt = extrasMap.entities[i];
+
+			const idKeyValue* kv = extraEnt->epairs.FindKey( "name" );
+			if( kv && kv->GetValue().Length() )
+			{
+				mapEnt = FindEntity( kv->GetValue().c_str() );
+				if( mapEnt )
+				{
+					// TODO override settings
+					continue;
+				}
+			}
+
+			{
+				mapEnt = new( TAG_SYSTEM ) idMapEntity();
+				entities.Append( mapEnt );
+
+				// don't grab brushes or polys
+				mapEnt->epairs.Copy( extraEnt->epairs );
+			}
+		}
+
+#if 0
+		fullName = name;
+		fullName += "_extra_debug.map";
+
+		Write( fullName, ".map" );
+#endif
 	}
 
 	hasPrimitiveData = true;
