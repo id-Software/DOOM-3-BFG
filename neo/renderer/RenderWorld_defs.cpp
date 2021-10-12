@@ -765,19 +765,6 @@ void R_DeriveEnvprobeData( RenderEnvprobeLocal* probe )
 
 	idStr fullname;
 
-	int probeIndex = probe->index;// ->world->envprobeDefs.Num() - 1;
-
-	// TODO get preconvolved cubemaps
-	fullname.Format( "env/%s/envprobe%i_amb", basename.c_str(), probeIndex );
-	probe->irradianceImage = globalImages->ImageFromFile( fullname, TF_LINEAR, TR_CLAMP, TD_R11G11B10F, CF_2D_PACKED_MIPCHAIN );
-
-	fullname.Format( "env/%s/envprobe%i_spec", basename.c_str(), probeIndex );
-	probe->radianceImage = globalImages->ImageFromFile( fullname, TF_DEFAULT, TR_CLAMP, TD_R11G11B10F, CF_2D_PACKED_MIPCHAIN );
-
-	// ------------------------------------
-	// compute the probe projection matrix
-	// ------------------------------------
-
 	// determine the areaNum for the envprobe origin, which may let us
 	// cull the envprobe if it is behind a closed door
 	int areaNum = probe->world->PointInArea( probe->parms.origin );
@@ -791,6 +778,28 @@ void R_DeriveEnvprobeData( RenderEnvprobeLocal* probe )
 	{
 		probe->globalProbeBounds.Clear();
 	}
+
+	// the probe index and entity name are bad indicators to cache the light data
+	// use the snapped world position instead
+	idVec3 point = probe->parms.origin;
+	point.SnapInt();
+
+	// load preconvolved cubemaps as mipmap chain packed octahedrons
+	fullname.Format( "env/%s/area%i_envprobe_%i_%i_%i_amb", basename.c_str(), areaNum, int( point.x ), int( point.y ), int( point.z ) );
+	fullname.ReplaceChar( '-', '_' );
+
+	probe->irradianceImage = globalImages->ImageFromFile( fullname, TF_LINEAR, TR_CLAMP, TD_R11G11B10F, CF_2D_PACKED_MIPCHAIN );
+
+	fullname.Format( "env/%s/area%i_envprobe_%i_%i_%i_spec", basename.c_str(), areaNum, int( point.x ), int( point.y ), int( point.z ) );
+	fullname.ReplaceChar( '-', '_' );
+
+	probe->radianceImage = globalImages->ImageFromFile( fullname, TF_DEFAULT, TR_CLAMP, TD_R11G11B10F, CF_2D_PACKED_MIPCHAIN );
+
+	// ------------------------------------
+	// compute the probe projection matrix
+	// ------------------------------------
+
+
 
 	idMat3 axis;
 	axis.Identity();

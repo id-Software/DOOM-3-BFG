@@ -988,6 +988,18 @@ CONSOLE_COMMAND( bakeEnvironmentProbes, "Bake environment probes", NULL )
 		totalProcessedProbes++;
 	}
 
+	idLib::Printf( "Deleting old probes...\n" );
+
+	fullname.Format( "env/%s", baseName.c_str() );
+
+	idFileList* files = fileSystem->ListFilesTree( fullname, "envprobe*.exr", true );
+	for( int i = 0; i < files->GetNumFiles(); i++ )
+	{
+		idLib::Printf( "deleting old envprobe data '%s'\n", files->GetFile( i ) );
+		fileSystem->RemoveFile( files->GetFile( i ) );
+	}
+	fileSystem->FreeFileList( files );
+
 	idLib::Printf( "Shooting %i environment probes...\n", totalProcessedProbes );
 
 	CommandlineProgressBar progressBar( totalProcessedProbes, sysWidth, sysHeight );
@@ -1069,7 +1081,12 @@ CONSOLE_COMMAND( bakeEnvironmentProbes, "Bake environment probes", NULL )
 		progressBar.Increment( true );
 		tr.takingEnvprobe = true;
 
-		fullname.Format( "%s/envprobe%i", baseName.c_str(), i );
+		int areaNum = tr.primaryWorld->PointInArea( def->parms.origin );
+		idVec3 point = def->parms.origin;
+		point.SnapInt();
+
+		fullname.Format( "%s/area%i_envprobe_%i_%i_%i", baseName.c_str(), areaNum, int( point.x ), int( point.y ), int( point.z ) );
+		fullname.ReplaceChar( '-', '_' );
 
 		// create 2 jobs
 		R_MakeAmbientMap( fullname.c_str(), buffers, "_amb", IRRADIANCE_OCTAHEDRON_SIZE, false, useThreads );
