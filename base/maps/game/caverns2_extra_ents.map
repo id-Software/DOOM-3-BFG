@@ -1,0 +1,314 @@
+Version 3
+// entity 0
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_0"
+"angle" "182.021484"
+"origin" "-2015 -1283 -1129"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 1
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_1"
+"angle" "176.215210"
+"origin" "-1855 -1276 -1129"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 2
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_2"
+"angle" "268.066406"
+"origin" "-1923 -1016 -1135"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 3
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_3"
+"angle" "267.956543"
+"origin" "-947 -734 -1132"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 4
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_4"
+"angle" "203.280029"
+"origin" "-1042 -284 -1238"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 5
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_5"
+"angle" "169.178467"
+"origin" "-699 27 -1381"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 6
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_6"
+"angle" "181.170044"
+"origin" "-561 -382 -1367"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 7
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_7"
+"angle" "179.077148"
+"origin" "-177 -382 -1456"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 8
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_8"
+"angle" "182.515869"
+"origin" "3084 1543 -1468"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 9
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_9"
+"angle" "21.368408"
+"origin" "3710 1861 -1480"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 10
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_10"
+"angle" "88.577271"
+"origin" "3400 860 -1383"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 11
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_11"
+"angle" "90.230713"
+"origin" "3384 537 -1376"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 12
+{
+"classname" "env_probe"
+"name" "env_probe_area_0_0"
+"origin" "3328 1368 -1408"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 13
+{
+"classname" "env_probe"
+"name" "env_probe_area_1_0"
+"origin" "3392 320 -2148"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 14
+{
+"classname" "env_probe"
+"name" "env_probe_area_2_0"
+"origin" "2704 1536 -1476"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 15
+{
+"classname" "env_probe"
+"name" "env_probe_area_3_0"
+"origin" "2392 1496 -1476"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 16
+{
+"classname" "env_probe"
+"name" "env_probe_area_4_0"
+"origin" "2368 594 -1380"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 17
+{
+"classname" "env_probe"
+"name" "env_probe_area_5_0"
+"origin" "2368 1120 -1540"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 18
+{
+"classname" "env_probe"
+"name" "env_probe_area_6_0"
+"origin" "2368 -32 -1540"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 19
+{
+"classname" "env_probe"
+"name" "env_probe_area_7_0"
+"origin" "2328 -344 -1476"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 20
+{
+"classname" "env_probe"
+"name" "env_probe_area_8_0"
+"origin" "2016 -416 -1524"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 21
+{
+"classname" "env_probe"
+"name" "env_probe_area_9_0"
+"origin" "1224 256 -1411"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 22
+{
+"classname" "env_probe"
+"name" "env_probe_area_10_0"
+"origin" "960 248 -1350"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 23
+{
+"classname" "env_probe"
+"name" "env_probe_area_11_0"
+"origin" "960 -32 -1412"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 24
+{
+"classname" "env_probe"
+"name" "env_probe_area_12_0"
+"origin" "1504 -384 -1568"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 25
+{
+"classname" "env_probe"
+"name" "env_probe_area_13_0"
+"origin" "960 -856 -1412"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 26
+{
+"classname" "env_probe"
+"name" "env_probe_area_14_0"
+"origin" "984 -368 -1508"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 27
+{
+"classname" "env_probe"
+"name" "env_probe_area_15_0"
+"origin" "704 256 -1414"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 28
+{
+"classname" "env_probe"
+"name" "env_probe_area_16_0"
+"origin" "424 216 -1352"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 29
+{
+"classname" "env_probe"
+"name" "env_probe_area_17_0"
+"origin" "432 23 -1314"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 30
+{
+"classname" "env_probe"
+"name" "env_probe_area_18_0"
+"origin" "376 -80 -1352"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 31
+{
+"classname" "env_probe"
+"name" "env_probe_area_19_0"
+"origin" "344 -400 -1352"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 32
+{
+"classname" "env_probe"
+"name" "env_probe_area_20_0"
+"origin" "384 -716 -1396"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 33
+{
+"classname" "env_probe"
+"name" "env_probe_area_21_0"
+"origin" "16 -384 -1356"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 34
+{
+"classname" "env_probe"
+"name" "env_probe_area_22_0"
+"origin" "-618 -420 -1184"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 35
+{
+"classname" "env_probe"
+"name" "env_probe_area_23_0"
+"origin" "-874 -1122 -1184"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 36
+{
+"classname" "env_probe"
+"name" "env_probe_area_24_0"
+"origin" "-695 -1310 -1183"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 37
+{
+"classname" "env_probe"
+"name" "env_probe_area_25_0"
+"origin" "-933 -1521 -1182"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 38
+{
+"classname" "env_probe"
+"name" "env_probe_area_26_0"
+"origin" "-1888 -768 -1120"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 39
+{
+"classname" "env_probe"
+"name" "env_probe_area_27_0"
+"origin" "-2004 -1256 -672"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 40
+{
+"classname" "env_probe"
+"name" "env_probe_area_28_0"
+"origin" "-1282 -1449 -1177"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 41
+{
+"classname" "env_probe"
+"name" "env_probe_area_29_0"
+"origin" "-1495 -1280 -1112"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 42
+{
+"classname" "env_probe"
+"name" "env_probe_area_31_0"
+"origin" "-2128 -1952 -1120"
+"spawnclass" "EnvironmentProbe"
+}

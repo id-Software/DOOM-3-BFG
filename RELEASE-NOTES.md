@@ -363,6 +363,20 @@ Using the models argument will also export all needed models by entity declarati
 
 * Changed CMake MSVC setup to enable debugging without manually changing paths (thanks to Patrick Raynor)
 
+* Allow _extra_ents.map files next to the original .map files so new entities can be added to existing maps or old entities can be tweaked with new values
+
+[ASSETS]
+
+* This release is the first time that contains changes to the base/ folder and is not a pure executable patch
+
+* base/materials/*.mtr contain the BFG material files with some minor fixes so TrenchBroom can load them
+
+* base/def/*.def are the BFG entity definition files so DarkRadiant is functional
+
+* base/maps/game/mars_city1_extra_ents.map contains a fog light fix in the first hangar scene
+
+* base/maps/game/*_extra_ents.map files contain additional env_probe entities and light entity tweaks
+
 
 
 _______________________________________

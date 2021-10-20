@@ -1,0 +1,545 @@
+Version 3
+// entity 0
+{
+"classname" "env_probe"
+"name" ""
+"angle" "285.095215"
+"origin" "1131 -1293 75"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 1
+{
+"classname" "env_probe"
+"name" ""
+"angle" "272.999268"
+"origin" "1297 -1645 49"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 2
+{
+"classname" "env_probe"
+"name" ""
+"angle" "1.433716"
+"origin" "831 -1598 121"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 3
+{
+"classname" "env_probe"
+"name" ""
+"angle" "3.191528"
+"origin" "281 -1346 166"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 4
+{
+"classname" "env_probe"
+"name" ""
+"angle" "356.704102"
+"origin" "517 -1733 11"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 5
+{
+"classname" "env_probe"
+"name" ""
+"angle" "272.691650"
+"origin" "-1794 -1235 209"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 6
+{
+"classname" "env_probe"
+"name" ""
+"angle" "25.658569"
+"origin" "-1838 -1468 182"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 7
+{
+"classname" "env_probe"
+"name" ""
+"angle" "88.912354"
+"origin" "-3136 -1578 167"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 8
+{
+"classname" "env_probe"
+"name" ""
+"angle" "272.719116"
+"origin" "-3156 -1274 229"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 9
+{
+"classname" "env_probe"
+"name" ""
+"angle" "6.707153"
+"origin" "-3203 -1453 243"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 10
+{
+"classname" "env_probe"
+"name" ""
+"angle" "87.890625"
+"origin" "-3768 -2688 268"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 11
+{
+"classname" "env_probe"
+"name" ""
+"angle" "85.907593"
+"origin" "-3781 -3055 253"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 12
+{
+"classname" "env_probe"
+"name" ""
+"angle" "276.844482"
+"origin" "-3781 -3189 287"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 13
+{
+"classname" "env_probe"
+"name" ""
+"angle" "89.099121"
+"origin" "-3626 -3495 266"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 14
+{
+"classname" "env_probe"
+"name" ""
+"angle" "86.786499"
+"origin" "-3910 -3534 249"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 15
+{
+"classname" "env_probe"
+"name" ""
+"angle" "89.648438"
+"origin" "-3762 -3568 303"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 16
+{
+"classname" "env_probe"
+"name" ""
+"angle" "4.317627"
+"origin" "-335 -1231 147"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 17
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_0_pos_6800_8912_27000"
+"origin" "6800 8912 27000"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 18
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_1_pos_1408_-1728_5692"
+"origin" "1408 -1728 5692"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 19
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_2_pos_-5016_-5821_672"
+"origin" "-5016 -5821 672"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 20
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_3_pos_852_-11796_580"
+"origin" "852 -11796 580"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 21
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_4_pos_-538_6008_16416"
+"origin" "-538 6008 16416"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 22
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_5_pos_26_-1238_204"
+"origin" "26 -1238 204"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 23
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_6_pos_-320_-800_332"
+"origin" "-320 -800 332"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 24
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_7_pos_-872_-1234_256"
+"origin" "-872 -1234 256"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 25
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_8_pos_-248_-1100_288"
+"origin" "-248 -1100 288"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 26
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_9_pos_-48_-1152_324"
+"origin" "-48 -1152 324"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 27
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_10_pos_-352_-1344_256"
+"origin" "-352 -1344 256"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 28
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_11_pos_-300_-1560_256"
+"origin" "-300 -1560 256"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 29
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_12_pos_-392_-1897_117"
+"origin" "-392 -1897 117"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 30
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_13_pos_-224_-2214_62"
+"origin" "-224 -2214 62"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 31
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_14_pos_-1792_-935_256"
+"origin" "-1792 -935 256"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 32
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_15_pos_-1684_-1407_352"
+"origin" "-1684 -1407 352"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 33
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_16_pos_-1232_-1088_256"
+"origin" "-1232 -1088 256"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 34
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_17_pos_-1248_-1216_256"
+"origin" "-1248 -1216 256"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 35
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_18_pos_-1245_-1344_256"
+"origin" "-1245 -1344 256"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 36
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_19_pos_-1376_-1344_256"
+"origin" "-1376 -1344 256"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 37
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_20_pos_-1684_-1750_240"
+"origin" "-1684 -1750 240"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 38
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_21_pos_-2032_-1544_252"
+"origin" "-2032 -1544 252"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 39
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_22_pos_-2112_-1824_216"
+"origin" "-2112 -1824 216"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 40
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_23_pos_-2477_-1054_231"
+"origin" "-2477 -1054 231"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 41
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_24_pos_-2176_-1336_254"
+"origin" "-2176 -1336 254"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 42
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_25_pos_-2176_-1440_256"
+"origin" "-2176 -1440 256"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 43
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_26_pos_-2176_-1536_256"
+"origin" "-2176 -1536 256"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 44
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_27_pos_-2368_-1342_252"
+"origin" "-2368 -1342 252"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 45
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_28_pos_-2576_-1342_216"
+"origin" "-2576 -1342 216"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 46
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_29_pos_-2568_-1472_216"
+"origin" "-2568 -1472 216"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 47
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_30_pos_-3806_-1184_412"
+"origin" "-3806 -1184 412"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 48
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_31_pos_-2584_-1615_204"
+"origin" "-2584 -1615 204"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 49
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_32_pos_-2760_-1600_208"
+"origin" "-2760 -1600 208"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 50
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_33_pos_-2400_-2016_264"
+"origin" "-2400 -2016 264"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 51
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_34_pos_-2800_-2128_264"
+"origin" "-2800 -2128 264"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 52
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_35_pos_-2864_-1818_200"
+"origin" "-2864 -1818 200"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 53
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_36_pos_-3051_-2167_263"
+"origin" "-3051 -2167 263"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 54
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_37_pos_-2288_-3032_284"
+"origin" "-2288 -3032 284"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 55
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_38_pos_-2624_-2464_236"
+"origin" "-2624 -2464 236"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 56
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_39_pos_-2863_-2492_236"
+"origin" "-2863 -2492 236"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 57
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_40_pos_-2656_-2641_236"
+"origin" "-2656 -2641 236"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 58
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_41_pos_-2608_-2832_236"
+"origin" "-2608 -2832 236"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 59
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_42_pos_-3084_-2784_284"
+"origin" "-3084 -2784 284"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 60
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_43_pos_-3071_-2483_263"
+"origin" "-3071 -2483 263"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 61
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_44_pos_-2832_-3120_254"
+"origin" "-2832 -3120 254"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 62
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_45_pos_-2592_-3140_263"
+"origin" "-2592 -3140 263"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 63
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_46_pos_-3168_-3088_264"
+"origin" "-3168 -3088 264"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 64
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_47_pos_-2928_-3280_264"
+"origin" "-2928 -3280 264"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 65
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_48_pos_-3088_-3280_264"
+"origin" "-3088 -3280 264"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 66
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_49_pos_-3231_-2492_264"
+"origin" "-3231 -2492 264"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 67
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_50_pos_-3600_-2879_292"
+"origin" "-3600 -2879 292"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 68
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_51_pos_-3581_-2511_284"
+"origin" "-3581 -2511 284"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 69
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_52_pos_-3295_-2378_279"
+"origin" "-3295 -2378 279"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 70
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_53_pos_-3295_-2550_279"
+"origin" "-3295 -2550 279"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 71
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_54_pos_-3376_-2896_264"
+"origin" "-3376 -2896 264"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 72
+{
+"classname" "env_probe"
+"name" "env_probe_generated_area_55_pos_-3392_-3072_264"
+"origin" "-3392 -3072 264"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 73
+{
+"classname" "light"
+"name" "light_5254"
+"origin" "916 -1712 -1072"
+"shaderParm3" "6000"
+"start_off" "1"
+"noshadows" "0"
+"nospecular" "0"
+"nodiffuse" "0"
+"falloff" "0"
+"texture" "fogs/basicfog"
+"_color" "0.1 0.03 0"
+"light_radius" "740 792 1800"
+"bind" "hanger_fog_mover"
+}
