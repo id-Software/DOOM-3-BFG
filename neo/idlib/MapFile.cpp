@@ -1605,7 +1605,16 @@ bool idMapFile::Parse( const char* filename, bool ignoreRegion, bool osPath )
 				mapEnt = FindEntity( kv->GetValue().c_str() );
 				if( mapEnt )
 				{
-					// TODO override settings
+					// allow override old settings
+					for( int j = 0; j < extraEnt->epairs.GetNumKeyVals(); j++ )
+					{
+						const idKeyValue* pair = extraEnt->epairs.GetKeyVal( j );
+						if( pair && pair->GetValue().Length() )
+						{
+							mapEnt->epairs.Set( pair->GetKey(), pair->GetValue() );
+						}
+					}
+
 					continue;
 				}
 			}

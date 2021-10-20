@@ -642,8 +642,6 @@ private:
 
 	idLocationEntity** 		locationEntities;		// for location names, etc
 
-	idList<EnvironmentProbe*> environmentProbes;	// RB
-
 	idCamera* 				camera;
 	const idMaterial* 		globalMaterial;			// for overriding everything
 

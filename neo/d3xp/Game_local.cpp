@@ -1311,8 +1311,10 @@ void idGameLocal::PopulateEnvironmentProbes()
 		args.Set( "classname", "env_probe" );
 		args.Set( "origin", point.ToString() );
 
-		idStr name; //= gameEdit->GetUniqueEntityName( "env_probe_generated" );
-		name.Format( "env_probe_generated_area_%i_pos_%i_%i_%i", i, int( point.x ), int( point.y ), int( point.z ) );
+		idStr name;
+		name.Format( "env_probe_area_%i", i );
+		name = gameEdit->GetUniqueEntityName( name );
+
 		args.Set( "name", name );
 
 		gameLocal.SpawnEntityDef( args, &ent );
@@ -1320,8 +1322,6 @@ void idGameLocal::PopulateEnvironmentProbes()
 		{
 			gameLocal.Error( "Couldn't spawn 'env_probe'" );
 		}
-
-		//environmentProbes.Append( probe );
 	}
 }
 // RB end
@@ -3436,7 +3436,10 @@ void idGameLocal::RunDebugInfo()
 			}
 			if( viewTextBounds.IntersectsBounds( entBounds ) )
 			{
+				//if( ent->IsType( EnvironmentProbe::Type ) )
+				//{
 				gameRenderWorld->DrawText( ent->name.c_str(), entBounds.GetCenter(), 0.1f, colorWhite, axis, 1 );
+				//}
 				gameRenderWorld->DrawText( va( "#%d", ent->entityNumber ), entBounds.GetCenter() + up, 0.1f, colorWhite, axis, 1 );
 			}
 		}

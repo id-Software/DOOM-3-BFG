@@ -950,6 +950,9 @@ void Cmd_Spawn_f( const idCmdArgs& args )
 	{
 		//org.z = 64;
 		org.SnapInt();
+
+		idStr name = gameEdit->GetUniqueEntityName( "env_probe_ingame_placed" );
+		dict.Set( "name", name );
 	}
 
 	dict.Set( "origin", org.ToString() );
