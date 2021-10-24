@@ -1,0 +1,930 @@
+Version 3
+// entity 0
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_0"
+"angle" "196.105957"
+"origin" "-235 1506 499"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 1
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_1"
+"angle" "2.098389"
+"origin" "110 1510 462"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 2
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_2"
+"angle" "270.906372"
+"origin" "226 1757 446"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 3
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_3"
+"angle" "86.467896"
+"origin" "233 2125 502"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 4
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_4"
+"angle" "356.374512"
+"origin" "14 2490 530"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 5
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_5"
+"angle" "176.088867"
+"origin" "382 2501 551"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 6
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_6"
+"angle" "270.357056"
+"origin" "767 2687 533"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 7
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_7"
+"angle" "92.702637"
+"origin" "760 2113 577"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 8
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_8"
+"angle" "2.614746"
+"origin" "1187 2496 500"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 9
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_9"
+"angle" "184.971313"
+"origin" "1325 2155 489"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 10
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_10"
+"angle" "274.394531"
+"origin" "1693 2169 468"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 11
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_11"
+"angle" "357.143555"
+"origin" "1556 2706 422"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 12
+{
+"classname" "env_probe"
+"name" "env_probe_area_0_0"
+"origin" "2908 2383 272"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 13
+{
+"classname" "env_probe"
+"name" "env_probe_area_1_0"
+"origin" "3480 1224 160"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 14
+{
+"classname" "env_probe"
+"name" "env_probe_area_2_0"
+"origin" "3000 1252 176"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 15
+{
+"classname" "env_probe"
+"name" "env_probe_area_3_0"
+"origin" "2992 1348 -292"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 16
+{
+"classname" "env_probe"
+"name" "env_probe_area_4_0"
+"origin" "2272 3423 392"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 17
+{
+"classname" "env_probe"
+"name" "env_probe_area_6_0"
+"origin" "2576 1136 368"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 18
+{
+"classname" "env_probe"
+"name" "env_probe_area_7_0"
+"origin" "1876 912 352"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 19
+{
+"classname" "env_probe"
+"name" "env_probe_area_8_0"
+"origin" "2160 1584 288"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 20
+{
+"classname" "env_probe"
+"name" "env_probe_area_9_0"
+"origin" "1920 1072 432"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 21
+{
+"classname" "env_probe"
+"name" "env_probe_area_10_0"
+"origin" "2488 728 344"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 22
+{
+"classname" "env_probe"
+"name" "env_probe_area_11_0"
+"origin" "1624 2692 764"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 23
+{
+"classname" "env_probe"
+"name" "env_probe_area_12_0"
+"origin" "756 2424 580"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 24
+{
+"classname" "env_probe"
+"name" "env_probe_area_13_0"
+"origin" "1680 2692 160"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 25
+{
+"classname" "env_probe"
+"name" "env_probe_area_14_0"
+"origin" "1800 2496 338"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 26
+{
+"classname" "env_probe"
+"name" "env_probe_area_15_0"
+"origin" "1770 2508 488"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 27
+{
+"classname" "env_probe"
+"name" "env_probe_area_16_0"
+"origin" "1712 2160 605"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 28
+{
+"classname" "env_probe"
+"name" "env_probe_area_17_0"
+"origin" "1912 2194 338"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 29
+{
+"classname" "env_probe"
+"name" "env_probe_area_18_0"
+"origin" "1530 2544 496"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 30
+{
+"classname" "env_probe"
+"name" "env_probe_area_19_0"
+"origin" "1240 2336 512"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 31
+{
+"classname" "env_probe"
+"name" "env_probe_area_20_0"
+"origin" "1928 1856 338"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 32
+{
+"classname" "env_probe"
+"name" "env_probe_area_21_0"
+"origin" "1920 1584 288"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 33
+{
+"classname" "env_probe"
+"name" "env_probe_area_22_0"
+"origin" "1728 1584 288"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 34
+{
+"classname" "env_probe"
+"name" "env_probe_area_23_0"
+"origin" "1072 1168 352"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 35
+{
+"classname" "env_probe"
+"name" "env_probe_area_24_0"
+"origin" "1552 664 372"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 36
+{
+"classname" "env_probe"
+"name" "env_probe_area_25_0"
+"origin" "210 2304 568"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 37
+{
+"classname" "env_probe"
+"name" "env_probe_area_27_0"
+"origin" "512 1168 324"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 38
+{
+"classname" "env_probe"
+"name" "env_probe_area_28_0"
+"origin" "224 1360 576"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 39
+{
+"classname" "env_probe"
+"name" "env_probe_area_29_0"
+"origin" "196 520 396"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 40
+{
+"classname" "env_probe"
+"name" "env_probe_area_30_0"
+"origin" "628 516 96"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 41
+{
+"classname" "env_probe"
+"name" "env_probe_area_31_0"
+"origin" "668 192 96"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 42
+{
+"classname" "env_probe"
+"name" "env_probe_area_35_0"
+"origin" "-192 2496 576"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 43
+{
+"classname" "env_probe"
+"name" "env_probe_area_36_0"
+"origin" "-256 2048 824"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 44
+{
+"classname" "env_probe"
+"name" "env_probe_area_37_0"
+"origin" "-256 1750 512"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 45
+{
+"classname" "env_probe"
+"name" "env_probe_area_38_0"
+"origin" "-412 1728 320"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 46
+{
+"classname" "env_probe"
+"name" "env_probe_area_39_0"
+"origin" "-428 1728 132"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 47
+{
+"classname" "env_probe"
+"name" "env_probe_area_40_0"
+"origin" "-368 936 204"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 48
+{
+"classname" "env_probe"
+"name" "env_probe_area_41_0"
+"origin" "-432 1728 516"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 49
+{
+"classname" "env_probe"
+"name" "env_probe_area_42_0"
+"origin" "-376 404 104"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 50
+{
+"classname" "env_probe"
+"name" "env_probe_area_43_0"
+"origin" "-823 316 88"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 51
+{
+"classname" "env_probe"
+"name" "env_probe_area_45_0"
+"origin" "-839 0 80"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 52
+{
+"classname" "env_probe"
+"name" "env_probe_area_46_0"
+"origin" "-512 -356 80"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 53
+{
+"classname" "env_probe"
+"name" "env_probe_area_47_0"
+"origin" "-672 -384 80"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 54
+{
+"classname" "env_probe"
+"name" "env_probe_area_48_0"
+"origin" "-832 -392 80"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 55
+{
+"classname" "env_probe"
+"name" "env_probe_area_49_0"
+"origin" "-1340 -384 96"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 56
+{
+"classname" "env_probe"
+"name" "env_probe_area_50_0"
+"origin" "-2672 -312 -256"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 57
+{
+"classname" "env_probe"
+"name" "env_probe_area_51_0"
+"origin" "-1568 -640 96"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 58
+{
+"classname" "env_probe"
+"name" "env_probe_area_52_0"
+"origin" "-4032 -768 832"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 59
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_12"
+"angle" "60.391846"
+"origin" "1678 2661 348"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 60
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_13"
+"angle" "352.633667"
+"origin" "1690 2491 203"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 61
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_14"
+"angle" "226.823730"
+"origin" "1916 2523 242"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 62
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_15"
+"angle" "87.890625"
+"origin" "1914 2288 217"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 63
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_16"
+"angle" "2.340088"
+"origin" "2440 1602 218"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 64
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_17"
+"angle" "187.553101"
+"origin" "2484 1844 236"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 65
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_18"
+"angle" "183.922119"
+"origin" "2840 1860 173"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 66
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_19"
+"angle" "95.262451"
+"origin" "2918 1848 250"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 67
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_20"
+"angle" "90.093384"
+"origin" "2922 1557 178"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 68
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_21"
+"angle" "267.742310"
+"origin" "3113 1331 337"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 69
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_22"
+"angle" "271.593018"
+"origin" "2783 1346 367"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 70
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_23"
+"angle" "267.083130"
+"origin" "3178 1753 220"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 71
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_24"
+"angle" "179.439697"
+"origin" "3211 1519 185"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 72
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_25"
+"angle" "86.050415"
+"origin" "3575 1519 294"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 73
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_26"
+"angle" "168.189697"
+"origin" "3560 1261 279"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 74
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_27"
+"angle" "2.422485"
+"origin" "3404 1274 377"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 75
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_28"
+"angle" "350.980225"
+"origin" "2493 1605 33"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 76
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_29"
+"angle" "270.461426"
+"origin" "2443 1790 21"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 77
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_30"
+"angle" "183.449707"
+"origin" "2510 1844 -39"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 78
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_31"
+"angle" "102.161865"
+"origin" "2680 1848 -37"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 79
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_32"
+"angle" "185.954590"
+"origin" "2595 1274 339"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 80
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_33"
+"angle" "265.896606"
+"origin" "2573 767 305"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 81
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_34"
+"angle" "3.246460"
+"origin" "2373 662 325"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 82
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_35"
+"angle" "183.537598"
+"origin" "2131 653 348"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 83
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_36"
+"angle" "357.220459"
+"origin" "2072 942 316"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 84
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_37"
+"angle" "3.268433"
+"origin" "2094 1204 330"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 85
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_38"
+"angle" "3.158569"
+"origin" "1844 1199 328"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 86
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_39"
+"angle" "91.708374"
+"origin" "1640 1175 356"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 87
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_40"
+"angle" "4.372559"
+"origin" "1478 931 371"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 88
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_41"
+"angle" "178.280640"
+"origin" "1231 930 346"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 89
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_42"
+"angle" "87.561035"
+"origin" "1031 940 311"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 90
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_43"
+"angle" "3.411255"
+"origin" "897 1259 312"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 91
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_44"
+"angle" "179.269409"
+"origin" "654 1241 311"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 92
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_45"
+"angle" "267.599487"
+"origin" "385 1396 233"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 93
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_46"
+"angle" "86.127319"
+"origin" "378 924 221"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 94
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_47"
+"angle" "189.530640"
+"origin" "357 726 256"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 95
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_48"
+"angle" "357.028198"
+"origin" "86 723 240"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 96
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_49"
+"angle" "358.379517"
+"origin" "354 519 37"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 97
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_50"
+"angle" "99.030762"
+"origin" "395 287 5"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 98
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_51"
+"angle" "3.328857"
+"origin" "158 353 46"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 99
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_52"
+"angle" "356.616211"
+"origin" "-75 350 68"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 100
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_53"
+"angle" "184.581299"
+"origin" "131 525 69"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 101
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_54"
+"angle" "87.555542"
+"origin" "-827 156 50"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 102
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_55"
+"angle" "95.509644"
+"origin" "-304 700 100"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 103
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_56"
+"angle" "271.148071"
+"origin" "-471 966 165"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 104
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_57"
+"angle" "176.440430"
+"origin" "-485 1221 177"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 105
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_58"
+"angle" "89.868164"
+"origin" "-124 948 230"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 106
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_59"
+"angle" "1.455688"
+"origin" "-1177 -391 73"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 107
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_60"
+"angle" "72.405396"
+"origin" "-1355 -623 31"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 108
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_61"
+"angle" "293.587646"
+"origin" "-1357 -176 59"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 109
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_62"
+"angle" "190.958862"
+"origin" "-1877 -639 74"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 110
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_63"
+"angle" "356.396484"
+"origin" "-1953 -280 53"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 111
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_64"
+"angle" "2.005005"
+"origin" "-2731 -263 34"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 112
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_65"
+"angle" "88.906860"
+"origin" "-2683 -933 19"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 113
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_66"
+"angle" "271.038208"
+"origin" "-2691 -583 0"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 114
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_67"
+"angle" "192.387085"
+"origin" "-2266 -261 23"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 115
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_68"
+"angle" "273.345337"
+"origin" "-2671 33 -6"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 116
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_69"
+"angle" "273.455200"
+"origin" "-2679 501 -10"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 117
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_70"
+"angle" "120.476074"
+"origin" "-2382 -19 -31"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 118
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_71"
+"angle" "11.464233"
+"origin" "-2410 -569 -49"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 119
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_72"
+"angle" "314.928589"
+"origin" "-3010 -474 -38"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 120
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_73"
+"angle" "183.257446"
+"origin" "-2998 -269 11"
+"spawnclass" "EnvironmentProbe"
+}
+// entity 121
+{
+"classname" "env_probe"
+"name" "env_probe_ingame_placed_74"
+"angle" "206.251831"
+"origin" "-2984 52 -18"
+"spawnclass" "EnvironmentProbe"
+}

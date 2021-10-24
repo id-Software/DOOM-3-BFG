@@ -15,7 +15,7 @@ Thank you for downloading RBDOOM-3-BFG.
 
 _______________________________________
 
-11 May 2021 - RBDOOM-3-BFG 1.3.0 - Download it from the [RBDOOM-3-BFG ModDB Page](https://www.moddb.com/mods/rbdoom-3-bfg) 
+30 October 2021 - RBDOOM-3-BFG 1.3.0 - Download it from the [RBDOOM-3-BFG ModDB Page](https://www.moddb.com/mods/rbdoom-3-bfg) 
 _______________________________
 
 <img src="https://i.imgur.com/ykY9tMs.png">
@@ -369,15 +369,21 @@ Using the models argument will also export all needed models by entity declarati
 
 * This release is the first time that contains changes to the base/ folder and is not a pure executable patch
 
-* base/materials/*.mtr contain the BFG material files with some minor fixes so TrenchBroom can load them
+* base/materials/*.mtr contain the Doom 3 BFG material files with some minor fixes so TrenchBroom can load them
 
-* base/def/*.def are the BFG entity definition files so DarkRadiant is functional
+* base/def/*.def are the Doom 3 BFG entity definition files so DarkRadiant is functional
 
 * base/maps/game/mars_city1_extra_ents.map contains a fog light fix in the first hangar scene
 
 * base/maps/game/*_extra_ents.map files contain additional env_probe entities and light entity tweaks
 
+* base/maps/game/*.lightgrid files and base/env/game/<map>/*.exr contain the new precomputed PBR light data
 
+* New entity definition env_probe
+
+* New material textures/common/origin so mappers can create brushes that set the entity origin
+
+* Changed light entity definition to support Quake 1 light styles
 
 _______________________________________
 
