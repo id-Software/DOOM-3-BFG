@@ -105,6 +105,9 @@ def convert_flash_object( entry, buildDict ):
             
             matLinks.new( nodeTex.inputs["Vector"], nodeUV.outputs["UV"] )
             matLinks.new( matDisney.inputs["Base Color"], nodeTex.outputs["Color"] )
+            matLinks.new( matDisney.inputs["Alpha"], nodeTex.outputs["Alpha"] )
+            
+            mat.blend_method = 'BLEND'
         
     
     if entry["type"] == "SHAPE" and buildDict == True:
@@ -198,12 +201,14 @@ def convert_flash_object( entry, buildDict ):
                 
         mesh.from_pydata( verts, [], faces )
         
-        #bpy.ops.object.editmode_toggle()
-        #bpy.ops.mesh.quads_convert_to_tris( quad_method = 'BEAUTY', ngon_method = 'BEAUTY' )
-        #bpy.ops.mesh.tris_convert_to_quads()
-        #bpy.ops.uv.reset()
-        #bpy.ops.uv.unwrap()
-        #bpy.ops.object.editmode_toggle()
+        # set mesh object to active
+        bpy.context.view_layer.objects.active = meshObj
+        meshObj.select_set( True )
+        
+        # convert tris to quads
+        bpy.ops.object.mode_set(mode = 'EDIT')
+        bpy.ops.mesh.tris_convert_to_quads()
+        bpy.ops.object.editmode_toggle()
         
         # create uv map
         mesh.uv_layers.new( do_init = False, name="UVMap")
@@ -398,7 +403,12 @@ def create_default_collections():
     bpy.context.scene.collection.children.link( collection )
     
     print( bpy.data.collections )
+    
 
+# clear old materials
+for mat in bpy.data.materials:
+    mat.user_clear()
+    bpy.data.materials.remove( mat )
 
 create_default_collections()
 
