@@ -179,7 +179,7 @@ idSWF::idSWF( const char* filename_, idSoundWorld* soundWorld_ )
 		}
 	}
 
-	if( postLoadExportFlashToSWF.GetBool() )
+	if( postLoadExportFlashToJSON.GetBool() )
 	{
 		idStr jsonFileName = "exported/";
 		jsonFileName += filename;
