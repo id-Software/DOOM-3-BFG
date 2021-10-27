@@ -113,7 +113,7 @@ def convert_flash_object( entry, buildDict ):
             startBounds = entry["startBounds"]
             origin = ( startBounds[0], startBounds[1], 0 )
         
-        meshName = "shape.{0}".format( characterID )
+        meshName = "shape.{0}.mesh".format( characterID )
         
         mesh = bpy.data.meshes.new( meshName )
         meshObj = bpy.data.objects.new( meshName, mesh )
@@ -128,15 +128,25 @@ def convert_flash_object( entry, buildDict ):
         #bpy.context.scene.objects.active = ob
         #ob.select = True
         
+        #shapeName = "shape.{0}".format( characterID )
+        shapeCollection = bpy.data.collections.new( characterIDStr )
+        shapeCollection.color_tag = 'COLOR_04'
+        bpy.context.scene.collection.children.link( shapeCollection )
+        shapeCollection["characterID"] = characterID
+        
+        shapeCollection.objects.link( meshObj )
+        bpy.data.collections[ "Dictionary" ].children.link( shapeCollection )
+        
         # add to SWF dictionary
-        bpy.data.collections[ "Dictionary" ].objects.link( meshObj )
+        #bpy.data.collections[ "Dictionary" ].objects.link( meshObj )
         
         # remove from scene default collection
+        bpy.context.scene.collection.children.unlink( shapeCollection )
         #bpy.context.scene.collection.objects.unlink( meshObj )
         
-        bpy.ops.collection.create( name = characterIDStr )
-        group = bpy.data.collections[ characterIDStr ]
-        group["characterID"] = characterID
+        #bpy.ops.collection.create( name = characterIDStr )
+        #group = bpy.data.collections[ characterIDStr ]
+        
         
         #for i in range( len( entry["fillDraws"] ) ):   
         #    fillDraw = entry["fillDraws"][i]
@@ -265,7 +275,7 @@ def convert_flash_object( entry, buildDict ):
     
     if entry["type"] == "SPRITE" and buildDict == False:
         
-        spriteObj = None
+        #spriteObj = None
         
         bpy.ops.object.add(
             type='EMPTY', 
@@ -276,57 +286,52 @@ def convert_flash_object( entry, buildDict ):
         
         if "mainsprite" in entry:
             
-            
-            
             spriteObj.name = "mainsprite"
             spriteObj.show_name = True
         else:
             spriteObj.name = "sprite.{0}".format( characterID )
-            
-            #return
         
         spriteObj["characterID"] = characterID
         
+        
+        spriteCollection = bpy.data.collections.new( characterIDStr )
+        spriteCollection.color_tag = 'COLOR_03'
+        bpy.context.scene.collection.children.link( spriteCollection )
+        
+        #spriteCollection = bpy.data.collections[ characterIDStr ]
+        spriteCollection["characterID"] = characterID
+        spriteCollection.objects.link( spriteObj )
+        
         # add to SWF Sprites
-        bpy.data.collections[ "Sprites" ].objects.link( spriteObj )
-        
+        bpy.data.collections[ "Sprites" ].children.link( spriteCollection )
+                        
         # remove from scene default collection
-        bpy.context.scene.collection.objects.unlink( spriteObj )
-        
-        
-        bpy.ops.collection.create( name = characterIDStr )
-        spriteGroup = bpy.data.collections[ characterIDStr ]
-        spriteGroup["characterID"] = characterID
-        
-        #sprite.select = True
-                
-        #scene.objects.active = ob
+        bpy.context.scene.collection.children.unlink( spriteCollection )
+        #bpy.context.scene.collection.objects.unlink( placeObj )
         
         for command in entry["commands"]:
             
-            if command["type"] == "Tag_PlaceObject2":
+            if command["type"] == "Tag_PlaceObject2" or command["type"] == "Tag_PlaceObject3":
                 
                 if "characterID" in command:
-                    targetID = command["characterID"]
+                    sourceID = command["characterID"]
                     
-                    # instantiate target
                     bpy.ops.object.select_all( action = 'DESELECT' )
                     
                     #print( bpy.context.selected_objects )
                     
-                    #print( "searching targetID ", targetID )
+                    #print( "searching sourceID ", sourceID )
                     
-                    target = None
-                    for group in bpy.data.collections:
-                        if "characterID" in group and group["characterID"] == targetID:
-                            target = group
+                    sourceCollection = None
+                    for source in bpy.data.collections:
+                        if "characterID" in source and source["characterID"] == sourceID:
+                            sourceCollection = source
                             break
                     
-                    if target == None:
-                        print( "missed target ", targetID )
+                    if sourceCollection == None:
+                        print( "missed clone source ", sourceID )
                     
-                    
-                    if target != None:
+                    else:
                         
                         #print( "duplicating target = ", target.name )
                         #print( bpy.context.selected_objects )
@@ -337,26 +342,42 @@ def convert_flash_object( entry, buildDict ):
                         if "startMatrix" in command:
                             m = command["startMatrix"]
                             
-                        #targetLocation = ( m[4], m[5], -1.0 )
-                        targetLocation = spriteObj.location + mathutils.Vector( ( m[4], m[5], -1.0 ) )
+                        #targetLocation = ( m[4], m[5], command["depth"] )
+                        #targetLocation = spriteObj.location + mathutils.Vector( ( m[4], m[5], -1.0 ) )
                         
-                        targetScale = ( m[0], m[1], 1.0 )
+                        #targetScale = ( m[0], m[1], 1.0 )
+                        
+                        # https://blender.stackexchange.com/questions/156473/how-to-avoid-operator-collection-instance-add
                         
                         #bpy.ops.object.duplicate()
-                        #bpy.ops.object.collection_instance_add( name = target.name )
-                        bpy.ops.object.collection_instance_add( name = target.name, location = targetLocation, scale = targetScale )
-                        bpy.ops.object.collection_link( collection = spriteGroup.name )
+                        placeObj = bpy.data.objects.new( name = sourceCollection.name, object_data = None )
+                        placeObj.instance_collection = sourceCollection
+                        placeObj.instance_type = 'COLLECTION'
                         
-                        targetClone = bpy.context.selected_objects[0]
+                        parentCollection = spriteCollection
+                        parentCollection.objects.link( placeObj )
                         
-                        if "name" in command:
-                            targetClone.name = "{0}.{1}".format( spriteObj.name, command["name"] )
-                            targetClone.show_name = True
-                        else:
-                            targetClone.name = "{0}.characterID.{1}".format( spriteObj.name, targetID )
+                        #parentCollection = bpy.context.view_layer.active_layer_collection
+                        #parentCollection.collection.objects.link( placeObj )
+                        
+                        
+                        
+                        #if "mainsprite" in entry:
+                        #    placeObj.name = "mainsprite"
+                        #else:
+                        #    placeObj.name = "sprite.{0}".format( characterID )
                             
-                        #targetClone.parent = spriteObj
+                        if "name" in command:
+                            placeObj.name = "{0}.{1}.{2}".format( spriteObj.name, command["name"], sourceID )
+                            placeObj.show_name = True
+                        else:
+                            placeObj.name = "{0}.characterID.{1}".format( spriteObj.name, sourceID )
+                            
+                        placeObj.parent = spriteObj
                         #targetClone["characterID"] = -1
+                        
+                        placeObj.location = ( m[4], m[5], command["depth"] )
+                        placeObj.scale = ( m[0], m[1], 1.0 )
                                        
                         bpy.ops.object.select_all( action = 'DESELECT' )
                         
@@ -393,7 +414,7 @@ for entry in data["dict"]:
     i += 1
     
     #if i == 4:
-    #    break
+    #   break
     
 end = time.time()
 print( "importing {0} took {1} seconds".format( jsonfilename, ( end - start ) ) )
