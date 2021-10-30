@@ -55,7 +55,7 @@ void idMenuScreen_Shell_SystemOptions::Initialize( idMenuHandler* data )
 
 	SetSpritePath( "menuSystemOptions" );
 
-	options = new( TAG_SWF ) idMenuWidget_DynamicList();
+	options = new( TAG_SWF ) idMenuWidget_SystemOptionsList(); // RB: allow more options than defined in the SWF
 	options->SetNumVisibleOptions( NUM_SYSTEM_OPTIONS_OPTIONS );
 	options->SetSpritePath( GetSpritePath(), "info", "options" );
 	options->SetWrappingAllowed( true );
@@ -104,6 +104,7 @@ void idMenuScreen_Shell_SystemOptions::Initialize( idMenuHandler* data )
 	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, idMenuDataSource_SystemSettings::SYSTEM_FIELD_ANTIALIASING );
 	options->AddChild( control );
 
+	// RB begin
 	control = new( TAG_SWF ) idMenuWidget_ControlButton();
 	control->SetOptionType( OPTION_SLIDER_TEXT );
 	control->SetLabel( "Filmic VFX" );
@@ -112,13 +113,20 @@ void idMenuScreen_Shell_SystemOptions::Initialize( idMenuHandler* data )
 	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, idMenuDataSource_SystemSettings::SYSTEM_FIELD_POSTFX );
 	options->AddChild( control );
 
-	// RB begin
 	control = new( TAG_SWF ) idMenuWidget_ControlButton();
 	control->SetOptionType( OPTION_SLIDER_TEXT );
 	control->SetLabel( "Soft Shadows" );
 	control->SetDataSource( &systemData, idMenuDataSource_SystemSettings::SYSTEM_FIELD_SHADOWMAPPING );
 	control->SetupEvents( DEFAULT_REPEAT_TIME, options->GetChildren().Num() );
 	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, idMenuDataSource_SystemSettings::SYSTEM_FIELD_SHADOWMAPPING );
+	options->AddChild( control );
+
+	control = new( TAG_SWF ) idMenuWidget_ControlButton();
+	control->SetOptionType( OPTION_SLIDER_TEXT );
+	control->SetLabel( "SSAO" );
+	control->SetDataSource( &systemData, idMenuDataSource_SystemSettings::SYSTEM_FIELD_SSAO );
+	control->SetupEvents( DEFAULT_REPEAT_TIME, options->GetChildren().Num() );
+	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, idMenuDataSource_SystemSettings::SYSTEM_FIELD_SSAO );
 	options->AddChild( control );
 
 	/*control = new( TAG_SWF ) idMenuWidget_ControlButton();
@@ -128,6 +136,15 @@ void idMenuScreen_Shell_SystemOptions::Initialize( idMenuHandler* data )
 	control->SetupEvents( DEFAULT_REPEAT_TIME, options->GetChildren().Num() );
 	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, idMenuDataSource_SystemSettings::SYSTEM_FIELD_LODBIAS );
 	options->AddChild( control );*/
+
+	control = new( TAG_SWF ) idMenuWidget_ControlButton();
+	control->SetOptionType( OPTION_SLIDER_BAR );
+	control->SetLabel( "Ambient Lighting" );
+	control->SetDescription( "Sets the amount of indirect lighting. Needed for modern PBR reflections" );
+	control->SetDataSource( &systemData, idMenuDataSource_SystemSettings::SYSTEM_FIELD_AMBIENT_BRIGHTNESS );
+	control->SetupEvents( 2, options->GetChildren().Num() );
+	control->AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, idMenuDataSource_SystemSettings::SYSTEM_FIELD_SSAO );
+	options->AddChild( control );
 	// RB end
 
 	control = new( TAG_SWF ) idMenuWidget_ControlButton();
@@ -392,12 +409,14 @@ void idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::LoadData
 {
 	originalFramerate = com_engineHz.GetInteger();
 	originalAntialias = r_antiAliasing.GetInteger();
-	originalPostProcessing = r_useFilmicPostProcessing.GetInteger();
 	originalVsync = r_swapInterval.GetInteger();
 	originalBrightness = r_exposure.GetFloat();
 	originalVolume = s_volume_dB.GetFloat();
 	// RB begin
 	originalShadowMapping = r_useShadowMapping.GetInteger();
+	originalSSAO = r_useSSAO.GetInteger();
+	originalAmbientBrightness = r_forceAmbient.GetFloat();
+	originalPostProcessing = r_useFilmicPostProcessing.GetInteger();
 	// RB end
 
 	const int fullscreen = r_fullscreen.GetInteger();
@@ -522,15 +541,14 @@ void idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::AdjustFi
 			r_antiAliasing.SetInteger( AdjustOption( r_antiAliasing.GetInteger(), values, numValues, adjustAmount ) );
 			break;
 		}
+		// RB begin
 		case SYSTEM_FIELD_POSTFX:
 		{
 			static const int numValues = 2;
 			static const int values[numValues] = { 0, 1 };
-			//static const int values[numValues] = { 0, 2, 3, 4, 5 };
 			r_useFilmicPostProcessing.SetInteger( AdjustOption( r_useFilmicPostProcessing.GetInteger(), values, numValues, adjustAmount ) );
 			break;
 		}
-		// RB begin
 		case SYSTEM_FIELD_SHADOWMAPPING:
 		{
 			static const int numValues = 2;
@@ -546,6 +564,22 @@ void idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::AdjustFi
 			r_lodBias.SetFloat( LinearAdjust( clamped, 0.0f, 100.0f, -1.0f, 1.0f ) );
 			break;
 		}*/
+		case SYSTEM_FIELD_SSAO:
+		{
+			static const int numValues = 2;
+			static const int values[numValues] = { 0, 1 };
+			r_useSSAO.SetInteger( AdjustOption( r_useSSAO.GetInteger(), values, numValues, adjustAmount ) );
+			break;
+		}
+		case SYSTEM_FIELD_AMBIENT_BRIGHTNESS:
+		{
+			const float percent = LinearAdjust( r_forceAmbient.GetFloat(), 0.0f, 1.0f, 0.0f, 100.0f );
+			const float adjusted = percent + ( float )adjustAmount;
+			const float clamped = idMath::ClampFloat( 0.0f, 100.0f, adjusted );
+
+			r_forceAmbient.SetFloat( LinearAdjust( clamped, 0.0f, 100.0f, 0.0f, 1.0f ) );
+			break;
+		}
 		// RB end
 		case SYSTEM_FIELD_BRIGHTNESS:
 		{
@@ -553,7 +587,7 @@ void idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::AdjustFi
 			const float adjusted = percent + ( float )adjustAmount;
 			const float clamped = idMath::ClampFloat( 0.0f, 100.0f, adjusted );
 
-			r_exposure.SetFloat( LinearAdjust( clamped, 0.0f, 100.0f, 0.0f, 1.0f ) );
+			r_exposure.SetFloat( LinearAdjust( clamped, 0.0f, 100.0f, 0.0f, 1.0f ) ); // RB
 			r_lightScale.SetFloat( LinearAdjust( clamped, 0.0f, 100.0f, 2.0f, 4.0f ) );
 			break;
 		}
@@ -599,8 +633,10 @@ idSWFScriptVar idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings
 				return va( "%4i x %4i @ %dhz", modeList[vidmode].width, modeList[vidmode].height, modeList[vidmode].displayHz );
 			}
 		}
+
 		case SYSTEM_FIELD_FRAMERATE:
 			return va( "%d FPS", com_engineHz.GetInteger() );
+
 		case SYSTEM_FIELD_VSYNC:
 			if( r_swapInterval.GetInteger() == 1 )
 			{
@@ -614,6 +650,7 @@ idSWFScriptVar idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings
 			{
 				return "#str_swf_disabled";
 			}
+
 		case SYSTEM_FIELD_ANTIALIASING:
 		{
 			if( r_antiAliasing.GetInteger() == 0 )
@@ -646,6 +683,7 @@ idSWFScriptVar idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings
 			}
 		//return va( "%dx", idMath::IPow( 2, r_motionBlur.GetInteger() ) );
 		// RB begin
+
 		case SYSTEM_FIELD_SHADOWMAPPING:
 			if( r_useShadowMapping.GetInteger() == 1 )
 			{
@@ -655,11 +693,27 @@ idSWFScriptVar idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings
 			{
 				return "#str_swf_disabled";
 			}
+
 		//case SYSTEM_FIELD_LODBIAS:
 		//	return LinearAdjust( r_lodBias.GetFloat(), -1.0f, 1.0f, 0.0f, 100.0f );
+
+		case SYSTEM_FIELD_SSAO:
+			if( r_useSSAO.GetInteger() == 1 )
+			{
+				return "#str_swf_enabled";
+			}
+			else
+			{
+				return "#str_swf_disabled";
+			}
+
+		case SYSTEM_FIELD_AMBIENT_BRIGHTNESS:
+			return LinearAdjust( r_forceAmbient.GetFloat(), 0.0f, 1.0f, 0.0f, 100.0f );
 		// RB end
+
 		case SYSTEM_FIELD_BRIGHTNESS:
 			return LinearAdjust( r_exposure.GetFloat(), 0.0f, 1.0f, 0.0f, 100.0f );
+
 		case SYSTEM_FIELD_VOLUME:
 		{
 			return 100.0f * Square( 1.0f - ( s_volume_dB.GetFloat() / DB_SILENCE ) );
@@ -679,31 +733,167 @@ bool idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::IsDataCh
 	{
 		return true;
 	}
+
 	if( originalAntialias != r_antiAliasing.GetInteger() )
 	{
 		return true;
 	}
-	if( originalPostProcessing != r_useFilmicPostProcessing.GetInteger() )
-	{
-		return true;
-	}
+
 	if( originalVsync != r_swapInterval.GetInteger() )
 	{
 		return true;
 	}
-	if( originalBrightness != r_exposure.GetFloat() )
-	{
-		return true;
-	}
-	if( originalVolume != s_volume_dB.GetFloat() )
-	{
-		return true;
-	}
-	// RB begin
+
 	if( originalShadowMapping != r_useShadowMapping.GetInteger() )
 	{
 		return true;
 	}
-	// RB end
+
+	if( originalSSAO != r_useSSAO.GetInteger() )
+	{
+		return true;
+	}
+
+	if( originalPostProcessing != r_useFilmicPostProcessing.GetInteger() )
+	{
+		return true;
+	}
+
+	if( originalAmbientBrightness != r_forceAmbient.GetFloat() )
+	{
+		return true;
+	}
+
+	if( originalBrightness != r_exposure.GetFloat() )
+	{
+		return true;
+	}
+
+	if( originalVolume != s_volume_dB.GetFloat() )
+	{
+		return true;
+	}
+
 	return false;
 }
+
+// RB begin
+void idMenuWidget_SystemOptionsList::Update()
+{
+	if( GetSWFObject() == NULL )
+	{
+		return;
+	}
+
+	idSWFScriptObject& root = GetSWFObject()->GetRootObject();
+
+	if( !BindSprite( root ) )
+	{
+		return;
+	}
+
+	//idLib::Printf( "SystemOptionsList::Update( offset = %i )\n", GetViewOffset() );
+
+	// clear old sprites and rebuild the options
+	for( int childIndex = 0; childIndex < GetTotalNumberOfOptions(); ++childIndex )
+	{
+		idMenuWidget& child = GetChildByIndex( childIndex );
+
+		child.ClearSprite();
+	}
+
+	for( int optionIndex = 0; optionIndex < GetNumVisibleOptions(); ++optionIndex )
+	{
+		if( optionIndex >= children.Num() )
+		{
+			// not enough children
+			idSWFSpriteInstance* item = GetSprite()->GetScriptObject()->GetNestedSprite( va( "item%d", optionIndex ) );
+			if( item != NULL )
+			{
+				item->SetVisible( false );
+				continue;
+			}
+		}
+
+		// account view offset and total number of options
+		const int childIndex = ( GetViewOffset() + optionIndex ) % GetTotalNumberOfOptions();
+		idMenuWidget& child = GetChildByIndex( childIndex );
+
+		child.SetSpritePath( GetSpritePath(), va( "item%d", optionIndex ) );
+		if( child.BindSprite( root ) )
+		{
+			if( optionIndex >= GetTotalNumberOfOptions() )
+			{
+				child.ClearSprite();
+				continue;
+			}
+
+			child.Update();
+
+			if( optionIndex == focusIndex )
+			{
+				child.SetState( WIDGET_STATE_SELECTING );
+			}
+			else
+			{
+				child.SetState( WIDGET_STATE_NORMAL );
+			}
+		}
+	}
+
+	idSWFSpriteInstance* const upSprite = GetSprite()->GetScriptObject()->GetSprite( "upIndicator" );
+	if( upSprite != NULL )
+	{
+		upSprite->SetVisible( GetViewOffset() > 0 );
+	}
+
+	idSWFSpriteInstance* const downSprite = GetSprite()->GetScriptObject()->GetSprite( "downIndicator" );
+	if( downSprite != NULL )
+	{
+		downSprite->SetVisible( GetViewOffset() + GetNumVisibleOptions() < GetTotalNumberOfOptions() );
+	}
+}
+
+void idMenuWidget_SystemOptionsList::Scroll( const int scrollAmount, const bool wrapAround )
+{
+	if( GetTotalNumberOfOptions() == 0 )
+	{
+		return;
+	}
+
+	int newIndex, newOffset;
+
+	// RB: always wrap around
+	CalculatePositionFromIndexDelta( newIndex, newOffset, GetViewIndex(), GetViewOffset(), GetNumVisibleOptions(), GetTotalNumberOfOptions(), scrollAmount, IsWrappingAllowed(), true ); //wrapAround );
+
+	//int oldViewIndex = GetViewIndex();
+	//int oldViewOffset = GetViewOffset();
+	int oldFocusIndex = GetFocusIndex();
+
+	if( newOffset != GetViewOffset() )
+	{
+		SetViewOffset( newOffset );
+		if( menuData != NULL )
+		{
+			menuData->PlaySound( GUI_SOUND_FOCUS );
+		}
+
+		// RB: HACK and I don't like it.
+		// focusIndex is used here for the visible state and not for event handling.
+		focusIndex = newIndex;
+		Update();
+		focusIndex = oldFocusIndex;
+	}
+
+	if( newIndex != GetViewIndex() )
+	{
+		SetViewIndex( newIndex );
+
+		// trigger focus/unfocus sprite actions
+		SetFocusIndex( newIndex );// - newOffset );
+	}
+
+	//idLib::Printf( "scroll = %i, index = %i -> %i, offset = %i -> %i, focus = %i -> %i\n", scrollAmount, oldViewIndex, newIndex, oldViewOffset, newOffset, oldFocusIndex, GetFocusIndex() );
+}
+// RB end
+
