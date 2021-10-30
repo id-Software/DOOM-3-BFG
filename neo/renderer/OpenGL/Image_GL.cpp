@@ -550,7 +550,7 @@ void idImage::SetTexParameters()
 		}
 	}
 
-	// RB: disabled use of unreliable extension that can make the game look worse
+	// RB: disabled use of unreliable extension that can make the game look worse but doesn't save any VRAM
 	/*
 	if( glConfig.textureLODBiasAvailable && ( usage != TD_FONT ) )
 	{

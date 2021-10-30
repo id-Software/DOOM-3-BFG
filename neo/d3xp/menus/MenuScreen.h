@@ -1367,6 +1367,8 @@ public:
 			// RB begin
 			SYSTEM_FIELD_POSTFX,
 			SYSTEM_FIELD_SHADOWMAPPING,
+			SYSTEM_FIELD_SSAO,
+			SYSTEM_FIELD_AMBIENT_BRIGHTNESS,
 			// RB end
 			SYSTEM_FIELD_BRIGHTNESS,
 			SYSTEM_FIELD_VOLUME,
@@ -1395,12 +1397,14 @@ public:
 	private:
 		int originalFramerate;
 		int originalAntialias;
-		int originalPostProcessing;
 		int originalVsync;
 		float originalBrightness;
 		float originalVolume;
 		// RB begin
 		int originalShadowMapping;
+		int originalSSAO;
+		int originalPostProcessing;
+		float originalAmbientBrightness;
 		// RB end
 
 		idList<vidMode_t>			modeList;

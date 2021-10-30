@@ -10,7 +10,7 @@ import os
 from decimal import *
 from math import *
 
-jsonfilename = "C:\\Projects\\RBDOOM-3-BFG\\base\\exported\\swf\\hud.json"
+jsonfilename = "C:\\Projects\\RBDOOM-3-BFG\\base\\exported\\swf\\shell.json"
 basepath = "C:\\Projects\\RBDOOM-3-BFG\\base\\"
 
 start = time.time() 

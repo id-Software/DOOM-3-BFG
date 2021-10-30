@@ -1271,8 +1271,18 @@ class idMenuWidget_ScoreboardList : public idMenuWidget_DynamicList
 {
 public:
 	virtual void				Update();
-	virtual int				GetTotalNumberOfOptions() const;
+	virtual int					GetTotalNumberOfOptions() const;
 };
+
+// RB begin
+class idMenuWidget_SystemOptionsList : public idMenuWidget_DynamicList
+{
+public:
+	virtual void				Update() override;
+	virtual void				Scroll( const int scrollAmount, const bool wrapAround = false ) override;
+};
+// RB end
+
 
 /*
 ================================================

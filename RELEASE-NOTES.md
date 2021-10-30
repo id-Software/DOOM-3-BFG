@@ -365,6 +365,8 @@ Using the models argument will also export all needed models by entity declarati
 
 * Allow _extra_ents.map files next to the original .map files so new entities can be added to existing maps or old entities can be tweaked with new values
 
+* Fixed DPI Scaling problems for 4K screens
+
 [ASSETS]
 
 * This release is the first time that contains changes to the base/ folder and is not a pure executable patch
