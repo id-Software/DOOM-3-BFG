@@ -2532,43 +2532,63 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 			else if( idStr::Icmp( decl->GetName(), "light" ) == 0 )
 			{
 				// default light sprite for TB editor sprites branch
-				file->Printf( "model({ \"path\": \"sprites/light-bulb.png\" }) " );
+				file->Printf( "model({ \"path\": \"sprites/light-bulb.png\", \"scale\": 0.03125 }) " );
 			}
 			else if( idStr::Icmp( decl->GetName(), "speaker" ) == 0 )
 			{
-				file->Printf( "model({ \"path\": \"sprites/speaker.png\" }) " );
+				file->Printf( "model({ \"path\": \"sprites/speaker.png\", \"scale\": 0.03125 }) " );
 			}
 			else if( idStr::Icmpn( decl->GetName(), "ai_", 3 ) == 0 )
 			{
-				file->Printf( "model({ \"path\": \"sprites/ai.png\" }) " );
+				file->Printf( "model({ \"path\": \"sprites/ai.png\", \"scale\": 0.03125 }) " );
 			}
 			else if( idStr::Icmpn( decl->GetName(), "info_vacuum", 11 ) == 0 )
 			{
-				file->Printf( "model({ \"path\": \"sprites/air-conditioning.png\" }) " );
+				file->Printf( "model({ \"path\": \"sprites/air-conditioning.png\", \"scale\": 0.03125 }) " );
 			}
 			else if( idStr::Icmpn( decl->GetName(), "info_location", 13 ) == 0 )
 			{
-				file->Printf( "model({ \"path\": \"sprites/info_location.png\" }) " );
+				file->Printf( "model({ \"path\": \"sprites/information.png\", \"scale\": 0.03125 }) " );
+			}
+			else if( idStr::Icmpn( decl->GetName(), "item_objective", 14 ) == 0 )
+			{
+				file->Printf( "model({ \"path\": \"sprites/objective.png\", \"scale\": 0.03125 }) " );
 			}
 			else if( idStr::Icmpn( decl->GetName(), "path_", 5 ) == 0 )
 			{
-				file->Printf( "model({ \"path\": \"sprites/waypoint.png\" }) " );
+				file->Printf( "model({ \"path\": \"sprites/waypoint.png\", \"scale\": 0.03125 }) " );
 			}
-			else if( idStr::Icmp( decl->GetName(), "func_emitter" ) == 0 || idStr::Icmp( decl->GetName(), "func_fx" ) == 0 )
+			else if( idStr::Icmp( decl->GetName(), "func_emitter" ) == 0 )
 			{
-				file->Printf( "model({ \"path\": \"sprites/func_emitter.png\" }) " );
+				file->Printf( "model({ \"path\": \"sprites/bonfire.png\", \"scale\": 0.03125 }) " );
+			}
+			else if( idStr::Icmp( decl->GetName(), "func_fx" ) == 0 )
+			{
+				file->Printf( "model({ \"path\": \"sprites/fx.png\", \"scale\": 0.03125 }) " );
 			}
 			else if( idStr::Icmp( decl->GetName(), "target_null" ) == 0 )
 			{
-				file->Printf( "model({ \"path\": \"sprites/info_notnull.png\" }) " );
+				file->Printf( "model({ \"path\": \"sprites/info_notnull.png\", \"scale\": 0.25 }) " );
+			}
+			else if( idStr::Icmp( decl->GetName(), "target_checkpoint" ) == 0 )
+			{
+				file->Printf( "model({ \"path\": \"sprites/security-gate.png\", \"scale\": 0.03125 }) " );
 			}
 			else if( idStr::Icmpn( decl->GetName(), "target_", 7 ) == 0 )
 			{
-				file->Printf( "model({ \"path\": \"sprites/gamepad.png\" }) " );
+				file->Printf( "model({ \"path\": \"sprites/gamepad.png\", \"scale\": 0.03125 }) " );
 			}
 			else if( idStr::Icmp( decl->GetName(), "trigger_relay" ) == 0 )
 			{
-				file->Printf( "model({ \"path\": \"sprites/joystick.png\" }) " );
+				file->Printf( "model({ \"path\": \"sprites/joystick.png\", \"scale\": 0.03125 }) " );
+			}
+			else
+			{
+				const idKeyValue* kv = dictToWrite.FindKey( "spawnclass" );
+				if( kv && kv->GetValue().Length() && idStr::Icmp( kv->GetValue(), "idCameraAnim" ) == 0 )
+				{
+					file->Printf( "model({ \"path\": \"sprites/camera.png\", \"scale\": 0.03125 }) " );
+				}
 			}
 
 			file->Printf( "= %s : \"%s\"\n", decl->GetName(), text.c_str() );
