@@ -30,6 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 #pragma hdrstop
 
+#include "../renderer/Image.h"
 
 /*
 ===============
@@ -122,6 +123,104 @@ void idMapBrushSide::GetTextureVectors( idVec4 v[2] ) const
 			v[i][3] = texMat[i][2] + ( origin * v[i].ToVec3() );
 		}
 	}
+}
+
+// RB begin
+inline bool BrushPrimitive_Degenerate( const idVec3& bpTexMatX, const idVec3& bpTexMatY )
+{
+	// 2D cross product
+	return ( bpTexMatX[0] * bpTexMatY[1] - bpTexMatX[1] * bpTexMatY[0] ) == 0;
+}
+
+void idMapBrushSide::ConvertToValve220Format( const idMat4& entityTransform )
+{
+	// create p1, p2, p3
+	idVec3 forward = plane.Normal();
+	idVec3 p1 = forward * plane.Dist();
+
+	// create tangents right,up similar as in Quake's MakeNormalVectors
+	idVec3 right = forward;
+	right[1] = -forward[0];
+	right[2] = forward[1];
+	right[0] = forward[2];
+
+	float d = right * forward;
+	right = right + ( -d * forward );
+	right.Normalize();
+
+	idVec3 up = right.Cross( forward );
+
+	// offset p1 by tangents to have 3 points in a plane
+	idVec3 p2 = p1 + right;
+	idVec3 p3 = p1 + up;
+
+	// move planepts from entity space to world space because TrenchBroom can only handle brushes in world space
+	planepts[0] = entityTransform * p1;
+	planepts[1] = entityTransform * p2;
+	planepts[2] = entityTransform * p3;
+
+	idVec3 texX, texY;
+
+	ComputeAxisBase( plane.Normal(), texX, texY );
+
+	texValve[0][0] = texX[0];
+	texValve[0][1] = texX[1];
+	texValve[0][2] = texX[2];
+
+	texValve[1][0] = texY[0];
+	texValve[1][1] = texY[1];
+	texValve[1][2] = texY[2];
+
+	texScale[0] = 1.0f;
+	texScale[1] = 1.0f;
+
+	if( BrushPrimitive_Degenerate( texX, texY ) )
+	{
+		//idLib::Warning( "non orthogonal texture matrix in ConvertToValve220Format" );
+	}
+
+#if 0
+	// rotate initial axes
+	for( int i = 0; i < 2; i++ )
+	{
+		texValve[i][0] = texX[0] * texMat[i][0] + texY[0] * texMat[i][1];
+		texValve[i][1] = texX[1] * texMat[i][0] + texY[1] * texMat[i][1];
+		texValve[i][2] = texX[2] * texMat[i][0] + texY[2] * texMat[i][1];
+		//texValve[i][3] = texMat[i][2] + ( origin * texValve[i].ToVec3() );
+	}
+#endif
+
+	//material = "enpro/enwall16";
+
+	const idMaterial* material = declManager->FindMaterial( GetMaterial() );
+
+	idImage* image = material->GetEditorImage();
+	if( image != NULL )
+	{
+		texSize.x = image->GetUploadWidth();
+		texSize.y = image->GetUploadHeight();
+	}
+
+	// compute a fake shift scale rot representation from the texture matrix
+	// these shift scale rot values are to be understood in the local axis base
+	texScale[0] = 1.0f / idMath::Sqrt( texMat[0][0] * texMat[0][0] + texMat[1][0] * texMat[1][0] );
+	texScale[1] = 1.0f / idMath::Sqrt( texMat[0][1] * texMat[0][1] + texMat[1][1] * texMat[1][1] );
+
+	texScale[0] /= texSize.x;
+	texScale[1] /= texSize.y;
+
+	if( texMat[0][0] < idMath::FLOAT_EPSILON )
+	{
+		texScale[0] = -texScale[0];
+	}
+
+	if( texMat[1][0] < idMath::FLOAT_EPSILON )
+	{
+		texScale[1] = -texScale[1];
+	}
+
+	texValve[0][3] = -texMat[0][2];
+	texValve[1][3] = texMat[1][2];
 }
 
 /*
@@ -647,6 +746,8 @@ idMapBrush* idMapBrush::ParseValve220( idLexer& src, const idVec3& origin )
 		scale[0] = src.ParseFloat();
 		scale[1] = src.ParseFloat();
 
+		/*
+		RB: negative values seem to be valid and the q3map2 implementation in netradiant-custom is faulty
 		if( scale[0] < idMath::FLOAT_EPSILON )
 		{
 			scale[0] = 1.0f;
@@ -655,6 +756,7 @@ idMapBrush* idMapBrush::ParseValve220( idLexer& src, const idVec3& origin )
 		{
 			scale[1] = 1.0f;
 		}
+		*/
 
 		side->texScale[0] = scale[0];
 		side->texScale[1] = scale[1];
@@ -2650,6 +2752,168 @@ bool idMapFile::ConvertToPolygonMeshFormat()
 					}
 				}
 			}
+		}
+	}
+
+	return true;
+}
+
+bool idMapFile::ConvertToValve220Format()
+{
+	valve220Format = true;
+
+	idDict classTypeOverview;
+
+	int count = GetNumEntities();
+	for( int j = 0; j < count; j++ )
+	{
+		idMapEntity* ent = GetEntity( j );
+		if( ent )
+		{
+			idStr classname = ent->epairs.GetString( "classname" );
+
+			if( idStr::Icmp( classname, "worldspawn" ) == 0 )
+			{
+				ent->epairs.Set( "_tb_textures", "textures/common;textures/editor;textures/decals;textures/decals2" );
+			}
+
+			if( ent->GetNumPrimitives() > 0 )
+			{
+				// build entity transform
+				idVec3 origin;
+				origin.Zero();
+
+				idMat3 rot;
+				rot.Identity();
+
+				idStr name = ent->epairs.GetString( "name" );
+
+				origin = ent->epairs.GetVector( "origin", "0 0 0" );
+
+				if( !ent->epairs.GetMatrix( "rotation", "1 0 0 0 1 0 0 0 1", rot ) )
+				{
+					idAngles angles;
+
+					if( ent->epairs.GetAngles( "angles", "0 0 0", angles ) )
+					{
+						if( angles.pitch != 0.0f || angles.yaw != 0.0f || angles.roll != 0.0f )
+						{
+							rot = angles.ToMat3();
+						}
+						else
+						{
+							rot.Identity();
+						}
+					}
+					else
+					{
+						float angle = ent->epairs.GetFloat( "angle" );
+						if( angle != 0.0f )
+						{
+							rot = idAngles( 0.0f, angle, 0.0f ).ToMat3();
+						}
+						else
+						{
+							rot.Identity();
+						}
+					}
+				}
+
+				idMat4 transform( rot, origin );
+				//transform.Identity();
+
+#if 1
+				if( !transform.IsIdentity() &&
+						idStr::Icmp( classname, "func_static" ) != 0 &&
+						idStr::Icmp( classname, "light" ) != 0 )
+				{
+					ent->epairs.Delete( "origin" );
+					ent->epairs.Delete( "rotation" );
+					ent->epairs.Delete( "angles" );
+					ent->epairs.Delete( "angle" );
+				}
+#endif
+
+				// convert brushes
+				for( int i = 0; i < ent->GetNumPrimitives(); i++ )
+				{
+					idMapPrimitive*	mapPrim;
+
+					mapPrim = ent->GetPrimitive( i );
+					if( mapPrim->GetType() == idMapPrimitive::TYPE_BRUSH )
+					{
+						idMapBrush* brushPrim = static_cast<idMapBrush*>( mapPrim );
+						for( int s = 0; s < brushPrim->GetNumSides(); s++ )
+						{
+							idMapBrushSide* side = brushPrim->GetSide( s );
+							side->ConvertToValve220Format( transform );
+						}
+					}
+				}
+
+				const idKeyValue* kv = classTypeOverview.FindKey( classname );
+				if( kv && kv->GetValue().Length() )
+				{
+					if( idStr::Icmp( kv->GetValue().c_str(), "PointClass" ) == 0 && idStr::Icmp( kv->GetValue().c_str(), "Mixed" ) != 0 )
+					{
+						classTypeOverview.Set( classname, "Mixed" );
+					}
+				}
+				else
+				{
+					classTypeOverview.Set( classname, "BrushClass" );
+				}
+			}
+			else
+			{
+				const idKeyValue* kv = classTypeOverview.FindKey( classname );
+				if( kv && kv->GetValue().Length() )
+				{
+					if( idStr::Icmp( kv->GetValue().c_str(), "BrushClass" ) == 0 && idStr::Icmp( kv->GetValue().c_str(), "Mixed" ) != 0 )
+					{
+						classTypeOverview.Set( classname, "Mixed" );
+					}
+				}
+				else
+				{
+					classTypeOverview.Set( classname, "PointClass" );
+				}
+			}
+		}
+	}
+
+	int n = classTypeOverview.GetNumKeyVals();
+
+	idLib::Printf( "BrushClasses:\n" );
+	for( int i = 0; i < n; i++ )
+	{
+		const idKeyValue* kv = classTypeOverview.GetKeyVal( i );
+
+		if( kv->GetValue() == "BrushClass" )
+		{
+			idLib::Printf( "'%s'\n", kv->GetKey().c_str() );
+		}
+	}
+
+	idLib::Printf( "\nPointClasses:\n" );
+	for( int i = 0; i < n; i++ )
+	{
+		const idKeyValue* kv = classTypeOverview.GetKeyVal( i );
+
+		if( kv->GetValue() == "PointClass" )
+		{
+			idLib::Printf( "'%s'\n", kv->GetKey().c_str() );
+		}
+	}
+
+	idLib::Printf( "\nMixedClasses:\n" );
+	for( int i = 0; i < n; i++ )
+	{
+		const idKeyValue* kv = classTypeOverview.GetKeyVal( i );
+
+		if( kv->GetValue() == "Mixed" )
+		{
+			idLib::Printf( "'%s'\n", kv->GetKey().c_str() );
 		}
 	}
 

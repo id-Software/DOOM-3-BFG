@@ -132,6 +132,8 @@ public:
 	{
 		return texSize;
 	}
+
+	void					ConvertToValve220Format( const idMat4& entityTransform );
 	// RB end
 
 protected:
@@ -481,6 +483,7 @@ public:
 	// RB begin
 	bool					WriteJSON( const char* fileName, const char* ext, bool fromBasePath = true );
 	bool					ConvertToPolygonMeshFormat();
+	bool					ConvertToValve220Format();
 	// RB end
 
 	// get the number of entities in the map

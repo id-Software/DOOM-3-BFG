@@ -494,6 +494,9 @@ private:
 };
 
 // data is RGBA
+void	LoadPNG( const char* filename, unsigned char** pic, int* width, int* height, ID_TIME_T* timestamp );
+
+void	LoadTGA( const char* name, byte** pic, int* width, int* height, ID_TIME_T* timestamp );
 void	R_WriteTGA( const char* filename, const byte* data, int width, int height, bool flipVertical = false, const char* basePath = "fs_savepath" );
 // data is in top-to-bottom raster order unless flipVertical is set
 

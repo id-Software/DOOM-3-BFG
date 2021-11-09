@@ -2141,6 +2141,7 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 	ignoreList.AddUnique( "ss" );
 	ignoreList.AddUnique( "test" );
 	ignoreList.AddUnique( "underground" );
+	ignoreList.AddUnique( "lm_" );
 
 	// xbox
 	ignoreList.AddUnique( "xbox" );
@@ -2151,6 +2152,20 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 	ignoreList.AddUnique( "blooper" );
 	ignoreList.AddUnique( "npc" );
 	ignoreList.AddUnique( "zombie" );
+
+	idStrList solidClassNames;
+	solidClassNames.AddUnique( "worldspawn" );
+	solidClassNames.AddUnique( "func_aas_obstacle" );
+	solidClassNames.AddUnique( "func_aas_portal" );
+	solidClassNames.AddUnique( "func_clipmodel" );
+	solidClassNames.AddUnique( "func_forcefield" );
+	solidClassNames.AddUnique( "func_fracture" );
+	solidClassNames.AddUnique( "func_liquid" );
+	solidClassNames.AddUnique( "func_plat" );
+	solidClassNames.AddUnique( "func_rotating" );
+	solidClassNames.AddUnique( "func_splinemover" );
+	solidClassNames.AddUnique( "moveable_base" );
+	solidClassNames.AddUnique( "trigger_" );
 
 	for( int f = 0; f < filenames.Num(); f++ )
 	{
@@ -2253,14 +2268,26 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 				}
 			}
 
+			bool solidClass = false;
+			for( int i = 0; i < solidClassNames.Num(); i++ )
+			{
+				const char* solidStr = solidClassNames[ i ].c_str();
+				if( idStr::Icmpn( decl->GetName(), solidStr, ( int )strlen( solidStr ) ) == 0 )
+				{
+					solidClass = true;
+					break;
+				}
+			}
+
+			if( idStr::Icmp( decl->GetName(), "trigger_relay" ) == 0 )
+			{
+				solidClass = false;
+			}
 
 			//
 			// build header
 			//
-			const idKeyValue* kv;
-			kv = decl->dict.MatchPrefix( "inherit", NULL );
-
-			if( idStr::Icmp( decl->GetName(), "worldspawn" ) == 0 )
+			if( solidClass )
 			{
 				file->Printf( "@SolidClass " );
 			}
@@ -2272,6 +2299,9 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 			{
 				file->Printf( "@PointClass " );
 			}
+
+			const idKeyValue* kv;
+			kv = decl->dict.MatchPrefix( "inherit", NULL );
 
 			if( kv )
 			{
@@ -2537,6 +2567,10 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 			else if( idStr::Icmp( decl->GetName(), "speaker" ) == 0 )
 			{
 				file->Printf( "model({ \"path\": \"sprites/speaker.png\", \"scale\": 0.03125 }) " );
+			}
+			else if( idStr::Icmp( decl->GetName(), "env_probe" ) == 0 )
+			{
+				file->Printf( "model({ \"path\": \"sprites/360-degree.png\", \"scale\": 0.03125 }) " );
 			}
 			else if( idStr::Icmpn( decl->GetName(), "ai_", 3 ) == 0 )
 			{

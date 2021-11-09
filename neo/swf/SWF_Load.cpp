@@ -134,7 +134,7 @@ bool idSWF::LoadSWF( const char* fullpath )
 	// now that all images have been loaded, write out the combined image
 	idStr atlasFileName = "generated/";
 	atlasFileName += fullpath;
-	atlasFileName.SetFileExtension( ".tga" );
+	atlasFileName.SetFileExtension( ".png" );
 
 	WriteSwfImageAtlas( atlasFileName );
 

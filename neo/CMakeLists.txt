@@ -9,6 +9,12 @@ if(CMAKE_MAJOR_VERSION EQUAL 3 AND CMAKE_MINOR_VERSION GREATER_EQUAL 6)
 	set_property (DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT RBDoom3BFG)
 endif()
 	
+option(STANDALONE
+		"Skip DOOM-3-BFG base/ folder and use assets/ instead" OFF)
+
+option(DOOM_CLASSIC
+		"Build with Doom 1 & 2" OFF)
+
 option(FORCE_COLOR_OUTPUT
 		"Always produce ANSI-colored output (GNU/Clang only)." OFF)
 
@@ -16,7 +22,7 @@ option(COMPILE_COMMANDS
 		"Generate compile_commands.json" OFF)
 
 option(USE_MFC_TOOLS
-		"Compile the built-in MFC based tools" OFF)
+		"Compile the legacy MFC based tools (unsupported)" OFF)
 
 option(USE_PRECOMPILED_HEADERS
 		"Use precompiled headers during build" ON)
@@ -45,11 +51,8 @@ option(USE_MoltenVK
 option(ONATIVE
 		"Optimize for the host CPU" OFF)
 		
-option(WINRT
-		"Build for Windows RT" OFF)
-		
 option(WINDOWS10
-		"Build for Windows 10" OFF)
+		"Build for Windows 10+" OFF)
 		
 option(USE_SYSTEM_ZLIB
                 "Use the system zlib instead of the bundled one" OFF)
@@ -285,7 +288,7 @@ elseif(MSVC)
 					-D_MBCS
 					-DUSE_EXCEPTIONS)
 
-	if( WINRT OR WINDOWS10 ) # Windows RT
+	if( WINDOWS10 ) # Windows RT
 		add_definitions(-DUSE_WINRT)
 	endif()
 					
@@ -308,9 +311,11 @@ if (USE_INTRINSICS_SSE)
 	add_definitions(-DUSE_INTRINSICS_SSE)
 endif()
 
-#if(STANDALONE)
-#	add_definitions(-DSTANDALONE)
-#endif()
+if(STANDALONE)
+	add_definitions(-DSTANDALONE)
+
+	set(DOOM_CLASSIC OFF)
+endif()
 
 if (USE_SYSTEM_ZLIB)
   find_package(ZLIB REQUIRED)
@@ -1361,8 +1366,6 @@ set(RBDOOM3_INCLUDES
 			${UI_INCLUDES}
 			${SWF_INCLUDES}
 			${COMMON_INCLUDES}
-			${DOOMCLASSIC_INCLUDES}
-			${TIMIDITY_INCLUDES}
 			
 			${COMPILER_INCLUDES}
 			${COMPILER_AAS_INCLUDES} ${COMPILER_AAS_SOURCES}
@@ -1409,8 +1412,6 @@ set(RBDOOM3_SOURCES
 			${UI_SOURCES}
 			${SWF_SOURCES}
 			${COMMON_SOURCES}
-			${DOOMCLASSIC_SOURCES}
-			${TIMIDITY_SOURCES}
 			
 			${COMPILER_AAS_SOURCES}
 			${COMPILER_DMAP_SOURCES}
@@ -1427,7 +1428,15 @@ set(RBDOOM3_SOURCES
 			${GAMED3XP_SCRIPT_SOURCES}
 			)
 
-add_definitions(-DUSE_DOOMCLASSIC)
+if(DOOM_CLASSIC)
+	add_definitions(-DUSE_DOOMCLASSIC)
+
+	list(APPEND RBDOOM3_INCLUDES ${DOOMCLASSIC_INCLUDES})
+	list(APPEND RBDOOM3_INCLUDES ${TIMIDITY_INCLUDES})
+	
+	list(APPEND RBDOOM3_SOURCES ${DOOMCLASSIC_SOURCES})
+	list(APPEND RBDOOM3_SOURCES ${TIMIDITY_SOURCES})
+endif()
 
 add_definitions(-D__DOOM__
 				#-DBUILD_FREETYPE
@@ -1494,9 +1503,10 @@ if(MSVC)
 		endif()
 		
 		list(APPEND RBDOOM3_INCLUDES ${OPENAL_INCLUDES})
-		list(APPEND RBDOOM3_SOURCES
-			${OPENAL_SOURCES}
-			${DOOMCLASSIC_OPENAL_SOURCES})
+		list(APPEND RBDOOM3_SOURCES	${OPENAL_SOURCES})
+		if(DOOM_CLASSIC)
+			list(APPEND RBDOOM3_SOURCES	${DOOMCLASSIC_OPENAL_SOURCES})
+		endif()		
 		
 		set(OpenAL_LIBRARIES
 			OpenAL32)
@@ -1509,9 +1519,11 @@ if(MSVC)
 		endif()
 	else()
 		list(APPEND RBDOOM3_INCLUDES ${XAUDIO2_INCLUDES})
-		list(APPEND RBDOOM3_SOURCES
-			${XAUDIO2_SOURCES}
-			${DOOMCLASSIC_XAUDIO2_SOURCES})
+		list(APPEND RBDOOM3_SOURCES	${XAUDIO2_SOURCES})
+
+		if(DOOM_CLASSIC)
+			list(APPEND RBDOOM3_SOURCES	${DOOMCLASSIC_XAUDIO2_SOURCES})
+		endif()
 	endif()
 	
 	if(FFMPEG)
@@ -1715,9 +1727,11 @@ else()
 				${DOOMCLASSIC_OPENAL_SOURCES})
 		else()
 			list(APPEND RBDOOM3_INCLUDES ${STUBAUDIO_INCLUDES})
-			list(APPEND RBDOOM3_SOURCES
-				${STUBAUDIO_SOURCES}
-				${DOOMCLASSIC_STUBAUDIO_SOURCES})
+			list(APPEND RBDOOM3_SOURCES ${STUBAUDIO_SOURCES})
+			
+			if(DOOM_CLASSIC)
+				list(APPEND RBDOOM3_SOURCES	${DOOMCLASSIC_STUBAUDIO_SOURCES})
+			endif()
 		endif()
 		
 		if(USE_VULKAN)

@@ -2997,7 +2997,7 @@ idStr idSWFScriptFunction_Script::ExportToScript( idSWFScriptObject* thisObject,
 finish:
 	idStr actionScript = BuildActionCode( actionBlocks, 0 );
 
-	idLib::Printf( "%s.Sprite%i script:\n%s\n", filename, characterID, actionScript.c_str() );
+	//idLib::Printf( "%s.Sprite%i script:\n%s\n", filename, characterID, actionScript.c_str() );
 
 	return actionScript;
 }

@@ -693,7 +693,7 @@ void idSWFSprite::WriteJSON_PlaceObject3( idFile* file, idSWFBitStream& bitstrea
 		// can't support anything after the filter list either (blend modes and clip actions)
 		//idLib::Warning( "PlaceObject3: has filters" );
 		file->WriteFloatString( ",\n\t\t\t\t\t\"hasFilterList\": true" );
-		return;
+		//return;
 	}
 
 	if( ( flags2 & PlaceFlagHasBlendMode ) != 0 )
@@ -719,12 +719,14 @@ void idSWFSprite::WriteJSON_RemoveObject2( idFile* file, idSWFBitStream& bitstre
 
 void idSWFSprite::WriteJSON_DoAction( idFile* file, idSWFBitStream& bitstream, int characterID, int commandID, const char* indentPrefix )
 {
+#if 1
 	idBase64 base64;
 
 	base64.Encode( bitstream.Ptr(), bitstream.Length() );
 
-#if 0
-	file->WriteFloatString( "%s\t\t\t\t{\t\"type\": \"Tag_DoAction\", \"streamLength\": %i, \"stream\": \"%s\" }", ( commandID != 0 ) ? ",\n" : "", bitstream.Length(), base64.c_str() );
+#if 1
+	//file->WriteFloatString( "%s\t\t\t\t{\t\"type\": \"Tag_DoAction\", \"streamLength\": %i, \"stream\": \"%s\" }", ( commandID != 0 ) ? ",\n" : "", bitstream.Length(), base64.c_str() );
+	file->WriteFloatString( "%s\t\t\t\t{\t\"type\": \"Tag_DoAction\", \"streamLength\": %i, \"stream\": \"FIXME\" }", ( commandID != 0 ) ? ",\n" : "", bitstream.Length() );
 #else
 	idSWFScriptObject* scriptObject = idSWFScriptObject::Alloc();
 	scriptObject->SetPrototype( &spriteInstanceScriptObjectPrototype );
@@ -750,9 +752,7 @@ void idSWFSprite::WriteJSON_DoAction( idFile* file, idSWFBitStream& bitstream, i
 	delete scriptObject;
 #endif
 
-
-
-
+#endif
 }
 
 

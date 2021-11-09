@@ -10,8 +10,10 @@ import os
 from decimal import *
 from math import *
 
-jsonfilename = "C:\\Projects\\RBDOOM-3-BFG\\base\\exported\\swf\\shell.json"
-basepath = "C:\\Projects\\RBDOOM-3-BFG\\base\\"
+#jsonfilename = "C:\\Projects\\RBDOOM-3-BFG\\base\\exported\\swf\\shell.json"
+jsonfilename = "C:\\Projects\\RBDOOM-3-BFG\\mod_ragetoolkit\\exported\\swf\\hud.json"
+
+basepath = "C:\\Projects\\RBDOOM-3-BFG\\mod_ragetoolkit\\"
 
 start = time.time() 
 data = json.loads( open( jsonfilename ).read() )
