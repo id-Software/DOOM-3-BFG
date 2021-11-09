@@ -132,6 +132,7 @@ inline bool BrushPrimitive_Degenerate( const idVec3& bpTexMatX, const idVec3& bp
 	return ( bpTexMatX[0] * bpTexMatY[1] - bpTexMatX[1] * bpTexMatY[0] ) == 0;
 }
 
+// heavily inspired by Valve220_from_BP from Netradiant-custom
 void idMapBrushSide::ConvertToValve220Format( const idMat4& entityTransform )
 {
 	// create p1, p2, p3
@@ -179,7 +180,6 @@ void idMapBrushSide::ConvertToValve220Format( const idMat4& entityTransform )
 		//idLib::Warning( "non orthogonal texture matrix in ConvertToValve220Format" );
 	}
 
-#if 0
 	// rotate initial axes
 	for( int i = 0; i < 2; i++ )
 	{
@@ -187,8 +187,10 @@ void idMapBrushSide::ConvertToValve220Format( const idMat4& entityTransform )
 		texValve[i][1] = texX[1] * texMat[i][0] + texY[1] * texMat[i][1];
 		texValve[i][2] = texX[2] * texMat[i][0] + texY[2] * texMat[i][1];
 		//texValve[i][3] = texMat[i][2] + ( origin * texValve[i].ToVec3() );
+
+		texValve[i][3] = 0;
+		texValve[i].Normalize();
 	}
-#endif
 
 	//material = "enpro/enwall16";
 
@@ -201,26 +203,32 @@ void idMapBrushSide::ConvertToValve220Format( const idMat4& entityTransform )
 		texSize.y = image->GetUploadHeight();
 	}
 
+	// remove texture dimensions from texMat
+	idVec3 localMat[2];
+	localMat[0] = texMat[0] * texSize.x;
+	localMat[1] = texMat[1] * texSize.y;
+
+	// from DoomEdit TexMatToFakeTexCoords
 	// compute a fake shift scale rot representation from the texture matrix
 	// these shift scale rot values are to be understood in the local axis base
-	texScale[0] = 1.0f / idMath::Sqrt( texMat[0][0] * texMat[0][0] + texMat[1][0] * texMat[1][0] );
-	texScale[1] = 1.0f / idMath::Sqrt( texMat[0][1] * texMat[0][1] + texMat[1][1] * texMat[1][1] );
-
-	texScale[0] /= texSize.x;
-	texScale[1] /= texSize.y;
+	texScale[0] = 1.0f / idMath::Sqrt( localMat[0][0] * localMat[0][0] + localMat[1][0] * localMat[1][0] );
+	texScale[1] = 1.0f / idMath::Sqrt( localMat[0][1] * localMat[0][1] + localMat[1][1] * localMat[1][1] );
 
 	if( texMat[0][0] < idMath::FLOAT_EPSILON )
 	{
+		texValve[0] = -texValve[0];
 		texScale[0] = -texScale[0];
 	}
 
 	if( texMat[1][0] < idMath::FLOAT_EPSILON )
 	{
+		texValve[1] = -texValve[1];
 		texScale[1] = -texScale[1];
 	}
 
-	texValve[0][3] = -texMat[0][2];
-	texValve[1][3] = texMat[1][2];
+	// shift
+	texValve[0][3] = localMat[0][2];
+	texValve[1][3] = localMat[1][2];
 }
 
 /*
@@ -2834,6 +2842,12 @@ bool idMapFile::ConvertToValve220Format()
 				}
 #endif
 
+				idStr model = ent->epairs.GetString( "model" );
+				if( idStr::Icmp( classname, "func_static" ) == 0 && idStr::Icmp( model.c_str(), classname.c_str() ) == 0 )
+				{
+					ent->epairs.Delete( "model" );
+				}
+
 				// convert brushes
 				for( int i = 0; i < ent->GetNumPrimitives(); i++ )
 				{
@@ -2850,6 +2864,8 @@ bool idMapFile::ConvertToValve220Format()
 						}
 					}
 				}
+
+				// collect some statistics
 
 				const idKeyValue* kv = classTypeOverview.FindKey( classname );
 				if( kv && kv->GetValue().Length() )
