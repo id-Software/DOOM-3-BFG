@@ -1714,12 +1714,12 @@ else()
 		if(OPENAL)
 			find_package(OpenAL REQUIRED)
 			add_definitions(-DUSE_OPENAL)
-   
-            # SRS - Added support for OpenAL Soft headers on OSX (vs default macOS SDK headers)
-            if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND NOT OPENAL_INCLUDE_DIR MATCHES "SDKs/MacOSX.*\.sdk")
-                include_directories(${OPENAL_INCLUDE_DIR})
-                add_definitions(-DUSE_OPENAL_SOFT_INCLUDES)
-            endif()
+
+			# SRS - Added support for OpenAL Soft headers on OSX (vs default macOS SDK headers)
+			if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND NOT OPENAL_INCLUDE_DIR MATCHES "SDKs/MacOSX.*\.sdk")
+			include_directories(${OPENAL_INCLUDE_DIR})
+			add_definitions(-DUSE_OPENAL_SOFT_INCLUDES)
+			endif()
 
 			list(APPEND RBDOOM3_INCLUDES ${OPENAL_INCLUDES})
 			list(APPEND RBDOOM3_SOURCES ${OPENAL_SOURCES})
