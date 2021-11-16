@@ -566,7 +566,10 @@ Recommended in this case is `cmake-vs2017-64bit-windows10.bat`
 
 <a href="https://www.moddb.com/mods/rbdoom-3-bfg" title="View RBDOOM-3-BFG on Mod DB" target="_blank"><img src="https://button.moddb.com/popularity/medium/mods/49231.png" alt="RBDOOM-3-BFG" /></a>
 
-2. RBDOOM-3-BFG is usually split into 2 packages. Make sure you have the Win64 binaries like RBDOOM-3-BFG-1.3.0.37-win64-20210604-git-c705e89.7z and the baked environment probes and lightgrid data for all BFG single player maps (4.2 GB download) like RBDOOM-3-BFG-1.3.0.36-baseSP_bakedlightdata.7z
+2. There are usually 2 kinds of RBDOOM-3-BFG packages. The Full and the Lite version.
+With the Full version you have the Win64 binaries, the baked environment probes and lightgrid data for all BFG single player maps like RBDOOM-3-BFG-1.3.0.42-`full`-win64-20211030-git-b4e0366.7z (6.18 GB download). 
+The Lite version has the `lite` in the filename like RBDOOM-3-BFG-1.3.0.42-lite-win64-20211030-git-b4e0366.7z.
+Those packages don't ship with the precomputed light data but have everything else needed to run the mod and the tools like the custom TrenchBroom build.
 
 3. Simply extract both packages over your
 `C:\Program Files (x86)\Steam\SteamApps\common\Doom 3 BFG Edition\` directory and run RBDoom3BFG.exe.

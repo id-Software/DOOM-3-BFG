@@ -229,6 +229,8 @@ void idMapBrushSide::ConvertToValve220Format( const idMat4& entityTransform )
 	// shift
 	texValve[0][3] = localMat[0][2];
 	texValve[1][3] = localMat[1][2];
+
+	projection = idMapBrushSide::PROJECTION_VALVE220;
 }
 
 /*
