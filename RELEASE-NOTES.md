@@ -232,7 +232,6 @@ Here is an overview of the changes made to TrenchBroom:
 * Game FGDs for Doom 3 and Doom 3 BFG
 
 ***Issues***
-* D3Radiant usually does not allow to use just textures. Only valid materials work and only materials should be shown in the texture collection overview. However this branch still displays all found textures.
 * It has no support for BFG .resource files and .bimage files. BFG only shipped for precompressed textures and no .tga files so people who want to mod for BFG have to copy the vanilla D3 base/textures/* and base/models/* to D3BFG/base/
 * Many entities work differently in Doom 3 if they have an origin. Brush work in D3 is usually stored in entity space and not world space. This is a major issue and not solved. I couldn't figure out how to parse the origin first and then translate the brushes accordingly.
 * Doom 3's primary model formats are LWO and ASE. LWO and .md5mesh model support is missing.
