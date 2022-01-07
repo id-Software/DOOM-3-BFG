@@ -2278,6 +2278,9 @@ int idFileSystemLocal::GetFileList( const char* relativePath, const idStrList& e
 
 				// make sure the file is not in a subdirectory
 				int j = pathLength;
+
+				// RB: subdirectories are good!!!
+#if 0
 				for( ; rt.filename[j + 1] != '\0'; j++ )
 				{
 					if( rt.filename[ j ] == '/' )
@@ -2289,6 +2292,7 @@ int idFileSystemLocal::GetFileList( const char* relativePath, const idStrList& e
 				{
 					continue;
 				}
+#endif
 
 				// check for extension match
 				for( j = 0; j < extensions.Num(); j++ )

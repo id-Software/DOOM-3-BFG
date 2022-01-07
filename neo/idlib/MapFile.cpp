@@ -3,7 +3,8 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2015-2021 Robert Beckebans
+Copyright (C) 2015-2022 Robert Beckebans
+Copyright (C) 2020 Admer (id Tech Fox)
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -1421,6 +1422,8 @@ unsigned int idMapEntity::GetGeometryCRC() const
 
 /*
 ===============
+Admer
+
 idMapEntity::CalculateBrushOrigin
 ===============
 */

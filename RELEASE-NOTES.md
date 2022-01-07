@@ -15,6 +15,30 @@ Thank you for downloading RBDOOM-3-BFG.
 
 _______________________________________
 
+TBD - RBDOOM-3-BFG 1.3.1
+_______________________________
+
+
+## General Changelog
+
+[TRENCHBROOM]
+
+* Tweaked exportFGD command for new icons
+
+* Added console command convertMapToValve220 `<map>`
+
+[MISCELLANEOUS]
+
+* Added CMake options STANDALONE and DOOM_CLASSIC
+
+* Added CMake options STANDALONE and DOOM_CLASSIC
+
+[ASSETS]
+
+* 
+
+_______________________________________
+
 30 October 2021 - RBDOOM-3-BFG 1.3.0 - Download it from the [RBDOOM-3-BFG ModDB Page](https://www.moddb.com/mods/rbdoom-3-bfg) 
 _______________________________
 
