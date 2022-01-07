@@ -194,20 +194,20 @@ static void R_CheckPortableExtensions()
 		idLib::FatalError( "%s", badVideoCard );
 	}
 
-	if( idStr::Icmpn( glConfig.renderer_string, "ATI ", 4 ) == 0 || idStr::Icmpn( glConfig.renderer_string, "AMD ", 4 ) == 0 )
+	if( idStr::Icmpn( glConfig.vendor_string, "ATI ", 4 ) == 0 || idStr::Icmpn( glConfig.renderer_string, "ATI ", 4 ) == 0 || idStr::Icmpn( glConfig.renderer_string, "AMD ", 4 ) == 0 )
 	{
 		glConfig.vendor = VENDOR_AMD;
 	}
-	else if( idStr::Icmpn( glConfig.renderer_string, "NVIDIA", 6 ) == 0 )
+	else if( idStr::Icmpn( glConfig.vendor_string, "NVIDIA", 6 ) == 0 || idStr::Icmpn( glConfig.renderer_string, "NVIDIA", 6 ) == 0 )
 	{
 		glConfig.vendor = VENDOR_NVIDIA;
 	}
-	else if( idStr::Icmpn( glConfig.renderer_string, "Intel", 5 ) == 0 )
+	else if( idStr::Icmpn( glConfig.vendor_string, "Intel", 5 ) == 0 || idStr::Icmpn( glConfig.renderer_string, "Intel", 5 ) == 0 )
 	{
 		glConfig.vendor = VENDOR_INTEL;
 	}
     // SRS - Added support for Apple GPUs
-    else if( idStr::Icmpn( glConfig.renderer_string, "Apple", 5 ) == 0 )
+    else if( idStr::Icmpn( glConfig.vendor_string, "Apple", 5 ) == 0 || idStr::Icmpn( glConfig.renderer_string, "Apple", 5 ) == 0 )
     {
         glConfig.vendor = VENDOR_APPLE;
     }
