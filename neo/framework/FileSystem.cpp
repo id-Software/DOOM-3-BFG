@@ -2279,8 +2279,9 @@ int idFileSystemLocal::GetFileList( const char* relativePath, const idStrList& e
 				// make sure the file is not in a subdirectory
 				int j = pathLength;
 
-				// RB: subdirectories are good!!!
-#if 0
+				// RB: FIXME expose this to an option for exportModelsToTrenchBroom
+				// so it doesn't break loading of sounds
+#if 1
 				for( ; rt.filename[j + 1] != '\0'; j++ )
 				{
 					if( rt.filename[ j ] == '/' )

@@ -2631,6 +2631,27 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 			file->Printf( "= %s : \"%s\"\n", decl->GetName(), text.c_str() );
 			file->Printf( "[\n" );
 
+			if( idStr::Icmp( decl->GetName(), "light" ) == 0 )
+			{
+				// RB: hardcode for now to have proper light styles combobox names
+				file->Printf(
+					"\tstyle(Choices) : \"Appearance\" : 0 =\n"
+					"\t[\n"
+					"\t\t0 : \"Normal\"\n"
+					"\t\t10: \"Fluorescent flicker\"\n"
+					"\t\t2 : \"Slow, strong pulse\"\n"
+					"\t\t11: \"Slow pulse, noblack\"\n"
+					"\t\t5 : \"Gentle pulse\"\n"
+					"\t\t1 : \"Flicker A\"\n"
+					"\t\t6 : \"Flicker B\"\n"
+					"\t\t3 : \"Candle A\"\n"
+					"\t\t7 : \"Candle B\"\n"
+					"\t\t8 : \"Candle C\"\n"
+					"\t\t4 : \"Fast strobe\"\n"
+					"\t\t9 : \"Slow strobe\"\n"
+					"\t]\n" );
+			}
+
 			for( int i = 0; i < dictToWrite.GetNumKeyVals(); i++ )
 			{
 				kv = dictToWrite.GetKeyVal( i );
