@@ -2790,51 +2790,67 @@ bool idMapFile::ConvertToValve220Format()
 				ent->epairs.Set( "_tb_textures", "textures/common;textures/editor;textures/decals;textures/decals2" );
 			}
 
-			if( ent->GetNumPrimitives() > 0 )
+			// build entity transform
+			idVec3 origin;
+			origin.Zero();
+
+			idMat3 rot;
+			rot.Identity();
+
+			idStr name = ent->epairs.GetString( "name" );
+
+			origin = ent->epairs.GetVector( "origin", "0 0 0" );
+
+			if( !ent->epairs.GetMatrix( "rotation", "1 0 0 0 1 0 0 0 1", rot ) )
 			{
-				// build entity transform
-				idVec3 origin;
-				origin.Zero();
+				idAngles angles;
 
-				idMat3 rot;
-				rot.Identity();
-
-				idStr name = ent->epairs.GetString( "name" );
-
-				origin = ent->epairs.GetVector( "origin", "0 0 0" );
-
-				if( !ent->epairs.GetMatrix( "rotation", "1 0 0 0 1 0 0 0 1", rot ) )
+				if( ent->epairs.GetAngles( "angles", "0 0 0", angles ) )
 				{
-					idAngles angles;
-
-					if( ent->epairs.GetAngles( "angles", "0 0 0", angles ) )
+					if( angles.pitch != 0.0f || angles.yaw != 0.0f || angles.roll != 0.0f )
 					{
-						if( angles.pitch != 0.0f || angles.yaw != 0.0f || angles.roll != 0.0f )
-						{
-							rot = angles.ToMat3();
-						}
-						else
-						{
-							rot.Identity();
-						}
+						rot = angles.ToMat3();
 					}
 					else
 					{
-						float angle = ent->epairs.GetFloat( "angle" );
-						if( angle != 0.0f )
-						{
-							rot = idAngles( 0.0f, angle, 0.0f ).ToMat3();
-						}
-						else
-						{
-							rot.Identity();
-						}
+						rot.Identity();
 					}
 				}
+				else
+				{
+					float angle = ent->epairs.GetFloat( "angle" );
+					if( angle != 0.0f )
+					{
+						rot = idAngles( 0.0f, angle, 0.0f ).ToMat3();
+					}
+					else
+					{
+						rot.Identity();
+					}
+				}
+			}
 
-				idMat4 transform( rot, origin );
-				//transform.Identity();
+			idMat4 transform( rot, origin );
+			//transform.Identity();
 
+			const idKeyValue* modelPair = ent->epairs.FindKey( "model" );
+			idStr model = ent->epairs.GetString( "model" );
+#if 1
+			// HACK: convert every old .lwo, .ase model to .obj
+			idStr ext;
+			model.ExtractFileExtension( ext );
+
+			if( ext.Icmp( "lwo" ) == 0 || ext.Icmp( "ase" ) == 0 || ext.Icmp( "dae" ) == 0 )
+			{
+				model.SetFileExtension( "obj" );
+				model = "_tb/" + model;
+
+				ent->epairs.Set( "model", model );
+			}
+#endif
+			// is this oldschool brushes & patches?
+			if( ent->GetNumPrimitives() > 0 )
+			{
 #if 1
 				if( !transform.IsIdentity() &&
 						idStr::Icmp( classname, "func_static" ) != 0 &&
@@ -2847,7 +2863,6 @@ bool idMapFile::ConvertToValve220Format()
 				}
 #endif
 
-				idStr model = ent->epairs.GetString( "model" );
 				if( idStr::Icmp( classname, "func_static" ) == 0 && idStr::Icmp( model.c_str(), classname.c_str() ) == 0 )
 				{
 					ent->epairs.Delete( "model" );
@@ -2887,6 +2902,17 @@ bool idMapFile::ConvertToValve220Format()
 			}
 			else
 			{
+				// just a regular entity
+
+				// replace "rotation" with angles because it is not supported by TrenchBroom
+				if( ent->epairs.FindKey( "rotation" ) )
+				{
+					ent->epairs.Delete( "rotation" );
+
+					idAngles angles = rot.ToAngles();
+					ent->epairs.SetAngles( "angles", angles );
+				}
+
 				const idKeyValue* kv = classTypeOverview.FindKey( classname );
 				if( kv && kv->GetValue().Length() )
 				{

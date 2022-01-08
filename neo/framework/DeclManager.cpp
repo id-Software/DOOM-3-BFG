@@ -2744,73 +2744,44 @@ void idDeclManagerLocal::ExportModelsToTrenchBroom_f( const idCmdArgs& args )
 
 	int totalModelsCount = 0;
 
+	idFileList* files = fileSystem->ListFilesTree( "generated", ".blwo|.base|.bmd5mesh", true );
+
+	for( int f = 0; f < files->GetList().Num(); f++ )
 	{
-		idFileList* files;
+		idStr modelName = files->GetList()[ f ];
+		modelName.StripLeadingOnce( "generated/rendermodels/" );
 
-		files = fileSystem->ListFilesTree( "generated", ".blwo|.base|.bmd5mesh", true );
-		for( int f = 0; f < files->GetList().Num(); f++ )
+		idStr ext;
+		modelName.ExtractFileExtension( ext );
+
+		if( ext.Icmp( "blwo" ) == 0 )
 		{
-			idStr modelName = files->GetList()[ f ];
-			modelName.StripLeadingOnce( "generated/rendermodels/" );
-
-			idStr ext;
-			modelName.ExtractFileExtension( ext );
-
-			if( ext.Icmp( "blwo" ) == 0 )
-			{
-				modelName.SetFileExtension( "lwo" );
-			}
-
-			if( ext.Icmp( "base" ) == 0 )
-			{
-				modelName.SetFileExtension( "ase" );
-			}
-
-			if( ext.Icmp( "bdae" ) == 0 )
-			{
-				modelName.SetFileExtension( "dae" );
-			}
-
-			if( ext.Icmp( "bmd5mesh" ) == 0 )
-			{
-				modelName.SetFileExtension( "md5mesh" );
-			}
-
-			idLib::Printf( "Exporting model '%s'\n", modelName.c_str() );
-
-			// export models as OBJ
-			//idStrStatic< MAX_OSPATH > exportedModelFileName;
-
-			// precache model/animations
-
-			//const idDeclModelDef* modelDef = static_cast<const idDeclModelDef*>( declManager->FindType( DECL_MODELDEF, kv->GetValue(), false ) );
-			//if( modelDef == NULL )
-			{
-				// there is no modelDef so use direct path
-				renderModelManager->FindModel( modelName );
-
-				//exportedModelFileName = "_tb/";
-				//exportedModelFileName.AppendPath( modelName );
-				//exportedModelFileName.SetFileExtension( ".obj" );
-			}
-			/*
-			else
-			{
-				idRenderModel* renderModel = modelDef->ModelHandle();
-				if( renderModel )
-				{
-					exportedModelFileName = "_tb/";
-					exportedModelFileName.AppendPath( renderModel->Name() );
-					exportedModelFileName.SetFileExtension( ".obj" );
-				}
-			}
-			*/
-
-			totalModelsCount++;
+			modelName.SetFileExtension( "lwo" );
 		}
 
-		fileSystem->FreeFileList( files );
+		if( ext.Icmp( "base" ) == 0 )
+		{
+			modelName.SetFileExtension( "ase" );
+		}
+
+		if( ext.Icmp( "bdae" ) == 0 )
+		{
+			modelName.SetFileExtension( "dae" );
+		}
+
+		if( ext.Icmp( "bmd5mesh" ) == 0 )
+		{
+			modelName.SetFileExtension( "md5mesh" );
+		}
+
+		idLib::Printf( "Exporting model '%s'\n", modelName.c_str() );
+
+		renderModelManager->FindModel( modelName );
+
+		totalModelsCount++;
 	}
+	fileSystem->FreeFileList( files );
+
 	com_editors &= ~EDITOR_EXPORTDEFS;
 	postLoadExportModels.SetBool( false );
 
