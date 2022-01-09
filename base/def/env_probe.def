@@ -1,10 +1,1 @@
-entityDef env_probe
-{
-	"editor_color"				"0 0 1"
-	"editor_mins"				"-8 -8 -8"
-	"editor_maxs"				" 8  8  8"
-	
-	"editor_usage"				"Environment probe for Image Based Lighting"
-	
-	"spawnclass"				"EnvironmentProbe"
-}
+// moved to _rbdoom_env_probe.def

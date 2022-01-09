@@ -1,0 +1,12 @@
+entityDef misc_model 
+{
+	"inherit"					"func_static"
+	"editor_color"				"0 .5 .8"
+	"editor_mins"				"-12 -12 -12"
+	"editor_maxs"				"12 12 12"
+	"editor_rotatable"			"1"
+
+	"editor_usage"				"Inherits from a func_static but is fixed size and a FGD PointClass."
+	"editor_usage1"				"Use it to place all kinds of models"
+	"angles"					"0 0 0"
+}

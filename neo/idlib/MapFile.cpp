@@ -2904,6 +2904,13 @@ bool idMapFile::ConvertToValve220Format()
 			{
 				// just a regular entity
 
+				if( idStr::Icmp( classname, "func_static" ) == 0 && idStr::Icmp( model.c_str(), classname.c_str() ) != 0 )
+				{
+					// TrenchBroom doesn't allow models for SolidClasses
+					// use Quake 3 style misc_model helper class instead
+					ent->epairs.Set( "classname", "misc_model" );
+				}
+
 				// replace "rotation" with angles because it is not supported by TrenchBroom
 				if( ent->epairs.FindKey( "rotation" ) )
 				{
