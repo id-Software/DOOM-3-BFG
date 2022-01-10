@@ -430,7 +430,7 @@ CONSOLE_COMMAND( localizeGuis, "localize guis", NULL )
 		}
 		else
 		{
-			files = fileSystem->ListFilesTree( "guis", "*.pd", true, "d3xp" );
+			files = fileSystem->ListFilesTree( "guis", "*.pd", true, false, "d3xp" );
 		}
 
 		for( int i = 0; i < files->GetNumFiles(); i++ )

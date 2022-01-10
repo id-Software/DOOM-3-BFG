@@ -2765,7 +2765,7 @@ void idDeclManagerLocal::ExportModelsToTrenchBroom_f( const idCmdArgs& args )
 
 	int totalModelsCount = 0;
 
-	idFileList* files = fileSystem->ListFilesTree( "generated", ".blwo|.base|.bmd5mesh", true );
+	idFileList* files = fileSystem->ListFilesTree( "generated", ".blwo|.base|.bmd5mesh", true, true );
 
 	for( int f = 0; f < files->GetList().Num(); f++ )
 	{

@@ -136,7 +136,7 @@ public:
 	virtual void			Shutdown( bool reloading );
 	virtual bool			IsInitialized() const;
 	virtual idFileList* 	ListFiles( const char* relativePath, const char* extension, bool sort = false, bool fullRelativePath = false, const char* gamedir = NULL );
-	virtual idFileList* 	ListFilesTree( const char* relativePath, const char* extension, bool sort = false, const char* gamedir = NULL );
+	virtual idFileList* 	ListFilesTree( const char* relativePath, const char* extension, bool sort = false,  bool allowSubdirsForResourcePaks = false, const char* gamedir = NULL );
 	virtual void			FreeFileList( idFileList* fileList );
 	virtual const char* 	OSPathToRelativePath( const char* OSPath );
 	virtual const char* 	RelativePathToOSPath( const char* relativePath, const char* basePath );
@@ -279,9 +279,10 @@ private:
 	void					CopyFile( idFile* src, const char* toOSPath );
 	int						AddUnique( const char* name, idStrList& list, idHashIndex& hashIndex ) const;
 	void					GetExtensionList( const char* extension, idStrList& extensionList ) const;
-	int						GetFileList( const char* relativePath, const idStrList& extensions, idStrList& list, idHashIndex& hashIndex, bool fullRelativePath, const char* gamedir = NULL );
 
-	int						GetFileListTree( const char* relativePath, const idStrList& extensions, idStrList& list, idHashIndex& hashIndex, const char* gamedir = NULL );
+	// RB: added bool allowSubdirsForResourcePaks
+	int						GetFileList( const char* relativePath, const idStrList& extensions, idStrList& list, idHashIndex& hashIndex, bool fullRelativePath, bool allowSubdirsForResourcePaks = false, const char* gamedir = NULL );
+	int						GetFileListTree( const char* relativePath, const idStrList& extensions, idStrList& list, idHashIndex& hashIndex, bool allowSubdirsForResourcePaks = false, const char* gamedir = NULL );
 	void					AddGameDirectory( const char* path, const char* dir );
 
 	int						AddResourceFile( const char* resourceFileName );
@@ -2225,7 +2226,7 @@ Does not clear the list first so this can be used to progressively build a file 
 When 'sort' is true only the new files added to the list are sorted.
 ===============
 */
-int idFileSystemLocal::GetFileList( const char* relativePath, const idStrList& extensions, idStrList& list, idHashIndex& hashIndex, bool fullRelativePath, const char* gamedir )
+int idFileSystemLocal::GetFileList( const char* relativePath, const idStrList& extensions, idStrList& list, idHashIndex& hashIndex, bool fullRelativePath, bool allowSubdirsForResourcePaks, const char* gamedir )
 {
 	if( !IsInitialized() )
 	{
@@ -2279,21 +2280,22 @@ int idFileSystemLocal::GetFileList( const char* relativePath, const idStrList& e
 				// make sure the file is not in a subdirectory
 				int j = pathLength;
 
-				// RB: FIXME expose this to an option for exportModelsToTrenchBroom
+				// RB: expose this to an option for exportModelsToTrenchBroom
 				// so it doesn't break loading of sounds
-#if 1
-				for( ; rt.filename[j + 1] != '\0'; j++ )
+				if( !allowSubdirsForResourcePaks )
 				{
-					if( rt.filename[ j ] == '/' )
+					for( ; rt.filename[j + 1] != '\0'; j++ )
 					{
-						break;
+						if( rt.filename[ j ] == '/' )
+						{
+							break;
+						}
+					}
+					if( rt.filename[ j + 1 ] )
+					{
+						continue;
 					}
 				}
-				if( rt.filename[ j + 1 ] )
-				{
-					continue;
-				}
-#endif
 
 				// check for extension match
 				for( j = 0; j < extensions.Num(); j++ )
@@ -2391,7 +2393,7 @@ idFileList* idFileSystemLocal::ListFiles( const char* relativePath, const char* 
 
 	GetExtensionList( extension, extensionList );
 
-	GetFileList( relativePath, extensionList, fileList->list, hashIndex, fullRelativePath, gamedir );
+	GetFileList( relativePath, extensionList, fileList->list, hashIndex, fullRelativePath, false, gamedir );
 
 	if( sort )
 	{
@@ -2406,7 +2408,7 @@ idFileList* idFileSystemLocal::ListFiles( const char* relativePath, const char* 
 idFileSystemLocal::GetFileListTree
 ===============
 */
-int idFileSystemLocal::GetFileListTree( const char* relativePath, const idStrList& extensions, idStrList& list, idHashIndex& hashIndex, const char* gamedir )
+int idFileSystemLocal::GetFileListTree( const char* relativePath, const idStrList& extensions, idStrList& list, idHashIndex& hashIndex, bool allowSubdirsForResourcePaks, const char* gamedir )
 {
 	int i;
 	idStrList slash, folders( 128 );
@@ -2414,7 +2416,7 @@ int idFileSystemLocal::GetFileListTree( const char* relativePath, const idStrLis
 
 	// recurse through the subdirectories
 	slash.Append( "/" );
-	GetFileList( relativePath, slash, folders, folderHashIndex, true, gamedir );
+	GetFileList( relativePath, slash, folders, folderHashIndex, true, allowSubdirsForResourcePaks, gamedir );
 	for( i = 0; i < folders.Num(); i++ )
 	{
 		if( folders[i][0] == '.' )
@@ -2425,11 +2427,11 @@ int idFileSystemLocal::GetFileListTree( const char* relativePath, const idStrLis
 		{
 			continue;
 		}
-		GetFileListTree( folders[i], extensions, list, hashIndex, gamedir );
+		GetFileListTree( folders[i], extensions, list, hashIndex, allowSubdirsForResourcePaks, gamedir );
 	}
 
 	// list files in the current directory
-	GetFileList( relativePath, extensions, list, hashIndex, true, gamedir );
+	GetFileList( relativePath, extensions, list, hashIndex, true, allowSubdirsForResourcePaks, gamedir );
 
 	return list.Num();
 }
@@ -2439,7 +2441,7 @@ int idFileSystemLocal::GetFileListTree( const char* relativePath, const idStrLis
 idFileSystemLocal::ListFilesTree
 ===============
 */
-idFileList* idFileSystemLocal::ListFilesTree( const char* relativePath, const char* extension, bool sort, const char* gamedir )
+idFileList* idFileSystemLocal::ListFilesTree( const char* relativePath, const char* extension, bool sort,  bool allowSubdirsForResourcePaks, const char* gamedir )
 {
 	idHashIndex hashIndex( 4096, 4096 );
 	idStrList extensionList;
@@ -2450,7 +2452,7 @@ idFileList* idFileSystemLocal::ListFilesTree( const char* relativePath, const ch
 
 	GetExtensionList( extension, extensionList );
 
-	GetFileListTree( relativePath, extensionList, fileList->list, hashIndex, gamedir );
+	GetFileListTree( relativePath, extensionList, fileList->list, hashIndex, allowSubdirsForResourcePaks, gamedir );
 
 	if( sort )
 	{
