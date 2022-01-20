@@ -267,7 +267,7 @@ void idImage::CreateSampler()
 			if( r_maxAnisotropicFiltering.GetInteger() > 0 )
 			{
 				createInfo.anisotropyEnable = VK_TRUE;
-				createInfo.maxAnisotropy = r_maxAnisotropicFiltering.GetInteger();
+                createInfo.maxAnisotropy = Min( r_maxAnisotropicFiltering.GetFloat(), vkcontext.gpu->props.limits.maxSamplerAnisotropy );
 			}
 			break;
 

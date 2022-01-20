@@ -305,20 +305,18 @@ static void CreateVulkanInstance()
         ID_VK_CHECK( vkEnumerateInstanceExtensionProperties( NULL, &numInstanceExtensions, NULL ) );
         ID_VK_VALIDATE( numInstanceExtensions > 0, "vkEnumerateInstanceExtensionProperties returned zero extensions." );
 
-        if( numInstanceExtensions > 0 )
-        {
-            idList< VkExtensionProperties > instanceExtensionProps;
-            instanceExtensionProps.SetNum( numInstanceExtensions );
-            ID_VK_CHECK( vkEnumerateInstanceExtensionProperties( NULL, &numInstanceExtensions, instanceExtensionProps.Ptr() ) );
+        idList< VkExtensionProperties > instanceExtensionProps;
+        instanceExtensionProps.SetNum( numInstanceExtensions );
+        ID_VK_CHECK( vkEnumerateInstanceExtensionProperties( NULL, &numInstanceExtensions, instanceExtensionProps.Ptr() ) );
+        ID_VK_VALIDATE( numInstanceExtensions > 0, "vkEnumerateInstanceExtensionProperties returned zero extensions." );
 
-            for( int i = 0; i < numInstanceExtensions; i++ )
+        for( int i = 0; i < numInstanceExtensions; i++ )
+        {
+            if( idStr::Icmp( instanceExtensionProps[ i ].extensionName, VK_EXT_DEBUG_UTILS_EXTENSION_NAME ) == 0 )
             {
-                if( idStr::Icmp( instanceExtensionProps[ i ].extensionName, VK_EXT_DEBUG_UTILS_EXTENSION_NAME ) == 0 )
-                {
-                    vkcontext.instanceExtensions.AddUnique( VK_EXT_DEBUG_UTILS_EXTENSION_NAME );
-                    vkcontext.debugUtilsSupportAvailable = true;
-                    break;
-                }
+                vkcontext.instanceExtensions.AddUnique( VK_EXT_DEBUG_UTILS_EXTENSION_NAME );
+                vkcontext.debugUtilsSupportAvailable = true;
+                break;
             }
         }
         

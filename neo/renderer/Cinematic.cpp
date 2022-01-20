@@ -406,9 +406,9 @@ idCinematicLocal::idCinematicLocal()
 	qStatus[0] = ( byte** )Mem_Alloc( 32768 * sizeof( byte* ), TAG_CINEMATIC );
 	qStatus[1] = ( byte** )Mem_Alloc( 32768 * sizeof( byte* ), TAG_CINEMATIC );
 
+    isRoQ = false;      // SRS - Initialize isRoQ for all cases, not just FFMPEG
 #if defined(USE_FFMPEG)
 	// Carl: ffmpeg stuff, for bink and normal video files:
-	isRoQ = false;
 //	fmt_ctx = avformat_alloc_context();
 #if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(55,28,1)
 	frame = av_frame_alloc();
@@ -731,6 +731,7 @@ bool idCinematicLocal::InitFromBinkDecFile( const char* qpath, bool amilooping )
 	startTime = Sys_Milliseconds();
 	memset( yuvBuffer, 0, sizeof( yuvBuffer ) );
 	framePos = -1;
+    ImageForTime( 0 );      // SRS - Was missing initial call to ImageForTime() - fixes validation errors when using Vulkan renderer
 
 	return true;
 }
