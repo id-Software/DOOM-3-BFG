@@ -398,8 +398,8 @@ void UnRotateNormals( const byte* block, float* normals, byte c0, byte c1 )
 {
 	int rotation = c0;
 	float angle = -( rotation / 255.0f ) * idMath::PI;
-	float s = sin( angle );
-	float c = cos( angle );
+	float s = idMath::Sin( angle );
+	float c = idMath::Cos( angle );
 
 	int scale = ( c1 >> 3 ) + 1;
 	for( int i = 0; i < 16; i++ )
@@ -614,7 +614,7 @@ void idDxtDecoder::DecompressNormalMapDXT5( const byte* inBuf, byte* outBuf, int
 				{
 					z = 0.0f;
 				}
-				normals[k * 4 + 2] = sqrt( z );
+				normals[k * 4 + 2] = idMath::Sqrt( z );
 			}
 			for( int k = 0; k < 16; k++ )
 			{

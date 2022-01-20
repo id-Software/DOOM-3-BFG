@@ -715,7 +715,12 @@ CONSOLE_COMMAND( convertMapToValve220, "Convert .map file to the Valve 220 map f
 	idMapFile map;
 	if( map.Parse( mapName, true, false ) )
 	{
+		// make sure we have access to all .bimage files for that map
+		fileSystem->BeginLevelLoad( filename, NULL, 0 );
+
 		map.ConvertToValve220Format();
+
+		fileSystem->EndLevelLoad();
 
 		idStrStatic< MAX_OSPATH > canonical = mapName;
 		canonical.ToLower();

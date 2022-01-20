@@ -27,9 +27,11 @@ _______________________________
 
 * Added console command convertMapToValve220 `<map>`
 
-[MISCELLANEOUS]
+* Added console command exportImagesToTrenchBroom which decompresses and saves all .bimage images to _tb/*.png files
 
-* Added CMake options STANDALONE and DOOM_CLASSIC
+* Added console command exportModelsToTrenchBroom which saves all .base|.blwo|.bmd5mesh models to _tb/*.obj files
+
+[MISCELLANEOUS]
 
 * Added CMake options STANDALONE and DOOM_CLASSIC
 

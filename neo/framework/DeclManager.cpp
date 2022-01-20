@@ -29,6 +29,9 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "precompiled.h"
 #pragma hdrstop
+#include "../renderer/Image.h"
+#include "../renderer/DXT/DXTCodec.h"
+#include "../renderer/Color/ColorSpace.h"
 
 /*
 
@@ -264,6 +267,7 @@ private:
 	static void                 ExportDeclsToBlender_f( const idCmdArgs& args );
 	static void                 ExportDeclsToTrenchBroom_f( const idCmdArgs& args );
 	static void                 ExportModelsToTrenchBroom_f( const idCmdArgs& args );
+	static void                 ExportImagesToTrenchBroom_f( const idCmdArgs& args );
 	// RB end
 };
 
@@ -962,6 +966,7 @@ void idDeclManagerLocal::Init()
 	cmdSystem->AddCommand( "exportEntityDefsToBlender", ExportDeclsToBlender_f, CMD_FL_SYSTEM, "exports all entity and model defs to exported/entities.json" );
 	cmdSystem->AddCommand( "exportFGD", ExportDeclsToTrenchBroom_f, CMD_FL_SYSTEM, "exports all entity and model defs to exported/_tb/Doom3.fgd" );
 	cmdSystem->AddCommand( "exportModelsToTrenchBroom", ExportModelsToTrenchBroom_f, CMD_FL_SYSTEM, "exports all generated models like blwo, base .. to _tb/*.obj" );
+	cmdSystem->AddCommand( "exportImagesToTrenchBroom", ExportImagesToTrenchBroom_f, CMD_FL_SYSTEM, "exports all generated bimages to _tb/*.png" );
 	// RB end
 
 	common->Printf( "------------------------------\n" );
@@ -2810,6 +2815,186 @@ void idDeclManagerLocal::ExportModelsToTrenchBroom_f( const idCmdArgs& args )
 	common->Printf( "Wrote %d Models.\n", totalModelsCount );
 
 	common->FatalError( "Exporting successful, need to restart manually" );
+}
+
+void idDeclManagerLocal::ExportImagesToTrenchBroom_f( const idCmdArgs& args )
+{
+	int totalImagesCount = 0;
+
+	idFileList* files = fileSystem->ListFilesTree( "generated", ".bimage", true, true );
+
+	int	totalStart = Sys_Milliseconds();
+
+	for( int f = 0; f < files->GetList().Num(); f++ )
+	{
+		idStr imageName = files->GetList()[ f ];
+
+		if( idStr::Icmpn( imageName, "generated/images/env/maps/game/", 31 ) == 0 )
+		{
+			// skip HDR cache data
+			continue;
+		}
+
+		if( idStr::FindText( imageName, "addnormals", false ) != -1 )
+		{
+			continue;
+		}
+
+		if( idStr::FindText( imageName, "heightmap", false ) != -1 )
+		{
+			continue;
+		}
+
+		if( idStr::FindText( imageName, "makealpha", false ) != -1 )
+		{
+			continue;
+		}
+
+		if( idStr::FindText( imageName, "makeintensity", false ) != -1 )
+		{
+			continue;
+		}
+
+#if 0
+		// only export decals for testing
+		if( idStr::Icmpn( imageName, "generated/images/textures/decals/", 33 ) != 0 )
+		{
+			continue;
+		}
+
+		if( idStr::FindText( imageName, "a_pipecap2a_d", false ) != -1 )
+		{
+			totalImagesCount++;
+		}
+#endif
+
+
+		idFileLocal bFile = fileSystem->OpenFileRead( imageName );
+		if( bFile == NULL )
+		{
+			continue;
+		}
+
+		idBinaryImage im( imageName );
+		ID_TIME_T binaryFileTime = im.LoadFromGeneratedFile( bFile, FILE_NOT_FOUND_TIMESTAMP );
+
+		if( binaryFileTime != FILE_NOT_FOUND_TIMESTAMP )
+		{
+			const bimageFile_t& imgHeader = im.GetFileHeader();
+			const bimageImage_t& img = im.GetImageHeader( 0 );
+
+			const byte* data = im.GetImageData( 0 );
+
+			if( ( imgHeader.format == FMT_DXT5 || imgHeader.format == FMT_DXT1 ) && ( imgHeader.colorFormat != CFM_GREEN_ALPHA ) )
+			{
+				idLib::Printf( "Exporting image '%s'\n", imageName.c_str() );
+
+				// RB: Images that are were DXT compressed and aren't multiples of 4 were padded out before compressing
+				// however the idBinaryImageData stores the original input width and height.
+				// We need multiples of 4 for the decompression routines
+
+				int	dxtWidth = 0;
+				int	dxtHeight = 0;
+				if( imgHeader.format == FMT_DXT5 || imgHeader.format == FMT_DXT1 )
+				{
+					if( ( img.width & 3 ) || ( img.height & 3 ) )
+					{
+						dxtWidth = ( img.width + 3 ) & ~3;
+						dxtHeight = ( img.height + 3 ) & ~3;
+					}
+					else
+					{
+						dxtWidth = img.width;
+						dxtHeight = img.height;
+					}
+				}
+
+				idTempArray<byte> rgba( dxtWidth * dxtHeight * 4 );
+				memset( rgba.Ptr(), 255, rgba.Size() );
+
+				if( imgHeader.format == FMT_DXT1 )
+				{
+					idDxtDecoder dxt;
+					dxt.DecompressImageDXT1( data, rgba.Ptr(), dxtWidth, dxtHeight );
+				}
+				else if( imgHeader.format == FMT_DXT5 )
+				{
+					idDxtDecoder dxt;
+
+					if( imgHeader.colorFormat == CFM_NORMAL_DXT5 )
+					{
+						dxt.DecompressNormalMapDXT5( data, rgba.Ptr(), dxtWidth, dxtHeight );
+					}
+					else if( imgHeader.colorFormat == CFM_YCOCG_DXT5 )
+					{
+						dxt.DecompressYCoCgDXT5( data, rgba.Ptr(), dxtWidth, dxtHeight );
+						idColorSpace::ConvertCoCg_YToRGB( rgba.Ptr(), rgba.Ptr(), dxtWidth, dxtHeight );
+
+						for( int i = 0; i < ( dxtWidth * dxtHeight ); i++ )
+						{
+							rgba[i * 4 + 3] = 255;
+						}
+					}
+					else
+					{
+						dxt.DecompressImageDXT5( data, rgba.Ptr(), dxtWidth, dxtHeight );
+					}
+				}
+
+
+				imageName.StripLeadingOnce( "generated/images/" );
+
+				idStrStatic< MAX_OSPATH > exportName = "exported/_tb/";
+				exportName += imageName;
+				int idx = exportName.Find( '#' );
+				exportName.CapLength( idx );
+
+				exportName.SetFileExtension( ".png" );
+
+				if( dxtWidth != img.width || dxtHeight != img.height )
+				{
+					// scale DXT sized images back to the original size
+					byte* scaled = R_Dropsample( rgba.Ptr(), dxtWidth, dxtHeight, img.width, img.height );
+
+#if 1
+					if( img.width > 16 && img.height > 16 )
+					{
+						R_WritePNG( exportName, scaled, 4, img.width, img.height, true, "fs_basepath" );
+					}
+					else
+#endif
+					{
+						exportName.SetFileExtension( ".tga" );
+						R_WriteTGA( exportName, scaled, img.width, img.height, false, "fs_basepath" );
+					}
+
+					Mem_Free( scaled );
+				}
+				else
+				{
+#if 1
+					if( img.width > 16 && img.height > 16 )
+					{
+						R_WritePNG( exportName, rgba.Ptr(), 4, img.width, img.height, true, "fs_basepath" );
+					}
+					else
+#endif
+					{
+						exportName.SetFileExtension( ".tga" );
+						R_WriteTGA( exportName, rgba.Ptr(), img.width, img.height, false, "fs_basepath" );
+					}
+				}
+			}
+		}
+
+		totalImagesCount++;
+	}
+	fileSystem->FreeFileList( files );
+
+	int	totalEnd = Sys_Milliseconds();
+
+	common->Printf( "----------------------------\n" );
+	common->Printf( "Exported and decompressed %d images in %5.1f minutes.\n", totalImagesCount, ( totalEnd - totalStart ) / ( 1000.0f * 60 ) );
 }
 // RB  end
 
