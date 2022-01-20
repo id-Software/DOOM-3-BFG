@@ -2944,7 +2944,7 @@ void idDeclManagerLocal::ExportImagesToTrenchBroom_f( const idCmdArgs& args )
 
 				imageName.StripLeadingOnce( "generated/images/" );
 
-				idStrStatic< MAX_OSPATH > exportName = "exported/_tb/";
+				idStrStatic< MAX_OSPATH > exportName = "_tb/";
 				exportName += imageName;
 				int idx = exportName.Find( '#' );
 				exportName.CapLength( idx );
