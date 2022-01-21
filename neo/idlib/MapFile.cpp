@@ -134,7 +134,7 @@ inline bool BrushPrimitive_Degenerate( const idVec3& bpTexMatX, const idVec3& bp
 }
 
 // heavily inspired by Valve220_from_BP from Netradiant-custom
-void idMapBrushSide::ConvertToValve220Format( const idMat4& entityTransform )
+void idMapBrushSide::ConvertToValve220Format( const idMat4& entityTransform, idStrList& textureCollections )
 {
 	// create p1, p2, p3
 	idVec3 forward = plane.Normal();
@@ -193,7 +193,7 @@ void idMapBrushSide::ConvertToValve220Format( const idMat4& entityTransform )
 		texValve[i].Normalize();
 	}
 
-	//material = "enpro/enwall16";
+	idMapFile::AddMaterialToCollection( GetMaterial(), textureCollections );
 
 	const idMaterial* material = declManager->FindMaterial( GetMaterial() );
 
@@ -2776,6 +2776,7 @@ bool idMapFile::ConvertToValve220Format()
 	valve220Format = true;
 
 	idDict classTypeOverview;
+	idStrList textureCollections;
 
 	int count = GetNumEntities();
 	for( int j = 0; j < count; j++ )
@@ -2784,11 +2785,6 @@ bool idMapFile::ConvertToValve220Format()
 		if( ent )
 		{
 			idStr classname = ent->epairs.GetString( "classname" );
-
-			if( idStr::Icmp( classname, "worldspawn" ) == 0 )
-			{
-				ent->epairs.Set( "_tb_textures", "textures/common;textures/editor;textures/decals;textures/decals2" );
-			}
 
 			// build entity transform
 			idVec3 origin;
@@ -2880,8 +2876,13 @@ bool idMapFile::ConvertToValve220Format()
 						for( int s = 0; s < brushPrim->GetNumSides(); s++ )
 						{
 							idMapBrushSide* side = brushPrim->GetSide( s );
-							side->ConvertToValve220Format( transform );
+							side->ConvertToValve220Format( transform, textureCollections );
 						}
+					}
+					else if( mapPrim->GetType() == idMapPrimitive::TYPE_PATCH )
+					{
+						idMapPatch* patch = static_cast<idMapPatch*>( mapPrim );
+						idMapFile::AddMaterialToCollection( patch->GetMaterial(), textureCollections );
 					}
 				}
 
@@ -2936,6 +2937,25 @@ bool idMapFile::ConvertToValve220Format()
 		}
 	}
 
+	idMapEntity* worldspawn = GetEntity( 0 );
+	if( worldspawn )
+	{
+		//worldspawn->epairs.Set( "_tb_textures", "textures/common;textures/editor;textures/decals;textures/decals2" );
+
+		idStr list;
+		for( int i = 0; i < textureCollections.Num(); i++ )
+		{
+			list += textureCollections[ i ];
+
+			if( i != ( textureCollections.Num() - 1 ) )
+			{
+				list += ";";
+			}
+		}
+
+		worldspawn->epairs.Set( "_tb_textures", list );
+	}
+
 	int n = classTypeOverview.GetNumKeyVals();
 
 	idLib::Printf( "BrushClasses:\n" );
@@ -2972,6 +2992,17 @@ bool idMapFile::ConvertToValve220Format()
 	}
 
 	return true;
+}
+
+void idMapFile::AddMaterialToCollection( const char* material, idStrList& textureCollections )
+{
+	idStr withoutPath = material;
+	withoutPath.StripPath();
+
+	idStr textureCollection = material;
+	textureCollection.StripTrailingOnce( "/" + withoutPath );
+
+	textureCollections.AddUnique( textureCollection );
 }
 
 // RB end

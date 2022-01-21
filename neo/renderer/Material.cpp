@@ -247,7 +247,8 @@ idImage* idMaterial::GetEditorImage() const
 	else
 	{
 		// look for an explicit one
-		editorImage = globalImages->ImageFromFile( editorImageName, TF_DEFAULT, TR_REPEAT, TD_DEFAULT );
+		// RB: changed to TD_DIFFUSE because BFG didn't ship the editor images
+		editorImage = globalImages->ImageFromFile( editorImageName, TF_DEFAULT, TR_REPEAT, TD_DIFFUSE );
 	}
 
 	if( !editorImage )

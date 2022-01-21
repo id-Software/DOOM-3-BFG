@@ -133,7 +133,7 @@ public:
 		return texSize;
 	}
 
-	void					ConvertToValve220Format( const idMat4& entityTransform );
+	void					ConvertToValve220Format( const idMat4& entityTransform, idStrList& textureCollections );
 	// RB end
 
 protected:
@@ -526,6 +526,8 @@ public:
 	{
 		return hasPrimitiveData;
 	}
+
+	static void				AddMaterialToCollection( const char* material, idStrList& textureCollections );
 
 protected:
 	float					version;
