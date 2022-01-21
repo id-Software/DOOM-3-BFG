@@ -677,3 +677,24 @@ HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABI
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+
+
+Editor replacement textures that were missing in the BFG release
+-----------------------------------------------------------------------------
+textures/common/*
+textures/editor/*
+
+Copyright (c) 2013 Robert Beckebans
+Copyright (c) 2019 Maximiliano Ruben Viamonte aka 'Stradex'
+
+CC0 1.0 Universal (CC0 1.0)
+Public Domain Dedication
+
+
+No Copyright
+
+The person who associated a work with this deed has dedicated the work to the public domain by waiving all of his or her rights to the work worldwide under copyright law, including all related and neighboring rights, to the extent allowed by law.
+
+You can copy, modify, distribute and perform the work, even for commercial purposes, all without asking permission.
+
+
