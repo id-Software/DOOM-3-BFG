@@ -247,8 +247,32 @@ idImage* idMaterial::GetEditorImage() const
 	else
 	{
 		// look for an explicit one
-		// RB: changed to TD_DIFFUSE because BFG didn't ship the editor images
+		// RB: changed to TD_DIFFUSE because BFG didn't ship the editor images and
+		// the qer_editorImage might be the same as the diffusemap
 		editorImage = globalImages->ImageFromFile( editorImageName, TF_DEFAULT, TR_REPEAT, TD_DIFFUSE );
+
+		// look for the diffusemap alternative like TrenchBroom does
+		// this is required to have the texture dimensions for the convertMapToValve220 cmd
+		if( editorImage && editorImage->IsLoaded() && editorImage->IsDefaulted() )
+		{
+			// _D3XP :: First check for a diffuse image, then use the first
+			if( numStages && stages )
+			{
+				int i;
+				for( i = 0; i < numStages; i++ )
+				{
+					if( stages[i].lighting == SL_DIFFUSE )
+					{
+						editorImage = stages[i].texture.image;
+						break;
+					}
+				}
+				if( !editorImage )
+				{
+					editorImage = stages[0].texture.image;
+				}
+			}
+		}
 	}
 
 	if( !editorImage )
