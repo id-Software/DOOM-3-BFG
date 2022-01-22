@@ -31,11 +31,17 @@ You need to call exportImagesToTrenchBroom and exportModelsToTrenchBroom once an
 
 * Tweaked exportFGD command for new icons
 
-* Added console command convertMapToValve220 `<map>`
+* Added new icons to TrenchBroom for certain entities like lights, speakers or particle emitters
 
-* Added console command exportImagesToTrenchBroom which decompresses and saves all .bimage images to _tb/*.png files
+* TrenchBroom allows to select the Quake 1 light style 
 
-* Added console command exportModelsToTrenchBroom which saves all .base|.blwo|.bmd5mesh models to _tb/*.obj files
+* Drastically improved loading time of textures for materials in TrenchBroom
+
+* Added RBDoom console command convertMapToValve220 `<map>`
+
+* Added RBDoom console command exportImagesToTrenchBroom which decompresses and saves all .bimage images to _tb/*.png files
+
+* Added RBDoom console command exportModelsToTrenchBroom which saves all .base|.blwo|.bmd5mesh models to _tb/*.obj files
 
 [MISCELLANEOUS]
 
