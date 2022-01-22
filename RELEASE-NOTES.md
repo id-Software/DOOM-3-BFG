@@ -33,7 +33,7 @@ You need to call exportImagesToTrenchBroom and exportModelsToTrenchBroom once an
 
 * Added new icons to TrenchBroom for certain entities like lights, speakers or particle emitters
 
-* TrenchBroom allows to select the Quake 1 light style 
+* TrenchBroom offers a dropdown menu to select the Quake 1 light style for lights
 
 * Drastically improved loading time of textures for materials in TrenchBroom
 
@@ -52,6 +52,8 @@ You need to call exportImagesToTrenchBroom and exportModelsToTrenchBroom once an
 * Added entityDef misc_model like in Quake 3 to help with adding new models in TrenchBroom
 
 * Added new Creative Commons CC0 textures/common/ and textures/editor/ replacement textures because they didn't ship with the BFG edition
+
+* Added base/convert_maps_to_valve220.cfg which lets you convert all maps to the Valve 220 .map format in one shot
 
 _______________________________________
 

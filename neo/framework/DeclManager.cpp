@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2015-2021 Robert Beckebans
+Copyright (C) 2015-2022 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -32,6 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../renderer/Image.h"
 #include "../renderer/DXT/DXTCodec.h"
 #include "../renderer/Color/ColorSpace.h"
+#include "../renderer/CmdlineProgressbar.h"
 
 /*
 
@@ -2823,11 +2824,16 @@ void idDeclManagerLocal::ExportImagesToTrenchBroom_f( const idCmdArgs& args )
 
 	idFileList* files = fileSystem->ListFilesTree( "generated", ".bimage", true, true );
 
+	CommandlineProgressBar progressBar( files->GetList().Num(), renderSystem->GetWidth(), renderSystem->GetHeight() );
+	progressBar.Start();
+
 	int	totalStart = Sys_Milliseconds();
 
 	for( int f = 0; f < files->GetList().Num(); f++ )
 	{
 		idStr imageName = files->GetList()[ f ];
+
+		progressBar.Increment( true );
 
 		if( idStr::Icmpn( imageName, "generated/images/env/maps/game/", 31 ) == 0 )
 		{
@@ -2887,7 +2893,7 @@ void idDeclManagerLocal::ExportImagesToTrenchBroom_f( const idCmdArgs& args )
 
 			if( ( imgHeader.format == FMT_DXT5 || imgHeader.format == FMT_DXT1 ) && ( imgHeader.colorFormat != CFM_GREEN_ALPHA ) )
 			{
-				idLib::Printf( "Exporting image '%s'\n", imageName.c_str() );
+				//idLib::Printf( "Exporting image '%s'\n", imageName.c_str() );
 
 				// RB: Images that are were DXT compressed and aren't multiples of 4 were padded out before compressing
 				// however the idBinaryImageData stores the original input width and height.

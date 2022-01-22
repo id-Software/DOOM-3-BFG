@@ -40,7 +40,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "Framebuffer.h"
 
 
-
 // maximum texture units
 const int MAX_PROG_TEXTURE_PARMS	= 16;
 
@@ -1409,99 +1408,6 @@ void R_SampleCubeMapHDR( const idVec3& dir, int size, byte* buffers[6], float re
 void R_SampleCubeMapHDR16F( const idVec3& dir, int size, halfFloat_t* buffers[6], float result[3], float& u, float& v );
 
 idVec2 NormalizedOctCoord( int x, int y, const int probeSideLength );
-
-class CommandlineProgressBar
-{
-private:
-	size_t tics = 0;
-	size_t nextTicCount = 0;
-	int	count = 0;
-	int expectedCount = 0;
-
-	int sysWidth = 1280;
-	int sysHeight = 720;
-
-public:
-	CommandlineProgressBar( int _expectedCount, int width, int height )
-	{
-		expectedCount = _expectedCount;
-		sysWidth = width;
-		sysHeight = height;
-	}
-
-	void Start()
-	{
-		// restore the original resolution, same as "vid_restart"
-		glConfig.nativeScreenWidth = sysWidth;
-		glConfig.nativeScreenHeight = sysHeight;
-		R_SetNewMode( false );
-
-		common->Printf( "0%%  10   20   30   40   50   60   70   80   90   100%%\n" );
-		common->Printf( "|----|----|----|----|----|----|----|----|----|----|\n" );
-
-		common->UpdateScreen( false );
-	}
-
-	void Increment( bool updateScreen )
-	{
-		if( ( count + 1 ) >= nextTicCount )
-		{
-			if( updateScreen )
-			{
-				// restore the original resolution, same as "vid_restart"
-				glConfig.nativeScreenWidth = sysWidth;
-				glConfig.nativeScreenHeight = sysHeight;
-				R_SetNewMode( false );
-
-				// resize frame buffers (this triggers SwapBuffers)
-				tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
-			}
-
-			size_t ticsNeeded = ( size_t )( ( ( double )( count + 1 ) / expectedCount ) * 50.0 );
-
-			do
-			{
-				common->Printf( "*" );
-			}
-			while( ++tics < ticsNeeded );
-
-			nextTicCount = ( size_t )( ( tics / 50.0 ) * expectedCount );
-			if( count == ( expectedCount - 1 ) )
-			{
-				if( tics < 51 )
-				{
-					common->Printf( "*" );
-				}
-				common->Printf( "\n" );
-			}
-
-			if( updateScreen )
-			{
-				common->UpdateScreen( false );
-
-				// swap front / back buffers
-				tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
-			}
-		}
-
-		count++;
-	}
-
-	void Reset()
-	{
-		count = 0;
-		tics = 0;
-		nextTicCount = 0;
-	}
-
-	void Reset( int expected )
-	{
-		expectedCount = expected;
-		count = 0;
-		tics = 0;
-		nextTicCount = 0;
-	}
-};
 
 /*
 ====================================================================
