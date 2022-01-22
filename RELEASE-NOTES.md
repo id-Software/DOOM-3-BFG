@@ -15,11 +15,17 @@ Thank you for downloading RBDOOM-3-BFG.
 
 _______________________________________
 
-TBD - RBDOOM-3-BFG 1.3.1
+TBD - RBDOOM-3-BFG 1.4.0
 _______________________________
 
+## .plan
 
-## General Changelog
+This version improves support for mapping with TrenchBroom. Until now you needed to extract and copy the vanilla Doom 3 models and textures over to the base/ folder to see the content in the TrenchBroom entity browser and texture viewer.
+Owning the original game next to the BFG edition is not necessary anymore.
+This version comes with a couple of new console commands that lets you export particular parts of the .resources files to the base/_tb/ folder.
+You need to call exportImagesToTrenchBroom and exportModelsToTrenchBroom once and you are good to go to start mapping with the TrenchBroom level editor.
+
+## Changelog
 
 [TRENCHBROOM]
 
@@ -37,7 +43,9 @@ _______________________________
 
 [ASSETS]
 
-* 
+* Added entityDef misc_model like in Quake 3 to help with adding new models in TrenchBroom
+
+* Added new Creative Commons CC0 textures/common/ and textures/editor/ replacement textures because they didn't ship with the BFG edition
 
 _______________________________________
 
