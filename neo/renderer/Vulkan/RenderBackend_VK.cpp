@@ -291,6 +291,28 @@ static void CreateVulkanInstance()
     }
 #endif
 
+    // SRS - Enumerate available Vulkan instance extensions and test for presence of VK_KHR_get_physical_device_properties2 and VK_EXT_debug_utils
+    idLib::Printf( "Getting available vulkan instance extensions...\n" );
+    uint32 numInstanceExtensions;
+    ID_VK_CHECK( vkEnumerateInstanceExtensionProperties( NULL, &numInstanceExtensions, NULL ) );
+    ID_VK_VALIDATE( numInstanceExtensions > 0, "vkEnumerateInstanceExtensionProperties returned zero extensions." );
+
+    idList< VkExtensionProperties > instanceExtensionProps;
+    instanceExtensionProps.SetNum( numInstanceExtensions );
+    ID_VK_CHECK( vkEnumerateInstanceExtensionProperties( NULL, &numInstanceExtensions, instanceExtensionProps.Ptr() ) );
+    ID_VK_VALIDATE( numInstanceExtensions > 0, "vkEnumerateInstanceExtensionProperties returned zero extensions." );
+
+    vkcontext.deviceProperties2Available = false;
+    for( int i = 0; i < numInstanceExtensions; i++ )
+    {
+        if( idStr::Icmp( instanceExtensionProps[ i ].extensionName, VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME ) == 0 )
+        {
+            vkcontext.instanceExtensions.AddUnique( VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME );
+            vkcontext.deviceProperties2Available = true;
+            break;
+        }
+    }
+    
     vkcontext.debugUtilsSupportAvailable = false;
 	if( enableLayers )
 	{
@@ -299,24 +321,15 @@ static void CreateVulkanInstance()
 			vkcontext.instanceExtensions.Append( g_debugInstanceExtensions[ i ] );
 		}
 
-        // SRS - Enumerate available Vulkan instance extensions and test for presence of VK_EXT_debug_utils
-        idLib::Printf( "Getting available vulkan instance extensions...\n" );
-        uint32 numInstanceExtensions;
-        ID_VK_CHECK( vkEnumerateInstanceExtensionProperties( NULL, &numInstanceExtensions, NULL ) );
-        ID_VK_VALIDATE( numInstanceExtensions > 0, "vkEnumerateInstanceExtensionProperties returned zero extensions." );
-
-        idList< VkExtensionProperties > instanceExtensionProps;
-        instanceExtensionProps.SetNum( numInstanceExtensions );
-        ID_VK_CHECK( vkEnumerateInstanceExtensionProperties( NULL, &numInstanceExtensions, instanceExtensionProps.Ptr() ) );
-        ID_VK_VALIDATE( numInstanceExtensions > 0, "vkEnumerateInstanceExtensionProperties returned zero extensions." );
-
+        idLib::Printf( "Number of available instance extensions\t%i\n", numInstanceExtensions );
+        idLib::Printf( "Available Extension List: \n" );
         for( int i = 0; i < numInstanceExtensions; i++ )
         {
+            idLib::Printf( "\t%s\n", instanceExtensionProps[ i ].extensionName );
             if( idStr::Icmp( instanceExtensionProps[ i ].extensionName, VK_EXT_DEBUG_UTILS_EXTENSION_NAME ) == 0 )
             {
                 vkcontext.instanceExtensions.AddUnique( VK_EXT_DEBUG_UTILS_EXTENSION_NAME );
                 vkcontext.debugUtilsSupportAvailable = true;
-                break;
             }
         }
         
@@ -728,13 +741,9 @@ static void SelectPhysicalDevice()
 
             glConfig.renderer_string = gpu.props.deviceName;
             
-            uint32_t instanceVersion;
-            vkEnumerateInstanceVersion( &instanceVersion );
-
             static idStr version_string;
             version_string.Clear();
-            version_string.Append( va( "Vulkan %i.%i.%i", VK_API_VERSION_MAJOR( instanceVersion ), VK_API_VERSION_MINOR( instanceVersion ), VK_API_VERSION_PATCH( instanceVersion ) ) );
-            version_string.Append( va( " / API %i.%i.%i", VK_API_VERSION_MAJOR( gpu.props.apiVersion ), VK_API_VERSION_MINOR( gpu.props.apiVersion ), VK_API_VERSION_PATCH( gpu.props.apiVersion ) ) );
+            version_string.Append( va( "Vulkan API %i.%i.%i", VK_API_VERSION_MAJOR( gpu.props.apiVersion ), VK_API_VERSION_MINOR( gpu.props.apiVersion ), VK_API_VERSION_PATCH( gpu.props.apiVersion ) ) );
 
             static idStr extensions_string;
             extensions_string.Clear();
@@ -750,7 +759,7 @@ static void SelectPhysicalDevice()
             }
             glConfig.extensions_string = extensions_string.c_str();
             
-            if( driverPropertiesAvailable )
+            if( vkcontext.deviceProperties2Available && driverPropertiesAvailable )
             {
                 VkPhysicalDeviceProperties2 pProperties = {};
                 VkPhysicalDeviceDriverProperties pDriverProperties = {};
@@ -805,6 +814,19 @@ static void CreateLogicalDeviceAndQueues()
 	portabilityFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PORTABILITY_SUBSET_FEATURES_KHR;
 
 	vkGetPhysicalDeviceFeatures2( vkcontext.physicalDevice, &deviceFeatures2 );
+#if defined(USE_MoltenVK)
+    // SRS - Check if we have native image swizzling, and if not, enable MoltenVK's emulation
+    if( portabilityFeatures.imageViewFormatSwizzle == VK_FALSE )
+    {
+        MVKConfiguration    pConfig;
+        size_t              pConfigSize = sizeof( pConfig );
+
+        idLib::Printf( "Enabling MoltenVK fullImageViewSwizzle...\n" );
+        ID_VK_CHECK( vkGetMoltenVKConfigurationMVK( vkcontext.instance, &pConfig, &pConfigSize ) );
+        pConfig.fullImageViewSwizzle = VK_TRUE;
+        ID_VK_CHECK( vkSetMoltenVKConfigurationMVK( vkcontext.instance, &pConfig, &pConfigSize ) );
+    }
+#endif
 #else
 	VkPhysicalDeviceFeatures deviceFeatures = {};
 	deviceFeatures.textureCompressionBC = VK_TRUE;
@@ -861,11 +883,12 @@ static void CreateLogicalDeviceAndQueues()
 
 	if( vkcontext.debugUtilsSupportAvailable )
 	{
-		qvkQueueBeginDebugUtilsLabelEXT = ( PFN_vkQueueBeginDebugUtilsLabelEXT )vkGetDeviceProcAddr( vkcontext.device, "vkQueueBeginDebugUtilsLabelEXT" );
-		qvkQueueEndDebugUtilsLabelEXT = ( PFN_vkQueueEndDebugUtilsLabelEXT )vkGetDeviceProcAddr( vkcontext.device, "vkQueueEndDebugUtilsLabelEXT" );
-		qvkCmdBeginDebugUtilsLabelEXT = ( PFN_vkCmdBeginDebugUtilsLabelEXT )vkGetDeviceProcAddr( vkcontext.device, "vkCmdBeginDebugUtilsLabelEXT" );
-		qvkCmdEndDebugUtilsLabelEXT = ( PFN_vkCmdEndDebugUtilsLabelEXT )vkGetDeviceProcAddr( vkcontext.device, "vkCmdEndDebugUtilsLabelEXT" );
-		qvkCmdInsertDebugUtilsLabelEXT = ( PFN_vkCmdInsertDebugUtilsLabelEXT )vkGetDeviceProcAddr( vkcontext.device, "vkCmdInsertDebugUtilsLabelEXT" );
+        // SRS - Since VK_EXT_debug_utils is an instance extension, must use vkGetInstanceProcAddr() vs vkGetDeviceProcAddr()
+		qvkQueueBeginDebugUtilsLabelEXT = ( PFN_vkQueueBeginDebugUtilsLabelEXT )vkGetInstanceProcAddr( vkcontext.instance, "vkQueueBeginDebugUtilsLabelEXT" );
+		qvkQueueEndDebugUtilsLabelEXT = ( PFN_vkQueueEndDebugUtilsLabelEXT )vkGetInstanceProcAddr( vkcontext.instance, "vkQueueEndDebugUtilsLabelEXT" );
+		qvkCmdBeginDebugUtilsLabelEXT = ( PFN_vkCmdBeginDebugUtilsLabelEXT )vkGetInstanceProcAddr( vkcontext.instance, "vkCmdBeginDebugUtilsLabelEXT" );
+		qvkCmdEndDebugUtilsLabelEXT = ( PFN_vkCmdEndDebugUtilsLabelEXT )vkGetInstanceProcAddr( vkcontext.instance, "vkCmdEndDebugUtilsLabelEXT" );
+		qvkCmdInsertDebugUtilsLabelEXT = ( PFN_vkCmdInsertDebugUtilsLabelEXT )vkGetInstanceProcAddr( vkcontext.instance, "vkCmdInsertDebugUtilsLabelEXT" );
 	}
 }
 
@@ -1480,11 +1503,15 @@ ClearContext
 */
 static void ClearContext()
 {
+#if defined(VULKAN_USE_PLATFORM_SDL)
+    vkcontext.sdlWindow = nullptr;
+#endif
 	vkcontext.frameCounter = 0;
 	vkcontext.frameParity = 0;
 	vkcontext.jointCacheHandle = 0;
 	vkcontext.instance = VK_NULL_HANDLE;
 	vkcontext.physicalDevice = VK_NULL_HANDLE;
+    vkcontext.physicalDeviceFeatures = {};
 	vkcontext.device = VK_NULL_HANDLE;
 	vkcontext.graphicsQueue = VK_NULL_HANDLE;
 	vkcontext.presentQueue = VK_NULL_HANDLE;
@@ -1494,6 +1521,9 @@ static void ClearContext()
 	vkcontext.instanceExtensions.Clear();
 	vkcontext.deviceExtensions.Clear();
 	vkcontext.validationLayers.Clear();
+    vkcontext.debugMarkerSupportAvailable = false;
+    vkcontext.debugUtilsSupportAvailable = false;
+    vkcontext.deviceProperties2Available = false;
 	vkcontext.gpu = NULL;
 	vkcontext.gpus.Clear();
 	vkcontext.commandPool = VK_NULL_HANDLE;
@@ -1513,6 +1543,12 @@ static void ClearContext()
 	vkcontext.currentSwapIndex = 0;
 	vkcontext.msaaImage = VK_NULL_HANDLE;
 	vkcontext.msaaImageView = VK_NULL_HANDLE;
+#if defined( USE_AMD_ALLOCATOR )
+    vkcontext.msaaVmaAllocation = NULL;
+    vkcontext.msaaAllocation = VmaAllocationInfo();
+#else
+    vkcontext.msaaAllocation = vulkanAllocation_t();
+#endif
 	vkcontext.swapchainImages.Zero();
 	vkcontext.swapchainViews.Zero();
 	vkcontext.frameBuffers.Zero();
@@ -1587,16 +1623,6 @@ void idRenderBackend::Init()
 	// create the Vulkan instance and enable validation layers
 	idLib::Printf( "Creating Vulkan Instance...\n" );
 	CreateVulkanInstance();
-
-	// SRS - On macOS optionally set fullImageViewSwizzle to TRUE (instead of env var MVK_CONFIG_FULL_IMAGE_VIEW_SWIZZLE = 1)
-#if defined(__APPLE__) && defined(USE_MoltenVK)
-	MVKConfiguration    pConfig;
-	size_t              pConfigSize = sizeof( pConfig );
-
-	vkGetMoltenVKConfigurationMVK( vkcontext.instance, &pConfig, &pConfigSize );
-	pConfig.fullImageViewSwizzle = VK_TRUE;
-	vkSetMoltenVKConfigurationMVK( vkcontext.instance, &pConfig, &pConfigSize );
-#endif
 
 	// create the windowing interface
 //#ifdef _WIN32

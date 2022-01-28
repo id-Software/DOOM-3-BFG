@@ -90,6 +90,9 @@ public:
 	bool                    IsPlaying() const;
 	// RB end
 	virtual void			Close();
+    // SRS begin
+    virtual int             GetStartTime();
+    // SRS end
 	virtual void			ResetTime( int time );
 
 private:
@@ -116,6 +119,7 @@ private:
 	void					BinkDecReset();
 
 	YUVbuffer				yuvBuffer;
+    bool                    hasFrame;
 	int						framePos;
 	int						numFrames;
 	idImage*				imgY;
@@ -332,7 +336,7 @@ idCinematic::GetStartTime
 */
 int idCinematic::GetStartTime()
 {
-	return -1;
+	return -1;  // SRS - this is just the abstract virtual method
 }
 
 /*
@@ -422,11 +426,13 @@ idCinematicLocal::idCinematicLocal()
 	video_stream_index = -1;
 	img_convert_ctx = NULL;
 	hasFrame = false;
+    framePos = -1;
 #endif
 
 #ifdef USE_BINKDEC
 	binkHandle.isValid = false;
 	binkHandle.instanceIndex = -1; // whatever this is, it now has a deterministic value
+    hasFrame = false;
 	framePos = -1;
 	numFrames = 0;
 
@@ -622,24 +628,22 @@ bool idCinematicLocal::InitFromFFMPEGFile( const char* qpath, bool amilooping )
 	float durationSec = static_cast<double>( fmt_ctx->streams[video_stream_index]->duration ) * static_cast<double>( ticksPerFrame ) / static_cast<double>( avr.den );
 	animationLength = durationSec * 1000;
 	frameRate = av_q2d( fmt_ctx->streams[video_stream_index]->avg_frame_rate );
-	buf = NULL;
-	hasFrame = false;
-	framePos = -1;
 	common->Printf( "Loaded FFMPEG file: '%s', looping=%d%dx%d, %f FPS, %f sec\n", qpath, looping, CIN_WIDTH, CIN_HEIGHT, frameRate, durationSec );
-	image = ( byte* )Mem_Alloc( CIN_WIDTH * CIN_HEIGHT * 4 * 2, TAG_CINEMATIC );
+
+    image = ( byte* )Mem_Alloc( CIN_WIDTH * CIN_HEIGHT * 4 * 2, TAG_CINEMATIC );
 	avpicture_fill( ( AVPicture* )frame2, image, AV_PIX_FMT_BGR32, CIN_WIDTH, CIN_HEIGHT );
 	if( img_convert_ctx )
 	{
 		sws_freeContext( img_convert_ctx );
 	}
 	img_convert_ctx = sws_getContext( dec_ctx->width, dec_ctx->height, dec_ctx->pix_fmt, CIN_WIDTH, CIN_HEIGHT, AV_PIX_FMT_BGR32, SWS_BICUBIC, NULL, NULL, NULL );
-	status = FMV_PLAY;
-
-	startTime = 0;
+    
+    buf = NULL;
+    status = FMV_PLAY;
+    hasFrame = false;
+    framePos = -1;
 	ImageForTime( 0 );
 	status = ( looping ) ? FMV_PLAY : FMV_IDLE;
-
-	//startTime = Sys_Milliseconds();
 
 	return true;
 }
@@ -720,18 +724,18 @@ bool idCinematicLocal::InitFromBinkDecFile( const char* qpath, bool amilooping )
 
 	frameRate = Bink_GetFrameRate( binkHandle );
 	numFrames = Bink_GetNumFrames( binkHandle );
-	float durationSec = frameRate * numFrames;
-	animationLength = durationSec;
-	buf = NULL;
+	float durationSec = numFrames / frameRate;      // SRS - fixed Bink durationSec calculation
+	animationLength = durationSec * 1000;           // SRS - animationLength is in milliseconds
+	common->Printf( "Loaded BinkDec file: '%s', looping=%d, %dx%d, %f FPS, %f sec\n", qpath, looping, CIN_WIDTH, CIN_HEIGHT, frameRate, durationSec );
+    
+    memset( yuvBuffer, 0, sizeof( yuvBuffer ) );
 
-	common->Printf( "Loaded BinkDec file: '%s', looping=%d%dx%d, %f FPS, %f sec\n", qpath, looping, CIN_WIDTH, CIN_HEIGHT, frameRate, durationSec );
-
-	status = FMV_PLAY;
-
-	startTime = Sys_Milliseconds();
-	memset( yuvBuffer, 0, sizeof( yuvBuffer ) );
-	framePos = -1;
-    ImageForTime( 0 );      // SRS - Was missing initial call to ImageForTime() - fixes validation errors when using Vulkan renderer
+    buf = NULL;
+    status = FMV_PLAY;
+    hasFrame = false;                               // SRS - Implemented hasFrame for BinkDec behaviour consistency with FFMPEG
+    framePos = -1;
+    ImageForTime( 0 );                              // SRS - Was missing initial call to ImageForTime() - fixes validation errors when using Vulkan renderer
+    status = ( looping ) ? FMV_PLAY : FMV_IDLE;     // SRS - Update status based on looping flag
 
 	return true;
 }
@@ -793,6 +797,7 @@ bool idCinematicLocal::InitFromFile( const char* qpath, bool amilooping )
 #elif defined(USE_BINKDEC)
 		idStr temp = fileName.StripFileExtension() + ".bik";
 		animationLength = 0;
+        hasFrame = false;
 		RoQShutdown();
 		fileName = temp;
 		//idLib::Warning( "New filename: '%s'\n", fileName.c_str() );
@@ -879,10 +884,15 @@ void idCinematicLocal::Close()
 	}
 #endif
 #ifdef USE_BINKDEC
-	if( !isRoQ && binkHandle.isValid )
+    hasFrame = false;
+
+	if( !isRoQ )
 	{
-		memset( yuvBuffer, 0 , sizeof( yuvBuffer ) );
-		Bink_Close( binkHandle );
+        if( binkHandle.isValid )
+        {
+            memset( yuvBuffer, 0 , sizeof( yuvBuffer ) );
+            Bink_Close( binkHandle );
+        }
 		status = FMV_EOF;
 	}
 #endif
@@ -904,6 +914,18 @@ bool idCinematicLocal::IsPlaying() const
 	return ( status == FMV_PLAY );
 }
 // RB end
+
+// SRS - Implement virtual method to override abstract virtual method
+/*
+==============
+ idCinematicLocal::GetStartTime
+==============
+*/
+int idCinematicLocal::GetStartTime()
+{
+    return startTime;
+}
+// SRS end
 
 /*
 ==============
@@ -1168,13 +1190,14 @@ cinData_t idCinematicLocal::ImageForTimeFFMPEG( int thisTime )
 #ifdef USE_BINKDEC
 cinData_t idCinematicLocal::ImageForTimeBinkDec( int thisTime )
 {
-	cinData_t	cinData = {0};
+	cinData_t	cinData;
 
 	if( thisTime <= 0 )
 	{
 		thisTime = Sys_Milliseconds();
 	}
 
+    memset( &cinData, 0, sizeof( cinData ) );
 	if( r_skipDynamicTextures.GetBool() || status == FMV_EOF || status == FMV_IDLE )
 	{
 		return cinData;
@@ -1186,9 +1209,13 @@ cinData_t idCinematicLocal::ImageForTimeBinkDec( int thisTime )
 		return cinData;
 	}
 
-	if( startTime == -1 )
+    // SRS - Implement hasFrame so BinkDec startTime is handled the same as with FFMPEG
+	if( ( !hasFrame ) || startTime == -1 )
 	{
-		BinkDecReset();
+        if( startTime == -1 )
+        {
+            BinkDecReset();
+        }
 		startTime = thisTime;
 	}
 
@@ -1216,7 +1243,14 @@ cinData_t idCinematicLocal::ImageForTimeBinkDec( int thisTime )
 		}
 	}
 
-	if( desiredFrame == framePos )
+    // SRS - Enable video replay within PDAs
+    if( desiredFrame < framePos )
+    {
+        BinkDecReset();
+    }
+    // SRS end
+
+	if( hasFrame && desiredFrame == framePos )
 	{
 		cinData.imageWidth = CIN_WIDTH;
 		cinData.imageHeight = CIN_HEIGHT;
@@ -1260,6 +1294,11 @@ cinData_t idCinematicLocal::ImageForTimeBinkDec( int thisTime )
 		}
 		else if( h < CIN_HEIGHT )
 		{
+#if defined(__APPLE__) && defined(USE_VULKAN)
+            // SRS - For U and V channels on OSX Vulkan use full height image to work around stall that occurs with half-height chroma planes
+            // when exiting levels or returning from demo playback - depends on OSX-specific logic inside Vulkan version of SubImageUpload()
+            h = CIN_HEIGHT;
+#else
 			// the U and V channels have a lower resolution than the Y channel
 			// (or the logical video resolution), so use the aspect ratio to
 			// calculate the real height
@@ -1268,6 +1307,7 @@ cinData_t idCinematicLocal::ImageForTimeBinkDec( int thisTime )
 			{
 				h = hExp;
 			}
+#endif
 		}
 
 		if( img->GetUploadWidth() != w || img->GetUploadHeight() != h )
@@ -1280,6 +1320,7 @@ cinData_t idCinematicLocal::ImageForTimeBinkDec( int thisTime )
 		img->SubImageUpload( 0, 0, 0, 0, w, h, yuvBuffer[i].data );
 	}
 
+    hasFrame = true;
 	cinData.imageY = imgY;
 	cinData.imageCr = imgCr;
 	cinData.imageCb = imgCb;

@@ -931,8 +931,8 @@ void idCommonLocal::RenderBink( const char* path )
 	material->Parse( materialText.c_str(), materialText.Length(), false );
 	material->ResetCinematicTime( Sys_Milliseconds() );
 
-	// RB: FFmpeg might return the wrong play length so I changed the intro video to play max 30 seconds until finished
-	int cinematicLength = 30000; //material->CinematicLength();
+    // SRS - Restored original calculation after implementing idCinematicLocal::GetStartTime() and fixing animationLength in idCinematicLocal::InitFromBinkDecFile()
+	int cinematicLength = material->CinematicLength();
 	int	mouseEvents[MAX_MOUSE_EVENTS][2];
 
 	bool escapeEvent = false;
