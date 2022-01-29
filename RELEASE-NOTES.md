@@ -49,7 +49,7 @@ You need to call exportImagesToTrenchBroom and exportModelsToTrenchBroom once an
 
 [ASSETS]
 
-* Added entityDef misc_model like in Quake 3 to help with adding new models in TrenchBroom
+* Added TrenchBroom helper entityDefs like a Quake 3 style misc_model to comply with TrenchBroom's Solid/PointClass rules for editing entities
 
 * Added new Creative Commons CC0 textures/common/ and textures/editor/ replacement textures because they didn't ship with the BFG edition
 
