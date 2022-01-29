@@ -78,13 +78,13 @@ uint32 FindMemoryTypeIndex( const uint32 memoryTypeBits, const vulkanMemoryUsage
 		case VULKAN_MEMORY_USAGE_CPU_TO_GPU:
 			required |= VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
 			preferred |= VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-            // SRS - Make sure preferred memory type does not have VK_MEMORY_HEAP_MULTI_INSTANCE_BIT set, otherwise get validation errors when mapping memory
+            // SRS - Make sure memory type does not have VK_MEMORY_HEAP_MULTI_INSTANCE_BIT set, otherwise get validation errors when mapping memory
             avoid |= VK_MEMORY_HEAP_MULTI_INSTANCE_BIT;
 			break;
 		case VULKAN_MEMORY_USAGE_GPU_TO_CPU:
 			required |= VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
 			preferred |= VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
-            // SRS - Make sure preferred memory type does not have VK_MEMORY_HEAP_MULTI_INSTANCE_BIT set, otherwise get validation errors when mapping memory
+            // SRS - Make sure memory type does not have VK_MEMORY_HEAP_MULTI_INSTANCE_BIT set, otherwise get validation errors when mapping memory
             avoid |= VK_MEMORY_HEAP_MULTI_INSTANCE_BIT;
 			break;
 		default:
@@ -98,14 +98,19 @@ uint32 FindMemoryTypeIndex( const uint32 memoryTypeBits, const vulkanMemoryUsage
 			continue;
 		}
 
+		// SRS - Make sure memory type does not have any avoid heap flags set
+		if( ( physicalMemoryProperties.memoryHeaps[ physicalMemoryProperties.memoryTypes[ i ].heapIndex ].flags & avoid ) != 0 )
+		{
+			continue;
+		}
+
 		const VkMemoryPropertyFlags properties = physicalMemoryProperties.memoryTypes[ i ].propertyFlags;
 		if( ( properties & required ) != required )
 		{
 			continue;
 		}
 
-		// SRS - Make sure preferred memory type does not have any avoid heap flags set
-		if( ( properties & preferred ) != preferred || ( physicalMemoryProperties.memoryHeaps[ i ].flags & avoid ) != 0 )
+		if( ( properties & preferred ) != preferred )
 		{
 			continue;
 		}
@@ -116,6 +121,12 @@ uint32 FindMemoryTypeIndex( const uint32 memoryTypeBits, const vulkanMemoryUsage
 	for( uint32 i = 0; i < physicalMemoryProperties.memoryTypeCount; ++i )
 	{
 		if( ( ( memoryTypeBits >> i ) & 1 ) == 0 )
+		{
+			continue;
+		}
+
+		// SRS - Make sure memory type does not have any avoid heap flags set
+		if( ( physicalMemoryProperties.memoryHeaps[ physicalMemoryProperties.memoryTypes[ i ].heapIndex ].flags & avoid ) != 0 )
 		{
 			continue;
 		}
