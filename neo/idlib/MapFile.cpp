@@ -2905,11 +2905,26 @@ bool idMapFile::ConvertToValve220Format()
 			{
 				// just a regular entity
 
+				// TrenchBroom doesn't allow models for SolidClasses so use helper classes instead
 				if( idStr::Icmp( classname, "func_static" ) == 0 && idStr::Icmp( model.c_str(), classname.c_str() ) != 0 )
 				{
-					// TrenchBroom doesn't allow models for SolidClasses
-					// use Quake 3 style misc_model helper class instead
 					ent->epairs.Set( "classname", "misc_model" );
+				}
+				else if( idStr::Icmp( classname, "func_door" ) == 0 && idStr::Icmp( model.c_str(), classname.c_str() ) != 0 )
+				{
+					ent->epairs.Set( "classname", "func_door_model" );
+				}
+				else if( idStr::Icmp( classname, "func_mover" ) == 0 && idStr::Icmp( model.c_str(), classname.c_str() ) != 0 )
+				{
+					ent->epairs.Set( "classname", "func_mover_amodel" );
+				}
+				else if( idStr::Icmp( classname, "func_rotating" ) == 0 && idStr::Icmp( model.c_str(), classname.c_str() ) != 0 )
+				{
+					ent->epairs.Set( "classname", "func_rotating_model" );
+				}
+				else if( idStr::Icmp( classname, "func_plat" ) == 0 && idStr::Icmp( model.c_str(), classname.c_str() ) != 0 )
+				{
+					ent->epairs.Set( "classname", "func_plat_model" );
 				}
 
 				// replace "rotation" with angles because it is not supported by TrenchBroom
@@ -2954,6 +2969,7 @@ bool idMapFile::ConvertToValve220Format()
 		}
 
 		worldspawn->epairs.Set( "_tb_textures", list );
+		worldspawn->epairs.Set( "_tb_def", "builtin:DOOM-3-all.fgd" );
 	}
 
 	int n = classTypeOverview.GetNumKeyVals();

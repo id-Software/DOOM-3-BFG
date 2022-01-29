@@ -1,0 +1,49 @@
+entityDef misc_model 
+{
+	"inherit"					"func_static"
+	"editor_color"				"0 .5 .8"
+	"editor_mins"				"-12 -12 -12"
+	"editor_maxs"				"12 12 12"
+	"editor_rotatable"			"1"
+
+	"editor_usage"				"Inherits from a func_static but uses a model and is a FGD PointClass so it displays correctly in TrenchBroom."
+	"editor_usage1"				"Use it to place all kinds of models"
+	"angles"					"0 0 0"
+}
+
+entityDef func_door_model
+{
+	"inherit"					"func_door"
+
+	"editor_usage"				"Inherits from a func_door but uses a model and is a FGD PointClass so it displays correctly in TrenchBroom."
+	"editor_usage1"				"Use it to place all kinds of models"
+	"angles"					"0 0 0"
+}
+
+/*
+already exists and is called func_mover_amodel ...
+
+entityDef func_mover_model
+{
+	"inherit"					"func_mover"
+
+	"editor_usage"				"Inherits from a func_mover but uses a model and is a FGD PointClass so it displays correctly in TrenchBroom."
+	"angles"					"0 0 0"
+}
+*/
+
+entityDef func_rotating_model
+{
+	"inherit"					"func_rotating"
+
+	"editor_usage"				"Inherits from a func_rotating but uses a model and is a FGD PointClass so it displays correctly in TrenchBroom."
+	"angles"					"0 0 0"
+}
+
+entityDef func_plat_model
+{
+	"inherit"					"func_plat"
+
+	"editor_usage"				"Inherits from a func_plat but uses a model and is a FGD PointClass so it displays correctly in TrenchBroom."
+	"angles"					"0 0 0"
+}

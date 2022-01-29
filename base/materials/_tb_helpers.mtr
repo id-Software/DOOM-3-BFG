@@ -1,0 +1,9 @@
+
+// RB: map TrenchBroom's default material to textures/base_wall/snpanel2rust so users have properly sealed maps
+__TB_empty
+{
+	qer_editorimage	textures/base_wall/snpanel2rust.tga
+	bumpmap			textures/base_wall/snpanel2_local.tga
+	diffusemap		textures/base_wall/snpanel2rust_d.tga
+	specularmap		textures/base_wall/snpanel2rust_s.tga
+}

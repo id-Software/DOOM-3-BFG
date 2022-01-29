@@ -2173,6 +2173,7 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 	solidClassNames.AddUnique( "func_rotating" );
 	solidClassNames.AddUnique( "func_splinemover" );
 	solidClassNames.AddUnique( "func_static" );
+	solidClassNames.AddUnique( "func_mover" );
 	solidClassNames.AddUnique( "moveable_base" );
 	solidClassNames.AddUnique( "trigger_" );
 
@@ -2281,7 +2282,8 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 			for( int i = 0; i < solidClassNames.Num(); i++ )
 			{
 				const char* solidStr = solidClassNames[ i ].c_str();
-				if( idStr::Icmpn( decl->GetName(), solidStr, ( int )strlen( solidStr ) ) == 0 )
+				if( idStr::Icmpn( decl->GetName(), solidStr, ( int )strlen( solidStr ) ) == 0 &&
+						!( idStr::FindText( decl->GetName(), "_model", false ) != -1 || idStr::FindText( decl->GetName(), "_amodel", false ) != -1 ) )
 				{
 					solidClass = true;
 					break;
@@ -2340,7 +2342,7 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 				file->Printf( "color(%i %i %i) ", int( color.x * 255 ) & 0xFF, int( color.y * 255 ) & 0xFF, int( color.z * 255 ) & 0xFF );
 			}
 
-#if 1
+#if 0
 			//if( idStr::Icmp( decl->GetName(), "monster_zombie_maint_bald" ) == 0 )
 			if( idStr::Icmp( decl->GetName(), "monster_demon_imp" ) == 0 )
 			{
@@ -2436,7 +2438,11 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 			}
 
 			if( idStr::Icmp( decl->GetName(), "light" ) == 0 ||
-					idStr::Icmp( decl->GetName(), "func_static" ) == 0 )
+					idStr::Icmp( decl->GetName(), "misc_model" ) == 0 ||
+					idStr::Icmp( decl->GetName(), "func_door_model" ) == 0 ||
+					idStr::Icmp( decl->GetName(), "func_mover_amodel" ) == 0 ||
+					idStr::Icmp( decl->GetName(), "func_plat_model" ) == 0 ||
+					idStr::Icmp( decl->GetName(), "func_rotating_model" ) == 0 )
 			{
 				// entities with dynamic models
 
@@ -2517,7 +2523,11 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 			idStrStatic< MAX_OSPATH > exportedModelFileName;
 
 			if( idStr::Icmp( decl->GetName(), "light" ) != 0 &&
-					idStr::Icmp( decl->GetName(), "func_static" ) != 0 )
+					idStr::Icmp( decl->GetName(), "misc_model" ) != 0 &&
+					idStr::Icmp( decl->GetName(), "func_door_model" ) != 0 &&
+					idStr::Icmp( decl->GetName(), "func_mover_amodel" ) != 0 &&
+					idStr::Icmp( decl->GetName(), "func_plat_model" ) != 0 &&
+					idStr::Icmp( decl->GetName(), "func_rotating_model" ) != 0 )
 			{
 				//kv = dictToWrite.MatchPrefix( "model" );
 				//while( kv )
@@ -2563,7 +2573,11 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 			{
 				file->Printf( "model({ \"path\": \"%s\" }) ", exportedModelFileName.c_str() );
 			}
-			else if( idStr::Icmp( decl->GetName(), "func_static" ) == 0 )
+			else if( idStr::Icmp( decl->GetName(), "misc_model" ) == 0 ||
+					 idStr::Icmp( decl->GetName(), "func_door_model" ) == 0 ||
+					 idStr::Icmp( decl->GetName(), "func_mover_amodel" ) == 0 ||
+					 idStr::Icmp( decl->GetName(), "func_plat_model" ) == 0 ||
+					 idStr::Icmp( decl->GetName(), "func_rotating_model" ) == 0 )
 			{
 				// dynamic model case
 				file->Printf( "model({ \"path\" : model }) " );
