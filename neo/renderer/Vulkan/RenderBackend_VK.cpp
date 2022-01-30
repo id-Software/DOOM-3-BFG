@@ -815,15 +815,24 @@ static void CreateLogicalDeviceAndQueues()
 
 	vkGetPhysicalDeviceFeatures2( vkcontext.physicalDevice, &deviceFeatures2 );
 #if defined(USE_MoltenVK)
-    // SRS - Check if we have native image swizzling, and if not, enable MoltenVK's emulation
+    MVKConfiguration    pConfig;
+    size_t              pConfigSize = sizeof( pConfig );
+
+    ID_VK_CHECK( vkGetMoltenVKConfigurationMVK( vkcontext.instance, &pConfig, &pConfigSize ) );
+    
+    // SRS - If we don't have native image view swizzle, enable MoltenVK's image view swizzle feature
     if( portabilityFeatures.imageViewFormatSwizzle == VK_FALSE )
     {
-        MVKConfiguration    pConfig;
-        size_t              pConfigSize = sizeof( pConfig );
-
-        idLib::Printf( "Enabling MoltenVK fullImageViewSwizzle...\n" );
-        ID_VK_CHECK( vkGetMoltenVKConfigurationMVK( vkcontext.instance, &pConfig, &pConfigSize ) );
+        idLib::Printf( "Enabling MoltenVK's image view swizzle...\n" );
         pConfig.fullImageViewSwizzle = VK_TRUE;
+        ID_VK_CHECK( vkSetMoltenVKConfigurationMVK( vkcontext.instance, &pConfig, &pConfigSize ) );
+    }
+
+    // SRS - If MoltenVK's Metal argument buffer feature is on, disable it for sampler scalability
+    if( pConfig.useMetalArgumentBuffers == VK_TRUE )
+    {
+        idLib::Printf( "Disabling MoltenVK's Metal argument buffers...\n" );
+        pConfig.useMetalArgumentBuffers = VK_FALSE;
         ID_VK_CHECK( vkSetMoltenVKConfigurationMVK( vkcontext.instance, &pConfig, &pConfigSize ) );
     }
 #endif
