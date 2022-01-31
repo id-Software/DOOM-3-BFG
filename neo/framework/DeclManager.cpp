@@ -2936,6 +2936,11 @@ void idDeclManagerLocal::ExportImagesToTrenchBroom_f( const idCmdArgs& args )
 				{
 					idDxtDecoder dxt;
 					dxt.DecompressImageDXT1( data, rgba.Ptr(), dxtWidth, dxtHeight );
+
+					for( int i = 0; i < ( dxtWidth * dxtHeight ); i++ )
+					{
+						rgba[i * 4 + 3] = 255;
+					}
 				}
 				else if( imgHeader.format == FMT_DXT5 )
 				{
@@ -2944,6 +2949,11 @@ void idDeclManagerLocal::ExportImagesToTrenchBroom_f( const idCmdArgs& args )
 					if( imgHeader.colorFormat == CFM_NORMAL_DXT5 )
 					{
 						dxt.DecompressNormalMapDXT5( data, rgba.Ptr(), dxtWidth, dxtHeight );
+
+						for( int i = 0; i < ( dxtWidth * dxtHeight ); i++ )
+						{
+							rgba[i * 4 + 3] = 255;
+						}
 					}
 					else if( imgHeader.colorFormat == CFM_YCOCG_DXT5 )
 					{
@@ -2958,6 +2968,11 @@ void idDeclManagerLocal::ExportImagesToTrenchBroom_f( const idCmdArgs& args )
 					else
 					{
 						dxt.DecompressImageDXT5( data, rgba.Ptr(), dxtWidth, dxtHeight );
+
+						for( int i = 0; i < ( dxtWidth * dxtHeight ); i++ )
+						{
+							rgba[i * 4 + 3] = 255;
+						}
 					}
 				}
 
@@ -2976,13 +2991,11 @@ void idDeclManagerLocal::ExportImagesToTrenchBroom_f( const idCmdArgs& args )
 					// scale DXT sized images back to the original size
 					byte* scaled = R_Dropsample( rgba.Ptr(), dxtWidth, dxtHeight, img.width, img.height );
 
-#if 1
 					if( img.width > 16 && img.height > 16 )
 					{
 						R_WritePNG( exportName, scaled, 4, img.width, img.height, true, "fs_basepath" );
 					}
 					else
-#endif
 					{
 						exportName.SetFileExtension( ".tga" );
 						R_WriteTGA( exportName, scaled, img.width, img.height, false, "fs_basepath" );
@@ -2992,13 +3005,11 @@ void idDeclManagerLocal::ExportImagesToTrenchBroom_f( const idCmdArgs& args )
 				}
 				else
 				{
-#if 1
 					if( img.width > 16 && img.height > 16 )
 					{
 						R_WritePNG( exportName, rgba.Ptr(), 4, img.width, img.height, true, "fs_basepath" );
 					}
 					else
-#endif
 					{
 						exportName.SetFileExtension( ".tga" );
 						R_WriteTGA( exportName, rgba.Ptr(), img.width, img.height, false, "fs_basepath" );

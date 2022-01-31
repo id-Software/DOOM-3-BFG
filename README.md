@@ -650,13 +650,15 @@ r_useFilmicPostProcessing [0, 1]       | Apply several post process effects to m
 Name                              | Description
 :--------------------------------------| :------------------------------------------------
 dmap mapfile                           | Command: Compiles a .map to its corresponding BSP .proc, Collision .cm files and Area Awareness System (AI navigation) .aas files. Just type dmap to list all options
-dmap `[glfile]` mapfile                | DMap option that exports the BSP areas and portals to .obj for debugging purposes
+dmap `[glview]` mapfile                | DMap option that exports the BSP areas and portals to .obj for debugging purposes
 bakeEnvironmentProbes                  | Command after loading a map. Captures all env_probe entities and stores them to disc
 bakeLightGrids [`<switches>`...]       | `<Switches>` limit[num] : max probes per BSP area (default 16384) bounce[num] : number of bounces or number of light reuse (default 1) grid( xdim ydim zdim ) : light grid size steps into each direction (default 64 64 128)
 exportScriptEvents                     | Command: Generates a new script/doom_events.script that reflects all registered class events in the idClass C++ system. The gamecode still needs to be extended to add the original comments of the events
-exportFGD `[nomodels]`                 | Command: Exports all entity defs to exported/_tb/*.fgd for usage in TrenchBroom
+exportFGD `[nomodels]`                 | Command: Exports all entity defs to exported/_tb/*.fgd for usage in convertMapToValve220 `<map>`           | 
+exportImagesToTrenchBroom              | Command: Decompresses and saves all TB relevant .bimage images to _tb/*.png files
+exportModelsToTrenchBroom              | Command: Saves all .base|.blwo|.bmd5mesh models to _tb/*.obj files
 exportEntityDefsToBlender              | Command: Exports all entity and model defs to exported/entities.json for usage in Blender
-postLoadExportModels                   | Cvar: Export models after loading to OBJ model format. Set it to 1 before loading a map.
+before loading a map.
 exportMapToOBJ                         | Command: Convert .map file to .obj/.mtl
 postLoadExportFlashAtlas               | Cvar: Set to 1 at startup to dump the Flash images to exported/swf/
 postLoadExportFlashToSWF               | Cvar: Set to 1 at startup to dump the Flash .bswf files as .swf (WIP)
