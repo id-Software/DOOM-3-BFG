@@ -74,6 +74,8 @@ uint32 FindMemoryTypeIndex( const uint32 memoryTypeBits, const vulkanMemoryUsage
 			break;
 		case VULKAN_MEMORY_USAGE_CPU_ONLY:
 			required |= VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+            // SRS - Make sure memory type does not have VK_MEMORY_HEAP_MULTI_INSTANCE_BIT set, otherwise get validation errors when mapping memory
+            avoid |= VK_MEMORY_HEAP_MULTI_INSTANCE_BIT;
 			break;
 		case VULKAN_MEMORY_USAGE_CPU_TO_GPU:
 			required |= VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;

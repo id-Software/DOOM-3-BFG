@@ -5253,14 +5253,10 @@ VkResult vmaFindMemoryTypeIndex(
 		case VMA_MEMORY_USAGE_CPU_TO_GPU:
 			requiredFlags |= VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
 			preferredFlags |= VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-			// SRS - Make sure memory type does not have VK_MEMORY_HEAP_MULTI_INSTANCE_BIT set, otherwise get validation errors when mapping memory
-			avoidFlags |= VK_MEMORY_HEAP_MULTI_INSTANCE_BIT;
 			break;
 		case VMA_MEMORY_USAGE_GPU_TO_CPU:
 			requiredFlags |= VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
 			preferredFlags |= VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
-			// SRS - Make sure memory type does not have VK_MEMORY_HEAP_MULTI_INSTANCE_BIT set, otherwise get validation errors when mapping memory
-			avoidFlags |= VK_MEMORY_HEAP_MULTI_INSTANCE_BIT;
 			break;
 		default:
 			break;
@@ -5269,6 +5265,8 @@ VkResult vmaFindMemoryTypeIndex(
 	if( ( pMemoryRequirements->flags & VMA_MEMORY_REQUIREMENT_PERSISTENT_MAP_BIT ) != 0 )
 	{
 		requiredFlags |= VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
+        // SRS - Make sure memory type does not have VK_MEMORY_HEAP_MULTI_INSTANCE_BIT set, otherwise get validation errors when mapping memory
+        avoidFlags |= VK_MEMORY_HEAP_MULTI_INSTANCE_BIT;
 	}
 
 	*pMemoryTypeIndex = UINT32_MAX;
