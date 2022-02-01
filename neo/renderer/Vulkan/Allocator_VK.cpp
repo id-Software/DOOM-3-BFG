@@ -739,6 +739,10 @@ CONSOLE_COMMAND( Vulkan_PrintHeapInfo, "Print out the heap information for this 
 		{
 			idLib::Printf( "HOST_VISIBLE" );
 		}
+        if( heap.flags & VK_MEMORY_HEAP_MULTI_INSTANCE_BIT )
+        {
+            idLib::Printf( ", MULTI_INSTANCE" );
+        }
 		idLib::Printf( "\n" );
 
 		for( uint32 j = 0; j < props.memoryTypeCount; ++j )
