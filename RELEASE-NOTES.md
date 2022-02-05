@@ -43,6 +43,8 @@ You need to call exportImagesToTrenchBroom and exportModelsToTrenchBroom once an
 
 * Added RBDoom console command exportModelsToTrenchBroom which saves all .base|.blwo|.bmd5mesh models to _tb/*.obj files
 
+* TrenchBroom got several Doom 3 specific issue generators to help mappers avoiding pitfalls during mapping
+
 [MISCELLANEOUS]
 
 * Added CMake options STANDALONE and DOOM_CLASSIC
