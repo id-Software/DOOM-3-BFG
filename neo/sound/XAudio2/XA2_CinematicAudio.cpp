@@ -33,6 +33,11 @@ extern "C"
 }
 #endif
 
+CinematicAudio_XAudio2::CinematicAudio_XAudio2():
+	pMusicSourceVoice1(NULL)
+{
+}
+
 void CinematicAudio_XAudio2::InitAudio( void* audioContext )
 {
 //SRS - This InitAudio() implementation is FFMPEG-only until we have a BinkDec solution as well
@@ -53,6 +58,12 @@ void CinematicAudio_XAudio2::InitAudio( void* audioContext )
 		case AV_SAMPLE_FMT_S16P:
 		{
 			format_byte = 2;
+			break;
+		}
+		case AV_SAMPLE_FMT_S32:
+		case AV_SAMPLE_FMT_S32P:
+		{
+			format_byte = 4;
 			break;
 		}
 		case AV_SAMPLE_FMT_FLT:
@@ -103,7 +114,7 @@ void CinematicAudio_XAudio2::InitAudio( void* audioContext )
 	exvoice.Samples.wValidBitsPerSample = voiceFormatcine.wBitsPerSample;
 	exvoice.Samples.wSamplesPerBlock = voiceFormatcine.wBitsPerSample;
 	exvoice.SubFormat = use_ext ? KSDATAFORMAT_SUBTYPE_IEEE_FLOAT : KSDATAFORMAT_SUBTYPE_PCM;
-	( ( IXAudio2* )soundSystemLocal.GetInternal() )->CreateSourceVoice( &pMusicSourceVoice1, ( WAVEFORMATEX* )&exvoice, XAUDIO2_VOICE_USEFILTER ); //Use the XAudio2 that the game has initialized instead of making your own
+	( ( IXAudio2* )soundSystemLocal.GetIXAudio2() )->CreateSourceVoice( &pMusicSourceVoice1, ( WAVEFORMATEX* )&exvoice, XAUDIO2_VOICE_USEFILTER );	// Use the XAudio2 that the game has initialized instead of making our own
 #endif
 }
 

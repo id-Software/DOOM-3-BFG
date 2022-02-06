@@ -434,7 +434,7 @@ void idSoundHardware_XAudio2::Init()
 			pMasterVoice->GetChannelMask( &win8_channelMask );
 
 			channelMask = ( unsigned int )win8_channelMask;
-			idLib::Printf( "Using device %S\n", selectedDevice.name );
+			idLib::Printf( "Using device: %S\n", selectedDevice.name.c_str() );
 		}
 		else
 		{

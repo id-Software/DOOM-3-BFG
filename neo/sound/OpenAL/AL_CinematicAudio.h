@@ -29,9 +29,10 @@
 #else
 	#include <AL/al.h>
 #endif
-#include <queue>
 #ifndef __CINEMATIC_AUDIO_AL_H__
 #define __CINEMATIC_AUDIO_AL_H__
+
+#include <queue>
 #define NUM_BUFFERS 4
 
 class CinematicAudio_OpenAL: public CinematicAudio
@@ -50,10 +51,10 @@ private:
 	bool		trigger;
 
 	//GK: Unlike XAudio2 which can accept buffer until the end of this world.
-	//	  OpenAL can accept buffers as long as there are freely available buffers.
+	//	  OpenAL can accept buffers only as long as there are freely available buffers.
 	//	  So, what happens if there are no freely available buffers but we still geting audio frames ? Loss of data.
 	//	  That why now I am using two queues in order to store the frames (and their sizes) and when we have available buffers,
-	//	  then start poping those frames instead of the current, so we don't lose any audio frames and the sound doesn't crack anymore.
+	//	  then start popping those frames instead of the current, so we don't lose any audio frames and the sound doesn't crack anymore.
 	std::queue<uint8_t*>	tBuffer[NUM_BUFFERS];
 	std::queue<int>			sizes[NUM_BUFFERS];
 };

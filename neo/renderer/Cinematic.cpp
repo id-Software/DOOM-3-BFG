@@ -71,6 +71,9 @@ extern "C"
 #include <libswresample/swresample.h>
 #include <libavutil/imgutils.h>
 }
+// SRS - For handling cinematic audio packets
+#include <queue>
+#define NUM_PACKETS 4
 bool hasplanar = true;
 #endif
 
@@ -127,7 +130,7 @@ private:
 	cinData_t				ImageForTimeFFMPEG( int milliseconds );
 	bool					InitFromFFMPEGFile( const char* qpath, bool looping );
 	void					FFMPEGReset();
-	std::queue<AVPacket>	packets[NUM_BUFFERS];
+	std::queue<AVPacket>	packets[NUM_PACKETS];
 #endif
 #ifdef USE_BINKDEC
 	BinkHandle				binkHandle;
