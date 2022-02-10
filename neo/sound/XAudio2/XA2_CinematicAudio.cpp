@@ -33,14 +33,42 @@ extern "C"
 }
 #endif
 
+#if defined(USE_BINKDEC)
+#include <BinkDecoder.h>
+#endif
+
 CinematicAudio_XAudio2::CinematicAudio_XAudio2():
 	pMusicSourceVoice1(NULL)
 {
 }
 
+// SRS - Implement the voice callback interface to determine when audio buffers can be freed
+class VoiceCallback : public IXAudio2VoiceCallback
+{
+public:
+	// SRS - We must free the audio buffer once it has finished playing
+	void OnBufferEnd( void* data )
+	{
+#if defined(USE_FFMPEG)
+		av_freep( &data );
+#elif defined(USE_BINKDEC)
+		free( data );
+#endif
+	}
+	//Unused methods are stubs
+	void OnBufferStart( void* pBufferContext ) { }
+	void OnLoopEnd( void* pBufferContext ) { }
+	void OnStreamEnd( ) { }
+	void OnVoiceError( void* pBufferContext, HRESULT Error) { }
+	void OnVoiceProcessingPassEnd( ) { }
+	void OnVoiceProcessingPassStart( UINT32 BytesRequired ) { }
+};
+
+VoiceCallback voiceCallback;
+// SRS end
+
 void CinematicAudio_XAudio2::InitAudio( void* audioContext )
 {
-//SRS - This InitAudio() implementation is FFMPEG-only until we have a BinkDec solution as well
 #if defined(USE_FFMPEG)
 	AVCodecContext* dec_ctx2 = ( AVCodecContext* )audioContext;
 	int format_byte = 0;
@@ -79,11 +107,18 @@ void CinematicAudio_XAudio2::InitAudio( void* audioContext )
 			return;
 		}
 	}
+	voiceFormatcine.nChannels = dec_ctx2->channels; //fixed
+	voiceFormatcine.nSamplesPerSec = dec_ctx2->sample_rate; //fixed
+#elif defined(USE_BINKDEC)
+	AudioInfo* binkInfo = ( AudioInfo* )audioContext;
+	int format_byte = 2;
+	bool use_ext = false;
+	voiceFormatcine.nChannels = binkInfo->nChannels; //fixed
+	voiceFormatcine.nSamplesPerSec = binkInfo->sampleRate; //fixed
+#endif
 	
 	WAVEFORMATEXTENSIBLE exvoice = { 0 };
 	voiceFormatcine.wFormatTag = WAVE_FORMAT_EXTENSIBLE; //Use extensible wave format in order to handle properly the audio
-	voiceFormatcine.nChannels = dec_ctx2->channels; //fixed
-	voiceFormatcine.nSamplesPerSec = dec_ctx2->sample_rate; //fixed
 	voiceFormatcine.wBitsPerSample = format_byte * 8; //fixed
 	voiceFormatcine.nBlockAlign = format_byte * voiceFormatcine.nChannels; //fixed
 	voiceFormatcine.nAvgBytesPerSec = voiceFormatcine.nSamplesPerSec * voiceFormatcine.nBlockAlign; //fixed
@@ -114,8 +149,9 @@ void CinematicAudio_XAudio2::InitAudio( void* audioContext )
 	exvoice.Samples.wValidBitsPerSample = voiceFormatcine.wBitsPerSample;
 	exvoice.Samples.wSamplesPerBlock = voiceFormatcine.wBitsPerSample;
 	exvoice.SubFormat = use_ext ? KSDATAFORMAT_SUBTYPE_IEEE_FLOAT : KSDATAFORMAT_SUBTYPE_PCM;
-	( ( IXAudio2* )soundSystemLocal.GetIXAudio2() )->CreateSourceVoice( &pMusicSourceVoice1, ( WAVEFORMATEX* )&exvoice, XAUDIO2_VOICE_USEFILTER );	// Use the XAudio2 that the game has initialized instead of making our own
-#endif
+	// Use the XAudio2 that the game has initialized instead of making our own
+	// SRS - Hook up the voice callback interface to get notice when audio buffers can be freed
+	( ( IXAudio2* )soundSystemLocal.GetIXAudio2() )->CreateSourceVoice( &pMusicSourceVoice1, ( WAVEFORMATEX* )&exvoice, XAUDIO2_VOICE_USEFILTER, XAUDIO2_DEFAULT_FREQ_RATIO, &voiceCallback );
 }
 
 void CinematicAudio_XAudio2::PlayAudio( uint8_t* data, int size )
@@ -129,7 +165,7 @@ void CinematicAudio_XAudio2::PlayAudio( uint8_t* data, int size )
 	Packet.LoopBegin = 0;
 	Packet.LoopLength = 0;
 	Packet.LoopCount = 0;
-	Packet.pContext = NULL;
+	Packet.pContext = ( BYTE* )data;	// SRS - Pass the audio buffer pointer to the voice callback methods so it can be freed when buffer playback is finished
 	HRESULT hr;
 	if( FAILED( hr = pMusicSourceVoice1->SubmitSourceBuffer( &Packet ) ) )
 	{
