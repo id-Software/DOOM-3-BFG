@@ -110,7 +110,20 @@ void PC_BeginNamedEvent( const char* szName, const idVec4& color )
 #if defined( USE_VULKAN )
 
 	// start an annotated group of calls under the this name
-	if( vkcontext.debugMarkerSupportAvailable )
+    // SRS - Prefer VK_EXT_debug_utils over VK_EXT_debug_marker/VK_EXT_debug_report (deprecated by VK_EXT_debug_utils)
+    if( vkcontext.debugUtilsSupportAvailable )
+    {
+        VkDebugUtilsLabelEXT label = {};
+        label.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
+        label.pLabelName = szName;
+        label.color[0] = color.x;
+        label.color[1] = color.y;
+        label.color[2] = color.z;
+        label.color[3] = color.w;
+
+        qvkCmdBeginDebugUtilsLabelEXT( vkcontext.commandBuffer[ vkcontext.frameParity ], &label );
+    }
+	else if( vkcontext.debugMarkerSupportAvailable )
 	{
 		VkDebugMarkerMarkerInfoEXT  label = {};
 		label.sType = VK_STRUCTURE_TYPE_DEBUG_MARKER_MARKER_INFO_EXT;
@@ -121,18 +134,6 @@ void PC_BeginNamedEvent( const char* szName, const idVec4& color )
 		label.color[3] = color.w;
 
 		qvkCmdDebugMarkerBeginEXT( vkcontext.commandBuffer[ vkcontext.frameParity ], &label );
-	}
-	else if( vkcontext.debugUtilsSupportAvailable )
-	{
-		VkDebugUtilsLabelEXT label = {};
-		label.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
-		label.pLabelName = szName;
-		label.color[0] = color.x;
-		label.color[1] = color.y;
-		label.color[2] = color.z;
-		label.color[3] = color.w;
-
-		qvkCmdBeginDebugUtilsLabelEXT( vkcontext.commandBuffer[ vkcontext.frameParity ], &label );
 	}
 #else
 	// RB: colors are not supported in OpenGL
@@ -190,13 +191,14 @@ PC_EndNamedEvent
 void PC_EndNamedEvent()
 {
 #if defined( USE_VULKAN )
-	if( vkcontext.debugMarkerSupportAvailable )
+    // SRS - Prefer VK_EXT_debug_utils over VK_EXT_debug_marker/VK_EXT_debug_report (deprecated by VK_EXT_debug_utils)
+    if( vkcontext.debugUtilsSupportAvailable )
+    {
+        qvkCmdEndDebugUtilsLabelEXT( vkcontext.commandBuffer[ vkcontext.frameParity ] );
+    }
+	else if( vkcontext.debugMarkerSupportAvailable )
 	{
 		qvkCmdDebugMarkerEndEXT( vkcontext.commandBuffer[ vkcontext.frameParity ] );
-	}
-	else if( vkcontext.debugUtilsSupportAvailable )
-	{
-		qvkCmdEndDebugUtilsLabelEXT( vkcontext.commandBuffer[ vkcontext.frameParity ] );
 	}
 #else
 	// only do this if RBDOOM-3-BFG was started by RenderDoc or some similar tool

@@ -164,6 +164,7 @@ struct vulkanContext_t
 
 	bool							debugMarkerSupportAvailable;
 	bool							debugUtilsSupportAvailable;
+    bool                            deviceProperties2Available;     // SRS - For getting device properties in support of gfxInfo
 
 	// selected GPU
 	gpuInfo_t* 						gpu;

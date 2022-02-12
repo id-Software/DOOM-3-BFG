@@ -680,7 +680,8 @@ set(SOUND_INCLUDES
 	sound/snd_local.h
 	sound/sound.h
 	sound/SoundVoice.h
-	sound/WaveFile.h)
+	sound/WaveFile.h
+	sound/CinematicAudio.h)
 	
 set(SOUND_SOURCES
 	sound/snd_emitter.cpp
@@ -688,28 +689,31 @@ set(SOUND_SOURCES
 	sound/snd_system.cpp
 	sound/snd_world.cpp
 	sound/SoundVoice.cpp
-	sound/WaveFile.cpp
-	)
+	sound/WaveFile.cpp)
 	
 set(XAUDIO2_INCLUDES
 	sound/XAudio2/XA2_SoundHardware.h
 	sound/XAudio2/XA2_SoundSample.h
-	sound/XAudio2/XA2_SoundVoice.h)
+	sound/XAudio2/XA2_SoundVoice.h
+	sound/Xaudio2/XA2_CinematicAudio.h)
 	
 set(XAUDIO2_SOURCES
 	sound/XAudio2/XA2_SoundHardware.cpp
 	sound/XAudio2/XA2_SoundSample.cpp
-	sound/XAudio2/XA2_SoundVoice.cpp)
+	sound/XAudio2/XA2_SoundVoice.cpp
+	sound/Xaudio2/XA2_CinematicAudio.cpp)
 	
 set(OPENAL_INCLUDES
 	sound/OpenAL/AL_SoundHardware.h
 	sound/OpenAL/AL_SoundSample.h
-	sound/OpenAL/AL_SoundVoice.h)
+	sound/OpenAL/AL_SoundVoice.h
+	sound/OpenAL/AL_CinematicAudio.h)
 	
 set(OPENAL_SOURCES
 	sound/OpenAL/AL_SoundHardware.cpp
 	sound/OpenAL/AL_SoundSample.cpp
-	sound/OpenAL/AL_SoundVoice.cpp)
+	sound/OpenAL/AL_SoundVoice.cpp
+	sound/OpenAL/AL_CinematicAudio.cpp)
 
 set(STUBAUDIO_INCLUDES
 	sound/stub/SoundStub.h)
@@ -1535,6 +1539,7 @@ if(MSVC)
 			include_directories(libs/ffmpeg-win64/include/libavformat)
 			include_directories(libs/ffmpeg-win64/include/libavdevice)
 			include_directories(libs/ffmpeg-win64/include/libavcodec)
+			include_directories(libs/ffmpeg-win64/include/libswresample)
 			
 			link_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs/ffmpeg-win64/lib)
 		else()
@@ -1543,6 +1548,7 @@ if(MSVC)
 			include_directories(libs/ffmpeg-win32/include/libavformat)
 			include_directories(libs/ffmpeg-win32/include/libavdevice)
 			include_directories(libs/ffmpeg-win32/include/libavcodec)
+			include_directories(libs/ffmpeg-win32/include/libswresample)
 			
 			link_directories(${CMAKE_CURRENT_SOURCE_DIR}/libs/ffmpeg-win32/lib)
 		endif()
@@ -1551,7 +1557,8 @@ if(MSVC)
 				avcodec
 				avformat
 				avutil
-				swscale)
+				swscale
+				swresample)
 		
 	endif()
 	
@@ -1717,8 +1724,8 @@ else()
 
 			# SRS - Added support for OpenAL Soft headers on OSX (vs default macOS SDK headers)
 			if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND NOT OPENAL_INCLUDE_DIR MATCHES "SDKs/MacOSX.*\.sdk")
-			include_directories(${OPENAL_INCLUDE_DIR})
-			add_definitions(-DUSE_OPENAL_SOFT_INCLUDES)
+				include_directories(${OPENAL_INCLUDE_DIR})
+				add_definitions(-DUSE_OPENAL_SOFT_INCLUDES)
 			endif()
 
 			list(APPEND RBDOOM3_INCLUDES ${OPENAL_INCLUDES})

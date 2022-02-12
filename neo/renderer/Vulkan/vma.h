@@ -5231,6 +5231,7 @@ VkResult vmaFindMemoryTypeIndex(
 
 	uint32_t requiredFlags = pMemoryRequirements->requiredFlags;
 	uint32_t preferredFlags = pMemoryRequirements->preferredFlags;
+	uint32_t avoidFlags = 0;
 	if( preferredFlags == 0 )
 	{
 		preferredFlags = requiredFlags;
@@ -5264,6 +5265,8 @@ VkResult vmaFindMemoryTypeIndex(
 	if( ( pMemoryRequirements->flags & VMA_MEMORY_REQUIREMENT_PERSISTENT_MAP_BIT ) != 0 )
 	{
 		requiredFlags |= VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
+        // SRS - Make sure memory type does not have VK_MEMORY_HEAP_MULTI_INSTANCE_BIT set, otherwise get validation errors when mapping memory
+        avoidFlags |= VK_MEMORY_HEAP_MULTI_INSTANCE_BIT;
 	}
 
 	*pMemoryTypeIndex = UINT32_MAX;
@@ -5277,8 +5280,11 @@ VkResult vmaFindMemoryTypeIndex(
 		{
 			const VkMemoryPropertyFlags currFlags =
 				allocator->m_MemProps.memoryTypes[memTypeIndex].propertyFlags;
+			const VkMemoryHeapFlags heapFlags =
+				allocator->m_MemProps.memoryHeaps[allocator->m_MemProps.memoryTypes[memTypeIndex].heapIndex].flags;
 			// This memory type contains requiredFlags.
-			if( ( requiredFlags & ~currFlags ) == 0 )
+			// SRS - and does not contain any heap avoidFlags
+			if( ( requiredFlags & ~currFlags ) == 0 && ( avoidFlags & heapFlags ) == 0 )
 			{
 				// Calculate cost as number of bits from preferredFlags not present in this memory type.
 				uint32_t currCost = CountBitsSet( preferredFlags & ~currFlags );

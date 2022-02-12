@@ -105,10 +105,9 @@ bool idVertexBuffer::AllocBufferObject( const void* data, int allocSize, bufferU
 	}
 	else if( usage == BU_DYNAMIC )
 	{
-		// SRS - needed to ensure host coherency for MoltenVK on OSX < 10.15.6, otherwise black screen
 #if defined(__APPLE__)
-		vmaReq.usage = VMA_MEMORY_USAGE_UNKNOWN;
-		vmaReq.requiredFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+        // SRS - VMA_MEMORY_USAGE_CPU_ONLY required for BU_DYNAMIC host coherency on OSX, otherwise black screen
+		vmaReq.usage = VMA_MEMORY_USAGE_CPU_ONLY;
 #else
 		vmaReq.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
 #endif
@@ -121,10 +120,15 @@ bool idVertexBuffer::AllocBufferObject( const void* data, int allocSize, bufferU
 	VkResult ret = vkCreateBuffer( vkcontext.device, &bufferCreateInfo, NULL, &apiObject );
 	assert( ret == VK_SUCCESS );
 
-	VkMemoryRequirements memoryRequirements;
+    VkMemoryRequirements memoryRequirements = {};
 	vkGetBufferMemoryRequirements( vkcontext.device, apiObject, &memoryRequirements );
 
+#if defined(__APPLE__)
+    // SRS - VULKAN_MEMORY_USAGE_CPU_ONLY required for BU_DYNAMIC host coherency on OSX, otherwise black screen
+    vulkanMemoryUsage_t memUsage = ( usage == BU_STATIC ) ? VULKAN_MEMORY_USAGE_GPU_ONLY : VULKAN_MEMORY_USAGE_CPU_ONLY;
+#else
 	vulkanMemoryUsage_t memUsage = ( usage == BU_STATIC ) ? VULKAN_MEMORY_USAGE_GPU_ONLY : VULKAN_MEMORY_USAGE_CPU_TO_GPU;
+#endif
 
 	allocation = vulkanAllocator.Allocate(
 					 memoryRequirements.size,
@@ -363,10 +367,9 @@ bool idIndexBuffer::AllocBufferObject( const void* data, int allocSize, bufferUs
 	}
 	else if( usage == BU_DYNAMIC )
 	{
-		// SRS - needed to ensure host coherency for MoltenVK on OSX < 10.15.6, otherwise black screen
 #if defined(__APPLE__)
-		vmaReq.usage = VMA_MEMORY_USAGE_UNKNOWN;
-		vmaReq.requiredFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+        // SRS - VMA_MEMORY_USAGE_CPU_ONLY required for BU_DYNAMIC host coherency on OSX, otherwise black screen
+		vmaReq.usage = VMA_MEMORY_USAGE_CPU_ONLY;
 #else
 		vmaReq.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
 #endif
@@ -379,10 +382,15 @@ bool idIndexBuffer::AllocBufferObject( const void* data, int allocSize, bufferUs
 	VkResult ret = vkCreateBuffer( vkcontext.device, &bufferCreateInfo, NULL, &apiObject );
 	assert( ret == VK_SUCCESS );
 
-	VkMemoryRequirements memoryRequirements;
+    VkMemoryRequirements memoryRequirements = {};
 	vkGetBufferMemoryRequirements( vkcontext.device, apiObject, &memoryRequirements );
 
+#if defined(__APPLE__)
+    // SRS - VULKAN_MEMORY_USAGE_CPU_ONLY required for BU_DYNAMIC host coherency on OSX, otherwise black screen
+    vulkanMemoryUsage_t memUsage = ( usage == BU_STATIC ) ? VULKAN_MEMORY_USAGE_GPU_ONLY : VULKAN_MEMORY_USAGE_CPU_ONLY;
+#else
 	vulkanMemoryUsage_t memUsage = ( usage == BU_STATIC ) ? VULKAN_MEMORY_USAGE_GPU_ONLY : VULKAN_MEMORY_USAGE_CPU_TO_GPU;
+#endif
 
 	allocation = vulkanAllocator.Allocate(
 					 memoryRequirements.size,
@@ -622,10 +630,9 @@ bool idUniformBuffer::AllocBufferObject( const void* data, int allocSize, buffer
 	}
 	else if( usage == BU_DYNAMIC )
 	{
-		// SRS - needed to ensure host coherency for MoltenVK on OSX < 10.15.6, otherwise black screen
 #if defined(__APPLE__)
-		vmaReq.usage = VMA_MEMORY_USAGE_UNKNOWN;
-		vmaReq.requiredFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+        // SRS - VMA_MEMORY_USAGE_CPU_ONLY required for BU_DYNAMIC host coherency on OSX, otherwise black screen
+		vmaReq.usage = VMA_MEMORY_USAGE_CPU_ONLY;
 #else
 		vmaReq.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
 #endif
@@ -641,7 +648,12 @@ bool idUniformBuffer::AllocBufferObject( const void* data, int allocSize, buffer
 	VkMemoryRequirements memoryRequirements = {};
 	vkGetBufferMemoryRequirements( vkcontext.device, apiObject, &memoryRequirements );
 
+#if defined(__APPLE__)
+    // SRS - VULKAN_MEMORY_USAGE_CPU_ONLY required for BU_DYNAMIC host coherency on OSX, otherwise black screen
+    vulkanMemoryUsage_t memUsage = ( usage == BU_STATIC ) ? VULKAN_MEMORY_USAGE_GPU_ONLY : VULKAN_MEMORY_USAGE_CPU_ONLY;
+#else
 	vulkanMemoryUsage_t memUsage = ( usage == BU_STATIC ) ? VULKAN_MEMORY_USAGE_GPU_ONLY : VULKAN_MEMORY_USAGE_CPU_TO_GPU;
+#endif
 
 	allocation = vulkanAllocator.Allocate(
 					 memoryRequirements.size,

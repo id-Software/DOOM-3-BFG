@@ -1293,9 +1293,7 @@ struct glimpParms_t
 
 #define CLAMP(x, lo, hi)    ((x) < (lo) ? (lo) : (x) > (hi) ? (hi) : (x))
 // Helper function for using SDL2 and Vulkan on Linux.
-std::vector<const char*> get_required_extensions( const std::vector<const char*>& instanceExtensions, bool enableValidationLayers );
-
-const std::vector<const char*> sdlInstanceExtensions = {};
+std::vector<const char*> get_required_extensions();
 
 extern vulkanContext_t vkcontext;
 

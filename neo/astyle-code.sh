@@ -26,7 +26,7 @@ if [ -z "$ASTYLE_BIN" ]; then
 	ASTYLE_BIN="./astyle.$ASTYLE_SUFFIX"
 fi
 
-ASTYLE_VERSION=$($ASTYLE_BIN --version | grep -o -e "[[:digit:]\.]*")
+ASTYLE_VERSION=$($ASTYLE_BIN --version | grep -o -e "[[:digit:]\.]*$")
 
 if [ "$ASTYLE_VERSION" != "$OUR_ASTYLE_VERSION" ]; then
 	echo "ERROR: $ASTYLE_BIN has version $ASTYLE_VERSION, but we want $OUR_ASTYLE_VERSION"
