@@ -65,7 +65,7 @@ uint32 FindMemoryTypeIndex( const uint32 memoryTypeBits, const vulkanMemoryUsage
 
 	VkMemoryPropertyFlags required = 0;
 	VkMemoryPropertyFlags preferred = 0;
-    VkMemoryHeapFlags avoid = 0;
+	VkMemoryHeapFlags avoid = 0;
 
 	switch( usage )
 	{
@@ -74,20 +74,20 @@ uint32 FindMemoryTypeIndex( const uint32 memoryTypeBits, const vulkanMemoryUsage
 			break;
 		case VULKAN_MEMORY_USAGE_CPU_ONLY:
 			required |= VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-            // SRS - Make sure memory type does not have VK_MEMORY_HEAP_MULTI_INSTANCE_BIT set, otherwise get validation errors when mapping memory
-            avoid |= VK_MEMORY_HEAP_MULTI_INSTANCE_BIT;
+			// SRS - Make sure memory type does not have VK_MEMORY_HEAP_MULTI_INSTANCE_BIT set, otherwise get validation errors when mapping memory
+			avoid |= VK_MEMORY_HEAP_MULTI_INSTANCE_BIT;
 			break;
 		case VULKAN_MEMORY_USAGE_CPU_TO_GPU:
 			required |= VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
 			preferred |= VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-            // SRS - Make sure memory type does not have VK_MEMORY_HEAP_MULTI_INSTANCE_BIT set, otherwise get validation errors when mapping memory
-            avoid |= VK_MEMORY_HEAP_MULTI_INSTANCE_BIT;
+			// SRS - Make sure memory type does not have VK_MEMORY_HEAP_MULTI_INSTANCE_BIT set, otherwise get validation errors when mapping memory
+			avoid |= VK_MEMORY_HEAP_MULTI_INSTANCE_BIT;
 			break;
 		case VULKAN_MEMORY_USAGE_GPU_TO_CPU:
 			required |= VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
 			preferred |= VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
-            // SRS - Make sure memory type does not have VK_MEMORY_HEAP_MULTI_INSTANCE_BIT set, otherwise get validation errors when mapping memory
-            avoid |= VK_MEMORY_HEAP_MULTI_INSTANCE_BIT;
+			// SRS - Make sure memory type does not have VK_MEMORY_HEAP_MULTI_INSTANCE_BIT set, otherwise get validation errors when mapping memory
+			avoid |= VK_MEMORY_HEAP_MULTI_INSTANCE_BIT;
 			break;
 		default:
 			idLib::FatalError( "idVulkanAllocator::AllocateFromPools: Unknown memory usage." );
@@ -661,11 +661,11 @@ idVulkanAllocator::Free
 */
 void idVulkanAllocator::Free( const vulkanAllocation_t allocation )
 {
-    // SRS - Make sure we are trying to free an actual allocated block, otherwise skip
-    if( allocation.block != NULL )
-    {
-        garbage[ garbageIndex ].Append( allocation );
-    }
+	// SRS - Make sure we are trying to free an actual allocated block, otherwise skip
+	if( allocation.block != NULL )
+	{
+		garbage[ garbageIndex ].Append( allocation );
+	}
 }
 
 /*
@@ -741,10 +741,10 @@ CONSOLE_COMMAND( Vulkan_PrintHeapInfo, "Print out the heap information for this 
 		{
 			idLib::Printf( "HOST_VISIBLE" );
 		}
-        if( heap.flags & VK_MEMORY_HEAP_MULTI_INSTANCE_BIT )
-        {
-            idLib::Printf( ", MULTI_INSTANCE" );
-        }
+		if( heap.flags & VK_MEMORY_HEAP_MULTI_INSTANCE_BIT )
+		{
+			idLib::Printf( ", MULTI_INSTANCE" );
+		}
 		idLib::Printf( "\n" );
 
 		for( uint32 j = 0; j < props.memoryTypeCount; ++j )

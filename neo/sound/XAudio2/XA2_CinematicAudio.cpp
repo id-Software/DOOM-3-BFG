@@ -34,11 +34,11 @@ extern "C"
 #endif
 
 #if defined(USE_BINKDEC)
-#include <BinkDecoder.h>
+	#include <BinkDecoder.h>
 #endif
 
 CinematicAudio_XAudio2::CinematicAudio_XAudio2():
-	pMusicSourceVoice1(NULL)
+	pMusicSourceVoice1( NULL )
 {
 }
 
@@ -59,7 +59,7 @@ public:
 	void OnBufferStart( void* pBufferContext ) { }
 	void OnLoopEnd( void* pBufferContext ) { }
 	void OnStreamEnd( ) { }
-	void OnVoiceError( void* pBufferContext, HRESULT Error) { }
+	void OnVoiceError( void* pBufferContext, HRESULT Error ) { }
 	void OnVoiceProcessingPassEnd( ) { }
 	void OnVoiceProcessingPassStart( UINT32 BytesRequired ) { }
 };
@@ -73,7 +73,7 @@ void CinematicAudio_XAudio2::InitAudio( void* audioContext )
 	AVCodecContext* dec_ctx2 = ( AVCodecContext* )audioContext;
 	int format_byte = 0;
 	bool use_ext = false;
-	
+
 	switch( dec_ctx2->sample_fmt )
 	{
 		case AV_SAMPLE_FMT_U8:
@@ -116,7 +116,7 @@ void CinematicAudio_XAudio2::InitAudio( void* audioContext )
 	voiceFormatcine.nChannels = binkInfo->nChannels; //fixed
 	voiceFormatcine.nSamplesPerSec = binkInfo->sampleRate; //fixed
 #endif
-	
+
 	WAVEFORMATEXTENSIBLE exvoice = { 0 };
 	voiceFormatcine.wFormatTag = WAVE_FORMAT_EXTENSIBLE; //Use extensible wave format in order to handle properly the audio
 	voiceFormatcine.wBitsPerSample = format_byte * 8; //fixed

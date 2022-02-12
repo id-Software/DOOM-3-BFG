@@ -427,7 +427,7 @@ void idCommonLocal::UpdateScreen( bool captureToImage, bool releaseMouse )
 
 	// build all the draw commands without running a new game tic
 	Draw();
-    frameTiming.finishDrawTime = Sys_Microseconds();    // SRS - Added frame timing for out-of-sequence updates (e.g. used in timedemo "twice" mode)
+	frameTiming.finishDrawTime = Sys_Microseconds();    // SRS - Added frame timing for out-of-sequence updates (e.g. used in timedemo "twice" mode)
 
 	// foresthale 2014-03-01: note: the only place that has captureToImage=true is idAutoRender::StartBackgroundAutoSwaps
 	if( captureToImage )
@@ -439,9 +439,9 @@ void idCommonLocal::UpdateScreen( bool captureToImage, bool releaseMouse )
 	const emptyCommand_t* cmd = renderSystem->SwapCommandBuffers( &time_frontend, &time_backend, &time_shadows, &time_gpu, &stats_backend, &stats_frontend );
 
 	// get the GPU busy with new commands
-    frameTiming.startRenderTime = Sys_Microseconds();   // SRS - Added frame timing for out-of-sequence updates (e.g. used in timedemo "twice" mode)
+	frameTiming.startRenderTime = Sys_Microseconds();   // SRS - Added frame timing for out-of-sequence updates (e.g. used in timedemo "twice" mode)
 	renderSystem->RenderCommandBuffers( cmd );
-    frameTiming.finishRenderTime = Sys_Microseconds();  // SRS - Added frame timing for out-of-sequence updates (e.g. used in timedemo "twice" mode)
+	frameTiming.finishRenderTime = Sys_Microseconds();  // SRS - Added frame timing for out-of-sequence updates (e.g. used in timedemo "twice" mode)
 
 	insideUpdateScreen = false;
 }

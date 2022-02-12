@@ -931,7 +931,7 @@ void idCommonLocal::RenderBink( const char* path )
 	material->Parse( materialText.c_str(), materialText.Length(), false );
 	material->ResetCinematicTime( Sys_Milliseconds() );
 
-    // SRS - Restored original calculation after implementing idCinematicLocal::GetStartTime() and fixing animationLength in idCinematicLocal::InitFromBinkDecFile()
+	// SRS - Restored original calculation after implementing idCinematicLocal::GetStartTime() and fixing animationLength in idCinematicLocal::InitFromBinkDecFile()
 	int cinematicLength = material->CinematicLength();
 	int	mouseEvents[MAX_MOUSE_EVENTS][2];
 

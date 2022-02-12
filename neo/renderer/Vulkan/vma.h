@@ -5265,8 +5265,8 @@ VkResult vmaFindMemoryTypeIndex(
 	if( ( pMemoryRequirements->flags & VMA_MEMORY_REQUIREMENT_PERSISTENT_MAP_BIT ) != 0 )
 	{
 		requiredFlags |= VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
-        // SRS - Make sure memory type does not have VK_MEMORY_HEAP_MULTI_INSTANCE_BIT set, otherwise get validation errors when mapping memory
-        avoidFlags |= VK_MEMORY_HEAP_MULTI_INSTANCE_BIT;
+		// SRS - Make sure memory type does not have VK_MEMORY_HEAP_MULTI_INSTANCE_BIT set, otherwise get validation errors when mapping memory
+		avoidFlags |= VK_MEMORY_HEAP_MULTI_INSTANCE_BIT;
 	}
 
 	*pMemoryTypeIndex = UINT32_MAX;

@@ -34,7 +34,7 @@ extern "C"
 #endif
 
 #if defined(USE_BINKDEC)
-#include <BinkDecoder.h>
+	#include <BinkDecoder.h>
 #endif
 
 extern idCVar s_noSound;
@@ -60,7 +60,7 @@ void CinematicAudio_OpenAL::InitAudio( void* audioContext )
 #if defined(USE_FFMPEG)
 	AVCodecContext* dec_ctx2 = ( AVCodecContext* )audioContext;
 	av_rate_cin = dec_ctx2->sample_rate;
-	
+
 	switch( dec_ctx2->sample_fmt )
 	{
 		case AV_SAMPLE_FMT_U8:

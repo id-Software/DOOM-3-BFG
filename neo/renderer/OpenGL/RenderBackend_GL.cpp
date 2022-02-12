@@ -206,11 +206,11 @@ static void R_CheckPortableExtensions()
 	{
 		glConfig.vendor = VENDOR_INTEL;
 	}
-    // SRS - Added support for Apple GPUs
-    else if( idStr::Icmpn( glConfig.vendor_string, "Apple", 5 ) == 0 || idStr::Icmpn( glConfig.renderer_string, "Apple", 5 ) == 0 )
-    {
-        glConfig.vendor = VENDOR_APPLE;
-    }
+	// SRS - Added support for Apple GPUs
+	else if( idStr::Icmpn( glConfig.vendor_string, "Apple", 5 ) == 0 || idStr::Icmpn( glConfig.renderer_string, "Apple", 5 ) == 0 )
+	{
+		glConfig.vendor = VENDOR_APPLE;
+	}
 
 	// RB: Mesa support
 	if( idStr::Icmpn( glConfig.renderer_string, "Mesa", 4 ) == 0 || idStr::Icmpn( glConfig.renderer_string, "X.org", 5 ) == 0 || idStr::Icmpn( glConfig.renderer_string, "Gallium", 7 ) == 0 ||

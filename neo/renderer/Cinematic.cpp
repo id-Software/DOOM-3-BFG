@@ -79,14 +79,14 @@ bool hasplanar = true;
 #endif
 
 #ifdef USE_BINKDEC
-// DG: not sure how to use FFMPEG and BINKDEC at the same time.. it might be useful if someone wants to
-//     use binkdec for bink and FFMPEG for other formats in custom code so I didn't just rip FFMPEG out
-//     But right now it's unsupported, if you need this adjust the video loading code etc yourself
-#ifdef USE_FFMPEG
-#error "Currently, only one of FFMPEG and BINKDEC is supported at a time!"
-#endif
+	// DG: not sure how to use FFMPEG and BINKDEC at the same time.. it might be useful if someone wants to
+	//     use binkdec for bink and FFMPEG for other formats in custom code so I didn't just rip FFMPEG out
+	//     But right now it's unsupported, if you need this adjust the video loading code etc yourself
+	#ifdef USE_FFMPEG
+		#error "Currently, only one of FFMPEG and BINKDEC is supported at a time!"
+	#endif
 
-#include <BinkDecoder.h>
+	#include <BinkDecoder.h>
 #endif // USE_BINKDEC
 
 class idCinematicLocal : public idCinematic
@@ -102,9 +102,9 @@ public:
 	bool                    IsPlaying() const;
 	// RB end
 	virtual void			Close();
-    // SRS begin
-    virtual int             GetStartTime();
-    // SRS end
+	// SRS begin
+	virtual int             GetStartTime();
+	// SRS end
 	virtual void			ResetTime( int time );
 
 private:
@@ -143,7 +143,7 @@ private:
 	void					BinkDecReset();
 
 	YUVbuffer				yuvBuffer;
-    bool                    hasFrame;
+	bool                    hasFrame;
 	int						framePos;
 	int						numFrames;
 	idImage*				imgY;
@@ -220,7 +220,7 @@ private:
 	void					RoQPrepMcomp( int xoff, int yoff );
 	void					RoQReset();
 	// RB end
-	
+
 	//GK:Also init variables for XAudio2 or OpenAL (SRS - this must be an instance variable)
 	CinematicAudio*			cinematicAudio;
 };
@@ -433,7 +433,7 @@ idCinematicLocal::idCinematicLocal()
 	qStatus[0] = ( byte** )Mem_Alloc( 32768 * sizeof( byte* ), TAG_CINEMATIC );
 	qStatus[1] = ( byte** )Mem_Alloc( 32768 * sizeof( byte* ), TAG_CINEMATIC );
 
-    isRoQ = false;      // SRS - Initialize isRoQ for all cases, not just FFMPEG
+	isRoQ = false;      // SRS - Initialize isRoQ for all cases, not just FFMPEG
 #if defined(USE_FFMPEG)
 	// Carl: ffmpeg stuff, for bink and normal video files:
 //	fmt_ctx = avformat_alloc_context();
@@ -453,14 +453,14 @@ idCinematicLocal::idCinematicLocal()
 	audio_stream_index = -1;
 	img_convert_ctx = NULL;
 	hasFrame = false;
-    framePos = -1;
+	framePos = -1;
 	lagIndex = 0;
 #endif
 
 #ifdef USE_BINKDEC
 	binkHandle.isValid = false;
 	binkHandle.instanceIndex = -1; // whatever this is, it now has a deterministic value
-    hasFrame = false;
+	hasFrame = false;
 	framePos = -1;
 	numFrames = 0;
 	audioTracks = 0;
@@ -548,7 +548,7 @@ idCinematicLocal::~idCinematicLocal()
 	av_freep( &frame2 );
 	av_freep( &frame3 );
 #endif
-	
+
 	// SRS - Free any lagged cinematic audio buffers
 	for( int i = 0; i < NUM_LAG_FRAMES; i++ )
 	{
@@ -797,11 +797,11 @@ bool idCinematicLocal::InitFromFFMPEGFile( const char* qpath, bool amilooping )
 		sws_freeContext( img_convert_ctx );
 	}
 	img_convert_ctx = sws_getContext( dec_ctx->width, dec_ctx->height, dec_ctx->pix_fmt, CIN_WIDTH, CIN_HEIGHT, AV_PIX_FMT_BGR32, SWS_BICUBIC, NULL, NULL, NULL );
-    
-    buf = NULL;
-    status = FMV_PLAY;
-    hasFrame = false;
-    framePos = -1;
+
+	buf = NULL;
+	status = FMV_PLAY;
+	hasFrame = false;
+	framePos = -1;
 	ImageForTime( 0 );
 	status = ( looping ) ? FMV_PLAY : FMV_IDLE;
 
@@ -897,15 +897,15 @@ bool idCinematicLocal::InitFromBinkDecFile( const char* qpath, bool amilooping )
 	float durationSec = numFrames / frameRate;      // SRS - fixed Bink durationSec calculation
 	animationLength = durationSec * 1000;           // SRS - animationLength is in milliseconds
 	common->Printf( "Loaded BinkDec file: '%s', looping=%d, %dx%d, %f FPS, %f sec\n", qpath, looping, CIN_WIDTH, CIN_HEIGHT, frameRate, durationSec );
-    
-    memset( yuvBuffer, 0, sizeof( yuvBuffer ) );
 
-    buf = NULL;
-    status = FMV_PLAY;
-    hasFrame = false;                               // SRS - Implemented hasFrame for BinkDec behaviour consistency with FFMPEG
-    framePos = -1;
-    ImageForTime( 0 );                              // SRS - Was missing initial call to ImageForTime() - fixes validation errors when using Vulkan renderer
-    status = ( looping ) ? FMV_PLAY : FMV_IDLE;     // SRS - Update status based on looping flag
+	memset( yuvBuffer, 0, sizeof( yuvBuffer ) );
+
+	buf = NULL;
+	status = FMV_PLAY;
+	hasFrame = false;                               // SRS - Implemented hasFrame for BinkDec behaviour consistency with FFMPEG
+	framePos = -1;
+	ImageForTime( 0 );                              // SRS - Was missing initial call to ImageForTime() - fixes validation errors when using Vulkan renderer
+	status = ( looping ) ? FMV_PLAY : FMV_IDLE;     // SRS - Update status based on looping flag
 
 	return true;
 }
@@ -967,7 +967,7 @@ bool idCinematicLocal::InitFromFile( const char* qpath, bool amilooping )
 #elif defined(USE_BINKDEC)
 		idStr temp = fileName.StripFileExtension() + ".bik";
 		animationLength = 0;
-        hasFrame = false;
+		hasFrame = false;
 		RoQShutdown();
 		fileName = temp;
 		//idLib::Warning( "New filename: '%s'\n", fileName.c_str() );
@@ -1054,15 +1054,15 @@ void idCinematicLocal::Close()
 	}
 #endif
 #ifdef USE_BINKDEC
-    hasFrame = false;
+	hasFrame = false;
 
 	if( !isRoQ )
 	{
-        if( binkHandle.isValid )
-        {
-            memset( yuvBuffer, 0 , sizeof( yuvBuffer ) );
-            Bink_Close( binkHandle );
-        }
+		if( binkHandle.isValid )
+		{
+			memset( yuvBuffer, 0 , sizeof( yuvBuffer ) );
+			Bink_Close( binkHandle );
+		}
 		status = FMV_EOF;
 	}
 #endif
@@ -1093,7 +1093,7 @@ bool idCinematicLocal::IsPlaying() const
 */
 int idCinematicLocal::GetStartTime()
 {
-    return startTime;
+	return startTime;
 }
 // SRS end
 
@@ -1252,7 +1252,7 @@ cinData_t idCinematicLocal::ImageForTimeFFMPEG( int thisTime )
 	cinData_t	cinData;
 	uint8_t*	audioBuffer = NULL;
 	int			num_bytes = 0;
-	
+
 	if( thisTime <= 0 )
 	{
 		thisTime = Sys_Milliseconds();
@@ -1421,7 +1421,7 @@ cinData_t idCinematicLocal::ImageForTimeFFMPEG( int thisTime )
 	img->UploadScratch( image, CIN_WIDTH, CIN_HEIGHT );
 	hasFrame = true;
 	cinData.image = img;
-	
+
 	// SRS - If we have cinematic audio data, play a lagged frame (for FFMPEG video sync) and save the current frame
 	if( num_bytes > 0 )
 	{
@@ -1456,7 +1456,7 @@ cinData_t idCinematicLocal::ImageForTimeBinkDec( int thisTime )
 		thisTime = Sys_Milliseconds();
 	}
 
-    memset( &cinData, 0, sizeof( cinData ) );
+	memset( &cinData, 0, sizeof( cinData ) );
 	if( r_skipDynamicTextures.GetBool() || status == FMV_EOF || status == FMV_IDLE )
 	{
 		return cinData;
@@ -1468,13 +1468,13 @@ cinData_t idCinematicLocal::ImageForTimeBinkDec( int thisTime )
 		return cinData;
 	}
 
-    // SRS - Implement hasFrame so BinkDec startTime is handled the same as with FFMPEG
+	// SRS - Implement hasFrame so BinkDec startTime is handled the same as with FFMPEG
 	if( ( !hasFrame ) || startTime == -1 )
 	{
-        if( startTime == -1 )
-        {
-            BinkDecReset();
-        }
+		if( startTime == -1 )
+		{
+			BinkDecReset();
+		}
 		startTime = thisTime;
 	}
 
@@ -1502,12 +1502,12 @@ cinData_t idCinematicLocal::ImageForTimeBinkDec( int thisTime )
 		}
 	}
 
-    // SRS - Enable video replay within PDAs
-    if( desiredFrame < framePos )
-    {
-        BinkDecReset();
-    }
-    // SRS end
+	// SRS - Enable video replay within PDAs
+	if( desiredFrame < framePos )
+	{
+		BinkDecReset();
+	}
+	// SRS end
 
 	if( hasFrame && desiredFrame == framePos )
 	{
@@ -1554,9 +1554,9 @@ cinData_t idCinematicLocal::ImageForTimeBinkDec( int thisTime )
 		else if( h < CIN_HEIGHT )
 		{
 #if defined(__APPLE__) && defined(USE_VULKAN)
-            // SRS - For U and V channels on OSX Vulkan use full height image to work around stall that occurs with half-height chroma planes
-            // when exiting levels or returning from demo playback - depends on OSX-specific logic inside Vulkan version of SubImageUpload()
-            h = CIN_HEIGHT;
+			// SRS - For U and V channels on OSX Vulkan use full height image to work around stall that occurs with half-height chroma planes
+			// when exiting levels or returning from demo playback - depends on OSX-specific logic inside Vulkan version of SubImageUpload()
+			h = CIN_HEIGHT;
 #else
 			// the U and V channels have a lower resolution than the Y channel
 			// (or the logical video resolution), so use the aspect ratio to
@@ -1579,7 +1579,7 @@ cinData_t idCinematicLocal::ImageForTimeBinkDec( int thisTime )
 		img->SubImageUpload( 0, 0, 0, 0, w, h, yuvBuffer[i].data );
 	}
 
-    hasFrame = true;
+	hasFrame = true;
 	cinData.imageY = imgY;
 	cinData.imageCr = imgCr;
 	cinData.imageCb = imgCb;

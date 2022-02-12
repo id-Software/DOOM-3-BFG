@@ -110,19 +110,19 @@ void PC_BeginNamedEvent( const char* szName, const idVec4& color )
 #if defined( USE_VULKAN )
 
 	// start an annotated group of calls under the this name
-    // SRS - Prefer VK_EXT_debug_utils over VK_EXT_debug_marker/VK_EXT_debug_report (deprecated by VK_EXT_debug_utils)
-    if( vkcontext.debugUtilsSupportAvailable )
-    {
-        VkDebugUtilsLabelEXT label = {};
-        label.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
-        label.pLabelName = szName;
-        label.color[0] = color.x;
-        label.color[1] = color.y;
-        label.color[2] = color.z;
-        label.color[3] = color.w;
+	// SRS - Prefer VK_EXT_debug_utils over VK_EXT_debug_marker/VK_EXT_debug_report (deprecated by VK_EXT_debug_utils)
+	if( vkcontext.debugUtilsSupportAvailable )
+	{
+		VkDebugUtilsLabelEXT label = {};
+		label.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
+		label.pLabelName = szName;
+		label.color[0] = color.x;
+		label.color[1] = color.y;
+		label.color[2] = color.z;
+		label.color[3] = color.w;
 
-        qvkCmdBeginDebugUtilsLabelEXT( vkcontext.commandBuffer[ vkcontext.frameParity ], &label );
-    }
+		qvkCmdBeginDebugUtilsLabelEXT( vkcontext.commandBuffer[ vkcontext.frameParity ], &label );
+	}
 	else if( vkcontext.debugMarkerSupportAvailable )
 	{
 		VkDebugMarkerMarkerInfoEXT  label = {};
@@ -191,11 +191,11 @@ PC_EndNamedEvent
 void PC_EndNamedEvent()
 {
 #if defined( USE_VULKAN )
-    // SRS - Prefer VK_EXT_debug_utils over VK_EXT_debug_marker/VK_EXT_debug_report (deprecated by VK_EXT_debug_utils)
-    if( vkcontext.debugUtilsSupportAvailable )
-    {
-        qvkCmdEndDebugUtilsLabelEXT( vkcontext.commandBuffer[ vkcontext.frameParity ] );
-    }
+	// SRS - Prefer VK_EXT_debug_utils over VK_EXT_debug_marker/VK_EXT_debug_report (deprecated by VK_EXT_debug_utils)
+	if( vkcontext.debugUtilsSupportAvailable )
+	{
+		qvkCmdEndDebugUtilsLabelEXT( vkcontext.commandBuffer[ vkcontext.frameParity ] );
+	}
 	else if( vkcontext.debugMarkerSupportAvailable )
 	{
 		qvkCmdDebugMarkerEndEXT( vkcontext.commandBuffer[ vkcontext.frameParity ] );

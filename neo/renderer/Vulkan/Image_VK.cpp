@@ -267,7 +267,7 @@ void idImage::CreateSampler()
 			if( r_maxAnisotropicFiltering.GetInteger() > 0 )
 			{
 				createInfo.anisotropyEnable = VK_TRUE;
-                createInfo.maxAnisotropy = Min( r_maxAnisotropicFiltering.GetFloat(), vkcontext.gpu->props.limits.maxSamplerAnisotropy );
+				createInfo.maxAnisotropy = Min( r_maxAnisotropicFiltering.GetFloat(), vkcontext.gpu->props.limits.maxSamplerAnisotropy );
 			}
 			break;
 
@@ -720,20 +720,20 @@ void idImage::SubImageUpload( int mipLevel, int x, int y, int z, int width, int 
 	}
 #endif
 #if defined(__APPLE__) && defined(USE_BINKDEC)
-    else if( opts.format == FMT_LUM8 && ( imgName == "_cinematicCr" || imgName == "_cinematicCb" ) )
-    {
-        // SRS - When decoding YUV420 cinematics on OSX, copy and duplicate individual rows of half-height chroma planes into full-height planes
-        // This works around a stall that occurs with half-height planes when exiting levels or after demo playback (possible issue in MoltenVK??)
-        // ***IMPORTANT - Assumes that SubImageUpload() has been called with half-width and full-height parameters and a packed pic buffer ***
-        byte* imgData = ( byte* )pic;
-        int evenRow;
-        for( int i = 0; i < size / 2; i++ )
-        {
-            evenRow = ( i / width ) * 2;
-            data[ evenRow * width + i % width ] = imgData[ i ];            // SRS - Copy image data into even-numbered rows of new chroma plane
-            data[ ( evenRow + 1 ) * width + i % width ] = imgData[ i ];    // SRS - Duplicate image data into odd-numbered rows of new chroma plane
-        }
-    }
+	else if( opts.format == FMT_LUM8 && ( imgName == "_cinematicCr" || imgName == "_cinematicCb" ) )
+	{
+		// SRS - When decoding YUV420 cinematics on OSX, copy and duplicate individual rows of half-height chroma planes into full-height planes
+		// This works around a stall that occurs with half-height planes when exiting levels or after demo playback (possible issue in MoltenVK??)
+		// ***IMPORTANT - Assumes that SubImageUpload() has been called with half-width and full-height parameters and a packed pic buffer ***
+		byte* imgData = ( byte* )pic;
+		int evenRow;
+		for( int i = 0; i < size / 2; i++ )
+		{
+			evenRow = ( i / width ) * 2;
+			data[ evenRow * width + i % width ] = imgData[ i ];            // SRS - Copy image data into even-numbered rows of new chroma plane
+			data[( evenRow + 1 ) * width + i % width ] = imgData[ i ];     // SRS - Duplicate image data into odd-numbered rows of new chroma plane
+		}
+	}
 #endif
 	else
 	{

@@ -84,7 +84,7 @@ enum graphicsVendor_t
 	VENDOR_NVIDIA,
 	VENDOR_AMD,
 	VENDOR_INTEL,
-    VENDOR_APPLE                            // SRS - Added support for Apple GPUs
+	VENDOR_APPLE                            // SRS - Added support for Apple GPUs
 };
 
 // RB: similar to Q3A - allow separate codepaths between OpenGL 3.x, OpenGL ES versions
