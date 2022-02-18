@@ -49,6 +49,29 @@ You need to call exportImagesToTrenchBroom and exportModelsToTrenchBroom once an
 
 * Added CMake options STANDALONE and DOOM_CLASSIC
 
+* Added command convertMapQuakeToDoom `<map>` that expects a Quake 1 .map in the Valve220 format and does some Doom 3 specific fixes
+
+* The gamecode ignores func_group entities if they were created by TrenchBroom instead to warn that there is no spawn function
+
+* dmap / idMapFile move brushes of func_group entities to worldspawn before compiling the BSP. 
+  This also means func_group brushes are structural. 
+  If you want to optimize the BSP then move those to func_static instead which is the same as func_detail in Quake.
+  
+* Fixed that dmap failed writing the BSP .proc file if the command was interrupted by an error
+
+[COMMUNITY]
+
+Steve Saunders contributed
+
+* Updated mac OS support
+
+* Improved Vulkan / Molten support
+
+* Fixed FFmpeg 5 compatibility for newer Linux distros
+
+* Bink videos can play audio if they contain audio tracks (merged from DOOM BFA by Mr.GK)
+
+
 [ASSETS]
 
 * Added TrenchBroom helper entityDefs like a Quake 3 style misc_model to comply with TrenchBroom's Solid/PointClass rules for editing entities

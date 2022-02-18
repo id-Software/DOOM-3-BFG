@@ -4022,6 +4022,17 @@ bool idGameLocal::InhibitEntitySpawn( idDict& spawnArgs )
 		}
 	}
 
+	// RB: TrenchBroom interop skip func_group entities
+	{
+		const char* name = spawnArgs.GetString( "classname" );
+		const char* groupType = spawnArgs.GetString( "_tb_type" );
+
+		if( idStr::Icmp( name, "func_group" ) == 0 || idStr::Icmp( groupType, "func_group" ) == 0 )
+		{
+			result = true;
+		}
+	}
+
 	return result;
 }
 

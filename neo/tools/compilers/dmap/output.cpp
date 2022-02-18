@@ -424,6 +424,7 @@ static void WriteOutputSurfaces( int entityNum, int areaNum )
 		entity->epairs.GetString( "name", "", &name );
 		if( !name[0] )
 		{
+			fileSystem->CloseFile( procFile );
 			common->Error( "Entity %i has surfaces, but no name key", entityNum );
 		}
 		procFile->WriteFloatString( "model { /* name = */ \"%s\" /* numSurfaces = */ %i\n\n",
@@ -495,6 +496,7 @@ static void WriteOutputSurfaces( int entityNum, int areaNum )
 
 		if( surfaceNum >= numSurfaces )
 		{
+			fileSystem->CloseFile( procFile );
 			common->Error( "WriteOutputSurfaces: surfaceNum >= numSurfaces" );
 		}
 

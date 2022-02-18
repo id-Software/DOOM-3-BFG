@@ -1730,7 +1730,10 @@ bool idMapFile::Parse( const char* filename, bool ignoreRegion, bool osPath )
 		}
 
 		// move the primitives of any func_group entities to the worldspawn
-		if( entities[0]->epairs.GetBool( "moveFuncGroups" ) )
+
+		// RB: TrenchBroom interop - especially those created by TrenchBroom and
+		// they also won't be spawned by the gamecode
+		if( entities[0]->epairs.GetBool( "moveFuncGroups" ) || valve220Format )
 		{
 			for( i = 1; i < entities.Num(); i++ )
 			{
