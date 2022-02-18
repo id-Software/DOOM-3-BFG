@@ -790,7 +790,9 @@ bool idCinematicLocal::InitFromFFMPEGFile( const char* qpath, bool amilooping )
 	frameRate = av_q2d( fmt_ctx->streams[video_stream_index]->avg_frame_rate );
 	common->Printf( "Loaded FFMPEG file: '%s', looping=%d, %dx%d, %f FPS, %f sec\n", qpath, looping, CIN_WIDTH, CIN_HEIGHT, frameRate, durationSec );
 
-	image = ( byte* )Mem_Alloc( CIN_WIDTH * CIN_HEIGHT * 4 * 2, TAG_CINEMATIC );
+	// SRS - Get number of image bytes needed by querying with NULL first, then allocate image and fill with correct parameters
+	int img_bytes = av_image_fill_arrays( frame2->data, frame2->linesize, NULL, AV_PIX_FMT_BGR32, CIN_WIDTH, CIN_HEIGHT, 1 );
+	image = ( byte* )Mem_Alloc( img_bytes, TAG_CINEMATIC );
 	av_image_fill_arrays( frame2->data, frame2->linesize, image, AV_PIX_FMT_BGR32, CIN_WIDTH, CIN_HEIGHT, 1 ); //GK: Straight out of the FFMPEG source code
 	if( img_convert_ctx )
 	{
@@ -1586,7 +1588,7 @@ cinData_t idCinematicLocal::ImageForTimeBinkDec( int thisTime )
 
 	if( audioTracks > 0 )
 	{
-		audioBuffer = ( int16_t* )malloc( binkInfo.idealBufferSize );
+		audioBuffer = ( int16_t* )Mem_Alloc( binkInfo.idealBufferSize, TAG_AUDIO );
 		num_bytes = Bink_GetAudioData( binkHandle, trackIndex, audioBuffer );
 
 		// SRS - If we have cinematic audio data, start playing it now
@@ -1598,7 +1600,7 @@ cinData_t idCinematicLocal::ImageForTimeBinkDec( int thisTime )
 		else
 		{
 			// SRS - Even though we have no audio data to play, still need to free the audio buffer
-			free( audioBuffer );
+			Mem_Free( audioBuffer );
 		}
 	}
 

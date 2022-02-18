@@ -129,7 +129,7 @@ void CinematicAudio_OpenAL::PlayAudio( uint8_t* data, int size )
 #if defined(USE_FFMPEG)
 					av_freep( &tempdata );
 #elif defined(USE_BINKDEC)
-					free( tempdata );
+					Mem_Free( tempdata );
 #endif
 					alSourceQueueBuffers( alMusicSourceVoicecin, 1, &bufid );
 					ALenum error = alGetError();
@@ -149,7 +149,7 @@ void CinematicAudio_OpenAL::PlayAudio( uint8_t* data, int size )
 #if defined(USE_FFMPEG)
 		av_freep( &data );
 #elif defined(USE_BINKDEC)
-		free( data );
+		Mem_Free( data );
 #endif
 		offset++;
 		if( offset == NUM_BUFFERS )
@@ -221,7 +221,7 @@ void CinematicAudio_OpenAL::ShutdownAudio()
 #if defined(USE_FFMPEG)
 			av_freep( &tempdata );
 #elif defined(USE_BINKDEC)
-			free( tempdata );
+			Mem_Free( tempdata );
 #endif
 			buffersize--;
 		}

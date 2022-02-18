@@ -52,7 +52,7 @@ public:
 #if defined(USE_FFMPEG)
 		av_freep( &data );
 #elif defined(USE_BINKDEC)
-		free( data );
+		Mem_Free( data );
 #endif
 	}
 	//Unused methods are stubs
