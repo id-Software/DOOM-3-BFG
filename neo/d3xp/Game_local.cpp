@@ -4027,7 +4027,7 @@ bool idGameLocal::InhibitEntitySpawn( idDict& spawnArgs )
 		const char* name = spawnArgs.GetString( "classname" );
 		const char* groupType = spawnArgs.GetString( "_tb_type" );
 
-		if( idStr::Icmp( name, "func_group" ) == 0 || idStr::Icmp( groupType, "func_group" ) == 0 )
+		if( idStr::Icmp( name, "func_group" ) == 0 && ( idStr::Icmp( groupType, "_tb_group" ) == 0 || idStr::Icmp( groupType, "_tb_layer" ) == 0 ) )
 		{
 			result = true;
 		}
