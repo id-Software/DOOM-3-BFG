@@ -1727,4 +1727,4 @@ void idRenderProgManager::ZeroUniforms()
 	memset( uniforms.Ptr(), 0, uniforms.Allocated() );
 }
 
-#endif 
+#endif

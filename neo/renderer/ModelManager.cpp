@@ -34,9 +34,9 @@ If you have questions concerning this license or the applicable additional terms
 #include "RenderCommon.h"	// just for R_FreeWorldInteractions and R_CreateWorldInteractions
 
 #if defined( USE_NVRHI )
-#include <sys/DeviceManager.h>
+	#include <sys/DeviceManager.h>
 
-extern DeviceManager* deviceManager;
+	extern DeviceManager* deviceManager;
 #endif
 
 idCVar binaryLoadRenderModels( "binaryLoadRenderModels", "1", 0, "enable binary load/write of render models" );
@@ -241,6 +241,13 @@ idRenderModelManagerLocal::Init
 */
 void idRenderModelManagerLocal::Init()
 {
+#if defined( USE_NVRHI )
+	if( !commandList )
+	{
+		commandList = deviceManager->GetDevice()->createCommandList();
+	}
+#endif
+
 	cmdSystem->AddCommand( "listModels", ListModels_f, CMD_FL_RENDERER, "lists all models" );
 	cmdSystem->AddCommand( "printModel", PrintModel_f, CMD_FL_RENDERER, "prints model info", idCmdSystem::ArgCompletion_ModelName );
 	cmdSystem->AddCommand( "reloadModels", ReloadModels_f, CMD_FL_RENDERER | CMD_FL_CHEAT, "reloads models" );
@@ -645,7 +652,7 @@ void idRenderModelManagerLocal::CreateMeshBuffers( nvrhi::ICommandList* commandL
 	for( int i = 0; i < models.Num(); i++ )
 	{
 		idRenderModel* model = models[i];
-		
+
 		// Upload vertices and indices and shadow vertices into the vertex cache.
 		assert( false && "Stephen should implement me!" );
 	}

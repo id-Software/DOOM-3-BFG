@@ -896,7 +896,7 @@ int idImageManager::LoadLevelImages( bool pacifier )
 	for( int i = 0 ; i < images.Num() ; i++ )
 	{
 		idImage* image = images[ i ];
-		
+
 		if( pacifier )
 		{
 			common->UpdateLevelLoadPacifier();

@@ -135,7 +135,7 @@ protected:
 #else
 	vulkanAllocation_t	allocation;
 #endif
-	
+
 #elif defined( USE_NVRHI )
 	nvrhi::InputLayoutHandle	inputLayout;
 	nvrhi::BufferHandle			bufferHandle;

@@ -1049,7 +1049,7 @@ private:
 	nvrhi::BindingLayoutHandle    bindingLayout;
 	nvrhi::BindingSetHandle       bindingSet;
 	renderProg_t*			      currentShader;
-	
+
 #else
 
 #if defined(USE_VULKAN)

@@ -528,7 +528,7 @@ public:
 	void				SetCurrentImage( idImage* image );
 	idImage*			GetCurrentImage();
 	idImage*			GetImageAt( int index );
-	
+
 #elif !defined( USE_VULKAN )
 	int					currenttmu;
 

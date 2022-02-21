@@ -37,7 +37,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "RenderCommon.h"
 
 #if defined( USE_NVRHI )
-#include "sys/DeviceManager.h"
+	#include "sys/DeviceManager.h"
 #endif
 
 // RB begin
@@ -336,7 +336,7 @@ const char* envDirection[6] = { "_px", "_nx", "_py", "_ny", "_pz", "_nz" };
 const char* skyDirection[6] = { "_forward", "_back", "_left", "_right", "_up", "_down" };
 
 #if defined( USE_NVRHI )
-DeviceManager* deviceManager;
+	DeviceManager* deviceManager;
 #endif
 
 /*
@@ -454,10 +454,12 @@ void R_SetNewMode( const bool fullInit )
 		if( fullInit )
 		{
 			// create the context as well as setting up the window
-			
+
 #if defined( USE_NVRHI )
 			deviceManager = DeviceManager::Create( nvrhi::GraphicsAPI::D3D12 );
-#elif defined(VULKAN_USE_PLATFORM_SDL)
+#endif
+
+#if defined( USE_VULKAN )
 			if( VKimp_Init( parms ) )
 #else
 			if( GLimp_Init( parms ) )
@@ -471,7 +473,7 @@ void R_SetNewMode( const bool fullInit )
 		{
 			// just rebuild the window
 
-#if defined(VULKAN_USE_PLATFORM_SDL)
+#if defined( USE_VULKAN )
 			if( VKimp_SetScreenParms( parms ) )
 #else
 			if( GLimp_SetScreenParms( parms ) )
@@ -540,10 +542,10 @@ static void R_ReloadSurface_f( const idCmdArgs& args )
 
 	commandList->open();
 #endif
-	
+
 	// reload any images used by the decl
 	mt.material->ReloadImages( false, commandList );
-	
+
 #if defined( USE_NVRHI )
 	commandList->close();
 	deviceManager->GetDevice()->executeCommandList( commandList );
@@ -2272,7 +2274,7 @@ idRenderSystemLocal::LoadLevelImages
 void idRenderSystemLocal::LoadLevelImages()
 {
 	globalImages->LoadLevelImages( false );
-	
+
 #if defined( USE_NVRHI )
 	deviceManager->GetDevice()->waitForIdle();
 	deviceManager->GetDevice()->runGarbageCollection();
@@ -2381,10 +2383,10 @@ void idRenderSystemLocal::InitBackend()
 		}
 
 		commandList->open();
-		
+
 		// Reloading images here causes the rendertargets to get deleted. Figure out how to handle this properly on 360
 		globalImages->ReloadImages( true, commandList );
-		
+
 		commandList->close();
 		deviceManager->GetDevice()->executeCommandList( commandList );
 #else

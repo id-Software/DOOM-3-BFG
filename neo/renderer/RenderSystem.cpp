@@ -36,8 +36,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "../imgui/BFGimgui.h"
 
 #if defined( USE_NVRHI )
-#include <sys/DeviceManager.h>
-extern DeviceManager* deviceManager;
+	#include <sys/DeviceManager.h>
+	extern DeviceManager* deviceManager;
 #endif
 
 

@@ -883,9 +883,9 @@ void idRenderBackend::DBG_ShowSurfaceInfo( drawSurf_t** drawSurfs, int numDrawSu
 	// R_AxisToModelMatrix( mt.entity->axis, mt.entity->origin, matrix );
 
 	tr.primaryWorld->DrawText( surfModelName, surfPoint + tr.primaryView->renderView.viewaxis[2] * 12,
-								0.35f, colorRed, tr.primaryView->renderView.viewaxis );
+							   0.35f, colorRed, tr.primaryView->renderView.viewaxis );
 	tr.primaryWorld->DrawText( surfMatName, surfPoint,
-								0.35f, colorBlue, tr.primaryView->renderView.viewaxis );
+							   0.35f, colorBlue, tr.primaryView->renderView.viewaxis );
 }
 
 /*

@@ -597,7 +597,7 @@ void idImage::FinalizeImage( bool fromBackEnd, nvrhi::ICommandList* commandList 
 				// clear the data so it's not left uninitialized
 				idTempArray<byte> clear( opts.width * opts.height * 4 );
 				memset( clear.Ptr(), 0, clear.Size() );
-				
+
 #if defined( USE_NVRHI )
 				const nvrhi::FormatInfo& info = nvrhi::getFormatInfo( texture->getDesc().format );
 

@@ -40,12 +40,12 @@ If you have questions concerning this license or the applicable additional terms
 #include "imgui/ImGui_Hooks.h"
 
 #if defined( USE_NVRHI )
-#include "RenderPass.h"
-#include <sys/DeviceManager.h>
-#include <nvrhi/utils.h>
+	#include "RenderPass.h"
+	#include <sys/DeviceManager.h>
+	#include <nvrhi/utils.h>
 
-idCVar r_useNewSsaoPass( "r_useNewSSAOPass", "0", CVAR_RENDERER | CVAR_BOOL, "use the new ssao pass from donut" );
-extern DeviceManager* deviceManager;
+	idCVar r_useNewSsaoPass( "r_useNewSSAOPass", "0", CVAR_RENDERER | CVAR_BOOL, "use the new ssao pass from donut" );
+	extern DeviceManager* deviceManager;
 #endif
 
 idCVar r_drawEyeColor( "r_drawEyeColor", "0", CVAR_RENDERER | CVAR_BOOL, "Draw a colored box, red = left eye, blue = right eye, grey = non-stereo" );
@@ -5670,7 +5670,7 @@ BACKEND COMMANDS
 */
 
 #if defined( USE_NVRHI )
-extern DeviceManager* deviceManager;
+	extern DeviceManager* deviceManager;
 #endif
 
 
@@ -6078,9 +6078,9 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 			glBindFramebuffer( GL_READ_FRAMEBUFFER_EXT, globalFramebuffers.hdrFBO->GetFramebuffer() );
 			glBindFramebuffer( GL_DRAW_FRAMEBUFFER_EXT, globalFramebuffers.hdr64FBO->GetFramebuffer() );
 			glBlitFramebuffer( 0, 0, renderSystem->GetWidth(), renderSystem->GetHeight(),
-							   0, 0, 64, 64,
-							   GL_COLOR_BUFFER_BIT,
-							   GL_LINEAR );
+			0, 0, 64, 64,
+			GL_COLOR_BUFFER_BIT,
+			GL_LINEAR );
 		}
 #endif
 

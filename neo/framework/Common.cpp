@@ -4,6 +4,7 @@
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2012-2014 Robert Beckebans
+Copyright (C) 2022 Stephen Pridham
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -35,6 +36,11 @@ If you have questions concerning this license or the applicable additional terms
 #include "ConsoleHistory.h"
 
 #include "../sound/sound.h"
+
+#if defined( USE_NVRHI )
+	#include <sys/DeviceManager.h>
+	extern DeviceManager* deviceManager;
+#endif
 
 // RB begin
 #if defined(USE_DOOMCLASSIC)
@@ -1324,15 +1330,19 @@ void idCommonLocal::Init( int argc, const char* const* argv, const char* cmdline
 			splashScreen = declManager->FindMaterial( "guis/assets/splash/legal_english" );
 		}
 
+		// SP: Load in the splash screen images.
+		globalImages->LoadDeferredImages();
+
 		const int legalMinTime = 4000;
 		const bool showVideo = ( !com_skipIntroVideos.GetBool() && fileSystem->UsingResourceFiles() );
+		const bool showSplash = true;
 		if( showVideo )
 		{
 			RenderBink( "video\\loadvideo.bik" );
 			RenderSplash();
 			RenderSplash();
 		}
-		else
+		else if( showSplash )
 		{
 			idLib::Printf( "Skipping Intro Videos!\n" );
 			// display the legal splash screen
@@ -1341,7 +1351,6 @@ void idCommonLocal::Init( int argc, const char* const* argv, const char* cmdline
 			// SRS - OSX needs this for some OpenGL drivers, otherwise renders leftover image before splash
 			RenderSplash();
 		}
-
 
 		int legalStartTime = Sys_Milliseconds();
 		declManager->Init2();
@@ -1470,6 +1479,7 @@ void idCommonLocal::Init( int argc, const char* const* argv, const char* cmdline
 
 		com_fullyInitialized = true;
 
+		globalImages->LoadDeferredImages();
 
 		// No longer need the splash screen
 		if( splashScreen != NULL )
@@ -1773,20 +1783,17 @@ idCommonLocal::LeaveGame
 */
 void idCommonLocal::LeaveGame()
 {
-
 	const bool captureToImage = false;
+
 	UpdateScreen( captureToImage );
 
 	ResetNetworkingState();
-
 
 	Stop( false );
 
 	CreateMainMenu();
 
 	StartMenu();
-
-
 }
 
 /*
@@ -1810,7 +1817,6 @@ bool idCommonLocal::ProcessEvent( const sysEvent_t* event )
 			{
 				if( !game->Shell_IsActive() )
 				{
-
 					// menus / etc
 					if( MenuEvent( event ) )
 					{

@@ -42,23 +42,23 @@ If you have questions concerning this license or the applicable additional terms
 
 #if defined( USE_NVRHI )
 
-#if USE_DX11 || USE_DX12
-	#include <DXGI.h>
-#endif
+	#if USE_DX11 || USE_DX12
+		#include <DXGI.h>
+	#endif
 
-#if USE_DX11
-	#include <d3d11.h>
-#endif
+	#if USE_DX11
+		#include <d3d11.h>
+	#endif
 
-#if USE_DX12
-	#include <d3d12.h>
-#endif
+	#if USE_DX12
+		#include <d3d12.h>
+	#endif
 
-#if USE_VK
-	#include <nvrhi/vulkan.h>
-#endif
+	#if USE_VK
+		#include <nvrhi/vulkan.h>
+	#endif
 
-#include <nvrhi/nvrhi.h>
+	#include <nvrhi/nvrhi.h>
 #endif
 
 // maximum texture units
@@ -967,7 +967,7 @@ public:
 #if defined( USE_NVRHI )
 	nvrhi::CommandListHandle commandList;
 #endif
-	
+
 	bool					registered;		// cleared at shutdown, set at InitOpenGL
 
 	bool					takingScreenshot;

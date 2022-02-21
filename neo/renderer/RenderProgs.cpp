@@ -36,8 +36,8 @@ If you have questions concerning this license or the applicable additional terms
 
 #if defined( USE_NVRHI )
 
-#include <sys/DeviceManager.h>
-#include <nvrhi/utils.h>
+	#include <sys/DeviceManager.h>
+	#include <nvrhi/utils.h>
 
 #elif defined(USE_VULKAN)
 
@@ -93,7 +93,7 @@ void idRenderProgManager::Init( nvrhi::IDevice* _device )
 	{
 		builtinShaders[i] = -1;
 	}
-	
+
 #if defined( USE_NVRHI )
 	device = _device;
 
