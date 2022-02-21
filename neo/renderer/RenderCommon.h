@@ -40,6 +40,26 @@ If you have questions concerning this license or the applicable additional terms
 #include "Font.h"
 #include "Framebuffer.h"
 
+#if defined( USE_NVRHI )
+
+#if USE_DX11 || USE_DX12
+	#include <DXGI.h>
+#endif
+
+#if USE_DX11
+	#include <d3d11.h>
+#endif
+
+#if USE_DX12
+	#include <d3d12.h>
+#endif
+
+#if USE_VK
+	#include <nvrhi/vulkan.h>
+#endif
+
+#include <nvrhi/nvrhi.h>
+#endif
 
 // maximum texture units
 const int MAX_PROG_TEXTURE_PARMS	= 16;

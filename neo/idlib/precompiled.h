@@ -99,10 +99,13 @@ const int MAX_EXPRESSION_REGISTERS = 4096;
 #elif defined(USE_VULKAN)
 	#include "../renderer/Vulkan/qvk.h"
 #else
-	// RB: replaced QGL with GLEW
+	
+#endif
+
+// FIMXE remove GL with NVRHI
+// RB: replaced QGL with GLEW
 	#include <GL/glew.h>
 	// RB end
-#endif
 
 
 #include "../renderer/Cinematic.h"
@@ -113,6 +116,7 @@ const int MAX_EXPRESSION_REGISTERS = 4096;
 #include "../renderer/ModelManager.h"
 #include "../renderer/RenderSystem.h"
 #include "../renderer/RenderWorld.h"
+#include "../renderer/BindingCache.h"
 
 // sound engine
 #include "../sound/sound.h"

@@ -72,7 +72,15 @@ void R_ReloadImages_f( const idCmdArgs& args )
 		}
 	}
 
+#if defined( USE_NVRHI )
+	nvrhi::CommandListHandle commandList = deviceManager->GetDevice()->createCommandList();
+	commandList->open();
+	globalImages->ReloadImages( all, commandList );
+	commandList->close();
+	deviceManager->GetDevice()->executeCommandList( commandList );
+#else
 	globalImages->ReloadImages( all );
+#endif
 }
 
 typedef struct
@@ -469,7 +477,11 @@ idImage*	idImageManager::ImageFromFile( const char* _name, textureFilter_t filte
 	image->levelLoadReferenced = true;
 
 	// load it if we aren't in a level preload
+#if defined( USE_NVRHI )
+	if( !insideLevelLoad || preloadingMapImages )
+#else
 	if( ( !insideLevelLoad || preloadingMapImages ) && idLib::IsMainThread() )
+#endif
 	{
 		image->referencedOutsideLevelLoad = ( !insideLevelLoad && !preloadingMapImages );
 		image->FinalizeImage( false, nullptr );

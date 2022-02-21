@@ -35,6 +35,11 @@ If you have questions concerning this license or the applicable additional terms
 #include "CmdlineProgressbar.h"
 #include "../framework/Common_local.h" // commonLocal.WaitGameThread();
 
+#if defined( USE_NVRHI )
+#include <sys/DeviceManager.h>
+extern DeviceManager* deviceManager;
+#endif
+
 
 #define LGRID_FILE_EXT			"lightgrid"
 #define LGRID_BINARYFILE_EXT	"blightgrid"
@@ -414,6 +419,12 @@ void idRenderWorldLocal::LoadLightGridImages()
 
 	idStr filename;
 
+#if defined( USE_NVRHI )
+	nvrhi::CommandListHandle commandList = deviceManager->GetDevice()->createCommandList();
+
+	commandList->open();
+#endif
+
 	// try to load existing lightgrid image data
 	for( int i = 0; i < numPortalAreas; i++ )
 	{
@@ -429,6 +440,12 @@ void idRenderWorldLocal::LoadLightGridImages()
 			area->lightGrid.irradianceImage->Reload( true, commandList );
 		}
 	}
+
+#if defined( USE_NVRHI )
+	commandList->close();
+
+	deviceManager->GetDevice()->executeCommandList( commandList );
+#endif
 }
 
 /*

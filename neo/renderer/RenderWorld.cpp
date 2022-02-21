@@ -1966,6 +1966,10 @@ void idRenderWorldLocal::GenerateAllInteractions()
 	int	size =  interactionTableWidth * interactionTableHeight * sizeof( *interactionTable );
 	interactionTable = ( idInteraction** )R_ClearedStaticAlloc( size );
 
+#if defined( USE_NVRHI )
+	tr.commandList->open();
+#endif
+
 	// iterate through all lights
 	int	count = 0;
 	for( int i = 0; i < this->lightDefs.Num(); i++ )
@@ -2012,12 +2016,17 @@ void idRenderWorldLocal::GenerateAllInteractions()
 				count++;
 
 				// the interaction may create geometry
-				inter->CreateStaticInteraction();
+				inter->CreateStaticInteraction( tr.commandList );
 			}
 		}
 
 		session->Pump();
 	}
+
+#if defined( USE_NVRHI )
+	tr.commandList->close();
+	deviceManager->GetDevice()->executeCommandList( tr.commandList );
+#endif
 
 	int end = Sys_Milliseconds();
 	int	msec = end - start;

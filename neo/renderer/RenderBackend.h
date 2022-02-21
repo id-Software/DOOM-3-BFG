@@ -227,7 +227,8 @@ struct vulkanContext_t
 
 extern vulkanContext_t vkcontext;
 
-#else //if defined( ID_OPENGL )
+//#elif !defined( USE_NVRHI )
+#else
 
 struct glContext_t
 {

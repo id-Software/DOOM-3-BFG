@@ -43,6 +43,8 @@ namespace ImGui
 struct ImDrawData;
 }
 
+struct ImDrawData;
+
 class idGuiModel
 {
 public:
@@ -54,10 +56,11 @@ public:
 	void		ReadFromDemo( idDemoFile* demo );
 
 	// allocates memory for verts and indexes in frame-temporary buffer memory
-	void		BeginFrame();
+	void		BeginFrame( nvrhi::ICommandList* commandList );
 
 	void		EmitToCurrentView( float modelMatrix[16], bool depthHack );
-	void		EmitFullScreen();
+	void		EmitFullScreen( textureStage_t* textureStage = nullptr );
+	void		EmitSurfaces( float modelMatrix[16], float modelViewMatrix[16], bool depthHack, bool allowFullScreenStereoDepth, bool linkAsEntity );
 
 	// RB
 	void		EmitImGui( ImDrawData* drawData );
@@ -70,7 +73,6 @@ public:
 	//---------------------------
 private:
 	void		AdvanceSurf();
-	void		EmitSurfaces( float modelMatrix[16], float modelViewMatrix[16], bool depthHack, bool allowFullScreenStereoDepth, bool linkAsEntity );
 
 	guiModelSurface_t* 			surf;
 

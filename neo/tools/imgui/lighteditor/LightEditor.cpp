@@ -418,7 +418,7 @@ void LightEditor::LoadLightTextures()
 				idImage* editorImage = mat->GetLightEditorImage();
 				if( !editorImage->IsLoaded() )
 				{
-					editorImage->ActuallyLoadImage( false );
+					editorImage->DeferredLoadImage();
 				}
 
 				if( !editorImage->IsDefaulted() )

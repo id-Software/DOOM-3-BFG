@@ -357,6 +357,12 @@ ID_INLINE float* idVec2::ToFloatPtr()
 	return &x;
 }
 
+ID_INLINE idVec2& operator/( float lhs, idVec2& rhs )
+{
+	rhs.x = lhs / rhs.x;
+	rhs.y = lhs / rhs.y;
+	return rhs;
+}
 
 //===============================================================
 //
@@ -961,6 +967,14 @@ ID_INLINE bool idVec3::ProjectAlongPlane( const idVec3& normal, const float epsi
 	cross *= overBounce * ( normal * ( *this ) ) / len;
 	( *this ) -= cross;
 	return true;
+}
+
+ID_INLINE idVec3& operator/( float lhs, idVec3& rhs )
+{
+	rhs.x = rhs.x / lhs;
+	rhs.y = rhs.y / lhs;
+	rhs.z = rhs.z / lhs;
+	return rhs;
 }
 
 //===============================================================
@@ -1757,6 +1771,14 @@ ID_INLINE idVec3 idPolar3::ToVec3() const
 	return idVec3( cp * radius * ct, cp * radius * st, radius * sp );
 }
 
+namespace VectorUtil
+{
+inline uint32_t Vec4ToColorInt( const idVec4& vec )
+{
+	idVec4 vecCopy = 255.0f * vec;
+	return ( ( uint32_t )vecCopy[0] << 28 ) | ( ( uint32_t )vecCopy[1] << 20 ) | ( ( uint32_t )vecCopy[2] << 12 ) | ( uint32_t )vecCopy[3];
+}
+}
 
 /*
 ===============================================================================

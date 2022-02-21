@@ -882,9 +882,9 @@ void idRenderBackend::DBG_ShowSurfaceInfo( drawSurf_t** drawSurfs, int numDrawSu
 	// transform the object verts into global space
 	// R_AxisToModelMatrix( mt.entity->axis, mt.entity->origin, matrix );
 
-	tr.primaryWorld->DebugText( surfModelName, surfPoint + tr.primaryView->renderView.viewaxis[2] * 12,
+	tr.primaryWorld->DrawText( surfModelName, surfPoint + tr.primaryView->renderView.viewaxis[2] * 12,
 								0.35f, colorRed, tr.primaryView->renderView.viewaxis );
-	tr.primaryWorld->DebugText( surfMatName, surfPoint,
+	tr.primaryWorld->DrawText( surfMatName, surfPoint,
 								0.35f, colorBlue, tr.primaryView->renderView.viewaxis );
 }
 
@@ -956,7 +956,7 @@ void idRenderBackend::DBG_ShowViewEntitys( viewEntity_t* vModels )
 			idVec3 corner;
 			R_LocalPointToGlobal( vModel->modelMatrix, edef->localReferenceBounds[1], corner );
 
-			tr.primaryWorld->DebugText(
+			tr.primaryWorld->DrawText(
 				va( "%i:%s", edef->index, edef->parms.hModel->Name() ),
 				corner,
 				0.25f, color,

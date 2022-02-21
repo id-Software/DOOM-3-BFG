@@ -35,6 +35,12 @@ If you have questions concerning this license or the applicable additional terms
 #include "../framework/Common_local.h"
 #include "../imgui/BFGimgui.h"
 
+#if defined( USE_NVRHI )
+#include <sys/DeviceManager.h>
+extern DeviceManager* deviceManager;
+#endif
+
+
 idRenderSystemLocal	tr;
 idRenderSystem* renderSystem = &tr;
 
@@ -307,9 +313,9 @@ void idRenderSystemLocal::DrawFilled( const idVec4& color, float x, float y, flo
 idRenderSystemLocal::DrawStretchPic
 =============
 */
-void idRenderSystemLocal::DrawStretchPic( float x, float y, float w, float h, float s1, float t1, float s2, float t2, const idMaterial* material )
+void idRenderSystemLocal::DrawStretchPic( float x, float y, float w, float h, float s1, float t1, float s2, float t2, const idMaterial* material, float z )
 {
-	DrawStretchPic( idVec4( x, y, s1, t1 ), idVec4( x + w, y, s2, t1 ), idVec4( x + w, y + h, s2, t2 ), idVec4( x, y + h, s1, t2 ), material );
+	DrawStretchPic( idVec4( x, y, s1, t1 ), idVec4( x + w, y, s2, t1 ), idVec4( x + w, y + h, s2, t2 ), idVec4( x, y + h, s1, t2 ), material, z );
 }
 
 /*
@@ -318,7 +324,7 @@ idRenderSystemLocal::DrawStretchPic
 =============
 */
 static triIndex_t quadPicIndexes[6] = { 3, 0, 2, 2, 0, 1 };
-void idRenderSystemLocal::DrawStretchPic( const idVec4& topLeft, const idVec4& topRight, const idVec4& bottomRight, const idVec4& bottomLeft, const idMaterial* material )
+void idRenderSystemLocal::DrawStretchPic( const idVec4& topLeft, const idVec4& topRight, const idVec4& bottomRight, const idVec4& bottomLeft, const idMaterial* material, float z )
 {
 	if( !IsInitialized() )
 	{
@@ -340,6 +346,7 @@ void idRenderSystemLocal::DrawStretchPic( const idVec4& topLeft, const idVec4& t
 	localVerts[0].Clear();
 	localVerts[0].xyz[0] = topLeft.x;
 	localVerts[0].xyz[1] = topLeft.y;
+	localVerts[0].xyz[2] = z;
 	localVerts[0].SetTexCoord( topLeft.z, topLeft.w );
 	localVerts[0].SetNativeOrderColor( currentColorNativeBytesOrder );
 	localVerts[0].ClearColor2();
@@ -347,6 +354,7 @@ void idRenderSystemLocal::DrawStretchPic( const idVec4& topLeft, const idVec4& t
 	localVerts[1].Clear();
 	localVerts[1].xyz[0] = topRight.x;
 	localVerts[1].xyz[1] = topRight.y;
+	localVerts[1].xyz[2] = z;
 	localVerts[1].SetTexCoord( topRight.z, topRight.w );
 	localVerts[1].SetNativeOrderColor( currentColorNativeBytesOrder );
 	localVerts[1].ClearColor2();
@@ -354,6 +362,7 @@ void idRenderSystemLocal::DrawStretchPic( const idVec4& topLeft, const idVec4& t
 	localVerts[2].Clear();
 	localVerts[2].xyz[0] = bottomRight.x;
 	localVerts[2].xyz[1] = bottomRight.y;
+	localVerts[2].xyz[2] = z;
 	localVerts[2].SetTexCoord( bottomRight.z, bottomRight.w );
 	localVerts[2].SetNativeOrderColor( currentColorNativeBytesOrder );
 	localVerts[2].ClearColor2();
@@ -361,6 +370,7 @@ void idRenderSystemLocal::DrawStretchPic( const idVec4& topLeft, const idVec4& t
 	localVerts[3].Clear();
 	localVerts[3].xyz[0] = bottomLeft.x;
 	localVerts[3].xyz[1] = bottomLeft.y;
+	localVerts[3].xyz[2] = z;
 	localVerts[3].SetTexCoord( bottomLeft.z, bottomLeft.w );
 	localVerts[3].SetNativeOrderColor( currentColorNativeBytesOrder );
 	localVerts[3].ClearColor2();
@@ -623,7 +633,6 @@ const emptyCommand_t* idRenderSystemLocal::SwapCommandBuffers(
 	performanceCounters_t* pc
 )
 {
-
 	SwapCommandBuffers_FinishRendering( frontEndMicroSec, backEndMicroSec, shadowMicroSec, gpuMicroSec, bc, pc );
 
 	return SwapCommandBuffers_FinishCommandBuffers();
@@ -674,7 +683,7 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 		backend.GL_BlockingSwapBuffers();
 	}
 
-#if defined(USE_VULKAN)
+#if defined( USE_NVRHI ) || defined( USE_VULKAN )
 	if( gpuMicroSec != NULL )
 	{
 		*gpuMicroSec = backend.pc.gpuMicroSec;
@@ -887,8 +896,13 @@ const emptyCommand_t* idRenderSystemLocal::SwapCommandBuffers_FinishCommandBuffe
 	// PC
 	UpdateStereo3DMode();
 
+	if( !commandList )
+	{
+		commandList = deviceManager->GetDevice()->createCommandList();
+	}
+
 	// prepare the new command buffer
-	guiModel->BeginFrame();
+	guiModel->BeginFrame( commandList );
 
 	//------------------------------
 	// Make sure that geometry used by code is present in the buffer cache.
@@ -899,10 +913,10 @@ const emptyCommand_t* idRenderSystemLocal::SwapCommandBuffers_FinishCommandBuffe
 	// scene generation, the basic surfaces needed for drawing the buffers will
 	// always be present.
 	//------------------------------
-	R_InitDrawSurfFromTri( tr.unitSquareSurface_, *tr.unitSquareTriangles );
-	R_InitDrawSurfFromTri( tr.zeroOneCubeSurface_, *tr.zeroOneCubeTriangles );
-	R_InitDrawSurfFromTri( tr.zeroOneSphereSurface_, *tr.zeroOneSphereTriangles );
-	R_InitDrawSurfFromTri( tr.testImageSurface_, *tr.testImageTriangles );
+	R_InitDrawSurfFromTri( tr.unitSquareSurface_, *tr.unitSquareTriangles, commandList );
+	R_InitDrawSurfFromTri( tr.zeroOneCubeSurface_, *tr.zeroOneCubeTriangles, commandList );
+	R_InitDrawSurfFromTri( tr.zeroOneSphereSurface_, *tr.zeroOneSphereTriangles, commandList );
+	R_InitDrawSurfFromTri( tr.testImageSurface_, *tr.testImageTriangles, commandList );
 
 	// Reset render crop to be the full screen
 	renderCrops[0].x1 = 0;
@@ -1050,6 +1064,53 @@ void idRenderSystemLocal::CropRenderSize( int width, int height )
 	current.x1 = previous.x1;
 	current.x2 = previous.x1 + width - 1;
 	current.y1 = previous.y2 - height + 1;
+	current.y2 = previous.y2;
+}
+
+/*
+================
+idRenderSystemLocal::CropRenderSize
+================
+*/
+void idRenderSystemLocal::CropRenderSize( int x, int y, int width, int height )
+{
+	if( !IsInitialized() )
+	{
+		return;
+	}
+
+	// close any gui drawing before changing the size
+	guiModel->EmitFullScreen();
+	guiModel->Clear();
+
+
+	if( width < 1 || height < 1 )
+	{
+		common->Error( "CropRenderSize: bad sizes" );
+	}
+
+	if( common->WriteDemo() )
+	{
+		common->WriteDemo()->WriteInt( DS_RENDER );
+		common->WriteDemo()->WriteInt( DC_CROP_RENDER );
+		common->WriteDemo()->WriteInt( width );
+		common->WriteDemo()->WriteInt( height );
+
+		if( r_showDemo.GetBool() )
+		{
+			common->Printf( "write DC_CROP_RENDER\n" );
+		}
+	}
+
+	idScreenRect& previous = renderCrops[currentRenderCrop];
+
+	currentRenderCrop++;
+
+	idScreenRect& current = renderCrops[currentRenderCrop];
+
+	current.x1 = x;
+	current.x2 = previous.x1 + width - 1;
+	current.y1 = y;
 	current.y2 = previous.y2;
 }
 

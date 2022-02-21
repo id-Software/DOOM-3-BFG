@@ -465,18 +465,7 @@ public:
 	// DG: added for imgui integration (to be used with ImGui::Image() etc)
 	void*		GetImGuiTextureID()
 	{
-		if( !IsLoaded() )
-		{
-			// load the image on demand here, which isn't our normal game operating mode
-			ActuallyLoadImage( true );
-		}
-
-#if defined( USE_VULKAN )
-		return ( void* )( intptr_t )image;
-#else
-		return ( void* )( intptr_t )texnum;
-#endif
-
+		return nullptr;
 	}
 	// DG end
 

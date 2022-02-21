@@ -87,10 +87,10 @@ void idGuiModel::ReadFromDemo( idDemoFile* demo )
 idGuiModel::BeginFrame
 ================
 */
-void idGuiModel::BeginFrame()
+void idGuiModel::BeginFrame( nvrhi::ICommandList* commandList )
 {
-	vertexBlock = vertexCache.AllocVertex( NULL, MAX_VERTS );
-	indexBlock = vertexCache.AllocIndex( NULL, MAX_INDEXES );
+	vertexBlock = vertexCache.AllocVertex( NULL, MAX_VERTS, sizeof( idDrawVert ), commandList );
+	indexBlock = vertexCache.AllocIndex( NULL, MAX_INDEXES, sizeof( idTriList ), commandList );
 	vertexPointer = ( idDrawVert* )vertexCache.MappedVertexBuffer( vertexBlock );
 	indexPointer = ( triIndex_t* )vertexCache.MappedIndexBuffer( indexBlock );
 	numVerts = 0;
@@ -180,6 +180,7 @@ void idGuiModel::EmitSurfaces( float modelMatrix[16], float modelViewMatrix[16],
 			drawSurf->shaderRegisters = regs;
 			shader->EvaluateRegisters( regs, shaderParms, tr.viewDef->renderView.shaderParms, tr.viewDef->renderView.time[1] * 0.001f, NULL );
 		}
+
 		R_LinkDrawSurfToView( drawSurf, tr.viewDef );
 		if( allowFullScreenStereoDepth )
 		{
@@ -233,7 +234,7 @@ idGuiModel::EmitFullScreen
 Creates a view that covers the screen and emit the surfaces
 ================
 */
-void idGuiModel::EmitFullScreen()
+void idGuiModel::EmitFullScreen( textureStage_t* textureStage )
 {
 	if( surfaces[0].numIndexes == 0 )
 	{
@@ -244,7 +245,19 @@ void idGuiModel::EmitFullScreen()
 
 	viewDef_t* viewDef = ( viewDef_t* )R_ClearedFrameAlloc( sizeof( *viewDef ), FRAME_ALLOC_VIEW_DEF );
 	viewDef->is2Dgui = true;
-	tr.GetCroppedViewport( &viewDef->viewport );
+
+	if( textureStage )
+	{
+		viewDef->targetRender = globalFramebuffers.glowFBO[0];
+		viewDef->viewport.x1 = 0;
+		viewDef->viewport.y1 = 0;
+		viewDef->viewport.x2 = textureStage->width;
+		viewDef->viewport.y2 = textureStage->height;
+	}
+	else
+	{
+		tr.GetCroppedViewport( &viewDef->viewport );
+	}
 
 	bool stereoEnabled = ( renderSystem->GetStereo3DMode() != STEREO3D_OFF );
 	if( stereoEnabled )
@@ -262,38 +275,55 @@ void idGuiModel::EmitFullScreen()
 		}
 	}
 
+	idVec2 screenSize( renderSystem->GetVirtualWidth(), renderSystem->GetVirtualHeight() );
+
+	if( textureStage )
+	{
+		screenSize.x = textureStage->width;
+		screenSize.y = textureStage->height;
+	}
+
+	float xScale = 1.0f / screenSize.x;
+#if defined( USE_VULKAN ) || defined( USE_NVRHI )
+	float yScale = -1.0f / screenSize.y;  // flip y
+#else
+	float yScale = 1.0f / screenSize.y;
+#endif
+	float zScale = -1.0f;
+
 	viewDef->scissor.x1 = 0;
 	viewDef->scissor.y1 = 0;
 	viewDef->scissor.x2 = viewDef->viewport.x2 - viewDef->viewport.x1;
 	viewDef->scissor.y2 = viewDef->viewport.y2 - viewDef->viewport.y1;
 
 	// RB: IMPORTANT - the projectionMatrix has a few changes to make it work with Vulkan
-	viewDef->projectionMatrix[0 * 4 + 0] = 2.0f / renderSystem->GetVirtualWidth();
+	viewDef->projectionMatrix[0 * 4 + 0] = 2.f * xScale;
 	viewDef->projectionMatrix[0 * 4 + 1] = 0.0f;
 	viewDef->projectionMatrix[0 * 4 + 2] = 0.0f;
 	viewDef->projectionMatrix[0 * 4 + 3] = 0.0f;
 
 	viewDef->projectionMatrix[1 * 4 + 0] = 0.0f;
-#if defined(USE_VULKAN)
-	viewDef->projectionMatrix[1 * 4 + 1] = 2.0f / renderSystem->GetVirtualHeight();
-#else
-	viewDef->projectionMatrix[1 * 4 + 1] = -2.0f / renderSystem->GetVirtualHeight();
-#endif
+	viewDef->projectionMatrix[1 * 4 + 1] = 2.f * yScale;
 	viewDef->projectionMatrix[1 * 4 + 2] = 0.0f;
 	viewDef->projectionMatrix[1 * 4 + 3] = 0.0f;
 
 	viewDef->projectionMatrix[2 * 4 + 0] = 0.0f;
 	viewDef->projectionMatrix[2 * 4 + 1] = 0.0f;
-	viewDef->projectionMatrix[2 * 4 + 2] = -1.0f;
+	viewDef->projectionMatrix[2 * 4 + 2] = zScale;
 	viewDef->projectionMatrix[2 * 4 + 3] = 0.0f;
 
+#if defined( USE_NVRHI )
+	viewDef->projectionMatrix[3 * 4 + 0] = -( screenSize.x * xScale );
+	viewDef->projectionMatrix[3 * 4 + 1] = -( screenSize.y * yScale );
+#else
 	viewDef->projectionMatrix[3 * 4 + 0] = -1.0f; // RB: was -2.0f
 #if defined(USE_VULKAN)
 	viewDef->projectionMatrix[3 * 4 + 1] = -1.0f;
 #else
 	viewDef->projectionMatrix[3 * 4 + 1] = 1.0f;
 #endif
-	viewDef->projectionMatrix[3 * 4 + 2] = 0.0f; // RB: was 1.0f
+#endif
+	viewDef->projectionMatrix[3 * 4 + 2] = 0.0f;
 	viewDef->projectionMatrix[3 * 4 + 3] = 1.0f;
 
 	// make a tech5 renderMatrix for faster culling
@@ -322,6 +352,8 @@ void idGuiModel::EmitFullScreen()
 #endif
 
 	viewDef_t* oldViewDef = tr.viewDef;
+	viewDef->superView = oldViewDef;
+
 	tr.viewDef = viewDef;
 
 	EmitSurfaces( viewDef->worldSpace.modelMatrix, viewDef->worldSpace.modelViewMatrix,
@@ -330,6 +362,17 @@ void idGuiModel::EmitFullScreen()
 	tr.viewDef = oldViewDef;
 
 	// add the command to draw this view
+	if( textureStage )
+	{
+		textureStage->dynamicFrameCount = tr.frameCount;
+
+		viewDef->targetRender = globalFramebuffers.glowFBO[0];
+		//if (textureStage->image == NULL)
+		//{
+		//	textureStage->image = globalImages->glowImage[0];
+		//}
+	}
+
 	R_AddDrawViewCmd( viewDef, true );
 }
 
