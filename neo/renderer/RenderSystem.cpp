@@ -1297,6 +1297,6 @@ bool idRenderSystemLocal::UploadImage( const char* imageName, const byte* data, 
 	{
 		return false;
 	}
-	image->UploadScratch( data, width, height );
+	image->UploadScratch( data, width, height, nullptr );
 	return true;
 }

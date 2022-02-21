@@ -103,9 +103,7 @@ const int MAX_EXPRESSION_REGISTERS = 4096;
 #endif
 
 // FIMXE remove GL with NVRHI
-// RB: replaced QGL with GLEW
-	#include <GL/glew.h>
-	// RB end
+#include <GL/glew.h>
 
 
 #include "../renderer/Cinematic.h"

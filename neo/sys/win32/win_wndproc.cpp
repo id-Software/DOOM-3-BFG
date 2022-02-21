@@ -34,6 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../../renderer/RenderCommon.h"
 
 #include <windowsx.h>
+#include <sys/DeviceManager.h>
 
 LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
@@ -163,6 +164,8 @@ void WIN_Sizing( WORD side, RECT* rect )
 	}
 }
 
+extern DeviceManager* deviceManager;
+
 /*
 ====================
 MainWndProc
@@ -181,7 +184,8 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 				RECT rect;
 				if( ::GetClientRect( win32.hWnd, &rect ) )
 				{
-
+					auto originalWidth = glConfig.nativeScreenWidth;
+					auto originalHeight = glConfig.nativeScreenHeight;
 					if( rect.right > rect.left && rect.bottom > rect.top )
 					{
 						glConfig.nativeScreenWidth = rect.right - rect.left;
@@ -194,9 +198,12 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 							r_windowWidth.SetInteger( glConfig.nativeScreenWidth );
 							r_windowHeight.SetInteger( glConfig.nativeScreenHeight );
 						}
+					}
 
-						// DG: ImGui must know about the changed window size
-						ImGuiHook::NotifyDisplaySizeChanged( glConfig.nativeScreenWidth, glConfig.nativeScreenHeight );
+					if( glConfig.nativeScreenWidth != originalWidth || glConfig.nativeScreenHeight != originalHeight )
+					{
+						deviceManager->UpdateWindowSize();
+						Framebuffer::ResizeFramebuffers();
 					}
 				}
 			}

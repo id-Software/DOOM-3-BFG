@@ -36,6 +36,10 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "RenderCommon.h"
 
+#if defined( USE_NVRHI )
+#include "sys/DeviceManager.h"
+#endif
+
 // RB begin
 #if defined(_WIN32)
 
@@ -49,6 +53,9 @@ If you have questions concerning this license or the applicable additional terms
 #ifdef BUGFIXEDSCREENSHOTRESOLUTION
 	#include "../framework/Common_local.h"
 #endif
+
+//#include "idlib/HandleManager.h"
+
 
 // DeviceContext bypasses RenderSystem to work directly with this
 idGuiModel* tr_guiModel;
@@ -279,6 +286,7 @@ idCVar r_shadowMapSunDepthBiasScale( "r_shadowMapSunDepthBiasScale", "0.999991",
 #endif
 
 idCVar r_hdrAutoExposure( "r_hdrAutoExposure", "0", CVAR_RENDERER | CVAR_BOOL, "EXPENSIVE: enables adapative HDR tone mapping otherwise the exposure is derived by r_exposure" );
+idCVar r_hdrAdaptionRate( "r_hdrAdaptionRate", "3", CVAR_RENDERER | CVAR_FLOAT, "The rate of adapting the hdr exposure value`. Defaulted to a third of a second." );
 idCVar r_hdrMinLuminance( "r_hdrMinLuminance", "0.005", CVAR_RENDERER | CVAR_FLOAT, "" );
 idCVar r_hdrMaxLuminance( "r_hdrMaxLuminance", "300", CVAR_RENDERER | CVAR_FLOAT, "" );
 idCVar r_hdrKey( "r_hdrKey", "0.015", CVAR_RENDERER | CVAR_FLOAT, "magic exposure key that works well with Doom 3 maps" );
@@ -446,34 +454,30 @@ void R_SetNewMode( const bool fullInit )
 		if( fullInit )
 		{
 			// create the context as well as setting up the window
-// SRS - Generalized Vulkan SDL platform
-#if defined(VULKAN_USE_PLATFORM_SDL)
+			
+#if defined( USE_NVRHI )
+			deviceManager = DeviceManager::Create( nvrhi::GraphicsAPI::D3D12 );
+#elif defined(VULKAN_USE_PLATFORM_SDL)
 			if( VKimp_Init( parms ) )
 #else
 			if( GLimp_Init( parms ) )
 #endif
 			{
-				// it worked
-
-				// DG: ImGui must be initialized after the window has been created, it needs an opengl context
 				ImGuiHook::Init( parms.width, parms.height );
-
 				break;
 			}
 		}
 		else
 		{
 			// just rebuild the window
-// SRS - Generalized Vulkan SDL platform
+
 #if defined(VULKAN_USE_PLATFORM_SDL)
 			if( VKimp_SetScreenParms( parms ) )
 #else
 			if( GLimp_SetScreenParms( parms ) )
 #endif
 			{
-				// it worked
-
-				// DG: ImGui must know about the changed window size
+				Framebuffer::ResizeFramebuffers();
 				ImGuiHook::NotifyDisplaySizeChanged( parms.width, parms.height );
 				break;
 			}
@@ -513,6 +517,11 @@ static void R_ReloadSurface_f( const idCmdArgs& args )
 	modelTrace_t mt;
 	idVec3 start, end;
 
+	if( !tr.primaryView )
+	{
+		return;
+	}
+
 	// start far enough away that we don't hit the player model
 	start = tr.primaryView->renderView.vieworg + tr.primaryView->renderView.viewaxis[0] * 16;
 	end = start + tr.primaryView->renderView.viewaxis[0] * 1000.0f;
@@ -526,8 +535,19 @@ static void R_ReloadSurface_f( const idCmdArgs& args )
 	// reload the decl
 	mt.material->base->Reload();
 
+#if defined( USE_NVRHI )
+	nvrhi::CommandListHandle commandList = deviceManager->GetDevice()->createCommandList();
+
+	commandList->open();
+#endif
+	
 	// reload any images used by the decl
-	mt.material->ReloadImages( false );
+	mt.material->ReloadImages( false, commandList );
+	
+#if defined( USE_NVRHI )
+	commandList->close();
+	deviceManager->GetDevice()->executeCommandList( commandList );
+#endif
 }
 
 /*

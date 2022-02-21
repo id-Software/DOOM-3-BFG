@@ -3857,6 +3857,15 @@ void idRenderModelStatic::TouchData()
 
 /*
 =================
+idRenderModelStatic::CreateBuffers
+=================
+*/
+void idRenderModelStatic::CreateBuffers( nvrhi::ICommandList* commandList )
+{
+}
+
+/*
+=================
 idRenderModelStatic::DeleteSurfaceWithId
 =================
 */

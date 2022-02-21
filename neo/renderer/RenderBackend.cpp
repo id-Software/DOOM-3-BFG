@@ -6093,6 +6093,7 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 		// TODO(Stephen): implement bloom
 #if !defined( USE_NVRHI )
 		Bloom( _viewDef );
+#endif
 	}
 
 #if defined(__APPLE__)

@@ -963,6 +963,11 @@ public:
 
 public:
 	// renderer globals
+
+#if defined( USE_NVRHI )
+	nvrhi::CommandListHandle commandList;
+#endif
+	
 	bool					registered;		// cleared at shutdown, set at InitOpenGL
 
 	bool					takingScreenshot;

@@ -1661,8 +1661,26 @@ idStr idRenderProgManager::ConvertCG2GLSL( const idStr& in, const char* name, rp
 	return out;
 }
 
+/*
+================================================================================================
+idRenderProgManager::GetGLSLParmName
+================================================================================================
+*/
+const char* idRenderProgManager::GetGLSLParmName( int rp ) const
+{
+	assert( rp < RENDERPARM_TOTAL );
+	return GLSLParmNames[ rp ];
+}
 
+// RB begin
+const char* idRenderProgManager::GetGLSLMacroName( shaderFeature_t sf ) const
+{
+	assert( sf < MAX_SHADER_MACRO_NAMES );
 
+	return GLSLMacroNames[ sf ];
+}
+
+#if !defined( USE_NVRHI )
 /*
 ================================================================================================
 idRenderProgManager::FindGLSLProgram
@@ -1684,26 +1702,6 @@ int	 idRenderProgManager::FindGLSLProgram( const char* name, int vIndex, int fIn
 	LoadGLSLProgram( index, vIndex, fIndex );
 	return index;
 }
-
-/*
-================================================================================================
-idRenderProgManager::GetGLSLParmName
-================================================================================================
-*/
-const char* idRenderProgManager::GetGLSLParmName( int rp ) const
-{
-	assert( rp < RENDERPARM_TOTAL );
-	return GLSLParmNames[ rp ];
-}
-
-// RB begin
-const char* idRenderProgManager::GetGLSLMacroName( shaderFeature_t sf ) const
-{
-	assert( sf < MAX_SHADER_MACRO_NAMES );
-
-	return GLSLMacroNames[ sf ];
-}
-// RB end
 
 /*
 ================================================================================================
@@ -1729,3 +1727,4 @@ void idRenderProgManager::ZeroUniforms()
 	memset( uniforms.Ptr(), 0, uniforms.Allocated() );
 }
 
+#endif 

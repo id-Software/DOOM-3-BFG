@@ -560,7 +560,6 @@ void idRenderProgManager::Shutdown()
 idRenderProgManager::FindVertexShader
 ================================================================================================
 */
-/*
 int idRenderProgManager::FindShader( const char* name, rpStage_t stage )
 {
 	idStr shaderName( name );
@@ -594,7 +593,6 @@ int idRenderProgManager::FindShader( const char* name, rpStage_t stage )
 
 	return index;
 }
-*/
 
 /*
 int idRenderProgManager::FindShader( const char* name, rpStage_t stage, const char* nameOutSuffix, uint32 features, bool builtin, vertexLayoutType_t vertexLayout )
