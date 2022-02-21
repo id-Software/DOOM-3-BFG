@@ -480,6 +480,30 @@ else()
 	endif()
 endif()
 
+if(USE_NVRHI)
+    set(NVRHI_WITH_DX11 "${USE_DX11}" CACHE BOOL "" FORCE)
+    set(NVRHI_WITH_DX12 "${USE_DX12}" CACHE BOOL "" FORCE)
+    set(NVRHI_WITH_VULKAN "${USE_NVRHI_VULKAN}" CACHE BOOL "" FORCE)
+
+	set(NVRHI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/extern/nvrhi)
+	add_subdirectory(${NVRHI_DIR})
+
+	if(USE_DX11)
+        find_package(FXC REQUIRED)
+    endif()
+
+    if(USE_DX12)
+        find_package(DXCdxil REQUIRED)
+        set(USE_DXIL_ON_DX12 TRUE CACHE BOOL "Use DXC to compile DXIL shaders on DX12 - otherwise FXC and DXBC")
+    endif()
+
+    if(USE_NVRHI_VULKAN)
+        find_package(DXCspirv REQUIRED)
+    endif()
+
+    include_directories(${NVRHI_DIR}/include)
+endif(USE_NVRHI)
+
 if(USE_SYSTEM_RAPIDJSON)
 find_package(rapidjson REQUIRED)
 endif(USE_SYSTEM_RAPIDJSON)
@@ -1645,9 +1669,9 @@ if(MSVC)
 		#list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES d3xp/gamesys/Class.cpp)
 		list(REMOVE_ITEM RBDOOM3_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/framework/precompiled.cpp)
 	
-		foreach( src_file ${RBDOOM3_PRECOMPILED_SOURCES} )
-			message(STATUS "-include precompiled.h for ${src_file}")
-		endforeach()
+		#foreach( src_file ${RBDOOM3_PRECOMPILED_SOURCES} )
+		#	message(STATUS "-include precompiled.h for ${src_file}")
+		#endforeach()
 	
 		set_source_files_properties(
 		${RBDOOM3_PRECOMPILED_SOURCES}
