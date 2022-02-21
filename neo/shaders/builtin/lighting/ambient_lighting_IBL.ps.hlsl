@@ -157,7 +157,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	half4 bumpMap =			t_Normal.Sample( samp0, fragment.texcoord0.xy );
 	half4 YCoCG =			t_BaseColor.Sample( samp2, fragment.texcoord1.xy );
 	half4 specMapSRGB =		t_Specular.Sample( samp1, fragment.texcoord2.xy );
-	half4 specMap =			specMapSRGB;//sRGBAToLinearRGBA( specMapSRGB );
+	half4 specMap =			sRGBAToLinearRGBA( specMapSRGB );
 
 	half3 diffuseMap = sRGBToLinearRGB( ConvertYCoCgToRGB( YCoCG ) );
 

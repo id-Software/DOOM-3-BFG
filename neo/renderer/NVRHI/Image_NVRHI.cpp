@@ -277,16 +277,11 @@ void idImage::AllocImage()
 			break;
 
 		case FMT_DXT1:
-			format = nvrhi::Format::BC1_UNORM_SRGB;
+			format = nvrhi::Format::BC1_UNORM;
 			break;
 
 		case FMT_DXT5:
-			// This is used for compressed normals
-			format = nvrhi::Format::BC3_UNORM_SRGB;
-			if( usage == TD_BUMP )
-			{
-				format = nvrhi::Format::BC3_UNORM;
-			}
+			format = nvrhi::Format::BC3_UNORM;
 			break;
 
 		case FMT_DEPTH:
