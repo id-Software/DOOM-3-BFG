@@ -5,6 +5,7 @@ Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2013-2014 Robert Beckebans
 Copyright (C) 2016-2017 Dustin Land
+Copyright (C) 2022 Stephen Pridham
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -32,12 +33,14 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 
 #include "RenderCommon.h"
+#include "sys/DeviceManager.h"
 
 idVertexCache vertexCache;
 
 idCVar r_showVertexCache( "r_showVertexCache", "0", CVAR_RENDERER | CVAR_BOOL, "Print stats about the vertex cache every frame" );
 idCVar r_showVertexCacheTimings( "r_showVertexCacheTimings", "0", CVAR_RENDERER | CVAR_BOOL, "Print stats about the vertex cache every frame" );
 
+extern DeviceManager* deviceManager;
 
 /*
 ==============
@@ -102,13 +105,13 @@ static void UnmapGeoBufferSet( geoBufferSet_t& gbs )
 AllocGeoBufferSet
 ==============
 */
-static void AllocGeoBufferSet( geoBufferSet_t& gbs, const int vertexBytes, const int indexBytes, const int jointBytes, bufferUsageType_t usage )
+static void AllocGeoBufferSet( geoBufferSet_t& gbs, const int vertexBytes, const int indexBytes, const int jointBytes, bufferUsageType_t usage, nvrhi::ICommandList* commandList )
 {
-	gbs.vertexBuffer.AllocBufferObject( NULL, vertexBytes, usage );
-	gbs.indexBuffer.AllocBufferObject( NULL, indexBytes, usage );
+	gbs.vertexBuffer.AllocBufferObject( NULL, vertexBytes, usage, commandList );
+	gbs.indexBuffer.AllocBufferObject( NULL, indexBytes, usage, commandList );
 	if( jointBytes > 0 )
 	{
-		gbs.jointBuffer.AllocBufferObject( NULL, jointBytes, usage );
+		gbs.jointBuffer.AllocBufferObject( NULL, jointBytes, usage, commandList );
 	}
 
 	ClearGeoBufferSet( gbs );
@@ -119,7 +122,7 @@ static void AllocGeoBufferSet( geoBufferSet_t& gbs, const int vertexBytes, const
 idVertexCache::Init
 ==============
 */
-void idVertexCache::Init( int _uniformBufferOffsetAlignment )
+void idVertexCache::Init( int _uniformBufferOffsetAlignment, nvrhi::ICommandList* commandList )
 {
 	currentFrame = 0;
 	listNum = 0;
@@ -130,14 +133,17 @@ void idVertexCache::Init( int _uniformBufferOffsetAlignment )
 	mostUsedIndex = 0;
 	mostUsedJoint = 0;
 
+	nvrhi::CommandListParameters parms;
+	parms.setQueueType( nvrhi::CommandQueue::Copy );
+
 	for( int i = 0; i < NUM_FRAME_DATA; i++ )
 	{
-		AllocGeoBufferSet( frameData[i], VERTCACHE_VERTEX_MEMORY_PER_FRAME, VERTCACHE_INDEX_MEMORY_PER_FRAME, VERTCACHE_JOINT_MEMORY_PER_FRAME, BU_DYNAMIC );
+		AllocGeoBufferSet( frameData[i], VERTCACHE_VERTEX_MEMORY_PER_FRAME, VERTCACHE_INDEX_MEMORY_PER_FRAME, VERTCACHE_JOINT_MEMORY_PER_FRAME, BU_DYNAMIC, commandList );
 	}
 #if 1
-	AllocGeoBufferSet( staticData, STATIC_VERTEX_MEMORY, STATIC_INDEX_MEMORY, 0, BU_STATIC );
+	AllocGeoBufferSet( staticData, STATIC_VERTEX_MEMORY, STATIC_INDEX_MEMORY, 0, BU_STATIC, commandList );
 #else
-	AllocGeoBufferSet( staticData, STATIC_VERTEX_MEMORY, STATIC_INDEX_MEMORY, 0, BU_DYNAMIC );
+	AllocGeoBufferSet( staticData, STATIC_VERTEX_MEMORY, STATIC_INDEX_MEMORY, 0, BU_DYNAMIC, commandList );
 #endif
 
 	MapGeoBufferSet( frameData[ listNum ] );
@@ -168,10 +174,10 @@ void idVertexCache::Shutdown()
 idVertexCache::PurgeAll
 ==============
 */
-void idVertexCache::PurgeAll()
+void idVertexCache::PurgeAll( nvrhi::ICommandList* commandList )
 {
 	Shutdown();
-	Init( uniformBufferOffsetAlignment );
+	Init( uniformBufferOffsetAlignment, commandList );
 }
 
 /*
@@ -194,7 +200,7 @@ void idVertexCache::FreeStaticData()
 idVertexCache::ActuallyAlloc
 ==============
 */
-vertCacheHandle_t idVertexCache::ActuallyAlloc( geoBufferSet_t& vcs, const void* data, int bytes, cacheType_t type )
+vertCacheHandle_t idVertexCache::ActuallyAlloc( geoBufferSet_t& vcs, const void* data, int bytes, cacheType_t type, nvrhi::ICommandList* commandList )
 {
 	if( bytes == 0 )
 	{
@@ -228,7 +234,7 @@ vertCacheHandle_t idVertexCache::ActuallyAlloc( geoBufferSet_t& vcs, const void*
 				{
 					MapGeoBufferSet( vcs );
 				}
-				vcs.indexBuffer.Update( data, bytes, offset );
+				vcs.indexBuffer.Update( data, bytes, offset, false, commandList );
 			}
 
 			break;
@@ -249,7 +255,7 @@ vertCacheHandle_t idVertexCache::ActuallyAlloc( geoBufferSet_t& vcs, const void*
 				{
 					MapGeoBufferSet( vcs );
 				}
-				vcs.vertexBuffer.Update( data, bytes, offset );
+				vcs.vertexBuffer.Update( data, bytes, offset, false, commandList );
 			}
 
 			break;
@@ -270,7 +276,7 @@ vertCacheHandle_t idVertexCache::ActuallyAlloc( geoBufferSet_t& vcs, const void*
 				{
 					MapGeoBufferSet( vcs );
 				}
-				vcs.jointBuffer.Update( data, bytes, offset );
+				vcs.jointBuffer.Update( data, bytes, offset, false, commandList );
 			}
 
 			break;
@@ -296,9 +302,9 @@ vertCacheHandle_t idVertexCache::ActuallyAlloc( geoBufferSet_t& vcs, const void*
 idVertexCache::AllocVertex
 ==============
 */
-vertCacheHandle_t idVertexCache::AllocVertex( const void* data, int num, size_t size /*= sizeof( idDrawVert ) */ )
+vertCacheHandle_t idVertexCache::AllocVertex( const void* data, int num, size_t size /*= sizeof( idDrawVert ) */, nvrhi::ICommandList* commandList )
 {
-	return ActuallyAlloc( frameData[ listNum ], data, ALIGN( num * size, VERTEX_CACHE_ALIGN ), CACHE_VERTEX );
+	return ActuallyAlloc( frameData[ listNum ], data, ALIGN( num * size, VERTEX_CACHE_ALIGN ), CACHE_VERTEX, commandList );
 }
 
 /*
@@ -306,9 +312,9 @@ vertCacheHandle_t idVertexCache::AllocVertex( const void* data, int num, size_t 
 idVertexCache::AllocIndex
 ==============
 */
-vertCacheHandle_t idVertexCache::AllocIndex( const void* data, int num, size_t size /*= sizeof( triIndex_t ) */ )
+vertCacheHandle_t idVertexCache::AllocIndex( const void* data, int num, size_t size /*= sizeof( triIndex_t ) */, nvrhi::ICommandList* commandList )
 {
-	return ActuallyAlloc( frameData[ listNum ], data, ALIGN( num * size, INDEX_CACHE_ALIGN ), CACHE_INDEX );
+	return ActuallyAlloc( frameData[ listNum ], data, ALIGN( num * size, INDEX_CACHE_ALIGN ), CACHE_INDEX, commandList );
 }
 
 /*
@@ -316,9 +322,9 @@ vertCacheHandle_t idVertexCache::AllocIndex( const void* data, int num, size_t s
 idVertexCache::AllocJoint
 ==============
 */
-vertCacheHandle_t idVertexCache::AllocJoint( const void* data, int num, size_t size /*= sizeof( idJointMat ) */ )
+vertCacheHandle_t idVertexCache::AllocJoint( const void* data, int num, size_t size /*= sizeof( idJointMat ) */, nvrhi::ICommandList* commandList )
 {
-	return ActuallyAlloc( frameData[ listNum ], data, ALIGN( num * size, uniformBufferOffsetAlignment ), CACHE_JOINT );
+	return ActuallyAlloc( frameData[ listNum ], data, ALIGN( num * size, uniformBufferOffsetAlignment ), CACHE_JOINT, commandList );
 }
 
 /*
@@ -326,13 +332,13 @@ vertCacheHandle_t idVertexCache::AllocJoint( const void* data, int num, size_t s
 idVertexCache::AllocStaticVertex
 ==============
 */
-vertCacheHandle_t idVertexCache::AllocStaticVertex( const void* data, int bytes )
+vertCacheHandle_t idVertexCache::AllocStaticVertex( const void* data, int bytes, nvrhi::ICommandList* commandList )
 {
 	if( staticData.vertexMemUsed.GetValue() + bytes > STATIC_VERTEX_MEMORY )
 	{
 		idLib::FatalError( "AllocStaticVertex failed, increase STATIC_VERTEX_MEMORY" );
 	}
-	return ActuallyAlloc( staticData, data, bytes, CACHE_VERTEX );
+	return ActuallyAlloc( staticData, data, bytes, CACHE_VERTEX, commandList );
 }
 
 /*
@@ -340,13 +346,13 @@ vertCacheHandle_t idVertexCache::AllocStaticVertex( const void* data, int bytes 
 idVertexCache::AllocStaticIndex
 ==============
 */
-vertCacheHandle_t idVertexCache::AllocStaticIndex( const void* data, int bytes )
+vertCacheHandle_t idVertexCache::AllocStaticIndex( const void* data, int bytes, nvrhi::ICommandList* commandList )
 {
 	if( staticData.indexMemUsed.GetValue() + bytes > STATIC_INDEX_MEMORY )
 	{
 		idLib::FatalError( "AllocStaticIndex failed, increase STATIC_INDEX_MEMORY" );
 	}
-	return ActuallyAlloc( staticData, data, bytes, CACHE_INDEX );
+	return ActuallyAlloc( staticData, data, bytes, CACHE_INDEX, commandList );
 }
 
 /*

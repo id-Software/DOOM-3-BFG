@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2022 Stephen Pridham
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -32,6 +33,12 @@ If you have questions concerning this license or the applicable additional terms
 #include "Model_local.h"
 #include "RenderCommon.h"	// just for R_FreeWorldInteractions and R_CreateWorldInteractions
 
+#if defined( USE_NVRHI )
+#include <sys/DeviceManager.h>
+
+extern DeviceManager* deviceManager;
+#endif
+
 idCVar binaryLoadRenderModels( "binaryLoadRenderModels", "1", 0, "enable binary load/write of render models" );
 idCVar preload_MapModels( "preload_MapModels", "1", CVAR_SYSTEM | CVAR_BOOL, "preload models during begin or end levelload" );
 
@@ -55,6 +62,7 @@ public:
 	virtual void			AddModel( idRenderModel* model );
 	virtual void			RemoveModel( idRenderModel* model );
 	virtual void			ReloadModels( bool forceAll = false );
+	virtual void			CreateMeshBuffers( nvrhi::ICommandList* commandList );
 	virtual void			FreeModelVertexCaches();
 	virtual void			WritePrecacheCommands( idFile* file );
 	virtual void			BeginLevelLoad();
@@ -65,11 +73,12 @@ public:
 
 private:
 	idList<idRenderModel*, TAG_MODEL>	models;
-	idHashIndex				hash;
-	idRenderModel* 			defaultModel;
-	idRenderModel* 			beamModel;
-	idRenderModel* 			spriteModel;
-	bool					insideLevelLoad;		// don't actually load now
+	idHashIndex							hash;
+	idRenderModel* 						defaultModel;
+	idRenderModel* 						beamModel;
+	idRenderModel* 						spriteModel;
+	bool								insideLevelLoad;		// don't actually load now
+	nvrhi::CommandListHandle			commandList;
 
 	idRenderModel* 			GetModel( const char* modelName, bool createIfNotFound );
 
@@ -279,7 +288,6 @@ idRenderModelManagerLocal::GetModel
 */
 idRenderModel* idRenderModelManagerLocal::GetModel( const char* _modelName, bool createIfNotFound )
 {
-
 	if( !_modelName || !_modelName[0] )
 	{
 		return NULL;
@@ -632,6 +640,17 @@ void idRenderModelManagerLocal::ReloadModels( bool forceAll )
 	R_ReCreateWorldReferences();
 }
 
+void idRenderModelManagerLocal::CreateMeshBuffers( nvrhi::ICommandList* commandList )
+{
+	for( int i = 0; i < models.Num(); i++ )
+	{
+		idRenderModel* model = models[i];
+		
+		// Upload vertices and indices and shadow vertices into the vertex cache.
+		assert( false && "Stephen should implement me!" );
+	}
+}
+
 /*
 =================
 idRenderModelManagerLocal::FreeModelVertexCaches
@@ -744,8 +763,6 @@ void idRenderModelManagerLocal::Preload( const idPreloadManifest& manifest )
 	}
 }
 
-
-
 /*
 =================
 idRenderModelManagerLocal::EndLevelLoad
@@ -769,7 +786,6 @@ void idRenderModelManagerLocal::EndLevelLoad()
 
 		if( !model->IsLevelLoadReferenced() && model->IsLoaded() && model->IsReloadable() )
 		{
-
 //			common->Printf( "purging %s\n", model->Name() );
 
 			purgeCount++;
@@ -805,22 +821,29 @@ void idRenderModelManagerLocal::EndLevelLoad()
 		}
 	}
 
+	commandList->open();
+
+	for( int i = 0; i < models.Num(); i++ )
+	{
+		idRenderModel* model = models[i];
+		model->CreateBuffers( commandList );
+	}
+
 	// create static vertex/index buffers for all models
 	for( int i = 0; i < models.Num(); i++ )
 	{
-		common->UpdateLevelLoadPacifier();
-
-
 		idRenderModel* model = models[i];
 		if( model->IsLoaded() )
 		{
 			for( int j = 0; j < model->NumSurfaces(); j++ )
 			{
-				R_CreateStaticBuffersForTri( *( model->Surface( j )->geometry ) );
+				R_CreateStaticBuffersForTri( *( model->Surface( j )->geometry ), commandList );
 			}
 		}
 	}
 
+	commandList->close();
+	deviceManager->GetDevice()->executeCommandList( commandList );
 
 	// _D3XP added this
 	int	end = Sys_Milliseconds();

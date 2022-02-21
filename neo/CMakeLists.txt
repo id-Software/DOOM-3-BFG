@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.2)
 
 project(RBDoom3BFG)
 
+set(CMAKE_CXX_STANDARD 17)
+
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 if(CMAKE_MAJOR_VERSION EQUAL 3 AND CMAKE_MINOR_VERSION GREATER_EQUAL 6)
@@ -38,7 +40,7 @@ option(FFMPEG
 
 option(BINKDEC
 		"Use included libbinkdec to render Bink videos" OFF)
-		
+
 option(USE_VULKAN
 		"Use Vulkan instead of OpenGL" OFF)
 
@@ -68,6 +70,15 @@ option(USE_SYSTEM_LIBGLEW
 
 option(USE_SYSTEM_RAPIDJSON
                 "Use the system rapidjson instead of the bundled one" OFF)
+
+option(USE_NVRHI
+				"Use the NVRHI rendering library" ON)
+
+option(USE_DX11 "Use DirectX 11" OFF)	
+
+option(USE_DX12 "Use DirectX 12" ON)
+
+option(USE_NVRHI_VULKAN "Use Vulkan" OFF)
 
 set(CPU_TYPE "" CACHE STRING "When set, passes this string as CPU-ID which will be embedded into the binary.")
 
@@ -480,8 +491,6 @@ else (RAPIDJSON_FOUND)
 	include_directories("libs/rapidjson/include")
 endif (RAPIDJSON_FOUND)
 
-
-	
 add_subdirectory(idlib)
 
 file(GLOB AAS_INCLUDES aas/*.h)
@@ -510,6 +519,8 @@ file(GLOB RENDERER_JOBS_PRELIGHTSHADOWVOLUME_INCLUDES renderer/jobs/prelightshad
 file(GLOB RENDERER_JOBS_PRELIGHTSHADOWVOLUME_SOURCES renderer/jobs/prelightshadowvolume/*.cpp)
 file(GLOB RENDERER_JOBS_STATICSHADOWVOLUME_INCLUDES renderer/jobs/staticshadowvolume/*.h)
 file(GLOB RENDERER_JOBS_STATICSHADOWVOLUME_SOURCES renderer/jobs/staticshadowvolume/*.cpp)
+file(GLOB RENDERER_PASSES_INCLUDES renderer/Passes/*.h)
+file(GLOB RENDERER_PASSES_SOURCES renderer/Passes/*.cpp)
 
 file(GLOB RENDERER_SMAA_INCLUDES renderer/SMAA/*.h)
 
@@ -518,6 +529,9 @@ file(GLOB RENDERER_OPENGL_SOURCES renderer/OpenGL/*.cpp)
 
 file(GLOB RENDERER_VULKAN_INCLUDES renderer/Vulkan/*.h)
 file(GLOB RENDERER_VULKAN_SOURCES renderer/Vulkan/*.cpp)
+
+file(GLOB RENDERER_NVRHI_INCLUDES renderer/NVRHI/*.h)
+file(GLOB RENDERER_NVRHI_SOURCES renderer/NVRHI/*.cpp)
 
 file(GLOB SHADERS ../base/renderprogs/*.hlsl ../base/renderprogs/*.inc )
 file(GLOB SHADERS_BUILTIN ../base/renderprogs/builtin/*.hlsl )
@@ -996,6 +1010,7 @@ file(GLOB_RECURSE WIN32_INCLUDES sys/win32/*.h)
 #file(GLOB_RECURSE WIN32_SOURCES sys/win32/*.cpp)
 
 set(WIN32_SOURCES
+	sys/win32/DeviceManager_DX12.cpp
 	sys/win32/win_glimp.cpp
 	sys/win32/win_input.cpp
 	sys/win32/win_main.cpp
@@ -1120,6 +1135,9 @@ source_group("renderer" FILES ${RENDERER_SOURCES})
 source_group("renderer\\Color" FILES ${RENDERER_COLOR_INCLUDES})
 source_group("renderer\\Color" FILES ${RENDERER_COLOR_SOURCES})
 
+source_group("renderer\\Passes" FILES ${RENDERER_PASSES_INCLUDES})
+source_group("renderer\\Passes" FILES ${RENDERER_PASSES_SOURCES})
+
 source_group("renderer\\DXT" FILES ${RENDERER_DXT_INCLUDES})
 source_group("renderer\\DXT" FILES ${RENDERER_DXT_SOURCES})
 
@@ -1137,6 +1155,9 @@ source_group("renderer\\jobs\\staticshadowvolume" FILES ${RENDERER_JOBS_STATICSH
 
 source_group("renderer\\OpenGL" FILES ${RENDERER_OPENGL_INCLUDES})
 source_group("renderer\\OpenGL" FILES ${RENDERER_OPENGL_SOURCES})
+
+source_group("renderer\\NVRHI" FILES ${RENDERER_NVRHI_INCLUES})
+source_group("renderer\\NVRHI" FILES ${RENDERER_NVRHI_SOURCES})
 
 source_group("renderer\\Vulkan" FILES ${RENDERER_VULKAN_INCLUDES})
 source_group("renderer\\Vulkan" FILES ${RENDERER_VULKAN_SOURCES})
@@ -1336,6 +1357,7 @@ set(RBDOOM3_INCLUDES
 			${RENDERER_JOBS_DYNAMICSHADOWVOLUME_INCLUDES}
 			${RENDERER_JOBS_PRELIGHTSHADOWVOLUME_INCLUDES}
 			${RENDERER_JOBS_STATICSHADOWVOLUME_INCLUDES}
+			${RENDERER_PASSES_INCLUDES}
 			
 			${SHADERS}
 			${SHADERS_BUILTIN}
@@ -1400,6 +1422,7 @@ set(RBDOOM3_SOURCES
 			${RENDERER_JOBS_DYNAMICSHADOWVOLUME_SOURCES}
 			${RENDERER_JOBS_PRELIGHTSHADOWVOLUME_SOURCES}
 			${RENDERER_JOBS_STATICSHADOWVOLUME_SOURCES}
+			${RENDERER_PASSES_SOURCES}
 			${IRRXML_SOURCES}
 			${FRAMEWORK_IMGUI_SOURCES}
 			${IMGUI_SOURCES}
@@ -1485,7 +1508,13 @@ if(MSVC)
 				list(APPEND Vulkan_LIBRARIES glslang-default-resource-limits)
 			endif()
 		endif()
-		
+	elseif(USE_DX12)
+		list(APPEND RBDOOM3_INCLUDES ${RENDERER_NVRHI_INCLUDES})
+		list(APPEND RBDOOM3_SOURCES ${RENDERER_NVRHI_SOURCES})
+
+		set(OpenGL_LIBRARIES
+			opengl32
+			glu32)
 	else()
 		list(APPEND RBDOOM3_INCLUDES ${RENDERER_OPENGL_INCLUDES})
 		list(APPEND RBDOOM3_SOURCES ${RENDERER_OPENGL_SOURCES})
@@ -1561,7 +1590,7 @@ if(MSVC)
 				swresample)
 		
 	endif()
-	
+
 	if(USE_MFC_TOOLS)
 		
 		include_directories(libs/atlmfc/include)
@@ -1651,6 +1680,17 @@ if(MSVC)
 	add_executable(RBDoom3BFG WIN32 ${RBDOOM3_INCLUDES} ${RBDOOM3_SOURCES})
 
 	add_dependencies(RBDoom3BFG idlib)
+    if(USE_DX12)
+    	add_dependencies(RBDoom3BFG nvrhi_d3d12)
+	endif()
+	
+	if(USE_DX11)
+		add_dependencies(RBDoom3BFG nvrhi_d3d11)
+	endif()
+	
+	if(USE_NVRHI_VULKAN)
+		add_dependencies(RBDoom3BFG nvrhi_vk)
+	endif()
 	target_link_libraries(RBDoom3BFG
 		idlib
 		${DirectX_LIBRARIES}
@@ -1870,5 +1910,31 @@ else()
 	    	${CMAKE_DL_LIBS}
 			)
 	endif()
-    
 endif()
+
+if(USE_DX11)
+	#target_sources(RBDoom3BFG PRIVATE src/app/dx11/DeviceManager_DX11.cpp)
+	target_compile_definitions(RBDoom3BFG PUBLIC USE_DX11=1)
+	target_link_libraries(RBDoom3BFG nvrhi_d3d11)
+endif()
+
+if(USE_DX12)
+	#target_sources(RBDoom3BFG PRIVATE src/app/dx12/DeviceManager_DX12.cpp)
+	target_compile_definitions(RBDoom3BFG PUBLIC USE_DX12=1)
+	target_link_libraries(RBDoom3BFG nvrhi_d3d12)
+endif()
+
+if(USE_DXIL_ON_DX12)
+	target_compile_definitions(RBDoom3BFG PRIVATE USE_DXIL_ON_DX12=1)
+endif()
+
+if(USE_NVRHI_VULKAN)
+	#target_sources(RBDoom3BFG PRIVATE src/app/vulkan/DeviceManager_VK.cpp)
+	target_compile_definitions(RBDoom3BFG PUBLIC USE_VK=1)
+	target_link_libraries(RBDoom3BFG nvrhi_vk)
+endif()
+
+target_link_libraries(RBDoom3BFG nvrhi)
+
+add_subdirectory(shaders)
+add_dependencies(RBDoom3BFG Shaders)

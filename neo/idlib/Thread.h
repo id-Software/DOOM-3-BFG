@@ -111,6 +111,7 @@ public:
 	{
 		Sys_SignalRaise( handle );
 	}
+
 	void	Clear()
 	{
 		Sys_SignalClear( handle );

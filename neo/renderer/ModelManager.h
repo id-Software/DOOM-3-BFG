@@ -87,6 +87,9 @@ public:
 	// also be explicitly invoked
 	virtual	void			ReloadModels( bool forceAll = false ) = 0;
 
+	// loads the mesh vertices/indices into the vertex cache.
+	virtual void			CreateMeshBuffers( nvrhi::ICommandList* commandList ) = 0;
+
 	// write "touchModel <model>" commands for each non-world-map model
 	virtual	void			WritePrecacheCommands( idFile* f ) = 0;
 

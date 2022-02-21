@@ -5,6 +5,7 @@ Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2012-2021 Robert Beckebans
 Copyright (C) 2014-2016 Kot in Action Creative Artel
+Copyright (C) 2022 Stephen Pridham
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -605,6 +606,7 @@ struct viewDef_t
 	bool				isEditor;
 	bool				is2Dgui;
 
+	bool                isObliqueProjection;    // true if this view has an oblique projection
 	int					numClipPlanes;			// mirrors will often use a single clip plane
 	idPlane				clipPlanes[MAX_CLIP_PLANES];		// in world space, the positive side
 	// of the plane is the visible side
@@ -653,6 +655,8 @@ struct viewDef_t
 	idImage* 			irradianceImage;			// cubemap image used for diffuse IBL by backend
 	idImage* 			radianceImages[3];			// cubemap image used for specular IBL by backend
 	idVec4				radianceImageBlends;		// blending weights
+
+	Framebuffer*		targetRender;				// The framebuffer to render to
 };
 
 
@@ -802,9 +806,6 @@ const idMaterial* R_RemapShaderBySkin( const idMaterial* shader, const idDeclSki
 
 //====================================================
 
-
-
-
 enum vertexLayoutType_t
 {
 	LAYOUT_UNKNOWN = 0,	// RB: TODO -1
@@ -813,6 +814,21 @@ enum vertexLayoutType_t
 	LAYOUT_DRAW_SHADOW_VERT_SKINNED,
 	LAYOUT_DRAW_IMGUI_VERT,
 	NUM_VERTEX_LAYOUTS
+};
+
+enum bindingLayoutType_t
+{
+	BINDING_LAYOUT_DEFAULT,
+	BINDING_LAYOUT_GBUFFER,
+	BINDING_LAYOUT_AMBIENT_LIGHTING_IBL,
+	BINDING_LAYOUT_BLIT,
+	BINDING_LAYOUT_DRAW_AO,
+	BINDING_LAYOUT_DRAW_AO1,
+	BINDING_LAYOUT_DRAW_INTERACTION,
+	BINDING_LAYOUT_DRAW_INTERACTION_SM,
+	BINDING_LAYOUT_DRAW_FOG,
+	BINDING_LAYOUT_POST_PROCESS_CNM,
+	NUM_BINDING_LAYOUTS
 };
 
 class idParallelJobList;
@@ -841,7 +857,7 @@ public:
 		return bInitialized;
 	}
 	virtual void			ResetGuiModels();
-	virtual void			InitOpenGL();
+	virtual void			InitBackend();
 	virtual void			ShutdownOpenGL();
 	virtual bool			IsOpenGLRunning() const;
 	virtual bool			IsFullScreen() const;
@@ -874,8 +890,8 @@ public:
 	virtual uint32			GetColor();
 	virtual void			SetGLState( const uint64 glState ) ;
 	virtual void			DrawFilled( const idVec4& color, float x, float y, float w, float h );
-	virtual void			DrawStretchPic( float x, float y, float w, float h, float s1, float t1, float s2, float t2, const idMaterial* material );
-	virtual void			DrawStretchPic( const idVec4& topLeft, const idVec4& topRight, const idVec4& bottomRight, const idVec4& bottomLeft, const idMaterial* material );
+	virtual void			DrawStretchPic( float x, float y, float w, float h, float s1, float t1, float s2, float t2, const idMaterial* material, float z = 0.0f );
+	virtual void			DrawStretchPic( const idVec4& topLeft, const idVec4& topRight, const idVec4& bottomRight, const idVec4& bottomLeft, const idMaterial* material, float z = 0.0f );
 	virtual void			DrawStretchTri( const idVec2& p1, const idVec2& p2, const idVec2& p3, const idVec2& t1, const idVec2& t2, const idVec2& t3, const idMaterial* material );
 	virtual idDrawVert* 	AllocTris( int numVerts, const triIndex_t* indexes, int numIndexes, const idMaterial* material, const stereoDepthType_t stereoType = STEREO_DEPTH_TYPE_NONE );
 	virtual void			DrawSmallChar( int x, int y, int ch );
@@ -888,13 +904,14 @@ public:
 	virtual void			DrawDemoPics();
 	virtual const emptyCommand_t* 	SwapCommandBuffers( uint64* frontEndMicroSec, uint64* backEndMicroSec, uint64* shadowMicroSec, uint64* gpuMicroSec, backEndCounters_t* bc, performanceCounters_t* pc );
 
-	virtual void			SwapCommandBuffers_FinishRendering( uint64* frontEndMicroSec, uint64* backEndMicroSec, uint64* shadowMicroSec, uint64* gpuMicroSec, backEndCounters_t* bc, performanceCounters_t* pc );
+	virtual void					SwapCommandBuffers_FinishRendering( uint64* frontEndMicroSec, uint64* backEndMicroSec, uint64* shadowMicroSec, uint64* gpuMicroSec, backEndCounters_t* bc, performanceCounters_t* pc );
 	virtual const emptyCommand_t* 	SwapCommandBuffers_FinishCommandBuffers();
 
 	virtual void			RenderCommandBuffers( const emptyCommand_t* commandBuffers );
 	virtual void			TakeScreenshot( int width, int height, const char* fileName, int downSample, renderView_t* ref, int exten );
 	virtual byte*			CaptureRenderToBuffer( int width, int height, renderView_t* ref );
 	virtual void			CropRenderSize( int width, int height );
+	virtual void            CropRenderSize( int x, int y, int width, int height );
 	virtual void			CaptureRenderToImage( const char* imageName, bool clearColorAfterCopy = false );
 	virtual void			CaptureRenderToFile( const char* fileName, bool fixAlpha );
 	virtual void			UnCrop();
@@ -1188,6 +1205,7 @@ extern idCVar r_shadowMapRegularDepthBiasScale;
 extern idCVar r_shadowMapSunDepthBiasScale;
 
 extern idCVar r_hdrAutoExposure;
+extern idCVar r_hdrAdaptionRate;
 extern idCVar r_hdrMinLuminance;
 extern idCVar r_hdrMaxLuminance;
 extern idCVar r_hdrKey;
@@ -1253,8 +1271,8 @@ struct vidMode_t
 	// RB begin
 	vidMode_t()
 	{
-		width = 640;
-		height = 480;
+		width = SCREEN_WIDTH;
+		height = SCREEN_HEIGHT;
 		displayHz = 60;
 	}
 
@@ -1281,6 +1299,7 @@ struct glimpParms_t
 	int			height;
 	int			fullScreen;		// 0 = windowed, otherwise 1 based monitor number to go full screen on
 	// -1 = borderless window for spanning multiple displays
+	bool		startMaximized = false;
 	bool		stereo;
 	int			displayHz;
 	int			multiSamples;
@@ -1461,7 +1480,7 @@ idRenderModel* R_EntityDefDynamicModel( idRenderEntityLocal* def );
 void R_ClearEntityDefDynamicModel( idRenderEntityLocal* def );
 
 void R_SetupDrawSurfShader( drawSurf_t* drawSurf, const idMaterial* shader, const renderEntity_t* renderEntity );
-void R_SetupDrawSurfJoints( drawSurf_t* drawSurf, const srfTriangles_t* tri, const idMaterial* shader );
+void R_SetupDrawSurfJoints( drawSurf_t* drawSurf, const srfTriangles_t* tri, const idMaterial* shader, nvrhi::ICommandList* commandList );
 void R_LinkDrawSurfToView( drawSurf_t* drawSurf, viewDef_t* viewDef );
 
 void R_AddModels();
@@ -1475,6 +1494,8 @@ TR_FRONTEND_DEFORM
 */
 
 drawSurf_t* R_DeformDrawSurf( drawSurf_t* drawSurf );
+
+drawSurf_t* R_DeformDrawSurf( drawSurf_t* drawSurf, deform_t deformType );
 
 /*
 =============================================================
@@ -1549,11 +1570,11 @@ srfTriangles_t* 	R_MergeTriangles( const srfTriangles_t* tri1, const srfTriangle
 void				R_DeriveTangents( srfTriangles_t* tri );
 
 // copy data from a front-end srfTriangles_t to a back-end drawSurf_t
-void				R_InitDrawSurfFromTri( drawSurf_t& ds, srfTriangles_t& tri );
+void				R_InitDrawSurfFromTri( drawSurf_t& ds, srfTriangles_t& tri, nvrhi::ICommandList* commandList );
 
 // For static surfaces, the indexes, ambient, and shadow buffers can be pre-created at load
 // time, rather than being re-created each frame in the frame temporary buffers.
-void				R_CreateStaticBuffersForTri( srfTriangles_t& tri );
+void				R_CreateStaticBuffersForTri( srfTriangles_t& tri, nvrhi::ICommandList* commandList );
 
 // RB
 idVec3				R_ClosestPointPointTriangle( const idVec3& point, const idVec3& vertex1, const idVec3& vertex2, const idVec3& vertex3 );
@@ -1593,6 +1614,7 @@ struct deformInfo_t
 // if outputVertexes is not NULL, it will point to a newly allocated set of verts that includes the mirrored ones
 deformInfo_t* 		R_BuildDeformInfo( int numVerts, const idDrawVert* verts, int numIndexes, const int* indexes,
 									   bool useUnsmoothedTangents );
+void				R_CreateDeformStaticVertices( deformInfo_t* deform, nvrhi::ICommandList* commandList );
 void				R_FreeDeformInfo( deformInfo_t* deformInfo );
 int					R_DeformInfoMemoryUsed( deformInfo_t* deformInfo );
 

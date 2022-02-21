@@ -68,4 +68,8 @@ void R_SetupProjectionMatrix2( const viewDef_t* viewDef, const float zNear, cons
 void R_MatrixFullInverse( const float in[16], float r[16] );
 // RB end
 
+// SP begin
+void R_ObliqueProjection( viewDef_t* viewDef );
+// SP end
+
 #endif /* !__GLMATRIX_H__ */

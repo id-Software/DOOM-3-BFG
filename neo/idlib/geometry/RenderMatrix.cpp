@@ -764,6 +764,19 @@ void idRenderMatrix::CreateProjectionMatrixFov( float xFovDegrees, float yFovDeg
 	CreateProjectionMatrix( xMin, xMax, yMin, yMax, zNear, zFar, out );
 }
 
+// SP
+void idRenderMatrix::CreateProjD3DStyle( float verticalFov, float aspect, float zNear, float zFar, idRenderMatrix& out )
+{
+	float yScale = 1.0f / tanf( 0.5f * verticalFov );
+	float xScale = yScale / aspect;
+	float zScale = 1.0f / ( zFar - zNear );
+	out = idRenderMatrix(
+			  xScale, 0, 0, 0,
+			  0, yScale, 0, 0,
+			  0, 0, zFar * zScale, 1,
+			  0, 0, -zNear * zFar * zScale, 0 );
+}
+
 /*
 ========================
 idRenderMatrix::OffsetScaleForBounds

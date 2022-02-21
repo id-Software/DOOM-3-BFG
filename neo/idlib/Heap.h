@@ -153,11 +153,11 @@ public:
 		return buffer;
 	}
 
-	size_t Size( ) const
+	size_t Size() const
 	{
 		return num * sizeof( T );
 	}
-	unsigned int Num( ) const
+	unsigned int Num() const
 	{
 		return num;
 	}

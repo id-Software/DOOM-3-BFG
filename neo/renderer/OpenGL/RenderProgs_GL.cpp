@@ -220,7 +220,6 @@ void idRenderProgManager::LoadShader( shader_t& shader )
 		idStr hlslCode( hlslFileBuffer );
 		idStr programHLSL = StripDeadCode( hlslCode, inFile, compileMacros, shader.builtin );
 		programGLSL = ConvertCG2GLSL( programHLSL, inFile.c_str(), shader.stage, programUniforms, false, hasGPUSkinning, shader.vertexLayout );
-
 		fileSystem->WriteFile( outFileHLSL, programHLSL.c_str(), programHLSL.Length(), "fs_savepath" );
 		fileSystem->WriteFile( outFileGLSL, programGLSL.c_str(), programGLSL.Length(), "fs_savepath" );
 		fileSystem->WriteFile( outFileUniforms, programUniforms.c_str(), programUniforms.Length(), "fs_savepath" );

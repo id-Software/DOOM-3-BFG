@@ -145,7 +145,7 @@ public:
 	bool					HasShadows() const;
 
 	// called by GenerateAllInteractions
-	void					CreateStaticInteraction();
+	void					CreateStaticInteraction( nvrhi::ICommandList* commandList );
 
 private:
 	// unlink from entity and light lists

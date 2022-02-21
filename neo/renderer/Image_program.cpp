@@ -3,6 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 2021 Stephen Pridham
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -390,6 +391,42 @@ static void R_ImageAdd( byte* data1, int width1, int height1, byte* data2, int w
 	}
 }
 
+// SP begin
+static void R_CombineRgba( byte* data1, int width1, int height1, byte* data2, int width2, int height2, byte* data3, int width3, int height3 )
+{
+	assert( width1 == width2 );
+	//assert(width2 == width3);
+	assert( height1 == height2 );
+
+	for( int j = 0; j < 4 * height1; j += 4 )
+	{
+		for( int i = 0; i < 4 * width1; i += 4 )
+		{
+			// Assume that these textures are all grayscale images. just take the r channel of each and set them to
+			// the respective rgb.
+			byte r = data1[i + j * width1];
+
+			byte g = data2[i + j * width1];
+
+			byte b = 255;
+
+			if( data3 && width1 == width3 )
+			{
+				b = data3[i + j * width1];
+			}
+
+			byte a = 255;
+
+			data1[0 + i + j * width1] = r;
+			data1[1 + i + j * width1] = g;
+			data1[2 + i + j * width1] = b;
+			data1[3 + i + j * width1] = a;
+		}
+	}
+
+}
+// SP end
+
 
 // we build a canonical token form of the image program here
 static char parseBuffer[MAX_IMAGE_NAME];
@@ -704,6 +741,56 @@ static bool R_ParseImageProgram_r( idLexer& src, byte** pic, int* width, int* he
 					( *pic )[i + 1] =
 						( *pic )[i + 2] = 255;
 			}
+		}
+
+		MatchAndAppendToken( src, ")" );
+		return true;
+	}
+
+	if( !token.Icmp( "combineRgba" ) )
+	{
+		byte* pic2 = nullptr;
+		byte* pic3 = nullptr;
+		int	width2, height2;
+		int width3, height3;
+
+		MatchAndAppendToken( src, "(" );
+
+		if( !R_ParseImageProgram_r( src, pic, width, height, timestamps, usage ) )
+		{
+			return false;
+		}
+
+		MatchAndAppendToken( src, "," );
+
+		if( !R_ParseImageProgram_r( src, pic ? &pic2 : NULL, &width2, &height2, timestamps, usage ) )
+		{
+			if( pic )
+			{
+				R_StaticFree( *pic );
+				*pic = NULL;
+			}
+			return false;
+		}
+
+		MatchAndAppendToken( src, "," );
+
+		if( !R_ParseImageProgram_r( src, pic2 ? &pic3 : NULL, &width3, &height3, timestamps, usage ) )
+		{
+			if( pic )
+			{
+				R_StaticFree( *pic );
+				*pic = NULL;
+			}
+			return false;
+		}
+
+		// process it
+		if( pic )
+		{
+			R_CombineRgba( *pic, *width, *height, pic2, width2, height2, pic3, width3, height3 );
+			R_StaticFree( pic2 );
+			R_StaticFree( pic3 );
 		}
 
 		MatchAndAppendToken( src, ")" );

@@ -719,7 +719,6 @@ idRenderModelMD5::LoadBinaryModel
 */
 bool idRenderModelMD5::LoadBinaryModel( idFile* file, const ID_TIME_T sourceTimeStamp )
 {
-
 	if( !idRenderModelStatic::LoadBinaryModel( file, sourceTimeStamp ) )
 	{
 		return false;
@@ -850,15 +849,6 @@ bool idRenderModelMD5::LoadBinaryModel( idFile* file, const ID_TIME_T sourceTime
 				file->ReadBig( deform.silEdges[j].v2 );
 			}
 		}
-
-		idShadowVertSkinned* shadowVerts = ( idShadowVertSkinned* ) Mem_Alloc( ALIGN( deform.numOutputVerts * 2 * sizeof( idShadowVertSkinned ), 16 ), TAG_MODEL );
-		idShadowVertSkinned::CreateShadowCache( shadowVerts, deform.verts, deform.numOutputVerts );
-
-		deform.staticAmbientCache = vertexCache.AllocStaticVertex( deform.verts, ALIGN( deform.numOutputVerts * sizeof( idDrawVert ), VERTEX_CACHE_ALIGN ) );
-		deform.staticIndexCache = vertexCache.AllocStaticIndex( deform.indexes, ALIGN( deform.numIndexes * sizeof( triIndex_t ), INDEX_CACHE_ALIGN ) );
-		deform.staticShadowCache = vertexCache.AllocStaticVertex( shadowVerts, ALIGN( deform.numOutputVerts * 2 * sizeof( idShadowVertSkinned ), VERTEX_CACHE_ALIGN ) );
-
-		Mem_Free( shadowVerts );
 
 		file->ReadBig( meshes[i].surfaceNum );
 	}
@@ -1094,6 +1084,15 @@ void idRenderModelMD5::LoadModel()
 	fileSystem->ReadFile( name, NULL, &timeStamp );
 
 	common->UpdateLevelLoadPacifier();
+}
+
+void idRenderModelMD5::CreateBuffers( nvrhi::ICommandList* commandList )
+{
+	for( int i = 0; i < meshes.Num(); i++ )
+	{
+		auto& deform = *meshes[i].deformInfo;
+		R_CreateDeformStaticVertices( meshes[i].deformInfo, commandList );
+	}
 }
 
 /*

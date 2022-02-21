@@ -44,12 +44,11 @@ This is where the Binary image headers go that are also included by external too
 
 struct bimageImage_t
 {
-	int		level;
-	int		destZ;
+	int		level;		// mip
+	int		destZ;		// array slice
 	int		width;
 	int		height;
-	int		dataSize;
-	// dataSize bytes follow
+	int		dataSize;	// dataSize bytes follow
 };
 
 #pragma pack( push, 1 )

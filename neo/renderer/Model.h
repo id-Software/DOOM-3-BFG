@@ -218,6 +218,9 @@ public:
 	// are kept loaded
 	virtual void				TouchData() = 0;
 
+	// uploads the static vertices and indices into the vertex cache.
+	virtual void				CreateBuffers( nvrhi::ICommandList* commandList ) = 0;
+
 	// dump any ambient caches on the model surfaces
 	virtual void				FreeVertexCache() = 0;
 

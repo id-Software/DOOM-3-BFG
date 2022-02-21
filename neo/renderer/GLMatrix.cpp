@@ -407,6 +407,68 @@ This uses the "infinite far z" trick
 idCVar r_centerX( "r_centerX", "0", CVAR_FLOAT, "projection matrix center adjust" );
 idCVar r_centerY( "r_centerY", "0", CVAR_FLOAT, "projection matrix center adjust" );
 
+inline float sgn( float a )
+{
+	if( a > 0.0f )
+	{
+		return ( 1.0f );
+	}
+	if( a < 0.0f )
+	{
+		return ( -1.0f );
+	}
+	return ( 0.0f );
+}
+
+// clipPlane is a plane in camera space.
+void ModifyProjectionMatrix( viewDef_t* viewDef, const idPlane& clipPlane )
+{
+	static float s_flipMatrix[16] =
+	{
+		// convert from our coordinate system (looking down X)
+		// to OpenGL's coordinate system (looking down -Z)
+		0, 0, -1, 0,
+		-1, 0,  0, 0,
+		0, 1,  0, 0,
+		0, 0,  0, 1
+	};
+
+	idMat4 flipMatrix;
+	memcpy( &flipMatrix, &( s_flipMatrix[0] ), sizeof( float ) * 16 );
+
+	idVec4 vec = clipPlane.ToVec4();// * flipMatrix;
+	idPlane newPlane( vec[0], vec[1], vec[2], vec[3] );
+
+	// Calculate the clip-space corner point opposite the clipping plane
+	// as (sgn(clipPlane.x), sgn(clipPlane.y), 1, 1) and
+	// transform it into camera space by multiplying it
+	// by the inverse of the projection matrix
+
+	//idVec4 q;
+	//q.x = (sgn(newPlane[0]) + viewDef->projectionMatrix[8]) / viewDef->projectionMatrix[0];
+	//q.y = (sgn(newPlane[1]) + viewDef->projectionMatrix[9]) / viewDef->projectionMatrix[5];
+	//q.z = -1.0F;
+	//q.w = (1.0F + viewDef->projectionMatrix[10]) / viewDef->projectionMatrix[14];
+
+	idMat4 unprojection;
+	R_MatrixFullInverse( viewDef->projectionMatrix, ( float* )&unprojection );
+	idVec4 q = unprojection * idVec4( sgn( newPlane[0] ), sgn( newPlane[1] ), 1.0f, 1.0f );
+
+	// Calculate the scaled plane vector
+	idVec4 c = newPlane.ToVec4() * ( 2.0f / ( q * newPlane.ToVec4() ) );
+
+	float matrix[16];
+	std::memcpy( matrix, viewDef->projectionMatrix, sizeof( float ) * 16 );
+
+	// Replace the third row of the projection matrix
+	matrix[2] = c[0];
+	matrix[6] = c[1];
+	matrix[10] = c[2] + 1.0f;
+	matrix[14] = c[3];
+
+	memcpy( viewDef->projectionMatrix, matrix, sizeof( float ) * 16 );
+}
+
 void R_SetupProjectionMatrix( viewDef_t* viewDef )
 {
 	// random jittering is usefull when multiple
@@ -493,6 +555,13 @@ void R_SetupProjectionMatrix( viewDef_t* viewDef )
 		viewDef->projectionMatrix[1 * 4 + 1] = -viewDef->projectionMatrix[1 * 4 + 1];
 		viewDef->projectionMatrix[1 * 4 + 3] = -viewDef->projectionMatrix[1 * 4 + 3];
 	}
+
+	// SP Begin
+	if( viewDef->isObliqueProjection )
+	{
+		R_ObliqueProjection( viewDef );
+	}
+	// SP End
 }
 
 
@@ -607,3 +676,38 @@ void R_MatrixFullInverse( const float a[16], float r[16] )
 	}
 }
 // RB end
+
+// SP begin
+/*
+=====================
+R_ObliqueProjection - adjust near plane of previously set projection matrix to perform an oblique projection
+credits to motorsep: https://github.com/motorsep/StormEngine2/blob/743a0f9581a10837a91cb296ff5a1114535e8d4e/neo/renderer/tr_frontend_subview.cpp#L225
+=====================
+*/
+void R_ObliqueProjection( viewDef_t* parms )
+{
+	float mvt[16]; // model view transpose
+	idPlane pB = parms->clipPlanes[0];
+	idPlane cp; // camera space plane
+	R_MatrixTranspose( parms->worldSpace.modelViewMatrix, mvt );
+	// transform plane (which is set to the surface we're mirroring about's plane) to camera space
+	R_GlobalPlaneToLocal( mvt, pB, cp );
+
+	// oblique projection adjustment code
+	idVec4 clipPlane( cp[0], cp[1], cp[2], cp[3] );
+	idVec4 q;
+	q[0] = ( ( clipPlane[0] < 0.0f ? -1.0f : clipPlane[0] > 0.0f ? 1.0f : 0.0f ) + parms->projectionMatrix[8] ) / parms->projectionMatrix[0];
+	q[1] = ( ( clipPlane[1] < 0.0f ? -1.0f : clipPlane[1] > 0.0f ? 1.0f : 0.0f ) + parms->projectionMatrix[9] ) / parms->projectionMatrix[5];
+	q[2] = -1.0f;
+	q[3] = ( 1.0f + parms->projectionMatrix[10] ) / parms->projectionMatrix[14];
+
+	// scaled plane vector
+	float d = 2.0f / ( clipPlane * q );
+
+	// Replace the third row of the projection matrix
+	parms->projectionMatrix[2] = clipPlane[0] * d;
+	parms->projectionMatrix[6] = clipPlane[1] * d;
+	parms->projectionMatrix[10] = clipPlane[2] * d + 1.0f;
+	parms->projectionMatrix[14] = clipPlane[3] * d;
+}
+// SP end

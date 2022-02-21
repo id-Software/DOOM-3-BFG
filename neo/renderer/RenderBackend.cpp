@@ -6,6 +6,7 @@ Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2014 Carl Kenner
 Copyright (C) 2016-2017 Dustin Land
 Copyright (C) 2013-2021 Robert Beckebans
+Copyright (C) 2022 Stephen Pridham
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -38,6 +39,14 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "imgui/ImGui_Hooks.h"
 
+#if defined( USE_NVRHI )
+#include "RenderPass.h"
+#include <sys/DeviceManager.h>
+#include <nvrhi/utils.h>
+
+idCVar r_useNewSsaoPass( "r_useNewSSAOPass", "0", CVAR_RENDERER | CVAR_BOOL, "use the new ssao pass from donut" );
+extern DeviceManager* deviceManager;
+#endif
 
 idCVar r_drawEyeColor( "r_drawEyeColor", "0", CVAR_RENDERER | CVAR_BOOL, "Draw a colored box, red = left eye, blue = right eye, grey = non-stereo" );
 idCVar r_motionBlur( "r_motionBlur", "0", CVAR_RENDERER | CVAR_INTEGER | CVAR_ARCHIVE, "1 - 5, log2 of the number of motion blur samples" );
@@ -559,7 +568,7 @@ idRenderBackend::BindVariableStageImage
 Handles generating a cinematic frame if needed
 ======================
 */
-void idRenderBackend::BindVariableStageImage( const textureStage_t* texture, const float* shaderRegisters )
+void idRenderBackend::BindVariableStageImage( const textureStage_t* texture, const float* shaderRegisters, nvrhi::ICommandList* commandList )
 {
 	if( texture->cinematic )
 	{
@@ -624,7 +633,6 @@ void idRenderBackend::BindVariableStageImage( const textureStage_t* texture, con
 	}
 	else
 	{
-		// FIXME: see why image is invalid
 		if( texture->image != NULL )
 		{
 			texture->image->Bind();
@@ -785,14 +793,12 @@ void idRenderBackend::PrepareStageTexturing( const shaderStage_t* pStage,  const
 	}
 	else if( pStage->texture.texgen == TG_DIFFUSE_CUBE )
 	{
-
 		// As far as I can tell, this is never used
 		idLib::Warning( "Using Diffuse Cube! Please contact Brian!" );
 
 	}
 	else if( pStage->texture.texgen == TG_GLASSWARP )
 	{
-
 		// As far as I can tell, this is never used
 		idLib::Warning( "Using GlassWarp! Please contact Brian!" );
 	}
@@ -890,6 +896,7 @@ void idRenderBackend::FillDepthBufferGeneric( const drawSurf_t* const* drawSurfs
 				break;
 			}
 		}
+
 		if( stage == shader->GetNumStages() )
 		{
 			continue;
@@ -2252,13 +2259,19 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 		renderProgManager.SetRenderParm( RENDERPARM_TEXGEN_0_ENABLED, texGenEnabled );
 
 		currentSpace = NULL;
-		RB_SetMVP( renderMatrix_identity );
+		auto mvp = renderMatrix_identity;
+#if defined( USE_NVRHI )
+		mvp[1][1] = -mvp[1][1]; // flip y
+#endif
+		RB_SetMVP( mvp );
 
 		renderProgManager.BindShader_Texture();
 		GL_Color( 1, 1, 1, 1 );
 
 		GL_SelectTexture( 0 );
 		globalImages->ambientOcclusionImage[0]->Bind();
+
+		//commonPasses.BlitTexture( commandList, (nvrhi::IFramebuffer*)globalFramebuffers.hdrFBO->GetApiObject(), globalImages->ambientOcclusionImage[0]->GetTextureHandle().Get(), &bindingCache );
 
 		DrawElementsWithCounters( &unitSquareSurface );
 
@@ -3390,7 +3403,26 @@ void idRenderBackend::ShadowMapPass( const drawSurf_t* drawSurfs, const viewLigh
 
 
 	// FIXME
-#if !defined(USE_VULKAN)
+#if defined( USE_NVRHI )
+	if( side < 0 )
+	{
+		side = 0;
+	}
+	if( side > 5 )
+	{
+		side = 5;
+	}
+
+	globalFramebuffers.shadowFBO[vLight->shadowLOD][side]->Bind();
+
+	GL_ViewportAndScissor( 0, 0, shadowMapResolutions[vLight->shadowLOD], shadowMapResolutions[vLight->shadowLOD] );
+
+	const nvrhi::FramebufferAttachment& att = currentFrameBuffer->GetApiObject()->getDesc().depthAttachment;
+	if( att.texture )
+	{
+		commandList->clearDepthStencilTexture( att.texture, nvrhi::TextureSubresourceSet().setArraySlices( side, 1 ), true, 1.f, false, 0x80 );
+	}
+#elif !defined( USE_VULKAN )
 	globalFramebuffers.shadowFBO[vLight->shadowLOD]->Bind();
 
 	if( side < 0 )
@@ -3858,6 +3890,10 @@ int idRenderBackend::DrawShaderPasses( const drawSurf_t* const* const drawSurfs,
 	}
 
 	renderLog.OpenBlock( "Render_GenericShaderPasses", colorBlue );
+	if( viewDef->targetRender )
+	{
+		viewDef->targetRender->Bind();
+	}
 
 	GL_SelectTexture( 0 );
 
@@ -4032,8 +4068,55 @@ int idRenderBackend::DrawShaderPasses( const drawSurf_t* const* const drawSurfs,
 				continue;
 			}
 
+			if( pStage->stencilStage != nullptr )
+			{
+				switch( pStage->stencilStage->comp )
+				{
+					case STENCIL_COMP_ALWAYS:
+						stageGLState |= GLS_STENCIL_FUNC_ALWAYS;
+						break;
+					case STENCIL_COMP_EQUAL:
+						stageGLState |= GLS_STENCIL_FUNC_EQUAL;
+						break;
+				};
+
+				switch( pStage->stencilStage->pass )
+				{
+					case STENCIL_OP_REPLACE:
+						stageGLState |= GLS_STENCIL_OP_PASS_REPLACE;
+						break;
+					case STENCIL_OP_KEEP:
+						stageGLState |= GLS_STENCIL_OP_PASS_KEEP;
+						break;
+					case STENCIL_OP_DECRWRAP:
+						stageGLState |= GLS_STENCIL_OP_PASS_DECR_WRAP;
+						break;
+				};
+
+				switch( pStage->stencilStage->zFail )
+				{
+					case STENCIL_OP_DECRWRAP:
+						stageGLState |= GLS_STENCIL_OP_ZFAIL_DECR_WRAP;
+						break;
+					case STENCIL_OP_KEEP:
+						stageGLState |= GLS_STENCIL_OP_ZFAIL_KEEP;
+						break;
+				};
+
+				switch( pStage->stencilStage->fail )
+				{
+					case STENCIL_OP_KEEP:
+						stageGLState |= GLS_STENCIL_OP_FAIL_KEEP;
+						break;
+				};
+
+				stageGLState |= GLS_STENCIL_MAKE_REF( pStage->stencilStage->ref )
+								| GLS_STENCIL_MAKE_MASK( pStage->stencilStage->writeMask );
+			}
+
 			// see if we are a new-style stage
 			newShaderStage_t* newStage = pStage->newStage;
+
 			if( newStage != NULL )
 			{
 				//--------------------------
@@ -4136,7 +4219,7 @@ int idRenderBackend::DrawShaderPasses( const drawSurf_t* const* const drawSurfs,
 				// use special shaders for bink cinematics
 				if( pStage->texture.cinematic )
 				{
-					if( ( stageGLState & GLS_OVERRIDE ) != 0 )
+					if( ( stageGLState & GLS_OVERRIDE ) != 0 || viewDef->targetRender )
 					{
 						// This is a hack... Only SWF Guis set GLS_OVERRIDE
 						// Old style guis do not, and we don't want them to use the new GUI renederProg
@@ -4163,7 +4246,8 @@ int idRenderBackend::DrawShaderPasses( const drawSurf_t* const* const drawSurfs,
 						}
 						else
 						{
-							if( viewDef->is2Dgui )
+							// For now, don't render to linear unless it's being directly rendererd to either the backbuffer or an offline framebuffer
+							if( viewDef->is2Dgui || viewDef->targetRender )
 							{
 								// RB: 2D fullscreen drawing like warp or damage blend effects
 								renderProgManager.BindShader_TextureVertexColor_sRGB();
@@ -4199,7 +4283,7 @@ int idRenderBackend::DrawShaderPasses( const drawSurf_t* const* const drawSurfs,
 			RB_SetVertexColorParms( svc );
 
 			// bind the texture
-			BindVariableStageImage( &pStage->texture, regs );
+			BindVariableStageImage( &pStage->texture, regs, commandList );
 
 			// set privatePolygonOffset if necessary
 			if( pStage->privatePolygonOffset )
@@ -4222,6 +4306,7 @@ int idRenderBackend::DrawShaderPasses( const drawSurf_t* const* const drawSurfs,
 			{
 				GL_PolygonOffset( r_offsetFactor.GetFloat(), r_offsetUnits.GetFloat() * shader->GetPolygonOffset() );
 			}
+
 			renderLog.CloseBlock();
 		}
 
@@ -4709,11 +4794,16 @@ void idRenderBackend::Tonemap( const viewDef_t* _viewDef )
 {
 	RENDERLOG_PRINTF( "---------- RB_Tonemap( avg = %f, max = %f, key = %f, is2Dgui = %i ) ----------\n", hdrAverageLuminance, hdrMaxLuminance, hdrKey, ( int )viewDef->is2Dgui );
 
+	renderLog.OpenBlock( "Tonemap" );
+
+	commandList->beginMarker( "Tonemap" );
+
 	//postProcessCommand_t* cmd = ( postProcessCommand_t* )data;
 	//const idScreenRect& viewport = cmd->viewDef->viewport;
 	//globalImages->currentRenderImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
 
-	Framebuffer::Unbind();
+	// Set up the target framebuffer
+	globalFramebuffers.ldrFBO->Bind();
 
 	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS | GLS_CULL_TWOSIDED );
 
@@ -4794,6 +4884,9 @@ void idRenderBackend::Tonemap( const viewDef_t* _viewDef )
 	renderProgManager.Unbind();
 
 	GL_State( GLS_DEFAULT );
+
+	commandList->endMarker();
+	renderLog.CloseBlock();
 }
 
 
@@ -4804,9 +4897,13 @@ void idRenderBackend::Bloom( const viewDef_t* _viewDef )
 		return;
 	}
 
+	renderLog.OpenMainBlock( MRB_BLOOM );
+	renderLog.OpenBlock( "Render_Bloom", colorBlue );
+
 	RENDERLOG_PRINTF( "---------- RB_Bloom( avg = %f, max = %f, key = %f ) ----------\n", hdrAverageLuminance, hdrMaxLuminance, hdrKey );
 
 	// BRIGHTPASS
+	renderLog.OpenBlock( "Brightpass" );
 
 	//GL_CheckErrors();
 
@@ -4887,6 +4984,10 @@ void idRenderBackend::Bloom( const viewDef_t* _viewDef )
 	// Draw
 	DrawElementsWithCounters( &unitSquareSurface );
 
+	renderLog.CloseBlock(); // Brightpass
+
+	renderLog.OpenBlock( "Bloom Ping Pong" );
+
 	// BLOOM PING PONG rendering
 	renderProgManager.BindShader_HDRGlareChromatic();
 
@@ -4918,9 +5019,14 @@ void idRenderBackend::Bloom( const viewDef_t* _viewDef )
 
 	DrawElementsWithCounters( &unitSquareSurface );
 
+	renderLog.CloseBlock(); // Bloom Ping Pong
+
 	renderProgManager.Unbind();
 
 	GL_State( GLS_DEFAULT );
+
+	renderLog.CloseBlock(); // Render_Bloom
+	renderLog.CloseMainBlock(); // MRB_BLOOM
 }
 
 
@@ -4960,9 +5066,30 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 	int screenWidth = renderSystem->GetWidth();
 	int screenHeight = renderSystem->GetHeight();
 
+#if defined( USE_NVRHI )
+	commandList->clearTextureFloat( globalImages->hierarchicalZbufferImage->GetTextureHandle(), nvrhi::AllSubresources, nvrhi::Color( 1.f ) );
+	commandList->clearTextureFloat( globalImages->ambientOcclusionImage[0]->GetTextureHandle(), nvrhi::AllSubresources, nvrhi::Color( 1.f ) );
+	commandList->clearTextureFloat( globalImages->ambientOcclusionImage[1]->GetTextureHandle(), nvrhi::AllSubresources, nvrhi::Color( 1.f ) );
+#endif
+
 	// build hierarchical depth buffer
 	if( r_useHierarchicalDepthBuffer.GetBool() )
 	{
+#if defined( USE_NVRHI )
+		commandList->beginMarker( "Render_HiZ" );
+
+		commonPasses.BlitTexture(
+			commandList,
+			globalFramebuffers.csDepthFBO[0]->GetApiObject(),
+			globalImages->currentDepthImage->GetTextureHandle(),
+			&bindingCache );
+
+		hiZGenPass->Dispatch( commandList, MAX_HIERARCHICAL_ZBUFFERS );
+
+		commandList->endMarker();
+		renderLog.CloseBlock();
+
+#else
 		renderLog.OpenBlock( "Render_HiZ", colorDkGrey );
 
 		renderProgManager.BindShader_AmbientOcclusionMinify();
@@ -5018,6 +5145,16 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 		}
 
 		renderLog.CloseBlock();
+#endif
+	}
+
+	if( previousFramebuffer != NULL )
+	{
+		previousFramebuffer->Bind();
+	}
+	else
+	{
+		Framebuffer::Unbind();
 	}
 
 	// set the window clipping
@@ -5027,16 +5164,18 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 	GL_Viewport( 0, 0, aoScreenWidth, aoScreenHeight );
 	GL_Scissor( 0, 0, aoScreenWidth, aoScreenHeight );
 
-
-
 	if( downModulateScreen )
 	{
 		if( r_ssaoFiltering.GetBool() )
 		{
 			globalFramebuffers.ambientOcclusionFBO[0]->Bind();
 
+#if defined( USE_NVRHI )
+			GL_Clear( true, false, false, 0, 0, 0, 0, 0 );
+#else
 			glClearColor( 0, 0, 0, 0 );
 			glClear( GL_COLOR_BUFFER_BIT );
+#endif
 
 			renderProgManager.BindShader_AmbientOcclusion();
 		}
@@ -5065,8 +5204,17 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 
 		GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS | GLS_CULL_TWOSIDED );
 
+#if defined( USE_NVRHI )
+		const nvrhi::FramebufferAttachment& att = globalFramebuffers.ambientOcclusionFBO[0]->GetApiObject()->getDesc().colorAttachments[0];
+
+		if( att.texture )
+		{
+			commandList->clearTextureFloat( att.texture, att.subresources, 0 );
+		}
+#else
 		glClearColor( 0, 0, 0, 0 );
 		glClear( GL_COLOR_BUFFER_BIT );
+#endif
 
 		if( r_ssaoFiltering.GetBool() )
 		{
@@ -5233,6 +5381,7 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 
 	GL_State( GLS_DEFAULT );
 
+	commandList->endMarker();
 	renderLog.CloseBlock();
 	renderLog.CloseMainBlock();
 
@@ -5294,7 +5443,6 @@ void idRenderBackend::DrawScreenSpaceGlobalIllumination( const viewDef_t* _viewD
 		glClearColor( 0, 0, 0, 1 );
 
 		GL_SelectTexture( 0 );
-		//globalImages->currentDepthImage->Bind();
 
 		for( int i = 0; i < MAX_HIERARCHICAL_ZBUFFERS; i++ )
 		{
@@ -5521,6 +5669,10 @@ BACKEND COMMANDS
 =========================================================================================================
 */
 
+#if defined( USE_NVRHI )
+extern DeviceManager* deviceManager;
+#endif
+
 
 /*
 ====================
@@ -5542,9 +5694,6 @@ void idRenderBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
 
 	ResizeImages();
 
-	renderLog.StartFrame();
-	GL_StartFrame();
-
 	if( cmds->commandId == RC_NOP && !cmds->next )
 	{
 		return;
@@ -5556,6 +5705,32 @@ void idRenderBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
 		renderLog.EndFrame();
 		return;
 	}
+
+	renderLog.StartFrame();
+	GL_StartFrame();
+
+	void* textureId = globalImages->hierarchicalZbufferImage->GetTextureID();
+	globalImages->LoadDeferredImages( commandList );
+
+#if defined( USE_NVRHI )
+	if( globalImages->hierarchicalZbufferImage->GetTextureID() != textureId || !hiZGenPass )
+	{
+		if( hiZGenPass )
+		{
+			delete hiZGenPass;
+		}
+		hiZGenPass = new MipMapGenPass( deviceManager->GetDevice(), globalImages->hierarchicalZbufferImage->GetTextureHandle() );
+	}
+
+	if( !ssaoPass && r_useNewSsaoPass.GetBool() )
+	{
+		ssaoPass = new SsaoPass(
+			deviceManager->GetDevice(),
+			&commonPasses, globalImages->currentDepthImage->GetTextureHandle(),
+			globalImages->currentNormalsImage->GetTextureHandle(),
+			globalImages->ambientOcclusionImage[0]->GetTextureHandle() );
+	}
+#endif
 
 	uint64 backEndStartTime = Sys_Microseconds();
 
@@ -5701,15 +5876,24 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 			globalFramebuffers.hdrFBO->Bind();
 		}
 	}
+	else if( viewDef->targetRender )
+	{
+		viewDef->targetRender->Bind();
+	}
 	else
 	{
+#if defined( USE_NVRHI )
+		globalFramebuffers.ldrFBO->Bind();
+#else
 		Framebuffer::Unbind();
+#endif
 	}
+
 	// RB end
 
 	//GL_CheckErrors();
 
-#if !defined(USE_VULKAN)
+#if !defined( USE_VULKAN ) && !defined( USE_NVRHI )
 	// bind one global Vertex Array Object (VAO)
 	glBindVertexArray( glConfig.global_vao );
 #endif
@@ -5836,7 +6020,17 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 		GL_SelectTexture( 0 );
 
 		// resolve the screen
+#if defined( USE_NVRHI )
+		BlitParameters blitParms;
+		nvrhi::IFramebuffer* currentFB = ( nvrhi::IFramebuffer* )currentFrameBuffer->GetApiObject();
+		blitParms.sourceTexture = currentFB->getDesc().colorAttachments[0].texture;
+		blitParms.targetFramebuffer = globalFramebuffers.postProcFBO->GetApiObject();
+		blitParms.targetViewport = nvrhi::Viewport( renderSystem->GetWidth(), renderSystem->GetHeight() );;
+		commonPasses.BlitTexture( commandList, blitParms, &bindingCache );
+#else
 		globalImages->currentRenderImage->CopyFramebuffer( x, y, w, h );
+#endif
+
 		currentRenderCopied = true;
 
 		// RENDERPARM_SCREENCORRECTIONFACTOR amd RENDERPARM_WINDOWCOORD overlap
@@ -5877,49 +6071,9 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 #endif
 
 	// RB: convert back from HDR to LDR range
-	if( useHDR && !( _viewDef->renderView.rdflags & RDF_IRRADIANCE ) )
+	if( useHDR && !( _viewDef->renderView.rdflags & RDF_IRRADIANCE ) && !_viewDef->targetRender )
 	{
-		/*
-		int x = backEnd.viewDef->viewport.x1;
-		int y = backEnd.viewDef->viewport.y1;
-		int	w = backEnd.viewDef->viewport.x2 - backEnd.viewDef->viewport.x1 + 1;
-		int	h = backEnd.viewDef->viewport.y2 - backEnd.viewDef->viewport.y1 + 1;
-
-		GL_Viewport( viewDef->viewport.x1,
-				viewDef->viewport.y1,
-				viewDef->viewport.x2 + 1 - viewDef->viewport.x1,
-				viewDef->viewport.y2 + 1 - viewDef->viewport.y1 );
-		*/
-
-		/*
-		glBindFramebuffer( GL_READ_FRAMEBUFFER, globalFramebuffers.hdrFBO->GetFramebuffer() );
-		glBindFramebuffer( GL_DRAW_FRAMEBUFFER, globalFramebuffers.hdrQuarterFBO->GetFramebuffer() );
-		glBlitFramebuffer( 0, 0, renderSystem->GetWidth(), renderSystem->GetHeight(),
-						   0, 0, renderSystem->GetWidth() * 0.25f, renderSystem->GetHeight() * 0.25f,
-						   GL_COLOR_BUFFER_BIT,
-						   GL_LINEAR );
-		*/
-
-#if defined(USE_HDR_MSAA)
-		if( glConfig.multisamples > 0 )
-		{
-			glBindFramebuffer( GL_READ_FRAMEBUFFER, globalFramebuffers.hdrFBO->GetFramebuffer() );
-			glBindFramebuffer( GL_DRAW_FRAMEBUFFER, globalFramebuffers.hdrNonMSAAFBO->GetFramebuffer() );
-			glBlitFramebuffer( 0, 0, renderSystem->GetWidth(), renderSystem->GetHeight(),
-							   0, 0, renderSystem->GetWidth(), renderSystem->GetHeight(),
-							   GL_COLOR_BUFFER_BIT,
-							   GL_LINEAR );
-
-			// TODO resolve to 1x1
-			glBindFramebuffer( GL_READ_FRAMEBUFFER_EXT, globalFramebuffers.hdrNonMSAAFBO->GetFramebuffer() );
-			glBindFramebuffer( GL_DRAW_FRAMEBUFFER_EXT, globalFramebuffers.hdr64FBO->GetFramebuffer() );
-			glBlitFramebuffer( 0, 0, renderSystem->GetWidth(), renderSystem->GetHeight(),
-							   0, 0, 64, 64,
-							   GL_COLOR_BUFFER_BIT,
-							   GL_LINEAR );
-		}
-		else
-#endif
+#if !defined( USE_NVRHI )
 		{
 			glBindFramebuffer( GL_READ_FRAMEBUFFER_EXT, globalFramebuffers.hdrFBO->GetFramebuffer() );
 			glBindFramebuffer( GL_DRAW_FRAMEBUFFER_EXT, globalFramebuffers.hdr64FBO->GetFramebuffer() );
@@ -5928,19 +6082,32 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 							   GL_COLOR_BUFFER_BIT,
 							   GL_LINEAR );
 		}
+#endif
 
 		CalculateAutomaticExposure();
-
 		Tonemap( _viewDef );
 	}
 
 	if( !r_skipBloom.GetBool() )
 	{
+		// TODO(Stephen): implement bloom
+#if !defined( USE_NVRHI )
 		Bloom( _viewDef );
 	}
 
 #if defined(__APPLE__)
 	renderLog.CloseMainBlock();
+#endif
+
+#if defined( USE_NVRHI )
+	//TODO(Stephen): Move somewhere else?
+	{
+		BlitParameters blitParms;
+		blitParms.sourceTexture = ( nvrhi::ITexture* )globalImages->currentRenderLDR->GetTextureID();
+		blitParms.targetFramebuffer = deviceManager->GetCurrentFramebuffer();
+		blitParms.targetViewport = nvrhi::Viewport( renderSystem->GetWidth(), renderSystem->GetHeight() );;
+		commonPasses.BlitTexture( commandList, blitParms, &bindingCache );
+	}
 #endif
 
 #endif
@@ -6120,15 +6287,6 @@ void idRenderBackend::DrawView( const void* data, const int stereoEye )
 
 	MotionBlur();
 
-	// restore the context for 2D drawing if we were stubbing it out
-	// RB: not really needed
-	//if( r_skipRenderContext.GetBool() && backEnd.viewDef->viewEntitys )
-	//{
-	//	GLimp_ActivateContext();
-	//	GL_SetDefaultState();
-	//}
-	// RB end
-
 	// optionally draw a box colored based on the eye number
 	if( r_drawEyeColor.GetBool() )
 	{
@@ -6198,6 +6356,11 @@ void idRenderBackend::PostProcess( const void* data )
 	{
 		return;
 	}
+
+#if defined( USE_NVRHI )
+	// TODO(Stephen) Skip for NVRHI
+	return;
+#endif
 
 	renderLog.OpenMainBlock( MRB_POSTPROCESS );
 	renderLog.OpenBlock( "Render_PostProcessing", colorBlue );

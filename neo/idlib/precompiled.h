@@ -94,13 +94,17 @@ const int MAX_EXPRESSION_REGISTERS = 4096;
 	const uint32 NUM_FRAME_DATA = 2;
 #endif
 
-#if defined(USE_VULKAN)
+#if defined( USE_NVRHI )
+	#include "nvrhi/nvrhi.h"
+#elif defined(USE_VULKAN)
 	#include "../renderer/Vulkan/qvk.h"
 #else
 	// RB: replaced QGL with GLEW
 	#include <GL/glew.h>
 	// RB end
 #endif
+
+
 #include "../renderer/Cinematic.h"
 #include "../renderer/Material.h"
 #include "../renderer/BufferObject.h"
