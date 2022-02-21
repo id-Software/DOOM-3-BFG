@@ -332,7 +332,7 @@ void R_SetupDrawSurfShader( drawSurf_t* drawSurf, const idMaterial* shader, cons
 R_SetupDrawSurfJoints
 ===================
 */
-void R_SetupDrawSurfJoints( drawSurf_t* drawSurf, const srfTriangles_t* tri, const idMaterial* shader )
+void R_SetupDrawSurfJoints( drawSurf_t* drawSurf, const srfTriangles_t* tri, const idMaterial* shader, nvrhi::ICommandList* commandList )
 {
 	// RB: added check wether GPU skinning is available at all
 	if( tri->staticModelWithJoints == NULL || !r_useGPUSkinning.GetBool() || !glConfig.gpuSkinningAvailable )
@@ -348,7 +348,7 @@ void R_SetupDrawSurfJoints( drawSurf_t* drawSurf, const srfTriangles_t* tri, con
 	if( !vertexCache.CacheIsCurrent( model->jointsInvertedBuffer ) )
 	{
 		const int alignment = glConfig.uniformBufferOffsetAlignment;
-		model->jointsInvertedBuffer = vertexCache.AllocJoint( model->jointsInverted, model->numInvertedJoints );
+		model->jointsInvertedBuffer = vertexCache.AllocJoint( model->jointsInverted, model->numInvertedJoints, sizeof( idJointMat ), commandList );
 	}
 	drawSurf->jointCache = model->jointsInvertedBuffer;
 }
@@ -750,7 +750,7 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 				// make sure we have an ambient cache and all necessary normals / tangents
 				if( !vertexCache.CacheIsCurrent( tri->indexCache ) )
 				{
-					tri->indexCache = vertexCache.AllocIndex( tri->indexes, tri->numIndexes );
+					tri->indexCache = vertexCache.AllocIndex( tri->indexes, tri->numIndexes, sizeof( triIndex_t ), nullptr );
 				}
 
 				if( !vertexCache.CacheIsCurrent( tri->ambientCache ) )
@@ -765,7 +765,7 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 						//assert( false );	// this should no longer be hit
 						// RB end
 					}
-					tri->ambientCache = vertexCache.AllocVertex( tri->verts, tri->numVerts );
+					tri->ambientCache = vertexCache.AllocVertex( tri->verts, tri->numVerts, sizeof( idDrawVert ), nullptr );
 				}
 
 				// add the surface for drawing
@@ -807,14 +807,14 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 					// copy verts and indexes to this frame's hardware memory if they aren't already there
 					if( !vertexCache.CacheIsCurrent( tri->ambientCache ) )
 					{
-						tri->ambientCache = vertexCache.AllocVertex( tri->verts, tri->numVerts );
+						tri->ambientCache = vertexCache.AllocVertex( tri->verts, tri->numVerts, sizeof( idDrawVert ), nullptr );
 					}
 					if( !vertexCache.CacheIsCurrent( tri->indexCache ) )
 					{
-						tri->indexCache = vertexCache.AllocIndex( tri->indexes, tri->numIndexes );
+						tri->indexCache = vertexCache.AllocIndex( tri->indexes, tri->numIndexes, sizeof( triIndex_t ), nullptr );
 					}
 
-					R_SetupDrawSurfJoints( baseDrawSurf, tri, shader );
+					R_SetupDrawSurfJoints( baseDrawSurf, tri, shader, nullptr );
 
 					baseDrawSurf->numIndexes = tri->numIndexes;
 					baseDrawSurf->ambientCache = tri->ambientCache;
@@ -907,7 +907,7 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 							// when using shadow volumes
 							if( r_cullDynamicLightTriangles.GetBool() && !r_skipDynamicShadows.GetBool() && !r_useShadowMapping.GetBool() && shader->SurfaceCastsShadow() )
 							{
-								vertCacheHandle_t lightIndexCache = vertexCache.AllocIndex( NULL, lightDrawSurf->numIndexes );
+								vertCacheHandle_t lightIndexCache = vertexCache.AllocIndex( NULL, lightDrawSurf->numIndexes, sizeof( triIndex_t ), nullptr );
 								if( vertexCache.CacheIsCurrent( lightIndexCache ) )
 								{
 									lightDrawSurf->indexCache = lightIndexCache;
@@ -968,7 +968,7 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 						lightDrawSurf->renderZFail = 0;
 						lightDrawSurf->shaderRegisters = shaderRegisters;
 
-						R_SetupDrawSurfJoints( lightDrawSurf, tri, shader );
+						R_SetupDrawSurfJoints( lightDrawSurf, tri, shader, nullptr );
 
 						// Determine which linked list to add the light surface to.
 						// There will only be localSurfaces if the light casts shadows and
@@ -1096,7 +1096,7 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 							// make sure we have an ambient cache and all necessary normals / tangents
 							if( !vertexCache.CacheIsCurrent( tri->indexCache ) )
 							{
-								tri->indexCache = vertexCache.AllocIndex( tri->indexes, tri->numIndexes );
+								tri->indexCache = vertexCache.AllocIndex( tri->indexes, tri->numIndexes, sizeof( triIndex_t ), nullptr );
 							}
 
 							// throw the entire source surface at it without any per-triangle culling
@@ -1116,7 +1116,7 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 								//assert( false );	// this should no longer be hit
 								// RB end
 							}
-							tri->ambientCache = vertexCache.AllocVertex( tri->verts, tri->numVerts );
+							tri->ambientCache = vertexCache.AllocVertex( tri->verts, tri->numVerts, sizeof( idDrawVert ), nullptr );
 						}
 
 						shadowDrawSurf->ambientCache = tri->ambientCache;
@@ -1135,7 +1135,7 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 							R_SetupDrawSurfShader( shadowDrawSurf, shader, renderEntity );
 						}
 
-						R_SetupDrawSurfJoints( shadowDrawSurf, tri, shader );
+						R_SetupDrawSurfJoints( shadowDrawSurf, tri, shader, nullptr );
 
 						// determine which linked list to add the shadow surface to
 
@@ -1220,7 +1220,7 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 					// duplicates them with w set to 0 and 1 for the vertex program to project.
 					// This is constant for any number of lights, the vertex program takes care
 					// of projecting the verts to infinity for a particular light.
-					tri->shadowCache = vertexCache.AllocVertex( NULL, tri->numVerts * 2, sizeof( idShadowVert ) );
+					tri->shadowCache = vertexCache.AllocVertex( NULL, tri->numVerts * 2, sizeof( idShadowVert ), nullptr );
 					idShadowVert* shadowVerts = ( idShadowVert* )vertexCache.MappedVertexBuffer( tri->shadowCache );
 					idShadowVert::CreateShadowCache( shadowVerts, tri->verts, tri->numVerts );
 				}
@@ -1228,7 +1228,7 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 				const int maxShadowVolumeIndexes = tri->numSilEdges * 6 + tri->numIndexes * 2;
 
 				shadowDrawSurf->numIndexes = 0;
-				shadowDrawSurf->indexCache = vertexCache.AllocIndex( NULL, maxShadowVolumeIndexes );
+				shadowDrawSurf->indexCache = vertexCache.AllocIndex( NULL, maxShadowVolumeIndexes, sizeof( triIndex_t ), nullptr );
 				shadowDrawSurf->shadowCache = tri->shadowCache;
 				shadowDrawSurf->scissorRect = vLight->scissorRect;		// default to the light scissor and light depth bounds
 				shadowDrawSurf->shadowVolumeState = SHADOWVOLUME_DONE;	// assume the shadow volume is done in case the index cache allocation failed
@@ -1306,7 +1306,7 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 			shadowDrawSurf->sort = 0.0f;
 			shadowDrawSurf->shaderRegisters = NULL;
 
-			R_SetupDrawSurfJoints( shadowDrawSurf, tri, NULL );
+			R_SetupDrawSurfJoints( shadowDrawSurf, tri, NULL, nullptr );
 
 			// determine which linked list to add the shadow surface to
 			shadowDrawSurf->linkChain = shader->TestMaterialFlag( MF_NOSELFSHADOW ) ? &vLight->localShadows : &vLight->globalShadows;

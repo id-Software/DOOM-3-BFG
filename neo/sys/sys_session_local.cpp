@@ -1778,7 +1778,7 @@ idSessionLocal::EndMatch
 this is for when the game is over before we go back to lobby. Need this incase the host leaves during this time
 ========================
 */
-void idSessionLocal::MatchFinished( )
+void idSessionLocal::MatchFinished()
 {
 	if( verify( GetActingGameStateLobby().IsHost() ) )
 	{

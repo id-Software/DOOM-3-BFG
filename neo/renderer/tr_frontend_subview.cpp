@@ -4,6 +4,7 @@
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2014 Robert Beckebans
+Copyright (C) 2022 Stephen Pridham
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -228,6 +229,7 @@ static viewDef_t* R_MirrorViewBySurface( const drawSurf_t* drawSurf )
 	viewDef_t* parms = ( viewDef_t* )R_FrameAlloc( sizeof( *parms ) );
 	*parms = *tr.viewDef;
 	parms->renderView.viewID = 0;	// clear to allow player bodies to show up, and suppress view weapons
+	parms->targetRender = nullptr;
 
 	parms->isSubview = true;
 	parms->isMirror = true;
@@ -267,6 +269,97 @@ static viewDef_t* R_MirrorViewBySurface( const drawSurf_t* drawSurf )
 	parms->clipPlanes[0] = -camera.axis[0];
 
 	parms->clipPlanes[0][3] = -( camera.origin * parms->clipPlanes[0].Normal() );
+
+	return parms;
+}
+
+
+/*
+========================
+R_PortalViewBySurface
+========================
+*/
+static viewDef_t* R_PortalViewBySurface( const drawSurf_t* surf )
+{
+	if( !surf->space->entityDef->parms.remoteRenderView )
+	{
+		return nullptr;
+	}
+
+	// copy the viewport size from the original
+	viewDef_t* parms = ( viewDef_t* )R_FrameAlloc( sizeof( *parms ) );
+	*parms = *tr.viewDef;
+
+	idMat3 viewaxis = parms->renderView.viewaxis;
+	idMat3 remoteViewAxis = surf->space->entityDef->parms.remoteRenderView->viewaxis;
+	const idVec3 orig = parms->renderView.vieworg;
+	float fov_x = parms->renderView.fov_x;
+	float fov_y = parms->renderView.fov_y;
+
+	parms->renderView = *surf->space->entityDef->parms.remoteRenderView;
+	parms->renderView.fov_x = fov_x;
+	parms->renderView.fov_y = fov_y;
+
+	idAngles ang = viewaxis.ToAngles();
+	idAngles angleDiff;
+
+	idMat3 surfViewAxis;
+
+	// Difference in view axis
+	idPlane originalPlane, plane;
+	R_PlaneForSurface( surf->frontEndGeo, originalPlane );
+	R_LocalPlaneToGlobal( surf->space->modelMatrix, originalPlane, plane );
+
+	orientation_t surface;
+	surface.origin = plane.Normal() * -plane[3];
+	surface.axis[0] = plane.Normal();
+	surface.axis[0].NormalVectors( surface.axis[1], surface.axis[2] );
+	surface.axis[2] = -surface.axis[2];
+
+	surfViewAxis = surface.axis;
+	idAngles surfAng = surfViewAxis.ToAngles();
+	angleDiff = surfAng - ang;
+
+	idAngles origAngle = parms->renderView.viewaxis.ToAngles();
+	origAngle = origAngle - angleDiff;
+	origAngle.yaw -= 180;
+	origAngle.Normalize180();
+
+	parms->renderView.viewaxis = origAngle.ToMat3();
+
+	// Direction vector in camera space.
+	const idMat3 inverseSurfView = surfViewAxis.Transpose();
+	idVec3 dirToPortal = ( surf->space->entityDef->parms.origin - orig ) * inverseSurfView;
+	dirToPortal.z = -dirToPortal.z;
+	parms->renderView.vieworg += dirToPortal * remoteViewAxis;
+
+	// Set up oblique view clipping plane
+	parms->numClipPlanes = 1;
+	parms->clipPlanes[0] = remoteViewAxis[0];
+	parms->clipPlanes[0][3] = -( surf->space->entityDef->parms.remoteRenderView->vieworg * parms->clipPlanes[0].Normal() );
+	float dist = parms->clipPlanes[0].Dist();
+	float viewdist = parms->renderView.vieworg * parms->clipPlanes[0].Normal();
+	float fDist = -dist + viewdist;
+	// fudge avoids depth precision artifacts when performing oblique projection
+	static const float fudge = 2.f;
+	if( fDist > fudge || fDist < -fudge )
+	{
+		if( fDist < 0.f )
+		{
+			fDist += fudge;
+		}
+		else
+		{
+			fDist -= fudge;
+		}
+	}
+	parms->clipPlanes[0][3] = fDist;
+	parms->isObliqueProjection = true;
+
+	parms->renderView.viewID = 0;	// clear to allow player bodies to show up, and suppress view weapons
+	parms->initialViewAreaOrigin = parms->renderView.vieworg;
+	parms->isSubview = true;
+	parms->isMirror = false;
 
 	return parms;
 }
@@ -519,29 +612,54 @@ bool R_GenerateSurfaceSubview( const drawSurf_t* drawSurf )
 				case DI_XRAY_RENDER:
 					R_XrayRender( drawSurf, const_cast<textureStage_t*>( &stage->texture ), scissor );
 					break;
+
+				case DI_GUI_RENDER:
+				case DI_RENDER_TARGET:
+					return false;
 			}
 		}
 		return true;
 	}
 
-	// issue a new view command
-	parms = R_MirrorViewBySurface( drawSurf );
-	if( parms == NULL )
+	if( shader->IsMirrorSubView() )
 	{
-		return false;
+		// issue a new view command
+		parms = R_MirrorViewBySurface( drawSurf );
+		if( parms == NULL )
+		{
+			return false;
+		}
+
+		parms->scissor = scissor;
+		parms->superView = tr.viewDef;
+		parms->subviewSurface = drawSurf;
+
+		// triangle culling order changes with mirroring
+		parms->isMirror = ( ( ( int )parms->isMirror ^ ( int )tr.viewDef->isMirror ) != 0 );
+
+		// generate render commands for it
+		R_RenderView( parms );
+
+		return true;
+	}
+	else if( shader->IsPortalSubView() )
+	{
+		parms = R_PortalViewBySurface( drawSurf );
+		if( parms == nullptr )
+		{
+			return false;
+		}
+
+		parms->scissor = scissor;
+		parms->superView = tr.viewDef;
+		parms->subviewSurface = drawSurf;
+
+		R_RenderView( parms );
+
+		return true;
 	}
 
-	parms->scissor = scissor;
-	parms->superView = tr.viewDef;
-	parms->subviewSurface = drawSurf;
-
-	// triangle culling order changes with mirroring
-	parms->isMirror = ( ( ( int )parms->isMirror ^ ( int )tr.viewDef->isMirror ) != 0 );
-
-	// generate render commands for it
-	R_RenderView( parms );
-
-	return true;
+	return false;
 }
 
 /*

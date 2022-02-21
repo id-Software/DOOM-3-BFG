@@ -386,6 +386,8 @@ static void R_AddSingleLight( viewLight_t* vLight )
 			vLight->entityInteractionState[ edef->index ] = viewLight_t::INTERACTION_NO;
 
 			// The table is updated at interaction::AllocAndLink() and interaction::UnlinkAndFree()
+
+			// TODO(Stephen): interactionTableRow is null if renderDef is used in a gui.sub
 			const idInteraction* inter = interactionTableRow[ edef->index ];
 
 			const renderEntity_t& eParms = edef->parms;

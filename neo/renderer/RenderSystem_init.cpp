@@ -3,8 +3,9 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2014-2016 Robert Beckebans
+Copyright (C) 2014-2021 Robert Beckebans
 Copyright (C) 2014-2016 Kot in Action Creative Artel
+Copyright (C) 2022 Stephen Pridham
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -326,10 +327,9 @@ const char* fileExten[4] = { "tga", "png", "jpg", "exr" };
 const char* envDirection[6] = { "_px", "_nx", "_py", "_ny", "_pz", "_nz" };
 const char* skyDirection[6] = { "_forward", "_back", "_left", "_right", "_up", "_down" };
 
-
-
-
-
+#if defined( USE_NVRHI )
+DeviceManager* deviceManager;
+#endif
 
 /*
 =============================
@@ -2206,6 +2206,7 @@ void idRenderSystemLocal::Shutdown()
 
 	delete guiModel;
 
+	parallelJobManager->FreeJobList( envprobeJobList );
 	parallelJobManager->FreeJobList( frontEndJobList );
 
 	Clear();
@@ -2225,7 +2226,7 @@ void idRenderSystemLocal::ResetGuiModels()
 	delete guiModel;
 	guiModel = new( TAG_RENDER ) idGuiModel;
 	guiModel->Clear();
-	guiModel->BeginFrame();
+	guiModel->BeginFrame( commandList );
 	tr_guiModel = guiModel;	// for DeviceContext fast path
 }
 
@@ -2251,6 +2252,11 @@ idRenderSystemLocal::LoadLevelImages
 void idRenderSystemLocal::LoadLevelImages()
 {
 	globalImages->LoadLevelImages( false );
+	
+#if defined( USE_NVRHI )
+	deviceManager->GetDevice()->waitForIdle();
+	deviceManager->GetDevice()->runGarbageCollection();
+#endif
 }
 
 /*
@@ -2341,13 +2347,27 @@ void idRenderSystemLocal::ResetFonts()
 idRenderSystemLocal::InitOpenGL
 ========================
 */
-void idRenderSystemLocal::InitOpenGL()
+void idRenderSystemLocal::InitBackend()
 {
 	// if OpenGL isn't started, start it now
 	if( !IsInitialized() )
 	{
 		backend.Init();
 
+#if defined( USE_NVRHI )
+		if( !commandList )
+		{
+			commandList = deviceManager->GetDevice()->createCommandList();
+		}
+
+		commandList->open();
+		
+		// Reloading images here causes the rendertargets to get deleted. Figure out how to handle this properly on 360
+		globalImages->ReloadImages( true, commandList );
+		
+		commandList->close();
+		deviceManager->GetDevice()->executeCommandList( commandList );
+#else
 		// Reloading images here causes the rendertargets to get deleted. Figure out how to handle this properly on 360
 		//globalImages->ReloadImages( true );
 
@@ -2357,6 +2377,8 @@ void idRenderSystemLocal::InitOpenGL()
 		{
 			common->Printf( "glGetError() = 0x%x\n", err );
 		}
+#endif
+
 #endif
 	}
 }

@@ -3,8 +3,9 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013-2018 Robert Beckebans
+Copyright (C) 2013-2022 Robert Beckebans
 Copyright (C) 2016-2017 Dustin Land
+Copyright (C) 2022 Stephen Pridham
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -211,6 +212,12 @@ enum rpBinding_t
 	BINDING_TYPE_MAX
 };
 
+struct ShaderBlob
+{
+	void* data = nullptr;
+	size_t size = 0;
+};
+
 #define VERTEX_UNIFORM_ARRAY_NAME				"_va_"
 #define FRAGMENT_UNIFORM_ARRAY_NAME				"_fa_"
 
@@ -235,6 +242,149 @@ struct attribInfo_t
 
 extern attribInfo_t attribsPC[];
 
+// Shader macros are used to pick which permutation of a shader to load from a ShaderBlob
+// binary file.
+struct shaderMacro_t
+{
+	idStr name;
+	idStr definition;
+
+	shaderMacro_t()
+		: name()
+		, definition()
+	{
+	}
+
+	shaderMacro_t( const idStr& _name, const idStr& _definition )
+		: name( _name )
+		, definition( _definition )
+	{ }
+};
+
+#if defined( USE_NVRHI )
+struct programInfo_t
+{
+	nvrhi::ShaderHandle vs;
+	nvrhi::ShaderHandle ps;
+	nvrhi::InputLayoutHandle inputLayout;
+	nvrhi::BindingLayoutHandle bindingLayout;
+};
+#endif
+
+enum
+{
+	BUILTIN_GUI,
+	BUILTIN_COLOR,
+	// RB begin
+	BUILTIN_COLOR_SKINNED,
+	BUILTIN_VERTEX_COLOR,
+	BUILTIN_AMBIENT_LIGHTING,
+	BUILTIN_AMBIENT_LIGHTING_SKINNED,
+
+	BUILTIN_AMBIENT_LIGHTING_IBL,
+	BUILTIN_AMBIENT_LIGHTING_IBL_SKINNED,
+	BUILTIN_AMBIENT_LIGHTING_IBL_PBR,
+	BUILTIN_AMBIENT_LIGHTING_IBL_PBR_SKINNED,
+
+	BUILTIN_AMBIENT_LIGHTGRID_IBL,
+	BUILTIN_AMBIENT_LIGHTGRID_IBL_SKINNED,
+	BUILTIN_AMBIENT_LIGHTGRID_IBL_PBR,
+	BUILTIN_AMBIENT_LIGHTGRID_IBL_PBR_SKINNED,
+
+	BUILTIN_SMALL_GEOMETRY_BUFFER,
+	BUILTIN_SMALL_GEOMETRY_BUFFER_SKINNED,
+	// RB end
+	BUILTIN_TEXTURED,
+	BUILTIN_TEXTURE_VERTEXCOLOR,
+	BUILTIN_TEXTURE_VERTEXCOLOR_SRGB,
+	BUILTIN_TEXTURE_VERTEXCOLOR_SKINNED,
+	BUILTIN_TEXTURE_TEXGEN_VERTEXCOLOR,
+	BUILTIN_INTERACTION,
+	BUILTIN_INTERACTION_SKINNED,
+	BUILTIN_INTERACTION_AMBIENT,
+	BUILTIN_INTERACTION_AMBIENT_SKINNED,
+	// RB begin
+	BUILTIN_INTERACTION_SHADOW_MAPPING_SPOT,
+	BUILTIN_INTERACTION_SHADOW_MAPPING_SPOT_SKINNED,
+	BUILTIN_INTERACTION_SHADOW_MAPPING_POINT,
+	BUILTIN_INTERACTION_SHADOW_MAPPING_POINT_SKINNED,
+	BUILTIN_INTERACTION_SHADOW_MAPPING_PARALLEL,
+	BUILTIN_INTERACTION_SHADOW_MAPPING_PARALLEL_SKINNED,
+
+	BUILTIN_PBR_INTERACTION,
+	BUILTIN_PBR_INTERACTION_SKINNED,
+	BUILTIN_PBR_INTERACTION_AMBIENT,
+	BUILTIN_PBR_INTERACTION_AMBIENT_SKINNED,
+
+	BUILTIN_PBR_INTERACTION_SHADOW_MAPPING_SPOT,
+	BUILTIN_PBR_INTERACTION_SHADOW_MAPPING_SPOT_SKINNED,
+	BUILTIN_PBR_INTERACTION_SHADOW_MAPPING_POINT,
+	BUILTIN_PBR_INTERACTION_SHADOW_MAPPING_POINT_SKINNED,
+	BUILTIN_PBR_INTERACTION_SHADOW_MAPPING_PARALLEL,
+	BUILTIN_PBR_INTERACTION_SHADOW_MAPPING_PARALLEL_SKINNED,
+
+	BUILTIN_DEBUG_LIGHTGRID,
+	BUILTIN_DEBUG_LIGHTGRID_SKINNED,
+
+	BUILTIN_DEBUG_OCTAHEDRON,
+	BUILTIN_DEBUG_OCTAHEDRON_SKINNED,
+	// RB end
+	BUILTIN_ENVIRONMENT,
+	BUILTIN_ENVIRONMENT_SKINNED,
+	BUILTIN_BUMPY_ENVIRONMENT,
+	BUILTIN_BUMPY_ENVIRONMENT_SKINNED,
+
+	BUILTIN_DEPTH,
+	BUILTIN_DEPTH_SKINNED,
+	BUILTIN_SHADOW,
+	BUILTIN_SHADOW_SKINNED,
+	BUILTIN_SHADOW_DEBUG,
+	BUILTIN_SHADOW_DEBUG_SKINNED,
+
+	BUILTIN_BLENDLIGHT,
+	BUILTIN_FOG,
+	BUILTIN_FOG_SKINNED,
+	BUILTIN_SKYBOX,
+	BUILTIN_WOBBLESKY,
+	BUILTIN_POSTPROCESS,
+	// RB begin
+	BUILTIN_SCREEN,
+	BUILTIN_TONEMAP,
+	BUILTIN_BRIGHTPASS,
+	BUILTIN_HDR_GLARE_CHROMATIC,
+	BUILTIN_HDR_DEBUG,
+
+	BUILTIN_SMAA_EDGE_DETECTION,
+	BUILTIN_SMAA_BLENDING_WEIGHT_CALCULATION,
+	BUILTIN_SMAA_NEIGHBORHOOD_BLENDING,
+
+	BUILTIN_AMBIENT_OCCLUSION,
+	BUILTIN_AMBIENT_OCCLUSION_AND_OUTPUT,
+	BUILTIN_AMBIENT_OCCLUSION_BLUR,
+	BUILTIN_AMBIENT_OCCLUSION_BLUR_AND_OUTPUT,
+	BUILTIN_AMBIENT_OCCLUSION_MINIFY,
+	BUILTIN_AMBIENT_OCCLUSION_RECONSTRUCT_CSZ,
+
+	BUILTIN_DEEP_GBUFFER_RADIOSITY_SSGI,
+	BUILTIN_DEEP_GBUFFER_RADIOSITY_BLUR,
+	BUILTIN_DEEP_GBUFFER_RADIOSITY_BLUR_AND_OUTPUT,
+	// RB end
+	BUILTIN_STEREO_DEGHOST,
+	BUILTIN_STEREO_WARP,
+	BUILTIN_BINK,
+	BUILTIN_BINK_GUI,
+	BUILTIN_STEREO_INTERLACE,
+	BUILTIN_MOTION_BLUR,
+
+	BUILTIN_DEBUG_SHADOWMAP,
+
+	// SP Begin
+	BUILTIN_BLIT,
+	BUILTIN_RECT,
+	// SP End
+
+	MAX_BUILTINS
+};
 
 /*
 ================================================================================================
@@ -247,7 +397,7 @@ public:
 	idRenderProgManager();
 	virtual ~idRenderProgManager();
 
-	void	Init();
+	void	Init( nvrhi::IDevice* _device );
 	void	Shutdown();
 
 	void	StartFrame();
@@ -255,27 +405,45 @@ public:
 	void	SetRenderParm( renderParm_t rp, const float* value );
 	void	SetRenderParms( renderParm_t rp, const float* values, int numValues );
 
+	int		FindShader( const char* name, rpStage_t stage );
 	int		FindShader( const char* name, rpStage_t stage, const char* nameOutSuffix, uint32 features, bool builtin, vertexLayoutType_t vertexLayout = LAYOUT_DRAW_VERT );
+	int		FindShader( const char* name, rpStage_t stage, const char* nameOutSuffix, const idList<shaderMacro_t>& macros, bool builtin, vertexLayoutType_t vertexLayout = LAYOUT_DRAW_VERT );
+
+#if defined( USE_NVRHI )
+	nvrhi::ShaderHandle GetShader( int index );
+
+	nvrhi::BufferHandle GetConstantBuffer()
+	{
+		return constantBuffer;
+	}
+
+	programInfo_t GetProgramInfo( int index );
+
+	int		CurrentProgram() const
+	{
+		return currentIndex;
+	}
+#endif
 
 	void	BindProgram( int progIndex );
 
-	void	BindShader_GUI( )
+	void	BindShader_GUI()
 	{
 		BindShader_Builtin( BUILTIN_GUI );
 	}
 
-	void	BindShader_Color( )
+	void	BindShader_Color()
 	{
 		BindShader_Builtin( BUILTIN_COLOR );
 	}
 
 	// RB begin
-	void	BindShader_ColorSkinned( )
+	void	BindShader_ColorSkinned()
 	{
 		BindShader_Builtin( BUILTIN_COLOR_SKINNED );
 	}
 
-	void	BindShader_VertexColor( )
+	void	BindShader_VertexColor()
 	{
 		BindShader_Builtin( BUILTIN_VERTEX_COLOR );
 	}
@@ -343,7 +511,7 @@ public:
 	}
 	// RB end
 
-	void	BindShader_Texture( )
+	void	BindShader_Texture()
 	{
 		BindShader_Builtin( BUILTIN_TEXTURED );
 	}
@@ -712,12 +880,22 @@ public:
 	// the joints buffer should only be bound for vertex programs that use joints
 	bool		ShaderUsesJoints() const
 	{
+#if defined( USE_NVRHI )
+		// FIXME
+		return false;
+#else
 		return renderProgs[current].usesJoints;
+#endif
 	}
 	// the rpEnableSkinning render parm should only be set for vertex programs that use it
 	bool		ShaderHasOptionalSkinning() const
 	{
+#if defined( USE_NVRHI )
+		// FIXME
+		return false;
+#else
 		return renderProgs[current].optionalSkinning;
+#endif
 	}
 
 	// unbind the currently bound render program
@@ -737,10 +915,29 @@ public:
 	void		SetUniformValue( const renderParm_t rp, const float* value );
 	void		CommitUniforms( uint64 stateBits );
 	void		CachePipeline( uint64 stateBits );
-	int			FindGLSLProgram( const char* name, int vIndex, int fIndex );
+	int			FindProgram( const char* name, int vIndex, int fIndex, bindingLayoutType_t bindingType = BINDING_LAYOUT_DEFAULT );
 	void		ZeroUniforms();
 
-#if defined(USE_VULKAN)
+#if defined( USE_NVRHI )
+	void						CommitConstantBuffer( nvrhi::ICommandList* commandList );
+
+	ID_INLINE nvrhi::IBuffer*				ConstantBuffer()
+	{
+		return constantBuffer;
+	}
+	ID_INLINE nvrhi::InputLayoutHandle		InputLayout()
+	{
+		return renderProgs[currentIndex].inputLayout;
+	}
+	ID_INLINE nvrhi::BindingLayoutHandle	BindingLayout()
+	{
+		return renderProgs[currentIndex].bindingLayout;
+	}
+	ID_INLINE int							BindingLayoutType()
+	{
+		return renderProgs[currentIndex].bindingLayoutType;
+	}
+#elif defined(USE_VULKAN)
 	void		PrintPipelines();
 	void		ClearPipelines();
 #endif
@@ -750,118 +947,12 @@ public:
 private:
 	void		LoadShader( int index, rpStage_t stage );
 
+	// Reads the binary fileName and returns a ShaderBlob.
+	ShaderBlob	GetBytecode( const char* fileName );
+
 	idStr		StripDeadCode( const idStr& in, const char* name, const idStrList& compileMacros, bool builtin );
 	idStr		ConvertCG2GLSL( const idStr& in, const char* name, rpStage_t stage, idStr& outLayout, bool vkGLSL, bool hasGPUSkinning, vertexLayoutType_t vertexLayout );
 
-	enum
-	{
-		BUILTIN_GUI,
-		BUILTIN_COLOR,
-		// RB begin
-		BUILTIN_COLOR_SKINNED,
-		BUILTIN_VERTEX_COLOR,
-		BUILTIN_AMBIENT_LIGHTING,
-		BUILTIN_AMBIENT_LIGHTING_SKINNED,
-
-		BUILTIN_AMBIENT_LIGHTING_IBL,
-		BUILTIN_AMBIENT_LIGHTING_IBL_SKINNED,
-		BUILTIN_AMBIENT_LIGHTING_IBL_PBR,
-		BUILTIN_AMBIENT_LIGHTING_IBL_PBR_SKINNED,
-
-		BUILTIN_AMBIENT_LIGHTGRID_IBL,
-		BUILTIN_AMBIENT_LIGHTGRID_IBL_SKINNED,
-		BUILTIN_AMBIENT_LIGHTGRID_IBL_PBR,
-		BUILTIN_AMBIENT_LIGHTGRID_IBL_PBR_SKINNED,
-
-		BUILTIN_SMALL_GEOMETRY_BUFFER,
-		BUILTIN_SMALL_GEOMETRY_BUFFER_SKINNED,
-		// RB end
-		BUILTIN_TEXTURED,
-		BUILTIN_TEXTURE_VERTEXCOLOR,
-		BUILTIN_TEXTURE_VERTEXCOLOR_SRGB,
-		BUILTIN_TEXTURE_VERTEXCOLOR_SKINNED,
-		BUILTIN_TEXTURE_TEXGEN_VERTEXCOLOR,
-		BUILTIN_INTERACTION,
-		BUILTIN_INTERACTION_SKINNED,
-		BUILTIN_INTERACTION_AMBIENT,
-		BUILTIN_INTERACTION_AMBIENT_SKINNED,
-		// RB begin
-		BUILTIN_INTERACTION_SHADOW_MAPPING_SPOT,
-		BUILTIN_INTERACTION_SHADOW_MAPPING_SPOT_SKINNED,
-		BUILTIN_INTERACTION_SHADOW_MAPPING_POINT,
-		BUILTIN_INTERACTION_SHADOW_MAPPING_POINT_SKINNED,
-		BUILTIN_INTERACTION_SHADOW_MAPPING_PARALLEL,
-		BUILTIN_INTERACTION_SHADOW_MAPPING_PARALLEL_SKINNED,
-
-		BUILTIN_PBR_INTERACTION,
-		BUILTIN_PBR_INTERACTION_SKINNED,
-		BUILTIN_PBR_INTERACTION_AMBIENT,
-		BUILTIN_PBR_INTERACTION_AMBIENT_SKINNED,
-
-		BUILTIN_PBR_INTERACTION_SHADOW_MAPPING_SPOT,
-		BUILTIN_PBR_INTERACTION_SHADOW_MAPPING_SPOT_SKINNED,
-		BUILTIN_PBR_INTERACTION_SHADOW_MAPPING_POINT,
-		BUILTIN_PBR_INTERACTION_SHADOW_MAPPING_POINT_SKINNED,
-		BUILTIN_PBR_INTERACTION_SHADOW_MAPPING_PARALLEL,
-		BUILTIN_PBR_INTERACTION_SHADOW_MAPPING_PARALLEL_SKINNED,
-
-		BUILTIN_DEBUG_LIGHTGRID,
-		BUILTIN_DEBUG_LIGHTGRID_SKINNED,
-
-		BUILTIN_DEBUG_OCTAHEDRON,
-		BUILTIN_DEBUG_OCTAHEDRON_SKINNED,
-		// RB end
-		BUILTIN_ENVIRONMENT,
-		BUILTIN_ENVIRONMENT_SKINNED,
-		BUILTIN_BUMPY_ENVIRONMENT,
-		BUILTIN_BUMPY_ENVIRONMENT_SKINNED,
-
-		BUILTIN_DEPTH,
-		BUILTIN_DEPTH_SKINNED,
-		BUILTIN_SHADOW,
-		BUILTIN_SHADOW_SKINNED,
-		BUILTIN_SHADOW_DEBUG,
-		BUILTIN_SHADOW_DEBUG_SKINNED,
-
-		BUILTIN_BLENDLIGHT,
-		BUILTIN_FOG,
-		BUILTIN_FOG_SKINNED,
-		BUILTIN_SKYBOX,
-		BUILTIN_WOBBLESKY,
-		BUILTIN_POSTPROCESS,
-		// RB begin
-		BUILTIN_SCREEN,
-		BUILTIN_TONEMAP,
-		BUILTIN_BRIGHTPASS,
-		BUILTIN_HDR_GLARE_CHROMATIC,
-		BUILTIN_HDR_DEBUG,
-
-		BUILTIN_SMAA_EDGE_DETECTION,
-		BUILTIN_SMAA_BLENDING_WEIGHT_CALCULATION,
-		BUILTIN_SMAA_NEIGHBORHOOD_BLENDING,
-
-		BUILTIN_AMBIENT_OCCLUSION,
-		BUILTIN_AMBIENT_OCCLUSION_AND_OUTPUT,
-		BUILTIN_AMBIENT_OCCLUSION_BLUR,
-		BUILTIN_AMBIENT_OCCLUSION_BLUR_AND_OUTPUT,
-		BUILTIN_AMBIENT_OCCLUSION_MINIFY,
-		BUILTIN_AMBIENT_OCCLUSION_RECONSTRUCT_CSZ,
-
-		BUILTIN_DEEP_GBUFFER_RADIOSITY_SSGI,
-		BUILTIN_DEEP_GBUFFER_RADIOSITY_BLUR,
-		BUILTIN_DEEP_GBUFFER_RADIOSITY_BLUR_AND_OUTPUT,
-		// RB end
-		BUILTIN_STEREO_DEGHOST,
-		BUILTIN_STEREO_WARP,
-		BUILTIN_BINK,
-		BUILTIN_BINK_GUI,
-		BUILTIN_STEREO_INTERLACE,
-		BUILTIN_MOTION_BLUR,
-
-		BUILTIN_DEBUG_SHADOWMAP,
-
-		MAX_BUILTINS
-	};
 	int builtinShaders[MAX_BUILTINS];
 	void BindShader_Builtin( int i )
 	{
@@ -885,9 +976,81 @@ private:
 	const char*	GetGLSLMacroName( shaderFeature_t sf ) const;
 
 	bool	CompileGLSL( uint target, const char* name );
-	void	LoadGLSLProgram( const int programIndex, const int vertexShaderIndex, const int fragmentShaderIndex );
+	void	LoadProgram( const int programIndex, const int vertexShaderIndex, const int fragmentShaderIndex );
 
 	static const uint INVALID_PROGID = 0xFFFFFFFF;
+
+#if defined( USE_NVRHI )
+	struct shader_t
+	{
+		shader_t() :
+			name(),
+			nameOutSuffix(),
+			shaderFeatures( 0 ),
+			builtin( false ),
+			macros(),
+			handle( nullptr ),
+			stage( SHADER_STAGE_DEFAULT )
+		{
+		}
+
+		idStr						name;
+		idStr						nameOutSuffix;
+		uint32						shaderFeatures;
+		bool						builtin;
+		idList<shaderMacro_t>		macros;
+		nvrhi::ShaderHandle			handle;
+		rpStage_t					stage;
+	};
+
+	struct renderProg_t
+	{
+		renderProg_t() :
+			name(),
+			vertexShaderIndex( -1 ),
+			fragmentShaderIndex( -1 ),
+			builtin( true ),
+			usesJoints( false ),
+			vertexLayout( LAYOUT_UNKNOWN ),
+			bindingLayoutType( BINDING_LAYOUT_DEFAULT ),
+			inputLayout( nullptr ),
+			bindingLayout( nullptr )
+		{
+		}
+
+		idStr						name;
+		int							vertexShaderIndex;
+		int							fragmentShaderIndex;
+		bool						builtin;
+		bool						usesJoints;
+		vertexLayoutType_t			vertexLayout;
+		bindingLayoutType_t			bindingLayoutType;
+		nvrhi::InputLayoutHandle	inputLayout;
+		nvrhi::BindingLayoutHandle  bindingLayout;
+	};
+
+	void	LoadShader( shader_t& shader );
+
+	int											currentIndex;
+	idList<renderProg_t, TAG_RENDER>			renderProgs;
+	idList<shader_t, TAG_RENDER>				shaders;
+	idStaticList< idVec4, RENDERPARM_TOTAL >	uniforms;
+	nvrhi::IDevice*								device;
+
+	using VertexAttribDescList = idList< nvrhi::VertexAttributeDesc >;
+	idStaticList< VertexAttribDescList, NUM_VERTEX_LAYOUTS > vertexLayoutDescs;
+
+	idStaticList< nvrhi::BindingLayoutHandle, NUM_BINDING_LAYOUTS > bindingLayouts;
+
+	nvrhi::BufferHandle	constantBuffer;
+
+	// Temp
+	nvrhi::InputLayoutHandle      inputLayout;
+	nvrhi::BindingLayoutHandle    bindingLayout;
+	nvrhi::BindingSetHandle       bindingSet;
+	renderProg_t*			      currentShader;
+	
+#else
 
 #if defined(USE_VULKAN)
 	struct shader_t
@@ -1012,6 +1175,8 @@ private:
 
 	idUniformBuffer* 	parmBuffers[ NUM_FRAME_DATA ];
 #endif
+
+#endif //#if defined( USE_NVRHI )
 };
 
 extern idRenderProgManager renderProgManager;

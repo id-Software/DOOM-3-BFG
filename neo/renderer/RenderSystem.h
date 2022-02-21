@@ -248,11 +248,9 @@ struct glconfig_t
 
 	float				pixelAspect;
 
-	// RB begin
-#if !defined(__ANDROID__) && !defined(USE_VULKAN)
+#if !defined(USE_NVRHI) && !defined(USE_VULKAN)
 	GLuint				global_vao;
 #endif
-	// RB end
 };
 
 
@@ -291,7 +289,7 @@ public:
 
 	virtual void			ResetGuiModels() = 0;
 
-	virtual void			InitOpenGL() = 0;
+	virtual void			InitBackend() = 0;
 
 	virtual void			ShutdownOpenGL() = 0;
 
@@ -351,10 +349,10 @@ public:
 	virtual void			SetGLState( const uint64 glState ) = 0;
 
 	virtual void			DrawFilled( const idVec4& color, float x, float y, float w, float h ) = 0;
-	virtual void			DrawStretchPic( float x, float y, float w, float h, float s1, float t1, float s2, float t2, const idMaterial* material ) = 0;
-	void			DrawStretchPic( const idVec4& rect, const idVec4& st, const idMaterial* material )
+	virtual void			DrawStretchPic( float x, float y, float w, float h, float s1, float t1, float s2, float t2, const idMaterial* material, float z = 0.0f ) = 0;
+	void			DrawStretchPic( const idVec4& rect, const idVec4& st, const idMaterial* material, float z = 0.0f )
 	{
-		DrawStretchPic( rect.x, rect.y, rect.z, rect.w, st.x, st.y, st.z, st.w, material );
+		DrawStretchPic( rect.x, rect.y, rect.z, rect.w, st.x, st.y, st.z, st.w, material, z );
 	}
 	virtual void			DrawStretchPic( const idVec4& topLeft, const idVec4& topRight, const idVec4& bottomRight, const idVec4& bottomLeft, const idMaterial* material ) = 0;
 	virtual void			DrawStretchTri( const idVec2& p1, const idVec2& p2, const idVec2& p3, const idVec2& t1, const idVec2& t2, const idVec2& t3, const idMaterial* material ) = 0;
@@ -362,10 +360,10 @@ public:
 
 	virtual void			PrintMemInfo( MemInfo_t* mi ) = 0;
 
-	virtual void			DrawSmallChar( int x, int y, int ch ) = 0;
-	virtual void			DrawSmallStringExt( int x, int y, const char* string, const idVec4& setColor, bool forceColor ) = 0;
-	virtual void			DrawBigChar( int x, int y, int ch ) = 0;
-	virtual void			DrawBigStringExt( int x, int y, const char* string, const idVec4& setColor, bool forceColor ) = 0;
+	virtual void				DrawSmallChar( int x, int y, int ch ) = 0;
+	virtual void				DrawSmallStringExt( int x, int y, const char* string, const idVec4& setColor, bool forceColor ) = 0;
+	virtual void				DrawBigChar( int x, int y, int ch ) = 0;
+	virtual void				DrawBigStringExt( int x, int y, const char* string, const idVec4& setColor, bool forceColor ) = 0;
 
 	// dump all 2D drawing so far this frame to the demo file
 	virtual void			WriteDemoPics() = 0;
@@ -418,6 +416,7 @@ public:
 	// then perform all desired rendering, then capture to an image
 	// if the specified physical dimensions are larger than the current cropped region, they will be cut down to fit
 	virtual void			CropRenderSize( int width, int height ) = 0;
+	virtual void            CropRenderSize( int x, int y, int width, int height ) = 0;
 	virtual void			CaptureRenderToImage( const char* imageName, bool clearColorAfterCopy = false ) = 0;
 	// fixAlpha will set all the alpha channel values to 0xff, which allows screen captures
 	// to use the default tga loading code without having dimmed down areas in many places

@@ -2092,7 +2092,7 @@ deformInfo_t* R_BuildDeformInfo( int numVerts, const idDrawVert* verts, int numI
 		tri.dominantTris = NULL;
 	}
 
-	R_CreateDeformStaticVertices( deform, commandList );
+	//R_CreateDeformStaticVertices( deform, commandList );
 
 	return deform;
 }
