@@ -1102,7 +1102,7 @@ void idRenderBackend::FillDepthBufferFast( drawSurf_t** drawSurfs, int numDrawSu
 		return;
 	}
 
-	renderLog.OpenMainBlock( MRB_FILL_DEPTH_BUFFER );
+	renderLog.OpenMainBlock( MRB_FILL_DEPTH_BUFFER, commandList );
 	renderLog.OpenBlock( "Render_FillDepthBufferFast", colorBlue );
 
 	// force MVP change on first surface
@@ -2283,7 +2283,7 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 		return;
 	}
 
-	renderLog.OpenMainBlock( fillGbuffer ? MRB_FILL_GEOMETRY_BUFFER : MRB_AMBIENT_PASS );
+	renderLog.OpenMainBlock( fillGbuffer ? MRB_FILL_GEOMETRY_BUFFER : MRB_AMBIENT_PASS, commandList );
 	renderLog.OpenBlock( fillGbuffer ? "Fill_GeometryBuffer" : "Render_AmbientPass", colorBlue );
 
 	if( fillGbuffer )
@@ -3646,7 +3646,7 @@ void idRenderBackend::DrawInteractions( const viewDef_t* _viewDef )
 		return;
 	}
 
-	renderLog.OpenMainBlock( MRB_DRAW_INTERACTIONS );
+	renderLog.OpenMainBlock( MRB_DRAW_INTERACTIONS, commandList );
 	renderLog.OpenBlock( "Render_Interactions", colorYellow );
 
 	GL_SelectTexture( 0 );
@@ -4643,7 +4643,7 @@ void idRenderBackend::FogAllLights()
 		return;
 	}
 
-	renderLog.OpenMainBlock( MRB_FOG_ALL_LIGHTS );
+	renderLog.OpenMainBlock( MRB_FOG_ALL_LIGHTS, commandList );
 	renderLog.OpenBlock( "Render_FogAllLights", colorBlue );
 
 	// force fog plane to recalculate
@@ -4897,7 +4897,7 @@ void idRenderBackend::Bloom( const viewDef_t* _viewDef )
 		return;
 	}
 
-	renderLog.OpenMainBlock( MRB_BLOOM );
+	renderLog.OpenMainBlock( MRB_BLOOM, commandList );
 	renderLog.OpenBlock( "Render_Bloom", colorBlue );
 
 	RENDERLOG_PRINTF( "---------- RB_Bloom( avg = %f, max = %f, key = %f ) ----------\n", hdrAverageLuminance, hdrMaxLuminance, hdrKey );
@@ -5055,7 +5055,7 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 		return;
 	}
 
-	renderLog.OpenMainBlock( MRB_SSAO_PASS );
+	renderLog.OpenMainBlock( MRB_SSAO_PASS, commandList );
 	renderLog.OpenBlock( "Render_SSAO", colorBlue );
 
 	currentSpace = &viewDef->worldSpace;
@@ -5752,7 +5752,7 @@ void idRenderBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
 				if( drawView3D_timestamps )
 				{
 					// SRS - Capture separate timestamps for overlay GUI rendering when RC_DRAW_VIEW_3D timestamps are active
-					renderLog.OpenMainBlock( MRB_DRAW_GUI );
+					renderLog.OpenMainBlock( MRB_DRAW_GUI, commandList );
 					renderLog.OpenBlock( "Render_DrawViewGUI", colorBlue );
 					// SRS - Disable detailed timestamps during overlay GUI rendering so they do not overwrite timestamps from 3D rendering
 					glConfig.timerQueryAvailable = false;
@@ -5979,7 +5979,7 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 	int processed = 0;
 	if( !r_skipShaderPasses.GetBool() )
 	{
-		renderLog.OpenMainBlock( MRB_DRAW_SHADER_PASSES );
+		renderLog.OpenMainBlock( MRB_DRAW_SHADER_PASSES, commandList );
 		float guiScreenOffset;
 		if( _viewDef->viewEntitys != NULL )
 		{
@@ -6053,7 +6053,7 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 		SetFragmentParm( RENDERPARM_WINDOWCOORD, windowCoordParm ); // rpWindowCoord
 
 		// render the remaining surfaces
-		renderLog.OpenMainBlock( MRB_DRAW_SHADER_PASSES_POST );
+		renderLog.OpenMainBlock( MRB_DRAW_SHADER_PASSES_POST, commandList );
 		DrawShaderPasses( drawSurfs + processed, numDrawSurfs - processed, 0.0f /* definitely not a gui */, stereoEye );
 		renderLog.CloseMainBlock();
 	}
@@ -6363,7 +6363,7 @@ void idRenderBackend::PostProcess( const void* data )
 	return;
 #endif
 
-	renderLog.OpenMainBlock( MRB_POSTPROCESS );
+	renderLog.OpenMainBlock( MRB_POSTPROCESS, commandList );
 	renderLog.OpenBlock( "Render_PostProcessing", colorBlue );
 
 // FIXME
