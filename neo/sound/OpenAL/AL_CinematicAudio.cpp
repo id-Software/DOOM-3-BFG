@@ -205,30 +205,25 @@ void CinematicAudio_OpenAL::ResetAudio()
 		alSourcei( alMusicSourceVoicecin, AL_BUFFER, 0 );
 	}
 
-	if( !tBuffer.empty() )
+	while( !tBuffer.empty() )
 	{
-		int buffersize = tBuffer.size();
-		while( buffersize > 0 )
+		uint8_t* tempdata = tBuffer.front();
+		tBuffer.pop();
+		sizes.pop();
+		if( tempdata )
 		{
-			uint8_t* tempdata = tBuffer.front();
-			tBuffer.pop();
 			// SRS - We must free any audio buffers that have not been copied into an alBuffer
 #if defined(USE_FFMPEG)
 			av_freep( &tempdata );
 #elif defined(USE_BINKDEC)
 			Mem_Free( tempdata );
 #endif
-			buffersize--;
 		}
 	}
-	if( !sizes.empty() )
+
+	while( !bufids.empty() )
 	{
-		int buffersize = sizes.size();
-		while( buffersize > 0 )
-		{
-			sizes.pop();
-			buffersize--;
-		}
+		bufids.pop();
 	}
 
 	offset = 0;
@@ -252,29 +247,25 @@ void CinematicAudio_OpenAL::ShutdownAudio()
 	{
 		alDeleteBuffers( NUM_BUFFERS, alMusicBuffercin );
 	}
-	if( !tBuffer.empty() )
+	
+	while( !tBuffer.empty() )
 	{
-		int buffersize = tBuffer.size();
-		while( buffersize > 0 )
+		uint8_t* tempdata = tBuffer.front();
+		tBuffer.pop();
+		sizes.pop();
+		if( tempdata )
 		{
-			uint8_t* tempdata = tBuffer.front();
-			tBuffer.pop();
 			// SRS - We must free any audio buffers that have not been copied into an alBuffer
 #if defined(USE_FFMPEG)
 			av_freep( &tempdata );
 #elif defined(USE_BINKDEC)
 			Mem_Free( tempdata );
 #endif
-			buffersize--;
 		}
 	}
-	if( !sizes.empty() )
+
+	while( !bufids.empty() )
 	{
-		int buffersize = sizes.size();
-		while( buffersize > 0 )
-		{
-			sizes.pop();
-			buffersize--;
-		}
+		bufids.pop();
 	}
 }
