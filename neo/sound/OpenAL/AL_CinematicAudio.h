@@ -41,6 +41,7 @@ public:
 	CinematicAudio_OpenAL();
 	void InitAudio( void* audioContext );
 	void PlayAudio( uint8_t* data, int size );
+	void ResetAudio();
 	void ShutdownAudio();
 private:
 	ALuint		alMusicSourceVoicecin;
@@ -55,8 +56,9 @@ private:
 	//	  So, what happens if there are no freely available buffers but we still geting audio frames ? Loss of data.
 	//	  That why now I am using two queues in order to store the frames (and their sizes) and when we have available buffers,
 	//	  then start popping those frames instead of the current, so we don't lose any audio frames and the sound doesn't crack anymore.
-	std::queue<uint8_t*>	tBuffer[NUM_BUFFERS];
-	std::queue<int>			sizes[NUM_BUFFERS];
+	std::queue<uint8_t*>	tBuffer;
+	std::queue<int>			sizes;
+	std::queue<ALuint>		bufids;		// SRS - Added queue of free alBuffer ids to handle audio frame underflow (starvation) case
 };
 
 #endif

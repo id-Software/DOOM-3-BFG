@@ -179,6 +179,15 @@ void CinematicAudio_XAudio2::PlayAudio( uint8_t* data, int size )
 	}
 }
 
+void CinematicAudio_XAudio2::ResetAudio()
+{
+	if( pMusicSourceVoice1 )
+	{
+		pMusicSourceVoice1->Stop();
+		pMusicSourceVoice1->FlushSourceBuffers();
+	}
+}
+
 void CinematicAudio_XAudio2::ShutdownAudio()
 {
 	if( pMusicSourceVoice1 )

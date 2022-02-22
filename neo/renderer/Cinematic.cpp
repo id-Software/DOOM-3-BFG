@@ -548,30 +548,9 @@ idCinematicLocal::~idCinematicLocal()
 	av_freep( &frame2 );
 	av_freep( &frame3 );
 #endif
-
-	// SRS - Free any lagged cinematic audio buffers
-	for( int i = 0; i < NUM_LAG_FRAMES; i++ )
-	{
-		av_freep( &lagBuffer[ i ] );
-	}
-
-	if( fmt_ctx )
-	{
-		avformat_free_context( fmt_ctx );
-	}
-
-	if( img_convert_ctx )
-	{
-		sws_freeContext( img_convert_ctx );
-	}
 #endif
 
 #ifdef USE_BINKDEC
-	if( binkHandle.isValid )
-	{
-		Bink_Close( binkHandle );
-	}
-
 	delete imgY;
 	imgY = NULL;
 	delete imgCr;
@@ -794,10 +773,6 @@ bool idCinematicLocal::InitFromFFMPEGFile( const char* qpath, bool amilooping )
 	int img_bytes = av_image_fill_arrays( frame2->data, frame2->linesize, NULL, AV_PIX_FMT_BGR32, CIN_WIDTH, CIN_HEIGHT, 1 );
 	image = ( byte* )Mem_Alloc( img_bytes, TAG_CINEMATIC );
 	av_image_fill_arrays( frame2->data, frame2->linesize, image, AV_PIX_FMT_BGR32, CIN_WIDTH, CIN_HEIGHT, 1 ); //GK: Straight out of the FFMPEG source code
-	if( img_convert_ctx )
-	{
-		sws_freeContext( img_convert_ctx );
-	}
 	img_convert_ctx = sws_getContext( dec_ctx->width, dec_ctx->height, dec_ctx->pix_fmt, CIN_WIDTH, CIN_HEIGHT, AV_PIX_FMT_BGR32, SWS_BICUBIC, NULL, NULL, NULL );
 
 	buf = NULL;
@@ -823,6 +798,21 @@ void idCinematicLocal::FFMPEGReset()
 	//startTime = 0;
 
 	framePos = -1;
+	
+	// SRS - If we have an ffmpeg audio context and are not looping, reset audio to release any stale buffers
+	if( dec_ctx2 && ! ( looping && status == FMV_EOF ) )
+	{
+		cinematicAudio->ResetAudio();
+
+		for( int i = 0; i < NUM_LAG_FRAMES; i++ )
+		{
+			lagBufSize[ i ] = 0;
+			if( lagBuffer[ i ] )
+			{
+				av_freep( &lagBuffer[ i ] );
+			}
+		}
+	}
 
 	if( av_seek_frame( fmt_ctx, video_stream_index, 0, 0 ) >= 0 )
 	{
@@ -915,6 +905,13 @@ bool idCinematicLocal::InitFromBinkDecFile( const char* qpath, bool amilooping )
 void idCinematicLocal::BinkDecReset()
 {
 	framePos = -1;
+	
+	// SRS - If we have bink audio tracks, reset audio to release any stale buffers (even if looping)
+	if( audioTracks > 0 )
+	{
+		cinematicAudio->ResetAudio();
+	}
+
 	Bink_GotoFrame( binkHandle, 0 );
 	status = FMV_LOOPED;
 }
@@ -961,16 +958,12 @@ bool idCinematicLocal::InitFromFile( const char* qpath, bool amilooping )
 		//idLib::Warning( "Original Doom 3 RoQ Cinematic not found: '%s'\n", fileName.c_str() );
 		idStr temp = fileName.StripFileExtension() + ".bik";
 		animationLength = 0;
-		hasFrame = false;
-		RoQShutdown();
 		fileName = temp;
 		//idLib::Warning( "New filename: '%s'\n", fileName.c_str() );
 		return InitFromFFMPEGFile( fileName.c_str(), amilooping );
 #elif defined(USE_BINKDEC)
 		idStr temp = fileName.StripFileExtension() + ".bik";
 		animationLength = 0;
-		hasFrame = false;
-		RoQShutdown();
 		fileName = temp;
 		//idLib::Warning( "New filename: '%s'\n", fileName.c_str() );
 		return InitFromBinkDecFile( fileName.c_str(), amilooping );
@@ -1032,32 +1025,45 @@ void idCinematicLocal::Close()
 	RoQShutdown();
 
 #if defined(USE_FFMPEG)
-	hasFrame = false;
-
 	if( !isRoQ )
 	{
 		if( img_convert_ctx )
 		{
 			sws_freeContext( img_convert_ctx );
+			img_convert_ctx = NULL;
 		}
 
-		img_convert_ctx = NULL;
+		// SRS - Free audio codec context and any lagged audio buffers
+		if( dec_ctx2 )
+		{
+			avcodec_close( dec_ctx2 );
+			dec_ctx2 = NULL;
+
+			for( int i = 0; i < NUM_LAG_FRAMES; i++ )
+			{
+				lagBufSize[ i ] = 0;
+				if( lagBuffer[ i ] )
+				{
+					av_freep( &lagBuffer[ i ] );
+				}
+			}
+		}
 
 		if( dec_ctx )
 		{
 			avcodec_close( dec_ctx );
+			dec_ctx = NULL;
 		}
 
 		if( fmt_ctx )
 		{
 			avformat_close_input( &fmt_ctx );
+			fmt_ctx = NULL;
 		}
 		status = FMV_EOF;
 	}
 #endif
 #ifdef USE_BINKDEC
-	hasFrame = false;
-
 	if( !isRoQ )
 	{
 		if( binkHandle.isValid )
@@ -1322,7 +1328,6 @@ cinData_t idCinematicLocal::ImageForTimeFFMPEG( int thisTime )
 				{
 					desiredFrame = 0;
 					FFMPEGReset();
-					framePos = -1;
 					startTime = thisTime;
 					if( av_read_frame( fmt_ctx, &packet ) < 0 )
 					{
@@ -1493,7 +1498,6 @@ cinData_t idCinematicLocal::ImageForTimeBinkDec( int thisTime )
 		{
 			desiredFrame = 0;
 			BinkDecReset();
-			framePos = -1;
 			startTime = thisTime;
 			status = FMV_PLAY;
 		}

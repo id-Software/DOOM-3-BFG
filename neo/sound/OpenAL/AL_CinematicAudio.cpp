@@ -108,22 +108,29 @@ void CinematicAudio_OpenAL::PlayAudio( uint8_t* data, int size )
 
 	if( trigger )
 	{
-		tBuffer->push( data );
-		sizes->push( size );
+		tBuffer.push( data );
+		sizes.push( size );
 		while( processed > 0 )
 		{
 			ALuint bufid;
 
-			alSourceUnqueueBuffers( alMusicSourceVoicecin, 1, &bufid );
-			processed--;
-			if( !tBuffer->empty() )
+			// SRS - Only unqueue an alBuffer if we don't already have a free bufid to use
+			if( bufids.size() == 0 )
 			{
-				int tempSize = sizes->front();
-				sizes->pop();
-				uint8_t* tempdata = tBuffer->front();
-				tBuffer->pop();
+				alSourceUnqueueBuffers( alMusicSourceVoicecin, 1, &bufid );
+				bufids.push( bufid );
+				processed--;
+			}
+			if( !tBuffer.empty() )
+			{
+				uint8_t* tempdata = tBuffer.front();
+				tBuffer.pop();
+				int tempSize = sizes.front();
+				sizes.pop();
 				if( tempSize > 0 )
 				{
+					bufid = bufids.front();
+					bufids.pop();
 					alBufferData( bufid, av_sample_cin, tempdata, tempSize, av_rate_cin );
 					// SRS - We must free the audio buffer once it has been copied into an alBuffer
 #if defined(USE_FFMPEG)
@@ -139,6 +146,10 @@ void CinematicAudio_OpenAL::PlayAudio( uint8_t* data, int size )
 						return;
 					}
 				}
+			}
+			else	// SRS - When no new audio frames left to queue, break and continue playing
+			{
+				break;
 			}
 		}
 	}
@@ -186,18 +197,49 @@ void CinematicAudio_OpenAL::PlayAudio( uint8_t* data, int size )
 	}
 }
 
+void CinematicAudio_OpenAL::ResetAudio()
+{
+	if( alIsSource( alMusicSourceVoicecin ) )
+	{
+		alSourceRewind( alMusicSourceVoicecin );
+		alSourcei( alMusicSourceVoicecin, AL_BUFFER, 0 );
+	}
+
+	if( !tBuffer.empty() )
+	{
+		int buffersize = tBuffer.size();
+		while( buffersize > 0 )
+		{
+			uint8_t* tempdata = tBuffer.front();
+			tBuffer.pop();
+			// SRS - We must free any audio buffers that have not been copied into an alBuffer
+#if defined(USE_FFMPEG)
+			av_freep( &tempdata );
+#elif defined(USE_BINKDEC)
+			Mem_Free( tempdata );
+#endif
+			buffersize--;
+		}
+	}
+	if( !sizes.empty() )
+	{
+		int buffersize = sizes.size();
+		while( buffersize > 0 )
+		{
+			sizes.pop();
+			buffersize--;
+		}
+	}
+
+	offset = 0;
+	trigger = false;
+}
+
 void CinematicAudio_OpenAL::ShutdownAudio()
 {
 	if( alIsSource( alMusicSourceVoicecin ) )
 	{
 		alSourceStop( alMusicSourceVoicecin );
-		// SRS - Make sure we don't try to unqueue buffers that were never processed
-		ALint processed;
-		alGetSourcei( alMusicSourceVoicecin, AL_BUFFERS_PROCESSED, &processed );
-		if( processed > 0 )
-		{
-			alSourceUnqueueBuffers( alMusicSourceVoicecin, processed, alMusicBuffercin );
-		}
 		alSourcei( alMusicSourceVoicecin, AL_BUFFER, 0 );
 		alDeleteSources( 1, &alMusicSourceVoicecin );
 		if( CheckALErrors() == AL_NO_ERROR )
@@ -210,13 +252,13 @@ void CinematicAudio_OpenAL::ShutdownAudio()
 	{
 		alDeleteBuffers( NUM_BUFFERS, alMusicBuffercin );
 	}
-	if( !tBuffer->empty() )
+	if( !tBuffer.empty() )
 	{
-		int buffersize = tBuffer->size();
+		int buffersize = tBuffer.size();
 		while( buffersize > 0 )
 		{
-			uint8_t* tempdata = tBuffer->front();
-			tBuffer->pop();
+			uint8_t* tempdata = tBuffer.front();
+			tBuffer.pop();
 			// SRS - We must free any audio buffers that have not been copied into an alBuffer
 #if defined(USE_FFMPEG)
 			av_freep( &tempdata );
@@ -226,12 +268,12 @@ void CinematicAudio_OpenAL::ShutdownAudio()
 			buffersize--;
 		}
 	}
-	if( !sizes->empty() )
+	if( !sizes.empty() )
 	{
-		int buffersize = sizes->size();
+		int buffersize = sizes.size();
 		while( buffersize > 0 )
 		{
-			sizes->pop();
+			sizes.pop();
 			buffersize--;
 		}
 	}

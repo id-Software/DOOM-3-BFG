@@ -33,6 +33,7 @@ public:
 	CinematicAudio_XAudio2();
 	void InitAudio( void* audioContext );
 	void PlayAudio( uint8_t* data, int size );
+	void ResetAudio();
 	void ShutdownAudio();
 private:
 	WAVEFORMATEX			voiceFormatcine = { 0 };
