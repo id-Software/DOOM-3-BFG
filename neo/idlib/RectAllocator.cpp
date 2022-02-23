@@ -79,7 +79,8 @@ public:
 	const idList<idVec2i>* inputSizes;
 };
 
-void RectAllocator( const idList<idVec2i>& inputSizes, idList<idVec2i>& outputPositions, idVec2i& totalSize )
+// RB: added START_MAX and imageMax
+void RectAllocator( const idList<idVec2i>& inputSizes, idList<idVec2i>& outputPositions, idVec2i& totalSize, const int START_MAX, const int imageMax )
 {
 	outputPositions.SetNum( inputSizes.Num() );
 	if( inputSizes.Num() == 0 )
@@ -109,7 +110,7 @@ void RectAllocator( const idList<idVec2i>& inputSizes, idList<idVec2i>& outputPo
 	// Somewhat better allocation could be had by checking all the combinations of x and y edges
 	// in the allocated rectangles, rather than just the corners of each rectangle, but it
 	// still does a pretty good job.
-	static const int START_MAX = 1 << 14;
+	//static const int START_MAX = 1 << 14;
 	for( int i = 1; i < inputSizes.Num(); i++ )
 	{
 		idVec2i	best( 0, 0 );
@@ -137,7 +138,9 @@ void RectAllocator( const idList<idVec2i>& inputSizes, idList<idVec2i>& outputPo
 
 				// don't let an image get larger than 1024 DXT block, or PS3 crashes
 				// FIXME: pass maxSize in as a parameter
-				if( newMax[0] > 1024 || newMax[1] > 1024 )
+				//if( newMax[0] > 1024 || newMax[1] > 1024 )
+
+				if( imageMax > 0 && ( newMax[0] > imageMax || newMax[1] > imageMax ) )
 				{
 					continue;
 				}

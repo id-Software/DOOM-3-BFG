@@ -269,6 +269,8 @@ private:
 	static void                 ExportDeclsToTrenchBroom_f( const idCmdArgs& args );
 	static void                 ExportModelsToTrenchBroom_f( const idCmdArgs& args );
 	static void                 ExportImagesToTrenchBroom_f( const idCmdArgs& args );
+
+	static void                 MakeZooMapForModels_f( const idCmdArgs& args );
 	// RB end
 };
 
@@ -968,6 +970,8 @@ void idDeclManagerLocal::Init()
 	cmdSystem->AddCommand( "exportFGD", ExportDeclsToTrenchBroom_f, CMD_FL_SYSTEM, "exports all entity and model defs to exported/_tb/Doom3.fgd" );
 	cmdSystem->AddCommand( "exportModelsToTrenchBroom", ExportModelsToTrenchBroom_f, CMD_FL_SYSTEM, "exports all generated models like blwo, base .. to _tb/*.obj" );
 	cmdSystem->AddCommand( "exportImagesToTrenchBroom", ExportImagesToTrenchBroom_f, CMD_FL_SYSTEM, "exports all generated bimages to _tb/*.png" );
+
+	cmdSystem->AddCommand( "makeZooMapForModels", MakeZooMapForModels_f, CMD_FL_SYSTEM, "make a Source engine style zoo map with all generated models like .blwo, .base, .bmd5mesh et cetera" );
 	// RB end
 
 	common->Printf( "------------------------------\n" );
@@ -3133,6 +3137,246 @@ void idDeclManagerLocal::ExportImagesToTrenchBroom_f( const idCmdArgs& args )
 
 	common->Printf( "----------------------------\n" );
 	common->Printf( "Exported and decompressed %d images in %5.1f minutes.\n", totalImagesCount, ( totalEnd - totalStart ) / ( 1000.0f * 60 ) );
+}
+
+
+struct EntityInfo_t
+{
+	idBounds		bounds;
+	idMapEntity*	entity;
+	idVec2i			packedPos;
+};
+
+struct ModelsGroup_t
+{
+	idStrStatic< MAX_OSPATH >			folder;
+	idList<EntityInfo_t*, TAG_SYSTEM>	entityList;
+	idVec2i								totalSize;
+};
+
+void RectAllocator( const idList<idVec2i>& inputSizes, idList<idVec2i>& outputPositions, idVec2i& totalSize, const int START_MAX = 16384, const int imageMax = -1 );
+float RectPackingFraction( const idList<idVec2i>& inputSizes, const idVec2i totalSize );
+
+// uses BFG Rectangle Atlas packer to pack models in 3D
+void idDeclManagerLocal::MakeZooMapForModels_f( const idCmdArgs& args )
+{
+	int totalModelsCount = 0;
+	int totalEntitiesCount = 0;
+
+	idFileList* files = fileSystem->ListFilesTree( "generated", ".blwo|.base|.bmd5mesh", true, true );
+
+	idStr mapName( "maps/zoomaps/zoo_models.map" );
+	idMapFile mapFile;
+
+	idMapEntity* worldspawn = new( TAG_SYSTEM ) idMapEntity();
+	mapFile.AddEntity( worldspawn );
+	worldspawn->epairs.Set( "classname", "worldspawn" );
+
+	// TODO bottom plate or big hall brushes
+
+	idHashTable<ModelsGroup_t*> entitiesPerFolder;
+
+	for( int f = 0; f < files->GetList().Num() /*&& totalEntitiesCount < 100*/; f++ )
+	{
+		totalModelsCount++;
+
+		idStr modelName = files->GetList()[ f ];
+		modelName.StripLeadingOnce( "generated/rendermodels/" );
+
+		idStr ext;
+		modelName.ExtractFileExtension( ext );
+
+		bool dynamicModel = false;
+
+		if( ext.Icmp( "blwo" ) == 0 )
+		{
+			modelName.SetFileExtension( "lwo" );
+		}
+
+		if( ext.Icmp( "base" ) == 0 )
+		{
+			modelName.SetFileExtension( "ase" );
+		}
+
+		if( ext.Icmp( "bdae" ) == 0 )
+		{
+			modelName.SetFileExtension( "dae" );
+		}
+
+		if( ext.Icmp( "bmd5mesh" ) == 0 )
+		{
+			modelName.SetFileExtension( "md5mesh" );
+			dynamicModel = true;
+		}
+
+		idRenderModel* renderModel = renderModelManager->FindModel( modelName );
+
+#if 1
+		// discard everything that is not a mapobjects model
+		if( idStr::Icmpn( modelName, "models/mapobjects", 17 ) != 0 )
+		{
+			continue;
+		}
+#endif
+
+		if( idStr::Icmpn( modelName, "models/items", 12 ) == 0 )
+		{
+			continue;
+		}
+
+		if( idStr::Icmpn( modelName, "models/particles", 16 ) == 0 )
+		{
+			continue;
+		}
+
+		if( idStr::Icmpn( modelName, "models/weapons", 14 ) == 0 )
+		{
+			continue;
+		}
+
+		idStr directory = modelName;
+		directory.StripFilename();
+
+		// find models group or create it
+		ModelsGroup_t** groupptrptr = nullptr;
+		ModelsGroup_t* group = nullptr;
+		if( !entitiesPerFolder.Get( directory, &groupptrptr ) )
+		{
+			group = new( TAG_SYSTEM ) ModelsGroup_t;
+			group->folder = directory;
+
+			entitiesPerFolder.Set( directory, group );
+		}
+		else
+		{
+			group = *groupptrptr;
+		}
+
+		idBounds bounds = renderModel->Bounds();
+
+		// put model as mapobject into the models FGD
+		if( !renderModel->IsDefaultModel() && bounds.GetVolume() > 0 && bounds.GetRadius() < 1400 )
+		{
+			idMapEntity* mapEnt = new( TAG_SYSTEM ) idMapEntity();
+			mapFile.AddEntity( mapEnt );
+
+			// build TB compatible model name
+			idStrStatic< MAX_OSPATH > exportedModelFileName;
+			exportedModelFileName = "_tb/";
+			exportedModelFileName.AppendPath( modelName );
+			exportedModelFileName.SetFileExtension( ".obj" );
+
+			idStrStatic< MAX_OSPATH > entityName;
+			entityName.Format( "misc_model_%d", mapFile.GetNumEntities() );
+
+			mapEnt->epairs.Set( "classname", "misc_model" );
+			mapEnt->epairs.Set( "name", entityName );
+			mapEnt->epairs.Set( "model", exportedModelFileName );
+			mapEnt->epairs.Set( "origmodel", modelName );
+
+			EntityInfo_t* entInfo = new( TAG_SYSTEM ) EntityInfo_t;
+			entInfo->bounds = bounds;
+			entInfo->entity = mapEnt;
+
+			group->entityList.Append( entInfo );
+
+			totalEntitiesCount++;
+		}
+	}
+	fileSystem->FreeFileList( files );
+
+
+	// pack models by 2D AABB inside of a folder
+	for( int g = 0; g < entitiesPerFolder.Num(); g++ )
+	{
+		ModelsGroup_t* group = *entitiesPerFolder.GetIndex( g );
+
+		idList<idVec2i>	inputSizes;
+		inputSizes.SetNum( group->entityList.Num() );
+		for( int e = 0; e < group->entityList.Num(); e++ )
+		{
+			EntityInfo_t* entInfo = group->entityList[ e ];
+
+			idBounds& b = entInfo->bounds;
+			const int offset = 64;
+			idVec2i allocSize( ( b[1][0] - b[0][0] ) + offset, ( b[1][1] - b[0][1] ) + offset );
+
+			//idLib::Printf( "model size %ix%i in '%s'\n", allocSize.x, allocSize.y, group->folder.c_str() );
+
+			inputSizes[ e ] = allocSize;
+		}
+
+		idList<idVec2i>	outputPositions;
+		idVec2i	totalSize;
+
+		// smart allocator
+		RectAllocator( inputSizes, outputPositions, totalSize, 1 << 14 );
+
+		float frac = RectPackingFraction( inputSizes, totalSize );
+		idLib::Printf( "%5.2f packing fraction in %ix%i '%s'\n", frac, totalSize.x, totalSize.y, group->folder.c_str() );
+
+		group->totalSize = totalSize;
+
+		for( int e = 0; e < group->entityList.Num(); e++ )
+		{
+			EntityInfo_t* entInfo = group->entityList[ e ];
+
+			entInfo->packedPos = outputPositions[ e ];
+		}
+	}
+
+	// pack folders
+	idList<idVec2i>	inputSizes;
+	inputSizes.SetNum( entitiesPerFolder.Num() );
+	for( int g = 0; g < entitiesPerFolder.Num(); g++ )
+	{
+		ModelsGroup_t* group = *entitiesPerFolder.GetIndex( g );
+
+		// these are in DXT blocks, not pixels
+		const int offset = 256;
+		idVec2i allocSize( group->totalSize.x + offset, group->totalSize.y + offset );
+
+		idLib::Printf( "folder '%s' size %ix%i\n", group->folder.c_str(), allocSize.x, allocSize.y );
+
+		inputSizes[ g ] = allocSize;
+	}
+
+	idList<idVec2i>	outputPositions;
+	idVec2i	totalSize;
+
+	// smart allocator
+	RectAllocator( inputSizes, outputPositions, totalSize, 1 << 14 );
+
+	float frac = RectPackingFraction( inputSizes, totalSize );
+	idLib::Printf( "%5.2f packing fraction in %ix%i\n", frac, totalSize.x, totalSize.y );
+
+	// place entities inside packed folders
+	for( int g = 0; g < entitiesPerFolder.Num(); g++ )
+	{
+		ModelsGroup_t* group = *entitiesPerFolder.GetIndex( g );
+
+		//idLib::Printf( "folder '%s' pos (%i %i)\n", group->folder.c_str(), outputPositions[ g ].x, outputPositions[ g ].y );
+
+		for( int e = 0; e < group->entityList.Num(); e++ )
+		{
+			EntityInfo_t* entInfo = group->entityList[ e ];
+
+			idVec3 origin;
+			origin.x = outputPositions[ g ].x + entInfo->packedPos.x;
+			origin.y = outputPositions[ g ].y + entInfo->packedPos.y;
+			origin.z = 0;
+
+			entInfo->entity->epairs.SetVector( "origin", origin );
+		}
+	}
+
+	mapFile.ConvertToValve220Format();
+	mapFile.Write( mapName, ".map" );
+
+	common->Printf( "\nZoo map written to %s\n", mapName.c_str() );
+	common->Printf( "----------------------------\n" );
+	common->Printf( "Found %d Models.\n", totalModelsCount );
+	common->Printf( "Wrote %d Entities.\n", totalEntitiesCount );
 }
 // RB  end
 
