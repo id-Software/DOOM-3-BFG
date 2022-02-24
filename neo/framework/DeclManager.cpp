@@ -3140,6 +3140,125 @@ void idDeclManagerLocal::ExportImagesToTrenchBroom_f( const idCmdArgs& args )
 }
 
 
+static idMapBrush* MakeCharBrush( const idVec3& brushOrigin, const idVec3& uvOrigin, int ch )
+{
+
+	/*
+	TrenchBroom
+
+	// brush 3
+	{
+	( 0 -1 7 ) ( 0 0 7 ) ( 0 -1 8 ) common/nodraw [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 0.5 0.5
+	( 0 -1 7 ) ( 0 -1 8 ) ( 1 -1 7 ) decals/alphabet6 [ 1 0 0 64 ] [ 0 0 -1 -224 ] 0 0.25 0.25
+	( 0 -1 0 ) ( 1 -1 0 ) ( 0 0 0 ) common/nodraw [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 0.5 0.5
+	( 11 0 8 ) ( 11 1 8 ) ( 12 0 8 ) common/nodraw [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 0.5 0.5
+	( 11 0 8 ) ( 12 0 8 ) ( 11 0 9 ) common/nodraw [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 0.5 0.5
+	( 8 0 8 ) ( 8 0 9 ) ( 8 1 8 ) common/nodraw [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 0.5 0.5
+	}
+	}
+	*/
+
+	/*
+	DoomEdit
+
+	// primitive 0
+	{
+	 brushDef3
+	 {
+	  ( 0 0 -1 -0 ) ( ( 1 0 1 ) ( 0 0.125 1 ) ) "textures/common/nodraw" 0 0 0
+	  ( 0 0 1 -8 ) ( ( 1 0 1 ) ( 0 0.125 0 ) ) "textures/common/nodraw" 0 0 0
+	  ( -0 -1 -0 -1 ) ( ( 0.125 0 0 ) ( 0 0.125 1 ) ) "textures/common/nodraw" 0 0 0
+	  ( 1 0 -0 -8 ) ( ( 1 0 1 ) ( 0 0.125 1 ) ) "textures/common/nodraw" 0 0 0
+	  ( -0 1 0 -0 ) ( ( 0.015625 0 0.125 ) ( 0 0.015625 -0.375 ) ) "textures/decals/alphabet4" 0 0 0
+	  ( -1 -0 -0 0 ) ( ( 1 0 0 ) ( 0 0.125 1 ) ) "textures/common/nodraw" 0 0 0
+	 }
+	}
+	*/
+
+	const char* doomEditLetterBrush = R"(
+ {
+  ( 0 0 -1 -0 ) ( ( 1 0 1 ) ( 0 0.125 1 ) ) "textures/common/nodraw" 0 0 0
+  ( 0 0 1 -8 ) ( ( 1 0 1 ) ( 0 0.125 0 ) ) "textures/common/nodraw" 0 0 0
+  ( -0 -1 -0 -1 ) ( ( 0.125 0 0 ) ( 0 0.125 1 ) ) "textures/common/nodraw" 0 0 0
+  ( 1 0 -0 -8 ) ( ( 1 0 1 ) ( 0 0.125 1 ) ) "textures/common/nodraw" 0 0 0
+  ( -0 1 0 -0 ) ( ( 0.015625 0 0.125 ) ( 0 0.015625 -0.375 ) ) "textures/decals/alphabet4" 0 0 0
+  ( -1 -0 -0 0 ) ( ( 1 0 0 ) ( 0 0.125 1 ) ) "textures/common/nodraw" 0 0 0
+ }
+}
+)";
+
+	const char* tbLetterBrush = R"(
+( 0 -1 7 ) ( 0 0 7 ) ( 0 -1 8 ) common/nodraw [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 0.5 0.5
+( 0 -1 7 ) ( 0 -1 8 ) ( 1 -1 7 ) decals/alphabet6 [ 1 0 0 64 ] [ 0 0 -1 -224 ] 0 0.25 0.25
+( 0 -1 0 ) ( 1 -1 0 ) ( 0 0 0 ) common/nodraw [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 0.5 0.5
+( 11 0 8 ) ( 11 1 8 ) ( 12 0 8 ) common/nodraw [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 0.5 0.5
+( 11 0 8 ) ( 12 0 8 ) ( 11 0 9 ) common/nodraw [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 0.5 0.5
+( 8 0 8 ) ( 8 0 9 ) ( 8 1 8 ) common/nodraw [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 0.5 0.5
+}
+}
+)";
+
+	idLexer src( LEXFL_NOSTRINGCONCAT | LEXFL_NOSTRINGESCAPECHARS | LEXFL_ALLOWPATHNAMES );
+
+#if 0
+	src.LoadMemory( doomEditLetterBrush, strlen( doomEditLetterBrush), "DoomEdit Brush" );
+	idMapBrush* brush = idMapBrush::Parse( src, origin );
+	for( int i = 0; i < brush->GetNumSides(); i++ )
+	{
+		auto side = brush->GetSide( i );
+
+		auto plane = side->GetPlane();
+		plane.TranslateSelf( origin );
+		side->SetPlane( plane );
+	}
+#else
+	src.LoadMemory( tbLetterBrush, strlen( tbLetterBrush), "DoomEdit Brush" );
+	idMapBrush* brush = idMapBrush::ParseValve220( src, brushOrigin );
+
+	for( int i = 0; i < brush->GetNumSides(); i++ )
+	{
+		auto side = brush->GetSide( i );
+
+		side->planepts[0] += brushOrigin;
+		side->planepts[1] += brushOrigin;
+		side->planepts[2] += brushOrigin;
+	}
+
+	// letter coordinates in the texture
+	int row = 0;
+	int col = 0;
+
+	ch &= 255;
+
+	if( ch >= 'A' && ch <= 'Z' )
+	{
+		ch -= 'A';
+
+		col = ch & 7;
+		row = ch / 8;
+	}
+	else if( ch >= 'a' && ch <= 'z' )
+	{
+		ch = ch - 'a' + 3;
+
+		col = ch & 7;
+		row = ch & 7;
+	}
+
+	// base offset moves from world to local coords
+	// brush is 8x1x8 but due to scaling texcoords are shifted by 32
+	idVec2i baseOffset;
+	baseOffset.x = -uvOrigin.x * 4;
+	baseOffset.y = -uvOrigin.z * 4 + 32;
+
+	auto side = brush->GetSide( 1 );
+	side->texValve[ 0 ][ 3 ] = baseOffset.x + col * 32;
+	side->texValve[ 1 ][ 3 ] = baseOffset.y + row * 32;
+#endif
+
+	return brush;
+}
+
 struct EntityInfo_t
 {
 	idBounds		bounds;
@@ -3218,6 +3337,13 @@ void idDeclManagerLocal::MakeZooMapForModels_f( const idCmdArgs& args )
 			continue;
 		}
 #endif
+	
+		/*
+		if( idStr::Icmpn( modelName, "models/mapobjects/caves", 23 ) == 0 )
+		{
+			continue;
+		}
+		*/
 
 		if( idStr::Icmpn( modelName, "models/items", 12 ) == 0 )
 		{
@@ -3357,9 +3483,79 @@ void idDeclManagerLocal::MakeZooMapForModels_f( const idCmdArgs& args )
 
 		//idLib::Printf( "folder '%s' pos (%i %i)\n", group->folder.c_str(), outputPositions[ g ].x, outputPositions[ g ].y );
 
+		float topHeight = 0;
+
 		for( int e = 0; e < group->entityList.Num(); e++ )
 		{
 			EntityInfo_t* entInfo = group->entityList[ e ];
+
+			if( entInfo->bounds[1].z > topHeight )
+			{
+				topHeight = entInfo->bounds[1].z;
+			}
+		}
+
+		const int fontGridHeight = 128;
+		topHeight += 128;
+		topHeight = idMath::Floor( topHeight / fontGridHeight ) * fontGridHeight;
+
+		for( int e = 0; e < group->entityList.Num(); e++ )
+		{
+			EntityInfo_t* entInfo = group->entityList[ e ];
+
+			if( e == 0 )
+			{
+				idMapEntity* mapEnt = new( TAG_SYSTEM ) idMapEntity();
+				mapFile.AddEntity( mapEnt );
+
+				idStrStatic< MAX_OSPATH > entityName;
+				entityName.Format( "info_board_%d", g );
+
+				mapEnt->epairs.Set( "classname", "func_static" );
+				mapEnt->epairs.Set( "name", entityName );
+
+
+#if 1
+				// add folder name as brushes
+				group->folder.ToUpper();
+
+				int numSlashes = 0;
+				int wordLen = 0;
+				for( int i = 0; i < group->folder.Length(); i++ )
+				{
+					idVec3 brushOrigin;
+					brushOrigin.x = outputPositions[ g ].x + wordLen * 8;
+					brushOrigin.y = outputPositions[ g ].y;
+					brushOrigin.z = topHeight - numSlashes * 8;
+
+					idVec3 uvOrigin;
+					uvOrigin.x = outputPositions[ g ].x + wordLen * 8;
+					uvOrigin.y = outputPositions[ g ].y;
+					uvOrigin.z = topHeight + numSlashes * 8;
+
+					wordLen++;
+					if( group->folder[ i ] == '/' )
+					{
+						numSlashes++;
+						wordLen = 0;
+						continue;
+					}
+
+					idMapBrush* ch = MakeCharBrush( brushOrigin, uvOrigin, group->folder[ i ] );
+					mapEnt->AddPrimitive( ch );
+				}
+#else
+				idVec3 origin;
+				origin.x = outputPositions[ g ].x + group->totalSize.x * 0.5;
+				origin.y = outputPositions[ g ].y;
+				origin.z = 128;
+
+				mapEnt->epairs.Set( "classname", "misc_model" );
+				mapEnt->epairs.Set( "model", "_tb/models/mapobjects/signs/ceilingsign/ceilingsign.obj" );
+				mapEnt->epairs.Set( "gui", "guis/signs/directional.gui" );
+				mapEnt->epairs.Set( "gui_parm1", group->folder );
+#endif
+			}
 
 			idVec3 origin;
 			origin.x = outputPositions[ g ].x + entInfo->packedPos.x;
@@ -3371,6 +3567,9 @@ void idDeclManagerLocal::MakeZooMapForModels_f( const idCmdArgs& args )
 	}
 
 	mapFile.ConvertToValve220Format();
+
+	worldspawn->epairs.Set( "_tb_textures", "textures/common;textures/editor;textures/decals" );
+
 	mapFile.Write( mapName, ".map" );
 
 	common->Printf( "\nZoo map written to %s\n", mapName.c_str() );

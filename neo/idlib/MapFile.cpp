@@ -136,6 +136,11 @@ inline bool BrushPrimitive_Degenerate( const idVec3& bpTexMatX, const idVec3& bp
 // heavily inspired by Valve220_from_BP from Netradiant-custom
 void idMapBrushSide::ConvertToValve220Format( const idMat4& entityTransform, idStrList& textureCollections )
 {
+	if( projection == idMapBrushSide::PROJECTION_VALVE220 )
+	{
+		return;
+	}
+
 	// create p1, p2, p3
 	idVec3 forward = plane.Normal();
 	idVec3 p1 = forward * plane.Dist();
