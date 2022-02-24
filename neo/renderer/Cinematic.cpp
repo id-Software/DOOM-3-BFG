@@ -71,11 +71,7 @@ extern "C"
 #include <libswresample/swresample.h>
 #include <libavutil/imgutils.h>
 }
-// SRS - For handling cinematic audio packets
-#include <queue>
-#define NUM_PACKETS 4
-#define NUM_LAG_FRAMES 15	// SRS - Lag cinematic audio by 15 frames (~1/2 sec at 30 fps) to sync with FFMPEG video
-bool hasplanar = true;
+#define NUM_LAG_FRAMES 15	// SRS - Lag audio by 15 frames (~1/2 sec at 30 fps) for ffmpeg bik decoder AV sync
 #endif
 
 #ifdef USE_BINKDEC
@@ -127,14 +123,15 @@ private:
 	bool					hasFrame;
 	long					framePos;
 	AVSampleFormat			dst_smp;
+	bool					hasplanar;
 	SwrContext*				swr_ctx;
 	cinData_t				ImageForTimeFFMPEG( int milliseconds );
 	bool					InitFromFFMPEGFile( const char* qpath, bool looping );
 	void					FFMPEGReset();
-	std::queue<AVPacket>	packets[NUM_PACKETS];
 	uint8_t*				lagBuffer[NUM_LAG_FRAMES] = {};
 	int						lagBufSize[NUM_LAG_FRAMES] = {};
 	int						lagIndex;
+	bool					skipLag;
 #endif
 #ifdef USE_BINKDEC
 	BinkHandle				binkHandle;
@@ -436,7 +433,6 @@ idCinematicLocal::idCinematicLocal()
 	isRoQ = false;      // SRS - Initialize isRoQ for all cases, not just FFMPEG
 #if defined(USE_FFMPEG)
 	// Carl: ffmpeg stuff, for bink and normal video files:
-//	fmt_ctx = avformat_alloc_context();
 #if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(55,28,1)
 	frame = av_frame_alloc();
 	frame2 = av_frame_alloc();
@@ -451,10 +447,13 @@ idCinematicLocal::idCinematicLocal()
 	fmt_ctx = NULL;
 	video_stream_index = -1;
 	audio_stream_index = -1;
+	hasplanar = false;
+	swr_ctx = NULL;
 	img_convert_ctx = NULL;
 	hasFrame = false;
 	framePos = -1;
 	lagIndex = 0;
+	skipLag = false;
 #endif
 
 #ifdef USE_BINKDEC
@@ -926,7 +925,8 @@ bool idCinematicLocal::InitFromFile( const char* qpath, bool amilooping )
 {
 	unsigned short RoQID;
 
-	Close();
+	// SRS - Don't need to call Close() here, all initialization is handled by constructor
+	//Close();
 
 	inMemory = 0;
 	animationLength = 100000;
@@ -941,28 +941,41 @@ bool idCinematicLocal::InitFromFile( const char* qpath, bool amilooping )
 		sprintf( fileName, "%s", qpath );
 	}
 	// Carl: Look for original Doom 3 RoQ files first:
-	idStr ext;
-	fileName.ExtractFileExtension( ext );
-	fileName = fileName.StripFileExtension();
-	fileName = fileName + ".roq";
-	//if (fileName == "video\\loadvideo.roq") {
-	//	fileName = "video\\idlogo.roq";
+	idStr temp = fileName.StripFileExtension() + ".roq";
+
+	// SRS - Cool legacy support, but leaving this disabled since it might break existing mods
+	//if( temp == "video\\loadvideo.roq" )
+	//{
+	//	temp = "video\\idlogo.roq";
 	//}
 
-	iFile = fileSystem->OpenFileRead( fileName );
+	iFile = fileSystem->OpenFileRead( temp );
 
-	// Carl: If the RoQ file doesn't exist, try using ffmpeg instead:
+	// Carl: If the RoQ file doesn't exist, try using bik file extension instead:
 	if( !iFile )
 	{
+		//idLib::Warning( "Original Doom 3 RoQ Cinematic not found: '%s'\n", temp.c_str() );
 #if defined(USE_FFMPEG)
-		//idLib::Warning( "Original Doom 3 RoQ Cinematic not found: '%s'\n", fileName.c_str() );
-		idStr temp = fileName.StripFileExtension() + ".bik";
+		temp = fileName.StripFileExtension() + ".bik";
+		skipLag = false;				// SRS - Enable lag buffer for ffmpeg bik decoder AV sync
+
+	// SRS - Support RoQ cinematic playback via ffmpeg decoder - better quality plus audio support
+	}
+	else
+	{
+		fileSystem->CloseFile( iFile );	// SRS - Close the RoQ file and let ffmpeg reopen it
+		iFile = NULL;
+		skipLag = true;					// SRS - Disable lag buffer for ffmpeg RoQ decoder AV sync
+	}
+	{
+	// SRS End
+
 		animationLength = 0;
 		fileName = temp;
 		//idLib::Warning( "New filename: '%s'\n", fileName.c_str() );
 		return InitFromFFMPEGFile( fileName.c_str(), amilooping );
 #elif defined(USE_BINKDEC)
-		idStr temp = fileName.StripFileExtension() + ".bik";
+		temp = fileName.StripFileExtension() + ".bik";
 		animationLength = 0;
 		fileName = temp;
 		//idLib::Warning( "New filename: '%s'\n", fileName.c_str() );
@@ -1033,11 +1046,16 @@ void idCinematicLocal::Close()
 			img_convert_ctx = NULL;
 		}
 
-		// SRS - Free audio codec context and any lagged audio buffers
+		// SRS - Free audio codec context, resample context, and any lagged audio buffers
 		if( dec_ctx2 )
 		{
-			avcodec_close( dec_ctx2 );
-			dec_ctx2 = NULL;
+			avcodec_free_context( &dec_ctx2 );
+			
+			// SRS - Free resample context if we were decoding planar audio
+			if( swr_ctx )
+			{
+				swr_free( &swr_ctx );
+			}
 
 			for( int i = 0; i < NUM_LAG_FRAMES; i++ )
 			{
@@ -1051,14 +1069,12 @@ void idCinematicLocal::Close()
 
 		if( dec_ctx )
 		{
-			avcodec_close( dec_ctx );
-			dec_ctx = NULL;
+			avcodec_free_context( &dec_ctx );
 		}
 
 		if( fmt_ctx )
 		{
 			avformat_close_input( &fmt_ctx );
-			fmt_ctx = NULL;
 		}
 		status = FMV_EOF;
 	}
@@ -1365,8 +1381,7 @@ cinData_t idCinematicLocal::ImageForTimeFFMPEG( int thisTime )
 			//GK:Begin
 			else if( packet.stream_index == audio_stream_index ) //Check if it found any audio data
 			{
-				packets->push( packet );
-				res = avcodec_send_packet( dec_ctx2, &packets->front() );
+				res = avcodec_send_packet( dec_ctx2, &packet );
 				if( res != 0 && res != AVERROR( EAGAIN ) )
 				{
 					char* error = new char[256];
@@ -1375,8 +1390,6 @@ cinData_t idCinematicLocal::ImageForTimeFFMPEG( int thisTime )
 				}
 				else
 				{
-					packet = packets->front();
-					packets->pop();
 					if( ( frameFinished1 = avcodec_receive_frame( dec_ctx2, frame3 ) ) != 0 )
 					{
 						char* error = new char[256];
@@ -1443,7 +1456,7 @@ cinData_t idCinematicLocal::ImageForTimeFFMPEG( int thisTime )
 		lagBuffer[ lagIndex ] = audioBuffer;
 		lagBufSize[ lagIndex ] = num_bytes;
 
-		lagIndex = ( lagIndex + 1 ) % NUM_LAG_FRAMES;
+		lagIndex = ( lagIndex + 1 ) % ( skipLag ? 1 : NUM_LAG_FRAMES );
 	}
 
 	return cinData;
