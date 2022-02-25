@@ -655,8 +655,20 @@ bool idCinematicLocal::InitFromFFMPEGFile( const char* qpath, bool amilooping )
 
 	if( ( ret = avformat_open_input( &fmt_ctx, fullpath, NULL, NULL ) ) < 0 )
 	{
-		common->Warning( "idCinematic: Cannot open FFMPEG video file: '%s', %d\n", qpath, looping );
-		return false;
+		// SRS - another case sensitivity hack for Linux, this time for ffmpeg and RoQ files
+		idStr ext;
+		fullpath.ExtractFileExtension( ext );
+		if( idStr::Cmp( ext.c_str(), "roq" ) == 0 )
+		{
+			// SRS - If ffmpeg can't open .roq file, then try again with .RoQ extension instead
+			fullpath.Replace( ".roq", ".RoQ" );
+			ret = avformat_open_input( &fmt_ctx, fullpath, NULL, NULL );
+		}
+		if( ret < 0 )
+		{
+			common->Warning( "idCinematic: Cannot open FFMPEG video file: '%s', %d\n", qpath, looping );
+			return false;
+		}
 	}
 	if( ( ret = avformat_find_stream_info( fmt_ctx, NULL ) ) < 0 )
 	{
