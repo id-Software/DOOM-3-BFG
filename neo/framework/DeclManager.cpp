@@ -3442,7 +3442,7 @@ struct Category_t
 void RectAllocator( const idList<idVec2i>& inputSizes, idList<idVec2i>& outputPositions, idVec2i& totalSize, const int START_MAX = 16384, const int imageMax = -1 );
 float RectPackingFraction( const idList<idVec2i>& inputSizes, const idVec2i totalSize );
 
-
+void RectAllocatorBinPack2D( const idList<idVec2i>& inputSizes, const idStrList& inputNames, idList<idVec2i>& outputPositions, idVec2i& totalSize, const int START_MAX );
 
 
 // uses BFG Rectangle Atlas packer to pack models in 3D
@@ -3725,12 +3725,16 @@ void idDeclManagerLocal::MakeZooMapForModels_f( const idCmdArgs& args )
 	fileSystem->FreeFileList( files );
 
 
+	// BinPack2D is better, more efficient and can with all really big models but looks worse than the simple rectangle packer
+	const bool useBinpack2D = false;
+
 	// pack models by 2D AABB inside of a folder
 	for( int g = 0; g < entitiesPerFolder.Num(); g++ )
 	{
 		ModelsGroup_t* group = *entitiesPerFolder.GetIndex( g );
 
 		idList<idVec2i>	inputSizes;
+		idStrList		inputNames;
 		inputSizes.SetNum( group->entityList.Num() );
 		for( int e = 0; e < group->entityList.Num(); e++ )
 		{
@@ -3743,12 +3747,20 @@ void idDeclManagerLocal::MakeZooMapForModels_f( const idCmdArgs& args )
 			//idLib::Printf( "model size %ix%i in '%s'\n", allocSize.x, allocSize.y, group->folder.c_str() );
 
 			inputSizes[ e ] = allocSize;
+			inputNames.Append( entInfo->entity->epairs.GetString( "origmodel" ) );
 		}
 
 		idList<idVec2i>	outputPositions;
 		idVec2i	totalSize;
 
-		RectAllocator( inputSizes, outputPositions, totalSize, 1 << 14 );
+		if( useBinpack2D )
+		{
+			RectAllocatorBinPack2D( inputSizes, inputNames, outputPositions, totalSize, 1 << 17 );
+		}
+		else
+		{
+			RectAllocator( inputSizes, outputPositions, totalSize, 1 << 14 );
+		}
 
 		group->totalSize = totalSize;
 
@@ -3794,22 +3806,31 @@ void idDeclManagerLocal::MakeZooMapForModels_f( const idCmdArgs& args )
 		
 		idList<idVec2i>	inputSizes;
 		inputSizes.SetNum( category->modelGroups.Num() );
+		idStrList		inputNames;
 
 		for( int g = 0; g < category->modelGroups.Num(); g++ )
 		{
 			ModelsGroup_t* group = category->modelGroups[ g ];
 
-			// these are in DXT blocks, not pixels
 			const int offset = 256;
 			idVec2i allocSize( group->totalSize.x + offset, group->totalSize.y + offset );
 
-			idLib::Printf( "folder '%s' size %ix%i\n", group->path.c_str(), allocSize.x, allocSize.y );
+			//idLib::Printf( "folder '%s' size %ix%i\n", group->path.c_str(), allocSize.x, allocSize.y );
 
 			inputSizes[ g ] = allocSize;
+			inputNames.Append( group->path );
 		}
 		
 		idVec2i	totalSize;
-		RectAllocator( inputSizes, category->modelGroupPositions, totalSize, 1 << 14 );
+
+		if( useBinpack2D )
+		{
+			RectAllocatorBinPack2D( inputSizes, inputNames, category->modelGroupPositions, totalSize, 1 << 17 );
+		}
+		else
+		{
+			RectAllocator( inputSizes, category->modelGroupPositions, totalSize, 1 << 14 );
+		}
 
 		category->totalSize = totalSize;
 	}
@@ -3817,6 +3838,12 @@ void idDeclManagerLocal::MakeZooMapForModels_f( const idCmdArgs& args )
 	// pack categories
 	idList<idVec2i>	inputSizes;
 	inputSizes.SetNum( categories.Num() );
+	idStrList		inputNames;
+
+	for( int i = 0; i < categories.Num(); i++ )
+	{
+		inputNames.Append( categories[ i ]->tagNames[ 0 ] );
+	}
 
 	idList<idVec2i> categoryPositions;
 	idVec2i	totalSize;
@@ -3833,7 +3860,14 @@ void idDeclManagerLocal::MakeZooMapForModels_f( const idCmdArgs& args )
 		inputSizes[ i ] = allocSize;
 
 		// smart allocator
-		RectAllocator( inputSizes, categoryPositions, totalSize, 1 << 14 );
+		if( useBinpack2D )
+		{
+			RectAllocatorBinPack2D( inputSizes, inputNames, categoryPositions, totalSize, 1 << 17 );
+		}
+		else
+		{
+			RectAllocator( inputSizes, categoryPositions, totalSize, 1 << 14 );
+		}
 	}
 
 	// place entities inside packed folders
