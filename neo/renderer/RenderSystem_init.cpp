@@ -617,7 +617,8 @@ void R_TestVideo_f( const idCmdArgs& args )
 
 	cinData_t	cin;
 	cin = tr.testVideo->ImageForTime( 0 );
-	if( cin.imageY == NULL )
+	// SRS - Also handle ffmpeg and original RoQ decoders for test videos (using cin.image)
+	if( cin.imageY == NULL && cin.image == NULL )
 	{
 		delete tr.testVideo;
 		tr.testVideo = NULL;

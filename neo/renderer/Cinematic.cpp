@@ -114,8 +114,10 @@ private:
 	AVFrame*				frame3; //GK: make extra frame for audio
 #if LIBAVCODEC_VERSION_MAJOR > 58
 	const AVCodec*			dec;
+	const AVCodec*			dec2;	// SRS - Separate decoder for audio
 #else
 	AVCodec*				dec;
+	AVCodec*				dec2;	// SRS - Separate decoder for audio
 #endif
 	AVCodecContext*			dec_ctx;
 	AVCodecContext*			dec_ctx2;
@@ -702,12 +704,12 @@ bool idCinematicLocal::InitFromFFMPEGFile( const char* qpath, bool amilooping )
 		return false;
 	}
 	//GK:Begin
-	//After the video decoder is open then try to open audio decoder since it will re-bind the main decoder from video to audio
-	ret2 = av_find_best_stream( fmt_ctx, AVMEDIA_TYPE_AUDIO, -1, -1, &dec, 0 );
+	//After the video decoder is open then try to open audio decoder
+	ret2 = av_find_best_stream( fmt_ctx, AVMEDIA_TYPE_AUDIO, -1, -1, &dec2, 0 );
 	if( ret2 >= 0 )  //Make audio optional (only intro video has audio no other)
 	{
 		audio_stream_index = ret2;
-		dec_ctx2 = avcodec_alloc_context3( dec );
+		dec_ctx2 = avcodec_alloc_context3( dec2 );
 		if( ( ret2 = avcodec_parameters_to_context( dec_ctx2, fmt_ctx->streams[audio_stream_index]->codecpar ) ) < 0 )
 		{
 			char* error = new char[256];
@@ -717,7 +719,7 @@ bool idCinematicLocal::InitFromFFMPEGFile( const char* qpath, bool amilooping )
 		dec_ctx2->time_base = fmt_ctx->streams[audio_stream_index]->time_base;
 		dec_ctx2->framerate = fmt_ctx->streams[audio_stream_index]->avg_frame_rate;
 		dec_ctx2->pkt_timebase = fmt_ctx->streams[audio_stream_index]->time_base;
-		if( ( ret2 = avcodec_open2( dec_ctx2, dec, NULL ) ) < 0 )
+		if( ( ret2 = avcodec_open2( dec_ctx2, dec2, NULL ) ) < 0 )
 		{
 			common->Warning( "idCinematic: Cannot open audio decoder for: '%s', %d\n", qpath, looping );
 			//return false;
@@ -767,13 +769,20 @@ bool idCinematicLocal::InitFromFFMPEGFile( const char* qpath, bool amilooping )
 	//GK: No duration is given. Check if we get at least bitrate to calculate the length, otherwise set it to a fixed 100 seconds (should it be lower ?)
 	if( durationSec < 0 )
 	{
-		if( dec_ctx->bit_rate > 0 )
+		// SRS - First check the file context bit rate and estimate duration using file size and overall bit rate
+		if( fmt_ctx->bit_rate > 0 )
 		{
-			durationSec = file_size / dec_ctx->bit_rate;
+			durationSec = file_size * 8.0 / fmt_ctx->bit_rate;
 		}
+		// SRS - Likely an RoQ file, so use the video bit rate tolerance plus audio bit rate to estimate duration, then add 10% to correct for variable bit rate
+		else if( dec_ctx->bit_rate_tolerance > 0 )
+		{
+			durationSec = file_size * 8.0 / ( dec_ctx->bit_rate_tolerance + ( dec_ctx2 ? dec_ctx2->bit_rate : 0 ) ) * 1.1;
+		}
+		// SRS - Otherwise just set a large max duration
 		else
 		{
-			durationSec = 100;
+			durationSec = 100.0;
 		}
 	}
 	animationLength = durationSec * 1000;
@@ -810,8 +819,8 @@ void idCinematicLocal::FFMPEGReset()
 
 	framePos = -1;
 	
-	// SRS - If we have an ffmpeg audio context and are not looping, reset audio to release any stale buffers
-	if( dec_ctx2 && ! ( looping && status == FMV_EOF ) )
+	// SRS - If we have an ffmpeg audio context and are not looping, or skipLag is true, reset audio to release any stale buffers
+	if( dec_ctx2 && ( !( looping && status == FMV_EOF ) || skipLag ) )
 	{
 		cinematicAudio->ResetAudio();
 
@@ -829,7 +838,17 @@ void idCinematicLocal::FFMPEGReset()
 	{
 		status = FMV_LOOPED;
 	}
-	else if( av_seek_frame( fmt_ctx, audio_stream_index, 0, 0 ) < 0 && av_seek_frame( fmt_ctx, video_stream_index, 0, 0 ) < 0 )
+	// SRS - Special handling for RoQ files: only frame byte seek works and ffmpeg RoQ decoder needs reset
+	else if( av_seek_frame( fmt_ctx, video_stream_index, 0, AVSEEK_FLAG_BYTE ) >= 0 && dec_ctx->codec_id == AV_CODEC_ID_ROQ )
+	{
+		// Close and reopen the ffmpeg RoQ codec without clearing the context - this seems to reset the decoder properly
+		avcodec_close( dec_ctx );
+		avcodec_open2( dec_ctx, dec, NULL );
+
+		status = FMV_LOOPED;
+	}
+	// SRS - Can't rewind the stream so we really are at EOF
+	else
 	{
 		status = FMV_EOF;
 	}
@@ -1047,10 +1066,12 @@ void idCinematicLocal::Close()
 		status = FMV_EOF;
 	}
 
-	RoQShutdown();
-
+	if( isRoQ )
+	{
+		RoQShutdown();
+	}
 #if defined(USE_FFMPEG)
-	if( !isRoQ )
+	else //if( !isRoQ )
 	{
 		if( img_convert_ctx )
 		{
@@ -1092,7 +1113,7 @@ void idCinematicLocal::Close()
 	}
 #endif
 #ifdef USE_BINKDEC
-	if( !isRoQ )
+	else //if( !isRoQ )
 	{
 		if( binkHandle.isValid )
 		{
@@ -1264,7 +1285,8 @@ cinData_t idCinematicLocal::ImageForTime( int thisTime )
 		else
 		{
 			status = FMV_IDLE;
-			RoQShutdown();
+			// SRS - When status == FMV_IDLE this is a no-op, disable since shutdown not needed here anyways
+			//RoQShutdown();
 		}
 	}
 
@@ -3184,11 +3206,14 @@ idCinematicLocal::RoQShutdown
 */
 void idCinematicLocal::RoQShutdown()
 {
+	// SRS - Depending on status, this could prevent closing of iFile on shutdown, disable it
+	/*
 	if( status == FMV_IDLE )
 	{
 		return;
 	}
-	status = FMV_IDLE;
+	*/
+	status = FMV_EOF;	// SRS - Changed from FMV_IDLE to FMV_EOF for shutdown consistency
 
 	if( iFile )
 	{

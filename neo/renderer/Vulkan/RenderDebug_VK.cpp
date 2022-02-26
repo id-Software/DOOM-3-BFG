@@ -570,6 +570,11 @@ void idRenderBackend::DBG_TestImage()
 			imageCr = cin.imageCr;
 			imageCb = cin.imageCb;
 		}
+		// SRS - Also handle ffmpeg and original RoQ decoders for test videos (using cin.image)
+		else if( cin.image != NULL )
+		{
+			image = cin.image;
+		}
 		else
 		{
 			tr.testImage = NULL;
@@ -610,7 +615,7 @@ void idRenderBackend::DBG_TestImage()
 	scale[0] = w; // scale
 	scale[5] = h; // scale
 	scale[12] = halfScreenWidth - ( halfScreenWidth * w ); // translate
-	scale[13] = halfScreenHeight - ( halfScreenHeight * h ); // translate
+	scale[13] = halfScreenHeight - ( halfScreenHeight * h ) - h; // translate (SRS - moved up by h)
 	scale[10] = 1.0f;
 	scale[15] = 1.0f;
 
