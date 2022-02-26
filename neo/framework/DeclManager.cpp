@@ -3567,6 +3567,17 @@ void idDeclManagerLocal::MakeZooMapForModels_f( const idCmdArgs& args )
 	categories.Append( hellCat );
 	categories.Append( new Category_t( "caves" ) );
 	categories.Append( new Category_t( "ruins" ) );
+
+	categories.Append( new Category_t( "door" ) );
+	categories.Append( new Category_t( "outside" ) );
+	
+	auto teleCat = new Category_t( "teleporter" );
+	teleCat->tagNames.AddUnique( "tele" );
+	categories.Append( teleCat );
+
+	auto liftCat = new Category_t( "elevator" );
+	liftCat->tagNames.AddUnique( "lift" );
+	categories.Append( liftCat );
 	
 
 
@@ -3761,7 +3772,7 @@ void idDeclManagerLocal::MakeZooMapForModels_f( const idCmdArgs& args )
 
 			for( int j = 0; j < category->tagNames.Num(); j++ )
 			{
-				if( group->path.Find( category->tagNames[ j ] ) != -1 )
+				if( group->path.Find( category->tagNames[ j ], false ) != -1 )
 				{
 					category->modelGroups.Append( group );
 					inserted = true;
