@@ -3162,7 +3162,65 @@ void idDeclManagerLocal::ExportModelsToTrenchBroom_f( const idCmdArgs& args )
 }
 
 
+static idMapBrush* MakeUnitBrush( const idVec3& origin, const idVec3& scale, bool border )
+{
 
+	/*
+	TrenchBroom
+
+	// brush 0
+	{
+	( -1 -64 -16 ) ( -1 -63 -16 ) ( -1 -64 -15 ) rock/lfwall15_lanrock1 [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 0.5 0.5
+	( -64 -1 -16 ) ( -64 -1 -15 ) ( -63 -1 -16 ) rock/lfwall15_lanrock1 [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 0.5 0.5
+	( -64 -64 -1 ) ( -63 -64 -1 ) ( -64 -63 -1 ) rock/lfwall15_lanrock1 [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 0.5 0.5
+	( 64 64 1 ) ( 64 65 1 ) ( 65 64 1 ) rock/lfwall15_lanrock1 [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 0.5 0.5
+	( 64 1 16 ) ( 65 1 16 ) ( 64 1 17 ) rock/lfwall15_lanrock1 [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 0.5 0.5
+	( 1 64 16 ) ( 1 64 17 ) ( 1 65 16 ) rock/lfwall15_lanrock1 [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 0.5 0.5
+	}
+	*/
+
+	const char* tbUnitBrush = R"(
+( -1 -64 -16 ) ( -1 -63 -16 ) ( -1 -64 -15 ) rock/lfwall15_lanrock1 [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 0.5 0.5
+( -64 -1 -16 ) ( -64 -1 -15 ) ( -63 -1 -16 ) rock/lfwall15_lanrock1 [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 0.5 0.5
+( -64 -64 -1 ) ( -63 -64 -1 ) ( -64 -63 -1 ) rock/lfwall15_lanrock1 [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 0.5 0.5
+( 64 64 1 ) ( 64 65 1 ) ( 65 64 1 ) rock/lfwall15_lanrock1 [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 0.5 0.5
+( 64 1 16 ) ( 65 1 16 ) ( 64 1 17 ) rock/lfwall15_lanrock1 [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 0.5 0.5
+( 1 64 16 ) ( 1 64 17 ) ( 1 65 16 ) rock/lfwall15_lanrock1 [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 0.5 0.5
+}
+}
+)";
+
+	idLexer src( LEXFL_NOSTRINGCONCAT | LEXFL_NOSTRINGESCAPECHARS | LEXFL_ALLOWPATHNAMES );
+
+	src.LoadMemory( tbUnitBrush, strlen( tbUnitBrush), "DoomEdit Brush" );
+	idMapBrush* brush = idMapBrush::ParseValve220( src, origin );
+
+	idMat3 axis;
+	axis.Identity();
+
+	// unit brush is not really a unit brush but 2, 2, 2
+	axis[0][0] = scale.x * 0.5f;
+	axis[1][1] = scale.y * 0.5f;
+	axis[2][2] = scale.z * 0.5f;
+
+	idMat4 transform( axis, origin );
+
+	for( int i = 0; i < brush->GetNumSides(); i++ )
+	{
+		auto side = brush->GetSide( i );
+
+		if( border )
+		{
+			side->SetMaterial( "textures/decals/achtung" );
+		}
+
+		side->planepts[0] *= transform;
+		side->planepts[1] *= transform;
+		side->planepts[2] *= transform;
+	}
+
+	return brush;
+}
 
 static idMapBrush* MakeCharBrush( const idVec3& brushOrigin, const idVec3& uvOrigin, int ch )
 {
@@ -3283,6 +3341,69 @@ static idMapBrush* MakeCharBrush( const idVec3& brushOrigin, const idVec3& uvOri
 	return brush;
 }
 
+
+idMapEntity*  MakeNamePlateFuncStatic( idMapFile* mapFile, float x, float y, float topHeight, const idStr& origTitle )
+{
+	idMapEntity* mapEnt = new( TAG_SYSTEM ) idMapEntity();
+	mapFile->AddEntity( mapEnt );
+
+	idStrStatic< MAX_OSPATH > entityName;
+	entityName.Format( "info_board_%d", mapFile->GetNumEntities() );
+
+	mapEnt->epairs.Set( "classname", "func_static" );
+	mapEnt->epairs.Set( "name", entityName );
+	mapEnt->epairs.Set( "model", entityName );
+
+
+#if 1
+	// add folder name as brushes
+	idStr title = origTitle;
+	title.ToUpper();
+
+	int numSlashes = 0;
+	int wordLen = 0;
+	for( int i = 0; i < title.Length(); i++ )
+	{
+		//float x = categoryPositions[ c ].x + category->modelGroupPositions[ g ].x;
+		//float y = -categoryPositions[ c ].y - category->modelGroupPositions[ g ].y;// - group->totalSize.y;
+
+		idVec3 brushOrigin;
+		brushOrigin.x = x + wordLen * 8;
+		brushOrigin.y = y;
+		brushOrigin.z = topHeight - numSlashes * 8;
+
+		idVec3 uvOrigin;
+		uvOrigin.x = x + wordLen * 8;
+		uvOrigin.y = y;
+		uvOrigin.z = topHeight + numSlashes * 8;
+
+		wordLen++;
+		if( title[ i ] == '/' )
+		{
+			numSlashes++;
+			wordLen = 0;
+			continue;
+		}
+
+		idMapBrush* ch = MakeCharBrush( brushOrigin, uvOrigin, title[ i ] );
+		mapEnt->AddPrimitive( ch );
+	}
+#else
+	idVec3 origin;
+	origin.x = outputPositions[ g ].x + group->totalSize.x * 0.5;
+	origin.y = outputPositions[ g ].y;
+	origin.z = 128;
+
+	mapEnt->epairs.Set( "classname", "misc_model" );
+	mapEnt->epairs.Set( "model", "_tb/models/mapobjects/signs/ceilingsign/ceilingsign.obj" );
+	mapEnt->epairs.Set( "gui", "guis/signs/directional.gui" );
+	mapEnt->epairs.Set( "gui_parm1", group->folder );
+#endif
+
+	return mapEnt;
+}
+
+
 struct EntityInfo_t
 {
 	idBounds		bounds;
@@ -3290,15 +3411,39 @@ struct EntityInfo_t
 	idVec2i			packedPos;
 };
 
+// leaf node that actually contains model files
 struct ModelsGroup_t
 {
-	idStrStatic< MAX_OSPATH >			folder;
-	idList<EntityInfo_t*, TAG_SYSTEM>	entityList;
+	idStrStatic< MAX_OSPATH >			path;			// e.g. models/mapobjects/doors/jumbodoor/
+	idList<EntityInfo_t*, TAG_SYSTEM>	entityList;		// model files in that folder
 	idVec2i								totalSize;
+};
+
+// higher level folder node
+struct Category_t
+{
+	Category_t( const char* name )
+	{
+		tagNames.AddUnique( name );
+		totalSize.x = 0;
+		totalSize.y = 0;
+	}
+
+	// data
+	idStrList							tagNames;		// e.g. hell, delta, cpu
+	idList<ModelsGroup_t*, TAG_SYSTEM>	modelGroups;
+	idList<idVec2i>						modelGroupPositions;
+	idVec2i								totalSize;
+
+	// tree
+	//idList<Category_t*, TAG_SYSTEM>		subFolders;
 };
 
 void RectAllocator( const idList<idVec2i>& inputSizes, idList<idVec2i>& outputPositions, idVec2i& totalSize, const int START_MAX = 16384, const int imageMax = -1 );
 float RectPackingFraction( const idList<idVec2i>& inputSizes, const idVec2i totalSize );
+
+
+
 
 // uses BFG Rectangle Atlas packer to pack models in 3D
 void idDeclManagerLocal::MakeZooMapForModels_f( const idCmdArgs& args )
@@ -3405,9 +3550,27 @@ void idDeclManagerLocal::MakeZooMapForModels_f( const idCmdArgs& args )
 	ignoreList.AddUnique( "models/mapobjects/delta3/teleporter_warpfx/betrugger_lightning" );
 	ignoreList.AddUnique( "models/mapobjects/steve_temp/map10_hell_smoke" );
 	ignoreList.AddUnique( "models/mapobjects/phobos/bridge/bridge_roof_1" );
+	ignoreList.AddUnique( "models/mapobjects/phobos/bridge/bridge_wall_1" );
+	ignoreList.AddUnique( "models/mapobjects/phobos/bridge/bridge_wall_2" );
+
+	// TODO generate these procedurally
+	idList<Category_t*> categories;
+	categories.Append( new Category_t( "nocategory" ) ); // collect here that doesn't fit
+	categories.Append( new Category_t( "delta" ) );
+	categories.Append( new Category_t( "erebus" ) );
+	categories.Append( new Category_t( "phobos" ) );
+	categories.Append( new Category_t( "cpu" ) );
+
+	auto hellCat = new Category_t( "hell" );
+	hellCat->tagNames.AddUnique( "goo" );
+	hellCat->tagNames.AddUnique( "steve_temp" );
+	categories.Append( hellCat );
+	categories.Append( new Category_t( "caves" ) );
+	categories.Append( new Category_t( "ruins" ) );
+	
 
 
-	// collect all folders that actually contain models
+	// collect all folders that actually contain models and sort them into categories
 
 	idHashTable<ModelsGroup_t*> entitiesPerFolder;
 
@@ -3508,7 +3671,7 @@ void idDeclManagerLocal::MakeZooMapForModels_f( const idCmdArgs& args )
 		if( !entitiesPerFolder.Get( directory, &groupptrptr ) )
 		{
 			group = new( TAG_SYSTEM ) ModelsGroup_t;
-			group->folder = directory;
+			group->path = directory;
 
 			entitiesPerFolder.Set( directory, group );
 		}
@@ -3574,11 +3737,7 @@ void idDeclManagerLocal::MakeZooMapForModels_f( const idCmdArgs& args )
 		idList<idVec2i>	outputPositions;
 		idVec2i	totalSize;
 
-		// smart allocator
 		RectAllocator( inputSizes, outputPositions, totalSize, 1 << 14 );
-
-		float frac = RectPackingFraction( inputSizes, totalSize );
-		idLib::Printf( "%5.2f packing fraction in %ix%i '%s'\n", frac, totalSize.x, totalSize.y, group->folder.c_str() );
 
 		group->totalSize = totalSize;
 
@@ -3587,131 +3746,206 @@ void idDeclManagerLocal::MakeZooMapForModels_f( const idCmdArgs& args )
 			EntityInfo_t* entInfo = group->entityList[ e ];
 
 			entInfo->packedPos = outputPositions[ e ];
-			entInfo->packedPos.y *= -1.0f;
 		}
 	}
 
-	// pack folders
-	idList<idVec2i>	inputSizes;
-	inputSizes.SetNum( entitiesPerFolder.Num() );
+	// assign model folders to categories
 	for( int g = 0; g < entitiesPerFolder.Num(); g++ )
 	{
 		ModelsGroup_t* group = *entitiesPerFolder.GetIndex( g );
 
-		// these are in DXT blocks, not pixels
-		const int offset = 256;
-		idVec2i allocSize( group->totalSize.x + offset, group->totalSize.y + offset );
+		bool inserted = false;
+		for( int i = 1; i < categories.Num(); i++ )
+		{
+			Category_t* category = categories[ i ];
 
-		idLib::Printf( "folder '%s' size %ix%i\n", group->folder.c_str(), allocSize.x, allocSize.y );
+			for( int j = 0; j < category->tagNames.Num(); j++ )
+			{
+				if( group->path.Find( category->tagNames[ j ] ) != -1 )
+				{
+					category->modelGroups.Append( group );
+					inserted = true;
+					break;
+				}
+			}
+		}
 
-		inputSizes[ g ] = allocSize;
+		if( !inserted )
+		{
+			categories[ 0 ]->modelGroups.Append( group );
+		}
 	}
 
-	idList<idVec2i>	outputPositions;
+	// pack folders in categories
+	for( int i = 0; i < categories.Num(); i++ )
+	{
+		Category_t* category = categories[ i ];
+		
+		idList<idVec2i>	inputSizes;
+		inputSizes.SetNum( category->modelGroups.Num() );
+
+		for( int g = 0; g < category->modelGroups.Num(); g++ )
+		{
+			ModelsGroup_t* group = category->modelGroups[ g ];
+
+			// these are in DXT blocks, not pixels
+			const int offset = 256;
+			idVec2i allocSize( group->totalSize.x + offset, group->totalSize.y + offset );
+
+			idLib::Printf( "folder '%s' size %ix%i\n", group->path.c_str(), allocSize.x, allocSize.y );
+
+			inputSizes[ g ] = allocSize;
+		}
+		
+		idVec2i	totalSize;
+		RectAllocator( inputSizes, category->modelGroupPositions, totalSize, 1 << 14 );
+
+		category->totalSize = totalSize;
+	}
+
+	// pack categories
+	idList<idVec2i>	inputSizes;
+	inputSizes.SetNum( categories.Num() );
+
+	idList<idVec2i> categoryPositions;
 	idVec2i	totalSize;
 
-	// smart allocator
-	RectAllocator( inputSizes, outputPositions, totalSize, 1 << 14 );
+	for( int i = 0; i < categories.Num(); i++ )
+	{
+		Category_t* category = categories[ i ];
+		
+		const int offset = 256;
+		idVec2i allocSize( category->totalSize.x + offset, category->totalSize.y + offset );
 
-	float frac = RectPackingFraction( inputSizes, totalSize );
-	idLib::Printf( "%5.2f packing fraction in %ix%i\n", frac, totalSize.x, totalSize.y );
+		idLib::Printf( "category '%s' size %ix%i\n", category->tagNames[ 0 ].c_str(), allocSize.x, allocSize.y );
+
+		inputSizes[ i ] = allocSize;
+
+		// smart allocator
+		RectAllocator( inputSizes, categoryPositions, totalSize, 1 << 14 );
+	}
 
 	// place entities inside packed folders
-	for( int g = 0; g < entitiesPerFolder.Num(); g++ )
+	for( int c = 0; c < categories.Num(); c++ )
 	{
-		ModelsGroup_t* group = *entitiesPerFolder.GetIndex( g );
-
-		//idLib::Printf( "folder '%s' pos (%i %i)\n", group->folder.c_str(), outputPositions[ g ].x, outputPositions[ g ].y );
-
-		float topHeight = 0;
-
-		for( int e = 0; e < group->entityList.Num(); e++ )
-		{
-			EntityInfo_t* entInfo = group->entityList[ e ];
-
-			if( entInfo->bounds[1].z > topHeight )
-			{
-				topHeight = entInfo->bounds[1].z;
-			}
-		}
-
+		Category_t* category = categories[ c ];
+		
 		const int fontGridHeight = 128;
-		topHeight += 128;
-		topHeight = idMath::Floor( topHeight / fontGridHeight ) * fontGridHeight;
 
-		for( int e = 0; e < group->entityList.Num(); e++ )
+		float catHeight = 0;
+
+		for( int g = 0; g < category->modelGroups.Num(); g++ )
 		{
-			EntityInfo_t* entInfo = group->entityList[ e ];
+			ModelsGroup_t* group = category->modelGroups[ g ];
 
-			if( e == 0 )
+			// calculate top height of the entities in this group
+			// so we can place a name plate above the group
+			float topHeight = 0;
+
+			for( int e = 0; e < group->entityList.Num(); e++ )
 			{
-				idMapEntity* mapEnt = new( TAG_SYSTEM ) idMapEntity();
-				mapFile.AddEntity( mapEnt );
+				EntityInfo_t* entInfo = group->entityList[ e ];
 
-				idStrStatic< MAX_OSPATH > entityName;
-				entityName.Format( "info_board_%d", g );
-
-				mapEnt->epairs.Set( "classname", "func_static" );
-				mapEnt->epairs.Set( "name", entityName );
-				mapEnt->epairs.Set( "model", entityName );
-
-
-#if 1
-				// add folder name as brushes
-				group->folder.ToUpper();
-
-				int numSlashes = 0;
-				int wordLen = 0;
-				for( int i = 0; i < group->folder.Length(); i++ )
+				if( entInfo->bounds[1].z > topHeight )
 				{
-					float y = -outputPositions[ g ].y - group->totalSize.y;
-
-					idVec3 brushOrigin;
-					brushOrigin.x = outputPositions[ g ].x + wordLen * 8;
-					brushOrigin.y = y;
-					brushOrigin.z = topHeight - numSlashes * 8;
-
-					idVec3 uvOrigin;
-					uvOrigin.x = outputPositions[ g ].x + wordLen * 8;
-					uvOrigin.y = y;
-					uvOrigin.z = topHeight + numSlashes * 8;
-
-					wordLen++;
-					if( group->folder[ i ] == '/' )
-					{
-						numSlashes++;
-						wordLen = 0;
-						continue;
-					}
-
-					idMapBrush* ch = MakeCharBrush( brushOrigin, uvOrigin, group->folder[ i ] );
-					mapEnt->AddPrimitive( ch );
+					topHeight = entInfo->bounds[1].z;
 				}
-#else
-				idVec3 origin;
-				origin.x = outputPositions[ g ].x + group->totalSize.x * 0.5;
-				origin.y = outputPositions[ g ].y;
-				origin.z = 128;
-
-				mapEnt->epairs.Set( "classname", "misc_model" );
-				mapEnt->epairs.Set( "model", "_tb/models/mapobjects/signs/ceilingsign/ceilingsign.obj" );
-				mapEnt->epairs.Set( "gui", "guis/signs/directional.gui" );
-				mapEnt->epairs.Set( "gui_parm1", group->folder );
-#endif
 			}
 
-			idVec3 origin;
-			origin.x = outputPositions[ g ].x + entInfo->packedPos.x;
-			origin.y = -outputPositions[ g ].y + entInfo->packedPos.y;
-			origin.z = 0;
+			topHeight += 128;
+			topHeight = idMath::Floor( topHeight / fontGridHeight ) * fontGridHeight;
 
-			entInfo->entity->epairs.SetVector( "origin", origin );
+			if( topHeight > catHeight )
+			{
+				catHeight = topHeight;
+			}
+
+			float x = categoryPositions[ c ].x + category->modelGroupPositions[ g ].x + group->totalSize.x * 0.5f;
+			float y = -categoryPositions[ c ].y - category->modelGroupPositions[ g ].y - group->totalSize.y;
+
+			//idMapEntity* plateEnt = 
+			MakeNamePlateFuncStatic( &mapFile, x, y, topHeight, group->path );
+
+			// move entities along with the upper packed categories
+			for( int e = 0; e < group->entityList.Num(); e++ )
+			{
+				EntityInfo_t* entInfo = group->entityList[ e ];
+
+				idVec3 origin;
+				origin.x = categoryPositions[ c ].x + category->modelGroupPositions[ g ].x + entInfo->packedPos.x -entInfo->bounds[0][0];
+				origin.y = -categoryPositions[ c ].y - category->modelGroupPositions[ g ].y - entInfo->packedPos.y -entInfo->bounds[1][1];
+
+				// place entity above 0 if it goes below
+				origin.z = -entInfo->bounds[0].z + 1;
+
+				entInfo->entity->epairs.SetVector( "origin", origin );
+			}
 		}
+
+		// put a name plate above the category with its main tag
+		float x = categoryPositions[ c ].x + category->totalSize.x * 0.5f;
+		float y = -categoryPositions[ c ].y - category->totalSize.y * 0.5f;
+
+		catHeight += 128;
+		catHeight = idMath::Floor( catHeight / fontGridHeight ) * fontGridHeight;
+
+		idMapEntity* plateEnt = MakeNamePlateFuncStatic( &mapFile, x, y, catHeight, category->tagNames[ 0 ] );
+
+#if 0
+		// place bottom place below
+		idVec3 origin( x, y, -32 );
+		idVec3 scale( category->totalSize.x, category->totalSize.y, 16 );
+			
+		idMapBrush* bottomPlate = MakeUnitBrush( origin, scale );
+		plateEnt->AddPrimitive( bottomPlate );
+#else
+		// place border brushes
+
+		// back
+		float xx = x;
+		float yy = y + category->totalSize.y * 0.5f;
+
+		idVec3 origin( xx, yy, -40 );
+		idVec3 scale( category->totalSize.x, 4, 16 );
+			
+		idMapBrush* bottomPlate = MakeUnitBrush( origin, scale, true );
+		worldspawn->AddPrimitive( bottomPlate );
+
+		// front
+		xx = x;
+		yy = y - category->totalSize.y * 0.5f;
+
+		origin.Set( xx, yy, -40 );
+		scale.Set( category->totalSize.x, 4, 16 );
+			
+		bottomPlate = MakeUnitBrush( origin, scale, true );
+		worldspawn->AddPrimitive( bottomPlate );
+
+		// left
+		xx = x - category->totalSize.x * 0.5f;
+		yy = y;
+
+		origin.Set( xx, yy, -40 );
+		scale.Set( 4, category->totalSize.y, 16 );
+
+		bottomPlate = MakeUnitBrush( origin, scale, true );
+		worldspawn->AddPrimitive( bottomPlate );
+
+		// right
+		xx = x + category->totalSize.x * 0.5f;
+		yy = y;
+
+		origin.Set( xx, yy, -40 );
+		scale.Set( 4, category->totalSize.y, 16 );
+			
+		bottomPlate = MakeUnitBrush( origin, scale, true );
+		worldspawn->AddPrimitive( bottomPlate );
+#endif
 	}
 
 	mapFile.ConvertToValve220Format();
 
-	worldspawn->epairs.Set( "_tb_textures", "textures/common;textures/editor;textures/decals" );
+	worldspawn->epairs.Set( "_tb_textures", "textures/common;textures/editor;textures/decals;textures/rock" );
 	worldspawn->epairs.Set( "_tb_def", "external:base/exported/_tb/DOOM-3-models.fgd" );
 
 	mapFile.Write( mapName, ".map" );
@@ -3719,7 +3953,7 @@ void idDeclManagerLocal::MakeZooMapForModels_f( const idCmdArgs& args )
 	common->Printf( "\nZoo map written to %s\n", mapName.c_str() );
 	common->Printf( "----------------------------\n" );
 	common->Printf( "Found %d Models.\n", totalModelsCount );
-	common->Printf( "Wrote %d Entities in %d Groups.\n", totalEntitiesCount, entitiesPerFolder.Num() );
+	common->Printf( "Wrote %d Entities in %d Groups and %d Cateogories\n", totalEntitiesCount, entitiesPerFolder.Num(), categories.Num() );
 }
 // RB  end
 
