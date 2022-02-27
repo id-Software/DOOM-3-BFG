@@ -556,7 +556,7 @@ private:
 
 	// physics
 	// initialize the default physics
-	void					InitDefaultPhysics( const idVec3& origin, const idMat3& axis );
+	void					InitDefaultPhysics( const idVec3& origin, const idMat3& axis, const idDeclEntityDef* def );
 	// update visual position from the physics
 	void					UpdateFromPhysics( bool moveBack );
 	// get physics timestep
