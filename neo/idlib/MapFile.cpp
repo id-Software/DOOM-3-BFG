@@ -2909,7 +2909,7 @@ bool idMapFile::ConvertToValve220Format()
 			const idKeyValue* modelPair = ent->epairs.FindKey( "model" );
 			idStr model = ent->epairs.GetString( "model" );
 #if 1
-			// HACK: convert every old .lwo, .ase model to .obj
+			// HACK: convert every old .lwo, .ase model to an .obj proxy model so it can be displayed properly in TrenchBroom
 			idStr ext;
 			model.ExtractFileExtension( ext );
 
@@ -2918,7 +2918,7 @@ bool idMapFile::ConvertToValve220Format()
 				model.SetFileExtension( "obj" );
 				model = "_tb/" + model;
 
-				ent->epairs.Set( "model", model );
+				ent->epairs.Set( "proxymodel", model );
 			}
 #endif
 			// is this oldschool brushes & patches?

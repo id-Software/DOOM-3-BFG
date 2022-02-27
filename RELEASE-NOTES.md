@@ -41,7 +41,9 @@ You need to call exportImagesToTrenchBroom and exportModelsToTrenchBroom once an
 
 * Added RBDoom console command exportImagesToTrenchBroom which decompresses and saves all .bimage images to _tb/*.png files
 
-* Added RBDoom console command exportModelsToTrenchBroom which saves all .base|.blwo|.bmd5mesh models to _tb/*.obj files
+* Added RBDoom console command exportModelsToTrenchBroom which saves all .base|.blwo|.bmd5mesh models to _tb/*.obj proxy files. This commands also generates helper entities for TrenchBroom so all mapobject/models are also available in the Entity Inspector using the DOOM-3-models.fgd.
+
+* Added RBDoom console command makeZooMapForModels which makes a Source engine style zoo map with mapobject/models like .blwo, .base et cetera and saves it to maps/zoomaps/zoo_models.map. This helps mappers to get a good overview of the trememdous amount of custom models available in Doom 3 BFG by sorting them into categories and arranging them in 3D. It also filters models so that only modular models are picked that can be reused in new maps.
 
 * TrenchBroom got several Doom 3 specific issue generators to help mappers avoiding pitfalls during mapping
 

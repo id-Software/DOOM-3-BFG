@@ -2457,7 +2457,11 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 				ev.type = EVAR_MODEL;
 				evars.Append( ev );
 
-				//dictToWrite.Set( "model", "" );
+				ev.fullname = "editor_model proxymodel";
+				ev.name = "proxymodel";
+				ev.desc = "A proxy model in OBJ file format automatically set by RBDoom so it can be displayed in TrenchBroom";
+				ev.type = EVAR_MODEL;
+				evars.Append( ev );
 			}
 
 			for( int i = 0; i < decl->dict.GetNumKeyVals(); i++ )
@@ -2533,9 +2537,6 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 					idStr::Icmp( decl->GetName(), "func_plat_model" ) != 0 &&
 					idStr::Icmp( decl->GetName(), "func_rotating_model" ) != 0 )
 			{
-				//kv = dictToWrite.MatchPrefix( "model" );
-				//while( kv )
-
 				const idKeyValue* kv = dictToWrite.FindKey( "model" );
 				if( kv )
 				{
@@ -2568,8 +2569,6 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 							}
 						}
 					}
-
-					//kv = dictToWrite.MatchPrefix( "model", kv );
 				}
 			}
 
@@ -2583,8 +2582,8 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 					 idStr::Icmp( decl->GetName(), "func_plat_model" ) == 0 ||
 					 idStr::Icmp( decl->GetName(), "func_rotating_model" ) == 0 )
 			{
-				// dynamic model case
-				file->Printf( "model({ \"path\" : model }) " );
+				// dynamic model that prefers a TB specific proxymodel
+				file->Printf( "model({{\n\tproxymodel != null -> { \"path\": proxymodel },\n\t{ \"path\": model }\n}})" );
 			}
 			else if( idStr::Icmp( decl->GetName(), "light" ) == 0 )
 			{
@@ -3015,7 +3014,7 @@ void idDeclManagerLocal::ExportModelsToTrenchBroom_f( const idCmdArgs& args )
 	fgdFile->Printf( "\t gui(string) : \"gui attached to this static, gui2 and gui3 also work\"\n" );
 	fgdFile->Printf( "\t gui_demonic(string) : \"demonic gui attached to this statit, gui_demonic2 and gui_demonic3 also work\"\n]\n\n" );
 
-	fgdFile->Printf( "@PointClass base(func_static) color(0 127 204) size(-12 -12 -12, 12 12 12) model({ \"path\" : model }) = misc_model : \"Just a model\"\n[\n" );
+	fgdFile->Printf( "@PointClass base(func_static) color(0 127 204) size(-12 -12 -12, 12 12 12) model({ \"path\" : proxymodel }) = misc_model : \"Just a model\"\n[\n" );
 	//fgdFile->Printf( "name(string) : \"\" : \"\"\n" );
 	fgdFile->Printf( "\t angles(string) : \"\" : \"0 0 0\"\n" );
 	fgdFile->Printf( "]\n\n" );
@@ -3137,8 +3136,8 @@ void idDeclManagerLocal::ExportModelsToTrenchBroom_f( const idCmdArgs& args )
 
 			fgdFile->Printf( "base(auto_generated_model) model({ \"path\": \"%s\" }) = %s : \"Display entity\"\n[\n", exportedModelFileName.c_str(), entityName.c_str() );
 			//fgdFile->Printf( "[\n\t angles(string) : \"\" : \"0 0 0\"\n]\n\n");
-			fgdFile->Printf( "\t model(string) : \"\" : \"%s\"\n", exportedModelFileName.c_str() );
-			fgdFile->Printf( "\t origmodel(string) : \"\" : \"%s\"\n", originalModelFileName.c_str() );
+			fgdFile->Printf( "\t proxymodel(string) : \"\" : \"%s\"\n", exportedModelFileName.c_str() );
+			fgdFile->Printf( "\t model(string) : \"\" : \"%s\"\n", originalModelFileName.c_str() );
 			fgdFile->Printf( "]\n\n", exportedModelFileName.c_str() );
 
 			totalEntitiesCount++;
@@ -3164,7 +3163,6 @@ void idDeclManagerLocal::ExportModelsToTrenchBroom_f( const idCmdArgs& args )
 
 static idMapBrush* MakeUnitBrush( const idVec3& origin, const idVec3& scale, bool border )
 {
-
 	/*
 	TrenchBroom
 
@@ -3225,50 +3223,6 @@ static idMapBrush* MakeUnitBrush( const idVec3& origin, const idVec3& scale, boo
 static idMapBrush* MakeCharBrush( const idVec3& brushOrigin, const idVec3& uvOrigin, int ch )
 {
 
-	/*
-	TrenchBroom
-
-	// brush 3
-	{
-	( 0 -1 7 ) ( 0 0 7 ) ( 0 -1 8 ) common/nodraw [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 0.5 0.5
-	( 0 -1 7 ) ( 0 -1 8 ) ( 1 -1 7 ) decals/alphabet6 [ 1 0 0 64 ] [ 0 0 -1 -224 ] 0 0.25 0.25
-	( 0 -1 0 ) ( 1 -1 0 ) ( 0 0 0 ) common/nodraw [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 0.5 0.5
-	( 11 0 8 ) ( 11 1 8 ) ( 12 0 8 ) common/nodraw [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 0.5 0.5
-	( 11 0 8 ) ( 12 0 8 ) ( 11 0 9 ) common/nodraw [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 0.5 0.5
-	( 8 0 8 ) ( 8 0 9 ) ( 8 1 8 ) common/nodraw [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 0.5 0.5
-	}
-	}
-	*/
-
-	/*
-	DoomEdit
-
-	// primitive 0
-	{
-	 brushDef3
-	 {
-	  ( 0 0 -1 -0 ) ( ( 1 0 1 ) ( 0 0.125 1 ) ) "textures/common/nodraw" 0 0 0
-	  ( 0 0 1 -8 ) ( ( 1 0 1 ) ( 0 0.125 0 ) ) "textures/common/nodraw" 0 0 0
-	  ( -0 -1 -0 -1 ) ( ( 0.125 0 0 ) ( 0 0.125 1 ) ) "textures/common/nodraw" 0 0 0
-	  ( 1 0 -0 -8 ) ( ( 1 0 1 ) ( 0 0.125 1 ) ) "textures/common/nodraw" 0 0 0
-	  ( -0 1 0 -0 ) ( ( 0.015625 0 0.125 ) ( 0 0.015625 -0.375 ) ) "textures/decals/alphabet4" 0 0 0
-	  ( -1 -0 -0 0 ) ( ( 1 0 0 ) ( 0 0.125 1 ) ) "textures/common/nodraw" 0 0 0
-	 }
-	}
-	*/
-
-	const char* doomEditLetterBrush = R"(
- {
-  ( 0 0 -1 -0 ) ( ( 1 0 1 ) ( 0 0.125 1 ) ) "textures/common/nodraw" 0 0 0
-  ( 0 0 1 -8 ) ( ( 1 0 1 ) ( 0 0.125 0 ) ) "textures/common/nodraw" 0 0 0
-  ( -0 -1 -0 -1 ) ( ( 0.125 0 0 ) ( 0 0.125 1 ) ) "textures/common/nodraw" 0 0 0
-  ( 1 0 -0 -8 ) ( ( 1 0 1 ) ( 0 0.125 1 ) ) "textures/common/nodraw" 0 0 0
-  ( -0 1 0 -0 ) ( ( 0.015625 0 0.125 ) ( 0 0.015625 -0.375 ) ) "textures/decals/alphabet4" 0 0 0
-  ( -1 -0 -0 0 ) ( ( 1 0 0 ) ( 0 0.125 1 ) ) "textures/common/nodraw" 0 0 0
- }
-}
-)";
-
 	const char* tbLetterBrush = R"(
 ( 0 -1 7 ) ( 0 0 7 ) ( 0 -1 8 ) common/nodraw [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 0.5 0.5
 ( 0 -1 7 ) ( 0 -1 8 ) ( 1 -1 7 ) decals/alphabet6 [ 1 0 0 64 ] [ 0 0 -1 -224 ] 0 0.25 0.25
@@ -3282,18 +3236,6 @@ static idMapBrush* MakeCharBrush( const idVec3& brushOrigin, const idVec3& uvOri
 
 	idLexer src( LEXFL_NOSTRINGCONCAT | LEXFL_NOSTRINGESCAPECHARS | LEXFL_ALLOWPATHNAMES );
 
-#if 0
-	src.LoadMemory( doomEditLetterBrush, strlen( doomEditLetterBrush), "DoomEdit Brush" );
-	idMapBrush* brush = idMapBrush::Parse( src, origin );
-	for( int i = 0; i < brush->GetNumSides(); i++ )
-	{
-		auto side = brush->GetSide( i );
-
-		auto plane = side->GetPlane();
-		plane.TranslateSelf( origin );
-		side->SetPlane( plane );
-	}
-#else
 	src.LoadMemory( tbLetterBrush, strlen( tbLetterBrush), "DoomEdit Brush" );
 	idMapBrush* brush = idMapBrush::ParseValve220( src, brushOrigin );
 
@@ -3336,7 +3278,6 @@ static idMapBrush* MakeCharBrush( const idVec3& brushOrigin, const idVec3& uvOri
 	auto side = brush->GetSide( 1 );
 	side->texValve[ 0 ][ 3 ] = baseOffset.x + col * 32;
 	side->texValve[ 1 ][ 3 ] = baseOffset.y + row * 32;
-#endif
 
 	return brush;
 }
@@ -3692,6 +3633,8 @@ void idDeclManagerLocal::MakeZooMapForModels_f( const idCmdArgs& args )
 		}
 
 		idBounds bounds = renderModel->Bounds();
+		bounds[0].Snap();
+		bounds[1].Snap();
 
 		// put model as mapobject into the models FGD
 		if( !renderModel->IsDefaultModel() && bounds.GetVolume() > 0 && bounds.GetRadius() < 1400 )
@@ -3710,8 +3653,10 @@ void idDeclManagerLocal::MakeZooMapForModels_f( const idCmdArgs& args )
 
 			mapEnt->epairs.Set( "classname", "misc_model" );
 			mapEnt->epairs.Set( "name", entityName );
-			mapEnt->epairs.Set( "model", exportedModelFileName );
-			mapEnt->epairs.Set( "origmodel", modelName );
+			mapEnt->epairs.Set( "proxymodel", exportedModelFileName );
+			mapEnt->epairs.Set( "model", modelName );
+			mapEnt->epairs.SetVector( "mins", bounds[0] );
+			mapEnt->epairs.SetVector( "maxs", bounds[1] );
 
 			EntityInfo_t* entInfo = new( TAG_SYSTEM ) EntityInfo_t;
 			entInfo->bounds = bounds;
@@ -3747,7 +3692,7 @@ void idDeclManagerLocal::MakeZooMapForModels_f( const idCmdArgs& args )
 			//idLib::Printf( "model size %ix%i in '%s'\n", allocSize.x, allocSize.y, group->folder.c_str() );
 
 			inputSizes[ e ] = allocSize;
-			inputNames.Append( entInfo->entity->epairs.GetString( "origmodel" ) );
+			inputNames.Append( entInfo->entity->epairs.GetString( "model" ) );
 		}
 
 		idList<idVec2i>	outputPositions;
