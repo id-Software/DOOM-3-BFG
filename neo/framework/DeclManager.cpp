@@ -967,7 +967,7 @@ void idDeclManagerLocal::Init()
 
 	// RB begin
 	cmdSystem->AddCommand( "exportEntityDefsToBlender", ExportDeclsToBlender_f, CMD_FL_SYSTEM, "exports all entity and model defs to exported/entities.json" );
-	cmdSystem->AddCommand( "exportFGD", ExportDeclsToTrenchBroom_f, CMD_FL_SYSTEM, "exports all entity and model defs to exported/_tb/Doom3.fgd" );
+	cmdSystem->AddCommand( "exportFGD", ExportDeclsToTrenchBroom_f, CMD_FL_SYSTEM, "exports all entity and model defs to _tb/fgd/DOOM-3-*.fgd" );
 	cmdSystem->AddCommand( "exportModelsToTrenchBroom", ExportModelsToTrenchBroom_f, CMD_FL_SYSTEM, "exports all generated models like blwo, base .. to _tb/*.obj" );
 	cmdSystem->AddCommand( "exportImagesToTrenchBroom", ExportImagesToTrenchBroom_f, CMD_FL_SYSTEM, "exports all generated bimages to _tb/*.png" );
 
@@ -2187,7 +2187,7 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 		int totalModelsCount = 0;
 
 		idStr fgdFileName;
-		fgdFileName.Format( "exported/_tb/DOOM-3-%s.fgd", filenames[ f ].c_str() );
+		fgdFileName.Format( "_tb/fgd/DOOM-3-%s.fgd", filenames[ f ].c_str() );
 		idFileLocal file( fileSystem->OpenFileWrite( fgdFileName, "fs_basepath" ) );
 
 		if( file == NULL )
@@ -2990,7 +2990,7 @@ void idDeclManagerLocal::ExportModelsToTrenchBroom_f( const idCmdArgs& args )
 
 	// FGD header
 	idStr fgdFileName;
-	fgdFileName.Format( "exported/_tb/DOOM-3-models.fgd" );
+	fgdFileName.Format( "_tb/fgd/DOOM-3-models.fgd" );
 	idFileLocal fgdFile( fileSystem->OpenFileWrite( fgdFileName, "fs_basepath" ) );
 	if( fgdFile == NULL )
 	{
@@ -3957,7 +3957,7 @@ void idDeclManagerLocal::MakeZooMapForModels_f( const idCmdArgs& args )
 	mapFile.ConvertToValve220Format();
 
 	worldspawn->epairs.Set( "_tb_textures", "textures/common;textures/editor;textures/decals;textures/rock" );
-	worldspawn->epairs.Set( "_tb_def", "external:base/exported/_tb/DOOM-3-models.fgd" );
+	worldspawn->epairs.Set( "_tb_def", "external:base/_tb/fgd/DOOM-3-models.fgd" );
 
 	mapFile.Write( mapName, ".map" );
 
