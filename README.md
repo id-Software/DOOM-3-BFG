@@ -654,9 +654,9 @@ dmap `[glview]` mapfile                | DMap option that exports the BSP areas 
 bakeEnvironmentProbes                  | Command after loading a map. Captures all env_probe entities and stores them to disc
 bakeLightGrids [`<switches>`...]       | `<Switches>` limit[num] : max probes per BSP area (default 16384) bounce[num] : number of bounces or number of light reuse (default 1) grid( xdim ydim zdim ) : light grid size steps into each direction (default 64 64 128)
 exportScriptEvents                     | Command: Generates a new script/doom_events.script that reflects all registered class events in the idClass C++ system. The gamecode still needs to be extended to add the original comments of the events
-exportFGD `[nomodels]`                 | Command: Exports all entity defs to exported/_tb/*.fgd for usage in convertMapToValve220 `<map>`           | 
-exportImagesToTrenchBroom              | Command: Decompresses and saves all TB relevant .bimage images to _tb/*.png files
-exportModelsToTrenchBroom              | Command: Saves all .base|.blwo|.bmd5mesh models to _tb/*.obj files
+exportFGD `[nomodels]`                 | Command: Exports all entity defs to base/_tb/*.fgd for usage in convertMapToValve220 `<map>`           | 
+exportImagesToTrenchBroom              | Command: Decompresses and saves all TB relevant .bimage images to base/_tb/*.png files
+exportModelsToTrenchBroom              | Command: Saves all .base|.blwo|.bmd5mesh models to base/_tb/*.obj files
 exportEntityDefsToBlender              | Command: Exports all entity and model defs to exported/entities.json for usage in Blender
 before loading a map.
 exportMapToOBJ                         | Command: Convert .map file to .obj/.mtl
