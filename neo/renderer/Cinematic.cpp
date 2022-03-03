@@ -787,7 +787,7 @@ bool idCinematicLocal::InitFromFFMPEGFile( const char* qpath, bool amilooping )
 	}
 	animationLength = durationSec * 1000;
 	frameRate = av_q2d( fmt_ctx->streams[video_stream_index]->avg_frame_rate );
-	common->Printf( "Loaded FFMPEG file: '%s', looping=%d, %dx%d, %f FPS, %f sec\n", qpath, looping, CIN_WIDTH, CIN_HEIGHT, frameRate, durationSec );
+	common->Printf( "Loaded FFMPEG file: '%s', looping=%d, %dx%d, %3.2f FPS, %4.1f sec\n", qpath, looping, CIN_WIDTH, CIN_HEIGHT, frameRate, durationSec );
 
 	// SRS - Get number of image bytes needed by querying with NULL first, then allocate image and fill with correct parameters
 	int img_bytes = av_image_fill_arrays( frame2->data, frame2->linesize, NULL, AV_PIX_FMT_BGR32, CIN_WIDTH, CIN_HEIGHT, 1 );
@@ -795,7 +795,6 @@ bool idCinematicLocal::InitFromFFMPEGFile( const char* qpath, bool amilooping )
 	av_image_fill_arrays( frame2->data, frame2->linesize, image, AV_PIX_FMT_BGR32, CIN_WIDTH, CIN_HEIGHT, 1 ); //GK: Straight out of the FFMPEG source code
 	img_convert_ctx = sws_getContext( dec_ctx->width, dec_ctx->height, dec_ctx->pix_fmt, CIN_WIDTH, CIN_HEIGHT, AV_PIX_FMT_BGR32, SWS_BICUBIC, NULL, NULL, NULL );
 
-	buf = NULL;
 	status = FMV_PLAY;
 	hasFrame = false;
 	framePos = -1;
@@ -834,12 +833,13 @@ void idCinematicLocal::FFMPEGReset()
 		}
 	}
 
-	if( av_seek_frame( fmt_ctx, video_stream_index, 0, 0 ) >= 0 )
+	// SRS - For non-RoQ (i.e. bik) files, use standard frame seek to rewind the stream
+	if( dec_ctx->codec_id != AV_CODEC_ID_ROQ && av_seek_frame( fmt_ctx, video_stream_index, 0, 0 ) >= 0 )
 	{
 		status = FMV_LOOPED;
 	}
-	// SRS - Special handling for RoQ files: only frame byte seek works and ffmpeg RoQ decoder needs reset
-	else if( av_seek_frame( fmt_ctx, video_stream_index, 0, AVSEEK_FLAG_BYTE ) >= 0 && dec_ctx->codec_id == AV_CODEC_ID_ROQ )
+	// SRS - Special handling for RoQ files: only byte seek works and ffmpeg RoQ decoder needs reset
+	else if( dec_ctx->codec_id == AV_CODEC_ID_ROQ && av_seek_frame( fmt_ctx, video_stream_index, 0, AVSEEK_FLAG_BYTE ) >= 0 )
 	{
 		// Close and reopen the ffmpeg RoQ codec without clearing the context - this seems to reset the decoder properly
 		avcodec_close( dec_ctx );
@@ -918,11 +918,10 @@ bool idCinematicLocal::InitFromBinkDecFile( const char* qpath, bool amilooping )
 	numFrames = Bink_GetNumFrames( binkHandle );
 	float durationSec = numFrames / frameRate;      // SRS - fixed Bink durationSec calculation
 	animationLength = durationSec * 1000;           // SRS - animationLength is in milliseconds
-	common->Printf( "Loaded BinkDec file: '%s', looping=%d, %dx%d, %f FPS, %f sec\n", qpath, looping, CIN_WIDTH, CIN_HEIGHT, frameRate, durationSec );
+	common->Printf( "Loaded BinkDec file: '%s', looping=%d, %dx%d, %3.2f FPS, %4.1f sec\n", qpath, looping, CIN_WIDTH, CIN_HEIGHT, frameRate, durationSec );
 
 	memset( yuvBuffer, 0, sizeof( yuvBuffer ) );
 
-	buf = NULL;
 	status = FMV_PLAY;
 	hasFrame = false;                               // SRS - Implemented hasFrame for BinkDec behaviour consistency with FFMPEG
 	framePos = -1;
@@ -1043,6 +1042,7 @@ bool idCinematicLocal::InitFromFile( const char* qpath, bool amilooping )
 		RoQ_init();
 		status = FMV_PLAY;
 		ImageForTime( 0 );
+		common->Printf( "Loaded RoQ file: '%s', looping=%d, %dx%d, %3.2f FPS\n", qpath, looping, CIN_WIDTH, CIN_HEIGHT, frameRate );
 		status = ( looping ) ? FMV_PLAY : FMV_IDLE;
 		return true;
 	}
@@ -1111,8 +1111,7 @@ void idCinematicLocal::Close()
 		}
 		status = FMV_EOF;
 	}
-#endif
-#ifdef USE_BINKDEC
+#elif defined(USE_BINKDEC)
 	else //if( !isRoQ )
 	{
 		if( binkHandle.isValid )
@@ -1178,8 +1177,7 @@ cinData_t idCinematicLocal::ImageForTime( int thisTime )
 	{
 		return ImageForTimeFFMPEG( thisTime );
 	}
-#endif
-#ifdef USE_BINKDEC // DG: libbinkdec support
+#elif defined(USE_BINKDEC) // DG: libbinkdec support
 	if( !isRoQ )
 	{
 		return ImageForTimeBinkDec( thisTime );
@@ -1189,15 +1187,16 @@ cinData_t idCinematicLocal::ImageForTime( int thisTime )
 	// Carl: Handle original Doom 3 RoQ video files
 	cinData_t	cinData;
 
-	if( thisTime == 0 )
+	// SRS - Changed from == 0 to <= 0 to match behaviour of FFMPEG and BinkDec decoders
+	if( thisTime <= 0 )
 	{
 		thisTime = Sys_Milliseconds();
 	}
 
-	if( thisTime < 0 )
-	{
-		thisTime = 0;
-	}
+	//if( thisTime < 0 )
+	//{
+	//	thisTime = 0;
+	//}
 
 	memset( &cinData, 0, sizeof( cinData ) );
 
@@ -1234,7 +1233,8 @@ cinData_t idCinematicLocal::ImageForTime( int thisTime )
 		tfps = 0;
 	}
 
-	if( tfps < numQuads )
+	// SRS - Need to use numQuads - 1 for frame position (otherwise get into reset loop at start)
+	if( tfps < numQuads - 1 )
 	{
 		RoQReset();
 		buf = NULL;
@@ -1243,6 +1243,7 @@ cinData_t idCinematicLocal::ImageForTime( int thisTime )
 
 	if( buf == NULL )
 	{
+		// SRS - This frame init loop is not really necessary, but leaving in to avoid breakage
 		while( buf == NULL )
 		{
 			RoQInterrupt();
@@ -1250,32 +1251,31 @@ cinData_t idCinematicLocal::ImageForTime( int thisTime )
 	}
 	else
 	{
-		while( ( tfps != numQuads && status == FMV_PLAY ) )
+		// SRS - This frame loop is really all we need and could handle the above case as well
+		while( ( numQuads - 1 < tfps && status == FMV_PLAY ) )
 		{
 			RoQInterrupt();
 		}
 	}
 
-	if( status == FMV_LOOPED )
-	{
-		status = FMV_PLAY;
-		while( buf == NULL && status == FMV_PLAY )
-		{
-			RoQInterrupt();
-		}
-		startTime = thisTime;
-	}
+	// SRS - This is redundant code, virtually identical logic correctly handles looping below
+	//if( status == FMV_LOOPED )
+	//{
+	//	status = FMV_PLAY;
+	//	while( buf == NULL && status == FMV_PLAY )
+	//	{
+	//		RoQInterrupt();
+	//	}
+	//	startTime = thisTime;
+	//}
 
-	if( status == FMV_EOF )
+	if( status == FMV_LOOPED || status == FMV_EOF )
 	{
 		if( looping )
 		{
-			RoQReset();
+			//RoQReset();		// SRS - RoQReset() already called by RoQInterrupt() when looping
 			buf = NULL;
-			if( status == FMV_LOOPED )
-			{
-				status = FMV_PLAY;
-			}
+			status = FMV_PLAY;
 			while( buf == NULL && status == FMV_PLAY )
 			{
 				RoQInterrupt();
@@ -1284,9 +1284,10 @@ cinData_t idCinematicLocal::ImageForTime( int thisTime )
 		}
 		else
 		{
+			buf = NULL;
 			status = FMV_IDLE;
-			// SRS - When status == FMV_IDLE this is a no-op, disable since shutdown not needed here anyways
-			//RoQShutdown();
+			//RoQShutdown();	//SRS - RoQShutdown() not needed on EOF, return null data instead
+			return cinData;
 		}
 	}
 
@@ -1346,6 +1347,8 @@ cinData_t idCinematicLocal::ImageForTimeFFMPEG( int thisTime )
 	if( desiredFrame < framePos )
 	{
 		FFMPEGReset();
+		hasFrame = false;
+		status = FMV_PLAY;
 	}
 
 	if( hasFrame && desiredFrame == framePos )
@@ -1378,6 +1381,7 @@ cinData_t idCinematicLocal::ImageForTimeFFMPEG( int thisTime )
 				{
 					desiredFrame = 0;
 					FFMPEGReset();
+					hasFrame = false;
 					startTime = thisTime;
 					if( av_read_frame( fmt_ctx, &packet ) < 0 )
 					{
@@ -1388,6 +1392,7 @@ cinData_t idCinematicLocal::ImageForTimeFFMPEG( int thisTime )
 				}
 				else
 				{
+					hasFrame = false;
 					status = FMV_IDLE;
 					return cinData;
 				}
@@ -1538,27 +1543,12 @@ cinData_t idCinematicLocal::ImageForTimeBinkDec( int thisTime )
 		desiredFrame = 0;
 	}
 
-	if( desiredFrame >= numFrames )
-	{
-		status = FMV_EOF;
-		if( looping )
-		{
-			desiredFrame = 0;
-			BinkDecReset();
-			startTime = thisTime;
-			status = FMV_PLAY;
-		}
-		else
-		{
-			status = FMV_IDLE;
-			return cinData;
-		}
-	}
-
 	// SRS - Enable video replay within PDAs
 	if( desiredFrame < framePos )
 	{
 		BinkDecReset();
+		hasFrame = false;
+		status = FMV_PLAY;
 	}
 	// SRS end
 
@@ -1572,6 +1562,25 @@ cinData_t idCinematicLocal::ImageForTimeBinkDec( int thisTime )
 		cinData.imageCr = imgCr;
 		cinData.imageCb = imgCb;
 		return cinData;
+	}
+
+	if( desiredFrame >= numFrames )
+	{
+		status = FMV_EOF;
+		if( looping )
+		{
+			desiredFrame = 0;
+			BinkDecReset();
+			hasFrame = false;
+			startTime = thisTime;
+			status = FMV_PLAY;
+		}
+		else
+		{
+			hasFrame = false;
+			status = FMV_IDLE;
+			return cinData;
+		}
 	}
 
 	// Bink_GotoFrame(binkHandle, desiredFrame);
@@ -3130,7 +3139,7 @@ redump:
 //
 // read in next frame data
 //
-	if( RoQPlayed >= ROQSize )
+	if( RoQPlayed >= ROQSize || status == FMV_EOF )		// SRS - handle FMV_EOF case
 	{
 		if( looping )
 		{
