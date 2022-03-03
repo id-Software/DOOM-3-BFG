@@ -910,7 +910,7 @@ bool idCinematicLocal::InitFromBinkDecFile( const char* qpath, bool amilooping )
 	{
 		trackIndex = 0;														// SRS - Use the first audio track - is this reasonable?
 		binkInfo = Bink_GetAudioTrackDetails( binkHandle, trackIndex );
-		common->Printf( "Cinematic audio stream found: Sample Rate=%d Hz, Channels=%d\n", binkInfo.sampleRate, binkInfo.nChannels );
+		common->Printf( "Cinematic audio stream found: Sample Rate=%d Hz, Channels=%d, Format=16-bit\n", binkInfo.sampleRate, binkInfo.nChannels );
 		cinematicAudio->InitAudio( &binkInfo );
 	}
 
