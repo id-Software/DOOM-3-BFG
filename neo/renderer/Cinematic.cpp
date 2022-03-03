@@ -1017,6 +1017,7 @@ bool idCinematicLocal::InitFromFile( const char* qpath, bool amilooping )
 	}
 	// Carl: The rest of this function is for original Doom 3 RoQ files:
 	isRoQ = true;
+	fileName = temp;
 	ROQSize = iFile->Length();
 
 	looping = amilooping;
@@ -1042,7 +1043,7 @@ bool idCinematicLocal::InitFromFile( const char* qpath, bool amilooping )
 		RoQ_init();
 		status = FMV_PLAY;
 		ImageForTime( 0 );
-		common->Printf( "Loaded RoQ file: '%s', looping=%d, %dx%d, %3.2f FPS\n", qpath, looping, CIN_WIDTH, CIN_HEIGHT, frameRate );
+		common->Printf( "Loaded RoQ file: '%s', looping=%d, %dx%d, %3.2f FPS\n", fileName.c_str(), looping, CIN_WIDTH, CIN_HEIGHT, frameRate );
 		status = ( looping ) ? FMV_PLAY : FMV_IDLE;
 		return true;
 	}
