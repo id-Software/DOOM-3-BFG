@@ -15,7 +15,7 @@ Thank you for downloading RBDOOM-3-BFG.
 
 _______________________________________
 
-02 March 2022 - RBDOOM-3-BFG 1.4.0
+06 March 2022 - RBDOOM-3-BFG 1.4.0
 _______________________________
 
 <img src="https://i.imgur.com/3sUxOZi.jpg">

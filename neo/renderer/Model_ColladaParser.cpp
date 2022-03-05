@@ -2489,8 +2489,9 @@ void ColladaParser::ReadPrimitives( Mesh* pMesh, idList<InputChannel>& pPerIndex
 		numPrimitives = 1;
 	}
 
-	pMesh->mFaceSize.AssureSize( numPrimitives );
-	//pMesh->mFacePosIndices.AssureSize( indices.Num() / numOffsets );
+	const int startFaceSize = pMesh->mFaceSize.Num();
+
+	pMesh->mFaceSize.AssureSize( Max( pMesh->mFaceSize.Size(), numPrimitives ) );
 
 	size_t appendedVerts = 0;
 	for( size_t a = 0; a < numPrimitives; a++ )
@@ -2519,7 +2520,7 @@ void ColladaParser::ReadPrimitives( Mesh* pMesh, idList<InputChannel>& pPerIndex
 		}
 
 		// store the face size to later reconstruct the face from
-		pMesh->mFaceSize[a] = numPoints;
+		pMesh->mFaceSize[startFaceSize + a] = numPoints;
 
 		// gather that number of vertices
 		for( size_t b = 0; b < numPoints; b++ )

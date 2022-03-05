@@ -4804,9 +4804,13 @@ void idRenderBackend::Bloom( const viewDef_t* _viewDef )
 		return;
 	}
 
+	renderLog.OpenMainBlock( MRB_BLOOM );
+	renderLog.OpenBlock( "Render_Bloom", colorBlue );
+
 	RENDERLOG_PRINTF( "---------- RB_Bloom( avg = %f, max = %f, key = %f ) ----------\n", hdrAverageLuminance, hdrMaxLuminance, hdrKey );
 
 	// BRIGHTPASS
+	renderLog.OpenBlock( "Brightpass" );
 
 	//GL_CheckErrors();
 
@@ -4887,6 +4891,10 @@ void idRenderBackend::Bloom( const viewDef_t* _viewDef )
 	// Draw
 	DrawElementsWithCounters( &unitSquareSurface );
 
+	renderLog.CloseBlock(); // Brightpass
+
+	renderLog.OpenBlock( "Bloom Ping Pong" );
+
 	// BLOOM PING PONG rendering
 	renderProgManager.BindShader_HDRGlareChromatic();
 
@@ -4918,9 +4926,14 @@ void idRenderBackend::Bloom( const viewDef_t* _viewDef )
 
 	DrawElementsWithCounters( &unitSquareSurface );
 
+	renderLog.CloseBlock(); // Bloom Ping Pong
+
 	renderProgManager.Unbind();
 
 	GL_State( GLS_DEFAULT );
+
+	renderLog.CloseBlock(); // Render_Bloom
+	renderLog.CloseMainBlock(); // MRB_BLOOM
 }
 
 
@@ -5026,8 +5039,6 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 
 	GL_Viewport( 0, 0, aoScreenWidth, aoScreenHeight );
 	GL_Scissor( 0, 0, aoScreenWidth, aoScreenHeight );
-
-
 
 	if( downModulateScreen )
 	{
@@ -5294,7 +5305,6 @@ void idRenderBackend::DrawScreenSpaceGlobalIllumination( const viewDef_t* _viewD
 		glClearColor( 0, 0, 0, 1 );
 
 		GL_SelectTexture( 0 );
-		//globalImages->currentDepthImage->Bind();
 
 		for( int i = 0; i < MAX_HIERARCHICAL_ZBUFFERS; i++ )
 		{
@@ -5709,7 +5719,7 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 
 	//GL_CheckErrors();
 
-#if !defined(USE_VULKAN)
+#if !defined( USE_VULKAN ) && !defined( USE_NVRHI )
 	// bind one global Vertex Array Object (VAO)
 	glBindVertexArray( glConfig.global_vao );
 #endif

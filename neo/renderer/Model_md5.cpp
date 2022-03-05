@@ -719,7 +719,6 @@ idRenderModelMD5::LoadBinaryModel
 */
 bool idRenderModelMD5::LoadBinaryModel( idFile* file, const ID_TIME_T sourceTimeStamp )
 {
-
 	if( !idRenderModelStatic::LoadBinaryModel( file, sourceTimeStamp ) )
 	{
 		return false;

@@ -455,7 +455,38 @@ void Framebuffer::AddDepthBuffer( int format, int multiSamples )
 
 	if( notCreatedYet )
 	{
-		glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer );
+		glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, depthBuffer );
+	}
+
+	GL_CheckErrors();
+}
+
+void Framebuffer::AddStencilBuffer( int format, int multiSamples )
+{
+	stencilFormat = format;
+
+	bool notCreatedYet = stencilBuffer == 0;
+	if( notCreatedYet )
+	{
+		glGenRenderbuffers( 1, &stencilBuffer );
+	}
+
+	glBindRenderbuffer( GL_RENDERBUFFER, stencilBuffer );
+
+	if( multiSamples > 0 )
+	{
+		glRenderbufferStorageMultisample( GL_RENDERBUFFER, multiSamples, format, width, height );
+
+		msaaSamples = true;
+	}
+	else
+	{
+		glRenderbufferStorage( GL_RENDERBUFFER, format, width, height );
+	}
+
+	if( notCreatedYet )
+	{
+		glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, stencilBuffer );
 	}
 
 	GL_CheckErrors();
@@ -486,7 +517,7 @@ void Framebuffer::AttachImageDepth( int target, const idImage* image )
 		return;
 	}
 
-	glFramebufferTexture2D( GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, target, image->texnum, 0 );
+	glFramebufferTexture2D( GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, target, image->texnum, 0 );
 }
 
 void Framebuffer::AttachImageDepthLayer( const idImage* image, int layer )

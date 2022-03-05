@@ -5,6 +5,7 @@ Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2014-2016 Robert Beckebans
 Copyright (C) 2014-2016 Kot in Action Creative Artel
+Copyright (C) 2022 Stephen Pridham
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -89,6 +90,7 @@ void idMaterial::CommonInit()
 	surfaceFlags = SURFTYPE_NONE;
 	materialFlags = 0;
 	sort = SS_BAD;
+	subViewType = SUBVIEW_NONE;
 	stereoEye = 0;
 	coverage = MC_BAD;
 	cullType = CT_FRONT_SIDED;
@@ -185,6 +187,11 @@ void idMaterial::FreeData()
 			{
 				Mem_Free( stages[i].newStage );
 				stages[i].newStage = NULL;
+			}
+			if( stages[i].stencilStage != nullptr )
+			{
+				Mem_Free( stages[i].stencilStage );
+				stages[i].stencilStage = nullptr;
 			}
 		}
 		R_StaticFree( stages );
@@ -1268,6 +1275,11 @@ void idMaterial::ParseFragmentMap( idLexer& src, newShaderStage_t* newStage )
 			cubeMap = CF_CAMERA;
 			continue;
 		}
+		if( !token.Icmp( "cubeMapSingle" ) )
+		{
+			cubeMap = CF_SINGLE;
+			continue;
+		}
 		if( !token.Icmp( "nearest" ) )
 		{
 			tf = TF_NEAREST;
@@ -1326,6 +1338,207 @@ void idMaterial::ParseFragmentMap( idLexer& src, newShaderStage_t* newStage )
 	if( !newStage->fragmentProgramImages[unit] )
 	{
 		newStage->fragmentProgramImages[unit] = globalImages->defaultImage;
+	}
+}
+
+/*
+===============
+idMaterial::ParseStencilCompare
+===============
+*/
+void idMaterial::ParseStencilCompare( const idToken& token, stencilComp_t* stencilComp )
+{
+	if( !token.Icmp( "Greater" ) )
+	{
+		*stencilComp = STENCIL_COMP_GREATER;
+		return;
+	}
+
+	if( !token.Icmp( "GEqual" ) )
+	{
+		*stencilComp = STENCIL_COMP_GEQUAL;
+		return;
+	}
+
+	if( !token.Icmp( "Less" ) )
+	{
+		*stencilComp = STENCIL_COMP_LESS;
+		return;
+	}
+
+	if( !token.Icmp( "LEqual" ) )
+	{
+		*stencilComp = STENCIL_COMP_LEQUAL;
+		return;
+	}
+
+	if( !token.Icmp( "Equal" ) )
+	{
+		*stencilComp = STENCIL_COMP_EQUAL;
+		return;
+	}
+
+	if( !token.Icmp( "NotEqual" ) )
+	{
+		*stencilComp = STENCIL_COMP_NOTEQUAL;
+		return;
+	}
+
+	if( !token.Icmp( "Always" ) )
+	{
+		*stencilComp = STENCIL_COMP_ALWAYS;
+		return;
+	}
+
+	if( !token.Icmp( "Never" ) )
+	{
+		*stencilComp = STENCIL_COMP_NEVER;
+		return;
+	}
+
+	common->Warning( "Material %s expected a valid stencil comparison function. Got %s", GetName(), token.c_str() );
+}
+
+/*
+===============
+idMaterial::ParseStencilOperation
+===============
+*/
+void idMaterial::ParseStencilOperation( const idToken& token, stencilOperation_t* stencilOp )
+{
+	if( !token.Icmp( "Keep" ) )
+	{
+		*stencilOp = STENCIL_OP_KEEP;
+		return;
+	}
+
+	if( !token.Icmp( "Zero" ) )
+	{
+		*stencilOp = STENCIL_OP_ZERO;
+		return;
+	}
+
+	if( !token.Icmp( "Replace" ) )
+	{
+		*stencilOp = STENCIL_OP_REPLACE;
+		return;
+	}
+
+	if( !token.Icmp( "IncrSat" ) )
+	{
+		*stencilOp = STENCIL_OP_INCRSAT;
+		return;
+	}
+
+	if( !token.Icmp( "DecrSat" ) )
+	{
+		*stencilOp = STENCIL_OP_DECRSAT;
+		return;
+	}
+
+	if( !token.Icmp( "Invert" ) )
+	{
+		*stencilOp = STENCIL_OP_INVERT;
+		return;
+	}
+
+	if( !token.Icmp( "IncrWrap" ) )
+	{
+		*stencilOp = STENCIL_OP_INCRWRAP;
+		return;
+	}
+
+	if( !token.Icmp( "DecrWrap" ) )
+	{
+		*stencilOp = STENCIL_OP_DECRWRAP;
+		return;
+	}
+
+	common->Warning( "Material %s expected a valid stencil operation function. Got %s", GetName(), token.c_str() );
+}
+
+/*
+===============
+idMaterial::ParseStencil
+===============
+*/
+void idMaterial::ParseStencil( idLexer& src, stencilStage_t* stencilStage )
+{
+	idToken	token;
+	src.ReadToken( &token );
+	if( token.Icmp( "{" ) )
+	{
+		common->Warning( "Material %s Missing { after stencil", GetName() );
+		return;
+	}
+
+	while( 1 )
+	{
+		if( TestMaterialFlag( MF_DEFAULTED ) )  	// we have a parse error
+		{
+			return;
+		}
+
+		if( !src.ExpectAnyToken( &token ) )
+		{
+			SetMaterialFlag( MF_DEFAULTED );
+			return;
+		}
+
+		if( !token.Icmp( "}" ) )
+		{
+			break;
+		}
+
+		if( !token.Icmp( "Ref" ) )
+		{
+			src.ReadTokenOnLine( &token );
+
+			if( !token.IsNumeric() )
+			{
+				common->Warning( "Material %s expected number for stencil ref value. Got %s", GetName(), token.c_str() );
+				continue;
+			}
+
+			if( token.GetIntValue() > 255 || token.GetIntValue() < 0 )
+			{
+				common->Warning( "Material %s expected stencil ref value between 0 and 255. Got %s", GetName(), token.c_str() );
+				continue;
+			}
+
+			stencilStage->ref = token.GetIntValue();
+			continue;
+		}
+
+		if( !token.Icmp( "Comp" ) )
+		{
+			src.ReadTokenOnLine( &token );
+			ParseStencilCompare( token, &stencilStage->comp );
+			continue;
+		}
+
+		if( !token.Icmp( "Pass" ) )
+		{
+			src.ReadTokenOnLine( &token );
+			ParseStencilOperation( token, &stencilStage->pass );
+			continue;
+		}
+
+		if( !token.Icmp( "Fail" ) )
+		{
+			src.ReadTokenOnLine( &token );
+			ParseStencilOperation( token, &stencilStage->fail );
+			continue;
+		}
+
+		if( !token.Icmp( "ZFail" ) )
+		{
+			src.ReadTokenOnLine( &token );
+			ParseStencilOperation( token, &stencilStage->zFail );
+			continue;
+		}
+
+		common->Warning( "Material %s expected a valid stencil keyword. Got %s.", GetName(), token.c_str() );
 	}
 }
 
@@ -1400,10 +1613,12 @@ void idMaterial::ParseStage( idLexer& src, const textureRepeat_t trpDefault )
 	textureRepeat_t		trp;
 	textureUsage_t		td;
 	cubeFiles_t			cubeMap;
+	int                 cubeMapSize = 0; // SP: The size of the cubemap for subimage uploading to the cubemap targets.
 	char				imageName[MAX_IMAGE_NAME];
 	int					a, b;
 	int					matrix[2][3];
 	newShaderStage_t	newStage;
+	stencilStage_t      stencilStage; // SP
 
 	if( numStages >= MAX_SHADER_STAGES )
 	{
@@ -1490,6 +1705,30 @@ void idMaterial::ParseStage( idLexer& src, const textureRepeat_t trpDefault )
 			ts->texgen = TG_SCREEN;
 			continue;
 		}
+
+		if( !token.Icmp( "guiRenderMap" ) )
+		{
+			// Emit fullscreen view of the gui to this dynamically generated texture
+			ts->dynamic = DI_GUI_RENDER;
+			ts->width = src.ParseInt();
+			ts->height = src.ParseInt();
+			continue;
+		}
+
+#if 0
+		if( !token.Icmp( "renderTargetMap" ) )
+		{
+			// Emit fullscreen view of the gui to this dynamically generated texture
+			idToken otherMaterialToken;
+			ts->dynamic = DI_RENDER_TARGET;
+			src.ReadToken( &otherMaterialToken );
+			ts->renderTargetMaterial = declManager->FindMaterial( otherMaterialToken.c_str() );
+			ts->width = src.ParseInt();
+			ts->height = src.ParseInt();
+			continue;
+		}
+#endif
+
 		if( !token.Icmp( "screen" ) )
 		{
 			ts->texgen = TG_SCREEN;
@@ -1547,6 +1786,21 @@ void idMaterial::ParseStage( idLexer& src, const textureRepeat_t trpDefault )
 			str = R_ParsePastImageProgram( src );
 			idStr::Copynz( imageName, str, sizeof( imageName ) );
 			cubeMap = CF_NATIVE;
+			continue;
+		}
+
+		if( !token.Icmp( "cubeMapSingle" ) )
+		{
+			str = R_ParsePastImageProgram( src );
+			idStr::Copynz( imageName, str, sizeof( imageName ) );
+			cubeMap = CF_SINGLE;
+			td = TD_HIGHQUALITY_CUBE;
+			continue;
+		}
+
+		if( !token.Icmp( "cubeMapSize" ) )
+		{
+			cubeMapSize = src.ParseInt();
 			continue;
 		}
 
@@ -1921,6 +2175,16 @@ void idMaterial::ParseStage( idLexer& src, const textureRepeat_t trpDefault )
 			continue;
 		}
 
+		// SP Begin
+		if( !token.Icmp( "stencil" ) )
+		{
+			ParseStencil( src, &stencilStage );
+			ss->stencilStage = ( stencilStage_t* )Mem_Alloc( sizeof( stencilStage_t ), TAG_MATERIAL );
+			*ss->stencilStage = stencilStage;
+			continue;
+		}
+		// SP End
+
 
 		common->Warning( "unknown token '%s' in material '%s'", token.c_str(), GetName() );
 		SetMaterialFlag( MF_DEFAULTED );
@@ -1990,7 +2254,7 @@ void idMaterial::ParseStage( idLexer& src, const textureRepeat_t trpDefault )
 		// now load the image with all the parms we parsed for the coverage stage
 		if( imageName[0] )
 		{
-			coverageTS->image = globalImages->ImageFromFile( imageName, tf, trp, TD_COVERAGE, cubeMap );
+			coverageTS->image = globalImages->ImageFromFile( imageName, tf, trp, TD_COVERAGE, cubeMap, cubeMapSize );
 			if( !coverageTS->image )
 			{
 				coverageTS->image = globalImages->defaultImage;
@@ -2006,7 +2270,7 @@ void idMaterial::ParseStage( idLexer& src, const textureRepeat_t trpDefault )
 	// now load the image with all the parms we parsed
 	if( imageName[0] )
 	{
-		ts->image = globalImages->ImageFromFile( imageName, tf, trp, td, cubeMap );
+		ts->image = globalImages->ImageFromFile( imageName, tf, trp, td, cubeMap, cubeMapSize );
 		if( !ts->image )
 		{
 			ts->image = globalImages->defaultImage;
@@ -2314,7 +2578,6 @@ void idMaterial::ParseMaterial( idLexer& src )
 			continue;
 		}
 
-
 		// polygonOffset
 		else if( !token.Icmp( "polygonOffset" ) )
 		{
@@ -2448,6 +2711,15 @@ void idMaterial::ParseMaterial( idLexer& src )
 		{
 			sort = SS_SUBVIEW;
 			coverage = MC_OPAQUE;
+			subViewType = SUBVIEW_MIRROR;
+			continue;
+		}
+		// direct portal
+		else if( !token.Icmp( "directPortal" ) )
+		{
+			sort = SS_SUBVIEW;
+			coverage = MC_OPAQUE;
+			subViewType = SUBVIEW_DIRECT_PORTAL;
 			continue;
 		}
 		// noFog

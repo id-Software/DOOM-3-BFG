@@ -366,7 +366,7 @@ Loading of the image may be deferred for dynamic loading.
 ==============
 */
 idImage*	idImageManager::ImageFromFile( const char* _name, textureFilter_t filter,
-		textureRepeat_t repeat, textureUsage_t usage, cubeFiles_t cubeMap )
+		textureRepeat_t repeat, textureUsage_t usage, cubeFiles_t cubeMap, int cubeMapSize )
 {
 
 	if( !_name || !_name[0] || idStr::Icmp( _name, "default" ) == 0 || idStr::Icmp( _name, "_default" ) == 0 )
@@ -845,17 +845,18 @@ int idImageManager::LoadLevelImages( bool pacifier )
 	int	loadCount = 0;
 	for( int i = 0 ; i < images.Num() ; i++ )
 	{
+		idImage* image = images[ i ];
+
 		if( pacifier )
 		{
 			common->UpdateLevelLoadPacifier();
-
 		}
 
-		idImage*	image = images[ i ];
 		if( image->generatorFunction )
 		{
 			continue;
 		}
+
 		if( image->levelLoadReferenced && !image->IsLoaded() )
 		{
 			loadCount++;

@@ -605,6 +605,7 @@ struct viewDef_t
 	bool				isEditor;
 	bool				is2Dgui;
 
+	bool                isObliqueProjection;    // true if this view has an oblique projection
 	int					numClipPlanes;			// mirrors will often use a single clip plane
 	idPlane				clipPlanes[MAX_CLIP_PLANES];		// in world space, the positive side
 	// of the plane is the visible side
@@ -653,6 +654,8 @@ struct viewDef_t
 	idImage* 			irradianceImage;			// cubemap image used for diffuse IBL by backend
 	idImage* 			radianceImages[3];			// cubemap image used for specular IBL by backend
 	idVec4				radianceImageBlends;		// blending weights
+
+	Framebuffer*		targetRender;				// The framebuffer to render to
 };
 
 
@@ -801,9 +804,6 @@ const idMaterial* R_RemapShaderBySkin( const idMaterial* shader, const idDeclSki
 
 
 //====================================================
-
-
-
 
 enum vertexLayoutType_t
 {
@@ -1188,6 +1188,7 @@ extern idCVar r_shadowMapRegularDepthBiasScale;
 extern idCVar r_shadowMapSunDepthBiasScale;
 
 extern idCVar r_hdrAutoExposure;
+extern idCVar r_hdrAdaptionRate;
 extern idCVar r_hdrMinLuminance;
 extern idCVar r_hdrMaxLuminance;
 extern idCVar r_hdrKey;
@@ -1253,8 +1254,8 @@ struct vidMode_t
 	// RB begin
 	vidMode_t()
 	{
-		width = 640;
-		height = 480;
+		width = SCREEN_WIDTH;
+		height = SCREEN_HEIGHT;
 		displayHz = 60;
 	}
 
@@ -1475,6 +1476,8 @@ TR_FRONTEND_DEFORM
 */
 
 drawSurf_t* R_DeformDrawSurf( drawSurf_t* drawSurf );
+
+drawSurf_t* R_DeformDrawSurf( drawSurf_t* drawSurf, deform_t deformType );
 
 /*
 =============================================================

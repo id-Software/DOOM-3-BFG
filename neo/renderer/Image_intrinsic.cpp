@@ -229,7 +229,7 @@ static void R_DepthImage( idImage* image )
 #else
 	int msaaSamples = 0;
 #endif
-	image->GenerateImage( NULL, renderSystem->GetWidth(), renderSystem->GetHeight(), TF_NEAREST, TR_CLAMP, TD_DEPTH );//, msaaSamples );
+	image->GenerateImage( NULL, renderSystem->GetWidth(), renderSystem->GetHeight(), TF_NEAREST, TR_CLAMP, TD_DEPTH_STENCIL );//, msaaSamples );
 	// RB end
 }
 
@@ -272,7 +272,7 @@ static void R_EnvprobeImage_HDR( idImage* image )
 
 static void R_EnvprobeImage_Depth( idImage* image )
 {
-	image->GenerateImage( NULL, ENVPROBE_CAPTURE_SIZE, ENVPROBE_CAPTURE_SIZE, TF_NEAREST, TR_CLAMP, TD_DEPTH );
+	image->GenerateImage( NULL, ENVPROBE_CAPTURE_SIZE, ENVPROBE_CAPTURE_SIZE, TF_NEAREST, TR_CLAMP, TD_DEPTH_STENCIL );
 }
 
 static void R_SMAAImage_ResNative( idImage* image )
@@ -294,7 +294,23 @@ static void R_HierarchicalZBufferImage_ResNative( idImage* image )
 {
 	image->GenerateImage( NULL, renderSystem->GetWidth(), renderSystem->GetHeight(), TF_NEAREST_MIPMAP, TR_CLAMP, TD_R32F );
 }
+
+static void R_R8Image_ResNative_Linear( idImage* image )
+{
+	image->GenerateImage( NULL, renderSystem->GetWidth(), renderSystem->GetHeight(), TF_LINEAR, TR_CLAMP, TD_LOOKUP_TABLE_MONO );
+}
 // RB end
+
+static void R_HDR_RGBA8Image_ResNative( idImage* image )
+{
+	// FIXME
+#if defined(USE_HDR_MSAA)
+	int msaaSamples = glConfig.multisamples;
+#else
+	int msaaSamples = 0;
+#endif
+	image->GenerateImage( NULL, renderSystem->GetWidth(), renderSystem->GetHeight(), TF_NEAREST, TR_CLAMP, TD_LOOKUP_TABLE_RGBA ); //, msaaSamples );
+}
 
 static void R_AlphaNotchImage( idImage* image )
 {
