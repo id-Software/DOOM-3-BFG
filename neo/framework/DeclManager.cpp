@@ -3417,7 +3417,7 @@ void idDeclManagerLocal::MakeZooMapForModels_f( const idCmdArgs& args )
 	int totalModelsCount = 0;
 	int totalEntitiesCount = 0;
 
-	idFileList* files = fileSystem->ListFilesTree( "generated", ".blwo|.base|.bmd5mesh", true, true );
+	idFileList* files = fileSystem->ListFilesTree( "generated", ".blwo|.base|.bdae|.bobj|.bmd5mesh", true, true );
 
 	idStr mapName( "maps/zoomaps/zoo_models.map" );
 	idMapFile mapFile;
@@ -3544,6 +3544,10 @@ void idDeclManagerLocal::MakeZooMapForModels_f( const idCmdArgs& args )
 	auto liftCat = new Category_t( "elevator" );
 	liftCat->tagNames.AddUnique( "lift" );
 	categories.Append( liftCat );
+
+	categories.Append( new Category_t( "railing" ) );
+	categories.Append( new Category_t( "pipe" ) );
+	categories.Append( new Category_t( "ladder" ) );
 	
 
 
@@ -3576,6 +3580,11 @@ void idDeclManagerLocal::MakeZooMapForModels_f( const idCmdArgs& args )
 		if( ext.Icmp( "bdae" ) == 0 )
 		{
 			modelName.SetFileExtension( "dae" );
+		}
+
+		if( ext.Icmp( "bobj" ) == 0 )
+		{
+			modelName.SetFileExtension( "obj" );
 		}
 
 		if( ext.Icmp( "bmd5mesh" ) == 0 )
