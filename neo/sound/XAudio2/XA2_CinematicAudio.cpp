@@ -52,7 +52,7 @@ public:
 #if defined(USE_FFMPEG)
 		av_freep( &data );
 #elif defined(USE_BINKDEC)
-		free( data );
+		Mem_Free( data );
 #endif
 	}
 	//Unused methods are stubs
@@ -176,6 +176,15 @@ void CinematicAudio_XAudio2::PlayAudio( uint8_t* data, int size )
 	if( FAILED( hr = pMusicSourceVoice1->Start( 0 ) ) )
 	{
 		int fail = 1;
+	}
+}
+
+void CinematicAudio_XAudio2::ResetAudio()
+{
+	if( pMusicSourceVoice1 )
+	{
+		pMusicSourceVoice1->Stop();
+		pMusicSourceVoice1->FlushSourceBuffers();
 	}
 }
 
