@@ -64,6 +64,8 @@ This patch also contains a couple of func_group related bugfixes. func_group wor
 
 [MISCELLANEOUS]
 
+* Stencil shadows work again (thanks to Stephen Pridham) 
+
 * Added CMake options STANDALONE and DOOM_CLASSIC
 
 * Added command convertMapQuakeToDoom `<map>` that expects a Quake 1 .map in the Valve220 format and does some Doom 3 specific fixes

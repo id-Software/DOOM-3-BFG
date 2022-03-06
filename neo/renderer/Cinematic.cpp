@@ -817,7 +817,7 @@ void idCinematicLocal::FFMPEGReset()
 	//startTime = 0;
 
 	framePos = -1;
-	
+
 	// SRS - If we have an ffmpeg audio context and are not looping, or skipLag is true, reset audio to release any stale buffers
 	if( dec_ctx2 && ( !( looping && status == FMV_EOF ) || skipLag ) )
 	{
@@ -934,7 +934,7 @@ bool idCinematicLocal::InitFromBinkDecFile( const char* qpath, bool amilooping )
 void idCinematicLocal::BinkDecReset()
 {
 	framePos = -1;
-	
+
 	// SRS - If we have bink audio tracks, reset audio to release any stale buffers (even if looping)
 	if( audioTracks > 0 )
 	{
@@ -989,7 +989,7 @@ bool idCinematicLocal::InitFromFile( const char* qpath, bool amilooping )
 		temp = fileName.StripFileExtension() + ".bik";
 		skipLag = false;				// SRS - Enable lag buffer for ffmpeg bik decoder AV sync
 
-	// SRS - Support RoQ cinematic playback via ffmpeg decoder - better quality plus audio support
+		// SRS - Support RoQ cinematic playback via ffmpeg decoder - better quality plus audio support
 	}
 	else
 	{
@@ -998,7 +998,7 @@ bool idCinematicLocal::InitFromFile( const char* qpath, bool amilooping )
 		skipLag = true;					// SRS - Disable lag buffer for ffmpeg RoQ decoder AV sync
 	}
 	{
-	// SRS End
+		// SRS End
 
 		animationLength = 0;
 		fileName = temp;
@@ -1084,7 +1084,7 @@ void idCinematicLocal::Close()
 		if( dec_ctx2 )
 		{
 			avcodec_free_context( &dec_ctx2 );
-			
+
 			// SRS - Free resample context if we were decoding planar audio
 			if( swr_ctx )
 			{
