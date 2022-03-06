@@ -101,6 +101,7 @@ Steve Saunders contributed
 
 * Added base/convert_maps_to_valve220.cfg which lets you convert all maps to the Valve 220 .map format in one shot
 
+* Added base/maps/zoomaps/zoo_models.map
 
 
 
