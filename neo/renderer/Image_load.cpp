@@ -89,8 +89,8 @@ int BitsForFormat( textureFormat_t format )
 			return 16;
 		case FMT_Y16_X16:
 			return 32;
-		// TODO case FMT_F8:
-		//	return 32;
+		case FMT_R8:
+			return 4;
 		default:
 			assert( 0 );
 			return 0;

@@ -108,6 +108,11 @@ FIXME: this is not thread safe on the PC
 */
 void PC_BeginNamedEvent( const char* szName, const idVec4& color )
 {
+	if( r_logLevel.GetInteger() <= 0 )
+	{
+		return;
+	}
+
 #if defined( USE_VULKAN )
 
 	// start an annotated group of calls under the this name
@@ -191,6 +196,11 @@ PC_EndNamedEvent
 */
 void PC_EndNamedEvent()
 {
+	if( r_logLevel.GetInteger() <= 0 )
+	{
+		return;
+	}
+
 #if defined( USE_VULKAN )
 	// SRS - Prefer VK_EXT_debug_utils over VK_EXT_debug_marker/VK_EXT_debug_report (deprecated by VK_EXT_debug_utils)
 	if( vkcontext.debugUtilsSupportAvailable )
