@@ -493,17 +493,6 @@ void idImage::CopyDepthbuffer( int x, int y, int imageWidth, int imageHeight )
 }
 
 
-
-/*
-========================
-idImage::SetPixel
-========================
-*/
-void idImage::SetPixel( int mipLevel, int x, int y, const void* data, int dataSize )
-{
-	SubImageUpload( mipLevel, x, y, 0, 1, 1, data );
-}
-
 /*
 ========================
 idImage::SetTexParameters
