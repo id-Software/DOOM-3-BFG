@@ -938,18 +938,11 @@ static void R_CreateImGuiFontImage( idImage* image )
 	int width, height;
 	io.Fonts->GetTexDataAsRGBA32( &pixels, &width, &height ); // Load as RGBA 32-bits for OpenGL3 demo because it is more likely to be compatible with user's existing shader.
 
-	/*
-	glGenTextures( 1, &g_FontTexture );
-	glBindTexture( GL_TEXTURE_2D, g_FontTexture );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-	glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels );
-	*/
-
 	image->GenerateImage( ( byte* )pixels, width, height, TF_LINEAR, TR_CLAMP, TD_LOOKUP_TABLE_RGBA );
 
 	// Store our identifier
-	io.Fonts->TexID = ( void* )( intptr_t )image->GetImGuiTextureID();
+	//io.Fonts->TexID = ( void* )( intptr_t )image->GetImGuiTextureID();
+	io.Fonts->TexID = ( void* )( intptr_t )declManager->FindMaterial( "_imguiFont" );
 
 	// Cleanup (don't clear the input data if you want to append new fonts later)
 	//io.Fonts->ClearInputData();

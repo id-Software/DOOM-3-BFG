@@ -889,6 +889,7 @@ void idRenderBackend::FillDepthBufferGeneric( const drawSurf_t* const* drawSurfs
 				break;
 			}
 		}
+
 		if( stage == shader->GetNumStages() )
 		{
 			continue;

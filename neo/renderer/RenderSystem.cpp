@@ -623,7 +623,6 @@ const emptyCommand_t* idRenderSystemLocal::SwapCommandBuffers(
 	performanceCounters_t* pc
 )
 {
-
 	SwapCommandBuffers_FinishRendering( frontEndMicroSec, backEndMicroSec, shadowMicroSec, gpuMicroSec, bc, pc );
 
 	return SwapCommandBuffers_FinishCommandBuffers();

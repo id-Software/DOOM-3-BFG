@@ -753,11 +753,20 @@ idImage::Reload
 */
 void idImage::Reload( bool force )
 {
+	// don't break render targets that have this image attached
+	if( opts.isRenderTarget )
+	{
+		return;
+	}
+
 	// always regenerate functional images
 	if( generatorFunction )
 	{
-		common->DPrintf( "regenerating %s.\n", GetName() );
-		generatorFunction( this );
+		if( force )
+		{
+			common->DPrintf( "regenerating %s.\n", GetName() );
+			generatorFunction( this );
+		}
 		return;
 	}
 
