@@ -887,9 +887,9 @@ void idRenderBackend::GL_SetDefaultState()
 	polyOfsBias = 0.0f;
 	glStateBits = 0;
 
-	hdrAverageLuminance = 0;
-	hdrMaxLuminance = 0;
-	hdrTime = 0;
+	//hdrAverageLuminance = 0;
+	//hdrMaxLuminance = 0;
+	//hdrTime = 0;
 	hdrKey = 0;
 
 	GL_State( 0, true );

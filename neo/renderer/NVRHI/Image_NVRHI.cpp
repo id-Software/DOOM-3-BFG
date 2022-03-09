@@ -387,7 +387,6 @@ void idImage::AllocImage()
 					   .setSampleCount( opts.samples )
 					   .setMipLevels( opts.numLevels );
 
-#if 0
 	if( opts.colorFormat == CFM_GREEN_ALPHA )
 	{
 		textureDesc.componentMapping.bits.r = 5;
@@ -423,7 +422,6 @@ void idImage::AllocImage()
 		textureDesc.componentMapping.bits.b = 0;
 		textureDesc.componentMapping.bits.a = 0;
 	}
-#endif
 
 	if( opts.isRenderTarget )
 	{

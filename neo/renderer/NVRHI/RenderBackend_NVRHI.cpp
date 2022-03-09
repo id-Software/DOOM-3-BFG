@@ -767,7 +767,7 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 							  currentViewport.zmax };
 	state.viewport.addViewportAndScissorRect( viewport );
 
-	if( !currentScissor.IsEmpty( ) )
+	if( !currentScissor.IsEmpty() )
 	{
 		state.viewport.addScissorRect( nvrhi::Rect( currentScissor.x1, currentScissor.x2, currentScissor.y1, currentScissor.y2 ) );
 	}
@@ -1293,7 +1293,7 @@ idRenderBackend::GL_Scissor
 void idRenderBackend::GL_Scissor( int x /* left*/, int y /* bottom */, int w, int h )
 {
 	// TODO Check if this is right.
-	//currentScissor.Clear( );
+	//currentScissor.Clear();
 	//currentScissor.AddPoint( x, y );
 	//currentScissor.AddPoint( x + w, y + h );
 }

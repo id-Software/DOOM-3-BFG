@@ -205,7 +205,7 @@ void idRenderProgManager::LoadComputeProgram( const int programIndex, const int 
 	{
 		prog.inputLayout = device->createInputLayout(
 							   &vertexLayoutDescs[prog.vertexLayout][0],
-							   vertexLayoutDescs[prog.vertexLayout].Num( ),
+							   vertexLayoutDescs[prog.vertexLayout].Num(),
 							   shaders[prog.vertexShaderIndex].handle );
 	}
 	prog.bindingLayout = bindingLayouts[prog.bindingLayoutType];
@@ -256,7 +256,7 @@ void idRenderProgManager::KillAllShaders()
 
 	tr.backend.ResetPipelineCache();
 
-	for( int i = 0; i < shaders.Num( ); i++ )
+	for( int i = 0; i < shaders.Num(); i++ )
 	{
 		if( shaders[i].handle )
 		{

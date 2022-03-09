@@ -131,8 +131,8 @@ void Framebuffer::ResizeFramebuffers()
 	{
 		globalImages->bloomRenderImage[i]->Reload( false, tr.backend.commandList );
 	}
-	tr.backend.commandList->close( );
-	deviceManager->GetDevice( )->executeCommandList( tr.backend.commandList );
+	tr.backend.commandList->close();
+	deviceManager->GetDevice()->executeCommandList( tr.backend.commandList );
 
 	for( uint32_t index = 0; index < backBufferCount; index++ )
 	{
@@ -214,10 +214,10 @@ void Framebuffer::ResizeFramebuffers()
 				.addColorAttachment( globalImages->bloomRenderImage[i]->texture ) );
 	}
 
-	Framebuffer::Unbind( );
+	Framebuffer::Unbind();
 }
 
-void Framebuffer::Bind( )
+void Framebuffer::Bind()
 {
 	RENDERLOG_PRINTF( "Framebuffer::Bind( %s )\n", fboName.c_str() );
 

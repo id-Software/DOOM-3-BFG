@@ -476,7 +476,7 @@ void idImage::FinalizeImage( bool fromBackEnd, nvrhi::ICommandList* commandList 
 		opts.height = header.height;
 		opts.numLevels = header.numLevels;
 		opts.colorFormat = ( textureColor_t )header.colorFormat;
-#if defined(__APPLE__) && defined(USE_VULKAN)
+#if ( defined( __APPLE__ ) && defined( USE_VULKAN ) ) //|| defined( USE_NVRHI )
 		// SRS - Set in-memory format to FMT_RGBA8 for converted FMT_RGB565 image
 		if( header.format == FMT_RGB565 )
 		{
@@ -693,6 +693,7 @@ void idImage::FinalizeImage( bool fromBackEnd, nvrhi::ICommandList* commandList 
 		const bimageImage_t& img = im.GetImageHeader( i );
 		const byte* pic = im.GetImageData( i );
 
+#if 0
 		if( opts.format == FMT_RGB565 )
 		{
 			int bufferW = img.width;
@@ -721,6 +722,7 @@ void idImage::FinalizeImage( bool fromBackEnd, nvrhi::ICommandList* commandList 
 			Mem_Free16( data );
 		}
 		else
+#endif
 		{
 			int bufferW = img.width;
 			if( IsCompressed() )
