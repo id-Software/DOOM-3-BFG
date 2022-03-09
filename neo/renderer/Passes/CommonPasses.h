@@ -124,6 +124,7 @@ public:
 
 	nvrhi::SamplerHandle m_PointClampSampler;
 	nvrhi::SamplerHandle m_LinearClampSampler;
+	nvrhi::SamplerHandle m_LinearClampCompareSampler;
 	nvrhi::SamplerHandle m_LinearWrapSampler;
 	nvrhi::SamplerHandle m_AnisotropicWrapSampler;
 

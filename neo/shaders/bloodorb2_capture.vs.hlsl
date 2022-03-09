@@ -26,14 +26,10 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#include "renderprogs/global.inc.hlsl"
+#include "global_inc.hlsl"
 
 
 // *INDENT-OFF*
-uniform float4 rpUser0 : register( c128 ); //rpCenterScaleTex0
-uniform float4 rpUser1 : register( c129 ); //rpRotateTex0
-uniform float4 rpUser2 : register( c130 ); //rpCenterScaleTex1
-
 struct VS_IN {
 	float4 position : POSITION;
 	float2 texcoord : TEXCOORD0;
@@ -43,10 +39,10 @@ struct VS_IN {
 };
 
 struct VS_OUT {
-	float4 position : POSITION;
-	float2 texcoord0 : TEXCOORD0;
-	float2 texcoord1 : TEXCOORD1;
-	float2 texcoord2 : TEXCOORD2;
+	float4 position : SV_Position;
+	float2 texcoord0 : TEXCOORD0_centroid;
+	float2 texcoord1 : TEXCOORD1_centroid;
+	float2 texcoord2 : TEXCOORD2_centroid;
 };
 // *INDENT-ON*
 

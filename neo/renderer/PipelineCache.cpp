@@ -40,8 +40,16 @@ nvrhi::GraphicsPipelineHandle PipelineCache::GetOrCreatePipeline( const Pipeline
 	pipelineDesc.inputLayout = progInfo.inputLayout;
 	pipelineDesc.bindingLayouts = { progInfo.bindingLayout };
 	pipelineDesc.primType = nvrhi::PrimitiveType::TriangleList;
+
+	// Set up default state.
 	pipelineDesc.renderState.rasterState.enableScissor( );
 	pipelineDesc.renderState.depthStencilState.enableDepthTest( ).enableDepthWrite( );
+	pipelineDesc.renderState.blendState.targets[0].enableBlend( );
+	//pipelineDesc.renderState.rasterState.enableDepthClip( );
+	pipelineDesc.renderState.rasterState.depthBias = 0;
+	pipelineDesc.renderState.rasterState.slopeScaledDepthBias = 0;
+
+	// Specialize the state with the state key.
 	GetRenderState( key.state, key, pipelineDesc.renderState );
 
 	auto pipeline = device->createGraphicsPipeline( pipelineDesc, key.framebuffer->GetApiObject( ) );
@@ -54,7 +62,12 @@ nvrhi::GraphicsPipelineHandle PipelineCache::GetOrCreatePipeline( const Pipeline
 
 void GetRenderState( uint64 stateBits, PipelineKey key, nvrhi::RenderState& renderState )
 {
-	uint64 diff = 0xFFFFFFFFFFFFFFFF;
+	uint64 diff = stateBits ^ GLS_DEFAULT;
+
+	if( diff == 0 )
+	{
+		return;
+	}
 
 	auto& currentBlendState = renderState.blendState;
 	auto& currentDepthStencilState = renderState.depthStencilState;
@@ -245,6 +258,7 @@ void GetRenderState( uint64 stateBits, PipelineKey key, nvrhi::RenderState& rend
 			mask = mask & ~nvrhi::ColorMask::Alpha;
 		}
 
+		renderTarget.enableBlend( );
 		renderTarget.setColorWriteMask( mask );
 	}
 
@@ -257,13 +271,13 @@ void GetRenderState( uint64 stateBits, PipelineKey key, nvrhi::RenderState& rend
 	{
 		if( stateBits & GLS_POLYMODE_LINE )
 		{
-			currentRasterState.setFillMode( nvrhi::RasterFillMode::Line );
-			currentRasterState.setCullNone( );
+			currentRasterState.setFillMode( nvrhi::RasterFillMode::Wireframe );
+			//currentRasterState.setCullNone( );
 		}
 		else
 		{
-			currentRasterState.setCullNone( );
-			currentRasterState.setFillMode( nvrhi::RasterFillMode::Fill );
+			//currentRasterState.setCullNone( );
+			currentRasterState.setFillMode( nvrhi::RasterFillMode::Solid );
 		}
 	}
 
@@ -274,11 +288,13 @@ void GetRenderState( uint64 stateBits, PipelineKey key, nvrhi::RenderState& rend
 	{
 		if( stateBits & GLS_POLYGON_OFFSET )
 		{
-			currentRasterState.enableQuadFill( );
+			currentRasterState.depthBias = key.depthBias;
+			currentRasterState.slopeScaledDepthBias = key.slopeBias;
+			currentRasterState.enableQuadFill();
 		}
 		else
 		{
-			currentRasterState.disableQuadFill( );
+			//currentRasterState.disableQuadFill();
 		}
 	}
 

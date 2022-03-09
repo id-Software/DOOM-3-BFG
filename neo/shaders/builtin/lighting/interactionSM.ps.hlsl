@@ -33,16 +33,17 @@ If you have questions concerning this license or the applicable additional terms
 
 
 // *INDENT-OFF*
-Texture2D		t_Normal			: register( t0 );
-Texture2D		t_Specular			: register( t1 );
-Texture2D		t_BaseColor			: register( t2 );
-Texture2D		t_LightFalloff		: register( t3 );
-Texture2D		t_LightProjection	: register( t4 );
-Texture2DArray	t_ShadowMapArray	: register( t5 );
-Texture2D		t_Jitter			: register( t6 );
+Texture2D				t_Normal			: register( t0 );
+Texture2D				t_Specular			: register( t1 );
+Texture2D				t_BaseColor			: register( t2 );
+Texture2D				t_LightFalloff		: register( t3 );
+Texture2D				t_LightProjection	: register( t4 );
+Texture2DArray<float>	t_ShadowMapArray	: register( t5 );
+Texture2D				t_Jitter			: register( t6 );
 
-SamplerState	samp0 : register(s0); // for the normal/specular/color/light fall/light projection textures
-SamplerState	samp1 : register(s1); // for the shadow map sampler and jitter sampler
+SamplerState			samp0 : register(s0); // for the normal/specular/color/light fall/light projection textures
+SamplerState 			samp1 : register(s1); // for sampling the jitter
+SamplerComparisonState  samp2 : register(s2); // for the depth shadow map sampler with a compare function
 
 struct PS_IN
 {
@@ -96,8 +97,8 @@ float2 VogelDiskSample( float sampleIndex, float samplesCount, float phi )
 void main( PS_IN fragment, out PS_OUT result )
 {
 	half4 bumpMap =			t_Normal.Sample( samp0, fragment.texcoord1.xy );
-	half4 lightFalloff =	idtex2Dproj( samp0, t_LightFalloff, fragment.texcoord2 );
-	half4 lightProj =		idtex2Dproj( samp0, t_LightProjection, fragment.texcoord3 );
+	half4 lightFalloff =	idtex2Dproj( samp1, t_LightFalloff, fragment.texcoord2 );
+	half4 lightProj =		idtex2Dproj( samp1, t_LightProjection, fragment.texcoord3 );
 	half4 YCoCG =			t_BaseColor.Sample( samp0, fragment.texcoord4.xy );
 	half4 specMapSRGB =		t_Specular.Sample( samp0, fragment.texcoord5.xy );
 	half4 specMap =			sRGBAToLinearRGBA( specMapSRGB );
@@ -108,7 +109,7 @@ void main( PS_IN fragment, out PS_OUT result )
 
 	half3 localNormal;
 	// RB begin
-#if defined(USE_NORMAL_FMT_RGB8)
+#if USE_NORMAL_FMT_RGB8
 	localNormal.xy = bumpMap.rg - 0.5;
 #else
 	localNormal.xy = bumpMap.wy - 0.5;
@@ -209,6 +210,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	float4 shadowMatrixW = rpShadowMatrices[ int ( shadowIndex * 4 + 3 ) ];
 
 	float4 modelPosition = float4( fragment.texcoord7.xyz, 1.0 );
+
 	float4 shadowTexcoord;
 	shadowTexcoord.x = dot4( modelPosition, shadowMatrixX );
 	shadowTexcoord.y = dot4( modelPosition, shadowMatrixY );
@@ -246,12 +248,12 @@ void main( PS_IN fragment, out PS_OUT result )
 	float stepSize = 1.0 / numSamples;
 
 	float2 jitterTC = ( fragment.position.xy * rpScreenCorrectionFactor.xy ) + rpJitterTexOffset.ww;
-	for( float i = 0.0; i < numSamples; i += 1.0 )
+	for( float n = 0.0; n < numSamples; n += 1.0 )
 	{
 		float4 jitter = base + t_Jitter.Sample( samp1, jitterTC.xy ) * rpJitterTexScale;
 		jitter.zw = shadowTexcoord.zw;
 
-		shadow += idtex2Dproj( samp1, t_Jitter, jitter.xy / jitter.z );
+		shadow += t_Jitter.Sample( samp1, jitter.xy / jitter.z ).r;
 		jitterTC.x += stepSize;
 	}
 
@@ -262,19 +264,21 @@ void main( PS_IN fragment, out PS_OUT result )
 
 	// Poisson Disk with White Noise used for years int RBDOOM-3-BFG
 
-	const float2 poissonDisk[12] = {
-									   float2( 0.6111618, 0.1050905 ),
-									   float2( 0.1088336, 0.1127091 ),
-									   float2( 0.3030421, -0.6292974 ),
-									   float2( 0.4090526, 0.6716492 ),
-									   float2( -0.1608387, -0.3867823 ),
-									   float2( 0.7685862, -0.6118501 ),
-									   float2( -0.1935026, -0.856501 ),
-									   float2( -0.4028573, 0.07754025 ),
-									   float2( -0.6411021, -0.4748057 ),
-									   float2( -0.1314865, 0.8404058 ),
-									   float2( -0.7005203, 0.4596822 ),
-									   float2( -0.9713828, -0.06329931 ) };
+	const float2 poissonDisk[12] =
+	{
+		float2( 0.6111618, 0.1050905 ),
+		float2( 0.1088336, 0.1127091 ),
+		float2( 0.3030421, -0.6292974 ),
+		float2( 0.4090526, 0.6716492 ),
+		float2( -0.1608387, -0.3867823 ),
+		float2( 0.7685862, -0.6118501 ),
+		float2( -0.1935026, -0.856501 ),
+		float2( -0.4028573, 0.07754025 ),
+		float2( -0.6411021, -0.4748057 ),
+		float2( -0.1314865, 0.8404058 ),
+		float2( -0.7005203, 0.4596822 ),
+		float2( -0.9713828, -0.06329931 )
+	};
 
 	float shadow = 0.0;
 
@@ -300,7 +304,7 @@ void main( PS_IN fragment, out PS_OUT result )
 
 		float4 shadowTexcoordJittered = float4( shadowTexcoord.xy + jitterRotated * shadowTexelSize, shadowTexcoord.z, shadowTexcoord.w );
 
-		shadow += idtex2Dproj( samp1, t_ShadowMapArray, shadowTexcoordJittered );
+		shadow += idtex2Dproj( samp1, t_ShadowMapArray, shadowTexcoordJittered.xywz ).r;
 	}
 
 	shadow *= stepSize;
@@ -311,19 +315,21 @@ void main( PS_IN fragment, out PS_OUT result )
 
 	// Poisson Disk with animated Blue Noise or Interleaved Gradient Noise
 
-	const float2 poissonDisk[12] = {
-									   float2( 0.6111618, 0.1050905 ),
-									   float2( 0.1088336, 0.1127091 ),
-									   float2( 0.3030421, -0.6292974 ),
-									   float2( 0.4090526, 0.6716492 ),
-									   float2( -0.1608387, -0.3867823 ),
-									   float2( 0.7685862, -0.6118501 ),
-									   float2( -0.1935026, -0.856501 ),
-									   float2( -0.4028573, 0.07754025 ),
-									   float2( -0.6411021, -0.4748057 ),
-									   float2( -0.1314865, 0.8404058 ),
-									   float2( -0.7005203, 0.4596822 ),
-									   float2( -0.9713828, -0.06329931 ) };
+	const float2 poissonDisk[12] =
+	{
+		float2( 0.6111618, 0.1050905 ),
+		float2( 0.1088336, 0.1127091 ),
+		float2( 0.3030421, -0.6292974 ),
+		float2( 0.4090526, 0.6716492 ),
+		float2( -0.1608387, -0.3867823 ),
+		float2( 0.7685862, -0.6118501 ),
+		float2( -0.1935026, -0.856501 ),
+		float2( -0.4028573, 0.07754025 ),
+		float2( -0.6411021, -0.4748057 ),
+		float2( -0.1314865, 0.8404058 ),
+		float2( -0.7005203, 0.4596822 ),
+		float2( -0.9713828, -0.06329931 )
+	};
 
 	float shadow = 0.0;
 
@@ -350,7 +356,7 @@ void main( PS_IN fragment, out PS_OUT result )
 
 		float4 shadowTexcoordJittered = float4( shadowTexcoord.xy + jitterRotated * shadowTexelSize, shadowTexcoord.z, shadowTexcoord.w );
 
-		shadow += idtex2Dproj( samp1, t_ShadowMapArray, shadowTexcoordJittered );
+		shadow += idtex2Dproj( samp1, t_ShadowMapArray, shadowTexcoordJittered.xywz );
 	}
 
 	shadow *= stepSize;
@@ -378,8 +384,7 @@ void main( PS_IN fragment, out PS_OUT result )
 
 		float4 shadowTexcoordJittered = float4( shadowTexcoord.xy + jitter * shadowTexelSize, shadowTexcoord.z, shadowTexcoord.w );
 
-		// TODO(Stephen): I don't know if this is correct. It could be that the index into the array is held in shadowTexcoord.w instead of the z-component.
-		shadow += t_ShadowMapArray.Sample( samp1, shadowTexcoordJittered.xyz ).r;
+		shadow += t_ShadowMapArray.SampleCmpLevelZero( samp2, shadowTexcoordJittered.xyw, shadowTexcoordJittered.z );
 	}
 
 	shadow *= stepSize;
@@ -388,7 +393,6 @@ void main( PS_IN fragment, out PS_OUT result )
 #else
 	float shadow = idtex2Dproj( samp1, t_ShadowMapArray, shadowTexcoord );
 #endif
-
 
 	half3 halfAngleVector = normalize( lightVector + viewVector );
 	half hdotN = clamp( dot3( halfAngleVector, localNormal ), 0.0, 1.0 );

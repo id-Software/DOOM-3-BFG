@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include <global_inc.hlsl>
 
+// *INDENT-OFF*
 struct VS_IN {
 	float4 position : POSITION;
 	float2 texcoord : TEXCOORD0;
@@ -42,6 +43,7 @@ struct VS_OUT {
 	float4 texcoord1 : TEXCOORD1;
 	float4 color	 : COLOR0;
 };
+// *INDENT-ON*
 
 void main( VS_IN vertex, out VS_OUT result )
 {

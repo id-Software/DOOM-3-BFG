@@ -49,7 +49,7 @@ void main( PS_IN fragment, out PS_OUT result )
 {
 	float4 c = tex2D( samp0, fragment.texcoord0 ) * tex2D( samp1, fragment.texcoord1 ) * rpColor;
 
-#if defined( USE_LINEAR_RGB )
+#if USE_LINEAR_RGB
 	c = clamp( c, 0.0, 1.0 );
 
 	c = float4( Linear1( c.r ), Linear1( c.g ), Linear1( c.b ), Linear1( c.a ) );

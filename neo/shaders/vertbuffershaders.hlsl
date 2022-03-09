@@ -24,6 +24,7 @@
 
 #pragma pack_matrix(row_major)
 
+// *INDENT-OFF*
 struct VS_INPUT
 {
 	float3 pos		: POSITION;
@@ -37,6 +38,7 @@ struct PS_INPUT
 	float4 color	: COLOR0;
 	float2 uv		: TEXCOORD0;
 };
+// *INDENT-ON*
 
 PS_INPUT main_vs( VS_INPUT input )
 {
@@ -55,8 +57,10 @@ PS_INPUT main_vs( VS_INPUT input )
 	return output;
 }
 
-Texture2D t_Texture : register( t0 );
-SamplerState s_Sampler : register( s0 );
+Texture2D t_Texture :
+register( t0 );
+SamplerState s_Sampler :
+register( s0 );
 
 float4 main_ps( PS_INPUT input ) : SV_Target
 {

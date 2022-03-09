@@ -38,6 +38,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "Passes/MipMapGenPass.h"
 #include "Passes/FowardShadingPass.h"
 #include "Passes/SsaoPass.h"
+#include "Passes/TonemapPass.h"
 
 #include "PipelineCache.h"
 
@@ -468,6 +469,9 @@ public:
 	drawSurf_t			zeroOneSphereSurface; // RB
 	drawSurf_t			testImageSurface;
 
+	float				slopeScaleBias;
+	float				depthBias;
+
 private:
 	uint64				glStateBits;
 
@@ -495,20 +499,22 @@ private:
 
 	idScreenRect					currentViewport;
 	nvrhi::BufferHandle				currentVertexBuffer;
+	int								currentVertexOffset;
 	nvrhi::BufferHandle				currentIndexBuffer;
+	int								currentIndexOffset;
 	nvrhi::BindingSetHandle			currentBindingSet;
 	nvrhi::BindingLayoutHandle		currentBindingLayout;
 	nvrhi::GraphicsPipelineHandle	currentPipeline;
 	nvrhi::RenderState				currentRenderState;
-	float							slopeScaleBias;
-	float							depthBias;
 
 	Framebuffer*					currentFrameBuffer;
+	Framebuffer*					lastFrameBuffer;
 	nvrhi::CommandListHandle		commandList;
 	idList<IRenderPass*>			renderPasses;
 	CommonRenderPasses				commonPasses;
 	SsaoPass*						ssaoPass;
 	MipMapGenPass*					hiZGenPass;
+	TonemapPass						toneMapPass;
 
 	ForwardShadingPass				fowardShadingPass;
 
@@ -524,11 +530,15 @@ private:
 public:
 
 	void				BindProgram( nvrhi::ShaderHandle vShader, nvrhi::ShaderHandle fShader, nvrhi::InputLayoutHandle layout, nvrhi::BindingLayoutHandle bindingLayout );
+	void				ResetPipelineCache();
 
 	void				SetCurrentImage( idImage* image );
 	idImage*			GetCurrentImage();
 	idImage*			GetImageAt( int index );
-
+	CommonRenderPasses& GetCommonPasses()
+	{
+		return commonPasses;
+	}
 #elif !defined( USE_VULKAN )
 	int					currenttmu;
 

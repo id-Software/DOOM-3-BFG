@@ -26,19 +26,20 @@
 
 struct SsaoConstants
 {
-    float2      clipToView;
-    float2      invQuantizedGbufferSize;
+	float2      clipToView;
+	float2      invQuantizedGbufferSize;
 
-    int2        quantizedViewportOrigin;
-    float       amount;
-    float       invBackgroundViewDepth;
-    float       radiusWorld;
-    float       surfaceBias;
+	int2        quantizedViewportOrigin;
+	float       amount;
+	float       invBackgroundViewDepth;
+	float       radiusWorld;
+	float       surfaceBias;
 
-    float       radiusToScreen;
-    float       powerExponent;
+	float       radiusToScreen;
+	float       powerExponent;
 };
 
+// *INDENT-OFF*
 cbuffer c_Ssao : register( b1 )
 {
     SsaoConstants g_Ssao;
@@ -46,45 +47,46 @@ cbuffer c_Ssao : register( b1 )
 
 Texture2D<float> t_InputDepth : register(t0);
 RWTexture2DArray<float> u_DeinterleavedDepth : register(u0);
+// *INDENT-ON*
 
-[numthreads(8, 8, 1)]
-void main(uint3 globalId : SV_DispatchThreadID)
+[numthreads( 8, 8, 1 )]
+void main( uint3 globalId : SV_DispatchThreadID )
 {
-    float depths[16];
-    uint2 groupBase = globalId.xy * 4 + g_Ssao.quantizedViewportOrigin;
+	float depths[16];
+	uint2 groupBase = globalId.xy * 4 + g_Ssao.quantizedViewportOrigin;
 
-    [unroll] 
-    for (uint y = 0; y < 4; y++)
-    { 
-        [unroll] 
-        for (uint x = 0; x < 4; x++)
-        {
-            uint2 gbufferSamplePos = groupBase + uint2(x, y);
-            float depth = t_InputDepth[gbufferSamplePos];
+	[unroll]
+	for( uint y = 0; y < 4; y++ )
+	{
+		[unroll]
+		for( uint x = 0; x < 4; x++ )
+		{
+			uint2 gbufferSamplePos = groupBase + uint2( x, y );
+			float depth = t_InputDepth[gbufferSamplePos];
 
 #if LINEAR_DEPTH
-            float linearDepth = depth;
+			float linearDepth = depth;
 #else
-            float4 clipPos = float4(0, 0, depth, 1);
-            float4 viewPos;
-            viewPos.x = dot4( clipPos, rpModelMatrixX );
-            viewPos.y = dot4( clipPos, rpModelMatrixY );
-            viewPos.z = dot4( clipPos, rpModelMatrixZ );
-            viewPos.w = dot4( clipPos, rpModelMatrixW );
+			float4 clipPos = float4( 0, 0, depth, 1 );
+			float4 viewPos;
+			viewPos.x = dot4( clipPos, rpModelMatrixX );
+			viewPos.y = dot4( clipPos, rpModelMatrixY );
+			viewPos.z = dot4( clipPos, rpModelMatrixZ );
+			viewPos.w = dot4( clipPos, rpModelMatrixW );
 
-            float linearDepth = viewPos.z / viewPos.w;
+			float linearDepth = viewPos.z / viewPos.w;
 #endif
 
-            depths[y * 4 + x] = linearDepth;
-        }
-    }
+			depths[y * 4 + x] = linearDepth;
+		}
+	}
 
-    uint2 quarterResPos = groupBase >> 2;
+	uint2 quarterResPos = groupBase >> 2;
 
-    [unroll]
-    for(uint index = 0; index < 16; index++)
-    {
-        float depth = depths[index];
-        u_DeinterleavedDepth[uint3(quarterResPos.xy, index)] = depth;
-    }
+	[unroll]
+	for( uint index = 0; index < 16; index++ )
+	{
+		float depth = depths[index];
+		u_DeinterleavedDepth[uint3( quarterResPos.xy, index )] = depth;
+	}
 }

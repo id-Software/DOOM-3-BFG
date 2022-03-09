@@ -26,38 +26,39 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#include "renderprogs/global.inc.hlsl"
+#include "global_inc.hlsl"
 
 
 // *INDENT-OFF*
-uniform sampler2D	samp0 : register(s0); // texture 0 is _current Render
-uniform sampler2D	samp1 : register(s1); // texture 1 is the per-surface bump map
-uniform sampler2D	samp2 : register(s2); // texture 2 is the mask texture
+Texture2D t_CurrentRender	: register( t0 );
+Texture2D t_NormalMap		: register( t1 );
+Texture2D t_Mask			: register( t2 );
+
+SamplerState LinearSampler : register( s0 );
 
 struct PS_IN {
-	float4 position		: VPOS;
+	float4 position		: SV_Position;
 	float4 texcoord0	: TEXCOORD0_centroid;
 	float4 texcoord1	: TEXCOORD1_centroid;
 	float4 texcoord2	: TEXCOORD2_centroid;
 };
 
 struct PS_OUT {
-	float4 color : COLOR;
+	float4 color : SV_Target;
 };
 // *INDENT-ON*
 
 void main( PS_IN fragment, out PS_OUT result )
 {
-
 	// load the distortion map
-	float4 mask = tex2D( samp2, fragment.texcoord0.xy );
+	float4 mask = t_Mask.Sample( LinearSampler, fragment.texcoord0.xy );
 
 	// kill the pixel if the distortion wound up being very small
 	mask.xy -= 0.01f;
 	clip( mask );
 
 	// load the filtered normal map and convert to -1 to 1 range
-	float4 bumpMap = ( tex2D( samp1, fragment.texcoord1.xy ) * 2.0f ) - 1.0f;
+	float4 bumpMap = ( t_NormalMap.Sample( LinearSampler, fragment.texcoord1.xy ) * 2.0f ) - 1.0f;
 	float2 localNormal = bumpMap.wy;
 	localNormal *= mask.xy;
 
@@ -66,5 +67,5 @@ void main( PS_IN fragment, out PS_OUT result )
 	screenTexCoord += ( localNormal * fragment.texcoord2.xy );
 	screenTexCoord = saturate( screenTexCoord );
 
-	result.color = ( tex2D( samp0, screenTexCoord ) );
+	result.color = ( t_CurrentRender.Sample( LinearSampler, screenTexCoord ) );
 }

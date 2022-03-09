@@ -28,10 +28,10 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "global_inc.hlsl"
 
+// *INDENT-OFF*
 Texture2D t_Texture : register( t0 );
 SamplerState samp0 : register( s0 );
 
-// *INDENT-OFF*
 struct PS_IN {
 	float4 position : VPOS;
 	float4 texcoord0 : TEXCOORD0_centroid;

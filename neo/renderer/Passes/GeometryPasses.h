@@ -56,6 +56,7 @@ protected:
 	BindingCache				        	bindingCache;
 	Framebuffer*                            previousFramebuffer;
 	Framebuffer*                            currentFramebuffer;
+	Framebuffer*                            lastFramebuffer;
 	const viewDef_t*                        viewDef;
 	const viewEntity_t*                     currentSpace;
 	idScreenRect					        currentViewport;

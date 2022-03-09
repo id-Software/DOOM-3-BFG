@@ -251,7 +251,7 @@ float3 getOffsetPosition( int2 issC, float2 unitOffset, float ssR, Texture2D<VAL
 	// RB: this is the key for fast ambient occlusion - use a hierarchical depth buffer
 	// for more information see McGuire12SAO.pdf - Scalable Ambient Obscurance
 	// http://graphics.cs.williams.edu/papers/SAOHPG12/
-	P.z = cszBuffer.Load( int3(mipP, mipLevel) ).r;
+	P.z = cszBuffer.Load( int3( mipP, mipLevel ) ).r;
 #else
 	P.z = cszBuffer.Load( int3( mipP, 0 ) ).r;
 #endif

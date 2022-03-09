@@ -20,6 +20,7 @@
 * DEALINGS IN THE SOFTWARE.
 */
 
+// *INDENT-OFF*
 #if TEXTURE_ARRAY
 Texture2DArray tex : register(t0);
 #else
@@ -32,14 +33,15 @@ struct PS_IN
 	float4 posClip	: SV_Position;
 	float2 uv		: UV;
 };
+// *INDENT-ON*
 
 void main(
 	PS_IN fragment,
-	out float4 o_rgba : SV_Target)
+	out float4 o_rgba : SV_Target )
 {
 #if TEXTURE_ARRAY
-	o_rgba = tex.Sample(samp, float3( fragment.uv, 0));
+	o_rgba = tex.Sample( samp, float3( fragment.uv, 0 ) );
 #else
-	o_rgba = tex.Sample(samp, fragment.uv);
+	o_rgba = tex.Sample( samp, fragment.uv );
 #endif
 }

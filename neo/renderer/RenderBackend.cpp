@@ -2242,6 +2242,11 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 	}
 	*/
 
+	if( fillGbuffer )
+	{
+		commandList->clearTextureFloat( globalImages->currentNormalsImage->GetTextureHandle( ), nvrhi::AllSubresources, nvrhi::Color( 0.f ) );
+	}
+
 	if( !fillGbuffer && r_useSSAO.GetBool() && r_ssaoDebug.GetBool() )
 	{
 		GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
@@ -3420,7 +3425,8 @@ void idRenderBackend::ShadowMapPass( const drawSurf_t* drawSurfs, const viewLigh
 	const nvrhi::FramebufferAttachment& att = currentFrameBuffer->GetApiObject()->getDesc().depthAttachment;
 	if( att.texture )
 	{
-		commandList->clearDepthStencilTexture( att.texture, nvrhi::TextureSubresourceSet().setArraySlices( side, 1 ), true, 1.f, false, 0x80 );
+		int slice = std::max( 0, side );
+		commandList->clearDepthStencilTexture( att.texture, nvrhi::TextureSubresourceSet().setArraySlices( slice, 1 ), true, 1.f, false, 0x80 );
 	}
 #elif !defined( USE_VULKAN )
 	globalFramebuffers.shadowFBO[vLight->shadowLOD]->Bind();
@@ -4742,6 +4748,7 @@ void idRenderBackend::CalculateAutomaticExposure()
 		deltaTime = curTime - hdrTime;
 
 		//if(r_hdrMaxLuminance->value)
+		if( 0 )
 		{
 			hdrAverageLuminance = idMath::ClampFloat( r_hdrMinLuminance.GetFloat(), r_hdrMaxLuminance.GetFloat(), hdrAverageLuminance );
 			avgLuminance = idMath::ClampFloat( r_hdrMinLuminance.GetFloat(), r_hdrMaxLuminance.GetFloat(), avgLuminance );
@@ -4946,6 +4953,11 @@ void idRenderBackend::Bloom( const viewDef_t* _viewDef )
 
 		// resolve the screen
 		globalImages->currentRenderImage->CopyFramebuffer( x, y, w, h );
+		commonPasses.BlitTexture(
+			commandList,
+			globalFramebuffers.bloomRenderFBO[0]->GetApiObject( ),
+			globalImages->currentRenderLDR->GetTextureHandle( ),
+			&bindingCache );
 
 		renderProgManager.BindShader_Brightpass();
 	}
@@ -4994,10 +5006,12 @@ void idRenderBackend::Bloom( const viewDef_t* _viewDef )
 	int j;
 	for( j = 0; j < r_hdrGlarePasses.GetInteger(); j++ )
 	{
-		globalFramebuffers.bloomRenderFBO[( j + 1 ) % 2 ]->Bind();
+		int index = ( j + 1 ) % 2;
+		globalFramebuffers.bloomRenderFBO[ index ]->Bind();
 
-		// FIXME
-#if !defined(USE_VULKAN)
+#if defined( USE_NHRI )
+		commandList->clearTextureFloat( globalImages->bloomRenderImage[index]->GetTextureHandle(), nvrhi::AllSubresources, nvrhi::Color( 0.f, 0.f, 0.f, 1.f ) );
+#elif !defined( USE_VULKAN )
 		glClear( GL_COLOR_BUFFER_BIT );
 #endif
 
@@ -5007,7 +5021,7 @@ void idRenderBackend::Bloom( const viewDef_t* _viewDef )
 	}
 
 	// add filtered glare back to main context
-	Framebuffer::Unbind();
+	globalFramebuffers.ldrFBO->Bind( );
 
 	ResetViewportAndScissorToDefaultCamera( _viewDef );
 
@@ -5039,7 +5053,7 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 		return;
 	}
 
-	if( r_useSSAO.GetInteger() <= 0 )
+	if( r_useSSAO.GetInteger() <= 0 || r_useSSAO.GetInteger() > 1 )
 	{
 		return;
 	}
@@ -5384,6 +5398,35 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 	commandList->endMarker();
 	renderLog.CloseBlock();
 	renderLog.CloseMainBlock();
+}
+
+
+/*
+NVRHI SSAO using compute shaders.
+*/
+void idRenderBackend::DrawScreenSpaceAmbientOcclusion2( const viewDef_t* _viewDef, bool downModulateScreen )
+{
+	if( !_viewDef->viewEntitys || _viewDef->is2Dgui )
+	{
+		// 3D views only
+		return;
+	}
+
+	if( r_useSSAO.GetInteger( ) <= 0 || r_useSSAO.GetInteger( ) < 2 )
+	{
+		return;
+	}
+
+	// skip this in subviews because it is very expensive
+	if( _viewDef->isSubview )
+	{
+		return;
+	}
+
+	if( _viewDef->renderView.rdflags & ( RDF_NOAMBIENT | RDF_IRRADIANCE ) )
+	{
+		return;
+	}
 
 	//GL_CheckErrors();
 #endif
@@ -5729,6 +5772,12 @@ void idRenderBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
 			&commonPasses, globalImages->currentDepthImage->GetTextureHandle(),
 			globalImages->currentNormalsImage->GetTextureHandle(),
 			globalImages->ambientOcclusionImage[0]->GetTextureHandle() );
+	}
+
+	if( !toneMapPass.IsLoaded() )
+	{
+		TonemapPass::CreateParameters tonemapParms;
+		toneMapPass.Init( deviceManager->GetDevice(), &commonPasses, tonemapParms, globalFramebuffers.ldrFBO->GetApiObject() );
 	}
 #endif
 
@@ -6084,8 +6133,13 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 		}
 #endif
 
+#if 1
 		CalculateAutomaticExposure();
 		Tonemap( _viewDef );
+#else
+		ToneMappingParameters parms;
+		toneMapPass.SimpleRender( commandList, parms, viewDef, globalImages->currentRenderHDRImage->GetTextureHandle(), globalFramebuffers.ldrFBO->GetApiObject() );
+#endif
 	}
 
 	if( !r_skipBloom.GetBool() )

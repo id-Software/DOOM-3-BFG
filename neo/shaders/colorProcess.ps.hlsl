@@ -26,26 +26,28 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#include "renderprogs/global.inc.hlsl"
+#include "global_inc.hlsl"
 
 
 // *INDENT-OFF*
-uniform sampler2D samp0 : register(s0);
+Texture2D t_CurrentRender : register( t0 );
+
+SamplerState LinearSampler : register( s0 );
 
 struct PS_IN {
-	float4 position		: VPOS;
-	float4 color		: COLOR;
+	float4 position		: SV_Position;
+	float4 color		: COLOR0;
 	float3 texcoord0	: TEXCOORD0_centroid;
 };
 
 struct PS_OUT {
-	float4 color : COLOR;
+	float4 color : SV_Target;
 };
 // *INDENT-ON*
 
 void main( PS_IN fragment, out PS_OUT result )
 {
-	float4 src = tex2D( samp0, fragment.texcoord0.xy );
+	float4 src = t_CurrentRender.Sample( LinearSampler, fragment.texcoord0.xy );
 	float4 target = fragment.color * dot3( float3( 0.333, 0.333, 0.333 ), src );
 	result.color = lerp( src, target, fragment.texcoord0.z );
 }

@@ -26,14 +26,12 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#include "renderprogs/global.inc.hlsl"
+#include "global_inc.hlsl"
 
 
 // User Renderparms start at 128 as per renderprogs.h
 
 // *INDENT-OFF*
-uniform float4 rpUser0 : register(c128); // rpScroll
-uniform	float4 rpUser1 : register(c129); // rpDeformMagnitude
 
 struct VS_IN {
 	float4 position : POSITION;
@@ -44,7 +42,7 @@ struct VS_IN {
 };
 
 struct VS_OUT {
-	float4 position		: POSITION;
+	float4 position		: SV_Position;
 	float2 texcoord		: TEXCOORD0;
 	float4 color		: COLOR;
 };

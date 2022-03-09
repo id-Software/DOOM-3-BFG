@@ -28,6 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "../global_inc.hlsl"
 
+// *INDENT-OFF*
 Texture2D texGui : register( t0 );
 SamplerState samp0 : register( s0 );
 
@@ -41,6 +42,7 @@ struct PS_IN {
 struct PS_OUT {
 	float4 color : SV_Target0;
 };
+// *INDENT-ON*
 
 void main( PS_IN fragment, out PS_OUT result )
 {

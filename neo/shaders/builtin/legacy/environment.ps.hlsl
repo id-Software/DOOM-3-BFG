@@ -34,7 +34,7 @@ TextureCube t_CubeMap : register( t0 );
 SamplerState samp0 : register( s0 ); // texture 0 is the cube map
 
 struct PS_IN {
-	float4 position		: VPOS;
+	float4 position		: SV_Position;
 	float3 texcoord0	: TEXCOORD0_centroid;
 	float3 texcoord1	: TEXCOORD1_centroid;
 	float4 color		: COLOR0;

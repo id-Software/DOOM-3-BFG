@@ -526,7 +526,7 @@ void main( PS_IN fragment, out PS_OUT result )
 
 	float radialJitter = frac( sin( fragment.position.x * 1e2 +
 #if TEMPORALLY_VARY_TAPS
-									 rpJitterTexOffset.x +
+									rpJitterTexOffset.x +
 #endif
 									fragment.position.y ) * 1e5 + sin( fragment.position.y * 1e3 ) * 1e3 ) * 0.8 + 0.1;
 

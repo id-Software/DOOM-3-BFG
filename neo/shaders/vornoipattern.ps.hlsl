@@ -55,21 +55,19 @@ If you have questions concerning this license or the applicable additional terms
 
 */
 
-#include "renderprogs/global.inc.hlsl"
+#include "global_inc.hlsl"
 
 
 // *INDENT-OFF*
-uniform sampler2D   samp0 : register(s0); // texture 0 is _current Render
-uniform sampler2D   samp1 : register(s1); // texture 1 is the per-surface bump map
 
 struct PS_IN {
-    float4 position     : VPOS;
-    float4 texcoord0    : TEXCOORD0_centroid;
-    float4 texcoord1    : TEXCOORD0_centroid;
+    float4 position     : SV_Position;
+    float4 texcoord0    : TEXCOORD0;
+    float4 texcoord1    : TEXCOORD1;
 };
 
 struct PS_OUT {
-    float4 color : COLOR;
+    float4 color : SV_Target;
 };
 // *INDENT-ON*
 
@@ -83,7 +81,7 @@ float2 hash22( float2 p, float iTime )
 	//return fract(float2(262144, 32768)*n)*.75 + .25;
 
 	// Animated.
-	p = fract( float2( 262144, 32768 ) * n );
+	p = frac( float2( 262144, 32768 ) * n );
 	return sin( p * 6.2831853 + iTime ) * .35 + .65;
 
 }
@@ -91,9 +89,8 @@ float2 hash22( float2 p, float iTime )
 // IQ's polynomial-based smooth minimum function.
 float smin( float a, float b, float k )
 {
-
 	float h = clamp( .5 + .5 * ( b - a ) / k, 0., 1. );
-	return mix( b, a, h ) - k * h * ( 1. - h );
+	return lerp( b, a, h ) - k * h * ( 1. - h );
 }
 
 // 2D 3rd-order Voronoi: This is just a rehash of Fabrice Neyret's version, which is in
@@ -112,7 +109,7 @@ float Voronoi( in float2 p, float iTime )
 	float2 g = floor( p ), o;
 	p -= g;
 
-	float3 d = float3( 1 ); // 1.4, etc.
+	float3 d = _float3( 1 ); // 1.4, etc.
 
 	float r = 0.;
 

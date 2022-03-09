@@ -88,7 +88,7 @@ void main( VS_IN vertex, out VS_OUT result )
 
 	float4 modelPosition;
 	modelPosition.x = dot4( matX, vertex.position );
-	modelPosition.y = dot4( matY, vertex.position);
+	modelPosition.y = dot4( matY, vertex.position );
 	modelPosition.z = dot4( matZ, vertex.position );
 	modelPosition.w = 1.0;
 

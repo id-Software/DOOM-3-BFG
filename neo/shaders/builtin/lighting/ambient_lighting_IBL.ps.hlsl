@@ -290,8 +290,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	radiance += t_RadianceCubeMap3.SampleLevel( samp10, normalizedOctCoordZeroOne, mip ).rgb * rpLocalLightOrigin.z;
 	//radiance = float3( 0.0 );
 
-	// TODO(Stephen): It's possible that this should not be Sample, but something else?
-	float2 envBRDF  = t_BrdfLut.Sample( samp3, float2( max( vDotN, 0.0 ), roughness ) ).rg;
+	float2 envBRDF  = t_BrdfLut.SampleLevel( samp3, float2( max( vDotN, 0.0 ), roughness ), 0 ).rg;
 
 #if 0
 	result.color.rgb = float3( envBRDF.x, envBRDF.y, 0.0 );
@@ -300,7 +299,7 @@ void main( PS_IN fragment, out PS_OUT result )
 #endif
 
 	float specAO = ComputeSpecularAO( vDotN, ao, roughness );
-	float3 specularLight = radiance * ( kS * envBRDF.x + _float3( envBRDF.y ) ) * specAO * ( rpSpecularModifier.xyz * 1.0 );
+	float3 specularLight = radiance * ( kS * envBRDF.x + envBRDF.y ) * specAO * ( rpSpecularModifier.xyz * 1.0 );
 
 #if 1
 	// Marmoset Horizon Fade trick

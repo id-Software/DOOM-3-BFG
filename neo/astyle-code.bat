@@ -9,4 +9,6 @@ astyle.exe -v --formatted --options=astyle-options.ini --recursive libs/tinyexr/
 
 astyle.exe -v -Q --options=astyle-options.ini --recursive ../base/renderprogs/*.hlsl
 
+astyle.exe -v -Q --options=astyle-options.ini --recursive shaders/*.hlsl
+
 pause

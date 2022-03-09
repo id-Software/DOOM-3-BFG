@@ -28,7 +28,11 @@
 
 #else
 
-cbuffer g_Blit : register(b0) { BlitConstants g_Blit; }
+cbuffer g_Blit :
+register( b0 )
+{
+	BlitConstants g_Blit;
+}
 
 #endif
 
@@ -45,14 +49,14 @@ struct VS_OUT
 };
 // *INDENT-ON*
 
-void main( VS_IN vertex, out VS_OUT result)
+void main( VS_IN vertex, out VS_OUT result )
 {
 	uint u = vertex.iVertex & 1;
-	uint v = (vertex.iVertex >> 1) & 1;
+	uint v = ( vertex.iVertex >> 1 ) & 1;
 
-    float2 src_uv = float2(u, v) * g_Blit.sourceSize + g_Blit.sourceOrigin;
-    float2 dst_uv = float2(u, v) * g_Blit.targetSize + g_Blit.targetOrigin;
+	float2 src_uv = float2( u, v ) * g_Blit.sourceSize + g_Blit.sourceOrigin;
+	float2 dst_uv = float2( u, v ) * g_Blit.targetSize + g_Blit.targetOrigin;
 
-	result.posClip = float4(dst_uv.x * 2 - 1, 1 - dst_uv.y * 2, 0, 1);
+	result.posClip = float4( dst_uv.x * 2 - 1, 1 - dst_uv.y * 2, 0, 1 );
 	result.uv = src_uv;
 }

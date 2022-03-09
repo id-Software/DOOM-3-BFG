@@ -177,7 +177,7 @@ float PhotoLuma( float3 c )
 
 float3 sRGBToLinearRGB( float3 c )
 {
-#if defined( USE_LINEAR_RGB ) && !defined( USE_SRGB )
+#if ( defined( USE_LINEAR_RGB ) && USE_LINEAR_RGB ) && ( !defined( USE_SRGB ) || !USE_SRGB )
 	c = clamp( c, 0.0, 1.0 );
 
 	return Linear3( c );
@@ -188,7 +188,7 @@ float3 sRGBToLinearRGB( float3 c )
 
 float4 sRGBAToLinearRGBA( float4 c )
 {
-#if defined( USE_LINEAR_RGB ) && !defined( USE_SRGB )
+#if ( defined( USE_LINEAR_RGB ) && USE_LINEAR_RGB ) && ( !defined( USE_SRGB ) || !USE_SRGB )
 	c = clamp( c, 0.0, 1.0 );
 
 	return float4( Linear1( c.r ), Linear1( c.g ), Linear1( c.b ), Linear1( c.a ) );
@@ -199,7 +199,7 @@ float4 sRGBAToLinearRGBA( float4 c )
 
 float3 LinearRGBToSRGB( float3 c )
 {
-#if defined( USE_LINEAR_RGB ) && !defined( USE_SRGB )
+#if ( defined( USE_LINEAR_RGB ) && USE_LINEAR_RGB ) && ( !defined( USE_SRGB ) || !USE_SRGB )
 	c = clamp( c, 0.0, 1.0 );
 
 	return Srgb3( c );
@@ -210,7 +210,7 @@ float3 LinearRGBToSRGB( float3 c )
 
 float4 LinearRGBToSRGB( float4 c )
 {
-#if defined( USE_LINEAR_RGB ) && !defined( USE_SRGB )
+#if ( defined( USE_LINEAR_RGB ) && USE_LINEAR_RGB ) && ( !defined( USE_SRGB ) || !USE_SRGB )
 	c = clamp( c, 0.0, 1.0 );
 
 	return float4( Srgb1( c.r ), Srgb1( c.g ), Srgb1( c.b ), c.a );
@@ -280,7 +280,7 @@ float3 octDecode( float2 o )
 #define matrixCoCg1YtoRGB1X half4( 1.0, -1.0,  0.0,        1.0 )
 // -0.5 * 256.0 / 255.0
 #define matrixCoCg1YtoRGB1Y half4( 0.0,  1.0, -0.50196078, 1.0 )
- // +1.0 * 256.0 / 255.0
+// +1.0 * 256.0 / 255.0
 #define matrixCoCg1YtoRGB1Z half4( -1.0, -1.0,  1.00392156, 1.0 )
 
 static half3 ConvertYCoCgToRGB( half4 YCoCg )
@@ -345,14 +345,23 @@ float rand( float2 co )
 #define vec3			float3
 #define vec4			float4
 
-#define VPOS WPOS
+#define VPOS SV_Position
 
 #define dFdx ddx
 #define dFdy ddy
 
 static float4 idtex2Dproj( SamplerState samp, Texture2D t, float4 texCoords )
 {
-	// TODO(Stephen): Divide by z or w?
+	return t.Sample( samp, texCoords.xy / texCoords.w );
+}
+
+static float idtex2Dproj( SamplerState samp, Texture2D<float> t, float4 texCoords )
+{
+	return t.Sample( samp, texCoords.xy / texCoords.w );
+}
+
+static float3 idtex2Dproj( SamplerState samp, Texture2D<float3> t, float4 texCoords )
+{
 	return t.Sample( samp, texCoords.xy / texCoords.w );
 }
 
@@ -473,8 +482,7 @@ static float3 ditherRGB( float3 color, float2 uvSeed, float quantSteps )
 	//float3 noise = Hash33( float3( uvSeed, rpJitterTexOffset.w ) );
 
 	//float3 noise = float3( InterleavedGradientNoise( uvSeed ) );
-	// TODO(Stephen): Determine if the remaining two values should be 0 or something like 1.
-	float3 noise = float3( InterleavedGradientNoiseAnim( uvSeed, rpJitterTexOffset.w ), 0, 0 );
+	float3 noise = _float3( InterleavedGradientNoiseAnim( uvSeed, rpJitterTexOffset.w ) );
 
 	// triangular noise [-0.5;1.5[
 
@@ -483,7 +491,7 @@ static float3 ditherRGB( float3 color, float2 uvSeed, float quantSteps )
 	noise = noise * 2.0 - 0.5;
 #endif
 
-	noise = float3( noise.x, 0, 0 );
+	noise = _float3( noise.x );
 
 	// quantize/truncate color and dither the result
 	//float scale = exp2( float( TARGET_BITS ) ) - 1.0;
@@ -499,10 +507,6 @@ static float3 ditherRGB( float3 color, float2 uvSeed, float quantSteps )
 	color = floor( color * scale ) / scale;
 
 	//float3 color = c + whiteNoise / 255.0;
-
-#if defined( USE_LINEAR_RGB )
-
-#endif
 
 	return color;
 }

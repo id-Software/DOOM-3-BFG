@@ -26,12 +26,10 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#include "renderprogs/global.inc.hlsl"
+#include "global_inc.hlsl"
 
 
 // *INDENT-OFF*
-uniform float4 rpUser0 : register(c128); //rpFraction
-uniform float4 rpUser1 : register(c129); //rpTargetHue
 
 struct VS_IN {
     float4 position : POSITION;
@@ -43,9 +41,9 @@ struct VS_IN {
 };
 
 struct VS_OUT {
-	float4 position		: POSITION;
+	float4 position		: SV_Position;
 	float4 color 		: COLOR0;
-	float3 texcoord0	: TEXCOORD0;
+	float3 texcoord0	: TEXCOORD0_centroid;
 };
 // *INDENT-ON*
 

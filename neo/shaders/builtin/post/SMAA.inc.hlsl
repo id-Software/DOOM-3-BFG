@@ -542,7 +542,11 @@
 #define API_V_ABOVE(v1, v2)	v1 < v2
 static SamplerState SmaaLinearSampler; // { Filter = MIN_MAG_LINEAR_MIP_POINT; AddressU = Clamp; AddressV = Clamp; };
 static SamplerState SmaaPointSampler; // { Filter = MIN_MAG_MIP_POINT; AddressU = Clamp; AddressV = Clamp; };
-static void Init( SamplerState _samp0, SamplerState _samp1 ) { SmaaLinearSampler = _samp0; SmaaPointSampler = _samp1; }
+static void Init( SamplerState _samp0, SamplerState _samp1 )
+{
+	SmaaLinearSampler = _samp0;
+	SmaaPointSampler = _samp1;
+}
 #define SMAATexture2D(tex) Texture2D tex
 #define SMAATexturePass2D(tex) tex
 #define SMAASampleLevelZero(tex, coord) tex.SampleLevel(SmaaLinearSampler, coord, 0)

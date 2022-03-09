@@ -27,21 +27,23 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#include "renderprogs/global.inc.hlsl"
+#include "global_inc.hlsl"
 
 
 // *INDENT-OFF*
-uniform sampler2D	samp0 : register(s0); // texture 0 is _current Render
-uniform sampler2D	samp1 : register(s1); // texture 1 is the per-surface bump map
+Texture2D t_CurrentRender : register( t0 );
+Texture2D t_NormalMap : register( t1 );
+
+SamplerState LinearSampler : register( s0 );
 
 struct PS_IN {
-	float4 position		: VPOS;
+	float4 position		: SV_Position;
 	float4 texcoord0	: TEXCOORD0_centroid;
-  float4 texcoord1  : TEXCOORD0_centroid;
+	float4 texcoord1	: TEXCOORD1_centroid;
 };
 
 struct PS_OUT {
-	float4 color : COLOR;
+	float4 color : SV_Target;
 };
 // *INDENT-ON*
 
@@ -116,7 +118,7 @@ float snoise( float3 v )
 	//float4 s1 = float4(lessThan(b1,0.0))*2.0 - 1.0;
 	float4 s0 = floor( b0 ) * 2.0 + 1.0;
 	float4 s1 = floor( b1 ) * 2.0 + 1.0;
-	float4 sh = -step( h, float4( 0.0 ) );
+	float4 sh = -step( h, _float4( 0.0 ) );
 
 	float4 a0 = b0.xzyw + s0.xzyw * sh.xxyy ;
 	float4 a1 = b1.xzyw + s1.xzyw * sh.zzww ;
@@ -201,6 +203,6 @@ void main( PS_IN fragment, out PS_OUT result )
 	float lighIntensity3 = 1.0/(100.0*distance(uv,light3));
 	*/
 
-	result.color = float4( float3( cloudIntensity1 * clouds( uv, time ) ) * lightColor1 + lighIntensity1 * lightColor1
+	result.color = float4( _float3( cloudIntensity1 * clouds( uv, time ) ) * lightColor1 + lighIntensity1 * lightColor1
 						   , 1.0 );
 }

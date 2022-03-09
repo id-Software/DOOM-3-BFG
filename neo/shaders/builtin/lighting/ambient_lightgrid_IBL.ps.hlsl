@@ -314,7 +314,8 @@ void main( PS_IN fragment, out PS_OUT result )
 
 		results in these offsets
 	*/
-	const float3 cornerOffsets[8] = {
+	const float3 cornerOffsets[8] =
+	{
 		float3( 0.0, 0.0, 0.0 ),
 		float3( 1.0, 0.0, 0.0 ),
 		float3( 0.0, 2.0, 0.0 ),

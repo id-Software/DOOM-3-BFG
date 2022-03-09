@@ -31,16 +31,16 @@ If you have questions concerning this license or the applicable additional terms
 
 
 // *INDENT-OFF*
-Texture2D t_Fog1 : register( t0 );
-Texture2D t_Fog2 : register( t1 );
+Texture2D t_Fog1	: register( t0 );
+Texture2D t_Fog2	: register( t1 );
 
-SamplerState samp0 : register(s0);
-SamplerState samp1 : register(s1);
+SamplerState samp0	: register(s0);
+SamplerState samp1	: register(s1);
 
 struct PS_IN {
-	float4 position : SV_Position;
-	float2 texcoord0 : TEXCOORD0_centroid;
-	float2 texcoord1 : TEXCOORD1_centroid;
+	float4 position		: SV_Position;
+	float2 texcoord0	: TEXCOORD0_centroid;
+	float2 texcoord1	: TEXCOORD1_centroid;
 };
 
 struct PS_OUT {
@@ -52,7 +52,7 @@ void main( PS_IN fragment, out PS_OUT result )
 {
 	float4 c = t_Fog1.Sample( samp0, fragment.texcoord0 ) * t_Fog2.Sample( samp1, fragment.texcoord1 ) * rpColor;
 
-#if defined( USE_LINEAR_RGB )
+#if USE_LINEAR_RGB
 	c = clamp( c, 0.0, 1.0 );
 
 	c = float4( Linear1( c.r ), Linear1( c.g ), Linear1( c.b ), Linear1( c.a ) );

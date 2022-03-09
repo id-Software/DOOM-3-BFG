@@ -66,9 +66,9 @@ void main( PS_IN fragment, out PS_OUT result )
 	Init( LinearSampler, PointSampler );
 
 	float4 color = SMAANeighborhoodBlendingPS( texcoord,
-					offset,
-					t_CurrentColor,
-					t_SmaaBlend
+				   offset,
+				   t_CurrentColor,
+				   t_SmaaBlend
 #if SMAA_REPROJECTION
 				   , SMAATexture2D( velocityTex )
 #endif

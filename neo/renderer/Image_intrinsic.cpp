@@ -345,14 +345,18 @@ static void R_FlatNormalImage( idImage* image, nvrhi::ICommandList* commandList 
 	byte	data[DEFAULT_SIZE][DEFAULT_SIZE][4];
 
 	// flat normal map for default bump mapping
-	for( int i = 0 ; i < 4 ; i++ )
+	for( int i = 0; i < DEFAULT_SIZE; i++ )
 	{
-		data[0][i][0] = 128;
-		data[0][i][1] = 128;
-		data[0][i][2] = 255;
-		data[0][i][3] = 255;
+		for( int j = 0; j < DEFAULT_SIZE; j++ )
+		{
+			data[j][i][0] = 128;
+			data[j][i][1] = 128;
+			data[j][i][2] = 255;
+			data[j][i][3] = 255;
+		}
 	}
-	image->GenerateImage( ( byte* )data, 4, 4, TF_DEFAULT, TR_REPEAT, TD_BUMP, commandList );
+
+	image->GenerateImage( ( byte* )data, 16, 16, TF_DEFAULT, TR_REPEAT, TD_BUMP, commandList );
 }
 
 /*
@@ -955,8 +959,8 @@ static void R_CreateImGuiFontImage( idImage* image, nvrhi::ICommandList* command
 	image->GenerateImage( ( byte* )pixels, width, height, TF_LINEAR, TR_CLAMP, TD_LOOKUP_TABLE_RGBA, commandList );
 
 	// Store our identifier
-	io.Fonts->TexID = ( void* )( intptr_t )image->GetImGuiTextureID();
-	//io.Fonts->TexID = ( void* )( intptr_t )declManager->FindMaterial( "_imguiFont" );
+	//io.Fonts->TexID = ( void* )( intptr_t )image->GetImGuiTextureID();
+	io.Fonts->TexID = ( void* )( intptr_t )declManager->FindMaterial( "_imguiFont" );
 
 	// Cleanup (don't clear the input data if you want to append new fonts later)
 	//io.Fonts->ClearInputData();

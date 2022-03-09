@@ -720,7 +720,8 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 		.addItem( nvrhi::BindingSetItem::Texture_SRV( 5, ( nvrhi::ITexture* )GetImageAt( 5 )->GetTextureID() ) )
 		.addItem( nvrhi::BindingSetItem::Texture_SRV( 6, ( nvrhi::ITexture* )GetImageAt( 6 )->GetTextureID() ) )
 		.addItem( nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_AnisotropicWrapSampler ) )
-		.addItem( nvrhi::BindingSetItem::Sampler( 1, commonPasses.m_LinearWrapSampler ) );
+		.addItem( nvrhi::BindingSetItem::Sampler( 1, commonPasses.m_LinearClampSampler ) )
+		.addItem( nvrhi::BindingSetItem::Sampler( 2, commonPasses.m_LinearClampCompareSampler ) );
 	}
 	else if( renderProgManager.BindingLayoutType() == BINDING_LAYOUT_DRAW_FOG )
 	{
@@ -748,7 +749,7 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 	currentBindingSet = bindingCache.GetOrCreateBindingSet( bindingSetDesc, renderProgManager.BindingLayout() );
 	renderProgManager.CommitConstantBuffer( commandList );
 
-	PipelineKey key{ glStateBits, renderProgManager.CurrentProgram(), viewDef->isMirror, currentFrameBuffer };
+	PipelineKey key{ glStateBits, renderProgManager.CurrentProgram(), viewDef->isMirror, depthBias, slopeScaleBias, currentFrameBuffer };
 	auto pipeline = pipelineCache.GetOrCreatePipeline( key );
 
 	nvrhi::GraphicsState state;
@@ -765,7 +766,11 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 							  currentViewport.zmin,
 							  currentViewport.zmax };
 	state.viewport.addViewportAndScissorRect( viewport );
-	state.viewport.addScissorRect( nvrhi::Rect( currentScissor.x1, currentScissor.y1, currentScissor.x2, currentScissor.y2 ) );
+
+	if( !currentScissor.IsEmpty( ) )
+	{
+		state.viewport.addScissorRect( nvrhi::Rect( currentScissor.x1, currentScissor.x2, currentScissor.y1, currentScissor.y2 ) );
+	}
 
 	commandList->setGraphicsState( state );
 
@@ -1288,9 +1293,9 @@ idRenderBackend::GL_Scissor
 void idRenderBackend::GL_Scissor( int x /* left*/, int y /* bottom */, int w, int h )
 {
 	// TODO Check if this is right.
-	currentScissor.Clear();
-	currentScissor.AddPoint( x, y );
-	currentScissor.AddPoint( x + w, y + h );
+	//currentScissor.Clear( );
+	//currentScissor.AddPoint( x, y );
+	//currentScissor.AddPoint( x + w, y + h );
 }
 
 /*
@@ -1323,20 +1328,19 @@ idRenderBackend::GL_DepthBoundsTest
 */
 void idRenderBackend::GL_DepthBoundsTest( const float zmin, const float zmax )
 {
-	if( !glConfig.depthBoundsTestAvailable || zmin > zmax )
+	if( /*!glConfig.depthBoundsTestAvailable || */zmin > zmax )
 	{
 		return;
 	}
 
-	//if( zmin == 0.0f && zmax == 0.0f )
-	//{
-	//	glDisable( GL_DEPTH_BOUNDS_TEST_EXT );
-	//}
-	//else
-	//{
-	//	glEnable( GL_DEPTH_BOUNDS_TEST_EXT );
-	//	glDepthBoundsEXT( zmin, zmax );
-	//}
+	if( zmin == 0.0f && zmax == 0.0f )
+	{
+	}
+	else
+	{
+		currentViewport.zmin = zmin;
+		currentViewport.zmax = zmax;
+	}
 }
 
 /*
@@ -1728,4 +1732,9 @@ void idRenderBackend::BindProgram( nvrhi::ShaderHandle vShader, nvrhi::ShaderHan
 
 	// reset the pipeline.
 	currentPipeline = nullptr;
+}
+
+void idRenderBackend::ResetPipelineCache()
+{
+	pipelineCache.Clear();
 }

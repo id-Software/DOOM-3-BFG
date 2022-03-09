@@ -26,21 +26,23 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#include "renderprogs/global.inc.hlsl"
+#include "global_inc.hlsl"
 
 
 // *INDENT-OFF*
-uniform sampler2D	samp0 : register(s0); // texture 0 is _current Render
-uniform sampler2D	samp1 : register(s1); // texture 1 is the per-surface bump map
+Texture2D t_CurrentRender : register( t0 );
+Texture2D t_NormalMap : register( t1 );
+
+SamplerState LinearSampler : register( s0 );
 
 struct PS_IN {
-	float4 position		: VPOS;
+	float4 position		: SV_Position;
 	float2 texcoord		: TEXCOORD0_centroid;
 	float4 color		: COLOR0;
 };
 
 struct PS_OUT {
-	float4 color : COLOR;
+	float4 color : SV_Target;
 };
 // *INDENT-ON*
 
@@ -50,12 +52,12 @@ void main( PS_IN fragment, out PS_OUT result )
 	float2 screenTexCoord = fragment.texcoord;
 
 	// compute warp factor
-	float4 warpFactor = 1.0 - ( tex2D( samp1, screenTexCoord.xy ) * fragment.color );
+	float4 warpFactor = 1.0 - ( t_NormalMap.Sample( LinearSampler, screenTexCoord.xy ) * fragment.color );
 	screenTexCoord -= float2( 0.5, 0.5 );
 	screenTexCoord *= warpFactor.xy;
 	screenTexCoord += float2( 0.5, 0.5 );
 
 	// load the screen render
-	result.color = tex2D( samp0, screenTexCoord );
+	result.color = t_CurrentRender.Sample( LinearSampler, screenTexCoord );
 
 }

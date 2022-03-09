@@ -127,8 +127,12 @@ void Framebuffer::ResizeFramebuffers()
 	{
 		globalImages->shadowImage[i]->Reload( false, tr.backend.commandList );
 	}
-	tr.backend.commandList->close();
-	deviceManager->GetDevice()->executeCommandList( tr.backend.commandList );
+	for( int i = 0; i < MAX_BLOOM_BUFFERS; i++ )
+	{
+		globalImages->bloomRenderImage[i]->Reload( false, tr.backend.commandList );
+	}
+	tr.backend.commandList->close( );
+	deviceManager->GetDevice( )->executeCommandList( tr.backend.commandList );
 
 	for( uint32_t index = 0; index < backBufferCount; index++ )
 	{
@@ -203,10 +207,17 @@ void Framebuffer::ResizeFramebuffers()
 			nvrhi::FramebufferDesc()
 			.addColorAttachment( globalImages->smaaBlendImage->texture ) );
 
-	Framebuffer::Unbind();
+	for( int i = 0; i < MAX_BLOOM_BUFFERS; i++ )
+	{
+		globalFramebuffers.bloomRenderFBO[i] = new Framebuffer( va( "_bloomRender%i", i ),
+				nvrhi::FramebufferDesc()
+				.addColorAttachment( globalImages->bloomRenderImage[i]->texture ) );
+	}
+
+	Framebuffer::Unbind( );
 }
 
-void Framebuffer::Bind()
+void Framebuffer::Bind( )
 {
 	RENDERLOG_PRINTF( "Framebuffer::Bind( %s )\n", fboName.c_str() );
 
@@ -215,6 +226,7 @@ void Framebuffer::Bind()
 		tr.backend.currentPipeline = nullptr;
 	}
 
+	tr.backend.lastFrameBuffer = tr.backend.currentFrameBuffer;
 	tr.backend.currentFrameBuffer = this;
 }
 

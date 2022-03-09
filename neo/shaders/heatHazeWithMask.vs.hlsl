@@ -27,18 +27,21 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#include "renderprogs/global.inc.hlsl"
+#include "global_inc.hlsl"
 
 
-// RB: no GPU skinning with ES 2.0
-#if USE_GPU_SKINNING
-uniform matrices_ubo { float4 matrices[408]; };
-#endif
-// RB end
+// User Renderparms start at 128 as per renderprogs.h
 
 // *INDENT-OFF*
-uniform float4 rpUser0 : register(c128); // rpScroll
-uniform	float4 rpUser1 : register(c129); // rpDeformMagnitude
+// 
+// RB: no GPU skinning with ES 2.0
+#if USE_GPU_SKINNING
+cbuffer CB : register( b1 )
+{
+	float4 matrices[408];
+};
+#endif
+// RB end
 
 struct VS_IN {
 	float4 position : POSITION;
@@ -50,17 +53,17 @@ struct VS_IN {
 };
 
 struct VS_OUT {
-	float4 position		: POSITION;
-	float4 texcoord0	: TEXCOORD0;
-	float4 texcoord1	: TEXCOORD1;
-	float4 texcoord2	: TEXCOORD2;
+	float4 position		: SV_Position;
+	float4 texcoord0	: TEXCOORD0_centroid;
+	float4 texcoord1	: TEXCOORD1_centroid;
+	float4 texcoord2	: TEXCOORD2_centroid;
 };
 // *INDENT-ON*
 
 void main( VS_IN vertex, out VS_OUT result )
 {
 
-#include "renderprogs/skinning.inc.hlsl"
+#include "skinning.inc.hlsl"
 
 
 	// texture 0 takes the texture coordinates unmodified

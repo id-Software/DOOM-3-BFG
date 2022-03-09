@@ -257,19 +257,19 @@ void idImage::AllocImage()
 			break;
 
 		case FMT_ALPHA:
-			format = nvrhi::Format::R8_UINT;
+			format = nvrhi::Format::R8_UNORM;
 			break;
 
 		case FMT_L8A8:
-			format = nvrhi::Format::RG8_UINT;
+			format = nvrhi::Format::RG8_UNORM;
 			break;
 
 		case FMT_LUM8:
-			format = nvrhi::Format::R8_UINT;
+			format = nvrhi::Format::R8_UNORM;
 			break;
 
 		case FMT_INT8:
-			format = nvrhi::Format::R8_UINT;
+			format = nvrhi::Format::R8_UNORM;
 			break;
 
 		case FMT_R8:
@@ -329,6 +329,10 @@ void idImage::AllocImage()
 			format = nvrhi::Format::R11G11B10_FLOAT;
 			break;
 
+		case FMT_SRGB8:
+			format = nvrhi::Format::SRGBA8_UNORM;
+			break;
+
 		default:
 			idLib::Error( "Unhandled image format %d in %s\n", opts.format, GetName() );
 	}
@@ -382,6 +386,44 @@ void idImage::AllocImage()
 					   .setFormat( format )
 					   .setSampleCount( opts.samples )
 					   .setMipLevels( opts.numLevels );
+
+#if 0
+	if( opts.colorFormat == CFM_GREEN_ALPHA )
+	{
+		textureDesc.componentMapping.bits.r = 5;
+		textureDesc.componentMapping.bits.g = 5;
+		textureDesc.componentMapping.bits.b = 5;
+		textureDesc.componentMapping.bits.a = 1;
+	}
+	else if( opts.format == FMT_LUM8 )
+	{
+		textureDesc.componentMapping.bits.r = 0;
+		textureDesc.componentMapping.bits.g = 0;
+		textureDesc.componentMapping.bits.b = 0;
+		textureDesc.componentMapping.bits.a = 5;
+	}
+	else if( opts.format == FMT_L8A8 )//|| opts.format == FMT_RG16F )
+	{
+		textureDesc.componentMapping.bits.r = 0;
+		textureDesc.componentMapping.bits.g = 0;
+		textureDesc.componentMapping.bits.b = 0;
+		textureDesc.componentMapping.bits.a = 1;
+	}
+	else if( opts.format == FMT_ALPHA )
+	{
+		textureDesc.componentMapping.bits.r = 5;
+		textureDesc.componentMapping.bits.g = 5;
+		textureDesc.componentMapping.bits.b = 5;
+		textureDesc.componentMapping.bits.a = 0;
+	}
+	else if( opts.format == FMT_INT8 )
+	{
+		textureDesc.componentMapping.bits.r = 0;
+		textureDesc.componentMapping.bits.g = 0;
+		textureDesc.componentMapping.bits.b = 0;
+		textureDesc.componentMapping.bits.a = 0;
+	}
+#endif
 
 	if( opts.isRenderTarget )
 	{

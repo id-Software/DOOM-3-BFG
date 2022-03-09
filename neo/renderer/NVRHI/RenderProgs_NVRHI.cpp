@@ -4,7 +4,7 @@
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2013-2018 Robert Beckebans
-Copyright (C) 2016-2017 Dustin Land
+Copyright (C) 2022 Stephen Pridham
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -129,7 +129,6 @@ void idRenderProgManager::LoadShader( shader_t& shader )
 
 	idStr adjustedName = shader.name;
 	adjustedName.StripFileExtension();
-	//adjustedName.StripPath();
 	adjustedName = idStr( "renderprogs/dxil/" ) + adjustedName + "." + stage + ".bin";
 
 	ShaderBlob shaderBlob = GetBytecode( adjustedName );
@@ -150,7 +149,7 @@ void idRenderProgManager::LoadShader( shader_t& shader )
 	}
 
 	nvrhi::ShaderDesc desc = nvrhi::ShaderDesc( shaderType );
-	desc.debugName = shader.name;
+	desc.debugName = ( idStr( shader.name ) + idStr( shader.nameOutSuffix ) ).c_str();
 
 	nvrhi::ShaderDesc descCopy = desc;
 	// TODO(Stephen): Might not want to hard-code this.
@@ -172,7 +171,7 @@ ShaderBlob idRenderProgManager::GetBytecode( const char* fileName )
 
 	if( !blob.data )
 	{
-		//common->Error( "Couldn't read the binary file for shader %s", fileName);
+		common->FatalError( "Couldn't read the binary file for shader %s", fileName );
 	}
 
 	return blob;
@@ -193,6 +192,20 @@ void idRenderProgManager::LoadProgram( const int programIndex, const int vertexS
 		prog.inputLayout = device->createInputLayout(
 							   &vertexLayoutDescs[prog.vertexLayout][0],
 							   vertexLayoutDescs[prog.vertexLayout].Num(),
+							   shaders[prog.vertexShaderIndex].handle );
+	}
+	prog.bindingLayout = bindingLayouts[prog.bindingLayoutType];
+}
+
+void idRenderProgManager::LoadComputeProgram( const int programIndex, const int computeShaderIndex )
+{
+	renderProg_t& prog = renderProgs[programIndex];
+	prog.computeShaderIndex = computeShaderIndex;
+	if( prog.vertexLayout != LAYOUT_UNKNOWN )
+	{
+		prog.inputLayout = device->createInputLayout(
+							   &vertexLayoutDescs[prog.vertexLayout][0],
+							   vertexLayoutDescs[prog.vertexLayout].Num( ),
 							   shaders[prog.vertexShaderIndex].handle );
 	}
 	prog.bindingLayout = bindingLayouts[prog.bindingLayoutType];
@@ -241,7 +254,9 @@ void idRenderProgManager::KillAllShaders()
 {
 	Unbind();
 
-	for( int i = 0; i < shaders.Num(); i++ )
+	tr.backend.ResetPipelineCache();
+
+	for( int i = 0; i < shaders.Num( ); i++ )
 	{
 		if( shaders[i].handle )
 		{

@@ -36,7 +36,7 @@ SamplerState samp0 : register( s0 );
 
 struct PS_IN
 {
-	float4 position : VPOS;
+	float4 position : SV_Position;
 	float2 texcoord0 : TEXCOORD0_centroid;
 };
 
@@ -75,7 +75,8 @@ void main( PS_IN fragment, out PS_OUT result )
 
 	const float gaussFact[9] = { 0.13298076, 0.12579441, 0.10648267, 0.08065691, 0.05467002, 0.03315905, 0.01799699, 0.00874063, 0.00379866 };
 
-	const float3 chromaticOffsets[9] = {
+	const float3 chromaticOffsets[9] =
+	{
 		float3( 0.5, 0.5, 0.5 ), // w
 		float3( 0.8, 0.3, 0.3 ),
 		//	float3(1.0, 0.2, 0.2), // r

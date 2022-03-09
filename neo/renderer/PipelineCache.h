@@ -7,6 +7,8 @@ struct PipelineKey
 	uint64 state;
 	int program;
 	bool mirrored;
+	int depthBias;
+	float slopeBias;
 
 	Framebuffer* framebuffer;
 };
@@ -16,7 +18,9 @@ inline bool operator==( const PipelineKey& lhs, const PipelineKey& rhs )
 	return lhs.state == rhs.state &&
 		   lhs.program == rhs.program &&
 		   lhs.mirrored == rhs.mirrored &&
-		   lhs.framebuffer == rhs.framebuffer;
+		   lhs.framebuffer == rhs.framebuffer &&
+		   lhs.depthBias == rhs.depthBias &&
+		   lhs.slopeBias == rhs.slopeBias;
 }
 
 template<>
@@ -29,6 +33,8 @@ struct std::hash<PipelineKey>
 		nvrhi::hash_combine( h, key.program );
 		nvrhi::hash_combine( h, key.mirrored );
 		nvrhi::hash_combine( h, key.framebuffer );
+		nvrhi::hash_combine( h, key.depthBias );
+		nvrhi::hash_combine( h, key.slopeBias );
 		return h;
 	}
 };

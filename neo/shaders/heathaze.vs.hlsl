@@ -54,8 +54,8 @@ struct VS_IN {
 
 struct VS_OUT {
 	float4 position		: SV_Position;
-	float4 texcoord0	: TEXCOORD0;
-	float4 texcoord1	: TEXCOORD1;
+	float4 texcoord0	: TEXCOORD0_centroid;
+	float4 texcoord1	: TEXCOORD1_centroid;
 };
 // *INDENT-ON*
 
@@ -64,11 +64,11 @@ void main( VS_IN vertex, out VS_OUT result )
 
 #include "skinning.inc.hlsl"
 
-	//texture 0 takes the texture coordinates and adds a scroll
+	// texture 0 takes the texture coordinates and adds a scroll
 	const float4 textureScroll = rpUser0;
 	result.texcoord0 = float4( vertex.texcoord.xy, 0, 0 ) + textureScroll;
 
-	//texture 1 takes the deform magnitude and scales it by the projection distance
+	// texture 1 takes the deform magnitude and scales it by the projection distance
 	float4	vec = float4( 0, 1, 0, 1 );
 	vec.z = dot4( modelPosition, rpModelViewMatrixZ ); // this is the modelview matrix
 
@@ -79,7 +79,7 @@ void main( VS_IN vertex, out VS_OUT result )
 	float x = dot4( vec, rpProjectionMatrixY ) * magicProjectionAdjust;
 	float w = dot4( vec, rpProjectionMatrixW );
 
-	//don't let the recip get near zero for polygons that cross the view plane
+	// don't let the recip get near zero for polygons that cross the view plane
 	w = max( w, 1.0 );
 	x /= w;
 	//x = x * ( 1.0f / w );

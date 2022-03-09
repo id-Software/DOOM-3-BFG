@@ -234,23 +234,24 @@ void main( PS_IN fragment, out PS_OUT result )
 #if HDR_DEBUG
 	// https://google.github.io/filament/Filament.md.html#figure_luminanceviz
 
-	const float3 debugColors[16] = {
-									   float3( 0.0, 0.0, 0.0 ), // black
-									   float3( 0.0, 0.0, 0.1647 ),    // darkest blue
-									   float3( 0.0, 0.0, 0.3647 ),    // darker blue
-									   float3( 0.0, 0.0, 0.6647 ),    // dark blue
-									   float3( 0.0, 0.0, 0.9647 ),    // blue
-									   float3( 0.0, 0.9255, 0.9255 ), // cyan
-									   float3( 0.0, 0.5647, 0.0 ),    // dark green
-									   float3( 0.0, 0.7843, 0.0 ),    // green
-									   float3( 1.0, 1.0, 0.0 ),       // yellow
-									   float3( 0.90588, 0.75294, 0.0 ), // yellow-orange
-									   float3( 1.0, 0.5647, 0.0 ),    // orange
-									   float3( 1.0, 0.0, 0.0 ),       // bright red
-									   float3( 0.8392, 0.0, 0.0 ),    // red
-									   float3( 1.0, 0.0, 1.0 ),       // magenta
-									   float3( 0.6, 0.3333, 0.7882 ), // purple
-									   float3( 1.0, 1.0, 1.0 )        // white
+	const float3 debugColors[16] =
+	{
+		float3( 0.0, 0.0, 0.0 ), // black
+		float3( 0.0, 0.0, 0.1647 ),    // darkest blue
+		float3( 0.0, 0.0, 0.3647 ),    // darker blue
+		float3( 0.0, 0.0, 0.6647 ),    // dark blue
+		float3( 0.0, 0.0, 0.9647 ),    // blue
+		float3( 0.0, 0.9255, 0.9255 ), // cyan
+		float3( 0.0, 0.5647, 0.0 ),    // dark green
+		float3( 0.0, 0.7843, 0.0 ),    // green
+		float3( 1.0, 1.0, 0.0 ),       // yellow
+		float3( 0.90588, 0.75294, 0.0 ), // yellow-orange
+		float3( 1.0, 0.5647, 0.0 ),    // orange
+		float3( 1.0, 0.0, 0.0 ),       // bright red
+		float3( 0.8392, 0.0, 0.0 ),    // red
+		float3( 1.0, 0.0, 1.0 ),       // magenta
+		float3( 0.6, 0.3333, 0.7882 ), // purple
+		float3( 1.0, 1.0, 1.0 )        // white
 	};
 
 	// The 5th color in the array (cyan) represents middle gray (18%)

@@ -58,7 +58,7 @@ void main( PS_IN fragment, out PS_OUT result )
 
 	// RB begin
 	float3 localNormal;
-#if defined(USE_NORMAL_FMT_RGB8)
+#if USE_NORMAL_FMT_RGB8
 	localNormal = float3( bump.rg, 0.0f );
 #else
 	localNormal = float3( bump.wy, 0.0f );
