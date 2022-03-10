@@ -463,7 +463,7 @@ void idImage::FinalizeImage( bool fromBackEnd, nvrhi::ICommandList* commandList 
 
 	if( ( fileSystem->InProductionMode() && binaryFileTime != FILE_NOT_FOUND_TIMESTAMP ) || ( ( binaryFileTime != FILE_NOT_FOUND_TIMESTAMP )
 			&& ( header.colorFormat == opts.colorFormat )
-#if defined(__APPLE__) && defined(USE_VULKAN)
+#if ( defined( __APPLE__ ) && defined( USE_VULKAN ) ) || defined( USE_NVRHI )
 			// SRS - Handle case when image read is cached and RGB565 format conversion is already done
 			&& ( header.format == opts.format || ( header.format == FMT_RGB565 && opts.format == FMT_RGBA8 ) )
 #else
@@ -476,7 +476,7 @@ void idImage::FinalizeImage( bool fromBackEnd, nvrhi::ICommandList* commandList 
 		opts.height = header.height;
 		opts.numLevels = header.numLevels;
 		opts.colorFormat = ( textureColor_t )header.colorFormat;
-#if ( defined( __APPLE__ ) && defined( USE_VULKAN ) ) //|| defined( USE_NVRHI )
+#if ( defined( __APPLE__ ) && defined( USE_VULKAN ) ) || defined( USE_NVRHI )
 		// SRS - Set in-memory format to FMT_RGBA8 for converted FMT_RGB565 image
 		if( header.format == FMT_RGB565 )
 		{
