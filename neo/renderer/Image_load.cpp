@@ -895,11 +895,20 @@ idImage::Reload
 */
 void idImage::Reload( bool force, nvrhi::ICommandList* commandList )
 {
+	// don't break render targets that have this image attached
+	if( opts.isRenderTarget )
+	{
+		return;
+	}
+
 	// always regenerate functional images
 	if( generatorFunction )
 	{
-		common->DPrintf( "regenerating %s.\n", GetName() );
-		generatorFunction( this, commandList );
+		if( force )
+		{
+			common->DPrintf( "regenerating %s.\n", GetName() );
+			generatorFunction( this, commandList );
+		}
 		return;
 	}
 
