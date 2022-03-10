@@ -179,7 +179,7 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 	switch( uMsg )
 	{
 		case WM_WINDOWPOSCHANGED:
-			if( renderSystem->IsInitialized() )
+			if( renderSystem->IsInitialized() && win32.hDC != NULL )
 			{
 				RECT rect;
 				if( ::GetClientRect( win32.hWnd, &rect ) )
