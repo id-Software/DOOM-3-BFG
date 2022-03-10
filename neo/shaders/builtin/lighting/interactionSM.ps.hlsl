@@ -212,7 +212,6 @@ void main( PS_IN fragment, out PS_OUT result )
 
 	float4 modelPosition = float4( fragment.texcoord7.xyz, 1.0 );
 
-
 	float4 shadowTexcoord;
 	shadowTexcoord.x = dot4( modelPosition, shadowMatrixX );
 	shadowTexcoord.y = dot4( modelPosition, shadowMatrixY );
@@ -399,7 +398,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	uvzShadow.z = shadowTexcoord.w;
 	float shadow = t_ShadowMapArray.SampleCmpLevelZero( samp2, uvzShadow, shadowTexcoord.z );
 
-#if 1
+#if 0
 	if( shadowIndex == 0 )
 	{
 		result.color = float4( 1.0, 0.0, 0.0, 1.0 );
