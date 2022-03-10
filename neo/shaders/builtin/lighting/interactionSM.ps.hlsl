@@ -204,12 +204,14 @@ void main( PS_IN fragment, out PS_OUT result )
 	return;
 #endif
 
+	// rpShadowMatrices contain model -> world -> shadow transformation for evaluation
 	float4 shadowMatrixX = rpShadowMatrices[ int ( shadowIndex * 4 + 0 ) ];
 	float4 shadowMatrixY = rpShadowMatrices[ int ( shadowIndex * 4 + 1 ) ];
 	float4 shadowMatrixZ = rpShadowMatrices[ int ( shadowIndex * 4 + 2 ) ];
 	float4 shadowMatrixW = rpShadowMatrices[ int ( shadowIndex * 4 + 3 ) ];
 
 	float4 modelPosition = float4( fragment.texcoord7.xyz, 1.0 );
+
 
 	float4 shadowTexcoord;
 	shadowTexcoord.x = dot4( modelPosition, shadowMatrixX );
@@ -309,7 +311,7 @@ void main( PS_IN fragment, out PS_OUT result )
 
 	shadow *= stepSize;
 
-#elif 1
+#elif 0
 
 #if 0
 
@@ -391,8 +393,45 @@ void main( PS_IN fragment, out PS_OUT result )
 #endif
 
 #else
-	float shadow = idtex2Dproj( samp1, t_ShadowMapArray, shadowTexcoord );
+	float3 uvzShadow;
+	uvzShadow.x = shadowTexcoord.x;
+	uvzShadow.y = shadowTexcoord.y;
+	uvzShadow.z = shadowTexcoord.w;
+	float shadow = t_ShadowMapArray.SampleCmpLevelZero( samp2, uvzShadow, shadowTexcoord.z );
+
+#if 1
+	if( shadowIndex == 0 )
+	{
+		result.color = float4( 1.0, 0.0, 0.0, 1.0 );
+	}
+	else if( shadowIndex == 1 )
+	{
+		result.color = float4( 0.0, 1.0, 0.0, 1.0 );
+	}
+	else if( shadowIndex == 2 )
+	{
+		result.color = float4( 0.0, 0.0, 1.0, 1.0 );
+	}
+	else if( shadowIndex == 3 )
+	{
+		result.color = float4( 1.0, 1.0, 0.0, 1.0 );
+	}
+	else if( shadowIndex == 4 )
+	{
+		result.color = float4( 1.0, 0.0, 1.0, 1.0 );
+	}
+	else if( shadowIndex == 5 )
+	{
+		result.color = float4( 0.0, 1.0, 1.0, 1.0 );
+	}
+
+	result.color.rgb *= shadow;
+	return;
 #endif
+
+#endif
+
+
 
 	half3 halfAngleVector = normalize( lightVector + viewVector );
 	half hdotN = clamp( dot3( halfAngleVector, localNormal ), 0.0, 1.0 );

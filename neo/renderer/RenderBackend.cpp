@@ -3385,7 +3385,13 @@ void idRenderBackend::ShadowMapPass( const drawSurf_t* drawSurfs, const viewLigh
 		lightProjectionMatrix[0 * 4 + 2] = 0.0f;
 		lightProjectionMatrix[1 * 4 + 2] = 0.0f;
 		lightProjectionMatrix[2 * 4 + 2] = -0.999f; // adjust value to prevent imprecision issues
+
+#if 0 //defined( USE_NVRHI )
+		// the D3D clip space Z is in range [0,1] instead of [-1,1]
+		lightProjectionMatrix[3 * 4 + 2] = -zNear;
+#else
 		lightProjectionMatrix[3 * 4 + 2] = -2.0f * zNear;
+#endif
 
 		lightProjectionMatrix[0 * 4 + 3] = 0.0f;
 		lightProjectionMatrix[1 * 4 + 3] = 0.0f;
@@ -3404,6 +3410,18 @@ void idRenderBackend::ShadowMapPass( const drawSurf_t* drawSurfs, const viewLigh
 
 		shadowV[0] = lightViewRenderMatrix;
 		shadowP[0] = lightProjectionRenderMatrix;
+
+#if defined( USE_NVRHI )
+		// Calculate alternate matrix that maps to [0, 1] UV space instead of [-1, 1] clip space
+		ALIGNTYPE16 const idRenderMatrix matClipToUvzw(
+			0.5f,  0.0f, 0.0f, 0.5f,
+			0.0f, -0.5f, 0.0f, 0.5f,
+			0.0f,  0.0f, 1.0f, 0.0f,
+			0.0f,  0.0f, 0.0f, 1.0f
+		);
+
+		idRenderMatrix::Multiply( matClipToUvzw, lightProjectionRenderMatrix, shadowP[0] );
+#endif
 	}
 
 
@@ -3411,14 +3429,13 @@ void idRenderBackend::ShadowMapPass( const drawSurf_t* drawSurfs, const viewLigh
 #if defined( USE_NVRHI )
 	if( side < 0 )
 	{
-		side = 0;
+		globalFramebuffers.shadowFBO[vLight->shadowLOD][0]->Bind();
 	}
-	if( side > 5 )
+	else
 	{
-		side = 5;
+		globalFramebuffers.shadowFBO[vLight->shadowLOD][side]->Bind();
 	}
 
-	globalFramebuffers.shadowFBO[vLight->shadowLOD][side]->Bind();
 
 	GL_ViewportAndScissor( 0, 0, shadowMapResolutions[vLight->shadowLOD], shadowMapResolutions[vLight->shadowLOD] );
 
@@ -3478,9 +3495,11 @@ void idRenderBackend::ShadowMapPass( const drawSurf_t* drawSurfs, const viewLigh
 
 		if( drawSurf->space != currentSpace )
 		{
+			// model -> world
 			idRenderMatrix modelRenderMatrix;
 			idRenderMatrix::Transpose( *( idRenderMatrix* )drawSurf->space->modelMatrix, modelRenderMatrix );
 
+			// world -> light = light camera view of model in Doom
 			idRenderMatrix modelToLightRenderMatrix;
 			idRenderMatrix::Multiply( lightViewRenderMatrix, modelRenderMatrix, modelToLightRenderMatrix );
 
@@ -3489,6 +3508,7 @@ void idRenderBackend::ShadowMapPass( const drawSurf_t* drawSurfs, const viewLigh
 
 			if( vLight->parallel )
 			{
+				// cascaded sun light shadowmap
 				idRenderMatrix MVP;
 				idRenderMatrix::Multiply( renderMatrix_clipSpaceToWindowSpace, clipMVP, MVP );
 
@@ -3496,7 +3516,7 @@ void idRenderBackend::ShadowMapPass( const drawSurf_t* drawSurfs, const viewLigh
 			}
 			else if( side < 0 )
 			{
-				// from OpenGL view space to OpenGL NDC ( -1 : 1 in XYZ )
+				// spot light
 				idRenderMatrix MVP;
 				idRenderMatrix::Multiply( renderMatrix_windowSpaceToClipSpace, clipMVP, MVP );
 
@@ -3504,6 +3524,7 @@ void idRenderBackend::ShadowMapPass( const drawSurf_t* drawSurfs, const viewLigh
 			}
 			else
 			{
+				// point light
 				RB_SetMVP( clipMVP );
 			}
 
