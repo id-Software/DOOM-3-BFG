@@ -60,6 +60,7 @@ nvrhi::BindingSetHandle BindingCache::GetOrCreateBindingSet( const nvrhi::Bindin
 
 	if( !result )
 	{
+		/*
 		mutex.Lock();
 
 		int entryIndex = bindingSets.Append( result );
@@ -76,6 +77,16 @@ nvrhi::BindingSetHandle BindingCache::GetOrCreateBindingSet( const nvrhi::Bindin
 		{
 			result = entry;
 		}
+
+		mutex.Unlock();
+		*/
+
+		mutex.Lock();
+
+		result = device->createBindingSet( desc, layout );
+
+		int entryIndex = bindingSets.Append( result );
+		bindingHash.Add( hash, entryIndex );
 
 		mutex.Unlock();
 	}
@@ -130,6 +141,7 @@ nvrhi::SamplerHandle SamplerCache::GetOrCreateSampler( nvrhi::SamplerDesc desc )
 
 	if( !result )
 	{
+		/*
 		mutex.Lock();
 
 		int entryIndex = samplers.Append( result );
@@ -146,6 +158,16 @@ nvrhi::SamplerHandle SamplerCache::GetOrCreateSampler( nvrhi::SamplerDesc desc )
 		{
 			result = entry;
 		}
+
+		mutex.Unlock();
+		*/
+
+		mutex.Lock();
+
+		result = device->createSampler( desc );
+
+		int entryIndex = samplers.Append( result );
+		samplerHash.Add( hash, entryIndex );
 
 		mutex.Unlock();
 	}
