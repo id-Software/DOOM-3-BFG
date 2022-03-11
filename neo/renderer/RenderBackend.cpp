@@ -3293,15 +3293,12 @@ void idRenderBackend::ShadowMapPass( const drawSurf_t* drawSurfs, const viewLigh
 	{
 		assert( side >= 0 && side < 6 );
 
-		// FIXME OPTIMIZE no memset
-
-		float	viewMatrix[16];
+		float	viewMatrix[16] = {0};
 
 		idVec3	vec;
 		idVec3	origin = vLight->globalLightOrigin;
 
 		// side of a point light
-		memset( viewMatrix, 0, sizeof( viewMatrix ) );
 		switch( side )
 		{
 			case 0:
@@ -3382,7 +3379,7 @@ void idRenderBackend::ShadowMapPass( const drawSurf_t* drawSurfs, const viewLigh
 		// from OpenGL view space to OpenGL NDC ( -1 : 1 in XYZ )
 		float lightProjectionMatrix[16];
 
-		lightProjectionMatrix[0 * 4 + 0] = 2.0f * zNear / width;
+		lightProjectionMatrix[0 * 4 + 0] = -2.0f * zNear / width;
 		lightProjectionMatrix[1 * 4 + 0] = 0.0f;
 		lightProjectionMatrix[2 * 4 + 0] = ( xmax + xmin ) / width;	// normally 0
 		lightProjectionMatrix[3 * 4 + 0] = 0.0f;
@@ -3399,7 +3396,7 @@ void idRenderBackend::ShadowMapPass( const drawSurf_t* drawSurfs, const viewLigh
 		lightProjectionMatrix[1 * 4 + 2] = 0.0f;
 		lightProjectionMatrix[2 * 4 + 2] = -0.999f; // adjust value to prevent imprecision issues
 
-#if defined( USE_NVRHI )
+#if 0 //defined( USE_NVRHI )
 		// the D3D clip space Z is in range [0,1] instead of [-1,1]
 		lightProjectionMatrix[3 * 4 + 2] = -zNear;
 #else
@@ -3416,10 +3413,15 @@ void idRenderBackend::ShadowMapPass( const drawSurf_t* drawSurfs, const viewLigh
 		shadowV[side] = lightViewRenderMatrix;
 		shadowP[side] = lightProjectionRenderMatrix;
 
-#if 0 //defined( USE_NVRHI )
-		idRenderMatrix shadowToClip;
-		idRenderMatrix::Multiply( renderMatrix_windowSpaceToClipSpace, lightProjectionRenderMatrix, shadowToClip );
-		idRenderMatrix::Multiply( matClipToUvzw, shadowToClip, shadowP[side] );
+#if defined( USE_NVRHI )
+		ALIGNTYPE16 const idRenderMatrix matClipToUvzw2(
+			1.0f,  0.0f, 0.0f,  0.0f,
+			0.0f, -1.0f, 0.0f,  0.0f,
+			0.0f,  0.0f, 2.0f, -1.0f,
+			0.0f,  0.0f, 0.0f,  1.0f
+		);
+
+		idRenderMatrix::Multiply( matClipToUvzw2, lightProjectionRenderMatrix, shadowP[side] );
 #endif
 	}
 	else
