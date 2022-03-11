@@ -746,6 +746,7 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 		common->FatalError( "Invalid binding set %d\n", renderProgManager.BindingLayoutType() );
 	}
 
+	int bindingLayoutType = renderProgManager.BindingLayoutType();
 	currentBindingSet = bindingCache.GetOrCreateBindingSet( bindingSetDesc, renderProgManager.BindingLayout() );
 	renderProgManager.CommitConstantBuffer( commandList );
 

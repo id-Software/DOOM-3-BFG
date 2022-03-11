@@ -33,27 +33,27 @@ If you have questions concerning this license or the applicable additional terms
 
 
 // *INDENT-OFF*
-Texture2D t_Normal		: register( t0 );
-Texture2D t_Specular	: register( t1 );
-Texture2D t_BaseColor	: register( t2 );
-Texture2D t_BrdfLut		: register( t3 );
-Texture2D t_Ssao		: register( t4 );
+Texture2D t_Normal				: register( t0 );
+Texture2D t_Specular			: register( t1 );
+Texture2D t_BaseColor			: register( t2 );
+Texture2D t_BrdfLut				: register( t3 );
+Texture2D t_Ssao				: register( t4 );
 
 Texture2D t_IrradianceCubeMap	: register( t7 );
 Texture2D t_RadianceCubeMap1	: register( t8 );
 Texture2D t_RadianceCubeMap2	: register( t9 );
 Texture2D t_RadianceCubeMap3	: register( t10 );
 
-SamplerState samp0 : register(s0); // texture 0 is the per-surface normal map
-SamplerState samp1 : register(s1); // texture 1 is the per-surface specular or roughness/metallic/AO mixer map
-SamplerState samp2 : register(s2); // texture 2 is the per-surface baseColor map 
-SamplerState samp3 : register(s3); // texture 3 is the BRDF LUT
-SamplerState samp4 : register(s4); // texture 4 is SSAO
+SamplerState samp0				: register(s0); // texture 0 is the per-surface normal map
+SamplerState samp1				: register(s1); // texture 1 is the per-surface specular or roughness/metallic/AO mixer map
+SamplerState samp2				: register(s2); // texture 2 is the per-surface baseColor map 
+SamplerState samp3				: register(s3); // texture 3 is the BRDF LUT
+SamplerState samp4				: register(s4); // texture 4 is SSAO
 
-SamplerState samp7 : register(s7); // texture 7 is the irradiance cube map
-SamplerState samp8 : register(s8); // texture 8 is the radiance cube map 1
-SamplerState samp9 : register(s9); // texture 9 is the radiance cube map 2
-SamplerState samp10 : register(s10); // texture 10 is the radiance cube map 3
+SamplerState samp7				: register(s7); // texture 7 is the irradiance cube map
+SamplerState samp8				: register(s8); // texture 8 is the radiance cube map 1
+SamplerState samp9				: register(s9); // texture 9 is the radiance cube map 2
+SamplerState samp10				: register(s10); // texture 10 is the radiance cube map 3
 
 struct PS_IN 
 {

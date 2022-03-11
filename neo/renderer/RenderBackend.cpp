@@ -2423,21 +2423,6 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 					renderProgManager.BindShader_SmallGeometryBuffer();
 				}
 			}
-			else
-			{
-
-				// TODO support PBR textures
-
-				// draw Quake 4 style ambient
-				if( drawSurf->jointCache )
-				{
-					renderProgManager.BindShader_AmbientLightingSkinned();
-				}
-				else
-				{
-					renderProgManager.BindShader_AmbientLighting();
-				}
-			}
 		}
 
 		// change the matrix if needed
@@ -6170,7 +6155,7 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 		}
 #endif
 
-#if 1
+#if 0
 		CalculateAutomaticExposure();
 		Tonemap( _viewDef );
 #else

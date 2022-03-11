@@ -331,8 +331,6 @@ void idRenderProgManager::Init( nvrhi::IDevice* _device )
 		// RB begin
 		{ BUILTIN_COLOR_SKINNED, "builtin/color", "_skinned", { {"USE_GPU_SKINNING", "1" } }, true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
 		{ BUILTIN_VERTEX_COLOR, "builtin/vertex_color", "", {}, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
-		{ BUILTIN_AMBIENT_LIGHTING, "builtin/lighting/ambient_lighting", "", { { "USE_GPU_SKINNING", "0" }, { "USE_PBR", "0" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
-		{ BUILTIN_AMBIENT_LIGHTING_SKINNED, "builtin/lighting/ambient_lighting", "_skinned", { { "USE_GPU_SKINNING", "1" }, { "USE_PBR", "0" } }, true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
 
 		{ BUILTIN_AMBIENT_LIGHTING_IBL, "builtin/lighting/ambient_lighting_IBL", "", { { "USE_GPU_SKINNING", "0" }, { "USE_PBR", "0" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_AMBIENT_LIGHTING_IBL },
 		{ BUILTIN_AMBIENT_LIGHTING_IBL_SKINNED, "builtin/lighting/ambient_lighting_IBL", "_skinned", { { "USE_GPU_SKINNING", "1" }, { "USE_PBR", "0" } }, true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_AMBIENT_LIGHTING_IBL },
@@ -529,7 +527,6 @@ void idRenderProgManager::Init( nvrhi::IDevice* _device )
 		// RB begin
 		renderProgs[builtinShaders[BUILTIN_DEBUG_LIGHTGRID_SKINNED]].usesJoints = true;
 		renderProgs[builtinShaders[BUILTIN_DEBUG_OCTAHEDRON_SKINNED]].usesJoints = true;
-		renderProgs[builtinShaders[BUILTIN_AMBIENT_LIGHTING_SKINNED]].usesJoints = true;
 
 		renderProgs[builtinShaders[BUILTIN_AMBIENT_LIGHTING_IBL_SKINNED]].usesJoints = true;
 		renderProgs[builtinShaders[BUILTIN_AMBIENT_LIGHTING_IBL_PBR_SKINNED]].usesJoints = true;
