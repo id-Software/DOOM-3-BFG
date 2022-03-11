@@ -179,6 +179,8 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 	switch( uMsg )
 	{
 		case WM_WINDOWPOSCHANGED:
+			// RB: FIXME this messes with with the window size in a really bad way
+#if 0
 			if( renderSystem->IsInitialized() )//&& win32.hDC != NULL )
 			{
 				RECT rect;
@@ -207,6 +209,7 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 					}
 				}
 			}
+#endif
 			break;
 		case WM_MOVE:
 		{

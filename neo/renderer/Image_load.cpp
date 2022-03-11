@@ -895,6 +895,16 @@ idImage::Reload
 */
 void idImage::Reload( bool force, nvrhi::ICommandList* commandList )
 {
+#if defined( USE_NVRHI )
+
+	// always regenerate functional images
+	if( generatorFunction )
+	{
+		//common->DPrintf( "regenerating %s.\n", GetName() );
+		generatorFunction( this, commandList );
+		return;
+	}
+#else
 	// don't break render targets that have this image attached
 	if( opts.isRenderTarget )
 	{
@@ -911,6 +921,7 @@ void idImage::Reload( bool force, nvrhi::ICommandList* commandList )
 		}
 		return;
 	}
+#endif
 
 	// check file times
 	if( !force )

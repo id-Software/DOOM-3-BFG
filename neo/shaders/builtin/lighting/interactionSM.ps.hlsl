@@ -310,7 +310,7 @@ void main( PS_IN fragment, out PS_OUT result )
 
 	shadow *= stepSize;
 
-#elif 0
+#elif 1
 
 #if 0
 

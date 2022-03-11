@@ -1069,10 +1069,10 @@ static bool GLW_GetWindowDimensions( const glimpParms_t parms, int& x, int& y, i
 bool DeviceManager::CreateWindowDeviceAndSwapChain( const glimpParms_t& parms, const char* windowTitle )
 {
 	int x, y, w, h;
-	x = 0;
-	y = 0;
-	w = parms.width;
-	h = parms.height;
+	if( !GLW_GetWindowDimensions( parms, x, y, w, h ) )
+	{
+		return false;
+	}
 
 	int	stylebits;
 	int	exstyle;
