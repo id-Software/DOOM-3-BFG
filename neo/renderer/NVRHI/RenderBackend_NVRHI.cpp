@@ -746,7 +746,9 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 		common->FatalError( "Invalid binding set %d\n", renderProgManager.BindingLayoutType() );
 	}
 
-	//int bindingLayoutType = renderProgManager.BindingLayoutType();
+	int program = renderProgManager.CurrentProgram();
+	int bindingLayoutType = renderProgManager.BindingLayoutType();
+
 	nvrhi::BindingSetHandle sourceBindingSet = bindingCache.GetOrCreateBindingSet( bindingSetDesc, renderProgManager.BindingLayout() );
 	renderProgManager.CommitConstantBuffer( commandList );
 
@@ -823,6 +825,19 @@ void idRenderBackend::GL_EndFrame()
 
 	// Present to the swap chain.
 	deviceManager->Present();
+}
+
+void idRenderBackend::GL_EndRenderPass()
+{
+#if 1//defined( USE_NVRHI )
+	commandList->close();
+	deviceManager->GetDevice()->executeCommandList( commandList );
+
+	bindingCache.Clear();
+	deviceManager->GetDevice()->runGarbageCollection();
+
+	commandList->open();
+#endif
 }
 
 /*

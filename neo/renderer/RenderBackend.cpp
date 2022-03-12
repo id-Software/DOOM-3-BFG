@@ -6024,10 +6024,14 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 	//-------------------------------------------------
 	AmbientPass( drawSurfs, numDrawSurfs, false );
 
+	GL_EndRenderPass();
+
 	//-------------------------------------------------
 	// main light renderer
 	//-------------------------------------------------
 	DrawInteractions( _viewDef );
+
+	GL_EndRenderPass();
 
 	//-------------------------------------------------
 	// capture the depth for the motion blur before rendering any post process surfaces that may contribute to the depth
@@ -6064,6 +6068,8 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 		processed = DrawShaderPasses( drawSurfs, numDrawSurfs, guiScreenOffset, stereoEye );
 		renderLog.CloseMainBlock();
 	}
+
+	GL_EndRenderPass();
 
 	//-------------------------------------------------
 	// use direct light and emissive light contributions to add indirect screen space light
@@ -6128,6 +6134,8 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 		DrawShaderPasses( drawSurfs + processed, numDrawSurfs - processed, 0.0f /* definitely not a gui */, stereoEye );
 		renderLog.CloseMainBlock();
 	}
+
+	GL_EndRenderPass();
 
 	//-------------------------------------------------
 	// render debug tools
