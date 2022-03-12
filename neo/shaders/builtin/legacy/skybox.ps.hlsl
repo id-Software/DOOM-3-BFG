@@ -34,7 +34,7 @@ TextureCube tex	   : register( t0 );
 SamplerState samp0 : register(s0);
 
 struct PS_IN {
-	float4 position : VPOS;
+	float4 position : SV_Position;
 	float3 texcoord0 : TEXCOORD0_centroid;
 	float4 color : COLOR0;
 };
