@@ -31,6 +31,8 @@ If you have questions concerning this license or the applicable additional terms
 
 constexpr std::size_t MAX_IMAGE_PARMS = 16;
 
+#if 0
+
 class IGeometryPass
 {
 public:
@@ -92,5 +94,6 @@ protected:
 		GL_Scissor( x, y, w, h );
 	}
 };
+#endif
 
 #endif

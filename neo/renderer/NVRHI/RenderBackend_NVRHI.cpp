@@ -546,7 +546,7 @@ void idRenderBackend::Init()
 	commonPasses.Init( deviceManager->GetDevice() );
 	hiZGenPass = nullptr;
 	ssaoPass = nullptr;
-	fowardShadingPass.Init( deviceManager->GetDevice() );
+	//fowardShadingPass.Init( deviceManager->GetDevice() );
 
 	tr.SetInitialized();
 
@@ -746,15 +746,15 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 		common->FatalError( "Invalid binding set %d\n", renderProgManager.BindingLayoutType() );
 	}
 
-	int bindingLayoutType = renderProgManager.BindingLayoutType();
-	currentBindingSet = bindingCache.GetOrCreateBindingSet( bindingSetDesc, renderProgManager.BindingLayout() );
+	//int bindingLayoutType = renderProgManager.BindingLayoutType();
+	nvrhi::BindingSetHandle sourceBindingSet = bindingCache.GetOrCreateBindingSet( bindingSetDesc, renderProgManager.BindingLayout() );
 	renderProgManager.CommitConstantBuffer( commandList );
 
 	PipelineKey key{ glStateBits, renderProgManager.CurrentProgram(), viewDef->isMirror, depthBias, slopeScaleBias, currentFrameBuffer };
 	auto pipeline = pipelineCache.GetOrCreatePipeline( key );
 
 	nvrhi::GraphicsState state;
-	state.bindings = { currentBindingSet };
+	state.bindings = { sourceBindingSet };
 	state.indexBuffer = { currentIndexBuffer, nvrhi::Format::R16_UINT, indexOffset };
 	state.vertexBuffers = { { currentVertexBuffer, 0, vertOffset } };
 	state.pipeline = pipeline;

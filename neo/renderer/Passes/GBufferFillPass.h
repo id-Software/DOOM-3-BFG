@@ -30,6 +30,8 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "GeometryPasses.h"
 
+#if 0
+
 // "Light" G-Buffer that renders the normals of the geometry
 class GBufferFillPass : IGeometryPass
 {
@@ -60,5 +62,7 @@ public:
 	void SetPushConstants( nvrhi::ICommandList* commandList, nvrhi::GraphicsState& state, nvrhi::DrawArguments& args ) override;
 
 };
+
+#endif
 
 #endif

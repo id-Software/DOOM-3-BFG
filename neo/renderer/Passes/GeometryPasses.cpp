@@ -34,7 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "nvrhi/utils.h"
 
-
+#if 0
 static ID_INLINE void SetVertexParm( renderParm_t rp, const float* value )
 {
 	renderProgManager.SetUniformValue( rp, value );
@@ -802,3 +802,4 @@ void IGeometryPass::GL_ClearDepthStencil( nvrhi::ICommandList* commandList )
 {
 	nvrhi::utils::ClearDepthStencilAttachment( commandList, currentFramebuffer->GetApiObject( ), depthClearValue, stencilClearValue );
 }
+#endif

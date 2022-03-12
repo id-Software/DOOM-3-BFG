@@ -30,6 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "GeometryPasses.h"
 
+#if 0
 class ForwardShadingPass : IGeometryPass
 {
 public:
@@ -64,5 +65,6 @@ private:
 	idRenderMatrix		shadowV[6];				// shadow depth view matrix
 	idRenderMatrix		shadowP[6];				// shadow depth projection matrix
 };
+#endif
 
 #endif

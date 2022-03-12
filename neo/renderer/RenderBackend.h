@@ -502,7 +502,7 @@ private:
 	int								currentVertexOffset;
 	nvrhi::BufferHandle				currentIndexBuffer;
 	int								currentIndexOffset;
-	nvrhi::BindingSetHandle			currentBindingSet;
+	//nvrhi::BindingSetHandle			currentBindingSet;
 	nvrhi::BindingLayoutHandle		currentBindingLayout;
 	nvrhi::GraphicsPipelineHandle	currentPipeline;
 	nvrhi::RenderState				currentRenderState;
@@ -516,7 +516,7 @@ private:
 	MipMapGenPass*					hiZGenPass;
 	TonemapPass						toneMapPass;
 
-	ForwardShadingPass				fowardShadingPass;
+	//ForwardShadingPass				fowardShadingPass;
 
 	BindingCache					bindingCache;
 	SamplerCache					samplerCache;

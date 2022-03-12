@@ -34,6 +34,8 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "FowardShadingPass.h"
 
+#if 0
+
 /*
 same as D3DXMatrixOrthoOffCenterRH
 
@@ -853,3 +855,5 @@ void ForwardShadingPass::SetupInputBuffers( const drawSurf_t* surf, nvrhi::Graph
 void ForwardShadingPass::SetPushConstants( nvrhi::ICommandList* commandList, nvrhi::GraphicsState& state, nvrhi::DrawArguments& args )
 {
 }
+
+#endif

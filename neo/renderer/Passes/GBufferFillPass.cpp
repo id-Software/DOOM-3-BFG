@@ -32,6 +32,8 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "GBufferFillPass.h"
 
+#if 0
+
 void GBufferFillPass::Init( nvrhi::DeviceHandle deviceHandle )
 {
 }
@@ -681,3 +683,5 @@ void GBufferFillPass::SetupInputBuffers( const drawSurf_t* drawSurf, nvrhi::Grap
 void GBufferFillPass::SetPushConstants( nvrhi::ICommandList* commandList, nvrhi::GraphicsState& state, nvrhi::DrawArguments& args )
 {
 }
+
+#endif
