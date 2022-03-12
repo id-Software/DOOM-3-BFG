@@ -3103,14 +3103,6 @@ void idRenderBackend::ShadowMapPass( const drawSurf_t* drawSurfs, const viewLigh
 	idRenderMatrix lightProjectionRenderMatrix;
 	idRenderMatrix lightViewRenderMatrix;
 
-	// Calculate alternate matrix that maps to [0, 1] UV space instead of [-1, 1] clip space
-	ALIGNTYPE16 const idRenderMatrix matClipToUvzw(
-		0.5f,  0.0f, 0.0f, 0.5f,
-		0.0f, -0.5f, 0.0f, 0.5f,
-		0.0f,  0.0f, 1.0f, 0.0f,
-		0.0f,  0.0f, 0.0f, 1.0f
-	);
-
 	if( vLight->parallel && side >= 0 )
 	{
 		assert( side >= 0 && side < 6 );
@@ -3268,10 +3260,15 @@ void idRenderBackend::ShadowMapPass( const drawSurf_t* drawSurfs, const viewLigh
 		shadowV[side] = lightViewRenderMatrix;
 		shadowP[side] = lightProjectionRenderMatrix;
 
-#if 0 //defined( USE_NVRHI )
-		idRenderMatrix shadowToClip;
-		idRenderMatrix::Multiply( renderMatrix_windowSpaceToClipSpace, lightProjectionRenderMatrix, shadowToClip );
-		idRenderMatrix::Multiply( matClipToUvzw, shadowToClip, shadowP[side] );
+#if defined( USE_NVRHI )
+		ALIGNTYPE16 const idRenderMatrix matClipToUvzw(
+			1.0f,  0.0f, 0.0f,  0.0f,
+			0.0f, -1.0f, 0.0f,  0.0f,
+			0.0f,  0.0f, 2.0f, -1.0f,
+			0.0f,  0.0f, 0.0f,  1.0f
+		);
+
+		idRenderMatrix::Multiply( matClipToUvzw, lightProjectionRenderMatrix, shadowP[side] );
 #endif
 	}
 	else if( vLight->pointLight && side >= 0 )
@@ -3399,14 +3396,14 @@ void idRenderBackend::ShadowMapPass( const drawSurf_t* drawSurfs, const viewLigh
 		shadowP[side] = lightProjectionRenderMatrix;
 
 #if defined( USE_NVRHI )
-		ALIGNTYPE16 const idRenderMatrix matClipToUvzw2(
+		ALIGNTYPE16 const idRenderMatrix matClipToUvzw(
 			1.0f,  0.0f, 0.0f,  0.0f,
 			0.0f, -1.0f, 0.0f,  0.0f,
 			0.0f,  0.0f, 2.0f, -1.0f,
 			0.0f,  0.0f, 0.0f,  1.0f
 		);
 
-		idRenderMatrix::Multiply( matClipToUvzw2, lightProjectionRenderMatrix, shadowP[side] );
+		idRenderMatrix::Multiply( matClipToUvzw, lightProjectionRenderMatrix, shadowP[side] );
 #endif
 	}
 	else
@@ -3419,6 +3416,14 @@ void idRenderBackend::ShadowMapPass( const drawSurf_t* drawSurfs, const viewLigh
 		shadowP[0] = lightProjectionRenderMatrix;
 
 #if defined( USE_NVRHI )
+		// Calculate alternate matrix that maps to [0, 1] UV space instead of [-1, 1] clip space
+		ALIGNTYPE16 const idRenderMatrix matClipToUvzw(
+			0.5f,  0.0f, 0.0f, 0.5f,
+			0.0f, -0.5f, 0.0f, 0.5f,
+			0.0f,  0.0f, 1.0f, 0.0f,
+			0.0f,  0.0f, 0.0f, 1.0f
+		);
+
 		idRenderMatrix shadowToClip;
 		idRenderMatrix::Multiply( renderMatrix_windowSpaceToClipSpace, lightProjectionRenderMatrix, shadowToClip );
 		idRenderMatrix::Multiply( matClipToUvzw, shadowToClip, shadowP[0] );
