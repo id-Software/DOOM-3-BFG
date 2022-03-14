@@ -3767,6 +3767,7 @@ void idRenderBackend::DrawInteractions( const viewDef_t* _viewDef )
 			// go back from light view to default camera view
 			ResetViewportAndScissorToDefaultCamera( _viewDef );
 
+			GL_EndRenderPass();
 			if( vLight->localInteractions != NULL )
 			{
 				renderLog.OpenBlock( "Local Light Interactions", colorPurple );

@@ -39,7 +39,7 @@ nvrhi::BindingSetHandle BindingCache::GetCachedBindingSet( const nvrhi::BindingS
 
 nvrhi::BindingSetHandle BindingCache::GetOrCreateBindingSet( const nvrhi::BindingSetDesc& desc, nvrhi::IBindingLayout* layout )
 {
-#if 1
+#if 0
 	size_t hash = 0;
 	nvrhi::hash_combine( hash, desc );
 	nvrhi::hash_combine( hash, layout );

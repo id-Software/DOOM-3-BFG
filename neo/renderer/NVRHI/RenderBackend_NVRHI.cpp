@@ -723,7 +723,7 @@ void idRenderBackend::GetCurrentBindingLayout( nvrhi::BindingSetDesc& bindingSet
 		bindingSetDesc
 		.addItem( nvrhi::BindingSetItem::ConstantBuffer( 0, renderProgManager.ConstantBuffer() ) )
 		.addItem( nvrhi::BindingSetItem::Texture_SRV( 0, ( nvrhi::ITexture* )GetImageAt( 0 )->GetTextureID() ) )
-		.addItem( nvrhi::BindingSetItem::Sampler( 0, ( nvrhi::ISampler* )GetImageAt( 0 )->GetSampler( samplerCache ) ) );
+		.addItem( nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_AnisotropicWrapSampler ) );
 	}
 	else if( renderProgManager.BindingLayoutType() == BINDING_LAYOUT_GBUFFER )
 	{
@@ -753,10 +753,11 @@ void idRenderBackend::GetCurrentBindingLayout( nvrhi::BindingSetDesc& bindingSet
 		.addItem( nvrhi::BindingSetItem::Texture_SRV( 0, ( nvrhi::ITexture* )GetImageAt( 0 )->GetTextureID() ) )
 		.addItem( nvrhi::BindingSetItem::Texture_SRV( 1, ( nvrhi::ITexture* )GetImageAt( 1 )->GetTextureID() ) )
 		.addItem( nvrhi::BindingSetItem::Texture_SRV( 2, ( nvrhi::ITexture* )GetImageAt( 2 )->GetTextureID() ) )
-		.addItem( nvrhi::BindingSetItem::Sampler( 0, ( nvrhi::ISampler* )GetImageAt( 0 )->GetSampler( samplerCache ) ) )
-		.addItem( nvrhi::BindingSetItem::Sampler( 1, ( nvrhi::ISampler* )GetImageAt( 1 )->GetSampler( samplerCache ) ) )
-		.addItem( nvrhi::BindingSetItem::Sampler( 2, ( nvrhi::ISampler* )GetImageAt( 2 )->GetSampler( samplerCache ) ) );
+		.addItem( nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_LinearClampSampler ) )
+		.addItem( nvrhi::BindingSetItem::Sampler( 1, commonPasses.m_LinearClampSampler ) )
+		.addItem( nvrhi::BindingSetItem::Sampler( 2, commonPasses.m_PointWrapSampler ) );  // blue noise
 	}
+	/*
 	else if( renderProgManager.BindingLayoutType() == BINDING_LAYOUT_DRAW_AO1 )
 	{
 		bindingSetDesc
@@ -764,6 +765,7 @@ void idRenderBackend::GetCurrentBindingLayout( nvrhi::BindingSetDesc& bindingSet
 		.addItem( nvrhi::BindingSetItem::Texture_SRV( 0, ( nvrhi::ITexture* )GetImageAt( 0 )->GetTextureID() ) )
 		.addItem( nvrhi::BindingSetItem::Sampler( 0, ( nvrhi::ISampler* )GetImageAt( 0 )->GetSampler( samplerCache ) ) );
 	}
+	*/
 	else if( renderProgManager.BindingLayoutType() == BINDING_LAYOUT_DRAW_INTERACTION )
 	{
 		bindingSetDesc
@@ -789,7 +791,8 @@ void idRenderBackend::GetCurrentBindingLayout( nvrhi::BindingSetDesc& bindingSet
 		.addItem( nvrhi::BindingSetItem::Texture_SRV( 6, ( nvrhi::ITexture* )GetImageAt( 6 )->GetTextureID() ) )
 		.addItem( nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_AnisotropicWrapSampler ) )
 		.addItem( nvrhi::BindingSetItem::Sampler( 1, commonPasses.m_LinearClampSampler ) )
-		.addItem( nvrhi::BindingSetItem::Sampler( 2, commonPasses.m_LinearClampCompareSampler ) );
+		.addItem( nvrhi::BindingSetItem::Sampler( 2, commonPasses.m_LinearClampCompareSampler ) )
+		.addItem( nvrhi::BindingSetItem::Sampler( 3, commonPasses.m_PointWrapSampler ) );  // blue noise
 	}
 	else if( renderProgManager.BindingLayoutType() == BINDING_LAYOUT_DRAW_FOG )
 	{
@@ -797,8 +800,8 @@ void idRenderBackend::GetCurrentBindingLayout( nvrhi::BindingSetDesc& bindingSet
 		.addItem( nvrhi::BindingSetItem::ConstantBuffer( 0, renderProgManager.ConstantBuffer() ) )
 		.addItem( nvrhi::BindingSetItem::Texture_SRV( 0, ( nvrhi::ITexture* )GetImageAt( 0 )->GetTextureID() ) )
 		.addItem( nvrhi::BindingSetItem::Texture_SRV( 1, ( nvrhi::ITexture* )GetImageAt( 1 )->GetTextureID() ) )
-		.addItem( nvrhi::BindingSetItem::Sampler( 0, ( nvrhi::ISampler* )GetImageAt( 0 )->GetSampler( samplerCache ) ) )
-		.addItem( nvrhi::BindingSetItem::Sampler( 1, ( nvrhi::ISampler* )GetImageAt( 1 )->GetSampler( samplerCache ) ) );
+		.addItem( nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_LinearClampSampler ) )
+		.addItem( nvrhi::BindingSetItem::Sampler( 1, commonPasses.m_LinearClampSampler ) );
 	}
 	else if( renderProgManager.BindingLayoutType() == BINDING_LAYOUT_POST_PROCESS_CNM )
 	{
@@ -806,8 +809,8 @@ void idRenderBackend::GetCurrentBindingLayout( nvrhi::BindingSetDesc& bindingSet
 		.addItem( nvrhi::BindingSetItem::ConstantBuffer( 0, renderProgManager.ConstantBuffer() ) )
 		.addItem( nvrhi::BindingSetItem::Texture_SRV( 0, ( nvrhi::ITexture* )GetImageAt( 0 )->GetTextureID() ) )
 		.addItem( nvrhi::BindingSetItem::Texture_SRV( 1, ( nvrhi::ITexture* )GetImageAt( 1 )->GetTextureID() ) )
-		.addItem( nvrhi::BindingSetItem::Texture_SRV( 2, ( nvrhi::ITexture* )GetImageAt( 1 )->GetTextureID() ) )
-		.addItem( nvrhi::BindingSetItem::Sampler( 0, ( nvrhi::ISampler* )GetImageAt( 0 )->GetSampler( samplerCache ) ) );
+		.addItem( nvrhi::BindingSetItem::Texture_SRV( 2, ( nvrhi::ITexture* )GetImageAt( 2 )->GetTextureID() ) )
+		.addItem( nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_LinearClampSampler ) );
 	}
 	else if( renderProgManager.BindingLayoutType() == BINDING_LAYOUT_NORMAL_CUBE )
 	{
@@ -866,8 +869,9 @@ void idRenderBackend::GL_EndFrame()
 
 void idRenderBackend::GL_EndRenderPass()
 {
-#if 0//defined( USE_NVRHI )
+#if defined( USE_NVRHI )
 	commandList->close();
+
 	deviceManager->GetDevice()->executeCommandList( commandList );
 
 	bindingCache.Clear();

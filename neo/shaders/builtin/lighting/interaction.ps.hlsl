@@ -28,19 +28,18 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include "global_inc.hlsl"
-
 #include "BRDF.inc.hlsl"
 
 
 // *INDENT-OFF*
-Texture2D t_Normal			: register( t0 );
-Texture2D t_Specular		: register( t1 );
-Texture2D t_BaseColor		: register( t2 );
-Texture2D t_LightFalloff	: register( t3 );
-Texture2D t_LightProjection	: register( t4 );
+Texture2D				t_Normal			: register( t0 );
+Texture2D				t_Specular			: register( t1 );
+Texture2D				t_BaseColor			: register( t2 );
+Texture2D				t_LightFalloff		: register( t3 );
+Texture2D				t_LightProjection	: register( t4 );
 
-SamplerState AnisotropicWrapSampler : register(s0);
-SamplerState LinearClampSampler : register( s1 );
+SamplerState			s_Material : register( s0 ); // for the normal/specular/basecolor
+SamplerState 			s_Lighting : register( s1 ); // for sampling the jitter
 
 struct PS_IN
 {
@@ -63,11 +62,11 @@ struct PS_OUT
 
 void main( PS_IN fragment, out PS_OUT result )
 {
-	half4 bumpMap =			t_Normal.Sample( AnisotropicWrapSampler, fragment.texcoord1.xy );
-	half4 lightFalloff =	idtex2Dproj( LinearClampSampler, t_LightFalloff, fragment.texcoord2 );
-	half4 lightProj	=		idtex2Dproj( LinearClampSampler, t_LightProjection, fragment.texcoord3 );
-	half4 YCoCG =			t_BaseColor.Sample( AnisotropicWrapSampler, fragment.texcoord4.xy );
-	half4 specMapSRGB =		t_Specular.Sample( AnisotropicWrapSampler, fragment.texcoord5.xy );
+	half4 bumpMap =			t_Normal.Sample( s_Material, fragment.texcoord1.xy );
+	half4 lightFalloff =	idtex2Dproj( s_Lighting, t_LightFalloff, fragment.texcoord2 );
+	half4 lightProj =		idtex2Dproj( s_Lighting, t_LightProjection, fragment.texcoord3 );
+	half4 YCoCG =			t_BaseColor.Sample( s_Material, fragment.texcoord4.xy );
+	half4 specMapSRGB =		t_Specular.Sample( s_Material, fragment.texcoord5.xy );
 	half4 specMap =			sRGBAToLinearRGBA( specMapSRGB );
 
 	half3 lightVector = normalize( fragment.texcoord0.xyz );
@@ -112,7 +111,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	// values in a very narrow range (~0.02 - 0.08)
 
 	// approximate non-metals with linear RGB 0.04 which is 0.08 * 0.5 (default in UE4)
-	const half3 dielectricColor = half3( 0.04, 0.04, 0.04 );
+	const half3 dielectricColor = _half3( 0.04 );
 
 	// derive diffuse and specular from albedo(m) base color
 	const half3 baseColor = diffuseMap;

@@ -140,7 +140,15 @@ void main(
 	else
 	{
 		// Tonemapping curve is applied after exposure.
-		// Gamma correction is done by rendering to an sRGB render target.
 		o_rgba.rgb = ACESFilm( o_rgba.rgb );
 	}
+
+#if 0
+	// Gamma correction since we are not rendering to an sRGB render target.
+	const float hdrGamma = 2.2;
+	float gamma = 1.0 / hdrGamma;
+	o_rgba.r = pow( o_rgba.r, gamma );
+	o_rgba.g = pow( o_rgba.g, gamma );
+	o_rgba.b = pow( o_rgba.b, gamma );
+#endif
 }

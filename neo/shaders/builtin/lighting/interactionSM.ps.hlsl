@@ -41,9 +41,10 @@ Texture2D				t_LightProjection	: register( t4 );
 Texture2DArray<float>	t_ShadowMapArray	: register( t5 );
 Texture2D				t_Jitter			: register( t6 );
 
-SamplerState			samp0 : register(s0); // for the normal/specular/color/light fall/light projection textures
-SamplerState 			samp1 : register(s1); // for sampling the jitter
-SamplerComparisonState  samp2 : register(s2); // for the depth shadow map sampler with a compare function
+SamplerState			s_Material : register( s0 ); // for the normal/specular/basecolor
+SamplerState 			s_Lighting : register( s1 ); // for sampling the jitter
+SamplerComparisonState  s_Shadow   : register( s2 ); // for the depth shadow map sampler with a compare function
+SamplerState 			s_Jitter   : register( s3 ); // for sampling the jitter
 
 struct PS_IN
 {
@@ -71,7 +72,7 @@ float BlueNoise( float2 n, float x )
 {
 	float2 uv = n.xy * rpJitterTexOffset.xy;
 
-	float noise = t_Jitter.Sample( samp1, uv ).r;
+	float noise = t_Jitter.Sample( s_Jitter, uv ).r;
 
 	noise = frac( noise + c_goldenRatioConjugate * rpJitterTexOffset.w * x );
 
@@ -96,11 +97,11 @@ float2 VogelDiskSample( float sampleIndex, float samplesCount, float phi )
 
 void main( PS_IN fragment, out PS_OUT result )
 {
-	half4 bumpMap =			t_Normal.Sample( samp0, fragment.texcoord1.xy );
-	half4 lightFalloff =	idtex2Dproj( samp1, t_LightFalloff, fragment.texcoord2 );
-	half4 lightProj =		idtex2Dproj( samp1, t_LightProjection, fragment.texcoord3 );
-	half4 YCoCG =			t_BaseColor.Sample( samp0, fragment.texcoord4.xy );
-	half4 specMapSRGB =		t_Specular.Sample( samp0, fragment.texcoord5.xy );
+	half4 bumpMap =			t_Normal.Sample( s_Material, fragment.texcoord1.xy );
+	half4 lightFalloff =	idtex2Dproj( s_Lighting, t_LightFalloff, fragment.texcoord2 );
+	half4 lightProj =		idtex2Dproj( s_Lighting, t_LightProjection, fragment.texcoord3 );
+	half4 YCoCG =			t_BaseColor.Sample( s_Material, fragment.texcoord4.xy );
+	half4 specMapSRGB =		t_Specular.Sample( s_Material, fragment.texcoord5.xy );
 	half4 specMap =			sRGBAToLinearRGBA( specMapSRGB );
 
 	half3 lightVector = normalize( fragment.texcoord0.xyz );
@@ -288,7 +289,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	float stepSize = 1.0 / numSamples;
 
 	float4 jitterTC = ( fragment.position * rpScreenCorrectionFactor ) + rpJitterTexOffset;
-	float4 random = t_Jitter.Sample( samp1, jitterTC.xy ) * PI;
+	float4 random = t_Jitter.Sample( s_Jitter, jitterTC.xy ) * PI;
 	//float4 random = fragment.position;
 
 	float2 rot;
@@ -357,7 +358,7 @@ void main( PS_IN fragment, out PS_OUT result )
 
 		float4 shadowTexcoordJittered = float4( shadowTexcoord.xy + jitterRotated * shadowTexelSize, shadowTexcoord.z, shadowTexcoord.w );
 
-		shadow += idtex2Dproj( samp1, t_ShadowMapArray, shadowTexcoordJittered.xywz );
+		shadow += idtex2Dproj( s_Shadow, t_ShadowMapArray, shadowTexcoordJittered.xywz );
 	}
 
 	shadow *= stepSize;
@@ -385,7 +386,7 @@ void main( PS_IN fragment, out PS_OUT result )
 
 		float4 shadowTexcoordJittered = float4( shadowTexcoord.xy + jitter * shadowTexelSize, shadowTexcoord.z, shadowTexcoord.w );
 
-		shadow += t_ShadowMapArray.SampleCmpLevelZero( samp2, shadowTexcoordJittered.xyw, shadowTexcoordJittered.z );
+		shadow += t_ShadowMapArray.SampleCmpLevelZero( s_Shadow, shadowTexcoordJittered.xyw, shadowTexcoordJittered.z );
 	}
 
 	shadow *= stepSize;

@@ -191,8 +191,8 @@ void idRenderProgManager::Init( nvrhi::IDevice* _device )
 								.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 8 ) ) // radiance cube map 1
 								.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 9 ) ) // radiance cube map 2
 								.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 10 ) ) // radiance cube map 3
-								.addItem( nvrhi::BindingLayoutItem::Sampler( 0 ) ) // (Wrap) Anisotropic sampler: normal sampler & specular sampler
-								.addItem( nvrhi::BindingLayoutItem::Sampler( 1 ) ); // (Clamp) Linear sampler: brdf lut sampler & ssao sampler
+								.addItem( nvrhi::BindingLayoutItem::Sampler( 0 ) )		// (Wrap) Anisotropic sampler: normal sampler & specular sampler
+								.addItem( nvrhi::BindingLayoutItem::Sampler( 1 ) );		// (Clamp) Linear sampler: brdf lut sampler & ssao sampler
 
 	bindingLayouts[BINDING_LAYOUT_AMBIENT_LIGHTING_IBL] = device->createBindingLayout( ambientIblLayoutDesc );
 
@@ -245,9 +245,10 @@ void idRenderProgManager::Init( nvrhi::IDevice* _device )
 									  .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 4 ) ) // light projection
 									  .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 5 ) ) // shadow map array
 									  .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 6 ) ) // jitter
-									  .addItem( nvrhi::BindingLayoutItem::Sampler( 0 ) )
-									  .addItem( nvrhi::BindingLayoutItem::Sampler( 1 ) )
-									  .addItem( nvrhi::BindingLayoutItem::Sampler( 2 ) );
+									  .addItem( nvrhi::BindingLayoutItem::Sampler( 0 ) )	 // material
+									  .addItem( nvrhi::BindingLayoutItem::Sampler( 1 ) )	 // lighting
+									  .addItem( nvrhi::BindingLayoutItem::Sampler( 2 ) )	 // shadow compare
+									  .addItem( nvrhi::BindingLayoutItem::Sampler( 3 ) );	 // blue noise for shadow jitter
 
 	bindingLayouts[BINDING_LAYOUT_DRAW_INTERACTION_SM] = device->createBindingLayout( interactionSmBindingLayout );
 
