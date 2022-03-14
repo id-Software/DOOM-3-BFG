@@ -586,7 +586,7 @@ void idRenderBackend::Shutdown()
 idRenderBackend::DrawElementsWithCounters
 =============
 */
-void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
+void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf, nvrhi::BindingSetHandle bindingSetHandle )
 {
 	// Get vertex buffer
 	const vertCacheHandle_t vbHandle = surf->ambientCache;
@@ -654,18 +654,27 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 		changeState = true;
 	}
 
-	nvrhi::BindingSetDesc bindingSetDesc;
-	GetCurrentBindingLayout( bindingSetDesc );
-
-
 	// RB: for debugging
 	int program = renderProgManager.CurrentProgram();
 	int bindingLayoutType = renderProgManager.BindingLayoutType();
 
-	if( !currentBindingSet || *currentBindingSet->getDesc() != bindingSetDesc )
+	if( bindingSetHandle )
 	{
-		currentBindingSet = bindingCache.GetOrCreateBindingSet( bindingSetDesc, renderProgManager.BindingLayout() );
-		changeState = true;
+		if( !currentBindingSet || *currentBindingSet->getDesc() != *bindingSetHandle->getDesc() )
+		{
+			changeState = true;
+		}
+	}
+	else
+	{
+		nvrhi::BindingSetDesc bindingSetDesc;
+		GetCurrentBindingLayout( bindingSetDesc );
+
+		if( !currentBindingSet || *currentBindingSet->getDesc() != bindingSetDesc )
+		{
+			currentBindingSet = bindingCache.GetOrCreateBindingSet( bindingSetDesc, renderProgManager.BindingLayout() );
+			changeState = true;
+		}
 	}
 
 	renderProgManager.CommitConstantBuffer( commandList );

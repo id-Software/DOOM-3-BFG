@@ -3047,62 +3047,14 @@ void MatrixLookAtRH( float m[16], const idVec3& eye, const idVec3& dir, const id
 	m[15] = 1;
 }
 
+
 /*
 =====================
-idRenderBackend::ShadowMapPass
+idRenderBackend::SetupShadowMapMatrices
 =====================
 */
-void idRenderBackend::ShadowMapPass( const drawSurf_t* drawSurfs, const viewLight_t* vLight, int side )
+void idRenderBackend::SetupShadowMapMatrices( const viewLight_t* vLight, int side, idRenderMatrix& lightProjectionRenderMatrix, idRenderMatrix& lightViewRenderMatrix )
 {
-	if( r_skipShadows.GetBool() )
-	{
-		return;
-	}
-
-	if( drawSurfs == NULL )
-	{
-		return;
-	}
-
-	if( viewDef->renderView.rdflags & RDF_NOSHADOWS )
-	{
-		return;
-	}
-
-	RENDERLOG_PRINTF( "---------- RB_ShadowMapPass( side = %i ) ----------\n", side );
-
-	renderProgManager.BindShader_Depth();
-
-	GL_SelectTexture( 0 );
-
-	uint64 glState = 0;
-
-	// the actual stencil func will be set in the draw code, but we need to make sure it isn't
-	// disabled here, and that the value will get reset for the interactions without looking
-	// like a no-change-required
-	GL_State( glState | GLS_POLYGON_OFFSET );
-
-	switch( r_shadowMapOccluderFacing.GetInteger() )
-	{
-		case 0:
-			GL_State( ( glStateBits & ~( GLS_CULL_MASK ) ) | GLS_CULL_FRONTSIDED );
-			GL_PolygonOffset( r_shadowMapPolygonFactor.GetFloat(), r_shadowMapPolygonOffset.GetFloat() );
-			break;
-
-		case 1:
-			GL_State( ( glStateBits & ~( GLS_CULL_MASK ) ) | GLS_CULL_BACKSIDED );
-			GL_PolygonOffset( -r_shadowMapPolygonFactor.GetFloat(), -r_shadowMapPolygonOffset.GetFloat() );
-			break;
-
-		default:
-			GL_State( ( glStateBits & ~( GLS_CULL_MASK ) ) | GLS_CULL_TWOSIDED );
-			GL_PolygonOffset( r_shadowMapPolygonFactor.GetFloat(), r_shadowMapPolygonOffset.GetFloat() );
-			break;
-	}
-
-	idRenderMatrix lightProjectionRenderMatrix;
-	idRenderMatrix lightViewRenderMatrix;
-
 	if( vLight->parallel && side >= 0 )
 	{
 		assert( side >= 0 && side < 6 );
@@ -3429,6 +3381,506 @@ void idRenderBackend::ShadowMapPass( const drawSurf_t* drawSurfs, const viewLigh
 		idRenderMatrix::Multiply( matClipToUvzw, shadowToClip, shadowP[0] );
 #endif
 	}
+}
+
+/*
+=====================
+idRenderBackend::ShadowMapPassPerforated
+=====================
+*/
+void idRenderBackend::ShadowMapPassPerforated( const drawSurf_t** drawSurfs, int numDrawSurfs, const viewLight_t* vLight, int side, const idRenderMatrix& lightProjectionRenderMatrix, const idRenderMatrix& lightViewRenderMatrix )
+{
+	if( r_skipShadows.GetBool() )
+	{
+		return;
+	}
+
+	if( drawSurfs == NULL || numDrawSurfs <= 0 )
+	{
+		return;
+	}
+
+	if( viewDef->renderView.rdflags & RDF_NOSHADOWS )
+	{
+		return;
+	}
+
+	renderLog.OpenBlock( "Render_ShadowMapsPerforated", colorBrown );
+
+	uint64 glState = 0;
+
+	// the actual stencil func will be set in the draw code, but we need to make sure it isn't
+	// disabled here, and that the value will get reset for the interactions without looking
+	// like a no-change-required
+	GL_State( glState | GLS_POLYGON_OFFSET );
+
+	switch( r_shadowMapOccluderFacing.GetInteger() )
+	{
+		case 0:
+			GL_State( ( glStateBits & ~( GLS_CULL_MASK ) ) | GLS_CULL_FRONTSIDED );
+			GL_PolygonOffset( r_shadowMapPolygonFactor.GetFloat(), r_shadowMapPolygonOffset.GetFloat() );
+			break;
+
+		case 1:
+			GL_State( ( glStateBits & ~( GLS_CULL_MASK ) ) | GLS_CULL_BACKSIDED );
+			GL_PolygonOffset( -r_shadowMapPolygonFactor.GetFloat(), -r_shadowMapPolygonOffset.GetFloat() );
+			break;
+
+		default:
+			GL_State( ( glStateBits & ~( GLS_CULL_MASK ) ) | GLS_CULL_TWOSIDED );
+			GL_PolygonOffset( r_shadowMapPolygonFactor.GetFloat(), r_shadowMapPolygonOffset.GetFloat() );
+			break;
+	}
+
+	// process the chain of shadows with the current rendering state
+	currentSpace = NULL;
+
+	for( int surfNum = 0; surfNum < numDrawSurfs; surfNum++ )
+	{
+		const drawSurf_t* drawSurf = drawSurfs[ surfNum ];
+
+		if( drawSurf->space != currentSpace )
+		{
+			// model -> world
+			idRenderMatrix modelRenderMatrix;
+			idRenderMatrix::Transpose( *( idRenderMatrix* )drawSurf->space->modelMatrix, modelRenderMatrix );
+
+			// world -> light = light camera view of model in Doom
+			idRenderMatrix modelToLightRenderMatrix;
+			idRenderMatrix::Multiply( lightViewRenderMatrix, modelRenderMatrix, modelToLightRenderMatrix );
+
+			idRenderMatrix clipMVP;
+			idRenderMatrix::Multiply( lightProjectionRenderMatrix, modelToLightRenderMatrix, clipMVP );
+
+			if( vLight->parallel )
+			{
+				// cascaded sun light shadowmap
+				idRenderMatrix MVP;
+				idRenderMatrix::Multiply( renderMatrix_clipSpaceToWindowSpace, clipMVP, MVP );
+
+				RB_SetMVP( clipMVP );
+			}
+			else if( side < 0 )
+			{
+				// spot light
+				idRenderMatrix MVP;
+				idRenderMatrix::Multiply( renderMatrix_windowSpaceToClipSpace, clipMVP, MVP );
+
+				RB_SetMVP( MVP );
+			}
+			else
+			{
+				// point light
+				RB_SetMVP( clipMVP );
+			}
+
+			// set the local light position to allow the vertex program to project the shadow volume end cap to infinity
+			/*
+			idVec4 localLight( 0.0f );
+			R_GlobalPointToLocal( drawSurf->space->modelMatrix, vLight->globalLightOrigin, localLight.ToVec3() );
+			SetVertexParm( RENDERPARM_LOCALLIGHTORIGIN, localLight.ToFloatPtr() );
+			*/
+
+			currentSpace = drawSurf->space;
+		}
+
+		bool didDraw = false;
+
+		const idMaterial* shader = drawSurf->material;
+
+		// get the expressions for conditionals / color / texcoords
+		const float* regs = drawSurf->shaderRegisters;
+		idVec4 color( 0, 0, 0, 1 );
+
+		uint64 surfGLState = 0;
+
+		// set polygon offset if necessary
+		if( shader && shader->TestMaterialFlag( MF_POLYGONOFFSET ) )
+		{
+			surfGLState |= GLS_POLYGON_OFFSET;
+			GL_PolygonOffset( r_offsetFactor.GetFloat(), r_offsetUnits.GetFloat() * shader->GetPolygonOffset() );
+		}
+
+		if( shader && shader->Coverage() == MC_PERFORATED )
+		{
+			// perforated surfaces may have multiple alpha tested stages
+			for( int stage = 0; stage < shader->GetNumStages(); stage++ )
+			{
+				const shaderStage_t* pStage = shader->GetStage( stage );
+
+				if( !pStage->hasAlphaTest )
+				{
+					continue;
+				}
+
+				// check the stage enable condition
+				if( regs[ pStage->conditionRegister ] == 0 )
+				{
+					continue;
+				}
+
+				// if we at least tried to draw an alpha tested stage,
+				// we won't draw the opaque surface
+				didDraw = true;
+
+				// set the alpha modulate
+				color[3] = regs[ pStage->color.registers[3] ];
+
+				// skip the entire stage if alpha would be black
+				if( color[3] <= 0.0f )
+				{
+					continue;
+				}
+
+				uint64 stageGLState = surfGLState;
+
+				// set privatePolygonOffset if necessary
+				if( pStage->privatePolygonOffset )
+				{
+					GL_PolygonOffset( r_offsetFactor.GetFloat(), r_offsetUnits.GetFloat() * pStage->privatePolygonOffset );
+					stageGLState |= GLS_POLYGON_OFFSET;
+				}
+
+				GL_Color( color );
+
+				GL_State( stageGLState );
+				idVec4 alphaTestValue( regs[ pStage->alphaTestRegister ] );
+				SetFragmentParm( RENDERPARM_ALPHA_TEST, alphaTestValue.ToFloatPtr() );
+
+				if( drawSurf->jointCache )
+				{
+					renderProgManager.BindShader_TextureVertexColorSkinned();
+				}
+				else
+				{
+					renderProgManager.BindShader_TextureVertexColor();
+				}
+
+				RB_SetVertexColorParms( SVC_IGNORE );
+
+				// bind the texture
+				GL_SelectTexture( 0 );
+				pStage->texture.image->Bind();
+
+				// set texture matrix and texGens
+				PrepareStageTexturing( pStage, drawSurf );
+
+				// must render with less-equal for Z-Cull to work properly
+				assert( ( GL_GetCurrentState() & GLS_DEPTHFUNC_BITS ) == GLS_DEPTHFUNC_LESS );
+
+				// draw it
+				DrawElementsWithCounters( drawSurf );
+
+				// clean up
+				FinishStageTexturing( pStage, drawSurf );
+
+				// unset privatePolygonOffset if necessary
+				if( pStage->privatePolygonOffset )
+				{
+					GL_PolygonOffset( r_offsetFactor.GetFloat(), r_offsetUnits.GetFloat() * shader->GetPolygonOffset() );
+				}
+			}
+		}
+
+		if( !didDraw )
+		{
+			if( drawSurf->jointCache )
+			{
+				renderProgManager.BindShader_DepthSkinned();
+			}
+			else
+			{
+				renderProgManager.BindShader_Depth();
+			}
+
+			DrawElementsWithCounters( drawSurf );
+		}
+	}
+
+	renderLog.CloseBlock();
+}
+
+/*
+=====================
+idRenderBackend::ShadowMapPassFast
+=====================
+*/
+void idRenderBackend::ShadowMapPassFast( const drawSurf_t* drawSurfs, const viewLight_t* vLight, int side )
+{
+	if( r_skipShadows.GetBool() )
+	{
+		return;
+	}
+
+	if( drawSurfs == NULL )
+	{
+		return;
+	}
+
+	if( viewDef->renderView.rdflags & RDF_NOSHADOWS )
+	{
+		return;
+	}
+
+	renderLog.OpenBlock( "Render_ShadowMaps", colorBrown );
+
+	renderProgManager.BindShader_Depth();
+
+	GL_SelectTexture( 0 );
+	globalImages->blackImage->Bind();
+
+	nvrhi::BindingSetDesc bindingSetDesc;
+	GetCurrentBindingLayout( bindingSetDesc );
+
+	currentBindingSet = bindingCache.GetOrCreateBindingSet( bindingSetDesc, renderProgManager.BindingLayout() );
+
+	uint64 glState = 0;
+
+	// the actual stencil func will be set in the draw code, but we need to make sure it isn't
+	// disabled here, and that the value will get reset for the interactions without looking
+	// like a no-change-required
+	GL_State( glState | GLS_POLYGON_OFFSET );
+
+	switch( r_shadowMapOccluderFacing.GetInteger() )
+	{
+		case 0:
+			GL_State( ( glStateBits & ~( GLS_CULL_MASK ) ) | GLS_CULL_FRONTSIDED );
+			GL_PolygonOffset( r_shadowMapPolygonFactor.GetFloat(), r_shadowMapPolygonOffset.GetFloat() );
+			break;
+
+		case 1:
+			GL_State( ( glStateBits & ~( GLS_CULL_MASK ) ) | GLS_CULL_BACKSIDED );
+			GL_PolygonOffset( -r_shadowMapPolygonFactor.GetFloat(), -r_shadowMapPolygonOffset.GetFloat() );
+			break;
+
+		default:
+			GL_State( ( glStateBits & ~( GLS_CULL_MASK ) ) | GLS_CULL_TWOSIDED );
+			GL_PolygonOffset( r_shadowMapPolygonFactor.GetFloat(), r_shadowMapPolygonOffset.GetFloat() );
+			break;
+	}
+
+	idRenderMatrix lightProjectionRenderMatrix;
+	idRenderMatrix lightViewRenderMatrix;
+	SetupShadowMapMatrices( vLight, side, lightProjectionRenderMatrix, lightViewRenderMatrix );
+
+#if defined( USE_NVRHI )
+	if( side < 0 )
+	{
+		globalFramebuffers.shadowFBO[vLight->shadowLOD][0]->Bind();
+	}
+	else
+	{
+		globalFramebuffers.shadowFBO[vLight->shadowLOD][side]->Bind();
+	}
+
+
+	GL_ViewportAndScissor( 0, 0, shadowMapResolutions[vLight->shadowLOD], shadowMapResolutions[vLight->shadowLOD] );
+
+	const nvrhi::FramebufferAttachment& att = currentFrameBuffer->GetApiObject()->getDesc().depthAttachment;
+	if( att.texture )
+	{
+		int slice = std::max( 0, side );
+		commandList->clearDepthStencilTexture( att.texture, nvrhi::TextureSubresourceSet().setArraySlices( slice, 1 ), true, 1.f, false, 0x80 );
+	}
+
+#elif !defined( USE_VULKAN )
+	globalFramebuffers.shadowFBO[vLight->shadowLOD]->Bind();
+
+	if( side < 0 )
+	{
+		globalFramebuffers.shadowFBO[vLight->shadowLOD]->AttachImageDepthLayer( globalImages->shadowImage[vLight->shadowLOD], 0 );
+	}
+	else
+	{
+		globalFramebuffers.shadowFBO[vLight->shadowLOD]->AttachImageDepthLayer( globalImages->shadowImage[vLight->shadowLOD], side );
+	}
+
+	globalFramebuffers.shadowFBO[vLight->shadowLOD]->Check();
+
+	GL_ViewportAndScissor( 0, 0, shadowMapResolutions[vLight->shadowLOD], shadowMapResolutions[vLight->shadowLOD] );
+
+
+	glClear( GL_DEPTH_BUFFER_BIT );
+#endif
+
+	// process the chain of shadows with the current rendering state
+	currentSpace = NULL;
+
+	int numDrawSurfs = 0;
+	for( const drawSurf_t* drawSurf = drawSurfs; drawSurf != NULL; drawSurf = drawSurf->nextOnLight )
+	{
+		numDrawSurfs++;
+	}
+
+	const drawSurf_t** perforatedSurfaces = ( const drawSurf_t** )_alloca( numDrawSurfs * sizeof( drawSurf_t* ) );
+	int numPerforatedSurfaces = 0;
+
+	for( const drawSurf_t* drawSurf = drawSurfs; drawSurf != NULL; drawSurf = drawSurf->nextOnLight )
+	{
+
+#if 1
+		// make sure the shadow occluder geometry is done
+		if( drawSurf->shadowVolumeState != SHADOWVOLUME_DONE )
+		{
+			assert( drawSurf->shadowVolumeState == SHADOWVOLUME_UNFINISHED || drawSurf->shadowVolumeState == SHADOWVOLUME_DONE );
+
+			uint64 start = Sys_Microseconds();
+			while( drawSurf->shadowVolumeState == SHADOWVOLUME_UNFINISHED )
+			{
+				Sys_Yield();
+			}
+			uint64 end = Sys_Microseconds();
+
+			pc.cpuShadowMicroSec += end - start;
+		}
+#endif
+
+		if( drawSurf->numIndexes == 0 )
+		{
+			continue;	// a job may have created an empty shadow geometry
+		}
+
+		const idMaterial* shader = drawSurf->material;
+
+		// translucent surfaces don't put anything in the depth buffer
+		if( shader->Coverage() == MC_TRANSLUCENT )
+		{
+			continue;
+		}
+
+		if( shader->Coverage() == MC_PERFORATED )
+		{
+			// save for later drawing
+			perforatedSurfaces[ numPerforatedSurfaces ] = drawSurf;
+			numPerforatedSurfaces++;
+			continue;
+		}
+
+		if( drawSurf->space != currentSpace )
+		{
+			// model -> world
+			idRenderMatrix modelRenderMatrix;
+			idRenderMatrix::Transpose( *( idRenderMatrix* )drawSurf->space->modelMatrix, modelRenderMatrix );
+
+			// world -> light = light camera view of model in Doom
+			idRenderMatrix modelToLightRenderMatrix;
+			idRenderMatrix::Multiply( lightViewRenderMatrix, modelRenderMatrix, modelToLightRenderMatrix );
+
+			idRenderMatrix clipMVP;
+			idRenderMatrix::Multiply( lightProjectionRenderMatrix, modelToLightRenderMatrix, clipMVP );
+
+			if( vLight->parallel )
+			{
+				// cascaded sun light shadowmap
+				idRenderMatrix MVP;
+				idRenderMatrix::Multiply( renderMatrix_clipSpaceToWindowSpace, clipMVP, MVP );
+
+				RB_SetMVP( clipMVP );
+			}
+			else if( side < 0 )
+			{
+				// spot light
+				idRenderMatrix MVP;
+				idRenderMatrix::Multiply( renderMatrix_windowSpaceToClipSpace, clipMVP, MVP );
+
+				RB_SetMVP( MVP );
+			}
+			else
+			{
+				// point light
+				RB_SetMVP( clipMVP );
+			}
+
+			currentSpace = drawSurf->space;
+		}
+
+		renderLog.OpenBlock( shader->GetName(), colorMdGrey );
+
+		if( drawSurf->jointCache )
+		{
+			renderProgManager.BindShader_DepthSkinned();
+		}
+		else
+		{
+			renderProgManager.BindShader_Depth();
+		}
+
+		// must render with less-equal for Z-Cull to work properly
+		assert( ( GL_GetCurrentState() & GLS_DEPTHFUNC_BITS ) == GLS_DEPTHFUNC_LESS );
+
+		// draw it solid
+		DrawElementsWithCounters( drawSurf, currentBindingSet );
+
+		renderLog.CloseBlock();
+	}
+
+	// draw all perforated surfaces with the general code path
+	if( numPerforatedSurfaces > 0 )
+	{
+		ShadowMapPassPerforated( perforatedSurfaces, numPerforatedSurfaces, vLight, side, lightProjectionRenderMatrix, lightViewRenderMatrix );
+	}
+
+	renderLog.CloseBlock();
+}
+
+
+/*
+=====================
+idRenderBackend::ShadowMapPass
+=====================
+*/
+void idRenderBackend::ShadowMapPassOld( const drawSurf_t* drawSurfs, const viewLight_t* vLight, int side )
+{
+	if( r_skipShadows.GetBool() )
+	{
+		return;
+	}
+
+	if( drawSurfs == NULL )
+	{
+		return;
+	}
+
+	if( viewDef->renderView.rdflags & RDF_NOSHADOWS )
+	{
+		return;
+	}
+
+	renderLog.OpenBlock( "Render_ShadowMapsOld", colorBrown );
+
+	renderProgManager.BindShader_Depth();
+
+	GL_SelectTexture( 0 );
+
+	uint64 glState = 0;
+
+	// the actual stencil func will be set in the draw code, but we need to make sure it isn't
+	// disabled here, and that the value will get reset for the interactions without looking
+	// like a no-change-required
+	GL_State( glState | GLS_POLYGON_OFFSET );
+
+	switch( r_shadowMapOccluderFacing.GetInteger() )
+	{
+		case 0:
+			GL_State( ( glStateBits & ~( GLS_CULL_MASK ) ) | GLS_CULL_FRONTSIDED );
+			GL_PolygonOffset( r_shadowMapPolygonFactor.GetFloat(), r_shadowMapPolygonOffset.GetFloat() );
+			break;
+
+		case 1:
+			GL_State( ( glStateBits & ~( GLS_CULL_MASK ) ) | GLS_CULL_BACKSIDED );
+			GL_PolygonOffset( -r_shadowMapPolygonFactor.GetFloat(), -r_shadowMapPolygonOffset.GetFloat() );
+			break;
+
+		default:
+			GL_State( ( glStateBits & ~( GLS_CULL_MASK ) ) | GLS_CULL_TWOSIDED );
+			GL_PolygonOffset( r_shadowMapPolygonFactor.GetFloat(), r_shadowMapPolygonOffset.GetFloat() );
+			break;
+	}
+
+	idRenderMatrix lightProjectionRenderMatrix;
+	idRenderMatrix lightViewRenderMatrix;
+
+	SetupShadowMapMatrices( vLight, side, lightProjectionRenderMatrix, lightViewRenderMatrix );
 
 #if defined( USE_NVRHI )
 	if( side < 0 )
@@ -3656,6 +4108,8 @@ void idRenderBackend::ShadowMapPass( const drawSurf_t* drawSurfs, const viewLigh
 			DrawElementsWithCounters( drawSurf );
 		}
 	}
+
+	renderLog.CloseBlock();
 }
 
 /*
@@ -3746,7 +4200,7 @@ void idRenderBackend::DrawInteractions( const viewDef_t* _viewDef )
 
 			for( ; side < sideStop ; side++ )
 			{
-				ShadowMapPass( vLight->globalShadows, vLight, side );
+				ShadowMapPassFast( vLight->globalShadows, vLight, side );
 			}
 
 			// go back to main render target

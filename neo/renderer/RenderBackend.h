@@ -289,7 +289,7 @@ public:
 private:
 	void				DrawFlickerBox();
 
-	void				DrawElementsWithCounters( const drawSurf_t* surf );
+	void				DrawElementsWithCounters( const drawSurf_t* surf, nvrhi::BindingSetHandle bindingSetHandle = nullptr );
 	void				GetCurrentBindingLayout( nvrhi::BindingSetDesc& bindingSetDesc );
 	void				DrawStencilShadowPass( const drawSurf_t* drawSurf, const bool renderZPass );
 
@@ -327,7 +327,11 @@ private:
 
 	// RB
 	void				AmbientPass( const drawSurf_t* const* drawSurfs, int numDrawSurfs, bool fillGbuffer );
-	void				ShadowMapPass( const drawSurf_t* drawSurfs, const viewLight_t* vLight, int side );
+
+	void				SetupShadowMapMatrices( const viewLight_t* vLight, int side, idRenderMatrix& lightProjectionRenderMatrix, idRenderMatrix& lightViewRenderMatrix );
+	void				ShadowMapPassFast( const drawSurf_t* drawSurfs, const viewLight_t* vLight, int side );
+	void				ShadowMapPassPerforated( const drawSurf_t** drawSurfs, int numDrawSurfs, const viewLight_t* vLight, int side, const idRenderMatrix& lightProjectionRenderMatrix, const idRenderMatrix& lightViewRenderMatrix );
+	void				ShadowMapPassOld( const drawSurf_t* drawSurfs, const viewLight_t* vLight, int side );
 
 	void				StencilShadowPass( const drawSurf_t* drawSurfs, const viewLight_t* vLight );
 	void				StencilSelectLight( const viewLight_t* vLight );

@@ -341,7 +341,9 @@ float idConsoleLocal::DrawFPS( float y )
 
 		ImGui::Begin( "Performance Stats" );
 
-#if defined( USE_VULKAN )
+#if defined( USE_NVRHI )
+		const char* API = "DX12";
+#elif defined( USE_VULKAN )
 		const char* API = "Vulkan";
 #else
 		const char* API = "OpenGL";
