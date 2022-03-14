@@ -50,9 +50,10 @@ struct ToneMappingConstants
 Buffer<uint> t_Histogram : register(t0);
 RWBuffer<uint> u_Exposure : register(u0);
 
-cbuffer c_ToneMapping : register(b0)
+cbuffer c_ToneMapping :
+register( b0 )
 {
-    ToneMappingConstants g_ToneMapping;
+	ToneMappingConstants g_ToneMapping;
 };
 // *INDENT-ON*
 

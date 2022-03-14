@@ -1245,7 +1245,7 @@ bool ImGui::RadioButton( const char* label, bool active )
 
 	if( g.LogEnabled )
 	{
-		LogRenderedText( &total_bb.Min, active ? "(x)" : "( )" );
+		LogRenderedText( &total_bb.Min, active ? "(x)" : "()" );
 	}
 	if( label_size.x > 0.0f )
 	{

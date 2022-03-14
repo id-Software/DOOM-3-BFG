@@ -486,7 +486,7 @@ void idGameLocal::SaveGame( idFile* f, idFile* strings )
 
 	idSaveGame savegame( f, strings, BUILD_NUMBER );
 
-	if( g_flushSave.GetBool( ) == true )
+	if( g_flushSave.GetBool() == true )
 	{
 		// force flushing with each write... for tracking down
 		// save game bugs.
@@ -1112,7 +1112,7 @@ void idGameLocal::LoadMap( const char* mapName, int randseed )
 idGameLocal::LocalMapRestart
 ===================
 */
-void idGameLocal::LocalMapRestart( )
+void idGameLocal::LocalMapRestart()
 {
 	int i, latchSpawnCount;
 
@@ -1218,7 +1218,7 @@ void idGameLocal::MapRestart_f( const idCmdArgs& args )
 		return;
 	}
 
-	gameLocal.MapRestart( );
+	gameLocal.MapRestart();
 }
 
 /*

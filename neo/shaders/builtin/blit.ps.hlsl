@@ -22,11 +22,11 @@
 
 // *INDENT-OFF*
 #if TEXTURE_ARRAY
-Texture2DArray tex : register(t0);
+Texture2DArray tex : register( t0 );
 #else
-Texture2D tex : register(t0);
+Texture2D tex : register( t0 );
 #endif
-SamplerState samp : register(s0);
+SamplerState samp : register( s0 );
 
 struct PS_IN
 {

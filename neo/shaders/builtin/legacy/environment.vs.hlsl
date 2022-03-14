@@ -29,13 +29,11 @@ If you have questions concerning this license or the applicable additional terms
 #include "global_inc.hlsl"
 
 #if USE_GPU_SKINNING
-
 cbuffer CB :
 register( b1 )
 {
 	float4 matrices[408];
 };
-
 #endif
 
 // *INDENT-OFF*

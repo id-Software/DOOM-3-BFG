@@ -41,7 +41,7 @@ void GBufferFillPass::Init( nvrhi::DeviceHandle deviceHandle )
 #if 0
 void GBufferFillPass::RenderView( nvrhi::ICommandList* commandList, const drawSurf_t* const* drawSurfs, int numDrawSurfs, bool fillGbuffer )
 {
-	Framebuffer* previousFramebuffer = Framebuffer::GetActiveFramebuffer( );
+	Framebuffer* previousFramebuffer = Framebuffer::GetActiveFramebuffer();
 
 	if( numDrawSurfs == 0 )
 	{
@@ -80,7 +80,7 @@ void GBufferFillPass::RenderView( nvrhi::ICommandList* commandList, const drawSu
 	}
 	*/
 
-	if( !fillGbuffer && r_useSSAO.GetBool( ) && r_ssaoDebug.GetBool( ) )
+	if( !fillGbuffer && r_useSSAO.GetBool() && r_ssaoDebug.GetBool() )
 	{
 		GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
 
@@ -99,18 +99,18 @@ void GBufferFillPass::RenderView( nvrhi::ICommandList* commandList, const drawSu
 		currentSpace = NULL;
 		RB_SetMVP( renderMatrix_identity );
 
-		renderProgManager.BindShader_Texture( );
+		renderProgManager.BindShader_Texture();
 		GL_Color( idVec4( 1 ) );
 
 		GL_SelectTexture( 0 );
-		globalImages->ambientOcclusionImage[0]->Bind( );
+		globalImages->ambientOcclusionImage[0]->Bind();
 
 		DrawElementsWithCounters( &tr.backend.unitSquareSurface );
 
-		renderProgManager.Unbind( );
+		renderProgManager.Unbind();
 		GL_State( GLS_DEFAULT );
 
-		renderProgManager.SetRenderParm( RENDERPARM_ALPHA_TEST, vec4_zero.ToFloatPtr( ) );
+		renderProgManager.SetRenderParm( RENDERPARM_ALPHA_TEST, vec4_zero.ToFloatPtr() );
 
 		return;
 	}
@@ -120,14 +120,14 @@ void GBufferFillPass::RenderView( nvrhi::ICommandList* commandList, const drawSu
 
 	if( fillGbuffer )
 	{
-		globalFramebuffers.geometryBufferFBO->Bind( );
+		globalFramebuffers.geometryBufferFBO->Bind();
 
 		GL_Clear( true, false, false, 0, 0.0f, 0.0f, 0.0f, 1.0f, false );
 	}
 
 	commandList->setEnableAutomaticBarriers( false );
-	commandList->setResourceStatesForFramebuffer( currentFrameBuffer->GetApiObject( ) );
-	commandList->commitBarriers( );
+	commandList->setResourceStatesForFramebuffer( currentFrameBuffer->GetApiObject() );
+	commandList->commitBarriers();
 
 	// RB: not needed
 	// GL_StartDepthPass( backEnd.viewDef->scissor );
@@ -168,13 +168,13 @@ void GBufferFillPass::RenderView( nvrhi::ICommandList* commandList, const drawSu
 		const float energyConservation = 0.95f;
 
 		//ambientColor.Set( energyConservation, energyConservation, energyConservation, 1.0f );
-		float a = r_forceAmbient.GetFloat( );
+		float a = r_forceAmbient.GetFloat();
 
 		ambientColor.Set( a, a, a, 1 );
 	}
 	else
 	{
-		const float lightScale = r_lightScale.GetFloat( );
+		const float lightScale = r_lightScale.GetFloat();
 		const idVec4 lightColor = colorWhite * lightScale;
 
 		// apply the world-global overbright and tune down specular a bit so we have less fresnel overglow
@@ -182,21 +182,21 @@ void GBufferFillPass::RenderView( nvrhi::ICommandList* commandList, const drawSu
 		specularColor = lightColor;// * 0.5f;
 
 		float ambientBoost = 1.0f;
-		if( !r_usePBR.GetBool( ) )
+		if( !r_usePBR.GetBool() )
 		{
-			ambientBoost += r_useSSAO.GetBool( ) ? 0.2f : 0.0f;
-			ambientBoost *= r_useHDR.GetBool( ) ? 1.1f : 1.0f;
+			ambientBoost += r_useSSAO.GetBool() ? 0.2f : 0.0f;
+			ambientBoost *= r_useHDR.GetBool() ? 1.1f : 1.0f;
 		}
 
-		ambientColor.x = r_forceAmbient.GetFloat( ) * ambientBoost;
-		ambientColor.y = r_forceAmbient.GetFloat( ) * ambientBoost;
-		ambientColor.z = r_forceAmbient.GetFloat( ) * ambientBoost;
+		ambientColor.x = r_forceAmbient.GetFloat() * ambientBoost;
+		ambientColor.y = r_forceAmbient.GetFloat() * ambientBoost;
+		ambientColor.z = r_forceAmbient.GetFloat() * ambientBoost;
 		ambientColor.w = 1;
 	}
 
-	renderProgManager.SetRenderParm( RENDERPARM_AMBIENT_COLOR, ambientColor.ToFloatPtr( ) );
+	renderProgManager.SetRenderParm( RENDERPARM_AMBIENT_COLOR, ambientColor.ToFloatPtr() );
 
-	bool useIBL = r_usePBR.GetBool( ) && !fillGbuffer;
+	bool useIBL = r_usePBR.GetBool() && !fillGbuffer;
 
 	// setup renderparms assuming we will be drawing trivial surfaces first
 	RB_SetupForFastPathInteractions( diffuseColor, specularColor );
@@ -208,7 +208,7 @@ void GBufferFillPass::RenderView( nvrhi::ICommandList* commandList, const drawSu
 
 		// translucent surfaces don't put anything in the depth buffer and don't
 		// test against it, which makes them fail the mirror clip plane operation
-		if( surfaceMaterial->Coverage( ) == MC_TRANSLUCENT )
+		if( surfaceMaterial->Coverage() == MC_TRANSLUCENT )
 		{
 			continue;
 		}
@@ -218,7 +218,7 @@ void GBufferFillPass::RenderView( nvrhi::ICommandList* commandList, const drawSu
 
 		// if all stages of a material have been conditioned off, don't do anything
 		int stage = 0;
-		for( ; stage < surfaceMaterial->GetNumStages( ); stage++ )
+		for( ; stage < surfaceMaterial->GetNumStages(); stage++ )
 		{
 			const shaderStage_t* pStage = surfaceMaterial->GetStage( stage );
 			// check the stage enable condition
@@ -227,7 +227,7 @@ void GBufferFillPass::RenderView( nvrhi::ICommandList* commandList, const drawSu
 				break;
 			}
 		}
-		if( stage == surfaceMaterial->GetNumStages( ) )
+		if( stage == surfaceMaterial->GetNumStages() )
 		{
 			continue;
 		}
@@ -247,11 +247,11 @@ void GBufferFillPass::RenderView( nvrhi::ICommandList* commandList, const drawSu
 				// fill geometry buffer with normal/roughness information
 				if( drawSurf->jointCache )
 				{
-					renderProgManager.BindShader_SmallGeometryBufferSkinned( );
+					renderProgManager.BindShader_SmallGeometryBufferSkinned();
 				}
 				else
 				{
-					renderProgManager.BindShader_SmallGeometryBuffer( );
+					renderProgManager.BindShader_SmallGeometryBuffer();
 				}
 			}
 			else
@@ -262,11 +262,11 @@ void GBufferFillPass::RenderView( nvrhi::ICommandList* commandList, const drawSu
 				// draw Quake 4 style ambient
 				if( drawSurf->jointCache )
 				{
-					renderProgManager.BindShader_AmbientLightingSkinned( );
+					renderProgManager.BindShader_AmbientLightingSkinned();
 				}
 				else
 				{
-					renderProgManager.BindShader_AmbientLighting( );
+					renderProgManager.BindShader_AmbientLighting();
 				}
 			}
 		}
@@ -280,8 +280,8 @@ void GBufferFillPass::RenderView( nvrhi::ICommandList* commandList, const drawSu
 
 			// tranform the view origin into model local space
 			idVec4 localViewOrigin( 1.0f );
-			R_GlobalPointToLocal( drawSurf->space->modelMatrix, viewDef->renderView.vieworg, localViewOrigin.ToVec3( ) );
-			SetVertexParm( RENDERPARM_LOCALVIEWORIGIN, localViewOrigin.ToFloatPtr( ) );
+			R_GlobalPointToLocal( drawSurf->space->modelMatrix, viewDef->renderView.vieworg, localViewOrigin.ToVec3() );
+			SetVertexParm( RENDERPARM_LOCALVIEWORIGIN, localViewOrigin.ToFloatPtr() );
 
 			// RB: if we want to store the normals in world space so we need the model -> world matrix
 			idRenderMatrix modelMatrix;
@@ -336,21 +336,21 @@ void GBufferFillPass::RenderView( nvrhi::ICommandList* commandList, const drawSu
 		inter.specularColor[0] = inter.specularColor[1] = inter.specularColor[2] = inter.specularColor[3] = 0;
 
 		// check for the fast path
-		if( surfaceMaterial->GetFastPathBumpImage( ) && !r_skipInteractionFastPath.GetBool( ) )
+		if( surfaceMaterial->GetFastPathBumpImage() && !r_skipInteractionFastPath.GetBool() )
 		{
-			renderLog.OpenBlock( surfaceMaterial->GetName( ), colorMdGrey );
+			renderLog.OpenBlock( surfaceMaterial->GetName(), colorMdGrey );
 
-			inter.bumpImage = surfaceMaterial->GetFastPathBumpImage( );
-			inter.specularImage = surfaceMaterial->GetFastPathSpecularImage( );
-			inter.diffuseImage = surfaceMaterial->GetFastPathDiffuseImage( );
+			inter.bumpImage = surfaceMaterial->GetFastPathBumpImage();
+			inter.specularImage = surfaceMaterial->GetFastPathSpecularImage();
+			inter.diffuseImage = surfaceMaterial->GetFastPathDiffuseImage();
 
 			DrawSingleInteraction( &inter, true, useIBL, false );
 
-			renderLog.CloseBlock( );
+			renderLog.CloseBlock();
 			continue;
 		}
 
-		renderLog.OpenBlock( surfaceMaterial->GetName( ), colorMdGrey );
+		renderLog.OpenBlock( surfaceMaterial->GetName(), colorMdGrey );
 
 		//bool drawSolid = false;
 
@@ -364,7 +364,7 @@ void GBufferFillPass::RenderView( nvrhi::ICommandList* commandList, const drawSu
 		bool didDraw = false;
 
 		// perforated surfaces may have multiple alpha tested stages
-		for( stage = 0; stage < surfaceMaterial->GetNumStages( ); stage++ )
+		for( stage = 0; stage < surfaceMaterial->GetNumStages(); stage++ )
 		{
 			const shaderStage_t* surfaceStage = surfaceMaterial->GetStage( stage );
 
@@ -443,8 +443,8 @@ void GBufferFillPass::RenderView( nvrhi::ICommandList* commandList, const drawSu
 
 					inter.diffuseImage = surfaceStage->texture.image;
 					inter.vertexColor = surfaceStage->vertexColor;
-					SetupInteractionStage( surfaceStage, surfaceRegs, diffuseColor.ToFloatPtr( ),
-										   inter.diffuseMatrix, inter.diffuseColor.ToFloatPtr( ) );
+					SetupInteractionStage( surfaceStage, surfaceRegs, diffuseColor.ToFloatPtr(),
+										   inter.diffuseMatrix, inter.diffuseColor.ToFloatPtr() );
 					break;
 				}
 
@@ -475,8 +475,8 @@ void GBufferFillPass::RenderView( nvrhi::ICommandList* commandList, const drawSu
 					}
 					inter.specularImage = surfaceStage->texture.image;
 					inter.vertexColor = surfaceStage->vertexColor;
-					SetupInteractionStage( surfaceStage, surfaceRegs, specularColor.ToFloatPtr( ),
-										   inter.specularMatrix, inter.specularColor.ToFloatPtr( ) );
+					SetupInteractionStage( surfaceStage, surfaceRegs, specularColor.ToFloatPtr(),
+										   inter.specularMatrix, inter.specularColor.ToFloatPtr() );
 					break;
 				}
 			}
@@ -497,12 +497,12 @@ void GBufferFillPass::RenderView( nvrhi::ICommandList* commandList, const drawSu
 
 		DrawSingleInteraction( &inter, false, useIBL, false );
 
-		renderLog.CloseBlock( );
+		renderLog.CloseBlock();
 	}
 
 	// disable blending
 	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_EQUAL );
-	SetFragmentParm( RENDERPARM_ALPHA_TEST, vec4_zero.ToFloatPtr( ) );
+	SetFragmentParm( RENDERPARM_ALPHA_TEST, vec4_zero.ToFloatPtr() );
 
 	GL_SelectTexture( 0 );
 
@@ -511,23 +511,23 @@ void GBufferFillPass::RenderView( nvrhi::ICommandList* commandList, const drawSu
 		// go back to main render target
 		if( previousFramebuffer != NULL )
 		{
-			previousFramebuffer->Bind( );
+			previousFramebuffer->Bind();
 		}
 		else
 		{
-			Framebuffer::Unbind( );
+			Framebuffer::Unbind();
 		}
 	}
 
-	renderProgManager.Unbind( );
+	renderProgManager.Unbind();
 
-	renderLog.CloseBlock( );
-	renderLog.CloseMainBlock( );
+	renderLog.CloseBlock();
+	renderLog.CloseMainBlock();
 }
 
 nvrhi::GraphicsPipelineHandle GBufferFillPass::CreateGraphicsPipeline( nvrhi::IFramebuffer* framebuffer )
 {
-	return nvrhi::GraphicsPipelineHandle( );
+	return nvrhi::GraphicsPipelineHandle();
 }
 
 void GBufferFillPass::DrawElementsWithCounters( const drawSurf_t* surf )
@@ -550,7 +550,7 @@ void GBufferFillPass::DrawElementsWithCounters( const drawSurf_t* surf )
 		vertexBuffer = &vertexCache.frameData[vertexCache.drawListNum].vertexBuffer;
 	}
 	const uint vertOffset = ( uint )( vbHandle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
-	auto currentVertexBuffer = vertexBuffer->GetAPIObject( );
+	auto currentVertexBuffer = vertexBuffer->GetAPIObject();
 
 	// Get index buffer
 	const vertCacheHandle_t ibHandle = surf->indexCache;
@@ -573,11 +573,11 @@ void GBufferFillPass::DrawElementsWithCounters( const drawSurf_t* surf )
 
 	RENDERLOG_PRINTF( "Binding Buffers: %p:%i %p:%i\n", vertexBuffer, vertOffset, indexBuffer, indexOffset );
 
-	auto currentIndexBuffer = ( nvrhi::IBuffer* )indexBuffer->GetAPIObject( );
+	auto currentIndexBuffer = ( nvrhi::IBuffer* )indexBuffer->GetAPIObject();
 
-	if( currentIndexBuffer != ( nvrhi::IBuffer* )indexBuffer->GetAPIObject( ) || !r_useStateCaching.GetBool( ) )
+	if( currentIndexBuffer != ( nvrhi::IBuffer* )indexBuffer->GetAPIObject() || !r_useStateCaching.GetBool() )
 	{
-		currentIndexBuffer = indexBuffer->GetAPIObject( );
+		currentIndexBuffer = indexBuffer->GetAPIObject();
 	}
 
 	if( !pipeline )
@@ -588,48 +588,48 @@ void GBufferFillPass::DrawElementsWithCounters( const drawSurf_t* surf )
 		psoDesc.inputLayout = inputLayout;
 		psoDesc.bindingLayouts = { currentBindingLayout };
 		psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
-		currentRenderState.rasterState.enableScissor( );
+		currentRenderState.rasterState.enableScissor();
 		psoDesc.setRenderState( currentRenderState );
 
-		pipeline = device->createGraphicsPipeline( psoDesc, currentFramebuffer->GetApiObject( ) );
+		pipeline = device->createGraphicsPipeline( psoDesc, currentFramebuffer->GetApiObject() );
 	}
 
 	nvrhi::BindingSetDesc bindingSetDesc;
 
-	if( renderProgManager.BindingLayoutType( ) == BINDING_LAYOUT_DEFAULT )
+	if( renderProgManager.BindingLayoutType() == BINDING_LAYOUT_DEFAULT )
 	{
 		bindingSetDesc
-		.addItem( nvrhi::BindingSetItem::ConstantBuffer( 0, renderProgManager.ConstantBuffer( ) ) )
-		.addItem( nvrhi::BindingSetItem::Texture_SRV( 0, ( nvrhi::ITexture* )GetImageAt( 0 )->GetTextureID( ) ) )
-		.addItem( nvrhi::BindingSetItem::Sampler( 0, ( nvrhi::ISampler* )GetImageAt( 0 )->GetSampler( ) ) );
+		.addItem( nvrhi::BindingSetItem::ConstantBuffer( 0, renderProgManager.ConstantBuffer() ) )
+		.addItem( nvrhi::BindingSetItem::Texture_SRV( 0, ( nvrhi::ITexture* )GetImageAt( 0 )->GetTextureID() ) )
+		.addItem( nvrhi::BindingSetItem::Sampler( 0, ( nvrhi::ISampler* )GetImageAt( 0 )->GetSampler() ) );
 	}
-	else if( renderProgManager.BindingLayoutType( ) == BINDING_LAYOUT_GBUFFER )
+	else if( renderProgManager.BindingLayoutType() == BINDING_LAYOUT_GBUFFER )
 	{
 		bindingSetDesc
-		.addItem( nvrhi::BindingSetItem::ConstantBuffer( 0, renderProgManager.ConstantBuffer( ) ) );
+		.addItem( nvrhi::BindingSetItem::ConstantBuffer( 0, renderProgManager.ConstantBuffer() ) );
 	}
-	else if( renderProgManager.BindingLayoutType( ) == BINDING_LAYOUT_LIGHTGRID )
+	else if( renderProgManager.BindingLayoutType() == BINDING_LAYOUT_LIGHTGRID )
 	{
 		bindingSetDesc
-		.addItem( nvrhi::BindingSetItem::ConstantBuffer( 0, renderProgManager.ConstantBuffer( ) ) )
-		.addItem( nvrhi::BindingSetItem::Texture_SRV( 0, ( nvrhi::ITexture* )GetImageAt( 0 )->GetTextureID( ) ) )
-		.addItem( nvrhi::BindingSetItem::Texture_SRV( 1, ( nvrhi::ITexture* )GetImageAt( 1 )->GetTextureID( ) ) )
-		.addItem( nvrhi::BindingSetItem::Texture_SRV( 2, ( nvrhi::ITexture* )GetImageAt( 2 )->GetTextureID( ) ) )
-		.addItem( nvrhi::BindingSetItem::Texture_SRV( 3, ( nvrhi::ITexture* )GetImageAt( 3 )->GetTextureID( ) ) )
-		.addItem( nvrhi::BindingSetItem::Texture_SRV( 4, ( nvrhi::ITexture* )GetImageAt( 4 )->GetTextureID( ) ) )
-		.addItem( nvrhi::BindingSetItem::Texture_SRV( 7, ( nvrhi::ITexture* )GetImageAt( 7 )->GetTextureID( ) ) )
-		.addItem( nvrhi::BindingSetItem::Texture_SRV( 8, ( nvrhi::ITexture* )GetImageAt( 8 )->GetTextureID( ) ) )
-		.addItem( nvrhi::BindingSetItem::Texture_SRV( 9, ( nvrhi::ITexture* )GetImageAt( 9 )->GetTextureID( ) ) )
-		.addItem( nvrhi::BindingSetItem::Texture_SRV( 10, ( nvrhi::ITexture* )GetImageAt( 10 )->GetTextureID( ) ) )
-		.addItem( nvrhi::BindingSetItem::Sampler( 0, ( nvrhi::ISampler* )GetImageAt( 0 )->GetSampler( ) ) )
-		.addItem( nvrhi::BindingSetItem::Sampler( 1, ( nvrhi::ISampler* )GetImageAt( 1 )->GetSampler( ) ) )
-		.addItem( nvrhi::BindingSetItem::Sampler( 2, ( nvrhi::ISampler* )GetImageAt( 2 )->GetSampler( ) ) )
-		.addItem( nvrhi::BindingSetItem::Sampler( 3, ( nvrhi::ISampler* )GetImageAt( 3 )->GetSampler( ) ) )
-		.addItem( nvrhi::BindingSetItem::Sampler( 4, ( nvrhi::ISampler* )GetImageAt( 4 )->GetSampler( ) ) )
-		.addItem( nvrhi::BindingSetItem::Sampler( 7, ( nvrhi::ISampler* )GetImageAt( 7 )->GetSampler( ) ) )
-		.addItem( nvrhi::BindingSetItem::Sampler( 8, ( nvrhi::ISampler* )GetImageAt( 8 )->GetSampler( ) ) )
-		.addItem( nvrhi::BindingSetItem::Sampler( 9, ( nvrhi::ISampler* )GetImageAt( 9 )->GetSampler( ) ) )
-		.addItem( nvrhi::BindingSetItem::Sampler( 10, ( nvrhi::ISampler* )GetImageAt( 10 )->GetSampler( ) ) );
+		.addItem( nvrhi::BindingSetItem::ConstantBuffer( 0, renderProgManager.ConstantBuffer() ) )
+		.addItem( nvrhi::BindingSetItem::Texture_SRV( 0, ( nvrhi::ITexture* )GetImageAt( 0 )->GetTextureID() ) )
+		.addItem( nvrhi::BindingSetItem::Texture_SRV( 1, ( nvrhi::ITexture* )GetImageAt( 1 )->GetTextureID() ) )
+		.addItem( nvrhi::BindingSetItem::Texture_SRV( 2, ( nvrhi::ITexture* )GetImageAt( 2 )->GetTextureID() ) )
+		.addItem( nvrhi::BindingSetItem::Texture_SRV( 3, ( nvrhi::ITexture* )GetImageAt( 3 )->GetTextureID() ) )
+		.addItem( nvrhi::BindingSetItem::Texture_SRV( 4, ( nvrhi::ITexture* )GetImageAt( 4 )->GetTextureID() ) )
+		.addItem( nvrhi::BindingSetItem::Texture_SRV( 7, ( nvrhi::ITexture* )GetImageAt( 7 )->GetTextureID() ) )
+		.addItem( nvrhi::BindingSetItem::Texture_SRV( 8, ( nvrhi::ITexture* )GetImageAt( 8 )->GetTextureID() ) )
+		.addItem( nvrhi::BindingSetItem::Texture_SRV( 9, ( nvrhi::ITexture* )GetImageAt( 9 )->GetTextureID() ) )
+		.addItem( nvrhi::BindingSetItem::Texture_SRV( 10, ( nvrhi::ITexture* )GetImageAt( 10 )->GetTextureID() ) )
+		.addItem( nvrhi::BindingSetItem::Sampler( 0, ( nvrhi::ISampler* )GetImageAt( 0 )->GetSampler() ) )
+		.addItem( nvrhi::BindingSetItem::Sampler( 1, ( nvrhi::ISampler* )GetImageAt( 1 )->GetSampler() ) )
+		.addItem( nvrhi::BindingSetItem::Sampler( 2, ( nvrhi::ISampler* )GetImageAt( 2 )->GetSampler() ) )
+		.addItem( nvrhi::BindingSetItem::Sampler( 3, ( nvrhi::ISampler* )GetImageAt( 3 )->GetSampler() ) )
+		.addItem( nvrhi::BindingSetItem::Sampler( 4, ( nvrhi::ISampler* )GetImageAt( 4 )->GetSampler() ) )
+		.addItem( nvrhi::BindingSetItem::Sampler( 7, ( nvrhi::ISampler* )GetImageAt( 7 )->GetSampler() ) )
+		.addItem( nvrhi::BindingSetItem::Sampler( 8, ( nvrhi::ISampler* )GetImageAt( 8 )->GetSampler() ) )
+		.addItem( nvrhi::BindingSetItem::Sampler( 9, ( nvrhi::ISampler* )GetImageAt( 9 )->GetSampler() ) )
+		.addItem( nvrhi::BindingSetItem::Sampler( 10, ( nvrhi::ISampler* )GetImageAt( 10 )->GetSampler() ) );
 	}
 
 	currentBindingSet = bindingCache.GetOrCreateBindingSet( bindingSetDesc, currentBindingLayout );
@@ -641,7 +641,7 @@ void GBufferFillPass::DrawElementsWithCounters( const drawSurf_t* surf )
 	state.indexBuffer = { currentIndexBuffer, nvrhi::Format::R16_UINT, indexOffset };
 	state.vertexBuffers = { { currentVertexBuffer, 0, vertOffset } };
 	state.pipeline = currentPipeline;
-	state.framebuffer = currentFrameBuffer->GetApiObject( );
+	state.framebuffer = currentFrameBuffer->GetApiObject();
 
 	// TODO(Stephen): use currentViewport instead.
 	nvrhi::Viewport viewport;

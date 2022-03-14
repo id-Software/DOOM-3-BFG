@@ -49,12 +49,12 @@ struct VS_IN {
 };
 
 struct VS_OUT {
-	float4 position		: POSITION;
-	float2 texcoord0	: TEXCOORD0;
-	float3 texcoord1	: TEXCOORD1;
-	float3 texcoord2	: TEXCOORD2;
-	float3 texcoord3	: TEXCOORD3;
-	float3 texcoord4	: TEXCOORD4;
+	float4 position		: SV_Position;
+	float2 texcoord0	: TEXCOORD0_centroid;
+	float3 texcoord1	: TEXCOORD1_centroid;
+	float3 texcoord2	: TEXCOORD2_centroid;
+	float3 texcoord3	: TEXCOORD3_centroid;
+	float3 texcoord4	: TEXCOORD4_centroid;
 	float4 color		: COLOR0;
 };
 // *INDENT-ON*

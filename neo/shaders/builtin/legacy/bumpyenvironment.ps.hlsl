@@ -31,11 +31,10 @@ If you have questions concerning this license or the applicable additional terms
 
 
 // *INDENT-OFF*
-TextureCube t_CubeMap : register( t0 );
-Texture2D t_NormalMap : register( t1 );
+TextureCube t_CubeMap : register(t0);
+Texture2D t_NormalMap : register(t1);
 
 SamplerState	samp0 : register(s0); // texture 0 is the cube map
-SamplerState	samp1 : register(s1); // normal map
 
 struct PS_IN {
 	float4 position		: VPOS;
@@ -55,7 +54,7 @@ struct PS_OUT {
 void main( PS_IN fragment, out PS_OUT result )
 {
 
-	float4 bump = t_NormalMap.Sample( samp1, fragment.texcoord0 ) * 2.0f - 1.0f;
+	float4 bump = t_NormalMap.Sample( samp0, fragment.texcoord0 ) * 2.0f - 1.0f;
 	// RB begin
 	float3 localNormal;
 #if defined(USE_NORMAL_FMT_RGB8)

@@ -191,15 +191,10 @@ void idRenderProgManager::Init( nvrhi::IDevice* _device )
 								.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 8 ) ) // radiance cube map 1
 								.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 9 ) ) // radiance cube map 2
 								.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 10 ) ) // radiance cube map 3
-								.addItem( nvrhi::BindingLayoutItem::Sampler( 0 ) ) // normal sampler
-								.addItem( nvrhi::BindingLayoutItem::Sampler( 1 ) ) // specular sampler
-								.addItem( nvrhi::BindingLayoutItem::Sampler( 2 ) ) // base color sampler
-								.addItem( nvrhi::BindingLayoutItem::Sampler( 3 ) ) // brdf lut sampler
-								.addItem( nvrhi::BindingLayoutItem::Sampler( 4 ) ) // ssao sampler
-								.addItem( nvrhi::BindingLayoutItem::Sampler( 7 ) ) // irradiance sampler
-								.addItem( nvrhi::BindingLayoutItem::Sampler( 8 ) ) // radiance sampler 1
-								.addItem( nvrhi::BindingLayoutItem::Sampler( 9 ) ) // radiance sampler 2
-								.addItem( nvrhi::BindingLayoutItem::Sampler( 10 ) ); // radiance sampler 3
+								.addItem( nvrhi::BindingLayoutItem::Sampler( 0 ) ) // (Wrap) Anisotropic sampler: normal sampler & specular sampler
+								.addItem( nvrhi::BindingLayoutItem::Sampler( 1 ) ) // (Wrap) Point sampler: base color sampler
+								.addItem( nvrhi::BindingLayoutItem::Sampler( 2 ) ) // (Clamp) Linear sampler: brdf lut sampler & ssao sampler
+								.addItem( nvrhi::BindingLayoutItem::Sampler( 3 ) ); // (Clamp) Anisotropic sampler: irradiance, radiance 1, 2 and 3.
 
 	bindingLayouts[BINDING_LAYOUT_AMBIENT_LIGHTING_IBL] = device->createBindingLayout( ambientIblLayoutDesc );
 
@@ -232,16 +227,13 @@ void idRenderProgManager::Init( nvrhi::IDevice* _device )
 	auto interactionBindingLayout = nvrhi::BindingLayoutDesc()
 									.setVisibility( nvrhi::ShaderType::All )
 									.addItem( nvrhi::BindingLayoutItem::VolatileConstantBuffer( 0 ) )
-									.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 0 ) ) // normal
-									.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 1 ) ) // specular
-									.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 2 ) ) // base color
-									.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 3 ) ) // light falloff
-									.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 4 ) ) // light projection
-									.addItem( nvrhi::BindingLayoutItem::Sampler( 0 ) )
-									.addItem( nvrhi::BindingLayoutItem::Sampler( 1 ) )
-									.addItem( nvrhi::BindingLayoutItem::Sampler( 2 ) )
-									.addItem( nvrhi::BindingLayoutItem::Sampler( 3 ) )
-									.addItem( nvrhi::BindingLayoutItem::Sampler( 4 ) );
+									.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 0 ) )	// normal
+									.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 1 ) )	// specular
+									.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 2 ) )	// base color
+									.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 3 ) )	// light falloff
+									.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 4 ) )	// light projection
+									.addItem( nvrhi::BindingLayoutItem::Sampler( 0 ) )		// Linear wrap sampler for the normal/specular/color
+									.addItem( nvrhi::BindingLayoutItem::Sampler( 1 ) );		// Sampler for the light falloff/projection
 
 	bindingLayouts[BINDING_LAYOUT_DRAW_INTERACTION] = device->createBindingLayout( interactionBindingLayout );
 
@@ -277,9 +269,18 @@ void idRenderProgManager::Init( nvrhi::IDevice* _device )
 							 .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 0 ) )	// current render
 							 .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 1 ) )	// normal map
 							 .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 2 ) )	// mask
-							 .addItem( nvrhi::BindingLayoutItem::Sampler( 0 ) );		// Linear sampler
+							 .addItem( nvrhi::BindingLayoutItem::Sampler( 0 ) );	// Linear sampler
 
 	bindingLayouts[BINDING_LAYOUT_POST_PROCESS_CNM] = device->createBindingLayout( ppFxBindingLayout );
+
+	auto normalCubeBindingLayout = nvrhi::BindingLayoutDesc()
+								   .setVisibility( nvrhi::ShaderType::All )
+								   .addItem( nvrhi::BindingLayoutItem::VolatileConstantBuffer( 0 ) )
+								   .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 0 ) )	// cube map
+								   .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 1 ) )	// normal map
+								   .addItem( nvrhi::BindingLayoutItem::Sampler( 0 ) );	// Linear sampler
+
+	bindingLayouts[BINDING_LAYOUT_NORMAL_CUBE] = device->createBindingLayout( normalCubeBindingLayout );
 
 	nvrhi::BindingLayoutDesc tonemapLayout;
 	tonemapLayout.visibility = nvrhi::ShaderType::Pixel;

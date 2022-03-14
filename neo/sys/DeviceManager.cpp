@@ -42,7 +42,10 @@ void DeviceManager::BackBufferResizing()
 
 void DeviceManager::BackBufferResized()
 {
-	Framebuffer::ResizeFramebuffers();
+	if( tr.IsInitialized() )
+	{
+		Framebuffer::ResizeFramebuffers();
+	}
 }
 
 const DeviceCreationParameters& DeviceManager::GetDeviceParams()

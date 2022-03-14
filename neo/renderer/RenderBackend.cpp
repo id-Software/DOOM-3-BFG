@@ -2244,7 +2244,7 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 
 	if( fillGbuffer )
 	{
-		commandList->clearTextureFloat( globalImages->currentNormalsImage->GetTextureHandle( ), nvrhi::AllSubresources, nvrhi::Color( 0.f ) );
+		commandList->clearTextureFloat( globalImages->currentNormalsImage->GetTextureHandle(), nvrhi::AllSubresources, nvrhi::Color( 0.f ) );
 	}
 
 	if( !fillGbuffer && r_useSSAO.GetBool() && r_ssaoDebug.GetBool() )
@@ -3430,8 +3430,6 @@ void idRenderBackend::ShadowMapPass( const drawSurf_t* drawSurfs, const viewLigh
 #endif
 	}
 
-
-	// FIXME
 #if defined( USE_NVRHI )
 	if( side < 0 )
 	{
@@ -4830,8 +4828,6 @@ void idRenderBackend::Tonemap( const viewDef_t* _viewDef )
 
 	renderLog.OpenBlock( "Tonemap" );
 
-	commandList->beginMarker( "Tonemap" );
-
 	//postProcessCommand_t* cmd = ( postProcessCommand_t* )data;
 	//const idScreenRect& viewport = cmd->viewDef->viewport;
 	//globalImages->currentRenderImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
@@ -4919,7 +4915,6 @@ void idRenderBackend::Tonemap( const viewDef_t* _viewDef )
 
 	GL_State( GLS_DEFAULT );
 
-	commandList->endMarker();
 	renderLog.CloseBlock();
 }
 
@@ -4982,8 +4977,8 @@ void idRenderBackend::Bloom( const viewDef_t* _viewDef )
 		globalImages->currentRenderImage->CopyFramebuffer( x, y, w, h );
 		commonPasses.BlitTexture(
 			commandList,
-			globalFramebuffers.bloomRenderFBO[0]->GetApiObject( ),
-			globalImages->currentRenderLDR->GetTextureHandle( ),
+			globalFramebuffers.bloomRenderFBO[0]->GetApiObject(),
+			globalImages->currentRenderLDR->GetTextureHandle(),
 			&bindingCache );
 
 		renderProgManager.BindShader_Brightpass();
@@ -5036,7 +5031,7 @@ void idRenderBackend::Bloom( const viewDef_t* _viewDef )
 		int index = ( j + 1 ) % 2;
 		globalFramebuffers.bloomRenderFBO[ index ]->Bind();
 
-#if defined( USE_NHRI )
+#if defined( USE_NVRHI )
 		commandList->clearTextureFloat( globalImages->bloomRenderImage[index]->GetTextureHandle(), nvrhi::AllSubresources, nvrhi::Color( 0.f, 0.f, 0.f, 1.f ) );
 #elif !defined( USE_VULKAN )
 		glClear( GL_COLOR_BUFFER_BIT );
@@ -5048,7 +5043,7 @@ void idRenderBackend::Bloom( const viewDef_t* _viewDef )
 	}
 
 	// add filtered glare back to main context
-	globalFramebuffers.ldrFBO->Bind( );
+	globalFramebuffers.ldrFBO->Bind();
 
 	ResetViewportAndScissorToDefaultCamera( _viewDef );
 
@@ -5439,7 +5434,7 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion2( const viewDef_t* _viewDe
 		return;
 	}
 
-	if( r_useSSAO.GetInteger( ) <= 0 || r_useSSAO.GetInteger( ) < 2 )
+	if( r_useSSAO.GetInteger() <= 0 || r_useSSAO.GetInteger() < 2 )
 	{
 		return;
 	}

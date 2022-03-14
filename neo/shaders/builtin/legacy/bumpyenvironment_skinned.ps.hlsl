@@ -31,11 +31,13 @@ If you have questions concerning this license or the applicable additional terms
 
 
 // *INDENT-OFF*
-uniform samplerCUBE	samp0 : register(s0); // texture 0 is the cube map
-uniform sampler2D	samp1 : register(s1); // normal map
+TextureCube t_CubeMap	: register( t0 );
+Texture2D t_NormalMap	: register( t1 );
+
+SamplerState samp0 : register( s0 );
 
 struct PS_IN {
-	float4 position		: VPOS;
+	float4 position		: SV_Position;
 	float2 texcoord0	: TEXCOORD0_centroid;
 	float3 texcoord1	: TEXCOORD1_centroid;
 	float3 texcoord2	: TEXCOORD2_centroid;
@@ -45,14 +47,13 @@ struct PS_IN {
 };
 
 struct PS_OUT {
-	float4 color : COLOR;
+	float4 color : SV_Target0;
 };
 // *INDENT-ON*
 
 void main( PS_IN fragment, out PS_OUT result )
 {
-
-	float4 bump = tex2D( samp1, fragment.texcoord0 ) * 2.0f - 1.0f;
+	float4 bump = t_NormalMap.Sample( samp0, fragment.texcoord0 ) * 2.0f - 1.0f;
 
 	// RB begin
 	float3 localNormal;
@@ -74,7 +75,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	float3 reflectionVector = globalNormal * dot3( globalEye, globalNormal );
 	reflectionVector = ( reflectionVector * 2.0f ) - globalEye;
 
-	float4 envMap = texCUBE( samp0, reflectionVector );
+	float4 envMap = t_CubeMap.Sample( samp0, reflectionVector );
 
 	result.color = float4( sRGBToLinearRGB( envMap.xyz ), 1.0f ) * fragment.color;
 }

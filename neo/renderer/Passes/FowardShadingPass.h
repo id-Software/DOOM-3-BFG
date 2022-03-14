@@ -35,8 +35,8 @@ class ForwardShadingPass : IGeometryPass
 {
 public:
 
-	ForwardShadingPass( ) = default;
-	virtual ~ForwardShadingPass( ) = default;
+	ForwardShadingPass() = default;
+	virtual ~ForwardShadingPass() = default;
 
 	void Init( nvrhi::DeviceHandle deviceHandle );
 

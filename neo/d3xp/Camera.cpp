@@ -119,7 +119,7 @@ void idCameraView::Restore( idRestoreGame* savefile )
 idCameraView::Event_SetAttachments
 ================
 */
-void idCameraView::Event_SetAttachments( )
+void idCameraView::Event_SetAttachments()
 {
 	SetAttachment( &attachedTo, "attachedTo" );
 	SetAttachment( &attachedView, "attachedView" );

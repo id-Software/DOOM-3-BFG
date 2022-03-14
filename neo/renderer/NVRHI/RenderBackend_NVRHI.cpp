@@ -607,9 +607,18 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 	}
 	const uint vertOffset = ( uint )( vbHandle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
 
+	bool changeState = false;
+
+	if( currentVertexOffset != vertOffset )
+	{
+		currentVertexOffset = vertOffset;
+		//changeState = true;
+	}
+
 	if( currentVertexBuffer != ( nvrhi::IBuffer* )vertexBuffer->GetAPIObject() || !r_useStateCaching.GetBool() )
 	{
 		currentVertexBuffer = vertexBuffer->GetAPIObject();
+		changeState = true;
 	}
 
 	// Get index buffer
@@ -631,15 +640,84 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 	}
 	const uint indexOffset = ( uint )( ibHandle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
 
+	if( currentIndexOffset != indexOffset )
+	{
+		currentIndexOffset = indexOffset;
+		//changeState = true;
+	}
+
 	RENDERLOG_PRINTF( "Binding Buffers: %p:%i %p:%i\n", vertexBuffer, vertOffset, indexBuffer, indexOffset );
 
 	if( currentIndexBuffer != ( nvrhi::IBuffer* )indexBuffer->GetAPIObject() || !r_useStateCaching.GetBool() )
 	{
 		currentIndexBuffer = indexBuffer->GetAPIObject();
+		changeState = true;
 	}
 
 	nvrhi::BindingSetDesc bindingSetDesc;
+	GetCurrentBindingLayout( bindingSetDesc );
 
+
+	// RB: for debugging
+	int program = renderProgManager.CurrentProgram();
+	int bindingLayoutType = renderProgManager.BindingLayoutType();
+
+	if( !currentBindingSet || *currentBindingSet->getDesc() != bindingSetDesc )
+	{
+		currentBindingSet = bindingCache.GetOrCreateBindingSet( bindingSetDesc, renderProgManager.BindingLayout() );
+		changeState = true;
+	}
+
+	renderProgManager.CommitConstantBuffer( commandList );
+
+	PipelineKey key{ glStateBits, renderProgManager.CurrentProgram(), viewDef->isMirror, depthBias, slopeScaleBias, currentFrameBuffer };
+	auto pipeline = pipelineCache.GetOrCreatePipeline( key );
+
+	if( currentPipeline != pipeline )
+	{
+		currentPipeline = pipeline;
+		changeState = true;
+	}
+
+	if( changeState )
+	{
+		nvrhi::GraphicsState state;
+		state.bindings = { currentBindingSet };
+		state.indexBuffer = { currentIndexBuffer, nvrhi::Format::R16_UINT, 0 };
+		state.vertexBuffers = { { currentVertexBuffer, 0, 0 } };
+		state.pipeline = pipeline;
+		state.framebuffer = currentFrameBuffer->GetApiObject();
+
+		nvrhi::Viewport viewport{ ( float )currentViewport.x1,
+								  ( float )currentViewport.x2,
+								  ( float )currentViewport.y1,
+								  ( float )currentViewport.y2,
+								  currentViewport.zmin,
+								  currentViewport.zmax };
+		state.viewport.addViewportAndScissorRect( viewport );
+
+		if( !currentScissor.IsEmpty() )
+		{
+			state.viewport.addScissorRect( nvrhi::Rect( currentScissor.x1, currentScissor.x2, currentScissor.y1, currentScissor.y2 ) );
+		}
+
+		commandList->setGraphicsState( state );
+	}
+
+	nvrhi::DrawArguments args;
+	// FIXME idDrawShadowVert
+	args.startVertexLocation = currentVertexOffset / sizeof( idDrawVert );
+	args.startIndexLocation = currentIndexOffset / sizeof( uint16 );
+	args.vertexCount = surf->numIndexes;
+	commandList->drawIndexed( args );
+
+	// RB: added stats
+	pc.c_drawElements++;
+	pc.c_drawIndexes += surf->numIndexes;
+}
+
+void idRenderBackend::GetCurrentBindingLayout( nvrhi::BindingSetDesc& bindingSetDesc )
+{
 	if( renderProgManager.BindingLayoutType() == BINDING_LAYOUT_DEFAULT )
 	{
 		bindingSetDesc
@@ -665,15 +743,10 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 		.addItem( nvrhi::BindingSetItem::Texture_SRV( 8, ( nvrhi::ITexture* )GetImageAt( 8 )->GetTextureID() ) )
 		.addItem( nvrhi::BindingSetItem::Texture_SRV( 9, ( nvrhi::ITexture* )GetImageAt( 9 )->GetTextureID() ) )
 		.addItem( nvrhi::BindingSetItem::Texture_SRV( 10, ( nvrhi::ITexture* )GetImageAt( 10 )->GetTextureID() ) )
-		.addItem( nvrhi::BindingSetItem::Sampler( 0, ( nvrhi::ISampler* )GetImageAt( 0 )->GetSampler( samplerCache ) ) )
-		.addItem( nvrhi::BindingSetItem::Sampler( 1, ( nvrhi::ISampler* )GetImageAt( 1 )->GetSampler( samplerCache ) ) )
-		.addItem( nvrhi::BindingSetItem::Sampler( 2, ( nvrhi::ISampler* )GetImageAt( 2 )->GetSampler( samplerCache ) ) )
-		.addItem( nvrhi::BindingSetItem::Sampler( 3, ( nvrhi::ISampler* )GetImageAt( 3 )->GetSampler( samplerCache ) ) )
-		.addItem( nvrhi::BindingSetItem::Sampler( 4, ( nvrhi::ISampler* )GetImageAt( 4 )->GetSampler( samplerCache ) ) )
-		.addItem( nvrhi::BindingSetItem::Sampler( 7, ( nvrhi::ISampler* )GetImageAt( 7 )->GetSampler( samplerCache ) ) )
-		.addItem( nvrhi::BindingSetItem::Sampler( 8, ( nvrhi::ISampler* )GetImageAt( 8 )->GetSampler( samplerCache ) ) )
-		.addItem( nvrhi::BindingSetItem::Sampler( 9, ( nvrhi::ISampler* )GetImageAt( 9 )->GetSampler( samplerCache ) ) )
-		.addItem( nvrhi::BindingSetItem::Sampler( 10, ( nvrhi::ISampler* )GetImageAt( 10 )->GetSampler( samplerCache ) ) );
+		.addItem( nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_AnisotropicWrapSampler ) )
+		.addItem( nvrhi::BindingSetItem::Sampler( 1, commonPasses.m_PointWrapSampler ) )
+		.addItem( nvrhi::BindingSetItem::Sampler( 2, commonPasses.m_LinearClampSampler ) )
+		.addItem( nvrhi::BindingSetItem::Sampler( 3, commonPasses.m_AnisotropicClampEdgeSampler ) );
 	}
 	else if( renderProgManager.BindingLayoutType() == BINDING_LAYOUT_DRAW_AO )
 	{
@@ -702,11 +775,8 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 		.addItem( nvrhi::BindingSetItem::Texture_SRV( 2, ( nvrhi::ITexture* )GetImageAt( 2 )->GetTextureID() ) )
 		.addItem( nvrhi::BindingSetItem::Texture_SRV( 3, ( nvrhi::ITexture* )GetImageAt( 3 )->GetTextureID() ) )
 		.addItem( nvrhi::BindingSetItem::Texture_SRV( 4, ( nvrhi::ITexture* )GetImageAt( 4 )->GetTextureID() ) )
-		.addItem( nvrhi::BindingSetItem::Sampler( 0, ( nvrhi::ISampler* )GetImageAt( 0 )->GetSampler( samplerCache ) ) )
-		.addItem( nvrhi::BindingSetItem::Sampler( 1, ( nvrhi::ISampler* )GetImageAt( 1 )->GetSampler( samplerCache ) ) )
-		.addItem( nvrhi::BindingSetItem::Sampler( 2, ( nvrhi::ISampler* )GetImageAt( 2 )->GetSampler( samplerCache ) ) )
-		.addItem( nvrhi::BindingSetItem::Sampler( 3, ( nvrhi::ISampler* )GetImageAt( 3 )->GetSampler( samplerCache ) ) )
-		.addItem( nvrhi::BindingSetItem::Sampler( 4, ( nvrhi::ISampler* )GetImageAt( 4 )->GetSampler( samplerCache ) ) );
+		.addItem( nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_AnisotropicWrapSampler ) )
+		.addItem( nvrhi::BindingSetItem::Sampler( 1, commonPasses.m_LinearClampSampler ) );
 	}
 	else if( renderProgManager.BindingLayoutType() == BINDING_LAYOUT_DRAW_INTERACTION_SM )
 	{
@@ -741,49 +811,18 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 		.addItem( nvrhi::BindingSetItem::Texture_SRV( 2, ( nvrhi::ITexture* )GetImageAt( 1 )->GetTextureID() ) )
 		.addItem( nvrhi::BindingSetItem::Sampler( 0, ( nvrhi::ISampler* )GetImageAt( 0 )->GetSampler( samplerCache ) ) );
 	}
+	else if( renderProgManager.BindingLayoutType() == BINDING_LAYOUT_NORMAL_CUBE )
+	{
+		bindingSetDesc
+		.addItem( nvrhi::BindingSetItem::ConstantBuffer( 0, renderProgManager.ConstantBuffer() ) )
+		.addItem( nvrhi::BindingSetItem::Texture_SRV( 0, ( nvrhi::ITexture* )GetImageAt( 0 )->GetTextureID() ) )
+		.addItem( nvrhi::BindingSetItem::Texture_SRV( 1, ( nvrhi::ITexture* )GetImageAt( 1 )->GetTextureID() ) )
+		.addItem( nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_LinearWrapSampler ) );
+	}
 	else
 	{
 		common->FatalError( "Invalid binding set %d\n", renderProgManager.BindingLayoutType() );
 	}
-
-	int program = renderProgManager.CurrentProgram();
-	int bindingLayoutType = renderProgManager.BindingLayoutType();
-
-	nvrhi::BindingSetHandle sourceBindingSet = bindingCache.GetOrCreateBindingSet( bindingSetDesc, renderProgManager.BindingLayout() );
-	renderProgManager.CommitConstantBuffer( commandList );
-
-	PipelineKey key{ glStateBits, renderProgManager.CurrentProgram(), viewDef->isMirror, depthBias, slopeScaleBias, currentFrameBuffer };
-	auto pipeline = pipelineCache.GetOrCreatePipeline( key );
-
-	nvrhi::GraphicsState state;
-	state.bindings = { sourceBindingSet };
-	state.indexBuffer = { currentIndexBuffer, nvrhi::Format::R16_UINT, indexOffset };
-	state.vertexBuffers = { { currentVertexBuffer, 0, vertOffset } };
-	state.pipeline = pipeline;
-	state.framebuffer = currentFrameBuffer->GetApiObject();
-
-	nvrhi::Viewport viewport{ ( float )currentViewport.x1,
-							  ( float )currentViewport.x2,
-							  ( float )currentViewport.y1,
-							  ( float )currentViewport.y2,
-							  currentViewport.zmin,
-							  currentViewport.zmax };
-	state.viewport.addViewportAndScissorRect( viewport );
-
-	if( !currentScissor.IsEmpty() )
-	{
-		state.viewport.addScissorRect( nvrhi::Rect( currentScissor.x1, currentScissor.x2, currentScissor.y1, currentScissor.y2 ) );
-	}
-
-	commandList->setGraphicsState( state );
-
-	nvrhi::DrawArguments args;
-	args.vertexCount = surf->numIndexes;
-	commandList->drawIndexed( args );
-
-	// RB: added stats
-	pc.c_drawElements++;
-	pc.c_drawIndexes += surf->numIndexes;
 }
 
 /*
@@ -829,7 +868,7 @@ void idRenderBackend::GL_EndFrame()
 
 void idRenderBackend::GL_EndRenderPass()
 {
-#if 1//defined( USE_NVRHI )
+#if 0//defined( USE_NVRHI )
 	commandList->close();
 	deviceManager->GetDevice()->executeCommandList( commandList );
 

@@ -974,12 +974,12 @@ static void R_CreateBrdfLutImage( idImage* image, nvrhi::ICommandList* commandLi
 
 static void R_CreateEnvprobeImage_UAC_lobby_irradiance( idImage* image, nvrhi::ICommandList* commandList )
 {
-	image->GenerateImage( ( byte* )IMAGE_ENV_UAC_LOBBY_AMB_H_Bytes, IMAGE_ENV_UAC_LOBBY_AMB_H_TEX_WIDTH, IMAGE_ENV_UAC_LOBBY_AMB_H_TEX_HEIGHT, TF_DEFAULT, TR_CLAMP, TD_R11G11B10F, commandList, true, SAMPLE_1, CF_2D_PACKED_MIPCHAIN );
+	image->GenerateImage( ( byte* )IMAGE_ENV_UAC_LOBBY_AMB_H_Bytes, IMAGE_ENV_UAC_LOBBY_AMB_H_TEX_WIDTH, IMAGE_ENV_UAC_LOBBY_AMB_H_TEX_HEIGHT, TF_DEFAULT, TR_CLAMP, TD_R11G11B10F, commandList, false, SAMPLE_1, CF_2D_PACKED_MIPCHAIN );
 }
 
 static void R_CreateEnvprobeImage_UAC_lobby_radiance( idImage* image, nvrhi::ICommandList* commandList )
 {
-	image->GenerateImage( ( byte* )IMAGE_ENV_UAC_LOBBY_SPEC_H_Bytes, IMAGE_ENV_UAC_LOBBY_SPEC_H_TEX_WIDTH, IMAGE_ENV_UAC_LOBBY_SPEC_H_TEX_HEIGHT, TF_DEFAULT, TR_CLAMP, TD_R11G11B10F, commandList, true, SAMPLE_1, CF_2D_PACKED_MIPCHAIN );
+	image->GenerateImage( ( byte* )IMAGE_ENV_UAC_LOBBY_SPEC_H_Bytes, IMAGE_ENV_UAC_LOBBY_SPEC_H_TEX_WIDTH, IMAGE_ENV_UAC_LOBBY_SPEC_H_TEX_HEIGHT, TF_DEFAULT, TR_CLAMP, TD_R11G11B10F, commandList, false, SAMPLE_1, CF_2D_PACKED_MIPCHAIN );
 }
 
 // RB end

@@ -110,7 +110,7 @@ MipMapGenPass::MipMapGenPass(
 	: m_Device( device )
 	, m_Texture( input )
 	, m_BindingSets( MAX_PASSES )
-	, m_BindingCache( )
+	, m_BindingCache()
 {
 	assert( m_Texture );
 
@@ -124,7 +124,7 @@ MipMapGenPass::MipMapGenPass(
 	assert( mode >= 0 && mode <= MODE_MINMAX );
 
 	idList<shaderMacro_t> macros;
-	macros.Append( shaderMacro_t( "MODE", std::to_string( mode ).c_str( ) ) );
+	macros.Append( shaderMacro_t( "MODE", std::to_string( mode ).c_str() ) );
 	int index = renderProgManager.FindShader( "builtin/mipmapgen", SHADER_STAGE_COMPUTE, "", macros, true );
 	m_Shader = renderProgManager.GetShader( index );
 

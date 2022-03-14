@@ -107,10 +107,10 @@ static void RB_LoadShaderTextureMatrix( const float* shaderRegisters, const text
 		texT[3] = matrix[3 * 4 + 1];
 
 		RENDERLOG_PRINTF( "Setting Texture Matrix\n" );
-		renderLog.Indent( );
+		renderLog.Indent();
 		RENDERLOG_PRINTF( "Texture Matrix S : %4.3f, %4.3f, %4.3f, %4.3f\n", texS[0], texS[1], texS[2], texS[3] );
 		RENDERLOG_PRINTF( "Texture Matrix T : %4.3f, %4.3f, %4.3f, %4.3f\n", texT[0], texT[1], texT[2], texT[3] );
-		renderLog.Outdent( );
+		renderLog.Outdent();
 	}
 
 	SetVertexParm( RENDERPARM_TEXTUREMATRIX_S, texS );
@@ -129,23 +129,23 @@ void IGeometryPass::PrepareStageTexturing( const shaderStage_t* pStage, const dr
 	{
 
 		// see if there is also a bump map specified
-		const shaderStage_t* bumpStage = surf->material->GetBumpStage( );
+		const shaderStage_t* bumpStage = surf->material->GetBumpStage();
 		if( bumpStage != NULL )
 		{
 			// per-pixel reflection mapping with bump mapping
 			GL_SelectTexture( 1 );
-			bumpStage->texture.image->Bind( );
+			bumpStage->texture.image->Bind();
 
 			GL_SelectTexture( 0 );
 
 			RENDERLOG_PRINTF( "TexGen: TG_REFLECT_CUBE: Bumpy Environment\n" );
 			if( surf->jointCache )
 			{
-				renderProgManager.BindShader_BumpyEnvironmentSkinned( );
+				renderProgManager.BindShader_BumpyEnvironmentSkinned();
 			}
 			else
 			{
-				renderProgManager.BindShader_BumpyEnvironment( );
+				renderProgManager.BindShader_BumpyEnvironment();
 			}
 		}
 		else
@@ -153,23 +153,23 @@ void IGeometryPass::PrepareStageTexturing( const shaderStage_t* pStage, const dr
 			RENDERLOG_PRINTF( "TexGen: TG_REFLECT_CUBE: Environment\n" );
 			if( surf->jointCache )
 			{
-				renderProgManager.BindShader_EnvironmentSkinned( );
+				renderProgManager.BindShader_EnvironmentSkinned();
 			}
 			else
 			{
-				renderProgManager.BindShader_Environment( );
+				renderProgManager.BindShader_Environment();
 			}
 		}
 
 	}
 	else if( pStage->texture.texgen == TG_SKYBOX_CUBE )
 	{
-		renderProgManager.BindShader_SkyBox( );
+		renderProgManager.BindShader_SkyBox();
 	}
 	else if( pStage->texture.texgen == TG_WOBBLESKY_CUBE )
 	{
 
-		const int* parms = surf->material->GetTexGenRegisters( );
+		const int* parms = surf->material->GetTexGenRegisters();
 
 		float wobbleDegrees = surf->shaderRegisters[parms[0]] * ( idMath::PI / 180.0f );
 		float wobbleSpeed = surf->shaderRegisters[parms[1]] * ( 2.0f * idMath::PI / 60.0f );
@@ -194,7 +194,7 @@ void IGeometryPass::PrepareStageTexturing( const shaderStage_t* pStage, const dr
 
 			// make the second vector exactly perpendicular to the first
 			axis[1] -= ( axis[2] * axis[1] ) * axis[2];
-			axis[1].Normalize( );
+			axis[1].Normalize();
 
 			// construct the third with a cross
 			axis[0].Cross( axis[1], axis[2] );
@@ -221,7 +221,7 @@ void IGeometryPass::PrepareStageTexturing( const shaderStage_t* pStage, const dr
 		transform[2 * 4 + 3] = 0.0f;
 
 		SetVertexParms( RENDERPARM_WOBBLESKY_X, transform, 3 );
-		renderProgManager.BindShader_WobbleSky( );
+		renderProgManager.BindShader_WobbleSky();
 
 	}
 	else if( ( pStage->texture.texgen == TG_SCREEN ) || ( pStage->texture.texgen == TG_SCREEN2 ) )
@@ -236,7 +236,7 @@ void IGeometryPass::PrepareStageTexturing( const shaderStage_t* pStage, const dr
 		R_MatrixMultiply( surf->space->modelViewMatrix, viewDef->projectionMatrix, mat );
 
 		RENDERLOG_PRINTF( "TexGen : %s\n", ( pStage->texture.texgen == TG_SCREEN ) ? "TG_SCREEN" : "TG_SCREEN2" );
-		renderLog.Indent( );
+		renderLog.Indent();
 
 		float plane[4];
 		plane[0] = mat[0 * 4 + 0];
@@ -260,7 +260,7 @@ void IGeometryPass::PrepareStageTexturing( const shaderStage_t* pStage, const dr
 		SetVertexParm( RENDERPARM_TEXGEN_0_Q, plane );
 		RENDERLOG_PRINTF( "TEXGEN_Q = %4.3f, %4.3f, %4.3f, %4.3f\n", plane[0], plane[1], plane[2], plane[3] );
 
-		renderLog.Outdent( );
+		renderLog.Outdent();
 
 	}
 	else if( pStage->texture.texgen == TG_DIFFUSE_CUBE )
@@ -289,7 +289,7 @@ void IGeometryPass::FinishStageTexturing( const shaderStage_t* stage, const draw
 	if( stage->texture.texgen == TG_REFLECT_CUBE )
 	{
 		// see if there is also a bump map specified
-		const shaderStage_t* bumpStage = surf->material->GetBumpStage( );
+		const shaderStage_t* bumpStage = surf->material->GetBumpStage();
 		if( bumpStage != NULL )
 		{
 			// per-pixel reflection mapping with bump mapping
@@ -299,7 +299,7 @@ void IGeometryPass::FinishStageTexturing( const shaderStage_t* stage, const draw
 		{
 			// per-pixel reflection mapping without bump mapping
 		}
-		renderProgManager.Unbind( );
+		renderProgManager.Unbind();
 	}
 }
 
@@ -307,7 +307,7 @@ bool IGeometryPass::GL_State( uint64 stateBits, bool forceGlState )
 {
 	uint64 diff = stateBits ^ glStateBits;
 
-	if( !r_useStateCaching.GetBool( ) || forceGlState )
+	if( !r_useStateCaching.GetBool() || forceGlState )
 	{
 		// make sure everything is set all the time, so we
 		// can see if our delta checking is screwing up
@@ -331,18 +331,18 @@ bool IGeometryPass::GL_State( uint64 stateBits, bool forceGlState )
 		switch( stateBits & GLS_CULL_BITS )
 		{
 			case GLS_CULL_TWOSIDED:
-				currentRasterState.setCullNone( );
+				currentRasterState.setCullNone();
 				break;
 
 			case GLS_CULL_BACKSIDED:
 				if( viewDef != NULL && viewDef->isMirror )
 				{
 					stateBits |= GLS_MIRROR_VIEW;
-					currentRasterState.setCullFront( );
+					currentRasterState.setCullFront();
 				}
 				else
 				{
-					currentRasterState.setCullBack( );
+					currentRasterState.setCullBack();
 				}
 				break;
 
@@ -351,11 +351,11 @@ bool IGeometryPass::GL_State( uint64 stateBits, bool forceGlState )
 				if( viewDef != NULL && viewDef->isMirror )
 				{
 					stateBits |= GLS_MIRROR_VIEW;
-					currentRasterState.setCullBack( );
+					currentRasterState.setCullBack();
 				}
 				else
 				{
-					currentRasterState.setCullFront( );
+					currentRasterState.setCullFront();
 				}
 				break;
 		}
@@ -458,13 +458,13 @@ bool IGeometryPass::GL_State( uint64 stateBits, bool forceGlState )
 		// Only actually update GL's blend func if blending is enabled.
 		if( srcFactor == nvrhi::BlendFactor::One && dstFactor == nvrhi::BlendFactor::Zero )
 		{
-			renderTarget.disableBlend( );
+			renderTarget.disableBlend();
 		}
 		else
 		{
 			currentBlendState.setAlphaToCoverageEnable( true );
 			nvrhi::BlendState::RenderTarget renderTarget;
-			renderTarget.enableBlend( );
+			renderTarget.enableBlend();
 			renderTarget.setSrcBlend( srcFactor );
 			renderTarget.setDestBlend( dstFactor );
 		}
@@ -477,13 +477,13 @@ bool IGeometryPass::GL_State( uint64 stateBits, bool forceGlState )
 	{
 		if( stateBits & GLS_DEPTHMASK )
 		{
-			currentDepthStencilState.disableDepthWrite( );
-			currentDepthStencilState.disableDepthTest( );
+			currentDepthStencilState.disableDepthWrite();
+			currentDepthStencilState.disableDepthTest();
 		}
 		else
 		{
-			currentDepthStencilState.enableDepthWrite( );
-			currentDepthStencilState.enableDepthTest( );
+			currentDepthStencilState.enableDepthWrite();
+			currentDepthStencilState.enableDepthTest();
 		}
 	}
 
@@ -524,11 +524,11 @@ bool IGeometryPass::GL_State( uint64 stateBits, bool forceGlState )
 		if( stateBits & GLS_POLYMODE_LINE )
 		{
 			currentRasterState.setFillMode( nvrhi::RasterFillMode::Line );
-			currentRasterState.setCullNone( );
+			currentRasterState.setCullNone();
 		}
 		else
 		{
-			currentRasterState.setCullNone( );
+			currentRasterState.setCullNone();
 			currentRasterState.setFillMode( nvrhi::RasterFillMode::Fill );
 		}
 	}
@@ -540,11 +540,11 @@ bool IGeometryPass::GL_State( uint64 stateBits, bool forceGlState )
 	{
 		if( stateBits & GLS_POLYGON_OFFSET )
 		{
-			currentRasterState.enableQuadFill( );
+			currentRasterState.enableQuadFill();
 		}
 		else
 		{
-			currentRasterState.disableQuadFill( );
+			currentRasterState.disableQuadFill();
 		}
 	}
 
@@ -557,13 +557,13 @@ bool IGeometryPass::GL_State( uint64 stateBits, bool forceGlState )
 	{
 		if( ( stateBits & ( GLS_STENCIL_FUNC_BITS | GLS_STENCIL_OP_BITS ) ) != 0 )
 		{
-			currentDepthStencilState.enableStencil( );
-			currentDepthStencilState.enableDepthWrite( );
+			currentDepthStencilState.enableStencil();
+			currentDepthStencilState.enableDepthWrite();
 		}
 		else
 		{
-			currentDepthStencilState.disableStencil( );
-			//currentDepthStencilState.disableDepthWrite( );
+			currentDepthStencilState.disableStencil();
+			//currentDepthStencilState.disableDepthWrite();
 		}
 	}
 	if( diff & ( GLS_STENCIL_FUNC_BITS | GLS_STENCIL_FUNC_REF_BITS | GLS_STENCIL_FUNC_MASK_BITS ) )
@@ -722,7 +722,7 @@ void IGeometryPass::GL_BindFramebuffer( Framebuffer* framebuffer )
 void IGeometryPass::GL_BindGraphicsShader( int shaderIndex )
 {
 	nvrhi::ShaderHandle shader = renderProgManager.GetShader( shaderIndex );
-	if( shader->getDesc( ).shaderType == nvrhi::ShaderType::Vertex )
+	if( shader->getDesc().shaderType == nvrhi::ShaderType::Vertex )
 	{
 		if( pipelineDesc.VS != shader )
 		{
@@ -732,7 +732,7 @@ void IGeometryPass::GL_BindGraphicsShader( int shaderIndex )
 		pipelineDesc.setVertexShader( shader );
 	}
 
-	if( shader->getDesc( ).shaderType == nvrhi::ShaderType::Pixel )
+	if( shader->getDesc().shaderType == nvrhi::ShaderType::Pixel )
 	{
 		if( pipelineDesc.PS != shader )
 		{
@@ -755,14 +755,14 @@ void IGeometryPass::GL_PolygonOffset( float scale, float bias )
 
 void IGeometryPass::GL_Viewport( int x, int y, int w, int h )
 {
-	currentViewport.Clear( );
+	currentViewport.Clear();
 	currentViewport.AddPoint( x, y );
 	currentViewport.AddPoint( x + w, y + h );
 }
 
 void IGeometryPass::GL_Scissor( int x, int y, int w, int h )
 {
-	currentScissor.Clear( );
+	currentScissor.Clear();
 	currentScissor.AddPoint( x, y );
 	currentScissor.AddPoint( x + w, y + h );
 }
@@ -793,13 +793,13 @@ void IGeometryPass::GL_ClearColor( nvrhi::ICommandList* commandList, int attachm
 {
 	nvrhi::utils::ClearColorAttachment(
 		commandList,
-		currentFramebuffer->GetApiObject( ),
+		currentFramebuffer->GetApiObject(),
 		attachmentIndex,
 		nvrhi::Color( clearColor.x, clearColor.y, clearColor.z, clearColor.w ) );
 }
 
 void IGeometryPass::GL_ClearDepthStencil( nvrhi::ICommandList* commandList )
 {
-	nvrhi::utils::ClearDepthStencilAttachment( commandList, currentFramebuffer->GetApiObject( ), depthClearValue, stencilClearValue );
+	nvrhi::utils::ClearDepthStencilAttachment( commandList, currentFramebuffer->GetApiObject(), depthClearValue, stencilClearValue );
 }
 #endif

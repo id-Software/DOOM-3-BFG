@@ -58,9 +58,9 @@ public:
 	//Unused methods are stubs
 	void OnBufferStart( void* pBufferContext ) { }
 	void OnLoopEnd( void* pBufferContext ) { }
-	void OnStreamEnd( ) { }
+	void OnStreamEnd() { }
 	void OnVoiceError( void* pBufferContext, HRESULT Error ) { }
-	void OnVoiceProcessingPassEnd( ) { }
+	void OnVoiceProcessingPassEnd() { }
 	void OnVoiceProcessingPassStart( UINT32 BytesRequired ) { }
 };
 

@@ -518,7 +518,7 @@ bool idSWFTextInstance::UpdateSubtitle( int time )
 				}
 			}
 
-			if( subNextStartIndex + 1 >= text.Length( ) )
+			if( subNextStartIndex + 1 >= text.Length() )
 			{
 				subForceKillQueued = true;
 			}

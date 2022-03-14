@@ -430,8 +430,6 @@ void main( PS_IN fragment, out PS_OUT result )
 
 #endif
 
-
-
 	half3 halfAngleVector = normalize( lightVector + viewVector );
 	half hdotN = clamp( dot3( halfAngleVector, localNormal ), 0.0, 1.0 );
 

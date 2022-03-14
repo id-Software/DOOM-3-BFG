@@ -73,6 +73,10 @@ void CommonRenderPasses::Init( nvrhi::IDevice* device )
 					   .setAllAddressModes( nvrhi::SamplerAddressMode::Clamp );
 	m_PointClampSampler = m_Device->createSampler( samplerDesc );
 
+	samplerDesc.setAllAddressModes( nvrhi::SamplerAddressMode::Wrap );
+	m_PointWrapSampler = m_Device->createSampler( samplerDesc );
+
+	samplerDesc.setAllAddressModes( nvrhi::SamplerAddressMode::Clamp );
 	samplerDesc.setAllFilters( true );
 	m_LinearClampSampler = m_Device->createSampler( samplerDesc );
 
@@ -84,6 +88,9 @@ void CommonRenderPasses::Init( nvrhi::IDevice* device )
 
 	samplerDesc.setMaxAnisotropy( 16 );
 	m_AnisotropicWrapSampler = m_Device->createSampler( samplerDesc );
+
+	samplerDesc.setAllAddressModes( nvrhi::SamplerAddressMode::ClampToEdge );
+	m_AnisotropicClampEdgeSampler = m_Device->createSampler( samplerDesc );
 
 	{
 		unsigned int blackImage = 0xff000000;

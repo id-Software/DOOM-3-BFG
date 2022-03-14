@@ -39,11 +39,8 @@ Texture2D t_BaseColor		: register( t2 );
 Texture2D t_LightFalloff	: register( t3 );
 Texture2D t_LightProjection	: register( t4 );
 
-SamplerState samp0 : register(s0); // texture 1 is the per-surface normal map
-SamplerState samp1 : register(s1); // texture 3 is the per-surface specular or roughness/metallic/AO mixer map
-SamplerState samp2 : register(s2); // texture 2 is the per-surface baseColor map 
-SamplerState samp3 : register(s3); // texture 4 is the light falloff texture
-SamplerState samp4 : register(s4); // texture 5 is the light projection texture
+SamplerState AnisotropicWrapSampler : register(s0);
+SamplerState LinearClampSampler : register( s1 );
 
 struct PS_IN
 {
@@ -66,11 +63,11 @@ struct PS_OUT
 
 void main( PS_IN fragment, out PS_OUT result )
 {
-	half4 bumpMap =			t_Normal.Sample( samp0, fragment.texcoord1.xy );
-	half4 lightFalloff =	idtex2Dproj( samp3, t_LightFalloff, fragment.texcoord2 );
-	half4 lightProj	=		idtex2Dproj( samp4, t_LightProjection, fragment.texcoord3 );
-	half4 YCoCG =			t_BaseColor.Sample( samp2, fragment.texcoord4.xy );
-	half4 specMapSRGB =		t_Specular.Sample( samp1, fragment.texcoord5.xy );
+	half4 bumpMap =			t_Normal.Sample( AnisotropicWrapSampler, fragment.texcoord1.xy );
+	half4 lightFalloff =	idtex2Dproj( LinearClampSampler, t_LightFalloff, fragment.texcoord2 );
+	half4 lightProj	=		idtex2Dproj( LinearClampSampler, t_LightProjection, fragment.texcoord3 );
+	half4 YCoCG =			t_BaseColor.Sample( AnisotropicWrapSampler, fragment.texcoord4.xy );
+	half4 specMapSRGB =		t_Specular.Sample( AnisotropicWrapSampler, fragment.texcoord5.xy );
 	half4 specMap =			sRGBAToLinearRGBA( specMapSRGB );
 
 	half3 lightVector = normalize( fragment.texcoord0.xyz );

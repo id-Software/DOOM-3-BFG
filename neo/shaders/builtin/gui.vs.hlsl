@@ -37,7 +37,8 @@ struct VS_IN {
 	float4 color2	: COLOR1;
 };
 
-struct VS_OUT {
+struct VS_OUT
+{
 	float4 position	 : SV_POSITION;
 	float2 texcoord0 : TEXCOORD0_centroid;
 	float4 texcoord1 : TEXCOORD1;

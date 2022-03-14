@@ -139,6 +139,7 @@ void idRenderProgManager::LoadShader( shader_t& shader )
 	}
 
 	idList<nvrhi::ShaderConstant> constants;
+
 	for( int i = 0; i < shader.macros.Num(); i++ )
 	{
 		constants.Append( nvrhi::ShaderConstant

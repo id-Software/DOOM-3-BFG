@@ -43,11 +43,11 @@ class PipelineCache
 {
 public:
 
-	PipelineCache( );
+	PipelineCache();
 
 	void Init( nvrhi::DeviceHandle deviceHandle );
 
-	void Clear( );
+	void Clear();
 
 	nvrhi::GraphicsPipelineHandle GetOrCreatePipeline( const PipelineKey& key );
 

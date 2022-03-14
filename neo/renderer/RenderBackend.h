@@ -290,6 +290,7 @@ private:
 	void				DrawFlickerBox();
 
 	void				DrawElementsWithCounters( const drawSurf_t* surf );
+	void				GetCurrentBindingLayout( nvrhi::BindingSetDesc& bindingSetDesc );
 	void				DrawStencilShadowPass( const drawSurf_t* drawSurf, const bool renderZPass );
 
 	void				SetColorMappings();
@@ -501,10 +502,10 @@ private:
 
 	idScreenRect					currentViewport;
 	nvrhi::BufferHandle				currentVertexBuffer;
-	int								currentVertexOffset;
+	uint							currentVertexOffset;
 	nvrhi::BufferHandle				currentIndexBuffer;
-	int								currentIndexOffset;
-	//nvrhi::BindingSetHandle			currentBindingSet;
+	uint							currentIndexOffset;
+	nvrhi::BindingSetHandle			currentBindingSet;
 	nvrhi::BindingLayoutHandle		currentBindingLayout;
 	nvrhi::GraphicsPipelineHandle	currentPipeline;
 	nvrhi::RenderState				currentRenderState;

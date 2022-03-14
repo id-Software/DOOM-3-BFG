@@ -65,18 +65,18 @@ void ForwardShadingPass::Init( nvrhi::DeviceHandle deviceHandle )
 {
 	device = deviceHandle;
 
-	auto texturedBindingLayoutDesc = nvrhi::BindingLayoutDesc( )
+	auto texturedBindingLayoutDesc = nvrhi::BindingLayoutDesc()
 									 .setVisibility( nvrhi::ShaderType::All )
 									 .addItem( nvrhi::BindingLayoutItem::VolatileConstantBuffer( 0 ) )
 									 .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 0 ) )
 									 .addItem( nvrhi::BindingLayoutItem::Sampler( 0 ) );
 
-	auto geometrySkinnedBindingLayoutDesc = nvrhi::BindingLayoutDesc( )
+	auto geometrySkinnedBindingLayoutDesc = nvrhi::BindingLayoutDesc()
 											.setVisibility( nvrhi::ShaderType::All )
 											.addItem( nvrhi::BindingLayoutItem::VolatileConstantBuffer( 0 ) )
 											.addItem( nvrhi::BindingLayoutItem::VolatileConstantBuffer( 1 ) );
 
-	auto geometryBindingLayoutDesc = nvrhi::BindingLayoutDesc( )
+	auto geometryBindingLayoutDesc = nvrhi::BindingLayoutDesc()
 									 .setVisibility( nvrhi::ShaderType::All )
 									 .addItem( nvrhi::BindingLayoutItem::VolatileConstantBuffer( 0 ) );
 
@@ -84,17 +84,17 @@ void ForwardShadingPass::Init( nvrhi::DeviceHandle deviceHandle )
 	geometryBindingLayout = device->createBindingLayout( geometryBindingLayoutDesc );
 	pipelineDesc.bindingLayouts = { geometryBindingLayout };
 
-	geometryBindingSetDesc = nvrhi::BindingSetDesc( )
-							 .addItem( nvrhi::BindingSetItem::ConstantBuffer( 0, renderProgManager.ConstantBuffer( ) ) );
+	geometryBindingSetDesc = nvrhi::BindingSetDesc()
+							 .addItem( nvrhi::BindingSetItem::ConstantBuffer( 0, renderProgManager.ConstantBuffer() ) );
 
-	samplerCache.Init( deviceHandle.Get( ) );
+	samplerCache.Init( deviceHandle.Get() );
 
 	pipeline = nullptr;
 }
 
 void ForwardShadingPass::DrawInteractions( nvrhi::ICommandList* commandList, const viewDef_t* viewDef )
 {
-	if( r_skipInteractions.GetBool( ) || viewDef->viewLights == NULL )
+	if( r_skipInteractions.GetBool() || viewDef->viewLights == NULL )
 	{
 		return;
 	}
@@ -103,7 +103,7 @@ void ForwardShadingPass::DrawInteractions( nvrhi::ICommandList* commandList, con
 
 	GL_SelectTexture( 0 );
 
-	const bool useLightDepthBounds = r_useLightDepthBounds.GetBool( ) && !r_useShadowMapping.GetBool( );
+	const bool useLightDepthBounds = r_useLightDepthBounds.GetBool() && !r_useShadowMapping.GetBool();
 
 	Framebuffer* previousFramebuffer = currentFramebuffer;
 
@@ -113,11 +113,11 @@ void ForwardShadingPass::DrawInteractions( nvrhi::ICommandList* commandList, con
 	for( const viewLight_t* vLight = viewDef->viewLights; vLight != NULL; vLight = vLight->next )
 	{
 		// do fogging later
-		if( vLight->lightShader->IsFogLight( ) )
+		if( vLight->lightShader->IsFogLight() )
 		{
 			continue;
 		}
-		if( vLight->lightShader->IsBlendLight( ) )
+		if( vLight->lightShader->IsBlendLight() )
 		{
 			continue;
 		}
@@ -128,7 +128,7 @@ void ForwardShadingPass::DrawInteractions( nvrhi::ICommandList* commandList, con
 		}
 
 		const idMaterial* lightShader = vLight->lightShader;
-		commandList->beginMarker( lightShader->GetName( ) );
+		commandList->beginMarker( lightShader->GetName() );
 
 		// set the depth bounds for the whole light
 		if( useLightDepthBounds )
@@ -137,20 +137,20 @@ void ForwardShadingPass::DrawInteractions( nvrhi::ICommandList* commandList, con
 		}
 
 		// RB: shadow mapping
-		if( r_useShadowMapping.GetBool( ) )
+		if( r_useShadowMapping.GetBool() )
 		{
 			int	side, sideStop;
 
 			if( vLight->parallel )
 			{
 				side = 0;
-				sideStop = r_shadowMapSplits.GetInteger( ) + 1;
+				sideStop = r_shadowMapSplits.GetInteger() + 1;
 			}
 			else if( vLight->pointLight )
 			{
-				if( r_shadowMapSingleSide.GetInteger( ) != -1 )
+				if( r_shadowMapSingleSide.GetInteger() != -1 )
 				{
-					side = r_shadowMapSingleSide.GetInteger( );
+					side = r_shadowMapSingleSide.GetInteger();
 					sideStop = side + 1;
 				}
 				else
@@ -173,20 +173,20 @@ void ForwardShadingPass::DrawInteractions( nvrhi::ICommandList* commandList, con
 			// go back to main render target
 			if( previousFramebuffer != NULL )
 			{
-				previousFramebuffer->Bind( );
+				previousFramebuffer->Bind();
 			}
 			else
 			{
-				Framebuffer::Unbind( );
+				Framebuffer::Unbind();
 			}
 
-			renderProgManager.Unbind( );
+			renderProgManager.Unbind();
 
 			GL_State( GLS_DEFAULT, false );
 		}
 		// RB end
 
-		commandList->endMarker( );
+		commandList->endMarker();
 	}
 
 	// disable stencil shadow test
@@ -201,12 +201,12 @@ void ForwardShadingPass::DrawInteractions( nvrhi::ICommandList* commandList, con
 		GL_DepthBoundsTest( 0.0f, 0.0f );
 	}
 
-	commandList->endMarker( );
+	commandList->endMarker();
 }
 
 void ForwardShadingPass::ShadowMapPass( nvrhi::ICommandList* commandList, const drawSurf_t* drawSurfs, const viewLight_t* vLight, int side )
 {
-	if( r_skipShadows.GetBool( ) )
+	if( r_skipShadows.GetBool() )
 	{
 		return;
 	}
@@ -223,7 +223,7 @@ void ForwardShadingPass::ShadowMapPass( nvrhi::ICommandList* commandList, const 
 
 	RENDERLOG_PRINTF( "---------- RB_ShadowMapPass( side = %i ) ----------\n", side );
 
-	renderProgManager.BindShader_Depth( );
+	renderProgManager.BindShader_Depth();
 
 	GL_SelectTexture( 0 );
 
@@ -234,21 +234,21 @@ void ForwardShadingPass::ShadowMapPass( nvrhi::ICommandList* commandList, const 
 	// like a no-change-required
 	GL_State( glState | GLS_POLYGON_OFFSET );
 
-	switch( r_shadowMapOccluderFacing.GetInteger( ) )
+	switch( r_shadowMapOccluderFacing.GetInteger() )
 	{
 		case 0:
 			GL_State( ( glStateBits & ~( GLS_CULL_MASK ) ) | GLS_CULL_FRONTSIDED );
-			GL_PolygonOffset( r_shadowMapPolygonFactor.GetFloat( ), r_shadowMapPolygonOffset.GetFloat( ) );
+			GL_PolygonOffset( r_shadowMapPolygonFactor.GetFloat(), r_shadowMapPolygonOffset.GetFloat() );
 			break;
 
 		case 1:
 			GL_State( ( glStateBits & ~( GLS_CULL_MASK ) ) | GLS_CULL_BACKSIDED );
-			GL_PolygonOffset( -r_shadowMapPolygonFactor.GetFloat( ), -r_shadowMapPolygonOffset.GetFloat( ) );
+			GL_PolygonOffset( -r_shadowMapPolygonFactor.GetFloat(), -r_shadowMapPolygonOffset.GetFloat() );
 			break;
 
 		default:
 			GL_State( ( glStateBits & ~( GLS_CULL_MASK ) ) | GLS_CULL_TWOSIDED );
-			GL_PolygonOffset( r_shadowMapPolygonFactor.GetFloat( ), r_shadowMapPolygonOffset.GetFloat( ) );
+			GL_PolygonOffset( r_shadowMapPolygonFactor.GetFloat(), r_shadowMapPolygonOffset.GetFloat() );
 			break;
 	}
 
@@ -262,12 +262,12 @@ void ForwardShadingPass::ShadowMapPass( nvrhi::ICommandList* commandList, const 
 
 		// original light direction is from surface to light origin
 		idVec3 lightDir = -vLight->lightCenter;
-		if( lightDir.Normalize( ) == 0.0f )
+		if( lightDir.Normalize() == 0.0f )
 		{
 			lightDir[2] = -1.0f;
 		}
 
-		idMat3 rotation = lightDir.ToMat3( );
+		idMat3 rotation = lightDir.ToMat3();
 		//idAngles angles = lightDir.ToAngles();
 		//idMat3 rotation = angles.ToMat3();
 
@@ -283,7 +283,7 @@ void ForwardShadingPass::ShadowMapPass( nvrhi::ICommandList* commandList, const 
 #endif
 
 		idBounds lightBounds;
-		lightBounds.Clear( );
+		lightBounds.Clear();
 
 		ALIGNTYPE16 frustumCorners_t corners;
 		idRenderMatrix::GetFrustumCorners( corners, vLight->inverseBaseLightProject, bounds_zeroOneCube );
@@ -301,7 +301,7 @@ void ForwardShadingPass::ShadowMapPass( nvrhi::ICommandList* commandList, const 
 			transf[1] /= transf[3];
 			transf[2] /= transf[3];
 
-			lightBounds.AddPoint( transf.ToVec3( ) );
+			lightBounds.AddPoint( transf.ToVec3() );
 		}
 
 		float lightProjectionMatrix[16];
@@ -327,7 +327,7 @@ void ForwardShadingPass::ShadowMapPass( nvrhi::ICommandList* commandList, const 
 
 		// find the bounding box of the current split in the light's clip space
 		idBounds cropBounds;
-		cropBounds.Clear( );
+		cropBounds.Clear();
 		for( int j = 0; j < 8; j++ )
 		{
 			point[0] = splitFrustumCorners.x[j];
@@ -340,7 +340,7 @@ void ForwardShadingPass::ShadowMapPass( nvrhi::ICommandList* commandList, const 
 			transf[1] /= transf[3];
 			transf[2] /= transf[3];
 
-			cropBounds.AddPoint( transf.ToVec3( ) );
+			cropBounds.AddPoint( transf.ToVec3() );
 		}
 
 		// don't let the frustum AABB be bigger than the light AABB
@@ -461,7 +461,7 @@ void ForwardShadingPass::ShadowMapPass( nvrhi::ICommandList* commandList, const 
 
 		// set up 90 degree projection matrix
 		const float zNear = 4;
-		const float	fov = r_shadowMapFrustumFOV.GetFloat( );
+		const float	fov = r_shadowMapFrustumFOV.GetFloat();
 
 		float ymax = zNear * tan( fov * idMath::PI / 360.0f );
 		float ymin = -ymax;
@@ -505,7 +505,7 @@ void ForwardShadingPass::ShadowMapPass( nvrhi::ICommandList* commandList, const 
 	}
 	else
 	{
-		lightViewRenderMatrix.Identity( );
+		lightViewRenderMatrix.Identity();
 		lightProjectionRenderMatrix = vLight->baseLightProject;
 
 		shadowV[0] = lightViewRenderMatrix;
@@ -520,7 +520,7 @@ void ForwardShadingPass::ShadowMapPass( nvrhi::ICommandList* commandList, const 
 	currentSpace = NULL;
 
 	nvrhi::GraphicsState graphicsState;
-	graphicsState.framebuffer = currentFramebuffer->GetApiObject( );
+	graphicsState.framebuffer = currentFramebuffer->GetApiObject();
 	nvrhi::Viewport viewport;
 	viewport.minX = currentViewport.x1;
 	viewport.minY = currentViewport.y1;
@@ -530,8 +530,8 @@ void ForwardShadingPass::ShadowMapPass( nvrhi::ICommandList* commandList, const 
 	viewport.maxZ = currentViewport.zmax;
 	graphicsState.viewport.addViewportAndScissorRect( viewport );
 	graphicsState.viewport.addScissorRect( nvrhi::Rect( currentScissor.x1, currentScissor.y1, currentScissor.x2, currentScissor.y2 ) );
-	renderProgManager.BindShader_Depth( );
-	auto currentBindingSet = bindingCache.GetOrCreateBindingSet( geometryBindingSetDesc, renderProgManager.BindingLayout( ) );
+	renderProgManager.BindShader_Depth();
+	auto currentBindingSet = bindingCache.GetOrCreateBindingSet( geometryBindingSetDesc, renderProgManager.BindingLayout() );
 	graphicsState.bindings = { currentBindingSet };
 
 	bool stateValid = false;
@@ -553,12 +553,12 @@ void ForwardShadingPass::ShadowMapPass( nvrhi::ICommandList* commandList, const 
 		{
 			assert( drawSurf->shadowVolumeState == SHADOWVOLUME_UNFINISHED || drawSurf->shadowVolumeState == SHADOWVOLUME_DONE );
 
-			uint64 start = Sys_Microseconds( );
+			uint64 start = Sys_Microseconds();
 			while( drawSurf->shadowVolumeState == SHADOWVOLUME_UNFINISHED )
 			{
-				Sys_Yield( );
+				Sys_Yield();
 			}
-			uint64 end = Sys_Microseconds( );
+			uint64 end = Sys_Microseconds();
 
 			// TODO(Stephen): will probably need to change this if we're going to make this multi-threaded.
 			tr.backend.pc.cpuShadowMicroSec += end - start;
@@ -624,13 +624,13 @@ void ForwardShadingPass::ShadowMapPass( nvrhi::ICommandList* commandList, const 
 		if( shader && shader->TestMaterialFlag( MF_POLYGONOFFSET ) )
 		{
 			surfGLState |= GLS_POLYGON_OFFSET;
-			GL_PolygonOffset( r_offsetFactor.GetFloat( ), r_offsetUnits.GetFloat( ) * shader->GetPolygonOffset( ) );
+			GL_PolygonOffset( r_offsetFactor.GetFloat(), r_offsetUnits.GetFloat() * shader->GetPolygonOffset() );
 		}
 
-		if( shader && shader->Coverage( ) == MC_PERFORATED )
+		if( shader && shader->Coverage() == MC_PERFORATED )
 		{
 			// perforated surfaces may have multiple alpha tested stages
-			for( int stage = 0; stage < shader->GetNumStages( ); stage++ )
+			for( int stage = 0; stage < shader->GetNumStages(); stage++ )
 			{
 				const shaderStage_t* pStage = shader->GetStage( stage );
 
@@ -663,7 +663,7 @@ void ForwardShadingPass::ShadowMapPass( nvrhi::ICommandList* commandList, const 
 				// set privatePolygonOffset if necessary
 				if( pStage->privatePolygonOffset )
 				{
-					GL_PolygonOffset( r_offsetFactor.GetFloat( ), r_offsetUnits.GetFloat( ) * pStage->privatePolygonOffset );
+					GL_PolygonOffset( r_offsetFactor.GetFloat(), r_offsetUnits.GetFloat() * pStage->privatePolygonOffset );
 					stageGLState |= GLS_POLYGON_OFFSET;
 				}
 
@@ -671,15 +671,15 @@ void ForwardShadingPass::ShadowMapPass( nvrhi::ICommandList* commandList, const 
 
 				GL_State( stageGLState );
 				idVec4 alphaTestValue( regs[pStage->alphaTestRegister] );
-				renderProgManager.SetRenderParm( RENDERPARM_ALPHA_TEST, alphaTestValue.ToFloatPtr( ) );
+				renderProgManager.SetRenderParm( RENDERPARM_ALPHA_TEST, alphaTestValue.ToFloatPtr() );
 
 				if( drawSurf->jointCache )
 				{
-					renderProgManager.BindShader_TextureVertexColorSkinned( );
+					renderProgManager.BindShader_TextureVertexColorSkinned();
 				}
 				else
 				{
-					renderProgManager.BindShader_TextureVertexColor( );
+					renderProgManager.BindShader_TextureVertexColor();
 				}
 
 				RB_SetVertexColorParms( SVC_IGNORE );
@@ -695,9 +695,9 @@ void ForwardShadingPass::ShadowMapPass( nvrhi::ICommandList* commandList, const 
 
 				if( imageChanged )
 				{
-					auto bindingSetDesc = nvrhi::BindingSetDesc( )
-										  .addItem( nvrhi::BindingSetItem::ConstantBuffer( 0, renderProgManager.ConstantBuffer( ) ) )
-										  .addItem( nvrhi::BindingSetItem::Texture_SRV( 0, ( nvrhi::ITexture* )imageParms[0]->GetTextureID( ) ) )
+					auto bindingSetDesc = nvrhi::BindingSetDesc()
+										  .addItem( nvrhi::BindingSetItem::ConstantBuffer( 0, renderProgManager.ConstantBuffer() ) )
+										  .addItem( nvrhi::BindingSetItem::Texture_SRV( 0, ( nvrhi::ITexture* )imageParms[0]->GetTextureID() ) )
 										  .addItem( nvrhi::BindingSetItem::Sampler( 0, ( nvrhi::ISampler* )imageParms[0]->GetSampler( samplerCache ) ) );
 
 					auto currentBindingSet = bindingCache.GetOrCreateBindingSet( bindingSetDesc, renderProgManager.BindingLayout() );
@@ -708,7 +708,7 @@ void ForwardShadingPass::ShadowMapPass( nvrhi::ICommandList* commandList, const 
 				}
 
 				// must render with less-equal for Z-Cull to work properly
-				assert( ( GL_GetCurrentState( ) & GLS_DEPTHFUNC_BITS ) == GLS_DEPTHFUNC_LESS );
+				assert( ( GL_GetCurrentState() & GLS_DEPTHFUNC_BITS ) == GLS_DEPTHFUNC_LESS );
 
 				SetupInputBuffers( drawSurf, graphicsState );
 
@@ -736,7 +736,7 @@ void ForwardShadingPass::ShadowMapPass( nvrhi::ICommandList* commandList, const 
 				// unset privatePolygonOffset if necessary
 				if( pStage->privatePolygonOffset )
 				{
-					GL_PolygonOffset( r_offsetFactor.GetFloat( ), r_offsetUnits.GetFloat( ) * shader->GetPolygonOffset( ) );
+					GL_PolygonOffset( r_offsetFactor.GetFloat(), r_offsetUnits.GetFloat() * shader->GetPolygonOffset() );
 				}
 			}
 		}
@@ -745,15 +745,15 @@ void ForwardShadingPass::ShadowMapPass( nvrhi::ICommandList* commandList, const 
 		{
 			if( drawSurf->jointCache )
 			{
-				renderProgManager.BindShader_DepthSkinned( );
+				renderProgManager.BindShader_DepthSkinned();
 			}
 			else
 			{
-				renderProgManager.BindShader_Depth( );
+				renderProgManager.BindShader_Depth();
 			}
 
 			// must render with less-equal for Z-Cull to work properly
-			assert( ( GL_GetCurrentState( ) & GLS_DEPTHFUNC_BITS ) == GLS_DEPTHFUNC_LESS );
+			assert( ( GL_GetCurrentState() & GLS_DEPTHFUNC_BITS ) == GLS_DEPTHFUNC_LESS );
 
 			SetupInputBuffers( drawSurf, graphicsState );
 
@@ -765,7 +765,7 @@ void ForwardShadingPass::ShadowMapPass( nvrhi::ICommandList* commandList, const 
 
 			if( !pipeline )
 			{
-				pipeline = CreateGraphicsPipeline( currentFramebuffer->GetApiObject( ) );
+				pipeline = CreateGraphicsPipeline( currentFramebuffer->GetApiObject() );
 			}
 
 			renderProgManager.CommitConstantBuffer( commandList );
@@ -799,7 +799,7 @@ bool ForwardShadingPass::SetupMaterial( const idMaterial* material, nvrhi::Raste
 		return false;
 	}
 
-	assert( pipeline->getFramebufferInfo( ) == state.framebuffer->getFramebufferInfo( ) );
+	assert( pipeline->getFramebufferInfo() == state.framebuffer->getFramebufferInfo() );
 
 	state.pipeline = pipeline;
 
