@@ -1746,6 +1746,15 @@ void idRenderBackend::StereoRenderExecuteBackEndCommands( const emptyCommand_t* 
 
 void idRenderBackend::ImGui_RenderDrawLists( ImDrawData* draw_data )
 {
+	if( draw_data->CmdListsCount == 0 )
+	{
+		// Nothing to do.
+		return;
+	}
+
+#if IMGUI_BFGUI
+	tr.guiModel->EmitImGui( draw_data );
+#endif
 }
 
 /*
