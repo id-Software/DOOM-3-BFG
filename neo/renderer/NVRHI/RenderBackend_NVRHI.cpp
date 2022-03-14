@@ -744,9 +744,7 @@ void idRenderBackend::GetCurrentBindingLayout( nvrhi::BindingSetDesc& bindingSet
 		.addItem( nvrhi::BindingSetItem::Texture_SRV( 9, ( nvrhi::ITexture* )GetImageAt( 9 )->GetTextureID() ) )
 		.addItem( nvrhi::BindingSetItem::Texture_SRV( 10, ( nvrhi::ITexture* )GetImageAt( 10 )->GetTextureID() ) )
 		.addItem( nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_AnisotropicWrapSampler ) )
-		.addItem( nvrhi::BindingSetItem::Sampler( 1, commonPasses.m_PointWrapSampler ) )
-		.addItem( nvrhi::BindingSetItem::Sampler( 2, commonPasses.m_LinearClampSampler ) )
-		.addItem( nvrhi::BindingSetItem::Sampler( 3, commonPasses.m_AnisotropicClampEdgeSampler ) );
+		.addItem( nvrhi::BindingSetItem::Sampler( 1, commonPasses.m_LinearClampSampler ) );
 	}
 	else if( renderProgManager.BindingLayoutType() == BINDING_LAYOUT_DRAW_AO )
 	{

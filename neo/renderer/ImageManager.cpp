@@ -897,10 +897,13 @@ int idImageManager::LoadLevelImages( bool pacifier )
 	{
 		idImage* image = images[ i ];
 
+#if !defined( USE_NVRHI )
 		if( pacifier )
 		{
+			// SP: Cannot update the pacifier because then two command lists would be open at once.
 			common->UpdateLevelLoadPacifier();
 		}
+#endif
 
 		if( image->generatorFunction )
 		{

@@ -192,9 +192,7 @@ void idRenderProgManager::Init( nvrhi::IDevice* _device )
 								.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 9 ) ) // radiance cube map 2
 								.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 10 ) ) // radiance cube map 3
 								.addItem( nvrhi::BindingLayoutItem::Sampler( 0 ) ) // (Wrap) Anisotropic sampler: normal sampler & specular sampler
-								.addItem( nvrhi::BindingLayoutItem::Sampler( 1 ) ) // (Wrap) Point sampler: base color sampler
-								.addItem( nvrhi::BindingLayoutItem::Sampler( 2 ) ) // (Clamp) Linear sampler: brdf lut sampler & ssao sampler
-								.addItem( nvrhi::BindingLayoutItem::Sampler( 3 ) ); // (Clamp) Anisotropic sampler: irradiance, radiance 1, 2 and 3.
+								.addItem( nvrhi::BindingLayoutItem::Sampler( 1 ) ); // (Clamp) Linear sampler: brdf lut sampler & ssao sampler
 
 	bindingLayouts[BINDING_LAYOUT_AMBIENT_LIGHTING_IBL] = device->createBindingLayout( ambientIblLayoutDesc );
 

@@ -44,10 +44,9 @@ Texture2D t_RadianceCubeMap1	: register( t8 );
 Texture2D t_RadianceCubeMap2	: register( t9 );
 Texture2D t_RadianceCubeMap3	: register( t10 );
 
-SamplerState samp0 : register(s0); // (Wrap) Anisotropic sampler: normal sampler & specular sampler
-SamplerState samp1 : register(s1); // (Wrap) Point sampler: base color sampler
-SamplerState samp2 : register(s2); // (Clamp) Linear sampler: brdf lut sampler & ssao sampler
-SamplerState samp3 : register(s3); // (Clamp) Anisotropic sampler: irradiance, radiance 1, 2 and 3.
+SamplerState s_Material			: register( s0 ); // (Wrap) Anisotropic sampler: normal sampler & specular sampler
+SamplerState s_LinearClamp		: register( s1 ); // (Clamp) Linear sampler: brdf lut sampler & ssao sampler
+//SamplerState s_Light			: register( s2 ); // (Clamp) Anisotropic sampler: irradiance, radiance 1, 2 and 3.
 
 struct PS_IN 
 {
@@ -148,10 +147,10 @@ float2 OctTexCoord( float3 worldDir )
 
 void main( PS_IN fragment, out PS_OUT result )
 {
-	half4 bumpMap =			t_Normal.Sample( samp0, fragment.texcoord0.xy );
-	half4 YCoCG =			t_BaseColor.Sample( samp1, fragment.texcoord1.xy );
-	half4 specMapSRGB =		t_Specular.Sample( samp0, fragment.texcoord2.xy );
-	half4 specMap =			sRGBAToLinearRGBA( specMapSRGB );
+	half4 bumpMap =		t_Normal.Sample( s_Material, fragment.texcoord0.xy );
+	half4 YCoCG =		t_BaseColor.Sample( s_Material, fragment.texcoord1.xy );
+	half4 specMapSRGB =	t_Specular.Sample( s_Material, fragment.texcoord2.xy );
+	half4 specMap =		sRGBAToLinearRGBA( specMapSRGB );
 
 	half3 diffuseMap = sRGBToLinearRGB( ConvertYCoCgToRGB( YCoCG ) );
 
@@ -258,14 +257,15 @@ void main( PS_IN fragment, out PS_OUT result )
 	float2 screenTexCoord = fragment.position.xy * rpWindowCoord.xy;
 
 	float ao = 1.0;
-	ao = t_Ssao.Sample( samp2, screenTexCoord ).r;
+	ao = t_Ssao.Sample( s_LinearClamp, screenTexCoord ).r;
+
 	//diffuseColor.rgb *= ao;
 
 	// evaluate diffuse IBL
 
 	float2 normalizedOctCoordZeroOne = OctTexCoord( globalNormal );
 
-	float3 irradiance = t_IrradianceCubeMap.Sample( samp2, normalizedOctCoordZeroOne ).rgb;
+	float3 irradiance = t_IrradianceCubeMap.Sample( s_LinearClamp, normalizedOctCoordZeroOne ).rgb;
 	float3 diffuseLight = ( kD * irradiance * diffuseColor ) * ao * ( rpDiffuseModifier.xyz * 1.0 );
 
 	// evaluate specular IBL
@@ -279,12 +279,12 @@ void main( PS_IN fragment, out PS_OUT result )
 
 	normalizedOctCoordZeroOne = OctTexCoord( reflectionVector );
 
-	float3 radiance = t_RadianceCubeMap1.SampleLevel( samp3, normalizedOctCoordZeroOne, mip ).rgb * rpLocalLightOrigin.x;
-	radiance += t_RadianceCubeMap2.SampleLevel( samp3, normalizedOctCoordZeroOne, mip ).rgb * rpLocalLightOrigin.y;
-	radiance += t_RadianceCubeMap3.SampleLevel( samp3, normalizedOctCoordZeroOne, mip ).rgb * rpLocalLightOrigin.z;
+	float3 radiance = t_RadianceCubeMap1.SampleLevel( s_LinearClamp, normalizedOctCoordZeroOne, mip ).rgb * rpLocalLightOrigin.x;
+	radiance += t_RadianceCubeMap2.SampleLevel( s_LinearClamp, normalizedOctCoordZeroOne, mip ).rgb * rpLocalLightOrigin.y;
+	radiance += t_RadianceCubeMap3.SampleLevel( s_LinearClamp, normalizedOctCoordZeroOne, mip ).rgb * rpLocalLightOrigin.z;
 	//radiance = float3( 0.0 );
 
-	float2 envBRDF  = t_BrdfLut.SampleLevel( samp2, float2( max( vDotN, 0.0 ), roughness ), 0 ).rg;
+	float2 envBRDF  = t_BrdfLut.Sample( s_LinearClamp, float2( max( vDotN, 0.0 ), roughness ) ).rg;
 
 #if 0
 	result.color.rgb = float3( envBRDF.x, envBRDF.y, 0.0 );

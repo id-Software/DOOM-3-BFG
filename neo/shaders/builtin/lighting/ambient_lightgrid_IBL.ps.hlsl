@@ -44,10 +44,9 @@ Texture2D t_RadianceCubeMap1	: register( t8 );
 Texture2D t_RadianceCubeMap2	: register( t9 );
 Texture2D t_RadianceCubeMap3	: register( t10 );
 
-SamplerState samp0 : register( s0 ); // (Wrap) Anisotropic sampler: normal sampler & specular sampler
-SamplerState samp1 : register( s1 ); // (Wrap) Point sampler: base color sampler
-SamplerState samp2 : register( s2 ); // (Clamp) Linear sampler: brdf lut sampler & ssao sampler
-SamplerState samp3 : register( s3 ); // (Clamp) Anisotropic sampler: irradiance, radiance 1, 2 and 3.
+SamplerState s_Material			: register( s0 ); // (Wrap) Anisotropic sampler: normal sampler & specular sampler
+SamplerState s_LinearClamp		: register( s1 ); // (Clamp) Linear sampler: brdf lut sampler & ssao sampler
+//SamplerState s_Light			: register( s2 ); // (Clamp) Anisotropic sampler: irradiance, radiance 1, 2 and 3.
 
 struct PS_IN 
 {
@@ -128,9 +127,9 @@ bool AABBRayIntersection( float3 b[2], float3 start, float3 dir, out float scale
 
 void main( PS_IN fragment, out PS_OUT result )
 {
-	half4 bumpMap =		t_Normal.Sample( samp0, fragment.texcoord0.xy );
-	half4 YCoCG =		t_BaseColor.Sample( samp1, fragment.texcoord1.xy );
-	half4 specMapSRGB =	t_Specular.Sample( samp0, fragment.texcoord2.xy );
+	half4 bumpMap =		t_Normal.Sample( s_Material, fragment.texcoord0.xy );
+	half4 YCoCG =		t_BaseColor.Sample( s_Material, fragment.texcoord1.xy );
+	half4 specMapSRGB =	t_Specular.Sample( s_Material, fragment.texcoord2.xy );
 	half4 specMap =		sRGBAToLinearRGBA( specMapSRGB );
 
 	half3 diffuseMap = sRGBToLinearRGB( ConvertYCoCgToRGB( YCoCG ) );
@@ -196,7 +195,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	// values in a very narrow range (~0.02 - 0.08)
 
 	// approximate non-metals with linear RGB 0.04 which is 0.08 * 0.5 (default in UE4)
-	const half3 dielectricColor = half3( 0.04, 0.04, 0.04 );
+	const half3 dielectricColor = _half3( 0.04 );
 
 	// derive diffuse and specular from albedo(m) base color
 	const half3 baseColor = diffuseMap;
@@ -238,7 +237,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	float2 screenTexCoord = fragment.position.xy * rpWindowCoord.xy;
 
 	float ao = 1.0;
-	ao = t_Ssao.Sample( samp2, screenTexCoord ).r;
+	ao = t_Ssao.Sample( s_LinearClamp, screenTexCoord ).r;
 
 	//diffuseColor.rgb *= ao;
 
@@ -366,7 +365,7 @@ void main( PS_IN fragment, out PS_OUT result )
 		float2 atlasCoord = normalizedOctCoordZeroOne + atlasOffset;
 #endif
 
-		float3 color = t_IrradianceCubeMap.Sample( samp3, atlasCoord, 0 ).rgb;
+		float3 color = t_IrradianceCubeMap.Sample( s_LinearClamp, atlasCoord, 0 ).rgb;
 
 		if( ( color.r + color.g + color.b ) < 0.0001 )
 		{
@@ -402,18 +401,12 @@ void main( PS_IN fragment, out PS_OUT result )
 	normalizedOctCoord = octEncode( reflectionVector );
 	normalizedOctCoordZeroOne = ( normalizedOctCoord + float2( 1.0, 1.0 ) ) * 0.5;
 
-	float3 radiance = t_RadianceCubeMap1.SampleLevel( samp3, normalizedOctCoordZeroOne, mip ).rgb * rpLocalLightOrigin.x;
-	radiance += t_RadianceCubeMap2.SampleLevel( samp3, normalizedOctCoordZeroOne, mip ).rgb * rpLocalLightOrigin.y;
-	radiance += t_RadianceCubeMap3.SampleLevel( samp3, normalizedOctCoordZeroOne, mip ).rgb * rpLocalLightOrigin.z;
+	float3 radiance = t_RadianceCubeMap1.SampleLevel( s_LinearClamp, normalizedOctCoordZeroOne, mip ).rgb * rpLocalLightOrigin.x;
+	radiance += t_RadianceCubeMap2.SampleLevel( s_LinearClamp, normalizedOctCoordZeroOne, mip ).rgb * rpLocalLightOrigin.y;
+	radiance += t_RadianceCubeMap3.SampleLevel( s_LinearClamp, normalizedOctCoordZeroOne, mip ).rgb * rpLocalLightOrigin.z;
 	//radiance = float3( 0.0 );
 
-	// RB: HACK dim down room radiance by better local irradiance brightness
-	//float luma = PhotoLuma( irradiance );
-	//float luma = dot( irradiance, LUMINANCE_LINEAR.rgb );
-	//float luma = length( irradiance.rgb );
-	//radiance *= ( luma * rpSpecularModifier.x * 3.0 );
-
-	float2 envBRDF  = t_BrdfLut.Sample( samp2, float2( max( vDotN, 0.0 ), roughness ) ).rg;
+	float2 envBRDF  = t_BrdfLut.Sample( s_LinearClamp, float2( max( vDotN, 0.0 ), roughness ) ).rg;
 
 #if 0
 	result.color.rgb = float3( envBRDF.x, envBRDF.y, 0.0 );
@@ -422,7 +415,7 @@ void main( PS_IN fragment, out PS_OUT result )
 #endif
 
 	float specAO = ComputeSpecularAO( vDotN, ao, roughness );
-	float3 specularLight = radiance * ( kS * envBRDF.x + float3( envBRDF.y, envBRDF.y, envBRDF.y ) ) * specAO * ( rpSpecularModifier.xyz * 1.0 );
+	float3 specularLight = radiance * ( kS * envBRDF.x + envBRDF.y ) * specAO * ( rpSpecularModifier.xyz * 1.0 );
 
 #if 1
 	// Marmoset Horizon Fade trick
