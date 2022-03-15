@@ -107,7 +107,7 @@ void DefaultMessageCallback::message( nvrhi::MessageSeverity severity, const cha
 			common->Warning( messageText );
 			break;
 		case nvrhi::MessageSeverity::Error:
-			common->Error( messageText );
+			common->FatalError( messageText );
 			break;
 		case nvrhi::MessageSeverity::Fatal:
 			common->FatalError( messageText );
