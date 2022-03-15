@@ -257,7 +257,7 @@ void idImage::AllocImage()
 			break;
 
 		case FMT_ALPHA:
-			format = nvrhi::Format::R8_UNORM;
+			format = nvrhi::Format::R8_UINT;
 			break;
 
 		case FMT_L8A8:
@@ -265,15 +265,15 @@ void idImage::AllocImage()
 			break;
 
 		case FMT_LUM8:
-			format = nvrhi::Format::R8_UNORM;
+			format = nvrhi::Format::R8_UINT;
 			break;
 
 		case FMT_INT8:
-			format = nvrhi::Format::R8_UNORM;
+			format = nvrhi::Format::R8_UINT;
 			break;
 
 		case FMT_R8:
-			format = nvrhi::Format::R8_UNORM;
+			format = nvrhi::Format::R8_UINT;
 			break;
 
 		case FMT_DXT1:

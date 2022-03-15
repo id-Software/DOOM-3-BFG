@@ -63,15 +63,6 @@ void idRenderProgManager::BindProgram( int index )
 
 	currentIndex = index;
 	RENDERLOG_PRINTF( "Binding HLSL Program %s\n", renderProgs[index].name.c_str() );
-
-	renderProg_t& prog = renderProgs[index];
-
-	tr.backend.BindProgram( shaders[prog.vertexShaderIndex].handle,
-							shaders[prog.fragmentShaderIndex].handle,
-							prog.inputLayout,
-							prog.bindingLayout );
-
-	renderProgs[index].bindingLayout;
 }
 
 /*
@@ -195,7 +186,7 @@ void idRenderProgManager::LoadProgram( const int programIndex, const int vertexS
 							   vertexLayoutDescs[prog.vertexLayout].Num(),
 							   shaders[prog.vertexShaderIndex].handle );
 	}
-	prog.bindingLayout = bindingLayouts[prog.bindingLayoutType];
+	prog.bindingLayouts = bindingLayouts[prog.bindingLayoutType];
 }
 
 void idRenderProgManager::LoadComputeProgram( const int programIndex, const int computeShaderIndex )
@@ -209,7 +200,7 @@ void idRenderProgManager::LoadComputeProgram( const int programIndex, const int 
 							   vertexLayoutDescs[prog.vertexLayout].Num(),
 							   shaders[prog.vertexShaderIndex].handle );
 	}
-	prog.bindingLayout = bindingLayouts[prog.bindingLayoutType];
+	prog.bindingLayouts = bindingLayouts[prog.bindingLayoutType];
 }
 
 

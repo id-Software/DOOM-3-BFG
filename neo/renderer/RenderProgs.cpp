@@ -45,7 +45,7 @@ If you have questions concerning this license or the applicable additional terms
 
 	void CreateVertexDescriptions();
 
-	void CreateDescriptorPools( VkDescriptorPool( &pools )[ NUM_FRAME_DATA ] );
+	void CreateDescriptorPools( VkDescriptorPool( &pools )[NUM_FRAME_DATA] );
 
 #endif
 
@@ -174,10 +174,14 @@ void idRenderProgManager::Init( nvrhi::IDevice* _device )
 	auto defaultLayoutDesc = nvrhi::BindingLayoutDesc()
 							 .setVisibility( nvrhi::ShaderType::All )
 							 .addItem( nvrhi::BindingLayoutItem::VolatileConstantBuffer( 0 ) )
-							 .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 0 ) )
-							 .addItem( nvrhi::BindingLayoutItem::Sampler( 0 ) );
+							 .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 0 ) );
 
-	bindingLayouts[BINDING_LAYOUT_DEFAULT] = device->createBindingLayout( defaultLayoutDesc );
+	auto samplerOneLayoutDesc = nvrhi::BindingLayoutDesc()
+								.setVisibility( nvrhi::ShaderType::Pixel )
+								.addItem( nvrhi::BindingLayoutItem::Sampler( 0 ) );
+	auto samplerOneBindingLayout = device->createBindingLayout( samplerOneLayoutDesc );
+
+	bindingLayouts[BINDING_LAYOUT_DEFAULT] = { device->createBindingLayout( defaultLayoutDesc ), samplerOneBindingLayout };
 
 	auto ambientIblLayoutDesc = nvrhi::BindingLayoutDesc()
 								.setVisibility( nvrhi::ShaderType::All )
@@ -190,37 +194,37 @@ void idRenderProgManager::Init( nvrhi::IDevice* _device )
 								.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 7 ) ) // irradiance cube map
 								.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 8 ) ) // radiance cube map 1
 								.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 9 ) ) // radiance cube map 2
-								.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 10 ) ) // radiance cube map 3
-								.addItem( nvrhi::BindingLayoutItem::Sampler( 0 ) )		// (Wrap) Anisotropic sampler: normal sampler & specular sampler
-								.addItem( nvrhi::BindingLayoutItem::Sampler( 1 ) );		// (Clamp) Linear sampler: brdf lut sampler & ssao sampler
+								.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 10 ) ); // radiance cube map 3
 
-	bindingLayouts[BINDING_LAYOUT_AMBIENT_LIGHTING_IBL] = device->createBindingLayout( ambientIblLayoutDesc );
+	auto samplerTwoBindingLayoutDesc = nvrhi::BindingLayoutDesc()
+									   .setVisibility( nvrhi::ShaderType::Pixel )
+									   .addItem( nvrhi::BindingLayoutItem::Sampler( 0 ) )	// (Wrap) Anisotropic sampler: normal sampler & specular sampler
+									   .addItem( nvrhi::BindingLayoutItem::Sampler( 1 ) );	// (Clamp) Linear sampler: brdf lut sampler & ssao sampler
+	auto samplerTwoBindingLayout = device->createBindingLayout( samplerTwoBindingLayoutDesc );
+
+	bindingLayouts[BINDING_LAYOUT_AMBIENT_LIGHTING_IBL] = { device->createBindingLayout( ambientIblLayoutDesc ), samplerTwoBindingLayout };
 
 	auto blitLayoutDesc = nvrhi::BindingLayoutDesc()
 						  .setVisibility( nvrhi::ShaderType::All )
 						  .addItem( nvrhi::BindingLayoutItem::VolatileConstantBuffer( 0 ) ); // blit constants
 
-	bindingLayouts[BINDING_LAYOUT_BLIT] = device->createBindingLayout( blitLayoutDesc );
+	bindingLayouts[BINDING_LAYOUT_BLIT] = { device->createBindingLayout( blitLayoutDesc ) };
 
 	auto aoLayoutDesc = nvrhi::BindingLayoutDesc()
 						.setVisibility( nvrhi::ShaderType::All )
 						.addItem( nvrhi::BindingLayoutItem::VolatileConstantBuffer( 0 ) )
 						.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 0 ) )
 						.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 1 ) )
-						.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 2 ) )
-						.addItem( nvrhi::BindingLayoutItem::Sampler( 0 ) )
-						.addItem( nvrhi::BindingLayoutItem::Sampler( 1 ) )
-						.addItem( nvrhi::BindingLayoutItem::Sampler( 2 ) );
+						.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 2 ) );
 
-	bindingLayouts[BINDING_LAYOUT_DRAW_AO] = device->createBindingLayout( aoLayoutDesc );
+	bindingLayouts[BINDING_LAYOUT_DRAW_AO] = { device->createBindingLayout( aoLayoutDesc ), samplerOneBindingLayout };
 
 	auto aoLayoutDesc2 = nvrhi::BindingLayoutDesc()
 						 .setVisibility( nvrhi::ShaderType::All )
 						 .addItem( nvrhi::BindingLayoutItem::VolatileConstantBuffer( 0 ) )
-						 .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 0 ) )
-						 .addItem( nvrhi::BindingLayoutItem::Sampler( 0 ) );
+						 .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 0 ) );
 
-	bindingLayouts[BINDING_LAYOUT_DRAW_AO1] = device->createBindingLayout( aoLayoutDesc2 );
+	bindingLayouts[BINDING_LAYOUT_DRAW_AO1] = { device->createBindingLayout( aoLayoutDesc2 ), samplerOneBindingLayout };
 
 	auto interactionBindingLayout = nvrhi::BindingLayoutDesc()
 									.setVisibility( nvrhi::ShaderType::All )
@@ -229,11 +233,9 @@ void idRenderProgManager::Init( nvrhi::IDevice* _device )
 									.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 1 ) )	// specular
 									.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 2 ) )	// base color
 									.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 3 ) )	// light falloff
-									.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 4 ) )	// light projection
-									.addItem( nvrhi::BindingLayoutItem::Sampler( 0 ) )		// Linear wrap sampler for the normal/specular/color
-									.addItem( nvrhi::BindingLayoutItem::Sampler( 1 ) );		// Sampler for the light falloff/projection
+									.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 4 ) );	// light projection
 
-	bindingLayouts[BINDING_LAYOUT_DRAW_INTERACTION] = device->createBindingLayout( interactionBindingLayout );
+	bindingLayouts[BINDING_LAYOUT_DRAW_INTERACTION] = { device->createBindingLayout( interactionBindingLayout ), samplerTwoBindingLayout };
 
 	auto interactionSmBindingLayout = nvrhi::BindingLayoutDesc()
 									  .setVisibility( nvrhi::ShaderType::All )
@@ -244,42 +246,42 @@ void idRenderProgManager::Init( nvrhi::IDevice* _device )
 									  .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 3 ) ) // light falloff
 									  .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 4 ) ) // light projection
 									  .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 5 ) ) // shadow map array
-									  .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 6 ) ) // jitter
-									  .addItem( nvrhi::BindingLayoutItem::Sampler( 0 ) )	 // material
-									  .addItem( nvrhi::BindingLayoutItem::Sampler( 1 ) )	 // lighting
-									  .addItem( nvrhi::BindingLayoutItem::Sampler( 2 ) )	 // shadow compare
-									  .addItem( nvrhi::BindingLayoutItem::Sampler( 3 ) );	 // blue noise for shadow jitter
+									  .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 6 ) ); // jitter
 
-	bindingLayouts[BINDING_LAYOUT_DRAW_INTERACTION_SM] = device->createBindingLayout( interactionSmBindingLayout );
+	auto samplerFourBindingLayoutDesc = nvrhi::BindingLayoutDesc()
+										.setVisibility( nvrhi::ShaderType::Pixel )
+										.addItem( nvrhi::BindingLayoutItem::Sampler( 0 ) )	 // material
+										.addItem( nvrhi::BindingLayoutItem::Sampler( 1 ) )	 // lighting
+										.addItem( nvrhi::BindingLayoutItem::Sampler( 2 ) )	 // shadow compare
+										.addItem( nvrhi::BindingLayoutItem::Sampler( 3 ) );	 // blue noise for shadow jitter
+	auto samplerFourBindingLayout = device->createBindingLayout( samplerFourBindingLayoutDesc );
+
+	bindingLayouts[BINDING_LAYOUT_DRAW_INTERACTION_SM] = { device->createBindingLayout( interactionSmBindingLayout ), samplerFourBindingLayout };
 
 	auto fogBindingLayout = nvrhi::BindingLayoutDesc()
 							.setVisibility( nvrhi::ShaderType::All )
 							.addItem( nvrhi::BindingLayoutItem::VolatileConstantBuffer( 0 ) )
 							.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 0 ) )
-							.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 1 ) )
-							.addItem( nvrhi::BindingLayoutItem::Sampler( 0 ) )
-							.addItem( nvrhi::BindingLayoutItem::Sampler( 1 ) );
+							.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 1 ) );
 
-	bindingLayouts[BINDING_LAYOUT_DRAW_FOG] = device->createBindingLayout( fogBindingLayout );
+	bindingLayouts[BINDING_LAYOUT_DRAW_FOG] = { device->createBindingLayout( fogBindingLayout ), samplerTwoBindingLayout };
 
 	auto ppFxBindingLayout = nvrhi::BindingLayoutDesc()
 							 .setVisibility( nvrhi::ShaderType::All )
 							 .addItem( nvrhi::BindingLayoutItem::VolatileConstantBuffer( 0 ) )
 							 .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 0 ) )	// current render
 							 .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 1 ) )	// normal map
-							 .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 2 ) )	// mask
-							 .addItem( nvrhi::BindingLayoutItem::Sampler( 0 ) );	// Linear sampler
+							 .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 2 ) );	// mask
 
-	bindingLayouts[BINDING_LAYOUT_POST_PROCESS_CNM] = device->createBindingLayout( ppFxBindingLayout );
+	bindingLayouts[BINDING_LAYOUT_POST_PROCESS_CNM] = { device->createBindingLayout( ppFxBindingLayout ), samplerOneBindingLayout };
 
 	auto normalCubeBindingLayout = nvrhi::BindingLayoutDesc()
 								   .setVisibility( nvrhi::ShaderType::All )
 								   .addItem( nvrhi::BindingLayoutItem::VolatileConstantBuffer( 0 ) )
 								   .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 0 ) )	// cube map
-								   .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 1 ) )	// normal map
-								   .addItem( nvrhi::BindingLayoutItem::Sampler( 0 ) );	// Linear sampler
+								   .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 1 ) );	// normal map
 
-	bindingLayouts[BINDING_LAYOUT_NORMAL_CUBE] = device->createBindingLayout( normalCubeBindingLayout );
+	bindingLayouts[BINDING_LAYOUT_NORMAL_CUBE] = { device->createBindingLayout( normalCubeBindingLayout ), samplerOneBindingLayout };
 
 	nvrhi::BindingLayoutDesc tonemapLayout;
 	tonemapLayout.visibility = nvrhi::ShaderType::Pixel;
@@ -291,7 +293,7 @@ void idRenderProgManager::Init( nvrhi::IDevice* _device )
 		nvrhi::BindingLayoutItem::Texture_SRV( 2 ),
 		nvrhi::BindingLayoutItem::Sampler( 0 )
 	};
-	bindingLayouts[BINDING_LAYOUT_TONEMAP] = device->createBindingLayout( tonemapLayout );
+	bindingLayouts[BINDING_LAYOUT_TONEMAP] = { device->createBindingLayout( tonemapLayout ) };
 
 	nvrhi::BindingLayoutDesc histogramLayout;
 	histogramLayout.visibility = nvrhi::ShaderType::Compute;
@@ -301,7 +303,7 @@ void idRenderProgManager::Init( nvrhi::IDevice* _device )
 		nvrhi::BindingLayoutItem::Texture_SRV( 0 ),
 		nvrhi::BindingLayoutItem::TypedBuffer_UAV( 0 )
 	};
-	bindingLayouts[BINDING_LAYOUT_HISTOGRAM] = device->createBindingLayout( histogramLayout );
+	bindingLayouts[BINDING_LAYOUT_HISTOGRAM] = { device->createBindingLayout( histogramLayout ) };
 
 	nvrhi::BindingLayoutDesc exposureLayout;
 	exposureLayout.visibility = nvrhi::ShaderType::Compute;
@@ -311,7 +313,7 @@ void idRenderProgManager::Init( nvrhi::IDevice* _device )
 		nvrhi::BindingLayoutItem::TypedBuffer_SRV( 0 ),
 		nvrhi::BindingLayoutItem::TypedBuffer_UAV( 0 )
 	};
-	bindingLayouts[BINDING_LAYOUT_EXPOSURE] = device->createBindingLayout( exposureLayout );
+	bindingLayouts[BINDING_LAYOUT_EXPOSURE] = { device->createBindingLayout( exposureLayout ) };
 
 	// RB: added checks for GPU skinning
 	struct builtinShaders_t
@@ -324,6 +326,7 @@ void idRenderProgManager::Init( nvrhi::IDevice* _device )
 		rpStage_t				stages;
 		vertexLayoutType_t		layout;
 		bindingLayoutType_t		bindingLayout;
+		bindingLayoutType_t		bindingLayout2;
 	} builtins[] =
 	{
 		{ BUILTIN_GUI, "builtin/gui", "", {}, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
@@ -459,7 +462,7 @@ void idRenderProgManager::Init( nvrhi::IDevice* _device )
 
 	for( int i = 0; i < numBuiltins; i++ )
 	{
-		renderProg_t& prog = renderProgs[ i ];
+		renderProg_t& prog = renderProgs[i];
 
 		prog.name = builtins[i].name;
 		prog.builtin = true;
@@ -475,21 +478,21 @@ void idRenderProgManager::Init( nvrhi::IDevice* _device )
 		}
 
 		int vIndex = -1;
-		if( builtins[ i ].stages & SHADER_STAGE_VERTEX )
+		if( builtins[i].stages & SHADER_STAGE_VERTEX )
 		{
-			vIndex = FindShader( builtins[ i ].name, SHADER_STAGE_VERTEX, builtins[i].nameOutSuffix, builtins[i].macros, true, builtins[i].layout );
+			vIndex = FindShader( builtins[i].name, SHADER_STAGE_VERTEX, builtins[i].nameOutSuffix, builtins[i].macros, true, builtins[i].layout );
 		}
 
 		int fIndex = -1;
-		if( builtins[ i ].stages & SHADER_STAGE_FRAGMENT )
+		if( builtins[i].stages & SHADER_STAGE_FRAGMENT )
 		{
-			fIndex = FindShader( builtins[ i ].name, SHADER_STAGE_FRAGMENT, builtins[i].nameOutSuffix, builtins[i].macros, true, builtins[i].layout );
+			fIndex = FindShader( builtins[i].name, SHADER_STAGE_FRAGMENT, builtins[i].nameOutSuffix, builtins[i].macros, true, builtins[i].layout );
 		}
 
 		int cIndex = -1;
 		if( builtins[i].stages & SHADER_STAGE_COMPUTE )
 		{
-			cIndex = FindShader( builtins[ i ].name, SHADER_STAGE_COMPUTE, builtins[i].nameOutSuffix, builtins[i].macros, true, builtins[i].layout );
+			cIndex = FindShader( builtins[i].name, SHADER_STAGE_COMPUTE, builtins[i].nameOutSuffix, builtins[i].macros, true, builtins[i].layout );
 		}
 
 		idLib::Printf( "Loading shader program %s\n", prog.name.c_str() );
@@ -561,8 +564,8 @@ void idRenderProgManager::Init( nvrhi::IDevice* _device )
 
 	for( int i = 0; i < NUM_FRAME_DATA; ++i )
 	{
-		parmBuffers[ i ] = new idUniformBuffer();
-		parmBuffers[ i ]->AllocBufferObject( NULL, MAX_DESC_SETS * MAX_DESC_SET_UNIFORMS * sizeof( idVec4 ), BU_DYNAMIC );
+		parmBuffers[i] = new idUniformBuffer();
+		parmBuffers[i]->AllocBufferObject( NULL, MAX_DESC_SETS * MAX_DESC_SET_UNIFORMS * sizeof( idVec4 ), BU_DYNAMIC );
 	}
 
 	// Placeholder: mainly for optionalSkinning
@@ -620,7 +623,7 @@ int idRenderProgManager::FindShader( const char* name, rpStage_t stage )
 
 	for( int i = 0; i < shaders.Num(); i++ )
 	{
-		shader_t& shader = shaders[ i ];
+		shader_t& shader = shaders[i];
 		if( shader.name.Icmp( shaderName.c_str() ) == 0 && shader.stage == stage )
 		{
 			LoadShader( i, stage );
@@ -716,7 +719,7 @@ int idRenderProgManager::FindShader( const char* name, rpStage_t stage, const ch
 #if defined( USE_NVRHI )
 nvrhi::ShaderHandle idRenderProgManager::GetShader( int index )
 {
-	return shaders[ index ].handle;
+	return shaders[index].handle;
 }
 
 programInfo_t idRenderProgManager::GetProgramInfo( int index )
@@ -724,6 +727,9 @@ programInfo_t idRenderProgManager::GetProgramInfo( int index )
 	programInfo_t info;
 
 	renderProg_t& prog = renderProgs[index];
+
+	info.bindingLayoutType = prog.bindingLayoutType;
+
 	if( prog.vertexShaderIndex > -1 && prog.vertexShaderIndex < shaders.Num() )
 	{
 		info.vs = GetShader( prog.vertexShaderIndex );
@@ -737,7 +743,7 @@ programInfo_t idRenderProgManager::GetProgramInfo( int index )
 		info.cs = GetShader( prog.computeShaderIndex );
 	}
 	info.inputLayout = prog.inputLayout;
-	info.bindingLayout = prog.bindingLayout;
+	info.bindingLayouts = &prog.bindingLayouts;
 
 	return info;
 }

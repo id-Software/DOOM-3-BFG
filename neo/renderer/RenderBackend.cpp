@@ -3629,11 +3629,6 @@ void idRenderBackend::ShadowMapPassFast( const drawSurf_t* drawSurfs, const view
 	GL_SelectTexture( 0 );
 	globalImages->blackImage->Bind();
 
-	nvrhi::BindingSetDesc bindingSetDesc;
-	GetCurrentBindingLayout( bindingSetDesc );
-
-	currentBindingSet = bindingCache.GetOrCreateBindingSet( bindingSetDesc, renderProgManager.BindingLayout() );
-
 	uint64 glState = 0;
 
 	// the actual stencil func will be set in the draw code, but we need to make sure it isn't
@@ -3809,7 +3804,7 @@ void idRenderBackend::ShadowMapPassFast( const drawSurf_t* drawSurfs, const view
 		assert( ( GL_GetCurrentState() & GLS_DEPTHFUNC_BITS ) == GLS_DEPTHFUNC_LESS );
 
 		// draw it solid
-		DrawElementsWithCounters( drawSurf, currentBindingSet );
+		DrawElementsWithCounters( drawSurf );
 
 		renderLog.CloseBlock();
 	}
@@ -4221,7 +4216,7 @@ void idRenderBackend::DrawInteractions( const viewDef_t* _viewDef )
 			// go back from light view to default camera view
 			ResetViewportAndScissorToDefaultCamera( _viewDef );
 
-			GL_EndRenderPass();
+			//GL_EndRenderPass();
 			if( vLight->localInteractions != NULL )
 			{
 				renderLog.OpenBlock( "Local Light Interactions", colorPurple );
@@ -6479,14 +6474,14 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 	//-------------------------------------------------
 	AmbientPass( drawSurfs, numDrawSurfs, false );
 
-	GL_EndRenderPass();
+	//GL_EndRenderPass();
 
 	//-------------------------------------------------
 	// main light renderer
 	//-------------------------------------------------
 	DrawInteractions( _viewDef );
 
-	GL_EndRenderPass();
+	//GL_EndRenderPass();
 
 	//-------------------------------------------------
 	// capture the depth for the motion blur before rendering any post process surfaces that may contribute to the depth
@@ -6524,7 +6519,7 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 		renderLog.CloseMainBlock();
 	}
 
-	GL_EndRenderPass();
+	//GL_EndRenderPass();
 
 	//-------------------------------------------------
 	// use direct light and emissive light contributions to add indirect screen space light
@@ -6590,7 +6585,7 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 		renderLog.CloseMainBlock();
 	}
 
-	GL_EndRenderPass();
+	//GL_EndRenderPass();
 
 	//-------------------------------------------------
 	// render debug tools

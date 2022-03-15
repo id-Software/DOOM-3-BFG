@@ -264,11 +264,12 @@ struct shaderMacro_t
 #if defined( USE_NVRHI )
 struct programInfo_t
 {
+	int bindingLayoutType;
 	nvrhi::ShaderHandle vs;
 	nvrhi::ShaderHandle ps;
 	nvrhi::ShaderHandle cs;
 	nvrhi::InputLayoutHandle inputLayout;
-	nvrhi::BindingLayoutHandle bindingLayout;
+	idStaticList<nvrhi::BindingLayoutHandle, nvrhi::c_MaxBindingLayouts>* bindingLayouts;
 };
 #endif
 
@@ -923,10 +924,6 @@ public:
 	{
 		return renderProgs[currentIndex].inputLayout;
 	}
-	ID_INLINE nvrhi::BindingLayoutHandle	BindingLayout()
-	{
-		return renderProgs[currentIndex].bindingLayout;
-	}
 	ID_INLINE int							BindingLayoutType()
 	{
 		return renderProgs[currentIndex].bindingLayoutType;
@@ -1010,7 +1007,7 @@ private:
 			vertexLayout( LAYOUT_UNKNOWN ),
 			bindingLayoutType( BINDING_LAYOUT_DEFAULT ),
 			inputLayout( nullptr ),
-			bindingLayout( nullptr )
+			bindingLayouts()
 		{
 		}
 
@@ -1023,7 +1020,7 @@ private:
 		vertexLayoutType_t			vertexLayout;
 		bindingLayoutType_t			bindingLayoutType;
 		nvrhi::InputLayoutHandle	inputLayout;
-		nvrhi::BindingLayoutHandle  bindingLayout;
+		idStaticList< nvrhi::BindingLayoutHandle, nvrhi::c_MaxBindingLayouts > bindingLayouts;
 	};
 
 	void	LoadShader( shader_t& shader );
@@ -1037,7 +1034,7 @@ private:
 	using VertexAttribDescList = idList< nvrhi::VertexAttributeDesc >;
 	idStaticList< VertexAttribDescList, NUM_VERTEX_LAYOUTS > vertexLayoutDescs;
 
-	idStaticList< nvrhi::BindingLayoutHandle, NUM_BINDING_LAYOUTS > bindingLayouts;
+	idStaticList< idStaticList<nvrhi::BindingLayoutHandle, nvrhi::c_MaxBindingLayouts>, NUM_BINDING_LAYOUTS > bindingLayouts;
 
 	nvrhi::BufferHandle	constantBuffer;
 

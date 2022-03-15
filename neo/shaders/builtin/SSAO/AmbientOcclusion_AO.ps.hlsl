@@ -97,9 +97,7 @@ Texture2D				t_NormalRoughness	: register( t0 );
 Texture2D<VALUE_TYPE>	t_ViewDepth			: register( t1 );
 Texture2D				t_BlueNoise			: register( t2 );
 
-SamplerState	normalSampler		: register( s0 );
-SamplerState	depthSampler		: register( s1 );
-SamplerState	blueNoiseSampler	: register( s2 );
+SamplerState	blueNoiseSampler	: register( s0 );
 
 #define CS_Z_buffer		t_ViewDepth
 

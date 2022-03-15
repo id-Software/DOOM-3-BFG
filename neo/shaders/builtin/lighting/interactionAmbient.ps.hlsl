@@ -44,7 +44,7 @@ SamplerState samp3 : register(s3); // texture 4 is the light falloff texture
 SamplerState samp4 : register(s4); // texture 5 is the light projection texture
 
 struct PS_IN {
-	half4 position	: VPOS;
+	half4 position	: SV_Position;
 	half4 texcoord1	: TEXCOORD1_centroid;
 	half4 texcoord2	: TEXCOORD2_centroid;
 	half4 texcoord3	: TEXCOORD3_centroid;

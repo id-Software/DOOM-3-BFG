@@ -1131,51 +1131,29 @@ bool DeviceManager::CreateWindowDeviceAndSwapChain( const glimpParms_t& parms, c
 
 	glConfig.isFullscreen = parms.fullScreen;
 
-	UpdateWindowSize();
+	UpdateWindowSize( parms );
 
 	return true;
 }
 
-void DeviceManager::UpdateWindowSize()
+void DeviceManager::UpdateWindowSize( const glimpParms_t& params )
 {
-	// get the current monitor position and size on the desktop, assuming
-	// any required ChangeDisplaySettings has already been done
-	RECT rect;
-	if( ::GetClientRect( win32.hWnd, &rect ) )
-	{
-		if( rect.right > rect.left && rect.bottom > rect.top )
-		{
-			// save the window size in cvars if we aren't fullscreen
-			int style = GetWindowLong( win32.hWnd, GWL_STYLE );
-
-			glConfig.nativeScreenWidth = rect.right - rect.left;
-			glConfig.nativeScreenHeight = rect.bottom - rect.top;
-		}
-	}
-
-	if( glConfig.nativeScreenWidth == 0 || glConfig.nativeScreenHeight == 0 )
-	{
-		// window is minimized
-		windowVisible = false;
-		return;
-	}
-
 	windowVisible = true;
 
-	if( int( deviceParms.backBufferWidth ) != glConfig.nativeScreenWidth ||
-			int( deviceParms.backBufferHeight ) != glConfig.nativeScreenHeight ||
+	if( int( deviceParms.backBufferWidth ) != params.width ||
+			int( deviceParms.backBufferHeight ) != params.height ||
 			( deviceParms.vsyncEnabled != requestedVSync && GetGraphicsAPI() == nvrhi::GraphicsAPI::VULKAN ) )
 	{
 		// window is not minimized, and the size has changed
 
 		BackBufferResizing();
 
-		deviceParms.backBufferWidth = glConfig.nativeScreenWidth;
-		deviceParms.backBufferHeight = glConfig.nativeScreenHeight;
+		deviceParms.backBufferWidth = params.width;
+		deviceParms.backBufferHeight = params.height;
 		deviceParms.vsyncEnabled = requestedVSync;
 
 		ResizeSwapChain();
-		//BackBufferResized();
+		BackBufferResized();
 	}
 
 	deviceParms.vsyncEnabled = requestedVSync;
@@ -1552,6 +1530,8 @@ bool GLimp_SetScreenParms( glimpParms_t parms )
 	glConfig.isFullscreen = parms.fullScreen;
 	glConfig.nativeScreenWidth = parms.width;
 	glConfig.nativeScreenHeight = parms.height;
+
+	deviceManager->UpdateWindowSize( parms );
 
 	return true;
 }

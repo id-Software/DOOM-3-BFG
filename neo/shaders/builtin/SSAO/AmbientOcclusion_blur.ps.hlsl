@@ -26,10 +26,6 @@ Texture2D				t_NormalRoughness	: register( t0 );
 Texture2D<VALUE_TYPE>	t_ViewDepth			: register( t1 );
 Texture2D				t_Ao				: register( t2 );
 
-SamplerState	normalSampler		: register( s0 );
-SamplerState	depthSampler		: register( s1 );
-SamplerState	aoSampler			: register( s2 );
-
 #define normal_buffer	t_NormalRoughness
 #define cszBuffer		t_ViewDepth
 #define source			t_Ao

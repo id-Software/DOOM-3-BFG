@@ -38,7 +38,10 @@ nvrhi::GraphicsPipelineHandle PipelineCache::GetOrCreatePipeline( const Pipeline
 	programInfo_t progInfo = renderProgManager.GetProgramInfo( key.program );
 	pipelineDesc.setVertexShader( progInfo.vs ).setFragmentShader( progInfo.ps );
 	pipelineDesc.inputLayout = progInfo.inputLayout;
-	pipelineDesc.bindingLayouts = { progInfo.bindingLayout };
+	for( int i = 0; i < progInfo.bindingLayouts->Num(); i++ )
+	{
+		pipelineDesc.bindingLayouts.push_back( ( *progInfo.bindingLayouts )[i] );
+	}
 	pipelineDesc.primType = nvrhi::PrimitiveType::TriangleList;
 
 	// Set up default state.

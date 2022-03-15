@@ -289,8 +289,8 @@ public:
 private:
 	void				DrawFlickerBox();
 
-	void				DrawElementsWithCounters( const drawSurf_t* surf, nvrhi::BindingSetHandle bindingSetHandle = nullptr );
-	void				GetCurrentBindingLayout( nvrhi::BindingSetDesc& bindingSetDesc );
+	void				DrawElementsWithCounters( const drawSurf_t* surf );
+	void				GetCurrentBindingLayout();
 	void				DrawStencilShadowPass( const drawSurf_t* drawSurf, const bool renderZPass );
 
 	void				SetColorMappings();
@@ -509,7 +509,8 @@ private:
 	uint							currentVertexOffset;
 	nvrhi::BufferHandle				currentIndexBuffer;
 	uint							currentIndexOffset;
-	nvrhi::BindingSetHandle			currentBindingSet;
+	idStaticList<nvrhi::BindingSetHandle, nvrhi::c_MaxBindingLayouts> currentBindingSets;
+	idStaticList<nvrhi::BindingSetDesc, nvrhi::c_MaxBindingLayouts> pendingBindingSetDescs;
 	nvrhi::BindingLayoutHandle		currentBindingLayout;
 	nvrhi::GraphicsPipelineHandle	currentPipeline;
 	nvrhi::RenderState				currentRenderState;
@@ -536,7 +537,6 @@ private:
 
 public:
 
-	void				BindProgram( nvrhi::ShaderHandle vShader, nvrhi::ShaderHandle fShader, nvrhi::InputLayoutHandle layout, nvrhi::BindingLayoutHandle bindingLayout );
 	void				ResetPipelineCache();
 
 	void				SetCurrentImage( idImage* image );

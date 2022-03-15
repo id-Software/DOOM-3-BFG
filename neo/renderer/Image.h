@@ -239,7 +239,7 @@ typedef enum
 	// RB end
 	TD_R8F,					// Stephen: Added for ambient occlusion render target.
 	TD_LDR,					// Stephen: Added for SRGB render target when tonemapping.
-	TD_DEPTH_STENCIL,
+	TD_DEPTH_STENCIL,       // depth buffer and stencil buffer
 } textureUsage_t;
 
 typedef enum

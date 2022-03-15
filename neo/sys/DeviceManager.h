@@ -121,7 +121,7 @@ public:
 		y = dpiScaleFactorY;
 	}
 
-	void UpdateWindowSize();
+	void UpdateWindowSize( const glimpParms_t& params );
 
 protected:
 	friend class idRenderBackend;
@@ -129,7 +129,6 @@ protected:
 	void* windowHandle;
 	bool windowVisible = false;
 	bool isNvidia = false;
-
 
 	DeviceCreationParameters deviceParms;
 
