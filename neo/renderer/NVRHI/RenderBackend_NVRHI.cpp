@@ -740,7 +740,8 @@ void idRenderBackend::GetCurrentBindingLayout()
 
 		pendingBindingSetDescs[1].bindings =
 		{
-			nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_AnisotropicWrapSampler )
+			//nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_PointWrapSampler )
+			nvrhi::BindingSetItem::Sampler( 0, ( nvrhi::ISampler* )GetImageAt( 0 )->GetSampler( samplerCache ) )
 		};
 	}
 	else if( type == BINDING_LAYOUT_GBUFFER )

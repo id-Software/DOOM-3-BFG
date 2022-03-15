@@ -104,10 +104,8 @@ void idImage::CreateSampler()
 	switch( filter )
 	{
 		case TF_DEFAULT:
-			samplerDesc.minFilter = true;
 			samplerDesc.setAllFilters( true )
 			.setMaxAnisotropy( r_maxAnisotropicFiltering.GetInteger() );
-
 			break;
 
 		case TF_LINEAR:
@@ -120,7 +118,7 @@ void idImage::CreateSampler()
 
 		// RB:
 		case TF_NEAREST_MIPMAP:
-			samplerDesc.setAllFilters( false );
+			samplerDesc.setMipFilter( true );
 			break;
 
 		default:
@@ -387,41 +385,53 @@ void idImage::AllocImage()
 					   .setSampleCount( opts.samples )
 					   .setMipLevels( opts.numLevels );
 
+#if defined( USE_DX12 )
 	if( opts.colorFormat == CFM_GREEN_ALPHA )
 	{
-		textureDesc.componentMapping.bits.r = 5;
-		textureDesc.componentMapping.bits.g = 5;
-		textureDesc.componentMapping.bits.b = 5;
-		textureDesc.componentMapping.bits.a = 1;
+		textureDesc.componentMapping.bits.r = 5; // ONE
+		textureDesc.componentMapping.bits.g = 5; // ONE
+		textureDesc.componentMapping.bits.b = 5; // ONE
+		textureDesc.componentMapping.bits.a = 1; // G
 	}
 	else if( opts.format == FMT_LUM8 )
 	{
-		textureDesc.componentMapping.bits.r = 0;
-		textureDesc.componentMapping.bits.g = 0;
-		textureDesc.componentMapping.bits.b = 0;
-		textureDesc.componentMapping.bits.a = 5;
+		textureDesc.componentMapping.bits.r = 0; // R
+		textureDesc.componentMapping.bits.g = 0; // R
+		textureDesc.componentMapping.bits.b = 0; // R
+		textureDesc.componentMapping.bits.a = 5; // ONE
 	}
-	else if( opts.format == FMT_L8A8 )//|| opts.format == FMT_RG16F )
+	else if( opts.format == FMT_L8A8 )
 	{
-		textureDesc.componentMapping.bits.r = 0;
-		textureDesc.componentMapping.bits.g = 0;
-		textureDesc.componentMapping.bits.b = 0;
-		textureDesc.componentMapping.bits.a = 1;
+		textureDesc.componentMapping.bits.r = 0; // R
+		textureDesc.componentMapping.bits.g = 0; // R
+		textureDesc.componentMapping.bits.b = 0; // R
+		textureDesc.componentMapping.bits.a = 1; // G
 	}
 	else if( opts.format == FMT_ALPHA )
 	{
-		textureDesc.componentMapping.bits.r = 5;
-		textureDesc.componentMapping.bits.g = 5;
-		textureDesc.componentMapping.bits.b = 5;
-		textureDesc.componentMapping.bits.a = 0;
+		textureDesc.componentMapping.bits.r = 5; // ONE
+		textureDesc.componentMapping.bits.g = 5; // ONE
+		textureDesc.componentMapping.bits.b = 5; // ONE
+		textureDesc.componentMapping.bits.a = 0; // R
 	}
 	else if( opts.format == FMT_INT8 )
 	{
-		textureDesc.componentMapping.bits.r = 0;
-		textureDesc.componentMapping.bits.g = 0;
-		textureDesc.componentMapping.bits.b = 0;
-		textureDesc.componentMapping.bits.a = 0;
+		textureDesc.componentMapping.bits.r = 0; // R
+		textureDesc.componentMapping.bits.g = 0; // R
+		textureDesc.componentMapping.bits.b = 0; // R
+		textureDesc.componentMapping.bits.a = 0; // R
 	}
+	else if( opts.format == FMT_R11G11B10F )
+	{
+		textureDesc.componentMapping.bits.r = 0; // R
+		textureDesc.componentMapping.bits.g = 1; // G
+		textureDesc.componentMapping.bits.b = 2; // B
+		textureDesc.componentMapping.bits.a = 5; // ONE
+	}
+
+#elif defined( USE_VULKAN )
+	// TODO
+#endif
 
 	if( opts.isRenderTarget )
 	{
@@ -455,7 +465,6 @@ void idImage::AllocImage()
 		textureDesc.setDimension( nvrhi::TextureDimension::TextureCube );
 		textureDesc.setArraySize( 6 );
 	}
-	// RB begin
 	else if( opts.textureType == TT_2D_ARRAY )
 	{
 		textureDesc.setDimension( nvrhi::TextureDimension::Texture2DArray );
