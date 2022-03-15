@@ -52,12 +52,6 @@ void main( PS_IN fragment, out PS_OUT result )
 {
 	float4 c = t_Fog1.Sample( samp0, fragment.texcoord0 ) * t_Fog2.Sample( samp1, fragment.texcoord1 ) * rpColor;
 
-#if USE_LINEAR_RGB
-	c = clamp( c, 0.0, 1.0 );
-
-	c = float4( Linear1( c.r ), Linear1( c.g ), Linear1( c.b ), Linear1( c.a ) );
-#endif
-
-	result.color = c;
+	result.color = sRGBAToLinearRGBA( c );
 }
 

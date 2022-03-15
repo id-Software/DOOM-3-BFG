@@ -175,9 +175,11 @@ float PhotoLuma( float3 c )
 	return dot( c, photoLuma );
 }
 
+// RB: Conditional sRGB -> linear conversion. It is the default for all 3D rendering
+// and only shaders for 2D rendering of GUIs define USE_SRGB to work directly on the ldr render target
 float3 sRGBToLinearRGB( float3 c )
 {
-#if ( defined( USE_LINEAR_RGB ) && USE_LINEAR_RGB ) && ( !defined( USE_SRGB ) || !USE_SRGB )
+#if !defined( USE_SRGB ) || !USE_SRGB
 	c = clamp( c, 0.0, 1.0 );
 
 	return Linear3( c );
@@ -188,7 +190,7 @@ float3 sRGBToLinearRGB( float3 c )
 
 float4 sRGBAToLinearRGBA( float4 c )
 {
-#if ( defined( USE_LINEAR_RGB ) && USE_LINEAR_RGB ) && ( !defined( USE_SRGB ) || !USE_SRGB )
+#if !defined( USE_SRGB ) || !USE_SRGB
 	c = clamp( c, 0.0, 1.0 );
 
 	return float4( Linear1( c.r ), Linear1( c.g ), Linear1( c.b ), Linear1( c.a ) );
@@ -199,7 +201,7 @@ float4 sRGBAToLinearRGBA( float4 c )
 
 float3 LinearRGBToSRGB( float3 c )
 {
-#if ( defined( USE_LINEAR_RGB ) && USE_LINEAR_RGB ) && ( !defined( USE_SRGB ) || !USE_SRGB )
+#if !defined( USE_SRGB ) || !USE_SRGB
 	c = clamp( c, 0.0, 1.0 );
 
 	return Srgb3( c );
@@ -210,7 +212,7 @@ float3 LinearRGBToSRGB( float3 c )
 
 float4 LinearRGBToSRGB( float4 c )
 {
-#if ( defined( USE_LINEAR_RGB ) && USE_LINEAR_RGB ) && ( !defined( USE_SRGB ) || !USE_SRGB )
+#if !defined( USE_SRGB ) || !USE_SRGB
 	c = clamp( c, 0.0, 1.0 );
 
 	return float4( Srgb1( c.r ), Srgb1( c.g ), Srgb1( c.b ), c.a );

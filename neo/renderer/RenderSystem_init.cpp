@@ -328,7 +328,7 @@ idCVar r_showLightGrid( "r_showLightGrid", "0", CVAR_RENDERER | CVAR_INTEGER, "s
 
 idCVar r_useLightGrid( "r_useLightGrid", "1", CVAR_RENDERER | CVAR_BOOL, "" );
 
-idCVar r_exposure( "r_exposure", "-0.5", CVAR_ARCHIVE | CVAR_RENDERER | CVAR_FLOAT, "HDR exposure or LDR brightness [-4.0 .. 4.0]", -4.0f, 4.0f );
+idCVar r_exposure( "r_exposure", "0.5", CVAR_ARCHIVE | CVAR_RENDERER | CVAR_FLOAT, "HDR exposure or LDR brightness [-4.0 .. 4.0]", -4.0f, 4.0f );
 // RB end
 
 const char* fileExten[4] = { "tga", "png", "jpg", "exr" };
