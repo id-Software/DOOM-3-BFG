@@ -260,7 +260,7 @@ static unsigned short* 	vq8 = NULL;
 
 /*
 ==============
-idCinematicLocal::InitCinematic
+idCinematic::InitCinematic
 ==============
 */
 // RB: 64 bit fixes, changed long to int
@@ -295,7 +295,7 @@ void idCinematic::InitCinematic()
 
 /*
 ==============
-idCinematicLocal::ShutdownCinematic
+idCinematic::ShutdownCinematic
 ==============
 */
 void idCinematic::ShutdownCinematic()
@@ -570,7 +570,7 @@ idCinematicLocal::~idCinematicLocal()
 #if defined(USE_FFMPEG)
 /*
 ==============
-idCinematicLocal::GetSampleFormat
+GetSampleFormat
 ==============
 */
 const char* GetSampleFormat( AVSampleFormat sample_fmt )
@@ -657,7 +657,7 @@ bool idCinematicLocal::InitFromFFMPEGFile( const char* qpath, bool amilooping )
 
 	if( ( ret = avformat_open_input( &fmt_ctx, fullpath, NULL, NULL ) ) < 0 )
 	{
-		// SRS - another case sensitivity hack for Linux, this time for ffmpeg and RoQ files
+		// SRS - another case sensitivity HACK for Linux, this time for ffmpeg and RoQ files
 		idStr ext;
 		fullpath.ExtractFileExtension( ext );
 		if( idStr::Cmp( ext.c_str(), "roq" ) == 0 )
@@ -692,9 +692,9 @@ bool idCinematicLocal::InitFromFFMPEGFile( const char* qpath, bool amilooping )
 		av_strerror( ret, error, 256 );
 		common->Warning( "idCinematic: Failed to create video codec context from codec parameters with error: %s\n", error );
 	}
-	dec_ctx->time_base = fmt_ctx->streams[video_stream_index]->time_base;
+	//dec_ctx->time_base = fmt_ctx->streams[video_stream_index]->time_base;			// SRS - decoder timebase is set by avcodec_open2()
 	dec_ctx->framerate = fmt_ctx->streams[video_stream_index]->avg_frame_rate;
-	dec_ctx->pkt_timebase = fmt_ctx->streams[video_stream_index]->time_base;
+	dec_ctx->pkt_timebase = fmt_ctx->streams[video_stream_index]->time_base;		// SRS - packet timebase for frame->pts timestamps
 	/* init the video decoder */
 	if( ( ret = avcodec_open2( dec_ctx, dec, NULL ) ) < 0 )
 	{
@@ -716,9 +716,9 @@ bool idCinematicLocal::InitFromFFMPEGFile( const char* qpath, bool amilooping )
 			av_strerror( ret2, error, 256 );
 			common->Warning( "idCinematic: Failed to create audio codec context from codec parameters with error: %s\n", error );
 		}
-		dec_ctx2->time_base = fmt_ctx->streams[audio_stream_index]->time_base;
+		//dec_ctx2->time_base = fmt_ctx->streams[audio_stream_index]->time_base;	// SRS - decoder timebase is set by avcodec_open2()
 		dec_ctx2->framerate = fmt_ctx->streams[audio_stream_index]->avg_frame_rate;
-		dec_ctx2->pkt_timebase = fmt_ctx->streams[audio_stream_index]->time_base;
+		dec_ctx2->pkt_timebase = fmt_ctx->streams[audio_stream_index]->time_base;	// SRS - packet timebase for frame3->pts timestamps
 		if( ( ret2 = avcodec_open2( dec_ctx2, dec2, NULL ) ) < 0 )
 		{
 			common->Warning( "idCinematic: Cannot open audio decoder for: '%s', %d\n", qpath, looping );
@@ -755,17 +755,8 @@ bool idCinematicLocal::InitFromFFMPEGFile( const char* qpath, bool amilooping )
 	  * - encoding: MUST be set by user.
 	  * - decoding: Set by libavcodec.
 	  */
-	AVRational avr = dec_ctx->time_base;
-	/**
-	 * For some codecs, the time base is closer to the field rate than the frame rate.
-	 * Most notably, H.264 and MPEG-2 specify time_base as half of frame duration
-	 * if no telecine is used ...
-	 *
-	 * Set to time_base ticks per frame. Default 1, e.g., H.264/MPEG-2 set it to 2.
-	 */
-	int ticksPerFrame = dec_ctx->ticks_per_frame;
-	// SRS - In addition to ticks, must also use time_base numerator (not always 1) and denominator in the duration calculation
-	float durationSec = static_cast<double>( fmt_ctx->streams[video_stream_index]->duration ) * static_cast<double>( ticksPerFrame ) * static_cast<double>( avr.num ) / static_cast<double>( avr.den );
+	// SRS - Must use consistent duration and timebase parameters in the durationSec calculation (don't mix fmt_ctx duration with dec_ctx timebase)
+	float durationSec = static_cast<double>( fmt_ctx->streams[video_stream_index]->duration ) * av_q2d( fmt_ctx->streams[video_stream_index]->time_base );
 	//GK: No duration is given. Check if we get at least bitrate to calculate the length, otherwise set it to a fixed 100 seconds (should it be lower ?)
 	if( durationSec < 0 )
 	{
@@ -789,8 +780,10 @@ bool idCinematicLocal::InitFromFFMPEGFile( const char* qpath, bool amilooping )
 	frameRate = av_q2d( fmt_ctx->streams[video_stream_index]->avg_frame_rate );
 	common->Printf( "Loaded FFMPEG file: '%s', looping=%d, %dx%d, %3.2f FPS, %4.1f sec\n", qpath, looping, CIN_WIDTH, CIN_HEIGHT, frameRate, durationSec );
 
-	// SRS - Get number of image bytes needed by querying with NULL first, then allocate image and fill with correct parameters
-	int img_bytes = av_image_fill_arrays( frame2->data, frame2->linesize, NULL, AV_PIX_FMT_BGR32, CIN_WIDTH, CIN_HEIGHT, 1 );
+	// SRS - Get image buffer size (dimensions mod 32 for bik & webm codecs, subsumes mod 16 for mp4 codec), then allocate image and fill with correct parameters
+	int bufWidth = ( CIN_WIDTH + 31 ) & ~31;
+	int bufHeight = ( CIN_HEIGHT + 31 ) & ~31;
+	int img_bytes = av_image_get_buffer_size( AV_PIX_FMT_BGR32, bufWidth, bufHeight, 1 );
 	image = ( byte* )Mem_Alloc( img_bytes, TAG_CINEMATIC );
 	av_image_fill_arrays( frame2->data, frame2->linesize, image, AV_PIX_FMT_BGR32, CIN_WIDTH, CIN_HEIGHT, 1 ); //GK: Straight out of the FFMPEG source code
 	img_convert_ctx = sws_getContext( dec_ctx->width, dec_ctx->height, dec_ctx->pix_fmt, CIN_WIDTH, CIN_HEIGHT, AV_PIX_FMT_BGR32, SWS_BICUBIC, NULL, NULL, NULL );
@@ -818,11 +811,12 @@ void idCinematicLocal::FFMPEGReset()
 
 	framePos = -1;
 
-	// SRS - If we have an ffmpeg audio context and are not looping, or skipLag is true, reset audio to release any stale buffers
-	if( dec_ctx2 && ( !( looping && status == FMV_EOF ) || skipLag ) )
+	// SRS - If we have an ffmpeg audio context, reset audio to release any stale buffers and avoid AV drift if looping
+	if( dec_ctx2 )
 	{
 		cinematicAudio->ResetAudio();
 
+		lagIndex = 0;
 		for( int i = 0; i < NUM_LAG_FRAMES; i++ )
 		{
 			lagBufSize[ i ] = 0;
@@ -833,7 +827,7 @@ void idCinematicLocal::FFMPEGReset()
 		}
 	}
 
-	// SRS - For non-RoQ (i.e. bik) files, use standard frame seek to rewind the stream
+	// SRS - For non-RoQ (i.e. bik, mp4, webm, etc) files, use standard frame seek to rewind the stream
 	if( dec_ctx->codec_id != AV_CODEC_ID_ROQ && av_seek_frame( fmt_ctx, video_stream_index, 0, 0 ) >= 0 )
 	{
 		status = FMV_LOOPED;
@@ -971,23 +965,68 @@ bool idCinematicLocal::InitFromFile( const char* qpath, bool amilooping )
 		sprintf( fileName, "%s", qpath );
 	}
 	// Carl: Look for original Doom 3 RoQ files first:
-	idStr temp = fileName.StripFileExtension() + ".roq";
+	idStr temp, ext;
+	// SRS - Since loadvideo.bik is hardcoded, first check for legacy idlogo then later for mp4/webm mods
+	// If neither idlogo.roq nor loadvideo.mp4/.webm are found, then fall back to stock loadvideo.bik
+	if( fileName == "video\\loadvideo.bik" )
+	{
+		temp = "video\\idlogo.roq";							// Check for legacy idlogo.roq video
+	}
+	else
+	{
+		temp = fileName;
+	}
 
-	// SRS - Cool legacy support, but leaving this disabled since it might break existing mods
-	//if( temp == "video\\loadvideo.roq" )
-	//{
-	//	temp = "video\\idlogo.roq";
-	//}
-
-	iFile = fileSystem->OpenFileRead( temp );
+	temp.ExtractFileExtension( ext );
+	ext.ToLower();
+	if( ext == "roq" )
+	{
+		temp = temp.StripFileExtension() + ".roq";			// Force lower case .roq extension
+		iFile = fileSystem->OpenFileRead( temp );
+	}
+	else
+	{
+		iFile = NULL;
+	}
 
 	// Carl: If the RoQ file doesn't exist, try using bik file extension instead:
 	if( !iFile )
 	{
 		//idLib::Warning( "Original Doom 3 RoQ Cinematic not found: '%s'\n", temp.c_str() );
 #if defined(USE_FFMPEG)
-		temp = fileName.StripFileExtension() + ".bik";
-		skipLag = false;				// SRS - Enable lag buffer for ffmpeg bik decoder AV sync
+		if( fileName == "video\\loadvideo.bik" )
+		{
+			temp = "video\\loadvideo";						// Check for loadvideo.xxx mod videos
+			if( ( iFile = fileSystem->OpenFileRead( temp + ".mp4" ) ) )
+			{
+				fileSystem->CloseFile( iFile );				// Close the mp4 file and reopen in ffmpeg
+				iFile = NULL;
+				temp = temp + ".mp4";
+				ext = "mp4";
+			}
+			else if( ( iFile = fileSystem->OpenFileRead( temp + ".webm" ) ) )
+			{
+				fileSystem->CloseFile( iFile );				// Close the webm file and reopen in ffmpeg
+				iFile = NULL;
+				temp = temp + ".webm";
+				ext = "webm";
+			}
+			else
+			{
+				temp = temp + ".bik";						// Fall back to bik if no mod videos found
+				ext = "bik";
+			}
+		}
+
+		if( ext == "roq" || ext == "bik" )					// Check for stock/legacy cinematic types
+		{
+			temp = fileName.StripFileExtension() + ".bik";
+			skipLag = false;			// SRS - Enable lag buffer for ffmpeg bik decoder AV sync
+		}
+		else												// Enable mp4/webm cinematic types for mods
+		{
+			skipLag = true;				// SRS - Disable lag buffer for ffmpeg mp4/webm decoder AV sync
+		}
 
 		// SRS - Support RoQ cinematic playback via ffmpeg decoder - better quality plus audio support
 	}
@@ -1365,9 +1404,6 @@ cinData_t idCinematicLocal::ImageForTimeFFMPEG( int thisTime )
 	while( framePos < desiredFrame )
 	{
 		int frameFinished = -1;
-		//GK: Separate frame finisher for audio in order to not have the video lagging
-		int frameFinished1 = -1;
-
 		int res = 0;
 
 		// Do a single frame by getting packets until we have a full frame
@@ -1410,7 +1446,8 @@ cinData_t idCinematicLocal::ImageForTimeFFMPEG( int thisTime )
 				}
 				else
 				{
-					if( ( frameFinished = avcodec_receive_frame( dec_ctx, frame ) ) != 0 )
+					frameFinished = avcodec_receive_frame( dec_ctx, frame );
+					if( frameFinished != 0 && frameFinished != AVERROR( EAGAIN ) )
 					{
 						char* error = new char[256];
 						av_strerror( frameFinished, error, 256 );
@@ -1428,15 +1465,21 @@ cinData_t idCinematicLocal::ImageForTimeFFMPEG( int thisTime )
 					av_strerror( res, error, 256 );
 					common->Warning( "idCinematic: Failed to send audio packet for decoding with error: %s\n", error );
 				}
-				else
+				//SRS - Separate frame finisher for audio since there can be multiple audio frames per video frame (e.g. at bik startup)
+				int frameFinished1 = 0;
+				while( frameFinished1 == 0 )
 				{
 					if( ( frameFinished1 = avcodec_receive_frame( dec_ctx2, frame3 ) ) != 0 )
 					{
-						char* error = new char[256];
-						av_strerror( frameFinished1, error, 256 );
-						common->Warning( "idCinematic: Failed to receive audio frame from decoding with error: %s\n", error );
+						if( frameFinished1 != AVERROR( EAGAIN ) )
+						{
+							char* error = new char[256];
+							av_strerror( frameFinished1, error, 256 );
+							common->Warning( "idCinematic: Failed to receive audio frame from decoding with error: %s\n", error );
+						}
 					}
-					else
+					// SRS - For the final (desired) frame only: allocate audio buffers, convert to packed format, and play the synced audio frames
+					else if( framePos + 1 == desiredFrame )
 					{
 						// SRS - Since destination sample format is packed (non-planar), returned bufflinesize equals num_bytes
 						res = av_samples_alloc( &audioBuffer, &num_bytes, frame3->channels, frame3->nb_samples, dst_smp, 0 );
@@ -1461,6 +1504,29 @@ cinData_t idCinematicLocal::ImageForTimeFFMPEG( int thisTime )
 								memcpy( audioBuffer, frame3->extended_data[0], num_bytes );
 							}
 						}
+						// SRS - If we have cinematic audio data, play a lagged frame (for bik video sync) and save the current frame
+						if( num_bytes > 0 )
+						{
+							// SRS - If we have a lagged cinematic audio frame, then play it now
+							if( lagBufSize[ lagIndex ] > 0 )
+							{
+								// SRS - Note that PlayAudio() is responsible for releasing any audio buffers sent to it
+								cinematicAudio->PlayAudio( lagBuffer[ lagIndex ], lagBufSize[ lagIndex ] );
+							}
+
+							// SRS - Save the current (new) audio buffer and its size to play in the future
+							lagBuffer[ lagIndex ] = audioBuffer;
+							lagBufSize[ lagIndex ] = num_bytes;
+
+							// SRS - If skipLag is true (e.g. RoQ, mp4, webm), reduce lag to 1 frame since AV playback is already synced
+							lagIndex = ( lagIndex + 1 ) % ( skipLag ? 1 : NUM_LAG_FRAMES );
+						}
+						// SRS - Not sure if an audioBuffer can ever be allocated on failure, but check and free just in case
+						else if( audioBuffer )
+						{
+							av_freep( &audioBuffer );
+						}
+						//common->Printf( "idCinematic: video pts = %7.3f, audio pts = %7.3f, samples = %4d, num_bytes = %5d\n", static_cast<double>( frame->pts ) * av_q2d( dec_ctx->pkt_timebase ), static_cast<double>( frame3->pts ) * av_q2d( dec_ctx2->pkt_timebase ), frame3->nb_samples, num_bytes );
 					}
 				}
 			}
@@ -1481,23 +1547,6 @@ cinData_t idCinematicLocal::ImageForTimeFFMPEG( int thisTime )
 	img->UploadScratch( image, CIN_WIDTH, CIN_HEIGHT );
 	hasFrame = true;
 	cinData.image = img;
-
-	// SRS - If we have cinematic audio data, play a lagged frame (for FFMPEG video sync) and save the current frame
-	if( num_bytes > 0 )
-	{
-		// SRS - If we have a lagged cinematic audio frame, then play it now
-		if( lagBufSize[ lagIndex ] > 0 )
-		{
-			// SRS - Note that PlayAudio() is responsible for releasing any audio buffers sent to it
-			cinematicAudio->PlayAudio( lagBuffer[ lagIndex ], lagBufSize[ lagIndex ] );
-		}
-
-		// SRS - Save the current (new) audio buffer and its size to play NUM_LAG_FRAMES in the future
-		lagBuffer[ lagIndex ] = audioBuffer;
-		lagBufSize[ lagIndex ] = num_bytes;
-
-		lagIndex = ( lagIndex + 1 ) % ( skipLag ? 1 : NUM_LAG_FRAMES );
-	}
 
 	return cinData;
 }
@@ -1662,6 +1711,7 @@ cinData_t idCinematicLocal::ImageForTimeBinkDec( int thisTime )
 		{
 			// SRS - Even though we have no audio data to play, still need to free the audio buffer
 			Mem_Free( audioBuffer );
+			audioBuffer = NULL;
 		}
 	}
 

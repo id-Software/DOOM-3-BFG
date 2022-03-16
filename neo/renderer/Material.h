@@ -233,7 +233,7 @@ typedef enum
 	STENCIL_OP_DECRWRAP
 } stencilOperation_t;
 
-typedef struct
+typedef struct stencilStage_t			// SRS - Added tag name to avoid compile warnings with Clang
 {
 	// The value to be compared against (if Comp is anything else than always) and/or the value to be written to the buffer
 	// (if either Pass, Fail or ZFail is set to replace).

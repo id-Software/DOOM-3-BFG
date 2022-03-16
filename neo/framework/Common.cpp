@@ -1584,15 +1584,16 @@ void idCommonLocal::Shutdown()
 	printf( "declManager->Shutdown();\n" );
 	declManager->Shutdown();
 
+	// shut down the renderSystem
+	// SRS - Note this also shuts down any testVideo resources, including cinematic audio voices
+	printf( "renderSystem->Shutdown();\n" );
+	renderSystem->Shutdown();
+
 	// shut down the sound system
-	// SRS - Shut down sound system after decl manager so cinematic audio voices are destroyed first
+	// SRS - Shut down sound system after decl manager and render system so cinematic audio voices are destroyed first
 	// Important for XAudio2 where the mastering voice cannot be destroyed if any other voices exist
 	printf( "soundSystem->Shutdown();\n" );
 	soundSystem->Shutdown();
-
-	// shut down the renderSystem
-	printf( "renderSystem->Shutdown();\n" );
-	renderSystem->Shutdown();
 
 	printf( "commonDialog.Shutdown();\n" );
 	commonDialog.Shutdown();

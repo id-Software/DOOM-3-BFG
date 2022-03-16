@@ -626,10 +626,11 @@ void R_TestVideo_f( const idCmdArgs& args )
 		return;
 	}
 
-	common->Printf( "%i x %i images\n", cin.imageWidth, cin.imageHeight );
+	// SRS - video info prinout is redundant, already handled by InitFromFile()
+	//common->Printf( "%i x %i images\n", cin.imageWidth, cin.imageHeight );
 
-	int	len = tr.testVideo->AnimationLength();
-	common->Printf( "%5.1f seconds of video\n", len * 0.001 );
+	//int	len = tr.testVideo->AnimationLength();
+	//common->Printf( "%5.1f seconds of video\n", len * 0.001 );
 
 	// SRS - Not needed or used since InitFromFile() sets the correct start time automatically
 	//tr.testVideoStartTime = tr.primaryRenderView.time[1];
@@ -2184,6 +2185,13 @@ void idRenderSystemLocal::Shutdown()
 	}
 
 	renderModelManager->Shutdown();
+
+	// SRS - if testVideo is currently playing, make sure cinematic is deleted before ShutdownCinematic()
+	if( tr.testVideo )
+	{
+		delete tr.testVideo;
+		tr.testVideo = NULL;
+	}
 
 	idCinematic::ShutdownCinematic();
 

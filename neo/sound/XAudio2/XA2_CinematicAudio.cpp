@@ -53,6 +53,7 @@ public:
 		av_freep( &data );
 #elif defined(USE_BINKDEC)
 		Mem_Free( data );
+		data = NULL;
 #endif
 	}
 	//Unused methods are stubs
@@ -169,6 +170,13 @@ void CinematicAudio_XAudio2::PlayAudio( uint8_t* data, int size )
 	HRESULT hr;
 	if( FAILED( hr = pMusicSourceVoice1->SubmitSourceBuffer( &Packet ) ) )
 	{
+		// SRS - We should free the audio buffer if XAudio2 buffer submit failed
+#if defined(USE_FFMPEG)
+		av_freep( &data );
+#elif defined(USE_BINKDEC)
+		Mem_Free( data );
+		data = NULL;
+#endif
 		int fail = 1;
 	}
 
