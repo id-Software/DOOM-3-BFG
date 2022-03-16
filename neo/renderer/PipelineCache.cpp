@@ -1,11 +1,38 @@
-#include <precompiled.h>
-#pragma hdrstrop
+/*
+===========================================================================
+
+Doom 3 BFG Edition GPL Source Code
+Copyright (C) 2022 Stephen Pridham
+
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
+
+Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Doom 3 BFG Edition Source Code is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Doom 3 BFG Edition Source Code.  If not, see <http://www.gnu.org/licenses/>.
+
+In addition, the Doom 3 BFG Edition Source Code is also subject to certain additional terms. You should have received a copy of these additional terms immediately following the terms and conditions of the GNU General Public License which accompanied the Doom 3 BFG Edition Source Code.  If not, please request a copy in writing from id Software at the address below.
+
+If you have questions concerning this license or the applicable additional terms, you may contact in writing id Software LLC, c/o ZeniMax Media Inc., Suite 120, Rockville, Maryland 20850 USA.
+
+===========================================================================
+*/
+
+#include "precompiled.h"
+#pragma hdrstop
 
 #include "renderer/RenderCommon.h"
-
 #include "PipelineCache.h"
 
-void GetRenderState( uint64 stateBits, PipelineKey key, nvrhi::RenderState& renderState );
+
 
 PipelineCache::PipelineCache()
 {
@@ -52,8 +79,8 @@ nvrhi::GraphicsPipelineHandle PipelineCache::GetOrCreatePipeline( const Pipeline
 		target.enableBlend();
 	}
 	//pipelineDesc.renderState.rasterState.enableDepthClip();
-	pipelineDesc.renderState.rasterState.depthBias = 0;
-	pipelineDesc.renderState.rasterState.slopeScaledDepthBias = 0;
+	//pipelineDesc.renderState.rasterState.depthBias = 0;
+	//pipelineDesc.renderState.rasterState.slopeScaledDepthBias = 0;
 
 	// Specialize the state with the state key.
 	GetRenderState( key.state, key, pipelineDesc.renderState );
@@ -66,76 +93,86 @@ nvrhi::GraphicsPipelineHandle PipelineCache::GetOrCreatePipeline( const Pipeline
 }
 
 
-void GetRenderState( uint64 stateBits, PipelineKey key, nvrhi::RenderState& renderState )
+void PipelineCache::GetRenderState( uint64 stateBits, PipelineKey key, nvrhi::RenderState& renderState )
 {
+	/*
 	uint64 diff = stateBits ^ GLS_DEFAULT;
 
 	if( diff == 0 )
 	{
 		return;
 	}
+	*/
 
-	auto& currentBlendState = renderState.blendState;
-	auto& currentDepthStencilState = renderState.depthStencilState;
-	auto& currentRasterState = renderState.rasterState;
+	auto& rasterizationState = renderState.rasterState;
 
 	//
-	// culling
+	// culling & mirrors
 	//
-	if( diff & ( GLS_CULL_BITS ) )//| GLS_MIRROR_VIEW ) )
+	//if( stateBits & ( GLS_CULL_BITS ) )//| GLS_MIRROR_VIEW ) )
 	{
 		switch( stateBits & GLS_CULL_BITS )
 		{
 			case GLS_CULL_TWOSIDED:
-				currentRasterState.setCullNone();
+				rasterizationState.setCullNone();
 				break;
 
 			case GLS_CULL_BACKSIDED:
-				if( key.mirrored )
+				if( stateBits & GLS_MIRROR_VIEW )
 				{
-					stateBits |= GLS_MIRROR_VIEW;
-					currentRasterState.setCullFront();
+					rasterizationState.setCullFront();
 				}
 				else
 				{
-					currentRasterState.setCullBack();
+					rasterizationState.setCullBack();
 				}
 				break;
 
 			case GLS_CULL_FRONTSIDED:
 			default:
-				if( key.mirrored )
+				if( stateBits & GLS_MIRROR_VIEW )
 				{
-					stateBits |= GLS_MIRROR_VIEW;
-					currentRasterState.setCullBack();
+					rasterizationState.setCullBack();
 				}
 				else
 				{
-					currentRasterState.setCullFront();
+					rasterizationState.setCullFront();
 				}
 				break;
 		}
 	}
 
+	rasterizationState.setFrontCounterClockwise( ( stateBits & GLS_CLOCKWISE ) == 0 );
+
 	//
-	// check depthFunc bits
+	// fill/line mode
 	//
-	if( diff & GLS_DEPTHFUNC_BITS )
+	//if( diff & GLS_POLYMODE_LINE )
 	{
-		switch( stateBits & GLS_DEPTHFUNC_BITS )
+		if( stateBits & GLS_POLYMODE_LINE )
 		{
-			case GLS_DEPTHFUNC_EQUAL:
-				currentDepthStencilState.depthFunc = nvrhi::ComparisonFunc::Equal;
-				break;
-			case GLS_DEPTHFUNC_ALWAYS:
-				currentDepthStencilState.depthFunc = nvrhi::ComparisonFunc::Always;
-				break;
-			case GLS_DEPTHFUNC_LESS:
-				currentDepthStencilState.depthFunc = nvrhi::ComparisonFunc::Less;
-				break;
-			case GLS_DEPTHFUNC_GREATER:
-				currentDepthStencilState.depthFunc = nvrhi::ComparisonFunc::Greater;
-				break;
+			rasterizationState.setFillMode( nvrhi::RasterFillMode::Wireframe );
+		}
+		else
+		{
+			rasterizationState.setFillMode( nvrhi::RasterFillMode::Solid );
+		}
+	}
+
+	//
+	// polygon offset
+	//
+	//if( diff & GLS_POLYGON_OFFSET )
+	{
+		if( stateBits & GLS_POLYGON_OFFSET )
+		{
+			rasterizationState.depthBias = key.depthBias;
+			rasterizationState.slopeScaledDepthBias = key.slopeBias;
+			rasterizationState.enableQuadFill();
+		}
+		else
+		{
+			//currentRasterState.disableQuadFill();
 		}
 	}
 
@@ -144,11 +181,9 @@ void GetRenderState( uint64 stateBits, PipelineKey key, nvrhi::RenderState& rend
 	//
 	// check blend bits
 	//
-	if( diff & ( GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS ) )
+	//if( stateBits & ( GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS ) )
 	{
 		nvrhi::BlendFactor srcFactor = nvrhi::BlendFactor::One;
-		nvrhi::BlendFactor dstFactor = nvrhi::BlendFactor::One;
-
 		switch( stateBits & GLS_SRCBLEND_BITS )
 		{
 			case GLS_SRCBLEND_ZERO:
@@ -180,6 +215,7 @@ void GetRenderState( uint64 stateBits, PipelineKey key, nvrhi::RenderState& rend
 				break;
 		}
 
+		nvrhi::BlendFactor dstFactor = nvrhi::BlendFactor::Zero;
 		switch( stateBits & GLS_DSTBLEND_BITS )
 		{
 			case GLS_DSTBLEND_ZERO:
@@ -211,6 +247,24 @@ void GetRenderState( uint64 stateBits, PipelineKey key, nvrhi::RenderState& rend
 				break;
 		}
 
+		// RB: blend ops are only used by the SWF render states so far
+		nvrhi::BlendOp blendOp = nvrhi::BlendOp::Add;
+		switch( stateBits & GLS_BLENDOP_BITS )
+		{
+			case GLS_BLENDOP_MIN:
+				blendOp = nvrhi::BlendOp::Min;
+				break;
+			case GLS_BLENDOP_MAX:
+				blendOp = nvrhi::BlendOp::Max;
+				break;
+			case GLS_BLENDOP_ADD:
+				blendOp = nvrhi::BlendOp::Add;
+				break;
+			case GLS_BLENDOP_SUB:
+				blendOp = nvrhi::BlendOp::Subrtact;
+				break;
+		}
+
 		// Only actually update GL's blend func if blending is enabled.
 		if( srcFactor == nvrhi::BlendFactor::One && dstFactor == nvrhi::BlendFactor::Zero )
 		{
@@ -218,32 +272,23 @@ void GetRenderState( uint64 stateBits, PipelineKey key, nvrhi::RenderState& rend
 		}
 		else
 		{
-			currentBlendState.setAlphaToCoverageEnable( true );
+			//colorBlendState.setAlphaToCoverageEnable( true );
 			renderTarget.enableBlend();
+
+			//renderTarget.setBlendOp( blendOp );
 			renderTarget.setSrcBlend( srcFactor );
 			renderTarget.setDestBlend( dstFactor );
-		}
-	}
 
-	//
-	// check depthmask
-	//
-	if( diff & GLS_DEPTHMASK )
-	{
-		if( stateBits & GLS_DEPTHMASK )
-		{
-			currentDepthStencilState.disableDepthWrite();
-			if( ( stateBits & GLS_DEPTHFUNC_BITS ) == GLS_DEPTHFUNC_ALWAYS )
-			{
-				currentDepthStencilState.disableDepthTest();
-			}
+			//renderTarget.setBlendOpAlpha( blendOp );
+			//renderTarget.setSrcBlendAlpha( srcFactor );
+			//renderTarget.setDestBlendAlpha( dstFactor );
 		}
 	}
 
 	//
 	// check colormask
 	//
-	if( diff & ( GLS_REDMASK | GLS_GREENMASK | GLS_BLUEMASK | GLS_ALPHAMASK ) )
+	//if( diff & ( GLS_REDMASK | GLS_GREENMASK | GLS_BLUEMASK | GLS_ALPHAMASK ) )
 	{
 		nvrhi::ColorMask mask{ nvrhi::ColorMask::All };
 
@@ -268,39 +313,45 @@ void GetRenderState( uint64 stateBits, PipelineKey key, nvrhi::RenderState& rend
 		renderTarget.setColorWriteMask( mask );
 	}
 
-	currentBlendState.setRenderTarget( 0, renderTarget );
+	renderState.blendState.setRenderTarget( 0, renderTarget );
+
+
+	auto& depthStencilState = renderState.depthStencilState;
 
 	//
-	// fill/line mode
+	// check depthFunc bits
 	//
-	if( diff & GLS_POLYMODE_LINE )
+	//if( diff & GLS_DEPTHFUNC_BITS )
 	{
-		if( stateBits & GLS_POLYMODE_LINE )
+		switch( stateBits & GLS_DEPTHFUNC_BITS )
 		{
-			currentRasterState.setFillMode( nvrhi::RasterFillMode::Wireframe );
-			//currentRasterState.setCullNone();
-		}
-		else
-		{
-			//currentRasterState.setCullNone();
-			currentRasterState.setFillMode( nvrhi::RasterFillMode::Solid );
+			case GLS_DEPTHFUNC_EQUAL:
+				depthStencilState.depthFunc = nvrhi::ComparisonFunc::Equal;
+				break;
+			case GLS_DEPTHFUNC_ALWAYS:
+				depthStencilState.depthFunc = nvrhi::ComparisonFunc::Always;
+				break;
+			case GLS_DEPTHFUNC_LESS:
+				depthStencilState.depthFunc = nvrhi::ComparisonFunc::LessOrEqual;
+				break;
+			case GLS_DEPTHFUNC_GREATER:
+				depthStencilState.depthFunc = nvrhi::ComparisonFunc::Greater;
+				break;
 		}
 	}
 
 	//
-	// polygon offset
+	// check depthmask
 	//
-	if( diff & GLS_POLYGON_OFFSET )
+	//if( diff & GLS_DEPTHMASK )
 	{
-		if( stateBits & GLS_POLYGON_OFFSET )
+		if( stateBits & GLS_DEPTHMASK )
 		{
-			currentRasterState.depthBias = key.depthBias;
-			currentRasterState.slopeScaledDepthBias = key.slopeBias;
-			currentRasterState.enableQuadFill();
-		}
-		else
-		{
-			//currentRasterState.disableQuadFill();
+			depthStencilState.disableDepthWrite();
+			if( ( stateBits & GLS_DEPTHFUNC_BITS ) == GLS_DEPTHFUNC_ALWAYS )
+			{
+				depthStencilState.disableDepthTest();
+			}
 		}
 	}
 
@@ -309,28 +360,27 @@ void GetRenderState( uint64 stateBits, PipelineKey key, nvrhi::RenderState& rend
 	//
 	// stencil
 	//
-	if( diff & ( GLS_STENCIL_FUNC_BITS | GLS_STENCIL_OP_BITS ) )
+	//if( diff & ( GLS_STENCIL_FUNC_BITS | GLS_STENCIL_OP_BITS ) )
 	{
 		if( ( stateBits & ( GLS_STENCIL_FUNC_BITS | GLS_STENCIL_OP_BITS ) ) != 0 )
 		{
-			currentDepthStencilState.enableStencil();
-			//currentDepthStencilState.enableDepthWrite();
+			depthStencilState.enableStencil();
 		}
 		else
 		{
-			currentDepthStencilState.disableStencil();
-			//currentDepthStencilState.disableDepthWrite();
+			depthStencilState.disableStencil();
 		}
 	}
-	if( diff & ( GLS_STENCIL_FUNC_BITS | GLS_STENCIL_FUNC_REF_BITS | GLS_STENCIL_FUNC_MASK_BITS ) )
+
+	if( stateBits & ( GLS_STENCIL_FUNC_BITS | GLS_STENCIL_FUNC_REF_BITS | GLS_STENCIL_FUNC_MASK_BITS ) )
 	{
 		GLuint ref = GLuint( ( stateBits & GLS_STENCIL_FUNC_REF_BITS ) >> GLS_STENCIL_FUNC_REF_SHIFT );
 		GLuint mask = GLuint( ( stateBits & GLS_STENCIL_FUNC_MASK_BITS ) >> GLS_STENCIL_FUNC_MASK_SHIFT );
 		GLenum func = 0;
 
-		currentDepthStencilState.setStencilRefValue( ( stateBits & GLS_STENCIL_FUNC_REF_BITS ) >> GLS_STENCIL_FUNC_REF_SHIFT );
-		currentDepthStencilState.setStencilReadMask( ( stateBits & GLS_STENCIL_FUNC_MASK_BITS ) >> GLS_STENCIL_FUNC_MASK_SHIFT );
-		currentDepthStencilState.setStencilWriteMask( ( stateBits & GLS_STENCIL_FUNC_MASK_BITS ) >> GLS_STENCIL_FUNC_MASK_SHIFT );
+		depthStencilState.setStencilRefValue( ( stateBits & GLS_STENCIL_FUNC_REF_BITS ) >> GLS_STENCIL_FUNC_REF_SHIFT );
+		depthStencilState.setStencilReadMask( ( stateBits & GLS_STENCIL_FUNC_MASK_BITS ) >> GLS_STENCIL_FUNC_MASK_SHIFT );
+		depthStencilState.setStencilWriteMask( ( stateBits & GLS_STENCIL_FUNC_MASK_BITS ) >> GLS_STENCIL_FUNC_MASK_SHIFT );
 
 		switch( stateBits & GLS_STENCIL_FUNC_BITS )
 		{
@@ -360,7 +410,8 @@ void GetRenderState( uint64 stateBits, PipelineKey key, nvrhi::RenderState& rend
 				break;
 		}
 	}
-	if( diff & ( GLS_STENCIL_OP_FAIL_BITS | GLS_STENCIL_OP_ZFAIL_BITS | GLS_STENCIL_OP_PASS_BITS ) )
+
+	if( stateBits & ( GLS_STENCIL_OP_FAIL_BITS | GLS_STENCIL_OP_ZFAIL_BITS | GLS_STENCIL_OP_PASS_BITS ) )
 	{
 		GLenum sFail = 0;
 		GLenum zFail = 0;
@@ -393,6 +444,7 @@ void GetRenderState( uint64 stateBits, PipelineKey key, nvrhi::RenderState& rend
 				stencilOp.setFailOp( nvrhi::StencilOp::DecrementAndWrap );
 				break;
 		}
+
 		switch( stateBits & GLS_STENCIL_OP_ZFAIL_BITS )
 		{
 			case GLS_STENCIL_OP_ZFAIL_KEEP:
@@ -420,6 +472,7 @@ void GetRenderState( uint64 stateBits, PipelineKey key, nvrhi::RenderState& rend
 				stencilOp.setDepthFailOp( nvrhi::StencilOp::DecrementAndWrap );
 				break;
 		}
+
 		switch( stateBits & GLS_STENCIL_OP_PASS_BITS )
 		{
 			case GLS_STENCIL_OP_PASS_KEEP:
@@ -449,5 +502,5 @@ void GetRenderState( uint64 stateBits, PipelineKey key, nvrhi::RenderState& rend
 		}
 	}
 
-	currentDepthStencilState.setFrontFaceStencil( stencilOp );
+	depthStencilState.setFrontFaceStencil( stencilOp );
 }

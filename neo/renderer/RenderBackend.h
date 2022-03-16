@@ -513,7 +513,7 @@ private:
 	idStaticList<nvrhi::BindingSetDesc, nvrhi::c_MaxBindingLayouts> pendingBindingSetDescs;
 	nvrhi::BindingLayoutHandle		currentBindingLayout;
 	nvrhi::GraphicsPipelineHandle	currentPipeline;
-	nvrhi::RenderState				currentRenderState;
+	//nvrhi::RenderState				currentRenderState;
 
 	Framebuffer*					currentFrameBuffer;
 	Framebuffer*					lastFrameBuffer;

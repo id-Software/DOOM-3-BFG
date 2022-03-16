@@ -1024,6 +1024,7 @@ void idImage::GenerateImage( const byte* pic, int width, int height, textureFilt
 			{
 				const bimageImage_t& img = im.GetImageHeader( i );
 				const byte* data = im.GetImageData( i );
+
 				int rowPitch = GetRowPitch( opts.format, img.width );
 				commandList->writeTexture( texture, img.destZ, img.level, data, rowPitch );
 			}
@@ -1112,11 +1113,7 @@ void idImage::GenerateCubeImage( const byte* pic[6], int size, textureFilter_t f
 	{
 		const bimageImage_t& img = im.GetImageHeader( i );
 		const byte* data = im.GetImageData( i );
-		int bufferW = img.width;
-		if( IsCompressed() )
-		{
-			bufferW = ( img.width + 3 ) & ~3;
-		}
+
 		commandList->writeTexture( texture, 0, img.level, data, GetRowPitch( opts.format, img.width ) );
 	}
 
