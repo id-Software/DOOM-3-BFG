@@ -66,10 +66,12 @@ static void MapGeoBufferSet( geoBufferSet_t& gbs )
 	{
 		gbs.mappedVertexBase = ( byte* )gbs.vertexBuffer.MapBuffer( BM_WRITE );
 	}
+
 	if( gbs.mappedIndexBase == NULL )
 	{
 		gbs.mappedIndexBase = ( byte* )gbs.indexBuffer.MapBuffer( BM_WRITE );
 	}
+
 	if( gbs.mappedJointBase == NULL && gbs.jointBuffer.GetAllocedSize() != 0 )
 	{
 		gbs.mappedJointBase = ( byte* )gbs.jointBuffer.MapBuffer( BM_WRITE );
@@ -88,11 +90,13 @@ static void UnmapGeoBufferSet( geoBufferSet_t& gbs )
 		gbs.vertexBuffer.UnmapBuffer();
 		gbs.mappedVertexBase = NULL;
 	}
+
 	if( gbs.mappedIndexBase != NULL )
 	{
 		gbs.indexBuffer.UnmapBuffer();
 		gbs.mappedIndexBase = NULL;
 	}
+
 	if( gbs.mappedJointBase != NULL )
 	{
 		gbs.jointBuffer.UnmapBuffer();

@@ -119,9 +119,9 @@ public:
 	void			FreeStaticData();
 
 	// this data is only valid for one frame of rendering
-	vertCacheHandle_t	AllocVertex( const void* data, int num, size_t size, nvrhi::ICommandList* commandList );
-	vertCacheHandle_t	AllocIndex( const void* data, int num, size_t size, nvrhi::ICommandList* commandList );
-	vertCacheHandle_t	AllocJoint( const void* data, int num, size_t size, nvrhi::ICommandList* commandList );
+	vertCacheHandle_t	AllocVertex( const void* data, int num, size_t size = sizeof( idDrawVert ), nvrhi::ICommandList* commandList = nullptr );
+	vertCacheHandle_t	AllocIndex( const void* data, int num, size_t size = sizeof( triIndex_t ), nvrhi::ICommandList* commandList = nullptr );
+	vertCacheHandle_t	AllocJoint( const void* data, int num, size_t size = sizeof( idJointMat ), nvrhi::ICommandList* commandList = nullptr );
 
 	// this data is valid until the next map load
 	vertCacheHandle_t	AllocStaticVertex( const void* data, int bytes, nvrhi::ICommandList* commandList );

@@ -793,7 +793,7 @@ drawSurf_t* idRenderModelOverlay::CreateOverlayDrawSurf( const viewEntity_t* spa
 	drawSurf->renderZFail = 0;
 
 	R_SetupDrawSurfShader( drawSurf, material, &space->entityDef->parms );
-	R_SetupDrawSurfJoints( drawSurf, newTri, NULL, nullptr );
+	R_SetupDrawSurfJoints( drawSurf, newTri, NULL );
 
 	return drawSurf;
 }

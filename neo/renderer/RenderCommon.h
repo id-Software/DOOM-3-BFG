@@ -1509,7 +1509,7 @@ idRenderModel* R_EntityDefDynamicModel( idRenderEntityLocal* def );
 void R_ClearEntityDefDynamicModel( idRenderEntityLocal* def );
 
 void R_SetupDrawSurfShader( drawSurf_t* drawSurf, const idMaterial* shader, const renderEntity_t* renderEntity );
-void R_SetupDrawSurfJoints( drawSurf_t* drawSurf, const srfTriangles_t* tri, const idMaterial* shader, nvrhi::ICommandList* commandList );
+void R_SetupDrawSurfJoints( drawSurf_t* drawSurf, const srfTriangles_t* tri, const idMaterial* shader, nvrhi::ICommandList* commandList = nullptr );
 void R_LinkDrawSurfToView( drawSurf_t* drawSurf, viewDef_t* viewDef );
 
 void R_AddModels();
