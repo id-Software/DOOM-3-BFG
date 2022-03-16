@@ -1049,7 +1049,11 @@ void idRenderBackend::GL_Clear( bool color, bool depth, bool stencil, byte stenc
 	// TODO: Do something if there is no depth-stencil attachment.
 	if( color )
 	{
-		nvrhi::utils::ClearColorAttachment( commandList, deviceManager->GetCurrentFramebuffer(), 0, nvrhi::Color( 0.f ) );
+		nvrhi::utils::ClearColorAttachment( commandList, Framebuffer::GetActiveFramebuffer()->GetApiObject(), 0, nvrhi::Color( 0.f ) );
+	}
+
+	if( clearHDR )
+	{
 		nvrhi::utils::ClearColorAttachment( commandList, globalFramebuffers.hdrFBO->GetApiObject(), 0, nvrhi::Color( 0.f ) );
 	}
 
@@ -1262,7 +1266,9 @@ void idRenderBackend::SetBuffer( const void* data )
 
 	const setBufferCommand_t* cmd = ( const setBufferCommand_t* )data;
 
-	RENDERLOG_PRINTF( "---------- RB_SetBuffer ---------- to buffer # %d\n", cmd->buffer );
+	//RENDERLOG_PRINTF( "---------- RB_SetBuffer ---------- to buffer # %d\n", cmd->buffer );
+
+	renderLog.OpenBlock( "Render_SetBuffer" );
 
 	currentScissor.Clear();
 	currentScissor.AddPoint( 0, 0 );
@@ -1291,6 +1297,8 @@ void idRenderBackend::SetBuffer( const void* data )
 			GL_Clear( true, false, false, 0, 0.4f, 0.0f, 0.25f, 1.0f, true );
 		}
 	}
+
+	renderLog.CloseBlock();
 }
 
 /*

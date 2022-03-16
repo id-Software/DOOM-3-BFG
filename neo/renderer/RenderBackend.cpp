@@ -2234,13 +2234,8 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 #endif
 
 
-	/*
-	if( !fillGbuffer )
-	{
-		// clear gbuffer
-		GL_Clear( true, false, false, 0, 0.0f, 0.0f, 0.0f, 1.0f, false );
-	}
-	*/
+	renderLog.OpenMainBlock( fillGbuffer ? MRB_FILL_GEOMETRY_BUFFER : MRB_AMBIENT_PASS, commandList );
+	renderLog.OpenBlock( fillGbuffer ? "Fill_GeometryBuffer" : "Render_AmbientPass", colorBlue );
 
 	if( fillGbuffer )
 	{
@@ -2285,11 +2280,10 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 
 		SetFragmentParm( RENDERPARM_ALPHA_TEST, vec4_zero.ToFloatPtr() );
 
+		renderLog.CloseBlock();
+		renderLog.CloseMainBlock();
 		return;
 	}
-
-	renderLog.OpenMainBlock( fillGbuffer ? MRB_FILL_GEOMETRY_BUFFER : MRB_AMBIENT_PASS, commandList );
-	renderLog.OpenBlock( fillGbuffer ? "Fill_GeometryBuffer" : "Render_AmbientPass", colorBlue );
 
 	if( fillGbuffer )
 	{
@@ -5562,7 +5556,7 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 	if( r_useHierarchicalDepthBuffer.GetBool() )
 	{
 #if defined( USE_NVRHI )
-		commandList->beginMarker( "Render_HiZ" );
+		renderLog.OpenBlock( "Render_HiZ" );
 
 		commonPasses.BlitTexture(
 			commandList,
@@ -5572,7 +5566,6 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 
 		hiZGenPass->Dispatch( commandList, MAX_HIERARCHICAL_ZBUFFERS );
 
-		commandList->endMarker();
 		renderLog.CloseBlock();
 
 #else
@@ -5657,7 +5650,7 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 			globalFramebuffers.ambientOcclusionFBO[0]->Bind();
 
 #if defined( USE_NVRHI )
-			GL_Clear( true, false, false, 0, 0, 0, 0, 0 );
+			GL_Clear( true, false, false, 0, 0, 0, 0, 0, false );
 #else
 			glClearColor( 0, 0, 0, 0 );
 			glClear( GL_COLOR_BUFFER_BIT );
@@ -5867,7 +5860,6 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 
 	GL_State( GLS_DEFAULT );
 
-	commandList->endMarker();
 	renderLog.CloseBlock();
 	renderLog.CloseMainBlock();
 }
@@ -6378,14 +6370,10 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 	// ensures that depth writes are enabled for the depth clear
 	GL_State( GLS_DEFAULT | GLS_CULL_FRONTSIDED, true );
 
-	//GL_CheckErrors();
-
-	// RB begin
-	bool useHDR = r_useHDR.GetBool() && !_viewDef->is2Dgui;
-
 	// Clear the depth buffer and clear the stencil to 128 for stencil shadows as well as gui masking
-	GL_Clear( false, true, true, STENCIL_SHADOW_TEST_VALUE, 0.0f, 0.0f, 0.0f, 0.0f, useHDR );
+	GL_Clear( false, true, true, STENCIL_SHADOW_TEST_VALUE, 0.0f, 0.0f, 0.0f, 0.0f, false );
 
+	bool useHDR = r_useHDR.GetBool() && !_viewDef->is2Dgui;
 	if( useHDR )
 	{
 		if( _viewDef->renderView.rdflags & RDF_IRRADIANCE )
