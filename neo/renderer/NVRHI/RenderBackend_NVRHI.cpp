@@ -755,6 +755,13 @@ void idRenderBackend::GetCurrentBindingLayout()
 		.addItem( nvrhi::BindingSetItem::Sampler( 0, ( nvrhi::ISampler* )GetImageAt( 0 )->GetSampler( samplerCache ) ) );
 	}
 	*/
+	else if( type == BINDING_LAYOUT_DRAW_SHADOW )
+	{
+		pendingBindingSetDescs[0].bindings =
+		{
+			nvrhi::BindingSetItem::ConstantBuffer( 0, renderProgManager.ConstantBuffer() )
+		};
+	}
 	else if( type == BINDING_LAYOUT_DRAW_INTERACTION )
 	{
 		pendingBindingSetDescs[0].bindings =
@@ -1057,11 +1064,11 @@ void idRenderBackend::GL_Clear( bool color, bool depth, bool stencil, byte stenc
 		nvrhi::utils::ClearColorAttachment( commandList, globalFramebuffers.hdrFBO->GetApiObject(), 0, nvrhi::Color( 0.f ) );
 	}
 
-	if( depth )
+	if( depth || stencil )
 	{
 		nvrhi::ITexture* depthTexture = ( nvrhi::ITexture* )( globalImages->currentDepthImage->GetTextureID() );
 		const nvrhi::FormatInfo& depthFormatInfo = nvrhi::getFormatInfo( depthTexture->getDesc().format );
-		commandList->clearDepthStencilTexture( depthTexture, nvrhi::AllSubresources, true, 1.f, depthFormatInfo.hasStencil, 0 );
+		commandList->clearDepthStencilTexture( depthTexture, nvrhi::AllSubresources, depth, 1.f, depthFormatInfo.hasStencil, stencilValue );
 	}
 }
 
@@ -1318,6 +1325,169 @@ extern idCVar r_useStencilShadowPreload;
 
 void idRenderBackend::DrawStencilShadowPass( const drawSurf_t* drawSurf, const bool renderZPass )
 {
+#if 0
+	if( renderZPass )
+	{
+		// Z-pass
+		uint64 stencil = GLS_STENCIL_OP_FAIL_KEEP | GLS_STENCIL_OP_ZFAIL_KEEP | GLS_STENCIL_OP_PASS_INCR
+						 | GLS_BACK_STENCIL_OP_FAIL_KEEP | GLS_BACK_STENCIL_OP_ZFAIL_KEEP | GLS_BACK_STENCIL_OP_PASS_DECR;
+
+		GL_State( ( glStateBits & ~GLS_STENCIL_OP_BITS ) | stencil );
+	}
+	else if( r_useStencilShadowPreload.GetBool() )
+	{
+		// preload + Z-pass
+		uint64 stencil = GLS_STENCIL_OP_FAIL_KEEP | GLS_STENCIL_OP_ZFAIL_DECR | GLS_STENCIL_OP_PASS_DECR
+						 | GLS_BACK_STENCIL_OP_FAIL_KEEP | GLS_BACK_STENCIL_OP_ZFAIL_INCR | GLS_BACK_STENCIL_OP_PASS_INCR;
+
+		GL_State( ( glStateBits & ~GLS_STENCIL_OP_BITS ) | stencil );
+	}
+	else
+	{
+		// Z-fail (Carmack's Reverse)
+		uint64 stencil = GLS_STENCIL_OP_FAIL_KEEP | GLS_STENCIL_OP_ZFAIL_DECR | GLS_STENCIL_OP_PASS_KEEP
+						 | GLS_BACK_STENCIL_OP_FAIL_KEEP | GLS_BACK_STENCIL_OP_ZFAIL_INCR | GLS_BACK_STENCIL_OP_PASS_KEEP;
+
+		GL_State( ( glStateBits & ~GLS_STENCIL_OP_BITS ) | stencil );
+	}
+
+	// get vertex buffer
+	const vertCacheHandle_t vbHandle = drawSurf->shadowCache;
+	idVertexBuffer* vertexBuffer;
+	if( vertexCache.CacheIsStatic( vbHandle ) )
+	{
+		vertexBuffer = &vertexCache.staticData.vertexBuffer;
+	}
+	else
+	{
+		const uint64 frameNum = ( int )( vbHandle >> VERTCACHE_FRAME_SHIFT ) & VERTCACHE_FRAME_MASK;
+		if( frameNum != ( ( vertexCache.currentFrame - 1 ) & VERTCACHE_FRAME_MASK ) )
+		{
+			idLib::Warning( "DrawStencilShadowPass, vertexBuffer == NULL" );
+			return;
+		}
+		vertexBuffer = &vertexCache.frameData[vertexCache.drawListNum].vertexBuffer;
+	}
+	const uint vertOffset = ( uint )( vbHandle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
+
+	bool changeState = false;
+
+	if( currentVertexOffset != vertOffset )
+	{
+		currentVertexOffset = vertOffset;
+	}
+
+	if( currentVertexBuffer != ( nvrhi::IBuffer* )vertexBuffer->GetAPIObject() || !r_useStateCaching.GetBool() )
+	{
+		currentVertexBuffer = vertexBuffer->GetAPIObject();
+		changeState = true;
+	}
+
+	// get index buffer
+	const vertCacheHandle_t ibHandle = drawSurf->indexCache;
+	idIndexBuffer* indexBuffer;
+	if( vertexCache.CacheIsStatic( ibHandle ) )
+	{
+		indexBuffer = &vertexCache.staticData.indexBuffer;
+	}
+	else
+	{
+		const uint64 frameNum = ( int )( ibHandle >> VERTCACHE_FRAME_SHIFT ) & VERTCACHE_FRAME_MASK;
+		if( frameNum != ( ( vertexCache.currentFrame - 1 ) & VERTCACHE_FRAME_MASK ) )
+		{
+			idLib::Warning( "DrawStencilShadowPass, indexBuffer == NULL" );
+			return;
+		}
+		indexBuffer = &vertexCache.frameData[vertexCache.drawListNum].indexBuffer;
+	}
+	const uint indexOffset = ( uint )( ibHandle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
+
+	if( currentIndexOffset != indexOffset )
+	{
+		currentIndexOffset = indexOffset;
+	}
+
+	//RENDERLOG_PRINTF( "Binding Buffers: %p:%i %p:%i\n", vertexBuffer, vertOffset, indexBuffer, indexOffset );
+
+	if( currentIndexBuffer != ( nvrhi::IBuffer* )indexBuffer->GetAPIObject() || !r_useStateCaching.GetBool() )
+	{
+		currentIndexBuffer = indexBuffer->GetAPIObject();
+		changeState = true;
+	}
+
+	GetCurrentBindingLayout();
+
+	// RB: for debugging
+	int program = renderProgManager.CurrentProgram();
+	int bindingLayoutType = renderProgManager.BindingLayoutType();
+	auto& info = renderProgManager.GetProgramInfo( program );
+
+	for( int i = 0; i < info.bindingLayouts->Num(); i++ )
+	{
+		if( !currentBindingSets[i] || *currentBindingSets[i]->getDesc() != pendingBindingSetDescs[i] )
+		{
+			currentBindingSets[i] = bindingCache.GetOrCreateBindingSet( pendingBindingSetDescs[i], ( *info.bindingLayouts )[i] );
+			changeState = true;
+		}
+	}
+
+	renderProgManager.CommitConstantBuffer( commandList );
+
+	PipelineKey key{ glStateBits, program, depthBias, slopeScaleBias, currentFrameBuffer };
+	auto pipeline = pipelineCache.GetOrCreatePipeline( key );
+
+	if( currentPipeline != pipeline )
+	{
+		currentPipeline = pipeline;
+		changeState = true;
+	}
+
+	if( changeState )
+	{
+		nvrhi::GraphicsState state;
+
+		for( int i = 0; i < info.bindingLayouts->Num(); i++ )
+		{
+			state.bindings.push_back( currentBindingSets[i] );
+		}
+
+		state.indexBuffer = { currentIndexBuffer, nvrhi::Format::R16_UINT, 0 };
+		state.vertexBuffers = { { currentVertexBuffer, 0, 0 } };
+		state.pipeline = pipeline;
+		state.framebuffer = currentFrameBuffer->GetApiObject();
+
+		nvrhi::Viewport viewport{ ( float )currentViewport.x1,
+								  ( float )currentViewport.x2,
+								  ( float )currentViewport.y1,
+								  ( float )currentViewport.y2,
+								  currentViewport.zmin,
+								  currentViewport.zmax };
+		state.viewport.addViewportAndScissorRect( viewport );
+
+		if( !currentScissor.IsEmpty() )
+		{
+			state.viewport.addScissorRect( nvrhi::Rect( currentScissor.x1, currentScissor.x2, currentScissor.y1, currentScissor.y2 ) );
+		}
+
+		commandList->setGraphicsState( state );
+	}
+
+	nvrhi::DrawArguments args;
+	if( drawSurf->jointCache )
+	{
+		args.startVertexLocation = currentVertexOffset / sizeof( idShadowVertSkinned );
+	}
+	else
+	{
+		args.startVertexLocation = currentVertexOffset / sizeof( idShadowVert );
+	}
+	args.startIndexLocation = currentIndexOffset / sizeof( uint16 );
+	args.vertexCount = drawSurf->numIndexes;
+	commandList->drawIndexed( args );
+
+	pc.c_drawElements++;
+	pc.c_drawIndexes += drawSurf->numIndexes;
+#endif
 }
 
 

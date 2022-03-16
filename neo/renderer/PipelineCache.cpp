@@ -309,7 +309,7 @@ void PipelineCache::GetRenderState( uint64 stateBits, PipelineKey key, nvrhi::Re
 			mask = mask & ~nvrhi::ColorMask::Alpha;
 		}
 
-		renderTarget.enableBlend();
+		//renderTarget.enableBlend();
 		renderTarget.setColorWriteMask( mask );
 	}
 
