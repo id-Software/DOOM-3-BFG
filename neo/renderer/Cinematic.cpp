@@ -221,7 +221,7 @@ private:
 	// RB end
 
 	//GK:Also init variables for XAudio2 or OpenAL (SRS - this must be an instance variable)
-	CinematicAudio*			cinematicAudio;
+	CinematicAudio*			cinematicAudio = NULL;
 };
 
 // Carl: ROQ files from original Doom 3
@@ -525,13 +525,6 @@ idCinematicLocal::idCinematicLocal()
 		opts.numLevels = 1;
 		img->AllocImage( opts, TF_LINEAR, TR_REPEAT );
 	}
-
-	//GK: Make sure the cinematic voices are the first to be initialized
-#if defined(_MSC_VER) && !defined(USE_OPENAL)
-	cinematicAudio = new( TAG_AUDIO ) CinematicAudio_XAudio2;
-#else
-	cinematicAudio = new( TAG_AUDIO ) CinematicAudio_OpenAL;
-#endif
 }
 
 /*
@@ -578,9 +571,13 @@ idCinematicLocal::~idCinematicLocal()
 	delete img;
 	img = NULL;
 
-	//GK: Properly close local XAudio2 or OpenAL voice
-	cinematicAudio->ShutdownAudio();
-	delete cinematicAudio;
+	// GK/SRS - Properly close and delete XAudio2 or OpenAL voice if instantiated
+	if( cinematicAudio )
+	{
+		cinematicAudio->ShutdownAudio();
+		delete cinematicAudio;
+		cinematicAudio = NULL;
+	}
 }
 
 #if defined(USE_FFMPEG)
@@ -751,6 +748,11 @@ bool idCinematicLocal::InitFromFFMPEGFile( const char* qpath, bool amilooping )
 			hasplanar = false;
 		}
 		common->Printf( "Cinematic audio stream found: Sample Rate=%d Hz, Channels=%d, Format=%s, Planar=%d\n", dec_ctx2->sample_rate, dec_ctx2->channels, GetSampleFormat( dec_ctx2->sample_fmt ), hasplanar );
+ #if defined(_MSC_VER) && !defined(USE_OPENAL)
+		cinematicAudio = new( TAG_AUDIO ) CinematicAudio_XAudio2;
+ #else
+		cinematicAudio = new( TAG_AUDIO ) CinematicAudio_OpenAL;
+ #endif
 		cinematicAudio->InitAudio( dec_ctx2 );
 	}
 	else
@@ -825,8 +827,8 @@ void idCinematicLocal::FFMPEGReset()
 
 	framePos = -1;
 
-	// SRS - If we have an ffmpeg audio context, reset audio to release any stale buffers and avoid AV drift if looping
-	if( dec_ctx2 )
+	// SRS - If we have cinematic audio, reset audio to release any stale buffers and avoid AV drift if looping
+	if( cinematicAudio )
 	{
 		cinematicAudio->ResetAudio();
 
@@ -924,6 +926,11 @@ bool idCinematicLocal::InitFromBinkDecFile( const char* qpath, bool amilooping )
 		trackIndex = 0;														// SRS - Use the first audio track - is this reasonable?
 		binkInfo = Bink_GetAudioTrackDetails( binkHandle, trackIndex );
 		common->Printf( "Cinematic audio stream found: Sample Rate=%d Hz, Channels=%d, Format=16-bit\n", binkInfo.sampleRate, binkInfo.nChannels );
+#if defined(_MSC_VER) && !defined(USE_OPENAL)
+		cinematicAudio = new( TAG_AUDIO ) CinematicAudio_XAudio2;
+#else
+		cinematicAudio = new( TAG_AUDIO ) CinematicAudio_OpenAL;
+#endif
 		cinematicAudio->InitAudio( &binkInfo );
 	}
 
@@ -953,8 +960,8 @@ void idCinematicLocal::BinkDecReset()
 {
 	framePos = -1;
 
-	// SRS - If we have bink audio tracks, reset audio to release any stale buffers (even if looping)
-	if( audioTracks > 0 )
+	// SRS - If we have cinematic audio, reset audio to release any stale buffers (even if looping)
+	if( cinematicAudio )
 	{
 		cinematicAudio->ResetAudio();
 	}
@@ -1143,10 +1150,13 @@ void idCinematicLocal::Close()
 			img_convert_ctx = NULL;
 		}
 
-		// SRS - Free audio codec context, resample context, and any lagged audio buffers
-		if( dec_ctx2 )
+		// SRS - If we have cinematic audio, free audio codec context, resample context, and any lagged audio buffers
+		if( cinematicAudio )
 		{
-			avcodec_free_context( &dec_ctx2 );
+			if( dec_ctx2 )
+			{
+				avcodec_free_context( &dec_ctx2 );
+			}
 
 			// SRS - Free resample context if we were decoding planar audio
 			if( swr_ctx )
@@ -1154,6 +1164,7 @@ void idCinematicLocal::Close()
 				swr_free( &swr_ctx );
 			}
 
+			lagIndex = 0;
 			for( int i = 0; i < NUM_LAG_FRAMES; i++ )
 			{
 				lagBufSize[ i ] = 0;
@@ -1484,7 +1495,7 @@ cinData_t idCinematicLocal::ImageForTimeFFMPEG( int thisTime )
 				}
 			}
 			//GK:Begin
-			else if( packet.stream_index == audio_stream_index ) //Check if it found any audio data
+			else if( cinematicAudio && packet.stream_index == audio_stream_index ) //Check if it found any audio data
 			{
 				res = avcodec_send_packet( dec_ctx2, &packet );
 				if( res != 0 && res != AVERROR( EAGAIN ) )
@@ -1727,7 +1738,7 @@ cinData_t idCinematicLocal::ImageForTimeBinkDec( int thisTime )
 	cinData.imageCr = imgCr;
 	cinData.imageCb = imgCb;
 
-	if( audioTracks > 0 )
+	if( cinematicAudio )
 	{
 		audioBuffer = ( int16_t* )Mem_Alloc( binkInfo.idealBufferSize, TAG_AUDIO );
 		num_bytes = Bink_GetAudioData( binkHandle, trackIndex, audioBuffer );
