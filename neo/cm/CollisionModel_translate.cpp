@@ -872,6 +872,8 @@ void idCollisionModelManagerLocal::Translation( trace_t* results, const idVec3& 
 	tw.trace.fraction = 1.0f;
 	tw.trace.c.contents = 0;
 	tw.trace.c.type = CONTACT_NONE;
+	tw.trace.c.material = NULL;
+	tw.trace.c.id = 0;
 	tw.contents = contentMask;
 	tw.isConvex = true;
 	tw.rotation = false;
