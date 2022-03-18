@@ -37,7 +37,8 @@ If you have questions concerning this license or the applicable additional terms
 #endif
 
 
-extern idCVar s_noSound;
+// SRS - Add cvar to control whether cinematic audio is played: default is ON
+idCVar s_playCinematicAudio( "s_playCinematicAudio", "1", CVAR_BOOL, "Play audio if available in cinematic video files" );
 
 #define JPEG_INTERNALS
 //extern "C" {
@@ -718,7 +719,7 @@ bool idCinematicLocal::InitFromFFMPEGFile( const char* qpath, bool amilooping )
 	//GK:Begin
 	//After the video decoder is open then try to open audio decoder
 	ret2 = av_find_best_stream( fmt_ctx, AVMEDIA_TYPE_AUDIO, -1, -1, &dec2, 0 );
-	if( ret2 >= 0 )  //Make audio optional (only intro video has audio no other)
+	if( ret2 >= 0 && s_playCinematicAudio.GetBool() )  //Make audio optional (only intro video has audio no other)
 	{
 		audio_stream_index = ret2;
 		dec_ctx2 = avcodec_alloc_context3( dec2 );
@@ -754,11 +755,6 @@ bool idCinematicLocal::InitFromFFMPEGFile( const char* qpath, bool amilooping )
 		cinematicAudio = new( TAG_AUDIO ) CinematicAudio_OpenAL;
  #endif
 		cinematicAudio->InitAudio( dec_ctx2 );
-	}
-	else
-	{
-		// SRS - Most cinematics have no audio, so disable the warning to reduce distracting log messages
-		//common->Warning("idCinematic: Cannot find an audio stream in: '%s', %d\n", qpath, looping);
 	}
 	//GK:End
 	CIN_WIDTH = dec_ctx->width;
@@ -921,7 +917,7 @@ bool idCinematicLocal::InitFromBinkDecFile( const char* qpath, bool amilooping )
 
 	// SRS - Support Bink Audio for cinematic playback
 	audioTracks = Bink_GetNumAudioTracks( binkHandle );
-	if( audioTracks > 0 )
+	if( audioTracks > 0 && s_playCinematicAudio.GetBool() )
 	{
 		trackIndex = 0;														// SRS - Use the first audio track - is this reasonable?
 		binkInfo = Bink_GetAudioTrackDetails( binkHandle, trackIndex );
