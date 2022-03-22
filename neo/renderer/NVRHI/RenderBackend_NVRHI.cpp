@@ -31,19 +31,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 #pragma hdrstop
 
-// SRS - Include SDL headers to enable vsync changes without restart for UNIX-like OSs
-#if defined(__linux__) || defined(__FreeBSD__) || defined(__APPLE__)
-	// SRS - Don't seem to need these #undefs (at least on macOS), are they needed for Linux, etc?
-	// DG: SDL.h somehow needs the following functions, so #undef those silly
-	//     "don't use" #defines from Str.h
-	//#undef strncmp
-	//#undef strcasecmp
-	//#undef vsnprintf
-	// DG end
-	#include <SDL.h>
-#endif
-// SRS end
-
 #include "../RenderCommon.h"
 #include "../RenderBackend.h"
 #include "../../framework/Common_local.h"
@@ -74,11 +61,15 @@ public:
 
 	int										currentImageParm = 0;
 	idArray< idImage*, MAX_IMAGE_PARMS >	imageParms;
-	nvrhi::GraphicsPipelineHandle			pipeline;
-	bool									fullscreen = false;
+	//nvrhi::GraphicsPipelineHandle			pipeline;
+	//bool									fullscreen = false;
 };
 
 static NvrhiContext context;
+
+extern DeviceManager* deviceManager;
+
+
 
 /*
 ==================
@@ -90,37 +81,6 @@ bool GL_CheckErrors_( const char* filename, int line )
 {
 	return false;
 }
-
-
-/*
-========================
-DebugCallback
-
-For ARB_debug_output
-========================
-*/
-// RB: added const to userParam
-static void CALLBACK DebugCallback( unsigned int source, unsigned int type,
-									unsigned int id, unsigned int severity, int length, const char* msg, const void* userParam )
-{
-}
-
-
-/*
-==================
-R_CheckPortableExtensions
-==================
-*/
-// RB: replaced QGL with GLEW
-static void R_CheckPortableExtensions()
-{
-}
-// RB end
-
-
-idStr extensions_string;
-
-extern DeviceManager* deviceManager;
 
 /*
 ==================
@@ -156,6 +116,10 @@ void idRenderBackend::Init()
 	// input and sound systems need to be tied to the new window
 	Sys_InitInput();
 
+	// clear NVRHI context
+	context.currentImageParm = 0;
+	context.imageParms.Zero();
+
 	// Need to reinitialize this pass once this image is resized.
 	renderProgManager.Init( deviceManager->GetDevice() );
 
@@ -182,7 +146,7 @@ void idRenderBackend::Init()
 	// allocate the frame data, which may be more if smp is enabled
 	R_InitFrameData();
 
-	// Reset our gamma
+	// TODO REMOVE: reset our gamma
 	R_SetColorMappings();
 
 	slopeScaleBias = 0.f;
@@ -765,9 +729,6 @@ may touch, including the editor.
 void idRenderBackend::GL_SetDefaultState()
 {
 	RENDERLOG_PRINTF( "--- GL_SetDefaultState ---\n" );
-
-	// make sure our GL state vector is set correctly
-	memset( &context.imageParms, 0, sizeof( context.imageParms ) );
 
 	glStateBits = 0;
 
