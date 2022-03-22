@@ -260,7 +260,27 @@ private:
 			}
 		}
 
-		common->Warning( "[Vulkan: location=0x%zx code=%d, layerPrefix='%s'] %s", location, code, layerPrefix, msg );
+		if( flags & VK_DEBUG_REPORT_ERROR_BIT_EXT )
+		{
+			idLib::Printf( "[Vulkan] ERROR location=0x%zx code=%d, layerPrefix='%s'] %s", location, code, layerPrefix, msg );
+		}
+		else if( flags & VK_DEBUG_REPORT_WARNING_BIT_EXT )
+		{
+			idLib::Printf( "[Vulkan] WARNING location=0x%zx code=%d, layerPrefix='%s'] %s", location, code, layerPrefix, msg );
+		}
+		else if( flags & VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT )
+		{
+			idLib::Printf( "[Vulkan] PERFORMANCE WARNING location=0x%zx code=%d, layerPrefix='%s'] %s", location, code, layerPrefix, msg );
+		}
+		else if( flags & VK_DEBUG_REPORT_INFORMATION_BIT_EXT )
+		{
+			idLib::Printf( "[Vulkan] INFO location=0x%zx code=%d, layerPrefix='%s'] %s", location, code, layerPrefix, msg );
+		}
+		else if( flags & VK_DEBUG_REPORT_DEBUG_BIT_EXT )
+		{
+			idLib::Printf( "[Vulkan] DEBUG location=0x%zx code=%d, layerPrefix='%s'] %s", location, code, layerPrefix, msg );
+		}
+
 
 		return VK_FALSE;
 	}
@@ -992,6 +1012,10 @@ bool DeviceManager_VK::createSwapChain()
 
 bool DeviceManager_VK::CreateDeviceAndSwapChain()
 {
+	// RB: control these through the cmdline
+	deviceParms.enableNvrhiValidationLayer = r_useValidationLayers.GetInteger() > 0;
+	deviceParms.enableDebugRuntime = r_useValidationLayers.GetInteger() > 1;
+
 	if( deviceParms.enableDebugRuntime )
 	{
 		enabledExtensions.instance.insert( "VK_EXT_debug_report" );

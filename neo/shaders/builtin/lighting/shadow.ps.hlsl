@@ -30,9 +30,8 @@ If you have questions concerning this license or the applicable additional terms
 
 
 // *INDENT-OFF*
-SamplerState samp0 : register(s0);
-
-struct PS_OUT {
+struct PS_OUT 
+{
 	float4 color : SV_Target0;
 };
 // *INDENT-ON*

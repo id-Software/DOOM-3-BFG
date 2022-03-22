@@ -31,48 +31,48 @@ If you have questions concerning this license or the applicable additional terms
 
 
 // *INDENT-OFF*
-Texture2D t_Normal			: register( t0 VK_DESCRIPTOR_SET( 0 ) );
-Texture2D t_Specular		: register( t1 VK_DESCRIPTOR_SET( 0 ) );
-Texture2D t_BaseColor		: register( t2 VK_DESCRIPTOR_SET( 0 ) );
-Texture2D t_LightFalloff	: register( t3 VK_DESCRIPTOR_SET( 0 ) );
-Texture2D t_LightProjection	: register( t4 VK_DESCRIPTOR_SET( 0 ) );
+Texture2D				t_Normal			: register( t0 VK_DESCRIPTOR_SET( 0 ) );
+Texture2D				t_Specular			: register( t1 VK_DESCRIPTOR_SET( 0 ) );
+Texture2D				t_BaseColor			: register( t2 VK_DESCRIPTOR_SET( 0 ) );
+Texture2D				t_LightFalloff		: register( t3 VK_DESCRIPTOR_SET( 0 ) );
+Texture2D				t_LightProjection	: register( t4 VK_DESCRIPTOR_SET( 0 ) );
 
-SamplerState samp0 : register( s0 VK_DESCRIPTOR_SET( 1 ) ); // texture 1 is the per-surface normal map
-SamplerState samp1 : register( s1 VK_DESCRIPTOR_SET( 1 ) ); // texture 3 is the per-surface specular or roughness/metallic/AO mixer map
-SamplerState samp2 : register( s2 VK_DESCRIPTOR_SET( 1 ) ); // texture 2 is the per-surface baseColor map 
-SamplerState samp3 : register( s3 VK_DESCRIPTOR_SET( 1 ) ); // texture 4 is the light falloff texture
-SamplerState samp4 : register( s4 VK_DESCRIPTOR_SET( 1 ) ); // texture 5 is the light projection texture
+SamplerState			s_Material : register( s0 VK_DESCRIPTOR_SET( 1 ) ); // for the normal/specular/basecolor
+SamplerState 			s_Lighting : register( s1 VK_DESCRIPTOR_SET( 1 ) ); // for sampling the jitter
 
-struct PS_IN {
-	half4 position	: SV_Position;
-	half4 texcoord1	: TEXCOORD1_centroid;
-	half4 texcoord2	: TEXCOORD2_centroid;
-	half4 texcoord3	: TEXCOORD3_centroid;
-	half4 texcoord4	: TEXCOORD4_centroid;
-	half4 texcoord5	: TEXCOORD5_centroid;
-	half4 texcoord6	: TEXCOORD6_centroid;
-	half4 color		: COLOR0;
+struct PS_IN
+{
+	float4 position		: SV_Position;
+//	float4 texcoord0		: TEXCOORD0_centroid;
+	float4 texcoord1		: TEXCOORD1_centroid;
+	float4 texcoord2		: TEXCOORD2_centroid;
+	float4 texcoord3		: TEXCOORD3_centroid;
+	float4 texcoord4		: TEXCOORD4_centroid;
+	float4 texcoord5		: TEXCOORD5_centroid;
+	float4 texcoord6		: TEXCOORD6_centroid;
+	float4 color			: COLOR0;
 };
 
-struct PS_OUT {
+struct PS_OUT
+{
 	half4 color : SV_Target0;
 };
 // *INDENT-ON*
 
 void main( PS_IN fragment, out PS_OUT result )
 {
-	half4 bumpMap =			t_Normal.Sample( samp0, fragment.texcoord1.xy );
-	half4 lightFalloff =	idtex2Dproj( samp3, t_LightFalloff, fragment.texcoord2 );
-	half4 lightProj =		idtex2Dproj( samp4, t_LightProjection, fragment.texcoord3 );
-	half4 YCoCG =			t_BaseColor.Sample( samp2, fragment.texcoord4.xy );
-	half4 specMapSRGB =		t_Specular.Sample( samp1, fragment.texcoord5.xy );
-	half4 specMap =			sRGBAToLinearRGBA( specMapSRGB );
+	float4 bumpMap =		t_Normal.Sample( s_Material, fragment.texcoord1.xy );
+	float4 lightFalloff =	idtex2Dproj( s_Lighting, t_LightFalloff, fragment.texcoord2 );
+	float4 lightProj =		idtex2Dproj( s_Lighting, t_LightProjection, fragment.texcoord3 );
+	float4 YCoCG =			t_BaseColor.Sample( s_Material, fragment.texcoord4.xy );
+	float4 specMapSRGB =	t_Specular.Sample( s_Material, fragment.texcoord5.xy );
+	float4 specMap =		sRGBAToLinearRGBA( specMapSRGB );
 
-	const half3 ambientLightVector = half3( 0.5f, 9.5f - 0.385f, 0.8925f );
-	half3 lightVector = normalize( ambientLightVector );
-	half3 diffuseMap = sRGBToLinearRGB( ConvertYCoCgToRGB( YCoCG ) );
+	const float3 ambientLightVector = half3( 0.5f, 9.5f - 0.385f, 0.8925f );
+	float3 lightVector = normalize( ambientLightVector );
+	float3 diffuseMap = sRGBToLinearRGB( ConvertYCoCgToRGB( YCoCG ) );
 
-	half3 localNormal;
+	float3 localNormal;
 	// RB begin
 #if defined(USE_NORMAL_FMT_RGB8)
 	localNormal.xy = bumpMap.rg - 0.5;
@@ -84,25 +84,25 @@ void main( PS_IN fragment, out PS_OUT result )
 	localNormal = normalize( localNormal );
 
 	// traditional very dark Lambert light model used in Doom 3
-	half ldotN = saturate( dot3( localNormal, lightVector ) );
+	float ldotN = saturate( dot3( localNormal, lightVector ) );
 
 #if defined(USE_HALF_LAMBERT)
 	// RB: http://developer.valvesoftware.com/wiki/Half_Lambert
-	half halfLdotN = dot3( localNormal, lightVector ) * 0.5 + 0.5;
+	float halfLdotN = dot3( localNormal, lightVector ) * 0.5 + 0.5;
 	halfLdotN *= halfLdotN;
-	half lambert = halfLdotN;
+	float lambert = halfLdotN;
 #else
-	half lambert = ldotN;
+	float lambert = ldotN;
 #endif
 
-	const half specularPower = 10.0f;
-	half hDotN = dot3( normalize( fragment.texcoord6.xyz ), localNormal );
+	const float specularPower = 10.0f;
+	float hDotN = dot3( normalize( fragment.texcoord6.xyz ), localNormal );
 	// RB: added abs
-	half3 specularContribution = _half3( pow( abs( hDotN ), specularPower ) );
+	float3 specularContribution = _float3( pow( abs( hDotN ), specularPower ) );
 
-	half3 diffuseColor = diffuseMap * ( rpDiffuseModifier.xyz );
-	half3 specularColor = specMap.xyz * specularContribution * ( rpSpecularModifier.xyz );
-	half3 lightColor = sRGBToLinearRGB( lightProj.xyz * lightFalloff.xyz );
+	float3 diffuseColor = diffuseMap * ( rpDiffuseModifier.xyz );
+	float3 specularColor = specMap.xyz * specularContribution * ( rpSpecularModifier.xyz );
+	float3 lightColor = sRGBToLinearRGB( lightProj.xyz * lightFalloff.xyz );
 
 	result.color.xyz = ( diffuseColor + specularColor ) * lightColor * fragment.color.xyz;
 	result.color.w = 1.0;

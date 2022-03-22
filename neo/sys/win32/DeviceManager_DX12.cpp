@@ -39,8 +39,6 @@
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
 
-idCVar r_useValidationLayers( "r_useValidationLayers", "0", CVAR_INTEGER | CVAR_INIT, "1 is just the NVRHI and 2 will turn on additional DX12, VK validation layers" );
-
 using nvrhi::RefCountPtr;
 
 #define HR_RETURN(hr) if(FAILED(hr)) return false
@@ -100,8 +98,6 @@ protected:
 private:
 	bool CreateRenderTargets();
 	void ReleaseRenderTargets();
-
-	glconfig_t config;
 };
 
 static bool IsNvDeviceID( UINT id )

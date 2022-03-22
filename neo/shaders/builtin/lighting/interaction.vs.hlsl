@@ -58,6 +58,7 @@ struct VS_OUT {
 	float4 texcoord6	: TEXCOORD6_centroid;
 	float4 color		: COLOR0;
 };
+
 // *INDENT-ON*
 
 void main( VS_IN vertex, out VS_OUT result )

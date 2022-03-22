@@ -31,9 +31,8 @@ If you have questions concerning this license or the applicable additional terms
 
 
 // *INDENT-OFF*
-Texture2D t_NormalMap : register( t0 );
-
-SamplerState samp0 : register( s0 ); // normal map
+Texture2D	 t_NormalMap	: register( t0 VK_DESCRIPTOR_SET( 0 ) );
+SamplerState s_Sampler		: register( s0 VK_DESCRIPTOR_SET( 1 ) );
 
 struct PS_IN
 {
@@ -54,7 +53,7 @@ struct PS_OUT
 
 void main( PS_IN fragment, out PS_OUT result )
 {
-	float4 bump = t_NormalMap.Sample( samp0, fragment.texcoord0 ) * 2.0f - 1.0f;
+	float4 bump = t_NormalMap.Sample( s_Sampler, fragment.texcoord0 ) * 2.0f - 1.0f;
 
 	// RB begin
 	float3 localNormal;

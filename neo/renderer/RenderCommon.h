@@ -845,7 +845,7 @@ enum bindingLayoutType_t
 	BINDING_LAYOUT_BLIT,
 	BINDING_LAYOUT_DRAW_AO,
 	BINDING_LAYOUT_DRAW_AO1,
-	BINDING_LAYOUT_DRAW_SHADOW,
+	BINDING_LAYOUT_DRAW_SHADOWVOLUME,
 	BINDING_LAYOUT_DRAW_INTERACTION,
 	BINDING_LAYOUT_DRAW_INTERACTION_SM,
 	BINDING_LAYOUT_DRAW_FOG,
@@ -1066,9 +1066,10 @@ extern idCVar r_windowHeight;
 
 extern idCVar r_debugContext;				// enable various levels of context debug
 extern idCVar r_glDriver;					// "opengl32", etc
-// SRS - Added cvar to control workarounds for AMD OSX driver bugs when shadow mapping enabled
+#if defined(USE_NVRHI)
+	extern idCVar r_useValidationLayers;
+#endif
 extern idCVar r_skipAMDWorkarounds;         // skip work arounds for AMD driver bugs
-// SRS end
 extern idCVar r_skipIntelWorkarounds;		// skip work arounds for Intel driver bugs
 extern idCVar r_vidMode;					// video mode number
 extern idCVar r_displayRefresh;				// optional display refresh rate option for vid mode

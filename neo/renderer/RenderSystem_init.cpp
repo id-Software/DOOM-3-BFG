@@ -68,6 +68,7 @@ idCVar r_debugContext( "r_debugContext", "0", CVAR_RENDERER, "Enable various lev
 idCVar r_glDriver( "r_glDriver", "", CVAR_RENDERER, "\"opengl32\", etc." );
 #if defined(USE_NVRHI)
 	idCVar r_gapi( "r_gapi", "dx12", CVAR_RENDERER, "Specifies the graphics api to use (dx12, vulkan)" );
+	idCVar r_useValidationLayers( "r_useValidationLayers", "0", CVAR_INTEGER | CVAR_INIT, "1 is just the NVRHI and 2 will turn on additional DX12, VK validation layers" );
 #endif
 // SRS - Added workaround for AMD OSX driver bugs caused by GL_EXT_timer_query when shadow mapping enabled; Intel bugs not present on OSX
 #if defined(__APPLE__)

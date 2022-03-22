@@ -195,7 +195,7 @@ void idRenderProgManager::LoadProgram( const int programIndex, const int vertexS
 	renderProg_t& prog = renderProgs[programIndex];
 	prog.fragmentShaderIndex = fragmentShaderIndex;
 	prog.vertexShaderIndex = vertexShaderIndex;
-	if( prog.vertexLayout > 0 )
+	if( prog.vertexLayout != LAYOUT_UNKNOWN )
 	{
 		prog.inputLayout = device->createInputLayout(
 							   &vertexLayoutDescs[prog.vertexLayout][0],

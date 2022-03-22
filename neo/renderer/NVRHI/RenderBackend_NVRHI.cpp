@@ -239,7 +239,6 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 		changeState = true;
 	}
 
-	// RB: for debugging
 	int bindingLayoutType = renderProgManager.BindingLayoutType();
 
 	idStaticList<nvrhi::BindingLayoutHandle, nvrhi::c_MaxBindingLayouts>* layouts
@@ -297,7 +296,6 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 	}
 
 	nvrhi::DrawArguments args;
-	// FIXME idDrawShadowVert
 	args.startVertexLocation = currentVertexOffset / sizeof( idDrawVert );
 	args.startIndexLocation = currentIndexOffset / sizeof( triIndex_t );
 	args.vertexCount = surf->numIndexes;
@@ -306,8 +304,6 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 	// RB: added stats
 	pc.c_drawElements++;
 	pc.c_drawIndexes += surf->numIndexes;
-
-	//renderLog.CloseBlock();
 }
 
 void idRenderBackend::GetCurrentBindingLayout( int type )
@@ -453,13 +449,13 @@ void idRenderBackend::GetCurrentBindingLayout( int type )
 			desc[1].bindings[0] = nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_PointWrapSampler );
 		}
 	}
-	else if( type == BINDING_LAYOUT_DRAW_SHADOW )
+	else if( type == BINDING_LAYOUT_DRAW_SHADOWVOLUME )
 	{
 		if( desc[0].bindings.empty() )
 		{
 			desc[0].bindings =
 			{
-				nvrhi::BindingSetItem::ConstantBuffer( 0, renderProgManager.ConstantBuffer() ),  // blue noise
+				nvrhi::BindingSetItem::ConstantBuffer( 0, renderProgManager.ConstantBuffer() ),
 			};
 		}
 		else
@@ -1148,7 +1144,7 @@ extern idCVar r_useStencilShadowPreload;
 
 void idRenderBackend::DrawStencilShadowPass( const drawSurf_t* drawSurf, const bool renderZPass )
 {
-#if 0
+#if 1
 	if( renderZPass )
 	{
 		// Z-pass
@@ -1238,24 +1234,25 @@ void idRenderBackend::DrawStencilShadowPass( const drawSurf_t* drawSurf, const b
 		changeState = true;
 	}
 
-	GetCurrentBindingLayout();
-
-	// RB: for debugging
-	int program = renderProgManager.CurrentProgram();
 	int bindingLayoutType = renderProgManager.BindingLayoutType();
-	auto& info = renderProgManager.GetProgramInfo( program );
 
-	for( int i = 0; i < info.bindingLayouts->Num(); i++ )
+	idStaticList<nvrhi::BindingLayoutHandle, nvrhi::c_MaxBindingLayouts>* layouts
+		= renderProgManager.GetBindingLayout( bindingLayoutType );
+
+	GetCurrentBindingLayout( bindingLayoutType );
+
+	for( int i = 0; i < layouts->Num(); i++ )
 	{
-		if( !currentBindingSets[i] || *currentBindingSets[i]->getDesc() != pendingBindingSetDescs[i] )
+		if( !currentBindingSets[i] || *currentBindingSets[i]->getDesc() != pendingBindingSetDescs[bindingLayoutType][i] )
 		{
-			currentBindingSets[i] = bindingCache.GetOrCreateBindingSet( pendingBindingSetDescs[i], ( *info.bindingLayouts )[i] );
+			currentBindingSets[i] = bindingCache.GetOrCreateBindingSet( pendingBindingSetDescs[bindingLayoutType][i], ( *layouts )[i] );
 			changeState = true;
 		}
 	}
 
 	renderProgManager.CommitConstantBuffer( commandList );
 
+	int program = renderProgManager.CurrentProgram();
 	PipelineKey key{ glStateBits, program, depthBias, slopeScaleBias, currentFrameBuffer };
 	auto pipeline = pipelineCache.GetOrCreatePipeline( key );
 
@@ -1269,7 +1266,7 @@ void idRenderBackend::DrawStencilShadowPass( const drawSurf_t* drawSurf, const b
 	{
 		nvrhi::GraphicsState state;
 
-		for( int i = 0; i < info.bindingLayouts->Num(); i++ )
+		for( int i = 0; i < layouts->Num(); i++ )
 		{
 			state.bindings.push_back( currentBindingSets[i] );
 		}
@@ -1304,7 +1301,7 @@ void idRenderBackend::DrawStencilShadowPass( const drawSurf_t* drawSurf, const b
 	{
 		args.startVertexLocation = currentVertexOffset / sizeof( idShadowVert );
 	}
-	args.startIndexLocation = currentIndexOffset / sizeof( uint16 );
+	args.startIndexLocation = currentIndexOffset / sizeof( triIndex_t );
 	args.vertexCount = drawSurf->numIndexes;
 	commandList->drawIndexed( args );
 
@@ -1323,6 +1320,10 @@ idRenderBackend::idRenderBackend()
 {
 	hiZGenPass = nullptr;
 	ssaoPass = nullptr;
+
+	memset( &glConfig, 0, sizeof( glConfig ) );
+
+	//glConfig.gpuSkinningAvailable = true;
 }
 
 /*
