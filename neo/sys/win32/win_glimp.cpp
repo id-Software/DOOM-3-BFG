@@ -64,7 +64,7 @@ If you have questions concerning this license or the applicable additional terms
 
 
 
-#if !defined(USE_VULKAN)
+#if !defined(USE_VULKAN) && !defined(USE_NVRHI)
 /*
 ========================
 GLimp_TestSwapBuffers
@@ -197,7 +197,7 @@ FakeWndProc
 Only used to get wglExtensions
 ====================
 */
-#if !defined(USE_VULKAN)
+#if !defined(USE_VULKAN) && !defined(USE_NVRHI)
 LONG WINAPI FakeWndProc(
 	HWND    hWnd,
 	UINT    uMsg,
@@ -298,7 +298,7 @@ void GLW_CheckWGLExtensions( HDC hDC )
 GLW_GetWGLExtensionsWithFakeWindow
 ==================
 */
-#if !defined(USE_VULKAN)
+#if !defined(USE_VULKAN) && !defined(USE_NVRHI)
 static void GLW_GetWGLExtensionsWithFakeWindow()
 {
 	HWND	hWnd;
@@ -347,7 +347,7 @@ void GLW_WM_CREATE( HWND hWnd )
 CreateOpenGLContextOnDC
 ========================
 */
-#if !defined(USE_VULKAN)
+#if !defined(USE_VULKAN) && !defined(USE_NVRHI)
 static HGLRC CreateOpenGLContextOnDC( const HDC hdc, const bool debugContext )
 {
 	int useCoreProfile = r_useOpenGL45.GetInteger();
@@ -616,7 +616,7 @@ static void GLW_CreateWindowClasses()
 	}
 	common->Printf( "...registered window class\n" );
 
-#if !defined(USE_VULKAN) && !defined(USE_DX12)
+#if !defined(USE_VULKAN) && !defined(USE_NVRHI)
 	// now register the fake window class that is only used
 	// to get wgl extensions
 	wc.style         = 0;
@@ -1099,6 +1099,7 @@ bool DeviceManager::CreateWindowDeviceAndSwapChain( const glimpParms_t& parms, c
 					 win32.hInstance,
 					 NULL );
 
+	windowInstance = win32.hInstance;
 	windowHandle = win32.hWnd;
 
 	if( !win32.hWnd )
@@ -1120,6 +1121,11 @@ bool DeviceManager::CreateWindowDeviceAndSwapChain( const glimpParms_t& parms, c
 		common->Printf( "^3GLW_CreateWindow() - GetDC()failed^0\n" );
 		return false;
 	}
+
+	// RB
+	deviceParms.backBufferWidth = parms.width;
+	deviceParms.backBufferHeight = parms.height;
+	deviceParms.vsyncEnabled = requestedVSync;
 
 	if( !CreateDeviceAndSwapChain() )
 	{
@@ -1219,7 +1225,7 @@ static bool GLW_CreateWindow( glimpParms_t parms )
 		return false;
 	}
 
-#if !defined(USE_VULKAN)
+#if !defined(USE_VULKAN) && !defined(USE_NVRHI)
 	// Check to see if we can get a stereo pixel format, even if we aren't going to use it,
 	// so the menu option can be
 	if( GLW_ChoosePixelFormat( win32.hDC, parms.multiSamples, true ) != -1 )
@@ -1383,7 +1389,7 @@ bool GLimp_Init( glimpParms_t parms )
 {
 	HDC		hDC;
 
-#if !defined(USE_VULKAN)
+#if !defined(USE_VULKAN) && !defined(USE_NVRHI)
 	cmdSystem->AddCommand( "testSwapBuffers", GLimp_TestSwapBuffers, CMD_FL_SYSTEM, "Times swapbuffer options" );
 
 	common->Printf( "Initializing OpenGL subsystem with multisamples:%i stereo:%i fullscreen:%i\n",
@@ -1649,7 +1655,7 @@ GLimp_SwapBuffers
 =====================
 */
 // RB: use GLEW for V-Sync
-#if !defined(USE_VULKAN)
+#if !defined(USE_VULKAN) && !defined(USE_NVRHI)
 void GLimp_SwapBuffers()
 {
 	if( r_swapInterval.IsModified() )

@@ -137,7 +137,7 @@ void idRenderSystemLocal::RenderCommandBuffers( const emptyCommand_t* const cmdH
 	if( !r_skipBackEnd.GetBool() )
 	{
 // SRS - For OSX skip total rendering time query due to missing GL_TIMESTAMP support in Apple OpenGL 4.1, will calculate it inside SwapCommandBuffers_FinishRendering instead
-#if !defined(USE_VULKAN) && !defined(__APPLE__)
+#if !defined(USE_VULKAN) && !defined(__APPLE__) && !defined(USE_NVRHI)
 		if( glConfig.timerQueryAvailable )
 		{
 			if( glcontext.renderLogMainBlockTimeQueryIds[ glcontext.frameParity ][ MRB_GPU_TIME ] == 0 )
@@ -945,7 +945,7 @@ const emptyCommand_t* idRenderSystemLocal::SwapCommandBuffers_FinishCommandBuffe
 	setBufferCommand_t* cmd2 = ( setBufferCommand_t* )R_GetCommandBuffer( sizeof( *cmd2 ) );
 	cmd2->commandId = RC_SET_BUFFER;
 
-#if defined(USE_VULKAN)
+#if defined(USE_VULKAN) || defined(USE_NVRHI)
 	cmd2->buffer = 0;
 #else
 	cmd2->buffer = ( int )GL_BACK;
@@ -1213,7 +1213,7 @@ void idRenderSystemLocal::CaptureRenderToFile( const char* fileName, bool fixAlp
 
 	RenderCommandBuffers( frameData->cmdHead );
 
-#if !defined(USE_VULKAN)
+#if !defined(USE_VULKAN) && !defined(USE_NVRHI)
 	glReadBuffer( GL_BACK );
 
 	// include extra space for OpenGL padding to word boundaries
@@ -1297,6 +1297,16 @@ bool idRenderSystemLocal::UploadImage( const char* imageName, const byte* data, 
 	{
 		return false;
 	}
-	image->UploadScratch( data, width, height, nullptr );
+
+#if defined(USE_NVRHI)
+	commandList->open();
+#endif
+
+	image->UploadScratch( data, width, height, commandList );
+
+#if defined(USE_NVRHI)
+	commandList->close();
+	deviceManager->GetDevice()->executeCommandList( commandList );
+#endif
 	return true;
 }

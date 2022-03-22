@@ -32,7 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 #include <windows.h>
 
 // RB: replaced QGL with GLEW
-#if !defined(USE_VULKAN)
+#if !defined(USE_VULKAN) && !defined(USE_NVRHI)
 	#include "../../libs/glew/include/GL/wglew.h" // windows OpenGL extensions
 #endif
 // RB end

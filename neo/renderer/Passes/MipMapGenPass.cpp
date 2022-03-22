@@ -140,8 +140,12 @@ MipMapGenPass::MipMapGenPass(
 	// BindingLayout
 	nvrhi::BindingLayoutDesc layoutDesc;
 	layoutDesc.visibility = nvrhi::ShaderType::Compute;
-	layoutDesc.bindings.push_back( nvrhi::BindingLayoutItem::VolatileConstantBuffer( 0 ) ),
-								   layoutDesc.bindings.push_back( nvrhi::BindingLayoutItem::Texture_SRV( 0 ) );
+	layoutDesc.bindings =
+	{
+		nvrhi::BindingLayoutItem::VolatileConstantBuffer( 0 ),
+		nvrhi::BindingLayoutItem::Texture_SRV( 0 )
+	};
+
 	for( uint mipLevel = 1; mipLevel <= NUM_LODS; ++mipLevel )
 	{
 		layoutDesc.bindings.push_back( nvrhi::BindingLayoutItem::Texture_UAV( mipLevel - 1 ) );
@@ -162,18 +166,21 @@ MipMapGenPass::MipMapGenPass(
 		nvrhi::BindingSetHandle& set = m_BindingSets[i];
 
 		nvrhi::BindingSetDesc setDesc;
-		setDesc.bindings.push_back( nvrhi::BindingSetItem::ConstantBuffer( 0, m_ConstantBuffer ) );
-		setDesc.bindings.push_back( nvrhi::BindingSetItem::Texture_SRV( 0, m_Texture, nvrhi::Format::UNKNOWN, nvrhi::TextureSubresourceSet( i * NUM_LODS, 1, 0, 1 ) ) );
+		setDesc.bindings =
+		{
+			nvrhi::BindingSetItem::ConstantBuffer( 0, m_ConstantBuffer ),
+			nvrhi::BindingSetItem::Texture_SRV( 0, m_Texture, nvrhi::Format::UNKNOWN, nvrhi::TextureSubresourceSet( i * NUM_LODS, 1, 0, 1 ) )
+		};
 		for( uint mipLevel = 1; mipLevel <= NUM_LODS; ++mipLevel )
 		{
 			// output UAVs start after the mip-level UAV that was computed last
 			if( i * NUM_LODS + mipLevel < nmipLevels )
 			{
-				setDesc.bindings.push_back( nvrhi::BindingSetItem::Texture_UAV( mipLevel - 1, m_Texture, nvrhi::Format::UNKNOWN, nvrhi::TextureSubresourceSet( i * NUM_LODS + mipLevel, 1, 0, 1 ) ) );
+				setDesc.addItem( nvrhi::BindingSetItem::Texture_UAV( mipLevel - 1, m_Texture, nvrhi::Format::UNKNOWN, nvrhi::TextureSubresourceSet( i * NUM_LODS + mipLevel, 1, 0, 1 ) ) );
 			}
 			else
 			{
-				setDesc.bindings.push_back( nvrhi::BindingSetItem::Texture_UAV( mipLevel - 1, m_NullTextures->lod[mipLevel - 1] ) );
+				setDesc.addItem( nvrhi::BindingSetItem::Texture_UAV( mipLevel - 1, m_NullTextures->lod[mipLevel - 1] ) );
 			}
 		}
 		set = m_Device->createBindingSet( setDesc, m_BindingLayout );

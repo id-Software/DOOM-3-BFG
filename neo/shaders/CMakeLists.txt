@@ -1,6 +1,6 @@
 include(../compileshaders.cmake)
 
-file(GLOB globalshaders "BRDF.inc.hlsl" "global_inc.hlsl")
+file(GLOB globalshaders "BRDF.inc.hlsl" "global_inc.hlsl" "vulkan.hlsli")
 file(GLOB builtins "builtin/*.hlsl")
 file(GLOB debug "builtin/debug/*hlsl")
 file(GLOB fog "builtin/fog/*hlsl")

@@ -90,7 +90,7 @@ struct pixEvent_t
 
 idCVar r_pix( "r_pix", "0", CVAR_INTEGER, "print GPU/CPU event timing" );
 
-#if !defined( USE_VULKAN )
+#if !defined( USE_VULKAN ) && !defined(USE_NVRHI)
 	static const int	MAX_PIX_EVENTS = 256;
 	// defer allocation of this until needed, so we don't waste lots of memory
 	pixEvent_t* 		pixEvents;	// [MAX_PIX_EVENTS]
@@ -141,6 +141,8 @@ void PC_BeginNamedEvent( const char* szName, const idVec4& color )
 
 		qvkCmdDebugMarkerBeginEXT( vkcontext.commandBuffer[ vkcontext.frameParity ], &label );
 	}
+#elif defined(USE_NVRHI)
+	// SP: TODO
 #else
 	// RB: colors are not supported in OpenGL
 
@@ -211,6 +213,8 @@ void PC_EndNamedEvent()
 	{
 		qvkCmdDebugMarkerEndEXT( vkcontext.commandBuffer[ vkcontext.frameParity ] );
 	}
+#elif defined(USE_NVRHI)
+	// SP: nvrhi debugging
 #else
 	// only do this if RBDOOM-3-BFG was started by RenderDoc or some similar tool
 	if( glConfig.gremedyStringMarkerAvailable && glConfig.khronosDebugAvailable )
@@ -337,6 +341,10 @@ void idRenderLog::OpenMainBlock( renderLogMainBlock_t block, nvrhi::ICommandList
 		uint32 queryIndex = vkcontext.queryAssignedIndex[ vkcontext.frameParity ][ mainBlock * 2 + 0 ] = vkcontext.queryIndex[ vkcontext.frameParity ]++;
 		vkCmdWriteTimestamp( commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, queryPool, queryIndex );
 
+#elif defined(USE_NVRHI)
+
+		// SP: use nvrhi timer queries
+
 #elif defined(__APPLE__)
 		// SRS - For OSX use elapsed time query for Apple OpenGL 4.1 using GL_TIME_ELAPSED vs GL_TIMESTAMP (which is not implemented on OSX)
 		// SRS - OSX AMD drivers have a rendering bug (flashing colours) with an elasped time query when Shadow Mapping is on - turn off query for that case unless r_skipAMDWorkarounds is set
@@ -384,6 +392,10 @@ void idRenderLog::CloseMainBlock()
 
 		uint32 queryIndex = vkcontext.queryAssignedIndex[ vkcontext.frameParity ][ mainBlock * 2 + 1 ] = vkcontext.queryIndex[ vkcontext.frameParity ]++;
 		vkCmdWriteTimestamp( commandBuffer, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, queryPool, queryIndex );
+
+#elif defined(USE_NVRHI)
+
+		// SP: Close nvrhi timer queries
 
 #elif defined(__APPLE__)
 		// SRS - For OSX use elapsed time query for Apple OpenGL 4.1 using GL_TIME_ELAPSED vs GL_TIMESTAMP (which is not implemented on OSX)

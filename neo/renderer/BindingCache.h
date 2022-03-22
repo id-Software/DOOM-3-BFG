@@ -33,7 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 class BindingCache
 {
 public:
-	BindingCache() {}
+	BindingCache();
 
 	void                    Init( nvrhi::IDevice* _device );
 	void                    Clear();

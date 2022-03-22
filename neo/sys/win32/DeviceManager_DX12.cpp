@@ -39,8 +39,7 @@
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
 
-// TODO extend this so 1 will be just NVRHI and 2 will turn on the additional VK validation layer
-idCVar r_useValidationLayers( "r_useValidationLayers", "0", CVAR_BOOL | CVAR_INIT, "" );
+idCVar r_useValidationLayers( "r_useValidationLayers", "0", CVAR_INTEGER | CVAR_INIT, "1 is just the NVRHI and 2 will turn on additional DX12, VK validation layers" );
 
 using nvrhi::RefCountPtr;
 
@@ -400,7 +399,8 @@ bool DeviceManager_DX12::CreateDeviceAndSwapChain()
 
 	nvrhiDevice = nvrhi::d3d12::createDevice( deviceDesc );
 
-	deviceParms.enableNvrhiValidationLayer = r_useValidationLayers.GetBool();
+	deviceParms.enableNvrhiValidationLayer = r_useValidationLayers.GetInteger() > 0;
+	deviceParms.enableDebugRuntime = r_useValidationLayers.GetInteger() > 1;
 
 	if( deviceParms.enableNvrhiValidationLayer )
 	{

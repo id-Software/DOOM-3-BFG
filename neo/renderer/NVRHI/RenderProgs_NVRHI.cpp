@@ -120,7 +120,18 @@ void idRenderProgManager::LoadShader( shader_t& shader )
 
 	idStr adjustedName = shader.name;
 	adjustedName.StripFileExtension();
-	adjustedName = idStr( "renderprogs/dxil/" ) + adjustedName + "." + stage + ".bin";
+	if( deviceManager->GetGraphicsAPI() == nvrhi::GraphicsAPI::D3D12 )
+	{
+		adjustedName = idStr( "renderprogs/dxil/" ) + adjustedName + "." + stage + ".bin";
+	}
+	else if( deviceManager->GetGraphicsAPI() == nvrhi::GraphicsAPI::VULKAN )
+	{
+		adjustedName = idStr( "renderprogs/spirv/" ) + adjustedName + "." + stage + ".bin";
+	}
+	else
+	{
+		common->FatalError( "Unsuported graphics api" );
+	}
 
 	ShaderBlob shaderBlob = GetBytecode( adjustedName );
 
@@ -155,6 +166,11 @@ void idRenderProgManager::LoadShader( shader_t& shader )
 	shader.handle = shaderHandle;
 }
 
+/*
+================================================================================================
+idRenderProgManager::GetBytecode
+================================================================================================
+*/
 ShaderBlob idRenderProgManager::GetBytecode( const char* fileName )
 {
 	ShaderBlob blob;
@@ -189,6 +205,11 @@ void idRenderProgManager::LoadProgram( const int programIndex, const int vertexS
 	prog.bindingLayouts = bindingLayouts[prog.bindingLayoutType];
 }
 
+/*
+================================================================================================
+idRenderProgManager::LoadComputeProgram
+================================================================================================
+*/
 void idRenderProgManager::LoadComputeProgram( const int programIndex, const int computeShaderIndex )
 {
 	renderProg_t& prog = renderProgs[programIndex];
@@ -226,6 +247,11 @@ int	 idRenderProgManager::FindProgram( const char* name, int vIndex, int fIndex,
 	int index = renderProgs.Append( program );
 	LoadProgram( index, vIndex, fIndex );
 	return index;
+}
+
+int idRenderProgManager::UniformSize()
+{
+	return uniforms.Allocated();
 }
 
 /*
@@ -287,6 +313,5 @@ idRenderProgManager::CommitConstantBuffer
 */
 void idRenderProgManager::CommitConstantBuffer( nvrhi::ICommandList* commandList )
 {
-	uniforms.Size();
-	commandList->writeBuffer( constantBuffer, &uniforms[0], uniforms.Allocated() );
+	commandList->writeBuffer( constantBuffer, uniforms.Ptr(), uniforms.Allocated() );
 }

@@ -3,6 +3,14 @@
 
 #include "BindingCache.h"
 
+BindingCache::BindingCache()
+	: device( nullptr )
+	, bindingSets()
+	, bindingHash()
+	, mutex()
+{
+}
+
 void BindingCache::Init( nvrhi::IDevice* _device )
 {
 	device = _device;
@@ -39,7 +47,6 @@ nvrhi::BindingSetHandle BindingCache::GetCachedBindingSet( const nvrhi::BindingS
 
 nvrhi::BindingSetHandle BindingCache::GetOrCreateBindingSet( const nvrhi::BindingSetDesc& desc, nvrhi::IBindingLayout* layout )
 {
-#if 1
 	size_t hash = 0;
 	nvrhi::hash_combine( hash, desc );
 	nvrhi::hash_combine( hash, layout );
@@ -77,9 +84,6 @@ nvrhi::BindingSetHandle BindingCache::GetOrCreateBindingSet( const nvrhi::Bindin
 	}
 
 	return result;
-#else
-	return device->createBindingSet( desc, layout );
-#endif
 }
 
 void BindingCache::Clear()

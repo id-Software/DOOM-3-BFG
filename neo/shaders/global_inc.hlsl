@@ -27,8 +27,10 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include "vulkan.hlsli"
+
 // *INDENT-OFF*
-cbuffer CB : register( b0 )
+cbuffer globals : register( b0 VK_DESCRIPTOR_SET( 0 ) )
 {
 	float4 rpScreenCorrectionFactor;
 	float4 rpWindowCoord;
@@ -100,7 +102,7 @@ cbuffer CB : register( b0 )
 	float4 rpEnableSkinning;
 	float4 rpAlphaTest;
 
-	// RB begin
+// RB begin
 	float4 rpAmbientColor;
 	float4 rpGlobalLightOrigin;
 	float4 rpJitterTexScale;
@@ -112,7 +114,7 @@ cbuffer CB : register( b0 )
 #else
 	float4 rpShadowMatrices[6 * 4];
 #endif
-	// RB end
+// RB end
 
 	float4 rpUser0;
 	float4 rpUser1;
@@ -124,15 +126,36 @@ cbuffer CB : register( b0 )
 	float4 rpUser7;
 };
 
-static float dot2( float2 a, float2 b ) { return dot( a, b ); }
-static float dot3( float3 a, float3 b ) { return dot( a, b ); }
-static float dot3( float3 a, float4 b ) { return dot( a, b.xyz ); }
-static float dot3( float4 a, float3 b ) { return dot( a.xyz, b ); }
-static float dot3( float4 a, float4 b ) { return dot( a.xyz, b.xyz ); }
-static float dot4( float4 a, float4 b ) { return dot( a, b ); }
-static float dot4( float2 a, float4 b ) { return dot( float4( a, 0, 1 ), b ); }
-
 // *INDENT-ON*
+
+static float dot2( float2 a, float2 b )
+{
+	return dot( a, b );
+}
+static float dot3( float3 a, float3 b )
+{
+	return dot( a, b );
+}
+static float dot3( float3 a, float4 b )
+{
+	return dot( a, b.xyz );
+}
+static float dot3( float4 a, float3 b )
+{
+	return dot( a.xyz, b );
+}
+static float dot3( float4 a, float4 b )
+{
+	return dot( a.xyz, b.xyz );
+}
+static float dot4( float4 a, float4 b )
+{
+	return dot( a, b );
+}
+static float dot4( float2 a, float4 b )
+{
+	return dot( float4( a, 0, 1 ), b );
+}
 
 // RB begin
 #ifndef PI

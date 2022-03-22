@@ -372,12 +372,10 @@ void PipelineCache::GetRenderState( uint64 stateBits, PipelineKey key, nvrhi::Re
 		}
 	}
 
+	// TODO implement Carmack's Reverse with GLS_SEPARATE_STENCIL
+
 	if( stateBits & ( GLS_STENCIL_FUNC_BITS | GLS_STENCIL_FUNC_REF_BITS | GLS_STENCIL_FUNC_MASK_BITS ) )
 	{
-		GLuint ref = GLuint( ( stateBits & GLS_STENCIL_FUNC_REF_BITS ) >> GLS_STENCIL_FUNC_REF_SHIFT );
-		GLuint mask = GLuint( ( stateBits & GLS_STENCIL_FUNC_MASK_BITS ) >> GLS_STENCIL_FUNC_MASK_SHIFT );
-		GLenum func = 0;
-
 		depthStencilState.setStencilRefValue( ( stateBits & GLS_STENCIL_FUNC_REF_BITS ) >> GLS_STENCIL_FUNC_REF_SHIFT );
 		depthStencilState.setStencilReadMask( ( stateBits & GLS_STENCIL_FUNC_MASK_BITS ) >> GLS_STENCIL_FUNC_MASK_SHIFT );
 		depthStencilState.setStencilWriteMask( ( stateBits & GLS_STENCIL_FUNC_MASK_BITS ) >> GLS_STENCIL_FUNC_MASK_SHIFT );
@@ -413,10 +411,6 @@ void PipelineCache::GetRenderState( uint64 stateBits, PipelineKey key, nvrhi::Re
 
 	if( stateBits & ( GLS_STENCIL_OP_FAIL_BITS | GLS_STENCIL_OP_ZFAIL_BITS | GLS_STENCIL_OP_PASS_BITS ) )
 	{
-		GLenum sFail = 0;
-		GLenum zFail = 0;
-		GLenum pass = 0;
-
 		switch( stateBits & GLS_STENCIL_OP_FAIL_BITS )
 		{
 			case GLS_STENCIL_OP_FAIL_KEEP:

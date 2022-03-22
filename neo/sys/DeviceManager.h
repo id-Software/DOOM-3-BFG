@@ -54,6 +54,11 @@ struct DeviceCreationParameters
 	bool enableComputeQueue = false;
 	bool enableCopyQueue = false;
 
+#if _WIN32
+	HINSTANCE	hInstance;
+	HWND		hWnd;
+#endif
+
 #if USE_DX11 || USE_DX12
 	// Adapter to create the device on. Setting this to non-null overrides adapterNameSubstring.
 	// If device creation fails on the specified adapter, it will *not* try any other adapters.
@@ -126,6 +131,7 @@ public:
 protected:
 	friend class idRenderBackend;
 
+	void* windowInstance;
 	void* windowHandle;
 	bool windowVisible = false;
 	bool isNvidia = false;

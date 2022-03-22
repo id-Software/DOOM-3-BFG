@@ -31,17 +31,17 @@ If you have questions concerning this license or the applicable additional terms
 
 
 // *INDENT-OFF*
-Texture2D t_Normal			: register( t0 );
-Texture2D t_Specular		: register( t1 );
-Texture2D t_BaseColor		: register( t2 );
-Texture2D t_LightFalloff	: register( t3 );
-Texture2D t_LightProjection	: register( t4 );
+Texture2D t_Normal			: register( t0 VK_DESCRIPTOR_SET( 0 ) );
+Texture2D t_Specular		: register( t1 VK_DESCRIPTOR_SET( 0 ) );
+Texture2D t_BaseColor		: register( t2 VK_DESCRIPTOR_SET( 0 ) );
+Texture2D t_LightFalloff	: register( t3 VK_DESCRIPTOR_SET( 0 ) );
+Texture2D t_LightProjection	: register( t4 VK_DESCRIPTOR_SET( 0 ) );
 
-SamplerState samp0 : register(s0); // texture 1 is the per-surface normal map
-SamplerState samp1 : register(s1); // texture 3 is the per-surface specular or roughness/metallic/AO mixer map
-SamplerState samp2 : register(s2); // texture 2 is the per-surface baseColor map 
-SamplerState samp3 : register(s3); // texture 4 is the light falloff texture
-SamplerState samp4 : register(s4); // texture 5 is the light projection texture
+SamplerState samp0 : register( s0 VK_DESCRIPTOR_SET( 1 ) ); // texture 1 is the per-surface normal map
+SamplerState samp1 : register( s1 VK_DESCRIPTOR_SET( 1 ) ); // texture 3 is the per-surface specular or roughness/metallic/AO mixer map
+SamplerState samp2 : register( s2 VK_DESCRIPTOR_SET( 1 ) ); // texture 2 is the per-surface baseColor map 
+SamplerState samp3 : register( s3 VK_DESCRIPTOR_SET( 1 ) ); // texture 4 is the light falloff texture
+SamplerState samp4 : register( s4 VK_DESCRIPTOR_SET( 1 ) ); // texture 5 is the light projection texture
 
 struct PS_IN {
 	half4 position	: SV_Position;

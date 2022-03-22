@@ -33,11 +33,11 @@ If you have questions concerning this license or the applicable additional terms
 
 
 // *INDENT-OFF*
-Texture2D t_BaseColor	: register( t0 );
-Texture2D t_BlueNoise	: register( t1 );
+Texture2D t_BaseColor	: register( t0 VK_DESCRIPTOR_SET( 0 ) );
+Texture2D t_BlueNoise	: register( t1 VK_DESCRIPTOR_SET( 0 ) );
 
-SamplerState samp0		: register(s0);
-SamplerState samp1		: register(s1); // blue noise 256
+SamplerState samp0		: register(s0 VK_DESCRIPTOR_SET( 1 ) );
+SamplerState samp1		: register(s1 VK_DESCRIPTOR_SET( 1 ) ); // blue noise 256
 
 struct PS_IN
 {

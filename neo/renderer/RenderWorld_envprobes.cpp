@@ -1064,6 +1064,10 @@ CONSOLE_COMMAND( bakeEnvironmentProbes, "Bake environment probes", NULL )
 
 			// TODO
 
+#elif defined(USE_NVRHI)
+
+			// TODO
+
 #else
 
 			glFinish();

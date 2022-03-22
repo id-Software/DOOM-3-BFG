@@ -32,26 +32,26 @@ If you have questions concerning this license or the applicable additional terms
 
 
 // *INDENT-OFF*
-Texture2D				t_Normal			: register( t0 );
-Texture2D				t_Specular			: register( t1 );
-Texture2D				t_BaseColor			: register( t2 );
-Texture2D				t_LightFalloff		: register( t3 );
-Texture2D				t_LightProjection	: register( t4 );
+Texture2D				t_Normal			: register( t0 VK_DESCRIPTOR_SET( 0 ) );
+Texture2D				t_Specular			: register( t1 VK_DESCRIPTOR_SET( 0 ) );
+Texture2D				t_BaseColor			: register( t2 VK_DESCRIPTOR_SET( 0 ) );
+Texture2D				t_LightFalloff		: register( t3 VK_DESCRIPTOR_SET( 0 ) );
+Texture2D				t_LightProjection	: register( t4 VK_DESCRIPTOR_SET( 0 ) );
 
-SamplerState			s_Material : register( s0 ); // for the normal/specular/basecolor
-SamplerState 			s_Lighting : register( s1 ); // for sampling the jitter
+SamplerState			s_Material : register( s0 VK_DESCRIPTOR_SET( 1 ) ); // for the normal/specular/basecolor
+SamplerState 			s_Lighting : register( s1 VK_DESCRIPTOR_SET( 1 ) ); // for sampling the jitter
 
 struct PS_IN
 {
-	half4 position		: SV_Position;
-	half4 texcoord0		: TEXCOORD0_centroid;
-	half4 texcoord1		: TEXCOORD1_centroid;
-	half4 texcoord2		: TEXCOORD2_centroid;
-	half4 texcoord3		: TEXCOORD3_centroid;
-	half4 texcoord4		: TEXCOORD4_centroid;
-	half4 texcoord5		: TEXCOORD5_centroid;
-	half4 texcoord6		: TEXCOORD6_centroid;
-	half4 color			: COLOR0;
+	float4 position		: SV_Position;
+	float4 texcoord0		: TEXCOORD0_centroid;
+	float4 texcoord1		: TEXCOORD1_centroid;
+	float4 texcoord2		: TEXCOORD2_centroid;
+	float4 texcoord3		: TEXCOORD3_centroid;
+	float4 texcoord4		: TEXCOORD4_centroid;
+	float4 texcoord5		: TEXCOORD5_centroid;
+	float4 texcoord6		: TEXCOORD6_centroid;
+	float4 color			: COLOR0;
 };
 
 struct PS_OUT
@@ -62,18 +62,18 @@ struct PS_OUT
 
 void main( PS_IN fragment, out PS_OUT result )
 {
-	half4 bumpMap =			t_Normal.Sample( s_Material, fragment.texcoord1.xy );
-	half4 lightFalloff =	idtex2Dproj( s_Lighting, t_LightFalloff, fragment.texcoord2 );
-	half4 lightProj =		idtex2Dproj( s_Lighting, t_LightProjection, fragment.texcoord3 );
-	half4 YCoCG =			t_BaseColor.Sample( s_Material, fragment.texcoord4.xy );
-	half4 specMapSRGB =		t_Specular.Sample( s_Material, fragment.texcoord5.xy );
-	half4 specMap =			sRGBAToLinearRGBA( specMapSRGB );
+	float4 bumpMap =		t_Normal.Sample( s_Material, fragment.texcoord1.xy );
+	float4 lightFalloff =	idtex2Dproj( s_Lighting, t_LightFalloff, fragment.texcoord2 );
+	float4 lightProj =		idtex2Dproj( s_Lighting, t_LightProjection, fragment.texcoord3 );
+	float4 YCoCG =			t_BaseColor.Sample( s_Material, fragment.texcoord4.xy );
+	float4 specMapSRGB =	t_Specular.Sample( s_Material, fragment.texcoord5.xy );
+	float4 specMap =		sRGBAToLinearRGBA( specMapSRGB );
 
-	half3 lightVector = normalize( fragment.texcoord0.xyz );
-	half3 viewVector = normalize( fragment.texcoord6.xyz );
-	half3 diffuseMap = sRGBToLinearRGB( ConvertYCoCgToRGB( YCoCG ) );
+	float3 lightVector = normalize( fragment.texcoord0.xyz );
+	float3 viewVector = normalize( fragment.texcoord6.xyz );
+	float3 diffuseMap = sRGBToLinearRGB( ConvertYCoCgToRGB( YCoCG ) );
 
-	half3 localNormal;
+	float3 localNormal;
 	// RB begin
 #if defined(USE_NORMAL_FMT_RGB8)
 	localNormal.xy = bumpMap.rg - 0.5;
@@ -85,44 +85,44 @@ void main( PS_IN fragment, out PS_OUT result )
 	localNormal = normalize( localNormal );
 
 	// traditional very dark Lambert light model used in Doom 3
-	half ldotN = saturate( dot3( localNormal, lightVector ) );
+	float ldotN = saturate( dot3( localNormal, lightVector ) );
 
 #if defined(USE_HALF_LAMBERT)
 	// RB: http://developer.valvesoftware.com/wiki/Half_Lambert
-	half halfLdotN = dot3( localNormal, lightVector ) * 0.5 + 0.5;
+	float halfLdotN = dot3( localNormal, lightVector ) * 0.5 + 0.5;
 	halfLdotN *= halfLdotN;
 
 	// tweak to not loose so many details
-	half lambert = lerp( ldotN, halfLdotN, 0.5 );
+	float lambert = lerp( ldotN, halfLdotN, 0.5 );
 #else
-	half lambert = ldotN;
+	float lambert = ldotN;
 #endif
 
 
-	half3 halfAngleVector = normalize( lightVector + viewVector );
-	half hdotN = clamp( dot3( halfAngleVector, localNormal ), 0.0, 1.0 );
+	float3 halfAngleVector = normalize( lightVector + viewVector );
+	float hdotN = clamp( dot3( halfAngleVector, localNormal ), 0.0, 1.0 );
 
 #if USE_PBR
-	const half metallic = specMapSRGB.g;
-	const half roughness = specMapSRGB.r;
-	const half glossiness = 1.0 - roughness;
+	const float metallic = specMapSRGB.g;
+	const float roughness = specMapSRGB.r;
+	const float glossiness = 1.0 - roughness;
 
 	// the vast majority of real-world materials (anything not metal or gems) have F(0�)
 	// values in a very narrow range (~0.02 - 0.08)
 
 	// approximate non-metals with linear RGB 0.04 which is 0.08 * 0.5 (default in UE4)
-	const half3 dielectricColor = _half3( 0.04 );
+	const float3 dielectricColor = _float3( 0.04 );
 
 	// derive diffuse and specular from albedo(m) base color
-	const half3 baseColor = diffuseMap;
+	const float3 baseColor = diffuseMap;
 
-	half3 diffuseColor = baseColor * ( 1.0 - metallic );
-	half3 specularColor = lerp( dielectricColor, baseColor, metallic );
+	float3 diffuseColor = baseColor * ( 1.0 - metallic );
+	float3 specularColor = lerp( dielectricColor, baseColor, metallic );
 #else
 	const float roughness = EstimateLegacyRoughness( specMapSRGB.rgb );
 
-	half3 diffuseColor = diffuseMap;
-	half3 specularColor = specMapSRGB.rgb; // RB: should be linear but it looks too flat
+	float3 diffuseColor = diffuseMap;
+	float3 specularColor = specMapSRGB.rgb; // RB: should be linear but it looks too flat
 #endif
 
 
@@ -130,14 +130,14 @@ void main( PS_IN fragment, out PS_OUT result )
 	//lambert *= 1.3;
 
 	// rpDiffuseModifier contains light color multiplier
-	half3 lightColor = sRGBToLinearRGB( lightProj.xyz * lightFalloff.xyz );
+	float3 lightColor = sRGBToLinearRGB( lightProj.xyz * lightFalloff.xyz );
 
-	half vdotN = clamp( dot3( viewVector, localNormal ), 0.0, 1.0 );
-	half vdotH = clamp( dot3( viewVector, halfAngleVector ), 0.0, 1.0 );
-	half ldotH = clamp( dot3( lightVector, halfAngleVector ), 0.0, 1.0 );
+	float vdotN = clamp( dot3( viewVector, localNormal ), 0.0, 1.0 );
+	float vdotH = clamp( dot3( viewVector, halfAngleVector ), 0.0, 1.0 );
+	float ldotH = clamp( dot3( lightVector, halfAngleVector ), 0.0, 1.0 );
 
 	// compensate r_lightScale 3 * 2
-	half3 reflectColor = specularColor * rpSpecularModifier.rgb * 1.0;// * 0.5;
+	float3 reflectColor = specularColor * rpSpecularModifier.rgb * 1.0;// * 0.5;
 
 	// cheap approximation by ARM with only one division
 	// http://community.arm.com/servlet/JiveServlet/download/96891546-19496/siggraph2015-mmg-renaldas-slides.pdf
@@ -149,19 +149,19 @@ void main( PS_IN fragment, out PS_OUT result )
 	// disney GGX
 	float D = ( hdotN * hdotN ) * ( rrrr - 1.0 ) + 1.0;
 	float VFapprox = ( ldotH * ldotH ) * ( roughness + 0.5 );
-	half3 specularLight = ( rrrr / ( 4.0 * PI * D * D * VFapprox ) ) * ldotN * reflectColor;
-	//specularLight = half3( 0.0 );
+	float3 specularLight = ( rrrr / ( 4.0 * PI * D * D * VFapprox ) ) * ldotN * reflectColor;
+	//specularLight = float3( 0.0 );
 
 #if 0
-	result.color = float4( _half3( VFapprox ), 1.0 );
+	result.color = float4( _float3( VFapprox ), 1.0 );
 	return;
 #endif
 
 	// see http://seblagarde.wordpress.com/2012/01/08/pi-or-not-to-pi-in-game-lighting-equation/
 	//lambert /= PI;
 
-	//half3 diffuseColor = mix( diffuseMap, F0, metal ) * rpDiffuseModifier.xyz;
-	half3 diffuseLight = diffuseColor * lambert * ( rpDiffuseModifier.xyz );
+	//float3 diffuseColor = mix( diffuseMap, F0, metal ) * rpDiffuseModifier.xyz;
+	float3 diffuseLight = diffuseColor * lambert * ( rpDiffuseModifier.xyz );
 
 	float3 color = ( diffuseLight + specularLight ) * lightColor * fragment.color.rgb;
 

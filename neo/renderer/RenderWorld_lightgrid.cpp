@@ -1294,6 +1294,8 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 #if defined(USE_VULKAN)
 
 							// TODO
+#elif defined(USE_NVRHI)
+							// TODO
 
 #else
 

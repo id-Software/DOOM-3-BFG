@@ -37,9 +37,6 @@ If you have questions concerning this license or the applicable additional terms
 
 extern idCVar r_showBuffers;
 
-//static const GLenum bufferUsage = GL_STATIC_DRAW;
-static const GLenum bufferUsage = GL_DYNAMIC_DRAW;
-
 extern DeviceManager* deviceManager;
 
 /*
@@ -109,17 +106,18 @@ bool idVertexBuffer::AllocBufferObject( const void* data, int allocSize, bufferU
 	nvrhi::BufferDesc vertexBufferDesc;
 	vertexBufferDesc.byteSize = numBytes;
 	vertexBufferDesc.isVertexBuffer = true;
-	vertexBufferDesc.debugName = "VertexBuffer";
 
 	if( usage == BU_DYNAMIC )
 	{
 		vertexBufferDesc.initialState = nvrhi::ResourceStates::CopyDest;
 		vertexBufferDesc.cpuAccess = nvrhi::CpuAccessMode::Write;
+		vertexBufferDesc.debugName = "Mapped idDrawVert vertex buffer";
 	}
 	else
 	{
 		vertexBufferDesc.initialState = nvrhi::ResourceStates::Common;
 		vertexBufferDesc.keepInitialState = true;
+		vertexBufferDesc.debugName = "Static idDrawVert vertex buffer";
 	}
 
 	bufferHandle = deviceManager->GetDevice()->createBuffer( vertexBufferDesc );
@@ -392,7 +390,6 @@ void idIndexBuffer::Update( const void* data, int updateSize, int offset, bool i
 
 	if( usage == BU_DYNAMIC )
 	{
-		void* buffer = deviceManager->GetDevice()->mapBuffer( bufferHandle, nvrhi::CpuAccessMode::Write );
 		CopyBuffer( ( byte* )buffer + offset, ( const byte* )data, numBytes );
 	}
 	else
@@ -519,12 +516,13 @@ bool idUniformBuffer::AllocBufferObject( const void* data, int allocSize, buffer
 
 	if( usage == BU_DYNAMIC )
 	{
-		bufferDesc.debugName = "ConstantBuffer";
+		bufferDesc.debugName = "Mapped ConstantBuffer";
 		bufferDesc.initialState = nvrhi::ResourceStates::CopyDest;
 		bufferDesc.cpuAccess = nvrhi::CpuAccessMode::Write;
 	}
 	else
 	{
+		bufferDesc.debugName = "Static ConstantBuffer";
 		bufferDesc.keepInitialState = true;
 	}
 
@@ -568,7 +566,6 @@ void idUniformBuffer::Update( const void* data, int updateSize, int offset, bool
 
 	if( usage == BU_DYNAMIC )
 	{
-		void* buffer = deviceManager->GetDevice()->mapBuffer( bufferHandle, nvrhi::CpuAccessMode::Write );
 		CopyBuffer( ( byte* )buffer + offset, ( const byte* )data, numBytes );
 	}
 	else

@@ -491,14 +491,24 @@ public:
 		return ( void* )sampler.Get();
 	}
 
+	void* GetSampler( nvrhi::IDevice* device )
+	{
+		if( !sampler )
+		{
+			sampler = device->createSampler( samplerDesc );
+		}
+
+		return ( void* )sampler;
+	}
+
+	nvrhi::SamplerDesc* GetSamplerDesc()
+	{
+		return &samplerDesc;
+	}
+
 	void SetSampler( nvrhi::SamplerHandle _sampler )
 	{
 		sampler = _sampler;
-	}
-
-	const nvrhi::SamplerDesc& GetSamplerDesc()
-	{
-		return samplerDesc;
 	}
 
 private:

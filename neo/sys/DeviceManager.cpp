@@ -36,7 +36,6 @@ void DeviceManager::GetWindowDimensions( int& width, int& height )
 
 void DeviceManager::BackBufferResizing()
 {
-	tr.backend.BackBufferResizing();
 	Framebuffer::Shutdown();
 }
 
@@ -81,11 +80,6 @@ void DeviceManager::AddRenderPassToBack( IRenderPass* pRenderPass )
 }
 
 DeviceManager* DeviceManager::CreateD3D11()
-{
-	return nullptr;
-}
-
-DeviceManager* DeviceManager::CreateVK()
 {
 	return nullptr;
 }

@@ -66,6 +66,9 @@ glconfig_t	glConfig;
 idCVar r_requestStereoPixelFormat( "r_requestStereoPixelFormat", "1", CVAR_RENDERER, "Ask for a stereo GL pixel format on startup" );
 idCVar r_debugContext( "r_debugContext", "0", CVAR_RENDERER, "Enable various levels of context debug." );
 idCVar r_glDriver( "r_glDriver", "", CVAR_RENDERER, "\"opengl32\", etc." );
+#if defined(USE_NVRHI)
+	idCVar r_gapi( "r_gapi", "dx12", CVAR_RENDERER, "Specifies the graphics api to use (dx12, vulkan)" );
+#endif
 // SRS - Added workaround for AMD OSX driver bugs caused by GL_EXT_timer_query when shadow mapping enabled; Intel bugs not present on OSX
 #if defined(__APPLE__)
 	idCVar r_skipIntelWorkarounds( "r_skipIntelWorkarounds", "1", CVAR_RENDERER | CVAR_BOOL, "skip workarounds for Intel driver bugs" );
@@ -456,7 +459,16 @@ void R_SetNewMode( const bool fullInit )
 			// create the context as well as setting up the window
 
 #if defined( USE_NVRHI )
-			deviceManager = DeviceManager::Create( nvrhi::GraphicsAPI::D3D12 );
+			nvrhi::GraphicsAPI api = nvrhi::GraphicsAPI::D3D12;
+			if( !idStr::Icmp( r_gapi.GetString(), "vulkan" ) )
+			{
+				api = nvrhi::GraphicsAPI::VULKAN;
+			}
+			else if( !idStr::Icmp( r_gapi.GetString(), "dx12" ) )
+			{
+				api = nvrhi::GraphicsAPI::D3D12;
+			}
+			deviceManager = DeviceManager::Create( api );
 #endif
 
 #if defined( USE_VULKAN )
@@ -768,7 +780,7 @@ If ref isn't specified, the full session UpdateScreen will be done.
 void R_ReadTiledPixels( int width, int height, byte* buffer, renderView_t* ref = NULL )
 {
 	// FIXME
-#if !defined(USE_VULKAN)
+#if !defined(USE_VULKAN) && !defined(USE_NVRHI)
 
 	// include extra space for OpenGL padding to word boundaries
 	int sysWidth = renderSystem->GetWidth();
@@ -1523,7 +1535,7 @@ void GfxInfo_f( const idCmdArgs& args )
 	common->Printf( "-------\n" );
 
 	// RB begin
-#if defined(_WIN32) && !defined(USE_VULKAN)
+#if defined(_WIN32) && !defined(USE_VULKAN) && !defined(USE_NVRHI)
 	// WGL_EXT_swap_interval
 	if( r_swapInterval.GetInteger() && wglSwapIntervalEXT != NULL )
 	{

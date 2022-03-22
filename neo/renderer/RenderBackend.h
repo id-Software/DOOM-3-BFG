@@ -34,13 +34,16 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "RenderLog.h"
 
-#include "Passes/CommonPasses.h"
-#include "Passes/MipMapGenPass.h"
-#include "Passes/FowardShadingPass.h"
-#include "Passes/SsaoPass.h"
-#include "Passes/TonemapPass.h"
+#if defined(USE_NVRHI)
+	#include "Passes/CommonPasses.h"
+	#include "Passes/MipMapGenPass.h"
+	#include "Passes/FowardShadingPass.h"
+	#include "Passes/SsaoPass.h"
+	#include "Passes/TonemapPass.h"
 
-#include "PipelineCache.h"
+	#include "PipelineCache.h"
+
+#endif
 
 bool			GL_CheckErrors_( const char* filename, int line );
 #if 1 // !defined(RETAIL)
@@ -228,8 +231,7 @@ struct vulkanContext_t
 
 extern vulkanContext_t vkcontext;
 
-//#elif !defined( USE_NVRHI )
-#else
+#elif !defined( USE_NVRHI )
 
 struct glContext_t
 {
@@ -280,7 +282,7 @@ public:
 	void				Print();
 	void				CheckCVars();
 
-	void				BackBufferResizing();
+	void				ClearCaches();
 
 	static void			ImGui_Init();
 	static void			ImGui_Shutdown();
@@ -290,7 +292,7 @@ private:
 	void				DrawFlickerBox();
 
 	void				DrawElementsWithCounters( const drawSurf_t* surf );
-	void				GetCurrentBindingLayout();
+	void				GetCurrentBindingLayout( int bindingLayoutType );
 	void				DrawStencilShadowPass( const drawSurf_t* drawSurf, const bool renderZPass );
 
 	void				SetColorMappings();
@@ -509,22 +511,19 @@ private:
 	uint							currentVertexOffset;
 	nvrhi::BufferHandle				currentIndexBuffer;
 	uint							currentIndexOffset;
-	idStaticList<nvrhi::BindingSetHandle, nvrhi::c_MaxBindingLayouts> currentBindingSets;
-	idStaticList<nvrhi::BindingSetDesc, nvrhi::c_MaxBindingLayouts> pendingBindingSetDescs;
 	nvrhi::BindingLayoutHandle		currentBindingLayout;
 	nvrhi::GraphicsPipelineHandle	currentPipeline;
-	//nvrhi::RenderState				currentRenderState;
+
+	idStaticList<nvrhi::BindingSetHandle, nvrhi::c_MaxBindingLayouts> currentBindingSets;
+	idStaticList<idStaticList<nvrhi::BindingSetDesc, nvrhi::c_MaxBindingLayouts>, NUM_BINDING_LAYOUTS> pendingBindingSetDescs;
 
 	Framebuffer*					currentFrameBuffer;
 	Framebuffer*					lastFrameBuffer;
 	nvrhi::CommandListHandle		commandList;
-	idList<IRenderPass*>			renderPasses;
 	CommonRenderPasses				commonPasses;
 	SsaoPass*						ssaoPass;
 	MipMapGenPass*					hiZGenPass;
-	TonemapPass						toneMapPass;
-
-	//ForwardShadingPass				fowardShadingPass;
+	TonemapPass*					toneMapPass;
 
 	BindingCache					bindingCache;
 	SamplerCache					samplerCache;

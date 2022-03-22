@@ -47,13 +47,10 @@ If you have questions concerning this license or the applicable additional terms
 #include "../RenderCommon.h"
 #include "../RenderBackend.h"
 #include "../../framework/Common_local.h"
-#include "renderer/RenderPass.h"
-
 #include "../../imgui/imgui.h"
 
-#include <sys/DeviceManager.h>
-
 #include "nvrhi/utils.h"
+#include <sys/DeviceManager.h>
 
 idCVar r_drawFlickerBox( "r_drawFlickerBox", "0", CVAR_RENDERER | CVAR_BOOL, "visual test for dropping frames" );
 idCVar stereoRender_warp( "stereoRender_warp", "0", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_BOOL, "use the optical warping renderprog instead of stereoDeGhost" );
@@ -68,13 +65,8 @@ idCVar stereoRender_warpTargetFraction( "stereoRender_warpTargetFraction", "1.0"
 idCVar r_showSwapBuffers( "r_showSwapBuffers", "0", CVAR_BOOL, "Show timings from GL_BlockingSwapBuffers" );
 idCVar r_syncEveryFrame( "r_syncEveryFrame", "1", CVAR_BOOL, "Don't let the GPU buffer execution past swapbuffers" );
 
-static int		swapIndex;		// 0 or 1 into renderSync
-static GLsync	renderSync[2];
-
 void GLimp_SwapBuffers();
 void RB_SetMVP( const idRenderMatrix& mvp );
-
-glContext_t glcontext;
 
 class NvrhiContext
 {
@@ -111,36 +103,6 @@ For ARB_debug_output
 static void CALLBACK DebugCallback( unsigned int source, unsigned int type,
 									unsigned int id, unsigned int severity, int length, const char* msg, const void* userParam )
 {
-	char	s[1024];
-
-	// it probably isn't safe to do an idLib::Printf at this point
-
-	const char* severityStr = "Severity: Unkown";
-	switch( severity )
-	{
-		case GL_DEBUG_SEVERITY_HIGH:
-			severityStr = "Severity: High";
-			break;
-
-		case GL_DEBUG_SEVERITY_MEDIUM:
-			severityStr = "Severity: Medium";
-			break;
-
-		case GL_DEBUG_SEVERITY_LOW:
-			severityStr = "Severity: High";
-			break;
-	}
-
-	idStr::snPrintf( s, sizeof( s ), "[OpenGL] Debug: [ %s ] Code %d, %d : '%s'\n", severityStr, source, type, msg );
-
-	// RB: printf should be thread safe on Linux
-#if defined(_WIN32)
-	OutputDebugString( s );
-	OutputDebugString( "\n" );
-#else
-	printf( "%s\n", s );
-#endif
-	// RB end
 }
 
 
@@ -152,295 +114,6 @@ R_CheckPortableExtensions
 // RB: replaced QGL with GLEW
 static void R_CheckPortableExtensions()
 {
-	glConfig.glVersion = atof( glConfig.version_string );
-	const char* badVideoCard = idLocalization::GetString( "#str_06780" );
-	if( glConfig.glVersion < 2.0f )
-	{
-		idLib::FatalError( "%s", badVideoCard );
-	}
-
-	if( idStr::Icmpn( glConfig.renderer_string, "ATI ", 4 ) == 0 || idStr::Icmpn( glConfig.renderer_string, "AMD ", 4 ) == 0 )
-	{
-		glConfig.vendor = VENDOR_AMD;
-	}
-	else if( idStr::Icmpn( glConfig.renderer_string, "NVIDIA", 6 ) == 0 )
-	{
-		glConfig.vendor = VENDOR_NVIDIA;
-	}
-	else if( idStr::Icmpn( glConfig.renderer_string, "Intel", 5 ) == 0 )
-	{
-		glConfig.vendor = VENDOR_INTEL;
-	}
-
-	// RB: Mesa support
-	if( idStr::Icmpn( glConfig.renderer_string, "Mesa", 4 ) == 0 || idStr::Icmpn( glConfig.renderer_string, "X.org", 5 ) == 0 || idStr::Icmpn( glConfig.renderer_string, "Gallium", 7 ) == 0 ||
-			strcmp( glConfig.vendor_string, "X.Org" ) == 0 ||
-			idStr::Icmpn( glConfig.renderer_string, "llvmpipe", 8 ) == 0 )
-	{
-		if( glConfig.driverType == GLDRV_OPENGL32_CORE_PROFILE )
-		{
-			glConfig.driverType = GLDRV_OPENGL_MESA_CORE_PROFILE;
-		}
-		else
-		{
-			glConfig.driverType = GLDRV_OPENGL_MESA;
-		}
-	}
-	// RB end
-
-	// GL_ARB_multitexture
-	if( glConfig.driverType != GLDRV_OPENGL3X )
-	{
-		glConfig.multitextureAvailable = true;
-	}
-	else
-	{
-		glConfig.multitextureAvailable = GLEW_ARB_multitexture != 0;
-	}
-
-	// GL_EXT_direct_state_access
-	glConfig.directStateAccess = GLEW_EXT_direct_state_access != 0;
-
-
-	// GL_ARB_texture_compression + GL_S3_s3tc
-	// DRI drivers may have GL_ARB_texture_compression but no GL_EXT_texture_compression_s3tc
-	if( glConfig.driverType == GLDRV_OPENGL_MESA_CORE_PROFILE )
-	{
-		glConfig.textureCompressionAvailable = true;
-	}
-	else
-	{
-		glConfig.textureCompressionAvailable = GLEW_ARB_texture_compression != 0 && GLEW_EXT_texture_compression_s3tc != 0;
-	}
-	// GL_EXT_texture_filter_anisotropic
-	glConfig.anisotropicFilterAvailable = GLEW_EXT_texture_filter_anisotropic != 0;
-	if( glConfig.anisotropicFilterAvailable )
-	{
-		glGetFloatv( GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &glConfig.maxTextureAnisotropy );
-		common->Printf( "   maxTextureAnisotropy: %f\n", glConfig.maxTextureAnisotropy );
-	}
-	else
-	{
-		glConfig.maxTextureAnisotropy = 1;
-	}
-
-	// GL_EXT_texture_lod_bias
-	// The actual extension is broken as specificed, storing the state in the texture unit instead
-	// of the texture object.  The behavior in GL 1.4 is the behavior we use.
-	glConfig.textureLODBiasAvailable = ( glConfig.glVersion >= 1.4 || GLEW_EXT_texture_lod_bias != 0 );
-	if( glConfig.textureLODBiasAvailable )
-	{
-		common->Printf( "...using %s\n", "GL_EXT_texture_lod_bias" );
-	}
-	else
-	{
-		common->Printf( "X..%s not found\n", "GL_EXT_texture_lod_bias" );
-	}
-
-	// GL_ARB_seamless_cube_map
-	glConfig.seamlessCubeMapAvailable = GLEW_ARB_seamless_cube_map != 0;
-	r_useSeamlessCubeMap.SetModified();		// the CheckCvars() next frame will enable / disable it
-
-	// GL_ARB_vertex_buffer_object
-	if( glConfig.driverType == GLDRV_OPENGL_MESA_CORE_PROFILE )
-	{
-		glConfig.vertexBufferObjectAvailable = true;
-	}
-	else
-	{
-		glConfig.vertexBufferObjectAvailable = GLEW_ARB_vertex_buffer_object != 0;
-	}
-
-	// GL_ARB_map_buffer_range, map a section of a buffer object's data store
-	//if( glConfig.driverType == GLDRV_OPENGL_MESA_CORE_PROFILE )
-	//{
-	//    glConfig.mapBufferRangeAvailable = true;
-	//}
-	//else
-	{
-		glConfig.mapBufferRangeAvailable = GLEW_ARB_map_buffer_range != 0;
-	}
-
-	// GL_ARB_vertex_array_object
-	//if( glConfig.driverType == GLDRV_OPENGL_MESA_CORE_PROFILE )
-	//{
-	//    glConfig.vertexArrayObjectAvailable = true;
-	//}
-	//else
-	{
-		glConfig.vertexArrayObjectAvailable = GLEW_ARB_vertex_array_object != 0;
-	}
-
-	// GL_ARB_draw_elements_base_vertex
-	glConfig.drawElementsBaseVertexAvailable = GLEW_ARB_draw_elements_base_vertex != 0;
-
-	// GL_ARB_vertex_program / GL_ARB_fragment_program
-	glConfig.fragmentProgramAvailable = GLEW_ARB_fragment_program != 0;
-	//if( glConfig.fragmentProgramAvailable )
-	{
-		glGetIntegerv( GL_MAX_TEXTURE_COORDS, ( GLint* )&glConfig.maxTextureCoords );
-		glGetIntegerv( GL_MAX_TEXTURE_IMAGE_UNITS, ( GLint* )&glConfig.maxTextureImageUnits );
-	}
-
-	// GLSL, core in OpenGL > 2.0
-	glConfig.glslAvailable = ( glConfig.glVersion >= 2.0f );
-
-	// GL_ARB_uniform_buffer_object
-	glConfig.uniformBufferAvailable = GLEW_ARB_uniform_buffer_object != 0;
-	if( glConfig.uniformBufferAvailable )
-	{
-		glGetIntegerv( GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, ( GLint* )&glConfig.uniformBufferOffsetAlignment );
-		if( glConfig.uniformBufferOffsetAlignment < 256 )
-		{
-			glConfig.uniformBufferOffsetAlignment = 256;
-		}
-	}
-	// RB: make GPU skinning optional for weak OpenGL drivers
-	glConfig.gpuSkinningAvailable = glConfig.uniformBufferAvailable && ( glConfig.driverType == GLDRV_OPENGL3X || glConfig.driverType == GLDRV_OPENGL32_CORE_PROFILE || glConfig.driverType == GLDRV_OPENGL32_COMPATIBILITY_PROFILE );
-
-	// ATI_separate_stencil / OpenGL 2.0 separate stencil
-	glConfig.twoSidedStencilAvailable = ( glConfig.glVersion >= 2.0f ) || GLEW_ATI_separate_stencil != 0;
-
-	// GL_EXT_depth_bounds_test
-	glConfig.depthBoundsTestAvailable = GLEW_EXT_depth_bounds_test != 0;
-
-	// GL_ARB_sync
-	glConfig.syncAvailable = GLEW_ARB_sync &&
-							 // as of 5/24/2012 (driver version 15.26.12.64.2761) sync objects
-							 // do not appear to work for the Intel HD 4000 graphics
-							 ( glConfig.vendor != VENDOR_INTEL || r_skipIntelWorkarounds.GetBool() );
-
-	// GL_ARB_occlusion_query
-	glConfig.occlusionQueryAvailable = GLEW_ARB_occlusion_query != 0;
-
-#if defined(__APPLE__)
-	// SRS - DSA not available in Apple OpenGL 4.1, but enable for OSX anyways since elapsed time query will be used to get timing info instead
-	glConfig.timerQueryAvailable = ( GLEW_ARB_timer_query != 0 || GLEW_EXT_timer_query != 0 );
-#else
-	// GL_ARB_timer_query using the DSA interface
-	glConfig.timerQueryAvailable = ( GLEW_ARB_direct_state_access != 0 && GLEW_ARB_timer_query != 0 );
-#endif
-
-	// GREMEDY_string_marker
-	glConfig.gremedyStringMarkerAvailable = GLEW_GREMEDY_string_marker != 0;
-	if( glConfig.gremedyStringMarkerAvailable )
-	{
-		common->Printf( "...using %s\n", "GL_GREMEDY_string_marker" );
-	}
-	else
-	{
-		common->Printf( "X..%s not found\n", "GL_GREMEDY_string_marker" );
-	}
-
-	// KHR_debug
-	glConfig.khronosDebugAvailable = GLEW_KHR_debug != 0;
-	if( glConfig.khronosDebugAvailable )
-	{
-		common->Printf( "...using %s\n", "GLEW_KHR_debug" );
-	}
-	else
-	{
-		common->Printf( "X..%s not found\n", "GLEW_KHR_debug" );
-	}
-
-	// GL_ARB_framebuffer_object
-	glConfig.framebufferObjectAvailable = GLEW_ARB_framebuffer_object != 0;
-	if( glConfig.framebufferObjectAvailable )
-	{
-		glGetIntegerv( GL_MAX_RENDERBUFFER_SIZE, &glConfig.maxRenderbufferSize );
-		glGetIntegerv( GL_MAX_COLOR_ATTACHMENTS, &glConfig.maxColorAttachments );
-
-		common->Printf( "...using %s\n", "GL_ARB_framebuffer_object" );
-	}
-	else
-	{
-		common->Printf( "X..%s not found\n", "GL_ARB_framebuffer_object" );
-	}
-
-	// GL_EXT_framebuffer_blit
-	glConfig.framebufferBlitAvailable = GLEW_EXT_framebuffer_blit != 0;
-	if( glConfig.framebufferBlitAvailable )
-	{
-		common->Printf( "...using %s\n", "GL_EXT_framebuffer_blit" );
-	}
-	else
-	{
-		common->Printf( "X..%s not found\n", "GL_EXT_framebuffer_blit" );
-	}
-
-	// GL_ARB_debug_output
-	glConfig.debugOutputAvailable = GLEW_ARB_debug_output != 0;
-	if( glConfig.debugOutputAvailable )
-	{
-		if( r_debugContext.GetInteger() >= 1 )
-		{
-			glDebugMessageCallbackARB( ( GLDEBUGPROCARB ) DebugCallback, NULL );
-		}
-		if( r_debugContext.GetInteger() >= 2 )
-		{
-			// force everything to happen in the main thread instead of in a separate driver thread
-			glEnable( GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB );
-		}
-		if( r_debugContext.GetInteger() >= 3 )
-		{
-			// enable all the low priority messages
-			glDebugMessageControlARB( GL_DONT_CARE,
-									  GL_DONT_CARE,
-									  GL_DEBUG_SEVERITY_LOW_ARB,
-									  0, NULL, true );
-		}
-	}
-
-	// GL_ARB_multitexture
-	if( !glConfig.multitextureAvailable )
-	{
-		idLib::Error( "GL_ARB_multitexture not available" );
-	}
-	// GL_ARB_texture_compression + GL_EXT_texture_compression_s3tc
-	if( !glConfig.textureCompressionAvailable )
-	{
-		idLib::Error( "GL_ARB_texture_compression or GL_EXT_texture_compression_s3tc not available" );
-	}
-	// GL_ARB_vertex_buffer_object
-	if( !glConfig.vertexBufferObjectAvailable )
-	{
-		idLib::Error( "GL_ARB_vertex_buffer_object not available" );
-	}
-	// GL_ARB_map_buffer_range
-	if( !glConfig.mapBufferRangeAvailable )
-	{
-		idLib::Error( "GL_ARB_map_buffer_range not available" );
-	}
-	// GL_ARB_vertex_array_object
-	if( !glConfig.vertexArrayObjectAvailable )
-	{
-		idLib::Error( "GL_ARB_vertex_array_object not available" );
-	}
-	// GL_ARB_draw_elements_base_vertex
-	if( !glConfig.drawElementsBaseVertexAvailable )
-	{
-		idLib::Error( "GL_ARB_draw_elements_base_vertex not available" );
-	}
-	// GL_ARB_vertex_program / GL_ARB_fragment_program
-	//if( !glConfig.fragmentProgramAvailable )
-	//{
-	//	idLib::Warning( "GL_ARB_fragment_program not available" );
-	//}
-	// GLSL
-	if( !glConfig.glslAvailable )
-	{
-		idLib::Error( "GLSL not available" );
-	}
-	// GL_ARB_uniform_buffer_object
-	if( !glConfig.uniformBufferAvailable )
-	{
-		idLib::Error( "GL_ARB_uniform_buffer_object not available" );
-	}
-	// GL_EXT_stencil_two_side
-	if( !glConfig.twoSidedStencilAvailable )
-	{
-		idLib::Error( "GL_ATI_separate_stencil not available" );
-	}
 }
 // RB end
 
@@ -492,7 +165,6 @@ void idRenderBackend::Init()
 	commonPasses.Init( deviceManager->GetDevice() );
 	hiZGenPass = nullptr;
 	ssaoPass = nullptr;
-	//fowardShadingPass.Init( deviceManager->GetDevice() );
 
 	tr.SetInitialized();
 
@@ -504,7 +176,6 @@ void idRenderBackend::Init()
 	// allocate the vertex array range or vertex objects
 	commandList->open();
 	vertexCache.Init( glConfig.uniformBufferOffsetAlignment, commandList );
-	renderProgManager.CommitConstantBuffer( commandList );
 	commandList->close();
 	deviceManager->GetDevice()->executeCommandList( commandList );
 
@@ -537,6 +208,9 @@ idRenderBackend::DrawElementsWithCounters
 */
 void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 {
+	// Only update the constant buffer if it was updated at all.
+	renderProgManager.CommitConstantBuffer( commandList );
+
 	// Get vertex buffer
 	const vertCacheHandle_t vbHandle = surf->ambientCache;
 	idVertexBuffer* vertexBuffer;
@@ -601,34 +275,24 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 		changeState = true;
 	}
 
-	GetCurrentBindingLayout();
-
 	// RB: for debugging
-	int program = renderProgManager.CurrentProgram();
 	int bindingLayoutType = renderProgManager.BindingLayoutType();
-	auto& info = renderProgManager.GetProgramInfo( program );
-	/*
-	if( info.cs )
-	{
-		renderLog.OpenBlock( info.cs->getDesc().debugName.c_str() );
-	}
-	else
-	{
-		renderLog.OpenBlock( info.ps->getDesc().debugName.c_str() );
-	}
-	*/
 
-	for( int i = 0; i < info.bindingLayouts->Num(); i++ )
+	idStaticList<nvrhi::BindingLayoutHandle, nvrhi::c_MaxBindingLayouts>* layouts
+		= renderProgManager.GetBindingLayout( bindingLayoutType );
+
+	GetCurrentBindingLayout( bindingLayoutType );
+
+	for( int i = 0; i < layouts->Num(); i++ )
 	{
-		if( !currentBindingSets[i] || *currentBindingSets[i]->getDesc() != pendingBindingSetDescs[i] )
+		if( !currentBindingSets[i] || *currentBindingSets[i]->getDesc() != pendingBindingSetDescs[bindingLayoutType][i] )
 		{
-			currentBindingSets[i] = bindingCache.GetOrCreateBindingSet( pendingBindingSetDescs[i], ( *info.bindingLayouts )[i] );
+			currentBindingSets[i] = bindingCache.GetOrCreateBindingSet( pendingBindingSetDescs[bindingLayoutType][i], ( *layouts )[i] );
 			changeState = true;
 		}
 	}
 
-	renderProgManager.CommitConstantBuffer( commandList );
-
+	int program = renderProgManager.CurrentProgram();
 	PipelineKey key{ glStateBits, program, depthBias, slopeScaleBias, currentFrameBuffer };
 	auto pipeline = pipelineCache.GetOrCreatePipeline( key );
 
@@ -642,7 +306,7 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 	{
 		nvrhi::GraphicsState state;
 
-		for( int i = 0; i < info.bindingLayouts->Num(); i++ )
+		for( int i = 0; i < layouts->Num(); i++ )
 		{
 			state.bindings.push_back( currentBindingSets[i] );
 		}
@@ -671,7 +335,7 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 	nvrhi::DrawArguments args;
 	// FIXME idDrawShadowVert
 	args.startVertexLocation = currentVertexOffset / sizeof( idDrawVert );
-	args.startIndexLocation = currentIndexOffset / sizeof( uint16 );
+	args.startIndexLocation = currentIndexOffset / sizeof( triIndex_t );
 	args.vertexCount = surf->numIndexes;
 	commandList->drawIndexed( args );
 
@@ -682,169 +346,340 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 	//renderLog.CloseBlock();
 }
 
-void idRenderBackend::GetCurrentBindingLayout()
+void idRenderBackend::GetCurrentBindingLayout( int type )
 {
-	auto& info = renderProgManager.GetProgramInfo( renderProgManager.CurrentProgram() );
+	auto& desc = pendingBindingSetDescs[type];
 
-	int type = info.bindingLayoutType;
+	if( desc.Num() == 0 )
+	{
+		desc.SetNum( nvrhi::c_MaxBindingLayouts );
+	}
 
 	if( type == BINDING_LAYOUT_DEFAULT )
 	{
-		pendingBindingSetDescs[0].bindings =
+		if( desc[0].bindings.empty() )
 		{
-			nvrhi::BindingSetItem::ConstantBuffer( 0, renderProgManager.ConstantBuffer() ),
-			nvrhi::BindingSetItem::Texture_SRV( 0, ( nvrhi::ITexture* )GetImageAt( 0 )->GetTextureID() )
-		};
+			desc[0].bindings =
+			{
+				nvrhi::BindingSetItem::ConstantBuffer( 0, renderProgManager.ConstantBuffer() ),
+				nvrhi::BindingSetItem::Texture_SRV( 0, ( nvrhi::ITexture* )GetImageAt( 0 )->GetTextureID() )
+			};
+		}
+		else
+		{
+			desc[0].bindings[0].resourceHandle = renderProgManager.ConstantBuffer();
+			desc[0].bindings[1].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 0 )->GetTextureID();
+		}
 
-		pendingBindingSetDescs[1].bindings =
+		if( desc[1].bindings.empty() )
 		{
-			//nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_PointWrapSampler )
-			nvrhi::BindingSetItem::Sampler( 0, ( nvrhi::ISampler* )GetImageAt( 0 )->GetSampler( samplerCache ) )
-		};
+			desc[1].bindings =
+			{
+				nvrhi::BindingSetItem::Sampler( 0, ( nvrhi::ISampler* )GetImageAt( 0 )->GetSampler( samplerCache ) )
+			};
+		}
+		else
+		{
+			desc[1].bindings[0].resourceHandle = ( nvrhi::ISampler* )GetImageAt( 0 )->GetSampler( samplerCache );
+		}
+	}
+	else if( type == BINDING_LAYOUT_CONSTANT_BUFFER_ONLY )
+	{
+		if( desc[0].bindings.empty() )
+		{
+			desc[0].bindings =
+			{
+				nvrhi::BindingSetItem::ConstantBuffer( 0, renderProgManager.ConstantBuffer() ),
+			};
+		}
+		else
+		{
+			desc[0].bindings[0].resourceHandle = renderProgManager.ConstantBuffer();
+		}
 	}
 	else if( type == BINDING_LAYOUT_GBUFFER )
 	{
-		pendingBindingSetDescs[0].bindings =
+		if( desc[0].bindings.empty() )
 		{
-			nvrhi::BindingSetItem::ConstantBuffer( 0, renderProgManager.ConstantBuffer() )
-		};
+			desc[0].bindings =
+			{
+				nvrhi::BindingSetItem::ConstantBuffer( 0, renderProgManager.ConstantBuffer() ),
+			};
+		}
+		else
+		{
+			desc[0].bindings[0].resourceHandle = renderProgManager.ConstantBuffer();
+		}
 	}
 	else if( type == BINDING_LAYOUT_AMBIENT_LIGHTING_IBL )
 	{
-		pendingBindingSetDescs[0].bindings =
+		if( desc[0].bindings.empty() )
 		{
-			nvrhi::BindingSetItem::ConstantBuffer( 0, renderProgManager.ConstantBuffer() ),
-			nvrhi::BindingSetItem::Texture_SRV( 0, ( nvrhi::ITexture* )GetImageAt( 0 )->GetTextureID() ),
-			nvrhi::BindingSetItem::Texture_SRV( 1, ( nvrhi::ITexture* )GetImageAt( 1 )->GetTextureID() ),
-			nvrhi::BindingSetItem::Texture_SRV( 2, ( nvrhi::ITexture* )GetImageAt( 2 )->GetTextureID() ),
-			nvrhi::BindingSetItem::Texture_SRV( 3, ( nvrhi::ITexture* )GetImageAt( 3 )->GetTextureID() ),
-			nvrhi::BindingSetItem::Texture_SRV( 4, ( nvrhi::ITexture* )GetImageAt( 4 )->GetTextureID() ),
-			nvrhi::BindingSetItem::Texture_SRV( 7, ( nvrhi::ITexture* )GetImageAt( 7 )->GetTextureID() ),
-			nvrhi::BindingSetItem::Texture_SRV( 8, ( nvrhi::ITexture* )GetImageAt( 8 )->GetTextureID() ),
-			nvrhi::BindingSetItem::Texture_SRV( 9, ( nvrhi::ITexture* )GetImageAt( 9 )->GetTextureID() ),
-			nvrhi::BindingSetItem::Texture_SRV( 10, ( nvrhi::ITexture* )GetImageAt( 10 )->GetTextureID() )
-		};
+			desc[0].bindings =
+			{
+				nvrhi::BindingSetItem::ConstantBuffer( 0, renderProgManager.ConstantBuffer() ),
+				nvrhi::BindingSetItem::Texture_SRV( 0, ( nvrhi::ITexture* )GetImageAt( 0 )->GetTextureID() ),
+				nvrhi::BindingSetItem::Texture_SRV( 1, ( nvrhi::ITexture* )GetImageAt( 1 )->GetTextureID() ),
+				nvrhi::BindingSetItem::Texture_SRV( 2, ( nvrhi::ITexture* )GetImageAt( 2 )->GetTextureID() ),
+				nvrhi::BindingSetItem::Texture_SRV( 3, ( nvrhi::ITexture* )GetImageAt( 3 )->GetTextureID() ),
+				nvrhi::BindingSetItem::Texture_SRV( 4, ( nvrhi::ITexture* )GetImageAt( 4 )->GetTextureID() ),
+				nvrhi::BindingSetItem::Texture_SRV( 7, ( nvrhi::ITexture* )GetImageAt( 7 )->GetTextureID() ),
+				nvrhi::BindingSetItem::Texture_SRV( 8, ( nvrhi::ITexture* )GetImageAt( 8 )->GetTextureID() ),
+				nvrhi::BindingSetItem::Texture_SRV( 9, ( nvrhi::ITexture* )GetImageAt( 9 )->GetTextureID() ),
+				nvrhi::BindingSetItem::Texture_SRV( 10, ( nvrhi::ITexture* )GetImageAt( 10 )->GetTextureID() )
+			};
+		}
+		else
+		{
+			desc[0].bindings[0].resourceHandle = renderProgManager.ConstantBuffer();
+			desc[0].bindings[1].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 0 )->GetTextureID();
+			desc[0].bindings[2].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 1 )->GetTextureID();
+			desc[0].bindings[3].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 2 )->GetTextureID();
+			desc[0].bindings[4].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 3 )->GetTextureID();
+			desc[0].bindings[5].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 4 )->GetTextureID();
+			desc[0].bindings[6].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 7 )->GetTextureID();
+			desc[0].bindings[7].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 8 )->GetTextureID();
+			desc[0].bindings[8].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 9 )->GetTextureID();
+			desc[0].bindings[9].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 10 )->GetTextureID();
+		}
 
-		pendingBindingSetDescs[1].bindings =
+		if( desc[1].bindings.empty() )
 		{
-			nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_AnisotropicWrapSampler ),
-			nvrhi::BindingSetItem::Sampler( 1, commonPasses.m_LinearClampSampler )
-		};
+			desc[1].bindings =
+			{
+				nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_AnisotropicWrapSampler ),
+				nvrhi::BindingSetItem::Sampler( 1, commonPasses.m_LinearClampSampler )
+			};
+		}
+		else
+		{
+			desc[1].bindings[0].resourceHandle = commonPasses.m_AnisotropicWrapSampler;
+			desc[1].bindings[1].resourceHandle = commonPasses.m_LinearClampSampler;
+		}
 	}
 	else if( type == BINDING_LAYOUT_DRAW_AO )
 	{
-		pendingBindingSetDescs[0].bindings =
+		if( desc[0].bindings.empty() )
 		{
-			nvrhi::BindingSetItem::ConstantBuffer( 0, renderProgManager.ConstantBuffer() ),
-			nvrhi::BindingSetItem::Texture_SRV( 0, ( nvrhi::ITexture* )GetImageAt( 0 )->GetTextureID() ),
-			nvrhi::BindingSetItem::Texture_SRV( 1, ( nvrhi::ITexture* )GetImageAt( 1 )->GetTextureID() ),
-			nvrhi::BindingSetItem::Texture_SRV( 2, ( nvrhi::ITexture* )GetImageAt( 2 )->GetTextureID() )
-		};
+			desc[0].bindings =
+			{
+				nvrhi::BindingSetItem::ConstantBuffer( 0, renderProgManager.ConstantBuffer() ),
+				nvrhi::BindingSetItem::Texture_SRV( 0, ( nvrhi::ITexture* )GetImageAt( 0 )->GetTextureID() ),
+				nvrhi::BindingSetItem::Texture_SRV( 1, ( nvrhi::ITexture* )GetImageAt( 1 )->GetTextureID() ),
+				nvrhi::BindingSetItem::Texture_SRV( 2, ( nvrhi::ITexture* )GetImageAt( 2 )->GetTextureID() )
+			};
+		}
+		else
+		{
+			desc[0].bindings[0].resourceHandle = renderProgManager.ConstantBuffer();
+			desc[0].bindings[1].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 0 )->GetTextureID();
+			desc[0].bindings[2].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 1 )->GetTextureID();
+			desc[0].bindings[3].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 2 )->GetTextureID();
+		}
 
-		pendingBindingSetDescs[1].bindings =
+		if( desc[1].bindings.empty() )
 		{
-			nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_PointWrapSampler )  // blue noise
-		};
+			desc[1].bindings =
+			{
+				nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_PointWrapSampler )  // blue noise
+			};
+		}
+		else
+		{
+			desc[1].bindings[0] = nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_PointWrapSampler );
+		}
 	}
-	/*
-	else if( renderProgManager.BindingLayoutType() == BINDING_LAYOUT_DRAW_AO1 )
-	{
-		bindingSetDesc
-		.addItem( nvrhi::BindingSetItem::ConstantBuffer( 0, renderProgManager.ConstantBuffer() ) )
-		.addItem( nvrhi::BindingSetItem::Texture_SRV( 0, ( nvrhi::ITexture* )GetImageAt( 0 )->GetTextureID() ) )
-		.addItem( nvrhi::BindingSetItem::Sampler( 0, ( nvrhi::ISampler* )GetImageAt( 0 )->GetSampler( samplerCache ) ) );
-	}
-	*/
 	else if( type == BINDING_LAYOUT_DRAW_SHADOW )
 	{
-		pendingBindingSetDescs[0].bindings =
+		if( desc[0].bindings.empty() )
 		{
-			nvrhi::BindingSetItem::ConstantBuffer( 0, renderProgManager.ConstantBuffer() )
-		};
+			desc[0].bindings =
+			{
+				nvrhi::BindingSetItem::ConstantBuffer( 0, renderProgManager.ConstantBuffer() ),  // blue noise
+			};
+		}
+		else
+		{
+			desc[0].bindings[0].resourceHandle = renderProgManager.ConstantBuffer();
+		}
 	}
 	else if( type == BINDING_LAYOUT_DRAW_INTERACTION )
 	{
-		pendingBindingSetDescs[0].bindings =
+		if( desc[0].bindings.empty() )
 		{
-			nvrhi::BindingSetItem::ConstantBuffer( 0, renderProgManager.ConstantBuffer() ),
-			nvrhi::BindingSetItem::Texture_SRV( 0, ( nvrhi::ITexture* )GetImageAt( 0 )->GetTextureID() ),
-			nvrhi::BindingSetItem::Texture_SRV( 1, ( nvrhi::ITexture* )GetImageAt( 1 )->GetTextureID() ),
-			nvrhi::BindingSetItem::Texture_SRV( 2, ( nvrhi::ITexture* )GetImageAt( 2 )->GetTextureID() ),
-			nvrhi::BindingSetItem::Texture_SRV( 3, ( nvrhi::ITexture* )GetImageAt( 3 )->GetTextureID() ),
-			nvrhi::BindingSetItem::Texture_SRV( 4, ( nvrhi::ITexture* )GetImageAt( 4 )->GetTextureID() )
-		};
+			desc[0].bindings =
+			{
+				nvrhi::BindingSetItem::ConstantBuffer( 0, renderProgManager.ConstantBuffer() ),
+				nvrhi::BindingSetItem::Texture_SRV( 0, ( nvrhi::ITexture* )GetImageAt( 0 )->GetTextureID() ),
+				nvrhi::BindingSetItem::Texture_SRV( 1, ( nvrhi::ITexture* )GetImageAt( 1 )->GetTextureID() ),
+				nvrhi::BindingSetItem::Texture_SRV( 2, ( nvrhi::ITexture* )GetImageAt( 2 )->GetTextureID() ),
+				nvrhi::BindingSetItem::Texture_SRV( 3, ( nvrhi::ITexture* )GetImageAt( 3 )->GetTextureID() ),
+				nvrhi::BindingSetItem::Texture_SRV( 4, ( nvrhi::ITexture* )GetImageAt( 4 )->GetTextureID() )
+			};
+		}
+		else
+		{
+			desc[0].bindings[0].resourceHandle = renderProgManager.ConstantBuffer();
+			desc[0].bindings[1].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 0 )->GetTextureID();
+			desc[0].bindings[2].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 1 )->GetTextureID();
+			desc[0].bindings[3].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 2 )->GetTextureID();
+			desc[0].bindings[4].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 3 )->GetTextureID();
+			desc[0].bindings[5].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 4 )->GetTextureID();
+		}
 
-		pendingBindingSetDescs[1].bindings =
+		if( desc[1].bindings.empty() )
 		{
-			nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_AnisotropicWrapSampler ),
-			nvrhi::BindingSetItem::Sampler( 1, commonPasses.m_LinearClampSampler )
-		};
+			desc[1].bindings =
+			{
+				nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_AnisotropicWrapSampler ),
+				nvrhi::BindingSetItem::Sampler( 1, commonPasses.m_LinearClampSampler )
+			};
+		}
+		else
+		{
+			desc[1].bindings[0].resourceHandle = commonPasses.m_AnisotropicWrapSampler;
+			desc[1].bindings[1].resourceHandle = commonPasses.m_LinearClampSampler;
+		}
 	}
 	else if( type == BINDING_LAYOUT_DRAW_INTERACTION_SM )
 	{
-		pendingBindingSetDescs[0].bindings =
+		if( desc[0].bindings.empty() )
 		{
-			nvrhi::BindingSetItem::ConstantBuffer( 0, renderProgManager.ConstantBuffer() ),
-			nvrhi::BindingSetItem::Texture_SRV( 0, ( nvrhi::ITexture* )GetImageAt( 0 )->GetTextureID() ),
-			nvrhi::BindingSetItem::Texture_SRV( 1, ( nvrhi::ITexture* )GetImageAt( 1 )->GetTextureID() ),
-			nvrhi::BindingSetItem::Texture_SRV( 2, ( nvrhi::ITexture* )GetImageAt( 2 )->GetTextureID() ),
-			nvrhi::BindingSetItem::Texture_SRV( 3, ( nvrhi::ITexture* )GetImageAt( 3 )->GetTextureID() ),
-			nvrhi::BindingSetItem::Texture_SRV( 4, ( nvrhi::ITexture* )GetImageAt( 4 )->GetTextureID() ),
-			nvrhi::BindingSetItem::Texture_SRV( 5, ( nvrhi::ITexture* )GetImageAt( 5 )->GetTextureID() ),
-			nvrhi::BindingSetItem::Texture_SRV( 6, ( nvrhi::ITexture* )GetImageAt( 6 )->GetTextureID() )
-		};
+			desc[0].bindings =
+			{
+				nvrhi::BindingSetItem::ConstantBuffer( 0, renderProgManager.ConstantBuffer() ),
+				nvrhi::BindingSetItem::Texture_SRV( 0, ( nvrhi::ITexture* )GetImageAt( 0 )->GetTextureID() ),
+				nvrhi::BindingSetItem::Texture_SRV( 1, ( nvrhi::ITexture* )GetImageAt( 1 )->GetTextureID() ),
+				nvrhi::BindingSetItem::Texture_SRV( 2, ( nvrhi::ITexture* )GetImageAt( 2 )->GetTextureID() ),
+				nvrhi::BindingSetItem::Texture_SRV( 3, ( nvrhi::ITexture* )GetImageAt( 3 )->GetTextureID() ),
+				nvrhi::BindingSetItem::Texture_SRV( 4, ( nvrhi::ITexture* )GetImageAt( 4 )->GetTextureID() ),
+				nvrhi::BindingSetItem::Texture_SRV( 5, ( nvrhi::ITexture* )GetImageAt( 5 )->GetTextureID() ),
+				nvrhi::BindingSetItem::Texture_SRV( 6, ( nvrhi::ITexture* )GetImageAt( 6 )->GetTextureID() )
+			};
+		}
+		else
+		{
+			desc[0].bindings[0].resourceHandle = renderProgManager.ConstantBuffer();
+			desc[0].bindings[1].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 0 )->GetTextureID();
+			desc[0].bindings[2].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 1 )->GetTextureID();
+			desc[0].bindings[3].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 2 )->GetTextureID();
+			desc[0].bindings[4].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 3 )->GetTextureID();
+			desc[0].bindings[5].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 4 )->GetTextureID();
+			desc[0].bindings[6].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 5 )->GetTextureID();
+			desc[0].bindings[7].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 6 )->GetTextureID();
+		}
 
-		pendingBindingSetDescs[1].bindings =
+		if( desc[1].bindings.empty() )
 		{
-			nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_AnisotropicWrapSampler ),
-			nvrhi::BindingSetItem::Sampler( 1, commonPasses.m_LinearClampSampler ),
-			nvrhi::BindingSetItem::Sampler( 2, commonPasses.m_LinearClampCompareSampler ),
-			nvrhi::BindingSetItem::Sampler( 3, commonPasses.m_PointWrapSampler )  // blue noise
-		};
+			desc[1].bindings =
+			{
+				nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_AnisotropicWrapSampler ),
+				nvrhi::BindingSetItem::Sampler( 1, commonPasses.m_LinearClampSampler ),
+				nvrhi::BindingSetItem::Sampler( 2, commonPasses.m_LinearClampCompareSampler ),
+				nvrhi::BindingSetItem::Sampler( 3, commonPasses.m_PointWrapSampler )  // blue noise
+			};
+		}
+		else
+		{
+			desc[1].bindings[0].resourceHandle = commonPasses.m_AnisotropicWrapSampler;
+			desc[1].bindings[1].resourceHandle = commonPasses.m_LinearClampSampler;
+			desc[1].bindings[2].resourceHandle = commonPasses.m_LinearClampCompareSampler;
+			desc[1].bindings[3].resourceHandle = commonPasses.m_PointWrapSampler;
+		}
 	}
 	else if( type == BINDING_LAYOUT_DRAW_FOG )
 	{
-		pendingBindingSetDescs[0].bindings =
+		if( desc[0].bindings.empty() )
 		{
-			nvrhi::BindingSetItem::ConstantBuffer( 0, renderProgManager.ConstantBuffer() ),
-			nvrhi::BindingSetItem::Texture_SRV( 0, ( nvrhi::ITexture* )GetImageAt( 0 )->GetTextureID() ),
-			nvrhi::BindingSetItem::Texture_SRV( 1, ( nvrhi::ITexture* )GetImageAt( 1 )->GetTextureID() )
-		};
+			desc[0].bindings =
+			{
+				nvrhi::BindingSetItem::ConstantBuffer( 0, renderProgManager.ConstantBuffer() ),
+				nvrhi::BindingSetItem::Texture_SRV( 0, ( nvrhi::ITexture* )GetImageAt( 0 )->GetTextureID() ),
+				nvrhi::BindingSetItem::Texture_SRV( 1, ( nvrhi::ITexture* )GetImageAt( 1 )->GetTextureID() )
+			};
+		}
+		else
+		{
+			desc[0].bindings[0].resourceHandle = renderProgManager.ConstantBuffer();
+			desc[0].bindings[1].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 0 )->GetTextureID();
+			desc[0].bindings[2].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 1 )->GetTextureID();
+		}
 
-		pendingBindingSetDescs[1].bindings =
+		if( desc[1].bindings.empty() )
 		{
-			nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_LinearClampSampler ),
-			nvrhi::BindingSetItem::Sampler( 1, commonPasses.m_LinearClampSampler )
-		};
+			desc[1].bindings =
+			{
+				nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_LinearClampSampler ),
+				nvrhi::BindingSetItem::Sampler( 1, commonPasses.m_LinearClampSampler )
+			};
+		}
+		else
+		{
+			desc[1].bindings[0].resourceHandle = commonPasses.m_LinearClampSampler;
+			desc[1].bindings[1].resourceHandle = commonPasses.m_LinearClampSampler;
+		}
 	}
 	else if( type == BINDING_LAYOUT_POST_PROCESS_CNM )
 	{
-		pendingBindingSetDescs[0].bindings =
+		if( desc[0].bindings.empty() )
 		{
-			nvrhi::BindingSetItem::ConstantBuffer( 0, renderProgManager.ConstantBuffer() ),
-			nvrhi::BindingSetItem::Texture_SRV( 0, ( nvrhi::ITexture* )GetImageAt( 0 )->GetTextureID() ),
-			nvrhi::BindingSetItem::Texture_SRV( 1, ( nvrhi::ITexture* )GetImageAt( 1 )->GetTextureID() ),
-			nvrhi::BindingSetItem::Texture_SRV( 2, ( nvrhi::ITexture* )GetImageAt( 2 )->GetTextureID() )
-		};
+			desc[0].bindings =
+			{
+				nvrhi::BindingSetItem::ConstantBuffer( 0, renderProgManager.ConstantBuffer() ),
+				nvrhi::BindingSetItem::Texture_SRV( 0, ( nvrhi::ITexture* )GetImageAt( 0 )->GetTextureID() ),
+				nvrhi::BindingSetItem::Texture_SRV( 1, ( nvrhi::ITexture* )GetImageAt( 1 )->GetTextureID() ),
+				nvrhi::BindingSetItem::Texture_SRV( 2, ( nvrhi::ITexture* )GetImageAt( 2 )->GetTextureID() )
+			};
+		}
+		else
+		{
+			desc[0].bindings[0].resourceHandle = renderProgManager.ConstantBuffer();
+			desc[0].bindings[1].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 0 )->GetTextureID();
+			desc[0].bindings[2].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 1 )->GetTextureID();
+			desc[0].bindings[3].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 2 )->GetTextureID();
+		}
 
-		pendingBindingSetDescs[1].bindings =
+		if( desc[1].bindings.empty() )
 		{
-			nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_LinearClampSampler )
-		};
+			desc[1].bindings =
+			{
+				nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_LinearClampSampler )
+			};
+		}
+		else
+		{
+			desc[1].bindings[0].resourceHandle = commonPasses.m_LinearClampSampler;
+		}
 	}
 	else if( type == BINDING_LAYOUT_NORMAL_CUBE )
 	{
-		pendingBindingSetDescs[0].bindings =
+		if( desc[0].bindings.empty() )
 		{
-			nvrhi::BindingSetItem::ConstantBuffer( 0, renderProgManager.ConstantBuffer() ),
-			nvrhi::BindingSetItem::Texture_SRV( 0, ( nvrhi::ITexture* )GetImageAt( 0 )->GetTextureID() ),
-			nvrhi::BindingSetItem::Texture_SRV( 1, ( nvrhi::ITexture* )GetImageAt( 1 )->GetTextureID() )
-		};
+			desc[0].bindings =
+			{
+				nvrhi::BindingSetItem::ConstantBuffer( 0, renderProgManager.ConstantBuffer() ),
+				nvrhi::BindingSetItem::Texture_SRV( 0, ( nvrhi::ITexture* )GetImageAt( 0 )->GetTextureID() ),
+				nvrhi::BindingSetItem::Texture_SRV( 1, ( nvrhi::ITexture* )GetImageAt( 1 )->GetTextureID() )
+			};
+		}
+		else
+		{
+			desc[0].bindings[0].resourceHandle = renderProgManager.ConstantBuffer();
+			desc[0].bindings[1].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 0 )->GetTextureID();
+			desc[0].bindings[2].resourceHandle = ( nvrhi::ITexture* )GetImageAt( 1 )->GetTextureID();
+		}
 
-		pendingBindingSetDescs[1].bindings =
+		if( desc[1].bindings.empty() )
 		{
-			nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_LinearWrapSampler )
-		};
+			desc[1].bindings =
+			{
+				nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_LinearWrapSampler )
+			};
+		}
+		else
+		{
+			desc[1].bindings[0].resourceHandle = commonPasses.m_LinearWrapSampler;
+		}
 	}
 	else
 	{
@@ -932,7 +767,7 @@ void idRenderBackend::GL_SetDefaultState()
 	RENDERLOG_PRINTF( "--- GL_SetDefaultState ---\n" );
 
 	// make sure our GL state vector is set correctly
-	memset( &glcontext.tmu, 0, sizeof( glcontext.tmu ) );
+	memset( &context.imageParms, 0, sizeof( context.imageParms ) );
 
 	glStateBits = 0;
 
@@ -1226,9 +1061,36 @@ void idRenderBackend::CheckCVars()
 	// RB end
 }
 
-void idRenderBackend::BackBufferResizing()
+/*
+=============
+idRenderBackend::ClearCaches
+
+Clear cached pipeline data when framebuffers get updated or images are reloaded.
+=============
+*/
+void idRenderBackend::ClearCaches()
 {
-	currentPipeline = nullptr;
+	pipelineCache.Clear();
+	bindingCache.Clear();
+	samplerCache.Clear();
+
+	if( hiZGenPass )
+	{
+		delete hiZGenPass;
+		hiZGenPass = nullptr;
+	}
+
+	if( ssaoPass )
+	{
+		delete ssaoPass;
+		ssaoPass = nullptr;
+	}
+
+	if( toneMapPass )
+	{
+		delete toneMapPass;
+		toneMapPass = nullptr;
+	}
 }
 
 /*
@@ -1498,16 +1360,8 @@ idRenderBackend::idRenderBackend
 */
 idRenderBackend::idRenderBackend()
 {
-	glcontext.frameCounter = 0;
-	glcontext.frameParity = 0;
 	hiZGenPass = nullptr;
 	ssaoPass = nullptr;
-
-	memset( glcontext.tmu, 0, sizeof( glcontext.tmu ) );
-	memset( glcontext.stencilOperations, 0, sizeof( glcontext.stencilOperations ) );
-
-	memset( glcontext.renderLogMainBlockTimeQueryIds, 0, sizeof( glcontext.renderLogMainBlockTimeQueryIds ) );
-	memset( glcontext.renderLogMainBlockTimeQueryIssued, 0, sizeof( glcontext.renderLogMainBlockTimeQueryIssued ) );
 }
 
 /*

@@ -181,7 +181,15 @@ void idRenderProgManager::Init( nvrhi::IDevice* _device )
 								.addItem( nvrhi::BindingLayoutItem::Sampler( 0 ) );
 	auto samplerOneBindingLayout = device->createBindingLayout( samplerOneLayoutDesc );
 
-	bindingLayouts[BINDING_LAYOUT_DEFAULT] = { device->createBindingLayout( defaultLayoutDesc ), samplerOneBindingLayout };
+	auto defaultLayout = device->createBindingLayout( defaultLayoutDesc );
+
+	bindingLayouts[BINDING_LAYOUT_DEFAULT] = { defaultLayout, samplerOneBindingLayout };
+
+	auto constantBufferLayoutDesc = nvrhi::BindingLayoutDesc()
+									.setVisibility( nvrhi::ShaderType::All )
+									.addItem( nvrhi::BindingLayoutItem::VolatileConstantBuffer( 0 ) );
+
+	bindingLayouts[BINDING_LAYOUT_CONSTANT_BUFFER_ONLY] = { device->createBindingLayout( constantBufferLayoutDesc ) };
 
 	auto ambientIblLayoutDesc = nvrhi::BindingLayoutDesc()
 								.setVisibility( nvrhi::ShaderType::All )
@@ -407,8 +415,8 @@ void idRenderProgManager::Init( nvrhi::IDevice* _device )
 		{ BUILTIN_BUMPY_ENVIRONMENT, "builtin/legacy/bumpyenvironment", "", { {"USE_GPU_SKINNING", "0" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_NORMAL_CUBE },
 		{ BUILTIN_BUMPY_ENVIRONMENT_SKINNED, "builtin/legacy/bumpyenvironment", "_skinned", { {"USE_GPU_SKINNING", "1" } }, true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_NORMAL_CUBE },
 
-		{ BUILTIN_DEPTH, "builtin/depth", "", { {"USE_GPU_SKINNING", "0" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
-		{ BUILTIN_DEPTH_SKINNED, "builtin/depth", "_skinned", { {"USE_GPU_SKINNING", "1" } }, true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
+		{ BUILTIN_DEPTH, "builtin/depth", "", { {"USE_GPU_SKINNING", "0" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_CONSTANT_BUFFER_ONLY },
+		{ BUILTIN_DEPTH_SKINNED, "builtin/depth", "_skinned", { {"USE_GPU_SKINNING", "1" } }, true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_CONSTANT_BUFFER_ONLY },
 
 		{ BUILTIN_SHADOW, "builtin/lighting/shadow", "", { {"USE_GPU_SKINNING", "0" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_SHADOW_VERT, BINDING_LAYOUT_DRAW_SHADOW },
 		{ BUILTIN_SHADOW_SKINNED, "builtin/lighting/shadow", "_skinned", { {"USE_GPU_SKINNING", "1" } }, true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_SHADOW_VERT_SKINNED, BINDING_LAYOUT_DRAW_SHADOW },

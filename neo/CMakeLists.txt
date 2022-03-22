@@ -74,11 +74,11 @@ option(USE_SYSTEM_RAPIDJSON
 option(USE_NVRHI
 				"Use the NVRHI rendering library" ON)
 
-option(USE_DX11 "Use DirectX 11" OFF)	
+option(USE_DX12
+				"Use DirectX 12" ON)
 
-option(USE_DX12 "Use DirectX 12" ON)
-
-option(USE_NVRHI_VULKAN "Use Vulkan" OFF)
+option(USE_NVRHI_VULKAN
+						"Use Vulkan" ON)
 
 set(CPU_TYPE "" CACHE STRING "When set, passes this string as CPU-ID which will be embedded into the binary.")
 
@@ -292,6 +292,7 @@ elseif(MSVC)
 	# endif()
 
 	add_definitions(-DWIN32 
+					-DNOMINMAX
 					-D_WINDOWS
 					-D_CRT_SECURE_NO_DEPRECATE
 					-D_CRT_NONSTDC_NO_DEPRECATE
@@ -453,7 +454,51 @@ if(USE_VULKAN)
 	elseif(WIN32)
 		add_definitions(-DVK_USE_PLATFORM_WIN32_KHR)
 	endif()
+elseif(USE_NVRHI_VULKAN)
+	# RB: moved this above the general Vulkan part so glslang does not include Vulkan SDK headers
+	# which causes all kinds of weird segmentation faults because struct sizes don't match
+ 
+    # SRS - Set default VULKAN_SDK location if environment variable not defined on OSX
+    if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND NOT DEFINED ENV{VULKAN_SDK})
+        if(NOT USE_MoltenVK)
+            # SRS - Vulkan SDK installer copies standard vulkan headers and libs to /usr/local on OSX
+            set(ENV{VULKAN_SDK} /usr/local)
+        else()
+            message(FATAL_ERROR "Must define VULKAN_SDK location if USE_MoltenVK option enabled!")
+        endif()
+    endif()
 
+	# Use FindVulkan module added with CMAKE 3.7
+	if(NOT CMAKE_VERSION VERSION_LESS 3.7.0)
+		message( STATUS "Using module to find Vulkan" )
+		find_package(Vulkan)
+	endif()
+
+	if(NOT Vulkan_FOUND)
+		message(FATAL_ERROR "Could not find Vulkan library!")
+	else()
+        include_directories($ENV{VULKAN_SDK}/include)
+
+		if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+            # SRS - Enable Beta extensions for VULKAN_SDK portability subset features on OSX
+            add_definitions(-DVK_ENABLE_BETA_EXTENSIONS)
+            # SRS - Optionally use MoltenVK headers/library for runtime config functions on OSX
+            if(USE_MoltenVK)
+                add_definitions(-DUSE_MoltenVK)
+                include_directories($ENV{VULKAN_SDK}/../MoltenVK/include)
+                set(Vulkan_LIBRARY $ENV{VULKAN_SDK}/../MoltenVK/dylib/macOS/libMoltenVK.dylib CACHE FILEPATH "Path to MoltenVK library." FORCE)
+            endif()
+		endif()
+		message(STATUS "Using Vulkan: " ${Vulkan_LIBRARY})
+	endif()
+	
+	# Eric: For use with SDL2/Vulkan
+	if(UNIX)
+        # SRS - For UNIX-like target OSs use the generic SDL Vulkan platform
+        add_definitions(-DVULKAN_USE_PLATFORM_SDL)
+	elseif(WIN32)
+		add_definitions(-DVK_USE_PLATFORM_WIN32_KHR)
+	endif()
 else()
 
 	if(USE_SYSTEM_LIBGLEW)
@@ -1035,7 +1080,6 @@ file(GLOB_RECURSE WIN32_INCLUDES sys/win32/*.h)
 #file(GLOB_RECURSE WIN32_SOURCES sys/win32/*.cpp)
 
 set(WIN32_SOURCES
-	sys/win32/DeviceManager_DX12.cpp
 	sys/win32/win_glimp.cpp
 	sys/win32/win_input.cpp
 	sys/win32/win_main.cpp
@@ -1044,6 +1088,14 @@ set(WIN32_SOURCES
 	sys/win32/win_syscon.cpp
 	sys/win32/win_taskkeyhook.cpp
 	sys/win32/win_wndproc.cpp)
+
+if(USE_DX12)
+	list(APPEND WIN32_SOURCES sys/win32/DeviceManager_DX12.cpp)
+endif()
+
+if(USE_NVRHI_VULKAN)
+	list(APPEND WIN32_SOURCES sys/win32/DeviceManager_VK.cpp)
+endif()
 	
 if(MSVC)
 	list(APPEND WIN32_SOURCES sys/win32/win_cpu.cpp)
@@ -1675,16 +1727,16 @@ if(MSVC)
 		#endforeach()
 	
 		set_source_files_properties(
-		${RBDOOM3_PRECOMPILED_SOURCES}
-		PROPERTIES
-		COMPILE_FLAGS "/Yuprecompiled.h"
-		OBJECT_DEPENDS "precompiled.pch"
+			${RBDOOM3_PRECOMPILED_SOURCES}
+			PROPERTIES
+			COMPILE_FLAGS "/Yuprecompiled.h"
+			OBJECT_DEPENDS "precompiled.pch"
 		)
 		
 		set_source_files_properties(framework/precompiled.cpp
-		PROPERTIES
-		COMPILE_FLAGS "/Ycprecompiled.h"
-		OBJECT_OUTPUTS "precompiled.pch"
+			PROPERTIES
+			COMPILE_FLAGS "/Ycprecompiled.h"
+			OBJECT_OUTPUTS "precompiled.pch"
 		)
 	endif()
 	
@@ -1705,12 +1757,9 @@ if(MSVC)
 	add_executable(RBDoom3BFG WIN32 ${RBDOOM3_INCLUDES} ${RBDOOM3_SOURCES})
 
 	add_dependencies(RBDoom3BFG idlib)
+    
     if(USE_DX12)
-    	add_dependencies(RBDoom3BFG nvrhi_d3d12)
-	endif()
-	
-	if(USE_DX11)
-		add_dependencies(RBDoom3BFG nvrhi_d3d11)
+		add_dependencies(RBDoom3BFG nvrhi_d3d12)
 	endif()
 	
 	if(USE_NVRHI_VULKAN)
@@ -1944,7 +1993,6 @@ if(USE_DX11)
 endif()
 
 if(USE_DX12)
-	#target_sources(RBDoom3BFG PRIVATE src/app/dx12/DeviceManager_DX12.cpp)
 	target_compile_definitions(RBDoom3BFG PUBLIC USE_DX12=1)
 	target_link_libraries(RBDoom3BFG nvrhi_d3d12)
 endif()
@@ -1954,7 +2002,6 @@ if(USE_DXIL_ON_DX12)
 endif()
 
 if(USE_NVRHI_VULKAN)
-	#target_sources(RBDoom3BFG PRIVATE src/app/vulkan/DeviceManager_VK.cpp)
 	target_compile_definitions(RBDoom3BFG PUBLIC USE_VK=1)
 	target_link_libraries(RBDoom3BFG nvrhi_vk)
 endif()

@@ -271,7 +271,7 @@ void idImage::AllocImage()
 			break;
 
 		case FMT_R8:
-			format = nvrhi::Format::R8_UINT;
+			format = nvrhi::Format::R8_UNORM;
 			break;
 
 		case FMT_DXT1:
@@ -385,53 +385,48 @@ void idImage::AllocImage()
 					   .setSampleCount( opts.samples )
 					   .setMipLevels( opts.numLevels );
 
-#if defined( USE_DX12 )
 	if( opts.colorFormat == CFM_GREEN_ALPHA )
 	{
-		textureDesc.componentMapping.bits.r = 5; // ONE
-		textureDesc.componentMapping.bits.g = 5; // ONE
-		textureDesc.componentMapping.bits.b = 5; // ONE
-		textureDesc.componentMapping.bits.a = 1; // G
+		textureDesc.componentMapping.r = nvrhi::ComponentSwizzle::One;
+		textureDesc.componentMapping.g = nvrhi::ComponentSwizzle::One;
+		textureDesc.componentMapping.b = nvrhi::ComponentSwizzle::One;
+		textureDesc.componentMapping.a = nvrhi::ComponentSwizzle::Green;
 	}
 	else if( opts.format == FMT_LUM8 )
 	{
-		textureDesc.componentMapping.bits.r = 0; // R
-		textureDesc.componentMapping.bits.g = 0; // R
-		textureDesc.componentMapping.bits.b = 0; // R
-		textureDesc.componentMapping.bits.a = 5; // ONE
+		textureDesc.componentMapping.r = nvrhi::ComponentSwizzle::Red;
+		textureDesc.componentMapping.g = nvrhi::ComponentSwizzle::Red;
+		textureDesc.componentMapping.b = nvrhi::ComponentSwizzle::Red;
+		textureDesc.componentMapping.a = nvrhi::ComponentSwizzle::One;
 	}
 	else if( opts.format == FMT_L8A8 )
 	{
-		textureDesc.componentMapping.bits.r = 0; // R
-		textureDesc.componentMapping.bits.g = 0; // R
-		textureDesc.componentMapping.bits.b = 0; // R
-		textureDesc.componentMapping.bits.a = 1; // G
+		textureDesc.componentMapping.r = nvrhi::ComponentSwizzle::Red;
+		textureDesc.componentMapping.g = nvrhi::ComponentSwizzle::Red;
+		textureDesc.componentMapping.b = nvrhi::ComponentSwizzle::Red;
+		textureDesc.componentMapping.a = nvrhi::ComponentSwizzle::Green;
 	}
 	else if( opts.format == FMT_ALPHA )
 	{
-		textureDesc.componentMapping.bits.r = 5; // ONE
-		textureDesc.componentMapping.bits.g = 5; // ONE
-		textureDesc.componentMapping.bits.b = 5; // ONE
-		textureDesc.componentMapping.bits.a = 0; // R
+		textureDesc.componentMapping.r = nvrhi::ComponentSwizzle::One;
+		textureDesc.componentMapping.g = nvrhi::ComponentSwizzle::One;
+		textureDesc.componentMapping.b = nvrhi::ComponentSwizzle::One;
+		textureDesc.componentMapping.a = nvrhi::ComponentSwizzle::Red;
 	}
 	else if( opts.format == FMT_INT8 )
 	{
-		textureDesc.componentMapping.bits.r = 0; // R
-		textureDesc.componentMapping.bits.g = 0; // R
-		textureDesc.componentMapping.bits.b = 0; // R
-		textureDesc.componentMapping.bits.a = 0; // R
+		textureDesc.componentMapping.r = nvrhi::ComponentSwizzle::Red;
+		textureDesc.componentMapping.g = nvrhi::ComponentSwizzle::Red;
+		textureDesc.componentMapping.b = nvrhi::ComponentSwizzle::Red;
+		textureDesc.componentMapping.a = nvrhi::ComponentSwizzle::Red;
 	}
 	else if( opts.format == FMT_R11G11B10F )
 	{
-		textureDesc.componentMapping.bits.r = 0; // R
-		textureDesc.componentMapping.bits.g = 1; // G
-		textureDesc.componentMapping.bits.b = 2; // B
-		textureDesc.componentMapping.bits.a = 5; // ONE
+		textureDesc.componentMapping.r = nvrhi::ComponentSwizzle::Red;
+		textureDesc.componentMapping.g = nvrhi::ComponentSwizzle::Green;
+		textureDesc.componentMapping.b = nvrhi::ComponentSwizzle::Blue;
+		textureDesc.componentMapping.a = nvrhi::ComponentSwizzle::One;
 	}
-
-#elif defined( USE_VULKAN )
-	// TODO
-#endif
 
 	if( opts.isRenderTarget )
 	{
