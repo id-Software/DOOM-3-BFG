@@ -171,14 +171,14 @@ void CinematicAudio_OpenAL::PlayAudio( uint8_t* data, int size )
 		// SRS - Initiate playback trigger once we have MIN_BUFFERS filled: limit startup latency
 		if( offset == MIN_BUFFERS )
 		{
-			alSourceQueueBuffers( alMusicSourceVoicecin, offset, alMusicBuffercin );
+			alSourceQueueBuffers( alMusicSourceVoicecin, MIN_BUFFERS, &alMusicBuffercin[0] );
 			ALenum error = alGetError();
 			if( error != AL_NO_ERROR )
 			{
 				common->Warning( "OpenAL Cinematic: %s\n", alGetString( error ) );
 				return;
 			}
-			// SRS - Prepare additional free buffers to handle variable rate codecs (e.g. webm vorbis)
+			// SRS - Prepare additional free buffers to handle variable packet rate codecs (e.g. webm vorbis)
 			for( int i = MIN_BUFFERS; i < NUM_BUFFERS; i++ )
 			{
 				bufids.push( alMusicBuffercin[ i ] );
