@@ -294,6 +294,8 @@ void idRenderProgManager::SetUniformValue( const renderParm_t rp, const float* v
 	{
 		uniforms[rp][i] = value[i];
 	}
+
+	uniformsChanged = true;
 }
 
 /*
@@ -304,16 +306,17 @@ idRenderProgManager::ZeroUniforms
 void idRenderProgManager::ZeroUniforms()
 {
 	memset( uniforms.Ptr(), 0, uniforms.Allocated() );
+
+	uniformsChanged = true;
 }
 
-/*
-================================================================================================
-idRenderProgManager::CommitConstantBuffer
-================================================================================================
-*/
+// Only updates the constant buffer if it was updated at all
 void idRenderProgManager::CommitConstantBuffer( nvrhi::ICommandList* commandList )
 {
-	commandList->writeBuffer( constantBuffer, uniforms.Ptr(), uniforms.Allocated() );
+	if( uniformsChanged )
+	{
+		commandList->writeBuffer( constantBuffer, uniforms.Ptr(), uniforms.Allocated() );
 
-	//commandList->setPushConstants( uniforms.Ptr(), uniforms.Allocated() );
+		uniformsChanged = false;
+	}
 }

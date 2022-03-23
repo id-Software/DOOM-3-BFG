@@ -98,6 +98,7 @@ void idRenderProgManager::Init( nvrhi::IDevice* _device )
 	device = _device;
 
 	uniforms.SetNum( RENDERPARM_TOTAL, vec4_zero );
+	uniformsChanged = false;
 
 	constantBuffer = device->createBuffer(
 						 nvrhi::utils::CreateVolatileConstantBufferDesc( uniforms.Allocated(),

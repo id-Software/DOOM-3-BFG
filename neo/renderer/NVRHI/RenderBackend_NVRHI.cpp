@@ -263,7 +263,6 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 		changeState = true;
 	}
 
-	// TODO: Only update the constant buffer if it was updated at all.
 	renderProgManager.CommitConstantBuffer( commandList );
 
 	if( changeState )

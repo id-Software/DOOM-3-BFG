@@ -1034,6 +1034,7 @@ private:
 	idList<renderProg_t, TAG_RENDER>			renderProgs;
 	idList<shader_t, TAG_RENDER>				shaders;
 	idStaticList< idVec4, RENDERPARM_TOTAL >	uniforms;
+	bool										uniformsChanged;
 	nvrhi::IDevice*								device;
 
 	using VertexAttribDescList = idList< nvrhi::VertexAttributeDesc >;
