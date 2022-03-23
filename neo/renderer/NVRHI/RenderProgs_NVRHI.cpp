@@ -314,4 +314,6 @@ idRenderProgManager::CommitConstantBuffer
 void idRenderProgManager::CommitConstantBuffer( nvrhi::ICommandList* commandList )
 {
 	commandList->writeBuffer( constantBuffer, uniforms.Ptr(), uniforms.Allocated() );
+
+	//commandList->setPushConstants( uniforms.Ptr(), uniforms.Allocated() );
 }

@@ -497,6 +497,7 @@ private:
 	idRenderMatrix		shadowV[6];				// shadow depth view matrix
 	idRenderMatrix		shadowP[6];				// shadow depth projection matrix
 
+	// TODO remove
 	float				hdrAverageLuminance;
 	float				hdrMaxLuminance;
 	float				hdrTime;

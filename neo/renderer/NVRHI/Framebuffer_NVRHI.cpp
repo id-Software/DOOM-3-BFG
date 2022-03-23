@@ -38,11 +38,7 @@ extern DeviceManager* deviceManager;
 
 static void R_ListFramebuffers_f( const idCmdArgs& args )
 {
-	if( !glConfig.framebufferObjectAvailable )
-	{
-		common->Printf( "GL_EXT_framebuffer_object is not available.\n" );
-		return;
-	}
+	// TODO
 }
 
 Framebuffer::Framebuffer( const char* name, int w, int h )

@@ -31,12 +31,13 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 #pragma hdrstop
 
+#if !defined( USE_NVRHI )
+
 #include "RenderCommon.h"
 #include "RenderProgs_embedded.h"
 
+
 idCVar r_skipStripDeadCode( "r_skipStripDeadCode", "0", CVAR_BOOL, "Skip stripping dead code" );
-
-
 
 struct idCGBlock
 {
@@ -1680,7 +1681,7 @@ const char* idRenderProgManager::GetGLSLMacroName( shaderFeature_t sf ) const
 	return GLSLMacroNames[ sf ];
 }
 
-#if !defined( USE_NVRHI )
+
 /*
 ================================================================================================
 idRenderProgManager::FindGLSLProgram

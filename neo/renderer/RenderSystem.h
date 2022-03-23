@@ -173,22 +173,47 @@ struct backEndCounters_t
 struct glconfig_t
 {
 	graphicsVendor_t	vendor;
-	graphicsDriverType_t driverType;
 
 	const char* 		renderer_string;
 	const char* 		vendor_string;
 	const char* 		version_string;
 	const char* 		extensions_string;
-	const char* 		wgl_extensions_string;
-	const char* 		shading_language_string;
-
-	float				glVersion;				// atof( version_string )
 
 	int					maxTextureSize;			// queried from GL
 	int					maxTextureCoords;
 	int					maxTextureImageUnits;
 	int					uniformBufferOffsetAlignment;
 	float				maxTextureAnisotropy;
+
+	bool				timerQueryAvailable;
+	bool				gpuSkinningAvailable;
+
+	stereo3DMode_t		stereo3Dmode;
+	int					nativeScreenWidth; // this is the native screen width resolution of the renderer
+	int					nativeScreenHeight; // this is the native screen height resolution of the renderer
+
+	int					displayFrequency;
+
+	int					isFullscreen;					// monitor number
+	bool				isStereoPixelFormat;
+	bool				stereoPixelFormatAvailable;
+	int					multisamples;
+
+	// Screen separation for stereoscopic rendering is set based on this.
+	// PC vid code sets this, converting from diagonals / inches / whatever as needed.
+	// If the value can't be determined, set something reasonable, like 50cm.
+	float				physicalScreenWidthInCentimeters;
+
+	float				pixelAspect;
+
+#if !defined(USE_NVRHI)
+
+	graphicsDriverType_t driverType;
+
+	const char* 		wgl_extensions_string;
+	const char* 		shading_language_string;
+
+	float				glVersion;				// atof( version_string )
 
 	int					colorBits;
 	int					depthBits;
@@ -210,12 +235,11 @@ struct glconfig_t
 	bool				twoSidedStencilAvailable;
 	bool				depthBoundsTestAvailable;
 	bool				syncAvailable;
-	bool				timerQueryAvailable;
+
 	bool				occlusionQueryAvailable;
 	bool				debugOutputAvailable;
 	bool				swapControlTearAvailable;
 
-	// RB begin
 	bool				gremedyStringMarkerAvailable;
 	bool				khronosDebugAvailable;
 	bool				vertexHalfFloatAvailable;
@@ -226,30 +250,10 @@ struct glconfig_t
 //	bool				framebufferPackedDepthStencilAvailable;
 	bool				framebufferBlitAvailable;
 
-	// only true with uniform buffer support and an OpenGL driver that supports GLSL >= 1.50
-	bool				gpuSkinningAvailable;
-	// RB end
-
-	stereo3DMode_t		stereo3Dmode;
-	int					nativeScreenWidth; // this is the native screen width resolution of the renderer
-	int					nativeScreenHeight; // this is the native screen height resolution of the renderer
-
-	int					displayFrequency;
-
-	int					isFullscreen;					// monitor number
-	bool				isStereoPixelFormat;
-	bool				stereoPixelFormatAvailable;
-	int					multisamples;
-
-	// Screen separation for stereoscopic rendering is set based on this.
-	// PC vid code sets this, converting from diagonals / inches / whatever as needed.
-	// If the value can't be determined, set something reasonable, like 50cm.
-	float				physicalScreenWidthInCentimeters;
-
-	float				pixelAspect;
-
-#if !defined(USE_NVRHI) && !defined(USE_VULKAN)
+#if !defined(USE_VULKAN)
 	GLuint				global_vao;
+#endif
+
 #endif
 };
 

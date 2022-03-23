@@ -89,13 +89,16 @@ private:
 
 #if defined( USE_NVRHI )
 	nvrhi::CommandListHandle		commandList;
+
+	uint64							frameCounter;
+	uint32							frameParity;
 #endif
 
 public:
 	idRenderLog();
 
-	void		StartFrame() {}
-	void		EndFrame() {}
+	void		StartFrame( nvrhi::ICommandList* _commandList );
+	void		EndFrame();
 	void		Close() {}
 	int			Active()
 	{

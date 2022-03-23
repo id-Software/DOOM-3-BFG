@@ -106,14 +106,20 @@ PC_BeginNamedEvent
 FIXME: this is not thread safe on the PC
 ========================
 */
-void PC_BeginNamedEvent( const char* szName, const idVec4& color )
+void PC_BeginNamedEvent( const char* szName, const idVec4& color, nvrhi::ICommandList* commandList )
 {
 	if( r_logLevel.GetInteger() <= 0 )
 	{
 		return;
 	}
 
-#if defined( USE_VULKAN )
+#if defined( USE_NVRHI )
+	if( commandList )
+	{
+		commandList->beginMarker( szName );
+	}
+
+#elif defined( USE_VULKAN )
 
 	// start an annotated group of calls under the this name
 	// SRS - Prefer VK_EXT_debug_utils over VK_EXT_debug_marker/VK_EXT_debug_report (deprecated by VK_EXT_debug_utils)
@@ -141,8 +147,6 @@ void PC_BeginNamedEvent( const char* szName, const idVec4& color )
 
 		qvkCmdDebugMarkerBeginEXT( vkcontext.commandBuffer[ vkcontext.frameParity ], &label );
 	}
-#elif defined(USE_NVRHI)
-	// SP: TODO
 #else
 	// RB: colors are not supported in OpenGL
 
@@ -196,14 +200,20 @@ void PC_BeginNamedEvent( const char* szName, const idVec4& color )
 PC_EndNamedEvent
 ========================
 */
-void PC_EndNamedEvent()
+void PC_EndNamedEvent( nvrhi::ICommandList* commandList )
 {
 	if( r_logLevel.GetInteger() <= 0 )
 	{
 		return;
 	}
 
-#if defined( USE_VULKAN )
+#if defined( USE_NVRHI )
+	if( commandList )
+	{
+		commandList->endMarker();
+	}
+
+#elif defined( USE_VULKAN )
 	// SRS - Prefer VK_EXT_debug_utils over VK_EXT_debug_marker/VK_EXT_debug_report (deprecated by VK_EXT_debug_utils)
 	if( vkcontext.debugUtilsSupportAvailable )
 	{
@@ -300,8 +310,6 @@ idRenderLog
 idRenderLog	renderLog;
 
 
-
-// RB begin
 /*
 ========================
 idRenderLog::idRenderLog
@@ -309,9 +317,22 @@ idRenderLog::idRenderLog
 */
 idRenderLog::idRenderLog()
 {
+	frameCounter = 0;
+	frameParity = 0;
 }
 
-#if 1
+void idRenderLog::StartFrame( nvrhi::ICommandList* _commandList )
+{
+	commandList = _commandList;
+}
+
+void idRenderLog::EndFrame()
+{
+	frameCounter++;
+	frameParity = frameCounter % NUM_FRAME_DATA;
+}
+
+
 
 /*
 ========================
@@ -329,7 +350,11 @@ void idRenderLog::OpenMainBlock( renderLogMainBlock_t block, nvrhi::ICommandList
 	{
 		mainBlock = block;
 
-#if defined( USE_VULKAN )
+#if defined( USE_NVRHI )
+
+		// SP: use nvrhi timer queries
+
+#elif defined( USE_VULKAN )
 		if( vkcontext.queryIndex[ vkcontext.frameParity ] >= ( NUM_TIMESTAMP_QUERIES - 1 ) )
 		{
 			return;
@@ -340,10 +365,6 @@ void idRenderLog::OpenMainBlock( renderLogMainBlock_t block, nvrhi::ICommandList
 
 		uint32 queryIndex = vkcontext.queryAssignedIndex[ vkcontext.frameParity ][ mainBlock * 2 + 0 ] = vkcontext.queryIndex[ vkcontext.frameParity ]++;
 		vkCmdWriteTimestamp( commandBuffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, queryPool, queryIndex );
-
-#elif defined(USE_NVRHI)
-
-		// SP: use nvrhi timer queries
 
 #elif defined(__APPLE__)
 		// SRS - For OSX use elapsed time query for Apple OpenGL 4.1 using GL_TIME_ELAPSED vs GL_TIMESTAMP (which is not implemented on OSX)
@@ -413,7 +434,6 @@ void idRenderLog::CloseMainBlock()
 	}
 }
 
-#endif
 
 /*
 ========================
@@ -422,14 +442,7 @@ idRenderLog::OpenBlock
 */
 void idRenderLog::OpenBlock( const char* label, const idVec4& color )
 {
-#if defined( USE_NVRHI )
-	if( commandList && r_logLevel.GetInteger() > 0 )
-	{
-		commandList->beginMarker( label );
-	}
-#else
-	PC_BeginNamedEvent( label, color );
-#endif
+	PC_BeginNamedEvent( label, color, commandList );
 }
 
 /*
@@ -439,13 +452,6 @@ idRenderLog::CloseBlock
 */
 void idRenderLog::CloseBlock()
 {
-#if defined( USE_NVRHI )
-	if( commandList && r_logLevel.GetInteger() > 0 )
-	{
-		commandList->endMarker();
-	}
-#else
-	PC_EndNamedEvent();
-#endif
+	PC_EndNamedEvent( commandList );
 }
 // RB end

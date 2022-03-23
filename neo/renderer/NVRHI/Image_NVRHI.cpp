@@ -357,6 +357,7 @@ void idImage::AllocImage()
 	uint scaledWidth = originalWidth;
 	uint scaledHeight = originalHeight;
 
+#if 0
 	uint maxTextureSize = 0;
 
 	if( maxTextureSize > 0 &&
@@ -375,6 +376,7 @@ void idImage::AllocImage()
 			scaledHeight = maxTextureSize;
 		}
 	}
+#endif
 
 	auto textureDesc = nvrhi::TextureDesc()
 					   .setDebugName( GetName() )

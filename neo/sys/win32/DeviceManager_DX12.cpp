@@ -600,7 +600,17 @@ void DeviceManager_DX12::Present()
 	auto bufferIndex = m_SwapChain->GetCurrentBackBufferIndex();
 
 	UINT presentFlags = 0;
-	if( !deviceParms.vsyncEnabled && !glConfig.isFullscreen && glConfig.swapControlTearAvailable )
+
+	if( r_swapInterval.GetInteger() == 1 )
+	{
+		SetVsyncEnabled( false );
+	}
+	else if( r_swapInterval.GetInteger() == 2 )
+	{
+		SetVsyncEnabled( true );
+	}
+
+	if( !deviceParms.vsyncEnabled && !glConfig.isFullscreen && m_TearingSupported && r_swapInterval.GetInteger() == 0 )
 	{
 		presentFlags |= DXGI_PRESENT_ALLOW_TEARING;
 	}

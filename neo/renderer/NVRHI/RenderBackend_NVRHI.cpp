@@ -61,6 +61,7 @@ public:
 
 	int										currentImageParm = 0;
 	idArray< idImage*, MAX_IMAGE_PARMS >	imageParms;
+	idScreenRect							scissor;		// set by GL_Scissor
 	//nvrhi::GraphicsPipelineHandle			pipeline;
 	//bool									fullscreen = false;
 };
@@ -172,9 +173,6 @@ idRenderBackend::DrawElementsWithCounters
 */
 void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 {
-	// Only update the constant buffer if it was updated at all.
-	renderProgManager.CommitConstantBuffer( commandList );
-
 	// Get vertex buffer
 	const vertCacheHandle_t vbHandle = surf->ambientCache;
 	idVertexBuffer* vertexBuffer;
@@ -265,6 +263,9 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 		changeState = true;
 	}
 
+	// TODO: Only update the constant buffer if it was updated at all.
+	renderProgManager.CommitConstantBuffer( commandList );
+
 	if( changeState )
 	{
 		nvrhi::GraphicsState state;
@@ -285,11 +286,17 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 								  ( float )currentViewport.y2,
 								  currentViewport.zmin,
 								  currentViewport.zmax };
-		state.viewport.addViewportAndScissorRect( viewport );
+		state.viewport.addViewport( viewport );
 
-		if( !currentScissor.IsEmpty() )
+#if 0
+		if( !context.scissor.IsEmpty() )
 		{
-			state.viewport.addScissorRect( nvrhi::Rect( currentScissor.x1, currentScissor.x2, currentScissor.y1, currentScissor.y2 ) );
+			state.viewport.addScissorRect( nvrhi::Rect( context.scissor.x1, context.scissor.x2, context.scissor.y1, context.scissor.y2 ) );
+		}
+		else
+#endif
+		{
+			state.viewport.addScissorRect( nvrhi::Rect( viewport ) );
 		}
 
 		commandList->setGraphicsState( state );
@@ -677,28 +684,6 @@ void idRenderBackend::GL_EndFrame()
 	commandList->close();
 
 	deviceManager->GetDevice()->executeCommandList( commandList );
-
-	// Make sure that all frames have finished rendering
-	deviceManager->GetDevice()->waitForIdle();
-
-	// Release all in-flight references to the render targets
-	deviceManager->GetDevice()->runGarbageCollection();
-
-	// Present to the swap chain.
-	deviceManager->Present();
-}
-
-void idRenderBackend::GL_EndRenderPass()
-{
-#if defined( USE_NVRHI )
-	commandList->close();
-
-	deviceManager->GetDevice()->executeCommandList( commandList );
-
-	deviceManager->GetDevice()->runGarbageCollection();
-
-	commandList->open();
-#endif
 }
 
 /*
@@ -712,6 +697,27 @@ void idRenderBackend::GL_BlockingSwapBuffers()
 {
 	// Make sure that all frames have finished rendering
 	deviceManager->GetDevice()->waitForIdle();
+
+	// Release all in-flight references to the render targets
+	deviceManager->GetDevice()->runGarbageCollection();
+
+	// Present to the swap chain.
+	deviceManager->Present();
+
+	renderLog.EndFrame();
+}
+
+void idRenderBackend::GL_EndRenderPass()
+{
+#if 0
+	commandList->close();
+
+	deviceManager->GetDevice()->executeCommandList( commandList );
+
+	deviceManager->GetDevice()->runGarbageCollection();
+
+	commandList->open();
+#endif
 }
 
 /*
@@ -773,9 +779,9 @@ idRenderBackend::GL_Scissor
 void idRenderBackend::GL_Scissor( int x /* left*/, int y /* bottom */, int w, int h )
 {
 	// TODO Check if this is right.
-	//currentScissor.Clear();
-	//currentScissor.AddPoint( x, y );
-	//currentScissor.AddPoint( x + w, y + h );
+	context.scissor.Clear();
+	context.scissor.AddPoint( x, y );
+	context.scissor.AddPoint( x + w, y + h );
 }
 
 /*
@@ -921,23 +927,6 @@ void idRenderBackend::CheckCVars()
 		}
 	}*/
 
-	if( r_useSeamlessCubeMap.IsModified() )
-	{
-		r_useSeamlessCubeMap.ClearModified();
-		if( glConfig.seamlessCubeMapAvailable )
-		{
-			if( r_useSeamlessCubeMap.GetBool() )
-			{
-				//glEnable( GL_TEXTURE_CUBE_MAP_SEAMLESS );
-			}
-			else
-			{
-				//glDisable( GL_TEXTURE_CUBE_MAP_SEAMLESS );
-			}
-		}
-	}
-
-
 	// SRS - Enable SDL-driven vync changes without restart for UNIX-like OSs
 #if defined(__linux__) || defined(__FreeBSD__) || defined(__APPLE__)
 	extern idCVar r_swapInterval;
@@ -958,6 +947,7 @@ void idRenderBackend::CheckCVars()
 	}
 #endif
 	// SRS end
+
 	if( r_antiAliasing.IsModified() )
 	{
 		switch( r_antiAliasing.GetInteger() )
@@ -977,6 +967,7 @@ void idRenderBackend::CheckCVars()
 		}
 	}
 
+	/*
 	if( r_usePBR.IsModified() ||
 			r_useHDR.IsModified() ||
 			r_useHalfLambertLighting.IsModified() ||
@@ -1002,20 +993,7 @@ void idRenderBackend::CheckCVars()
 		renderProgManager.KillAllShaders();
 		renderProgManager.LoadAllShaders();
 	}
-
-	// RB: turn off shadow mapping for OpenGL drivers that are too slow
-	switch( glConfig.driverType )
-	{
-		case GLDRV_OPENGL_ES2:
-		case GLDRV_OPENGL_ES3:
-			//case GLDRV_OPENGL_MESA:
-			r_useShadowMapping.SetInteger( 0 );
-			break;
-
-		default:
-			break;
-	}
-	// RB end
+	*/
 }
 
 /*
@@ -1324,6 +1302,7 @@ idRenderBackend::idRenderBackend()
 	memset( &glConfig, 0, sizeof( glConfig ) );
 
 	//glConfig.gpuSkinningAvailable = true;
+	glConfig.timerQueryAvailable = true;
 }
 
 /*

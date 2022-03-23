@@ -5910,12 +5910,12 @@ void idRenderBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
 	if( renderSystem->GetStereo3DMode() != STEREO3D_OFF )
 	{
 		StereoRenderExecuteBackEndCommands( cmds );
-		renderLog.EndFrame();
+		//renderLog.EndFrame();
 		return;
 	}
 
-	renderLog.StartFrame();
 	GL_StartFrame();
+	renderLog.StartFrame( commandList );
 
 	void* textureId = globalImages->hierarchicalZbufferImage->GetTextureID();
 	globalImages->LoadDeferredImages( commandList );
@@ -6030,7 +6030,7 @@ void idRenderBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
 		pc.c_copyFrameBuffer = 0;
 	}
 
-	renderLog.EndFrame();
+	//renderLog.EndFrame();
 }
 
 
