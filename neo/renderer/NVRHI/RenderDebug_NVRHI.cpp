@@ -2105,9 +2105,8 @@ void idRenderBackend::DBG_RenderDebugTools( drawSurf_t** drawSurfs, int numDrawS
 		return;
 	}
 
-	renderLog.OpenMainBlock( MRB_DRAW_DEBUG_TOOLS, commandList );
+	renderLog.OpenMainBlock( MRB_DRAW_DEBUG_TOOLS );
 	renderLog.OpenBlock( "Render_DebugTools", colorGreen );
-	RENDERLOG_PRINTF( "---------- RB_RenderDebugTools ----------\n" );
 
 	GL_State( GLS_DEFAULT );
 

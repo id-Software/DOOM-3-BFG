@@ -123,6 +123,7 @@ void idRenderBackend::Init()
 
 	// Need to reinitialize this pass once this image is resized.
 	renderProgManager.Init( deviceManager->GetDevice() );
+	renderLog.Init();
 
 	bindingCache.Init( deviceManager->GetDevice() );
 	samplerCache.Init( deviceManager->GetDevice() );
@@ -228,8 +229,6 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 	{
 		currentIndexOffset = indexOffset;
 	}
-
-	RENDERLOG_PRINTF( "Binding Buffers: %p:%i %p:%i\n", vertexBuffer, vertOffset, indexBuffer, indexOffset );
 
 	if( currentIndexBuffer != ( nvrhi::IBuffer* )indexBuffer->GetAPIObject() || !r_useStateCaching.GetBool() )
 	{
@@ -668,6 +667,9 @@ idRenderBackend::GL_StartFrame
 */
 void idRenderBackend::GL_StartFrame()
 {
+	// fetch GPU timer queries of last frame
+	renderLog.FetchGPUTimers( pc );
+
 	deviceManager->BeginFrame();
 
 	commandList->open();
@@ -729,7 +731,7 @@ may touch, including the editor.
 */
 void idRenderBackend::GL_SetDefaultState()
 {
-	RENDERLOG_PRINTF( "--- GL_SetDefaultState ---\n" );
+	renderLog.OpenBlock( "--- GL_SetDefaultState ---\n" );
 
 	glStateBits = 0;
 
@@ -740,6 +742,8 @@ void idRenderBackend::GL_SetDefaultState()
 	renderProgManager.Unbind();
 
 	Framebuffer::Unbind();
+
+	renderLog.CloseBlock();
 }
 
 /*
@@ -1069,8 +1073,6 @@ void idRenderBackend::SetBuffer( const void* data )
 
 	const setBufferCommand_t* cmd = ( const setBufferCommand_t* )data;
 
-	//RENDERLOG_PRINTF( "---------- RB_SetBuffer ---------- to buffer # %d\n", cmd->buffer );
-
 	renderLog.OpenBlock( "Render_SetBuffer" );
 
 	currentScissor.Clear();
@@ -1202,8 +1204,6 @@ void idRenderBackend::DrawStencilShadowPass( const drawSurf_t* drawSurf, const b
 	{
 		currentIndexOffset = indexOffset;
 	}
-
-	//RENDERLOG_PRINTF( "Binding Buffers: %p:%i %p:%i\n", vertexBuffer, vertOffset, indexBuffer, indexOffset );
 
 	if( currentIndexBuffer != ( nvrhi::IBuffer* )indexBuffer->GetAPIObject() || !r_useStateCaching.GetBool() )
 	{

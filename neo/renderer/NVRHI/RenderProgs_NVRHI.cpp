@@ -62,7 +62,6 @@ void idRenderProgManager::BindProgram( int index )
 	}
 
 	currentIndex = index;
-	RENDERLOG_PRINTF( "Binding HLSL Program %s\n", renderProgs[index].name.c_str() );
 }
 
 /*

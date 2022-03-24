@@ -168,8 +168,6 @@ Automatically enables 2D mapping or cube mapping if needed
 */
 void idImage::Bind()
 {
-	RENDERLOG_PRINTF( "idImage::Bind( %s )\n", GetName() );
-
 	tr.backend.SetCurrentImage( this );
 }
 

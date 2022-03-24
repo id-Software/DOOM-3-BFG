@@ -29,6 +29,11 @@ If you have questions concerning this license or the applicable additional terms
 #include "RenderCommon.h"
 #pragma hdrstop
 
+#if defined( USE_NVRHI )
+	#include <sys/DeviceManager.h>
+	extern DeviceManager* deviceManager;
+#endif
+
 /*
 ================================================================================================
 Contains the RenderLog implementation.
@@ -310,26 +315,32 @@ idRenderLog
 idRenderLog	renderLog;
 
 
-/*
-========================
-idRenderLog::idRenderLog
-========================
-*/
 idRenderLog::idRenderLog()
 {
 	frameCounter = 0;
 	frameParity = 0;
 }
 
+void idRenderLog::Init()
+{
+#if defined( USE_NVRHI )
+	for( int i = 0; i < MRB_TOTAL_QUERIES; i++ )
+	{
+		timerQueries.Append( deviceManager->GetDevice()->createTimerQuery() );
+		timerUsed.Append( false );
+	}
+#endif
+}
+
 void idRenderLog::StartFrame( nvrhi::ICommandList* _commandList )
 {
+#if defined( USE_NVRHI )
 	commandList = _commandList;
+#endif
 }
 
 void idRenderLog::EndFrame()
 {
-	frameCounter++;
-	frameParity = frameCounter % NUM_FRAME_DATA;
 }
 
 
@@ -339,12 +350,8 @@ void idRenderLog::EndFrame()
 idRenderLog::OpenMainBlock
 ========================
 */
-void idRenderLog::OpenMainBlock( renderLogMainBlock_t block, nvrhi::ICommandList* _commandList )
+void idRenderLog::OpenMainBlock( renderLogMainBlock_t block )
 {
-#if defined( USE_NVRHI )
-	commandList = _commandList;
-#endif
-
 	// SRS - Use glConfig.timerQueryAvailable flag to control timestamp capture for all platforms
 	if( glConfig.timerQueryAvailable )
 	{
@@ -352,7 +359,10 @@ void idRenderLog::OpenMainBlock( renderLogMainBlock_t block, nvrhi::ICommandList
 
 #if defined( USE_NVRHI )
 
-		// SP: use nvrhi timer queries
+		int timerIndex = mainBlock + frameParity * MRB_TOTAL;
+
+		commandList->beginTimerQuery( timerQueries[ timerIndex ] );
+		timerUsed[ timerIndex ] = true;
 
 #elif defined( USE_VULKAN )
 		if( vkcontext.queryIndex[ vkcontext.frameParity ] >= ( NUM_TIMESTAMP_QUERIES - 1 ) )
@@ -402,7 +412,13 @@ void idRenderLog::CloseMainBlock()
 	if( glConfig.timerQueryAvailable )
 	{
 
-#if defined( USE_VULKAN )
+#if defined( USE_NVRHI )
+
+		int timerIndex = mainBlock + frameParity * MRB_TOTAL;
+
+		commandList->endTimerQuery( timerQueries[ timerIndex ] );
+
+#elif defined( USE_VULKAN )
 		if( vkcontext.queryIndex[ vkcontext.frameParity ] >= ( NUM_TIMESTAMP_QUERIES - 1 ) )
 		{
 			return;
@@ -413,10 +429,6 @@ void idRenderLog::CloseMainBlock()
 
 		uint32 queryIndex = vkcontext.queryAssignedIndex[ vkcontext.frameParity ][ mainBlock * 2 + 1 ] = vkcontext.queryIndex[ vkcontext.frameParity ]++;
 		vkCmdWriteTimestamp( commandBuffer, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, queryPool, queryIndex );
-
-#elif defined(USE_NVRHI)
-
-		// SP: Close nvrhi timer queries
 
 #elif defined(__APPLE__)
 		// SRS - For OSX use elapsed time query for Apple OpenGL 4.1 using GL_TIME_ELAPSED vs GL_TIMESTAMP (which is not implemented on OSX)
@@ -432,6 +444,63 @@ void idRenderLog::CloseMainBlock()
 		glcontext.renderLogMainBlockTimeQueryIssued[ glcontext.frameParity ][ mainBlock * 2 + 1 ]++;
 #endif
 	}
+}
+
+/*
+========================
+idRenderLog::FetchGPUTimers
+========================
+*/
+void idRenderLog::FetchGPUTimers( backEndCounters_t& pc )
+{
+	frameCounter++;
+	frameParity ^= 1;
+
+#if defined( USE_NVRHI )
+
+	for( int i = 0; i < MRB_TOTAL; i++ )
+	{
+		int timerIndex = i + frameParity * MRB_TOTAL;
+
+		if( timerUsed[timerIndex] )
+		{
+			double time = deviceManager->GetDevice()->getTimerQueryTime( timerQueries[ timerIndex ] );
+			time *= 1000000.0; // seconds -> microseconds
+
+			if( i == MRB_GPU_TIME )
+			{
+				pc.gpuMicroSec = time;
+			}
+			else if( i == MRB_FILL_DEPTH_BUFFER )
+			{
+				pc.gpuDepthMicroSec = time;
+			}
+			else if( i == MRB_SSAO_PASS )
+			{
+				pc.gpuScreenSpaceAmbientOcclusionMicroSec = time;
+			}
+			else if( i == MRB_AMBIENT_PASS )
+			{
+				pc.gpuAmbientPassMicroSec = time;
+			}
+			else if( i == MRB_DRAW_INTERACTIONS )
+			{
+				pc.gpuInteractionsMicroSec = time;
+			}
+			else if( i == MRB_DRAW_SHADER_PASSES )
+			{
+				pc.gpuShaderPassMicroSec = time;
+			}
+			else if( i == MRB_POSTPROCESS )
+			{
+				pc.gpuPostProcessingMicroSec = time;
+			}
+		}
+
+		// reset timer
+		timerUsed[timerIndex] = false;
+	}
+#endif
 }
 
 

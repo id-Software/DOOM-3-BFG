@@ -221,8 +221,6 @@ void ForwardShadingPass::ShadowMapPass( nvrhi::ICommandList* commandList, const 
 		return;
 	}
 
-	RENDERLOG_PRINTF( "---------- RB_ShadowMapPass( side = %i ) ----------\n", side );
-
 	renderProgManager.BindShader_Depth();
 
 	GL_SelectTexture( 0 );
@@ -845,8 +843,6 @@ void ForwardShadingPass::SetupInputBuffers( const drawSurf_t* surf, nvrhi::Graph
 		indexBuffer = &vertexCache.frameData[vertexCache.drawListNum].indexBuffer;
 	}
 	const uint indexOffset = ( uint )( ibHandle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
-
-	RENDERLOG_PRINTF( "Binding Buffers: %p:%i %p:%i\n", vertexBuffer, vertOffset, indexBuffer, indexOffset );
 
 	state.indexBuffer = { indexBuffer->GetAPIObject(), nvrhi::Format::R16_UINT, indexOffset };
 	state.vertexBuffers = { { vertexBuffer->GetAPIObject(), 0, vertOffset } };

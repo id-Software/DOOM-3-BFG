@@ -208,11 +208,11 @@ void RB_LoadShaderTextureMatrix( const float* shaderRegisters, const textureStag
 		texT[2] = matrix[2 * 4 + 1];
 		texT[3] = matrix[3 * 4 + 1];
 
-		RENDERLOG_PRINTF( "Setting Texture Matrix\n" );
-		renderLog.Indent();
-		RENDERLOG_PRINTF( "Texture Matrix S : %4.3f, %4.3f, %4.3f, %4.3f\n", texS[0], texS[1], texS[2], texS[3] );
-		RENDERLOG_PRINTF( "Texture Matrix T : %4.3f, %4.3f, %4.3f, %4.3f\n", texT[0], texT[1], texT[2], texT[3] );
-		renderLog.Outdent();
+		//RENDERLOG_PRINTF( "Setting Texture Matrix\n" );
+		//renderLog.Indent();
+		//RENDERLOG_PRINTF( "Texture Matrix S : %4.3f, %4.3f, %4.3f, %4.3f\n", texS[0], texS[1], texS[2], texS[3] );
+		//RENDERLOG_PRINTF( "Texture Matrix T : %4.3f, %4.3f, %4.3f, %4.3f\n", texT[0], texT[1], texT[2], texT[3] );
+		//renderLog.Outdent();
 	}
 
 	SetVertexParm( RENDERPARM_TEXTUREMATRIX_S, texS );
@@ -367,7 +367,6 @@ void idRenderBackend::PrepareStageTexturing( const shaderStage_t* pStage,  const
 
 			GL_SelectTexture( 0 );
 
-			RENDERLOG_PRINTF( "TexGen: TG_REFLECT_CUBE: Bumpy Environment\n" );
 			if( surf->jointCache )
 			{
 				renderProgManager.BindShader_BumpyEnvironmentSkinned();
@@ -379,7 +378,6 @@ void idRenderBackend::PrepareStageTexturing( const shaderStage_t* pStage,  const
 		}
 		else
 		{
-			RENDERLOG_PRINTF( "TexGen: TG_REFLECT_CUBE: Environment\n" );
 			if( surf->jointCache )
 			{
 				renderProgManager.BindShader_EnvironmentSkinned();
@@ -464,8 +462,8 @@ void idRenderBackend::PrepareStageTexturing( const shaderStage_t* pStage,  const
 		float mat[16];
 		R_MatrixMultiply( surf->space->modelViewMatrix, viewDef->projectionMatrix, mat );
 
-		RENDERLOG_PRINTF( "TexGen : %s\n", ( pStage->texture.texgen == TG_SCREEN ) ? "TG_SCREEN" : "TG_SCREEN2" );
-		renderLog.Indent();
+		//RENDERLOG_PRINTF( "TexGen : %s\n", ( pStage->texture.texgen == TG_SCREEN ) ? "TG_SCREEN" : "TG_SCREEN2" );
+		//renderLog.Indent();
 
 		float plane[4];
 		plane[0] = mat[0 * 4 + 0];
@@ -473,23 +471,23 @@ void idRenderBackend::PrepareStageTexturing( const shaderStage_t* pStage,  const
 		plane[2] = mat[2 * 4 + 0];
 		plane[3] = mat[3 * 4 + 0];
 		SetVertexParm( RENDERPARM_TEXGEN_0_S, plane );
-		RENDERLOG_PRINTF( "TEXGEN_S = %4.3f, %4.3f, %4.3f, %4.3f\n",  plane[0], plane[1], plane[2], plane[3] );
+		//RENDERLOG_PRINTF( "TEXGEN_S = %4.3f, %4.3f, %4.3f, %4.3f\n",  plane[0], plane[1], plane[2], plane[3] );
 
 		plane[0] = mat[0 * 4 + 1];
 		plane[1] = mat[1 * 4 + 1];
 		plane[2] = mat[2 * 4 + 1];
 		plane[3] = mat[3 * 4 + 1];
 		SetVertexParm( RENDERPARM_TEXGEN_0_T, plane );
-		RENDERLOG_PRINTF( "TEXGEN_T = %4.3f, %4.3f, %4.3f, %4.3f\n",  plane[0], plane[1], plane[2], plane[3] );
+		//RENDERLOG_PRINTF( "TEXGEN_T = %4.3f, %4.3f, %4.3f, %4.3f\n",  plane[0], plane[1], plane[2], plane[3] );
 
 		plane[0] = mat[0 * 4 + 3];
 		plane[1] = mat[1 * 4 + 3];
 		plane[2] = mat[2 * 4 + 3];
 		plane[3] = mat[3 * 4 + 3];
 		SetVertexParm( RENDERPARM_TEXGEN_0_Q, plane );
-		RENDERLOG_PRINTF( "TEXGEN_Q = %4.3f, %4.3f, %4.3f, %4.3f\n",  plane[0], plane[1], plane[2], plane[3] );
+		//RENDERLOG_PRINTF( "TEXGEN_Q = %4.3f, %4.3f, %4.3f, %4.3f\n",  plane[0], plane[1], plane[2], plane[3] );
 
-		renderLog.Outdent();
+		//renderLog.Outdent();
 
 	}
 	else if( pStage->texture.texgen == TG_DIFFUSE_CUBE )
@@ -803,7 +801,7 @@ void idRenderBackend::FillDepthBufferFast( drawSurf_t** drawSurfs, int numDrawSu
 		return;
 	}
 
-	renderLog.OpenMainBlock( MRB_FILL_DEPTH_BUFFER, commandList );
+	renderLog.OpenMainBlock( MRB_FILL_DEPTH_BUFFER );
 	renderLog.OpenBlock( "Render_FillDepthBufferFast", colorBlue );
 
 	// force MVP change on first surface
@@ -1935,7 +1933,7 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 #endif
 
 
-	renderLog.OpenMainBlock( fillGbuffer ? MRB_FILL_GEOMETRY_BUFFER : MRB_AMBIENT_PASS, commandList );
+	renderLog.OpenMainBlock( fillGbuffer ? MRB_FILL_GEOMETRY_BUFFER : MRB_AMBIENT_PASS );
 	renderLog.OpenBlock( fillGbuffer ? "Fill_GeometryBuffer" : "Render_AmbientPass", colorBlue );
 
 	if( fillGbuffer )
@@ -2402,7 +2400,7 @@ void idRenderBackend::StencilShadowPass( const drawSurf_t* drawSurfs, const view
 		return;
 	}
 
-	RENDERLOG_PRINTF( "---------- RB_StencilShadowPass ----------\n" );
+	renderLog.OpenBlock( "Render_StencilShadowPass" );
 
 	renderProgManager.BindShader_Shadow();
 
@@ -2567,6 +2565,8 @@ void idRenderBackend::StencilShadowPass( const drawSurf_t* drawSurfs, const view
 			GL_DepthBoundsTest( 0.0f, 0.0f );
 		}
 	}
+
+	renderLog.CloseBlock();
 }
 
 /*
@@ -3821,7 +3821,7 @@ void idRenderBackend::DrawInteractions( const viewDef_t* _viewDef )
 		return;
 	}
 
-	renderLog.OpenMainBlock( MRB_DRAW_INTERACTIONS, commandList );
+	renderLog.OpenMainBlock( MRB_DRAW_INTERACTIONS );
 	renderLog.OpenBlock( "Render_Interactions", colorYellow );
 
 	GL_SelectTexture( 0 );
@@ -4819,7 +4819,7 @@ void idRenderBackend::FogAllLights()
 		return;
 	}
 
-	renderLog.OpenMainBlock( MRB_FOG_ALL_LIGHTS, commandList );
+	renderLog.OpenMainBlock( MRB_FOG_ALL_LIGHTS );
 	renderLog.OpenBlock( "Render_FogAllLights", colorBlue );
 
 	// force fog plane to recalculate
@@ -4969,8 +4969,6 @@ void idRenderBackend::CalculateAutomaticExposure()
 
 void idRenderBackend::Tonemap( const viewDef_t* _viewDef )
 {
-	RENDERLOG_PRINTF( "---------- RB_Tonemap( avg = %f, max = %f, key = %f, is2Dgui = %i ) ----------\n", hdrAverageLuminance, hdrMaxLuminance, hdrKey, ( int )viewDef->is2Dgui );
-
 	renderLog.OpenBlock( "Tonemap" );
 
 	//postProcessCommand_t* cmd = ( postProcessCommand_t* )data;
@@ -5071,10 +5069,8 @@ void idRenderBackend::Bloom( const viewDef_t* _viewDef )
 		return;
 	}
 
-	renderLog.OpenMainBlock( MRB_BLOOM, commandList );
+	renderLog.OpenMainBlock( MRB_BLOOM );
 	renderLog.OpenBlock( "Render_Bloom", colorBlue );
-
-	RENDERLOG_PRINTF( "---------- RB_Bloom( avg = %f, max = %f, key = %f ) ----------\n", hdrAverageLuminance, hdrMaxLuminance, hdrKey );
 
 	// BRIGHTPASS
 	renderLog.OpenBlock( "Brightpass" );
@@ -5116,7 +5112,7 @@ void idRenderBackend::Bloom( const viewDef_t* _viewDef )
 		int	w = viewDef->viewport.x2 - viewDef->viewport.x1 + 1;
 		int	h = viewDef->viewport.y2 - viewDef->viewport.y1 + 1;
 
-		RENDERLOG_PRINTF( "Resolve to %i x %i buffer\n", w, h );
+		//RENDERLOG_PRINTF( "Resolve to %i x %i buffer\n", w, h );
 
 		// resolve the screen
 		globalImages->currentRenderImage->CopyFramebuffer( x, y, w, h );
@@ -5236,7 +5232,7 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 		return;
 	}
 
-	renderLog.OpenMainBlock( MRB_SSAO_PASS, commandList );
+	renderLog.OpenMainBlock( MRB_SSAO_PASS );
 	renderLog.OpenBlock( "Render_SSAO", colorBlue );
 
 	currentSpace = &viewDef->worldSpace;
@@ -5968,7 +5964,7 @@ void idRenderBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
 				if( drawView3D_timestamps )
 				{
 					// SRS - Capture separate timestamps for overlay GUI rendering when RC_DRAW_VIEW_3D timestamps are active
-					renderLog.OpenMainBlock( MRB_DRAW_GUI, commandList );
+					renderLog.OpenMainBlock( MRB_DRAW_GUI );
 					renderLog.OpenBlock( "Render_DrawViewGUI", colorBlue );
 					// SRS - Disable detailed timestamps during overlay GUI rendering so they do not overwrite timestamps from 3D rendering
 					glConfig.timerQueryAvailable = false;
@@ -6195,7 +6191,7 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 	int processed = 0;
 	if( !r_skipShaderPasses.GetBool() )
 	{
-		renderLog.OpenMainBlock( MRB_DRAW_SHADER_PASSES, commandList );
+		renderLog.OpenMainBlock( MRB_DRAW_SHADER_PASSES );
 		float guiScreenOffset;
 		if( _viewDef->viewEntitys != NULL )
 		{
@@ -6233,7 +6229,7 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 		int	w = viewDef->viewport.x2 - viewDef->viewport.x1 + 1;
 		int	h = viewDef->viewport.y2 - viewDef->viewport.y1 + 1;
 
-		RENDERLOG_PRINTF( "Resolve to %i x %i buffer\n", w, h );
+		//RENDERLOG_PRINTF( "Resolve to %i x %i buffer\n", w, h );
 
 		GL_SelectTexture( 0 );
 
@@ -6271,7 +6267,7 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 		SetFragmentParm( RENDERPARM_WINDOWCOORD, windowCoordParm ); // rpWindowCoord
 
 		// render the remaining surfaces
-		renderLog.OpenMainBlock( MRB_DRAW_SHADER_PASSES_POST, commandList );
+		renderLog.OpenMainBlock( MRB_DRAW_SHADER_PASSES_POST );
 		DrawShaderPasses( drawSurfs + processed, numDrawSurfs - processed, 0.0f /* definitely not a gui */, stereoEye );
 		renderLog.CloseMainBlock();
 	}
@@ -6548,7 +6544,7 @@ void idRenderBackend::CopyRender( const void* data )
 		return;
 	}
 
-	RENDERLOG_PRINTF( "***************** RB_CopyRender *****************\n" );
+	renderLog.OpenBlock( "***************** RB_CopyRender *****************" );
 
 	if( cmd->image )
 	{
@@ -6559,6 +6555,8 @@ void idRenderBackend::CopyRender( const void* data )
 	{
 		GL_Clear( true, false, false, STENCIL_SHADOW_TEST_VALUE, 0, 0, 0, 0 );
 	}
+
+	renderLog.CloseBlock();
 }
 
 /*
@@ -6583,7 +6581,7 @@ void idRenderBackend::PostProcess( const void* data )
 	}
 
 
-	renderLog.OpenMainBlock( MRB_POSTPROCESS, commandList );
+	renderLog.OpenMainBlock( MRB_POSTPROCESS );
 	renderLog.OpenBlock( "Render_PostProcessing", colorBlue );
 
 // FIXME

@@ -105,12 +105,6 @@ static void RB_LoadShaderTextureMatrix( const float* shaderRegisters, const text
 		texT[1] = matrix[1 * 4 + 1];
 		texT[2] = matrix[2 * 4 + 1];
 		texT[3] = matrix[3 * 4 + 1];
-
-		RENDERLOG_PRINTF( "Setting Texture Matrix\n" );
-		renderLog.Indent();
-		RENDERLOG_PRINTF( "Texture Matrix S : %4.3f, %4.3f, %4.3f, %4.3f\n", texS[0], texS[1], texS[2], texS[3] );
-		RENDERLOG_PRINTF( "Texture Matrix T : %4.3f, %4.3f, %4.3f, %4.3f\n", texT[0], texT[1], texT[2], texT[3] );
-		renderLog.Outdent();
 	}
 
 	SetVertexParm( RENDERPARM_TEXTUREMATRIX_S, texS );

@@ -216,8 +216,6 @@ void Framebuffer::ResizeFramebuffers()
 
 void Framebuffer::Bind()
 {
-	RENDERLOG_PRINTF( "Framebuffer::Bind( %s )\n", fboName.c_str() );
-
 	if( tr.backend.currentFrameBuffer != this )
 	{
 		tr.backend.currentPipeline = nullptr;
@@ -234,7 +232,6 @@ bool Framebuffer::IsBound()
 
 void Framebuffer::Unbind()
 {
-	RENDERLOG_PRINTF( "Framebuffer::Unbind()\n" );
 	globalFramebuffers.swapFramebuffers[deviceManager->GetCurrentBackBufferIndex()]->Bind();
 }
 

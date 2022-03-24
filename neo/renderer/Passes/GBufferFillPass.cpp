@@ -571,8 +571,6 @@ void GBufferFillPass::DrawElementsWithCounters( const drawSurf_t* surf )
 	}
 	const uint indexOffset = ( uint )( ibHandle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
 
-	RENDERLOG_PRINTF( "Binding Buffers: %p:%i %p:%i\n", vertexBuffer, vertOffset, indexBuffer, indexOffset );
-
 	auto currentIndexBuffer = ( nvrhi::IBuffer* )indexBuffer->GetAPIObject();
 
 	if( currentIndexBuffer != ( nvrhi::IBuffer* )indexBuffer->GetAPIObject() || !r_useStateCaching.GetBool() )
