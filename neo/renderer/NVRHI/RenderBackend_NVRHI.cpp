@@ -673,6 +673,9 @@ void idRenderBackend::GL_StartFrame()
 	deviceManager->BeginFrame();
 
 	commandList->open();
+
+	renderLog.StartFrame( commandList );
+	renderLog.OpenMainBlock( MRB_GPU_TIME );
 }
 
 /*
@@ -682,6 +685,8 @@ idRenderBackend::GL_EndFrame
 */
 void idRenderBackend::GL_EndFrame()
 {
+	renderLog.CloseMainBlock( MRB_GPU_TIME );
+
 	commandList->close();
 
 	deviceManager->GetDevice()->executeCommandList( commandList );

@@ -406,15 +406,21 @@ void idRenderLog::OpenMainBlock( renderLogMainBlock_t block )
 idRenderLog::CloseMainBlock
 ========================
 */
-void idRenderLog::CloseMainBlock()
+void idRenderLog::CloseMainBlock( int _block )
 {
 	// SRS - Use glConfig.timerQueryAvailable flag to control timestamp capture for all platforms
 	if( glConfig.timerQueryAvailable )
 	{
+		renderLogMainBlock_t block = mainBlock;
+
+		if( _block != -1 )
+		{
+			block = renderLogMainBlock_t( _block );
+		}
 
 #if defined( USE_NVRHI )
 
-		int timerIndex = mainBlock + frameParity * MRB_TOTAL;
+		int timerIndex = block + frameParity * MRB_TOTAL;
 
 		commandList->endTimerQuery( timerQueries[ timerIndex ] );
 

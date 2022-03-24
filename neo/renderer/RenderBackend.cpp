@@ -5911,7 +5911,6 @@ void idRenderBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
 	}
 
 	GL_StartFrame();
-	renderLog.StartFrame( commandList );
 
 	void* textureId = globalImages->hierarchicalZbufferImage->GetTextureID();
 	globalImages->LoadDeferredImages( commandList );

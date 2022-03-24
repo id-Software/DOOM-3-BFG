@@ -109,7 +109,7 @@ public:
 	void		OpenBlock( const char* label, const idVec4& color = colorBlack );
 	void		CloseBlock();
 	void		OpenMainBlock( renderLogMainBlock_t block );
-	void		CloseMainBlock();
+	void		CloseMainBlock( int block = -1 );
 
 	void		Printf( VERIFY_FORMAT_STRING const char* fmt, ... ) {}
 
