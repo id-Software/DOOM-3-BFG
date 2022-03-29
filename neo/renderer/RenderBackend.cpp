@@ -6234,12 +6234,17 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 
 		// resolve the screen
 #if defined( USE_NVRHI )
+
+		renderLog.OpenBlock( "Blit to _currentRender" );
+
 		BlitParameters blitParms;
 		nvrhi::IFramebuffer* currentFB = ( nvrhi::IFramebuffer* )currentFrameBuffer->GetApiObject();
 		blitParms.sourceTexture = currentFB->getDesc().colorAttachments[0].texture;
-		blitParms.targetFramebuffer = globalFramebuffers.postProcFBO->GetApiObject();
-		blitParms.targetViewport = nvrhi::Viewport( renderSystem->GetWidth(), renderSystem->GetHeight() );;
+		blitParms.targetFramebuffer = globalFramebuffers.postProcFBO->GetApiObject(); // _currentRender image
+		blitParms.targetViewport = nvrhi::Viewport( renderSystem->GetWidth(), renderSystem->GetHeight() );
 		commonPasses.BlitTexture( commandList, blitParms, &bindingCache );
+
+		renderLog.CloseBlock();
 #else
 		globalImages->currentRenderImage->CopyFramebuffer( x, y, w, h );
 #endif

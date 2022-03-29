@@ -812,8 +812,8 @@ drawSurf_t* idRenderModelDecal::CreateDecalDrawSurf( const viewEntity_t* space, 
 	newTri->numVerts = maxVerts;
 	newTri->numIndexes = maxIndexes;
 
-	newTri->ambientCache = vertexCache.AllocVertex( NULL, maxVerts, sizeof( idDrawVert ), nullptr );
-	newTri->indexCache = vertexCache.AllocIndex( NULL, maxIndexes, sizeof( triIndex_t ), nullptr );
+	newTri->ambientCache = vertexCache.AllocVertex( NULL, maxVerts );
+	newTri->indexCache = vertexCache.AllocIndex( NULL, maxIndexes );
 
 	idDrawVert* mappedVerts = ( idDrawVert* )vertexCache.MappedVertexBuffer( newTri->ambientCache );
 	triIndex_t* mappedIndexes = ( triIndex_t* )vertexCache.MappedIndexBuffer( newTri->indexCache );

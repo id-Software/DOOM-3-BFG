@@ -2001,7 +2001,7 @@ void idRenderBackend::DBG_TestImage()
 
 	float scale[16] = { 0 };
 	scale[0] = w; // scale
-	scale[5] = -h; // scale
+	scale[5] = h; // scale
 	scale[12] = halfScreenWidth - ( halfScreenWidth * w ); // translate
 	scale[13] = halfScreenHeight - ( halfScreenHeight * h ); // translate
 	scale[10] = 1.0f;

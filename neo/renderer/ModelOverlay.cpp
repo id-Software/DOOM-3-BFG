@@ -706,8 +706,8 @@ drawSurf_t* idRenderModelOverlay::CreateOverlayDrawSurf( const viewEntity_t* spa
 	srfTriangles_t* newTri = ( srfTriangles_t* )R_ClearedFrameAlloc( sizeof( *newTri ), FRAME_ALLOC_SURFACE_TRIANGLES );
 	newTri->staticModelWithJoints = ( staticModel->jointsInverted != NULL ) ? const_cast< idRenderModelStatic* >( staticModel ) : NULL;	// allow GPU skinning
 
-	newTri->ambientCache = vertexCache.AllocVertex( NULL, maxVerts, sizeof( idDrawVert ), nullptr );
-	newTri->indexCache = vertexCache.AllocIndex( NULL, maxIndexes, sizeof( idDrawVert ), nullptr );
+	newTri->ambientCache = vertexCache.AllocVertex( NULL, maxVerts );
+	newTri->indexCache = vertexCache.AllocIndex( NULL, maxIndexes );
 
 	idDrawVert* mappedVerts = ( idDrawVert* )vertexCache.MappedVertexBuffer( newTri->ambientCache );
 	triIndex_t* mappedIndexes = ( triIndex_t* )vertexCache.MappedIndexBuffer( newTri->indexCache );

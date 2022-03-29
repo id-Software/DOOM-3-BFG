@@ -89,8 +89,8 @@ idGuiModel::BeginFrame
 */
 void idGuiModel::BeginFrame( nvrhi::ICommandList* commandList )
 {
-	vertexBlock = vertexCache.AllocVertex( NULL, MAX_VERTS, sizeof( idDrawVert ), commandList );
-	indexBlock = vertexCache.AllocIndex( NULL, MAX_INDEXES, sizeof( idTriList ), commandList );
+	vertexBlock = vertexCache.AllocVertex( NULL, MAX_VERTS );
+	indexBlock = vertexCache.AllocIndex( NULL, MAX_INDEXES );
 	vertexPointer = ( idDrawVert* )vertexCache.MappedVertexBuffer( vertexBlock );
 	indexPointer = ( triIndex_t* )vertexCache.MappedIndexBuffer( indexBlock );
 	numVerts = 0;
