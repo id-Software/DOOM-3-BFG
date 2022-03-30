@@ -116,14 +116,16 @@ Very certain short term goals are to port and extend some improvements from Just
 * Native C++ AI & monsters code
 * Quake 3 gladiator multiplayer bot
 
+Other short term goals:
+* DX12/Vulkan renderer backend using the [NVIDIA Rendering Hardware Interface](https://github.com/NVIDIAGameWorks/nvrhi) by Stephen Pridham which will lead the path to advanced Ray Tracing techniques
+* Optional RmlUI support as an alternative to Flash
+
 ---
 # May or may not ".plan" <a name="plan2"></a>
 * Scrap expensive multipass forward shading with a faster forward+ solution
 * Add [Volumetric Lighting](http://www.alexandre-pestana.com/volumetric-lights/)
-* Add a DX12 Ultimate renderer backend
 * Explore Screen Space Global Illumination with Christoph Schieds' A-SVGF realtime denoising because A-SVGF works really well in Q2RTX
 * Update texture compression based on [Basis Universal GPU Texture and Texture Video Compression Codec](https://github.com/binomialLLC/basis_universal)
-* Rip & Tear renderer backend with modern approaches by [The-Forge](https://github.com/ConfettiFX/The-Forge)
 * Replace collision detection and physics with PhysX 4.1
 
 ---
@@ -654,9 +656,9 @@ dmap `[glview]` mapfile                | DMap option that exports the BSP areas 
 bakeEnvironmentProbes                  | Command after loading a map. Captures all env_probe entities and stores them to disc
 bakeLightGrids [`<switches>`...]       | `<Switches>` limit[num] : max probes per BSP area (default 16384) bounce[num] : number of bounces or number of light reuse (default 1) grid( xdim ydim zdim ) : light grid size steps into each direction (default 64 64 128)
 exportScriptEvents                     | Command: Generates a new script/doom_events.script that reflects all registered class events in the idClass C++ system. The gamecode still needs to be extended to add the original comments of the events
-exportFGD `[nomodels]`                 | Command: Exports all entity defs to exported/_tb/*.fgd for usage in convertMapToValve220 `<map>`           | 
-exportImagesToTrenchBroom              | Command: Decompresses and saves all TB relevant .bimage images to _tb/*.png files
-exportModelsToTrenchBroom              | Command: Saves all .base|.blwo|.bmd5mesh models to _tb/*.obj files
+exportFGD `[nomodels]`                 | Command: Exports all entity defs to base/_tb/*.fgd for usage in convertMapToValve220 `<map>`           | 
+exportImagesToTrenchBroom              | Command: Decompresses and saves all TB relevant .bimage images to base/_tb/*.png files
+exportModelsToTrenchBroom              | Command: Saves all .base|.blwo|.bmd5mesh models to base/_tb/*.obj files
 exportEntityDefsToBlender              | Command: Exports all entity and model defs to exported/entities.json for usage in Blender
 before loading a map.
 exportMapToOBJ                         | Command: Convert .map file to .obj/.mtl
@@ -676,7 +678,6 @@ convertMapToJSON mapfile               | Command: Convert .map file to new .json
 
 * Some lights cause shadow acne with shadow mapping
 * Some shadows might almost disappear due to the shadow filtering or look off ("Peter panning" problem)
-* [HDR] HDR does not work with old-school stencil shadows
 * [HDR] MSAA anti-aliasing modes don't work with HDR: Use SMAA with r_antiAliasing 1
 * [Vulkan] **Vulkan backend is unfinished in general**
 * [Vulkan] Shadow Mapping is not supported yet

@@ -419,16 +419,6 @@ void idImage::SetSamplerState( textureFilter_t tf, textureRepeat_t tr )
 
 /*
 ========================
-idImage::SetPixel
-========================
-*/
-void idImage::SetPixel( int mipLevel, int x, int y, const void* data, int dataSize )
-{
-	SubImageUpload( mipLevel, x, y, 0, 1, 1, data );
-}
-
-/*
-========================
 idImage::SetTexParameters
 ========================
 */

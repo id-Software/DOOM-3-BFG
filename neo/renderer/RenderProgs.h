@@ -856,6 +856,12 @@ public:
 		BindShader_Builtin( BUILTIN_BINK );
 	}
 
+	// SRS - Added Bink shader without sRGB to linear conversion for testVideo cmd
+	void	BindShader_Bink_sRGB()
+	{
+		BindShader_Builtin( BUILTIN_BINK_SRGB );
+	}
+
 	void	BindShader_BinkGUI()
 	{
 		BindShader_Builtin( BUILTIN_BINK_GUI );
@@ -949,6 +955,7 @@ private:
 	idStr		StripDeadCode( const idStr& in, const char* name, const idStrList& compileMacros, bool builtin );
 	idStr		ConvertCG2GLSL( const idStr& in, const char* name, rpStage_t stage, idStr& outLayout, bool vkGLSL, bool hasGPUSkinning, vertexLayoutType_t vertexLayout );
 
+		BUILTIN_BINK_SRGB,	// SRS - Added Bink shader without sRGB to linear conversion for testVideo cmd
 	int builtinShaders[MAX_BUILTINS];
 	void BindShader_Builtin( int i )
 	{

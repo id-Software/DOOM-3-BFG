@@ -532,6 +532,7 @@ cinData_t idSoundSystemLocal::ImageForTime( const int milliseconds, const bool w
 	cd.imageY = NULL;
 	cd.imageCr = NULL;
 	cd.imageCb = NULL;
+	cd.image = NULL;
 	cd.imageWidth = 0;
 	cd.imageHeight = 0;
 	cd.status = FMV_IDLE;

@@ -29,6 +29,9 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 
 
+#include "../libs/binpack2d/binpack2d.h"
+
+
 /*
 
 This routine performs a tight packing of a list of rectangles, attempting to minimize the area
@@ -79,7 +82,8 @@ public:
 	const idList<idVec2i>* inputSizes;
 };
 
-void RectAllocator( const idList<idVec2i>& inputSizes, idList<idVec2i>& outputPositions, idVec2i& totalSize )
+// RB: added START_MAX and imageMax
+void RectAllocator( const idList<idVec2i>& inputSizes, idList<idVec2i>& outputPositions, idVec2i& totalSize, const int START_MAX, const int imageMax )
 {
 	outputPositions.SetNum( inputSizes.Num() );
 	if( inputSizes.Num() == 0 )
@@ -109,7 +113,7 @@ void RectAllocator( const idList<idVec2i>& inputSizes, idList<idVec2i>& outputPo
 	// Somewhat better allocation could be had by checking all the combinations of x and y edges
 	// in the allocated rectangles, rather than just the corners of each rectangle, but it
 	// still does a pretty good job.
-	static const int START_MAX = 1 << 14;
+	//static const int START_MAX = 1 << 14;
 	for( int i = 1; i < inputSizes.Num(); i++ )
 	{
 		idVec2i	best( 0, 0 );
@@ -137,7 +141,9 @@ void RectAllocator( const idList<idVec2i>& inputSizes, idList<idVec2i>& outputPo
 
 				// don't let an image get larger than 1024 DXT block, or PS3 crashes
 				// FIXME: pass maxSize in as a parameter
-				if( newMax[0] > 1024 || newMax[1] > 1024 )
+				//if( newMax[0] > 1024 || newMax[1] > 1024 )
+
+				if( imageMax > 0 && ( newMax[0] > imageMax || newMax[1] > imageMax ) )
 				{
 					continue;
 				}
@@ -190,3 +196,117 @@ void RectAllocator( const idList<idVec2i>& inputSizes, idList<idVec2i>& outputPo
 	}
 }
 
+// RB
+class MyContent
+{
+public:
+	int itemIndex;
+	idStr str;
+	MyContent() : str( "default string" ) {}
+	MyContent( const idStr& str ) : str( str ) {}
+};
+
+void RectAllocatorBinPack2D( const idList<idVec2i>& inputSizes, const idStrList& inputNames, idList<idVec2i>& outputPositions, idVec2i& totalSize, const int START_MAX )
+{
+	outputPositions.SetNum( inputSizes.Num() );
+
+	if( inputSizes.Num() == 0 )
+	{
+		totalSize.Set( 0, 0 );
+		return;
+	}
+
+	// Create some 'content' to work on.
+	BinPack2D::ContentAccumulator<MyContent> inputContent;
+
+	for( int i = 0; i < inputSizes.Num(); i++ )
+	{
+		// random size for this content
+		int width  = inputSizes[ i ].x;
+		int height = inputSizes[ i ].y;
+
+		// whatever data you want to associate with this content
+		MyContent mycontent( inputNames[ i ] );
+		mycontent.itemIndex = i;
+
+		// Add it
+		inputContent += BinPack2D::Content<MyContent>( mycontent, BinPack2D::Coord(), BinPack2D::Size( width, height ), false );
+	}
+
+	// Sort the input content by size... usually packs better.
+	inputContent.Sort();
+
+	// Create some bins! ( 2 bins, 128x128 in this example )
+	BinPack2D::CanvasArray<MyContent> canvasArray =
+		BinPack2D::UniformCanvasArrayBuilder<MyContent>( START_MAX, START_MAX, 2 ).Build();
+
+	// A place to store content that didnt fit into the canvas array.
+	BinPack2D::ContentAccumulator<MyContent> remainder;
+
+	// try to pack content into the bins.
+	bool success = canvasArray.Place( inputContent, remainder );
+
+	// A place to store packed content.
+	BinPack2D::ContentAccumulator<MyContent> outputContent;
+
+	// Read all placed content.
+	canvasArray.CollectContent( outputContent );
+
+	// parse output.
+	typedef BinPack2D::Content<MyContent>::Vector::iterator binpack2d_iterator;
+	//idLib::Printf( "PLACED:\n" );
+
+	totalSize.x = 0;
+	totalSize.y = 0;
+
+	int i = 0;
+	for( binpack2d_iterator itor = outputContent.Get().begin(); itor != outputContent.Get().end(); itor++, i++ )
+	{
+		const BinPack2D::Content<MyContent>& content = *itor;
+
+		// retreive your data.
+		const MyContent& myContent = content.content;
+
+		int index = myContent.itemIndex;
+		outputPositions[ index ].x = content.coord.x;
+		outputPositions[ index ].y = content.coord.y;
+
+		if( ( content.coord.x + content.size.w ) > totalSize.x )
+		{
+			totalSize.x = content.coord.x + content.size.w;
+		}
+
+		if( ( content.coord.y + content.size.h ) > totalSize.y )
+		{
+			totalSize.y = content.coord.y + content.size.h;
+		}
+
+#if 0
+		idLib::Printf( "\t%9s of size %3dx%3d at position %3d,%3d,%2d rotated=%s\n",
+					   myContent.str.c_str(),
+					   content.size.w,
+					   content.size.h,
+					   content.coord.x,
+					   content.coord.y,
+					   content.coord.z,
+					   ( content.rotated ? "yes" : " no" ) );
+#endif
+	}
+
+
+	for( binpack2d_iterator itor = remainder.Get().begin(); itor != remainder.Get().end(); itor++ )
+	{
+		const BinPack2D::Content<MyContent>& content = *itor;
+
+		const MyContent& myContent = content.content;
+
+		int index = myContent.itemIndex;
+		outputPositions[ index ].x = -1;
+		outputPositions[ index ].y = -1;
+
+		idLib::Printf( "\tFailed to place %9s of size %3dx%3d\n",
+					   myContent.str.c_str(),
+					   content.size.w,
+					   content.size.h );
+	}
+}

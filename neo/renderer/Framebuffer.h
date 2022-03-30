@@ -72,10 +72,9 @@ public:
 	void					AddDepthBuffer( int format, int multiSamples = 0 );
 	void					AddStencilBuffer( int format, int multiSamples = 0 );
 
-	void					AttachImage2D( int target, const idImage* image, int index, int mipmapLod = 0 );
-	void					AttachImage3D( const idImage* image );
-	void					AttachImageDepth( int target, const idImage* image );
-	void					AttachImageDepthLayer( const idImage* image, int layer );
+	void					AttachImage2D( int target, idImage* image, int index, int mipmapLod = 0 );
+	void					AttachImageDepth( int target, idImage* image );
+	void					AttachImageDepthLayer( idImage* image, int layer );
 
 	// check for OpenGL errors
 	void					Check();

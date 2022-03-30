@@ -142,6 +142,7 @@ protected:
 	idVec3					texMat[2];
 	idVec3					origin;
 
+public:
 	// RB
 	idVec3					planepts[ 3 ]; // for writing back original planepts
 	ProjectionType			projection;

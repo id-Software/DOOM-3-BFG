@@ -269,6 +269,8 @@ private:
 	static void                 ExportDeclsToTrenchBroom_f( const idCmdArgs& args );
 	static void                 ExportModelsToTrenchBroom_f( const idCmdArgs& args );
 	static void                 ExportImagesToTrenchBroom_f( const idCmdArgs& args );
+
+	static void                 MakeZooMapForModels_f( const idCmdArgs& args );
 	// RB end
 };
 
@@ -965,9 +967,11 @@ void idDeclManagerLocal::Init()
 
 	// RB begin
 	cmdSystem->AddCommand( "exportEntityDefsToBlender", ExportDeclsToBlender_f, CMD_FL_SYSTEM, "exports all entity and model defs to exported/entities.json" );
-	cmdSystem->AddCommand( "exportFGD", ExportDeclsToTrenchBroom_f, CMD_FL_SYSTEM, "exports all entity and model defs to exported/_tb/Doom3.fgd" );
+	cmdSystem->AddCommand( "exportFGD", ExportDeclsToTrenchBroom_f, CMD_FL_SYSTEM, "exports all entity and model defs to _tb/fgd/DOOM-3-*.fgd" );
 	cmdSystem->AddCommand( "exportModelsToTrenchBroom", ExportModelsToTrenchBroom_f, CMD_FL_SYSTEM, "exports all generated models like blwo, base .. to _tb/*.obj" );
 	cmdSystem->AddCommand( "exportImagesToTrenchBroom", ExportImagesToTrenchBroom_f, CMD_FL_SYSTEM, "exports all generated bimages to _tb/*.png" );
+
+	cmdSystem->AddCommand( "makeZooMapForModels", MakeZooMapForModels_f, CMD_FL_SYSTEM, "make a Source engine style zoo map with all generated models like .blwo, .base, .bmd5mesh et cetera" );
 	// RB end
 
 	common->Printf( "------------------------------\n" );
@@ -2183,7 +2187,7 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 		int totalModelsCount = 0;
 
 		idStr fgdFileName;
-		fgdFileName.Format( "exported/_tb/DOOM-3-%s.fgd", filenames[ f ].c_str() );
+		fgdFileName.Format( "_tb/fgd/DOOM-3-%s.fgd", filenames[ f ].c_str() );
 		idFileLocal file( fileSystem->OpenFileWrite( fgdFileName, "fs_basepath" ) );
 
 		if( file == NULL )
@@ -2453,7 +2457,11 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 				ev.type = EVAR_MODEL;
 				evars.Append( ev );
 
-				//dictToWrite.Set( "model", "" );
+				ev.fullname = "editor_model proxymodel";
+				ev.name = "proxymodel";
+				ev.desc = "A proxy model in OBJ file format automatically set by RBDoom so it can be displayed in TrenchBroom";
+				ev.type = EVAR_MODEL;
+				evars.Append( ev );
 			}
 
 			for( int i = 0; i < decl->dict.GetNumKeyVals(); i++ )
@@ -2529,9 +2537,6 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 					idStr::Icmp( decl->GetName(), "func_plat_model" ) != 0 &&
 					idStr::Icmp( decl->GetName(), "func_rotating_model" ) != 0 )
 			{
-				//kv = dictToWrite.MatchPrefix( "model" );
-				//while( kv )
-
 				const idKeyValue* kv = dictToWrite.FindKey( "model" );
 				if( kv )
 				{
@@ -2564,8 +2569,6 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 							}
 						}
 					}
-
-					//kv = dictToWrite.MatchPrefix( "model", kv );
 				}
 			}
 
@@ -2579,8 +2582,8 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 					 idStr::Icmp( decl->GetName(), "func_plat_model" ) == 0 ||
 					 idStr::Icmp( decl->GetName(), "func_rotating_model" ) == 0 )
 			{
-				// dynamic model case
-				file->Printf( "model({ \"path\" : model }) " );
+				// dynamic model that prefers a TB specific proxymodel
+				file->Printf( "model({{\n\tproxymodel != null -> { \"path\": proxymodel },\n\t{ \"path\": model }\n}})" );
 			}
 			else if( idStr::Icmp( decl->GetName(), "light" ) == 0 )
 			{
@@ -2771,64 +2774,6 @@ void idDeclManagerLocal::ExportDeclsToTrenchBroom_f( const idCmdArgs& args )
 	}
 
 	//declManagerLocal.Reload( true );
-	common->FatalError( "Exporting successful, need to restart manually" );
-}
-
-
-void idDeclManagerLocal::ExportModelsToTrenchBroom_f( const idCmdArgs& args )
-{
-	extern idCVar postLoadExportModels;
-	postLoadExportModels.SetBool( true );
-
-	// avoid media cache
-	com_editors |= EDITOR_EXPORTDEFS;
-
-	int totalModelsCount = 0;
-
-	idFileList* files = fileSystem->ListFilesTree( "generated", ".blwo|.base|.bmd5mesh", true, true );
-
-	for( int f = 0; f < files->GetList().Num(); f++ )
-	{
-		idStr modelName = files->GetList()[ f ];
-		modelName.StripLeadingOnce( "generated/rendermodels/" );
-
-		idStr ext;
-		modelName.ExtractFileExtension( ext );
-
-		if( ext.Icmp( "blwo" ) == 0 )
-		{
-			modelName.SetFileExtension( "lwo" );
-		}
-
-		if( ext.Icmp( "base" ) == 0 )
-		{
-			modelName.SetFileExtension( "ase" );
-		}
-
-		if( ext.Icmp( "bdae" ) == 0 )
-		{
-			modelName.SetFileExtension( "dae" );
-		}
-
-		if( ext.Icmp( "bmd5mesh" ) == 0 )
-		{
-			modelName.SetFileExtension( "md5mesh" );
-		}
-
-		idLib::Printf( "Exporting model '%s'\n", modelName.c_str() );
-
-		renderModelManager->FindModel( modelName );
-
-		totalModelsCount++;
-	}
-	fileSystem->FreeFileList( files );
-
-	com_editors &= ~EDITOR_EXPORTDEFS;
-	postLoadExportModels.SetBool( false );
-
-	common->Printf( "----------------------------\n" );
-	common->Printf( "Wrote %d Models.\n", totalModelsCount );
-
 	common->FatalError( "Exporting successful, need to restart manually" );
 }
 
@@ -3026,6 +2971,1009 @@ void idDeclManagerLocal::ExportImagesToTrenchBroom_f( const idCmdArgs& args )
 
 	common->Printf( "----------------------------\n" );
 	common->Printf( "Exported and decompressed %d images in %5.1f minutes.\n", totalImagesCount, ( totalEnd - totalStart ) / ( 1000.0f * 60 ) );
+}
+
+
+
+void idDeclManagerLocal::ExportModelsToTrenchBroom_f( const idCmdArgs& args )
+{
+	extern idCVar postLoadExportModels;
+	postLoadExportModels.SetBool( true );
+
+	// avoid media cache
+	com_editors |= EDITOR_EXPORTDEFS;
+
+	int totalModelsCount = 0;
+	int totalEntitiesCount = 0;
+
+	idFileList* files = fileSystem->ListFilesTree( "generated", ".blwo|.base|.bmd5mesh", true, true );
+
+	// FGD header
+	idStr fgdFileName;
+	fgdFileName.Format( "_tb/fgd/DOOM-3-models.fgd" );
+	idFileLocal fgdFile( fileSystem->OpenFileWrite( fgdFileName, "fs_basepath" ) );
+	if( fgdFile == NULL )
+	{
+		common->Printf( "Failed to write entity declarations data to FGD.\n" );
+	}
+
+	fgdFile->Printf( "// DOOM 3 BFG models definition file (.fgd) generated by %s\n\n", ENGINE_VERSION );
+
+	fgdFile->Printf( "@SolidClass color(0 0 0) = worldspawn : \"Every map should have exactly one worldspawn.\"\n[\n" );
+	fgdFile->Printf( "\t spawnclass(string) : \"\" : \"idWorldspawn\"\n" );
+	fgdFile->Printf( "]\n\n" );
+
+	fgdFile->Printf( "@SolidClass color(0 127 204) = func_static : \"A brush model that just sits there, doing nothing.  Can be used for conditional walls and models. When triggered, toggles between visible and hidden (see hide). Entity is non-solid when hidden.\"\n[\n" );
+	//fgdFile->Printf( "name(string) : \"\" : \"\"\n" );
+	fgdFile->Printf( "\t spawnclass(string) : \"\" : \"idStaticEntity\"\n" );
+	fgdFile->Printf( "\t solid(boolean) : \"whether the object should be solid or not.\" : 1\n" );
+	fgdFile->Printf( "\t noclipmodel(boolean) : \"0 by default. Sets whether or not to generate a collision model for an ASE/LWO func_static at level load. (Set to 1 for stuff the player can't interact with. This will save memory.)\" : 0\n" );
+	fgdFile->Printf( "\t hide(boolean) : \"whether the object should be visible when spawned. you need to set a value for triggering on/off to work\"\n" );
+	fgdFile->Printf( "\t gui_noninteractive(boolean) : \"any gui attached will not be interactive\"\n" );
+	fgdFile->Printf( "\t inline(boolean) : \"If true, turn the model into map geometry at dmap time\"\n" );
+	fgdFile->Printf( "\t angles(string) : \"\" : \"0 0 0\"\n" );
+	fgdFile->Printf( "\t gui(string) : \"gui attached to this static, gui2 and gui3 also work\"\n" );
+	fgdFile->Printf( "\t gui_demonic(string) : \"demonic gui attached to this statit, gui_demonic2 and gui_demonic3 also work\"\n]\n\n" );
+
+	fgdFile->Printf( "@PointClass base(func_static) color(0 127 204) model({ \"path\" : proxymodel }) = misc_model : \"Just a model\"\n[\n" );
+	//fgdFile->Printf( "name(string) : \"\" : \"\"\n" );
+	fgdFile->Printf( "\t angles(string) : \"\" : \"0 0 0\"\n" );
+	fgdFile->Printf( "]\n\n" );
+
+	fgdFile->Printf( "@PointClass base(misc_model) = auto_generated_model : \"Entity definition for a specific model\" []\n\n" );
+
+	// DEF header
+	idStr defFileName;
+	defFileName.Format( "def/_tb_models.def" );
+	idFileLocal defFile( fileSystem->OpenFileWrite( defFileName, "fs_basepath" ) );
+	if( defFile == NULL )
+	{
+		common->Printf( "Failed to write entity declarations data to DEF.\n" );
+	}
+
+	defFile->Printf( "// DOOM 3 BFG models definition file (.def) generated by %s\n\n", ENGINE_VERSION );
+
+	for( int f = 0; f < files->GetList().Num(); f++ )
+	{
+		totalModelsCount++;
+
+		idStr modelName = files->GetList()[ f ];
+		modelName.StripLeadingOnce( "generated/rendermodels/" );
+
+		idStr ext;
+		modelName.ExtractFileExtension( ext );
+
+		bool dynamicModel = false;
+
+		if( ext.Icmp( "blwo" ) == 0 )
+		{
+			modelName.SetFileExtension( "lwo" );
+		}
+
+		if( ext.Icmp( "base" ) == 0 )
+		{
+			modelName.SetFileExtension( "ase" );
+		}
+
+		if( ext.Icmp( "bdae" ) == 0 )
+		{
+			modelName.SetFileExtension( "dae" );
+		}
+
+		if( ext.Icmp( "bmd5mesh" ) == 0 )
+		{
+			modelName.SetFileExtension( "md5mesh" );
+			dynamicModel = true;
+		}
+
+		// skip TB specific helper models
+		if( idStr::Icmpn( modelName, "_tb", 3 ) == 0 )
+		{
+			continue;
+		}
+
+		idLib::Printf( "Exporting model '%s'\n", modelName.c_str() );
+
+		// make an OBJ version of the model for TrenchBroom
+		idRenderModel* renderModel = renderModelManager->FindModel( modelName );
+
+#if 1
+		if( idStr::Icmpn( modelName, "models/mapobjects", 17 ) != 0 )
+		{
+			continue;
+		}
+#endif
+
+		if( idStr::Icmpn( modelName, "models/items", 12 ) == 0 )
+		{
+			continue;
+		}
+
+		if( idStr::Icmpn( modelName, "models/particles", 16 ) == 0 )
+		{
+			continue;
+		}
+
+		if( idStr::Icmpn( modelName, "models/weapons", 14 ) == 0 )
+		{
+			continue;
+		}
+
+		idBounds bounds = renderModel->Bounds();
+		bounds[0].Snap();
+		bounds[1].Snap();
+
+		// put model as mapobject into the models FGD
+		if( !renderModel->IsDefaultModel() && bounds.GetVolume() > 0 && bounds.GetRadius() < 1400 )
+		{
+			idStrStatic< MAX_OSPATH > originalModelFileName;
+			originalModelFileName = modelName;
+
+			idStrStatic< MAX_OSPATH > exportedModelFileName;
+			exportedModelFileName = "_tb/";
+			exportedModelFileName.AppendPath( modelName );
+			exportedModelFileName.SetFileExtension( ".obj" );
+
+			idStrStatic< MAX_OSPATH > entityName;
+			/*
+			if( idStr::Icmpn( modelName, "models/mapobjects", 17 ) == 0 )
+			{
+				modelName.StripLeadingOnce( "models/mapobjects" );
+
+				entityName = "mob";
+				entityName.AppendPath( modelName );
+			}
+			else
+			*/
+			{
+				modelName.StripLeadingOnce( "models" );
+
+				entityName = "genmodel";
+				entityName.AppendPath( modelName );
+			}
+
+			entityName.BackSlashesToSlashes();
+			entityName.ReplaceChar( '/', '_' );
+			entityName.ReplaceChar( '(', '_' );
+			entityName.ReplaceChar( ')', '_' );
+			entityName.StripFileExtension();
+
+			fgdFile->Printf( "@PointClass " );
+
+#if 1
+			if( bounds.GetVolume() > 0 )
+			{
+				fgdFile->Printf( "size(%i %i %i, %i %i %i) ",
+								 int( bounds[0].x ), int( bounds[0].y ), int( bounds[0].z ),
+								 int( bounds[1].x ), int( bounds[1].y ), int( bounds[1].z ) );
+			}
+#endif
+
+			fgdFile->Printf( "base(auto_generated_model) model({ \"path\": \"%s\" }) = %s : \"Display entity\"\n[\n", exportedModelFileName.c_str(), entityName.c_str() );
+			//fgdFile->Printf( "[\n\t angles(string) : \"\" : \"0 0 0\"\n]\n\n");
+			fgdFile->Printf( "\t proxymodel(string) : \"\" : \"%s\"\n", exportedModelFileName.c_str() );
+			fgdFile->Printf( "\t model(string) : \"\" : \"%s\"\n", originalModelFileName.c_str() );
+			fgdFile->Printf( "]\n\n", exportedModelFileName.c_str() );
+
+
+			// write .def file for Doom
+			//defFile->Printf( "base(auto_generated_model) model({ \"path\": \"%s\" }) = %s : \"Display entity\"\n[\n", exportedModelFileName.c_str(), entityName.c_str() );
+
+			defFile->Printf( "entityDef %s\n{\n", entityName.c_str() );
+			defFile->Printf( "\t \"inherit\"        \"misc_model\"\n" );
+			defFile->Printf( "\t \"proxymodel\"     \"%s\"\n", exportedModelFileName.c_str() );
+			defFile->Printf( "\t \"model\"          \"%s\"\n", originalModelFileName.c_str() );
+			defFile->Printf( "}\n\n", exportedModelFileName.c_str() );
+
+			totalEntitiesCount++;
+		}
+
+
+	}
+	fileSystem->FreeFileList( files );
+
+	com_editors &= ~EDITOR_EXPORTDEFS;
+	postLoadExportModels.SetBool( false );
+
+	fgdFile->Flush();
+
+	common->Printf( "\nFGD written to %s\n", fgdFileName.c_str() );
+	common->Printf( "----------------------------\n" );
+	common->Printf( "Wrote %d Entities.\n", totalEntitiesCount );
+	common->Printf( "Wrote %d Models.\n", totalModelsCount );
+
+	common->FatalError( "Exporting successful, need to restart manually" );
+}
+
+
+static idMapBrush* MakeUnitBrush( const idVec3& origin, const idVec3& scale, bool border )
+{
+	/*
+	TrenchBroom
+
+	// brush 0
+	{
+	( -1 -64 -16 ) ( -1 -63 -16 ) ( -1 -64 -15 ) rock/lfwall15_lanrock1 [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 0.5 0.5
+	( -64 -1 -16 ) ( -64 -1 -15 ) ( -63 -1 -16 ) rock/lfwall15_lanrock1 [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 0.5 0.5
+	( -64 -64 -1 ) ( -63 -64 -1 ) ( -64 -63 -1 ) rock/lfwall15_lanrock1 [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 0.5 0.5
+	( 64 64 1 ) ( 64 65 1 ) ( 65 64 1 ) rock/lfwall15_lanrock1 [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 0.5 0.5
+	( 64 1 16 ) ( 65 1 16 ) ( 64 1 17 ) rock/lfwall15_lanrock1 [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 0.5 0.5
+	( 1 64 16 ) ( 1 64 17 ) ( 1 65 16 ) rock/lfwall15_lanrock1 [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 0.5 0.5
+	}
+	*/
+
+	const char* tbUnitBrush = R"(
+( -1 -64 -16 ) ( -1 -63 -16 ) ( -1 -64 -15 ) rock/lfwall15_lanrock1 [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 0.5 0.5
+( -64 -1 -16 ) ( -64 -1 -15 ) ( -63 -1 -16 ) rock/lfwall15_lanrock1 [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 0.5 0.5
+( -64 -64 -1 ) ( -63 -64 -1 ) ( -64 -63 -1 ) rock/lfwall15_lanrock1 [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 0.5 0.5
+( 64 64 1 ) ( 64 65 1 ) ( 65 64 1 ) rock/lfwall15_lanrock1 [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 0.5 0.5
+( 64 1 16 ) ( 65 1 16 ) ( 64 1 17 ) rock/lfwall15_lanrock1 [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 0.5 0.5
+( 1 64 16 ) ( 1 64 17 ) ( 1 65 16 ) rock/lfwall15_lanrock1 [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 0.5 0.5
+}
+}
+)";
+
+	idLexer src( LEXFL_NOSTRINGCONCAT | LEXFL_NOSTRINGESCAPECHARS | LEXFL_ALLOWPATHNAMES );
+
+	src.LoadMemory( tbUnitBrush, strlen( tbUnitBrush), "DoomEdit Brush" );
+	idMapBrush* brush = idMapBrush::ParseValve220( src, origin );
+
+	idMat3 axis;
+	axis.Identity();
+
+	// unit brush is not really a unit brush but 2, 2, 2
+	axis[0][0] = scale.x * 0.5f;
+	axis[1][1] = scale.y * 0.5f;
+	axis[2][2] = scale.z * 0.5f;
+
+	idMat4 transform( axis, origin );
+
+	for( int i = 0; i < brush->GetNumSides(); i++ )
+	{
+		auto side = brush->GetSide( i );
+
+		if( border )
+		{
+			side->SetMaterial( "textures/decals/achtung" );
+		}
+
+		side->planepts[0] *= transform;
+		side->planepts[1] *= transform;
+		side->planepts[2] *= transform;
+	}
+
+	return brush;
+}
+
+static idMapBrush* MakeCharBrush( const idVec3& brushOrigin, const idVec3& uvOrigin, int ch )
+{
+
+	const char* tbLetterBrush = R"(
+( 0 -1 7 ) ( 0 0 7 ) ( 0 -1 8 ) common/nodraw [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 0.5 0.5
+( 0 -1 7 ) ( 0 -1 8 ) ( 1 -1 7 ) decals/alphabet6 [ 1 0 0 64 ] [ 0 0 -1 -224 ] 0 0.25 0.25
+( 0 -1 0 ) ( 1 -1 0 ) ( 0 0 0 ) common/nodraw [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 0.5 0.5
+( 11 0 8 ) ( 11 1 8 ) ( 12 0 8 ) common/nodraw [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 0.5 0.5
+( 11 0 8 ) ( 12 0 8 ) ( 11 0 9 ) common/nodraw [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 0.5 0.5
+( 8 0 8 ) ( 8 0 9 ) ( 8 1 8 ) common/nodraw [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 0.5 0.5
+}
+}
+)";
+
+	idLexer src( LEXFL_NOSTRINGCONCAT | LEXFL_NOSTRINGESCAPECHARS | LEXFL_ALLOWPATHNAMES );
+
+	src.LoadMemory( tbLetterBrush, strlen( tbLetterBrush), "DoomEdit Brush" );
+	idMapBrush* brush = idMapBrush::ParseValve220( src, brushOrigin );
+
+	for( int i = 0; i < brush->GetNumSides(); i++ )
+	{
+		auto side = brush->GetSide( i );
+
+		side->planepts[0] += brushOrigin;
+		side->planepts[1] += brushOrigin;
+		side->planepts[2] += brushOrigin;
+	}
+
+	// letter coordinates in the texture
+	int row = 0;
+	int col = 0;
+
+	ch &= 255;
+
+	if( ch >= 'A' && ch <= 'Z' )
+	{
+		ch -= 'A';
+
+		col = ch & 7;
+		row = ch / 8;
+	}
+	else if( ch >= 'a' && ch <= 'z' )
+	{
+		ch = ch - 'a' + 3;
+
+		col = ch & 7;
+		row = ch & 7;
+	}
+
+	// base offset moves from world to local coords
+	// brush is 8x1x8 but due to scaling texcoords are shifted by 32
+	idVec2i baseOffset;
+	baseOffset.x = -uvOrigin.x * 4;
+	baseOffset.y = -uvOrigin.z * 4 + 32;
+
+	auto side = brush->GetSide( 1 );
+	side->texValve[ 0 ][ 3 ] = baseOffset.x + col * 32;
+	side->texValve[ 1 ][ 3 ] = baseOffset.y + row * 32;
+
+	return brush;
+}
+
+
+idMapEntity*  MakeNamePlateFuncStatic( idMapFile* mapFile, float x, float y, float topHeight, const idStr& origTitle )
+{
+	idMapEntity* mapEnt = new( TAG_SYSTEM ) idMapEntity();
+	mapFile->AddEntity( mapEnt );
+
+	idStrStatic< MAX_OSPATH > entityName;
+	entityName.Format( "info_board_%d", mapFile->GetNumEntities() );
+
+	mapEnt->epairs.Set( "classname", "func_static" );
+	mapEnt->epairs.Set( "name", entityName );
+	mapEnt->epairs.Set( "model", entityName );
+
+
+#if 1
+	// add folder name as brushes
+	idStr title = origTitle;
+	title.ToUpper();
+
+	int numSlashes = 0;
+	int wordLen = 0;
+	for( int i = 0; i < title.Length(); i++ )
+	{
+		//float x = categoryPositions[ c ].x + category->modelGroupPositions[ g ].x;
+		//float y = -categoryPositions[ c ].y - category->modelGroupPositions[ g ].y;// - group->totalSize.y;
+
+		idVec3 brushOrigin;
+		brushOrigin.x = x + wordLen * 8;
+		brushOrigin.y = y;
+		brushOrigin.z = topHeight - numSlashes * 8;
+
+		idVec3 uvOrigin;
+		uvOrigin.x = x + wordLen * 8;
+		uvOrigin.y = y;
+		uvOrigin.z = topHeight + numSlashes * 8;
+
+		wordLen++;
+		if( title[ i ] == '/' )
+		{
+			numSlashes++;
+			wordLen = 0;
+			continue;
+		}
+
+		idMapBrush* ch = MakeCharBrush( brushOrigin, uvOrigin, title[ i ] );
+		mapEnt->AddPrimitive( ch );
+	}
+#else
+	idVec3 origin;
+	origin.x = outputPositions[ g ].x + group->totalSize.x * 0.5;
+	origin.y = outputPositions[ g ].y;
+	origin.z = 128;
+
+	mapEnt->epairs.Set( "classname", "misc_model" );
+	mapEnt->epairs.Set( "model", "_tb/models/mapobjects/signs/ceilingsign/ceilingsign.obj" );
+	mapEnt->epairs.Set( "gui", "guis/signs/directional.gui" );
+	mapEnt->epairs.Set( "gui_parm1", group->folder );
+#endif
+
+	return mapEnt;
+}
+
+
+struct EntityInfo_t
+{
+	idBounds		bounds;
+	idMapEntity*	entity;
+	idVec2i			packedPos;
+};
+
+// leaf node that actually contains model files
+struct ModelsGroup_t
+{
+	idStrStatic< MAX_OSPATH >			path;			// e.g. models/mapobjects/doors/jumbodoor/
+	idList<EntityInfo_t*, TAG_SYSTEM>	entityList;		// model files in that folder
+	idVec2i								totalSize;
+};
+
+// higher level folder node
+struct Category_t
+{
+	Category_t( const char* name )
+	{
+		tagNames.AddUnique( name );
+		totalSize.x = 0;
+		totalSize.y = 0;
+	}
+
+	// data
+	idStrList							tagNames;		// e.g. hell, delta, cpu
+	idList<ModelsGroup_t*, TAG_SYSTEM>	modelGroups;
+	idList<idVec2i>						modelGroupPositions;
+	idVec2i								totalSize;
+
+	// tree
+	//idList<Category_t*, TAG_SYSTEM>		subFolders;
+};
+
+void RectAllocator( const idList<idVec2i>& inputSizes, idList<idVec2i>& outputPositions, idVec2i& totalSize, const int START_MAX = 16384, const int imageMax = -1 );
+float RectPackingFraction( const idList<idVec2i>& inputSizes, const idVec2i totalSize );
+
+void RectAllocatorBinPack2D( const idList<idVec2i>& inputSizes, const idStrList& inputNames, idList<idVec2i>& outputPositions, idVec2i& totalSize, const int START_MAX );
+
+
+// uses BFG Rectangle Atlas packer to pack models in 3D
+void idDeclManagerLocal::MakeZooMapForModels_f( const idCmdArgs& args )
+{
+	int totalModelsCount = 0;
+	int totalEntitiesCount = 0;
+
+	idFileList* files = fileSystem->ListFilesTree( "generated", ".blwo|.base|.bdae|.bobj|.bmd5mesh", true, true );
+
+	idStr mapName( "maps/zoomaps/zoo_models.map" );
+	idMapFile mapFile;
+
+	idMapEntity* worldspawn = new( TAG_SYSTEM ) idMapEntity();
+	mapFile.AddEntity( worldspawn );
+	worldspawn->epairs.Set( "classname", "worldspawn" );
+
+	idStrList ignoreList;
+
+	// non modular models, should probably a .cfg or .ini defined by an artist
+	ignoreList.AddUnique( "models/mapobjects/alphalabs3/vagary/vagary_webs" );
+	ignoreList.AddUnique( "models/mapobjects/caves/caves1_1" );
+	ignoreList.AddUnique( "models/mapobjects/caves/caves1_2a" );
+	ignoreList.AddUnique( "models/mapobjects/caves/caves1_6" );
+	ignoreList.AddUnique( "models/mapobjects/caves/caves1_7" );
+	ignoreList.AddUnique( "models/mapobjects/caves/caves2_" );
+	ignoreList.AddUnique( "models/mapobjects/caves/cav_corns" );
+	ignoreList.AddUnique( "models/mapobjects/com/com_underground1" );
+	ignoreList.AddUnique( "models/mapobjects/cpu/cpu_hell2" );
+	ignoreList.AddUnique( "models/mapobjects/cpu/cpu_hell3" );
+	ignoreList.AddUnique( "models/mapobjects/cpu/cpu_hell4" );
+	ignoreList.AddUnique( "models/mapobjects/cpu/sab_lightning1" );
+	ignoreList.AddUnique( "_clip" );
+	ignoreList.AddUnique( "models/mapobjects/delta3/hellgoo_door1/hellgoo_door1" );
+	ignoreList.AddUnique( "models/mapobjects/delta3/hellgoo_elev2/hellgoo_elev2" );
+	ignoreList.AddUnique( "models/mapobjects/deltax/hall_hellgrowth" );
+	ignoreList.AddUnique( "models/mapobjects/deltax/room1_hellgrowth" );
+	ignoreList.AddUnique( "models/mapobjects/erebus/berzerker_hellgoo_2" );
+	ignoreList.AddUnique( "models/mapobjects/erebus/erebus2_puzzle_cavea_lo" );
+	ignoreList.AddUnique( "models/mapobjects/erebus/erebus4_cave" );
+	ignoreList.AddUnique( "models/mapobjects/erebus/erebus_cave2_puzzle_cave2" );
+	ignoreList.AddUnique( "models/mapobjects/erebus/erebus_cave2_room1" );
+	ignoreList.AddUnique( "models/mapobjects/erebus/erebus_cave2_room2" );
+	ignoreList.AddUnique( "models/mapobjects/erebus/erebus_lounge_ceiling" );
+	ignoreList.AddUnique( "models/mapobjects/erebus/mp_hellshaft" );
+	ignoreList.AddUnique( "models/mapobjects/exis/exis_terrain" );
+	ignoreList.AddUnique( "models/mapobjects/exis/existel_railing" );
+	ignoreList.AddUnique( "models/mapobjects/hangar/hangar1tower" );
+	ignoreList.AddUnique( "models/mapobjects/hangar/pillar1" );
+	ignoreList.AddUnique( "models/mapobjects/hell/delta5/doora/eyeskin_b" );
+	ignoreList.AddUnique( "models/mapobjects/hell/delta5/doorb/hornskin" );
+	ignoreList.AddUnique( "models/mapobjects/hell/doom3ex/phobos/d3ex_goo_1a" );
+	ignoreList.AddUnique( "models/mapobjects/hell/maggotroom/worm" );
+	ignoreList.AddUnique( "models/mapobjects/hell/site3/fleshtube1/fleshtube_01" );
+	ignoreList.AddUnique( "models/mapobjects/hell/site3/landscapesradar/canyona" );
+	ignoreList.AddUnique( "models/mapobjects/hell/site3/birthhole" );
+	ignoreList.AddUnique( "models/mapobjects/hell/guardian_lightning2" );
+	ignoreList.AddUnique( "models/mapobjects/hell/hellhalldown3" );
+	ignoreList.AddUnique( "models/mapobjects/hell/mancroomfloor" );
+	ignoreList.AddUnique( "models/mapobjects/hell/vagarycave" );
+	ignoreList.AddUnique( "models/mapobjects/hell/vagarycavehall" );
+	ignoreList.AddUnique( "models/mapobjects/hellhole/d3xp_brokensteps" );
+	ignoreList.AddUnique( "models/mapobjects/hellhole/d3xp_brokenwall" );
+	ignoreList.AddUnique( "models/mapobjects/hellhole/d3xp_hallcorner" );
+	ignoreList.AddUnique( "models/mapobjects/hellhole/d3xp_rock" );
+	ignoreList.AddUnique( "models/mapobjects/hellhole/d3xp_staircave2" );
+	ignoreList.AddUnique( "models/mapobjects/hellhole/d3xp_temple_rubble" );
+	ignoreList.AddUnique( "models/mapobjects/hellhole/hellhole_cave" );
+	ignoreList.AddUnique( "models/mapobjects/hellhole/hellhole_coffinbricks2" );
+	ignoreList.AddUnique( "models/mapobjects/hellhole/hellhole_crushstairs" );
+	ignoreList.AddUnique( "models/mapobjects/hellhole/hellhole_firstroom" );
+	ignoreList.AddUnique( "models/mapobjects/hellhole/hellhole_secondroom" );
+	ignoreList.AddUnique( "models/mapobjects/mc_underground/outside/mc_ug_out3" );
+	ignoreList.AddUnique( "models/mapobjects/phobos/berg_lightning_fx" );
+	ignoreList.AddUnique( "models/mapobjects/phobos/phobos1_brockerybeef" );
+	ignoreList.AddUnique( "models/mapobjects/phobos/phobos_cave" );
+	ignoreList.AddUnique( "models/mapobjects/recycle/skybridge/skybridge_clip" );
+	ignoreList.AddUnique( "models/mapobjects/recycle/mancubusroom" );
+	ignoreList.AddUnique( "models/mapobjects/recycle/rec1bigfloor" );
+	ignoreList.AddUnique( "models/mapobjects/recycle/rec1cave1" );
+	ignoreList.AddUnique( "models/mapobjects/recycle/rec1sfloor" );
+	ignoreList.AddUnique( "models/mapobjects/recycle/rec1sfloorgoop" );
+	ignoreList.AddUnique( "models/mapobjects/recycle/rec1tunnel1" );
+	ignoreList.AddUnique( "models/mapobjects/ruins/ruin_wire" );
+	ignoreList.AddUnique( "models/mapobjects/site/site3_exitpit" );
+	ignoreList.AddUnique( "models/mapobjects/site/site3_tunnel" );
+	ignoreList.AddUnique( "models/mapobjects/steve_temp/hell1ceiling1" );
+	ignoreList.AddUnique( "models/mapobjects/steve_temp/hell1floor" );
+	ignoreList.AddUnique( "models/mapobjects/steve_temp/hell1hall1" );
+	ignoreList.AddUnique( "models/mapobjects/steve_temp/hell1hall1ceiling" );
+	ignoreList.AddUnique( "models/mapobjects/steve_temp/hell1hall" );
+	ignoreList.AddUnique( "models/mapobjects/steve_temp/hell1lasthall" );
+	ignoreList.AddUnique( "models/mapobjects/steve_temp/hellcaves_1ahall" );
+	ignoreList.AddUnique( "models/mapobjects/steve_temp/hellcaves_" );
+	ignoreList.AddUnique( "models/mapobjects/steve_temp/hellcaveshole1" );
+	ignoreList.AddUnique( "models/mapobjects/steve_temp/hellhalldown2" );
+	ignoreList.AddUnique( "models/mapobjects/steve_temp/hornramp2" );
+	ignoreList.AddUnique( "models/mapobjects/steve_temp/map10_hell1" );
+	ignoreList.AddUnique( "models/mapobjects/steve_temp/map10_hell2" );
+	ignoreList.AddUnique( "models/mapobjects/steve_temp/map10_hell3" );
+	ignoreList.AddUnique( "models/mapobjects/hell/pillar/pillar_hellrock_a" );
+	ignoreList.AddUnique( "models/mapobjects/hell/pillar/pillar_hellrock_b" );
+	ignoreList.AddUnique( "models/mapobjects/hell/pillar/pillar_hellrock_c" );
+	ignoreList.AddUnique( "models/mapobjects/ruins/pillarbroke" );
+	ignoreList.AddUnique( "models/mapobjects/delta3/teleporter_warpfx/betrugger_lightning" );
+	ignoreList.AddUnique( "models/mapobjects/steve_temp/map10_hell_smoke" );
+	ignoreList.AddUnique( "models/mapobjects/phobos/bridge/bridge_roof_1" );
+	ignoreList.AddUnique( "models/mapobjects/phobos/bridge/bridge_wall_1" );
+	ignoreList.AddUnique( "models/mapobjects/phobos/bridge/bridge_wall_2" );
+
+	// TODO generate these procedurally
+	idList<Category_t*> categories;
+	categories.Append( new Category_t( "nocategory" ) ); // collect here that doesn't fit
+	categories.Append( new Category_t( "delta" ) );
+	categories.Append( new Category_t( "erebus" ) );
+	categories.Append( new Category_t( "phobos" ) );
+	categories.Append( new Category_t( "cpu" ) );
+
+	auto hellCat = new Category_t( "hell" );
+	hellCat->tagNames.AddUnique( "goo" );
+	hellCat->tagNames.AddUnique( "steve_temp" );
+	categories.Append( hellCat );
+	categories.Append( new Category_t( "caves" ) );
+	categories.Append( new Category_t( "ruins" ) );
+
+	categories.Append( new Category_t( "door" ) );
+	categories.Append( new Category_t( "outside" ) );
+	
+	auto teleCat = new Category_t( "teleporter" );
+	teleCat->tagNames.AddUnique( "tele" );
+	categories.Append( teleCat );
+
+	auto liftCat = new Category_t( "elevator" );
+	liftCat->tagNames.AddUnique( "lift" );
+	categories.Append( liftCat );
+
+	categories.Append( new Category_t( "railing" ) );
+	categories.Append( new Category_t( "pipe" ) );
+	categories.Append( new Category_t( "ladder" ) );
+	
+
+
+	// collect all folders that actually contain models and sort them into categories
+
+	idHashTable<ModelsGroup_t*> entitiesPerFolder;
+
+	for( int f = 0; f < files->GetList().Num() /*&& totalEntitiesCount < 100*/; f++ )
+	{
+		totalModelsCount++;
+
+		idStr modelName = files->GetList()[ f ];
+		modelName.StripLeadingOnce( "generated/rendermodels/" );
+
+		idStr ext;
+		modelName.ExtractFileExtension( ext );
+
+		bool dynamicModel = false;
+
+		if( ext.Icmp( "blwo" ) == 0 )
+		{
+			modelName.SetFileExtension( "lwo" );
+		}
+
+		if( ext.Icmp( "base" ) == 0 )
+		{
+			modelName.SetFileExtension( "ase" );
+		}
+
+		if( ext.Icmp( "bdae" ) == 0 )
+		{
+			modelName.SetFileExtension( "dae" );
+		}
+
+		if( ext.Icmp( "bobj" ) == 0 )
+		{
+			modelName.SetFileExtension( "obj" );
+		}
+
+		if( ext.Icmp( "bmd5mesh" ) == 0 )
+		{
+			modelName.SetFileExtension( "md5mesh" );
+			dynamicModel = true;
+		}
+
+		// skip TB specific helper models
+		if( idStr::Icmpn( modelName, "_tb", 3 ) == 0 )
+		{
+			continue;
+		}
+
+		idRenderModel* renderModel = renderModelManager->FindModel( modelName );
+
+		// skip non modular models
+		bool ignore = false;
+		for( int i = 0; i < ignoreList.Num(); i++ )
+		{
+			const char* ignoreStr = ignoreList[ i ].c_str();
+			if( modelName.Find( ignoreStr ) != -1 )
+			{
+				ignore = true;
+				break;
+			}
+		}
+
+		if( ignore )
+		{
+			continue;
+		}
+
+#if 1
+		// discard everything that is not a mapobjects model
+		if( idStr::Icmpn( modelName, "models/mapobjects", 17 ) != 0 )
+		{
+			continue;
+		}
+#endif
+	
+		/*
+		if( idStr::Icmpn( modelName, "models/mapobjects/caves", 23 ) == 0 )
+		{
+			continue;
+		}
+		*/
+
+		if( idStr::Icmpn( modelName, "models/items", 12 ) == 0 )
+		{
+			continue;
+		}
+
+		if( idStr::Icmpn( modelName, "models/particles", 16 ) == 0 )
+		{
+			continue;
+		}
+
+		if( idStr::Icmpn( modelName, "models/weapons", 14 ) == 0 )
+		{
+			continue;
+		}
+
+		idStr directory = modelName;
+		directory.StripFilename();
+
+		// find models group or create it
+		ModelsGroup_t** groupptrptr = nullptr;
+		ModelsGroup_t* group = nullptr;
+		if( !entitiesPerFolder.Get( directory, &groupptrptr ) )
+		{
+			group = new( TAG_SYSTEM ) ModelsGroup_t;
+			group->path = directory;
+
+			entitiesPerFolder.Set( directory, group );
+		}
+		else
+		{
+			group = *groupptrptr;
+		}
+
+		idBounds bounds = renderModel->Bounds();
+
+		// put model as mapobject into the models FGD
+		if( !renderModel->IsDefaultModel() && bounds.GetVolume() > 0 && bounds.GetRadius() < 1400 )
+		{
+			idMapEntity* mapEnt = new( TAG_SYSTEM ) idMapEntity();
+			mapFile.AddEntity( mapEnt );
+
+			// build TB compatible model name
+			idStrStatic< MAX_OSPATH > exportedModelFileName;
+			exportedModelFileName = "_tb/";
+			exportedModelFileName.AppendPath( modelName );
+			exportedModelFileName.SetFileExtension( ".obj" );
+
+			idStrStatic< MAX_OSPATH > entityName;
+			entityName.Format( "misc_model_%d", mapFile.GetNumEntities() );
+
+			mapEnt->epairs.Set( "classname", "misc_model" );
+			mapEnt->epairs.Set( "name", entityName );
+			mapEnt->epairs.Set( "proxymodel", exportedModelFileName );
+			mapEnt->epairs.Set( "model", modelName );
+
+			EntityInfo_t* entInfo = new( TAG_SYSTEM ) EntityInfo_t;
+			entInfo->bounds = bounds;
+			entInfo->entity = mapEnt;
+
+			group->entityList.Append( entInfo );
+
+			totalEntitiesCount++;
+		}
+	}
+	fileSystem->FreeFileList( files );
+
+
+	// BinPack2D is better, more efficient and can with all really big models but looks worse than the simple rectangle packer
+	const bool useBinpack2D = false;
+
+	// pack models by 2D AABB inside of a folder
+	for( int g = 0; g < entitiesPerFolder.Num(); g++ )
+	{
+		ModelsGroup_t* group = *entitiesPerFolder.GetIndex( g );
+
+		idList<idVec2i>	inputSizes;
+		idStrList		inputNames;
+		inputSizes.SetNum( group->entityList.Num() );
+		for( int e = 0; e < group->entityList.Num(); e++ )
+		{
+			EntityInfo_t* entInfo = group->entityList[ e ];
+
+			idBounds& b = entInfo->bounds;
+			const int offset = 64;
+			idVec2i allocSize( ( b[1][0] - b[0][0] ) + offset, ( b[1][1] - b[0][1] ) + offset );
+
+			//idLib::Printf( "model size %ix%i in '%s'\n", allocSize.x, allocSize.y, group->folder.c_str() );
+
+			inputSizes[ e ] = allocSize;
+			inputNames.Append( entInfo->entity->epairs.GetString( "model" ) );
+		}
+
+		idList<idVec2i>	outputPositions;
+		idVec2i	totalSize;
+
+		if( useBinpack2D )
+		{
+			RectAllocatorBinPack2D( inputSizes, inputNames, outputPositions, totalSize, 1 << 17 );
+		}
+		else
+		{
+			RectAllocator( inputSizes, outputPositions, totalSize, 1 << 14 );
+		}
+
+		group->totalSize = totalSize;
+
+		for( int e = 0; e < group->entityList.Num(); e++ )
+		{
+			EntityInfo_t* entInfo = group->entityList[ e ];
+
+			entInfo->packedPos = outputPositions[ e ];
+		}
+	}
+
+	// assign model folders to categories
+	for( int g = 0; g < entitiesPerFolder.Num(); g++ )
+	{
+		ModelsGroup_t* group = *entitiesPerFolder.GetIndex( g );
+
+		bool inserted = false;
+		for( int i = 1; i < categories.Num(); i++ )
+		{
+			Category_t* category = categories[ i ];
+
+			for( int j = 0; j < category->tagNames.Num(); j++ )
+			{
+				if( group->path.Find( category->tagNames[ j ], false ) != -1 )
+				{
+					category->modelGroups.Append( group );
+					inserted = true;
+					break;
+				}
+			}
+		}
+
+		if( !inserted )
+		{
+			categories[ 0 ]->modelGroups.Append( group );
+		}
+	}
+
+	// pack folders in categories
+	for( int i = 0; i < categories.Num(); i++ )
+	{
+		Category_t* category = categories[ i ];
+		
+		idList<idVec2i>	inputSizes;
+		inputSizes.SetNum( category->modelGroups.Num() );
+		idStrList		inputNames;
+
+		for( int g = 0; g < category->modelGroups.Num(); g++ )
+		{
+			ModelsGroup_t* group = category->modelGroups[ g ];
+
+			const int offset = 256;
+			idVec2i allocSize( group->totalSize.x + offset, group->totalSize.y + offset );
+
+			//idLib::Printf( "folder '%s' size %ix%i\n", group->path.c_str(), allocSize.x, allocSize.y );
+
+			inputSizes[ g ] = allocSize;
+			inputNames.Append( group->path );
+		}
+		
+		idVec2i	totalSize;
+
+		if( useBinpack2D )
+		{
+			RectAllocatorBinPack2D( inputSizes, inputNames, category->modelGroupPositions, totalSize, 1 << 17 );
+		}
+		else
+		{
+			RectAllocator( inputSizes, category->modelGroupPositions, totalSize, 1 << 14 );
+		}
+
+		category->totalSize = totalSize;
+	}
+
+	// pack categories
+	idList<idVec2i>	inputSizes;
+	inputSizes.SetNum( categories.Num() );
+	idStrList		inputNames;
+
+	for( int i = 0; i < categories.Num(); i++ )
+	{
+		inputNames.Append( categories[ i ]->tagNames[ 0 ] );
+	}
+
+	idList<idVec2i> categoryPositions;
+	idVec2i	totalSize;
+
+	for( int i = 0; i < categories.Num(); i++ )
+	{
+		Category_t* category = categories[ i ];
+		
+		const int offset = 256;
+		idVec2i allocSize( category->totalSize.x + offset, category->totalSize.y + offset );
+
+		idLib::Printf( "category '%s' size %ix%i\n", category->tagNames[ 0 ].c_str(), allocSize.x, allocSize.y );
+
+		inputSizes[ i ] = allocSize;
+
+		// smart allocator
+		if( useBinpack2D )
+		{
+			RectAllocatorBinPack2D( inputSizes, inputNames, categoryPositions, totalSize, 1 << 17 );
+		}
+		else
+		{
+			RectAllocator( inputSizes, categoryPositions, totalSize, 1 << 14 );
+		}
+	}
+
+	// place entities inside packed folders
+	for( int c = 0; c < categories.Num(); c++ )
+	{
+		Category_t* category = categories[ c ];
+		
+		const int fontGridHeight = 128;
+
+		float catHeight = 0;
+
+		for( int g = 0; g < category->modelGroups.Num(); g++ )
+		{
+			ModelsGroup_t* group = category->modelGroups[ g ];
+
+			// calculate top height of the entities in this group
+			// so we can place a name plate above the group
+			float topHeight = 0;
+
+			for( int e = 0; e < group->entityList.Num(); e++ )
+			{
+				EntityInfo_t* entInfo = group->entityList[ e ];
+
+				if( entInfo->bounds[1].z > topHeight )
+				{
+					topHeight = entInfo->bounds[1].z;
+				}
+			}
+
+			topHeight += 128;
+			topHeight = idMath::Floor( topHeight / fontGridHeight ) * fontGridHeight;
+
+			if( topHeight > catHeight )
+			{
+				catHeight = topHeight;
+			}
+
+			float x = categoryPositions[ c ].x + category->modelGroupPositions[ g ].x + group->totalSize.x * 0.5f;
+			float y = -categoryPositions[ c ].y - category->modelGroupPositions[ g ].y - group->totalSize.y;
+
+			//idMapEntity* plateEnt = 
+			MakeNamePlateFuncStatic( &mapFile, x, y, topHeight, group->path );
+
+			// move entities along with the upper packed categories
+			for( int e = 0; e < group->entityList.Num(); e++ )
+			{
+				EntityInfo_t* entInfo = group->entityList[ e ];
+
+				idVec3 origin;
+				origin.x = categoryPositions[ c ].x + category->modelGroupPositions[ g ].x + entInfo->packedPos.x -entInfo->bounds[0][0];
+				origin.y = -categoryPositions[ c ].y - category->modelGroupPositions[ g ].y - entInfo->packedPos.y -entInfo->bounds[1][1];
+
+				// place entity above 0 if it goes below
+				origin.z = -entInfo->bounds[0].z + 1;
+
+				entInfo->entity->epairs.SetVector( "origin", origin );
+			}
+		}
+
+		// put a name plate above the category with its main tag
+		float x = categoryPositions[ c ].x + category->totalSize.x * 0.5f;
+		float y = -categoryPositions[ c ].y - category->totalSize.y * 0.5f;
+
+		catHeight += 128;
+		catHeight = idMath::Floor( catHeight / fontGridHeight ) * fontGridHeight;
+
+		idMapEntity* plateEnt = MakeNamePlateFuncStatic( &mapFile, x, y, catHeight, category->tagNames[ 0 ] );
+
+#if 0
+		// place bottom place below
+		idVec3 origin( x, y, -32 );
+		idVec3 scale( category->totalSize.x, category->totalSize.y, 16 );
+			
+		idMapBrush* bottomPlate = MakeUnitBrush( origin, scale );
+		plateEnt->AddPrimitive( bottomPlate );
+#else
+		// place border brushes
+
+		// back
+		float xx = x;
+		float yy = y + category->totalSize.y * 0.5f;
+
+		idVec3 origin( xx, yy, -40 );
+		idVec3 scale( category->totalSize.x, 4, 16 );
+			
+		idMapBrush* bottomPlate = MakeUnitBrush( origin, scale, true );
+		worldspawn->AddPrimitive( bottomPlate );
+
+		// front
+		xx = x;
+		yy = y - category->totalSize.y * 0.5f;
+
+		origin.Set( xx, yy, -40 );
+		scale.Set( category->totalSize.x, 4, 16 );
+			
+		bottomPlate = MakeUnitBrush( origin, scale, true );
+		worldspawn->AddPrimitive( bottomPlate );
+
+		// left
+		xx = x - category->totalSize.x * 0.5f;
+		yy = y;
+
+		origin.Set( xx, yy, -40 );
+		scale.Set( 4, category->totalSize.y, 16 );
+
+		bottomPlate = MakeUnitBrush( origin, scale, true );
+		worldspawn->AddPrimitive( bottomPlate );
+
+		// right
+		xx = x + category->totalSize.x * 0.5f;
+		yy = y;
+
+		origin.Set( xx, yy, -40 );
+		scale.Set( 4, category->totalSize.y, 16 );
+			
+		bottomPlate = MakeUnitBrush( origin, scale, true );
+		worldspawn->AddPrimitive( bottomPlate );
+#endif
+	}
+
+	mapFile.ConvertToValve220Format();
+
+	worldspawn->epairs.Set( "_tb_textures", "textures/common;textures/editor;textures/decals;textures/rock" );
+	worldspawn->epairs.Set( "_tb_def", "external:base/_tb/fgd/DOOM-3-models.fgd" );
+
+	mapFile.Write( mapName, ".map" );
+
+	common->Printf( "\nZoo map written to %s\n", mapName.c_str() );
+	common->Printf( "----------------------------\n" );
+	common->Printf( "Found %d Models.\n", totalModelsCount );
+	common->Printf( "Wrote %d Entities in %d Groups and %d Cateogories\n", totalEntitiesCount, entitiesPerFolder.Num(), categories.Num() );
 }
 // RB  end
 

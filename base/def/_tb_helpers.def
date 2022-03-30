@@ -2,8 +2,8 @@ entityDef misc_model
 {
 	"inherit"					"func_static"
 	"editor_color"				"0 .5 .8"
-	"editor_mins"				"-12 -12 -12"
-	"editor_maxs"				"12 12 12"
+	"editor_mins"				"?"
+	"editor_maxs"				"?"
 	"editor_rotatable"			"1"
 
 	"editor_usage"				"Inherits from a func_static but uses a model and is a FGD PointClass so it displays correctly in TrenchBroom."

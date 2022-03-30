@@ -15,15 +15,27 @@ Thank you for downloading RBDOOM-3-BFG.
 
 _______________________________________
 
-TBD - RBDOOM-3-BFG 1.4.0
+06 March 2022 - RBDOOM-3-BFG 1.4.0
 _______________________________
+
+<img src="https://i.imgur.com/3sUxOZi.jpg">
+
+<img src="https://i.imgur.com/ez4M4PE.jpg">
+
+<img src="https://i.imgur.com/8j4VmuR.jpg">
 
 ## .plan
 
 This version improves support for mapping with TrenchBroom. Until now you needed to extract and copy the vanilla Doom 3 models and textures over to the base/ folder to see the content in the TrenchBroom entity browser and texture viewer.
 Owning the original game next to the BFG edition is not necessary anymore.
-This version comes with a couple of new console commands that lets you export particular parts of the .resources files to the base/_tb/ folder.
-You need to call exportImagesToTrenchBroom and exportModelsToTrenchBroom once and you are good to go to start mapping with the TrenchBroom level editor.
+This version comes with a couple of new RBDOOM-3-BFG console commands that lets you export particular parts of the .resources files to the base/_tb/ folder.
+
+You need to call exportImagesToTrenchBroom once and you are good to go to start mapping with the TrenchBroom level editor.
+
+TrenchBroom comes with several more Doom 3 specific changes. After loading a map TrenchBroom generates unique entity names and also fixes missing or bad "model" keys for brush based entitites.
+Also creating new entities like light will automatically receive names like light_2.
+
+This patch also contains a couple of func_group related bugfixes. func_group works now with brush based entities, point entities and just regular brushes.
 
 ## Changelog
 
@@ -37,15 +49,24 @@ You need to call exportImagesToTrenchBroom and exportModelsToTrenchBroom once an
 
 * Drastically improved loading time of textures for materials in TrenchBroom
 
-* Added RBDoom console command convertMapToValve220 `<map>`
+* Added RBDoom console command convertMapToValve220 `<map>`. You can also type `exec convert_maps_to_valve220.cfg` to convert all Doom 3 .map files into the TrenchBroom friendly format. Converted maps are saved with the _valve220.map suffix.
 
-* Added RBDoom console command exportImagesToTrenchBroom which decompresses and saves all .bimage images to _tb/*.png files
+* Added RBDoom console command exportImagesToTrenchBroom which decompresses and saves all .bimage images to base/_tb/*.png files
 
-* Added RBDoom console command exportModelsToTrenchBroom which saves all .base|.blwo|.bmd5mesh models to _tb/*.obj files
+* Added RBDoom console command exportModelsToTrenchBroom which saves all .base|.blwo|.bmd5mesh models to _tb/*.obj proxy files. This commands also generates helper entities for TrenchBroom so all mapobject/models are also available in the Entity Inspector using the DOOM-3-models.fgd.
+
+* Added RBDoom console command makeZooMapForModels which makes a Source engine style zoo map with mapobject/models like .blwo, .base et cetera and saves it to maps/zoomaps/zoo_models.map. This helps mappers to get a good overview of the trememdous amount of custom models available in Doom 3 BFG by sorting them into categories and arranging them in 3D. It also filters models so that only modular models are picked that can be reused in new maps.
 
 * TrenchBroom got several Doom 3 specific issue generators to help mappers avoiding pitfalls during mapping
 
+* Changed TrenchBroom's rotation tool to use the "angles" key by default to remove some Quake related limitations
+
+
 [MISCELLANEOUS]
+
+* Stencil shadows work again (thanks to Stephen Pridham) 
+
+* Fixed black screen after using the reloadImages command
 
 * Added CMake options STANDALONE and DOOM_CLASSIC
 
@@ -79,6 +100,10 @@ Steve Saunders contributed
 * Added new Creative Commons CC0 textures/common/ and textures/editor/ replacement textures because they didn't ship with the BFG edition
 
 * Added base/convert_maps_to_valve220.cfg which lets you convert all maps to the Valve 220 .map format in one shot
+
+* Added base/maps/zoomaps/zoo_models.map
+
+
 
 _______________________________________
 

@@ -1149,6 +1149,7 @@ void idImage::GenerateShadowArray( int width, int height, textureFilter_t filter
 	opts.numLevels = 0;
 	opts.isRenderTarget = true;
 
+
 	DeriveOpts();
 
 	// The image will be uploaded to the gpu on a deferred state.

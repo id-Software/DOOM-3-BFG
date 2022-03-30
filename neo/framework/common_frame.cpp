@@ -862,7 +862,7 @@ void idCommonLocal::Frame()
 		// RB begin
 #if defined(USE_DOOMCLASSIC)
 		// If we're in Doom or Doom 2, run tics and upload the new texture.
-		// SRS - Add check for com_pause cvar to make sure window is in focus - if not classic game should be paused (FIXME: but classic music still plays in background)
+		// SRS - Add check for com_pause cvar to make sure window is in focus - if not classic game should be paused
 		if( ( GetCurrentGame() == DOOM_CLASSIC || GetCurrentGame() == DOOM2_CLASSIC ) && !( Dialog().IsDialogPausing() || session->IsSystemUIShowing() || com_pause.GetInteger() ) )
 		{
 			RunDoomClassicFrame();
@@ -922,16 +922,18 @@ void idCommonLocal::Frame()
 		{
 			soundWorld->Pause();
 			soundSystem->SetPlayingSoundWorld( menuSoundWorld );
+			soundSystem->SetMute( false );
 		}
 		else
 		{
 			soundWorld->UnPause();
 			soundSystem->SetPlayingSoundWorld( soundWorld );
+			soundSystem->SetMute( false );
 		}
-		// SRS - Play silence when dialog waiting or window not in focus
+		// SRS - Mute all sound output when dialog waiting or window not in focus (mutes Doom3, Classic, Cinematic Audio)
 		if( Dialog().IsDialogPausing() || session->IsSystemUIShowing() || com_pause.GetInteger() )
 		{
-			soundSystem->SetPlayingSoundWorld( NULL );
+			soundSystem->SetMute( true );
 		}
 
 		soundSystem->Render();
