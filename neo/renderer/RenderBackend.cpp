@@ -325,6 +325,7 @@ void idRenderBackend::BindVariableStageImage( const textureStage_t* texture, con
 		else
 		{
 			globalImages->blackImage->Bind();
+
 			// because the shaders may have already been set - we need to make sure we are not using a bink shader which would
 			// display incorrectly.  We may want to get rid of RB_BindVariableStageImage and inline the code so that the
 			// SWF GUI case is handled better, too

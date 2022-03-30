@@ -666,9 +666,6 @@ void R_TestVideo_f( const idCmdArgs& args )
 	int	len = tr.testVideo->AnimationLength();
 	common->Printf( "%5.1f seconds of video\n", len * 0.001 );
 
-	// SRS - Not needed or used since InitFromFile() sets the correct start time automatically
-	//tr.testVideoStartTime = tr.primaryRenderView.time[1];
-
 	// try to play the matching wav file
 	idStr	wavString = args.Argv( ( args.Argc() == 2 ) ? 1 : 2 );
 	wavString.StripFileExtension();

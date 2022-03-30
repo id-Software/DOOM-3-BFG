@@ -257,15 +257,15 @@ void Framebuffer::AddStencilBuffer( int format, int multiSamples )
 {
 }
 
-void Framebuffer::AttachImage2D( int target, const idImage* image, int index, int mipmapLod )
+void Framebuffer::AttachImage2D( int target, idImage* image, int index, int mipmapLod )
 {
 }
 
-void Framebuffer::AttachImageDepth( int target, const idImage* image )
+void Framebuffer::AttachImageDepth( int target, idImage* image )
 {
 }
 
-void Framebuffer::AttachImageDepthLayer( const idImage* image, int layer )
+void Framebuffer::AttachImageDepthLayer( idImage* image, int layer )
 {
 }
 

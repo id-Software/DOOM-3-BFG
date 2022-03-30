@@ -372,6 +372,7 @@ enum
 	BUILTIN_STEREO_DEGHOST,
 	BUILTIN_STEREO_WARP,
 	BUILTIN_BINK,
+	BUILTIN_BINK_SRGB,	// SRS - Added Bink shader without sRGB to linear conversion for testVideo cmd
 	BUILTIN_BINK_GUI,
 	BUILTIN_STEREO_INTERLACE,
 	BUILTIN_MOTION_BLUR,
@@ -856,7 +857,6 @@ public:
 		BindShader_Builtin( BUILTIN_BINK );
 	}
 
-	// SRS - Added Bink shader without sRGB to linear conversion for testVideo cmd
 	void	BindShader_Bink_sRGB()
 	{
 		BindShader_Builtin( BUILTIN_BINK_SRGB );
@@ -955,7 +955,6 @@ private:
 	idStr		StripDeadCode( const idStr& in, const char* name, const idStrList& compileMacros, bool builtin );
 	idStr		ConvertCG2GLSL( const idStr& in, const char* name, rpStage_t stage, idStr& outLayout, bool vkGLSL, bool hasGPUSkinning, vertexLayoutType_t vertexLayout );
 
-		BUILTIN_BINK_SRGB,	// SRS - Added Bink shader without sRGB to linear conversion for testVideo cmd
 	int builtinShaders[MAX_BUILTINS];
 	void BindShader_Builtin( int i )
 	{
