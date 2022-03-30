@@ -39,6 +39,7 @@ static const int MAX_HIERARCHICAL_ZBUFFERS = 6; // native resolution + 5 MIP LEV
 static const int ENVPROBE_CAPTURE_SIZE = 256;
 static const int RADIANCE_OCTAHEDRON_SIZE = 512;
 static const int IRRADIANCE_OCTAHEDRON_SIZE = 30 + 2;
+static const int SHADOW_ATLAS_SIZE = 8192;
 
 #if 1
 static	int shadowMapResolutions[MAX_SHADOWMAP_RESOLUTIONS] = { 2048, 1024, 512, 512, 256 };
@@ -139,6 +140,7 @@ private:
 struct globalFramebuffers_t
 {
 	idList<Framebuffer*>		swapFramebuffers;
+	Framebuffer*				shadowAtlasFBO;
 	Framebuffer*				shadowFBO[MAX_SHADOWMAP_RESOLUTIONS][6];
 	Framebuffer*				hdrFBO;
 	Framebuffer*				ldrFBO;

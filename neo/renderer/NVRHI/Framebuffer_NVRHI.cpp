@@ -120,6 +120,7 @@ void Framebuffer::ResizeFramebuffers()
 	globalImages->currentNormalsImage->Reload( false, tr.backend.commandList );
 	globalImages->smaaEdgesImage->Reload( false, tr.backend.commandList );
 	globalImages->smaaBlendImage->Reload( false, tr.backend.commandList );
+	globalImages->shadowAtlasImage->Reload( false, tr.backend.commandList );
 	for( int i = 0; i < MAX_SHADOWMAP_RESOLUTIONS; i++ )
 	{
 		globalImages->shadowImage[i]->Reload( false, tr.backend.commandList );
@@ -150,6 +151,10 @@ void Framebuffer::ResizeFramebuffers()
 						.setArraySlice( arr ) ) );
 		}
 	}
+
+	globalFramebuffers.shadowAtlasFBO = new Framebuffer( "_shadowAtlas",
+					nvrhi::FramebufferDesc()
+						.setDepthAttachment( globalImages->shadowAtlasImage->texture ) );
 
 	globalFramebuffers.ldrFBO = new Framebuffer( "_ldr",
 			nvrhi::FramebufferDesc()

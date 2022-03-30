@@ -331,9 +331,11 @@ private:
 	void				AmbientPass( const drawSurf_t* const* drawSurfs, int numDrawSurfs, bool fillGbuffer );
 
 	void				SetupShadowMapMatrices( const viewLight_t* vLight, int side, idRenderMatrix& lightProjectionRenderMatrix, idRenderMatrix& lightViewRenderMatrix );
-	void				ShadowMapPassFast( const drawSurf_t* drawSurfs, const viewLight_t* vLight, int side );
+	void				ShadowMapPassFast( const drawSurf_t* drawSurfs, const viewLight_t* vLight, int side, bool atlas );
 	void				ShadowMapPassPerforated( const drawSurf_t** drawSurfs, int numDrawSurfs, const viewLight_t* vLight, int side, const idRenderMatrix& lightProjectionRenderMatrix, const idRenderMatrix& lightViewRenderMatrix );
 	void				ShadowMapPassOld( const drawSurf_t* drawSurfs, const viewLight_t* vLight, int side );
+
+	void				ShadowAtlasPass( const viewDef_t* _viewDef );
 
 	void				StencilShadowPass( const drawSurf_t* drawSurfs, const viewLight_t* vLight );
 	void				StencilSelectLight( const viewLight_t* vLight );

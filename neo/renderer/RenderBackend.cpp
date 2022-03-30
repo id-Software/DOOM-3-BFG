@@ -3300,7 +3300,7 @@ void idRenderBackend::ShadowMapPassPerforated( const drawSurf_t** drawSurfs, int
 idRenderBackend::ShadowMapPassFast
 =====================
 */
-void idRenderBackend::ShadowMapPassFast( const drawSurf_t* drawSurfs, const viewLight_t* vLight, int side )
+void idRenderBackend::ShadowMapPassFast( const drawSurf_t* drawSurfs, const viewLight_t* vLight, int side, bool atlas )
 {
 	if( r_skipShadows.GetBool() )
 	{
@@ -3354,23 +3354,35 @@ void idRenderBackend::ShadowMapPassFast( const drawSurf_t* drawSurfs, const view
 	SetupShadowMapMatrices( vLight, side, lightProjectionRenderMatrix, lightViewRenderMatrix );
 
 #if defined( USE_NVRHI )
-	if( side < 0 )
+
+	if( atlas )
 	{
-		globalFramebuffers.shadowFBO[vLight->shadowLOD][0]->Bind();
+		//globalFramebuffers.shadowAtlasFBO->Bind();
+
+		// TODO light offset in atlas
+
+		//GL_ViewportAndScissor( 0, 0, shadowMapResolutions[vLight->shadowLOD], shadowMapResolutions[vLight->shadowLOD] );
 	}
 	else
 	{
-		globalFramebuffers.shadowFBO[vLight->shadowLOD][side]->Bind();
-	}
+		if( side < 0 )
+		{
+			globalFramebuffers.shadowFBO[vLight->shadowLOD][0]->Bind();
+		}
+		else
+		{
+			globalFramebuffers.shadowFBO[vLight->shadowLOD][side]->Bind();
+		}
 
 
-	GL_ViewportAndScissor( 0, 0, shadowMapResolutions[vLight->shadowLOD], shadowMapResolutions[vLight->shadowLOD] );
+		GL_ViewportAndScissor( 0, 0, shadowMapResolutions[vLight->shadowLOD], shadowMapResolutions[vLight->shadowLOD] );
 
-	const nvrhi::FramebufferAttachment& att = currentFrameBuffer->GetApiObject()->getDesc().depthAttachment;
-	if( att.texture )
-	{
-		int slice = std::max( 0, side );
-		commandList->clearDepthStencilTexture( att.texture, nvrhi::TextureSubresourceSet().setArraySlices( slice, 1 ), true, 1.f, false, 0x80 );
+		const nvrhi::FramebufferAttachment& att = currentFrameBuffer->GetApiObject()->getDesc().depthAttachment;
+		if( att.texture )
+		{
+			int slice = std::max( 0, side );
+			commandList->clearDepthStencilTexture( att.texture, nvrhi::TextureSubresourceSet().setArraySlices( slice, 1 ), true, 1.f, false, 0x80 );
+		}
 	}
 
 #elif !defined( USE_VULKAN )
@@ -3802,6 +3814,129 @@ void idRenderBackend::ShadowMapPassOld( const drawSurf_t* drawSurfs, const viewL
 	renderLog.CloseBlock();
 }
 
+
+void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
+{
+	if( r_skipShadows.GetBool() || viewDef->viewLights == NULL )
+	{
+		return;
+	}
+
+	renderLog.OpenMainBlock( MRB_SHADOW_ATLAS_PASS );
+	renderLog.OpenBlock( "Render_ShadowAtlas", colorYellow );
+
+	GL_SelectTexture( 0 );
+
+	const bool useLightDepthBounds = r_useLightDepthBounds.GetBool() && !r_useShadowMapping.GetBool();
+
+	Framebuffer* previousFramebuffer = Framebuffer::GetActiveFramebuffer();
+
+	globalFramebuffers.shadowAtlasFBO->Bind();
+
+	GL_ViewportAndScissor( 0, 0, SHADOW_ATLAS_SIZE, SHADOW_ATLAS_SIZE );
+
+	const nvrhi::FramebufferAttachment& att = currentFrameBuffer->GetApiObject()->getDesc().depthAttachment;
+	if( att.texture )
+	{
+		commandList->clearDepthStencilTexture( att.texture, nvrhi::AllSubresources, true, 1.0f, false, 0x80 );
+	}
+
+	//
+	// for each light, perform shadowing to a big atlas Framebuffer
+	//
+	for( const viewLight_t* vLight = viewDef->viewLights; vLight != NULL; vLight = vLight->next )
+	{
+		if( vLight->lightShader->IsFogLight() )
+		{
+			continue;
+		}
+		
+		if( vLight->lightShader->IsBlendLight() )
+		{
+			continue;
+		}
+
+		if( vLight->localInteractions == NULL && vLight->globalInteractions == NULL && vLight->translucentInteractions == NULL )
+		{
+			continue;
+		}
+
+		const idMaterial* lightShader = vLight->lightShader;
+		renderLog.OpenBlock( lightShader->GetName(), colorMdGrey );
+
+		// set the depth bounds for the whole light
+		if( useLightDepthBounds )
+		{
+			GL_DepthBoundsTest( vLight->scissorRect.zmin, vLight->scissorRect.zmax );
+		}
+
+		// RB: shadow mapping
+		//if( r_useShadowMapping.GetBool() )
+		int	side, sideStop;
+
+		if( vLight->parallel )
+		{
+			side = 0;
+			sideStop = r_shadowMapSplits.GetInteger() + 1;
+		}
+		else if( vLight->pointLight )
+		{
+			if( r_shadowMapSingleSide.GetInteger() != -1 )
+			{
+				side = r_shadowMapSingleSide.GetInteger();
+				sideStop = side + 1;
+			}
+			else
+			{
+				side = 0;
+				sideStop = 6;
+			}
+		}
+		else
+		{
+			side = -1;
+			sideStop = 0;
+		}
+
+		for( ; side < sideStop ; side++ )
+		{
+			ShadowMapPassFast( vLight->globalShadows, vLight, side, true );
+		}
+
+		renderLog.CloseBlock();
+	}
+
+	// go back to main render target
+	if( previousFramebuffer != NULL )
+	{
+		previousFramebuffer->Bind();
+	}
+	else
+	{
+		Framebuffer::Unbind();
+	}
+	renderProgManager.Unbind();
+
+	GL_State( GLS_DEFAULT );
+
+	SetFragmentParm( RENDERPARM_ALPHA_TEST, vec4_zero.ToFloatPtr() );
+
+	// go back from light view to default camera view
+	ResetViewportAndScissorToDefaultCamera( _viewDef );
+
+	// unbind texture units
+	GL_SelectTexture( 0 );
+
+	// reset depth bounds
+	if( useLightDepthBounds )
+	{
+		GL_DepthBoundsTest( 0.0f, 0.0f );
+	}
+
+	renderLog.CloseBlock();
+	renderLog.CloseMainBlock();
+}
+
 /*
 ==============================================================================================
 
@@ -3890,7 +4025,7 @@ void idRenderBackend::DrawInteractions( const viewDef_t* _viewDef )
 
 			for( ; side < sideStop ; side++ )
 			{
-				ShadowMapPassFast( vLight->globalShadows, vLight, side );
+				ShadowMapPassFast( vLight->globalShadows, vLight, side, false );
 			}
 
 			// go back to main render target
@@ -6161,7 +6296,10 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 	//-------------------------------------------------
 	AmbientPass( drawSurfs, numDrawSurfs, false );
 
-	//GL_EndRenderPass();
+	//-------------------------------------------------
+	// render all light <-> geometry interactions to a depth buffer atlas
+	//-------------------------------------------------
+	ShadowAtlasPass( _viewDef );
 
 	//-------------------------------------------------
 	// main light renderer
