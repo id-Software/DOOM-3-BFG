@@ -416,6 +416,8 @@ struct viewLight_t
 	bool					parallel;					// lightCenter gives the direction to the light at infinity
 	idVec3					lightCenter;				// offset the lighting direction for shading and
 	int						shadowLOD;					// level of detail for shadowmap selection
+	idVec2i					imageSize;
+	idVec2i					imageAtlasOffset[6];
 	// RB end
 	idRenderMatrix			inverseBaseLightProject;	// the matrix for deforming the 'zeroOneCubeModel' to exactly cover the light volume in world space
 	const idMaterial* 		lightShader;				// light shader used by backend

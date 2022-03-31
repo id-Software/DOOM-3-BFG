@@ -3355,32 +3355,25 @@ void idRenderBackend::ShadowMapPassFast( const drawSurf_t* drawSurfs, const view
 
 #if defined( USE_NVRHI )
 
+	int slice = Max( 0, side );
+
 	if( atlas )
 	{
 		//globalFramebuffers.shadowAtlasFBO->Bind();
 
 		// TODO light offset in atlas
 
-		//GL_ViewportAndScissor( 0, 0, shadowMapResolutions[vLight->shadowLOD], shadowMapResolutions[vLight->shadowLOD] );
+		GL_ViewportAndScissor( vLight->imageAtlasOffset[slice].x, vLight->imageAtlasOffset[slice].y, vLight->imageSize.x, vLight->imageSize.y );
 	}
 	else
 	{
-		if( side < 0 )
-		{
-			globalFramebuffers.shadowFBO[vLight->shadowLOD][0]->Bind();
-		}
-		else
-		{
-			globalFramebuffers.shadowFBO[vLight->shadowLOD][side]->Bind();
-		}
-
+		globalFramebuffers.shadowFBO[vLight->shadowLOD][slice]->Bind();
 
 		GL_ViewportAndScissor( 0, 0, shadowMapResolutions[vLight->shadowLOD], shadowMapResolutions[vLight->shadowLOD] );
 
 		const nvrhi::FramebufferAttachment& att = currentFrameBuffer->GetApiObject()->getDesc().depthAttachment;
 		if( att.texture )
 		{
-			int slice = std::max( 0, side );
 			commandList->clearDepthStencilTexture( att.texture, nvrhi::TextureSubresourceSet().setArraySlices( slice, 1 ), true, 1.f, false, 0x80 );
 		}
 	}
@@ -3814,6 +3807,7 @@ void idRenderBackend::ShadowMapPassOld( const drawSurf_t* drawSurfs, const viewL
 	renderLog.CloseBlock();
 }
 
+void RectAllocatorBinPack2D( const idList<idVec2i>& inputSizes, const idStrList& inputNames, idList<idVec2i>& outputPositions, idVec2i& totalSize, const int START_MAX );
 
 void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 {
@@ -3842,15 +3836,86 @@ void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 	}
 
 	//
-	// for each light, perform shadowing to a big atlas Framebuffer
+	// sort lights into atlas
 	//
+
+	int				shadowIndex = 0;
+	idList<idVec2i>	inputSizes;
+	idStrList		inputNames;
+
 	for( const viewLight_t* vLight = viewDef->viewLights; vLight != NULL; vLight = vLight->next )
 	{
 		if( vLight->lightShader->IsFogLight() )
 		{
 			continue;
 		}
-		
+
+		if( vLight->lightShader->IsBlendLight() )
+		{
+			continue;
+		}
+
+		if( vLight->localInteractions == NULL && vLight->globalInteractions == NULL && vLight->translucentInteractions == NULL )
+		{
+			continue;
+		}
+
+		int	side, sideStop;
+
+		if( vLight->parallel )
+		{
+			side = 0;
+			sideStop = r_shadowMapSplits.GetInteger() + 1;
+		}
+		else if( vLight->pointLight )
+		{
+			if( r_shadowMapSingleSide.GetInteger() != -1 )
+			{
+				side = r_shadowMapSingleSide.GetInteger();
+				sideStop = side + 1;
+			}
+			else
+			{
+				side = 0;
+				sideStop = 6;
+			}
+		}
+		else
+		{
+			side = -1;
+			sideStop = 0;
+		}
+
+		const idMaterial* lightShader = vLight->lightShader;
+
+		for( ; side < sideStop ; side++ )
+		{
+			//ShadowMapPassFast( vLight->globalShadows, vLight, side, true );
+
+			inputSizes.Append( idVec2i( shadowMapResolutions[ vLight->shadowLOD ], shadowMapResolutions[ vLight->shadowLOD ] ) );
+			inputNames.Append( lightShader->GetName() );
+
+			shadowIndex++;
+		}
+	}
+
+	idList<idVec2i>	outputPositions;
+	idVec2i	totalSize;
+
+	RectAllocatorBinPack2D( inputSizes, inputNames, outputPositions, totalSize, SHADOW_ATLAS_SIZE );
+
+	//
+	// for each light, perform shadowing to a big atlas Framebuffer
+	//
+	shadowIndex = 0;
+
+	for( viewLight_t* vLight = viewDef->viewLights; vLight != NULL; vLight = vLight->next )
+	{
+		if( vLight->lightShader->IsFogLight() )
+		{
+			continue;
+		}
+
 		if( vLight->lightShader->IsBlendLight() )
 		{
 			continue;
@@ -3898,8 +3963,24 @@ void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 			sideStop = 0;
 		}
 
+		vLight->imageSize.x = shadowMapResolutions[ vLight->shadowLOD ];
+		vLight->imageSize.y = shadowMapResolutions[ vLight->shadowLOD ];
+
 		for( ; side < sideStop ; side++ )
 		{
+			int slice = Max( 0, side );
+
+			vLight->imageAtlasOffset[ slice ].x = outputPositions[ shadowIndex ].x;
+			vLight->imageAtlasOffset[ slice ].y = outputPositions[ shadowIndex ].y;
+
+			shadowIndex++;
+
+			if( vLight->imageAtlasOffset[ slice ].x == -1 || vLight->imageAtlasOffset[ slice ].y == -1 )
+			{
+				// didn't fit into atlas anymore
+				continue;
+			}
+
 			ShadowMapPassFast( vLight->globalShadows, vLight, side, true );
 		}
 

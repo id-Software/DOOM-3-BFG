@@ -153,8 +153,8 @@ void Framebuffer::ResizeFramebuffers()
 	}
 
 	globalFramebuffers.shadowAtlasFBO = new Framebuffer( "_shadowAtlas",
-					nvrhi::FramebufferDesc()
-						.setDepthAttachment( globalImages->shadowAtlasImage->texture ) );
+			nvrhi::FramebufferDesc()
+			.setDepthAttachment( globalImages->shadowAtlasImage->texture ) );
 
 	globalFramebuffers.ldrFBO = new Framebuffer( "_ldr",
 			nvrhi::FramebufferDesc()
