@@ -1128,7 +1128,7 @@ extern idCVar r_useStencilShadowPreload;
 
 void idRenderBackend::DrawStencilShadowPass( const drawSurf_t* drawSurf, const bool renderZPass )
 {
-#if 1
+#if 0
 	if( renderZPass )
 	{
 		// Z-pass

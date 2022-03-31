@@ -102,19 +102,16 @@ cbuffer globals : register( b0 VK_DESCRIPTOR_SET( 0 ) )
 	float4 rpEnableSkinning;
 	float4 rpAlphaTest;
 
-// RB begin
+	// RB begin
 	float4 rpAmbientColor;
 	float4 rpGlobalLightOrigin;
 	float4 rpJitterTexScale;
 	float4 rpJitterTexOffset;
 	float4 rpCascadeDistances;
 
-#if defined( USE_UNIFORM_ARRAYS )
-	float4 rpShadowMatrices;
-#else
 	float4 rpShadowMatrices[6 * 4];
-#endif
-// RB end
+	float4 rpShadowAtlasOffsets[6];
+	// RB end
 
 	float4 rpUser0;
 	float4 rpUser1;

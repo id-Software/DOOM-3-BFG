@@ -38,7 +38,8 @@ Texture2D				t_Specular			: register( t1 VK_DESCRIPTOR_SET( 0 ) );
 Texture2D				t_BaseColor			: register( t2 VK_DESCRIPTOR_SET( 0 ) );
 Texture2D				t_LightFalloff		: register( t3 VK_DESCRIPTOR_SET( 0 ) );
 Texture2D				t_LightProjection	: register( t4 VK_DESCRIPTOR_SET( 0 ) );
-Texture2DArray<float>	t_ShadowMapArray	: register( t5 VK_DESCRIPTOR_SET( 0 ) );
+//Texture2DArray<float>	t_ShadowMapArray	: register( t5 VK_DESCRIPTOR_SET( 0 ) );
+Texture2D				t_ShadowAtlas		: register( t5 VK_DESCRIPTOR_SET( 0 ) );
 Texture2D				t_Jitter			: register( t6 VK_DESCRIPTOR_SET( 0 ) );
 
 SamplerState			s_Material : register( s0 VK_DESCRIPTOR_SET( 1 ) ); // for the normal/specular/basecolor
@@ -230,12 +231,6 @@ void main( PS_IN fragment, out PS_OUT result )
 	//shadowTexcoord.z = shadowTexcoord.z - bias;
 	shadowTexcoord.w = float( shadowIndex );
 
-#if 0
-	result.color.xyz = float3( shadowTexcoord.z, shadowTexcoord.z, shadowTexcoord.z );
-	result.color.w = 1.0;
-	return;
-#endif
-
 	// multiple taps
 
 #if 0
@@ -311,7 +306,7 @@ void main( PS_IN fragment, out PS_OUT result )
 
 	shadow *= stepSize;
 
-#elif 1
+#elif 0
 
 #if 0
 
@@ -393,13 +388,18 @@ void main( PS_IN fragment, out PS_OUT result )
 #endif
 
 #else
-	float3 uvzShadow;
-	uvzShadow.x = shadowTexcoord.x;
-	uvzShadow.y = shadowTexcoord.y;
-	uvzShadow.z = shadowTexcoord.w;
-	float shadow = t_ShadowMapArray.SampleCmpLevelZero( samp2, uvzShadow, shadowTexcoord.z );
+	float2 uvShadow;
+	uvShadow.x = shadowTexcoord.x;
+	uvShadow.y = shadowTexcoord.y;
 
-#if 0
+	// [0 .. 1] -> rectangle in atlas transform
+	uvShadow = uvShadow * rpJitterTexScale.y; // + rpShadowAtlasOffsets[ shadowIndex ].xy
+	uvShadow.x += rpShadowAtlasOffsets[ shadowIndex ].x;
+	uvShadow.y -= rpShadowAtlasOffsets[ shadowIndex ].y;
+
+	float shadow = t_ShadowAtlas.SampleCmpLevelZero( s_Shadow, uvShadow.xy, shadowTexcoord.z );
+
+#if 1
 	if( shadowIndex == 0 )
 	{
 		result.color = float4( 1.0, 0.0, 0.0, 1.0 );

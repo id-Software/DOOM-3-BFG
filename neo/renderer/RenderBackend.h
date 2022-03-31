@@ -330,10 +330,10 @@ private:
 	// RB
 	void				AmbientPass( const drawSurf_t* const* drawSurfs, int numDrawSurfs, bool fillGbuffer );
 
-	void				SetupShadowMapMatrices( const viewLight_t* vLight, int side, idRenderMatrix& lightProjectionRenderMatrix, idRenderMatrix& lightViewRenderMatrix );
-	void				ShadowMapPassFast( const drawSurf_t* drawSurfs, const viewLight_t* vLight, int side, bool atlas );
-	void				ShadowMapPassPerforated( const drawSurf_t** drawSurfs, int numDrawSurfs, const viewLight_t* vLight, int side, const idRenderMatrix& lightProjectionRenderMatrix, const idRenderMatrix& lightViewRenderMatrix );
-	void				ShadowMapPassOld( const drawSurf_t* drawSurfs, const viewLight_t* vLight, int side );
+	void				SetupShadowMapMatrices( viewLight_t* vLight, int side, idRenderMatrix& lightProjectionRenderMatrix, idRenderMatrix& lightViewRenderMatrix );
+	void				ShadowMapPassFast( const drawSurf_t* drawSurfs, viewLight_t* vLight, int side, bool atlas );
+	void				ShadowMapPassPerforated( const drawSurf_t** drawSurfs, int numDrawSurfs, viewLight_t* vLight, int side, const idRenderMatrix& lightProjectionRenderMatrix, const idRenderMatrix& lightViewRenderMatrix );
+	void				ShadowMapPassOld( const drawSurf_t* drawSurfs, viewLight_t* vLight, int side );
 
 	void				ShadowAtlasPass( const viewDef_t* _viewDef );
 
@@ -496,9 +496,6 @@ private:
 	idRenderMatrix		prevMVP[2];				// world MVP from previous frame for motion blur
 
 	// RB begin
-	idRenderMatrix		shadowV[6];				// shadow depth view matrix
-	idRenderMatrix		shadowP[6];				// shadow depth projection matrix
-
 	// TODO remove
 	float				hdrAverageLuminance;
 	float				hdrMaxLuminance;

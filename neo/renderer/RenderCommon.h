@@ -416,6 +416,8 @@ struct viewLight_t
 	bool					parallel;					// lightCenter gives the direction to the light at infinity
 	idVec3					lightCenter;				// offset the lighting direction for shading and
 	int						shadowLOD;					// level of detail for shadowmap selection
+	idRenderMatrix			shadowV[6];					// shadow depth view matrix for lighting pass
+	idRenderMatrix			shadowP[6];					// shadow depth projection matrix for lighting pass
 	idVec2i					imageSize;
 	idVec2i					imageAtlasOffset[6];
 	// RB end
@@ -1118,6 +1120,7 @@ extern idCVar r_useLightDepthBounds;		// use depth bounds test on lights to redu
 extern idCVar r_useShadowDepthBounds;		// use depth bounds test on individual shadows to reduce shadow fill
 // RB begin
 extern idCVar r_useShadowMapping;			// use shadow mapping instead of stencil shadows
+extern idCVar r_useShadowAtlas;				// temporary for perf testing: pack shadow maps into big atlas
 extern idCVar r_useHalfLambertLighting;		// use Half-Lambert lighting instead of classic Lambert
 extern idCVar r_useHDR;
 extern idCVar r_useSeamlessCubeMap;
@@ -1221,6 +1224,7 @@ extern idCVar stereoRender_deGhost;			// subtract from opposite eye to reduce gh
 extern idCVar r_useGPUSkinning;
 
 // RB begin
+extern idCVar r_shadowMapAtlasSize;
 extern idCVar r_shadowMapFrustumFOV;
 extern idCVar r_shadowMapSingleSide;
 extern idCVar r_shadowMapImageSize;

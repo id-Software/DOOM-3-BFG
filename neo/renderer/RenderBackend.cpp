@@ -1510,13 +1510,13 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 		float screenCorrectionParm[4];
 		screenCorrectionParm[0] = 1.0f / ( JITTER_SIZE * shadowMapSamples ) ;
 		screenCorrectionParm[1] = 1.0f / JITTER_SIZE;
-		screenCorrectionParm[2] = 1.0f / shadowMapResolutions[vLight->shadowLOD];
+		screenCorrectionParm[2] = 1.0f / vLight->imageSize.x; // atlas sample scale
 		screenCorrectionParm[3] = vLight->parallel ? r_shadowMapSunDepthBiasScale.GetFloat() : r_shadowMapRegularDepthBiasScale.GetFloat();
 		SetFragmentParm( RENDERPARM_SCREENCORRECTIONFACTOR, screenCorrectionParm ); // rpScreenCorrectionFactor
 
 		float jitterTexScale[4];
 		jitterTexScale[0] = r_shadowMapJitterScale.GetFloat() * jitterSampleScale;	// TODO shadow buffer size fraction shadowMapSize / maxShadowMapSize
-		jitterTexScale[1] = r_shadowMapJitterScale.GetFloat() * jitterSampleScale;
+		jitterTexScale[1] = vLight->imageSize.x / float( r_shadowMapAtlasSize.GetInteger() );
 		jitterTexScale[2] = -r_shadowMapBiasScale.GetFloat();
 		jitterTexScale[3] = shadowMapSamples;
 		SetFragmentParm( RENDERPARM_JITTERTEXSCALE, jitterTexScale ); // rpJitterTexScale
@@ -1545,6 +1545,20 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 			cascadeDistances[2] = viewDef->frustumSplitDistances[2];
 			cascadeDistances[3] = viewDef->frustumSplitDistances[3];
 			SetFragmentParm( RENDERPARM_CASCADEDISTANCES, cascadeDistances ); // rpCascadeDistances
+		}
+
+		if( r_useShadowAtlas.GetBool() )
+		{
+			// float4
+			idVec4 shadowOffsets[6];
+
+			for( int i = 0; i < 6; i++ )
+			{
+				shadowOffsets[ i ].x = vLight->imageAtlasOffset[ i ].x;
+				shadowOffsets[ i ].y = vLight->imageAtlasOffset[ i ].y;
+			}
+
+			SetVertexParms( RENDERPARM_SHADOW_ATLAS_OFFSET_0, &shadowOffsets[0][0], 6 );
 		}
 
 	}
@@ -1597,7 +1611,14 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 		{
 			// texture 5 will be the shadow maps array
 			GL_SelectTexture( INTERACTION_TEXUNIT_SHADOWMAPS );
-			globalImages->shadowImage[vLight->shadowLOD]->Bind();
+			if( r_useShadowAtlas.GetBool() )
+			{
+				globalImages->shadowAtlasImage->Bind();
+			}
+			else
+			{
+				globalImages->shadowImage[vLight->shadowLOD]->Bind();
+			}
 
 			// texture 6 will be the jitter texture for soft shadowing
 			GL_SelectTexture( INTERACTION_TEXUNIT_JITTER );
@@ -1722,10 +1743,10 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 						for( int i = 0; i < ( r_shadowMapSplits.GetInteger() + 1 ); i++ )
 						{
 							idRenderMatrix modelToShadowMatrix;
-							idRenderMatrix::Multiply( shadowV[i], modelMatrix, modelToShadowMatrix );
+							idRenderMatrix::Multiply( vLight->shadowV[i], modelMatrix, modelToShadowMatrix );
 
 							idRenderMatrix shadowClipMVP;
-							idRenderMatrix::Multiply( shadowP[i], modelToShadowMatrix, shadowClipMVP );
+							idRenderMatrix::Multiply( vLight->shadowP[i], modelToShadowMatrix, shadowClipMVP );
 
 							idRenderMatrix shadowWindowMVP;
 							idRenderMatrix::Multiply( renderMatrix_clipSpaceToWindowSpace, shadowClipMVP, shadowWindowMVP );
@@ -1738,10 +1759,10 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 						for( int i = 0; i < 6; i++ )
 						{
 							idRenderMatrix modelToShadowMatrix;
-							idRenderMatrix::Multiply( shadowV[i], modelMatrix, modelToShadowMatrix );
+							idRenderMatrix::Multiply( vLight->shadowV[i], modelMatrix, modelToShadowMatrix );
 
 							idRenderMatrix shadowClipMVP;
-							idRenderMatrix::Multiply( shadowP[i], modelToShadowMatrix, shadowClipMVP );
+							idRenderMatrix::Multiply( vLight->shadowP[i], modelToShadowMatrix, shadowClipMVP );
 
 							idRenderMatrix shadowWindowMVP;
 							idRenderMatrix::Multiply( renderMatrix_clipSpaceToWindowSpace, shadowClipMVP, shadowWindowMVP );
@@ -1754,10 +1775,10 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 						// spot light
 
 						idRenderMatrix modelToShadowMatrix;
-						idRenderMatrix::Multiply( shadowV[0], modelMatrix, modelToShadowMatrix );
+						idRenderMatrix::Multiply( vLight->shadowV[0], modelMatrix, modelToShadowMatrix );
 
 						idRenderMatrix shadowClipMVP;
-						idRenderMatrix::Multiply( shadowP[0], modelToShadowMatrix, shadowClipMVP );
+						idRenderMatrix::Multiply( vLight->shadowP[0], modelToShadowMatrix, shadowClipMVP );
 
 						SetVertexParms( ( renderParm_t )( RENDERPARM_SHADOW_MATRIX_0_X ), shadowClipMVP[0], 4 );
 
@@ -2748,7 +2769,7 @@ void MatrixLookAtRH( float m[16], const idVec3& eye, const idVec3& dir, const id
 idRenderBackend::SetupShadowMapMatrices
 =====================
 */
-void idRenderBackend::SetupShadowMapMatrices( const viewLight_t* vLight, int side, idRenderMatrix& lightProjectionRenderMatrix, idRenderMatrix& lightViewRenderMatrix )
+void idRenderBackend::SetupShadowMapMatrices( viewLight_t* vLight, int side, idRenderMatrix& lightProjectionRenderMatrix, idRenderMatrix& lightViewRenderMatrix )
 {
 	if( vLight->parallel && side >= 0 )
 	{
@@ -2904,8 +2925,8 @@ void idRenderBackend::SetupShadowMapMatrices( const viewLight_t* vLight, int sid
 		MatrixOrthogonalProjectionRH( lightProjectionMatrix, cropBounds[0][0], cropBounds[1][0], cropBounds[0][1], cropBounds[1][1], -cropBounds[1][2], -cropBounds[0][2] );
 		idRenderMatrix::Transpose( *( idRenderMatrix* )lightProjectionMatrix, lightProjectionRenderMatrix );
 
-		shadowV[side] = lightViewRenderMatrix;
-		shadowP[side] = lightProjectionRenderMatrix;
+		vLight->shadowV[side] = lightViewRenderMatrix;
+		vLight->shadowP[side] = lightProjectionRenderMatrix;
 
 #if defined( USE_NVRHI )
 		ALIGNTYPE16 const idRenderMatrix matClipToUvzw(
@@ -2915,7 +2936,7 @@ void idRenderBackend::SetupShadowMapMatrices( const viewLight_t* vLight, int sid
 			0.0f,  0.0f, 0.0f,  1.0f
 		);
 
-		idRenderMatrix::Multiply( matClipToUvzw, lightProjectionRenderMatrix, shadowP[side] );
+		idRenderMatrix::Multiply( matClipToUvzw, lightProjectionRenderMatrix, vLight->shadowP[side] );
 #endif
 	}
 	else if( vLight->pointLight && side >= 0 )
@@ -3039,8 +3060,8 @@ void idRenderBackend::SetupShadowMapMatrices( const viewLight_t* vLight, int sid
 
 		idRenderMatrix::Transpose( *( idRenderMatrix* )lightProjectionMatrix, lightProjectionRenderMatrix );
 
-		shadowV[side] = lightViewRenderMatrix;
-		shadowP[side] = lightProjectionRenderMatrix;
+		vLight->shadowV[side] = lightViewRenderMatrix;
+		vLight->shadowP[side] = lightProjectionRenderMatrix;
 
 #if defined( USE_NVRHI )
 		ALIGNTYPE16 const idRenderMatrix matClipToUvzw(
@@ -3050,7 +3071,7 @@ void idRenderBackend::SetupShadowMapMatrices( const viewLight_t* vLight, int sid
 			0.0f,  0.0f, 0.0f,  1.0f
 		);
 
-		idRenderMatrix::Multiply( matClipToUvzw, lightProjectionRenderMatrix, shadowP[side] );
+		idRenderMatrix::Multiply( matClipToUvzw, lightProjectionRenderMatrix, vLight->shadowP[side] );
 #endif
 	}
 	else
@@ -3059,8 +3080,8 @@ void idRenderBackend::SetupShadowMapMatrices( const viewLight_t* vLight, int sid
 		lightViewRenderMatrix.Identity();
 		lightProjectionRenderMatrix = vLight->baseLightProject;
 
-		shadowV[0] = lightViewRenderMatrix;
-		shadowP[0] = lightProjectionRenderMatrix;
+		vLight->shadowV[0] = lightViewRenderMatrix;
+		vLight->shadowP[0] = lightProjectionRenderMatrix;
 
 #if defined( USE_NVRHI )
 		// Calculate alternate matrix that maps to [0, 1] UV space instead of [-1, 1] clip space
@@ -3073,7 +3094,7 @@ void idRenderBackend::SetupShadowMapMatrices( const viewLight_t* vLight, int sid
 
 		idRenderMatrix shadowToClip;
 		idRenderMatrix::Multiply( renderMatrix_windowSpaceToClipSpace, lightProjectionRenderMatrix, shadowToClip );
-		idRenderMatrix::Multiply( matClipToUvzw, shadowToClip, shadowP[0] );
+		idRenderMatrix::Multiply( matClipToUvzw, shadowToClip, vLight->shadowP[0] );
 #endif
 	}
 }
@@ -3083,7 +3104,7 @@ void idRenderBackend::SetupShadowMapMatrices( const viewLight_t* vLight, int sid
 idRenderBackend::ShadowMapPassPerforated
 =====================
 */
-void idRenderBackend::ShadowMapPassPerforated( const drawSurf_t** drawSurfs, int numDrawSurfs, const viewLight_t* vLight, int side, const idRenderMatrix& lightProjectionRenderMatrix, const idRenderMatrix& lightViewRenderMatrix )
+void idRenderBackend::ShadowMapPassPerforated( const drawSurf_t** drawSurfs, int numDrawSurfs, viewLight_t* vLight, int side, const idRenderMatrix& lightProjectionRenderMatrix, const idRenderMatrix& lightViewRenderMatrix )
 {
 	if( r_skipShadows.GetBool() )
 	{
@@ -3300,7 +3321,7 @@ void idRenderBackend::ShadowMapPassPerforated( const drawSurf_t** drawSurfs, int
 idRenderBackend::ShadowMapPassFast
 =====================
 */
-void idRenderBackend::ShadowMapPassFast( const drawSurf_t* drawSurfs, const viewLight_t* vLight, int side, bool atlas )
+void idRenderBackend::ShadowMapPassFast( const drawSurf_t* drawSurfs, viewLight_t* vLight, int side, bool atlas )
 {
 	if( r_skipShadows.GetBool() )
 	{
@@ -3524,7 +3545,7 @@ void idRenderBackend::ShadowMapPassFast( const drawSurf_t* drawSurfs, const view
 idRenderBackend::ShadowMapPass
 =====================
 */
-void idRenderBackend::ShadowMapPassOld( const drawSurf_t* drawSurfs, const viewLight_t* vLight, int side )
+void idRenderBackend::ShadowMapPassOld( const drawSurf_t* drawSurfs, viewLight_t* vLight, int side )
 {
 	if( r_skipShadows.GetBool() )
 	{
@@ -3827,7 +3848,7 @@ void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 
 	globalFramebuffers.shadowAtlasFBO->Bind();
 
-	GL_ViewportAndScissor( 0, 0, SHADOW_ATLAS_SIZE, SHADOW_ATLAS_SIZE );
+	GL_ViewportAndScissor( 0, 0, r_shadowMapAtlasSize.GetInteger(), r_shadowMapAtlasSize.GetInteger() );
 
 	const nvrhi::FramebufferAttachment& att = currentFrameBuffer->GetApiObject()->getDesc().depthAttachment;
 	if( att.texture )
@@ -3890,8 +3911,6 @@ void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 
 		for( ; side < sideStop ; side++ )
 		{
-			//ShadowMapPassFast( vLight->globalShadows, vLight, side, true );
-
 			inputSizes.Append( idVec2i( shadowMapResolutions[ vLight->shadowLOD ], shadowMapResolutions[ vLight->shadowLOD ] ) );
 			inputNames.Append( lightShader->GetName() );
 
@@ -3902,7 +3921,7 @@ void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 	idList<idVec2i>	outputPositions;
 	idVec2i	totalSize;
 
-	RectAllocatorBinPack2D( inputSizes, inputNames, outputPositions, totalSize, SHADOW_ATLAS_SIZE );
+	RectAllocatorBinPack2D( inputSizes, inputNames, outputPositions, totalSize, r_shadowMapAtlasSize.GetInteger() );
 
 	//
 	// for each light, perform shadowing to a big atlas Framebuffer
@@ -3935,8 +3954,6 @@ void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 			GL_DepthBoundsTest( vLight->scissorRect.zmin, vLight->scissorRect.zmax );
 		}
 
-		// RB: shadow mapping
-		//if( r_useShadowMapping.GetBool() )
 		int	side, sideStop;
 
 		if( vLight->parallel )
@@ -4078,47 +4095,52 @@ void idRenderBackend::DrawInteractions( const viewDef_t* _viewDef )
 		// RB: shadow mapping
 		if( r_useShadowMapping.GetBool() )
 		{
-			int	side, sideStop;
+			if( !r_useShadowAtlas.GetBool() )
+			{
+				int	side, sideStop;
 
-			if( vLight->parallel )
-			{
-				side = 0;
-				sideStop = r_shadowMapSplits.GetInteger() + 1;
-			}
-			else if( vLight->pointLight )
-			{
-				if( r_shadowMapSingleSide.GetInteger() != -1 )
+				if( vLight->parallel )
 				{
-					side = r_shadowMapSingleSide.GetInteger();
-					sideStop = side + 1;
+					side = 0;
+					sideStop = r_shadowMapSplits.GetInteger() + 1;
+				}
+				else if( vLight->pointLight )
+				{
+					if( r_shadowMapSingleSide.GetInteger() != -1 )
+					{
+						side = r_shadowMapSingleSide.GetInteger();
+						sideStop = side + 1;
+					}
+					else
+					{
+						side = 0;
+						sideStop = 6;
+					}
 				}
 				else
 				{
-					side = 0;
-					sideStop = 6;
+					side = -1;
+					sideStop = 0;
 				}
-			}
-			else
-			{
-				side = -1;
-				sideStop = 0;
-			}
 
-			for( ; side < sideStop ; side++ )
-			{
-				ShadowMapPassFast( vLight->globalShadows, vLight, side, false );
-			}
+				for( ; side < sideStop ; side++ )
+				{
+					// vLight is const but we make an exception here to store the shadow matrices per vLight
+					// OPTIMIZE: these calculations could be moved to the renderer frontend into the multithreaded job
+					ShadowMapPassFast( vLight->globalShadows, ( viewLight_t* ) vLight, side, false );
+				}
 
-			// go back to main render target
-			if( previousFramebuffer != NULL )
-			{
-				previousFramebuffer->Bind();
+				// go back to main render target
+				if( previousFramebuffer != NULL )
+				{
+					previousFramebuffer->Bind();
+				}
+				else
+				{
+					Framebuffer::Unbind();
+				}
+				renderProgManager.Unbind();
 			}
-			else
-			{
-				Framebuffer::Unbind();
-			}
-			renderProgManager.Unbind();
 
 			GL_State( GLS_DEFAULT );
 
