@@ -1554,8 +1554,8 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 
 			for( int i = 0; i < 6; i++ )
 			{
-				shadowOffsets[ i ].x = vLight->imageAtlasOffset[ i ].x;
-				shadowOffsets[ i ].y = vLight->imageAtlasOffset[ i ].y;
+				shadowOffsets[ i ].x = vLight->imageAtlasOffset[ i ].x * ( 1.0f / r_shadowMapAtlasSize.GetInteger() );
+				shadowOffsets[ i ].y = vLight->imageAtlasOffset[ i ].y * ( 1.0f / r_shadowMapAtlasSize.GetInteger() );
 			}
 
 			SetVertexParms( RENDERPARM_SHADOW_ATLAS_OFFSET_0, &shadowOffsets[0][0], 6 );

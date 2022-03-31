@@ -393,13 +393,11 @@ void main( PS_IN fragment, out PS_OUT result )
 	uvShadow.y = shadowTexcoord.y;
 
 	// [0 .. 1] -> rectangle in atlas transform
-	uvShadow = uvShadow * rpJitterTexScale.y; // + rpShadowAtlasOffsets[ shadowIndex ].xy
-	uvShadow.x += rpShadowAtlasOffsets[ shadowIndex ].x;
-	uvShadow.y -= rpShadowAtlasOffsets[ shadowIndex ].y;
+	uvShadow = uvShadow * rpJitterTexScale.y + rpShadowAtlasOffsets[ shadowIndex ].xy;
 
 	float shadow = t_ShadowAtlas.SampleCmpLevelZero( s_Shadow, uvShadow.xy, shadowTexcoord.z );
 
-#if 1
+#if 0
 	if( shadowIndex == 0 )
 	{
 		result.color = float4( 1.0, 0.0, 0.0, 1.0 );
