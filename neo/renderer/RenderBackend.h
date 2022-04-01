@@ -508,6 +508,9 @@ private:
 private:
 #if defined( USE_NVRHI )
 
+	idScreenRect					stateViewport;
+	idScreenRect					stateScissor;
+
 	idScreenRect					currentViewport;
 	nvrhi::BufferHandle				currentVertexBuffer;
 	uint							currentVertexOffset;

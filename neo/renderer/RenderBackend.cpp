@@ -3458,6 +3458,11 @@ void idRenderBackend::ShadowMapPassFast( const drawSurf_t* drawSurfs, viewLight_
 
 		const idMaterial* shader = drawSurf->material;
 
+		if( shader == NULL )
+		{
+			continue;
+		}
+
 		// translucent surfaces don't put anything in the depth buffer
 		if( shader->Coverage() == MC_TRANSLUCENT )
 		{
@@ -3880,7 +3885,7 @@ void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 
 	int				shadowIndex = 0;
 	idList<idVec2i>	inputSizes;
-	idStrList		inputNames;
+	//idStrList		inputNames;
 
 	for( const viewLight_t* vLight = viewDef->viewLights; vLight != NULL; vLight = vLight->next )
 	{
@@ -3930,7 +3935,7 @@ void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 		for( ; side < sideStop ; side++ )
 		{
 			inputSizes.Append( idVec2i( shadowMapResolutions[ vLight->shadowLOD ], shadowMapResolutions[ vLight->shadowLOD ] ) );
-			inputNames.Append( lightShader->GetName() );
+			//inputNames.Append( lightShader->GetName() );
 
 			shadowIndex++;
 		}
@@ -3959,9 +3964,14 @@ void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 
 	tileMap.Clear();
 
+	int failedNum = 0;
+
 	for( int i = 0; i < inputSizes.Num(); i++ )
 	{
-		idVec2i	size = inputSizes[sizeRemap[i]];
+		//shadowIndex = sizeRemap[i];
+		shadowIndex = i;
+
+		idVec2i	size = inputSizes[ shadowIndex ];
 
 		int area = Max( size.x, size.y );
 
@@ -3970,7 +3980,8 @@ void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 
 		if( !result )
 		{
-			outputPositions[sizeRemap[i]].Set( -1, -1 );
+			outputPositions[ shadowIndex ].Set( -1, -1 );
+			failedNum++;
 		}
 		else
 		{
@@ -3979,10 +3990,16 @@ void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 			uvPos.x = tile.position.x * 0.5f + 0.5f;
 			uvPos.y = 1.0f - ( tile.position.y * 0.5f + 0.5f );
 
-			outputPositions[sizeRemap[i]].x = uvPos.x * r_shadowMapAtlasSize.GetInteger();
-			outputPositions[sizeRemap[i]].y = uvPos.y * r_shadowMapAtlasSize.GetInteger();
+			idVec2i iPos;
+			iPos.x = uvPos.x * r_shadowMapAtlasSize.GetInteger();
+			iPos.y = uvPos.y * r_shadowMapAtlasSize.GetInteger();
+
+			outputPositions[ shadowIndex ].x = iPos.x;
+			outputPositions[ shadowIndex ].y = iPos.y;
 		}
 	}
+
+	idLib::Printf( "failed tiling for %i shadow maps\n", failedNum );
 
 	//
 	// for each light, perform shadowing to a big atlas Framebuffer
@@ -4006,13 +4023,13 @@ void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 			continue;
 		}
 
-		//const idMaterial* lightShader = vLight->lightShader;
-		//renderLog.OpenBlock( lightShader->GetName(), colorMdGrey );
+		const idMaterial* lightShader = vLight->lightShader;
+		renderLog.OpenBlock( lightShader->GetName(), colorMdGrey );
 
 		// set the depth bounds for the whole light
 		if( useLightDepthBounds )
 		{
-			GL_DepthBoundsTest( vLight->scissorRect.zmin, vLight->scissorRect.zmax );
+			//GL_DepthBoundsTest( vLight->scissorRect.zmin, vLight->scissorRect.zmax );
 		}
 
 		int	side, sideStop;
@@ -4070,7 +4087,7 @@ void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 			vLight->imageSize.x = -1;
 		}
 
-		//renderLog.CloseBlock();
+		renderLog.CloseBlock();
 	}
 
 	// go back to main render target

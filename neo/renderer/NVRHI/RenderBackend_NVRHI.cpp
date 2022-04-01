@@ -275,6 +275,21 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 		changeState = true;
 	}
 
+	if( !currentViewport.Equals( stateViewport ) )
+	{
+		stateViewport = currentViewport;
+		changeState = true;
+	}
+
+#if 0
+	if( !currentScissor.Equals( stateScissor ) && r_useScissor.GetBool() )
+	{
+		changeState = true;
+
+		stateScissor = currentScissor;
+	}
+#endif
+
 	renderProgManager.CommitConstantBuffer( commandList );
 
 	if( changeState )
