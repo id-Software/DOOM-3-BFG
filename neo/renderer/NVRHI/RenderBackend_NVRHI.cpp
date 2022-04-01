@@ -135,7 +135,7 @@ void idRenderBackend::Init()
 	// Maximum resolution of one tile within tiled shadow map. Resolution must be power of two and
 	// square, since quad-tree for managing tiles will not work correctly otherwise. Furthermore
 	// resolution must be at least 16.
-	const int MAX_TILE_RES = 512;
+	const int MAX_TILE_RES = shadowMapResolutions[ 0 ];
 
 	// Specifies how many levels the quad-tree for managing tiles within tiled shadow map should
 	// have. The higher the value, the smaller the resolution of the smallest used tile will be.

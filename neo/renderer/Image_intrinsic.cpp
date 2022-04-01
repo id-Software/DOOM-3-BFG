@@ -625,7 +625,7 @@ void R_QuadraticImage( idImage* image, nvrhi::ICommandList* commandList )
 // RB begin
 static void R_CreateShadowMapImage_Atlas( idImage* image, nvrhi::ICommandList* commandList )
 {
-	image->GenerateShadowArray( r_shadowMapAtlasSize.GetInteger(), r_shadowMapAtlasSize.GetInteger(), TF_LINEAR, TR_CLAMP_TO_ZERO_ALPHA, TD_DEPTH, commandList );
+	image->GenerateImage( NULL, r_shadowMapAtlasSize.GetInteger(), r_shadowMapAtlasSize.GetInteger(), TF_LINEAR, TR_CLAMP_TO_ZERO_ALPHA, TD_DEPTH, commandList, true );
 }
 
 static void R_CreateShadowMapImage_Res0( idImage* image, nvrhi::ICommandList* commandList )
