@@ -132,6 +132,19 @@ void idRenderBackend::Init()
 	hiZGenPass = nullptr;
 	ssaoPass = nullptr;
 
+	// Maximum resolution of one tile within tiled shadow map. Resolution must be power of two and
+	// square, since quad-tree for managing tiles will not work correctly otherwise. Furthermore
+	// resolution must be at least 16.
+	const int MAX_TILE_RES = 512;
+
+	// Specifies how many levels the quad-tree for managing tiles within tiled shadow map should
+	// have. The higher the value, the smaller the resolution of the smallest used tile will be.
+	// In the current configuration of 8192 resolution and 8 levels, the smallest tile will have
+	// a resolution of 64. 16 is the smallest allowed value for the min tile resolution.
+	const int NUM_QUAD_TREE_LEVELS = 8;
+
+	tileMap.Init( r_shadowMapAtlasSize.GetInteger(), MAX_TILE_RES, NUM_QUAD_TREE_LEVELS );
+
 	tr.SetInitialized();
 
 	if( !commandList )

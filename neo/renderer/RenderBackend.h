@@ -501,7 +501,9 @@ private:
 	float				hdrMaxLuminance;
 	float				hdrTime;
 	float				hdrKey;
-	// RB end
+
+	// quad-tree for managing tiles within tiled shadow map
+	TileMap				tileMap;
 
 private:
 #if defined( USE_NVRHI )

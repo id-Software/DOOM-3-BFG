@@ -3828,7 +3828,25 @@ void idRenderBackend::ShadowMapPassOld( const drawSurf_t* drawSurfs, viewLight_t
 	renderLog.CloseBlock();
 }
 
-void RectAllocatorBinPack2D( const idList<idVec2i>& inputSizes, const idStrList& inputNames, idList<idVec2i>& outputPositions, idVec2i& totalSize, const int START_MAX );
+//void RectAllocatorBinPack2D( const idList<idVec2i>& inputSizes, const idStrList& inputNames, idList<idVec2i>& outputPositions, idVec2i& totalSize, const int START_MAX );
+
+void RectAllocatorQuadTree( const idList<idVec2i>& inputSizes, idList<idVec2i>& outputPositions, idVec2i& totalSize, const int TILED_SM_RES, const int MAX_TILE_RES, const int NUM_QUAD_TREE_LEVELS );
+
+class idSortrects : public idSort_Quick< int, idSortrects >
+{
+public:
+	int SizeMetric( idVec2i v ) const
+	{
+		// skinny rects will sort earlier than square ones, because
+		// they are more likely to grow the entire region
+		return v.x * v.x + v.y * v.y;
+	}
+	int Compare( const int& a, const int& b ) const
+	{
+		return SizeMetric( ( *inputSizes )[b] ) - SizeMetric( ( *inputSizes )[a] );
+	}
+	const idList<idVec2i>* inputSizes;
+};
 
 void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 {
@@ -3919,9 +3937,52 @@ void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 	}
 
 	idList<idVec2i>	outputPositions;
-	idVec2i	totalSize;
+	//idVec2i	totalSize;
 
-	RectAllocatorBinPack2D( inputSizes, inputNames, outputPositions, totalSize, r_shadowMapAtlasSize.GetInteger() );
+	//RectAllocatorQuadTree( inputSizes, outputPositions, totalSize, r_shadowMapAtlasSize.GetInteger(), 1024, 8 );
+
+	// RB: we don't use RectAllocatorQuadTree here because we don't want to rebuild the quad tree every frame
+
+	outputPositions.SetNum( inputSizes.Num() );
+
+	idList<int> sizeRemap;
+	sizeRemap.SetNum( inputSizes.Num() );
+	for( int i = 0; i < inputSizes.Num(); i++ )
+	{
+		sizeRemap[i] = i;
+	}
+
+	// Sort the rects from largest to smallest (it makes allocating them in the image better)
+	idSortrects sortrectsBySize;
+	sortrectsBySize.inputSizes = &inputSizes;
+	sizeRemap.SortWithTemplate( sortrectsBySize );
+
+	tileMap.Clear();
+
+	for( int i = 0; i < inputSizes.Num(); i++ )
+	{
+		idVec2i	size = inputSizes[sizeRemap[i]];
+
+		int area = Max( size.x, size.y );
+
+		Tile tile;
+		bool result = tileMap.GetTile( area, tile );
+
+		if( !result )
+		{
+			outputPositions[sizeRemap[i]].Set( -1, -1 );
+		}
+		else
+		{
+			// convert from [-1..-1] -> [0..1] and flip y
+			idVec2 uvPos;
+			uvPos.x = tile.position.x * 0.5f + 0.5f;
+			uvPos.y = 1.0f - ( tile.position.y * 0.5f + 0.5f );
+
+			outputPositions[sizeRemap[i]].x = uvPos.x * r_shadowMapAtlasSize.GetInteger();
+			outputPositions[sizeRemap[i]].y = uvPos.y * r_shadowMapAtlasSize.GetInteger();
+		}
+	}
 
 	//
 	// for each light, perform shadowing to a big atlas Framebuffer
