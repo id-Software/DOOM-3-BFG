@@ -3833,7 +3833,7 @@ void idRenderBackend::ShadowMapPassOld( const drawSurf_t* drawSurfs, viewLight_t
 	renderLog.CloseBlock();
 }
 
-//void RectAllocatorBinPack2D( const idList<idVec2i>& inputSizes, const idStrList& inputNames, idList<idVec2i>& outputPositions, idVec2i& totalSize, const int START_MAX );
+void RectAllocatorBinPack2D( const idList<idVec2i>& inputSizes, const idStrList& inputNames, idList<idVec2i>& outputPositions, idVec2i& totalSize, const int START_MAX );
 
 void RectAllocatorQuadTree( const idList<idVec2i>& inputSizes, idList<idVec2i>& outputPositions, idVec2i& totalSize, const int TILED_SM_RES, const int MAX_TILE_RES, const int NUM_QUAD_TREE_LEVELS );
 
@@ -3885,7 +3885,7 @@ void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 
 	int				shadowIndex = 0;
 	idList<idVec2i>	inputSizes;
-	//idStrList		inputNames;
+	idStrList		inputNames;
 
 	for( const viewLight_t* vLight = viewDef->viewLights; vLight != NULL; vLight = vLight->next )
 	{
@@ -3935,15 +3935,20 @@ void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 		for( ; side < sideStop ; side++ )
 		{
 			inputSizes.Append( idVec2i( shadowMapResolutions[ vLight->shadowLOD ], shadowMapResolutions[ vLight->shadowLOD ] ) );
-			//inputNames.Append( lightShader->GetName() );
+			inputNames.Append( lightShader->GetName() );
 
 			shadowIndex++;
 		}
 	}
 
 	idList<idVec2i>	outputPositions;
-	//idVec2i	totalSize;
+	idVec2i	totalSize;
 
+#if 1
+
+	RectAllocatorBinPack2D( inputSizes, inputNames, outputPositions, totalSize, r_shadowMapAtlasSize.GetInteger() );
+
+#else
 	//RectAllocatorQuadTree( inputSizes, outputPositions, totalSize, r_shadowMapAtlasSize.GetInteger(), 1024, 8 );
 
 	// RB: we don't use RectAllocatorQuadTree here because we don't want to rebuild the quad tree every frame
@@ -3964,12 +3969,10 @@ void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 
 	tileMap.Clear();
 
-	int failedNum = 0;
-
 	for( int i = 0; i < inputSizes.Num(); i++ )
 	{
-		//shadowIndex = sizeRemap[i];
-		shadowIndex = i;
+		shadowIndex = sizeRemap[i];
+		//shadowIndex = i;
 
 		idVec2i	size = inputSizes[ shadowIndex ];
 
@@ -3981,7 +3984,6 @@ void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 		if( !result )
 		{
 			outputPositions[ shadowIndex ].Set( -1, -1 );
-			failedNum++;
 		}
 		else
 		{
@@ -3998,13 +4000,13 @@ void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 			outputPositions[ shadowIndex ].y = iPos.y;
 		}
 	}
-
-	idLib::Printf( "failed tiling for %i shadow maps\n", failedNum );
+#endif
 
 	//
 	// for each light, perform shadowing to a big atlas Framebuffer
 	//
 	shadowIndex = 0;
+	int failedNum = 0;
 
 	for( viewLight_t* vLight = viewDef->viewLights; vLight != NULL; vLight = vLight->next )
 	{
@@ -4076,6 +4078,7 @@ void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 			{
 				// didn't fit into atlas anymore
 				imageFitsIntoAtlas = false;
+				failedNum++;
 				continue;
 			}
 
@@ -4089,6 +4092,8 @@ void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 
 		renderLog.CloseBlock();
 	}
+
+	//idLib::Printf( "failed tiling for %i shadow maps\n", failedNum );
 
 	// go back to main render target
 	if( previousFramebuffer != NULL )
