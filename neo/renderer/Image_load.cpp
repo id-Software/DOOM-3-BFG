@@ -759,20 +759,22 @@ StorageSize
 */
 int idImage::StorageSize() const
 {
-
 	if( !IsLoaded() )
 	{
 		return 0;
 	}
-	int baseSize = opts.width * opts.height;
-	if( opts.numLevels > 1 )
+
+	size_t baseSize = opts.width * opts.height;
+	if( opts.numLevels > 1 && !opts.isRenderTarget )
 	{
 		baseSize *= 4;
 		baseSize /= 3;
 	}
+
 	baseSize *= BitsForFormat( opts.format );
 	baseSize /= 8;
-	return baseSize;
+
+	return int( baseSize );
 }
 
 /*
@@ -835,11 +837,14 @@ void idImage::Print() const
 			NAME_FORMAT( RGBA16F );
 			NAME_FORMAT( RGBA32F );
 			NAME_FORMAT( R32F );
+			NAME_FORMAT( R8 );
 			NAME_FORMAT( R11G11B10F );
 			// RB end
 			NAME_FORMAT( DEPTH );
+			NAME_FORMAT( DEPTH_STENCIL );
 			NAME_FORMAT( X16 );
 			NAME_FORMAT( Y16_X16 );
+			NAME_FORMAT( SRGB8 );
 		default:
 			common->Printf( "<%3i>", opts.format );
 			break;

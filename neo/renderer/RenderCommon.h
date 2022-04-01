@@ -434,6 +434,11 @@ struct viewLight_t
 
 	// R_AddSingleLight will build a chain of parameters here to setup shadow volumes
 	preLightShadowVolumeParms_t* 	preLightShadowVolumes;
+
+	bool					ImageAtlasPlaced() const
+	{
+		return ( imageSize.x != -1 ) && ( imageSize.y != -1 );
+	}
 };
 
 // a viewEntity is created whenever a idRenderEntityLocal is considered for inclusion

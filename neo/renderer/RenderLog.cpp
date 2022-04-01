@@ -490,6 +490,10 @@ void idRenderLog::FetchGPUTimers( backEndCounters_t& pc )
 			{
 				pc.gpuAmbientPassMicroSec = time;
 			}
+			else if( i == MRB_SHADOW_ATLAS_PASS )
+			{
+				pc.gpuShadowAtlasPassMicroSec = time;
+			}
 			else if( i == MRB_DRAW_INTERACTIONS )
 			{
 				pc.gpuInteractionsMicroSec = time;

@@ -1229,7 +1229,7 @@ void idRenderBackend::DrawSingleInteraction( drawInteraction_t* din, bool useFas
 			}
 			else
 			{
-				if( r_useShadowMapping.GetBool() && din->vLight->globalShadows )
+				if( r_useShadowMapping.GetBool() && din->vLight->globalShadows && din->vLight->ImageAtlasPlaced() )
 				{
 					// RB: we have shadow mapping enabled and shadow maps so do a shadow compare
 
@@ -1297,7 +1297,7 @@ void idRenderBackend::DrawSingleInteraction( drawInteraction_t* din, bool useFas
 			}
 			else
 			{
-				if( r_useShadowMapping.GetBool() && din->vLight->globalShadows )
+				if( r_useShadowMapping.GetBool() && din->vLight->globalShadows && din->vLight->ImageAtlasPlaced() )
 				{
 					// RB: we have shadow mapping enabled and shadow maps so do a shadow compare
 
@@ -1498,7 +1498,7 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 	bool lightDepthBoundsDisabled = false;
 
 	// RB begin
-	if( r_useShadowMapping.GetBool() )
+	if( r_useShadowMapping.GetBool() && vLight->ImageAtlasPlaced() )
 	{
 		const static int JITTER_SIZE = 128;
 
@@ -1736,7 +1736,7 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 				SetVertexParm( RENDERPARM_LIGHTFALLOFF_S, lightProjection[3].ToFloatPtr() );
 
 				// RB begin
-				if( r_useShadowMapping.GetBool() )
+				if( r_useShadowMapping.GetBool() && vLight->ImageAtlasPlaced() )
 				{
 					if( vLight->parallel )
 					{
@@ -3380,7 +3380,7 @@ void idRenderBackend::ShadowMapPassFast( const drawSurf_t* drawSurfs, viewLight_
 
 	if( atlas )
 	{
-		//globalFramebuffers.shadowAtlasFBO->Bind();
+		globalFramebuffers.shadowAtlasFBO->Bind();
 
 		// TODO light offset in atlas
 
@@ -3434,7 +3434,7 @@ void idRenderBackend::ShadowMapPassFast( const drawSurf_t* drawSurfs, viewLight_
 	for( const drawSurf_t* drawSurf = drawSurfs; drawSurf != NULL; drawSurf = drawSurf->nextOnLight )
 	{
 
-#if 1
+#if 0
 		// make sure the shadow occluder geometry is done
 		if( drawSurf->shadowVolumeState != SHADOWVOLUME_DONE )
 		{
@@ -3945,8 +3945,8 @@ void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 			continue;
 		}
 
-		const idMaterial* lightShader = vLight->lightShader;
-		renderLog.OpenBlock( lightShader->GetName(), colorMdGrey );
+		//const idMaterial* lightShader = vLight->lightShader;
+		//renderLog.OpenBlock( lightShader->GetName(), colorMdGrey );
 
 		// set the depth bounds for the whole light
 		if( useLightDepthBounds )
@@ -3983,6 +3983,8 @@ void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 		vLight->imageSize.x = shadowMapResolutions[ vLight->shadowLOD ];
 		vLight->imageSize.y = shadowMapResolutions[ vLight->shadowLOD ];
 
+		bool imageFitsIntoAtlas = true;
+
 		for( ; side < sideStop ; side++ )
 		{
 			int slice = Max( 0, side );
@@ -3995,13 +3997,19 @@ void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 			if( vLight->imageAtlasOffset[ slice ].x == -1 || vLight->imageAtlasOffset[ slice ].y == -1 )
 			{
 				// didn't fit into atlas anymore
+				imageFitsIntoAtlas = false;
 				continue;
 			}
 
 			ShadowMapPassFast( vLight->globalShadows, vLight, side, true );
 		}
 
-		renderLog.CloseBlock();
+		if( !imageFitsIntoAtlas )
+		{
+			vLight->imageSize.x = -1;
+		}
+
+		//renderLog.CloseBlock();
 	}
 
 	// go back to main render target

@@ -293,7 +293,7 @@ void RectAllocatorBinPack2D( const idList<idVec2i>& inputSizes, const idStrList&
 #endif
 	}
 
-
+#if 0
 	for( binpack2d_iterator itor = remainder.Get().begin(); itor != remainder.Get().end(); itor++ )
 	{
 		const BinPack2D::Content<MyContent>& content = *itor;
@@ -309,4 +309,5 @@ void RectAllocatorBinPack2D( const idList<idVec2i>& inputSizes, const idStrList&
 					   content.size.w,
 					   content.size.h );
 	}
+#endif
 }
