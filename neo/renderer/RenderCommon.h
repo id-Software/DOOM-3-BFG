@@ -1091,7 +1091,6 @@ extern idCVar r_swapInterval;				// changes wglSwapIntarval
 extern idCVar r_offsetFactor;				// polygon offset parameter
 extern idCVar r_offsetUnits;				// polygon offset parameter
 extern idCVar r_singleTriangle;				// only draw a single triangle per primitive
-extern idCVar r_logFile;					// number of frames to emit GL logs
 extern idCVar r_clear;						// force screen clear every frame
 extern idCVar r_subviewOnly;				// 1 = don't render main view, allowing subviews to be debugged
 extern idCVar r_lightScale;					// all light intensities are multiplied by this, which is normally 3

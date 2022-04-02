@@ -1229,7 +1229,7 @@ void idRenderBackend::DrawSingleInteraction( drawInteraction_t* din, bool useFas
 			}
 			else
 			{
-				if( r_useShadowMapping.GetBool() && din->vLight->globalShadows && din->vLight->ImageAtlasPlaced() )
+				if( !r_skipShadows.GetBool() && r_useShadowMapping.GetBool() && din->vLight->globalShadows && din->vLight->ImageAtlasPlaced() )
 				{
 					// RB: we have shadow mapping enabled and shadow maps so do a shadow compare
 
@@ -1297,7 +1297,7 @@ void idRenderBackend::DrawSingleInteraction( drawInteraction_t* din, bool useFas
 			}
 			else
 			{
-				if( r_useShadowMapping.GetBool() && din->vLight->globalShadows && din->vLight->ImageAtlasPlaced() )
+				if( !r_skipShadows.GetBool() && r_useShadowMapping.GetBool() && din->vLight->globalShadows && din->vLight->ImageAtlasPlaced() )
 				{
 					// RB: we have shadow mapping enabled and shadow maps so do a shadow compare
 
@@ -1498,7 +1498,7 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 	bool lightDepthBoundsDisabled = false;
 
 	// RB begin
-	if( r_useShadowMapping.GetBool() && vLight->ImageAtlasPlaced() )
+	if( !r_skipShadows.GetBool() && r_useShadowMapping.GetBool() && vLight->ImageAtlasPlaced() )
 	{
 		const static int JITTER_SIZE = 128;
 
@@ -1736,7 +1736,7 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 				SetVertexParm( RENDERPARM_LIGHTFALLOFF_S, lightProjection[3].ToFloatPtr() );
 
 				// RB begin
-				if( r_useShadowMapping.GetBool() && vLight->ImageAtlasPlaced() )
+				if( !r_skipShadows.GetBool() && r_useShadowMapping.GetBool() && vLight->ImageAtlasPlaced() )
 				{
 					if( vLight->parallel )
 					{
@@ -1781,7 +1781,6 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 						idRenderMatrix::Multiply( vLight->shadowP[0], modelToShadowMatrix, shadowClipMVP );
 
 						SetVertexParms( ( renderParm_t )( RENDERPARM_SHADOW_MATRIX_0_X ), shadowClipMVP[0], 4 );
-
 					}
 				}
 				// RB end
@@ -3381,8 +3380,6 @@ void idRenderBackend::ShadowMapPassFast( const drawSurf_t* drawSurfs, viewLight_
 	if( atlas )
 	{
 		globalFramebuffers.shadowAtlasFBO->Bind();
-
-		// TODO light offset in atlas
 
 		GL_ViewportAndScissor( vLight->imageAtlasOffset[slice].x, vLight->imageAtlasOffset[slice].y, vLight->imageSize.x, vLight->imageSize.y );
 	}
