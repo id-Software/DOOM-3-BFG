@@ -40,9 +40,11 @@ static const int ENVPROBE_CAPTURE_SIZE = 256;
 static const int RADIANCE_OCTAHEDRON_SIZE = 512;
 static const int IRRADIANCE_OCTAHEDRON_SIZE = 30 + 2;
 
+// RB: shadow resolutions used in 1.3
 //static	int shadowMapResolutions[MAX_SHADOWMAP_RESOLUTIONS] = { 2048, 1024, 512, 512, 256 };
+
+// if we use higher resolutions than this than the shadow casting lights don't fit into the 16384^2 atlas anymore
 static	int shadowMapResolutions[MAX_SHADOWMAP_RESOLUTIONS] = { 1024, 512, 512, 256, 128 };
-//static	int shadowMapResolutions[MAX_SHADOWMAP_RESOLUTIONS] = { 1024, 1024, 1024, 1024, 1024 };
 
 
 class Framebuffer

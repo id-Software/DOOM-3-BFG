@@ -1510,7 +1510,7 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 		float screenCorrectionParm[4];
 		screenCorrectionParm[0] = 1.0f / ( JITTER_SIZE * shadowMapSamples ) ;
 		screenCorrectionParm[1] = 1.0f / JITTER_SIZE;
-		screenCorrectionParm[2] = 1.0f / vLight->imageSize.x; // atlas sample scale
+		screenCorrectionParm[2] = 1.0f / r_shadowMapAtlasSize.GetInteger(); // atlas sample scale
 		screenCorrectionParm[3] = vLight->parallel ? r_shadowMapSunDepthBiasScale.GetFloat() : r_shadowMapRegularDepthBiasScale.GetFloat();
 		SetFragmentParm( RENDERPARM_SCREENCORRECTIONFACTOR, screenCorrectionParm ); // rpScreenCorrectionFactor
 
@@ -3885,7 +3885,7 @@ void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 
 	int				shadowIndex = 0;
 	idList<idVec2i>	inputSizes;
-	idStrList		inputNames;
+	//idStrList		inputNames;
 
 	for( const viewLight_t* vLight = viewDef->viewLights; vLight != NULL; vLight = vLight->next )
 	{
@@ -3935,16 +3935,17 @@ void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 		for( ; side < sideStop ; side++ )
 		{
 			inputSizes.Append( idVec2i( shadowMapResolutions[ vLight->shadowLOD ], shadowMapResolutions[ vLight->shadowLOD ] ) );
-			inputNames.Append( lightShader->GetName() );
+			//inputNames.Append( lightShader->GetName() );
 
 			shadowIndex++;
 		}
 	}
 
 	idList<idVec2i>	outputPositions;
-	idVec2i	totalSize;
+	idList<int>		outputSizes;
+	//idVec2i	totalSize;
 
-#if 1
+#if 0
 
 	RectAllocatorBinPack2D( inputSizes, inputNames, outputPositions, totalSize, r_shadowMapAtlasSize.GetInteger() );
 
@@ -3954,6 +3955,7 @@ void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 	// RB: we don't use RectAllocatorQuadTree here because we don't want to rebuild the quad tree every frame
 
 	outputPositions.SetNum( inputSizes.Num() );
+	outputSizes.SetNum( inputSizes.Num() );
 
 	idList<int> sizeRemap;
 	sizeRemap.SetNum( inputSizes.Num() );
@@ -3977,6 +3979,7 @@ void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 		idVec2i	size = inputSizes[ shadowIndex ];
 
 		int area = Max( size.x, size.y );
+		//int area = 1024;
 
 		Tile tile;
 		bool result = tileMap.GetTile( area, tile );
@@ -3984,17 +3987,25 @@ void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 		if( !result )
 		{
 			outputPositions[ shadowIndex ].Set( -1, -1 );
+			outputSizes[ shadowIndex ] = area;
 		}
 		else
 		{
+			int imageSize = tile.size * r_shadowMapAtlasSize.GetInteger();
+			outputSizes[ shadowIndex ] = imageSize;
+
 			// convert from [-1..-1] -> [0..1] and flip y
 			idVec2 uvPos;
 			uvPos.x = tile.position.x * 0.5f + 0.5f;
-			uvPos.y = 1.0f - ( tile.position.y * 0.5f + 0.5f );
+			uvPos.y = tile.position.y * 0.5f + 0.5f;
 
 			idVec2i iPos;
 			iPos.x = uvPos.x * r_shadowMapAtlasSize.GetInteger();
 			iPos.y = uvPos.y * r_shadowMapAtlasSize.GetInteger();
+
+			// RB: this is really odd but necessary
+			iPos.x -= imageSize * 0.5f;
+			iPos.y -= imageSize * 0.5f;
 
 			outputPositions[ shadowIndex ].x = iPos.x;
 			outputPositions[ shadowIndex ].y = iPos.y;
@@ -4060,8 +4071,11 @@ void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 			sideStop = 0;
 		}
 
-		vLight->imageSize.x = shadowMapResolutions[ vLight->shadowLOD ];
-		vLight->imageSize.y = shadowMapResolutions[ vLight->shadowLOD ];
+		//vLight->imageSize.x = shadowMapResolutions[ vLight->shadowLOD ];
+		//vLight->imageSize.y = shadowMapResolutions[ vLight->shadowLOD ];
+
+		vLight->imageSize.x = outputSizes[ shadowIndex ];
+		vLight->imageSize.y = outputSizes[ shadowIndex ];
 
 		bool imageFitsIntoAtlas = true;
 

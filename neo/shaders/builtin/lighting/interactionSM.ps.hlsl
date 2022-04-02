@@ -226,10 +226,11 @@ void main( PS_IN fragment, out PS_OUT result )
 
 	shadowTexcoord.xyz /= shadowTexcoord.w;
 
-	shadowTexcoord.z = shadowTexcoord.z * rpScreenCorrectionFactor.w;
+	// receiver / occluder terminology like in ESM
+	float receiver = shadowTexcoord.z * rpScreenCorrectionFactor.w;
 	//shadowTexcoord.z = shadowTexcoord.z * 0.999991;
 	//shadowTexcoord.z = shadowTexcoord.z - bias;
-	shadowTexcoord.w = float( shadowIndex );
+	//shadowTexcoord.w = float( shadowIndex );
 
 	// multiple taps
 
@@ -306,7 +307,7 @@ void main( PS_IN fragment, out PS_OUT result )
 
 	shadow *= stepSize;
 
-#elif 0
+#elif 1
 
 #if 0
 
@@ -331,7 +332,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	float shadow = 0.0;
 
 	// RB: casting a float to int and using it as index can really kill the performance ...
-	float numSamples = 6.0;
+	float numSamples = 12.0;
 	float stepSize = 1.0 / numSamples;
 
 	float random = BlueNoise( fragment.position.xy, 1.0 );
@@ -344,16 +345,19 @@ void main( PS_IN fragment, out PS_OUT result )
 	rot.y = sin( random );
 
 	float shadowTexelSize = rpScreenCorrectionFactor.z * rpJitterTexScale.x;
-	for( int i = 0; i < 6; i++ )
+	for( int si = 0; si < 12; si++ )
 	{
-		float2 jitter = poissonDisk[i];
+		float2 jitter = poissonDisk[si];
 		float2 jitterRotated;
 		jitterRotated.x = jitter.x * rot.x - jitter.y * rot.y;
 		jitterRotated.y = jitter.x * rot.y + jitter.y * rot.x;
 
-		float4 shadowTexcoordJittered = float4( shadowTexcoord.xy + jitterRotated * shadowTexelSize, shadowTexcoord.z, shadowTexcoord.w );
+		// [0 .. 1] -> rectangle in atlas transform
+		float2 shadowTexcoordAtlas = shadowTexcoord.xy * rpJitterTexScale.y + rpShadowAtlasOffsets[ shadowIndex ].xy;
 
-		shadow += idtex2Dproj( s_Shadow, t_ShadowMapArray, shadowTexcoordJittered.xywz );
+		float2 shadowTexcoordJittered = shadowTexcoordAtlas.xy + jitterRotated * shadowTexelSize;
+
+		shadow += t_ShadowAtlas.SampleCmpLevelZero( s_Shadow, shadowTexcoordJittered.xy, receiver );
 	}
 
 	shadow *= stepSize;
@@ -379,9 +383,12 @@ void main( PS_IN fragment, out PS_OUT result )
 	{
 		float2 jitter = VogelDiskSample( si, numSamples, vogelPhi );
 
-		float4 shadowTexcoordJittered = float4( shadowTexcoord.xy + jitter * shadowTexelSize, shadowTexcoord.z, shadowTexcoord.w );
+		// [0 .. 1] -> rectangle in atlas transform
+		float2 shadowTexcoordAtlas = shadowTexcoord.xy * rpJitterTexScale.y + rpShadowAtlasOffsets[ shadowIndex ].xy;
 
-		shadow += t_ShadowMapArray.SampleCmpLevelZero( s_Shadow, shadowTexcoordJittered.xyw, shadowTexcoordJittered.z );
+		float2 shadowTexcoordJittered = shadowTexcoordAtlas + jitter * shadowTexelSize;
+
+		shadow += t_ShadowAtlas.SampleCmpLevelZero( s_Shadow, shadowTexcoordJittered.xy, receiver );
 	}
 
 	shadow *= stepSize;
@@ -395,7 +402,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	// [0 .. 1] -> rectangle in atlas transform
 	uvShadow = uvShadow * rpJitterTexScale.y + rpShadowAtlasOffsets[ shadowIndex ].xy;
 
-	float shadow = t_ShadowAtlas.SampleCmpLevelZero( s_Shadow, uvShadow.xy, shadowTexcoord.z );
+	float shadow = t_ShadowAtlas.SampleCmpLevelZero( s_Shadow, uvShadow.xy, receiver );
 
 #if 0
 	if( shadowIndex == 0 )
