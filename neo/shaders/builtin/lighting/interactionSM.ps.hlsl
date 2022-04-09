@@ -38,8 +38,11 @@ Texture2D				t_Specular			: register( t1 VK_DESCRIPTOR_SET( 0 ) );
 Texture2D				t_BaseColor			: register( t2 VK_DESCRIPTOR_SET( 0 ) );
 Texture2D				t_LightFalloff		: register( t3 VK_DESCRIPTOR_SET( 0 ) );
 Texture2D				t_LightProjection	: register( t4 VK_DESCRIPTOR_SET( 0 ) );
-//Texture2DArray<float>	t_ShadowMapArray	: register( t5 VK_DESCRIPTOR_SET( 0 ) );
+#if USE_SHADOW_ATLAS
 Texture2D				t_ShadowAtlas		: register( t5 VK_DESCRIPTOR_SET( 0 ) );
+#else
+Texture2DArray<float>	t_ShadowMapArray	: register( t5 VK_DESCRIPTOR_SET( 0 ) );
+#endif
 Texture2D				t_Jitter			: register( t6 VK_DESCRIPTOR_SET( 0 ) );
 
 SamplerState			s_Material : register( s0 VK_DESCRIPTOR_SET( 1 ) ); // for the normal/specular/basecolor
@@ -230,7 +233,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	float receiver = shadowTexcoord.z * rpScreenCorrectionFactor.w;
 	//shadowTexcoord.z = shadowTexcoord.z * 0.999991;
 	//shadowTexcoord.z = shadowTexcoord.z - bias;
-	//shadowTexcoord.w = float( shadowIndex );
+	shadowTexcoord.w = float( shadowIndex );
 
 	// multiple taps
 
@@ -383,18 +386,26 @@ void main( PS_IN fragment, out PS_OUT result )
 	{
 		float2 jitter = VogelDiskSample( si, numSamples, vogelPhi );
 
+#if USE_SHADOW_ATLAS
 		// [0 .. 1] -> rectangle in atlas transform
 		float2 shadowTexcoordAtlas = shadowTexcoord.xy * rpJitterTexScale.y + rpShadowAtlasOffsets[ shadowIndex ].xy;
 
 		float2 shadowTexcoordJittered = shadowTexcoordAtlas + jitter * shadowTexelSize;
 
 		shadow += t_ShadowAtlas.SampleCmpLevelZero( s_Shadow, shadowTexcoordJittered.xy, receiver );
+#else
+		float3 shadowTexcoordJittered = float3( shadowTexcoord.xy + jitter * shadowTexelSize, shadowTexcoord.w );
+
+		shadow += t_ShadowMapArray.SampleCmpLevelZero( s_Shadow, shadowTexcoordJittered, receiver );
+#endif
 	}
 
 	shadow *= stepSize;
 #endif
 
 #else
+
+#if USE_SHADOW_ATLAS
 	float2 uvShadow;
 	uvShadow.x = shadowTexcoord.x;
 	uvShadow.y = shadowTexcoord.y;
@@ -403,6 +414,13 @@ void main( PS_IN fragment, out PS_OUT result )
 	uvShadow = uvShadow * rpJitterTexScale.y + rpShadowAtlasOffsets[ shadowIndex ].xy;
 
 	float shadow = t_ShadowAtlas.SampleCmpLevelZero( s_Shadow, uvShadow.xy, receiver );
+#else
+	float3 uvzShadow;
+	uvzShadow.x = shadowTexcoord.x;
+	uvzShadow.y = shadowTexcoord.y;
+	uvzShadow.z = shadowTexcoord.w;
+	float shadow = t_ShadowMapArray.SampleCmpLevelZero( samp2, uvzShadow, receiver );
+#endif
 
 #if 0
 	if( shadowIndex == 0 )

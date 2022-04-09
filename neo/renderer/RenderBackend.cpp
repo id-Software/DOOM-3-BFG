@@ -1211,6 +1211,8 @@ void idRenderBackend::DrawSingleInteraction( drawInteraction_t* din, bool useFas
 	}
 	else if( setInteractionShader )
 	{
+		// TODO extra paths for foliage, terrain and skin
+
 		if( specUsage == TD_SPECULAR_PBR_RMAO || specUsage == TD_SPECULAR_PBR_RMAOD )
 		{
 			// PBR path with roughness, metal and AO
@@ -1229,41 +1231,97 @@ void idRenderBackend::DrawSingleInteraction( drawInteraction_t* din, bool useFas
 			}
 			else
 			{
-				if( !r_skipShadows.GetBool() && r_useShadowMapping.GetBool() && din->vLight->globalShadows && din->vLight->ImageAtlasPlaced() )
+				if( !r_skipShadows.GetBool() && r_useShadowMapping.GetBool() && din->vLight->globalShadows )
 				{
 					// RB: we have shadow mapping enabled and shadow maps so do a shadow compare
 
-					if( din->vLight->parallel )
+					if( r_useShadowAtlas.GetBool() )
 					{
-						if( din->surf->jointCache )
+						if( din->vLight->ImageAtlasPlaced() )
 						{
-							renderProgManager.BindShader_PBR_Interaction_ShadowMapping_Parallel_Skinned();
+							if( din->vLight->parallel )
+							{
+								if( din->surf->jointCache )
+								{
+									renderProgManager.BindShader_PBR_Interaction_ShadowAtlas_Parallel_Skinned();
+								}
+								else
+								{
+									renderProgManager.BindShader_PBR_Interaction_ShadowAtlas_Parallel();
+								}
+							}
+							else if( din->vLight->pointLight )
+							{
+								if( din->surf->jointCache )
+								{
+									renderProgManager.BindShader_PBR_Interaction_ShadowAtlas_Point_Skinned();
+								}
+								else
+								{
+									renderProgManager.BindShader_PBR_Interaction_ShadowAtlas_Point();
+								}
+							}
+							else
+							{
+								if( din->surf->jointCache )
+								{
+									renderProgManager.BindShader_PBR_Interaction_ShadowAtlas_Spot_Skinned();
+								}
+								else
+								{
+									renderProgManager.BindShader_PBR_Interaction_ShadowAtlas_Spot();
+								}
+							}
 						}
 						else
 						{
-							renderProgManager.BindShader_PBR_Interaction_ShadowMapping_Parallel();
-						}
-					}
-					else if( din->vLight->pointLight )
-					{
-						if( din->surf->jointCache )
-						{
-							renderProgManager.BindShader_PBR_Interaction_ShadowMapping_Point_Skinned();
-						}
-						else
-						{
-							renderProgManager.BindShader_PBR_Interaction_ShadowMapping_Point();
+							// no shadowmap allocation possible
+							if( din->surf->jointCache )
+							{
+								renderProgManager.BindShader_PBR_InteractionSkinned();
+							}
+							else
+							{
+								renderProgManager.BindShader_PBR_Interaction();
+							}
 						}
 					}
 					else
 					{
-						if( din->surf->jointCache )
+						// regular shadow mapping
+
+						if( din->vLight->parallel )
 						{
-							renderProgManager.BindShader_PBR_Interaction_ShadowMapping_Spot_Skinned();
+							if( din->surf->jointCache )
+							{
+								renderProgManager.BindShader_PBR_Interaction_ShadowMapping_Parallel_Skinned();
+							}
+							else
+							{
+								renderProgManager.BindShader_PBR_Interaction_ShadowMapping_Parallel();
+							}
+						}
+						else if( din->vLight->pointLight )
+						{
+							if( din->surf->jointCache )
+							{
+								renderProgManager.BindShader_PBR_Interaction_ShadowMapping_Point_Skinned();
+							}
+							else
+							{
+								renderProgManager.BindShader_PBR_Interaction_ShadowMapping_Point();
+							}
 						}
 						else
 						{
-							renderProgManager.BindShader_PBR_Interaction_ShadowMapping_Spot();
+							if( din->surf->jointCache )
+							{
+								renderProgManager.BindShader_PBR_Interaction_ShadowMapping_Spot_Skinned();
+							}
+							else
+							{
+								renderProgManager.BindShader_PBR_Interaction_ShadowMapping_Spot();
+							}
 						}
 					}
 				}
@@ -1297,41 +1355,97 @@ void idRenderBackend::DrawSingleInteraction( drawInteraction_t* din, bool useFas
 			}
 			else
 			{
-				if( !r_skipShadows.GetBool() && r_useShadowMapping.GetBool() && din->vLight->globalShadows && din->vLight->ImageAtlasPlaced() )
+				if( !r_skipShadows.GetBool() && r_useShadowMapping.GetBool() && din->vLight->globalShadows )
 				{
 					// RB: we have shadow mapping enabled and shadow maps so do a shadow compare
 
-					if( din->vLight->parallel )
+					if( r_useShadowAtlas.GetBool() )
 					{
-						if( din->surf->jointCache )
+						if( din->vLight->ImageAtlasPlaced() )
 						{
-							renderProgManager.BindShader_Interaction_ShadowMapping_Parallel_Skinned();
+							if( din->vLight->parallel )
+							{
+								if( din->surf->jointCache )
+								{
+									renderProgManager.BindShader_Interaction_ShadowAtlas_Parallel_Skinned();
+								}
+								else
+								{
+									renderProgManager.BindShader_Interaction_ShadowAtlas_Parallel();
+								}
+							}
+							else if( din->vLight->pointLight )
+							{
+								if( din->surf->jointCache )
+								{
+									renderProgManager.BindShader_Interaction_ShadowAtlas_Point_Skinned();
+								}
+								else
+								{
+									renderProgManager.BindShader_Interaction_ShadowAtlas_Point();
+								}
+							}
+							else
+							{
+								if( din->surf->jointCache )
+								{
+									renderProgManager.BindShader_Interaction_ShadowAtlas_Spot_Skinned();
+								}
+								else
+								{
+									renderProgManager.BindShader_Interaction_ShadowAtlas_Spot();
+								}
+							}
 						}
 						else
 						{
-							renderProgManager.BindShader_Interaction_ShadowMapping_Parallel();
-						}
-					}
-					else if( din->vLight->pointLight )
-					{
-						if( din->surf->jointCache )
-						{
-							renderProgManager.BindShader_Interaction_ShadowMapping_Point_Skinned();
-						}
-						else
-						{
-							renderProgManager.BindShader_Interaction_ShadowMapping_Point();
+							// no shadowmap allocation possible
+							if( din->surf->jointCache )
+							{
+								renderProgManager.BindShader_InteractionSkinned();
+							}
+							else
+							{
+								renderProgManager.BindShader_Interaction();
+							}
 						}
 					}
 					else
 					{
-						if( din->surf->jointCache )
+						// regular shadow mapping
+
+						if( din->vLight->parallel )
 						{
-							renderProgManager.BindShader_Interaction_ShadowMapping_Spot_Skinned();
+							if( din->surf->jointCache )
+							{
+								renderProgManager.BindShader_Interaction_ShadowMapping_Parallel_Skinned();
+							}
+							else
+							{
+								renderProgManager.BindShader_Interaction_ShadowMapping_Parallel();
+							}
+						}
+						else if( din->vLight->pointLight )
+						{
+							if( din->surf->jointCache )
+							{
+								renderProgManager.BindShader_Interaction_ShadowMapping_Point_Skinned();
+							}
+							else
+							{
+								renderProgManager.BindShader_Interaction_ShadowMapping_Point();
+							}
 						}
 						else
 						{
-							renderProgManager.BindShader_Interaction_ShadowMapping_Spot();
+							if( din->surf->jointCache )
+							{
+								renderProgManager.BindShader_Interaction_ShadowMapping_Spot_Skinned();
+							}
+							else
+							{
+								renderProgManager.BindShader_Interaction_ShadowMapping_Spot();
+							}
 						}
 					}
 				}
@@ -1498,28 +1612,13 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 	bool lightDepthBoundsDisabled = false;
 
 	// RB begin
-	if( !r_skipShadows.GetBool() && r_useShadowMapping.GetBool() && vLight->ImageAtlasPlaced() )
+	if( !r_skipShadows.GetBool() && r_useShadowMapping.GetBool() )
 	{
 		const static int JITTER_SIZE = 128;
 
 		// default high quality
 		float jitterSampleScale = 1.0f;
 		float shadowMapSamples = r_shadowMapSamples.GetInteger();
-
-		// screen power of two correction factor
-		float screenCorrectionParm[4];
-		screenCorrectionParm[0] = 1.0f / ( JITTER_SIZE * shadowMapSamples ) ;
-		screenCorrectionParm[1] = 1.0f / JITTER_SIZE;
-		screenCorrectionParm[2] = 1.0f / r_shadowMapAtlasSize.GetInteger(); // atlas sample scale
-		screenCorrectionParm[3] = vLight->parallel ? r_shadowMapSunDepthBiasScale.GetFloat() : r_shadowMapRegularDepthBiasScale.GetFloat();
-		SetFragmentParm( RENDERPARM_SCREENCORRECTIONFACTOR, screenCorrectionParm ); // rpScreenCorrectionFactor
-
-		float jitterTexScale[4];
-		jitterTexScale[0] = r_shadowMapJitterScale.GetFloat() * jitterSampleScale;	// TODO shadow buffer size fraction shadowMapSize / maxShadowMapSize
-		jitterTexScale[1] = vLight->imageSize.x / float( r_shadowMapAtlasSize.GetInteger() );
-		jitterTexScale[2] = -r_shadowMapBiasScale.GetFloat();
-		jitterTexScale[3] = shadowMapSamples;
-		SetFragmentParm( RENDERPARM_JITTERTEXSCALE, jitterTexScale ); // rpJitterTexScale
 
 		float jitterTexOffset[4];
 		jitterTexOffset[0] = 1.0f / globalImages->blueNoiseImage256->GetUploadWidth();
@@ -1547,8 +1646,23 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 			SetFragmentParm( RENDERPARM_CASCADEDISTANCES, cascadeDistances ); // rpCascadeDistances
 		}
 
-		if( r_useShadowAtlas.GetBool() )
+		if( r_useShadowAtlas.GetBool() && vLight->ImageAtlasPlaced() )
 		{
+			// screen power of two correction factor
+			float screenCorrectionParm[4];
+			screenCorrectionParm[0] = 1.0f / ( JITTER_SIZE * shadowMapSamples ) ;
+			screenCorrectionParm[1] = 1.0f / JITTER_SIZE;
+			screenCorrectionParm[2] = 1.0f / r_shadowMapAtlasSize.GetInteger(); // atlas sample scale
+			screenCorrectionParm[3] = vLight->parallel ? r_shadowMapSunDepthBiasScale.GetFloat() : r_shadowMapRegularDepthBiasScale.GetFloat();
+			SetFragmentParm( RENDERPARM_SCREENCORRECTIONFACTOR, screenCorrectionParm ); // rpScreenCorrectionFactor
+
+			float jitterTexScale[4];
+			jitterTexScale[0] = r_shadowMapJitterScale.GetFloat() * jitterSampleScale;	// TODO shadow buffer size fraction shadowMapSize / maxShadowMapSize
+			jitterTexScale[1] = vLight->imageSize.x / float( r_shadowMapAtlasSize.GetInteger() );
+			jitterTexScale[2] = -r_shadowMapBiasScale.GetFloat();
+			jitterTexScale[3] = shadowMapSamples;
+			SetFragmentParm( RENDERPARM_JITTERTEXSCALE, jitterTexScale ); // rpJitterTexScale
+
 			// float4
 			idVec4 shadowOffsets[6];
 
@@ -1559,6 +1673,23 @@ void idRenderBackend::RenderInteractions( const drawSurf_t* surfList, const view
 			}
 
 			SetVertexParms( RENDERPARM_SHADOW_ATLAS_OFFSET_0, &shadowOffsets[0][0], 6 );
+		}
+		else
+		{
+			// screen power of two correction factor
+			float screenCorrectionParm[4];
+			screenCorrectionParm[0] = 1.0f / ( JITTER_SIZE * shadowMapSamples ) ;
+			screenCorrectionParm[1] = 1.0f / JITTER_SIZE;
+			screenCorrectionParm[2] = 1.0f / shadowMapResolutions[vLight->shadowLOD];
+			screenCorrectionParm[3] = vLight->parallel ? r_shadowMapSunDepthBiasScale.GetFloat() : r_shadowMapRegularDepthBiasScale.GetFloat();
+			SetFragmentParm( RENDERPARM_SCREENCORRECTIONFACTOR, screenCorrectionParm ); // rpScreenCorrectionFactor
+
+			float jitterTexScale[4];
+			jitterTexScale[0] = r_shadowMapJitterScale.GetFloat() * jitterSampleScale;	// TODO shadow buffer size fraction shadowMapSize / maxShadowMapSize
+			jitterTexScale[1] = r_shadowMapJitterScale.GetFloat() * jitterSampleScale;
+			jitterTexScale[2] = -r_shadowMapBiasScale.GetFloat();
+			jitterTexScale[3] = shadowMapSamples;
+			SetFragmentParm( RENDERPARM_JITTERTEXSCALE, jitterTexScale ); // rpJitterTexScale
 		}
 
 	}
@@ -3852,7 +3983,7 @@ public:
 
 void idRenderBackend::ShadowAtlasPass( const viewDef_t* _viewDef )
 {
-	if( r_skipShadows.GetBool() || viewDef->viewLights == NULL )
+	if( r_skipShadows.GetBool() || !r_useShadowAtlas.GetBool() || viewDef->viewLights == NULL )
 	{
 		return;
 	}
