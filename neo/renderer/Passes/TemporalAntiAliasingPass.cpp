@@ -190,7 +190,7 @@ void TemporalAntiAliasingPass::Init(
 
 		m_ResolvePso = device->createComputePipeline( pipelineDesc );
 
-		AdvanceFrame();
+		//AdvanceFrame();
 	}
 }
 
