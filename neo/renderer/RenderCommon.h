@@ -860,9 +860,15 @@ enum bindingLayoutType_t
 	BINDING_LAYOUT_DRAW_FOG,
 	BINDING_LAYOUT_POST_PROCESS_CNM,
 	BINDING_LAYOUT_NORMAL_CUBE,
+
+	// NVRHI render passes specific
+	BINDING_LAYOUT_TAA_MOTION_VECTORS,
+	BINDING_LAYOUT_TAA_RESOLVE,
+
 	BINDING_LAYOUT_TONEMAP,
 	BINDING_LAYOUT_HISTOGRAM,
 	BINDING_LAYOUT_EXPOSURE,
+
 	NUM_BINDING_LAYOUTS
 };
 
@@ -1280,6 +1286,9 @@ extern idCVar r_showLightGrid;				// show Quake 3 style light grid points
 extern idCVar r_useLightGrid;
 
 extern idCVar r_exposure;
+
+extern idCVar r_useTemporalAA;
+extern idCVar r_taaJitter;
 // RB end
 
 /*

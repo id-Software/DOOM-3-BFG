@@ -487,6 +487,14 @@ void R_SetupProjectionMatrix( viewDef_t* viewDef )
 		jittery = 0.0f;
 	}
 
+
+	if( r_useTemporalAA.GetBool() )
+	{
+		idVec2 jitter = tr.backend.GetCurrentPixelOffset();
+		jitterx = jitter.x;
+		jittery = jitter.y;
+	}
+
 	//
 	// set up projection matrix
 	//
@@ -504,23 +512,32 @@ void R_SetupProjectionMatrix( viewDef_t* viewDef )
 	const int viewWidth = viewDef->viewport.x2 - viewDef->viewport.x1 + 1;
 	const int viewHeight = viewDef->viewport.y2 - viewDef->viewport.y1 + 1;
 
+#if 1
 	jitterx = jitterx * width / viewWidth;
 	jitterx += r_centerX.GetFloat();
 	jitterx += viewDef->renderView.stereoScreenSeparation;
 	xmin += jitterx * width;
 	xmax += jitterx * width;
+	const float xoffset = ( xmax + xmin ) / width; // 0 without jitter
 
 	jittery = jittery * height / viewHeight;
 	jittery += r_centerY.GetFloat();
 	ymin += jittery * height;
 	ymax += jittery * height;
+	const float yoffset = ( ymax + ymin ) / height;
+
+#else
+	// better for TAA: https://alextardif.com/TAA.html
+	const float xoffset = 1.0f * jitterx / viewWidth;
+	const float yoffset = 1.0f * jittery / viewHeight;
+#endif
 
 	// RB: IMPORTANT - the projectionMatrix has a few changes to make it work with Vulkan
 	// for a detailed explanation see https://matthewwellings.com/blog/the-new-vulkan-coordinate-system/
 
 	viewDef->projectionMatrix[0 * 4 + 0] = 2.0f * zNear / width;
 	viewDef->projectionMatrix[1 * 4 + 0] = 0.0f;
-	viewDef->projectionMatrix[2 * 4 + 0] = ( xmax + xmin ) / width;	// normally 0
+	viewDef->projectionMatrix[2 * 4 + 0] = xoffset;
 	viewDef->projectionMatrix[3 * 4 + 0] = 0.0f;
 
 	viewDef->projectionMatrix[0 * 4 + 1] = 0.0f;
@@ -531,7 +548,7 @@ void R_SetupProjectionMatrix( viewDef_t* viewDef )
 #else
 	viewDef->projectionMatrix[1 * 4 + 1] = 2.0f * zNear / height;
 #endif
-	viewDef->projectionMatrix[2 * 4 + 1] = ( ymax + ymin ) / height;	// normally 0
+	viewDef->projectionMatrix[2 * 4 + 1] = yoffset;
 	viewDef->projectionMatrix[3 * 4 + 1] = 0.0f;
 
 	// this is the far-plane-at-infinity formulation, and
@@ -690,6 +707,7 @@ void R_ObliqueProjection( viewDef_t* parms )
 	idPlane pB = parms->clipPlanes[0];
 	idPlane cp; // camera space plane
 	R_MatrixTranspose( parms->worldSpace.modelViewMatrix, mvt );
+
 	// transform plane (which is set to the surface we're mirroring about's plane) to camera space
 	R_GlobalPlaneToLocal( mvt, pB, cp );
 

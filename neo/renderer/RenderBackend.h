@@ -40,6 +40,7 @@ If you have questions concerning this license or the applicable additional terms
 	#include "Passes/FowardShadingPass.h"
 	#include "Passes/SsaoPass.h"
 	#include "Passes/TonemapPass.h"
+	#include "Passes/TemporalAntiAliasingPass.h"
 
 	#include "PipelineCache.h"
 
@@ -340,6 +341,8 @@ private:
 	void				StencilShadowPass( const drawSurf_t* drawSurfs, const viewLight_t* vLight );
 	void				StencilSelectLight( const viewLight_t* vLight );
 
+	void				TemporalAAPass( const viewDef_t* _viewDef );
+
 	// RB: HDR stuff
 
 	// TODO optimize and replace with compute shader
@@ -363,6 +366,8 @@ private:
 
 public:
 	uint64				GL_GetCurrentState() const;
+	idVec2				GetCurrentPixelOffset() const;
+
 private:
 	uint64				GL_GetCurrentStateMinusStencil() const;
 	void				GL_SetDefaultState();
@@ -494,6 +499,7 @@ private:
 	bool				currentRenderCopied;	// true if any material has already referenced _currentRender
 
 	idRenderMatrix		prevMVP[2];				// world MVP from previous frame for motion blur
+	bool				prevViewsValid;
 
 	// RB begin
 	// TODO remove
@@ -529,6 +535,7 @@ private:
 	SsaoPass*						ssaoPass;
 	MipMapGenPass*					hiZGenPass;
 	TonemapPass*					toneMapPass;
+	TemporalAntiAliasingPass*		taaPass;
 
 	BindingCache					bindingCache;
 	SamplerCache					samplerCache;

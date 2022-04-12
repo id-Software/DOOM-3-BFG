@@ -118,6 +118,10 @@ void Framebuffer::ResizeFramebuffers()
 	}
 	globalImages->hierarchicalZbufferImage->Reload( false, tr.backend.commandList );
 	globalImages->currentNormalsImage->Reload( false, tr.backend.commandList );
+	globalImages->taaMotionVectorsImage->Reload( false, tr.backend.commandList );
+	globalImages->taaResolvedImage->Reload( false, tr.backend.commandList );
+	globalImages->taaFeedback1Image->Reload( false, tr.backend.commandList );
+	globalImages->taaFeedback2Image->Reload( false, tr.backend.commandList );
 	globalImages->smaaEdgesImage->Reload( false, tr.backend.commandList );
 	globalImages->smaaBlendImage->Reload( false, tr.backend.commandList );
 	globalImages->shadowAtlasImage->Reload( false, tr.backend.commandList );
@@ -169,6 +173,14 @@ void Framebuffer::ResizeFramebuffers()
 	globalFramebuffers.postProcFBO = new Framebuffer( "_postProc",
 			nvrhi::FramebufferDesc()
 			.addColorAttachment( globalImages->currentRenderImage->texture ) );
+
+	globalFramebuffers.taaMotionVectorsFBO = new Framebuffer( "_taaMotionVectors",
+			nvrhi::FramebufferDesc()
+			.addColorAttachment( globalImages->taaMotionVectorsImage->texture ) );
+
+	globalFramebuffers.taaResolvedFBO = new Framebuffer( "_taaResolved",
+			nvrhi::FramebufferDesc()
+			.addColorAttachment( globalImages->taaResolvedImage->texture ) );
 
 	globalFramebuffers.envprobeFBO = new Framebuffer( "_envprobeRender",
 			nvrhi::FramebufferDesc()

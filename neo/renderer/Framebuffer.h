@@ -2,7 +2,7 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 2014-2016 Robert Beckebans
+Copyright (C) 2014-2022 Robert Beckebans
 Copyright (C) 2022 Stephen Pridham
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
@@ -144,15 +144,13 @@ struct globalFramebuffers_t
 	Framebuffer*				hdrFBO;
 	Framebuffer*				ldrFBO;
 	Framebuffer*				postProcFBO;
-#if defined(USE_HDR_MSAA)
-	Framebuffer*				hdrNonMSAAFBO;
-#endif
-//	Framebuffer*				hdrQuarterFBO;
-	Framebuffer*				hdr64FBO;
+	Framebuffer*				taaMotionVectorsFBO;
+	Framebuffer*				taaResolvedFBO;
+	Framebuffer*				hdr64FBO;		// TODO remove, not needed with new NVRHI tonemapping anymore
 	Framebuffer*				envprobeFBO;
 	Framebuffer*				bloomRenderFBO[MAX_BLOOM_BUFFERS];
-	Framebuffer*				glowFBO[MAX_GLOW_BUFFERS];
-	Framebuffer*				transparencyFBO;
+	Framebuffer*				glowFBO[MAX_GLOW_BUFFERS];	// unused
+	Framebuffer*				transparencyFBO;			// unused
 	Framebuffer*				ambientOcclusionFBO[MAX_SSAO_BUFFERS];
 	Framebuffer*				csDepthFBO[MAX_HIERARCHICAL_ZBUFFERS];
 	Framebuffer*				geometryBufferFBO;

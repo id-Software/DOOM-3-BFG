@@ -5437,6 +5437,38 @@ void idRenderBackend::CalculateAutomaticExposure()
 	//GL_CheckErrors();
 }
 
+void idRenderBackend::TemporalAAPass( const viewDef_t* _viewDef )
+{
+	// if we are just doing 2D rendering, no need for HDR TAA
+	if( viewDef->viewEntitys == NULL )
+	{
+		return;
+	}
+
+	if( viewDef->renderView.rdflags & RDF_NOAMBIENT )
+	{
+		return;
+	}
+
+	renderLog.OpenBlock( "TemporalAA" );
+
+	TemporalAntiAliasingParameters params = {};
+	taaPass->TemporalResolve( commandList, params, prevViewsValid, _viewDef );
+	//m_ViewPrevious = m_View;
+	prevViewsValid = true;
+
+	renderLog.CloseBlock();
+}
+
+idVec2 idRenderBackend::GetCurrentPixelOffset() const
+{
+	if( taaPass )
+	{
+		return taaPass->GetCurrentPixelOffset();
+	}
+
+	return idVec2( 0, 0 );
+}
 
 void idRenderBackend::Tonemap( const viewDef_t* _viewDef )
 {
@@ -6409,9 +6441,24 @@ void idRenderBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
 
 	if( !toneMapPass )
 	{
-		TonemapPass::CreateParameters tonemapParms;
+		TonemapPass::CreateParameters createParms;
 		toneMapPass = new TonemapPass();
-		toneMapPass->Init( deviceManager->GetDevice(), &commonPasses, tonemapParms, globalFramebuffers.ldrFBO->GetApiObject() );
+		toneMapPass->Init( deviceManager->GetDevice(), &commonPasses, createParms, globalFramebuffers.ldrFBO->GetApiObject() );
+	}
+
+	if( !taaPass )
+	{
+		TemporalAntiAliasingPass::CreateParameters taaParams;
+		taaParams.sourceDepth = globalImages->currentDepthImage->GetTextureHandle();
+		taaParams.motionVectors = globalImages->taaMotionVectorsImage->GetTextureHandle();
+		taaParams.unresolvedColor = globalImages->currentRenderHDRImage->GetTextureHandle();
+		taaParams.resolvedColor = globalImages->taaResolvedImage->GetTextureHandle();
+		taaParams.feedback1 = globalImages->taaFeedback1Image->GetTextureHandle();
+		taaParams.feedback2 = globalImages->taaFeedback2Image->GetTextureHandle();
+		taaParams.motionVectorStencilMask = 0; //0x01;
+		taaParams.useCatmullRomFilter = true;
+		taaPass = new TemporalAntiAliasingPass();
+		taaPass->Init( deviceManager->GetDevice(), &commonPasses, NULL, taaParams );
 	}
 #endif
 
@@ -6642,8 +6689,6 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 	//-------------------------------------------------
 	DrawInteractions( _viewDef );
 
-	//GL_EndRenderPass();
-
 	//-------------------------------------------------
 	// capture the depth for the motion blur before rendering any post process surfaces that may contribute to the depth
 	//-------------------------------------------------
@@ -6680,8 +6725,6 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 		renderLog.CloseMainBlock();
 	}
 
-	//GL_EndRenderPass();
-
 	//-------------------------------------------------
 	// use direct light and emissive light contributions to add indirect screen space light
 	//-------------------------------------------------
@@ -6702,8 +6745,6 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 		int y = viewDef->viewport.y1;
 		int	w = viewDef->viewport.x2 - viewDef->viewport.x1 + 1;
 		int	h = viewDef->viewport.y2 - viewDef->viewport.y1 + 1;
-
-		//RENDERLOG_PRINTF( "Resolve to %i x %i buffer\n", w, h );
 
 		GL_SelectTexture( 0 );
 
@@ -6751,21 +6792,30 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 		renderLog.CloseMainBlock();
 	}
 
-	//GL_EndRenderPass();
-
 	//-------------------------------------------------
 	// render debug tools
 	//-------------------------------------------------
 	DBG_RenderDebugTools( drawSurfs, numDrawSurfs );
 
-#if !defined(USE_VULKAN)
+	//-------------------------------------------------
+	// resolve of HDR target using temporal anti aliasing before any tonemapping and post processing
+	//
+	// use this to eat all stochastic noise like from volumetric light sampling,
+	// runs at full resolution
+	//-------------------------------------------------
+	TemporalAAPass( _viewDef );
+
+	//-------------------------------------------------
+	// tonemapping: convert back from HDR to LDR range
+	//-------------------------------------------------
+
+#if !defined( USE_VULKAN )
 
 // SRS - For OSX OpenGL record the final portion of GPU time while no other elapsed time query is active (after final shader pass and before post processing)
 #if defined(__APPLE__)
 	renderLog.OpenMainBlock( MRB_GPU_TIME );
 #endif
 
-	// RB: convert back from HDR to LDR range
 	if( useHDR && !( _viewDef->renderView.rdflags & RDF_IRRADIANCE ) && !_viewDef->targetRender )
 	{
 #if !defined( USE_NVRHI )
@@ -6784,9 +6834,20 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 		Tonemap( _viewDef );
 #else
 		ToneMappingParameters parms;
-		toneMapPass->SimpleRender( commandList, parms, viewDef, globalImages->currentRenderHDRImage->GetTextureHandle(), globalFramebuffers.ldrFBO->GetApiObject() );
+		if( r_useTemporalAA.GetBool() )
+		{
+			toneMapPass->SimpleRender( commandList, parms, viewDef, globalImages->taaResolvedImage->GetTextureHandle(), globalFramebuffers.ldrFBO->GetApiObject() );
+		}
+		else
+		{
+			toneMapPass->SimpleRender( commandList, parms, viewDef, globalImages->currentRenderHDRImage->GetTextureHandle(), globalFramebuffers.ldrFBO->GetApiObject() );
+		}
 #endif
 	}
+
+	//-------------------------------------------------
+	// bloom post processing
+	//-------------------------------------------------
 
 	if( !r_skipBloom.GetBool() )
 	{
@@ -6802,11 +6863,12 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 
 #if defined( USE_NVRHI )
 	//TODO(Stephen): Move somewhere else?
+	// RB: this needs to be done after next post processing steps later on
 	{
 		BlitParameters blitParms;
 		blitParms.sourceTexture = ( nvrhi::ITexture* )globalImages->currentRenderLDR->GetTextureID();
 		blitParms.targetFramebuffer = deviceManager->GetCurrentFramebuffer();
-		blitParms.targetViewport = nvrhi::Viewport( renderSystem->GetWidth(), renderSystem->GetHeight() );;
+		blitParms.targetViewport = nvrhi::Viewport( renderSystem->GetWidth(), renderSystem->GetHeight() );
 		commonPasses.BlitTexture( commandList, blitParms, &bindingCache );
 	}
 #endif

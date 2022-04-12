@@ -242,7 +242,17 @@ static void R_DepthImage( idImage* image, nvrhi::ICommandList* commandList )
 // RB begin
 static void R_HDR_RGBA16FImage_ResNative( idImage* image, nvrhi::ICommandList* commandList )
 {
-	image->GenerateImage( NULL, renderSystem->GetWidth(), renderSystem->GetHeight(), TF_NEAREST, TR_CLAMP, TD_RGBA16F, nullptr, true );//, msaaSamples );
+	image->GenerateImage( NULL, renderSystem->GetWidth(), renderSystem->GetHeight(), TF_NEAREST, TR_CLAMP, TD_RGBA16F, nullptr, true );
+}
+
+static void R_HDR_RGBA16FImage_ResNative_UAV( idImage* image, nvrhi::ICommandList* commandList )
+{
+	image->GenerateImage( NULL, renderSystem->GetWidth(), renderSystem->GetHeight(), TF_NEAREST, TR_CLAMP, TD_RGBA16F, nullptr, true, true );
+}
+
+static void R_HDR_RGBA16SImage_ResNative_UAV( idImage* image, nvrhi::ICommandList* commandList )
+{
+	image->GenerateImage( NULL, renderSystem->GetWidth(), renderSystem->GetHeight(), TF_NEAREST, TR_CLAMP, TD_RGBA16S, nullptr, true, true );
 }
 
 static void R_HDR_RGBA16FImage_ResGui( idImage* image, nvrhi::ICommandList* commandList )
@@ -979,12 +989,12 @@ static void R_CreateBrdfLutImage( idImage* image, nvrhi::ICommandList* commandLi
 
 static void R_CreateEnvprobeImage_UAC_lobby_irradiance( idImage* image, nvrhi::ICommandList* commandList )
 {
-	image->GenerateImage( ( byte* )IMAGE_ENV_UAC_LOBBY_AMB_H_Bytes, IMAGE_ENV_UAC_LOBBY_AMB_H_TEX_WIDTH, IMAGE_ENV_UAC_LOBBY_AMB_H_TEX_HEIGHT, TF_DEFAULT, TR_CLAMP, TD_R11G11B10F, commandList, false, SAMPLE_1, CF_2D_PACKED_MIPCHAIN );
+	image->GenerateImage( ( byte* )IMAGE_ENV_UAC_LOBBY_AMB_H_Bytes, IMAGE_ENV_UAC_LOBBY_AMB_H_TEX_WIDTH, IMAGE_ENV_UAC_LOBBY_AMB_H_TEX_HEIGHT, TF_DEFAULT, TR_CLAMP, TD_R11G11B10F, commandList, false, false, SAMPLE_1, CF_2D_PACKED_MIPCHAIN );
 }
 
 static void R_CreateEnvprobeImage_UAC_lobby_radiance( idImage* image, nvrhi::ICommandList* commandList )
 {
-	image->GenerateImage( ( byte* )IMAGE_ENV_UAC_LOBBY_SPEC_H_Bytes, IMAGE_ENV_UAC_LOBBY_SPEC_H_TEX_WIDTH, IMAGE_ENV_UAC_LOBBY_SPEC_H_TEX_HEIGHT, TF_DEFAULT, TR_CLAMP, TD_R11G11B10F, commandList, false, SAMPLE_1, CF_2D_PACKED_MIPCHAIN );
+	image->GenerateImage( ( byte* )IMAGE_ENV_UAC_LOBBY_SPEC_H_Bytes, IMAGE_ENV_UAC_LOBBY_SPEC_H_TEX_WIDTH, IMAGE_ENV_UAC_LOBBY_SPEC_H_TEX_HEIGHT, TF_DEFAULT, TR_CLAMP, TD_R11G11B10F, commandList, false, false, SAMPLE_1, CF_2D_PACKED_MIPCHAIN );
 }
 
 // RB end
@@ -1031,6 +1041,11 @@ void idImageManager::CreateIntrinsicImages()
 	currentRenderHDRImageQuarter = globalImages->ImageFromFunction( "_currentRenderHDRQuarter", R_HDR_RGBA16FImage_ResQuarter );
 	currentRenderHDRImage64 = globalImages->ImageFromFunction( "_currentRenderHDR64", R_HDR_RGBA16FImage_Res64 );
 	currentRenderLDR = globalImages->ImageFromFunction( "_currentRenderLDR", R_LdrNativeImage );
+
+	taaMotionVectorsImage = ImageFromFunction( "_motionVectors", R_HDR_RGBA16FImage_ResNative ); // RB: could be shared with _currentNormals.zw
+	taaResolvedImage = ImageFromFunction( "_taaResolved", R_HDR_RGBA16FImage_ResNative_UAV );
+	taaFeedback1Image = ImageFromFunction( "_taaFeedback1", R_HDR_RGBA16SImage_ResNative_UAV );
+	taaFeedback2Image = ImageFromFunction( "_taaFeedback2", R_HDR_RGBA16SImage_ResNative_UAV );
 
 	envprobeHDRImage = globalImages->ImageFromFunction( "_envprobeHDR", R_EnvprobeImage_HDR );
 	envprobeDepthImage = ImageFromFunction( "_envprobeDepth", R_EnvprobeImage_Depth );

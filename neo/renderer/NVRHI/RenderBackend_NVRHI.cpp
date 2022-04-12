@@ -170,6 +170,10 @@ void idRenderBackend::Init()
 	currentBindingSets.SetNum( currentBindingSets.Max() );
 	pendingBindingSetDescs.SetNum( pendingBindingSetDescs.Max() );
 
+	prevMVP[0] = renderMatrix_identity;
+	prevMVP[1] = renderMatrix_identity;
+	prevViewsValid = false;
+
 	// RB: prepare ImGui system
 	//ImGui_Init();
 }
@@ -718,6 +722,9 @@ void idRenderBackend::GL_EndFrame()
 	commandList->close();
 
 	deviceManager->GetDevice()->executeCommandList( commandList );
+
+	// update jitter for perspective matrix
+	taaPass->AdvanceFrame();
 }
 
 /*
@@ -1061,6 +1068,12 @@ void idRenderBackend::ClearCaches()
 	{
 		delete toneMapPass;
 		toneMapPass = nullptr;
+	}
+
+	if( taaPass )
+	{
+		delete taaPass;
+		taaPass = nullptr;
 	}
 }
 

@@ -70,6 +70,7 @@ public:
 	float			operator*( const idVec2& a ) const;
 	idVec2			operator*( const float a ) const;
 	idVec2			operator/( const float a ) const;
+	idVec2			operator/( const idVec2& a ) const;
 	idVec2			operator+( const idVec2& a ) const;
 	idVec2			operator-( const idVec2& a ) const;
 	idVec2& 		operator+=( const idVec2& a );
@@ -284,6 +285,11 @@ ID_INLINE idVec2 idVec2::operator/( const float a ) const
 {
 	float inva = 1.0f / a;
 	return idVec2( x * inva, y * inva );
+}
+
+ID_INLINE idVec2 idVec2::operator/( const idVec2& a ) const
+{
+	return idVec2( x / a.x, y / a.y );
 }
 
 ID_INLINE idVec2 operator*( const float a, const idVec2 b )

@@ -97,7 +97,7 @@ enum textureFormat_t
 	FMT_Y16_X16,		// 32 bpp
 	FMT_RGB565,			// 16 bpp
 
-	// RB: don't change above for legacy .bimage compatibility
+	// RB: don't change above for .bimage compatibility up until RBDOOM-3-BFG 1.1
 	FMT_ETC1_RGB8_OES,	// 4 bpp
 	FMT_SHADOW_ARRAY,	// 32 bpp * 6
 	FMT_RG16F,			// 32 bpp
@@ -105,9 +105,11 @@ enum textureFormat_t
 	FMT_RGBA32F,		// 128 bpp
 	FMT_R32F,			// 32 bpp
 	FMT_R11G11B10F,		// 32 bpp
+
+	// ^-- used up until RBDOOM-3-BFG 1.3
 	FMT_R8,
 	FMT_DEPTH_STENCIL,  // 32 bpp
-	// RB end
+	FMT_RGBA16S,		// 64 bpp
 	FMT_SRGB8,
 };
 
@@ -165,6 +167,7 @@ public:
 	bool				gammaMips;		// if true, mips will be generated with gamma correction
 	bool				readback;		// 360 specific - cpu reads back from this texture, so allocate with cached memory
 	bool				isRenderTarget;
+	bool				isUAV;
 };
 
 /*
@@ -184,6 +187,7 @@ ID_INLINE idImageOpts::idImageOpts()
 	gammaMips		= false;
 	readback		= false;
 	isRenderTarget	= false;
+	isUAV			= false;
 }
 
 /*
@@ -233,6 +237,7 @@ typedef enum
 	TD_SHADOW_ARRAY,		// 2D depth buffer array for shadow mapping
 	TD_RG16F,
 	TD_RGBA16F,
+	TD_RGBA16S,
 	TD_RGBA32F,
 	TD_R32F,
 	TD_R11G11B10F,			// memory efficient HDR RGB format with only 32bpp
@@ -456,6 +461,7 @@ public:
 							   textureUsage_t usage,
 							   nvrhi::ICommandList* commandList,
 							   bool isRenderTarget = false,
+							   bool isUAV = false,
 							   textureSamples_t samples = SAMPLE_1,
 							   cubeFiles_t cubeFiles = CF_2D );
 
@@ -675,12 +681,13 @@ public:
 	idImage*			randomImage256;
 	idImage*			blueNoiseImage256;
 	idImage*			currentRenderHDRImage;
-#if defined(USE_HDR_MSAA)
-	idImage*			currentRenderHDRImageNoMSAA;
-#endif
 	idImage*			currentRenderHDRImageQuarter;
 	idImage*			currentRenderHDRImage64;
 	idImage*			currentRenderLDR;
+	idImage*			taaMotionVectorsImage;			// motion vectors for TAA projection
+	idImage*			taaResolvedImage;
+	idImage*			taaFeedback1Image;
+	idImage*			taaFeedback2Image;
 	idImage*			bloomRenderImage[2];
 	idImage*			glowImage[2];					// contains any glowable surface information.
 	idImage*			glowDepthImage[2];

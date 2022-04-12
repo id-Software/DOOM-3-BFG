@@ -300,6 +300,10 @@ void idImage::AllocImage()
 			format = nvrhi::Format::RGBA16_FLOAT;
 			break;
 
+		case FMT_RGBA16S:
+			format = nvrhi::Format::RGBA16_SNORM;
+			break;
+
 		case FMT_RGBA32F:
 			format = nvrhi::Format::RGBA32_FLOAT;
 			break;
@@ -382,6 +386,7 @@ void idImage::AllocImage()
 					   .setWidth( scaledWidth )
 					   .setHeight( scaledHeight )
 					   .setFormat( format )
+					   .setIsUAV( opts.isUAV )
 					   .setSampleCount( opts.samples )
 					   .setMipLevels( opts.numLevels );
 

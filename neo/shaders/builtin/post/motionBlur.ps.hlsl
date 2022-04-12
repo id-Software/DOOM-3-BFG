@@ -54,12 +54,14 @@ void main( PS_IN fragment, out PS_OUT result )
 	{
 		// only draw on half the screen for comparison
 		discard;
+		return;
 	}
 #endif
 	// don't motion blur the hands, which were drawn with alpha = 0
 	if( t_ViewColor.Sample( LinearSampler, fragment.texcoord0 ).w == 0.0 )
 	{
 		discard;
+		return;
 	}
 
 	// derive clip space from the depth buffer and screen position

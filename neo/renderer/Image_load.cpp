@@ -74,6 +74,8 @@ int BitsForFormat( textureFormat_t format )
 			return 32;
 		case FMT_RGBA16F:
 			return 64;
+		case FMT_RGBA16S:
+			return 64;
 		case FMT_RGBA32F:
 			return 128;
 		case FMT_R32F:
@@ -185,6 +187,10 @@ ID_INLINE void idImage::DeriveOpts()
 
 			case TD_RGBA16F:
 				opts.format = FMT_RGBA16F;
+				break;
+
+			case TD_RGBA16S:
+				opts.format = FMT_RGBA16S;
 				break;
 
 			case TD_RGBA32F:
@@ -959,7 +965,7 @@ void idImage::Reload( bool force, nvrhi::ICommandList* commandList )
 GenerateImage
 ================
 */
-void idImage::GenerateImage( const byte* pic, int width, int height, textureFilter_t filterParm, textureRepeat_t repeatParm, textureUsage_t usageParm, nvrhi::ICommandList* commandList, bool isRenderTarget, textureSamples_t samples, cubeFiles_t _cubeFiles )
+void idImage::GenerateImage( const byte* pic, int width, int height, textureFilter_t filterParm, textureRepeat_t repeatParm, textureUsage_t usageParm, nvrhi::ICommandList* commandList, bool isRenderTarget, bool isUAV, textureSamples_t samples, cubeFiles_t _cubeFiles )
 {
 	PurgeImage();
 
@@ -974,6 +980,7 @@ void idImage::GenerateImage( const byte* pic, int width, int height, textureFilt
 	opts.numLevels = 0;
 	opts.samples = samples;
 	opts.isRenderTarget = isRenderTarget;
+	opts.isUAV = isUAV;
 
 	// RB
 	if( cubeFiles == CF_2D_PACKED_MIPCHAIN )

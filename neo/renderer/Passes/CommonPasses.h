@@ -107,8 +107,8 @@ protected:
 	std::unordered_map<PsoCacheKey, nvrhi::GraphicsPipelineHandle, PsoCacheKey::Hash> m_BlitPsoCache;
 
 public:
-	nvrhi::ShaderHandle m_FullscreenVS;
-	nvrhi::ShaderHandle m_FullscreenAtOneVS;
+	//nvrhi::ShaderHandle m_FullscreenVS;
+	//nvrhi::ShaderHandle m_FullscreenAtOneVS;
 	nvrhi::ShaderHandle m_RectVS;
 	nvrhi::ShaderHandle m_BlitPS;
 	nvrhi::ShaderHandle m_BlitArrayPS;
