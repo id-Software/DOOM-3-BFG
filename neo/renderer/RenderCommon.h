@@ -1289,6 +1289,10 @@ extern idCVar r_exposure;
 
 extern idCVar r_useTemporalAA;
 extern idCVar r_taaJitter;
+extern idCVar r_taaEnableHistoryClamping;
+extern idCVar r_taaClampingFactor;
+extern idCVar r_taaNewFrameWeight;
+extern idCVar r_taaMaxRadiance;
 // RB end
 
 /*

@@ -5452,9 +5452,14 @@ void idRenderBackend::TemporalAAPass( const viewDef_t* _viewDef )
 
 	renderLog.OpenBlock( "TemporalAA" );
 
-	TemporalAntiAliasingParameters params = {};
+	TemporalAntiAliasingParameters params =
+	{
+		r_taaNewFrameWeight.GetFloat(),
+		r_taaClampingFactor.GetFloat(),
+		r_taaMaxRadiance.GetFloat(),
+		r_taaEnableHistoryClamping.GetBool()
+	};
 	taaPass->TemporalResolve( commandList, params, prevViewsValid, _viewDef );
-	//m_ViewPrevious = m_View;
 	prevViewsValid = true;
 
 	renderLog.CloseBlock();

@@ -406,6 +406,7 @@ This uses the "infinite far z" trick
 */
 idCVar r_centerX( "r_centerX", "0", CVAR_FLOAT, "projection matrix center adjust" );
 idCVar r_centerY( "r_centerY", "0", CVAR_FLOAT, "projection matrix center adjust" );
+idCVar r_centerScale( "r_centerScale", "1", CVAR_FLOAT, "projection matrix center adjust" );
 
 inline float sgn( float a )
 {
@@ -512,7 +513,7 @@ void R_SetupProjectionMatrix( viewDef_t* viewDef )
 	const int viewWidth = viewDef->viewport.x2 - viewDef->viewport.x1 + 1;
 	const int viewHeight = viewDef->viewport.y2 - viewDef->viewport.y1 + 1;
 
-#if 0
+#if 1
 	jitterx = jitterx * width / viewWidth;
 	jitterx += r_centerX.GetFloat();
 	jitterx += viewDef->renderView.stereoScreenSeparation;
