@@ -269,8 +269,17 @@ void idRenderBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 		}
 	}
 
+	uint64_t stateBits = glStateBits;
+
+	if( currentFrameBuffer == globalFramebuffers.ldrFBO )
+	{
+		// make sure that FBO doesn't require a depth buffer
+		stateBits |= GLS_DEPTHFUNC_ALWAYS | GLS_DEPTHMASK;
+		stateBits &= ~( GLS_STENCIL_FUNC_BITS | GLS_STENCIL_OP_BITS );
+	}
+
 	int program = renderProgManager.CurrentProgram();
-	PipelineKey key{ glStateBits, program, depthBias, slopeScaleBias, currentFrameBuffer };
+	PipelineKey key{ stateBits, program, depthBias, slopeScaleBias, currentFrameBuffer };
 	auto pipeline = pipelineCache.GetOrCreatePipeline( key );
 
 	if( currentPipeline != pipeline )
@@ -1038,6 +1047,13 @@ void idRenderBackend::CheckCVars()
 				//glDisable( GL_MULTISAMPLE );
 				break;
 		}
+
+		if( tr.IsInitialized() )
+		{
+			Framebuffer::ResizeFramebuffers();
+		}
+
+		r_antiAliasing.ClearModified();
 	}
 
 	/*

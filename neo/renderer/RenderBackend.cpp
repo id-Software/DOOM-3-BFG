@@ -987,11 +987,13 @@ void idRenderBackend::DrawSingleInteraction( drawInteraction_t* din, bool useFas
 			return;
 		}
 
-		if( din->diffuseImage == NULL || r_skipDiffuse.GetBool() )
+		if( r_skipDiffuse.GetInteger() == 2 )
 		{
-			// this isn't a YCoCg black, but it doesn't matter, because
-			// the diffuseColor will also be 0
-			din->diffuseImage = globalImages->blackImage;
+			din->diffuseImage = globalImages->whiteImage;
+		}
+		else if( din->diffuseImage == NULL || r_skipDiffuse.GetInteger() > 0 )
+		{
+			din->diffuseImage = globalImages->blackDiffuseImage;
 		}
 		if( din->specularImage == NULL || r_skipSpecular.GetBool() || ( din->vLight && din->vLight->lightShader->IsAmbientLight() ) )
 		{
@@ -6089,7 +6091,7 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 	if( r_shadowMapRandomizeJitter.GetBool() )
 	{
 		jitterTexOffset[2] = Sys_Milliseconds() / 1000.0f;
-		jitterTexOffset[3] = tr.frameCount % 256;
+		jitterTexOffset[3] = tr.frameCount % 64;
 	}
 	else
 	{
@@ -7383,7 +7385,7 @@ void idRenderBackend::PostProcess( const void* data )
 		if( r_shadowMapRandomizeJitter.GetBool() )
 		{
 			jitterTexOffset[2] = Sys_Milliseconds() / 1000.0f;
-			jitterTexOffset[3] = tr.frameCount % 256;
+			jitterTexOffset[3] = tr.frameCount % 64;
 		}
 		else
 		{

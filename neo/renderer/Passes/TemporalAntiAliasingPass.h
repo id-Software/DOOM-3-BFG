@@ -104,7 +104,6 @@ private:
 
 	uint32_t m_FrameIndex;
 	uint32_t m_StencilMask;
-	idVec2 m_ResolvedColorSize;
 
 	idVec2 m_R2Jitter;
 

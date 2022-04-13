@@ -115,15 +115,6 @@ enum textureFormat_t
 
 int BitsForFormat( textureFormat_t format );
 
-enum textureSamples_t
-{
-	SAMPLE_1	= BIT( 0 ),
-	SAMPLE_2	= BIT( 1 ),
-	SAMPLE_4	= BIT( 2 ),
-	SAMPLE_8	= BIT( 3 ),
-	SAMPLE_16	= BIT( 4 )
-};
-
 /*
 ================================================
 DXT5 color formats
@@ -160,7 +151,7 @@ public:
 	textureType_t		textureType;
 	textureFormat_t		format;
 	textureColor_t		colorFormat;
-	textureSamples_t	samples;
+	uint				samples;
 	int					width;
 	int					height;			// not needed for cube maps
 	int					numLevels;		// if 0, will be 1 for NEAREST / LINEAR filters, otherwise based on size
@@ -179,7 +170,7 @@ ID_INLINE idImageOpts::idImageOpts()
 {
 	format			= FMT_NONE;
 	colorFormat		= CFM_DEFAULT;
-	samples			= SAMPLE_1;
+	samples			= 1;
 	width			= 0;
 	height			= 0;
 	numLevels		= 0;
@@ -462,7 +453,7 @@ public:
 							   nvrhi::ICommandList* commandList,
 							   bool isRenderTarget = false,
 							   bool isUAV = false,
-							   textureSamples_t samples = SAMPLE_1,
+							   uint sampleCount = 1,
 							   cubeFiles_t cubeFiles = CF_2D );
 
 	void		GenerateCubeImage( const byte* pic[6], int size,
@@ -667,6 +658,7 @@ public:
 	idImage* 			alphaNotchImage;			// 2x1 texture with just 1110 and 1111 with point sampling
 	idImage* 			whiteImage;					// full of 0xff
 	idImage* 			blackImage;					// full of 0x00
+	idImage* 			blackDiffuseImage;			// full of 0x00
 	idImage* 			cyanImage;					// cyan
 	idImage* 			noFalloffImage;				// all 255, but zero clamped
 	idImage* 			fogImage;					// increasing alpha is denser fog

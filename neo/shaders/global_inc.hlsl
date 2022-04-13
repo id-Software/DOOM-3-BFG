@@ -485,9 +485,6 @@ float InterleavedGradientNoiseAnim( float2 uv, float frameIndex )
 	return rnd;
 }
 
-// RB: the golden ratio is useful to animate Blue noise
-#define GOLDEN_RATIO_CONJUGATE 0.61803398875
-
 // RB: very efficient white noise without sine https://www.shadertoy.com/view/4djSRW
 #define HASHSCALE3 float3(443.897, 441.423, 437.195)
 
@@ -546,7 +543,7 @@ static float3 ditherChromaticBlueNoise( float3 color, float2 n, SamplerState blu
 	float3 noise = tex2D( blueTex, uv ).rgb;
 
 	// rpJitterTexOffset.w is frameTime % 64
-	noise = frac( noise + GOLDEN_RATIO_CONJUGATE * rpJitterTexOffset.w );
+	noise = frac( noise + c_goldenRatioConjugate * rpJitterTexOffset.w );
 
 	// triangular noise [-0.5;1.5[
 	noise.x = RemapNoiseTriErp( noise.x );

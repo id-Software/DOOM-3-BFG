@@ -1125,6 +1125,7 @@ bool DeviceManager::CreateWindowDeviceAndSwapChain( const glimpParms_t& parms, c
 	// RB
 	deviceParms.backBufferWidth = parms.width;
 	deviceParms.backBufferHeight = parms.height;
+	deviceParms.backBufferSampleCount = parms.multiSamples;
 	deviceParms.vsyncEnabled = requestedVSync;
 
 	if( !CreateDeviceAndSwapChain() )
@@ -1148,6 +1149,7 @@ void DeviceManager::UpdateWindowSize( const glimpParms_t& params )
 
 	if( int( deviceParms.backBufferWidth ) != params.width ||
 			int( deviceParms.backBufferHeight ) != params.height ||
+			int( deviceParms.backBufferSampleCount ) != params.multiSamples ||
 			( deviceParms.vsyncEnabled != requestedVSync && GetGraphicsAPI() == nvrhi::GraphicsAPI::VULKAN ) )
 	{
 		// window is not minimized, and the size has changed
@@ -1156,6 +1158,7 @@ void DeviceManager::UpdateWindowSize( const glimpParms_t& params )
 
 		deviceParms.backBufferWidth = params.width;
 		deviceParms.backBufferHeight = params.height;
+		deviceParms.backBufferSampleCount = params.multiSamples;
 		deviceParms.vsyncEnabled = requestedVSync;
 
 		ResizeSwapChain();

@@ -162,8 +162,8 @@ void Framebuffer::ResizeFramebuffers()
 
 	globalFramebuffers.ldrFBO = new Framebuffer( "_ldr",
 			nvrhi::FramebufferDesc()
-			.addColorAttachment( globalImages->currentRenderLDR->texture )
-			.setDepthAttachment( globalImages->currentDepthImage->texture ) );
+			.addColorAttachment( globalImages->currentRenderLDR->texture ) );
+	//.setDepthAttachment( globalImages->currentDepthImage->texture ) );
 
 	globalFramebuffers.hdrFBO = new Framebuffer( "_hdr",
 			nvrhi::FramebufferDesc()

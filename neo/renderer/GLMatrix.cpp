@@ -513,7 +513,7 @@ void R_SetupProjectionMatrix( viewDef_t* viewDef )
 	const int viewWidth = viewDef->viewport.x2 - viewDef->viewport.x1 + 1;
 	const int viewHeight = viewDef->viewport.y2 - viewDef->viewport.y1 + 1;
 
-#if 1
+#if 0
 	jitterx = jitterx * width / viewWidth;
 	jitterx += r_centerX.GetFloat();
 	jitterx += viewDef->renderView.stereoScreenSeparation;
@@ -528,9 +528,9 @@ void R_SetupProjectionMatrix( viewDef_t* viewDef )
 	const float yoffset = ( ymax + ymin ) / height;
 
 #else
-	// better for TAA: https://alextardif.com/TAA.html
-	const float xoffset = 1.0f * jitterx / viewWidth;
-	const float yoffset = 1.0f * jittery / viewHeight;
+	// according to https://www.elopezr.com/temporal-aa-and-the-quest-for-the-holy-trail/
+	const float xoffset = jitterx / ( 2.0f * viewWidth );
+	const float yoffset = jittery / ( 2.0f * viewHeight );
 #endif
 
 	// RB: IMPORTANT - the projectionMatrix has a few changes to make it work with Vulkan

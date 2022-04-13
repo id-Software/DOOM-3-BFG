@@ -34,7 +34,7 @@
 #define DIFFERENT_DEPTH_RESOLUTIONS 0
 #define USE_DEPTH_PEEL 0
 #define CS_Z_PACKED_TOGETHER 0
-#define TEMPORALLY_VARY_TAPS 0
+#define TEMPORALLY_VARY_TAPS 1
 #define HIGH_QUALITY 1
 #define USE_OCT16 0
 #define USE_MIPMAPS 1
@@ -118,7 +118,7 @@ float BlueNoise( float2 n, float x )
 	float noise = t_BlueNoise.Sample( blueNoiseSampler, n.xy * rpJitterTexOffset.xy ).r;
 
 #if TEMPORALLY_VARY_TAPS
-	noise = frac( noise + 0.61803398875 * rpJitterTexOffset.z * x );
+	noise = frac( noise + c_goldenRatioConjugate * rpJitterTexOffset.z * x );
 #else
 	noise = frac( noise );
 #endif

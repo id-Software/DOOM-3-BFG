@@ -43,15 +43,11 @@ TemporalAntiAliasingPass::TemporalAntiAliasingPass()
 
 void TemporalAntiAliasingPass::Init(
 	nvrhi::IDevice* device,
-	//std::shared_ptr<ShaderFactory> shaderFactory,
 	CommonRenderPasses* _commonPasses,
 	const viewDef_t* viewDef,
 	const CreateParameters& params )
-
 {
 	m_CommonPasses = _commonPasses;
-
-	//const IView* sampleView = compositeView.GetChildView( ViewType::PLANAR, 0 );
 
 	const nvrhi::TextureDesc& unresolvedColorDesc = params.unresolvedColor->getDesc();
 	const nvrhi::TextureDesc& resolvedColorDesc = params.resolvedColor->getDesc();
@@ -99,15 +95,41 @@ void TemporalAntiAliasingPass::Init(
 	//ResolveMacros.push_back( ShaderMacro( "USE_CATMULL_ROM_FILTER", params.useCatmullRomFilter ? "1" : "0" ) );
 	//m_TemporalAntiAliasingCS = shaderFactory->CreateShader( "donut/passes/taa_cs.hlsl", "main", &ResolveMacros, nvrhi::ShaderType::Compute );
 
-	auto taaResolveShaderInfo = renderProgManager.GetProgramInfo( BUILTIN_TAA_RESOLVE );
-	m_TemporalAntiAliasingCS = taaResolveShaderInfo.cs;
+	switch( r_antiAliasing.GetInteger() )
+	{
+		case ANTI_ALIASING_MSAA_2X:
+		{
+			auto taaResolveShaderInfo = renderProgManager.GetProgramInfo( BUILTIN_TAA_RESOLVE_MSAA_2X );
+			m_TemporalAntiAliasingCS = taaResolveShaderInfo.cs;
+			break;
+		}
+
+		case ANTI_ALIASING_MSAA_4X:
+		{
+			auto taaResolveShaderInfo = renderProgManager.GetProgramInfo( BUILTIN_TAA_RESOLVE_MSAA_4X );
+			m_TemporalAntiAliasingCS = taaResolveShaderInfo.cs;
+			break;
+		}
+
+		case ANTI_ALIASING_MSAA_8X:
+		{
+			auto taaResolveShaderInfo = renderProgManager.GetProgramInfo( BUILTIN_TAA_RESOLVE_MSAA_8X );
+			m_TemporalAntiAliasingCS = taaResolveShaderInfo.cs;
+			break;
+		}
+
+		default:
+		{
+			auto taaResolveShaderInfo = renderProgManager.GetProgramInfo( BUILTIN_TAA_RESOLVE );
+			m_TemporalAntiAliasingCS = taaResolveShaderInfo.cs;
+			break;
+		}
+	}
 
 	nvrhi::SamplerDesc samplerDesc;
 	samplerDesc.addressU = samplerDesc.addressV = samplerDesc.addressW = nvrhi::SamplerAddressMode::Border;
 	samplerDesc.borderColor = nvrhi::Color( 0.0f );
 	m_BilinearSampler = device->createSampler( samplerDesc );
-
-	m_ResolvedColorSize = idVec2( float( resolvedColorDesc.width ), float( resolvedColorDesc.height ) );
 
 	nvrhi::BufferDesc constantBufferDesc;
 	constantBufferDesc.byteSize = sizeof( TemporalAntiAliasingConstants );
@@ -188,8 +210,6 @@ void TemporalAntiAliasingPass::Init(
 		pipelineDesc.bindingLayouts = { m_ResolveBindingLayout };
 
 		m_ResolvePso = device->createComputePipeline( pipelineDesc );
-
-		//AdvanceFrame();
 	}
 }
 
@@ -264,7 +284,7 @@ void TemporalAntiAliasingPass::TemporalResolve(
 	taaConstants.outputViewOrigin = idVec2( viewportOutput.minX, viewportOutput.minY );
 	taaConstants.outputViewSize = idVec2( viewportOutput.width(), viewportOutput.height() );
 	taaConstants.inputPixelOffset.Set( 0, 0 ); // TODO = viewInput->GetPixelOffset();
-	taaConstants.outputTextureSizeInv = 1.0f / m_ResolvedColorSize;
+	taaConstants.outputTextureSizeInv = 1.0f / idVec2( float( renderSystem->GetWidth() ), float( renderSystem->GetHeight() ) );
 	taaConstants.inputOverOutputViewSize = taaConstants.inputViewSize / taaConstants.outputViewSize;
 	taaConstants.outputOverInputViewSize = taaConstants.outputViewSize / taaConstants.inputViewSize;
 	taaConstants.clampingFactor = params.enableHistoryClamping ? params.clampingFactor : -1.f;

@@ -45,6 +45,25 @@ If you have questions concerning this license or the applicable additional terms
 
 #define	DEFAULT_SIZE	16
 
+static uint GetMSAASamples()
+{
+	switch( r_antiAliasing.GetInteger() )
+	{
+		case ANTI_ALIASING_MSAA_2X:
+			return 2;
+
+		case ANTI_ALIASING_MSAA_4X:
+			return 4;
+
+		case ANTI_ALIASING_MSAA_8X:
+			return 8;
+
+		default:
+			return 1;
+	}
+
+}
+
 /*
 ==================
 idImage::MakeDefault
@@ -142,6 +161,16 @@ static void R_BlackImage( idImage* image, nvrhi::ICommandList* commandList )
 						  TF_DEFAULT, TR_REPEAT, TD_DEFAULT, commandList );
 }
 
+static void R_BlackDiffuseImage( idImage* image, nvrhi::ICommandList* commandList )
+{
+	byte	data[DEFAULT_SIZE][DEFAULT_SIZE][4];
+
+	// solid black texture
+	memset( data, 0, sizeof( data ) );
+	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE,
+						  TF_DEFAULT, TR_REPEAT, TD_DIFFUSE, commandList );
+}
+
 static void R_CyanImage( idImage* image, nvrhi::ICommandList* commandList )
 {
 	byte	data[DEFAULT_SIZE][DEFAULT_SIZE][4];
@@ -224,22 +253,26 @@ static void R_RGBA8LinearImage( idImage* image, nvrhi::ICommandList* commandList
 
 static void R_LdrNativeImage( idImage* image, nvrhi::ICommandList* commandList )
 {
-	image->GenerateImage( NULL, renderSystem->GetWidth(), renderSystem->GetHeight(), TF_NEAREST, TR_CLAMP, TD_LOOKUP_TABLE_RGBA, nullptr, true );//, msaaSamples );
+	//uint sampleCount = GetMSAASamples();
+
+	image->GenerateImage( NULL, renderSystem->GetWidth(), renderSystem->GetHeight(), TF_NEAREST, TR_CLAMP, TD_LOOKUP_TABLE_RGBA, nullptr, true, false, 1 );
 }
 
 static void R_DepthImage( idImage* image, nvrhi::ICommandList* commandList )
 {
-	// RB: NULL data and MSAA support
-#if defined(USE_HDR_MSAA)
-	textureSamples_t msaaSamples = glConfig.multisamples;
-#else
-	int msaaSamples = 0;
-#endif
-	image->GenerateImage( NULL, renderSystem->GetWidth(), renderSystem->GetHeight(), TF_NEAREST, TR_CLAMP, TD_DEPTH_STENCIL, nullptr, true );//, msaaSamples );
-	// RB end
+	uint sampleCount = GetMSAASamples();
+
+	image->GenerateImage( NULL, renderSystem->GetWidth(), renderSystem->GetHeight(), TF_NEAREST, TR_CLAMP, TD_DEPTH_STENCIL, nullptr, true, false, sampleCount );
 }
 
 // RB begin
+static void R_HDR_RGBA16FImage_ResNative_MSAAOpt( idImage* image, nvrhi::ICommandList* commandList )
+{
+	uint sampleCount = GetMSAASamples();
+
+	image->GenerateImage( NULL, renderSystem->GetWidth(), renderSystem->GetHeight(), TF_NEAREST, TR_CLAMP, TD_RGBA16F, nullptr, true, sampleCount == 1, sampleCount );
+}
+
 static void R_HDR_RGBA16FImage_ResNative( idImage* image, nvrhi::ICommandList* commandList )
 {
 	image->GenerateImage( NULL, renderSystem->GetWidth(), renderSystem->GetHeight(), TF_NEAREST, TR_CLAMP, TD_RGBA16F, nullptr, true );
@@ -312,7 +345,9 @@ static void R_AmbientOcclusionImage_ResNative( idImage* image, nvrhi::ICommandLi
 
 static void R_GeometryBufferImage_ResNative( idImage* image, nvrhi::ICommandList* commandList )
 {
-	image->GenerateImage( NULL, renderSystem->GetWidth(), renderSystem->GetHeight(), TF_LINEAR, TR_CLAMP, TD_RGBA16F, nullptr, true );
+	uint sampleCount = GetMSAASamples();
+
+	image->GenerateImage( NULL, renderSystem->GetWidth(), renderSystem->GetHeight(), TF_LINEAR, TR_CLAMP, TD_RGBA16F, nullptr, true, false, sampleCount );
 }
 
 static void R_SSAOImage_ResHalf( idImage* image, nvrhi::ICommandList* commandList )
@@ -989,12 +1024,12 @@ static void R_CreateBrdfLutImage( idImage* image, nvrhi::ICommandList* commandLi
 
 static void R_CreateEnvprobeImage_UAC_lobby_irradiance( idImage* image, nvrhi::ICommandList* commandList )
 {
-	image->GenerateImage( ( byte* )IMAGE_ENV_UAC_LOBBY_AMB_H_Bytes, IMAGE_ENV_UAC_LOBBY_AMB_H_TEX_WIDTH, IMAGE_ENV_UAC_LOBBY_AMB_H_TEX_HEIGHT, TF_DEFAULT, TR_CLAMP, TD_R11G11B10F, commandList, false, false, SAMPLE_1, CF_2D_PACKED_MIPCHAIN );
+	image->GenerateImage( ( byte* )IMAGE_ENV_UAC_LOBBY_AMB_H_Bytes, IMAGE_ENV_UAC_LOBBY_AMB_H_TEX_WIDTH, IMAGE_ENV_UAC_LOBBY_AMB_H_TEX_HEIGHT, TF_DEFAULT, TR_CLAMP, TD_R11G11B10F, commandList, false, false, 1, CF_2D_PACKED_MIPCHAIN );
 }
 
 static void R_CreateEnvprobeImage_UAC_lobby_radiance( idImage* image, nvrhi::ICommandList* commandList )
 {
-	image->GenerateImage( ( byte* )IMAGE_ENV_UAC_LOBBY_SPEC_H_Bytes, IMAGE_ENV_UAC_LOBBY_SPEC_H_TEX_WIDTH, IMAGE_ENV_UAC_LOBBY_SPEC_H_TEX_HEIGHT, TF_DEFAULT, TR_CLAMP, TD_R11G11B10F, commandList, false, false, SAMPLE_1, CF_2D_PACKED_MIPCHAIN );
+	image->GenerateImage( ( byte* )IMAGE_ENV_UAC_LOBBY_SPEC_H_Bytes, IMAGE_ENV_UAC_LOBBY_SPEC_H_TEX_WIDTH, IMAGE_ENV_UAC_LOBBY_SPEC_H_TEX_HEIGHT, TF_DEFAULT, TR_CLAMP, TD_R11G11B10F, commandList, false, false, 1, CF_2D_PACKED_MIPCHAIN );
 }
 
 // RB end
@@ -1011,6 +1046,7 @@ void idImageManager::CreateIntrinsicImages()
 	defaultImage = ImageFromFunction( "_default", R_DefaultImage );
 	whiteImage = ImageFromFunction( "_white", R_WhiteImage );
 	blackImage = ImageFromFunction( "_black", R_BlackImage );
+	blackDiffuseImage = ImageFromFunction( "_blackDiffuse", R_BlackDiffuseImage );
 	cyanImage = ImageFromFunction( "_cyan", R_CyanImage );
 	flatNormalMap = ImageFromFunction( "_flat", R_FlatNormalImage );
 	alphaNotchImage = ImageFromFunction( "_alphaNotch", R_AlphaNotchImage );
@@ -1034,10 +1070,7 @@ void idImageManager::CreateIntrinsicImages()
 	randomImage256 = globalImages->ImageFromFunction( "_random256", R_CreateRandom256Image );
 	blueNoiseImage256 = globalImages->ImageFromFunction( "_blueNoise256", R_CreateBlueNoise256Image );
 
-	currentRenderHDRImage = globalImages->ImageFromFunction( "_currentRenderHDR", R_HDR_RGBA16FImage_ResNative );
-#if defined(USE_HDR_MSAA)
-	currentRenderHDRImageNoMSAA = globalImages->ImageFromFunction( "_currentRenderHDRNoMSAA", R_HDR_RGBA16FImage_ResNative_NoMSAA );
-#endif
+	currentRenderHDRImage = globalImages->ImageFromFunction( "_currentRenderHDR", R_HDR_RGBA16FImage_ResNative_MSAAOpt );
 	currentRenderHDRImageQuarter = globalImages->ImageFromFunction( "_currentRenderHDRQuarter", R_HDR_RGBA16FImage_ResQuarter );
 	currentRenderHDRImage64 = globalImages->ImageFromFunction( "_currentRenderHDR64", R_HDR_RGBA16FImage_Res64 );
 	currentRenderLDR = globalImages->ImageFromFunction( "_currentRenderLDR", R_LdrNativeImage );
