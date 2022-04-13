@@ -149,6 +149,7 @@ void Preload( int2 sharedID, int2 globalID )
 {
 #if SAMPLE_COUNT == 1
 	float3 color = PQEncode( t_UnfilteredRT[globalID].rgb );
+	//float3 color = ( t_UnfilteredRT[globalID].rgb );
 	float2 motion = t_MotionVectors[globalID].rg;
 	float motionLength = dot( motion, motion );
 #else
@@ -309,6 +310,14 @@ void main(
 	}
 
 	float3 result = PQDecode( resultPQ );
+	//float3 result = resultPQ;
+
+#if 0
+	// Show motion vectors
+	result = float3( longestMV, 0.0 );
+	resultPQ = PQEncode( result );
+
+#endif
 
 	u_ColorOutput[outputPixelPosition] = float4( result, 1.0 );
 	u_FeedbackOutput[outputPixelPosition] = float4( resultPQ, 0.0 );

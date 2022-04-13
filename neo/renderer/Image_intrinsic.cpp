@@ -1042,7 +1042,7 @@ void idImageManager::CreateIntrinsicImages()
 	currentRenderHDRImage64 = globalImages->ImageFromFunction( "_currentRenderHDR64", R_HDR_RGBA16FImage_Res64 );
 	currentRenderLDR = globalImages->ImageFromFunction( "_currentRenderLDR", R_LdrNativeImage );
 
-	taaMotionVectorsImage = ImageFromFunction( "_motionVectors", R_HDR_RGBA16FImage_ResNative ); // RB: could be shared with _currentNormals.zw
+	taaMotionVectorsImage = ImageFromFunction( "_taaMotionVectors", R_HDR_RGBA16FImage_ResNative ); // RB: could be shared with _currentNormals.zw
 	taaResolvedImage = ImageFromFunction( "_taaResolved", R_HDR_RGBA16FImage_ResNative_UAV );
 	taaFeedback1Image = ImageFromFunction( "_taaFeedback1", R_HDR_RGBA16SImage_ResNative_UAV );
 	taaFeedback2Image = ImageFromFunction( "_taaFeedback2", R_HDR_RGBA16SImage_ResNative_UAV );

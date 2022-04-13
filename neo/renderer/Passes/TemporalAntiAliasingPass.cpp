@@ -146,9 +146,7 @@ void TemporalAntiAliasingPass::Init(
 		}
 		m_MotionVectorsBindingSet = device->createBindingSet( bindingSetDesc, m_MotionVectorsBindingLayout );
 
-		//m_MotionVectorsFramebufferFactory = std::make_unique<FramebufferFactory>( device );
-		//m_MotionVectorsFramebufferFactory->RenderTargets = { params.motionVectors };
-
+#if 0
 		nvrhi::GraphicsPipelineDesc pipelineDesc;
 		pipelineDesc.primType = nvrhi::PrimitiveType::TriangleStrip;
 		pipelineDesc.VS = taaMotionVectorsShaderInfo.vs; //m_CommonPasses->m_FullscreenVS;
@@ -162,6 +160,7 @@ void TemporalAntiAliasingPass::Init(
 		//nvrhi::IFramebuffer* sampleFramebuffer = m_MotionVectorsFramebufferFactory->GetFramebuffer( *sampleView );
 		nvrhi::IFramebuffer* sampleFramebuffer = globalFramebuffers.taaMotionVectorsFBO->GetApiObject();
 		m_MotionVectorsPso = device->createGraphicsPipeline( pipelineDesc, sampleFramebuffer );
+#endif
 	}
 
 	{

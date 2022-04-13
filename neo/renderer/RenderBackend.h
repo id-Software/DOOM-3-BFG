@@ -341,6 +341,7 @@ private:
 	void				StencilShadowPass( const drawSurf_t* drawSurfs, const viewLight_t* vLight );
 	void				StencilSelectLight( const viewLight_t* vLight );
 
+	void				DrawMotionVectors();
 	void				TemporalAAPass( const viewDef_t* _viewDef );
 
 	// RB: HDR stuff

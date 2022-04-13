@@ -300,6 +300,14 @@ void idRenderProgManager::Init( nvrhi::IDevice* _device )
 
 	bindingLayouts[BINDING_LAYOUT_NORMAL_CUBE] = { device->createBindingLayout( normalCubeBindingLayout ), samplerOneBindingLayout };
 
+	auto motionVectorsBindingLayout = nvrhi::BindingLayoutDesc()
+									  .setVisibility( nvrhi::ShaderType::All )
+									  .addItem( nvrhi::BindingLayoutItem::VolatileConstantBuffer( 0 ) )
+									  .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 0 ) )	// cube map
+									  .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 1 ) );	// normal map
+
+	bindingLayouts[BINDING_LAYOUT_TAA_MOTION_VECTORS] = { device->createBindingLayout( motionVectorsBindingLayout ), samplerOneBindingLayout };
+
 	nvrhi::BindingLayoutDesc tonemapLayout;
 	tonemapLayout.visibility = nvrhi::ShaderType::Pixel;
 	tonemapLayout.bindings =
@@ -463,7 +471,8 @@ void idRenderProgManager::Init( nvrhi::IDevice* _device )
 		{ BUILTIN_SMAA_BLENDING_WEIGHT_CALCULATION, "builtin/post/SMAA_blending_weight_calc", "", {}, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
 		{ BUILTIN_SMAA_NEIGHBORHOOD_BLENDING, "builtin/post/SMAA_final", "", {}, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
 
-		{ BUILTIN_TAA_MOTION_VECTORS, "builtin/post/motion_vectors", "", { { "USE_STENCIL", "0" }, { "QUAD_Z", "0" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_UNKNOWN, BINDING_LAYOUT_TAA_MOTION_VECTORS },
+		{ BUILTIN_MOTION_BLUR, "builtin/post/motionBlur", "_vectors", { { "VECTORS_ONLY", "1" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_TAA_MOTION_VECTORS },
+		//{ BUILTIN_TAA_MOTION_VECTORS, "builtin/post/motion_vectors", "", { { "USE_STENCIL", "0" }, { "QUAD_Z", "0" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_UNKNOWN, BINDING_LAYOUT_TAA_MOTION_VECTORS },
 		{ BUILTIN_TAA_RESOLVE, "builtin/post/taa", "", { { "SAMPLE_COUNT", "1" }, { "USE_CATMULL_ROM_FILTER", "1" } }, false, SHADER_STAGE_COMPUTE, LAYOUT_UNKNOWN, BINDING_LAYOUT_TAA_RESOLVE },
 
 		{ BUILTIN_AMBIENT_OCCLUSION, "builtin/SSAO/AmbientOcclusion_AO", "", { { "BRIGHTPASS", "0" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DRAW_AO },
@@ -482,7 +491,7 @@ void idRenderProgManager::Init( nvrhi::IDevice* _device )
 		{ BUILTIN_BINK_SRGB, "builtin/video/bink", "_srgb", { {"USE_SRGB", "1" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
 		{ BUILTIN_BINK_GUI, "builtin/video/bink_gui", "", {}, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
 		{ BUILTIN_STEREO_INTERLACE, "builtin/VR/stereoInterlace", "", {}, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
-		{ BUILTIN_MOTION_BLUR, "builtin/post/motionBlur", "", {}, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
+		{ BUILTIN_MOTION_BLUR, "builtin/post/motionBlur", "", { { "VECTORS_ONLY", "1" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
 
 		// RB begin
 		{ BUILTIN_DEBUG_SHADOWMAP, "builtin/debug/debug_shadowmap", "", {}, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },

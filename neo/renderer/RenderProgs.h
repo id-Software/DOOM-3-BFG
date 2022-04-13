@@ -968,6 +968,11 @@ public:
 		BindShader_Builtin( BUILTIN_MOTION_BLUR );
 	}
 
+	void	BindShader_MotionVectors()
+	{
+		BindShader_Builtin( BUILTIN_TAA_MOTION_VECTORS );
+	}
+
 	void	BindShader_DebugShadowMap()
 	{
 		BindShader_Builtin( BUILTIN_DEBUG_SHADOWMAP );

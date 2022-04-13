@@ -5437,10 +5437,20 @@ void idRenderBackend::CalculateAutomaticExposure()
 	//GL_CheckErrors();
 }
 
-void idRenderBackend::TemporalAAPass( const viewDef_t* _viewDef )
+void idRenderBackend::DrawMotionVectors()
 {
-	// if we are just doing 2D rendering, no need for HDR TAA
-	if( viewDef->viewEntitys == NULL )
+	if( !viewDef->viewEntitys )
+	{
+		// 3D views only
+		return;
+	}
+
+	if( !r_useTemporalAA.GetBool() && r_motionBlur.GetInteger() <= 0 )
+	{
+		return;
+	}
+
+	if( viewDef->isSubview )
 	{
 		return;
 	}
@@ -5450,7 +5460,129 @@ void idRenderBackend::TemporalAAPass( const viewDef_t* _viewDef )
 		return;
 	}
 
-	renderLog.OpenBlock( "TemporalAA" );
+	renderLog.OpenBlock( "Render_MotionVectors" );
+
+	// clear the alpha buffer and draw only the hands + weapon into it so
+	// we can avoid blurring them
+	GL_State( GLS_COLORMASK | GLS_DEPTHMASK );
+
+	GL_Color( 0, 0, 0, 0 );
+	GL_SelectTexture( 0 );
+	globalImages->blackImage->Bind();
+	currentSpace = NULL;
+
+#if 0
+
+	TODO mask out the view weapon + hands using the stencil buffer
+
+	commandList->clearTextureFloat( globalImages->currentHDRImage->GetTextureHandle(), nvrhi::AllSubresources, nvrhi::Color( 0.f ) );
+
+	drawSurf_t** drawSurfs = ( drawSurf_t** )&viewDef->drawSurfs[0];
+	for( int surfNum = 0; surfNum < viewDef->numDrawSurfs; surfNum++ )
+	{
+		const drawSurf_t* surf = drawSurfs[ surfNum ];
+
+		if( !surf->space->weaponDepthHack && !surf->space->skipMotionBlur && !surf->material->HasSubview() )
+		{
+			// Apply motion blur to this object
+			continue;
+		}
+
+		const idMaterial* shader = surf->material;
+		if( shader->Coverage() == MC_TRANSLUCENT )
+		{
+			// muzzle flash, etc
+			continue;
+		}
+
+		// set mvp matrix
+		if( surf->space != currentSpace )
+		{
+			RB_SetMVP( surf->space->mvp );
+			currentSpace = surf->space;
+		}
+
+		// this could just be a color, but we don't have a skinned color-only prog
+		if( surf->jointCache )
+		{
+			renderProgManager.BindShader_TextureVertexColorSkinned();
+		}
+		else
+		{
+			renderProgManager.BindShader_TextureVertexColor();
+		}
+
+		// draw it solid
+		DrawElementsWithCounters( surf );
+	}
+#endif
+
+	globalFramebuffers.taaMotionVectorsFBO->Bind();
+
+	commandList->clearTextureFloat( globalImages->taaMotionVectorsImage->GetTextureHandle(), nvrhi::AllSubresources, nvrhi::Color( 0.f ) );
+
+	// copy off the color buffer and the depth buffer for the motion blur prog
+	// we use the viewport dimensions for copying the buffers in case resolution scaling is enabled.
+	//const idScreenRect& viewport = viewDef->viewport;
+	//globalImages->currentRenderImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
+
+	// in stereo rendering, each eye needs to get a separate previous frame mvp
+	int mvpIndex = ( viewDef->renderView.viewEyeBuffer == 1 ) ? 1 : 0;
+
+	// derive the matrix to go from current pixels to previous frame pixels
+	idRenderMatrix	inverseMVP;
+	idRenderMatrix::Inverse( viewDef->worldSpace.mvp, inverseMVP );
+
+	idRenderMatrix	motionMatrix;
+	idRenderMatrix::Multiply( prevMVP[mvpIndex], inverseMVP, motionMatrix );
+
+	prevMVP[mvpIndex] = viewDef->worldSpace.mvp;
+
+	RB_SetMVP( motionMatrix );
+
+	GL_State( GLS_DEPTHFUNC_ALWAYS | GLS_DEPTHMASK | GLS_CULL_TWOSIDED );
+
+	renderProgManager.BindShader_MotionVectors();
+
+	// let the fragment program know how many samples we are going to use
+	idVec4 samples( ( float )( 1 << 4 ) ); ///r_motionBlur.GetInteger() ) );
+	SetFragmentParm( RENDERPARM_OVERBRIGHT, samples.ToFloatPtr() );
+
+	GL_SelectTexture( 0 );
+	globalImages->currentRenderHDRImage->Bind();
+
+	GL_SelectTexture( 1 );
+	globalImages->currentDepthImage->Bind();
+
+	DrawElementsWithCounters( &unitSquareSurface );
+
+	renderLog.CloseBlock();
+}
+
+void idRenderBackend::TemporalAAPass( const viewDef_t* _viewDef )
+{
+	// if we are just doing 2D rendering, no need for HDR TAA
+	if( viewDef->viewEntitys == NULL )
+	{
+		return;
+	}
+
+	if( !r_useTemporalAA.GetBool() )
+	{
+		return;
+	}
+
+	if( viewDef->isSubview )
+	{
+		return;
+	}
+
+	if( viewDef->renderView.rdflags & RDF_NOAMBIENT )
+	{
+		return;
+	}
+
+	renderLog.OpenBlock( "Render_TemporalAA" );
 
 	TemporalAntiAliasingParameters params =
 	{
@@ -6787,8 +6919,8 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 		float windowCoordParm[4];
 		windowCoordParm[0] = 1.0f / w;
 		windowCoordParm[1] = 1.0f / h;
-		windowCoordParm[2] = 0.0f;
-		windowCoordParm[3] = 1.0f;
+		windowCoordParm[2] = w;
+		windowCoordParm[3] = h;
 		SetFragmentParm( RENDERPARM_WINDOWCOORD, windowCoordParm ); // rpWindowCoord
 
 		// render the remaining surfaces
@@ -6801,6 +6933,11 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 	// render debug tools
 	//-------------------------------------------------
 	DBG_RenderDebugTools( drawSurfs, numDrawSurfs );
+
+	//-------------------------------------------------
+	// motion vectors are useful for TAA and motion blur
+	//-------------------------------------------------
+	DrawMotionVectors();
 
 	//-------------------------------------------------
 	// resolve of HDR target using temporal anti aliasing before any tonemapping and post processing
@@ -6885,7 +7022,7 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 
 /*
 ==================
-RB_MotionBlur
+idRenderBackend::MotionBlur
 
 Experimental feature
 ==================
