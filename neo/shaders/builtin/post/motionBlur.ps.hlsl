@@ -61,14 +61,12 @@ void main( PS_IN fragment, out PS_OUT result )
 	}
 #endif
 
-#if 0 //!VECTORS_ONLY
 	// don't motion blur the hands, which were drawn with alpha = 0
-	if( t_ViewColor.Sample( LinearSampler, fragment.texcoord0 ).w == 0.0 )
+	if( t_ViewColor.Sample( LinearSampler, fragment.texcoord0 ).a == 0.0 )
 	{
 		discard;
 		return;
 	}
-#endif
 
 	// derive clip space from the depth buffer and screen position
 	float windowZ = t_ViewDepth.Sample( LinearSampler, fragment.texcoord0 ).x;

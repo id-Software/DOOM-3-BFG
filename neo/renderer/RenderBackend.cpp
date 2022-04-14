@@ -5435,8 +5435,6 @@ void idRenderBackend::CalculateAutomaticExposure()
 	{
 		idLib::Printf( "HDR luminance avg = %f, max = %f, key = %f\n", hdrAverageLuminance, hdrMaxLuminance, hdrKey );
 	}
-
-	//GL_CheckErrors();
 }
 
 void idRenderBackend::DrawMotionVectors()
@@ -5467,17 +5465,21 @@ void idRenderBackend::DrawMotionVectors()
 	// clear the alpha buffer and draw only the hands + weapon into it so
 	// we can avoid blurring them
 	GL_State( GLS_COLORMASK | GLS_DEPTHMASK );
+	GL_Color( 0, 0, 0, 1 );
 
+	renderProgManager.BindShader_Color();
+
+	currentSpace = &viewDef->worldSpace;
+	RB_SetMVP( viewDef->worldSpace.mvp );
+
+	DrawElementsWithCounters( &unitSquareSurface );
+
+	// draw the hands + weapon with alpha 0
 	GL_Color( 0, 0, 0, 0 );
+
 	GL_SelectTexture( 0 );
 	globalImages->blackImage->Bind();
 	currentSpace = NULL;
-
-#if 0
-
-	TODO mask out the view weapon + hands using the stencil buffer
-
-	commandList->clearTextureFloat( globalImages->currentHDRImage->GetTextureHandle(), nvrhi::AllSubresources, nvrhi::Color( 0.f ) );
 
 	drawSurf_t** drawSurfs = ( drawSurf_t** )&viewDef->drawSurfs[0];
 	for( int surfNum = 0; surfNum < viewDef->numDrawSurfs; surfNum++ )
@@ -5517,16 +5519,10 @@ void idRenderBackend::DrawMotionVectors()
 		// draw it solid
 		DrawElementsWithCounters( surf );
 	}
-#endif
 
 	globalFramebuffers.taaMotionVectorsFBO->Bind();
 
 	commandList->clearTextureFloat( globalImages->taaMotionVectorsImage->GetTextureHandle(), nvrhi::AllSubresources, nvrhi::Color( 0.f ) );
-
-	// copy off the color buffer and the depth buffer for the motion blur prog
-	// we use the viewport dimensions for copying the buffers in case resolution scaling is enabled.
-	//const idScreenRect& viewport = viewDef->viewport;
-	//globalImages->currentRenderImage->CopyFramebuffer( viewport.x1, viewport.y1, viewport.GetWidth(), viewport.GetHeight() );
 
 	// in stereo rendering, each eye needs to get a separate previous frame mvp
 	int mvpIndex = ( viewDef->renderView.viewEyeBuffer == 1 ) ? 1 : 0;
@@ -5545,10 +5541,6 @@ void idRenderBackend::DrawMotionVectors()
 	GL_State( GLS_DEPTHFUNC_ALWAYS | GLS_DEPTHMASK | GLS_CULL_TWOSIDED );
 
 	renderProgManager.BindShader_MotionVectors();
-
-	// let the fragment program know how many samples we are going to use
-	idVec4 samples( ( float )( 1 << 4 ) ); ///r_motionBlur.GetInteger() ) );
-	SetFragmentParm( RENDERPARM_OVERBRIGHT, samples.ToFloatPtr() );
 
 	GL_SelectTexture( 0 );
 	globalImages->currentRenderHDRImage->Bind();
@@ -6944,7 +6936,7 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 	//-------------------------------------------------
 	// resolve of HDR target using temporal anti aliasing before any tonemapping and post processing
 	//
-	// use this to eat all stochastic noise like from volumetric light sampling,
+	// use this to eat all stochastic noise like from volumetric light sampling or SSAO
 	// runs at full resolution
 	//-------------------------------------------------
 	TemporalAAPass( _viewDef );
