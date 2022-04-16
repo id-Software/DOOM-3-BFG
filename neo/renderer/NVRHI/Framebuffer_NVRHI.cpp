@@ -107,7 +107,7 @@ void Framebuffer::ResizeFramebuffers()
 	int screenHeight = renderSystem->GetHeight();
 
 	tr.backend.commandList->open();
-	globalImages->currentRenderLDR->Reload( false, tr.backend.commandList );
+	globalImages->ldrImage->Reload( false, tr.backend.commandList );
 	globalImages->currentRenderImage->Reload( false, tr.backend.commandList );
 	globalImages->currentDepthImage->Reload( false, tr.backend.commandList );
 	globalImages->currentRenderHDRImage->Reload( false, tr.backend.commandList );
@@ -117,7 +117,7 @@ void Framebuffer::ResizeFramebuffers()
 		globalImages->ambientOcclusionImage[i]->Reload( false, tr.backend.commandList );
 	}
 	globalImages->hierarchicalZbufferImage->Reload( false, tr.backend.commandList );
-	globalImages->currentNormalsImage->Reload( false, tr.backend.commandList );
+	globalImages->gbufferNormalsRoughnessImage->Reload( false, tr.backend.commandList );
 	globalImages->taaMotionVectorsImage->Reload( false, tr.backend.commandList );
 	globalImages->taaResolvedImage->Reload( false, tr.backend.commandList );
 	globalImages->taaFeedback1Image->Reload( false, tr.backend.commandList );
@@ -162,7 +162,7 @@ void Framebuffer::ResizeFramebuffers()
 
 	globalFramebuffers.ldrFBO = new Framebuffer( "_ldr",
 			nvrhi::FramebufferDesc()
-			.addColorAttachment( globalImages->currentRenderLDR->texture ) );
+			.addColorAttachment( globalImages->ldrImage->texture ) );
 	//.setDepthAttachment( globalImages->currentDepthImage->texture ) );
 
 	globalFramebuffers.hdrFBO = new Framebuffer( "_hdr",
@@ -210,7 +210,7 @@ void Framebuffer::ResizeFramebuffers()
 
 	globalFramebuffers.geometryBufferFBO = new Framebuffer( "_gbuffer",
 			nvrhi::FramebufferDesc()
-			.addColorAttachment( globalImages->currentNormalsImage->texture )
+			.addColorAttachment( globalImages->gbufferNormalsRoughnessImage->texture )
 			.setDepthAttachment( globalImages->currentDepthImage->texture ) );
 
 	globalFramebuffers.smaaEdgesFBO = new Framebuffer( "_smaaEdges",

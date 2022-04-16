@@ -1071,9 +1071,8 @@ void idImageManager::CreateIntrinsicImages()
 	blueNoiseImage256 = globalImages->ImageFromFunction( "_blueNoise256", R_CreateBlueNoise256Image );
 
 	currentRenderHDRImage = globalImages->ImageFromFunction( "_currentRenderHDR", R_HDR_RGBA16FImage_ResNative_MSAAOpt );
-	currentRenderHDRImageQuarter = globalImages->ImageFromFunction( "_currentRenderHDRQuarter", R_HDR_RGBA16FImage_ResQuarter );
 	currentRenderHDRImage64 = globalImages->ImageFromFunction( "_currentRenderHDR64", R_HDR_RGBA16FImage_Res64 );
-	currentRenderLDR = globalImages->ImageFromFunction( "_currentRenderLDR", R_LdrNativeImage );
+	ldrImage = globalImages->ImageFromFunction( "_currentRenderLDR", R_LdrNativeImage );
 
 	taaMotionVectorsImage = ImageFromFunction( "_taaMotionVectors", R_HDR_RGBA16FImage_ResNative ); // RB: could be shared with _currentNormals.zw
 	taaResolvedImage = ImageFromFunction( "_taaResolved", R_HDR_RGBA16FImage_ResNative_UAV );
@@ -1107,7 +1106,7 @@ void idImageManager::CreateIntrinsicImages()
 	smaaEdgesImage = globalImages->ImageFromFunction( "_smaaEdges", R_SMAAImage_ResNative );
 	smaaBlendImage = globalImages->ImageFromFunction( "_smaaBlend", R_SMAAImage_ResNative );
 
-	currentNormalsImage = ImageFromFunction( "_currentNormals", R_GeometryBufferImage_ResNative );
+	gbufferNormalsRoughnessImage = ImageFromFunction( "_currentNormals", R_GeometryBufferImage_ResNative );
 
 	ambientOcclusionImage[0] = ImageFromFunction( "_ao0", R_SMAAImage_ResNative );
 	ambientOcclusionImage[1] = ImageFromFunction( "_ao1", R_SMAAImage_ResNative );

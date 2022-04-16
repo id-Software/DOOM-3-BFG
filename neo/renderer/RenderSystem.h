@@ -401,12 +401,11 @@ public:
 
 	// aviDemo uses this.
 	// Will automatically tile render large screen shots if necessary
-	// Samples is the number of jittered frames for anti-aliasing
 	// If ref == NULL, common->UpdateScreen will be used
 	// This will perform swapbuffers, so it is NOT an approppriate way to
 	// generate image files that happen during gameplay, as for savegame
 	// markers.  Use WriteRender() instead.
-	virtual void			TakeScreenshot( int width, int height, const char* fileName, int samples, struct renderView_s* ref, int exten ) = 0;
+	virtual void			TakeScreenshot( int width, int height, const char* fileName, struct renderView_s* ref ) = 0;
 
 	// RB
 	virtual byte*			CaptureRenderToBuffer( int width, int height, renderView_t* ref ) = 0;

@@ -1217,7 +1217,7 @@ void idRenderSystemLocal::CaptureRenderToFile( const char* fileName, bool fixAlp
 
 	RenderCommandBuffers( frameData->cmdHead );
 
-#if !defined(USE_VULKAN) && !defined(USE_NVRHI)
+#if !defined( USE_VULKAN ) && !defined( USE_NVRHI )
 	glReadBuffer( GL_BACK );
 
 	// include extra space for OpenGL padding to word boundaries

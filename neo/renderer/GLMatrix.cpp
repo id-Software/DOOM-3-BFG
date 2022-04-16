@@ -476,24 +476,17 @@ void R_SetupProjectionMatrix( viewDef_t* viewDef )
 	// frames are going to be blended together
 	// for motion blurred anti-aliasing
 	float jitterx, jittery;
-	if( r_jitter.GetBool() )
-	{
-		static idRandom random;
-		jitterx = random.RandomFloat();
-		jittery = random.RandomFloat();
-	}
-	else
-	{
-		jitterx = 0.0f;
-		jittery = 0.0f;
-	}
-
 
 	if( r_useTemporalAA.GetBool() )
 	{
 		idVec2 jitter = tr.backend.GetCurrentPixelOffset();
 		jitterx = jitter.x;
 		jittery = jitter.y;
+	}
+	else
+	{
+		jitterx = 0.0f;
+		jittery = 0.0f;
 	}
 
 	//

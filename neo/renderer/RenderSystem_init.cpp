@@ -124,8 +124,6 @@ idCVar r_swapInterval( "r_swapInterval", "1", CVAR_RENDERER | CVAR_ARCHIVE | CVA
 idCVar r_gamma( "r_gamma", "1.0", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_FLOAT, "changes gamma tables", 0.5f, 3.0f );
 idCVar r_brightness( "r_brightness", "1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_FLOAT, "changes gamma tables", 0.5f, 2.0f );
 
-idCVar r_jitter( "r_jitter", "0", CVAR_RENDERER | CVAR_BOOL, "randomly subpixel jitter the projection matrix" );
-
 idCVar r_skipStaticInteractions( "r_skipStaticInteractions", "0", CVAR_RENDERER | CVAR_BOOL, "skip interactions created at level load" );
 idCVar r_skipDynamicInteractions( "r_skipDynamicInteractions", "0", CVAR_RENDERER | CVAR_BOOL, "skip interactions created after level load" );
 idCVar r_skipSuppress( "r_skipSuppress", "0", CVAR_RENDERER | CVAR_BOOL, "ignore the per-view suppressions" );
@@ -773,175 +771,92 @@ void R_ReportSurfaceAreas_f( const idCmdArgs& args )
 ==============================================================================
 */
 
-/*
-====================
-R_ReadTiledPixels
-
-NO LONGER SUPPORTED (FIXME: make standard case work)
-
-Used to allow the rendering of an image larger than the actual window by
-tiling it into window-sized chunks and rendering each chunk separately
-
-If ref isn't specified, the full session UpdateScreen will be done.
-====================
-*/
-void R_ReadTiledPixels( int width, int height, byte* buffer, renderView_t* ref = NULL )
+bool R_ReadPixelsRGB8( nvrhi::IDevice* device, CommonRenderPasses* pPasses, nvrhi::ITexture* texture, nvrhi::ResourceStates textureState, const char* fullname )
 {
-	// FIXME
-#if !defined(USE_VULKAN) && !defined(USE_NVRHI)
+	nvrhi::TextureDesc desc = texture->getDesc();
+	nvrhi::TextureHandle tempTexture;
+	nvrhi::FramebufferHandle tempFramebuffer;
 
-	// include extra space for OpenGL padding to word boundaries
-	int sysWidth = renderSystem->GetWidth();
-	int sysHeight = renderSystem->GetHeight();
+	nvrhi::CommandListHandle commandList = device->createCommandList();
+	commandList->open();
 
-	byte* temp = NULL;
-	if( ref && ref->rdflags & RDF_IRRADIANCE )
+	if( textureState != nvrhi::ResourceStates::Unknown )
 	{
-		// * 2 = sizeof( half float )
-		//temp = ( byte* )R_StaticAlloc( ENVPROBE_CAPTURE_SIZE * ENVPROBE_CAPTURE_SIZE * 3 * 2 );
-	}
-	else
-	{
-		temp = ( byte* )R_StaticAlloc( ( sysWidth + 3 ) * sysHeight * 3 );
+		commandList->beginTrackingTextureState( texture, nvrhi::TextureSubresourceSet( 0, 1, 0, 1 ), textureState );
 	}
 
-	// foresthale 2014-03-01: fixed custom screenshot resolution by doing a more direct render path
-#ifdef BUGFIXEDSCREENSHOTRESOLUTION
-	if( sysWidth > width )
+	switch( desc.format )
 	{
-		sysWidth = width;
+		case nvrhi::Format::RGBA8_UNORM:
+		case nvrhi::Format::SRGBA8_UNORM:
+			tempTexture = texture;
+			break;
+		default:
+			desc.format = nvrhi::Format::SRGBA8_UNORM;
+			desc.isRenderTarget = true;
+			desc.initialState = nvrhi::ResourceStates::RenderTarget;
+			desc.keepInitialState = true;
+
+			tempTexture = device->createTexture( desc );
+			tempFramebuffer = device->createFramebuffer( nvrhi::FramebufferDesc().addColorAttachment( tempTexture ) );
+
+			pPasses->BlitTexture( commandList, tempFramebuffer, texture );
 	}
 
-	if( sysHeight > height )
+	nvrhi::StagingTextureHandle stagingTexture = device->createStagingTexture( desc, nvrhi::CpuAccessMode::Read );
+	commandList->copyTexture( stagingTexture, nvrhi::TextureSlice(), tempTexture, nvrhi::TextureSlice() );
+
+	if( textureState != nvrhi::ResourceStates::Unknown )
 	{
-		sysHeight = height;
+		commandList->setTextureState( texture, nvrhi::TextureSubresourceSet( 0, 1, 0, 1 ), textureState );
+		commandList->commitBarriers();
 	}
 
-	// make sure the game / draw thread has completed
-	commonLocal.WaitGameThread();
+	commandList->close();
+	device->executeCommandList( commandList );
 
-	// discard anything currently on the list
-	tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
+	size_t rowPitch = 0;
+	void* pData = device->mapStagingTexture( stagingTexture, nvrhi::TextureSlice(), nvrhi::CpuAccessMode::Read, &rowPitch );
 
-	int originalNativeWidth = glConfig.nativeScreenWidth;
-	int originalNativeHeight = glConfig.nativeScreenHeight;
-
-	//if( !ref || ( ref && !( ref->rdflags & RDF_IRRADIANCE ) ) )
+	if( !pData )
 	{
-		glConfig.nativeScreenWidth = sysWidth;
-		glConfig.nativeScreenHeight = sysHeight;
+		return false;
 	}
-#endif
 
-	// disable scissor, so we don't need to adjust all those rects
-	r_useScissor.SetBool( false );
+	uint32_t* newData = nullptr;
 
-	for( int xo = 0 ; xo < width ; xo += sysWidth )
+	if( rowPitch != desc.width * 4 )
 	{
-		for( int yo = 0 ; yo < height ; yo += sysHeight )
+		newData = new uint32_t[desc.width * desc.height];
+
+		for( uint32_t row = 0; row < desc.height; row++ )
 		{
-			// foresthale 2014-03-01: fixed custom screenshot resolution by doing a more direct render path
-#ifdef BUGFIXEDSCREENSHOTRESOLUTION
-			// discard anything currently on the list
-			tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
-			if( ref )
-			{
-				// ref is only used by envShot, Event_camShot, etc to grab screenshots of things in the world,
-				// so this omits the hud and other effects
-				tr.primaryWorld->RenderScene( ref );
-			}
-			else
-			{
-				// build all the draw commands without running a new game tic
-				commonLocal.Draw();
-			}
-			// this should exit right after vsync, with the GPU idle and ready to draw
-			const emptyCommand_t* cmd = tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
-
-			// get the GPU busy with new commands
-			tr.RenderCommandBuffers( cmd );
-
-			// discard anything currently on the list (this triggers SwapBuffers)
-			tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
-#else
-			// foresthale 2014-03-01: note: ref is always NULL in every call path to this function
-			if( ref )
-			{
-				// discard anything currently on the list
-				tr.SwapCommandBuffers( NULL, NULL, NULL, NULL );
-
-				// build commands to render the scene
-				tr.primaryWorld->RenderScene( ref );
-
-				// finish off these commands
-				const emptyCommand_t* cmd = tr.SwapCommandBuffers( NULL, NULL, NULL, NULL );
-
-				// issue the commands to the GPU
-				tr.RenderCommandBuffers( cmd );
-			}
-			else
-			{
-				const bool captureToImage = false;
-				common->UpdateScreen( captureToImage, false );
-			}
-#endif
-
-			int w = sysWidth;
-			if( xo + w > width )
-			{
-				w = width - xo;
-			}
-			int h = sysHeight;
-			if( yo + h > height )
-			{
-				h = height - yo;
-			}
-
-			if( ref && ref->rdflags & RDF_IRRADIANCE )
-			{
-				globalFramebuffers.envprobeFBO->Bind();
-
-				glPixelStorei( GL_PACK_ROW_LENGTH, ENVPROBE_CAPTURE_SIZE );
-				glReadPixels( 0, 0, w, h, GL_RGB, GL_HALF_FLOAT, buffer );
-
-				R_VerticalFlipRGB16F( buffer, w, h );
-
-				Framebuffer::Unbind();
-			}
-			else
-			{
-				glReadBuffer( GL_FRONT );
-				glReadPixels( 0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, temp );
-
-				int	row = ( w * 3 + 3 ) & ~3;		// OpenGL pads to dword boundaries
-
-				for( int y = 0 ; y < h ; y++ )
-				{
-					memcpy( buffer + ( ( yo + y )* width + xo ) * 3,
-							temp + y * row, w * 3 );
-				}
-			}
+			memcpy( newData + row * desc.width, static_cast<char*>( pData ) + row * rowPitch, desc.width * sizeof( uint32_t ) );
 		}
+
+		pData = newData;
 	}
 
-	// foresthale 2014-03-01: fixed custom screenshot resolution by doing a more direct render path
-#ifdef BUGFIXEDSCREENSHOTRESOLUTION
-	// discard anything currently on the list
-	tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
+	// fix alpha
+	byte* data = static_cast<byte*>( pData );
 
-	if( !ref || ( ref && !( ref->rdflags & RDF_IRRADIANCE ) ) )
+	for( int i = 0; i < ( desc.width * desc.height ); i++ )
 	{
-		glConfig.nativeScreenWidth = originalNativeWidth;
-		glConfig.nativeScreenHeight = originalNativeHeight;
+		data[ i * 4 + 3 ] = 0xff;
 	}
-#endif
 
-	r_useScissor.SetBool( true );
+	R_WritePNG( fullname, static_cast<byte*>( pData ), 4, desc.width, desc.height, true, "fs_basepath" );
 
-	R_StaticFree( temp );
-#endif
+	if( newData )
+	{
+		delete[] newData;
+		newData = nullptr;
+	}
+
+	device->unmapStagingTexture( stagingTexture );
+
+	return true;
 }
-
 
 /*
 ==================
@@ -949,136 +864,50 @@ TakeScreenshot
 
 Move to tr_imagefiles.c...
 
-Downsample is the number of steps to mipmap the image before saving it
 If ref == NULL, common->UpdateScreen will be used
 ==================
 */
-// RB: changed .tga to .png
-void idRenderSystemLocal::TakeScreenshot( int width, int height, const char* fileName, int blends, renderView_t* ref, int exten )
+void idRenderSystemLocal::TakeScreenshot( int widthIgnored, int heightIgnored, const char* fileName, renderView_t* ref )
 {
-	byte*		buffer;
-	int			i, j, c, temp;
-	idStr finalFileName;
-
-	finalFileName.Format( "%s.%s", fileName, fileExten[exten] );
-
 	takingScreenshot = true;
 
-	int pix = width * height;
-	const int bufferSize = pix * 3 + 18;
+	// make sure the game / draw thread has completed
+	commonLocal.WaitGameThread();
 
-	if( exten == EXR )
-	{
-		buffer = ( byte* )R_StaticAlloc( pix * 3 * 2 );
-	}
-	else if( exten == PNG )
-	{
-		buffer = ( byte* )R_StaticAlloc( pix * 3 );
-	}
-	else if( exten == TGA )
-	{
-		buffer = ( byte* )R_StaticAlloc( bufferSize );
-		memset( buffer, 0, bufferSize );
-	}
+	// discard anything currently on the list
+	//tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
 
-	if( blends <= 1 )
+	// discard anything currently on the list
+	tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
+	if( ref )
 	{
-		if( exten == PNG || exten == EXR )
-		{
-			R_ReadTiledPixels( width, height, buffer, ref );
-		}
-		else if( exten == TGA )
-		{
-			R_ReadTiledPixels( width, height, buffer + 18, ref );
-		}
+		// ref is only used by envShot, Event_camShot, etc to grab screenshots of things in the world,
+		// so this omits the hud and other effects
+		tr.primaryWorld->RenderScene( ref );
 	}
 	else
 	{
-		unsigned short* shortBuffer = ( unsigned short* )R_StaticAlloc( pix * 2 * 3 );
-		memset( shortBuffer, 0, pix * 2 * 3 );
-
-		// enable anti-aliasing jitter
-		r_jitter.SetBool( true );
-
-		for( i = 0 ; i < blends ; i++ )
-		{
-			if( exten == PNG )
-			{
-				R_ReadTiledPixels( width, height, buffer, ref );
-			}
-			else if( exten == TGA )
-			{
-				R_ReadTiledPixels( width, height, buffer + 18, ref );
-			}
-
-			for( j = 0 ; j < pix * 3 ; j++ )
-			{
-				if( exten == PNG )
-				{
-					shortBuffer[j] += buffer[j];
-				}
-				else if( exten == TGA )
-				{
-					shortBuffer[j] += buffer[18 + j];
-				}
-			}
-		}
-
-		// divide back to bytes
-		for( i = 0 ; i < pix * 3 ; i++ )
-		{
-			if( exten == PNG )
-			{
-				buffer[i] = shortBuffer[i] / blends;
-			}
-			else if( exten == TGA )
-			{
-				buffer[18 + i] = shortBuffer[i] / blends;
-			}
-		}
-
-		R_StaticFree( shortBuffer );
-		r_jitter.SetBool( false );
+		// build all the draw commands without running a new game tic
+		commonLocal.Draw();
 	}
+	// this should exit right after vsync, with the GPU idle and ready to draw
+	const emptyCommand_t* cmd = tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
 
-	if( exten == EXR )
-	{
-		R_WriteEXR( finalFileName, buffer, 3, width, height, "fs_basepath" );
-		//R_WritePNG( finalFileName, buffer, 3, width, height, false, "fs_basepath" );
-	}
-	else if( exten == PNG )
-	{
-		R_WritePNG( finalFileName, buffer, 3, width, height, false, "fs_basepath" );
-	}
-	else
-	{
-		// fill in the header (this is vertically flipped, which qglReadPixels emits)
-		buffer[2] = 2;	// uncompressed type
-		buffer[12] = width & 255;
-		buffer[13] = width >> 8;
-		buffer[14] = height & 255;
-		buffer[15] = height >> 8;
-		buffer[16] = 24;	// pixel size
+	// get the GPU busy with new commands
+	tr.RenderCommandBuffers( cmd );
 
-		// swap rgb to bgr
-		c = 18 + width * height * 3;
+	// discard anything currently on the list (this triggers SwapBuffers)
+	tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
 
-		for( i = 18 ; i < c ; i += 3 )
-		{
-			temp = buffer[i];
-			buffer[i] = buffer[i + 2];
-			buffer[i + 2] = temp;
-		}
+	R_ReadPixelsRGB8( deviceManager->GetDevice(), &tr.backend.GetCommonPasses(), globalImages->ldrImage->GetTextureHandle() , nvrhi::ResourceStates::RenderTarget, fileName );
 
-		fileSystem->WriteFile( finalFileName, buffer, c, "fs_basepath" );
-	}
-
-	R_StaticFree( buffer );
+	// discard anything currently on the list
+	tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
 
 	takingScreenshot = false;
 }
 
-// RB begin
+// RB: TODO FINISH or REMOVE
 byte* idRenderSystemLocal::CaptureRenderToBuffer( int width, int height, renderView_t* ref )
 {
 	byte*		buffer;
@@ -1098,7 +927,7 @@ byte* idRenderSystemLocal::CaptureRenderToBuffer( int width, int height, renderV
 	//	buffer = ( byte* )R_StaticAlloc( pix * 3 );
 	//}
 
-	R_ReadTiledPixels( width, height, buffer, ref );
+	//R_ReadTiledPixels( width, height, buffer, ref );
 
 	takingScreenshot = false;
 
@@ -1149,7 +978,7 @@ void R_ScreenshotFilename( int& lastNumber, const char* base, idStr& fileName )
 		time( &aclock );
 		struct tm* t = localtime( &aclock );
 
-		sprintf( fileName, "%s%s-%04d%02d%02d-%02d%02d%02d-%03d", base, "rbdoom-3-bfg",
+		sprintf( fileName, "%s%s-%04d%02d%02d-%02d%02d%02d-%03d.png", base, "rbdoom-3-bfg",
 				 1900 + t->tm_year, 1 + t->tm_mon, t->tm_mday, t->tm_hour, t->tm_min, t->tm_sec, lastNumber );
 #endif
 		// RB end
@@ -1174,10 +1003,8 @@ R_BlendedScreenShot
 screenshot
 screenshot [filename]
 screenshot [width] [height]
-screenshot [width] [height] [samples]
 ==================
 */
-#define	MAX_BLENDS	256	// to keep the accumulation in shorts
 void R_ScreenShot_f( const idCmdArgs& args )
 {
 	static int lastNumber = 0;
@@ -1195,41 +1022,30 @@ void R_ScreenShot_f( const idCmdArgs& args )
 			blends = 1;
 			R_ScreenshotFilename( lastNumber, "screenshots/", checkname );
 			break;
+
 		case 2:
 			width = renderSystem->GetWidth();
 			height = renderSystem->GetHeight();
 			blends = 1;
 			checkname = args.Argv( 1 );
 			break;
+
 		case 3:
 			width = atoi( args.Argv( 1 ) );
 			height = atoi( args.Argv( 2 ) );
 			blends = 1;
 			R_ScreenshotFilename( lastNumber, "screenshots/", checkname );
 			break;
-		case 4:
-			width = atoi( args.Argv( 1 ) );
-			height = atoi( args.Argv( 2 ) );
-			blends = atoi( args.Argv( 3 ) );
-			if( blends < 1 )
-			{
-				blends = 1;
-			}
-			if( blends > MAX_BLENDS )
-			{
-				blends = MAX_BLENDS;
-			}
-			R_ScreenshotFilename( lastNumber, "screenshots/", checkname );
-			break;
+
 		default:
-			common->Printf( "usage: screenshot\n       screenshot <filename>\n       screenshot <width> <height>\n       screenshot <width> <height> <blends>\n" );
+			common->Printf( "usage: screenshot\n       screenshot <filename>\n       screenshot <width> <height>" );
 			return;
 	}
 
 	// put the console away
 	console->Close();
 
-	tr.TakeScreenshot( width, height, checkname, blends, NULL, PNG );
+	tr.TakeScreenshot( width, height, checkname, NULL );
 
 	common->Printf( "Wrote %s\n", checkname.c_str() );
 }
@@ -1243,6 +1059,8 @@ R_EnvShot_f
 envshot <basename>
 
 Saves out env/<basename>_ft.tga, etc
+
+RB: This is outdated and probably a relict from Rage. It could be updated to dump panorama images for tools like Blender or Substance Painter
 ==================
 */
 void R_EnvShot_f( const idCmdArgs& args )
@@ -1348,7 +1166,7 @@ void R_EnvShot_f( const idCmdArgs& args )
 		ref.viewaxis = axis[i];
 		fullname.Format( "env/%s%s", baseName, extension );
 
-		tr.TakeScreenshot( size, size, fullname, blends, &ref, PNG );
+		tr.TakeScreenshot( size, size, fullname, &ref );
 	}
 
 	// restore the original resolution, axis and fov
@@ -1375,7 +1193,7 @@ void R_TransformCubemap( const char* orgDirection[6], const char* orgDir, const 
 	for( i = 0 ; i < 6 ; i++ )
 	{
 		// read every image images
-		fullname.Format( "%s/%s%s.%s", orgDir, baseName, orgDirection[i], fileExten [TGA] );
+		fullname.Format( "%s/%s%s.tga", orgDir, baseName, orgDirection[i] );
 		common->Printf( "loading %s\n", fullname.c_str() );
 		const bool captureToImage = false;
 		common->UpdateScreen( captureToImage );
@@ -1412,7 +1230,7 @@ void R_TransformCubemap( const char* orgDirection[6], const char* orgDir, const 
 		R_ApplyCubeMapTransforms( i, buffers[i], width );
 
 		//save the images with the appropiate skybox naming convention
-		fullname.Format( "%s/%s/%s%s.%s", destDir, baseName, baseName, destDirection[i], fileExten [TGA] );
+		fullname.Format( "%s/%s/%s%s.tga", destDir, baseName, baseName, destDirection[i] );
 		common->Printf( "writing %s\n", fullname.c_str() );
 		common->UpdateScreen( false );
 		R_WriteTGA( fullname, buffers[i], width, width, false, "fs_basepath" );

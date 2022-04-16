@@ -249,14 +249,6 @@ typedef enum
 	CF_SINGLE,      // SP: A single texture cubemap. All six sides in one image.
 } cubeFiles_t;
 
-enum imageFileType_t
-{
-	TGA,
-	PNG,
-	JPG,
-	EXR,
-};
-
 class idDeferredImage
 {
 public:
@@ -673,9 +665,8 @@ public:
 	idImage*			randomImage256;
 	idImage*			blueNoiseImage256;
 	idImage*			currentRenderHDRImage;
-	idImage*			currentRenderHDRImageQuarter;
 	idImage*			currentRenderHDRImage64;
-	idImage*			currentRenderLDR;
+	idImage*			ldrImage;						// tonemapped result which can be used for further post processing
 	idImage*			taaMotionVectorsImage;			// motion vectors for TAA projection
 	idImage*			taaResolvedImage;
 	idImage*			taaFeedback1Image;
@@ -694,7 +685,7 @@ public:
 	idImage*			smaaSearchImage;
 	idImage*			smaaEdgesImage;
 	idImage*			smaaBlendImage;
-	idImage*			currentNormalsImage;			// cheap G-Buffer replacement, holds normals and surface roughness
+	idImage*			gbufferNormalsRoughnessImage;	// cheap G-Buffer replacement, holds normals and surface roughness
 	idImage*			ambientOcclusionImage[2];		// contain AO and bilateral filtering keys
 	idImage*			hierarchicalZbufferImage;		// zbuffer with mip maps to accelerate screen space ray tracing
 	idImage*			imguiFontImage;
@@ -708,8 +699,8 @@ public:
 	idImage* 			scratchImage;
 	idImage* 			scratchImage2;
 	idImage* 			accumImage;
-	idImage* 			currentRenderImage;				// for SS_POST_PROCESS shaders
-	idImage* 			currentDepthImage;				// for motion blur
+	idImage* 			currentRenderImage;				// for SS_POST_PROCESS shaders, Doom 3 legacy but in HDR now
+	idImage* 			currentDepthImage;				// for motion blur, SSAO and everything that requires depth to world pos reconstruction
 	idImage* 			originalCurrentRenderImage;		// currentRenderImage before any changes for stereo rendering
 	idImage* 			loadingIconImage;				// loading icon must exist always
 	idImage* 			hellLoadingIconImage;			// loading icon must exist always

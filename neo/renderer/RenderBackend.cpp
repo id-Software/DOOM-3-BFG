@@ -2091,7 +2091,7 @@ void idRenderBackend::AmbientPass( const drawSurf_t* const* drawSurfs, int numDr
 
 	if( fillGbuffer )
 	{
-		commandList->clearTextureFloat( globalImages->currentNormalsImage->GetTextureHandle(), nvrhi::AllSubresources, nvrhi::Color( 0.f ) );
+		commandList->clearTextureFloat( globalImages->gbufferNormalsRoughnessImage->GetTextureHandle(), nvrhi::AllSubresources, nvrhi::Color( 0.f ) );
 	}
 
 	if( !fillGbuffer && r_useSSAO.GetBool() && r_ssaoDebug.GetBool() )
@@ -5754,7 +5754,7 @@ void idRenderBackend::Bloom( const viewDef_t* _viewDef )
 		commonPasses.BlitTexture(
 			commandList,
 			globalFramebuffers.bloomRenderFBO[0]->GetApiObject(),
-			globalImages->currentRenderLDR->GetTextureHandle(),
+			globalImages->ldrImage->GetTextureHandle(),
 			&bindingCache );
 
 		renderProgManager.BindShader_Brightpass();
@@ -6094,7 +6094,7 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 	SetFragmentParm( RENDERPARM_JITTERTEXOFFSET, jitterTexOffset ); // rpJitterTexOffset
 
 	GL_SelectTexture( 0 );
-	globalImages->currentNormalsImage->Bind();
+	globalImages->gbufferNormalsRoughnessImage->Bind();
 
 	GL_SelectTexture( 1 );
 	if( r_useHierarchicalDepthBuffer.GetBool() )
@@ -6408,7 +6408,7 @@ void idRenderBackend::DrawScreenSpaceGlobalIllumination( const viewDef_t* _viewD
 	SetFragmentParm( RENDERPARM_JITTERTEXOFFSET, jitterTexOffset ); // rpJitterTexOffset
 
 	GL_SelectTexture( 0 );
-	globalImages->currentNormalsImage->Bind();
+	globalImages->gbufferNormalsRoughnessImage->Bind();
 
 	GL_SelectTexture( 1 );
 	if( r_useHierarchicalDepthBuffer.GetBool() )
@@ -6556,7 +6556,7 @@ void idRenderBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
 		ssaoPass = new SsaoPass(
 			deviceManager->GetDevice(),
 			&commonPasses, globalImages->currentDepthImage->GetTextureHandle(),
-			globalImages->currentNormalsImage->GetTextureHandle(),
+			globalImages->gbufferNormalsRoughnessImage->GetTextureHandle(),
 			globalImages->ambientOcclusionImage[0]->GetTextureHandle() );
 	}
 
@@ -7002,7 +7002,7 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 	// RB: this needs to be done after next post processing steps later on
 	{
 		BlitParameters blitParms;
-		blitParms.sourceTexture = ( nvrhi::ITexture* )globalImages->currentRenderLDR->GetTextureID();
+		blitParms.sourceTexture = ( nvrhi::ITexture* )globalImages->ldrImage->GetTextureID();
 		blitParms.targetFramebuffer = deviceManager->GetCurrentFramebuffer();
 		blitParms.targetViewport = nvrhi::Viewport( renderSystem->GetWidth(), renderSystem->GetHeight() );
 		commonPasses.BlitTexture( commandList, blitParms, &bindingCache );

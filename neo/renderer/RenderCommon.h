@@ -949,7 +949,7 @@ public:
 	virtual const emptyCommand_t* 	SwapCommandBuffers_FinishCommandBuffers();
 
 	virtual void			RenderCommandBuffers( const emptyCommand_t* commandBuffers );
-	virtual void			TakeScreenshot( int width, int height, const char* fileName, int downSample, renderView_t* ref, int exten );
+	virtual void			TakeScreenshot( int width, int height, const char* fileName, renderView_t* ref );
 	virtual byte*			CaptureRenderToBuffer( int width, int height, renderView_t* ref );
 	virtual void			CropRenderSize( int width, int height );
 	virtual void            CropRenderSize( int x, int y, int width, int height );
@@ -1216,7 +1216,6 @@ extern idCVar r_singleSurface;				// suppress all but one surface on each entity
 extern idCVar r_shadowPolygonOffset;		// bias value added to depth test for stencil shadow drawing
 extern idCVar r_shadowPolygonFactor;		// scale value for stencil shadow drawing
 
-extern idCVar r_jitter;						// randomly subpixel jitter the projection matrix
 extern idCVar r_orderIndexes;				// perform index reorganization to optimize vertex use
 
 extern idCVar r_debugLineDepthTest;			// perform depth test on debug lines
