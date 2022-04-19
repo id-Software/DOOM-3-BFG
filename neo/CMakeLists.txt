@@ -54,7 +54,7 @@ option(ONATIVE
 		"Optimize for the host CPU" OFF)
 		
 option(WINDOWS10
-		"Build for Windows 10+" OFF)
+		"Build for Windows 10+" ON)
 		
 option(USE_SYSTEM_ZLIB
                 "Use the system zlib instead of the bundled one" OFF)
@@ -78,7 +78,7 @@ option(USE_DX12
 				"Use DirectX 12" ON)
 
 option(USE_NVRHI_VULKAN
-						"Use Vulkan" ON)
+						"Use Vulkan" OFF)
 
 set(CPU_TYPE "" CACHE STRING "When set, passes this string as CPU-ID which will be embedded into the binary.")
 
