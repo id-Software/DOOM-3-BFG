@@ -309,8 +309,15 @@ static void CreateVulkanInstance()
 		{
 			vkcontext.instanceExtensions.AddUnique( VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME );
 			vkcontext.deviceProperties2Available = true;
-			break;
 		}
+#if defined(__APPLE__) && defined( VK_KHR_portability_enumeration )
+		// SRS - Enable physical device enumeration when using the Vulkan loader on macOS (MoltenVK portability driver)
+		if( idStr::Icmp( instanceExtensionProps[ i ].extensionName, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME ) == 0 )
+		{
+			vkcontext.instanceExtensions.AddUnique( VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME );
+			createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+		}
+#endif
 	}
 
 	vkcontext.debugUtilsSupportAvailable = false;
