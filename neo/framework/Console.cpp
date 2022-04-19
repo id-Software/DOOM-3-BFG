@@ -309,7 +309,7 @@ float idConsoleLocal::DrawFPS( float y )
 	{
 		// start smaller
 		int32 statsWindowWidth = 320;
-		int32 statsWindowHeight = 270;
+		int32 statsWindowHeight = 280;
 
 		if( com_showFPS.GetInteger() > 2 )
 		{
@@ -355,13 +355,13 @@ float idConsoleLocal::DrawFPS( float y )
 		static const char* aaValues[aaNumValues] =
 		{
 			"None",
-			"SMAA 1X",
+			"TAA",
+			"TAA + SMAA 1X",
 			"MSAA 2X",
 			"MSAA 4X",
-			"MSAA 8X"
 		};
 
-		compile_time_assert( aaNumValues == ( ANTI_ALIASING_MSAA_8X + 1 ) );
+		compile_time_assert( aaNumValues == ( ANTI_ALIASING_MSAA_4X + 1 ) );
 
 		const char* aaMode = aaValues[ r_antiAliasing.GetInteger() ];
 

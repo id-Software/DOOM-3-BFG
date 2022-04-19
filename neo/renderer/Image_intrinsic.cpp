@@ -45,25 +45,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #define	DEFAULT_SIZE	16
 
-static uint GetMSAASamples()
-{
-	switch( r_antiAliasing.GetInteger() )
-	{
-		case ANTI_ALIASING_MSAA_2X:
-			return 2;
-
-		case ANTI_ALIASING_MSAA_4X:
-			return 4;
-
-		case ANTI_ALIASING_MSAA_8X:
-			return 8;
-
-		default:
-			return 1;
-	}
-
-}
-
 /*
 ==================
 idImage::MakeDefault
@@ -260,7 +241,7 @@ static void R_LdrNativeImage( idImage* image, nvrhi::ICommandList* commandList )
 
 static void R_DepthImage( idImage* image, nvrhi::ICommandList* commandList )
 {
-	uint sampleCount = GetMSAASamples();
+	uint sampleCount = R_GetMSAASamples();
 
 	image->GenerateImage( NULL, renderSystem->GetWidth(), renderSystem->GetHeight(), TF_NEAREST, TR_CLAMP, TD_DEPTH_STENCIL, nullptr, true, false, sampleCount );
 }
@@ -268,9 +249,14 @@ static void R_DepthImage( idImage* image, nvrhi::ICommandList* commandList )
 // RB begin
 static void R_HDR_RGBA16FImage_ResNative_MSAAOpt( idImage* image, nvrhi::ICommandList* commandList )
 {
-	uint sampleCount = GetMSAASamples();
+	uint sampleCount = R_GetMSAASamples();
 
 	image->GenerateImage( NULL, renderSystem->GetWidth(), renderSystem->GetHeight(), TF_NEAREST, TR_CLAMP, TD_RGBA16F, nullptr, true, sampleCount == 1, sampleCount );
+}
+
+static void R_HDR_RG16FImage_ResNative( idImage* image, nvrhi::ICommandList* commandList )
+{
+	image->GenerateImage( NULL, renderSystem->GetWidth(), renderSystem->GetHeight(), TF_NEAREST, TR_CLAMP, TD_RG16F, nullptr, true );
 }
 
 static void R_HDR_RGBA16FImage_ResNative( idImage* image, nvrhi::ICommandList* commandList )
@@ -345,7 +331,7 @@ static void R_AmbientOcclusionImage_ResNative( idImage* image, nvrhi::ICommandLi
 
 static void R_GeometryBufferImage_ResNative( idImage* image, nvrhi::ICommandList* commandList )
 {
-	uint sampleCount = GetMSAASamples();
+	uint sampleCount = R_GetMSAASamples();
 
 	image->GenerateImage( NULL, renderSystem->GetWidth(), renderSystem->GetHeight(), TF_LINEAR, TR_CLAMP, TD_RGBA16F, nullptr, true, false, sampleCount );
 }
@@ -1074,7 +1060,7 @@ void idImageManager::CreateIntrinsicImages()
 	currentRenderHDRImage64 = globalImages->ImageFromFunction( "_currentRenderHDR64", R_HDR_RGBA16FImage_Res64 );
 	ldrImage = globalImages->ImageFromFunction( "_currentRenderLDR", R_LdrNativeImage );
 
-	taaMotionVectorsImage = ImageFromFunction( "_taaMotionVectors", R_HDR_RGBA16FImage_ResNative ); // RB: could be shared with _currentNormals.zw
+	taaMotionVectorsImage = ImageFromFunction( "_taaMotionVectors", R_HDR_RG16FImage_ResNative ); // RB: could be shared with _currentNormals.zw
 	taaResolvedImage = ImageFromFunction( "_taaResolved", R_HDR_RGBA16FImage_ResNative_UAV );
 	taaFeedback1Image = ImageFromFunction( "_taaFeedback1", R_HDR_RGBA16SImage_ResNative_UAV );
 	taaFeedback2Image = ImageFromFunction( "_taaFeedback2", R_HDR_RGBA16SImage_ResNative_UAV );

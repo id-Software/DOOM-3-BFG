@@ -229,8 +229,6 @@ void PC_EndNamedEvent( nvrhi::ICommandList* commandList )
 	{
 		qvkCmdDebugMarkerEndEXT( vkcontext.commandBuffer[ vkcontext.frameParity ] );
 	}
-#elif defined(USE_NVRHI)
-	// SP: nvrhi debugging
 #else
 	// only do this if RBDOOM-3-BFG was started by RenderDoc or some similar tool
 	if( glConfig.gremedyStringMarkerAvailable && glConfig.khronosDebugAvailable )

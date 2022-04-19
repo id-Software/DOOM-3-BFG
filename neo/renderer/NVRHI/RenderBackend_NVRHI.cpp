@@ -1036,7 +1036,6 @@ void idRenderBackend::CheckCVars()
 		{
 			case ANTI_ALIASING_MSAA_2X:
 			case ANTI_ALIASING_MSAA_4X:
-			case ANTI_ALIASING_MSAA_8X:
 				if( r_antiAliasing.GetInteger() > 0 )
 				{
 					//glEnable( GL_MULTISAMPLE );
@@ -1051,6 +1050,12 @@ void idRenderBackend::CheckCVars()
 		if( tr.IsInitialized() )
 		{
 			Framebuffer::ResizeFramebuffers();
+		}
+
+		if( taaPass )
+		{
+			delete taaPass;
+			taaPass = NULL;
 		}
 
 		r_antiAliasing.ClearModified();

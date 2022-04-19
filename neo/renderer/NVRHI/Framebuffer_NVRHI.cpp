@@ -86,8 +86,8 @@ void Framebuffer::Init()
 
 void Framebuffer::CheckFramebuffers()
 {
-	int screenWidth = renderSystem->GetWidth();
-	int screenHeight = renderSystem->GetHeight();
+	//int screenWidth = renderSystem->GetWidth();
+	//int screenHeight = renderSystem->GetHeight();
 }
 
 void Framebuffer::Shutdown()

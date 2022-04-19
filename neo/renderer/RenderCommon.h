@@ -1302,6 +1302,10 @@ INITIALIZATION
 ====================================================================
 */
 
+bool R_UseTemporalAA();
+
+uint R_GetMSAASamples();
+
 void R_SetNewMode( const bool fullInit );
 
 void R_SetColorMappings();

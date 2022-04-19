@@ -527,15 +527,15 @@ void idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::AdjustFi
 		}
 		case SYSTEM_FIELD_ANTIALIASING:
 		{
-			// RB: disabled 16x MSAA
+			// RB: disabled 8x, 16x MSAA because they are too expensive at 4k resolutions
 			static const int numValues = 5;
 			static const int values[numValues] =
 			{
 				ANTI_ALIASING_NONE,
-				ANTI_ALIASING_SMAA_1X,
+				ANTI_ALIASING_TAA,
+				ANTI_ALIASING_TAA_SMAA_1X,
 				ANTI_ALIASING_MSAA_2X,
 				ANTI_ALIASING_MSAA_4X,
-				ANTI_ALIASING_MSAA_8X
 			};
 			// RB end
 			r_antiAliasing.SetInteger( AdjustOption( r_antiAliasing.GetInteger(), values, numValues, adjustAmount ) );
@@ -662,13 +662,13 @@ idSWFScriptVar idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings
 			static const char* values[numValues] =
 			{
 				"None",
-				"SMAA 1X",
+				"TAA",
+				"TAA + SMAA 1X",
 				"MSAA 2X",
 				"MSAA 4X",
-				"MSAA 8X"
 			};
 
-			compile_time_assert( numValues == ( ANTI_ALIASING_MSAA_8X + 1 ) );
+			compile_time_assert( numValues == ( ANTI_ALIASING_MSAA_4X + 1 ) );
 
 			return values[ r_antiAliasing.GetInteger() ];
 		}

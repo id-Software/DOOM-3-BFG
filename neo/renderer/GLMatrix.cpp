@@ -477,7 +477,7 @@ void R_SetupProjectionMatrix( viewDef_t* viewDef )
 	// for motion blurred anti-aliasing
 	float jitterx, jittery;
 
-	if( r_useTemporalAA.GetBool() )
+	if( R_UseTemporalAA() )
 	{
 		idVec2 jitter = tr.backend.GetCurrentPixelOffset();
 		jitterx = jitter.x;

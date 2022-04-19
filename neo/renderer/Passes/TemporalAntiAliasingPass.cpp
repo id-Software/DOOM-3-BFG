@@ -111,13 +111,6 @@ void TemporalAntiAliasingPass::Init(
 			break;
 		}
 
-		case ANTI_ALIASING_MSAA_8X:
-		{
-			auto taaResolveShaderInfo = renderProgManager.GetProgramInfo( BUILTIN_TAA_RESOLVE_MSAA_8X );
-			m_TemporalAntiAliasingCS = taaResolveShaderInfo.cs;
-			break;
-		}
-
 		default:
 		{
 			auto taaResolveShaderInfo = renderProgManager.GetProgramInfo( BUILTIN_TAA_RESOLVE );
@@ -280,10 +273,12 @@ void TemporalAntiAliasingPass::TemporalResolve(
 	TemporalAntiAliasingConstants taaConstants = {};
 	const float marginSize = 1.f;
 	taaConstants.inputViewOrigin = idVec2( viewportInput.minX, viewportInput.minY );
-	taaConstants.inputViewSize = idVec2( viewportInput.width(), viewportInput.height() );
+	// RB: TODO figure out why 1 pixel is missing and the old code for resolving _currentImage adds 1 pixel to each side
+	taaConstants.inputViewSize = idVec2( viewportInput.width() + 1, viewportInput.height() + 1 );
 	taaConstants.outputViewOrigin = idVec2( viewportOutput.minX, viewportOutput.minY );
-	taaConstants.outputViewSize = idVec2( viewportOutput.width(), viewportOutput.height() );
-	taaConstants.inputPixelOffset.Set( 0, 0 ); // TODO = viewInput->GetPixelOffset();
+	taaConstants.outputViewSize = idVec2( viewportOutput.width() + 1, viewportOutput.height() + 1 );
+	//taaConstants.inputPixelOffset.Set( 0, 0 ); // TODO = viewInput->GetPixelOffset();
+	taaConstants.inputPixelOffset = GetCurrentPixelOffset();
 	taaConstants.outputTextureSizeInv = 1.0f / idVec2( float( renderSystem->GetWidth() ), float( renderSystem->GetHeight() ) );
 	taaConstants.inputOverOutputViewSize = taaConstants.inputViewSize / taaConstants.outputViewSize;
 	taaConstants.outputOverInputViewSize = taaConstants.outputViewSize / taaConstants.inputViewSize;

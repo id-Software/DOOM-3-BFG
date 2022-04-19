@@ -5445,7 +5445,7 @@ void idRenderBackend::DrawMotionVectors()
 		return;
 	}
 
-	if( !r_useTemporalAA.GetBool() && r_motionBlur.GetInteger() <= 0 )
+	if( !R_UseTemporalAA() && r_motionBlur.GetInteger() <= 0 )
 	{
 		return;
 	}
@@ -5561,7 +5561,7 @@ void idRenderBackend::TemporalAAPass( const viewDef_t* _viewDef )
 		return;
 	}
 
-	if( !r_useTemporalAA.GetBool() )
+	if( !R_UseTemporalAA() )
 	{
 		return;
 	}
@@ -5851,7 +5851,8 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 		return;
 	}
 
-	if( r_useSSAO.GetInteger() <= 0 || r_useSSAO.GetInteger() > 1 )
+	// FIXME: the hierarchical depth buffer does not work with the MSAA depth texture source
+	if( r_useSSAO.GetInteger() <= 0 || r_useSSAO.GetInteger() > 1 || R_GetMSAASamples() > 1 )
 	{
 		return;
 	}
@@ -5890,16 +5891,22 @@ void idRenderBackend::DrawScreenSpaceAmbientOcclusion( const viewDef_t* _viewDef
 #if defined( USE_NVRHI )
 		renderLog.OpenBlock( "Render_HiZ" );
 
-		commonPasses.BlitTexture(
-			commandList,
-			globalFramebuffers.csDepthFBO[0]->GetApiObject(),
-			globalImages->currentDepthImage->GetTextureHandle(),
-			&bindingCache );
+		//if( R_GetMSAASamples() > 1 )
+		//{
+		//	commandList->resolveTexture( globalImages->hierarchicalZbufferImage->GetTextureHandle(), nvrhi::AllSubresources, globalImages->currentDepthImage->GetTextureHandle(), nvrhi::AllSubresources );
+		//}
+		//else
+		{
+			commonPasses.BlitTexture(
+				commandList,
+				globalFramebuffers.csDepthFBO[0]->GetApiObject(),
+				globalImages->currentDepthImage->GetTextureHandle(),
+				&bindingCache );
+		}
 
 		hiZGenPass->Dispatch( commandList, MAX_HIERARCHICAL_ZBUFFERS );
 
 		renderLog.CloseBlock();
-
 #else
 		renderLog.OpenBlock( "Render_HiZ", colorDkGrey );
 
@@ -6882,14 +6889,27 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 		// resolve the screen
 #if defined( USE_NVRHI )
 
-		renderLog.OpenBlock( "Blit to _currentRender" );
 
-		BlitParameters blitParms;
-		nvrhi::IFramebuffer* currentFB = ( nvrhi::IFramebuffer* )currentFrameBuffer->GetApiObject();
-		blitParms.sourceTexture = currentFB->getDesc().colorAttachments[0].texture;
-		blitParms.targetFramebuffer = globalFramebuffers.postProcFBO->GetApiObject(); // _currentRender image
-		blitParms.targetViewport = nvrhi::Viewport( renderSystem->GetWidth(), renderSystem->GetHeight() );
-		commonPasses.BlitTexture( commandList, blitParms, &bindingCache );
+
+		//if( currentFrameBuffer->GetApiObject()->getDesc().colorAttachments.begin().)
+
+		if( R_GetMSAASamples() > 1 )
+		{
+			renderLog.OpenBlock( "Resolve to _currentRender" );
+
+			commandList->resolveTexture( globalImages->currentRenderImage->GetTextureHandle(), nvrhi::AllSubresources, globalImages->currentRenderHDRImage->GetTextureHandle(), nvrhi::AllSubresources );
+		}
+		else
+		{
+			renderLog.OpenBlock( "Blit to _currentRender" );
+
+			BlitParameters blitParms;
+			nvrhi::IFramebuffer* currentFB = ( nvrhi::IFramebuffer* )currentFrameBuffer->GetApiObject();
+			blitParms.sourceTexture = currentFB->getDesc().colorAttachments[0].texture;
+			blitParms.targetFramebuffer = globalFramebuffers.postProcFBO->GetApiObject(); // _currentRender image
+			blitParms.targetViewport = nvrhi::Viewport( renderSystem->GetWidth(), renderSystem->GetHeight() );
+			commonPasses.BlitTexture( commandList, blitParms, &bindingCache );
+		}
 
 		renderLog.CloseBlock();
 #else
@@ -6970,13 +6990,22 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 		Tonemap( _viewDef );
 #else
 		ToneMappingParameters parms;
-		if( r_useTemporalAA.GetBool() )
+		if( R_UseTemporalAA() )
 		{
 			toneMapPass->SimpleRender( commandList, parms, viewDef, globalImages->taaResolvedImage->GetTextureHandle(), globalFramebuffers.ldrFBO->GetApiObject() );
 		}
 		else
 		{
-			toneMapPass->SimpleRender( commandList, parms, viewDef, globalImages->currentRenderHDRImage->GetTextureHandle(), globalFramebuffers.ldrFBO->GetApiObject() );
+			if( R_GetMSAASamples() > 1 )
+			{
+				commandList->resolveTexture( globalImages->taaResolvedImage->GetTextureHandle(), nvrhi::AllSubresources, globalImages->currentRenderHDRImage->GetTextureHandle(), nvrhi::AllSubresources );
+
+				toneMapPass->SimpleRender( commandList, parms, viewDef, globalImages->taaResolvedImage->GetTextureHandle(), globalFramebuffers.ldrFBO->GetApiObject() );
+			}
+			else
+			{
+				toneMapPass->SimpleRender( commandList, parms, viewDef, globalImages->currentRenderHDRImage->GetTextureHandle(), globalFramebuffers.ldrFBO->GetApiObject() );
+			}
 		}
 #endif
 	}
