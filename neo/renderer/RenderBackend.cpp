@@ -5528,11 +5528,18 @@ void idRenderBackend::DrawMotionVectors()
 	int mvpIndex = ( viewDef->renderView.viewEyeBuffer == 1 ) ? 1 : 0;
 
 	// derive the matrix to go from current pixels to previous frame pixels
-	idRenderMatrix	inverseMVP;
-	idRenderMatrix::Inverse( viewDef->worldSpace.unjitteredMVP, inverseMVP );
-
+	bool cameraMoved = false;
 	idRenderMatrix	motionMatrix;
-	idRenderMatrix::Multiply( prevMVP[mvpIndex], inverseMVP, motionMatrix );
+
+	if( memcmp( &viewDef->worldSpace.unjitteredMVP[0][0], &prevMVP[mvpIndex][0][0], sizeof( idRenderMatrix ) ) != 0 )
+	{
+		idRenderMatrix	inverseMVP;
+		idRenderMatrix::Inverse( viewDef->worldSpace.unjitteredMVP, inverseMVP );
+
+		idRenderMatrix::Multiply( prevMVP[mvpIndex], inverseMVP, motionMatrix );
+
+		cameraMoved = true;
+	}
 
 	prevMVP[mvpIndex] = viewDef->worldSpace.unjitteredMVP;
 
@@ -5550,7 +5557,7 @@ void idRenderBackend::DrawMotionVectors()
 	windowCoordParm[3] = h;
 	SetFragmentParm( RENDERPARM_WINDOWCOORD, windowCoordParm ); // rpWindowCoord
 
-	if( r_taaMotionVectors.GetBool() && prevViewsValid )
+	if( r_taaMotionVectors.GetBool() && prevViewsValid && cameraMoved )
 	{
 		RB_SetMVP( motionMatrix );
 
