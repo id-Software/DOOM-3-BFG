@@ -472,6 +472,7 @@ struct viewEntity_t
 	float					modelViewMatrix[16];	// local coords to eye coords
 
 	idRenderMatrix			mvp;
+	idRenderMatrix			unjitteredMVP;			// no TAA subpixel jittering
 
 	// parallelAddModels will build a chain of surfaces here that will need to
 	// be linked to the lights or added to the drawsurf list in a serial code section
@@ -607,6 +608,9 @@ struct viewDef_t
 	idRenderMatrix		projectionRenderMatrix;	// tech5 version of projectionMatrix
 
 	// RB begin
+	float				unjitteredProjectionMatrix[16];		// second version without TAA subpixel jittering
+	idRenderMatrix		unjitteredProjectionRenderMatrix;
+
 	float				unprojectionToCameraMatrix[16];
 	idRenderMatrix		unprojectionToCameraRenderMatrix;
 
@@ -1292,6 +1296,7 @@ extern idCVar r_taaEnableHistoryClamping;
 extern idCVar r_taaClampingFactor;
 extern idCVar r_taaNewFrameWeight;
 extern idCVar r_taaMaxRadiance;
+extern idCVar r_taaMotionVectors;
 // RB end
 
 /*

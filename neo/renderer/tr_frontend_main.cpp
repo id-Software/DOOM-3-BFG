@@ -606,7 +606,8 @@ void R_RenderView( viewDef_t* parms )
 
 	// we need to set the projection matrix before doing
 	// portal-to-screen scissor calculations
-	R_SetupProjectionMatrix( tr.viewDef );
+	R_SetupProjectionMatrix( tr.viewDef, true );
+	R_SetupProjectionMatrix( tr.viewDef, false );
 
 	// RB: we need a unprojection matrix to calculate the vertex position based on the depth image value
 	// for some post process shaders
@@ -618,6 +619,9 @@ void R_RenderView( viewDef_t* parms )
 	idRenderMatrix viewRenderMatrix;
 	idRenderMatrix::Transpose( *( idRenderMatrix* )tr.viewDef->worldSpace.modelViewMatrix, viewRenderMatrix );
 	idRenderMatrix::Multiply( tr.viewDef->projectionRenderMatrix, viewRenderMatrix, tr.viewDef->worldSpace.mvp );
+
+	idRenderMatrix::Transpose( *( idRenderMatrix* )tr.viewDef->unjitteredProjectionMatrix, tr.viewDef->unjitteredProjectionRenderMatrix );
+	idRenderMatrix::Multiply( tr.viewDef->unjitteredProjectionRenderMatrix, viewRenderMatrix, tr.viewDef->worldSpace.unjitteredMVP );
 
 	// the planes of the view frustum are needed for portal visibility culling
 	idRenderMatrix::GetFrustumPlanes( tr.viewDef->frustums[FRUSTUM_PRIMARY], tr.viewDef->worldSpace.mvp, false, true );

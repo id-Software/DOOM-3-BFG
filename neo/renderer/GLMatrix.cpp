@@ -470,14 +470,14 @@ void ModifyProjectionMatrix( viewDef_t* viewDef, const idPlane& clipPlane )
 	memcpy( viewDef->projectionMatrix, matrix, sizeof( float ) * 16 );
 }
 
-void R_SetupProjectionMatrix( viewDef_t* viewDef )
+void R_SetupProjectionMatrix( viewDef_t* viewDef, bool doJitter )
 {
 	// random jittering is usefull when multiple
 	// frames are going to be blended together
 	// for motion blurred anti-aliasing
 	float jitterx, jittery;
 
-	if( R_UseTemporalAA() )
+	if( R_UseTemporalAA() && doJitter )
 	{
 		idVec2 jitter = tr.backend.GetCurrentPixelOffset();
 		jitterx = jitter.x;
@@ -521,54 +521,56 @@ void R_SetupProjectionMatrix( viewDef_t* viewDef )
 	const float yoffset = ( ymax + ymin ) / height;
 
 #else
-	// according to https://www.elopezr.com/temporal-aa-and-the-quest-for-the-holy-trail/
-	const float xoffset = jitterx / ( 2.0f * viewWidth );
-	const float yoffset = jittery / ( 2.0f * viewHeight );
+	// this mimics the logic in the Donut / Feature Demo
+	const float xoffset = -2.0f * jitterx / ( 1.0f * viewWidth );
+	const float yoffset = -2.0f * jittery / ( 1.0f * viewHeight );
 #endif
 
 	// RB: IMPORTANT - the projectionMatrix has a few changes to make it work with Vulkan
 	// for a detailed explanation see https://matthewwellings.com/blog/the-new-vulkan-coordinate-system/
 
-	viewDef->projectionMatrix[0 * 4 + 0] = 2.0f * zNear / width;
-	viewDef->projectionMatrix[1 * 4 + 0] = 0.0f;
-	viewDef->projectionMatrix[2 * 4 + 0] = xoffset;
-	viewDef->projectionMatrix[3 * 4 + 0] = 0.0f;
+	float* projectionMatrix = doJitter ? viewDef->projectionMatrix : viewDef->unjitteredProjectionMatrix;
 
-	viewDef->projectionMatrix[0 * 4 + 1] = 0.0f;
+	projectionMatrix[0 * 4 + 0] = 2.0f * zNear / width;
+	projectionMatrix[1 * 4 + 0] = 0.0f;
+	projectionMatrix[2 * 4 + 0] = xoffset;
+	projectionMatrix[3 * 4 + 0] = 0.0f;
+
+	projectionMatrix[0 * 4 + 1] = 0.0f;
 
 	// RB: Y axis now points down the screen
 #if defined(USE_VULKAN)
-	viewDef->projectionMatrix[1 * 4 + 1] = -2.0f * zNear / height;
+	projectionMatrix[1 * 4 + 1] = -2.0f * zNear / height;
 #else
-	viewDef->projectionMatrix[1 * 4 + 1] = 2.0f * zNear / height;
+	projectionMatrix[1 * 4 + 1] = 2.0f * zNear / height;
 #endif
-	viewDef->projectionMatrix[2 * 4 + 1] = yoffset;
-	viewDef->projectionMatrix[3 * 4 + 1] = 0.0f;
+	projectionMatrix[2 * 4 + 1] = yoffset;
+	projectionMatrix[3 * 4 + 1] = 0.0f;
 
 	// this is the far-plane-at-infinity formulation, and
 	// crunches the Z range slightly so w=0 vertexes do not
 	// rasterize right at the wraparound point
-	viewDef->projectionMatrix[0 * 4 + 2] = 0.0f;
-	viewDef->projectionMatrix[1 * 4 + 2] = 0.0f;
-	viewDef->projectionMatrix[2 * 4 + 2] = -0.999f;			// adjust value to prevent imprecision issues
+	projectionMatrix[0 * 4 + 2] = 0.0f;
+	projectionMatrix[1 * 4 + 2] = 0.0f;
+	projectionMatrix[2 * 4 + 2] = -0.999f;			// adjust value to prevent imprecision issues
 
 	// RB: was -2.0f * zNear
 	// the transformation into window space has changed from [-1 .. -1] to [0 .. -1]
-	viewDef->projectionMatrix[3 * 4 + 2] = -1.0f * zNear;
+	projectionMatrix[3 * 4 + 2] = -1.0f * zNear;
 
-	viewDef->projectionMatrix[0 * 4 + 3] = 0.0f;
-	viewDef->projectionMatrix[1 * 4 + 3] = 0.0f;
-	viewDef->projectionMatrix[2 * 4 + 3] = -1.0f;
-	viewDef->projectionMatrix[3 * 4 + 3] = 0.0f;
+	projectionMatrix[0 * 4 + 3] = 0.0f;
+	projectionMatrix[1 * 4 + 3] = 0.0f;
+	projectionMatrix[2 * 4 + 3] = -1.0f;
+	projectionMatrix[3 * 4 + 3] = 0.0f;
 
 	if( viewDef->renderView.flipProjection )
 	{
-		viewDef->projectionMatrix[1 * 4 + 1] = -viewDef->projectionMatrix[1 * 4 + 1];
-		viewDef->projectionMatrix[1 * 4 + 3] = -viewDef->projectionMatrix[1 * 4 + 3];
+		projectionMatrix[1 * 4 + 1] = -projectionMatrix[1 * 4 + 1];
+		projectionMatrix[1 * 4 + 3] = -projectionMatrix[1 * 4 + 3];
 	}
 
 	// SP Begin
-	if( viewDef->isObliqueProjection )
+	if( viewDef->isObliqueProjection && doJitter )
 	{
 		R_ObliqueProjection( viewDef );
 	}

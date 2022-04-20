@@ -5529,26 +5529,43 @@ void idRenderBackend::DrawMotionVectors()
 
 	// derive the matrix to go from current pixels to previous frame pixels
 	idRenderMatrix	inverseMVP;
-	idRenderMatrix::Inverse( viewDef->worldSpace.mvp, inverseMVP );
+	idRenderMatrix::Inverse( viewDef->worldSpace.unjitteredMVP, inverseMVP );
 
 	idRenderMatrix	motionMatrix;
 	idRenderMatrix::Multiply( prevMVP[mvpIndex], inverseMVP, motionMatrix );
 
-	prevMVP[mvpIndex] = viewDef->worldSpace.mvp;
+	prevMVP[mvpIndex] = viewDef->worldSpace.unjitteredMVP;
 
-	RB_SetMVP( motionMatrix );
+	// make sure rpWindowCoord is set even without post processing surfaces in the view
+	int x = viewDef->viewport.x1;
+	int y = viewDef->viewport.y1;
+	int	w = viewDef->viewport.x2 - viewDef->viewport.x1 + 1;
+	int	h = viewDef->viewport.y2 - viewDef->viewport.y1 + 1;
 
-	GL_State( GLS_DEPTHFUNC_ALWAYS | GLS_DEPTHMASK | GLS_CULL_TWOSIDED );
+	// window coord to 0.0 to 1.0 conversion
+	float windowCoordParm[4];
+	windowCoordParm[0] = 1.0f / w;
+	windowCoordParm[1] = 1.0f / h;
+	windowCoordParm[2] = w;
+	windowCoordParm[3] = h;
+	SetFragmentParm( RENDERPARM_WINDOWCOORD, windowCoordParm ); // rpWindowCoord
 
-	renderProgManager.BindShader_MotionVectors();
+	if( r_taaMotionVectors.GetBool() && prevViewsValid )
+	{
+		RB_SetMVP( motionMatrix );
 
-	GL_SelectTexture( 0 );
-	globalImages->currentRenderHDRImage->Bind();
+		GL_State( GLS_DEPTHFUNC_ALWAYS | GLS_DEPTHMASK | GLS_CULL_TWOSIDED );
 
-	GL_SelectTexture( 1 );
-	globalImages->currentDepthImage->Bind();
+		renderProgManager.BindShader_MotionVectors();
 
-	DrawElementsWithCounters( &unitSquareSurface );
+		GL_SelectTexture( 0 );
+		globalImages->currentRenderHDRImage->Bind();
+
+		GL_SelectTexture( 1 );
+		globalImages->currentDepthImage->Bind();
+
+		DrawElementsWithCounters( &unitSquareSurface );
+	}
 
 	renderLog.CloseBlock();
 }

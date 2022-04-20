@@ -334,11 +334,12 @@ idCVar r_useLightGrid( "r_useLightGrid", "1", CVAR_RENDERER | CVAR_BOOL, "" );
 idCVar r_exposure( "r_exposure", "0.5", CVAR_ARCHIVE | CVAR_RENDERER | CVAR_FLOAT, "HDR exposure or LDR brightness [-4.0 .. 4.0]", -4.0f, 4.0f );
 
 idCVar r_useTemporalAA( "r_useTemporalAA", "1", CVAR_RENDERER | CVAR_BOOL, "only disable for debugging" );
-idCVar r_taaJitter( "r_taaJitter", "2", CVAR_RENDERER | CVAR_INTEGER, "0: None, 1: MSAA, 2: Halton, 3: R2 Sequence, 4: White Noise" );
+idCVar r_taaJitter( "r_taaJitter", "3", CVAR_RENDERER | CVAR_INTEGER, "0: None, 1: MSAA, 2: Halton, 3: R2 Sequence, 4: White Noise" );
 idCVar r_taaEnableHistoryClamping( "r_taaEnableHistoryClamping", "1", CVAR_RENDERER | CVAR_BOOL, "" );
 idCVar r_taaClampingFactor( "r_taaClampingFactor", "1.0", CVAR_RENDERER | CVAR_FLOAT, "" );
 idCVar r_taaNewFrameWeight( "r_taaNewFrameWeight", "0.1", CVAR_RENDERER | CVAR_FLOAT, "" );
 idCVar r_taaMaxRadiance( "r_taaMaxRadiance", "10000", CVAR_RENDERER | CVAR_FLOAT, "" );
+idCVar r_taaMotionVectors( "r_taaMotionVectors", "1", CVAR_RENDERER | CVAR_BOOL, "" );
 // RB end
 
 const char* fileExten[4] = { "tga", "png", "jpg", "exr" };
