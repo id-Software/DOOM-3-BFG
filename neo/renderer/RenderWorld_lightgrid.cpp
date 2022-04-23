@@ -1048,7 +1048,6 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 	idStr			baseName;
 	idStr			filename;
 	renderView_t	ref;
-	int				blends;
 	int				captureSize;
 
 	int limit = MAX_AREA_LIGHTGRID_POINTS;
@@ -1133,7 +1132,6 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 	baseName.StripFileExtension();
 
 	captureSize = ENVPROBE_CAPTURE_SIZE;
-	blends = 1;
 
 	idLib::Printf( "Using limit = %i\n", limit );
 	idLib::Printf( "Using bounces = %i\n", bounces );
@@ -1265,16 +1263,8 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 							ref.vieworg = gridPoint->origin;
 							ref.viewaxis = tr.cubeAxis[ side ];
 
-#if 0
-							byte* float16FRGB = tr.CaptureRenderToBuffer( captureSize, captureSize, &ref );
-#else
 							glConfig.nativeScreenWidth = captureSize;
 							glConfig.nativeScreenHeight = captureSize;
-
-							int pix = captureSize * captureSize;
-							const int bufferSize = pix * 3 * 2;
-
-							byte* float16FRGB = ( byte* )R_StaticAlloc( bufferSize );
 
 							// discard anything currently on the list
 							tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
@@ -1291,14 +1281,23 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 							// discard anything currently on the list (this triggers SwapBuffers)
 							tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
 
-#if defined(USE_VULKAN)
+							int pix = captureSize * captureSize;
+							const int bufferSize = pix * 3 * 2;
 
+							byte* floatRGB16F = ( byte* )R_StaticAlloc( bufferSize );
+
+#if defined( USE_VULKAN )
 							// TODO
-#elif defined(USE_NVRHI)
-							// TODO
+#elif defined( USE_NVRHI )
+							R_ReadPixelsRGB16F( deviceManager->GetDevice(), &tr.backend.GetCommonPasses(), globalImages->envprobeHDRImage->GetTextureHandle() , nvrhi::ResourceStates::RenderTarget, floatRGB16F, captureSize, captureSize );
+
+#if 0
+							idStr testName;
+							testName.Format( "env/test/area%i_envprobe_%i_side_%i.exr", a, tr.lightGridJobs.Num(), side );
+							R_WriteEXR( testName, floatRGB16F, 3, captureSize, captureSize, "fs_basepath" );
+#endif
 
 #else
-
 							glFinish();
 
 							glReadBuffer( GL_BACK );
@@ -1312,10 +1311,7 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 
 							Framebuffer::Unbind();
 #endif
-
-#endif
-
-							jobParms->radiance[ side ] = float16FRGB;
+							jobParms->radiance[ side ] = floatRGB16F;
 						}
 
 						tr.lightGridJobs.Append( jobParms );

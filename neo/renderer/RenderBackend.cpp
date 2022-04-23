@@ -5455,7 +5455,7 @@ void idRenderBackend::DrawMotionVectors()
 		return;
 	}
 
-	if( viewDef->renderView.rdflags & RDF_NOAMBIENT )
+	if( viewDef->renderView.rdflags & ( RDF_NOAMBIENT | RDF_IRRADIANCE ) )
 	{
 		return;
 	}
@@ -5595,11 +5595,12 @@ void idRenderBackend::TemporalAAPass( const viewDef_t* _viewDef )
 		return;
 	}
 
-	if( viewDef->renderView.rdflags & RDF_NOAMBIENT )
+	if( viewDef->renderView.rdflags & ( RDF_NOAMBIENT | RDF_IRRADIANCE ) )
 	{
 		return;
 	}
 
+	renderLog.OpenMainBlock( MRB_TAA );
 	renderLog.OpenBlock( "Render_TemporalAA" );
 
 	TemporalAntiAliasingParameters params =
@@ -5613,6 +5614,7 @@ void idRenderBackend::TemporalAAPass( const viewDef_t* _viewDef )
 	prevViewsValid = true;
 
 	renderLog.CloseBlock();
+	renderLog.CloseMainBlock();
 }
 
 idVec2 idRenderBackend::GetCurrentPixelOffset() const
@@ -6749,15 +6751,14 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 	// ensures that depth writes are enabled for the depth clear
 	GL_State( GLS_DEFAULT | GLS_CULL_FRONTSIDED, true );
 
-	// Clear the depth buffer and clear the stencil to 128 for stencil shadows as well as gui masking
-	GL_Clear( false, true, true, STENCIL_SHADOW_TEST_VALUE, 0.0f, 0.0f, 0.0f, 0.0f, false );
-
 	bool useHDR = r_useHDR.GetBool() && !_viewDef->is2Dgui;
+	bool clearColor = false;
 	if( useHDR )
 	{
 		if( _viewDef->renderView.rdflags & RDF_IRRADIANCE )
 		{
 			globalFramebuffers.envprobeFBO->Bind();
+			clearColor = true;
 		}
 		else
 		{
@@ -6776,6 +6777,9 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 		Framebuffer::Unbind();
 #endif
 	}
+
+	// Clear the depth buffer and clear the stencil to 128 for stencil shadows as well as gui masking
+	GL_Clear( clearColor, true, true, STENCIL_SHADOW_TEST_VALUE, 0.0f, 0.0f, 0.0f, 0.0f, false );
 
 	// RB end
 
@@ -7053,6 +7057,8 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 #if defined( USE_NVRHI )
 	//TODO(Stephen): Move somewhere else?
 	// RB: this needs to be done after next post processing steps later on
+
+	if( !( _viewDef->renderView.rdflags & RDF_IRRADIANCE ) )
 	{
 		BlitParameters blitParms;
 		blitParms.sourceTexture = ( nvrhi::ITexture* )globalImages->ldrImage->GetTextureID();

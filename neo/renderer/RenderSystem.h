@@ -164,6 +164,7 @@ struct backEndCounters_t
 	uint64	gpuShadowAtlasPassMicroSec;
 	uint64	gpuInteractionsMicroSec;
 	uint64	gpuShaderPassMicroSec;
+	uint64	gpuTemporalAntiAliasingMicroSec;
 	uint64	gpuPostProcessingMicroSec;
 	uint64	gpuMicroSec;
 };

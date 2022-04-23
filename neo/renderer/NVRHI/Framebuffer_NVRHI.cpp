@@ -98,6 +98,7 @@ void Framebuffer::Shutdown()
 void Framebuffer::ResizeFramebuffers()
 {
 	tr.backend.ClearCaches();
+	//framebuffers.DeleteContents( true );
 
 	uint32_t backBufferCount = deviceManager->GetBackBufferCount();
 	globalFramebuffers.swapFramebuffers.Resize( backBufferCount );

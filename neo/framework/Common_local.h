@@ -368,6 +368,11 @@ public:
 		return stats_backend.gpuShaderPassMicroSec;
 	}
 
+	uint64		GetRendererGpuTAAMicroseconds() const
+	{
+		return stats_backend.gpuTemporalAntiAliasingMicroSec;
+	}
+
 	uint64		GetRendererGpuPostProcessingMicroseconds() const
 	{
 		return stats_backend.gpuPostProcessingMicroSec;

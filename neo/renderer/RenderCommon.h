@@ -1320,6 +1320,16 @@ void R_ScreenShot_f( const idCmdArgs& args );
 /*
 ====================================================================
 
+NVRHI helpers
+
+====================================================================
+*/
+bool R_ReadPixelsRGB8( nvrhi::IDevice* device, CommonRenderPasses* pPasses, nvrhi::ITexture* texture, nvrhi::ResourceStates textureState, const char* fullname );
+bool R_ReadPixelsRGB16F( nvrhi::IDevice* device, CommonRenderPasses* pPasses, nvrhi::ITexture* texture, nvrhi::ResourceStates textureState, void* pic, int picWidth, int picHeight );
+
+/*
+====================================================================
+
 IMPLEMENTATION SPECIFIC FUNCTIONS
 
 ====================================================================

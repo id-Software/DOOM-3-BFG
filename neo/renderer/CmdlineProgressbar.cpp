@@ -35,6 +35,7 @@ If you have questions concerning this license or the applicable additional terms
 
 void CommandlineProgressBar::Start()
 {
+#if !defined( USE_NVRHI )
 	// restore the original resolution, same as "vid_restart"
 	glConfig.nativeScreenWidth = sysWidth;
 	glConfig.nativeScreenHeight = sysHeight;
@@ -44,12 +45,17 @@ void CommandlineProgressBar::Start()
 	common->Printf( "|----|----|----|----|----|----|----|----|----|----|\n" );
 
 	common->UpdateScreen( false );
+#else
+	common->Printf( "0%%  10   20   30   40   50   60   70   80   90   100%%\n" );
+	common->Printf( "|----|----|----|----|----|----|----|----|----|----|\n" );
+#endif
 }
 
 void CommandlineProgressBar::Increment( bool updateScreen )
 {
 	if( ( count + 1 ) >= nextTicCount )
 	{
+#if !defined( USE_NVRHI )
 		if( updateScreen )
 		{
 			// restore the original resolution, same as "vid_restart"
@@ -60,6 +66,7 @@ void CommandlineProgressBar::Increment( bool updateScreen )
 			// resize frame buffers (this triggers SwapBuffers)
 			tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
 		}
+#endif
 
 		size_t ticsNeeded = ( size_t )( ( ( double )( count + 1 ) / expectedCount ) * 50.0 );
 
@@ -79,6 +86,7 @@ void CommandlineProgressBar::Increment( bool updateScreen )
 			common->Printf( "\n" );
 		}
 
+#if !defined( USE_NVRHI )
 		if( updateScreen )
 		{
 			common->UpdateScreen( false );
@@ -86,6 +94,7 @@ void CommandlineProgressBar::Increment( bool updateScreen )
 			// swap front / back buffers
 			tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
 		}
+#endif
 	}
 
 	count++;

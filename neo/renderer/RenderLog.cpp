@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013-2020 Robert Beckebans
+Copyright (C) 2013-2022 Robert Beckebans
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -52,10 +52,10 @@ const char* renderLogMainBlockLabels[] =
 	ASSERT_ENUM_STRING( MRB_GPU_TIME,						0 ),
 	ASSERT_ENUM_STRING( MRB_BEGIN_DRAWING_VIEW,				1 ),
 	ASSERT_ENUM_STRING( MRB_FILL_DEPTH_BUFFER,				2 ),
-	ASSERT_ENUM_STRING( MRB_FILL_GEOMETRY_BUFFER,			3 ), // RB
-	ASSERT_ENUM_STRING( MRB_SSAO_PASS,						4 ), // RB
-	ASSERT_ENUM_STRING( MRB_AMBIENT_PASS,					5 ), // RB
-	ASSERT_ENUM_STRING( MRB_SHADOW_ATLAS_PASS,				6 ), // RB
+	ASSERT_ENUM_STRING( MRB_FILL_GEOMETRY_BUFFER,			3 ),
+	ASSERT_ENUM_STRING( MRB_SSAO_PASS,						4 ),
+	ASSERT_ENUM_STRING( MRB_AMBIENT_PASS,					5 ),
+	ASSERT_ENUM_STRING( MRB_SHADOW_ATLAS_PASS,				6 ),
 	ASSERT_ENUM_STRING( MRB_DRAW_INTERACTIONS,				7 ),
 	ASSERT_ENUM_STRING( MRB_DRAW_SHADER_PASSES,				8 ),
 	ASSERT_ENUM_STRING( MRB_FOG_ALL_LIGHTS,					9 ),
@@ -63,9 +63,10 @@ const char* renderLogMainBlockLabels[] =
 	ASSERT_ENUM_STRING( MRB_DRAW_SHADER_PASSES_POST,		11 ),
 	ASSERT_ENUM_STRING( MRB_DRAW_DEBUG_TOOLS,				12 ),
 	ASSERT_ENUM_STRING( MRB_CAPTURE_COLORBUFFER,			13 ),
-	ASSERT_ENUM_STRING( MRB_POSTPROCESS,					14 ),
-	ASSERT_ENUM_STRING( MRB_DRAW_GUI,                       15 ),
-	ASSERT_ENUM_STRING( MRB_TOTAL,							16 )
+	ASSERT_ENUM_STRING( MRB_TAA,							14 ),
+	ASSERT_ENUM_STRING( MRB_POSTPROCESS,					15 ),
+	ASSERT_ENUM_STRING( MRB_DRAW_GUI,                       16 ),
+	ASSERT_ENUM_STRING( MRB_TOTAL,							17 )
 };
 
 #if defined( USE_VULKAN )
@@ -499,6 +500,10 @@ void idRenderLog::FetchGPUTimers( backEndCounters_t& pc )
 			else if( i == MRB_DRAW_SHADER_PASSES )
 			{
 				pc.gpuShaderPassMicroSec = time;
+			}
+			else if( i == MRB_TAA )
+			{
+				pc.gpuTemporalAntiAliasingMicroSec = time;
 			}
 			else if( i == MRB_POSTPROCESS )
 			{

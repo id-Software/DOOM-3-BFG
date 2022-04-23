@@ -892,6 +892,98 @@ bool R_ReadPixelsRGB8( nvrhi::IDevice* device, CommonRenderPasses* pPasses, nvrh
 	return true;
 }
 
+bool R_ReadPixelsRGB16F( nvrhi::IDevice* device, CommonRenderPasses* pPasses, nvrhi::ITexture* texture, nvrhi::ResourceStates textureState, void* pic, int picWidth, int picHeight )
+{
+	nvrhi::TextureDesc desc = texture->getDesc();
+	nvrhi::TextureHandle tempTexture;
+	nvrhi::FramebufferHandle tempFramebuffer;
+
+	if( desc.width != picWidth || desc.height != picHeight )
+	{
+		return false;
+	}
+
+	nvrhi::CommandListHandle commandList = device->createCommandList();
+	commandList->open();
+
+	if( textureState != nvrhi::ResourceStates::Unknown )
+	{
+		commandList->beginTrackingTextureState( texture, nvrhi::TextureSubresourceSet( 0, 1, 0, 1 ), textureState );
+	}
+
+	switch( desc.format )
+	{
+		case nvrhi::Format::RGBA16_FLOAT:
+			tempTexture = texture;
+			break;
+		default:
+			desc.format = nvrhi::Format::RGBA16_FLOAT;
+			desc.isRenderTarget = true;
+			desc.initialState = nvrhi::ResourceStates::RenderTarget;
+			desc.keepInitialState = true;
+
+			tempTexture = device->createTexture( desc );
+			tempFramebuffer = device->createFramebuffer( nvrhi::FramebufferDesc().addColorAttachment( tempTexture ) );
+
+			pPasses->BlitTexture( commandList, tempFramebuffer, texture );
+	}
+
+	nvrhi::StagingTextureHandle stagingTexture = device->createStagingTexture( desc, nvrhi::CpuAccessMode::Read );
+	commandList->copyTexture( stagingTexture, nvrhi::TextureSlice(), tempTexture, nvrhi::TextureSlice() );
+
+	if( textureState != nvrhi::ResourceStates::Unknown )
+	{
+		commandList->setTextureState( texture, nvrhi::TextureSubresourceSet( 0, 1, 0, 1 ), textureState );
+		commandList->commitBarriers();
+	}
+
+	commandList->close();
+	device->executeCommandList( commandList );
+
+	size_t rowPitch = 0;
+	void* pData = device->mapStagingTexture( stagingTexture, nvrhi::TextureSlice(), nvrhi::CpuAccessMode::Read, &rowPitch );
+
+	if( !pData )
+	{
+		return false;
+	}
+
+	uint16_t* newData = nullptr;
+
+	if( rowPitch != desc.width * 8 )
+	{
+		newData = new uint16_t[desc.width * desc.height * 2];
+
+		for( uint32_t row = 0; row < desc.height; row++ )
+		{
+			memcpy( newData + row * desc.width, static_cast<char*>( pData ) + row * rowPitch, desc.width * sizeof( uint16_t ) * 4 );
+		}
+
+		pData = newData;
+	}
+
+	// copy from RGBA16F to RGB16F
+	uint16_t* data = static_cast<uint16_t*>( pData );
+	uint16_t* outData = static_cast<uint16_t*>( pic );
+
+	for( int i = 0; i < ( desc.width * desc.height ); i++ )
+	{
+		outData[ i * 3 + 0 ] = data[ i * 4 + 0 ];
+		outData[ i * 3 + 1 ] = data[ i * 4 + 1 ];
+		outData[ i * 3 + 2 ] = data[ i * 4 + 2 ];
+	}
+
+	if( newData )
+	{
+		delete[] newData;
+		newData = nullptr;
+	}
+
+	device->unmapStagingTexture( stagingTexture );
+
+	return true;
+}
+
 /*
 ==================
 TakeScreenshot

@@ -676,7 +676,9 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 
 	// keep capturing envprobes completely in the background
 	// and only update the screen when we update the progress bar in the console
+#if !defined( USE_NVRHI )
 	if( !takingEnvprobe )
+#endif
 	{
 #if !IMGUI_BFGUI
 		ImGuiHook::Render();

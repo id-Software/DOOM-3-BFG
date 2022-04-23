@@ -209,6 +209,8 @@ void idConsoleLocal::DrawTextRightAlign( float x, float& y, const char* text, ..
 idConsoleLocal::DrawFPS
 ==================
 */
+extern bool R_UseTemporalAA();
+
 #define	FPS_FRAMES	6
 #define FPS_FRAMES_HISTORY 90
 float idConsoleLocal::DrawFPS( float y )
@@ -288,9 +290,10 @@ float idConsoleLocal::DrawFPS( float y )
 	const uint64 rendererGPU_SSAOTime = commonLocal.GetRendererGpuSSAOMicroseconds();
 	const uint64 rendererGPU_SSRTime = commonLocal.GetRendererGpuSSRMicroseconds();
 	const uint64 rendererGPUAmbientPassTime = commonLocal.GetRendererGpuAmbientPassMicroseconds();
-	const uint64 rendererGPUShadowAtlasPassTime = commonLocal.GetRendererGpuShadowAtlasPassMicroseconds();
+	const uint64 rendererGPUShadowAtlasTime = commonLocal.GetRendererGpuShadowAtlasPassMicroseconds();
 	const uint64 rendererGPUInteractionsTime = commonLocal.GetRendererGpuInteractionsMicroseconds();
 	const uint64 rendererGPUShaderPassesTime = commonLocal.GetRendererGpuShaderPassMicroseconds();
+	const uint64 rendererGPU_TAATime = commonLocal.GetRendererGpuTAAMicroseconds();
 	const uint64 rendererGPUPostProcessingTime = commonLocal.GetRendererGpuPostProcessingMicroseconds();
 	const int maxTime = int( 1000 / com_engineHz_latched ) * 1000;
 
@@ -309,7 +312,7 @@ float idConsoleLocal::DrawFPS( float y )
 	{
 		// start smaller
 		int32 statsWindowWidth = 320;
-		int32 statsWindowHeight = 280;
+		int32 statsWindowHeight = 295;
 
 		if( com_showFPS.GetInteger() > 2 )
 		{
@@ -352,7 +355,17 @@ float idConsoleLocal::DrawFPS( float y )
 
 		extern idCVar r_antiAliasing;
 		static const int aaNumValues = 5;
+
 		static const char* aaValues[aaNumValues] =
+		{
+			"None",
+			"None",
+			"SMAA 1X",
+			"MSAA 2X",
+			"MSAA 4X",
+		};
+
+		static const char* taaValues[aaNumValues] =
 		{
 			"None",
 			"TAA",
@@ -363,7 +376,15 @@ float idConsoleLocal::DrawFPS( float y )
 
 		compile_time_assert( aaNumValues == ( ANTI_ALIASING_MSAA_4X + 1 ) );
 
-		const char* aaMode = aaValues[ r_antiAliasing.GetInteger() ];
+		const char* aaMode = NULL;
+		if( R_UseTemporalAA() )
+		{
+			aaMode = taaValues[ r_antiAliasing.GetInteger() ];
+		}
+		else
+		{
+			aaMode = aaValues[ r_antiAliasing.GetInteger() ];
+		}
 
 		idStr resolutionText;
 		resolutionScale.GetConsoleText( resolutionText );
@@ -431,9 +452,10 @@ float idConsoleLocal::DrawFPS( float y )
 		ImGui::TextColored( gameThreadGameTime > maxTime ? colorRed : colorWhite,			"Game:    %5llu us   SSAO:         %5llu us", gameThreadGameTime, rendererGPU_SSAOTime );
 		ImGui::TextColored( gameThreadRenderTime > maxTime ? colorRed : colorWhite,			"RF:      %5llu us   SSR:          %5llu us", gameThreadRenderTime, rendererGPU_SSRTime );
 		ImGui::TextColored( rendererBackEndTime > maxTime ? colorRed : colorWhite,			"RB:      %5llu us   Ambient Pass: %5llu us", rendererBackEndTime, rendererGPUAmbientPassTime );
-		ImGui::TextColored( rendererShadowsTime > maxTime ? colorRed : colorWhite,			"                    Shadow Atlas: %5llu us", rendererGPUShadowAtlasPassTime );
+		ImGui::TextColored( rendererGPUShadowAtlasTime > maxTime ? colorRed : colorWhite,	"                    Shadow Atlas: %5llu us", rendererGPUShadowAtlasTime );
 		ImGui::TextColored( rendererShadowsTime > maxTime ? colorRed : colorWhite,			"Shadows: %5llu us   Interactions: %5llu us", rendererShadowsTime, rendererGPUInteractionsTime );
 		ImGui::TextColored( rendererGPUShaderPassesTime > maxTime ? colorRed : colorWhite,	"                    Shader Pass:  %5llu us", rendererGPUShaderPassesTime );
+		ImGui::TextColored( rendererGPU_TAATime > maxTime ? colorRed : colorWhite,			"                    TAA:          %5llu us", rendererGPU_TAATime );
 		ImGui::TextColored( rendererGPUPostProcessingTime > maxTime ? colorRed : colorWhite, "                    PostFX:       %5llu us", rendererGPUPostProcessingTime );
 		ImGui::TextColored( totalCPUTime > maxTime || rendererGPUTime > maxTime ? colorRed : colorWhite,
 							"Total:   %5llu us   Total:        %5llu us", totalCPUTime, rendererGPUTime );
