@@ -1078,7 +1078,7 @@ void idRenderSystemLocal::CropRenderSize( int width, int height )
 idRenderSystemLocal::CropRenderSize
 ================
 */
-void idRenderSystemLocal::CropRenderSize( int x, int y, int width, int height )
+void idRenderSystemLocal::CropRenderSize( int x, int y, int width, int height, bool topLeftAncor )
 {
 	if( !IsInitialized() )
 	{
@@ -1114,10 +1114,20 @@ void idRenderSystemLocal::CropRenderSize( int x, int y, int width, int height )
 
 	idScreenRect& current = renderCrops[currentRenderCrop];
 
-	current.x1 = x;
-	current.x2 = previous.x1 + width - 1;
-	current.y1 = y;
-	current.y2 = previous.y2;
+	if( topLeftAncor )
+	{
+		current.x1 = x;
+		current.x2 = width - 1;
+		current.y1 = y;
+		current.y2 = height - 1;
+	}
+	else
+	{
+		current.x1 = x;
+		current.x2 = previous.x1 + width - 1;
+		current.y1 = y;
+		current.y2 = previous.y2;
+	}
 }
 
 /*

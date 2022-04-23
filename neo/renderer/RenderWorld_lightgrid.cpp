@@ -1206,9 +1206,6 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 			// make sure the game / draw thread has completed
 			commonLocal.WaitGameThread();
 
-			glConfig.nativeScreenWidth = captureSize;
-			glConfig.nativeScreenHeight = captureSize;
-
 			// disable scissor, so we don't need to adjust all those rects
 			r_useScissor.SetBool( false );
 
@@ -1263,11 +1260,8 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 							ref.vieworg = gridPoint->origin;
 							ref.viewaxis = tr.cubeAxis[ side ];
 
-							glConfig.nativeScreenWidth = captureSize;
-							glConfig.nativeScreenHeight = captureSize;
-
 							// discard anything currently on the list
-							tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
+							//tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
 
 							// build commands to render the scene
 							tr.primaryWorld->RenderScene( &ref );
@@ -1289,7 +1283,13 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 #if defined( USE_VULKAN )
 							// TODO
 #elif defined( USE_NVRHI )
+							// make sure that all frames have finished rendering
+							//deviceManager->GetDevice()->waitForIdle();
+
 							R_ReadPixelsRGB16F( deviceManager->GetDevice(), &tr.backend.GetCommonPasses(), globalImages->envprobeHDRImage->GetTextureHandle() , nvrhi::ResourceStates::RenderTarget, floatRGB16F, captureSize, captureSize );
+
+							// release all in-flight references to the render targets
+							//deviceManager->GetDevice()->runGarbageCollection();
 
 #if 0
 							idStr testName;
@@ -1327,11 +1327,6 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 			int	end = Sys_Milliseconds();
 
 			tr.takingEnvprobe = false;
-
-			// restore the original resolution, same as "vid_restart"
-			glConfig.nativeScreenWidth = sysWidth;
-			glConfig.nativeScreenHeight = sysHeight;
-			R_SetNewMode( false );
 
 			r_useScissor.SetBool( true );
 			r_useParallelAddModels.SetBool( true );

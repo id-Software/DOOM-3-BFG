@@ -1088,16 +1088,28 @@ void idRenderWorldLocal::RenderScene( const renderView_t* renderView )
 
 	int windowWidth = tr.GetWidth();
 	int windowHeight = tr.GetHeight();
-	tr.PerformResolutionScaling( windowWidth, windowHeight );
 
-	// screenFraction is just for quickly testing fill rate limitations
-	if( r_screenFraction.GetInteger() != 100 )
+	if( parms->renderView.rdflags & RDF_IRRADIANCE )
 	{
-		windowWidth = ( windowWidth * r_screenFraction.GetInteger() ) / 100;
-		windowHeight = ( windowHeight * r_screenFraction.GetInteger() ) / 100;
+		windowWidth = ENVPROBE_CAPTURE_SIZE;
+		windowHeight = ENVPROBE_CAPTURE_SIZE;
+
+		tr.CropRenderSize( 0, 0, windowWidth, windowHeight, true );
+		tr.GetCroppedViewport( &parms->viewport );
 	}
-	tr.CropRenderSize( windowWidth, windowHeight );
-	tr.GetCroppedViewport( &parms->viewport );
+	else
+	{
+		tr.PerformResolutionScaling( windowWidth, windowHeight );
+
+		// screenFraction is just for quickly testing fill rate limitations
+		if( r_screenFraction.GetInteger() != 100 )
+		{
+			windowWidth = ( windowWidth * r_screenFraction.GetInteger() ) / 100;
+			windowHeight = ( windowHeight * r_screenFraction.GetInteger() ) / 100;
+		}
+		tr.CropRenderSize( windowWidth, windowHeight );
+		tr.GetCroppedViewport( &parms->viewport );
+	}
 
 	// the scissor bounds may be shrunk in subviews even if
 	// the viewport stays the same

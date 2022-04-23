@@ -939,7 +939,7 @@ CONSOLE_COMMAND( bakeEnvironmentProbes, "Bake environment probes", NULL )
 	int sysWidth = renderSystem->GetWidth();
 	int sysHeight = renderSystem->GetHeight();
 
-	bool useThreads = false;
+	bool useThreads = true;
 
 	baseName = tr.primaryWorld->mapName;
 	baseName.StripFileExtension();
@@ -961,8 +961,8 @@ CONSOLE_COMMAND( bakeEnvironmentProbes, "Bake environment probes", NULL )
 	// make sure the game / draw thread has completed
 	commonLocal.WaitGameThread();
 
-	glConfig.nativeScreenWidth = captureSize;
-	glConfig.nativeScreenHeight = captureSize;
+	//glConfig.nativeScreenWidth = captureSize;
+	//glConfig.nativeScreenHeight = captureSize;
 
 	// disable scissor, so we don't need to adjust all those rects
 	r_useScissor.SetBool( false );
@@ -1034,11 +1034,8 @@ CONSOLE_COMMAND( bakeEnvironmentProbes, "Bake environment probes", NULL )
 			ref.vieworg = def->parms.origin;
 			ref.viewaxis = tr.cubeAxis[j];
 
-			glConfig.nativeScreenWidth = captureSize;
-			glConfig.nativeScreenHeight = captureSize;
-
 			// discard anything currently on the list
-			tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
+			//tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
 
 			// build commands to render the scene
 			tr.primaryWorld->RenderScene( &ref );
@@ -1105,11 +1102,6 @@ CONSOLE_COMMAND( bakeEnvironmentProbes, "Bake environment probes", NULL )
 	int	end = Sys_Milliseconds();
 
 	tr.takingEnvprobe = false;
-
-	// restore the original resolution, same as "vid_restart"
-	glConfig.nativeScreenWidth = sysWidth;
-	glConfig.nativeScreenHeight = sysHeight;
-	R_SetNewMode( false );
 
 	r_useScissor.SetBool( true );
 	r_useParallelAddModels.SetBool( true );

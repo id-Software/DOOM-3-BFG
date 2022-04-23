@@ -956,7 +956,7 @@ public:
 	virtual void			TakeScreenshot( int width, int height, const char* fileName, renderView_t* ref );
 	virtual byte*			CaptureRenderToBuffer( int width, int height, renderView_t* ref );
 	virtual void			CropRenderSize( int width, int height );
-	virtual void            CropRenderSize( int x, int y, int width, int height );
+	virtual void            CropRenderSize( int x, int y, int width, int height, bool topLeftAncor );
 	virtual void			CaptureRenderToImage( const char* imageName, bool clearColorAfterCopy = false );
 	virtual void			CaptureRenderToFile( const char* fileName, bool fixAlpha );
 	virtual void			UnCrop();

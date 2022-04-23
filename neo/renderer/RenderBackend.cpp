@@ -7058,7 +7058,21 @@ void idRenderBackend::DrawViewInternal( const viewDef_t* _viewDef, const int ste
 	//TODO(Stephen): Move somewhere else?
 	// RB: this needs to be done after next post processing steps later on
 
-	if( !( _viewDef->renderView.rdflags & RDF_IRRADIANCE ) )
+	if( _viewDef->renderView.rdflags & RDF_IRRADIANCE )
+	{
+		// we haven't changed ldrImage so it's basically the previewsRenderLDR
+		BlitParameters blitParms;
+		blitParms.sourceTexture = ( nvrhi::ITexture* )globalImages->ldrImage->GetTextureID();
+		blitParms.targetFramebuffer = deviceManager->GetCurrentFramebuffer();
+		blitParms.targetViewport = nvrhi::Viewport( renderSystem->GetWidth(), renderSystem->GetHeight() );
+		commonPasses.BlitTexture( commandList, blitParms, &bindingCache );
+
+		blitParms.sourceTexture = ( nvrhi::ITexture* )globalImages->envprobeHDRImage->GetTextureID();
+		blitParms.targetFramebuffer = deviceManager->GetCurrentFramebuffer();
+		blitParms.targetViewport = nvrhi::Viewport( ENVPROBE_CAPTURE_SIZE, ENVPROBE_CAPTURE_SIZE );
+		commonPasses.BlitTexture( commandList, blitParms, &bindingCache );
+	}
+	else
 	{
 		BlitParameters blitParms;
 		blitParms.sourceTexture = ( nvrhi::ITexture* )globalImages->ldrImage->GetTextureID();
@@ -7312,6 +7326,11 @@ void idRenderBackend::PostProcess( const void* data )
 	}
 
 	if( ( r_ssaoDebug.GetInteger() > 0 ) || ( r_ssgiDebug.GetInteger() > 0 ) )
+	{
+		return;
+	}
+
+	if( viewDef->renderView.rdflags & RDF_IRRADIANCE )
 	{
 		return;
 	}

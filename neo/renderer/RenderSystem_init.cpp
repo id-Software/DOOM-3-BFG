@@ -1001,9 +1001,6 @@ void idRenderSystemLocal::TakeScreenshot( int widthIgnored, int heightIgnored, c
 	commonLocal.WaitGameThread();
 
 	// discard anything currently on the list
-	//tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
-
-	// discard anything currently on the list
 	tr.SwapCommandBuffers( NULL, NULL, NULL, NULL, NULL, NULL );
 	if( ref )
 	{
