@@ -98,14 +98,13 @@ void Framebuffer::Shutdown()
 void Framebuffer::ResizeFramebuffers()
 {
 	tr.backend.ClearCaches();
+
+	// RB: FIXME I think allocating new Framebuffers lead to a memory leak
 	//framebuffers.DeleteContents( true );
 
 	uint32_t backBufferCount = deviceManager->GetBackBufferCount();
 	globalFramebuffers.swapFramebuffers.Resize( backBufferCount );
 	globalFramebuffers.swapFramebuffers.SetNum( backBufferCount );
-
-	int screenWidth = renderSystem->GetWidth();
-	int screenHeight = renderSystem->GetHeight();
 
 	tr.backend.commandList->open();
 	globalImages->ldrImage->Reload( false, tr.backend.commandList );
