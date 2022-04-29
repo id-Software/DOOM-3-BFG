@@ -190,7 +190,7 @@ void main( PS_IN fragment, out PS_OUT result )
 	const half roughness = specMapSRGB.r;
 	const half glossiness = 1.0 - roughness;
 
-	// the vast majority of real-world materials (anything not metal or gems) have F(0°)
+	// the vast majority of real-world materials (anything not metal or gems) have F(0)
 	// values in a very narrow range (~0.02 - 0.08)
 
 	// approximate non-metals with linear RGB 0.04 which is 0.08 * 0.5 (default in UE4)
