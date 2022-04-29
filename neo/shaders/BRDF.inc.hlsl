@@ -1,4 +1,4 @@
-/*
+ï»¿/*
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
@@ -54,7 +54,7 @@ half Distribution_GGX_1886( half hdotN, half alpha )
 }
 
 // Fresnel term F( v, h )
-// Fnone( v, h ) = F(0°) = specularColor
+// Fnone( v, h ) = F(0ï¿½) = specularColor
 half3 Fresnel_Schlick( half3 specularColor, half vDotN )
 {
 	return specularColor + ( 1.0 - specularColor ) * pow( 1.0 - vDotN, 5.0 );

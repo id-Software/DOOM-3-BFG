@@ -36,7 +36,7 @@ option(OPENAL
 		"Use OpenAL soft instead of XAudio2" OFF)
 
 option(FFMPEG
-		"Use FMPEG to render Bink videos" ON)
+		"Use FMPEG to render Bink videos" OFF)
 
 option(BINKDEC
 		"Use included libbinkdec to render Bink videos" OFF)
@@ -51,10 +51,10 @@ option(USE_MoltenVK
 		"Use MoltenVK library directly instead of Vulkan loader on macOS" OFF)
 
 option(ONATIVE
-		"Optimize for the host CPU" OFF)
+		"Optimize for the host CPU" ON)
 		
 option(WINDOWS10
-		"Build for Windows 10+" OFF)
+		"Build for Windows 10+" ON)
 		
 option(USE_SYSTEM_ZLIB
                 "Use the system zlib instead of the bundled one" OFF)
@@ -94,6 +94,12 @@ else()
 	option(USE_INTRINSICS_SSE "Compile using SSE intrinsics (e.g mmx, sse, msse2)" OFF)
 endif()
 
+#trying to add windows arm support
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "(arm64)|(x64)")
+option(USE_INTRINSICS_SSE "Compile using SSE intrinsics (e.g mmx, sse, msse2)" OFF)
+endif()
+
+
 if(FFMPEG AND BINKDEC)
 	message(FATAL_ERROR "Only one of FFMPEG and BINKDEC (or neither) can be enabled at a time")
 endif()
@@ -102,8 +108,9 @@ if(UNIX)
 	set(OPENAL ON)
 	
     # SRS - Disable precompiled headers when cross-compiling on OSX, e.g. when creating universal binaries
-    if((CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "x86_64" AND CMAKE_OSX_ARCHITECTURES MATCHES "arm64" ) OR
-       (CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "arm64"  AND CMAKE_OSX_ARCHITECTURES MATCHES "x86_64"))
+    if((CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "x86_64" AND CMAKE_OSX_ARCHITECTURES MATCHES "arm64"  ) OR
+      # (CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "arm64"  AND CMAKE_OSX_ARCHITECTURES MATCHES "x86_64")
+	  (CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "arm64") OR  (CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "x64")) 
         set(USE_PRECOMPILED_HEADERS OFF)
     endif()
 
