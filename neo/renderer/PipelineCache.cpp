@@ -355,14 +355,12 @@ void PipelineCache::GetRenderState( uint64 stateBits, PipelineKey key, nvrhi::Re
 		}
 	}
 
-	nvrhi::DepthStencilState::StencilOpDesc stencilOp;
-
 	//
 	// stencil
 	//
 	//if( diff & ( GLS_STENCIL_FUNC_BITS | GLS_STENCIL_OP_BITS ) )
 	{
-		if( ( stateBits & ( GLS_STENCIL_FUNC_BITS | GLS_STENCIL_OP_BITS ) ) != 0 )
+		if( ( stateBits & ( GLS_STENCIL_FUNC_BITS | GLS_STENCIL_OP_BITS | GLS_SEPARATE_STENCIL ) ) != 0 )
 		{
 			depthStencilState.enableStencil();
 		}
@@ -372,14 +370,40 @@ void PipelineCache::GetRenderState( uint64 stateBits, PipelineKey key, nvrhi::Re
 		}
 	}
 
-	// TODO implement Carmack's Reverse with GLS_SEPARATE_STENCIL
-
 	if( stateBits & ( GLS_STENCIL_FUNC_BITS | GLS_STENCIL_FUNC_REF_BITS | GLS_STENCIL_FUNC_MASK_BITS ) )
 	{
-		depthStencilState.setStencilRefValue( ( stateBits & GLS_STENCIL_FUNC_REF_BITS ) >> GLS_STENCIL_FUNC_REF_SHIFT );
-		depthStencilState.setStencilReadMask( ( stateBits & GLS_STENCIL_FUNC_MASK_BITS ) >> GLS_STENCIL_FUNC_MASK_SHIFT );
-		depthStencilState.setStencilWriteMask( ( stateBits & GLS_STENCIL_FUNC_MASK_BITS ) >> GLS_STENCIL_FUNC_MASK_SHIFT );
+		uint32 ref = uint32( ( stateBits & GLS_STENCIL_FUNC_REF_BITS ) >> GLS_STENCIL_FUNC_REF_SHIFT );
+		uint32 mask = uint32( ( stateBits & GLS_STENCIL_FUNC_MASK_BITS ) >> GLS_STENCIL_FUNC_MASK_SHIFT );
 
+		depthStencilState.setStencilRefValue( ref );
+		depthStencilState.setStencilReadMask( mask );
+		depthStencilState.setStencilWriteMask( 0xFF );
+	}
+
+	// Carmack's Reverse with GLS_SEPARATE_STENCIL
+	if( stateBits & GLS_SEPARATE_STENCIL )
+	{
+		nvrhi::DepthStencilState::StencilOpDesc frontStencilOp = GetStencilOpState( stateBits & GLS_STENCIL_FRONT_OPS );
+		nvrhi::DepthStencilState::StencilOpDesc backStencilOp = GetStencilOpState( ( stateBits & GLS_STENCIL_BACK_OPS ) >> 12 );
+
+		depthStencilState.setFrontFaceStencil( frontStencilOp );
+		depthStencilState.setFrontFaceStencil( backStencilOp );
+	}
+	else
+	{
+		nvrhi::DepthStencilState::StencilOpDesc stencilOp = GetStencilOpState( stateBits );
+
+		depthStencilState.setFrontFaceStencil( stencilOp );
+		depthStencilState.setBackFaceStencil( stencilOp );
+	}
+}
+
+nvrhi::DepthStencilState::StencilOpDesc PipelineCache::GetStencilOpState( uint64 stateBits )
+{
+	nvrhi::DepthStencilState::StencilOpDesc stencilOp;
+
+	//if( stateBits & ( GLS_STENCIL_OP_FAIL_BITS | GLS_STENCIL_OP_ZFAIL_BITS | GLS_STENCIL_OP_PASS_BITS ) )
+	{
 		switch( stateBits & GLS_STENCIL_FUNC_BITS )
 		{
 			case GLS_STENCIL_FUNC_NEVER:
@@ -407,10 +431,7 @@ void PipelineCache::GetRenderState( uint64 stateBits, PipelineKey key, nvrhi::Re
 				stencilOp.setStencilFunc( nvrhi::ComparisonFunc::Always );
 				break;
 		}
-	}
 
-	if( stateBits & ( GLS_STENCIL_OP_FAIL_BITS | GLS_STENCIL_OP_ZFAIL_BITS | GLS_STENCIL_OP_PASS_BITS ) )
-	{
 		switch( stateBits & GLS_STENCIL_OP_FAIL_BITS )
 		{
 			case GLS_STENCIL_OP_FAIL_KEEP:
@@ -496,5 +517,5 @@ void PipelineCache::GetRenderState( uint64 stateBits, PipelineKey key, nvrhi::Re
 		}
 	}
 
-	depthStencilState.setFrontFaceStencil( stencilOp );
+	return stencilOp;
 }

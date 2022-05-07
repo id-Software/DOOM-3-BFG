@@ -77,6 +77,7 @@ public:
 private:
 
 	void GetRenderState( uint64 stateBits, PipelineKey key, nvrhi::RenderState& renderState );
+	nvrhi::DepthStencilState::StencilOpDesc GetStencilOpState( uint64 stateBits );
 
 	nvrhi::DeviceHandle												device;
 	idHashIndex														pipelineHash;
