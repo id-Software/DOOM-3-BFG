@@ -121,11 +121,11 @@ void idRenderProgManager::LoadShader( shader_t& shader )
 	adjustedName.StripFileExtension();
 	if( deviceManager->GetGraphicsAPI() == nvrhi::GraphicsAPI::D3D12 )
 	{
-		adjustedName = idStr( "renderprogs/dxil/" ) + adjustedName + "." + stage + ".bin";
+		adjustedName = idStr( "renderprogs2/dxil/" ) + adjustedName + "." + stage + ".bin";
 	}
 	else if( deviceManager->GetGraphicsAPI() == nvrhi::GraphicsAPI::VULKAN )
 	{
-		adjustedName = idStr( "renderprogs/spirv/" ) + adjustedName + "." + stage + ".bin";
+		adjustedName = idStr( "renderprogs2/spirv/" ) + adjustedName + "." + stage + ".bin";
 	}
 	else
 	{
