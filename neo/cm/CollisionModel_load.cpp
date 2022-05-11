@@ -4340,7 +4340,7 @@ void idCollisionModelManagerLocal::Preload( const char* mapName )
 			const preloadEntry_s& p = manifest.GetPreloadByIndex( i );
 			if( p.resType == PRELOAD_COLLISION )
 			{
-				LoadModel( p.resourceName );
+				LoadModel( p.resourceName, false );
 				numLoaded++;
 			}
 		}
@@ -4544,7 +4544,7 @@ bool idCollisionModelManagerLocal::GetModelPolygon( cmHandle_t model, int polygo
 idCollisionModelManagerLocal::LoadModel
 ==================
 */
-cmHandle_t idCollisionModelManagerLocal::LoadModel( const char* modelName )
+cmHandle_t idCollisionModelManagerLocal::LoadModel( const char* modelName, const bool precache )
 {
 	int handle;
 
@@ -4600,6 +4600,12 @@ cmHandle_t idCollisionModelManagerLocal::LoadModel( const char* modelName )
 		{
 			common->Warning( "idCollisionModelManagerLocal::LoadModel: collision file for '%s' contains different model", modelName );
 		}
+	}
+
+	// if only precaching .cm files do not waste memory converting render models
+	if( precache )
+	{
+		return 0;
 	}
 
 	// try to load a .ASE or .LWO model and convert it to a collision model
@@ -4781,7 +4787,7 @@ bool idCollisionModelManagerLocal::TrmFromModel( const char* modelName, idTraceM
 {
 	cmHandle_t handle;
 
-	handle = LoadModel( modelName );
+	handle = LoadModel( modelName, false );
 	if( !handle )
 	{
 		common->Printf( "idCollisionModelManagerLocal::TrmFromModel: model %s not found.\n", modelName );
