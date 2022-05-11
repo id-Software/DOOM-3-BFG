@@ -3,7 +3,7 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2014-2021 Robert Beckebans
+Copyright (C) 2014-2022 Robert Beckebans
 Copyright (C) 2014-2016 Kot in Action Creative Artel
 Copyright (C) 2016-2017 Dustin Land
 
@@ -34,6 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "../RenderCommon.h"
 #include "../simplex.h"	// line font definition
+#include "../ImmediateMode.h"
 
 idCVar r_showCenterOfProjection( "r_showCenterOfProjection", "0", CVAR_RENDERER | CVAR_BOOL, "Draw a cross to show the center of projection" );
 idCVar r_showLines( "r_showLines", "0", CVAR_RENDERER | CVAR_INTEGER, "1 = draw alternate horizontal lines, 2 = draw alternate vertical lines" );
@@ -1749,6 +1750,95 @@ RB_DrawText
 */
 static void RB_DrawText( const char* text, const idVec3& origin, float scale, const idVec4& color, const idMat3& viewAxis, const int align )
 {
+	renderProgManager.BindShader_Color();
+
+	// RB begin
+	//GL_Color( color[0], color[1], color[2], 1 /*color[3]*/ );
+	renderProgManager.CommitUniforms( tr.backend.GL_GetCurrentState() );
+	// RB end
+
+	int i, j, len, num, index, charIndex, line;
+	float textLen = 1.0f, spacing = 1.0f;
+	idVec3 org, p1, p2;
+
+	if( text && *text )
+	{
+		im.Begin( GFX_LINES );
+		im.Color3fv( color.ToFloatPtr() );
+
+		if( text[0] == '\n' )
+		{
+			line = 1;
+		}
+		else
+		{
+			line = 0;
+		}
+
+		len = strlen( text );
+		for( i = 0; i < len; i++ )
+		{
+
+			if( i == 0 || text[i] == '\n' )
+			{
+				org = origin - viewAxis[2] * ( line * 36.0f * scale );
+				if( align != 0 )
+				{
+					for( j = 1; i + j <= len; j++ )
+					{
+						if( i + j == len || text[i + j] == '\n' )
+						{
+							textLen = RB_DrawTextLength( text + i, scale, j );
+							break;
+						}
+					}
+					if( align == 2 )
+					{
+						// right
+						org += viewAxis[1] * textLen;
+					}
+					else
+					{
+						// center
+						org += viewAxis[1] * ( textLen * 0.5f );
+					}
+				}
+				line++;
+			}
+
+			charIndex = text[i] - 32;
+			if( charIndex < 0 || charIndex > NUM_SIMPLEX_CHARS )
+			{
+				continue;
+			}
+			num = simplex[charIndex][0] * 2;
+			spacing = simplex[charIndex][1];
+			index = 2;
+
+			while( index - 2 < num )
+			{
+				if( simplex[charIndex][index] < 0 )
+				{
+					index++;
+					continue;
+				}
+				p1 = org + scale * simplex[charIndex][index] * -viewAxis[1] + scale * simplex[charIndex][index + 1] * viewAxis[2];
+				index += 2;
+				if( simplex[charIndex][index] < 0 )
+				{
+					index++;
+					continue;
+				}
+				p2 = org + scale * simplex[charIndex][index] * -viewAxis[1] + scale * simplex[charIndex][index + 1] * viewAxis[2];
+
+				im.Vertex3fv( p1.ToFloatPtr() );
+				im.Vertex3fv( p2.ToFloatPtr() );
+			}
+			org -= viewAxis[1] * ( spacing * scale );
+		}
+
+		im.End();
+	}
 }
 
 /*

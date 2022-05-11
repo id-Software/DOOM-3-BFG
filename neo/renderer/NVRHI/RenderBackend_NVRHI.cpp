@@ -780,19 +780,6 @@ void idRenderBackend::GL_BlockingSwapBuffers()
 	renderLog.EndFrame();
 }
 
-void idRenderBackend::GL_EndRenderPass()
-{
-#if 0
-	commandList->close();
-
-	deviceManager->GetDevice()->executeCommandList( commandList );
-
-	deviceManager->GetDevice()->runGarbageCollection();
-
-	commandList->open();
-#endif
-}
-
 /*
 ========================
 GL_SetDefaultState

@@ -363,8 +363,6 @@ private:
 	void				GL_StartFrame();
 	void				GL_EndFrame();
 
-	void				GL_EndRenderPass();
-
 public:
 	uint64				GL_GetCurrentState() const;
 	idVec2				GetCurrentPixelOffset() const;
