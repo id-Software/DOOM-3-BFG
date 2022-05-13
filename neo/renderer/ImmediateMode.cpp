@@ -138,13 +138,6 @@ void fhImmediateMode::End()
 	commandList->writeBuffer( indexBuffer, lineIndices, drawVertsUsed * sizeof( triIndex_t ) );
 	commandList->setPermanentBufferState( indexBuffer, nvrhi::ResourceStates::IndexBuffer );
 
-	GFXenum mode = currentMode;
-
-	if( mode == GFX_QUADS || mode == GFX_POLYGON || mode == GFX_QUAD_STRIP ) //quads and polygons are replaced by triangles in GLSL mode
-	{
-		mode = GFX_TRIANGLES;
-	}
-
 	renderProgManager.CommitConstantBuffer( commandList );
 
 	int bindingLayoutType = renderProgManager.BindingLayoutType();
@@ -157,7 +150,6 @@ void fhImmediateMode::End()
 		if( !tr.backend.currentBindingSets[i] || *tr.backend.currentBindingSets[i]->getDesc() != tr.backend.pendingBindingSetDescs[bindingLayoutType][i] )
 		{
 			tr.backend.currentBindingSets[i] = tr.backend.bindingCache.GetOrCreateBindingSet( tr.backend.pendingBindingSetDescs[bindingLayoutType][i], ( *layouts )[i] );
-			//changeState = true;
 		}
 	}
 
@@ -167,7 +159,6 @@ void fhImmediateMode::End()
 	PipelineKey key{ stateBits, program, tr.backend.depthBias, tr.backend.slopeScaleBias, tr.backend.currentFrameBuffer };
 	auto pipeline = tr.backend.pipelineCache.GetOrCreatePipeline( key );
 
-	//if( changeState )
 	{
 		nvrhi::GraphicsState state;
 
@@ -188,24 +179,13 @@ void fhImmediateMode::End()
 								  tr.backend.currentViewport.zmin,
 								  tr.backend.currentViewport.zmax };
 		state.viewport.addViewport( viewport );
-
-#if 0
-		if( !context.scissor.IsEmpty() )
-		{
-			state.viewport.addScissorRect( nvrhi::Rect( context.scissor.x1, context.scissor.x2, context.scissor.y1, context.scissor.y2 ) );
-		}
-		else
-#endif
-		{
-			state.viewport.addScissorRect( nvrhi::Rect( viewport ) );
-		}
+		state.viewport.addScissorRect( nvrhi::Rect( viewport ) );
 
 		commandList->setGraphicsState( state );
 	}
 
 	nvrhi::DrawArguments args;
 	args.vertexCount = drawVertsUsed;
-	//commandList->draw( args );
 	commandList->drawIndexed( args );
 
 	// RB: added stats
@@ -298,6 +278,19 @@ void fhImmediateMode::Vertex3f( float x, float y, float z )
 		drawVertsUsed += 2;
 	}
 
+	/*
+	if( ( currentMode == GFX_LINES ) &&
+			drawVertsUsed >= 2 &&
+			drawVertsUsed + 1 < c_drawVertsCapacity )
+	{
+		// duplicate the last one if new line starts
+		if( drawVertsUsed % 2 == 0 )
+		{
+			drawVerts[drawVertsUsed] = drawVerts[drawVertsUsed -1];
+			drawVertsUsed += 1;
+		}
+	}
+	*/
 
 	idDrawVert& vertex = drawVerts[drawVertsUsed++];
 	vertex.xyz.Set( x, y, z );

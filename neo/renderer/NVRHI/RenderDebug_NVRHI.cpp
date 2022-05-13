@@ -681,9 +681,9 @@ void idRenderBackend::DBG_ShowSurfaceInfo( drawSurf_t** drawSurfs, int numDrawSu
 	// R_AxisToModelMatrix( mt.entity->axis, mt.entity->origin, matrix );
 
 	tr.primaryWorld->DrawText( surfModelName, surfPoint + tr.primaryView->renderView.viewaxis[2] * 12,
-							   0.35f, colorRed, tr.primaryView->renderView.viewaxis );
+							   0.35f, colorYellow, tr.primaryView->renderView.viewaxis );
 	tr.primaryWorld->DrawText( surfMatName, surfPoint,
-							   0.35f, colorBlue, tr.primaryView->renderView.viewaxis );
+							   0.35f, colorCyan, tr.primaryView->renderView.viewaxis );
 }
 
 /*
@@ -1830,6 +1830,7 @@ static void RB_DrawText( const char* text, const idVec3& origin, float scale, co
 
 				im.Vertex3fv( p1.ToFloatPtr() );
 				im.Vertex3fv( p2.ToFloatPtr() );
+				im.Vertex3fv( p2.ToFloatPtr() ); // RB: just build a triangle of this line
 			}
 			org -= viewAxis[1] * ( spacing * scale );
 		}
