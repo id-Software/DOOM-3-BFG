@@ -1,37 +1,41 @@
 /*
 ===========================================================================
 
-Doom 3 GPL Source Code
+Doom 3 BFG Edition GPL Source Code
 Copyright (C) 2016 Johannes Ohlemacher (http://github.com/eXistence/fhDOOM)
 Copyright (C) 2022 Robert Beckebans (BFG integration)
 
-This file is part of the Doom 3 GPL Source Code (?Doom 3 Source Code?).
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
-Doom 3 Source Code is free software: you can redistribute it and/or modify
+Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 
-Doom 3 Source Code is distributed in the hope that it will be useful,
+Doom 3 BFG Edition Source Code is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Doom 3 Source Code.  If not, see <http://www.gnu.org/licenses/>.
+along with Doom 3 BFG Edition Source Code.  If not, see <http://www.gnu.org/licenses/>.
 
-In addition, the Doom 3 Source Code is also subject to certain additional terms. You should have received a copy of these additional terms immediately following the terms and conditions of the GNU General Public License which accompanied the Doom 3 Source Code.  If not, please request a copy in writing from id Software at the address below.
+In addition, the Doom 3 BFG Edition Source Code is also subject to certain additional terms. You should have received a copy of these additional terms immediately following the terms and conditions of the GNU General Public License which accompanied the Doom 3 BFG Edition Source Code.  If not, please request a copy in writing from id Software at the address below.
 
 If you have questions concerning this license or the applicable additional terms, you may contact in writing id Software LLC, c/o ZeniMax Media Inc., Suite 120, Rockville, Maryland 20850 USA.
 
 ===========================================================================
 */
 
-#include "../idlib/precompiled.h"
+#include "precompiled.h"
 #pragma hdrstop
+
 
 #include "RenderCommon.h"
 #include "ImmediateMode.h"
+
+#include <sys/DeviceManager.h>
+extern DeviceManager* deviceManager;
 
 
 namespace
@@ -45,22 +49,6 @@ triIndex_t sphereIndices[c_drawVertsCapacity * 2];
 
 bool active = false;
 }
-
-/*
-void fhSimpleVert::SetColor( const idVec3& v )
-{
-	SetColor( idVec4( v, 1.0f ) );
-}
-
-void fhSimpleVert::SetColor( const idVec4& v )
-{
-	color[0] = static_cast<byte>( v.x * 255.0f );
-	color[1] = static_cast<byte>( v.y * 255.0f );
-	color[2] = static_cast<byte>( v.z * 255.0f );
-	color[3] = static_cast<byte>( v.w * 255.0f );
-
-}
-*/
 
 int fhImmediateMode::drawCallCount = 0;
 int fhImmediateMode::drawCallVertexSize = 0;
@@ -91,11 +79,12 @@ int fhImmediateMode::DrawCallVertexSize()
 }
 
 
-fhImmediateMode::fhImmediateMode( bool geometryOnly )
-	: drawVertsUsed( 0 )
-	, currentTexture( nullptr )
-	, geometryOnly( geometryOnly )
-	, currentMode( GFX_INVALID_ENUM )
+fhImmediateMode::fhImmediateMode( nvrhi::ICommandList* _commandList, bool geometryOnly ) :
+	commandList( _commandList ),
+	drawVertsUsed( 0 ),
+	currentTexture( nullptr ),
+	geometryOnly( geometryOnly ),
+	currentMode( GFX_INVALID_ENUM )
 {
 }
 
@@ -119,7 +108,7 @@ void fhImmediateMode::Begin( GFXenum mode )
 	drawVertsUsed = 0;
 }
 
-void fhImmediateMode::End( nvrhi::ICommandList* commandList )
+void fhImmediateMode::End()
 {
 	active = false;
 	if( !drawVertsUsed )
@@ -127,87 +116,103 @@ void fhImmediateMode::End( nvrhi::ICommandList* commandList )
 		return;
 	}
 
-	vertexBlock = vertexCache.AllocVertex( NULL, c_drawVertsCapacity, sizeof( idDrawVert ), commandList );
-	indexBlock = vertexCache.AllocIndex( NULL, c_drawVertsCapacity * 2, sizeof( triIndex_t ), commandList );
+	nvrhi::BufferDesc vertexBufferDesc;
+	vertexBufferDesc.byteSize = drawVertsUsed * sizeof( idDrawVert );
+	vertexBufferDesc.isVertexBuffer = true;
+	vertexBufferDesc.debugName = "VertexBuffer";
+	vertexBufferDesc.initialState = nvrhi::ResourceStates::CopyDest;
+	vertexBuffer = deviceManager->GetDevice()->createBuffer( vertexBufferDesc );
 
-	vertexPointer = ( idDrawVert* )vertexCache.MappedVertexBuffer( vertexBlock );
-	indexPointer = ( triIndex_t* )vertexCache.MappedIndexBuffer( indexBlock );
-	numVerts = 0;
-	numIndexes = 0;
+	commandList->beginTrackingBufferState( vertexBuffer, nvrhi::ResourceStates::CopyDest );
+	commandList->writeBuffer( vertexBuffer, drawVerts, drawVertsUsed * sizeof( idDrawVert ) );
+	commandList->setPermanentBufferState( vertexBuffer, nvrhi::ResourceStates::VertexBuffer );
 
-	idDrawVert* verts = AllocVerts( drawVertsUsed, lineIndices, drawVertsUsed * 2 );
-	WriteDrawVerts16( verts, drawVerts, drawVertsUsed );
+	nvrhi::BufferDesc indexBufferDesc;
+	indexBufferDesc.byteSize = drawVertsUsed * sizeof( triIndex_t );
+	indexBufferDesc.isIndexBuffer = true;
+	indexBufferDesc.debugName = "IndexBuffer";
+	indexBufferDesc.initialState = nvrhi::ResourceStates::CopyDest;
+	indexBuffer = deviceManager->GetDevice()->createBuffer( indexBufferDesc );
 
-	/*
-	auto vert = vertexCache.AllocFrameTemp( drawVerts, drawVertsUsed * sizeof( fhSimpleVert ) );
-	drawCallVertexSize += drawVertsUsed * sizeof( fhSimpleVert );
-	int offset = vertexCache.Bind( vert );
-	*/
-
-	/*
-	if( !geometryOnly )
-	{
-		if( currentTexture )
-		{
-			currentTexture->Bind( 1 );
-
-			if( currentTexture->type == TT_CUBIC )
-			{
-				GL_UseProgram( skyboxProgram );
-			}
-			else if( currentTexture->pixelFormat == pixelFormat_t::DEPTH_24 || currentTexture->pixelFormat == pixelFormat_t::DEPTH_24_STENCIL_8 )
-			{
-				GL_UseProgram( debugDepthProgram );
-			}
-			else
-			{
-				GL_UseProgram( defaultProgram );
-			}
-		}
-		else
-		{
-			GL_UseProgram( vertexColorProgram );
-		}
-
-		fhRenderProgram::SetModelViewMatrix( GL_ModelViewMatrix.Top() );
-		fhRenderProgram::SetProjectionMatrix( GL_ProjectionMatrix.Top() );
-		fhRenderProgram::SetDiffuseColor( idVec4::one );
-		fhRenderProgram::SetColorAdd( idVec4::zero );
-		fhRenderProgram::SetColorModulate( idVec4::one );
-		fhRenderProgram::SetBumpMatrix( idVec4( 1, 0, 0, 0 ), idVec4( 0, 1, 0, 0 ) );
-	}
-
-	GL_SetupVertexAttributes( fhVertexLayout::Simple, offset );
-	*/
+	commandList->beginTrackingBufferState( indexBuffer, nvrhi::ResourceStates::CopyDest );
+	commandList->writeBuffer( indexBuffer, lineIndices, drawVertsUsed * sizeof( triIndex_t ) );
+	commandList->setPermanentBufferState( indexBuffer, nvrhi::ResourceStates::IndexBuffer );
 
 	GFXenum mode = currentMode;
 
 	if( mode == GFX_QUADS || mode == GFX_POLYGON || mode == GFX_QUAD_STRIP ) //quads and polygons are replaced by triangles in GLSL mode
 	{
-		//mode = GFX_TRIANGLES;
+		mode = GFX_TRIANGLES;
 	}
 
-	glDrawElements( mode,
-					drawVertsUsed,
-					GL_UNSIGNED_SHORT,
-					lineIndices );
+	renderProgManager.CommitConstantBuffer( commandList );
 
-	/*
-	drawCallCount++;
+	int bindingLayoutType = renderProgManager.BindingLayoutType();
 
-	GL_SetVertexLayout( fhVertexLayout::None );
+	idStaticList<nvrhi::BindingLayoutHandle, nvrhi::c_MaxBindingLayouts>* layouts
+		= renderProgManager.GetBindingLayout( bindingLayoutType );
 
-	if( !geometryOnly )
+	for( int i = 0; i < layouts->Num(); i++ )
 	{
-		GL_UseProgram( nullptr );
+		if( !tr.backend.currentBindingSets[i] || *tr.backend.currentBindingSets[i]->getDesc() != tr.backend.pendingBindingSetDescs[bindingLayoutType][i] )
+		{
+			tr.backend.currentBindingSets[i] = tr.backend.bindingCache.GetOrCreateBindingSet( tr.backend.pendingBindingSetDescs[bindingLayoutType][i], ( *layouts )[i] );
+			//changeState = true;
+		}
 	}
 
-	if( !geometryOnly )
+	uint64_t stateBits = tr.backend.glStateBits;
+
+	int program = renderProgManager.CurrentProgram();
+	PipelineKey key{ stateBits, program, tr.backend.depthBias, tr.backend.slopeScaleBias, tr.backend.currentFrameBuffer };
+	auto pipeline = tr.backend.pipelineCache.GetOrCreatePipeline( key );
+
+	//if( changeState )
 	{
-		globalImages->BindNull( 1 );
-	}
-	*/
+		nvrhi::GraphicsState state;
 
+		for( int i = 0; i < layouts->Num(); i++ )
+		{
+			state.bindings.push_back( tr.backend.currentBindingSets[i] );
+		}
+
+		state.indexBuffer = { indexBuffer, nvrhi::Format::R16_UINT, 0 };
+		state.vertexBuffers = { { vertexBuffer, 0, 0 } };
+		state.pipeline = pipeline;
+		state.framebuffer = tr.backend.currentFrameBuffer->GetApiObject();
+
+		nvrhi::Viewport viewport{ ( float )tr.backend.currentViewport.x1,
+								  ( float )tr.backend.currentViewport.x2,
+								  ( float )tr.backend.currentViewport.y1,
+								  ( float )tr.backend.currentViewport.y2,
+								  tr.backend.currentViewport.zmin,
+								  tr.backend.currentViewport.zmax };
+		state.viewport.addViewport( viewport );
+
+#if 0
+		if( !context.scissor.IsEmpty() )
+		{
+			state.viewport.addScissorRect( nvrhi::Rect( context.scissor.x1, context.scissor.x2, context.scissor.y1, context.scissor.y2 ) );
+		}
+		else
+#endif
+		{
+			state.viewport.addScissorRect( nvrhi::Rect( viewport ) );
+		}
+
+		commandList->setGraphicsState( state );
+	}
+
+	nvrhi::DrawArguments args;
+	args.vertexCount = drawVertsUsed;
+	//commandList->draw( args );
+	commandList->drawIndexed( args );
+
+	// RB: added stats
+	tr.backend.pc.c_drawElements++;
+	tr.backend.pc.c_drawIndexes += drawVertsUsed;
+
+	// reset
 	drawVertsUsed = 0;
 	currentMode = GFX_INVALID_ENUM;
 }
@@ -416,7 +421,7 @@ void fhImmediateMode::Sphere( float radius, int rings, int sectors, bool inverse
 
 void fhImmediateMode::AddTrianglesFromPolygon( fhImmediateMode& im, const idVec3* xyz, int num )
 {
-	assert( im.getCurrentMode() == GL_TRIANGLES );
+	assert( im.getCurrentMode() == GFX_TRIANGLES );
 
 	if( num < 3 )
 	{

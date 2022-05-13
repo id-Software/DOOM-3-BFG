@@ -35,6 +35,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../RenderBackend.h"
 #include "../../framework/Common_local.h"
 #include "../../imgui/imgui.h"
+#include "../ImmediateMode.h"
 
 #include "nvrhi/utils.h"
 #include <sys/DeviceManager.h>
@@ -157,6 +158,8 @@ void idRenderBackend::Init()
 	vertexCache.Init( glConfig.uniformBufferOffsetAlignment, commandList );
 	commandList->close();
 	deviceManager->GetDevice()->executeCommandList( commandList );
+
+	fhImmediateMode::Init();
 
 	// allocate the frame data, which may be more if smp is enabled
 	R_InitFrameData();

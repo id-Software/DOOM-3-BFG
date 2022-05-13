@@ -658,13 +658,12 @@ void idRenderBackend::DBG_ShowSurfaceInfo( drawSurf_t** drawSurfs, int numDrawSu
 
 	DBG_SimpleWorldSetup();
 
-	// foresthale 2014-05-02: don't use a shader for tools
-	//renderProgManager.BindShader_TextureVertexColor();
 	GL_SelectTexture( 0 );
 	globalImages->whiteImage->Bind();
 
 	RB_SetVertexColorParms( SVC_MODULATE );
-	// foresthale 2014-05-02: don't use a shader for tools
+
+	renderProgManager.BindShader_TextureVertexColor();
 	//renderProgManager.CommitUniforms();
 
 	GL_Color( 1, 1, 1 );
@@ -1751,11 +1750,9 @@ RB_DrawText
 static void RB_DrawText( const char* text, const idVec3& origin, float scale, const idVec4& color, const idMat3& viewAxis, const int align )
 {
 	renderProgManager.BindShader_Color();
-
-	// RB begin
-	//GL_Color( color[0], color[1], color[2], 1 /*color[3]*/ );
 	renderProgManager.CommitUniforms( tr.backend.GL_GetCurrentState() );
-	// RB end
+
+	fhImmediateMode im( tr.backend.GL_GetCommandList() );
 
 	int i, j, len, num, index, charIndex, line;
 	float textLen = 1.0f, spacing = 1.0f;
@@ -1764,7 +1761,7 @@ static void RB_DrawText( const char* text, const idVec3& origin, float scale, co
 	if( text && *text )
 	{
 		im.Begin( GFX_LINES );
-		im.Color3fv( color.ToFloatPtr() );
+		//im.Color3fv( color.ToFloatPtr() );
 
 		if( text[0] == '\n' )
 		{
@@ -1848,6 +1845,67 @@ idRenderBackend::DBG_ShowDebugText
 */
 void idRenderBackend::DBG_ShowDebugText()
 {
+	int			i;
+	debugText_t*	text;
+
+	if( !rb_numDebugText )
+	{
+		return;
+	}
+
+	// all lines are expressed in world coordinates
+	DBG_SimpleWorldSetup();
+
+	/*
+	int width = r_debugLineWidth.GetInteger();
+	if( width < 1 )
+	{
+		width = 1;
+	}
+	else if( width > 10 )
+	{
+		width = 10;
+	}
+
+	// draw lines
+	glLineWidth( width );
+	*/
+
+	if( !r_debugLineDepthTest.GetBool() )
+	{
+		GL_State( GLS_POLYMODE_LINE | GLS_DEPTHFUNC_ALWAYS );
+	}
+	else
+	{
+		GL_State( GLS_POLYMODE_LINE );
+	}
+
+	text = rb_debugText;
+	for( i = 0; i < rb_numDebugText; i++, text++ )
+	{
+		if( !text->depthTest )
+		{
+			GL_Color( text->color.ToVec3() );
+			RB_DrawText( text->text, text->origin, text->scale, text->color, text->viewAxis, text->align );
+		}
+	}
+
+	if( !r_debugLineDepthTest.GetBool() )
+	{
+		GL_State( GLS_POLYMODE_LINE );
+	}
+
+	text = rb_debugText;
+	for( i = 0; i < rb_numDebugText; i++, text++ )
+	{
+		if( text->depthTest )
+		{
+			GL_Color( text->color.ToVec3() );
+			RB_DrawText( text->text, text->origin, text->scale, text->color, text->viewAxis, text->align );
+		}
+	}
+
+	//glLineWidth( 1 );
 }
 
 /*
@@ -1913,6 +1971,80 @@ idRenderBackend::DBG_ShowDebugLines
 */
 void idRenderBackend::DBG_ShowDebugLines()
 {
+	int			i;
+	debugLine_t*	line;
+
+	if( !rb_numDebugLines )
+	{
+		return;
+	}
+
+	// all lines are expressed in world coordinates
+	DBG_SimpleWorldSetup();
+
+	renderProgManager.BindShader_VertexColor();
+	renderProgManager.CommitUniforms( glStateBits );
+
+	/*
+	int width = r_debugLineWidth.GetInteger();
+	if( width < 1 )
+	{
+		width = 1;
+	}
+	else if( width > 10 )
+	{
+		width = 10;
+	}
+
+	// draw lines
+	glLineWidth( width );
+	*/
+
+	if( !r_debugLineDepthTest.GetBool() )
+	{
+		GL_State( GLS_POLYMODE_LINE | GLS_DEPTHFUNC_ALWAYS );
+	}
+	else
+	{
+		GL_State( GLS_POLYMODE_LINE );
+	}
+
+	fhImmediateMode im( tr.backend.GL_GetCommandList() );
+
+	im.Begin( GFX_LINES );
+	line = rb_debugLines;
+	for( i = 0; i < rb_numDebugLines; i++, line++ )
+	{
+		if( !line->depthTest )
+		{
+			im.Color3fv( line->rgb.ToFloatPtr() );
+			im.Vertex3fv( line->start.ToFloatPtr() );
+			im.Vertex3fv( line->end.ToFloatPtr() );
+		}
+	}
+	im.End();
+
+	if( !r_debugLineDepthTest.GetBool() )
+	{
+		GL_State( GLS_POLYMODE_LINE );
+	}
+
+	im.Begin( GFX_LINES );
+	line = rb_debugLines;
+	for( i = 0; i < rb_numDebugLines; i++, line++ )
+	{
+		if( line->depthTest )
+		{
+			im.Color4fv( line->rgb.ToFloatPtr() );
+			im.Vertex3fv( line->start.ToFloatPtr() );
+			im.Vertex3fv( line->end.ToFloatPtr() );
+		}
+	}
+
+	im.End();
+
+	//glLineWidth( 1 );
+	GL_State( GLS_DEFAULT );
 }
 
 /*

@@ -268,6 +268,7 @@ class ForwardShadingPass;
 class idRenderBackend
 {
 	friend class Framebuffer;
+	friend class fhImmediateMode;
 
 public:
 	idRenderBackend();
@@ -289,10 +290,11 @@ public:
 	static void			ImGui_Shutdown();
 	static void			ImGui_RenderDrawLists( ImDrawData* draw_data );
 
+	void				DrawElementsWithCounters( const drawSurf_t* surf );
+
 private:
 	void				DrawFlickerBox();
 
-	void				DrawElementsWithCounters( const drawSurf_t* surf );
 	void				GetCurrentBindingLayout( int bindingLayoutType );
 	void				DrawStencilShadowPass( const drawSurf_t* drawSurf, const bool renderZPass );
 
@@ -366,6 +368,11 @@ private:
 public:
 	uint64				GL_GetCurrentState() const;
 	idVec2				GetCurrentPixelOffset() const;
+
+	nvrhi::ICommandList* GL_GetCommandList() const
+	{
+		return commandList;
+	}
 
 private:
 	uint64				GL_GetCurrentStateMinusStencil() const;

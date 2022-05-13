@@ -53,6 +53,7 @@ enum GFXenum
 	GFX_INVALID_ENUM = 0x0500,
 	GFX_LINES = 0x0001,
 	GFX_LINE_LOOP = 0x0002,
+	GFX_TRIANGLES = 0x0004,
 	GFX_QUADS = 0x0007,
 	GFX_QUAD_STRIP = 0x0008,
 	GFX_POLYGON = 0x0009,
@@ -62,7 +63,7 @@ enum GFXenum
 class fhImmediateMode
 {
 public:
-	explicit fhImmediateMode( bool geometryOnly = false );
+	explicit fhImmediateMode( nvrhi::ICommandList* _commandList, bool geometryOnly = false );
 	~fhImmediateMode();
 
 	void SetTexture( idImage* texture );
@@ -78,7 +79,7 @@ public:
 	void Vertex3fv( const float* c );
 	void Vertex3f( float x, float y, float z );
 	void Vertex2f( float x, float y );
-	void End( nvrhi::ICommandList* commandList );
+	void End();
 
 	void Sphere( float radius, int rings, int sectors, bool inverse = false );
 
@@ -94,6 +95,10 @@ public:
 	static int DrawCallCount();
 	static int DrawCallVertexSize();
 private:
+	nvrhi::CommandListHandle		commandList;
+	nvrhi::BufferHandle				vertexBuffer;
+	nvrhi::BufferHandle				indexBuffer;
+
 	bool		geometryOnly;
 	float		currentTexCoord[2];
 	GFXenum		currentMode;
@@ -101,12 +106,10 @@ private:
 	idImage*	currentTexture;
 	int			drawVertsUsed;
 
-	vertCacheHandle_t			    vertexBlock;
-	vertCacheHandle_t			    indexBlock;
-	idDrawVert*                     vertexPointer;
-	triIndex_t*                     indexPointer;
-	int							    numVerts;
-	int							    numIndexes;
+	//idDrawVert*                     vertexPointer;
+	//triIndex_t*                     indexPointer;
+	//int							    numVerts;
+	//int							    numIndexes;
 
 	static int drawCallCount;
 	static int drawCallVertexSize;
