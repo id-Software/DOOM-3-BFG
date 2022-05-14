@@ -38,11 +38,12 @@ struct VS_IN
 	float4 normal : NORMAL;
 	float4 tangent : TANGENT;
 	float4 color : COLOR0;
+	float4 color2 : COLOR1;
 };
 
 struct VS_OUT
 {
-	float4 position : POSITION;
+	float4 position : SV_Position;
 	float4 color : COLOR0;
 };
 // *INDENT-ON*

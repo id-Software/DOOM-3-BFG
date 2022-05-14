@@ -39,7 +39,8 @@ register( b1 )
 #endif
 
 // *INDENT-OFF*
-struct VS_IN {
+struct VS_IN
+{
 	float4 position : POSITION;
 	float2 texcoord : TEXCOORD0;
 	float4 normal : NORMAL;
@@ -48,7 +49,8 @@ struct VS_IN {
 	float4 color2 : COLOR1;
 };
 
-struct VS_OUT {
+struct VS_OUT
+{
 	float4 position : SV_Position;
 };
 // *INDENT-ON*
