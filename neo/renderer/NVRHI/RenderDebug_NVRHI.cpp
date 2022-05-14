@@ -2019,7 +2019,9 @@ void idRenderBackend::DBG_ShowDebugLines()
 		if( !line->depthTest )
 		{
 			im.Color3fv( line->rgb.ToFloatPtr() );
+
 			im.Vertex3fv( line->start.ToFloatPtr() );
+			im.Vertex3fv( line->end.ToFloatPtr() );
 			im.Vertex3fv( line->end.ToFloatPtr() );
 		}
 	}
@@ -2037,8 +2039,14 @@ void idRenderBackend::DBG_ShowDebugLines()
 		if( line->depthTest )
 		{
 			im.Color4fv( line->rgb.ToFloatPtr() );
+
 			im.Vertex3fv( line->start.ToFloatPtr() );
 			im.Vertex3fv( line->end.ToFloatPtr() );
+
+			// RB: could use nvrhi::PrimitiveType::LineList
+			// but we rather to keep the number of pipelines low so just make a triangle of this
+			im.Vertex3fv( line->end.ToFloatPtr() );
+
 		}
 	}
 

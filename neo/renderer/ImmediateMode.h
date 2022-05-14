@@ -30,24 +30,6 @@ If you have questions concerning this license or the applicable additional terms
 
 class idDrawVert;
 
-/*
-struct fhSimpleVert
-{
-	idVec3 xyz;
-	idVec2 st;
-	byte color[4];
-
-	void SetColor( const idVec3& v );
-	void SetColor( const idVec4& v );
-
-	static const int xyzOffset = 0;
-	static const int texcoordOffset = 12;
-	static const int colorOffset = 20;
-};
-
-static_assert( sizeof( fhSimpleVert ) == 24, "unexpected size of simple vertex, due to padding?" );
-*/
-
 enum GFXenum
 {
 	GFX_INVALID_ENUM = 0x0500,
