@@ -1623,6 +1623,74 @@ Debugging tool, won't work correctly with SMP or when mirrors are present
 */
 void idRenderBackend::DBG_ShowPortals()
 {
+	if( !r_showPortals.GetBool() )
+	{
+		return;
+	}
+
+	// all portals are expressed in world coordinates
+	DBG_SimpleWorldSetup();
+
+	renderProgManager.BindShader_Color();
+	GL_State( GLS_POLYMODE_LINE | GLS_DEPTHFUNC_ALWAYS );
+
+	idRenderWorldLocal& world = *viewDef->renderWorld;
+
+	fhImmediateMode im( tr.backend.GL_GetCommandList() );
+
+	// flood out through portals, setting area viewCount
+	for( int i = 0; i < world.numPortalAreas; i++ )
+	{
+		portalArea_t* area = &world.portalAreas[i];
+
+		if( area->viewCount != tr.viewCount )
+		{
+			continue;
+		}
+
+		for( portal_t* p = area->portals; p; p = p->next )
+		{
+			idWinding* w = p->w;
+			if( !w )
+			{
+				continue;
+			}
+
+			if( world.portalAreas[ p->intoArea ].viewCount != tr.viewCount )
+			{
+				// red = can't see
+				GL_Color( 1, 0, 0 );
+			}
+			else
+			{
+				// green = see through
+				GL_Color( 0, 1, 0 );
+			}
+
+			// RB begin
+			renderProgManager.CommitUniforms( glStateBits );
+			// RB end
+
+			im.Begin( GFX_LINES );
+			int j = 0;
+			for( ; j < w->GetNumPoints(); j++ )
+			{
+				// draw a triangle for each line
+				if( j >= 1 )
+				{
+					im.Vertex3fv( ( *w )[ j - 1 ].ToFloatPtr() );
+					im.Vertex3fv( ( *w )[ j ].ToFloatPtr() );
+					im.Vertex3fv( ( *w )[ j ].ToFloatPtr() );
+				}
+			}
+
+			im.Vertex3fv( ( *w )[ 0 ].ToFloatPtr() );
+			im.Vertex3fv( ( *w )[ 0 ].ToFloatPtr() );
+			im.Vertex3fv( ( *w )[ j - 1 ].ToFloatPtr() );
+
+			im.End();
+		}
+	}
 }
 
 /*
@@ -2186,12 +2254,19 @@ void idRenderBackend::DBG_TestImage()
 	{
 		cinData_t	cin;
 
-		cin = tr.testVideo->ImageForTime( viewDef->renderView.time[1] - tr.testVideoStartTime );
+		// SRS - Don't need calibrated time for testing cinematics, so just call ImageForTime( 0 ) for current system time
+		// This simplification allows cinematic test playback to work over both 2D and 3D background scenes
+		cin = tr.testVideo->ImageForTime( 0 /*viewDef->renderView.time[1] - tr.testVideoStartTime*/ );
 		if( cin.imageY != NULL )
 		{
 			image = cin.imageY;
 			imageCr = cin.imageCr;
 			imageCb = cin.imageCb;
+		}
+		// SRS - Also handle ffmpeg and original RoQ decoders for test videos (using cin.image)
+		else if( cin.image != NULL )
+		{
+			image = cin.image;
 		}
 		else
 		{
@@ -2272,8 +2347,9 @@ void idRenderBackend::DBG_TestImage()
 
 		GL_SelectTexture( 2 );
 		imageCb->Bind();
-
-		renderProgManager.BindShader_Bink();
+		// SRS - Use Bink shader without sRGB to linear conversion, otherwise cinematic colours may be wrong
+		// BindShader_BinkGUI() does not seem to work here - perhaps due to vertex shader input dependencies?
+		renderProgManager.BindShader_Bink_sRGB();
 	}
 	else
 	{
