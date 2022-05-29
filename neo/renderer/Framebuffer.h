@@ -143,7 +143,7 @@ struct globalFramebuffers_t
 	Framebuffer*				shadowFBO[MAX_SHADOWMAP_RESOLUTIONS][6];
 	Framebuffer*				hdrFBO;
 	Framebuffer*				ldrFBO;
-	Framebuffer*				postProcFBO;
+	Framebuffer*				postProcFBO; // HDR16
 	Framebuffer*				taaMotionVectorsFBO;
 	Framebuffer*				taaResolvedFBO;
 	Framebuffer*				hdr64FBO;		// TODO remove, not needed with new NVRHI tonemapping anymore

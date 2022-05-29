@@ -39,18 +39,15 @@ struct VS_IN {
 };
 
 struct VS_OUT {
-	float4 position : POSITION;
-	float2 texcoord0 : TEXCOORD0;
+	float4 position : SV_Position;
+	float2 texcoord0 : TEXCOORD0_centroid;
 };
 // *INDENT-ON*
 
 void main( VS_IN vertex, out VS_OUT result )
 {
 	result.position = vertex.position;
+	result.position.y = -result.position.y;
 
-	//result.position.x = vertex.position; //dot4( vertex.position, rpMVPmatrixX );
-	//result.position.y = dot4( vertex.position, rpMVPmatrixY );
-	//result.position.z = dot4( vertex.position, rpMVPmatrixZ );
-	//result.position.w = dot4( vertex.position, rpMVPmatrixW );
 	result.texcoord0 =  vertex.texcoord;
 }

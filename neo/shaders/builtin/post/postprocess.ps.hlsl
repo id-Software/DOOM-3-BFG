@@ -41,7 +41,7 @@ SamplerState samp1		: register(s1 VK_DESCRIPTOR_SET( 1 ) ); // blue noise 256
 
 struct PS_IN
 {
-	float4 position : VPOS;
+	float4 position : SV_Position;
 	float2 texcoord0 : TEXCOORD0_centroid;
 };
 

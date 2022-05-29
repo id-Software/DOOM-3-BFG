@@ -219,7 +219,7 @@ void Framebuffer::ResizeFramebuffers()
 			nvrhi::FramebufferDesc()
 			.addColorAttachment( globalImages->smaaEdgesImage->texture ) );
 
-	globalFramebuffers.smaaEdgesFBO = new Framebuffer( "_smaaBlend",
+	globalFramebuffers.smaaBlendFBO = new Framebuffer( "_smaaBlend",
 			nvrhi::FramebufferDesc()
 			.addColorAttachment( globalImages->smaaBlendImage->texture ) );
 

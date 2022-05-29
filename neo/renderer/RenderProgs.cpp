@@ -283,14 +283,30 @@ void idRenderProgManager::Init( nvrhi::IDevice* _device )
 
 	bindingLayouts[BINDING_LAYOUT_DRAW_FOG] = { device->createBindingLayout( fogBindingLayout ), samplerTwoBindingLayout };
 
-	auto ppFxBindingLayout = nvrhi::BindingLayoutDesc()
+	auto blendLightBindingLayout = nvrhi::BindingLayoutDesc()
+								   .setVisibility( nvrhi::ShaderType::All )
+								   .addItem( nvrhi::BindingLayoutItem::VolatileConstantBuffer( 0 ) )
+								   .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 0 ) ) // light 1
+								   .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 1 ) ); // light 2
+
+	bindingLayouts[BINDING_LAYOUT_BLENDLIGHT] = { device->createBindingLayout( blendLightBindingLayout ), samplerOneBindingLayout };
+
+	auto pp3DBindingLayout = nvrhi::BindingLayoutDesc()
 							 .setVisibility( nvrhi::ShaderType::All )
 							 .addItem( nvrhi::BindingLayoutItem::VolatileConstantBuffer( 0 ) )
 							 .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 0 ) )	// current render
 							 .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 1 ) )	// normal map
 							 .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 2 ) );	// mask
 
-	bindingLayouts[BINDING_LAYOUT_POST_PROCESS_CNM] = { device->createBindingLayout( ppFxBindingLayout ), samplerOneBindingLayout };
+	bindingLayouts[BINDING_LAYOUT_POST_PROCESS_INGAME] = { device->createBindingLayout( pp3DBindingLayout ), samplerOneBindingLayout };
+
+	auto ppFxBindingLayout = nvrhi::BindingLayoutDesc()
+							 .setVisibility( nvrhi::ShaderType::All )
+							 .addItem( nvrhi::BindingLayoutItem::VolatileConstantBuffer( 0 ) )
+							 .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 0 ) )
+							 .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 1 ) );
+
+	bindingLayouts[BINDING_LAYOUT_POST_PROCESS_FINAL] = { device->createBindingLayout( ppFxBindingLayout ), samplerTwoBindingLayout };
 
 	auto normalCubeBindingLayout = nvrhi::BindingLayoutDesc()
 								   .setVisibility( nvrhi::ShaderType::All )
@@ -299,14 +315,6 @@ void idRenderProgManager::Init( nvrhi::IDevice* _device )
 								   .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 1 ) );	// normal map
 
 	bindingLayouts[BINDING_LAYOUT_NORMAL_CUBE] = { device->createBindingLayout( normalCubeBindingLayout ), samplerOneBindingLayout };
-
-	auto blendLightBindingLayout = nvrhi::BindingLayoutDesc()
-								   .setVisibility( nvrhi::ShaderType::All )
-								   .addItem( nvrhi::BindingLayoutItem::VolatileConstantBuffer( 0 ) )
-								   .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 0 ) ) // light 1
-								   .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 1 ) ); // light 2
-
-	bindingLayouts[BINDING_LAYOUT_BLENDLIGHT] = { device->createBindingLayout( blendLightBindingLayout ), samplerOneBindingLayout };
 
 	auto motionVectorsBindingLayout = nvrhi::BindingLayoutDesc()
 									  .setVisibility( nvrhi::ShaderType::All )
@@ -467,7 +475,7 @@ void idRenderProgManager::Init( nvrhi::IDevice* _device )
 		{ BUILTIN_FOG_SKINNED, "builtin/fog/fog", "_skinned", { {"USE_GPU_SKINNING", "1" } }, true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DRAW_FOG },
 		{ BUILTIN_SKYBOX, "builtin/legacy/skybox", "",  {}, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
 		{ BUILTIN_WOBBLESKY, "builtin/legacy/wobblesky", "", {}, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
-		{ BUILTIN_POSTPROCESS, "builtin/post/postprocess", "", {}, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
+		{ BUILTIN_POSTPROCESS, "builtin/post/postprocess", "", {}, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_POST_PROCESS_FINAL },
 		// RB begin
 		{ BUILTIN_SCREEN, "builtin/post/screen", "", {}, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
 		{ BUILTIN_TONEMAP, "builtin/post/tonemap", "", { { "BRIGHTPASS", "0" }, { "HDR_DEBUG", "0"} }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },

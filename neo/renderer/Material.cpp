@@ -2198,7 +2198,7 @@ void idMaterial::ParseStage( idLexer& src, const textureRepeat_t trpDefault )
 	// if we are using newStage, allocate a copy of it
 	if( newStage.fragmentProgram || newStage.vertexProgram )
 	{
-		newStage.glslProgram = renderProgManager.FindProgram( GetName(), newStage.vertexProgram, newStage.fragmentProgram, BINDING_LAYOUT_POST_PROCESS_CNM );
+		newStage.glslProgram = renderProgManager.FindProgram( GetName(), newStage.vertexProgram, newStage.fragmentProgram, BINDING_LAYOUT_POST_PROCESS_INGAME );
 		ss->newStage = ( newShaderStage_t* )Mem_Alloc( sizeof( newStage ), TAG_MATERIAL );
 		*( ss->newStage ) = newStage;
 	}

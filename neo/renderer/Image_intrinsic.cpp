@@ -234,8 +234,6 @@ static void R_RGBA8LinearImage( idImage* image, nvrhi::ICommandList* commandList
 
 static void R_LdrNativeImage( idImage* image, nvrhi::ICommandList* commandList )
 {
-	//uint sampleCount = GetMSAASamples();
-
 	image->GenerateImage( NULL, renderSystem->GetWidth(), renderSystem->GetHeight(), TF_NEAREST, TR_CLAMP, TD_LOOKUP_TABLE_RGBA, nullptr, true, false, 1 );
 }
 
