@@ -678,11 +678,6 @@ convertMapToJSON mapfile               | Command: Convert .map file to new .json
 
 * Some lights cause shadow acne with shadow mapping
 * Some shadows might almost disappear due to the shadow filtering or look off ("Peter panning" problem)
-* [HDR] MSAA anti-aliasing modes don't work with HDR: Use SMAA with r_antiAliasing 1
-* [Vulkan] **Vulkan backend is unfinished in general**
-* [Vulkan] Shadow Mapping is not supported yet
-* [Vulkan] HDR is not supported yet and GI looks bad because it requires HDR and linear RGB color space
-* [Vulkan] Post processing and SMAA is not supported yet
 
 ---
 # Bug Reports <a name="reports"></a>

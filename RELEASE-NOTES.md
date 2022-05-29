@@ -20,15 +20,23 @@ _______________________________
 
 ## .plan - May 29, 2022
 
-This is a NVRHI DX12 test build.
+This version replaces OpenGL with DX12 using the NVRHI API.
 
-The initial port to NVRHI was done by Stephen Pridham. Big thanks for that!
+NVRHI (NVIDIA Rendering Hardware Interface) is a library that implements a common abstraction layer over multiple graphics APIs (GAPIs): Direct3D 11, Direct3D 12, and Vulkan 1.2. It works on Windows (x64 only) and Linux (x64 and ARM64).
+
+The initial port to NVRHI and major work was done by Stephen Pridham. Big thanks for that!
 
 * Renderer uses DX12 instead of OpenGL. Vulkan isn't supported yet
 
-* SMAA has been replaced with a Temporal Anti Aliasing solution by Nvidia
+* SMAA has been replaced with a Temporal Anti Aliasing solution by Nvidia. This not only fixes geometric aliasing but also shader based aliasing like extreme specular highlights by the PBR shaders.
 
-* The MSAA option is gone
+* The MSAA option is gone for the moment
+
+* Shadow mapping uses a fat shadowmap atlas instead of switching between shadowmap buffers and the HDR render target for each light
+
+* Shaders are not compiled at runtime anymore. They are compiled in advance by CMake using the DXC shader compiler and distributed in binary form under base/renderprogs2/dxil/*.bin
+
+* All shaders have been rewritten to proper HLSL
 
 
 
