@@ -80,6 +80,10 @@ void CommonRenderPasses::Init( nvrhi::IDevice* device )
 	samplerDesc.setAllFilters( true );
 	m_LinearClampSampler = m_Device->createSampler( samplerDesc );
 
+	samplerDesc.setAllAddressModes( nvrhi::SamplerAddressMode::Border );
+	samplerDesc.setBorderColor( nvrhi::Color( 0.f, 0.f, 0.f, 1.f ) );
+	m_LinearBorderSampler = m_Device->createSampler( samplerDesc );
+
 	samplerDesc.setReductionType( nvrhi::SamplerReductionType::Comparison );
 	m_LinearClampCompareSampler = m_Device->createSampler( samplerDesc );
 

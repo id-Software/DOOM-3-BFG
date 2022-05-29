@@ -3,8 +3,9 @@
 
 Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
-Copyright (C) 2013-2019 Robert Beckebans
+Copyright (C) 2013-2022 Robert Beckebans
 Copyright (C) 2016-2017 Dustin Land
+Copyright (C) 2022 Stephen Pridham
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -534,13 +535,13 @@ void idRenderBackend::GetCurrentBindingLayout( int type )
 			desc[1].bindings =
 			{
 				nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_AnisotropicWrapSampler ),
-				nvrhi::BindingSetItem::Sampler( 1, commonPasses.m_LinearClampSampler )
+				nvrhi::BindingSetItem::Sampler( 1, commonPasses.m_LinearBorderSampler )
 			};
 		}
 		else
 		{
 			desc[1].bindings[0].resourceHandle = commonPasses.m_AnisotropicWrapSampler;
-			desc[1].bindings[1].resourceHandle = commonPasses.m_LinearClampSampler;
+			desc[1].bindings[1].resourceHandle = commonPasses.m_LinearBorderSampler;
 		}
 	}
 	else if( type == BINDING_LAYOUT_DRAW_INTERACTION_SM )
@@ -576,7 +577,7 @@ void idRenderBackend::GetCurrentBindingLayout( int type )
 			desc[1].bindings =
 			{
 				nvrhi::BindingSetItem::Sampler( 0, commonPasses.m_AnisotropicWrapSampler ),
-				nvrhi::BindingSetItem::Sampler( 1, commonPasses.m_LinearClampSampler ),
+				nvrhi::BindingSetItem::Sampler( 1, commonPasses.m_LinearBorderSampler ),
 				nvrhi::BindingSetItem::Sampler( 2, commonPasses.m_LinearClampCompareSampler ),
 				nvrhi::BindingSetItem::Sampler( 3, commonPasses.m_PointWrapSampler )  // blue noise
 			};
@@ -584,7 +585,7 @@ void idRenderBackend::GetCurrentBindingLayout( int type )
 		else
 		{
 			desc[1].bindings[0].resourceHandle = commonPasses.m_AnisotropicWrapSampler;
-			desc[1].bindings[1].resourceHandle = commonPasses.m_LinearClampSampler;
+			desc[1].bindings[1].resourceHandle = commonPasses.m_LinearBorderSampler;
 			desc[1].bindings[2].resourceHandle = commonPasses.m_LinearClampCompareSampler;
 			desc[1].bindings[3].resourceHandle = commonPasses.m_PointWrapSampler;
 		}

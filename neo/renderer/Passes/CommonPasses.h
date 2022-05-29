@@ -107,8 +107,6 @@ protected:
 	std::unordered_map<PsoCacheKey, nvrhi::GraphicsPipelineHandle, PsoCacheKey::Hash> m_BlitPsoCache;
 
 public:
-	//nvrhi::ShaderHandle m_FullscreenVS;
-	//nvrhi::ShaderHandle m_FullscreenAtOneVS;
 	nvrhi::ShaderHandle m_RectVS;
 	nvrhi::ShaderHandle m_BlitPS;
 	nvrhi::ShaderHandle m_BlitArrayPS;
@@ -125,6 +123,7 @@ public:
 	nvrhi::SamplerHandle m_PointClampSampler;
 	nvrhi::SamplerHandle m_PointWrapSampler;
 	nvrhi::SamplerHandle m_LinearClampSampler;
+	nvrhi::SamplerHandle m_LinearBorderSampler; // D3 zeroClamp
 	nvrhi::SamplerHandle m_LinearClampCompareSampler;
 	nvrhi::SamplerHandle m_LinearWrapSampler;
 	nvrhi::SamplerHandle m_AnisotropicWrapSampler;
