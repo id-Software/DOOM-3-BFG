@@ -15,6 +15,25 @@ Thank you for downloading RBDOOM-3-BFG.
 
 _______________________________________
 
+TBD - RBDOOM-3-BFG 1.5.0
+_______________________________
+
+## .plan - May 29, 2022
+
+This is a NVRHI DX12 test build.
+
+The initial port to NVRHI was done by Stephen Pridham. Big thanks for that!
+
+* Renderer uses DX12 instead of OpenGL. Vulkan isn't supported yet
+
+* SMAA has been replaced with a Temporal Anti Aliasing solution by Nvidia
+
+* The MSAA option is gone
+
+
+
+_______________________________________
+
 06 March 2022 - RBDOOM-3-BFG 1.4.0
 _______________________________
 

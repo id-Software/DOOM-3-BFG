@@ -1149,7 +1149,9 @@ void DeviceManager::UpdateWindowSize( const glimpParms_t& params )
 
 	if( int( deviceParms.backBufferWidth ) != params.width ||
 			int( deviceParms.backBufferHeight ) != params.height ||
+#if ID_MSAA
 			int( deviceParms.backBufferSampleCount ) != params.multiSamples ||
+#endif
 			( deviceParms.vsyncEnabled != requestedVSync && GetGraphicsAPI() == nvrhi::GraphicsAPI::VULKAN ) )
 	{
 		// window is not minimized, and the size has changed

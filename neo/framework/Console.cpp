@@ -354,6 +354,8 @@ float idConsoleLocal::DrawFPS( float y )
 #endif
 
 		extern idCVar r_antiAliasing;
+
+#if ID_MSAA
 		static const int aaNumValues = 5;
 
 		static const char* aaValues[aaNumValues] =
@@ -375,6 +377,23 @@ float idConsoleLocal::DrawFPS( float y )
 		};
 
 		compile_time_assert( aaNumValues == ( ANTI_ALIASING_MSAA_4X + 1 ) );
+#else
+		static const int aaNumValues = 2;
+
+		static const char* aaValues[aaNumValues] =
+		{
+			"None",
+			"None",
+		};
+
+		static const char* taaValues[aaNumValues] =
+		{
+			"None",
+			"TAA",
+		};
+
+		compile_time_assert( aaNumValues == ( ANTI_ALIASING_TAA + 1 ) );
+#endif
 
 		const char* aaMode = NULL;
 		if( R_UseTemporalAA() )

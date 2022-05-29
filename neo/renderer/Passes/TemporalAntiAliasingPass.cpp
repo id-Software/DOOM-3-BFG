@@ -97,6 +97,7 @@ void TemporalAntiAliasingPass::Init(
 
 	switch( r_antiAliasing.GetInteger() )
 	{
+#if ID_MSAA
 		case ANTI_ALIASING_MSAA_2X:
 		{
 			auto taaResolveShaderInfo = renderProgManager.GetProgramInfo( BUILTIN_TAA_RESOLVE_MSAA_2X );
@@ -110,6 +111,7 @@ void TemporalAntiAliasingPass::Init(
 			m_TemporalAntiAliasingCS = taaResolveShaderInfo.cs;
 			break;
 		}
+#endif
 
 		default:
 		{

@@ -101,13 +101,18 @@ enum graphicsDriverType_t
 	GLDRV_VULKAN
 };
 
+#define ID_MSAA 0
+
 enum antiAliasingMode_t
 {
 	ANTI_ALIASING_NONE,
 	ANTI_ALIASING_TAA,
+
+#if ID_MSAA
 	ANTI_ALIASING_TAA_SMAA_1X,
 	ANTI_ALIASING_MSAA_2X,
 	ANTI_ALIASING_MSAA_4X,
+#endif
 };
 
 // CPU counters and timers

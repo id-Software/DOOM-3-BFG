@@ -75,7 +75,7 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
 void Conbuf_AppendText( const char* msg );
 
-typedef struct
+struct Win32Vars_t
 {
 	HWND			hWnd;
 	HINSTANCE		hInstance;
@@ -137,7 +137,7 @@ typedef struct
 	LPDIRECTINPUTDEVICE8	g_pKeyboard;
 	idJoystickWin32			g_Joystick;
 
-} Win32Vars_t;
+};
 
 extern Win32Vars_t	win32;
 
