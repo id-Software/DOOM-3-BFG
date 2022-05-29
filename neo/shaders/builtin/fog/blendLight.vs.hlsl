@@ -35,14 +35,13 @@ struct VS_IN {
 	float2 texcoord : TEXCOORD0;
 	float4 normal : NORMAL;
 	float4 tangent : TANGENT;
-	float4 binormal : BINORMAL;
 	float4 color : COLOR0;
 };
 
 struct VS_OUT {
 	float4 position : SV_Position;
-	float4 texcoord0 : TEXCOORD0;
-	float2 texcoord1 : TEXCOORD1;
+	float4 texcoord0 : TEXCOORD0_centroid;
+	float2 texcoord1 : TEXCOORD1_centroid;
 };
 // *INDENT-ON*
 

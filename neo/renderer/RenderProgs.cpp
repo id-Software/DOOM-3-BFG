@@ -300,6 +300,14 @@ void idRenderProgManager::Init( nvrhi::IDevice* _device )
 
 	bindingLayouts[BINDING_LAYOUT_NORMAL_CUBE] = { device->createBindingLayout( normalCubeBindingLayout ), samplerOneBindingLayout };
 
+	auto blendLightBindingLayout = nvrhi::BindingLayoutDesc()
+								   .setVisibility( nvrhi::ShaderType::All )
+								   .addItem( nvrhi::BindingLayoutItem::VolatileConstantBuffer( 0 ) )
+								   .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 0 ) ) // light 1
+								   .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 1 ) ); // light 2
+
+	bindingLayouts[BINDING_LAYOUT_BLENDLIGHT] = { device->createBindingLayout( blendLightBindingLayout ), samplerOneBindingLayout };
+
 	auto motionVectorsBindingLayout = nvrhi::BindingLayoutDesc()
 									  .setVisibility( nvrhi::ShaderType::All )
 									  .addItem( nvrhi::BindingLayoutItem::VolatileConstantBuffer( 0 ) )
@@ -454,7 +462,7 @@ void idRenderProgManager::Init( nvrhi::IDevice* _device )
 		{ BUILTIN_SHADOW_DEBUG, "builtin/debug/shadowDebug", "", { {"USE_GPU_SKINNING", "0" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
 		{ BUILTIN_SHADOW_DEBUG_SKINNED, "builtin/debug/shadowDebug", "_skinned", { {"USE_GPU_SKINNING", "1" } }, true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
 
-		{ BUILTIN_BLENDLIGHT, "builtin/fog/blendlight", "", {}, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
+		{ BUILTIN_BLENDLIGHT, "builtin/fog/blendlight", "", {}, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_BLENDLIGHT },
 		{ BUILTIN_FOG, "builtin/fog/fog", "", { {"USE_GPU_SKINNING", "0" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DRAW_FOG },
 		{ BUILTIN_FOG_SKINNED, "builtin/fog/fog", "_skinned", { {"USE_GPU_SKINNING", "1" } }, true, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DRAW_FOG },
 		{ BUILTIN_SKYBOX, "builtin/legacy/skybox", "",  {}, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
@@ -472,7 +480,6 @@ void idRenderProgManager::Init( nvrhi::IDevice* _device )
 		{ BUILTIN_SMAA_NEIGHBORHOOD_BLENDING, "builtin/post/SMAA_final", "", {}, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
 
 		{ BUILTIN_MOTION_BLUR, "builtin/post/motionBlur", "_vectors", { { "VECTORS_ONLY", "1" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_TAA_MOTION_VECTORS },
-		//{ BUILTIN_TAA_MOTION_VECTORS, "builtin/post/motion_vectors", "", { { "USE_STENCIL", "0" }, { "QUAD_Z", "0" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_UNKNOWN, BINDING_LAYOUT_TAA_MOTION_VECTORS },
 		{ BUILTIN_TAA_RESOLVE, "builtin/post/taa", "", { { "SAMPLE_COUNT", "1" }, { "USE_CATMULL_ROM_FILTER", "1" } }, false, SHADER_STAGE_COMPUTE, LAYOUT_UNKNOWN, BINDING_LAYOUT_TAA_RESOLVE },
 		{ BUILTIN_TAA_RESOLVE_MSAA_2X, "builtin/post/taa", "_msaa2x", { { "SAMPLE_COUNT", "2" }, { "USE_CATMULL_ROM_FILTER", "1" } }, false, SHADER_STAGE_COMPUTE, LAYOUT_UNKNOWN, BINDING_LAYOUT_TAA_RESOLVE },
 		{ BUILTIN_TAA_RESOLVE_MSAA_4X, "builtin/post/taa", "_msaa4x", { { "SAMPLE_COUNT", "4" }, { "USE_CATMULL_ROM_FILTER", "1" } }, false, SHADER_STAGE_COMPUTE, LAYOUT_UNKNOWN, BINDING_LAYOUT_TAA_RESOLVE },

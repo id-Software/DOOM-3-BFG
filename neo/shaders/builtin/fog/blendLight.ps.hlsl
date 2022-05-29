@@ -33,8 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 // *INDENT-OFF*
 Texture2D t_Light1 : register( t0 VK_DESCRIPTOR_SET( 0 ) );
 Texture2D t_Light2 : register( t1 VK_DESCRIPTOR_SET( 0 ) );
-SamplerState samp0 : register( s0 VK_DESCRIPTOR_SET( 1 ) );
-SamplerState samp1 : register( s1 VK_DESCRIPTOR_SET( 1 ) );
+SamplerState s_LinearClamp : register( s0 VK_DESCRIPTOR_SET( 1 ) );
 
 struct PS_IN {
 	float4 position : SV_Position;
@@ -49,7 +48,7 @@ struct PS_OUT {
 
 void main( PS_IN fragment, out PS_OUT result )
 {
-	float4 c = idtex2Dproj( samp0, t_Light1, fragment.texcoord0 ) * t_Light2.Sample( samp1, fragment.texcoord1 ) * rpColor;
+	float4 c = idtex2Dproj( s_LinearClamp, t_Light1, fragment.texcoord0 ) * t_Light2.Sample( s_LinearClamp, fragment.texcoord1 ) * rpColor;
 
 	result.color = sRGBAToLinearRGBA( c );
 }
