@@ -75,6 +75,7 @@ Framebuffer::Framebuffer( const char* name, const nvrhi::FramebufferDesc& desc )
 
 Framebuffer::~Framebuffer()
 {
+	apiObject.Reset();
 }
 
 void Framebuffer::Init()
@@ -101,7 +102,7 @@ void Framebuffer::ResizeFramebuffers()
 	tr.backend.ClearCaches();
 
 	// RB: FIXME I think allocating new Framebuffers lead to a memory leak
-	//framebuffers.DeleteContents( true );
+	framebuffers.DeleteContents( true );
 
 	uint32_t backBufferCount = deviceManager->GetBackBufferCount();
 	globalFramebuffers.swapFramebuffers.Resize( backBufferCount );
