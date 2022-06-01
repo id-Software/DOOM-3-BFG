@@ -92,7 +92,7 @@ public:
 	virtual					~idCinematicLocal();
 
 	virtual bool			InitFromFile( const char* qpath, bool looping, nvrhi::ICommandList* commandList );
-	virtual cinData_t		ImageForTime( int milliseconds, nvrhi::ICommandList* commandList );
+	virtual cinData_t		ImageForTime( int milliseconds, nvrhi::ICommandList* commandList = nullptr);
 	virtual int				AnimationLength();
 	// RB begin
 	bool                    IsPlaying() const;
@@ -1639,7 +1639,7 @@ cinData_t idCinematicLocal::ImageForTimeBinkDec( int thisTime )
 			opts.height = h;
 			img->AllocImage( opts, TF_LINEAR, TR_REPEAT );
 		}
-		img->SubImageUpload( 0, 0, 0, 0, w, h, yuvBuffer[i].data );
+		img->SubImageUpload( 0, 0, 0, 0, w, h, yuvBuffer[i].data ,nullptr,1);
 	}
 
 	hasFrame = true;
