@@ -256,7 +256,7 @@ public:
 	~idDeferredImage();
 
 	idStr			name;
-	byte* pic;
+	byte*			pic;
 	int				width;
 	int				height;
 	textureFilter_t textureFilter;

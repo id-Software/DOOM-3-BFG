@@ -2234,6 +2234,9 @@ idRenderSystemLocal::BeginLevelLoad
 */
 void idRenderSystemLocal::BeginLevelLoad()
 {
+	// clear binding sets for previous level images and light data #676
+	backend.ClearCaches();
+
 	globalImages->BeginLevelLoad();
 	renderModelManager->BeginLevelLoad();
 

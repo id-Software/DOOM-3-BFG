@@ -127,7 +127,7 @@ void idRenderProgManager::LoadShader( shader_t& shader )
 	}
 	else
 	{
-		common->FatalError( "Unsuported graphics api" );
+		common->FatalError( "Unsupported graphics api" );
 	}
 
 	ShaderBlob shaderBlob = GetBytecode( adjustedName );

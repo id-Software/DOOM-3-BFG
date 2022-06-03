@@ -88,6 +88,9 @@ nvrhi::BindingSetHandle BindingCache::GetOrCreateBindingSet( const nvrhi::Bindin
 
 void BindingCache::Clear()
 {
+	// RB FIXME void StaticDescriptorHeap::releaseDescriptors(DescriptorIndex baseIndex, uint32_t count)
+	// will try to gain a conflicting mutex lock and cause an abort signal
+
 	mutex.Lock();
 	bindingSets.Clear();
 	bindingHash.Clear();
