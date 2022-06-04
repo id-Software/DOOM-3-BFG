@@ -29,11 +29,11 @@ If you have questions concerning this license or the applicable additional terms
 #include "global_inc.hlsl"
 
 // *INDENT-OFF*
-Texture2D t_Texture : register( t0 );
-SamplerState samp0 : register( s0 );
+Texture2D t_Texture : register( t0 VK_DESCRIPTOR_SET( 1 ) );
+SamplerState samp0 : register( s0 VK_DESCRIPTOR_SET( 2 ) );
 
 struct PS_IN {
-	float4 position : VPOS;
+	float4 position : SV_Position;
 	float4 texcoord0 : TEXCOORD0_centroid;
 	float4 color : COLOR0;
 };

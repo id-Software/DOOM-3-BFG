@@ -22,6 +22,8 @@
 
 #pragma pack_matrix(row_major)
 
+#include "vulkan.hlsli"
+
 struct ToneMappingConstants
 {
 	uint2 viewOrigin;

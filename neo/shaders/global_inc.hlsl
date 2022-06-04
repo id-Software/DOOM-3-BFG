@@ -495,7 +495,8 @@ float3 Hash33( float3 p3 )
 	return frac( ( p3.xxy + p3.yxx ) * p3.zyx );
 }
 
-static float3 ditherRGB( float3 color, float2 uvSeed, float quantSteps )
+/*
+static float3 DitherRGB( float3 color, float2 uvSeed, float quantSteps )
 {
 	// uniform noise
 	//float3 noise = Hash33( float3( uvSeed, rpJitterTexOffset.w ) );
@@ -529,8 +530,10 @@ static float3 ditherRGB( float3 color, float2 uvSeed, float quantSteps )
 
 	return color;
 }
+*/
 
-static float3 ditherChromaticBlueNoise( float3 color, float2 n, SamplerState blueTex )
+/*
+static float3 DitherChromaticBlueNoise( float3 color, float2 n, SamplerState blueTex )
 {
 	// uniform noise
 	//float3 noise = Hash33( float3( n, rpJitterTexOffset.w ) );
@@ -563,5 +566,6 @@ static float3 ditherChromaticBlueNoise( float3 color, float2 n, SamplerState blu
 
 	return color;
 }
+*/
 
 #define SMAA_RT_METRICS float4(1.0 / 1280.0, 1.0 / 720.0, 1280.0, 720.0)

@@ -31,10 +31,10 @@ If you have questions concerning this license or the applicable additional terms
 
 
 // *INDENT-OFF*
-TextureCube t_CubeMap : register(t0);
-Texture2D t_NormalMap : register(t1);
+TextureCube t_CubeMap : register(t0 VK_DESCRIPTOR_SET( 1 ) );
+Texture2D t_NormalMap : register(t1 VK_DESCRIPTOR_SET( 1 ) );
 
-SamplerState	samp0 : register(s0); // texture 0 is the cube map
+SamplerState	samp0 : register(s0 VK_DESCRIPTOR_SET( 2 ) ); // texture 0 is the cube map
 
 struct PS_IN {
 	float4 position		: SV_Position;
