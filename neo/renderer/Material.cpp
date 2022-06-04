@@ -1765,7 +1765,7 @@ void idMaterial::ParseStage( idLexer& src, const textureRepeat_t trpDefault )
 				}
 			}
 			ts->cinematic = idCinematic::Alloc();
-			ts->cinematic->InitFromFile( token.c_str(), loop );
+			ts->cinematic->InitFromFile( token.c_str(), loop, NULL );
 			continue;
 		}
 
@@ -1777,7 +1777,7 @@ void idMaterial::ParseStage( idLexer& src, const textureRepeat_t trpDefault )
 				continue;
 			}
 			ts->cinematic = new( TAG_MATERIAL ) idSndWindow();
-			ts->cinematic->InitFromFile( token.c_str(), true );
+			ts->cinematic->InitFromFile( token.c_str(), true, NULL );
 			continue;
 		}
 

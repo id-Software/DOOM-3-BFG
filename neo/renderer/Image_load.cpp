@@ -1194,7 +1194,6 @@ void idImage::UploadScratch( const byte* data, int cols, int rows, nvrhi::IComma
 		if( opts.textureType != TT_CUBIC || usage != TD_LOOKUP_TABLE_RGBA )
 		{
 			GenerateCubeImage( pic, cols, TF_LINEAR, TD_LOOKUP_TABLE_RGBA, commandList );
-
 			return;
 		}
 
@@ -1243,12 +1242,16 @@ void idImage::UploadScratch( const byte* data, int cols, int rows, nvrhi::IComma
 	}
 	else
 	{
-		if( opts.textureType != TT_2D || usage != TD_LOOKUP_TABLE_RGBA )
+#if defined( USE_NVRHI )
+
+		/*
+		if( opts.textureType != TT_2D )//|| usage != TD_LOOKUP_TABLE_RGBA )
 		{
 			GenerateImage( data, cols, rows, TF_LINEAR, TR_REPEAT, TD_LOOKUP_TABLE_RGBA, commandList );
-
 			return;
 		}
+		*/
+
 		if( opts.width != cols || opts.height != rows )
 		{
 			opts.width = cols;
@@ -1257,30 +1260,48 @@ void idImage::UploadScratch( const byte* data, int cols, int rows, nvrhi::IComma
 			AllocImage();
 		}
 
-#if defined( USE_NVRHI )
-		int numChannels = 4;
-		int bytesPerPixel = numChannels;
-		if( opts.format == FMT_ALPHA || opts.format == FMT_DXT1 || opts.format == FMT_INT8 || opts.format == FMT_R8 )
+		if( data != NULL && commandList != NULL )
 		{
-			bytesPerPixel = 1;
+			int numChannels = 4;
+			int bytesPerPixel = numChannels;
+			if( opts.format == FMT_ALPHA || opts.format == FMT_DXT1 || opts.format == FMT_INT8 || opts.format == FMT_R8 || opts.format == FMT_LUM8 )
+			{
+				bytesPerPixel = 1;
+			}
+
+			const nvrhi::FormatInfo& info = nvrhi::getFormatInfo( texture->getDesc().format );
+			bytesPerPixel = info.bytesPerBlock;
+
+			SetSamplerState( TF_LINEAR, TR_REPEAT );
+
+			int bufferW = opts.width;
+			if( IsCompressed() )
+			{
+				bufferW = ( opts.width + 3 ) & ~3;
+			}
+
+			commandList->beginTrackingTextureState( texture, nvrhi::AllSubresources, nvrhi::ResourceStates::Common );
+
+			commandList->writeTexture( texture, 0, 0, data, GetRowPitch( opts.format, opts.width ) );
+			//commandList->setPermanentTextureState( texture, nvrhi::ResourceStates::ShaderResource );
+
+			commandList->commitBarriers();
 		}
-
-		const nvrhi::FormatInfo& info = nvrhi::getFormatInfo( texture->getDesc().format );
-		bytesPerPixel = info.bytesPerBlock;
-
-		SetSamplerState( TF_LINEAR, TR_REPEAT );
-
-		int bufferW = opts.width;
-		if( IsCompressed() )
-		{
-			bufferW = ( opts.width + 3 ) & ~3;
-		}
-
-		commandList->beginTrackingTextureState( texture, nvrhi::AllSubresources, nvrhi::ResourceStates::Common );
-		commandList->writeTexture( texture, 0, 0, data, GetRowPitch( opts.format, opts.width ) );
-		commandList->setPermanentTextureState( texture, nvrhi::ResourceStates::ShaderResource );
-		commandList->commitBarriers();
 #else
+		if( opts.textureType != TT_2D || usage != TD_LOOKUP_TABLE_RGBA )
+		{
+			GenerateImage( data, cols, rows, TF_LINEAR, TR_REPEAT, TD_LOOKUP_TABLE_RGBA, commandList );
+			return;
+		}
+
+		if( opts.width != cols || opts.height != rows )
+		{
+			opts.width = cols;
+			opts.height = rows;
+
+			AllocImage();
+		}
+
 		SetSamplerState( TF_LINEAR, TR_REPEAT );
 		SubImageUpload( 0, 0, 0, 0, opts.width, opts.height, data );
 #endif

@@ -37,7 +37,7 @@ Texture2D t_Cb : register( t2 );
 SamplerState LinearSampler : register( s0 );
 
 struct PS_IN {
-	float4 position : VPOS;
+	float4 position : SV_Position;
 	float2 texcoord0 : TEXCOORD0_centroid;
 	float4 texcoord1 : TEXCOORD1_centroid;
 	float4 color : COLOR0;

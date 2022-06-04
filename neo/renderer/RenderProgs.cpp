@@ -316,6 +316,15 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 
 	bindingLayouts[BINDING_LAYOUT_NORMAL_CUBE] = { device->createBindingLayout( normalCubeBindingLayout ), samplerOneBindingLayout };
 
+	auto binkVideoBindingLayout = nvrhi::BindingLayoutDesc()
+								  .setVisibility( nvrhi::ShaderType::All )
+								  .addItem( nvrhi::BindingLayoutItem::VolatileConstantBuffer( 0 ) )
+								  .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 0 ) )	// cube map
+								  .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 1 ) )	// cube map
+								  .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 2 ) );	// normal map
+
+	bindingLayouts[BINDING_LAYOUT_BINK_VIDEO] = { device->createBindingLayout( binkVideoBindingLayout ), samplerOneBindingLayout };
+
 	auto motionVectorsBindingLayout = nvrhi::BindingLayoutDesc()
 									  .setVisibility( nvrhi::ShaderType::All )
 									  .addItem( nvrhi::BindingLayoutItem::VolatileConstantBuffer( 0 ) )
@@ -505,9 +514,9 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 		// RB end
 		{ BUILTIN_STEREO_DEGHOST, "builtin/VR/stereoDeGhost", "", {}, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
 		{ BUILTIN_STEREO_WARP, "builtin/VR/stereoWarp", "", {}, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
-		{ BUILTIN_BINK, "builtin/video/bink", "",  { {"USE_SRGB", "0" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
-		{ BUILTIN_BINK_SRGB, "builtin/video/bink", "_srgb", { {"USE_SRGB", "1" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
-		{ BUILTIN_BINK_GUI, "builtin/video/bink_gui", "", {}, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
+		{ BUILTIN_BINK, "builtin/video/bink", "",  { {"USE_SRGB", "0" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_BINK_VIDEO },
+		{ BUILTIN_BINK_SRGB, "builtin/video/bink", "_srgb", { {"USE_SRGB", "1" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_BINK_VIDEO },
+		{ BUILTIN_BINK_GUI, "builtin/video/bink_gui", "", {}, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_BINK_VIDEO },
 		{ BUILTIN_STEREO_INTERLACE, "builtin/VR/stereoInterlace", "", {}, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
 		{ BUILTIN_MOTION_BLUR, "builtin/post/motionBlur", "", { { "VECTORS_ONLY", "1" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
 

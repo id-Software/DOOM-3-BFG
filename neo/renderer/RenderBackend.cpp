@@ -284,7 +284,7 @@ void idRenderBackend::BindVariableStageImage( const textureStage_t* texture, con
 		// offset time by shaderParm[7] (FIXME: make the time offset a parameter of the shader?)
 		// We make no attempt to optimize for multiple identical cinematics being in view, or
 		// for cinematics going at a lower framerate than the renderer.
-		cin = texture->cinematic->ImageForTime( viewDef->renderView.time[0] + idMath::Ftoi( 1000.0f * viewDef->renderView.shaderParms[11] ) );
+		cin = texture->cinematic->ImageForTime( viewDef->renderView.time[0] + idMath::Ftoi( 1000.0f * viewDef->renderView.shaderParms[11] ), commandList );
 		if( cin.imageY != NULL )
 		{
 			GL_SelectTexture( 0 );
