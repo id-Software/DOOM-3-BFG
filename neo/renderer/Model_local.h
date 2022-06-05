@@ -128,7 +128,8 @@ public:
 	bool						ConvertASEToModelSurfaces( const struct aseModel_s* ase );
 	bool						ConvertLWOToModelSurfaces( const struct st_lwObject* lwo );
 	bool						ConvertMAToModelSurfaces( const struct maModel_s* ma );
-
+	bool						ConvertGltfMeshToModelsurfaces( const gltfMesh * mesh);
+	
 	struct aseModel_s* 			ConvertLWOToASE( const struct st_lwObject* obj, const char* fileName );
 
 	bool						DeleteSurfaceWithId( int id );
