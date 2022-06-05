@@ -7450,7 +7450,9 @@ void idRenderBackend::PostProcess( const void* data )
 		BlitParameters blitParms;
 		blitParms.sourceTexture = ( nvrhi::ITexture* )globalImages->ldrImage->GetTextureID();
 		blitParms.targetFramebuffer = globalFramebuffers.smaaBlendFBO->GetApiObject();
-		blitParms.targetViewport = nvrhi::Viewport( renderSystem->GetWidth(), renderSystem->GetHeight() );
+
+		// RB: add + 1 to dimensions so filtering works
+		blitParms.targetViewport = nvrhi::Viewport( renderSystem->GetWidth() + 1, renderSystem->GetHeight() + 1 );
 		commonPasses.BlitTexture( commandList, blitParms, &bindingCache );
 
 		GL_SelectTexture( 0 );
