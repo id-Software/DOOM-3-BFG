@@ -203,29 +203,21 @@ public:
 		memTag = ( byte )tag_;
 	};
 
-	// Begin/End methods for range-based for loops.
-	_type_* begin()
-	{
-		if( num > 0 )
-		{
-			return &list[0];
+	struct Iterator {
+		_type_ *p;
+		_type_ &operator*( ) { return *p; }
+		bool operator != ( const Iterator &rhs ) {
+			return p != rhs.p;
 		}
-		else
-		{
-			return nullptr;
-		}
-	}
-	_type_* end()
-	{
-		if( num > 0 )
-		{
-			return &list[num - 1];
-		}
-		else
-		{
-			return nullptr;
-		}
-	}
+		void operator ++( ) { ++p; }
+	};
+
+	auto begin( ) const { // const version
+		return Iterator{list};
+	};
+	auto end( ) const { // const version
+		return Iterator{list + Num( )};
+	};
 
 private:
 	int				num;
