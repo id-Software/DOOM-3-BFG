@@ -108,6 +108,7 @@ public:
 
 extern idVec2 vec2_origin;
 #define vec2_zero vec2_origin
+extern idVec2 vec2_one;
 
 ID_INLINE idVec2::idVec2()
 {
@@ -451,6 +452,7 @@ public:
 
 extern idVec3 vec3_origin;
 #define vec3_zero vec3_origin
+extern idVec3 vec3_one;
 
 ID_INLINE idVec3::idVec3()
 {
@@ -1046,6 +1048,7 @@ public:
 
 extern idVec4 vec4_origin;
 #define vec4_zero vec4_origin
+extern idVec4 vec4_one;
 
 ID_INLINE void idVec4::Set( const float x, const float y, const float z, const float w )
 {

@@ -28,7 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "precompiled.h"
 #pragma hdrstop
-
+#include "Model_gltf.h"
 #include "Model_local.h"
 #include "RenderCommon.h"	// just for R_FreeWorldInteractions and R_CreateWorldInteractions
 
@@ -341,9 +341,15 @@ idRenderModel* idRenderModelManagerLocal::GetModel( const char* _modelName, bool
 	// determine which subclass of idRenderModel to initialize
 
 	idRenderModel* model = NULL;
-
+	// HvG: GLTF 2 support
+	if (  (extension.Icmp( GLTF_GLB_EXT ) == 0 ) ||( extension.Icmp( GLTF_EXT ) == 0 )) 
+	{
+		model = new( TAG_MODEL ) idRenderModelGLTF;
+	
 	// RB: Collada DAE and Wavefront OBJ
-	if( ( extension.Icmp( "dae" ) == 0 ) || ( extension.Icmp( "obj" ) == 0 ) || ( extension.Icmp( "ase" ) == 0 ) || ( extension.Icmp( "lwo" ) == 0 ) || ( extension.Icmp( "flt" ) == 0 ) || ( extension.Icmp( "ma" ) == 0 ) )
+	}else if ( ( extension.Icmp( "dae" ) == 0 ) || ( extension.Icmp( "obj" ) == 0 ) 	// RB: Collada DAE and Wavefront OBJ
+			|| ( extension.Icmp( "ase" ) == 0 ) || ( extension.Icmp( "lwo" ) == 0 ) 
+			|| ( extension.Icmp( "flt" ) == 0 ) || ( extension.Icmp( "ma" ) == 0 ) )
 	{
 		model = new( TAG_MODEL ) idRenderModelStatic;
 	}
