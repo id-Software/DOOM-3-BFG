@@ -44,6 +44,9 @@ If you have questions concerning this license or the applicable additional terms
 #define MD5_CAMERA_EXT			"md5camera"
 #define MD5_VERSION				10
 
+#define GLTF_EXT				"gltf"
+#define GLTF_GLB_EXT			"glb"
+
 #include "jobs/ShadowShared.h"
 #include "jobs/prelightshadowvolume/PreLightShadowVolume.h"
 #include "jobs/staticshadowvolume/StaticShadowVolume.h"
