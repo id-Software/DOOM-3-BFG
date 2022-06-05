@@ -432,7 +432,7 @@ public:
 	idRenderProgManager();
 	virtual ~idRenderProgManager();
 
-	void	Init( nvrhi::IDevice* _device );
+	void	Init( nvrhi::IDevice* device );
 	void	Shutdown();
 
 	void	StartFrame();

@@ -38,7 +38,7 @@ SamplerState LinearSampler : register( s0 );
 
 
 struct PS_IN {
-	float4 position : VPOS;
+	float4 position : SV_Position;
 	float2 texcoord0 : TEXCOORD0_centroid;
 };
 

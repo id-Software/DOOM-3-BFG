@@ -700,10 +700,12 @@ void R_TestVideo_f( const idCmdArgs& args )
 
 	tr.testImage = globalImages->ImageFromFile( "_scratch", TF_DEFAULT, TR_REPEAT, TD_DEFAULT );
 	tr.testVideo = idCinematic::Alloc();
-	tr.testVideo->InitFromFile( args.Argv( 1 ), true );
+	tr.testVideo->InitFromFile( args.Argv( 1 ), true, NULL );
 
 	cinData_t	cin;
-	cin = tr.testVideo->ImageForTime( 0 );
+
+	// FIXME commandList
+	cin = tr.testVideo->ImageForTime( 0, NULL );
 	// SRS - Also handle ffmpeg and original RoQ decoders for test videos (using cin.image)
 	if( cin.imageY == NULL && cin.image == NULL )
 	{
@@ -2234,6 +2236,9 @@ idRenderSystemLocal::BeginLevelLoad
 */
 void idRenderSystemLocal::BeginLevelLoad()
 {
+	// clear binding sets for previous level images and light data #676
+	backend.ClearCaches();
+
 	globalImages->BeginLevelLoad();
 	renderModelManager->BeginLevelLoad();
 

@@ -85,7 +85,7 @@ static void R_ReloadShaders( const idCmdArgs& args )
 idRenderProgManager::Init()
 ================================================================================================
 */
-void idRenderProgManager::Init( nvrhi::IDevice* _device )
+void idRenderProgManager::Init( nvrhi::IDevice* device )
 {
 	common->Printf( "----- Initializing Render Shaders -----\n" );
 
@@ -95,7 +95,7 @@ void idRenderProgManager::Init( nvrhi::IDevice* _device )
 	}
 
 #if defined( USE_NVRHI )
-	device = _device;
+	this->device = device;
 
 	uniforms.SetNum( RENDERPARM_TOTAL, vec4_zero );
 	uniformsChanged = false;
@@ -106,7 +106,7 @@ void idRenderProgManager::Init( nvrhi::IDevice* _device )
 								 c_MaxRenderPassConstantBufferVersions ) );
 
 	// === Main draw vertex layout ===
-	vertexLayoutDescs.SetNum( NUM_VERTEX_LAYOUTS, idList<nvrhi::VertexAttributeDesc>() );
+	vertexLayoutDescs.SetNum( NUM_VERTEX_LAYOUTS, {} );
 
 	vertexLayoutDescs[LAYOUT_DRAW_VERT].Append(
 		nvrhi::VertexAttributeDesc()
@@ -192,12 +192,17 @@ void idRenderProgManager::Init( nvrhi::IDevice* _device )
 
 	bindingLayouts[BINDING_LAYOUT_CONSTANT_BUFFER_ONLY] = { device->createBindingLayout( constantBufferLayoutDesc ) };
 
+	auto defaultMaterialLayoutDesc = nvrhi::BindingLayoutDesc()
+									 .setVisibility( nvrhi::ShaderType::All )
+									 .addItem( nvrhi::BindingLayoutItem::VolatileConstantBuffer( 0 ) )
+									 .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 0 ) )		// normal
+									 .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 1 ) )		// specular
+									 .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 2 ) );	// base color
+
+	auto defaultMaterialLayout = device->createBindingLayout( defaultMaterialLayoutDesc );
+
 	auto ambientIblLayoutDesc = nvrhi::BindingLayoutDesc()
 								.setVisibility( nvrhi::ShaderType::All )
-								.addItem( nvrhi::BindingLayoutItem::VolatileConstantBuffer( 0 ) )
-								.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 0 ) ) // normal
-								.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 1 ) ) // specular
-								.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 2 ) ) // base color
 								.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 3 ) ) // brdf lut
 								.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 4 ) ) // ssao
 								.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 7 ) ) // irradiance cube map
@@ -211,7 +216,10 @@ void idRenderProgManager::Init( nvrhi::IDevice* _device )
 									   .addItem( nvrhi::BindingLayoutItem::Sampler( 1 ) );	// (Clamp) Linear sampler: brdf lut sampler & ssao sampler
 	auto samplerTwoBindingLayout = device->createBindingLayout( samplerTwoBindingLayoutDesc );
 
-	bindingLayouts[BINDING_LAYOUT_AMBIENT_LIGHTING_IBL] = { device->createBindingLayout( ambientIblLayoutDesc ), samplerTwoBindingLayout };
+	bindingLayouts[ BINDING_LAYOUT_AMBIENT_LIGHTING_IBL ] =
+	{
+		defaultMaterialLayout, device->createBindingLayout( ambientIblLayoutDesc ), samplerTwoBindingLayout
+	};
 
 	auto blitLayoutDesc = nvrhi::BindingLayoutDesc()
 						  .setVisibility( nvrhi::ShaderType::All )
@@ -245,21 +253,13 @@ void idRenderProgManager::Init( nvrhi::IDevice* _device )
 
 	auto interactionBindingLayout = nvrhi::BindingLayoutDesc()
 									.setVisibility( nvrhi::ShaderType::All )
-									.addItem( nvrhi::BindingLayoutItem::VolatileConstantBuffer( 0 ) )
-									.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 0 ) )	// normal
-									.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 1 ) )	// specular
-									.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 2 ) )	// base color
 									.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 3 ) )	// light falloff
 									.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 4 ) );	// light projection
 
-	bindingLayouts[BINDING_LAYOUT_DRAW_INTERACTION] = { device->createBindingLayout( interactionBindingLayout ), samplerTwoBindingLayout };
+	bindingLayouts[BINDING_LAYOUT_DRAW_INTERACTION] = { defaultMaterialLayout, device->createBindingLayout( interactionBindingLayout ), samplerTwoBindingLayout };
 
 	auto interactionSmBindingLayout = nvrhi::BindingLayoutDesc()
 									  .setVisibility( nvrhi::ShaderType::All )
-									  .addItem( nvrhi::BindingLayoutItem::VolatileConstantBuffer( 0 ) )
-									  .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 0 ) ) // normal
-									  .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 1 ) ) // specular
-									  .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 2 ) ) // base color
 									  .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 3 ) ) // light falloff
 									  .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 4 ) ) // light projection
 									  .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 5 ) ) // shadow map array
@@ -273,7 +273,7 @@ void idRenderProgManager::Init( nvrhi::IDevice* _device )
 										.addItem( nvrhi::BindingLayoutItem::Sampler( 3 ) );	 // blue noise for shadow jitter
 	auto samplerFourBindingLayout = device->createBindingLayout( samplerFourBindingLayoutDesc );
 
-	bindingLayouts[BINDING_LAYOUT_DRAW_INTERACTION_SM] = { device->createBindingLayout( interactionSmBindingLayout ), samplerFourBindingLayout };
+	bindingLayouts[BINDING_LAYOUT_DRAW_INTERACTION_SM] = { defaultMaterialLayout, device->createBindingLayout( interactionSmBindingLayout ), samplerFourBindingLayout };
 
 	auto fogBindingLayout = nvrhi::BindingLayoutDesc()
 							.setVisibility( nvrhi::ShaderType::All )
@@ -315,6 +315,15 @@ void idRenderProgManager::Init( nvrhi::IDevice* _device )
 								   .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 1 ) );	// normal map
 
 	bindingLayouts[BINDING_LAYOUT_NORMAL_CUBE] = { device->createBindingLayout( normalCubeBindingLayout ), samplerOneBindingLayout };
+
+	auto binkVideoBindingLayout = nvrhi::BindingLayoutDesc()
+								  .setVisibility( nvrhi::ShaderType::All )
+								  .addItem( nvrhi::BindingLayoutItem::VolatileConstantBuffer( 0 ) )
+								  .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 0 ) )	// cube map
+								  .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 1 ) )	// cube map
+								  .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 2 ) );	// normal map
+
+	bindingLayouts[BINDING_LAYOUT_BINK_VIDEO] = { device->createBindingLayout( binkVideoBindingLayout ), samplerOneBindingLayout };
 
 	auto motionVectorsBindingLayout = nvrhi::BindingLayoutDesc()
 									  .setVisibility( nvrhi::ShaderType::All )
@@ -505,9 +514,9 @@ void idRenderProgManager::Init( nvrhi::IDevice* _device )
 		// RB end
 		{ BUILTIN_STEREO_DEGHOST, "builtin/VR/stereoDeGhost", "", {}, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
 		{ BUILTIN_STEREO_WARP, "builtin/VR/stereoWarp", "", {}, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
-		{ BUILTIN_BINK, "builtin/video/bink", "",  { {"USE_SRGB", "0" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
-		{ BUILTIN_BINK_SRGB, "builtin/video/bink", "_srgb", { {"USE_SRGB", "1" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
-		{ BUILTIN_BINK_GUI, "builtin/video/bink_gui", "", {}, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
+		{ BUILTIN_BINK, "builtin/video/bink", "",  { {"USE_SRGB", "0" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_BINK_VIDEO },
+		{ BUILTIN_BINK_SRGB, "builtin/video/bink", "_srgb", { {"USE_SRGB", "1" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_BINK_VIDEO },
+		{ BUILTIN_BINK_GUI, "builtin/video/bink_gui", "", {}, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_BINK_VIDEO },
 		{ BUILTIN_STEREO_INTERLACE, "builtin/VR/stereoInterlace", "", {}, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
 		{ BUILTIN_MOTION_BLUR, "builtin/post/motionBlur", "", { { "VECTORS_ONLY", "1" } }, false, SHADER_STAGE_DEFAULT, LAYOUT_DRAW_VERT, BINDING_LAYOUT_DEFAULT },
 

@@ -2256,7 +2256,7 @@ void idRenderBackend::DBG_TestImage()
 
 		// SRS - Don't need calibrated time for testing cinematics, so just call ImageForTime( 0 ) for current system time
 		// This simplification allows cinematic test playback to work over both 2D and 3D background scenes
-		cin = tr.testVideo->ImageForTime( 0 /*viewDef->renderView.time[1] - tr.testVideoStartTime*/ );
+		cin = tr.testVideo->ImageForTime( 0 /*viewDef->renderView.time[1] - tr.testVideoStartTime*/, commandList );
 		if( cin.imageY != NULL )
 		{
 			image = cin.imageY;
