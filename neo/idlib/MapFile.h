@@ -349,7 +349,7 @@ public:
 
 	void					ConvertFromBrush( const idMapBrush* brush, int entityNum, int primitiveNum );
 	void					ConvertFromPatch( const idMapPatch* patch, int entityNum, int primitiveNum );
-	void					ConvertFromMeshGltf( const gltfMesh *  mesh , gltfData * data );
+	void					ConvertFromMeshGltf( const gltfMesh*   mesh , gltfData* data );
 	static MapPolygonMesh*	Parse( idLexer& src, const idVec3& origin, float version = CURRENT_MAP_VERSION );
 	bool					Write( idFile* fp, int primitiveNum, const idVec3& origin ) const;
 
@@ -368,7 +368,8 @@ public:
 		return verts.Append( v );
 	}
 
-	int						AddVertices( const idList<idDrawVert> &v ) {
+	int						AddVertices( const idList<idDrawVert>& v )
+	{
 		return verts.Append( v );
 	}
 
@@ -426,9 +427,9 @@ protected:
 
 class idMapEntity
 {
-	typedef idList<idMapEntity *, TAG_IDLIB_LIST_MAP>  EntityList;
-	typedef idList<idMapEntity *, TAG_IDLIB_LIST_MAP> &EntityListRef;
-	typedef idList<idMapEntity *, TAG_IDLIB_LIST_MAP> *EntityListPtr;
+	typedef idList<idMapEntity*, TAG_IDLIB_LIST_MAP>  EntityList;
+	typedef idList<idMapEntity*, TAG_IDLIB_LIST_MAP>& EntityListRef;
+	typedef idList<idMapEntity*, TAG_IDLIB_LIST_MAP>* EntityListPtr;
 
 	friend class			idMapFile;
 
@@ -446,10 +447,10 @@ public:
 		primitives.DeleteContents( true );
 	}
 	// HVG check gltf scene for entities
-	static int				GetEntities( gltfData * data, EntityListRef entities, int scene = 0 );
+	static int				GetEntities( gltfData* data, EntityListRef entities, int scene = 0 );
 	static idMapEntity* 	Parse( idLexer& src, bool worldSpawn = false, float version = CURRENT_MAP_VERSION );
 	bool					Write( idFile* fp, int entityNum, bool valve220 ) const;
-	
+
 	// HVG NOTE: this is not compatible with gltf (extra) json!
 	// RB begin
 	static idMapEntity* 	ParseJSON( idLexer& src );

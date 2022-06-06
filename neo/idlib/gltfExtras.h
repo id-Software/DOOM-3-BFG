@@ -10,7 +10,7 @@
 		virtual idStr &Name( ) { return name; }												\
 	private:																				\
 		idStr name;}
-#pragma endregion 
+#pragma endregion
 #endif
 
 //Helper macros for gltf data deserialize
@@ -19,9 +19,10 @@
 #ifndef GLTF_EXTRAS_H
 #define GLTF_EXTRAS_H
 
-class test {
-public: 
-	test(){ }
+class test
+{
+public:
+	test() { }
 };
 
 
@@ -31,5 +32,5 @@ gltfExtraParser( cvar, idCVar );
 #endif // GLTF_EXTRAS_H
 
 #ifndef gltfExternalParser
-#undef gltfExtraParser
+	#undef gltfExtraParser
 #endif

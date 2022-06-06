@@ -203,19 +203,29 @@ public:
 		memTag = ( byte )tag_;
 	};
 
-	struct Iterator {
-		_type_ *p;
-		_type_ &operator*( ) { return *p; }
-		bool operator != ( const Iterator &rhs ) {
+	struct Iterator
+	{
+		_type_* p;
+		_type_& operator*( )
+		{
+			return *p;
+		}
+		bool operator != ( const Iterator& rhs )
+		{
 			return p != rhs.p;
 		}
-		void operator ++( ) { ++p; }
+		void operator ++( )
+		{
+			++p;
+		}
 	};
 
-	auto begin( ) const { // const version
+	auto begin( ) const   // const version
+	{
 		return Iterator{list};
 	};
-	auto end( ) const { // const version
+	auto end( ) const   // const version
+	{
 		return Iterator{list + Num( )};
 	};
 

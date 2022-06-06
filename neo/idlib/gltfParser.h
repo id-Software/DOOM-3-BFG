@@ -6,75 +6,125 @@
 #pragma region GLTF Types parsing
 
 #pragma region Parser interfaces
-struct parsable {
+struct parsable
+{
 public:
-	virtual void parse(idToken & token )=0;
-	virtual void parse(idToken & token , idLexer * parser){};
-	virtual idStr &Name( ) = 0;
+	virtual void parse( idToken& token ) = 0;
+	virtual void parse( idToken& token , idLexer* parser ) {};
+	virtual idStr& Name( ) = 0;
 };
 
 template<class T>
-class parseType {
+class parseType
+{
 public:
-	void Set(T * type ) { item = type; }
-	virtual ~parseType() { delete item; }
+	void Set( T* type )
+	{
+		item = type;
+	}
+	virtual ~parseType()
+	{
+		delete item;
+	}
 	T* item;
 };
 
 class gltfItem : public parsable, public parseType<idStr>
 {
 public:
-	gltfItem( idStr Name) : name( Name ) { item = nullptr; }
-	virtual void parse( idToken &token ) { *item = token; };
-	virtual idStr &Name( ) {return name;}
-	~gltfItem(){}
+	gltfItem( idStr Name ) : name( Name )
+	{
+		item = nullptr;
+	}
+	virtual void parse( idToken& token )
+	{
+		*item = token;
+	};
+	virtual idStr& Name( )
+	{
+		return name;
+	}
+	~gltfItem() {}
 private:
 	idStr name;
 };
 
-class gltfObject : public parsable, public parseType<idStr> {
+class gltfObject : public parsable, public parseType<idStr>
+{
 public:
-	gltfObject( idStr Name ) : name( Name ), object("null"){}
-	virtual void parse( idToken &token ) {}
-	virtual void parse(idToken & token , idLexer * parser){
-		parser->UnreadToken( &token );parser->ParseBracedSection( object );
+	gltfObject( idStr Name ) : name( Name ), object( "null" ) {}
+	virtual void parse( idToken& token ) {}
+	virtual void parse( idToken& token , idLexer* parser )
+	{
+		parser->UnreadToken( &token );
+		parser->ParseBracedSection( object );
 	}
-	virtual idStr &Name( ) { return name; }
+	virtual idStr& Name( )
+	{
+		return name;
+	}
 private:
 	idStr name;
 	idStr object;
 };
 
 class gltfItemArray;
-class gltfItem_Extra : public parsable, public parseType<gltfExtra> {
+class gltfItem_Extra : public parsable, public parseType<gltfExtra>
+{
 public:
-	gltfItem_Extra( idStr Name ) : name( Name ), data(nullptr),parser(nullptr) { item = nullptr; }
-	virtual void parse( idToken &token ) ;
-	virtual idStr &Name( ) { return name; }
-	void Set( gltfExtra *type, idLexer *lexer ) { parseType::Set( type ); parser = lexer; }	
-	static void Register(parsable * extra);
+	gltfItem_Extra( idStr Name ) : name( Name ), data( nullptr ), parser( nullptr )
+	{
+		item = nullptr;
+	}
+	virtual void parse( idToken& token ) ;
+	virtual idStr& Name( )
+	{
+		return name;
+	}
+	void Set( gltfExtra* type, idLexer* lexer )
+	{
+		parseType::Set( type );
+		parser = lexer;
+	}
+	static void Register( parsable* extra );
 private:
 	idStr name;
-	gltfData *data;
+	gltfData* data;
 	idLexer* parser;
-	static gltfItemArray*items;
+	static gltfItemArray* items;
 };
 
-class gltfItem_uri : public parsable, public parseType<idStr> {
+class gltfItem_uri : public parsable, public parseType<idStr>
+{
 public:
-	gltfItem_uri( idStr Name ) : name( Name ) { item = nullptr; }
-	virtual void parse( idToken &token ) { *item = token; Convert(); };
-	virtual idStr &Name( ) { return name; }
-	void Set( idStr *type,int * targetBufferview,gltfData* dataDestination ) { parseType::Set(type); bufferView = targetBufferview; data = dataDestination; }
+	gltfItem_uri( idStr Name ) : name( Name )
+	{
+		item = nullptr;
+	}
+	virtual void parse( idToken& token )
+	{
+		*item = token;
+		Convert();
+	};
+	virtual idStr& Name( )
+	{
+		return name;
+	}
+	void Set( idStr* type, int* targetBufferview, gltfData* dataDestination )
+	{
+		parseType::Set( type );
+		bufferView = targetBufferview;
+		data = dataDestination;
+	}
 	// read data from uri file, and push it at end of current data buffer for this GLTF File
 	// bufferView will be set accordingly to the generated buffer.
 	bool Convert( );
 private:
 	idStr name;
-	int * bufferView;
-	gltfData *  data;
+	int* bufferView;
+	gltfData*   data;
 };
-#pragma endregion 
+#pragma endregion
 
 #pragma region helper macro to define gltf data types with extra parsing context forced to be implemented externally
 #define gltfItemClassParser(className,ptype)											\
@@ -87,15 +137,15 @@ class gltfItem_##className : public parsable, public parseType<ptype>					\
 private:																				\
 	idStr name;																			\
 	idLexer *parser;}
-#pragma endregion 
+#pragma endregion
 
 gltfItemClassParser( animation_sampler,				idList<gltfAnimation_Sampler*> );
 gltfItemClassParser( animation_channel_target,		gltfAnimation_Channel_Target );
-gltfItemClassParser( animation_channel,				idList<gltfAnimation_Channel*>);
-gltfItemClassParser( mesh_primitive,				idList<gltfMesh_Primitive *>);
-gltfItemClassParser( mesh_primitive_attribute,		idList<gltfMesh_Primitive_Attribute *> );
-gltfItemClassParser( integer_array,					idList<int>);
-gltfItemClassParser( number_array,					idList<double>);//does float suffice?
+gltfItemClassParser( animation_channel,				idList<gltfAnimation_Channel*> );
+gltfItemClassParser( mesh_primitive,				idList<gltfMesh_Primitive*> );
+gltfItemClassParser( mesh_primitive_attribute,		idList<gltfMesh_Primitive_Attribute*> );
+gltfItemClassParser( integer_array,					idList<int> );
+gltfItemClassParser( number_array,					idList<double> ); //does float suffice?
 gltfItemClassParser( mat4,							idMat4 );
 gltfItemClassParser( vec4,							idVec4 );
 gltfItemClassParser( vec3,							idVec3 );
@@ -107,8 +157,8 @@ gltfItemClassParser( accessor_sparse_values,		gltfAccessor_Sparse_Values );
 gltfItemClassParser( camera_perspective,			gltfCamera_Perspective );
 gltfItemClassParser( camera_orthographic,			gltfCamera_Orthographic );
 gltfItemClassParser( pbrMetallicRoughness,			gltfMaterial_pbrMetallicRoughness );
-gltfItemClassParser( texture_info,					gltfTexture_Info);
-gltfItemClassParser( normal_texture,				gltfNormalTexture_Info);
+gltfItemClassParser( texture_info,					gltfTexture_Info );
+gltfItemClassParser( normal_texture,				gltfNormalTexture_Info );
 gltfItemClassParser( occlusion_texture,				gltfOcclusionTexture_Info );
 gltfItemClassParser( node_extensions,				gltfNode_Extensions );
 gltfItemClassParser( material_extensions,			gltfMaterial_Extensions );
@@ -131,104 +181,135 @@ class gltfItem_##className : public parsable, public parseType<type>		\
 	virtual idStr &Name( ) { return name; }									\
 private:																	\
 	idStr name;}
-#pragma endregion 
+#pragma endregion
 
-gltfItemClass(integer, int, *item = token.GetIntValue( ); );
-gltfItemClass(number, float, *item = token.GetFloatValue( ); );
-gltfItemClass(boolean, bool, if (token.Icmp("true") == 0 ) *item=true; else{ if(token.Icmp("false") == 0)*item=false; else idLib::FatalError("parse error");});
+gltfItemClass( integer, int, *item = token.GetIntValue( ); );
+gltfItemClass( number, float, *item = token.GetFloatValue( ); );
+gltfItemClass( boolean, bool, if( token.Icmp( "true" ) == 0 ) *item = true; else
+{
+	if( token.Icmp( "false" ) == 0 )
+		{
+			*item = false;
+		}
+		else
+		{
+			idLib::FatalError( "parse error" );
+		}
+	} );
 #undef gltfItemClass
 
 class gltfItemArray
 {
 public:
-	~gltfItemArray( ) { items.DeleteContents(true); }
+	~gltfItemArray( )
+	{
+		items.DeleteContents( true );
+	}
 	gltfItemArray( ) { };
-	int Num() { return items.Num(); }
-	void AddItemDef( parsable *item ) { items.Alloc( ) = item;}
-	int Fill(idLexer * lexer , idDict * strPairs );
-	int Parse(idLexer * lexer , bool forwardLexer = false );
+	int Num()
+	{
+		return items.Num();
+	}
+	void AddItemDef( parsable* item )
+	{
+		items.Alloc( ) = item;
+	}
+	int Fill( idLexer* lexer , idDict* strPairs );
+	int Parse( idLexer* lexer , bool forwardLexer = false );
 	template<class T>
-	T* Get(idStr name ){ for ( auto * item : items) if (item->Name() == name) return static_cast<T*>(item); return nullptr; }
+	T* Get( idStr name )
+	{
+		for( auto* item : items ) if( item->Name() == name )
+			{
+				return static_cast<T*>( item );
+			}
+		return nullptr;
+	}
 private:
 	idList<parsable*> items;
 };
-#pragma endregion 
+#pragma endregion
 
 #pragma region GLTF Object parsing
 class gltfPropertyArray;
-class gltfPropertyItem 
+class gltfPropertyItem
 {
 public:
-	gltfPropertyItem( ) : array(nullptr){ }
-	gltfPropertyArray * array;
-	idToken item; 
+	gltfPropertyItem( ) : array( nullptr ) { }
+	gltfPropertyArray* array;
+	idToken item;
 };
 
 class gltfPropertyArray
 {
 public:
-	gltfPropertyArray( idLexer *Parser,bool AoS = true );
+	gltfPropertyArray( idLexer* Parser, bool AoS = true );
 	~gltfPropertyArray( );
-	struct Iterator {
-		gltfPropertyArray * array;
-		gltfPropertyItem *p;
-		gltfPropertyItem &operator*( ) {return *p;}
-		bool operator != ( Iterator &rhs ) { 
-			return p != rhs.p; 
+	struct Iterator
+	{
+		gltfPropertyArray* array;
+		gltfPropertyItem* p;
+		gltfPropertyItem& operator*( )
+		{
+			return *p;
+		}
+		bool operator != ( Iterator& rhs )
+		{
+			return p != rhs.p;
 		}
 		void operator ++( );
-	};	
+	};
 	gltfPropertyArray::Iterator begin( );
 	gltfPropertyArray::Iterator end( );
 private:
 	bool iterating;
 	bool dirty;
 	int index;
-	idLexer * parser;
+	idLexer* parser;
 	idList<gltfPropertyItem*> properties;
-	gltfPropertyItem * endPtr;
+	gltfPropertyItem* endPtr;
 	bool isArrayOfStructs;
 };
 #pragma endregion
 
-class GLTF_Parser 
+class GLTF_Parser
 {
 public:
 	GLTF_Parser();
 	void Shutdown();
 	bool Parse();
-	bool Load(idStr filename );
-	bool loadGLB(idStr filename );
+	bool Load( idStr filename );
+	bool loadGLB( idStr filename );
 
 	//current/last loaded gltf asset and index offsets
-	gltfData *currentAsset;
+	gltfData* currentAsset;
 private:
-	void SetNodeParent( gltfNode *node, gltfNode *parent = nullptr );
+	void SetNodeParent( gltfNode* node, gltfNode* parent = nullptr );
 	//void CreateBgfxData( );
 
-	void Parse_ASSET( idToken &token );
-	void Parse_CAMERAS( idToken &token );
-	void Parse_SCENE( idToken &token );
-	void Parse_SCENES( idToken &token );
-	void Parse_NODES( idToken &token );
-	void Parse_MATERIALS( idToken &token );
-	void Parse_MESHES( idToken &token );
-	void Parse_TEXTURES( idToken &token );
-	void Parse_IMAGES( idToken &token );
-	void Parse_ACCESSORS( idToken &token );
-	void Parse_BUFFERVIEWS( idToken &token );
-	void Parse_SAMPLERS( idToken &token );
-	void Parse_BUFFERS( idToken &token );
-	void Parse_ANIMATIONS( idToken &token );
-	void Parse_SKINS( idToken &token );
-	void Parse_EXTENSIONS( idToken &token );
-	void Parse_EXTENSIONS_USED( idToken &token );
-	void Parse_EXTENSIONS_REQUIRED( idToken &token );
-	
+	void Parse_ASSET( idToken& token );
+	void Parse_CAMERAS( idToken& token );
+	void Parse_SCENE( idToken& token );
+	void Parse_SCENES( idToken& token );
+	void Parse_NODES( idToken& token );
+	void Parse_MATERIALS( idToken& token );
+	void Parse_MESHES( idToken& token );
+	void Parse_TEXTURES( idToken& token );
+	void Parse_IMAGES( idToken& token );
+	void Parse_ACCESSORS( idToken& token );
+	void Parse_BUFFERVIEWS( idToken& token );
+	void Parse_SAMPLERS( idToken& token );
+	void Parse_BUFFERS( idToken& token );
+	void Parse_ANIMATIONS( idToken& token );
+	void Parse_SKINS( idToken& token );
+	void Parse_EXTENSIONS( idToken& token );
+	void Parse_EXTENSIONS_USED( idToken& token );
+	void Parse_EXTENSIONS_REQUIRED( idToken& token );
 
-	gltfProperty ParseProp( idToken &token );
-	gltfProperty ResolveProp( idToken &token );
-	
+
+	gltfProperty ParseProp( idToken& token );
+	gltfProperty ResolveProp( idToken& token );
+
 	idLexer	parser;
 	idToken	token;
 	idStr currentFile;
@@ -237,4 +318,4 @@ private:
 	bool bufferViewsDone;
 };
 
-extern GLTF_Parser * gltfParser;
+extern GLTF_Parser* gltfParser;
