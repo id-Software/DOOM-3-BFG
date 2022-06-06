@@ -172,9 +172,28 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 
 	bindingLayouts.SetNum( NUM_BINDING_LAYOUTS );
 
+	auto uniformsLayoutDesc = nvrhi::BindingLayoutDesc()
+							  .setVisibility( nvrhi::ShaderType::All )
+							  .addItem( nvrhi::BindingLayoutItem::VolatileConstantBuffer( 0 ) );
+
+	auto uniformsLayout = device->createBindingLayout( uniformsLayoutDesc );
+
+	auto skinningLayoutDesc = nvrhi::BindingLayoutDesc()
+							  .setVisibility( nvrhi::ShaderType::All )
+							  .addItem( nvrhi::BindingLayoutItem::VolatileConstantBuffer( 0 ) )
+							  .addItem( nvrhi::BindingLayoutItem::VolatileConstantBuffer( 1 ) );
+
+	auto skinningLayout = device->createBindingLayout( skinningLayoutDesc );
+
+	/*
 	auto defaultLayoutDesc = nvrhi::BindingLayoutDesc()
 							 .setVisibility( nvrhi::ShaderType::All )
 							 .addItem( nvrhi::BindingLayoutItem::VolatileConstantBuffer( 0 ) )
+							 .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 0 ) );
+	*/
+
+	auto defaultLayoutDesc = nvrhi::BindingLayoutDesc()
+							 .setVisibility( nvrhi::ShaderType::Pixel )
 							 .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 0 ) );
 
 	auto samplerOneLayoutDesc = nvrhi::BindingLayoutDesc()
@@ -184,17 +203,34 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 
 	auto defaultLayout = device->createBindingLayout( defaultLayoutDesc );
 
-	bindingLayouts[BINDING_LAYOUT_DEFAULT] = { defaultLayout, samplerOneBindingLayout };
+	bindingLayouts[BINDING_LAYOUT_DEFAULT] = { uniformsLayout, defaultLayout, samplerOneBindingLayout };
+	bindingLayouts[BINDING_LAYOUT_DEFAULT_SKINNED] = { skinningLayout, defaultLayout, samplerOneBindingLayout };
 
+	/*
 	auto constantBufferLayoutDesc = nvrhi::BindingLayoutDesc()
 									.setVisibility( nvrhi::ShaderType::All )
 									.addItem( nvrhi::BindingLayoutItem::VolatileConstantBuffer( 0 ) );
 
-	bindingLayouts[BINDING_LAYOUT_CONSTANT_BUFFER_ONLY] = { device->createBindingLayout( constantBufferLayoutDesc ) };
+	auto constantBufferSkinnedLayoutDesc = nvrhi::BindingLayoutDesc()
+									.setVisibility( nvrhi::ShaderType::All )
+									.addItem( nvrhi::BindingLayoutItem::VolatileConstantBuffer( 0 ) )
+									.addItem( nvrhi::BindingLayoutItem::VolatileConstantBuffer( 1 ) );
+	*/
 
+	bindingLayouts[BINDING_LAYOUT_CONSTANT_BUFFER_ONLY] = { uniformsLayout };
+	bindingLayouts[BINDING_LAYOUT_CONSTANT_BUFFER_ONLY_SKINNED] = { skinningLayout };
+
+	/*
 	auto defaultMaterialLayoutDesc = nvrhi::BindingLayoutDesc()
 									 .setVisibility( nvrhi::ShaderType::All )
 									 .addItem( nvrhi::BindingLayoutItem::VolatileConstantBuffer( 0 ) )
+									 .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 0 ) )		// normal
+									 .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 1 ) )		// specular
+									 .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 2 ) );	// base color
+	*/
+
+	auto defaultMaterialLayoutDesc = nvrhi::BindingLayoutDesc()
+									 .setVisibility( nvrhi::ShaderType::Pixel )
 									 .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 0 ) )		// normal
 									 .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 1 ) )		// specular
 									 .addItem( nvrhi::BindingLayoutItem::Texture_SRV( 2 ) );	// base color
@@ -202,13 +238,15 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 	auto defaultMaterialLayout = device->createBindingLayout( defaultMaterialLayoutDesc );
 
 	auto ambientIblLayoutDesc = nvrhi::BindingLayoutDesc()
-								.setVisibility( nvrhi::ShaderType::All )
+								.setVisibility( nvrhi::ShaderType::Pixel )
 								.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 3 ) ) // brdf lut
 								.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 4 ) ) // ssao
 								.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 7 ) ) // irradiance cube map
 								.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 8 ) ) // radiance cube map 1
 								.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 9 ) ) // radiance cube map 2
 								.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 10 ) ); // radiance cube map 3
+
+	auto ambientIblLayout = device->createBindingLayout( ambientIblLayoutDesc );
 
 	auto samplerTwoBindingLayoutDesc = nvrhi::BindingLayoutDesc()
 									   .setVisibility( nvrhi::ShaderType::Pixel )
@@ -218,7 +256,11 @@ void idRenderProgManager::Init( nvrhi::IDevice* device )
 
 	bindingLayouts[ BINDING_LAYOUT_AMBIENT_LIGHTING_IBL ] =
 	{
-		defaultMaterialLayout, device->createBindingLayout( ambientIblLayoutDesc ), samplerTwoBindingLayout
+		uniformsLayout, defaultMaterialLayout, ambientIblLayout, samplerTwoBindingLayout
+	};
+	bindingLayouts[ BINDING_LAYOUT_AMBIENT_LIGHTING_IBL_SKINNED ] =
+	{
+		skinningLayout, defaultMaterialLayout, ambientIblLayout, samplerTwoBindingLayout
 	};
 
 	auto blitLayoutDesc = nvrhi::BindingLayoutDesc()

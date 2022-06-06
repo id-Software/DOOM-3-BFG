@@ -28,17 +28,16 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "global_inc.hlsl"
 
-
+// *INDENT-OFF*
 #if USE_GPU_SKINNING
-cbuffer CB :
-register( b1 )
+cbuffer CB : register( b1 )
 {
 	float4 matrices[408];
 };
 #endif
 
-// *INDENT-OFF*
-struct VS_IN {
+struct VS_IN 
+{
 	float4 position : POSITION;
 #if USE_GPU_SKINNING
 	float2 texcoord : TEXCOORD0;
@@ -49,7 +48,8 @@ struct VS_IN {
 #endif
 };
 
-struct VS_OUT {
+struct VS_OUT
+{
 	float4 position : SV_Position;
 };
 // *INDENT-ON*
