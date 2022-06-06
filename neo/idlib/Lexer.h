@@ -64,7 +64,8 @@ typedef enum
 	LEXFL_ONLYSTRINGS					= BIT( 13 )	// parse as whitespace deliminated strings (quoted strings keep quotes)
 } lexerFlags_t;
 
-typedef enum {
+typedef enum
+{
 	BRSKIP_BRACES,
 	BRSKIP_BRACKET
 } braceSkipMode_t;
@@ -188,7 +189,7 @@ public:
 	// skip the rest of the current line
 	int				SkipRestOfLine();
 	// skip the braced section
-	int				SkipBracedSection( bool parseFirstBrace = true , braceSkipMode_t skipMode = BRSKIP_BRACES,int * skipped = nullptr);
+	int				SkipBracedSection( bool parseFirstBrace = true , braceSkipMode_t skipMode = BRSKIP_BRACES, int* skipped = nullptr );
 	// skips spaces, tabs, C-like comments etc. Returns false if there is no token left to read.
 	bool			SkipWhiteSpace( bool currentLine );
 	// unread the given token

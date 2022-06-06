@@ -5,7 +5,8 @@
 #include "Lib.h"
 #include "containers/List.h"
 
-enum gltfProperty {
+enum gltfProperty
+{
 	INVALID,
 	ASSET,
 	ACCESSOR,
@@ -33,7 +34,8 @@ class gltfData;
 
 struct gltf_accessor_component
 {
-	enum Type { 
+	enum Type
+	{
 		_byte,
 		_uByte,
 		_short,
@@ -46,7 +48,8 @@ struct gltf_accessor_component
 };
 
 template< class T >
-struct gltf_accessor_component_type_map {
+struct gltf_accessor_component_type_map
+{
 	idStr stringID;
 	int id;
 	T type;
@@ -62,38 +65,43 @@ public:
 	//str:str pairs of each item
 	idDict strPairs;
 	//specialized parsers
-	idList<gltfExtra *> extras;
+	idList<gltfExtra*> extras;
 };
 
 class gltfExt_KHR_lights_punctual;
-class gltfExtensions {
+class gltfExtensions
+{
 public:
 	gltfExtensions( ) { }
-	idList<gltfExt_KHR_lights_punctual *>	KHR_lights_punctual;
+	idList<gltfExt_KHR_lights_punctual*>	KHR_lights_punctual;
 };
 
-class gltfNode_KHR_lights_punctual {
+class gltfNode_KHR_lights_punctual
+{
 public:
-	int light; 
+	int light;
 };
 
-class gltfNode_Extensions {
+class gltfNode_Extensions
+{
 public:
-	gltfNode_Extensions( ) : 
-		KHR_lights_punctual( nullptr) { }
+	gltfNode_Extensions( ) :
+		KHR_lights_punctual( nullptr ) { }
 	gltfNode_KHR_lights_punctual* KHR_lights_punctual;
 };
 
 class gltfExt_KHR_materials_pbrSpecularGlossiness;
-class gltfMaterial_Extensions {
+class gltfMaterial_Extensions
+{
 public:
 	gltfMaterial_Extensions( ) :
 		KHR_materials_pbrSpecularGlossiness( nullptr ) { }
-	gltfExt_KHR_materials_pbrSpecularGlossiness *KHR_materials_pbrSpecularGlossiness;
+	gltfExt_KHR_materials_pbrSpecularGlossiness* KHR_materials_pbrSpecularGlossiness;
 };
 
 
-class gltfNode {
+class gltfNode
+{
 public:
 	gltfNode( ) : camera( -1 ), skin( -1 ), matrix( mat4_zero ),
 		mesh( -1 ), rotation( 0.f, 0.f, 0.f, 1.f ), scale( 1.f, 1.f, 1.f ),
@@ -112,16 +120,18 @@ public:
 	gltfExtra				extras;
 
 	//
-	gltfNode *		parent;
+	gltfNode* 		parent;
 	bool			dirty;
 };
 
-struct gltfCameraNodePtrs {
-	gltfNode *translationNode = nullptr;
-	gltfNode *orientationNode = nullptr;
+struct gltfCameraNodePtrs
+{
+	gltfNode* translationNode = nullptr;
+	gltfNode* orientationNode = nullptr;
 };
 
-class gltfScene {
+class gltfScene
+{
 public:
 	gltfScene( ) { }
 	idList<int> nodes;
@@ -130,9 +140,11 @@ public:
 	gltfExtra	extras;
 };
 
-class gltfMesh_Primitive_Attribute {
+class gltfMesh_Primitive_Attribute
+{
 public:
-	enum Type {
+	enum Type
+	{
 		Position,
 		Normal,
 		Tangent,
@@ -153,7 +165,7 @@ public:
 		Count
 	};
 
-	gltfMesh_Primitive_Attribute( ) : accessorIndex( -1 ), elementSize( 0 ), type( gltfMesh_Primitive_Attribute::Type::Count ){ }
+	gltfMesh_Primitive_Attribute( ) : accessorIndex( -1 ), elementSize( 0 ), type( gltfMesh_Primitive_Attribute::Type::Count ) { }
 	idStr attributeSemantic;
 	int accessorIndex;
 	uint elementSize;
@@ -161,16 +173,18 @@ public:
 	Type type;
 };
 
-struct gltf_mesh_attribute_map {
+struct gltf_mesh_attribute_map
+{
 	idStr stringID;
 	gltfMesh_Primitive_Attribute::Type attib;
 	uint elementSize;
 };
 
-class gltfMesh_Primitive {
+class gltfMesh_Primitive
+{
 public:
 	gltfMesh_Primitive( ) : indices( -1 ), material( -1 ), mode( -1 ) { }
-	idList<gltfMesh_Primitive_Attribute *> attributes;
+	idList<gltfMesh_Primitive_Attribute*> attributes;
 	int			indices;
 	int			material;
 	int			mode;
@@ -179,18 +193,20 @@ public:
 	gltfExtra	extras;
 };
 
-class gltfMesh {
+class gltfMesh
+{
 public:
 	gltfMesh( ) { };
 
-	idList<gltfMesh_Primitive *> primitives;	// gltfMesh_Primitive[1,*]
+	idList<gltfMesh_Primitive*> primitives;	// gltfMesh_Primitive[1,*]
 	idList<double>	weights;						// number[1,*]
 	idStr			name;
 	idStr			extensions;
 	gltfExtra		extras;
 };
 
-class gltfCamera_Orthographic {
+class gltfCamera_Orthographic
+{
 public:
 	gltfCamera_Orthographic( ) : xmag( 0.0f ), ymag( 0.0f ), zfar( 0.0f ), znear( 0.0f ) { };
 	float		xmag;
@@ -201,7 +217,8 @@ public:
 	gltfExtra	extras;
 };
 
-class gltfCamera_Perspective {
+class gltfCamera_Perspective
+{
 public:
 	gltfCamera_Perspective( ) : aspectRatio( 0.0f ), yfov( 0.0f ), zfar( 0.0f ), znear( 0.0f ) { };
 	float		aspectRatio;
@@ -212,7 +229,8 @@ public:
 	gltfExtra	extras;
 };
 
-class gltfCamera {
+class gltfCamera
+{
 public:
 	gltfCamera( ) { };
 	gltfCamera_Orthographic orthographic;
@@ -223,7 +241,8 @@ public:
 	gltfExtra				extras;
 };
 
-class gltfAnimation_Channel_Target {
+class gltfAnimation_Channel_Target
+{
 public:
 	gltfAnimation_Channel_Target( ) : node( -1 ), TRS( gltfTRS::count ) { };
 	int			node;
@@ -231,7 +250,8 @@ public:
 	idStr		extensions;
 	gltfExtra	extras;
 
-	enum gltfTRS {
+	enum gltfTRS
+	{
 		none,
 		rotation,
 		translation,
@@ -242,20 +262,30 @@ public:
 
 	gltfTRS TRS;
 
-	static gltfTRS resolveType( idStr type ) {
-		if ( type == "translation" )
+	static gltfTRS resolveType( idStr type )
+	{
+		if( type == "translation" )
+		{
 			return gltfTRS::translation;
-		else if ( type == "rotation" )
+		}
+		else if( type == "rotation" )
+		{
 			return  gltfTRS::rotation;
-		else if ( type == "scale" )
+		}
+		else if( type == "scale" )
+		{
 			return  gltfTRS::scale;
-		else if ( type == "weights" )
+		}
+		else if( type == "weights" )
+		{
 			return  gltfTRS::weights;
+		}
 		return gltfTRS::count;
 	}
 };
 
-class gltfAnimation_Channel {
+class gltfAnimation_Channel
+{
 public:
 	gltfAnimation_Channel( ) : sampler( -1 ) { };
 	int								sampler;
@@ -264,16 +294,18 @@ public:
 	gltfExtra						extras;
 };
 
-class gltfAnimation_Sampler {
+class gltfAnimation_Sampler
+{
 public:
-	gltfAnimation_Sampler( ) : input( -1 ), interpolation("LINEAR"),output( -1 ), intType(gltfInterpType::count) { };
+	gltfAnimation_Sampler( ) : input( -1 ), interpolation( "LINEAR" ), output( -1 ), intType( gltfInterpType::count ) { };
 	int			input;
 	idStr		interpolation;
 	int			output;
 	idStr		extensions;
 	gltfExtra	extras;
 
-	enum gltfInterpType {
+	enum gltfInterpType
+	{
 		linear,
 		step,
 		cubicSpline,
@@ -282,23 +314,31 @@ public:
 
 	gltfInterpType intType;
 
-	static gltfInterpType resolveType( idStr type ) {
-		if ( type == "LINEAR" )
+	static gltfInterpType resolveType( idStr type )
+	{
+		if( type == "LINEAR" )
+		{
 			return gltfInterpType::linear;
-		else if ( type == "STEP" )
+		}
+		else if( type == "STEP" )
+		{
 			return gltfInterpType::step;
-		else if ( type == "CUBICSPLINE" )
+		}
+		else if( type == "CUBICSPLINE" )
+		{
 			return gltfInterpType::cubicSpline;
+		}
 		return gltfInterpType::count;
 	}
 
 };
 
-class gltfAnimation {
+class gltfAnimation
+{
 public:
-	gltfAnimation( ) : maxTime (0.0f),numFrames(0) { };
-	idList<gltfAnimation_Channel *>	channels;
-	idList<gltfAnimation_Sampler *>	samplers;
+	gltfAnimation( ) : maxTime( 0.0f ), numFrames( 0 ) { };
+	idList<gltfAnimation_Channel*>	channels;
+	idList<gltfAnimation_Sampler*>	samplers;
 	idStr							name;
 	idStr							extensions;
 	gltfExtra						extras;
@@ -308,16 +348,39 @@ public:
 	//id specific
 	mutable int	ref_count;
 	int numFrames;
-	void DecreaseRefs() const {ref_count--;};
-	void IncreaseRefs() const {ref_count++;};
-	bool GetBounds( idBounds &bnds, int time, int cyclecount ) const { return false;}
-	bool GetOriginRotation( idQuat &rotation, int time, int cyclecount ) const { return false;}
-	bool GetOrigin( idVec3 &offset, int time, int cyclecount ) const { return false;}
-	const idVec3 &TotalMovementDelta( void ) const {static idVec3 temp; return temp; }
-	int NumFrames() const {return numFrames;}
+	void DecreaseRefs() const
+	{
+		ref_count--;
+	};
+	void IncreaseRefs() const
+	{
+		ref_count++;
+	};
+	bool GetBounds( idBounds& bnds, int time, int cyclecount ) const
+	{
+		return false;
+	}
+	bool GetOriginRotation( idQuat& rotation, int time, int cyclecount ) const
+	{
+		return false;
+	}
+	bool GetOrigin( idVec3& offset, int time, int cyclecount ) const
+	{
+		return false;
+	}
+	const idVec3& TotalMovementDelta( void ) const
+	{
+		static idVec3 temp;
+		return temp;
+	}
+	int NumFrames() const
+	{
+		return numFrames;
+	}
 };
 
-class gltfAccessor_Sparse_Values {
+class gltfAccessor_Sparse_Values
+{
 public:
 	gltfAccessor_Sparse_Values( ) : bufferView( -1 ), byteOffset( -1 ) { };
 	int			bufferView;
@@ -326,7 +389,8 @@ public:
 	gltfExtra	extras;
 };
 
-class gltfAccessor_Sparse_Indices {
+class gltfAccessor_Sparse_Indices
+{
 public:
 	gltfAccessor_Sparse_Indices( ) : bufferView( -1 ), byteOffset( -1 ), componentType( -1 ) { };
 	int			bufferView;
@@ -336,7 +400,8 @@ public:
 	gltfExtra	extras;
 };
 
-class gltfAccessor_Sparse {
+class gltfAccessor_Sparse
+{
 public:
 	gltfAccessor_Sparse( ) : count( -1 ) { };
 	int count;
@@ -346,10 +411,11 @@ public:
 	gltfExtra	extras;
 };
 
-class gltfAccessor {
+class gltfAccessor
+{
 public:
 	gltfAccessor( ) : bufferView( -1 ), byteOffset( 0 ), componentType( -1 ), normalized( false ), count( -1 ) ,
-		floatView(nullptr),vecView(nullptr),quatView(nullptr),matView(nullptr){ }
+		floatView( nullptr ), vecView( nullptr ), quatView( nullptr ), matView( nullptr ) { }
 	int					bufferView;
 	int					byteOffset;
 	int					componentType;
@@ -365,13 +431,14 @@ public:
 
 	uint typeSize;
 
-	idList<float>   *	floatView;
-	idList<idVec3*> *	vecView;
-	idList<idQuat*> *	quatView;
-	idList<idMat4>  *	matView;
+	idList<float>*   	floatView;
+	idList<idVec3*>* 	vecView;
+	idList<idQuat*>* 	quatView;
+	idList<idMat4>*  	matView;
 };
 
-class gltfBufferView {
+class gltfBufferView
+{
 public:
 	gltfBufferView( ) : buffer( -1 ), byteLength( -1 ), byteStride( 0 ), byteOffset( 0 ), target( -1 ) { };
 	int			buffer;
@@ -383,10 +450,11 @@ public:
 	idStr		extensions;
 	gltfExtra	extras;
 	//
-	gltfData *parent;
+	gltfData* parent;
 };
 
-class gltfBuffer {
+class gltfBuffer
+{
 public:
 	gltfBuffer( ) : byteLength( -1 ), parent( nullptr ) { };
 	idStr		uri;
@@ -395,10 +463,11 @@ public:
 	idStr		extensions;
 	gltfExtra	extras;
 	//
-	gltfData *	parent;
+	gltfData* 	parent;
 };
 
-class gltfSampler {
+class gltfSampler
+{
 public:
 	gltfSampler( ) : magFilter( 0 ), minFilter( 0 ), wrapS( 10497 ), wrapT( 10497 ) { };
 	int			magFilter;
@@ -412,7 +481,8 @@ public:
 	uint bgfxSamplerFlags;
 };
 
-class gltfImage {
+class gltfImage
+{
 public:
 	gltfImage( ) : bufferView( -1 ) { }
 	idStr		uri;
@@ -423,9 +493,10 @@ public:
 	gltfExtra	extras;
 };
 
-class gltfSkin {
+class gltfSkin
+{
 public:
-	gltfSkin( ) : inverseBindMatrices(-1),skeleton(-1),name("unnamedSkin"){ };
+	gltfSkin( ) : inverseBindMatrices( -1 ), skeleton( -1 ), name( "unnamedSkin" ) { };
 	int			inverseBindMatrices;
 	int			skeleton;
 	idList<int>	joints; // integer[1,*]
@@ -435,14 +506,16 @@ public:
 };
 
 class gltfExt_KHR_texture_transform;
-class gltfTexture_Info_Extensions {
+class gltfTexture_Info_Extensions
+{
 public:
 	gltfTexture_Info_Extensions( ) :
 		KHR_texture_transform( nullptr ) { }
-	gltfExt_KHR_texture_transform *KHR_texture_transform;
+	gltfExt_KHR_texture_transform* KHR_texture_transform;
 };
 
-class gltfOcclusionTexture_Info {
+class gltfOcclusionTexture_Info
+{
 public:
 	gltfOcclusionTexture_Info( ) : index( -1 ), texCoord( 0 ), strength( 1.0f ) { }
 	int							index;
@@ -452,7 +525,8 @@ public:
 	gltfExtra					extras;
 };
 
-class gltfNormalTexture_Info {
+class gltfNormalTexture_Info
+{
 public:
 	gltfNormalTexture_Info( ) : index( -1 ), texCoord( 0 ), scale( 1.0f ) { }
 	int							index;
@@ -462,7 +536,8 @@ public:
 	gltfExtra					extras;
 };
 
-class gltfTexture_Info {
+class gltfTexture_Info
+{
 public:
 	gltfTexture_Info( ) : index( -1 ), texCoord( 0 ) { }
 	int							index;
@@ -472,17 +547,19 @@ public:
 };
 
 
-class gltfTexture {
+class gltfTexture
+{
 public:
 	gltfTexture( ) : sampler( -1 ), source( -1 ) { }
 	int							sampler;
 	int							source;
 	idStr						name;
 	gltfTexture_Info_Extensions	extensions;
-	gltfExtra					extras;	
+	gltfExtra					extras;
 };
 
-class gltfMaterial_pbrMetallicRoughness {
+class gltfMaterial_pbrMetallicRoughness
+{
 public:
 	gltfMaterial_pbrMetallicRoughness( ) : baseColorFactor( vec4_one ), metallicFactor( 1.0f ), roughnessFactor( 1.0f ) { }
 	idVec4				baseColorFactor;
@@ -494,9 +571,11 @@ public:
 	gltfExtra			extras;
 };
 
-class gltfMaterial {
+class gltfMaterial
+{
 public:
-	enum gltfAlphaMode {
+	enum gltfAlphaMode
+	{
 		gltfOPAQUE,
 		gltfMASK,
 		gltfBLEND,
@@ -518,18 +597,26 @@ public:
 
 	gltfAlphaMode intType;
 
-	static gltfAlphaMode resolveAlphaMode( idStr type ) {
-		if ( type == "OPAQUE" )
+	static gltfAlphaMode resolveAlphaMode( idStr type )
+	{
+		if( type == "OPAQUE" )
+		{
 			return gltfAlphaMode::gltfOPAQUE;
-		else if ( type == "MASK" )
+		}
+		else if( type == "MASK" )
+		{
 			return gltfAlphaMode::gltfMASK;
-		else if ( type == "BLEND" )
+		}
+		else if( type == "BLEND" )
+		{
 			return gltfAlphaMode::gltfBLEND;
+		}
 		return gltfAlphaMode::count;
 	}
 };
 
-class gltfAsset {
+class gltfAsset
+{
 public:
 	gltfAsset( ) { }
 	idStr		copyright;
@@ -542,7 +629,8 @@ public:
 
 //this is not used.
 //if an extension is found, it _will_ be used. (if implemented)
-class gltfExtensionsUsed {
+class gltfExtensionsUsed
+{
 public:
 	gltfExtensionsUsed( ) { }
 	idStr	extension;
@@ -565,9 +653,10 @@ public:
 
 //KHR_lights_punctual_spot
 //https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_lights_punctual/schema/light.spot.schema.json
-class gltfExt_KHR_lights_punctual_spot {
+class gltfExt_KHR_lights_punctual_spot
+{
 public:
-	gltfExt_KHR_lights_punctual_spot( ) : innerConeAngle(0.0f), outerConeAngle( idMath::ONEFOURTH_PI ){ }
+	gltfExt_KHR_lights_punctual_spot( ) : innerConeAngle( 0.0f ), outerConeAngle( idMath::ONEFOURTH_PI ) { }
 	float		innerConeAngle;
 	float		outerConeAngle;
 	idStr		extensions;
@@ -577,9 +666,10 @@ typedef gltfExt_KHR_lights_punctual_spot spot;
 
 //KHR_lights_punctual
 //https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_lights_punctual/schema/light.schema.json
-class gltfExt_KHR_lights_punctual {
+class gltfExt_KHR_lights_punctual
+{
 public:
-	gltfExt_KHR_lights_punctual( ) : color(vec3_one),intensity(1.0f),range(-1.0f),intType(-1) { }
+	gltfExt_KHR_lights_punctual( ) : color( vec3_one ), intensity( 1.0f ), range( -1.0f ), intType( -1 ) { }
 	idVec3		color;
 	float		intensity;
 	spot		spot;
@@ -591,28 +681,36 @@ public:
 
 	int intType;
 
-	static int resolveType( idStr type ) {
-		if (type == "directional" )
+	static int resolveType( idStr type )
+	{
+		if( type == "directional" )
+		{
 			return 0;
-		else if (type == "point" )
+		}
+		else if( type == "point" )
+		{
 			return 1;
-		else if (type == "spot" )
+		}
+		else if( type == "spot" )
+		{
 			return 2;
+		}
 		return -1;
 	}
 };
 
 //KHR_texture_transform
 //https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_texture_transform/schema/KHR_texture_transform.textureInfo.schema.json
-class gltfExt_KHR_texture_transform {
+class gltfExt_KHR_texture_transform
+{
 public:
-	gltfExt_KHR_texture_transform( ) : offset( vec2_zero ), rotation( 0.0f ), scale( vec2_one ), texCoord( -1 ),index(0),resolved(false) { }
+	gltfExt_KHR_texture_transform( ) : offset( vec2_zero ), rotation( 0.0f ), scale( vec2_one ), texCoord( -1 ), index( 0 ), resolved( false ) { }
 	idVec2	offset;
 	float	rotation;
 	idVec2	scale;
 	int		texCoord;
 	idStr	extensions;
-gltfExtra	extras;
+	gltfExtra	extras;
 
 	//for shader
 	uint	index;
@@ -631,53 +729,85 @@ const inline idList<gltf##name*> & ##name##List() { return target; }
 // EACH URI will have an unique chunk
 // JSON chunk MUST be the first one to be allocated/added
 
-class gltfData {
+class gltfData
+{
 public:
 	gltfData( ) : fileNameHash( 0 ), json( nullptr ), data( nullptr ), totalChunks( -1 ) {  };
 	~gltfData( );
-	byte *AddData( int size, int *bufferID = nullptr );
-	byte *GetJsonData( int &size ) { size = jsonDataLength; return json; }
-	byte *GetData( int index ) { return data[index]; }
-	void FileName( const idStr &file ) { fileName = file; fileNameHash = fileDataHash.GenerateKey( file.c_str( ) ); }
-	int FileNameHash( ) { return fileNameHash; }
-	idStr &FileName( ) { return fileName; }
+	byte* AddData( int size, int* bufferID = nullptr );
+	byte* GetJsonData( int& size )
+	{
+		size = jsonDataLength;
+		return json;
+	}
+	byte* GetData( int index )
+	{
+		return data[index];
+	}
+	void FileName( const idStr& file )
+	{
+		fileName = file;
+		fileNameHash = fileDataHash.GenerateKey( file.c_str( ) );
+	}
+	int FileNameHash( )
+	{
+		return fileNameHash;
+	}
+	idStr& FileName( )
+	{
+		return fileName;
+	}
 
 	static idHashIndex			fileDataHash;
-	static idList<gltfData *>	dataList;
+	static idList<gltfData*>	dataList;
 	//add data from filename
-	static gltfData *Data( idStr &fileName ) {
+	static gltfData* Data( idStr& fileName )
+	{
 		dataList.AssureSizeAlloc( dataList.Num( ) + 1, idListNewElement<gltfData> );
 		dataList[dataList.Num( ) - 1]->FileName( fileName );
 		fileDataHash.Add( fileDataHash.GenerateKey( fileName ), dataList.Num( ) - 1 );
 		return dataList[dataList.Num( ) - 1];
 	}
 	//find data;
-	static gltfData *Data( const char *filename ) { return dataList[fileDataHash.First( fileDataHash.GenerateKey( filename ) )]; }
-	static const idList<gltfData *> &DataList( ) { return dataList; }
-	static void ClearData( ) { idLib::Warning( "TODO! DATA NOT FREED" ); }
+	static gltfData* Data( const char* filename )
+	{
+		return dataList[fileDataHash.First( fileDataHash.GenerateKey( filename ) )];
+	}
+	static const idList<gltfData*>& DataList( )
+	{
+		return dataList;
+	}
+	static void ClearData( )
+	{
+		idLib::Warning( "TODO! DATA NOT FREED" );
+	}
 
 	//return the GLTF nodes that control the given camera
 	//return TRUE if the camera uses 2 nodes (like when blender exports gltfs with +Y..)
-	//This is determined by checking for an "_Orientation" suffix to the camera name of the node that has the target camera assigned. 
+	//This is determined by checking for an "_Orientation" suffix to the camera name of the node that has the target camera assigned.
 	// if so, translate node will be set to the parent node of the orientation node.
 	//Note: does not take overides into account!
-	gltfNode* GetCameraNodes( gltfCamera *camera )
+	gltfNode* GetCameraNodes( gltfCamera* camera )
 	{
 		gltfCameraNodePtrs result;
 
 		assert( camera );
 		int camId = -1;
-		for ( auto *cam : cameras )
+		for( auto* cam : cameras )
 		{
 			camId++;
-			if ( cam == camera )
+			if( cam == camera )
+			{
 				break;
+			}
 		}
 
-		for ( int i = 0; i < nodes.Num( ); i++ )
+		for( int i = 0; i < nodes.Num( ); i++ )
 		{
-			if ( nodes[i]->camera != -1 && nodes[i]->camera == camId ) 
+			if( nodes[i]->camera != -1 && nodes[i]->camera == camId )
+			{
 				return nodes[i];
+			}
 		}
 
 		return nullptr;
@@ -693,15 +823,16 @@ public:
 
 		idMat4 result = mat4_identity;
 
-		idList<gltfNode*> hierachy(2);
+		idList<gltfNode*> hierachy( 2 );
 		gltfNode* parent = nullptr;
 
-		for ( int i = 0; i < nodes.Num( ); i++ )
+		for( int i = 0; i < nodes.Num( ); i++ )
 		{
-			if ( nodes[i]->camera != -1 && nodes[i]->camera == camId ) 
+			if( nodes[i]->camera != -1 && nodes[i]->camera == camId )
 			{
 				parent = nodes[i];
-				while ( parent ) {
+				while( parent )
+				{
 					hierachy.Append( parent );
 					parent = parent->parent;
 				}
@@ -709,27 +840,30 @@ public:
 			}
 		}
 
-		for ( int i = hierachy.Num( ) - 1; i >= 0; i-- )
+		for( int i = hierachy.Num( ) - 1; i >= 0; i-- )
 		{
-			ResolveNodeMatrix(hierachy[i]);
+			ResolveNodeMatrix( hierachy[i] );
 			result *= hierachy[i]->matrix;
 		}
 
 		return result;
 	}
 	//Please note : assumes all nodes are _not_ dirty!
-	idMat4 GetLightMatrix( int lightId ) const 
+	idMat4 GetLightMatrix( int lightId ) const
 	{
 		idMat4 result = mat4_identity;
 
-		idList<gltfNode *> hierachy;
-		gltfNode *parent = nullptr;
+		idList<gltfNode*> hierachy;
+		gltfNode* parent = nullptr;
 		hierachy.SetGranularity( 2 );
 
-		for ( int i = 0; i < nodes.Num( ); i++ ) {
-			if ( nodes[i]->extensions.KHR_lights_punctual && nodes[i]->extensions.KHR_lights_punctual->light == lightId ) {
+		for( int i = 0; i < nodes.Num( ); i++ )
+		{
+			if( nodes[i]->extensions.KHR_lights_punctual && nodes[i]->extensions.KHR_lights_punctual->light == lightId )
+			{
 				parent = nodes[i];
-				while ( parent ) {
+				while( parent )
+				{
 					hierachy.Append( parent );
 					parent = parent->parent;
 				}
@@ -737,59 +871,70 @@ public:
 			}
 		}
 
-		for ( int i = hierachy.Num( ) - 1; i >= 0; i-- )
+		for( int i = hierachy.Num( ) - 1; i >= 0; i-- )
+		{
 			result *= hierachy[i]->matrix;
+		}
 
 		return result;
 	}
-	
+
 	// v * T * R * S. ->row major
 	// v' = S * R * T * v -> column major;
 	//bgfx = column-major
 	//idmath = row major, except mat3
 	//gltf matrices : column-major.
 	//if mat* is valid , it will be multplied by this node's matrix that is resolved in its full hiararchy and stops at root.
-	static void ResolveNodeMatrix( gltfNode *node, idMat4 *mat = nullptr ,gltfNode *root = nullptr ) 
+	static void ResolveNodeMatrix( gltfNode* node, idMat4* mat = nullptr , gltfNode* root = nullptr )
 	{
-		if ( node->dirty ) 
+		if( node->dirty )
 		{
 			idMat4 scaleMat = idMat4(
-				node->scale.x, 0, 0, 0,
-				0, node->scale.y, 0, 0,
-				0, 0, node->scale.z, 0,
-				0, 0, 0, 1
-			);
-			
+								  node->scale.x, 0, 0, 0,
+								  0, node->scale.y, 0, 0,
+								  0, 0, node->scale.z, 0,
+								  0, 0, 0, 1
+							  );
+
 			node->matrix = idMat4( mat3_identity, node->translation ) * node->rotation.ToMat4( ).Transpose( ) * scaleMat;
 
 			node->dirty = false;
 		}
 
 		//resolve full hierarchy
-		if ( mat != nullptr ) {
-			idList<gltfNode *> hierachy(2);
-			gltfNode *parent = node;
-			while ( parent ) {
-				ResolveNodeMatrix(parent);
+		if( mat != nullptr )
+		{
+			idList<gltfNode*> hierachy( 2 );
+			gltfNode* parent = node;
+			while( parent )
+			{
+				ResolveNodeMatrix( parent );
 				hierachy.Append( parent );
-				if ( parent == root )
+				if( parent == root )
+				{
 					break;
+				}
 				parent = parent->parent;
 			}
-			for ( int i = hierachy.Num( ) - 1; i >= 0; i-- )
+			for( int i = hierachy.Num( ) - 1; i >= 0; i-- )
+			{
 				*mat *= hierachy[i]->matrix;
+			}
 		}
 	}
 
-	void Advance( gltfAnimation *anim = nullptr );
+	void Advance( gltfAnimation* anim = nullptr );
 
 	//this copies the data and view cached on the accessor
 	template <class T>
-	idList<T*> &GetAccessorView( gltfAccessor *accessor );
-	idList<float> &GetAccessorView( gltfAccessor *accessor );
-	idList<idMat4> &GetAccessorViewMat( gltfAccessor *accessor );
+	idList<T*>& GetAccessorView( gltfAccessor* accessor );
+	idList<float>& GetAccessorView( gltfAccessor* accessor );
+	idList<idMat4>& GetAccessorViewMat( gltfAccessor* accessor );
 
-	int &DefaultScene( ) { return scene; }
+	int& DefaultScene( )
+	{
+		return scene;
+	}
 	GLTFCACHEITEM( Buffer, buffers )
 	GLTFCACHEITEM( Sampler, samplers )
 	GLTFCACHEITEM( BufferView, bufferViews )
@@ -805,34 +950,34 @@ public:
 	GLTFCACHEITEM( Extensions, extensions )
 	GLTFCACHEITEM( Animation, animations )
 	GLTFCACHEITEM( Skin, skins )
-	
+
 	//gltfCameraManager * cameraManager;
 private:
 	idStr fileName;
 	int	fileNameHash;
 
-	byte *json;
-	byte **data;
+	byte* json;
+	byte** data;
 	int jsonDataLength;
 	int totalChunks;
 
-	idList<gltfBuffer *>			buffers;
-	idList<gltfImage *>				images;
-	idList<gltfData *>				assetData;
-	idList<gltfSampler *>			samplers;
-	idList<gltfBufferView *>		bufferViews;
-	idList<gltfTexture *>			textures;
-	idList<gltfAccessor *>			accessors;
-	idList<gltfExtensionsUsed *>	extensionsUsed;
-	idList<gltfMesh *>				meshes;
+	idList<gltfBuffer*>			buffers;
+	idList<gltfImage*>				images;
+	idList<gltfData*>				assetData;
+	idList<gltfSampler*>			samplers;
+	idList<gltfBufferView*>		bufferViews;
+	idList<gltfTexture*>			textures;
+	idList<gltfAccessor*>			accessors;
+	idList<gltfExtensionsUsed*>	extensionsUsed;
+	idList<gltfMesh*>				meshes;
 	int								scene;
-	idList<gltfScene *>				scenes;
-	idList<gltfNode *>				nodes;
-	idList<gltfCamera *>			cameras;
-	idList<gltfMaterial *>			materials;
-	idList<gltfExtensions *>		extensions;
-	idList<gltfAnimation *>			animations;
-	idList<gltfSkin *>				skins;
+	idList<gltfScene*>				scenes;
+	idList<gltfNode*>				nodes;
+	idList<gltfCamera*>			cameras;
+	idList<gltfMaterial*>			materials;
+	idList<gltfExtensions*>		extensions;
+	idList<gltfAnimation*>			animations;
+	idList<gltfSkin*>				skins;
 };
 
 #undef GLTFCACHEITEM

@@ -1507,31 +1507,43 @@ Skips until a matching close brace is found.
 Internal brace depths are properly skipped.
 =================
 */
-int idLexer::SkipBracedSection( bool parseFirstBrace, braceSkipMode_t skipMode/* = BRSKIP_BRACE */, int * skipped /*= nullptr*/) {
+int idLexer::SkipBracedSection( bool parseFirstBrace, braceSkipMode_t skipMode/* = BRSKIP_BRACE */, int* skipped /*= nullptr*/ )
+{
 	idToken token;
 	int depth;
 	idStr openTokens[2] = { "{" , "["   };
 	idStr closeTokens[2] = { "}" , "]" };
 
-	if ( skipped != nullptr )
+	if( skipped != nullptr )
+	{
 		*skipped = 0;
+	}
 
 	int scopeCount = 0;
 	depth = parseFirstBrace ? 0 : 1;
-	do {
-		if ( !ReadToken( &token ) ) {
+	do
+	{
+		if( !ReadToken( &token ) )
+		{
 			return false;
 		}
-		if ( token.type == TT_PUNCTUATION ) {
-			if ( token == openTokens[skipMode] ) {
+		if( token.type == TT_PUNCTUATION )
+		{
+			if( token == openTokens[skipMode] )
+			{
 				depth++;
-				if ( skipped != nullptr )
-					(*skipped)++;
-			} else if ( token == closeTokens[skipMode] ) {
+				if( skipped != nullptr )
+				{
+					( *skipped )++;
+				}
+			}
+			else if( token == closeTokens[skipMode] )
+			{
 				depth--;
 			}
 		}
-	} while( depth );
+	}
+	while( depth );
 	return true;
 }
 

@@ -1574,11 +1574,12 @@ bool idMapFile::Parse( const char* filename, bool ignoreRegion, bool osPath )
 	}
 
 	bool isGTLF = false;
-	if ( !src.IsLoaded( ) ) {
+	if( !src.IsLoaded( ) )
+	{
 		// HVG: try loading a .gltf/glb second
 		fullName.SetFileExtension( "glb" );
 		isGTLF = src.LoadFile( fullName, osPath );
-		if ( !isGTLF )
+		if( !isGTLF )
 		{
 			fullName.SetFileExtension( "gltf" );
 			isGTLF = src.LoadFile( fullName, osPath );
@@ -1601,7 +1602,7 @@ bool idMapFile::Parse( const char* filename, bool ignoreRegion, bool osPath )
 	fileTime = src.GetFileTime();
 	entities.DeleteContents( true );
 
-	if(!isGTLF && !src.ReadToken( &token ) )
+	if( !isGTLF && !src.ReadToken( &token ) )
 	{
 		return false;
 	}
@@ -1668,11 +1669,12 @@ bool idMapFile::Parse( const char* filename, bool ignoreRegion, bool osPath )
 			}
 		}
 	}
-	else if ( isGTLF )
+	else if( isGTLF )
 	{
 		gltfParser->Load( fullName );
-		idMapEntity::GetEntities(gltfParser->currentAsset,entities,0);
-	}else
+		idMapEntity::GetEntities( gltfParser->currentAsset, entities, 0 );
+	}
+	else
 	{
 		if( token == "Version" )
 		{
