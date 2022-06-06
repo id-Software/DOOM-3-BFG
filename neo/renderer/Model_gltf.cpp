@@ -48,7 +48,7 @@ void MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh* _mesh, gltfData* data 
 			for( int i = 0; i < accessor->count; i += 3 )
 			{
 				MapPolygon& polygon = polygons.Alloc( );
-				polygon.SetMaterial( "textures/base_wall/lfwall27d" );
+				polygon.SetMaterial( "textures/enpro/enwall16" );
 				polygon.AddIndex( indices[i + 1] );
 				polygon.AddIndex( indices[i + 2] );
 				polygon.AddIndex( indices[i + 0] );
@@ -85,7 +85,16 @@ void MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh* _mesh, gltfData* data 
 							bin.Read( ( void* )( &pos.y ), attrAcc->typeSize );
 							bin.Read( ( void* )( &pos.z ), attrAcc->typeSize );
 
-							verts[i].xyz = pos;
+#if 0
+							// RB: proper glTF2 convention
+							verts[i].xyz.x = pos.z;
+							verts[i].xyz.y = pos.x;
+							verts[i].xyz.z = pos.y;
+#else
+							verts[i].xyz.x = pos.x;
+							verts[i].xyz.y = pos.y;
+							verts[i].xyz.z = pos.z;
+#endif
 
 							if( attrBv->byteStride )
 							{
