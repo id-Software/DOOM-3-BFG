@@ -390,10 +390,12 @@ void idRenderModelGLTF::TouchData( )
 	common->Warning( "The method or operation is not implemented." );
 }
 
-void idRenderModelGLTF::CreateBuffers( nvrhi::ICommandList* commandList )
+/*
+void idRenderModelGLTF::CreateBuffers()
 {
 	common->Warning( "The method or operation is not implemented." );
 }
+*/
 
 void idRenderModelGLTF::InitEmpty( const char* name )
 {

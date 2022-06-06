@@ -33,7 +33,7 @@ public:
 	void SetLevelLoadReferenced( bool referenced ) override;
 	bool IsLevelLoadReferenced( ) override;
 	void TouchData( ) override;
-	void CreateBuffers( nvrhi::ICommandList* commandList ) override;
+	//void CreateBuffers( nvrhi::ICommandList* commandList ) override;
 	void InitEmpty( const char* name ) override;
 	void AddSurface( modelSurface_t surface ) override;
 	void FinishSurfaces( bool useMikktspace ) override;
