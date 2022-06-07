@@ -49,9 +49,9 @@ void MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh* _mesh, gltfData* data 
 			{
 				MapPolygon& polygon = polygons.Alloc( );
 				polygon.SetMaterial( "textures/enpro/enwall16" );
+				polygon.AddIndex( indices[i + 0] );
 				polygon.AddIndex( indices[i + 1] );
 				polygon.AddIndex( indices[i + 2] );
-				polygon.AddIndex( indices[i + 0] );
 			}
 
 			Mem_Free( indices );
@@ -77,8 +77,7 @@ void MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh* _mesh, gltfData* data 
 				{
 					case gltfMesh_Primitive_Attribute::Type::Position:
 					{
-						for( int i =  attrAcc->count - 1; i >= 0; i-- )
-							//for( int i = 0; i < attrAcc->count; i++ )
+						for( int i = 0; i < attrAcc->count; i++ )
 						{
 							idVec3 pos;
 
@@ -87,7 +86,7 @@ void MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh* _mesh, gltfData* data 
 							bin.Read( ( void* )( &pos.z ), attrAcc->typeSize );
 
 #if 1
-							// RB: proper glTF2 convention
+							// RB: proper glTF2 convention, requires Y-up export option ticked on in Blender
 							verts[i].xyz.x = pos.z;
 							verts[i].xyz.y = pos.x;
 							verts[i].xyz.z = pos.y;
