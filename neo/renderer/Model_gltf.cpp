@@ -78,6 +78,7 @@ void MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh* _mesh, gltfData* data 
 					case gltfMesh_Primitive_Attribute::Type::Position:
 					{
 						for( int i =  attrAcc->count - 1; i >= 0; i-- )
+							//for( int i = 0; i < attrAcc->count; i++ )
 						{
 							idVec3 pos;
 
@@ -85,7 +86,7 @@ void MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh* _mesh, gltfData* data 
 							bin.Read( ( void* )( &pos.y ), attrAcc->typeSize );
 							bin.Read( ( void* )( &pos.z ), attrAcc->typeSize );
 
-#if 0
+#if 1
 							// RB: proper glTF2 convention
 							verts[i].xyz.x = pos.z;
 							verts[i].xyz.y = pos.x;
@@ -233,12 +234,14 @@ int idMapEntity::GetEntities( gltfData* data, EntityListRef entities, int sceneI
 				}
 				newEntity->epairs.Copy( node->extras.strPairs );
 
+#if 0
 				for( int i = 0; i < newEntity->epairs.GetNumKeyVals(); i++ )
 				{
 					const idKeyValue* kv = newEntity->epairs.GetKeyVal( i );
 
 					idLib::Printf( "entity[ %s ] key = '%s' value = '%s'\n", node->name.c_str(), kv->GetKey().c_str(), kv->GetValue().c_str() );
 				}
+#endif
 
 				data->ResolveNodeMatrix( node );
 				newEntity->epairs.Set( "origin", node->translation.ToString() );
