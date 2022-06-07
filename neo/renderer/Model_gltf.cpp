@@ -138,6 +138,8 @@ void MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh* _mesh, gltfData* data 
 							{
 								bin.Seek( attrBv->byteStride - ( attrib->elementSize * attrAcc->typeSize ), FS_SEEK_CUR );
 							}
+
+							//vec.y = 1.0f - vec.y;
 							verts[i].SetTexCoord( vec );
 						}
 
@@ -243,7 +245,20 @@ int idMapEntity::GetEntities( gltfData* data, EntityListRef entities, int sceneI
 #endif
 
 				data->ResolveNodeMatrix( node );
-				newEntity->epairs.Set( "origin", node->translation.ToString() );
+
+				idVec3 origin;
+#if 1
+				// RB: proper glTF2 convention, requires Y-up export option ticked on in Blender
+				origin.x = node->translation.z;
+				origin.y = node->translation.x;
+				origin.z = node->translation.y;
+#else
+				origin.x = node->translation.x;
+				origin.y = node->translation.y;
+				origin.z = node->translation.z;
+#endif
+
+				newEntity->epairs.Set( "origin", origin.ToString() );
 
 				common->Printf( " %s \n ", node->name.c_str( ) );
 				entities.Append( newEntity );
