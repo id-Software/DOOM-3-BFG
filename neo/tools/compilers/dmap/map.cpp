@@ -501,6 +501,15 @@ static int ParsePolygonMesh( const MapPolygonMesh* mesh, int primitiveNum, int n
 			tri->v[1] = verts[ indexes[ 1 ] ];
 			tri->v[2] = verts[ indexes[ 2 ] ];
 
+#if 0
+			idLib::Printf( "indices: ( %i %i %i )\n", indexes[ 0 ], indexes[ 1 ], indexes[ 2 ] );
+
+			idLib::Printf( "verts: ( %i %i %i ) ( %i %i %i ) ( %i %i %i )\n",
+						   int( tri->v[0].xyz.x ), int( tri->v[0].xyz.y ), int( tri->v[0].xyz.z ),
+						   int( tri->v[1].xyz.x ), int( tri->v[1].xyz.y ), int( tri->v[1].xyz.z ),
+						   int( tri->v[2].xyz.x ), int( tri->v[2].xyz.y ), int( tri->v[2].xyz.z ) );
+#endif
+
 			idPlane plane;
 			plane.FromPoints( tri->v[0].xyz, tri->v[1].xyz, tri->v[2].xyz );
 

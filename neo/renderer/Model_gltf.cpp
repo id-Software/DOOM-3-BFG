@@ -19,11 +19,11 @@ bool idRenderModelStatic::ConvertGltfMeshToModelsurfaces( const gltfMesh* mesh )
 
 void MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh* _mesh, gltfData* data )
 {
-	for( auto* gltfMesh : data->MeshList( ) )
+	//for( auto* gltfMesh : data->MeshList( ) )
 	{
-		for( auto prim : gltfMesh->primitives )
+		for( auto prim : _mesh->primitives )
 		{
-			common->Printf( "primitive for %s\n", gltfMesh->name.c_str() );
+			common->Printf( "primitive for %s\n", _mesh->name.c_str() );
 
 			gltfAccessor* accessor = data->AccessorList( )[prim->indices];
 			gltfBufferView* bv = data->BufferViewList( )[accessor->bufferView];
@@ -47,7 +47,7 @@ void MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh* _mesh, gltfData* data 
 
 			for( int i = 0; i < accessor->count; i += 3 )
 			{
-				MapPolygon& polygon = polygons.Alloc( );
+				MapPolygon& polygon = polygons.Alloc();
 				polygon.SetMaterial( "textures/enpro/enwall16" );
 				polygon.AddIndex( indices[i + 0] );
 				polygon.AddIndex( indices[i + 1] );
@@ -77,6 +77,7 @@ void MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh* _mesh, gltfData* data 
 				{
 					case gltfMesh_Primitive_Attribute::Type::Position:
 					{
+						//for( int i = attrAcc->count - 1; i >= 0; i-- )
 						for( int i = 0; i < attrAcc->count; i++ )
 						{
 							idVec3 pos;
