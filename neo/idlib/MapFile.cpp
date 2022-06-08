@@ -2220,6 +2220,24 @@ void MapPolygonMesh::ConvertFromBrush( const idMapBrush* mapBrush, int entityNum
 			st.x = ( xyz * texVec[0].ToVec3() ) + texVec[0][3];
 			st.y = ( xyz * texVec[1].ToVec3() ) + texVec[1][3];
 
+			// support Valve 220 projection
+			if( mapSide->GetProjectionType() == idMapBrushSide::PROJECTION_VALVE220 )
+			{
+				const idMaterial* material = declManager->FindMaterial( mapSide->GetMaterial() );
+
+				idVec2i texSize = mapSide->GetTextureSize();
+
+				idImage* image = material->GetEditorImage();
+				if( image != NULL )
+				{
+					texSize.x = image->GetUploadWidth();
+					texSize.y = image->GetUploadHeight();
+				}
+
+				st.x /= texSize[0];
+				st.y /= texSize[1];
+			}
+
 			// flip y
 			//st.y = 1.0f - st.y;
 
