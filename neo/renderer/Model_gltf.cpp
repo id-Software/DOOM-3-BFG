@@ -6,7 +6,7 @@
 #include "Model_gltf.h"
 #include "Model_local.h"
 
-
+#define GLTF_YUP 1
 
 bool idRenderModelStatic::ConvertGltfMeshToModelsurfaces( const gltfMesh* mesh )
 {
@@ -49,9 +49,9 @@ void MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh* _mesh, gltfData* data 
 			{
 				MapPolygon& polygon = polygons.Alloc();
 				polygon.SetMaterial( "textures/enpro/enwall16" );
-				polygon.AddIndex( indices[i + 0] );
-				polygon.AddIndex( indices[i + 1] );
 				polygon.AddIndex( indices[i + 2] );
+				polygon.AddIndex( indices[i + 1] );
+				polygon.AddIndex( indices[i + 0] );
 			}
 
 			Mem_Free( indices );
@@ -77,7 +77,6 @@ void MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh* _mesh, gltfData* data 
 				{
 					case gltfMesh_Primitive_Attribute::Type::Position:
 					{
-						//for( int i = attrAcc->count - 1; i >= 0; i-- )
 						for( int i = 0; i < attrAcc->count; i++ )
 						{
 							idVec3 pos;
@@ -86,7 +85,7 @@ void MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh* _mesh, gltfData* data 
 							bin.Read( ( void* )( &pos.y ), attrAcc->typeSize );
 							bin.Read( ( void* )( &pos.z ), attrAcc->typeSize );
 
-#if 1
+#if GLTF_YUP
 							// RB: proper glTF2 convention, requires Y-up export option ticked on in Blender
 							verts[i].xyz.x = pos.z;
 							verts[i].xyz.y = pos.x;
@@ -123,7 +122,20 @@ void MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh* _mesh, gltfData* data 
 							{
 								bin.Seek( attrBv->byteStride - ( attrib->elementSize * attrAcc->typeSize ), FS_SEEK_CUR );
 							}
-							verts[i].SetNormal( vec );
+
+							idVec3 normal;
+#if GLTF_YUP
+							// RB: proper glTF2 convention, requires Y-up export option ticked on in Blender
+							normal.x = vec.z;
+							normal.y = vec.x;
+							normal.z = vec.y;
+#else
+							normal.x = vec.x;
+							normal.y = vec.y;
+							normal.z = vec.z;
+#endif
+
+							verts[i].SetNormal( normal );
 						}
 
 						break;
@@ -159,7 +171,20 @@ void MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh* _mesh, gltfData* data 
 							{
 								bin.Seek( attrBv->byteStride - ( attrib->elementSize * attrAcc->typeSize ), FS_SEEK_CUR );
 							}
-							verts[i].SetTangent( vec.ToVec3() );
+
+							idVec3 tangent;
+#if GLTF_YUP
+							// RB: proper glTF2 convention, requires Y-up export option ticked on in Blender
+							tangent.x = vec.z;
+							tangent.y = vec.x;
+							tangent.z = vec.y;
+#else
+							tangent.x = vec.x;
+							tangent.y = vec.y;
+							tangent.z = vec.z;
+#endif
+
+							verts[i].SetTangent( tangent );
 							verts[i].SetBiTangentSign( vec.w );
 						}
 						break;
@@ -248,7 +273,8 @@ int idMapEntity::GetEntities( gltfData* data, EntityListRef entities, int sceneI
 				data->ResolveNodeMatrix( node );
 
 				idVec3 origin;
-#if 1
+
+#if GLTF_YUP
 				// RB: proper glTF2 convention, requires Y-up export option ticked on in Blender
 				origin.x = node->translation.z;
 				origin.y = node->translation.x;
@@ -268,23 +294,6 @@ int idMapEntity::GetEntities( gltfData* data, EntityListRef entities, int sceneI
 			}
 		}
 	}
-
-	/*
-	if( entities.Num( ) > 0 && ( idStr::Icmp( entities[0]->epairs.GetString( "name" ), "worldspawn" ) != 0 ) )
-	{
-		// move world spawn to first place
-		for( int i = 1; i < entities.Num( ); i++ )
-		{
-			if( idStr::Icmp( entities[i]->epairs.GetString( "name" ), "worldspawn" ) == 0 )
-			{
-				idMapEntity* tmp = entities[0];
-				entities[0] = entities[i];
-				entities[i] = tmp;
-				break;
-			}
-		}
-	}
-	*/
 
 	return entityCount;
 }
