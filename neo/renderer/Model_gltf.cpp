@@ -19,6 +19,7 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive * 
 	gltfAccessor* accessor = _data->AccessorList( )[prim->indices];
 	gltfBufferView* bv = _data->BufferViewList( )[accessor->bufferView];
 	gltfData* data = bv->parent;
+	gltfMaterial* mat = _data->MaterialList()[prim->material];
 
 	gltfBuffer* buff = data->BufferList( )[bv->buffer];
 	uint idxDataSize = sizeof( uint ) * accessor->count;
@@ -39,7 +40,7 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive * 
 	for( int i = 0; i < accessor->count; i += 3 )
 	{
 		MapPolygon& polygon = mesh->polygons.Alloc();
-		polygon.SetMaterial( "textures/enpro/enwall16" );
+		polygon.SetMaterial( mat->name );
 		polygon.AddIndex( indices[i + 2] );
 		polygon.AddIndex( indices[i + 1] );
 		polygon.AddIndex( indices[i + 0] );
