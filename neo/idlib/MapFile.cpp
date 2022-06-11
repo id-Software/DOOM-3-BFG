@@ -1452,7 +1452,7 @@ unsigned int idMapEntity::GetGeometryCRC() const
 	idMapPrimitive*	mapPrim;
 
 	crc = 0;
-	for(int i = 0; i < GetNumPrimitives(); i++ )
+	for( int i = 0; i < GetNumPrimitives(); i++ )
 	{
 		mapPrim = GetPrimitive( i );
 
@@ -2776,13 +2776,13 @@ unsigned int MapPolygonMesh::GetGeometryCRC() const
 	unsigned int crc = 0;
 	for( i = 0; i < verts.Num(); i++ )
 	{
-		crc ^= StringCRC((verts[i].xyz * (i+1)).ToString());
+		crc ^= StringCRC( ( verts[i].xyz * ( i + 1 ) ).ToString() );
 	}
 
 	for( i = 0; i < polygons.Num(); i++ )
 	{
 		const MapPolygon& poly = polygons[i];
-		crc ^= StringCRC( poly.GetMaterial() + idStr(i) );
+		crc ^= StringCRC( poly.GetMaterial() + idStr( i ) );
 	}
 
 	return crc;

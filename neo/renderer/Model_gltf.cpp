@@ -13,20 +13,25 @@ bool idRenderModelStatic::ConvertGltfMeshToModelsurfaces( const gltfMesh* mesh )
 	return false;
 }
 
-MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive * prim, gltfData* _data )
+MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* prim, gltfData* _data )
 {
 	MapPolygonMesh* mesh = new MapPolygonMesh();
 	gltfAccessor* accessor = _data->AccessorList( )[prim->indices];
 	gltfBufferView* bv = _data->BufferViewList( )[accessor->bufferView];
 	gltfData* data = bv->parent;
-	gltfMaterial* mat = _data->MaterialList()[prim->material];
+
+	gltfMaterial* mat = NULL;
+	if( prim->material != -1 )
+	{
+		mat = _data->MaterialList()[prim->material];
+	}
 
 	gltfBuffer* buff = data->BufferList( )[bv->buffer];
 	uint idxDataSize = sizeof( uint ) * accessor->count;
 	uint* indices = ( uint* ) Mem_ClearedAlloc( idxDataSize , TAG_IDLIB_GLTF );
 
 	idFile_Memory idxBin = idFile_Memory( "gltfChunkIndices",
-											( const char* )( ( data->GetData( bv->buffer ) + bv->byteOffset + accessor->byteOffset ) ), bv->byteLength );
+										  ( const char* )( ( data->GetData( bv->buffer ) + bv->byteOffset + accessor->byteOffset ) ), bv->byteLength );
 
 	for( int i = 0; i < accessor->count; i++ )
 	{
@@ -40,7 +45,16 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive * 
 	for( int i = 0; i < accessor->count; i += 3 )
 	{
 		MapPolygon& polygon = mesh->polygons.Alloc();
-		polygon.SetMaterial( mat->name );
+
+		if( mat != NULL )
+		{
+			polygon.SetMaterial( mat->name );
+		}
+		else
+		{
+			polygon.SetMaterial( "textures/base_wall/snpanel2rust" );
+		}
+
 		polygon.AddIndex( indices[i + 2] );
 		polygon.AddIndex( indices[i + 1] );
 		polygon.AddIndex( indices[i + 0] );
@@ -57,7 +71,7 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive * 
 		gltfBuffer* attrbuff = attrData->BufferList( )[attrBv->buffer];
 
 		idFile_Memory bin = idFile_Memory( "gltfChunkVertices",
-											( const char* )( ( attrData->GetData( attrBv->buffer ) + attrBv->byteOffset + attrAcc->byteOffset ) ), attrBv->byteLength );
+										   ( const char* )( ( attrData->GetData( attrBv->buffer ) + attrBv->byteOffset + attrAcc->byteOffset ) ), attrBv->byteLength );
 
 		if( !sizeSet )
 		{
@@ -214,17 +228,15 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive * 
 
 int idMapEntity::GetEntities( gltfData* data, EntityListRef entities, int sceneID )
 {
-	entities.AssureSizeAlloc(  entities.Num( ) + 1, idListNewElement<idMapEntity> );
+	idMapEntity* worldspawn = new( TAG_IDLIB_GLTF ) idMapEntity();
+	entities.Append( worldspawn );
 
-	idMapEntity* worldspawn =   entities[0];
 	bool wpSet = false;
 
 	int entityCount = 0;
 	for( auto& nodeID :  data->SceneList()[sceneID]->nodes )
 	{
 		auto* node = data->NodeList()[nodeID];
-
-		idMapEntity* newEntity = NULL;
 
 		bool isWorldSpawn = idStr::Icmp( node->extras.strPairs.GetString( "classname" ), "worldspawn" ) == 0;
 		if( isWorldSpawn )
@@ -238,15 +250,16 @@ int idMapEntity::GetEntities( gltfData* data, EntityListRef entities, int sceneI
 			// account all meshes starting with worldspawn. or BSP in the name
 			if( idStr::Icmpn( node->name, "BSP", 3 ) == 0 || idStr::Icmpn( node->name, "worldspawn.", 11 ) == 0 )
 			{
-				for ( auto prim : data->MeshList()[node->mesh]->primitives ) {
-					worldspawn->AddPrimitive( MapPolygonMesh::ConvertFromMeshGltf( prim, data ));
+				for( auto prim : data->MeshList()[node->mesh]->primitives )
+				{
+					worldspawn->AddPrimitive( MapPolygonMesh::ConvertFromMeshGltf( prim, data ) );
 				}
 			}
 			else
 			{
 
-				entities.AssureSizeAlloc(entities.Num()+1,idListNewElement<idMapEntity>);
-				newEntity = entities[entities.Num()-1];
+				idMapEntity* newEntity = new( TAG_IDLIB_GLTF ) idMapEntity();
+				entities.Append( newEntity );
 
 				// set name and retrieve epairs from node extras
 				if( node->name.Length() )
