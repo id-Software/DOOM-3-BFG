@@ -2776,7 +2776,13 @@ unsigned int MapPolygonMesh::GetGeometryCRC() const
 	unsigned int crc = 0;
 	for( i = 0; i < verts.Num(); i++ )
 	{
+#if 0
 		crc ^= StringCRC( ( verts[i].xyz * ( i + 1 ) ).ToString() );
+#else
+		crc ^= FloatCRC( verts[i].xyz.x * ( i + 1 ) );
+		crc ^= FloatCRC( verts[i].xyz.y * ( i + 1 ) );
+		crc ^= FloatCRC( verts[i].xyz.z * ( i + 1 ) );
+#endif
 	}
 
 	for( i = 0; i < polygons.Num(); i++ )
