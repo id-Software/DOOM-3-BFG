@@ -1448,12 +1448,11 @@ idMapEntity::GetGeometryCRC
 */
 unsigned int idMapEntity::GetGeometryCRC() const
 {
-	int i;
 	unsigned int crc;
 	idMapPrimitive*	mapPrim;
 
 	crc = 0;
-	for( i = 0; i < GetNumPrimitives(); i++ )
+	for(int i = 0; i < GetNumPrimitives(); i++ )
 	{
 		mapPrim = GetPrimitive( i );
 
@@ -2773,22 +2772,17 @@ void MapPolygonMesh::SetContents()
 
 unsigned int MapPolygonMesh::GetGeometryCRC() const
 {
-	int i;
-	unsigned int crc;
-
-	crc = 0;
+	unsigned int i;
+	unsigned int crc = 0;
 	for( i = 0; i < verts.Num(); i++ )
 	{
-		crc ^= FloatCRC( verts[i].xyz.x );
-		crc ^= FloatCRC( verts[i].xyz.y );
-		crc ^= FloatCRC( verts[i].xyz.z );
+		crc ^= StringCRC((verts[i].xyz * (i+1)).ToString());
 	}
 
 	for( i = 0; i < polygons.Num(); i++ )
 	{
 		const MapPolygon& poly = polygons[i];
-
-		crc ^= StringCRC( poly.GetMaterial() );
+		crc ^= StringCRC( poly.GetMaterial() + idStr(i) );
 	}
 
 	return crc;
