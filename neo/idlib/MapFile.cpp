@@ -1671,7 +1671,7 @@ bool idMapFile::Parse( const char* filename, bool ignoreRegion, bool osPath )
 	else if( isGTLF )
 	{
 		gltfParser->Load( fullName );
-		idMapEntity::GetEntities( gltfParser->currentAsset, entities, 0 );
+		idMapEntity::GetEntities( gltfParser->currentAsset, entities, gltfParser->currentAsset->GetSceneId( "Scene" ) );
 	}
 	else
 	{

@@ -813,6 +813,66 @@ public:
 		return nullptr;
 	}
 
+	gltfNode *GetNode(gltfScene * scene ,gltfMesh * mesh) {
+		assert( scene );
+		assert( mesh );
+
+		auto & nodeList = scene->nodes;
+		for ( auto & nodeId : nodeList )
+		{
+			if ( nodes[nodeId]->mesh != -1 && *&meshes[nodes[nodeId]->mesh] == mesh ) {
+				return nodes[nodeId];
+			}
+		}
+
+		return nullptr;
+	}
+
+	gltfNode *GetNode(idStr sceneName, idStr name ) {
+		int sceneId =  GetSceneId(sceneName);
+		if (sceneId < 0 || sceneId > scenes.Num() )
+			return nullptr;
+
+		gltfScene *scene = scenes[sceneId];
+
+		assert( scene );
+		assert( name[0] );
+
+		auto &nodeList = scene->nodes;
+		for ( auto &nodeId : nodeList ) {
+			if ( nodes[nodeId]->name == name ) {
+				return nodes[nodeId];
+			}
+		}
+
+		return nullptr;
+	}
+
+	gltfNode *GetNode( gltfScene *scene, idStr name) {
+		assert( scene );
+		assert( name[0] );
+
+		auto &nodeList = scene->nodes;
+		for ( auto &nodeId : nodeList ) {
+			if ( nodes[nodeId]->name == name ) {
+				return nodes[nodeId];
+			}
+		}
+
+		return nullptr;
+	}
+
+	int GetSceneId( idStr sceneName ) const
+	{
+		for( int i = 0; i < scenes.Num(); i++ )
+		{
+			if( scenes[i]->name == sceneName )
+			{
+				return i;
+			}
+		}
+		return -1;
+	}
 	idMat4 GetViewMatrix( int camId ) const
 	{
 		//if (cameraManager->HasOverideID(camId) )
@@ -962,22 +1022,22 @@ private:
 	int totalChunks;
 
 	idList<gltfBuffer*>			buffers;
-	idList<gltfImage*>				images;
-	idList<gltfData*>				assetData;
-	idList<gltfSampler*>			samplers;
+	idList<gltfImage*>			images;
+	idList<gltfData*>			assetData;
+	idList<gltfSampler*>		samplers;
 	idList<gltfBufferView*>		bufferViews;
-	idList<gltfTexture*>			textures;
-	idList<gltfAccessor*>			accessors;
+	idList<gltfTexture *>		textures;
+	idList<gltfAccessor *>		accessors;
 	idList<gltfExtensionsUsed*>	extensionsUsed;
-	idList<gltfMesh*>				meshes;
-	int								scene;
-	idList<gltfScene*>				scenes;
-	idList<gltfNode*>				nodes;
+	idList<gltfMesh*>			meshes;
+	int							scene;
+	idList<gltfScene*>			scenes;
+	idList<gltfNode*>			nodes;
 	idList<gltfCamera*>			cameras;
-	idList<gltfMaterial*>			materials;
+	idList<gltfMaterial*>		materials;
 	idList<gltfExtensions*>		extensions;
-	idList<gltfAnimation*>			animations;
-	idList<gltfSkin*>				skins;
+	idList<gltfAnimation*>		animations;
+	idList<gltfSkin*>			skins;
 };
 
 #undef GLTFCACHEITEM

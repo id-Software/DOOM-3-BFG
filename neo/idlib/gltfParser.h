@@ -283,6 +283,7 @@ public:
 
 	//current/last loaded gltf asset and index offsets
 	gltfData* currentAsset;
+	idStr currentFile;
 private:
 	void SetNodeParent( gltfNode* node, gltfNode* parent = nullptr );
 	//void CreateBgfxData( );
@@ -312,7 +313,6 @@ private:
 
 	idLexer	parser;
 	idToken	token;
-	idStr currentFile;
 
 	bool buffersDone;
 	bool bufferViewsDone;
