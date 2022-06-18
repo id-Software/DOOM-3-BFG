@@ -33,6 +33,9 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "../renderer/Image.h"
 
+
+idCVar gltf_MapSceneName( "gltf_MapSceneName", "Scene", CVAR_SYSTEM , "Scene to use when d-mapping a gltf/glb" );
+
 /*
 ===============
 FloatCRC
@@ -1671,7 +1674,7 @@ bool idMapFile::Parse( const char* filename, bool ignoreRegion, bool osPath )
 	else if( isGTLF )
 	{
 		gltfParser->Load( fullName );
-		idMapEntity::GetEntities( gltfParser->currentAsset, entities, gltfParser->currentAsset->GetSceneId( "Scene" ) );
+		idMapEntity::GetEntities( gltfParser->currentAsset, entities, gltfParser->currentAsset->GetSceneId( gltf_MapSceneName.GetString() ) );
 	}
 	else
 	{

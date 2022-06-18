@@ -316,6 +316,25 @@ void ProcessSceneNode( idMapEntity* newEntity, gltfNode* node, idMat4& trans, gl
 	newEntity->epairs.Set( "origin", origin.ToString() );
 }
 
+void Map_AddMeshes( idMapEntity* _Entity, gltfNode* _Node, idMat4& _Trans, gltfData* _Data )
+{
+	gltfData::ResolveNodeMatrix( _Node );
+	idMat4 curTrans = _Trans * _Node->matrix;
+
+	if( _Node->mesh != -1 )
+	{
+		for( auto prim : _Data->MeshList( )[_Node->mesh]->primitives )
+		{
+			_Entity->AddPrimitive( MapPolygonMesh::ConvertFromMeshGltf( prim, _Data, curTrans ) );
+		}
+	}
+
+	for( auto& child : _Node->children )
+	{
+		Map_AddMeshes( _Entity, _Data->NodeList( )[child], curTrans, _Data );
+	}
+};
+
 int idMapEntity::GetEntities( gltfData* data, EntityListRef entities, int sceneID )
 {
 	idMapEntity* worldspawn = new( TAG_IDLIB_GLTF ) idMapEntity();
@@ -341,10 +360,7 @@ int idMapEntity::GetEntities( gltfData* data, EntityListRef entities, int sceneI
 			// account all meshes starting with "worldspawn." or "BSP" in the name
 			if( idStr::Icmpn( node->name, "BSP", 3 ) == 0 || idStr::Icmpn( node->name, "worldspawn.", 11 ) == 0 )
 			{
-				for( auto prim : data->MeshList()[node->mesh]->primitives )
-				{
-					worldspawn->AddPrimitive( MapPolygonMesh::ConvertFromMeshGltf( prim, data , mat4_identity ) );
-				}
+				Map_AddMeshes( worldspawn, node, mat4_identity, data );
 			}
 			else
 			{

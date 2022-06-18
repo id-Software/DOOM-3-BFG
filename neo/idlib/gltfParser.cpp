@@ -1987,6 +1987,7 @@ bool GLTF_Parser::loadGLB( idStr filename )
 	}
 
 	Parse();
+	delete file;
 	return true;
 }
 
