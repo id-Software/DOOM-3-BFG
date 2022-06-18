@@ -1,3 +1,31 @@
+/*
+===========================================================================
+
+Doom 3 BFG Edition GPL Source Code
+Copyright (C) 2022 Harrie van Ginneken
+
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
+
+Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Doom 3 BFG Edition Source Code is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Doom 3 BFG Edition Source Code.  If not, see <http://www.gnu.org/licenses/>.
+
+In addition, the Doom 3 BFG Edition Source Code is also subject to certain additional terms. You should have received a copy of these additional terms immediately following the terms and conditions of the GNU General Public License which accompanied the Doom 3 BFG Edition Source Code.  If not, please request a copy in writing from id Software at the address below.
+
+If you have questions concerning this license or the applicable additional terms, you may contact in writing id Software LLC, c/o ZeniMax Media Inc., Suite 120, Rockville, Maryland 20850 USA.
+
+===========================================================================
+*/
+
 #include "precompiled.h"
 #pragma hdrstop
 
@@ -199,11 +227,13 @@ void gltfPropertyArray::Iterator::operator ++()
 		}
 	}
 }
+
 gltfPropertyArray::~gltfPropertyArray()
 {
 	delete endPtr;
 	properties.DeleteContents( true );
 }
+
 gltfPropertyArray::gltfPropertyArray( idLexer* Parser, bool AoS/* = true */ )
 	: parser( Parser ), iterating( true ), dirty( true ), index( 0 ), isArrayOfStructs( AoS )
 {
@@ -254,10 +284,12 @@ gltfPropertyArray::Iterator gltfPropertyArray::begin()
 	index = 0;
 	return Iterator{ this , properties[index]};
 }
+
 gltfPropertyArray::Iterator gltfPropertyArray::end()
 {
 	return Iterator{ this , endPtr};
 }
+
 int gltfItemArray::Fill( idLexer* lexer, idDict* strPairs )
 {
 	idToken token;
@@ -295,6 +327,7 @@ int gltfItemArray::Fill( idLexer* lexer, idDict* strPairs )
 	lexer->ExpectTokenString( "}" );
 	return parseCount;
 }
+
 int gltfItemArray::Parse( idLexer* lexer, bool forwardLexer/* = false*/ )
 {
 	idToken token;
@@ -589,7 +622,6 @@ void gltfItem_mesh_primitive_attribute::parse( idToken& token )
 
 void gltfItem_integer_array::parse( idToken& token )
 {
-
 	parser->UnreadToken( &token );
 	gltfPropertyArray array = gltfPropertyArray( parser, false );
 	for( auto& prop : array )
@@ -733,7 +765,6 @@ void gltfItem_mat4::parse( idToken& token )
 				val[12], val[13], val[14], val[15]
 			);
 }
-
 
 void gltfItem_accessor_sparse::parse( idToken& token )
 {
@@ -1116,6 +1147,7 @@ void GLTF_Parser::Parse_ASSET( idToken& token )
 	parser.ParseBracedSection( section );
 	common->Printf( "%s\n", section.c_str() );
 }
+
 void GLTF_Parser::Parse_SCENE( idToken& token )
 {
 	currentAsset->DefaultScene() = parser.ParseInt();
@@ -1125,6 +1157,7 @@ void GLTF_Parser::Parse_SCENE( idToken& token )
 		common->Printf( " ^1 %s scene ^6 : ^8 %i", token.c_str(), currentAsset->DefaultScene() );
 	}
 }
+
 void GLTF_Parser::Parse_SCENES( idToken& token )
 {
 	gltfItemArray scene;
@@ -1153,6 +1186,7 @@ void GLTF_Parser::Parse_SCENES( idToken& token )
 	}
 	parser.ExpectTokenString( "]" );
 }
+
 void GLTF_Parser::Parse_CAMERAS( idToken& token )
 {
 	gltfItemArray camera;
@@ -1187,6 +1221,7 @@ void GLTF_Parser::Parse_CAMERAS( idToken& token )
 	}
 	parser.ExpectTokenString( "]" );
 }
+
 void GLTF_Parser::Parse_NODES( idToken& token )
 {
 
@@ -1234,6 +1269,7 @@ void GLTF_Parser::Parse_NODES( idToken& token )
 	}
 	parser.ExpectTokenString( "]" );
 }
+
 void GLTF_Parser::Parse_MATERIALS( idToken& token )
 {
 	gltfItemArray material;
@@ -1279,6 +1315,7 @@ void GLTF_Parser::Parse_MATERIALS( idToken& token )
 	}
 	parser.ExpectTokenString( "]" );
 }
+
 void GLTF_Parser::Parse_MESHES( idToken& token )
 {
 	gltfItemArray mesh;
@@ -1309,6 +1346,7 @@ void GLTF_Parser::Parse_MESHES( idToken& token )
 	}
 	parser.ExpectTokenString( "]" );
 }
+
 void GLTF_Parser::Parse_TEXTURES( idToken& token )
 {
 	gltfItemArray texture;
@@ -1340,6 +1378,7 @@ void GLTF_Parser::Parse_TEXTURES( idToken& token )
 	}
 	parser.ExpectTokenString( "]" );
 }
+
 void GLTF_Parser::Parse_IMAGES( idToken& token )
 {
 	//reference impl
@@ -1383,6 +1422,7 @@ void GLTF_Parser::Parse_IMAGES( idToken& token )
 	}
 	parser.ExpectTokenString( "]" );
 }
+
 void GLTF_Parser::Parse_ACCESSORS( idToken& token )
 {
 	gltfItemArray accessor;
@@ -1429,6 +1469,7 @@ void GLTF_Parser::Parse_ACCESSORS( idToken& token )
 	}
 	parser.ExpectTokenString( "]" );
 }
+
 void GLTF_Parser::Parse_BUFFERVIEWS( idToken& token )
 {
 	gltfItemArray bv;
@@ -1466,6 +1507,7 @@ void GLTF_Parser::Parse_BUFFERVIEWS( idToken& token )
 	}
 	parser.ExpectTokenString( "]" );
 }
+
 void GLTF_Parser::Parse_SAMPLERS( idToken& token )
 {
 	gltfItemArray sampl;
@@ -1500,6 +1542,7 @@ void GLTF_Parser::Parse_SAMPLERS( idToken& token )
 	}
 	parser.ExpectTokenString( "]" );
 }
+
 void GLTF_Parser::Parse_BUFFERS( idToken& token )
 {
 	gltfItemArray buf;
@@ -1531,6 +1574,7 @@ void GLTF_Parser::Parse_BUFFERS( idToken& token )
 	}
 	parser.ExpectTokenString( "]" );
 }
+
 void GLTF_Parser::Parse_ANIMATIONS( idToken& token )
 {
 	gltfItemArray anim;
@@ -1561,9 +1605,8 @@ void GLTF_Parser::Parse_ANIMATIONS( idToken& token )
 		}
 	}
 	parser.ExpectTokenString( "]" );
-
-
 }
+
 void GLTF_Parser::Parse_SKINS( idToken& token )
 {
 	gltfItemArray skin;
@@ -1597,6 +1640,7 @@ void GLTF_Parser::Parse_SKINS( idToken& token )
 	}
 	parser.ExpectTokenString( "]" );
 }
+
 void GLTF_Parser::Parse_EXTENSIONS( idToken& token )
 {
 	idStr json;
@@ -1618,6 +1662,7 @@ void GLTF_Parser::Parse_EXTENSIONS( idToken& token )
 		common->Printf( "%s", json.c_str() );
 	}
 }
+
 void GLTF_Parser::Parse_EXTENSIONS_USED( idToken& token )
 {
 	gltfPropertyArray array = gltfPropertyArray( &parser, false );
@@ -1632,6 +1677,7 @@ void GLTF_Parser::Parse_EXTENSIONS_USED( idToken& token )
 	}
 	parser.ExpectTokenString( "]" );
 }
+
 void GLTF_Parser::Parse_EXTENSIONS_REQUIRED( idToken& token )
 {
 	parser.ExpectTokenString( "[" );
@@ -1787,6 +1833,7 @@ gltfProperty GLTF_Parser::ParseProp( idToken& token )
 	}
 	return prop;
 }
+
 gltfProperty GLTF_Parser::ResolveProp( idToken& token )
 {
 	if( !idStr::Icmp( token.c_str(), "asset"	) )
@@ -2113,184 +2160,6 @@ void GLTF_Parser::SetNodeParent( gltfNode* node, gltfNode* parent )
 		SetNodeParent( currentAsset->NodeList()[child], node );
 	}
 }
-
-/*
-void GLTF_Parser::CreateBgfxData()
-{
-	//buffers
-	for ( auto mesh : currentAsset->MeshList() )
-	{
-		for ( auto prim : mesh->primitives )
-		{
-			//gltfAccessor -> idList<acessorType*>;
-			//vertex indices accessor
-			gltfAccessor * accessor = currentAsset->AccessorList()[prim->indices];
-			gltfBufferView *bv = currentAsset->BufferViewList()[accessor->bufferView];
-			gltfData *data = bv->parent;
-
-			gltfBuffer *buff = data->BufferList()[bv->buffer];
-			uint idxDataSize = sizeof( uint ) * accessor->count;
-			uint * indices = ( uint *)Mem_ClearedAlloc( idxDataSize );
-
-			idFile_Memory idxBin = idFile_Memory( "gltfChunkIndices",
-				( const char * ) ((data->GetData( bv->buffer ) + bv->byteOffset + accessor->byteOffset )), bv->byteLength );
-
-			for ( int i = 0; i < accessor->count; i++ ) {
-				idxBin.Read( ( void * ) ( &indices[i] ), accessor->typeSize );
-				if ( bv->byteStride )
-					idxBin.Seek( bv->byteStride - accessor->typeSize, FS_SEEK_CUR );
-			}
-			prim->indexBufferHandle = bgfx::createIndexBuffer(bgfx::copy( indices,idxDataSize ),BGFX_BUFFER_INDEX32);
-
-			Mem_Free( indices );
-
-			//vertex attribs
-			pbrVertex * vtxData = NULL;
-			uint vtxDataSize = 0;
-			bgfx::VertexLayout vtxLayout;
-
-			for ( auto & attrib : prim->attributes )
-			{
-				gltfAccessor * attrAcc = currentAsset->AccessorList()[attrib->accessorIndex];
-				gltfBufferView *attrBv = currentAsset->BufferViewList()[attrAcc->bufferView];
-				gltfData *attrData = attrBv->parent;
-				gltfBuffer *attrbuff = attrData->BufferList()[attrBv->buffer];
-
-				idFile_Memory bin = idFile_Memory( "gltfChunkVertices",
-					( const char * )(( attrData->GetData( attrBv->buffer ) + attrBv->byteOffset + attrAcc->byteOffset )) , attrBv->byteLength );
-
-				if ( vtxData == nullptr ) {
-					vtxDataSize = sizeof( pbrVertex ) * attrAcc->count;
-					vtxData = ( pbrVertex * ) Mem_ClearedAlloc( vtxDataSize );
-				}
-
-				switch  (attrib->bgfxType)
-				{
-					case bgfx::Attrib::Enum::Position : {
-						for ( int i = 0; i < attrAcc->count; i++ ) {
-							bin.Read( ( void * ) ( &vtxData[i].pos.x ), attrAcc->typeSize );
-							bin.Read( ( void * ) ( &vtxData[i].pos.y ), attrAcc->typeSize );
-							bin.Read( ( void * ) ( &vtxData[i].pos.z ), attrAcc->typeSize );
-							if ( attrBv->byteStride )
-								bin.Seek( attrBv->byteStride - ( 3 * attrAcc->typeSize ), FS_SEEK_CUR );
-
-							idRandom rnd( i );
-							int r = rnd.RandomInt( 255 ), g = rnd.RandomInt( 255 ), b = rnd.RandomInt( 255 );
-
-							//vtxData[i].abgr = 0xff000000 + ( b << 16 ) + ( g << 8 ) + r;
-						}
-
-						break;
-					}
-					case bgfx::Attrib::Enum::Normal : {
-						for ( int i = 0; i < attrAcc->count; i++ ) {
-							bin.Read( ( void * ) ( &vtxData[i].normal.x ), attrAcc->typeSize );
-							bin.Read( ( void * ) ( &vtxData[i].normal.y ), attrAcc->typeSize );
-							bin.Read( ( void * ) ( &vtxData[i].normal.z ), attrAcc->typeSize );
-							if ( attrBv->byteStride )
-								bin.Seek( attrBv->byteStride - ( attrib->elementSize * attrAcc->typeSize ), FS_SEEK_CUR );
-						}
-
-						break;
-					}
-					case bgfx::Attrib::Enum::TexCoord0:{
-						for ( int i = 0; i < attrAcc->count; i++ ) {
-							bin.Read( ( void * ) ( &vtxData[i].uv.x ), attrAcc->typeSize );
-							bin.Read( ( void * ) ( &vtxData[i].uv.y ), attrAcc->typeSize );
-							if ( attrBv->byteStride )
-								bin.Seek( attrBv->byteStride - ( attrib->elementSize * attrAcc->typeSize ), FS_SEEK_CUR );
-						}
-
-						break;
-					}
-					case bgfx::Attrib::Enum::Tangent:
-					{
-						for ( int i = 0; i < attrAcc->count; i++ ) {
-							bin.Read( ( void * ) ( &vtxData[i].tangent.x ), attrAcc->typeSize );
-							bin.Read( ( void * ) ( &vtxData[i].tangent.y ), attrAcc->typeSize );
-							bin.Read( ( void * ) ( &vtxData[i].tangent.z ), attrAcc->typeSize );
-							bin.Read( ( void * ) ( &vtxData[i].tangent.w ), attrAcc->typeSize );
-							if ( attrBv->byteStride )
-								bin.Seek( attrBv->byteStride - ( attrib->elementSize * attrAcc->typeSize ), FS_SEEK_CUR );
-						}
-						break;
-					}
-					case bgfx::Attrib::Enum::Weight:
-					{
-						for ( int i = 0; i < attrAcc->count; i++ ) {
-							bin.Read( ( void * ) ( &vtxData[i].weight.x ), attrAcc->typeSize );
-							bin.Read( ( void * ) ( &vtxData[i].weight.y ), attrAcc->typeSize );
-							bin.Read( ( void * ) ( &vtxData[i].weight.z ), attrAcc->typeSize );
-							bin.Read( ( void * ) ( &vtxData[i].weight.w ), attrAcc->typeSize );
-							if ( attrBv->byteStride )
-								bin.Seek( attrBv->byteStride - ( attrib->elementSize * attrAcc->typeSize ), FS_SEEK_CUR );
-						}
-						break;
-					}
-
-					case bgfx::Attrib::Enum::Indices:
-					{
-						for ( int i = 0; i < attrAcc->count; i++ ) {
-							bin.Read( ( void * ) ( &vtxData[i].boneIndex.x ), attrAcc->typeSize );
-							bin.Read( ( void * ) ( &vtxData[i].boneIndex.y ), attrAcc->typeSize );
-							bin.Read( ( void * ) ( &vtxData[i].boneIndex.z ), attrAcc->typeSize );
-							bin.Read( ( void * ) ( &vtxData[i].boneIndex.w ), attrAcc->typeSize );
-							if ( attrBv->byteStride )
-								bin.Seek( attrBv->byteStride - ( attrib->elementSize * attrAcc->typeSize ), FS_SEEK_CUR );
-						}
-						break;
-					}
-				}
-			}
-
-			vtxLayout.begin()
-				.add( bgfx::Attrib::Position,	3, bgfx::AttribType::Float )
-				.add( bgfx::Attrib::Normal,		3, bgfx::AttribType::Float )
-				.add( bgfx::Attrib::Tangent,	4, bgfx::AttribType::Float )
-				.add( bgfx::Attrib::TexCoord0,	2, bgfx::AttribType::Float )
-				.add( bgfx::Attrib::Weight,		4, bgfx::AttribType::Float,true )
-				.add( bgfx::Attrib::Indices,	4, bgfx::AttribType::Uint8,false,true )
-				//.add( bgfx::Attrib::Color0, 4, bgfx::AttribType::Uint8, true )
-				.end();
-			vtxLayout.end();
-			if ( vtxData != NULL ) {
-				prim->vertexBufferHandle = bgfx::createVertexBuffer(
-					bgfx::copy( vtxData, vtxDataSize ), vtxLayout );
-
-				Mem_Free( vtxData );
-			}else
-				common->FatalError("Failed to read vertex info" );
-		}
-	}
-
-	auto & samplerList = currentAsset->SamplerList();
-	//Samplers -> this should move to read/parse sampler call
-	for ( auto &sampler : samplerList )
-		sampler->bgfxSamplerFlags = GetSamplerFlags(sampler);
-
-	auto & imgList = currentAsset->ImageList();
-	//textures
-	for ( auto &texture : currentAsset->TextureList() )
-	{
-		auto * image = imgList[texture->source];
-		if ( image->bgfxTexture.handle.idx == UINT16_MAX ) {
-			gltfBufferView *bv = currentAsset->BufferViewList()[image->bufferView];
-			gltfData *data = bv->parent;
-			gltfBuffer *buff = data->BufferList()[bv->buffer];
-
-			//image->bgfxTexture = bgfxImageLoad(data->GetData(bv->buffer) + bv->byteOffset,bv->byteLength );
-			bgfxImageLoadAsync( data->GetData( bv->buffer ) + bv->byteOffset, bv->byteLength, &image->bgfxTexture, samplerList[texture->sampler]->bgfxSamplerFlags );
-		}
-
-	}
-
-	idList<gltfArticulatedFigure*> afs;
-	//AF
-	for (auto * skin : currentAsset->SkinList() ){
-		afs.Alloc() = new gltfArticulatedFigure(skin,currentAsset);
-	}
-}
-*/
 
 idList<float>& gltfData::GetAccessorView( gltfAccessor* accessor )
 {
