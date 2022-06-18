@@ -813,14 +813,16 @@ public:
 		return nullptr;
 	}
 
-	gltfNode *GetNode(gltfScene * scene ,gltfMesh * mesh) {
+	gltfNode* GetNode( gltfScene* scene , gltfMesh* mesh )
+	{
 		assert( scene );
 		assert( mesh );
 
-		auto & nodeList = scene->nodes;
-		for ( auto & nodeId : nodeList )
+		auto& nodeList = scene->nodes;
+		for( auto& nodeId : nodeList )
 		{
-			if ( nodes[nodeId]->mesh != -1 && *&meshes[nodes[nodeId]->mesh] == mesh ) {
+			if( nodes[nodeId]->mesh != -1 &&*& meshes[nodes[nodeId]->mesh] == mesh )
+			{
 				return nodes[nodeId];
 			}
 		}
@@ -828,19 +830,24 @@ public:
 		return nullptr;
 	}
 
-	gltfNode *GetNode(idStr sceneName, idStr name ) {
-		int sceneId =  GetSceneId(sceneName);
-		if (sceneId < 0 || sceneId > scenes.Num() )
+	gltfNode* GetNode( idStr sceneName, idStr name )
+	{
+		int sceneId =  GetSceneId( sceneName );
+		if( sceneId < 0 || sceneId > scenes.Num() )
+		{
 			return nullptr;
+		}
 
-		gltfScene *scene = scenes[sceneId];
+		gltfScene* scene = scenes[sceneId];
 
 		assert( scene );
 		assert( name[0] );
 
-		auto &nodeList = scene->nodes;
-		for ( auto &nodeId : nodeList ) {
-			if ( nodes[nodeId]->name == name ) {
+		auto& nodeList = scene->nodes;
+		for( auto& nodeId : nodeList )
+		{
+			if( nodes[nodeId]->name == name )
+			{
 				return nodes[nodeId];
 			}
 		}
@@ -848,13 +855,16 @@ public:
 		return nullptr;
 	}
 
-	gltfNode *GetNode( gltfScene *scene, idStr name) {
+	gltfNode* GetNode( gltfScene* scene, idStr name )
+	{
 		assert( scene );
 		assert( name[0] );
 
-		auto &nodeList = scene->nodes;
-		for ( auto &nodeId : nodeList ) {
-			if ( nodes[nodeId]->name == name ) {
+		auto& nodeList = scene->nodes;
+		for( auto& nodeId : nodeList )
+		{
+			if( nodes[nodeId]->name == name )
+			{
 				return nodes[nodeId];
 			}
 		}
@@ -1026,8 +1036,8 @@ private:
 	idList<gltfData*>			assetData;
 	idList<gltfSampler*>		samplers;
 	idList<gltfBufferView*>		bufferViews;
-	idList<gltfTexture *>		textures;
-	idList<gltfAccessor *>		accessors;
+	idList<gltfTexture*>		textures;
+	idList<gltfAccessor*>		accessors;
 	idList<gltfExtensionsUsed*>	extensionsUsed;
 	idList<gltfMesh*>			meshes;
 	int							scene;

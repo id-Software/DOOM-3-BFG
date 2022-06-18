@@ -231,7 +231,7 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 	return mesh;
 }
 
-void ProcessSceneNode( idMapEntity* newEntity, gltfNode* node, idMat4 & trans, gltfData* data , bool staticMesh = false )
+void ProcessSceneNode( idMapEntity* newEntity, gltfNode* node, idMat4& trans, gltfData* data , bool staticMesh = false )
 {
 	auto& nodeList = data->NodeList( );
 
@@ -378,7 +378,7 @@ bool gltfManager::ExtractMeshIdentifier( idStr& filename, int& meshId, idStr& me
 	return false;
 }
 
-void idRenderModelGLTF::ProcessNode( gltfNode * modelNode, idMat4 trans, gltfData * data )
+void idRenderModelGLTF::ProcessNode( gltfNode* modelNode, idMat4 trans, gltfData* data )
 {
 	auto& meshList = data->MeshList();
 	auto& nodeList = data->NodeList( );
@@ -386,25 +386,30 @@ void idRenderModelGLTF::ProcessNode( gltfNode * modelNode, idMat4 trans, gltfDat
 	gltfData::ResolveNodeMatrix( modelNode );
 	idMat4 curTrans = trans * modelNode->matrix;
 
-	gltfMesh *targetMesh = meshList[modelNode->mesh];
+	gltfMesh* targetMesh = meshList[modelNode->mesh];
 
-	for ( auto prim : targetMesh->primitives ) {
+	for( auto prim : targetMesh->primitives )
+	{
 
-		auto *newMesh = MapPolygonMesh::ConvertFromMeshGltf( prim, data, curTrans );
+		auto* newMesh = MapPolygonMesh::ConvertFromMeshGltf( prim, data, curTrans );
 		modelSurface_t	surf;
 
-		gltfMaterial *mat = NULL;
-		if ( prim->material != -1 ) {
+		gltfMaterial* mat = NULL;
+		if( prim->material != -1 )
+		{
 			mat = data->MaterialList( )[prim->material];
 		}
-		if ( mat != NULL && !gltf_ForceBspMeshTexture.GetBool( ) ) {
+		if( mat != NULL && !gltf_ForceBspMeshTexture.GetBool( ) )
+		{
 			surf.shader = declManager->FindMaterial( mat->name );
-		} else {
+		}
+		else
+		{
 			surf.shader = declManager->FindMaterial( "textures/base_wall/snpanel2rust" );
 		}
 		surf.id = this->NumSurfaces( );
 
-		srfTriangles_t *tri = R_AllocStaticTriSurf( );
+		srfTriangles_t* tri = R_AllocStaticTriSurf( );
 		tri->numIndexes = newMesh->GetNumPolygons( ) * 3;
 		tri->numVerts = newMesh->GetNumVertices( );
 
@@ -412,16 +417,18 @@ void idRenderModelGLTF::ProcessNode( gltfNode * modelNode, idMat4 trans, gltfDat
 		R_AllocStaticTriSurfVerts( tri, tri->numVerts );
 
 		int indx = 0;
-		for ( int i = 0; i < newMesh->GetNumPolygons( ); i++ ) {
-			auto &face = newMesh->GetFace( i );
-			auto &faceIdxs = face.GetIndexes( );
+		for( int i = 0; i < newMesh->GetNumPolygons( ); i++ )
+		{
+			auto& face = newMesh->GetFace( i );
+			auto& faceIdxs = face.GetIndexes( );
 			tri->indexes[indx] = faceIdxs[0];
 			tri->indexes[indx + 1] = faceIdxs[1];
 			tri->indexes[indx + 2] = faceIdxs[2];
 			indx += 3;
 		}
 
-		for ( int i = 0; i < tri->numVerts; ++i ) {
+		for( int i = 0; i < tri->numVerts; ++i )
+		{
 			tri->verts[i] = newMesh->GetDrawVerts( )[i];
 			tri->bounds.AddPoint( tri->verts[i].xyz );
 		}
@@ -432,7 +439,8 @@ void idRenderModelGLTF::ProcessNode( gltfNode * modelNode, idMat4 trans, gltfDat
 		AddSurface( surf );
 	}
 
-	for ( auto &child : modelNode->children ) {
+	for( auto& child : modelNode->children )
+	{
 		ProcessNode( nodeList[child], curTrans, data );
 	}
 }
@@ -461,11 +469,16 @@ void idRenderModelGLTF::InitFromFile( const char* fileName )
 
 	bounds.Clear( );
 
-	gltfNode * modelNode = data->GetNode("models",meshName);\
-	if ( modelNode )
-		ProcessNode(modelNode,mat4_identity,data);
+	gltfNode* modelNode = data->GetNode( "models", meshName );
+	\
+	if( modelNode )
+	{
+		ProcessNode( modelNode, mat4_identity, data );
+	}
 	else
-		common->Warning(" gltfNode %s not found in models scene" );
+	{
+		common->Warning( " gltfNode %s not found in models scene" );
+	}
 
 	//skin
 	//gltfNode * modelNode = data->GetNode(data->SceneList()[data->GetSceneId("models")],targetMesh);

@@ -42,6 +42,6 @@ public:
 	{
 		return false;
 	}
-private: 
-	void ProcessNode( gltfNode * modelNode, idMat4 trans, gltfData * data );
+private:
+	void ProcessNode( gltfNode* modelNode, idMat4 trans, gltfData* data );
 };
