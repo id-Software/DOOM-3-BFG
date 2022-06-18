@@ -67,7 +67,7 @@ public:
 	void					Save( idSaveGame* savefile ) const;				// archives object for save game file
 	void					Restore( idRestoreGame* savefile );				// unarchives object from save game file
 
-	void					Spawn( );
+	void					Spawn();
 	virtual void			GetViewParms( renderView_t* view );
 	virtual void			Stop();
 

@@ -156,7 +156,7 @@ public:
 	}
 	void	SubtitleCleanup();
 	float	GetTextLength();
-	int		GetInputStartChar( )
+	int		GetInputStartChar()
 	{
 		return inputTextStartChar;
 	}

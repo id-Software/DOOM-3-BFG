@@ -7,7 +7,7 @@
 		gltfExtra_##className( idStr Name ) : name( Name ){ item = nullptr; }				\
 		virtual void parse( idToken &token ){parse(token,nullptr);}							\
 		virtual void parse( idToken &token , idLexer * parser );							\
-		virtual idStr &Name( ) { return name; }												\
+		virtual idStr &Name() { return name; }												\
 	private:																				\
 		idStr name;}
 #pragma endregion

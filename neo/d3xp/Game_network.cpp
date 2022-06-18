@@ -1097,8 +1097,8 @@ void idGameLocal::ClientProcessReliableMessage( int type, const idBitMsg& msg )
 		{
 			idMultiplayerGame::msg_evt_t msg_evt = ( idMultiplayerGame::msg_evt_t )msg.ReadByte();
 			int parm1, parm2;
-			parm1 = msg.ReadByte( );
-			parm2 = msg.ReadByte( );
+			parm1 = msg.ReadByte();
+			parm2 = msg.ReadByte();
 			mpGame.PrintMessageEvent( msg_evt, parm1, parm2 );
 			break;
 		}
@@ -1132,7 +1132,7 @@ void idGameLocal::ClientProcessReliableMessage( int type, const idBitMsg& msg )
 		}
 		case GAME_RELIABLE_MESSAGE_TOURNEYLINE:
 		{
-			int line = msg.ReadByte( );
+			int line = msg.ReadByte();
 			idPlayer* p = static_cast< idPlayer* >( entities[ GetLocalClientNum() ] );
 			if( !p )
 			{

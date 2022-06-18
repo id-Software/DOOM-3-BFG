@@ -259,23 +259,23 @@ public:
 
 	void	BindProgram( int progIndex );
 
-	void	BindShader_GUI( )
+	void	BindShader_GUI()
 	{
 		BindShader_Builtin( BUILTIN_GUI );
 	}
 
-	void	BindShader_Color( )
+	void	BindShader_Color()
 	{
 		BindShader_Builtin( BUILTIN_COLOR );
 	}
 
 	// RB begin
-	void	BindShader_ColorSkinned( )
+	void	BindShader_ColorSkinned()
 	{
 		BindShader_Builtin( BUILTIN_COLOR_SKINNED );
 	}
 
-	void	BindShader_VertexColor( )
+	void	BindShader_VertexColor()
 	{
 		BindShader_Builtin( BUILTIN_VERTEX_COLOR );
 	}
@@ -343,7 +343,7 @@ public:
 	}
 	// RB end
 
-	void	BindShader_Texture( )
+	void	BindShader_Texture()
 	{
 		BindShader_Builtin( BUILTIN_TEXTURED );
 	}

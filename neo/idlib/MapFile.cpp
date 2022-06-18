@@ -1573,7 +1573,7 @@ bool idMapFile::Parse( const char* filename, bool ignoreRegion, bool osPath )
 	}
 
 	bool isGTLF = false;
-	if( !src.IsLoaded( ) )
+	if( !src.IsLoaded() )
 	{
 		// HVG: try loading a .gltf/glb second
 		fullName.SetFileExtension( "glb" );

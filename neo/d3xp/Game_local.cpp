@@ -486,7 +486,7 @@ void idGameLocal::SaveGame( idFile* f, idFile* strings )
 
 	idSaveGame savegame( f, strings, BUILD_NUMBER );
 
-	if( g_flushSave.GetBool( ) == true )
+	if( g_flushSave.GetBool() == true )
 	{
 		// force flushing with each write... for tracking down
 		// save game bugs.
@@ -1112,7 +1112,7 @@ void idGameLocal::LoadMap( const char* mapName, int randseed )
 idGameLocal::LocalMapRestart
 ===================
 */
-void idGameLocal::LocalMapRestart( )
+void idGameLocal::LocalMapRestart()
 {
 	int i, latchSpawnCount;
 
@@ -1218,7 +1218,7 @@ void idGameLocal::MapRestart_f( const idCmdArgs& args )
 		return;
 	}
 
-	gameLocal.MapRestart( );
+	gameLocal.MapRestart();
 }
 
 /*
@@ -2599,7 +2599,7 @@ idCVar g_recordTrace( "g_recordTrace", "0", CVAR_BOOL, "" );
 idGameLocal::RunSharedThink
 ================
 */
-void idGameLocal::RunSharedThink( void )
+void idGameLocal::RunSharedThink()
 {
 	idEntity* ent;
 	for( ent = activeEntities.Next(); ent != NULL; ent = ent->activeNode.Next() )
@@ -5014,7 +5014,7 @@ idCamera* idGameLocal::GetCamera() const
 idGameLocal::SkipCinematic
 =============
 */
-bool idGameLocal::SkipCinematic( void )
+bool idGameLocal::SkipCinematic()
 {
 	if( camera )
 	{

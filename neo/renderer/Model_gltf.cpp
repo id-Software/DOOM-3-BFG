@@ -19,8 +19,8 @@ bool idRenderModelStatic::ConvertGltfMeshToModelsurfaces( const gltfMesh* mesh )
 MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* prim, gltfData* _data , idMat4 trans )
 {
 	MapPolygonMesh* mesh = new MapPolygonMesh();
-	gltfAccessor* accessor = _data->AccessorList( )[prim->indices];
-	gltfBufferView* bv = _data->BufferViewList( )[accessor->bufferView];
+	gltfAccessor* accessor = _data->AccessorList()[prim->indices];
+	gltfBufferView* bv = _data->BufferViewList()[accessor->bufferView];
 	gltfData* data = bv->parent;
 
 	gltfMaterial* mat = NULL;
@@ -29,7 +29,7 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 		mat = _data->MaterialList()[prim->material];
 	}
 
-	gltfBuffer* buff = data->BufferList( )[bv->buffer];
+	gltfBuffer* buff = data->BufferList()[bv->buffer];
 	uint idxDataSize = sizeof( uint ) * accessor->count;
 	uint* indices = ( uint* ) Mem_ClearedAlloc( idxDataSize , TAG_IDLIB_GLTF );
 
@@ -68,10 +68,10 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 
 	for( auto& attrib : prim->attributes )
 	{
-		gltfAccessor* attrAcc = data->AccessorList( )[attrib->accessorIndex];
-		gltfBufferView* attrBv = data->BufferViewList( )[attrAcc->bufferView];
+		gltfAccessor* attrAcc = data->AccessorList()[attrib->accessorIndex];
+		gltfBufferView* attrBv = data->BufferViewList()[attrAcc->bufferView];
 		gltfData* attrData = attrBv->parent;
-		gltfBuffer* attrbuff = attrData->BufferList( )[attrBv->buffer];
+		gltfBuffer* attrbuff = attrData->BufferList()[attrBv->buffer];
 
 		idFile_Memory bin = idFile_Memory( "gltfChunkVertices",
 										   ( const char* )( ( attrData->GetData( attrBv->buffer ) + attrBv->byteOffset + attrAcc->byteOffset ) ), attrBv->byteLength );
@@ -233,7 +233,7 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 
 void ProcessSceneNode( idMapEntity* newEntity, gltfNode* node, idMat4& trans, gltfData* data , bool staticMesh = false )
 {
-	auto& nodeList = data->NodeList( );
+	auto& nodeList = data->NodeList();
 
 	gltfData::ResolveNodeMatrix( node );
 	idMat4 curTrans = trans * node->matrix;
@@ -254,13 +254,13 @@ void ProcessSceneNode( idMapEntity* newEntity, gltfNode* node, idMat4& trans, gl
 
 	if( isFuncStaticMesh && node->mesh != -1 )
 	{
-		for( auto prim : data->MeshList( )[node->mesh]->primitives )
+		for( auto prim : data->MeshList()[node->mesh]->primitives )
 		{
 			newEntity->AddPrimitive( MapPolygonMesh::ConvertFromMeshGltf( prim, data , curTrans ) );
 		}
 	}
 
-	if( node->name.Length( ) )
+	if( node->name.Length() )
 	{
 		newEntity->epairs.Set( "name", node->name );
 	}
@@ -350,7 +350,7 @@ bool gltfManager::ExtractMeshIdentifier( idStr& filename, int& meshId, idStr& me
 		return false;
 	}
 	idParser	parser( LEXFL_ALLOWPATHNAMES | LEXFL_NOSTRINGESCAPECHARS );
-	parser.LoadMemory( meshStr.c_str( ), meshStr.Size( ), "model:GltfmeshID" );
+	parser.LoadMemory( meshStr.c_str(), meshStr.Size(), "model:GltfmeshID" );
 
 	idToken token;
 	if( parser.ExpectAnyToken( &token ) )
@@ -381,7 +381,7 @@ bool gltfManager::ExtractMeshIdentifier( idStr& filename, int& meshId, idStr& me
 void idRenderModelGLTF::ProcessNode( gltfNode* modelNode, idMat4 trans, gltfData* data )
 {
 	auto& meshList = data->MeshList();
-	auto& nodeList = data->NodeList( );
+	auto& nodeList = data->NodeList();
 
 	gltfData::ResolveNodeMatrix( modelNode );
 	idMat4 curTrans = trans * modelNode->matrix;
@@ -397,9 +397,9 @@ void idRenderModelGLTF::ProcessNode( gltfNode* modelNode, idMat4 trans, gltfData
 		gltfMaterial* mat = NULL;
 		if( prim->material != -1 )
 		{
-			mat = data->MaterialList( )[prim->material];
+			mat = data->MaterialList()[prim->material];
 		}
-		if( mat != NULL && !gltf_ForceBspMeshTexture.GetBool( ) )
+		if( mat != NULL && !gltf_ForceBspMeshTexture.GetBool() )
 		{
 			surf.shader = declManager->FindMaterial( mat->name );
 		}
@@ -407,20 +407,20 @@ void idRenderModelGLTF::ProcessNode( gltfNode* modelNode, idMat4 trans, gltfData
 		{
 			surf.shader = declManager->FindMaterial( "textures/base_wall/snpanel2rust" );
 		}
-		surf.id = this->NumSurfaces( );
+		surf.id = this->NumSurfaces();
 
-		srfTriangles_t* tri = R_AllocStaticTriSurf( );
-		tri->numIndexes = newMesh->GetNumPolygons( ) * 3;
-		tri->numVerts = newMesh->GetNumVertices( );
+		srfTriangles_t* tri = R_AllocStaticTriSurf();
+		tri->numIndexes = newMesh->GetNumPolygons() * 3;
+		tri->numVerts = newMesh->GetNumVertices();
 
 		R_AllocStaticTriSurfIndexes( tri, tri->numIndexes );
 		R_AllocStaticTriSurfVerts( tri, tri->numVerts );
 
 		int indx = 0;
-		for( int i = 0; i < newMesh->GetNumPolygons( ); i++ )
+		for( int i = 0; i < newMesh->GetNumPolygons(); i++ )
 		{
 			auto& face = newMesh->GetFace( i );
-			auto& faceIdxs = face.GetIndexes( );
+			auto& faceIdxs = face.GetIndexes();
 			tri->indexes[indx] = faceIdxs[0];
 			tri->indexes[indx + 1] = faceIdxs[1];
 			tri->indexes[indx + 2] = faceIdxs[2];
@@ -429,7 +429,7 @@ void idRenderModelGLTF::ProcessNode( gltfNode* modelNode, idMat4 trans, gltfData
 
 		for( int i = 0; i < tri->numVerts; ++i )
 		{
-			tri->verts[i] = newMesh->GetDrawVerts( )[i];
+			tri->verts[i] = newMesh->GetDrawVerts()[i];
 			tri->bounds.AddPoint( tri->verts[i].xyz );
 		}
 
@@ -455,7 +455,7 @@ void idRenderModelGLTF::InitFromFile( const char* fileName )
 	idStr gltfFileName = idStr( fileName );
 	gltfManager::ExtractMeshIdentifier( gltfFileName, meshID, meshName );
 
-	if( gltfParser->currentFile.Length( ) )
+	if( gltfParser->currentFile.Length() )
 	{
 		if( gltfParser->currentAsset && gltfParser->currentFile != gltfFileName )
 		{
@@ -467,7 +467,7 @@ void idRenderModelGLTF::InitFromFile( const char* fileName )
 	timeStamp = fileSystem->GetTimestamp( gltfFileName );
 	gltfData* data = gltfParser->currentAsset;
 
-	bounds.Clear( );
+	bounds.Clear();
 
 	gltfNode* modelNode = data->GetNode( "models", meshName );
 	\
@@ -496,17 +496,17 @@ void idRenderModelGLTF::WriteBinaryModel( idFile* file, ID_TIME_T* _timeStamp /*
 	common->Warning( "idRenderModelGLTF::WriteBinaryModel is not implemented." );
 }
 
-void idRenderModelGLTF::PurgeModel( )
+void idRenderModelGLTF::PurgeModel()
 {
 	common->Warning( "idRenderModelGLTF::PurgeModel is not implemented." );
 }
 
-void idRenderModelGLTF::LoadModel( )
+void idRenderModelGLTF::LoadModel()
 {
 	common->Warning( "The method or operation is not implemented." );
 }
 
-void idRenderModelGLTF::TouchData( )
+void idRenderModelGLTF::TouchData()
 {
 	common->Warning( "The method or operation is not implemented." );
 }
@@ -518,23 +518,23 @@ void idRenderModelGLTF::CreateBuffers()
 }
 */
 
-void idRenderModelGLTF::Print( ) const
+void idRenderModelGLTF::Print() const
 {
 	common->Warning( "The method or operation is not implemented." );
 }
 
-void idRenderModelGLTF::List( ) const
+void idRenderModelGLTF::List() const
 {
 	common->Warning( "The method or operation is not implemented." );
 }
 
-int idRenderModelGLTF::Memory( ) const
+int idRenderModelGLTF::Memory() const
 {
 	common->Warning( "The method or operation is not implemented." );
 	return -1;
 }
 
-dynamicModel_t idRenderModelGLTF::IsDynamicModel( ) const
+dynamicModel_t idRenderModelGLTF::IsDynamicModel() const
 {
 	return DM_STATIC;
 }
@@ -545,13 +545,13 @@ idRenderModel* idRenderModelGLTF::InstantiateDynamicModel( const struct renderEn
 	return nullptr;
 }
 
-int idRenderModelGLTF::NumJoints( ) const
+int idRenderModelGLTF::NumJoints() const
 {
 	common->Warning( "The method or operation is not implemented." );
 	return 0;
 }
 
-const idMD5Joint* idRenderModelGLTF::GetJoints( ) const
+const idMD5Joint* idRenderModelGLTF::GetJoints() const
 {
 	common->Warning( "The method or operation is not implemented." );
 	return nullptr;
@@ -569,7 +569,7 @@ const char* idRenderModelGLTF::GetJointName( jointHandle_t handle ) const
 	return "";
 }
 
-const idJointQuat* idRenderModelGLTF::GetDefaultPose( ) const
+const idJointQuat* idRenderModelGLTF::GetDefaultPose() const
 {
 	common->Warning( "The method or operation is not implemented." );
 	return nullptr;

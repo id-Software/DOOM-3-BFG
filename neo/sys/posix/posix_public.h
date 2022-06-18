@@ -37,13 +37,13 @@ void		Posix_QueEvent( sysEventType_t type, int value, int value2, int ptrLength,
 const char*	Posix_Cwd();
 
 // called first thing. does InitSigs and various things
-void		Posix_EarlyInit( );
+void		Posix_EarlyInit();
 // called after common has been initialized
-void		Posix_LateInit( );
+void		Posix_LateInit();
 
-void		Posix_InitPThreads( );
-void		Posix_InitSigs( );
-void		Posix_ClearSigs( );
+void		Posix_InitPThreads();
+void		Posix_InitSigs();
+void		Posix_ClearSigs();
 
 void		Posix_Exit( int ret );
 void		Posix_SetExit( int ret ); // override the exit code

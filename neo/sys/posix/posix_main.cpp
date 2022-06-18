@@ -286,9 +286,9 @@ double MeasureClockTicks()
 {
 	double t0, t1;
 
-	t0 = Sys_GetClockTicks( );
+	t0 = Sys_GetClockTicks();
 	Sys_Sleep( 1000 );
-	t1 = Sys_GetClockTicks( );
+	t1 = Sys_GetClockTicks();
 	return t1 - t0;
 }
 
@@ -1026,7 +1026,7 @@ void Posix_LateInit()
 	//common->Printf( "%d MB Video Memory\n", Sys_GetVideoRam() );
 //#endif
 
-	//Posix_StartAsyncThread( );
+	//Posix_StartAsyncThread();
 }
 
 /*

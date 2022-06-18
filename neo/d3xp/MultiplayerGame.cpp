@@ -1537,7 +1537,7 @@ idMultiplayerGame::FillTourneySlots
 NOTE: called each frame during warmup to keep the tourney slots filled
 ================
 */
-void idMultiplayerGame::FillTourneySlots( )
+void idMultiplayerGame::FillTourneySlots()
 {
 	int i, j, rankmax, rankmaxindex;
 	idEntity* ent;
@@ -1655,7 +1655,7 @@ void idMultiplayerGame::UpdateTourneyLine()
 idMultiplayerGame::CycleTourneyPlayers
 ================
 */
-void idMultiplayerGame::CycleTourneyPlayers( )
+void idMultiplayerGame::CycleTourneyPlayers()
 {
 	int i;
 	idEntity* ent;
@@ -1672,7 +1672,7 @@ void idMultiplayerGame::CycleTourneyPlayers( )
 			currentTourneyPlayer[ 0 ] = lastWinner;
 		}
 	}
-	FillTourneySlots( );
+	FillTourneySlots();
 	// force selected players in/out of the game and update the ranks
 	for( i = 0 ; i < gameLocal.numClients ; i++ )
 	{
@@ -2830,7 +2830,7 @@ void idMultiplayerGame::CheckRespawns( idPlayer* spectator )
 					else if( gameState == WARMUP )
 					{
 						// make sure empty tourney slots get filled first
-						FillTourneySlots( );
+						FillTourneySlots();
 						if( i == currentTourneyPlayer[ 0 ] || i == currentTourneyPlayer[ 1 ] )
 						{
 							p->ServerSpectate( false );
@@ -3631,8 +3631,8 @@ void idMultiplayerGame::ClientReadStartState( const idBitMsg& msg )
 {
 	// read the state in preparation for reading snapshot updates
 	gameState = ( idMultiplayerGame::gameState_t )msg.ReadByte();
-	matchStartedTime = msg.ReadLong( );
-	startFragLimit = msg.ReadShort( );
+	matchStartedTime = msg.ReadLong();
+	startFragLimit = msg.ReadShort();
 
 	int client;
 	while( ( client = msg.ReadByte() ) != MAX_CLIENTS )

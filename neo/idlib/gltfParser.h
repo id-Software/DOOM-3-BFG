@@ -11,7 +11,7 @@ struct parsable
 public:
 	virtual void parse( idToken& token ) = 0;
 	virtual void parse( idToken& token , idLexer* parser ) {};
-	virtual idStr& Name( ) = 0;
+	virtual idStr& Name() = 0;
 };
 
 template<class T>
@@ -40,7 +40,7 @@ public:
 	{
 		*item = token;
 	};
-	virtual idStr& Name( )
+	virtual idStr& Name()
 	{
 		return name;
 	}
@@ -59,7 +59,7 @@ public:
 		parser->UnreadToken( &token );
 		parser->ParseBracedSection( object );
 	}
-	virtual idStr& Name( )
+	virtual idStr& Name()
 	{
 		return name;
 	}
@@ -77,7 +77,7 @@ public:
 		item = nullptr;
 	}
 	virtual void parse( idToken& token ) ;
-	virtual idStr& Name( )
+	virtual idStr& Name()
 	{
 		return name;
 	}
@@ -106,7 +106,7 @@ public:
 		*item = token;
 		Convert();
 	};
-	virtual idStr& Name( )
+	virtual idStr& Name()
 	{
 		return name;
 	}
@@ -118,7 +118,7 @@ public:
 	}
 	// read data from uri file, and push it at end of current data buffer for this GLTF File
 	// bufferView will be set accordingly to the generated buffer.
-	bool Convert( );
+	bool Convert();
 private:
 	idStr name;
 	int* bufferView;
@@ -132,7 +132,7 @@ class gltfItem_##className : public parsable, public parseType<ptype>					\
 {public:																				\
 	gltfItem_##className( idStr Name ) : name( Name ){ item = nullptr; }				\
 	virtual void parse( idToken &token );												\
-	virtual idStr &Name( ) { return name; }												\
+	virtual idStr &Name() { return name; }												\
 	void Set( ptype *type, idLexer *lexer ) { parseType::Set( type ); parser = lexer; }	\
 private:																				\
 	idStr name;																			\
@@ -178,13 +178,13 @@ class gltfItem_##className : public parsable, public parseType<type>		\
 {public:																	\
 	gltfItem_##className( idStr Name ) : name( Name ){ item = nullptr; }	\
 	virtual void parse( idToken &token ) { function }						\
-	virtual idStr &Name( ) { return name; }									\
+	virtual idStr &Name() { return name; }									\
 private:																	\
 	idStr name;}
 #pragma endregion
 
-gltfItemClass( integer, int, *item = token.GetIntValue( ); );
-gltfItemClass( number, float, *item = token.GetFloatValue( ); );
+gltfItemClass( integer, int, *item = token.GetIntValue(); );
+gltfItemClass( number, float, *item = token.GetFloatValue(); );
 gltfItemClass( boolean, bool, if( token.Icmp( "true" ) == 0 ) *item = true; else
 {
 	if( token.Icmp( "false" ) == 0 )
@@ -201,18 +201,18 @@ gltfItemClass( boolean, bool, if( token.Icmp( "true" ) == 0 ) *item = true; else
 class gltfItemArray
 {
 public:
-	~gltfItemArray( )
+	~gltfItemArray()
 	{
 		items.DeleteContents( true );
 	}
-	gltfItemArray( ) { };
+	gltfItemArray() { };
 	int Num()
 	{
 		return items.Num();
 	}
 	void AddItemDef( parsable* item )
 	{
-		items.Alloc( ) = item;
+		items.Alloc() = item;
 	}
 	int Fill( idLexer* lexer , idDict* strPairs );
 	int Parse( idLexer* lexer , bool forwardLexer = false );
@@ -235,7 +235,7 @@ class gltfPropertyArray;
 class gltfPropertyItem
 {
 public:
-	gltfPropertyItem( ) : array( nullptr ) { }
+	gltfPropertyItem() : array( nullptr ) { }
 	gltfPropertyArray* array;
 	idToken item;
 };
@@ -244,12 +244,12 @@ class gltfPropertyArray
 {
 public:
 	gltfPropertyArray( idLexer* Parser, bool AoS = true );
-	~gltfPropertyArray( );
+	~gltfPropertyArray();
 	struct Iterator
 	{
 		gltfPropertyArray* array;
 		gltfPropertyItem* p;
-		gltfPropertyItem& operator*( )
+		gltfPropertyItem& operator*()
 		{
 			return *p;
 		}
@@ -257,10 +257,10 @@ public:
 		{
 			return p != rhs.p;
 		}
-		void operator ++( );
+		void operator ++();
 	};
-	gltfPropertyArray::Iterator begin( );
-	gltfPropertyArray::Iterator end( );
+	gltfPropertyArray::Iterator begin();
+	gltfPropertyArray::Iterator end();
 private:
 	bool iterating;
 	bool dirty;
@@ -286,7 +286,7 @@ public:
 	idStr currentFile;
 private:
 	void SetNodeParent( gltfNode* node, gltfNode* parent = nullptr );
-	//void CreateBgfxData( );
+	//void CreateBgfxData();
 
 	void Parse_ASSET( idToken& token );
 	void Parse_CAMERAS( idToken& token );

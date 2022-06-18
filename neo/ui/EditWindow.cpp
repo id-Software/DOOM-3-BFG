@@ -186,7 +186,7 @@ void idEditWindow::Draw( int time, float x, float y )
 
 	if( wrap && scroller->GetHigh() > 0.0f )
 	{
-		float lineHeight = GetMaxCharHeight( ) + 5;
+		float lineHeight = GetMaxCharHeight() + 5;
 		rect.y -= scroller->GetValue() * lineHeight;
 		rect.w -= sizeBias;
 		rect.h = ( breaks.Num() + 1 ) * lineHeight;
@@ -629,7 +629,7 @@ void idEditWindow::EnsureCursorVisible()
 				}
 			}
 		}
-		int maxWidth = GetMaxCharWidth( );
+		int maxWidth = GetMaxCharWidth();
 		int left = cursorX - maxWidth;
 		int right = ( cursorX - textRect.w ) + maxWidth;
 
@@ -718,7 +718,7 @@ void idEditWindow::Activate( bool activate, idStr& act )
 idEditWindow::InitCvar
 ============
 */
-void idEditWindow::InitCvar( )
+void idEditWindow::InitCvar()
 {
 	if( cvarStr[0] == '\0' )
 	{

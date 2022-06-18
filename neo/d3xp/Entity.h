@@ -573,7 +573,7 @@ private:
 	// events
 public:
 // jmarshall
-	idVec3					GetOrigin( void );
+	idVec3					GetOrigin();
 	float					DistanceTo( idEntity* ent );
 	float					DistanceTo( const idVec3& pos ) const;
 	idStr					GetNextKey( const char* prefix, const char* lastMatch );
