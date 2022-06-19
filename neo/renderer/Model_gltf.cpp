@@ -50,7 +50,7 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 	gltfAccessor* accessor = _data->AccessorList()[prim->indices];
 	gltfBufferView* bv = _data->BufferViewList()[accessor->bufferView];
 	gltfData* data = bv->parent;
-	
+
 	// files import as y-up. Use this transform to change the model to z-up.
 	idMat3 rotation = idAngles( 0.0f, 0.0f, 90.0f ).ToMat3( );
 	idMat4 axisTransform( rotation, vec3_origin );
@@ -317,7 +317,7 @@ void ProcessSceneNode( idMapEntity* newEntity, gltfNode* node, idMat4& trans, gl
 	origin.y = node->translation.y;
 	origin.z = node->translation.z;
 #endif
-	
+
 	// files import as y-up. Use this transform to change the model to z-up.
 	idMat3 rotation = idAngles( 0.0f, 0.0f, 90.0f ).ToMat3( );
 	idMat4 axisTransform( rotation, vec3_origin );
@@ -445,7 +445,7 @@ void idRenderModelGLTF::ProcessNode( gltfNode* modelNode, idMat4 trans, gltfData
 	gltfData::ResolveNodeMatrix( modelNode );
 	idMat4 curTrans = trans * modelNode->matrix;
 
-	gltfMesh *targetMesh = meshList[modelNode->mesh];
+	gltfMesh* targetMesh = meshList[modelNode->mesh];
 
 	for( auto prim : targetMesh->primitives )
 	{
@@ -522,7 +522,7 @@ void idRenderModelGLTF::InitFromFile( const char* fileName )
 		}
 		gltfParser->Load( gltfFileName );
 	}
-	else 
+	else
 	{
 		gltfParser->Load( gltfFileName );
 	}
@@ -532,32 +532,33 @@ void idRenderModelGLTF::InitFromFile( const char* fileName )
 	gltfData* data = gltfParser->currentAsset;
 
 	bounds.Clear();
-	
+
 	int sceneId = data->DefaultScene();
 
 	assert( sceneId >= 0 );
 
-	if ( !meshName[0] )
+	if( !meshName[0] )
 	{
-		auto & nodeList = data->NodeList();
+		auto& nodeList = data->NodeList();
 		for( auto& nodeID :  data->SceneList()[sceneId]->nodes )
 		{
-			gltfNode *modelNode = nodeList[nodeID];
-			assert ( modelNode );
+			gltfNode* modelNode = nodeList[nodeID];
+			assert( modelNode );
 			ProcessNode( modelNode, mat4_identity, data );
 		}
 	}
 	else
 	{
-		gltfNode *modelNode = data->GetNode( "models", meshName );
-		if ( modelNode ) 
+		gltfNode* modelNode = data->GetNode( "models", meshName );
+		if( modelNode )
 		{
 			ProcessNode( modelNode, mat4_identity, data );
 		}
 	}
 
 
-	if ( surfaces.Num( ) <= 0 ) {
+	if( surfaces.Num( ) <= 0 )
+	{
 		common->Warning( "Couldn't load model: '%s'", name.c_str( ) );
 		MakeDefaultModel( );
 		return;
