@@ -533,27 +533,38 @@ void idRenderModelGLTF::InitFromFile( const char* fileName )
 
 	bounds.Clear();
 	
-	if (!meshName[0])
-		meshName = "head";
+	int sceneId = data->DefaultScene();
 
-	gltfNode* modelNode = data->GetNode( "models", meshName );
-	if( modelNode )
+	assert( sceneId >= 0 );
+
+	if ( !meshName[0] )
 	{
-		ProcessNode( modelNode, mat4_identity, data );
-
-		if ( surfaces.Num( ) <= 0 ) {
-			common->Warning( "Couldn't load model: '%s'", name.c_str( ) );
-			MakeDefaultModel( );
-			return;
+		auto & nodeList = data->NodeList();
+		for( auto& nodeID :  data->SceneList()[sceneId]->nodes )
+		{
+			gltfNode *modelNode = nodeList[nodeID];
+			assert ( modelNode );
+			ProcessNode( modelNode, mat4_identity, data );
 		}
-
-		// it is now available for use
-		purged = false;
 	}
 	else
 	{
-		common->Warning( " gltfNode %s not found in models scene" );
+		gltfNode *modelNode = data->GetNode( "models", meshName );
+		if ( modelNode ) 
+		{
+			ProcessNode( modelNode, mat4_identity, data );
+		}
 	}
+
+
+	if ( surfaces.Num( ) <= 0 ) {
+		common->Warning( "Couldn't load model: '%s'", name.c_str( ) );
+		MakeDefaultModel( );
+		return;
+	}
+
+	// it is now available for use
+	purged = false;
 
 	//skin
 	//gltfNode * modelNode = data->GetNode(data->SceneList()[data->GetSceneId("models")],targetMesh);
