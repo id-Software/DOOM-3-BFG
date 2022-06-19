@@ -35,7 +35,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "Model_local.h"
 #include "RenderCommon.h"
 
-#define GLTF_YUP 1
+#define GLTF_YUP 0
 
 idCVar gltf_ForceBspMeshTexture( "gltf_ForceBspMeshTexture", "0", CVAR_SYSTEM | CVAR_BOOL, "all world geometry has the same forced texture" );
 
@@ -50,6 +50,10 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 	gltfAccessor* accessor = _data->AccessorList()[prim->indices];
 	gltfBufferView* bv = _data->BufferViewList()[accessor->bufferView];
 	gltfData* data = bv->parent;
+	
+	// files import as y-up. Use this transform to change the model to z-up.
+	idMat3 rotation = idAngles( 0.0f, 0.0f, 90.0f ).ToMat3( );
+	idMat4 axisTransform( rotation, vec3_origin );
 
 	gltfMaterial* mat = NULL;
 	if( prim->material != -1 )
@@ -122,7 +126,7 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 					bin.Read( ( void* )( &pos.y ), attrAcc->typeSize );
 					bin.Read( ( void* )( &pos.z ), attrAcc->typeSize );
 
-					pos *= trans;
+					pos *= trans * axisTransform;
 
 #if GLTF_YUP
 					// RB: proper glTF2 convention, requires Y-up export option ticked on in Blender
@@ -173,7 +177,7 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 					normal.y = vec.y;
 					normal.z = vec.z;
 #endif
-
+					normal *= axisTransform;
 					mesh->verts[i].SetNormal( normal );
 				}
 
@@ -222,6 +226,7 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 					tangent.y = vec.y;
 					tangent.z = vec.z;
 #endif
+					tangent *= axisTransform;
 
 					mesh->verts[i].SetTangent( tangent );
 					mesh->verts[i].SetBiTangentSign( vec.w );
@@ -312,7 +317,12 @@ void ProcessSceneNode( idMapEntity* newEntity, gltfNode* node, idMat4& trans, gl
 	origin.y = node->translation.y;
 	origin.z = node->translation.z;
 #endif
+	
+	// files import as y-up. Use this transform to change the model to z-up.
+	idMat3 rotation = idAngles( 0.0f, 0.0f, 90.0f ).ToMat3( );
+	idMat4 axisTransform( rotation, vec3_origin );
 
+	origin *= axisTransform;
 	newEntity->epairs.Set( "origin", origin.ToString() );
 }
 
@@ -376,7 +386,6 @@ int idMapEntity::GetEntities( gltfData* data, EntityListRef entities, int sceneI
 
 	return entityCount;
 }
-
 //  not dots allowed in [%s]!
 // [filename].[%i|%s].[gltf/glb]
 bool gltfManager::ExtractMeshIdentifier( idStr& filename, int& meshId, idStr& meshName )
@@ -384,39 +393,45 @@ bool gltfManager::ExtractMeshIdentifier( idStr& filename, int& meshId, idStr& me
 	idStr extension;
 	idStr meshStr;
 	filename.ExtractFileExtension( extension );
-	idStr file = filename.Left( filename.Length() - extension.Length() - 1 );
+	idStr file = filename;
+	file = file.StripFileExtension();
 	file.ExtractFileExtension( meshStr );
-	filename = file.Left( file.Length() - meshStr.Length() - 1 ) + "." + extension;
 
 	if( !extension.Length() )
 	{
 		idLib::Warning( "no gltf mesh identifier" );
 		return false;
 	}
-	idParser	parser( LEXFL_ALLOWPATHNAMES | LEXFL_NOSTRINGESCAPECHARS );
-	parser.LoadMemory( meshStr.c_str(), meshStr.Size(), "model:GltfmeshID" );
 
-	idToken token;
-	if( parser.ExpectAnyToken( &token ) )
+	if( meshStr.Length() )
 	{
-		if( ( token.type == TT_NUMBER ) && ( token.subtype & TT_INTEGER ) )
+		filename = file.Left( file.Length() - meshStr.Length() - 1 ) + "." + extension;
+
+		idParser	parser( LEXFL_ALLOWPATHNAMES | LEXFL_NOSTRINGESCAPECHARS );
+		parser.LoadMemory( meshStr.c_str(), meshStr.Size(), "model:GltfmeshID" );
+
+		idToken token;
+		if( parser.ExpectAnyToken( &token ) )
 		{
-			meshId = token.GetIntValue();
-		}
-		else if( token.type == TT_NAME )
-		{
-			meshName = token;
+			if( ( token.type == TT_NUMBER ) && ( token.subtype & TT_INTEGER ) )
+			{
+				meshId = token.GetIntValue();
+			}
+			else if( token.type == TT_NAME )
+			{
+				meshName = token;
+			}
+			else
+			{
+				parser.Warning( "malformed gltf mesh identifier" );
+				return false;
+			}
+			return true;
 		}
 		else
 		{
 			parser.Warning( "malformed gltf mesh identifier" );
-			return false;
 		}
-		return true;
-	}
-	else
-	{
-		parser.Warning( "malformed gltf mesh identifier" );
 	}
 
 	return false;
@@ -430,7 +445,7 @@ void idRenderModelGLTF::ProcessNode( gltfNode* modelNode, idMat4 trans, gltfData
 	gltfData::ResolveNodeMatrix( modelNode );
 	idMat4 curTrans = trans * modelNode->matrix;
 
-	gltfMesh* targetMesh = meshList[modelNode->mesh];
+	gltfMesh *targetMesh = meshList[modelNode->mesh];
 
 	for( auto prim : targetMesh->primitives )
 	{
@@ -496,6 +511,7 @@ void idRenderModelGLTF::InitFromFile( const char* fileName )
 	int meshID = -1;
 	idStr meshName;
 	idStr gltfFileName = idStr( fileName );
+
 	gltfManager::ExtractMeshIdentifier( gltfFileName, meshID, meshName );
 
 	if( gltfParser->currentFile.Length() )
@@ -506,16 +522,33 @@ void idRenderModelGLTF::InitFromFile( const char* fileName )
 		}
 		gltfParser->Load( gltfFileName );
 	}
+	else 
+	{
+		gltfParser->Load( gltfFileName );
+	}
+
 
 	timeStamp = fileSystem->GetTimestamp( gltfFileName );
 	gltfData* data = gltfParser->currentAsset;
 
 	bounds.Clear();
+	
+	if (!meshName[0])
+		meshName = "head";
 
 	gltfNode* modelNode = data->GetNode( "models", meshName );
 	if( modelNode )
 	{
 		ProcessNode( modelNode, mat4_identity, data );
+
+		if ( surfaces.Num( ) <= 0 ) {
+			common->Warning( "Couldn't load model: '%s'", name.c_str( ) );
+			MakeDefaultModel( );
+			return;
+		}
+
+		// it is now available for use
+		purged = false;
 	}
 	else
 	{
