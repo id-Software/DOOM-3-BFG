@@ -49,7 +49,7 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 	gltfAccessor* accessor = _data->AccessorList()[prim->indices];
 	gltfBufferView* bv = _data->BufferViewList()[accessor->bufferView];
 	gltfData* data = bv->parent;
-	
+
 	// files import as y-up. Use this transform to change the model to z-up.
 	idMat3 rotation = idAngles( 0.0f, 0.0f, 90.0f ).ToMat3( );
 	idMat4 axisTransform( rotation, vec3_origin );
@@ -301,7 +301,7 @@ void ProcessSceneNode( idMapEntity* newEntity, gltfNode* node, idMat4& trans, gl
 	origin *= axisTransform;
 	newEntity->epairs.Set( "origin", origin.ToString() );
 
-	newEntity->epairs.Set( "rotation", node->rotation.ToMat3().Transpose().ToString());
+	newEntity->epairs.Set( "rotation", node->rotation.ToMat3().Transpose().ToString() );
 }
 
 void Map_AddMeshes( idMapEntity* _Entity, gltfNode* _Node, idMat4& _Trans, gltfData* _Data )
@@ -424,7 +424,7 @@ void idRenderModelGLTF::ProcessNode( gltfNode* modelNode, idMat4 trans, gltfData
 	gltfData::ResolveNodeMatrix( modelNode );
 	idMat4 curTrans = trans * modelNode->matrix;
 
-	gltfMesh *targetMesh = meshList[modelNode->mesh];
+	gltfMesh* targetMesh = meshList[modelNode->mesh];
 
 	for( auto prim : targetMesh->primitives )
 	{
@@ -483,7 +483,7 @@ void idRenderModelGLTF::ProcessNode( gltfNode* modelNode, idMat4 trans, gltfData
 }
 
 //constructs a renderModel from a gltfScene node found in the "models" scene of the given gltfFile.
-// override with gltf_ModelSceneName 
+// override with gltf_ModelSceneName
 // warning : nodeName cannot have dots!
 //[fileName].[nodeName/nodeId].[gltf/glb]
 //If no nodeName/nodeId is given, all primitives active in default scene will be added as surfaces.
@@ -502,7 +502,7 @@ void idRenderModelGLTF::InitFromFile( const char* fileName )
 			common->FatalError( "multiple GLTF file loading not supported" );
 		}
 	}
-	else 
+	else
 	{
 		gltfParser->Load( gltfFileName );
 	}
@@ -511,31 +511,32 @@ void idRenderModelGLTF::InitFromFile( const char* fileName )
 	gltfData* data = gltfParser->currentAsset;
 
 	bounds.Clear();
-	
+
 	int sceneId = data->DefaultScene();
 
 	assert( sceneId >= 0 );
 
-	if ( !meshName[0] )
+	if( !meshName[0] )
 	{
-		auto & nodeList = data->NodeList();
+		auto& nodeList = data->NodeList();
 		for( auto& nodeID :  data->SceneList()[sceneId]->nodes )
 		{
-			gltfNode *modelNode = nodeList[nodeID];
-			assert ( modelNode );
+			gltfNode* modelNode = nodeList[nodeID];
+			assert( modelNode );
 			ProcessNode( modelNode, mat4_identity, data );
 		}
 	}
 	else
 	{
-		gltfNode *modelNode = data->GetNode( gltf_ModelSceneName.GetString(), meshName );
-		if ( modelNode ) 
+		gltfNode* modelNode = data->GetNode( gltf_ModelSceneName.GetString(), meshName );
+		if( modelNode )
 		{
 			ProcessNode( modelNode, mat4_identity, data );
 		}
 	}
 
-	if ( surfaces.Num( ) <= 0 ) {
+	if( surfaces.Num( ) <= 0 )
+	{
 		common->Warning( "Couldn't load model: '%s'", name.c_str( ) );
 		MakeDefaultModel( );
 		return;
