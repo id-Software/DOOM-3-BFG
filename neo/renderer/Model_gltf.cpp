@@ -107,9 +107,6 @@ void idRenderModelGLTF::ProcessNode( gltfNode* modelNode, idMat4 trans, gltfData
 	{
 		ProcessNode( nodeList[child], curTrans, data );
 	}
-
-	// derive mikktspace tangents from normals
-	FinishSurfaces( true );
 }
 
 //constructs a renderModel from a gltfScene node found in the "models" scene of the given gltfFile.
@@ -171,6 +168,9 @@ void idRenderModelGLTF::InitFromFile( const char* fileName )
 		MakeDefaultModel( );
 		return;
 	}
+
+	// derive mikktspace tangents from normals
+	FinishSurfaces( true );
 
 	// it is now available for use
 	purged = false;
