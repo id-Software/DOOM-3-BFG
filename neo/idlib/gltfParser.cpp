@@ -2315,3 +2315,55 @@ CONSOLE_COMMAND_COMPILE( LoadGLTF, "Loads an .gltf or .glb file", idCmdSystem::A
 
 }
 //+set r_fullscreen 0 +set com_allowConsole 1 +set developer 1 +set fs_debug 0 +set win_outputDebugString 1 +set fs_basepath "E:\SteamLibrary\steamapps\common\DOOM 3 BFG Edition\"
+
+
+//  not dots allowed in [%s]!
+// [filename].[%i|%s].[gltf/glb]
+bool gltfManager::ExtractMeshIdentifier( idStr& filename, int& meshId, idStr& meshName )
+{
+	idStr extension;
+	idStr meshStr;
+	filename.ExtractFileExtension( extension );
+	idStr file = filename;
+	file = file.StripFileExtension();
+	file.ExtractFileExtension( meshStr );
+
+	if( !extension.Length() )
+	{
+		idLib::Warning( "no gltf mesh identifier" );
+		return false;
+	}
+
+	if( meshStr.Length() )
+	{
+		filename = file.Left( file.Length() - meshStr.Length() - 1 ) + "." + extension;
+
+		idParser	parser( LEXFL_ALLOWPATHNAMES | LEXFL_NOSTRINGESCAPECHARS );
+		parser.LoadMemory( meshStr.c_str(), meshStr.Size(), "model:GltfmeshID" );
+
+		idToken token;
+		if( parser.ExpectAnyToken( &token ) )
+		{
+			if( ( token.type == TT_NUMBER ) && ( token.subtype & TT_INTEGER ) )
+			{
+				meshId = token.GetIntValue();
+			}
+			else if( token.type == TT_NAME )
+			{
+				meshName = token;
+			}
+			else
+			{
+				parser.Warning( "malformed gltf mesh identifier" );
+				return false;
+			}
+			return true;
+		}
+		else
+		{
+			parser.Warning( "malformed gltf mesh identifier" );
+		}
+	}
+
+	return false;
+}

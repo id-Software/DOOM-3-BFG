@@ -29,11 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma once
 #include "Model_local.h"
 
-class gltfManager
-{
-public:
-	static bool ExtractMeshIdentifier( idStr& filename , int& meshId, idStr& meshName );
-};
+
 
 class idGltfMesh
 {

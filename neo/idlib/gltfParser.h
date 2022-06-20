@@ -346,4 +346,10 @@ private:
 	bool bufferViewsDone;
 };
 
+class gltfManager
+{
+public:
+	static bool ExtractMeshIdentifier( idStr& filename , int& meshId, idStr& meshName );
+};
+
 extern GLTF_Parser* gltfParser;
