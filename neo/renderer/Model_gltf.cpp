@@ -160,16 +160,11 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 					}
 
 					idVec3 normal;
-#if GLTF_YUP
-					// RB: proper glTF2 convention, requires Y-up export option ticked on in Blender
-					normal.x = vec.z;
-					normal.y = vec.x;
-					normal.z = vec.y;
-#else
+
 					normal.x = vec.x;
 					normal.y = vec.y;
 					normal.z = vec.z;
-#endif
+
 					normal *= axisTransform;
 					mesh->verts[i].SetNormal( normal );
 				}
@@ -209,16 +204,11 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 					}
 
 					idVec3 tangent;
-#if GLTF_YUP
-					// RB: proper glTF2 convention, requires Y-up export option ticked on in Blender
-					tangent.x = vec.z;
-					tangent.y = vec.x;
-					tangent.z = vec.y;
-#else
+
 					tangent.x = vec.x;
 					tangent.y = vec.y;
 					tangent.z = vec.z;
-#endif
+
 					tangent *= axisTransform;
 
 					mesh->verts[i].SetTangent( tangent );
@@ -300,16 +290,10 @@ void ProcessSceneNode( idMapEntity* newEntity, gltfNode* node, idMat4 trans, glt
 	}
 #endif
 	idVec3 origin;
-#if GLTF_YUP
-	// RB: proper glTF2 convention, requires Y-up export option ticked on in Blender
-	origin.x = node->translation.z;
-	origin.y = node->translation.x;
-	origin.z = node->translation.y;
-#else
+
 	origin.x = node->translation.x;
 	origin.y = node->translation.y;
 	origin.z = node->translation.z;
-#endif
 
 	// files import as y-up. Use this transform to change the model to z-up.
 	idMat3 rotation = idAngles( 0.0f, 0.0f, 90.0f ).ToMat3( );
@@ -496,6 +480,9 @@ void idRenderModelGLTF::ProcessNode( gltfNode* modelNode, idMat4 trans, gltfData
 	{
 		ProcessNode( nodeList[child], curTrans, data );
 	}
+
+	// derive mikktspace tangents from normals
+	FinishSurfaces( true );
 }
 
 //constructs a renderModel from a gltfScene node found in the "models" scene of the given gltfFile.
@@ -550,7 +537,6 @@ void idRenderModelGLTF::InitFromFile( const char* fileName )
 			ProcessNode( modelNode, mat4_identity, data );
 		}
 	}
-
 
 	if( surfaces.Num( ) <= 0 )
 	{
