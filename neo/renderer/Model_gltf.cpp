@@ -125,7 +125,8 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 					bin.Read( ( void* )( &pos.y ), attrAcc->typeSize );
 					bin.Read( ( void* )( &pos.z ), attrAcc->typeSize );
 
-					pos *= trans * axisTransform;
+					pos *= trans;
+					pos *= axisTransform;
 
 					mesh->verts[i].xyz.x = pos.x;
 					mesh->verts[i].xyz.y = pos.y;
@@ -256,7 +257,7 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 	return mesh;
 }
 
-void ProcessSceneNode( idMapEntity* newEntity, gltfNode* node, idMat4& trans, gltfData* data , bool staticMesh = false )
+void ProcessSceneNode( idMapEntity* newEntity, gltfNode* node, idMat4 trans, gltfData* data , bool staticMesh = false )
 {
 	auto& nodeList = data->NodeList();
 
@@ -315,9 +316,8 @@ void ProcessSceneNode( idMapEntity* newEntity, gltfNode* node, idMat4& trans, gl
 	idMat4 axisTransform( rotation, vec3_origin );
 
 	origin *= axisTransform;
-	newEntity->epairs.Set( "origin", origin.ToString() );
 
-	newEntity->epairs.Set( "rotation", node->rotation.ToMat3().Transpose().ToString() );
+	newEntity->epairs.Set( "origin", origin.ToString() );
 }
 
 void Map_AddMeshes( idMapEntity* _Entity, gltfNode* _Node, idMat4& _Trans, gltfData* _Data )
