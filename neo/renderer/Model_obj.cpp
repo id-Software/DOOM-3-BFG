@@ -125,6 +125,12 @@ objModel_t* OBJ_Parse( const char* fileName, const char* objFileBuffer, int leng
 			idStr line;
 			src.ReadRestOfLine( line );
 		}
+		else if( token == "l" )
+		{
+			// We don't support lines
+			idStr line;
+			src.ReadRestOfLine( line );
+		}
 		else if( token == "o" || token == "g" )
 		{
 			idStr line;
