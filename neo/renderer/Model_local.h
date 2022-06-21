@@ -213,6 +213,7 @@ private:
 
 class idRenderModelMD5 : public idRenderModelStatic
 {
+	friend class				idRenderModelGLTF;
 public:
 	virtual void				InitFromFile( const char* fileName );
 	virtual bool				LoadBinaryModel( idFile* file, const ID_TIME_T sourceTimeStamp );

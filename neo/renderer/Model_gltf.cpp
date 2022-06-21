@@ -38,6 +38,10 @@ If you have questions concerning this license or the applicable additional terms
 idCVar gltf_ForceBspMeshTexture( "gltf_ForceBspMeshTexture", "0", CVAR_SYSTEM | CVAR_BOOL, "all world geometry has the same forced texture" );
 idCVar gltf_ModelSceneName( "gltf_ModelSceneName", "models", CVAR_SYSTEM , "Scene to use when loading specific models" );
 
+
+static const byte GLMB_VERSION = 100;
+static const unsigned int GLMB_MAGIC = ( 'M' << 24 ) | ( 'L' << 16 ) | ( 'G' << 8 ) | GLMB_VERSION;
+
 bool idRenderModelStatic::ConvertGltfMeshToModelsurfaces( const gltfMesh* mesh )
 {
 	return false;
@@ -109,6 +113,12 @@ void idRenderModelGLTF::ProcessNode( gltfNode* modelNode, idMat4 trans, gltfData
 	}
 }
 
+
+void idRenderModelGLTF::MakeMD5Mesh( )
+{
+
+}
+
 //constructs a renderModel from a gltfScene node found in the "models" scene of the given gltfFile.
 // override with gltf_ModelSceneName
 // warning : nodeName cannot have dots!
@@ -116,9 +126,12 @@ void idRenderModelGLTF::ProcessNode( gltfNode* modelNode, idMat4 trans, gltfData
 //If no nodeName/nodeId is given, all primitives active in default scene will be added as surfaces.
 void idRenderModelGLTF::InitFromFile( const char* fileName )
 {
+	fileExclusive = false;
+	root = nullptr;
 	int meshID = -1;
 	idStr meshName;
 	idStr gltfFileName = idStr( fileName );
+	
 
 	gltfManager::ExtractMeshIdentifier( gltfFileName, meshID, meshName );
 
@@ -135,7 +148,7 @@ void idRenderModelGLTF::InitFromFile( const char* fileName )
 	}
 
 	timeStamp = fileSystem->GetTimestamp( gltfFileName );
-	gltfData* data = gltfParser->currentAsset;
+	data = gltfParser->currentAsset;
 
 	bounds.Clear();
 
@@ -152,14 +165,17 @@ void idRenderModelGLTF::InitFromFile( const char* fileName )
 			assert( modelNode );
 			ProcessNode( modelNode, mat4_identity, data );
 		}
+		fileExclusive = true;
 	}
 	else
 	{
 		gltfNode* modelNode = data->GetNode( gltf_ModelSceneName.GetString(), meshName );
 		if( modelNode )
 		{
+			root  = modelNode;
 			ProcessNode( modelNode, mat4_identity, data );
 		}
+
 	}
 
 	if( surfaces.Num( ) <= 0 )
@@ -182,13 +198,116 @@ void idRenderModelGLTF::InitFromFile( const char* fileName )
 
 bool idRenderModelGLTF::LoadBinaryModel( idFile* file, const ID_TIME_T sourceTimeStamp )
 {
-	common->Warning( "The method or operation is not implemented." );
-	return false;
+
+	if ( !idRenderModelStatic::LoadBinaryModel( file, sourceTimeStamp ) ) {
+		return false;
+	}
+
+	return true;
 }
 
 void idRenderModelGLTF::WriteBinaryModel( idFile* file, ID_TIME_T* _timeStamp /*= NULL */ ) const
 {
-	common->Warning( "idRenderModelGLTF::WriteBinaryModel is not implemented." );
+
+	idRenderModelStatic::WriteBinaryModel( file );
+
+	if ( file == NULL || root == nullptr) {
+		return;
+	}
+
+	//file->WriteBig( GLMB_MAGIC );
+
+	////check if this model has a skeleton
+	//if ( root->skin >= 0 )
+	//{
+	//	gltfSkin * skin = data->SkinList()[root->skin];
+	//	auto & nodeList = data->NodeList();
+
+	//	file->WriteBig( skin->joints.Num( ) );
+	//	for ( int i = 0; i < skin->joints.Num( ); i++ ) {
+	//		gltfNode & target = *nodeList[skin->joints[i]];
+	//		file->WriteString( target.name );
+	//		int offset = -1;
+	//		if ( target.parent != NULL ) {
+	//			offset = target.parent - skin->joints.Ptr( );
+	//		}
+	//		file->WriteBig( offset );
+	//	}
+
+	//	file->WriteBig( defaultPose.Num( ) );
+	//	for ( int i = 0; i < defaultPose.Num( ); i++ ) {
+	//		file->WriteBig( defaultPose[i].q.x );
+	//		file->WriteBig( defaultPose[i].q.y );
+	//		file->WriteBig( defaultPose[i].q.z );
+	//		file->WriteBig( defaultPose[i].q.w );
+	//		file->WriteVec3( defaultPose[i].t );
+	//	}
+
+	//	file->WriteBig( invertedDefaultPose.Num( ) );
+	//	for ( int i = 0; i < invertedDefaultPose.Num( ); i++ ) {
+	//		file->WriteBigArray( invertedDefaultPose[i].ToFloatPtr( ), JOINTMAT_TYPESIZE );
+	//	}
+	//}
+
+
+
+	//file->WriteBig( meshes.Num( ) );
+	//for ( int i = 0; i < meshes.Num( ); i++ ) {
+
+	//	if ( meshes[i].shader != NULL && meshes[i].shader->GetName( ) != NULL ) {
+	//		file->WriteString( meshes[i].shader->GetName( ) );
+	//	} else {
+	//		file->WriteString( "" );
+	//	}
+
+	//	file->WriteBig( meshes[i].numVerts );
+	//	file->WriteBig( meshes[i].numTris );
+
+	//	file->WriteBig( meshes[i].numMeshJoints );
+	//	file->WriteBigArray( meshes[i].meshJoints, meshes[i].numMeshJoints );
+	//	file->WriteBig( meshes[i].maxJointVertDist );
+
+	//	deformInfo_t &deform = *meshes[i].deformInfo;
+
+	//	file->WriteBig( deform.numSourceVerts );
+	//	file->WriteBig( deform.numOutputVerts );
+	//	file->WriteBig( deform.numIndexes );
+	//	file->WriteBig( deform.numMirroredVerts );
+	//	file->WriteBig( deform.numDupVerts );
+	//	file->WriteBig( deform.numSilEdges );
+
+	//	if ( deform.numOutputVerts > 0 ) {
+	//		file->WriteBigArray( deform.verts, deform.numOutputVerts );
+	//	}
+
+	//	if ( deform.numIndexes > 0 ) {
+	//		file->WriteBigArray( deform.indexes, deform.numIndexes );
+	//		file->WriteBigArray( deform.silIndexes, deform.numIndexes );
+	//	}
+
+	//	if ( deform.numMirroredVerts > 0 ) {
+	//		file->WriteBigArray( deform.mirroredVerts, deform.numMirroredVerts );
+	//	}
+
+	//	if ( deform.numDupVerts > 0 ) {
+	//		file->WriteBigArray( deform.dupVerts, deform.numDupVerts * 2 );
+	//	}
+
+	//	if ( deform.numSilEdges > 0 ) {
+	//		for ( int j = 0; j < deform.numSilEdges; j++ ) {
+	//			file->WriteBig( deform.silEdges[j].p1 );
+	//			file->WriteBig( deform.silEdges[j].p2 );
+	//			file->WriteBig( deform.silEdges[j].v1 );
+	//			file->WriteBig( deform.silEdges[j].v2 );
+	//		}
+	//	}
+
+	//	file->WriteBig( meshes[i].surfaceNum );
+	//}
+
+
+
+
 }
 
 void idRenderModelGLTF::PurgeModel()

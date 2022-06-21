@@ -31,15 +31,6 @@ If you have questions concerning this license or the applicable additional terms
 
 
 
-class idGltfMesh
-{
-public:
-	idGltfMesh( gltfMesh* _mesh, gltfData* _data ) : mesh( _mesh ), data( _data ) {};
-
-private:
-	gltfMesh* mesh;
-	gltfData* data;
-};
 
 class idRenderModelGLTF : public idRenderModelStatic
 {
@@ -64,8 +55,16 @@ public:
 	virtual int					NearestJoint( int surfaceNum, int a, int b, int c ) const;
 	virtual bool				SupportsBinaryModel() override
 	{
-		return false;
+		return true;
 	}
+
+	void MakeMD5Mesh () ;
 private:
 	void ProcessNode( gltfNode* modelNode, idMat4 trans, gltfData* data );
+
+	gltfData* data;
+	gltfNode* root;
+	bool fileExclusive;
+	
+	idList<idMD5Mesh, TAG_MODEL>	meshes;
 };
