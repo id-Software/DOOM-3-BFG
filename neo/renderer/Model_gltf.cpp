@@ -41,6 +41,7 @@ idCVar gltf_ModelSceneName( "gltf_ModelSceneName", "models", CVAR_SYSTEM , "Scen
 
 static const byte GLMB_VERSION = 100;
 static const unsigned int GLMB_MAGIC = ( 'M' << 24 ) | ( 'L' << 16 ) | ( 'G' << 8 ) | GLMB_VERSION;
+static const char* GLTF_SnapshotName = "_GLTF_Snapshot_";
 
 bool idRenderModelStatic::ConvertGltfMeshToModelsurfaces( const gltfMesh* mesh )
 {
@@ -49,62 +50,87 @@ bool idRenderModelStatic::ConvertGltfMeshToModelsurfaces( const gltfMesh* mesh )
 
 void idRenderModelGLTF::ProcessNode( gltfNode* modelNode, idMat4 trans, gltfData* data )
 {
-	auto& meshList = data->MeshList();
-	auto& nodeList = data->NodeList();
+	auto& meshList = data->MeshList( );
+	auto& nodeList = data->NodeList( );
+
+	//find all animations
+	//!!check all nodes --> test with scale_rotate_anim
+	for( auto anim : data->AnimationList( ) )
+	{
+		for( auto channel : anim->channels )
+		{
+			if( channel->target.node >= 0 && nodeList[channel->target.node] == modelNode )
+			{
+				animIds.Alloc( ) = channel->target.node;
+			}
+		}
+	}
 
 	gltfData::ResolveNodeMatrix( modelNode );
+
 	idMat4 curTrans = trans * modelNode->matrix;
 
-	gltfMesh* targetMesh = meshList[modelNode->mesh];
-
-	for( auto prim : targetMesh->primitives )
+	if( modelNode->mesh >= 0 )
 	{
-		auto* newMesh = MapPolygonMesh::ConvertFromMeshGltf( prim, data, curTrans );
-		modelSurface_t	surf;
+		gltfMesh* targetMesh = meshList[modelNode->mesh];
 
-		gltfMaterial* mat = NULL;
-		if( prim->material != -1 )
-		{
-			mat = data->MaterialList()[prim->material];
-		}
-		if( mat != NULL && !gltf_ForceBspMeshTexture.GetBool() )
-		{
-			surf.shader = declManager->FindMaterial( mat->name );
-		}
-		else
-		{
-			surf.shader = declManager->FindMaterial( "textures/base_wall/snpanel2rust" );
-		}
-		surf.id = this->NumSurfaces();
+		idMat4 newTrans  = mat4_identity;
 
-		srfTriangles_t* tri = R_AllocStaticTriSurf();
-		tri->numIndexes = newMesh->GetNumPolygons() * 3;
-		tri->numVerts = newMesh->GetNumVertices();
-
-		R_AllocStaticTriSurfIndexes( tri, tri->numIndexes );
-		R_AllocStaticTriSurfVerts( tri, tri->numVerts );
-
-		int indx = 0;
-		for( int i = 0; i < newMesh->GetNumPolygons(); i++ )
+		if( !animIds.Num() )
 		{
-			auto& face = newMesh->GetFace( i );
-			auto& faceIdxs = face.GetIndexes();
-			tri->indexes[indx] = faceIdxs[0];
-			tri->indexes[indx + 1] = faceIdxs[1];
-			tri->indexes[indx + 2] = faceIdxs[2];
-			indx += 3;
+			newTrans = curTrans;
 		}
 
-		for( int i = 0; i < tri->numVerts; ++i )
+		for( auto prim : targetMesh->primitives )
 		{
-			tri->verts[i] = newMesh->GetDrawVerts()[i];
-			tri->bounds.AddPoint( tri->verts[i].xyz );
+			//ConvertFromMeshGltf should only be used for the map, ConvertGltfMeshToModelsurfaces should be used.
+			auto* newMesh = MapPolygonMesh::ConvertFromMeshGltf( prim, data, newTrans );
+			modelSurface_t	surf;
+
+			gltfMaterial* mat = NULL;
+			if( prim->material != -1 )
+			{
+				mat = data->MaterialList( )[prim->material];
+			}
+			if( mat != NULL && !gltf_ForceBspMeshTexture.GetBool( ) )
+			{
+				surf.shader = declManager->FindMaterial( mat->name );
+			}
+			else
+			{
+				surf.shader = declManager->FindMaterial( "textures/base_wall/snpanel2rust" );
+			}
+			surf.id = this->NumSurfaces( );
+
+			srfTriangles_t* tri = R_AllocStaticTriSurf( );
+			tri->numIndexes = newMesh->GetNumPolygons( ) * 3;
+			tri->numVerts = newMesh->GetNumVertices( );
+
+			R_AllocStaticTriSurfIndexes( tri, tri->numIndexes );
+			R_AllocStaticTriSurfVerts( tri, tri->numVerts );
+
+			int indx = 0;
+			for( int i = 0; i < newMesh->GetNumPolygons( ); i++ )
+			{
+				auto& face = newMesh->GetFace( i );
+				auto& faceIdxs = face.GetIndexes( );
+				tri->indexes[indx] = faceIdxs[0];
+				tri->indexes[indx + 1] = faceIdxs[1];
+				tri->indexes[indx + 2] = faceIdxs[2];
+				indx += 3;
+			}
+
+			for( int i = 0; i < tri->numVerts; ++i )
+			{
+				tri->verts[i] = newMesh->GetDrawVerts( )[i];
+				tri->bounds.AddPoint( tri->verts[i].xyz );
+			}
+
+			bounds.AddBounds( tri->bounds );
+
+			surf.geometry = tri;
+			AddSurface( surf );
 		}
-
-		bounds.AddBounds( tri->bounds );
-
-		surf.geometry = tri;
-		AddSurface( surf );
 	}
 
 	for( auto& child : modelNode->children )
@@ -113,10 +139,11 @@ void idRenderModelGLTF::ProcessNode( gltfNode* modelNode, idMat4 trans, gltfData
 	}
 }
 
-
 void idRenderModelGLTF::MakeMD5Mesh( )
 {
 
+	meshes.SetGranularity( 1 );
+	//meshes.SetNum( num );
 }
 
 //constructs a renderModel from a gltfScene node found in the "models" scene of the given gltfFile.
@@ -126,12 +153,13 @@ void idRenderModelGLTF::MakeMD5Mesh( )
 //If no nodeName/nodeId is given, all primitives active in default scene will be added as surfaces.
 void idRenderModelGLTF::InitFromFile( const char* fileName )
 {
+	hasAnimations = false;
 	fileExclusive = false;
 	root = nullptr;
 	int meshID = -1;
 	idStr meshName;
 	idStr gltfFileName = idStr( fileName );
-	
+	model_state = DM_STATIC;
 
 	gltfManager::ExtractMeshIdentifier( gltfFileName, meshID, meshName );
 
@@ -158,6 +186,10 @@ void idRenderModelGLTF::InitFromFile( const char* fileName )
 
 	if( !meshName[0] )
 	{
+		//this needs to be fixed to correctly support multiple meshes.
+		// atm this will only correctlty with static models.
+		// we could do gltfMeshes a la md5
+		// or re-use this class
 		auto& nodeList = data->NodeList();
 		for( auto& nodeID :  data->SceneList()[sceneId]->nodes )
 		{
@@ -169,10 +201,10 @@ void idRenderModelGLTF::InitFromFile( const char* fileName )
 	}
 	else
 	{
-		gltfNode* modelNode = data->GetNode( gltf_ModelSceneName.GetString(), meshName );
+		gltfNode* modelNode = data->GetNode( gltf_ModelSceneName.GetString(), meshName, &rootID );
 		if( modelNode )
 		{
-			root  = modelNode;
+			root = modelNode;
 			ProcessNode( modelNode, mat4_identity, data );
 		}
 
@@ -184,6 +216,7 @@ void idRenderModelGLTF::InitFromFile( const char* fileName )
 		MakeDefaultModel( );
 		return;
 	}
+	model_state = animIds.Num() ? DM_CONTINUOUS : DM_STATIC;
 
 	// derive mikktspace tangents from normals
 	FinishSurfaces( true );
@@ -198,11 +231,56 @@ void idRenderModelGLTF::InitFromFile( const char* fileName )
 
 bool idRenderModelGLTF::LoadBinaryModel( idFile* file, const ID_TIME_T sourceTimeStamp )
 {
+	hasAnimations = false;
+	fileExclusive = false; // not written.
+	root = nullptr;
+	prevTrans = mat4_identity;
 
-	if ( !idRenderModelStatic::LoadBinaryModel( file, sourceTimeStamp ) ) {
+	//we should still load the scene information ?
+	if( !idRenderModelStatic::LoadBinaryModel( file, sourceTimeStamp ) )
+	{
 		return false;
 	}
 
+	unsigned int magic = 0;
+	file->ReadBig( magic );
+
+	if( magic != GLMB_MAGIC )
+	{
+		return false;
+	}
+
+	file->ReadBig( model_state );
+	file->ReadBig( rootID );
+
+	idStr dataFilename;
+	file->ReadString( dataFilename );
+
+	if( gltfParser->currentFile.Length( ) )
+	{
+		if( gltfParser->currentAsset && gltfParser->currentFile != dataFilename )
+		{
+			common->FatalError( "multiple GLTF file loading not supported" );
+		}
+	}
+	else
+	{
+		gltfParser->Load( dataFilename );
+	}
+
+	data = gltfParser->currentAsset;
+	root = data->GetNode( gltf_ModelSceneName.GetString(), rootID );
+	assert( root );
+
+	int animCnt;
+	file->ReadBig( animCnt );
+	if( animCnt > 0 )
+	{
+		animIds.Resize( animCnt, 1 );
+		file->ReadBigArray( animIds.Ptr( ), animCnt );
+		animIds.SetNum( animCnt );
+	}
+	hasAnimations = animCnt > 0;
 	return true;
 }
 
@@ -211,12 +289,21 @@ void idRenderModelGLTF::WriteBinaryModel( idFile* file, ID_TIME_T* _timeStamp /*
 
 	idRenderModelStatic::WriteBinaryModel( file );
 
-	if ( file == NULL || root == nullptr) {
+	if( file == NULL || root == nullptr )
+	{
 		return;
 	}
 
-	//file->WriteBig( GLMB_MAGIC );
+	file->WriteBig( GLMB_MAGIC );
+	file->WriteBig( model_state );
+	file->WriteBig( rootID );
+	file->WriteString( data->FileName() );
 
+	file->WriteBig( animIds.Num( ) );
+	if( animIds.Num( ) )
+	{
+		file->WriteBigArray( animIds.Ptr(), animIds.Size() );
+	}
 	////check if this model has a skeleton
 	//if ( root->skin >= 0 )
 	//{
@@ -304,10 +391,6 @@ void idRenderModelGLTF::WriteBinaryModel( idFile* file, ID_TIME_T* _timeStamp /*
 
 	//	file->WriteBig( meshes[i].surfaceNum );
 	//}
-
-
-
-
 }
 
 void idRenderModelGLTF::PurgeModel()
@@ -350,13 +433,92 @@ int idRenderModelGLTF::Memory() const
 
 dynamicModel_t idRenderModelGLTF::IsDynamicModel() const
 {
-	return DM_STATIC;
+	return model_state;
+}
+
+void TransformVertsAndTangents( idDrawVert* targetVerts, const int numVerts, idMat4 trans )
+{
+	for( int i = 0; i < numVerts; i++ )
+	{
+
+		targetVerts[i].xyz *= trans;// * idVec3( base.xyz.x, base.xyz.y, base.xyz.z);
+		targetVerts[i].SetNormal( trans.ToMat3() * targetVerts[i].GetNormal( ) );
+		targetVerts[i].SetTangent( trans.ToMat3() * targetVerts[i].GetTangent( ) );
+	}
+}
+
+void idRenderModelGLTF::UpdateSurface( const struct renderEntity_s* ent, idMat4 trans, modelSurface_t* surf )
+{
+
+	if( surf->geometry != NULL )
+	{
+		R_FreeStaticTriSurfVertexCaches( surf->geometry );
+	}
+	else
+	{
+		surf->geometry = R_AllocStaticTriSurf( );
+	}
+
+	srfTriangles_t* tri = surf->geometry;
+	TransformVertsAndTangents( tri->verts, tri->numVerts, trans );
+
 }
 
 idRenderModel* idRenderModelGLTF::InstantiateDynamicModel( const struct renderEntity_s* ent, const viewDef_t* view, idRenderModel* cachedModel )
 {
-	common->Warning( "The method or operation is not implemented." );
-	return nullptr;
+	if( cachedModel != NULL && !r_useCachedDynamicModels.GetBool() )
+	{
+		delete cachedModel;
+		cachedModel = NULL;
+	}
+
+	if( purged )
+	{
+		common->DWarning( "model %s instantiated while purged", Name() );
+		LoadModel();
+	}
+
+	idRenderModelStatic* staticModel;
+	if( cachedModel != NULL )
+	{
+		assert( dynamic_cast< idRenderModelStatic* >( cachedModel ) != NULL );
+		assert( idStr::Icmp( cachedModel->Name( ), GLTF_SnapshotName ) == 0 );
+		staticModel = static_cast< idRenderModelStatic* >( cachedModel );
+	}
+	else
+	{
+		staticModel = new( TAG_MODEL ) idRenderModelStatic;
+		staticModel->InitEmpty( GLTF_SnapshotName );
+	}
+
+	idStr prevName = name;
+	name = GLTF_SnapshotName;
+	*staticModel = *this;
+	name = prevName;
+
+	idMat3 rotation = idAngles( 0.0f, 0.0f, 90.0f ).ToMat3( );
+	idMat4 axisTransform( rotation, vec3_origin );
+	idMat4 trans = prevTrans;
+	bool wasDirty = root->dirty;
+
+	gltfData::ResolveNodeMatrix( root, &trans );
+
+	if( wasDirty )
+	{
+		trans *= axisTransform;
+	}
+
+	for( modelSurface_t& surf : staticModel->surfaces )
+	{
+		UpdateSurface( ent, trans, &surf );
+	}
+
+	prevTrans = root->matrix.Inverse();
+
+	//staticModel->bounds *= trans.ToMat3( );
+	//bounds.Translate( idVec3( trans[0][3], trans[1][3], trans[2][3] ) );
+
+	return staticModel;
 }
 
 int idRenderModelGLTF::NumJoints() const
@@ -398,4 +560,9 @@ int idRenderModelGLTF::NearestJoint( int surfaceNum, int a, int b, int c ) const
 idBounds idRenderModelGLTF::Bounds( const struct renderEntity_s* ent ) const
 {
 	return bounds;
+}
+
+idGltfMesh::idGltfMesh( gltfMesh* _mesh, gltfData* _data ) : mesh( _mesh ), data( _data )
+{
+
 }

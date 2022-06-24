@@ -31,6 +31,16 @@ If you have questions concerning this license or the applicable additional terms
 
 
 
+class idGltfMesh
+{
+public:
+	idGltfMesh( ) {};
+	idGltfMesh( gltfMesh* _mesh, gltfData* _data );
+private:
+	gltfMesh* mesh;
+	gltfData* data;
+	idMD5Mesh md5Mesh;
+};
 
 class idRenderModelGLTF : public idRenderModelStatic
 {
@@ -58,13 +68,18 @@ public:
 		return true;
 	}
 
-	void MakeMD5Mesh () ;
+	void MakeMD5Mesh() ;
 private:
 	void ProcessNode( gltfNode* modelNode, idMat4 trans, gltfData* data );
+	void UpdateSurface( const struct renderEntity_s* ent, idMat4 trans, modelSurface_t* surf );
+	int rootID;
 
 	gltfData* data;
 	gltfNode* root;
 	bool fileExclusive;
-	
-	idList<idMD5Mesh, TAG_MODEL>	meshes;
+	bool hasAnimations;
+	idList<int>						animIds;
+	idList<idGltfMesh, TAG_MODEL>	meshes;
+	dynamicModel_t					model_state;
+	idMat4							prevTrans;
 };

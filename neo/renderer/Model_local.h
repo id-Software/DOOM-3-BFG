@@ -179,6 +179,7 @@ protected:
 class idMD5Mesh
 {
 	friend class				idRenderModelMD5;
+	friend class				idRenderModelGLTF;
 
 public:
 	idMD5Mesh();

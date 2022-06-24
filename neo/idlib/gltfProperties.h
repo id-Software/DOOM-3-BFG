@@ -841,43 +841,26 @@ public:
 		return nullptr;
 	}
 
-	gltfNode* GetNode( gltfScene* scene , gltfMesh* mesh )
+	gltfNode* GetNode( gltfScene* scene , gltfMesh* mesh , int* id = nullptr )
 	{
 		assert( scene );
 		assert( mesh );
 
 		auto& nodeList = scene->nodes;
+		int nodeCnt = 0;
 		for( auto& nodeId : nodeList )
 		{
+
 			if( nodes[nodeId]->mesh != -1 &&*& meshes[nodes[nodeId]->mesh] == mesh )
 			{
+				if( id != nullptr )
+				{
+					*id = nodeCnt;
+				}
+
 				return nodes[nodeId];
 			}
-		}
-
-		return nullptr;
-	}
-
-	gltfNode* GetNode( idStr sceneName, idStr name )
-	{
-		int sceneId =  GetSceneId( sceneName );
-		if( sceneId < 0 || sceneId > scenes.Num() )
-		{
-			return nullptr;
-		}
-
-		gltfScene* scene = scenes[sceneId];
-
-		assert( scene );
-		assert( name[0] );
-
-		auto& nodeList = scene->nodes;
-		for( auto& nodeId : nodeList )
-		{
-			if( nodes[nodeId]->name == name )
-			{
-				return nodes[nodeId];
-			}
+			nodeCnt++;
 		}
 
 		return nullptr;
@@ -900,6 +883,81 @@ public:
 		return nullptr;
 	}
 
+	gltfNode* GetNode( idStr sceneName,  int id, idStr* name = nullptr )
+	{
+		int sceneId = GetSceneId( sceneName );
+		if( sceneId < 0 || sceneId > scenes.Num( ) )
+		{
+			return nullptr;
+		}
+
+		gltfScene* scene = scenes[sceneId];
+
+		assert( scene );
+		assert( id >= 0 );
+
+		auto& nodeList = scene->nodes;
+		for( auto& nodeId : nodeList )
+		{
+			if( nodeId == id )
+			{
+				if( name != nullptr )
+				{
+					*name = nodes[nodeId]->name;
+				}
+
+				return nodes[nodeId];
+			}
+		}
+
+		return nullptr;
+	}
+
+	gltfNode* GetNode( idStr sceneName, idStr name , int* id = nullptr )
+	{
+		int sceneId =  GetSceneId( sceneName );
+		if( sceneId < 0 || sceneId > scenes.Num() )
+		{
+			return nullptr;
+		}
+
+		gltfScene* scene = scenes[sceneId];
+
+		assert( scene );
+		assert( name[0] );
+
+		auto& nodeList = scene->nodes;
+		for( auto& nodeId : nodeList )
+		{
+			if( nodes[nodeId]->name.Icmp( name ) == 0 )
+			{
+				if( id != nullptr )
+				{
+					*id = nodeId;
+				}
+
+				return nodes[nodeId];
+			}
+		}
+
+		return nullptr;
+	}
+
+	bool HasAnimation( int nodeID )
+	{
+		for( auto anim : animations )
+		{
+			for( auto channel : anim->channels )
+			{
+				if( channel->target.node == nodeID )
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	int GetSceneId( idStr sceneName ) const
 	{
 		for( int i = 0; i < scenes.Num(); i++ )
@@ -911,6 +969,7 @@ public:
 		}
 		return -1;
 	}
+
 	idMat4 GetViewMatrix( int camId ) const
 	{
 		//if (cameraManager->HasOverideID(camId) )
@@ -946,6 +1005,7 @@ public:
 
 		return result;
 	}
+
 	//Please note : assumes all nodes are _not_ dirty!
 	idMat4 GetLightMatrix( int lightId ) const
 	{
