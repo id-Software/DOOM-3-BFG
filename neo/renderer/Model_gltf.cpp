@@ -54,7 +54,6 @@ void idRenderModelGLTF::ProcessNode( gltfNode* modelNode, idMat4 trans, gltfData
 	auto& nodeList = data->NodeList( );
 
 	//find all animations
-	//!!check all nodes --> test with scale_rotate_anim
 	for( auto anim : data->AnimationList( ) )
 	{
 		for( auto channel : anim->channels )
@@ -304,15 +303,16 @@ void idRenderModelGLTF::WriteBinaryModel( idFile* file, ID_TIME_T* _timeStamp /*
 	{
 		file->WriteBigArray( animIds.Ptr(), animIds.Size() );
 	}
-	////check if this model has a skeleton
+	//check if this model has a skeleton
 	//if ( root->skin >= 0 )
 	//{
-	//	gltfSkin * skin = data->SkinList()[root->skin];
-	//	auto & nodeList = data->NodeList();
+	//	gltfSkin *skin = data->SkinList( )[root->skin];
+	//	auto &nodeList = data->NodeList( );
 
 	//	file->WriteBig( skin->joints.Num( ) );
 	//	for ( int i = 0; i < skin->joints.Num( ); i++ ) {
-	//		gltfNode & target = *nodeList[skin->joints[i]];
+
+	//		gltfNode &target = *nodeList[skin->joints[i]];
 	//		file->WriteString( target.name );
 	//		int offset = -1;
 	//		if ( target.parent != NULL ) {
@@ -320,7 +320,7 @@ void idRenderModelGLTF::WriteBinaryModel( idFile* file, ID_TIME_T* _timeStamp /*
 	//		}
 	//		file->WriteBig( offset );
 	//	}
-
+	//}
 	//	file->WriteBig( defaultPose.Num( ) );
 	//	for ( int i = 0; i < defaultPose.Num( ); i++ ) {
 	//		file->WriteBig( defaultPose[i].q.x );
@@ -523,7 +523,17 @@ idRenderModel* idRenderModelGLTF::InstantiateDynamicModel( const struct renderEn
 
 int idRenderModelGLTF::NumJoints() const
 {
-	common->Warning( "The method or operation is not implemented." );
+	if( !root )
+	{
+		common->FatalError( "Trying to determine Joint count without a model node loaded" );
+	}
+
+	if( root->skin >= 0 )
+	{
+		gltfSkin* skin = data->SkinList( )[root->skin];
+		return skin->joints.Num();
+	}
+
 	return 0;
 }
 

@@ -3336,9 +3336,11 @@ bool idDeclModelDef::Parse( const char* text, const int textLength, bool allowBi
 			}
 			filename = token2;
 			filename.ExtractFileExtension( extension );
-			if( extension != MD5_MESH_EXT )
+			bool isGltf = extension == GLTF_EXT || extension == GLTF_GLB_EXT;
+
+			if( extension != MD5_MESH_EXT && !isGltf )
 			{
-				src.Warning( "Invalid model for MD5 mesh" );
+				src.Warning( "Invalid model for MD5 or GLTF mesh" );
 				MakeDefault();
 				return false;
 			}
@@ -3364,27 +3366,30 @@ bool idDeclModelDef::Parse( const char* text, const int textLength, bool allowBi
 				src.Warning( "Model '%s' has no joints", filename.c_str() );
 			}
 
-			// set up the joint hierarchy
-			joints.SetGranularity( 1 );
-			joints.SetNum( num );
-			jointParents.SetNum( num );
-			channelJoints[0].SetNum( num );
-			md5joints = modelHandle->GetJoints();
-			md5joint = md5joints;
-			for( i = 0; i < num; i++, md5joint++ )
+			if( num > 0 )
 			{
-				joints[i].channel = ANIMCHANNEL_ALL;
-				joints[i].num = static_cast<jointHandle_t>( i );
-				if( md5joint->parent )
+				// set up the joint hierarchy
+				joints.SetGranularity( 1 );
+				joints.SetNum( num );
+				jointParents.SetNum( num );
+				channelJoints[0].SetNum( num );
+				md5joints = modelHandle->GetJoints( );
+				md5joint = md5joints;
+				for( i = 0; i < num; i++, md5joint++ )
 				{
-					joints[i].parentNum = static_cast<jointHandle_t>( md5joint->parent - md5joints );
+					joints[i].channel = ANIMCHANNEL_ALL;
+					joints[i].num = static_cast< jointHandle_t >( i );
+					if( md5joint->parent )
+					{
+						joints[i].parentNum = static_cast< jointHandle_t >( md5joint->parent - md5joints );
+					}
+					else
+					{
+						joints[i].parentNum = INVALID_JOINT;
+					}
+					jointParents[i] = joints[i].parentNum;
+					channelJoints[0][i] = i;
 				}
-				else
-				{
-					joints[i].parentNum = INVALID_JOINT;
-				}
-				jointParents[i] = joints[i].parentNum;
-				channelJoints[0][i] = i;
 			}
 		}
 		else if( token == "remove" )

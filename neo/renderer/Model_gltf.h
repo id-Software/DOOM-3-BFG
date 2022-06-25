@@ -82,4 +82,5 @@ private:
 	idList<idGltfMesh, TAG_MODEL>	meshes;
 	dynamicModel_t					model_state;
 	idMat4							prevTrans;
+	idList<gltfNode*, TAG_MODEL>	SkeletonNodes;
 };
