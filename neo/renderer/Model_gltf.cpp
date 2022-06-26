@@ -152,6 +152,7 @@ void idRenderModelGLTF::MakeMD5Mesh( )
 //If no nodeName/nodeId is given, all primitives active in default scene will be added as surfaces.
 void idRenderModelGLTF::InitFromFile( const char* fileName )
 {
+	name = fileName;
 	hasAnimations = false;
 	fileExclusive = false;
 	root = nullptr;
@@ -266,6 +267,7 @@ bool idRenderModelGLTF::LoadBinaryModel( idFile* file, const ID_TIME_T sourceTim
 #if 1
 	idStr dataFilename;
 	file->ReadString( dataFilename );
+	name = dataFilename;
 
 	if( gltfParser->currentFile.Length( ) )
 	{
@@ -429,18 +431,23 @@ void idRenderModelGLTF::CreateBuffers()
 
 void idRenderModelGLTF::Print() const
 {
-	common->Warning( "The method or operation is not implemented." );
+	idRenderModelStatic::Print();
+
+	// TODO
 }
 
 void idRenderModelGLTF::List() const
 {
-	common->Warning( "The method or operation is not implemented." );
+	idRenderModelStatic::List();
+
+	// TODO
 }
 
 int idRenderModelGLTF::Memory() const
 {
-	common->Warning( "The method or operation is not implemented." );
-	return -1;
+	return idRenderModelStatic::Memory();
+
+	// TODO
 }
 
 dynamicModel_t idRenderModelGLTF::IsDynamicModel() const
