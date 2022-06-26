@@ -409,6 +409,14 @@ void Dmap( const idCmdArgs& args )
 	idStr generated = va( "generated/%s.bproc", dmapGlobals.mapFileBase );
 	fileSystem->RemoveFile( generated.c_str() );
 
+	// delete any old generated binary cm files
+	generated = va( "generated/%s.bcm", dmapGlobals.mapFileBase );
+	fileSystem->RemoveFile( generated.c_str() );
+
+	// delete any old ASCII collision files
+	idStr::snPrintf( path, sizeof( path ), "%s.cm", dmapGlobals.mapFileBase );
+	fileSystem->RemoveFile( path );
+
 	//
 	// start from scratch
 	//
