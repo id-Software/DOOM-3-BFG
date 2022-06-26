@@ -185,6 +185,8 @@ void idRenderModelGLTF::InitFromFile( const char* fileName )
 
 	if( !meshName[0] )
 	{
+		rootID = -1;
+
 		//this needs to be fixed to correctly support multiple meshes.
 		// atm this will only correctlty with static models.
 		// we could do gltfMeshes a la md5
@@ -193,8 +195,16 @@ void idRenderModelGLTF::InitFromFile( const char* fileName )
 		for( auto& nodeID :  data->SceneList()[sceneId]->nodes )
 		{
 			gltfNode* modelNode = nodeList[nodeID];
-			assert( modelNode );
-			ProcessNode( modelNode, mat4_identity, data );
+			if( modelNode )
+			{
+				ProcessNode( modelNode, mat4_identity, data );
+
+				if( rootID == -1 )
+				{
+					root = modelNode;
+					rootID = nodeID;
+				}
+			}
 		}
 		fileExclusive = true;
 	}
@@ -235,7 +245,7 @@ bool idRenderModelGLTF::LoadBinaryModel( idFile* file, const ID_TIME_T sourceTim
 	root = nullptr;
 	prevTrans = mat4_identity;
 
-	//we should still load the scene information ?
+	// we should still load the scene information ?
 	if( !idRenderModelStatic::LoadBinaryModel( file, sourceTimeStamp ) )
 	{
 		return false;
@@ -252,6 +262,8 @@ bool idRenderModelGLTF::LoadBinaryModel( idFile* file, const ID_TIME_T sourceTim
 	file->ReadBig( model_state );
 	file->ReadBig( rootID );
 
+	// TODO get rid of loading the original .glb here
+#if 1
 	idStr dataFilename;
 	file->ReadString( dataFilename );
 
@@ -270,6 +282,7 @@ bool idRenderModelGLTF::LoadBinaryModel( idFile* file, const ID_TIME_T sourceTim
 	data = gltfParser->currentAsset;
 	root = data->GetNode( gltf_ModelSceneName.GetString(), rootID );
 	assert( root );
+#endif
 
 	int animCnt;
 	file->ReadBig( animCnt );
@@ -285,10 +298,9 @@ bool idRenderModelGLTF::LoadBinaryModel( idFile* file, const ID_TIME_T sourceTim
 
 void idRenderModelGLTF::WriteBinaryModel( idFile* file, ID_TIME_T* _timeStamp /*= NULL */ ) const
 {
-
 	idRenderModelStatic::WriteBinaryModel( file );
 
-	if( file == NULL || root == nullptr )
+	if( file == NULL )
 	{
 		return;
 	}
