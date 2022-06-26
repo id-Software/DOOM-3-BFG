@@ -93,7 +93,7 @@ public:
 	virtual					~idCollisionModelManager() {}
 
 	// Loads collision models from a map file.
-	virtual void			LoadMap( const idMapFile* mapFile ) = 0;
+	virtual void			LoadMap( const idMapFile* mapFile, bool ignoreOldCollisionFile ) = 0;
 	// Frees all the collision models.
 	virtual void			FreeMap() = 0;
 
