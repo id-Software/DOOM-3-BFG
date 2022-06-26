@@ -326,13 +326,13 @@ class idCollisionModelManagerLocal : public idCollisionModelManager
 {
 public:
 	// load collision models from a map file
-	void			LoadMap( const idMapFile* mapFile );
+	void			LoadMap( const idMapFile* mapFile, bool ignoreOldCollisionFile );
 	// frees all the collision models
 	void			FreeMap();
 
 	void			Preload( const char* mapName );
 	// get clip handle for model
-	cmHandle_t		LoadModel( const char* modelName );
+	cmHandle_t		LoadModel( const char* modelName, const bool precache );
 	// sets up a trace model for collision with other trace models
 	cmHandle_t		SetupTrmModel( const idTraceModel& trm, const idMaterial* material );
 	// create trace model from a collision model, returns true if succesfull
@@ -502,7 +502,7 @@ private:			// CollisionMap_load.cpp
 	void			RemapEdges( cm_node_t* node, int* edgeRemap );
 	void			OptimizeArrays( cm_model_t* model );
 	void			FinishModel( cm_model_t* model );
-	void			BuildModels( const idMapFile* mapFile );
+	void			BuildModels( const idMapFile* mapFile, bool ignoreOldCollisionFile );
 	cmHandle_t		FindModel( const char* name );
 	cm_model_t* 	CollisionModelForMapEntity( const idMapEntity* mapEnt );	// brush/patch model from .map
 	cm_model_t* 	LoadRenderModel( const char* fileName );					// ASE/LWO models
