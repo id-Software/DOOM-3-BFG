@@ -456,17 +456,16 @@ void Dmap( const idCmdArgs& args )
 
 	if( !leaked )
 	{
-
 		if( !noCM )
 		{
-
 			// make sure the collision model manager is not used by the game
 			cmdSystem->BufferCommandText( CMD_EXEC_NOW, "disconnect" );
 
 			// create the collision map
 			start = Sys_Milliseconds();
 
-			collisionModelManager->LoadMap( dmapGlobals.dmapFile );
+			// write always a fresh .cm file
+			collisionModelManager->LoadMap( dmapGlobals.dmapFile, true );
 			collisionModelManager->FreeMap();
 
 			end = Sys_Milliseconds();
