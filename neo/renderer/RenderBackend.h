@@ -295,7 +295,7 @@ public:
 private:
 	void				DrawFlickerBox();
 
-	void				GetCurrentBindingLayout( int bindingLayoutType, nvrhi::IBuffer*	jointBuffer );
+	void				GetCurrentBindingLayout( int bindingLayoutType );
 	void				DrawStencilShadowPass( const drawSurf_t* drawSurf, const bool renderZPass );
 
 	void				SetColorMappings();
@@ -528,8 +528,9 @@ private:
 	uint							currentVertexOffset;
 	nvrhi::BufferHandle				currentIndexBuffer;
 	uint							currentIndexOffset;
-	nvrhi::BufferHandle				currentJointBuffer;
 	nvrhi::BindingLayoutHandle		currentBindingLayout;
+	nvrhi::IBuffer*					currentJointBuffer;
+	uint							currentJointOffset;
 	nvrhi::GraphicsPipelineHandle	currentPipeline;
 
 	idStaticList<nvrhi::BindingSetHandle, nvrhi::c_MaxBindingLayouts> currentBindingSets;

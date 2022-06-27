@@ -33,17 +33,12 @@ If you have questions concerning this license or the applicable additional terms
 // User Renderparms start at 128 as per renderprogs.h
 
 // *INDENT-OFF*
-// 
-// RB: no GPU skinning with ES 2.0
 #if USE_GPU_SKINNING
-cbuffer CB : register( b1 )
-{
-	float4 matrices[408];
-};
+StructuredBuffer<float4> matrices : register(t11);
 #endif
-// RB end
 
-struct VS_IN {
+struct VS_IN
+{
 	float4 position : POSITION;
 	float2 texcoord : TEXCOORD0;
 	float4 normal : NORMAL;
@@ -52,7 +47,8 @@ struct VS_IN {
 	float4 color2 : COLOR1;
 };
 
-struct VS_OUT {
+struct VS_OUT
+{
 	float4 position		: SV_Position;
 	float4 texcoord0	: TEXCOORD0_centroid;
 	float4 texcoord1	: TEXCOORD1_centroid;

@@ -73,11 +73,10 @@ void R_ReloadImages_f( const idCmdArgs& args )
 	}
 
 #if defined( USE_NVRHI )
-	nvrhi::CommandListHandle commandList = deviceManager->GetDevice()->createCommandList();
-	commandList->open();
-	globalImages->ReloadImages( all, commandList );
-	commandList->close();
-	deviceManager->GetDevice()->executeCommandList( commandList );
+	tr.commandList->open();
+	globalImages->ReloadImages( all, tr.commandList );
+	tr.commandList->close();
+	deviceManager->GetDevice()->executeCommandList( tr.commandList );
 #else
 	globalImages->ReloadImages( all );
 #endif

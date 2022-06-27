@@ -30,15 +30,24 @@ If you have questions concerning this license or the applicable additional terms
 
 
 // *INDENT-OFF*
-struct VS_IN {
+#if USE_GPU_SKINNING
+StructuredBuffer<float4> matrices: register(t11);
+#endif
+
+struct VS_IN
+{
 	float4 position : POSITION;
 	float2 texcoord : TEXCOORD0;
 	float4 normal : NORMAL;
 	float4 tangent : TANGENT;
 	float4 color : COLOR0;
+#if USE_GPU_SKINNING
+	float4 color2 : COLOR1;
+#endif
 };
 
-struct VS_OUT {
+struct VS_OUT
+{
 	float4 position : SV_Position;
 	float4 texcoord0 : TEXCOORD0_centroid;
 	float2 texcoord1 : TEXCOORD1_centroid;
@@ -47,6 +56,59 @@ struct VS_OUT {
 
 void main( VS_IN vertex, out VS_OUT result )
 {
+#if USE_GPU_SKINNING
+	//--------------------------------------------------------------
+	// GPU transformation of the normal / binormal / bitangent
+	//
+	// multiplying with 255.1 give us the same result and is faster than floor( w * 255 + 0.5 )
+	//--------------------------------------------------------------
+	const float w0 = vertex.color2.x;
+	const float w1 = vertex.color2.y;
+	const float w2 = vertex.color2.z;
+	const float w3 = vertex.color2.w;
+
+	float4 matX, matY, matZ;	// must be float4 for vec4
+	int joint = int( vertex.color.x * 255.1 * 3.0 );
+	matX = matrices[int( joint + 0 )] * w0;
+	matY = matrices[int( joint + 1 )] * w0;
+	matZ = matrices[int( joint + 2 )] * w0;
+
+	joint = int( vertex.color.y * 255.1 * 3.0 );
+	matX += matrices[int( joint + 0 )] * w1;
+	matY += matrices[int( joint + 1 )] * w1;
+	matZ += matrices[int( joint + 2 )] * w1;
+
+	joint = int( vertex.color.z * 255.1 * 3.0 );
+	matX += matrices[int( joint + 0 )] * w2;
+	matY += matrices[int( joint + 1 )] * w2;
+	matZ += matrices[int( joint + 2 )] * w2;
+
+	joint = int( vertex.color.w * 255.1 * 3.0 );
+	matX += matrices[int( joint + 0 )] * w3;
+	matY += matrices[int( joint + 1 )] * w3;
+	matZ += matrices[int( joint + 2 )] * w3;
+
+	float4 modelPosition;
+	modelPosition.x = dot4( matX, vertex.position );
+	modelPosition.y = dot4( matY, vertex.position );
+	modelPosition.z = dot4( matZ, vertex.position );
+	modelPosition.w = 1.0;
+	// end of skinning
+
+	// start of fog portion
+	result.position.x = dot4( modelPosition, rpMVPmatrixX );
+	result.position.y = dot4( modelPosition, rpMVPmatrixY );
+	result.position.z = dot4( modelPosition, rpMVPmatrixZ );
+	result.position.w = dot4( modelPosition, rpMVPmatrixW );
+
+	result.texcoord0.x = dot4( modelPosition, rpTexGen0S );
+	result.texcoord0.y = dot4( modelPosition, rpTexGen0T );
+	result.texcoord0.z = 0.0;
+	result.texcoord0.w = dot4( modelPosition, rpTexGen0Q );
+
+	result.texcoord1.x = dot4( modelPosition, rpTexGen1S );
+	result.texcoord1.y = 0.5;
+#else
 	result.position.x = dot4( vertex.position, rpMVPmatrixX );
 	result.position.y = dot4( vertex.position, rpMVPmatrixY );
 	result.position.z = dot4( vertex.position, rpMVPmatrixZ );
@@ -59,4 +121,5 @@ void main( VS_IN vertex, out VS_OUT result )
 
 	result.texcoord1.x = dot4( vertex.position, rpTexGen1S );
 	result.texcoord1.y = 0.5;
+#endif
 }

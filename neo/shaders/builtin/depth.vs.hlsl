@@ -30,13 +30,10 @@ If you have questions concerning this license or the applicable additional terms
 
 // *INDENT-OFF*
 #if USE_GPU_SKINNING
-cbuffer CB : register( b1 )
-{
-	float4 matrices[408];
-};
+StructuredBuffer<float4> matrices : register(t11);
 #endif
 
-struct VS_IN 
+struct VS_IN
 {
 	float4 position : POSITION;
 #if USE_GPU_SKINNING

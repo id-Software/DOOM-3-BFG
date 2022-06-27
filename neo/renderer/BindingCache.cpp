@@ -92,6 +92,10 @@ void BindingCache::Clear()
 	// will try to gain a conflicting mutex lock and cause an abort signal
 
 	mutex.Lock();
+	for( int i = 0; i < bindingSets.Num(); i++ )
+	{
+		bindingSets[i].Reset();
+	}
 	bindingSets.Clear();
 	bindingHash.Clear();
 	mutex.Unlock();

@@ -33,14 +33,9 @@ If you have questions concerning this license or the applicable additional terms
 // User Renderparms start at 128 as per renderprogs.h
 
 // *INDENT-OFF*
-// 
 #if USE_GPU_SKINNING
-cbuffer CB : register( b1 )
-{
-	float4 matrices[408];
-};
+StructuredBuffer<float4> matrices : register(t11);
 #endif
-// RB end
 
 struct VS_IN
 {
