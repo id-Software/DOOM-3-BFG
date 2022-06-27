@@ -386,7 +386,7 @@ void idIndexBuffer::Update( const void* data, int updateSize, int offset, bool i
 		idLib::FatalError( "idIndexBuffer::Update: size overrun, %i > %i\n", updateSize, GetSize() );
 	}
 
-	int numBytes = ( updateSize + 15 ) & ~15;
+	const int numBytes = ( updateSize + 15 ) & ~15;
 
 	if( usage == BU_DYNAMIC )
 	{
@@ -419,7 +419,7 @@ void* idIndexBuffer::MapBuffer( bufferMapType_t mapType )
 	assert( IsMapped() == false );
 
 	nvrhi::CpuAccessMode accessMode = nvrhi::CpuAccessMode::Write;
-	if( mapType == bufferMapType_t::BM_READ )
+	if( mapType == BM_READ )
 	{
 		accessMode = nvrhi::CpuAccessMode::Read;
 	}
@@ -428,7 +428,7 @@ void* idIndexBuffer::MapBuffer( bufferMapType_t mapType )
 
 	SetMapped();
 
-	if( buffer == NULL )
+	if( buffer == nullptr )
 	{
 		idLib::FatalError( "idVertexBuffer::MapBuffer: failed" );
 	}
@@ -492,7 +492,7 @@ idUniformBuffer::idUniformBuffer()
 idUniformBuffer::AllocBufferObject
 ========================
 */
-bool idUniformBuffer::AllocBufferObject( const void* data, int allocSize, bufferUsageType_t _usage, nvrhi::ICommandList* commandList )
+bool idUniformBuffer::AllocBufferObject( const void* data, int allocSize, bufferUsageType_t allocatedUsage, nvrhi::ICommandList* commandList )
 {
 	assert( !bufferHandle );
 	assert_16_byte_aligned( data );
@@ -503,38 +503,46 @@ bool idUniformBuffer::AllocBufferObject( const void* data, int allocSize, buffer
 	}
 
 	size = allocSize;
-	usage = _usage;
+	usage = allocatedUsage;
 
-	bool allocationFailed = false;
+	const int numBytes = GetAllocedSize();
 
-	int numBytes = GetAllocedSize();
-
+	// This buffer is a shader resource as opposed to a constant buffer due to
+	// constant buffers not being able to be sub-ranged.
 	nvrhi::BufferDesc bufferDesc;
+	bufferDesc.initialState = nvrhi::ResourceStates::ShaderResource;
+	bufferDesc.keepInitialState = true;
+	bufferDesc.canHaveTypedViews = true;
+	bufferDesc.canHaveRawViews = true;
 	bufferDesc.byteSize = numBytes;
-	bufferDesc.isConstantBuffer = true;
-	bufferDesc.initialState = nvrhi::ResourceStates::Common;
+	bufferDesc.structStride = sizeof( idVec4 );
 
 	if( usage == BU_DYNAMIC )
 	{
-		bufferDesc.debugName = "Mapped ConstantBuffer";
+		bufferDesc.debugName = "Mapped JointBuffer";
 		bufferDesc.initialState = nvrhi::ResourceStates::CopyDest;
 		bufferDesc.cpuAccess = nvrhi::CpuAccessMode::Write;
 	}
 	else
 	{
-		bufferDesc.debugName = "Static ConstantBuffer";
+		bufferDesc.debugName = "Static JointBuffer";
 		bufferDesc.keepInitialState = true;
 	}
 
 	bufferHandle = deviceManager->GetDevice()->createBuffer( bufferDesc );
 
+	if( !bufferHandle )
+	{
+		return false;
+	}
+
 	// copy the data
-	if( data != NULL )
+	if( data )
 	{
 		Update( data, allocSize, 0, true, commandList );
 	}
 
-	return !allocationFailed;
+	return true;
 }
 
 /*
@@ -544,6 +552,31 @@ idUniformBuffer::FreeBufferObject
 */
 void idUniformBuffer::FreeBufferObject()
 {
+	if( IsMapped() )
+	{
+		UnmapBuffer();
+	}
+
+	// if this is a sub-allocation inside a larger buffer, don't actually free anything.
+	if( OwnsBuffer() == false )
+	{
+		ClearWithoutFreeing();
+		return;
+	}
+
+	if( !bufferHandle )
+	{
+		return;
+	}
+
+	if( r_showBuffers.GetBool() )
+	{
+		idLib::Printf( "index buffer free %p, api %p (%i bytes)\n", this, bufferHandle.Get(), GetSize() );
+	}
+
+	bufferHandle.Reset();
+
+	ClearWithoutFreeing();
 }
 
 /*
@@ -574,7 +607,7 @@ void idUniformBuffer::Update( const void* data, int updateSize, int offset, bool
 		{
 			commandList->beginTrackingBufferState( bufferHandle, nvrhi::ResourceStates::Common );
 			commandList->writeBuffer( bufferHandle, data, numBytes, GetOffset() + offset );
-			commandList->setPermanentBufferState( bufferHandle, nvrhi::ResourceStates::ConstantBuffer | nvrhi::ResourceStates::ShaderResource );
+			commandList->setPermanentBufferState( bufferHandle, nvrhi::ResourceStates::Common | nvrhi::ResourceStates::ShaderResource );
 		}
 		else
 		{
@@ -594,7 +627,7 @@ void* idUniformBuffer::MapBuffer( bufferMapType_t mapType )
 	assert( IsMapped() == false );
 
 	nvrhi::CpuAccessMode accessMode = nvrhi::CpuAccessMode::Write;
-	if( mapType == bufferMapType_t::BM_READ )
+	if( mapType == BM_READ )
 	{
 		accessMode = nvrhi::CpuAccessMode::Read;
 	}

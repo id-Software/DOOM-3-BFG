@@ -529,6 +529,8 @@ private:
 	nvrhi::BufferHandle				currentIndexBuffer;
 	uint							currentIndexOffset;
 	nvrhi::BindingLayoutHandle		currentBindingLayout;
+	nvrhi::IBuffer*					currentJointBuffer;
+	uint							currentJointOffset;
 	nvrhi::GraphicsPipelineHandle	currentPipeline;
 
 	idStaticList<nvrhi::BindingSetHandle, nvrhi::c_MaxBindingLayouts> currentBindingSets;

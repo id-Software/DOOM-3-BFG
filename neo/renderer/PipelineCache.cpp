@@ -62,7 +62,7 @@ nvrhi::GraphicsPipelineHandle PipelineCache::GetOrCreatePipeline( const Pipeline
 	}
 
 	nvrhi::GraphicsPipelineDesc pipelineDesc;
-	programInfo_t progInfo = renderProgManager.GetProgramInfo( key.program );
+	const programInfo_t progInfo = renderProgManager.GetProgramInfo( key.program );
 	pipelineDesc.setVertexShader( progInfo.vs ).setFragmentShader( progInfo.ps );
 	pipelineDesc.inputLayout = progInfo.inputLayout;
 	for( int i = 0; i < progInfo.bindingLayouts->Num(); i++ )
@@ -78,9 +78,6 @@ nvrhi::GraphicsPipelineHandle PipelineCache::GetOrCreatePipeline( const Pipeline
 	{
 		target.enableBlend();
 	}
-	//pipelineDesc.renderState.rasterState.enableDepthClip();
-	//pipelineDesc.renderState.rasterState.depthBias = 0;
-	//pipelineDesc.renderState.rasterState.slopeScaledDepthBias = 0;
 
 	// Specialize the state with the state key.
 	GetRenderState( key.state, key, pipelineDesc.renderState );
