@@ -1129,6 +1129,7 @@ set(WIN32_RESOURCES
 	# sys/win32/rc/res/dbg_open.bmp
 	# sys/win32/rc/res/dbg_toolbar.bmp
 	sys/win32/rc/res/doom.ico
+	sys/win32/rc/doom.rc
 	# sys/win32/rc/res/fpoint.cur
 	# sys/win32/rc/res/fxed_link.ico
 	# sys/win32/rc/res/fxed_toolbar.bmp
