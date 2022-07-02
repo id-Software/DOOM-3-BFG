@@ -50,6 +50,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 
 #include "CollisionModel_local.h"
+#include "renderer/Model_gltf.h"
 
 #define CMODEL_BINARYFILE_EXT	"bcmodel"
 
@@ -3863,7 +3864,7 @@ cm_model_t* idCollisionModelManagerLocal::LoadRenderModel( const char* fileName 
 	idStr( fileName ).ExtractFileExtension( extension );
 
 	// RB: DAE and OBJ support
-	if( ( extension.Icmp( "ase" ) != 0 ) && ( extension.Icmp( "lwo" ) != 0 ) && ( extension.Icmp( "ma" ) != 0 ) && ( extension.Icmp( "dae" ) != 0 ) && ( extension.Icmp( "obj" ) != 0 ) )
+	if( ( extension.Icmp( "glb" ) != 0 ) && ( extension.Icmp( "gltf" ) != 0 ) && ( extension.Icmp( "ase" ) != 0 ) && ( extension.Icmp( "lwo" ) != 0 ) && ( extension.Icmp( "ma" ) != 0 ) && ( extension.Icmp( "dae" ) != 0 ) && ( extension.Icmp( "obj" ) != 0 ) )
 	{
 		return NULL;
 	}
@@ -4256,7 +4257,7 @@ void idCollisionModelManagerLocal::ListModels()
 idCollisionModelManagerLocal::BuildModels
 ================
 */
-void idCollisionModelManagerLocal::BuildModels( const idMapFile* mapFile )
+void idCollisionModelManagerLocal::BuildModels( const idMapFile* mapFile, bool ignoreOldCollisionFile )
 {
 	int i;
 	const idMapEntity* mapEnt;
@@ -4264,9 +4265,8 @@ void idCollisionModelManagerLocal::BuildModels( const idMapFile* mapFile )
 	idTimer timer;
 	timer.Start();
 
-	if( !LoadCollisionModelFile( mapFile->GetName(), mapFile->GetGeometryCRC() ) )
+	if( ignoreOldCollisionFile || !LoadCollisionModelFile( mapFile->GetName(), mapFile->GetGeometryCRC() ) )
 	{
-
 		if( !mapFile->GetNumEntities() )
 		{
 			return;
@@ -4340,7 +4340,7 @@ void idCollisionModelManagerLocal::Preload( const char* mapName )
 			const preloadEntry_s& p = manifest.GetPreloadByIndex( i );
 			if( p.resType == PRELOAD_COLLISION )
 			{
-				LoadModel( p.resourceName );
+				LoadModel( p.resourceName, false );
 				numLoaded++;
 			}
 		}
@@ -4355,7 +4355,7 @@ void idCollisionModelManagerLocal::Preload( const char* mapName )
 idCollisionModelManagerLocal::LoadMap
 ================
 */
-void idCollisionModelManagerLocal::LoadMap( const idMapFile* mapFile )
+void idCollisionModelManagerLocal::LoadMap( const idMapFile* mapFile, bool ignoreOldCollisionFile )
 {
 
 	if( mapFile == NULL )
@@ -4398,7 +4398,7 @@ void idCollisionModelManagerLocal::LoadMap( const idMapFile* mapFile )
 	common->UpdateLevelLoadPacifier();
 
 	// build collision models
-	BuildModels( mapFile );
+	BuildModels( mapFile, ignoreOldCollisionFile );
 
 	common->UpdateLevelLoadPacifier();
 
@@ -4544,7 +4544,7 @@ bool idCollisionModelManagerLocal::GetModelPolygon( cmHandle_t model, int polygo
 idCollisionModelManagerLocal::LoadModel
 ==================
 */
-cmHandle_t idCollisionModelManagerLocal::LoadModel( const char* modelName )
+cmHandle_t idCollisionModelManagerLocal::LoadModel( const char* modelName, const bool precache )
 {
 	int handle;
 
@@ -4564,7 +4564,23 @@ cmHandle_t idCollisionModelManagerLocal::LoadModel( const char* modelName )
 	generatedFileName.AppendPath( modelName );
 	generatedFileName.SetFileExtension( CMODEL_BINARYFILE_EXT );
 
-	ID_TIME_T sourceTimeStamp = fileSystem->GetTimestamp( modelName );
+	ID_TIME_T sourceTimeStamp;
+
+	idStr extension;
+	idStr( modelName ).ExtractFileExtension( extension );
+	if( ( extension.Icmp( GLTF_GLB_EXT ) == 0 ) || ( extension.Icmp( GLTF_EXT ) == 0 ) )
+	{
+		int id;
+		idStr tmp;
+		idStr file = modelName;
+		gltfManager::ExtractMeshIdentifier( file, id, tmp );
+
+		sourceTimeStamp = fileSystem->GetTimestamp( file );
+	}
+	else
+	{
+		sourceTimeStamp = fileSystem->GetTimestamp( modelName );
+	}
 
 	if( models == NULL )
 	{
@@ -4600,6 +4616,12 @@ cmHandle_t idCollisionModelManagerLocal::LoadModel( const char* modelName )
 		{
 			common->Warning( "idCollisionModelManagerLocal::LoadModel: collision file for '%s' contains different model", modelName );
 		}
+	}
+
+	// if only precaching .cm files do not waste memory converting render models
+	if( precache )
+	{
+		return 0;
 	}
 
 	// try to load a .ASE or .LWO model and convert it to a collision model
@@ -4781,7 +4803,7 @@ bool idCollisionModelManagerLocal::TrmFromModel( const char* modelName, idTraceM
 {
 	cmHandle_t handle;
 
-	handle = LoadModel( modelName );
+	handle = LoadModel( modelName, false );
 	if( !handle )
 	{
 		common->Printf( "idCollisionModelManagerLocal::TrmFromModel: model %s not found.\n", modelName );

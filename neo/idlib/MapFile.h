@@ -349,7 +349,7 @@ public:
 
 	void					ConvertFromBrush( const idMapBrush* brush, int entityNum, int primitiveNum );
 	void					ConvertFromPatch( const idMapPatch* patch, int entityNum, int primitiveNum );
-	void					ConvertFromMeshGltf( const gltfMesh*   mesh , gltfData* data );
+	static MapPolygonMesh*	ConvertFromMeshGltf( const gltfMesh_Primitive* prim, gltfData* _data, idMat4 trans );
 	static MapPolygonMesh*	Parse( idLexer& src, const idVec3& origin, float version = CURRENT_MAP_VERSION );
 	bool					Write( idFile* fp, int primitiveNum, const idVec3& origin ) const;
 
@@ -427,13 +427,13 @@ protected:
 
 class idMapEntity
 {
+	friend class			idMapFile;
+
+public:
 	typedef idList<idMapEntity*, TAG_IDLIB_LIST_MAP>  EntityList;
 	typedef idList<idMapEntity*, TAG_IDLIB_LIST_MAP>& EntityListRef;
 	typedef idList<idMapEntity*, TAG_IDLIB_LIST_MAP>* EntityListPtr;
 
-	friend class			idMapFile;
-
-public:
 	idDict					epairs;
 	idVec3					originOffset{ vec3_origin };
 

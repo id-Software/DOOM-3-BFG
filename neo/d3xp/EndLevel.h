@@ -31,7 +31,7 @@ class idTarget_EndLevel : public idEntity
 public:
 	CLASS_PROTOTYPE( idTarget_EndLevel );
 
-	void	Spawn( void );
+	void	Spawn();
 	~idTarget_EndLevel();
 
 	void	Draw();

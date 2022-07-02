@@ -976,7 +976,7 @@ void idGameLocal::LoadMap( const char* mapName, int randseed )
 	mapFileName = mapFile->GetName();
 
 	// load the collision map
-	collisionModelManager->LoadMap( mapFile );
+	collisionModelManager->LoadMap( mapFile, false );
 	collisionModelManager->Preload( mapName );
 
 	numClients = 0;
@@ -1894,7 +1894,7 @@ void idGameLocal::CacheDictionaryMedia( const idDict* dict )
 				renderModelManager->FindModel( kv->GetValue() );
 
 				// precache .cm files only
-				collisionModelManager->LoadModel( kv->GetValue() );
+				collisionModelManager->LoadModel( kv->GetValue(), true );
 			}
 		}
 		kv = dict->MatchPrefix( "model", kv );
@@ -2599,7 +2599,7 @@ idCVar g_recordTrace( "g_recordTrace", "0", CVAR_BOOL, "" );
 idGameLocal::RunSharedThink
 ================
 */
-void idGameLocal::RunSharedThink( void )
+void idGameLocal::RunSharedThink()
 {
 	idEntity* ent;
 	for( ent = activeEntities.Next(); ent != NULL; ent = ent->activeNode.Next() )
@@ -5014,7 +5014,7 @@ idCamera* idGameLocal::GetCamera() const
 idGameLocal::SkipCinematic
 =============
 */
-bool idGameLocal::SkipCinematic( void )
+bool idGameLocal::SkipCinematic()
 {
 	if( camera )
 	{

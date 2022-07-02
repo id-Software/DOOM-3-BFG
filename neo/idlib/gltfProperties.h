@@ -1,3 +1,31 @@
+/*
+===========================================================================
+
+Doom 3 BFG Edition GPL Source Code
+Copyright (C) 2022 Harrie van Ginneken
+
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
+
+Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Doom 3 BFG Edition Source Code is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Doom 3 BFG Edition Source Code.  If not, see <http://www.gnu.org/licenses/>.
+
+In addition, the Doom 3 BFG Edition Source Code is also subject to certain additional terms. You should have received a copy of these additional terms immediately following the terms and conditions of the GNU General Public License which accompanied the Doom 3 BFG Edition Source Code.  If not, please request a copy in writing from id Software at the address below.
+
+If you have questions concerning this license or the applicable additional terms, you may contact in writing id Software LLC, c/o ZeniMax Media Inc., Suite 120, Rockville, Maryland 20850 USA.
+
+===========================================================================
+*/
+
 #pragma once
 #include "containers/StrList.h"
 #include <functional>
@@ -59,7 +87,7 @@ struct gltf_accessor_component_type_map
 class gltfExtra
 {
 public:
-	gltfExtra( ) { }
+	gltfExtra() { }
 	//entire extra json scope
 	idStr json;
 	//str:str pairs of each item
@@ -72,7 +100,7 @@ class gltfExt_KHR_lights_punctual;
 class gltfExtensions
 {
 public:
-	gltfExtensions( ) { }
+	gltfExtensions() { }
 	idList<gltfExt_KHR_lights_punctual*>	KHR_lights_punctual;
 };
 
@@ -85,7 +113,7 @@ public:
 class gltfNode_Extensions
 {
 public:
-	gltfNode_Extensions( ) :
+	gltfNode_Extensions() :
 		KHR_lights_punctual( nullptr ) { }
 	gltfNode_KHR_lights_punctual* KHR_lights_punctual;
 };
@@ -94,7 +122,7 @@ class gltfExt_KHR_materials_pbrSpecularGlossiness;
 class gltfMaterial_Extensions
 {
 public:
-	gltfMaterial_Extensions( ) :
+	gltfMaterial_Extensions() :
 		KHR_materials_pbrSpecularGlossiness( nullptr ) { }
 	gltfExt_KHR_materials_pbrSpecularGlossiness* KHR_materials_pbrSpecularGlossiness;
 };
@@ -103,7 +131,7 @@ public:
 class gltfNode
 {
 public:
-	gltfNode( ) : camera( -1 ), skin( -1 ), matrix( mat4_zero ),
+	gltfNode() : camera( -1 ), skin( -1 ), matrix( mat4_zero ),
 		mesh( -1 ), rotation( 0.f, 0.f, 0.f, 1.f ), scale( 1.f, 1.f, 1.f ),
 		translation( vec3_zero ), parent( nullptr ), dirty( true ) { }
 	int						camera;
@@ -133,7 +161,7 @@ struct gltfCameraNodePtrs
 class gltfScene
 {
 public:
-	gltfScene( ) { }
+	gltfScene() { }
 	idList<int> nodes;
 	idStr		name;
 	idStr		extensions;
@@ -165,7 +193,7 @@ public:
 		Count
 	};
 
-	gltfMesh_Primitive_Attribute( ) : accessorIndex( -1 ), elementSize( 0 ), type( gltfMesh_Primitive_Attribute::Type::Count ) { }
+	gltfMesh_Primitive_Attribute() : accessorIndex( -1 ), elementSize( 0 ), type( gltfMesh_Primitive_Attribute::Type::Count ) { }
 	idStr attributeSemantic;
 	int accessorIndex;
 	uint elementSize;
@@ -183,7 +211,7 @@ struct gltf_mesh_attribute_map
 class gltfMesh_Primitive
 {
 public:
-	gltfMesh_Primitive( ) : indices( -1 ), material( -1 ), mode( -1 ) { }
+	gltfMesh_Primitive() : indices( -1 ), material( -1 ), mode( -1 ) { }
 	idList<gltfMesh_Primitive_Attribute*> attributes;
 	int			indices;
 	int			material;
@@ -196,7 +224,7 @@ public:
 class gltfMesh
 {
 public:
-	gltfMesh( ) { };
+	gltfMesh() { };
 
 	idList<gltfMesh_Primitive*> primitives;	// gltfMesh_Primitive[1,*]
 	idList<double>	weights;						// number[1,*]
@@ -208,7 +236,7 @@ public:
 class gltfCamera_Orthographic
 {
 public:
-	gltfCamera_Orthographic( ) : xmag( 0.0f ), ymag( 0.0f ), zfar( 0.0f ), znear( 0.0f ) { };
+	gltfCamera_Orthographic() : xmag( 0.0f ), ymag( 0.0f ), zfar( 0.0f ), znear( 0.0f ) { };
 	float		xmag;
 	float		ymag;
 	float		zfar;
@@ -220,7 +248,7 @@ public:
 class gltfCamera_Perspective
 {
 public:
-	gltfCamera_Perspective( ) : aspectRatio( 0.0f ), yfov( 0.0f ), zfar( 0.0f ), znear( 0.0f ) { };
+	gltfCamera_Perspective() : aspectRatio( 0.0f ), yfov( 0.0f ), zfar( 0.0f ), znear( 0.0f ) { };
 	float		aspectRatio;
 	float		yfov;
 	float		zfar;
@@ -232,7 +260,7 @@ public:
 class gltfCamera
 {
 public:
-	gltfCamera( ) { };
+	gltfCamera() { };
 	gltfCamera_Orthographic orthographic;
 	gltfCamera_Perspective	perspective;
 	idStr					type;
@@ -244,7 +272,7 @@ public:
 class gltfAnimation_Channel_Target
 {
 public:
-	gltfAnimation_Channel_Target( ) : node( -1 ), TRS( gltfTRS::count ) { };
+	gltfAnimation_Channel_Target() : node( -1 ), TRS( gltfTRS::count ) { };
 	int			node;
 	idStr		path;
 	idStr		extensions;
@@ -287,7 +315,7 @@ public:
 class gltfAnimation_Channel
 {
 public:
-	gltfAnimation_Channel( ) : sampler( -1 ) { };
+	gltfAnimation_Channel() : sampler( -1 ) { };
 	int								sampler;
 	gltfAnimation_Channel_Target	target;
 	idStr							extensions;
@@ -297,7 +325,7 @@ public:
 class gltfAnimation_Sampler
 {
 public:
-	gltfAnimation_Sampler( ) : input( -1 ), interpolation( "LINEAR" ), output( -1 ), intType( gltfInterpType::count ) { };
+	gltfAnimation_Sampler() : input( -1 ), interpolation( "LINEAR" ), output( -1 ), intType( gltfInterpType::count ) { };
 	int			input;
 	idStr		interpolation;
 	int			output;
@@ -336,7 +364,7 @@ public:
 class gltfAnimation
 {
 public:
-	gltfAnimation( ) : maxTime( 0.0f ), numFrames( 0 ) { };
+	gltfAnimation() : maxTime( 0.0f ), numFrames( 0 ) { };
 	idList<gltfAnimation_Channel*>	channels;
 	idList<gltfAnimation_Sampler*>	samplers;
 	idStr							name;
@@ -368,7 +396,7 @@ public:
 	{
 		return false;
 	}
-	const idVec3& TotalMovementDelta( void ) const
+	const idVec3& TotalMovementDelta() const
 	{
 		static idVec3 temp;
 		return temp;
@@ -382,7 +410,7 @@ public:
 class gltfAccessor_Sparse_Values
 {
 public:
-	gltfAccessor_Sparse_Values( ) : bufferView( -1 ), byteOffset( -1 ) { };
+	gltfAccessor_Sparse_Values() : bufferView( -1 ), byteOffset( -1 ) { };
 	int			bufferView;
 	int			byteOffset;
 	idStr		extensions;
@@ -392,7 +420,7 @@ public:
 class gltfAccessor_Sparse_Indices
 {
 public:
-	gltfAccessor_Sparse_Indices( ) : bufferView( -1 ), byteOffset( -1 ), componentType( -1 ) { };
+	gltfAccessor_Sparse_Indices() : bufferView( -1 ), byteOffset( -1 ), componentType( -1 ) { };
 	int			bufferView;
 	int			byteOffset;
 	int			componentType;
@@ -403,7 +431,7 @@ public:
 class gltfAccessor_Sparse
 {
 public:
-	gltfAccessor_Sparse( ) : count( -1 ) { };
+	gltfAccessor_Sparse() : count( -1 ) { };
 	int count;
 	gltfAccessor_Sparse_Indices indices;
 	gltfAccessor_Sparse_Values values;
@@ -414,7 +442,7 @@ public:
 class gltfAccessor
 {
 public:
-	gltfAccessor( ) : bufferView( -1 ), byteOffset( 0 ), componentType( -1 ), normalized( false ), count( -1 ) ,
+	gltfAccessor() : bufferView( -1 ), byteOffset( 0 ), componentType( -1 ), normalized( false ), count( -1 ) ,
 		floatView( nullptr ), vecView( nullptr ), quatView( nullptr ), matView( nullptr ) { }
 	int					bufferView;
 	int					byteOffset;
@@ -440,7 +468,7 @@ public:
 class gltfBufferView
 {
 public:
-	gltfBufferView( ) : buffer( -1 ), byteLength( -1 ), byteStride( 0 ), byteOffset( 0 ), target( -1 ) { };
+	gltfBufferView() : buffer( -1 ), byteLength( -1 ), byteStride( 0 ), byteOffset( 0 ), target( -1 ) { };
 	int			buffer;
 	int			byteLength;
 	int			byteStride;
@@ -456,7 +484,7 @@ public:
 class gltfBuffer
 {
 public:
-	gltfBuffer( ) : byteLength( -1 ), parent( nullptr ) { };
+	gltfBuffer() : byteLength( -1 ), parent( nullptr ) { };
 	idStr		uri;
 	int			byteLength;
 	idStr		name;
@@ -469,7 +497,7 @@ public:
 class gltfSampler
 {
 public:
-	gltfSampler( ) : magFilter( 0 ), minFilter( 0 ), wrapS( 10497 ), wrapT( 10497 ) { };
+	gltfSampler() : magFilter( 0 ), minFilter( 0 ), wrapS( 10497 ), wrapT( 10497 ) { };
 	int			magFilter;
 	int			minFilter;
 	int			wrapS;
@@ -484,7 +512,7 @@ public:
 class gltfImage
 {
 public:
-	gltfImage( ) : bufferView( -1 ) { }
+	gltfImage() : bufferView( -1 ) { }
 	idStr		uri;
 	idStr		mimeType;
 	int			bufferView;
@@ -496,7 +524,7 @@ public:
 class gltfSkin
 {
 public:
-	gltfSkin( ) : inverseBindMatrices( -1 ), skeleton( -1 ), name( "unnamedSkin" ) { };
+	gltfSkin() : inverseBindMatrices( -1 ), skeleton( -1 ), name( "unnamedSkin" ) { };
 	int			inverseBindMatrices;
 	int			skeleton;
 	idList<int>	joints; // integer[1,*]
@@ -509,7 +537,7 @@ class gltfExt_KHR_texture_transform;
 class gltfTexture_Info_Extensions
 {
 public:
-	gltfTexture_Info_Extensions( ) :
+	gltfTexture_Info_Extensions() :
 		KHR_texture_transform( nullptr ) { }
 	gltfExt_KHR_texture_transform* KHR_texture_transform;
 };
@@ -517,7 +545,7 @@ public:
 class gltfOcclusionTexture_Info
 {
 public:
-	gltfOcclusionTexture_Info( ) : index( -1 ), texCoord( 0 ), strength( 1.0f ) { }
+	gltfOcclusionTexture_Info() : index( -1 ), texCoord( 0 ), strength( 1.0f ) { }
 	int							index;
 	int							texCoord;
 	float						strength;
@@ -528,7 +556,7 @@ public:
 class gltfNormalTexture_Info
 {
 public:
-	gltfNormalTexture_Info( ) : index( -1 ), texCoord( 0 ), scale( 1.0f ) { }
+	gltfNormalTexture_Info() : index( -1 ), texCoord( 0 ), scale( 1.0f ) { }
 	int							index;
 	int							texCoord;
 	float						scale;
@@ -539,7 +567,7 @@ public:
 class gltfTexture_Info
 {
 public:
-	gltfTexture_Info( ) : index( -1 ), texCoord( 0 ) { }
+	gltfTexture_Info() : index( -1 ), texCoord( 0 ) { }
 	int							index;
 	int							texCoord;
 	gltfTexture_Info_Extensions	extensions;
@@ -550,7 +578,7 @@ public:
 class gltfTexture
 {
 public:
-	gltfTexture( ) : sampler( -1 ), source( -1 ) { }
+	gltfTexture() : sampler( -1 ), source( -1 ) { }
 	int							sampler;
 	int							source;
 	idStr						name;
@@ -561,7 +589,7 @@ public:
 class gltfMaterial_pbrMetallicRoughness
 {
 public:
-	gltfMaterial_pbrMetallicRoughness( ) : baseColorFactor( vec4_one ), metallicFactor( 1.0f ), roughnessFactor( 1.0f ) { }
+	gltfMaterial_pbrMetallicRoughness() : baseColorFactor( vec4_one ), metallicFactor( 1.0f ), roughnessFactor( 1.0f ) { }
 	idVec4				baseColorFactor;
 	gltfTexture_Info	baseColorTexture;
 	float				metallicFactor;
@@ -582,7 +610,7 @@ public:
 		count
 	};
 
-	gltfMaterial( ) : emissiveFactor( vec3_zero ), alphaMode( "OPAQUE" ), alphaCutoff( 0.5f ), doubleSided( false ) { }
+	gltfMaterial() : emissiveFactor( vec3_zero ), alphaMode( "OPAQUE" ), alphaCutoff( 0.5f ), doubleSided( false ) { }
 	gltfMaterial_pbrMetallicRoughness	pbrMetallicRoughness;
 	gltfNormalTexture_Info				normalTexture;
 	gltfOcclusionTexture_Info			occlusionTexture;
@@ -618,7 +646,7 @@ public:
 class gltfAsset
 {
 public:
-	gltfAsset( ) { }
+	gltfAsset() { }
 	idStr		copyright;
 	idStr		generator;
 	idStr		version;
@@ -632,7 +660,7 @@ public:
 class gltfExtensionsUsed
 {
 public:
-	gltfExtensionsUsed( ) { }
+	gltfExtensionsUsed() { }
 	idStr	extension;
 };
 
@@ -641,7 +669,7 @@ public:
 class gltfExt_KHR_materials_pbrSpecularGlossiness
 {
 public:
-	gltfExt_KHR_materials_pbrSpecularGlossiness( ) { }
+	gltfExt_KHR_materials_pbrSpecularGlossiness() { }
 	idVec4				diffuseFactor;
 	gltfTexture_Info	diffuseTexture;
 	idVec3				specularFactor;
@@ -656,7 +684,7 @@ public:
 class gltfExt_KHR_lights_punctual_spot
 {
 public:
-	gltfExt_KHR_lights_punctual_spot( ) : innerConeAngle( 0.0f ), outerConeAngle( idMath::ONEFOURTH_PI ) { }
+	gltfExt_KHR_lights_punctual_spot() : innerConeAngle( 0.0f ), outerConeAngle( idMath::ONEFOURTH_PI ) { }
 	float		innerConeAngle;
 	float		outerConeAngle;
 	idStr		extensions;
@@ -669,7 +697,7 @@ typedef gltfExt_KHR_lights_punctual_spot spot;
 class gltfExt_KHR_lights_punctual
 {
 public:
-	gltfExt_KHR_lights_punctual( ) : color( vec3_one ), intensity( 1.0f ), range( -1.0f ), intType( -1 ) { }
+	gltfExt_KHR_lights_punctual() : color( vec3_one ), intensity( 1.0f ), range( -1.0f ), intType( -1 ) { }
 	idVec3		color;
 	float		intensity;
 	spot		spot;
@@ -704,7 +732,7 @@ public:
 class gltfExt_KHR_texture_transform
 {
 public:
-	gltfExt_KHR_texture_transform( ) : offset( vec2_zero ), rotation( 0.0f ), scale( vec2_one ), texCoord( -1 ), index( 0 ), resolved( false ) { }
+	gltfExt_KHR_texture_transform() : offset( vec2_zero ), rotation( 0.0f ), scale( vec2_one ), texCoord( -1 ), index( 0 ), resolved( false ) { }
 	idVec2	offset;
 	float	rotation;
 	idVec2	scale;
@@ -720,7 +748,7 @@ public:
 /////////////////////////////////////////////////////////////////////////////
 //// For these to function you need to add an private idList<gltf{name}*> {target}
 #define GLTFCACHEITEM(name,target) \
-gltf##name * name ( ) { target.AssureSizeAlloc( target.Num()+1,idListNewElement<gltf##name>); return target[target.Num()-1];} \
+gltf##name * name () { target.AssureSizeAlloc( target.Num()+1,idListNewElement<gltf##name>); return target[target.Num()-1];} \
 const inline idList<gltf##name*> & ##name##List() { return target; }
 
 
@@ -732,8 +760,8 @@ const inline idList<gltf##name*> & ##name##List() { return target; }
 class gltfData
 {
 public:
-	gltfData( ) : fileNameHash( 0 ), json( nullptr ), data( nullptr ), totalChunks( -1 ) {  };
-	~gltfData( );
+	gltfData() : fileNameHash( 0 ), json( nullptr ), data( nullptr ), totalChunks( -1 ) {  };
+	~gltfData();
 	byte* AddData( int size, int* bufferID = nullptr );
 	byte* GetJsonData( int& size )
 	{
@@ -747,13 +775,13 @@ public:
 	void FileName( const idStr& file )
 	{
 		fileName = file;
-		fileNameHash = fileDataHash.GenerateKey( file.c_str( ) );
+		fileNameHash = fileDataHash.GenerateKey( file.c_str() );
 	}
-	int FileNameHash( )
+	int FileNameHash()
 	{
 		return fileNameHash;
 	}
-	idStr& FileName( )
+	idStr& FileName()
 	{
 		return fileName;
 	}
@@ -763,21 +791,21 @@ public:
 	//add data from filename
 	static gltfData* Data( idStr& fileName )
 	{
-		dataList.AssureSizeAlloc( dataList.Num( ) + 1, idListNewElement<gltfData> );
-		dataList[dataList.Num( ) - 1]->FileName( fileName );
-		fileDataHash.Add( fileDataHash.GenerateKey( fileName ), dataList.Num( ) - 1 );
-		return dataList[dataList.Num( ) - 1];
+		dataList.AssureSizeAlloc( dataList.Num() + 1, idListNewElement<gltfData> );
+		dataList[dataList.Num() - 1]->FileName( fileName );
+		fileDataHash.Add( fileDataHash.GenerateKey( fileName ), dataList.Num() - 1 );
+		return dataList[dataList.Num() - 1];
 	}
 	//find data;
 	static gltfData* Data( const char* filename )
 	{
 		return dataList[fileDataHash.First( fileDataHash.GenerateKey( filename ) )];
 	}
-	static const idList<gltfData*>& DataList( )
+	static const idList<gltfData*>& DataList()
 	{
 		return dataList;
 	}
-	static void ClearData( )
+	static void ClearData()
 	{
 		idLib::Warning( "TODO! DATA NOT FREED" );
 	}
@@ -802,7 +830,7 @@ public:
 			}
 		}
 
-		for( int i = 0; i < nodes.Num( ); i++ )
+		for( int i = 0; i < nodes.Num(); i++ )
 		{
 			if( nodes[i]->camera != -1 && nodes[i]->camera == camId )
 			{
@@ -811,6 +839,135 @@ public:
 		}
 
 		return nullptr;
+	}
+
+	gltfNode* GetNode( gltfScene* scene , gltfMesh* mesh , int* id = nullptr )
+	{
+		assert( scene );
+		assert( mesh );
+
+		auto& nodeList = scene->nodes;
+		int nodeCnt = 0;
+		for( auto& nodeId : nodeList )
+		{
+
+			if( nodes[nodeId]->mesh != -1 &&*& meshes[nodes[nodeId]->mesh] == mesh )
+			{
+				if( id != nullptr )
+				{
+					*id = nodeCnt;
+				}
+
+				return nodes[nodeId];
+			}
+			nodeCnt++;
+		}
+
+		return nullptr;
+	}
+
+	gltfNode* GetNode( gltfScene* scene, idStr name )
+	{
+		assert( scene );
+		assert( name[0] );
+
+		auto& nodeList = scene->nodes;
+		for( auto& nodeId : nodeList )
+		{
+			if( nodes[nodeId]->name == name )
+			{
+				return nodes[nodeId];
+			}
+		}
+
+		return nullptr;
+	}
+
+	gltfNode* GetNode( idStr sceneName,  int id, idStr* name = nullptr )
+	{
+		int sceneId = GetSceneId( sceneName );
+		if( sceneId < 0 || sceneId > scenes.Num( ) )
+		{
+			return nullptr;
+		}
+
+		gltfScene* scene = scenes[sceneId];
+
+		assert( scene );
+		assert( id >= 0 );
+
+		auto& nodeList = scene->nodes;
+		for( auto& nodeId : nodeList )
+		{
+			if( nodeId == id )
+			{
+				if( name != nullptr )
+				{
+					*name = nodes[nodeId]->name;
+				}
+
+				return nodes[nodeId];
+			}
+		}
+
+		return nullptr;
+	}
+
+	gltfNode* GetNode( idStr sceneName, idStr name , int* id = nullptr )
+	{
+		int sceneId =  GetSceneId( sceneName );
+		if( sceneId < 0 || sceneId > scenes.Num() )
+		{
+			return nullptr;
+		}
+
+		gltfScene* scene = scenes[sceneId];
+
+		assert( scene );
+		assert( name[0] );
+
+		auto& nodeList = scene->nodes;
+		for( auto& nodeId : nodeList )
+		{
+			if( nodes[nodeId]->name.Icmp( name ) == 0 )
+			{
+				if( id != nullptr )
+				{
+					*id = nodeId;
+				}
+
+				return nodes[nodeId];
+			}
+		}
+
+		return nullptr;
+	}
+
+	bool HasAnimation( int nodeID )
+	{
+		for( auto anim : animations )
+		{
+			for( auto channel : anim->channels )
+			{
+				if( channel->target.node == nodeID )
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	int GetSceneId( idStr sceneName ) const
+	{
+		for( int i = 0; i < scenes.Num(); i++ )
+		{
+			if( scenes[i]->name == sceneName )
+			{
+				return i;
+			}
+		}
+		return -1;
 	}
 
 	idMat4 GetViewMatrix( int camId ) const
@@ -826,7 +983,7 @@ public:
 		idList<gltfNode*> hierachy( 2 );
 		gltfNode* parent = nullptr;
 
-		for( int i = 0; i < nodes.Num( ); i++ )
+		for( int i = 0; i < nodes.Num(); i++ )
 		{
 			if( nodes[i]->camera != -1 && nodes[i]->camera == camId )
 			{
@@ -840,7 +997,7 @@ public:
 			}
 		}
 
-		for( int i = hierachy.Num( ) - 1; i >= 0; i-- )
+		for( int i = hierachy.Num() - 1; i >= 0; i-- )
 		{
 			ResolveNodeMatrix( hierachy[i] );
 			result *= hierachy[i]->matrix;
@@ -848,6 +1005,7 @@ public:
 
 		return result;
 	}
+
 	//Please note : assumes all nodes are _not_ dirty!
 	idMat4 GetLightMatrix( int lightId ) const
 	{
@@ -857,7 +1015,7 @@ public:
 		gltfNode* parent = nullptr;
 		hierachy.SetGranularity( 2 );
 
-		for( int i = 0; i < nodes.Num( ); i++ )
+		for( int i = 0; i < nodes.Num(); i++ )
 		{
 			if( nodes[i]->extensions.KHR_lights_punctual && nodes[i]->extensions.KHR_lights_punctual->light == lightId )
 			{
@@ -871,7 +1029,7 @@ public:
 			}
 		}
 
-		for( int i = hierachy.Num( ) - 1; i >= 0; i-- )
+		for( int i = hierachy.Num() - 1; i >= 0; i-- )
 		{
 			result *= hierachy[i]->matrix;
 		}
@@ -896,7 +1054,7 @@ public:
 								  0, 0, 0, 1
 							  );
 
-			node->matrix = idMat4( mat3_identity, node->translation ) * node->rotation.ToMat4( ).Transpose( ) * scaleMat;
+			node->matrix = idMat4( mat3_identity, node->translation ) * node->rotation.ToMat4().Transpose() * scaleMat;
 
 			node->dirty = false;
 		}
@@ -916,7 +1074,7 @@ public:
 				}
 				parent = parent->parent;
 			}
-			for( int i = hierachy.Num( ) - 1; i >= 0; i-- )
+			for( int i = hierachy.Num() - 1; i >= 0; i-- )
 			{
 				*mat *= hierachy[i]->matrix;
 			}
@@ -931,7 +1089,7 @@ public:
 	idList<float>& GetAccessorView( gltfAccessor* accessor );
 	idList<idMat4>& GetAccessorViewMat( gltfAccessor* accessor );
 
-	int& DefaultScene( )
+	int& DefaultScene()
 	{
 		return scene;
 	}
@@ -962,22 +1120,22 @@ private:
 	int totalChunks;
 
 	idList<gltfBuffer*>			buffers;
-	idList<gltfImage*>				images;
-	idList<gltfData*>				assetData;
-	idList<gltfSampler*>			samplers;
+	idList<gltfImage*>			images;
+	idList<gltfData*>			assetData;
+	idList<gltfSampler*>		samplers;
 	idList<gltfBufferView*>		bufferViews;
-	idList<gltfTexture*>			textures;
-	idList<gltfAccessor*>			accessors;
+	idList<gltfTexture*>		textures;
+	idList<gltfAccessor*>		accessors;
 	idList<gltfExtensionsUsed*>	extensionsUsed;
-	idList<gltfMesh*>				meshes;
-	int								scene;
-	idList<gltfScene*>				scenes;
-	idList<gltfNode*>				nodes;
+	idList<gltfMesh*>			meshes;
+	int							scene;
+	idList<gltfScene*>			scenes;
+	idList<gltfNode*>			nodes;
 	idList<gltfCamera*>			cameras;
-	idList<gltfMaterial*>			materials;
+	idList<gltfMaterial*>		materials;
 	idList<gltfExtensions*>		extensions;
-	idList<gltfAnimation*>			animations;
-	idList<gltfSkin*>				skins;
+	idList<gltfAnimation*>		animations;
+	idList<gltfSkin*>			skins;
 };
 
 #undef GLTFCACHEITEM

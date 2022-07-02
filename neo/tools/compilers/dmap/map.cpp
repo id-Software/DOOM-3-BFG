@@ -492,19 +492,22 @@ static int ParsePolygonMesh( const MapPolygonMesh* mesh, int primitiveNum, int n
 
 		// TODO use WindingToTriList instead ?
 
-		for( int j = 1; j < indexes.Num() - 1; j++ )
-			//for( int j = indexes.Num() -2; j >= 1; j-- )
+		if( indexes.Num() == 3 )
 		{
+			// RB: glTF2 workflow insists to use triangles instead of n-gons or quads
 			mapTri_t* tri = AllocTri();
 
-#if 1
-			tri->v[0] = verts[ indexes[ j + 1] ];
-			tri->v[1] = verts[ indexes[ j + 0] ];
+			tri->v[0] = verts[ indexes[ 2 ] ];
+			tri->v[1] = verts[ indexes[ 1 ] ];
 			tri->v[2] = verts[ indexes[ 0 ] ];
-#else
-			tri->v[2] = verts[ indexes[ j + 1] ];
-			tri->v[1] = verts[ indexes[ j + 0] ];
-			tri->v[0] = verts[ indexes[ 0 ] ];
+
+#if 0
+			idLib::Printf( "indices: ( %i %i %i )\n", indexes[ 0 ], indexes[ 1 ], indexes[ 2 ] );
+
+			idLib::Printf( "verts: ( %i %i %i ) ( %i %i %i ) ( %i %i %i )\n",
+						   int( tri->v[0].xyz.x ), int( tri->v[0].xyz.y ), int( tri->v[0].xyz.z ),
+						   int( tri->v[1].xyz.x ), int( tri->v[1].xyz.y ), int( tri->v[1].xyz.z ),
+						   int( tri->v[2].xyz.x ), int( tri->v[2].xyz.y ), int( tri->v[2].xyz.z ) );
 #endif
 
 			idPlane plane;
@@ -528,6 +531,41 @@ static int ParsePolygonMesh( const MapPolygonMesh* mesh, int primitiveNum, int n
 				for( tri = prim->bsptris ; tri ; tri = tri->next )
 				{
 					tri->mergeGroup = ( void* )mesh;
+				}
+			}
+		}
+		else
+		{
+			for( int j = 1; j < indexes.Num() - 1; j++ )
+			{
+				mapTri_t* tri = AllocTri();
+
+				tri->v[0] = verts[ indexes[ j + 1] ];
+				tri->v[1] = verts[ indexes[ j + 0] ];
+				tri->v[2] = verts[ indexes[ 0 ] ];
+
+				idPlane plane;
+				plane.FromPoints( tri->v[0].xyz, tri->v[1].xyz, tri->v[2].xyz );
+
+				bool fixedDegeneracies = false;
+				tri->planeNum = FindFloatPlane( plane, &fixedDegeneracies );
+
+				tri->polygonId = numPolygons + i;
+
+				tri->material = mat;
+				tri->next = prim->bsptris;
+				prim->bsptris = tri;
+
+				tri->originalMapMesh = mesh;
+
+				// set merge groups if needed, to prevent multiple sides from being
+				// merged into a single surface in the case of gui shaders, mirrors, and autosprites
+				if( mat->IsDiscrete() )
+				{
+					for( tri = prim->bsptris ; tri ; tri = tri->next )
+					{
+						tri->mergeGroup = ( void* )mesh;
+					}
 				}
 			}
 		}

@@ -961,7 +961,7 @@ public:
 	float* 			ToFloatPtr();
 	const char* 	ToString( int precision = 2 ) const;
 // jmarshall
-	idMat3			ToMat3( void ) const;
+	idMat3			ToMat3() const;
 // jmarshall end
 private:
 	idVec4			mat[ 4 ];
@@ -972,7 +972,7 @@ extern idMat4 mat4_identity;
 #define mat4_default	mat4_identity
 
 // jmarshall
-ID_INLINE idMat3 idMat4::ToMat3( void ) const
+ID_INLINE idMat3 idMat4::ToMat3() const
 {
 	idMat3 m;
 

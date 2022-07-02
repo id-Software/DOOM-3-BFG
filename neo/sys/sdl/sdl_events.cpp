@@ -1708,8 +1708,12 @@ sysEvent_t Sys_GetEvent()
 						common->Warning( "unknown user event %u", ev.user.code );
 				}
 				continue; // just handle next event
+
+			case SDL_KEYMAPCHANGED:
+				continue; // just handle next event
+
 			default:
-				common->Warning( "unknown event %u", ev.type );
+				common->Warning( "unknown event %u = %#x", ev.type, ev.type );
 				continue; // just handle next event
 		}
 	}

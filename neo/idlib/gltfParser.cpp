@@ -1,3 +1,31 @@
+/*
+===========================================================================
+
+Doom 3 BFG Edition GPL Source Code
+Copyright (C) 2022 Harrie van Ginneken
+
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
+
+Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Doom 3 BFG Edition Source Code is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Doom 3 BFG Edition Source Code.  If not, see <http://www.gnu.org/licenses/>.
+
+In addition, the Doom 3 BFG Edition Source Code is also subject to certain additional terms. You should have received a copy of these additional terms immediately following the terms and conditions of the GNU General Public License which accompanied the Doom 3 BFG Edition Source Code.  If not, please request a copy in writing from id Software at the address below.
+
+If you have questions concerning this license or the applicable additional terms, you may contact in writing id Software LLC, c/o ZeniMax Media Inc., Suite 120, Rockville, Maryland 20850 USA.
+
+===========================================================================
+*/
+
 #include "precompiled.h"
 #pragma hdrstop
 
@@ -9,6 +37,7 @@
 static const unsigned int gltfChunk_Type_JSON =  0x4E4F534A; //1313821514
 static const unsigned int gltfChunk_Type_BIN =  0x004E4942; //5130562
 
+idCVar gltf_parseVerbose( "gltf_parseVerbose", "0", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_BOOL, "print gltf json data while parsing" );
 idCVar gltfParser_PrefixNodeWithID( "gltfParser_PrefixNodeWithID", "0", CVAR_SYSTEM | CVAR_BOOL, "The node's id is prefixed to the node's name during load" );
 //
 //gltf_sampler_wrap_type_map s_samplerWrapTypeMap[] = {
@@ -136,8 +165,6 @@ idList<gltfData*>	gltfData::dataList;
 idHashIndex			gltfData::fileDataHash;
 gltfItemArray*		gltfItem_Extra::items = new gltfItemArray();
 
-idCVar gltf_parseVerbose( "gltf_parseVerbose", "0", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_BOOL, "print gltf json data while parsing" );
-
 //Helper macros for gltf data deserialize
 //NOTE: gltfItems that deviate from the default SET(T*) function cannot be handled with itemref macro.
 // target must be an gltfArrayItem.
@@ -147,7 +174,7 @@ idCVar gltf_parseVerbose( "gltf_parseVerbose", "0", CVAR_RENDERER | CVAR_ARCHIVE
 // name->Set		(&target->name);
 #define GLTFARRAYITEMREF(target,name) name->Set(&target->name)
 
-void gltfPropertyArray::Iterator::operator ++( )
+void gltfPropertyArray::Iterator::operator ++()
 {
 
 	//check if by modification, we are iterating again.
@@ -157,14 +184,14 @@ void gltfPropertyArray::Iterator::operator ++( )
 		array->iterating = array->parser->PeekTokenString( "," );
 		if( array->iterating )
 		{
-			array->properties.AssureSizeAlloc( array->properties.Num( ) + 1, idListNewElement<gltfPropertyItem> );
+			array->properties.AssureSizeAlloc( array->properties.Num() + 1, idListNewElement<gltfPropertyItem> );
 			array->parser->ExpectTokenString( "," );
 		}
 	}
 
 	if( array->iterating )
 	{
-		p = array->properties[array->properties.Num( ) - 1];
+		p = array->properties[array->properties.Num() - 1];
 		p->array = array;
 		if( array->isArrayOfStructs )
 		{
@@ -179,7 +206,7 @@ void gltfPropertyArray::Iterator::operator ++( )
 		array->iterating = array->parser->PeekTokenString( "," );
 		if( array->iterating )
 		{
-			array->properties.AssureSizeAlloc( array->properties.Num( ) + 1, idListNewElement<gltfPropertyItem> );
+			array->properties.AssureSizeAlloc( array->properties.Num() + 1, idListNewElement<gltfPropertyItem> );
 			array->parser->ExpectTokenString( "," );
 		}
 	}
@@ -200,11 +227,13 @@ void gltfPropertyArray::Iterator::operator ++( )
 		}
 	}
 }
+
 gltfPropertyArray::~gltfPropertyArray()
 {
 	delete endPtr;
 	properties.DeleteContents( true );
 }
+
 gltfPropertyArray::gltfPropertyArray( idLexer* Parser, bool AoS/* = true */ )
 	: parser( Parser ), iterating( true ), dirty( true ), index( 0 ), isArrayOfStructs( AoS )
 {
@@ -214,7 +243,7 @@ gltfPropertyArray::gltfPropertyArray( idLexer* Parser, bool AoS/* = true */ )
 	endPtr->array = this;
 }
 
-gltfPropertyArray::Iterator gltfPropertyArray::begin( )
+gltfPropertyArray::Iterator gltfPropertyArray::begin()
 {
 	if( iterating )
 	{
@@ -255,10 +284,12 @@ gltfPropertyArray::Iterator gltfPropertyArray::begin( )
 	index = 0;
 	return Iterator{ this , properties[index]};
 }
-gltfPropertyArray::Iterator gltfPropertyArray::end( )
+
+gltfPropertyArray::Iterator gltfPropertyArray::end()
 {
 	return Iterator{ this , endPtr};
 }
+
 int gltfItemArray::Fill( idLexer* lexer, idDict* strPairs )
 {
 	idToken token;
@@ -270,19 +301,19 @@ int gltfItemArray::Fill( idLexer* lexer, idDict* strPairs )
 		lexer->ExpectTokenString( ":" );
 		idStr key = token;
 		idStr value;
-		key.StripTrailingWhitespace( );
+		key.StripTrailingWhitespace();
 		if( lexer->PeekTokenString( "{" ) )
 		{
 			lexer->ParseBracedSectionExact( value );
-			value.StripTrailingWhitespace( );
+			value.StripTrailingWhitespace();
 			strPairs->Set( key, value );
 		}
 		else
 		{
 			lexer->ExpectAnyToken( &token );
 			value = token;
-			value.StripTrailingWhitespace( );
-			key.StripTrailingWhitespace( );
+			value.StripTrailingWhitespace();
+			key.StripTrailingWhitespace();
 			strPairs->Set( key, token );
 		}
 
@@ -296,6 +327,7 @@ int gltfItemArray::Fill( idLexer* lexer, idDict* strPairs )
 	lexer->ExpectTokenString( "}" );
 	return parseCount;
 }
+
 int gltfItemArray::Parse( idLexer* lexer, bool forwardLexer/* = false*/ )
 {
 	idToken token;
@@ -308,7 +340,7 @@ int gltfItemArray::Parse( idLexer* lexer, bool forwardLexer/* = false*/ )
 		bool parsed = false;
 		for( auto item : items )
 		{
-			if( item->Name( ) == token )
+			if( item->Name() == token )
 			{
 				lexer->ExpectAnyToken( &token );
 				if( forwardLexer )
@@ -368,18 +400,18 @@ byte* gltfData::AddData( int size, int* bufferID/*=nullptr*/ )
 	return data[id];
 }
 
-bool gltfItem_uri::Convert( )
+bool gltfItem_uri::Convert()
 {
 	//HVG_TODO
 	// uri cache.
 	//read data
-	int length = fileSystem->ReadFile( item->c_str( ), NULL );
+	int length = fileSystem->ReadFile( item->c_str(), NULL );
 	idFile* file = fileSystem->OpenFileRead( item->c_str() );
 
 	//create buffer
-	gltfBuffer* buffer = data->Buffer( );
+	gltfBuffer* buffer = data->Buffer();
 	buffer->parent = data;
-	buffer->name = item->c_str( );
+	buffer->name = item->c_str();
 	buffer->byteLength = length;
 	int bufferID = -1;
 	byte* dest = data->AddData( length, &bufferID );
@@ -400,7 +432,7 @@ bool gltfItem_uri::Convert( )
 	if( bufferView != nullptr )
 	{
 		*bufferView = data->BufferViewList().Num();
-		gltfBufferView* newBufferView = data->BufferView( );
+		gltfBufferView* newBufferView = data->BufferView();
 		newBufferView->buffer = bufferID;
 		newBufferView->byteLength = length;
 		newBufferView->parent = data;
@@ -416,15 +448,15 @@ void gltfItem_Extra::parse( idToken& token )
 	parser->UnreadToken( &token );
 	parser->ParseBracedSectionExact( item->json );
 
-	idLexer lexer( LEXFL_ALLOWPATHNAMES | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_NOSTRINGESCAPECHARS | LEXFL_ALLOWPATHNAMES );
-	lexer.LoadMemory( item->json, item->json.Size( ), "gltfItem_Extra", 0 );
+	idLexer lexer( LEXFL_ALLOWPATHNAMES | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_NOSTRINGESCAPECHARS );
+	lexer.LoadMemory( item->json, item->json.Size(), "gltfItem_Extra", 0 );
 	items->Fill( &lexer, &item->strPairs );
 	lexer.Reset();
 	items->Parse( &lexer , true );
 
-	if( gltf_parseVerbose.GetBool( ) )
+	if( gltf_parseVerbose.GetBool() )
 	{
-		common->Printf( "%s", item->json.c_str( ) );
+		common->Printf( "%s", item->json.c_str() );
 	}
 }
 
@@ -446,11 +478,11 @@ void gltfItem_animation_sampler::parse( idToken& token )
 	gltfPropertyArray array = gltfPropertyArray( parser );
 	for( auto& prop : array )
 	{
-		idLexer lexer( LEXFL_ALLOWPATHNAMES | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_NOSTRINGESCAPECHARS | LEXFL_ALLOWPATHNAMES );
-		lexer.LoadMemory( prop.item.c_str( ), prop.item.Size( ), "gltfAnimation_Sampler", 0 );
+		idLexer lexer( LEXFL_ALLOWPATHNAMES | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_NOSTRINGESCAPECHARS );
+		lexer.LoadMemory( prop.item.c_str(), prop.item.Size(), "gltfAnimation_Sampler", 0 );
 
-		item->AssureSizeAlloc( item->Num( ) + 1, idListNewElement<gltfAnimation_Sampler> );
-		gltfAnimation_Sampler* gltfAnimSampler = ( *item )[item->Num( ) - 1];
+		item->AssureSizeAlloc( item->Num() + 1, idListNewElement<gltfAnimation_Sampler> );
+		gltfAnimation_Sampler* gltfAnimSampler = ( *item )[item->Num() - 1];
 
 		GLTFARRAYITEMREF( gltfAnimSampler, input );
 		GLTFARRAYITEMREF( gltfAnimSampler, interpolation );
@@ -458,9 +490,9 @@ void gltfItem_animation_sampler::parse( idToken& token )
 		GLTFARRAYITEMREF( gltfAnimSampler, extensions );
 		extras->Set( &gltfAnimSampler->extras, &lexer );
 		animSampler.Parse( &lexer );
-		if( gltf_parseVerbose.GetBool( ) )
+		if( gltf_parseVerbose.GetBool() )
 		{
-			common->Printf( "%s", prop.item.c_str( ) );
+			common->Printf( "%s", prop.item.c_str() );
 		}
 
 		gltfAnimSampler->intType = gltfAnimation_Sampler::resolveType( gltfAnimSampler->interpolation );
@@ -483,9 +515,9 @@ void gltfItem_animation_channel_target::parse( idToken& token )
 	extras->Set( &item->extras, parser );
 	animChannelTarget.Parse( parser );
 
-	if( gltf_parseVerbose.GetBool( ) )
+	if( gltf_parseVerbose.GetBool() )
 	{
-		common->Printf( "%s", token.c_str( ) );
+		common->Printf( "%s", token.c_str() );
 	}
 
 	item->TRS = gltfAnimation_Channel_Target::resolveType( item->path );
@@ -503,21 +535,21 @@ void gltfItem_animation_channel::parse( idToken& token )
 	gltfPropertyArray array = gltfPropertyArray( parser );
 	for( auto& prop : array )
 	{
-		idLexer lexer( LEXFL_ALLOWPATHNAMES | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_NOSTRINGESCAPECHARS | LEXFL_ALLOWPATHNAMES );
-		lexer.LoadMemory( prop.item.c_str( ), prop.item.Size( ), "gltfAnimation_Channel", 0 );
+		idLexer lexer( LEXFL_ALLOWPATHNAMES | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_NOSTRINGESCAPECHARS );
+		lexer.LoadMemory( prop.item.c_str(), prop.item.Size(), "gltfAnimation_Channel", 0 );
 
 
-		item->AssureSizeAlloc( item->Num( ) + 1, idListNewElement<gltfAnimation_Channel> );
-		gltfAnimation_Channel* gltfAnimationChannel = ( *item )[item->Num( ) - 1];
+		item->AssureSizeAlloc( item->Num() + 1, idListNewElement<gltfAnimation_Channel> );
+		gltfAnimation_Channel* gltfAnimationChannel = ( *item )[item->Num() - 1];
 
 		GLTFARRAYITEMREF( gltfAnimationChannel, sampler );
 		target->Set( &gltfAnimationChannel->target, &lexer );
 		GLTFARRAYITEMREF( gltfAnimationChannel, extensions );
 		extras->Set( &gltfAnimationChannel->extras, &lexer );
 		anim.Parse( &lexer );
-		if( gltf_parseVerbose.GetBool( ) )
+		if( gltf_parseVerbose.GetBool() )
 		{
-			common->Printf( "%s", token.c_str( ) );
+			common->Printf( "%s", token.c_str() );
 		}
 
 	}
@@ -538,8 +570,8 @@ void gltfItem_mesh_primitive::parse( idToken& token )
 	gltfPropertyArray array = gltfPropertyArray( parser );
 	for( auto& prop : array )
 	{
-		idLexer lexer( LEXFL_ALLOWPATHNAMES | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_NOSTRINGESCAPECHARS | LEXFL_ALLOWPATHNAMES );
-		lexer.LoadMemory( prop.item.c_str( ), prop.item.Size( ), "gltfItem_mesh_primitiveB", 0 );
+		idLexer lexer( LEXFL_ALLOWPATHNAMES | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_NOSTRINGESCAPECHARS );
+		lexer.LoadMemory( prop.item.c_str(), prop.item.Size(), "gltfItem_mesh_primitiveB", 0 );
 
 
 		item->AssureSizeAlloc( item->Num() + 1, idListNewElement<gltfMesh_Primitive> );
@@ -553,9 +585,9 @@ void gltfItem_mesh_primitive::parse( idToken& token )
 		GLTFARRAYITEMREF( gltfMeshPrim, extensions );
 		extras->Set( &gltfMeshPrim->extras, &lexer );
 		prim.Parse( &lexer );
-		if( gltf_parseVerbose.GetBool( ) )
+		if( gltf_parseVerbose.GetBool() )
 		{
-			common->Printf( "%s", prop.item.c_str( ) );
+			common->Printf( "%s", prop.item.c_str() );
 		}
 	}
 	parser->ExpectTokenString( "]" );
@@ -567,8 +599,8 @@ void gltfItem_mesh_primitive_attribute::parse( idToken& token )
 	while( parsing && parser->ExpectAnyToken( &token ) )
 	{
 
-		item->AssureSizeAlloc( item->Num( ) + 1, idListNewElement<gltfMesh_Primitive_Attribute> );
-		gltfMesh_Primitive_Attribute* attr = ( *item )[item->Num( ) - 1];
+		item->AssureSizeAlloc( item->Num() + 1, idListNewElement<gltfMesh_Primitive_Attribute> );
+		gltfMesh_Primitive_Attribute* attr = ( *item )[item->Num() - 1];
 		parser->ExpectTokenString( ":" );
 		attr->attributeSemantic = token;
 		attr->type = GetAttributeEnum( attr->attributeSemantic.c_str(), &attr->elementSize );
@@ -582,41 +614,40 @@ void gltfItem_mesh_primitive_attribute::parse( idToken& token )
 	}
 	parser->ExpectTokenString( "}" );
 
-	if( gltf_parseVerbose.GetBool( ) )
+	if( gltf_parseVerbose.GetBool() )
 	{
-		common->Printf( "%s", token.c_str( ) );
+		common->Printf( "%s", token.c_str() );
 	}
 }
 
 void gltfItem_integer_array::parse( idToken& token )
 {
-
 	parser->UnreadToken( &token );
 	gltfPropertyArray array = gltfPropertyArray( parser, false );
 	for( auto& prop : array )
 	{
 		idStr neg;
-		int& value = item->Alloc( );
+		int& value = item->Alloc();
 		value = prop.item.GetIntValue();
 
 		if( prop.item.type == TT_PUNCTUATION && prop.item == "-" )
 		{
 			parser->ExpectTokenType( TT_NUMBER, 0, &prop.item );
-			value = -( prop.item.GetIntValue( ) );
+			value = -( prop.item.GetIntValue() );
 			neg = "-";
 		}
 		else if( prop.item.type == TT_NUMBER )
 		{
-			value = prop.item.GetIntValue( );
+			value = prop.item.GetIntValue();
 		}
 		else
 		{
 			common->FatalError( "parse error" );
 		}
 
-		if( gltf_parseVerbose.GetBool( ) )
+		if( gltf_parseVerbose.GetBool() )
 		{
-			common->Printf( "%s%s", neg.c_str( ), prop.item.c_str( ) );
+			common->Printf( "%s%s", neg.c_str(), prop.item.c_str() );
 		}
 	}
 	parser->ExpectTokenString( "]" );
@@ -630,7 +661,7 @@ void gltfItem_number_array::parse( idToken& token )
 	for( auto& prop : array )
 	{
 		idStr neg;
-		double& value = item->Alloc( );
+		double& value = item->Alloc();
 		if( prop.item.type == TT_PUNCTUATION && prop.item == "-" )
 		{
 			parser->ExpectTokenType( TT_NUMBER, 0, &prop.item );
@@ -639,16 +670,16 @@ void gltfItem_number_array::parse( idToken& token )
 		}
 		else if( prop.item.type == TT_NUMBER )
 		{
-			value = prop.item.GetDoubleValue( );
+			value = prop.item.GetDoubleValue();
 		}
 		else
 		{
 			common->FatalError( "parse error" );
 		}
 
-		if( gltf_parseVerbose.GetBool( ) )
+		if( gltf_parseVerbose.GetBool() )
 		{
-			common->Printf( "%s%s", neg.c_str(), prop.item.c_str( ) );
+			common->Printf( "%s%s", neg.c_str(), prop.item.c_str() );
 		}
 	}
 	parser->ExpectTokenString( "]" );
@@ -661,12 +692,12 @@ void gltfItem_vec4::parse( idToken& token )
 	idList<double> numberarray;
 	numbers->Set( &numberarray, parser );
 	numbers->parse( token );
-	if( numbers->item->Num( ) != 4 )
+	if( numbers->item->Num() != 4 )
 	{
-		common->FatalError( "gltfItem_vec4 : missing arguments, expected 4, got %i", numbers->item->Num( ) );
+		common->FatalError( "gltfItem_vec4 : missing arguments, expected 4, got %i", numbers->item->Num() );
 	}
 
-	double* val = numbers->item->Ptr( );
+	double* val = numbers->item->Ptr();
 	*item = idVec4( val[0], val[1], val[2], val[3] );
 }
 
@@ -676,12 +707,12 @@ void gltfItem_vec3::parse( idToken& token )
 	idList<double> numberarray;
 	numbers->Set( &numberarray, parser );
 	numbers->parse( token );
-	if( numbers->item->Num( ) != 3 )
+	if( numbers->item->Num() != 3 )
 	{
-		common->FatalError( "gltfItem_vec3 : missing arguments, expected 3, got %i", numbers->item->Num( ) );
+		common->FatalError( "gltfItem_vec3 : missing arguments, expected 3, got %i", numbers->item->Num() );
 	}
 
-	double* val = numbers->item->Ptr( );
+	double* val = numbers->item->Ptr();
 	*item = idVec3( val[0], val[1], val[2] );
 }
 
@@ -691,12 +722,12 @@ void gltfItem_vec2::parse( idToken& token )
 	idList<double> numberarray;
 	numbers->Set( &numberarray, parser );
 	numbers->parse( token );
-	if( numbers->item->Num( ) != 2 )
+	if( numbers->item->Num() != 2 )
 	{
-		common->FatalError( "gltfItem_vec3 : missing arguments, expected 2, got %i", numbers->item->Num( ) );
+		common->FatalError( "gltfItem_vec3 : missing arguments, expected 2, got %i", numbers->item->Num() );
 	}
 
-	double* val = numbers->item->Ptr( );
+	double* val = numbers->item->Ptr();
 	*item = idVec2( val[0], val[1] );
 }
 
@@ -708,7 +739,7 @@ void gltfItem_quat::parse( idToken& token )
 	numbers->parse( token );
 	if( numbers->item->Num() != 4 )
 	{
-		common->FatalError( "gltfItem_quat : missing arguments, expectd 4, got %i", numbers->item->Num( ) );
+		common->FatalError( "gltfItem_quat : missing arguments, expectd 4, got %i", numbers->item->Num() );
 	}
 
 	double* val = numbers->item->Ptr();
@@ -721,12 +752,12 @@ void gltfItem_mat4::parse( idToken& token )
 	idList<double> numberarray;
 	numbers->Set( &numberarray, parser );
 	numbers->parse( token );
-	if( numbers->item->Num( ) != 16 )
+	if( numbers->item->Num() != 16 )
 	{
-		common->FatalError( "gltfItem_mat4 : missing arguments, expectd 16, got %i", numbers->item->Num( ) );
+		common->FatalError( "gltfItem_mat4 : missing arguments, expectd 16, got %i", numbers->item->Num() );
 	}
 
-	double* val = numbers->item->Ptr( );
+	double* val = numbers->item->Ptr();
 	*item = idMat4(
 				val[0], val[1], val[2], val[3],
 				val[4], val[5], val[6], val[7],
@@ -734,7 +765,6 @@ void gltfItem_mat4::parse( idToken& token )
 				val[12], val[13], val[14], val[15]
 			);
 }
-
 
 void gltfItem_accessor_sparse::parse( idToken& token )
 {
@@ -754,9 +784,9 @@ void gltfItem_accessor_sparse::parse( idToken& token )
 	extras->Set( &item->extras, parser );
 	sparse.Parse( parser );
 
-	if( gltf_parseVerbose.GetBool( ) )
+	if( gltf_parseVerbose.GetBool() )
 	{
-		common->Printf( "%s", token.c_str( ) );
+		common->Printf( "%s", token.c_str() );
 	}
 }
 
@@ -775,9 +805,9 @@ void gltfItem_accessor_sparse_values::parse( idToken& token )
 	GLTFARRAYITEMREF( item, extensions );
 	extras->Set( &item->extras, parser );
 
-	if( gltf_parseVerbose.GetBool( ) )
+	if( gltf_parseVerbose.GetBool() )
 	{
-		common->Printf( "%s", token.c_str( ) );
+		common->Printf( "%s", token.c_str() );
 	}
 }
 
@@ -799,9 +829,9 @@ void gltfItem_accessor_sparse_indices::parse( idToken& token )
 	extras->Set( &item->extras, parser );
 	indices.Parse( parser );
 
-	if( gltf_parseVerbose.GetBool( ) )
+	if( gltf_parseVerbose.GetBool() )
 	{
-		common->Printf( "%s", token.c_str( ) );
+		common->Printf( "%s", token.c_str() );
 	}
 }
 
@@ -810,7 +840,7 @@ void gltfItem_camera_orthographic::parse( idToken& token )
 	gltfPropertyArray array = gltfPropertyArray( parser );
 	for( auto& prop : array )
 	{
-		common->Printf( "%s", prop.item.c_str( ) );
+		common->Printf( "%s", prop.item.c_str() );
 	}
 	parser->ExpectTokenString( "]" );
 }
@@ -834,9 +864,9 @@ void gltfItem_camera_perspective::parse( idToken& token )
 	extras->Set( &item->extras, parser );
 	cameraPerspective.Parse( parser );
 
-	if( gltf_parseVerbose.GetBool( ) )
+	if( gltf_parseVerbose.GetBool() )
 	{
-		common->Printf( "%s", token.c_str( ) );
+		common->Printf( "%s", token.c_str() );
 	}
 }
 
@@ -857,9 +887,9 @@ void gltfItem_occlusion_texture::parse( idToken& token )
 	extras->Set( &item->extras, parser );
 	textureInfo.Parse( parser );
 
-	if( gltf_parseVerbose.GetBool( ) )
+	if( gltf_parseVerbose.GetBool() )
 	{
-		common->Printf( "%s", token.c_str( ) );
+		common->Printf( "%s", token.c_str() );
 	}
 }
 
@@ -880,9 +910,9 @@ void gltfItem_normal_texture::parse( idToken& token )
 	extras->Set( &item->extras,		parser );
 	textureInfo.Parse( parser );
 
-	if( gltf_parseVerbose.GetBool( ) )
+	if( gltf_parseVerbose.GetBool() )
 	{
-		common->Printf( "%s", token.c_str( ) );
+		common->Printf( "%s", token.c_str() );
 	}
 }
 
@@ -901,9 +931,9 @@ void gltfItem_texture_info::parse( idToken& token )
 	extras->Set( &item->extras, parser );
 	textureInfo.Parse( parser );
 
-	if( gltf_parseVerbose.GetBool( ) )
+	if( gltf_parseVerbose.GetBool() )
 	{
-		common->Printf( "%s", token.c_str( ) );
+		common->Printf( "%s", token.c_str() );
 	}
 }
 
@@ -928,9 +958,9 @@ void gltfItem_pbrMetallicRoughness::parse( idToken& token )
 	extras->Set( &item->extras, parser );
 	pbrMetallicRoughness.Parse( parser );
 
-	if( gltf_parseVerbose.GetBool( ) )
+	if( gltf_parseVerbose.GetBool() )
 	{
-		common->Printf( "%s", token.c_str( ) );
+		common->Printf( "%s", token.c_str() );
 	}
 }
 
@@ -943,7 +973,7 @@ void gltfItem_TextureInfo_KHR_texture_transform::parse( idToken& token )
 	GLTFARRAYITEM( texureTransform, scale,		gltfItem_vec2 );
 	GLTFARRAYITEM( texureTransform, texCoord,	gltfItem_integer );
 
-	item->KHR_texture_transform = new gltfExt_KHR_texture_transform( );
+	item->KHR_texture_transform = new gltfExt_KHR_texture_transform();
 
 	offset->Set( &item->KHR_texture_transform->offset,	parser );
 	GLTFARRAYITEMREF( item->KHR_texture_transform,			rotation );
@@ -951,9 +981,9 @@ void gltfItem_TextureInfo_KHR_texture_transform::parse( idToken& token )
 	GLTFARRAYITEMREF( item->KHR_texture_transform,			texCoord );
 	texureTransform.Parse( parser );
 
-	if( gltf_parseVerbose.GetBool( ) )
+	if( gltf_parseVerbose.GetBool() )
 	{
-		common->Printf( "%s", token.c_str( ) );
+		common->Printf( "%s", token.c_str() );
 	}
 }
 
@@ -969,7 +999,7 @@ void gltfItem_Material_KHR_materials_pbrSpecularGlossiness::parse( idToken& toke
 	GLTFARRAYITEM( khrPbr, extensions,					gltfItem );
 	GLTFARRAYITEM( khrPbr, extras,						gltfItem_Extra );
 
-	item->KHR_materials_pbrSpecularGlossiness = new gltfExt_KHR_materials_pbrSpecularGlossiness( );
+	item->KHR_materials_pbrSpecularGlossiness = new gltfExt_KHR_materials_pbrSpecularGlossiness();
 
 	diffuseFactor->Set( &item->KHR_materials_pbrSpecularGlossiness->diffuseFactor,				parser	);
 	diffuseTexture->Set( &item->KHR_materials_pbrSpecularGlossiness->diffuseTexture,				parser	);
@@ -980,9 +1010,9 @@ void gltfItem_Material_KHR_materials_pbrSpecularGlossiness::parse( idToken& toke
 	extras->Set( &item->KHR_materials_pbrSpecularGlossiness->extras,						parser	);
 	khrPbr.Parse( parser );
 
-	if( gltf_parseVerbose.GetBool( ) )
+	if( gltf_parseVerbose.GetBool() )
 	{
-		common->Printf( "%s", token.c_str( ) );
+		common->Printf( "%s", token.c_str() );
 	}
 }
 
@@ -992,13 +1022,13 @@ void gltfItem_Node_KHR_lights_punctual::parse( idToken& token )
 	parser->UnreadToken( &token );
 	gltfItemArray xlight;
 	GLTFARRAYITEM( xlight, light, gltfItem_integer );
-	item->KHR_lights_punctual = new gltfNode_KHR_lights_punctual( );
+	item->KHR_lights_punctual = new gltfNode_KHR_lights_punctual();
 	light->Set( &item->KHR_lights_punctual->light );
 	xlight.Parse( parser );
 
-	if( gltf_parseVerbose.GetBool( ) )
+	if( gltf_parseVerbose.GetBool() )
 	{
-		common->Printf( "%s", token.c_str( ) );
+		common->Printf( "%s", token.c_str() );
 	}
 }
 
@@ -1021,15 +1051,15 @@ void gltfItem_KHR_lights_punctual::parse( idToken& token )
 	gltfPropertyArray array = gltfPropertyArray( parser );
 	for( auto& prop : array )
 	{
-		idLexer lexer( LEXFL_ALLOWPATHNAMES | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_NOSTRINGESCAPECHARS | LEXFL_ALLOWPATHNAMES );
-		lexer.LoadMemory( prop.item.c_str( ), prop.item.Size( ), "gltfNode_light", 0 );
+		idLexer lexer( LEXFL_ALLOWPATHNAMES | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_NOSTRINGESCAPECHARS );
+		lexer.LoadMemory( prop.item.c_str(), prop.item.Size(), "gltfNode_light", 0 );
 
 		item->KHR_lights_punctual.AssureSizeAlloc(
-			item->KHR_lights_punctual.Num( ) + 1,
+			item->KHR_lights_punctual.Num() + 1,
 			idListNewElement<gltfExt_KHR_lights_punctual> );
 
 		gltfExt_KHR_lights_punctual* gltfLight =
-			item->KHR_lights_punctual[item->KHR_lights_punctual.Num( ) - 1];
+			item->KHR_lights_punctual[item->KHR_lights_punctual.Num() - 1];
 
 		color->Set( &gltfLight->color, &lexer	);
 		GLTFARRAYITEMREF( gltfLight, intensity	);
@@ -1044,9 +1074,9 @@ void gltfItem_KHR_lights_punctual::parse( idToken& token )
 
 		gltfLight->intType = gltfExt_KHR_lights_punctual::resolveType( gltfLight->type );
 
-		if( gltf_parseVerbose.GetBool( ) )
+		if( gltf_parseVerbose.GetBool() )
 		{
-			common->Printf( "%s", prop.item.c_str( ) );
+			common->Printf( "%s", prop.item.c_str() );
 		}
 	}
 
@@ -1063,9 +1093,9 @@ void gltfItem_node_extensions::parse( idToken& token )
 	KHR_lights_punctual->Set( item, parser );
 	extensions.Parse( parser );
 
-	if( gltf_parseVerbose.GetBool( ) )
+	if( gltf_parseVerbose.GetBool() )
 	{
-		common->Printf( "%s", token.c_str( ) );
+		common->Printf( "%s", token.c_str() );
 	}
 
 }
@@ -1080,9 +1110,9 @@ void gltfItem_material_extensions::parse( idToken& token )
 	KHR_materials_pbrSpecularGlossiness->Set( item, parser );
 	extensions.Parse( parser );
 
-	if( gltf_parseVerbose.GetBool( ) )
+	if( gltf_parseVerbose.GetBool() )
 	{
-		common->Printf( "%s", token.c_str( ) );
+		common->Printf( "%s", token.c_str() );
 	}
 }
 
@@ -1096,14 +1126,14 @@ void gltfItem_texture_info_extensions::parse( idToken& token )
 	KHR_texture_transform->Set( item, parser );
 	extensions.Parse( parser );
 
-	if( gltf_parseVerbose.GetBool( ) )
+	if( gltf_parseVerbose.GetBool() )
 	{
-		common->Printf( "%s", token.c_str( ) );
+		common->Printf( "%s", token.c_str() );
 	}
 }
 
 
-void GLTF_Parser::Shutdown( )
+void GLTF_Parser::Shutdown()
 {
 	parser.FreeSource();
 	currentFile.FreeData();
@@ -1115,17 +1145,19 @@ void GLTF_Parser::Parse_ASSET( idToken& token )
 {
 	idStr section;
 	parser.ParseBracedSection( section );
-	common->Printf( "%s\n", section.c_str( ) );
+	common->Printf( "%s\n", section.c_str() );
 }
+
 void GLTF_Parser::Parse_SCENE( idToken& token )
 {
-	currentAsset->DefaultScene( ) = parser.ParseInt( );
+	currentAsset->DefaultScene() = parser.ParseInt();
 
-	if( gltf_parseVerbose.GetBool( ) )
+	if( gltf_parseVerbose.GetBool() )
 	{
-		common->Printf( " ^1 %s scene ^6 : ^8 %i", token.c_str( ), currentAsset->DefaultScene( ) );
+		common->Printf( " ^1 %s scene ^6 : ^8 %i", token.c_str(), currentAsset->DefaultScene() );
 	}
 }
+
 void GLTF_Parser::Parse_SCENES( idToken& token )
 {
 	gltfItemArray scene;
@@ -1137,8 +1169,8 @@ void GLTF_Parser::Parse_SCENES( idToken& token )
 	gltfPropertyArray array = gltfPropertyArray( &parser );
 	for( auto& prop : array )
 	{
-		idLexer lexer( LEXFL_ALLOWPATHNAMES | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_NOSTRINGESCAPECHARS | LEXFL_ALLOWPATHNAMES );
-		lexer.LoadMemory( prop.item.c_str( ), prop.item.Size( ), "gltfScene", 0 );
+		idLexer lexer( LEXFL_ALLOWPATHNAMES | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_NOSTRINGESCAPECHARS );
+		lexer.LoadMemory( prop.item.c_str(), prop.item.Size(), "gltfScene", 0 );
 
 		gltfScene* gltfscene = currentAsset->Scene();
 		nodes->Set( &gltfscene->nodes, &lexer );
@@ -1147,13 +1179,14 @@ void GLTF_Parser::Parse_SCENES( idToken& token )
 		extras->Set( &gltfscene->extras, &lexer );
 		scene.Parse( &lexer );
 
-		if( gltf_parseVerbose.GetBool( ) )
+		if( gltf_parseVerbose.GetBool() )
 		{
 			common->Printf( "%s", prop.item.c_str() );
 		}
 	}
 	parser.ExpectTokenString( "]" );
 }
+
 void GLTF_Parser::Parse_CAMERAS( idToken& token )
 {
 	gltfItemArray camera;
@@ -1167,10 +1200,10 @@ void GLTF_Parser::Parse_CAMERAS( idToken& token )
 	gltfPropertyArray array = gltfPropertyArray( &parser );
 	for( auto& prop : array )
 	{
-		idLexer lexer( LEXFL_ALLOWPATHNAMES | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_NOSTRINGESCAPECHARS | LEXFL_ALLOWPATHNAMES );
-		lexer.LoadMemory( prop.item.c_str( ), prop.item.Size( ), "gltfCamera", 0 );
+		idLexer lexer( LEXFL_ALLOWPATHNAMES | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_NOSTRINGESCAPECHARS );
+		lexer.LoadMemory( prop.item.c_str(), prop.item.Size(), "gltfCamera", 0 );
 
-		gltfCamera* item = currentAsset->Camera( );
+		gltfCamera* item = currentAsset->Camera();
 		orthographic->Set( &item->orthographic, &lexer );
 		perspective->Set( &item->perspective, &lexer );
 
@@ -1181,13 +1214,14 @@ void GLTF_Parser::Parse_CAMERAS( idToken& token )
 
 		camera.Parse( &lexer );
 
-		if( gltf_parseVerbose.GetBool( ) )
+		if( gltf_parseVerbose.GetBool() )
 		{
-			common->Printf( "%s", prop.item.c_str( ) );
+			common->Printf( "%s", prop.item.c_str() );
 		}
 	}
 	parser.ExpectTokenString( "]" );
 }
+
 void GLTF_Parser::Parse_NODES( idToken& token )
 {
 
@@ -1208,10 +1242,10 @@ void GLTF_Parser::Parse_NODES( idToken& token )
 	gltfPropertyArray array = gltfPropertyArray( &parser );
 	for( auto& prop : array )
 	{
-		idLexer lexer( LEXFL_ALLOWPATHNAMES | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_NOSTRINGESCAPECHARS | LEXFL_ALLOWPATHNAMES );
-		lexer.LoadMemory( prop.item.c_str( ), prop.item.Size( ), "gltfNode", 0 );
+		idLexer lexer( LEXFL_ALLOWPATHNAMES | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_NOSTRINGESCAPECHARS );
+		lexer.LoadMemory( prop.item.c_str(), prop.item.Size(), "gltfNode", 0 );
 
-		gltfNode* gltfnode = currentAsset->Node( );
+		gltfNode* gltfnode = currentAsset->Node();
 
 		GLTFARRAYITEMREF( gltfnode, camera );
 		matrix->Set( &gltfnode->matrix, &lexer );
@@ -1228,13 +1262,14 @@ void GLTF_Parser::Parse_NODES( idToken& token )
 		extras->Set( &gltfnode->extras, &lexer );
 		node.Parse( &lexer );
 
-		if( gltf_parseVerbose.GetBool( ) )
+		if( gltf_parseVerbose.GetBool() )
 		{
-			common->Printf( "%s", prop.item.c_str( ) );
+			common->Printf( "%s", prop.item.c_str() );
 		}
 	}
 	parser.ExpectTokenString( "]" );
 }
+
 void GLTF_Parser::Parse_MATERIALS( idToken& token )
 {
 	gltfItemArray material;
@@ -1253,10 +1288,10 @@ void GLTF_Parser::Parse_MATERIALS( idToken& token )
 	gltfPropertyArray array = gltfPropertyArray( &parser );
 	for( auto& prop : array )
 	{
-		idLexer lexer( LEXFL_ALLOWPATHNAMES | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_NOSTRINGESCAPECHARS | LEXFL_ALLOWPATHNAMES );
-		lexer.LoadMemory( prop.item.c_str( ), prop.item.Size( ), "gltfMaterial", 0 );
+		idLexer lexer( LEXFL_ALLOWPATHNAMES | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_NOSTRINGESCAPECHARS );
+		lexer.LoadMemory( prop.item.c_str(), prop.item.Size(), "gltfMaterial", 0 );
 
-		gltfMaterial* gltfmaterial = currentAsset->Material( );
+		gltfMaterial* gltfmaterial = currentAsset->Material();
 
 		pbrMetallicRoughness->Set( &gltfmaterial->pbrMetallicRoughness,	&lexer	);
 		normalTexture->Set( &gltfmaterial->normalTexture,			&lexer	);
@@ -1273,13 +1308,14 @@ void GLTF_Parser::Parse_MATERIALS( idToken& token )
 
 		gltfmaterial->intType = gltfMaterial::resolveAlphaMode( gltfmaterial->alphaMode );
 
-		if( gltf_parseVerbose.GetBool( ) )
+		if( gltf_parseVerbose.GetBool() )
 		{
-			common->Printf( "%s", prop.item.c_str( ) );
+			common->Printf( "%s", prop.item.c_str() );
 		}
 	}
 	parser.ExpectTokenString( "]" );
 }
+
 void GLTF_Parser::Parse_MESHES( idToken& token )
 {
 	gltfItemArray mesh;
@@ -1292,10 +1328,10 @@ void GLTF_Parser::Parse_MESHES( idToken& token )
 	gltfPropertyArray array = gltfPropertyArray( &parser );
 	for( auto& prop : array )
 	{
-		idLexer lexer( LEXFL_ALLOWPATHNAMES | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_NOSTRINGESCAPECHARS | LEXFL_ALLOWPATHNAMES );
-		lexer.LoadMemory( prop.item.c_str( ), prop.item.Size( ), "gltfMesh", 0 );
+		idLexer lexer( LEXFL_ALLOWPATHNAMES | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_NOSTRINGESCAPECHARS );
+		lexer.LoadMemory( prop.item.c_str(), prop.item.Size(), "gltfMesh", 0 );
 
-		gltfMesh* gltfmesh = currentAsset->Mesh( );
+		gltfMesh* gltfmesh = currentAsset->Mesh();
 
 		primitives->Set( &gltfmesh->primitives, &lexer );
 		weights->Set( &gltfmesh->weights, &lexer );
@@ -1303,13 +1339,14 @@ void GLTF_Parser::Parse_MESHES( idToken& token )
 		GLTFARRAYITEMREF( gltfmesh,  extensions );
 		extras->Set( &gltfmesh->extras, &lexer );
 		mesh.Parse( &lexer );
-		if( gltf_parseVerbose.GetBool( ) )
+		if( gltf_parseVerbose.GetBool() )
 		{
-			common->Printf( "%s", prop.item.c_str( ) );
+			common->Printf( "%s", prop.item.c_str() );
 		}
 	}
 	parser.ExpectTokenString( "]" );
 }
+
 void GLTF_Parser::Parse_TEXTURES( idToken& token )
 {
 	gltfItemArray texture;
@@ -1322,10 +1359,10 @@ void GLTF_Parser::Parse_TEXTURES( idToken& token )
 	gltfPropertyArray array = gltfPropertyArray( &parser );
 	for( auto& prop : array )
 	{
-		idLexer lexer( LEXFL_ALLOWPATHNAMES | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_NOSTRINGESCAPECHARS | LEXFL_ALLOWPATHNAMES );
-		lexer.LoadMemory( prop.item.c_str( ), prop.item.Size( ), "gltfTexture", 0 );
+		idLexer lexer( LEXFL_ALLOWPATHNAMES | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_NOSTRINGESCAPECHARS );
+		lexer.LoadMemory( prop.item.c_str(), prop.item.Size(), "gltfTexture", 0 );
 
-		gltfTexture* gltftexture = currentAsset->Texture( );
+		gltfTexture* gltftexture = currentAsset->Texture();
 
 		GLTFARRAYITEMREF( gltftexture,				sampler );
 		GLTFARRAYITEMREF( gltftexture,				source );
@@ -1334,13 +1371,14 @@ void GLTF_Parser::Parse_TEXTURES( idToken& token )
 		extras->Set( &gltftexture->extras,		&lexer );
 		texture.Parse( &lexer );
 
-		if( gltf_parseVerbose.GetBool( ) )
+		if( gltf_parseVerbose.GetBool() )
 		{
-			common->Printf( "%s", prop.item.c_str( ) );
+			common->Printf( "%s", prop.item.c_str() );
 		}
 	}
 	parser.ExpectTokenString( "]" );
 }
+
 void GLTF_Parser::Parse_IMAGES( idToken& token )
 {
 	//reference impl
@@ -1362,7 +1400,7 @@ void GLTF_Parser::Parse_IMAGES( idToken& token )
 
 	for( auto& prop : array )
 	{
-		idLexer lexer( LEXFL_ALLOWPATHNAMES | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_NOSTRINGESCAPECHARS | LEXFL_ALLOWPATHNAMES );
+		idLexer lexer( LEXFL_ALLOWPATHNAMES | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_NOSTRINGESCAPECHARS );
 		lexer.LoadMemory( prop.item.c_str(), prop.item.Size(), "gltfImage", 0 );
 
 		gltfImage* image = currentAsset->Image();
@@ -1374,9 +1412,9 @@ void GLTF_Parser::Parse_IMAGES( idToken& token )
 		extras->Set( &image->extras, &lexer );
 		propItems.Parse( &lexer );
 
-		if( gltf_parseVerbose.GetBool( ) )
+		if( gltf_parseVerbose.GetBool() )
 		{
-			common->Printf( "%s", prop.item.c_str( ) );
+			common->Printf( "%s", prop.item.c_str() );
 		}
 
 		//automate..
@@ -1384,6 +1422,7 @@ void GLTF_Parser::Parse_IMAGES( idToken& token )
 	}
 	parser.ExpectTokenString( "]" );
 }
+
 void GLTF_Parser::Parse_ACCESSORS( idToken& token )
 {
 	gltfItemArray accessor;
@@ -1403,8 +1442,8 @@ void GLTF_Parser::Parse_ACCESSORS( idToken& token )
 	gltfPropertyArray array = gltfPropertyArray( &parser );
 	for( auto& prop : array )
 	{
-		idLexer lexer( LEXFL_ALLOWPATHNAMES | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_NOSTRINGESCAPECHARS | LEXFL_ALLOWPATHNAMES );
-		lexer.LoadMemory( prop.item.c_str( ), prop.item.Size( ), "gltfAccessor", 0 );
+		idLexer lexer( LEXFL_ALLOWPATHNAMES | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_NOSTRINGESCAPECHARS );
+		lexer.LoadMemory( prop.item.c_str(), prop.item.Size(), "gltfAccessor", 0 );
 
 		gltfAccessor* item = currentAsset->Accessor();
 		GLTFARRAYITEMREF( item, bufferView );
@@ -1423,13 +1462,14 @@ void GLTF_Parser::Parse_ACCESSORS( idToken& token )
 
 		GetComponentTypeEnum( item->componentType, &item->typeSize );
 
-		if( gltf_parseVerbose.GetBool( ) )
+		if( gltf_parseVerbose.GetBool() )
 		{
-			common->Printf( "%s", prop.item.c_str( ) );
+			common->Printf( "%s", prop.item.c_str() );
 		}
 	}
 	parser.ExpectTokenString( "]" );
 }
+
 void GLTF_Parser::Parse_BUFFERVIEWS( idToken& token )
 {
 	gltfItemArray bv;
@@ -1445,8 +1485,8 @@ void GLTF_Parser::Parse_BUFFERVIEWS( idToken& token )
 	gltfPropertyArray array = gltfPropertyArray( &parser );
 	for( auto& prop : array )
 	{
-		idLexer lexer( LEXFL_ALLOWPATHNAMES | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_NOSTRINGESCAPECHARS | LEXFL_ALLOWPATHNAMES );
-		lexer.LoadMemory( prop.item.c_str( ), prop.item.Size( ), "gltfBufferView", 0 );
+		idLexer lexer( LEXFL_ALLOWPATHNAMES | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_NOSTRINGESCAPECHARS );
+		lexer.LoadMemory( prop.item.c_str(), prop.item.Size(), "gltfBufferView", 0 );
 
 		gltfBufferView* gltfBV = currentAsset->BufferView();
 		GLTFARRAYITEMREF( gltfBV, buffer	);
@@ -1462,11 +1502,12 @@ void GLTF_Parser::Parse_BUFFERVIEWS( idToken& token )
 
 		if( gltf_parseVerbose.GetBool() )
 		{
-			common->Printf( "%s", prop.item.c_str( ) );
+			common->Printf( "%s", prop.item.c_str() );
 		}
 	}
 	parser.ExpectTokenString( "]" );
 }
+
 void GLTF_Parser::Parse_SAMPLERS( idToken& token )
 {
 	gltfItemArray sampl;
@@ -1481,8 +1522,8 @@ void GLTF_Parser::Parse_SAMPLERS( idToken& token )
 	gltfPropertyArray array = gltfPropertyArray( &parser );
 	for( auto& prop : array )
 	{
-		idLexer lexer( LEXFL_ALLOWPATHNAMES | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_NOSTRINGESCAPECHARS | LEXFL_ALLOWPATHNAMES );
-		lexer.LoadMemory( prop.item.c_str( ), prop.item.Size( ), "gltfSampler", 0 );
+		idLexer lexer( LEXFL_ALLOWPATHNAMES | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_NOSTRINGESCAPECHARS );
+		lexer.LoadMemory( prop.item.c_str(), prop.item.Size(), "gltfSampler", 0 );
 
 		gltfSampler* gltfSampl = currentAsset->Sampler();
 		GLTFARRAYITEMREF( gltfSampl, magFilter );
@@ -1496,11 +1537,12 @@ void GLTF_Parser::Parse_SAMPLERS( idToken& token )
 
 		if( gltf_parseVerbose.GetBool() )
 		{
-			common->Printf( "%s", prop.item.c_str( ) );
+			common->Printf( "%s", prop.item.c_str() );
 		}
 	}
 	parser.ExpectTokenString( "]" );
 }
+
 void GLTF_Parser::Parse_BUFFERS( idToken& token )
 {
 	gltfItemArray buf;
@@ -1513,10 +1555,10 @@ void GLTF_Parser::Parse_BUFFERS( idToken& token )
 	gltfPropertyArray array = gltfPropertyArray( &parser );
 	for( auto& prop : array )
 	{
-		idLexer lexer( LEXFL_ALLOWPATHNAMES | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_NOSTRINGESCAPECHARS | LEXFL_ALLOWPATHNAMES );
-		lexer.LoadMemory( prop.item.c_str( ), prop.item.Size( ), "gltfBuffer", 0 );
+		idLexer lexer( LEXFL_ALLOWPATHNAMES | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_NOSTRINGESCAPECHARS );
+		lexer.LoadMemory( prop.item.c_str(), prop.item.Size(), "gltfBuffer", 0 );
 
-		gltfBuffer* gltfBuf = currentAsset->Buffer( );
+		gltfBuffer* gltfBuf = currentAsset->Buffer();
 		gltfBuf->parent = currentAsset;
 
 		uri->Set( &gltfBuf->uri, nullptr , currentAsset );
@@ -1525,13 +1567,14 @@ void GLTF_Parser::Parse_BUFFERS( idToken& token )
 		GLTFARRAYITEMREF( gltfBuf, extensions );
 		extras->Set( &gltfBuf->extras, &lexer );
 		buf.Parse( &lexer );
-		if( gltf_parseVerbose.GetBool( ) )
+		if( gltf_parseVerbose.GetBool() )
 		{
-			common->Printf( "%s", prop.item.c_str( ) );
+			common->Printf( "%s", prop.item.c_str() );
 		}
 	}
 	parser.ExpectTokenString( "]" );
 }
+
 void GLTF_Parser::Parse_ANIMATIONS( idToken& token )
 {
 	gltfItemArray anim;
@@ -1544,10 +1587,10 @@ void GLTF_Parser::Parse_ANIMATIONS( idToken& token )
 	gltfPropertyArray array = gltfPropertyArray( &parser );
 	for( auto& prop : array )
 	{
-		idLexer lexer( LEXFL_ALLOWPATHNAMES | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_NOSTRINGESCAPECHARS | LEXFL_ALLOWPATHNAMES );
-		lexer.LoadMemory( prop.item.c_str( ), prop.item.Size( ), "gltfAnimation", 0 );
+		idLexer lexer( LEXFL_ALLOWPATHNAMES | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_NOSTRINGESCAPECHARS );
+		lexer.LoadMemory( prop.item.c_str(), prop.item.Size(), "gltfAnimation", 0 );
 
-		gltfAnimation* gltfanim = currentAsset->Animation( );
+		gltfAnimation* gltfanim = currentAsset->Animation();
 
 		channels->Set( &gltfanim->channels, &lexer );
 		samplers->Set( &gltfanim->samplers, &lexer );
@@ -1556,15 +1599,14 @@ void GLTF_Parser::Parse_ANIMATIONS( idToken& token )
 		extras->Set( &gltfanim->extras, &lexer );
 		anim.Parse( &lexer );
 
-		if( gltf_parseVerbose.GetBool( ) )
+		if( gltf_parseVerbose.GetBool() )
 		{
-			common->Printf( "%s", prop.item.c_str( ) );
+			common->Printf( "%s", prop.item.c_str() );
 		}
 	}
 	parser.ExpectTokenString( "]" );
-
-
 }
+
 void GLTF_Parser::Parse_SKINS( idToken& token )
 {
 	gltfItemArray skin;
@@ -1578,10 +1620,10 @@ void GLTF_Parser::Parse_SKINS( idToken& token )
 	gltfPropertyArray array = gltfPropertyArray( &parser );
 	for( auto& prop : array )
 	{
-		idLexer lexer( LEXFL_ALLOWPATHNAMES | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_NOSTRINGESCAPECHARS | LEXFL_ALLOWPATHNAMES );
-		lexer.LoadMemory( prop.item.c_str( ), prop.item.Size( ), "gltfSkin", 0 );
+		idLexer lexer( LEXFL_ALLOWPATHNAMES | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_NOSTRINGESCAPECHARS );
+		lexer.LoadMemory( prop.item.c_str(), prop.item.Size(), "gltfSkin", 0 );
 
-		gltfSkin* gltfSkin = currentAsset->Skin( );
+		gltfSkin* gltfSkin = currentAsset->Skin();
 
 		GLTFARRAYITEMREF( gltfSkin, inverseBindMatrices );
 		GLTFARRAYITEMREF( gltfSkin, skeleton );
@@ -1591,13 +1633,14 @@ void GLTF_Parser::Parse_SKINS( idToken& token )
 		extras->Set( &gltfSkin->extras, &lexer );
 		skin.Parse( &lexer );
 
-		if( gltf_parseVerbose.GetBool( ) )
+		if( gltf_parseVerbose.GetBool() )
 		{
-			common->Printf( "%s", prop.item.c_str( ) );
+			common->Printf( "%s", prop.item.c_str() );
 		}
 	}
 	parser.ExpectTokenString( "]" );
 }
+
 void GLTF_Parser::Parse_EXTENSIONS( idToken& token )
 {
 	idStr json;
@@ -1607,32 +1650,34 @@ void GLTF_Parser::Parse_EXTENSIONS( idToken& token )
 	//GLTFARRAYITEM( extensions, KHR_materials_pbrSpecularGlossiness, gltfItem_KHR_materials_pbrSpecularGlossiness );
 	GLTFARRAYITEM( extensions, KHR_lights_punctual, gltfItem_KHR_lights_punctual );
 
-	idLexer lexer( LEXFL_ALLOWPATHNAMES | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_NOSTRINGESCAPECHARS | LEXFL_ALLOWPATHNAMES );
-	lexer.LoadMemory( json.c_str( ), json.Size( ), "Extensions", 0 );
+	idLexer lexer( LEXFL_ALLOWPATHNAMES | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_NOSTRINGESCAPECHARS );
+	lexer.LoadMemory( json.c_str(), json.Size(), "Extensions", 0 );
 	gltfExtensions* gltfextension = currentAsset->Extensions();
 	//KHR_materials_pbrSpecularGlossiness->Set( &gltfextensions, &lexer );
 	KHR_lights_punctual->Set( gltfextension, &lexer );
 	extensions.Parse( &lexer );
 
-	if( gltf_parseVerbose.GetBool( ) )
+	if( gltf_parseVerbose.GetBool() )
 	{
-		common->Printf( "%s", json.c_str( ) );
+		common->Printf( "%s", json.c_str() );
 	}
 }
+
 void GLTF_Parser::Parse_EXTENSIONS_USED( idToken& token )
 {
 	gltfPropertyArray array = gltfPropertyArray( &parser, false );
 	for( auto& prop : array )
 	{
-		gltfExtensionsUsed* ext = currentAsset->ExtensionsUsed( );
+		gltfExtensionsUsed* ext = currentAsset->ExtensionsUsed();
 		ext->extension = prop.item;
-		if( gltf_parseVerbose.GetBool( ) )
+		if( gltf_parseVerbose.GetBool() )
 		{
-			common->Printf( "%s", prop.item.c_str( ) );
+			common->Printf( "%s", prop.item.c_str() );
 		}
 	}
 	parser.ExpectTokenString( "]" );
 }
+
 void GLTF_Parser::Parse_EXTENSIONS_REQUIRED( idToken& token )
 {
 	parser.ExpectTokenString( "[" );
@@ -1645,8 +1690,8 @@ void GLTF_Parser::Parse_EXTENSIONS_REQUIRED( idToken& token )
 		{
 			common->FatalError( "malformed extensions_used array" );
 		}
-		idStr& extension = exts.Alloc( );
-		extension = item.c_str( );
+		idStr& extension = exts.Alloc();
+		extension = item.c_str();
 		parsing = parser.PeekTokenString( "," );
 		if( parsing )
 		{
@@ -1656,7 +1701,7 @@ void GLTF_Parser::Parse_EXTENSIONS_REQUIRED( idToken& token )
 	parser.ExpectTokenString( "]" );
 	for( auto& out : exts )
 	{
-		common->Printf( "%s", out.c_str( ) );
+		common->Printf( "%s", out.c_str() );
 	}
 }
 
@@ -1679,7 +1724,7 @@ gltfProperty GLTF_Parser::ParseProp( idToken& token )
 			return prop;
 		}
 		skipping = true;
-		if( gltf_parseVerbose.GetBool( ) )
+		if( gltf_parseVerbose.GetBool() )
 		{
 			common->DPrintf( "Searching for buffer tag. Skipping %s.", token.c_str() );
 		}
@@ -1689,9 +1734,9 @@ gltfProperty GLTF_Parser::ParseProp( idToken& token )
 		if( ( prop == BUFFERS && buffersDone )  || ( prop == BUFFERVIEWS && bufferViewsDone ) )
 		{
 			skipping = true;
-			if( gltf_parseVerbose.GetBool( ) )
+			if( gltf_parseVerbose.GetBool() )
 			{
-				common->DPrintf( "Skipping %s , already done.", token.c_str( ) );
+				common->DPrintf( "Skipping %s , already done.", token.c_str() );
 			}
 		}
 	}
@@ -1788,77 +1833,78 @@ gltfProperty GLTF_Parser::ParseProp( idToken& token )
 	}
 	return prop;
 }
+
 gltfProperty GLTF_Parser::ResolveProp( idToken& token )
 {
-	if( !idStr::Icmp( token.c_str( ), "asset"	) )
+	if( !idStr::Icmp( token.c_str(), "asset"	) )
 	{
 		return gltfProperty::ASSET;
 	}
-	else if( !idStr::Icmp( token.c_str( ), "cameras"	) )
+	else if( !idStr::Icmp( token.c_str(), "cameras"	) )
 	{
 		return gltfProperty::CAMERAS;
 	}
-	else if( !idStr::Icmp( token.c_str( ), "scene"	) )
+	else if( !idStr::Icmp( token.c_str(), "scene"	) )
 	{
 		return gltfProperty::SCENE;
 	}
-	else if( !idStr::Icmp( token.c_str( ), "scenes"	) )
+	else if( !idStr::Icmp( token.c_str(), "scenes"	) )
 	{
 		return gltfProperty::SCENES;
 	}
-	else if( !idStr::Icmp( token.c_str( ), "nodes"	) )
+	else if( !idStr::Icmp( token.c_str(), "nodes"	) )
 	{
 		return gltfProperty::NODES;
 	}
-	else if( !idStr::Icmp( token.c_str( ), "materials"	) )
+	else if( !idStr::Icmp( token.c_str(), "materials"	) )
 	{
 		return gltfProperty::MATERIALS;
 	}
-	else if( !idStr::Icmp( token.c_str( ), "meshes"	) )
+	else if( !idStr::Icmp( token.c_str(), "meshes"	) )
 	{
 		return gltfProperty::MESHES;
 	}
-	else if( !idStr::Icmp( token.c_str( ), "textures"	) )
+	else if( !idStr::Icmp( token.c_str(), "textures"	) )
 	{
 		return gltfProperty::TEXTURES;
 	}
-	else if( !idStr::Icmp( token.c_str( ), "images"	) )
+	else if( !idStr::Icmp( token.c_str(), "images"	) )
 	{
 		return gltfProperty::IMAGES;
 	}
-	else if( !idStr::Icmp( token.c_str( ), "accessors"	) )
+	else if( !idStr::Icmp( token.c_str(), "accessors"	) )
 	{
 		return gltfProperty::ACCESSORS;
 	}
-	else if( !idStr::Icmp( token.c_str( ), "bufferViews"	) )
+	else if( !idStr::Icmp( token.c_str(), "bufferViews"	) )
 	{
 		return gltfProperty::BUFFERVIEWS;
 	}
-	else if( !idStr::Icmp( token.c_str( ), "samplers"	) )
+	else if( !idStr::Icmp( token.c_str(), "samplers"	) )
 	{
 		return gltfProperty::SAMPLERS;
 	}
-	else if( !idStr::Icmp( token.c_str( ), "buffers"	) )
+	else if( !idStr::Icmp( token.c_str(), "buffers"	) )
 	{
 		return gltfProperty::BUFFERS;
 	}
-	else if( !idStr::Icmp( token.c_str( ), "animations"	) )
+	else if( !idStr::Icmp( token.c_str(), "animations"	) )
 	{
 		return gltfProperty::ANIMATIONS;
 	}
-	else if( !idStr::Icmp( token.c_str( ), "skins"	) )
+	else if( !idStr::Icmp( token.c_str(), "skins"	) )
 	{
 		return gltfProperty::SKINS;
 	}
-	else if( !idStr::Icmp( token.c_str( ), "extensions"	) )
+	else if( !idStr::Icmp( token.c_str(), "extensions"	) )
 	{
 		return gltfProperty::EXTENSIONS;
 	}
-	else if( !idStr::Icmp( token.c_str( ), "extensionsused"	) )
+	else if( !idStr::Icmp( token.c_str(), "extensionsused"	) )
 	{
 		return gltfProperty::EXTENSIONS_USED;
 	}
-	else if( !idStr::Icmp( token.c_str( ), "extensionsrequired" ) )
+	else if( !idStr::Icmp( token.c_str(), "extensionsrequired" ) )
 	{
 		return gltfProperty::EXTENSIONS_REQUIRED;
 	}
@@ -1923,7 +1969,7 @@ bool GLTF_Parser::loadGLB( idStr filename )
 		length -= read;
 		if( chunk_type == gltfChunk_Type_JSON )
 		{
-			currentFile = filename + "[JSON CHUNK]";
+			currentFile = filename ;
 			parser.LoadMemory( ( const char* )data, chunk_length, "gltfJson", 0 );
 		}
 		else if( !chunkCount )
@@ -1941,10 +1987,11 @@ bool GLTF_Parser::loadGLB( idStr filename )
 	}
 
 	Parse();
+	delete file;
 	return true;
 }
 
-bool GLTF_Parser::Parse( )
+bool GLTF_Parser::Parse()
 {
 	bool parsing = true;
 	parser.ExpectTokenString( "{" );
@@ -1955,9 +2002,9 @@ bool GLTF_Parser::Parse( )
 			common->FatalError( "Expected an \"string\" " );
 		}
 
-		if( gltf_parseVerbose.GetBool( ) )
+		if( gltf_parseVerbose.GetBool() )
 		{
-			common->Printf( token.c_str( ) );
+			common->Printf( token.c_str() );
 		}
 		gltfProperty prop = ParseProp( token );
 
@@ -1970,12 +2017,12 @@ bool GLTF_Parser::Parse( )
 		}
 		if( ( prop == BUFFERVIEWS && !bufferViewsDone ) )
 		{
-			parser.Reset( );
+			parser.Reset();
 			parser.ExpectTokenString( "{" );
 			bufferViewsDone = true;
 			continue;
 		}
-		if( gltf_parseVerbose.GetBool( ) )
+		if( gltf_parseVerbose.GetBool() )
 		{
 			common->Printf( "\n" );
 		}
@@ -1999,7 +2046,7 @@ bool GLTF_Parser::Parse( )
 					common->Printf( "no %s found", "bufferviews" );
 					bufferViewsDone = true;
 				}
-				parser.Reset( );
+				parser.Reset();
 				parser.ExpectTokenString( "{" );
 				parsing = true;
 				continue;
@@ -2011,9 +2058,9 @@ bool GLTF_Parser::Parse( )
 	}
 	//parser should be at end.
 	parser.ReadToken( &token );
-	if( parser.EndOfFile( ) )
+	if( parser.EndOfFile() )
 	{
-		common->Printf( "%s ^2loaded\n", currentFile.c_str( ) );
+		common->Printf( "%s ^2loaded\n", currentFile.c_str() );
 	}
 	else
 	{
@@ -2088,8 +2135,8 @@ bool GLTF_Parser::Load( idStr filename )
 	common->SetRefreshOnPrint( false );
 
 	//fix up node hierarchy
-	auto& nodeList = currentAsset->NodeList( );
-	for( auto& scene : currentAsset->SceneList( ) )
+	auto& nodeList = currentAsset->NodeList();
+	for( auto& scene : currentAsset->SceneList() )
 		for( auto& node : scene->nodes )
 		{
 			SetNodeParent( nodeList[node] );
@@ -2115,184 +2162,6 @@ void GLTF_Parser::SetNodeParent( gltfNode* node, gltfNode* parent )
 	}
 }
 
-/*
-void GLTF_Parser::CreateBgfxData( )
-{
-	//buffers
-	for ( auto mesh : currentAsset->MeshList( ) )
-	{
-		for ( auto prim : mesh->primitives )
-		{
-			//gltfAccessor -> idList<acessorType*>;
-			//vertex indices accessor
-			gltfAccessor * accessor = currentAsset->AccessorList( )[prim->indices];
-			gltfBufferView *bv = currentAsset->BufferViewList( )[accessor->bufferView];
-			gltfData *data = bv->parent;
-
-			gltfBuffer *buff = data->BufferList( )[bv->buffer];
-			uint idxDataSize = sizeof( uint ) * accessor->count;
-			uint * indices = ( uint *)Mem_ClearedAlloc( idxDataSize );
-
-			idFile_Memory idxBin = idFile_Memory( "gltfChunkIndices",
-				( const char * ) ((data->GetData( bv->buffer ) + bv->byteOffset + accessor->byteOffset )), bv->byteLength );
-
-			for ( int i = 0; i < accessor->count; i++ ) {
-				idxBin.Read( ( void * ) ( &indices[i] ), accessor->typeSize );
-				if ( bv->byteStride )
-					idxBin.Seek( bv->byteStride - accessor->typeSize, FS_SEEK_CUR );
-			}
-			prim->indexBufferHandle = bgfx::createIndexBuffer(bgfx::copy( indices,idxDataSize ),BGFX_BUFFER_INDEX32);
-
-			Mem_Free( indices );
-
-			//vertex attribs
-			pbrVertex * vtxData = NULL;
-			uint vtxDataSize = 0;
-			bgfx::VertexLayout vtxLayout;
-
-			for ( auto & attrib : prim->attributes )
-			{
-				gltfAccessor * attrAcc = currentAsset->AccessorList( )[attrib->accessorIndex];
-				gltfBufferView *attrBv = currentAsset->BufferViewList( )[attrAcc->bufferView];
-				gltfData *attrData = attrBv->parent;
-				gltfBuffer *attrbuff = attrData->BufferList( )[attrBv->buffer];
-
-				idFile_Memory bin = idFile_Memory( "gltfChunkVertices",
-					( const char * )(( attrData->GetData( attrBv->buffer ) + attrBv->byteOffset + attrAcc->byteOffset )) , attrBv->byteLength );
-
-				if ( vtxData == nullptr ) {
-					vtxDataSize = sizeof( pbrVertex ) * attrAcc->count;
-					vtxData = ( pbrVertex * ) Mem_ClearedAlloc( vtxDataSize );
-				}
-
-				switch  (attrib->bgfxType)
-				{
-					case bgfx::Attrib::Enum::Position : {
-						for ( int i = 0; i < attrAcc->count; i++ ) {
-							bin.Read( ( void * ) ( &vtxData[i].pos.x ), attrAcc->typeSize );
-							bin.Read( ( void * ) ( &vtxData[i].pos.y ), attrAcc->typeSize );
-							bin.Read( ( void * ) ( &vtxData[i].pos.z ), attrAcc->typeSize );
-							if ( attrBv->byteStride )
-								bin.Seek( attrBv->byteStride - ( 3 * attrAcc->typeSize ), FS_SEEK_CUR );
-
-							idRandom rnd( i );
-							int r = rnd.RandomInt( 255 ), g = rnd.RandomInt( 255 ), b = rnd.RandomInt( 255 );
-
-							//vtxData[i].abgr = 0xff000000 + ( b << 16 ) + ( g << 8 ) + r;
-						}
-
-						break;
-					}
-					case bgfx::Attrib::Enum::Normal : {
-						for ( int i = 0; i < attrAcc->count; i++ ) {
-							bin.Read( ( void * ) ( &vtxData[i].normal.x ), attrAcc->typeSize );
-							bin.Read( ( void * ) ( &vtxData[i].normal.y ), attrAcc->typeSize );
-							bin.Read( ( void * ) ( &vtxData[i].normal.z ), attrAcc->typeSize );
-							if ( attrBv->byteStride )
-								bin.Seek( attrBv->byteStride - ( attrib->elementSize * attrAcc->typeSize ), FS_SEEK_CUR );
-						}
-
-						break;
-					}
-					case bgfx::Attrib::Enum::TexCoord0:{
-						for ( int i = 0; i < attrAcc->count; i++ ) {
-							bin.Read( ( void * ) ( &vtxData[i].uv.x ), attrAcc->typeSize );
-							bin.Read( ( void * ) ( &vtxData[i].uv.y ), attrAcc->typeSize );
-							if ( attrBv->byteStride )
-								bin.Seek( attrBv->byteStride - ( attrib->elementSize * attrAcc->typeSize ), FS_SEEK_CUR );
-						}
-
-						break;
-					}
-					case bgfx::Attrib::Enum::Tangent:
-					{
-						for ( int i = 0; i < attrAcc->count; i++ ) {
-							bin.Read( ( void * ) ( &vtxData[i].tangent.x ), attrAcc->typeSize );
-							bin.Read( ( void * ) ( &vtxData[i].tangent.y ), attrAcc->typeSize );
-							bin.Read( ( void * ) ( &vtxData[i].tangent.z ), attrAcc->typeSize );
-							bin.Read( ( void * ) ( &vtxData[i].tangent.w ), attrAcc->typeSize );
-							if ( attrBv->byteStride )
-								bin.Seek( attrBv->byteStride - ( attrib->elementSize * attrAcc->typeSize ), FS_SEEK_CUR );
-						}
-						break;
-					}
-					case bgfx::Attrib::Enum::Weight:
-					{
-						for ( int i = 0; i < attrAcc->count; i++ ) {
-							bin.Read( ( void * ) ( &vtxData[i].weight.x ), attrAcc->typeSize );
-							bin.Read( ( void * ) ( &vtxData[i].weight.y ), attrAcc->typeSize );
-							bin.Read( ( void * ) ( &vtxData[i].weight.z ), attrAcc->typeSize );
-							bin.Read( ( void * ) ( &vtxData[i].weight.w ), attrAcc->typeSize );
-							if ( attrBv->byteStride )
-								bin.Seek( attrBv->byteStride - ( attrib->elementSize * attrAcc->typeSize ), FS_SEEK_CUR );
-						}
-						break;
-					}
-
-					case bgfx::Attrib::Enum::Indices:
-					{
-						for ( int i = 0; i < attrAcc->count; i++ ) {
-							bin.Read( ( void * ) ( &vtxData[i].boneIndex.x ), attrAcc->typeSize );
-							bin.Read( ( void * ) ( &vtxData[i].boneIndex.y ), attrAcc->typeSize );
-							bin.Read( ( void * ) ( &vtxData[i].boneIndex.z ), attrAcc->typeSize );
-							bin.Read( ( void * ) ( &vtxData[i].boneIndex.w ), attrAcc->typeSize );
-							if ( attrBv->byteStride )
-								bin.Seek( attrBv->byteStride - ( attrib->elementSize * attrAcc->typeSize ), FS_SEEK_CUR );
-						}
-						break;
-					}
-				}
-			}
-
-			vtxLayout.begin( )
-				.add( bgfx::Attrib::Position,	3, bgfx::AttribType::Float )
-				.add( bgfx::Attrib::Normal,		3, bgfx::AttribType::Float )
-				.add( bgfx::Attrib::Tangent,	4, bgfx::AttribType::Float )
-				.add( bgfx::Attrib::TexCoord0,	2, bgfx::AttribType::Float )
-				.add( bgfx::Attrib::Weight,		4, bgfx::AttribType::Float,true )
-				.add( bgfx::Attrib::Indices,	4, bgfx::AttribType::Uint8,false,true )
-				//.add( bgfx::Attrib::Color0, 4, bgfx::AttribType::Uint8, true )
-				.end( );
-			vtxLayout.end();
-			if ( vtxData != NULL ) {
-				prim->vertexBufferHandle = bgfx::createVertexBuffer(
-					bgfx::copy( vtxData, vtxDataSize ), vtxLayout );
-
-				Mem_Free( vtxData );
-			}else
-				common->FatalError("Failed to read vertex info" );
-		}
-	}
-
-	auto & samplerList = currentAsset->SamplerList( );
-	//Samplers -> this should move to read/parse sampler call
-	for ( auto &sampler : samplerList )
-		sampler->bgfxSamplerFlags = GetSamplerFlags(sampler);
-
-	auto & imgList = currentAsset->ImageList( );
-	//textures
-	for ( auto &texture : currentAsset->TextureList( ) )
-	{
-		auto * image = imgList[texture->source];
-		if ( image->bgfxTexture.handle.idx == UINT16_MAX ) {
-			gltfBufferView *bv = currentAsset->BufferViewList( )[image->bufferView];
-			gltfData *data = bv->parent;
-			gltfBuffer *buff = data->BufferList( )[bv->buffer];
-
-			//image->bgfxTexture = bgfxImageLoad(data->GetData(bv->buffer) + bv->byteOffset,bv->byteLength );
-			bgfxImageLoadAsync( data->GetData( bv->buffer ) + bv->byteOffset, bv->byteLength, &image->bgfxTexture, samplerList[texture->sampler]->bgfxSamplerFlags );
-		}
-
-	}
-
-	idList<gltfArticulatedFigure*> afs;
-	//AF
-	for (auto * skin : currentAsset->SkinList() ){
-		afs.Alloc() = new gltfArticulatedFigure(skin,currentAsset);
-	}
-}
-*/
-
 idList<float>& gltfData::GetAccessorView( gltfAccessor* accessor )
 {
 	idList<float>*& floatView = accessor->floatView;;
@@ -2301,7 +2170,7 @@ idList<float>& gltfData::GetAccessorView( gltfAccessor* accessor )
 	{
 		gltfBufferView* attrBv = bufferViews[accessor->bufferView];
 		gltfData* attrData = attrBv->parent;
-		gltfBuffer* attrbuff = attrData->BufferList( )[attrBv->buffer];
+		gltfBuffer* attrbuff = attrData->BufferList()[attrBv->buffer];
 		assert( sizeof( float ) == accessor->typeSize );
 
 		idFile_Memory bin = idFile_Memory( "GetAccessorView(float)",
@@ -2328,7 +2197,7 @@ idList<idMat4>& gltfData::GetAccessorViewMat( gltfAccessor* accessor )
 	{
 		gltfBufferView* attrBv = bufferViews[accessor->bufferView];
 		gltfData* attrData = attrBv->parent;
-		gltfBuffer* attrbuff = attrData->BufferList( )[attrBv->buffer];
+		gltfBuffer* attrbuff = attrData->BufferList()[attrBv->buffer];
 		assert( sizeof( float ) == accessor->typeSize );
 
 		idFile_Memory bin = idFile_Memory( "GetAccessorView(idMat4*)",
@@ -2359,7 +2228,7 @@ idList<idVec3*>& gltfData::GetAccessorView( gltfAccessor* accessor )
 	{
 		gltfBufferView* attrBv = bufferViews[accessor->bufferView];
 		gltfData* attrData = attrBv->parent;
-		gltfBuffer* attrbuff = attrData->BufferList( )[attrBv->buffer];
+		gltfBuffer* attrbuff = attrData->BufferList()[attrBv->buffer];
 		assert( sizeof( float ) == accessor->typeSize );
 
 		idFile_Memory bin = idFile_Memory( "GetAccessorView(idVec3*)",
@@ -2391,7 +2260,7 @@ idList<idQuat*>& gltfData::GetAccessorView( gltfAccessor* accessor )
 	{
 		gltfBufferView* attrBv = bufferViews[accessor->bufferView];
 		gltfData* attrData = attrBv->parent;
-		gltfBuffer* attrbuff = attrData->BufferList( )[attrBv->buffer];
+		gltfBuffer* attrbuff = attrData->BufferList()[attrBv->buffer];
 		assert( sizeof( float ) == accessor->typeSize );
 
 		idFile_Memory bin = idFile_Memory( "GetAccessorView(idQuat*)",
@@ -2439,10 +2308,62 @@ GLTF_Parser* gltfParser = &localGltfParser;
 CONSOLE_COMMAND_COMPILE( LoadGLTF, "Loads an .gltf or .glb file", idCmdSystem::ArgCompletion_MapName )
 {
 
-	if( args.Argc( ) > 1 )
+	if( args.Argc() > 1 )
 	{
 		gltfParser->Load( args.Argv( 1 ) );
 	}
 
 }
 //+set r_fullscreen 0 +set com_allowConsole 1 +set developer 1 +set fs_debug 0 +set win_outputDebugString 1 +set fs_basepath "E:\SteamLibrary\steamapps\common\DOOM 3 BFG Edition\"
+
+
+//  not dots allowed in [%s]!
+// [filename].[%i|%s].[gltf/glb]
+bool gltfManager::ExtractMeshIdentifier( idStr& filename, int& meshId, idStr& meshName )
+{
+	idStr extension;
+	idStr meshStr;
+	filename.ExtractFileExtension( extension );
+	idStr file = filename;
+	file = file.StripFileExtension();
+	file.ExtractFileExtension( meshStr );
+
+	if( !extension.Length() )
+	{
+		idLib::Warning( "no gltf mesh identifier" );
+		return false;
+	}
+
+	if( meshStr.Length() )
+	{
+		filename = file.Left( file.Length() - meshStr.Length() - 1 ) + "." + extension;
+
+		idParser	parser( LEXFL_ALLOWPATHNAMES | LEXFL_NOSTRINGESCAPECHARS );
+		parser.LoadMemory( meshStr.c_str(), meshStr.Size(), "model:GltfmeshID" );
+
+		idToken token;
+		if( parser.ExpectAnyToken( &token ) )
+		{
+			if( ( token.type == TT_NUMBER ) && ( token.subtype & TT_INTEGER ) )
+			{
+				meshId = token.GetIntValue();
+			}
+			else if( token.type == TT_NAME )
+			{
+				meshName = token;
+			}
+			else
+			{
+				parser.Warning( "malformed gltf mesh identifier" );
+				return false;
+			}
+			return true;
+		}
+		else
+		{
+			parser.Warning( "malformed gltf mesh identifier" );
+		}
+	}
+
+	return false;
+}

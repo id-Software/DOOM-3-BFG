@@ -178,7 +178,7 @@ void idRenderModelStatic::List() const
 		totalTris += surf->geometry->numIndexes / 3;
 		totalVerts += surf->geometry->numVerts;
 	}
-	common->Printf( "%c%4ik %3i %4i %4i %s", closed, totalBytes / 1024, NumSurfaces(), totalVerts, totalTris, Name() );
+	common->Printf( "%c%4ik %3i %4i %4i '%s'", closed, totalBytes / 1024, NumSurfaces(), totalVerts, totalTris, Name() );
 
 	if( IsDynamicModel() == DM_CACHED )
 	{

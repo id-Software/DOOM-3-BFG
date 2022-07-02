@@ -489,7 +489,7 @@ public:
 
 	void					SetCamera( idCamera* cam );
 	idCamera* 				GetCamera() const;
-	bool			        SkipCinematic( void );
+	bool			        SkipCinematic();
 	void					CalcFov( float base_fov, float& fov_x, float& fov_y ) const;
 
 	void					AddEntityToHash( const char* name, idEntity* ent );

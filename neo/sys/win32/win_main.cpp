@@ -102,7 +102,7 @@ typedef enum D3_PROCESS_DPI_AWARENESS
 void Sys_SetDPIAwareness()
 {
 	// For Vista, Win7 and Win8
-	BOOL( WINAPI * SetProcessDPIAware )( void ) = NULL;
+	BOOL( WINAPI * SetProcessDPIAware )() = NULL;
 
 	/* Win8.1 and later */
 	HRESULT( WINAPI * SetProcessDpiAwareness )( D3_PROCESS_DPI_AWARENESS dpiAwareness ) = NULL;
@@ -111,7 +111,7 @@ void Sys_SetDPIAwareness()
 	HINSTANCE userDLL = LoadLibrary( "USER32.DLL" );
 	if( userDLL )
 	{
-		SetProcessDPIAware = ( BOOL( WINAPI* )( void ) ) GetProcAddress( userDLL, "SetProcessDPIAware" );
+		SetProcessDPIAware = ( BOOL( WINAPI* )() ) GetProcAddress( userDLL, "SetProcessDPIAware" );
 	}
 
 	HINSTANCE shcoreDLL = LoadLibrary( "SHCORE.DLL" );
@@ -713,7 +713,7 @@ Sys_GogBasePath
 */
 static char gogPathBuffer[MAX_OSPATH] = { 0 };
 
-static const char* Sys_GogBasePath( void )
+static const char* Sys_GogBasePath()
 {
 #ifdef GOGPATH_ID
 	HKEY gogRegKey;

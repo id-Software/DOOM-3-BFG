@@ -360,11 +360,10 @@ idRenderModel* idRenderModelManagerLocal::GetModel( const char* _modelName, bool
 	if( ( extension.Icmp( GLTF_GLB_EXT ) == 0 ) || ( extension.Icmp( GLTF_EXT ) == 0 ) )
 	{
 		model = new( TAG_MODEL ) idRenderModelGLTF;
-
-		// RB: Collada DAE and Wavefront OBJ
 	}
 	else if( ( extension.Icmp( "dae" ) == 0 ) || ( extension.Icmp( "obj" ) == 0 ) 	// RB: Collada DAE and Wavefront OBJ
 			 || ( extension.Icmp( "ase" ) == 0 ) || ( extension.Icmp( "lwo" ) == 0 )
+			 || ( extension.Icmp( "flt" ) == 0 ) || ( extension.Icmp( "ma" ) == 0 ) )
 			 || ( extension.Icmp( "flt" ) == 0 ) || ( extension.Icmp( "ma" ) == 0 ) )
 	{
 		model = new( TAG_MODEL ) idRenderModelStatic;

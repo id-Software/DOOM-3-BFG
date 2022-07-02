@@ -1,3 +1,31 @@
+/*
+===========================================================================
+
+Doom 3 BFG Edition GPL Source Code
+Copyright (C) 2022 Harrie van Ginneken
+Copyright (C) 2022 Robert Beckebans
+
+This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
+
+Doom 3 BFG Edition Source Code is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Doom 3 BFG Edition Source Code is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Doom 3 BFG Edition Source Code.  If not, see <http://www.gnu.org/licenses/>.
+
+In addition, the Doom 3 BFG Edition Source Code is also subject to certain additional terms. You should have received a copy of these additional terms immediately following the terms and conditions of the GNU General Public License which accompanied the Doom 3 BFG Edition Source Code.  If not, please request a copy in writing from id Software at the address below.
+
+If you have questions concerning this license or the applicable additional terms, you may contact in writing id Software LLC, c/o ZeniMax Media Inc., Suite 120, Rockville, Maryland 20850 USA.
+
+===========================================================================
+*/
 
 #include "precompiled.h"
 #pragma hdrstop
@@ -5,510 +33,530 @@
 
 #include "Model_gltf.h"
 #include "Model_local.h"
+#include "RenderCommon.h"
+
+idCVar gltf_ForceBspMeshTexture( "gltf_ForceBspMeshTexture", "0", CVAR_SYSTEM | CVAR_BOOL, "all world geometry has the same forced texture" );
+idCVar gltf_ModelSceneName( "gltf_ModelSceneName", "models", CVAR_SYSTEM , "Scene to use when loading specific models" );
 
 
+static const byte GLMB_VERSION = 100;
+static const unsigned int GLMB_MAGIC = ( 'M' << 24 ) | ( 'L' << 16 ) | ( 'G' << 8 ) | GLMB_VERSION;
+static const char* GLTF_SnapshotName = "_GLTF_Snapshot_";
 
 bool idRenderModelStatic::ConvertGltfMeshToModelsurfaces( const gltfMesh* mesh )
 {
-
-	//for ( auto mesh : currentAsset->MeshList( ) ) {
-	//	for ( auto prim : mesh->primitives ) {
-
 	return false;
 }
 
-void MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh* _mesh, gltfData* data )
+void idRenderModelGLTF::ProcessNode( gltfNode* modelNode, idMat4 trans, gltfData* data )
 {
-	for( auto* gltfMesh : data->MeshList( ) )
+	auto& meshList = data->MeshList( );
+	auto& nodeList = data->NodeList( );
+
+	//find all animations
+	for( auto anim : data->AnimationList( ) )
 	{
-		for( auto prim : gltfMesh->primitives )
+		for( auto channel : anim->channels )
 		{
-			common->Printf( "primitive for %s\n", gltfMesh->name.c_str() );
-
-			gltfAccessor* accessor = data->AccessorList( )[prim->indices];
-			gltfBufferView* bv = data->BufferViewList( )[accessor->bufferView];
-			gltfData* data = bv->parent;
-
-			gltfBuffer* buff = data->BufferList( )[bv->buffer];
-			uint idxDataSize = sizeof( uint ) * accessor->count;
-			uint* indices = ( uint* ) Mem_ClearedAlloc( idxDataSize , TAG_IDLIB_GLTF );
-
-			idFile_Memory idxBin = idFile_Memory( "gltfChunkIndices",
-												  ( const char* )( ( data->GetData( bv->buffer ) + bv->byteOffset + accessor->byteOffset ) ), bv->byteLength );
-
-			for( int i = 0; i < accessor->count; i++ )
+			if( channel->target.node >= 0 && nodeList[channel->target.node] == modelNode )
 			{
-				idxBin.Read( ( void* )( &indices[i] ), accessor->typeSize );
-				if( bv->byteStride )
-				{
-					idxBin.Seek( bv->byteStride - accessor->typeSize, FS_SEEK_CUR );
-				}
-			}
-
-			for( int i = 0; i < accessor->count; i += 3 )
-			{
-				MapPolygon& polygon = polygons.Alloc( );
-				polygon.SetMaterial( "textures/enpro/enwall16" );
-				polygon.AddIndex( indices[i + 1] );
-				polygon.AddIndex( indices[i + 2] );
-				polygon.AddIndex( indices[i + 0] );
-			}
-
-			Mem_Free( indices );
-			bool sizeSet = false;
-
-			for( auto& attrib : prim->attributes )
-			{
-				gltfAccessor* attrAcc = data->AccessorList( )[attrib->accessorIndex];
-				gltfBufferView* attrBv = data->BufferViewList( )[attrAcc->bufferView];
-				gltfData* attrData = attrBv->parent;
-				gltfBuffer* attrbuff = attrData->BufferList( )[attrBv->buffer];
-
-				idFile_Memory bin = idFile_Memory( "gltfChunkVertices",
-												   ( const char* )( ( attrData->GetData( attrBv->buffer ) + attrBv->byteOffset + attrAcc->byteOffset ) ), attrBv->byteLength );
-
-				if( !sizeSet )
-				{
-					verts.AssureSize( attrAcc->count );
-					sizeSet = true;
-				}
-
-				switch( attrib->type )
-				{
-					case gltfMesh_Primitive_Attribute::Type::Position:
-					{
-						for( int i =  attrAcc->count - 1; i >= 0; i-- )
-						{
-							idVec3 pos;
-
-							bin.Read( ( void* )( &pos.x ), attrAcc->typeSize );
-							bin.Read( ( void* )( &pos.y ), attrAcc->typeSize );
-							bin.Read( ( void* )( &pos.z ), attrAcc->typeSize );
-
-#if 0
-							// RB: proper glTF2 convention
-							verts[i].xyz.x = pos.z;
-							verts[i].xyz.y = pos.x;
-							verts[i].xyz.z = pos.y;
-#else
-							verts[i].xyz.x = pos.x;
-							verts[i].xyz.y = pos.y;
-							verts[i].xyz.z = pos.z;
-#endif
-
-							if( attrBv->byteStride )
-							{
-								bin.Seek( attrBv->byteStride - ( 3 * attrAcc->typeSize ), FS_SEEK_CUR );
-							}
-
-							idRandom rnd( i );
-							int r = rnd.RandomInt( 255 ), g = rnd.RandomInt( 255 ), b = rnd.RandomInt( 255 );
-
-							//vtxData[i].abgr = 0xff000000 + ( b << 16 ) + ( g << 8 ) + r;
-						}
-
-						break;
-					}
-					case gltfMesh_Primitive_Attribute::Type::Normal:
-					{
-						idVec3 vec;
-						for( int i = 0; i < attrAcc->count; i++ )
-						{
-							idVec3 vec;
-							bin.Read( ( void* )( &vec.x ), attrAcc->typeSize );
-							bin.Read( ( void* )( &vec.y ), attrAcc->typeSize );
-							bin.Read( ( void* )( &vec.z ), attrAcc->typeSize );
-							if( attrBv->byteStride )
-							{
-								bin.Seek( attrBv->byteStride - ( attrib->elementSize * attrAcc->typeSize ), FS_SEEK_CUR );
-							}
-							verts[i].SetNormal( vec );
-						}
-
-						break;
-					}
-					case gltfMesh_Primitive_Attribute::Type::TexCoord0:
-					{
-						idVec2 vec;
-						for( int i = 0; i < attrAcc->count; i++ )
-						{
-							bin.Read( ( void* )( &vec.x ), attrAcc->typeSize );
-							bin.Read( ( void* )( &vec.y ), attrAcc->typeSize );
-							if( attrBv->byteStride )
-							{
-								bin.Seek( attrBv->byteStride - ( attrib->elementSize * attrAcc->typeSize ), FS_SEEK_CUR );
-							}
-							verts[i].SetTexCoord( vec );
-						}
-
-						break;
-					}
-					case gltfMesh_Primitive_Attribute::Type::Tangent:
-					{
-						idVec4 vec;
-						for( int i = 0; i < attrAcc->count; i++ )
-						{
-							bin.Read( ( void* )( &vec.x ), attrAcc->typeSize );
-							bin.Read( ( void* )( &vec.y ), attrAcc->typeSize );
-							bin.Read( ( void* )( &vec.z ), attrAcc->typeSize );
-							bin.Read( ( void* )( &vec.w ), attrAcc->typeSize );
-							if( attrBv->byteStride )
-							{
-								bin.Seek( attrBv->byteStride - ( attrib->elementSize * attrAcc->typeSize ), FS_SEEK_CUR );
-							}
-							verts[i].SetTangent( vec.ToVec3() );
-							verts[i].SetBiTangentSign( vec.w );
-						}
-						break;
-					}
-						//case gltfMesh_Primitive_Attribute::Type::Weight:
-						//{
-						//	for ( int i = 0; i < attrAcc->count; i++ ) {
-						//		bin.Read( ( void * ) ( &vtxData[i].weight.x ), attrAcc->typeSize );
-						//		bin.Read( ( void * ) ( &vtxData[i].weight.y ), attrAcc->typeSize );
-						//		bin.Read( ( void * ) ( &vtxData[i].weight.z ), attrAcc->typeSize );
-						//		bin.Read( ( void * ) ( &vtxData[i].weight.w ), attrAcc->typeSize );
-						//		if ( attrBv->byteStride )
-						//			bin.Seek( attrBv->byteStride - ( attrib->elementSize * attrAcc->typeSize ), FS_SEEK_CUR );
-						//	}
-						//	break;
-						//}
-						//case gltfMesh_Primitive_Attribute::Type::Indices:
-						//{
-						//	for ( int i = 0; i < attrAcc->count; i++ ) {
-						//		bin.Read( ( void * ) ( &vtxData[i].boneIndex.x ), attrAcc->typeSize );
-						//		bin.Read( ( void * ) ( &vtxData[i].boneIndex.y ), attrAcc->typeSize );
-						//		bin.Read( ( void * ) ( &vtxData[i].boneIndex.z ), attrAcc->typeSize );
-						//		bin.Read( ( void * ) ( &vtxData[i].boneIndex.w ), attrAcc->typeSize );
-						//		if ( attrBv->byteStride )
-						//			bin.Seek( attrBv->byteStride - ( attrib->elementSize * attrAcc->typeSize ), FS_SEEK_CUR );
-						//	}
-						//	break;
-						//}
-				}
-
+				animIds.Alloc( ) = channel->target.node;
 			}
 		}
 	}
-	SetContents();
-}
 
-int idMapEntity::GetEntities( gltfData* data, EntityListRef entities, int sceneID )
-{
-	idMapEntity* worldspawn = new idMapEntity();
-	entities.Append( worldspawn );
+	gltfData::ResolveNodeMatrix( modelNode );
 
-	int entityCount = 0;
-	for( auto& nodeID :  data->SceneList()[sceneID]->nodes )
+	idMat4 curTrans = trans * modelNode->matrix;
+
+	if( modelNode->mesh >= 0 )
 	{
-		auto* node = data->NodeList()[nodeID];
+		gltfMesh* targetMesh = meshList[modelNode->mesh];
 
-		idMapEntity* newEntity = NULL;
+		idMat4 newTrans  = mat4_identity;
 
-		bool isWorldSpawn = idStr::Icmp( node->extras.strPairs.GetString( "classname" ), "worldspawn" ) == 0;
-		if( isWorldSpawn )
+		if( !animIds.Num() )
 		{
-			worldspawn->primitives.Resize( 1024, 256 );
-			worldspawn->epairs.Copy( node->extras.strPairs );
+			newTrans = curTrans;
 		}
-		else
-		{
-			// account all meshes starting with worldspawn. or BSP in the name
-			if( idStr::Icmpn( node->name, "BSP", 3 ) == 0 || idStr::Icmpn( node->name, "worldspawn.", 11 ) == 0 )
-			{
-				MapPolygonMesh* meshPrim = new MapPolygonMesh();
-				//meshPrim->epairs.Copy( newEntity->epairs );
 
-				meshPrim->ConvertFromMeshGltf( data->MeshList()[node->mesh], data );
-				worldspawn->AddPrimitive( meshPrim );
+		for( auto prim : targetMesh->primitives )
+		{
+			//ConvertFromMeshGltf should only be used for the map, ConvertGltfMeshToModelsurfaces should be used.
+			auto* newMesh = MapPolygonMesh::ConvertFromMeshGltf( prim, data, newTrans );
+			modelSurface_t	surf;
+
+			gltfMaterial* mat = NULL;
+			if( prim->material != -1 )
+			{
+				mat = data->MaterialList( )[prim->material];
+			}
+			if( mat != NULL && !gltf_ForceBspMeshTexture.GetBool( ) )
+			{
+				surf.shader = declManager->FindMaterial( mat->name );
 			}
 			else
 			{
-				newEntity = new idMapEntity();
-
-				// set name and retrieve epairs from node extras
-				if( node->name.Length() )
-				{
-					newEntity->epairs.Set( "name", node->name );
-				}
-				newEntity->epairs.Copy( node->extras.strPairs );
-
-				for( int i = 0; i < newEntity->epairs.GetNumKeyVals(); i++ )
-				{
-					const idKeyValue* kv = newEntity->epairs.GetKeyVal( i );
-
-					idLib::Printf( "entity[ %s ] key = '%s' value = '%s'\n", node->name.c_str(), kv->GetKey().c_str(), kv->GetValue().c_str() );
-				}
-
-				data->ResolveNodeMatrix( node );
-				newEntity->epairs.Set( "origin", node->translation.ToString() );
-
-				common->Printf( " %s \n ", node->name.c_str( ) );
-				entities.Append( newEntity );
-
-				entityCount++;
+				surf.shader = declManager->FindMaterial( "textures/base_wall/snpanel2rust" );
 			}
-		}
-	}
+			surf.id = this->NumSurfaces( );
 
-	/*
-	if( entities.Num( ) > 0 && ( idStr::Icmp( entities[0]->epairs.GetString( "name" ), "worldspawn" ) != 0 ) )
-	{
-		// move world spawn to first place
-		for( int i = 1; i < entities.Num( ); i++ )
-		{
-			if( idStr::Icmp( entities[i]->epairs.GetString( "name" ), "worldspawn" ) == 0 )
+			srfTriangles_t* tri = R_AllocStaticTriSurf( );
+			tri->numIndexes = newMesh->GetNumPolygons( ) * 3;
+			tri->numVerts = newMesh->GetNumVertices( );
+
+			R_AllocStaticTriSurfIndexes( tri, tri->numIndexes );
+			R_AllocStaticTriSurfVerts( tri, tri->numVerts );
+
+			int indx = 0;
+			for( int i = 0; i < newMesh->GetNumPolygons( ); i++ )
 			{
-				idMapEntity* tmp = entities[0];
-				entities[0] = entities[i];
-				entities[i] = tmp;
-				break;
+				auto& face = newMesh->GetFace( i );
+				auto& faceIdxs = face.GetIndexes( );
+				tri->indexes[indx] = faceIdxs[0];
+				tri->indexes[indx + 1] = faceIdxs[1];
+				tri->indexes[indx + 2] = faceIdxs[2];
+				indx += 3;
 			}
+
+			for( int i = 0; i < tri->numVerts; ++i )
+			{
+				tri->verts[i] = newMesh->GetDrawVerts( )[i];
+				tri->bounds.AddPoint( tri->verts[i].xyz );
+			}
+
+			bounds.AddBounds( tri->bounds );
+
+			surf.geometry = tri;
+			AddSurface( surf );
 		}
 	}
-	*/
 
-	return entityCount;
+	for( auto& child : modelNode->children )
+	{
+		ProcessNode( nodeList[child], curTrans, data );
+	}
 }
 
-
-// [filename].[%i|%s].[gltf/glb]
-bool gltfManager::ExtractMeshIdentifier( idStr& filename, int& meshId, idStr& meshName )
+void idRenderModelGLTF::MakeMD5Mesh( )
 {
 
-	idStr extension;
-	filename.ExtractFileExtension( extension );
+	meshes.SetGranularity( 1 );
+	//meshes.SetNum( num );
+}
 
-	idStr idPart = 	filename.Left( filename.Length() - extension.Length() - 1 );
-	idStr id;
-	idPart.ExtractFileExtension( id );
+//constructs a renderModel from a gltfScene node found in the "models" scene of the given gltfFile.
+// override with gltf_ModelSceneName
+// warning : nodeName cannot have dots!
+//[fileName].[nodeName/nodeId].[gltf/glb]
+//If no nodeName/nodeId is given, all primitives active in default scene will be added as surfaces.
+void idRenderModelGLTF::InitFromFile( const char* fileName )
+{
+	name = fileName;
+	hasAnimations = false;
+	fileExclusive = false;
+	root = nullptr;
+	int meshID = -1;
+	idStr meshName;
+	idStr gltfFileName = idStr( fileName );
+	model_state = DM_STATIC;
 
-	if( !id.Length() )
+	gltfManager::ExtractMeshIdentifier( gltfFileName, meshID, meshName );
+
+	if( gltfParser->currentFile.Length() )
 	{
-		idLib::Warning( "no gltf mesh identifier" );
-		return false;
-	}
-
-	filename = idPart.Left( idPart.Length() - id.Length() ) + extension;
-
-	idLexer lexer( LEXFL_ALLOWMULTICHARLITERALS | LEXFL_NOSTRINGESCAPECHARS );
-	lexer.LoadMemory( id.c_str( ), id.Size( ), "GltfmeshID", 0 );
-
-	idToken token;
-	if( lexer.ExpectAnyToken( &token ) )
-	{
-		if( lexer.EndOfFile() && ( token.type == TT_NUMBER ) && ( token.subtype & TT_INTEGER ) )
+		if( gltfParser->currentAsset && gltfParser->currentFile != gltfFileName )
 		{
-			meshId = token.GetIntValue();
+			common->FatalError( "multiple GLTF file loading not supported" );
 		}
-		else if( token.type == TT_NUMBER || token.type == TT_STRING )
-		{
-			meshName = id;
-		}
-		else
-		{
-			lexer.Warning( "malformed gltf mesh identifier" );
-			return false;
-		}
-		return true;
 	}
 	else
 	{
-		lexer.Warning( "malformed gltf mesh identifier" );
+		gltfParser->Load( gltfFileName );
 	}
 
-	return false;
-}
+	timeStamp = fileSystem->GetTimestamp( gltfFileName );
+	data = gltfParser->currentAsset;
 
-void idRenderModelGLTF::InitFromFile( const char* fileName )
-{
-	common->Warning( "The method or operation is not implemented." );
+	bounds.Clear();
 
+	int sceneId = data->DefaultScene();
+
+	assert( sceneId >= 0 );
+
+	if( !meshName[0] )
+	{
+		rootID = -1;
+
+		//this needs to be fixed to correctly support multiple meshes.
+		// atm this will only correctlty with static models.
+		// we could do gltfMeshes a la md5
+		// or re-use this class
+		auto& nodeList = data->NodeList();
+		for( auto& nodeID :  data->SceneList()[sceneId]->nodes )
+		{
+			gltfNode* modelNode = nodeList[nodeID];
+			if( modelNode )
+			{
+				ProcessNode( modelNode, mat4_identity, data );
+
+				if( rootID == -1 )
+				{
+					root = modelNode;
+					rootID = nodeID;
+				}
+			}
+		}
+		fileExclusive = true;
+	}
+	else
+	{
+		gltfNode* modelNode = data->GetNode( gltf_ModelSceneName.GetString(), meshName, &rootID );
+		if( modelNode )
+		{
+			root = modelNode;
+			ProcessNode( modelNode, mat4_identity, data );
+		}
+
+	}
+
+	if( surfaces.Num( ) <= 0 )
+	{
+		common->Warning( "Couldn't load model: '%s'", name.c_str( ) );
+		MakeDefaultModel( );
+		return;
+	}
+	model_state = animIds.Num() ? DM_CONTINUOUS : DM_STATIC;
+
+	// derive mikktspace tangents from normals
+	FinishSurfaces( true );
+
+	// it is now available for use
+	purged = false;
+
+	//skin
+	//gltfNode * modelNode = data->GetNode(data->SceneList()[data->GetSceneId("models")],targetMesh);
+	//__debugbreak();
 }
 
 bool idRenderModelGLTF::LoadBinaryModel( idFile* file, const ID_TIME_T sourceTimeStamp )
 {
-	common->Warning( "The method or operation is not implemented." );
-	return false;
+	hasAnimations = false;
+	fileExclusive = false; // not written.
+	root = nullptr;
+	prevTrans = mat4_identity;
+
+	// we should still load the scene information ?
+	if( !idRenderModelStatic::LoadBinaryModel( file, sourceTimeStamp ) )
+	{
+		return false;
+	}
+
+	unsigned int magic = 0;
+	file->ReadBig( magic );
+
+	if( magic != GLMB_MAGIC )
+	{
+		return false;
+	}
+
+	file->ReadBig( model_state );
+	file->ReadBig( rootID );
+
+	// TODO get rid of loading the original .glb here
+#if 1
+	idStr dataFilename;
+	file->ReadString( dataFilename );
+	name = dataFilename;
+
+	if( gltfParser->currentFile.Length( ) )
+	{
+		if( gltfParser->currentAsset && gltfParser->currentFile != dataFilename )
+		{
+			common->FatalError( "multiple GLTF file loading not supported" );
+		}
+	}
+	else
+	{
+		gltfParser->Load( dataFilename );
+	}
+
+	data = gltfParser->currentAsset;
+	root = data->GetNode( gltf_ModelSceneName.GetString(), rootID );
+	assert( root );
+#endif
+
+	int animCnt;
+	file->ReadBig( animCnt );
+	if( animCnt > 0 )
+	{
+		animIds.Resize( animCnt, 1 );
+		file->ReadBigArray( animIds.Ptr( ), animCnt );
+		animIds.SetNum( animCnt );
+	}
+	hasAnimations = animCnt > 0;
+	return true;
 }
 
 void idRenderModelGLTF::WriteBinaryModel( idFile* file, ID_TIME_T* _timeStamp /*= NULL */ ) const
 {
-	common->Warning( "The method or operation is not implemented." );
+	idRenderModelStatic::WriteBinaryModel( file );
+
+	if( file == NULL )
+	{
+		return;
+	}
+
+	file->WriteBig( GLMB_MAGIC );
+	file->WriteBig( model_state );
+	file->WriteBig( rootID );
+	file->WriteString( data->FileName() );
+
+	file->WriteBig( animIds.Num( ) );
+	if( animIds.Num( ) )
+	{
+		file->WriteBigArray( animIds.Ptr(), animIds.Size() );
+	}
+	//check if this model has a skeleton
+	//if ( root->skin >= 0 )
+	//{
+	//	gltfSkin *skin = data->SkinList( )[root->skin];
+	//	auto &nodeList = data->NodeList( );
+
+	//	file->WriteBig( skin->joints.Num( ) );
+	//	for ( int i = 0; i < skin->joints.Num( ); i++ ) {
+
+	//		gltfNode &target = *nodeList[skin->joints[i]];
+	//		file->WriteString( target.name );
+	//		int offset = -1;
+	//		if ( target.parent != NULL ) {
+	//			offset = target.parent - skin->joints.Ptr( );
+	//		}
+	//		file->WriteBig( offset );
+	//	}
+	//}
+	//	file->WriteBig( defaultPose.Num( ) );
+	//	for ( int i = 0; i < defaultPose.Num( ); i++ ) {
+	//		file->WriteBig( defaultPose[i].q.x );
+	//		file->WriteBig( defaultPose[i].q.y );
+	//		file->WriteBig( defaultPose[i].q.z );
+	//		file->WriteBig( defaultPose[i].q.w );
+	//		file->WriteVec3( defaultPose[i].t );
+	//	}
+
+	//	file->WriteBig( invertedDefaultPose.Num( ) );
+	//	for ( int i = 0; i < invertedDefaultPose.Num( ); i++ ) {
+	//		file->WriteBigArray( invertedDefaultPose[i].ToFloatPtr( ), JOINTMAT_TYPESIZE );
+	//	}
+	//}
+
+
+
+	//file->WriteBig( meshes.Num( ) );
+	//for ( int i = 0; i < meshes.Num( ); i++ ) {
+
+	//	if ( meshes[i].shader != NULL && meshes[i].shader->GetName( ) != NULL ) {
+	//		file->WriteString( meshes[i].shader->GetName( ) );
+	//	} else {
+	//		file->WriteString( "" );
+	//	}
+
+	//	file->WriteBig( meshes[i].numVerts );
+	//	file->WriteBig( meshes[i].numTris );
+
+	//	file->WriteBig( meshes[i].numMeshJoints );
+	//	file->WriteBigArray( meshes[i].meshJoints, meshes[i].numMeshJoints );
+	//	file->WriteBig( meshes[i].maxJointVertDist );
+
+	//	deformInfo_t &deform = *meshes[i].deformInfo;
+
+	//	file->WriteBig( deform.numSourceVerts );
+	//	file->WriteBig( deform.numOutputVerts );
+	//	file->WriteBig( deform.numIndexes );
+	//	file->WriteBig( deform.numMirroredVerts );
+	//	file->WriteBig( deform.numDupVerts );
+	//	file->WriteBig( deform.numSilEdges );
+
+	//	if ( deform.numOutputVerts > 0 ) {
+	//		file->WriteBigArray( deform.verts, deform.numOutputVerts );
+	//	}
+
+	//	if ( deform.numIndexes > 0 ) {
+	//		file->WriteBigArray( deform.indexes, deform.numIndexes );
+	//		file->WriteBigArray( deform.silIndexes, deform.numIndexes );
+	//	}
+
+	//	if ( deform.numMirroredVerts > 0 ) {
+	//		file->WriteBigArray( deform.mirroredVerts, deform.numMirroredVerts );
+	//	}
+
+	//	if ( deform.numDupVerts > 0 ) {
+	//		file->WriteBigArray( deform.dupVerts, deform.numDupVerts * 2 );
+	//	}
+
+	//	if ( deform.numSilEdges > 0 ) {
+	//		for ( int j = 0; j < deform.numSilEdges; j++ ) {
+	//			file->WriteBig( deform.silEdges[j].p1 );
+	//			file->WriteBig( deform.silEdges[j].p2 );
+	//			file->WriteBig( deform.silEdges[j].v1 );
+	//			file->WriteBig( deform.silEdges[j].v2 );
+	//		}
+	//	}
+
+	//	file->WriteBig( meshes[i].surfaceNum );
+	//}
 }
 
-bool idRenderModelGLTF::SupportsBinaryModel( )
+void idRenderModelGLTF::PurgeModel()
 {
-	common->Warning( "The method or operation is not implemented." );
-	return false;
+	common->Warning( "idRenderModelGLTF::PurgeModel is not implemented." );
 }
 
-void idRenderModelGLTF::ExportOBJ( idFile* objFile, idFile* mtlFile, ID_TIME_T* _timeStamp /*= NULL */ )
-{
-	common->Warning( "The method or operation is not implemented." );
-}
-
-void idRenderModelGLTF::PartialInitFromFile( const char* fileName )
-{
-	common->Warning( "The method or operation is not implemented." );
-}
-
-void idRenderModelGLTF::PurgeModel( )
-{
-	common->Warning( "The method or operation is not implemented." );
-}
-
-void idRenderModelGLTF::Reset( )
-{
-	common->Warning( "The method or operation is not implemented." );
-}
-
-void idRenderModelGLTF::LoadModel( )
-{
-	common->Warning( "The method or operation is not implemented." );
-}
-
-bool idRenderModelGLTF::IsLoaded( )
-{
-	common->Warning( "The method or operation is not implemented." );
-	return false;
-}
-
-void idRenderModelGLTF::SetLevelLoadReferenced( bool referenced )
-{
-	common->Warning( "The method or operation is not implemented." );
-}
-
-bool idRenderModelGLTF::IsLevelLoadReferenced( )
-{
-	common->Warning( "The method or operation is not implemented." );
-	return false;
-}
-
-void idRenderModelGLTF::TouchData( )
-{
-	common->Warning( "The method or operation is not implemented." );
-}
-
-void idRenderModelGLTF::CreateBuffers( nvrhi::ICommandList* commandList )
-{
-	common->Warning( "The method or operation is not implemented." );
-}
-
-void idRenderModelGLTF::InitEmpty( const char* name )
-{
-	common->Warning( "The method or operation is not implemented." );
-}
-
-void idRenderModelGLTF::AddSurface( modelSurface_t surface )
-{
-	common->Warning( "The method or operation is not implemented." );
-}
-
-void idRenderModelGLTF::FinishSurfaces( bool useMikktspace )
-{
-	common->Warning( "The method or operation is not implemented." );
-}
-
-void idRenderModelGLTF::FreeVertexCache( )
-{
-	common->Warning( "The method or operation is not implemented." );
-}
-
-const char* idRenderModelGLTF::Name( ) const
-{
-	common->Warning( "The method or operation is not implemented." );
-	return "";
-}
-
-void idRenderModelGLTF::Print( ) const
-{
-	common->Warning( "The method or operation is not implemented." );
-}
-
-void idRenderModelGLTF::List( ) const
-{
-	common->Warning( "The method or operation is not implemented." );
-}
-
-int idRenderModelGLTF::Memory( ) const
-{
-	common->Warning( "The method or operation is not implemented." );
-	return -1;
-}
-
-ID_TIME_T idRenderModelGLTF::Timestamp( ) const
-{
-	common->Warning( "The method or operation is not implemented." );
-	return FILE_NOT_FOUND_TIMESTAMP;
-}
-
-int idRenderModelGLTF::NumSurfaces( ) const
-{
-	common->Warning( "The method or operation is not implemented." );
-	return -1;
-}
-
-int idRenderModelGLTF::NumBaseSurfaces( ) const
-{
-	common->Warning( "The method or operation is not implemented." );
-	return -1;
-}
-
-const modelSurface_t* idRenderModelGLTF::Surface( int surfaceNum ) const
-{
-	common->Warning( "The method or operation is not implemented." );
-	return nullptr;
-}
-
-srfTriangles_t* idRenderModelGLTF::AllocSurfaceTriangles( int numVerts, int numIndexes ) const
-{
-	common->Warning( "The method or operation is not implemented." );
-	return nullptr;
-}
-
-void idRenderModelGLTF::FreeSurfaceTriangles( srfTriangles_t* tris ) const
+void idRenderModelGLTF::LoadModel()
 {
 	common->Warning( "The method or operation is not implemented." );
 }
 
-bool idRenderModelGLTF::IsStaticWorldModel( ) const
+void idRenderModelGLTF::TouchData()
 {
 	common->Warning( "The method or operation is not implemented." );
-	return false;
 }
 
-dynamicModel_t idRenderModelGLTF::IsDynamicModel( ) const
+/*
+void idRenderModelGLTF::CreateBuffers()
 {
 	common->Warning( "The method or operation is not implemented." );
-	return dynamicModel_t();
+}
+*/
+
+void idRenderModelGLTF::Print() const
+{
+	idRenderModelStatic::Print();
+
+	// TODO
 }
 
-bool idRenderModelGLTF::IsDefaultModel( ) const
+void idRenderModelGLTF::List() const
 {
-	common->Warning( "The method or operation is not implemented." );
-	return false;
+	idRenderModelStatic::List();
+
+	// TODO
 }
 
-bool idRenderModelGLTF::IsReloadable( ) const
+int idRenderModelGLTF::Memory() const
 {
-	common->Warning( "The method or operation is not implemented." );
-	return false;
+	return idRenderModelStatic::Memory();
+
+	// TODO
+}
+
+dynamicModel_t idRenderModelGLTF::IsDynamicModel() const
+{
+	return model_state;
+}
+
+void TransformVertsAndTangents( idDrawVert* targetVerts, const int numVerts, idMat4 trans )
+{
+	for( int i = 0; i < numVerts; i++ )
+	{
+
+		targetVerts[i].xyz *= trans;// * idVec3( base.xyz.x, base.xyz.y, base.xyz.z);
+		targetVerts[i].SetNormal( trans.ToMat3() * targetVerts[i].GetNormal( ) );
+		targetVerts[i].SetTangent( trans.ToMat3() * targetVerts[i].GetTangent( ) );
+	}
+}
+
+void idRenderModelGLTF::UpdateSurface( const struct renderEntity_s* ent, idMat4 trans, modelSurface_t* surf )
+{
+
+	if( surf->geometry != NULL )
+	{
+		R_FreeStaticTriSurfVertexCaches( surf->geometry );
+	}
+	else
+	{
+		surf->geometry = R_AllocStaticTriSurf( );
+	}
+
+	srfTriangles_t* tri = surf->geometry;
+	TransformVertsAndTangents( tri->verts, tri->numVerts, trans );
+
 }
 
 idRenderModel* idRenderModelGLTF::InstantiateDynamicModel( const struct renderEntity_s* ent, const viewDef_t* view, idRenderModel* cachedModel )
 {
-	common->Warning( "The method or operation is not implemented." );
-	return nullptr;
+	if( cachedModel != NULL && !r_useCachedDynamicModels.GetBool() )
+	{
+		delete cachedModel;
+		cachedModel = NULL;
+	}
+
+	if( purged )
+	{
+		common->DWarning( "model %s instantiated while purged", Name() );
+		LoadModel();
+	}
+
+	idRenderModelStatic* staticModel;
+	if( cachedModel != NULL )
+	{
+		assert( dynamic_cast< idRenderModelStatic* >( cachedModel ) != NULL );
+		assert( idStr::Icmp( cachedModel->Name( ), GLTF_SnapshotName ) == 0 );
+		staticModel = static_cast< idRenderModelStatic* >( cachedModel );
+	}
+	else
+	{
+		staticModel = new( TAG_MODEL ) idRenderModelStatic;
+		staticModel->InitEmpty( GLTF_SnapshotName );
+	}
+
+	idStr prevName = name;
+	name = GLTF_SnapshotName;
+	*staticModel = *this;
+	name = prevName;
+
+	idMat3 rotation = idAngles( 0.0f, 0.0f, 90.0f ).ToMat3( );
+	idMat4 axisTransform( rotation, vec3_origin );
+	idMat4 trans = prevTrans;
+	bool wasDirty = root->dirty;
+
+	gltfData::ResolveNodeMatrix( root, &trans );
+
+	if( wasDirty )
+	{
+		trans *= axisTransform;
+	}
+
+	for( modelSurface_t& surf : staticModel->surfaces )
+	{
+		UpdateSurface( ent, trans, &surf );
+	}
+
+	prevTrans = root->matrix.Inverse();
+
+	//staticModel->bounds *= trans.ToMat3( );
+	//bounds.Translate( idVec3( trans[0][3], trans[1][3], trans[2][3] ) );
+
+	return staticModel;
 }
 
-int idRenderModelGLTF::NumJoints( ) const
+int idRenderModelGLTF::NumJoints() const
 {
-	common->Warning( "The method or operation is not implemented." );
+	if( !root )
+	{
+		common->FatalError( "Trying to determine Joint count without a model node loaded" );
+	}
+
+	if( root->skin >= 0 )
+	{
+		gltfSkin* skin = data->SkinList( )[root->skin];
+		return skin->joints.Num();
+	}
+
 	return 0;
 }
 
-const idMD5Joint* idRenderModelGLTF::GetJoints( ) const
+const idMD5Joint* idRenderModelGLTF::GetJoints() const
 {
 	common->Warning( "The method or operation is not implemented." );
 	return nullptr;
@@ -526,7 +574,7 @@ const char* idRenderModelGLTF::GetJointName( jointHandle_t handle ) const
 	return "";
 }
 
-const idJointQuat* idRenderModelGLTF::GetDefaultPose( ) const
+const idJointQuat* idRenderModelGLTF::GetDefaultPose() const
 {
 	common->Warning( "The method or operation is not implemented." );
 	return nullptr;
@@ -540,40 +588,10 @@ int idRenderModelGLTF::NearestJoint( int surfaceNum, int a, int b, int c ) const
 
 idBounds idRenderModelGLTF::Bounds( const struct renderEntity_s* ent ) const
 {
-	common->Warning( "The method or operation is not implemented." );
-	return idBounds();
+	return bounds;
 }
 
-void idRenderModelGLTF::ReadFromDemoFile( class idDemoFile* f )
+idGltfMesh::idGltfMesh( gltfMesh* _mesh, gltfData* _data ) : mesh( _mesh ), data( _data )
 {
-	common->Warning( "The method or operation is not implemented." );
-}
 
-void idRenderModelGLTF::WriteToDemoFile( class idDemoFile* f )
-{
-	common->Warning( "The method or operation is not implemented." );
-}
-
-float idRenderModelGLTF::DepthHack( ) const
-{
-	common->Warning( "The method or operation is not implemented." );
-	return -1.0f;
-}
-
-bool idRenderModelGLTF::ModelHasDrawingSurfaces( ) const
-{
-	common->Warning( "The method or operation is not implemented." );
-	return false;
-}
-
-bool idRenderModelGLTF::ModelHasInteractingSurfaces( ) const
-{
-	common->Warning( "The method or operation is not implemented." );
-	return false;
-}
-
-bool idRenderModelGLTF::ModelHasShadowCastingSurfaces( ) const
-{
-	common->Warning( "The method or operation is not implemented." );
-	return false;
 }

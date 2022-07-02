@@ -1175,7 +1175,7 @@ idMD5Anim* idAnimManager::GetAnim( const char* name )
 		idStr filename = name;
 
 		filename.ExtractFileExtension( extension );
-		if( extension != MD5_ANIM_EXT )
+		if( extension != MD5_ANIM_EXT && ( extension != GLTF_EXT && extension != GLTF_GLB_EXT ) )
 		{
 			return NULL;
 		}

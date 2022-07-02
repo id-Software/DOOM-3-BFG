@@ -33,6 +33,9 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "../renderer/Image.h"
 
+
+idCVar gltf_MapSceneName( "gltf_MapSceneName", "Scene", CVAR_SYSTEM , "Scene to use when d-mapping a gltf/glb" );
+
 /*
 ===============
 FloatCRC
@@ -1448,12 +1451,11 @@ idMapEntity::GetGeometryCRC
 */
 unsigned int idMapEntity::GetGeometryCRC() const
 {
-	int i;
 	unsigned int crc;
 	idMapPrimitive*	mapPrim;
 
 	crc = 0;
-	for( i = 0; i < GetNumPrimitives(); i++ )
+	for( int i = 0; i < GetNumPrimitives(); i++ )
 	{
 		mapPrim = GetPrimitive( i );
 
@@ -1574,7 +1576,7 @@ bool idMapFile::Parse( const char* filename, bool ignoreRegion, bool osPath )
 	}
 
 	bool isGTLF = false;
-	if( !src.IsLoaded( ) )
+	if( !src.IsLoaded() )
 	{
 		// HVG: try loading a .gltf/glb second
 		fullName.SetFileExtension( "glb" );
@@ -1673,6 +1675,11 @@ bool idMapFile::Parse( const char* filename, bool ignoreRegion, bool osPath )
 	{
 		gltfParser->Load( fullName );
 		idMapEntity::GetEntities( gltfParser->currentAsset, entities, 0 );
+	}
+	else if( isGTLF )
+	{
+		gltfParser->Load( fullName );
+		idMapEntity::GetEntities( gltfParser->currentAsset, entities, gltfParser->currentAsset->GetSceneId( gltf_MapSceneName.GetString() ) );
 	}
 	else
 	{
@@ -2220,6 +2227,24 @@ void MapPolygonMesh::ConvertFromBrush( const idMapBrush* mapBrush, int entityNum
 			st.x = ( xyz * texVec[0].ToVec3() ) + texVec[0][3];
 			st.y = ( xyz * texVec[1].ToVec3() ) + texVec[1][3];
 
+			// support Valve 220 projection
+			if( mapSide->GetProjectionType() == idMapBrushSide::PROJECTION_VALVE220 )
+			{
+				const idMaterial* material = declManager->FindMaterial( mapSide->GetMaterial() );
+
+				idVec2i texSize = mapSide->GetTextureSize();
+
+				idImage* image = material->GetEditorImage();
+				if( image != NULL )
+				{
+					texSize.x = image->GetUploadWidth();
+					texSize.y = image->GetUploadHeight();
+				}
+
+				st.x /= texSize[0];
+				st.y /= texSize[1];
+			}
+
 			// flip y
 			//st.y = 1.0f - st.y;
 
@@ -2755,22 +2780,23 @@ void MapPolygonMesh::SetContents()
 
 unsigned int MapPolygonMesh::GetGeometryCRC() const
 {
-	int i;
-	unsigned int crc;
-
-	crc = 0;
+	unsigned int i;
+	unsigned int crc = 0;
 	for( i = 0; i < verts.Num(); i++ )
 	{
-		crc ^= FloatCRC( verts[i].xyz.x );
-		crc ^= FloatCRC( verts[i].xyz.y );
-		crc ^= FloatCRC( verts[i].xyz.z );
+#if 0
+		crc ^= StringCRC( ( verts[i].xyz * ( i + 1 ) ).ToString() );
+#else
+		crc ^= FloatCRC( verts[i].xyz.x * ( i + 1 ) );
+		crc ^= FloatCRC( verts[i].xyz.y * ( i + 1 ) );
+		crc ^= FloatCRC( verts[i].xyz.z * ( i + 1 ) );
+#endif
 	}
 
 	for( i = 0; i < polygons.Num(); i++ )
 	{
 		const MapPolygon& poly = polygons[i];
-
-		crc ^= StringCRC( poly.GetMaterial() );
+		crc ^= StringCRC( poly.GetMaterial() + idStr( i ) );
 	}
 
 	return crc;

@@ -181,6 +181,7 @@ protected:
 class idMD5Mesh
 {
 	friend class				idRenderModelMD5;
+	friend class				idRenderModelGLTF;
 
 public:
 	idMD5Mesh();
@@ -215,6 +216,7 @@ private:
 
 class idRenderModelMD5 : public idRenderModelStatic
 {
+	friend class				idRenderModelGLTF;
 public:
 	void				InitFromFile( const char* fileName ) override;
 	bool				LoadBinaryModel( idFile* file, const ID_TIME_T sourceTimeStamp ) override;

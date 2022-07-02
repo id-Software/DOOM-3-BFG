@@ -206,7 +206,7 @@ public:
 	struct Iterator
 	{
 		_type_* p;
-		_type_& operator*( )
+		_type_& operator*()
 		{
 			return *p;
 		}
@@ -214,19 +214,19 @@ public:
 		{
 			return p != rhs.p;
 		}
-		void operator ++( )
+		void operator ++()
 		{
 			++p;
 		}
 	};
 
-	auto begin( ) const   // const version
+	auto begin() const   // const version
 	{
 		return Iterator{list};
 	};
-	auto end( ) const   // const version
+	auto end() const   // const version
 	{
-		return Iterator{list + Num( )};
+		return Iterator{list + Num()};
 	};
 
 private:
