@@ -361,9 +361,9 @@ idRenderModel* idRenderModelManagerLocal::GetModel( const char* _modelName, bool
 	{
 		model = new( TAG_MODEL ) idRenderModelGLTF;
 	}
-	else if( ( extension.Icmp( "dae" ) == 0 ) || ( extension.Icmp( "obj" ) == 0 ) 	// RB: Collada DAE and Wavefront OBJ
+	// RB: Collada DAE and Wavefront OBJ
+	else if( ( extension.Icmp( "dae" ) == 0 ) || ( extension.Icmp( "obj" ) == 0 )
 			 || ( extension.Icmp( "ase" ) == 0 ) || ( extension.Icmp( "lwo" ) == 0 )
-			 || ( extension.Icmp( "flt" ) == 0 ) || ( extension.Icmp( "ma" ) == 0 ) )
 			 || ( extension.Icmp( "flt" ) == 0 ) || ( extension.Icmp( "ma" ) == 0 ) )
 	{
 		model = new( TAG_MODEL ) idRenderModelStatic;
