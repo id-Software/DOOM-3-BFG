@@ -885,9 +885,19 @@ bool R_ReadPixelsRGB8( nvrhi::IDevice* device, CommonRenderPasses* pPasses, nvrh
 		pData = newData;
 	}
 
-	// fix alpha
 	byte* data = static_cast<byte*>( pData );
 
+#if 0
+	// fill with red for debugging
+	for( int i = 0; i < ( desc.width * desc.height ); i++ )
+	{
+		data[ i * 4 + 0 ] = 255;
+		data[ i * 4 + 1 ] = 0;
+		data[ i * 4 + 2 ] = 0;
+	}
+#endif
+
+	// fix alpha
 	for( int i = 0; i < ( desc.width * desc.height ); i++ )
 	{
 		data[ i * 4 + 3 ] = 0xff;
@@ -906,16 +916,18 @@ bool R_ReadPixelsRGB8( nvrhi::IDevice* device, CommonRenderPasses* pPasses, nvrh
 	return true;
 }
 
-bool R_ReadPixelsRGB16F( nvrhi::IDevice* device, CommonRenderPasses* pPasses, nvrhi::ITexture* texture, nvrhi::ResourceStates textureState, void* pic, int picWidth, int picHeight )
+bool R_ReadPixelsRGB16F( nvrhi::IDevice* device, CommonRenderPasses* pPasses, nvrhi::ITexture* texture, nvrhi::ResourceStates textureState, byte** pic, int picWidth, int picHeight )
 {
 	nvrhi::TextureDesc desc = texture->getDesc();
 	nvrhi::TextureHandle tempTexture;
 	nvrhi::FramebufferHandle tempFramebuffer;
 
+#if 0
 	if( desc.width != picWidth || desc.height != picHeight )
 	{
 		return false;
 	}
+#endif
 
 	nvrhi::CommandListHandle commandList = device->createCommandList();
 	commandList->open();
@@ -976,9 +988,22 @@ bool R_ReadPixelsRGB16F( nvrhi::IDevice* device, CommonRenderPasses* pPasses, nv
 		pData = newData;
 	}
 
+	int pix = picWidth * picHeight;
+	const int bufferSize = pix * 3 * 2;
+
+	void* floatRGB16F = R_StaticAlloc( bufferSize );
+	*pic = ( byte* ) floatRGB16F;
+
 	// copy from RGBA16F to RGB16F
 	uint16_t* data = static_cast<uint16_t*>( pData );
-	uint16_t* outData = static_cast<uint16_t*>( pic );
+	uint16_t* outData = static_cast<uint16_t*>( floatRGB16F );
+
+	for( int i = 0; i < ( desc.width * desc.height ); i++ )
+	{
+		outData[ i * 3 + 0 ] = F32toF16( 1 );
+		outData[ i * 3 + 1 ] = F32toF16( 0 );
+		outData[ i * 3 + 2 ] = F32toF16( 0 );
+	}
 
 	for( int i = 0; i < ( desc.width * desc.height ); i++ )
 	{

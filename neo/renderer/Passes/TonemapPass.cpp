@@ -160,9 +160,9 @@ void TonemapPass::Render(
 		state.framebuffer = _targetFb;
 		state.bindings = { renderBindingSet };
 		nvrhi::Viewport viewport{ ( float )viewDef->viewport.x1,
-								  ( float )viewDef->viewport.x2,
+								  ( float )viewDef->viewport.x2 + 1,
 								  ( float )viewDef->viewport.y1,
-								  ( float )viewDef->viewport.y2,
+								  ( float )viewDef->viewport.y2 + 1,
 								  viewDef->viewport.zmin,
 								  viewDef->viewport.zmax };
 		state.viewport.addViewportAndScissorRect( viewport );
