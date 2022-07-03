@@ -986,13 +986,9 @@ public:
 	// the joints buffer should only be bound for vertex programs that use joints
 	bool		ShaderUsesJoints() const
 	{
-#if defined( USE_NVRHI )
-		// FIXME
-		return false;
-#else
-		return renderProgs[current].usesJoints;
-#endif
+		return renderProgs[currentIndex].usesJoints;
 	}
+
 	// the rpEnableSkinning render parm should only be set for vertex programs that use it
 	bool		ShaderHasOptionalSkinning() const
 	{

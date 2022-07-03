@@ -2225,7 +2225,7 @@ void idRenderSystemLocal::ResetGuiModels()
 	delete guiModel;
 	guiModel = new( TAG_RENDER ) idGuiModel;
 	guiModel->Clear();
-	guiModel->BeginFrame( commandList );
+	guiModel->BeginFrame();
 	tr_guiModel = guiModel;	// for DeviceContext fast path
 }
 

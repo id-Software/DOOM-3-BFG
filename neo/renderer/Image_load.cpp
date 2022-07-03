@@ -99,21 +99,6 @@ int BitsForFormat( textureFormat_t format )
 	}
 }
 
-int BytesPerBlockForFormat( const textureFormat_t& format )
-{
-	switch( format )
-	{
-		case FMT_NONE:
-			return 0;
-		case FMT_DXT1:
-			return 8;
-		case FMT_DXT5:
-			return 16;
-		default:
-			return 1;
-	}
-}
-
 int BlockSizeForFormat( const textureFormat_t& format )
 {
 	switch( format )

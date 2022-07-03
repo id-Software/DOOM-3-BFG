@@ -87,7 +87,7 @@ void idGuiModel::ReadFromDemo( idDemoFile* demo )
 idGuiModel::BeginFrame
 ================
 */
-void idGuiModel::BeginFrame( nvrhi::ICommandList* commandList )
+void idGuiModel::BeginFrame()
 {
 	vertexBlock = vertexCache.AllocVertex( NULL, MAX_VERTS );
 	indexBlock = vertexCache.AllocIndex( NULL, MAX_INDEXES );
