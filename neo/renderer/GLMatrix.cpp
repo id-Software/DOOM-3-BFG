@@ -477,7 +477,7 @@ void R_SetupProjectionMatrix( viewDef_t* viewDef, bool doJitter )
 	// for motion blurred anti-aliasing
 	float jitterx, jittery;
 
-	if( R_UseTemporalAA() && doJitter )
+	if( R_UseTemporalAA() && doJitter && !( viewDef->renderView.rdflags & RDF_IRRADIANCE ) )
 	{
 		idVec2 jitter = tr.backend.GetCurrentPixelOffset();
 		jitterx = jitter.x;

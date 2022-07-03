@@ -1288,7 +1288,7 @@ CONSOLE_COMMAND( bakeLightGrids, "Bake irradiance/vis light grid data", NULL )
 							// release all in-flight references to the render targets
 							//deviceManager->GetDevice()->runGarbageCollection();
 
-#if 1
+#if 0
 							idStr testName;
 							testName.Format( "env/test/area%i_envprobe_%i_side_%i.exr", a, tr.lightGridJobs.Num(), side );
 							R_WriteEXR( testName, floatRGB16F, 3, captureSize, captureSize, "fs_basepath" );
