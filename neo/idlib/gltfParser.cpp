@@ -2319,38 +2319,38 @@ CONSOLE_COMMAND_COMPILE( LoadGLTF, "Loads an .gltf or .glb file", idCmdSystem::A
 
 //  not dots allowed in [%s]!
 // [filename].[%i|%s].[gltf/glb]
-bool gltfManager::ExtractMeshIdentifier( idStr& filename, int& meshId, idStr& meshName )
+bool gltfManager::ExtractIdentifier( idStr& filename, int& id, idStr& name )
 {
 	idStr extension;
-	idStr meshStr;
+	idStr targetStr;
 	filename.ExtractFileExtension( extension );
 	idStr file = filename;
 	file = file.StripFileExtension();
-	file.ExtractFileExtension( meshStr );
+	file.ExtractFileExtension( targetStr );
 
 	if( !extension.Length() )
 	{
-		idLib::Warning( "no gltf mesh identifier" );
+		idLib::Warning( "no gltf identifier" );
 		return false;
 	}
 
-	if( meshStr.Length() )
+	if( targetStr.Length() )
 	{
-		filename = file.Left( file.Length() - meshStr.Length() - 1 ) + "." + extension;
+		filename = file.Left( file.Length() - targetStr.Length() - 1 ) + "." + extension;
 
 		idParser	parser( LEXFL_ALLOWPATHNAMES | LEXFL_NOSTRINGESCAPECHARS );
-		parser.LoadMemory( meshStr.c_str(), meshStr.Size(), "model:GltfmeshID" );
+		parser.LoadMemory( targetStr.c_str(), targetStr.Size(), "model:GltfID" );
 
 		idToken token;
 		if( parser.ExpectAnyToken( &token ) )
 		{
 			if( ( token.type == TT_NUMBER ) && ( token.subtype & TT_INTEGER ) )
 			{
-				meshId = token.GetIntValue();
+				id = token.GetIntValue();
 			}
 			else if( token.type == TT_NAME )
 			{
-				meshName = token;
+				name = token;
 			}
 			else
 			{

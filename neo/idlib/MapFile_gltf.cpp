@@ -204,30 +204,50 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 				}
 				break;
 			}
-				//case gltfMesh_Primitive_Attribute::Type::Weight:
-				//{
-				//	for ( int i = 0; i < attrAcc->count; i++ ) {
-				//		bin.Read( ( void * ) ( &vtxData[i].weight.x ), attrAcc->typeSize );
-				//		bin.Read( ( void * ) ( &vtxData[i].weight.y ), attrAcc->typeSize );
-				//		bin.Read( ( void * ) ( &vtxData[i].weight.z ), attrAcc->typeSize );
-				//		bin.Read( ( void * ) ( &vtxData[i].weight.w ), attrAcc->typeSize );
-				//		if ( attrBv->byteStride )
-				//			bin.Seek( attrBv->byteStride - ( attrib->elementSize * attrAcc->typeSize ), FS_SEEK_CUR );
-				//	}
-				//	break;
-				//}
-				//case gltfMesh_Primitive_Attribute::Type::Indices:
-				//{
-				//	for ( int i = 0; i < attrAcc->count; i++ ) {
-				//		bin.Read( ( void * ) ( &vtxData[i].boneIndex.x ), attrAcc->typeSize );
-				//		bin.Read( ( void * ) ( &vtxData[i].boneIndex.y ), attrAcc->typeSize );
-				//		bin.Read( ( void * ) ( &vtxData[i].boneIndex.z ), attrAcc->typeSize );
-				//		bin.Read( ( void * ) ( &vtxData[i].boneIndex.w ), attrAcc->typeSize );
-				//		if ( attrBv->byteStride )
-				//			bin.Seek( attrBv->byteStride - ( attrib->elementSize * attrAcc->typeSize ), FS_SEEK_CUR );
-				//	}
-				//	break;
-				//}
+			case gltfMesh_Primitive_Attribute::Type::Weight:
+			{
+				idVec4 vec;
+				for( int i = 0; i < attrAcc->count; i++ )
+				{
+					bin.Read( ( void* )( &vec.x ), attrAcc->typeSize );
+					bin.Read( ( void* )( &vec.y ), attrAcc->typeSize );
+					bin.Read( ( void* )( &vec.z ), attrAcc->typeSize );
+					bin.Read( ( void* )( &vec.w ), attrAcc->typeSize );
+					if( attrBv->byteStride )
+					{
+						bin.Seek( attrBv->byteStride - ( attrib->elementSize * attrAcc->typeSize ), FS_SEEK_CUR );
+					}
+
+					mesh->verts[i].color2[0] = vec.x;
+					mesh->verts[i].color2[1] = vec.y;
+					mesh->verts[i].color2[2] = vec.z;
+					mesh->verts[i].color2[3] = vec.w;
+
+				}
+				break;
+			}
+			case gltfMesh_Primitive_Attribute::Type::Indices:
+			{
+				idVec4 vec;
+				for( int i = 0; i < attrAcc->count; i++ )
+				{
+					bin.Read( ( void* )( &vec.x ), attrAcc->typeSize );
+					bin.Read( ( void* )( &vec.y ), attrAcc->typeSize );
+					bin.Read( ( void* )( &vec.z ), attrAcc->typeSize );
+					bin.Read( ( void* )( &vec.w ), attrAcc->typeSize );
+					if( attrBv->byteStride )
+					{
+						bin.Seek( attrBv->byteStride - ( attrib->elementSize * attrAcc->typeSize ), FS_SEEK_CUR );
+					}
+
+					mesh->verts[i].color[0] = vec.x;
+					mesh->verts[i].color[1] = vec.y;
+					mesh->verts[i].color[2] = vec.z;
+					mesh->verts[i].color[3] = vec.w;
+				}
+				break;
+
+			}
 		}
 
 	}

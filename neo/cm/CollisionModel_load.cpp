@@ -4574,7 +4574,7 @@ cmHandle_t idCollisionModelManagerLocal::LoadModel( const char* modelName, const
 		int id;
 		idStr tmp;
 		idStr file = modelName;
-		gltfManager::ExtractMeshIdentifier( file, id, tmp );
+		gltfManager::ExtractIdentifier( file, id, tmp );
 
 		sourceTimeStamp = fileSystem->GetTimestamp( file );
 	}

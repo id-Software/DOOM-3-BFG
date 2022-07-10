@@ -943,6 +943,20 @@ public:
 		return nullptr;
 	}
 
+	int GetNodeIndex( gltfNode* node )
+	{
+		int index = -1;
+		for( auto* node : nodes )
+		{
+			index++;
+			if( node == node )
+			{
+				return index;
+			}
+		}
+		return -1;
+	}
+
 	bool HasAnimation( int nodeID )
 	{
 		for( auto anim : animations )
@@ -958,6 +972,18 @@ public:
 		return false;
 	}
 
+	gltfAnimation* GetAnimation( idStr animName )
+	{
+		for( auto anim : animations )
+		{
+			if( anim->name == animName )
+			{
+				return anim;
+			}
+		}
+		return nullptr;
+	}
+
 	int GetSceneId( idStr sceneName ) const
 	{
 		for( int i = 0; i < scenes.Num(); i++ )
@@ -968,6 +994,41 @@ public:
 			}
 		}
 		return -1;
+	}
+
+	idList<int> GetChannelIds( gltfAnimation* anim , gltfNode* node )
+	{
+		idList<int> result;
+		int channelIdx = 0;
+		for( auto channel : anim->channels )
+		{
+			if( channel->target.node >= 0 && nodes[channel->target.node] == node )
+			{
+				result.Append( channelIdx );
+				break;
+			}
+			channelIdx++;
+		}
+		return result;
+	}
+
+	idList<int> GetAnimationIds( gltfNode* node )
+	{
+		idList<int> result;
+		int animIdx = 0;
+		for( auto anim : animations )
+		{
+			for( auto channel : anim->channels )
+			{
+				if( channel->target.node >= 0 && nodes[channel->target.node] == node )
+				{
+					result.Append( animIdx );
+					break;
+				}
+			}
+			animIdx++;
+		}
+		return result;
 	}
 
 	idMat4 GetViewMatrix( int camId ) const

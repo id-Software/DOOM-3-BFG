@@ -29,19 +29,6 @@ If you have questions concerning this license or the applicable additional terms
 #pragma once
 #include "Model_local.h"
 
-
-
-class idGltfMesh
-{
-public:
-	idGltfMesh( ) {};
-	idGltfMesh( gltfMesh* _mesh, gltfData* _data );
-private:
-	gltfMesh* mesh;
-	gltfData* data;
-	idMD5Mesh md5Mesh;
-};
-
 class idRenderModelGLTF : public idRenderModelStatic
 {
 public:
@@ -67,20 +54,30 @@ public:
 	{
 		return true;
 	}
-
-	void MakeMD5Mesh() ;
+	static idFile_Memory* GetAnimBin( idStr animName, const ID_TIME_T sourceTimeStamp );
 private:
 	void ProcessNode( gltfNode* modelNode, idMat4 trans, gltfData* data );
-	void UpdateSurface( const struct renderEntity_s* ent, idMat4 trans, modelSurface_t* surf );
+	void UpdateSurface( const struct renderEntity_s* ent, const idJointMat* entJoints, const idJointMat* entJointsInverted, modelSurface_t* surf );
+	void UpdateMd5Joints();
 	int rootID;
-
 	gltfData* data;
 	gltfNode* root;
 	bool fileExclusive;
 	bool hasAnimations;
-	idList<int>						animIds;
-	idList<idGltfMesh, TAG_MODEL>	meshes;
+
+	float							maxJointVertDist;	// maximum distance a vertex is separated from a joint
+	idList<int, TAG_MODEL>			animIds;
+	idList<int, TAG_MODEL>			bones;
 	dynamicModel_t					model_state;
-	idMat4							prevTrans;
 	idList<gltfNode*, TAG_MODEL>	SkeletonNodes;
+
+	idList<idMD5Joint, TAG_MODEL>	md5joints;
+	idList<idJointQuat, TAG_MODEL>	defaultPose;
+	idList<idJointMat, TAG_MODEL>	invertedDefaultPose;
+	idList<idMD5Mesh, TAG_MODEL>	meshes;
+	deformInfo_t* 					deformInfo;
+
+	MapPolygonMesh*					mesh;
+private:
+	void DrawJoints( const struct renderEntity_s* ent, const viewDef_t* view );
 };
