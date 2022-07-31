@@ -218,17 +218,14 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 						bin.Seek( attrBv->byteStride - ( attrib->elementSize * attrAcc->typeSize ), FS_SEEK_CUR );
 					}
 
-					mesh->verts[i].color2[0] = vec.x;
-					mesh->verts[i].color2[1] = vec.y;
-					mesh->verts[i].color2[2] = vec.z;
-					mesh->verts[i].color2[3] = vec.w;
+					mesh->verts[i].SetColor2( PackColor( vec ) );
 
 				}
 				break;
 			}
 			case gltfMesh_Primitive_Attribute::Type::Indices:
 			{
-				idVec4 vec;
+				idVec4i vec;
 				for( int i = 0; i < attrAcc->count; i++ )
 				{
 					bin.Read( ( void* )( &vec.x ), attrAcc->typeSize );

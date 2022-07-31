@@ -484,6 +484,8 @@ endif (RAPIDJSON_FOUND)
 	
 add_subdirectory(idlib)
 
+file(GLOB NATVIS_SOURCES .natvis)
+
 file(GLOB AAS_INCLUDES aas/*.h)
 file(GLOB AAS_SOURCES aas/*.cpp)
 
@@ -1389,6 +1391,7 @@ set(RBDOOM3_INCLUDES
 			)
 			
 set(RBDOOM3_SOURCES
+			${NATVIS_SOURCES}
 			${AAS_SOURCES}
 			${CM_SOURCES}
 			${FRAMEWORK_SOURCES}

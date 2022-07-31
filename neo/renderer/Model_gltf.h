@@ -68,16 +68,14 @@ private:
 	float							maxJointVertDist;	// maximum distance a vertex is separated from a joint
 	idList<int, TAG_MODEL>			animIds;
 	idList<int, TAG_MODEL>			bones;
+	idList<int, TAG_MODEL>			MeshNodeIds;
 	dynamicModel_t					model_state;
-	idList<gltfNode*, TAG_MODEL>	SkeletonNodes;
+	idStr							meshName;
 
 	idList<idMD5Joint, TAG_MODEL>	md5joints;
 	idList<idJointQuat, TAG_MODEL>	defaultPose;
 	idList<idJointMat, TAG_MODEL>	invertedDefaultPose;
-	idList<idMD5Mesh, TAG_MODEL>	meshes;
-	deformInfo_t* 					deformInfo;
-
-	MapPolygonMesh*					mesh;
+	gltfSkin* 						currentSkin;
 private:
 	void DrawJoints( const struct renderEntity_s* ent, const viewDef_t* view );
 };

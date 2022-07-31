@@ -134,6 +134,11 @@ public:
 	gltfNode() : camera( -1 ), skin( -1 ), matrix( mat4_zero ),
 		mesh( -1 ), rotation( 0.f, 0.f, 0.f, 1.f ), scale( 1.f, 1.f, 1.f ),
 		translation( vec3_zero ), parent( nullptr ), dirty( true ) { }
+	//Only checks name!
+	bool operator == ( const gltfNode& rhs )
+	{
+		return name == rhs.name;
+	}
 	int						camera;
 	idList<int>				children;
 	int						skin;
@@ -866,23 +871,6 @@ public:
 		return nullptr;
 	}
 
-	gltfNode* GetNode( gltfScene* scene, idStr name )
-	{
-		assert( scene );
-		assert( name[0] );
-
-		auto& nodeList = scene->nodes;
-		for( auto& nodeId : nodeList )
-		{
-			if( nodes[nodeId]->name == name )
-			{
-				return nodes[nodeId];
-			}
-		}
-
-		return nullptr;
-	}
-
 	gltfNode* GetNode( idStr sceneName,  int id, idStr* name = nullptr )
 	{
 		int sceneId = GetSceneId( sceneName );
@@ -913,7 +901,7 @@ public:
 		return nullptr;
 	}
 
-	gltfNode* GetNode( idStr sceneName, idStr name , int* id = nullptr )
+	gltfNode* GetNode( idStr sceneName, idStr name , int* id = nullptr , bool caseSensitive = false )
 	{
 		int sceneId =  GetSceneId( sceneName );
 		if( sceneId < 0 || sceneId > scenes.Num() )
@@ -927,9 +915,9 @@ public:
 		assert( name[0] );
 
 		auto& nodeList = scene->nodes;
-		for( auto& nodeId : nodeList )
+		for( auto nodeId : nodeList )
 		{
-			if( nodes[nodeId]->name.Icmp( name ) == 0 )
+			if( caseSensitive ? nodes[nodeId]->name.Cmp( name ) : nodes[nodeId]->name.Icmp( name ) == 0 )
 			{
 				if( id != nullptr )
 				{
@@ -946,10 +934,10 @@ public:
 	int GetNodeIndex( gltfNode* node )
 	{
 		int index = -1;
-		for( auto* node : nodes )
+		for( auto& it : nodes )
 		{
 			index++;
-			if( node == node )
+			if( it == node )
 			{
 				return index;
 			}
@@ -984,19 +972,81 @@ public:
 		return nullptr;
 	}
 
-	int GetSceneId( idStr sceneName ) const
+	int GetSceneId( idStr sceneName , gltfScene* result = nullptr ) const
 	{
 		for( int i = 0; i < scenes.Num(); i++ )
 		{
 			if( scenes[i]->name == sceneName )
 			{
+				if( result != nullptr )
+				{
+					result = scenes[i];
+				}
+
 				return i;
 			}
 		}
 		return -1;
 	}
 
-	idList<int> GetChannelIds( gltfAnimation* anim , gltfNode* node )
+	void GetAllMeshes( gltfNode* node, idList<int>& meshIds )
+	{
+		if( node->mesh != -1 )
+		{
+			meshIds.Append( GetNodeIndex( node ) );
+		}
+
+		for( auto child : node->children )
+		{
+			GetAllMeshes( nodes[child], meshIds );
+		}
+	}
+
+	gltfSkin* GetSkin( int boneNodeId )
+	{
+		for( auto skin : skins )
+		{
+			if( skin->joints.Find( boneNodeId ) )
+			{
+				return skin;
+			}
+		}
+
+		return nullptr;
+	}
+
+	gltfSkin* GetSkin( gltfAnimation* anim )
+	{
+		auto animTargets = GetAnimTargets( anim );
+
+		if( !animTargets.Num() )
+		{
+			return nullptr;
+		}
+
+		for( int nodeID : animTargets )
+		{
+			gltfSkin* foundSkin = GetSkin( nodeID );
+			if( foundSkin != nullptr )
+			{
+				return foundSkin;
+			}
+		}
+
+		return nullptr;
+	}
+
+	idList<int> GetAnimTargets( gltfAnimation* anim ) const
+	{
+		idList<int> result;
+		for( auto channel : anim->channels )
+		{
+			result.AddUnique( channel->target.node );
+		}
+		return result;
+	}
+
+	idList<int> GetChannelIds( gltfAnimation* anim , gltfNode* node ) const
 	{
 		idList<int> result;
 		int channelIdx = 0;
@@ -1012,9 +1062,9 @@ public:
 		return result;
 	}
 
-	idList<int> GetAnimationIds( gltfNode* node )
+	int GetAnimationIds( gltfNode* node , idList<int>& result )
 	{
-		idList<int> result;
+
 		int animIdx = 0;
 		for( auto anim : animations )
 		{
@@ -1022,13 +1072,16 @@ public:
 			{
 				if( channel->target.node >= 0 && nodes[channel->target.node] == node )
 				{
-					result.Append( animIdx );
-					break;
+					result.AddUnique( animIdx );
 				}
 			}
 			animIdx++;
 		}
-		return result;
+		for( int nodeId : node->children )
+		{
+			GetAnimationIds( nodes[nodeId], result );
+		}
+		return result.Num();
 	}
 
 	idMat4 GetViewMatrix( int camId ) const

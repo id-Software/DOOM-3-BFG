@@ -2318,7 +2318,7 @@ CONSOLE_COMMAND_COMPILE( LoadGLTF, "Loads an .gltf or .glb file", idCmdSystem::A
 
 
 //  not dots allowed in [%s]!
-// [filename].[%i|%s].[gltf/glb]
+// [filename].[%i|%s].[gltf|glb]
 bool gltfManager::ExtractIdentifier( idStr& filename, int& id, idStr& name )
 {
 	idStr extension;
