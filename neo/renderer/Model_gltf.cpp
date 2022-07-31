@@ -1223,8 +1223,9 @@ dynamicModel_t idRenderModelGLTF::IsDynamicModel() const
 	return model_state;
 }
 
-void TransformVertsAndTangents_GLTF( idDrawVert* targetVerts, const int numVerts, const idDrawVert* baseVerts, const idJointMat* joints )
+idList<int> TransformVertsAndTangents_GLTF( idDrawVert* targetVerts, const int numVerts, const idDrawVert* baseVerts, const idJointMat* joints )
 {
+	idList<int> jointIds;
 	for( int i = 0; i < numVerts; i++ )
 	{
 		const idDrawVert& base = baseVerts[i];
@@ -1233,6 +1234,11 @@ void TransformVertsAndTangents_GLTF( idDrawVert* targetVerts, const int numVerts
 		const idJointMat& j1 = joints[base.color[1]];
 		const idJointMat& j2 = joints[base.color[2]];
 		const idJointMat& j3 = joints[base.color[3]];
+
+		for (int j = 0; j < 4; j++ )
+		{
+			jointIds.AddUnique(base.color[0]);
+		}
 
 		const float w0 = base.color2[0] * ( 1.0f / 255.0f );
 		const float w1 = base.color2[1] * ( 1.0f / 255.0f );
@@ -1249,7 +1255,9 @@ void TransformVertsAndTangents_GLTF( idDrawVert* targetVerts, const int numVerts
 		targetVerts[i].SetNormal( accum * base.GetNormal( ) );
 		targetVerts[i].SetTangent( accum * base.GetTangent( ) );
 		targetVerts[i].tangent[3] = base.tangent[3];
+
 	}
+	return jointIds;
 }
 
 void idRenderModelGLTF::UpdateSurface( const struct renderEntity_s* ent, const idJointMat* entJoints, const idJointMat* entJointsInverted, modelSurface_t* surf )
@@ -1289,6 +1297,8 @@ void idRenderModelGLTF::UpdateSurface( const struct renderEntity_s* ent, const i
 
 	tri->numVerts = numVerts;
 
+	idList<int> jointIds;
+
 	if( r_useGPUSkinning.GetBool( ) && glConfig.gpuSkinningAvailable )
 	{
 		if( tri->verts != NULL && tri->verts != verts )
@@ -1311,14 +1321,10 @@ void idRenderModelGLTF::UpdateSurface( const struct renderEntity_s* ent, const i
 			tri->referencedVerts = false;
 		}
 
-		TransformVertsAndTangents_GLTF( tri->verts, numVerts, verts, entJointsInverted );
+		jointIds = TransformVertsAndTangents_GLTF( tri->verts, numVerts, verts, entJointsInverted );
 	}
 	tri->tangentsCalculated = true;
 
-	//fix this.
-	//only vs root bone is checked.
-	//now, this is not the biggest issue, there is something wrong with the bounds for the gltfmodel in general.
-	// it did work for non skinned models, it broke somewhere down the line.
 #if defined(USE_INTRINSICS_SSE)
 	__m128 minX = vector_float_posInfinity;
 	__m128 minY = vector_float_posInfinity;
@@ -1326,9 +1332,9 @@ void idRenderModelGLTF::UpdateSurface( const struct renderEntity_s* ent, const i
 	__m128 maxX = vector_float_negInfinity;
 	__m128 maxY = vector_float_negInfinity;
 	__m128 maxZ = vector_float_negInfinity;
-	for( int i = 0; i < numVerts; i++ )
+	for( int i = 0; i < jointIds.Num(); i++ )
 	{
-		const idJointMat& joint = entJoints[0];
+		const idJointMat& joint = entJoints[i];
 		__m128 x = _mm_load_ps( joint.ToFloatPtr( ) + 0 * 4 );
 		__m128 y = _mm_load_ps( joint.ToFloatPtr( ) + 1 * 4 );
 		__m128 z = _mm_load_ps( joint.ToFloatPtr( ) + 2 * 4 );
