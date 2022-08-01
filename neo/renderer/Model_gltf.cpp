@@ -50,7 +50,7 @@ static const unsigned int GLMB_MAGIC = ( 'M' << 24 ) | ( 'L' << 16 ) | ( 'G' << 
 static const char* GLTF_SnapshotName = "_GLTF_Snapshot_";
 static const idAngles axisTransformAngels = idAngles( 0.0f, 0.0f, 90 );
 static const idMat4 axisTransform( axisTransformAngels.ToMat3( ), vec3_origin );
-
+static idRenderModelGLTF* lastMeshFromFile = nullptr;
 
 bool idRenderModelStatic::ConvertGltfMeshToModelsurfaces( const gltfMesh* mesh )
 {
@@ -259,7 +259,7 @@ void idRenderModelGLTF::InitFromFile( const char* fileName )
 		return;
 	}
 
-	
+
 	// derive mikktspace tangents from normals
 	FinishSurfaces( true );
 
@@ -267,7 +267,7 @@ void idRenderModelGLTF::InitFromFile( const char* fileName )
 	UpdateMd5Joints();
 
 	// it is now available for use
-
+	lastMeshFromFile = this;
 }
 
 bool idRenderModelGLTF::LoadBinaryModel( idFile* file, const ID_TIME_T sourceTimeStamp )
@@ -390,6 +390,7 @@ bool idRenderModelGLTF::LoadBinaryModel( idFile* file, const ID_TIME_T sourceTim
 
 	model_state = hasAnimations ? DM_CONTINUOUS : DM_STATIC;
 
+	lastMeshFromFile = this;
 	return true;
 }
 
@@ -556,7 +557,6 @@ bool gatherBoneInfo( gltfData* data, gltfAnimation* gltfAnim, const idList<gltfN
 	return boneLess;
 }
 
-
 idList<idJointQuat> GetPose( idList<gltfNode>& bones, idJointMat* poseMat )
 {
 	idList<idJointQuat> ret;
@@ -596,6 +596,7 @@ idList<idJointQuat> GetPose( idList<gltfNode>& bones, idJointMat* poseMat )
 
 	return ret;
 }
+
 int copyBones( gltfData* data, const idList<int>& bones, idList<gltfNode>& out )
 {
 	out.Clear();
@@ -725,11 +726,11 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( idStr animName ,  const ID_TIME_T 
 				break;
 			case gltfAnimation_Channel_Target::rotation:
 				newJoint->animBits |= ANIM_QX | ANIM_QY | ANIM_QZ;
-				numAnimatedComponents += 3;// * frames;
+				numAnimatedComponents += 3;
 				break;
 			case gltfAnimation_Channel_Target::translation:
 				newJoint->animBits |= ANIM_TX | ANIM_TY | ANIM_TZ;
-				numAnimatedComponents += 3;// * frames;
+				numAnimatedComponents += 3;
 				break;
 			case gltfAnimation_Channel_Target::scale: // this is not supported by engine, but it should be for gltf
 				break;
@@ -867,6 +868,59 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( idStr animName ,  const ID_TIME_T 
 
 	assert( componentFrames.Num( ) == ( componentFrameIndex + 1 ) );
 
+	bounds.SetGranularity( 1 );
+	bounds.AssureSize( numFrames );
+	bounds.SetNum( numFrames );
+	//do software skinning to determine bounds.
+	idJointMat* currJoints = ( idJointMat* ) _alloca16( bones.Num( ) * sizeof( poseMat[0] ) );
+	for( int i = 0; i < numFrames; i++ )
+	{
+		bounds[i].Clear( );
+
+		idList<idJointMat> joints;
+		GetPose( animBones[i], currJoints );
+		for( int b = 0; b < animBones[i].Num( ); b++ )
+		{
+			idJointMat mat = poseMat[b];
+			mat.Invert( );
+			idJointMat::Multiply( joints.Alloc( ), currJoints[b], mat );
+		}
+
+		// an mesh entry _should_ always be before an anim entry!
+		// use those verts as base.
+		if( lastMeshFromFile != nullptr )
+		{
+			for( modelSurface_t& surf : lastMeshFromFile->surfaces )
+			{
+				idDrawVert* verts = surf.geometry->verts;
+				int numVerts = surf.geometry->numVerts;
+
+				for( int v = 0; v < numVerts; v++ )
+				{
+					const idDrawVert& base = verts[v];
+
+					const idJointMat& j0 = joints[base.color[0]];
+					const idJointMat& j1 = joints[base.color[1]];
+					const idJointMat& j2 = joints[base.color[2]];
+					const idJointMat& j3 = joints[base.color[3]];
+
+					const float w0 = base.color2[0] * ( 1.0f / 255.0f );
+					const float w1 = base.color2[1] * ( 1.0f / 255.0f );
+					const float w2 = base.color2[2] * ( 1.0f / 255.0f );
+					const float w3 = base.color2[3] * ( 1.0f / 255.0f );
+
+					idJointMat accum;
+					idJointMat::Mul( accum, j0, w0 );
+					idJointMat::Mad( accum, j1, w1 );
+					idJointMat::Mad( accum, j2, w2 );
+					idJointMat::Mad( accum, j3, w3 );
+
+					idVec3 pos = accum * idVec4( base.xyz.x, base.xyz.y, base.xyz.z, 1.0f );
+					bounds[i].AddPoint( pos );
+				}
+			}
+		}
+	}
 
 	//////////////////////////////////////////////////////////////////////////
 	/// Start writing ////////////////////////////////////////////////////////
@@ -881,29 +935,8 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( idStr animName ,  const ID_TIME_T 
 	file->WriteBig( numJoints );
 	file->WriteBig( numAnimatedComponents );
 
-	bounds.SetGranularity( 1 );
-	bounds.AssureSize( numFrames );
-	bounds.SetNum( numFrames );
 
-	idList<gltfNode> boundBones;
-	int totalCopied = copyBones( data, bones, boundBones );
-	assert( totalCopied );
 
-	for( int i = 0 ; i < numFrames; i++ )
-	{
-		bounds[i].Clear();
-		for( int b = 0; b < animBones[i].Num(); b++ )
-		{
-			auto* node = &animBones[i][b];
-
-			idMat4 trans = mat4_identity;
-			gltfData::ResolveNodeMatrix( node, &trans, &animBones[i][0] );
-			bounds[i].AddPoint( idVec3( trans[0][3], trans[1][3], trans[2][3] ) * axisTransform );
-		}
-		//the only way to do this right, is or to calculate the maxVertBoneDist on runtime ,
-		//or pass the mesh entry for the current model decl
-		bounds[i].ExpandSelf( 10 );
-	}
 
 	file->WriteBig( bounds.Num( ) );
 	for( int i = 0; i < bounds.Num( ); i++ )
@@ -1178,7 +1211,6 @@ void idRenderModelGLTF::LoadModel()
 	}
 	SIMD_INIT_LAST_JOINT( invertedDefaultPose.Ptr( ), md5joints.Num( ) );
 
-
 	//auto deformInfo = R_BuildDeformInfo( texCoords.Num( ), basePose, tris.Num( ), tris.Ptr( ),
 	//	shader->UseUnsmoothedTangents( ) );
 
@@ -1235,9 +1267,9 @@ idList<int> TransformVertsAndTangents_GLTF( idDrawVert* targetVerts, const int n
 		const idJointMat& j2 = joints[base.color[2]];
 		const idJointMat& j3 = joints[base.color[3]];
 
-		for (int j = 0; j < 4; j++ )
+		for( int j = 0; j < 4; j++ )
 		{
-			jointIds.AddUnique(base.color[0]);
+			jointIds.AddUnique( base.color[0] );
 		}
 
 		const float w0 = base.color2[0] * ( 1.0f / 255.0f );
