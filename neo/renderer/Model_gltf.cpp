@@ -829,7 +829,7 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( idStr animName ,  const ID_TIME_T 
 				break;
 				case gltfAnimation_Channel_Target::scale:
 					idList<idVec3*>& values = data->GetAccessorView<idVec3>( output );
-					//animBones[boneIndex].scale = *values[i] ;
+					animBones[i][boneIndex].scale = *values[i] ;
 					break;
 			}
 		}
@@ -843,6 +843,11 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( idStr animName ,  const ID_TIME_T 
 
 			if( joint->animBits & ( ANIM_TX | ANIM_TY | ANIM_TZ ) )
 			{
+				if( node->parent == nullptr )
+				{
+					t = axisTransform * t;
+				}
+
 				componentFrames[componentFrameIndex++] = t.x;
 				componentFrames[componentFrameIndex++] = t.y;
 				componentFrames[componentFrameIndex++] = t.z;
@@ -871,11 +876,20 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( idStr animName ,  const ID_TIME_T 
 	bounds.SetGranularity( 1 );
 	bounds.AssureSize( numFrames );
 	bounds.SetNum( numFrames );
+
 	//do software skinning to determine bounds.
 	idJointMat* currJoints = ( idJointMat* ) _alloca16( bones.Num( ) * sizeof( poseMat[0] ) );
 	for( int i = 0; i < numFrames; i++ )
 	{
 		bounds[i].Clear( );
+
+		for( int b = 0; b < animBones[i].Num( ); b++ )
+		{
+			if( animBones[i][b].parent == nullptr )
+			{
+				animBones[i][b].translation = axisTransform * animBones[i][b].translation;
+			}
+		}
 
 		idList<idJointMat> joints;
 		GetPose( animBones[i], currJoints );
