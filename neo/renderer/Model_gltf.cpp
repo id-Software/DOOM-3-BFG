@@ -1560,12 +1560,6 @@ idRenderModel* idRenderModelGLTF::InstantiateDynamicModel( const struct renderEn
 	{
 		staticModel = new( TAG_MODEL ) idRenderModelStatic;
 		staticModel->InitEmpty( GLTF_SnapshotName );
-
-		//idStr prevName = name;
-		//name = GLTF_SnapshotName;
-		////surfaces = surfaces;
-		//*staticModel  = *this;
-		//name = prevName;
 		staticModel->jointsInverted = NULL;;
 	}
 
@@ -1637,10 +1631,6 @@ idRenderModel* idRenderModelGLTF::InstantiateDynamicModel( const struct renderEn
 
 int idRenderModelGLTF::NumJoints() const
 {
-	if( !root )
-	{
-		common->FatalError( "Trying to determine Joint count without a model node loaded" );
-	}
 
 	return bones.Num();
 }
@@ -1690,10 +1680,52 @@ const idJointQuat* idRenderModelGLTF::GetDefaultPose() const
 
 int idRenderModelGLTF::NearestJoint( int surfaceNum, int a, int b, int c ) const
 {
+	for( modelSurface_t& surf : surfaces )
+	{
+		idDrawVert* verts = surf.geometry->verts;
+		int numVerts = surf.geometry->numVerts;
 
-	///this needs to be implemented for correct traces
-	common->Warning( "The method or operation is not implemented." );
-	return -1;
+		for( int v = 0; v < numVerts; v++ )
+		{
+			// duplicated vertices might not have weights
+			int vertNum;
+			if( a >= 0 && a < numVerts )
+			{
+				vertNum = a;
+			}
+			else if( b >= 0 && b < numVerts )
+			{
+				vertNum = b;
+			}
+			else if( c >= 0 && c < numVerts )
+			{
+				vertNum = c;
+			}
+			else
+			{
+				// all vertices are duplicates which shouldn't happen
+				return 0;
+			}
+
+			const idDrawVert& vert = verts[vertNum];
+
+			int bestWeight = 0;
+			int bestJoint = 0;
+			for( int i = 0; i < 4; i++ )
+			{
+				if( vert.color2[i] > bestWeight )
+				{
+					bestWeight = vert.color2[i];
+					bestJoint = vert.color[i];
+				}
+			}
+
+			return bestJoint;
+		}
+	}
+
+	common->Warning( "Couldn't find NearestJoint for : '%s'", name.c_str( ) );
+	return 0;
 }
 
 idBounds idRenderModelGLTF::Bounds( const struct renderEntity_s* ent ) const
