@@ -1406,11 +1406,10 @@ void idRenderModelGLTF::UpdateSurface( const struct renderEntity_s* ent, const i
 	_mm_store_ss( tri->bounds.ToFloatPtr( ) + 5, _mm_splat_ps( maxZ, 3 ) );
 
 #else
-
 	bounds.Clear( );
-	for( int i = 0; i < numMeshJoints; i++ )
+	for( int i = 0; i < jointIds.Num( ); i++ )
 	{
-		const idJointMat& joint = entJoints[meshJoints[i]];
+		const idJointMat& joint = entJoints[i];
 		bounds.AddPoint( joint.GetTranslation( ) );
 	}
 	bounds.ExpandSelf( maxJointVertDist );
