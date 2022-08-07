@@ -275,13 +275,6 @@ bool idRenderModelGLTF::LoadBinaryModel( idFile* file, const ID_TIME_T sourceTim
 	hasAnimations = false;
 	fileExclusive = false; // not written.
 	root = nullptr;
-
-	//we should still load the scene information ?
-	if( !idRenderModelStatic::LoadBinaryModel( file, sourceTimeStamp ) )
-	{
-		return false;
-	}
-
 	unsigned int magic = 0;
 	file->ReadBig( magic );
 
@@ -295,34 +288,6 @@ bool idRenderModelGLTF::LoadBinaryModel( idFile* file, const ID_TIME_T sourceTim
 
 	idStr dataFilename;
 	file->ReadString( dataFilename );
-
-	if( gltfParser->currentFile.Length( ) )
-	{
-		if( gltfParser->currentAsset && gltfParser->currentFile != dataFilename )
-		{
-			common->FatalError( "multiple GLTF file loading not supported" );
-		}
-	}
-	else
-	{
-		gltfParser->Load( dataFilename );
-	}
-
-	data = gltfParser->currentAsset;
-	if( rootID != -1 )
-	{
-		root = data->GetNode( gltf_ModelSceneName.GetString(), rootID );
-	}
-	else
-	{
-		root = new gltfNode();
-		root->name = gltf_ModelSceneName.GetString();
-		gltfScene scene;
-		data->GetSceneId( root->name, &scene );
-		root->children.Append( scene.nodes );
-	}
-
-	assert( root );
 
 	int animCnt;
 	file->ReadBig( animCnt );
@@ -362,7 +327,7 @@ bool idRenderModelGLTF::LoadBinaryModel( idFile* file, const ID_TIME_T sourceTim
 	}
 	else
 	{
-		if( root->skin == -1 && hasAnimations && !bones.Num() )
+		if( hasAnimations && !bones.Num() )
 		{
 			bones.Clear( );
 			bones.Append( rootID );
