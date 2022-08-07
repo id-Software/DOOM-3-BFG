@@ -793,18 +793,26 @@ public:
 
 	static idHashIndex			fileDataHash;
 	static idList<gltfData*>	dataList;
-	//add data from filename
-	static gltfData* Data( idStr& fileName )
+	//add data for filename
+	static gltfData* Data( idStr& fileName, bool create = false )
 	{
-		dataList.AssureSizeAlloc( dataList.Num() + 1, idListNewElement<gltfData> );
-		dataList[dataList.Num() - 1]->FileName( fileName );
-		fileDataHash.Add( fileDataHash.GenerateKey( fileName ), dataList.Num() - 1 );
-		return dataList[dataList.Num() - 1];
-	}
-	//find data;
-	static gltfData* Data( const char* filename )
-	{
-		return dataList[fileDataHash.First( fileDataHash.GenerateKey( filename ) )];
+		int key = fileDataHash.GenerateKey( fileName );
+		int index = fileDataHash.GetFirst( key );
+
+		if( create && index == -1 )
+		{
+			index = dataList.Num( );
+			dataList.AssureSizeAlloc( index + 1, idListNewElement<gltfData> );
+			dataList[index]->FileName( fileName );
+			fileDataHash.Add( fileDataHash.GenerateKey( fileName ), index );
+		}
+
+		if( !create && index < 0 )
+		{
+			return nullptr;
+		}
+
+		return dataList[index];
 	}
 	static const idList<gltfData*>& DataList()
 	{

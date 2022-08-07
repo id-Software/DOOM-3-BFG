@@ -1948,7 +1948,7 @@ bool GLTF_Parser::loadGLB( idStr filename )
 	unsigned int chunk_type = 0;	// 4 bytes
 	unsigned int chunk_length = 0;	// 4 bytes
 	byte* data = nullptr;
-	gltfData* dataCache = gltfData::Data( filename );
+	gltfData* dataCache = gltfData::Data( filename, true );
 	currentAsset = dataCache;
 
 	int chunkCount = 0;
@@ -2074,21 +2074,18 @@ bool GLTF_Parser::Parse()
 
 bool GLTF_Parser::Load( idStr filename )
 {
-	//seriously fix this; proper gltf data cache.
-	//.. and destroy it properly too!!
-	static idStr lastFile = "";
 
-	//next line still has to be fixed.
-	//gfx is not updated on command
-	common->SetRefreshOnPrint( true );
+	//.. and destroy data !!
 
-	if( lastFile == filename )
+	gltfData* data = gltfData::Data( filename );
+	currentFile = filename;
+	if( data != nullptr )
 	{
-		common->Warning( "Did not parse %s again", filename.c_str() );
+		currentAsset = data;
 		return true;
 	}
-	lastFile = filename;
-	currentFile = filename;
+
+	common->SetRefreshOnPrint( true );
 	if( filename.CheckExtension( ".glb" ) )
 	{
 		if( !loadGLB( filename ) )
@@ -2104,7 +2101,7 @@ bool GLTF_Parser::Load( idStr filename )
 			common->FatalError( "Failed to read file" );
 		}
 
-		gltfData* data = gltfData::Data( filename );
+		data = gltfData::Data( filename , true );
 		data->FileName( filename );
 		byte* dataBuff = data->AddData( length );
 		currentAsset = data;

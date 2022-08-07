@@ -163,18 +163,7 @@ void idRenderModelGLTF::InitFromFile( const char* fileName )
 	model_state = DM_STATIC;
 
 	gltfManager::ExtractIdentifier( gltfFileName, meshID, meshName );
-
-	if( gltfParser->currentFile.Length() )
-	{
-		if( gltfParser->currentAsset && gltfParser->currentFile != gltfFileName )
-		{
-			common->FatalError( "multiple GLTF file loading not supported" );
-		}
-	}
-	else
-	{
-		gltfParser->Load( gltfFileName );
-	}
+	gltfParser->Load( gltfFileName );
 
 	timeStamp = fileSystem->GetTimestamp( gltfFileName );
 	data = gltfParser->currentAsset;
@@ -275,6 +264,12 @@ bool idRenderModelGLTF::LoadBinaryModel( idFile* file, const ID_TIME_T sourceTim
 	hasAnimations = false;
 	fileExclusive = false; // not written.
 	root = nullptr;
+
+	if( !idRenderModelStatic::LoadBinaryModel( file, sourceTimeStamp ) )
+	{
+		return false;
+	}
+
 	unsigned int magic = 0;
 	file->ReadBig( magic );
 
@@ -607,18 +602,7 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( idStr animName ,  const ID_TIME_T 
 	idStr gltfFileName = idStr( animName );
 	idStr name;
 	gltfManager::ExtractIdentifier( gltfFileName, id, name );
-
-	if( gltfParser->currentFile.Length( ) )
-	{
-		if( gltfParser->currentAsset && gltfParser->currentFile != gltfFileName )
-		{
-			common->FatalError( "multiple GLTF file loading not supported" );
-		}
-	}
-	else
-	{
-		gltfParser->Load( gltfFileName );
-	}
+	gltfParser->Load( gltfFileName );
 
 	gltfData* data = gltfParser->currentAsset;
 
