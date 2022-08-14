@@ -1279,7 +1279,7 @@ idList<int> TransformVertsAndTangents_GLTF( idDrawVert* targetVerts, const int n
 	return jointIds;
 }
 
-void idRenderModelGLTF::UpdateSurface( const struct renderEntity_s* ent, const idJointMat* entJoints, const idJointMat* entJointsInverted, modelSurface_t* surf )
+void idRenderModelGLTF::UpdateSurface( const struct renderEntity_s* ent, const idJointMat* entJoints, const idJointMat* entJointsInverted, modelSurface_t* surf,const modelSurface_t & sourceSurf )
 {
 #if defined(USE_INTRINSICS_SSE)
 	static const __m128 vector_float_posInfinity = { idMath::INFINITUM, idMath::INFINITUM, idMath::INFINITUM, idMath::INFINITUM };
@@ -1297,7 +1297,6 @@ void idRenderModelGLTF::UpdateSurface( const struct renderEntity_s* ent, const i
 	}
 
 	srfTriangles_t* tri = surf->geometry;
-	modelSurface_t& sourceSurf =  surfaces[0];
 	int numVerts = sourceSurf.geometry->numVerts;
 	idDrawVert* verts = sourceSurf.geometry->verts;
 
@@ -1571,22 +1570,21 @@ idRenderModel* idRenderModelGLTF::InstantiateDynamicModel( const struct renderEn
 
 	TransformJointsFast( staticModel->jointsInverted, md5joints.Num(), ent->joints, invertedDefaultPose.Ptr() );
 
-	modelSurface_t* newSurf;
-	if( staticModel->surfaces.Num() )
+	if( !staticModel->surfaces.Num() )
 	{
-		newSurf = &staticModel->surfaces[0];
-	}
-	else
-	{
-		newSurf = &staticModel->surfaces.Alloc( );
-		newSurf->geometry = NULL;
-		newSurf->shader = surfaces[0].shader;
+		for (int i =0 ; i<surfaces.Num(); i++)
+		{
+			modelSurface_t *newSurf = &staticModel->surfaces.Alloc( );
+			newSurf->geometry = NULL;
+			newSurf->shader = surfaces[i].shader;
+		}
 	}
 
 	int surfIdx = 0;
 	for( modelSurface_t& surf : staticModel->surfaces )
 	{
-		const idMaterial* shader = newSurf->shader;
+
+		const idMaterial* shader = surf.shader;
 		shader = R_RemapShaderBySkin( shader, ent->customSkin, ent->customShader );
 
 		if( !shader || ( !shader->IsDrawn( ) && !shader->SurfaceCastsShadow( ) ) )
@@ -1595,7 +1593,7 @@ idRenderModel* idRenderModelGLTF::InstantiateDynamicModel( const struct renderEn
 			continue;
 		}
 
-		UpdateSurface( ent, ent->joints, staticModel->jointsInverted, &surf );
+		UpdateSurface( ent, ent->joints, staticModel->jointsInverted, &surf,surfaces[surfIdx++] );
 		assert( surf.geometry != NULL );
 		surf.geometry->staticModelWithJoints = staticModel;
 		staticModel->bounds.AddBounds( surf.geometry->bounds );
