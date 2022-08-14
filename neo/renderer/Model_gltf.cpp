@@ -163,10 +163,11 @@ void idRenderModelGLTF::InitFromFile( const char* fileName )
 	model_state = DM_STATIC;
 
 	gltfManager::ExtractIdentifier( gltfFileName, meshID, meshName );
-	gltfParser->Load( gltfFileName );
+	GLTF_Parser gltf;
+	gltf.Load( gltfFileName );
 
 	timeStamp = fileSystem->GetTimestamp( gltfFileName );
-	data = gltfParser->currentAsset;
+	data = gltf.currentAsset;
 
 	bounds.Clear();
 
@@ -228,8 +229,9 @@ void idRenderModelGLTF::InitFromFile( const char* fileName )
 				animCount = data->GetAnimationIds( nodes[bones[0]] , animIds );
 			}
 		}
-		else if( animCount )
+		else
 		{
+			animCount = data->GetAnimationIds( tmpNode , animIds );
 			bones.Append( meshID );
 		}
 
@@ -241,7 +243,7 @@ void idRenderModelGLTF::InitFromFile( const char* fileName )
 
 	ProcessNode( root, mat4_identity, data );
 
-	if( surfaces.Num( ) <= 0 || surfaces.Num( ) != MeshNodeIds.Num( ) )
+	if( surfaces.Num( ) <= 0 )
 	{
 		common->Warning( "Couldn't load model: '%s'", name.c_str( ) );
 		MakeDefaultModel( );
@@ -479,15 +481,14 @@ bool gatherBoneInfo( gltfData* data, gltfAnimation* gltfAnim, const idList<gltfN
 {
 	//Gather Bones;
 	bool boneLess = false;
-	int targetNode = -1;
+	int targetNode = lastMeshFromFile->rootID;
 
 	auto skin = data->GetSkin( gltfAnim );
 	auto targets = data->GetAnimTargets( gltfAnim );
 
-	if( targets.Num( ) == 1 )
+	if( skin == nullptr )
 	{
 		boneLess = true;
-		targetNode = targets[0];
 	}
 
 	//we cant be sure channels are sorted by bone?
@@ -495,7 +496,7 @@ bool gatherBoneInfo( gltfData* data, gltfAnimation* gltfAnim, const idList<gltfN
 	{
 		if( skin == nullptr )
 		{
-			skin = data->GetSkin( targets[0] );
+			skin = data->GetSkin( targetNode );
 		}
 		assert( skin );
 		bones.Append( skin->joints );
@@ -594,26 +595,33 @@ int copyBones( gltfData* data, const idList<int>& bones, idList<gltfNode>& out )
 
 idFile_Memory* idRenderModelGLTF::GetAnimBin( idStr animName ,  const ID_TIME_T sourceTimeStamp )
 {
+	assert( lastMeshFromFile );
 	///keep in sync with game!
 	static const byte B_ANIM_MD5_VERSION = 101;
 	static const unsigned int B_ANIM_MD5_MAGIC = ( 'B' << 24 ) | ( 'M' << 16 ) | ( 'D' << 8 ) | B_ANIM_MD5_VERSION;
-
+	GLTF_Parser gltf;
 	int id;
 	idStr gltfFileName = idStr( animName );
 	idStr name;
 	gltfManager::ExtractIdentifier( gltfFileName, id, name );
-	gltfParser->Load( gltfFileName );
+	gltf.Load( gltfFileName );
 
-	gltfData* data = gltfParser->currentAsset;
+	gltfData* data = gltf.currentAsset;
+	auto& accessors = data->AccessorList( );
+	auto& nodes = data->NodeList( );
 
-	auto gltfAnim = data->GetAnimation( name );
+	gltfNode* nodeRoot = nodes[lastMeshFromFile->rootID];
+	int boneRootNode = lastMeshFromFile->rootID;
+	if( nodeRoot->skin > -1 )
+	{
+		boneRootNode = nodes[data->SkinList()[nodeRoot->skin]->skeleton]->children[0];
+	}
+
+	auto gltfAnim = data->GetAnimation( name, boneRootNode );
 	if( !gltfAnim )
 	{
 		return nullptr;
 	}
-
-	auto& accessors = data->AccessorList( );
-	auto& nodes = data->NodeList( );
 
 	idList<int, TAG_MODEL>					bones;
 	idList<jointAnimInfo_t, TAG_MD5_ANIM>	jointInfo;
@@ -637,6 +645,11 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( idStr animName ,  const ID_TIME_T 
 	int channelCount = 0;
 	for( auto channel : gltfAnim->channels )
 	{
+		if( !bones.Find( channel->target.node ) )
+		{
+			continue;
+		}
+
 		auto* sampler = gltfAnim->samplers[channel->sampler];
 
 		auto* input = accessors[sampler->input];
@@ -729,6 +742,7 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( idStr animName ,  const ID_TIME_T 
 		skin->joints.AssureSize( 1, data->GetNodeIndex( root ) );
 		idMat4 trans = mat4_identity;
 		data->ResolveNodeMatrix( root, &trans );
+		trans *= axisTransform.Inverse();
 		acc = new gltfAccessor( );
 		acc->matView = new idList<idMat4>( 1 );
 		acc->matView->AssureSize( 1, trans.Inverse( ).Transpose( ) );
@@ -744,6 +758,11 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( idStr animName ,  const ID_TIME_T 
 	{
 		for( auto channel : gltfAnim->channels )
 		{
+			if( !bones.Find( channel->target.node ) )
+			{
+				continue;
+			}
+
 			auto sampler = gltfAnim->samplers[channel->sampler];
 
 			auto* input = accessors[sampler->input];
@@ -778,7 +797,10 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( idStr animName ,  const ID_TIME_T 
 				break;
 				case gltfAnimation_Channel_Target::scale:
 					idList<idVec3*>& values = data->GetAccessorView<idVec3>( output );
-					animBones[i][boneIndex].scale = *values[i] ;
+					if( values.Num( ) > i )
+					{
+						animBones[i][boneIndex].scale = *values[i] ;
+					}
 					break;
 			}
 		}
@@ -807,6 +829,10 @@ idFile_Memory* idRenderModelGLTF::GetAnimBin( idStr animName ,  const ID_TIME_T 
 				if( node->parent == nullptr )
 				{
 					q = axisTransformAngels.ToQuat( ) * animBones[i][b].rotation;
+					if( animBones[i].Num() == 1 )
+					{
+						q = -animBones[i][b].rotation;
+					}
 				}
 				else
 				{
@@ -1009,7 +1035,7 @@ void idRenderModelGLTF::WriteBinaryModel( idFile* file, ID_TIME_T* _timeStamp /*
 	file->WriteBig( GLMB_MAGIC );
 	file->WriteBig( model_state );
 	file->WriteBig( rootID );
-	file->WriteString( data->FileName() );
+	file->WriteString( file->GetName() );
 
 	file->WriteBig( animIds.Num( ) );
 	if( animIds.Num( ) )
@@ -1073,8 +1099,6 @@ void idRenderModelGLTF::PurgeModel()
 void idRenderModelGLTF::LoadModel()
 {
 	int			num;
-
-	gltfData* data = gltfParser->currentAsset;
 	auto& accessors = data->AccessorList( );
 	auto& nodes = data->NodeList( );
 	gltfNode* meshRoot = data->GetNode( gltf_ModelSceneName.GetString(), meshName );
@@ -1481,6 +1505,9 @@ idRenderModel* idRenderModelGLTF::InstantiateDynamicModel( const struct renderEn
 	if( purged )
 	{
 		common->DWarning( "model %s instantiated while purged", Name() );
+		GLTF_Parser gltf;
+		gltf.Load( name );
+		data = gltf.currentAsset;
 		LoadModel();
 	}
 

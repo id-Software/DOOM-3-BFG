@@ -765,7 +765,7 @@ const inline idList<gltf##name*> & ##name##List() { return target; }
 class gltfData
 {
 public:
-	gltfData() : fileNameHash( 0 ), json( nullptr ), data( nullptr ), totalChunks( -1 ) {  };
+	gltfData() : fileName( "" ), fileNameHash( 0 ), json( nullptr ), data( nullptr ), totalChunks( -1 ) { };
 	~gltfData();
 	byte* AddData( int size, int* bufferID = nullptr );
 	byte* GetJsonData( int& size )
@@ -777,10 +777,10 @@ public:
 	{
 		return data[index];
 	}
-	void FileName( const idStr& file )
+	void FileName( const idStr& file, int hash )
 	{
 		fileName = file;
-		fileNameHash = fileDataHash.GenerateKey( file.c_str() );
+		fileNameHash = hash;
 	}
 	int FileNameHash()
 	{
@@ -796,6 +796,12 @@ public:
 	//add data for filename
 	static gltfData* Data( idStr& fileName, bool create = false )
 	{
+		static bool intialized = false;
+		if( ! intialized )
+		{
+			dataList.SetGranularity( 1 );
+			intialized = true;
+		}
 		int key = fileDataHash.GenerateKey( fileName );
 		int index = fileDataHash.GetFirst( key );
 
@@ -803,8 +809,8 @@ public:
 		{
 			index = dataList.Num( );
 			dataList.AssureSizeAlloc( index + 1, idListNewElement<gltfData> );
-			dataList[index]->FileName( fileName );
-			fileDataHash.Add( fileDataHash.GenerateKey( fileName ), index );
+			dataList[index]->FileName( fileName, key );
+			fileDataHash.Add( key , index );
 		}
 
 		if( !create && index < 0 )
@@ -818,10 +824,8 @@ public:
 	{
 		return dataList;
 	}
-	static void ClearData()
-	{
-		idLib::Warning( "TODO! DATA NOT FREED" );
-	}
+
+	static void ClearData( idStr& fileName );
 
 	//return the GLTF nodes that control the given camera
 	//return TRUE if the camera uses 2 nodes (like when blender exports gltfs with +Y..)
@@ -909,6 +913,29 @@ public:
 		return nullptr;
 	}
 
+	gltfNode* GetNode( idStr name, int* id = nullptr, bool caseSensitive = false )
+	{
+		assert( name[0] );
+
+		auto& nodeList = NodeList();
+		for( auto* node : nodes )
+		{
+			int nodeId = GetNodeIndex( node );
+			if( caseSensitive ? nodes[nodeId]->name.Cmp( name ) : nodes[nodeId]->name.Icmp( name ) == 0 )
+			{
+				if( id != nullptr )
+				{
+					*id = nodeId;
+				}
+
+				return nodes[nodeId];
+			}
+		}
+
+		return nullptr;
+	}
+
+
 	gltfNode* GetNode( idStr sceneName, idStr name , int* id = nullptr , bool caseSensitive = false )
 	{
 		int sceneId =  GetSceneId( sceneName );
@@ -968,13 +995,25 @@ public:
 		return false;
 	}
 
-	gltfAnimation* GetAnimation( idStr animName )
+	gltfAnimation* GetAnimation( idStr animName, int target )
 	{
-		for( auto anim : animations )
+		for( auto* anim : animations )
 		{
 			if( anim->name == animName )
 			{
-				return anim;
+				bool hasTarget = false;
+				for( auto* channel : anim->channels )
+				{
+					if( channel->target.node == target )
+					{
+						hasTarget = true;
+						break;
+					}
+				}
+				if( hasTarget )
+				{
+					return anim;
+				}
 			}
 		}
 		return nullptr;

@@ -1135,8 +1135,14 @@ void gltfItem_texture_info_extensions::parse( idToken& token )
 
 void GLTF_Parser::Shutdown()
 {
-	parser.FreeSource();
 	currentFile.FreeData();
+	if( currentAsset )
+	{
+		delete currentAsset;
+	}
+	currentAsset = nullptr;
+	buffersDone = false;
+	bufferViewsDone = false;
 }
 GLTF_Parser::GLTF_Parser()
 	: parser( LEXFL_ALLOWPATHNAMES | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_NOSTRINGESCAPECHARS | LEXFL_ALLOWPATHNAMES ) , buffersDone( false ), bufferViewsDone( false ) { }
@@ -1914,6 +1920,12 @@ gltfProperty GLTF_Parser::ResolveProp( idToken& token )
 
 bool GLTF_Parser::loadGLB( idStr filename )
 {
+	if( fileSystem->GetFileLength( filename ) <= 0 )
+	{
+		common->Warning( " %s does not exist!", filename.c_str() );
+		return false;
+	}
+
 	idFile* file = fileSystem->OpenFileRead( filename );
 
 	if( file->Length() < 20 )
@@ -1959,7 +1971,6 @@ bool GLTF_Parser::loadGLB( idStr filename )
 		length -= file->ReadUnsignedInt( chunk_type );
 
 		data = dataCache->AddData( chunk_length );
-		dataCache->FileName( filename );
 
 		int read = file->Read( ( void* )data, chunk_length );
 		if( read != chunk_length )
@@ -2076,12 +2087,12 @@ bool GLTF_Parser::Load( idStr filename )
 {
 
 	//.. and destroy data !!
-
 	gltfData* data = gltfData::Data( filename );
 	currentFile = filename;
 	if( data != nullptr )
 	{
 		currentAsset = data;
+		parser.FreeSource();
 		return true;
 	}
 
@@ -2102,7 +2113,6 @@ bool GLTF_Parser::Load( idStr filename )
 		}
 
 		data = gltfData::Data( filename , true );
-		data->FileName( filename );
 		byte* dataBuff = data->AddData( length );
 		currentAsset = data;
 
@@ -2134,18 +2144,29 @@ bool GLTF_Parser::Load( idStr filename )
 	//fix up node hierarchy
 	auto& nodeList = currentAsset->NodeList();
 	for( auto& scene : currentAsset->SceneList() )
+	{
 		for( auto& node : scene->nodes )
 		{
 			SetNodeParent( nodeList[node] );
 		}
+	}
 
+	//set skeleton ID's
+	for( auto* skin : currentAsset->SkinList() )
+	{
+		if( skin->skeleton == -1 )
+		{
+			skin->skeleton = currentAsset->GetNodeIndex( currentAsset->GetNode( skin->name ) );
+		}
+	}
 	//prefix with id
 	if( gltfParser_PrefixNodeWithID.GetBool() )
+	{
 		for( int i = 0; i < nodeList.Num(); i++ )
 		{
 			nodeList[i]->name = "[" + idStr( i ) + "]" + nodeList[i]->name;
 		}
-
+	}
 	//CreateBgfxData();
 	return true;
 }
@@ -2284,20 +2305,45 @@ idList<idQuat*>& gltfData::GetAccessorView( gltfAccessor* accessor )
 
 gltfData::~gltfData()
 {
-	//hvg_todo
-	//delete data, not only pointer
-	common->Warning( "GLTF DATA NOT FREED" );
+
 	if( data )
 	{
-		delete[] data;
+		while( totalChunks )
+		{
+			Mem_Free( data[--totalChunks] );
+		}
+		Mem_Free( data );
 	}
 
-	//delete cameraManager;
+	if( json )
+	{
+		Mem_Free( json );
+	}
+
+	data = nullptr;
+	json = nullptr;
+	ClearData( fileName );
 
 }
 
-GLTF_Parser localGltfParser;
-GLTF_Parser* gltfParser = &localGltfParser;
+void gltfData::ClearData( idStr& fileName )
+{
+	int key = fileDataHash.GenerateKey( fileName );
+	int index = fileDataHash.GetFirst( key );
+
+	if( index != -1 )
+	{
+		dataList.RemoveIndex( index );
+		dataList.Condense();
+		fileDataHash.RemoveIndex( key, index );
+	}
+	else
+	{
+		common->DWarning( " tried to clear GLTF data while no data was loaded for %s", fileName.c_str( ) );
+	}
+
+}
+
 
 #undef GLTFARRAYITEM
 #undef GLTFARRAYITEMREF
@@ -2307,7 +2353,8 @@ CONSOLE_COMMAND_COMPILE( LoadGLTF, "Loads an .gltf or .glb file", idCmdSystem::A
 
 	if( args.Argc() > 1 )
 	{
-		gltfParser->Load( args.Argv( 1 ) );
+		GLTF_Parser gltf;
+		gltf.Load( args.Argv( 1 ) );
 	}
 
 }

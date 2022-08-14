@@ -55,6 +55,8 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 	idFile_Memory idxBin = idFile_Memory( "gltfChunkIndices",
 										  ( const char* )( ( data->GetData( bv->buffer ) + bv->byteOffset + accessor->byteOffset ) ), bv->byteLength );
 
+
+
 	for( int i = 0; i < accessor->count; i++ )
 	{
 		idxBin.Read( ( void* )( &indices[i] ), accessor->typeSize );
@@ -64,9 +66,15 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 		}
 	}
 
+	int polyCount = accessor->count /3;
+
+	mesh->polygons.AssureSize(polyCount );
+	mesh->polygons.SetNum( polyCount );
+
+	int cnt = 0;
 	for( int i = 0; i < accessor->count; i += 3 )
 	{
-		MapPolygon& polygon = mesh->polygons.Alloc();
+		MapPolygon& polygon = mesh->polygons[cnt++];
 
 		if( mat != NULL )
 		{
@@ -81,6 +89,8 @@ MapPolygonMesh* MapPolygonMesh::ConvertFromMeshGltf( const gltfMesh_Primitive* p
 		polygon.AddIndex( indices[i + 1] );
 		polygon.AddIndex( indices[i + 0] );
 	}
+
+	assert(cnt == polyCount );
 
 	Mem_Free( indices );
 	bool sizeSet = false;
@@ -273,9 +283,9 @@ void ProcessSceneNode( idMapEntity* newEntity, gltfNode* node, idMat4 trans, glt
 		ProcessSceneNode( newEntity, nodeList[child], curTrans, data, isFuncStaticMesh );
 	}
 
-	if( isFuncStaticMesh && node->mesh != -1 )
+	if( node->mesh != -1 )
 	{
-		for( auto prim : data->MeshList()[node->mesh]->primitives )
+		for( auto* prim : data->MeshList()[node->mesh]->primitives )
 		{
 			newEntity->AddPrimitive( MapPolygonMesh::ConvertFromMeshGltf( prim, data , curTrans ) );
 		}
